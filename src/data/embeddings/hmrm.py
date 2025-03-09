@@ -1,3 +1,10 @@
+import numpy as np
+import pandas as pd
+from scipy import sparse
+from numpy.linalg import norm
+from numpy.linalg import inv as inverse
+
+
 class Optimizer:
 
     def __init__(self):
