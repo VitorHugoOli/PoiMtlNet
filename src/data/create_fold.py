@@ -101,6 +101,7 @@ def create_dataloader(
 
     dataset = POIDataset(x_subset, y_subset)
     return DataLoader(dataset, batch_size=batch_size, shuffle=shuffle,
+                      multiprocessing_context='fork', # 'spawn' for Windows
                       pin_memory=True, num_workers=num_workers, persistent_workers=True)
 
 

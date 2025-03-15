@@ -1,5 +1,7 @@
 import dataclasses
 from typing import List, Optional
+import time
+from datetime import timedelta
 
 import pandas as pd
 from sklearn.metrics import classification_report
@@ -76,12 +78,51 @@ class FoldResults:
     category: RawMetrics = dataclasses.field(default_factory=RawMetrics)
     mtl: RawMetrics = dataclasses.field(default_factory=RawMetrics)
     flops: FlopsMetrics = dataclasses.field(default_factory=FlopsMetrics)
+    
+    # Time tracking attributes
+    start_time: float = dataclasses.field(default_factory=lambda: time.time())
+    epoch_start_times: List[float] = dataclasses.field(default_factory=list)
+    epoch_durations: List[float] = dataclasses.field(default_factory=list)
+
+    def start_epoch(self):
+        """Record the start time of an epoch."""
+        self.epoch_start_times.append(time.time())
+        
+    def end_epoch(self):
+        """Record the end time of an epoch and calculate duration."""
+        if self.epoch_start_times:
+            duration = time.time() - self.epoch_start_times[-1]
+            self.epoch_durations.append(duration)
+            return duration
+        return None
+        
+    def get_time_stats(self, current_epoch, total_epochs):
+        """Get time statistics for the current training state."""
+        if not self.epoch_durations:
+            return None
+            
+        # Current epoch time
+        current_epoch_time = self.epoch_durations[-1] if self.epoch_durations else 0
+        
+        # Total elapsed time since training started
+        elapsed_time = time.time() - self.start_time
+        
+        # Calculate average epoch time from all completed epochs
+        avg_epoch_time = sum(self.epoch_durations) / len(self.epoch_durations)
+        
+        # Estimate remaining time
+        remaining_epochs = total_epochs - (current_epoch + 1)
+        estimated_time_remaining = avg_epoch_time * remaining_epochs
+        
+        return {
+            'epoch_time': current_epoch_time,
+            'elapsed_time': elapsed_time,
+            'estimated_remaining': estimated_time_remaining,
+            'avg_epoch_time': avg_epoch_time
+        }
 
     def display_training_status(self, epoch: Optional[int] = None, num_epochs: Optional[int] = None):
         """Display current training status including losses and accuracies."""
-        if epoch is not None and num_epochs is not None:
-            print(f'\nEPOCH {epoch + 1}/{num_epochs}:')
-
         # Training metrics
         mtl_loss = self.mtl.get_last_loss()
         mtl_acc = self.mtl.get_last_accuracy()
@@ -99,21 +140,80 @@ class FoldResults:
         cat_val_acc = self.category.get_last_val_accuracy()
 
         # Format values with proper handling of None and potential errors
-        def format_metric(value):
+        def format_metric(value, as_percentage=False):
             try:
-                return f"{value:.4f}" if value is not None else "N/A"
+                if value is None:
+                    return "N/A"
+                else:
+                    if as_percentage:
+                        return f"{value * 100:.2f}%"
+                    else:
+                        return f"{value:.6f}"
             except (ValueError, TypeError):
                 return "ERR"
-
-        # Display metrics with better error handling
-        print(f"  MTL:      loss: {format_metric(mtl_loss)}   acc: {format_metric(mtl_acc)}   "
-              f"loss_val: {format_metric(mtl_val_loss)}   acc_val: {format_metric(mtl_val_acc)}")
-
-        print(f"  Next:     loss: {format_metric(next_loss)}   acc: {format_metric(next_acc)}   "
-              f"loss_val: {format_metric(next_val_loss)}   acc_val: {format_metric(next_val_acc)}")
-
-        print(f"  Category: loss: {format_metric(cat_loss)}   acc: {format_metric(cat_acc)}   "
-              f"loss_val: {format_metric(cat_val_loss)}   acc_val: {format_metric(cat_val_acc)}")
+        
+        # Create a beautiful table-like output
+        header_width = 80
+        
+        def print_header(title):
+            print(f"\n{'='*header_width}")
+            print(f"{title}".center(header_width))
+            print(f"{'-'*header_width}")
+            
+        def print_metrics_row(name, loss, acc, val_loss, val_acc):
+            print(f"| {name:<14} | {'Loss:':>7} {format_metric(loss):<10} | {'Acc:':>6} {format_metric(acc, True):<8} | "
+                  f"{'Val Loss:':>10} {format_metric(val_loss):<10} | {'Val Acc:':>8} {format_metric(val_acc, True):<8} |")
+            
+        # Display epoch header with time information if applicable
+        if epoch is not None and num_epochs is not None:
+            print_header(f"EPOCH {epoch + 1}/{num_epochs} METRICS")
+            
+            # Display time information if available
+            time_stats = self.get_time_stats(epoch, num_epochs)
+            if time_stats:
+                print(f"Time: {timedelta(seconds=int(time_stats['epoch_time']))}, "
+                      f"Elapsed: {timedelta(seconds=int(time_stats['elapsed_time']))}, "
+                      f"Remaining: {timedelta(seconds=int(time_stats['estimated_remaining']))}")
+        else:
+            print_header("CURRENT TRAINING METRICS")
+        
+        # Table header
+        print(f"| {'Task':<14} | {'Training':<19} | {'':>15} | {'Validation':<20} | {'':>17} |")
+        print(f"| {'':<14} | {'':<19} | {'':>15} | {'':>20} | {'':>17} |")
+        
+        # Print metrics rows
+        print_metrics_row("MTL", mtl_loss, mtl_acc, mtl_val_loss, mtl_val_acc)
+        print_metrics_row("Next POI", next_loss, next_acc, next_val_loss, next_val_acc)
+        print_metrics_row("Category", cat_loss, cat_acc, cat_val_loss, cat_val_acc)
+        
+        # Table footer
+        print(f"{'='*header_width}")
+        
+    def display_final_summary(self):
+        """Display a summary of training results for this fold."""
+        header_width = 80
+        
+        total_time = time.time() - self.start_time
+        
+        print(f"\n{'='*header_width}")
+        print("FOLD TRAINING COMPLETE".center(header_width))
+        print(f"{'-'*header_width}")
+        
+        # Show total training time
+        print(f"Total training time: {timedelta(seconds=int(total_time))}")
+        if self.epoch_durations:
+            avg_epoch_time = sum(self.epoch_durations) / len(self.epoch_durations)
+            print(f"Average epoch time: {timedelta(seconds=int(avg_epoch_time))}")
+            
+        # Show best metrics
+        if self.mtl.val_accuracy:
+            best_epoch = self.mtl.val_accuracy.index(max(self.mtl.val_accuracy))
+            print(f"\nBest validation accuracy at epoch {best_epoch + 1}:")
+            print(f"MTL: {self.mtl.val_accuracy[best_epoch] * 100:.2f}%")
+            print(f"Next POI: {self.next.val_accuracy[best_epoch] * 100:.2f}%")
+            print(f"Category: {self.category.val_accuracy[best_epoch] * 100:.2f}%")
+            
+        print(f"{'='*header_width}")
 
 
 class TrainingMetrics:
@@ -123,6 +223,7 @@ class TrainingMetrics:
         """Initialize training metrics."""
         self.folds: List[FoldResults] = []
         self.report: dict = {}
+        self.start_time = time.time()
 
     def add_fold_results(self, fold_results: FoldResults):
         """Add fold results."""
@@ -165,6 +266,33 @@ class TrainingMetrics:
                     avg_metrics[metric_type]['val_loss'] += val_loss / fold_count
 
         return avg_metrics
+        
+    def display_summary(self):
+        """Display a summary of training metrics across all folds."""
+        if not self.folds:
+            print("No training data available.")
+            return
+            
+        avg_metrics = self.get_average_metrics()
+        
+        print("\n" + "="*80)
+        print("TRAINING SUMMARY".center(80))
+        print("="*80)
+        
+        print(f"\nTotal folds: {len(self.folds)}")
+        print(f"Total training time: {timedelta(seconds=int(time.time() - self.start_time))}")
+        
+        print("\n" + "-"*80)
+        print("Average Validation Metrics Across All Folds".center(80))
+        print("-"*80)
+        
+        for task in ['mtl', 'next', 'category']:
+            task_name = {'mtl': 'Multi-Task Learning', 'next': 'Next POI', 'category': 'Category'}[task]
+            acc = avg_metrics[task]['val_accuracy']
+            loss = avg_metrics[task]['val_loss']
+            print(f"{task_name:<20} | Accuracy: {acc*100:.2f}% | Loss: {loss:.6f}")
+            
+        print("="*80)
 
 
 class UtilsMetrics:
