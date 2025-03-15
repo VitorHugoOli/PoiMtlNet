@@ -6,9 +6,11 @@ import numpy as np
 from calflops import calculate_flops
 from sklearn.metrics import classification_report, accuracy_score
 from sklearn.utils.class_weight import compute_class_weight
+from torch import autocast, GradScaler
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from itertools import cycle
 
+from configs.globals import DEVICE
 from configs.model import ModelParameters, ModelConfig
 from metrics.metrics import FoldResults, FlopsMetrics, TrainingMetrics
 from models.category_net import CategoryPoiNet
@@ -16,9 +18,6 @@ from data.create_fold import SuperInputData
 from models.mtl_poi import MTLnet
 from models.next_poi_net import NextPoiNet
 from optmizer.pcgrad import PCGrad
-
-# Set device for PyTorch
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 # Evaluation Functions
@@ -100,10 +99,10 @@ def train_model(model,
 
     """
     fold_results = FoldResults()
-    pcgrad = PCGrad(n_tasks=2, device=device, reduction="sum")
+    pcgrad = PCGrad(n_tasks=2, device=DEVICE, reduction="sum")
 
-    sample_category = next(iter(dataloader_category.train.dataloader))['x'].to(device)
-    sample_next = next(iter(dataloader_next.train.dataloader))['x'].to(device)
+    sample_category = next(iter(dataloader_category.train.dataloader))['x'].to(DEVICE)
+    sample_next = next(iter(dataloader_next.train.dataloader))['x'].to(DEVICE)
 
     flops, macs, params = calculate_flops(model=model,
                                           kwargs={
@@ -126,31 +125,25 @@ def train_model(model,
         max_norm = 1.0
 
         steps = 0
-        category_iter = cycle(dataloader_category.train.dataloader)
 
-        for data_next in dataloader_next.train.dataloader:
-            data_category = next(category_iter)
+        for data_next, data_category in zip(dataloader_next.train.dataloader, dataloader_category.train.dataloader):
             optimizer.zero_grad()
 
-            x_next, y_next = data_next['x'], data_next['y']
-            x_next = x_next.to(device)
-            y_next = y_next.to(device)
-
-            x_category, y_category = data_category['x'], data_category['y']
-            x_category = x_category.to(device)
-            y_category = y_category.to(device)
+            x_next, y_next = data_next['x'].to(DEVICE), data_next['y'].to(DEVICE)
+            x_category, y_category = data_category['x'].to(DEVICE), data_category['y'].to(DEVICE)
 
             # Forward pass for both tasks
-            out_category, out_next = model(x_category, x_next)
+            with autocast(device_type=DEVICE.type):
+                out_category, out_next = model(x_category, x_next)
 
-            # Process next POI predictions
-            pred_next, truth_next = NextPoiNet.reshape_output(out_next, y_next, num_classes)
-            pred_category, truth_category = CategoryPoiNet.reshape_output(out_category, y_category)
+                # Process next POI predictions
+                pred_next, truth_next = NextPoiNet.reshape_output(out_next, y_next, num_classes)
+                pred_category, truth_category = CategoryPoiNet.reshape_output(out_category, y_category)
 
-            # Calculate losses
-            loss_next = loss_functions['category'](pred_next, truth_next)
-            loss_category = loss_functions['category'](pred_category, truth_category)
-            loss_mtl = loss_next + loss_category
+                # Calculate losses
+                loss_next = loss_functions['category'](pred_next, truth_next)
+                loss_category = loss_functions['category'](pred_category, truth_category)
+                loss_mtl = loss_next + loss_category
 
             # aplicar pcgrad
             loss_next.backward(retain_graph=True)
@@ -159,8 +152,6 @@ def train_model(model,
             pcgrad.backward(
                 losses=torch.stack([loss_next, loss_category]),
                 shared_parameters=list(model.shared_layers.parameters()),
-                # shared_parameters=list(model.shared_parameters()),
-                # task_specific_parameters=list(model.task_specific_parameters())
             )
 
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm)
@@ -179,8 +170,6 @@ def train_model(model,
             next_running_acc += accuracy_score(truth_next, pred_next)
             category_running_acc += accuracy_score(truth_category, pred_category)
 
-
-
         mtls_loss = running_loss / steps
 
         # Store training losses
@@ -193,14 +182,14 @@ def train_model(model,
         acc_aval_next, loss_aval_next = evaluate_model(model, dataloader_category.val.dataloader, loss_functions,
                                                        reshape_method=CategoryPoiNet.reshape_output,
                                                        foward_method=model.forward_categorypoi,
-                                                       device=device,
+                                                       device=DEVICE,
                                                        )
 
         acc_aval_category, loss_aval_category = evaluate_model(
             model, dataloader_next.val.dataloader, loss_functions,
             reshape_method=NextPoiNet.reshape_output,
             foward_method=model.forward_nextpoi,
-            device=device,
+            device=DEVICE,
             num_classes=num_classes,
         )
 
@@ -252,7 +241,7 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
             seq_length=ModelParameters.SEQ_LENGTH,
             num_shared_layers=ModelParameters.NUM_SHARED_LAYERS
         )
-        model = model.to(device)
+        model = model.to(DEVICE)
 
         dataloader_next = dataloader['next']
         dataloader_category = dataloader['category']
@@ -269,7 +258,7 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
             y=dataloader_category.train.y.cpu().numpy()
         )
 
-        class_weights = torch.tensor(class_weights, dtype=torch.float).to(device)
+        class_weights = torch.tensor(class_weights, dtype=torch.float).to(DEVICE)
 
         # Initialize loss functions
         loss_functions = {
@@ -289,21 +278,25 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
         # final evaluation
         model.eval()
 
-        with torch.no_grad():
-            out_next = model.forward_nextpoi(dataloader_next.val.x.to(device))
-            out_category = model.forward_categorypoi(dataloader_category.val.x.to(device))
-
-            pred_next, truth_next = NextPoiNet.reshape_output(out_next, dataloader_next.val.y.to(device), num_classes)
-            pred_category, truth_category = CategoryPoiNet.reshape_output(out_category,
-                                                                          dataloader_category.val.y.to(device))
-
-            pred_next = torch.argmax(pred_next, dim=1)
-            pred_category = torch.argmax(pred_category, dim=1)
-
-            report_next = classification_report(pred_next, truth_next, zero_division=1, output_dict=True)
-            report_category = classification_report(pred_category, truth_category, zero_division=1, output_dict=True)
-
-            training_metric.add_report(report_next)
-            training_metric.add_report(report_category)
+        validation_model(dataloader_category, dataloader_next, model, num_classes, training_metric)
 
     return training_metric
+
+
+def validation_model(dataloader_category, dataloader_next, model, num_classes, training_metric):
+    with torch.no_grad():
+        out_next = model.forward_nextpoi(dataloader_next.val.x.to(DEVICE))
+        out_category = model.forward_categorypoi(dataloader_category.val.x.to(DEVICE))
+
+        pred_next, truth_next = NextPoiNet.reshape_output(out_next, dataloader_next.val.y.to(DEVICE), num_classes)
+        pred_category, truth_category = CategoryPoiNet.reshape_output(out_category,
+                                                                      dataloader_category.val.y.to(DEVICE))
+
+        pred_next = torch.argmax(pred_next, dim=1)
+        pred_category = torch.argmax(pred_category, dim=1)
+
+        report_next = classification_report(pred_next, truth_next, zero_division=1, output_dict=True)
+        report_category = classification_report(pred_category, truth_category, zero_division=1, output_dict=True)
+
+        training_metric.add_report(report_next)
+        training_metric.add_report(report_category)

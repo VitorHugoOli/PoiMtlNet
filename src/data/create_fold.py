@@ -1,4 +1,5 @@
 import logging
+import os
 from dataclasses import dataclass
 from typing import Dict, Tuple, Optional, Union
 
@@ -94,8 +95,13 @@ def create_dataloader(
         x_subset = x
         y_subset = y
 
+    # get the num of cpus
+    num_workers = os.cpu_count() - 1
+    num_workers = 4 if torch.cuda.is_available() else num_workers
+
     dataset = POIDataset(x_subset, y_subset)
-    return DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
+    return DataLoader(dataset, batch_size=batch_size, shuffle=shuffle,
+                      pin_memory=True, num_workers=num_workers, persistent_workers=True)
 
 
 def create_folds(
@@ -160,7 +166,7 @@ def create_folds(
     fold_results: Dict[int, Dict[str, SuperInputData]] = {}
 
     io_input = enumerate(
-        zip(kf.split(userids), kf.split(range(len(x_category)))))
+        zip(kf.split(userids), kf.split(x_category)))
 
     # Process each fold
     for fold, ((train_user_idx, test_user_idx), (train_place_idx, test_place_idx)) in tqdm(io_input,
@@ -171,12 +177,12 @@ def create_folds(
         train_users = userids[train_user_idx]
         val_users = userids[test_user_idx]
 
-        # Get indices for Next POI data splits
-        train_idx_next = x_next[x_next['userid'].isin(train_users)].index
-        val_idx_next = x_next[x_next['userid'].isin(val_users)].index
-
         # Create a copy of x_next without userid for tensor conversion
         x_next_fold = x_next.drop('userid', axis=1)
+
+        # Get indices for Next POI data before dropping userid
+        train_idx_next = np.nonzero(x_next['userid'].isin(train_users))[0]  # use numpy for efficiency
+        val_idx_next = np.nonzero(x_next['userid'].isin(val_users))[0]
 
         # Convert to tensors
         x_next_tensor, y_next_tensor = convert_to_tensors(x_next_fold, y_next, 'next')
