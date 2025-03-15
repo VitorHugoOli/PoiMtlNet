@@ -3,7 +3,7 @@ from calflops import calculate_flops
 from configs.model import ModelConfig
 from configs.paths import IO_ROOT
 from data.create_fold import create_folds
-from train.mtl_train import train_with_cross_validation
+from modeling.mtl_train import train_with_cross_validation
 
 import logging
 logging.basicConfig(level=logging.INFO)

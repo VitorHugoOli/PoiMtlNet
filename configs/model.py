@@ -1,5 +1,6 @@
 class ModelConfig:
     NUM_CLASSES = 7
+    BATCH_SIZE = 64
     EPOCHS = 50
     LEARNING_RATE = 0.0001
 
