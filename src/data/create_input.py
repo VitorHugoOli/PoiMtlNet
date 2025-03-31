@@ -6,6 +6,8 @@ import os
 from datetime import datetime
 from typing import List, Union, Dict, Optional, Any
 from tqdm import tqdm  # For progress tracking
+import gc
+from functools import lru_cache
 
 # Define constants instead of magic numbers
 SEQUENCE_LENGTH = 10
@@ -141,6 +143,8 @@ def processing_sequences_next(df_nextpoi_sequences: pd.DataFrame,
         embeddings_with_category: DataFrame containing embeddings with category
         embeddings_without_category: DataFrame containing embeddings without category
         save_step: How often to save progress to disk
+        EMBEDDING_SIZE: Size of the embeddings vector (default: 128)
+        SEQUENCE_LENGTH: Length of the sequence (default: 10)
 
     Returns:
         DataFrame of generated input data
@@ -157,56 +161,96 @@ def processing_sequences_next(df_nextpoi_sequences: pd.DataFrame,
             col_count = (EMBEDDING_SIZE * (SEQUENCE_LENGTH - 1)) + 10
             column_names = list(range(col_count - 1)) + ['userid']
             nextpoi_input = pd.DataFrame(columns=column_names)
+            # Pre-allocate memory for faster operations
+            nextpoi_input = nextpoi_input.astype({col: np.float32 for col in range(col_count - 1)})
+            nextpoi_input = nextpoi_input.astype({'userid': str})
     except Exception as e:
         print(f"Error reading existing file: {str(e)}. Starting from scratch.")
         col_count = (EMBEDDING_SIZE * (SEQUENCE_LENGTH - 1)) + 10
         column_names = list(range(col_count - 1)) + ['userid']
         nextpoi_input = pd.DataFrame(columns=column_names)
+        # Pre-allocate memory with appropriate types
+        nextpoi_input = nextpoi_input.astype({col: np.float32 for col in range(col_count - 1)})
+        nextpoi_input = nextpoi_input.astype({'userid': str})
         start_index = 0
 
     # Create lookup dictionaries for faster access
     category_lookup = embeddings_with_category['category'].to_dict()
-    emb_lookup = {poi_id: row.values for poi_id, row in embeddings_without_category.iterrows()}
-    zero_emb = np.zeros(EMBEDDING_SIZE)
+
+    # Convert embeddings to numpy array for faster access
+    emb_lookup = {poi_id: row.values.astype(np.float32) for poi_id, row in embeddings_without_category.iterrows()}
+    zero_emb = np.zeros(EMBEDDING_SIZE, dtype=np.float32)
+
+    # Pre-calculate indices for target extraction
+    idxs = list(range(2, SEQUENCE_LENGTH + 1))
 
     # Process in batches
     batch_size = min(save_step, len(df_nextpoi_sequences))
     total_batches = (len(df_nextpoi_sequences) - start_index + batch_size - 1) // batch_size
 
+    # Preallocate memory for a batch of results
+    results = []
+
     iterator = tqdm(enumerate(range(start_index, len(df_nextpoi_sequences), batch_size)), desc="Processing batches",
                     total=total_batches)
+
+    # Cache for frequently accessed embeddings
+    @lru_cache(maxsize=None)
+    def get_embedding(poi_id):
+        return emb_lookup.get(poi_id, zero_emb)
 
     for batch_idx, batch_start in iterator:
         batch_end = min(batch_start + batch_size, len(df_nextpoi_sequences))
         batch = df_nextpoi_sequences.iloc[batch_start:batch_end]
 
+        # Clear results for this batch
+        results = []
+
         for i, (userid, row) in enumerate(batch.iterrows()):
             try:
                 # Extract target and features
-                idxs = [i for i in range(2, SEQUENCE_LENGTH + 1)]
                 target = row.loc[idxs]
 
                 # Get categories using the lookup dictionary
                 categoria_target = [category_lookup.get(t, 'None') for t in target]
 
-                # Get embeddings for the sequence without the target
-                sequence_without_target = row.drop(10)
+                # Get the sequence without the target (more efficient than dropping)
+                sequence_without_target = row.iloc[:SEQUENCE_LENGTH - 1].values
 
                 # Use lookup dictionary instead of DataFrame access
-                poi_embeddings = [emb_lookup.get(poi, zero_emb) for poi in sequence_without_target]
-                poi_embedding = np.concatenate(poi_embeddings)
+                # Preallocate array for embeddings concatenation
+                all_embeddings = np.empty((SEQUENCE_LENGTH - 1, EMBEDDING_SIZE), dtype=np.float32)
+
+                # Fill the array with embeddings
+                for j, poi in enumerate(sequence_without_target):
+                    all_embeddings[j] = get_embedding(poi)
+
+                # Flatten all embeddings at once
+                poi_embedding = all_embeddings.flatten()
 
                 # Combine embeddings, category and user ID
+                # Using list comprehension for better performance
                 sample = np.append(poi_embedding, categoria_target + [userid])
-                nextpoi_input.loc[batch_start + i] = sample
+                results.append(sample)
             except Exception as e:
                 print(f"Error processing row {batch_start + i} (user {userid}): {str(e)}")
                 continue
 
+        # Bulk add results to DataFrame
+        if results:
+            # Convert results to DataFrame and append
+            batch_df = pd.DataFrame(results, columns=nextpoi_input.columns)
+            nextpoi_input = pd.concat([nextpoi_input, batch_df], ignore_index=True)
+
         # Save checkpoint
         try:
-            nextpoi_input.to_csv(output_path, index=False)
+            # Use efficient CSV writing
+            nextpoi_input.to_csv(output_path, index=False, float_format='%.5f')
             iterator.set_postfix_str(f"Saved {len(nextpoi_input)} rows")
+
+            # Explicitly call garbage collection after saving
+            gc.collect()
+
         except IOError as e:
             print(f"Warning: Could not save progress: {str(e)}")
 
@@ -309,19 +353,25 @@ def generate_category_input(df_embb: pd.DataFrame, category_path: str):
     df_embb.to_csv(category_path)
 
 
+from concurrent.futures import ProcessPoolExecutor
+
+
+def process_state(state):
+    df_embb = pd.read_csv(f'{OUTPUT_ROOT}/{state}/{state}-embeddings.csv')
+    df_filter = pd.read_csv(f'{OUTPUT_ROOT}/{state}/{state}-filtrado.csv')
+    output_path = f'{OUTPUT_ROOT}/{state}/pre-processing/'
+    sequences_path = f'{output_path}poi-sequences.csv'
+    next_input_path = f'{output_path}next-input.csv'
+    category_input_path = f'{output_path}category-input.csv'
+
+    os.makedirs(output_path, exist_ok=True)
+
+    generate_category_input(df_embb, category_input_path)
+    generate_next_input(df_embb, df_filter, sequences_path, next_input_path)
+
+
 if __name__ == '__main__':
-    # STATE_NAME = ["alabama", "arizona", "california", "florida", "georgia", "texas"]
-    STATE_NAME = ["alabama"]
-    for state in STATE_NAME:
-        df_embb = pd.read_csv(f'{OUTPUT_ROOT}/{state}/{state}-embeddings.csv')
-        df_filter = pd.read_csv(f'{OUTPUT_ROOT}/{state}/{state}-filtrado.csv')
-        output_path = f'{OUTPUT_ROOT}/{state}/pre-processing/'
-        sequences_path = f'{output_path}poi-sequences.csv'
-        next_input_path = f'{output_path}next-input.csv'
-        category_input_path = f'{output_path}category-input.csv'
-
-        os.makedirs(output_path, exist_ok=True)
-
-        generate_category_input(df_embb, category_input_path)
-
-        generate_next_input(df_embb, df_filter, sequences_path, next_input_path)
+    # STATE_NAME = ["alabama","arizona","california", "florida", "georgia", "texas"]
+    STATE_NAME = ["texas"]
+    with ProcessPoolExecutor(max_workers=12) as executor:
+        executor.map(process_state, STATE_NAME)

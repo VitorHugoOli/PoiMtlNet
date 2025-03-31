@@ -843,6 +843,7 @@ class HmrmBaselineNew:
         users_checkin.userid = pd.factorize(users_checkin.userid)[0].astype(int)
         users_checkin.placeid = pd.factorize(users_checkin.placeid)[0].astype(int)
 
+
         # Start optimization
         logger.info(f"Starting HMRM optimization with K={self.K}, embedding_size={self.embedding_size}")
         optimization_result = self.optimizer.start(
@@ -854,6 +855,8 @@ class HmrmBaselineNew:
             convergence_threshold=self.convergence_threshold,
             checkpoint_dir=self.checkpoint_dir
         )
+
+
 
         # Create result dataframe
         logger.info("Creating result dataframe")

@@ -7,15 +7,16 @@ from models.next_poi_net import NextPoiNet
 
 
 class MTLnet(nn.Module):
-    def __init__(self, feature_size, shared_layer_size, num_classes, num_heads, num_layers, seq_length, num_shared_layers):
+    def __init__(self, feature_size, shared_layer_size, num_classes, num_heads, num_layers, seq_length,
+                 num_shared_layers):
         super(MTLnet, self).__init__()
         self.num_classes = num_classes
         self.feature_size = feature_size
         self.embedding = torch.nn.Embedding(1, feature_size)
 
-        shared_linear_layers = [] # lista de layers compartilhadas
+        shared_linear_layers = []  # lista de layers compartilhadas
 
-         # add primeira camada de input (feature_size -> shared_layer_size)
+        # add primeira camada de input (feature_size -> shared_layer_size)
         shared_linear_layers.append(nn.Linear(feature_size, shared_layer_size))
         shared_linear_layers.append(nn.LeakyReLU())
         shared_linear_layers.append(nn.Dropout())
@@ -36,8 +37,8 @@ class MTLnet(nn.Module):
         idxs = x2.sum(-1) == 0
 
         if torch.any(idxs):
-          replace_tensor = self.embedding(torch.tensor(0, dtype=torch.long).to(DEVICE))
-          x2[idxs] = replace_tensor
+            replace_tensor = self.embedding(torch.tensor(0, dtype=torch.long).to(DEVICE))
+            x2[idxs] = replace_tensor
 
         shared_output1 = self.shared_layers(x1)
         shared_output2 = self.shared_layers(x2)
@@ -51,7 +52,7 @@ class MTLnet(nn.Module):
 
     def forward_nextpoi(self, x):
         idxs = x.sum(-1) == 0
-        x[idxs] = self.embedding(torch.tensor(0,dtype=torch.long).to(DEVICE))
+        x[idxs] = self.embedding(torch.tensor(0, dtype=torch.long).to(DEVICE))
 
         shared_output = self.shared_layers(x)
 

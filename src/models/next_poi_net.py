@@ -43,6 +43,7 @@ class NextPoiNet(nn.Module):
         self.embed_dim = embed_dim
         self.num_heads = num_heads
         self.seq_length = seq_length
+
         self.pe = PositionalEncoding(embed_dim, 9)
         encoder_layer = nn.TransformerEncoderLayer(
             embed_dim,
@@ -57,6 +58,7 @@ class NextPoiNet(nn.Module):
         self.linear_layers = nn.Linear(embed_dim, num_classes)
 
     def forward(self, x):
+        # print(f"> Next1: {x.shape}")
         x = self.pe(x)
         batch_size, seq_length, _ = x.size()
 

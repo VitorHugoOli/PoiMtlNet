@@ -77,18 +77,17 @@ def create_embeddings(state_name, path, **kwargs):
 
 
 if __name__ == '__main__':
-    path_alabama = os.path.join(IO_CHECKINS, 'checkins_Alabama.csv')
-    path_arizona = os.path.join(IO_CHECKINS, 'checkins_Arizona.csv')
-    path_virginia = os.path.join(IO_CHECKINS, 'checkins_Virginia.csv')
-    path_chicago = os.path.join(IO_CHECKINS, 'checkins_Illinois.csv')
-    path_florida = os.path.join(IO_CHECKINS, 'checkins_florida.csv')
-    path_georgia = os.path.join(IO_CHECKINS, 'checkins_Georgia.csv')
-    path_nova_york = os.path.join(IO_CHECKINS, 'checkins_New York.csv')
-    path_texas = os.path.join(IO_CHECKINS, 'checkins_Texas.csv')
+    path_alabama = os.path.join(IO_CHECKINS, 'Alabama.csv')
+    path_arizona = os.path.join(IO_CHECKINS, 'Arizona.csv')
+    path_georgia = os.path.join(IO_CHECKINS, 'Georgia.csv')
 
-    # _ = embeddings_job('alabama', path_alabama, weight=0.1, K=7, embedding_size=50)
-    # _ = embeddings_job('arizona', path_arizona, weight=0.1, K=7, embedding_size=50)
-    # _ = embeddings_job('virginia', path_virginia, weight=0.1, K=7, embedding_size=50)
-    # _ = embeddings_job('chicago', path_chicago, weight=0.1, K=7, embedding_size=50)
-    # _ = embeddings_job('georgia', path_georgia, weight=0.1, K=7, embedding_size=50)
-    _ = create_embeddings('texas', path_texas, weight=0.1, K=7, embedding_size=50)
+    path_california = os.path.join(IO_CHECKINS, 'California.csv')
+    path_florida = os.path.join(IO_CHECKINS, 'Florida.csv')
+    path_texas = os.path.join(IO_CHECKINS, 'Texas.csv')
+
+    _ = create_embeddings('alabama', path_alabama, weight=0.1, K=7, embedding_size=50)
+    # _ = create_embeddings('arizona', path_arizona, weight=0.1, K=7, embedding_size=50)
+    # _ = create_embeddings('georgia', path_georgia, weight=0.1, K=7, embedding_size=50)
+    # _ = create_embeddings('california', path_california, weight=0.1, K=7, embedding_size=50)
+    # _ = create_embeddings('florida', path_florida, weight=0.1, K=7, embedding_size=50)
+    # _ = create_embeddings('texas', path_texas, weight=0.1, K=7, embedding_size=50)

@@ -1,17 +1,18 @@
 from calflops import calculate_flops
 
 from configs.model import ModelConfig
-from configs.paths import IO_ROOT
+from configs.paths import IO_ROOT, OUTPUT_ROOT
 from data.create_fold import create_folds
 from modeling.mtl_train import train_with_cross_validation
 
 import logging
+
 logging.basicConfig(level=logging.INFO)
 
 if __name__ == '__main__':
     # Define parameters
-    next_data_path = f'{IO_ROOT}/alabama/nextpoi-input.csv'  # Replace with actual path
-    category_data_path = f'{IO_ROOT}/alabama/categorypoi-input.csv'  # Replace with actual path
+    next_data_path = f'/Users/vitor/Desktop/mestrado/ingred/data/ori/pre-processing/alabama/nextpoi-input.csv'  # Replace with actual path
+    category_data_path = f'/Users/vitor/Desktop/mestrado/ingred/data/ori/pre-processing/alabama/categorypoi-input.csv'  # Replace with actual path
 
     logging.info(f'Creating folds')
 
