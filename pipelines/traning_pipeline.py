@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO)
 
 if __name__ == '__main__':
 
-    state = "california"
+    state = "alabama"
 
     # Define parameters
     next_data_path = f'{OUTPUT_ROOT}/{state}/pre-processing/next-input.csv'  # Replace with actual path
@@ -24,7 +24,7 @@ if __name__ == '__main__':
     fold_results = create_folds(
         next_data_path,
         category_data_path,
-        k_splits=5
+        k_splits=ModelConfig.K_FOLDS,
     )
 
     logging.info(f'Fold results: {len(fold_results)}')

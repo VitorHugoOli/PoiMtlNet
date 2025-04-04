@@ -144,6 +144,12 @@ def train_model(model,
             x_category = data_category['x'].to(DEVICE, non_blocking=True)
             y_category = data_category['y'].to(DEVICE, non_blocking=True)
 
+            # Convert to contiguous tensors for more efficient transfer
+            x_next = x_next.contiguous()
+            y_next = y_next.contiguous()
+            x_category = x_category.contiguous()
+            y_category = y_category.contiguous()
+
             # Forward pass for both tasks with mixed precision
             out_category, out_next = model([x_category, x_next])
 
@@ -169,6 +175,8 @@ def train_model(model,
 
             # Apply optimizer step and scaler update after accumulating gradients
             if (batch_idx + 1) % gradient_accumulation_steps == 0:
+                if DEVICE == 'mps':
+                    torch.mps.synchronize()  # Ensure all operations complete
                 # Unscale before gradient clipping
                 scaler.unscale_(optimizer)
 

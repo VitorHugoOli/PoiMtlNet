@@ -2,8 +2,11 @@ import dataclasses
 from typing import List, Optional
 import time
 from datetime import timedelta
+import os
 
+import numpy as np
 import pandas as pd
+from matplotlib import pyplot as plt
 from sklearn.metrics import classification_report
 
 from configs.globals import CATEGORIES_MAP
@@ -306,16 +309,140 @@ class TrainingMetrics:
 
         print("=" * 80)
 
-    def export_to_csv(self, output_dir="./metrics_results"):
+    def _create_loss_plots(self, output_dir):
         """
-        Export metrics results to CSV files.
+        Create and save plots showing the evolution of loss and validation loss by epoch.
 
         Args:
-            output_dir: Directory to save the CSV files (default: ./metrics_results)
+            output_dir: Directory to save the plot files
+        """
+        if not self.folds:
+            print("No training data available to plot.")
+            return
+
+        # Ensure plots directory exists
+        plots_dir = os.path.join(output_dir, "plots")
+        os.makedirs(plots_dir, exist_ok=True)
+
+        # Create plots for each task type
+        task_types = [
+            ("mtl", "Multi-Task Learning"),
+            ("next", "Next POI Prediction"),
+            ("category", "Category Classification")
+        ]
+
+        for task_attr, task_name in task_types:
+            plt.figure(figsize=(12, 8))
+
+            # Get the maximum length of epochs across all folds for this task
+            max_epochs = max([len(getattr(fold, task_attr).loss) for fold in self.folds])
+            epochs = np.arange(1, max_epochs + 1)
+
+            # Plot training loss for each fold
+            for fold_idx, fold in enumerate(self.folds):
+                fold_metrics = getattr(fold, task_attr)
+                fold_num = fold_idx + 1
+
+                # Training loss
+                loss_data = fold_metrics.loss
+                plt.plot(
+                    np.arange(1, len(loss_data) + 1),
+                    loss_data,
+                    linestyle='-',
+                    marker='o',
+                    markersize=4,
+                    label=f'Fold {fold_num} - Training Loss'
+                )
+
+                # Validation loss
+                val_loss_data = fold_metrics.val_loss
+                plt.plot(
+                    np.arange(1, len(val_loss_data) + 1),
+                    val_loss_data,
+                    linestyle='--',
+                    marker='x',
+                    markersize=4,
+                    label=f'Fold {fold_num} - Validation Loss'
+                )
+
+            # Add plot styling
+            plt.title(f'{task_name} - Loss Evolution by Epoch', fontsize=16)
+            plt.xlabel('Epoch', fontsize=14)
+            plt.ylabel('Loss', fontsize=14)
+            plt.grid(True, linestyle='--', alpha=0.7)
+            plt.legend(loc='upper right', fontsize=10)
+
+            # Ensure y-axis starts from 0 or the minimum value if it's negative
+            min_y = min([min(min(getattr(fold, task_attr).loss, default=0),
+                             min(getattr(fold, task_attr).val_loss, default=0))
+                         for fold in self.folds], default=0)
+            plt.ylim(bottom=max(0, min_y - 0.1))
+
+            # Save the plot
+            plot_file = os.path.join(plots_dir, f'{task_attr}_loss_evolution.png')
+            plt.savefig(plot_file, dpi=300, bbox_inches='tight')
+            plt.close()
+
+            print(f"Loss evolution plot for {task_name} saved to {plot_file}")
+
+            # Create a second plot for accuracy evolution
+            plt.figure(figsize=(12, 8))
+
+            # Plot training accuracy for each fold
+            for fold_idx, fold in enumerate(self.folds):
+                fold_metrics = getattr(fold, task_attr)
+                fold_num = fold_idx + 1
+
+                # Training accuracy
+                acc_data = fold_metrics.accuracy
+                plt.plot(
+                    np.arange(1, len(acc_data) + 1),
+                    acc_data,
+                    linestyle='-',
+                    marker='o',
+                    markersize=4,
+                    label=f'Fold {fold_num} - Training Accuracy'
+                )
+
+                # Validation accuracy
+                val_acc_data = fold_metrics.val_accuracy
+                plt.plot(
+                    np.arange(1, len(val_acc_data) + 1),
+                    val_acc_data,
+                    linestyle='--',
+                    marker='x',
+                    markersize=4,
+                    label=f'Fold {fold_num} - Validation Accuracy'
+                )
+
+            # Add plot styling
+            plt.title(f'{task_name} - Accuracy Evolution by Epoch', fontsize=16)
+            plt.xlabel('Epoch', fontsize=14)
+            plt.ylabel('Accuracy', fontsize=14)
+            plt.grid(True, linestyle='--', alpha=0.7)
+            plt.legend(loc='lower right', fontsize=10)
+
+            # Set y-axis limits for accuracy (0-1)
+            plt.ylim(0, 1.05)
+
+            # Save the plot
+            plot_file = os.path.join(plots_dir, f'{task_attr}_accuracy_evolution.png')
+            plt.savefig(plot_file, dpi=300, bbox_inches='tight')
+            plt.close()
+
+            print(f"Accuracy evolution plot for {task_name} saved to {plot_file}")
+
+    def export_to_csv(self, output_dir="./metrics_results"):
+        """
+    Export metrics results to CSV files and create visualization plots.
+
+        Args:
+        output_dir: Directory to save the CSV files and plots (default: ./metrics_results)
 
         Creates:
             - Individual fold CSV files with per-category metrics
             - Summary CSV with average metrics across all folds
+        - Plots showing loss and accuracy evolution for each task type
         """
         import os
 
@@ -422,7 +549,7 @@ class TrainingMetrics:
 
         overall_df.to_csv(f"{output_dir}/summary_overall_metrics.csv", index=False)
 
-        # Export flops resuts
+        # Export flops results
         flops_df = pd.DataFrame([{
             'Task': 'Multi-Task Learning',
             'FLOPS': self.folds[0].flops.flops,
@@ -430,7 +557,49 @@ class TrainingMetrics:
         }])
         flops_df.to_csv(f"{output_dir}/summary_flops_metrics.csv", index=False)
 
-        print(f"Metrics exported to {output_dir}/")
+        # Export loss and accuracy data as CSV
+        for task_attr, task_name in [("mtl", "Multi-Task Learning"),
+                                     ("next", "Next POI"),
+                                     ("category", "Category")]:
+            # Create DataFrame for loss and validation loss
+            loss_data = {
+                'Epoch': list(range(1, max([len(getattr(fold, task_attr).loss) for fold in self.folds]) + 1))
+            }
+
+            # Add loss and val_loss for each fold
+            for fold_idx, fold in enumerate(self.folds):
+                fold_num = fold_idx + 1
+                task_metrics = getattr(fold, task_attr)
+
+                # Add loss data with padding for shorter folds
+                loss_values = task_metrics.loss
+                max_epochs = len(loss_data['Epoch'])
+                padded_loss = loss_values + [None] * (max_epochs - len(loss_values))
+                loss_data[f'Fold_{fold_num}_Loss'] = padded_loss
+
+                # Add validation loss data
+                val_loss_values = task_metrics.val_loss
+                padded_val_loss = val_loss_values + [None] * (max_epochs - len(val_loss_values))
+                loss_data[f'Fold_{fold_num}_Val_Loss'] = padded_val_loss
+
+                # Add accuracy data
+                acc_values = task_metrics.accuracy
+                padded_acc = acc_values + [None] * (max_epochs - len(acc_values))
+                loss_data[f'Fold_{fold_num}_Accuracy'] = padded_acc
+
+                # Add validation accuracy data
+                val_acc_values = task_metrics.val_accuracy
+                padded_val_acc = val_acc_values + [None] * (max_epochs - len(val_acc_values))
+                loss_data[f'Fold_{fold_num}_Val_Accuracy'] = padded_val_acc
+
+            # Save to CSV
+            loss_df = pd.DataFrame(loss_data)
+            loss_df.to_csv(f"{output_dir}/{task_attr}_loss_accuracy_by_epoch.csv", index=False)
+
+        # Create and save plots
+        self._create_loss_plots(output_dir)
+
+        print(f"Metrics and plots exported to {output_dir}/")
 
     def _create_metrics_dataframe(self, report_dict, task_type, categories_map=None):
         """
