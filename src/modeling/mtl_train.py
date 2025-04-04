@@ -23,6 +23,7 @@ from data.create_fold import SuperInputData
 from models.mtl_poi import MTLnet
 from models.next_poi_net import NextPoiNet
 from optmizer.pcgrad import PCGrad
+from utils.calc_flops.calculate_model_flops import calculate_model_flops
 
 
 # Evaluation Functions
@@ -106,7 +107,7 @@ def train_model(model,
     scaler = GradScaler()
 
     # Get FLOPS metrics
-    fold_results.flops = calculate_model_flops(dataloader_category, dataloader_next, model)
+    fold_results.flops = calculate_flops(dataloader_category, dataloader_next, model)
     fold_results.flops.display()
 
     # Set gradient clipping norm
@@ -117,12 +118,10 @@ def train_model(model,
         num_epochs,
         [dataloader_next.train.dataloader,
          dataloader_category.train.dataloader],
-        desc="Training"
     )
 
     # Main training loop - iterate directly over progress bar for epochs
     for _ in progress:
-        fold_results.start_epoch()
         model.train()
 
         # Initialize metrics
@@ -140,13 +139,13 @@ def train_model(model,
         # Iterate over batches with automatic progress tracking
         for data_next, data_category in progress.iter_epoch():
             # Move data to device
-            x_next = data_next['x'].to(DEVICE)
-            y_next = data_next['y'].to(DEVICE)
-            x_category = data_category['x'].to(DEVICE)
-            y_category = data_category['y'].to(DEVICE)
+            x_next = data_next['x'].to(DEVICE, non_blocking=True)
+            y_next = data_next['y'].to(DEVICE, non_blocking=True)
+            x_category = data_category['x'].to(DEVICE, non_blocking=True)
+            y_category = data_category['y'].to(DEVICE, non_blocking=True)
 
             # Forward pass for both tasks with mixed precision
-            out_category, out_next = model(x_category, x_next)
+            out_category, out_next = model([x_category, x_next])
 
             # Process predictions
             pred_next, truth_next = NextPoiNet.reshape_output(out_next, y_next, num_classes)
@@ -158,6 +157,7 @@ def train_model(model,
             loss_mtl = mtl_loss_fn.compute_loss(loss_next, loss_category)
 
             # Backpropagate scaled loss using PCGrad for multi-task optimization
+            # scaler.scale(loss_mtl).backward(retain_graph=True)
             scaler.scale(loss_next).backward(retain_graph=True)
             scaler.scale(loss_category).backward(retain_graph=True)
 
@@ -178,7 +178,7 @@ def train_model(model,
                 # Optimizer step and scaler update
                 scaler.step(optimizer)
                 scaler.update()
-                optimizer.zero_grad()
+                optimizer.zero_grad(set_to_none=True)
 
             # Update batch index
             batch_idx += 1
@@ -250,22 +250,16 @@ def train_model(model,
         })
 
         # End epoch timing and update scheduler
-        fold_results.end_epoch()
         scheduler.step((loss_val_next + loss_val_category) / 2)
 
     return fold_results
 
 
-def calculate_model_flops(dataloader_category, dataloader_next, model):
+def calculate_flops(dataloader_category, dataloader_next, model):
     sample_category = next(iter(dataloader_category.train.dataloader))['x'].to(DEVICE)
     sample_next = next(iter(dataloader_next.train.dataloader))['x'].to(DEVICE)
-    flops, macs, params = calculate_flops(model=model,
-                                          kwargs={
-                                              'x1': sample_category,
-                                              'x2': sample_next
-                                          },
-                                          print_results=False)
-    return FlopsMetrics(flops=flops, macs=macs, params=params)
+    result = calculate_model_flops(model, [sample_category[1:], sample_next[1:]], print_report=True, units='K')
+    return FlopsMetrics(flops=result['total_flops'], params=result['params']['total'])
 
 
 # Cross-validation function
@@ -276,7 +270,7 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
                                 gradient_accumulation_steps: int = 2):
     """
     Train with cross-validation with efficient batching and gradient accumulation.
-    
+
     Args:
         dataloaders: Dictionary of fold index to task dataloaders
         num_classes: Number of POI classes
@@ -299,6 +293,7 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
 
         print(f"\n{'#' * 110}")
         print(f'FOLD {i_fold} [{fold_idx + 1}/{total_folds}]:')
+        torch.mps.empty_cache()
 
         # Initialize model with enhanced weight initialization
         model = MTLnet(
@@ -313,7 +308,7 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
         model = model.to(DEVICE)
 
         # Get dataloaders
-        dataloader_next = dataloader['next']
+        dataloader_next: SuperInputData = dataloader['next']
         dataloader_category = dataloader['category']
 
         # Use AdamW with weight decay for better convergence
@@ -322,7 +317,7 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
             lr=learning_rate,
             weight_decay=1e-4,
             betas=(0.9, 0.999),
-            eps=1e-8
+            eps=1e-5
         )
 
         # Learning rate scheduler with patience
@@ -377,6 +372,7 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
 
     # Display summary metrics
     training_metric.display_summary()
+    training_metric.export_to_csv()
 
     return training_metric
 

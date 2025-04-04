@@ -134,7 +134,7 @@ def create_dataloader(
         batch_size=batch_size,
         shuffle=shuffle,
         num_workers=num_workers,
-        pin_memory=torch.cuda.is_available(),
+        # pin_memory=True,
         pin_memory_device=str(DEVICE) if hasattr(DEVICE, 'index') else None,
         persistent_workers=True,
         prefetch_factor=prefetch_factor,

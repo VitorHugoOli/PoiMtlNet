@@ -33,7 +33,8 @@ class MTLnet(nn.Module):
         self.category_poi = CategoryPoiNet(num_classes)
         self.next_poi = NextPoiNet(shared_layer_size, num_classes, num_heads, seq_length, num_layers)
 
-    def forward(self, x1, x2):
+    def forward(self, inputs):
+        x1, x2 = inputs
         idxs = x2.sum(-1) == 0
 
         if torch.any(idxs):

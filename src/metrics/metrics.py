@@ -57,7 +57,6 @@ class FlopsMetrics:
 
     flops: str = 0.0
     params: str = 0.0
-    macs: str = 0.0
 
     def display(self):
         """Display flops metrics."""
@@ -66,8 +65,7 @@ class FlopsMetrics:
     def __str__(self):
         """String representation of FlopsMetrics."""
         return (f'FLOPS: {self.flops} | '
-                f'PARAMS: {self.params} | '
-                f'MACS: {self.macs}')
+                f'PARAMS: {self.params}')
 
 
 @dataclasses.dataclass
@@ -83,12 +81,6 @@ class FoldResults:
 
     # Time tracking attributes
     start_time: float = dataclasses.field(default_factory=lambda: time.time())
-    epoch_start_times: List[float] = dataclasses.field(default_factory=list)
-    epoch_durations: List[float] = dataclasses.field(default_factory=list)
-
-    def start_epoch(self):
-        """Record the start time of an epoch."""
-        self.epoch_start_times.append(time.time())
 
     def add_next_report(self, report: dict):
         """Add report."""
@@ -97,108 +89,6 @@ class FoldResults:
     def add_category_report(self, report: dict):
         """Add report."""
         self.category_report = report
-
-    def end_epoch(self):
-        """Record the end time of an epoch and calculate duration."""
-        if self.epoch_start_times:
-            duration = time.time() - self.epoch_start_times[-1]
-            self.epoch_durations.append(duration)
-            return duration
-        return None
-
-    def get_time_stats(self, current_epoch, total_epochs):
-        """Get time statistics for the current training state."""
-        if not self.epoch_durations:
-            return None
-
-        # Current epoch time
-        current_epoch_time = self.epoch_durations[-1] if self.epoch_durations else 0
-
-        # Total elapsed time since training started
-        elapsed_time = time.time() - self.start_time
-
-        # Calculate average epoch time from all completed epochs
-        avg_epoch_time = sum(self.epoch_durations) / len(self.epoch_durations)
-
-        # Estimate remaining time
-        remaining_epochs = total_epochs - (current_epoch + 1)
-        estimated_time_remaining = avg_epoch_time * remaining_epochs
-
-        return {
-            'epoch_time': current_epoch_time,
-            'elapsed_time': elapsed_time,
-            'estimated_remaining': estimated_time_remaining,
-            'avg_epoch_time': avg_epoch_time
-        }
-
-    def display_training_status(self, epoch: Optional[int] = None, num_epochs: Optional[int] = None):
-        """Display current training status including losses and accuracies."""
-        # Training metrics
-        mtl_loss = self.mtl.get_last_loss()
-        mtl_acc = self.mtl.get_last_accuracy()
-        mtl_val_loss = self.mtl.get_last_val_loss()
-        mtl_val_acc = self.mtl.get_last_val_accuracy()
-
-        next_loss = self.next.get_last_loss()
-        next_acc = self.next.get_last_accuracy()
-        next_val_loss = self.next.get_last_val_loss()
-        next_val_acc = self.next.get_last_val_accuracy()
-
-        cat_loss = self.category.get_last_loss()
-        cat_acc = self.category.get_last_accuracy()
-        cat_val_loss = self.category.get_last_val_loss()
-        cat_val_acc = self.category.get_last_val_accuracy()
-
-        # Format values with proper handling of None and potential errors
-        def format_metric(value, as_percentage=False):
-            try:
-                if value is None:
-                    return "N/A"
-                else:
-                    if as_percentage:
-                        return f"{value * 100:.2f}%"
-                    else:
-                        return f"{value:.6f}"
-            except (ValueError, TypeError):
-                return "ERR"
-
-        # Create a beautiful table-like output
-        header_width = 80
-
-        def print_header(title):
-            print(f"\n{'=' * header_width}")
-            print(f"{title}".center(header_width))
-            print(f"{'-' * header_width}")
-
-        def print_metrics_row(name, loss, acc, val_loss, val_acc):
-            print(
-                f"| {name:<14} | {'Loss:':>7} {format_metric(loss):<10} | {'Acc:':>6} {format_metric(acc, True):<8} | "
-                f"{'Val Loss:':>10} {format_metric(val_loss):<10} | {'Val Acc:':>8} {format_metric(val_acc, True):<8} |")
-
-        # Display epoch header with time information if applicable
-        if epoch is not None and num_epochs is not None:
-            print_header(f"EPOCH {epoch + 1}/{num_epochs} METRICS")
-
-            # Display time information if available
-            time_stats = self.get_time_stats(epoch, num_epochs)
-            if time_stats:
-                print(f"Time: {timedelta(seconds=int(time_stats['epoch_time']))}, "
-                      f"Elapsed: {timedelta(seconds=int(time_stats['elapsed_time']))}, "
-                      f"Remaining: {timedelta(seconds=int(time_stats['estimated_remaining']))}")
-        else:
-            print_header("CURRENT TRAINING METRICS")
-
-        # Table header
-        print(f"| {'Task':<14} | {'Training':<19} | {'':>15} | {'Validation':<20} | {'':>17} |")
-        print(f"| {'':<14} | {'':<19} | {'':>15} | {'':>20} | {'':>17} |")
-
-        # Print metrics rows
-        print_metrics_row("MTL", mtl_loss, mtl_acc, mtl_val_loss, mtl_val_acc)
-        print_metrics_row("Next POI", next_loss, next_acc, next_val_loss, next_val_acc)
-        print_metrics_row("Category", cat_loss, cat_acc, cat_val_loss, cat_val_acc)
-
-        # Table footer
-        print(f"{'=' * header_width}")
 
     def display_final_summary(self):
         """Display a summary of training results for this fold."""
@@ -212,9 +102,6 @@ class FoldResults:
 
         # Show total training time
         print(f"Total training time: {timedelta(seconds=int(total_time))}")
-        if self.epoch_durations:
-            avg_epoch_time = sum(self.epoch_durations) / len(self.epoch_durations)
-            print(f"Average epoch time: {timedelta(seconds=int(avg_epoch_time))}")
 
         # Show best metrics
         if self.mtl.val_accuracy:
@@ -248,7 +135,7 @@ class TrainingMetrics:
         self.folds.append(fold_results)
 
     def get_average_metrics(self) -> dict:
-        """Calculate average metrics across all folds."""
+        """Calculate average metrics across all folds with detailed category metrics."""
         if not self.folds:
             return {}
 
@@ -264,10 +151,14 @@ class TrainingMetrics:
             'category': {
                 'val_accuracy': 0.0,
                 'val_loss': 0.0
-            }
+            },
+            'next_categories': {},
+            'category_categories': {}
         }
 
         fold_count = len(self.folds)
+
+        # Calculate average validation metrics
         for fold in self.folds:
             for metric_type in ['mtl', 'next', 'category']:
                 fold_metrics = getattr(fold, metric_type)
@@ -279,10 +170,64 @@ class TrainingMetrics:
                 if val_loss is not None:
                     avg_metrics[metric_type]['val_loss'] += val_loss / fold_count
 
+        # Calculate average classification report metrics
+        for fold in self.folds:
+            # Process next POI category metrics
+            if fold.next_report:
+                for class_key in fold.next_report:
+                    if class_key not in ['accuracy', 'macro avg', 'weighted avg']:
+                        if class_key not in avg_metrics['next_categories']:
+                            avg_metrics['next_categories'][class_key] = {
+                                'precision': 0.0,
+                                'recall': 0.0,
+                                'f1-score': 0.0,
+                                'support': 0
+                            }
+
+                        for metric in ['precision', 'recall', 'f1-score']:
+                            avg_metrics['next_categories'][class_key][metric] += fold.next_report[class_key][
+                                                                                     metric] / fold_count
+
+                        # For support, we sum rather than average
+                        avg_metrics['next_categories'][class_key]['support'] += fold.next_report[class_key][
+                                                                                    'support'] / fold_count
+
+            # Process category metrics
+            if fold.category_report:
+                for class_key in fold.category_report:
+                    if class_key not in ['accuracy', 'macro avg', 'weighted avg']:
+                        if class_key not in avg_metrics['category_categories']:
+                            avg_metrics['category_categories'][class_key] = {
+                                'precision': 0.0,
+                                'recall': 0.0,
+                                'f1-score': 0.0,
+                                'support': 0
+                            }
+
+                        for metric in ['precision', 'recall', 'f1-score']:
+                            avg_metrics['category_categories'][class_key][metric] += fold.category_report[class_key][
+                                                                                         metric] / fold_count
+
+                        # For support, we sum rather than average
+                        avg_metrics['category_categories'][class_key]['support'] += fold.category_report[class_key][
+                                                                                        'support'] / fold_count
+
+        # Add average of averages
+        for report_type, report_key in [('next', 'next_categories'), ('category', 'category_categories')]:
+            if avg_metrics[report_key]:
+                avg_metrics[f'{report_type}_macro_avg'] = {
+                    'precision': sum(cat['precision'] for cat in avg_metrics[report_key].values()) / len(
+                        avg_metrics[report_key]),
+                    'recall': sum(cat['recall'] for cat in avg_metrics[report_key].values()) / len(
+                        avg_metrics[report_key]),
+                    'f1-score': sum(cat['f1-score'] for cat in avg_metrics[report_key].values()) / len(
+                        avg_metrics[report_key])
+                }
+
         return avg_metrics
 
     def display_summary(self):
-        """Display a summary of training metrics across all folds."""
+        """Display a summary of training metrics across all folds with detailed category metrics."""
         if not self.folds:
             print("No training data available.")
             return
@@ -306,62 +251,254 @@ class TrainingMetrics:
             loss = avg_metrics[task]['val_loss']
             print(f"{task_name:<20} | Accuracy: {acc * 100:.2f}% | Loss: {loss:.6f}")
 
+        # Display average metrics per category
+        for report_type, report_title in [('next_categories', 'Next POI Categories'),
+                                          ('category_categories', 'Category Types')]:
+            if report_type in avg_metrics and avg_metrics[report_type]:
+                print("\n" + "-" * 80)
+                print(f"Average Metrics for {report_title}".center(80))
+                print("-" * 80)
+
+                # Create a DataFrame for better display
+                metrics_df = pd.DataFrame()
+
+                # Add category metrics
+                for class_key, metrics in avg_metrics[report_type].items():
+                    try:
+                        # Map numerical class to category name if applicable
+                        category_name = CATEGORIES_MAP.get(int(class_key), class_key) if isinstance(class_key,
+                                                                                                    str) and class_key.isdigit() else class_key
+
+                        # Create row with metrics
+                        row_data = {
+                            'Category': category_name,
+                            'Precision': f"{metrics['precision'] * 100:.2f}%",
+                            'Recall': f"{metrics['recall'] * 100:.2f}%",
+                            'F1-Score': f"{metrics['f1-score'] * 100:.2f}%",
+                            'Support': int(metrics['support'])
+                        }
+                        metrics_df = pd.concat([metrics_df, pd.DataFrame([row_data])], ignore_index=True)
+
+                    except (ValueError, KeyError) as e:
+                        print(f"Error processing class {class_key}: {str(e)}")
+
+                # Add macro average
+                task_type = report_type.split('_')[0]  # 'next' or 'category'
+                if f'{task_type}_macro_avg' in avg_metrics:
+                    macro_avg = avg_metrics[f'{task_type}_macro_avg']
+                    row_data = {
+                        'Category': 'macro avg',
+                        'Precision': f"{macro_avg['precision'] * 100:.2f}%",
+                        'Recall': f"{macro_avg['recall'] * 100:.2f}%",
+                        'F1-Score': f"{macro_avg['f1-score'] * 100:.2f}%",
+                        'Support': '-'
+                    }
+                    metrics_df = pd.concat([metrics_df, pd.DataFrame([row_data])], ignore_index=True)
+
+                # Display the DataFrame
+                pd.set_option('display.max_rows', None)
+                pd.set_option('display.max_columns', None)
+                pd.set_option('display.width', 120)
+                print(metrics_df.to_string(index=False))
+                pd.reset_option('display.max_rows')
+                pd.reset_option('display.max_columns')
+                pd.reset_option('display.width')
+
         print("=" * 80)
+
+    def export_to_csv(self, output_dir="./metrics_results"):
+        """
+        Export metrics results to CSV files.
+
+        Args:
+            output_dir: Directory to save the CSV files (default: ./metrics_results)
+
+        Creates:
+            - Individual fold CSV files with per-category metrics
+            - Summary CSV with average metrics across all folds
+        """
+        import os
+
+        # Create output directory if it doesn't exist
+        os.makedirs(output_dir, exist_ok=True)
+
+        if not self.folds:
+            print("No training data available to export.")
+            return
+
+        # Export each fold's results
+        for i, fold in enumerate(self.folds):
+            fold_idx = i + 1
+
+            # Export Next POI metrics
+            if fold.next_report:
+                next_df = self._create_metrics_dataframe(fold.next_report, "next", CATEGORIES_MAP)
+                next_df.to_csv(f"{output_dir}/fold_{fold_idx}_next_poi_metrics.csv", index=False)
+
+            # Export Category metrics
+            if fold.category_report:
+                category_df = self._create_metrics_dataframe(fold.category_report, "category", CATEGORIES_MAP)
+                category_df.to_csv(f"{output_dir}/fold_{fold_idx}_category_metrics.csv", index=False)
+
+        # Export average metrics across all folds
+        avg_metrics = self.get_average_metrics()
+
+        # Create summary dataframe for Next POI
+        if 'next_categories' in avg_metrics and avg_metrics['next_categories']:
+            next_summary_df = pd.DataFrame()
+
+            for class_key, metrics in avg_metrics['next_categories'].items():
+                category_name = CATEGORIES_MAP.get(int(class_key), class_key) if isinstance(class_key,
+                                                                                            str) and class_key.isdigit() else class_key
+
+                row_data = {
+                    'Category': category_name,
+                    'Precision': metrics['precision'],
+                    'Recall': metrics['recall'],
+                    'F1-Score': metrics['f1-score'],
+                    'Support': metrics['support']
+                }
+                next_summary_df = pd.concat([next_summary_df, pd.DataFrame([row_data])], ignore_index=True)
+
+            # Add macro average
+            if 'next_macro_avg' in avg_metrics:
+                macro_avg = avg_metrics['next_macro_avg']
+                row_data = {
+                    'Category': 'macro avg',
+                    'Precision': macro_avg['precision'],
+                    'Recall': macro_avg['recall'],
+                    'F1-Score': macro_avg['f1-score'],
+                    'Support': None
+                }
+                next_summary_df = pd.concat([next_summary_df, pd.DataFrame([row_data])], ignore_index=True)
+
+            next_summary_df.to_csv(f"{output_dir}/summary_next_poi_metrics.csv", index=False)
+
+        # Create summary dataframe for Categories
+        if 'category_categories' in avg_metrics and avg_metrics['category_categories']:
+            category_summary_df = pd.DataFrame()
+
+            for class_key, metrics in avg_metrics['category_categories'].items():
+                category_name = CATEGORIES_MAP.get(int(class_key), class_key) if isinstance(class_key,
+                                                                                            str) and class_key.isdigit() else class_key
+
+                row_data = {
+                    'Category': category_name,
+                    'Precision': metrics['precision'],
+                    'Recall': metrics['recall'],
+                    'F1-Score': metrics['f1-score'],
+                    'Support': metrics['support']
+                }
+                category_summary_df = pd.concat([category_summary_df, pd.DataFrame([row_data])], ignore_index=True)
+
+            # Add macro average
+            if 'category_macro_avg' in avg_metrics:
+                macro_avg = avg_metrics['category_macro_avg']
+                row_data = {
+                    'Category': 'macro avg',
+                    'Precision': macro_avg['precision'],
+                    'Recall': macro_avg['recall'],
+                    'F1-Score': macro_avg['f1-score'],
+                    'Support': None
+                }
+                category_summary_df = pd.concat([category_summary_df, pd.DataFrame([row_data])], ignore_index=True)
+
+            category_summary_df.to_csv(f"{output_dir}/summary_category_metrics.csv", index=False)
+
+        # Export overall summary with validation metrics
+        overall_df = pd.DataFrame([{
+            'Task': 'Multi-Task Learning',
+            'Validation Accuracy': avg_metrics['mtl']['val_accuracy'],
+            'Validation Loss': avg_metrics['mtl']['val_loss']
+        }, {
+            'Task': 'Next POI',
+            'Validation Accuracy': avg_metrics['next']['val_accuracy'],
+            'Validation Loss': avg_metrics['next']['val_loss']
+        }, {
+            'Task': 'Category',
+            'Validation Accuracy': avg_metrics['category']['val_accuracy'],
+            'Validation Loss': avg_metrics['category']['val_loss']
+        }])
+
+        overall_df.to_csv(f"{output_dir}/summary_overall_metrics.csv", index=False)
+
+        # Export flops resuts
+        flops_df = pd.DataFrame([{
+            'Task': 'Multi-Task Learning',
+            'FLOPS': self.folds[0].flops.flops,
+            'PARAMS': self.folds[0].flops.params
+        }])
+        flops_df.to_csv(f"{output_dir}/summary_flops_metrics.csv", index=False)
+
+        print(f"Metrics exported to {output_dir}/")
+
+    def _create_metrics_dataframe(self, report_dict, task_type, categories_map=None):
+        """
+        Create a DataFrame from a classification report dictionary.
+
+        Args:
+            report_dict: Classification report dictionary
+            task_type: Type of task ('next' or 'category')
+            categories_map: Dictionary mapping class IDs to category names
+
+        Returns:
+            pandas.DataFrame: DataFrame with metrics
+        """
+        metrics_df = pd.DataFrame()
+
+        # Process class metrics
+        for class_key in [k for k in report_dict.keys() if k not in ['accuracy', 'macro avg', 'weighted avg']]:
+            try:
+                # Map numerical class to category name if applicable
+                category_name = categories_map.get(int(class_key), class_key) if categories_map and isinstance(
+                    class_key, str) and class_key.isdigit() else class_key
+                class_data = report_dict[class_key]
+
+                # Create row with metrics
+                row_data = {
+                    'Category': category_name,
+                    'Task': task_type,
+                    'Precision': class_data['precision'],
+                    'Recall': class_data['recall'],
+                    'F1-Score': class_data['f1-score'],
+                    'Support': int(class_data['support'])
+                }
+                metrics_df = pd.concat([metrics_df, pd.DataFrame([row_data])], ignore_index=True)
+
+            except (ValueError, KeyError) as e:
+                print(f"Error processing class {class_key}: {str(e)}")
+
+        # Add average metrics
+        for avg_type in ['macro avg', 'weighted avg']:
+            if avg_type in report_dict:
+                avg_data = report_dict[avg_type]
+                row_data = {
+                    'Category': avg_type,
+                    'Task': task_type,
+                    'Precision': avg_data['precision'],
+                    'Recall': avg_data['recall'],
+                    'F1-Score': avg_data['f1-score'],
+                    'Support': int(avg_data['support']) if 'support' in avg_data else None
+                }
+                metrics_df = pd.concat([metrics_df, pd.DataFrame([row_data])], ignore_index=True)
+
+        # Add accuracy as a separate row if available
+        if 'accuracy' in report_dict:
+            accuracy_row = {
+                'Category': 'Overall Accuracy',
+                'Task': task_type,
+                'Precision': None,
+                'Recall': None,
+                'F1-Score': report_dict['accuracy'],
+                'Support': None
+            }
+            metrics_df = pd.concat([metrics_df, pd.DataFrame([accuracy_row])], ignore_index=True)
+
+        return metrics_df
 
 
 class UtilsMetrics:
     """Class to hold utility functions for metrics."""
-
-    @staticmethod
-    def display_report(y_true, y_pred, task_name):
-        """Display classification report."""
-        print(f"\nReport for {task_name}:\n")
-        try:
-            report = classification_report(y_true, y_pred, zero_division=1, output_dict=True)
-
-            # Extract class metrics (exclude 'accuracy', 'macro avg', etc.)
-            class_metrics = {k: v for k, v in report.items()
-                             if isinstance(v, dict) and k not in ['macro avg', 'weighted avg']}
-
-            # Map numerical class labels to category names if they exist in CATEGORIES_MAP
-            mapped_metrics = {}
-            for k, v in class_metrics.items():
-                try:
-                    # Try to convert to int for mapping, if not possible, use as is
-                    class_key = int(k) if k.isdigit() else k
-                    class_name = CATEGORIES_MAP.get(class_key, k)
-                    mapped_metrics[class_name] = v
-                except (ValueError, TypeError):
-                    # If conversion fails, use original key
-                    mapped_metrics[k] = v
-
-            # Format header
-            metrics = ['precision', 'recall', 'f1-score']
-            header = " " * 15 + "".join(f"{m:>12}" for m in metrics)
-            print(header)
-            print("-" * len(header))
-
-            # Print each class's metrics
-            for class_name, metrics_dict in mapped_metrics.items():
-                # Truncate class name if too long
-                truncated_name = str(class_name)[:14] + "…" if len(str(class_name)) > 15 else f"{class_name:<15}"
-                metrics_display = "".join(f"{metrics_dict.get(m, 0) * 100:>11.1f}%" for m in metrics)
-                print(f"{truncated_name}{metrics_display}")
-
-            # Print average metrics
-            print("-" * len(header))
-            for avg_type in ['macro avg', 'weighted avg']:
-                if avg_type in report:
-                    avg_metrics = report[avg_type]
-                    metrics_display = "".join(f"{avg_metrics.get(m, 0) * 100:>11.1f}%" for m in metrics)
-                    print(f"{avg_type:<15}{metrics_display}")
-
-            # Print accuracy
-            if 'accuracy' in report:
-                print(f"Accuracy: {report['accuracy'] * 100:.2f}%")
-
-        except Exception as e:
-            print(f"Error generating classification report: {str(e)}")
 
     @staticmethod
     def display_report_json(report_dict, task_name=None):

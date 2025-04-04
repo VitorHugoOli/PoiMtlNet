@@ -31,7 +31,9 @@ class TrainingProgressBar(tqdm):
         self.metrics = {}
 
         # Initialize tqdm with unified progress bar
-        super().__init__(total=total_steps, unit="batch", **kwargs)
+        super().__init__(total=total_steps, unit="batch",
+                         desc=f"Epoch 1/{num_epochs}",
+                         **kwargs)
 
     def __iter__(self):
         """Make the progress bar iterable over epochs.
@@ -40,13 +42,13 @@ class TrainingProgressBar(tqdm):
             EpochContext: Context manager for each epoch
         """
         for epoch_idx in range(self.num_epochs):
-            self.current_epoch = epoch_idx
             self.epoch_start_time = time.time()
+            self.current_epoch = epoch_idx
             self.set_description(
                 f"Epoch {self.current_epoch + 1}/{self.num_epochs}"
             )
             yield epoch_idx
-            print()
+            self.write("")
 
     def iter_epoch(self):
         """Iterate over the current epoch.

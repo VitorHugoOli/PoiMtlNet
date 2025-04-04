@@ -9,3 +9,7 @@ if not os.path.exists(IO_CHECKINS):
 OUTPUT_ROOT = os.path.join(IO_ROOT, 'output')
 if not os.path.exists(OUTPUT_ROOT):
     os.makedirs(OUTPUT_ROOT)
+
+RESULTS_PATH = os.path.join(IO_ROOT, 'results')
+if not os.path.exists(RESULTS_PATH):
+    os.makedirs(RESULTS_PATH)
