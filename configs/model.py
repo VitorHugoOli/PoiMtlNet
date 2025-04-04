@@ -1,9 +1,9 @@
 class ModelConfig:
     NUM_CLASSES = 7
-    BATCH_SIZE = 256
+    BATCH_SIZE = 64
     EPOCHS = 50
     LEARNING_RATE = 0.0001
-    K_FOLDS = 3
+    K_FOLDS = 5
 
 class ModelParameters:
     INPUT_DIM = 100
