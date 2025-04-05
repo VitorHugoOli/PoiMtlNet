@@ -1,71 +1,138 @@
 import torch
-from torch import nn
+import torch.nn as nn
+import torch.nn.functional as F
+import math
 
-from configs.globals import DEVICE
-from models.category_net import CategoryPoiNet
-from models.next_poi_net import NextPoiNet
+from models.category_net import CategoryNet
+from models.support.utils import PositionalEncoding, TransformerBlock, MultiHeadCrossAttention
+
+
+class NextPoiNet(nn.Module):
+    def __init__(self, embed_dim, num_classes, num_heads, seq_length, num_layers, dropout=0.1):
+        super(NextPoiNet, self).__init__()
+
+        self.positional_encoding = PositionalEncoding(embed_dim, seq_length, dropout)
+
+        # Transformer layers
+        self.transformer_layers = nn.ModuleList([
+            TransformerBlock(embed_dim, num_heads, embed_dim * 4, dropout)
+            for _ in range(num_layers)
+        ])
+
+        # Cross-attention for task interaction
+        self.cross_attention = MultiHeadCrossAttention(embed_dim, num_heads, dropout)
+
+        # Output projection
+        self.output_projection = nn.Linear(embed_dim, num_classes)
+
+    def forward(self, x, context=None, mask=None):
+        # Add positional encoding
+        x = self.positional_encoding(x)
+
+        # Apply transformer layers
+        for layer in self.transformer_layers:
+            x = layer(x, mask)
+
+        # Apply cross-attention if context is provided
+        if context is not None:
+            x = x + self.cross_attention(x, context)
+
+        # Project to output classes
+        x = self.output_projection(x)
+
+        return x
 
 
 class MTLnet(nn.Module):
-    def __init__(self, feature_size, shared_layer_size, num_classes, num_heads, num_layers, seq_length,
-                 num_shared_layers):
+    def __init__(self, vocab_size, embed_dim, shared_dim, num_classes, num_heads,
+                 seq_length, num_shared_layers, dropout=0.1):
         super(MTLnet, self).__init__()
+
         self.num_classes = num_classes
-        self.feature_size = feature_size
-        self.embedding = torch.nn.Embedding(1, feature_size)
+        self.seq_length = seq_length
 
-        shared_linear_layers = []  # lista de layers compartilhadas
+        # Improved embedding with learned positional embeddings
+        self.token_embedding = nn.Embedding(vocab_size, embed_dim, padding_idx=0)
+        self.positional_encoding = PositionalEncoding(embed_dim, seq_length, dropout)
 
-        # add primeira camada de input (feature_size -> shared_layer_size)
-        shared_linear_layers.append(nn.Linear(feature_size, shared_layer_size))
-        shared_linear_layers.append(nn.LeakyReLU())
-        shared_linear_layers.append(nn.Dropout())
+        # Shared transformer encoder
+        self.shared_transformer_layers = nn.ModuleList([
+            TransformerBlock(embed_dim, num_heads, embed_dim * 4, dropout)
+            for _ in range(num_shared_layers)
+        ])
 
-        # add layers intermediarias
-        for _ in range(num_shared_layers - 1):
-            shared_linear_layers.append(nn.Linear(shared_layer_size, shared_layer_size))
-            shared_linear_layers.append(nn.LeakyReLU())
-            shared_linear_layers.append(nn.Dropout())
+        # Task-specific modules
+        self.category_net = CategoryNet(embed_dim, num_classes, dropout)
+        self.next_poi_net = NextPoiNet(embed_dim, num_classes, num_heads,
+                                       seq_length, 2,
+                                       dropout)  # Reduced layers as we already have shared layers
 
-        # cria o sequential igual antes
-        self.shared_layers = nn.Sequential(*shared_linear_layers)
+        # Task attention/gating mechanism
+        self.task_gate = nn.Sequential(
+            nn.Linear(embed_dim, 2),
+            nn.Softmax(dim=-1)
+        )
 
-        self.category_poi = CategoryPoiNet(num_classes)
-        self.next_poi = NextPoiNet(shared_layer_size, num_classes, num_heads, seq_length, num_layers)
+    def _apply_shared_transformer(self, x, mask=None):
+        # Apply positional encoding
+        x = self.positional_encoding(x)
+
+        # Apply shared transformer layers
+        for layer in self.shared_transformer_layers:
+            x = layer(x, mask)
+
+        return x
 
     def forward(self, inputs):
+        """
+        Forward pass with both tasks
+        inputs: tuple of (category_input, next_input)
+        """
         category_input, next_input = inputs
-        idxs = next_input.sum(-1) == 0
 
-        if torch.any(idxs):
-            replace_tensor = self.embedding(torch.tensor(0, dtype=torch.long).to(DEVICE))
-            next_input[idxs] = replace_tensor
+        # Create attention masks
+        category_mask = None  # No masking for category task
+        next_mask = torch.triu(torch.ones(self.seq_length, self.seq_length) * float('-inf'), diagonal=1).to(
+            next_input.device)
 
-        shared_output1 = self.shared_layers(category_input)
-        shared_output2 = self.shared_layers(next_input)
+        # Pass through shared transformer
+        shared_category = self._apply_shared_transformer(category_input, category_mask)
+        shared_next = self._apply_shared_transformer(next_input, next_mask)
 
-        out1 = self.category_poi(shared_output1)
-        out2 = self.next_poi(shared_output2)
+        # Compute task weights via gating
+        category_gate = self.task_gate(shared_category.mean(dim=1, keepdim=True))
+        next_gate = self.task_gate(shared_next.mean(dim=1, keepdim=True))
 
-        out1 = out1.view(-1, self.num_classes)
+        # Forward each task with cross-task awareness
+        out_category = self.category_net(shared_category, shared_next)
+        out_next = self.next_poi_net(shared_next, shared_category, next_mask)
 
-        return out1, out2
-
-    def forward_next(self, x):
-        idxs = x.sum(-1) == 0
-        x[idxs] = self.embedding(torch.tensor(0, dtype=torch.long).to(DEVICE))
-
-        shared_output = self.shared_layers(x)
-
-        out = self.next_poi(shared_output)
-
-        return out
+        return out_category, out_next
 
     def forward_category(self, x):
-        shared_output = self.shared_layers(x)
+        """Special forward pass for category prediction only"""
+        shared_output = self._apply_shared_transformer(x)
+        return self.category_net(shared_output)
 
-        out = self.category_poi(shared_output)
+    def forward_next(self, x):
+        """Special forward pass for next POI prediction only"""
+        # Create causal mask for next prediction
+        mask = torch.triu(torch.ones(self.seq_length, self.seq_length) * float('-inf'), diagonal=1).to(x.device)
 
-        out = out.view(-1, self.num_classes)
+        shared_output = self._apply_shared_transformer(x, mask)
+        return self.next_poi_net(shared_output, mask=mask)
 
-        return out
+    def loss_balancing(self, loss_category, loss_next):
+        """Dynamic loss balancing based on task difficulty"""
+        # Implement uncertainty-based loss weighting (Kendall et al., 2018)
+        # This is a simplified version
+        log_var_category = torch.log(torch.tensor(1.0, device=loss_category.device).requires_grad_())
+        log_var_next = torch.log(torch.tensor(1.0, device=loss_next.device).requires_grad_())
+
+        precision_category = torch.exp(-log_var_category)
+        precision_next = torch.exp(-log_var_next)
+
+        balanced_loss = precision_category * loss_category + 0.5 * log_var_category + \
+                        precision_next * loss_next + 0.5 * log_var_next
+
+        return balanced_loss

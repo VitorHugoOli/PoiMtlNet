@@ -2,84 +2,40 @@ import math
 import torch
 import torch.nn as nn
 
-
-class PositionalEncoding(nn.Module):
-    def __init__(self, embed_dim, max_seq_length=5000, dropout=0.1):
-        """
-        Args:
-            embed_dim: The dimensionality of the embedding space.
-            max_seq_length: The maximum sequence length to handle.
-            dropout: Dropout rate applied to positional encodings.
-        """
-        super(PositionalEncoding, self).__init__()
-        self.dropout = nn.Dropout(p=dropout)
-
-        positional_encoding = torch.zeros(max_seq_length, embed_dim)
-        positions = torch.arange(0, max_seq_length, dtype=torch.float).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, embed_dim, 2).float() * (-math.log(10000.0) / embed_dim))
-
-        positional_encoding[:, 0::2] = torch.sin(positions * div_term)
-        positional_encoding[:, 1::2] = torch.cos(positions * div_term)
-
-        positional_encoding = positional_encoding.unsqueeze(0)
-
-        self.register_buffer('positional_encoding', positional_encoding)
-
-    def forward(self, x):
-        """
-        Args:
-            x: Input tensor of shape (batch_size, seq_length, embed_dim).
-        Returns:
-            Tensor with positional encodings added to the input embeddings.
-        """
-        seq_length = x.size(1)
-        x = x + self.positional_encoding[:, :seq_length, :]
-        return self.dropout(x)
+from models.support.utils import PositionalEncoding, TransformerBlock, MultiHeadCrossAttention
 
 
 class NextPoiNet(nn.Module):
     def __init__(self, embed_dim, num_classes, num_heads, seq_length, num_layers, dropout=0.1):
         super(NextPoiNet, self).__init__()
-        self.embed_dim = embed_dim
-        self.num_heads = num_heads
-        self.seq_length = seq_length
 
-        self.pe = PositionalEncoding(embed_dim, 9)
-        encoder_layer = nn.TransformerEncoderLayer(
-            embed_dim,
-            num_heads,
-            dim_feedforward=embed_dim,
-            dropout=dropout,
-            batch_first=True,
-            norm_first=True
-        )
-        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers)
+        self.positional_encoding = PositionalEncoding(embed_dim, seq_length, dropout)
 
-        self.linear_layers = nn.Linear(embed_dim, num_classes)
+        # Transformer layers
+        self.transformer_layers = nn.ModuleList([
+            TransformerBlock(embed_dim, num_heads, embed_dim * 4, dropout)
+            for _ in range(num_layers)
+        ])
 
-    def forward(self, x):
-        # print(f"> Next1: {x.shape}")
-        x = self.pe(x)
-        batch_size, seq_length, _ = x.size()
+        # Cross-attention for task interaction
+        self.cross_attention = MultiHeadCrossAttention(embed_dim, num_heads, dropout)
 
-        attn_mask = torch.triu(torch.ones(seq_length, seq_length) * float('-inf'), diagonal=1).to(x.device)
+        # Output projection
+        self.output_projection = nn.Linear(embed_dim, num_classes)
 
-        x = self.transformer_encoder(x, mask=attn_mask)
+    def forward(self, x, context=None, mask=None):
+        # Add positional encoding
+        x = self.positional_encoding(x)
 
-        x = self.linear_layers(x)
+        # Apply transformer layers
+        for layer in self.transformer_layers:
+            x = layer(x, mask)
+
+        # Apply cross-attention if context is provided
+        if context is not None:
+            x = x + self.cross_attention(x, context)
+
+        # Project to output classes
+        x = self.output_projection(x)
 
         return x
-
-    @staticmethod
-    def reshape_output(out_next, y_next, num_classes):
-        B, S, _ = out_next.shape
-
-        out_next = out_next.view(B * S, -1)
-        y_next = y_next.view(B * S, -1)
-
-        idx_valid = (y_next < num_classes).view(-1)
-        y_next = y_next[idx_valid].view(-1)
-        out_next = out_next[idx_valid]
-
-        out_next = out_next.view(-1, num_classes)
-        return out_next, y_next
