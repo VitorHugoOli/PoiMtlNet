@@ -34,15 +34,15 @@ class MTLnet(nn.Module):
         self.next_poi = NextPoiNet(shared_layer_size, num_classes, num_heads, seq_length, num_layers)
 
     def forward(self, inputs):
-        x1, x2 = inputs
-        idxs = x2.sum(-1) == 0
+        category_input, next_input = inputs
+        idxs = next_input.sum(-1) == 0
 
         if torch.any(idxs):
             replace_tensor = self.embedding(torch.tensor(0, dtype=torch.long).to(DEVICE))
-            x2[idxs] = replace_tensor
+            next_input[idxs] = replace_tensor
 
-        shared_output1 = self.shared_layers(x1)
-        shared_output2 = self.shared_layers(x2)
+        shared_output1 = self.shared_layers(category_input)
+        shared_output2 = self.shared_layers(next_input)
 
         out1 = self.category_poi(shared_output1)
         out2 = self.next_poi(shared_output2)
@@ -51,7 +51,7 @@ class MTLnet(nn.Module):
 
         return out1, out2
 
-    def forward_nextpoi(self, x):
+    def forward_next(self, x):
         idxs = x.sum(-1) == 0
         x[idxs] = self.embedding(torch.tensor(0, dtype=torch.long).to(DEVICE))
 
@@ -61,7 +61,7 @@ class MTLnet(nn.Module):
 
         return out
 
-    def forward_categorypoi(self, x):
+    def forward_category(self, x):
         shared_output = self.shared_layers(x)
 
         out = self.category_poi(shared_output)

@@ -12,6 +12,7 @@ from torch.cuda.amp import autocast, GradScaler
 from torch.optim.lr_scheduler import ReduceLROnPlateau, OneCycleLR
 from itertools import cycle
 
+from common.mps_support import clear_mps_cache
 from common.training_progress import TrainingProgressBar
 from configs.globals import DEVICE
 from configs.model import ModelParameters, ModelConfig
@@ -232,14 +233,14 @@ def train_model(model,
             acc_val_category, loss_val_category = evaluate_model(
                 model, dataloader_category.val.dataloader, task_loss_fn,
                 reshape_method=CategoryPoiNet.reshape_output,
-                foward_method=model.forward_categorypoi,
+                foward_method=model.forward_category,
                 device=DEVICE,
             )
 
             acc_val_next, loss_val_next = evaluate_model(
                 model, dataloader_next.val.dataloader, task_loss_fn,
                 reshape_method=NextPoiNet.reshape_output,
-                foward_method=model.forward_nextpoi,
+                foward_method=model.forward_next,
                 device=DEVICE,
                 num_classes=num_classes,
             )
@@ -301,7 +302,7 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
 
         print(f"\n{'#' * 110}")
         print(f'FOLD {i_fold} [{fold_idx + 1}/{total_folds}]:')
-        torch.mps.empty_cache()
+        clear_mps_cache()
 
         # Initialize model with enhanced weight initialization
         model = MTLnet(
@@ -406,7 +407,7 @@ def validation_model(dataloader_category, dataloader_next, model, num_classes):
         # Evaluate next POI task in batches
         for batch in dataloader_next.val.dataloader:
             x, y = batch['x'].to(DEVICE), batch['y'].to(DEVICE)
-            out = model.forward_nextpoi(x)
+            out = model.forward_next(x)
             pred, truth = NextPoiNet.reshape_output(out, y, num_classes)
             pred_class = torch.argmax(pred, dim=1)
 
@@ -416,7 +417,7 @@ def validation_model(dataloader_category, dataloader_next, model, num_classes):
         # Evaluate category task in batches
         for batch in dataloader_category.val.dataloader:
             x, y = batch['x'].to(DEVICE), batch['y'].to(DEVICE)
-            out = model.forward_categorypoi(x)
+            out = model.forward_category(x)
             pred, truth = CategoryPoiNet.reshape_output(out, y)
             pred_class = torch.argmax(pred, dim=1)
 

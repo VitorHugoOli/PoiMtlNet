@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO)
 
 if __name__ == '__main__':
 
-    state = "california"  # Replace with the desired state
+    state = "alabama"  # Replace with the desired state
 
     # Define parameters
     next_data_path = f'{OUTPUT_ROOT}/{state}/pre-processing/next-input.csv'  # Replace with actual path
