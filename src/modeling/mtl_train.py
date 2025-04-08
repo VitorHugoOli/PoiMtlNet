@@ -105,7 +105,6 @@ def train_model(model,
     # Initialize fold results and training components
     fold_results = FoldResults()
     pcgrad = PCGrad(n_tasks=2, device=DEVICE, reduction="sum")
-    scaler = GradScaler()
 
     # Get FLOPS metrics
     fold_results.flops = calculate_flops(dataloader_category, dataloader_next, model)
@@ -151,51 +150,40 @@ def train_model(model,
             x_category = x_category.contiguous()
             y_category = y_category.contiguous()
 
-            # Forward pass for both tasks with mixed precision
-            out_category, out_next = model([x_category, x_next])
+            optimizer.zero_grad()
+
+            category_output, next_poi_output = model((x_category, x_next))
 
             # Process predictions
-            pred_next, truth_next = NextPoiNet.reshape_output(out_next, y_next, num_classes)
-            pred_category, truth_category = CategoryPoiNet.reshape_output(out_category, y_category)
+            pred_next, truth_next = NextPoiNet.reshape_output(next_poi_output, y_next, num_classes)
+            pred_category, truth_category = CategoryPoiNet.reshape_output(category_output, y_category)
 
             # Calculate losses (normalized by accumulation steps)
-            loss_next = task_loss_fn(pred_next, truth_next) / gradient_accumulation_steps
-            loss_category = task_loss_fn(pred_category, truth_category) / gradient_accumulation_steps
-            loss_mtl = mtl_loss_fn.compute_loss(loss_next, loss_category)
+            next_loss = task_loss_fn(pred_next, truth_next)
+            category_loss = task_loss_fn(pred_category, truth_category)
+            loss = mtl_loss_fn.compute_loss(next_loss, category_loss)
 
             # Backpropagate scaled loss using PCGrad for multi-task optimization
-            # scaler.scale(loss_mtl).backward(retain_graph=True)
-            scaler.scale(loss_next).backward(retain_graph=True)
-            scaler.scale(loss_category).backward(retain_graph=True)
-
-            # Apply PCGrad to manage gradient conflicts between tasks
-            pcgrad.backward(
-                losses=torch.stack([loss_next, loss_category]),
-                shared_parameters=list(model.shared_layers.parameters()),
-            )
+            # next_loss.backward(retain_graph=True)
+            # category_loss.backward(retain_graph=True)
+            loss.backward()
+            # pcgrad.backward(
+            #     losses=torch.stack([next_loss, category_loss]),
+            #     shared_parameters=list(model.shared_layers.parameters()),
+            # )
 
             # Apply optimizer step and scaler update after accumulating gradients
-            if (batch_idx + 1) % gradient_accumulation_steps == 0:
-                if DEVICE == 'mps':
-                    torch.mps.synchronize()  # Ensure all operations complete
-                # Unscale before gradient clipping
-                scaler.unscale_(optimizer)
+            if DEVICE == 'mps':
+                torch.mps.synchronize()  # Ensure all operations complete
 
-                # Clip gradients
-                torch.nn.utils.clip_grad_norm_(model.parameters(), max_grad_norm)
-
-                # Optimizer step and scaler update
-                scaler.step(optimizer)
-                scaler.update()
-                optimizer.zero_grad(set_to_none=True)
-
-            # Update batch index
-            batch_idx += 1
+            optimizer.step()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_grad_norm)
+            scheduler.step()
 
             # Track metrics (use non-scaled loss for metrics)
-            batch_loss = loss_mtl.item() * gradient_accumulation_steps
-            batch_loss_next = loss_next.item() * gradient_accumulation_steps
-            batch_loss_category = loss_category.item() * gradient_accumulation_steps
+            batch_loss = loss.item()
+            batch_loss_next = next_loss.item()
+            batch_loss_category = category_loss.item()
 
             running_loss += batch_loss
             next_running_loss += batch_loss_next
@@ -215,6 +203,7 @@ def train_model(model,
             # Update metrics on progress bar (it automatically handles the progress update)
             progress.set_postfix({
                 'loss': f'{batch_loss:.4f}',
+                'lr': f'{scheduler.get_last_lr()[0]:.4f}',
                 'next': f'{batch_loss_next:.4f}({next_acc:.4f})',
                 'cat': f'{batch_loss_category:.4f}({category_acc:.4f})'
             })
@@ -258,8 +247,6 @@ def train_model(model,
             'cat_val': f'{loss_val_category:.4f}({acc_val_category:.4f})'
         })
 
-        # End epoch timing and update scheduler
-        scheduler.step((loss_val_next + loss_val_category) / 2)
 
     return fold_results
 

@@ -1,6 +1,6 @@
 class ModelConfig:
     NUM_CLASSES = 7
-    BATCH_SIZE = 256
+    BATCH_SIZE = 2**9 # 512
     EPOCHS = 50
     LEARNING_RATE = 0.0001
     K_FOLDS = 5
