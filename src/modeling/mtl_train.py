@@ -133,7 +133,6 @@ def train_model(model,
         steps = 0
 
         # Reset gradients at the beginning
-        optimizer.zero_grad()
         batch_idx = 0
 
         # Iterate over batches with automatic progress tracking
