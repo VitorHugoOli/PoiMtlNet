@@ -28,7 +28,16 @@ class MultiHeadCrossAttention(nn.Module):
             key_value: tensor of shape (batch_size, seq_length_kv, embed_dim)
         """
         batch_size, query_len, _ = query.size()
-        kv_len = key_value.size(1)
+        kv_batch_size, kv_len, _ = key_value.size()
+
+        # Handle batch size mismatch by repeating key_value if needed
+        if kv_batch_size != batch_size:
+            # You can either subsample or repeat based on your needs
+            if kv_batch_size > batch_size:
+                key_value = key_value[:batch_size]
+            else:
+                repeat_factor = (batch_size + kv_batch_size - 1) // kv_batch_size  # ceiling division
+                key_value = key_value.repeat(repeat_factor, 1, 1)[:batch_size]
 
         # Project inputs
         q = self.q_proj(query).view(batch_size, query_len, self.num_heads, self.head_dim).transpose(1, 2)

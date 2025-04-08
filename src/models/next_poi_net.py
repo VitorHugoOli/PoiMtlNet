@@ -39,3 +39,24 @@ class NextPoiNet(nn.Module):
         x = self.output_projection(x)
 
         return x
+
+    @staticmethod
+    def reshape_output(pred, truth):
+        """
+        Reshape the output of the model to match the expected shape for loss calculation.
+
+        Args:
+            pred (torch.Tensor): Model predictions.
+            truth (torch.Tensor): Ground truth labels.
+
+        Returns:
+            torch.Tensor: Reshaped predictions.
+        """
+        B, S, _ = pred.shape
+        next_poi_output = pred.view(B * S, -1)
+        next_poi_labels = truth.view(-1)
+
+        valid_indices = (next_poi_labels != -100)
+        pred_next = next_poi_output[valid_indices]
+        truth_next = next_poi_labels[valid_indices]
+        return pred_next, truth_next

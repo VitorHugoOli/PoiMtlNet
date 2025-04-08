@@ -19,7 +19,7 @@ from configs.model import ModelParameters, ModelConfig
 from loss.FocalLoss import FocalLoss
 from loss.NaiveLoss import NaiveLoss
 from metrics.metrics import FoldResults, FlopsMetrics, TrainingMetrics
-from models.category_net import CategoryPoiNet
+from models.category_net import CategoryNet
 from data.create_fold import SuperInputData
 from models.mtl_poi import MTLnet
 from models.next_poi_net import NextPoiNet
@@ -28,7 +28,7 @@ from utils.calc_flops.calculate_model_flops import calculate_model_flops
 
 
 # Evaluation Functions
-def evaluate_model(model, dataloader, loss_function, reshape_method, foward_method, device, num_classes=None):
+def evaluate_model(model, dataloader, loss_function, reshape_method, foward_method, device):
     """
     Unified evaluation function for both validation and testing.
 
@@ -55,14 +55,11 @@ def evaluate_model(model, dataloader, loss_function, reshape_method, foward_meth
 
             # Forward pass
             out = foward_method(x)
-            if num_classes is not None:
-                pred, truth = reshape_method(out, y, num_classes)
-            else:
-                pred, truth = reshape_method(out, y)
+            pred, truth = reshape_method(out, y)
 
             # Calculate loss
             loss = loss_function(pred, truth).item()
-            total_loss += loss * truth.size(0)  # Weight by batch size
+            total_loss += loss
 
             # Calculate accuracy
             pred_class = torch.argmax(pred, dim=1)
@@ -79,8 +76,9 @@ def train_model(model,
                 scheduler,
                 dataloader_next: SuperInputData,
                 dataloader_category: SuperInputData,
-                task_loss_fn,
-                mtl_loss_fn,
+                next_criterion,
+                category_criterion,
+                mtl_criterion,
                 num_epochs,
                 num_classes,
                 gradient_accumulation_steps=1):
@@ -93,7 +91,7 @@ def train_model(model,
         scheduler: Learning rate scheduler
         dataloader_next: SuperInputData for next POI prediction
         dataloader_category: SuperInputData for category prediction
-        task_loss_fn: Task-specific loss function
+        next_criterion: Task-specific loss function
         mtl_loss_fn: Multi-task loss function
         num_epochs: Number of training epochs
         num_classes: Number of POI classes
@@ -105,11 +103,10 @@ def train_model(model,
     # Initialize fold results and training components
     fold_results = FoldResults()
     pcgrad = PCGrad(n_tasks=2, device=DEVICE, reduction="sum")
-    scaler = GradScaler()
 
     # Get FLOPS metrics
-    fold_results.flops = calculate_flops(dataloader_category, dataloader_next, model)
-    fold_results.flops.display()
+    # fold_results.flops = calculate_flops(dataloader_category, dataloader_next, model)
+    # fold_results.flops.display()
 
     # Set gradient clipping norm
     max_grad_norm = 1.0
@@ -133,10 +130,6 @@ def train_model(model,
         category_running_acc = 0.0
         steps = 0
 
-        # Reset gradients at the beginning
-        optimizer.zero_grad()
-        batch_idx = 0
-
         # Iterate over batches with automatic progress tracking
         for data_next, data_category in progress.iter_epoch():
             # Move data to device
@@ -151,51 +144,31 @@ def train_model(model,
             x_category = x_category.contiguous()
             y_category = y_category.contiguous()
 
-            # Forward pass for both tasks with mixed precision
-            out_category, out_next = model([x_category, x_next])
+            optimizer.zero_grad()
+            category_output, next_poi_output = model((x_category, x_next))
 
-            # Process predictions
-            pred_next, truth_next = NextPoiNet.reshape_output(out_next, y_next, num_classes)
-            pred_category, truth_category = CategoryPoiNet.reshape_output(out_category, y_category)
+            # Reshape outputs for loss calculation
+            pred_category,truth_category = CategoryNet.reshape_output(category_output, y_category)
+            pred_next, truth_next = NextPoiNet.reshape_output(next_poi_output, y_next)
 
-            # Calculate losses (normalized by accumulation steps)
-            loss_next = task_loss_fn(pred_next, truth_next) / gradient_accumulation_steps
-            loss_category = task_loss_fn(pred_category, truth_category) / gradient_accumulation_steps
-            loss_mtl = mtl_loss_fn.compute_loss(loss_next, loss_category)
+            category_loss = category_criterion(category_output, truth_category)
+            next_loss = next_criterion(pred_next, truth_next)
 
-            # Backpropagate scaled loss using PCGrad for multi-task optimization
-            # scaler.scale(loss_mtl).backward(retain_graph=True)
-            scaler.scale(loss_next).backward(retain_graph=True)
-            scaler.scale(loss_category).backward(retain_graph=True)
+            loss = model.loss_balancing(category_loss, next_loss)
+            loss.backward()
 
             # Apply PCGrad to manage gradient conflicts between tasks
-            pcgrad.backward(
-                losses=torch.stack([loss_next, loss_category]),
-                shared_parameters=list(model.shared_layers.parameters()),
-            )
+            if DEVICE == 'mps':
+                torch.mps.synchronize()  # Ensure all operations complete
 
-            # Apply optimizer step and scaler update after accumulating gradients
-            if (batch_idx + 1) % gradient_accumulation_steps == 0:
-                if DEVICE == 'mps':
-                    torch.mps.synchronize()  # Ensure all operations complete
-                # Unscale before gradient clipping
-                scaler.unscale_(optimizer)
-
-                # Clip gradients
-                torch.nn.utils.clip_grad_norm_(model.parameters(), max_grad_norm)
-
-                # Optimizer step and scaler update
-                scaler.step(optimizer)
-                scaler.update()
-                optimizer.zero_grad(set_to_none=True)
-
-            # Update batch index
-            batch_idx += 1
+            optimizer.step()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_grad_norm)
+            scheduler.step()
 
             # Track metrics (use non-scaled loss for metrics)
-            batch_loss = loss_mtl.item() * gradient_accumulation_steps
-            batch_loss_next = loss_next.item() * gradient_accumulation_steps
-            batch_loss_category = loss_category.item() * gradient_accumulation_steps
+            batch_loss = loss.item()
+            batch_loss_next = next_loss.item()
+            batch_loss_category = category_loss.item()
 
             running_loss += batch_loss
             next_running_loss += batch_loss_next
@@ -215,6 +188,7 @@ def train_model(model,
             # Update metrics on progress bar (it automatically handles the progress update)
             progress.set_postfix({
                 'loss': f'{batch_loss:.4f}',
+                'lr': f'{scheduler.get_last_lr()[0]:.4f}',
                 'next': f'{batch_loss_next:.4f}({next_acc:.4f})',
                 'cat': f'{batch_loss_category:.4f}({category_acc:.4f})'
             })
@@ -228,21 +202,22 @@ def train_model(model,
         fold_results.next.add_accuracy(next_running_acc / steps)
         fold_results.category.add_accuracy(category_running_acc / steps)
 
+        scheduler.step()
+
         # Validation phase with progress tracking
         with progress.validation():
             acc_val_category, loss_val_category = evaluate_model(
-                model, dataloader_category.val.dataloader, task_loss_fn,
-                reshape_method=CategoryPoiNet.reshape_output,
+                model, dataloader_category.val.dataloader, category_criterion,
+                reshape_method=CategoryNet.reshape_output,
                 foward_method=model.forward_category,
                 device=DEVICE,
             )
 
             acc_val_next, loss_val_next = evaluate_model(
-                model, dataloader_next.val.dataloader, task_loss_fn,
+                model, dataloader_next.val.dataloader, next_criterion,
                 reshape_method=NextPoiNet.reshape_output,
                 foward_method=model.forward_next,
                 device=DEVICE,
-                num_classes=num_classes,
             )
 
             # Store validation metrics
@@ -304,21 +279,34 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
         print(f'FOLD {i_fold} [{fold_idx + 1}/{total_folds}]:')
         clear_mps_cache()
 
-        # Initialize model with enhanced weight initialization
-        model = MTLnet(
-            feature_size=ModelParameters.INPUT_DIM,
-            shared_layer_size=ModelParameters.SHARED_LAYER_SIZE,
-            num_classes=ModelConfig.NUM_CLASSES,
-            num_heads=ModelParameters.NUM_HEADS,
-            num_layers=ModelParameters.NUM_LAYERS,
-            seq_length=ModelParameters.SEQ_LENGTH,
-            num_shared_layers=ModelParameters.NUM_SHARED_LAYERS
-        )
-        model = model.to(DEVICE)
-
         # Get dataloaders
         dataloader_next: SuperInputData = dataloader['next']
         dataloader_category = dataloader['category']
+
+
+        # Hyperparameters
+        vocab_size = dataloader_category.train.x.shape[0]
+        embed_dim = 100
+        shared_dim = 256
+        num_classes = 7
+        num_heads = 5
+        seq_length = 9
+        num_shared_layers = 2
+        learning_rate = 5e-5
+
+        # Initialize model with enhanced weight initialization
+        model = MTLnet(
+            vocab_size=vocab_size,
+            embed_dim=embed_dim,
+            shared_dim=shared_dim,
+            num_classes=num_classes,
+            num_heads=num_heads,
+            seq_length=seq_length,
+            num_shared_layers=num_shared_layers,
+            dropout=0.1
+        )
+        model = model.to(DEVICE)
+
 
         # Use AdamW with weight decay for better convergence
         optimizer = optim.AdamW(
@@ -339,15 +327,15 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
             div_factor=25
         )
 
-        # Initialize loss functions
-        task_loss_fn = FocalLoss(alpha=1, gamma=2, reduction='mean')
-        mtl_loss_fn = NaiveLoss()
+        category_criterion = nn.CrossEntropyLoss()
+        next_criterion = nn.CrossEntropyLoss(ignore_index=-100)  # -100 to ignore padding
+        mtl_criterion = NaiveLoss()
 
         # Train the model with gradient accumulation
         results = train_model(
             model, optimizer, scheduler,
             dataloader_next, dataloader_category,
-            task_loss_fn, mtl_loss_fn, num_epochs, num_classes,
+            next_criterion, category_criterion, mtl_criterion, num_epochs, num_classes,
             gradient_accumulation_steps=gradient_accumulation_steps
         )
 
@@ -408,7 +396,7 @@ def validation_model(dataloader_category, dataloader_next, model, num_classes):
         for batch in dataloader_next.val.dataloader:
             x, y = batch['x'].to(DEVICE), batch['y'].to(DEVICE)
             out = model.forward_next(x)
-            pred, truth = NextPoiNet.reshape_output(out, y, num_classes)
+            pred, truth = NextPoiNet.reshape_output(out, y)
             pred_class = torch.argmax(pred, dim=1)
 
             all_pred_next.append(pred_class.cpu())
@@ -418,7 +406,7 @@ def validation_model(dataloader_category, dataloader_next, model, num_classes):
         for batch in dataloader_category.val.dataloader:
             x, y = batch['x'].to(DEVICE), batch['y'].to(DEVICE)
             out = model.forward_category(x)
-            pred, truth = CategoryPoiNet.reshape_output(out, y)
+            pred, truth = CategoryNet.reshape_output(out, y)
             pred_class = torch.argmax(pred, dim=1)
 
             all_pred_category.append(pred_class.cpu())

@@ -1,46 +1,9 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-import math
 
 from models.category_net import CategoryNet
+from models.next_poi_net import NextPoiNet
 from models.support.utils import PositionalEncoding, TransformerBlock, MultiHeadCrossAttention
-
-
-class NextPoiNet(nn.Module):
-    def __init__(self, embed_dim, num_classes, num_heads, seq_length, num_layers, dropout=0.1):
-        super(NextPoiNet, self).__init__()
-
-        self.positional_encoding = PositionalEncoding(embed_dim, seq_length, dropout)
-
-        # Transformer layers
-        self.transformer_layers = nn.ModuleList([
-            TransformerBlock(embed_dim, num_heads, embed_dim * 4, dropout)
-            for _ in range(num_layers)
-        ])
-
-        # Cross-attention for task interaction
-        self.cross_attention = MultiHeadCrossAttention(embed_dim, num_heads, dropout)
-
-        # Output projection
-        self.output_projection = nn.Linear(embed_dim, num_classes)
-
-    def forward(self, x, context=None, mask=None):
-        # Add positional encoding
-        x = self.positional_encoding(x)
-
-        # Apply transformer layers
-        for layer in self.transformer_layers:
-            x = layer(x, mask)
-
-        # Apply cross-attention if context is provided
-        if context is not None:
-            x = x + self.cross_attention(x, context)
-
-        # Project to output classes
-        x = self.output_projection(x)
-
-        return x
 
 
 class MTLnet(nn.Module):
@@ -90,6 +53,10 @@ class MTLnet(nn.Module):
         """
         category_input, next_input = inputs
 
+        # Get batch sizes
+        cat_batch_size = category_input.shape[0]
+        next_batch_size = next_input.shape[0]
+
         # Create attention masks
         category_mask = None  # No masking for category task
         next_mask = torch.triu(torch.ones(self.seq_length, self.seq_length) * float('-inf'), diagonal=1).to(
@@ -103,9 +70,14 @@ class MTLnet(nn.Module):
         category_gate = self.task_gate(shared_category.mean(dim=1, keepdim=True))
         next_gate = self.task_gate(shared_next.mean(dim=1, keepdim=True))
 
-        # Forward each task with cross-task awareness
-        out_category = self.category_net(shared_category, shared_next)
-        out_next = self.next_poi_net(shared_next, shared_category, next_mask)
+        # Handle context passing - use smaller batch size
+        min_batch_size = min(cat_batch_size, next_batch_size)
+        cat_context = shared_category[:min_batch_size]
+        next_context = shared_next[:min_batch_size]
+
+            # Forward each task with cross-task awareness
+        out_category = self.category_net(shared_category, next_context)  # Use subset of next context
+        out_next = self.next_poi_net(shared_next, cat_context, next_mask)  # Use subset of category context
 
         return out_category, out_next
 

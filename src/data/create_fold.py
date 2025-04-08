@@ -112,7 +112,7 @@ def create_dataloader(
         indices: Optional[np.ndarray] = None,
         batch_size: int = 64,
         shuffle: bool = True,
-        prefetch_factor: int = 3
+        prefetch_factor: int = 2
 ) -> DataLoader:
     """Create DataLoader with optimal settings for performance"""
     if indices is not None:
@@ -231,7 +231,10 @@ def create_folds(
         # Convert to tensors
         x_next_tensor, y_next_tensor = convert_to_tensors(x_next_fold, y_next, 'next')
         x_category_tensor, y_category_tensor = convert_to_tensors(x_category, y_category, 'category')
-        
+
+        print(x_next_tensor.shape)
+        print(x_category_tensor.shape)
+
         # Create dataloaders
         next_train_loader = create_dataloader(
             x_next_tensor, y_next_tensor, train_idx_next, batch_size)

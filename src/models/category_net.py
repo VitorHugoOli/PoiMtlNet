@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 
+from configs.globals import DEVICE
 from models.support.utils import MultiHeadCrossAttention
 
 
@@ -63,10 +64,27 @@ class CategoryNet(nn.Module):
         # Apply CNN blocks
         x = self.conv_block1(x)
         x = self.conv_block2(x)
-        x = self.adaptive_pool(x)
+        if DEVICE.type == "mps":
+            x = x.to("cpu")
+            x = self.adaptive_pool(x)
+            x = x.to(DEVICE)
+        else:
+            x = self.adaptive_pool(x)
 
         # Flatten and classify
         x = x.view(batch_size * seq_len, -1)
         x = self.classifier(x)
 
         return x
+
+    @staticmethod
+    def reshape_output(pred, truth):
+        """
+        Reshape the output of the model to match the ground truth shape.
+        :param pred: Model predictions
+        :param truth: Ground truth labels
+        :return: Reshaped predictions
+        """
+
+        # Reshape the predictions to match the ground truth shape
+        return pred, truth.view(-1)
