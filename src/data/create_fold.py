@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import torch
 from torch.utils.data import DataLoader, Dataset
-from sklearn.model_selection import KFold
+from sklearn.model_selection import KFold, StratifiedKFold
 from tqdm import tqdm
 import gc
 
@@ -207,17 +207,31 @@ def create_folds(
     y_category = map_categories(y_category)
     logger.info(f"Category POI features shape: {x_category.shape}, targets shape: {y_category.shape}")
 
-    # K-fold setup
-    kf = KFold(n_splits=k_splits, shuffle=True, random_state=random_state)
+    # Create user-level stratification labels
+    # For each user, get the most frequent category they visit (or other stratification approach)
+    user_categories = {}
+    for user_id in userids:
+        user_mask = df_next['userid'] == user_id
+        user_categories[user_id] = df_next.loc[user_mask, 'next_category'].mode()[0]
+
+    # Convert to array in the same order as userids
+    user_strat_labels = np.array([user_categories[uid] for uid in userids])
+
+    # Setup StratifiedKFold for users
+    user_skf = StratifiedKFold(n_splits=k_splits, shuffle=True, random_state=random_state)
+
+    # Setup StratifiedKFold for places
+    place_skf = StratifiedKFold(n_splits=k_splits, shuffle=True, random_state=random_state)
+
     fold_results: Dict[int, Dict[str, SuperInputData]] = {}
 
-    io_input = enumerate(
-        zip(kf.split(userids), kf.split(x_category)))
+    # Process each fold using stratified splits
+    fold_idx = 0
+    for (train_user_idx, test_user_idx), (train_place_idx, test_place_idx) in zip(
+            user_skf.split(userids, user_strat_labels),
+            place_skf.split(x_category, y_category)):
 
-    # Process each fold
-    for fold, ((train_user_idx, test_user_idx), (train_place_idx, test_place_idx)) in tqdm(io_input,
-                                                                                           desc="Processing folds"):
-        logger.info(f"Processing fold {fold + 1}/{k_splits}")
+        logger.info(f"Processing fold {fold_idx + 1}/{k_splits}")
 
         # Get user IDs for each split
         train_users = userids[train_user_idx]
@@ -226,7 +240,7 @@ def create_folds(
         # Create a copy of x_next without userid for tensor conversion
         x_next_fold = x_next.drop('userid', axis=1)
 
-        # Get indices for Next POI data before dropping userid - use boolean indexing for better efficiency
+        # Get indices for Next POI data
         train_mask = x_next['userid'].isin(train_users)
         val_mask = x_next['userid'].isin(val_users)
         train_idx_next = np.where(train_mask)[0]
@@ -275,10 +289,12 @@ def create_folds(
         )
 
         # Store results for this fold
-        fold_results[fold] = {
+        fold_results[fold_idx] = {
             'next': next_data,
             'category': category_data
         }
+
+        fold_idx += 1
 
         # Manually run garbage collection after each fold to free memory
         gc.collect()
