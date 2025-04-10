@@ -1,7 +1,6 @@
 import pickle
 
 import torch
-from calflops import calculate_flops
 
 from configs.model import ModelConfig
 from configs.paths import IO_ROOT, OUTPUT_ROOT, RESULTS_PATH

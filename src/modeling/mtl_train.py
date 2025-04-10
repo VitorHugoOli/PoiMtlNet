@@ -149,8 +149,25 @@ def train_model(model,
                 pred_next_cls = torch.argmax(pred_next, dim=1)
                 pred_category_cls = torch.argmax(pred_category, dim=1)
 
-                next_acc = accuracy_score(truth_next.cpu().numpy(), pred_next_cls.cpu().numpy())
-                category_acc = accuracy_score(truth_category.cpu().numpy(), pred_category_cls.cpu().numpy())
+                next_report = classification_report(
+                    truth_next.cpu().numpy(),
+                    pred_next_cls.cpu().numpy(),
+                    output_dict=True,
+                    zero_division=0
+                )
+
+                category_report = classification_report(
+                    truth_category.cpu().numpy(),
+                    pred_category_cls.cpu().numpy(),
+                    output_dict=True,
+                    zero_division=0
+                )
+
+                f1_next = next_report['macro avg']['f1-score']
+                f1_category = category_report['macro avg']['f1-score']
+
+                next_acc = next_report['accuracy']
+                category_acc = category_report['accuracy']
 
                 next_running_acc += next_acc
                 category_running_acc += category_acc
@@ -158,41 +175,38 @@ def train_model(model,
             # Update metrics on progress bar (it automatically handles the progress update)
             progress.set_postfix({
                 'loss': f'{batch_loss:.4f}',
-                'lr': f'{scheduler.get_last_lr()[0]:.4f}',
-                'next': f'{batch_loss_next:.4f}({next_acc:.4f})',
-                'cat': f'{batch_loss_category:.4f}({category_acc:.4f})'
+                'next': f'{f1_next:.4f}({next_acc:.4})',
+                'cat': f'{f1_category:.4f}({category_acc:.4f})'
             })
             steps += 1
 
         # Calculate epoch metrics
         epoch_loss = running_loss / steps
         fold_results.mtl.add_loss(epoch_loss)
-        fold_results.next.add_loss(next_running_loss / steps)
-        fold_results.category.add_loss(category_running_loss / steps)
         fold_results.next.add_accuracy(next_running_acc / steps)
         fold_results.category.add_accuracy(category_running_acc / steps)
 
         # Validation phase with progress tracking
         with progress.validation():
-            acc_val_next, loss_val_next, acc_val_category, loss_val_category = evaluate_model(
+            acc_val_next, f1_val_next, acc_val_category, f1_val_category, loss_val_next = evaluate_model(
                 model,
                 [dataloader_next.val.dataloader, dataloader_category.val.dataloader],
                 task_loss_fn,
+                mtl_loss_fn,
                 DEVICE,
                 num_classes=num_classes
             )
 
             # Store validation metrics
-            fold_results.category.add_val_loss(loss_val_category)
-            fold_results.next.add_val_loss(loss_val_next)
-            fold_results.category.add_val_accuracy(acc_val_category, model_state=model.state_dict())
+            fold_results.mtl.add_val_loss(loss_val_next)
             fold_results.next.add_val_accuracy(acc_val_next, model_state=model.state_dict())
+            fold_results.category.add_val_accuracy(acc_val_category, model_state=model.state_dict())
 
         # Update metrics on progress bar with validation results
         progress.set_postfix({
-            'loss': f'{epoch_loss:.4f}',
-            'next_val': f'{loss_val_next:.4f}({acc_val_next:.4f})',
-            'cat_val': f'{loss_val_category:.4f}({acc_val_category:.4f})'
+            'val_loss': f'{loss_val_next:.4f}',
+            'next_val': f'{f1_val_next:.4f}({acc_val_next:.4f})',
+            'cat_val': f'{f1_val_category:.4f}({acc_val_category:.4f})'
         })
 
     return fold_results

@@ -1,7 +1,8 @@
 import torch
+from sklearn.metrics import classification_report
 
 
-def evaluate_model(model, dataloaders, loss_function, device, num_classes=None):
+def evaluate_model(model, dataloaders, task_loss_fn, mtl_loss_fn, device, num_classes=None):
     """
     Unified evaluation function for both validation and testing.
 
@@ -18,11 +19,11 @@ def evaluate_model(model, dataloaders, loss_function, device, num_classes=None):
         Tuple of (accuracy, loss)
     """
     model.eval()
-    total_loss_next = 0.0
-    total_loss_category = 0.0
-    total_correct_next = 0
-    total_correct_category = 0
-    total_samples = 0
+    total_loss = 0.0
+    all_predictions_next = []
+    all_truths_next = []
+    all_predictions_category = []
+    all_truths_category = []
     batchs = 0
 
     with torch.no_grad():
@@ -35,24 +36,30 @@ def evaluate_model(model, dataloaders, loss_function, device, num_classes=None):
             pred_next, truth_next = next_out, y_next
             pred_category, truth_category = cat_out, y_category
 
-            # Calculate loss
-            total_loss_next += loss_function(pred_next, truth_next).item()
-            total_loss_category += loss_function(pred_category, truth_category).item()
+            total_loss += mtl_loss_fn.compute_loss_no_adjustment(
+                task_loss_fn(pred_next, truth_next).item(),
+                task_loss_fn(pred_category, truth_category).item()
+            )
 
             # Calculate accuracy
             pred_next_class = torch.argmax(pred_next, dim=1)
             pred_category_class = torch.argmax(pred_category, dim=1)
-            total_correct_next += (pred_next_class == truth_next).sum().item()
-            total_correct_category += (pred_category_class == truth_category).sum().item()
-            total_samples += truth_next.size(0)
+            all_predictions_next.extend(pred_next_class.cpu().numpy())
+            all_truths_next.extend(truth_next.cpu().numpy())
+            all_predictions_category.extend(pred_category_class.cpu().numpy())
+            all_truths_category.extend(truth_category.cpu().numpy())
             batchs += 1
 
-    acc_next = total_correct_next / total_samples
-    acc_category = total_correct_category / total_samples
-    loss_next = total_loss_next / batchs
-    loss_category = total_loss_category / batchs
+    loss_next = total_loss / batchs
 
-    return acc_next, loss_next, acc_category, loss_category
+    next_report = classification_report(all_truths_next, all_predictions_next, output_dict=True)
+    category_report = classification_report(all_truths_category, all_predictions_category, output_dict=True)
+    acc_next = next_report['accuracy']
+    acc_category = category_report['accuracy']
+    f1_next = next_report['macro avg']['f1-score']
+    f1_category = category_report['macro avg']['f1-score']
+
+    return acc_next, f1_next, acc_category, f1_category, loss_next
 
 
 def evaluate_model_by_head(model, dataloader, loss_function, foward_method, device, num_classes=None):
