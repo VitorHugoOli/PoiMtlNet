@@ -183,6 +183,8 @@ def train_model(model,
         # Calculate epoch metrics
         epoch_loss = running_loss / steps
         fold_results.mtl.add_loss(epoch_loss)
+        fold_results.next.add_loss(0)
+        fold_results.category.add_loss(0)
         fold_results.next.add_accuracy(next_running_acc / steps)
         fold_results.category.add_accuracy(category_running_acc / steps)
 
@@ -199,6 +201,8 @@ def train_model(model,
 
             # Store validation metrics
             fold_results.mtl.add_val_loss(loss_val_next)
+            fold_results.next.add_val_loss(0)
+            fold_results.category.add_val_loss(0)
             fold_results.next.add_val_accuracy(acc_val_next, model_state=model.state_dict())
             fold_results.category.add_val_accuracy(acc_val_category, model_state=model.state_dict())
 
