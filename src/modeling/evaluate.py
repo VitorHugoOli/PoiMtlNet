@@ -52,8 +52,8 @@ def evaluate_model(model, dataloaders, task_loss_fn, mtl_loss_fn, device, num_cl
 
     loss_next = total_loss / batchs
 
-    next_report = classification_report(all_truths_next, all_predictions_next, output_dict=True)
-    category_report = classification_report(all_truths_category, all_predictions_category, output_dict=True)
+    next_report = classification_report(all_truths_next, all_predictions_next, output_dict=True, zero_division=0)
+    category_report = classification_report(all_truths_category, all_predictions_category, output_dict=True,zero_division=0)
     acc_next = next_report['accuracy']
     acc_category = category_report['accuracy']
     f1_next = next_report['macro avg']['f1-score']
