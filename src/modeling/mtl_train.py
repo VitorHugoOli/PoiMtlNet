@@ -261,22 +261,23 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
         dataloader_next: SuperInputData = dataloader['next']
         dataloader_category = dataloader['category']
 
-        optimizer = optim.RAdam(
+        optimizer = optim.AdamW(
             model.parameters(),
-            lr=learning_rate,
-            weight_decay=1e-4,
-            betas=(0.9, 0.999),
-            eps=1e-5
+            lr=learning_rate * 2,  # Start with higher base learning rate
+            weight_decay=1e-5,  # Lower weight decay
+            betas=(0.9, 0.95),  # More momentum
+            eps=1e-8
         )
 
         # Learning rate scheduler with patience
         scheduler = OneCycleLR(
             optimizer,
-            max_lr=learning_rate * 10,
+            max_lr=learning_rate * 20,  # Double the peak learning rate
             epochs=num_epochs,
             steps_per_epoch=len(dataloader_next.train.dataloader),
-            pct_start=0.3,
-            div_factor=25
+            pct_start=0.2,  # Reach peak LR earlier
+            div_factor=25,
+            final_div_factor=10000  # Stronger annealing at the end
         )
 
         # Initialize loss functions
