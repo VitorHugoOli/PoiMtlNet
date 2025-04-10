@@ -50,22 +50,3 @@ class MTLnet(nn.Module):
         out1 = out1.view(-1, self.num_classes)
 
         return out1, out2
-
-    def forward_next(self, x):
-        idxs = x.sum(-1) == 0
-        x[idxs] = self.embedding(torch.tensor(0, dtype=torch.long).to(DEVICE))
-
-        shared_output = self.shared_layers(x)
-
-        out = self.next_poi(shared_output)
-
-        return out
-
-    def forward_category(self, x):
-        shared_output = self.shared_layers(x)
-
-        out = self.category_poi(shared_output)
-
-        out = out.view(-1, self.num_classes)
-
-        return out

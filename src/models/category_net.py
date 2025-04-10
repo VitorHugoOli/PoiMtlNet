@@ -23,13 +23,10 @@ class CategoryPoiNet(nn.Module):
         self.fc2 = nn.Linear(128, num_classes)
 
     def forward(self, x):
-        # print(f"Init1 >{x.shape}")
         x = self.linear(x)
         b, seq, dim = x.shape
         dim = int(dim ** 0.5)
         x = x.view(b, seq, dim, dim)
-        # print(f"Init2 >{x.shape}")
-
 
         out = self.conv_layer1(x)
         out = self.conv_layer2(out)
@@ -39,26 +36,10 @@ class CategoryPoiNet(nn.Module):
         out = self.conv_layer4(out)
         out = self.max_pool2(out)
 
-        # print(f"Mid1 >{out.shape}")
         out = out.view(b, seq, -1)
-        # print(f"Mid2 >{out.shape}")
 
         out = self.fc1(out)
         out = self.relu1(out)
         out = self.fc2(out)
 
-        # print(f"Final >{out.shape}")
         return out
-
-    @staticmethod
-    def reshape_output(out, y):
-        """Reshape output and target for loss computation"""
-        y = y.view(-1)
-        return out, y
-
-    @staticmethod
-    def reshape_output_old(out, y):
-        """Legacy reshaping method using one-hot encoding (kept for reference)"""
-        one_hot = torch.eye(ModelConfig.NUM_CLASSES).to(DEVICE)
-        return out, one_hot[y]
-

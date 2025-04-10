@@ -21,6 +21,8 @@ class RawMetrics:
     val_loss: List[float] = dataclasses.field(default_factory=list)
     val_accuracy: List[float] = dataclasses.field(default_factory=list)
 
+    best_model: Optional[dict] = None
+
     def add_loss(self, loss: float):
         """Add loss value."""
         self.loss.append(loss)
@@ -33,9 +35,11 @@ class RawMetrics:
         """Add validation loss value."""
         self.val_loss.append(val_loss)
 
-    def add_val_accuracy(self, val_accuracy: float):
-        """Add validation accuracy value."""
+    def add_val_accuracy(self, val_accuracy: float, model_state: Optional[dict] = None):
+        """Add validation accuracy value and save the model if it's the best."""
         self.val_accuracy.append(val_accuracy)
+        if val_accuracy == max(self.val_accuracy):  # Check if it's the best accuracy
+            self.save_best_model(model_state)
 
     def get_last_loss(self) -> Optional[float]:
         """Get last loss value."""
@@ -52,6 +56,10 @@ class RawMetrics:
     def get_last_val_accuracy(self) -> Optional[float]:
         """Get last validation accuracy value."""
         return self.val_accuracy[-1] if self.val_accuracy else None
+
+    def save_best_model(self, model_state: dict):
+        """Save the best model state."""
+        self.best_model = model_state
 
 
 @dataclasses.dataclass
@@ -694,9 +702,9 @@ class UtilsMetrics:
                 # Create row with metrics
                 row_data = {
                     'Class': category_name,
+                    'F1-Score': f"{class_data['f1-score'] * 100:.2f}%",
                     'Precision': f"{class_data['precision'] * 100:.2f}%",
                     'Recall': f"{class_data['recall'] * 100:.2f}%",
-                    'F1-Score': f"{class_data['f1-score'] * 100:.2f}%",
                     'Support': int(class_data['support'])
                 }
                 metrics_df = pd.concat([metrics_df, pd.DataFrame([row_data])], ignore_index=True)
@@ -710,9 +718,9 @@ class UtilsMetrics:
                 avg_data = report_dict[avg_type]
                 row_data = {
                     'Class': avg_type,
+                    'F1-Score': f"{avg_data['f1-score'] * 100:.2f}%",
                     'Precision': f"{avg_data['precision'] * 100:.2f}%",
                     'Recall': f"{avg_data['recall'] * 100:.2f}%",
-                    'F1-Score': f"{avg_data['f1-score'] * 100:.2f}%",
                     'Support': int(avg_data['support']) if 'support' in avg_data else '-'
                 }
                 metrics_df = pd.concat([metrics_df, pd.DataFrame([row_data])], ignore_index=True)

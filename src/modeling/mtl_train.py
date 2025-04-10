@@ -5,13 +5,15 @@ import torch.optim as optim
 import numpy as np
 import time
 from datetime import timedelta
+
+from torch.nn import CrossEntropyLoss
 from tqdm.auto import tqdm
-from calflops import calculate_flops
 from sklearn.metrics import classification_report, accuracy_score
 from torch.cuda.amp import autocast, GradScaler
 from torch.optim.lr_scheduler import ReduceLROnPlateau, OneCycleLR
 from itertools import cycle
 
+from common.flops import calculate_flops
 from common.mps_support import clear_mps_cache
 from common.training_progress import TrainingProgressBar
 from configs.globals import DEVICE
@@ -19,58 +21,14 @@ from configs.model import ModelParameters, ModelConfig
 from loss.FocalLoss import FocalLoss
 from loss.NaiveLoss import NaiveLoss
 from metrics.metrics import FoldResults, FlopsMetrics, TrainingMetrics
+from modeling.evaluate import evaluate_model
+from modeling.validation import validation_model, validation_best_model
 from models.category_net import CategoryPoiNet
 from data.create_fold import SuperInputData
 from models.mtl_poi import MTLnet
 from models.next_poi_net import NextPoiNet
 from optmizer.pcgrad import PCGrad
 from utils.calc_flops.calculate_model_flops import calculate_model_flops
-
-
-# Evaluation Functions
-def evaluate_model(model, dataloader, loss_function, reshape_method, foward_method, device, num_classes=None):
-    """
-    Unified evaluation function for both validation and testing.
-
-    Args:
-        model: The MTLPOI model
-        dataloader: DataLoader with evaluation data
-        loss_functions: Dictionary of loss functions
-        reshape_method: Method to reshape output and target
-        foward_method: Method to forward data through the model
-        device: Device to run evaluation on
-        num_classes: Number of POI classes
-
-    Returns:
-        Tuple of (accuracy, loss)
-    """
-    model.eval()
-    total_loss = 0.0
-    total_correct = 0
-    total_samples = 0
-
-    with torch.no_grad():
-        for data in dataloader:
-            x, y = data['x'].to(device), data['y'].to(device)
-
-            # Forward pass
-            out = foward_method(x)
-            if num_classes is not None:
-                pred, truth = reshape_method(out, y, num_classes)
-            else:
-                pred, truth = reshape_method(out, y)
-
-            # Calculate loss
-            loss = loss_function(pred, truth).item()
-            total_loss += loss * truth.size(0)  # Weight by batch size
-
-            # Calculate accuracy
-            pred_class = torch.argmax(pred, dim=1)
-            total_correct += (pred_class == truth).sum().item()
-            total_samples += truth.size(0)
-
-    # Return average accuracy and loss
-    return total_correct / total_samples, total_loss / total_samples
 
 
 # Training Function
@@ -155,8 +113,11 @@ def train_model(model,
             category_output, next_poi_output = model((x_category, x_next))
 
             # Process predictions
-            pred_next, truth_next = NextPoiNet.reshape_output(next_poi_output, y_next, num_classes)
-            pred_category, truth_category = CategoryPoiNet.reshape_output(category_output, y_category)
+            # pred_next, truth_next = NextPoiNet.reshape_output(next_poi_output, y_next, num_classes)
+            # pred_category, truth_category = CategoryPoiNet.reshape_output(category_output, y_category)
+
+            pred_next, truth_next = next_poi_output, y_next
+            pred_category, truth_category = category_output, y_category
 
             # Calculate losses (normalized by accumulation steps)
             next_loss = task_loss_fn(pred_next, truth_next)
@@ -164,13 +125,7 @@ def train_model(model,
             loss = mtl_loss_fn.compute_loss(next_loss, category_loss)
 
             # Backpropagate scaled loss using PCGrad for multi-task optimization
-            # next_loss.backward(retain_graph=True)
-            # category_loss.backward(retain_graph=True)
             loss.backward()
-            # pcgrad.backward(
-            #     losses=torch.stack([next_loss, category_loss]),
-            #     shared_parameters=list(model.shared_layers.parameters()),
-            # )
 
             # Apply optimizer step and scaler update after accumulating gradients
             if DEVICE == 'mps':
@@ -219,26 +174,19 @@ def train_model(model,
 
         # Validation phase with progress tracking
         with progress.validation():
-            acc_val_category, loss_val_category = evaluate_model(
-                model, dataloader_category.val.dataloader, task_loss_fn,
-                reshape_method=CategoryPoiNet.reshape_output,
-                foward_method=model.forward_category,
-                device=DEVICE,
-            )
-
-            acc_val_next, loss_val_next = evaluate_model(
-                model, dataloader_next.val.dataloader, task_loss_fn,
-                reshape_method=NextPoiNet.reshape_output,
-                foward_method=model.forward_next,
-                device=DEVICE,
-                num_classes=num_classes,
+            acc_val_next, loss_val_next, acc_val_category, loss_val_category = evaluate_model(
+                model,
+                [dataloader_next.val.dataloader, dataloader_category.val.dataloader],
+                task_loss_fn,
+                DEVICE,
+                num_classes=num_classes
             )
 
             # Store validation metrics
             fold_results.category.add_val_loss(loss_val_category)
             fold_results.next.add_val_loss(loss_val_next)
-            fold_results.category.add_val_accuracy(acc_val_category)
-            fold_results.next.add_val_accuracy(acc_val_next)
+            fold_results.category.add_val_accuracy(acc_val_category, model_state=model.state_dict())
+            fold_results.next.add_val_accuracy(acc_val_next, model_state=model.state_dict())
 
         # Update metrics on progress bar with validation results
         progress.set_postfix({
@@ -247,15 +195,7 @@ def train_model(model,
             'cat_val': f'{loss_val_category:.4f}({acc_val_category:.4f})'
         })
 
-
     return fold_results
-
-
-def calculate_flops(dataloader_category, dataloader_next, model):
-    sample_category = next(iter(dataloader_category.train.dataloader))['x'].to(DEVICE)
-    sample_next = next(iter(dataloader_next.train.dataloader))['x'].to(DEVICE)
-    result = calculate_model_flops(model, [sample_category[1:], sample_next[1:]], print_report=True, units='K')
-    return FlopsMetrics(flops=result['total_flops'], params=result['params']['total'])
 
 
 # Cross-validation function
@@ -307,8 +247,7 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
         dataloader_next: SuperInputData = dataloader['next']
         dataloader_category = dataloader['category']
 
-        # Use AdamW with weight decay for better convergence
-        optimizer = optim.AdamW(
+        optimizer = optim.RAdam(
             model.parameters(),
             lr=learning_rate,
             weight_decay=1e-4,
@@ -328,7 +267,7 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
 
         # Initialize loss functions
         task_loss_fn = FocalLoss(alpha=1, gamma=2, reduction='mean')
-        mtl_loss_fn = NaiveLoss()
+        mtl_loss_fn = NaiveLoss(alpha=0.5, beta=0.5)
 
         # Train the model with gradient accumulation
         results = train_model(
@@ -340,8 +279,14 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
 
         # Run final validation
         print("\nRunning final validation...")
-        model.eval()
-        report_next, report_category = validation_model(dataloader_category, dataloader_next, model, num_classes)
+        report_next, report_category = validation_best_model(
+            dataloader_next.val.dataloader,
+            dataloader_category.val.dataloader,
+            results.next.best_model,
+            results.category.best_model,
+            model
+        )
+
         results.add_next_report(report_next)
         results.add_category_report(report_category)
 
@@ -371,54 +316,3 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
     training_metric.export_to_csv()
 
     return training_metric
-
-
-def validation_model(dataloader_category, dataloader_next, model, num_classes):
-    """
-    Perform final validation and add classification reports to training metrics.
-    
-    Args:
-        dataloader_category: Dataloader for category prediction
-        dataloader_next: Dataloader for next POI prediction
-        model: The trained model
-        num_classes: Number of POI classes
-        training_metric: Training metrics object to update
-    """
-    with torch.no_grad():
-        # Move validation data to device in batches to avoid OOM errors
-        all_pred_next = []
-        all_truth_next = []
-        all_pred_category = []
-        all_truth_category = []
-
-        # Evaluate next POI task in batches
-        for batch in dataloader_next.val.dataloader:
-            x, y = batch['x'].to(DEVICE), batch['y'].to(DEVICE)
-            out = model.forward_next(x)
-            pred, truth = NextPoiNet.reshape_output(out, y, num_classes)
-            pred_class = torch.argmax(pred, dim=1)
-
-            all_pred_next.append(pred_class.cpu())
-            all_truth_next.append(truth.cpu())
-
-        # Evaluate category task in batches
-        for batch in dataloader_category.val.dataloader:
-            x, y = batch['x'].to(DEVICE), batch['y'].to(DEVICE)
-            out = model.forward_category(x)
-            pred, truth = CategoryPoiNet.reshape_output(out, y)
-            pred_class = torch.argmax(pred, dim=1)
-
-            all_pred_category.append(pred_class.cpu())
-            all_truth_category.append(truth.cpu())
-
-            # Concatenate results
-        pred_next = torch.cat(all_pred_next)
-        truth_next = torch.cat(all_truth_next)
-        pred_category = torch.cat(all_pred_category)
-        truth_category = torch.cat(all_truth_category)
-
-        # Generate classification reports
-        report_next = classification_report(truth_next, pred_next, output_dict=True)
-        report_category = classification_report(truth_category, pred_category, output_dict=True)
-
-        return report_next, report_category

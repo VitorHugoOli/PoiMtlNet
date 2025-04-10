@@ -158,16 +158,16 @@ def processing_sequences_next(df_nextpoi_sequences: pd.DataFrame,
             print(f'Found existing file, resuming from index {start_index}\n')
         else:
             # Create empty DataFrame with proper columns
-            col_count = (EMBEDDING_SIZE * (SEQUENCE_LENGTH - 1)) + 10
-            column_names = list(range(col_count - 1)) + ['userid']
+            col_count = (EMBEDDING_SIZE * (SEQUENCE_LENGTH - 1))
+            column_names = list(range(col_count)) + ['next_category', 'userid']
             nextpoi_input = pd.DataFrame(columns=column_names)
             # Pre-allocate memory for faster operations
             nextpoi_input = nextpoi_input.astype({col: np.float32 for col in range(col_count - 1)})
             nextpoi_input = nextpoi_input.astype({'userid': str})
     except Exception as e:
         print(f"Error reading existing file: {str(e)}. Starting from scratch.")
-        col_count = (EMBEDDING_SIZE * (SEQUENCE_LENGTH - 1)) + 10
-        column_names = list(range(col_count - 1)) + ['userid']
+        col_count = (EMBEDDING_SIZE * (SEQUENCE_LENGTH - 1))
+        column_names = list(range(col_count)) + ['next_category', 'userid']
         nextpoi_input = pd.DataFrame(columns=column_names)
         # Pre-allocate memory with appropriate types
         nextpoi_input = nextpoi_input.astype({col: np.float32 for col in range(col_count - 1)})
@@ -180,9 +180,6 @@ def processing_sequences_next(df_nextpoi_sequences: pd.DataFrame,
     # Convert embeddings to numpy array for faster access
     emb_lookup = {poi_id: row.values.astype(np.float32) for poi_id, row in embeddings_without_category.iterrows()}
     zero_emb = np.zeros(EMBEDDING_SIZE, dtype=np.float32)
-
-    # Pre-calculate indices for target extraction
-    idxs = list(range(2, SEQUENCE_LENGTH + 1))
 
     # Process in batches
     batch_size = min(save_step, len(df_nextpoi_sequences))
@@ -208,11 +205,8 @@ def processing_sequences_next(df_nextpoi_sequences: pd.DataFrame,
 
         for i, (userid, row) in enumerate(batch.iterrows()):
             try:
-                # Extract target and features
-                target = row.loc[idxs]
-
                 # Get categories using the lookup dictionary
-                categoria_target = [category_lookup.get(t, 'None') for t in target]
+                categoria_target = category_lookup.get(row.iloc[SEQUENCE_LENGTH - 1], 'None')
 
                 # Get the sequence without the target (more efficient than dropping)
                 sequence_without_target = row.iloc[:SEQUENCE_LENGTH - 1].values
@@ -230,7 +224,7 @@ def processing_sequences_next(df_nextpoi_sequences: pd.DataFrame,
 
                 # Combine embeddings, category and user ID
                 # Using list comprehension for better performance
-                sample = np.append(poi_embedding, categoria_target + [userid])
+                sample = np.append(poi_embedding, [categoria_target] + [userid])
                 results.append(sample)
             except Exception as e:
                 print(f"Error processing row {batch_start + i} (user {userid}): {str(e)}")

@@ -1,3 +1,5 @@
+import pickle
+
 import torch
 from calflops import calculate_flops
 
@@ -26,6 +28,10 @@ if __name__ == '__main__':
         category_data_path,
         k_splits=ModelConfig.K_FOLDS,
     )
+
+    #save the folds in pickle format
+    with open(f'{OUTPUT_ROOT}/{state}/pre-processing/folds.pkl', 'wb') as f:
+        pickle.dump(fold_results, f)
 
     logging.info(f'Fold results: {len(fold_results)}')
 
