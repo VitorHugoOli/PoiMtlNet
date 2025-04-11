@@ -2,6 +2,7 @@ import torch
 from sklearn.metrics import classification_report
 
 
+@torch.no_grad()
 def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_creterion, device, num_classes=None):
     """
     Unified evaluation function for both validation and testing.
@@ -26,28 +27,27 @@ def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_c
     all_truths_category = []
     batchs = 0
 
-    with torch.no_grad():
-        for data_next, data_cat in zip(*dataloaders):
-            x_next, y_next = data_next['x'].to(device), data_next['y'].to(device)
-            x_category, y_category = data_cat['x'].to(device), data_cat['y'].to(device)
+    for data_next, data_cat in zip(*dataloaders):
+        x_next, y_next = data_next['x'].to(device), data_next['y'].to(device)
+        x_category, y_category = data_cat['x'].to(device), data_cat['y'].to(device)
 
-            # Forward pass
-            cat_out, next_out = model((x_category, x_next))
-            pred_next, truth_next = next_out, y_next
-            pred_category, truth_category = cat_out, y_category
+        # Forward pass
+        cat_out, next_out = model((x_category, x_next))
+        pred_next, truth_next = next_out, y_next
+        pred_category, truth_category = cat_out, y_category
 
-            next_loss = next_criterion(pred_next, truth_next)
-            category_loss = category_criterion(pred_category, truth_category)
-            total_loss += (next_loss.item() + category_loss.item()) / 2
+        next_loss = next_criterion(pred_next, truth_next)
+        category_loss = category_criterion(pred_category, truth_category)
+        total_loss += (next_loss.item() + category_loss.item()) / 2
 
-            # Calculate accuracy
-            pred_next_class = torch.argmax(pred_next, dim=1)
-            pred_category_class = torch.argmax(pred_category, dim=1)
-            all_predictions_next.extend(pred_next_class.cpu().numpy())
-            all_truths_next.extend(truth_next.cpu().numpy())
-            all_predictions_category.extend(pred_category_class.cpu().numpy())
-            all_truths_category.extend(truth_category.cpu().numpy())
-            batchs += 1
+        # Calculate accuracy
+        pred_next_class = torch.argmax(pred_next, dim=1)
+        pred_category_class = torch.argmax(pred_category, dim=1)
+        all_predictions_next.extend(pred_next_class.cpu().numpy())
+        all_truths_next.extend(truth_next.cpu().numpy())
+        all_predictions_category.extend(pred_category_class.cpu().numpy())
+        all_truths_category.extend(truth_category.cpu().numpy())
+        batchs += 1
 
     loss_next = total_loss / batchs
 
