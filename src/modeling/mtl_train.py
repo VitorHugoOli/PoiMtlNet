@@ -1,34 +1,24 @@
-import pandas as pd
 import torch
-import torch.nn as nn
 import torch.optim as optim
-import numpy as np
 import time
 from datetime import timedelta
 
-from torch.nn import CrossEntropyLoss
-from tqdm.auto import tqdm
-from sklearn.metrics import classification_report, accuracy_score
-from torch.cuda.amp import autocast, GradScaler
-from torch.optim.lr_scheduler import ReduceLROnPlateau, OneCycleLR
-from itertools import cycle
+from sklearn.metrics import classification_report
+from torch.optim.lr_scheduler import OneCycleLR
 
 from common.flops import calculate_flops
 from common.mps_support import clear_mps_cache
 from common.training_progress import TrainingProgressBar
 from configs.globals import DEVICE
 from configs.model import ModelParameters, ModelConfig
-from loss.FocalLoss import FocalLoss
-from loss.NaiveLoss import NaiveLoss
-from metrics.metrics import FoldResults, FlopsMetrics, TrainingMetrics
+from criterion.FocalLoss import FocalLoss
+from metrics.metrics import FoldResults, TrainingMetrics
 from modeling.evaluate import evaluate_model
-from modeling.validation import validation_model, validation_best_model
-from models.category_net import CategoryPoiNet
+from modeling.validation import validation_best_model
 from data.create_fold import SuperInputData
 from models.mtl_poi import MTLnet
-from models.next_poi_net import NextPoiNet
-from optmizer.pcgrad import PCGrad
-from utils.calc_flops.calculate_model_flops import calculate_model_flops
+from criterion.nash_mtl import NashMTL, WeightMethod
+from criterion.pcgrad import PCGrad
 
 
 # Training Function
@@ -37,8 +27,9 @@ def train_model(model,
                 scheduler,
                 dataloader_next: SuperInputData,
                 dataloader_category: SuperInputData,
-                task_loss_fn,
-                mtl_loss_fn,
+                next_criterion,
+                category_criterion,
+                mtl_criterion: WeightMethod,
                 num_epochs,
                 num_classes,
                 gradient_accumulation_steps=1):
@@ -52,7 +43,7 @@ def train_model(model,
         dataloader_next: SuperInputData for next POI prediction
         dataloader_category: SuperInputData for category prediction
         task_loss_fn: Task-specific loss function
-        mtl_loss_fn: Multi-task loss function
+        mtl_criterion: Multi-task loss function
         num_epochs: Number of training epochs
         num_classes: Number of POI classes
         gradient_accumulation_steps: Number of steps to accumulate gradients
@@ -120,12 +111,13 @@ def train_model(model,
             pred_category, truth_category = category_output, y_category
 
             # Calculate losses (normalized by accumulation steps)
-            next_loss = task_loss_fn(pred_next, truth_next)
-            category_loss = task_loss_fn(pred_category, truth_category)
-            loss = mtl_loss_fn.compute_loss(next_loss, category_loss)
-
-            # Backpropagate scaled loss using PCGrad for multi-task optimization
-            loss.backward()
+            next_loss = next_criterion(pred_next, truth_next)
+            category_loss = category_criterion(pred_category, truth_category)
+            loss, _ = mtl_criterion.backward(
+                torch.stack([next_loss, category_loss]),
+                shared_parameters=list(model.shared_parameters()),
+                task_specific_parameters=list(model.task_specific_parameters()),
+            )
 
             # Apply optimizer step and scaler update after accumulating gradients
             if DEVICE == 'mps':
@@ -193,8 +185,9 @@ def train_model(model,
             acc_val_next, f1_val_next, acc_val_category, f1_val_category, loss_val_next = evaluate_model(
                 model,
                 [dataloader_next.val.dataloader, dataloader_category.val.dataloader],
-                task_loss_fn,
-                mtl_loss_fn,
+                next_criterion,
+                category_criterion,
+                mtl_criterion,
                 DEVICE,
                 num_classes=num_classes
             )
@@ -285,14 +278,16 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
         )
 
         # Initialize loss functions
-        task_loss_fn = FocalLoss(alpha=1, gamma=2, reduction='mean')
-        mtl_loss_fn = NaiveLoss(alpha=0.5, beta=0.5)
+        next_criterion = FocalLoss(alpha=1, gamma=2, reduction='mean')
+        category_criterion = FocalLoss(alpha=1, gamma=2, reduction='mean')
+        mtl_criterion = NashMTL(n_tasks=2, device=DEVICE, max_norm=1.0, update_weights_every=1)
+        # mtl_criterion = NaiveLoss(alpha=0.5, beta=0.5)
 
         # Train the model with gradient accumulation
         results = train_model(
             model, optimizer, scheduler,
             dataloader_next, dataloader_category,
-            task_loss_fn, mtl_loss_fn, num_epochs, num_classes,
+            next_criterion,category_criterion, mtl_criterion, num_epochs, num_classes,
             gradient_accumulation_steps=gradient_accumulation_steps
         )
 

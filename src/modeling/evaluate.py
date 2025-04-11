@@ -2,7 +2,7 @@ import torch
 from sklearn.metrics import classification_report
 
 
-def evaluate_model(model, dataloaders, task_loss_fn, mtl_loss_fn, device, num_classes=None):
+def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_creterion, device, num_classes=None):
     """
     Unified evaluation function for both validation and testing.
 
@@ -36,10 +36,9 @@ def evaluate_model(model, dataloaders, task_loss_fn, mtl_loss_fn, device, num_cl
             pred_next, truth_next = next_out, y_next
             pred_category, truth_category = cat_out, y_category
 
-            total_loss += mtl_loss_fn.compute_loss_no_adjustment(
-                task_loss_fn(pred_next, truth_next).item(),
-                task_loss_fn(pred_category, truth_category).item()
-            )
+            next_loss = next_criterion(pred_next, truth_next)
+            category_loss = category_criterion(pred_category, truth_category)
+            total_loss += (next_loss.item() + category_loss.item()) / 2
 
             # Calculate accuracy
             pred_next_class = torch.argmax(pred_next, dim=1)
@@ -53,7 +52,8 @@ def evaluate_model(model, dataloaders, task_loss_fn, mtl_loss_fn, device, num_cl
     loss_next = total_loss / batchs
 
     next_report = classification_report(all_truths_next, all_predictions_next, output_dict=True, zero_division=0)
-    category_report = classification_report(all_truths_category, all_predictions_category, output_dict=True,zero_division=0)
+    category_report = classification_report(all_truths_category, all_predictions_category, output_dict=True,
+                                            zero_division=0)
     acc_next = next_report['accuracy']
     acc_category = category_report['accuracy']
     f1_next = next_report['macro avg']['f1-score']
