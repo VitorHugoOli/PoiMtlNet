@@ -246,7 +246,7 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
         model = MTLnet(
             feature_size=ModelParameters.INPUT_DIM,
             shared_layer_size=ModelParameters.SHARED_LAYER_SIZE,
-            num_classes=ModelConfig.NUM_CLASSES,
+            num_classes=MTLModelConfig.NUM_CLASSES,
             num_heads=ModelParameters.NUM_HEADS,
             num_layers=ModelParameters.NUM_LAYERS,
             seq_length=ModelParameters.SEQ_LENGTH,

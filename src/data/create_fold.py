@@ -11,7 +11,7 @@ from tqdm import tqdm
 import gc
 
 from configs.globals import DEVICE, CATEGORIES_MAP
-from configs.model import ModelConfig
+from configs.model import MTLModelConfig, InputsConfig
 
 # Set up logging
 logging.basicConfig(level=logging.INFO,
@@ -104,9 +104,9 @@ def convert_to_tensors(x: pd.DataFrame, y: Union[pd.DataFrame, pd.Series],
 
     # Reshape based on task type
     if task_type == 'next':
-        x_tensor = x_tensor.view(-1, 9, 100)
+        x_tensor = x_tensor.view(-1, 9, InputsConfig.EMBEDDING_DIM)
     else:  # category
-        x_tensor = x_tensor.view(-1, 1, 100)
+        x_tensor = x_tensor.view(-1, 1, InputsConfig.EMBEDDING_DIM)
 
     return x_tensor, y_tensor
 
@@ -151,12 +151,12 @@ def create_folds(
         path_next_input: str,
         path_category_input: str,
         k_splits: int = 5,
-        batch_size: int = ModelConfig.BATCH_SIZE,
-        target_column_start: int = 900,
+        batch_size: int = MTLModelConfig.BATCH_SIZE,
+        target_column_start: int = InputsConfig.EMBEDDING_DIM*InputsConfig.SLIDE_WINDOW,
         random_state: int = 42
 ) -> Dict[int, Dict[str, SuperInputData]]:
     """Process POI data and create k-fold cross-validation splits
-    
+
     Args:
         path_next_input: Path to the next POI input CSV
         path_category_input: Path to the category POI input CSV
@@ -164,7 +164,7 @@ def create_folds(
         batch_size: Batch size for DataLoaders
         target_column_start: Index where target columns start in next POI data
         random_state: Random seed for reproducibility
-        
+
     Returns:
         Dictionary with fold indices mapping to task data
     """
@@ -186,7 +186,7 @@ def create_folds(
     target_cols = df_next.columns[target_column_start:-1]
 
     # Create features and targets for next POI
-    x_next = df_next.drop(target_cols, axis=1)
+    x_next = df_next.drop(target_cols, axis=1).drop('userid', axis=1)
     y_next = df_next['next_category']
     y_next = map_categories(y_next)
     logger.info(f"Next POI features shape: {x_next.shape}, targets shape: {y_next.shape}")
@@ -207,18 +207,9 @@ def create_folds(
     y_category = map_categories(y_category)
     logger.info(f"Category POI features shape: {x_category.shape}, targets shape: {y_category.shape}")
 
-    # Create user-level stratification labels
-    # For each user, get the most frequent category they visit (or other stratification approach)
-    user_categories = {}
-    for user_id in userids:
-        user_mask = df_next['userid'] == user_id
-        user_categories[user_id] = df_next.loc[user_mask, 'next_category'].mode()[0]
-
-    # Convert to array in the same order as userids
-    user_strat_labels = np.array([user_categories[uid] for uid in userids])
 
     # Setup StratifiedKFold for users
-    user_skf = StratifiedKFold(n_splits=k_splits, shuffle=True, random_state=random_state)
+    next_skf = StratifiedKFold(n_splits=k_splits, shuffle=True, random_state=random_state)
 
     # Setup StratifiedKFold for places
     place_skf = StratifiedKFold(n_splits=k_splits, shuffle=True, random_state=random_state)
@@ -227,34 +218,22 @@ def create_folds(
 
     # Process each fold using stratified splits
     fold_idx = 0
-    for (train_user_idx, test_user_idx), (train_place_idx, test_place_idx) in zip(
-            user_skf.split(userids, user_strat_labels),
+
+    # Convert to tensors
+    x_next_tensor, y_next_tensor = convert_to_tensors(x_next, y_next, 'next')
+    x_category_tensor, y_category_tensor = convert_to_tensors(x_category, y_category, 'category')
+
+    for (train_next_idx, test_next_idx), (train_place_idx, test_place_idx) in zip(
+            next_skf.split(x_next, y_next),
             place_skf.split(x_category, y_category)):
 
         logger.info(f"Processing fold {fold_idx + 1}/{k_splits}")
 
-        # Get user IDs for each split
-        train_users = userids[train_user_idx]
-        val_users = userids[test_user_idx]
-
-        # Create a copy of x_next without userid for tensor conversion
-        x_next_fold = x_next.drop('userid', axis=1)
-
-        # Get indices for Next POI data
-        train_mask = x_next['userid'].isin(train_users)
-        val_mask = x_next['userid'].isin(val_users)
-        train_idx_next = np.where(train_mask)[0]
-        val_idx_next = np.where(val_mask)[0]
-
-        # Convert to tensors
-        x_next_tensor, y_next_tensor = convert_to_tensors(x_next_fold, y_next, 'next')
-        x_category_tensor, y_category_tensor = convert_to_tensors(x_category, y_category, 'category')
-
         # Create dataloaders
         next_train_loader = create_dataloader(
-            x_next_tensor, y_next_tensor, train_idx_next, batch_size)
+            x_next_tensor, y_next_tensor, train_next_idx, batch_size)
         next_val_loader = create_dataloader(
-            x_next_tensor, y_next_tensor, val_idx_next, batch_size)
+            x_next_tensor, y_next_tensor, test_next_idx, batch_size)
 
         category_train_loader = create_dataloader(
             x_category_tensor, y_category_tensor, train_place_idx, batch_size)
@@ -265,13 +244,13 @@ def create_folds(
         next_data = SuperInputData(
             train=InputData(
                 dataloader=next_train_loader,
-                x=x_next_tensor[train_idx_next],
-                y=y_next_tensor[train_idx_next]
+                x=x_next_tensor[train_next_idx],
+                y=y_next_tensor[train_next_idx]
             ),
             val=InputData(
                 dataloader=next_val_loader,
-                x=x_next_tensor[val_idx_next],
-                y=y_next_tensor[val_idx_next]
+                x=x_next_tensor[test_next_idx],
+                y=y_next_tensor[test_next_idx]
             )
         )
 
