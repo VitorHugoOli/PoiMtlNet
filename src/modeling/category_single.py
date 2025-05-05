@@ -19,7 +19,7 @@ from tqdm import tqdm
 
 from configs.globals import DEVICE, CATEGORIES_MAP
 from configs.model import MTLModelConfig, CategoryModelConfig
-from configs.paths import OUTPUT_ROOT, RESULTS_PATH
+from configs.paths import OUTPUT_ROOT, RESULTS_ROOT
 from utils.ml_history.metrics import MLHistory, FoldHistory
 from utils.ml_history.parms.neural import NeuralParams
 from utils.ml_history.utils.dataset import DatasetHistory
@@ -277,7 +277,7 @@ def parse_args() -> argparse.Namespace:
 def main():
     state = "florida_test"  # Replace with the desired state
     input_dir = f'{OUTPUT_ROOT}/{state}/pre-processing'
-    output_dir = f'{RESULTS_PATH}/{state}'
+    output_dir = f'{RESULTS_ROOT}/{state}'
 
     parser = argparse.ArgumentParser()
     parser.add_argument(

@@ -6,7 +6,7 @@ import torch
 from numpy.distutils.lib2def import output_def
 
 from configs.model import MTLModelConfig
-from configs.paths import IO_ROOT, OUTPUT_ROOT, RESULTS_PATH
+from configs.paths import IO_ROOT, OUTPUT_ROOT, RESULTS_ROOT
 from data.create_fold import create_folds
 from modeling.mtl_train import train_with_cross_validation
 
@@ -64,4 +64,4 @@ if __name__ == '__main__':
             learning_rate=MTLModelConfig.LEARNING_RATE
         )
 
-    history.storage.save(path=RESULTS_PATH + f'/{state}')
+    history.storage.save(path=RESULTS_ROOT + f'/{state}')
