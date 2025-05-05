@@ -80,9 +80,6 @@ class MTLnet(nn.Module):
         super().__init__()
         self.num_classes = num_classes
 
-        # Dummy embedding (if needed)
-        self.embedding = nn.Embedding(1, feature_size)
-
         # Task‐specific encoders
         self.category_encoder = self._build_encoder(
             in_size=feature_size,
