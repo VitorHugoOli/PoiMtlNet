@@ -2,6 +2,7 @@ import os
 
 import pandas as pd
 
+from configs.model import InputsConfig
 from configs.paths import OUTPUT_ROOT, IO_CHECKINS
 from data.embeddings.hmrm_new import HmrmBaselineNew
 
@@ -15,9 +16,12 @@ def etl_checkins(df: pd.DataFrame):
         df.rename(columns={'local_datetime': 'datetime'}, inplace=True)
         print(f"Renamed 'local_datetime' to 'datetime'")
 
-    # Filter users with at least 40 check-ins
+
     checkins_per_user = df['userid'].value_counts()
-    selected_users = checkins_per_user[checkins_per_user >= 40]
+    # The user must have at least the InputsConfig.SLIDE_WINDOW + 1 check-ins
+    # because we need to predict the next check-in and the user must have at least
+    # InputsConfig.SLIDE_WINDOW check-ins to be able to predict the next one
+    selected_users = checkins_per_user[checkins_per_user >= InputsConfig.SLIDE_WINDOW+1]
     users_ids = selected_users.index.unique().tolist()
 
     print(f'Number of qualified users: {len(users_ids)}')

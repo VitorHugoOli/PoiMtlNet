@@ -49,7 +49,8 @@ def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_c
         all_truths_category.extend(truth_category.cpu().numpy())
         batchs += 1
 
-    loss_next = total_loss / batchs
+    loss = total_loss / batchs
+
 
     next_report = classification_report(all_truths_next, all_predictions_next, output_dict=True, zero_division=0)
     category_report = classification_report(all_truths_category, all_predictions_category, output_dict=True,
@@ -59,7 +60,7 @@ def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_c
     f1_next = next_report['macro avg']['f1-score']
     f1_category = category_report['macro avg']['f1-score']
 
-    return acc_next, f1_next, acc_category, f1_category, loss_next
+    return acc_next, f1_next, acc_category, f1_category, loss
 
 
 def evaluate_model_by_head(model, dataloader, loss_function, foward_method, device, num_classes=None):

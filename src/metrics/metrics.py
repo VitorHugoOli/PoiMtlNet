@@ -133,7 +133,7 @@ class FoldResults:
         print(f"{'=' * header_width}")
 
 
-class TrainingMetrics:
+class TrainingHistory:
     """Class to hold training metrics."""
 
     def __init__(self):
@@ -489,8 +489,14 @@ class TrainingMetrics:
                 row_data = {
                     'Category': category_name,
                     'Precision': metrics['precision'],
+                    'Precision_std': metrics['precision_std'],
+                    'Precision_fmt': f"{metrics['precision'] * 100:.2f} ± {metrics['precision_std'] * 100:.2f}%",
                     'Recall': metrics['recall'],
+                    'Recall_std': metrics['recall_std'],
+                    'Recall_fmt': f"{metrics['recall'] * 100:.2f} ± {metrics['recall_std'] * 100:.2f}%",
                     'F1-Score': metrics['f1-score'],
+                    'F1-Score_std': metrics['f1-score_std'],
+                    'F1-Score_fmt': f"{metrics['f1-score'] * 100:.2f} ± {metrics['f1-score_std'] * 100:.2f}%",
                     'Support': metrics['support']
                 }
                 next_summary_df = pd.concat([next_summary_df, pd.DataFrame([row_data])], ignore_index=True)
@@ -501,8 +507,14 @@ class TrainingMetrics:
                 row_data = {
                     'Category': 'macro avg',
                     'Precision': macro_avg['precision'],
+                    'Precision_std': macro_avg['precision_std'],
+                    'Precision_fmt': f"{macro_avg['precision'] * 100:.2f} ± {macro_avg['precision_std'] * 100:.2f}%",
                     'Recall': macro_avg['recall'],
+                    'Recall_std': macro_avg['recall_std'],
+                    'Recall_fmt': f"{macro_avg['recall'] * 100:.2f} ± {macro_avg['recall_std'] * 100:.2f}%",
                     'F1-Score': macro_avg['f1-score'],
+                    'F1-Score_std': macro_avg['f1-score_std'],
+                    'F1-Score_fmt': f"{macro_avg['f1-score'] * 100:.2f} ± {macro_avg['f1-score_std'] * 100:.2f}%",
                     'Support': None
                 }
                 next_summary_df = pd.concat([next_summary_df, pd.DataFrame([row_data])], ignore_index=True)

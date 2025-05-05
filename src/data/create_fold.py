@@ -1,7 +1,10 @@
 import logging
 import os
+import time
 from dataclasses import dataclass
 from typing import Dict, Tuple, Optional, Union
+
+import joblib
 import numpy as np
 import pandas as pd
 import torch
@@ -153,8 +156,9 @@ def create_folds(
         k_splits: int = 5,
         batch_size: int = MTLModelConfig.BATCH_SIZE,
         target_column_start: int = InputsConfig.EMBEDDING_DIM*InputsConfig.SLIDE_WINDOW,
-        random_state: int = 42
-) -> Dict[int, Dict[str, SuperInputData]]:
+        random_state: int = 42,
+        save_folder: Optional[str] = None
+) -> tuple[dict[int, dict[str, SuperInputData]], str]:
     """Process POI data and create k-fold cross-validation splits
 
     Args:
@@ -278,6 +282,19 @@ def create_folds(
         # Manually run garbage collection after each fold to free memory
         gc.collect()
 
+    folds_save_path = time.strftime("%Y%m%d_%H%M") + "_folds.pkl"
+    if save_folder:
+        with open(os.path.join(save_folder, folds_save_path), 'wb') as f:
+            joblib.dump(fold_results, f)
+        logger.info(f"Folds saved to {save_folder}")
+
+    return fold_results, folds_save_path
+
+def restore_folds(path: str) -> Dict[int, Dict[str, SuperInputData]]:
+    """Restore folds from a saved file"""
+    with open(path, 'rb') as f:
+        fold_results = joblib.load(f)
+    logger.info(f"Folds restored from {path}")
     return fold_results
 
 

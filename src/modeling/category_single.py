@@ -3,6 +3,7 @@ import json
 import argparse
 import logging
 from collections import defaultdict
+from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -18,6 +19,10 @@ from tqdm import tqdm
 
 from configs.globals import DEVICE, CATEGORIES_MAP
 from configs.model import MTLModelConfig, CategoryModelConfig
+from configs.paths import OUTPUT_ROOT, RESULTS_PATH
+from utils.ml_history.metrics import MLHistory, FoldHistory
+from utils.ml_history.parms.neural import NeuralParams
+from utils.ml_history.utils.dataset import DatasetHistory
 
 
 def setup_logger(level: int = logging.INFO) -> logging.Logger:
@@ -33,6 +38,7 @@ class POIDataset(Dataset):
     """
     PyTorch Dataset for POI category classification.
     """
+
     def __init__(self, features: np.ndarray, labels: np.ndarray):
         self.features = torch.from_numpy(features).float()
         self.labels = torch.from_numpy(labels).long()
@@ -48,12 +54,13 @@ class CategoryClassifier(nn.Module):
     """
     Multi-layer perceptron for category classification.
     """
+
     def __init__(
-        self,
-        input_dim: int,
-        hidden_dims: tuple[int, ...],
-        num_classes: int,
-        dropout: float,
+            self,
+            input_dim: int,
+            hidden_dims: tuple[int, ...],
+            num_classes: int,
+            dropout: float,
     ):
         super().__init__()
         self.layers = nn.ModuleList()
@@ -88,10 +95,10 @@ def load_data(path: str) -> tuple[np.ndarray, np.ndarray]:
 
 
 def create_folds(
-    X: np.ndarray,
-    y: np.ndarray,
-    n_splits: int,
-    seed: int,
+        X: np.ndarray,
+        y: np.ndarray,
+        n_splits: int,
+        seed: int,
 ) -> list[tuple[DataLoader, DataLoader]]:
     kf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=seed)
     folds = []
@@ -124,13 +131,14 @@ def create_folds(
 
 
 def train_one_fold(
-    model: nn.Module,
-    train_loader: DataLoader,
-    val_loader: DataLoader,
-    device: torch.device,
-    config: CategoryModelConfig,
-    logger: logging.Logger,
-) -> dict[str, list[float]]:
+        model: nn.Module,
+        train_loader: DataLoader,
+        val_loader: DataLoader,
+        device: torch.device,
+        config: CategoryModelConfig,
+        logger: logging.Logger,
+        history: MLHistory,
+) -> None:
     criterion = nn.CrossEntropyLoss()
     optimizer = AdamW(
         model.parameters(),
@@ -144,15 +152,37 @@ def train_one_fold(
         steps_per_epoch=len(train_loader),
     )
 
-    history = defaultdict(list)
-    best_val_acc = 0.0
 
     loop = tqdm(
         range(config.EPOCHS),
+        unit="batch",
         desc="Training",
     )
 
-    for epoch in loop:
+    history.set_model_parms(
+        NeuralParams(
+            batch_size=config.BATCH_SIZE,
+            num_epochs=config.EPOCHS,
+            learning_rate=config.LR,
+            optimizer="AdamW",
+            optimizer_state={
+                "lr": config.LR,
+                "weight_decay": config.WEIGHT_DECAY,
+            },
+            scheduler="OneCycleLR",
+            scheduler_state={
+                "max_lr": config.MAX_LR,
+                "epochs": config.EPOCHS,
+                "steps_per_epoch": len(train_loader),
+            },
+
+        )
+    )
+
+
+    fold_history = history.get_curr_fold()
+
+    for _ in loop:
         model.train()
         total_loss = total_correct = total = 0
         for X_batch, y_batch in train_loader:
@@ -188,12 +218,19 @@ def train_one_fold(
 
         val_loss /= val_total
         val_acc = val_correct / val_total
-        best_val_acc = max(best_val_acc, val_acc)
 
-        history['train_loss'].append(train_loss)
-        history['train_acc'].append(train_acc)
-        history['val_loss'].append(val_loss)
-        history['val_acc'].append(val_acc)
+        fold_history.to('category').add(
+            loss=train_loss,
+            accuracy=train_acc,
+            f1=0.0,
+        )
+        fold_history.to('category').add_val(
+            val_loss=val_loss,
+            val_accuracy=val_acc,
+            val_f1=0.0,
+            model_state=model.state_dict(),
+            best_metric='val_accuracy',
+        )
 
         loop.set_postfix(
             {
@@ -204,11 +241,8 @@ def train_one_fold(
             }
         )
 
-    logger.info(f"Best Validation Accuracy: {best_val_acc:.4f}")
-    return history
 
-
-def evaluate(model: nn.Module, loader: DataLoader, device: torch.device) -> None:
+def evaluate(model: nn.Module, loader: DataLoader, device: torch.device) -> Union[str, dict]:
     model.eval()
     preds, truths = [], []
     with torch.no_grad():
@@ -221,10 +255,10 @@ def evaluate(model: nn.Module, loader: DataLoader, device: torch.device) -> None
     report = classification_report(
         np.concatenate(truths),
         np.concatenate(preds),
-        output_dict=False,
+        output_dict=True,
         zero_division=0,
     )
-    print("Classification Report:\n", report)
+    return report
 
 
 def parse_args() -> argparse.Namespace:
@@ -241,11 +275,15 @@ def parse_args() -> argparse.Namespace:
 
 
 def main():
+    state = "florida_test"  # Replace with the desired state
+    input_dir = f'{OUTPUT_ROOT}/{state}/pre-processing'
+    output_dir = f'{RESULTS_PATH}/{state}'
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--data-csv",
         type=str,
-        default="/Users/vitor/Desktop/mestrado/ingred/data/output/florida_new/pre-processing/category-input.csv",
+        default=f"{input_dir}/category-input.csv",
         help="Path to the preprocessed CSV file",
     )
 
@@ -259,8 +297,22 @@ def main():
         seed=CategoryModelConfig.SEED,
     )
 
+    history: MLHistory = MLHistory(
+        model_name="CategoryClassifier",
+        model_type="Single-Task",
+        tasks='category',
+        num_folds=CategoryModelConfig.N_SPLITS,
+        datasets={
+            DatasetHistory(
+                raw_data=f"{input_dir}/category-input.csv",
+                description="POI Category Classification",
+            )
+        }
+    )
+
+    history.start()
     for idx, (train_loader, val_loader) in enumerate(folds):
-        logger.info(f"Starting Fold {idx+1}/{len(folds)}")
+        history.display.start_fold()
         model = CategoryClassifier(
             input_dim=CategoryModelConfig.INPUT_DIM,
             hidden_dims=tuple(CategoryModelConfig.HIDDEN_DIMS),
@@ -268,15 +320,25 @@ def main():
             dropout=CategoryModelConfig.DROPOUT,
         ).to(DEVICE)
 
-        history = train_one_fold(
+        train_one_fold(
             model,
             train_loader,
             val_loader,
             DEVICE,
             CategoryModelConfig(),
             logger,
+            history=history,
         )
-        evaluate(model, val_loader, DEVICE)
+
+        report = evaluate(model, val_loader, DEVICE)
+
+        history.get_curr_fold().to('category').add_report(report)
+        history.step()
+        history.display.end_fold()
+
+    history.display.end_training()
+    history.storage.save(path=output_dir)
+
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 class InputsConfig:
-    EMBEDDING_DIM = 107
+    EMBEDDING_DIM = 64
     SLIDE_WINDOW = 9
 
 class MTLModelConfig:
@@ -15,9 +15,9 @@ class CategoryModelConfig:
     NUM_CLASSES = 7
     DROPOUT = 0.5
     BATCH_SIZE = 2**9 # 512
-    EPOCHS = 150
+    EPOCHS = 5
     LEARNING_RATE = 0.0001
-    K_FOLDS = 5
+    K_FOLDS = 3
 
     N_SPLITS = 5
     SEED = 42

@@ -1,6 +1,7 @@
 import os
 import pickle
 
+import joblib
 import torch
 from numpy.distutils.lib2def import output_def
 
@@ -11,11 +12,13 @@ from modeling.mtl_train import train_with_cross_validation
 
 import logging
 
+from utils.ml_history.metrics import MLHistory
+from utils.ml_history.utils.dataset import DatasetHistory
+
 logging.basicConfig(level=logging.INFO)
 
 if __name__ == '__main__':
-
-    state = "florida_new"  # Replace with the desired state
+    state = "florida_test"  # Replace with the desired state
     output_dir = f'{OUTPUT_ROOT}/{state}/pre-processing'
     # output_dir = f'/Users/vitor/Desktop/mestrado/ingred/data/ori/pre-processing/chicago'
 
@@ -26,23 +29,39 @@ if __name__ == '__main__':
     logging.info(f'Creating folds')
 
     # Process data and create dataloaders
-    fold_results = create_folds(
+    fold_results, folds_path = create_folds(
         next_data_path,
         category_data_path,
         k_splits=MTLModelConfig.K_FOLDS,
+        save_folder=output_dir,
     )
 
-    #save the folds in pickle format
-    with open(f'{output_dir}/folds.pkl', 'wb') as f:
-        pickle.dump(fold_results, f)
+    history = MLHistory(
+        model_name='MTLNet',
+        tasks={'next', 'category'},
+        num_folds=MTLModelConfig.K_FOLDS,
+        datasets={
+            DatasetHistory(
+                raw_data=next_data_path,
+                folds_signature=folds_path,
+                description="Data related to next POI prediction. Data with 107 features",
+            ),
+            DatasetHistory(
+                raw_data=category_data_path,
+                folds_signature=folds_path,
+                description="Data related to category prediction. Data with 107 features",
+            )
+        }
 
-    logging.info(f'Fold results: {len(fold_results)}')
-
-    results = train_with_cross_validation(
-        dataloaders=fold_results,
-        num_classes=MTLModelConfig.NUM_CLASSES,
-        num_epochs=MTLModelConfig.EPOCHS,
-        learning_rate=MTLModelConfig.LEARNING_RATE
     )
 
-    results.export_to_csv(output_dir=RESULTS_PATH + f'/{state}')
+    with history.context() as history:
+        results = train_with_cross_validation(
+            dataloaders=fold_results,
+            history=history,
+            num_classes=MTLModelConfig.NUM_CLASSES,
+            num_epochs=MTLModelConfig.EPOCHS,
+            learning_rate=MTLModelConfig.LEARNING_RATE
+        )
+
+    history.storage.save(path=RESULTS_PATH + f'/{state}')

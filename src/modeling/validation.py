@@ -40,8 +40,8 @@ def validation_best_model(data_next,data_category,best_next,bext_category, model
     truth_category = torch.cat(all_truth_category)
 
     # Generate classification reports
-    report_next = classification_report(truth_next, pred_next, output_dict=True)
-    report_category = classification_report(truth_category, pred_category, output_dict=True)
+    report_next = classification_report(truth_next, pred_next, output_dict=True,zero_division=0)
+    report_category = classification_report(truth_category, pred_category, output_dict=True,zero_division=0)
     return report_next, report_category
 
 

@@ -37,9 +37,9 @@ class PositionalEncoding(nn.Module):
         return self.dropout(x)
 
 
-class NextPoiNet(nn.Module):
-    def __init__(self, embed_dim, num_classes, num_heads, seq_length, num_layers, dropout=0.1):
-        super(NextPoiNet, self).__init__()
+class NextHead(nn.Module):
+    def __init__(self, embed_dim, num_classes, num_heads, seq_length, num_layers, dropout=0.35):
+        super(NextHead, self).__init__()
         self.embed_dim = embed_dim
         self.num_heads = num_heads
         self.seq_length = seq_length
@@ -62,7 +62,7 @@ class NextPoiNet(nn.Module):
 
         self.linear_layers = nn.Linear(embed_dim, num_classes)
 
-    def forward(self, x):
+    def forward(self, x): # Shape: [batch_size, 9, 64]
         # print(f"> Next1: {x.shape}")
         x = self.pe(x)
         batch_size, seq_length, _ = x.size()

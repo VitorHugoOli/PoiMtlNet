@@ -1,24 +1,26 @@
+from encodings.punycode import selective_len
+
 import torch
 import torch.optim as optim
 import time
 from datetime import timedelta
 
 from sklearn.metrics import classification_report
+from torch.nn import CrossEntropyLoss
 from torch.optim.lr_scheduler import OneCycleLR
 
 from common.flops import calculate_flops
 from common.mps_support import clear_mps_cache
 from common.training_progress import TrainingProgressBar
 from configs.globals import DEVICE
-from configs.model import ModelParameters, ModelConfig
-from criterion.FocalLoss import FocalLoss
-from metrics.metrics import FoldResults, TrainingMetrics
+from configs.model import ModelParameters, MTLModelConfig
 from modeling.evaluate import evaluate_model
 from modeling.validation import validation_best_model
 from data.create_fold import SuperInputData
 from models.mtl_poi import MTLnet
-from criterion.nash_mtl import NashMTL, WeightMethod
-from criterion.pcgrad import PCGrad
+from criterion.nash_mtl import NashMTL
+from utils.ml_history.metrics import MLHistory, FoldHistory
+from utils.ml_history.parms.neural import NeuralParams
 
 
 # Training Function
@@ -29,9 +31,10 @@ def train_model(model,
                 dataloader_category: SuperInputData,
                 next_criterion,
                 category_criterion,
-                mtl_criterion: WeightMethod,
+                mtl_criterion,
                 num_epochs,
                 num_classes,
+                fold_history=FoldHistory.standalone({'next', 'category'}),
                 gradient_accumulation_steps=1):
     """
     Train the model with multi-task learning.
@@ -51,13 +54,6 @@ def train_model(model,
     Returns:
         FoldResults object with training metrics
     """
-    # Initialize fold results and training components
-    fold_results = FoldResults()
-    pcgrad = PCGrad(n_tasks=2, device=DEVICE, reduction="sum")
-
-    # Get FLOPS metrics
-    fold_results.flops = calculate_flops(dataloader_category, dataloader_next, model)
-    fold_results.flops.display()
 
     # Set gradient clipping norm
     max_grad_norm = 1.0
@@ -79,11 +75,12 @@ def train_model(model,
         category_running_loss = 0.0
         next_running_acc = 0.0
         category_running_acc = 0.0
+        next_running_f1 = 0.0
+        category_running_f1 = 0.0
         steps = 0
 
         # Reset gradients at the beginning
         optimizer.zero_grad()
-        batch_idx = 0
 
         # Iterate over batches with automatic progress tracking
         for data_next, data_category in progress.iter_epoch():
@@ -103,10 +100,6 @@ def train_model(model,
 
             category_output, next_poi_output = model((x_category, x_next))
 
-            # Process predictions
-            # pred_next, truth_next = NextPoiNet.reshape_output(next_poi_output, y_next, num_classes)
-            # pred_category, truth_category = CategoryPoiNet.reshape_output(category_output, y_category)
-
             pred_next, truth_next = next_poi_output, y_next
             pred_category, truth_category = category_output, y_category
 
@@ -119,12 +112,7 @@ def train_model(model,
                 task_specific_parameters=list(model.task_specific_parameters()),
             )
 
-            # Apply optimizer step and scaler update after accumulating gradients
-            if DEVICE == 'mps':
-                torch.mps.synchronize()  # Ensure all operations complete
-
             optimizer.step()
-            torch.nn.utils.clip_grad_norm_(model.parameters(), max_grad_norm)
             scheduler.step()
 
             # Track metrics (use non-scaled loss for metrics)
@@ -163,6 +151,8 @@ def train_model(model,
 
                 next_running_acc += next_acc
                 category_running_acc += category_acc
+                next_running_f1 += f1_next
+                category_running_f1 += f1_category
 
             # Update metrics on progress bar (it automatically handles the progress update)
             progress.set_postfix({
@@ -174,15 +164,17 @@ def train_model(model,
 
         # Calculate epoch metrics
         epoch_loss = running_loss / steps
-        fold_results.mtl.add_loss(epoch_loss)
-        fold_results.next.add_loss(0)
-        fold_results.category.add_loss(0)
-        fold_results.next.add_accuracy(next_running_acc / steps)
-        fold_results.category.add_accuracy(category_running_acc / steps)
+        fold_history.model.add(loss=epoch_loss, accuracy=0)
+        fold_history.to('next').add(loss=0,
+                                    f1=next_running_f1 / steps,
+                                    accuracy=next_running_acc / steps)
+        fold_history.to('category').add(loss=0,
+                                        f1=category_running_f1 / steps,
+                                        accuracy=category_running_acc / steps)
 
         # Validation phase with progress tracking
         with progress.validation():
-            acc_val_next, f1_val_next, acc_val_category, f1_val_category, loss_val_next = evaluate_model(
+            acc_val_next, f1_val_next, acc_val_category, f1_val_category, loss_val = evaluate_model(
                 model,
                 [dataloader_next.val.dataloader, dataloader_category.val.dataloader],
                 next_criterion,
@@ -193,24 +185,37 @@ def train_model(model,
             )
 
             # Store validation metrics
-            fold_results.mtl.add_val_loss(loss_val_next)
-            fold_results.next.add_val_loss(0)
-            fold_results.category.add_val_loss(0)
-            fold_results.next.add_val_accuracy(acc_val_next, model_state=model.state_dict())
-            fold_results.category.add_val_accuracy(acc_val_category, model_state=model.state_dict())
+            fold_history.model.add_val(
+                val_loss=loss_val,
+                val_f1=0,
+                val_accuracy=0,
+            )
+            fold_history.to('next').add_val(
+                val_loss=0,
+                val_accuracy=acc_val_next,
+                val_f1=f1_val_next,
+                model_state=model.state_dict()
+            )
+            fold_history.to('category').add_val(
+                val_loss=0,
+                val_accuracy=acc_val_category,
+                val_f1=f1_val_category,
+                model_state=model.state_dict()
+            )
 
         # Update metrics on progress bar with validation results
         progress.set_postfix({
-            'val_loss': f'{loss_val_next:.4f}',
+            'val_loss': f'{loss_val:.4f}',
             'next_val': f'{f1_val_next:.4f}({acc_val_next:.4f})',
             'cat_val': f'{f1_val_category:.4f}({acc_val_category:.4f})'
         })
 
-    return fold_results
+    return fold_history
 
 
 # Cross-validation function
 def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]],
+                                history: MLHistory,
                                 num_classes: int,
                                 num_epochs: int,
                                 learning_rate: float,
@@ -228,18 +233,8 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
     Returns:
         TrainingMetrics object with cross-validation results
     """
-    training_metric = TrainingMetrics()
-
-    # Track cross-validation time
-    cv_start_time = time.time()
-    total_folds = len(dataloaders)
-
     for fold_idx, (i_fold, dataloader) in enumerate(dataloaders.items()):
-        # Track fold time
-        fold_start_time = time.time()
-
-        print(f"\n{'#' * 110}")
-        print(f'FOLD {i_fold} [{fold_idx + 1}/{total_folds}]:')
+        history.display.start_fold()
         clear_mps_cache()
 
         # Initialize model with enhanced weight initialization
@@ -260,34 +255,60 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
 
         optimizer = optim.AdamW(
             model.parameters(),
-            lr=learning_rate * 2,  # Start with higher base learning rate
-            weight_decay=1e-5,  # Lower weight decay
-            betas=(0.9, 0.95),  # More momentum
+            lr=learning_rate,
+            weight_decay=1e-3,
             eps=1e-8
         )
 
         # Learning rate scheduler with patience
         scheduler = OneCycleLR(
             optimizer,
-            max_lr=learning_rate * 20,  # Double the peak learning rate
+            max_lr=learning_rate * 10,
             epochs=num_epochs,
             steps_per_epoch=len(dataloader_next.train.dataloader),
-            pct_start=0.2,  # Reach peak LR earlier
-            div_factor=25,
-            final_div_factor=10000  # Stronger annealing at the end
+            pct_start=0.3,
+            div_factor=10,
+            final_div_factor=1000
         )
 
         # Initialize loss functions
-        next_criterion = FocalLoss(alpha=1, gamma=2, reduction='mean')
-        category_criterion = FocalLoss(alpha=1, gamma=2, reduction='mean')
+        next_criterion = CrossEntropyLoss(reduction='mean')
+        category_criterion = CrossEntropyLoss(reduction='mean')
         mtl_criterion = NashMTL(n_tasks=2, device=DEVICE, max_norm=1.0, update_weights_every=1)
         # mtl_criterion = NaiveLoss(alpha=0.5, beta=0.5)
 
+        history.set_model_parms(
+            NeuralParams(
+                batch_size=dataloader_next.train.dataloader.batch_size,
+                num_epochs=num_epochs,
+                learning_rate=learning_rate,
+                optimizer=optimizer.__class__.__name__,
+                optimizer_state=optimizer.state_dict(),
+                scheduler=scheduler.__class__.__name__,
+                scheduler_state=scheduler.state_dict(),
+                criterion={
+                    'mtl': mtl_criterion.__class__.__name__,
+                    'next': next_criterion.__class__.__name__,
+                    'category': category_criterion.__class__.__name__
+                },
+                criterion_state={
+                    'mtl': mtl_criterion.__dict__,
+                    'next': next_criterion.__dict__,
+                    'category': category_criterion.__dict__
+                }
+            )
+        )
+
+        if history.flops is None:
+            history.flops = calculate_flops(dataloader_category, dataloader_next, model)
+            history.display.flops()
+
         # Train the model with gradient accumulation
-        results = train_model(
+        train_model(
             model, optimizer, scheduler,
             dataloader_next, dataloader_category,
-            next_criterion,category_criterion, mtl_criterion, num_epochs, num_classes,
+            next_criterion, category_criterion, mtl_criterion, num_epochs, num_classes,
+            fold_history=history.get_curr_fold(),
             gradient_accumulation_steps=gradient_accumulation_steps
         )
 
@@ -296,37 +317,16 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
         report_next, report_category = validation_best_model(
             dataloader_next.val.dataloader,
             dataloader_category.val.dataloader,
-            results.next.best_model,
-            results.category.best_model,
+            history.get_curr_fold().to('next').best_model,
+            history.get_curr_fold().to('category').best_model,
             model
         )
 
-        results.add_next_report(report_next)
-        results.add_category_report(report_category)
+        history.get_curr_fold().to('next').add_report(report_next)
+        history.get_curr_fold().to('category').add_report(report_category)
 
-        results.display_final_summary()
-
-        # Add fold results to training metrics
-        training_metric.add_fold_results(results)
-
-        # Display fold time statistics
-        fold_time = time.time() - fold_start_time
-        elapsed_time = time.time() - cv_start_time
-        remaining_folds = total_folds - (fold_idx + 1)
-        estimated_time_remaining = (fold_time * remaining_folds) if remaining_folds > 0 else 0
-
-        print(f"\nFold {i_fold} completed in {timedelta(seconds=int(fold_time))}")
-        print(f"Cross-validation progress: {fold_idx + 1}/{total_folds} folds")
-        print(f"Elapsed time: {timedelta(seconds=int(elapsed_time))}")
-        print(f"Estimated time remaining: {timedelta(seconds=int(estimated_time_remaining))}")
-
-    # Show total cross-validation time
-    total_cv_time = time.time() - cv_start_time
-    print(f"\n{'#' * 110}")
-    print(f"Cross-validation completed in {timedelta(seconds=int(total_cv_time))}")
+        history.step()
+        history.display.end_fold()
 
     # Display summary metrics
-    training_metric.display_summary()
-    training_metric.export_to_csv()
-
-    return training_metric
+    history.display.end_training()

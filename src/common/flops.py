@@ -1,6 +1,6 @@
 from configs.globals import DEVICE
-from metrics.metrics import FlopsMetrics
 from utils.calc_flops.calculate_model_flops import calculate_model_flops
+from utils.ml_history.metrics import FlopsMetrics
 
 
 def calculate_flops(dataloader_category, dataloader_next, model):
