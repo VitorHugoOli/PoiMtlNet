@@ -37,9 +37,9 @@ class PositionalEncoding(nn.Module):
         return self.dropout(x)
 
 
-class NextPoiNet(nn.Module):
-    def __init__(self, embed_dim, num_classes, num_heads, seq_length, num_layers, dropout=0.1):
-        super(NextPoiNet, self).__init__()
+class NextHead(nn.Module):
+    def __init__(self, embed_dim, num_classes, num_heads, seq_length, num_layers, dropout=0.35):
+        super(NextHead, self).__init__()
         self.embed_dim = embed_dim
         self.num_heads = num_heads
         self.seq_length = seq_length
@@ -55,9 +55,14 @@ class NextPoiNet(nn.Module):
         )
         self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers)
 
+        self.sequence_reduction = nn.Sequential(
+            nn.Linear(embed_dim, 1),
+            nn.Softmax(dim=1)
+        )
+
         self.linear_layers = nn.Linear(embed_dim, num_classes)
 
-    def forward(self, x):
+    def forward(self, x): # Shape: [batch_size, 9, 64]
         # print(f"> Next1: {x.shape}")
         x = self.pe(x)
         batch_size, seq_length, _ = x.size()
@@ -66,20 +71,9 @@ class NextPoiNet(nn.Module):
 
         x = self.transformer_encoder(x, mask=attn_mask)
 
+        attn_weights = self.sequence_reduction(x)  # Shape: [batch_size, seq_length, 1]
+        x = torch.sum(x * attn_weights, dim=1)  # Shape: [batch_size, embed_dim]
+
         x = self.linear_layers(x)
 
         return x
-
-    @staticmethod
-    def reshape_output(out_next, y_next, num_classes):
-        B, S, _ = out_next.shape
-
-        out_next = out_next.view(B * S, -1)
-        y_next = y_next.view(B * S, -1)
-
-        idx_valid = (y_next < num_classes).view(-1)
-        y_next = y_next[idx_valid].view(-1)
-        out_next = out_next[idx_valid]
-
-        out_next = out_next.view(-1, num_classes)
-        return out_next, y_next

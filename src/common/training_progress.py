@@ -56,7 +56,7 @@ class TrainingProgressBar(tqdm):
         Yields:
             EpochContext: Context manager for the current epoch
         """
-        for data in zip(*self.dataloaders):
+        for data in len(self.dataloaders) == 1 and self.dataloaders or zip(*self.dataloaders):
             yield data
             self.update(1)
 

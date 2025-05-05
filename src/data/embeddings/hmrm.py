@@ -387,6 +387,7 @@ class HmrmBaseline:
                 (
                     self.optimizer.context_location_embedding,
                     self.optimizer.target_location_embedding,
+                    self.optimizer.activity_location,
                 ),
                 axis=1,
             )

@@ -1,3 +1,4 @@
+from configs.model import InputsConfig
 from configs.paths import OUTPUT_ROOT
 
 import pandas as pd
@@ -11,8 +12,6 @@ from functools import lru_cache
 
 # Define constants instead of magic numbers
 SEQUENCE_LENGTH = 10
-EMBEDDING_SIZE = 100
-STRIDE = 9
 PADDING_VALUE = -1
 MIN_SEQUENCE_LENGTH = 5
 
@@ -64,7 +63,7 @@ def generate_sequences(places_visited: List[int], max_sequences_per_user: Option
         return 0
 
     sequences = []
-    for i in range(0, len(places_visited), STRIDE):
+    for i in range(0, len(places_visited), InputsConfig.EMBEDDING_DIM):
         if len(places_visited) >= i + SEQUENCE_LENGTH:
             # Full sequence
             seq = places_visited[i:i + SEQUENCE_LENGTH]
@@ -158,16 +157,16 @@ def processing_sequences_next(df_nextpoi_sequences: pd.DataFrame,
             print(f'Found existing file, resuming from index {start_index}\n')
         else:
             # Create empty DataFrame with proper columns
-            col_count = (EMBEDDING_SIZE * (SEQUENCE_LENGTH - 1)) + 10
-            column_names = list(range(col_count - 1)) + ['userid']
+            col_count = (InputsConfig.EMBEDDING_DIM * InputsConfig.SLIDE_WINDOW)
+            column_names = list(range(col_count)) + ['next_category', 'userid']
             nextpoi_input = pd.DataFrame(columns=column_names)
             # Pre-allocate memory for faster operations
             nextpoi_input = nextpoi_input.astype({col: np.float32 for col in range(col_count - 1)})
             nextpoi_input = nextpoi_input.astype({'userid': str})
     except Exception as e:
         print(f"Error reading existing file: {str(e)}. Starting from scratch.")
-        col_count = (EMBEDDING_SIZE * (SEQUENCE_LENGTH - 1)) + 10
-        column_names = list(range(col_count - 1)) + ['userid']
+        col_count = (InputsConfig.EMBEDDING_DIM * InputsConfig.SLIDE_WINDOW)
+        column_names = list(range(col_count)) + ['next_category', 'userid']
         nextpoi_input = pd.DataFrame(columns=column_names)
         # Pre-allocate memory with appropriate types
         nextpoi_input = nextpoi_input.astype({col: np.float32 for col in range(col_count - 1)})
@@ -179,10 +178,8 @@ def processing_sequences_next(df_nextpoi_sequences: pd.DataFrame,
 
     # Convert embeddings to numpy array for faster access
     emb_lookup = {poi_id: row.values.astype(np.float32) for poi_id, row in embeddings_without_category.iterrows()}
-    zero_emb = np.zeros(EMBEDDING_SIZE, dtype=np.float32)
-
-    # Pre-calculate indices for target extraction
-    idxs = list(range(2, SEQUENCE_LENGTH + 1))
+    zero_emb = np.zeros(InputsConfig.EMBEDDING_DIM, dtype=np.float32)
+    empty_emb = np.full(InputsConfig.EMBEDDING_DIM, -999, dtype=np.float32)
 
     # Process in batches
     batch_size = min(save_step, len(df_nextpoi_sequences))
@@ -197,6 +194,8 @@ def processing_sequences_next(df_nextpoi_sequences: pd.DataFrame,
     # Cache for frequently accessed embeddings
     @lru_cache(maxsize=None)
     def get_embedding(poi_id):
+        if poi_id == PADDING_VALUE:
+            return empty_emb
         return emb_lookup.get(poi_id, zero_emb)
 
     for batch_idx, batch_start in iterator:
@@ -208,18 +207,15 @@ def processing_sequences_next(df_nextpoi_sequences: pd.DataFrame,
 
         for i, (userid, row) in enumerate(batch.iterrows()):
             try:
-                # Extract target and features
-                target = row.loc[idxs]
-
                 # Get categories using the lookup dictionary
-                categoria_target = [category_lookup.get(t, 'None') for t in target]
+                categoria_target = category_lookup.get(row.iloc[InputsConfig.SLIDE_WINDOW], 'None')
 
                 # Get the sequence without the target (more efficient than dropping)
-                sequence_without_target = row.iloc[:SEQUENCE_LENGTH - 1].values
+                sequence_without_target = row.iloc[:InputsConfig.SLIDE_WINDOW].values
 
                 # Use lookup dictionary instead of DataFrame access
                 # Preallocate array for embeddings concatenation
-                all_embeddings = np.empty((SEQUENCE_LENGTH - 1, EMBEDDING_SIZE), dtype=np.float32)
+                all_embeddings = np.empty((InputsConfig.SLIDE_WINDOW, InputsConfig.EMBEDDING_DIM), dtype=np.float32)
 
                 # Fill the array with embeddings
                 for j, poi in enumerate(sequence_without_target):
@@ -230,7 +226,7 @@ def processing_sequences_next(df_nextpoi_sequences: pd.DataFrame,
 
                 # Combine embeddings, category and user ID
                 # Using list comprehension for better performance
-                sample = np.append(poi_embedding, categoria_target + [userid])
+                sample = np.append(poi_embedding, [categoria_target] + [userid])
                 results.append(sample)
             except Exception as e:
                 print(f"Error processing row {batch_start + i} (user {userid}): {str(e)}")
@@ -319,7 +315,7 @@ def generate_next_input(df_embb, df_filter,
     embeddings_without_category = df_embb.drop(columns=['category'])
 
     # Add padding embedding
-    padding_embedding = [0] * EMBEDDING_SIZE
+    padding_embedding = [0] * InputsConfig.EMBEDDING_DIM
 
     if PADDING_VALUE not in embeddings_with_category.index:
         embeddings_with_category.loc[PADDING_VALUE] = padding_embedding + [0]
@@ -357,8 +353,8 @@ from concurrent.futures import ProcessPoolExecutor
 
 
 def process_state(state):
-    df_embb = pd.read_csv(f'{OUTPUT_ROOT}/{state}/{state}-embeddings.csv')
-    df_filter = pd.read_csv(f'{OUTPUT_ROOT}/{state}/{state}-filtrado.csv')
+    df_embb = pd.read_csv(f'{OUTPUT_ROOT}/{state}/embeddings.csv')
+    df_filter = pd.read_csv(f'{OUTPUT_ROOT}/{state}/filtrado.csv')
     output_path = f'{OUTPUT_ROOT}/{state}/pre-processing/'
     sequences_path = f'{output_path}poi-sequences.csv'
     next_input_path = f'{output_path}next-input.csv'
@@ -372,6 +368,6 @@ def process_state(state):
 
 if __name__ == '__main__':
     # STATE_NAME = ["alabama","arizona","california", "florida", "georgia", "texas"]
-    STATE_NAME = ["texas"]
+    STATE_NAME = ["florida_new"]
     with ProcessPoolExecutor(max_workers=12) as executor:
         executor.map(process_state, STATE_NAME)

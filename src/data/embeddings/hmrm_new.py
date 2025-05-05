@@ -865,10 +865,13 @@ class HmrmBaselineNew:
                 (
                     optimization_result["context_location_embedding"],
                     optimization_result["target_location_embedding"],
+                    optimization_result["activity_location"],
                 ),
                 axis=1,
             )
         )
+
+
 
         # Add additional information
         try:
