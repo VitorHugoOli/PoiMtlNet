@@ -41,7 +41,7 @@ if __name__ == '__main__':
         folds = create_folds(
             X,
             y,
-            n_splits=CfgCategoryTraining.N_SPLITS,
+            n_splits=CfgCategoryTraining.K_FOLDS,
             batch_size=args.bs,
             seed=42,
         )
@@ -57,7 +57,7 @@ if __name__ == '__main__':
         model_name="Category",
         model_type="Single-Task",
         tasks='category',
-        num_folds=CfgCategoryTraining.N_SPLITS,
+        num_folds=CfgCategoryTraining.K_FOLDS,
         datasets={
             DatasetHistory(
                 raw_data=f"{input_dir}/category-input.csv",

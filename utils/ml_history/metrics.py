@@ -245,7 +245,7 @@ class MLHistory:
         self.model_type = model_type
         self.model_parms = model_parms
         self.num_folds = num_folds
-        self.datasets = datasets
+        self.datasets: Optional[Set[DatasetHistory]] = datasets
 
         # Training configuration
         self.tasks = isinstance(tasks, str) and {tasks} or tasks
