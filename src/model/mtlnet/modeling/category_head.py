@@ -2,7 +2,7 @@ import torch
 from torch import nn
 
 
-class CategoryHead(nn.Module):
+class CategoryHeadSingle(nn.Module):
     """
      Multi-layer perceptron for category classification.
      """
