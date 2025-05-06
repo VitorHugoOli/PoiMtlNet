@@ -1,5 +1,5 @@
 class InputsConfig:
-    EMBEDDING_DIM = 64
+    EMBEDDING_DIM = 107
     SLIDE_WINDOW = 9
 
 class MTLModelConfig:

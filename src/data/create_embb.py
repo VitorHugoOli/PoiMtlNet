@@ -55,7 +55,7 @@ def create_embeddings(state_name, path, **kwargs):
         df = etl_checkins(df)
 
         # Save the filtered checkins
-        etl_path = f'{state_dir}/{state_name}-filtrado.csv'
+        etl_path = f'{state_dir}/filtrado.csv'
         df.to_csv(etl_path, index=False)
         print(f'Filtered check-ins saved to {etl_path}')
 
@@ -67,7 +67,7 @@ def create_embeddings(state_name, path, **kwargs):
                                         )
 
         # Save the embeddings
-        embb_path = f'{state_dir}/{state_name}-embeddings.csv'
+        embb_path = f'{state_dir}/embeddings.csv'
         embeddings.to_csv(embb_path, index=False)
 
         print(f'Shape: {embeddings.shape}')
