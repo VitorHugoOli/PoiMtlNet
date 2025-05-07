@@ -6,19 +6,19 @@ from typing import Optional
 import joblib
 
 from configs.paths import OUTPUT_ROOT, RESULTS_ROOT
-from model.category.head.configs.category_config import CfgCategoryTraining, CfgCategoryHyperparams
 
-from model.category.head.data.fold import load_data, create_folds
-from model.category.head.engine.cross_validation import run_cv
+from model.next.head.configs.next_config import CfgNextTraining, CfgNextHyperparams
+from model.next.head.data.fold import load_data, create_folds
+from model.next.head.engine.cross_validation import run_cv
 from utils.ml_history.metrics import MLHistory
 from utils.ml_history.utils.dataset import DatasetHistory
 
 if __name__ == '__main__':
     # As args get the epochs, batch size and learning rate
-    parser = argparse.ArgumentParser(description='Train the category head of the model')
-    parser.add_argument('--ep', type=int, default=CfgCategoryTraining.EPOCHS, help='Number of epochs to train')
-    parser.add_argument('--bs', type=int, default=CfgCategoryTraining.BATCH_SIZE, help='Batch size for training')
-    parser.add_argument('--lr', type=float, default=CfgCategoryHyperparams.LR, help='Learning rate for the optimizer')
+    parser = argparse.ArgumentParser(description='Train the next head of the model')
+    parser.add_argument('--ep', type=int, default=CfgNextTraining.EPOCHS, help='Number of epochs to train')
+    parser.add_argument('--bs', type=int, default=CfgNextTraining.BATCH_SIZE, help='Batch size for training')
+    parser.add_argument('--lr', type=float, default=CfgNextHyperparams.LR, help='Learning rate for the optimizer')
 
     parser.add_argument('--state', type=str, default='florida_test', help='State to train the model on')
     parser.add_argument('--save-folds', type=bool, default=False, help='Whether to save the folds in a pickle file')
@@ -27,7 +27,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     state = args.state
     input_dir = f'{OUTPUT_ROOT}/{state}'
-    data_input = f'{input_dir}/pre-processing/category-input.csv'
+    data_input = f'{input_dir}/pre-processing/next-input.csv'
     output_dir = f'{RESULTS_ROOT}/{state}'
 
     # Creating folds
@@ -41,7 +41,7 @@ if __name__ == '__main__':
         folds = create_folds(
             X,
             y,
-            n_splits=CfgCategoryTraining.K_FOLDS,
+            n_splits=CfgNextTraining.K_FOLDS,
             batch_size=args.bs,
             seed=42,
         )
@@ -54,15 +54,15 @@ if __name__ == '__main__':
 
     # Creating history
     history: MLHistory = MLHistory(
-        model_name="Category",
+        model_name="Next",
         model_type="Single-Task",
-        tasks='category',
-        num_folds=CfgCategoryTraining.K_FOLDS,
+        tasks='next',
+        num_folds=CfgNextTraining.K_FOLDS,
         datasets={
             DatasetHistory(
-                raw_data=f"{input_dir}/category-input.csv",
+                raw_data=data_input,
                 folds_signature=args.folds_chkpt or None,
-                description="POI Category Classification",
+                description="POI next Classification",
             )
         }
     )

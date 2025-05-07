@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 import json
 from typing import Any, Dict, List, Union, TYPE_CHECKING
@@ -131,9 +132,9 @@ class HistoryStorage:
 
     def save(self, path: Union[str, Path]) -> Path:
         base = ensure_dir(Path(path) / self._folder_name())
-        dirs = {k: ensure_dir(base / k) for k in ('params', 'metrics', 'folds', 'summary', 'plots')}
+        dirs = {k: ensure_dir(base / k) for k in ('model', 'metrics', 'folds', 'summary', 'plots')}
 
-        self._save_params(dirs['params'])
+        self._save_params(dirs['model'])
         self._save_metrics(dirs['metrics'])
         self._save_reports(dirs['folds'])
         SummaryGenerator(self.history).generate(dirs['summary'])
@@ -162,6 +163,10 @@ class HistoryStorage:
             'hyperparameters': {k: v for k, v in vars(self.history.model_parms).items() if not k.startswith('_')}
         }
         save_json(params, path / 'model_params.json')
+
+        if self.history.model_arch:
+            with open(path / 'arch.txt', 'w') as f:
+                f.write(self.history.model_arch)
 
     def _save_metrics(self, path: Path) -> None:
         for i, fold in enumerate(self.history.folds, start=1):

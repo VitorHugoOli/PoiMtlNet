@@ -243,8 +243,9 @@ class MLHistory:
         # Model configuration
         self.model_name = model_name
         self.model_type = model_type
-        self.model_parms = model_parms
         self.num_folds = num_folds
+        self.model_parms:HyperParams = model_parms
+        self.model_arch: Optional[str] = None
         self.datasets: Optional[Set[DatasetHistory]] = datasets
 
         # Training configuration
@@ -276,7 +277,7 @@ class MLHistory:
         """
         return _MLHistoryIterator(self)
 
-    def get_curr_fold(self):
+    def get_curr_fold(self)-> FoldHistory:
         """
         Get the current fold.
         :return: The current fold number
@@ -289,6 +290,13 @@ class MLHistory:
         :param model_parms: HyperParams object
         """
         self.model_parms = model_parms
+
+    def set_model_arch(self, model_arch: str):
+        """
+        Set the model architecture.
+        :param model_arch: The model architecture
+        """
+        self.model_arch = model_arch
 
     def start(self):
         """

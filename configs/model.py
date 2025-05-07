@@ -1,6 +1,8 @@
 class InputsConfig:
-    EMBEDDING_DIM = 107
+    EMBEDDING_DIM = 64 # Alvaro
+    # EMBEDDING_DIM = 50*2+7 #HMRM
     SLIDE_WINDOW = 9
+    PAD_VALUE = 0
 
 class MTLModelConfig:
     NUM_CLASSES = 7
@@ -8,11 +10,6 @@ class MTLModelConfig:
     EPOCHS = 50
     LEARNING_RATE = 0.0001
     K_FOLDS = 5
-
-
-
-
-
 
 class ModelParameters:
     INPUT_DIM = InputsConfig.EMBEDDING_DIM

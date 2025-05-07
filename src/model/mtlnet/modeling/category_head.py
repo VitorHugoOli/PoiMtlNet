@@ -9,7 +9,7 @@ class CategoryHeadSingle(nn.Module):
 
     def __init__(
             self,
-            input_dim: int = 256,
+            input_dim: int = 64,
             hidden_dims: tuple[int, ...] = (512, 256, 128, 64, 32),
             num_classes: int = 7,
             dropout: float = 0.3,

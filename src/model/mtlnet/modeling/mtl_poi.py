@@ -6,6 +6,8 @@ from configs.globals import DEVICE
 from models.category_head import CategoryHead
 from models.next_head import NextHead
 
+from configs.model import InputsConfig
+
 
 class ResidualBlock(nn.Module):
     """Residual block with LayerNorm and Dropout for deep shared layers."""
@@ -162,7 +164,7 @@ class MTLnet(nn.Module):
         inputs: Tuple[torch.Tensor, torch.Tensor]
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         category_input, next_input = inputs
-        pad_value = -999
+        pad_value = InputsConfig.PAD_VALUE
         mask = (next_input == pad_value).all(-1)  # → (batch, seq_len)
         next_input = next_input.masked_fill(mask.unsqueeze(-1), 0)  # zero out all-pad tokens
 

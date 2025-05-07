@@ -179,7 +179,6 @@ def processing_sequences_next(df_nextpoi_sequences: pd.DataFrame,
     # Convert embeddings to numpy array for faster access
     emb_lookup = {poi_id: row.values.astype(np.float32) for poi_id, row in embeddings_without_category.iterrows()}
     zero_emb = np.zeros(InputsConfig.EMBEDDING_DIM, dtype=np.float32)
-    empty_emb = np.full(InputsConfig.EMBEDDING_DIM, -999, dtype=np.float32)
 
     # Process in batches
     batch_size = min(save_step, len(df_nextpoi_sequences))
@@ -195,7 +194,7 @@ def processing_sequences_next(df_nextpoi_sequences: pd.DataFrame,
     @lru_cache(maxsize=None)
     def get_embedding(poi_id):
         if poi_id == PADDING_VALUE:
-            return empty_emb
+            return zero_emb
         return emb_lookup.get(poi_id, zero_emb)
 
     for batch_idx, batch_start in iterator:
