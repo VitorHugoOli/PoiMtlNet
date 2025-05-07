@@ -87,7 +87,7 @@ class NextHead(nn.Module):
     def forward(self, x):  # Shape: [batch_size, 9, 64]
         batch_size, seq_length, _ = x.size()
 
-        padding_mask = (x.sum(dim=-1) == 0)  # Shape: [batch_size, seq_length]
+        padding_mask = (x.abs().sum(dim=-1) == 0)  # (batch_size, seq_len)
         x = self.pe(x, padding_mask)
         key_padding_mask = padding_mask
         causal_mask = torch.zeros(seq_length, seq_length, device=x.device)
@@ -98,7 +98,6 @@ class NextHead(nn.Module):
         x = self.transformer_encoder(
             x,
             mask=causal_mask,
-            src_key_padding_mask=None  # Don't use both mask types simultaneously
         )
         x = self.layer_norm(x)
         if key_padding_mask is not None:
