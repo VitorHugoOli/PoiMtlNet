@@ -1,4 +1,3 @@
-from encodings.punycode import selective_len
 
 import torch
 import torch.optim as optim
@@ -14,11 +13,11 @@ from common.mps_support import clear_mps_cache
 from common.training_progress import TrainingProgressBar
 from configs.globals import DEVICE
 from configs.model import ModelParameters, MTLModelConfig
-from modeling.evaluate import evaluate_model
-from modeling.validation import validation_best_model
 from data.create_fold import SuperInputData
-from models.mtl_poi import MTLnet
 from criterion.nash_mtl import NashMTL
+from model.mtlnet.engine.evaluate import evaluate_model
+from model.mtlnet.engine.validation import validation_best_model
+from model.mtlnet.modeling.mtl_poi import MTLnet
 from utils.ml_history.metrics import MLHistory, FoldHistory
 from utils.ml_history.parms.neural import NeuralParams
 
@@ -256,7 +255,7 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
         optimizer = optim.AdamW(
             model.parameters(),
             lr=learning_rate,
-            weight_decay=1e-3,
+            weight_decay=1e-4,
             eps=1e-8
         )
 
@@ -266,9 +265,7 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
             max_lr=learning_rate * 10,
             epochs=num_epochs,
             steps_per_epoch=len(dataloader_next.train.dataloader),
-            pct_start=0.3,
-            div_factor=10,
-            final_div_factor=1000
+
         )
 
         # Initialize loss functions
@@ -276,6 +273,8 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
         category_criterion = CrossEntropyLoss(reduction='mean')
         mtl_criterion = NashMTL(n_tasks=2, device=DEVICE, max_norm=1.0, update_weights_every=1)
         # mtl_criterion = NaiveLoss(alpha=0.5, beta=0.5)
+
+        history.set_model_arch(str(model))
 
         history.set_model_parms(
             NeuralParams(
@@ -292,9 +291,9 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
                     'category': category_criterion.__class__.__name__
                 },
                 criterion_state={
-                    'mtl': mtl_criterion.__dict__,
-                    'next': next_criterion.__dict__,
-                    'category': category_criterion.__dict__
+                    'mtl': {},
+                    'next': next_criterion.state_dict(),
+                    'category': category_criterion.state_dict()
                 }
             )
         )

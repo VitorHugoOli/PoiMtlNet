@@ -3,8 +3,8 @@ from configs.model import InputsConfig
 
 class CfgCategoryHyperparams:
     LR = 0.0001
-    MAX_LR = 0.1
-    WEIGHT_DECAY = 1e-2
+    MAX_LR = 0.001
+    WEIGHT_DECAY = 1e-3
     MAX_GRAD_NORM = 1.0
 
 

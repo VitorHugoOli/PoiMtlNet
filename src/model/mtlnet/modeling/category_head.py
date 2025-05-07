@@ -2,14 +2,14 @@ import torch
 from torch import nn
 
 
-class CategoryHeadSingle(nn.Module):
+class CategoryHead(nn.Module):
     """
      Multi-layer perceptron for category classification.
      """
 
     def __init__(
             self,
-            input_dim: int = 64,
+            input_dim: int = 256,
             hidden_dims: tuple[int, ...] = (512, 256, 128, 64, 32),
             num_classes: int = 7,
             dropout: float = 0.3,

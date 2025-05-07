@@ -8,7 +8,7 @@ from configs.globals import DEVICE
 from model.next.head.configs.next_config import CfgNextModel, CfgNextHyperparams, CfgNextTraining
 from model.next.head.engine.evaluation import evaluate
 from model.next.head.engine.trainer import train
-from model.next.head.modeling.next_head import NextHead
+from model.next.head.modeling.next_head import NextHeadSingle
 from utils.ml_history.metrics import MLHistory
 from utils.ml_history.parms.neural import NeuralParams
 
@@ -20,7 +20,7 @@ def run_cv(
     """Run cross-validation for the model."""
     for idx, (train_loader, val_loader) in enumerate(folds):
         history.display.start_fold()
-        model = NextHead(
+        model = NextHeadSingle(
             embed_dim=CfgNextModel.INPUT_DIM,
             num_classes=CfgNextModel.NUM_CLASSES,
             num_heads=CfgNextModel.NUM_HEADS,

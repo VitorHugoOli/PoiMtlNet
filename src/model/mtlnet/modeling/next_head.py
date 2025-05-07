@@ -25,15 +25,36 @@ class PositionalEncoding(nn.Module):
 
         self.register_buffer('positional_encoding', positional_encoding)
 
-    def forward(self, x):
+        # Add a small epsilon to avoid numerical issues
+        self.eps = 1e-12
+
+    def forward(self, x, padding_mask=None):
         """
         Args:
             x: Input tensor of shape (batch_size, seq_length, embed_dim).
+            padding_mask: Boolean mask indicating which positions are padding (True for padding)
         Returns:
             Tensor with positional encodings added to the input embeddings.
         """
         seq_length = x.size(1)
-        x = x + self.positional_encoding[:, :seq_length, :]
+
+        # Add positional encoding
+        pos_enc = self.positional_encoding[:, :seq_length, :]
+
+        # If padding mask is provided, zero out positions for padded tokens
+        if padding_mask is not None:
+            # Create mask tensor (1.0 for valid positions, 0.0 for padding)
+            # We add a small epsilon to avoid exact zeros for numerical stability
+            mask_tensor = (~padding_mask).unsqueeze(-1).float() + self.eps
+
+            # Apply the mask to both input and positional encoding
+            # This ensures padded positions retain their zero value
+            x = x * mask_tensor
+            pos_enc = pos_enc * mask_tensor
+
+        # Add positional encoding to input
+        x = x + pos_enc
+
         return self.dropout(x)
 
 
@@ -44,36 +65,56 @@ class NextHead(nn.Module):
         self.num_heads = num_heads
         self.seq_length = seq_length
 
-        self.pe = PositionalEncoding(embed_dim, 9)
+        self.pe = PositionalEncoding(embed_dim, max_seq_length=seq_length)
         encoder_layer = nn.TransformerEncoderLayer(
             embed_dim,
             num_heads,
-            dim_feedforward=embed_dim,
+            dim_feedforward=embed_dim * 4,
             dropout=dropout,
             batch_first=True,
             norm_first=True
         )
         self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers)
 
-        self.sequence_reduction = nn.Sequential(
-            nn.Linear(embed_dim, 1),
-            nn.Softmax(dim=1)
-        )
+        # Simpler attention pooling to avoid NaN issues
+        self.sequence_reduction = nn.Linear(embed_dim, 1)
 
         self.linear_layers = nn.Linear(embed_dim, num_classes)
 
-    def forward(self, x): # Shape: [batch_size, 9, 64]
-        # print(f"> Next1: {x.shape}")
-        x = self.pe(x)
+        # Layer normalization for better stability
+        self.layer_norm = nn.LayerNorm(embed_dim)
+
+    def forward(self, x):  # Shape: [batch_size, 9, 64]
         batch_size, seq_length, _ = x.size()
 
-        attn_mask = torch.triu(torch.ones(seq_length, seq_length) * float('-inf'), diagonal=1).to(x.device)
+        padding_mask = (x.abs().sum(dim=-1) == 0)  # (batch_size, seq_len)
+        x = self.pe(x, padding_mask)
+        key_padding_mask = padding_mask
+        causal_mask = torch.zeros(seq_length, seq_length, device=x.device)
+        causal_mask = causal_mask.masked_fill(
+            torch.triu(torch.ones(seq_length, seq_length, device=x.device), diagonal=1).bool(),
+            float('-inf')
+        )
+        x = self.transformer_encoder(
+            x,
+            mask=causal_mask,
+        )
+        x = self.layer_norm(x)
+        if key_padding_mask is not None:
+            x = x.masked_fill(key_padding_mask.unsqueeze(-1), 0)
+        attn_logits = self.sequence_reduction(x)  # [batch_size, seq_length, 1]
 
-        x = self.transformer_encoder(x, mask=attn_mask)
+        attn_logits = attn_logits.masked_fill(padding_mask.unsqueeze(-1), -1e9)
+        attn_weights = torch.softmax(attn_logits, dim=1)
+        mask_all = (attn_weights != attn_weights)  # Find NaN positions
+        if mask_all.any():
+            uniform_weights = torch.ones_like(attn_weights) / seq_length
+            attn_weights = torch.where(mask_all, uniform_weights, attn_weights)
 
-        attn_weights = self.sequence_reduction(x)  # Shape: [batch_size, seq_length, 1]
-        x = torch.sum(x * attn_weights, dim=1)  # Shape: [batch_size, embed_dim]
+        # Weighted sum to get final embedding
+        x = torch.sum(x * attn_weights, dim=1)  # [batch_size, embed_dim]
 
+        # Final classification
         x = self.linear_layers(x)
 
         return x

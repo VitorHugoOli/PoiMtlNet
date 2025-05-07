@@ -3,10 +3,10 @@ import torch
 from torch import nn
 
 from configs.globals import DEVICE
-from models.category_head import CategoryHead
-from models.next_head import NextHead
 
 from configs.model import InputsConfig
+from model.mtlnet.modeling.category_head import CategoryHead
+from model.mtlnet.modeling.next_head import NextHead
 
 
 class ResidualBlock(nn.Module):
@@ -110,7 +110,12 @@ class MTLnet(nn.Module):
         )
 
         # Task heads
-        self.category_poi = CategoryHead()
+        self.category_poi = CategoryHead(
+            input_dim=shared_layer_size,
+            hidden_dims=(512, 256, 128, 64, 32),
+            num_classes=num_classes,
+            dropout=0.3,
+        )
         self.next_poi = NextHead(
             shared_layer_size, num_classes, num_heads, seq_length, num_layers
         )
@@ -164,8 +169,9 @@ class MTLnet(nn.Module):
         inputs: Tuple[torch.Tensor, torch.Tensor]
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         category_input, next_input = inputs
+
         pad_value = InputsConfig.PAD_VALUE
-        mask = (next_input == pad_value).all(-1)  # → (batch, seq_len)
+        mask = (next_input.abs().sum(dim=-1) == 0)  # (batch_size, seq_len)
         next_input = next_input.masked_fill(mask.unsqueeze(-1), 0)  # zero out all-pad tokens
 
         # Task‐specific encoding

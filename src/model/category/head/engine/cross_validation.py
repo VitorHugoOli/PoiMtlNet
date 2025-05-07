@@ -5,7 +5,7 @@ from configs.globals import DEVICE
 from model.category.head.configs.category_config import CfgCategoryModel
 from model.category.head.engine.evaluation import evaluate
 from model.category.head.engine.trainer import train
-from model.mtlnet.modeling.category_head import CategoryHeadSingle
+from model.category.head.modeling.category_head import CategoryHeadSingle
 from utils.ml_history.metrics import MLHistory
 
 def run_cv(
@@ -21,6 +21,8 @@ def run_cv(
             num_classes=CfgCategoryModel.NUM_CLASSES,
             dropout=CfgCategoryModel.DROPOUT,
         ).to(DEVICE)
+
+        history.set_model_arch(str(model))
 
         train(
             model,

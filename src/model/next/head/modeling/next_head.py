@@ -58,9 +58,9 @@ class PositionalEncoding(nn.Module):
         return self.dropout(x)
 
 
-class NextHead(nn.Module):
+class NextHeadSingle(nn.Module):
     def __init__(self, embed_dim, num_classes, num_heads, seq_length, num_layers, dropout=0.35):
-        super(NextHead, self).__init__()
+        super(NextHeadSingle, self).__init__()
         self.embed_dim = embed_dim
         self.num_heads = num_heads
         self.seq_length = seq_length
