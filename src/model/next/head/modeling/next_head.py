@@ -87,47 +87,28 @@ class NextHead(nn.Module):
     def forward(self, x):  # Shape: [batch_size, 9, 64]
         batch_size, seq_length, _ = x.size()
 
-        # Create padding mask (True for padding positions)
         padding_mask = (x.sum(dim=-1) == 0)  # Shape: [batch_size, seq_length]
-
-        # Apply positional encoding with padding mask
         x = self.pe(x, padding_mask)
-
-        # Create causal mask for attention (optional - depends on if you need causal attention)
+        key_padding_mask = padding_mask
         causal_mask = torch.zeros(seq_length, seq_length, device=x.device)
         causal_mask = causal_mask.masked_fill(
             torch.triu(torch.ones(seq_length, seq_length, device=x.device), diagonal=1).bool(),
             float('-inf')
         )
-
-        # Pass both masks to transformer_encoder
-        # mask: controls attention (causal in this case)
-        # src_key_padding_mask: controls which positions are padding
         x = self.transformer_encoder(
             x,
             mask=causal_mask,
-            src_key_padding_mask=padding_mask  # Pass padding_mask to transformer
+            src_key_padding_mask=None  # Don't use both mask types simultaneously
         )
-
-        # Apply layer normalization
         x = self.layer_norm(x)
-
-        # Zero out padding positions after transformer processing
-        x = x.masked_fill(padding_mask.unsqueeze(-1), 0)
-
-        # Compute attention weights for sequence reduction
+        if key_padding_mask is not None:
+            x = x.masked_fill(key_padding_mask.unsqueeze(-1), 0)
         attn_logits = self.sequence_reduction(x)  # [batch_size, seq_length, 1]
 
-        # Mask out padding positions with large negative value for softmax
         attn_logits = attn_logits.masked_fill(padding_mask.unsqueeze(-1), -1e9)
-
-        # Apply softmax to get attention weights
         attn_weights = torch.softmax(attn_logits, dim=1)
-
-        # Handle potential NaN values in attention weights
         mask_all = (attn_weights != attn_weights)  # Find NaN positions
         if mask_all.any():
-            # If NaNs found, use uniform weights instead
             uniform_weights = torch.ones_like(attn_weights) / seq_length
             attn_weights = torch.where(mask_all, uniform_weights, attn_weights)
 
