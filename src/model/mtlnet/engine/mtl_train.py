@@ -1,3 +1,4 @@
+from copy import deepcopy
 
 import torch
 import torch.optim as optim
@@ -183,6 +184,8 @@ def train_model(model,
                 num_classes=num_classes
             )
 
+            state= deepcopy(model.state_dict())
+
             # Store validation metrics
             fold_history.model.add_val(
                 val_loss=loss_val,
@@ -193,14 +196,14 @@ def train_model(model,
                 val_loss=0,
                 val_accuracy=acc_val_next,
                 val_f1=f1_val_next,
-                model_state=model.state_dict(),
+                model_state=state,
                 best_metric='val_f1'
             )
             fold_history.to('category').add_val(
                 val_loss=0,
                 val_accuracy=acc_val_category,
                 val_f1=f1_val_category,
-                model_state=model.state_dict(),
+                model_state=state,
                 best_metric='val_f1'
             )
 

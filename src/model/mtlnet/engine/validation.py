@@ -3,7 +3,11 @@ from sklearn.metrics import classification_report
 
 from configs.globals import DEVICE
 
-def validation_best_model(data_next,data_category,best_next,bext_category, model):
+def validation_best_model(data_next,
+                          data_category,
+                          best_next,
+                          bext_category,
+                          model):
 
     all_pred_next = []
     all_truth_next = []
