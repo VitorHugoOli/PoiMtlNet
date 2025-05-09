@@ -180,6 +180,14 @@ class FlopsMetrics:
         self.inference_time: List[float] = []
         self.training_time: List[float] = []
 
+    def to_dict(self)-> dict:
+        return {
+            'flops': self.flops,
+            'params': self.params,
+            'memory': self.memory,
+            'inference_time': self.inference_time,
+            'training_time': self.training_time
+        }
 
 class _MLHistoryContext:
     """

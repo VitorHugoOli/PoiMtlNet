@@ -160,6 +160,7 @@ class HistoryStorage:
                 ds.to_json()
                 for ds in self.history.datasets
             ],
+            "flops": self.history.flops.to_dict(),
             'hyperparameters': {k: v for k, v in vars(self.history.model_parms).items() if not k.startswith('_')}
         }
         save_json(params, path / 'model_params.json')
