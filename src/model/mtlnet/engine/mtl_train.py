@@ -193,13 +193,15 @@ def train_model(model,
                 val_loss=0,
                 val_accuracy=acc_val_next,
                 val_f1=f1_val_next,
-                model_state=model.state_dict()
+                model_state=model.state_dict(),
+                best_metric='val_f1'
             )
             fold_history.to('category').add_val(
                 val_loss=0,
                 val_accuracy=acc_val_category,
                 val_f1=f1_val_category,
-                model_state=model.state_dict()
+                model_state=model.state_dict(),
+                best_metric='val_f1'
             )
 
         # Update metrics on progress bar with validation results
