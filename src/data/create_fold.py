@@ -120,7 +120,7 @@ def create_dataloader(
         indices: Optional[np.ndarray] = None,
         batch_size: int = 64,
         shuffle: bool = True,
-        prefetch_factor: int = 3
+        prefetch_factor: int = 5
 ) -> DataLoader:
     """Create DataLoader with optimal settings for performance"""
     if indices is not None:

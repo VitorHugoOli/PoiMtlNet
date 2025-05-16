@@ -3,7 +3,7 @@ from sklearn.metrics import classification_report
 
 
 @torch.no_grad()
-def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_creterion, device, num_classes=None):
+def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_creterion, device):
     """
     Unified evaluation function for both validation and testing.
 
@@ -53,12 +53,13 @@ def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_c
 
 
     next_report = classification_report(all_truths_next, all_predictions_next, output_dict=True, zero_division=0)
-    category_report = classification_report(all_truths_category, all_predictions_category, output_dict=True,
-                                            zero_division=0)
-    acc_next = next_report['accuracy']
-    acc_category = category_report['accuracy']
+    category_report = classification_report(all_truths_category, all_predictions_category, output_dict=True,zero_division=0)
+
     f1_next = next_report['macro avg']['f1-score']
+    acc_next = next_report['accuracy']
+
     f1_category = category_report['macro avg']['f1-score']
+    acc_category = category_report['accuracy']
 
     return acc_next, f1_next, acc_category, f1_category, loss
 

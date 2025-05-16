@@ -2,8 +2,6 @@ from copy import deepcopy
 
 import torch
 import torch.optim as optim
-import time
-from datetime import timedelta
 
 from sklearn.metrics import classification_report
 from torch.nn import CrossEntropyLoss
@@ -24,7 +22,7 @@ from utils.ml_history.parms.neural import NeuralParams
 
 
 # Training Function
-def train_model(model,
+def train_model(model: torch.nn.Module,
                 optimizer,
                 scheduler,
                 dataloader_next: SuperInputData,
@@ -112,6 +110,12 @@ def train_model(model,
                 task_specific_parameters=list(model.task_specific_parameters()),
             )
 
+            # loss = mtl_criterion.compute_loss(
+            #     next_loss,
+            #     category_loss,
+            # )
+            # loss.backward()
+
             optimizer.step()
             scheduler.step()
 
@@ -181,7 +185,6 @@ def train_model(model,
                 category_criterion,
                 mtl_criterion,
                 DEVICE,
-                num_classes=num_classes
             )
 
             state= deepcopy(model.state_dict())

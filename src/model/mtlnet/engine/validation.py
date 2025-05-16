@@ -6,7 +6,7 @@ from configs.globals import DEVICE
 def validation_best_model(data_next,
                           data_category,
                           best_next,
-                          bext_category,
+                          best_category,
                           model):
 
     all_pred_next = []
@@ -26,7 +26,7 @@ def validation_best_model(data_next,
             all_pred_next.append(pred_next_class.cpu())
             all_truth_next.append(truth_next.cpu())
 
-        model.load_state_dict(bext_category)
+        model.load_state_dict(best_category)
         model.eval()
         for batch_next, batch_category in zip(data_next, data_category):
             x_next, _ = batch_next['x'].to(DEVICE), batch_next['y'].to(DEVICE)

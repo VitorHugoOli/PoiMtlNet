@@ -1,62 +1,32 @@
 import logging
+from typing import Optional
 
 import torch
 from torch import nn
-from torch.optim import AdamW
-from torch.optim.lr_scheduler import OneCycleLR
+from torch.optim import Optimizer
+from torch.optim.lr_scheduler import LRScheduler
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from model.category.head.configs.category_config import CfgCategoryHyperparams, CfgCategoryTraining
-from utils.ml_history.metrics import MLHistory
-from utils.ml_history.parms.neural import NeuralParams
+from utils.ml_history.metrics import MLHistory, FlopsMetrics
 
 
 def train(
         model: nn.Module,
         train_loader: DataLoader,
         val_loader: DataLoader,
+        criterion: nn.Module,
+        optimizer: Optimizer,
+        scheduler: Optional[LRScheduler],
         device: torch.device,
         history: MLHistory,
 ) -> None:
-    criterion = nn.CrossEntropyLoss()
-    optimizer = AdamW(
-        model.parameters(),
-        lr=CfgCategoryHyperparams.LR,
-        weight_decay=CfgCategoryHyperparams.WEIGHT_DECAY,
-    )
-    scheduler = OneCycleLR(
-        optimizer=optimizer,
-        max_lr=CfgCategoryHyperparams.MAX_LR,
-        epochs=CfgCategoryTraining.EPOCHS,
-        steps_per_epoch=len(train_loader),
-    )
-
     loop = tqdm(
         range(CfgCategoryTraining.EPOCHS),
         unit="batch",
         desc="Training",
     )
-
-    history.set_model_parms(
-        NeuralParams(
-            batch_size=CfgCategoryTraining.BATCH_SIZE,
-            num_epochs=CfgCategoryTraining.EPOCHS,
-            learning_rate=CfgCategoryHyperparams.LR,
-            optimizer=optimizer.__class__.__name__,
-            optimizer_state=optimizer.state_dict(),
-            scheduler=scheduler.__class__.__name__,
-            scheduler_state=scheduler.state_dict(),
-            criterion={
-                'category': criterion.__class__.__name__},
-            criterion_state={
-                'category': criterion.state_dict()
-            }
-
-        )
-    )
-
-    fold_history = history.get_curr_fold()
 
     for _ in loop:
         model.train()
@@ -95,12 +65,12 @@ def train(
         val_loss /= val_total
         val_acc = val_correct / val_total
 
-        fold_history.to('category').add(
+        history.to('category').add(
             loss=train_loss,
             accuracy=train_acc,
             f1=0.0,
         )
-        fold_history.to('category').add_val(
+        history.to('category').add_val(
             val_loss=val_loss,
             val_accuracy=val_acc,
             val_f1=0.0,

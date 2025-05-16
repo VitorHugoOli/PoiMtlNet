@@ -171,7 +171,7 @@ class MTLnet(nn.Module):
         category_input, next_input = inputs
 
         pad_value = InputsConfig.PAD_VALUE
-        mask = (next_input.abs().sum(dim=-1) == 0)  # (batch_size, seq_len)
+        mask = (next_input.abs().sum(dim=-1) == pad_value)  # (batch_size, seq_len)
         next_input = next_input.masked_fill(mask.unsqueeze(-1), 0)  # zero out all-pad tokens
 
         # Task‐specific encoding
