@@ -22,6 +22,10 @@ def save_json(data: Any, path: Path) -> None:
     with path.open('w', encoding='utf-8') as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
 
+def save_text(data: str, path: Path) -> None:
+    with path.open('w', encoding='utf-8') as f:
+        f.write(data)
+
 
 def save_csv(df: pd.DataFrame, path: Path, **kwargs) -> None:
     df.to_csv(path, index=False, **kwargs)
@@ -160,10 +164,17 @@ class HistoryStorage:
                 ds.to_json()
                 for ds in self.history.datasets
             ],
-            "flops": self.history.flops.to_dict(),
+            "flops": self.history.flops.to_dict() if self.history.flops is not None else None,
             'hyperparameters': {k: v for k, v in vars(self.history.model_parms).items() if not k.startswith('_')}
         }
-        save_json(params, path / 'model_params.json')
+
+        try:
+            save_json(params, path / 'model_params.json')
+        except Exception as e:
+            print(f"Error saving model parameters: {e}")
+            save_text(str(params), path / 'model_params.txt')
+
+
 
         if self.history.model_arch:
             with open(path / 'arch.txt', 'w') as f:

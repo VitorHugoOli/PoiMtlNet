@@ -7,8 +7,12 @@ from torch import nn
 from torch.utils.data import DataLoader
 
 
-def evaluate(model: nn.Module, loader: DataLoader, device: torch.device) -> Union[str, dict]:
+def evaluate(model: nn.Module, loader: DataLoader, device: torch.device,
+             best_state: dict = None
+             ) -> Union[str, dict]:
     model.eval()
+    if best_state is not None:
+        model.load_state_dict(best_state)
     preds, truths = [], []
     with torch.no_grad():
         for X_batch, y_batch in loader:

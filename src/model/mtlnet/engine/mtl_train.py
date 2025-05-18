@@ -187,7 +187,7 @@ def train_model(model: torch.nn.Module,
                 DEVICE,
             )
 
-            state= deepcopy(model.state_dict())
+            state = model.state_dict()
 
             # Store validation metrics
             fold_history.model.add_val(

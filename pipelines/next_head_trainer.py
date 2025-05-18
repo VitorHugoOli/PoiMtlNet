@@ -20,7 +20,7 @@ if __name__ == '__main__':
     parser.add_argument('--bs', type=int, default=CfgNextTraining.BATCH_SIZE, help='Batch size for training')
     parser.add_argument('--lr', type=float, default=CfgNextHyperparams.LR, help='Learning rate for the optimizer')
 
-    parser.add_argument('--state', type=str, default='florida_test', help='State to train the model on')
+    parser.add_argument('--state', type=str, default='florida_dgi_new', help='State to train the model on')
     parser.add_argument('--save-folds', type=bool, default=False, help='Whether to save the folds in a pickle file')
     parser.add_argument('--folds-chkpt', type=Optional[str], default=None, help='Path to the checkpoint file for the folds')
 

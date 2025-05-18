@@ -95,18 +95,23 @@ class NextHead(nn.Module):
             torch.triu(torch.ones(seq_length, seq_length, device=x.device), diagonal=1).bool(),
             float('-inf')
         )
+
         x = self.transformer_encoder(
             x,
             mask=causal_mask,
         )
         x = self.layer_norm(x)
+
         if key_padding_mask is not None:
             x = x.masked_fill(key_padding_mask.unsqueeze(-1), 0)
+
         attn_logits = self.sequence_reduction(x)  # [batch_size, seq_length, 1]
 
         attn_logits = attn_logits.masked_fill(padding_mask.unsqueeze(-1), -1e9)
+
         attn_weights = torch.softmax(attn_logits, dim=1)
         mask_all = (attn_weights != attn_weights)  # Find NaN positions
+
         if mask_all.any():
             uniform_weights = torch.ones_like(attn_weights) / seq_length
             attn_weights = torch.where(mask_all, uniform_weights, attn_weights)

@@ -1,6 +1,7 @@
 from typing import Optional
 
 import torch
+from sklearn.metrics import f1_score
 from torch import nn
 from torch.optim import AdamW, Optimizer
 from torch.optim.lr_scheduler import OneCycleLR, LRScheduler
@@ -41,6 +42,7 @@ def train(
             optimizer.step()
             scheduler.step()
 
+
             preds = logits.argmax(dim=1)
             total_loss += loss.item() * y_batch.size(0)
             total_correct += (preds == y_batch).sum().item()
@@ -52,18 +54,25 @@ def train(
         # Validation
         model.eval()
         val_loss = val_correct = val_total = 0
+        val_preds, val_targets = [], []
+
         with torch.no_grad():
             for X_batch, y_batch in val_loader:
                 X_batch, y_batch = X_batch.to(device), y_batch.to(device)
                 logits = model(X_batch)
                 loss = criterion(logits, y_batch)
                 preds = logits.argmax(dim=1)
+
                 val_loss += loss.item() * y_batch.size(0)
                 val_correct += (preds == y_batch).sum().item()
                 val_total += y_batch.size(0)
 
+                val_preds.extend(preds.cpu().numpy())
+                val_targets.extend(y_batch.cpu().numpy())
+
         val_loss /= val_total
         val_acc = val_correct / val_total
+        val_f1 = f1_score(val_targets, val_preds, average='macro')
 
         history.to('next').add(
             loss=train_loss,
@@ -73,9 +82,8 @@ def train(
         history.to('next').add_val(
             val_loss=val_loss,
             val_accuracy=val_acc,
-            val_f1=0.0,
+            val_f1=val_f1,
             model_state=model.state_dict(),
-            best_metric='val_accuracy',
         )
 
         loop.set_postfix(
@@ -83,6 +91,6 @@ def train(
                 "tr_loss": f"{train_loss:.4f}",
                 "tr_acc": f"{train_acc:.4f}",
                 "val_loss": f"{val_loss:.4f}",
-                "val_acc": f"{val_acc:.4f}",
+                "val_acc": f"{val_acc:.4f}({val_f1:.4f})",
             }
         )

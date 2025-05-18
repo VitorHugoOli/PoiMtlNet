@@ -100,11 +100,11 @@ class HistoryDisplay:
         for t in self.h.tasks:
             report = self.h.folds[self.h.curr_i_fold - 1].to(t).outcome().report
             self.log.info(self._sep(f"Report for {t}", width=60, sep='-'))
-            self._display_report(report)
+            self.display_report(report)
 
         self.log.info(self._sep("End of Fold", width=60))
 
-    def _display_report(self, report: dict):
+    def display_report(self, report: dict):
         """Format and log a classification report."""
         self.log.info(
             f"{'Category':<12} | {'Precision':<10} | {'Recall':<10} | {'F1-Score':<10} | {'Support':<10}"
@@ -178,7 +178,7 @@ class HistoryDisplay:
                     'support': sum(arrs['support']),
                 }
 
-            self._display_report(final_report)
+            self.display_report(final_report)
 
         self.log.info(self._sep("End of all folds", width=60))
 

@@ -14,3 +14,7 @@ if not os.path.exists(OUTPUT_ROOT):
 
 if not os.path.exists(RESULTS_ROOT):
     os.makedirs(RESULTS_ROOT)
+
+TEMP_DIR = os.path.join(DATA_ROOT, 'temp')
+if not os.path.exists(TEMP_DIR):
+    os.makedirs(TEMP_DIR)

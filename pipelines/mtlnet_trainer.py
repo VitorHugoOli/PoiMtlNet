@@ -18,7 +18,7 @@ from utils.ml_history.utils.dataset import DatasetHistory
 logging.basicConfig(level=logging.INFO)
 
 if __name__ == '__main__':
-    state = "florida_test"  # Replace with the desired state
+    state = "florida_dgi_new"  # Replace with the desired state
     output_dir = f'{OUTPUT_ROOT}/{state}/pre-processing'
     # output_dir = f'/Users/vitor/Desktop/mestrado/ingred/data/ori/pre-processing/chicago'
 

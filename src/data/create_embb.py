@@ -4,7 +4,7 @@ import pandas as pd
 
 from configs.model import InputsConfig
 from configs.paths import OUTPUT_ROOT, IO_CHECKINS
-from data.embeddings.hmrm_new import HmrmBaselineNew
+from data.embeddings.hmrm.hmrm_new import HmrmBaselineNew
 
 
 def etl_checkins(df: pd.DataFrame):

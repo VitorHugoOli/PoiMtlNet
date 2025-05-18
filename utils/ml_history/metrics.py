@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+from copy import deepcopy
 from typing import List, Set, Optional
 
 from utils.ml_history.display import HistoryDisplay
@@ -113,7 +114,7 @@ class FoldHistoryMetric:
             prev_best = min(self.task_metrics.val_loss, default=float('inf'))
 
         if comparison(metric_value, prev_best):
-            self.best_model = model_state
+            self.best_model = deepcopy(model_state)
             self.best_epoch = len(self.task_metrics.val_f1) - 1
 
 

@@ -1,9 +1,14 @@
+import json
+
+import numpy as np
+import torch
+from sklearn.utils import compute_class_weight
 from torch import nn
 from torch.optim import AdamW
-from torch.optim.lr_scheduler import OneCycleLR
+from torch.optim.lr_scheduler import OneCycleLR, CosineAnnealingLR, ReduceLROnPlateau
 from torch.utils.data import DataLoader
 
-from configs.globals import DEVICE
+from configs.globals import DEVICE, CATEGORIES_MAP
 
 from model.next.head.configs.next_config import CfgNextModel, CfgNextHyperparams, CfgNextTraining
 from model.next.head.engine.evaluation import evaluate
@@ -11,6 +16,61 @@ from model.next.head.engine.trainer import train
 from model.next.head.modeling.next_head import NextHeadSingle
 from utils.ml_history.metrics import MLHistory
 from utils.ml_history.parms.neural import NeuralParams
+import torch.nn.functional as F
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+class FocalLoss(nn.Module):
+    def __init__(self, 
+                 gamma: float = 2.0, 
+                 alpha: torch.Tensor = None, 
+                 reduction: str = 'mean',
+                 ignore_index: int = -100):
+        """
+        gamma: focusing parameter >= 0
+        alpha: tensor of shape (num_classes,) giving per-class weighting
+        reduction: 'none' | 'mean' | 'sum'
+        """
+        super().__init__()
+        self.gamma = gamma
+        self.alpha = alpha
+        self.reduction = reduction
+        self.ignore_index = ignore_index
+
+    def forward(self, logits: torch.Tensor, targets: torch.Tensor):
+        """
+        logits: (batch, C) raw outputs
+        targets: (batch,)  long tensor of class indices
+        """
+        # 1) get log-probs and probs
+        log_probs = F.log_softmax(logits, dim=1)        # (B, C)
+        probs     = torch.exp(log_probs)                # (B, C)
+
+        # 2) gather the log-prob and prob for the true class
+        idx = targets.view(-1, 1)
+        log_pt = log_probs.gather(1, idx).view(-1)      # (B,)
+        pt     = probs.gather(1, idx).view(-1)          # (B,)
+
+        # 3) if alpha (class-balancing) is given, apply it
+        if self.alpha is not None:
+            # make sure alpha is on the right device & dtype
+            alpha = self.alpha.to(logits.device).float()
+            at = alpha.gather(0, targets)              # (B,)
+            log_pt = log_pt * at
+
+        # 4) focal loss formula: FL = - (1 - pt)^γ * log_pt
+        focal_term = (1 - pt).pow(self.gamma)
+        loss = -focal_term * log_pt
+
+        # 5) reduction
+        if self.reduction == 'mean':
+            return loss.mean()
+        elif self.reduction == 'sum':
+            return loss.sum()
+        else:
+            return loss
 
 
 def run_cv(
@@ -29,7 +89,17 @@ def run_cv(
             dropout=CfgNextModel.DROPOUT,
         ).to(DEVICE)
 
-        criterion = nn.CrossEntropyLoss()
+        y_all = np.concatenate([y.numpy() for _, y in train_loader])
+        cls = np.arange(CfgNextModel.NUM_CLASSES)
+        weights = compute_class_weight('balanced', classes=cls, y=y_all)
+        alpha = torch.tensor(weights, dtype=torch.float32, device=DEVICE)
+
+        criterion = nn.CrossEntropyLoss(
+            reduction='mean',
+            weight=alpha,
+        )
+
+        # criterion = FocalLoss(gamma=2.0, alpha=alpha, reduction='mean')
 
         optimizer = AdamW(
             model.parameters(),
@@ -44,6 +114,9 @@ def run_cv(
             epochs=CfgNextTraining.EPOCHS,
             steps_per_epoch=len(train_loader),
         )
+
+        # optimizer = AdamW(model.parameters(), lr=1e-3, weight_decay=1e-2)
+        # scheduler = CosineAnnealingLR(optimizer, T_max=CfgNextTraining.EPOCHS)
 
         history.set_model_arch(str(model))
 
@@ -76,7 +149,7 @@ def run_cv(
             DEVICE,
         )
 
-        report = evaluate(model, val_loader, DEVICE)
+        report = evaluate(model, val_loader, DEVICE, best_state=history.get_curr_fold().to('next').best_model)
 
         history.get_curr_fold().to('next').add_report(report)
         history.step()

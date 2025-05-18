@@ -7,7 +7,6 @@ from torch.utils.data import DataLoader
 
 from common.poi_dataset import POIDataset
 from configs.globals import CATEGORIES_MAP
-from configs.model import InputsConfig
 from model.next.head.configs.next_config import CfgNextTraining, CfgNextModel
 
 
