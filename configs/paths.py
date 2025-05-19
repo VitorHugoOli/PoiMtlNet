@@ -1,7 +1,7 @@
 import os
 
-DATA_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data'))
-RESULTS_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'results'))
+DATA_ROOT = os.environ.get('DATA_ROOT') or os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data'))
+RESULTS_ROOT = os.environ.get('RESULTS_ROOT') or os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'results'))
 
 
 IO_CHECKINS = os.path.join(DATA_ROOT, 'checkins')
