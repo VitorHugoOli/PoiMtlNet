@@ -1,9 +1,9 @@
-from copy import deepcopy
-
+import numpy as np
 import torch
 import torch.optim as optim
 
 from sklearn.metrics import classification_report
+from sklearn.utils import compute_class_weight
 from torch.nn import CrossEntropyLoss
 from torch.optim.lr_scheduler import OneCycleLR
 
@@ -16,7 +16,8 @@ from data.create_fold import SuperInputData
 from criterion.nash_mtl import NashMTL
 from model.mtlnet.engine.evaluate import evaluate_model
 from model.mtlnet.engine.validation import validation_best_model
-from model.mtlnet.modeling.mtl_poi import MTLnet
+from model.mtlnet.modeling.mtl.mtl_poi import MTLnet
+from model.next.head.configs.next_config import CfgNextModel
 from utils.ml_history.metrics import MLHistory, FoldHistory
 from utils.ml_history.parms.neural import NeuralParams
 
@@ -276,9 +277,18 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
 
         )
 
-        # Initialize loss functions
-        next_criterion = CrossEntropyLoss(reduction='mean')
-        category_criterion = CrossEntropyLoss(reduction='mean')
+        cls = np.arange(CfgNextModel.NUM_CLASSES)
+
+        y_all_next = np.concatenate([data['y'].numpy() for data in dataloader_next.train.dataloader])
+        weights_next = compute_class_weight('balanced', classes=cls, y=y_all_next)
+        alpha_next = torch.tensor(weights_next, dtype=torch.float32, device=DEVICE)
+
+        y_all_category = np.concatenate([data['y'].numpy() for data in dataloader_category.train.dataloader])
+        weights_cat = compute_class_weight('balanced', classes=cls, y=y_all_category)
+        alpha_cat = torch.tensor(weights_cat, dtype=torch.float32, device=DEVICE)
+
+        next_criterion = CrossEntropyLoss(reduction='mean', weight=alpha_next)
+        category_criterion = CrossEntropyLoss(reduction='mean', weight=alpha_cat)
         mtl_criterion = NashMTL(n_tasks=2, device=DEVICE, max_norm=1.0, update_weights_every=1)
         # mtl_criterion = NaiveLoss(alpha=0.5, beta=0.5)
 

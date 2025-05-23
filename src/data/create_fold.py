@@ -179,6 +179,7 @@ def create_folds(
     # Process Next POI data
     logger.info("Loading Next POI data...")
     df_next = pd.read_csv(path_next_input)
+    df_next = df_next.dropna(subset=['next_category'])
     logger.info(f"Next POI data shape: {df_next.shape}")
 
     # Get unique user IDs

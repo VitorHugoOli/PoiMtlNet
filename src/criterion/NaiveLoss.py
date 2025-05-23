@@ -14,6 +14,11 @@ class NaiveLoss:
 
         return norm_alpha * loss_next + norm_beta * loss_category
 
+    def backward(self, loss_next, loss_category):
+        loss = self.compute_loss(loss_next, loss_category)
+        loss.backward()
+        return loss
+
     def compute_loss_no_adjustment(self, loss_next, loss_category):
         total = self.alpha + self.beta
         norm_alpha = self.alpha / total

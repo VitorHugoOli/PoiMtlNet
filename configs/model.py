@@ -6,7 +6,7 @@ class InputsConfig:
 
 class MTLModelConfig:
     NUM_CLASSES = 7
-    BATCH_SIZE = 2**10 # 512
+    BATCH_SIZE = 2**11 #
     EPOCHS = 50
     LEARNING_RATE = 0.0001
     K_FOLDS = 5
@@ -14,7 +14,12 @@ class MTLModelConfig:
 class ModelParameters:
     INPUT_DIM = InputsConfig.EMBEDDING_DIM
     SHARED_LAYER_SIZE = 256
-    NUM_HEADS = 8
-    NUM_LAYERS = 8
+    NUM_HEADS = 4
+    NUM_LAYERS = 2
     SEQ_LENGTH = 9
     NUM_SHARED_LAYERS = 4
+
+    ENCODER_OUTPUT_SIZE = 256
+    EXPERT_HIDDEN_SIZE = 256
+    EXPERT_OUTPUT_SIZE = 256
+    NUM_EXPERTS = 9

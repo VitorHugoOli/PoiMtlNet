@@ -76,8 +76,8 @@ class MTLnet(nn.Module):
         num_shared_layers: int,
         encoder_layer_size: int = 256,
         num_encoder_layers: int = 2,
-        encoder_dropout: float = 0.2,
-        shared_dropout: float = 0.3,
+        encoder_dropout: float = 0.1,
+        shared_dropout: float = 0.15,
     ):
         super().__init__()
         self.num_classes = num_classes
@@ -112,12 +112,12 @@ class MTLnet(nn.Module):
         # Task heads
         self.category_poi = CategoryHead(
             input_dim=shared_layer_size,
-            hidden_dims=(512, 256, 128, 64, 32),
             num_classes=num_classes,
-            dropout=0.3,
+            dropout=0.1,
         )
         self.next_poi = NextHead(
-            shared_layer_size, num_classes, num_heads, seq_length, num_layers
+            shared_layer_size, num_classes, num_heads, seq_length, num_layers,
+            dropout=0.1
         )
 
     def _build_encoder(
