@@ -3,6 +3,7 @@ class InputsConfig:
     # EMBEDDING_DIM = 50*2+7 #HMRM
     SLIDE_WINDOW = 9
     PAD_VALUE = 0
+    TIMEOUT_TEST = None
 
 class MTLModelConfig:
     NUM_CLASSES = 7

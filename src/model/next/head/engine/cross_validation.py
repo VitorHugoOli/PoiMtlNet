@@ -9,6 +9,7 @@ from torch.optim.lr_scheduler import OneCycleLR, CosineAnnealingLR, ReduceLROnPl
 from torch.utils.data import DataLoader
 
 from configs.globals import DEVICE, CATEGORIES_MAP
+from configs.model import InputsConfig
 
 from model.next.head.configs.next_config import CfgNextModel, CfgNextHyperparams, CfgNextTraining
 from model.next.head.engine.evaluation import evaluate
@@ -147,6 +148,7 @@ def run_cv(
             scheduler,
             history.get_curr_fold(),
             DEVICE,
+            timeout=InputsConfig.TIMEOUT_TEST,
         )
 
         report = evaluate(model, val_loader, DEVICE, best_state=history.get_curr_fold().to('next').best_model)

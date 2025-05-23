@@ -9,14 +9,12 @@ from torch.optim.lr_scheduler import OneCycleLR, CosineAnnealingLR
 from torch_geometric.data import DataLoader
 
 from configs.globals import DEVICE
+from configs.model import InputsConfig
 
 from model.category.head.configs.category_config import CfgCategoryModel, CfgCategoryHyperparams, CfgCategoryTraining
 from model.category.head.engine.evaluation import evaluate
 from model.category.head.engine.trainer import train
 from model.category.head.modeling.CategoryHeadTransformer import CategoryHeadTransformer
-from model.category.head.modeling.DCNHead import DCNHead
-from model.category.head.modeling.SEHead import SEHead
-from model.category.head.modeling.category_head import CategoryHeadSingle
 from model.next.head.configs.next_config import CfgNextModel
 from utils.calc_flops.calculate_model_flops import calculate_model_flops
 from utils.ml_history.metrics import MLHistory, FlopsMetrics
@@ -78,13 +76,13 @@ def run_cv(
         )
 
         # Calculate FLOPs
-        # sample = next(iter(train_loader))[0].to(DEVICE)
-        # result = calculate_model_flops(model,
-        #                                sample_input=sample,
-        #                                print_report=True,
-        #                                units='K'
-        #                                )
-        # history.set_flops(FlopsMetrics(flops=result['total_flops'], params=result['params']['total']))
+        sample = next(iter(train_loader))[0].to(DEVICE)
+        result = calculate_model_flops(model,
+                                       sample_input=sample,
+                                       print_report=True,
+                                       units='K'
+                                       )
+        history.set_flops(FlopsMetrics(flops=result['total_flops'], params=result['params']['total']))
 
         train(
             model,
@@ -95,6 +93,7 @@ def run_cv(
             scheduler,
             DEVICE,
             history=history.get_curr_fold(),
+            timeout=InputsConfig.TIMEOUT_TEST,
         )
 
         report = evaluate(model, val_loader, DEVICE, best_state=history.get_curr_fold().to('category').best_model)

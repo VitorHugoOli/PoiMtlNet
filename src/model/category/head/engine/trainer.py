@@ -1,6 +1,7 @@
 import logging
 from copy import deepcopy
 from typing import Optional
+import time
 
 import torch
 from sklearn.metrics import f1_score
@@ -23,14 +24,35 @@ def train(
         scheduler: Optional[LRScheduler],
         device: torch.device,
         history: FoldHistory,
+        timeout: Optional[int] = None,
 ) -> None:
+    """
+    Trains the model for a specified number of epochs.
+
+    Args:
+        model: The neural network model to train.
+        train_loader: DataLoader for the training data.
+        val_loader: DataLoader for the validation data.
+        criterion: The loss function.
+        optimizer: The optimization algorithm.
+        scheduler: Optional learning rate scheduler.
+        device: The device to train on (e.g., 'cuda', 'cpu').
+        history: FoldHistory object to log metrics.
+        timeout: Optional training time limit in seconds. If None, no time limit.
+    """
+    start_time = time.time()  # Record start time
     loop = tqdm(
         range(CfgCategoryTraining.EPOCHS),
         unit="batch",
         desc="Training",
     )
 
-    for _ in loop:
+    for epoch_idx in loop:
+        current_time = time.time()
+        if timeout is not None and (current_time - start_time) > timeout:
+            print(f"\nTraining timed out after {timeout:.2f} seconds during epoch {epoch_idx + 1}.")
+            break  # Exit loop if timeout is reached
+
         model.train()
         total_loss = total_correct = total = 0
         for X_batch, y_batch in train_loader:

@@ -1,6 +1,8 @@
 import numpy as np
 import torch
 import torch.optim as optim
+import time  # Added
+from typing import Optional  # Added
 
 from sklearn.metrics import classification_report
 from sklearn.utils import compute_class_weight
@@ -11,7 +13,7 @@ from common.flops import calculate_flops
 from common.mps_support import clear_mps_cache
 from common.training_progress import TrainingProgressBar
 from configs.globals import DEVICE
-from configs.model import ModelParameters, MTLModelConfig
+from configs.model import ModelParameters, MTLModelConfig, InputsConfig
 from data.create_fold import SuperInputData
 from criterion.nash_mtl import NashMTL
 from model.mtlnet.engine.evaluate import evaluate_model
@@ -34,7 +36,8 @@ def train_model(model: torch.nn.Module,
                 num_epochs,
                 num_classes,
                 fold_history=FoldHistory.standalone({'next', 'category'}),
-                gradient_accumulation_steps=1):
+                gradient_accumulation_steps=1,
+                timeout: Optional[int] = None):  # Added timeout parameter
     """
     Train the model with multi-task learning.
 
@@ -49,10 +52,12 @@ def train_model(model: torch.nn.Module,
         num_epochs: Number of training epochs
         num_classes: Number of POI classes
         gradient_accumulation_steps: Number of steps to accumulate gradients
+        timeout: Optional training time limit in seconds. If None, no time limit.
 
     Returns:
         FoldResults object with training metrics
     """
+    start_time = time.time()  # Record start time
 
     # Set gradient clipping norm
     max_grad_norm = 1.0
@@ -65,7 +70,12 @@ def train_model(model: torch.nn.Module,
     )
 
     # Main training loop - iterate directly over progress bar for epochs
-    for _ in progress:
+    for epoch_idx in progress:  # progress yields epoch numbers (0 to num_epochs-1)
+        current_time = time.time()
+        if timeout is not None and (current_time - start_time) > timeout:
+            print(f"\nTraining timed out after {timeout:.2f} seconds during epoch {epoch_idx + 1}.")
+            break  # Exit loop if timeout is reached
+
         model.train()
 
         # Initialize metrics
@@ -289,7 +299,7 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
 
         next_criterion = CrossEntropyLoss(reduction='mean', weight=alpha_next)
         category_criterion = CrossEntropyLoss(reduction='mean', weight=alpha_cat)
-        mtl_criterion = NashMTL(n_tasks=2, device=DEVICE, max_norm=1.0, update_weights_every=1)
+        mtl_criterion = NashMTL(n_tasks=2, device=DEVICE, max_norm=2.2, update_weights_every=4,optim_niter=30)
         # mtl_criterion = NaiveLoss(alpha=0.5, beta=0.5)
 
         history.set_model_arch(str(model))
@@ -326,7 +336,8 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
             dataloader_next, dataloader_category,
             next_criterion, category_criterion, mtl_criterion, num_epochs, num_classes,
             fold_history=history.get_curr_fold(),
-            gradient_accumulation_steps=gradient_accumulation_steps
+            gradient_accumulation_steps=gradient_accumulation_steps,
+            timeout=InputsConfig.TIMEOUT_TEST  # Pass timeout, defaulting to None here
         )
 
         # Run final validation
