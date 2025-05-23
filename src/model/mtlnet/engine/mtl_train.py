@@ -179,11 +179,13 @@ def train_model(model: torch.nn.Module,
 
         # Calculate epoch metrics
         epoch_loss = running_loss / steps
+        epoch_loss_next = next_running_loss / steps
+        epoch_loss_category = category_running_loss / steps
         fold_history.model.add(loss=epoch_loss, accuracy=0)
-        fold_history.to('next').add(loss=0,
+        fold_history.to('next').add(loss= epoch_loss_next,
                                     f1=next_running_f1 / steps,
                                     accuracy=next_running_acc / steps)
-        fold_history.to('category').add(loss=0,
+        fold_history.to('category').add(loss= epoch_loss_category,
                                         f1=category_running_f1 / steps,
                                         accuracy=category_running_acc / steps)
 
