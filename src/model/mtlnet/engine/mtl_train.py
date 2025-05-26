@@ -7,7 +7,7 @@ from typing import Optional  # Added
 from sklearn.metrics import classification_report
 from sklearn.utils import compute_class_weight
 from torch.nn import CrossEntropyLoss
-from torch.optim.lr_scheduler import OneCycleLR
+from torch.optim.lr_scheduler import OneCycleLR, ReduceLROnPlateau
 
 from common.flops import calculate_flops
 from common.mps_support import clear_mps_cache
@@ -27,7 +27,7 @@ from utils.ml_history.parms.neural import NeuralParams
 # Training Function
 def train_model(model: torch.nn.Module,
                 optimizer,
-                scheduler,
+                scheduler: ReduceLROnPlateau,
                 dataloader_next: SuperInputData,
                 dataloader_category: SuperInputData,
                 next_criterion,
@@ -37,7 +37,10 @@ def train_model(model: torch.nn.Module,
                 num_classes,
                 fold_history=FoldHistory.standalone({'next', 'category'}),
                 gradient_accumulation_steps=1,
-                timeout: Optional[int] = None):  # Added timeout parameter
+                timeout: Optional[int] = None,
+                next_target_cutoff: Optional[float] = None,
+                category_target_cutoff: Optional[float] = None
+                ):  # Added timeout parameter
     """
     Train the model with multi-task learning.
 
@@ -69,13 +72,13 @@ def train_model(model: torch.nn.Module,
          dataloader_category.train.dataloader],
     )
 
+    cutoff_hits = {
+        'next': False,
+        'category': False
+    }
+
     # Main training loop - iterate directly over progress bar for epochs
     for epoch_idx in progress:  # progress yields epoch numbers (0 to num_epochs-1)
-        current_time = time.time()
-        if timeout is not None and (current_time - start_time) > timeout:
-            print(f"\nTraining timed out after {timeout:.2f} seconds during epoch {epoch_idx + 1}.")
-            break  # Exit loop if timeout is reached
-
         model.train()
 
         # Initialize metrics
@@ -128,7 +131,6 @@ def train_model(model: torch.nn.Module,
             # loss.backward()
 
             optimizer.step()
-            scheduler.step()
 
             # Track metrics (use non-scaled loss for metrics)
             batch_loss = loss.item()
@@ -182,10 +184,10 @@ def train_model(model: torch.nn.Module,
         epoch_loss_next = next_running_loss / steps
         epoch_loss_category = category_running_loss / steps
         fold_history.model.add(loss=epoch_loss, accuracy=0)
-        fold_history.to('next').add(loss= epoch_loss_next,
+        fold_history.to('next').add(loss=epoch_loss_next,
                                     f1=next_running_f1 / steps,
                                     accuracy=next_running_acc / steps)
-        fold_history.to('category').add(loss= epoch_loss_category,
+        fold_history.to('category').add(loss=epoch_loss_category,
                                         f1=category_running_f1 / steps,
                                         accuracy=category_running_acc / steps)
 
@@ -213,15 +215,19 @@ def train_model(model: torch.nn.Module,
                 val_accuracy=acc_val_next,
                 val_f1=f1_val_next,
                 model_state=state,
-                best_metric='val_f1'
+                best_metric='val_f1',
+                best_time=fold_history.timer.timer()
             )
             fold_history.to('category').add_val(
                 val_loss=0,
                 val_accuracy=acc_val_category,
                 val_f1=f1_val_category,
                 model_state=state,
-                best_metric='val_f1'
+                best_metric='val_f1',
+                best_time=fold_history.timer.timer()
             )
+
+        scheduler.step(f1_val_next)
 
         # Update metrics on progress bar with validation results
         progress.set_postfix({
@@ -229,6 +235,22 @@ def train_model(model: torch.nn.Module,
             'next_val': f'{f1_val_next:.4f}({acc_val_next:.4f})',
             'cat_val': f'{f1_val_category:.4f}({acc_val_category:.4f})'
         })
+
+        if next_target_cutoff is not None and f1_val_next * 100 >= next_target_cutoff:
+            cutoff_hits['next'] = True
+
+        if category_target_cutoff is not None and f1_val_category * 100 >= category_target_cutoff:
+            cutoff_hits['category'] = True
+
+        if cutoff_hits['next'] and cutoff_hits['category']:
+            print(f"\nStopping early at epoch {epoch_idx + 1} with validation F1 scores: "
+                  f"Next: {f1_val_next:.4f}, Category: {f1_val_category:.4f}.")
+            break
+
+        current_time = time.time()
+        if timeout is not None and (current_time - start_time) > timeout:
+            print(f"\nTraining timed out after {timeout:.2f} seconds during epoch {epoch_idx + 1}.")
+            break  # Exit loop if timeout is reached
 
     return fold_history
 
@@ -275,18 +297,27 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
 
         optimizer = optim.AdamW(
             model.parameters(),
-            lr=learning_rate,
-            weight_decay=1e-4,
+            lr=0.0001,  # learning_rate,
+            weight_decay=5e-2,
             eps=1e-8
         )
 
         # Learning rate scheduler with patience
-        scheduler = OneCycleLR(
-            optimizer,
-            max_lr=learning_rate * 10,
-            epochs=num_epochs,
-            steps_per_epoch=len(dataloader_next.train.dataloader),
+        # scheduler = OneCycleLR(
+        #     optimizer,
+        #     max_lr=learning_rate * 100,
+        #     epochs=num_epochs,
+        #     steps_per_epoch=len(dataloader_next.train.dataloader),
+        #
+        # )
 
+        scheduler = ReduceLROnPlateau(
+            optimizer,
+            mode='max',  # or 'min' if you're tracking loss
+            factor=0.5,  # reduce LR by a factor of 0.5
+            patience=2,  # wait for 2 epochs before reducing
+            threshold=0.001,  # minimal improvement to qualify as progress
+            verbose=True
         )
 
         cls = np.arange(CfgNextModel.NUM_CLASSES)
@@ -300,8 +331,8 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
         alpha_cat = torch.tensor(weights_cat, dtype=torch.float32, device=DEVICE)
 
         next_criterion = CrossEntropyLoss(reduction='mean', weight=alpha_next)
-        category_criterion = CrossEntropyLoss(reduction='mean', weight=alpha_cat)
-        mtl_criterion = NashMTL(n_tasks=2, device=DEVICE, max_norm=2.2, update_weights_every=4,optim_niter=30)
+        category_criterion = CrossEntropyLoss(reduction='mean')
+        mtl_criterion = NashMTL(n_tasks=2, device=DEVICE, max_norm=2.2, update_weights_every=4, optim_niter=30)
         # mtl_criterion = NaiveLoss(alpha=0.5, beta=0.5)
 
         history.set_model_arch(str(model))
@@ -339,7 +370,9 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
             next_criterion, category_criterion, mtl_criterion, num_epochs, num_classes,
             fold_history=history.get_curr_fold(),
             gradient_accumulation_steps=gradient_accumulation_steps,
-            timeout=InputsConfig.TIMEOUT_TEST  # Pass timeout, defaulting to None here
+            timeout=InputsConfig.TIMEOUT_TEST,  # Pass timeout, defaulting to None here
+            next_target_cutoff=InputsConfig.NEXT_TARGET,
+            category_target_cutoff=InputsConfig.CATEGORY_TARGET
         )
 
         # Run final validation

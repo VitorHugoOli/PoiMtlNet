@@ -25,6 +25,7 @@ def train(
         device: torch.device,
         history: FoldHistory,
         timeout: Optional[int] = None,
+        target_cutoff: Optional[float] = None
 ) -> None:
     """
     Trains the model for a specified number of epochs.
@@ -48,11 +49,6 @@ def train(
     )
 
     for epoch_idx in loop:
-        current_time = time.time()
-        if timeout is not None and (current_time - start_time) > timeout:
-            print(f"\nTraining timed out after {timeout:.2f} seconds during epoch {epoch_idx + 1}.")
-            break  # Exit loop if timeout is reached
-
         model.train()
         total_loss = total_correct = total = 0
         for X_batch, y_batch in train_loader:
@@ -106,6 +102,7 @@ def train(
             val_accuracy=val_acc,
             val_f1=val_f1,
             model_state=model.state_dict(),
+            best_time=history.timer.timer()
         )
 
         loop.set_postfix(
@@ -116,3 +113,9 @@ def train(
                 "val_acc": f"{val_acc:.4f}({val_f1:.4f})",
             }
         )
+
+        current_time = time.time()
+        if (target_cutoff is not None and val_f1 * 100 >= target_cutoff) or (
+                timeout is not None and (current_time - start_time) > timeout):
+            print(f"\nStopping early at epoch {epoch_idx + 1} with validation F1 score: {val_f1:.4f}.")
+            break

@@ -55,6 +55,7 @@ class FoldHistoryMetric:
         self.task_outcome: TaskOutcome = TaskOutcome()
         self.best_model: dict = {}
         self.best_epoch: int = 0
+        self.best_time: float = 0.0
 
     def metrics(self):
         """
@@ -85,9 +86,11 @@ class FoldHistoryMetric:
         self.task_metrics.add(loss, accuracy, f1)
 
     def add_val(self, val_loss: float, val_accuracy: float, val_f1: float = 0.0,
-                model_state: Optional[dict] = None, best_metric: str = 'val_f1'):
+                model_state: Optional[dict] = None, best_metric: str = 'val_f1',
+                best_time: Optional[float] = None):
         """
         Add validation metrics for a specific task.
+        :param best_time:
         :param val_loss: The validation loss value
         :param val_accuracy: The validation accuracy value
         :param val_f1: The validation F1 score value
@@ -116,7 +119,7 @@ class FoldHistoryMetric:
         if comparison(metric_value, prev_best):
             self.best_model = deepcopy(model_state)
             self.best_epoch = len(self.task_metrics.val_f1) - 1
-
+            self.best_time = best_time
 
     def add_report(self, report: dict):
         """
@@ -181,7 +184,7 @@ class FlopsMetrics:
         self.inference_time: List[float] = []
         self.training_time: List[float] = []
 
-    def to_dict(self)-> dict:
+    def to_dict(self) -> dict:
         return {
             'flops': self.flops,
             'params': self.params,
@@ -189,6 +192,7 @@ class FlopsMetrics:
             'inference_time': self.inference_time,
             'training_time': self.training_time
         }
+
 
 class _MLHistoryContext:
     """
@@ -229,7 +233,6 @@ class _MLHistoryIterator:
         return fold
 
 
-
 class MLHistory:
     """
     A class to keep track of the history of machine learning model training.
@@ -253,7 +256,7 @@ class MLHistory:
         self.model_name = model_name
         self.model_type = model_type
         self.num_folds = num_folds
-        self.model_parms:HyperParams = model_parms
+        self.model_parms: HyperParams = model_parms
         self.model_arch: Optional[str] = None
         self.datasets: Optional[Set[DatasetHistory]] = datasets
 
@@ -286,7 +289,7 @@ class MLHistory:
         """
         return _MLHistoryIterator(self)
 
-    def get_curr_fold(self)-> FoldHistory:
+    def get_curr_fold(self) -> FoldHistory:
         """
         Get the current fold.
         :return: The current fold number

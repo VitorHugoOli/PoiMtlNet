@@ -9,9 +9,9 @@ class CategoryHead(nn.Module):
     def __init__(
         self,
         input_dim: int,
-        num_tokens: int = 4,
-        token_dim: int = 64,
-        num_layers: int = 2,
+        num_tokens: int = 2,
+        token_dim: int = 128,
+        num_layers: int = 4,
         num_heads: int = 8,
         dropout: float = 0.2,
         num_classes: int = 7,
@@ -36,7 +36,8 @@ class CategoryHead(nn.Module):
             dim_feedforward=token_dim * 4,
             dropout=dropout,
             activation="gelu",
-            batch_first=True
+            batch_first=True,
+            # norm_first=True,
         )
         self.transformer = nn.TransformerEncoder(
             encoder_layer,

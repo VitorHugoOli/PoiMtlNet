@@ -22,6 +22,7 @@ def save_json(data: Any, path: Path) -> None:
     with path.open('w', encoding='utf-8') as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
 
+
 def save_text(data: str, path: Path) -> None:
     with path.open('w', encoding='utf-8') as f:
         f.write(data)
@@ -174,8 +175,6 @@ class HistoryStorage:
             print(f"Error saving model parameters: {e}")
             save_text(str(params), path / 'model_params.txt')
 
-
-
         if self.history.model_arch:
             with open(path / 'arch.txt', 'w') as f:
                 f.write(self.history.model_arch)
@@ -212,7 +211,7 @@ class HistoryStorage:
                 be = th.best_epoch
                 acc = th.task_metrics.val_accuracy[be] if be < len(th.task_metrics.val_accuracy) else None
                 f1 = th.task_metrics.val_f1[be] if be < len(th.task_metrics.val_f1) else None
-                fold_info['best_epochs'][task] = {'epoch': be, 'accuracy': acc, 'f1': f1}
+                fold_info['best_epochs'][task] = {'epoch': be, 'accuracy': acc, 'f1': f1, 'time': th.best_time}
 
                 save_csv(df, path / f'fold{i}_{task}_report.csv', float_format='%.4f')
             save_json(fold_info, path / f'fold{i}_info.json')

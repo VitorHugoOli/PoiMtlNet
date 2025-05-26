@@ -149,6 +149,7 @@ def run_cv(
             history.get_curr_fold(),
             DEVICE,
             timeout=InputsConfig.TIMEOUT_TEST,
+            target_cutoff=InputsConfig.NEXT_TARGET,
         )
 
         report = evaluate(model, val_loader, DEVICE, best_state=history.get_curr_fold().to('next').best_model)

@@ -4,10 +4,14 @@ class InputsConfig:
     SLIDE_WINDOW = 9
     PAD_VALUE = 0
     TIMEOUT_TEST = None
+    # NEXT_TARGET = 32.2
+    # CATEGORY_TARGET = 47.0
+    NEXT_TARGET = None
+    CATEGORY_TARGET = None
 
 class MTLModelConfig:
     NUM_CLASSES = 7
-    BATCH_SIZE = 2**11 #
+    BATCH_SIZE = 2**11 # 2048
     EPOCHS = 50
     LEARNING_RATE = 0.0001
     K_FOLDS = 5
@@ -15,8 +19,8 @@ class MTLModelConfig:
 class ModelParameters:
     INPUT_DIM = InputsConfig.EMBEDDING_DIM
     SHARED_LAYER_SIZE = 256
-    NUM_HEADS = 4
-    NUM_LAYERS = 2
+    NUM_HEADS = 8
+    NUM_LAYERS = 4
     SEQ_LENGTH = 9
     NUM_SHARED_LAYERS = 4
 
