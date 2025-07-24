@@ -8,7 +8,7 @@ import joblib
 import numpy as np
 import pandas as pd
 import torch
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader, Dataset, WeightedRandomSampler
 from sklearn.model_selection import KFold, StratifiedKFold
 from tqdm import tqdm
 import gc
@@ -120,7 +120,7 @@ def create_dataloader(
         indices: Optional[np.ndarray] = None,
         batch_size: int = 64,
         shuffle: bool = True,
-        prefetch_factor: int = 3
+        prefetch_factor: int = 5
 ) -> DataLoader:
     """Create DataLoader with optimal settings for performance"""
     if indices is not None:
@@ -179,6 +179,7 @@ def create_folds(
     # Process Next POI data
     logger.info("Loading Next POI data...")
     df_next = pd.read_csv(path_next_input)
+    df_next = df_next.dropna(subset=['next_category'])
     logger.info(f"Next POI data shape: {df_next.shape}")
 
     # Get unique user IDs

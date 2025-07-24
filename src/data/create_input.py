@@ -1,3 +1,5 @@
+import csv
+
 from configs.model import InputsConfig
 from configs.paths import OUTPUT_ROOT
 
@@ -47,7 +49,7 @@ def parse_and_sort_checkins(checkin_timestamps: List[str]) -> List[datetime]:
     return sorted(pd.to_datetime(checkin_timestamps))
 
 
-def generate_sequences(places_visited: List[int], max_sequences_per_user: Optional[int] = None) -> Union[
+def previus_generate_sequences(places_visited: List[int], max_sequences_per_user: Optional[int] = None) -> Union[
     List[List[int]], int]:
     """
     Generate fixed-length sequences from a list of places visited.
@@ -77,6 +79,65 @@ def generate_sequences(places_visited: List[int], max_sequences_per_user: Option
         # Limit sequences if max_sequences_per_user is specified
         if max_sequences_per_user and len(sequences) >= max_sequences_per_user:
             break
+
+    return sequences
+
+
+def generate_sequences(
+        places_visited: List[int],
+        window_size: int = InputsConfig.SLIDE_WINDOW,
+        pad_value: int = PADDING_VALUE,
+) -> List[List[int]]:
+    """
+    Generate non-overlapping sequences of fixed length where:
+      - The first (window_size) positions are historical visits (padded at front if needed).
+      - The final position is the next place visited, or repeats the last non-padding history entry if no next visit.
+
+    Sequences that consist entirely of padding (including the target) are omitted.
+
+    Args:
+        places_visited: List of place IDs representing sequential visits.
+        window_size: Total length of each sequence (including the target).
+        pad_value: Value used for padding when there is insufficient data.
+
+    Returns:
+        A list of sequences, each of length window_size. If places_visited is empty,
+        returns an empty list.
+    """
+    if not places_visited or len(places_visited) < MIN_SEQUENCE_LENGTH:
+        return []
+
+    sequences: List[List[int]] = []
+    step = window_size
+    n = len(places_visited)
+
+    for i in range(0, n, step):
+        # Build history window and pad at end if too short
+        history = places_visited[i: i + step]
+        if len(history) < step:
+            history = history + [pad_value] * (step - len(history))
+
+        # Determine next-place target (or use last real visit and pad that slot)
+        next_idx = i + step
+        if next_idx < n:
+            target = places_visited[next_idx]
+        else:
+            # Find last non-pad value from history
+            for j in range(len(history) - 1, -1, -1):
+                if history[j] != pad_value:
+                    target = history[j]
+                    # remove that element and shift left, then pad at end
+                    history = history[:j] + history[j + 1:]
+                    history = history + [pad_value] * (step - len(history))
+                    break
+            else:
+                target = pad_value  # All pad case fallback
+
+        # Skip sequences that are all padding
+        if all(x == pad_value for x in history) or target == pad_value:
+            continue
+
+        sequences.append(history + [target])
 
     return sequences
 
@@ -132,126 +193,92 @@ def processing_sequences_next(df_nextpoi_sequences: pd.DataFrame,
                               output_path: str,
                               embeddings_with_category: pd.DataFrame,
                               embeddings_without_category: pd.DataFrame,
-                              save_step: int = 1000) -> pd.DataFrame:
+                              save_step: int = 10000) -> pd.DataFrame:
     """
-    Generate input data for next POI prediction model using batch processing.
+    Generate input data for next POI prediction model using batch processing,
+    writing incrementally to CSV for much faster performance.
 
     Args:
         df_nextpoi_sequences: DataFrame containing sequences indexed by user ID
         output_path: Path to save the resulting CSV file
-        embeddings_with_category: DataFrame containing embeddings with category
-        embeddings_without_category: DataFrame containing embeddings without category
-        save_step: How often to save progress to disk
-        EMBEDDING_SIZE: Size of the embeddings vector (default: 128)
-        SEQUENCE_LENGTH: Length of the sequence (default: 10)
+        embeddings_with_category: DataFrame with a 'category' column, indexed by POI ID
+        embeddings_without_category: DataFrame of embeddings (no category), indexed by POI ID
+        save_step: Number of sequences to process between CSV flushes
 
     Returns:
-        DataFrame of generated input data
+        DataFrame of generated input data (reads entire CSV at end for return)
     """
-    # Resume from existing file if it exists
-    start_index = 0
-    try:
-        if os.path.exists(output_path):
-            nextpoi_input = pd.read_csv(output_path)
-            start_index = nextpoi_input.shape[0]
-            print(f'Found existing file, resuming from index {start_index}\n')
-        else:
-            # Create empty DataFrame with proper columns
-            col_count = (InputsConfig.EMBEDDING_DIM * InputsConfig.SLIDE_WINDOW)
-            column_names = list(range(col_count)) + ['next_category', 'userid']
-            nextpoi_input = pd.DataFrame(columns=column_names)
-            # Pre-allocate memory for faster operations
-            nextpoi_input = nextpoi_input.astype({col: np.float32 for col in range(col_count - 1)})
-            nextpoi_input = nextpoi_input.astype({'userid': str})
-    except Exception as e:
-        print(f"Error reading existing file: {str(e)}. Starting from scratch.")
-        col_count = (InputsConfig.EMBEDDING_DIM * InputsConfig.SLIDE_WINDOW)
-        column_names = list(range(col_count)) + ['next_category', 'userid']
-        nextpoi_input = pd.DataFrame(columns=column_names)
-        # Pre-allocate memory with appropriate types
-        nextpoi_input = nextpoi_input.astype({col: np.float32 for col in range(col_count - 1)})
-        nextpoi_input = nextpoi_input.astype({'userid': str})
-        start_index = 0
+    EMB_DIM = InputsConfig.EMBEDDING_DIM
+    SLID = InputsConfig.SLIDE_WINDOW
 
-    # Create lookup dictionaries for faster access
+    # Build column names: 0,1,...,EMB_DIM*SLID-1, then 'next_category', 'userid'
+    col_count = EMB_DIM * SLID
+    column_names = [str(i) for i in range(col_count)] + ['next_category', 'userid']
+
+    # Determine where to start
+    if os.path.exists(output_path):
+        # Count existing rows (minus header)
+        with open(output_path, 'r', newline='') as f:
+            existing = sum(1 for _ in f) - 1
+        start_idx = max(existing, 0)
+        write_header = False
+        print(f"Resuming from row {start_idx} (found existing file).")
+    else:
+        start_idx = 0
+        write_header = True
+        print("No existing file found; starting from scratch.")
+
+    # Prepare lookups
     category_lookup = embeddings_with_category['category'].to_dict()
+    emb_lookup = {
+        poi: vec.values.astype(np.float32)
+        for poi, vec in embeddings_without_category.iterrows()
+    }
+    zero_emb = np.zeros(EMB_DIM, dtype=np.float32)
 
-    # Convert embeddings to numpy array for faster access
-    emb_lookup = {poi_id: row.values.astype(np.float32) for poi_id, row in embeddings_without_category.iterrows()}
-    zero_emb = np.zeros(InputsConfig.EMBEDDING_DIM, dtype=np.float32)
-    empty_emb = np.full(InputsConfig.EMBEDDING_DIM, -999, dtype=np.float32)
-
-    # Process in batches
-    batch_size = min(save_step, len(df_nextpoi_sequences))
-    total_batches = (len(df_nextpoi_sequences) - start_index + batch_size - 1) // batch_size
-
-    # Preallocate memory for a batch of results
-    results = []
-
-    iterator = tqdm(enumerate(range(start_index, len(df_nextpoi_sequences), batch_size)), desc="Processing batches",
-                    total=total_batches)
-
-    # Cache for frequently accessed embeddings
     @lru_cache(maxsize=None)
     def get_embedding(poi_id):
         if poi_id == PADDING_VALUE:
-            return empty_emb
+            return zero_emb
         return emb_lookup.get(poi_id, zero_emb)
 
-    for batch_idx, batch_start in iterator:
-        batch_end = min(batch_start + batch_size, len(df_nextpoi_sequences))
+    # Open CSV for append (or write+header)
+    csv_file = open(output_path, 'a', newline='')
+    writer = csv.writer(csv_file)
+    if write_header:
+        writer.writerow(column_names)
+
+    total = len(df_nextpoi_sequences)
+    iterator = tqdm(range(start_idx, total, save_step), desc="Batches")
+    for batch_start in iterator:
+        batch_end = min(batch_start + save_step, total)
         batch = df_nextpoi_sequences.iloc[batch_start:batch_end]
 
-        # Clear results for this batch
-        results = []
+        rows_to_write = []
+        for _, row in batch.iterrows():
+            seq = row.iloc[:SLID].values
+            target_poi = row.iloc[SLID]
+            # lookup next category
+            next_cat = category_lookup.get(target_poi, 'None')
+            # build flattened embedding
+            emb_matrix = np.vstack([get_embedding(int(p)) for p in seq])
+            flat = emb_matrix.ravel()  # shape (SLID*EMB_DIM,)
+            # assemble full row
+            rows_to_write.append(
+                list(flat) + [next_cat, str(row.name)]
+            )
 
-        for i, (userid, row) in enumerate(batch.iterrows()):
-            try:
-                # Get categories using the lookup dictionary
-                categoria_target = category_lookup.get(row.iloc[InputsConfig.SLIDE_WINDOW], 'None')
+        # write batch
+        writer.writerows(rows_to_write)
+        csv_file.flush()
+        gc.collect()
+        iterator.set_postfix(rows_written=batch_end)
 
-                # Get the sequence without the target (more efficient than dropping)
-                sequence_without_target = row.iloc[:InputsConfig.SLIDE_WINDOW].values
+    csv_file.close()
+    print(f"Finished: wrote {total} sequences to {output_path}")
 
-                # Use lookup dictionary instead of DataFrame access
-                # Preallocate array for embeddings concatenation
-                all_embeddings = np.empty((InputsConfig.SLIDE_WINDOW, InputsConfig.EMBEDDING_DIM), dtype=np.float32)
-
-                # Fill the array with embeddings
-                for j, poi in enumerate(sequence_without_target):
-                    all_embeddings[j] = get_embedding(poi)
-
-                # Flatten all embeddings at once
-                poi_embedding = all_embeddings.flatten()
-
-                # Combine embeddings, category and user ID
-                # Using list comprehension for better performance
-                sample = np.append(poi_embedding, [categoria_target] + [userid])
-                results.append(sample)
-            except Exception as e:
-                print(f"Error processing row {batch_start + i} (user {userid}): {str(e)}")
-                continue
-
-        # Bulk add results to DataFrame
-        if results:
-            # Convert results to DataFrame and append
-            batch_df = pd.DataFrame(results, columns=nextpoi_input.columns)
-            nextpoi_input = pd.concat([nextpoi_input, batch_df], ignore_index=True)
-
-        # Save checkpoint
-        try:
-            # Use efficient CSV writing
-            nextpoi_input.to_csv(output_path, index=False, float_format='%.5f')
-            iterator.set_postfix_str(f"Saved {len(nextpoi_input)} rows")
-
-            # Explicitly call garbage collection after saving
-            gc.collect()
-
-        except IOError as e:
-            print(f"Warning: Could not save progress: {str(e)}")
-
-    print(f'Final save: {len(nextpoi_input)} rows to {output_path}')
-    return nextpoi_input
+    # Return full DataFrame for downstream use
+    return pd.read_csv(output_path)
 
 
 def generate_next_input(df_embb, df_filter,
@@ -280,34 +307,26 @@ def generate_next_input(df_embb, df_filter,
 
     # Process users and generate sequences
     print("Generating sequences for each user...")
-    user_ids = []
-    visit_sequences = []
 
-    # Sort once then group
-    checkins_sorted = df_filter.sort_values(by=['userid', 'datetime'])
+    # sort once, group, apply and filter in a vectorized way
+    checkins_sequence_by_user = (
+        df_filter
+        .sort_values(by=['userid', 'datetime'])
+        .groupby('userid')['placeid']
+        .apply(lambda places: generate_sequences(places.tolist()))
+        .reset_index(name='visit_sequence')
+    )
 
-    for userid, group in tqdm(checkins_sorted.groupby('userid'), desc="Processing users"):
-        places = group['placeid'].tolist()
-        sequences = generate_sequences(places, max_sequences_per_user)
+    # keep only users with non\-empty sequences
+    checkins_sequence_by_user = checkins_sequence_by_user[
+        checkins_sequence_by_user.visit_sequence.map(bool)
+    ]
 
-        # Skip users with insufficient data
-        if sequences == 0:
-            continue
-
-        user_ids.append(userid)
-        visit_sequences.append(sequences)
-
-    # Create DataFrame of user IDs and their sequences
-    checkins_sequence_by_user = pd.DataFrame({
-        'userid': user_ids,
-        'visit_sequence': visit_sequences
-    })
-
-    print(f'Users with valid sequences: {len(user_ids)}')
-
-    # Set index for faster lookups
-    sequences = checkins_sequence_by_user.set_index('userid')
+    sequences = checkins_sequence_by_user[['userid', 'visit_sequence']].set_index('userid')
     unique_users = sequences.index.unique()
+
+    total_sequences = sum(len(seq) for seq in checkins_sequence_by_user['visit_sequence'])
+    print(f'Users with valid sequences: {len(checkins_sequence_by_user)}, Total visit sequences: {total_sequences}')
 
     # Prepare embeddings - optimize by creating copies only when needed
     print("Preparing embeddings...")

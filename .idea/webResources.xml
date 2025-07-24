@@ -6,6 +6,8 @@
         <entryData>
           <resourceRoots>
             <path value="file://$PROJECT_DIR$/data" />
+            <path value="file://$PROJECT_DIR$/results" />
+            <path value="file://$PROJECT_DIR$/src/data/embeddings/dgi/data" />
           </resourceRoots>
         </entryData>
       </entry>

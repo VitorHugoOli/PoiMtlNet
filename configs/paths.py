@@ -1,15 +1,20 @@
 import os
 
-IO_ROOT = '/Users/vitor/Desktop/mestrado/ingred/data'
+DATA_ROOT = os.environ.get('DATA_ROOT') or os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data'))
+RESULTS_ROOT = os.environ.get('RESULTS_ROOT') or os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'results'))
 
-IO_CHECKINS = os.path.join(IO_ROOT, 'checkins')
+
+IO_CHECKINS = os.path.join(DATA_ROOT, 'checkins')
 if not os.path.exists(IO_CHECKINS):
-    pass
+    raise FileNotFoundError(f"Checkins directory not found: {IO_CHECKINS}")
 
-OUTPUT_ROOT = os.path.join(IO_ROOT, 'output')
+OUTPUT_ROOT = os.path.join(DATA_ROOT, 'output')
 if not os.path.exists(OUTPUT_ROOT):
     os.makedirs(OUTPUT_ROOT)
 
-RESULTS_PATH = os.path.join(IO_ROOT, 'results')
-if not os.path.exists(RESULTS_PATH):
-    os.makedirs(RESULTS_PATH)
+if not os.path.exists(RESULTS_ROOT):
+    os.makedirs(RESULTS_ROOT)
+
+TEMP_DIR = os.path.join(DATA_ROOT, 'temp')
+if not os.path.exists(TEMP_DIR):
+    os.makedirs(TEMP_DIR)

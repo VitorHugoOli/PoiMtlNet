@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+from copy import deepcopy
 from typing import List, Set, Optional
 
 from utils.ml_history.display import HistoryDisplay
@@ -54,6 +55,7 @@ class FoldHistoryMetric:
         self.task_outcome: TaskOutcome = TaskOutcome()
         self.best_model: dict = {}
         self.best_epoch: int = 0
+        self.best_time: float = 0.0
 
     def metrics(self):
         """
@@ -84,9 +86,11 @@ class FoldHistoryMetric:
         self.task_metrics.add(loss, accuracy, f1)
 
     def add_val(self, val_loss: float, val_accuracy: float, val_f1: float = 0.0,
-                model_state: Optional[dict] = None, best_metric: str = 'val_f1'):
+                model_state: Optional[dict] = None, best_metric: str = 'val_f1',
+                best_time: Optional[float] = None):
         """
         Add validation metrics for a specific task.
+        :param best_time:
         :param val_loss: The validation loss value
         :param val_accuracy: The validation accuracy value
         :param val_f1: The validation F1 score value
@@ -113,9 +117,9 @@ class FoldHistoryMetric:
             prev_best = min(self.task_metrics.val_loss, default=float('inf'))
 
         if comparison(metric_value, prev_best):
-            self.best_model = model_state
+            self.best_model = deepcopy(model_state)
             self.best_epoch = len(self.task_metrics.val_f1) - 1
-
+            self.best_time = best_time
 
     def add_report(self, report: dict):
         """
@@ -180,6 +184,15 @@ class FlopsMetrics:
         self.inference_time: List[float] = []
         self.training_time: List[float] = []
 
+    def to_dict(self) -> dict:
+        return {
+            'flops': self.flops,
+            'params': self.params,
+            'memory': self.memory,
+            'inference_time': self.inference_time,
+            'training_time': self.training_time
+        }
+
 
 class _MLHistoryContext:
     """
@@ -220,7 +233,6 @@ class _MLHistoryIterator:
         return fold
 
 
-
 class MLHistory:
     """
     A class to keep track of the history of machine learning model training.
@@ -243,9 +255,10 @@ class MLHistory:
         # Model configuration
         self.model_name = model_name
         self.model_type = model_type
-        self.model_parms = model_parms
         self.num_folds = num_folds
-        self.datasets = datasets
+        self.model_parms: HyperParams = model_parms
+        self.model_arch: Optional[str] = None
+        self.datasets: Optional[Set[DatasetHistory]] = datasets
 
         # Training configuration
         self.tasks = isinstance(tasks, str) and {tasks} or tasks
@@ -276,7 +289,7 @@ class MLHistory:
         """
         return _MLHistoryIterator(self)
 
-    def get_curr_fold(self):
+    def get_curr_fold(self) -> FoldHistory:
         """
         Get the current fold.
         :return: The current fold number
@@ -289,6 +302,13 @@ class MLHistory:
         :param model_parms: HyperParams object
         """
         self.model_parms = model_parms
+
+    def set_model_arch(self, model_arch: str):
+        """
+        Set the model architecture.
+        :param model_arch: The model architecture
+        """
+        self.model_arch = model_arch
 
     def start(self):
         """
