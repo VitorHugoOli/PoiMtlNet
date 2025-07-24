@@ -33,7 +33,7 @@ if __name__ == '__main__':
         next_data_path,
         category_data_path,
         k_splits=MTLModelConfig.K_FOLDS,
-        save_folder=output_dir,
+        save_folder=None,
     )
 
     history = MLHistory(

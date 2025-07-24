@@ -199,8 +199,8 @@ class MTLnet(nn.Module):
 
         # Heads
         # Cat in: [batch, 1, shared_size] Cat out: [batch, num_classes]
-        # Next in: [batch, seq_len, shared_size] Next out: [batch, seq_len, num_classes]
         out_cat = self.category_poi(shared_cat).view(-1, self.num_classes)
+        # Next in: [batch, seq_len, shared_size] Next out: [batch, seq_len, num_classes]
         out_next = self.next_poi(shared_next)
 
         return out_cat, out_next

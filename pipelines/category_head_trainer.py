@@ -45,7 +45,7 @@ if __name__ == '__main__':
             y,
             n_splits=CfgCategoryTraining.K_FOLDS,
             batch_size=args.bs,
-            seed=42,
+            seed=random.randint(1, 10000),
         )
         if args.save_folds:
             folds_pth = os.path.join(input_dir, 'folds')
