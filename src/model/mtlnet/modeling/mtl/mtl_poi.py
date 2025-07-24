@@ -1,4 +1,4 @@
-from typing import Iterator, Tuple
+from typing import Iterator, Tuple, List
 import torch
 from torch import nn
 
@@ -11,6 +11,7 @@ from model.mtlnet.modeling.next_head import NextHead
 
 class ResidualBlock(nn.Module):
     """Residual block with LayerNorm and Dropout for deep shared layers."""
+
     def __init__(self, hidden_size: int, dropout_rate: float = 0.3):
         super().__init__()
         self.norm1 = nn.LayerNorm(hidden_size)
@@ -44,22 +45,23 @@ class FiLMLayer(nn.Module):
     Feature‐Wise Linear Modulation: gamma * x + beta,
     where gamma/beta come from a small task embedding.
     """
+
     def __init__(self, emb_dim: int, layer_size: int):
         super().__init__()
         self.gamma = nn.Linear(emb_dim, layer_size)
-        self.beta  = nn.Linear(emb_dim, layer_size)
+        self.beta = nn.Linear(emb_dim, layer_size)
 
     def forward(self, x: torch.Tensor, task_emb: torch.Tensor) -> torch.Tensor:
         # x: [batch, ... , layer_size]
         # task_emb: [batch, emb_dim]
         gamma = self.gamma(task_emb)  # [batch, layer_size]
-        beta  = self.beta(task_emb)   # [batch, layer_size]
+        beta = self.beta(task_emb)  # [batch, layer_size]
 
         # unsqueeze so gamma/beta can broadcast along any extra dims of x
         # e.g. if x is [batch, seq_len, layer_size] we need [batch, 1, layer_size]
         for _ in range(x.dim() - gamma.dim()):
             gamma = gamma.unsqueeze(1)
-            beta  = beta.unsqueeze(1)
+            beta = beta.unsqueeze(1)
 
         return gamma * x + beta
 
@@ -121,12 +123,12 @@ class MTLnet(nn.Module):
         )
 
     def _build_encoder(
-        self,
-        in_size: int,
-        hidden_size: int,
-        num_layers: int,
-        out_size: int,
-        dropout: float,
+            self,
+            in_size: int,
+            hidden_size: int,
+            num_layers: int,
+            out_size: int,
+            dropout: float,
     ) -> nn.Sequential:
         layers = [
             nn.Linear(in_size, hidden_size),
@@ -149,10 +151,10 @@ class MTLnet(nn.Module):
         return nn.Sequential(*layers)
 
     def _build_shared_layers(
-        self,
-        layer_size: int,
-        num_blocks: int,
-        dropout: float,
+            self,
+            layer_size: int,
+            num_blocks: int,
+            dropout: float,
     ) -> nn.Sequential:
         layers = [
             nn.Linear(layer_size, layer_size),
@@ -165,38 +167,40 @@ class MTLnet(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(
-        self,
-        inputs: Tuple[torch.Tensor, torch.Tensor]
+            self,
+            inputs: Tuple[torch.Tensor, torch.Tensor]
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        category_input, next_input = inputs
+        category_input, next_input = inputs  # ([B, 1, feature_size], [B, seq_len, feature_size])
 
         pad_value = InputsConfig.PAD_VALUE
         mask = (next_input.abs().sum(dim=-1) == pad_value)  # (batch_size, seq_len)
         next_input = next_input.masked_fill(mask.unsqueeze(-1), 0)  # zero out all-pad tokens
 
         # Task‐specific encoding
-        enc_cat  = self.category_encoder(category_input)  # [batch, shared_size]
-        enc_next = self.next_encoder(next_input)          # [batch, shared_size]
+        enc_cat = self.category_encoder(category_input)  # [batch, shared_size]
+        enc_next = self.next_encoder(next_input)  # [batch, shared_size]
 
         # Build task‐ID vectors
-        b_cat  = enc_cat.size(0)
+        b_cat = enc_cat.size(0)
         b_next = enc_next.size(0)
-        id_cat  = torch.zeros(b_cat,  dtype=torch.long, device=enc_cat.device)
+        id_cat = torch.zeros(b_cat, dtype=torch.long, device=enc_cat.device)
         id_next = torch.ones(b_next, dtype=torch.long, device=enc_next.device)
 
-        emb_cat  = self.task_embedding(id_cat)   # [batch, emb_dim]
+        emb_cat = self.task_embedding(id_cat)
         emb_next = self.task_embedding(id_next)
 
         # FiLM modulation
-        mod_cat  = self.film(enc_cat,  emb_cat)
+        mod_cat = self.film(enc_cat, emb_cat)
         mod_next = self.film(enc_next, emb_next)
 
         # Shared processing
-        shared_cat  = self.shared_layers(mod_cat)
+        shared_cat = self.shared_layers(mod_cat)
         shared_next = self.shared_layers(mod_next)
 
         # Heads
-        out_cat  = self.category_poi(shared_cat).view(-1, self.num_classes)
+        # Cat in: [batch, 1, shared_size] Cat out: [batch, num_classes]
+        # Next in: [batch, seq_len, shared_size] Next out: [batch, seq_len, num_classes]
+        out_cat = self.category_poi(shared_cat).view(-1, self.num_classes)
         out_next = self.next_poi(shared_next)
 
         return out_cat, out_next
@@ -206,8 +210,8 @@ class MTLnet(nn.Module):
             p
             for name, p in self.named_parameters()
             if "shared_layers" in name
-            or "task_embedding" in name
-            or "film" in name
+               or "task_embedding" in name
+               or "film" in name
         )
 
     def task_specific_parameters(self) -> Iterator[nn.Parameter]:
@@ -215,12 +219,12 @@ class MTLnet(nn.Module):
             p
             for name, p in self.named_parameters()
             if any(
-                key in name
-                for key in (
-                    "category_encoder",
-                    "next_encoder",
-                    "category_poi",
-                    "next_poi",
-                )
+            key in name
+            for key in (
+                "category_encoder",
+                "next_encoder",
+                "category_poi",
+                "next_poi",
             )
+        )
         )

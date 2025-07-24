@@ -1,5 +1,6 @@
 import argparse
 import os
+import random
 import time
 from typing import Optional
 
@@ -22,7 +23,8 @@ if __name__ == '__main__':
 
     parser.add_argument('--state', type=str, default='florida_dgi_new', help='State to train the model on')
     parser.add_argument('--save-folds', type=bool, default=False, help='Whether to save the folds in a pickle file')
-    parser.add_argument('--folds-chkpt', type=Optional[str], default=None, help='Path to the checkpoint file for the folds')
+    parser.add_argument('--folds-chkpt', type=Optional[str], default=None,
+                        help='Path to the checkpoint file for the folds')
 
     args = parser.parse_args()
     state = args.state
@@ -48,7 +50,7 @@ if __name__ == '__main__':
         if args.save_folds:
             folds_pth = os.path.join(input_dir, 'folds')
             os.makedirs(folds_pth, exist_ok=True)
-            fold_file = os.path.join(folds_pth,time.strftime("%Y%m%d_%H%M") + "_folds.pkl")
+            fold_file = os.path.join(folds_pth, time.strftime("%Y%m%d_%H%M") + "_folds.pkl")
             with open(fold_file, 'wb') as f:
                 joblib.dump(folds, f)
 
@@ -73,12 +75,3 @@ if __name__ == '__main__':
 
     history.display.end_training()
     history.storage.save(path=output_dir)
-
-
-
-
-
-
-
-
-

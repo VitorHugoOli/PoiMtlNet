@@ -15,7 +15,8 @@ from model.next.head.configs.next_config import CfgNextModel, CfgNextHyperparams
 from model.next.head.engine.evaluation import evaluate
 from model.next.head.engine.trainer import train
 from model.next.head.modeling.next_head import NextHeadSingle
-from utils.ml_history.metrics import MLHistory
+from utils.calc_flops.calculate_model_flops import calculate_model_flops
+from utils.ml_history.metrics import MLHistory, FlopsMetrics
 from utils.ml_history.parms.neural import NeuralParams
 import torch.nn.functional as F
 
@@ -138,6 +139,15 @@ def run_cv(
 
             )
         )
+
+        # Calculate FLOPs
+        sample = next(iter(train_loader))[0].to(DEVICE)
+        result = calculate_model_flops(model,
+                                       sample_input=sample,
+                                       print_report=True,
+                                       units='K'
+                                       )
+        history.set_flops(FlopsMetrics(flops=result['total_flops'], params=result['params']['total']))
 
         train(
             model,

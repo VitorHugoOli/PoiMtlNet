@@ -7,7 +7,7 @@ from typing import Optional  # Added
 from sklearn.metrics import classification_report
 from sklearn.utils import compute_class_weight
 from torch.nn import CrossEntropyLoss
-from torch.optim.lr_scheduler import OneCycleLR, ReduceLROnPlateau
+from torch.optim.lr_scheduler import OneCycleLR, ReduceLROnPlateau, StepLR
 
 from common.flops import calculate_flops
 from common.mps_support import clear_mps_cache
@@ -27,7 +27,7 @@ from utils.ml_history.parms.neural import NeuralParams
 # Training Function
 def train_model(model: torch.nn.Module,
                 optimizer,
-                scheduler: ReduceLROnPlateau,
+                scheduler,
                 dataloader_next: SuperInputData,
                 dataloader_category: SuperInputData,
                 next_criterion,
@@ -131,6 +131,7 @@ def train_model(model: torch.nn.Module,
             # loss.backward()
 
             optimizer.step()
+            scheduler.step()
 
             # Track metrics (use non-scaled loss for metrics)
             batch_loss = loss.item()
@@ -227,7 +228,7 @@ def train_model(model: torch.nn.Module,
                 best_time=fold_history.timer.timer()
             )
 
-        scheduler.step(f1_val_next)
+        # scheduler.step(f1_val_next)
 
         # Update metrics on progress bar with validation results
         progress.set_postfix({
@@ -289,6 +290,7 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
             seq_length=ModelParameters.SEQ_LENGTH,
             num_shared_layers=ModelParameters.NUM_SHARED_LAYERS
         )
+
         model = model.to(DEVICE)
 
         # Get dataloaders
@@ -303,22 +305,27 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
         )
 
         # Learning rate scheduler with patience
-        # scheduler = OneCycleLR(
+        scheduler = OneCycleLR(
+            optimizer,
+            max_lr=learning_rate * 10,
+            epochs=num_epochs,
+            steps_per_epoch=len(dataloader_next.train.dataloader),
+        )
+
+        # scheduler = StepLR(
         #     optimizer,
-        #     max_lr=learning_rate * 100,
-        #     epochs=num_epochs,
-        #     steps_per_epoch=len(dataloader_next.train.dataloader),
-        #
+        #     step_size=5,  # Reduce LR every 5 epochs
+        #     gamma=0.1,  # Reduce LR by a factor of 0.1
         # )
 
-        scheduler = ReduceLROnPlateau(
-            optimizer,
-            mode='max',  # or 'min' if you're tracking loss
-            factor=0.5,  # reduce LR by a factor of 0.5
-            patience=2,  # wait for 2 epochs before reducing
-            threshold=0.001,  # minimal improvement to qualify as progress
-            verbose=True
-        )
+        # scheduler = ReduceLROnPlateau(
+        #     optimizer,
+        #     mode='max',  # or 'min' if you're tracking loss
+        #     factor=0.5,  # reduce LR by a factor of 0.5
+        #     patience=2,  # wait for 2 epochs before reducing
+        #     threshold=0.001,  # minimal improvement to qualify as progress
+        #     verbose=True
+        # )
 
         cls = np.arange(CfgNextModel.NUM_CLASSES)
 
@@ -359,9 +366,9 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
             )
         )
 
-        if history.flops is None:
-            history.flops = calculate_flops(dataloader_category, dataloader_next, model)
-            history.display.flops()
+        # if history.flops is None:
+        #     history.flops = calculate_flops(dataloader_category, dataloader_next, model)
+        #     history.display.flops()
 
         # Train the model with gradient accumulation
         train_model(

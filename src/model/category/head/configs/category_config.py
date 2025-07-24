@@ -16,7 +16,7 @@ class CfgCategoryModel:
 
 
 class CfgCategoryTraining:
-    BATCH_SIZE = 2**9  # 512
+    BATCH_SIZE = 2**10  # 512
     EPOCHS = 100
     K_FOLDS = 5
     SEED = 42
