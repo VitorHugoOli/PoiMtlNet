@@ -87,11 +87,11 @@ if __name__ == '__main__':
         # ("florida", EmbeddingEngine.DGI),
         # ("florida", EmbeddingEngine.HGI),
         ("alabama", EmbeddingEngine.DGI),
-        ("arizona", EmbeddingEngine.DGI),
-        ("georgia", EmbeddingEngine.DGI),
-        ("florida", EmbeddingEngine.DGI),
-        ("california", EmbeddingEngine.DGI),
-        ("texas", EmbeddingEngine.DGI),
+        # ("arizona", EmbeddingEngine.DGI),
+        # ("georgia", EmbeddingEngine.DGI),
+        # ("florida", EmbeddingEngine.DGI),
+        # ("california", EmbeddingEngine.DGI),
+        # ("texas", EmbeddingEngine.DGI),
     ]
 
     logger.info(f"Starting MTL training pipeline")

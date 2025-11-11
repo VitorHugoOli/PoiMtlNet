@@ -3,73 +3,78 @@ from torch import nn
 
 class CategoryHeadMTL(nn.Module):
     """
-    Split embedding into L tokens, run through a small Transformer encoder,
-    pool and project to num_classes.
+    Multi-path architecture that processes the embedding through different pathways
+    and combines them. More expressive than single MLP without artificial tokenization.
+
+    Benefits:
+    - Multiple complementary views of the same embedding
+    - Different paths can specialize (e.g., local vs global patterns)
+    - More robust than single pathway
+    - Still respects the holistic nature of the embedding
+
+    Example usage:
+        model = CategoryHeadEnsemble(
+            input_dim=256,
+            hidden_dim=128,
+            num_paths=3,
+            num_classes=7,
+            dropout=0.2
+        )
     """
+
     def __init__(
-        self,
-        input_dim: int,
-        num_tokens: int = 2,
-        token_dim: int = 128,
-        num_layers: int = 4,
-        num_heads: int = 8,
-        dropout: float = 0.2,
-        num_classes: int = 7,
+            self,
+            input_dim: int,
+            hidden_dim: int = 128,
+            num_paths: int = 3,
+            num_classes: int = 7,
+            dropout: float = 0.5,
     ):
         super().__init__()
-        assert num_tokens * token_dim == input_dim, \
-            f"need num_tokens*token_dim==input_dim ({num_tokens}×{token_dim}≠{input_dim})"
+        self.num_paths = num_paths
 
-        self.num_tokens = num_tokens
-        self.token_dim   = token_dim
+        # Multiple parallel paths with different architectures
+        self.paths = nn.ModuleList([
+            self._make_path(input_dim, hidden_dim, depth=i+2, dropout=dropout)
+            for i in range(num_paths)
+        ])
 
-        # 1) Project flat embedding into exactly (L*D_token) dims
-        self.token_proj = nn.Linear(input_dim, num_tokens * token_dim)
-
-        # 2) Learned positional embeddings [1, L, D_token]
-        self.pos_emb = nn.Parameter(torch.randn(1, num_tokens, token_dim))
-
-        # 3) Transformer encoder
-        encoder_layer = nn.TransformerEncoderLayer(
-            d_model=token_dim,
-            nhead=num_heads,
-            dim_feedforward=token_dim * 4,
-            dropout=dropout,
-            activation="gelu",
-            batch_first=True,
-            # norm_first=True,
-        )
-        self.transformer = nn.TransformerEncoder(
-            encoder_layer,
-            num_layers=num_layers,
-            norm=nn.LayerNorm(token_dim)
-        )
-
-        # 4) Final classifier on the pooled token representation
-        self.classifier = nn.Sequential(
-            nn.LayerNorm(token_dim),
+        # Combine paths
+        self.combiner = nn.Sequential(
+            nn.Linear(hidden_dim * num_paths, hidden_dim),
+            nn.LayerNorm(hidden_dim),
             nn.GELU(),
-            nn.Linear(token_dim, num_classes)
+            nn.Dropout(dropout),
+            nn.Linear(hidden_dim, num_classes)
         )
+
+    def _make_path(self, input_dim: int, hidden_dim: int, depth: int, dropout: float) -> nn.Module:
+        """Create a single path with specified depth."""
+        layers = []
+        prev_dim = input_dim
+
+        for i in range(depth):
+            # Vary hidden sizes across depth
+            current_hidden = hidden_dim if i == depth - 1 else hidden_dim // (2 ** (depth - i - 1))
+            current_hidden = max(current_hidden, hidden_dim)
+
+            layers.extend([
+                nn.Linear(prev_dim, current_hidden),
+                nn.LayerNorm(current_hidden),
+                nn.GELU(),
+                nn.Dropout(dropout) if i < depth - 1 else nn.Identity(),
+            ])
+            prev_dim = current_hidden
+
+        return nn.Sequential(*layers)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # X is [B,1,input_dim] reshaped to [B,input_dim]
         x = x.squeeze(1)
-        # x: [B, input_dim]
-        B, D = x.shape
 
-        # a) Project and reshape -> [B, L, token_dim]
-        tokens = self.token_proj(x)              # [B, L*token_dim]
-        tokens = tokens.view(B,                 # ← reshape into tokens
-                             self.num_tokens,
-                             self.token_dim)
+        # Process through all paths
+        path_outputs = [path(x) for path in self.paths]
 
-        # b) Add position embeddings (auto-broadcast on batch dim)
-        tokens = tokens + self.pos_emb          # [B, L, token_dim]
-
-        # c) Transformer encoder over the pseudo-tokens
-        encoded = self.transformer(tokens)       # [B, L, token_dim]
-
-        # d) Pool (mean over tokens) then classify
-        pooled = encoded.mean(dim=1)             # [B, token_dim]
-        return self.classifier(pooled)          # [B, num_classes]
+        # Concatenate and combine
+        combined = torch.cat(path_outputs, dim=-1)
+        return self.combiner(combined)

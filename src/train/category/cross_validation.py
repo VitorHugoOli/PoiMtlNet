@@ -28,7 +28,7 @@ def run_cv(
     """Run cross-validation for the model."""
     for idx, (train_loader, val_loader) in enumerate(folds):
         history.display.start_fold()
-        model = CategoryHeadTransformer(
+        model = CategoryHeadEnsemble(
             input_dim=CfgCategoryModel.INPUT_DIM,
             num_classes=CfgCategoryModel.NUM_CLASSES,
         ).to(DEVICE)
