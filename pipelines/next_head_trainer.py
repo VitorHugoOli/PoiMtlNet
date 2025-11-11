@@ -1,55 +1,79 @@
-import argparse
-import os
+import logging
 import random
 import time
-from typing import Optional
+from typing import List, Tuple, Optional
 
 import joblib
 
-from configs.paths import OUTPUT_ROOT, RESULTS_ROOT
+from configs.paths import IoPaths, RESULTS_ROOT, EmbeddingEngine
+from configs.next_config import CfgNextTraining, CfgNextHyperparams
+from etl.next.fold import load_data, create_folds
+from train.next.cross_validation import run_cv
+from common.ml_history.metrics import MLHistory
+from common.ml_history.utils.dataset import DatasetHistory
 
-from model.next.head.configs.next_config import CfgNextTraining, CfgNextHyperparams
-from model.next.head.data.fold import load_data, create_folds
-from model.next.head.engine.cross_validation import run_cv
-from utils.ml_history.metrics import MLHistory
-from utils.ml_history.utils.dataset import DatasetHistory
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-if __name__ == '__main__':
-    # As args get the epochs, batch size and learning rate
-    parser = argparse.ArgumentParser(description='Train the next head of the model')
-    parser.add_argument('--ep', type=int, default=CfgNextTraining.EPOCHS, help='Number of epochs to train')
-    parser.add_argument('--bs', type=int, default=CfgNextTraining.BATCH_SIZE, help='Batch size for training')
-    parser.add_argument('--lr', type=float, default=CfgNextHyperparams.LR, help='Learning rate for the optimizer')
 
-    parser.add_argument('--state', type=str, default='florida_dgi_new', help='State to train the model on')
-    parser.add_argument('--save-folds', type=bool, default=False, help='Whether to save the folds in a pickle file')
-    parser.add_argument('--folds-chkpt', type=Optional[str], default=None, help='Path to the checkpoint file for the folds')
+def train_next_model(
+    state: str,
+    embedd_engine: EmbeddingEngine,
+    epochs: int = CfgNextTraining.EPOCHS,
+    batch_size: int = CfgNextTraining.BATCH_SIZE,
+    learning_rate: float = CfgNextHyperparams.LR,
+    save_folds: bool = False,
+    folds_chkpt: Optional[str] = None
+) -> dict:
+    """
+    Train Next POI prediction model for a specific state and embedding engine.
 
-    args = parser.parse_args()
-    state = args.state
-    input_dir = f'{OUTPUT_ROOT}/{state}'
-    data_input = f'{input_dir}/pre-processing/next-input.csv'
-    output_dir = f'{RESULTS_ROOT}/{state}'
+    Args:
+        state: State name (e.g., "florida", "california")
+        embedd_engine: Embedding engine to use (DGI, HGI, HMRM)
+        epochs: Number of training epochs
+        batch_size: Batch size for training
+        learning_rate: Learning rate for optimizer
+        save_folds: Whether to save folds to disk
+        folds_chkpt: Path to checkpoint file for folds
+
+    Returns:
+        Dictionary with training results
+    """
+    logger.info(f"{'='*80}")
+    logger.info(f"Starting Next POI training: {state.upper()} with {embedd_engine.value.upper()}")
+    logger.info(f"{'='*80}")
+
+    # Get paths
+    data_input = IoPaths.get_next(state, embedd_engine)
+    output_dir = IoPaths.get_results_dir(state, embedd_engine)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     # Creating folds
+    logger.info("Creating folds...")
     folds = None
-    if args.folds_chkpt is not None:
-        folds_chkpt = f'{output_dir}/{args.folds_chkpt}'
-        with open(folds_chkpt, 'rb') as f:
+    if folds_chkpt is not None:
+        folds_chkpt_path = output_dir / folds_chkpt
+        logger.info(f"Loading folds from checkpoint: {folds_chkpt_path}")
+        with open(folds_chkpt_path, 'rb') as f:
             folds = joblib.load(f)
     else:
-        X, y = load_data(data_input)
+        X, y = load_data(str(data_input))
         folds = create_folds(
             X,
             y,
             n_splits=CfgNextTraining.K_FOLDS,
-            batch_size=args.bs,
+            batch_size=batch_size,
             seed=random.randint(1, 10000),
         )
-        if args.save_folds:
-            folds_pth = os.path.join(input_dir, 'folds')
-            os.makedirs(folds_pth, exist_ok=True)
-            fold_file = os.path.join(folds_pth,time.strftime("%Y%m%d_%H%M") + "_folds.pkl")
+        if save_folds:
+            folds_pth = output_dir / 'folds'
+            folds_pth.mkdir(parents=True, exist_ok=True)
+            fold_file = folds_pth / (time.strftime("%Y%m%d_%H%M") + "_folds.pkl")
+            logger.info(f"Saving folds to: {fold_file}")
             with open(fold_file, 'wb') as f:
                 joblib.dump(folds, f)
 
@@ -61,19 +85,71 @@ if __name__ == '__main__':
         num_folds=CfgNextTraining.K_FOLDS,
         datasets={
             DatasetHistory(
-                raw_data=data_input,
-                folds_signature=args.folds_chkpt or None,
-                description="POI next Classification",
+                raw_data=str(data_input),
+                folds_signature=folds_chkpt or None,
+                description="POI Next Classification",
             )
         }
     )
 
     # Running cross-validation
+    logger.info(f"Starting cross-validation training...")
     with history.context() as history:
-        run_cv(history, folds)
+        results = run_cv(history, folds)
 
     history.display.end_training()
-    history.storage.save(path=output_dir)
+
+    # Save results
+    logger.info(f"Saving results to: {output_dir}")
+    history.storage.save(path=str(output_dir))
+
+    logger.info(f"Completed Next POI training: {state.upper()} with {embedd_engine.value.upper()}")
+    logger.info(f"{'='*80}\n")
+
+    return results
+
+
+if __name__ == '__main__':
+    # Define configurations to train: [(state, embedding_engine), ...]
+    TRAINING_CONFIGS: List[Tuple[str, EmbeddingEngine]] = [
+        # ("florida", EmbeddingEngine.HGI),
+        # ("florida", EmbeddingEngine.HMRM),
+        # ("alabama", EmbeddingEngine.DGI),
+        # ("arizona", EmbeddingEngine.DGI),
+        # ("georgia", EmbeddingEngine.DGI),
+        ("alabama", EmbeddingEngine.DGI),
+        # ("california", EmbeddingEngine.DGI),
+        # ("texas", EmbeddingEngine.DGI),
+    ]
+
+    logger.info(f"Starting Next POI training pipeline")
+    logger.info(f"Total configurations to train: {len(TRAINING_CONFIGS)}")
+    logger.info(f"Configurations: {[(s, e.value) for s, e in TRAINING_CONFIGS]}\n")
+
+    # Train each configuration sequentially
+    all_results = {}
+    for idx, (state, embedd_engine) in enumerate(TRAINING_CONFIGS, 1):
+        logger.info(f"Training configuration {idx}/{len(TRAINING_CONFIGS)}")
+
+        try:
+            results = train_next_model(
+                state=state,
+                embedd_engine=embedd_engine,
+                epochs=CfgNextTraining.EPOCHS,
+                batch_size=CfgNextTraining.BATCH_SIZE,
+                learning_rate=CfgNextHyperparams.LR,
+                save_folds=False,
+                folds_chkpt=None
+            )
+            all_results[f"{state}_{embedd_engine.value}"] = results
+        except Exception as e:
+            logger.error(f"Failed to train {state} with {embedd_engine.value}: {str(e)}", exc_info=True)
+            continue
+
+    logger.info(f"\n{'='*80}")
+    logger.info(f"All training completed!")
+    logger.info(f"Successfully trained: {len(all_results)}/{len(TRAINING_CONFIGS)} configurations")
+    logger.info(f"{'='*80}")
 
 
 
