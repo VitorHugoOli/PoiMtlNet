@@ -28,9 +28,11 @@ def run_cv(
     """Run cross-validation for the model."""
     for idx, (train_loader, val_loader) in enumerate(folds):
         history.display.start_fold()
-        model = CategoryHeadEnsemble(
+        model = CategoryHeadResidual(
             input_dim=CfgCategoryModel.INPUT_DIM,
+            hidden_dims=CfgCategoryModel.HIDDEN_DIMS,
             num_classes=CfgCategoryModel.NUM_CLASSES,
+            dropout=CfgCategoryModel.DROPOUT,
         ).to(DEVICE)
 
         y_all = np.concatenate([y.numpy() for _, y in train_loader])
@@ -83,7 +85,10 @@ def run_cv(
                                        print_report=True,
                                        units='K'
                                        )
-        history.set_flops(FlopsMetrics(flops=result['total_flops'], params=result['params']['total']))
+        if 'total_flops' in result:
+            history.set_flops(FlopsMetrics(flops=result['total_flops'], params=result['params']['total']))
+        else:
+            print(f"Warning: FLOPs calculation failed: {result.get('error', 'Unknown error')}")
 
         train(
             model,

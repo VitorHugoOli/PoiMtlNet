@@ -113,7 +113,6 @@ class MTLnet(nn.Module):
         self.category_poi = CategoryHeadMTL(
             input_dim=shared_layer_size,
             num_classes=num_classes,
-            dropout=0.1,
         )
         self.next_poi = NextHeadMTL(
             shared_layer_size, num_classes, num_heads, seq_length, num_layers,
