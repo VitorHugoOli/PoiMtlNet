@@ -1,16 +1,15 @@
 import logging
-import random
 import time
+from pathlib import Path
 from typing import List, Tuple, Optional
 
-import joblib
-
 from configs.paths import IoPaths, RESULTS_ROOT, EmbeddingEngine
-from configs.next_config import CfgNextTraining, CfgNextHyperparams
-from etl.next.fold import load_data, create_folds
-from train.next.cross_validation import run_cv
+from configs.category_config import CfgCategoryTraining, CfgCategoryHyperparams
+from etl.create_fold import FoldCreator, TaskType
+from train.category.cross_validation import run_cv
 from common.ml_history.metrics import MLHistory
 from common.ml_history.utils.dataset import DatasetHistory
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -19,17 +18,17 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def train_next_model(
+def train_category_model(
     state: str,
     embedd_engine: EmbeddingEngine,
-    epochs: int = CfgNextTraining.EPOCHS,
-    batch_size: int = CfgNextTraining.BATCH_SIZE,
-    learning_rate: float = CfgNextHyperparams.LR,
+    epochs: int = CfgCategoryTraining.EPOCHS,
+    batch_size: int = CfgCategoryTraining.BATCH_SIZE,
+    learning_rate: float = CfgCategoryHyperparams.LR,
     save_folds: bool = False,
     folds_chkpt: Optional[str] = None
 ) -> dict:
     """
-    Train Next POI prediction model for a specific state and embedding engine.
+    Train Category prediction model for a specific state and embedding engine.
 
     Args:
         state: State name (e.g., "florida", "california")
@@ -44,50 +43,58 @@ def train_next_model(
         Dictionary with training results
     """
     logger.info(f"{'='*80}")
-    logger.info(f"Starting Next POI training: {state.upper()} with {embedd_engine.value.upper()}")
+    logger.info(f"Starting Category training: {state.upper()} with {embedd_engine.value.upper()}")
     logger.info(f"{'='*80}")
 
     # Get paths
-    data_input = IoPaths.get_next(state, embedd_engine)
+    data_input = IoPaths.get_category(state, embedd_engine)
     output_dir = IoPaths.get_results_dir(state, embedd_engine)
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Creating folds
     logger.info("Creating folds...")
     folds = None
+    folds_save_path = None
+
     if folds_chkpt is not None:
-        folds_chkpt_path = output_dir / folds_chkpt
+        folds_chkpt_path = Path(output_dir) / folds_chkpt
         logger.info(f"Loading folds from checkpoint: {folds_chkpt_path}")
-        with open(folds_chkpt_path, 'rb') as f:
-            folds = joblib.load(f)
+        fold_results = FoldCreator.load(folds_chkpt_path)
+        folds = [
+            (fold_results[i].category.train.dataloader, fold_results[i].category.val.dataloader)
+            for i in range(len(fold_results))
+        ]
     else:
-        X, y = load_data(str(data_input))
-        folds = create_folds(
-            X,
-            y,
-            n_splits=CfgNextTraining.K_FOLDS,
+        creator = FoldCreator(
+            task_type=TaskType.CATEGORY,
+            n_splits=CfgCategoryTraining.K_FOLDS,
             batch_size=batch_size,
-            seed=random.randint(1, 10000),
+            seed=CfgCategoryTraining.SEED,
+            use_weighted_sampling=False,  # Using weighted CrossEntropyLoss instead
         )
+        fold_results = creator.create_folds(state, embedd_engine)
+        folds = [
+            (fold_results[i].category.train.dataloader, fold_results[i].category.val.dataloader)
+            for i in range(len(fold_results))
+        ]
+
         if save_folds:
-            folds_pth = output_dir / 'folds'
+            folds_pth = Path(output_dir) / 'folds'
             folds_pth.mkdir(parents=True, exist_ok=True)
-            fold_file = folds_pth / (time.strftime("%Y%m%d_%H%M") + "_folds.pkl")
-            logger.info(f"Saving folds to: {fold_file}")
-            with open(fold_file, 'wb') as f:
-                joblib.dump(folds, f)
+            folds_save_path = creator.save(folds_pth)
+            logger.info(f"Saving folds to: {folds_save_path}")
 
     # Creating history
     history: MLHistory = MLHistory(
-        model_name="Next",
+        model_name="Category",
         model_type="Single-Task",
-        tasks='next',
-        num_folds=CfgNextTraining.K_FOLDS,
+        tasks='category',
+        num_folds=CfgCategoryTraining.K_FOLDS,
         datasets={
             DatasetHistory(
                 raw_data=str(data_input),
-                folds_signature=folds_chkpt or None,
-                description="POI Next Classification",
+                folds_signature=str(folds_save_path) if folds_save_path else folds_chkpt,
+                description="POI Category Classification",
             )
         }
     )
@@ -103,7 +110,7 @@ def train_next_model(
     logger.info(f"Saving results to: {output_dir}")
     history.storage.save(path=str(output_dir))
 
-    logger.info(f"Completed Next POI training: {state.upper()} with {embedd_engine.value.upper()}")
+    logger.info(f"Completed Category training: {state.upper()} with {embedd_engine.value.upper()}")
     logger.info(f"{'='*80}\n")
 
     return results
@@ -112,17 +119,18 @@ def train_next_model(
 if __name__ == '__main__':
     # Define configurations to train: [(state, embedding_engine), ...]
     TRAINING_CONFIGS: List[Tuple[str, EmbeddingEngine]] = [
+        # ("florida", EmbeddingEngine.DGI),
         # ("florida", EmbeddingEngine.HGI),
+        ("florida", EmbeddingEngine.TIME2VEC),
         # ("florida", EmbeddingEngine.HMRM),
         # ("alabama", EmbeddingEngine.DGI),
         # ("arizona", EmbeddingEngine.DGI),
         # ("georgia", EmbeddingEngine.DGI),
-        ("alabama", EmbeddingEngine.DGI),
         # ("california", EmbeddingEngine.DGI),
         # ("texas", EmbeddingEngine.DGI),
     ]
 
-    logger.info(f"Starting Next POI training pipeline")
+    logger.info(f"Starting Category training pipeline")
     logger.info(f"Total configurations to train: {len(TRAINING_CONFIGS)}")
     logger.info(f"Configurations: {[(s, e.value) for s, e in TRAINING_CONFIGS]}\n")
 
@@ -132,12 +140,12 @@ if __name__ == '__main__':
         logger.info(f"Training configuration {idx}/{len(TRAINING_CONFIGS)}")
 
         try:
-            results = train_next_model(
+            results = train_category_model(
                 state=state,
                 embedd_engine=embedd_engine,
-                epochs=CfgNextTraining.EPOCHS,
-                batch_size=CfgNextTraining.BATCH_SIZE,
-                learning_rate=CfgNextHyperparams.LR,
+                epochs=CfgCategoryTraining.EPOCHS,
+                batch_size=CfgCategoryTraining.BATCH_SIZE,
+                learning_rate=CfgCategoryHyperparams.LR,
                 save_folds=False,
                 folds_chkpt=None
             )
@@ -150,12 +158,3 @@ if __name__ == '__main__':
     logger.info(f"All training completed!")
     logger.info(f"Successfully trained: {len(all_results)}/{len(TRAINING_CONFIGS)} configurations")
     logger.info(f"{'='*80}")
-
-
-
-
-
-
-
-
-

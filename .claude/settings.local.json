@@ -8,7 +8,10 @@
       "Bash(sw_vers)",
       "Bash(/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python:*)",
       "Bash(PYTHONPATH=src /Users/vitor/Desktop/mestrado/ingred/.venv/bin/python:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(python3:*)",
+      "Bash(find:*)",
+      "WebSearch"
     ],
     "deny": []
   }

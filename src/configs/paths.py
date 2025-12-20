@@ -9,12 +9,6 @@ from IPython.lib.deepreload import get_parent
 from pandas import DataFrame
 
 import urllib3
-urllib3.disable_warnings()
-urllib3.disable_warnings(urllib3.exceptions.NotOpenSSLWarning)
-warnings.filterwarnings('ignore', message='urllib3 v2 only supports OpenSSL')
-warnings.filterwarnings('ignore', category=DeprecationWarning)
-warnings.filterwarnings('ignore', message='.*OpenSSL.*')
-
 
 def get_parent_of_src(project_root: Path) -> Optional[Path]:
     """
@@ -46,6 +40,8 @@ class EmbeddingEngine(Enum):
     DGI = "dgi"
     HGI = "hgi"
     HMRM = "hmrm"
+    TIME2VEC = "time2vec"
+    SPACE2VEC = "space2vec"
 
 
 class Resources:
@@ -170,6 +166,64 @@ class _HGIIoPath:
         return cls.get_temp_dir(state) / cls.POIS_PROCESSED_FILE
 
 
+class _Time2VecIoPath:
+    # File name constants
+    MODEL_FILE: str = "time2vec_model.pt"
+
+    # Time2Vec embeddings output
+    _time2vec_dir: Path = OUTPUT_DIR / EmbeddingEngine.TIME2VEC.value
+
+    @classmethod
+    def get_state_dir(cls, state: str) -> Path:
+        """Get the Time2Vec output directory for a specific state."""
+        return cls._time2vec_dir / state.lower()
+
+    @classmethod
+    def get_output_dir(cls, state: str) -> Path:
+        return cls.get_state_dir(state)
+
+    @classmethod
+    def get_model_file(cls, state: str) -> Path:
+        """Get the trained model file path for a specific state."""
+        return cls.get_output_dir(state) / cls.MODEL_FILE
+
+
+class _Space2VecIoPath:
+    # File name constants
+    MODEL_FILE: str = "space2vec_model.pt"
+    PAIRS_I_FILE: str = "pairs_i.int32"
+    PAIRS_J_FILE: str = "pairs_j.int32"
+    PAIRS_Y_FILE: str = "pairs_y.uint8"
+    PAIRS_COUNT_FILE: str = "pairs_count.npy"
+
+    # Space2Vec embeddings output
+    _space2vec_dir: Path = OUTPUT_DIR / EmbeddingEngine.SPACE2VEC.value
+
+    @classmethod
+    def get_state_dir(cls, state: str) -> Path:
+        """Get the Space2Vec output directory for a specific state."""
+        return cls._space2vec_dir / state.lower()
+
+    @classmethod
+    def get_output_dir(cls, state: str) -> Path:
+        return cls.get_state_dir(state)
+
+    @classmethod
+    def get_temp_dir(cls, state: str) -> Path:
+        """Get the temp directory for memmap pair files."""
+        return cls.get_output_dir(state) / "temp"
+
+    @classmethod
+    def get_model_file(cls, state: str) -> Path:
+        """Get the trained model file path for a specific state."""
+        return cls.get_output_dir(state) / cls.MODEL_FILE
+
+    @classmethod
+    def get_pairs_dir(cls, state: str) -> Path:
+        """Get the directory for memmap pair files."""
+        return cls.get_temp_dir(state)
+
+
 class IoPaths:
     """
     Static paths for I/O operations.
@@ -178,6 +232,8 @@ class IoPaths:
 
     DGI = _DGIIoPath
     HGI = _HGIIoPath
+    TIME2VEC = _Time2VecIoPath
+    SPACE2VEC = _Space2VecIoPath
 
 
     @classmethod

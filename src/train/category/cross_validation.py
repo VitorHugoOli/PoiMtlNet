@@ -11,11 +11,11 @@ from configs.model import InputsConfig
 
 from configs.category_config import CfgCategoryModel, CfgCategoryHyperparams, CfgCategoryTraining
 from model.category.category_head_enhanced import CategoryHeadGated, CategoryHeadResidual, CategoryHeadEnsemble, \
-    CategoryHeadAttentionPooling
+    CategoryHeadAttentionPooling, ResidualBlock
 from train.category.evaluation import evaluate
 from train.category.trainer import train
 from model.category.CategoryHeadTransformer import CategoryHeadTransformer
-from configs.next_config import CfgNextModel
+from criterion.FocalLoss import FocalLoss
 from common.calc_flops.calculate_model_flops import calculate_model_flops
 from common.ml_history.metrics import MLHistory, FlopsMetrics
 from common.ml_history.parms.neural import NeuralParams
@@ -35,8 +35,8 @@ def run_cv(
             dropout=CfgCategoryModel.DROPOUT,
         ).to(DEVICE)
 
-        y_all = np.concatenate([y.numpy() for _, y in train_loader])
-        cls = np.arange(CfgNextModel.NUM_CLASSES)
+        y_all = train_loader.dataset.targets.numpy()
+        cls = np.arange(CfgCategoryModel.NUM_CLASSES)
         weights = compute_class_weight('balanced', classes=cls, y=y_all)
         alpha = torch.tensor(weights, dtype=torch.float32, device=DEVICE)
         criterion = nn.CrossEntropyLoss(

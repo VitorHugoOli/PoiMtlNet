@@ -4,7 +4,7 @@ from configs.paths import IoPaths, RESULTS_ROOT, EmbeddingEngine
 import logging
 from typing import List, Tuple
 
-from etl.mtl.create_fold import create_folds
+from etl.create_fold import FoldCreator, TaskType
 from common.ml_history.metrics import MLHistory
 from common.ml_history.utils.dataset import DatasetHistory
 from train.mtlnet.mtl_train import train_with_cross_validation
@@ -33,12 +33,14 @@ def train_mtl_model(state: str, embedd_engine: EmbeddingEngine) -> dict:
 
     # Create folds
     logger.info(f'Creating {MTLModelConfig.K_FOLDS}-fold cross-validation splits...')
-    fold_results, folds_path = create_folds(
-        state,
-        embedd_engine,
-        k_splits=MTLModelConfig.K_FOLDS,
-        save_folder=None,
+    creator = FoldCreator(
+        task_type=TaskType.MTL,
+        n_splits=MTLModelConfig.K_FOLDS,
+        batch_size=MTLModelConfig.BATCH_SIZE,
+        use_weighted_sampling=False,
     )
+    fold_results = creator.create_folds(state, embedd_engine)
+    folds_path = None  # Can use creator.save(output_dir) if needed
 
     # Initialize ML History
     history = MLHistory(
@@ -84,9 +86,9 @@ def train_mtl_model(state: str, embedd_engine: EmbeddingEngine) -> dict:
 if __name__ == '__main__':
     # Define configurations to train: [(state, embedding_engine), ...]
     TRAINING_CONFIGS: List[Tuple[str, EmbeddingEngine]] = [
-        # ("florida", EmbeddingEngine.DGI),
+        ("florida", EmbeddingEngine.DGI),
         # ("florida", EmbeddingEngine.HGI),
-        ("alabama", EmbeddingEngine.DGI),
+        # ("alabama", EmbeddingEngine.DGI),
         # ("arizona", EmbeddingEngine.DGI),
         # ("georgia", EmbeddingEngine.DGI),
         # ("florida", EmbeddingEngine.DGI),

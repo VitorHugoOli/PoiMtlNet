@@ -16,6 +16,7 @@ from typing import Optional
 from datetime import datetime
 from argparse import Namespace
 
+from configs.globals import DEVICE
 from configs.paths import Resources, EmbeddingEngine
 from configs.model import InputsConfig
 from embeddings.dgi.dgi import create_embedding
@@ -80,19 +81,6 @@ DGI_CONFIG = {
 # ============================================================================
 # Pipeline Implementation - No need to edit below this line
 # ============================================================================
-
-
-def get_device(device_preference: str = 'auto') -> str:
-    """Auto-detect or validate device."""
-    if device_preference == 'auto':
-        import torch
-        if torch.backends.mps.is_available():
-            return 'mps'
-        elif torch.cuda.is_available():
-            return 'cuda'
-        else:
-            return 'cpu'
-    return device_preference
 
 
 def preprocess_stage(state_name: str, shapefile: Path, cta_file: Optional[Path] = None) -> bool:
@@ -243,9 +231,8 @@ def run_pipeline(states: list, dgi_config: dict) -> dict:
     logger.info(f"{'#' * 80}\n")
 
     # Auto-detect device if needed
-    device = get_device(dgi_config['device'])
-    dgi_config = {**dgi_config, 'device': device}
-    logger.info(f"Using device: {device}")
+    dgi_config = {**dgi_config, 'device': DEVICE}
+    logger.info(f"Using device: {DEVICE}")
     logger.info(f"DGI Config: dim={dgi_config['dim']}, epochs={dgi_config['epochs']}, lr={dgi_config['lr']}\n")
 
     pipeline_start = datetime.now()

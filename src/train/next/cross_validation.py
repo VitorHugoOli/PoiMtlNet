@@ -35,7 +35,7 @@ def run_cv(
             dropout=CfgNextModel.DROPOUT,
         ).to(DEVICE)
 
-        y_all = np.concatenate([y.numpy() for _, y in train_loader])
+        y_all = train_loader.dataset.targets.numpy()
         cls = np.arange(CfgNextModel.NUM_CLASSES)
         weights = compute_class_weight('balanced', classes=cls, y=y_all)
         alpha = torch.tensor(weights, dtype=torch.float32, device=DEVICE)

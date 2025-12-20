@@ -15,7 +15,7 @@ from common.training_progress import TrainingProgressBar
 from configs.globals import DEVICE
 from configs.model import ModelParameters, MTLModelConfig, InputsConfig
 from criterion.nash_mtl import NashMTL
-from etl.mtl.create_fold import SuperInputData
+from etl.create_fold import TaskFoldData, FoldResult
 from model.mtlnet.mtl_poi import MTLnet
 from configs.next_config import CfgNextModel
 from common.ml_history.metrics import MLHistory, FoldHistory, FlopsMetrics
@@ -28,8 +28,8 @@ from train.mtlnet.validation import validation_best_model
 def train_model(model: torch.nn.Module,
                 optimizer,
                 scheduler,
-                dataloader_next: SuperInputData,
-                dataloader_category: SuperInputData,
+                dataloader_next: TaskFoldData,
+                dataloader_category: TaskFoldData,
                 next_criterion,
                 category_criterion,
                 mtl_criterion,
@@ -97,10 +97,12 @@ def train_model(model: torch.nn.Module,
         # Iterate over batches with automatic progress tracking
         for data_next, data_category in progress.iter_epoch():
             # Move data to device
-            x_next = data_next['x'].to(DEVICE, non_blocking=True)
-            y_next = data_next['y'].to(DEVICE, non_blocking=True)
-            x_category = data_category['x'].to(DEVICE, non_blocking=True)
-            y_category = data_category['y'].to(DEVICE, non_blocking=True)
+            x_next, y_next = data_next
+            x_next = x_next.to(DEVICE, non_blocking=True)
+            y_next = y_next.to(DEVICE, non_blocking=True)
+            x_category, y_category = data_category
+            x_category = x_category.to(DEVICE, non_blocking=True)
+            y_category = y_category.to(DEVICE, non_blocking=True)
 
             # Convert to contiguous tensors for more efficient transfer
             x_next = x_next.contiguous()
@@ -257,7 +259,7 @@ def train_model(model: torch.nn.Module,
 
 
 # Cross-validation function
-def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]],
+def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                                 history: MLHistory,
                                 num_classes: int,
                                 num_epochs: int,
@@ -294,8 +296,8 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
         model = model.to(DEVICE)
 
         # Get dataloaders
-        dataloader_next: SuperInputData = dataloader['next']
-        dataloader_category = dataloader['category']
+        dataloader_next: TaskFoldData = dataloader.next
+        dataloader_category: TaskFoldData = dataloader.category
 
         optimizer = optim.AdamW(
             model.parameters(),
@@ -329,16 +331,16 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
 
         cls = np.arange(CfgNextModel.NUM_CLASSES)
 
-        y_all_next = np.concatenate([data['y'].numpy() for data in dataloader_next.train.dataloader])
+        y_all_next = dataloader_next.train.y.numpy()
         weights_next = compute_class_weight('balanced', classes=cls, y=y_all_next)
         alpha_next = torch.tensor(weights_next, dtype=torch.float32, device=DEVICE)
 
-        y_all_category = np.concatenate([data['y'].numpy() for data in dataloader_category.train.dataloader])
+        y_all_category = dataloader_category.train.y.numpy()
         weights_cat = compute_class_weight('balanced', classes=cls, y=y_all_category)
         alpha_cat = torch.tensor(weights_cat, dtype=torch.float32, device=DEVICE)
 
         next_criterion = CrossEntropyLoss(reduction='mean', weight=alpha_next)
-        category_criterion = CrossEntropyLoss(reduction='mean')
+        category_criterion = CrossEntropyLoss(reduction='mean', weight=alpha_cat)
         mtl_criterion = NashMTL(n_tasks=2, device=DEVICE, max_norm=2.2, update_weights_every=4, optim_niter=30)
         # mtl_criterion = NaiveLoss(alpha=0.5, beta=0.5)
 
@@ -367,8 +369,10 @@ def train_with_cross_validation(dataloaders: dict[int, dict[str, SuperInputData]
         )
 
         if history.flops is None:
-            sample_category = next(iter(dataloader_category.train.dataloader))['x'].to(DEVICE)
-            sample_next = next(iter(dataloader_next.train.dataloader))['x'].to(DEVICE)
+            sample_category, _ = next(iter(dataloader_category.train.dataloader))
+            sample_next, _ = next(iter(dataloader_next.train.dataloader))
+            sample_category = sample_category.to(DEVICE)
+            sample_next = sample_next.to(DEVICE)
             result = calculate_model_flops(model, [sample_category[1:], sample_next[1:]], print_report=True, units='K')
             history.set_flops(FlopsMetrics(flops=result['total_flops'], params=result['params']['total']))
             history.display.flops()

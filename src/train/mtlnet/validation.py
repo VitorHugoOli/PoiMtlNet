@@ -18,8 +18,10 @@ def validation_best_model(data_next,
         model.load_state_dict(best_next)
         model.eval()
         for batch_next, batch_category in zip(data_next, data_category):
-            x_next, y_next = batch_next['x'].to(DEVICE), batch_next['y'].to(DEVICE)
-            x_category, _ = batch_category['x'].to(DEVICE), batch_category['y'].to(DEVICE)
+            x_next, y_next = batch_next
+            x_next, y_next = x_next.to(DEVICE), y_next.to(DEVICE)
+            x_category, _ = batch_category
+            x_category = x_category.to(DEVICE)
             out_category, out_next = model((x_category, x_next))
             pred_next, truth_next = out_next, y_next
             pred_next_class = torch.argmax(pred_next, dim=1)
@@ -29,8 +31,10 @@ def validation_best_model(data_next,
         model.load_state_dict(best_category)
         model.eval()
         for batch_next, batch_category in zip(data_next, data_category):
-            x_next, _ = batch_next['x'].to(DEVICE), batch_next['y'].to(DEVICE)
-            x_category, y_category = batch_category['x'].to(DEVICE), batch_category['y'].to(DEVICE)
+            x_next, _ = batch_next
+            x_next = x_next.to(DEVICE)
+            x_category, y_category = batch_category
+            x_category, y_category = x_category.to(DEVICE), y_category.to(DEVICE)
             out_category, out_next = model((x_category, x_next))
             pred_category, truth_category = out_category, y_category
             pred_category_class = torch.argmax(pred_category, dim=1)
@@ -70,8 +74,10 @@ def validation_model(dataloader_category, dataloader_next, model, num_classes):
         all_truth_category = []
 
     for batch_next, batch_category in zip(dataloader_next.val.dataloader, dataloader_category.val.dataloader):
-        x_next, y_next = batch_next['x'].to(DEVICE), batch_next['y'].to(DEVICE)
-        x_category, y_category = batch_category['x'].to(DEVICE), batch_category['y'].to(DEVICE)
+        x_next, y_next = batch_next
+        x_next, y_next = x_next.to(DEVICE), y_next.to(DEVICE)
+        x_category, y_category = batch_category
+        x_category, y_category = x_category.to(DEVICE), y_category.to(DEVICE)
         out_category, out_next = model((x_category, x_next))
         pred_next, truth_next = out_next, y_next
         pred_category, truth_category = out_category, y_category
@@ -114,8 +120,8 @@ def validation_model_by_head(dataloader_category, dataloader_next, model, num_cl
         all_truth_category = []
 
         # Evaluate next POI task in batches
-        for batch in dataloader_next.val.dataloader:
-            x, y = batch['x'].to(DEVICE), batch['y'].to(DEVICE)
+        for x, y in dataloader_next.val.dataloader:
+            x, y = x.to(DEVICE), y.to(DEVICE)
             out = model.forward_next(x)
             pred, truth = out, y
             pred_class = torch.argmax(pred, dim=1)
@@ -124,8 +130,8 @@ def validation_model_by_head(dataloader_category, dataloader_next, model, num_cl
             all_truth_next.append(truth.cpu())
 
         # Evaluate category task in batches
-        for batch in dataloader_category.val.dataloader:
-            x, y = batch['x'].to(DEVICE), batch['y'].to(DEVICE)
+        for x, y in dataloader_category.val.dataloader:
+            x, y = x.to(DEVICE), y.to(DEVICE)
             out = model.forward_category(x)
             pred, truth = out, y
             pred_class = torch.argmax(pred, dim=1)

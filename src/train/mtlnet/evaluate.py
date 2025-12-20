@@ -28,8 +28,10 @@ def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_c
     batchs = 0
 
     for data_next, data_cat in zip(*dataloaders):
-        x_next, y_next = data_next['x'].to(device), data_next['y'].to(device)
-        x_category, y_category = data_cat['x'].to(device), data_cat['y'].to(device)
+        x_next, y_next = data_next
+        x_next, y_next = x_next.to(device), y_next.to(device)
+        x_category, y_category = data_cat
+        x_category, y_category = x_category.to(device), y_category.to(device)
 
         # Forward pass
         cat_out, next_out = model((x_category, x_next))
@@ -86,8 +88,8 @@ def evaluate_model_by_head(model, dataloader, loss_function, foward_method, devi
     total_samples = 0
 
     with torch.no_grad():
-        for data in dataloader:
-            x, y = data['x'].to(device), data['y'].to(device)
+        for x, y in dataloader:
+            x, y = x.to(device), y.to(device)
 
             # Forward pass
             out = foward_method(x)
