@@ -97,7 +97,6 @@ class _HGIIoPath:
     BOROUGHS_FILE: str = "boroughs_area.csv"
     POI_EMB_FILE: str = "poi-encoder.tensor"
     GRAPH_DATA_FILE: str = "gowalla.pt"
-    SECOND_CLASS_WALKS_FILE: str = "second_class_walks.pkl"
     POI_INDEX_FILE: str = "poi_index.csv"
     POI_REGION_MAP_FILE: str = "poi_region_map.csv"
     EDGES_FILE: str = "edges.csv"
@@ -139,11 +138,6 @@ class _HGIIoPath:
     def get_graph_data_file(cls, state: str) -> Path:
         """Get the graph data file path for a specific state."""
         return cls.get_temp_dir(state) / cls.GRAPH_DATA_FILE
-
-    @classmethod
-    def get_second_class_walks_file(cls, state: str) -> Path:
-        """Get the second class walks file path for a specific state."""
-        return cls.get_temp_dir(state) / cls.SECOND_CLASS_WALKS_FILE
 
     @classmethod
     def get_poi_index_file(cls, state: str) -> Path:

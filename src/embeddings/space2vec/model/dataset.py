@@ -221,11 +221,18 @@ def build_pairs_memmap(
     # Progress bar for total points
     pbar = tqdm(total=N, desc="Generating pairs", disable=not verbose)
 
+    # Create permutation for random access order to prevent spatial bias
+    # when max_pairs is reached before iterating all points.
+    order = np.arange(N)
+    rng.shuffle(order)
+
     if streaming:
         # STREAMING MODE: Process one point at a time (low memory)
-        for i in range(N):
+        for k in range(N):
             if wptr >= max_pairs:
                 break
+            
+            i = order[k]
 
             # Query for this single point
             coord_i = coords_rad[i : i + 1]
@@ -280,19 +287,21 @@ def build_pairs_memmap(
                             neg_count += 1
 
             # Update progress
-            if (i + 1) % block == 0 or i == N - 1:
-                pbar.update(block if (i + 1) % block == 0 else (i + 1) % block)
+            if (k + 1) % block == 0 or k == N - 1:
+                pbar.update(block if (k + 1) % block == 0 else (k + 1) % block)
                 pbar.set_postfix(pairs=wptr)
 
     else:
-        # BULK MODE: Process blocks at a time (faster but higher memory)
+        # BULK MODE: Process blocks of SHUFFLED indices
         for start in range(0, N, block):
             if wptr >= max_pairs:
                 break
 
             end = min(start + block, N)
-            block_coords = coords_rad[start:end]
-            block_size = end - start
+            # Get the actual indices for this block from the shuffled order
+            block_indices = order[start:end]
+            block_coords = coords_rad[block_indices]
+            block_size = len(block_indices)
 
             # Bulk query for entire block
             pos_lists = tree.query_radius(block_coords, r=r_pos, return_distance=False)
@@ -309,7 +318,7 @@ def build_pairs_memmap(
                 if wptr >= max_pairs:
                     break
 
-                global_i = start + local_i
+                global_i = block_indices[local_i]
 
                 # Positive pairs
                 pos_neighbors = pos_lists[local_i]
