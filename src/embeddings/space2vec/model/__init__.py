@@ -8,6 +8,8 @@ from embeddings.space2vec.model.SpaceEncoder import (
     SpaceContrastiveModel,
     GridCellSpatialRelationSpaceEncoder,
     GridCellSpatialRelationPositionEncoder,
+    GridCellSpaceEncoderTorch,
+    GridCellPositionEncoderTorch,
     SpaceEncoder,
     PositionEncoder,
 )
@@ -21,7 +23,6 @@ from embeddings.space2vec.model.dataset import (
     EARTH_RADIUS_KM,
 )
 from embeddings.space2vec.model.components import (
-    LayerNorm,
     MultiLayerFeedForwardNN,
     SingleFeedForwardNN,
     get_activation_function,
@@ -33,6 +34,8 @@ __all__ = [
     "SpaceContrastiveModel",
     "GridCellSpatialRelationSpaceEncoder",
     "GridCellSpatialRelationPositionEncoder",
+    "GridCellSpaceEncoderTorch",
+    "GridCellPositionEncoderTorch",
     "SpaceEncoder",
     "PositionEncoder",
     # Dataset
@@ -44,7 +47,6 @@ __all__ = [
     "latlon_to_radians",
     "EARTH_RADIUS_KM",
     # Components
-    "LayerNorm",
     "MultiLayerFeedForwardNN",
     "SingleFeedForwardNN",
     "get_activation_function",

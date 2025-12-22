@@ -1,7 +1,7 @@
 """
 Neural network components for Space2Vec spatial encoding.
 
-Contains LayerNorm, activation functions, and feed-forward network layers
+Contains activation functions and feed-forward network layers
 used by the GridCell spatial relation encoders.
 """
 
@@ -10,31 +10,6 @@ import math
 import numpy as np
 import torch
 import torch.nn as nn
-
-
-class LayerNorm(nn.Module):
-    """
-    Custom layer normalization with learnable gamma/beta parameters.
-    """
-
-    def __init__(self, feature_dim: int, eps: float = 1e-6):
-        super(LayerNorm, self).__init__()
-        self.gamma = nn.Parameter(torch.ones((feature_dim,)))
-        self.register_parameter("gamma", self.gamma)
-        self.beta = nn.Parameter(torch.zeros((feature_dim,)))
-        self.register_parameter("beta", self.beta)
-        self.eps = eps
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Args:
-            x: Input tensor of shape [batch_size, embed_dim]
-        Returns:
-            Normalized tensor of shape [batch_size, embed_dim]
-        """
-        mean = x.mean(-1, keepdim=True)
-        std = x.std(-1, keepdim=True)
-        return self.gamma * (x - mean) / (std + self.eps) + self.beta
 
 
 def get_activation_function(activation: str, context_str: str = "") -> nn.Module:
