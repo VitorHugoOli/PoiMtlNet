@@ -6,6 +6,7 @@ import pickle as pkl
 
 import pandas as pd
 import torch
+import os
 from torch.nn.utils import clip_grad_norm_
 from torch.optim.lr_scheduler import StepLR
 from torch_geometric.data import Data
@@ -128,12 +129,18 @@ def train_check2hgi(city, args):
 
     if use_mini_batch:
         print(f"Using mini-batch training (threshold: {args.mini_batch_threshold})")
+        num_workers = min(8, os.cpu_count() or 1)
+        # Initialize loader with CPU data
         loader = NeighborLoader(
             data,
             num_neighbors=[args.num_neighbors] * args.num_layers,
             batch_size=args.batch_size,
             shuffle=True,
             input_nodes=None,
+            num_workers=num_workers,
+            pin_memory=True if torch.cuda.is_available() else False,
+            prefetch_factor=5 if num_workers > 0 else None,
+            persistent_workers = num_workers > 0,
         )
     else:
         print("Using full-batch training")
