@@ -118,9 +118,12 @@ def train_next_model(
 if __name__ == '__main__':
     # Define configurations to train: [(state, embedding_engine), ...]
     TRAINING_CONFIGS: List[Tuple[str, EmbeddingEngine]] = [
-        ("florida", EmbeddingEngine.DGI),
+        # ("alabama", EmbeddingEngine.CHECK2HGI),
+        # ("texas", EmbeddingEngine.CHECK2HGI),
+        # ("texas", EmbeddingEngine.TIME2VEC),
         # ("florida", EmbeddingEngine.HMRM),
         # ("alabama", EmbeddingEngine.DGI),
+        ("alabama", EmbeddingEngine.HGI),
         # ("arizona", EmbeddingEngine.DGI),
         # ("georgia", EmbeddingEngine.DGI),
         # ("alabama", EmbeddingEngine.DGI),

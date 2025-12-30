@@ -16,7 +16,7 @@ from configs.model import InputsConfig
 from embeddings.hgi.hgi import create_embedding
 from embeddings.hgi.preprocess import preprocess_hgi
 from embeddings.hgi.poi2vec import train_poi2vec
-from etl.create_inputs_hgi import create_input
+from etl.create_input import create_input
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -24,12 +24,12 @@ logger = logging.getLogger(__name__)
 STATES = {
     # Local
     'Alabama': Resources.TL_AL,
-    'Arizona': Resources.TL_AZ,
-    'Georgia': Resources.TL_GA,
+    # 'Arizona': Resources.TL_AZ,
+    # 'Georgia': Resources.TL_GA,
     # Articles
-    'Florida': Resources.TL_FL,
-    'California': Resources.TL_CA,
-    'Texas': Resources.TL_TX,
+    # 'Florida': Resources.TL_FL,
+    # 'California': Resources.TL_CA,
+    # 'Texas': Resources.TL_TX,
 }
 
 HGI_CONFIG = Namespace(
@@ -41,7 +41,7 @@ HGI_CONFIG = Namespace(
     max_norm=0.9,
     epoch=2000,
     poi2vec_epochs=100,
-    force_preprocess=False,
+    force_preprocess=True,
     no_poi2vec=False,
     device='cpu',
     shapefile=None  # Will be set per state
@@ -81,8 +81,8 @@ def process_state(name: str, shapefile, cta_file=None) -> bool:
         create_embedding(state=name, args=HGI_CONFIG)
 
         # 5. Generate Inputs
-        # logger.info(f"[5/5] Generating inputs: {name}")
-        # create_input(state=name, engine=EmbeddingEngine.HGI)
+        logger.info(f"[5/5] Generating inputs: {name}")
+        create_input(state=name, embedding_engine=EmbeddingEngine.HGI)
 
         return True
     except Exception as e:

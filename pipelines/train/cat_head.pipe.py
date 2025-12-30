@@ -119,9 +119,9 @@ def train_category_model(
 if __name__ == '__main__':
     # Define configurations to train: [(state, embedding_engine), ...]
     TRAINING_CONFIGS: List[Tuple[str, EmbeddingEngine]] = [
-        # ("florida", EmbeddingEngine.DGI),
+        ("alabama", EmbeddingEngine.CHECK2HGI),
         # ("florida", EmbeddingEngine.HGI),
-        ("florida", EmbeddingEngine.TIME2VEC),
+        # ("florida", EmbeddingEngine.TIME2VEC),
         # ("florida", EmbeddingEngine.HMRM),
         # ("alabama", EmbeddingEngine.DGI),
         # ("arizona", EmbeddingEngine.DGI),

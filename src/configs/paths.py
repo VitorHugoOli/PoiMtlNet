@@ -42,6 +42,7 @@ class EmbeddingEngine(Enum):
     HMRM = "hmrm"
     TIME2VEC = "time2vec"
     SPACE2VEC = "space2vec"
+    CHECK2HGI = "check2hgi"
 
 
 class Resources:
@@ -218,6 +219,39 @@ class _Space2VecIoPath:
         return cls.get_temp_dir(state)
 
 
+class _Check2HGIIoPath:
+    # File name constants
+    GRAPH_DATA_FILE: str = "checkin_graph.pt"
+    BOROUGHS_FILE: str = "boroughs_area.csv"
+
+    # Check2HGI embeddings output
+    _check2hgi_dir: Path = OUTPUT_DIR / EmbeddingEngine.CHECK2HGI.value
+
+    @classmethod
+    def get_state_dir(cls, state: str) -> Path:
+        """Get the Check2HGI output directory for a specific state."""
+        return cls._check2hgi_dir / state.lower()
+
+    @classmethod
+    def get_output_dir(cls, state: str) -> Path:
+        return cls.get_state_dir(state)
+
+    @classmethod
+    def get_temp_dir(cls, state: str) -> Path:
+        """Get the temp directory for a specific state."""
+        return cls.get_output_dir(state) / "temp"
+
+    @classmethod
+    def get_graph_data_file(cls, state: str) -> Path:
+        """Get the graph data file path for a specific state."""
+        return cls.get_temp_dir(state) / cls.GRAPH_DATA_FILE
+
+    @classmethod
+    def get_boroughs_file(cls, state: str) -> Path:
+        """Get the boroughs file path for a specific state."""
+        return cls.get_temp_dir(state) / cls.BOROUGHS_FILE
+
+
 class IoPaths:
     """
     Static paths for I/O operations.
@@ -228,6 +262,7 @@ class IoPaths:
     HGI = _HGIIoPath
     TIME2VEC = _Time2VecIoPath
     SPACE2VEC = _Space2VecIoPath
+    CHECK2HGI = _Check2HGIIoPath
 
 
     @classmethod

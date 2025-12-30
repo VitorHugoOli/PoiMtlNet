@@ -23,12 +23,12 @@ logger = logging.getLogger(__name__)
 STATES = {
     # Local
     'Alabama': Resources.TL_AL,
-    'Arizona': Resources.TL_AZ,
-    'Georgia': Resources.TL_GA,
+    # 'Arizona': Resources.TL_AZ,
+    # 'Georgia': Resources.TL_GA,
     # Articles
-    'Florida': Resources.TL_FL,
-    'California': Resources.TL_CA,
-    'Texas': Resources.TL_TX,
+    # 'Florida': Resources.TL_FL,
+    # 'California': Resources.TL_CA,
+    # 'Texas': Resources.TL_TX,
 }
 
 DGI_CONFIG = Namespace(
@@ -54,7 +54,7 @@ def process_state(name: str, shapefile, cta_file=None) -> bool:
         create_embedding(city=name, args=DGI_CONFIG)
 
         logger.info(f"[3/3] Generating inputs: {name}")
-        create_input(state=name, embedd_eng=EmbeddingEngine.DGI)
+        create_input(state=name, embedding_engine=EmbeddingEngine.DGI)
 
         return True
     except Exception as e:

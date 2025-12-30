@@ -43,7 +43,7 @@ def create_embedding(city, args):
     # Instanciando o modelo
     model = DGIModule(hidden_channels=args.dim).to(args.device)
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
-    scheduler = StepLR(optimizer, step_size=20, gamma=args.gamma, verbose=False)
+    scheduler = StepLR(optimizer, step_size=20, gamma=args.gamma)
     # scheduler = OneCycleLR(optimizer, max_lr=args.lr * 100,
     #                         steps_per_epoch=args.epoch, epochs=args.epoch)
 

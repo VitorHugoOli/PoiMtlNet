@@ -202,7 +202,7 @@ def _create_dataloader(
         sampler=sampler,
         num_workers=num_workers,
         pin_memory=True if torch.cuda.is_available() else False,
-        # pin_memory_device=str(DEVICE) if hasattr(DEVICE, 'index') else None,
+        pin_memory_device=str(DEVICE) if hasattr(DEVICE, 'index') else None,
         persistent_workers=num_workers > 0,
         prefetch_factor=5 if num_workers > 0 else None,
         worker_init_fn=_worker_init_fn if num_workers > 0 else None,
@@ -219,7 +219,7 @@ def load_category_data(state: str, embedding_engine: EmbeddingEngine) -> Tuple[n
     df['label'] = _map_categories(df['category'])
     df = df.drop(columns=['category'])
 
-    feature_cols = df.columns[:InputsConfig.EMBEDDING_DIM]
+    feature_cols = list(map(str, range(InputsConfig.EMBEDDING_DIM)))
     X = df[feature_cols].values.astype(np.float32)
     y = df['label'].values.astype(np.int64)
 
