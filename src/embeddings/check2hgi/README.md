@@ -1,5 +1,9 @@
 # Check2HGI - Check-in Hierarchical Graph Infomax
 
+> **Check2HGI generates hierarchical embeddings for check-in events by extending HGI's mutual information maximization from 3 to 4 levels, capturing user mobility patterns, temporal context, and spatial relationships.**
+
+---
+
 ## What is Check2HGI?
 
 Check2HGI extends HGI to learn **embeddings for individual check-in events**, not just POIs. It uses a **4-level hierarchy**:
@@ -32,6 +36,23 @@ Check2HGI extends HGI to learn **embeddings for individual check-in events**, no
 - **Temporal context** - Time of day, day of week encoded in features
 - **Spatial relationships** - Inherited from POI and Region aggregation
 - **Individual event context** - Each check-in gets its own unique embedding
+
+### Method Comparison
+
+| Method | Hierarchy | Input | Output | Best For |
+|--------|-----------|-------|--------|----------|
+| **HGI** | POI → Region → City | POI coordinates + categories | 1 embedding per POI | Spatial analysis |
+| **Check2HGI** | Check-in → POI → Region → City | Check-in events with timestamps | 1 embedding per event | Trajectory analysis |
+
+### Key Components
+
+| Component | Check2HGI | HGI |
+|-----------|-----------|-----|
+| **Encoder** | Multi-layer GCN on user sequences | Single GCN on Delaunay graph |
+| **POI Aggregation** | Checkin2POI attention pooling | - |
+| **Region Aggregation** | POI2Region attention + GCN | Same (reused) |
+| **City Aggregation** | Area-weighted sigmoid | Same (reused) |
+| **Features** | Category + temporal encoding | Category one-hot |
 
 ---
 
@@ -205,7 +226,7 @@ PYTHONPATH=src python -m embeddings.check2hgi.check2hgi \
    │
    ├── BOUNDARY 2: POI ↔ Region
    │   ├── Positive: POI with its region
-   │   └── Negative: POI with wrong region (hard negatives)
+   │   └── Negative: POI with random wrong region
    │
    └── BOUNDARY 3: Region ↔ City
        ├── Positive: Region with city summary
@@ -346,7 +367,7 @@ L_c2p = -log(σ(checkin·poi_correct)) - log(1 - σ(checkin·poi_wrong))
 BOUNDARY 2: POI ↔ Region
 ────────────────────────
 Positive: POI_i belongs to Region_j → should agree
-Negative: POI_i with wrong Region_k → should disagree (hard negatives)
+Negative: POI_i with random wrong Region_k → should disagree
 
 L_p2r = -log(σ(poi·region_correct)) - log(1 - σ(poi·region_wrong))
 
@@ -419,11 +440,13 @@ src/embeddings/hgi/model/
 
 ### Check-in Embeddings (`embeddings.parquet`)
 ```
-| userid | placeid | datetime            | 0     | 1     | ... | 63    |
-|--------|---------|---------------------|-------|-------|-----|-------|
-| 4      | 12398   | 2009-05-02 18:43:58 | -0.27 | 0.15  | ... | -0.17 |
-| 4      | 6491808 | 2011-04-12 20:11:56 | -0.14 | 0.10  | ... | 0.14  |
+| userid | placeid | category   | datetime            | 0     | 1     | ... | 63    |
+|--------|---------|------------|---------------------|-------|-------|-----|-------|
+| 4      | 12398   | Restaurant | 2009-05-02 18:43:58 | -0.27 | 0.15  | ... | -0.17 |
+| 4      | 6491808 | Coffee     | 2011-04-12 20:11:56 | -0.14 | 0.10  | ... | 0.14  |
 ```
+
+**Note:** The `category` column contains the original category string for each check-in. Two check-ins at the same POI can have different categories.
 
 ### POI Embeddings (`poi_embeddings.parquet`)
 ```
@@ -600,9 +623,88 @@ Check2HGI handles large datasets (millions of check-ins) with:
 
 ---
 
+## Multi-State Pipeline
+
+Process multiple states in sequence:
+
+```bash
+PYTHONPATH=src python pipelines/embedding/check2hgi.pipe.py
+```
+
+This runs Check2HGI for all configured states (Alabama, Arizona, Georgia, Florida, California, Texas) with predefined shapefile paths.
+
+---
+
+## Project Structure
+
+```
+ingred/
+├── src/embeddings/
+│   ├── hgi/                    # POI-level embeddings (reference)
+│   │   ├── hgi.py              # Training pipeline
+│   │   ├── preprocess.py       # Delaunay graph construction
+│   │   ├── poi2vec.py          # Optional pre-training
+│   │   └── model/              # HGI model components
+│   │       └── RegionEncoder.py # POI2Region (reused by Check2HGI)
+│   │
+│   └── check2hgi/              # Event-level embeddings
+│       ├── check2hgi.py        # Training pipeline
+│       ├── preprocess.py       # User-sequence graph
+│       ├── README.md           # This file
+│       ├── CLAUDE.md           # Technical docs for AI agents
+│       └── model/              # Check2HGI model components
+│
+├── pipelines/embedding/        # Multi-state batch processing
+│   └── check2hgi.pipe.py
+│
+├── data/checkins/              # Input: State parquet files
+│
+└── output/check2hgi/{city}/    # Output: Embeddings
+    ├── embeddings.parquet      # Check-in embeddings
+    ├── poi_embeddings.parquet  # POI embeddings
+    └── region_embeddings.parquet
+```
+
+---
+
+## Implementation Notes
+
+### Optimizations from Original HGI
+
+| Optimization | Original HGI | Check2HGI | Benefit |
+|--------------|--------------|-----------|---------|
+| Corruption | Feature-level (2 encoder passes) | Embedding-level (1 pass) | 2x encoder speedup |
+| Negative Sampling | Hard negatives (25% similar) | Random negatives | O(1) vs O(R) complexity |
+| Loss Weights | Single alpha | 3 alphas (c2p, p2r, r2c) | Per-boundary control |
+
+### Known Limitations
+
+1. **MPS Float16 Disabled** - Apple Silicon has NaN issues with scatter/softmax in float16
+2. **torch.compile Incompatible** - PyG dynamic scatter operations break compilation
+3. **No Validation Split** - Uses best training loss epoch (acceptable for unsupervised)
+4. **Single GPU Only** - No DDP wrapper implemented
+
+### Future Improvements
+
+**High Priority:**
+- [ ] Hard negative sampling option (`--use_hard_negatives`)
+- [ ] Checkin2Vec pre-training (like POI2Vec for sequences)
+- [ ] Downstream evaluation (next-POI prediction, clustering metrics)
+
+**Medium Priority:**
+- [ ] Gradient checkpointing for >10M check-ins
+- [ ] Distributed training (DDP) for multi-GPU
+
+**Low Priority:**
+- [ ] Adaptive loss weighting (learn alphas during training)
+- [ ] Temporal attention in CheckinEncoder
+
+---
+
 ## References
 
 - [Hierarchical Graph Infomax (Zhang et al., 2020)](https://dl.acm.org/doi/10.1145/3397536.3422213)
 - [Deep Graph Infomax (Velickovic et al., 2019)](https://arxiv.org/abs/1809.10341)
 - [Graph Convolutional Networks (Kipf & Welling, 2017)](https://arxiv.org/abs/1609.02907)
 - [Set Transformer (Lee et al., 2019)](https://arxiv.org/abs/1810.00825)
+- [Node2Vec (Grover & Leskovec, 2016)](https://arxiv.org/abs/1607.00653)

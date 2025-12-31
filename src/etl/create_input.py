@@ -282,7 +282,8 @@ def convert_sequences_to_embeddings(
     gc.collect()
     return result_df
 
-def generate_next_input(
+
+def generate_next_input_from_poi(
         embeddings_df: pd.DataFrame,
         checkins_df: pd.DataFrame,
         sequences_path: str,
@@ -395,18 +396,155 @@ def generate_category_input(embeddings_df: pd.DataFrame, category_path: str):
     embeddings_df.to_parquet(category_path)
 
 
+def generate_next_input_from_checkings(
+        embeddings_df: pd.DataFrame,
+        sequences_path: str,
+        next_input_path: str
+) -> pd.DataFrame:
+    """
+    Generate input data for next-POI prediction using check-in level embeddings.
+
+    Uses ONLY the embeddings file as the single source of truth.
+    This is the most robust approach since:
+    - No alignment/merge issues between different data sources
+    - Every row is guaranteed to have an embedding
+    - Self-contained and future-proof
+
+    Unlike generate_next_input_from_poi() which uses POI-level embeddings (same
+    embedding for same POI), this method uses check-in level embeddings where
+    each visit has its own unique embedding based on temporal/contextual features.
+
+    Args:
+        embeddings_df: DataFrame with check-in embeddings from Check2HGI.
+            Columns: 'userid', 'placeid', 'datetime', 'category', '0'...'63'
+        sequences_path: Path for intermediate sequences parquet file
+        next_input_path: Path for final output parquet file
+
+    Returns:
+        DataFrame with columns: ['0', '1', ..., 'N*EMB_DIM-1', 'next_category', 'userid']
+        Same format as generate_next_input_from_poi() output.
+    """
+    print("Using embeddings file as single source of truth...")
+
+    # === Step 1: Validate and prepare data ===
+    embeddings_df = embeddings_df.copy()
+    embeddings_df['datetime'] = pd.to_datetime(embeddings_df['datetime'])
+
+    # Validate required columns
+    embedding_cols = [str(i) for i in range(InputsConfig.EMBEDDING_DIM)]
+    required_cols = ['userid', 'datetime', 'category'] + embedding_cols
+    missing = set(required_cols) - set(embeddings_df.columns)
+    if missing:
+        print(f"Error: Missing columns in embeddings file: {missing}")
+        return pd.DataFrame()
+
+    print(f"Total check-ins with embeddings: {len(embeddings_df)}")
+
+    # === Step 2: Sort and add row indices ===
+    embeddings_df = embeddings_df.sort_values(['userid', 'datetime']).reset_index(drop=True)
+    embeddings_df['row_idx'] = embeddings_df.index
+
+    # Pre-extract embedding matrix for vectorized lookup
+    embedding_matrix = embeddings_df[embedding_cols].values.astype(np.float32)
+    zero_embedding = np.zeros(InputsConfig.EMBEDDING_DIM, dtype=np.float32)
+
+    # === Step 3: Generate sequences ===
+    print("Generating sequences for each user...")
+    min_checkins = InputsConfig.SLIDE_WINDOW + 1
+    user_counts = embeddings_df.groupby('userid', sort=False).size()
+    valid_users = user_counts[user_counts >= min_checkins].index
+
+    user_sequences = (
+        embeddings_df[embeddings_df['userid'].isin(valid_users)]
+        .groupby('userid', sort=False)['row_idx']
+        .apply(lambda indices: generate_sequences(indices.tolist()))
+        .reset_index(name='visit_sequence')
+    )
+    user_sequences = user_sequences[user_sequences.visit_sequence.map(bool)]
+
+    if user_sequences.empty:
+        print("No valid sequences generated.")
+        return pd.DataFrame()
+
+    total_sequences = sum(len(seq) for seq in user_sequences['visit_sequence'])
+    print(f'Valid users: {len(user_sequences)}, Total sequences: {total_sequences}')
+
+    # === Step 4: Collect all sequences ===
+    print("Collecting sequences...")
+    all_sequences = []
+    all_userids = []
+    for _, row in tqdm(user_sequences.iterrows(), total=len(user_sequences), desc="Processing users"):
+        for seq in row['visit_sequence']:
+            all_sequences.append(seq)
+            all_userids.append(row['userid'])
+
+    # === Step 5: Vectorized embedding extraction ===
+    print("Converting sequences to embeddings (vectorized)...")
+    sequences_array = np.array(all_sequences)
+    history_indices = sequences_array[:, :-1]  # [N, SLIDE_WINDOW]
+    target_indices = sequences_array[:, -1]  # [N]
+
+    # Vectorized embedding lookup with padding handling
+    # Add zero row at index 0 for padding
+    embedding_matrix_padded = np.vstack([zero_embedding, embedding_matrix])
+    # Shift indices: -1 (padding) -> 0 (zero_row), others -> idx + 1
+    history_indices_safe = np.where(history_indices == PADDING_VALUE, 0, history_indices + 1)
+    all_embeddings = embedding_matrix_padded[history_indices_safe]
+    flattened_embeddings = all_embeddings.reshape(len(all_sequences), -1)
+
+    # Get target categories from embeddings_df
+    category_lookup = embeddings_df['category'].to_dict()
+    category_lookup[PADDING_VALUE] = 'None'
+    target_categories = [category_lookup.get(idx, 'None') for idx in target_indices]
+
+    # === Step 6: Save intermediate sequences ===
+    print("Saving intermediate sequences...")
+    seq_column_names = ['userid'] + list(range(1, InputsConfig.SLIDE_WINDOW + 2))
+    sequences_df = pd.DataFrame(
+        [[uid] + seq for uid, seq in zip(all_userids, all_sequences)],
+        columns=seq_column_names
+    )
+    sequences_df.to_parquet(sequences_path, index=False)
+    print(f'Saved {len(sequences_df)} sequences to {sequences_path}')
+
+    # === Step 7: Create and save output DataFrame ===
+    print("Creating output DataFrame...")
+    num_embedding_cols = InputsConfig.EMBEDDING_DIM * InputsConfig.SLIDE_WINDOW
+    result_df = pd.DataFrame(flattened_embeddings, columns=[str(i) for i in range(num_embedding_cols)])
+    result_df['next_category'] = target_categories
+    result_df['userid'] = [str(uid) for uid in all_userids]
+
+    print(f"Writing {len(result_df)} sequences to {next_input_path}...")
+    result_df.to_parquet(next_input_path, index=False, engine='pyarrow')
+    print(f"Success: Wrote {len(result_df)} sequences")
+
+    gc.collect()
+    print("Processing complete!")
+    return result_df
+
+
 from concurrent.futures import ProcessPoolExecutor
 
 
-def create_input(state: str, embedding_engine: EmbeddingEngine):
+def create_input(state: str, embedding_engine: EmbeddingEngine, use_checkin_embeddings: bool = False):
     """
     Create input files for a given state and embedding engine.
 
     Generates:
     - Category input file (embeddings with categories)
     - Next-POI input file (sequences with embeddings)
+
+    Args:
+        state: State name (e.g., "florida", "alabama")
+        embedding_engine: Embedding engine type (DGI, HGI, CHECK2HGI, etc.)
+        use_checkin_embeddings: If True and engine is CHECK2HGI, use check-in level
+            embeddings where each visit has its own unique embedding. If False,
+            uses POI-level embeddings (same embedding for same POI).
+            Only applicable for CHECK2HGI engine.
     """
     print(f"Processing state: {state} with embedding engine: {embedding_engine.value}")
+    if use_checkin_embeddings:
+        print("Using check-in level embeddings (each visit has unique embedding)")
 
     # Load data
     embeddings_df = IoPaths.load_embedd(state, embedding_engine)
@@ -422,19 +560,27 @@ def create_input(state: str, embedding_engine: EmbeddingEngine):
     next_input_path.parent.mkdir(parents=True, exist_ok=True)
     category_input_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Generate inputs
-    generate_category_input(embeddings_df, str(category_input_path))
-    generate_next_input(embeddings_df, checkins_df, str(sequences_path), str(next_input_path))
+    # Generate category input (same for both methods)
+    generate_category_input(embeddings_df.copy(), str(category_input_path))
+
+    # Generate next-POI input using appropriate method
+    if use_checkin_embeddings:
+        generate_next_input_from_checkings(embeddings_df, str(sequences_path), str(next_input_path))
+    else:
+        generate_next_input_from_poi(embeddings_df, checkins_df, str(sequences_path), str(next_input_path))
 
 
 if __name__ == '__main__':
     STATE_NAME = [
-        ("alabama", EmbeddingEngine.HGI),
-        # ("texas", EmbeddingEngine.DGI),
-        # ("alabama", EmbeddingEngine.DGI),
-        # ("arizona", EmbeddingEngine.DGI),
-        # ("georgia", EmbeddingEngine.DGI),
+        ("florida", EmbeddingEngine.CHECK2HGI, True),  # Check-in level embeddings
+        # ("texas", EmbeddingEngine.DGI, False),
+        # ("alabama", EmbeddingEngine.DGI, False),
+        # ("arizona", EmbeddingEngine.DGI, False),
+        # ("georgia", EmbeddingEngine.DGI, False),
     ]
     with ProcessPoolExecutor(max_workers=12) as executor:
-        futures = [executor.submit(create_input, state, engine) for state, engine in STATE_NAME]
+        futures = [
+            executor.submit(create_input, state, engine, use_checkin_emb)
+            for state, engine, use_checkin_emb in STATE_NAME
+        ]
         results = [future.result() for future in futures]

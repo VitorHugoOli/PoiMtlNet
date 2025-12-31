@@ -36,6 +36,9 @@ class Checkin2POI(nn.Module):
         self.S = nn.Parameter(torch.Tensor(1, hidden_channels))
         nn.init.xavier_uniform_(self.S)
 
+        # Pre-compute scaling constant (avoid tensor creation every forward pass)
+        self.register_buffer('scale', torch.sqrt(torch.tensor(hidden_channels, dtype=torch.float32)))
+
         # PReLU activation
         self.prelu = nn.PReLU()
 
@@ -71,7 +74,7 @@ class Checkin2POI(nn.Module):
         # Attention scores: (K * Q).sum(-1) / sqrt(d)
         # [num_checkins, num_heads]
         scores = (K_split * Q_split).sum(dim=-1)
-        scores = scores / torch.sqrt(torch.tensor(self.hidden_channels, dtype=torch.float32, device=x.device))
+        scores = scores / self.scale
 
         # Segmented softmax over check-ins within each POI
         alpha = pyg_softmax(scores, checkin_to_poi, num_nodes=num_pois)
@@ -80,6 +83,9 @@ class Checkin2POI(nn.Module):
         # V_split: [num_checkins, num_heads, dim_split]
         # alpha: [num_checkins, num_heads] -> [num_checkins, num_heads, 1]
         weighted_V = V_split * alpha.unsqueeze(-1)
+
+        # Ensure contiguous for efficient scatter (especially on MPS)
+        weighted_V = weighted_V.contiguous()
 
         # Sum per POI (scatter_add)
         # poi_agg: [num_pois, num_heads, dim_split]

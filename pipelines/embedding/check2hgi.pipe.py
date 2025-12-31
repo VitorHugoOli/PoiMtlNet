@@ -11,22 +11,23 @@ from argparse import Namespace
 from datetime import datetime
 
 from configs.globals import DEVICE
-from configs.paths import Resources
+from configs.paths import Resources, EmbeddingEngine
 from configs.model import InputsConfig
 from embeddings.check2hgi.check2hgi import create_embedding
+from etl.create_input import create_input
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 STATES = {
     # Local
-    'Alabama': Resources.TL_AL,
-    'Arizona': Resources.TL_AZ,
-    'Georgia': Resources.TL_GA,
+    # 'Alabama': Resources.TL_AL,
+    # 'Arizona': Resources.TL_AZ,
+    # 'Georgia': Resources.TL_GA,
     # Articles
     'Florida': Resources.TL_FL,
-    'California': Resources.TL_CA,
-    'Texas': Resources.TL_TX,
+    # 'California': Resources.TL_CA,
+    # 'Texas': Resources.TL_TX,
 }
 
 CHECK2HGI_CONFIG = Namespace(
@@ -41,7 +42,7 @@ CHECK2HGI_CONFIG = Namespace(
     max_norm=0.9,
     epoch=500,
     mini_batch_threshold=5_000_000,
-    batch_size=1024,
+    batch_size=2**13,
     num_neighbors=10,
     device=str("cpu"),
     shapefile=None,  # Will be set per state
@@ -64,6 +65,9 @@ def process_state(name: str, shapefile) -> bool:
 
         logger.info(f"[1/2] Creating embeddings (Preprocess + Train): {name}")
         create_embedding(state=name, args=CHECK2HGI_CONFIG)
+
+        logger.info(f"[2/2] Creating inputs for HGI: {name}")
+        create_input(state=name, embedding_engine=EmbeddingEngine.CHECK2HGI)
 
         return True
     except Exception as e:

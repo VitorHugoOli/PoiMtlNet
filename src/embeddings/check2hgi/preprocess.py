@@ -325,7 +325,7 @@ class Check2HGIPreprocess:
         region_area, region_adjacency, coarse_similarity = self._compute_region_features()
 
         # Metadata for output
-        metadata = self.checkins[['userid', 'placeid', 'datetime']].copy()
+        metadata = self.checkins[['userid', 'placeid', 'datetime', 'category']].copy()
 
         return {
             'node_features': node_features,
