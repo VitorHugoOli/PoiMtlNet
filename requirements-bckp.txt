@@ -47,7 +47,6 @@ geopandas==1.0.1
 gitdb==4.0.12
 GitPython==3.1.44
 google==3.0.0
-graphgps @ file:///Users/vitor/Desktop/mestrado/packages/GraphGPS
 h11==0.14.0
 h3==4.3.1
 h3ronpy==0.22.0

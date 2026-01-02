@@ -572,7 +572,12 @@ def create_input(state: str, embedding_engine: EmbeddingEngine, use_checkin_embe
 
 if __name__ == '__main__':
     STATE_NAME = [
-        ("florida", EmbeddingEngine.CHECK2HGI, True),  # Check-in level embeddings
+        ("alabama", EmbeddingEngine.CHECK2HGI, True),
+        ('arizona', EmbeddingEngine.CHECK2HGI, True),
+        ('georgia', EmbeddingEngine.CHECK2HGI, True),
+        ('florida', EmbeddingEngine.CHECK2HGI, True),
+        ('california', EmbeddingEngine.CHECK2HGI, True),
+        ('texas', EmbeddingEngine.CHECK2HGI, True),
         # ("texas", EmbeddingEngine.DGI, False),
         # ("alabama", EmbeddingEngine.DGI, False),
         # ("arizona", EmbeddingEngine.DGI, False),

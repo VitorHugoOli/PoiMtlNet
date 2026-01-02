@@ -21,13 +21,13 @@ logger = logging.getLogger(__name__)
 
 STATES = {
     # Local
-    # 'Alabama': Resources.TL_AL,
-    # 'Arizona': Resources.TL_AZ,
-    # 'Georgia': Resources.TL_GA,
+    'Alabama': Resources.TL_AL,
+    'Arizona': Resources.TL_AZ,
+    'Georgia': Resources.TL_GA,
     # Articles
     'Florida': Resources.TL_FL,
-    # 'California': Resources.TL_CA,
-    # 'Texas': Resources.TL_TX,
+    'California': Resources.TL_CA,
+    'Texas': Resources.TL_TX
 }
 
 CHECK2HGI_CONFIG = Namespace(
@@ -67,7 +67,7 @@ def process_state(name: str, shapefile) -> bool:
         create_embedding(state=name, args=CHECK2HGI_CONFIG)
 
         logger.info(f"[2/2] Creating inputs for HGI: {name}")
-        create_input(state=name, embedding_engine=EmbeddingEngine.CHECK2HGI)
+        create_input(state=name, embedding_engine=EmbeddingEngine.CHECK2HGI,use_checkin_embeddings=True)
 
         return True
     except Exception as e:

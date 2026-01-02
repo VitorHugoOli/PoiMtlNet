@@ -11,7 +11,9 @@
       "Bash(cat:*)",
       "Bash(python3:*)",
       "Bash(find:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(jupyter nbconvert:*)",
+      "Bash(PYTHONPATH=src python:*)"
     ],
     "deny": []
   }
