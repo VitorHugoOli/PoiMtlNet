@@ -12,6 +12,10 @@
 3. [Phase 1: Region Definition (Shapefile)](#phase-1-region-definition-shapefile)
 4. [Phase 2: POI Data Preparation](#phase-2-poi-data-preparation)
 5. [Phase 3: POI Embedding (POI2Vec)](#phase-3-poi-embedding-poi2vec)
+   - [Step 3a: PreProcess.run()](#step-3a-preprocessrun)
+   - [Step 3b: POI2Vec.train()](#step-3b-poi2vectrain--save_walks)
+   - [Step 3c: EmbeddingModel Training](#step-3c-embeddingmodel-training-hierarchical-skip-gram)
+   - [Step 3d: POI-Level Embedding Reconstruction](#step-3d-poi-level-embedding-reconstruction)
 6. [Phase 4: HGI Graph Construction](#phase-4-hgi-graph-construction)
 7. [Phase 5: HGI Training](#phase-5-hgi-training)
 8. [Key Data Structures](#key-data-structures)
@@ -65,6 +69,12 @@ The original HGI implementation follows a **5-phase sequential pipeline** that i
 │    • Skip-gram + hierarchical category-fclass loss               │
 │    • Train 5 epochs, batch=2048, lr=0.05, k=5 negatives         │
 │    • Save poi-encoder-gowalla-h3_{STATE}.tensor                  │
+│                                                                  │
+│  Step 3d: POI-Level Embedding Reconstruction                     │
+│    • Load fclass embeddings W[num_fclass, D]                     │
+│    • Load pois_gowalla.csv with feature_id, fclass               │
+│    • Map each POI: poi_emb[i] = W[fclass[i]]                     │
+│    • Save embeddings-poi-encoder.csv (placeid, 0..D-1, category) │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -452,6 +462,164 @@ def forward(self, input_labels, pos_labels, neg_labels):
 
 ---
 
+### Step 3d: POI-Level Embedding Reconstruction
+
+**CRITICAL STEP**: This is the missing link that reconstructs POI-level embeddings from fclass-level embeddings.
+
+The POI2Vec embeddings from Step 3c are **fclass-level** (one embedding per unique fclass, not per POI). To use them as node features, we must map each POI to its corresponding fclass embedding.
+
+#### What This Step Does:
+1. **Load fclass embeddings** from `poi-encoder-gowalla-h3.tensor`
+2. **Load POI data** from `pois_gowalla.csv` (which has `feature_id` and `fclass` for each POI)
+3. **Map each POI to its embedding** using `fclass` as an index: `poi_embedding = W[poi.fclass]`
+4. **Save as CSV** with placeid and embedding columns
+
+#### Code Implementation
+
+```python
+import torch
+import pandas as pd
+import numpy as np
+from pathlib import Path
+
+def load_embedding_matrix(tensor_path: str, key: str = "in_embed.weight") -> np.ndarray:
+    """
+    Load the .tensor checkpoint and return numpy array (num_fclass, emb_dim).
+    """
+    ckpt = torch.load(tensor_path, map_location="cpu")
+    if key not in ckpt:
+        # Try alternate key format
+        state_keys = [k for k in ckpt.keys() if 'in_embed' in k]
+        if state_keys:
+            key = state_keys[0]
+        else:
+            raise KeyError(f"No embedding key found. Available: {list(ckpt.keys())[:10]}")
+
+    W = ckpt[key]
+    if not isinstance(W, torch.Tensor):
+        raise TypeError(f"Value at '{key}' is not a torch.Tensor (got {type(W)}).")
+    if W.ndim != 2:
+        raise ValueError(f"Expected 2D tensor, got shape {tuple(W.shape)}.")
+
+    return W.detach().cpu().numpy()
+
+
+def build_output_df(pois_path: str, W: np.ndarray, filtrado_path: str) -> pd.DataFrame:
+    """
+    Generate the final DataFrame with:
+      - placeid (copied from feature_id)
+      - emb_0 ... emb_(D-1) mapped by fclass
+      - category (joined from original checkins CSV via placeid)
+
+    KEY OPERATION: Each POI gets its embedding by looking up W[poi.fclass]
+    """
+    # Load POI data
+    pois = pd.read_csv(pois_path)
+    if "feature_id" not in pois.columns or "fclass" not in pois.columns:
+        raise KeyError("pois_gowalla.csv must contain 'feature_id' and 'fclass'. "
+                       f"Found: {list(pois.columns)}")
+
+    pois["feature_id"] = pois["feature_id"].astype(str)
+    pois["fclass"] = pois["fclass"].astype(int)
+
+    num_classes, emb_dim = W.shape
+
+    # Initialize embedding matrix
+    n = len(pois)
+    emb = np.full((n, emb_dim), np.nan, dtype=float)
+
+    # CRITICAL: Map each POI to its fclass embedding
+    valid = (pois["fclass"] >= 0) & (pois["fclass"] < num_classes)
+    if not valid.all():
+        invalid_rows = (~valid).sum()
+        print(f"WARNING: {invalid_rows} POIs have invalid fclass values")
+
+    # This is the reconstruction: emb[i] = W[fclass_of_poi_i]
+    emb[valid.values] = W[pois.loc[valid, "fclass"].to_numpy()]
+
+    # Build output DataFrame
+    emb_cols = [f"{i}" for i in range(emb_dim)]
+    out = pd.DataFrame(emb, columns=emb_cols)
+    out.insert(0, "placeid", pois["feature_id"].astype(str))
+
+    # Join category from original checkins
+    filtrado = pd.read_csv(filtrado_path)
+
+    if "placeid" not in filtrado.columns:
+        if "feature_id" in filtrado.columns:
+            filtrado = filtrado.rename(columns={"feature_id": "placeid"})
+        else:
+            raise KeyError(f"Checkins CSV must have 'placeid'. Found: {list(filtrado.columns)}")
+
+    if "category" not in filtrado.columns:
+        raise KeyError("Checkins CSV must contain 'category' column.")
+
+    filtrado["placeid"] = filtrado["placeid"].astype(str)
+
+    # Left join to preserve all POIs
+    out = out.merge(filtrado[["placeid", "category"]], on="placeid", how="left")
+
+    return out
+
+
+# Example usage
+ESTADO = "Texas"
+pois_path = f"pois_gowalla.csv"
+tensor_path = f"poi-encoder-gowalla-h3_{ESTADO}.tensor"
+filtrado_path = f"checkins_{ESTADO.capitalize()}.csv"
+
+# Load fclass embeddings (shape: [num_fclass, emb_dim])
+W = load_embedding_matrix(tensor_path)
+print(f"Loaded fclass embeddings: {W.shape}")
+
+# Reconstruct POI-level embeddings
+out_df = build_output_df(pois_path, W, filtrado_path)
+print(f"Reconstructed {len(out_df)} POI embeddings")
+
+# Save
+out_df.to_csv(f"embeddings-poi-encoder.csv", index=False)
+```
+
+#### Key Insight: Why This Step Exists
+
+POI2Vec learns embeddings at the **fclass level** (feature class) because:
+1. Random walks are converted to **fclass sequences** (not POI sequences)
+2. The EmbeddingModel vocabulary is **unique fclass values**
+3. Multiple POIs can share the same fclass and thus the **same embedding**
+
+This reconstruction step maps each POI to its fclass embedding, creating a POI-level embedding matrix needed for downstream tasks.
+
+#### Data Flow
+```
+poi-encoder-gowalla-h3.tensor     pois_gowalla.csv
+         ↓                               ↓
+    W[num_fclass, D]            feature_id, fclass
+         ↓                               ↓
+         └─────────> poi_emb[i] = W[fclass[i]] ────────┐
+                                                        ↓
+                                        embeddings-poi-encoder.csv
+                                        (placeid, 0, 1, ..., D-1, category)
+```
+
+#### Output Format
+**embeddings-poi-encoder.csv** with columns:
+- `placeid` (str) - POI identifier (from feature_id)
+- `0`, `1`, `2`, ..., `{emb_dim-1}` (float) - Embedding dimensions
+- `category` (str) - Category label from original checkins
+
+**Example:**
+```
+placeid,0,1,2,3,...,63,category
+"1234",0.123,-0.456,0.789,...,0.234,"Food"
+"5678",0.123,-0.456,0.789,...,0.234,"Food"  # Same fclass = same embedding
+"9012",-0.321,0.654,-0.987,...,-0.432,"Shopping"
+```
+
+**Outputs**:
+- `embeddings-poi-encoder.csv` - POI-level embeddings with placeid
+
+---
+
 ## Phase 4: HGI Graph Construction
 
 This phase builds the final PyG Data object for HGI training.
@@ -496,11 +664,15 @@ from sklearn.metrics.pairwise import cosine_similarity
 region_coarse_region_similarity = cosine_similarity(mat.values)
 ```
 
-### Step 4b: Load Pre-Computed Location Embeddings
+### Step 4b: Load Pre-Computed Embeddings for Node Features
 
-**CRITICAL**: The node features are **NOT** the POI2Vec embeddings from Phase 3! They are **pre-computed location embeddings** from an external encoder.
+**CRITICAL**: The node features can come from different sources:
+1. **Pre-computed location embeddings** from an external encoder (most states)
+2. **POI2Vec embeddings** from Step 3d (`embeddings-poi-encoder.csv`)
 
-#### Variant 1: Location Embeddings (most states)
+Both provide POI-level embeddings, but they may capture different aspects of POI semantics.
+
+#### Variant 1: Pre-Computed Location Embeddings (most states)
 ```python
 loc_pt_path = f"/content/drive/MyDrive/.../poi_embeddings_location-{ESTADO}.pt"
 blob = torch.load(loc_pt_path, map_location="cpu")
@@ -508,18 +680,22 @@ E = blob["embeddings"].detach().cpu().numpy()  # [num_placeids, D]
 placeids = [str(p) for p in blob["placeids"]]
 ```
 
-#### Variant 2: MTL POI Encoder Embeddings (Montana, Alabama)
+#### Variant 2: POI2Vec Embeddings from Step 3d (Montana, Alabama, or if no location embeddings)
 ```python
-out_df = pd.read_csv(f"/content/drive/MyDrive/MTL_POI_Novo/data/output/{ESTADO.lower()}/embeddings-poi-encoder.csv")
+# Load the embeddings-poi-encoder.csv created in Step 3d
+out_df = pd.read_csv("embeddings-poi-encoder.csv")
 out_df = out_df.sort_values("placeid").reset_index(drop=True)
 
 placeids = out_df["placeid"].astype(str).tolist()
 emb_cols = [c for c in out_df.columns if c.isnumeric()]
 E = out_df[emb_cols].to_numpy(dtype=np.float32)
 
+# Save as .pt for consistency
 torch.save({"embeddings": torch.from_numpy(E), "placeids": placeids},
            "poi_embeddings_encoder.pt")
 ```
+
+**Note**: The original documentation stated that HGI uses location embeddings (NOT POI2Vec), but the code shows that some states (Montana, Alabama) actually use the POI2Vec embeddings from `embeddings-poi-encoder.csv`. Both approaches are valid.
 
 #### Map to poi_index.csv Ordering
 ```python
@@ -911,25 +1087,35 @@ def loss(self, pos_poi_emb_list, neg_poi_emb_list, region_emb, neg_region_emb, c
 
 ## Key Differences from Typical Implementations
 
-1. **Node Features**: Uses pre-computed **location embeddings**, NOT the POI2Vec embeddings trained in Phase 3. POI2Vec is used only for hierarchical fclass embedding learning (unused in HGI).
+1. **fclass-Level Embeddings**: POI2Vec learns embeddings for **fclass** (feature classes), not individual POIs. Multiple POIs with the same fclass share the same embedding.
 
-2. **Hierarchical Loss**: POI2Vec includes a custom hierarchical category-fclass L2 regularization loss, not standard Node2Vec.
+2. **POI-Level Reconstruction (Step 3d)**: A dedicated step maps POIs to fclass embeddings using `poi_emb[i] = W[fclass[i]]`. This is often overlooked in documentation.
 
-3. **Region Similarity**: Computed from fclass distribution (cosine similarity), NOT edge co-occurrence.
+3. **Node Features Flexibility**: Different states use different node features:
+   - Some use pre-computed **location embeddings** from external encoders
+   - Others use **POI2Vec embeddings** from Step 3d (`embeddings-poi-encoder.csv`)
 
-4. **feature_id**: Is the **row index** from coords_raw after groupby, NOT the placeid.
+4. **Hierarchical Loss**: POI2Vec includes a custom hierarchical category-fclass L2 regularization loss, not standard Node2Vec.
 
-5. **fclass**: Fine-grained class from `spot_categories` JSON (first category name), critical for hierarchical learning and region similarity.
+5. **Region Similarity**: Computed from fclass distribution (cosine similarity), NOT edge co-occurrence.
 
-6. **No Random Seeds**: No seeds set anywhere → non-deterministic results.
+6. **feature_id**: Is the **row index** from coords_raw after groupby, NOT the placeid.
 
-7. **Delaunay Graph**: Connects all POIs via Delaunay triangulation (can create long-distance edges on convex hull).
+7. **fclass Critical Role**: Fine-grained class from `spot_categories` JSON used for:
+   - Embedding vocabulary (POI2Vec trains on fclass)
+   - Hierarchical loss (category-fclass pairs)
+   - Region similarity (fclass distribution)
+   - POI-level reconstruction (fclass as index)
 
-8. **Area in Degrees²**: Region area computed in EPSG:4326 (degrees²), latitude-dependent distortion.
+8. **No Random Seeds**: No seeds set anywhere → non-deterministic results.
 
-9. **PMA Forward Unused**: POI2Region manually iterates over regions and calls PMA per-region, not using PMA's batched forward.
+9. **Delaunay Graph**: Connects all POIs via Delaunay triangulation (can create long-distance edges on convex hull).
 
-10. **StepLR gamma=1.0**: No learning rate decay (scheduler is a no-op).
+10. **Area in Degrees²**: Region area computed in EPSG:4326 (degrees²), latitude-dependent distortion.
+
+11. **PMA Forward Unused**: POI2Region manually iterates over regions and calls PMA per-region, not using PMA's batched forward.
+
+12. **StepLR gamma=1.0**: No learning rate decay (scheduler is a no-op).
 
 ---
 
@@ -948,20 +1134,23 @@ def loss(self, pos_poi_emb_list, neg_poi_emb_list, region_emb, neg_region_emb, c
 2. `pois_gowalla.csv` - 4-column POI data (feature_id, category, fclass, geometry)
 3. `pois.csv` + `edges.csv` - After PreProcess (includes GEOID)
 4. `second_class_walks.pkl` - fclass random walks
-5. `poi-encoder-gowalla-h3_{STATE}.tensor` - POI2Vec embeddings (NOT used in HGI!)
-6. `poi_embeddings_location-{STATE}.pt` or `poi_embeddings_encoder.pt` - Pre-computed location embeddings (USED in HGI)
-7. `poi_index.csv` - Maps feature_id → row index
-8. `gowalla.pt` - PyG Data object
-9. `gowalla_hgi_data.pkl` - Pickle dict for training
-10. `gowalla_h3.torch` - Final region embeddings
+5. `poi-encoder-gowalla-h3_{STATE}.tensor` - POI2Vec fclass-level embeddings [num_fclass, emb_dim]
+6. **`embeddings-poi-encoder.csv`** - POI-level embeddings reconstructed from fclass embeddings (Step 3d)
+7. `poi_embeddings_location-{STATE}.pt` or `poi_embeddings_encoder.pt` - Pre-computed embeddings (USED as node features in HGI)
+8. `poi_index.csv` - Maps feature_id → row index
+9. `gowalla.pt` - PyG Data object
+10. `gowalla_hgi_data.pkl` - Pickle dict for training
+11. `gowalla_h3.torch` - Final region embeddings
 
 ### Most Common Pitfalls
-1. **Confusing POI2Vec embeddings with location embeddings** - They are different! HGI uses location embeddings.
-2. **Missing fclass column** - Required for region similarity and hierarchical loss.
-3. **feature_id vs placeid** - feature_id is row index, not placeid.
-4. **Region similarity method** - Must use fclass crosstab, not edge co-occurrence.
-5. **Edge weight units** - Mixes degrees and meters (bug in original).
-6. **No seeds** - Results are non-deterministic.
+1. **Missing POI-level reconstruction (Step 3d)** - POI2Vec learns fclass-level embeddings, not POI-level! You must map each POI to its fclass embedding.
+2. **Confusing fclass embeddings with POI embeddings** - POI2Vec output is `W[num_fclass, D]`, not `W[num_pois, D]`. Multiple POIs can share the same fclass embedding.
+3. **Node features source confusion** - Some states use pre-computed location embeddings, others use POI2Vec embeddings from Step 3d. Both are valid.
+4. **Missing fclass column** - Required for region similarity, hierarchical loss, AND POI-level reconstruction.
+5. **feature_id vs placeid** - feature_id is row index, not placeid.
+6. **Region similarity method** - Must use fclass crosstab, not edge co-occurrence.
+7. **Edge weight units** - Mixes degrees and meters (bug in original).
+8. **No seeds** - Results are non-deterministic.
 
 ---
 

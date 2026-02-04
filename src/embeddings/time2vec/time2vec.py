@@ -78,6 +78,10 @@ def create_embedding(state: str, args):
 
     categories = checkins_valid["category"].astype(str).values
     placeids = checkins_valid["placeid"].astype(str).values
+    userids = checkins_valid["userid"].values
+    datetimes = checkins_valid["datetime"].values
+    latitudes = checkins_valid["latitude"].values
+    longitudes = checkins_valid["longitude"].values
 
     print(f"Valid check-ins: {len(checkins_valid)}")
     print(f"Time features shape: {time_feats.shape}")
@@ -147,8 +151,12 @@ def create_embedding(state: str, args):
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     df = pd.DataFrame(embeddings, columns=[f'{i}' for i in range(embeddings.shape[1])])
-    df.insert(0, 'placeid', placeids)
-    df.insert(1, 'category', categories)
+    df.insert(0, 'userid', userids)
+    df.insert(1, 'placeid', placeids)
+    df.insert(2, 'datetime', datetimes)
+    df.insert(3, 'category', categories)
+    df.insert(4, 'latitude', latitudes)
+    df.insert(5, 'longitude', longitudes)
     df.to_parquet(output_path, index=False)
 
     print(f"Embeddings saved to: {output_path}")

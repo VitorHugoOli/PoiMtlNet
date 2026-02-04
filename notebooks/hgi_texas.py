@@ -10,6 +10,10 @@ Pipeline Phases:
 1. Region Definition (Census tracts)
 2. POI Data Preparation (merge category + fclass)
 3. POI Embedding (POI2Vec with hierarchical loss)
+   3a. Preprocess - Build Delaunay graph
+   3b. POI2Vec - Generate random walks
+   3c. EmbeddingModel - Train fclass embeddings
+   3d. Reconstruction - Map POIs to fclass embeddings
 4. HGI Graph Construction
 5. HGI Training
 
@@ -60,6 +64,7 @@ POIS_CSV = OUTPUT_DIR / "pois.csv"
 EDGES_CSV = OUTPUT_DIR / "edges.csv"
 WALKS_PKL = OUTPUT_DIR / "second_class_walks.pkl"
 POI2VEC_TENSOR = OUTPUT_DIR / f"poi-encoder-gowalla-h3_{ESTADO}.tensor"
+POI_EMBEDDINGS_CSV = OUTPUT_DIR / "embeddings-poi-encoder.csv"
 POI_EMBEDDINGS_PT = OUTPUT_DIR / "poi_embeddings_encoder.pt"
 POI_INDEX_CSV = OUTPUT_DIR / "poi_index.csv"
 GRAPH_PT = OUTPUT_DIR / "gowalla.pt"
@@ -403,58 +408,202 @@ def phase3c_poi2vec_train():
     return True
 
 
+def phase3d_reconstruct_poi_embeddings():
+    """
+    Reconstruct POI-level embeddings from fclass-level embeddings.
+
+    POI2Vec learns embeddings for each unique fclass (not for each POI).
+    This step maps each POI to its corresponding fclass embedding:
+        poi_embedding[i] = W[poi_fclass[i]]
+
+    Example:
+        W[42] = [0.123, -0.456, ...]  # Embedding for fclass 42 (e.g., "Coffee Shop")
+        POI #1234 has fclass=42 → POI #1234 gets embedding [0.123, -0.456, ...]
+        POI #5678 has fclass=42 → POI #5678 gets embedding [0.123, -0.456, ...]
+        (Both POIs share the same embedding because they have the same fclass)
+
+    Output: embeddings-poi-encoder.csv with columns [placeid, 0..D-1, category]
+    """
+    print("=" * 80)
+    print("PHASE 3d: POI-Level Embedding Reconstruction")
+    print("=" * 80)
+    print("This step maps each POI to its fclass embedding.")
+    print("Multiple POIs with the same fclass will share the same embedding.")
+    print()
+
+    if not POI2VEC_TENSOR.exists():
+        print(f"ERROR: POI2Vec tensor not found at {POI2VEC_TENSOR}")
+        return False
+
+    if not POIS_GOWALLA_CSV.exists():
+        print(f"ERROR: POIs file not found at {POIS_GOWALLA_CSV}")
+        return False
+
+    # Change to output directory
+    original_dir = os.getcwd()
+    os.chdir(OUTPUT_DIR)
+
+    try:
+        print(f"Loading fclass embeddings from {POI2VEC_TENSOR.name}...")
+
+        # Load fclass-level embeddings
+        W = load_embedding_matrix(POI2VEC_TENSOR)
+        num_fclass, emb_dim = W.shape
+        print(f"  Shape: [{num_fclass} fclass, {emb_dim} dimensions]")
+
+        # Load POI data with fclass assignments
+        print(f"Loading POI data from {POIS_GOWALLA_CSV.name}...")
+        pois = pd.read_csv(POIS_GOWALLA_CSV.name)
+        pois["feature_id"] = pois["feature_id"].astype(str)
+        pois["fclass"] = pois["fclass"].astype(int)
+
+        print(f"  {len(pois)} POIs")
+        print(f"  {pois['fclass'].nunique()} unique fclass values")
+
+        # Reconstruct POI-level embeddings
+        print("Reconstructing POI-level embeddings...")
+        n = len(pois)
+        emb = np.full((n, emb_dim), np.nan, dtype=float)
+
+        # Validate fclass values
+        valid = (pois["fclass"] >= 0) & (pois["fclass"] < num_fclass)
+        if not valid.all():
+            invalid_rows = (~valid).sum()
+            print(f"  WARNING: {invalid_rows} POIs have invalid fclass values")
+
+        # CRITICAL OPERATION: Map each POI to its fclass embedding
+        # This is the reconstruction: emb[i] = W[fclass[i]]
+        emb[valid.values] = W[pois.loc[valid, "fclass"].to_numpy()]
+        print(f"  ✓ Mapped {valid.sum()} POIs to their fclass embeddings")
+
+        # Show reconstruction statistics
+        pois_per_fclass = pois[valid].groupby("fclass").size()
+        print(f"  Average POIs per fclass: {pois_per_fclass.mean():.1f}")
+        print(f"  Max POIs sharing same fclass: {pois_per_fclass.max()}")
+        print(f"  Min POIs per fclass: {pois_per_fclass.min()}")
+
+        # Build output DataFrame
+        emb_cols = [f"{i}" for i in range(emb_dim)]
+        out = pd.DataFrame(emb, columns=emb_cols)
+        out.insert(0, "placeid", pois["feature_id"].astype(str))
+
+        # Add category column if available in original checkins
+        if CHECKIN_LABELED.exists():
+            print("Adding category labels from checkins...")
+            filtrado = pd.read_csv(CHECKIN_LABELED)
+
+            if "placeid" not in filtrado.columns:
+                if "feature_id" in filtrado.columns:
+                    filtrado = filtrado.rename(columns={"feature_id": "placeid"})
+
+            if "category" in filtrado.columns:
+                filtrado["placeid"] = filtrado["placeid"].astype(str)
+                out = out.merge(filtrado[["placeid", "category"]], on="placeid", how="left")
+                print(f"  ✓ Added category for {out['category'].notna().sum()} POIs")
+
+        # Save
+        out.to_csv(POI_EMBEDDINGS_CSV.name, index=False)
+        print(f"Saved: {POI_EMBEDDINGS_CSV.name}")
+        print(f"Columns: {out.columns.tolist()}")
+        print(f"Shape: {out.shape}")
+
+    finally:
+        os.chdir(original_dir)
+
+    print()
+    return True
+
+
+def load_embedding_matrix(tensor_path: Path, key: str = None) -> np.ndarray:
+    """
+    Load the .tensor checkpoint and return numpy array (num_fclass, emb_dim).
+
+    Args:
+        tensor_path: Path to .tensor file
+        key: Key to load (if None, auto-detect)
+
+    Returns:
+        np.ndarray: Embedding matrix [num_fclass, emb_dim]
+    """
+    ckpt = torch.load(tensor_path, map_location="cpu")
+
+    # Auto-detect key if not provided
+    if key is None:
+        # Try common patterns
+        if f"in_embed_{ESTADO}.weight" in ckpt:
+            key = f"in_embed_{ESTADO}.weight"
+        elif "in_embed.weight" in ckpt:
+            key = "in_embed.weight"
+        else:
+            # Find first key with 'in_embed' in it
+            embed_keys = [k for k in ckpt.keys() if 'in_embed' in k]
+            if embed_keys:
+                key = embed_keys[0]
+            else:
+                raise KeyError(f"No embedding key found in {tensor_path}. "
+                             f"Available keys: {list(ckpt.keys())[:10]}")
+
+    W = ckpt[key]
+
+    if not isinstance(W, torch.Tensor):
+        raise TypeError(f"Value at '{key}' is not a torch.Tensor (got {type(W)}).")
+
+    if W.ndim != 2:
+        raise ValueError(f"Expected 2D tensor at '{key}', got shape {tuple(W.shape)}.")
+
+    return W.detach().cpu().numpy()
+
+
 # ============================================================================
 # PHASE 4: HGI GRAPH CONSTRUCTION
 # ============================================================================
 
 def phase4a_load_location_embeddings():
     """
-    Load pre-computed location embeddings (or create from MTL CSV if available).
+    Load embeddings to use as node features in HGI graph.
+
+    Priority:
+    1. Pre-computed location embeddings (.pt file)
+    2. MTL embeddings (CSV)
+    3. POI2Vec embeddings from Phase 3d (embeddings-poi-encoder.csv)
+
     Output: poi_embeddings_encoder.pt
     """
     print("=" * 80)
-    print("PHASE 4a: Load Location Embeddings")
+    print("PHASE 4a: Load Embeddings for Node Features")
     print("=" * 80)
 
-    # Option 1: Use existing .pt file
-    if LOCATION_EMBEDDINGS_PATH and Path(LOCATION_EMBEDDINGS_PATH).exists():
-        print(f"Using existing embeddings: {LOCATION_EMBEDDINGS_PATH}")
-        # Copy to output directory
-        import shutil
-        shutil.copy(LOCATION_EMBEDDINGS_PATH, POI_EMBEDDINGS_PT)
-        print(f"Copied to: {POI_EMBEDDINGS_PT}")
+
+    if not POI_EMBEDDINGS_CSV.exists():
+        # Option 4: No embeddings available
+        print("ERROR: No embeddings found!")
+        print("Please provide one of:")
+        print("  1. LOCATION_EMBEDDINGS_PATH: .pt file with pre-computed location embeddings")
+        print("  2. MTL_EMBEDDINGS_CSV: CSV file from MTL POI encoder")
+        print("  3. Run Phase 3d to generate embeddings-poi-encoder.csv from POI2Vec")
         print()
-        return True
+        print("See CLAUDE.md for details.")
+        return False
 
-    # Option 2: Convert from MTL CSV
-    if MTL_EMBEDDINGS_CSV and Path(MTL_EMBEDDINGS_CSV).exists():
-        print(f"Converting MTL embeddings from: {MTL_EMBEDDINGS_CSV}")
-        out_df = pd.read_csv(MTL_EMBEDDINGS_CSV)
-        out_df = out_df.sort_values("placeid").reset_index(drop=True)
+    print(f"Using POI2Vec embeddings from Phase 3d: {POI_EMBEDDINGS_CSV}")
+    out_df = pd.read_csv(POI_EMBEDDINGS_CSV)
+    out_df = out_df.sort_values("placeid").reset_index(drop=True)
 
-        placeids = out_df["placeid"].astype(str).tolist()
-        emb_cols = [c for c in out_df.columns if c.isnumeric()]
-        E = out_df[emb_cols].to_numpy(dtype=np.float32)
+    placeids = out_df["placeid"].astype(str).tolist()
+    emb_cols = [c for c in out_df.columns if c.isnumeric()]
+    E = out_df[emb_cols].to_numpy(dtype=np.float32)
 
-        torch.save({
-            "embeddings": torch.from_numpy(E),
-            "placeids": placeids
-        }, POI_EMBEDDINGS_PT)
+    torch.save({
+        "embeddings": torch.from_numpy(E),
+        "placeids": placeids
+    }, POI_EMBEDDINGS_PT)
 
-        print(f"Saved: {POI_EMBEDDINGS_PT}")
-        print(f"Shape: {E.shape}")
-        print()
-        return True
-
-    # Option 3: No embeddings available
-    print("WARNING: No pre-computed location embeddings found!")
-    print("Please provide either:")
-    print("  - LOCATION_EMBEDDINGS_PATH: .pt file with location embeddings")
-    print("  - MTL_EMBEDDINGS_CSV: CSV file from MTL POI encoder")
+    print(f"Saved: {POI_EMBEDDINGS_PT}")
+    print(f"Shape: {E.shape}")
     print()
-    print("HGI requires location embeddings (not POI2Vec embeddings) as node features.")
-    print("See CLAUDE.md for details.")
-    return False
+    return True
+
+
 
 
 def phase4b_hgi_preprocess():
@@ -671,7 +820,12 @@ def main():
         print("ERROR in Phase 3c. Exiting.")
         return
 
-    # Phase 4a: Load Location Embeddings
+    # Phase 3d: Reconstruct POI-level embeddings from fclass embeddings
+    if not phase3d_reconstruct_poi_embeddings():
+        print("ERROR in Phase 3d. Exiting.")
+        return
+
+    # Phase 4a: Load Embeddings for Node Features
     if not phase4a_load_location_embeddings():
         print("ERROR in Phase 4a. Exiting.")
         return
@@ -697,6 +851,9 @@ def main():
     print("\nKey outputs:")
     print(f"  - Boroughs: {BOROUGHS_CSV}")
     print(f"  - POIs: {POIS_GOWALLA_CSV}")
+    print(f"  - POI2Vec fclass embeddings: {POI2VEC_TENSOR}")
+    print(f"  - POI-level embeddings: {POI_EMBEDDINGS_CSV}")
+    print(f"  - Node features (.pt): {POI_EMBEDDINGS_PT}")
     print(f"  - Graph: {GRAPH_PT}")
     print(f"  - Graph (pickle): {GRAPH_PKL}")
     print()

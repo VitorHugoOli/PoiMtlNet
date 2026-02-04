@@ -12,7 +12,7 @@ from configs.globals import DEVICE
 from configs.paths import Resources, EmbeddingEngine
 from configs.model import InputsConfig
 from embeddings.space2vec.space2vec import create_embedding
-from etl.create_input import create_input
+from etl.mtl_input.builders import generate_category_input, generate_next_input_from_poi
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -74,7 +74,8 @@ def process_state(name: str) -> bool:
         logger.info(f"[1/2] Creating embeddings: {name}")
         create_embedding(state=name, args=SPACE2VEC_CONFIG)
         # logger.info(f"[2/2] Generating inputs: {name}")
-        # create_input(state=name, embedd_eng=EmbeddingEngine.SPACE2VEC)
+        # generate_category_input(name, EmbeddingEngine.SPACE2VEC)
+        # generate_next_input_from_poi(name, EmbeddingEngine.SPACE2VEC)
         return True
     except Exception as e:
         logger.error(f"Failed processing {name}: {e}", exc_info=True)

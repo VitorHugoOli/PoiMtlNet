@@ -12,7 +12,7 @@ from configs.globals import DEVICE
 from configs.paths import Resources, EmbeddingEngine
 from configs.model import InputsConfig
 from embeddings.time2vec.time2vec import create_embedding
-from etl.create_input import create_input
+from etl.mtl_input.builders import generate_category_input, generate_next_input_from_checkins
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -20,12 +20,12 @@ logger = logging.getLogger(__name__)
 STATES = [
     # Local
     'Alabama',
-    'Arizona',
-    'Georgia',
+    # 'Arizona',
+    # 'Georgia',
     # Articles
-    'Florida',
-    'California',
-    'Texas',
+    # 'Florida',
+    # 'California',
+    # 'Texas',
 ]
 
 # Default configuration matching time2vec.py defaults
@@ -43,7 +43,7 @@ TIME2VEC_CONFIG = Namespace(
     max_pos_per_i=20,
     seed=42,
     tau=0.3,
-    device=DEVICE,
+    device="cpu",
 )
 
 # Ensure device is correct type
@@ -58,10 +58,11 @@ def process_state(name: str) -> bool:
     """Run all pipeline stages for a single state."""
     try:
         logger.info(f"[1/2] Creating embeddings: {name}")
-        create_embedding(state=name, args=TIME2VEC_CONFIG)
-        
-        # logger.info(f"[2/2] Generating inputs: {name}")
-        # create_input(state=name, embedd_eng=EmbeddingEngine.TIME2VEC)
+        # create_embedding(state=name, args=TIME2VEC_CONFIG)
+
+        logger.info(f"[2/2] Generating inputs: {name}")
+        generate_category_input(name, EmbeddingEngine.TIME2VEC)
+        generate_next_input_from_checkins(name, EmbeddingEngine.TIME2VEC)
         return True
     except Exception as e:
         logger.error(f"Failed processing {name}: {e}", exc_info=True)
