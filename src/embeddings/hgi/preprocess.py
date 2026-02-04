@@ -1,6 +1,7 @@
 """HGI preprocessing module for creating hierarchical graph structures."""
 
 import argparse
+import json
 import pickle as pkl
 from itertools import combinations
 from pathlib import Path
@@ -30,8 +31,18 @@ class HGIPreprocess:
         """Load and prepare POI data."""
         self.pois = pd.read_parquet(self.pois_filename)
 
-        if "category" not in self.pois.columns:
-            raise ValueError("Column 'category' missing from input data.")
+        # Check for required columns and provide helpful error messages
+        required_cols = ['category', 'spot', 'placeid', 'latitude', 'longitude']
+        missing_cols = [col for col in required_cols if col not in self.pois.columns]
+
+        if missing_cols:
+            raise ValueError(
+                f"Missing required columns: {missing_cols}\n"
+                f"Available columns: {self.pois.columns.tolist()}"
+            )
+
+        # Rename spot to fclass for internal consistency
+        self.pois = self.pois.rename(columns={"spot": "fclass"})
 
         self.pois = self.pois.dropna(subset=["category"])
 
@@ -48,14 +59,23 @@ class HGIPreprocess:
         if not self.pois['placeid'].is_unique:
             agg_funcs = {
                 'category': mode_or_first,
-                'longitude': 'first',
-                'latitude': 'first',
-                'geometry': 'first'
+                'fclass': mode_or_first,
+                'longitude': 'mean',  # Use mean to get centroid of multiple observations
+                'latitude': 'mean',  # Use mean to get centroid of multiple observations
+                'geometry': 'first'  # Will be recreated from mean lat/lon
             }
             for col in self.pois.columns:
                 if col not in agg_funcs and col != 'placeid':
                     agg_funcs[col] = 'first'
             self.pois = self.pois.groupby('placeid').agg(agg_funcs).reset_index()
+
+            # Recreate geometry from aggregated coordinates
+            self.pois['geometry'] = self.pois.apply(
+                lambda x: f"POINT({x['longitude']} {x['latitude']})"
+                if pd.notnull(x['longitude']) and pd.notnull(x['latitude'])
+                else None,
+                axis=1
+            )
 
         # Convert to GeoDataFrame
         self.pois["geometry"] = self.pois["geometry"].apply(wkt.loads)
@@ -70,12 +90,30 @@ class HGIPreprocess:
         self.boroughs["geometry"] = self.boroughs["geometry"].apply(wkt.loads)
         self.boroughs = gpd.GeoDataFrame(self.boroughs, geometry="geometry", crs="EPSG:4326")
 
-        # Encode categories
-        le = LabelEncoder()
-        self.pois["category"] = le.fit_transform(self.pois["category"].values)
+        # Encode categories and save encoder objects
+        self.category_encoder = LabelEncoder()
+        self.pois["category"] = self.category_encoder.fit_transform(self.pois["category"].values)
+
+        self.fclass_encoder = LabelEncoder()
+        self.pois["fclass"] = self.fclass_encoder.fit_transform(self.pois["fclass"].values)
+
+        # Save the class lists for return dictionary
+        self.category_classes = self.category_encoder.classes_.tolist()
+        self.fclass_classes = self.fclass_encoder.classes_.tolist()
+
+        # Validation after encoding
+        print(f"  Encoded {len(self.category_classes)} categories: {self.category_classes[:5]}...")
+        print(f"  Encoded {len(self.fclass_classes)} fclasses: {self.fclass_classes[:5]}...")
+
+        # Check for NaN values after encoding
+        nan_categories = self.pois['category'].isna().sum()
+        nan_fclasses = self.pois['fclass'].isna().sum()
+
+        if nan_categories > 0 or nan_fclasses > 0:
+            print(f"  WARNING: Found {nan_categories} NaN categories and {nan_fclasses} NaN fclasses after encoding")
 
         # Spatial join with boroughs
-        self.pois = self.pois[['placeid', 'category', 'geometry']].sjoin(
+        self.pois = self.pois[['placeid', 'category', 'fclass', 'geometry']].sjoin(
             self.boroughs, how='inner', predicate='intersects'
         )
 
@@ -96,7 +134,8 @@ class HGIPreprocess:
                     seen.add((x, y))
                     dist = SpatialUtils.haversine_np(*points[x], *points[y])
                     w1 = np.log((1 + D ** 1.5) / (1 + dist ** 1.5))
-                    w2 = 1.0 if self.pois.iloc[x]["GEOID"] == self.pois.iloc[y]["GEOID"] else 0.4
+                    # Region transition weight: 1.0 for same region, 0.5 for cross-region (reference standard)
+                    w2 = 1.0 if self.pois.iloc[x]["GEOID"] == self.pois.iloc[y]["GEOID"] else 0.5
                     edges.append({'source': x, 'target': y, 'weight': w1 * w2})
 
         self.edges = pd.DataFrame(edges)
@@ -107,7 +146,7 @@ class HGIPreprocess:
 
         # Save for POI2Vec
         self.edges.to_csv(str(self.temp_path / 'edges.csv'), index=False)
-        self.pois[['placeid']].to_csv(str(self.temp_path / 'pois.csv'), index=False)
+        self.pois[['placeid', 'category', 'fclass']].to_csv(str(self.temp_path / 'pois.csv'), index=False)
 
     def _compute_region_features(self):
         """Compute region-level features: areas, adjacency, and similarity."""
@@ -117,15 +156,16 @@ class HGIPreprocess:
         # Map POIs to region indices
         self.region_id = self.pois['GEOID'].map(region_to_idx).values
 
-        # Compute region areas
+        # Compute region areas in km² (project to metric CRS)
+        boroughs_metric = self.boroughs.to_crs(3857)
         self.region_area = np.array([
-            self.boroughs[self.boroughs['GEOID'] == r].geometry.iloc[0].area
+            boroughs_metric[boroughs_metric['GEOID'] == r].geometry.iloc[0].area / 1e6
             for r in unique_regions
         ], dtype=np.float32)
 
         # Compute adjacency and similarity
         self.region_adjacency = self._compute_adjacency_matrix(unique_regions, region_to_idx)
-        self.coarse_region_similarity = self._compute_similarity_matrix(region_to_idx, len(unique_regions))
+        self.coarse_region_similarity = self._compute_similarity_matrix(unique_regions)
 
     def _compute_adjacency_matrix(self, unique_regions, region_to_idx):
         """Compute spatial adjacency matrix between regions."""
@@ -143,30 +183,48 @@ class HGIPreprocess:
             edges['idx_right'].values.astype(np.int64)
         ])
 
-    def _compute_similarity_matrix(self, region_to_idx, num_regions):
-        """Compute region similarity based on edge co-occurrence."""
-        similarity = np.zeros((num_regions, num_regions), dtype=np.float32)
+    def _compute_similarity_matrix(self, unique_regions):
+        """Compute region similarity from fclass distribution (cosine similarity)."""
+        from sklearn.metrics.pairwise import cosine_similarity
 
-        source_regions = self.region_id[self.edges['source'].values]
-        target_regions = self.region_id[self.edges['target'].values]
-        weights = self.edges['weight'].values
+        crosstab = pd.crosstab(self.pois['GEOID'], self.pois['fclass'])
+        crosstab = crosstab.reindex(unique_regions, fill_value=0)
 
-        df = pd.DataFrame({'src': source_regions, 'tgt': target_regions, 'w': weights})
-        agg = df.groupby(['src', 'tgt'])['w'].sum().reset_index()
+        return cosine_similarity(crosstab.values).astype(np.float32)
 
-        for _, row in agg.iterrows():
-            i, j = int(row['src']), int(row['tgt'])
-            similarity[i, j] += row['w']
-            if i != j:
-                similarity[j, i] += row['w']
+    def save_encoders(self):
+        """Save encoder mappings to JSON for inspection."""
+        encodings = {
+            'category': {
+                name: int(code)
+                for name, code in zip(
+                    self.category_encoder.classes_,
+                    self.category_encoder.transform(self.category_encoder.classes_)
+                )
+            },
+            'fclass': {
+                name: int(code)
+                for name, code in zip(
+                    self.fclass_encoder.classes_,
+                    self.fclass_encoder.transform(self.fclass_encoder.classes_)
+                )
+            }
+        }
 
-        # Normalize
-        row_sums = similarity.sum(axis=1, keepdims=True)
-        row_sums[row_sums == 0] = 1
-        return similarity / row_sums
+        output_file = Path(self.temp_path) / 'encodings.json'
+        with open(output_file, 'w') as f:
+            json.dump(encodings, f, indent=2)
 
-    def _load_poi_embeddings(self, poi_emb_path):
-        """Load pre-trained POI embeddings or use one-hot encoding."""
+        print(f"  Saved encodings to {output_file}")
+
+    def _load_poi_embeddings(self, poi_emb_path, use_onehot_fallback=False):
+        """Load pre-trained POI embeddings or use one-hot encoding.
+
+        Args:
+            poi_emb_path: Path to embedding file
+            use_onehot_fallback: If True, use one-hot encoding for missing POIs
+                               instead of zeros (default: False)
+        """
         if poi_emb_path is None or not Path(poi_emb_path).exists():
             simplefilter(action="ignore", category=pd.errors.PerformanceWarning)
             return pd.get_dummies(self.pois['category'], dtype=int).values.astype(np.float32)
@@ -185,13 +243,35 @@ class HGIPreprocess:
         placeid_to_idx = {str(pid): i for i, pid in enumerate(placeids)}
         X = np.zeros((len(self.pois), embeddings.shape[1]), dtype=np.float32)
 
+        missing_count = 0
+        missing_indices = []
         for i, pid in enumerate(self.pois['placeid'].tolist()):
             if str(pid) in placeid_to_idx:
                 X[i] = embeddings[placeid_to_idx[str(pid)]]
+            else:
+                missing_count += 1
+                missing_indices.append(i)
+
+        if missing_count > 0:
+            print(f"  WARNING: {missing_count}/{len(self.pois)} POIs missing from embeddings")
+
+            if use_onehot_fallback:
+                print(f"  Using one-hot encoding based on fclass for missing POIs")
+                # Get fclass values for missing POIs
+                missing_fclasses = self.pois.iloc[missing_indices]['fclass'].values
+                num_fclasses = len(self.fclass_classes)
+
+                for idx, fclass in zip(missing_indices, missing_fclasses):
+                    onehot = np.zeros(embeddings.shape[1])
+                    # Use fclass as index (modulo embedding dim for safety)
+                    onehot[fclass % embeddings.shape[1]] = 1.0
+                    X[idx] = onehot
+            else:
+                print(f"  Filled with zeros (use use_onehot_fallback=True for one-hot encoding)")
 
         return X
 
-    def get_data_torch(self, poi_emb_path=None):
+    def get_data_torch(self, poi_emb_path=None, use_onehot_fallback=False):
         """Execute full preprocessing pipeline."""
         print("Reading POI data...")
         self._read_poi_data()
@@ -206,7 +286,10 @@ class HGIPreprocess:
         self._compute_region_features()
 
         print("Loading POI embeddings...")
-        node_features = self._load_poi_embeddings(poi_emb_path)
+        node_features = self._load_poi_embeddings(poi_emb_path, use_onehot_fallback)
+
+        # Save encoders for debugging
+        self.save_encoders()
 
         return {
             'node_features': node_features,
@@ -220,11 +303,13 @@ class HGIPreprocess:
             'number_regions': len(np.unique(self.region_id)),
             'y': self.pois['category'].values,
             'place_id': self.pois['placeid'].values,
+            'category_classes': self.category_classes,
+            'fclass_classes': self.fclass_classes,
         }
 
 
-def preprocess_hgi(city, city_shapefile, poi_emb_path=None, cta_file=None):
-    """Main preprocessing function for HGI."""
+def preprocess_hgi(city, city_shapefile, poi_emb_path=None, cta_file=None, use_onehot_fallback=False):
+    """Main preprocessing function for HGI (Phase 3a only)."""
     temp_folder = IoPaths.HGI.get_temp_dir(city)
     temp_folder.mkdir(parents=True, exist_ok=True)
 
@@ -240,23 +325,53 @@ def preprocess_hgi(city, city_shapefile, poi_emb_path=None, cta_file=None):
         census = gpd.read_file(city_shapefile).to_crs(4326)
         census[['GEOID', 'geometry']].to_csv(boroughs_path, index=False)
 
+    # Run preprocessing (Phase 3a: create graph structure)
     pre = HGIPreprocess(str(checkins), str(boroughs_path), temp_folder)
-    data = pre.get_data_torch(poi_emb_path=poi_emb_path)
+    data = pre.get_data_torch(poi_emb_path=poi_emb_path, use_onehot_fallback=use_onehot_fallback)
+
+    print(f"✓ Phase 3a complete: Delaunay graph created")
+    print(f"  POIs: {data['number_pois']}, Regions: {data['number_regions']}, Edges: {len(data['edge_weight'])}")
+    print(f"  Intermediate files saved to: {temp_folder}")
+    print(f"    - edges.csv (Delaunay graph)")
+    print(f"    - pois.csv (POI-region mapping)")
+    print(f"    - encodings.json (category/fclass mappings)")
+
+    # IMPORTANT: Return data dict instead of saving pickle
+    # The pickle should be saved in Phase 4 (separate script)
+    return data
+
+
+def create_hgi_graph_pickle(city, poi_emb_path=None, use_onehot_fallback=False):
+    """Phase 4: Create final HGI graph pickle file."""
+    data = preprocess_hgi(city, None, poi_emb_path, None, use_onehot_fallback)
 
     output_path = IoPaths.HGI.get_graph_data_file(city)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
     with open(output_path, "wb") as f:
         pkl.dump(data, f)
 
-    print(f"Saved: {output_path}")
-    print(f"POIs: {data['number_pois']}, Regions: {data['number_regions']}, Edges: {len(data['edge_weight'])}")
+    print(f"✓ Phase 4 complete: Graph pickle saved to {output_path}")
+    return output_path
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Preprocess POI data for HGI')
-    parser.add_argument('--city', type=str, default='Texas')
-    parser.add_argument('--shapefile', type=str, default=Resources.TL_TX)
+    parser.add_argument('--city', type=str, default='Alabama')
+    parser.add_argument('--shapefile', type=str, default=Resources.TL_AL)
     parser.add_argument('--poi_emb', type=str, default=None)
     parser.add_argument('--cta', type=str, default=None)
+    parser.add_argument('--use_onehot_fallback', action='store_true',
+                        help='Use one-hot encoding for POIs missing embeddings')
+    parser.add_argument('--save_pickle', action='store_true',
+                        help='Save pickle file (Phase 4) instead of just returning data (Phase 3a)')
 
     args = parser.parse_args()
-    preprocess_hgi(city=args.city, city_shapefile=args.shapefile, poi_emb_path=args.poi_emb, cta_file=args.cta)
+
+    if args.save_pickle:
+        create_hgi_graph_pickle(city=args.city, poi_emb_path=args.poi_emb,
+                                use_onehot_fallback=args.use_onehot_fallback)
+    else:
+        preprocess_hgi(city=args.city, city_shapefile=args.shapefile,
+                       poi_emb_path=args.poi_emb, cta_file=args.cta,
+                       use_onehot_fallback=args.use_onehot_fallback)

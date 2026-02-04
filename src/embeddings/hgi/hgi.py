@@ -1,4 +1,21 @@
-"""HGI (Hierarchical Graph Infomax) embedding pipeline."""
+"""HGI (Hierarchical Graph Infomax) embedding pipeline.
+
+This module implements the complete HGI pipeline following the reference
+implementation from region-embedding-benchmark.
+
+Pipeline Phases (matching hgi_texas.py):
+    Phase 3a: Build Delaunay spatial graph → edges.csv, pois.csv
+    Phase 3b-3d: Train POI2Vec → fclass embeddings → POI-level embeddings
+    Phase 4: Preprocess with embeddings → complete data_dict → save pickle
+    Phase 5: Train HGI → generate POI and region embeddings
+
+Key differences from reference:
+    - Phases 3a and 4 are handled by preprocess_hgi() (called twice)
+    - Embedding loading is internal to preprocess_hgi() (Phase 4a merged into 4)
+    - No poi_index.csv needed (ordering implicit in preprocess_hgi)
+
+Reference: /notebooks/hgi_texas.py
+"""
 
 import argparse
 import math
@@ -36,7 +53,16 @@ def train_epoch(data, model, optimizer, scheduler, args):
 
 
 def train_hgi(city, args):
-    """Train HGI model and generate embeddings."""
+    """Phase 5: Train HGI model and generate POI + region embeddings.
+
+    Args:
+        city: City/state name
+        args: Namespace with hyperparameters (dim, alpha, attention_head, lr, etc.)
+
+    Outputs:
+        - POI embeddings: output/hgi/{city}/embeddings.parquet
+        - Region embeddings: output/hgi/{city}/region_embeddings.parquet
+    """
     output_folder = IoPaths.HGI.get_state_dir(city)
     output_folder.mkdir(parents=True, exist_ok=True)
 
@@ -65,6 +91,8 @@ def train_hgi(city, args):
     ).to(args.device)
 
     place_ids = city_dict.get('place_id', [])
+    categories_encoded = city_dict.get('y', [])
+    category_classes = city_dict.get('category_classes', None)
 
     # Initialize model
     poi_encoder = POIEncoder(in_channels, args.dim)
@@ -105,6 +133,9 @@ def train_hgi(city, args):
 
     df = pd.DataFrame(embeddings_np, columns=[f'{i}' for i in range(embeddings_np.shape[1])])
     df.insert(0, 'placeid', place_ids)
+    if category_classes is not None and len(categories_encoded) > 0:
+        categories = [category_classes[c] for c in categories_encoded]
+        df.insert(1, 'category', categories)
     df.to_parquet(output_path, index=False)
     print(f"POI embeddings: {output_path} {embeddings_np.shape}")
 
@@ -119,7 +150,14 @@ def train_hgi(city, args):
 
 
 def create_embedding(state: str, args):
-    """Run full HGI pipeline: POI2Vec -> Preprocess -> Train."""
+    """Run full HGI pipeline matching reference flow.
+
+    Flow (matching hgi_texas.py):
+        Phase 3a: Preprocess (graph only) → edges.csv, pois.csv
+        Phase 3b-3d: POI2Vec → fclass embeddings → POI embeddings
+        Phase 4: Preprocess (with embeddings) → data_dict → save pickle
+        Phase 5: Train HGI → POI + region embeddings
+    """
     city = state
     shapefile_path = args.shapefile
     graph_data_file = IoPaths.HGI.get_graph_data_file(city)
@@ -127,37 +165,65 @@ def create_embedding(state: str, args):
     if graph_data_file.exists() and not args.force_preprocess:
         print(f"Using existing graph data: {graph_data_file}")
     else:
-        print("Preprocessing...")
-
-        poi_emb_path = None
-        if not args.no_poi2vec:
-            print("Training POI2Vec...")
-            poi_emb_path = train_poi2vec(city=city, epochs=args.poi2vec_epochs, embedding_dim=args.dim)
-
+        # Phase 3a: Build Delaunay graph (no embeddings yet)
+        print("=" * 80)
+        print(f"Phase 3a: Building spatial graph for {city}")
+        print("=" * 80)
         preprocess_hgi(
             city=city,
             city_shapefile=str(shapefile_path),
-            poi_emb_path=str(poi_emb_path) if poi_emb_path else None,
+            poi_emb_path=None,
         )
 
-    print("Training HGI...")
+        # Phase 3b-3d: Train POI2Vec (always required)
+        print("=" * 80)
+        print(f"Phase 3b-3d: Training POI2Vec for {city}")
+        print("=" * 80)
+        poi_emb_path = train_poi2vec(
+            city=city,
+            epochs=args.poi2vec_epochs,
+            embedding_dim=args.dim,
+            device=args.device
+        )
+
+        # Phase 4: Preprocess with learned embeddings → build complete data_dict
+        print("=" * 80)
+        print(f"Phase 4: Building HGI graph with POI2Vec embeddings for {city}")
+        print("=" * 80)
+        data = preprocess_hgi(
+            city=city,
+            city_shapefile=str(shapefile_path),
+            poi_emb_path=str(poi_emb_path),
+        )
+
+        # Save pickle for train_hgi
+        graph_data_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(graph_data_file, "wb") as f:
+            pkl.dump(data, f)
+        print(f"✓ Saved graph data: {graph_data_file}")
+        print()
+
+    # Phase 5: Train HGI
+    print("=" * 80)
+    print(f"Phase 5: Training HGI model for {city}")
+    print("=" * 80)
     train_hgi(city, args)
 
 
 run_pipeline = create_embedding  # Backwards compatibility
 
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='HGI Embedding Pipeline')
 
     # Data
-    parser.add_argument('--city', type=str, default='Texas')
-    parser.add_argument('--shapefile', type=str, default=Resources.TL_TX)
+    parser.add_argument('--city', type=str, default='Alabama')
+    parser.add_argument('--shapefile', type=str, default=Resources.TL_AL)
 
     # Pipeline
-    parser.add_argument('--force_preprocess', action='store_true')
-    parser.add_argument('--no_poi2vec', action='store_true')
-    parser.add_argument('--poi2vec_epochs', type=int, default=100)
+    parser.add_argument('--force_preprocess', action='store_true', default=True,
+                        help='Force reprocessing even if graph data exists')
+    parser.add_argument('--poi2vec_epochs', type=int, default=100,
+                        help='Number of epochs for POI2Vec training')
 
     # Model
     parser.add_argument('--dim', type=int, default=64)
