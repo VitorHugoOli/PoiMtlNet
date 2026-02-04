@@ -43,6 +43,8 @@ class EmbeddingEngine(Enum):
     TIME2VEC = "time2vec"
     SPACE2VEC = "space2vec"
     CHECK2HGI = "check2hgi"
+    POI2HGI = "poi2hgi"
+    FUSION = "fusion"  # Multi-embedding fusion
 
 
 class Resources:
@@ -252,6 +254,39 @@ class _Check2HGIIoPath:
         return cls.get_temp_dir(state) / cls.BOROUGHS_FILE
 
 
+class _POI2HGIIoPath:
+    # File name constants
+    GRAPH_DATA_FILE: str = "poi_graph.pt"
+    BOROUGHS_FILE: str = "boroughs_area.csv"
+
+    # POI2HGI embeddings output
+    _poi2hgi_dir: Path = OUTPUT_DIR / EmbeddingEngine.POI2HGI.value
+
+    @classmethod
+    def get_state_dir(cls, state: str) -> Path:
+        """Get the POI2HGI output directory for a specific state."""
+        return cls._poi2hgi_dir / state.lower()
+
+    @classmethod
+    def get_output_dir(cls, state: str) -> Path:
+        return cls.get_state_dir(state)
+
+    @classmethod
+    def get_temp_dir(cls, state: str) -> Path:
+        """Get the temp directory for a specific state."""
+        return cls.get_output_dir(state) / "temp"
+
+    @classmethod
+    def get_graph_data_file(cls, state: str) -> Path:
+        """Get the graph data file path for a specific state."""
+        return cls.get_temp_dir(state) / cls.GRAPH_DATA_FILE
+
+    @classmethod
+    def get_boroughs_file(cls, state: str) -> Path:
+        """Get the boroughs file path for a specific state."""
+        return cls.get_temp_dir(state) / cls.BOROUGHS_FILE
+
+
 class IoPaths:
     """
     Static paths for I/O operations.
@@ -263,11 +298,17 @@ class IoPaths:
     TIME2VEC = _Time2VecIoPath
     SPACE2VEC = _Space2VecIoPath
     CHECK2HGI = _Check2HGIIoPath
+    POI2HGI = _POI2HGIIoPath
 
 
     @classmethod
     def get_embedd(cls, state: str, embedd_engine: EmbeddingEngine) -> Path:
-        """Get the DGI output directory for a specific state."""
+        """Get the embeddings file for a specific state and engine."""
+        if embedd_engine == EmbeddingEngine.FUSION:
+            raise ValueError(
+                "FUSION is a synthetic engine (task-specific). "
+                "Use get_fusion_category() or get_fusion_next() instead."
+            )
         return OUTPUT_DIR / embedd_engine.value / state.lower() / cls.EMBEDDINGS_FILE
 
     @classmethod
@@ -290,6 +331,9 @@ class IoPaths:
 
     @classmethod
     def get_category(cls, state: str, embedd_engine: EmbeddingEngine):
+        """Get category input path (routes FUSION automatically)."""
+        if embedd_engine == EmbeddingEngine.FUSION:
+            return cls.get_fusion_category(state)
         return cls.get_input_dir(state, embedd_engine) / "category.parquet"
 
     @classmethod
@@ -299,6 +343,9 @@ class IoPaths:
 
     @classmethod
     def get_next(cls, state: str, embedd_engine: EmbeddingEngine):
+        """Get next-POI input path (routes FUSION automatically)."""
+        if embedd_engine == EmbeddingEngine.FUSION:
+            return cls.get_fusion_next(state)
         return cls.get_input_dir(state, embedd_engine) / "next.parquet"
 
     @classmethod
@@ -312,11 +359,61 @@ class IoPaths:
 
     @classmethod
     def get_results_dir(cls, state, enbedd_engine: EmbeddingEngine) -> Path:
+        """Get results directory (routes FUSION automatically)."""
+        if enbedd_engine == EmbeddingEngine.FUSION:
+            return cls.get_fusion_results_dir(state)
         return RESULTS_ROOT / enbedd_engine.value / state.lower()
 
     @classmethod
     def get_folds_dir(cls, state, embedd_engine: EmbeddingEngine) -> Path:
+        """Get folds directory (routes FUSION automatically)."""
+        if embedd_engine == EmbeddingEngine.FUSION:
+            return cls.get_fusion_folds_dir(state)
         return OUTPUT_DIR / embedd_engine.value / state.lower() / "folds"
+
+    # ========================================================================
+    # Multi-Embedding Fusion Paths
+    # ========================================================================
+
+    @staticmethod
+    def get_fusion_input_dir(state: str) -> Path:
+        """Get directory for fusion-based inputs."""
+        return OUTPUT_DIR / "fusion" / state.lower() / "input"
+
+    @staticmethod
+    def get_fusion_category(state: str) -> Path:
+        """Get path to fused category input."""
+        return IoPaths.get_fusion_input_dir(state) / "category.parquet"
+
+    @staticmethod
+    def load_fusion_category(state: str) -> DataFrame:
+        """Load fused category input."""
+        return pd.read_parquet(IoPaths.get_fusion_category(state))
+
+    @staticmethod
+    def get_fusion_next(state: str) -> Path:
+        """Get path to fused next-POI input."""
+        return IoPaths.get_fusion_input_dir(state) / "next.parquet"
+
+    @staticmethod
+    def load_fusion_next(state: str) -> DataFrame:
+        """Load fused next-POI input."""
+        return pd.read_parquet(IoPaths.get_fusion_next(state))
+
+    @staticmethod
+    def get_fusion_seq_next(state: str) -> Path:
+        """Get path to intermediate sequences for fusion."""
+        return IoPaths.get_fusion_input_dir(state) / "temp" / "sequences_next.parquet"
+
+    @staticmethod
+    def get_fusion_results_dir(state: str) -> Path:
+        """Get results directory for fusion experiments."""
+        return RESULTS_ROOT / "fusion" / state.lower()
+
+    @staticmethod
+    def get_fusion_folds_dir(state: str) -> Path:
+        """Get folds directory for fusion experiments."""
+        return OUTPUT_DIR / "fusion" / state.lower() / "folds"
 
 
 
