@@ -4,7 +4,7 @@ Pure logic functions for MTL input generation (no I/O).
 This module contains stateless, testable functions extracted from create_input.py.
 """
 
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -318,3 +318,98 @@ def convert_sequences_to_poi_embeddings(
             ]))
 
     return all_results
+
+
+def convert_user_checkins_to_sequences(
+    user_df: pd.DataFrame,
+    embedding_cols: List[str],
+    window_size: int,
+    embedding_dim: int,
+) -> Tuple[List[np.ndarray], List[List[int]]]:
+    """
+    Convert a single user's check-in DataFrame to embedding sequences using position-based lookup.
+
+    This function handles check-in-level embeddings where each row in user_df corresponds
+    to a specific check-in event. Unlike POI-level embeddings where same POI = same embedding,
+    check-in-level embeddings (Time2Vec, Check2HGI) have unique embeddings per visit.
+
+    The position-based lookup ensures that sequence N starts at position N * window_size
+    in the user's chronological history, preserving the temporal context of each visit.
+
+    Args:
+        user_df: DataFrame for a single user, sorted by datetime, with reset index.
+                 Must contain columns: userid, placeid, category, and all embedding_cols.
+        embedding_cols: List of column names containing embedding values.
+                       Example: ['0', '1', ..., '63'] or ['fused_0', 'fused_1', ..., 'fused_127']
+        window_size: Number of historical check-ins per sequence.
+        embedding_dim: Dimension of each embedding vector.
+
+    Returns:
+        Tuple of:
+        - embedding_results: List of numpy arrays, each containing:
+          [flattened_window_embeddings, target_category, userid]
+        - poi_sequences: List of POI ID sequences (for intermediate file saving)
+          Each sequence is [poi_0, ..., poi_{window-1}, target_poi, userid]
+
+    Notes:
+        - Uses non-overlapping windows: sequence N starts at position N * window_size
+        - Padding positions (PADDING_VALUE) get zero embeddings
+        - Target category uses position-based lookup with fallback to POI ID search
+    """
+    embedding_results = []
+    poi_sequences = []
+
+    # Get user ID (same for all rows in user_df)
+    userid = user_df['userid'].iloc[0]
+
+    # Generate POI sequences using shared function
+    places = user_df['placeid'].tolist()
+    sequences = generate_sequences(places, window_size=window_size)
+
+    if not sequences:
+        return [], []
+
+    for seq_idx, seq in enumerate(sequences):
+        history_pois = seq[:window_size]
+        target_poi = seq[window_size]
+
+        # Save POI sequence for intermediate output
+        poi_sequences.append(seq + [userid])
+
+        # Calculate starting position in user's chronological history
+        # Non-overlapping sequences: seq 0 starts at 0, seq 1 at window_size, etc.
+        history_start_idx = seq_idx * window_size
+
+        # Build embeddings using POSITION-based lookup (not POI ID search)
+        seq_embeddings = []
+        for i, poi in enumerate(history_pois):
+            if poi == PADDING_VALUE:
+                seq_embeddings.append(get_zero_embedding(embedding_dim))
+            else:
+                row_idx = history_start_idx + i
+                if row_idx < len(user_df):
+                    emb = user_df.iloc[row_idx][embedding_cols].values.astype(np.float32)
+                    seq_embeddings.append(emb)
+                else:
+                    seq_embeddings.append(get_zero_embedding(embedding_dim))
+
+        # Get target category - try position first, fall back to POI ID lookup
+        target_idx = history_start_idx + window_size
+        if target_idx < len(user_df):
+            target_category = user_df.iloc[target_idx]['category']
+        else:
+            # Fallback: look up target POI's category by POI ID
+            target_matches = user_df[user_df['placeid'] == target_poi]
+            target_category = (
+                target_matches.iloc[0]['category']
+                if len(target_matches) > 0
+                else MISSING_CATEGORY_VALUE
+            )
+
+        # Flatten embeddings and append metadata
+        flattened = np.vstack(seq_embeddings).ravel()
+        embedding_results.append(np.concatenate([
+            flattened, [target_category, userid]
+        ]))
+
+    return embedding_results, poi_sequences

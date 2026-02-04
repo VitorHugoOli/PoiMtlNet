@@ -25,6 +25,7 @@ from .core import (
     generate_sequences,
     PADDING_VALUE,
     convert_sequences_to_poi_embeddings,
+    convert_user_checkins_to_sequences,
     save_next_input_dataframe,
     save_parquet,
     create_embedding_lookup,
@@ -431,60 +432,23 @@ class MultiEmbeddingInputGenerator:
         fused_cols = [f'fused_{i}' for i in range(total_dim)]
         window_size = InputsConfig.SLIDE_WINDOW
 
+        # Process each user using shared function
         all_results = []
-        user_sequences = []  # For saving intermediate sequences
+        all_sequences = []
 
         for userid, user_df in tqdm(fused_df.groupby('userid'), desc="Processing users"):
             user_df = user_df.reset_index(drop=True)
-            places = user_df['placeid'].tolist()
-            sequences = generate_sequences(places)
 
-            if not sequences:
-                continue
+            results, sequences = convert_user_checkins_to_sequences(
+                user_df, fused_cols, window_size, total_dim
+            )
 
-            for seq_idx, seq in enumerate(sequences):
-                # Save sequence for intermediate file
-                user_sequences.append(seq + [userid])
-
-                history_pois = seq[:window_size]
-                target_poi = seq[window_size]
-
-                # Calculate starting position for this sequence in user's history
-                # Non-overlapping sequences: seq 0 starts at 0, seq 1 at window_size, etc.
-                history_start_idx = seq_idx * window_size
-
-                # Build embeddings using POSITION-based lookup (not POI ID search)
-                seq_embeddings = []
-                for i, poi in enumerate(history_pois):
-                    if poi == PADDING_VALUE:
-                        seq_embeddings.append(np.zeros(total_dim, dtype=np.float32))
-                    else:
-                        # Use position in user's chronological history
-                        row_idx = history_start_idx + i
-                        if row_idx < len(user_df):
-                            emb = user_df.iloc[row_idx][fused_cols].values.astype(np.float32)
-                            seq_embeddings.append(emb)
-                        else:
-                            seq_embeddings.append(np.zeros(total_dim, dtype=np.float32))
-
-                # Get target category - try position first, fall back to POI ID lookup
-                target_idx = history_start_idx + window_size
-                if target_idx < len(user_df):
-                    target_category = user_df.iloc[target_idx]['category']
-                else:
-                    # Fallback: look up target POI's category by POI ID
-                    target_matches = user_df[user_df['placeid'] == target_poi]
-                    target_category = target_matches.iloc[0]['category'] if len(target_matches) > 0 else MISSING_CATEGORY_VALUE
-
-                # Flatten and append
-                flattened = np.vstack(seq_embeddings).ravel()
-                all_results.append(np.concatenate([
-                    flattened, [target_category, userid]
-                ]))
+            all_results.extend(results)
+            all_sequences.extend(sequences)
 
         # Save intermediate sequences
         seq_cols = [f'poi_{i}' for i in range(window_size)] + ['target_poi', 'userid']
-        sequences_df = pd.DataFrame(user_sequences, columns=seq_cols)
+        sequences_df = pd.DataFrame(all_sequences, columns=seq_cols)
         save_parquet(sequences_df, sequences_output_path)
         print(f"Sequences saved: {len(sequences_df)} sequences → {sequences_output_path}")
 

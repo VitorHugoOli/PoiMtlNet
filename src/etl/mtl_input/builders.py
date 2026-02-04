@@ -19,6 +19,7 @@ from .core import (
     create_embedding_lookup,
     create_category_lookup,
     convert_sequences_to_poi_embeddings,
+    convert_user_checkins_to_sequences,
     save_next_input_dataframe,
     save_parquet,
     get_zero_embedding,
@@ -114,7 +115,7 @@ def generate_next_input_from_checkins(
     Args:
         state: State name
         engine: Embedding engine
-        batch_size: Batch size for processing sequences
+        batch_size: Batch size for processing sequences (unused, kept for API compatibility)
     """
     # Load data
     embeddings_df = IoPaths.load_embedd(state, engine)
@@ -122,63 +123,34 @@ def generate_next_input_from_checkins(
     # Embeddings are already at check-in level with category
     # No need for separate category lookup
 
-    # Generate sequences per user
+    # Sort by user and time to ensure chronological order
     embeddings_df = embeddings_df.sort_values(['userid', 'datetime'])
 
-    # Get embedding columns
-    embedding_dim = InputsConfig.EMBEDDING_DIM
+    # Detect embedding dimension from data
+    numeric_cols = [c for c in embeddings_df.columns if c.isdigit()]
+    embedding_dim = len(numeric_cols)
     emb_cols = [str(i) for i in range(embedding_dim)]
+    window_size = InputsConfig.SLIDE_WINDOW
 
-    # Build sequences with embeddings attached
-    user_groups = embeddings_df.groupby('userid')
+    # Process each user using shared function
+    all_results = []
     all_sequences = []
 
-    for userid, user_df in tqdm(user_groups, desc="Processing users"):
+    for userid, user_df in tqdm(embeddings_df.groupby('userid'), desc="Processing users"):
         user_df = user_df.reset_index(drop=True)
-        places = user_df['placeid'].tolist()
-        sequences = generate_sequences(places)
 
-        if not sequences:
-            continue
+        results, sequences = convert_user_checkins_to_sequences(
+            user_df, emb_cols, window_size, embedding_dim
+        )
 
-        window_size = InputsConfig.SLIDE_WINDOW
+        all_results.extend(results)
+        all_sequences.extend(sequences)
 
-        for seq_idx, seq in enumerate(sequences):
-            history_pois = seq[:window_size]
-            target_poi = seq[window_size]
-
-            # Calculate starting position for this sequence in user's history
-            # Non-overlapping sequences: seq 0 starts at 0, seq 1 at window_size, etc.
-            history_start_idx = seq_idx * window_size
-
-            # Build embeddings using POSITION-based lookup (not POI ID search)
-            seq_embeddings = []
-            for i, poi in enumerate(history_pois):
-                if poi == PADDING_VALUE:
-                    seq_embeddings.append(get_zero_embedding(embedding_dim))
-                else:
-                    # Use position in user's chronological history
-                    row_idx = history_start_idx + i
-                    if row_idx < len(user_df):
-                        emb = user_df.iloc[row_idx][emb_cols].values.astype(np.float32)
-                        seq_embeddings.append(emb)
-                    else:
-                        seq_embeddings.append(get_zero_embedding(embedding_dim))
-
-            # Get target category - try position first, fall back to POI ID lookup
-            target_idx = history_start_idx + window_size
-            if target_idx < len(user_df):
-                target_category = user_df.iloc[target_idx]['category']
-            else:
-                # Fallback: look up target POI's category by POI ID
-                target_matches = user_df[user_df['placeid'] == target_poi]
-                target_category = target_matches.iloc[0]['category'] if len(target_matches) > 0 else MISSING_CATEGORY_VALUE
-
-            # Flatten and append
-            flattened = np.vstack(seq_embeddings).ravel()
-            all_sequences.append(np.concatenate([
-                flattened, [target_category, userid]
-            ]))
+    # Save intermediate sequences (for debugging/analysis)
+    seq_cols = [f'poi_{i}' for i in range(window_size)] + ['target_poi', 'userid']
+    sequences_df = pd.DataFrame(all_sequences, columns=seq_cols)
+    sequences_path = IoPaths.get_seq_next(state, engine)
+    save_parquet(sequences_df, sequences_path)
 
     # Save output DataFrame
-    save_next_input_dataframe(all_sequences, window_size, embedding_dim, state, engine)
+    save_next_input_dataframe(all_results, window_size, embedding_dim, state, engine)
