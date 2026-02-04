@@ -118,12 +118,22 @@ def train_next_model(
 if __name__ == '__main__':
     # Define configurations to train: [(state, embedding_engine), ...]
     TRAINING_CONFIGS: List[Tuple[str, EmbeddingEngine]] = [
-        ("alabama", EmbeddingEngine.CHECK2HGI),
-        ("arizona", EmbeddingEngine.CHECK2HGI),
-        ("georgia", EmbeddingEngine.CHECK2HGI),
-        ("florida", EmbeddingEngine.CHECK2HGI),
-        ("california", EmbeddingEngine.CHECK21HGI),
-        ("texas", EmbeddingEngine.CHECK2HGI),
+        # Single-embedding baselines
+        # ("alabama", EmbeddingEngine.CHECK2HGI),
+        # ("alabama", EmbeddingEngine.DGI),
+        # ("alabama", EmbeddingEngine.HGI),
+        # ("arizona", EmbeddingEngine.HGI),
+        # ("georgia", EmbeddingEngine.HGI),
+        # ("florida", EmbeddingEngine.HGI),
+        # ("california", EmbeddingEngine.HGI),
+        # ("arizona", EmbeddingEngine.CHECK2HGI),
+        # ("georgia", EmbeddingEngine.CHECK2HGI),
+        # ("florida", EmbeddingEngine.CHECK2HGI),
+
+        # Multi-embedding fusion (requires running pipelines/fusion.pipe.py first)
+        # ("alabama", EmbeddingEngine.FUSION),
+        ("florida", EmbeddingEngine.FUSION),
+        # ("texas", EmbeddingEngine.FUSION),
     ]
 
     logger.info(f"Starting Next POI training pipeline")

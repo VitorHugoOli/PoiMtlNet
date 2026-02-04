@@ -13,7 +13,12 @@
       "Bash(find:*)",
       "WebSearch",
       "Bash(jupyter nbconvert:*)",
-      "Bash(PYTHONPATH=src python:*)"
+      "Bash(PYTHONPATH=src python:*)",
+      "Bash(ls:*)",
+      "mcp__pycharm__list_directory_tree",
+      "mcp__pycharm__get_file_text_by_path",
+      "Bash(wc:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }

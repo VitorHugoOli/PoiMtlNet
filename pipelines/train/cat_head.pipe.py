@@ -119,15 +119,20 @@ def train_category_model(
 if __name__ == '__main__':
     # Define configurations to train: [(state, embedding_engine), ...]
     TRAINING_CONFIGS: List[Tuple[str, EmbeddingEngine]] = [
-        ("alabama", EmbeddingEngine.CHECK2HGI),
+        # Single-embedding baselines
+        # ("texas", EmbeddingEngine.HGI),
+        # ("alabama", EmbeddingEngine.HGI),
         # ("florida", EmbeddingEngine.HGI),
-        # ("florida", EmbeddingEngine.TIME2VEC),
-        # ("florida", EmbeddingEngine.HMRM),
         # ("alabama", EmbeddingEngine.DGI),
         # ("arizona", EmbeddingEngine.DGI),
         # ("georgia", EmbeddingEngine.DGI),
         # ("california", EmbeddingEngine.DGI),
-        # ("texas", EmbeddingEngine.DGI),
+        # ("alabama", EmbeddingEngine.POI2HGI),
+
+        # Multi-embedding fusion (requires running pipelines/fusion.pipe.py first)
+        ("alabama", EmbeddingEngine.FUSION),
+        # ("florida", EmbeddingEngine.FUSION),
+        # ("texas", EmbeddingEngine.FUSION),
     ]
 
     logger.info(f"Starting Category training pipeline")

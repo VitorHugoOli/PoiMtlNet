@@ -86,7 +86,8 @@ def train_mtl_model(state: str, embedd_engine: EmbeddingEngine) -> dict:
 if __name__ == '__main__':
     # Define configurations to train: [(state, embedding_engine), ...]
     TRAINING_CONFIGS: List[Tuple[str, EmbeddingEngine]] = [
-        ("florida", EmbeddingEngine.DGI),
+        # Single-embedding baselines
+        ("alabama", EmbeddingEngine.HGI),
         # ("florida", EmbeddingEngine.HGI),
         # ("alabama", EmbeddingEngine.DGI),
         # ("arizona", EmbeddingEngine.DGI),
@@ -94,6 +95,11 @@ if __name__ == '__main__':
         # ("florida", EmbeddingEngine.DGI),
         # ("california", EmbeddingEngine.DGI),
         # ("texas", EmbeddingEngine.DGI),
+
+        # Multi-embedding fusion (requires running pipelines/fusion.pipe.py first)
+        # ("alabama", EmbeddingEngine.FUSION),
+        # ("florida", EmbeddingEngine.FUSION),
+        # ("texas", EmbeddingEngine.FUSION),
     ]
 
     logger.info(f"Starting MTL training pipeline")

@@ -111,6 +111,7 @@ def train(
                 "tr_acc": f"{train_acc:.4f}",
                 "val_loss": f"{val_loss:.4f}",
                 "val_acc": f"{val_acc:.4f}({val_f1:.4f})",
+                "best": f"{max(history.to("next").task_metrics.val_f1):.4f}",
             }
         )
 

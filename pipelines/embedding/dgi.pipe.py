@@ -15,7 +15,7 @@ from configs.paths import Resources, EmbeddingEngine
 from configs.model import InputsConfig
 from embeddings.dgi.dgi import create_embedding
 from embeddings.dgi.preprocess import preprocess_dgi
-from etl.create_input import create_input
+from etl.mtl_input.builders import generate_category_input, generate_next_input_from_poi
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -54,7 +54,8 @@ def process_state(name: str, shapefile, cta_file=None) -> bool:
         create_embedding(city=name, args=DGI_CONFIG)
 
         logger.info(f"[3/3] Generating inputs: {name}")
-        create_input(state=name, embedding_engine=EmbeddingEngine.DGI)
+        generate_category_input(name, EmbeddingEngine.DGI)
+        generate_next_input_from_poi(name, EmbeddingEngine.DGI)
 
         return True
     except Exception as e:
