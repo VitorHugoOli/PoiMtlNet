@@ -10,7 +10,7 @@ class CfgNextHyperparams:
 
 class CfgNextModel:
     INPUT_DIM = InputsConfig.EMBEDDING_DIM
-    NUM_HEADS = 8
+    NUM_HEADS = 4
     NUM_LAYERS = 4
     MAX_SEQ_LENGTH = 9
     NUM_CLASSES = 7
@@ -18,7 +18,7 @@ class CfgNextModel:
 
 
 class CfgNextTraining:
-    BATCH_SIZE = 2**10  # 512
+    BATCH_SIZE = 2**12  #
     EPOCHS = 100
     K_FOLDS = 5
     SEED = 42
