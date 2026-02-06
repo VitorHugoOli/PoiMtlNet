@@ -22,6 +22,7 @@ def train(
         scheduler: Optional[LRScheduler],
         history: FoldHistory,
         device: torch.device,
+        epochs: Optional[int] = None,
         timeout: Optional[int] = None,
         target_cutoff: Optional[float] = None
 ) -> None:
@@ -37,6 +38,7 @@ def train(
         scheduler: Optional learning rate scheduler.
         history: FoldHistory object to log metrics.
         device: The device to train on (e.g., 'cuda', 'cpu').
+        epochs: Optional epoch override. If None, uses CfgNextTraining.EPOCHS.
         timeout: Optional training time limit in seconds. If None, no time limit.
         :param target_cutoff:
     """
@@ -44,8 +46,9 @@ def train(
     best_val_f1 = 0.0
     patience_counter = 0
 
+    total_epochs = CfgNextTraining.EPOCHS if epochs is None else epochs
     loop = tqdm(
-        range(CfgNextTraining.EPOCHS),
+        range(total_epochs),
         unit="batch",
         desc="Training",
     )
@@ -63,7 +66,8 @@ def train(
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), CfgNextHyperparams.MAX_GRAD_NORM)
             optimizer.step()
-            scheduler.step()
+            if scheduler is not None:
+                scheduler.step()
 
             preds = logits.argmax(dim=1)
             total_loss += loss.item() * y_batch.size(0)

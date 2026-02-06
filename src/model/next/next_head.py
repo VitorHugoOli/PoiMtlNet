@@ -52,8 +52,9 @@ class NextHeadSingle(nn.Module):
         self.embed_dim = embed_dim
         self.seq_length = seq_length
 
-        # Positional encoding that can zero out padding
-        self.pe = PositionalEncoding(embed_dim, max_seq_length=seq_length, dropout=dropout)
+        # Learned positional embeddings (better than sinusoidal for short fixed-length sequences)
+        self.pos_embedding = nn.Parameter(torch.randn(1, seq_length, embed_dim) * 0.02)
+        self.dropout = nn.Dropout(dropout)
 
         encoder_layer = nn.TransformerEncoderLayer(
             d_model=embed_dim,
@@ -70,6 +71,10 @@ class NextHeadSingle(nn.Module):
         self.layer_norm = nn.LayerNorm(embed_dim)
         self.classifier = nn.Linear(embed_dim, num_classes)
 
+        # Temporal decay bias for attention pooling (recent visits weighted more)
+        # Initialized as linear ramp: oldest=-2.0, newest=0.0 (learnable)
+        self.temporal_bias = nn.Parameter(torch.linspace(-2.0, 0.0, seq_length))
+
     def forward(self, x):
         """
         x: (batch_size, seq_length, embed_dim)
@@ -79,7 +84,10 @@ class NextHeadSingle(nn.Module):
 
         padding_mask = (x.abs().sum(dim=-1) == 0)  # (batch, seq), True for pad
 
-        x = self.pe(x, padding_mask)
+        # Add learned positional embeddings and mask padding
+        mask = (~padding_mask).unsqueeze(-1).float()
+        x = (x + self.pos_embedding[:, :seq_length, :]) * mask
+        x = self.dropout(x)
 
         x = self.transformer_encoder(
             x,
@@ -89,6 +97,7 @@ class NextHeadSingle(nn.Module):
         x = self.layer_norm(x)
 
         attn_logits = self.sequence_reduction(x).squeeze(-1)
+        attn_logits = attn_logits + self.temporal_bias[:seq_length].unsqueeze(0)
         attn_logits = attn_logits.masked_fill(padding_mask, float('-inf'))
 
         attn_weights = torch.softmax(attn_logits, dim=1)
