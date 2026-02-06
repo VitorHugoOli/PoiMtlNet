@@ -41,6 +41,9 @@ def train(
         :param target_cutoff:
     """
     start_time = time.time()
+    best_val_f1 = 0.0
+    patience_counter = 0
+
     loop = tqdm(
         range(CfgNextTraining.EPOCHS),
         unit="batch",
@@ -50,6 +53,7 @@ def train(
     for epoch_idx in loop:
         model.train()
         total_loss = total_correct = total = 0
+        train_preds, train_targets = [], []
         for X_batch, y_batch in train_loader:
             X_batch, y_batch = X_batch.to(device), y_batch.to(device)
             optimizer.zero_grad()
@@ -65,9 +69,12 @@ def train(
             total_loss += loss.item() * y_batch.size(0)
             total_correct += (preds == y_batch).sum().item()
             total += y_batch.size(0)
+            train_preds.extend(preds.detach().cpu().numpy())
+            train_targets.extend(y_batch.cpu().numpy())
 
         train_loss = total_loss / total
         train_acc = total_correct / total
+        train_f1 = f1_score(train_targets, train_preds, average='macro')
 
         # Validation
         model.eval()
@@ -95,7 +102,7 @@ def train(
         history.to('next').add(
             loss=train_loss,
             accuracy=train_acc,
-            f1=0.0,
+            f1=train_f1,
         )
         history.to('next').add_val(
             val_loss=val_loss,
@@ -114,6 +121,17 @@ def train(
                 "best": f"{max(history.to("next").task_metrics.val_f1):.4f}",
             }
         )
+
+        # Early stopping based on validation F1 patience
+        if val_f1 > best_val_f1:
+            best_val_f1 = val_f1
+            patience_counter = 0
+        else:
+            patience_counter += 1
+
+        if CfgNextTraining.EARLY_STOPPING_PATIENCE > 0 and patience_counter >= CfgNextTraining.EARLY_STOPPING_PATIENCE:
+            print(f"\nEarly stopping at epoch {epoch_idx + 1}. Best val F1: {best_val_f1:.4f}")
+            break
 
         current_time = time.time()
         if (target_cutoff is not None and val_f1 * 100 >= target_cutoff) or (

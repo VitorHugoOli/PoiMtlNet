@@ -47,7 +47,7 @@ class PositionalEncoding(nn.Module):
 
 
 class NextHeadSingle(nn.Module):
-    def __init__(self, embed_dim, num_classes, num_heads, seq_length, num_layers, dropout=0.35):
+    def __init__(self, embed_dim, num_classes, num_heads, seq_length, num_layers, dropout=0.2):
         super().__init__()
         self.embed_dim = embed_dim
         self.seq_length = seq_length
@@ -81,14 +81,8 @@ class NextHeadSingle(nn.Module):
 
         x = self.pe(x, padding_mask)
 
-        causal_mask = torch.triu(
-            torch.ones(seq_length, seq_length, dtype=torch.bool, device=device),
-            diagonal=1
-        )
-
         x = self.transformer_encoder(
             x,
-            mask=causal_mask,
             src_key_padding_mask=padding_mask
         )
 

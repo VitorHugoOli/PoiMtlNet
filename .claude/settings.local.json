@@ -18,7 +18,9 @@
       "mcp__pycharm__list_directory_tree",
       "mcp__pycharm__get_file_text_by_path",
       "Bash(wc:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(tree:*)",
+      "Bash(pytest:*)"
     ],
     "deny": []
   }
