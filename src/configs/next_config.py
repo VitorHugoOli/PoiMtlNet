@@ -11,7 +11,7 @@ class CfgNextHyperparams:
 class CfgNextModel:
     INPUT_DIM = InputsConfig.EMBEDDING_DIM
     NUM_HEADS = 4
-    NUM_LAYERS = 8
+    NUM_LAYERS = 4
     MAX_SEQ_LENGTH = 9
     NUM_CLASSES = 7
     DROPOUT = 0.1
