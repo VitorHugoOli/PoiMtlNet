@@ -107,8 +107,9 @@ class FoldResult:
 # ============================================================
 class POIDataset(Dataset):
     def __init__(self, features: torch.Tensor, targets: torch.Tensor):
-        self.features = features.cpu()
-        self.targets = targets.cpu()
+        # Ensure tensors are on CPU for DataLoader workers (no-op if already CPU)
+        self.features = features if features.device.type == 'cpu' else features.cpu()
+        self.targets = targets if targets.device.type == 'cpu' else targets.cpu()
 
     def __len__(self) -> int:
         return len(self.features)
@@ -121,6 +122,10 @@ class POIDataset(Dataset):
 # UTILITIES
 # ============================================================
 def _get_num_workers() -> int:
+    # On MPS (macOS), multiprocessing IPC overhead exceeds benefit for
+    # in-memory tensor datasets. Keep workers low to avoid fork overhead.
+    if DEVICE.type == 'mps':
+        return min(2, os.cpu_count() or 1)
     return min(8, os.cpu_count() or 1)
 
 
@@ -147,8 +152,9 @@ def _convert_to_tensors(
     x_values = np.ascontiguousarray(X, dtype=np.float32)
     y_values = np.ascontiguousarray(y, dtype=np.int64)
 
-    x_tensor = torch.tensor(x_values, dtype=torch.float32)
-    y_tensor = torch.tensor(y_values, dtype=torch.long)
+    # from_numpy shares memory (zero-copy) since arrays are already contiguous
+    x_tensor = torch.from_numpy(x_values)
+    y_tensor = torch.from_numpy(y_values)
 
     embedding_dim = InputsConfig.EMBEDDING_DIM
     slide_window = InputsConfig.SLIDE_WINDOW
@@ -201,10 +207,10 @@ def _create_dataloader(
         shuffle=shuffle if sampler is None else False,
         sampler=sampler,
         num_workers=num_workers,
-        pin_memory=True if torch.cuda.is_available() else False,
+        pin_memory=torch.cuda.is_available(),
         pin_memory_device=str(DEVICE) if hasattr(DEVICE, 'index') else None,
         persistent_workers=num_workers > 0,
-        prefetch_factor=5 if num_workers > 0 else None,
+        prefetch_factor=2 if num_workers > 0 else None,
         worker_init_fn=_worker_init_fn if num_workers > 0 else None,
     )
 

@@ -1,8 +1,8 @@
 import numpy as np
 import torch
 import torch.optim as optim
-import time  # Added
-from typing import Optional  # Added
+import time
+from typing import Optional
 
 from sklearn.metrics import classification_report
 from sklearn.utils import compute_class_weight
@@ -18,8 +18,8 @@ from criterion.nash_mtl import NashMTL
 from etl.create_fold import TaskFoldData, FoldResult
 from model.mtlnet.mtl_poi import MTLnet
 from configs.next_config import CfgNextModel
-from common.ml_history.metrics import MLHistory, FoldHistory, FlopsMetrics
-from common.ml_history.parms.neural import NeuralParams
+from common.ml_history import MLHistory, FlopsMetrics, NeuralParams
+from common.ml_history.fold import FoldHistory, TaskHistory
 from train.mtlnet.evaluate import evaluate_model
 from train.mtlnet.validation import validation_best_model
 
@@ -40,27 +40,11 @@ def train_model(model: torch.nn.Module,
                 timeout: Optional[int] = None,
                 next_target_cutoff: Optional[float] = None,
                 category_target_cutoff: Optional[float] = None
-                ):  # Added timeout parameter
+                ):
     """
     Train the model with multi-task learning.
-
-    Args:
-        model: The MTLPOI model
-        optimizer: Optimizer
-        scheduler: Learning rate scheduler
-        dataloader_next: SuperInputData for next POI prediction
-        dataloader_category: SuperInputData for category prediction
-        task_loss_fn: Task-specific loss function
-        mtl_criterion: Multi-task loss function
-        num_epochs: Number of training epochs
-        num_classes: Number of POI classes
-        gradient_accumulation_steps: Number of steps to accumulate gradients
-        timeout: Optional training time limit in seconds. If None, no time limit.
-
-    Returns:
-        FoldResults object with training metrics
     """
-    start_time = time.time()  # Record start time
+    start_time = time.time()
 
     # Set gradient clipping norm
     max_grad_norm = 1.0
@@ -77,22 +61,26 @@ def train_model(model: torch.nn.Module,
         'category': False
     }
 
-    # Main training loop - iterate directly over progress bar for epochs
-    for epoch_idx in progress:  # progress yields epoch numbers (0 to num_epochs-1)
+    # Initialize model-level tracking
+    if fold_history.model_task is None:
+        fold_history.model_task = TaskHistory()
+
+    # Main training loop
+    for epoch_idx in progress:
         model.train()
 
-        # Initialize metrics
-        running_loss = 0.0
-        next_running_loss = 0.0
-        category_running_loss = 0.0
-        next_running_acc = 0.0
-        category_running_acc = 0.0
-        next_running_f1 = 0.0
-        category_running_f1 = 0.0
+        # Initialize on-device accumulators to avoid per-batch MPS syncs
+        running_loss = torch.tensor(0.0, device=DEVICE)
+        next_running_loss = torch.tensor(0.0, device=DEVICE)
+        category_running_loss = torch.tensor(0.0, device=DEVICE)
         steps = 0
 
+        # Collect predictions on-device, compute metrics once per epoch
+        all_next_preds, all_next_targets = [], []
+        all_cat_preds, all_cat_targets = [], []
+
         # Reset gradients at the beginning
-        optimizer.zero_grad()
+        optimizer.zero_grad(set_to_none=True)
 
         # Iterate over batches with automatic progress tracking
         for data_next, data_category in progress.iter_epoch():
@@ -104,20 +92,14 @@ def train_model(model: torch.nn.Module,
             x_category = x_category.to(DEVICE, non_blocking=True)
             y_category = y_category.to(DEVICE, non_blocking=True)
 
-            # Convert to contiguous tensors for more efficient transfer
-            x_next = x_next.contiguous()
-            y_next = y_next.contiguous()
-            x_category = x_category.contiguous()
-            y_category = y_category.contiguous()
-
-            optimizer.zero_grad()
+            optimizer.zero_grad(set_to_none=True)
 
             category_output, next_poi_output = model((x_category, x_next))
 
             pred_next, truth_next = next_poi_output, y_next
             pred_category, truth_category = category_output, y_category
 
-            # Calculate losses (normalized by accumulation steps)
+            # Calculate losses
             next_loss = next_criterion(pred_next, truth_next)
             category_loss = category_criterion(pred_category, truth_category)
             loss, _ = mtl_criterion.backward(
@@ -126,73 +108,64 @@ def train_model(model: torch.nn.Module,
                 task_specific_parameters=list(model.task_specific_parameters()),
             )
 
-            # loss = mtl_criterion.compute_loss(
-            #     next_loss,
-            #     category_loss,
-            # )
-            # loss.backward()
-
             optimizer.step()
             scheduler.step()
 
-            # Track metrics (use non-scaled loss for metrics)
-            batch_loss = loss.item()
-            batch_loss_next = next_loss.item()
-            batch_loss_category = category_loss.item()
+            # Accumulate on-device — no .item() sync per batch
+            running_loss += loss.detach()
+            next_running_loss += next_loss.detach()
+            category_running_loss += category_loss.detach()
 
-            running_loss += batch_loss
-            next_running_loss += batch_loss_next
-            category_running_loss += batch_loss_category
-
-            # Calculate accuracy for monitoring
+            # Collect predictions on-device for epoch-level metrics
             with torch.no_grad():
-                pred_next_cls = torch.argmax(pred_next, dim=1)
-                pred_category_cls = torch.argmax(pred_category, dim=1)
+                all_next_preds.append(torch.argmax(pred_next, dim=1))
+                all_next_targets.append(truth_next)
+                all_cat_preds.append(torch.argmax(pred_category, dim=1))
+                all_cat_targets.append(truth_category)
 
-                next_report = classification_report(
-                    truth_next.cpu().numpy(),
-                    pred_next_cls.cpu().numpy(),
-                    output_dict=True,
-                    zero_division=0
-                )
-
-                category_report = classification_report(
-                    truth_category.cpu().numpy(),
-                    pred_category_cls.cpu().numpy(),
-                    output_dict=True,
-                    zero_division=0
-                )
-
-                f1_next = next_report['macro avg']['f1-score']
-                f1_category = category_report['macro avg']['f1-score']
-
-                next_acc = next_report['accuracy']
-                category_acc = category_report['accuracy']
-
-                next_running_acc += next_acc
-                category_running_acc += category_acc
-                next_running_f1 += f1_next
-                category_running_f1 += f1_category
-
-            # Update metrics on progress bar (it automatically handles the progress update)
-            progress.set_postfix({
-                'loss': f'{batch_loss:.4f}',
-                'next': f'{f1_next:.4f}({next_acc:.4})',
-                'cat': f'{f1_category:.4f}({category_acc:.4f})'
-            })
             steps += 1
 
-        # Calculate epoch metrics
-        epoch_loss = running_loss / steps
-        epoch_loss_next = next_running_loss / steps
-        epoch_loss_category = category_running_loss / steps
-        fold_history.model.add(loss=epoch_loss, accuracy=0)
-        fold_history.to('next').add(loss=epoch_loss_next,
-                                    f1=next_running_f1 / steps,
-                                    accuracy=next_running_acc / steps)
-        fold_history.to('category').add(loss=epoch_loss_category,
-                                        f1=category_running_f1 / steps,
-                                        accuracy=category_running_acc / steps)
+        # Single MPS→CPU transfer per epoch for all predictions
+        epoch_next_preds = torch.cat(all_next_preds).cpu().numpy()
+        epoch_next_targets = torch.cat(all_next_targets).cpu().numpy()
+        epoch_cat_preds = torch.cat(all_cat_preds).cpu().numpy()
+        epoch_cat_targets = torch.cat(all_cat_targets).cpu().numpy()
+
+        # Compute metrics once per epoch instead of per batch
+        next_report = classification_report(
+            epoch_next_targets, epoch_next_preds,
+            output_dict=True, zero_division=0
+        )
+        category_report = classification_report(
+            epoch_cat_targets, epoch_cat_preds,
+            output_dict=True, zero_division=0
+        )
+
+        f1_next = next_report['macro avg']['f1-score']
+        f1_category = category_report['macro avg']['f1-score']
+        next_acc = next_report['accuracy']
+        category_acc = category_report['accuracy']
+
+        # Calculate epoch metrics (single sync for losses)
+        epoch_loss = running_loss.item() / steps
+        epoch_loss_next = next_running_loss.item() / steps
+        epoch_loss_category = category_running_loss.item() / steps
+
+        progress.set_postfix({
+            'loss': f'{epoch_loss:.4f}',
+            'next': f'{f1_next:.4f}({next_acc:.4f})',
+            'cat': f'{f1_category:.4f}({category_acc:.4f})'
+        })
+
+        fold_history.model_task.log_train(loss=epoch_loss, accuracy=0)
+        fold_history.log_train('next',
+                               loss=epoch_loss_next,
+                               f1=f1_next,
+                               accuracy=next_acc)
+        fold_history.log_train('category',
+                               loss=epoch_loss_category,
+                               f1=f1_category,
+                               accuracy=category_acc)
 
         # Validation phase with progress tracking
         with progress.validation():
@@ -205,32 +178,28 @@ def train_model(model: torch.nn.Module,
                 DEVICE,
             )
 
-            state = model.state_dict()
+            # Only create state_dict when at least one task improves
+            next_improved = f1_val_next > fold_history.task('next').best.best_value
+            cat_improved = f1_val_category > fold_history.task('category').best.best_value
+            state = model.state_dict() if (next_improved or cat_improved) else None
 
-            # Store validation metrics
-            fold_history.model.add_val(
-                val_loss=loss_val,
-                val_f1=0,
-                val_accuracy=0,
+            fold_history.model_task.log_val(loss=loss_val, f1=0, accuracy=0)
+            fold_history.log_val(
+                'next',
+                loss=0,
+                accuracy=acc_val_next,
+                f1=f1_val_next,
+                model_state=state if next_improved else None,
+                elapsed_time=fold_history.timer.timer(),
             )
-            fold_history.to('next').add_val(
-                val_loss=0,
-                val_accuracy=acc_val_next,
-                val_f1=f1_val_next,
-                model_state=state,
-                best_metric='val_f1',
-                best_time=fold_history.timer.timer()
+            fold_history.log_val(
+                'category',
+                loss=0,
+                accuracy=acc_val_category,
+                f1=f1_val_category,
+                model_state=state if cat_improved else None,
+                elapsed_time=fold_history.timer.timer(),
             )
-            fold_history.to('category').add_val(
-                val_loss=0,
-                val_accuracy=acc_val_category,
-                val_f1=f1_val_category,
-                model_state=state,
-                best_metric='val_f1',
-                best_time=fold_history.timer.timer()
-            )
-
-        # scheduler.step(f1_val_next)
 
         # Update metrics on progress bar with validation results
         progress.set_postfix({
@@ -253,7 +222,7 @@ def train_model(model: torch.nn.Module,
         current_time = time.time()
         if timeout is not None and (current_time - start_time) > timeout:
             print(f"\nTraining timed out after {timeout:.2f} seconds during epoch {epoch_idx + 1}.")
-            break  # Exit loop if timeout is reached
+            break
 
     return fold_history
 
@@ -265,24 +234,10 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                                 num_epochs: int,
                                 learning_rate: float,
                                 gradient_accumulation_steps: int = 2):
-    """
-    Train with cross-validation with efficient batching and gradient accumulation.
-
-    Args:
-        dataloaders: Dictionary of fold index to task dataloaders
-        num_classes: Number of POI classes
-        num_epochs: Number of training epochs
-        learning_rate: Learning rate for optimizer
-        gradient_accumulation_steps: Number of batches to accumulate gradients
-
-    Returns:
-        TrainingMetrics object with cross-validation results
-    """
     for fold_idx, (i_fold, dataloader) in enumerate(dataloaders.items()):
-        history.display.start_fold()
         clear_mps_cache()
 
-        # Initialize model with enhanced weight initialization
+        # Initialize model
         model = MTLnet(
             feature_size=ModelParameters.INPUT_DIM,
             shared_layer_size=ModelParameters.SHARED_LAYER_SIZE,
@@ -301,33 +256,17 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
 
         optimizer = optim.AdamW(
             model.parameters(),
-            lr=0.0001,  # learning_rate,
+            lr=0.0001,
             weight_decay=5e-2,
             eps=1e-8
         )
 
-        # Learning rate scheduler with patience
         scheduler = OneCycleLR(
             optimizer,
             max_lr=learning_rate * 10,
             epochs=num_epochs,
             steps_per_epoch=len(dataloader_next.train.dataloader),
         )
-
-        # scheduler = StepLR(
-        #     optimizer,
-        #     step_size=5,  # Reduce LR every 5 epochs
-        #     gamma=0.1,  # Reduce LR by a factor of 0.1
-        # )
-
-        # scheduler = ReduceLROnPlateau(
-        #     optimizer,
-        #     mode='max',  # or 'min' if you're tracking loss
-        #     factor=0.5,  # reduce LR by a factor of 0.5
-        #     patience=2,  # wait for 2 epochs before reducing
-        #     threshold=0.001,  # minimal improvement to qualify as progress
-        #     verbose=True
-        # )
 
         cls = np.arange(CfgNextModel.NUM_CLASSES)
 
@@ -342,7 +281,6 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
         next_criterion = CrossEntropyLoss(reduction='mean', weight=alpha_next)
         category_criterion = CrossEntropyLoss(reduction='mean', weight=alpha_cat)
         mtl_criterion = NashMTL(n_tasks=2, device=DEVICE, max_norm=2.2, update_weights_every=4, optim_niter=30)
-        # mtl_criterion = NaiveLoss(alpha=0.5, beta=0.5)
 
         history.set_model_arch(str(model))
 
@@ -375,16 +313,15 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             sample_next = sample_next.to(DEVICE)
             result = calculate_model_flops(model, [sample_category[1:], sample_next[1:]], print_report=True, units='K')
             history.set_flops(FlopsMetrics(flops=result['total_flops'], params=result['params']['total']))
-            history.display.flops()
 
-        # Train the model with gradient accumulation
+        # Train the model
         train_model(
             model, optimizer, scheduler,
             dataloader_next, dataloader_category,
             next_criterion, category_criterion, mtl_criterion, num_epochs, num_classes,
             fold_history=history.get_curr_fold(),
             gradient_accumulation_steps=gradient_accumulation_steps,
-            timeout=InputsConfig.TIMEOUT_TEST,  # Pass timeout, defaulting to None here
+            timeout=InputsConfig.TIMEOUT_TEST,
             next_target_cutoff=InputsConfig.NEXT_TARGET,
             category_target_cutoff=InputsConfig.CATEGORY_TARGET
         )
@@ -394,13 +331,13 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
         report_next, report_category = validation_best_model(
             dataloader_next.val.dataloader,
             dataloader_category.val.dataloader,
-            history.get_curr_fold().to('next').best_model,
-            history.get_curr_fold().to('category').best_model,
+            history.fold.task('next').best.best_state,
+            history.fold.task('category').best.best_state,
             model
         )
 
-        history.get_curr_fold().to('next').add_report(report_next)
-        history.get_curr_fold().to('category').add_report(report_category)
+        history.fold.task('next').report = report_next
+        history.fold.task('category').report = report_category
 
         history.step()
         history.display.end_fold()

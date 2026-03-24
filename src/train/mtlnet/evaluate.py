@@ -20,18 +20,16 @@ def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_c
         Tuple of (accuracy, loss)
     """
     model.eval()
-    total_loss = 0.0
-    all_predictions_next = []
-    all_truths_next = []
-    all_predictions_category = []
-    all_truths_category = []
+    running_loss = torch.tensor(0.0, device=device)
+    preds_next_list, truths_next_list = [], []
+    preds_cat_list, truths_cat_list = [], []
     batchs = 0
 
     for data_next, data_cat in zip(*dataloaders):
         x_next, y_next = data_next
-        x_next, y_next = x_next.to(device), y_next.to(device)
+        x_next, y_next = x_next.to(device, non_blocking=True), y_next.to(device, non_blocking=True)
         x_category, y_category = data_cat
-        x_category, y_category = x_category.to(device), y_category.to(device)
+        x_category, y_category = x_category.to(device, non_blocking=True), y_category.to(device, non_blocking=True)
 
         # Forward pass
         cat_out, next_out = model((x_category, x_next))
@@ -40,22 +38,24 @@ def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_c
 
         next_loss = next_criterion(pred_next, truth_next)
         category_loss = category_criterion(pred_category, truth_category)
-        total_loss += (next_loss.item() + category_loss.item()) / 2
+        running_loss += (next_loss.detach() + category_loss.detach()) / 2
 
-        # Calculate accuracy
-        pred_next_class = torch.argmax(pred_next, dim=1)
-        pred_category_class = torch.argmax(pred_category, dim=1)
-        all_predictions_next.extend(pred_next_class.cpu().numpy())
-        all_truths_next.extend(truth_next.cpu().numpy())
-        all_predictions_category.extend(pred_category_class.cpu().numpy())
-        all_truths_category.extend(truth_category.cpu().numpy())
+        # Collect predictions on-device
+        preds_next_list.append(torch.argmax(pred_next, dim=1))
+        truths_next_list.append(truth_next)
+        preds_cat_list.append(torch.argmax(pred_category, dim=1))
+        truths_cat_list.append(truth_category)
         batchs += 1
 
-    loss = total_loss / batchs
-
+    # Single bulk GPU→CPU transfer
+    loss = running_loss.item() / batchs
+    all_predictions_next = torch.cat(preds_next_list).cpu().numpy()
+    all_truths_next = torch.cat(truths_next_list).cpu().numpy()
+    all_predictions_category = torch.cat(preds_cat_list).cpu().numpy()
+    all_truths_category = torch.cat(truths_cat_list).cpu().numpy()
 
     next_report = classification_report(all_truths_next, all_predictions_next, output_dict=True, zero_division=0)
-    category_report = classification_report(all_truths_category, all_predictions_category, output_dict=True,zero_division=0)
+    category_report = classification_report(all_truths_category, all_predictions_category, output_dict=True, zero_division=0)
 
     f1_next = next_report['macro avg']['f1-score']
     acc_next = next_report['accuracy']
@@ -83,26 +83,22 @@ def evaluate_model_by_head(model, dataloader, loss_function, foward_method, devi
         Tuple of (accuracy, loss)
     """
     model.eval()
-    total_loss = 0.0
-    total_correct = 0
+    running_loss = torch.tensor(0.0, device=device)
+    running_correct = torch.tensor(0, device=device, dtype=torch.long)
     total_samples = 0
 
     with torch.no_grad():
         for x, y in dataloader:
-            x, y = x.to(device), y.to(device)
+            x, y = x.to(device, non_blocking=True), y.to(device, non_blocking=True)
 
             # Forward pass
             out = foward_method(x)
             pred, truth = out, y
 
-            # Calculate loss
-            loss = loss_function(pred, truth).item()
-            total_loss += loss
-
-            # Calculate accuracy
-            pred_class = torch.argmax(pred, dim=1)
-            total_correct += (pred_class == truth).sum().item()
+            # Accumulate on-device
+            running_loss += loss_function(pred, truth).detach()
+            running_correct += (torch.argmax(pred, dim=1) == truth).sum()
             total_samples += truth.size(0)
 
-    # Return average accuracy and loss
-    return total_correct / total_samples, total_loss / total_samples
+    # Single MPS sync
+    return running_correct.item() / total_samples, running_loss.item() / total_samples

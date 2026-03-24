@@ -1,0 +1,240 @@
+\documentclass[a4paper,11pt]{article}
+
+% Encoding and language
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+
+% Page layout
+\usepackage[margin=2cm, top=1.8cm, bottom=1.8cm]{geometry}
+
+% Math packages
+\usepackage{amsmath,amssymb,amsfonts}
+
+% Graphics and TikZ
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, fit, backgrounds, calc}
+
+% Colors
+\usepackage{xcolor}
+\definecolor{checkincolor}{RGB}{66, 133, 244}
+\definecolor{poicolor}{RGB}{52, 168, 83}
+\definecolor{regioncolor}{RGB}{251, 188, 4}
+\definecolor{citycolor}{RGB}{234, 67, 53}
+\definecolor{losscolor}{RGB}{128, 0, 128}
+\definecolor{codegreen}{RGB}{0, 128, 0}
+\definecolor{codered}{RGB}{180, 0, 0}
+
+% Compact sections
+\usepackage{titlesec}
+\titlespacing*{\section}{0pt}{1.2ex plus 0.3ex minus 0.1ex}{0.6ex plus 0.1ex}
+\titlespacing*{\subsection}{0pt}{0.8ex plus 0.2ex minus 0.1ex}{0.4ex plus 0.1ex}
+\titleformat{\section}{\normalfont\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalfont\bfseries}{\thesubsection.}{0.5em}{}
+
+% Remove paragraph indent
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+
+% Compact lists
+\usepackage{enumitem}
+\setlist{noitemsep, topsep=2pt, parsep=2pt, partopsep=0pt, leftmargin=1.5em}
+
+% Code listings
+\usepackage{listings}
+\lstset{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{codegreen},
+    numbers=none,
+    frame=single,
+    breaklines=true,
+    xleftmargin=0.5em,
+    xrightmargin=0.5em
+}
+
+\begin{document}
+
+% Title
+\begin{center}
+{\LARGE\bfseries Check2HGI: Embeddings Hierárquicos de Check-ins via Graph Infomax}\\[0.4em]
+{\normalsize Documentação Técnica v2}
+\end{center}
+
+\vspace{0.3em}
+
+% Architecture Diagram
+\begin{center}
+\begin{tikzpicture}[
+    node distance=0.8cm and 1.3cm,
+    box/.style={rectangle, draw, rounded corners=3pt, minimum width=2.3cm, minimum height=1.1cm, align=center, font=\footnotesize},
+    arrow/.style={-{Stealth[length=2mm]}, thick},
+    label/.style={font=\scriptsize, text=gray}
+]
+
+% Level boxes
+\node[box, fill=checkincolor!20, draw=checkincolor] (checkin) {\textbf{Check-ins}\\$[\mathbf{N_c}, D]$};
+\node[box, fill=poicolor!20, draw=poicolor, right=of checkin] (poi) {\textbf{POIs}\\$[\mathbf{N_p}, D]$};
+\node[box, fill=regioncolor!20, draw=regioncolor, right=of poi] (region) {\textbf{Regiões}\\$[\mathbf{N_r}, D]$};
+\node[box, fill=citycolor!20, draw=citycolor, right=of region] (city) {\textbf{Cidade}\\$[\mathbf{D}]$};
+
+% Arrows with labels
+\draw[arrow] (checkin) -- node[above, label] {GCN +} node[below, label] {Atenção} (poi);
+\draw[arrow] (poi) -- node[above, label] {Atenção +} node[below, label] {GCN} (region);
+\draw[arrow] (region) -- node[above, label] {Sigmoid} node[below, label] {Ponderado} (city);
+
+% Loss boundaries
+\draw[dashed, losscolor, thick] ($(checkin.south)!0.5!(poi.south) + (0,-0.25)$) -- ++(0,-0.4) node[below, font=\tiny, text=losscolor] {$\mathcal{L}_{c2p}$};
+\draw[dashed, losscolor, thick] ($(poi.south)!0.5!(region.south) + (0,-0.25)$) -- ++(0,-0.4) node[below, font=\tiny, text=losscolor] {$\mathcal{L}_{p2r}$};
+\draw[dashed, losscolor, thick] ($(region.south)!0.5!(city.south) + (0,-0.25)$) -- ++(0,-0.4) node[below, font=\tiny, text=losscolor] {$\mathcal{L}_{r2c}$};
+
+% Input features
+\node[left=0.7cm of checkin, font=\scriptsize, align=right, text width=2cm] (input) {Categoria +\\Temporal};
+\draw[arrow, gray] (input) -- (checkin);
+
+\end{tikzpicture}
+\end{center}
+
+\vspace{-0.3em}
+
+\section{Visão Geral}
+
+O \textbf{Check2HGI} (Check-in Hierarchical Graph Infomax) é um modelo de embeddings hierárquicos em 4 níveis que aprende representações de check-ins através de agregação progressiva: Check-in $\rightarrow$ POI $\rightarrow$ Região $\rightarrow$ Cidade.
+
+\textbf{Objetivo:} Maximizar a \textbf{informação mútua} entre níveis adjacentes da hierarquia via aprendizado contrastivo auto-supervisionado. O modelo aprende a distinguir pares verdadeiros (check-in pertence ao POI correto) de pares falsos (check-in pareado com POI aleatório), forçando os embeddings a capturar relações semânticas significativas.
+
+\textbf{Arquitetura:}
+\begin{itemize}
+    \item \textbf{Nível 1 (Check-in):} GCN sobre grafo de sequência temporal do usuário
+    \item \textbf{Nível 2 (POI):} Agregação por atenção multi-head dos check-ins
+    \item \textbf{Nível 3 (Região):} Agregação por atenção + GCN sobre grafo de adjacência espacial
+    \item \textbf{Nível 4 (Cidade):} Agregação ponderada por área geográfica
+\end{itemize}
+
+\textbf{Contribuição principal:} Extensão do HGI (3 níveis: POI→Região→Cidade) para incluir o nível de check-in, permitindo embeddings de eventos individuais. Inclui otimização por \textit{corrupção de embeddings} que proporciona speedup de 2x no treinamento.
+
+\textbf{Saídas:} Três conjuntos de embeddings (dimensão $D$, tipicamente 64):
+\begin{itemize}
+    \item \texttt{embeddings.parquet}: $[N_c, D]$ --- embedding por check-in
+    \item \texttt{poi\_embeddings.parquet}: $[N_p, D]$ --- embedding por POI
+    \item \texttt{region\_embeddings.parquet}: $[N_r, D]$ --- embedding por região censitária
+\end{itemize}
+
+\section{Entrada de Dados}
+
+Cada check-in é representado por um vetor de características que combina:
+
+\textbf{1. Categoria do local} (codificação one-hot): Se existem 50 categorias de POIs, cada check-in tem um vetor de 50 posições com valor 1 na categoria correspondente e 0 nas demais.
+
+\textbf{2. Informação temporal} (codificação cíclica): A hora e o dia da semana são codificados usando seno e cosseno para capturar a natureza cíclica do tempo (23h está próximo de 0h, domingo está próximo de segunda):
+\begin{equation*}
+\text{temporal} = \left[\sin\left(\frac{2\pi \cdot \text{hora}}{24}\right), \cos\left(\frac{2\pi \cdot \text{hora}}{24}\right), \sin\left(\frac{2\pi \cdot \text{dia}}{7}\right), \cos\left(\frac{2\pi \cdot \text{dia}}{7}\right)\right]
+\end{equation*}
+
+\textbf{Grafo de check-ins:} Os check-ins são conectados em um grafo onde arestas ligam visitas consecutivas do mesmo usuário. O peso de cada aresta diminui exponencialmente com o tempo entre visitas:
+\begin{equation*}
+w_{ij} = \exp\left(-\frac{\text{tempo entre } i \text{ e } j}{\tau}\right), \quad \tau = 3600\text{s (1 hora)}
+\end{equation*}
+
+Isso significa que check-ins próximos no tempo têm conexões mais fortes.
+
+\section{Codificadores (Encoders)}
+
+\textbf{Nível 1 - CheckinEncoder:} Usa uma Rede Convolucional de Grafos (GCN) que propaga informações entre check-ins conectados. Cada check-in ``aprende'' com seus vizinhos no grafo:
+\begin{equation*}
+\mathbf{H}^{(l+1)} = \text{PReLU}\left(\tilde{\mathbf{D}}^{-1/2}\tilde{\mathbf{A}}\tilde{\mathbf{D}}^{-1/2}\mathbf{H}^{(l)}\mathbf{W}^{(l)}\right)
+\end{equation*}
+
+\textbf{Nível 2 - Checkin2POI:} Agrega todos os check-ins de um POI usando atenção multi-head. O mecanismo de atenção aprende quais check-ins são mais importantes para caracterizar cada POI:
+\begin{equation*}
+\mathbf{z}_p = \sum_{i \in \mathcal{C}_p} \alpha_i \mathbf{v}_i, \quad \text{onde } \alpha_i = \text{softmax}\left(\frac{\mathbf{q}^\top \mathbf{k}_i}{\sqrt{d}}\right)
+\end{equation*}
+
+\textbf{Nível 3 - POI2Region:} Similar ao nível anterior, agrega POIs em regiões e aplica GCN no grafo de adjacência regional (regiões vizinhas geograficamente).
+
+\textbf{Nível 4 - Region2City:} Média ponderada das regiões pela sua área geográfica, passada por função sigmoid.
+
+%--- PAGE BREAK ---%
+\newpage
+
+\section{Otimização por Corrupção de Embeddings}
+
+Esta seção explica uma otimização importante que dobra a velocidade de treinamento.
+
+\subsection{Aprendizado Contrastivo: A Ideia Básica}
+
+O modelo aprende comparando pares ``positivos'' (corretos) com pares ``negativos'' (incorretos). Por exemplo, para a fronteira Check-in↔POI:
+\begin{itemize}
+    \item \textbf{Par positivo:} embedding do check-in $c_1$ + embedding do POI onde $c_1$ ocorreu
+    \item \textbf{Par negativo:} embedding do check-in $c_1$ + embedding de um POI aleatório
+\end{itemize}
+
+O modelo deve aprender a dar pontuação alta para pares positivos e baixa para negativos.
+
+\subsection{Método Original: Corrupção de Features}
+
+No método tradicional (usado no Deep Graph Infomax original), os pares negativos são criados ``corrompendo'' as características de entrada:
+
+\begin{lstlisting}[language=Python, title={\textbf{Método Original (2 passagens pelo encoder)}}]
+# Passagem 1: dados reais
+pos_embeddings = encoder(features, graph)
+
+# Passagem 2: dados corrompidos (features embaralhadas)
+corrupted_features = shuffle(features)  # mistura features entre nos
+neg_embeddings = encoder(corrupted_features, graph)
+
+# Calcula perda comparando pos vs neg
+loss = contrastive_loss(pos_embeddings, neg_embeddings)
+\end{lstlisting}
+
+\textbf{Problema:} O encoder (a rede GCN) precisa processar os dados \textbf{duas vezes} --- uma para os dados reais e outra para os corrompidos. Como o encoder é a parte mais custosa computacionalmente, isso dobra o tempo de treinamento.
+
+\subsection{Método Otimizado: Corrupção de Embeddings}
+
+A insight chave é: para o aprendizado contrastivo funcionar, os pares negativos só precisam ser ``errados'' --- não importa \textit{como} foram gerados. Então, ao invés de corromper a entrada e rodar o encoder de novo, podemos simplesmente embaralhar os embeddings de saída:
+
+\begin{lstlisting}[language=Python, title={\textbf{Método Otimizado (1 passagem pelo encoder)}}]
+# Passagem unica: dados reais
+pos_embeddings = encoder(features, graph)
+
+# Negativos: embaralha os embeddings ja calculados
+neg_embeddings = pos_embeddings[random_permutation]
+
+# Calcula perda comparando pos vs neg
+loss = contrastive_loss(pos_embeddings, neg_embeddings)
+\end{lstlisting}
+
+\textbf{Por que funciona?} O objetivo do aprendizado contrastivo é ensinar o modelo que ``check-in $c_1$ pertence ao POI $p_1$''. Um par negativo válido é qualquer combinação incorreta. Ao embaralhar os embeddings, garantimos que cada check-in será pareado com o POI errado --- exatamente o que precisamos.
+
+\textbf{Resultado:} \colorbox{yellow!30}{\textbf{Speedup de 2x}} no treinamento, pois o encoder (operação mais cara) roda apenas uma vez por época.
+
+\section{Função de Perda}
+
+A perda total combina três termos, um para cada fronteira hierárquica:
+\begin{equation*}
+\mathcal{L} = \underbrace{0.4 \cdot \mathcal{L}_{c2p}}_{\text{Check-in}\leftrightarrow\text{POI}} + \underbrace{0.3 \cdot \mathcal{L}_{p2r}}_{\text{POI}\leftrightarrow\text{Região}} + \underbrace{0.3 \cdot \mathcal{L}_{r2c}}_{\text{Região}\leftrightarrow\text{Cidade}}
+\end{equation*}
+
+Cada termo usa um \textbf{discriminador bilinear} que calcula a ``compatibilidade'' entre dois embeddings:
+\begin{equation*}
+\mathcal{D}(\mathbf{e}_1, \mathbf{e}_2) = \sigma(\mathbf{e}_1^\top \mathbf{W} \mathbf{e}_2)
+\end{equation*}
+
+onde $\mathbf{W}$ é uma matriz de pesos aprendida e $\sigma$ é a função sigmoid (saída entre 0 e 1).
+
+A perda para cada fronteira maximiza a pontuação de pares corretos e minimiza a de incorretos:
+\begin{equation*}
+\mathcal{L}_{*} = -\underbrace{\log \mathcal{D}(\mathbf{e}^+, \mathbf{e}^+)}_{\text{maximizar para pares corretos}} - \underbrace{\log(1 - \mathcal{D}(\mathbf{e}^+, \mathbf{e}^-))}_{\text{minimizar para pares incorretos}}
+\end{equation*}
+
+\textbf{Intuição:} É como treinar um classificador binário que deve responder ``sim'' para pares verdadeiros e ``não'' para falsos. Se o modelo consegue fazer isso bem, significa que os embeddings capturam informações significativas sobre a hierarquia espacial.
+
+\section{Referências}
+
+\begin{enumerate}[label={[\arabic*]}, leftmargin=2em, itemsep=0.2em]
+\item Veličković, P. et al. ``Deep Graph Infomax''. \textit{ICLR}, 2019. --- Base teórica para maximização de informação mútua em grafos.
+\item Lee, J. et al. ``Set Transformer: A Framework for Attention-based Permutation-Invariant Neural Networks''. \textit{ICML}, 2019. --- Mecanismo de atenção para agregação.
+\item Kipf, T. \& Welling, M. ``Semi-Supervised Classification with Graph Convolutional Networks''. \textit{ICLR}, 2017. --- Redes convolucionais de grafos.
+\end{enumerate}
+
+\end{document}

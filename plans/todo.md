@@ -1,0 +1,49 @@
+1. Finish to ensure that the input for tasks is beedn creating correct ☑️
+    1. Optmize the creating, especialily for next checking embeddings 🔁
+        2. next
+        3. next-embedding
+        3. category
+    2. Test the new code agains the olds results and see the results are the same 🔁
+3. Refactor the Mlhistory with the diagnostic and improve the interface and usage 🔁
+4. Validate the space2vec ✅
+4. Validate the time2vec embeddings ✅
+5. On the train pipe pass the len of the embeddings
+6. Improve the traning of next poi 🔁
+8. Improvement on the MTLnET
+    9. Let's do a analysis over the current /Users/vitor/Desktop/mestrado/ingred/src/model/mtlnet/mtl_poi.py. Get
+       context in the documenations and md file about how the data is been mounted and what type os task we are trying
+       to trains here and the flow to do this train. After that let's create a plan of how we could improve the model of
+       the mt_poi, to get the best result, searhc on the literature best pratices and infromation os apporach that we
+       are may missing. Some approach that I have resarch and I would like to try is the Mixture of expert, create a
+       plan on this analysis on how we could add it on the mtl_poi. Be free to be radical and very critic. Notice that I
+       have a previus anlysis in the mtlnet/UPDATE.md, you can use it as basis to do you searchs and suggestions. At the
+       end Create a final UPDATE_CLAUDE.md in the /Users/vitor/Desktop/mestrado/ingred/src/model/mtlnet, with all the
+       information gather.
+
+----
+
+1. Passing and valid the time2vec
+2. Passing and valid the hgi - Also whether is or not a dataleak and waht we gonna do with it
+3. Passing and valid the Siren & space2vec
+
+Propmt:
+Can you help me to valid the implementation of this embeeding on my codebase, notive that I have made some changes to
+gave this embedding more flexibility and be faster on mps. But we need to ensure that this is equivalent to this source
+code, and equivalent to the article that propose it.
+
+----
+
+4. Refactor codebase
+   Prompt:
+   Let's refactor this codebase. This is a project to study the application of the multitask learning in the context of
+   classification unknown pois and prediction of next poi, the first task is static in way that recive a representation
+   of a poi and try to classificaty it in one of the 7 categories; next in other hand is dynaic cause create a windoe of
+   X embeddings and them try to predict what will be the next category of the embedding. So the main propose of this
+   project is to contain the multitask learing algorithms, the neural network for the model and some support files
+   arroun this system. Beyond that we keep some base lines and emebdding models that are related with this project but
+   not the main focus. Not just that but this project contains severavl experiments, and maybe this is what make it more
+   confuse, cause some parts of the main model have several different versions to test. Said that I would like you help
+   to explore this project, search on the internet best pratices for this kind of proejct and them organize it and
+   create a file structure and organization that allow me to test faster make change easier and obeserver better ne
+   improvements. Feel free to use new toll new metodology of files and etc. Right now we are using the folder pipe to
+   concentrated the main workflow there, but I dnt now if this is the best practice. Also fell free to change the code itself.

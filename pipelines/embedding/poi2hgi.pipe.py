@@ -24,12 +24,12 @@ logger = logging.getLogger(__name__)
 
 STATES = {
     # Local
-    'Alabama': Resources.TL_AL,
+    # 'Alabama': Resources.TL_AL,
     # 'Arizona': Resources.TL_AZ,
     # 'Georgia': Resources.TL_GA,
     # Articles
     # 'Florida': Resources.TL_FL,
-    # 'California': Resources.TL_CA,
+    'California': Resources.TL_CA,
     # 'Texas': Resources.TL_TX,
 }
 
@@ -58,12 +58,12 @@ def process_state(name: str, shapefile, cta_file=None) -> bool:
 
         # 1. Preprocess with temporal features
         logger.info(f"[1/3] Preprocessing with temporal features: {name}")
-        preprocess_poi2hgi(city=name, city_shapefile=str(shapefile), cta_file=cta_file)
+        # preprocess_poi2hgi(city=name, city_shapefile=str(shapefile), cta_file=cta_file)
 
         # 2. Train POI2HGI
         logger.info(f"[2/3] Creating embeddings: {name}")
         POI2HGI_CONFIG.force_preprocess = False  # Use preprocessed data
-        create_embedding(state=name, args=POI2HGI_CONFIG)
+        # create_embedding(state=name, args=POI2HGI_CONFIG)
 
         # 3. Generate Inputs
         logger.info(f"[3/3] Generating inputs: {name}")

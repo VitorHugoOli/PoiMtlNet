@@ -10,13 +10,13 @@ class CfgCategoryHyperparams:
 
 class CfgCategoryModel:
     INPUT_DIM = InputsConfig.EMBEDDING_DIM
-    HIDDEN_DIMS = (256, 128, 64, 32)
+    HIDDEN_DIMS = (128, 64, 32)
     NUM_CLASSES = 7
-    DROPOUT = 0.2
+    DROPOUT = 0.1
 
 
 class CfgCategoryTraining:
-    BATCH_SIZE = 2**10  # 512
-    EPOCHS = 100
+    BATCH_SIZE = 2**11  # 512
+    EPOCHS = 2
     K_FOLDS = 5
     SEED = 42

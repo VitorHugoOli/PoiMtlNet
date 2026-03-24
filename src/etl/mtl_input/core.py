@@ -362,8 +362,15 @@ def convert_user_checkins_to_sequences(
     # Get user ID (same for all rows in user_df)
     userid = user_df['userid'].iloc[0]
 
+    # Pre-extract numpy arrays for fast indexed access (avoids slow iloc in loop)
+    emb_matrix = user_df[embedding_cols].values.astype(np.float32)
+    categories = user_df['category'].values
+    placeids = user_df['placeid'].values
+    n_rows = len(user_df)
+    zero_emb = np.zeros(embedding_dim, dtype=np.float32)
+
     # Generate POI sequences using shared function
-    places = user_df['placeid'].tolist()
+    places = placeids.tolist()
     sequences = generate_sequences(places, window_size=window_size)
 
     if not sequences:
@@ -384,25 +391,24 @@ def convert_user_checkins_to_sequences(
         seq_embeddings = []
         for i, poi in enumerate(history_pois):
             if poi == PADDING_VALUE:
-                seq_embeddings.append(get_zero_embedding(embedding_dim))
+                seq_embeddings.append(zero_emb)
             else:
                 row_idx = history_start_idx + i
-                if row_idx < len(user_df):
-                    emb = user_df.iloc[row_idx][embedding_cols].values.astype(np.float32)
-                    seq_embeddings.append(emb)
+                if row_idx < n_rows:
+                    seq_embeddings.append(emb_matrix[row_idx])
                 else:
-                    seq_embeddings.append(get_zero_embedding(embedding_dim))
+                    seq_embeddings.append(zero_emb)
 
         # Get target category - try position first, fall back to POI ID lookup
         target_idx = history_start_idx + window_size
-        if target_idx < len(user_df):
-            target_category = user_df.iloc[target_idx]['category']
+        if target_idx < n_rows:
+            target_category = categories[target_idx]
         else:
             # Fallback: look up target POI's category by POI ID
-            target_matches = user_df[user_df['placeid'] == target_poi]
+            matches = np.where(placeids == target_poi)[0]
             target_category = (
-                target_matches.iloc[0]['category']
-                if len(target_matches) > 0
+                categories[matches[0]]
+                if len(matches) > 0
                 else MISSING_CATEGORY_VALUE
             )
 

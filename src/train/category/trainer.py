@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from configs.category_config import CfgCategoryHyperparams, CfgCategoryTraining
-from common.ml_history.metrics import FoldHistory
+from common.ml_history.fold import FoldHistory
 
 
 def train(
@@ -25,21 +25,7 @@ def train(
         timeout: Optional[int] = None,
         target_cutoff: Optional[float] = None
 ) -> None:
-    """
-    Trains the model for a specified number of epochs.
-
-    Args:
-        model: The neural network model to train.
-        train_loader: DataLoader for the training data.
-        val_loader: DataLoader for the validation data.
-        criterion: The loss function.
-        optimizer: The optimization algorithm.
-        scheduler: Optional learning rate scheduler.
-        device: The device to train on (e.g., 'cuda', 'cpu').
-        history: FoldHistory object to log metrics.
-        timeout: Optional training time limit in seconds. If None, no time limit.
-    """
-    start_time = time.time()  # Record start time
+    start_time = time.time()
     loop = tqdm(
         range(CfgCategoryTraining.EPOCHS),
         unit="batch",
@@ -48,10 +34,12 @@ def train(
 
     for epoch_idx in loop:
         model.train()
-        total_loss = total_correct = total = 0
+        running_loss = torch.tensor(0.0, device=device)
+        running_correct = torch.tensor(0, device=device, dtype=torch.long)
+        total = 0
         for X_batch, y_batch in train_loader:
-            X_batch, y_batch = X_batch.to(device), y_batch.to(device)
-            optimizer.zero_grad()
+            X_batch, y_batch = X_batch.to(device, non_blocking=True), y_batch.to(device, non_blocking=True)
+            optimizer.zero_grad(set_to_none=True)
             logits = model(X_batch)
             loss = criterion(logits, y_batch)
             loss.backward()
@@ -60,56 +48,63 @@ def train(
             scheduler.step()
 
             preds = logits.argmax(dim=1)
-            total_loss += loss.item() * y_batch.size(0)
-            total_correct += (preds == y_batch).sum().item()
+            running_loss += loss.detach() * y_batch.size(0)
+            running_correct += (preds == y_batch).sum()
             total += y_batch.size(0)
 
-        train_loss = total_loss / total
-        train_acc = total_correct / total
+        # Single MPS sync per epoch instead of per batch
+        train_loss = running_loss.item() / total
+        train_acc = running_correct.item() / total
 
         # Validation
         model.eval()
-        val_loss = val_correct = val_total = 0
-        val_preds, val_targets = [], []
+        val_running_loss = torch.tensor(0.0, device=device)
+        val_running_correct = torch.tensor(0, device=device, dtype=torch.long)
+        val_total = 0
+        val_preds_list, val_targets_list = [], []
 
         with torch.no_grad():
             for X_batch, y_batch in val_loader:
-                X_batch, y_batch = X_batch.to(device), y_batch.to(device)
+                X_batch, y_batch = X_batch.to(device, non_blocking=True), y_batch.to(device, non_blocking=True)
                 logits = model(X_batch)
                 loss = criterion(logits, y_batch)
                 preds = logits.argmax(dim=1)
 
-                val_loss += loss.item() * y_batch.size(0)
-                val_correct += (preds == y_batch).sum().item()
+                val_running_loss += loss.detach() * y_batch.size(0)
+                val_running_correct += (preds == y_batch).sum()
                 val_total += y_batch.size(0)
 
-                val_preds.extend(preds.cpu().numpy())
-                val_targets.extend(y_batch.cpu().numpy())
+                val_preds_list.append(preds)
+                val_targets_list.append(y_batch)
 
-        val_loss /= val_total
-        val_acc = val_correct / val_total
+        # Single MPS→CPU transfer for all validation predictions
+        val_loss = val_running_loss.item() / val_total
+        val_acc = val_running_correct.item() / val_total
+        val_preds = torch.cat(val_preds_list).cpu().numpy()
+        val_targets = torch.cat(val_targets_list).cpu().numpy()
         val_f1 = f1_score(val_targets, val_preds, average='macro')
 
-        history.to('category').add(
-            loss=train_loss,
-            accuracy=train_acc,
-            f1=0.0,
-        )
-        history.to('category').add_val(
-            val_loss=val_loss,
-            val_accuracy=val_acc,
-            val_f1=val_f1,
-            model_state=model.state_dict(),
-            best_time=history.timer.timer()
+        history.log_train('category', loss=train_loss, accuracy=train_acc, f1=0.0)
+        # Only create state_dict when F1 improves (avoids MPS→CPU copy on every epoch)
+        current_best = history.task('category').best.best_value
+        is_improvement = val_f1 > current_best
+        history.log_val(
+            'category',
+            loss=val_loss,
+            accuracy=val_acc,
+            f1=val_f1,
+            model_state=model.state_dict() if is_improvement else None,
+            elapsed_time=history.timer.timer(),
         )
 
+        _, best_f1 = history.task('category').val.best('f1')
         loop.set_postfix(
             {
                 "tr_loss": f"{train_loss:.4f}",
                 "tr_acc": f"{train_acc:.4f}",
                 "val_loss": f"{val_loss:.4f}",
                 "val_acc": f"{val_acc:.4f}({val_f1:.4f})",
-                "best": f"{max(history.to("category").task_metrics.val_f1):.4f}",
+                "best": f"{best_f1:.4f}",
             }
         )
 

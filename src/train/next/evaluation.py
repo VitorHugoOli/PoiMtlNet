@@ -13,17 +13,21 @@ def evaluate(model: nn.Module, loader: DataLoader, device: torch.device,
     model.eval()
     if best_state is not None:
         model.load_state_dict(best_state)
-    preds, truths = [], []
+    preds_list, truths_list = [], []
     with torch.no_grad():
         for X_batch, y_batch in loader:
-            X_batch = X_batch.to(device)
+            X_batch = X_batch.to(device, non_blocking=True)
             logits = model(X_batch)
-            preds.append(logits.argmax(dim=1).cpu().numpy())
-            truths.append(y_batch.numpy())
+            preds_list.append(logits.argmax(dim=1))
+            truths_list.append(y_batch)
+
+    # Single GPU→CPU transfer for all predictions
+    preds = torch.cat(preds_list).cpu().numpy()
+    truths = torch.cat(truths_list).numpy()
 
     report = classification_report(
-        np.concatenate(truths),
-        np.concatenate(preds),
+        truths,
+        preds,
         output_dict=True,
         zero_division=0,
     )

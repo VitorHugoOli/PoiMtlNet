@@ -149,6 +149,10 @@ def generate_next_input_from_checkins(
     # Save intermediate sequences (for debugging/analysis)
     seq_cols = [f'poi_{i}' for i in range(window_size)] + ['target_poi', 'userid']
     sequences_df = pd.DataFrame(all_sequences, columns=seq_cols)
+    # POI columns may mix str placeids with int padding (-1); unify to str for parquet
+    poi_cols = [f'poi_{i}' for i in range(window_size)] + ['target_poi']
+    for col in poi_cols:
+        sequences_df[col] = sequences_df[col].astype(str)
     sequences_path = IoPaths.get_seq_next(state, engine)
     save_parquet(sequences_df, sequences_path)
 

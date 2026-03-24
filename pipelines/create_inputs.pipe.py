@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 # ============================================================================
 
 STATE_CONFIGS: List[Tuple[str, EmbeddingEngine, bool]] = [
-    ("alabama", EmbeddingEngine.HGI, False),
+    # ("alabama", EmbeddingEngine.HGI, False),
     # ("arizona", EmbeddingEngine.HGI, False),
     # ("georgia", EmbeddingEngine.HGI, False),
     # ("florida", EmbeddingEngine.HGI, False),
@@ -50,7 +50,7 @@ STATE_CONFIGS: List[Tuple[str, EmbeddingEngine, bool]] = [
     # ("arizona", EmbeddingEngine.TIME2VEC, True),
     # ("georgia", EmbeddingEngine.TIME2VEC, True),
     # ("florida", EmbeddingEngine.TIME2VEC, True),
-    # ("california", EmbeddingEngine.TIME2VEC, True),
+    ("california", EmbeddingEngine.TIME2VEC, True),
     # ("texas", EmbeddingEngine.TIME2VEC, True),
 ]
 

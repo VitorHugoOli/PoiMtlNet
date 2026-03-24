@@ -5,8 +5,8 @@ import logging
 from typing import List, Tuple
 
 from etl.create_fold import FoldCreator, TaskType
-from common.ml_history.metrics import MLHistory
-from common.ml_history.utils.dataset import DatasetHistory
+from common.ml_history import MLHistory, DatasetHistory
+from configs.globals import CATEGORIES_MAP
 from train.mtlnet.mtl_train import train_with_cross_validation
 
 logging.basicConfig(
@@ -43,6 +43,8 @@ def train_mtl_model(state: str, embedd_engine: EmbeddingEngine) -> dict:
     folds_path = None  # Can use creator.save(output_dir) if needed
 
     # Initialize ML History
+    results_path = IoPaths.get_results_dir(state, embedd_engine)
+
     history = MLHistory(
         model_name='MTLNet',
         tasks={'next', 'category'},
@@ -58,12 +60,15 @@ def train_mtl_model(state: str, embedd_engine: EmbeddingEngine) -> dict:
                 folds_signature=folds_path,
                 description="Data related to category prediction. Data with 107 features",
             )
-        }
+        },
+        label_map=CATEGORIES_MAP,
+        save_path=results_path,
+        verbose=True,
     )
 
     # Train with cross-validation
     logger.info(f'Starting cross-validation training...')
-    with history.context() as history:
+    with history:
         results = train_with_cross_validation(
             dataloaders=fold_results,
             history=history,
@@ -71,11 +76,6 @@ def train_mtl_model(state: str, embedd_engine: EmbeddingEngine) -> dict:
             num_epochs=MTLModelConfig.EPOCHS,
             learning_rate=MTLModelConfig.LEARNING_RATE
         )
-
-    # Save results
-    results_path = IoPaths.get_results_dir(state, embedd_engine)
-    logger.info(f'Saving results to: {results_path}')
-    history.storage.save(path=results_path)
 
     logger.info(f"Completed training for: {state.upper()} with {embedd_engine.value.upper()}")
     logger.info(f"{'='*80}\n")

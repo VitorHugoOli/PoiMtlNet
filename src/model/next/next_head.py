@@ -75,9 +75,10 @@ class NextHeadSingle(nn.Module):
         # Initialized as linear ramp: oldest=-2.0, newest=0.0 (learnable)
         self.temporal_bias = nn.Parameter(torch.linspace(-2.0, 0.0, seq_length))
 
-    def forward(self, x):
+    def forward(self, x, return_attention=False):
         """
         x: (batch_size, seq_length, embed_dim)
+        return_attention: If True, return (logits, attn_weights) where attn_weights is (batch, seq)
         """
         batch_size, seq_length, _ = x.size()
         device = x.device
@@ -101,9 +102,12 @@ class NextHeadSingle(nn.Module):
         attn_logits = attn_logits.masked_fill(padding_mask, float('-inf'))
 
         attn_weights = torch.softmax(attn_logits, dim=1)
-        attn_weights = torch.nan_to_num(attn_weights, nan=0.0).unsqueeze(-1)  # (batch, seq, 1)
+        attn_weights = torch.nan_to_num(attn_weights, nan=0.0)  # (batch, seq)
 
-        pooled = torch.sum(x * attn_weights, dim=1)  # (batch, embed_dim)
+        pooled = torch.sum(x * attn_weights.unsqueeze(-1), dim=1)  # (batch, embed_dim)
 
         out = self.classifier(pooled)
+
+        if return_attention:
+            return out, attn_weights
         return out

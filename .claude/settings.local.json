@@ -20,7 +20,8 @@
       "Bash(wc:*)",
       "Bash(grep:*)",
       "Bash(tree:*)",
-      "Bash(pytest:*)"
+      "Bash(pytest:*)",
+      "Bash(.venv_new/bin/python -m pytest:*)"
     ],
     "deny": []
   }

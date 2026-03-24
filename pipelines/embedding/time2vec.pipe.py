@@ -19,12 +19,12 @@ logger = logging.getLogger(__name__)
 
 STATES = [
     # Local
-    'Alabama',
+    # 'Alabama',
     # 'Arizona',
     # 'Georgia',
     # Articles
     # 'Florida',
-    # 'California',
+    'California',
     # 'Texas',
 ]
 
@@ -58,7 +58,7 @@ def process_state(name: str) -> bool:
     """Run all pipeline stages for a single state."""
     try:
         logger.info(f"[1/2] Creating embeddings: {name}")
-        # create_embedding(state=name, args=TIME2VEC_CONFIG)
+        create_embedding(state=name, args=TIME2VEC_CONFIG)
 
         logger.info(f"[2/2] Generating inputs: {name}")
         generate_category_input(name, EmbeddingEngine.TIME2VEC)

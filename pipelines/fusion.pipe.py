@@ -47,12 +47,12 @@ STATES: List[str] = [
     # "alabama",    # Start with smaller state for testing
     # "arizona",
     # "georgia",
-    "florida",
-    # "california",
+    # "florida",
+    "california",
     # "texas",
 ]
 
-FUSION_PRESET = "space_hgi_time"  # Options: space_hgi_time, hgi_time, space_time
+FUSION_PRESET = "hgi_time"  # Options: space_hgi_time, hgi_time, space_time
 MAX_WORKERS = 2  # Adjust based on available memory (fusion is memory-intensive)
 
 

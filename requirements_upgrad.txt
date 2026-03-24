@@ -1,0 +1,4 @@
+# Additional requirements for UPGrad weighting method
+# Install with: pip install -r requirements_upgrad.txt
+
+qpsolvers[quadprog]>=3.0.0

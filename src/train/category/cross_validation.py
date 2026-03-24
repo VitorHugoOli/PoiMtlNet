@@ -17,8 +17,8 @@ from train.category.trainer import train
 from model.category.CategoryHeadTransformer import CategoryHeadTransformer
 from criterion.FocalLoss import FocalLoss
 from common.calc_flops.calculate_model_flops import calculate_model_flops
-from common.ml_history.metrics import MLHistory, FlopsMetrics
-from common.ml_history.parms.neural import NeuralParams
+from common.ml_history import MLHistory, FlopsMetrics, NeuralParams
+from common.mps_support import clear_mps_cache
 
 
 def run_cv(
@@ -27,10 +27,10 @@ def run_cv(
 ):
     """Run cross-validation for the model."""
     for idx, (train_loader, val_loader) in enumerate(folds):
-        history.display.start_fold()
-        model = CategoryHeadResidual(
+        model = CategoryHeadEnsemble(
             input_dim=CfgCategoryModel.INPUT_DIM,
-            hidden_dims=CfgCategoryModel.HIDDEN_DIMS,
+            hidden_dim=64,
+            # hidden_dims=CfgCategoryModel.HIDDEN_DIMS,
             num_classes=CfgCategoryModel.NUM_CLASSES,
             dropout=CfgCategoryModel.DROPOUT,
         ).to(DEVICE)
@@ -56,9 +56,6 @@ def run_cv(
             steps_per_epoch=len(train_loader),
         )
 
-        # optimizer = AdamW(model.parameters(), lr=1e-3, weight_decay=1e-2)
-        # scheduler = CosineAnnealingLR(optimizer, T_max=CfgCategoryTraining.EPOCHS)
-
         history.set_model_arch(str(model))
 
         history.set_model_parms(
@@ -78,17 +75,18 @@ def run_cv(
             )
         )
 
-        # Calculate FLOPs
-        sample = next(iter(train_loader))[0].to(DEVICE)
-        result = calculate_model_flops(model,
-                                       sample_input=sample,
-                                       print_report=True,
-                                       units='K'
-                                       )
-        if 'total_flops' in result:
-            history.set_flops(FlopsMetrics(flops=result['total_flops'], params=result['params']['total']))
-        else:
-            print(f"Warning: FLOPs calculation failed: {result.get('error', 'Unknown error')}")
+        # Calculate FLOPs only on first fold (architecture is identical across folds)
+        if idx == 0:
+            sample = next(iter(train_loader))[0].to(DEVICE)
+            result = calculate_model_flops(model,
+                                           sample_input=sample,
+                                           print_report=True,
+                                           units='K'
+                                           )
+            if 'total_flops' in result:
+                history.set_flops(FlopsMetrics(flops=result['total_flops'], params=result['params']['total']))
+            else:
+                print(f"Warning: FLOPs calculation failed: {result.get('error', 'Unknown error')}")
 
         train(
             model,
@@ -103,8 +101,11 @@ def run_cv(
             target_cutoff=InputsConfig.CATEGORY_TARGET,
         )
 
-        report = evaluate(model, val_loader, DEVICE, best_state=history.get_curr_fold().to('category').best_model)
+        report = evaluate(model, val_loader, DEVICE, best_state=history.fold.task('category').best.best_state)
 
-        history.get_curr_fold().to('category').add_report(report)
+        history.fold.task('category').report = report
         history.step()
-        history.display.end_fold()
+
+        # Free MPS memory between folds
+        if DEVICE.type == 'mps':
+            clear_mps_cache()

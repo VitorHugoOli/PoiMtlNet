@@ -7,8 +7,8 @@ from configs.paths import IoPaths, RESULTS_ROOT, EmbeddingEngine
 from configs.category_config import CfgCategoryTraining, CfgCategoryHyperparams
 from etl.create_fold import FoldCreator, TaskType
 from train.category.cross_validation import run_cv
-from common.ml_history.metrics import MLHistory
-from common.ml_history.utils.dataset import DatasetHistory
+from common.ml_history import MLHistory, DatasetHistory
+from configs.globals import CATEGORIES_MAP
 
 
 logging.basicConfig(
@@ -96,20 +96,19 @@ def train_category_model(
                 folds_signature=str(folds_save_path) if folds_save_path else folds_chkpt,
                 description="POI Category Classification",
             )
-        }
+        },
+        label_map=CATEGORIES_MAP,
+        save_path=str(output_dir),
+        verbose=True,
+        display_report=True
     )
 
     # Running cross-validation
     logger.info(f"Starting cross-validation training...")
-    with history.context() as history:
+    with history:
         results = run_cv(history, folds)
 
     history.display.end_training()
-
-    # Save results
-    logger.info(f"Saving results to: {output_dir}")
-    history.storage.save(path=str(output_dir))
-
     logger.info(f"Completed Category training: {state.upper()} with {embedd_engine.value.upper()}")
     logger.info(f"{'='*80}\n")
 
@@ -127,11 +126,14 @@ if __name__ == '__main__':
         # ("arizona", EmbeddingEngine.DGI),
         # ("georgia", EmbeddingEngine.DGI),
         # ("california", EmbeddingEngine.DGI),
+        # ("california", EmbeddingEngine.TIME2VEC),
+        ("california", EmbeddingEngine.POI2HGI),
         # ("alabama", EmbeddingEngine.POI2HGI),
 
         # Multi-embedding fusion (requires running pipelines/fusion.pipe.py first)
-        ("alabama", EmbeddingEngine.FUSION),
+        # ("alabama", EmbeddingEngine.FUSION),
         # ("florida", EmbeddingEngine.FUSION),
+        # ("california", EmbeddingEngine.FUSION),
         # ("texas", EmbeddingEngine.FUSION),
     ]
 

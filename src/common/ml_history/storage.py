@@ -1,15 +1,17 @@
 from pathlib import Path
 import json
-from typing import Any, Dict, List, Union, TYPE_CHECKING
+from typing import Any, Dict, List, Optional, Union, TYPE_CHECKING
 from statistics import mean, stdev
 
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib
 
-from configs.globals import CATEGORIES_MAP
+matplotlib.use('Agg')
 
 if TYPE_CHECKING:
-    from common.ml_history.metrics import MLHistory
+    from common.ml_history.experiment import MLHistory
 
 
 def ensure_dir(path: Path) -> Path:
@@ -31,11 +33,13 @@ def save_csv(df: pd.DataFrame, path: Path, **kwargs) -> None:
     df.to_csv(path, index=False, **kwargs)
 
 
-def map_category(key: Union[int, float, str]) -> str:
-    """Convert numeric or string keys to category names."""
+def map_category(key: Union[int, float, str], label_map: Dict = None) -> str:
+    """Convert numeric or string keys to category names using label_map."""
+    if label_map is None:
+        return str(key)
     try:
         idx = int(float(key))
-        return CATEGORIES_MAP.get(idx, f"Unknown-{key}")
+        return label_map.get(idx, f"Unknown-{key}")
     except Exception:
         return str(key)
 
@@ -43,8 +47,9 @@ def map_category(key: Union[int, float, str]) -> str:
 class SummaryGenerator:
     """Generate overall and per-category performance summaries."""
 
-    def __init__(self, history: Any):
+    def __init__(self, history: 'MLHistory', label_map: Optional[Dict] = None):
         self.history = history
+        self.label_map = label_map or {}
 
     def generate(self, out_dir: Path) -> None:
         out = ensure_dir(out_dir)
@@ -71,7 +76,12 @@ class SummaryGenerator:
                 for cat, metrics in cats.items()])
             df_fmt = pd.DataFrame([{
                 'Category': cat,
-                **{m: f"{mean(vals) * 100:.2f} ± {stdev(vals) * 100:.2f}" for m, vals in metrics.items()},
+                **{
+                    m: (f"{mean(vals) * 100:.2f} ± {stdev(vals) * 100:.2f}"
+                        if len(vals) > 1
+                        else f"{mean(vals) * 100:.2f}")
+                    for m, vals in metrics.items()
+                },
             } for cat, metrics in cats.items()])
 
             if not df.empty:
@@ -82,7 +92,6 @@ class SummaryGenerator:
 
     @staticmethod
     def _stats(values: List[float]) -> Dict[str, float]:
-        """Compute mean, std, min, max."""
         if not values:
             return {'mean': 0, 'std': 0, 'min': 0, 'max': 0}
         return {
@@ -93,33 +102,34 @@ class SummaryGenerator:
         }
 
     def _collect_performance(self) -> Dict[str, Dict[str, List[float]]]:
-        perf: Dict[str, Dict[str, List[float]]] = {
-            task: {'accuracy': [], 'f1': []}
-            for task in self.history.tasks
-        }
+        """Collect best-epoch metrics dynamically from val MetricStore."""
+        perf: Dict[str, Dict[str, List[float]]] = {}
         for fold in self.history.folds:
             for task in self.history.tasks:
-                th = fold.tasks_history.get(task)
+                th = fold.tasks.get(task)
                 if not th:
                     continue
-                best = th.best_epoch
-                for metric in ('val_accuracy', 'val_f1'):
-                    data = getattr(th.task_metrics, metric, [])
-                    if best < len(data):
-                        perf[task][metric.split('_')[1]].append(data[best])
+                if task not in perf:
+                    perf[task] = {}
+                best_epoch = th.best.best_epoch
+                if best_epoch < 0:
+                    continue
+                for metric_name, values in th.val.items():
+                    if best_epoch < len(values):
+                        perf[task].setdefault(metric_name, []).append(values[best_epoch])
         return perf
 
     def _collect_category_metrics(self) -> Dict[str, Dict[str, Dict[str, List[float]]]]:
         result: Dict[str, Dict[str, Dict[str, List[float]]]] = {}
         for fold in self.history.folds:
             for task in self.history.tasks:
-                th = fold.tasks_history.get(task)
-                if not th or not getattr(th.task_outcome, 'report', None):
+                th = fold.tasks.get(task)
+                if not th or not th.report:
                     continue
-                for cat, vals in th.task_outcome.report.items():
+                for cat, vals in th.report.items():
                     if not isinstance(vals, dict) or cat in ('accuracy', 'weighted avg'):
                         continue
-                    name = cat if cat == 'macro avg' else map_category(cat)
+                    name = cat if cat == 'macro avg' else map_category(cat, self.label_map)
                     task_dict = result.setdefault(task, {})
                     metrics = task_dict.setdefault(name, {'precision': [], 'recall': [], 'f1-score': [], 'support': []})
                     for m in metrics:
@@ -133,16 +143,26 @@ class HistoryStorage:
 
     def __init__(self, history: 'MLHistory') -> None:
         self.history = history
+        self._label_map: Dict = {}
 
-    def save(self, path: Union[str, Path]) -> Path:
+    def save(self, path: Union[str, Path], label_map: Optional[Dict[int, str]] = None) -> Path:
+        """Save all results.
+
+        Args:
+            path: Output directory.
+            label_map: Optional mapping of class indices to display names.
+                       Replaces the old CATEGORIES_MAP coupling.
+        """
+        self._label_map = label_map or {}
         base = ensure_dir(Path(path) / self._folder_name())
-        dirs = {k: ensure_dir(base / k) for k in ('model', 'metrics', 'folds', 'summary', 'plots')}
+        dirs = {k: ensure_dir(base / k) for k in ('model', 'metrics', 'folds', 'summary', 'plots', 'diagnostics')}
 
         self._save_params(dirs['model'])
         self._save_metrics(dirs['metrics'])
         self._save_reports(dirs['folds'])
-        SummaryGenerator(self.history).generate(dirs['summary'])
+        SummaryGenerator(self.history, self._label_map).generate(dirs['summary'])
         self._save_plots(dirs['plots'])
+        self._save_diagnostics(dirs['diagnostics'])
 
         return base
 
@@ -153,6 +173,10 @@ class HistoryStorage:
         return "_".join(str(x).lower() for x in parts)
 
     def _save_params(self, path: Path) -> None:
+        datasets_list = []
+        if self.history.datasets:
+            datasets_list = [ds.to_json() for ds in self.history.datasets]
+
         params = {
             'model': {'name': self.history.model_name, 'type': self.history.model_type},
             'training': {
@@ -160,10 +184,7 @@ class HistoryStorage:
                 'tasks': list(self.history.tasks),
                 'dates': {'start': self.history.start_date, 'end': self.history.end_date}
             },
-            'datasets': [
-                ds.to_json()
-                for ds in self.history.datasets
-            ],
+            'datasets': datasets_list,
             "flops": self.history.flops.to_dict() if self.history.flops is not None else None,
             'hyperparameters': {k: v for k, v in vars(self.history.model_parms).items() if not k.startswith('_')}
         }
@@ -179,17 +200,22 @@ class HistoryStorage:
                 f.write(self.history.model_arch)
 
     def _save_metrics(self, path: Path) -> None:
+        """Save train/val metrics dynamically from MetricStore."""
         for i, fold in enumerate(self.history.folds, start=1):
             for task in self.history.tasks:
-                th = fold.tasks_history.get(task)
+                th = fold.tasks.get(task)
                 if not th:
                     continue
-                for phase in ('', 'val_'):
-                    df = pd.DataFrame({
-                        'epoch': list(range(1, len(getattr(th.task_metrics, phase + 'loss')) + 1)),
-                        **{metric: getattr(th.task_metrics, phase + metric) for metric in ('loss', 'accuracy', 'f1')}
-                    })
-                    save_csv(df, path / f'fold{i}_{task}_{phase or "train"}.csv')
+
+                # Train metrics
+                if th.train.num_epochs() > 0:
+                    df = th.train.to_dataframe()
+                    save_csv(df, path / f'fold{i}_{task}_train.csv')
+
+                # Validation metrics
+                if th.val.num_epochs() > 0:
+                    df = th.val.to_dataframe()
+                    save_csv(df, path / f'fold{i}_{task}_val.csv')
 
     def _save_reports(self, path: Path) -> None:
         for i, fold in enumerate(self.history.folds, start=1):
@@ -199,37 +225,225 @@ class HistoryStorage:
                 'best_epochs': {}
             }
             for task in self.history.tasks:
-                th = fold.tasks_history.get(task)
-                if not th or not getattr(th.task_outcome, 'report', None):
+                th = fold.tasks.get(task)
+                if not th or not th.report:
                     continue
-                report = {map_category(k): v for k, v in th.task_outcome.report.items() if isinstance(v, dict)}
+                report = {
+                    map_category(k, self._label_map): v
+                    for k, v in th.report.items()
+                    if isinstance(v, dict)
+                }
                 save_json(report, path / f'fold{i}_{task}_report.json')
                 df = pd.DataFrame([{'Category': k, **v} for k, v in report.items()])
 
-                # Best epoch
-                be = th.best_epoch
-                acc = th.task_metrics.val_accuracy[be] if be < len(th.task_metrics.val_accuracy) else None
-                f1 = th.task_metrics.val_f1[be] if be < len(th.task_metrics.val_f1) else None
-                fold_info['best_epochs'][task] = {'epoch': be, 'accuracy': acc, 'f1': f1, 'time': th.best_time}
+                be = th.best.best_epoch
+                acc_vals = th.val.get('accuracy')
+                f1_vals = th.val.get('f1')
+                acc = acc_vals[be] if acc_vals and be < len(acc_vals) else None
+                f1 = f1_vals[be] if f1_vals and be < len(f1_vals) else None
+                fold_info['best_epochs'][task] = {
+                    'epoch': be, 'accuracy': acc, 'f1': f1, 'time': th.best.best_time
+                }
 
                 save_csv(df, path / f'fold{i}_{task}_report.csv', float_format='%.4f')
             save_json(fold_info, path / f'fold{i}_info.json')
 
     def _save_plots(self, path: Path) -> None:
-        for metric in ('loss', 'accuracy', 'f1'):
-            for task in self.history.tasks | {'model'}:
+        """Auto-generate plots for every metric found in train/val MetricStores."""
+        # Collect all unique metric names across all folds/tasks
+        all_metrics = set()
+        for fold in self.history.folds:
+            for task in self.history.tasks:
+                th = fold.tasks.get(task)
+                if th:
+                    all_metrics.update(th.train.keys())
+                    all_metrics.update(th.val.keys())
+
+        for metric in sorted(all_metrics):
+            for task in self.history.tasks:
+                has_data = False
                 plt.figure()
                 for i, fold in enumerate(self.history.folds, start=1):
-                    th = fold.tasks_history.get(task) if task != 'model' else getattr(fold, 'model', None)
+                    th = fold.tasks.get(task)
                     if not th:
                         continue
-                    tm = th.task_metrics
-                    x = range(1, len(getattr(tm, metric)) + 1)
-                    plt.plot(x, getattr(tm, metric), label=f'Fold{i} Train')
-                    plt.plot(x, getattr(tm, f'val_{metric}'), linestyle='--', label=f'Fold{i} Val')
-                plt.title(f'{metric.title()} over Epochs - {task}')
-                plt.legend();
-                plt.grid(True)
-                save_path = ensure_dir(path / task) / f"{metric}.png"
-                plt.savefig(save_path);
+                    train_data = th.train.get(metric)
+                    val_data = th.val.get(metric)
+                    if train_data:
+                        x = range(1, len(train_data) + 1)
+                        plt.plot(x, train_data, label=f'Fold{i} Train')
+                        has_data = True
+                    if val_data:
+                        x = range(1, len(val_data) + 1)
+                        plt.plot(x, val_data, linestyle='--', label=f'Fold{i} Val')
+                        has_data = True
+                if has_data:
+                    plt.title(f'{metric.replace("_", " ").title()} over Epochs - {task}')
+                    plt.legend()
+                    plt.grid(True)
+                    save_path = ensure_dir(path / task) / f"{metric}.png"
+                    plt.savefig(save_path)
                 plt.close()
+
+            # Model-level metrics (MTL combined)
+            has_model_data = False
+            plt.figure()
+            for i, fold in enumerate(self.history.folds, start=1):
+                if fold.model_task is None:
+                    continue
+                train_data = fold.model_task.train.get(metric)
+                val_data = fold.model_task.val.get(metric)
+                if train_data:
+                    x = range(1, len(train_data) + 1)
+                    plt.plot(x, train_data, label=f'Fold{i} Train')
+                    has_model_data = True
+                if val_data:
+                    x = range(1, len(val_data) + 1)
+                    plt.plot(x, val_data, linestyle='--', label=f'Fold{i} Val')
+                    has_model_data = True
+            if has_model_data:
+                plt.title(f'{metric.replace("_", " ").title()} over Epochs - model')
+                plt.legend()
+                plt.grid(True)
+                save_path = ensure_dir(path / 'model') / f"{metric}.png"
+                plt.savefig(save_path)
+            plt.close()
+
+    def _save_diagnostics(self, path: Path) -> None:
+        """Save diagnostics from fold.diagnostics (MetricStore) and fold.artifacts (dict)."""
+        for i, fold in enumerate(self.history.folds, start=1):
+
+            # Epoch-series diagnostics from MetricStore
+            if fold.diagnostics.num_epochs() > 0:
+                df = fold.diagnostics.to_dataframe()
+                save_csv(df, path / f'fold{i}_diagnostics.csv', float_format='%.6f')
+
+                # Auto-plot each diagnostic metric
+                for metric_name in fold.diagnostics.keys():
+                    vals = fold.diagnostics[metric_name]
+                    plt.figure(figsize=(10, 5))
+                    plt.plot(range(1, len(vals) + 1), vals, linewidth=1.5)
+                    plt.xlabel('Epoch')
+                    plt.ylabel(metric_name.replace('_', ' ').title())
+                    plt.title(f'{metric_name.replace("_", " ").title()} — Fold {i}')
+                    plt.grid(True, alpha=0.3)
+                    plt.tight_layout()
+                    plt.savefig(path / f'fold{i}_{metric_name}.png', dpi=150)
+                    plt.close()
+
+            # Special handling for well-known artifacts
+            artifacts = fold.artifacts
+
+            # Confusion matrix
+            if 'confusion_matrix' in artifacts:
+                cm_data = artifacts['confusion_matrix']
+                labels = cm_data['labels']
+                matrix = np.array(cm_data['matrix'])
+                df_cm = pd.DataFrame(matrix, index=labels, columns=labels)
+                df_cm.to_csv(path / f'fold{i}_confusion_matrix.csv')
+                self._plot_confusion_matrices(matrix, labels, path / f'fold{i}_confusion_matrix.png', fold_num=i)
+
+            # Attention weights
+            if 'attention_weights' in artifacts:
+                save_json(artifacts['attention_weights'], path / f'fold{i}_attention_weights.json')
+
+            # Per-class attention
+            if 'attention_per_class' in artifacts:
+                save_json(artifacts['attention_per_class'], path / f'fold{i}_attention_per_class.json')
+                self._plot_attention_heatmaps(
+                    artifacts.get('attention_weights', {}),
+                    artifacts['attention_per_class'],
+                    path, fold_num=i,
+                )
+
+            # Any other artifacts: save as JSON
+            for key, value in artifacts.items():
+                if key in ('confusion_matrix', 'attention_weights', 'attention_per_class'):
+                    continue  # already handled above
+                try:
+                    save_json(value, path / f'fold{i}_{key}.json')
+                except (TypeError, ValueError):
+                    save_text(str(value), path / f'fold{i}_{key}.txt')
+
+    @staticmethod
+    def _plot_confusion_matrices(matrix: np.ndarray, labels: List[str], save_path: Path, fold_num: int) -> None:
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
+
+        im1 = ax1.imshow(matrix, interpolation='nearest', cmap='Blues')
+        ax1.set_title(f'Confusion Matrix (Counts) — Fold {fold_num}')
+        ax1.set_xticks(range(len(labels)))
+        ax1.set_yticks(range(len(labels)))
+        ax1.set_xticklabels(labels, rotation=45, ha='right', fontsize=8)
+        ax1.set_yticklabels(labels, fontsize=8)
+        ax1.set_xlabel('Predicted')
+        ax1.set_ylabel('True')
+        fig.colorbar(im1, ax=ax1, shrink=0.8)
+
+        for r in range(len(labels)):
+            for c in range(len(labels)):
+                ax1.text(c, r, str(matrix[r, c]), ha='center', va='center', fontsize=7)
+
+        row_sums = matrix.sum(axis=1, keepdims=True)
+        norm_matrix = np.divide(matrix, row_sums, where=row_sums != 0, out=np.zeros_like(matrix, dtype=float))
+
+        im2 = ax2.imshow(norm_matrix, interpolation='nearest', cmap='Blues', vmin=0, vmax=1)
+        ax2.set_title(f'Confusion Matrix (Normalized) — Fold {fold_num}')
+        ax2.set_xticks(range(len(labels)))
+        ax2.set_yticks(range(len(labels)))
+        ax2.set_xticklabels(labels, rotation=45, ha='right', fontsize=8)
+        ax2.set_yticklabels(labels, fontsize=8)
+        ax2.set_xlabel('Predicted')
+        ax2.set_ylabel('True')
+        fig.colorbar(im2, ax=ax2, shrink=0.8)
+
+        for r in range(len(labels)):
+            for c in range(len(labels)):
+                ax2.text(c, r, f'{norm_matrix[r, c]:.2f}', ha='center', va='center', fontsize=7)
+
+        fig.tight_layout()
+        fig.savefig(save_path, dpi=150)
+        plt.close(fig)
+
+    @staticmethod
+    def _plot_attention_heatmaps(
+            overall_attn: Dict,
+            per_class_attn: Dict[str, Dict],
+            out_dir: Path,
+            fold_num: int,
+    ) -> None:
+        if per_class_attn:
+            class_names = list(per_class_attn.keys())
+            means = np.array([per_class_attn[c]['mean'] for c in class_names])
+            seq_len = means.shape[1]
+
+            fig, ax = plt.subplots(figsize=(max(8, seq_len), max(4, len(class_names) * 0.6)))
+            im = ax.imshow(means, aspect='auto', cmap='YlOrRd')
+            ax.set_xticks(range(seq_len))
+            ax.set_xticklabels([f't-{seq_len - 1 - j}' for j in range(seq_len)], fontsize=8)
+            ax.set_yticks(range(len(class_names)))
+            ax.set_yticklabels(class_names, fontsize=8)
+            ax.set_xlabel('Sequence Position')
+            ax.set_ylabel('Category')
+            ax.set_title(f'Attention per Class x Position — Fold {fold_num}')
+            fig.colorbar(im, ax=ax, shrink=0.8)
+            fig.tight_layout()
+            fig.savefig(out_dir / f'fold{fold_num}_attention_heatmap.png', dpi=150)
+            plt.close(fig)
+
+        if overall_attn and 'mean' in overall_attn:
+            attn_mean = np.array(overall_attn['mean'])
+            attn_std = np.array(overall_attn['std'])
+            seq_len = len(attn_mean)
+            positions = range(seq_len)
+
+            fig, ax = plt.subplots(figsize=(max(8, seq_len), 5))
+            ax.bar(positions, attn_mean, yerr=attn_std, capsize=3, color='steelblue', alpha=0.8)
+            ax.set_xticks(positions)
+            ax.set_xticklabels([f't-{seq_len - 1 - j}' for j in range(seq_len)], fontsize=8)
+            ax.set_xlabel('Sequence Position')
+            ax.set_ylabel('Attention Weight')
+            ax.set_title(f'Mean Attention per Position — Fold {fold_num}')
+            ax.grid(True, alpha=0.3, axis='y')
+            fig.tight_layout()
+            fig.savefig(out_dir / f'fold{fold_num}_attention_distribution.png', dpi=150)
+            plt.close(fig)
