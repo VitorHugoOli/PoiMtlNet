@@ -12,7 +12,6 @@ def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_c
         dataloader: DataLoader with evaluation data
         loss_functions: Dictionary of loss functions
         reshape_method: Method to reshape output and target
-        foward_method: Method to forward data through the model
         device: Device to run evaluation on
         num_classes: Number of POI classes
 
@@ -64,41 +63,3 @@ def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_c
     acc_category = category_report['accuracy']
 
     return acc_next, f1_next, acc_category, f1_category, loss
-
-
-def evaluate_model_by_head(model, dataloader, loss_function, foward_method, device, num_classes=None):
-    """
-    Unified evaluation function for both validation and testing.
-
-    Args:
-        model: The MTLPOI model
-        dataloader: DataLoader with evaluation data
-        loss_functions: Dictionary of loss functions
-        reshape_method: Method to reshape output and target
-        foward_method: Method to forward data through the model
-        device: Device to run evaluation on
-        num_classes: Number of POI classes
-
-    Returns:
-        Tuple of (accuracy, loss)
-    """
-    model.eval()
-    running_loss = torch.tensor(0.0, device=device)
-    running_correct = torch.tensor(0, device=device, dtype=torch.long)
-    total_samples = 0
-
-    with torch.no_grad():
-        for x, y in dataloader:
-            x, y = x.to(device, non_blocking=True), y.to(device, non_blocking=True)
-
-            # Forward pass
-            out = foward_method(x)
-            pred, truth = out, y
-
-            # Accumulate on-device
-            running_loss += loss_function(pred, truth).detach()
-            running_correct += (torch.argmax(pred, dim=1) == truth).sum()
-            total_samples += truth.size(0)
-
-    # Single MPS sync
-    return running_correct.item() / total_samples, running_loss.item() / total_samples

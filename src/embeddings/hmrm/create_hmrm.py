@@ -2,7 +2,7 @@ import pandas as pd
 
 from configs.model import InputsConfig
 from configs.paths import IoPaths, IO_CHECKINS, EmbeddingEngine
-from embeddings.hmrm.hmrm_new import HmrmBaselineNew
+from embeddings.hmrm.hmrm import HmrmBaselineNew
 
 
 def _create_embeddings(input_file, weight=0.1, K=7, embedding_size=50) -> pd.DataFrame:

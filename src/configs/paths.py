@@ -1,14 +1,11 @@
 import os
-import warnings
 from enum import Enum
 from pathlib import Path
 from typing import Optional
 
 import pandas as pd
-from IPython.lib.deepreload import get_parent
 from pandas import DataFrame
 
-import urllib3
 
 def get_parent_of_src(project_root: Path) -> Optional[Path]:
     """
@@ -28,12 +25,6 @@ RESULTS_ROOT = Path(os.environ.get('RESULTS_ROOT', PROJECT_ROOT / 'results'))
 
 # Input data paths
 IO_CHECKINS = DATA_ROOT / 'checkins'
-if not IO_CHECKINS.exists() or not IO_CHECKINS.is_symlink():
-    raise FileNotFoundError(f"Checkins directory not found: {IO_CHECKINS}")
-
-# Create output directories
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-RESULTS_ROOT.mkdir(parents=True, exist_ok=True)
 
 
 class EmbeddingEngine(Enum):
@@ -292,6 +283,18 @@ class IoPaths:
     Static paths for I/O operations.
     """
     EMBEDDINGS_FILE: str = "embeddings.parquet"
+
+    @classmethod
+    def validate(cls) -> None:
+        """Check that required data directories exist and create output directories.
+
+        Call this at pipeline startup, not at import time.
+        Raises FileNotFoundError if checkins directory is missing.
+        """
+        if not IO_CHECKINS.exists() or not IO_CHECKINS.is_symlink():
+            raise FileNotFoundError(f"Checkins directory not found: {IO_CHECKINS}")
+        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+        RESULTS_ROOT.mkdir(parents=True, exist_ok=True)
 
     DGI = _DGIIoPath
     HGI = _HGIIoPath

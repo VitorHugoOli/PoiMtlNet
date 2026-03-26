@@ -245,6 +245,9 @@ class CategoryHeadEnsemble(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # Support [B, 1, input_dim] (MTL) and [B, input_dim] (standalone) inputs
+        x = x.squeeze(1)
+
         # Process through all paths
         path_outputs = [path(x) for path in self.paths]
 
