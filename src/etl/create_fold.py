@@ -18,6 +18,7 @@ Note:
 """
 
 import gc
+import json
 import logging
 import os
 import time
@@ -31,7 +32,7 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 import torch
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import StratifiedGroupKFold, StratifiedKFold
 from sklearn.utils.class_weight import compute_class_weight
 from torch.utils.data import DataLoader, Dataset, WeightedRandomSampler
 
@@ -148,6 +149,8 @@ def _convert_to_tensors(
         X: np.ndarray,
         y: np.ndarray,
         task_type: TaskType,
+        embedding_dim: int,
+        slide_window: int = InputsConfig.SLIDE_WINDOW,
 ) -> Tuple[torch.Tensor, torch.Tensor]:
     x_values = np.ascontiguousarray(X, dtype=np.float32)
     y_values = np.ascontiguousarray(y, dtype=np.int64)
@@ -156,15 +159,49 @@ def _convert_to_tensors(
     x_tensor = torch.from_numpy(x_values)
     y_tensor = torch.from_numpy(y_values)
 
-    embedding_dim = InputsConfig.EMBEDDING_DIM
-    slide_window = InputsConfig.SLIDE_WINDOW
-
     if task_type == TaskType.NEXT:
         # Reshape to (num_samples, slide_window, embedding_dim) for sequence models
         x_tensor = x_tensor.view(-1, slide_window, embedding_dim)
     # CATEGORY: keep as (num_samples, embedding_dim) - no reshape needed
 
     return x_tensor, y_tensor
+
+
+def _json_default(obj):
+    """JSON serializer for numpy types."""
+    if isinstance(obj, (np.integer,)):
+        return int(obj)
+    if isinstance(obj, (np.floating,)):
+        return float(obj)
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
+
+
+def _compute_overlap_seq_fraction(
+    ambiguous_pois: List[int],
+    val_next_idx: np.ndarray,
+    seq_poi_mapping: Dict[int, set],
+) -> float:
+    """Compute fraction of val next-task sequences that touch ambiguous POIs.
+
+    Uses the materialized sequence→POI mapping artifact to determine which
+    val sequences contain ambiguous POIs (i.e., POIs that are in category
+    training but appear in next-task validation through val-user sequences).
+    """
+    if not ambiguous_pois:
+        return 0.0
+
+    ambiguous_set = set(ambiguous_pois)
+    affected = 0
+    total_val = len(val_next_idx)
+
+    for idx in val_next_idx:
+        seq_pois = seq_poi_mapping.get(int(idx), set())
+        if seq_pois & ambiguous_set:
+            affected += 1
+
+    return affected / max(total_val, 1)
 
 
 def _create_weighted_sampler(y: np.ndarray, seed: int) -> WeightedRandomSampler:
@@ -218,40 +255,55 @@ def _create_dataloader(
 # ============================================================
 # DATA LOADING
 # ============================================================
-def load_category_data(state: str, embedding_engine: EmbeddingEngine) -> Tuple[np.ndarray, np.ndarray]:
+def load_category_data(state: str, embedding_engine: EmbeddingEngine) -> Tuple[np.ndarray, np.ndarray, np.ndarray, int]:
+    """Load category data. Returns (X, y, placeids, embedding_dim)."""
     logger.info(f"Loading category data: {state}/{embedding_engine.value}")
     df = IoPaths.load_category(state, embedding_engine)
 
     df['label'] = _map_categories(df['category'])
+    placeids = df['placeid'].values.copy()
     df = df.drop(columns=['category'])
 
-    feature_cols = list(map(str, range(InputsConfig.EMBEDDING_DIM)))
+    # Infer embedding_dim from numeric columns in the artifact
+    feature_cols = sorted([c for c in df.columns if c.isdigit()], key=int)
+    embedding_dim = len(feature_cols)
     X = df[feature_cols].values.astype(np.float32)
     y = df['label'].values.astype(np.int64)
 
-    logger.info(f"Category data: {X.shape}, distribution: {_get_class_distribution(y)}")
-    return X, y
+    logger.info(f"Category data: {X.shape} (dim={embedding_dim}), distribution: {_get_class_distribution(y)}")
+    return X, y, placeids, embedding_dim
 
 
-def load_next_data(state: str, embedding_engine: EmbeddingEngine) -> Tuple[np.ndarray, np.ndarray]:
+def load_next_data(
+    state: str, embedding_engine: EmbeddingEngine
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, int]:
+    """Load next-POI data. Returns (X, y, userids, embedding_dim)."""
     logger.info(f"Loading next-POI data: {state}/{embedding_engine.value}")
     df = IoPaths.load_next(state, embedding_engine)
 
     df['label'] = _map_categories(df['next_category'])
+    # Ensure userid is int (may be stored as string in parquet)
+    userids = df['userid'].astype(int).values.copy()
     df = df.drop(columns=['userid', 'next_category'])
 
     nan_count = df['label'].isna().sum()
     if nan_count > 0:
         logger.warning(f"Dropping {nan_count} rows with NaN labels")
-        df = df.dropna(subset=['label'])
+        valid_mask = ~df['label'].isna()
+        df = df[valid_mask]
+        userids = userids[valid_mask.values]
 
-    expected_features = InputsConfig.EMBEDDING_DIM * InputsConfig.SLIDE_WINDOW
-    feature_cols = df.columns[:expected_features]
+    # Infer dimensions from numeric columns in the artifact
+    feature_cols = sorted([c for c in df.columns if c.isdigit()], key=int)
+    num_features = len(feature_cols)
+    slide_window = InputsConfig.SLIDE_WINDOW
+    embedding_dim = num_features // slide_window
+
     X = df[feature_cols].values.astype(np.float32)
     y = df['label'].values.astype(np.int64)
 
-    logger.info(f"Next-POI data: {X.shape}, distribution: {_get_class_distribution(y)}")
-    return X, y
+    logger.info(f"Next-POI data: {X.shape} (dim={embedding_dim}, window={slide_window}), distribution: {_get_class_distribution(y)}")
+    return X, y, userids, embedding_dim
 
 
 # ============================================================
@@ -373,7 +425,7 @@ class FoldCreator:
             batch_size=batch_size,
             seed=seed,
             use_weighted_sampling=use_weighted_sampling,
-            embedding_dim=InputsConfig.EMBEDDING_DIM,
+            embedding_dim=0,  # set from artifact in create_folds()
             slide_window=InputsConfig.SLIDE_WINDOW,
         )
         self._task_tensors: Dict[TaskType, TaskTensors] = {}
@@ -402,11 +454,11 @@ class FoldCreator:
         task = self.task_type
 
         if task == TaskType.CATEGORY:
-            X, y = load_category_data(state, embedding_engine)
+            X, y, _placeids, embedding_dim = load_category_data(state, embedding_engine)
         else:
-            X, y = load_next_data(state, embedding_engine)
+            X, y, _userids, embedding_dim = load_next_data(state, embedding_engine)
 
-        x_tensor, y_tensor = _convert_to_tensors(X, y, task)
+        x_tensor, y_tensor = _convert_to_tensors(X, y, task, embedding_dim=embedding_dim)
         self._task_tensors[task] = TaskTensors(task, x_tensor, y_tensor)
         self._fold_indices[task] = []
 
@@ -447,53 +499,141 @@ class FoldCreator:
             state: str,
             embedding_engine: EmbeddingEngine,
     ) -> Dict[int, FoldResult]:
-        X_next, y_next = load_next_data(state, embedding_engine)
-        X_cat, y_cat = load_category_data(state, embedding_engine)
+        """Create MTL folds using user-isolation split protocol (SPLIT_PROTOCOL.md).
 
-        x_next_tensor, y_next_tensor = _convert_to_tensors(X_next, y_next, TaskType.NEXT)
-        x_cat_tensor, y_cat_tensor = _convert_to_tensors(X_cat, y_cat, TaskType.CATEGORY)
+        Algorithm:
+        1. Split users via StratifiedGroupKFold(groups=userid, y=next_category)
+        2. Build POI→users mapping to classify POIs per fold
+        3. Next-task: train = train-user sequences, val = val-user sequences
+        4. Category-task: train = train-exclusive + ambiguous POIs,
+                          val = val-exclusive POIs
+        """
+        # Load data
+        X_next, y_next, next_userids, next_dim = load_next_data(state, embedding_engine)
+        X_cat, y_cat, cat_placeids, cat_dim = load_category_data(state, embedding_engine)
+
+        x_next_tensor, y_next_tensor = _convert_to_tensors(X_next, y_next, TaskType.NEXT, embedding_dim=next_dim)
+        x_cat_tensor, y_cat_tensor = _convert_to_tensors(X_cat, y_cat, TaskType.CATEGORY, embedding_dim=cat_dim)
 
         self._task_tensors[TaskType.NEXT] = TaskTensors(TaskType.NEXT, x_next_tensor, y_next_tensor)
         self._task_tensors[TaskType.CATEGORY] = TaskTensors(TaskType.CATEGORY, x_cat_tensor, y_cat_tensor)
         self._fold_indices[TaskType.NEXT] = []
         self._fold_indices[TaskType.CATEGORY] = []
 
-        next_skf = StratifiedKFold(n_splits=self.n_splits, shuffle=True, random_state=self.seed)
-        cat_skf = StratifiedKFold(n_splits=self.n_splits, shuffle=True, random_state=self.seed)
+        # Build POI→users mapping from raw checkins
+        from data.poi_user_mapping import build_poi_user_mapping
+        poi_users = build_poi_user_mapping(state, embedding_engine)
+
+        # Build sequence→POI mapping for overlap diagnostics
+        from data.sequence_poi_mapping import build_sequence_poi_mapping
+        seq_poi_mapping = build_sequence_poi_mapping(state, embedding_engine)
+
+        # Step 1: Split users with StratifiedGroupKFold on next-task data
+        sgkf = StratifiedGroupKFold(n_splits=self.n_splits, shuffle=True, random_state=self.seed)
 
         fold_results: Dict[int, FoldResult] = {}
+        self._fold_manifests: List[dict] = []
 
-        for fold_idx, ((train_next, val_next), (train_cat, val_cat)) in enumerate(
-                zip(next_skf.split(X_next, y_next), cat_skf.split(X_cat, y_cat))
+        for fold_idx, (train_next_idx, val_next_idx) in enumerate(
+                sgkf.split(X_next, y_next, groups=next_userids)
         ):
-            logger.info(f"Fold {fold_idx + 1}/{self.n_splits}")
+            train_users = set(next_userids[train_next_idx])
+            val_users = set(next_userids[val_next_idx])
 
-            self._fold_indices[TaskType.NEXT].append(FoldIndices(fold_idx, train_next, val_next))
-            self._fold_indices[TaskType.CATEGORY].append(FoldIndices(fold_idx, train_cat, val_cat))
+            logger.info(
+                f"Fold {fold_idx + 1}/{self.n_splits}: "
+                f"train_users={len(train_users)}, val_users={len(val_users)}"
+            )
+
+            # Step 2: Classify POIs
+            train_exclusive = []
+            val_exclusive = []
+            ambiguous = []
+            for poi, visitors in poi_users.items():
+                in_train = bool(visitors & train_users)
+                in_val = bool(visitors & val_users)
+                if in_train and in_val:
+                    ambiguous.append(poi)
+                elif in_train:
+                    train_exclusive.append(poi)
+                elif in_val:
+                    val_exclusive.append(poi)
+
+            logger.info(
+                f"  POIs: train_excl={len(train_exclusive)}, "
+                f"val_excl={len(val_exclusive)}, ambiguous={len(ambiguous)}"
+            )
+
+            # Step 3: Derive category fold indices
+            # Category train = train-exclusive + ambiguous POIs
+            # Category val = val-exclusive POIs only
+            cat_train_pois = set(train_exclusive) | set(ambiguous)
+            cat_val_pois = set(val_exclusive)
+
+            train_cat_idx = np.where(np.isin(cat_placeids, list(cat_train_pois)))[0]
+            val_cat_idx = np.where(np.isin(cat_placeids, list(cat_val_pois)))[0]
+
+            logger.info(
+                f"  Category: train={len(train_cat_idx)}, val={len(val_cat_idx)}"
+            )
+            logger.info(
+                f"  Next: train={len(train_next_idx)}, val={len(val_next_idx)}"
+            )
+
+            self._fold_indices[TaskType.NEXT].append(
+                FoldIndices(fold_idx, train_next_idx, val_next_idx)
+            )
+            self._fold_indices[TaskType.CATEGORY].append(
+                FoldIndices(fold_idx, train_cat_idx, val_cat_idx)
+            )
+
+            # Build fold manifest data for P2.9
+            self._fold_manifests.append({
+                'fold_idx': fold_idx,
+                'train_users': sorted(train_users),
+                'val_users': sorted(val_users),
+                'train_exclusive_pois': sorted(train_exclusive),
+                'val_exclusive_pois': sorted(val_exclusive),
+                'ambiguous_pois': sorted(ambiguous),
+                'split_mode': 'strict',
+                'category_train_count': len(train_cat_idx),
+                'category_val_count': len(val_cat_idx),
+                'next_train_count': len(train_next_idx),
+                'next_val_count': len(val_next_idx),
+                'overlap': {
+                    'ambiguous_poi_count': len(ambiguous),
+                    'ambiguous_poi_fraction': len(ambiguous) / max(len(poi_users), 1),
+                    'cat_train_next_val_poi_count': len(ambiguous),
+                    'cat_train_next_val_seq_fraction': _compute_overlap_seq_fraction(
+                        ambiguous, val_next_idx, seq_poi_mapping
+                    ),
+                },
+                'seed': self.seed,
+            })
 
             fold_results[fold_idx] = FoldResult(
                 next=TaskFoldData(
                     train=FoldData(
-                        _create_dataloader(x_next_tensor[train_next], y_next_tensor[train_next],
+                        _create_dataloader(x_next_tensor[train_next_idx], y_next_tensor[train_next_idx],
                                            self.batch_size, True, self.use_weighted_sampling, self.seed),
-                        x_next_tensor[train_next], y_next_tensor[train_next]
+                        x_next_tensor[train_next_idx], y_next_tensor[train_next_idx]
                     ),
                     val=FoldData(
-                        _create_dataloader(x_next_tensor[val_next], y_next_tensor[val_next],
+                        _create_dataloader(x_next_tensor[val_next_idx], y_next_tensor[val_next_idx],
                                            self.batch_size, False, False, self.seed),
-                        x_next_tensor[val_next], y_next_tensor[val_next]
+                        x_next_tensor[val_next_idx], y_next_tensor[val_next_idx]
                     ),
                 ),
                 category=TaskFoldData(
                     train=FoldData(
-                        _create_dataloader(x_cat_tensor[train_cat], y_cat_tensor[train_cat],
+                        _create_dataloader(x_cat_tensor[train_cat_idx], y_cat_tensor[train_cat_idx],
                                            self.batch_size, True, self.use_weighted_sampling, self.seed),
-                        x_cat_tensor[train_cat], y_cat_tensor[train_cat]
+                        x_cat_tensor[train_cat_idx], y_cat_tensor[train_cat_idx]
                     ),
                     val=FoldData(
-                        _create_dataloader(x_cat_tensor[val_cat], y_cat_tensor[val_cat],
+                        _create_dataloader(x_cat_tensor[val_cat_idx], y_cat_tensor[val_cat_idx],
                                            self.batch_size, False, False, self.seed),
-                        x_cat_tensor[val_cat], y_cat_tensor[val_cat]
+                        x_cat_tensor[val_cat_idx], y_cat_tensor[val_cat_idx]
                     ),
                 ),
             )
@@ -512,6 +652,30 @@ class FoldCreator:
             created_at=datetime.now().isoformat(),
         )
         return save_folds(serializable, save_dir)
+
+    def save_split_manifests(self, output_dir: Path) -> List[Path]:
+        """Emit split_manifest_fold*.json for each fold.
+
+        Only available after _create_mtl_folds() has been called.
+        Returns list of paths written.
+        """
+        if not hasattr(self, '_fold_manifests') or not self._fold_manifests:
+            logger.warning("No fold manifests to save (not an MTL split or create_folds not called)")
+            return []
+
+        output_dir = Path(output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
+        paths = []
+
+        for manifest in self._fold_manifests:
+            fold_idx = manifest['fold_idx']
+            path = output_dir / f"split_manifest_fold{fold_idx}.json"
+            with open(path, 'w') as f:
+                json.dump(manifest, f, indent=2, default=_json_default)
+            paths.append(path)
+            logger.info(f"Split manifest written: {path}")
+
+        return paths
 
     @classmethod
     def load(cls, path: Path) -> Dict[int, FoldResult]:

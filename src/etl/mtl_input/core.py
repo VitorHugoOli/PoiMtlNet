@@ -22,9 +22,10 @@ def generate_sequences(
     places_visited: List[int],
     window_size: int = InputsConfig.SLIDE_WINDOW,
     pad_value: int = PADDING_VALUE,
+    stride: int = None,
 ) -> List[List[int]]:
     """
-    Generate non-overlapping sequences of fixed length for next-POI prediction.
+    Generate sequences of fixed length for next-POI prediction.
 
     Each sequence contains:
     - First (window_size) positions: historical visits (padded if needed)
@@ -34,6 +35,7 @@ def generate_sequences(
         places_visited: List of place IDs in chronological order
         window_size: Number of historical visits per sequence (default: SLIDE_WINDOW)
         pad_value: Value for padding short sequences (default: -1)
+        stride: Step between sequence starts (default: window_size, i.e. non-overlapping)
 
     Returns:
         List of sequences, each of length (window_size + 1).
@@ -43,19 +45,19 @@ def generate_sequences(
         return []
 
     sequences: List[List[int]] = []
-    step = window_size
+    step = stride if stride is not None else window_size
     total_visits = len(places_visited)
 
     for start_idx in range(0, total_visits, step):
-        # Extract history window
-        history = places_visited[start_idx:start_idx + step]
+        # Extract history window (always window_size items, regardless of stride)
+        history = places_visited[start_idx:start_idx + window_size]
 
         # Pad if history is shorter than window_size
-        if len(history) < step:
-            history = history + [pad_value] * (step - len(history))
+        if len(history) < window_size:
+            history = history + [pad_value] * (window_size - len(history))
 
-        # Determine target POI
-        target_idx = start_idx + step
+        # Determine target POI (immediately after the history window)
+        target_idx = start_idx + window_size
         if target_idx < total_visits:
             target_poi = places_visited[target_idx]
         else:

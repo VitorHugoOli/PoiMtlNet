@@ -14,6 +14,11 @@ from tqdm import tqdm
 
 from configs.paths import IoPaths, EmbeddingEngine
 from configs.model import InputsConfig
+
+# Engines that produce check-in-level embeddings (one per visit, not per POI).
+# Category task requires POI-level embeddings (one per POI).
+_CHECKIN_LEVEL_ENGINES = {EmbeddingEngine.CHECK2HGI, EmbeddingEngine.TIME2VEC}
+
 from .core import (
     generate_sequences,
     create_embedding_lookup,
@@ -34,11 +39,24 @@ def generate_category_input(state: str, engine: EmbeddingEngine) -> None:
     Generate category task input from embeddings.
 
     Simply copies embeddings with placeid as index.
+    Rejects check-in-level engines (Time2Vec, Check2HGI) — category task
+    requires one embedding per POI.
 
     Args:
         state: State name (e.g., 'alabama')
         engine: Embedding engine
+
+    Raises:
+        ValueError: If engine produces check-in-level embeddings.
     """
+    if engine in _CHECKIN_LEVEL_ENGINES:
+        raise ValueError(
+            f"Engine {engine.value} produces check-in-level embeddings, which are "
+            f"invalid for the category task (requires one embedding per POI). "
+            f"Use a POI-level engine (HGI, DGI, Space2Vec, POI2HGI, HMRM) or "
+            f"fusion mode with POI-level category embeddings."
+        )
+
     embeddings_df = IoPaths.load_embedd(state, engine)
     output_path = IoPaths.get_category(state, engine)
 
@@ -66,8 +84,9 @@ def generate_next_input_from_poi(
     embeddings_df = IoPaths.load_embedd(state, engine)
     checkins_df = IoPaths.load_city(state)
 
-    # Build lookups
-    embedding_dim = InputsConfig.EMBEDDING_DIM
+    # Build lookups — infer dimension from the embedding artifact
+    numeric_cols = [c for c in embeddings_df.columns if c.isdigit()]
+    embedding_dim = len(numeric_cols)
     embedding_lookup = create_embedding_lookup(embeddings_df, embedding_dim)
     category_lookup = create_category_lookup(checkins_df)
 
