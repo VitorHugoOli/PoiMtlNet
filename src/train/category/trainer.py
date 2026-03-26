@@ -9,7 +9,6 @@ from torch.optim.lr_scheduler import LRScheduler
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from configs.category_config import CfgCategoryHyperparams, CfgCategoryTraining
 from common.ml_history.fold import FoldHistory
 
 
@@ -22,12 +21,14 @@ def train(
         scheduler: Optional[LRScheduler],
         device: torch.device,
         history: FoldHistory,
+        epochs: int = 2,
+        max_grad_norm: float = 1.0,
         timeout: Optional[int] = None,
         target_cutoff: Optional[float] = None
 ) -> None:
     start_time = time.time()
     loop = tqdm(
-        range(CfgCategoryTraining.EPOCHS),
+        range(epochs),
         unit="batch",
         desc="Training",
     )
@@ -43,7 +44,7 @@ def train(
             logits = model(X_batch)
             loss = criterion(logits, y_batch)
             loss.backward()
-            torch.nn.utils.clip_grad_norm_(model.parameters(), CfgCategoryHyperparams.MAX_GRAD_NORM)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_grad_norm)
             optimizer.step()
             scheduler.step()
 

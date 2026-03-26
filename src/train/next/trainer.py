@@ -10,7 +10,6 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from configs.globals import CATEGORIES_MAP
-from configs.next_config import CfgNextTraining, CfgNextHyperparams
 from common.ml_history.fold import FoldHistory
 
 
@@ -23,7 +22,9 @@ def train(
         scheduler: Optional[LRScheduler],
         history: FoldHistory,
         device: torch.device,
-        epochs: Optional[int] = None,
+        epochs: int = 100,
+        max_grad_norm: float = 1.0,
+        early_stopping_patience: int = -1,
         timeout: Optional[int] = None,
         target_cutoff: Optional[float] = None
 ) -> None:
@@ -35,7 +36,7 @@ def train(
     class_labels = list(range(num_classes))
     class_names = [CATEGORIES_MAP[i] for i in class_labels]
 
-    total_epochs = CfgNextTraining.EPOCHS if epochs is None else epochs
+    total_epochs = epochs
     loop = tqdm(
         range(total_epochs),
         unit="batch",
@@ -56,7 +57,7 @@ def train(
 
             loss = criterion(logits, y_batch)
             loss.backward()
-            grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), CfgNextHyperparams.MAX_GRAD_NORM)
+            grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), max_grad_norm)
             epoch_grad_norms.append(grad_norm)
             optimizer.step()
             if scheduler is not None:
@@ -144,7 +145,7 @@ def train(
         else:
             patience_counter += 1
 
-        if CfgNextTraining.EARLY_STOPPING_PATIENCE > 0 and patience_counter >= CfgNextTraining.EARLY_STOPPING_PATIENCE:
+        if early_stopping_patience > 0 and patience_counter >= early_stopping_patience:
             print(f"\nEarly stopping at epoch {epoch_idx + 1}. Best val F1: {best_val_f1:.4f}")
             break
 

@@ -10,7 +10,7 @@ if _src not in sys.path:
     sys.path.insert(0, _src)
 
 from configs.paths import IoPaths, RESULTS_ROOT, EmbeddingEngine
-from configs.next_config import CfgNextTraining, CfgNextHyperparams
+from configs.experiment import ExperimentConfig
 from etl.create_fold import FoldCreator, TaskType
 from train.next.cross_validation import run_cv
 from common.ml_history import MLHistory, DatasetHistory
@@ -26,9 +26,6 @@ logger = logging.getLogger(__name__)
 def train_next_model(
     state: str,
     embedd_engine: EmbeddingEngine,
-    epochs: int = CfgNextTraining.EPOCHS,
-    batch_size: int = CfgNextTraining.BATCH_SIZE,
-    learning_rate: float = CfgNextHyperparams.LR,
     save_folds: bool = False,
     folds_chkpt: Optional[str] = None
 ) -> dict:
@@ -38,15 +35,18 @@ def train_next_model(
     Args:
         state: State name (e.g., "florida", "california")
         embedd_engine: Embedding engine to use (DGI, HGI, HMRM)
-        epochs: Number of training epochs
-        batch_size: Batch size for training
-        learning_rate: Learning rate for optimizer
         save_folds: Whether to save folds to disk
         folds_chkpt: Path to checkpoint file for folds
 
     Returns:
         Dictionary with training results
     """
+    config = ExperimentConfig.default_next(
+        name=f"next_{state}_{embedd_engine.value}",
+        state=state,
+        embedding_engine=embedd_engine.value,
+    )
+
     logger.info(f"{'='*80}")
     logger.info(f"Starting Next POI training: {state.upper()} with {embedd_engine.value.upper()}")
     logger.info(f"{'='*80}")
@@ -72,9 +72,9 @@ def train_next_model(
     else:
         creator = FoldCreator(
             task_type=TaskType.NEXT,
-            n_splits=CfgNextTraining.K_FOLDS,
-            batch_size=batch_size,
-            seed=CfgNextTraining.SEED,
+            n_splits=config.k_folds,
+            batch_size=config.batch_size,
+            seed=config.seed,
             use_weighted_sampling=False,
         )
         fold_results = creator.create_folds(state, embedd_engine)
@@ -94,7 +94,7 @@ def train_next_model(
         model_name="Next",
         model_type="Single-Task",
         tasks='next',
-        num_folds=CfgNextTraining.K_FOLDS,
+        num_folds=config.k_folds,
         datasets={
             DatasetHistory(
                 raw_data=str(data_input),
@@ -110,7 +110,7 @@ def train_next_model(
     # Running cross-validation
     logger.info(f"Starting cross-validation training...")
     with history:
-        results = run_cv(history, folds)
+        results = run_cv(history, folds, config, results_path=output_dir)
 
     logger.info(f"Completed Next POI training: {state.upper()} with {embedd_engine.value.upper()}")
     logger.info(f"{'='*80}\n")
@@ -157,9 +157,6 @@ if __name__ == '__main__':
             results = train_next_model(
                 state=state,
                 embedd_engine=embedd_engine,
-                epochs=CfgNextTraining.EPOCHS,
-                batch_size=CfgNextTraining.BATCH_SIZE,
-                learning_rate=CfgNextHyperparams.LR,
                 save_folds=False,
                 folds_chkpt=None
             )

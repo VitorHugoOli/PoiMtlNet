@@ -1,14 +1,14 @@
 import numpy as np
+from pathlib import Path
 from sklearn.metrics import confusion_matrix
 from sklearn.utils import compute_class_weight
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import OneCycleLR
 from torch.utils.data import DataLoader
+from typing import Optional
 
 from configs.globals import DEVICE, CATEGORIES_MAP
-from configs.model import InputsConfig
-
-from configs.next_config import CfgNextModel, CfgNextHyperparams, CfgNextTraining
+from configs.experiment import ExperimentConfig
 from model.next.next_head_enhanced import NextHeadHybrid, NextHeadGRU, NextHeadTemporalCNN, NextHeadLSTM
 from train.next.evaluation import evaluate
 from train.next.trainer import train
@@ -27,12 +27,12 @@ def _extract_diagnostics(
         device: torch.device,
         best_state: dict,
         fold_history: FoldHistory,
+        num_classes: int = 7,
 ) -> None:
     """Extract confusion matrix and attention weights from the best model."""
     model.eval()
     model.load_state_dict(best_state)
 
-    num_classes = CfgNextModel.NUM_CLASSES
     class_labels = list(range(num_classes))
     class_names = [CATEGORIES_MAP.get(i, f"Class-{i}") for i in class_labels]
 
@@ -82,38 +82,37 @@ def _extract_diagnostics(
 def run_cv(
         history: MLHistory,
         folds: list[tuple[DataLoader, DataLoader]],
+        config: ExperimentConfig,
+        results_path: Optional[Path] = None,
 ):
     """Run cross-validation for the model."""
+    num_classes = config.model_params.get('num_classes', 7)
+
     for idx, (train_loader, val_loader) in enumerate(folds):
         model = NextHeadSingle(
-            embed_dim=CfgNextModel.INPUT_DIM,
-            num_classes=CfgNextModel.NUM_CLASSES,
-            num_heads=CfgNextModel.NUM_HEADS,
-            seq_length=CfgNextModel.MAX_SEQ_LENGTH,
-            num_layers=CfgNextModel.NUM_LAYERS,
-            dropout=CfgNextModel.DROPOUT,
+            **config.model_params,
         ).to(DEVICE)
 
         y_all = train_loader.dataset.targets.numpy()
-        cls = np.arange(CfgNextModel.NUM_CLASSES)
+        cls = np.arange(num_classes)
         weights = compute_class_weight('balanced', classes=cls, y=y_all)
         alpha = torch.tensor(weights, dtype=torch.float32, device=DEVICE)
 
         criterion = nn.CrossEntropyLoss(
             reduction='mean',
-            weight=alpha,
+            weight=alpha if config.use_class_weights else None,
         )
 
         optimizer = AdamW(
             model.parameters(),
-            lr=CfgNextHyperparams.LR,
-            weight_decay=CfgNextHyperparams.WEIGHT_DECAY,
+            lr=config.learning_rate,
+            weight_decay=config.weight_decay,
         )
 
         scheduler = OneCycleLR(
             optimizer=optimizer,
-            max_lr=CfgNextHyperparams.MAX_LR,
-            epochs=CfgNextTraining.EPOCHS,
+            max_lr=config.max_lr,
+            epochs=config.epochs,
             steps_per_epoch=len(train_loader),
         )
 
@@ -121,9 +120,9 @@ def run_cv(
 
         history.set_model_parms(
             NeuralParams(
-                batch_size=CfgNextTraining.BATCH_SIZE,
-                num_epochs=CfgNextTraining.EPOCHS,
-                learning_rate=CfgNextHyperparams.LR,
+                batch_size=config.batch_size,
+                num_epochs=config.epochs,
+                learning_rate=config.learning_rate,
                 optimizer=optimizer.__class__.__name__,
                 optimizer_state=optimizer.state_dict(),
                 scheduler=scheduler.__class__.__name__,
@@ -155,8 +154,11 @@ def run_cv(
             scheduler,
             history.get_curr_fold(),
             DEVICE,
-            timeout=InputsConfig.TIMEOUT_TEST,
-            target_cutoff=InputsConfig.NEXT_TARGET,
+            epochs=config.epochs,
+            max_grad_norm=config.max_grad_norm,
+            early_stopping_patience=config.early_stopping_patience,
+            timeout=config.timeout,
+            target_cutoff=config.target_cutoff,
         )
 
         report = evaluate(model, val_loader, DEVICE, best_state=history.fold.task('next').best.best_state)
@@ -165,6 +167,7 @@ def run_cv(
             model, val_loader, DEVICE,
             best_state=history.fold.task('next').best.best_state,
             fold_history=history.fold,
+            num_classes=num_classes,
         )
 
         history.fold.task('next').report = report
@@ -174,3 +177,16 @@ def run_cv(
         # Free MPS memory between folds
         if DEVICE.type == 'mps':
             clear_mps_cache()
+
+    # Write run manifest
+    if results_path is not None:
+        from configs.experiment import RunManifest
+        from configs.paths import IoPaths, EmbeddingEngine
+        engine = EmbeddingEngine(config.embedding_engine)
+        manifest = RunManifest.from_current_env(
+            config=config,
+            dataset_paths={
+                "next_input": IoPaths.get_next(config.state, engine),
+            },
+        )
+        manifest.write(results_path)

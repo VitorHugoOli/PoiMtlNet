@@ -1,15 +1,15 @@
 import numpy as np
 import torch
+from pathlib import Path
 from sklearn.utils import compute_class_weight
 from torch import nn
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import OneCycleLR
 from torch_geometric.data import DataLoader
+from typing import Optional
 
 from configs.globals import DEVICE
-from configs.model import InputsConfig
-
-from configs.category_config import CfgCategoryModel, CfgCategoryHyperparams, CfgCategoryTraining
+from configs.experiment import ExperimentConfig
 from model.category.category_head_enhanced import CategoryHeadGated, CategoryHeadResidual, CategoryHeadEnsemble, \
     CategoryHeadAttentionPooling, ResidualBlock
 from train.category.evaluation import evaluate
@@ -24,35 +24,35 @@ from common.mps_support import clear_mps_cache
 def run_cv(
         history: MLHistory,
         folds: list[tuple[DataLoader, DataLoader]],
+        config: ExperimentConfig,
+        results_path: Optional[Path] = None,
 ):
     """Run cross-validation for the model."""
+    num_classes = config.model_params.get('num_classes', 7)
+
     for idx, (train_loader, val_loader) in enumerate(folds):
         model = CategoryHeadEnsemble(
-            input_dim=CfgCategoryModel.INPUT_DIM,
-            hidden_dim=64,
-            # hidden_dims=CfgCategoryModel.HIDDEN_DIMS,
-            num_classes=CfgCategoryModel.NUM_CLASSES,
-            dropout=CfgCategoryModel.DROPOUT,
+            **config.model_params,
         ).to(DEVICE)
 
         y_all = train_loader.dataset.targets.numpy()
-        cls = np.arange(CfgCategoryModel.NUM_CLASSES)
+        cls = np.arange(num_classes)
         weights = compute_class_weight('balanced', classes=cls, y=y_all)
         alpha = torch.tensor(weights, dtype=torch.float32, device=DEVICE)
         criterion = nn.CrossEntropyLoss(
             reduction='mean',
-            # weight=alpha
+            weight=alpha if config.use_class_weights else None,
         )
 
         optimizer = AdamW(
             model.parameters(),
-            lr=CfgCategoryHyperparams.LR,
-            weight_decay=CfgCategoryHyperparams.WEIGHT_DECAY,
+            lr=config.learning_rate,
+            weight_decay=config.weight_decay,
         )
         scheduler = OneCycleLR(
             optimizer=optimizer,
-            max_lr=CfgCategoryHyperparams.MAX_LR,
-            epochs=CfgCategoryTraining.EPOCHS,
+            max_lr=config.max_lr,
+            epochs=config.epochs,
             steps_per_epoch=len(train_loader),
         )
 
@@ -60,9 +60,9 @@ def run_cv(
 
         history.set_model_parms(
             NeuralParams(
-                batch_size=CfgCategoryTraining.BATCH_SIZE,
-                num_epochs=CfgCategoryTraining.EPOCHS,
-                learning_rate=CfgCategoryHyperparams.LR,
+                batch_size=config.batch_size,
+                num_epochs=config.epochs,
+                learning_rate=config.learning_rate,
                 optimizer=optimizer.__class__.__name__,
                 optimizer_state=optimizer.state_dict(),
                 scheduler=scheduler.__class__.__name__,
@@ -97,8 +97,10 @@ def run_cv(
             scheduler,
             DEVICE,
             history=history.get_curr_fold(),
-            timeout=InputsConfig.TIMEOUT_TEST,
-            target_cutoff=InputsConfig.CATEGORY_TARGET,
+            epochs=config.epochs,
+            max_grad_norm=config.max_grad_norm,
+            timeout=config.timeout,
+            target_cutoff=config.target_cutoff,
         )
 
         report = evaluate(model, val_loader, DEVICE, best_state=history.fold.task('category').best.best_state)
@@ -109,3 +111,16 @@ def run_cv(
         # Free MPS memory between folds
         if DEVICE.type == 'mps':
             clear_mps_cache()
+
+    # Write run manifest
+    if results_path is not None:
+        from configs.experiment import RunManifest
+        from configs.paths import IoPaths, EmbeddingEngine
+        engine = EmbeddingEngine(config.embedding_engine)
+        manifest = RunManifest.from_current_env(
+            config=config,
+            dataset_paths={
+                "category_input": IoPaths.get_category(config.state, engine),
+            },
+        )
+        manifest.write(results_path)
