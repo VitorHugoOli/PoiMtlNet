@@ -1,7 +1,13 @@
+import sys
 import logging
 import time
 from pathlib import Path
 from typing import List, Tuple, Optional
+
+# Ensure src/ is on sys.path so project imports work when invoked directly
+_src = str(Path(__file__).resolve().parent.parent.parent / "src")
+if _src not in sys.path:
+    sys.path.insert(0, _src)
 
 from configs.paths import IoPaths, RESULTS_ROOT, EmbeddingEngine
 from configs.next_config import CfgNextTraining, CfgNextHyperparams
@@ -112,26 +118,30 @@ def train_next_model(
     return results
 
 
-if __name__ == '__main__':
-    # Define configurations to train: [(state, embedding_engine), ...]
-    TRAINING_CONFIGS: List[Tuple[str, EmbeddingEngine]] = [
-        # Single-embedding baselines
-        ("alabama", EmbeddingEngine.CHECK2HGI),
-        # ("alabama", EmbeddingEngine.DGI),
-        # ("texas", EmbeddingEngine.DGI),
-        # ("alabama", EmbeddingEngine.HGI),
-        # ("arizona", EmbeddingEngine.HGI),
-        # ("georgia", EmbeddingEngine.HGI),
-        # ("florida", EmbeddingEngine.HGI),
-        # ("california", EmbeddingEngine.HGI),
-        # ("arizona", EmbeddingEngine.CHECK2HGI),
-        # ("georgia", EmbeddingEngine.CHECK2HGI),
-        # ("florida", EmbeddingEngine.CHECK2HGI),
+def _parse_args():
+    import argparse
+    parser = argparse.ArgumentParser(description="Train Next-POI model with cross-validation")
+    parser.add_argument(
+        "--state", type=str, nargs="+",
+        default=["alabama"],
+        help="State(s) to train on (e.g. alabama florida texas)",
+    )
+    parser.add_argument(
+        "--engine", type=str, nargs="+",
+        default=["check2hgi"],
+        choices=[e.value for e in EmbeddingEngine],
+        help="Embedding engine(s) to use",
+    )
+    return parser.parse_args()
 
-        # Multi-embedding fusion (requires running pipelines/fusion.pipe.py first)
-        # ("alabama", EmbeddingEngine.FUSION),
-        # ("florida", EmbeddingEngine.FUSION),
-        # ("texas", EmbeddingEngine.FUSION),
+
+if __name__ == '__main__':
+    args = _parse_args()
+
+    TRAINING_CONFIGS: List[Tuple[str, EmbeddingEngine]] = [
+        (state, EmbeddingEngine(engine))
+        for state in args.state
+        for engine in args.engine
     ]
 
     logger.info(f"Starting Next POI training pipeline")
