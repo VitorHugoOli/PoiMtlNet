@@ -221,7 +221,7 @@ Date: 2026-03-26
 1. *Try/except* — silences a real misconfiguration at use time. `validate()` makes the check explicit and caller-controlled.
 
 **Files affected:** `src/configs/paths.py`
-**Verification:** `PYTHONPATH=src python -c "from configs.paths import IoPaths"`
+**Verification:** `PYTHONPATH=src python -c "from configs.paths import IoPaths; print('OK')"`
 
 ---
 
@@ -236,7 +236,7 @@ Date: 2026-03-26
 2. *`importlib.util.LazyLoader`* — affects the whole module, harder to read.
 
 **Files affected:** `src/etl/mtl_input/__init__.py`
-**Verification:** `PYTHONPATH=src python -c "from etl.mtl_input import core; print('OK')"`
+**Verification:** `PYTHONPATH=src python -c "from etl.mtl_input import core; print('OK:', core.__name__)"`
 
 ---
 
@@ -301,6 +301,7 @@ Date: 2026-03-26
 **Rationale:** Both deleted files were superseded by `pyproject.toml` (created in Phase 0). `requirements.txt` remains as it may be used by CI. `requirements_colab.txt` is a distinct environment file.
 
 **Files affected:** `requirements-bckp.txt` (deleted), `requirements_upgrad.txt` (deleted)
+**Verification:** `ls requirements*.txt` → only `requirements.txt` and `requirements_colab.txt` remain
 
 ---
 
@@ -311,12 +312,14 @@ Date: 2026-03-26
 **Rationale:** These are legacy scripts (not notebooks) that pre-date the modular `src/etl/mtl_input/` system. Archiving preserves history without cluttering the active notebooks directory.
 
 **Files affected:** `notebooks/create_inputs_hgi.py` → `experiments/archive/`, `notebooks/hgi_texas.py` → `experiments/archive/`
+**Verification:** `ls experiments/archive/` → `create_inputs_hgi.py  hgi_texas.py`
 
 ---
 
 #### [1.9] ANALYSIS.md / UPDATE.md — no action
 
 **Decision:** Neither file exists at repo root. Skip.
+**Verification:** `ls {ANALYSIS,UPDATE}.md 2>/dev/null || echo "neither exists at root"` → neither exists at root
 
 ---
 
@@ -332,5 +335,11 @@ Date: 2026-03-26
 1. *Keep both, add `__all__`* — leaves dead code in place.
 
 **Files affected:** `src/embeddings/hmrm/hmrm.py` (replaced), `src/embeddings/hmrm/hmrm_new.py` (deleted), `src/embeddings/hmrm/create_hmrm.py`
-**Verification:** `python -c "from embeddings.hmrm.hmrm import HmrmBaselineNew"`
+**Verification (import-free, numba not installed in this env):**
+```
+grep "from embeddings.hmrm.hmrm import" src/embeddings/hmrm/create_hmrm.py
+# → from embeddings.hmrm.hmrm import HmrmBaselineNew
+ls src/embeddings/hmrm/hmrm_new.py 2>/dev/null || echo "hmrm_new.py absent"
+# → hmrm_new.py absent
+```
 
