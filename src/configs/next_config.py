@@ -1,3 +1,9 @@
+"""DEPRECATED: Use ExperimentConfig from configs.experiment instead.
+
+These classes are retained for backward compatibility. They will be removed
+in Phase 5 (folder tree migration). New code should use ExperimentConfig.
+"""
+
 from configs.model import InputsConfig
 
 
