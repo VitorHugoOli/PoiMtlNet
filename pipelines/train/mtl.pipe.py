@@ -6,8 +6,8 @@ _src = str(Path(__file__).resolve().parent.parent.parent / "src")
 if _src not in sys.path:
     sys.path.insert(0, _src)
 
-from configs.model import MTLModelConfig
 from configs.paths import IoPaths, RESULTS_ROOT, EmbeddingEngine
+from configs.experiment import ExperimentConfig
 
 import logging
 from typing import List, Tuple
@@ -35,16 +35,22 @@ def train_mtl_model(state: str, embedd_engine: EmbeddingEngine) -> dict:
     Returns:
         Dictionary with training results
     """
+    config = ExperimentConfig.default_mtl(
+        name=f"mtl_{state}_{embedd_engine.value}",
+        state=state,
+        embedding_engine=embedd_engine.value,
+    )
+
     logger.info(f"{'='*80}")
     logger.info(f"Starting training for: {state.upper()} with {embedd_engine.value.upper()}")
     logger.info(f"{'='*80}")
 
     # Create folds
-    logger.info(f'Creating {MTLModelConfig.K_FOLDS}-fold cross-validation splits...')
+    logger.info(f'Creating {config.k_folds}-fold cross-validation splits...')
     creator = FoldCreator(
         task_type=TaskType.MTL,
-        n_splits=MTLModelConfig.K_FOLDS,
-        batch_size=MTLModelConfig.BATCH_SIZE,
+        n_splits=config.k_folds,
+        batch_size=config.batch_size,
         use_weighted_sampling=False,
     )
     fold_results = creator.create_folds(state, embedd_engine)
@@ -56,7 +62,7 @@ def train_mtl_model(state: str, embedd_engine: EmbeddingEngine) -> dict:
     history = MLHistory(
         model_name='MTLNet',
         tasks={'next', 'category'},
-        num_folds=MTLModelConfig.K_FOLDS,
+        num_folds=config.k_folds,
         datasets={
             DatasetHistory(
                 raw_data=IoPaths.get_next(state, embedd_engine),
@@ -80,9 +86,8 @@ def train_mtl_model(state: str, embedd_engine: EmbeddingEngine) -> dict:
         results = train_with_cross_validation(
             dataloaders=fold_results,
             history=history,
-            num_classes=MTLModelConfig.NUM_CLASSES,
-            num_epochs=MTLModelConfig.EPOCHS,
-            learning_rate=MTLModelConfig.LEARNING_RATE
+            config=config,
+            results_path=results_path,
         )
 
     logger.info(f"Completed training for: {state.upper()} with {embedd_engine.value.upper()}")

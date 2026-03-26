@@ -2,6 +2,7 @@ import numpy as np
 import torch
 import torch.optim as optim
 import time
+from pathlib import Path
 from typing import Optional
 
 from sklearn.metrics import classification_report
@@ -13,11 +14,10 @@ from common.calc_flops.calculate_model_flops import calculate_model_flops
 from common.mps_support import clear_mps_cache
 from common.training_progress import TrainingProgressBar
 from configs.globals import DEVICE
-from configs.model import ModelParameters, MTLModelConfig, InputsConfig
+from configs.experiment import ExperimentConfig
 from criterion.nash_mtl import NashMTL
 from etl.create_fold import TaskFoldData, FoldResult
 from model.mtlnet.mtl_poi import MTLnet
-from configs.next_config import CfgNextModel
 from common.ml_history import MLHistory, FlopsMetrics, NeuralParams
 from common.ml_history.fold import FoldHistory, TaskHistory
 from train.mtlnet.evaluate import evaluate_model
@@ -37,6 +37,7 @@ def train_model(model: torch.nn.Module,
                 num_classes,
                 fold_history=FoldHistory.standalone({'next', 'category'}),
                 gradient_accumulation_steps=1,
+                max_grad_norm: float = 1.0,
                 timeout: Optional[int] = None,
                 next_target_cutoff: Optional[float] = None,
                 category_target_cutoff: Optional[float] = None
@@ -45,9 +46,6 @@ def train_model(model: torch.nn.Module,
     Train the model with multi-task learning.
     """
     start_time = time.time()
-
-    # Set gradient clipping norm
-    max_grad_norm = 1.0
 
     # Create progress bar that extends tqdm
     progress = TrainingProgressBar(
@@ -230,23 +228,15 @@ def train_model(model: torch.nn.Module,
 # Cross-validation function
 def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                                 history: MLHistory,
-                                num_classes: int,
-                                num_epochs: int,
-                                learning_rate: float,
-                                gradient_accumulation_steps: int = 2):
+                                config: ExperimentConfig,
+                                results_path: Optional[Path] = None):
+    num_classes = config.model_params.get('num_classes', 7)
+
     for fold_idx, (i_fold, dataloader) in enumerate(dataloaders.items()):
         clear_mps_cache()
 
         # Initialize model
-        model = MTLnet(
-            feature_size=ModelParameters.INPUT_DIM,
-            shared_layer_size=ModelParameters.SHARED_LAYER_SIZE,
-            num_classes=MTLModelConfig.NUM_CLASSES,
-            num_heads=ModelParameters.NUM_HEADS,
-            num_layers=ModelParameters.NUM_LAYERS,
-            seq_length=ModelParameters.SEQ_LENGTH,
-            num_shared_layers=ModelParameters.NUM_SHARED_LAYERS
-        )
+        model = MTLnet(**config.model_params)
 
         model = model.to(DEVICE)
 
@@ -256,19 +246,19 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
 
         optimizer = optim.AdamW(
             model.parameters(),
-            lr=0.0001,
-            weight_decay=5e-2,
-            eps=1e-8
+            lr=config.learning_rate,
+            weight_decay=config.weight_decay,
+            eps=config.optimizer_eps,
         )
 
         scheduler = OneCycleLR(
             optimizer,
-            max_lr=learning_rate * 10,
-            epochs=num_epochs,
+            max_lr=config.max_lr,
+            epochs=config.epochs,
             steps_per_epoch=len(dataloader_next.train.dataloader),
         )
 
-        cls = np.arange(CfgNextModel.NUM_CLASSES)
+        cls = np.arange(num_classes)
 
         y_all_next = dataloader_next.train.y.numpy()
         weights_next = compute_class_weight('balanced', classes=cls, y=y_all_next)
@@ -280,15 +270,15 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
 
         next_criterion = CrossEntropyLoss(reduction='mean', weight=alpha_next)
         category_criterion = CrossEntropyLoss(reduction='mean', weight=alpha_cat)
-        mtl_criterion = NashMTL(n_tasks=2, device=DEVICE, max_norm=2.2, update_weights_every=4, optim_niter=30)
+        mtl_criterion = NashMTL(n_tasks=2, device=DEVICE, **config.mtl_loss_params)
 
         history.set_model_arch(str(model))
 
         history.set_model_parms(
             NeuralParams(
                 batch_size=dataloader_next.train.dataloader.batch_size,
-                num_epochs=num_epochs,
-                learning_rate=learning_rate,
+                num_epochs=config.epochs,
+                learning_rate=config.learning_rate,
                 optimizer=optimizer.__class__.__name__,
                 optimizer_state=optimizer.state_dict(),
                 scheduler=scheduler.__class__.__name__,
@@ -318,12 +308,14 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
         train_model(
             model, optimizer, scheduler,
             dataloader_next, dataloader_category,
-            next_criterion, category_criterion, mtl_criterion, num_epochs, num_classes,
+            next_criterion, category_criterion, mtl_criterion,
+            config.epochs, num_classes,
             fold_history=history.get_curr_fold(),
-            gradient_accumulation_steps=gradient_accumulation_steps,
-            timeout=InputsConfig.TIMEOUT_TEST,
-            next_target_cutoff=InputsConfig.NEXT_TARGET,
-            category_target_cutoff=InputsConfig.CATEGORY_TARGET
+            gradient_accumulation_steps=config.gradient_accumulation_steps,
+            max_grad_norm=config.max_grad_norm,
+            timeout=config.timeout,
+            next_target_cutoff=config.target_cutoff,
+            category_target_cutoff=config.target_cutoff,
         )
 
         # Run final validation
@@ -344,3 +336,17 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
 
     # Display summary metrics
     history.display.end_training()
+
+    # Write run manifest
+    if results_path is not None:
+        from configs.experiment import RunManifest
+        from configs.paths import IoPaths, EmbeddingEngine
+        engine = EmbeddingEngine(config.embedding_engine)
+        manifest = RunManifest.from_current_env(
+            config=config,
+            dataset_paths={
+                "category_input": IoPaths.get_category(config.state, engine),
+                "next_input": IoPaths.get_next(config.state, engine),
+            },
+        )
+        manifest.write(results_path)
