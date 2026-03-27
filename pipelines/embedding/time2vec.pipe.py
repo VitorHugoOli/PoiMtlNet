@@ -3,6 +3,18 @@ Time2Vec Pipeline - Train Time2Vec embeddings for multiple states.
 Stages: create embeddings -> generate inputs
 Usage: python pipelines/embedding/time2vec.pipe.py
 """
+
+import sys
+from pathlib import Path
+
+_root = Path(__file__).resolve().parent.parent.parent
+_src = str(_root / "src")
+_research = str(_root / "research")
+if _src not in sys.path:
+    sys.path.insert(0, _src)
+if _research not in sys.path:
+    sys.path.insert(0, _research)
+
 import logging
 from argparse import Namespace
 from datetime import datetime

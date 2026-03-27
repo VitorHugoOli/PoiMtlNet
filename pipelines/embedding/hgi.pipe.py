@@ -11,6 +11,17 @@ Reference flow (from hgi_texas.py / CLAUDE.md):
 Usage: python pipelines/embedding/hgi.pipe.py
 """
 
+import sys
+from pathlib import Path
+
+_root = Path(__file__).resolve().parent.parent.parent
+_src = str(_root / "src")
+_research = str(_root / "research")
+if _src not in sys.path:
+    sys.path.insert(0, _src)
+if _research not in sys.path:
+    sys.path.insert(0, _research)
+
 import logging
 import pickle as pkl
 from argparse import Namespace

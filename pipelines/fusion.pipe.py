@@ -28,8 +28,13 @@ from typing import List
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
 # Add project root to path
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root / 'src'))
+_root = Path(__file__).resolve().parent.parent
+_src = str(_root / "src")
+_research = str(_root / "research")
+if _src not in sys.path:
+    sys.path.insert(0, _src)
+if _research not in sys.path:
+    sys.path.insert(0, _research)
 
 from configs.embedding_fusion import get_preset
 from configs.paths import IoPaths
