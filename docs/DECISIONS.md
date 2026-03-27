@@ -1248,3 +1248,83 @@ grep -rn "torch\.manual_seed(\|np\.random\.seed(\|random\.seed(" src/ --include=
 → src/data/folds.py:450:        torch.manual_seed(seed)
 → src/data/folds.py:451:        np.random.seed(seed)
 ```
+
+---
+
+### Phase 8 — Deeper Improvements (Callbacks Track)
+Date: 2026-03-27
+
+---
+
+#### [8.1] Callback primitives — new module (BPR)
+
+**Decision:** Created `src/training/callbacks.py` with five primitives:
+- `CallbackContext` — dataclass carrying epoch index, total epochs, fold info, and metrics dict
+- `Callback` — base class with `on_train_begin`, `on_epoch_end`, `on_train_end` hooks and `stop_training` flag
+- `CallbackList` — compositor that dispatches hooks in order, aggregates `stop_training` via `any()`
+- `EarlyStopping` — patience-based monitoring of any metric key (configurable `monitor`, `patience`, `mode`, `min_delta`)
+- `ModelCheckpoint` — saves model state to disk via `set_model()` injection (configurable `save_dir`, `monitor`, `mode`, `save_best_only`)
+
+**Rationale:** The three runners (MTL, category, next) had inconsistent early stopping logic hardcoded inline. A composable callback system enables uniform extension without modifying runner internals. Only epoch-level hooks are provided (no batch-level) to avoid MPS sync overhead in the inner loop.
+
+**Alternatives rejected:**
+1. *Batch-level hooks* — would add overhead per batch in the MPS-critical inner loop. No current use case.
+2. *PyTorch Lightning callbacks* — project explicitly avoids Lightning (REFACTORING_PLAN §1).
+3. *Replace existing early stopping with callbacks* — would be SC; kept existing logic unchanged for BPR safety.
+
+**Files affected:** `src/training/callbacks.py` (new), `src/training/__init__.py` (exports added)
+**Verification:**
+```
+PYTHONPATH=src python -c "from training.callbacks import Callback, EarlyStopping, ModelCheckpoint; print('ok')"
+# → ok
+```
+
+---
+
+#### [8.2] Wire callbacks into all three training runners (BPR)
+
+**Decision:** Added optional `callbacks: Optional[list] = None` parameter to all training functions and CV orchestrators. When `callbacks=None` (the default), `CallbackList([])` iterates zero callbacks — all hooks are no-ops, `stop_training` returns `False`. No existing code path is altered.
+
+Hook insertion pattern (identical across all three runners):
+1. `on_train_begin()` — before first epoch
+2. `on_epoch_end()` — after validation metrics logged, BEFORE existing early-stop checks
+3. `cb.stop_training` check — AFTER all existing early-stop checks (additive, never replaces)
+4. `on_train_end()` — after loop exits
+
+Metric keys per runner:
+- category: `val_f1`, `val_loss`, `val_acc`, `train_loss`, `train_acc`
+- next: `val_f1`, `val_loss`, `val_acc`, `train_loss`, `train_acc`, `train_f1`, `grad_norm`
+- mtl: `val_f1_next`, `val_f1_category`, `val_loss`, `train_loss`, `train_f1_next`, `train_f1_category`
+
+Runners also inject model references via `set_model()` for callbacks that need it (e.g. `ModelCheckpoint`).
+
+**Rationale:** Additive wiring preserves all existing behavior. The `callbacks=None` default means `scripts/train.py` and all existing tests exercise the unchanged path. Callbacks are runtime objects, not serializable config — they don't pollute `ExperimentConfig`.
+
+**Files affected:**
+- `src/training/runners/category_trainer.py` — `train()` + 4 hook lines
+- `src/training/runners/category_cv.py` — `run_cv()` pass-through
+- `src/training/runners/next_trainer.py` — `train()` + 4 hook lines
+- `src/training/runners/next_cv.py` — `run_cv()` pass-through
+- `src/training/runners/mtl_cv.py` — `train_model()` + 4 hook lines, `train_with_cross_validation()` pass-through
+
+**Verification:**
+```
+grep -rn "class .*Callback\|on_epoch_end" src/training/ --include="*.py"
+# → callbacks.py: 5 matches (base + list + early_stopping + checkpoint + context)
+# → mtl_cv.py, next_trainer.py, category_trainer.py: 1 match each (hook call)
+pytest tests/test_integration/ -v → 12 passed
+pytest tests/test_regression/ -v → 12 passed
+```
+
+---
+
+#### [8.3] Callback unit tests (BPR)
+
+**Decision:** Created `tests/test_training/test_callbacks.py` with 22 unit tests covering all five primitives: `CallbackContext` defaults/metrics, `Callback` base defaults/noop hooks, `CallbackList` empty/none/dispatch-order/stop-signal, `EarlyStopping` patience/reset/mode-min/min-delta/missing-metric, `ModelCheckpoint` no-model-skip/save-best/save-all/set-model.
+
+**Files affected:** `tests/test_training/__init__.py` (new), `tests/test_training/test_callbacks.py` (new)
+**Verification:**
+```
+PYTHONPATH=src pytest tests/test_training/test_callbacks.py -v → 22 passed
+PYTHONPATH=src pytest -v → 354 passed, 79 skipped, 0 failures
+```
