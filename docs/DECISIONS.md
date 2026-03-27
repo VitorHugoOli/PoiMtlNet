@@ -1328,3 +1328,116 @@ pytest tests/test_regression/ -v → 12 passed
 PYTHONPATH=src pytest tests/test_training/test_callbacks.py -v → 22 passed
 PYTHONPATH=src pytest -v → 354 passed, 79 skipped, 0 failures
 ```
+
+---
+
+### Phase 8 — Deeper Improvements (IoPaths Track)
+Date: 2026-03-27
+
+---
+
+#### [8.4] IoPaths typo and stale docstrings (BPR)
+
+**Precondition (BPR*):** `grep -rn "enbedd_engine" src/ scripts/ --include="*.py"` → only in `paths.py:364` (definition), zero keyword callers. Safe to rename.
+
+**Decision:** Fixed `get_results_dir()` parameter name `enbedd_engine` → `embedd_engine`. Fixed 3 stale docstrings on `load_city`, `load_category`, `load_next` (all said "Get the DGI output directory" — copy-paste error from early development).
+
+**Rationale:** Typo in a public method parameter name and misleading docstrings. No behavioral change — no callers use keyword form.
+
+**Files affected:** `src/configs/paths.py`
+**Verification:**
+```
+grep -rn "enbedd_engine" src/ → zero results
+PYTHONPATH=src python -c "from configs.paths import IoPaths, EmbeddingEngine; p = IoPaths.get_results_dir('florida', EmbeddingEngine.DGI); print(p)"
+# → .../results/dgi/florida
+```
+
+---
+
+### Phase 8 — Deeper Improvements (Tracking Track)
+Date: 2026-03-27
+
+---
+
+#### [8.5] Optional W&B tracking adapter (BPR)
+
+**Decision:** Created `src/tracking/adapters.py` with `TrackingAdapter` base class and `WandBAdapter`. Adapter hooks into `MLHistory` via `set_adapter()` at three lifecycle points: `on_run_start` (start), `on_fold_end` (step), `on_run_end` + `close` (end).
+
+Gate via `TRACKING_BACKEND=wandb` env var or programmatic `create_adapter("wandb")`. When no adapter is set (`_adapter=None`, the default), all hook call sites are skipped via `if self._adapter is not None` guard — zero overhead.
+
+**Rationale:** Experiment tracking at scale benefits from W&B integration. The adapter pattern keeps the core tracking module (MetricStore, FoldHistory, HistoryStorage) completely unchanged. External tracking is purely additive.
+
+**Alternatives rejected:**
+1. *Subclass HistoryStorage* — tighter coupling, harder to disable.
+2. *MLflow adapter* — mlflow not installed; W&B is available. Base class supports future MLflow adapter.
+
+**Files affected:** `src/tracking/adapters.py` (new), `src/tracking/experiment.py` (set_adapter + 3 hook call sites)
+**Verification:**
+```
+PYTHONPATH=src python -c "from tracking.adapters import create_adapter; print(create_adapter())"
+# → None (disabled by default)
+TRACKING_BACKEND= PYTHONPATH=src python -c "from tracking import MLHistory; h = MLHistory('t', tasks='x', num_folds=1); print(h._adapter)"
+# → None
+WANDB_MODE=disabled PYTHONPATH=src python -c "
+from tracking import MLHistory
+from tracking.adapters import WandBAdapter
+h = MLHistory('t', tasks='x', num_folds=1)
+h.set_adapter(WandBAdapter(project='dry'))
+with h:
+    h.fold.log_train('x', loss=0.5, accuracy=0.8, f1=0.6)
+    h.fold.log_val('x', loss=0.3, accuracy=0.85, f1=0.7)
+    h.step()
+print('ok')
+"
+# → ok (no network calls in disabled mode)
+```
+
+---
+
+### Phase 8 — Deeper Improvements (DVC Track)
+Date: 2026-03-27
+
+---
+
+#### [8.6] Optional DVC pipeline scaffolding (BPR)
+
+**Decision:** Added `dvc.yaml` with two stages (`generate_inputs`, `train`) and `params.yaml` with default parameters. DVC is NOT a runtime dependency — these files are only consumed if `dvc` is installed and invoked.
+
+**Rationale:** DVC enables reproducible pipelines and data versioning. The scaffolding defines the pipeline DAG without requiring DVC for normal development or testing.
+
+**Files affected:** `dvc.yaml` (new), `params.yaml` (new)
+**Verification:**
+```
+python -c "import yaml; d = yaml.safe_load(open('dvc.yaml')); print('stages:', list(d['stages'].keys()))"
+# → stages: ['generate_inputs', 'train']
+python -c "import yaml; d = yaml.safe_load(open('params.yaml')); print(d)"
+# → {'state': 'florida', 'engine': 'dgi', 'epochs': 50, 'folds': 5}
+```
+
+---
+
+### Phase 8 — Deeper Improvements (Hydra Track)
+Date: 2026-03-27
+
+---
+
+#### [8.7] Optional Hydra entrypoint (BPR)
+
+**Decision:** Added `scripts/train_hydra.py` that wraps `scripts/train.py` via Hydra config composition. YAML config at `experiments/hydra_configs/train.yaml`. When hydra-core is not installed, the script prints an error with install instructions and exits gracefully.
+
+**Rationale:** Hydra enables config composition and multirun sweeps from the command line. The entrypoint delegates to the canonical `train.py` by building an argv list from the Hydra config — no duplication of training logic.
+
+**Note:** REFACTORING_PLAN §1 lists Hydra under "Do Never" — this is overridden by Phase 8 scope which allows it as an optional entrypoint. The canonical `scripts/train.py` is unchanged and remains the primary interface.
+
+**Alternatives rejected:**
+1. *Replace train.py with Hydra* — would make hydra a hard dependency.
+2. *OmegaConf without Hydra* — loses multirun and config composition benefits.
+
+**Files affected:** `scripts/train_hydra.py` (new), `experiments/hydra_configs/train.yaml` (new)
+**Verification:**
+```
+python scripts/train_hydra.py --help
+# → "Error: hydra-core is not installed..." (graceful fallback)
+python scripts/train.py --help
+# → standard argparse help (unchanged)
+```
