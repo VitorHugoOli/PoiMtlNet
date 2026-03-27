@@ -1,19 +1,14 @@
-import numpy as np
-import torch
-from torch.utils.data import Dataset
+"""Shim — canonical location is data.dataset (Phase 5).
 
+This module will be removed at the end of Phase 6.
+"""
+import warnings as _warnings
 
-class POIDataset(Dataset):
-    """
-    PyTorch Dataset for POI category classification.
-    """
+_warnings.warn(
+    "common.poi_dataset is deprecated; use data.dataset instead. "
+    "This shim will be removed at the end of Phase 6.",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
-    def __init__(self, features: np.ndarray, labels: np.ndarray):
-        self.features = torch.from_numpy(features).float()
-        self.labels = torch.from_numpy(labels).long()
-
-    def __len__(self) -> int:
-        return len(self.labels)
-
-    def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor]:
-        return self.features[idx], self.labels[idx]
+from data.dataset import POIDataset  # noqa: F401

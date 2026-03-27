@@ -14,7 +14,7 @@ from configs.globals import DEVICE
 from configs.paths import Resources, EmbeddingEngine
 from configs.model import InputsConfig
 from embeddings.check2hgi.check2hgi import create_embedding
-from etl.mtl_input.builders import generate_category_input, generate_next_input_from_checkins
+from data.inputs.builders import generate_category_input, generate_next_input_from_checkins
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)

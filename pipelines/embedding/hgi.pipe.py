@@ -24,7 +24,7 @@ from configs.model import InputsConfig
 from embeddings.hgi.hgi import train_hgi
 from embeddings.hgi.preprocess import preprocess_hgi
 from embeddings.hgi.poi2vec import train_poi2vec
-from etl.mtl_input.builders import generate_category_input, generate_next_input_from_poi
+from data.inputs.builders import generate_category_input, generate_next_input_from_poi
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)

@@ -15,7 +15,7 @@ from configs.experiment import ExperimentConfig
 from losses.registry import create_loss
 from models.registry import create_model
 from training.helpers import compute_class_weights, setup_optimizer, setup_scheduler
-from etl.create_fold import TaskFoldData, FoldResult
+from data.folds import TaskFoldData, FoldResult
 from common.ml_history import MLHistory, FlopsMetrics, NeuralParams
 from common.ml_history.fold import FoldHistory, TaskHistory
 from train.mtlnet.evaluate import evaluate_model

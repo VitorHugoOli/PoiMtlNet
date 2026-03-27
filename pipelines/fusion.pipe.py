@@ -33,7 +33,7 @@ sys.path.insert(0, str(project_root / 'src'))
 
 from configs.embedding_fusion import get_preset
 from configs.paths import IoPaths
-from etl.mtl_input.fusion import MultiEmbeddingInputGenerator
+from data.inputs.fusion import MultiEmbeddingInputGenerator
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)

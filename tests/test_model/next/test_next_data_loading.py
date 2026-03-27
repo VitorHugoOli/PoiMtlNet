@@ -11,7 +11,7 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 
-from etl.create_fold import FoldCreator
+from data.folds import FoldCreator
 from configs.model import InputsConfig
 from configs.paths import EmbeddingEngine, IoPaths
 
@@ -204,7 +204,7 @@ class TestFoldCreation:
 
     def test_fold_creator_api(self):
         """Test that FoldCreator can be instantiated with correct API."""
-        from etl.create_fold import FoldCreator, TaskType
+        from data.folds import FoldCreator, TaskType
 
         # Verify the correct constructor signature
         fold_creator = FoldCreator(

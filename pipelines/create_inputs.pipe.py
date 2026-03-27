@@ -24,7 +24,7 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root / 'src'))
 
 from configs.paths import EmbeddingEngine
-from etl.mtl_input.builders import (
+from data.inputs.builders import (
     generate_category_input,
     generate_next_input_from_poi,
     generate_next_input_from_checkins,

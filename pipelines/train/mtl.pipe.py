@@ -12,7 +12,7 @@ from configs.experiment import ExperimentConfig
 import logging
 from typing import List, Tuple
 
-from etl.create_fold import FoldCreator, TaskType
+from data.folds import FoldCreator, TaskType
 from common.ml_history import MLHistory, DatasetHistory
 from configs.globals import CATEGORIES_MAP
 from train.mtlnet.mtl_train import train_with_cross_validation

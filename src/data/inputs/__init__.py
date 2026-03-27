@@ -1,21 +1,26 @@
-"""Shim — canonical location is data.inputs (Phase 5).
+"""
+Input Generation Module (canonical location since Phase 5).
 
-This module will be removed at the end of Phase 6.
+Modular, maintainable input generation for MTLnet training.
+
+- core.py: Pure logic functions (generate_sequences, create_*_lookup)
+- loaders.py: Data loading with caching (EmbeddingLoader)
+- builders.py: Input generation functions (generate_category_input, generate_next_input_*)
+- fusion.py: Multi-embedding fusion (EmbeddingAligner, EmbeddingFuser, MultiEmbeddingInputGenerator)
+
+Usage:
+    from data.inputs import generate_sequences, create_embedding_lookup
+    from data.inputs import EmbeddingLoader
+    from data.inputs import generate_category_input, generate_next_input_from_poi
+    from data.inputs import MultiEmbeddingInputGenerator
 """
 from __future__ import annotations
 
 import importlib
 import sys
-import warnings as _warnings
-
-_warnings.warn(
-    "etl.mtl_input is deprecated; use data.inputs instead. "
-    "This shim will be removed at the end of Phase 6.",
-    DeprecationWarning,
-    stacklevel=2,
-)
 
 __all__ = [
+    # Core functions
     'generate_sequences',
     'create_embedding_lookup',
     'create_category_lookup',
@@ -24,21 +29,27 @@ __all__ = [
     'save_parquet',
     'save_next_input_dataframe',
     'convert_sequences_to_poi_embeddings',
+    # Constants
     'PADDING_VALUE',
     'MIN_SEQUENCE_LENGTH',
     'DEFAULT_BATCH_SIZE',
     'MISSING_CATEGORY_VALUE',
+    # Loaders
     'EmbeddingLoader',
+    # Builders
     'generate_category_input',
     'generate_next_input_from_poi',
     'generate_next_input_from_checkins',
+    # Fusion
     'EmbeddingAligner',
     'EmbeddingFuser',
     'MultiEmbeddingInputGenerator',
 ]
 
-# Re-export everything from the canonical location via lazy loading
+__version__ = '2.0.0'
+
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    # core
     'generate_sequences': ('data.inputs.core', 'generate_sequences'),
     'create_embedding_lookup': ('data.inputs.core', 'create_embedding_lookup'),
     'create_category_lookup': ('data.inputs.core', 'create_category_lookup'),
@@ -51,10 +62,13 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     'MIN_SEQUENCE_LENGTH': ('data.inputs.core', 'MIN_SEQUENCE_LENGTH'),
     'DEFAULT_BATCH_SIZE': ('data.inputs.core', 'DEFAULT_BATCH_SIZE'),
     'MISSING_CATEGORY_VALUE': ('data.inputs.core', 'MISSING_CATEGORY_VALUE'),
+    # loaders
     'EmbeddingLoader': ('data.inputs.loaders', 'EmbeddingLoader'),
+    # builders
     'generate_category_input': ('data.inputs.builders', 'generate_category_input'),
     'generate_next_input_from_poi': ('data.inputs.builders', 'generate_next_input_from_poi'),
     'generate_next_input_from_checkins': ('data.inputs.builders', 'generate_next_input_from_checkins'),
+    # fusion
     'EmbeddingAligner': ('data.inputs.fusion', 'EmbeddingAligner'),
     'EmbeddingFuser': ('data.inputs.fusion', 'EmbeddingFuser'),
     'MultiEmbeddingInputGenerator': ('data.inputs.fusion', 'MultiEmbeddingInputGenerator'),
@@ -68,4 +82,4 @@ def __getattr__(name: str):
         value = getattr(mod, attr)
         setattr(sys.modules[__name__], name, value)
         return value
-    raise AttributeError(f"module 'etl.mtl_input' has no attribute {name!r}")
+    raise AttributeError(f"module 'data.inputs' has no attribute {name!r}")

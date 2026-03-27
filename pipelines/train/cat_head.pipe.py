@@ -11,7 +11,7 @@ if _src not in sys.path:
 
 from configs.paths import IoPaths, RESULTS_ROOT, EmbeddingEngine
 from configs.experiment import ExperimentConfig
-from etl.create_fold import FoldCreator, TaskType
+from data.folds import FoldCreator, TaskType
 from train.category.cross_validation import run_cv
 from common.ml_history import MLHistory, DatasetHistory
 from configs.globals import CATEGORIES_MAP

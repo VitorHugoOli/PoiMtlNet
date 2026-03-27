@@ -17,7 +17,7 @@ from configs.paths import Resources, EmbeddingEngine
 from configs.model import InputsConfig
 from embeddings.poi2hgi.poi2hgi import create_embedding
 from embeddings.poi2hgi.preprocess import preprocess_poi2hgi
-from etl.mtl_input.builders import generate_category_input, generate_next_input_from_poi
+from data.inputs.builders import generate_category_input, generate_next_input_from_poi
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
