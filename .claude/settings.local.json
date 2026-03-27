@@ -61,7 +61,18 @@
       "Bash(/Users/vitor/Desktop/mestrado/ingred/.venv_new/bin/python -m pytest tests/test_regression/ -v 2>&1)",
       "Bash(/tmp/source_tree_summary.txt:*)",
       "Read(//tmp/**)",
-      "Bash(git mv:*)"
+      "Bash(git mv:*)",
+      "Bash(PYTHONPATH=research:src python -c \"from embeddings.hgi.hgi import train_hgi; print\\(''ok''\\)\")",
+      "Bash(git log:*)",
+      "Bash(/dev/null find:*)",
+      "Bash(sort find:*)",
+      "Bash(sort grep:*)",
+      "Bash(OUTPUT_DIR=/Users/vitor/Desktop/mestrado/ingred/output PYTHONPATH=src python scripts/train.py --help)",
+      "Bash(OUTPUT_DIR=/Users/vitor/Desktop/mestrado/ingred/output /Users/vitor/Desktop/mestrado/ingred/.venv_new/bin/python scripts/train.py --help)",
+      "Bash(OUTPUT_DIR=/Users/vitor/Desktop/mestrado/ingred/output /Users/vitor/Desktop/mestrado/ingred/.venv_new/bin/python -c \"\nimport sys; sys.path.insert\\(0,'src'\\)\nimport importlib.util\np = 'experiments/configs/mtl_hgi_florida.py'\nspec = importlib.util.spec_from_file_location\\('_c', p\\)\nm = importlib.util.module_from_spec\\(spec\\)\nspec.loader.exec_module\\(m\\)\nc = m.config\\(\\)\nprint\\('config\\(\\):', c.name, c.state, c.embedding_engine\\)\n\")",
+      "Bash(OUTPUT_DIR=/Users/vitor/Desktop/mestrado/ingred/output /Users/vitor/Desktop/mestrado/ingred/.venv_new/bin/python scripts/evaluate.py --help)",
+      "Bash(OUTPUT_DIR=/Users/vitor/Desktop/mestrado/ingred/output /Users/vitor/Desktop/mestrado/ingred/.venv_new/bin/python pipelines/train/mtl.pipe.py --help)",
+      "Bash(OUTPUT_DIR=/Users/vitor/Desktop/mestrado/ingred/output /Users/vitor/Desktop/mestrado/ingred/.venv_new/bin/python -m pytest tests/ -v --tb=short)"
     ],
     "deny": []
   }
