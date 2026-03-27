@@ -1,22 +1,27 @@
 import torch
 from sklearn.metrics import classification_report
 
+from common.training_progress import zip_longest_cycle
+
 
 @torch.no_grad()
 def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_creterion, device):
     """
     Unified evaluation function for both validation and testing.
 
+    Uses zip_longest_cycle() to match training coverage — the shorter loader
+    is cycled so all samples from both loaders are evaluated.
+
     Args:
         model: The MTLPOI model
-        dataloader: DataLoader with evaluation data
-        loss_functions: Dictionary of loss functions
-        reshape_method: Method to reshape output and target
+        dataloaders: List of [next_dataloader, category_dataloader]
+        next_criterion: Loss function for next task
+        category_criterion: Loss function for category task
+        mtl_creterion: MTL loss (unused for validation loss, kept for API compat)
         device: Device to run evaluation on
-        num_classes: Number of POI classes
 
     Returns:
-        Tuple of (accuracy, loss)
+        Tuple of (acc_next, f1_next, acc_category, f1_category, loss)
     """
     model.eval()
     running_loss = torch.tensor(0.0, device=device)
@@ -24,7 +29,7 @@ def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_c
     preds_cat_list, truths_cat_list = [], []
     batchs = 0
 
-    for data_next, data_cat in zip(*dataloaders):
+    for data_next, data_cat in zip_longest_cycle(*dataloaders):
         x_next, y_next = data_next
         x_next, y_next = x_next.to(device, non_blocking=True), y_next.to(device, non_blocking=True)
         x_category, y_category = data_cat

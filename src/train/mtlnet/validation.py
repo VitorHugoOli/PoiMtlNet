@@ -1,6 +1,7 @@
 import torch
 from sklearn.metrics import classification_report
 
+from common.training_progress import zip_longest_cycle
 from configs.globals import DEVICE
 
 def validation_best_model(data_next,
@@ -8,6 +9,7 @@ def validation_best_model(data_next,
                           best_next,
                           best_category,
                           model):
+    """Validate best models for both tasks using zip_longest_cycle (matches training coverage)."""
 
     all_pred_next = []
     all_truth_next = []
@@ -17,7 +19,7 @@ def validation_best_model(data_next,
     with torch.no_grad():
         model.load_state_dict(best_next)
         model.eval()
-        for batch_next, batch_category in zip(data_next, data_category):
+        for batch_next, batch_category in zip_longest_cycle(data_next, data_category):
             x_next, y_next = batch_next
             x_next, y_next = x_next.to(DEVICE, non_blocking=True), y_next.to(DEVICE, non_blocking=True)
             x_category, _ = batch_category
@@ -30,7 +32,7 @@ def validation_best_model(data_next,
 
         model.load_state_dict(best_category)
         model.eval()
-        for batch_next, batch_category in zip(data_next, data_category):
+        for batch_next, batch_category in zip_longest_cycle(data_next, data_category):
             x_next, _ = batch_next
             x_next = x_next.to(DEVICE, non_blocking=True)
             x_category, y_category = batch_category
