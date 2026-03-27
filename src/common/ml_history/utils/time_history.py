@@ -1,41 +1,4 @@
-import time
-
-
-class TimeHistory:
-    """
-    A class to keep track of the time taken for each fold in machine learning.
-    """
-
-    def __init__(self):
-        self.start_time = time.time()
-        self.end_time = None
-        self.duration = None
-
-    def start(self):
-        """
-        Start the timer.
-        """
-        self.start_time = time.time()
-
-    def stop(self):
-        """
-        Stop the timer and calculate the duration.
-        """
-        self.end_time = time.time()
-        self.duration = self.end_time - self.start_time
-
-    def timer(self):
-        """
-        Get the current time.
-        :return: The current time in seconds
-        """
-        return time.time() - self.start_time
-
-    def get_duration(self):
-        """
-        Get the duration of the last recorded time.
-        :return: The duration in seconds
-        """
-        if self.duration is None:
-            raise ValueError("Timer has not been stopped yet.")
-        return self.duration
+"""Shim — canonical location is tracking.utils.time_history (Phase 5)."""
+import warnings as _warnings
+_warnings.warn("common.ml_history.utils.time_history is deprecated; use tracking.utils.time_history instead.", DeprecationWarning, stacklevel=2)
+from tracking.utils.time_history import *  # noqa: F401, F403
