@@ -15,7 +15,7 @@ from typing import List, Tuple
 from data.folds import FoldCreator, TaskType
 from common.ml_history import MLHistory, DatasetHistory
 from configs.globals import CATEGORIES_MAP
-from train.mtlnet.mtl_train import train_with_cross_validation
+from training.runners.mtl_cv import train_with_cross_validation
 
 logging.basicConfig(
     level=logging.INFO,
