@@ -10,8 +10,8 @@ import torch
 
 from configs.next_config import CfgNextModel, CfgNextHyperparams, CfgNextTraining
 from configs.model import InputsConfig, MTLModelConfig
-from model.next.next_head import NextHeadSingle
-from model.next.next_head_enhanced import NextHeadHybrid
+from models.heads.next import NextHeadSingle
+from models.heads.next import NextHeadHybrid
 
 
 class TestNumHeadsConfiguration:

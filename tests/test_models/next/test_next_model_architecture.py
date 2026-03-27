@@ -8,8 +8,8 @@ positional encoding, padding masks, and parameter counts.
 import pytest
 import torch
 import torch.nn as nn
-from model.next.next_head import NextHeadSingle
-from model.next.next_head_enhanced import (
+from models.heads.next import NextHeadSingle
+from models.heads.next import (
     NextHeadHybrid,
     NextHeadGRU,
     NextHeadLSTM,

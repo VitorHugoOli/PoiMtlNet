@@ -9,8 +9,8 @@ import pytest
 import torch
 import torch.nn as nn
 
-from model.next.next_head import NextHeadSingle
-from model.next.next_head_enhanced import NextHeadHybrid, NextHeadGRU
+from models.heads.next import NextHeadSingle
+from models.heads.next import NextHeadHybrid, NextHeadGRU
 
 
 class TestForwardPassBasic:

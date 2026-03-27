@@ -14,7 +14,7 @@ from torch.utils.data import DataLoader, TensorDataset
 from sklearn.metrics import f1_score
 import numpy as np
 
-from model.next.next_head import NextHeadSingle
+from models.heads.next import NextHeadSingle
 from configs.next_config import CfgNextModel, CfgNextHyperparams, CfgNextTraining
 
 
