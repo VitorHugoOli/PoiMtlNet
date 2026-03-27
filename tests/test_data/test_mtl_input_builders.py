@@ -11,20 +11,20 @@ import pandas as pd
 import numpy as np
 from unittest.mock import patch, MagicMock, call
 
-from src.etl.mtl_input.builders import (
+from data.inputs.builders import (
     generate_category_input,
     generate_next_input_from_poi,
     generate_next_input_from_checkins,
 )
-from src.configs.paths import EmbeddingEngine
-from src.configs.model import InputsConfig
+from configs.paths import EmbeddingEngine
+from configs.model import InputsConfig
 
 
 class TestGenerateCategoryInput:
     """Test suite for generate_category_input() function."""
 
-    @patch('src.etl.mtl_input.builders.IoPaths')
-    @patch('src.etl.mtl_input.builders.save_parquet')
+    @patch('data.inputs.builders.IoPaths')
+    @patch('data.inputs.builders.save_parquet')
     def test_loads_and_saves_embeddings(self, mock_save, mock_paths, sample_embeddings_df):
         """Should load embeddings and save with placeid as index."""
         # Setup mocks
@@ -44,8 +44,8 @@ class TestGenerateCategoryInput:
         saved_df = mock_save.call_args[0][0]
         assert 'placeid' in saved_df.columns
 
-    @patch('src.etl.mtl_input.builders.IoPaths')
-    @patch('src.etl.mtl_input.builders.save_parquet')
+    @patch('data.inputs.builders.IoPaths')
+    @patch('data.inputs.builders.save_parquet')
     def test_output_path_correct(self, mock_save, mock_paths, sample_embeddings_df):
         """Should use correct output path from IoPaths."""
         mock_paths.load_embedd.return_value = sample_embeddings_df
@@ -62,13 +62,13 @@ class TestGenerateCategoryInput:
 class TestGenerateNextInputFromPoi:
     """Test suite for generate_next_input_from_poi() function."""
 
-    @patch('src.etl.mtl_input.builders.IoPaths')
-    @patch('src.etl.mtl_input.builders.save_parquet')
-    @patch('src.etl.mtl_input.builders.save_next_input_dataframe')
-    @patch('src.etl.mtl_input.builders.convert_sequences_to_poi_embeddings')
-    @patch('src.etl.mtl_input.builders.create_category_lookup')
-    @patch('src.etl.mtl_input.builders.create_embedding_lookup')
-    @patch('src.etl.mtl_input.builders.generate_sequences')
+    @patch('data.inputs.builders.IoPaths')
+    @patch('data.inputs.builders.save_parquet')
+    @patch('data.inputs.builders.save_next_input_dataframe')
+    @patch('data.inputs.builders.convert_sequences_to_poi_embeddings')
+    @patch('data.inputs.builders.create_category_lookup')
+    @patch('data.inputs.builders.create_embedding_lookup')
+    @patch('data.inputs.builders.generate_sequences')
     def test_uses_core_utilities(
         self, mock_gen_seq, mock_create_emb, mock_create_cat, mock_convert,
         mock_save_next, mock_save, mock_paths,
@@ -91,13 +91,13 @@ class TestGenerateNextInputFromPoi:
         mock_convert.assert_called_once()
         mock_save_next.assert_called_once()
 
-    @patch('src.etl.mtl_input.builders.IoPaths')
-    @patch('src.etl.mtl_input.builders.save_parquet')
-    @patch('src.etl.mtl_input.builders.save_next_input_dataframe')
-    @patch('src.etl.mtl_input.builders.convert_sequences_to_poi_embeddings')
-    @patch('src.etl.mtl_input.builders.create_category_lookup')
-    @patch('src.etl.mtl_input.builders.create_embedding_lookup')
-    @patch('src.etl.mtl_input.builders.generate_sequences')
+    @patch('data.inputs.builders.IoPaths')
+    @patch('data.inputs.builders.save_parquet')
+    @patch('data.inputs.builders.save_next_input_dataframe')
+    @patch('data.inputs.builders.convert_sequences_to_poi_embeddings')
+    @patch('data.inputs.builders.create_category_lookup')
+    @patch('data.inputs.builders.create_embedding_lookup')
+    @patch('data.inputs.builders.generate_sequences')
     def test_batch_size_parameter(
         self, mock_gen_seq, mock_create_emb, mock_create_cat, mock_convert,
         mock_save_next, mock_save, mock_paths,
@@ -125,13 +125,13 @@ class TestGenerateNextInputFromPoi:
             call_kwargs = mock_convert.call_args.kwargs
             assert call_kwargs.get('batch_size') == custom_batch_size
 
-    @patch('src.etl.mtl_input.builders.IoPaths')
-    @patch('src.etl.mtl_input.builders.save_parquet')
-    @patch('src.etl.mtl_input.builders.save_next_input_dataframe')
-    @patch('src.etl.mtl_input.builders.convert_sequences_to_poi_embeddings')
-    @patch('src.etl.mtl_input.builders.create_category_lookup')
-    @patch('src.etl.mtl_input.builders.create_embedding_lookup')
-    @patch('src.etl.mtl_input.builders.generate_sequences')
+    @patch('data.inputs.builders.IoPaths')
+    @patch('data.inputs.builders.save_parquet')
+    @patch('data.inputs.builders.save_next_input_dataframe')
+    @patch('data.inputs.builders.convert_sequences_to_poi_embeddings')
+    @patch('data.inputs.builders.create_category_lookup')
+    @patch('data.inputs.builders.create_embedding_lookup')
+    @patch('data.inputs.builders.generate_sequences')
     def test_saves_sequences_intermediate(
         self, mock_gen_seq, mock_create_emb, mock_create_cat, mock_convert,
         mock_save_next, mock_save, mock_paths,
@@ -158,15 +158,15 @@ class TestGenerateNextInputFromPoi:
 class TestGenerateNextInputFromCheckins:
     """Test suite for generate_next_input_from_checkins() function."""
 
-    @patch('src.etl.mtl_input.builders.IoPaths')
+    @patch('data.inputs.builders.IoPaths')
     def test_loads_embeddings_from_iopaths(self, mock_paths, sample_checkin_embeddings_df):
         """Should load embeddings using IoPaths.load_embedd()."""
         # Mock all the way through to avoid actual execution
         mock_paths.load_embedd.return_value = sample_checkin_embeddings_df
 
         # Mock the actual function completely to just verify it gets called
-        with patch('src.etl.mtl_input.builders.generate_next_input_from_checkins') as mock_func:
-            from src.etl.mtl_input.builders import generate_next_input_from_checkins as real_func
+        with patch('data.inputs.builders.generate_next_input_from_checkins') as mock_func:
+            from data.inputs.builders import generate_next_input_from_checkins as real_func
             real_func('florida', EmbeddingEngine.TIME2VEC)
 
         # This test just verifies the function exists and can be imported
@@ -176,13 +176,13 @@ class TestGenerateNextInputFromCheckins:
 class TestRegressionChecks:
     """Regression tests to ensure refactoring didn't change behavior."""
 
-    @patch('src.etl.mtl_input.builders.IoPaths')
-    @patch('src.etl.mtl_input.builders.save_parquet')
-    @patch('src.etl.mtl_input.builders.save_next_input_dataframe')
-    @patch('src.etl.mtl_input.builders.convert_sequences_to_poi_embeddings')
-    @patch('src.etl.mtl_input.builders.create_category_lookup')
-    @patch('src.etl.mtl_input.builders.create_embedding_lookup')
-    @patch('src.etl.mtl_input.builders.generate_sequences')
+    @patch('data.inputs.builders.IoPaths')
+    @patch('data.inputs.builders.save_parquet')
+    @patch('data.inputs.builders.save_next_input_dataframe')
+    @patch('data.inputs.builders.convert_sequences_to_poi_embeddings')
+    @patch('data.inputs.builders.create_category_lookup')
+    @patch('data.inputs.builders.create_embedding_lookup')
+    @patch('data.inputs.builders.generate_sequences')
     def test_generate_next_input_from_poi_output_shape(
         self, mock_gen_seq, mock_create_emb, mock_create_cat, mock_convert,
         mock_save_next, mock_save, mock_paths,

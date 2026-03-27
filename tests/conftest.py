@@ -15,8 +15,8 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 sys.path.insert(0, str(project_root / 'src'))
 
-from src.etl.mtl_input.core import PADDING_VALUE
-from src.configs.model import InputsConfig
+from data.inputs.core import PADDING_VALUE
+from configs.model import InputsConfig
 
 
 @pytest.fixture

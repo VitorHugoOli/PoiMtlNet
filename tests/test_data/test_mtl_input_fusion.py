@@ -9,9 +9,9 @@ import pytest
 import pandas as pd
 import numpy as np
 
-from src.etl.mtl_input.fusion import EmbeddingAligner, EmbeddingFuser
-from src.configs.embedding_fusion import EmbeddingSpec, EmbeddingLevel
-from src.configs.paths import EmbeddingEngine
+from data.inputs.fusion import EmbeddingAligner, EmbeddingFuser
+from configs.embedding_fusion import EmbeddingSpec, EmbeddingLevel
+from configs.paths import EmbeddingEngine
 
 
 class TestEmbeddingAligner:

@@ -9,17 +9,17 @@ import pytest
 import pandas as pd
 import numpy as np
 
-from src.etl.mtl_input.core import (
+from data.inputs.core import (
     generate_sequences,
     get_zero_embedding,
     PADDING_VALUE,
     MISSING_CATEGORY_VALUE,
 )
-from src.configs.model import InputsConfig
+from configs.model import InputsConfig
 
 
 # The function we're testing - will be imported after implementation
-# from src.etl.mtl_input.core import convert_user_checkins_to_sequences
+# from data.inputs.core import convert_user_checkins_to_sequences
 
 
 def make_user_df(n_checkins: int, userid: int = 1, embedding_dim: int = 2,
@@ -70,7 +70,7 @@ class TestConvertUserCheckinsToSequences:
 
     def test_returns_tuple_of_two_lists(self, simple_user_df):
         """Should return tuple of (embedding_results, poi_sequences)."""
-        from src.etl.mtl_input.core import convert_user_checkins_to_sequences
+        from data.inputs.core import convert_user_checkins_to_sequences
 
         emb_cols = ['0', '1']
         results, sequences = convert_user_checkins_to_sequences(
@@ -82,7 +82,7 @@ class TestConvertUserCheckinsToSequences:
 
     def test_empty_user_returns_empty_lists(self):
         """User with insufficient data should return empty lists."""
-        from src.etl.mtl_input.core import convert_user_checkins_to_sequences
+        from data.inputs.core import convert_user_checkins_to_sequences
 
         # Only 2 checkins - not enough for any sequence
         user_df = make_user_df(n_checkins=2, embedding_dim=1)
@@ -96,7 +96,7 @@ class TestConvertUserCheckinsToSequences:
 
     def test_position_based_embedding_lookup(self, simple_user_df):
         """Should use position in DataFrame, not POI ID lookup."""
-        from src.etl.mtl_input.core import convert_user_checkins_to_sequences
+        from data.inputs.core import convert_user_checkins_to_sequences
 
         emb_cols = ['0', '1']
         embedding_dim = 2
@@ -119,7 +119,7 @@ class TestConvertUserCheckinsToSequences:
 
     def test_sequence_contains_userid(self, simple_user_df):
         """Each sequence should include userid at the end."""
-        from src.etl.mtl_input.core import convert_user_checkins_to_sequences
+        from data.inputs.core import convert_user_checkins_to_sequences
 
         emb_cols = ['0', '1']
         _, sequences = convert_user_checkins_to_sequences(
@@ -132,7 +132,7 @@ class TestConvertUserCheckinsToSequences:
 
     def test_result_contains_category_and_userid(self, simple_user_df):
         """Result array should end with [target_category, userid]."""
-        from src.etl.mtl_input.core import convert_user_checkins_to_sequences
+        from data.inputs.core import convert_user_checkins_to_sequences
 
         emb_cols = ['0', '1']
         window_size = 9
@@ -153,7 +153,7 @@ class TestConvertUserCheckinsToSequences:
 
     def test_multiple_sequences_non_overlapping(self, multi_sequence_user_df):
         """Multiple sequences should use non-overlapping windows."""
-        from src.etl.mtl_input.core import convert_user_checkins_to_sequences
+        from data.inputs.core import convert_user_checkins_to_sequences
 
         emb_cols = ['0', '1']
         window_size = 9
@@ -178,7 +178,7 @@ class TestConvertUserCheckinsToSequences:
 
     def test_fused_column_names(self):
         """Should work with fused column naming (fused_0, fused_1, etc.)."""
-        from src.etl.mtl_input.core import convert_user_checkins_to_sequences
+        from data.inputs.core import convert_user_checkins_to_sequences
 
         window_size = 9
         n_checkins = window_size + 1
@@ -196,7 +196,7 @@ class TestConvertUserCheckinsToSequences:
 
     def test_padding_gets_zero_embedding(self):
         """Padded positions should get zero embeddings."""
-        from src.etl.mtl_input.core import convert_user_checkins_to_sequences
+        from data.inputs.core import convert_user_checkins_to_sequences
 
         window_size = 9
         # 6 checkins: 5 for history + 1 target, but window wants 9 history
@@ -220,7 +220,7 @@ class TestConvertUserCheckinsToSequences:
 
     def test_target_category_position_lookup(self, multi_sequence_user_df):
         """Target category should come from position-based lookup."""
-        from src.etl.mtl_input.core import convert_user_checkins_to_sequences
+        from data.inputs.core import convert_user_checkins_to_sequences
 
         emb_cols = ['0', '1']
         window_size = 9
@@ -236,7 +236,7 @@ class TestConvertUserCheckinsToSequences:
 
     def test_target_category_fallback_to_poi_lookup(self):
         """When position lookup fails, should fall back to POI ID lookup."""
-        from src.etl.mtl_input.core import convert_user_checkins_to_sequences
+        from data.inputs.core import convert_user_checkins_to_sequences
 
         window_size = 9
         n_checkins = window_size + 1
@@ -253,7 +253,7 @@ class TestConvertUserCheckinsToSequences:
 
     def test_poi_sequences_match_expected_format(self, simple_user_df):
         """POI sequences should have format [poi_0, ..., poi_8, target_poi, userid]."""
-        from src.etl.mtl_input.core import convert_user_checkins_to_sequences
+        from data.inputs.core import convert_user_checkins_to_sequences
 
         emb_cols = ['0', '1']
         window_size = 9
@@ -284,7 +284,7 @@ class TestCheckinConversionEdgeCases:
 
     def test_user_with_exactly_min_sequence_length(self):
         """User with exactly MIN_SEQUENCE_LENGTH checkins."""
-        from src.etl.mtl_input.core import convert_user_checkins_to_sequences, MIN_SEQUENCE_LENGTH
+        from data.inputs.core import convert_user_checkins_to_sequences, MIN_SEQUENCE_LENGTH
 
         user_df = make_user_df(n_checkins=MIN_SEQUENCE_LENGTH, embedding_dim=1)
 
@@ -297,7 +297,7 @@ class TestCheckinConversionEdgeCases:
 
     def test_bounds_checking_for_embedding_lookup(self):
         """Should handle cases where row_idx exceeds DataFrame length."""
-        from src.etl.mtl_input.core import convert_user_checkins_to_sequences
+        from data.inputs.core import convert_user_checkins_to_sequences
 
         window_size = 9
         # Edge case: enough for sequence generation but with padding needs
@@ -314,7 +314,7 @@ class TestCheckinConversionEdgeCases:
 
     def test_different_embedding_dimensions(self):
         """Should work with various embedding dimensions."""
-        from src.etl.mtl_input.core import convert_user_checkins_to_sequences
+        from data.inputs.core import convert_user_checkins_to_sequences
 
         window_size = 9
         n_checkins = 10
@@ -337,7 +337,7 @@ class TestCheckinConversionRegression:
 
     def test_output_array_is_numpy(self):
         """Output array should be numpy ndarray."""
-        from src.etl.mtl_input.core import convert_user_checkins_to_sequences
+        from data.inputs.core import convert_user_checkins_to_sequences
 
         window_size = 9
         n_checkins = window_size + 1
@@ -352,7 +352,7 @@ class TestCheckinConversionRegression:
 
     def test_flattening_order_row_major(self):
         """Embeddings should be flattened in row-major order (C-order)."""
-        from src.etl.mtl_input.core import convert_user_checkins_to_sequences
+        from data.inputs.core import convert_user_checkins_to_sequences
 
         window_size = 3
         embedding_dim = 2
@@ -380,7 +380,7 @@ class TestCheckinConversionRegression:
 
     def test_result_matches_original_builders_output_format(self):
         """Result format should match original generate_next_input_from_checkins output."""
-        from src.etl.mtl_input.core import convert_user_checkins_to_sequences
+        from data.inputs.core import convert_user_checkins_to_sequences
 
         window_size = InputsConfig.SLIDE_WINDOW
         embedding_dim = 64

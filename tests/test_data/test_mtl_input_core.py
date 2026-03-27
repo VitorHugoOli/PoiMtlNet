@@ -15,7 +15,7 @@ import pandas as pd
 from pathlib import Path
 from unittest.mock import patch
 
-from src.etl.mtl_input.core import (
+from data.inputs.core import (
     generate_sequences,
     create_embedding_lookup,
     create_category_lookup,
@@ -29,8 +29,8 @@ from src.etl.mtl_input.core import (
     DEFAULT_BATCH_SIZE,
     MISSING_CATEGORY_VALUE,
 )
-from src.configs.model import InputsConfig
-from src.configs.paths import EmbeddingEngine
+from configs.model import InputsConfig
+from configs.paths import EmbeddingEngine
 
 
 class TestGenerateSequences:

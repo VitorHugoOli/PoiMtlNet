@@ -7,7 +7,7 @@ import pytest
 import numpy as np
 import pandas as pd
 
-from src.etl.mtl_input.core import (
+from data.inputs.core import (
     convert_user_checkins_to_sequences,
     PADDING_VALUE,
     MISSING_CATEGORY_VALUE,
