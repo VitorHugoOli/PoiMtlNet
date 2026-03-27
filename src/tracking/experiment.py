@@ -99,6 +99,7 @@ class MLHistory:
         # Lazy init to avoid circular imports
         self._display = None
         self._storage = None
+        self._adapter = None  # Optional external tracking (W&B, etc.)
 
     @property
     def display(self):
@@ -153,6 +154,15 @@ class MLHistory:
         self.folds[self.curr_i_fold].end()
         if self._verbose:
             self.display.end_fold()
+        if self._adapter is not None:
+            fold = self.folds[self.curr_i_fold]
+            fold_metrics = {}
+            for task_name in self.tasks:
+                th = fold.task(task_name)
+                best_ep, best_f1 = th.val.best("f1") if "f1" in th.val else (-1, 0)
+                fold_metrics[f"{task_name}_best_f1"] = best_f1
+                fold_metrics[f"{task_name}_best_epoch"] = best_ep
+            self._adapter.on_fold_end(self.curr_i_fold, fold_metrics)
         if self.curr_i_fold >= self.num_folds - 1:
             self.end()
             return
@@ -174,6 +184,14 @@ class MLHistory:
         if self._verbose:
             self.display.flops()
 
+    def set_adapter(self, adapter) -> None:
+        """Attach an optional external tracking adapter (W&B, MLflow, etc.).
+
+        The adapter receives callbacks at run start, fold end, and run end.
+        Pass None to disable external tracking (the default).
+        """
+        self._adapter = adapter
+
     # --- Lifecycle ---
 
     def start(self):
@@ -183,6 +201,13 @@ class MLHistory:
         self.get_curr_fold().start()
         if self._verbose:
             self.display.start_fold()
+        if self._adapter is not None:
+            self._adapter.on_run_start({
+                "model_name": self.model_name,
+                "model_type": self.model_type,
+                "num_folds": self.num_folds,
+                "tasks": list(self.tasks),
+            })
 
     def end(self):
         if self._ended:
@@ -192,3 +217,10 @@ class MLHistory:
         self.end_date = time.strftime("%Y%m%d_%H%M%S")
         if self._verbose:
             self.display.end_training()
+        if self._adapter is not None:
+            self._adapter.on_run_end({
+                "model_name": self.model_name,
+                "num_folds": self.num_folds,
+                "duration": self.timer.get_duration() if hasattr(self.timer, 'get_duration') else 0,
+            })
+            self._adapter.close()
