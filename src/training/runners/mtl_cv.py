@@ -324,10 +324,10 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
         history.fold.task('category').report = report_category
 
         history.step()
-        history.display.end_fold()
 
-    # Display summary metrics
-    history.display.end_training()
+    # Display summary metrics (if verbose=False; verbose step() handles it)
+    if not history._verbose:
+        history.display.end_training()
 
     # Write run manifest
     if results_path is not None:

@@ -156,7 +156,6 @@ def run_cv(
 
         history.fold.task('next').report = report
         history.step()
-        history.display.end_fold()
 
         # Free MPS memory between folds
         if DEVICE.type == 'mps':
