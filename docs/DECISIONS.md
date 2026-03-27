@@ -1149,9 +1149,19 @@ pytest tests/test_regression/ -v
 **Files affected:** `src/data/folds.py`
 **Verification:**
 ```
-grep -rn "torch.manual_seed\|np.random.seed\|random.seed" src/
-# → all in data/folds.py, all use the seed parameter (from ExperimentConfig.seed)
+grep -rn "torch\.manual_seed(\|np\.random\.seed(\|random\.seed(" src/ --include="*.py"
+# → src/data/folds.py:136:    np.random.seed(worker_seed)
+# → src/data/folds.py:449:        random.seed(seed)
+# → src/data/folds.py:450:        torch.manual_seed(seed)
+# → src/data/folds.py:451:        np.random.seed(seed)
 ```
+
+**Note on the DoD grep pattern:** The DoD specified `grep -rn "torch.manual_seed\|np.random.seed\|random.seed" src/`
+without `--include="*.py"`. That pattern also matches:
+- `__pycache__/*.pyc` binaries (binary file noise)
+- `src/configs/experiment.py:392: "torch_manual_seed": config.seed` (string literal in RunManifest, not an actual seed call — the unescaped `.` in the grep pattern matches `_`)
+
+The corrected command above uses `--include="*.py"` (excludes `.pyc`) and `(` suffix (matches only actual function calls, not string keys). All 4 actual seed calls are in `data/folds.py` and use the `seed` parameter from `ExperimentConfig.seed`.
 
 ---
 
@@ -1183,15 +1193,58 @@ grep -rn "torch.manual_seed\|np.random.seed\|random.seed" src/
 
 **Observation:** CPU determinism is verified by `test_mtl_determinism_on_cpu` integration test (bitwise identical weights across two runs). Real-data training on MPS (Apple Silicon) shows <1% F1 variance between runs — this is a known MPS limitation, not a seeding issue. All RNG sources (torch, numpy, random) are properly seeded from `ExperimentConfig.seed`.
 
+**Reproducibility command (run from worktree root):**
+```bash
+OUTPUT_DIR=/Users/vitor/Desktop/mestrado/ingred/output \
+DATA_ROOT=/Users/vitor/Desktop/mestrado/ingred/data \
+RESULTS_ROOT=/tmp/p7_dod_runN \
+PYTHONPATH=src python scripts/train.py --state florida --engine dgi --epochs 3 --folds 2
+```
+
+**Run 1 raw output (2026-03-27 10:55):**
+```
+INFO - Creating 2-fold CV for mtl
+WARNING - Category parquet for florida/dgi has no 'placeid' column (pre-Phase-2 data).
+WARNING - MTL split: no placeid data available; falling back to independent StratifiedKFold for category splits.
+INFO - Fold 1/2 completed in 66.24s
+  Summary Fold 1: next | 2 | 37.99% | 31.77% | category | 1 | 47.14% | 45.13%
+INFO - Fold 2/2 completed in 63.41s
+  Summary Fold 2: next | 1 | 38.56% | 32.40% | category | 1 | 47.77% | 45.51%
+INFO - Done. Results written to: /tmp/p7_dod_run1/dgi/florida
+```
+
+**Run 2 raw output (2026-03-27 11:03):**
+```
+INFO - Creating 2-fold CV for mtl
+WARNING - Category parquet for florida/dgi has no 'placeid' column (pre-Phase-2 data).
+WARNING - MTL split: no placeid data available; falling back to independent StratifiedKFold for category splits.
+INFO - Fold 1/2 completed in 64.83s
+  Summary Fold 1: category | 1 | 47.35% | 45.30% | next | 2 | 38.09% | 31.82%
+INFO - Fold 2/2 completed in 62.21s
+  Summary Fold 2: category | 1 | 47.20% | 45.12% | next | 1 | 38.55% | 32.41%
+INFO - Done. Results written to: /tmp/p7_dod_run2/dgi/florida
+```
+
+**Comparison:**
+
+| Fold | Task | Run 1 F1 | Run 2 F1 | Delta |
+|------|------|----------|----------|-------|
+| 1 | category | 45.13% | 45.30% | +0.17% |
+| 1 | next | 31.77% | 31.82% | +0.05% |
+| 2 | category | 45.51% | 45.12% | −0.39% |
+| 2 | next | 32.40% | 32.41% | +0.01% |
+
+All deltas <0.4% — within expected MPS non-determinism range.
+
 **DoD verification outputs (2026-03-27):**
 ```
 pytest tests/test_integration/ -v → 12 passed
 pytest tests/test_regression/ -v → 12 passed
 pytest --co -q | tail -1 → 411 tests collected
-grep -rn "torch.manual_seed\|np.random.seed\|random.seed" src/
-  → src/data/folds.py:136, :449, :450, :451 (all from seed parameter)
-scripts/train.py --state florida --engine dgi --epochs 3 --folds 2
-  → Run 1: Fold 1 cat=45.19% next=31.75%, Fold 2 cat=45.42% next=32.51%
-  → Run 2: Fold 1 cat=45.21% next=31.72%, Fold 2 cat=46.17% next=32.58%
-  → <1% variance (MPS non-determinism, not a seeding issue)
+
+grep -rn "torch\.manual_seed(\|np\.random\.seed(\|random\.seed(" src/ --include="*.py"
+→ src/data/folds.py:136:    np.random.seed(worker_seed)
+→ src/data/folds.py:449:        random.seed(seed)
+→ src/data/folds.py:450:        torch.manual_seed(seed)
+→ src/data/folds.py:451:        np.random.seed(seed)
 ```
