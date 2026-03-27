@@ -1,7 +1,7 @@
 import torch
 from sklearn.metrics import classification_report
 
-from common.training_progress import zip_longest_cycle
+from utils.progress import zip_longest_cycle
 from configs.globals import DEVICE
 
 def validation_best_model(data_next,

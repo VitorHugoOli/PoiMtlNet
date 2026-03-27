@@ -1,11 +1,4 @@
-import gc
-
-import torch
-
-
-def clear_mps_cache():
-    """Thoroughly clear MPS memory between training runs"""
-    gc.collect()
-    torch.mps.empty_cache()
-    if hasattr(torch.mps, 'synchronize'):  # Check if available in your PyTorch version
-        torch.mps.synchronize()  # Ensure all operations are complete
+"""Shim — canonical location is utils.mps (Phase 5)."""
+import warnings as _warnings
+_warnings.warn("common.mps_support is deprecated; use utils.mps instead.", DeprecationWarning, stacklevel=2)
+from utils.mps import *  # noqa: F401, F403

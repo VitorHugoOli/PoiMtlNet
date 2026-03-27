@@ -7,9 +7,9 @@ from typing import Optional
 from sklearn.metrics import classification_report
 from torch.nn import CrossEntropyLoss
 
-from common.calc_flops.calculate_model_flops import calculate_model_flops
-from common.mps_support import clear_mps_cache
-from common.training_progress import TrainingProgressBar
+from utils.flops import calculate_model_flops
+from utils.mps import clear_mps_cache
+from utils.progress import TrainingProgressBar
 from configs.globals import DEVICE
 from configs.experiment import ExperimentConfig
 from losses.registry import create_loss
