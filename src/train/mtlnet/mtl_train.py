@@ -1,23 +1,21 @@
 import numpy as np
 import torch
-import torch.optim as optim
 import time
 from pathlib import Path
 from typing import Optional
 
 from sklearn.metrics import classification_report
-from sklearn.utils import compute_class_weight
 from torch.nn import CrossEntropyLoss
-from torch.optim.lr_scheduler import OneCycleLR
 
 from common.calc_flops.calculate_model_flops import calculate_model_flops
 from common.mps_support import clear_mps_cache
 from common.training_progress import TrainingProgressBar
 from configs.globals import DEVICE
 from configs.experiment import ExperimentConfig
-from criterion.nash_mtl import NashMTL
+from losses.registry import create_loss
+from models.registry import create_model
+from training.helpers import compute_class_weights, setup_optimizer, setup_scheduler
 from etl.create_fold import TaskFoldData, FoldResult
-from model.mtlnet.mtl_poi import MTLnet
 from common.ml_history import MLHistory, FlopsMetrics, NeuralParams
 from common.ml_history.fold import FoldHistory, TaskHistory
 from train.mtlnet.evaluate import evaluate_model
@@ -235,42 +233,36 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
     for fold_idx, (i_fold, dataloader) in enumerate(dataloaders.items()):
         clear_mps_cache()
 
-        # Initialize model
-        model = MTLnet(**config.model_params)
-
-        model = model.to(DEVICE)
+        # Initialize model via registry
+        model = create_model(config.model_name, **config.model_params).to(DEVICE)
 
         # Get dataloaders
         dataloader_next: TaskFoldData = dataloader.next
         dataloader_category: TaskFoldData = dataloader.category
 
-        optimizer = optim.AdamW(
-            model.parameters(),
-            lr=config.learning_rate,
-            weight_decay=config.weight_decay,
-            eps=config.optimizer_eps,
+        optimizer = setup_optimizer(
+            model, config.learning_rate, config.weight_decay, eps=config.optimizer_eps
+        )
+        # steps_per_epoch must match zip_longest_cycle() — the longer loader
+        steps_per_epoch = max(
+            len(dataloader_next.train.dataloader),
+            len(dataloader_category.train.dataloader),
+        )
+        scheduler = setup_scheduler(
+            optimizer, config.max_lr, config.epochs,
+            steps_per_epoch,
         )
 
-        scheduler = OneCycleLR(
-            optimizer,
-            max_lr=config.max_lr,
-            epochs=config.epochs,
-            steps_per_epoch=len(dataloader_next.train.dataloader),
+        alpha_next = compute_class_weights(
+            dataloader_next.train.y.numpy(), num_classes, DEVICE
         )
-
-        cls = np.arange(num_classes)
-
-        y_all_next = dataloader_next.train.y.numpy()
-        weights_next = compute_class_weight('balanced', classes=cls, y=y_all_next)
-        alpha_next = torch.tensor(weights_next, dtype=torch.float32, device=DEVICE)
-
-        y_all_category = dataloader_category.train.y.numpy()
-        weights_cat = compute_class_weight('balanced', classes=cls, y=y_all_category)
-        alpha_cat = torch.tensor(weights_cat, dtype=torch.float32, device=DEVICE)
+        alpha_cat = compute_class_weights(
+            dataloader_category.train.y.numpy(), num_classes, DEVICE
+        )
 
         next_criterion = CrossEntropyLoss(reduction='mean', weight=alpha_next)
         category_criterion = CrossEntropyLoss(reduction='mean', weight=alpha_cat)
-        mtl_criterion = NashMTL(n_tasks=2, device=DEVICE, **config.mtl_loss_params)
+        mtl_criterion = create_loss(config.mtl_loss, n_tasks=2, device=DEVICE, **config.mtl_loss_params)
 
         history.set_model_arch(str(model))
 
