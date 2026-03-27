@@ -40,12 +40,12 @@ def _ensure_registered():
         return
     _REGISTERED = True
 
-    # Import each criterion module to trigger @register_loss decorators
-    from criterion.nash_mtl import NashMTL  # noqa: F401
-    from criterion.FocalLoss import FocalLoss  # noqa: F401
-    from criterion.pcgrad import PCGrad  # noqa: F401
-    from criterion.gradnorm import GradNormLoss  # noqa: F401
-    from criterion.NaiveLoss import NaiveLoss  # noqa: F401
+    # Import each loss module to trigger registration
+    from losses.nash_mtl import NashMTL  # noqa: F401
+    from losses.focal import FocalLoss  # noqa: F401
+    from losses.pcgrad import PCGrad  # noqa: F401
+    from losses.gradnorm import GradNormLoss  # noqa: F401
+    from losses.naive import NaiveLoss  # noqa: F401
 
     # Register them (since the original files don't have decorators)
     _LOSS_REGISTRY.setdefault("nash_mtl", NashMTL)
