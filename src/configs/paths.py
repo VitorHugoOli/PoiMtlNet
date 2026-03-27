@@ -325,7 +325,7 @@ class IoPaths:
 
     @classmethod
     def load_city(cls, state: str, ext: str = 'parquet') -> DataFrame:
-        """Get the DGI output directory for a specific state."""
+        """Load check-in data for a specific state."""
         return pd.read_parquet(cls.get_city(state, ext))
 
     @classmethod
@@ -341,7 +341,7 @@ class IoPaths:
 
     @classmethod
     def load_category(cls, state: str, embedd_engine: EmbeddingEngine) -> DataFrame:
-        """Get the DGI output directory for a specific state."""
+        """Load category input data for a specific state and engine."""
         return pd.read_parquet(cls.get_category(state, embedd_engine))
 
     @classmethod
@@ -353,7 +353,7 @@ class IoPaths:
 
     @classmethod
     def load_next(cls, state: str, embedd_engine: EmbeddingEngine) -> DataFrame:
-        """Get the DGI output directory for a specific state."""
+        """Load next-POI input data for a specific state and engine."""
         return pd.read_parquet(cls.get_next(state, embedd_engine))
 
     @classmethod
@@ -361,11 +361,11 @@ class IoPaths:
         return OUTPUT_DIR / embedd_engine.value / state.lower() / "temp" / "sequences_next.parquet"
 
     @classmethod
-    def get_results_dir(cls, state, enbedd_engine: EmbeddingEngine) -> Path:
+    def get_results_dir(cls, state, embedd_engine: EmbeddingEngine) -> Path:
         """Get results directory (routes FUSION automatically)."""
-        if enbedd_engine == EmbeddingEngine.FUSION:
+        if embedd_engine == EmbeddingEngine.FUSION:
             return cls.get_fusion_results_dir(state)
-        return RESULTS_ROOT / enbedd_engine.value / state.lower()
+        return RESULTS_ROOT / embedd_engine.value / state.lower()
 
     @classmethod
     def get_folds_dir(cls, state, embedd_engine: EmbeddingEngine) -> Path:
