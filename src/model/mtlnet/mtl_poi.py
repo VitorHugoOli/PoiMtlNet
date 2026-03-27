@@ -3,8 +3,9 @@ import torch
 from torch import nn
 
 from configs.model import InputsConfig
-from model.mtlnet.category_head import CategoryHeadMTL
-from model.mtlnet.next_head import NextHeadMTL
+from models.heads.category import CategoryHeadMTL
+from models.heads.next import NextHeadMTL
+from models.registry import register_model
 
 
 class ResidualBlock(nn.Module):
@@ -64,6 +65,7 @@ class FiLMLayer(nn.Module):
         return gamma * x + beta
 
 
+@register_model("mtlnet")
 class MTLnet(nn.Module):
     def __init__(
         self,

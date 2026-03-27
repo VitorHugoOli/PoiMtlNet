@@ -1,21 +1,16 @@
 import numpy as np
 import torch
 from pathlib import Path
-from sklearn.utils import compute_class_weight
 from torch import nn
-from torch.optim import AdamW
-from torch.optim.lr_scheduler import OneCycleLR
 from torch_geometric.data import DataLoader
 from typing import Optional
 
 from configs.globals import DEVICE
 from configs.experiment import ExperimentConfig
-from model.category.category_head_enhanced import CategoryHeadGated, CategoryHeadResidual, CategoryHeadEnsemble, \
-    CategoryHeadAttentionPooling, ResidualBlock
+from models.registry import create_model
+from training.helpers import compute_class_weights, setup_optimizer, setup_scheduler
 from train.category.evaluation import evaluate
 from train.category.trainer import train
-from model.category.CategoryHeadTransformer import CategoryHeadTransformer
-from criterion.FocalLoss import FocalLoss
 from common.calc_flops.calculate_model_flops import calculate_model_flops
 from common.ml_history import MLHistory, FlopsMetrics, NeuralParams
 from common.mps_support import clear_mps_cache
@@ -31,30 +26,18 @@ def run_cv(
     num_classes = config.model_params.get('num_classes', 7)
 
     for idx, (train_loader, val_loader) in enumerate(folds):
-        model = CategoryHeadEnsemble(
-            **config.model_params,
-        ).to(DEVICE)
+        model = create_model(config.model_name, **config.model_params).to(DEVICE)
 
-        y_all = train_loader.dataset.targets.numpy()
-        cls = np.arange(num_classes)
-        weights = compute_class_weight('balanced', classes=cls, y=y_all)
-        alpha = torch.tensor(weights, dtype=torch.float32, device=DEVICE)
+        alpha = compute_class_weights(
+            train_loader.dataset.targets.numpy(), num_classes, DEVICE
+        )
         criterion = nn.CrossEntropyLoss(
             reduction='mean',
             weight=alpha if config.use_class_weights else None,
         )
 
-        optimizer = AdamW(
-            model.parameters(),
-            lr=config.learning_rate,
-            weight_decay=config.weight_decay,
-        )
-        scheduler = OneCycleLR(
-            optimizer=optimizer,
-            max_lr=config.max_lr,
-            epochs=config.epochs,
-            steps_per_epoch=len(train_loader),
-        )
+        optimizer = setup_optimizer(model, config.learning_rate, config.weight_decay)
+        scheduler = setup_scheduler(optimizer, config.max_lr, config.epochs, len(train_loader))
 
         history.set_model_arch(str(model))
 

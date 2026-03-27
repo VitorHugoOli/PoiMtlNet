@@ -1,3 +1,5 @@
-from model.category.category_head_enhanced import CategoryHeadEnsemble
+"""Shim — canonical location is models.heads.category (Phase 4a).
 
-CategoryHeadMTL = CategoryHeadEnsemble
+Phase 1 contract: CategoryHeadMTL is an alias for CategoryHeadEnsemble.
+"""
+from models.heads.category import CategoryHeadMTL  # noqa: F401
