@@ -11,86 +11,40 @@ Calibration protocol (run once during Phase 0 setup):
   Tolerance = 3 × observed std dev.  Values documented in comments below.
 
 All tests force CPU to avoid MPS non-determinism.
+
+Phase 7: data generators imported from tests.test_integration.conftest
+(shared synthetic data infrastructure).
 """
 
-import random
-
-import numpy as np
 import pytest
 import torch
 import torch.nn as nn
 from sklearn.metrics import f1_score
-from torch.utils.data import DataLoader, TensorDataset
+
+from tests.test_integration.conftest import (
+    BATCH_SIZE,
+    DEVICE,
+    EMBED_DIM,
+    NUM_CLASSES,
+    NUM_TRAIN,
+    NUM_VAL,
+    SEED,
+    SEQ_LEN,
+    make_category_data,
+    make_loaders,
+    make_next_data,
+    seed_everything,
+)
 
 # ---------------------------------------------------------------------------
-# Constants
+# Regression-specific constants
 # ---------------------------------------------------------------------------
-SEED = 42
-NUM_CLASSES = 7
-EMBED_DIM = 64
-SEQ_LEN = 9
-BATCH_SIZE = 64
 TRAIN_EPOCHS = 10
-NUM_TRAIN = 700   # 100 per class
-NUM_VAL = 140     # 20 per class
-DEVICE = torch.device("cpu")
 
 
 # ---------------------------------------------------------------------------
-# Helpers
+# Regression-specific helpers (train loops with specific epoch counts)
 # ---------------------------------------------------------------------------
-def _seed_everything(seed: int = SEED) -> None:
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    torch.use_deterministic_algorithms(True, warn_only=True)
-
-
-def _make_category_data(n_per_class: int, embed_dim: int = EMBED_DIM, seed: int = SEED):
-    """Synthetic category data: class-specific centroid + noise.
-
-    Noise=1.5 with centroid magnitude=2.0 creates moderate class overlap,
-    yielding F1 in the 0.7-0.95 range — enough variance for meaningful calibration.
-    """
-    rng = np.random.RandomState(seed)
-    xs, ys = [], []
-    for c in range(NUM_CLASSES):
-        centroid = np.zeros(embed_dim, dtype=np.float32)
-        centroid[c * (embed_dim // NUM_CLASSES): (c + 1) * (embed_dim // NUM_CLASSES)] = 2.0
-        noise = rng.randn(n_per_class, embed_dim).astype(np.float32) * 1.5
-        xs.append(centroid + noise)
-        ys.extend([c] * n_per_class)
-    return torch.from_numpy(np.vstack(xs)), torch.tensor(ys, dtype=torch.long)
-
-
-def _make_next_data(n_per_class: int, embed_dim: int = EMBED_DIM,
-                    seq_len: int = SEQ_LEN, seed: int = SEED):
-    """Synthetic next-POI data: class-specific sequence patterns.
-
-    Higher noise (1.5) and lower centroid (2.0) produce non-trivial overlap.
-    """
-    rng = np.random.RandomState(seed)
-    xs, ys = [], []
-    for c in range(NUM_CLASSES):
-        centroid = np.zeros(embed_dim, dtype=np.float32)
-        centroid[c * (embed_dim // NUM_CLASSES): (c + 1) * (embed_dim // NUM_CLASSES)] = 2.0
-        for _ in range(n_per_class):
-            seq = np.tile(centroid, (seq_len, 1))
-            seq += rng.randn(seq_len, embed_dim).astype(np.float32) * 1.5
-            xs.append(seq)
-            ys.append(c)
-    X = torch.from_numpy(np.stack(xs))
-    y = torch.tensor(ys, dtype=torch.long)
-    return X, y
-
-
-def _make_loaders(X_train, y_train, X_val, y_val, batch_size=BATCH_SIZE):
-    train_dl = DataLoader(TensorDataset(X_train, y_train), batch_size=batch_size, shuffle=True,
-                          generator=torch.Generator().manual_seed(SEED))
-    val_dl = DataLoader(TensorDataset(X_val, y_val), batch_size=batch_size)
-    return train_dl, val_dl
-
-
 def _train_and_evaluate(model, train_dl, val_dl, epochs=TRAIN_EPOCHS, lr=1e-3):
     """Train model, return val F1 macro."""
     model.to(DEVICE).train()
@@ -194,7 +148,7 @@ class TestCategoryRegression:
 
     @pytest.fixture(autouse=True)
     def setup(self):
-        _seed_everything()
+        seed_everything()
 
     # --- Layer 1: deterministic shapes ---
     def test_category_output_shape(self):
@@ -214,9 +168,9 @@ class TestCategoryRegression:
 
     # --- Layer 2: artifact structure ---
     def test_category_dataloader_shapes(self):
-        X_train, y_train = _make_category_data(NUM_TRAIN // NUM_CLASSES, seed=SEED)
-        X_val, y_val = _make_category_data(NUM_VAL // NUM_CLASSES, seed=SEED + 1)
-        train_dl, val_dl = _make_loaders(X_train, y_train, X_val, y_val)
+        X_train, y_train = make_category_data(NUM_TRAIN // NUM_CLASSES, seed=SEED)
+        X_val, y_val = make_category_data(NUM_VAL // NUM_CLASSES, seed=SEED + 1)
+        train_dl, val_dl = make_loaders(X_train, y_train, X_val, y_val)
         xb, yb = next(iter(train_dl))
         assert xb.shape == (BATCH_SIZE, EMBED_DIM)
         assert yb.shape == (BATCH_SIZE,)
@@ -225,10 +179,10 @@ class TestCategoryRegression:
     # --- Layer 3: coarse metric ---
     def test_category_f1_within_tolerance(self):
         from models.heads.category import CategoryHeadSingle
-        _seed_everything()
-        X_train, y_train = _make_category_data(NUM_TRAIN // NUM_CLASSES, seed=SEED)
-        X_val, y_val = _make_category_data(NUM_VAL // NUM_CLASSES, seed=SEED + 1)
-        train_dl, val_dl = _make_loaders(X_train, y_train, X_val, y_val)
+        seed_everything()
+        X_train, y_train = make_category_data(NUM_TRAIN // NUM_CLASSES, seed=SEED)
+        X_val, y_val = make_category_data(NUM_VAL // NUM_CLASSES, seed=SEED + 1)
+        train_dl, val_dl = make_loaders(X_train, y_train, X_val, y_val)
         model = CategoryHeadSingle(input_dim=EMBED_DIM, hidden_dims=(128, 64, 32),
                                    num_classes=NUM_CLASSES, dropout=0.1)
         f1 = _train_and_evaluate(model, train_dl, val_dl)
@@ -252,7 +206,7 @@ class TestNextRegression:
 
     @pytest.fixture(autouse=True)
     def setup(self):
-        _seed_everything()
+        seed_everything()
 
     # --- Layer 1: deterministic shapes ---
     def test_next_output_shape(self):
@@ -272,9 +226,9 @@ class TestNextRegression:
 
     # --- Layer 2: artifact structure ---
     def test_next_dataloader_shapes(self):
-        X_train, y_train = _make_next_data(NUM_TRAIN // NUM_CLASSES, seed=SEED)
-        X_val, y_val = _make_next_data(NUM_VAL // NUM_CLASSES, seed=SEED + 1)
-        train_dl, val_dl = _make_loaders(X_train, y_train, X_val, y_val)
+        X_train, y_train = make_next_data(NUM_TRAIN // NUM_CLASSES, seed=SEED)
+        X_val, y_val = make_next_data(NUM_VAL // NUM_CLASSES, seed=SEED + 1)
+        train_dl, val_dl = make_loaders(X_train, y_train, X_val, y_val)
         xb, yb = next(iter(train_dl))
         assert xb.shape == (BATCH_SIZE, SEQ_LEN, EMBED_DIM)
         assert yb.shape == (BATCH_SIZE,)
@@ -282,10 +236,10 @@ class TestNextRegression:
     # --- Layer 3: coarse metric ---
     def test_next_f1_within_tolerance(self):
         from models.heads.next import NextHeadSingle
-        _seed_everything()
-        X_train, y_train = _make_next_data(NUM_TRAIN // NUM_CLASSES, seed=SEED)
-        X_val, y_val = _make_next_data(NUM_VAL // NUM_CLASSES, seed=SEED + 1)
-        train_dl, val_dl = _make_loaders(X_train, y_train, X_val, y_val)
+        seed_everything()
+        X_train, y_train = make_next_data(NUM_TRAIN // NUM_CLASSES, seed=SEED)
+        X_val, y_val = make_next_data(NUM_VAL // NUM_CLASSES, seed=SEED + 1)
+        train_dl, val_dl = make_loaders(X_train, y_train, X_val, y_val)
         model = NextHeadSingle(embed_dim=EMBED_DIM, num_classes=NUM_CLASSES,
                                num_heads=4, seq_length=SEQ_LEN, num_layers=2, dropout=0.1)
         f1 = _train_and_evaluate(model, train_dl, val_dl)
@@ -310,7 +264,7 @@ class TestMTLRegression:
 
     @pytest.fixture(autouse=True)
     def setup(self):
-        _seed_everything()
+        seed_everything()
 
     # --- Layer 1: deterministic shapes ---
     def test_mtl_output_shapes(self):
@@ -361,15 +315,15 @@ class TestMTLRegression:
     # --- Layer 3: coarse metric ---
     def test_mtl_f1_within_tolerance(self):
         from models.mtlnet import MTLnet
-        _seed_everything()
-        X_cat_train, y_cat_train = _make_category_data(NUM_TRAIN // NUM_CLASSES, seed=SEED)
-        X_cat_val, y_cat_val = _make_category_data(NUM_VAL // NUM_CLASSES, seed=SEED + 1)
-        X_next_train, y_next_train = _make_next_data(NUM_TRAIN // NUM_CLASSES, seed=SEED)
-        X_next_val, y_next_val = _make_next_data(NUM_VAL // NUM_CLASSES, seed=SEED + 1)
+        seed_everything()
+        X_cat_train, y_cat_train = make_category_data(NUM_TRAIN // NUM_CLASSES, seed=SEED)
+        X_cat_val, y_cat_val = make_category_data(NUM_VAL // NUM_CLASSES, seed=SEED + 1)
+        X_next_train, y_next_train = make_next_data(NUM_TRAIN // NUM_CLASSES, seed=SEED)
+        X_next_val, y_next_val = make_next_data(NUM_VAL // NUM_CLASSES, seed=SEED + 1)
 
-        cat_train_dl, cat_val_dl = _make_loaders(X_cat_train, y_cat_train,
+        cat_train_dl, cat_val_dl = make_loaders(X_cat_train, y_cat_train,
                                                   X_cat_val, y_cat_val)
-        next_train_dl, next_val_dl = _make_loaders(X_next_train, y_next_train,
+        next_train_dl, next_val_dl = make_loaders(X_next_train, y_next_train,
                                                     X_next_val, y_next_val)
 
         model = MTLnet(
