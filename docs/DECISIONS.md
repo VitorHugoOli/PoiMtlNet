@@ -963,3 +963,123 @@ pytest tests/test_regression/ -v
 **Files affected:** `tests/conftest.py`, `tests/test_data/test_mtl_input_{builders,core,checkin_conversion,fusion}.py`, `tests/test_data/test_convert_user_checkins.py`
 **Verification:** `grep -rn "^from src\." src/ scripts/ tests/ --include="*.py"` → zero results
 
+
+---
+
+### Phase 6 — Script Consolidation and Shim Removal
+Date: 2026-03-27
+
+---
+
+#### [6.1-6.2] scripts/train.py created with argparse CLI (BPR)
+
+**Decision:** Created `scripts/train.py` as the canonical CLI training entrypoint. All imports use Phase 5 canonical paths (`configs.experiment`, `configs.paths`, `data.folds`, `training.runners.*`, `tracking.MLHistory`). Dispatches to `_run_mtl`, `_run_category`, `_run_next` based on `--task` flag. `--folds N` runs only the first N folds; the split structure uses `max(2, N)` splits (StratifiedKFold requires ≥ 2). `--config` loads `ExperimentConfig` from an experiment file.
+
+**Flags:** `--state`, `--engine`, `--task` (mtl/category/next), `--epochs`, `--folds`, `--config`
+
+**Files affected:** `scripts/train.py` (new)
+**Verification:**
+```
+PYTHONPATH=src python scripts/train.py --help
+# → shows all expected flags with defaults
+```
+
+---
+
+#### [6.3-6.4] experiments/configs/ and directory stubs created (BPR)
+
+**Decision:** Created `experiments/configs/` with three declarative config files: `mtl_hgi_florida.py`, `mtl_dgi_florida.py`, `mtl_hgi_alabama.py`. Each exports `config() -> ExperimentConfig`. No training logic, no side effects, no imports beyond `configs.experiment`. Created `experiments/baselines/__init__.py` and `experiments/ablations/__init__.py`. (`experiments/archive/` existed from Phase 1 [1.8].)
+
+**Files affected:** `experiments/configs/{__init__,mtl_hgi_florida,mtl_dgi_florida,mtl_hgi_alabama}.py` (new), `experiments/baselines/__init__.py` (new), `experiments/ablations/__init__.py` (new)
+**Verification:**
+```
+PYTHONPATH=src python -c "
+import importlib.util, sys
+spec = importlib.util.spec_from_file_location('_c', 'experiments/configs/mtl_hgi_florida.py')
+m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+print(m.config().name)  # → mtl_hgi_florida
+"
+```
+
+---
+
+#### [6.5] pipelines/train/ converted to thin wrappers (BPR)
+
+**Decision:** Replaced `mtl.pipe.py`, `cat_head.pipe.py`, `next_head.pipe.py` with thin subprocess wrappers that call `scripts/train.py` with `--state`, `--engine`, `--task`. All training logic removed from pipelines. Multi-state/engine loops preserved via `nargs="+"` argparse.
+
+**Alternatives rejected:**
+1. *Keep old pipeline logic* — would leave duplicate logic; Phase 6 scope requires thin wrappers.
+
+**Files affected:** `pipelines/train/mtl.pipe.py`, `pipelines/train/cat_head.pipe.py`, `pipelines/train/next_head.pipe.py`
+**Verification:** `python pipelines/train/mtl.pipe.py --help`
+
+---
+
+#### [6.6] scripts/evaluate.py created (BPR)
+
+**Decision:** Created `scripts/evaluate.py` for checkpoint evaluation. Loads a `.pt` checkpoint, looks up the config from `config.json` alongside results, creates fold data, runs `collect_predictions` + `build_report` from `training.evaluate`. All imports from Phase 5 canonical paths.
+
+**Files affected:** `scripts/evaluate.py` (new)
+**Verification:** `PYTHONPATH=src python scripts/evaluate.py --help`
+
+---
+
+#### [6.7] All Phase 5 transitional shims removed (BPR)
+
+**Decision:** Deleted all Phase 5 shim packages. Confirmed zero production imports from shim paths before deletion.
+
+**Shim packages removed:**
+- `src/common/` — ml_history, calc_flops, mps_support, training_progress, poi_dataset shims
+- `src/criterion/` — FocalLoss, NaiveLoss, gradnorm, nash_mtl, pcgrad shims
+- `src/etl/` — create_fold, mtl_input/* shims
+- `src/model/` — all category/next/mtlnet head shims
+- `src/train/` — all category/next/mtlnet runner shims
+- `src/embeddings/__init__.py` — research/embeddings shim
+
+**Pre-deletion check:**
+```
+grep -rn "from common\.\|from criterion\.\|from etl\.\|from train\.\|from model\." src/ scripts/ tests/ pipelines/ --include="*.py"
+# → zero results
+```
+
+**Verification:**
+```
+grep -rn "DeprecationWarning" src/
+# → zero results (all shims gone)
+grep -rn "from common\.\|from criterion\.\|from etl\.\|from train\.\|from model\." src/ scripts/
+# → zero results
+pytest -v
+# → 320 passed, 79 skipped, 0 failures
+```
+
+---
+
+#### [6.8] Smoke test run + graceful fallback for pre-Phase-2 data (BPR)
+
+**Decision:** `data/folds.py:load_category_data()` returns `placeids=None` when the category parquet has no `placeid` column (pre-Phase-2 generated data). `_create_mtl_folds()` detects `None` and falls back to independent `StratifiedKFold` for category splits while still using `StratifiedGroupKFold` for next-task user splits. Emits `WARNING` log entries explaining the fallback. `scripts/train.py` max_folds slicing no longer updates `config.k_folds` (avoids `k_folds >= 2` validation error when running 1 fold).
+
+**Rationale:** Florida DGI category parquet was generated before Phase 2 and lacks `placeid`. The fallback ensures the CLI smoke test works on real data without requiring data regeneration. Alabama HGI data (generated during Phase 2) continues to use the full user-isolation protocol.
+
+**Files affected:** `src/data/folds.py` (load_category_data, _create_mtl_folds), `scripts/train.py`
+
+**CLI smoke test output:**
+```
+python scripts/train.py --state florida --engine dgi --epochs 1 --folds 1
+# → completes in ~41s, produces results/dgi/florida/manifest.json
+```
+
+**Verification:**
+```
+ls results/dgi/florida/manifest.json          # → exists
+python -c "import json; print(list(json.load(open('results/dgi/florida/manifest.json')).keys())[:4])"
+# → ['config', 'git_commit', 'seeds', 'pytorch_version']
+grep -rn "DeprecationWarning" src/           # → zero results
+grep -rn "from common\.\|from criterion\.\|from etl\.\|from train\.\|from model\." src/ scripts/  # → zero results
+pytest -v                                    # → 320 passed, 79 skipped, 0 failures
+```
+
+**Phase 7 must know:**
+- Florida DGI (and other pre-Phase-2) data does not have `placeid` in category parquets. Regenerate with the Phase 2 pipeline to enable full user-isolation MTL splits.
+- The `legacy_stratified` split mode is recorded in fold manifests for traceability.
+- `scripts/train.py` `--folds N` is an execution limit, not the split count. The config's `k_folds` stays at `max(2, N)`.
+- All shims are gone. Any Phase 7 integration tests must use canonical paths only.
