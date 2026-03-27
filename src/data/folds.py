@@ -21,6 +21,7 @@ import gc
 import json
 import logging
 import os
+import random
 import time
 from dataclasses import dataclass
 from datetime import datetime
@@ -445,6 +446,7 @@ class FoldCreator:
         self._task_tensors: Dict[TaskType, TaskTensors] = {}
         self._fold_indices: Dict[TaskType, List[FoldIndices]] = {}
 
+        random.seed(seed)
         torch.manual_seed(seed)
         np.random.seed(seed)
 
