@@ -1062,20 +1062,35 @@ pytest -v
 
 **Files affected:** `src/data/folds.py` (load_category_data, _create_mtl_folds), `scripts/train.py`
 
-**CLI smoke test output:**
-```
+**CLI smoke test (reproducible command — data-paths must be explicit from the worktree):**
+```bash
+OUTPUT_DIR=/Users/vitor/Desktop/mestrado/ingred/output \
+RESULTS_ROOT=/path/to/worktree/results \
+DATA_ROOT=/Users/vitor/Desktop/mestrado/ingred/data \
 python scripts/train.py --state florida --engine dgi --epochs 1 --folds 1
-# → completes in ~41s, produces results/dgi/florida/manifest.json
+```
+Run 2026-03-27 02:34 → completed in 35s.  Key log lines (abbreviated):
+```
+INFO  - Creating 2-fold CV for mtl
+WARNING - Category parquet for florida/dgi has no 'placeid' column (pre-Phase-2 data).
+          MTL user-level splits require regenerating input with the Phase 2 pipeline.
+          Falling back to independent StratifiedKFold splits.
+INFO  - Fold 1/2: train_users=5241, val_users=5290
+INFO  - Training: state=florida  engine=dgi  task=mtl  epochs=1  folds=1
+INFO  - FLOPS: 70249216 | Params: 4307855
+[Epoch 1/1 completes, val metrics: cat_val=0.4536(0.4791), next_val=0.2523(0.3327)]
+INFO  - Fold 1/1 completed in 34.67s
+INFO  - Done. Results written to: .../results/dgi/florida
 ```
 
-**Verification:**
-```
-ls results/dgi/florida/manifest.json          # → exists
-python -c "import json; print(list(json.load(open('results/dgi/florida/manifest.json')).keys())[:4])"
-# → ['config', 'git_commit', 'seeds', 'pytorch_version']
-grep -rn "DeprecationWarning" src/           # → zero results
+**Verification (run from worktree with env vars above):**
+```bash
+ls results/dgi/florida/manifest.json          # → exists (timestamp matches smoke run)
+python -c "import json; print(list(json.load(open('results/dgi/florida/manifest.json')).keys())[:6])"
+# → ['config', 'git_commit', 'seeds', 'pytorch_version', 'device', 'deterministic_flags']
+grep -rn "DeprecationWarning" src/            # → zero results
 grep -rn "from common\.\|from criterion\.\|from etl\.\|from train\.\|from model\." src/ scripts/  # → zero results
-pytest -v                                    # → 320 passed, 79 skipped, 0 failures
+PYTHONPATH=src pytest -v                      # → 320 passed, 79 skipped, 0 failures
 ```
 
 **Phase 7 must know:**
