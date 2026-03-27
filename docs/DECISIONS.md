@@ -832,3 +832,98 @@ pytest tests/test_regression/ -v
 # → 12 passed
 ```
 
+---
+
+### Phase 5 — Folder Tree Migration
+Date: 2026-03-26
+
+---
+
+#### [5.1] configs/ — no moves needed (BPR)
+
+**Decision:** `src/configs/` already at target location per REFACTORING_PLAN §6. Contains `__init__.py`, `experiment.py`, `model.py`, `paths.py`, `globals.py`, `embedding_fusion.py`. Deprecated `category_config.py` and `next_config.py` kept until Phase 6.
+
+**Files affected:** None
+**Verification:** `python -c "from configs.experiment import ExperimentConfig; print('ok')"`
+
+---
+
+#### [5.2] models/ — move mtl_poi.py to models/mtlnet.py (BPR)
+
+**Decision:** Moved `src/model/mtlnet/mtl_poi.py` → `src/models/mtlnet.py`. All `src/model/` shim files (from P4a) updated with DeprecationWarning. Registry updated to import from `models.mtlnet`. Test imports updated to canonical `models.heads.category`, `models.heads.next`, `models.mtlnet`.
+
+**Files affected:** `src/models/mtlnet.py` (moved), `src/models/registry.py` (import updated), `src/model/mtlnet/mtl_poi.py` (shim), all `src/model/` shims (DeprecationWarning added), `tests/test_regression/test_regression.py` (imports updated)
+**Verification:** `python -c "from models.mtlnet import MTLnet; print('ok')"` → ok
+
+---
+
+#### [5.3] losses/ — move criterion/*.py to losses/ (BPR)
+
+**Decision:** Moved 5 loss files: `FocalLoss.py` → `focal.py`, `NaiveLoss.py` → `naive.py`, `gradnorm.py`, `nash_mtl.py`, `pcgrad.py`. Created `criterion/__init__.py` and individual shim files with DeprecationWarning. Registry updated to import from `losses.*`.
+
+**Files affected:** `src/losses/{focal,naive,gradnorm,nash_mtl,pcgrad}.py` (moved), `src/losses/registry.py` (imports updated), `src/criterion/*.py` (shims)
+**Verification:** `python -c "from losses.nash_mtl import NashMTL; print('ok')"` → ok
+
+---
+
+#### [5.4] data/ — move etl/create_fold, etl/mtl_input, poi_dataset (BPR)
+
+**Decision:** Moved `etl/create_fold.py` → `data/folds.py`, `etl/mtl_input/{core,builders,loaders,fusion}.py` → `data/inputs/`, `common/poi_dataset.py` → `data/dataset.py`. Created shims at all old paths with DeprecationWarning. Internal imports use relative references and work in new location.
+
+**Files affected:** `src/data/{folds,dataset,inputs/}.py` (moved), `src/etl/` (shims), `src/common/poi_dataset.py` (shim), all pipeline files (imports updated), `src/train/mtlnet/mtl_train.py` (import updated)
+**Verification:** `python -c "from data.folds import FoldCreator; print('ok')"` → ok
+
+---
+
+#### [5.5] training/ — move train/* to training/runners/ (BPR)
+
+**Decision:** Moved all 9 train files to `src/training/runners/`: `train/shared/evaluate.py` → `training/shared_evaluate.py`, `train/{category,next,mtlnet}/*.py` → `training/runners/{category,next,mtl}_*.py`. Created shims at all old paths with DeprecationWarning. Updated cross-references within moved files.
+
+**Files affected:** `src/training/runners/{category,next,mtl}_*.py` (moved), `src/training/shared_evaluate.py` (moved), `src/train/` (shims), pipeline files (imports updated)
+**Verification:** `python -c "from training.runners.mtl_cv import train_with_cross_validation; print('ok')"` → ok
+
+---
+
+#### [5.6] tracking/ — move common/ml_history/ to tracking/ (BPR)
+
+**Decision:** Moved all 11 ml_history files to `src/tracking/`: `experiment.py`, `fold.py`, `metric_store.py`, `best_tracker.py`, `storage.py`, `display.py`, `parms/neural.py`, `utils/{dataset,time_history}.py`. Updated all internal cross-references. Created shim files at all old paths with DeprecationWarning.
+
+**Files affected:** `src/tracking/*.py` (moved), `src/common/ml_history/*.py` (shims), all training runners (imports updated), all pipeline files (imports updated)
+**Verification:** `python -c "from tracking.experiment import MLHistory; print('ok')"` → ok
+
+---
+
+#### [5.7] utils/ — move calc_flops, mps_support, training_progress (BPR)
+
+**Decision:** Moved `common/calc_flops/calculate_model_flops.py` → `utils/flops.py`, `common/calc_flops/model_profiler.py` → `utils/profiler.py`, `common/calc_flops/utils/{profile_exporter,profile_reporter}.py` → `utils/`, `common/mps_support.py` → `utils/mps.py`, `common/training_progress.py` → `utils/progress.py`. Created shims at old paths.
+
+**Files affected:** `src/utils/*.py` (moved), `src/common/{mps_support,training_progress,calc_flops/}.py` (shims), all training runners (imports updated)
+**Verification:** `python -c "from utils.flops import calculate_model_flops; print('ok')"` → ok
+
+---
+
+#### [5.8] Test structure migrated (BPR)
+
+**Decision:** Moved test directories to match new tree: `test_criterion/` → `test_losses/`, `test_model/` → `test_models/`, `test_common/test_ml_history.py` → `test_tracking/`, `test_common/test_{calc_flops,training_progress}.py` → `test_utils/`, `etl/` → `test_data/`. Updated all test imports to use canonical paths.
+
+**Files affected:** All test files moved and imports updated
+**Verification:** `pytest -v` → 320 passed, 79 skipped, 0 failed
+
+---
+
+#### [5.9] Embedding trainers moved to research/embeddings/ (BPR)
+
+**Decision:** Moved entire `src/embeddings/` to `research/embeddings/`. Created shim `src/embeddings/__init__.py` with DeprecationWarning. Updated all embedding pipeline scripts to add `research/` to sys.path.
+
+**Files affected:** `research/embeddings/` (moved), `src/embeddings/__init__.py` (shim), `pipelines/embedding/*.pipe.py` (sys.path updated), `pipelines/fusion.pipe.py` (sys.path updated)
+**Verification:** Embedding imports work when research/ is on path; regression tests pass.
+
+---
+
+#### [5.10] src-prefixed imports fixed in tests (BPR)
+
+**Decision:** Fixed all `from src.X import Y` imports in test files to use `from X import Y`. The `src.` prefix was a pre-existing bug causing test failures (mock `@patch` targets didn't match actual import paths). Fixed 6 previously-failing tests.
+
+**Files affected:** `tests/conftest.py`, `tests/test_data/test_mtl_input_{builders,core,checkin_conversion,fusion}.py`, `tests/test_data/test_convert_user_checkins.py`
+**Verification:** `grep -rn "^from src\." src/ scripts/ tests/ --include="*.py"` → zero results
+
