@@ -338,11 +338,15 @@ scripts/                                # CLI entrypoints (replaces pipelines/)
 pipelines/                              # Kept as thin wrappers during transition
 tests/
 ├── conftest.py
-├── test_models/
-├── test_training/
+├── test_configs/
 ├── test_data/
+├── test_embeddings/
+├── test_integration/
 ├── test_losses/
-└── test_integration/
+├── test_models/
+├── test_regression/
+├── test_tracking/
+└── test_utils/
 
 notebooks/
 results/                                # gitignored
