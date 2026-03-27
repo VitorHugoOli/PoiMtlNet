@@ -10,6 +10,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from tracking.fold import FoldHistory
+from training.callbacks import CallbackContext, CallbackList
 
 
 def train(
@@ -24,9 +25,19 @@ def train(
         epochs: int = 2,
         max_grad_norm: float = 1.0,
         timeout: Optional[int] = None,
-        target_cutoff: Optional[float] = None
+        target_cutoff: Optional[float] = None,
+        callbacks: Optional[list] = None,
 ) -> None:
     start_time = time.time()
+    cb = CallbackList(callbacks)
+
+    # Inject model reference for callbacks that need it (e.g. ModelCheckpoint)
+    for c in cb.callbacks:
+        if hasattr(c, 'set_model'):
+            c.set_model(model)
+
+    cb.on_train_begin(CallbackContext(epoch=0, epochs_total=epochs))
+
     loop = tqdm(
         range(epochs),
         unit="batch",
@@ -109,8 +120,26 @@ def train(
             }
         )
 
+        cb.on_epoch_end(CallbackContext(
+            epoch=epoch_idx,
+            epochs_total=epochs,
+            metrics={
+                "val_f1": val_f1,
+                "val_loss": val_loss,
+                "val_acc": val_acc,
+                "train_loss": train_loss,
+                "train_acc": train_acc,
+            },
+        ))
+
         current_time = time.time()
         if (target_cutoff is not None and val_f1 * 100 >= target_cutoff) or (
                 timeout is not None and (current_time - start_time) > timeout):
             print(f"\nStopping early at epoch {epoch_idx + 1} with validation F1 score: {val_f1:.4f}.")
             break
+
+        if cb.stop_training:
+            print(f"\nCallback requested stop at epoch {epoch_idx + 1}.")
+            break
+
+    cb.on_train_end(CallbackContext(epoch=epoch_idx, epochs_total=epochs))

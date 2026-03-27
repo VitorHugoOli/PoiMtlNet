@@ -15,6 +15,7 @@ from configs.experiment import ExperimentConfig
 from losses.registry import create_loss
 from models.registry import create_model
 from training.helpers import compute_class_weights, setup_optimizer, setup_scheduler
+from training.callbacks import CallbackContext, CallbackList
 from data.folds import TaskFoldData, FoldResult
 from tracking import MLHistory, FlopsMetrics, NeuralParams
 from tracking.fold import FoldHistory, TaskHistory
@@ -38,7 +39,8 @@ def train_model(model: torch.nn.Module,
                 max_grad_norm: float = 1.0,
                 timeout: Optional[int] = None,
                 next_target_cutoff: Optional[float] = None,
-                category_target_cutoff: Optional[float] = None
+                category_target_cutoff: Optional[float] = None,
+                callbacks: Optional[list] = None,
                 ):
     """
     Train the model with multi-task learning.
@@ -51,6 +53,15 @@ def train_model(model: torch.nn.Module,
         [dataloader_next.train.dataloader,
          dataloader_category.train.dataloader],
     )
+
+    cb = CallbackList(callbacks)
+
+    # Inject model reference for callbacks that need it (e.g. ModelCheckpoint)
+    for c in cb.callbacks:
+        if hasattr(c, 'set_model'):
+            c.set_model(model)
+
+    cb.on_train_begin(CallbackContext(epoch=0, epochs_total=num_epochs))
 
     cutoff_hits = {
         'next': False,
@@ -204,6 +215,19 @@ def train_model(model: torch.nn.Module,
             'cat_val': f'{f1_val_category:.4f}({acc_val_category:.4f})'
         })
 
+        cb.on_epoch_end(CallbackContext(
+            epoch=epoch_idx,
+            epochs_total=num_epochs,
+            metrics={
+                "val_f1_next": f1_val_next,
+                "val_f1_category": f1_val_category,
+                "val_loss": loss_val,
+                "train_loss": epoch_loss,
+                "train_f1_next": f1_next,
+                "train_f1_category": f1_category,
+            },
+        ))
+
         if next_target_cutoff is not None and f1_val_next * 100 >= next_target_cutoff:
             cutoff_hits['next'] = True
 
@@ -220,6 +244,11 @@ def train_model(model: torch.nn.Module,
             print(f"\nTraining timed out after {timeout:.2f} seconds during epoch {epoch_idx + 1}.")
             break
 
+        if cb.stop_training:
+            print(f"\nCallback requested stop at epoch {epoch_idx + 1}.")
+            break
+
+    cb.on_train_end(CallbackContext(epoch=epoch_idx, epochs_total=num_epochs))
     return fold_history
 
 
@@ -227,7 +256,8 @@ def train_model(model: torch.nn.Module,
 def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                                 history: MLHistory,
                                 config: ExperimentConfig,
-                                results_path: Optional[Path] = None):
+                                results_path: Optional[Path] = None,
+                                callbacks: Optional[list] = None):
     num_classes = config.model_params.get('num_classes', 7)
 
     for fold_idx, (i_fold, dataloader) in enumerate(dataloaders.items()):
@@ -308,6 +338,7 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             timeout=config.timeout,
             next_target_cutoff=config.target_cutoff,
             category_target_cutoff=config.target_cutoff,
+            callbacks=callbacks,
         )
 
         # Run final validation

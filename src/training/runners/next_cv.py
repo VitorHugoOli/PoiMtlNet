@@ -81,6 +81,7 @@ def run_cv(
         folds: list[tuple[DataLoader, DataLoader]],
         config: ExperimentConfig,
         results_path: Optional[Path] = None,
+        callbacks: Optional[list] = None,
 ):
     """Run cross-validation for the model."""
     num_classes = config.model_params.get('num_classes', 7)
@@ -143,6 +144,7 @@ def run_cv(
             early_stopping_patience=config.early_stopping_patience,
             timeout=config.timeout,
             target_cutoff=config.target_cutoff,
+            callbacks=callbacks,
         )
 
         report = evaluate(model, val_loader, DEVICE, best_state=history.fold.task('next').best.best_state)

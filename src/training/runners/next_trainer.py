@@ -11,6 +11,7 @@ from tqdm import tqdm
 
 from configs.globals import CATEGORIES_MAP
 from tracking.fold import FoldHistory
+from training.callbacks import CallbackContext, CallbackList
 
 
 def train(
@@ -26,7 +27,8 @@ def train(
         max_grad_norm: float = 1.0,
         early_stopping_patience: int = -1,
         timeout: Optional[int] = None,
-        target_cutoff: Optional[float] = None
+        target_cutoff: Optional[float] = None,
+        callbacks: Optional[list] = None,
 ) -> None:
     start_time = time.time()
     best_val_f1 = 0.0
@@ -35,6 +37,15 @@ def train(
     num_classes = len(CATEGORIES_MAP) - 1  # exclude 'None' class (key 7)
     class_labels = list(range(num_classes))
     class_names = [CATEGORIES_MAP[i] for i in class_labels]
+
+    cb = CallbackList(callbacks)
+
+    # Inject model reference for callbacks that need it (e.g. ModelCheckpoint)
+    for c in cb.callbacks:
+        if hasattr(c, 'set_model'):
+            c.set_model(model)
+
+    cb.on_train_begin(CallbackContext(epoch=0, epochs_total=epochs))
 
     total_epochs = epochs
     loop = tqdm(
@@ -138,6 +149,20 @@ def train(
             }
         )
 
+        cb.on_epoch_end(CallbackContext(
+            epoch=epoch_idx,
+            epochs_total=epochs,
+            metrics={
+                "val_f1": val_f1,
+                "val_loss": val_loss,
+                "val_acc": val_acc,
+                "train_loss": train_loss,
+                "train_acc": train_acc,
+                "train_f1": train_f1,
+                "grad_norm": avg_grad_norm,
+            },
+        ))
+
         # Early stopping based on validation F1 patience
         if val_f1 > best_val_f1:
             best_val_f1 = val_f1
@@ -154,3 +179,9 @@ def train(
                 timeout is not None and (current_time - start_time) > timeout):
             print(f"\nStopping early at epoch {epoch_idx + 1} with validation F1 score: {val_f1:.4f}.")
             break
+
+        if cb.stop_training:
+            print(f"\nCallback requested stop at epoch {epoch_idx + 1}.")
+            break
+
+    cb.on_train_end(CallbackContext(epoch=epoch_idx, epochs_total=epochs))
