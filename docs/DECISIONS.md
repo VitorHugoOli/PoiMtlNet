@@ -623,3 +623,212 @@ grep -rn "DEPRECATED: Use ExperimentConfig" src/configs/
 **Files affected:** `src/train/mtlnet/mtl_train.py`, `src/train/category/cross_validation.py`, `src/train/next/cross_validation.py`, `pipelines/train/mtl.pipe.py`, `pipelines/train/cat_head.pipe.py`, `pipelines/train/next_head.pipe.py`
 **Verification:** `grep -rn "RunManifest" src/train/` → present in all 3 training loops
 
+---
+
+### Phase 4a — Shared Utilities and Model Registry
+Date: 2026-03-26
+
+---
+
+#### [4a.1] Model registry (BPR)
+
+**Decision:** Created `src/models/registry.py` with `@register_model` decorator and `create_model()` / `list_models()` functions. Uses a flat `_MODEL_REGISTRY` dict[str, type]. Lazy registration via `_ensure_registered()` imports all model modules on first `create_model()` / `list_models()` call, avoiding import-time side effects.
+
+**Rationale:** REFACTORING_PLAN §7.2 specifies a registry pattern. Lazy registration avoids forcing all model imports at registry import time, while ensuring models are available when needed.
+
+**Alternatives rejected:**
+1. *Eager imports in `models/__init__.py`* — forces heavy torch imports on any `models.*` access.
+2. *Manual registration calls* — fragile; easy to forget when adding a new model.
+
+**Files affected:** `src/models/__init__.py` (new), `src/models/registry.py` (new)
+**Verification:** `python -c "from models.registry import create_model, list_models; print(len(list_models()), 'models')"`
+→ 16 models
+
+---
+
+#### [4a.2] Register all existing model variants (BPR)
+
+**Decision:** All 16 model variants registered with canonical names via `@register_model` decorators:
+- Category (8): `category_single`, `category_residual`, `category_gated`, `category_ensemble`, `category_attention`, `category_transformer`, `category_dcn`, `category_se`
+- Next (7): `next_single`, `next_mtl`, `next_lstm`, `next_gru`, `next_temporal_cnn`, `next_hybrid`, `next_transformer_optimized`
+- MTL (1): `mtlnet`
+
+Names match `ExperimentConfig.model_name` values from Phase 3 factory classmethods.
+
+**Files affected:** `src/models/heads/category.py`, `src/models/heads/next.py`, `src/model/mtlnet/mtl_poi.py`
+**Verification:** `python -c "from models.registry import list_models; print(list_models())"`
+
+---
+
+#### [4a.3] Positional encoding extracted (BPR)
+
+**Decision:** Moved `PositionalEncoding` from `src/model/next/next_head.py` to `src/models/components/positional.py`. Original file becomes a thin re-export shim. `src/model/mtlnet/next_head.py` (which imported `PositionalEncoding` from the old location) also becomes a shim.
+
+**Rationale:** Sinusoidal positional encoding is a shared component used by multiple next-head variants. Extracting it prevents duplication as new heads are added.
+
+**Files affected:** `src/models/components/positional.py` (new), `src/model/next/next_head.py` (shim), `src/model/mtlnet/next_head.py` (shim)
+**Verification:** `python -c "from models.components.positional import PositionalEncoding; print('ok')"`
+
+---
+
+#### [4a.4] Category heads consolidated (BPR)
+
+**Decision:** All 8 category head variants consolidated into `src/models/heads/category.py`. Original files in `src/model/category/` become thin re-export shims. `CategoryHeadMTL = CategoryHeadEnsemble` alias preserved per Phase 1 contract [1.5]. Helper classes renamed with `_` prefix (`_CategoryResidualBlock`, `_GatedLayer`) to indicate internal use; backward-compat re-exports (`ResidualBlock`, `GatedLayer`) provided in shim.
+
+**Files affected:** `src/models/heads/category.py` (new), `src/model/category/category_head.py` (shim), `src/model/category/category_head_enhanced.py` (shim), `src/model/category/CategoryHeadTransformer.py` (shim), `src/model/category/DCNHead.py` (shim), `src/model/category/SEHead.py` (shim), `src/model/mtlnet/category_head.py` (shim)
+**Verification:** `pytest tests/test_regression/ -v` → 12 passed
+
+---
+
+#### [4a.5] Next heads consolidated (BPR)
+
+**Decision:** All 7 next-head variants consolidated into `src/models/heads/next.py`. Original files become thin re-export shims. `NextHeadMTL` uses `PositionalEncoding` from `models.components.positional`.
+
+**Files affected:** `src/models/heads/next.py` (new), `src/model/next/next_head.py` (shim), `src/model/next/next_head_enhanced.py` (shim), `src/model/mtlnet/next_head.py` (shim)
+**Verification:** `pytest tests/test_regression/ -v` → 12 passed
+
+---
+
+#### [4a.6] Shared training helpers extracted (BPR)
+
+**Decision:** Created `src/training/helpers.py` with three functions extracted from the duplicated patterns across all three `cross_validation.py` files:
+- `compute_class_weights(targets, num_classes, device)` → `torch.Tensor`
+- `setup_optimizer(model, learning_rate, weight_decay, eps)` → `AdamW`
+- `setup_scheduler(optimizer, max_lr, epochs, steps_per_epoch)` → `OneCycleLR`
+
+All three runners updated to use shared helpers. MTL runner passes `eps=config.optimizer_eps` (preserving MTL's custom epsilon).
+
+**Alternatives rejected:**
+1. *Single `setup_fold()` function* — too much variation between runners (MTL needs dual dataloaders, NashMTL, etc.) to unify further without branching.
+
+**Files affected:** `src/training/helpers.py` (new), `src/train/category/cross_validation.py`, `src/train/next/cross_validation.py`, `src/train/mtlnet/mtl_train.py`
+**Verification:** `grep -rn "compute_class_weight\b" src/train/` → zero matches (only `compute_class_weights` from shared helper)
+
+---
+
+#### [4a.7] Shared evaluation helpers extracted (BPR)
+
+**Decision:** Created `src/training/evaluate.py` with:
+- `collect_predictions(model, loader, device, forward_fn)` — `@torch.no_grad()` decorated, returns `(preds, targets)` as numpy. `forward_fn` parameter enables MTL use (extract single head from tuple output).
+- `build_report(preds, targets)` — wraps `sklearn.classification_report` with standard options.
+
+Existing `src/train/shared/evaluate.py` (Phase 1 shared evaluate) and `src/train/mtlnet/evaluate.py` remain unchanged — they are consumed by their respective runners and still work. The new `training.evaluate` provides a lower-level composable API that can replace them incrementally.
+
+**Rationale:** REFACTORING_PLAN §7.3 specifies these exact function signatures. Each runner can call `collect_predictions` + `build_report` as a drop-in for the old monolithic `evaluate()`. Deferred full wiring to avoid changing trainer internals in a BPR.
+
+**Files affected:** `src/training/__init__.py` (new), `src/training/evaluate.py` (new)
+**Verification:** `python -c "from training.evaluate import collect_predictions; print('ok')"` → ok
+
+---
+
+#### [4a.8] Loss registry (BPR)
+
+**Decision:** Created `src/losses/registry.py` with `@register_loss` decorator and `create_loss()` / `list_losses()` functions. Registers all 5 existing loss classes: `nash_mtl` (NashMTL), `focal` (FocalLoss), `pcgrad` (PCGrad), `gradnorm` (GradNormLoss), `naive` (NaiveLoss). Uses lazy registration (same pattern as model registry). Registration is done via `setdefault()` in `_ensure_registered()` since the original criterion files are not modified with decorators.
+
+**Rationale:** Original criterion files are shared infrastructure that may be imported by external code. Adding decorators would create a dependency from `criterion/` → `losses/`, which inverts the intended direction. Instead, the registry module knows about the criterion classes.
+
+**Files affected:** `src/losses/__init__.py` (new), `src/losses/registry.py` (new)
+**Verification:** `python -c "from losses.registry import create_loss; l = create_loss('nash_mtl', n_tasks=2, device='cpu'); print(type(l))"` → `<class 'criterion.nash_mtl.NashMTL'>`
+
+---
+
+#### [4a.9] Runners wired to use registries (BPR)
+
+**Decision:** All three runners now use `create_model(config.model_name, **config.model_params)` instead of direct class instantiation:
+- `src/train/category/cross_validation.py` — was `CategoryHeadEnsemble(...)`, now `create_model(config.model_name, ...)`
+- `src/train/next/cross_validation.py` — was `NextHeadSingle(...)`, now `create_model(config.model_name, ...)`
+- `src/train/mtlnet/mtl_train.py` — was `MTLnet(...)`, now `create_model(config.model_name, ...)`
+
+MTL runner also uses `create_loss(config.mtl_loss, ...)` instead of direct `NashMTL(...)`.
+
+Direct model head imports removed from all `src/train/` files. Category and next runners also use `compute_class_weights`, `setup_optimizer`, `setup_scheduler` from `training.helpers`.
+
+**Files affected:** `src/train/category/cross_validation.py`, `src/train/next/cross_validation.py`, `src/train/mtlnet/mtl_train.py`
+**Verification:**
+```
+grep -rn "CategoryHeadEnsemble\|NextHeadTransformer" src/train/ --include="*.py"
+# → zero matches
+```
+
+---
+
+### Phase 4b — MTL-Specific Semantic Corrections
+Date: 2026-03-26
+
+---
+
+#### [4b.1] Fix MTL scheduler mismatch (SC)
+
+**Current behavior:** `setup_scheduler()` called with `len(dataloader_next.train.dataloader)` — only the next-task loader length. But training uses `zip_longest_cycle()` from `TrainingProgressBar.iter_epoch()`, which produces `max(len(next_loader), len(category_loader))` steps per epoch. If the category loader is longer, OneCycleLR overruns its `total_steps` and raises `RuntimeError`.
+
+**Expected behavior:** `steps_per_epoch = max(len(next), len(category))` — matching `zip_longest_cycle()`. The LR warmup→peak→cooldown cycle is distributed across the actual number of optimizer steps.
+
+**Predicted metric direction:** Positive or neutral. Proper LR scheduling ensures the full warmup and annealing phases align with actual training steps.
+
+**Synthetic test (asymmetric data: cat=1050 samples/17 batches, next=560/9 batches, 3 epochs, CPU, seed=42):**
+
+| Metric | OLD (buggy) | FIXED | Delta |
+|--------|------------|-------|-------|
+| Category F1 | 0.5093 (crashed mid-training) | 0.8070 | +0.2977 |
+| Next F1 | 1.0000 | 1.0000 | +0.0000 |
+| Scheduler total_steps | 27 (too few, crashed) | 51 (correct) | — |
+
+The old scheduler had `total_steps=27` (9 batches × 3 epochs) but training produced 17 steps/epoch (the longer loader), causing a crash at step 28. The fix sets `total_steps=51` (17 × 3), exactly matching actual training steps.
+
+**Note on real data:** In production, the next-task loader is typically longer (more sequences than unique POIs), so the old code wouldn't crash — but `total_steps` would be inexact whenever the two loaders have different lengths. The fix is correct for all cases.
+
+**Files affected:** `src/train/mtlnet/mtl_train.py` (line 246-251)
+**Verification:**
+```
+grep -n "steps_per_epoch" src/train/mtlnet/mtl_train.py
+# → 246: # steps_per_epoch must match zip_longest_cycle() — the longer loader
+# → 247: steps_per_epoch = max(
+```
+
+---
+
+#### [4b.2] Align MTL validation with training coverage (SC)
+
+**Current behavior:** `evaluate_model()` (line 27) used `zip(*dataloaders)` — truncating to the shorter validation loader. `validation_best_model()` (lines 20, 33) used `zip(data_next, data_category)` — same truncation. Samples from the longer loader's tail were silently dropped during validation.
+
+**Expected behavior:** Both functions use `zip_longest_cycle()` from `common.training_progress`, matching the training loop's iteration pattern. All validation samples from both loaders are evaluated.
+
+**Predicted metric direction:** Unknown (small magnitude). Evaluates the full validation set instead of a truncated subset. Impact depends on whether the dropped tail samples were easier/harder than average.
+
+**Synthetic test (asymmetric val data: cat=280 samples/5 batches, next=105/2 batches):**
+
+| Coverage | OLD (zip) | NEW (zip_longest_cycle) |
+|----------|----------|------------------------|
+| Category val samples evaluated | 128/280 (45.7%) | 280/280 (100%) |
+| Next val samples evaluated | 105/105 (100%) | 105/105 (100%, cycled) |
+| Batches iterated | 2 (shorter) | 5 (longer) |
+
+The old `zip()` silently discarded 54.3% of category validation samples. The fix covers all samples from both loaders. Cycled samples from the shorter loader produce symmetric (pred, truth) duplicates that don't affect macro-F1.
+
+**Files affected:** `src/train/mtlnet/evaluate.py` (line 32), `src/train/mtlnet/validation.py` (lines 22, 35)
+**Verification:**
+```
+grep -rn "zip_longest_cycle" src/train/mtlnet/
+# → evaluate.py:4, 12, 32
+# → validation.py:4, 12, 22, 35
+grep -rn "for .* in zip(" src/train/mtlnet/ --include="*.py"
+# → zero matches
+```
+
+---
+
+#### [4b.3] MTL runner integration with shared helpers (BPR)
+
+**Decision:** No additional changes needed. Phase 4a already wired the MTL runner to use all shared helpers: `compute_class_weights`, `setup_optimizer`, `setup_scheduler` from `training.helpers`, plus `create_model` and `create_loss` from their respective registries. The remaining `evaluate_model` and `validation_best_model` are MTL-specific (dual-dataloader cycling, dual-task-head evaluation) and correctly remain in `train.mtlnet/`.
+
+**Verification:**
+```
+grep -rn "from training.helpers import" src/train/mtlnet/mtl_train.py
+# → line 17: from training.helpers import compute_class_weights, setup_optimizer, setup_scheduler
+grep -rn "from models.registry import\|from losses.registry import" src/train/mtlnet/mtl_train.py
+# → line 15: from losses.registry import create_loss
+# → line 16: from models.registry import create_model
+pytest tests/test_regression/ -v
+# → 12 passed
+```
+
