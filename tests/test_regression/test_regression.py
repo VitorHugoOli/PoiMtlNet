@@ -198,7 +198,7 @@ class TestCategoryRegression:
 
     # --- Layer 1: deterministic shapes ---
     def test_category_output_shape(self):
-        from model.category.category_head import CategoryHeadSingle
+        from models.heads.category import CategoryHeadSingle
         model = CategoryHeadSingle(input_dim=EMBED_DIM, hidden_dims=(128, 64, 32),
                                    num_classes=NUM_CLASSES, dropout=0.1)
         x = torch.randn(BATCH_SIZE, EMBED_DIM)
@@ -206,7 +206,7 @@ class TestCategoryRegression:
         assert out.shape == (BATCH_SIZE, NUM_CLASSES)
 
     def test_category_param_count(self):
-        from model.category.category_head import CategoryHeadSingle
+        from models.heads.category import CategoryHeadSingle
         model = CategoryHeadSingle(input_dim=EMBED_DIM, hidden_dims=(128, 64, 32),
                                    num_classes=NUM_CLASSES, dropout=0.1)
         total = sum(p.numel() for p in model.parameters())
@@ -224,7 +224,7 @@ class TestCategoryRegression:
 
     # --- Layer 3: coarse metric ---
     def test_category_f1_within_tolerance(self):
-        from model.category.category_head import CategoryHeadSingle
+        from models.heads.category import CategoryHeadSingle
         _seed_everything()
         X_train, y_train = _make_category_data(NUM_TRAIN // NUM_CLASSES, seed=SEED)
         X_val, y_val = _make_category_data(NUM_VAL // NUM_CLASSES, seed=SEED + 1)
@@ -256,7 +256,7 @@ class TestNextRegression:
 
     # --- Layer 1: deterministic shapes ---
     def test_next_output_shape(self):
-        from model.next.next_head import NextHeadSingle
+        from models.heads.next import NextHeadSingle
         model = NextHeadSingle(embed_dim=EMBED_DIM, num_classes=NUM_CLASSES,
                                num_heads=4, seq_length=SEQ_LEN, num_layers=2, dropout=0.1)
         x = torch.randn(BATCH_SIZE, SEQ_LEN, EMBED_DIM)
@@ -264,7 +264,7 @@ class TestNextRegression:
         assert out.shape == (BATCH_SIZE, NUM_CLASSES)
 
     def test_next_param_count(self):
-        from model.next.next_head import NextHeadSingle
+        from models.heads.next import NextHeadSingle
         model = NextHeadSingle(embed_dim=EMBED_DIM, num_classes=NUM_CLASSES,
                                num_heads=4, seq_length=SEQ_LEN, num_layers=2, dropout=0.1)
         total = sum(p.numel() for p in model.parameters())
@@ -281,7 +281,7 @@ class TestNextRegression:
 
     # --- Layer 3: coarse metric ---
     def test_next_f1_within_tolerance(self):
-        from model.next.next_head import NextHeadSingle
+        from models.heads.next import NextHeadSingle
         _seed_everything()
         X_train, y_train = _make_next_data(NUM_TRAIN // NUM_CLASSES, seed=SEED)
         X_val, y_val = _make_next_data(NUM_VAL // NUM_CLASSES, seed=SEED + 1)
@@ -314,7 +314,7 @@ class TestMTLRegression:
 
     # --- Layer 1: deterministic shapes ---
     def test_mtl_output_shapes(self):
-        from model.mtlnet.mtl_poi import MTLnet
+        from models.mtlnet import MTLnet
         model = MTLnet(
             feature_size=EMBED_DIM, shared_layer_size=256,
             num_classes=NUM_CLASSES, num_heads=8, num_layers=4,
@@ -327,7 +327,7 @@ class TestMTLRegression:
         assert out_next.shape == (BATCH_SIZE, NUM_CLASSES)
 
     def test_mtl_shared_vs_task_params(self):
-        from model.mtlnet.mtl_poi import MTLnet
+        from models.mtlnet import MTLnet
         model = MTLnet(
             feature_size=EMBED_DIM, shared_layer_size=256,
             num_classes=NUM_CLASSES, num_heads=8, num_layers=4,
@@ -344,7 +344,7 @@ class TestMTLRegression:
     # --- Layer 2: artifact structure ---
     def test_mtl_different_batch_sizes(self):
         """MTL must handle different batch sizes for category and next tasks."""
-        from model.mtlnet.mtl_poi import MTLnet
+        from models.mtlnet import MTLnet
         model = MTLnet(
             feature_size=EMBED_DIM, shared_layer_size=256,
             num_classes=NUM_CLASSES, num_heads=8, num_layers=4,
@@ -360,7 +360,7 @@ class TestMTLRegression:
 
     # --- Layer 3: coarse metric ---
     def test_mtl_f1_within_tolerance(self):
-        from model.mtlnet.mtl_poi import MTLnet
+        from models.mtlnet import MTLnet
         _seed_everything()
         X_cat_train, y_cat_train = _make_category_data(NUM_TRAIN // NUM_CLASSES, seed=SEED)
         X_cat_val, y_cat_val = _make_category_data(NUM_VAL // NUM_CLASSES, seed=SEED + 1)
