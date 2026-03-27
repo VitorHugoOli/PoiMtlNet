@@ -1098,3 +1098,100 @@ PYTHONPATH=src pytest -v                      # → 320 passed, 79 skipped, 0 fa
 - The `legacy_stratified` split mode is recorded in fold manifests for traceability.
 - `scripts/train.py` `--folds N` is an execution limit, not the split count. The config's `k_folds` stays at `max(2, N)`.
 - All shims are gone. Any Phase 7 integration tests must use canonical paths only.
+
+---
+
+### Phase 7 — Testing and Reproducibility
+Date: 2026-03-27
+
+---
+
+#### [7.1] Integration tests for category, next, MTL (BPR)
+
+**Decision:** Created `tests/test_integration/` with three test files and a shared conftest:
+- `conftest.py` — synthetic data infrastructure (make_category_data, make_next_data, make_loaders, seed_everything)
+- `test_category_integration.py` (3 tests) — pipeline completion, registry roundtrip, loss decrease
+- `test_next_integration.py` (4 tests) — pipeline completion, registry roundtrip, loss decrease, shape preservation
+- `test_mtl_integration.py` (5 tests) — pipeline completion, dual-dataloader cycling, gradient flow, loss decrease, CPU determinism
+
+All tests use synthetic data (class-specific centroids + noise), 2 folds × 3 epochs, CPU-only with `torch.use_deterministic_algorithms(True)`. No real data files required on fresh checkout.
+
+**Alternatives rejected:**
+1. *Use real data subset* — requires data files in repo, violates "fresh checkout" requirement
+2. *Mock training loop* — wouldn't catch real integration issues between model/optimizer/scheduler
+
+**Files affected:** `tests/test_integration/{__init__,conftest,test_category_integration,test_next_integration,test_mtl_integration}.py`
+**Verification:**
+```
+pytest tests/test_integration/ -v
+# → 12 passed
+```
+
+---
+
+#### [7.2] Regression fixtures upgraded to shared synthetic data (BPR)
+
+**Decision:** Refactored `tests/test_regression/test_regression.py` to import data generators from `tests.test_integration.conftest` instead of defining them locally. Same calibration values, same deterministic results. Regression-specific helpers (`_train_and_evaluate`, `_train_mtl_and_evaluate`) remain local — they use `TRAIN_EPOCHS=10` vs integration's 3.
+
+**Files affected:** `tests/test_regression/test_regression.py`
+**Verification:**
+```
+pytest tests/test_regression/ -v
+# → 12 passed
+```
+
+---
+
+#### [7.3] random.seed(seed) added to FoldCreator (BPR)
+
+**Decision:** Added `random.seed(seed)` alongside existing `torch.manual_seed(seed)` and `np.random.seed(seed)` in `FoldCreator.__init__`. PCGrad loss uses `random.shuffle()` for gradient projection ordering — without seeding Python's `random` module, this was a source of non-determinism.
+
+**Files affected:** `src/data/folds.py`
+**Verification:**
+```
+grep -rn "torch.manual_seed\|np.random.seed\|random.seed" src/
+# → all in data/folds.py, all use the seed parameter (from ExperimentConfig.seed)
+```
+
+---
+
+#### [7.4] Test documentation fixed (BPR)
+
+**Decision:** Updated test tree in `docs/REFACTORING_PLAN.md` (proposed `test_training/` → actual `test_tracking/`, `test_utils/`). Expanded `CLAUDE.md` test section with per-directory descriptions.
+
+**Files affected:** `docs/REFACTORING_PLAN.md`, `CLAUDE.md`
+
+---
+
+#### [7.5] Stale test directories removed (BPR)
+
+**Decision:** Removed `tests/etl/` and `tests/test_common/` — empty directories left behind during Phase 5 test migration. Each contained only `__init__.py` and `__pycache__`.
+
+**Files affected:** `tests/etl/` (deleted), `tests/test_common/` (deleted)
+
+---
+
+#### [7.6] Runner display bug fixed (BPR)
+
+**Decision:** Removed explicit `history.display.end_fold()` and `history.display.end_training()` calls from `mtl_cv.py` and `next_cv.py`. These were called AFTER `history.step()`, which advances `curr_i_fold` — causing the display to access the wrong fold's timer and crash when running >1 fold. `MLHistory.step()` already handles display when `verbose=True`, so the explicit calls were redundant (and caused double-display on fold 1).
+
+**Files affected:** `src/training/runners/mtl_cv.py`, `src/training/runners/next_cv.py`
+
+---
+
+#### Determinism check (MPS caveat)
+
+**Observation:** CPU determinism is verified by `test_mtl_determinism_on_cpu` integration test (bitwise identical weights across two runs). Real-data training on MPS (Apple Silicon) shows <1% F1 variance between runs — this is a known MPS limitation, not a seeding issue. All RNG sources (torch, numpy, random) are properly seeded from `ExperimentConfig.seed`.
+
+**DoD verification outputs (2026-03-27):**
+```
+pytest tests/test_integration/ -v → 12 passed
+pytest tests/test_regression/ -v → 12 passed
+pytest --co -q | tail -1 → 411 tests collected
+grep -rn "torch.manual_seed\|np.random.seed\|random.seed" src/
+  → src/data/folds.py:136, :449, :450, :451 (all from seed parameter)
+scripts/train.py --state florida --engine dgi --epochs 3 --folds 2
+  → Run 1: Fold 1 cat=45.19% next=31.75%, Fold 2 cat=45.42% next=32.51%
+  → Run 2: Fold 1 cat=45.21% next=31.72%, Fold 2 cat=46.17% next=32.58%
+  → <1% variance (MPS non-determinism, not a seeding issue)
+```
