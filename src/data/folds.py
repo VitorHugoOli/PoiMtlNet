@@ -255,13 +255,27 @@ def _create_dataloader(
 # ============================================================
 # DATA LOADING
 # ============================================================
-def load_category_data(state: str, embedding_engine: EmbeddingEngine) -> Tuple[np.ndarray, np.ndarray, np.ndarray, int]:
-    """Load category data. Returns (X, y, placeids, embedding_dim)."""
+def load_category_data(state: str, embedding_engine: EmbeddingEngine) -> Tuple[np.ndarray, np.ndarray, Optional[np.ndarray], int]:
+    """Load category data. Returns (X, y, placeids, embedding_dim).
+
+    placeids is None when the parquet predates Phase 2 (no 'placeid' column).
+    Callers that require placeids (MTL user-level splits) must handle None by
+    falling back to independent StratifiedKFold splits.
+    """
     logger.info(f"Loading category data: {state}/{embedding_engine.value}")
     df = IoPaths.load_category(state, embedding_engine)
 
     df['label'] = _map_categories(df['category'])
-    placeids = df['placeid'].values.copy()
+    if 'placeid' in df.columns:
+        placeids = df['placeid'].values.copy()
+    else:
+        logger.warning(
+            "Category parquet for %s/%s has no 'placeid' column (pre-Phase-2 data). "
+            "MTL user-level splits require regenerating input with the Phase 2 pipeline. "
+            "Falling back to independent StratifiedKFold splits.",
+            state, embedding_engine.value,
+        )
+        placeids = None
     df = df.drop(columns=['category'])
 
     # Infer embedding_dim from numeric columns in the artifact
@@ -520,13 +534,29 @@ class FoldCreator:
         self._fold_indices[TaskType.NEXT] = []
         self._fold_indices[TaskType.CATEGORY] = []
 
-        # Build POI→users mapping from raw checkins
-        from data.poi_user_mapping import build_poi_user_mapping
-        poi_users = build_poi_user_mapping(state, embedding_engine)
+        # Determine whether we can run the full user-isolation protocol.
+        # cat_placeids is None when the category parquet predates Phase 2.
+        use_poi_protocol = cat_placeids is not None
 
-        # Build sequence→POI mapping for overlap diagnostics
-        from data.sequence_poi_mapping import build_sequence_poi_mapping
-        seq_poi_mapping = build_sequence_poi_mapping(state, embedding_engine)
+        if use_poi_protocol:
+            # Build POI→users mapping from raw checkins
+            from data.poi_user_mapping import build_poi_user_mapping
+            poi_users = build_poi_user_mapping(state, embedding_engine)
+
+            # Build sequence→POI mapping for overlap diagnostics
+            from data.sequence_poi_mapping import build_sequence_poi_mapping
+            seq_poi_mapping = build_sequence_poi_mapping(state, embedding_engine)
+        else:
+            logger.warning(
+                "MTL split: no placeid data available; "
+                "falling back to independent StratifiedKFold for category splits."
+            )
+            poi_users = {}
+            seq_poi_mapping = {}
+            # Pre-compute category splits so they align by fold index
+            from sklearn.model_selection import StratifiedKFold
+            _skf_cat = StratifiedKFold(n_splits=self.n_splits, shuffle=True, random_state=self.seed)
+            _cat_fold_splits = list(_skf_cat.split(X_cat, y_cat))
 
         # Step 1: Split users with StratifiedGroupKFold on next-task data
         sgkf = StratifiedGroupKFold(n_splits=self.n_splits, shuffle=True, random_state=self.seed)
@@ -545,33 +575,38 @@ class FoldCreator:
                 f"train_users={len(train_users)}, val_users={len(val_users)}"
             )
 
-            # Step 2: Classify POIs
-            train_exclusive = []
-            val_exclusive = []
-            ambiguous = []
-            for poi, visitors in poi_users.items():
-                in_train = bool(visitors & train_users)
-                in_val = bool(visitors & val_users)
-                if in_train and in_val:
-                    ambiguous.append(poi)
-                elif in_train:
-                    train_exclusive.append(poi)
-                elif in_val:
-                    val_exclusive.append(poi)
+            if use_poi_protocol:
+                # Step 2: Classify POIs
+                train_exclusive = []
+                val_exclusive = []
+                ambiguous = []
+                for poi, visitors in poi_users.items():
+                    in_train = bool(visitors & train_users)
+                    in_val = bool(visitors & val_users)
+                    if in_train and in_val:
+                        ambiguous.append(poi)
+                    elif in_train:
+                        train_exclusive.append(poi)
+                    elif in_val:
+                        val_exclusive.append(poi)
 
-            logger.info(
-                f"  POIs: train_excl={len(train_exclusive)}, "
-                f"val_excl={len(val_exclusive)}, ambiguous={len(ambiguous)}"
-            )
+                logger.info(
+                    f"  POIs: train_excl={len(train_exclusive)}, "
+                    f"val_excl={len(val_exclusive)}, ambiguous={len(ambiguous)}"
+                )
 
-            # Step 3: Derive category fold indices
-            # Category train = train-exclusive + ambiguous POIs
-            # Category val = val-exclusive POIs only
-            cat_train_pois = set(train_exclusive) | set(ambiguous)
-            cat_val_pois = set(val_exclusive)
+                # Step 3: Derive category fold indices
+                # Category train = train-exclusive + ambiguous POIs
+                # Category val = val-exclusive POIs only
+                cat_train_pois = set(train_exclusive) | set(ambiguous)
+                cat_val_pois = set(val_exclusive)
 
-            train_cat_idx = np.where(np.isin(cat_placeids, list(cat_train_pois)))[0]
-            val_cat_idx = np.where(np.isin(cat_placeids, list(cat_val_pois)))[0]
+                train_cat_idx = np.where(np.isin(cat_placeids, list(cat_train_pois)))[0]
+                val_cat_idx = np.where(np.isin(cat_placeids, list(cat_val_pois)))[0]
+            else:
+                # Fallback: use pre-computed StratifiedKFold splits for category
+                train_exclusive, val_exclusive, ambiguous = [], [], []
+                train_cat_idx, val_cat_idx = _cat_fold_splits[fold_idx]
 
             logger.info(
                 f"  Category: train={len(train_cat_idx)}, val={len(val_cat_idx)}"
@@ -595,7 +630,7 @@ class FoldCreator:
                 'train_exclusive_pois': sorted(train_exclusive),
                 'val_exclusive_pois': sorted(val_exclusive),
                 'ambiguous_pois': sorted(ambiguous),
-                'split_mode': 'strict',
+                'split_mode': 'strict' if use_poi_protocol else 'legacy_stratified',
                 'category_train_count': len(train_cat_idx),
                 'category_val_count': len(val_cat_idx),
                 'next_train_count': len(train_next_idx),
@@ -604,8 +639,9 @@ class FoldCreator:
                     'ambiguous_poi_count': len(ambiguous),
                     'ambiguous_poi_fraction': len(ambiguous) / max(len(poi_users), 1),
                     'cat_train_next_val_poi_count': len(ambiguous),
-                    'cat_train_next_val_seq_fraction': _compute_overlap_seq_fraction(
-                        ambiguous, val_next_idx, seq_poi_mapping
+                    'cat_train_next_val_seq_fraction': (
+                        _compute_overlap_seq_fraction(ambiguous, val_next_idx, seq_poi_mapping)
+                        if use_poi_protocol else 0.0
                     ),
                 },
                 'seed': self.seed,

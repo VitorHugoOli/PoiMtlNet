@@ -290,11 +290,11 @@ def main(argv=None) -> None:
     )
     fold_results = creator.create_folds(config.state, engine)
 
-    # Apply max_folds limit (run only first N folds)
+    # Apply max_folds limit (run only first N folds).
+    # config.k_folds stays as the split structure count (>= 2);
+    # runners use len(fold_results) to determine actual execution count.
     if max_folds is not None and max_folds < len(fold_results):
         fold_results = dict(list(fold_results.items())[:max_folds])
-        # Update config to reflect actual number of folds being run
-        config = dataclasses.replace(config, k_folds=len(fold_results))
 
     results_path = IoPaths.get_results_dir(config.state, engine)
     results_path.mkdir(parents=True, exist_ok=True)
