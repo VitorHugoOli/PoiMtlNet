@@ -1,6 +1,7 @@
 __pycache__/
 *.pyc
 /results/*
+!/results/baselines/
 /data/*
 /temp/
 /output/*
@@ -33,8 +34,6 @@ htmlcov/
 dist/
 build/
 
-# Results archive
-results_save/
 
 # Worktrees and local tooling
 .claude/worktrees/
