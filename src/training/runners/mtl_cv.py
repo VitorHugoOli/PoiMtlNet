@@ -1,8 +1,11 @@
+import logging
 import numpy as np
 import torch
 import time
 from pathlib import Path
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 from sklearn.metrics import classification_report
 from torch.nn import CrossEntropyLoss
@@ -35,7 +38,6 @@ def train_model(model: torch.nn.Module,
                 num_epochs,
                 num_classes,
                 fold_history=FoldHistory.standalone({'next', 'category'}),
-                gradient_accumulation_steps=1,
                 max_grad_norm: float = 1.0,
                 timeout: Optional[int] = None,
                 next_target_cutoff: Optional[float] = None,
@@ -235,17 +237,17 @@ def train_model(model: torch.nn.Module,
             cutoff_hits['category'] = True
 
         if cutoff_hits['next'] and cutoff_hits['category']:
-            print(f"\nStopping early at epoch {epoch_idx + 1} with validation F1 scores: "
-                  f"Next: {f1_val_next:.4f}, Category: {f1_val_category:.4f}.")
+            logger.info("Stopping early at epoch %d with validation F1 scores: "
+                        "Next: %.4f, Category: %.4f.", epoch_idx + 1, f1_val_next, f1_val_category)
             break
 
         current_time = time.time()
         if timeout is not None and (current_time - start_time) > timeout:
-            print(f"\nTraining timed out after {timeout:.2f} seconds during epoch {epoch_idx + 1}.")
+            logger.info("Training timed out after %.2f seconds during epoch %d.", timeout, epoch_idx + 1)
             break
 
         if cb.stop_training:
-            print(f"\nCallback requested stop at epoch {epoch_idx + 1}.")
+            logger.info("Callback requested stop at epoch %d.", epoch_idx + 1)
             break
 
     cb.on_train_end(CallbackContext(epoch=epoch_idx, epochs_total=num_epochs))
@@ -333,7 +335,6 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             next_criterion, category_criterion, mtl_criterion,
             config.epochs, num_classes,
             fold_history=history.get_curr_fold(),
-            gradient_accumulation_steps=config.gradient_accumulation_steps,
             max_grad_norm=config.max_grad_norm,
             timeout=config.timeout,
             next_target_cutoff=config.target_cutoff,
@@ -342,7 +343,7 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
         )
 
         # Run final validation
-        print("\nRunning final validation...")
+        logger.info("Running final validation...")
         report_next, report_category = validation_best_model(
             dataloader_next.val.dataloader,
             dataloader_category.val.dataloader,

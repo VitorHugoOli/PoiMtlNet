@@ -1,7 +1,10 @@
+import logging
 import numpy as np
 import torch
 from pathlib import Path
 from torch import nn
+
+logger = logging.getLogger(__name__)
 from torch_geometric.data import DataLoader
 from typing import Optional
 
@@ -9,7 +12,7 @@ from configs.globals import DEVICE
 from configs.experiment import ExperimentConfig
 from models.registry import create_model
 from training.helpers import compute_class_weights, setup_optimizer, setup_scheduler
-from training.runners.category_eval import evaluate
+from training.shared_evaluate import evaluate
 from training.runners.category_trainer import train
 from utils.flops import calculate_model_flops
 from tracking import MLHistory, FlopsMetrics, NeuralParams
@@ -70,7 +73,7 @@ def run_cv(
             if 'total_flops' in result:
                 history.set_flops(FlopsMetrics(flops=result['total_flops'], params=result['params']['total']))
             else:
-                print(f"Warning: FLOPs calculation failed: {result.get('error', 'Unknown error')}")
+                logger.warning("FLOPs calculation failed: %s", result.get('error', 'Unknown error'))
 
         train(
             model,

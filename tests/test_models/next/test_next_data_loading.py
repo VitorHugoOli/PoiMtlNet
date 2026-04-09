@@ -224,9 +224,8 @@ class TestBatchSize:
 
     def test_batch_size_config(self):
         """Test that BATCH_SIZE is a power of 2."""
-        from configs.next_config import CfgNextTraining
-
-        batch_size = CfgNextTraining.BATCH_SIZE
+        from configs.experiment import ExperimentConfig
+        batch_size = ExperimentConfig.default_next("_test", "test", "dgi").batch_size
 
         # Check if power of 2
         assert batch_size & (batch_size - 1) == 0, \

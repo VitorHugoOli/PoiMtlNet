@@ -19,6 +19,23 @@ __pycache__/
 .idea/
 .vscode/
 
+# Coverage & testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Model checkpoints
+*.pt
+*.pth
+
+# Build artifacts
+*.egg-info/
+dist/
+build/
+
+# Results archive
+results_save/
+
 # Worktrees and local tooling
 .claude/worktrees/
 .codex/

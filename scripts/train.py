@@ -28,6 +28,7 @@ from configs.experiment import ExperimentConfig
 from configs.globals import CATEGORIES_MAP
 from configs.paths import EmbeddingEngine, IoPaths
 from data.folds import FoldCreator, TaskType
+from utils.seed import seed_everything
 from tracking import DatasetHistory, MLHistory
 
 logging.basicConfig(
@@ -267,7 +268,7 @@ def main(argv=None) -> None:
         config = dataclasses.replace(config, embedding_engine=args.engine)
     if args.epochs is not None:
         config = dataclasses.replace(config, epochs=args.epochs)
-    if args.task != "mtl" and config.task_type == "mtl":
+    if args.config is not None and args.task != config.task_type:
         config = dataclasses.replace(config, task_type=args.task)
 
     # --folds: limits execution, doesn't change split structure.
@@ -276,6 +277,8 @@ def main(argv=None) -> None:
     if max_folds is not None:
         n_splits = max(2, max_folds)
         config = dataclasses.replace(config, k_folds=n_splits)
+
+    seed_everything(config.seed)
 
     engine = EmbeddingEngine(config.embedding_engine)
     task_key = config.task_type if config.task_type in _RUNNERS else "mtl"

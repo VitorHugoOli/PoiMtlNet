@@ -22,24 +22,3 @@ class TestInputsConfig:
         pytest.skip("Not implemented yet")
 
 
-class TestMTLModelConfig:
-    """Test suite for MTLModelConfig."""
-
-    def test_default_hyperparameters(self):
-        """Test default hyperparameter values."""
-        # TODO: Implement test
-        pytest.skip("Not implemented yet")
-
-    def test_validation(self):
-        """Test configuration validation."""
-        # TODO: Implement test
-        pytest.skip("Not implemented yet")
-
-
-class TestModelParameters:
-    """Test suite for ModelParameters."""
-
-    def test_architecture_parameters(self):
-        """Test architecture parameter configurations."""
-        # TODO: Implement test
-        pytest.skip("Not implemented yet")

@@ -14,8 +14,15 @@ from torch.utils.data import DataLoader, TensorDataset
 from sklearn.metrics import f1_score
 import numpy as np
 
+from configs.experiment import ExperimentConfig
 from models.heads.next import NextHeadSingle
-from configs.next_config import CfgNextModel, CfgNextHyperparams, CfgNextTraining
+
+# Derive defaults from canonical config source
+_CFG = ExperimentConfig.default_next("_test", "test", "dgi")
+_NEXT_MAX_GRAD_NORM = _CFG.max_grad_norm
+_NEXT_LR = _CFG.learning_rate
+_NEXT_WEIGHT_DECAY = _CFG.weight_decay
+_NEXT_MAX_LR = _CFG.max_lr
 
 
 class TestF1Calculation:
@@ -216,7 +223,7 @@ class TestGradientClipping:
 
     def test_max_grad_norm_config(self):
         """Test that MAX_GRAD_NORM is reasonable."""
-        max_grad_norm = CfgNextHyperparams.MAX_GRAD_NORM
+        max_grad_norm = _NEXT_MAX_GRAD_NORM
 
         assert 0.5 <= max_grad_norm <= 5.0, \
             f"MAX_GRAD_NORM {max_grad_norm} outside reasonable range [0.5, 5.0]"
@@ -235,14 +242,14 @@ class TestLearningRateSchedule:
 
         optimizer = optim.AdamW(
             model.parameters(),
-            lr=CfgNextHyperparams.LR,
-            weight_decay=CfgNextHyperparams.WEIGHT_DECAY
+            lr=_NEXT_LR,
+            weight_decay=_NEXT_WEIGHT_DECAY
         )
 
         # Simulate 10 steps per epoch, 10 epochs
         scheduler = OneCycleLR(
             optimizer,
-            max_lr=CfgNextHyperparams.MAX_LR,
+            max_lr=_NEXT_MAX_LR,
             epochs=10,
             steps_per_epoch=10
         )
@@ -296,7 +303,7 @@ class TestLearningRateSchedule:
 
     def test_max_lr_reasonable(self):
         """Test that MAX_LR is not too aggressive."""
-        max_lr = CfgNextHyperparams.MAX_LR
+        max_lr = _NEXT_MAX_LR
 
         # For Transformers, max_lr > 0.01 is often too high
         assert max_lr <= 0.01, \

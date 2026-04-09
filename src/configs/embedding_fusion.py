@@ -69,7 +69,8 @@ class EmbeddingSpec:
 
         # Unknown engine - allow but warn
         else:
-            print(f"WARNING: Unknown engine {self.engine.value}, validation skipped")
+            import logging
+            logging.getLogger(__name__).warning("Unknown engine %s, validation skipped", self.engine.value)
 
     def __repr__(self) -> str:
         return f"EmbeddingSpec({self.engine.value}, {self.level.value}, {self.dimension}D)"
