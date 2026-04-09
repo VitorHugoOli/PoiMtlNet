@@ -35,6 +35,7 @@ class InputsConfig:
         return cls.FUSION_CONFIG is not None
 
 class MTLModelConfig:
+    """DEPRECATED: Use ExperimentConfig from configs.experiment instead."""
     NUM_CLASSES = 7
     BATCH_SIZE = 2**11 # 2048
     EPOCHS = 50

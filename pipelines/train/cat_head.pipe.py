@@ -1,167 +1,45 @@
-import logging
-import time
+"""Thin wrapper — delegates to scripts/train.py (Phase 6).
+
+Usage:
+    python pipelines/train/cat_head.pipe.py --state california --engine poi2hgi
+
+For the full CLI, use scripts/train.py directly.
+"""
+import sys
+import subprocess
 from pathlib import Path
-from typing import List, Tuple, Optional
 
-from configs.paths import IoPaths, RESULTS_ROOT, EmbeddingEngine
-from configs.category_config import CfgCategoryTraining, CfgCategoryHyperparams
-from etl.create_fold import FoldCreator, TaskType
-from train.category.cross_validation import run_cv
-from common.ml_history import MLHistory, DatasetHistory
-from configs.globals import CATEGORIES_MAP
+_root = str(Path(__file__).resolve().parent.parent.parent)
+_train = str(Path(_root) / "scripts" / "train.py")
 
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+def _parse_args():
+    import argparse
+    sys.path.insert(0, str(Path(_root) / "src"))
+    from configs.paths import EmbeddingEngine
 
-
-def train_category_model(
-    state: str,
-    embedd_engine: EmbeddingEngine,
-    epochs: int = CfgCategoryTraining.EPOCHS,
-    batch_size: int = CfgCategoryTraining.BATCH_SIZE,
-    learning_rate: float = CfgCategoryHyperparams.LR,
-    save_folds: bool = False,
-    folds_chkpt: Optional[str] = None
-) -> dict:
-    """
-    Train Category prediction model for a specific state and embedding engine.
-
-    Args:
-        state: State name (e.g., "florida", "california")
-        embedd_engine: Embedding engine to use (DGI, HGI, HMRM)
-        epochs: Number of training epochs
-        batch_size: Batch size for training
-        learning_rate: Learning rate for optimizer
-        save_folds: Whether to save folds to disk
-        folds_chkpt: Path to checkpoint file for folds
-
-    Returns:
-        Dictionary with training results
-    """
-    logger.info(f"{'='*80}")
-    logger.info(f"Starting Category training: {state.upper()} with {embedd_engine.value.upper()}")
-    logger.info(f"{'='*80}")
-
-    # Get paths
-    data_input = IoPaths.get_category(state, embedd_engine)
-    output_dir = IoPaths.get_results_dir(state, embedd_engine)
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Creating folds
-    logger.info("Creating folds...")
-    folds = None
-    folds_save_path = None
-
-    if folds_chkpt is not None:
-        folds_chkpt_path = Path(output_dir) / folds_chkpt
-        logger.info(f"Loading folds from checkpoint: {folds_chkpt_path}")
-        fold_results = FoldCreator.load(folds_chkpt_path)
-        folds = [
-            (fold_results[i].category.train.dataloader, fold_results[i].category.val.dataloader)
-            for i in range(len(fold_results))
-        ]
-    else:
-        creator = FoldCreator(
-            task_type=TaskType.CATEGORY,
-            n_splits=CfgCategoryTraining.K_FOLDS,
-            batch_size=batch_size,
-            seed=CfgCategoryTraining.SEED,
-            use_weighted_sampling=False,  # Using weighted CrossEntropyLoss instead
-        )
-        fold_results = creator.create_folds(state, embedd_engine)
-        folds = [
-            (fold_results[i].category.train.dataloader, fold_results[i].category.val.dataloader)
-            for i in range(len(fold_results))
-        ]
-
-        if save_folds:
-            folds_pth = Path(output_dir) / 'folds'
-            folds_pth.mkdir(parents=True, exist_ok=True)
-            folds_save_path = creator.save(folds_pth)
-            logger.info(f"Saving folds to: {folds_save_path}")
-
-    # Creating history
-    history: MLHistory = MLHistory(
-        model_name="Category",
-        model_type="Single-Task",
-        tasks='category',
-        num_folds=CfgCategoryTraining.K_FOLDS,
-        datasets={
-            DatasetHistory(
-                raw_data=str(data_input),
-                folds_signature=str(folds_save_path) if folds_save_path else folds_chkpt,
-                description="POI Category Classification",
-            )
-        },
-        label_map=CATEGORIES_MAP,
-        save_path=str(output_dir),
-        verbose=True,
-        display_report=True
+    parser = argparse.ArgumentParser(description="Category training pipeline (thin wrapper)")
+    parser.add_argument(
+        "--state", type=str, nargs="+",
+        default=["california"],
+        help="State(s) to train on",
     )
-
-    # Running cross-validation
-    logger.info(f"Starting cross-validation training...")
-    with history:
-        results = run_cv(history, folds)
-
-    history.display.end_training()
-    logger.info(f"Completed Category training: {state.upper()} with {embedd_engine.value.upper()}")
-    logger.info(f"{'='*80}\n")
-
-    return results
+    parser.add_argument(
+        "--engine", type=str, nargs="+",
+        default=["poi2hgi"],
+        choices=[e.value for e in EmbeddingEngine],
+        help="Embedding engine(s) to use",
+    )
+    return parser.parse_args()
 
 
-if __name__ == '__main__':
-    # Define configurations to train: [(state, embedding_engine), ...]
-    TRAINING_CONFIGS: List[Tuple[str, EmbeddingEngine]] = [
-        # Single-embedding baselines
-        # ("texas", EmbeddingEngine.HGI),
-        # ("alabama", EmbeddingEngine.HGI),
-        # ("florida", EmbeddingEngine.HGI),
-        # ("alabama", EmbeddingEngine.DGI),
-        # ("arizona", EmbeddingEngine.DGI),
-        # ("georgia", EmbeddingEngine.DGI),
-        # ("california", EmbeddingEngine.DGI),
-        # ("california", EmbeddingEngine.TIME2VEC),
-        ("california", EmbeddingEngine.POI2HGI),
-        # ("alabama", EmbeddingEngine.POI2HGI),
-
-        # Multi-embedding fusion (requires running pipelines/fusion.pipe.py first)
-        # ("alabama", EmbeddingEngine.FUSION),
-        # ("florida", EmbeddingEngine.FUSION),
-        # ("california", EmbeddingEngine.FUSION),
-        # ("texas", EmbeddingEngine.FUSION),
-    ]
-
-    logger.info(f"Starting Category training pipeline")
-    logger.info(f"Total configurations to train: {len(TRAINING_CONFIGS)}")
-    logger.info(f"Configurations: {[(s, e.value) for s, e in TRAINING_CONFIGS]}\n")
-
-    # Train each configuration sequentially
-    all_results = {}
-    for idx, (state, embedd_engine) in enumerate(TRAINING_CONFIGS, 1):
-        logger.info(f"Training configuration {idx}/{len(TRAINING_CONFIGS)}")
-
-        try:
-            results = train_category_model(
-                state=state,
-                embedd_engine=embedd_engine,
-                epochs=CfgCategoryTraining.EPOCHS,
-                batch_size=CfgCategoryTraining.BATCH_SIZE,
-                learning_rate=CfgCategoryHyperparams.LR,
-                save_folds=False,
-                folds_chkpt=None
-            )
-            all_results[f"{state}_{embedd_engine.value}"] = results
-        except Exception as e:
-            logger.error(f"Failed to train {state} with {embedd_engine.value}: {str(e)}", exc_info=True)
-            continue
-
-    logger.info(f"\n{'='*80}")
-    logger.info(f"All training completed!")
-    logger.info(f"Successfully trained: {len(all_results)}/{len(TRAINING_CONFIGS)} configurations")
-    logger.info(f"{'='*80}")
+if __name__ == "__main__":
+    args = _parse_args()
+    rc = 0
+    for state in args.state:
+        for engine in args.engine:
+            cmd = [sys.executable, _train, "--state", state, "--engine", engine, "--task", "category"]
+            result = subprocess.run(cmd)
+            if result.returncode != 0:
+                rc = result.returncode
+    sys.exit(rc)

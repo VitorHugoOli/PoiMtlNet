@@ -6,6 +6,17 @@ Stages: preprocess -> create embeddings -> generate inputs
 Usage: python pipelines/embedding/dgi.pipe.py
 """
 
+import sys
+from pathlib import Path
+
+_root = Path(__file__).resolve().parent.parent.parent
+_src = str(_root / "src")
+_research = str(_root / "research")
+if _src not in sys.path:
+    sys.path.insert(0, _src)
+if _research not in sys.path:
+    sys.path.insert(0, _research)
+
 import logging
 from argparse import Namespace
 from datetime import datetime
@@ -15,7 +26,7 @@ from configs.paths import Resources, EmbeddingEngine
 from configs.model import InputsConfig
 from embeddings.dgi.dgi import create_embedding
 from embeddings.dgi.preprocess import preprocess_dgi
-from etl.mtl_input.builders import generate_category_input, generate_next_input_from_poi
+from data.inputs.builders import generate_category_input, generate_next_input_from_poi
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)

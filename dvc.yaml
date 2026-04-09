@@ -1,0 +1,60 @@
+# DVC pipeline definition for MTLnet experiments.
+#
+# This file is optional scaffolding — DVC is NOT a runtime dependency.
+# Install DVC only if you want to use it for data/artifact tracking:
+#   pip install dvc
+#
+# Usage:
+#   dvc repro              # Run the full pipeline
+#   dvc repro train        # Run only the training stage
+#   dvc dag                # Visualize pipeline DAG
+#   dvc metrics show       # Show tracked metrics
+#
+# The pipeline assumes:
+#   - Raw check-in data exists in data/checkins/
+#   - Embeddings have been pre-generated in output/{engine}/{state}/
+#   - Python env with project dependencies is active
+
+stages:
+  generate_inputs:
+    cmd: >
+      PYTHONPATH=src python pipelines/create_inputs.pipe.py
+    deps:
+      - pipelines/create_inputs.pipe.py
+      - src/data/inputs/
+    params:
+      - params.yaml:
+          - state
+          - engine
+    outs:
+      - output/${state}/${engine}/input/category.parquet:
+          cache: true
+      - output/${state}/${engine}/input/next.parquet:
+          cache: true
+
+  train:
+    cmd: >
+      PYTHONPATH=src python scripts/train.py
+      --state ${state}
+      --engine ${engine}
+      --epochs ${epochs}
+      --folds ${folds}
+    deps:
+      - scripts/train.py
+      - src/training/
+      - src/models/
+      - src/losses/
+      - output/${state}/${engine}/input/category.parquet
+      - output/${state}/${engine}/input/next.parquet
+    params:
+      - params.yaml:
+          - state
+          - engine
+          - epochs
+          - folds
+    metrics:
+      - results/${engine}/${state}/config.json:
+          cache: false
+    plots:
+      - results/${engine}/${state}/:
+          cache: false

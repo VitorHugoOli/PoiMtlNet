@@ -36,7 +36,16 @@
 │   ├── embeddings/     # Embedding engines (dgi/, hgi/, check2hgi/, poi2hgi/, time2vec/, space2vec/, hmrm/)
 │   └── common/         # Utilities (ml_history/, calc_flops/, training_progress.py)
 ├── notebooks/          # Analysis notebooks
-└── tests/              # Unit tests
+└── tests/              # Unit, regression, and integration tests
+    ├── test_configs/       # ExperimentConfig, model config, paths
+    ├── test_data/          # ETL, fold creation, input builders
+    ├── test_embeddings/    # Embedding utilities
+    ├── test_integration/   # End-to-end pipeline tests (synthetic data)
+    ├── test_losses/        # Loss functions (focal, nash, pcgrad, gradnorm)
+    ├── test_models/        # Model heads, MTLnet, next variants
+    ├── test_regression/    # Phase 0 safety net (calibrated F1 floors)
+    ├── test_tracking/      # MLHistory, fold tracking
+    └── test_utils/         # FLOPs, training progress
 ```
 
 ## MTLnet Model

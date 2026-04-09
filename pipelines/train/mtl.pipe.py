@@ -1,124 +1,46 @@
-from configs.model import MTLModelConfig
-from configs.paths import IoPaths, RESULTS_ROOT, EmbeddingEngine
+"""Thin wrapper — delegates to scripts/train.py (Phase 6).
 
-import logging
-from typing import List, Tuple
+Usage:
+    python pipelines/train/mtl.pipe.py --state alabama --engine hgi
+    python pipelines/train/mtl.pipe.py --state florida alabama --engine dgi hgi
 
-from etl.create_fold import FoldCreator, TaskType
-from common.ml_history import MLHistory, DatasetHistory
-from configs.globals import CATEGORIES_MAP
-from train.mtlnet.mtl_train import train_with_cross_validation
+For the full CLI, use scripts/train.py directly.
+"""
+import sys
+import subprocess
+from pathlib import Path
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+_root = str(Path(__file__).resolve().parent.parent.parent)
+_train = str(Path(_root) / "scripts" / "train.py")
 
 
-def train_mtl_model(state: str, embedd_engine: EmbeddingEngine) -> dict:
-    """
-    Train MTL model for a specific state and embedding engine.
+def _parse_args():
+    import argparse
+    sys.path.insert(0, str(Path(_root) / "src"))
+    from configs.paths import EmbeddingEngine
 
-    Args:
-        state: State name (e.g., "florida", "california")
-        embedd_engine: Embedding engine to use (DGI, HGI, HMRM)
-
-    Returns:
-        Dictionary with training results
-    """
-    logger.info(f"{'='*80}")
-    logger.info(f"Starting training for: {state.upper()} with {embedd_engine.value.upper()}")
-    logger.info(f"{'='*80}")
-
-    # Create folds
-    logger.info(f'Creating {MTLModelConfig.K_FOLDS}-fold cross-validation splits...')
-    creator = FoldCreator(
-        task_type=TaskType.MTL,
-        n_splits=MTLModelConfig.K_FOLDS,
-        batch_size=MTLModelConfig.BATCH_SIZE,
-        use_weighted_sampling=False,
+    parser = argparse.ArgumentParser(description="MTL training pipeline (thin wrapper)")
+    parser.add_argument(
+        "--state", type=str, nargs="+",
+        default=["alabama"],
+        help="State(s) to train on",
     )
-    fold_results = creator.create_folds(state, embedd_engine)
-    folds_path = None  # Can use creator.save(output_dir) if needed
-
-    # Initialize ML History
-    results_path = IoPaths.get_results_dir(state, embedd_engine)
-
-    history = MLHistory(
-        model_name='MTLNet',
-        tasks={'next', 'category'},
-        num_folds=MTLModelConfig.K_FOLDS,
-        datasets={
-            DatasetHistory(
-                raw_data=IoPaths.get_next(state, embedd_engine),
-                folds_signature=folds_path,
-                description="Data related to next POI prediction. Data with 107 features",
-            ),
-            DatasetHistory(
-                raw_data=IoPaths.get_category(state, embedd_engine),
-                folds_signature=folds_path,
-                description="Data related to category prediction. Data with 107 features",
-            )
-        },
-        label_map=CATEGORIES_MAP,
-        save_path=results_path,
-        verbose=True,
+    parser.add_argument(
+        "--engine", type=str, nargs="+",
+        default=["hgi"],
+        choices=[e.value for e in EmbeddingEngine],
+        help="Embedding engine(s) to use",
     )
-
-    # Train with cross-validation
-    logger.info(f'Starting cross-validation training...')
-    with history:
-        results = train_with_cross_validation(
-            dataloaders=fold_results,
-            history=history,
-            num_classes=MTLModelConfig.NUM_CLASSES,
-            num_epochs=MTLModelConfig.EPOCHS,
-            learning_rate=MTLModelConfig.LEARNING_RATE
-        )
-
-    logger.info(f"Completed training for: {state.upper()} with {embedd_engine.value.upper()}")
-    logger.info(f"{'='*80}\n")
-
-    return results
+    return parser.parse_args()
 
 
-if __name__ == '__main__':
-    # Define configurations to train: [(state, embedding_engine), ...]
-    TRAINING_CONFIGS: List[Tuple[str, EmbeddingEngine]] = [
-        # Single-embedding baselines
-        ("alabama", EmbeddingEngine.HGI),
-        # ("florida", EmbeddingEngine.HGI),
-        # ("alabama", EmbeddingEngine.DGI),
-        # ("arizona", EmbeddingEngine.DGI),
-        # ("georgia", EmbeddingEngine.DGI),
-        # ("florida", EmbeddingEngine.DGI),
-        # ("california", EmbeddingEngine.DGI),
-        # ("texas", EmbeddingEngine.DGI),
-
-        # Multi-embedding fusion (requires running pipelines/fusion.pipe.py first)
-        # ("alabama", EmbeddingEngine.FUSION),
-        # ("florida", EmbeddingEngine.FUSION),
-        # ("texas", EmbeddingEngine.FUSION),
-    ]
-
-    logger.info(f"Starting MTL training pipeline")
-    logger.info(f"Total configurations to train: {len(TRAINING_CONFIGS)}")
-    logger.info(f"Configurations: {[(s, e.value) for s, e in TRAINING_CONFIGS]}\n")
-
-    # Train each configuration sequentially
-    all_results = {}
-    for idx, (state, embedd_engine) in enumerate(TRAINING_CONFIGS, 1):
-        logger.info(f"Training configuration {idx}/{len(TRAINING_CONFIGS)}")
-
-        try:
-            results = train_mtl_model(state, embedd_engine)
-            all_results[f"{state}_{embedd_engine.value}"] = results
-        except Exception as e:
-            logger.error(f"Failed to train {state} with {embedd_engine.value}: {str(e)}", exc_info=True)
-            continue
-
-    logger.info(f"\n{'='*80}")
-    logger.info(f"All training completed!")
-    logger.info(f"Successfully trained: {len(all_results)}/{len(TRAINING_CONFIGS)} configurations")
-    logger.info(f"{'='*80}")
+if __name__ == "__main__":
+    args = _parse_args()
+    rc = 0
+    for state in args.state:
+        for engine in args.engine:
+            cmd = [sys.executable, _train, "--state", state, "--engine", engine, "--task", "mtl"]
+            result = subprocess.run(cmd)
+            if result.returncode != 0:
+                rc = result.returncode
+    sys.exit(rc)

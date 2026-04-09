@@ -6,6 +6,17 @@ Stages: preprocess -> train
 Usage: python pipelines/embedding/check2hgi.pipe.py
 """
 
+import sys
+from pathlib import Path
+
+_root = Path(__file__).resolve().parent.parent.parent
+_src = str(_root / "src")
+_research = str(_root / "research")
+if _src not in sys.path:
+    sys.path.insert(0, _src)
+if _research not in sys.path:
+    sys.path.insert(0, _research)
+
 import logging
 from argparse import Namespace
 from datetime import datetime
@@ -14,7 +25,7 @@ from configs.globals import DEVICE
 from configs.paths import Resources, EmbeddingEngine
 from configs.model import InputsConfig
 from embeddings.check2hgi.check2hgi import create_embedding
-from etl.mtl_input.builders import generate_category_input, generate_next_input_from_checkins
+from data.inputs.builders import generate_category_input, generate_next_input_from_checkins
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
