@@ -1,5 +1,7 @@
 # Deep Analysis of PR #3 — Refactoring: Improving Codebase and Data Management
 
+> **Status note (2026-04-08):** For the current, evidence-verified version of this analysis, see **[PR3_DEEP_ANALYSIS_VALIDATED.md](PR3_DEEP_ANALYSIS_VALIDATED.md)**.
+
 > **Date:** 2026-03-29  
 > **Branch:** `docs/refactoring-plan` → `main`  
 > **Scope:** 206 files changed, +9,042 / −4,825 lines  
