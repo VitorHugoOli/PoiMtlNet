@@ -4,3 +4,21 @@ __pycache__/
 /data/*
 /temp/
 /output/*
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.idea/
+.vscode/
+
+# Worktrees and local tooling
+.claude/worktrees/
+.codex/
