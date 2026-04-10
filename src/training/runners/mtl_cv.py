@@ -292,7 +292,7 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             dataloader_category.train.y.numpy(), num_classes, DEVICE
         )
 
-        next_criterion = CrossEntropyLoss(reduction='mean', weight=alpha_next)
+        next_criterion = CrossEntropyLoss(reduction='mean')
         category_criterion = CrossEntropyLoss(reduction='mean')
         mtl_criterion = create_loss(config.mtl_loss, n_tasks=2, device=DEVICE, **config.mtl_loss_params)
 
