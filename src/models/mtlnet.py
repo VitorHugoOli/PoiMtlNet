@@ -3,7 +3,7 @@ import torch
 from torch import nn
 
 from configs.model import InputsConfig
-from models.heads.category import CategoryHeadMTL
+from models.heads.category import CategoryHeadTransformer
 from models.heads.next import NextHeadMTL
 from models.registry import register_model
 
@@ -112,8 +112,13 @@ class MTLnet(nn.Module):
         )
 
         # Task heads
-        self.category_poi = CategoryHeadMTL(
+        self.category_poi = CategoryHeadTransformer(
             input_dim=shared_layer_size,
+            num_tokens=2,
+            token_dim=shared_layer_size // 2,
+            num_layers=num_layers,
+            num_heads=num_heads,
+            dropout=0.1,
             num_classes=num_classes,
         )
         self.next_poi = NextHeadMTL(
@@ -197,8 +202,8 @@ class MTLnet(nn.Module):
         shared_next = self.shared_layers(mod_next)
 
         # Heads
-        # Cat in: [batch, 1, shared_size] Cat out: [batch, num_classes]
-        out_cat = self.category_poi(shared_cat).view(-1, self.num_classes)
+        # Cat in: [batch, 1, shared_size] → squeeze → [batch, shared_size]
+        out_cat = self.category_poi(shared_cat.squeeze(1)).view(-1, self.num_classes)
         # Next in: [batch, seq_len, shared_size] Next out: [batch, seq_len, num_classes]
         out_next = self.next_poi(shared_next)
 
