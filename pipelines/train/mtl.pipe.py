@@ -1,11 +1,16 @@
-"""Thin wrapper — delegates to scripts/train.py (Phase 6).
+"""DEPRECATED: Use scripts/train.py directly instead.
 
 Usage:
-    python pipelines/train/mtl.pipe.py --state alabama --engine hgi
-    python pipelines/train/mtl.pipe.py --state florida alabama --engine dgi hgi
+    python scripts/train.py --task mtl --state alabama --engine hgi
 
-For the full CLI, use scripts/train.py directly.
+This wrapper will be removed in a future release.
 """
+import warnings
+warnings.warn(
+    "pipelines/train/mtl.pipe.py is deprecated. Use scripts/train.py directly.",
+    DeprecationWarning,
+    stacklevel=1,
+)
 import sys
 import subprocess
 from pathlib import Path

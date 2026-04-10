@@ -1,7 +1,10 @@
 from pathlib import Path
 import json
+import logging
 from typing import Any, Dict, List, Optional, Union, TYPE_CHECKING
 from statistics import mean, stdev
+
+logger = logging.getLogger(__name__)
 
 import numpy as np
 import pandas as pd
@@ -19,9 +22,32 @@ def ensure_dir(path: Path) -> Path:
     return path
 
 
+class _SafeEncoder(json.JSONEncoder):
+    """JSON encoder that handles non-serializable types gracefully."""
+
+    def default(self, obj):
+        if isinstance(obj, Path):
+            return str(obj)
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        try:
+            import torch
+            if isinstance(obj, torch.Tensor):
+                return obj.detach().cpu().tolist()
+            if isinstance(obj, torch.dtype):
+                return str(obj)
+        except ImportError:
+            pass
+        return str(obj)
+
+
 def save_json(data: Any, path: Path) -> None:
     with path.open('w', encoding='utf-8') as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
+        json.dump(data, f, indent=4, ensure_ascii=False, cls=_SafeEncoder)
 
 
 def save_text(data: str, path: Path) -> None:
@@ -192,7 +218,7 @@ class HistoryStorage:
         try:
             save_json(params, path / 'model_params.json')
         except Exception as e:
-            print(f"Error saving model parameters: {e}")
+            logger.error("Error saving model parameters: %s", e)
             save_text(str(params), path / 'model_params.txt')
 
         if self.history.model_arch:

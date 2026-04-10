@@ -134,7 +134,7 @@ class ExperimentConfig:
         embedding_engine: str,
         **overrides,
     ) -> ExperimentConfig:
-        """MTL defaults matching MTLModelConfig + mtl_train.py hardcoded values."""
+        """MTL defaults for multi-task training."""
         defaults = dict(
             name=name,
             state=state,
@@ -180,7 +180,7 @@ class ExperimentConfig:
         embedding_engine: str,
         **overrides,
     ) -> ExperimentConfig:
-        """Category defaults matching CfgCategory* classes."""
+        """Category defaults for single-task training."""
         defaults = dict(
             name=name,
             state=state,
@@ -219,7 +219,7 @@ class ExperimentConfig:
         embedding_engine: str,
         **overrides,
     ) -> ExperimentConfig:
-        """Next-POI defaults matching CfgNext* classes."""
+        """Next-POI defaults for single-task training."""
         defaults = dict(
             name=name,
             state=state,

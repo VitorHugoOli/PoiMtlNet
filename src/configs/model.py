@@ -34,29 +34,3 @@ class InputsConfig:
         """Check if using multi-embedding fusion."""
         return cls.FUSION_CONFIG is not None
 
-class MTLModelConfig:
-    """DEPRECATED: Use ExperimentConfig from configs.experiment instead."""
-    NUM_CLASSES = 7
-    BATCH_SIZE = 2**11 # 2048
-    EPOCHS = 50
-    LEARNING_RATE = 0.0001
-    K_FOLDS = 5
-
-class ModelParameters:
-    # Dynamic input dimensions (supports both single and fused embeddings)
-    CATEGORY_INPUT_DIM = InputsConfig.get_category_dim()
-    NEXT_INPUT_DIM = InputsConfig.get_next_dim()
-
-    # Legacy support (deprecated - use CATEGORY_INPUT_DIM or NEXT_INPUT_DIM)
-    INPUT_DIM = InputsConfig.EMBEDDING_DIM
-
-    SHARED_LAYER_SIZE = 256
-    NUM_HEADS = 8
-    NUM_LAYERS = 4
-    SEQ_LENGTH = 9
-    NUM_SHARED_LAYERS = 4
-
-    ENCODER_OUTPUT_SIZE = 256
-    EXPERT_HIDDEN_SIZE = 256
-    EXPERT_OUTPUT_SIZE = 256
-    NUM_EXPERTS = 9

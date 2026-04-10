@@ -6,73 +6,77 @@
 - **Category prediction**: Classify a POI's category from its embedding
 - **Next-POI prediction**: Predict the next POI a user will visit given a sequence of past check-ins
 
-### 📚 Additional Documentation
-
-- **[FUSION_GUIDE.md](FUSION_GUIDE.md)** - Multi-embedding fusion system (Space2Vec + HGI + Time2Vec)
-- **[REFACTORING_SUMMARY.md](REFACTORING_SUMMARY.md)** - New modular architecture (completed 2026-02-03)
-- **[walkthrough.md](walkthrough.md)** - Step-by-step project walkthrough
-
 ## File Architecture
 
 ```
-├── data/               # Raw input data (checkins, misc)
-├── output/             # Generated embeddings, model inputs, folds (per engine/state)
-├── results/            # Training results (metrics, models, plots)
+├── data/               # Raw input data (checkins, misc) — gitignored
+├── output/             # Generated embeddings, model inputs, folds — gitignored
+├── results/            # Training results (metrics, models, plots) — gitignored
 ├── pipelines/
 │   ├── embedding/      # Embedding generation (hgi.pipe.py, time2vec.pipe.py, etc.)
-│   └── train/          # Training pipelines (mtl.pipe.py, cat_head.pipe.py, next_head.pipe.py)
+│   └── train/          # Training pipeline wrappers (delegate to scripts/train.py)
+├── scripts/
+│   ├── train.py        # Canonical CLI entrypoint (--task, --state, --engine)
+│   ├── evaluate.py     # Checkpoint evaluation
+│   ├── train_hydra.py  # Optional Hydra entrypoint
+│   └── generate_feasibility_report.py
 ├── src/
-│   ├── model/
-│   │   ├── mtlnet/     # MTL model (mtl_poi.py, category_head.py, next_head.py)
-│   │   ├── category/   # Standalone category model
-│   │   └── next/       # Standalone next-POI model
-│   ├── train/
-│   │   ├── mtlnet/     # MTL training (mtl_train.py, evaluate.py, validation.py)
-│   │   ├── category/   # Category-only training
-│   │   └── next/       # Next-POI-only training
-│   ├── etl/            # create_input.py, create_fold.py
-│   ├── criterion/      # Loss functions (NashMTL, FocalLoss, PCGrad, GradNorm, NaiveLoss)
-│   ├── configs/        # model.py, paths.py
-│   ├── embeddings/     # Embedding engines (dgi/, hgi/, check2hgi/, poi2hgi/, time2vec/, space2vec/, hmrm/)
-│   └── common/         # Utilities (ml_history/, calc_flops/, training_progress.py)
-├── notebooks/          # Analysis notebooks
-└── tests/              # Unit, regression, and integration tests
-    ├── test_configs/       # ExperimentConfig, model config, paths
-    ├── test_data/          # ETL, fold creation, input builders
-    ├── test_embeddings/    # Embedding utilities
-    ├── test_integration/   # End-to-end pipeline tests (synthetic data)
-    ├── test_losses/        # Loss functions (focal, nash, pcgrad, gradnorm)
-    ├── test_models/        # Model heads, MTLnet, next variants
-    ├── test_regression/    # Phase 0 safety net (calibrated F1 floors)
-    ├── test_tracking/      # MLHistory, fold tracking
-    └── test_utils/         # FLOPs, training progress
+│   ├── configs/        # ExperimentConfig, InputsConfig, paths, globals
+│   ├── data/           # Fold creation, dataset, input builders, schemas
+│   │   └── inputs/     # Modular input generation (core, builders, fusion, loaders)
+│   ├── losses/         # Loss functions + registry (NashMTL, Focal, PCGrad, GradNorm, Naive)
+│   ├── models/         # MTLnet model, head registry
+│   │   ├── heads/      # CategoryHeadMTL, NextHeadMTL
+│   │   └── components/ # Positional encoding
+│   ├── tracking/       # MLHistory, FoldHistory, MetricStore, BestTracker, storage
+│   ├── training/       # Evaluate, helpers, callbacks, shared_evaluate
+│   │   └── runners/    # CV runners + trainers (mtl, category, next)
+│   └── utils/          # FLOPs, MPS support, profiler, progress bar
+├── research/
+│   └── embeddings/     # Embedding trainers (dgi, hgi, check2hgi, poi2hgi, time2vec, space2vec, hmrm)
+├── experiments/
+│   ├── configs/        # Declarative ExperimentConfig constructors
+│   ├── hydra_configs/  # Hydra YAML configs
+│   └── archive/        # Archived notebooks and old scripts
+├── tests/
+│   ├── test_configs/       # ExperimentConfig, model config, paths
+│   ├── test_data/          # Fold creation, input builders
+│   ├── test_embeddings/    # Embedding utilities
+│   ├── test_integration/   # End-to-end pipeline tests (synthetic data)
+│   ├── test_losses/        # Loss functions (focal, nash, pcgrad, gradnorm)
+│   ├── test_models/        # Model heads, MTLnet, next variants
+│   ├── test_regression/    # Phase 0 safety net (calibrated F1 floors)
+│   ├── test_tracking/      # MLHistory, fold tracking
+│   ├── test_training/      # Training runners
+│   └── test_utils/         # FLOPs, training progress
+└── docs/               # Analysis documents, decisions log
 ```
 
 ## MTLnet Model
 
-Architecture in `src/model/mtlnet/`:
+Architecture in `src/models/mtlnet.py`:
 
-1. **Task-specific encoders** (`mtl_poi.py`): 2-layer MLPs (`feature_size → encoder_layer_size → shared_layer_size`), one per task
-2. **FiLM modulation** (`mtl_poi.py: FiLMLayer`): Learns gamma/beta from task embeddings, applies `gamma * x + beta` to condition shared layers on task identity
-3. **Shared backbone** (`mtl_poi.py: ResidualBlock`): Stack of 4 residual blocks with LayerNorm + Linear + LeakyReLU + Dropout
+1. **Task-specific encoders**: 2-layer MLPs (`feature_size -> encoder_layer_size -> shared_layer_size`), one per task
+2. **FiLM modulation** (`FiLMLayer`): Learns gamma/beta from task embeddings, applies `gamma * x + beta` to condition shared layers on task identity
+3. **Shared backbone** (`ResidualBlock`): Stack of 4 residual blocks with LayerNorm + Linear + LeakyReLU + Dropout
 4. **Task heads**:
-   - `CategoryHeadMTL` (`category_head.py`): Multi-path ensemble (3 parallel paths of variable depth 2-4), concatenated → Linear → LayerNorm → GELU → classifier
-   - `NextHeadMTL` (`next_head.py`): Transformer encoder (4 layers, 8 heads, norm_first) with positional encoding, causal masking, and attention-based sequence pooling → classifier
+   - `CategoryHeadMTL` (`src/models/heads/category.py`): Multi-path ensemble (3 parallel paths of variable depth 2-4), concatenated -> Linear -> LayerNorm -> GELU -> classifier
+   - `NextHeadMTL` (`src/models/heads/next.py`): Transformer encoder (4 layers, 8 heads, norm_first) with positional encoding, causal masking, and attention-based sequence pooling -> classifier
 
 Key methods: `shared_parameters()` and `task_specific_parameters()` enable gradient manipulation for MTL optimizers.
 
 ## Data Preparation
 
-**New modular system** (see `REFACTORING_SUMMARY.md` for details):
-- `src/etl/mtl_input/` - Modular input generation system
-- `pipelines/create_inputs.pipe.py` - Pipeline orchestration
-- `src/etl/create_input.py` - *DEPRECATED* (backward compatible)
+**Modular input system** in `src/data/inputs/`:
+- `core.py`: `generate_sequences()` (sliding windows), `create_embedding_lookup()`, `create_category_lookup()`
+- `builders.py`: High-level input builders for category and next tasks
+- `fusion.py`: Multi-embedding fusion input generation
+- `loaders.py`: Data loading utilities
 
-**Sequence generation** (`src/etl/mtl_input/core.py`):
-- `generate_sequences()`: Non-overlapping sliding windows of size 9 + 1 target from user check-in histories. Short sequences padded with -1.
-- `create_embedding_lookup()`: POI → embedding dictionary with padding support
-- `create_category_lookup()`: POI → category mapping
-- Two modes: POI-level embeddings (same POI = same vector) or check-in-level embeddings (contextual per visit).
+**Sequence generation** (`src/data/inputs/core.py`):
+- Non-overlapping sliding windows of size 9 + 1 target from user check-in histories
+- Short sequences padded with -1
+- Two modes: POI-level embeddings (same POI = same vector) or check-in-level embeddings (contextual per visit)
 
 **Pipeline orchestration** (`pipelines/create_inputs.pipe.py`):
 - `generate_category_input()`: Create category task inputs
@@ -81,20 +85,20 @@ Key methods: `shared_parameters()` and `task_specific_parameters()` enable gradi
 - Parallel processing with configurable workers
 
 **Output formats**:
-- Category: `[placeid, category, emb_0, ..., emb_63]` → parquet
-- Next: `[emb_0, ..., emb_575, next_category, userid]` → parquet
+- Category: `[placeid, category, emb_0, ..., emb_63]` -> parquet
+- Next: `[emb_0, ..., emb_575, next_category, userid]` -> parquet
 - Fusion: Variable dimensions based on concatenated embeddings
 
-**Fold creation** (`src/etl/create_fold.py`):
+**Fold creation** (`src/data/folds.py`):
 - `FoldCreator`: Stratified 5-fold CV, batch size 2048
 - Category data kept as 1D vectors; next data reshaped to `(samples, window=9, embedding_dim)`
 - Class weights computed for weighted CrossEntropyLoss (preferred over weighted sampling)
 
 ## Training Pipeline
 
-Key files: `src/train/mtlnet/mtl_train.py`, `pipelines/train/mtl.pipe.py`
+Key files: `src/training/runners/mtl_cv.py`, `scripts/train.py`
 
-**Training loop** (`mtl_train.py: train_with_cross_validation`):
+**Training loop** (`mtl_cv.py`):
 - Per fold: initialize MTLnet, optimizer, scheduler, criteria
 - **Optimizer**: AdamW (lr=1e-4, weight_decay=0.05, eps=1e-8)
 - **Scheduler**: OneCycleLR (max_lr=1e-3, 50 epochs)
@@ -104,18 +108,26 @@ Key files: `src/train/mtlnet/mtl_train.py`, `pipelines/train/mtl.pipe.py`
 - Mixed batch iteration cycles the shorter dataloader to match the longer one
 - FLOPs profiled on first fold
 
-**Running the pipeline**:
+**Running training**:
 ```bash
+# Canonical CLI entrypoint
+python scripts/train.py --task mtl --state florida --engine hgi
+
+# Or via pipeline wrappers (legacy)
 python pipelines/train/mtl.pipe.py
 ```
-Configure `state` (florida, alabama, etc.) and `embedd_engine` (EmbeddingEngine.DGI, HGI, etc.) in the script. Outputs go to `results/{engine}/{state}/` including fold metrics (CSV), classification reports (JSON), plots (PNG), and summary statistics.
+
+Configure `state` (florida, alabama, etc.) and engine. Outputs go to `results/{engine}/{state}/` including fold metrics (CSV), classification reports (JSON), plots (PNG), and summary statistics.
 
 ## Configurations
 
+**`src/configs/experiment.py`**:
+- `ExperimentConfig`: Unified dataclass (64 fields, 3 factory methods: `default_mtl`, `default_category`, `default_next`)
+- `DatasetSignature`: Streaming SHA-256 for data integrity
+- `RunManifest`: Experiment reproducibility metadata
+
 **`src/configs/model.py`**:
 - `InputsConfig`: EMBEDDING_DIM=64, SLIDE_WINDOW=9, PAD_VALUE=0
-- `MTLModelConfig`: NUM_CLASSES=7, BATCH_SIZE=2048, EPOCHS=50, LR=1e-4, K_FOLDS=5
-- `ModelParameters`: SHARED_LAYER_SIZE=256, NUM_HEADS=8, NUM_LAYERS=4, NUM_SHARED_LAYERS=4
 
 **`src/configs/paths.py`**:
 - `EmbeddingEngine` enum: DGI, HGI, HMRM, TIME2VEC, SPACE2VEC, CHECK2HGI, POI2HGI, **FUSION**
@@ -123,64 +135,65 @@ Configure `state` (florida, alabama, etc.) and `embedd_engine` (EmbeddingEngine.
 - FUSION routing: Automatically routes FUSION engine to fusion-specific paths
 - Respects `$DATA_ROOT` env var (default: `data/`)
 
+**`src/configs/globals.py`**:
+- `DEVICE`: Auto-detects MPS (Apple Silicon) / CUDA / CPU
+- `CATEGORIES_MAP`: Category label mapping
+
 ## Embeddings
 
-Each engine lives in `src/embeddings/<engine>/` and may have its own CLAUDE.md with detailed documentation.
+Each engine lives in `research/embeddings/<engine>/` and may have its own CLAUDE.md.
 
 | Engine | Directory | Description |
 |--------|-----------|-------------|
-| DGI | `dgi/` | Deep Graph Infomax - 64-dim POI embeddings from graph structure |
-| HGI | `hgi/` | Hierarchical Graph Infomax - 256-dim embeddings from multi-level graphs |
-| Check2HGI | `check2hgi/` | Check-in level HGI - contextual embeddings per visit |
-| POI2HGI | `poi2hgi/` | POI-level HGI variant |
-| Time2Vec | `time2vec/` | Temporal embeddings from check-in timestamps |
-| Space2Vec | `space2vec/` | Spatial embeddings from coordinates |
-| HMRM | `hmrm/` | Heterogeneous Mobility Representation Model - 107-dim |
-| **FUSION** | `etl/embedding_fusion.py` | **Multi-embedding fusion - concatenates multiple embeddings (128+ dims)** |
-
-**Note**: See `FUSION_GUIDE.md` for details on multi-embedding fusion and `REFACTORING_SUMMARY.md` for the new modular architecture.
+| DGI | `research/embeddings/dgi/` | Deep Graph Infomax - 64-dim POI embeddings |
+| HGI | `research/embeddings/hgi/` | Hierarchical Graph Infomax - 256-dim embeddings |
+| Check2HGI | `research/embeddings/check2hgi/` | Check-in level HGI - contextual embeddings per visit |
+| POI2HGI | `research/embeddings/poi2hgi/` | POI-level HGI variant |
+| Time2Vec | `research/embeddings/time2vec/` | Temporal embeddings from check-in timestamps |
+| Space2Vec | `research/embeddings/space2vec/` | Spatial embeddings from coordinates |
+| HMRM | `research/embeddings/hmrm/` | Heterogeneous Mobility Representation Model - 107-dim |
+| **FUSION** | `src/data/inputs/fusion.py` | Multi-embedding fusion - concatenates multiple embeddings |
 
 ## Loss Functions
 
-All in `src/criterion/`:
+All in `src/losses/`, with `registry.py` for dynamic registration:
 
 | File | Class | Description |
 |------|-------|-------------|
 | `nash_mtl.py` | `NashMTL` | Primary MTL loss - Nash equilibrium gradient balancing via cvxpy/ECOS solver |
-| `FocalLoss.py` | `FocalLoss` | Handles class imbalance with `(1-pt)^gamma` weighting (gamma=2.0) |
+| `focal.py` | `FocalLoss` | Handles class imbalance with `(1-pt)^gamma` weighting (gamma=2.0) |
 | `pcgrad.py` | `PCGrad` | Projects conflicting task gradients to reduce interference |
 | `gradnorm.py` | `GradNorm` | Balances gradient magnitudes across tasks |
-| `NaiveLoss.py` | `NaiveLoss` | Dynamic alpha/beta weighted sum with clamped adjustment |
+| `naive.py` | `NaiveLoss` | Dynamic alpha/beta weighted sum with clamped adjustment |
 
 ## Utilities
 
-**`src/common/ml_history/`** - Experiment tracking:
+**`src/tracking/`** - Experiment tracking:
 - `MLHistory`: Top-level manager, context manager + iterator over folds
-- `FoldHistory` / `TaskTrainMetric`: Per-fold per-task train/val metrics (loss, accuracy, F1)
-- `HistoryStorage`: Serializes to JSON, CSV, plots
-- `FlopsMetrics`: FLOPs, params, memory, inference time
+- `FoldHistory` / `MetricStore`: Per-fold per-task train/val metrics (loss, accuracy, F1)
+- `storage.py`: Serializes to JSON, CSV, plots
+- `best_tracker.py`: Tracks best model state per metric
 
-**`src/common/calc_flops/`** - Model profiling:
-- `calculate_model_flops()`: Compute FLOPs and parameter counts
-- `ModelProfiler`: Layer-wise operation profiling
+**`src/utils/`** - Model profiling and helpers:
+- `flops.py`: FLOPs calculation and parameter counts
+- `profiler.py` / `profile_reporter.py` / `profile_exporter.py`: Layer-wise operation profiling
+- `progress.py`: `TrainingProgressBar` (extended tqdm) + `zip_longest_cycle()`
+- `mps.py`: Apple Silicon MPS cache management
 
-**`src/common/training_progress.py`**:
-- `TrainingProgressBar`: Extended tqdm with multi-dataloader support
-- `zip_longest_cycle()`: Cycles shorter dataloaders to match the longest
-
-**Other**: `poi_dataset.py` (POIDataset wrapper), `mps_support.py` (Apple Silicon MPS cache management)
+**`src/data/dataset.py`**: `POIDataset` wrapper for PyTorch DataLoader.
 
 ## Running Pipelines
 
-**MTL training** (main pipeline):
+**Training** (recommended):
 ```bash
-python pipelines/train/mtl.pipe.py
+python scripts/train.py --task mtl --state florida --engine hgi
+python scripts/train.py --task category --state florida --engine poi2hgi
+python scripts/train.py --task next --state florida --engine hgi
 ```
 
-**Single-task training**:
+**Evaluation**:
 ```bash
-python pipelines/train/cat_head.pipe.py   # Category only
-python pipelines/train/next_head.pipe.py  # Next-POI only
+python scripts/evaluate.py --checkpoint results/hgi/florida/model.pt
 ```
 
 **Embedding generation**:
@@ -192,7 +205,7 @@ python pipelines/embedding/poi2hgi.pipe.py
 
 **Input preparation**:
 ```bash
-python pipelines/create_inputs.py
+python pipelines/create_inputs.pipe.py
 ```
 
 All pipelines are configured by editing variables at the top of each script (state, embedding engine, etc.).

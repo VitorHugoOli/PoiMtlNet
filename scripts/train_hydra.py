@@ -20,8 +20,11 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-# Ensure src/ is on sys.path
+# Ensure src/ and scripts/ are on sys.path
+_scripts = str(Path(__file__).resolve().parent)
 _src = str(Path(__file__).resolve().parent.parent / "src")
+if _scripts not in sys.path:
+    sys.path.insert(0, _scripts)
 if _src not in sys.path:
     sys.path.insert(0, _src)
 
@@ -45,7 +48,7 @@ _CONFIG_DIR = str(Path(__file__).resolve().parent.parent / "experiments" / "hydr
 @hydra.main(version_base=None, config_path=_CONFIG_DIR, config_name="train")
 def main(cfg: DictConfig) -> None:
     """Hydra entrypoint that delegates to scripts/train.main()."""
-    from scripts.train import main as train_main
+    from train import main as train_main
 
     # Build argv from Hydra config to pass to the argparse-based train.main()
     argv = [

@@ -1,10 +1,16 @@
-"""Thin wrapper — delegates to scripts/train.py (Phase 6).
+"""DEPRECATED: Use scripts/train.py directly instead.
 
 Usage:
-    python pipelines/train/cat_head.pipe.py --state california --engine poi2hgi
+    python scripts/train.py --task category --state california --engine poi2hgi
 
-For the full CLI, use scripts/train.py directly.
+This wrapper will be removed in a future release.
 """
+import warnings
+warnings.warn(
+    "pipelines/train/cat_head.pipe.py is deprecated. Use scripts/train.py directly.",
+    DeprecationWarning,
+    stacklevel=1,
+)
 import sys
 import subprocess
 from pathlib import Path

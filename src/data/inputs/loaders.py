@@ -4,9 +4,12 @@ Data loading classes with caching.
 Moved from etl/embedding_fusion.py for better organization.
 """
 
+import logging
 from typing import Dict
 import pandas as pd
 import gc
+
+logger = logging.getLogger(__name__)
 
 from configs.paths import IoPaths, EmbeddingEngine
 from configs.embedding_fusion import EmbeddingSpec
@@ -42,7 +45,7 @@ class EmbeddingLoader:
         if spec.engine not in self._cache:
             df = IoPaths.load_embedd(self.state, spec.engine)
             self._cache[spec.engine] = df
-            print(f"  Loaded {spec.engine.value}: {df.shape}")
+            logger.info("  Loaded %s: %s", spec.engine.value, df.shape)
 
         return self._cache[spec.engine]
 

@@ -38,7 +38,7 @@ from sklearn.utils.class_weight import compute_class_weight
 from torch.utils.data import DataLoader, Dataset, WeightedRandomSampler
 
 from configs.globals import CATEGORIES_MAP, DEVICE
-from configs.model import InputsConfig, MTLModelConfig
+from configs.model import InputsConfig
 from configs.paths import EmbeddingEngine, IoPaths
 
 logger = logging.getLogger(__name__)
@@ -425,7 +425,7 @@ class FoldCreator:
             self,
             task_type: TaskType,
             n_splits: int = 5,
-            batch_size: int = MTLModelConfig.BATCH_SIZE,
+            batch_size: int = 2048,
             seed: int = 42,
             use_weighted_sampling: bool = False,
     ):

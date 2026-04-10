@@ -16,7 +16,15 @@ from models.heads.next import (
     NextHeadTransformerOptimized,
     NextHeadTemporalCNN
 )
-from configs.next_config import CfgNextModel
+from configs.experiment import ExperimentConfig
+
+# Derive defaults from canonical config source
+_CFG = ExperimentConfig.default_next("_test", "test", "dgi")
+_MP = _CFG.model_params
+_NEXT_INPUT_DIM = _MP["embed_dim"]
+_NEXT_NUM_HEADS = _MP["num_heads"]
+_NEXT_MAX_SEQ_LENGTH = _MP["seq_length"]
+_NEXT_NUM_CLASSES = _MP["num_classes"]
 
 
 class TestNextHeadSingleArchitecture:
@@ -266,16 +274,16 @@ class TestConfigConsistency:
 
     def test_num_heads_divides_embed_dim(self):
         """Test that NUM_HEADS divides INPUT_DIM evenly."""
-        embed_dim = CfgNextModel.INPUT_DIM
-        num_heads = CfgNextModel.NUM_HEADS
+        embed_dim = _NEXT_INPUT_DIM
+        num_heads = _NEXT_NUM_HEADS
 
         assert embed_dim % num_heads == 0, \
             f"NUM_HEADS ({num_heads}) must divide INPUT_DIM ({embed_dim}) evenly"
 
     def test_head_dimension_reasonable(self):
         """Test that head dimension is not too small."""
-        embed_dim = CfgNextModel.INPUT_DIM
-        num_heads = CfgNextModel.NUM_HEADS
+        embed_dim = _NEXT_INPUT_DIM
+        num_heads = _NEXT_NUM_HEADS
         head_dim = embed_dim // num_heads
 
         # Warn if head_dim < 16
@@ -290,14 +298,14 @@ class TestConfigConsistency:
         """Test that MAX_SEQ_LENGTH matches sliding window."""
         from configs.model import InputsConfig
 
-        assert CfgNextModel.MAX_SEQ_LENGTH == InputsConfig.SLIDE_WINDOW, \
-            f"MAX_SEQ_LENGTH ({CfgNextModel.MAX_SEQ_LENGTH}) must match " \
+        assert _NEXT_MAX_SEQ_LENGTH == InputsConfig.SLIDE_WINDOW, \
+            f"MAX_SEQ_LENGTH ({_NEXT_MAX_SEQ_LENGTH}) must match " \
             f"SLIDE_WINDOW ({InputsConfig.SLIDE_WINDOW})"
 
     def test_num_classes_correct(self):
         """Test that NUM_CLASSES is 7 (POI categories)."""
-        assert CfgNextModel.NUM_CLASSES == 7, \
-            f"Expected 7 POI categories, got {CfgNextModel.NUM_CLASSES}"
+        assert _NEXT_NUM_CLASSES == 7, \
+            f"Expected 7 POI categories, got {_NEXT_NUM_CLASSES}"
 
 
 if __name__ == "__main__":

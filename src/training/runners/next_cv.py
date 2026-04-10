@@ -8,7 +8,7 @@ from configs.globals import DEVICE, CATEGORIES_MAP
 from configs.experiment import ExperimentConfig
 from models.registry import create_model
 from training.helpers import compute_class_weights, setup_optimizer, setup_scheduler
-from training.runners.next_eval import evaluate
+from training.shared_evaluate import evaluate
 from training.runners.next_trainer import train
 from utils.flops import calculate_model_flops
 from tracking import MLHistory, FlopsMetrics, NeuralParams

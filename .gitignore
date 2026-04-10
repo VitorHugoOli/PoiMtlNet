@@ -1,6 +1,7 @@
 __pycache__/
 *.pyc
 /results/*
+!/results/baselines/
 /data/*
 /temp/
 /output/*
@@ -18,6 +19,21 @@ __pycache__/
 # IDE
 .idea/
 .vscode/
+
+# Coverage & testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Model checkpoints
+*.pt
+*.pth
+
+# Build artifacts
+*.egg-info/
+dist/
+build/
+
 
 # Worktrees and local tooling
 .claude/worktrees/
