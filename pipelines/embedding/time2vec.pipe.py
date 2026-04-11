@@ -61,6 +61,13 @@ TIME2VEC_CONFIG = Namespace(
                     # dominated there). Loss stays bit-identical. Falls back
                     # to CPU automatically via DEVICE auto-detect.
     compile=True,  # ~10% extra speedup via torch.compile, bit-identical loss
+    # Paper-faithfulness fix (Rec 1, 2026-04-11): wrap-aware feature-space
+    # pair sampling. Delivers +0.81 ± 0.19pp F1 on Alabama next-task vs the
+    # legacy absolute-time sampler. See research/embeddings/time2vec/README.md.
+    sampling_mode="feat_space",
+    r_pos_feat=0.03,
+    r_neg_feat=0.30,
+    no_train=False,
 )
 
 

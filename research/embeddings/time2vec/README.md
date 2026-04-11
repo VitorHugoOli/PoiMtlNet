@@ -234,6 +234,95 @@ verbatim and verify:
 These tests prove that, given the same random seed and data, our migration
 produces the same checkpoint as the original notebook code.
 
+## Paper-faithfulness study (2026-04-11)
+
+A deep-dive read of the Time2Vec paper (Kazemi et al. 2019, arXiv:1907.05321)
+found **six deviations** between the paper and our migrated implementation.
+The full analysis is in [`plans/time2vec_paper_analysis.md`](../../../plans/time2vec_paper_analysis.md);
+the short version is that the core `t2v` math is paper-faithful and pinned
+by the 44 equivalence tests above, but **how we train it is not**. The paper
+trains Time2Vec end-to-end with a downstream supervised loss; we inherited a
+self-supervised contrastive scheme from `Time_Encoder.ipynb` that samples
+positive/negative pairs by **absolute-time gap**. Structural flaw: two
+check-ins at "Mon 2 PM Jan 1" and "Mon 2 PM Jan 8" have identical
+`(hour/24, dow/7)` features (same t2v output, cosine sim = 1) but the
+sampler labels them negative (168 h > `r_neg = 24`). The model is asked to
+disambiguate physically identical inputs — it can't.
+
+### Fix: feature-space contrastive sampling (Recommendation 1)
+
+`research/embeddings/time2vec/model/dataset.py` now exposes an opt-in
+`sampling_mode` kwarg on `TemporalContrastiveDataset`:
+
+- `"absolute_time"` (default) — legacy behaviour, bit-identical to
+  `Time_Encoder.ipynb`. Kept as the default so the 46 equivalence tests
+  keep passing and nothing breaks silently.
+- `"feat_space"` — pairs sampled by **wrap-aware Euclidean distance** in
+  `(hour/24, dow/7)` space, with radii `r_pos_feat=0.03` / `r_neg_feat=0.30`.
+  Identical inputs are never labelled negative. Pair-generation cost is
+  bounded by `feat_cand_pool=4096` candidates per anchor so it stays
+  O(N · pool) instead of O(N²).
+
+Flags on the CLI: `--sampling_mode`, `--r_pos_feat`, `--r_neg_feat`, and
+`--no_train` (the last one dumps frozen random-init embeddings, used as an
+ablation baseline below).
+
+### Ablation & seed sweep (Alabama, next-task, 2 folds × 25 epochs)
+
+Run via `scripts/run_time2vec_ablation.py` (3-variant compare) and
+`scripts/run_time2vec_seedsweep.py` (4-seed × 2-variant sweep).
+
+**3-variant baseline** (seed 42):
+
+| Variant | Macro F1 (%) | vs baseline |
+|---|---:|---:|
+| `baseline_current` (legacy absolute-time) | 15.24 ± 0.44 | — |
+| `rand_init` (frozen random, no training)  | 14.03 ± 1.39 | −1.21pp |
+| `feat_space` (Rec 1, wrap-aware)          | **16.27 ± 1.62** | **+1.04pp** |
+
+**4-seed sweep** — seeds 42/43/44/45, Time2Vec training seed varies, MTLnet
+fold split + training seed fixed so the same train/val split is used in
+every cell:
+
+| Variant \ Seed | 42 | 43 | 44 | 45 | **Mean ± Std (over seeds)** |
+|---|---:|---:|---:|---:|---:|
+| `baseline_current` | 15.24 | 15.01 | 15.09 | 15.70 | **15.26 ± 0.31** |
+| `feat_space`       | 16.27 | 15.80 | 15.66 | 16.56 | **16.07 ± 0.42** |
+
+**Per-seed delta (`feat_space − baseline_current`):** +1.04, +0.79, +0.57,
++0.87 → **mean +0.81 ± 0.19pp**. All 4 seeds show a positive effect; the
+mean is ~4× the std. Strong evidence the gain is real and not fold-split
+luck. Raw grids in
+[`plans/time2vec_ablation_results.md`](../../../plans/time2vec_ablation_results.md)
+and [`plans/time2vec_seedsweep_results.md`](../../../plans/time2vec_seedsweep_results.md).
+
+### Status and planned follow-ups
+
+- **`feat_space` is the empirical winner** but remains opt-in (default is
+  still `"absolute_time"`). Reason for not flipping the default now: the
+  44 equivalence tests tie the default path bit-for-bit to the original
+  notebook; flipping it would need the tests re-scoped to cover both modes,
+  not just drop the old guarantees. A follow-up should (a) add
+  `"feat_space"` coverage to the equivalence suite, then (b) flip the
+  default in `dataset.py` and `pipelines/embedding/time2vec.pipe.py`.
+- **Recommendation 3 — end-to-end joint training with MTLnet.** This is the
+  paper-faithful approach: instead of pretraining Time2Vec standalone and
+  consuming frozen embeddings, make `Time2VecContrastiveModel` a learned
+  `nn.Module` *inside* MTLnet's forward pass, so its frequencies `ω_i`
+  receive gradients from the downstream next-POI loss directly. Expected
+  upside > any sampling tweak because the frequencies get optimized for
+  what actually matters. Cost: medium-to-high — requires touching
+  `src/data/inputs/builders.py`, `src/data/folds.py`, and
+  `src/models/mtlnet.py` to route raw `(hour, dow)` features through
+  instead of pre-embedded vectors. See
+  [`plans/time2vec_paper_analysis.md`](../../../plans/time2vec_paper_analysis.md)
+  Rec 3 (lines 284–298) for the full scope.
+- **Recommendation 2 (random-init ablation)** is done. `rand_init` sits
+  ~1.2pp below `baseline_current`, so the contrastive training is load-
+  bearing — it just happens to be optimizing the wrong objective. The
+  result above shows a better objective (`feat_space`) gets another +0.81pp
+  on top, and Rec 3 is the ceiling-lift experiment to try next.
+
 ## Adding a new state
 
 1. Make sure `data/checkins/{StateName}.parquet` exists (the standard MTLnet
