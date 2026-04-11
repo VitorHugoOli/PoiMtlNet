@@ -479,7 +479,8 @@ Hard negatives force the model to learn subtle distinctions.
 
 ### 5. Edge Weight Formula
 
-Delaunay edges are weighted by both spatial distance and regional boundaries:
+Delaunay edges are weighted by both spatial distance and regional boundaries
+(Eq. 2 of Huang et al., ISPRS 2023):
 
 ```
 w_spatial = log((1 + D^1.5) / (1 + dist^1.5))
@@ -487,15 +488,62 @@ w_spatial = log((1 + D^1.5) / (1 + dist^1.5))
     D = bounding box diagonal (normalizer)
     dist = haversine distance in meters
 
-w_regional = 1.0 if same census tract
-           = 0.5 if different census tracts
+w_regional = 1.0                   if same census tract
+           = cross_region_weight   otherwise       # `w_r` in the paper
 
 final_weight = normalize(w_spatial * w_regional)  -> [0, 1]
 ```
 
-This encourages:
-- Nearby POIs to have strong connections
-- Within-region connections to be stronger than cross-region
+The cross-region weight `w_r` controls how strongly the GCN prefers within-region
+connections over cross-region ones. It is a **dataset-specific hyperparameter**
+that the paper sets to `0.4` for Xiamen/Shenzhen, while the third-party
+reproduction uses `0.5`. On our US-state datasets `0.4` is a **local pessimum**.
+
+**Alabama `w_r` sweep** (5 folds × 50 epochs, fixes #3 + #4 always applied):
+
+| w_r | Cat F1              | Cat Acc             | Next F1             |
+|-----|---------------------|---------------------|---------------------|
+| 0.4 | 0.7388 ± 0.0205     | 0.7833 ± 0.0137     | 0.2837 ± 0.0110     |
+| 0.5 | 0.7678 ± 0.0211     | 0.8000 ± 0.0153     | 0.2750 ± 0.0176     |
+| 0.6 | 0.7944 ± 0.0186     | 0.8237 ± 0.0110     | 0.2767 ± 0.0174     |
+| **0.7** | **0.8186 ± 0.0123** | **0.8366 ± 0.0125** | **0.2837 ± 0.0108** |
+
+Cat F1 rises ~2.6 pp per 0.1 step with no sign of flattening at 0.7 — the true
+optimum may be at `0.8` or even `1.0`. Next F1 is effectively flat across the
+sweep.
+
+**Why the optimum differs from the paper**: the paper trains on Xiamen
+(~45k POIs in 1.7k km²) and Shenzhen (~300k POIs in 2k km²) — dense urban
+fabrics. Alabama has ~11.7k POIs over ~130k km², so an average census tract is
+much larger relative to POI spacing. Penalising cross-region edges by 60%
+(`w_r=0.4`) starves the POI encoder of useful long-range signal on a sparse
+dataset; a milder penalty (`w_r=0.7`) preserves the geographic structure and
+the category head rewards it with +8 pp F1.
+
+**Default and per-state override.** `cross_region_weight` defaults to `0.7` in
+`HGIPreprocess`, `preprocess_hgi()`, `HGI_CONFIG` (in `pipelines/embedding/hgi.pipe.py`)
+and the `hgi.py` argparse CLI. Override per state via the
+`CROSS_REGION_WEIGHT_PER_STATE` dict at the top of `pipelines/embedding/hgi.pipe.py`.
+
+**Current per-state defaults.** The values below are best-effort starting
+points extrapolated from POI density vs. the paper's anchors (Xiamen 26 POI/km²
+→ 0.4; Alabama 0.089 POI/km² → 0.7). Only Alabama is empirically swept.
+
+| State | POIs | Area (km²) | Density (POI/km²) | `w_r` | Source |
+|---|---:|---:|---:|:---:|---|
+| Arizona | 20,440 | 294,207 | 0.0695 | 0.7 | interpolated |
+| Alabama | 11,706 | 131,171 | 0.0892 | **0.7** | **swept** |
+| Texas | 155,208 | 676,587 | 0.2294 | 0.7 | interpolated |
+| California | 165,881 | 403,932 | 0.4107 | 0.6 | interpolated |
+| Florida | 74,862 | 139,671 | 0.5360 | 0.6 | interpolated |
+
+(Paper anchors for comparison: Xiamen ~45k POIs / 1.7k km² / 26 POI/km² / `w_r=0.4`;
+Shenzhen ~303k POIs / 2k km² / 150 POI/km² / `w_r=0.4`.)
+
+**Recommendation when onboarding a new state**: run a 3-point sweep
+(`{0.4, 0.7, 1.0}`) to bracket the optimum before committing to a full training
+run. Each sweep point costs ~25 min on CPU (8 min HGI regen + 16 min MTLnet
+5 folds × 50 epochs) on the Alabama-sized dataset.
 
 ---
 
@@ -513,12 +561,14 @@ args = Namespace(
     poi2vec_epochs=100,
     alpha=0.5,
     attention_head=4,
-    lr=0.001,
+    lr=0.006,            # paper value; requires the 40-epoch warmup below
+    warmup_period=40,
     gamma=1.0,
     max_norm=0.9,
     device='cpu',
     shapefile='/path/to/census_tracts.shp',
     force_preprocess=True,
+    cross_region_weight=0.7,  # Eq. 2 w_r — sweep per state, see §5 for Alabama
 )
 
 create_embedding(state="Texas", args=args)
@@ -585,11 +635,12 @@ region_emb = pd.read_parquet("output/hgi/Texas/region_embeddings.parquet")
 
 ### Preprocessing Parameters
 
-| Parameter | Description |
-|-----------|-------------|
-| `force_preprocess` | If True, regenerate graph even if pickle exists |
-| `shapefile` | Path to TIGER/Line census tract shapefile |
-| `cta_file` | Optional: Pre-computed boroughs CSV |
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `force_preprocess` | `True` | Regenerate graph even if pickle exists |
+| `shapefile` | — | Path to TIGER/Line census tract shapefile |
+| `cta_file` | `None` | Optional: pre-computed boroughs CSV |
+| `cross_region_weight` | `0.7` | `w_r` in Eq. 2 — dataset-specific; see [Edge Weight Formula](#5-edge-weight-formula) for the Alabama sweep. Override per state in `pipelines/embedding/hgi.pipe.py:CROSS_REGION_WEIGHT_PER_STATE`. |
 
 ---
 

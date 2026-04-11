@@ -222,6 +222,7 @@ def create_embedding(state: str, args):
             city=city,
             city_shapefile=str(shapefile_path),
             poi_emb_path=None,
+            cross_region_weight=getattr(args, "cross_region_weight", 0.7),
         )
 
         # Phase 3b-3d: Train POI2Vec (always required)
@@ -243,6 +244,7 @@ def create_embedding(state: str, args):
             city=city,
             city_shapefile=str(shapefile_path),
             poi_emb_path=str(poi_emb_path),
+            cross_region_weight=getattr(args, "cross_region_weight", 0.7),
         )
 
         # Save pickle for train_hgi
@@ -284,6 +286,11 @@ if __name__ == '__main__':
     parser.add_argument('--gamma', type=float, default=1.0)
     parser.add_argument('--max_norm', type=float, default=0.9)
     parser.add_argument('--epoch', type=int, default=2000)
+
+    # Preprocessing
+    parser.add_argument('--cross_region_weight', type=float, default=0.7,
+                        help='Cross-region edge weight w_r (Eq. 2). '
+                             'Paper 0.4, repro 0.5, Alabama-best 0.7. Sweep per state.')
 
     # Device
     parser.add_argument('--device', type=str,
