@@ -1,6 +1,7 @@
 name: mtlnet_cgc
 domain: mtl
 status: implemented
+evidence_status: implemented
 registry_key: mtlnet_cgc
 runtime_class: models.mtl.model.MTLnetCGC
 runtime_file: src/models/mtl/model.py

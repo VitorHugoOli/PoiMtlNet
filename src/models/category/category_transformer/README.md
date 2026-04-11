@@ -1,12 +1,17 @@
 # category_transformer
 
-Why this?
+## Why This
 - Current default category head; transformer-style feature mixer with strong
   empirical behavior in current MTL runs.
 
-Runtime mapping:
+## Runtime Mapping
 - Model registry key: `category_transformer`
 - Runtime class: `models.category.head.CategoryHeadTransformer`
 
-Source:
+
+## Evidence Status
+- Current: `implemented`
+- Last Reviewed: `2026-04-11`
+
+## Sources
 - In-repo implementation: `src/models/category/head.py`

@@ -1,6 +1,7 @@
 name: mtlnet_mmoe
 domain: mtl
 status: implemented
+evidence_status: implemented
 registry_key: mtlnet_mmoe
 runtime_class: models.mtl.model.MTLnetMMoE
 runtime_file: src/models/mtl/model.py

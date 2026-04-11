@@ -1,11 +1,16 @@
 # pcgrad
 
-Why this?
+## Why This
 - Conflict-aware gradient projection for multi-task optimization.
 
-Runtime mapping:
+## Runtime Mapping
 - Registry key: `pcgrad`
 - Runtime class: `losses.pcgrad.PCGrad`
 
-Source:
+
+## Evidence Status
+- Current: `implemented`
+- Last Reviewed: `2026-04-11`
+
+## Sources
 - In-repo implementation: `src/losses/pcgrad/loss.py`

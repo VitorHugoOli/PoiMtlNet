@@ -1,12 +1,17 @@
 # next_transformer_optimized
 
-Why this?
+## Why This
 - Optimized transformer-based next-task head variant for throughput-sensitive
   experiments.
 
-Runtime mapping:
+## Runtime Mapping
 - Model registry key: `next_transformer_optimized`
 - Runtime class: `models.next.head.NextHeadTransformerOptimized`
 
-Source:
+
+## Evidence Status
+- Current: `implemented`
+- Last Reviewed: `2026-04-11`
+
+## Sources
 - In-repo implementation: `src/models/next/head.py`

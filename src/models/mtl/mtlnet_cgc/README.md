@@ -1,13 +1,18 @@
 # mtlnet_cgc
 
-Why this?
+## Why This
 - CGC-lite introduces shared and task-specific experts while preserving the
   existing sequence-aware task encoders and heads.
 
-Runtime mapping:
+## Runtime Mapping
 - Model registry key: `mtlnet_cgc`
 - Runtime class: `models.mtl.model.MTLnetCGC`
 
-Source:
+
+## Evidence Status
+- Current: `implemented`
+- Last Reviewed: `2026-04-11`
+
+## Sources
 - In-repo implementation: `src/models/mtl/model.py`
 - Related literature: PLE/CGC (RecSys 2020)

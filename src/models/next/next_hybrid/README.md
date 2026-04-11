@@ -1,11 +1,16 @@
 # next_hybrid
 
-Why this?
+## Why This
 - Hybrid sequence head combines recurrent and attention-style components.
 
-Runtime mapping:
+## Runtime Mapping
 - Model registry key: `next_hybrid`
 - Runtime class: `models.next.head.NextHeadHybrid`
 
-Source:
+
+## Evidence Status
+- Current: `implemented`
+- Last Reviewed: `2026-04-11`
+
+## Sources
 - In-repo implementation: `src/models/next/head.py`

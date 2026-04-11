@@ -1,11 +1,16 @@
 # mtlnet
 
-Why this?
+## Why This
 - Base shared-backbone MTL architecture used as the primary reference model.
 
-Runtime mapping:
+## Runtime Mapping
 - Model registry key: `mtlnet`
 - Runtime class: `models.mtl.model.MTLnet`
 
-Source:
+
+## Evidence Status
+- Current: `implemented`
+- Last Reviewed: `2026-04-11`
+
+## Sources
 - In-repo implementation: `src/models/mtl/model.py`

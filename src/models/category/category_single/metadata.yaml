@@ -1,6 +1,7 @@
 name: category_single
 domain: category
 status: implemented
+evidence_status: implemented
 registry_key: category_single
 runtime_class: models.category.head.CategoryHeadSingle
 runtime_file: src/models/category/head.py

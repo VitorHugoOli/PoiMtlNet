@@ -1,11 +1,16 @@
 # static_weight
 
-Why this?
+## Why This
 - Fixed-weight scalarization baseline used to probe task tradeoffs with explicit weights.
 
-Runtime mapping:
+## Runtime Mapping
 - Registry key: `static_weight`
 - Runtime class: `losses.mtl_baselines.StaticWeightLoss`
 
-Source:
+
+## Evidence Status
+- Current: `implemented`
+- Last Reviewed: `2026-04-11`
+
+## Sources
 - In-repo implementation: `src/losses/mtl_baselines.py`

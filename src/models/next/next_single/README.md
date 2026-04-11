@@ -1,11 +1,16 @@
 # next_single
 
-Why this?
+## Why This
 - Minimal single-branch next-task head used as a lightweight baseline.
 
-Runtime mapping:
+## Runtime Mapping
 - Model registry key: `next_single`
 - Runtime class: `models.next.head.NextHeadSingle`
 
-Source:
+
+## Evidence Status
+- Current: `implemented`
+- Last Reviewed: `2026-04-11`
+
+## Sources
 - In-repo implementation: `src/models/next/head.py`

@@ -1,10 +1,27 @@
 """Ensure src variant folders exist for tracked ablation/model keys."""
 
+import re
 from pathlib import Path
 
 from ablation.candidates import CANDIDATES
 from losses.registry import list_losses
 from models.registry import list_models
+
+_ALLOWED_EVIDENCE_STATUS = {"proposed", "implemented", "ablated", "promoted"}
+_REQUIRED_README_HEADINGS = (
+    "## Why This",
+    "## Runtime Mapping",
+    "## Evidence Status",
+    "## Sources",
+)
+
+
+def _read_metadata_field(metadata_path: Path, key: str) -> str | None:
+    pattern = re.compile(rf"^{re.escape(key)}:\s*(.+?)\s*$", re.MULTILINE)
+    match = pattern.search(metadata_path.read_text(encoding="utf-8"))
+    if not match:
+        return None
+    return match.group(1).strip()
 
 
 def _assert_variant_files(root: Path, domain: str, variant: str, code_file: str) -> None:
@@ -12,9 +29,26 @@ def _assert_variant_files(root: Path, domain: str, variant: str, code_file: str)
         base = root / "src" / "losses" / variant
     else:
         base = root / "src" / "models" / domain / variant
-    assert (base / "metadata.yaml").exists(), f"Missing metadata for {domain}/{variant}"
-    assert (base / "README.md").exists(), f"Missing README for {domain}/{variant}"
+    metadata_path = base / "metadata.yaml"
+    readme_path = base / "README.md"
+    assert metadata_path.exists(), f"Missing metadata for {domain}/{variant}"
+    assert readme_path.exists(), f"Missing README for {domain}/{variant}"
     assert (base / code_file).exists(), f"Missing code file for {domain}/{variant}"
+
+    evidence_status = _read_metadata_field(metadata_path, "evidence_status")
+    assert evidence_status is not None, f"Missing evidence_status in {metadata_path}"
+    assert evidence_status in _ALLOWED_EVIDENCE_STATUS, (
+        f"Invalid evidence_status={evidence_status!r} in {metadata_path}; "
+        f"expected one of {_ALLOWED_EVIDENCE_STATUS}"
+    )
+
+    readme = readme_path.read_text(encoding="utf-8")
+    for heading in _REQUIRED_README_HEADINGS:
+        assert heading in readme, f"Missing heading {heading!r} in {readme_path}"
+    assert f"- Current: `{evidence_status}`" in readme, (
+        f"README evidence status mismatch in {readme_path}; "
+        f"expected `- Current: `{evidence_status}``"
+    )
 
 
 def test_candidate_losses_have_src_variant_folders():

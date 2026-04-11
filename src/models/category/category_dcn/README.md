@@ -1,11 +1,16 @@
 # category_dcn
 
-Why this?
+## Why This
 - DCN-style category head variant for explicit cross-feature interactions.
 
-Runtime mapping:
+## Runtime Mapping
 - Model registry key: `category_dcn`
 - Runtime class: `models.category.head.DCNHead`
 
-Source:
+
+## Evidence Status
+- Current: `implemented`
+- Last Reviewed: `2026-04-11`
+
+## Sources
 - In-repo implementation: `src/models/category/head.py`

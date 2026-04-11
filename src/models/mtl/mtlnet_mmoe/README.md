@@ -1,13 +1,18 @@
 # mtlnet_mmoe
 
-Why this?
+## Why This
 - MMoE-lite is a strong community baseline for task-routing via shared experts
   with task-specific gates.
 
-Runtime mapping:
+## Runtime Mapping
 - Model registry key: `mtlnet_mmoe`
 - Runtime class: `models.mtl.model.MTLnetMMoE`
 
-Source:
+
+## Evidence Status
+- Current: `implemented`
+- Last Reviewed: `2026-04-11`
+
+## Sources
 - In-repo implementation: `src/models/mtl/model.py`
 - Related literature: MMoE (KDD 2018)

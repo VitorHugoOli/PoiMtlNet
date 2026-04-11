@@ -1,6 +1,7 @@
 name: stch
 domain: losses
 status: implemented
+evidence_status: implemented
 registry_key: stch
 runtime_class: losses.mtl_baselines.STCHLoss
 runtime_file: src/losses/mtl_baselines.py

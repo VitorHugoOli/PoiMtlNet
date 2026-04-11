@@ -1,6 +1,7 @@
 name: category_attention
 domain: category
 status: implemented
+evidence_status: implemented
 registry_key: category_attention
 runtime_class: models.category.head.CategoryHeadAttentionPooling
 runtime_file: src/models/category/head.py
