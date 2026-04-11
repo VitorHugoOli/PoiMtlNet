@@ -7,8 +7,8 @@ from typing import Optional
 
 logger = logging.getLogger(__name__)
 
-from sklearn.metrics import classification_report
 from torch.nn import CrossEntropyLoss
+from torchmetrics.functional.classification import multiclass_f1_score, multiclass_accuracy
 
 from utils.flops import calculate_model_flops
 from utils.mps import clear_mps_cache
@@ -147,26 +147,31 @@ def train_model(model: torch.nn.Module,
 
             steps += 1
 
-        # Single MPS→CPU transfer per epoch for all predictions
-        epoch_next_preds = torch.cat(all_next_preds).cpu().numpy()
-        epoch_next_targets = torch.cat(all_next_targets).cpu().numpy()
-        epoch_cat_preds = torch.cat(all_cat_preds).cpu().numpy()
-        epoch_cat_targets = torch.cat(all_cat_targets).cpu().numpy()
+        # Stay on device — torchmetrics functional API computes metrics
+        # without bulk-transferring per-epoch predictions to CPU.
+        epoch_next_preds = torch.cat(all_next_preds)
+        epoch_next_targets = torch.cat(all_next_targets)
+        epoch_cat_preds = torch.cat(all_cat_preds)
+        epoch_cat_targets = torch.cat(all_cat_targets)
 
-        # Compute metrics once per epoch instead of per batch
-        next_report = classification_report(
-            epoch_next_targets, epoch_next_preds,
-            output_dict=True, zero_division=0
-        )
-        category_report = classification_report(
-            epoch_cat_targets, epoch_cat_preds,
-            output_dict=True, zero_division=0
-        )
-
-        f1_next = next_report['macro avg']['f1-score']
-        f1_category = category_report['macro avg']['f1-score']
-        next_acc = next_report['accuracy']
-        category_acc = category_report['accuracy']
+        # Compute metrics once per epoch (matches the previous sklearn
+        # call site, but on-device with a single .item() sync per metric).
+        f1_next = multiclass_f1_score(
+            epoch_next_preds, epoch_next_targets,
+            num_classes=num_classes, average='macro', zero_division=0,
+        ).item()
+        next_acc = multiclass_accuracy(
+            epoch_next_preds, epoch_next_targets,
+            num_classes=num_classes, average='micro',
+        ).item()
+        f1_category = multiclass_f1_score(
+            epoch_cat_preds, epoch_cat_targets,
+            num_classes=num_classes, average='macro', zero_division=0,
+        ).item()
+        category_acc = multiclass_accuracy(
+            epoch_cat_preds, epoch_cat_targets,
+            num_classes=num_classes, average='micro',
+        ).item()
 
         # Calculate epoch metrics (single sync for losses)
         epoch_loss = running_loss.item() / steps
