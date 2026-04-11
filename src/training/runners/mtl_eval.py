@@ -1,5 +1,5 @@
 import torch
-from sklearn.metrics import classification_report
+from torchmetrics.functional.classification import multiclass_f1_score, multiclass_accuracy
 
 from utils.progress import zip_longest_cycle
 
@@ -31,9 +31,13 @@ def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_c
 
     for data_next, data_cat in zip_longest_cycle(*dataloaders):
         x_next, y_next = data_next
-        x_next, y_next = x_next.to(device, non_blocking=True), y_next.to(device, non_blocking=True)
+        if x_next.device != device:
+            x_next = x_next.to(device, non_blocking=True)
+            y_next = y_next.to(device, non_blocking=True)
         x_category, y_category = data_cat
-        x_category, y_category = x_category.to(device, non_blocking=True), y_category.to(device, non_blocking=True)
+        if x_category.device != device:
+            x_category = x_category.to(device, non_blocking=True)
+            y_category = y_category.to(device, non_blocking=True)
 
         # Forward pass
         cat_out, next_out = model((x_category, x_next))
@@ -51,20 +55,32 @@ def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_c
         truths_cat_list.append(truth_category)
         batchs += 1
 
-    # Single bulk GPU→CPU transfer
+    # Stay on device — torchmetrics functional API computes metrics
+    # without bulk-transferring all predictions to CPU.
     loss = running_loss.item() / batchs
-    all_predictions_next = torch.cat(preds_next_list).cpu().numpy()
-    all_truths_next = torch.cat(truths_next_list).cpu().numpy()
-    all_predictions_category = torch.cat(preds_cat_list).cpu().numpy()
-    all_truths_category = torch.cat(truths_cat_list).cpu().numpy()
+    all_predictions_next = torch.cat(preds_next_list)
+    all_truths_next = torch.cat(truths_next_list)
+    all_predictions_category = torch.cat(preds_cat_list)
+    all_truths_category = torch.cat(truths_cat_list)
 
-    next_report = classification_report(all_truths_next, all_predictions_next, output_dict=True, zero_division=0)
-    category_report = classification_report(all_truths_category, all_predictions_category, output_dict=True, zero_division=0)
+    num_classes = model.num_classes
 
-    f1_next = next_report['macro avg']['f1-score']
-    acc_next = next_report['accuracy']
+    f1_next = multiclass_f1_score(
+        all_predictions_next, all_truths_next,
+        num_classes=num_classes, average='macro', zero_division=0,
+    ).item()
+    acc_next = multiclass_accuracy(
+        all_predictions_next, all_truths_next,
+        num_classes=num_classes, average='micro',
+    ).item()
 
-    f1_category = category_report['macro avg']['f1-score']
-    acc_category = category_report['accuracy']
+    f1_category = multiclass_f1_score(
+        all_predictions_category, all_truths_category,
+        num_classes=num_classes, average='macro', zero_division=0,
+    ).item()
+    acc_category = multiclass_accuracy(
+        all_predictions_category, all_truths_category,
+        num_classes=num_classes, average='micro',
+    ).item()
 
     return acc_next, f1_next, acc_category, f1_category, loss

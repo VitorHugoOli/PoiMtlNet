@@ -84,6 +84,7 @@ def run_cv(
             scheduler,
             DEVICE,
             history=history.get_curr_fold(),
+            num_classes=num_classes,
             epochs=config.epochs,
             max_grad_norm=config.max_grad_norm,
             timeout=config.timeout,

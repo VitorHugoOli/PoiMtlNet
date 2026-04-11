@@ -1,3 +1,11 @@
+import os
+
+# Enable CPU fallback for ops not yet implemented on MPS. This is a no-op
+# on CUDA/CPU; on MPS it lets unsupported ops silently delegate to CPU
+# instead of erroring out — important safety net for transformer kernels.
+# `setdefault` respects any user-provided value.
+os.environ.setdefault('PYTORCH_ENABLE_MPS_FALLBACK', '1')
+
 import torch
 
 DEVICE = torch.device(

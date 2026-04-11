@@ -21,9 +21,12 @@ def validation_best_model(data_next,
         model.eval()
         for batch_next, batch_category in zip_longest_cycle(data_next, data_category):
             x_next, y_next = batch_next
-            x_next, y_next = x_next.to(DEVICE, non_blocking=True), y_next.to(DEVICE, non_blocking=True)
+            if x_next.device != DEVICE:
+                x_next = x_next.to(DEVICE, non_blocking=True)
+                y_next = y_next.to(DEVICE, non_blocking=True)
             x_category, _ = batch_category
-            x_category = x_category.to(DEVICE, non_blocking=True)
+            if x_category.device != DEVICE:
+                x_category = x_category.to(DEVICE, non_blocking=True)
             out_category, out_next = model((x_category, x_next))
             pred_next, truth_next = out_next, y_next
             pred_next_class = torch.argmax(pred_next, dim=1)
@@ -34,9 +37,12 @@ def validation_best_model(data_next,
         model.eval()
         for batch_next, batch_category in zip_longest_cycle(data_next, data_category):
             x_next, _ = batch_next
-            x_next = x_next.to(DEVICE, non_blocking=True)
+            if x_next.device != DEVICE:
+                x_next = x_next.to(DEVICE, non_blocking=True)
             x_category, y_category = batch_category
-            x_category, y_category = x_category.to(DEVICE, non_blocking=True), y_category.to(DEVICE, non_blocking=True)
+            if x_category.device != DEVICE:
+                x_category = x_category.to(DEVICE, non_blocking=True)
+                y_category = y_category.to(DEVICE, non_blocking=True)
             out_category, out_next = model((x_category, x_next))
             pred_category, truth_category = out_category, y_category
             pred_category_class = torch.argmax(pred_category, dim=1)

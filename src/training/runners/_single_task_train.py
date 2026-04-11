@@ -5,8 +5,8 @@ import time
 from typing import Optional, List
 
 import torch
-from sklearn.metrics import f1_score
 from torch import nn
+from torchmetrics.functional.classification import multiclass_f1_score
 from torch.optim import Optimizer
 from torch.optim.lr_scheduler import LRScheduler
 from torch.utils.data import DataLoader
@@ -28,6 +28,7 @@ def train_single_task(
         device: torch.device,
         history: FoldHistory,
         task_name: str,
+        num_classes: int,
         epochs: int = 50,
         max_grad_norm: float = 1.0,
         early_stopping_patience: int = -1,
@@ -41,6 +42,8 @@ def train_single_task(
 
     Args:
         task_name: 'category' or 'next' — used for history logging.
+        num_classes: number of output classes — required for torchmetrics
+            multiclass F1 computation. Must match model output dim.
         compute_train_f1: If True, compute train F1 and track gradient norms.
         diagnostic_class_names: If provided, log per-class F1 diagnostics.
     """
@@ -48,7 +51,6 @@ def train_single_task(
     best_val_f1 = 0.0
     patience_counter = 0
 
-    num_classes = len(diagnostic_class_names) if diagnostic_class_names else 0
     class_labels = list(range(num_classes)) if diagnostic_class_names else []
 
     cb = CallbackList(callbacks)
@@ -97,9 +99,12 @@ def train_single_task(
         train_acc = running_correct.item() / total
 
         if compute_train_f1 and train_preds_list:
-            train_preds = torch.cat(train_preds_list).cpu().numpy()
-            train_targets = torch.cat(train_targets_list).cpu().numpy()
-            train_f1 = f1_score(train_targets, train_preds, average='macro')
+            train_preds = torch.cat(train_preds_list)
+            train_targets = torch.cat(train_targets_list)
+            train_f1 = multiclass_f1_score(
+                train_preds, train_targets,
+                num_classes=num_classes, average='macro', zero_division=0,
+            ).item()
             avg_grad_norm = float(torch.stack(epoch_grad_norms).mean().item()) if epoch_grad_norms else 0.0
         else:
             train_f1 = 0.0
@@ -130,13 +135,19 @@ def train_single_task(
             continue
         val_loss = val_running_loss.item() / val_total
         val_acc = val_running_correct.item() / val_total
-        val_preds = torch.cat(val_preds_list).cpu().numpy()
-        val_targets = torch.cat(val_targets_list).cpu().numpy()
-        val_f1 = f1_score(val_targets, val_preds, average='macro')
+        val_preds = torch.cat(val_preds_list)
+        val_targets = torch.cat(val_targets_list)
+        val_f1 = multiclass_f1_score(
+            val_preds, val_targets,
+            num_classes=num_classes, average='macro', zero_division=0,
+        ).item()
 
         # Per-class F1 diagnostics
         if diagnostic_class_names:
-            per_class = f1_score(val_targets, val_preds, average=None, zero_division=0, labels=class_labels)
+            per_class = multiclass_f1_score(
+                val_preds, val_targets,
+                num_classes=num_classes, average=None, zero_division=0,
+            ).tolist()
             history.log_diagnostic(
                 grad_norm=avg_grad_norm,
                 learning_rate=optimizer.param_groups[0]['lr'],

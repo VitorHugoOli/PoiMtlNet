@@ -7,8 +7,8 @@ from typing import Optional
 
 logger = logging.getLogger(__name__)
 
-from sklearn.metrics import classification_report
 from torch.nn import CrossEntropyLoss
+from torchmetrics.functional.classification import multiclass_f1_score, multiclass_accuracy
 
 from utils.flops import calculate_model_flops
 from utils.mps import clear_mps_cache
@@ -37,6 +37,8 @@ def train_model(model: torch.nn.Module,
                 mtl_criterion,
                 num_epochs,
                 num_classes,
+                shared_parameters: Optional[list] = None,
+                task_specific_parameters: Optional[list] = None,
                 fold_history=FoldHistory.standalone({'next', 'category'}),
                 max_grad_norm: float = 1.0,
                 timeout: Optional[int] = None,
@@ -48,6 +50,14 @@ def train_model(model: torch.nn.Module,
     Train the model with multi-task learning.
     """
     start_time = time.time()
+
+    # Cache parameter group lists once. The shared/task partition is fixed
+    # for the model's lifetime, so generating these per batch (the previous
+    # behaviour) just walks named_parameters() repeatedly to no benefit.
+    if shared_parameters is None:
+        shared_parameters = list(model.shared_parameters())
+    if task_specific_parameters is None:
+        task_specific_parameters = list(model.task_specific_parameters())
 
     # Create progress bar that extends tqdm
     progress = TrainingProgressBar(
@@ -88,18 +98,21 @@ def train_model(model: torch.nn.Module,
         all_next_preds, all_next_targets = [], []
         all_cat_preds, all_cat_targets = [], []
 
-        # Reset gradients at the beginning
-        optimizer.zero_grad(set_to_none=True)
-
         # Iterate over batches with automatic progress tracking
+        # (zero_grad is called inside the loop on every batch — no need to
+        # call it once before the first batch as well)
         for data_next, data_category in progress.iter_epoch():
-            # Move data to device
+            # When the dataset is pre-moved to DEVICE (item #3, MPS path with
+            # num_workers=0), the .to() calls are no-ops. Keep the guards so
+            # the loop still works under a CPU-side dataloader path.
             x_next, y_next = data_next
-            x_next = x_next.to(DEVICE, non_blocking=True)
-            y_next = y_next.to(DEVICE, non_blocking=True)
+            if x_next.device != DEVICE:
+                x_next = x_next.to(DEVICE, non_blocking=True)
+                y_next = y_next.to(DEVICE, non_blocking=True)
             x_category, y_category = data_category
-            x_category = x_category.to(DEVICE, non_blocking=True)
-            y_category = y_category.to(DEVICE, non_blocking=True)
+            if x_category.device != DEVICE:
+                x_category = x_category.to(DEVICE, non_blocking=True)
+                y_category = y_category.to(DEVICE, non_blocking=True)
 
             optimizer.zero_grad(set_to_none=True)
 
@@ -113,8 +126,8 @@ def train_model(model: torch.nn.Module,
             category_loss = category_criterion(pred_category, truth_category)
             loss, _ = mtl_criterion.backward(
                 torch.stack([next_loss, category_loss]),
-                shared_parameters=list(model.shared_parameters()),
-                task_specific_parameters=list(model.task_specific_parameters()),
+                shared_parameters=shared_parameters,
+                task_specific_parameters=task_specific_parameters,
             )
 
             optimizer.step()
@@ -134,26 +147,31 @@ def train_model(model: torch.nn.Module,
 
             steps += 1
 
-        # Single MPS→CPU transfer per epoch for all predictions
-        epoch_next_preds = torch.cat(all_next_preds).cpu().numpy()
-        epoch_next_targets = torch.cat(all_next_targets).cpu().numpy()
-        epoch_cat_preds = torch.cat(all_cat_preds).cpu().numpy()
-        epoch_cat_targets = torch.cat(all_cat_targets).cpu().numpy()
+        # Stay on device — torchmetrics functional API computes metrics
+        # without bulk-transferring per-epoch predictions to CPU.
+        epoch_next_preds = torch.cat(all_next_preds)
+        epoch_next_targets = torch.cat(all_next_targets)
+        epoch_cat_preds = torch.cat(all_cat_preds)
+        epoch_cat_targets = torch.cat(all_cat_targets)
 
-        # Compute metrics once per epoch instead of per batch
-        next_report = classification_report(
-            epoch_next_targets, epoch_next_preds,
-            output_dict=True, zero_division=0
-        )
-        category_report = classification_report(
-            epoch_cat_targets, epoch_cat_preds,
-            output_dict=True, zero_division=0
-        )
-
-        f1_next = next_report['macro avg']['f1-score']
-        f1_category = category_report['macro avg']['f1-score']
-        next_acc = next_report['accuracy']
-        category_acc = category_report['accuracy']
+        # Compute metrics once per epoch (matches the previous sklearn
+        # call site, but on-device with a single .item() sync per metric).
+        f1_next = multiclass_f1_score(
+            epoch_next_preds, epoch_next_targets,
+            num_classes=num_classes, average='macro', zero_division=0,
+        ).item()
+        next_acc = multiclass_accuracy(
+            epoch_next_preds, epoch_next_targets,
+            num_classes=num_classes, average='micro',
+        ).item()
+        f1_category = multiclass_f1_score(
+            epoch_cat_preds, epoch_cat_targets,
+            num_classes=num_classes, average='macro', zero_division=0,
+        ).item()
+        category_acc = multiclass_accuracy(
+            epoch_cat_preds, epoch_cat_targets,
+            num_classes=num_classes, average='micro',
+        ).item()
 
         # Calculate epoch metrics (single sync for losses)
         epoch_loss = running_loss.item() / steps
@@ -268,6 +286,11 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
         # Initialize model via registry
         model = create_model(config.model_name, **config.model_params).to(DEVICE)
 
+        # Cache parameter group lists once per fold (item #2 — avoids
+        # walking named_parameters() on every NashMTL backward call).
+        cached_shared_params = list(model.shared_parameters())
+        cached_task_params = list(model.task_specific_parameters())
+
         # Get dataloaders
         dataloader_next: TaskFoldData = dataloader.next
         dataloader_category: TaskFoldData = dataloader.category
@@ -334,6 +357,8 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             dataloader_next, dataloader_category,
             next_criterion, category_criterion, mtl_criterion,
             config.epochs, num_classes,
+            shared_parameters=cached_shared_params,
+            task_specific_parameters=cached_task_params,
             fold_history=history.get_curr_fold(),
             max_grad_norm=config.max_grad_norm,
             timeout=config.timeout,
