@@ -9,7 +9,10 @@ from embeddings.sphere2vec.model.Sphere2VecModule import (
     get_activation_function,
     contrastive_bce,
 )
-from embeddings.sphere2vec.model.dataset import ContrastiveSpatialDataset
+from embeddings.sphere2vec.model.dataset import (
+    ContrastiveSpatialDataset,
+    FastContrastiveSpatialDataset,
+)
 
 __all__ = [
     "SphereLocationContrastiveModel",
@@ -20,4 +23,5 @@ __all__ = [
     "get_activation_function",
     "contrastive_bce",
     "ContrastiveSpatialDataset",
+    "FastContrastiveSpatialDataset",
 ]

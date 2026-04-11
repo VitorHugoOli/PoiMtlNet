@@ -17,7 +17,10 @@ from embeddings.sphere2vec.model.Sphere2VecModule import (
     SpherePositionEncoder,
     contrastive_bce,
 )
-from embeddings.sphere2vec.model.dataset import ContrastiveSpatialDataset
+from embeddings.sphere2vec.model.dataset import (
+    ContrastiveSpatialDataset,
+    FastContrastiveSpatialDataset,
+)
 
 __all__ = [
     "create_embedding",
@@ -25,5 +28,6 @@ __all__ = [
     "SphereLocationEncoder",
     "SpherePositionEncoder",
     "ContrastiveSpatialDataset",
+    "FastContrastiveSpatialDataset",
     "contrastive_bce",
 ]

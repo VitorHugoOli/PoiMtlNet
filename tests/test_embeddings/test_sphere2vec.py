@@ -268,6 +268,115 @@ class TestContrastiveDatasetEquivalence:
 
 
 # ---------------------------------------------------------------------------
+# 5b. FastContrastiveSpatialDataset — statistical equivalence
+# ---------------------------------------------------------------------------
+
+class TestFastContrastiveDataset:
+    """
+    The vectorized dataset cannot produce a bit-equal sample sequence to the
+    per-item version (the random calls happen in a different order: per-item
+    interleaves coord_i / random / noise / label, whereas the batched version
+    draws all randomness up front). Instead, this test checks that the
+    statistical properties match: same Bernoulli(0.5) positive ratio, same
+    Gaussian noise scale, correct shape/dtype, anchor coords are exact, and
+    when the label is positive the noise is bounded as expected.
+    """
+
+    def _build_pair(self, n_coords: int = 128, pos_radius: float = 0.01, seed: int = 0):
+        from embeddings.sphere2vec.model.dataset import (
+            ContrastiveSpatialDataset,
+            FastContrastiveSpatialDataset,
+        )
+        rng = np.random.default_rng(seed)
+        coords = rng.uniform(low=[25, -125], high=[50, -70], size=(n_coords, 2)).astype(np.float32)
+        slow = ContrastiveSpatialDataset(coords, pos_radius=pos_radius)
+        fast = FastContrastiveSpatialDataset(coords, pos_radius=pos_radius)
+        return coords, slow, fast
+
+    def test_fast_getitems_shape_and_dtype(self):
+        _, _, fast = self._build_pair(n_coords=64)
+        np.random.seed(0)
+        coord_i, coord_j, label = fast.__getitems__(list(range(64)))
+        assert coord_i.shape == (64, 2)
+        assert coord_j.shape == (64, 2)
+        assert label.shape == (64,)
+        assert coord_i.dtype == torch.float32
+        assert coord_j.dtype == torch.float32
+        assert label.dtype == torch.float32
+
+    def test_fast_anchor_coords_are_exact(self):
+        coords, _, fast = self._build_pair(n_coords=128)
+        indices = [3, 17, 42, 99]
+        np.random.seed(0)
+        coord_i, _, _ = fast.__getitems__(indices)
+        for k, idx in enumerate(indices):
+            assert torch.allclose(coord_i[k], torch.from_numpy(coords[idx]))
+
+    def test_fast_positive_negative_ratio(self):
+        # Over many samples, label should average ~0.5
+        _, _, fast = self._build_pair(n_coords=256)
+        np.random.seed(0)
+        all_labels = []
+        for _ in range(20):
+            _, _, lb = fast.__getitems__(list(range(256)))
+            all_labels.append(lb)
+        all_labels = torch.cat(all_labels)
+        ratio = all_labels.mean().item()
+        assert 0.45 < ratio < 0.55, f"positive ratio off: {ratio}"
+
+    def test_fast_positive_noise_within_bounds(self):
+        # When label==1, coord_j ≈ coord_i + small Gaussian noise
+        # Std should be ~pos_radius, and 99.7% of |noise| < 3*pos_radius
+        coords, _, fast = self._build_pair(n_coords=512, pos_radius=0.01)
+        np.random.seed(123)
+        coord_i, coord_j, label = fast.__getitems__(list(range(512)))
+        pos_mask = label.bool()
+        diffs = (coord_j[pos_mask] - coord_i[pos_mask]).numpy()
+        std = diffs.std()
+        # Pos_radius is 0.01, std should be near it
+        assert 0.005 < std < 0.015, f"noise std off: {std}"
+        # 3-sigma bound — allow tiny tail leakage
+        assert (np.abs(diffs) < 0.05).mean() > 0.99
+
+    def test_fast_negative_pairs_are_actual_other_coords(self):
+        # When label==0, coord_j must be a row from the original coords array.
+        coords, _, fast = self._build_pair(n_coords=64, pos_radius=0.01)
+        np.random.seed(7)
+        coord_i, coord_j, label = fast.__getitems__(list(range(64)))
+        coords_set = {tuple(row.tolist()) for row in coord_i.numpy()}
+        coords_full_set = {tuple(row) for row in coords.tolist()}
+        for k in range(64):
+            if label[k] == 0.0:
+                row = tuple(coord_j[k].tolist())
+                assert row in coords_full_set, \
+                    f"negative coord_j[{k}]={row} is not from the source coords"
+
+    def test_fast_dataset_dataloader_integration(self):
+        # End-to-end DataLoader smoke. The fast dataset's __getitems__
+        # returns a fully batched tuple, so we must pair it with a
+        # passthrough collate (same setup as create_embedding does).
+        from torch.utils.data import DataLoader
+        from embeddings.sphere2vec.sphere2vec import _identity_collate
+
+        _, _, fast = self._build_pair(n_coords=200)
+        np.random.seed(0)
+        loader = DataLoader(
+            fast,
+            batch_size=32,
+            shuffle=False,
+            num_workers=0,
+            drop_last=True,
+            collate_fn=_identity_collate,
+        )
+        batches = list(loader)
+        assert len(batches) == 200 // 32
+        for ci, cj, lb in batches:
+            assert ci.shape == (32, 2)
+            assert cj.shape == (32, 2)
+            assert lb.shape == (32,)
+
+
+# ---------------------------------------------------------------------------
 # 6. End-to-end smoke test for create_embedding
 # ---------------------------------------------------------------------------
 
@@ -353,6 +462,7 @@ class TestCreateEmbeddingSmoke:
             num_workers=0,  # required: dataset uses global np.random
             eval_batch_size=8,
             device=torch.device("cpu"),
+            legacy_dataset=False,  # exercise the fast vectorized path
         )
 
         sphere_module.create_embedding(state=state, args=args)
@@ -439,6 +549,7 @@ class TestCreateEmbeddingSmoke:
             seed=42, num_workers=0, eval_batch_size=8,
             device=torch.device("cpu"),
             eval_inference=True,
+            legacy_dataset=False,
         )
         sphere_module.create_embedding(state="evaltest", args=args)
 
@@ -610,6 +721,7 @@ class TestEndToEndPipelineEquivalence:
             pos_radius=pos_radius, seed=seed, num_workers=0,
             eval_batch_size=64, device=torch.device("cpu"),
             eval_inference=False,  # match notebook's train-mode inference
+            legacy_dataset=True,   # required for bit-equality with notebook reference
         )
         sphere_module.create_embedding(state="e2etest", args=args)
         df_mig = pd.read_parquet(embeddings_path)
