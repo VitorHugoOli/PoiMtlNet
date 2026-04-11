@@ -605,3 +605,66 @@ If anything in this plan conflicts with the current state of the code — for in
 The whole point of this plan is speed-only improvements with zero quality change. If at any point during implementation you find that a "safe" change actually moves a metric, revert it, and either document why it's actually a quality change (and defer it) or find a different approach.
 
 Good luck.
+
+---
+
+## 8. Implementation status (updated as work lands)
+
+This section tracks which items from the plan have actually been implemented, validated, and merged. Update it after every PR that touches an item from §2 or §3.
+
+### Section 2 — Safe batch (items #1-#7)
+
+**Status: ✅ ALL DONE — landed in PR #8 (`perf/mtl-speed-batch1`).**
+
+| # | Item | Status | Notes |
+|---|---|---|---|
+| 1 | `num_workers=0` on MPS | ✅ Landed | `src/data/folds.py:_get_num_workers` |
+| 2 | Cache `shared_parameters()` / `task_specific_parameters()` per fold | ✅ Landed | Threaded through `train_model` kwargs in `mtl_cv.py` |
+| 3 | Pre-transfer fold tensors to device | ✅ Landed | `POIDataset` accepts `device=` kwarg; `mtl_cv` / `mtl_eval` / `mtl_validation` `.to()` calls become guarded no-ops |
+| 4 | `PYTORCH_ENABLE_MPS_FALLBACK=1` safety net | ✅ Landed | Set at import time in `src/configs/globals.py` |
+| 5 | Remove dead `zero_grad` | ✅ Landed | One line removed from `mtl_cv.py` epoch loop |
+| 6 | NashMTL on-device norm | ✅ Landed | `src/losses/nash_mtl.py:286-289` |
+| 7 | Dedupe padding mask | ✅ Landed | `MTLnet.forward` computes mask once, passes via new `padding_mask` kwarg to `NextHeadMTL.forward` |
+| **+A** | Causal mask `register_buffer` (extra) | ✅ Landed | `NextHeadMTL.__init__` registers non-persistent buffer; `forward` slices on use |
+| **+B** | task_embedding `weight[i].expand(B, -1)` instead of long-int gather (extra) | ✅ Landed | `src/models/mtlnet.py:193-194` |
+
+**Validation (DGI Alabama 5-fold MTL, post-PR-8 vs pre-PR-8 baseline):**
+
+| Metric | Pre-PR-8 | Post-PR-8 | Δ |
+|---|---|---|---|
+| Wall time | 17.96 min | **14.14 min** | **−21.3%** |
+| Cat F1 mean | 0.4492 | 0.4435 | −0.6 pp ✓ |
+| Cat Acc mean | 53.87 % | 53.46 % | −0.4 pp ✓ |
+| Next F1 mean | 0.2611 | 0.2603 | −0.001 ✓ |
+| Next Acc mean | 36.37 % | 36.88 % | +0.5 pp ✓ |
+
+All metrics within the ±1 pp tolerance from §1.1. Targeted test suite: 242 passed, 36 skipped (matches pre-change). Broader suite: 349 passed, 62 skipped, 0 failures (excluding the pre-existing flaky `test_regression/test_mtl_f1_within_tolerance`).
+
+### Section 3 — Optional optimizations (items #8-#10)
+
+| # | Item | Expected speedup | Status |
+|---|---|---|---|
+| **#8** | PyTorch 2.9.1 → 2.11.0 (with 2.10 fallback) | 5-10% | 📋 **Plan landed in PR #9** (`docs/torch-upgrade-plan` → `plans/torch_211_upgrade.md`). **Execution pending**: see §12 progress checklist in that file. The plan stages it as Path A (torch 2.11) → Path B (torch 2.10) → Path C (dual-venv), with HGI verification promoted to an explicit gate (Gate 6b) to preserve regeneration quality. |
+| **#9** | `torch.compile(model, mode='reduce-overhead')` | 15-40% if it works | ⏸ **Not started**. Should land AFTER #8 for two reasons: (a) torch 2.11 has materially newer MPS compile backend than 2.9.1, so testing on the upgraded torch gives a realistic upper bound; (b) bundling #9 into #8's PR multiplies the blast radius — if Gate 5 fails, you can't tell whether it's torch upgrade numerics or compile graph break. The known clash with NashMTL's manual `torch.autograd.grad(..., retain_graph=True)` per-task pattern (`src/losses/nash_mtl.py:271-277`) is fundamental to the loss design, not a torch version artifact, so it must be addressed regardless of which torch version sits underneath. Recommended approach: env-var-gated (`TORCH_COMPILE=1`) opt-in so the default training path stays unaffected even if compile fails on some configs. |
+| **#10** | Replace `sklearn.classification_report` with `torchmetrics` | 2-5% | ⏸ **Not started**. Smallest payoff, lowest risk. Hot-path metrics in `mtl_cv.py:144-156` and `mtl_eval.py:61-68` are the swap target; keep `sklearn` for the per-class JSON report in `validation_best_model` (called once per fold). Defer until after #8 and #9 land. |
+
+### Follow-up items not in the original plan
+
+Identified during the §8 deep dive — not blocking but worth tracking:
+
+- **`scripts/evaluate.py:141`** — `torch.load(checkpoint_path, map_location=DEVICE)` has no explicit `weights_only=` kwarg. Currently relies on torch 2.9.1's default. Trivial preemptive fix: add `weights_only=True` (safe because saved checkpoints are bare state-dicts per `src/training/callbacks.py:207`). Land alongside #8 if Gate 4 surfaces a warning, otherwise as its own micro-PR.
+- **`scripts/evaluate.py:150-151`** — pre-existing pseudo-bug: passes `x` as both `category_input` and `next_input` in the "simplified forward" path. Not introduced by any optimization, not a blocker, but worth a one-line fix when someone touches that file.
+- **`src/losses/gradnorm.py:24-25`** — uses `torch.autograd.grad(..., create_graph=True)` for higher-order gradients. NOT in the production CV runner today (only active when `mtl_loss="gradnorm"`). Could break under torch 2.11 or 2.12 if higher-order autograd semantics shift; verify on demand, not preemptively.
+
+### Scoreboard
+
+```
+Items 1-7 (safe batch):     7/7 ✅  PR #8 merged → measured -21.3% wall time
+Item +A, +B (extras):       2/2 ✅  PR #8 merged
+Item 8 (torch upgrade):     plan ✅, execution ⏸  PR #9 awaiting merge
+Item 9 (torch.compile):     ⏸ pending #8
+Item 10 (torchmetrics):     ⏸ pending #8 + #9
+─────────────────────────────────────────────────
+Original 10-item plan:      7 done, 1 planned, 2 pending
+Cumulative measured win:    -21.3% on DGI Alabama 5-fold MTL
+```

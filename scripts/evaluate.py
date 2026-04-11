@@ -145,15 +145,33 @@ def main(argv=None) -> None:
 
     # Evaluate
     if task == "mtl":
-        def _cat_fn(model, batch):
-            x, y = batch
-            cat_out, _ = model((x.to(DEVICE), x.to(DEVICE)))  # simplified forward
-            return cat_out
+        # MTLnet exposes per-head entry points (cat_forward / next_forward)
+        # that run only the relevant subgraph — no dummy zero tensors, no
+        # wasted compute on the unused side, and the contract that the two
+        # heads are independent is now expressed on the model class itself
+        # instead of being implicit in eval helper code. See
+        # src/models/mtlnet.py:cat_forward / next_forward.
+        cat_preds, cat_targets = collect_predictions(
+            model, fold.category.val.dataloader, DEVICE,
+            forward_fn=lambda m, x: m.cat_forward(x),
+        )
+        next_preds, next_targets = collect_predictions(
+            model, fold.next.val.dataloader, DEVICE,
+            forward_fn=lambda m, x: m.next_forward(x),
+        )
+        cat_report = build_report(cat_preds, cat_targets)
+        next_report = build_report(next_preds, next_targets)
+        logger.info(
+            "Evaluation report (fold %d, task=mtl, head=category):\n%s",
+            args.fold, cat_report,
+        )
+        logger.info(
+            "Evaluation report (fold %d, task=mtl, head=next):\n%s",
+            args.fold, next_report,
+        )
+        return
 
-        loader = fold.category.val.dataloader
-        preds, targets = collect_predictions(model, loader, DEVICE,
-                                             forward_fn=lambda m, b: m((b[0].to(DEVICE), b[0].to(DEVICE)))[0])
-    elif task == "category":
+    if task == "category":
         loader = fold.category.val.dataloader
         preds, targets = collect_predictions(model, loader, DEVICE)
     else:

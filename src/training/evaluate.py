@@ -48,7 +48,7 @@ def collect_predictions(
         targets_list.append(y_batch)
 
     preds = torch.cat(preds_list).cpu().numpy()
-    targets = torch.cat(targets_list).numpy()
+    targets = torch.cat(targets_list).cpu().numpy()
     return preds, targets
 
 

@@ -170,6 +170,37 @@ class MTLnet(nn.Module):
             layers.append(ResidualBlock(layer_size, dropout))
         return nn.Sequential(*layers)
 
+    def cat_forward(self, category_input: torch.Tensor) -> torch.Tensor:
+        """Run only the category-prediction subgraph.
+
+        Use this when evaluating or doing inference on the category head
+        alone — avoids wasting compute on the next-head subgraph and
+        avoids the dummy-zero indirection that would otherwise be needed
+        to feed a 3D placeholder into MTLnet.forward().
+        """
+        enc_cat = self.category_encoder(category_input)  # [B, shared_size]
+        emb_cat = self.task_embedding.weight[0].expand(enc_cat.size(0), -1)
+        mod_cat = self.film(enc_cat, emb_cat)
+        shared_cat = self.shared_layers(mod_cat)
+        return self.category_poi(shared_cat.squeeze(1)).view(-1, self.num_classes)
+
+    def next_forward(self, next_input: torch.Tensor) -> torch.Tensor:
+        """Run only the next-POI prediction subgraph.
+
+        Use this when evaluating or doing inference on the next head
+        alone. Recomputes the padding mask from the raw sequence positions
+        the same way ``forward()`` does, so behaviour is identical to
+        the next-head output of a full MTLnet.forward() call.
+        """
+        pad_value = InputsConfig.PAD_VALUE
+        next_padding_mask = (next_input.abs().sum(dim=-1) == pad_value)  # (B, seq_len)
+        next_input = next_input.masked_fill(next_padding_mask.unsqueeze(-1), 0)
+        enc_next = self.next_encoder(next_input)  # [B, seq_len, shared_size]
+        emb_next = self.task_embedding.weight[1].expand(enc_next.size(0), -1)
+        mod_next = self.film(enc_next, emb_next)
+        shared_next = self.shared_layers(mod_next)
+        return self.next_poi(shared_next, padding_mask=next_padding_mask)
+
     def forward(
             self,
             inputs: Tuple[torch.Tensor, torch.Tensor]

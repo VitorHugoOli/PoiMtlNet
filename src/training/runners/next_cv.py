@@ -96,7 +96,7 @@ def run_cv(
         model = create_model(config.model_name, **config.model_params).to(DEVICE)
 
         alpha = compute_class_weights(
-            train_loader.dataset.targets.cpu().numpy(), num_classes, DEVICE
+            train_loader.dataset.targets, num_classes, DEVICE
         )
 
         criterion = nn.CrossEntropyLoss(
