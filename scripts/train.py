@@ -3,6 +3,8 @@
 Usage:
     python scripts/train.py --state florida --engine dgi --epochs 1 --folds 1
     python scripts/train.py --state florida --engine dgi --task category
+    python scripts/train.py --state alabama --engine dgi --candidate cgc_equal
+    python scripts/train.py --state alabama --engine dgi --mtl-loss static_weight --category-weight 0.25
     python scripts/train.py --config experiments/configs/mtl_hgi_florida.py
 
 All imports use final Phase 5 canonical paths.
@@ -14,13 +16,18 @@ Notes:
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import importlib.util
+import json
 import logging
 import sys
 from datetime import datetime
 from pathlib import Path
 
-# Ensure src/ is on sys.path when invoked directly.
+# Ensure repo root and src/ are on sys.path when invoked directly.
+_root = str(Path(__file__).resolve().parent.parent)
+if _root not in sys.path:
+    sys.path.insert(0, _root)
 _src = str(Path(__file__).resolve().parent.parent / "src")
 if _src not in sys.path:
     sys.path.insert(0, _src)
@@ -259,9 +266,90 @@ def _parse_args(argv=None) -> argparse.Namespace:
     parser.add_argument(
         "--task",
         type=str,
-        default="mtl",
+        default=None,
         choices=_VALID_TASKS,
-        help="Task type to train (mtl / category / next).",
+        help="Task type to train (mtl / category / next). Defaults to mtl.",
+    )
+    parser.add_argument(
+        "--model",
+        dest="model_name",
+        type=str,
+        default=None,
+        help=(
+            "Registered model name to use. For Phase 1/2 MTL experiments, "
+            "examples are 'mtlnet', 'mtlnet_mmoe', 'mtlnet_cgc', and "
+            "'mtlnet_dselectk'."
+        ),
+    )
+    parser.add_argument(
+        "--candidate",
+        type=str,
+        default=None,
+        help=(
+            "Named MTL candidate from experiments/mtl_candidates.py, e.g. "
+            "equal_weight, baseline_nash, cgc_equal, or cgc_famo. "
+            "Explicit --model, --model-param, --mtl-loss, and "
+            "--mtl-loss-param flags override candidate defaults."
+        ),
+    )
+    parser.add_argument(
+        "--model-param",
+        action="append",
+        default=[],
+        metavar="KEY=VALUE",
+        help=(
+            "Override a model parameter. May be passed multiple times. "
+            "Values are parsed as JSON when possible, so numbers and booleans "
+            "keep their type."
+        ),
+    )
+    parser.add_argument(
+        "--mtl-loss",
+        type=str,
+        default=None,
+        help=(
+            "Registered MTL loss to use, e.g. nash_mtl, equal_weight, "
+            "static_weight, uncertainty_weighting, random_weight, rlw, famo, "
+            "fairgrad, bayesagg_mtl, go4align, excess_mtl, stch, or db_mtl."
+        ),
+    )
+    parser.add_argument(
+        "--mtl-loss-param",
+        action="append",
+        default=[],
+        metavar="KEY=VALUE",
+        help=(
+            "Override an MTL loss parameter. May be passed multiple times. "
+            "Values are parsed as JSON when possible."
+        ),
+    )
+    parser.add_argument(
+        "--category-weight",
+        type=float,
+        default=None,
+        help=(
+            "Convenience parameter for --mtl-loss static_weight. "
+            "Sets the category loss weight; next weight is 1 - category_weight."
+        ),
+    )
+    parser.add_argument(
+        "--gradient-accumulation-steps",
+        type=int,
+        default=None,
+        help="Override gradient accumulation steps.",
+    )
+    parser.add_argument(
+        "--next-target",
+        type=str,
+        choices=("next_category", "next_poi"),
+        default=None,
+        help="Target interface marker for next-task experiments.",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="Random seed override for reproducibility checks.",
     )
     parser.add_argument(
         "--epochs",
@@ -291,6 +379,105 @@ def _parse_args(argv=None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
+def _coerce_cli_value(raw: str):
+    """Parse CLI override values while keeping strings usable."""
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        return raw
+
+
+def _parse_key_value_overrides(items: list[str], option_name: str) -> dict:
+    overrides = {}
+    for item in items or []:
+        if "=" not in item:
+            raise ValueError(f"{option_name} expects KEY=VALUE, got {item!r}")
+        key, raw_value = item.split("=", 1)
+        if not key:
+            raise ValueError(f"{option_name} requires a non-empty key")
+        overrides[key] = _coerce_cli_value(raw_value)
+    return overrides
+
+
+def _apply_cli_overrides(
+    config: ExperimentConfig,
+    args: argparse.Namespace,
+) -> ExperimentConfig:
+    """Apply CLI overrides without creating folds or touching the filesystem."""
+    if args.state is not None:
+        config = dataclasses.replace(config, state=args.state)
+    if args.engine is not None:
+        config = dataclasses.replace(config, embedding_engine=args.engine)
+    if args.task is not None and args.task != config.task_type:
+        config = dataclasses.replace(config, task_type=args.task)
+    if args.epochs is not None:
+        config = dataclasses.replace(config, epochs=args.epochs)
+    if args.next_target is not None:
+        config = dataclasses.replace(config, next_target=args.next_target)
+    if args.seed is not None:
+        config = dataclasses.replace(config, seed=args.seed)
+    if args.gradient_accumulation_steps is not None:
+        if args.gradient_accumulation_steps <= 0:
+            raise ValueError("--gradient-accumulation-steps must be > 0")
+        config = dataclasses.replace(
+            config,
+            gradient_accumulation_steps=args.gradient_accumulation_steps,
+        )
+
+    if args.candidate is not None:
+        if config.task_type != "mtl":
+            raise ValueError("--candidate can only be used with --task mtl")
+        from experiments.mtl_candidates import get_candidate
+
+        try:
+            candidate = get_candidate(args.candidate)
+        except KeyError as exc:
+            raise ValueError(str(exc)) from exc
+        model_params = dict(config.model_params)
+        model_params.update(candidate.model_params)
+        config = dataclasses.replace(
+            config,
+            model_name=candidate.model_name,
+            model_params=model_params,
+            mtl_loss=candidate.mtl_loss,
+            mtl_loss_params=dict(candidate.mtl_loss_params),
+        )
+
+    model_param_overrides = _parse_key_value_overrides(
+        args.model_param, "--model-param"
+    )
+    if args.model_name is not None:
+        config = dataclasses.replace(config, model_name=args.model_name)
+    if model_param_overrides:
+        model_params = dict(config.model_params)
+        model_params.update(model_param_overrides)
+        config = dataclasses.replace(config, model_params=model_params)
+
+    loss_param_overrides = _parse_key_value_overrides(
+        args.mtl_loss_param, "--mtl-loss-param"
+    )
+    if args.mtl_loss is not None:
+        if config.task_type != "mtl":
+            raise ValueError("--mtl-loss can only be used with --task mtl")
+        config = dataclasses.replace(
+            config,
+            mtl_loss=args.mtl_loss,
+            mtl_loss_params={},
+        )
+    if args.category_weight is not None:
+        if config.mtl_loss != "static_weight":
+            raise ValueError(
+                "--category-weight requires --mtl-loss static_weight"
+            )
+        loss_param_overrides["category_weight"] = args.category_weight
+    if loss_param_overrides:
+        loss_params = dict(config.mtl_loss_params)
+        loss_params.update(loss_param_overrides)
+        config = dataclasses.replace(config, mtl_loss_params=loss_params)
+
+    return config
+
+
 def _load_config_from_file(path: str) -> ExperimentConfig:
     """Load ExperimentConfig from a Python file that exports config()."""
     p = Path(path).resolve()
@@ -315,24 +502,20 @@ def main(argv=None) -> None:
                 file=sys.stderr,
             )
             sys.exit(1)
-        factory = _DEFAULT_FACTORIES[args.task]
+        task = args.task or "mtl"
+        factory = _DEFAULT_FACTORIES[task]
         config = factory(
-            name=f"{args.task}_{args.state}_{args.engine}",
+            name=f"{task}_{args.state}_{args.engine}",
             state=args.state,
             embedding_engine=args.engine,
         )
 
     # Apply CLI overrides
-    import dataclasses
-
-    if args.state is not None:
-        config = dataclasses.replace(config, state=args.state)
-    if args.engine is not None:
-        config = dataclasses.replace(config, embedding_engine=args.engine)
-    if args.epochs is not None:
-        config = dataclasses.replace(config, epochs=args.epochs)
-    if args.config is not None and args.task != config.task_type:
-        config = dataclasses.replace(config, task_type=args.task)
+    try:
+        config = _apply_cli_overrides(config, args)
+    except ValueError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        sys.exit(2)
 
     # --folds: limits execution, doesn't change split structure.
     # StratifiedKFold requires n_splits >= 2, so we use max(2, requested).

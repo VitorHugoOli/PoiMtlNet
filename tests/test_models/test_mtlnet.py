@@ -159,3 +159,178 @@ class TestParameterSeparation:
         """Test that shared and task-specific params don't overlap."""
         # TODO: Implement test
         pytest.skip("Not implemented yet")
+
+
+class TestMTLnetCGCLite:
+    """Tests for the sequence-aware CGC-lite MTLnet variant."""
+
+    def test_forward_shapes_and_gate_stats(self):
+        from models.registry import create_model
+
+        model = create_model(
+            "mtlnet_cgc",
+            feature_size=8,
+            shared_layer_size=32,
+            num_classes=7,
+            num_heads=2,
+            num_layers=1,
+            seq_length=3,
+            num_shared_layers=1,
+            num_shared_experts=2,
+            num_task_experts=1,
+        )
+
+        out_cat, out_next = model((
+            torch.randn(4, 1, 8),
+            torch.randn(5, 3, 8),
+        ))
+
+        assert out_cat.shape == (4, 7)
+        assert out_next.shape == (5, 7)
+        assert model.last_gate_stats["category_mean_weights"].shape == (3,)
+        assert model.last_gate_stats["next_mean_weights"].shape == (3,)
+        assert torch.isfinite(model.last_gate_stats["category_entropy"])
+        assert torch.isfinite(model.last_gate_stats["next_entropy"])
+
+    def test_cgc_shared_and_task_parameters_cover_model(self):
+        from models.registry import create_model
+
+        model = create_model(
+            "mtlnet_cgc",
+            feature_size=8,
+            shared_layer_size=32,
+            num_classes=7,
+            num_heads=2,
+            num_layers=1,
+            seq_length=3,
+            num_shared_layers=1,
+            num_shared_experts=2,
+            num_task_experts=1,
+        )
+
+        shared_ids = {id(p) for p in model.shared_parameters()}
+        task_ids = {id(p) for p in model.task_specific_parameters()}
+        all_ids = {id(p) for p in model.parameters()}
+
+        assert shared_ids
+        assert task_ids
+        assert shared_ids & task_ids == set()
+        assert shared_ids | task_ids == all_ids
+
+
+class TestMTLnetMMoELite:
+    """Tests for the sequence-aware MMoE-lite MTLnet variant."""
+
+    def test_forward_shapes_and_gate_stats(self):
+        from models.registry import create_model
+
+        model = create_model(
+            "mtlnet_mmoe",
+            feature_size=8,
+            shared_layer_size=32,
+            num_classes=7,
+            num_heads=2,
+            num_layers=1,
+            seq_length=3,
+            num_shared_layers=1,
+            num_experts=3,
+        )
+
+        out_cat, out_next = model((
+            torch.randn(4, 1, 8),
+            torch.randn(5, 3, 8),
+        ))
+
+        assert out_cat.shape == (4, 7)
+        assert out_next.shape == (5, 7)
+        assert model.last_gate_stats["category_mean_weights"].shape == (3,)
+        assert model.last_gate_stats["next_mean_weights"].shape == (3,)
+        assert torch.isfinite(model.last_gate_stats["category_entropy"])
+        assert torch.isfinite(model.last_gate_stats["next_entropy"])
+
+    def test_mmoe_shared_and_task_parameters_cover_model(self):
+        from models.registry import create_model
+
+        model = create_model(
+            "mtlnet_mmoe",
+            feature_size=8,
+            shared_layer_size=32,
+            num_classes=7,
+            num_heads=2,
+            num_layers=1,
+            seq_length=3,
+            num_shared_layers=1,
+            num_experts=3,
+        )
+
+        shared_ids = {id(p) for p in model.shared_parameters()}
+        task_ids = {id(p) for p in model.task_specific_parameters()}
+        all_ids = {id(p) for p in model.parameters()}
+
+        assert shared_ids
+        assert task_ids
+        assert shared_ids & task_ids == set()
+        assert shared_ids | task_ids == all_ids
+
+
+class TestMTLnetDSelectKLite:
+    """Tests for the sequence-aware DSelect-k-lite MTLnet variant."""
+
+    def test_forward_shapes_and_gate_stats(self):
+        from models.registry import create_model
+
+        model = create_model(
+            "mtlnet_dselectk",
+            feature_size=8,
+            shared_layer_size=32,
+            num_classes=7,
+            num_heads=2,
+            num_layers=1,
+            seq_length=3,
+            num_shared_layers=1,
+            num_experts=4,
+            num_selectors=2,
+            temperature=0.5,
+        )
+
+        out_cat, out_next = model((
+            torch.randn(4, 1, 8),
+            torch.randn(5, 3, 8),
+        ))
+
+        assert out_cat.shape == (4, 7)
+        assert out_next.shape == (5, 7)
+        assert model.last_gate_stats["category_mean_weights"].shape == (4,)
+        assert model.last_gate_stats["next_mean_weights"].shape == (4,)
+        assert model.last_gate_stats["category_selector_weights"].shape == (2,)
+        assert model.last_gate_stats["next_selector_weights"].shape == (2,)
+        assert torch.isfinite(model.last_gate_stats["category_entropy"])
+        assert torch.isfinite(model.last_gate_stats["next_entropy"])
+        assert torch.isfinite(model.last_gate_stats["category_selector_entropy"])
+        assert torch.isfinite(model.last_gate_stats["next_selector_entropy"])
+
+    def test_dselectk_shared_and_task_parameters_cover_model(self):
+        from models.registry import create_model
+
+        model = create_model(
+            "mtlnet_dselectk",
+            feature_size=8,
+            shared_layer_size=32,
+            num_classes=7,
+            num_heads=2,
+            num_layers=1,
+            seq_length=3,
+            num_shared_layers=1,
+            num_experts=4,
+            num_selectors=2,
+            temperature=0.5,
+        )
+
+        shared_ids = {id(p) for p in model.shared_parameters()}
+        task_ids = {id(p) for p in model.task_specific_parameters()}
+        all_ids = {id(p) for p in model.parameters()}
+
+        assert shared_ids
+        assert task_ids
+        assert shared_ids & task_ids == set()
+        assert shared_ids | task_ids == all_ids

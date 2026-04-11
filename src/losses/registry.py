@@ -8,6 +8,19 @@ Usage:
 
 Registered losses:
     nash_mtl   — NashMTL (Nash equilibrium gradient balancing)
+    equal_weight — Equal scalarization for MTL diagnostics
+    static_weight — Fixed next/category scalarization
+    uncertainty_weighting — Homoscedastic uncertainty weighting
+    uw_so      — Soft Optimal Uncertainty weighting
+    random_weight — Random loss weighting with Dirichlet samples
+    rlw        — Alias for random_weight
+    famo       — Fast adaptive multitask optimization-style weighting
+    fairgrad   — Fair resource allocation from gradient interactions
+    bayesagg_mtl — Bayesian uncertainty-inspired gradient aggregation
+    go4align   — Risk-guided task alignment via interaction-aware weighting
+    excess_mtl — Robust excess-risk-based dynamic weighting
+    stch       — Smooth Tchebycheff scalarization
+    db_mtl     — Dual-balancing style log-loss gradient weighting
     focal      — FocalLoss (class-imbalance-aware)
     pcgrad     — PCGrad (projected conflict gradients)
     gradnorm   — GradNormLoss (gradient magnitude balancing)
@@ -42,6 +55,20 @@ def _ensure_registered():
 
     # Import each loss module to trigger registration
     from losses.nash_mtl import NashMTL  # noqa: F401
+    from losses.mtl_baselines import (  # noqa: F401
+        BayesAggMTLLoss,
+        DBMTLLoss,
+        EqualWeightLoss,
+        ExcessMTLLoss,
+        FAMOLoss,
+        FairGradLoss,
+        GO4AlignLoss,
+        RandomWeightLoss,
+        SoftOptimalUncertaintyWeightingLoss,
+        STCHLoss,
+        StaticWeightLoss,
+        UncertaintyWeightingLoss,
+    )
     from losses.focal import FocalLoss  # noqa: F401
     from losses.pcgrad import PCGrad  # noqa: F401
     from losses.gradnorm import GradNormLoss  # noqa: F401
@@ -49,6 +76,21 @@ def _ensure_registered():
 
     # Register them (since the original files don't have decorators)
     _LOSS_REGISTRY.setdefault("nash_mtl", NashMTL)
+    _LOSS_REGISTRY.setdefault("equal_weight", EqualWeightLoss)
+    _LOSS_REGISTRY.setdefault("static_weight", StaticWeightLoss)
+    _LOSS_REGISTRY.setdefault("uncertainty_weighting", UncertaintyWeightingLoss)
+    _LOSS_REGISTRY.setdefault("uw_so", SoftOptimalUncertaintyWeightingLoss)
+    _LOSS_REGISTRY.setdefault("random_weight", RandomWeightLoss)
+    _LOSS_REGISTRY.setdefault("rlw", RandomWeightLoss)
+    _LOSS_REGISTRY.setdefault("famo", FAMOLoss)
+    _LOSS_REGISTRY.setdefault("fairgrad", FairGradLoss)
+    _LOSS_REGISTRY.setdefault("bayesagg_mtl", BayesAggMTLLoss)
+    _LOSS_REGISTRY.setdefault("bayesagg", BayesAggMTLLoss)
+    _LOSS_REGISTRY.setdefault("go4align", GO4AlignLoss)
+    _LOSS_REGISTRY.setdefault("excess_mtl", ExcessMTLLoss)
+    _LOSS_REGISTRY.setdefault("excessmtl", ExcessMTLLoss)
+    _LOSS_REGISTRY.setdefault("stch", STCHLoss)
+    _LOSS_REGISTRY.setdefault("db_mtl", DBMTLLoss)
     _LOSS_REGISTRY.setdefault("focal", FocalLoss)
     _LOSS_REGISTRY.setdefault("pcgrad", PCGrad)
     _LOSS_REGISTRY.setdefault("gradnorm", GradNormLoss)

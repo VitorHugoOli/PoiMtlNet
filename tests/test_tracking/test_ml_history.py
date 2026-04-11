@@ -683,6 +683,69 @@ class TestIntegrationStorage:
         assert 'epoch' in df.columns
         assert len(df) == 3
 
+    def test_mtl_summary_uses_joint_checkpoint_and_labels_diagnostics(self, tmp_path):
+        h = MLHistory('MTLNet', tasks={'next', 'category'}, num_folds=1)
+        h.start()
+        h.set_model_parms(NeuralParams(batch_size=32, num_epochs=3, learning_rate=1e-3))
+
+        fold = h.get_curr_fold()
+        fold.model_task = TaskHistory()
+
+        joint_scores = [0.50, 0.70, 0.65]
+        next_f1 = [0.20, 0.60, 0.90]
+        category_f1 = [0.80, 0.80, 0.40]
+        for epoch, joint in enumerate(joint_scores):
+            fold.model_task.log_val(
+                loss=1.0 - epoch * 0.1,
+                f1=joint,
+                accuracy=0.0,
+                model_state={'epoch': epoch},
+                elapsed_time=float(epoch),
+            )
+            fold.log_val(
+                'next',
+                loss=0.0,
+                accuracy=0.30 + epoch * 0.1,
+                f1=next_f1[epoch],
+                model_state={'epoch': epoch},
+                elapsed_time=float(epoch),
+            )
+            fold.log_val(
+                'category',
+                loss=0.0,
+                accuracy=0.50 + epoch * 0.1,
+                f1=category_f1[epoch],
+                model_state={'epoch': epoch},
+                elapsed_time=float(epoch),
+            )
+
+        for task_name in ('next', 'category'):
+            fold.task(task_name).report = {
+                'macro avg': {
+                    'precision': 0.7,
+                    'recall': 0.6,
+                    'f1-score': 0.65,
+                    'support': 200,
+                }
+            }
+
+        h.step()
+        base = h.storage.save(tmp_path)
+
+        fold_info = json.loads((base / 'folds' / 'fold1_info.json').read_text())
+        assert 'best_epochs' not in fold_info
+        assert fold_info['primary_checkpoint']['selection_metric'] == 'joint_score'
+        assert fold_info['primary_checkpoint']['epoch'] == 1
+        assert fold_info['primary_checkpoint']['joint_score'] == pytest.approx(0.70)
+        assert fold_info['primary_checkpoint']['task_metrics']['next']['f1'] == pytest.approx(0.60)
+        assert fold_info['diagnostic_best_epochs']['next']['epoch'] == 2
+        assert fold_info['diagnostic_best_epochs']['next']['f1'] == pytest.approx(0.90)
+
+        summary = json.loads((base / 'summary' / 'full_summary.json').read_text())
+        assert summary['_selection']['primary'] == 'joint_score'
+        assert summary['next']['f1']['mean'] == pytest.approx(0.60)
+        assert summary['diagnostic_task_best']['next']['f1']['mean'] == pytest.approx(0.90)
+
 
 # ── Group H: Auto-Lifecycle ──────────────────────────────────────────
 

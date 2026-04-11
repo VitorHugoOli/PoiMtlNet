@@ -1,4 +1,5 @@
 import logging
+import math
 import numpy as np
 import torch
 import time
@@ -26,6 +27,112 @@ from training.runners.mtl_eval import evaluate_model
 from training.runners.mtl_validation import validation_best_model
 
 
+def _flatten_task_grads(
+        grads: tuple[Optional[torch.Tensor], ...],
+        parameters: list[torch.nn.Parameter],
+) -> torch.Tensor:
+    flat = []
+    for grad, param in zip(grads, parameters):
+        if grad is None:
+            flat.append(torch.zeros_like(param).reshape(-1))
+        else:
+            flat.append(grad.reshape(-1))
+    if not flat:
+        return torch.empty(0, device=DEVICE)
+    return torch.cat(flat)
+
+
+def _compute_gradient_cosine(
+        losses: torch.Tensor,
+        shared_parameters: list[torch.nn.Parameter],
+) -> tuple[float, float, float]:
+    if not shared_parameters:
+        return float("nan"), 0.0, 0.0
+
+    next_grads = torch.autograd.grad(
+        losses[0],
+        shared_parameters,
+        retain_graph=True,
+        allow_unused=True,
+    )
+    category_grads = torch.autograd.grad(
+        losses[1],
+        shared_parameters,
+        retain_graph=True,
+        allow_unused=True,
+    )
+    next_flat = _flatten_task_grads(next_grads, shared_parameters)
+    category_flat = _flatten_task_grads(category_grads, shared_parameters)
+
+    next_norm = torch.norm(next_flat)
+    category_norm = torch.norm(category_flat)
+    denom = next_norm * category_norm
+    if denom <= 0:
+        return float("nan"), next_norm.item(), category_norm.item()
+
+    cosine = torch.dot(next_flat, category_flat) / denom
+    return cosine.item(), next_norm.item(), category_norm.item()
+
+
+def _get_weighted_loss(
+        mtl_criterion,
+        losses: torch.Tensor,
+        shared_parameters: list[torch.nn.Parameter],
+        task_specific_parameters: list[torch.nn.Parameter],
+        **context,
+) -> tuple[torch.Tensor | None, dict, bool]:
+    if not hasattr(mtl_criterion, "get_weighted_loss"):
+        loss, extra_outputs = mtl_criterion.backward(
+            losses,
+            shared_parameters=shared_parameters,
+            task_specific_parameters=task_specific_parameters,
+            **context,
+        )
+        return loss, extra_outputs, True
+    try:
+        loss, extra_outputs = mtl_criterion.get_weighted_loss(
+            losses=losses,
+            shared_parameters=shared_parameters,
+            task_specific_parameters=task_specific_parameters,
+            **context,
+        )
+        return loss, extra_outputs, False
+    except NotImplementedError:
+        loss, extra_outputs = mtl_criterion.backward(
+            losses,
+            shared_parameters=shared_parameters,
+            task_specific_parameters=task_specific_parameters,
+            **context,
+        )
+        return loss, extra_outputs, True
+
+
+def _pareto_front_indices(points: list[tuple[float, float]]) -> list[int]:
+    front = []
+    for i, (next_f1, cat_f1) in enumerate(points):
+        dominated = False
+        for j, (other_next, other_cat) in enumerate(points):
+            if i == j:
+                continue
+            if (
+                other_next >= next_f1
+                and other_cat >= cat_f1
+                and (other_next > next_f1 or other_cat > cat_f1)
+            ):
+                dominated = True
+                break
+        if not dominated:
+            front.append(i)
+    return front
+
+
+def _criterion_parameters(mtl_criterion) -> list[torch.nn.Parameter]:
+    parameters = getattr(mtl_criterion, "parameters", None)
+    if parameters is None:
+        return []
+    return list(parameters())
+
+
 # Training Function
 def train_model(model: torch.nn.Module,
                 optimizer,
@@ -41,6 +148,7 @@ def train_model(model: torch.nn.Module,
                 task_specific_parameters: Optional[list] = None,
                 fold_history=FoldHistory.standalone({'next', 'category'}),
                 max_grad_norm: float = 1.0,
+                gradient_accumulation_steps: int = 1,
                 timeout: Optional[int] = None,
                 next_target_cutoff: Optional[float] = None,
                 category_target_cutoff: Optional[float] = None,
@@ -84,6 +192,13 @@ def train_model(model: torch.nn.Module,
     if fold_history.model_task is None:
         fold_history.model_task = TaskHistory()
 
+    gradient_accumulation_steps = max(1, int(gradient_accumulation_steps))
+    batches_per_epoch = max(
+        len(dataloader_next.train.dataloader),
+        len(dataloader_category.train.dataloader),
+    )
+    pareto_points: list[tuple[float, float]] = []
+
     # Main training loop
     for epoch_idx in progress:
         model.train()
@@ -101,7 +216,7 @@ def train_model(model: torch.nn.Module,
         # Iterate over batches with automatic progress tracking
         # (zero_grad is called inside the loop on every batch — no need to
         # call it once before the first batch as well)
-        for data_next, data_category in progress.iter_epoch():
+        for batch_idx, (data_next, data_category) in enumerate(progress.iter_epoch()):
             # When the dataset is pre-moved to DEVICE (item #3, MPS path with
             # num_workers=0), the .to() calls are no-ops. Keep the guards so
             # the loop still works under a CPU-side dataloader path.
@@ -113,8 +228,6 @@ def train_model(model: torch.nn.Module,
             if x_category.device != DEVICE:
                 x_category = x_category.to(DEVICE, non_blocking=True)
                 y_category = y_category.to(DEVICE, non_blocking=True)
-
-            optimizer.zero_grad(set_to_none=True)
 
             category_output, next_poi_output = model((x_category, x_next))
 
@@ -129,9 +242,30 @@ def train_model(model: torch.nn.Module,
                 shared_parameters=shared_parameters,
                 task_specific_parameters=task_specific_parameters,
             )
+            if already_backpropagated and group_size > 1:
+                raise TypeError(
+                    f"{mtl_criterion.__class__.__name__} is not compatible with "
+                    "gradient accumulation; use gradient_accumulation_steps=1 "
+                    "or a loss with get_weighted_loss()."
+                )
+            if extra_outputs and "weights" in extra_outputs:
+                epoch_loss_weights = extra_outputs["weights"]
+            if not already_backpropagated:
+                (loss / group_size).backward()
 
-            optimizer.step()
-            scheduler.step()
+            should_step = (
+                ((batch_idx + 1) % gradient_accumulation_steps) == 0
+                or (batch_idx + 1) == batches_per_epoch
+            )
+            if should_step:
+                if max_grad_norm and max_grad_norm > 0:
+                    torch.nn.utils.clip_grad_norm_(
+                        list(model.parameters()) + _criterion_parameters(mtl_criterion),
+                        max_grad_norm,
+                    )
+                optimizer.step()
+                scheduler.step()
+                optimizer.zero_grad(set_to_none=True)
 
             # Accumulate on-device — no .item() sync per batch
             running_loss += loss.detach()
@@ -177,6 +311,7 @@ def train_model(model: torch.nn.Module,
         epoch_loss = running_loss.item() / steps
         epoch_loss_next = next_running_loss.item() / steps
         epoch_loss_category = category_running_loss.item() / steps
+        loss_ratio_next_to_category = epoch_loss_next / max(epoch_loss_category, 1e-8)
 
         progress.set_postfix({
             'loss': f'{epoch_loss:.4f}',
@@ -193,6 +328,28 @@ def train_model(model: torch.nn.Module,
                                loss=epoch_loss_category,
                                f1=f1_category,
                                accuracy=category_acc)
+        diagnostic_payload = {
+            "grad_cosine_shared": epoch_grad_cosine,
+            "grad_norm_next_shared": epoch_next_grad_norm,
+            "grad_norm_category_shared": epoch_category_grad_norm,
+            "loss_ratio_next_to_category": loss_ratio_next_to_category,
+        }
+        if epoch_loss_weights is not None:
+            weights_cpu = epoch_loss_weights.detach().cpu()
+            if len(weights_cpu) >= 2:
+                diagnostic_payload["loss_weight_next"] = float(weights_cpu[0])
+                diagnostic_payload["loss_weight_category"] = float(weights_cpu[1])
+        gate_stats = getattr(model, "last_gate_stats", {})
+        if gate_stats:
+            if "category_entropy" in gate_stats:
+                diagnostic_payload["gate_entropy_category"] = float(
+                    gate_stats["category_entropy"].detach().cpu()
+                )
+            if "next_entropy" in gate_stats:
+                diagnostic_payload["gate_entropy_next"] = float(
+                    gate_stats["next_entropy"].detach().cpu()
+                )
+        fold_history.log_diagnostic(**diagnostic_payload)
 
         # Validation phase with progress tracking
         with progress.validation():
@@ -205,12 +362,33 @@ def train_model(model: torch.nn.Module,
                 DEVICE,
             )
 
-            # Only create state_dict when at least one task improves
+            joint_score = 0.5 * (f1_val_next + f1_val_category)
+            pareto_points.append((f1_val_next, f1_val_category))
+            pareto_front = _pareto_front_indices(pareto_points)
+            fold_history.add_artifact(
+                "pareto_front",
+                [
+                    {
+                        "epoch": idx,
+                        "next_f1": pareto_points[idx][0],
+                        "category_f1": pareto_points[idx][1],
+                    }
+                    for idx in pareto_front
+                ],
+            )
+
+            joint_improved = joint_score > fold_history.model_task.best.best_value
             next_improved = f1_val_next > fold_history.task('next').best.best_value
             cat_improved = f1_val_category > fold_history.task('category').best.best_value
-            state = model.state_dict() if (next_improved or cat_improved) else None
+            state = model.state_dict() if (joint_improved or next_improved or cat_improved) else None
 
-            fold_history.model_task.log_val(loss=loss_val, f1=0, accuracy=0)
+            fold_history.model_task.log_val(
+                loss=loss_val,
+                f1=joint_score,
+                accuracy=0,
+                model_state=state if joint_improved else None,
+                elapsed_time=fold_history.timer.timer(),
+            )
             fold_history.log_val(
                 'next',
                 loss=0,
@@ -241,6 +419,7 @@ def train_model(model: torch.nn.Module,
             metrics={
                 "val_f1_next": f1_val_next,
                 "val_f1_category": f1_val_category,
+                "val_joint_score": joint_score,
                 "val_loss": loss_val,
                 "train_loss": epoch_loss,
                 "train_f1_next": f1_next,
@@ -295,13 +474,22 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
         dataloader_next: TaskFoldData = dataloader.next
         dataloader_category: TaskFoldData = dataloader.category
 
+        mtl_criterion = create_loss(config.mtl_loss, n_tasks=2, device=DEVICE, **config.mtl_loss_params)
+
         optimizer = setup_optimizer(
-            model, config.learning_rate, config.weight_decay, eps=config.optimizer_eps
+            model,
+            config.learning_rate,
+            config.weight_decay,
+            eps=config.optimizer_eps,
+            extra_parameters=_criterion_parameters(mtl_criterion),
         )
         # steps_per_epoch must match zip_longest_cycle() — the longer loader
-        steps_per_epoch = max(
+        batches_per_epoch = max(
             len(dataloader_next.train.dataloader),
             len(dataloader_category.train.dataloader),
+        )
+        steps_per_epoch = math.ceil(
+            batches_per_epoch / max(1, int(config.gradient_accumulation_steps))
         )
         scheduler = setup_scheduler(
             optimizer, config.max_lr, config.epochs,
@@ -317,7 +505,6 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
 
         next_criterion = CrossEntropyLoss(reduction='mean')
         category_criterion = CrossEntropyLoss(reduction='mean')
-        mtl_criterion = create_loss(config.mtl_loss, n_tasks=2, device=DEVICE, **config.mtl_loss_params)
 
         history.set_model_arch(str(model))
 
@@ -361,6 +548,7 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             task_specific_parameters=cached_task_params,
             fold_history=history.get_curr_fold(),
             max_grad_norm=config.max_grad_norm,
+            gradient_accumulation_steps=config.gradient_accumulation_steps,
             timeout=config.timeout,
             next_target_cutoff=config.target_cutoff,
             category_target_cutoff=config.target_cutoff,
@@ -369,11 +557,18 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
 
         # Run final validation
         logger.info("Running final validation...")
+        joint_best_state = history.fold.model_task.best.best_state
+        if not joint_best_state:
+            logger.warning(
+                "No joint best state recorded for fold %d; using current model state.",
+                fold_idx,
+            )
+            joint_best_state = model.state_dict()
         report_next, report_category = validation_best_model(
             dataloader_next.val.dataloader,
             dataloader_category.val.dataloader,
-            history.fold.task('next').best.best_state,
-            history.fold.task('category').best.best_state,
+            joint_best_state,
+            joint_best_state,
             model
         )
 

@@ -12,6 +12,7 @@ from sklearn.utils import compute_class_weight
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import OneCycleLR
 from torch.utils.data import DataLoader
+from typing import Iterable
 
 
 def compute_class_weights(
@@ -52,6 +53,7 @@ def setup_optimizer(
     learning_rate: float,
     weight_decay: float,
     eps: float = 1e-8,
+    extra_parameters: Iterable[torch.nn.Parameter] | None = None,
 ) -> AdamW:
     """Create an AdamW optimizer matching the project's conventions.
 
@@ -60,12 +62,18 @@ def setup_optimizer(
         learning_rate: Base learning rate.
         weight_decay: L2 regularization weight.
         eps: Adam epsilon for numerical stability.
+        extra_parameters: Optional non-model parameters, such as learnable
+            MTL loss weights.
 
     Returns:
         Configured AdamW optimizer.
     """
+    parameters = list(model.parameters())
+    if extra_parameters is not None:
+        parameters.extend(list(extra_parameters))
+
     return AdamW(
-        model.parameters(),
+        parameters,
         lr=learning_rate,
         weight_decay=weight_decay,
         eps=eps,

@@ -38,6 +38,7 @@ class ExperimentConfig:
 
     # --- Training ---
     task_type: str = "mtl"  # "mtl", "category", "next"
+    next_target: str = "next_category"  # reserved for future "next_poi" ranking target
     epochs: int = 50
     batch_size: int = 2048
     learning_rate: float = 1e-4
@@ -79,6 +80,10 @@ class ExperimentConfig:
             raise ValueError(f"learning_rate must be > 0, got {self.learning_rate}")
         if self.k_folds < 2:
             raise ValueError(f"k_folds must be >= 2, got {self.k_folds}")
+        if self.next_target not in {"next_category", "next_poi"}:
+            raise ValueError(
+                f"next_target must be 'next_category' or 'next_poi', got {self.next_target!r}"
+            )
         if self.schema_version != 1:
             raise ValueError(f"Unsupported schema_version: {self.schema_version}")
 

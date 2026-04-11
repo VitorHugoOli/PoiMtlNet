@@ -37,6 +37,15 @@ class TestExperimentConfigBasic:
         with pytest.raises(ValueError, match="Unsupported schema_version"):
             ExperimentConfig(name="t", state="fl", embedding_engine="dgi", schema_version=99)
 
+    def test_bad_next_target_raises(self):
+        with pytest.raises(ValueError, match="next_target"):
+            ExperimentConfig(
+                name="t",
+                state="fl",
+                embedding_engine="dgi",
+                next_target="bad",
+            )
+
 
 class TestExperimentConfigSaveLoad:
     """Round-trip serialization."""
@@ -126,6 +135,7 @@ class TestExperimentConfigFactories:
         assert c.max_lr == 1e-3
         assert c.weight_decay == 0.05
         assert c.gradient_accumulation_steps == 2
+        assert c.next_target == "next_category"
         assert c.max_grad_norm == 1.0
         assert c.use_class_weights is True
         assert c.mtl_loss == "nash_mtl"
@@ -164,6 +174,7 @@ class TestExperimentConfigFactories:
         assert c.max_lr == 1e-2
         assert c.weight_decay == 0.01
         assert c.gradient_accumulation_steps == 1
+        assert c.next_target == "next_category"
         assert c.use_class_weights is True
         assert c.mtl_loss == ""
         assert c.model_name == "next_single"

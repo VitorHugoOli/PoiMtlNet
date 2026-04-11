@@ -267,3 +267,572 @@ class MTLnet(nn.Module):
             )
         )
         )
+
+
+class CGCLiteLayer(nn.Module):
+    """Single-level CGC block with shared and task-specific experts."""
+
+    def __init__(
+        self,
+        layer_size: int,
+        num_shared_layers: int,
+        num_shared_experts: int = 2,
+        num_task_experts: int = 1,
+        dropout: float = 0.15,
+    ):
+        super().__init__()
+        if num_shared_experts < 1:
+            raise ValueError("num_shared_experts must be >= 1")
+        if num_task_experts < 1:
+            raise ValueError("num_task_experts must be >= 1")
+
+        self.num_shared_experts = num_shared_experts
+        self.num_task_experts = num_task_experts
+
+        self.shared_experts = nn.ModuleList(
+            [
+                self._build_expert(layer_size, num_shared_layers, dropout)
+                for _ in range(num_shared_experts)
+            ]
+        )
+        self.category_experts = nn.ModuleList(
+            [
+                self._build_expert(layer_size, num_shared_layers, dropout)
+                for _ in range(num_task_experts)
+            ]
+        )
+        self.next_experts = nn.ModuleList(
+            [
+                self._build_expert(layer_size, num_shared_layers, dropout)
+                for _ in range(num_task_experts)
+            ]
+        )
+
+        gate_outputs = num_shared_experts + num_task_experts
+        self.category_gate = nn.Linear(layer_size, gate_outputs)
+        self.next_gate = nn.Linear(layer_size, gate_outputs)
+        self.last_gate_stats: dict[str, torch.Tensor] = {}
+
+    @staticmethod
+    def _build_expert(layer_size: int, num_blocks: int, dropout: float) -> nn.Sequential:
+        layers = [
+            nn.Linear(layer_size, layer_size),
+            nn.LeakyReLU(),
+            nn.LayerNorm(layer_size),
+            nn.Dropout(dropout),
+        ]
+        for _ in range(num_blocks - 1):
+            layers.append(ResidualBlock(layer_size, dropout))
+        return nn.Sequential(*layers)
+
+    @staticmethod
+    def _gate_entropy(weights: torch.Tensor) -> torch.Tensor:
+        log_weights = torch.log(weights.clamp_min(1e-8))
+        return -(weights * log_weights).sum(dim=-1).mean()
+
+    def _mix(
+        self,
+        x: torch.Tensor,
+        shared_outputs: list[torch.Tensor],
+        task_experts: nn.ModuleList,
+        gate: nn.Linear,
+        task_name: str,
+    ) -> torch.Tensor:
+        task_outputs = [expert(x) for expert in task_experts]
+        expert_outputs = shared_outputs + task_outputs
+        stacked = torch.stack(expert_outputs, dim=-2)
+        weights = torch.softmax(gate(x), dim=-1)
+        mixed = torch.sum(stacked * weights.unsqueeze(-1), dim=-2)
+
+        with torch.no_grad():
+            flat_weights = weights.reshape(-1, weights.size(-1))
+            self.last_gate_stats[f"{task_name}_entropy"] = self._gate_entropy(weights).detach()
+            self.last_gate_stats[f"{task_name}_mean_weights"] = flat_weights.mean(dim=0).detach()
+
+        return mixed
+
+    def forward(
+        self,
+        category_x: torch.Tensor,
+        next_x: torch.Tensor,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        shared_cat = [expert(category_x) for expert in self.shared_experts]
+        shared_next = [expert(next_x) for expert in self.shared_experts]
+
+        category_out = self._mix(
+            category_x, shared_cat, self.category_experts, self.category_gate, "category"
+        )
+        next_out = self._mix(
+            next_x, shared_next, self.next_experts, self.next_gate, "next"
+        )
+        return category_out, next_out
+
+
+class MMoELiteLayer(nn.Module):
+    """Multi-gate mixture-of-experts block for category and next tasks."""
+
+    def __init__(
+        self,
+        layer_size: int,
+        num_shared_layers: int,
+        num_experts: int = 4,
+        dropout: float = 0.15,
+    ):
+        super().__init__()
+        if num_experts < 2:
+            raise ValueError("num_experts must be >= 2")
+
+        self.num_experts = num_experts
+        self.experts = nn.ModuleList(
+            [
+                CGCLiteLayer._build_expert(layer_size, num_shared_layers, dropout)
+                for _ in range(num_experts)
+            ]
+        )
+        self.category_gate = nn.Linear(layer_size, num_experts)
+        self.next_gate = nn.Linear(layer_size, num_experts)
+        self.last_gate_stats: dict[str, torch.Tensor] = {}
+
+    def _mix(
+        self,
+        x: torch.Tensor,
+        expert_outputs: list[torch.Tensor],
+        gate: nn.Linear,
+        task_name: str,
+    ) -> torch.Tensor:
+        stacked = torch.stack(expert_outputs, dim=-2)
+        weights = torch.softmax(gate(x), dim=-1)
+        mixed = torch.sum(stacked * weights.unsqueeze(-1), dim=-2)
+
+        with torch.no_grad():
+            flat_weights = weights.reshape(-1, weights.size(-1))
+            self.last_gate_stats[f"{task_name}_entropy"] = (
+                CGCLiteLayer._gate_entropy(weights).detach()
+            )
+            self.last_gate_stats[f"{task_name}_mean_weights"] = (
+                flat_weights.mean(dim=0).detach()
+            )
+
+        return mixed
+
+    def forward(
+        self,
+        category_x: torch.Tensor,
+        next_x: torch.Tensor,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        shared_cat = [expert(category_x) for expert in self.experts]
+        shared_next = [expert(next_x) for expert in self.experts]
+
+        category_out = self._mix(
+            category_x, shared_cat, self.category_gate, "category"
+        )
+        next_out = self._mix(next_x, shared_next, self.next_gate, "next")
+        return category_out, next_out
+
+
+class DSelectKLiteLayer(nn.Module):
+    """DSelect-k style sparse soft expert selection for category and next tasks."""
+
+    def __init__(
+        self,
+        layer_size: int,
+        num_shared_layers: int,
+        num_experts: int = 4,
+        num_selectors: int = 2,
+        dropout: float = 0.15,
+        temperature: float = 0.5,
+    ):
+        super().__init__()
+        if num_experts < 2:
+            raise ValueError("num_experts must be >= 2")
+        if num_selectors < 1:
+            raise ValueError("num_selectors must be >= 1")
+        if num_selectors > num_experts:
+            raise ValueError("num_selectors must be <= num_experts")
+        if temperature <= 0:
+            raise ValueError("temperature must be > 0")
+
+        self.num_experts = num_experts
+        self.num_selectors = num_selectors
+        self.temperature = float(temperature)
+
+        self.experts = nn.ModuleList(
+            [
+                CGCLiteLayer._build_expert(layer_size, num_shared_layers, dropout)
+                for _ in range(num_experts)
+            ]
+        )
+
+        selector_dim = num_selectors * num_experts
+        self.category_selector = nn.Linear(layer_size, selector_dim)
+        self.next_selector = nn.Linear(layer_size, selector_dim)
+
+        # Global selector mixture per task (k selectors)
+        self.category_selector_weights = nn.Parameter(torch.zeros(num_selectors))
+        self.next_selector_weights = nn.Parameter(torch.zeros(num_selectors))
+
+        self.last_gate_stats: dict[str, torch.Tensor] = {}
+
+    @staticmethod
+    def _entropy_from_probs(probs: torch.Tensor) -> torch.Tensor:
+        log_probs = torch.log(probs.clamp_min(1e-8))
+        return -(probs * log_probs).sum(dim=-1)
+
+    def _mix(
+        self,
+        x: torch.Tensor,
+        expert_outputs: list[torch.Tensor],
+        selector: nn.Linear,
+        selector_weights: torch.nn.Parameter,
+        task_name: str,
+    ) -> torch.Tensor:
+        stacked = torch.stack(expert_outputs, dim=-2)
+
+        selector_logits = selector(x).view(
+            *x.shape[:-1],
+            self.num_selectors,
+            self.num_experts,
+        )
+        selector_expert_probs = torch.softmax(
+            selector_logits / self.temperature,
+            dim=-1,
+        )
+
+        selector_mix = torch.softmax(selector_weights, dim=-1).to(
+            dtype=x.dtype,
+            device=x.device,
+        )
+        selector_view_shape = (1,) * (selector_expert_probs.dim() - 2) + (
+            self.num_selectors,
+            1,
+        )
+        selector_mix = selector_mix.view(selector_view_shape)
+
+        weights = torch.sum(selector_expert_probs * selector_mix, dim=-2)
+        weights = weights / weights.sum(dim=-1, keepdim=True).clamp_min(1e-8)
+        mixed = torch.sum(stacked * weights.unsqueeze(-1), dim=-2)
+
+        with torch.no_grad():
+            flat_weights = weights.reshape(-1, weights.size(-1))
+            self.last_gate_stats[f"{task_name}_entropy"] = (
+                CGCLiteLayer._gate_entropy(weights).detach()
+            )
+            self.last_gate_stats[f"{task_name}_mean_weights"] = (
+                flat_weights.mean(dim=0).detach()
+            )
+            selector_probs = torch.softmax(selector_weights, dim=-1)
+            self.last_gate_stats[f"{task_name}_selector_entropy"] = (
+                self._entropy_from_probs(selector_probs).detach()
+            )
+            self.last_gate_stats[f"{task_name}_selector_weights"] = (
+                selector_probs.detach()
+            )
+
+        return mixed
+
+    def forward(
+        self,
+        category_x: torch.Tensor,
+        next_x: torch.Tensor,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        shared_cat = [expert(category_x) for expert in self.experts]
+        shared_next = [expert(next_x) for expert in self.experts]
+
+        category_out = self._mix(
+            category_x,
+            shared_cat,
+            self.category_selector,
+            self.category_selector_weights,
+            "category",
+        )
+        next_out = self._mix(
+            next_x,
+            shared_next,
+            self.next_selector,
+            self.next_selector_weights,
+            "next",
+        )
+        return category_out, next_out
+
+
+@register_model("mtlnet_cgc")
+class MTLnetCGC(MTLnet):
+    """MTLnet variant that replaces FiLM hard sharing with CGC-lite experts."""
+
+    def __init__(
+        self,
+        feature_size: int,
+        shared_layer_size: int,
+        num_classes: int,
+        num_heads: int,
+        num_layers: int,
+        seq_length: int,
+        num_shared_layers: int,
+        encoder_layer_size: int = 256,
+        num_encoder_layers: int = 2,
+        encoder_dropout: float = 0.1,
+        shared_dropout: float = 0.15,
+        num_shared_experts: int = 2,
+        num_task_experts: int = 1,
+    ):
+        super().__init__(
+            feature_size=feature_size,
+            shared_layer_size=shared_layer_size,
+            num_classes=num_classes,
+            num_heads=num_heads,
+            num_layers=num_layers,
+            seq_length=seq_length,
+            num_shared_layers=num_shared_layers,
+            encoder_layer_size=encoder_layer_size,
+            num_encoder_layers=num_encoder_layers,
+            encoder_dropout=encoder_dropout,
+            shared_dropout=shared_dropout,
+        )
+        del self.task_embedding
+        del self.film
+        del self.shared_layers
+        self.cgc = CGCLiteLayer(
+            layer_size=shared_layer_size,
+            num_shared_layers=num_shared_layers,
+            num_shared_experts=num_shared_experts,
+            num_task_experts=num_task_experts,
+            dropout=shared_dropout,
+        )
+
+    @property
+    def last_gate_stats(self) -> dict[str, torch.Tensor]:
+        return self.cgc.last_gate_stats
+
+    def forward(
+            self,
+            inputs: Tuple[torch.Tensor, torch.Tensor]
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        category_input, next_input = inputs
+
+        pad_value = InputsConfig.PAD_VALUE
+        mask = (next_input.abs().sum(dim=-1) == pad_value)
+        next_input = next_input.masked_fill(mask.unsqueeze(-1), 0)
+
+        enc_cat = self.category_encoder(category_input)
+        enc_next = self.next_encoder(next_input)
+
+        shared_cat, shared_next = self.cgc(enc_cat, enc_next)
+
+        out_cat = self.category_poi(shared_cat.squeeze(1)).view(-1, self.num_classes)
+        out_next = self.next_poi(shared_next)
+
+        return out_cat, out_next
+
+    def shared_parameters(self) -> Iterator[nn.Parameter]:
+        return (
+            p
+            for name, p in self.named_parameters()
+            if "cgc.shared_experts" in name
+        )
+
+    def task_specific_parameters(self) -> Iterator[nn.Parameter]:
+        return (
+            p
+            for name, p in self.named_parameters()
+            if any(
+                key in name
+                for key in (
+                    "category_encoder",
+                    "next_encoder",
+                    "category_poi",
+                    "next_poi",
+                    "cgc.category_experts",
+                    "cgc.next_experts",
+                    "cgc.category_gate",
+                    "cgc.next_gate",
+                )
+            )
+        )
+
+
+@register_model("mtlnet_mmoe")
+class MTLnetMMoE(MTLnet):
+    """MTLnet variant that replaces FiLM hard sharing with MMoE experts."""
+
+    def __init__(
+        self,
+        feature_size: int,
+        shared_layer_size: int,
+        num_classes: int,
+        num_heads: int,
+        num_layers: int,
+        seq_length: int,
+        num_shared_layers: int,
+        encoder_layer_size: int = 256,
+        num_encoder_layers: int = 2,
+        encoder_dropout: float = 0.1,
+        shared_dropout: float = 0.15,
+        num_experts: int = 4,
+    ):
+        super().__init__(
+            feature_size=feature_size,
+            shared_layer_size=shared_layer_size,
+            num_classes=num_classes,
+            num_heads=num_heads,
+            num_layers=num_layers,
+            seq_length=seq_length,
+            num_shared_layers=num_shared_layers,
+            encoder_layer_size=encoder_layer_size,
+            num_encoder_layers=num_encoder_layers,
+            encoder_dropout=encoder_dropout,
+            shared_dropout=shared_dropout,
+        )
+        del self.task_embedding
+        del self.film
+        del self.shared_layers
+        self.mmoe = MMoELiteLayer(
+            layer_size=shared_layer_size,
+            num_shared_layers=num_shared_layers,
+            num_experts=num_experts,
+            dropout=shared_dropout,
+        )
+
+    @property
+    def last_gate_stats(self) -> dict[str, torch.Tensor]:
+        return self.mmoe.last_gate_stats
+
+    def forward(
+            self,
+            inputs: Tuple[torch.Tensor, torch.Tensor]
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        category_input, next_input = inputs
+
+        pad_value = InputsConfig.PAD_VALUE
+        mask = (next_input.abs().sum(dim=-1) == pad_value)
+        next_input = next_input.masked_fill(mask.unsqueeze(-1), 0)
+
+        enc_cat = self.category_encoder(category_input)
+        enc_next = self.next_encoder(next_input)
+
+        shared_cat, shared_next = self.mmoe(enc_cat, enc_next)
+
+        out_cat = self.category_poi(shared_cat.squeeze(1)).view(-1, self.num_classes)
+        out_next = self.next_poi(shared_next)
+
+        return out_cat, out_next
+
+    def shared_parameters(self) -> Iterator[nn.Parameter]:
+        return (
+            p
+            for name, p in self.named_parameters()
+            if "mmoe.experts" in name
+        )
+
+    def task_specific_parameters(self) -> Iterator[nn.Parameter]:
+        return (
+            p
+            for name, p in self.named_parameters()
+            if any(
+                key in name
+                for key in (
+                    "category_encoder",
+                    "next_encoder",
+                    "category_poi",
+                    "next_poi",
+                    "mmoe.category_gate",
+                    "mmoe.next_gate",
+                )
+            )
+        )
+
+
+@register_model("mtlnet_dselectk")
+class MTLnetDSelectK(MTLnet):
+    """MTLnet variant with DSelect-k style sparse expert selection."""
+
+    def __init__(
+        self,
+        feature_size: int,
+        shared_layer_size: int,
+        num_classes: int,
+        num_heads: int,
+        num_layers: int,
+        seq_length: int,
+        num_shared_layers: int,
+        encoder_layer_size: int = 256,
+        num_encoder_layers: int = 2,
+        encoder_dropout: float = 0.1,
+        shared_dropout: float = 0.15,
+        num_experts: int = 4,
+        num_selectors: int = 2,
+        temperature: float = 0.5,
+    ):
+        super().__init__(
+            feature_size=feature_size,
+            shared_layer_size=shared_layer_size,
+            num_classes=num_classes,
+            num_heads=num_heads,
+            num_layers=num_layers,
+            seq_length=seq_length,
+            num_shared_layers=num_shared_layers,
+            encoder_layer_size=encoder_layer_size,
+            num_encoder_layers=num_encoder_layers,
+            encoder_dropout=encoder_dropout,
+            shared_dropout=shared_dropout,
+        )
+        del self.task_embedding
+        del self.film
+        del self.shared_layers
+        self.dselect = DSelectKLiteLayer(
+            layer_size=shared_layer_size,
+            num_shared_layers=num_shared_layers,
+            num_experts=num_experts,
+            num_selectors=num_selectors,
+            dropout=shared_dropout,
+            temperature=temperature,
+        )
+
+    @property
+    def last_gate_stats(self) -> dict[str, torch.Tensor]:
+        return self.dselect.last_gate_stats
+
+    def forward(
+            self,
+            inputs: Tuple[torch.Tensor, torch.Tensor]
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        category_input, next_input = inputs
+
+        pad_value = InputsConfig.PAD_VALUE
+        mask = (next_input.abs().sum(dim=-1) == pad_value)
+        next_input = next_input.masked_fill(mask.unsqueeze(-1), 0)
+
+        enc_cat = self.category_encoder(category_input)
+        enc_next = self.next_encoder(next_input)
+
+        shared_cat, shared_next = self.dselect(enc_cat, enc_next)
+
+        out_cat = self.category_poi(shared_cat.squeeze(1)).view(-1, self.num_classes)
+        out_next = self.next_poi(shared_next)
+
+        return out_cat, out_next
+
+    def shared_parameters(self) -> Iterator[nn.Parameter]:
+        return (
+            p
+            for name, p in self.named_parameters()
+            if "dselect.experts" in name
+        )
+
+    def task_specific_parameters(self) -> Iterator[nn.Parameter]:
+        return (
+            p
+            for name, p in self.named_parameters()
+            if any(
+                key in name
+                for key in (
+                    "category_encoder",
+                    "next_encoder",
+                    "category_poi",
+                    "next_poi",
+                    "dselect.category_selector",
+                    "dselect.next_selector",
+                    "dselect.category_selector_weights",
+                    "dselect.next_selector_weights",
+                )
+            )
+        )

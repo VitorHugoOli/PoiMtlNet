@@ -118,6 +118,7 @@ class NashMTL(WeightMethod):
         self.init_gtg = self.init_gtg = np.eye(self.n_tasks)
         self.step = 0.0
         self.prvs_alpha = np.ones(self.n_tasks, dtype=np.float32)
+        self.solver_failures = 0
 
         # Pick the solver once, fail loudly at construction time if none of
         # the supported solvers are available. The original upstream code
@@ -306,8 +307,7 @@ class NashMTL(WeightMethod):
         else:
             self.step += 1
             alpha = torch.as_tensor(
-                self.prvs_alpha, dtype=losses.dtype, device=losses.device
-            )
+                self.prvs_alpha, dtype=losses.dtype, device=losses.device)
 
         weighted_loss = sum([losses[i] * alpha[i] for i in range(len(alpha))])
         extra_outputs["weights"] = alpha
