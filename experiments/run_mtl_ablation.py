@@ -1,7 +1,6 @@
 """Backward-compatible shim for staged MTL ablation runner.
 
-Canonical script entrypoint lives at ``scripts/run_mtl_ablation.py`` and logic
-lives at ``src/ablation/runner.py``.
+Canonical entrypoint lives at ``scripts/run_mtl_ablation.py``.
 """
 
 import sys
@@ -14,7 +13,7 @@ _src = str(Path(__file__).resolve().parent.parent / "src")
 if _src not in sys.path:
     sys.path.insert(0, _src)
 
-from ablation.runner import main
+from scripts.run_mtl_ablation import main
 
 
 if __name__ == "__main__":

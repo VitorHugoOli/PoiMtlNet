@@ -1,7 +1,7 @@
 """Run staged MTL ablations from the candidate matrix.
 
-The runner launches canonical ``scripts/train.py`` subprocesses, giving every
-candidate its own RESULTS_ROOT so storage folder names cannot collide.
+This module is the execution engine used by the canonical script entrypoint
+(`scripts/run_mtl_ablation.py`).
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ import os
 import subprocess
 import sys
 import time
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -46,6 +46,37 @@ class AblationResult:
     next_f1: float | None = None
     category_f1: float | None = None
     error: str = ""
+
+
+def _default_results_root() -> Path:
+    return _root / "results" / "ablations"
+
+
+def _default_data_root() -> Path:
+    return Path(os.environ.get("DATA_ROOT", "/Users/vitor/Desktop/mestrado/ingred/data"))
+
+
+def _default_output_dir() -> Path:
+    return Path(os.environ.get("OUTPUT_DIR", "/Users/vitor/Desktop/mestrado/ingred/output"))
+
+
+@dataclass(frozen=True)
+class AblationRunConfig:
+    """Execution config for a staged ablation run."""
+
+    state: str = "alabama"
+    engine: str = "dgi"
+    stage: str = "phase1"
+    candidate_names: tuple[str, ...] = ()
+    epochs: int = 10
+    folds: int = 1
+    seed: int | None = None
+    promote_top: int = 0
+    promote_epochs: int = 15
+    promote_folds: int = 2
+    results_root: Path = field(default_factory=_default_results_root)
+    data_root: Path = field(default_factory=_default_data_root)
+    output_dir: Path = field(default_factory=_default_output_dir)
 
 
 def _format_value(value: Any) -> str:
@@ -243,9 +274,113 @@ def _write_manifest(
     path.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
 
-def _parse_args(argv=None):
+def run_ablation(config: AblationRunConfig) -> dict[str, Path | None]:
+    """Execute a staged ablation run and return generated summary paths."""
+    if config.stage not in {"phase1", "phase2", "all"}:
+        raise ValueError(f"Invalid stage: {config.stage!r}")
+    if config.epochs <= 0:
+        raise ValueError("epochs must be > 0")
+    if config.folds <= 0:
+        raise ValueError("folds must be > 0")
+    if config.promote_top < 0:
+        raise ValueError("promote_top must be >= 0")
+    if config.promote_epochs <= 0:
+        raise ValueError("promote_epochs must be > 0")
+    if config.promote_folds <= 0:
+        raise ValueError("promote_folds must be > 0")
+
+    candidates = (
+        tuple(get_candidate(name) for name in tuple(config.candidate_names))
+        if config.candidate_names
+        else iter_candidates(config.stage)
+    )
+
+    seed_suffix = f"_seed{config.seed}" if config.seed is not None else ""
+    label = f"{config.stage}_{config.folds}fold_{config.epochs}ep{seed_suffix}"
+    label_root = config.results_root / label
+    label_root.mkdir(parents=True, exist_ok=True)
+    manifest_path = label_root / "manifest.json"
+    _write_manifest(
+        manifest_path,
+        stage=config.stage,
+        state=config.state,
+        engine=config.engine,
+        epochs=config.epochs,
+        folds=config.folds,
+        seed=config.seed,
+        candidates=candidates,
+    )
+    print(f"[ablation] wrote manifest: {manifest_path}")
+
+    rows = [
+        _run_candidate(
+            candidate,
+            state=config.state,
+            engine=config.engine,
+            epochs=config.epochs,
+            folds=config.folds,
+            seed=config.seed,
+            label_root=label_root,
+            data_root=config.data_root,
+            output_dir=config.output_dir,
+        )
+        for candidate in candidates
+    ]
+    summary_path = label_root / "summary.csv"
+    _write_summary(summary_path, rows)
+    print(f"[ablation] wrote summary: {summary_path}")
+
+    promoted_summary_path: Path | None = None
+    if config.promote_top > 0:
+        promoted_names = _top_candidates(rows, config.promote_top)
+        promoted_candidates = tuple(get_candidate(name) for name in promoted_names)
+        promoted_label = (
+            f"{config.stage}_promoted_{config.promote_folds}fold_"
+            f"{config.promote_epochs}ep{seed_suffix}"
+        )
+        promoted_root = config.results_root / promoted_label
+        promoted_root.mkdir(parents=True, exist_ok=True)
+        promoted_manifest = promoted_root / "manifest.json"
+        _write_manifest(
+            promoted_manifest,
+            stage=f"{config.stage}_promoted",
+            state=config.state,
+            engine=config.engine,
+            epochs=config.promote_epochs,
+            folds=config.promote_folds,
+            seed=config.seed,
+            candidates=promoted_candidates,
+            promoted_from=str(summary_path),
+        )
+        print(f"[ablation] wrote promoted manifest: {promoted_manifest}")
+        print(f"[ablation] promoting: {', '.join(promoted_names)}")
+        promoted_rows = [
+            _run_candidate(
+                candidate,
+                state=config.state,
+                engine=config.engine,
+                epochs=config.promote_epochs,
+                folds=config.promote_folds,
+                seed=config.seed,
+                label_root=promoted_root,
+                data_root=config.data_root,
+                output_dir=config.output_dir,
+            )
+            for candidate in promoted_candidates
+        ]
+        promoted_summary_path = promoted_root / "summary.csv"
+        _write_summary(promoted_summary_path, promoted_rows)
+        print(f"[ablation] wrote promoted summary: {promoted_summary_path}")
+
+    return {
+        "summary": summary_path,
+        "promoted_summary": promoted_summary_path,
+    }
+
+
+def _parse_legacy_args(argv=None):
     parser = argparse.ArgumentParser(
-        description="Run staged MTL ablation candidates.",
+        description="Run staged MTL ablation candidates (legacy parser).",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument("--state", default="alabama")
@@ -277,88 +412,24 @@ def _parse_args(argv=None):
 
 
 def main(argv=None) -> None:
-    args = _parse_args(argv)
-    candidates = (
-        tuple(get_candidate(name) for name in args.candidate)
-        if args.candidate
-        else iter_candidates(args.stage)
-    )
-
-    seed_suffix = f"_seed{args.seed}" if args.seed is not None else ""
-    label = f"{args.stage}_{args.folds}fold_{args.epochs}ep{seed_suffix}"
-    label_root = args.results_root / label
-    label_root.mkdir(parents=True, exist_ok=True)
-    manifest_path = label_root / "manifest.json"
-    _write_manifest(
-        manifest_path,
-        stage=args.stage,
+    """Legacy CLI entrypoint for compatibility shims."""
+    args = _parse_legacy_args(argv)
+    config = AblationRunConfig(
         state=args.state,
         engine=args.engine,
+        stage=args.stage,
+        candidate_names=tuple(args.candidate),
         epochs=args.epochs,
         folds=args.folds,
         seed=args.seed,
-        candidates=candidates,
+        promote_top=args.promote_top,
+        promote_epochs=args.promote_epochs,
+        promote_folds=args.promote_folds,
+        results_root=args.results_root,
+        data_root=args.data_root,
+        output_dir=args.output_dir,
     )
-    print(f"[ablation] wrote manifest: {manifest_path}")
-
-    rows = [
-        _run_candidate(
-            candidate,
-            state=args.state,
-            engine=args.engine,
-            epochs=args.epochs,
-            folds=args.folds,
-            seed=args.seed,
-            label_root=label_root,
-            data_root=args.data_root,
-            output_dir=args.output_dir,
-        )
-        for candidate in candidates
-    ]
-    summary_path = label_root / "summary.csv"
-    _write_summary(summary_path, rows)
-    print(f"[ablation] wrote summary: {summary_path}")
-
-    if args.promote_top > 0:
-        promoted_names = _top_candidates(rows, args.promote_top)
-        promoted_candidates = tuple(get_candidate(name) for name in promoted_names)
-        promoted_label = (
-            f"{args.stage}_promoted_{args.promote_folds}fold_"
-            f"{args.promote_epochs}ep{seed_suffix}"
-        )
-        promoted_root = args.results_root / promoted_label
-        promoted_root.mkdir(parents=True, exist_ok=True)
-        promoted_manifest = promoted_root / "manifest.json"
-        _write_manifest(
-            promoted_manifest,
-            stage=f"{args.stage}_promoted",
-            state=args.state,
-            engine=args.engine,
-            epochs=args.promote_epochs,
-            folds=args.promote_folds,
-            seed=args.seed,
-            candidates=promoted_candidates,
-            promoted_from=str(summary_path),
-        )
-        print(f"[ablation] wrote promoted manifest: {promoted_manifest}")
-        print(f"[ablation] promoting: {', '.join(promoted_names)}")
-        promoted_rows = [
-            _run_candidate(
-                candidate,
-                state=args.state,
-                engine=args.engine,
-                epochs=args.promote_epochs,
-                folds=args.promote_folds,
-                seed=args.seed,
-                label_root=promoted_root,
-                data_root=args.data_root,
-                output_dir=args.output_dir,
-            )
-            for candidate in promoted_candidates
-        ]
-        promoted_summary = promoted_root / "summary.csv"
-        _write_summary(promoted_summary, promoted_rows)
-        print(f"[ablation] wrote promoted summary: {promoted_summary}")
+    run_ablation(config)
 
 
 if __name__ == "__main__":
