@@ -28,6 +28,7 @@ from configs.experiment import ExperimentConfig
 from configs.globals import CATEGORIES_MAP
 from configs.paths import EmbeddingEngine, IoPaths
 from data.folds import FoldCreator, TaskType
+from training.callbacks import ModelCheckpoint
 from utils.seed import seed_everything
 from tracking import DatasetHistory, MLHistory
 
@@ -39,6 +40,32 @@ logger = logging.getLogger(__name__)
 
 _VALID_TASKS = ("mtl", "category", "next")
 _VALID_ENGINES = [e.value for e in EmbeddingEngine]
+
+
+def _default_checkpoint_callbacks(
+    results_path: Path,
+    monitor: str,
+    task: str,
+) -> list:
+    """Build the default callback list for a runner.
+
+    Saves best-so-far model weights (by ``monitor``) to a per-invocation
+    timestamped subdir under ``<results_path>/checkpoints/``. The seconds
+    precision in the directory name guarantees concurrent runs do not
+    overwrite each other's checkpoints. Required so ``scripts/evaluate.py``
+    has something to load after training.
+    """
+    from datetime import datetime
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    ckpt_dir = Path(results_path) / "checkpoints" / f"{task}_{ts}"
+    return [
+        ModelCheckpoint(
+            save_dir=ckpt_dir,
+            monitor=monitor,
+            mode="max",
+            save_best_only=True,
+        )
+    ]
 
 
 # ---------------------------------------------------------------------------
@@ -77,6 +104,9 @@ def _run_mtl(config: ExperimentConfig, results_path: Path, fold_results: dict) -
             history=history,
             config=config,
             results_path=results_path,
+            callbacks=_default_checkpoint_callbacks(
+                results_path, monitor="val_f1_category", task="mtl",
+            ),
         )
 
     return results
@@ -111,7 +141,13 @@ def _run_category(config: ExperimentConfig, results_path: Path, fold_results: di
     )
 
     with history:
-        results = run_cv(history, folds, config, results_path=results_path)
+        results = run_cv(
+            history, folds, config,
+            results_path=results_path,
+            callbacks=_default_checkpoint_callbacks(
+                results_path, monitor="val_f1", task="category",
+            ),
+        )
 
     history.display.end_training()
     return results
@@ -146,7 +182,13 @@ def _run_next(config: ExperimentConfig, results_path: Path, fold_results: dict) 
     )
 
     with history:
-        results = run_cv(history, folds, config, results_path=results_path)
+        results = run_cv(
+            history, folds, config,
+            results_path=results_path,
+            callbacks=_default_checkpoint_callbacks(
+                results_path, monitor="val_f1", task="next",
+            ),
+        )
 
     history.display.end_training()
     return results

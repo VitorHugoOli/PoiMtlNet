@@ -1,6 +1,18 @@
 import logging
 from statistics import mean, stdev
-from typing import Dict, Optional, TYPE_CHECKING
+from typing import Dict, Optional, Sequence, TYPE_CHECKING
+
+
+def _safe_stdev(xs: Sequence[float]) -> float:
+    """stdev() that returns 0.0 for a single data point instead of raising.
+
+    Needed because `--folds 1` runs produce single-element metric lists, and
+    `statistics.stdev` hard-errors with `StatisticsError: stdev requires at
+    least two data points`. A single observation has no sample dispersion, so
+    0.0 is the meaningful value to display.
+    """
+    return stdev(xs) if len(xs) > 1 else 0.0
+
 
 if TYPE_CHECKING:
     from tracking.experiment import MLHistory
@@ -185,9 +197,9 @@ class HistoryDisplay:
                     if cls in ('accuracy', 'weighted avg'):
                         continue
                     final_report[cls] = {
-                        'precision': f"{(mean(arrs['precision'])*100):.2f} ± {(stdev(arrs['precision'])*100):.2f}",
-                        'recall': f"{(mean(arrs['recall'])*100):.2f} ± {(stdev(arrs['recall'])*100):.2f}",
-                        'f1-score': f"{(mean(arrs['f1-score'])*100):.2f} ± {(stdev(arrs['f1-score'])*100):.2f}",
+                        'precision': f"{(mean(arrs['precision'])*100):.2f} ± {(_safe_stdev(arrs['precision'])*100):.2f}",
+                        'recall': f"{(mean(arrs['recall'])*100):.2f} ± {(_safe_stdev(arrs['recall'])*100):.2f}",
+                        'f1-score': f"{(mean(arrs['f1-score'])*100):.2f} ± {(_safe_stdev(arrs['f1-score'])*100):.2f}",
                         'support': sum(arrs['support']),
                     }
 
