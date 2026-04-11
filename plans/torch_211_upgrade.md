@@ -568,7 +568,7 @@ Mixing any of these into this PR multiplies the blast radius and makes failure a
 2. **`torchmetrics`, `pytorch-lightning`, `transformers`, `accelerate` bumps** — separate compatibility surfaces.
 3. **Regenerating any embedding parquet** — existing files are still valid inputs to MTL training.
 4. **Pre-existing flaky `test_regression/test_mtl_f1_within_tolerance`** — known to fail on this hardware on `main`.
-5. **Pre-existing pseudo-bug at `scripts/evaluate.py:150-151`** — passes `x` as both category and next inputs in the "simplified forward" path. Not introduced by, not a blocker for, the upgrade.
+5. ~~Pre-existing pseudo-bug at `scripts/evaluate.py:150-151` — passes `x` as both category and next inputs in the "simplified forward" path.~~ **Fixed during PR #9 follow-up** — the MTL eval branch now evaluates BOTH heads via shape-correct dummy inputs (cat-eval feeds a real category batch + a zero next-tensor of the right `(B, seq, embed)` shape; next-eval mirrors this). Both heads' reports render. The two heads are fully independent inside `MTLnet.forward()` (encoders, FiLM, shared layers, and heads all run on each task tensor separately — see `src/models/mtlnet.py:173-214`), so passing zeros on the unused side is numerically safe.
 6. **Building `torch_cluster`/`torch_scatter`/`torch_sparse` from source** (rejected alternative in §3) — defer indefinitely.
 7. **Enabling MPS AMP for any embedding engine** — `check2hgi/check2hgi.py:48-54` correctly disables AMP on MPS due to NaN issues with scatter/softmax in float16; do not change.
 8. **Fixing `gradnorm.py` `create_graph=True` ahead of need** — not in production runner.

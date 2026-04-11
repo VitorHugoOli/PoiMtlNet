@@ -145,15 +145,66 @@ def main(argv=None) -> None:
 
     # Evaluate
     if task == "mtl":
-        def _cat_fn(model, batch):
-            x, y = batch
-            cat_out, _ = model((x.to(DEVICE), x.to(DEVICE)))  # simplified forward
-            return cat_out
+        # MTLnet.forward expects (category_input, next_input) where the
+        # category input is 2D (B, feature_size) and the next input is 3D
+        # (B, seq_length, feature_size). The two heads are fully independent
+        # inside forward() — encoders, FiLM modulation, shared layers, and
+        # the heads themselves are computed on each task tensor separately
+        # (see src/models/mtlnet.py:173-214) — so passing a zero-tensor
+        # dummy on the unused side is numerically safe and only affects the
+        # output of the dummy side, which we discard.
+        #
+        # We sample one real batch from each loader to capture the exact
+        # tensor shapes the model was trained against, then evaluate each
+        # head over its own validation loader with shape-correct dummies on
+        # the other side.
+        cat_sample = next(iter(fold.category.val.dataloader))[0]
+        next_sample = next(iter(fold.next.val.dataloader))[0]
+        feature_size = cat_sample.shape[-1]
+        seq_length = next_sample.shape[1]
 
-        loader = fold.category.val.dataloader
-        preds, targets = collect_predictions(model, loader, DEVICE,
-                                             forward_fn=lambda m, b: m((b[0].to(DEVICE), b[0].to(DEVICE)))[0])
-    elif task == "category":
+        # collect_predictions() iterates the loader, unpacks (X_batch, y_batch),
+        # transfers X_batch to device, then calls forward_fn(model, X_batch).
+        # So `batch` here is ALREADY the input tensor — not a (X, y) tuple.
+        # Indexing batch[0] would slice into the first sample, which is the
+        # exact bug the original simplified-forward path had.
+        def _mtl_cat_forward(model, cat_x):
+            next_dummy = torch.zeros(
+                cat_x.size(0), seq_length, feature_size,
+                dtype=cat_x.dtype, device=DEVICE,
+            )
+            out_cat, _ = model((cat_x, next_dummy))
+            return out_cat
+
+        def _mtl_next_forward(model, next_x):
+            cat_dummy = torch.zeros(
+                next_x.size(0), feature_size,
+                dtype=next_x.dtype, device=DEVICE,
+            )
+            _, out_next = model((cat_dummy, next_x))
+            return out_next
+
+        cat_preds, cat_targets = collect_predictions(
+            model, fold.category.val.dataloader, DEVICE,
+            forward_fn=_mtl_cat_forward,
+        )
+        next_preds, next_targets = collect_predictions(
+            model, fold.next.val.dataloader, DEVICE,
+            forward_fn=_mtl_next_forward,
+        )
+        cat_report = build_report(cat_preds, cat_targets)
+        next_report = build_report(next_preds, next_targets)
+        logger.info(
+            "Evaluation report (fold %d, task=mtl, head=category):\n%s",
+            args.fold, cat_report,
+        )
+        logger.info(
+            "Evaluation report (fold %d, task=mtl, head=next):\n%s",
+            args.fold, next_report,
+        )
+        return
+
+    if task == "category":
         loader = fold.category.val.dataloader
         preds, targets = collect_predictions(model, loader, DEVICE)
     else:
