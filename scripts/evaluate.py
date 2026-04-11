@@ -145,52 +145,19 @@ def main(argv=None) -> None:
 
     # Evaluate
     if task == "mtl":
-        # MTLnet.forward expects (category_input, next_input) where the
-        # category input is 2D (B, feature_size) and the next input is 3D
-        # (B, seq_length, feature_size). The two heads are fully independent
-        # inside forward() — encoders, FiLM modulation, shared layers, and
-        # the heads themselves are computed on each task tensor separately
-        # (see src/models/mtlnet.py:173-214) — so passing a zero-tensor
-        # dummy on the unused side is numerically safe and only affects the
-        # output of the dummy side, which we discard.
-        #
-        # We sample one real batch from each loader to capture the exact
-        # tensor shapes the model was trained against, then evaluate each
-        # head over its own validation loader with shape-correct dummies on
-        # the other side.
-        cat_sample = next(iter(fold.category.val.dataloader))[0]
-        next_sample = next(iter(fold.next.val.dataloader))[0]
-        feature_size = cat_sample.shape[-1]
-        seq_length = next_sample.shape[1]
-
-        # collect_predictions() iterates the loader, unpacks (X_batch, y_batch),
-        # transfers X_batch to device, then calls forward_fn(model, X_batch).
-        # So `batch` here is ALREADY the input tensor — not a (X, y) tuple.
-        # Indexing batch[0] would slice into the first sample, which is the
-        # exact bug the original simplified-forward path had.
-        def _mtl_cat_forward(model, cat_x):
-            next_dummy = torch.zeros(
-                cat_x.size(0), seq_length, feature_size,
-                dtype=cat_x.dtype, device=DEVICE,
-            )
-            out_cat, _ = model((cat_x, next_dummy))
-            return out_cat
-
-        def _mtl_next_forward(model, next_x):
-            cat_dummy = torch.zeros(
-                next_x.size(0), feature_size,
-                dtype=next_x.dtype, device=DEVICE,
-            )
-            _, out_next = model((cat_dummy, next_x))
-            return out_next
-
+        # MTLnet exposes per-head entry points (cat_forward / next_forward)
+        # that run only the relevant subgraph — no dummy zero tensors, no
+        # wasted compute on the unused side, and the contract that the two
+        # heads are independent is now expressed on the model class itself
+        # instead of being implicit in eval helper code. See
+        # src/models/mtlnet.py:cat_forward / next_forward.
         cat_preds, cat_targets = collect_predictions(
             model, fold.category.val.dataloader, DEVICE,
-            forward_fn=_mtl_cat_forward,
+            forward_fn=lambda m, x: m.cat_forward(x),
         )
         next_preds, next_targets = collect_predictions(
             model, fold.next.val.dataloader, DEVICE,
-            forward_fn=_mtl_next_forward,
+            forward_fn=lambda m, x: m.next_forward(x),
         )
         cat_report = build_report(cat_preds, cat_targets)
         next_report = build_report(next_preds, next_targets)

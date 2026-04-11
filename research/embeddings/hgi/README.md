@@ -20,6 +20,48 @@ This module implements the complete HGI pipeline for generating POI and region e
 10. [Performance Notes](#performance-notes)
 11. [Test Suite](#test-suite)
 12. [File Structure](#file-structure)
+13. [⚠️ Smoke Testing Hazard](#️-smoke-testing-hazard)
+
+---
+
+## ⚠️ Smoke Testing Hazard
+
+> **Read this BEFORE running `pipelines/embedding/hgi.pipe.py` for any reason that is not a full production regeneration.**
+
+`pipelines/embedding/hgi.pipe.py` has `force_preprocess=True` baked into `HGI_CONFIG` and writes its outputs **unconditionally** into `output/hgi/<state>/` (and the downstream `input/category.parquet` + `input/next.parquet`). The pipeline does **not** read the existing artifacts before overwriting them — there is no "skip if up to date" check.
+
+**This means a 3-epoch smoke run will silently overwrite a 2000-epoch production-quality artifact**, and the only recovery is restoring from a backup. This was hit during the torch 2.11 upgrade (PR #9, Gate 6b) — the worktree's `output/` was a symlink into the main repo, so a 3-epoch smoke clobbered the real Alabama HGI embeddings. Recovery required `rsync` from a sibling worktree that happened to have an intact non-symlinked copy.
+
+### Before running ANY HGI smoke test, do ONE of these
+
+1. **Snapshot the existing output** (cheapest, always safe):
+   ```bash
+   cp -a output/hgi/<state> output/hgi/<state>.backup-$(date +%Y%m%d_%H%M%S)
+   ```
+   Restore with `rsync -a --delete <backup>/ output/hgi/<state>/` after the smoke.
+
+2. **Override the output root** so artifacts land somewhere disposable:
+   ```bash
+   DATA_ROOT=/tmp/hgi_smoke_$(date +%s) python pipelines/embedding/hgi.pipe.py
+   ```
+   This works because `src/configs/paths.py` respects `$DATA_ROOT`. The smoke writes into `/tmp/hgi_smoke_*/hgi/<state>/` and never touches the real `output/`.
+
+3. **Edit `STATES` in `hgi.pipe.py` to a state that does not exist on disk yet** (e.g. a state you have never regenerated). The pipeline still writes, but to a fresh path with no preexisting artifact to clobber.
+
+### What is "smoke testing" in this context?
+
+Any of the following count as a smoke test that needs the precaution above:
+
+- Running `python pipelines/embedding/hgi.pipe.py` with shortened epoch counts (`HGI_CONFIG.epoch=3`, `poi2vec_epochs=3`) just to verify the code path works — e.g. after a torch upgrade.
+- Verifying that `Node2Vec.random_walk` (`torch_cluster`) works after a dependency bump.
+- Validating that GCNConv / SetTransformer numerics behave on a new device or driver.
+- Anything where you `Ctrl+C` after one epoch.
+
+**Full production regeneration** (the only time it's safe to run with the default 2000-epoch config and the real `output/` path) is when you actually want to replace the current artifacts with a fresh, fully-trained set — and even then, take a snapshot first so you can roll back if metrics regress.
+
+### Why isn't `force_preprocess=False` the default?
+
+It currently has to be `True` because the pipeline depends on intermediate files (`temp/edges.csv`, `temp/pois.csv`, `temp/gowalla.pt`) being regenerated when the upstream POI source changes. Adding a hash-based "skip if unchanged" check is a real refactor (intermediate file content depends on `boroughs_area.csv` + the POI parquet + the shapefile, all of which would need fingerprinting). Until that refactor lands, the snapshot/`DATA_ROOT` discipline above is the only safety net.
 
 ---
 

@@ -4,6 +4,8 @@ Deduplicates compute_class_weights / setup_optimizer / setup_fold patterns
 that were copy-pasted across category, next, and MTL cross-validation files.
 """
 
+from typing import Union
+
 import numpy as np
 import torch
 from sklearn.utils import compute_class_weight
@@ -13,7 +15,7 @@ from torch.utils.data import DataLoader
 
 
 def compute_class_weights(
-    targets: np.ndarray,
+    targets: Union[np.ndarray, torch.Tensor],
     num_classes: int,
     device: torch.device,
 ) -> torch.Tensor:
@@ -21,14 +23,25 @@ def compute_class_weights(
 
     Uses sklearn's 'balanced' mode: n_samples / (n_classes * bincount).
 
+    Accepts either a numpy array or a ``torch.Tensor`` (any device).
+    Tensors are routed through ``.cpu().numpy()`` exactly once at this
+    boundary — sklearn requires CPU numpy and several call sites have
+    targets pre-loaded onto MPS by PR #8's on-device-tensor optimization.
+    Centralizing the conversion here means future call sites cannot
+    silently re-introduce the ``can't convert mps:0 device type tensor
+    to numpy`` bug.
+
     Args:
-        targets: 1D numpy array of integer class labels.
+        targets: 1D class labels. Either ``np.ndarray`` or ``torch.Tensor``
+            (CPU/MPS/CUDA — handled transparently).
         num_classes: Total number of classes.
-        device: Device to place the weight tensor on.
+        device: Device to place the resulting weight tensor on.
 
     Returns:
         Float32 tensor of shape (num_classes,) on the given device.
     """
+    if isinstance(targets, torch.Tensor):
+        targets = targets.detach().cpu().numpy()
     cls = np.arange(num_classes)
     weights = compute_class_weight('balanced', classes=cls, y=targets)
     return torch.tensor(weights, dtype=torch.float32, device=device)

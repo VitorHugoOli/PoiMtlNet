@@ -17,6 +17,7 @@ import argparse
 import importlib.util
 import logging
 import sys
+from datetime import datetime
 from pathlib import Path
 
 # Ensure src/ is on sys.path when invoked directly.
@@ -42,34 +43,48 @@ _VALID_TASKS = ("mtl", "category", "next")
 _VALID_ENGINES = [e.value for e in EmbeddingEngine]
 
 
-def _default_checkpoint_callbacks(
-    results_path: Path,
-    monitor: str,
-    task: str,
-    config: ExperimentConfig,
-) -> list:
+def _make_run_dir(results_path: Path, task: str, config: ExperimentConfig) -> Path:
+    """Create a per-invocation run directory and persist its config.
+
+    Returns a unique subdirectory under ``<results_path>/checkpoints/`` named
+    ``<task>_<timestamp>`` with the run's ``config.json`` already written
+    inside it. The timestamp format is ``%Y%m%d_%H%M%S_<pid>`` so two runs
+    of the same task started in the same second cannot collide
+    (a sub-second resolution alone would still race; appending the PID
+    is a cheap absolute guarantee).
+
+    Saving the config here (before training starts) means the canonical
+    per-run config record is preserved even if training crashes mid-fold.
+    ``scripts/evaluate.py`` auto-discovers the file via ``parent /
+    config.json`` (see ``scripts/evaluate.py`` config-discovery loop).
+    """
+    import os
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    run_dir = Path(results_path) / "checkpoints" / f"{task}_{ts}_{os.getpid()}"
+    run_dir.mkdir(parents=True, exist_ok=True)
+    config.save(run_dir / "config.json")
+    return run_dir
+
+
+def _default_checkpoint_callbacks(run_dir: Path, monitor: str) -> list:
     """Build the default callback list for a runner.
 
-    Saves best-so-far model weights (by ``monitor``) to a per-invocation
-    timestamped subdir under ``<results_path>/checkpoints/``. The seconds
-    precision in the directory name guarantees concurrent runs do not
-    overwrite each other's checkpoints. Required so ``scripts/evaluate.py``
-    has something to load after training.
+    Wires a single ``ModelCheckpoint`` that watches ``monitor`` (a key in
+    ``CallbackContext.metrics``, see ``src/training/callbacks.py``) and
+    writes best-so-far weights into ``run_dir``. ``run_dir`` should come
+    from :func:`_make_run_dir` so the checkpoints land alongside the
+    run's ``config.json``.
 
-    The run's ``config.json`` is also written into the same directory so it
-    travels with the checkpoint — ``scripts/evaluate.py`` searches for
-    ``config.json`` next to the checkpoint file (``parent / config.json``)
-    and picks it up automatically. Saving here (before training starts)
-    means the config is preserved even if training crashes.
+    The monitor strings live in this file's call sites and must match
+    the keys actually emitted by each runner:
+        mtl_cv.py:241-247    → val_f1_next, val_f1_category, val_loss, ...
+        category_cv.py / next_cv.py → val_f1, val_loss, val_acc, ...
+    A typo here is silently dropped by ModelCheckpoint (`current is None
+    → return`) and no checkpoint is ever saved.
     """
-    from datetime import datetime
-    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-    ckpt_dir = Path(results_path) / "checkpoints" / f"{task}_{ts}"
-    ckpt_dir.mkdir(parents=True, exist_ok=True)
-    config.save(ckpt_dir / "config.json")
     return [
         ModelCheckpoint(
-            save_dir=ckpt_dir,
+            save_dir=run_dir,
             monitor=monitor,
             mode="max",
             save_best_only=True,
@@ -107,15 +122,14 @@ def _run_mtl(config: ExperimentConfig, results_path: Path, fold_results: dict) -
         verbose=True,
     )
 
+    run_dir = _make_run_dir(results_path, task="mtl", config=config)
     with history:
         results = train_with_cross_validation(
             dataloaders=fold_results,
             history=history,
             config=config,
             results_path=results_path,
-            callbacks=_default_checkpoint_callbacks(
-                results_path, monitor="val_f1_category", task="mtl", config=config,
-            ),
+            callbacks=_default_checkpoint_callbacks(run_dir, monitor="val_f1_category"),
         )
 
     return results
@@ -149,13 +163,12 @@ def _run_category(config: ExperimentConfig, results_path: Path, fold_results: di
         display_report=True,
     )
 
+    run_dir = _make_run_dir(results_path, task="category", config=config)
     with history:
         results = run_cv(
             history, folds, config,
             results_path=results_path,
-            callbacks=_default_checkpoint_callbacks(
-                results_path, monitor="val_f1", task="category", config=config,
-            ),
+            callbacks=_default_checkpoint_callbacks(run_dir, monitor="val_f1"),
         )
 
     history.display.end_training()
@@ -190,13 +203,12 @@ def _run_next(config: ExperimentConfig, results_path: Path, fold_results: dict) 
         display_report=True,
     )
 
+    run_dir = _make_run_dir(results_path, task="next", config=config)
     with history:
         results = run_cv(
             history, folds, config,
             results_path=results_path,
-            callbacks=_default_checkpoint_callbacks(
-                results_path, monitor="val_f1", task="next", config=config,
-            ),
+            callbacks=_default_checkpoint_callbacks(run_dir, monitor="val_f1"),
         )
 
     history.display.end_training()
