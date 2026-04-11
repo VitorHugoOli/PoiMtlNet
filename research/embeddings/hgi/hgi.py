@@ -18,7 +18,9 @@ Reference: /notebooks/hgi_texas.py
 """
 
 import argparse
+import contextlib
 import math
+import os
 import pickle as pkl
 
 import pandas as pd
@@ -34,6 +36,46 @@ from embeddings.hgi.model.POIEncoder import POIEncoder
 from embeddings.hgi.model.RegionEncoder import POI2Region
 from embeddings.hgi.preprocess import preprocess_hgi
 from embeddings.hgi.poi2vec import train_poi2vec
+
+
+# Optimal CPU thread count for HGI training on Apple Silicon, measured
+# empirically on Alabama: 6 threads is ~17% faster than the default 8
+# (47.7 vs 57.5 ms/epoch). Override via the HGI_NUM_THREADS env var.
+_DEFAULT_HGI_NUM_THREADS = 6
+
+
+@contextlib.contextmanager
+def _hgi_thread_context():
+    """Set torch CPU thread count for HGI training, restore on exit.
+
+    HGI training is dominated by small CPU GCN ops; using all available
+    perf cores produces contention with the OS scheduler on macOS, slowing
+    each epoch. Override via HGI_NUM_THREADS=N (set to 0 to skip the
+    override and inherit the global setting).
+    """
+    override = os.environ.get("HGI_NUM_THREADS")
+    if override is not None:
+        try:
+            target = int(override)
+        except ValueError:
+            target = _DEFAULT_HGI_NUM_THREADS
+    else:
+        target = _DEFAULT_HGI_NUM_THREADS
+
+    if target <= 0:
+        yield
+        return
+
+    previous = torch.get_num_threads()
+    if previous == target:
+        yield
+        return
+
+    try:
+        torch.set_num_threads(target)
+        yield
+    finally:
+        torch.set_num_threads(previous)
 
 
 def train_epoch(data, model, optimizer, scheduler, args):
@@ -115,17 +157,19 @@ def train_hgi(city, args):
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
 
-    # Training loop
+    # Training loop — pin CPU thread count for the duration so each epoch
+    # benefits from the optimal setting without polluting global state.
     t = trange(1, args.epoch + 1, desc=f"Training HGI")
     lowest_loss = math.inf
     best_region_emb, best_poi_emb = None, None
 
-    for epoch in t:
-        loss = train_epoch(data, model, optimizer, scheduler, args)
-        if loss < lowest_loss:
-            best_region_emb, best_poi_emb = model.get_region_emb()
-            lowest_loss = loss
-        t.set_postfix(loss=f'{loss:.4f}', best=f'{lowest_loss:.4f}')
+    with _hgi_thread_context():
+        for epoch in t:
+            loss = train_epoch(data, model, optimizer, scheduler, args)
+            if loss < lowest_loss:
+                best_region_emb, best_poi_emb = model.get_region_emb()
+                lowest_loss = loss
+            t.set_postfix(loss=f'{loss:.4f}', best=f'{lowest_loss:.4f}')
 
     # Save POI embeddings
     output_path = IoPaths.get_embedd(city, EmbeddingEngine.HGI)

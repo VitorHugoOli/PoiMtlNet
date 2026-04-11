@@ -125,57 +125,113 @@ class HierarchicalGraphInfomax(nn.Module):
         # ----- Hard negative sampling (matches reference hgi.py:86-107) -----
         # Original behavior: 25% probability for hard negatives (similarity 0.6-0.8)
         #                    75% probability for random negatives
+        #
+        # We keep the per-region Python loop here because each iteration consumes
+        # exactly two calls into Python's `random` module (one random.random() and
+        # one random.choice()), in a deterministic order. The reference equivalence
+        # tests in tests/test_embeddings/test_hgi_reference_equivalence.py rely on
+        # this exact RNG consumption pattern to compare loss values bit-for-bit.
+        # The expensive parts of the loop (similarity slicing, candidate listing)
+        # are PRECOMPUTED ONCE per data object and cached on `data` itself.
         num_regions = int(torch.max(data.region_id).item()) + 1
         hard_neg_prob = 0.25
         device = data.x.device
 
-        # For each region R, pick a foreign region neg_R (hard or random)
-        neg_region_indices = torch.zeros(num_regions, dtype=torch.long, device=device)
-        all_regions = list(range(num_regions))
+        if not hasattr(data, "_hgi_neg_cache") or data._hgi_neg_cache.get("R") != num_regions:
+            # First call (or num_regions changed): build cached lookup tables.
+            #   hard_candidates_per_region: list[list[int]] of foreign regions
+            #     with coarse_region_similarity in (0.6, 0.8), excluding self.
+            #     If empty, the per-region loop falls back to all_other.
+            #   all_other_per_region: list[list[int]] of every other region.
+            #   region_id_cpu / sort_idx / region_offsets: enable the fully
+            #     vectorized "for each region, gather its POIs" build below.
+            sim_full = data.coarse_region_similarity
+            hard_mask = (sim_full > 0.6) & (sim_full < 0.8)
+            # Drop self from candidate sets via diagonal mask.
+            eye = torch.eye(num_regions, dtype=torch.bool, device=device)
+            hard_mask = hard_mask & ~eye
+
+            # CPU lists are what random.choice expects; convert once.
+            hard_lists = [row.nonzero(as_tuple=True)[0].tolist() for row in hard_mask.cpu()]
+            all_regions_per_region = [
+                [j for j in range(num_regions) if j != r] for r in range(num_regions)
+            ]
+
+            # POI grouping by region: sort POIs by region_id once, store
+            # offsets so any region's POI block is sort_idx[off:off+size].
+            region_id_cpu = data.region_id.cpu()
+            sort_idx = torch.argsort(region_id_cpu, stable=True)
+            sizes = torch.bincount(region_id_cpu, minlength=num_regions)
+            region_offsets = torch.zeros(num_regions + 1, dtype=torch.long)
+            region_offsets[1:] = sizes.cumsum(0)
+
+            data._hgi_neg_cache = {
+                "R": num_regions,
+                "hard_lists": hard_lists,
+                "all_regions_per_region": all_regions_per_region,
+                "sort_idx": sort_idx.to(device),
+                "sizes": sizes.to(device),
+                "region_offsets": region_offsets.to(device),
+            }
+
+        cache = data._hgi_neg_cache
+        hard_lists = cache["hard_lists"]
+        all_regions_per_region = cache["all_regions_per_region"]
+        sort_idx = cache["sort_idx"]
+        sizes = cache["sizes"]
+        region_offsets = cache["region_offsets"]
+
+        # Pick negative region per region. Build as a Python list, then
+        # tensorize once at the end (avoids 1108 individual writes through
+        # tensor indexing which were ~1108 dispatches under the old code).
+        # Each iteration consumes exactly one random.random() and one
+        # random.choice() call so the RNG sequence matches the reference.
+        # `candidates` falls back from hard_lists to all_regions_per_region
+        # whenever the hard candidate set is empty for that region.
+        neg_region_list = [0] * num_regions
         for region in range(num_regions):
-            hard_negative_choice = random.random()
-            if hard_negative_choice < hard_neg_prob:
-                # Hard negatives: regions with similarity in (0.6, 0.8)
-                sim = data.coarse_region_similarity[region]
-                hard_mask = (sim > 0.6) & (sim < 0.8)
-                hard_candidates = hard_mask.nonzero(as_tuple=True)[0].tolist()
-                candidates = [r for r in hard_candidates if r != region]
-                if not candidates:
-                    candidates = [r for r in all_regions if r != region]
+            if random.random() < hard_neg_prob:
+                candidates = hard_lists[region] or all_regions_per_region[region]
             else:
-                candidates = [r for r in all_regions if r != region]
-            neg_region_indices[region] = random.choice(candidates)
+                candidates = all_regions_per_region[region]
+            neg_region_list[region] = random.choice(candidates)
+        neg_region_indices = torch.as_tensor(
+            neg_region_list, dtype=torch.long, device=device
+        )
 
         # ----- Build (poi_idx, target_region) pairs -----
         # Positive pairs: every POI i scored against region region_id[i]
-        #     pos_poi_idx[i]    = i
-        #     pos_target[i]     = region_id[i]
         # Negative pairs: for every region R, ALL POIs from neg_R scored against R
-        #     For each pair (R, neg_R = neg_region_indices[R]):
-        #         For each POI j with region_id[j] == neg_R:
-        #             emit a pair (j, R)
+        #
+        # Vectorized construction:
+        #   neg_sizes[R]      = number of POIs in the negative region picked for R
+        #   neg_target_region = repeat_interleave(arange(R), neg_sizes)
+        #   src_pos[i]        = region_offsets[neg_R] + (i - cumulative_start)
+        #   neg_poi_idx       = sort_idx[src_pos]
+        # The loop in the previous implementation did N×R==13M region_id
+        # comparisons per epoch. The vectorized form is O(num_regions + neg_total).
         N = pos_poi_emb.size(0)
         pos_poi_idx = torch.arange(N, device=device)
-        pos_target_region = data.region_id  # alias
+        pos_target_region = data.region_id
 
-        neg_poi_idx_chunks = []
-        neg_target_region_chunks = []
-        for region in range(num_regions):
-            neg_r = int(neg_region_indices[region].item())
-            poi_in_neg_r = (data.region_id == neg_r).nonzero(as_tuple=True)[0]
-            if poi_in_neg_r.numel() == 0:
-                continue
-            neg_poi_idx_chunks.append(poi_in_neg_r)
-            neg_target_region_chunks.append(
-                torch.full_like(poi_in_neg_r, region)
-            )
+        neg_sizes = sizes[neg_region_indices]                  # [R]
+        neg_total = int(neg_sizes.sum().item())
 
-        if neg_poi_idx_chunks:
-            neg_poi_idx = torch.cat(neg_poi_idx_chunks)
-            neg_target_region = torch.cat(neg_target_region_chunks)
-        else:
+        if neg_total == 0:
             neg_poi_idx = torch.empty(0, dtype=torch.long, device=device)
             neg_target_region = torch.empty(0, dtype=torch.long, device=device)
+        else:
+            arange_R = torch.arange(num_regions, device=device)
+            neg_target_region = torch.repeat_interleave(arange_R, neg_sizes)
+            # Output starts: cumulative offsets within neg_poi_idx for each R
+            out_starts = torch.zeros(num_regions, dtype=torch.long, device=device)
+            out_starts[1:] = neg_sizes[:-1].cumsum(0)
+            # within[i] = i - out_starts[neg_target_region[i]]
+            within = torch.arange(neg_total, device=device) - out_starts[neg_target_region]
+            # Source positions in sort_idx
+            src_starts = region_offsets[neg_region_indices]    # [R]
+            src_pos = src_starts[neg_target_region] + within   # [neg_total]
+            neg_poi_idx = sort_idx[src_pos]                    # [neg_total]
 
         return (
             pos_poi_idx, pos_target_region,
