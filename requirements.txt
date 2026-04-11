@@ -1,6 +1,11 @@
 # Core ML
 torch==2.9.1
 torch-geometric==2.7.0
+# pytorch_warmup powers the LinearWarmup scheduler used in HGI training
+# (research/embeddings/hgi/hgi.py:train_hgi). Matches RightBank/HGI's
+# canonical train.py — without it the canonical lr=0.006 + warmup_period=40
+# combination cannot be reproduced.
+pytorch-warmup==0.2.0
 numpy==2.0.2
 scipy==1.16.3
 scikit-learn==1.6.1

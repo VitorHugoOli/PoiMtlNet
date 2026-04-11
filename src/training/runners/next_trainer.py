@@ -42,6 +42,7 @@ def train(
         device=device,
         history=history,
         task_name='next',
+        num_classes=num_classes,
         epochs=epochs,
         max_grad_norm=max_grad_norm,
         early_stopping_patience=early_stopping_patience,

@@ -1,7 +1,7 @@
 import numpy as np
 from pathlib import Path
-from sklearn.metrics import confusion_matrix
 from torch.utils.data import DataLoader
+from torchmetrics.functional.classification import multiclass_confusion_matrix
 from typing import Optional
 
 from configs.globals import DEVICE, CATEGORIES_MAP
@@ -44,15 +44,21 @@ def _extract_diagnostics(
             targets_list.append(y_batch)
             attn_list.append(attn)
 
-    # Single bulk GPU→CPU transfer
-    all_preds = torch.cat(preds_list).cpu().numpy()
-    all_targets = torch.cat(targets_list).numpy()
+    # Compute confusion matrix on-device, then sync everything to CPU once
+    # for the downstream numpy slicing of attention weights.
+    preds_t = torch.cat(preds_list)
+    targets_t = torch.cat(targets_list)
+    cm = multiclass_confusion_matrix(
+        preds_t, targets_t.to(preds_t.device),
+        num_classes=num_classes,
+    ).cpu().tolist()
+
+    all_preds = preds_t.cpu().numpy()
+    all_targets = targets_t.cpu().numpy() if targets_t.device.type != 'cpu' else targets_t.numpy()
     all_attn = torch.cat(attn_list).cpu().numpy()  # (N, seq)
 
-    # Confusion matrix
-    cm = confusion_matrix(all_targets, all_preds, labels=class_labels)
     fold_history.add_artifact('confusion_matrix', {
-        'matrix': cm.tolist(),
+        'matrix': cm,
         'labels': class_names,
     })
 

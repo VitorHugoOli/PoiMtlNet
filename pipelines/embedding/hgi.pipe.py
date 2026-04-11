@@ -51,15 +51,21 @@ STATES = {
     'Texas': Resources.TL_TX,
 }
 
+# Hyperparameters mirror RightBank/HGI/train.py (the canonical reference for
+# "Learning urban region representations with POIs and hierarchical graph
+# infomax", ISPRS J. Photogramm. Remote Sens., 2023). lr=0.006 is only safe
+# in combination with the 40-epoch LinearWarmup wired into train_hgi —
+# do not bump one without the other.
 HGI_CONFIG = Namespace(
     dim=InputsConfig.EMBEDDING_DIM,
-    attention_head=4,
     alpha=0.5,
-    lr=0.001,
+    attention_head=4,
+    lr=0.006,
     gamma=1.0,
     max_norm=0.9,
     epoch=2000,
-    poi2vec_epochs=6,
+    warmup_period=40,
+    poi2vec_epochs=100,
     force_preprocess=True,
 
     device='cpu',

@@ -2,7 +2,9 @@
 
 **Source**: `/Users/vitor/Desktop/mestrado/ingred/notebooks/HGI.ipynb`
 **Extracted Example**: `/Users/vitor/Desktop/mestrado/ingred/notebooks/hgi_texas.py`
-**Original Code**: `/Users/vitor/Desktop/mestrado/ingred/notebooks/region-embedding-benchmark-main/region-embedding/baselines/`
+**Canonical Code**: https://github.com/RightBank/HGI (the paper's official repo)
+**Third-party reproduction** (used by `tests/test_embeddings/_hgi_reference_shim.py`):
+`/Users/vitor/Desktop/mestrado/temp/tarik-new/region-embedding-benchmark-main/region-embedding-benchmark-main/region-embedding/baselines/HGI/`
 
 ---
 

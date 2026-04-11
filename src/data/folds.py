@@ -108,10 +108,24 @@ class FoldResult:
 # DATASET
 # ============================================================
 class POIDataset(Dataset):
-    def __init__(self, features: torch.Tensor, targets: torch.Tensor):
-        # Ensure tensors are on CPU for DataLoader workers (no-op if already CPU)
-        self.features = features if features.device.type == 'cpu' else features.cpu()
-        self.targets = targets if targets.device.type == 'cpu' else targets.cpu()
+    def __init__(
+            self,
+            features: torch.Tensor,
+            targets: torch.Tensor,
+            device: Optional[torch.device] = None,
+    ):
+        # When `device` is provided, pre-move the underlying tensors so that
+        # __getitem__ returns slices that already live on the target device.
+        # This eliminates the per-batch host->device copy in the training loop
+        # — safe on MPS because the datasets fit comfortably in unified memory.
+        # When `device` is None, tensors are kept on CPU so they can be shared
+        # safely with forked DataLoader workers.
+        if device is not None:
+            self.features = features.to(device) if features.device != device else features
+            self.targets = targets.to(device) if targets.device != device else targets
+        else:
+            self.features = features if features.device.type == 'cpu' else features.cpu()
+            self.targets = targets if targets.device.type == 'cpu' else targets.cpu()
 
     def __len__(self) -> int:
         return len(self.features)
@@ -124,10 +138,12 @@ class POIDataset(Dataset):
 # UTILITIES
 # ============================================================
 def _get_num_workers() -> int:
-    # On MPS (macOS), multiprocessing IPC overhead exceeds benefit for
-    # in-memory tensor datasets. Keep workers low to avoid fork overhead.
+    # MPS + in-memory tensor datasets: num_workers=0 is fastest.
+    # Each worker is a forked Python process that pickles the tensor over
+    # IPC per epoch — pure overhead when the dataset is already a torch
+    # tensor in RAM. See PyTorch Lightning MPS docs.
     if DEVICE.type == 'mps':
-        return min(2, os.cpu_count() or 1)
+        return 0
     return min(8, os.cpu_count() or 1)
 
 
@@ -233,6 +249,12 @@ def _create_dataloader(
 ) -> DataLoader:
     num_workers = _get_num_workers()
 
+    # Pre-move tensors to DEVICE only when not using DataLoader workers.
+    # Forked workers cannot share GPU/MPS memory with the parent process —
+    # but with num_workers=0 (the MPS path), we can keep the dataset entirely
+    # on-device and skip the per-batch host->device copy.
+    dataset_device = DEVICE if num_workers == 0 else None
+
     sampler = None
     if use_weighted_sampling:
         y_np = y.numpy() if isinstance(y, torch.Tensor) else y
@@ -240,7 +262,7 @@ def _create_dataloader(
         shuffle = False
 
     return DataLoader(
-        POIDataset(x, y),
+        POIDataset(x, y, device=dataset_device),
         batch_size=batch_size,
         shuffle=shuffle if sampler is None else False,
         sampler=sampler,
