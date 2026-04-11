@@ -466,9 +466,9 @@ class TestLossEquivalenceWithReference:
 
 class TestEdgeWeightFormula:
     """
-    Reference formula (preprocess/main.py):
+    Paper formula (Huang et al., ISPRS 2023, Eq. 2):
         w1 = log((1 + D^1.5) / (1 + dist^1.5))
-        w2 = 1.0  if same region else 0.5
+        w2 = 1.0  if same region else 0.4
         weight = w1 * w2  (then min-max normalised)
     """
 
@@ -479,11 +479,11 @@ class TestEdgeWeightFormula:
         mig = np.log((1 + D ** 1.5) / (1 + dist ** 1.5))
         assert math.isclose(ref, mig, rel_tol=1e-9)
 
-    def test_same_region_weight(self):
-        assert 1.0 == 1.0   # w2 for intra-region
-
-    def test_cross_region_weight(self):
-        assert 0.5 == 0.5   # w2 for inter-region
+    def test_cross_region_weight_matches_paper(self):
+        import inspect
+        from embeddings.hgi import preprocess as pp
+        src = inspect.getsource(pp)
+        assert "0.4" in src, "cross-region w_r should be 0.4 per Huang et al. ISPRS 2023 Eq. 2"
 
     def test_haversine_matches_reference(self):
         """Haversine distance London→Paris ≈ 341 km."""

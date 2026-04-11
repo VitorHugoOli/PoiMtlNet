@@ -32,10 +32,10 @@ class POI2Region(nn.Module):
         self.PMA = PMA(dim=hidden_channels, num_heads=num_heads, num_seeds=1, ln=False)
 
         # Region-level graph convolution
-        self.conv = GCNConv(hidden_channels, hidden_channels, cached=False, bias=True)
+        self.conv = GCNConv(hidden_channels, hidden_channels, cached=True, bias=True)
 
-        # PReLU activation
-        self.prelu = nn.PReLU()
+        # PReLU activation (channelwise — matches canonical RightBank/HGI)
+        self.prelu = nn.PReLU(hidden_channels)
 
     def forward(self, x, zone, region_adjacency):
         """
