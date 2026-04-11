@@ -56,6 +56,7 @@ TIME2VEC_CONFIG = Namespace(
     seed=42,
     tau=0.3,
     device=torch.device("cpu"),  # CPU is faster than MPS/GPU for this small model
+    compile=True,  # ~10% extra speedup via torch.compile, bit-identical loss
 )
 
 

@@ -165,20 +165,31 @@ def create_embedding(state: str, args):
 
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 
+    # Optional torch.compile (~10% extra speedup, bit-identical loss on Alabama).
+    # The first epoch pays a one-off compilation cost (a few seconds); steady-
+    # state epochs are faster. We compile a thin wrapper so train_epoch() still
+    # calls the compiled object, and we keep `model` un-compiled for saving
+    # the state dict without the _orig_mod prefix.
+    train_model = model
+    if getattr(args, "compile", False):
+        print("Compiling model with torch.compile(mode='default') ...")
+        train_model = torch.compile(model)
+
     # Training loop
     print(f"Training for {args.epoch} epochs on {args.device}...")
     bar = tqdm(range(1, args.epoch + 1), desc="Training")
 
     for epoch in bar:
         avg_loss = train_epoch(
-            model, feat_i, feat_j, labels,
+            train_model, feat_i, feat_j, labels,
             optimizer, args.device, args.tau,
             batch_size=args.batch_size,
             generator=perm_gen,
         )
         bar.set_postfix(loss=f"{avg_loss:.4f}")
 
-    # Save trained model
+    # Save trained model (use the eager `model`, not the compiled wrapper, so
+    # the saved state dict keys don't get a '_orig_mod.' prefix)
     model_path = IoPaths.TIME2VEC.get_model_file(state)
     torch.save(model.state_dict(), model_path)
     print(f"Model saved to: {model_path}")
@@ -242,6 +253,10 @@ if __name__ == '__main__':
     parser.add_argument('--device', type=str,
                         default='cpu',
                         help='Device to use for training')
+    parser.add_argument('--compile', action='store_true',
+                        help='Enable torch.compile for an extra ~10%% speedup '
+                             '(bit-identical loss on Alabama). Off by default '
+                             'since it adds a one-off compilation delay.')
 
     args = parser.parse_args()
     create_embedding(state=args.state, args=args)
