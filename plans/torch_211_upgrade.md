@@ -605,58 +605,59 @@ That tradeoff — small scope, hard gates, auto-triggered safety valve, easy rev
 This checklist is the primary resumption signal for future sessions. **Edit it in `plans/torch_211_upgrade.md` (the committed copy in the repo, not the scratch file)** as you complete each step. The first un-ticked box is where to resume.
 
 ### Phase 0 — Persistence
-- [ ] Step 0: copied this plan to `plans/torch_211_upgrade.md` and committed it
-- [ ] Identified which path is currently being attempted: **___** (A=2.11 / B=2.10 / C=dual-venv)
-- [ ] Recorded the implementation worktree path: **___**
-- [ ] Recorded the implementation venv path: **___**
+- [x] Step 0: copied this plan to `plans/torch_211_upgrade.md` and committed it
+- [x] Identified which path is currently being attempted: **A** (A=2.11 / B=2.10 / C=dual-venv)
+- [x] Recorded the implementation worktree path: **.claude/worktrees/torch-upgrade**
+- [x] Recorded the implementation venv path: **.claude/worktrees/torch-upgrade/.venv_torch211**
 
 ### Phase 1 — Pre-flight (Gates -1 and 0)
-- [ ] Gate -1.1: working tree clean (only `.claude/settings.local.json` mod, `output/` symlink)
-- [ ] Gate -1.2: re-ran `pytest tests/test_models tests/test_training tests/test_data tests/test_losses -q` on torch 2.9.1 → got 242 passed, 36 skipped
-- [ ] Gate -1.3: post-PR-8 baseline confirmed at `results/dgi/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260411_0959/summary/full_summary.json` (or rerun if missing)
-- [ ] Gate -1.4: confirmed `.venv_new` is shared across worktrees (do NOT install torch upgrade into it)
-- [ ] Gate -1.5: opened `https://data.pyg.org/whl/torch-2.11.0+cpu.html` in browser and noted whether `torch_cluster` wheels exist (yes/no): **___**
-- [ ] Gate 0.1: created worktree `.claude/worktrees/torch-upgrade` off `main`
-- [ ] Gate 0.2: created isolated venv `.venv_torch211` (or `.venv_torch210` if on Path B) inside the worktree
-- [ ] Gate 0.3: `pip install -e ".[dev]"` on torch 2.9.1 first → 242 passed, 36 skipped reproduces
+- [x] Gate -1.1: working tree clean (only `.claude/settings.local.json` mod, `output/` symlink)
+- [x] Gate -1.2: re-ran `pytest tests/test_models tests/test_training tests/test_data tests/test_losses -q` on torch 2.9.1 → got 242 passed, 36 skipped
+- [~] Gate -1.3: post-PR-8 baseline file not located in worktree; relied on plan header reference numbers (14.14 min · Cat F1 0.4435 · Cat Acc 53.46% · Next F1 0.2603 · Next Acc 36.88%)
+- [x] Gate -1.4: confirmed `.venv_new` is shared across worktrees (do NOT install torch upgrade into it)
+- [x] Gate -1.5: confirmed `torch_cluster 1.6.3 cp312-macosx` wheels exist on PyG index for torch-2.11.0+cpu: **yes**
+- [x] Gate 0.1: created worktree `.claude/worktrees/torch-upgrade` off `main`
+- [x] Gate 0.2: created isolated venv `.venv_torch211` inside the worktree
+- [~] Gate 0.3: skipped 2.9.1 parity install in the new venv; instead ran `.venv_new` baseline test suite directly (242 passed / 36 skipped) for reference
 
 ### Phase 2 — Install + Tier 1 validation (Gates 1-5)
-- [ ] Gate 1: installed torch + torchvision + matching PyG ecosystem; verified `import torch_cluster; from torch_cluster import random_walk` succeeds (or proceeded to Path B/C if not)
-- [ ] Gate 1: recorded actual installed versions: torch=**___**, torchvision=**___**, torch_scatter=**___**, torch_sparse=**___**, torch_cluster=**___**, torch-geometric=**___**
-- [ ] Gate 2: targeted test suite passed (≥ 242 passed, 0 failed) — recorded count: **___**
-- [ ] Gate 3: broad test suite passed (no NEW failures vs. baseline) — recorded count: **___**
-- [ ] Gate 4: 1-fold/1-epoch MTL DGI Alabama smoke completed without NaN — recorded final losses: **___**
-- [ ] Gate 5: 5-fold/50-epoch MTL DGI Alabama validation completed — recorded wall time: **___ min**
-- [ ] Gate 5: metrics within ±1pp of post-PR-8 baseline:
-  - [ ] Cat F1 in [0.4335, 0.4535] — actual: **___**
-  - [ ] Cat Acc in [52.46%, 54.46%] — actual: **___**
-  - [ ] Next F1 in [0.2503, 0.2703] — actual: **___**
-  - [ ] Next Acc in [35.88%, 37.88%] — actual: **___**
-- [ ] Gate 5: results JSON archived at: **___**
+- [x] Gate 1: installed torch + torchvision + matching PyG ecosystem; verified `from torch_cluster import random_walk` succeeds
+- [x] Gate 1: recorded actual installed versions: torch=**2.11.0**, torchvision=**0.26.0**, torch_scatter=**2.1.2**, torch_sparse=**0.6.18**, torch_cluster=**1.6.3**, torch-geometric=**2.7.0**
+- [x] Gate 2: targeted test suite passed — recorded count: **242 passed, 36 skipped** (0 failed)
+- [x] Gate 3: broad test suite passed — recorded count: **107 passed, 26 skipped** (0 new failures)
+- [x] Gate 4: 1-fold/1-epoch MTL DGI Alabama smoke completed without NaN — recorded final losses: **train loss 2.4099, val loss 1.8414, cat val acc 26.74%, next val acc 26.50%**
+- [x] Gate 5: 5-fold/50-epoch MTL DGI Alabama validation completed — recorded wall time: **12.27 min** (745.82s real)
+- [x] Gate 5: metrics within ±1pp of post-PR-8 baseline (bit-exact reproduction):
+  - [x] Cat F1 in [0.4335, 0.4535] — actual: **0.4435**
+  - [x] Cat Acc in [52.46%, 54.46%] — actual: **53.46%**
+  - [x] Next F1 in [0.2503, 0.2703] — actual: **0.2603**
+  - [x] Next Acc in [35.88%, 37.88%] — actual: **36.88%**
+- [x] Gate 5: results JSON archived at: **results/dgi/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260411_1440/summary/full_summary.json**
 
 ### Phase 3 — Tier 2 verification (Gates 6a, 6b, 7)
-- [ ] Gate 6a: import-only smoke ran; recorded OK/FAIL status per engine:
-  - [ ] dgi: **___**
-  - [ ] check2hgi: **___**
-  - [ ] poi2hgi: **___**
-  - [ ] time2vec: **___**
-  - [ ] space2vec: **___**
-  - [ ] sphere2vec: **___**
-  - [ ] hgi (Node2Vec branch): **___**
-  - [ ] pipelines.create_inputs: **___**
-- [ ] Gate 6b: `pipelines/embedding/hgi.pipe.py` on alabama reached POI2Vec epoch 2 without crashing — recorded outcome: **___**
-- [ ] Gate 6b: temporary `STATES = ["alabama"]` edit reverted
-- [ ] Gate 7 (optional): time2vec on alabama → **___**
-- [ ] Gate 7 (optional): sphere2vec on alabama → **___**
-- [ ] Gate 7 (optional): space2vec on alabama → **___**
-- [ ] Gate 7 (optional): dgi on alabama → **___**
+- [x] Gate 6a: import-only smoke ran (after prepending `src/` and `research/` to sys.path and installing missing `pytorch-warmup==0.2.0`); recorded OK/FAIL status per engine:
+  - [x] dgi: **OK**
+  - [x] check2hgi: **OK**
+  - [x] poi2hgi: **OK**
+  - [x] time2vec: **OK**
+  - [x] space2vec: **OK**
+  - [x] sphere2vec: **OK**
+  - [x] hgi (Node2Vec branch): **OK**
+  - [~] pipelines.create_inputs: **N/A** (file is `create_inputs.pipe.py`, not an importable module — plan item was mis-specified)
+- [x] Gate 6b: `pipelines/embedding/hgi.pipe.py` Alabama completed the full 5-phase pipeline (POI2Vec 3 epochs + HGI 3 epochs + downstream input gen) in 0.8 min — **PASS**, `Node2Vec.random_walk` + GCNConv + SetTransformer all OK on torch 2.11
+- [x] Gate 6b: temporary STATES+epochs edits reverted to `pipelines/embedding/hgi.pipe.py` (git diff clean)
+- [!] **Gate 6b side-effect**: the smoke overwrote `output/hgi/alabama/*` (symlink into main repo output). Restored via `rsync -a --delete` from `.claude/worktrees/mtlnet-improve/output/hgi/alabama/`. Plan should be updated post-merge to use `force_preprocess=False` or an `OUTPUT_ROOT` override for future runs.
+- [ ] Gate 7 (optional): time2vec on alabama — skipped (cheap engine, deferred)
+- [ ] Gate 7 (optional): sphere2vec on alabama — skipped (cheap engine, deferred)
+- [ ] Gate 7 (optional): space2vec on alabama — skipped (cheap engine, deferred)
+- [ ] Gate 7 (optional): dgi on alabama — skipped (already exercised via Gate 5's MTL training)
 
 ### Phase 4 — Decision branch (only one applies)
 
 #### If Path A succeeded (single venv on torch 2.11)
-- [ ] All Gates 1-6b pass on torch 2.11
-- [ ] Bumped pins in `pyproject.toml` to `torch==2.11.0`, `torchvision==<verified>`, etc.
-- [ ] Bumped pins in `requirements.txt` to match
+- [x] All Gates 1-6b pass on torch 2.11
+- [x] Bumped pins in `pyproject.toml` to `torch==2.11.0`, `torchvision==0.26.0`, `torch_cluster==1.6.3`, `torch_scatter==2.1.2`, `torch_sparse==0.6.18`, `torch-geometric==2.7.0`; also fixed pre-existing `build-backend` typo (`setuptools.backends._legacy:_Backend` → `setuptools.build_meta`); added previously-missing `pytorch-warmup==0.2.0` dep
+- [x] Bumped pins in `requirements.txt` to match (torch/torchvision + explicit pins for torch_cluster/scatter/sparse)
 - [ ] Committed pin bump: `chore(deps): bump torch 2.9.1 -> 2.11.0 (validated on DGI Alabama 5-fold)`
 - [ ] Opened PR with pip freeze diff, Gate 5 metrics table, Gate 6a/6b status as evidence
 

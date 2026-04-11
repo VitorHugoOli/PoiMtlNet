@@ -1,6 +1,6 @@
 [build-system]
 requires = ["setuptools>=68.0"]
-build-backend = "setuptools.backends._legacy:_Backend"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "mtlnet"
@@ -13,12 +13,17 @@ requires-python = ">=3.12,<3.13"
 #   Install manually: pip install -e /path/to/GraphGPS
 dependencies = [
     # Core ML
-    "torch==2.9.1",
-    "torchvision==0.24.1",
+    "torch==2.11.0",
+    "torchvision==0.26.0",
     "torch-geometric==2.7.0",
     "torch_cluster==1.6.3",
     "torch_scatter==2.1.2",
     "torch_sparse==0.6.18",
+    # pytorch_warmup powers the LinearWarmup scheduler used in HGI training
+    # (research/embeddings/hgi/hgi.py:train_hgi). Matches RightBank/HGI's
+    # canonical train.py — without it the canonical lr=0.006 + warmup_period=40
+    # combination cannot be reproduced.
+    "pytorch-warmup==0.2.0",
     "torchmetrics==1.8.2",
     "pytorch-lightning==2.5.5",
     "lightning-utilities==0.14.3",
