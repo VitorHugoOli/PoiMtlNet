@@ -46,6 +46,7 @@ def _default_checkpoint_callbacks(
     results_path: Path,
     monitor: str,
     task: str,
+    config: ExperimentConfig,
 ) -> list:
     """Build the default callback list for a runner.
 
@@ -54,10 +55,18 @@ def _default_checkpoint_callbacks(
     precision in the directory name guarantees concurrent runs do not
     overwrite each other's checkpoints. Required so ``scripts/evaluate.py``
     has something to load after training.
+
+    The run's ``config.json`` is also written into the same directory so it
+    travels with the checkpoint — ``scripts/evaluate.py`` searches for
+    ``config.json`` next to the checkpoint file (``parent / config.json``)
+    and picks it up automatically. Saving here (before training starts)
+    means the config is preserved even if training crashes.
     """
     from datetime import datetime
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     ckpt_dir = Path(results_path) / "checkpoints" / f"{task}_{ts}"
+    ckpt_dir.mkdir(parents=True, exist_ok=True)
+    config.save(ckpt_dir / "config.json")
     return [
         ModelCheckpoint(
             save_dir=ckpt_dir,
@@ -105,7 +114,7 @@ def _run_mtl(config: ExperimentConfig, results_path: Path, fold_results: dict) -
             config=config,
             results_path=results_path,
             callbacks=_default_checkpoint_callbacks(
-                results_path, monitor="val_f1_category", task="mtl",
+                results_path, monitor="val_f1_category", task="mtl", config=config,
             ),
         )
 
@@ -145,7 +154,7 @@ def _run_category(config: ExperimentConfig, results_path: Path, fold_results: di
             history, folds, config,
             results_path=results_path,
             callbacks=_default_checkpoint_callbacks(
-                results_path, monitor="val_f1", task="category",
+                results_path, monitor="val_f1", task="category", config=config,
             ),
         )
 
@@ -186,7 +195,7 @@ def _run_next(config: ExperimentConfig, results_path: Path, fold_results: dict) 
             history, folds, config,
             results_path=results_path,
             callbacks=_default_checkpoint_callbacks(
-                results_path, monitor="val_f1", task="next",
+                results_path, monitor="val_f1", task="next", config=config,
             ),
         )
 
@@ -344,7 +353,13 @@ def main(argv=None) -> None:
     results_path = IoPaths.get_results_dir(config.state, engine)
     results_path.mkdir(parents=True, exist_ok=True)
 
-    # Save config alongside results
+    # DVC tracks `results/<engine>/<state>/config.json` as a metric file
+    # (see dvc.yaml). This file is overwritten by every training run on
+    # purpose — DVC consumes it as the "latest run snapshot" for dashboards.
+    # The CANONICAL per-run config is written into the per-invocation
+    # checkpoint dir (see _default_checkpoint_callbacks above), so each
+    # individual run's config is preserved alongside its weights and is
+    # auto-discovered by scripts/evaluate.py via parent / config.json.
     config.save(results_path / "config.json")
 
     logger.info("=" * 72)
