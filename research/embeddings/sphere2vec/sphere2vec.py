@@ -192,6 +192,11 @@ def create_embedding(state: str, args) -> None:
     print(f"Total batches per epoch: {len(dataloader)}")
 
     # Initialize model
+    encoder_variant = str(getattr(args, "encoder_variant", "rbf")).lower()
+    if encoder_variant not in {"rbf", "paper"}:
+        raise ValueError(
+            f"--encoder-variant must be 'rbf' or 'paper', got {encoder_variant!r}"
+        )
     model = SphereLocationContrastiveModel(
         embed_dim=args.dim,
         spa_embed_dim=args.spa_embed_dim,
@@ -206,7 +211,11 @@ def create_embedding(state: str, args) -> None:
         ffn_use_layernormalize=args.ffn_use_layernormalize,
         ffn_skip_connection=args.ffn_skip_connection,
         device=str(device),
+        encoder_variant=encoder_variant,
+        min_radius=getattr(args, "min_radius", None),
+        max_radius=getattr(args, "max_radius", None),
     ).to(device)
+    print(f"Encoder variant: {encoder_variant}")
 
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 
@@ -351,6 +360,28 @@ if __name__ == "__main__":
         action="store_true",
         help="Run final embedding pass with model.eval() + torch.no_grad() for "
              "deterministic outputs. Default is notebook-faithful (dropout active).",
+    )
+    parser.add_argument(
+        "--encoder_variant",
+        type=str,
+        default="rbf",
+        choices=["rbf", "paper"],
+        help="Position encoder variant. 'rbf' (default, backward-compat) is the "
+             "notebook's custom random-RBF-on-sphere encoder. 'paper' is the "
+             "closed-form Eq.8 sphereM encoder from Mai et al. 2023 (the official "
+             "SphereMixScaleSpatialRelationEncoder).",
+    )
+    parser.add_argument(
+        "--min_radius",
+        type=float,
+        default=None,
+        help="Paper-variant min_radius (upstream default: 10). Defaults to --min_scale if omitted.",
+    )
+    parser.add_argument(
+        "--max_radius",
+        type=float,
+        default=None,
+        help="Paper-variant max_radius (upstream default: 10000). Defaults to --max_scale if omitted.",
     )
 
     args = parser.parse_args()

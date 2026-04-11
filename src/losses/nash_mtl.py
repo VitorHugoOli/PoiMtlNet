@@ -160,6 +160,15 @@ class NashMTL(WeightMethod):
 
         alpha_t = self.prvs_alpha
         for _ in range(self.optim_niter):
+            # cvxpy declares alpha_param with nonneg=True. ECOS/SCS solvers
+            # can return slightly-negative values or NaN due to numerical
+            # precision on optimal_inaccurate solutions; also alpha_t can
+            # be None after a SolverError branch. Normalise before the
+            # validated assignment to avoid ValueError("Variable value
+            # must be nonnegative").
+            if alpha_t is None or not np.all(np.isfinite(alpha_t)):
+                alpha_t = np.ones_like(self.prvs_alpha)
+            alpha_t = np.maximum(np.asarray(alpha_t, dtype=np.float64), 1e-6)
             self.alpha_param.value = alpha_t
             self.prvs_alpha_param.value = alpha_t
 
