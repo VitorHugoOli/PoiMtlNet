@@ -1,7 +1,0 @@
-name: category_dcn
-domain: category
-status: implemented
-registry_key: category_dcn
-runtime_class: models.heads.category.DCNHead
-runtime_file: src/models/heads/category.py
-source_doc: ""

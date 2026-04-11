@@ -27,19 +27,18 @@
 │   ├── data/           # Fold creation, dataset, input builders, schemas
 │   │   └── inputs/     # Modular input generation (core, builders, fusion, loaders)
 │   ├── losses/         # Loss functions + registry (NashMTL, Focal, PCGrad, GradNorm, Naive)
-│   ├── models/         # MTLnet model, head registry
-│   │   ├── heads/      # CategoryHeadMTL, NextHeadMTL
-│   │   └── components/ # Positional encoding
+│   ├── models/         # Model registry and model domains
+│   │   ├── mtl/        # MTL architectures (+ variant metadata/readmes)
+│   │   ├── category/   # Category head variants (+ metadata/readmes)
+│   │   ├── next/       # Next head variants (+ metadata/readmes)
+│   │   ├── heads/      # Backward-compatible shim imports
+│   │   └── components/ # Shared components (positional encoding, etc.)
 │   ├── tracking/       # MLHistory, FoldHistory, MetricStore, BestTracker, storage
 │   ├── training/       # Evaluate, helpers, callbacks, shared_evaluate
 │   │   └── runners/    # CV runners + trainers (mtl, category, next)
 │   └── utils/          # FLOPs, MPS support, profiler, progress bar
 ├── research/
-│   ├── embeddings/     # Embedding trainers (dgi, hgi, check2hgi, poi2hgi, time2vec, space2vec, hmrm)
-│   ├── losses/         # Loss variant metadata + wrappers by variant
-│   ├── mtl/            # MTL architecture variant metadata + wrappers
-│   ├── next/           # Next-task head variants
-│   └── category/       # Category-task head variants
+│   └── embeddings/     # Embedding trainers (dgi, hgi, check2hgi, poi2hgi, time2vec, space2vec, hmrm)
 ├── experiments/
 │   ├── configs/        # Declarative ExperimentConfig constructors
 │   ├── hydra_configs/  # Hydra YAML configs
@@ -60,14 +59,14 @@
 
 ## MTLnet Model
 
-Architecture in `src/models/mtlnet.py`:
+Architecture in `src/models/mtl/model.py`:
 
 1. **Task-specific encoders**: 2-layer MLPs (`feature_size -> encoder_layer_size -> shared_layer_size`), one per task
 2. **FiLM modulation** (`FiLMLayer`): Learns gamma/beta from task embeddings, applies `gamma * x + beta` to condition shared layers on task identity
 3. **Shared backbone** (`ResidualBlock`): Stack of 4 residual blocks with LayerNorm + Linear + LeakyReLU + Dropout
 4. **Task heads**:
-   - `CategoryHeadMTL` (`src/models/heads/category.py`): Multi-path ensemble (3 parallel paths of variable depth 2-4), concatenated -> Linear -> LayerNorm -> GELU -> classifier
-   - `NextHeadMTL` (`src/models/heads/next.py`): Transformer encoder (4 layers, 8 heads, norm_first) with positional encoding, causal masking, and attention-based sequence pooling -> classifier
+   - `CategoryHeadMTL` (`src/models/category/head.py`): Multi-path ensemble (3 parallel paths of variable depth 2-4), concatenated -> Linear -> LayerNorm -> GELU -> classifier
+   - `NextHeadMTL` (`src/models/next/head.py`): Transformer encoder (4 layers, 8 heads, norm_first) with positional encoding, causal masking, and attention-based sequence pooling -> classifier
 
 Key methods: `shared_parameters()` and `task_specific_parameters()` enable gradient manipulation for MTL optimizers.
 
@@ -163,15 +162,16 @@ Each engine lives in `research/embeddings/<engine>/` and may have its own AGENTS
 ## Loss Functions
 
 Runtime loss registry remains in `src/losses/registry.py`.
-Research variant docs/wrappers live in `research/losses/<variant>/`.
+Loss variants are organized in `src/losses/<variant>/` with `loss.py`,
+`README.md`, and `metadata.yaml`.
 
 | File | Class | Description |
 |------|-------|-------------|
-| `nash_mtl.py` | `NashMTL` | Primary MTL loss - Nash equilibrium gradient balancing via cvxpy/ECOS solver |
-| `focal.py` | `FocalLoss` | Handles class imbalance with `(1-pt)^gamma` weighting (gamma=2.0) |
-| `pcgrad.py` | `PCGrad` | Projects conflicting task gradients to reduce interference |
-| `gradnorm.py` | `GradNorm` | Balances gradient magnitudes across tasks |
-| `naive.py` | `NaiveLoss` | Dynamic alpha/beta weighted sum with clamped adjustment |
+| `nash_mtl/loss.py` | `NashMTL` | Primary MTL loss - Nash equilibrium gradient balancing via cvxpy/ECOS solver |
+| `focal/loss.py` | `FocalLoss` | Handles class imbalance with `(1-pt)^gamma` weighting (gamma=2.0) |
+| `pcgrad/loss.py` | `PCGrad` | Projects conflicting task gradients to reduce interference |
+| `gradnorm/loss.py` | `GradNorm` | Balances gradient magnitudes across tasks |
+| `naive/loss.py` | `NaiveLoss` | Dynamic alpha/beta weighted sum with clamped adjustment |
 
 ## Utilities
 

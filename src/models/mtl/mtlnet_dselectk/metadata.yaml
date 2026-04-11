@@ -1,0 +1,7 @@
+name: mtlnet_dselectk
+domain: mtl
+status: implemented
+registry_key: mtlnet_dselectk
+runtime_class: models.mtl.model.MTLnetDSelectK
+runtime_file: src/models/mtl/model.py
+source_doc: ""

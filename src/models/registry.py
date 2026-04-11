@@ -36,9 +36,9 @@ def _ensure_registered():
     if _REGISTERED:
         return
     _REGISTERED = True
-    import models.heads.category  # noqa: F401
-    import models.heads.next  # noqa: F401
-    import models.mtlnet  # noqa: F401
+    import models.category.head  # noqa: F401
+    import models.next.head  # noqa: F401
+    import models.mtl.model  # noqa: F401
 
 
 def create_model(name: str, **kwargs) -> nn.Module:

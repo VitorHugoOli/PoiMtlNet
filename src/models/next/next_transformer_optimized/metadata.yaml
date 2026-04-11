@@ -1,0 +1,7 @@
+name: next_transformer_optimized
+domain: next
+status: implemented
+registry_key: next_transformer_optimized
+runtime_class: models.next.head.NextHeadTransformerOptimized
+runtime_file: src/models/next/head.py
+source_doc: ""

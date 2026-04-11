@@ -1,7 +1,0 @@
-name: category_attention
-domain: category
-status: implemented
-registry_key: category_attention
-runtime_class: models.heads.category.CategoryHeadAttentionPooling
-runtime_file: src/models/heads/category.py
-source_doc: ""

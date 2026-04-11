@@ -1,0 +1,7 @@
+name: pcgrad
+domain: losses
+status: implemented
+registry_key: pcgrad
+runtime_class: losses.pcgrad.PCGrad
+runtime_file: src/losses/pcgrad/loss.py
+source_doc: ""

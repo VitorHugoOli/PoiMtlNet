@@ -1,7 +1,0 @@
-name: mtlnet_mmoe
-domain: mtl
-status: implemented
-registry_key: mtlnet_mmoe
-runtime_class: models.mtlnet.MTLnetMMoE
-runtime_file: src/models/mtlnet.py
-source_doc: ""

@@ -1,0 +1,7 @@
+name: next_lstm
+domain: next
+status: implemented
+registry_key: next_lstm
+runtime_class: models.next.head.NextHeadLSTM
+runtime_file: src/models/next/head.py
+source_doc: ""

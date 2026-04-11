@@ -1,7 +1,0 @@
-name: category_transformer
-domain: category
-status: implemented
-registry_key: category_transformer
-runtime_class: models.heads.category.CategoryHeadTransformer
-runtime_file: src/models/heads/category.py
-source_doc: ""

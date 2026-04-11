@@ -1,0 +1,7 @@
+name: category_se
+domain: category
+status: implemented
+registry_key: category_se
+runtime_class: models.category.head.SEHead
+runtime_file: src/models/category/head.py
+source_doc: ""

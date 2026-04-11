@@ -1,7 +1,0 @@
-name: category_single
-domain: category
-status: implemented
-registry_key: category_single
-runtime_class: models.heads.category.CategoryHeadSingle
-runtime_file: src/models/heads/category.py
-source_doc: ""
