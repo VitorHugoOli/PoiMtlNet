@@ -33,6 +33,7 @@ class EmbeddingEngine(Enum):
     HMRM = "hmrm"
     TIME2VEC = "time2vec"
     SPACE2VEC = "space2vec"
+    SPHERE2VEC = "sphere2vec"
     CHECK2HGI = "check2hgi"
     POI2HGI = "poi2hgi"
     FUSION = "fusion"  # Multi-embedding fusion
@@ -212,6 +213,28 @@ class _Space2VecIoPath:
         return cls.get_temp_dir(state)
 
 
+class _Sphere2VecIoPath:
+    # File name constants
+    MODEL_FILE: str = "sphere2vec_model.pt"
+
+    # Sphere2Vec embeddings output
+    _sphere2vec_dir: Path = OUTPUT_DIR / EmbeddingEngine.SPHERE2VEC.value
+
+    @classmethod
+    def get_state_dir(cls, state: str) -> Path:
+        """Get the Sphere2Vec output directory for a specific state."""
+        return cls._sphere2vec_dir / state.lower()
+
+    @classmethod
+    def get_output_dir(cls, state: str) -> Path:
+        return cls.get_state_dir(state)
+
+    @classmethod
+    def get_model_file(cls, state: str) -> Path:
+        """Get the trained model file path for a specific state."""
+        return cls.get_output_dir(state) / cls.MODEL_FILE
+
+
 class _Check2HGIIoPath:
     # File name constants
     GRAPH_DATA_FILE: str = "checkin_graph.pt"
@@ -300,6 +323,7 @@ class IoPaths:
     HGI = _HGIIoPath
     TIME2VEC = _Time2VecIoPath
     SPACE2VEC = _Space2VecIoPath
+    SPHERE2VEC = _Sphere2VecIoPath
     CHECK2HGI = _Check2HGIIoPath
     POI2HGI = _POI2HGIIoPath
 

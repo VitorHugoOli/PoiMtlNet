@@ -86,13 +86,18 @@ class POI2Region(nn.Module):
         # 2. Multi-head splitting
         # dim_split = dim // num_heads
         dim_split = self.hidden_channels // self.num_heads
-        
+        N = x.size(0)
+
         # Split K, V into heads: [num_pois, num_heads, dim_split]
-        K_split = torch.cat(K_pois.split(dim_split, 1), 0).view(-1, self.num_heads, dim_split)
-        V_split = torch.cat(V_pois.split(dim_split, 1), 0).view(-1, self.num_heads, dim_split)
-        
+        # Direct view is correct: feature slice [h*d:(h+1)*d] maps to head h.
+        # NOTE: torch.cat(split, 0).view(-1, H, d) is WRONG because it produces
+        # [H*N, d] where heads are in blocks of N, not interleaved — view then
+        # scrambles head/poi assignment. Use view directly instead.
+        K_split = K_pois.view(N, self.num_heads, dim_split)
+        V_split = V_pois.view(N, self.num_heads, dim_split)
+
         # Split Q: [1, num_heads, dim_split]
-        Q_split = torch.cat(Q_seed.split(dim_split, 1), 0).view(1, self.num_heads, dim_split)
+        Q_split = Q_seed.view(1, self.num_heads, dim_split)
         
         # 3. Attention Scores
         # Score = Q * K^T

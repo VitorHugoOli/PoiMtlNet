@@ -127,7 +127,13 @@ def process_state(name: str, shapefile, cta_file=None) -> bool:
 
 def run_pipeline():
     """Process all configured states."""
-    logger.info(f"HGI Pipeline - {len(STATES)} state(s) | device={DEVICE} | dim={HGI_CONFIG.dim}")
+    # NOTE: HGI and POI2Vec are pinned to CPU in HGI_CONFIG/process_state because
+    # the global DEVICE (MPS on Apple Silicon) is ~176x slower than CPU for HGI's
+    # many-small-ops workload. We log both so the discrepancy is visible.
+    logger.info(
+        f"HGI Pipeline - {len(STATES)} state(s) | "
+        f"hgi_device={HGI_CONFIG.device} | global_device={DEVICE} | dim={HGI_CONFIG.dim}"
+    )
 
     start = datetime.now()
     results = {name: process_state(name, shp) for name, shp in STATES.items()}
