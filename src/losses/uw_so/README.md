@@ -6,7 +6,7 @@
 
 ## Runtime Mapping
 - Registry key: `uw_so`
-- Runtime class: `losses.mtl_baselines.SoftOptimalUncertaintyWeightingLoss`
+- Runtime class: `losses.uw_so.loss.SoftOptimalUncertaintyWeightingLoss`
 
 
 ## Evidence Status
@@ -14,4 +14,4 @@
 - Last Reviewed: `2026-04-11`
 
 ## Sources
-- In-repo implementation: `src/losses/mtl_baselines.py`
+- In-repo implementation: `src/losses/uw_so/loss.py`

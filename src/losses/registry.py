@@ -51,24 +51,21 @@ def _ensure_registered():
     global _REGISTERED
     if _REGISTERED:
         return
-    _REGISTERED = True
 
     # Import each loss module to trigger registration
     from losses.nash_mtl import NashMTL  # noqa: F401
-    from losses.mtl_baselines import (  # noqa: F401
-        BayesAggMTLLoss,
-        DBMTLLoss,
-        EqualWeightLoss,
-        ExcessMTLLoss,
-        FAMOLoss,
-        FairGradLoss,
-        GO4AlignLoss,
-        RandomWeightLoss,
-        SoftOptimalUncertaintyWeightingLoss,
-        STCHLoss,
-        StaticWeightLoss,
-        UncertaintyWeightingLoss,
-    )
+    from losses.equal_weight.loss import EqualWeightLoss  # noqa: F401
+    from losses.static_weight.loss import StaticWeightLoss  # noqa: F401
+    from losses.uncertainty_weighting.loss import UncertaintyWeightingLoss  # noqa: F401
+    from losses.uw_so.loss import SoftOptimalUncertaintyWeightingLoss  # noqa: F401
+    from losses.random_weight.loss import RandomWeightLoss  # noqa: F401
+    from losses.famo.loss import FAMOLoss  # noqa: F401
+    from losses.fairgrad.loss import FairGradLoss  # noqa: F401
+    from losses.bayesagg_mtl.loss import BayesAggMTLLoss  # noqa: F401
+    from losses.go4align.loss import GO4AlignLoss  # noqa: F401
+    from losses.excess_mtl.loss import ExcessMTLLoss  # noqa: F401
+    from losses.stch.loss import STCHLoss  # noqa: F401
+    from losses.db_mtl.loss import DBMTLLoss  # noqa: F401
     from losses.focal import FocalLoss  # noqa: F401
     from losses.pcgrad import PCGrad  # noqa: F401
     from losses.gradnorm import GradNormLoss  # noqa: F401
@@ -95,6 +92,7 @@ def _ensure_registered():
     _LOSS_REGISTRY.setdefault("pcgrad", PCGrad)
     _LOSS_REGISTRY.setdefault("gradnorm", GradNormLoss)
     _LOSS_REGISTRY.setdefault("naive", NaiveLoss)
+    _REGISTERED = True
 
 
 def create_loss(name: str, **kwargs):

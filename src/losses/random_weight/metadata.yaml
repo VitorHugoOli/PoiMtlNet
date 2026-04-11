@@ -3,6 +3,6 @@ domain: losses
 status: implemented
 evidence_status: implemented
 registry_key: random_weight
-runtime_class: losses.mtl_baselines.RandomWeightLoss
-runtime_file: src/losses/mtl_baselines.py
+runtime_class: losses.random_weight.loss.RandomWeightLoss
+runtime_file: src/losses/random_weight/loss.py
 source_doc: ""

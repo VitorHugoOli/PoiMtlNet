@@ -5,7 +5,7 @@
 
 ## Runtime Mapping
 - Model registry key: `next_temporal_cnn`
-- Runtime class: `models.next.head.NextHeadTemporalCNN`
+- Runtime class: `models.next.next_temporal_cnn.head.NextHeadTemporalCNN`
 
 
 ## Evidence Status
@@ -13,4 +13,4 @@
 - Last Reviewed: `2026-04-11`
 
 ## Sources
-- In-repo implementation: `src/models/next/head.py`
+- In-repo implementation: `src/models/next/next_temporal_cnn/head.py`

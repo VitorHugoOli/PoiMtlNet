@@ -15,7 +15,7 @@ from sklearn.metrics import f1_score
 import numpy as np
 
 from configs.experiment import ExperimentConfig
-from models.heads.next import NextHeadSingle
+from models.next import NextHeadSingle
 
 # Derive defaults from canonical config source
 _CFG = ExperimentConfig.default_next("_test", "test", "dgi")

@@ -6,7 +6,7 @@
 
 ## Runtime Mapping
 - Registry key: `db_mtl`
-- Runtime class: `losses.mtl_baselines.DBMTLLoss`
+- Runtime class: `losses.db_mtl.loss.DBMTLLoss`
 
 
 ## Evidence Status
@@ -14,5 +14,5 @@
 - Last Reviewed: `2026-04-11`
 
 ## Sources
-- In-repo implementation: `src/losses/mtl_baselines.py`
+- In-repo implementation: `src/losses/db_mtl/loss.py`
 - Variant notes: `docs/mtl_optimizers/db_mtl/README.md`

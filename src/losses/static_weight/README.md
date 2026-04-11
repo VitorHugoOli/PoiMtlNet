@@ -5,7 +5,7 @@
 
 ## Runtime Mapping
 - Registry key: `static_weight`
-- Runtime class: `losses.mtl_baselines.StaticWeightLoss`
+- Runtime class: `losses.static_weight.loss.StaticWeightLoss`
 
 
 ## Evidence Status
@@ -13,4 +13,4 @@
 - Last Reviewed: `2026-04-11`
 
 ## Sources
-- In-repo implementation: `src/losses/mtl_baselines.py`
+- In-repo implementation: `src/losses/static_weight/loss.py`

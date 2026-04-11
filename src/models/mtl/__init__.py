@@ -1,5 +1,8 @@
 """MTL architecture domain."""
 
-from .model import MTLnet, MTLnetCGC, MTLnetDSelectK, MTLnetMMoE
+from .mtlnet.model import MTLnet
+from .mtlnet_cgc.model import MTLnetCGC
+from .mtlnet_dselectk.model import MTLnetDSelectK
+from .mtlnet_mmoe.model import MTLnetMMoE
 
 __all__ = ["MTLnet", "MTLnetCGC", "MTLnetMMoE", "MTLnetDSelectK"]

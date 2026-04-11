@@ -35,10 +35,10 @@ def _ensure_registered():
     global _REGISTERED
     if _REGISTERED:
         return
+    import models.category  # noqa: F401
+    import models.next  # noqa: F401
+    import models.mtl  # noqa: F401
     _REGISTERED = True
-    import models.category.head  # noqa: F401
-    import models.next.head  # noqa: F401
-    import models.mtl.model  # noqa: F401
 
 
 def create_model(name: str, **kwargs) -> nn.Module:

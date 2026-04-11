@@ -6,7 +6,7 @@
 
 ## Runtime Mapping
 - Model registry key: `mtlnet_mmoe`
-- Runtime class: `models.mtl.model.MTLnetMMoE`
+- Runtime class: `models.mtl.mtlnet_mmoe.model.MTLnetMMoE`
 
 
 ## Evidence Status
@@ -14,5 +14,5 @@
 - Last Reviewed: `2026-04-11`
 
 ## Sources
-- In-repo implementation: `src/models/mtl/model.py`
+- In-repo implementation: `src/models/mtl/mtlnet_mmoe/model.py`
 - Related literature: MMoE (KDD 2018)

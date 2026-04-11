@@ -1,6 +1,6 @@
 """Compatibility shim for legacy imports.
 
-Canonical path: ``models.mtl.model``.
+Canonical path: ``models.mtl``.
 """
 
-from models.mtl.model import *  # noqa: F401,F403
+from models.mtl import *  # noqa: F401,F403

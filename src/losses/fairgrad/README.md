@@ -6,7 +6,7 @@
 
 ## Runtime Mapping
 - Registry key: `fairgrad`
-- Runtime class: `losses.mtl_baselines.FairGradLoss`
+- Runtime class: `losses.fairgrad.loss.FairGradLoss`
 
 
 ## Evidence Status
@@ -14,5 +14,5 @@
 - Last Reviewed: `2026-04-11`
 
 ## Sources
-- In-repo implementation: `src/losses/mtl_baselines.py`
+- In-repo implementation: `src/losses/fairgrad/loss.py`
 - Variant notes: `docs/mtl_optimizers/fairgrad/README.md`

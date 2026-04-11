@@ -5,7 +5,7 @@
 
 ## Runtime Mapping
 - Model registry key: `next_hybrid`
-- Runtime class: `models.next.head.NextHeadHybrid`
+- Runtime class: `models.next.next_hybrid.head.NextHeadHybrid`
 
 
 ## Evidence Status
@@ -13,4 +13,4 @@
 - Last Reviewed: `2026-04-11`
 
 ## Sources
-- In-repo implementation: `src/models/next/head.py`
+- In-repo implementation: `src/models/next/next_hybrid/head.py`

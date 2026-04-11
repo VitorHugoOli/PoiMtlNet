@@ -5,7 +5,7 @@
 
 ## Runtime Mapping
 - Model registry key: `category_single`
-- Runtime class: `models.category.head.CategoryHeadSingle`
+- Runtime class: `models.category.category_single.head.CategoryHeadSingle`
 
 
 ## Evidence Status
@@ -13,4 +13,4 @@
 - Last Reviewed: `2026-04-11`
 
 ## Sources
-- In-repo implementation: `src/models/category/head.py`
+- In-repo implementation: `src/models/category/category_single/head.py`

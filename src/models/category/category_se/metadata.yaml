@@ -3,6 +3,6 @@ domain: category
 status: implemented
 evidence_status: implemented
 registry_key: category_se
-runtime_class: models.category.head.SEHead
-runtime_file: src/models/category/head.py
+runtime_class: models.category.category_se.head.SEHead
+runtime_file: src/models/category/category_se/head.py
 source_doc: ""

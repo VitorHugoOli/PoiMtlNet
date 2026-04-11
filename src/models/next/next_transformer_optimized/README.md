@@ -6,7 +6,7 @@
 
 ## Runtime Mapping
 - Model registry key: `next_transformer_optimized`
-- Runtime class: `models.next.head.NextHeadTransformerOptimized`
+- Runtime class: `models.next.next_transformer_optimized.head.NextHeadTransformerOptimized`
 
 
 ## Evidence Status
@@ -14,4 +14,4 @@
 - Last Reviewed: `2026-04-11`
 
 ## Sources
-- In-repo implementation: `src/models/next/head.py`
+- In-repo implementation: `src/models/next/next_transformer_optimized/head.py`

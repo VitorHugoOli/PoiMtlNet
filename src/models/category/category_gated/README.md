@@ -5,7 +5,7 @@
 
 ## Runtime Mapping
 - Model registry key: `category_gated`
-- Runtime class: `models.category.head.CategoryHeadGated`
+- Runtime class: `models.category.category_gated.head.CategoryHeadGated`
 
 
 ## Evidence Status
@@ -13,4 +13,4 @@
 - Last Reviewed: `2026-04-11`
 
 ## Sources
-- In-repo implementation: `src/models/category/head.py`
+- In-repo implementation: `src/models/category/category_gated/head.py`

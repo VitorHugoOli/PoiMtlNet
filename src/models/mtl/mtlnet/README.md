@@ -5,7 +5,7 @@
 
 ## Runtime Mapping
 - Model registry key: `mtlnet`
-- Runtime class: `models.mtl.model.MTLnet`
+- Runtime class: `models.mtl.mtlnet.model.MTLnet`
 
 
 ## Evidence Status
@@ -13,4 +13,4 @@
 - Last Reviewed: `2026-04-11`
 
 ## Sources
-- In-repo implementation: `src/models/mtl/model.py`
+- In-repo implementation: `src/models/mtl/mtlnet/model.py`

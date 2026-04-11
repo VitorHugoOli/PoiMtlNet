@@ -3,6 +3,6 @@ domain: losses
 status: implemented
 evidence_status: implemented
 registry_key: famo
-runtime_class: losses.mtl_baselines.FAMOLoss
-runtime_file: src/losses/mtl_baselines.py
+runtime_class: losses.famo.loss.FAMOLoss
+runtime_file: src/losses/famo/loss.py
 source_doc: ""

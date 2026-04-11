@@ -5,7 +5,7 @@
 
 ## Runtime Mapping
 - Model registry key: `category_ensemble`
-- Runtime class: `models.category.head.CategoryHeadEnsemble`
+- Runtime class: `models.category.category_ensemble.head.CategoryHeadEnsemble`
 
 
 ## Evidence Status
@@ -13,4 +13,4 @@
 - Last Reviewed: `2026-04-11`
 
 ## Sources
-- In-repo implementation: `src/models/category/head.py`
+- In-repo implementation: `src/models/category/category_ensemble/head.py`

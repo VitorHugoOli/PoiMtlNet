@@ -3,6 +3,6 @@ domain: losses
 status: implemented
 evidence_status: implemented
 registry_key: go4align
-runtime_class: losses.mtl_baselines.GO4AlignLoss
-runtime_file: src/losses/mtl_baselines.py
+runtime_class: losses.go4align.loss.GO4AlignLoss
+runtime_file: src/losses/go4align/loss.py
 source_doc: docs/mtl_optimizers/go4align/README.md

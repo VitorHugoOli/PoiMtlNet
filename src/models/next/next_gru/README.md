@@ -5,7 +5,7 @@
 
 ## Runtime Mapping
 - Model registry key: `next_gru`
-- Runtime class: `models.next.head.NextHeadGRU`
+- Runtime class: `models.next.next_gru.head.NextHeadGRU`
 
 
 ## Evidence Status
@@ -13,4 +13,4 @@
 - Last Reviewed: `2026-04-11`
 
 ## Sources
-- In-repo implementation: `src/models/next/head.py`
+- In-repo implementation: `src/models/next/next_gru/head.py`

@@ -6,7 +6,7 @@
 
 ## Runtime Mapping
 - Registry key: `go4align`
-- Runtime class: `losses.mtl_baselines.GO4AlignLoss`
+- Runtime class: `losses.go4align.loss.GO4AlignLoss`
 
 
 ## Evidence Status
@@ -14,5 +14,5 @@
 - Last Reviewed: `2026-04-11`
 
 ## Sources
-- In-repo implementation: `src/losses/mtl_baselines.py`
+- In-repo implementation: `src/losses/go4align/loss.py`
 - Variant notes: `docs/mtl_optimizers/go4align/README.md`

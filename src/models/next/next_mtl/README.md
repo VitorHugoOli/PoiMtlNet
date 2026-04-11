@@ -6,7 +6,7 @@
 
 ## Runtime Mapping
 - Model registry key: `next_mtl`
-- Runtime class: `models.next.head.NextHeadMTL`
+- Runtime class: `models.next.next_mtl.head.NextHeadMTL`
 
 
 ## Evidence Status
@@ -14,4 +14,4 @@
 - Last Reviewed: `2026-04-11`
 
 ## Sources
-- In-repo implementation: `src/models/next/head.py`
+- In-repo implementation: `src/models/next/next_mtl/head.py`

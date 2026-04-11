@@ -6,7 +6,7 @@
 
 ## Runtime Mapping
 - Model registry key: `mtlnet_cgc`
-- Runtime class: `models.mtl.model.MTLnetCGC`
+- Runtime class: `models.mtl.mtlnet_cgc.model.MTLnetCGC`
 
 
 ## Evidence Status
@@ -14,5 +14,5 @@
 - Last Reviewed: `2026-04-11`
 
 ## Sources
-- In-repo implementation: `src/models/mtl/model.py`
+- In-repo implementation: `src/models/mtl/mtlnet_cgc/model.py`
 - Related literature: PLE/CGC (RecSys 2020)

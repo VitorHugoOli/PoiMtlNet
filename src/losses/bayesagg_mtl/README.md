@@ -6,7 +6,7 @@
 
 ## Runtime Mapping
 - Registry key: `bayesagg_mtl` (alias: `bayesagg`)
-- Runtime class: `losses.mtl_baselines.BayesAggMTLLoss`
+- Runtime class: `losses.bayesagg_mtl.loss.BayesAggMTLLoss`
 
 
 ## Evidence Status
@@ -14,5 +14,5 @@
 - Last Reviewed: `2026-04-11`
 
 ## Sources
-- In-repo implementation: `src/losses/mtl_baselines.py`
+- In-repo implementation: `src/losses/bayesagg_mtl/loss.py`
 - Variant notes: `docs/mtl_optimizers/bayesagg_mtl/README.md`

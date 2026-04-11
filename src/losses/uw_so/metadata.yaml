@@ -3,6 +3,6 @@ domain: losses
 status: implemented
 evidence_status: implemented
 registry_key: uw_so
-runtime_class: losses.mtl_baselines.SoftOptimalUncertaintyWeightingLoss
-runtime_file: src/losses/mtl_baselines.py
+runtime_class: losses.uw_so.loss.SoftOptimalUncertaintyWeightingLoss
+runtime_file: src/losses/uw_so/loss.py
 source_doc: ""

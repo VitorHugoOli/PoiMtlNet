@@ -854,7 +854,7 @@ PYTHONPATH=src python -c "from configs.experiment import ExperimentConfig; print
 
 #### [5.2] models/ — move mtl_poi.py to models/mtlnet.py (BPR)
 
-**Decision:** Moved `src/model/mtlnet/mtl_poi.py` → `src/models/mtlnet.py`. All `src/model/` shim files (from P4a) updated with DeprecationWarning. Registry updated to import from `models.mtlnet`. Test imports updated to canonical `models.heads.category`, `models.heads.next`, `models.mtlnet`.
+**Decision:** Moved `src/model/mtlnet/mtl_poi.py` → `src/models/mtlnet.py`. All `src/model/` shim files (from P4a) updated with DeprecationWarning. Registry updated to import from `models.mtlnet`. Test imports updated to canonical `models.category`, `models.next`, `models.mtlnet`.
 
 **Files affected:** `src/models/mtlnet.py` (moved), `src/models/registry.py` (import updated), `src/model/mtlnet/mtl_poi.py` (shim), all `src/model/` shims (DeprecationWarning added), `tests/test_regression/test_regression.py` (imports updated)
 **Verification:**
