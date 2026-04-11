@@ -1,0 +1,7 @@
+name: uncertainty_weighting
+domain: losses
+status: implemented
+registry_key: uncertainty_weighting
+runtime_class: losses.mtl_baselines.UncertaintyWeightingLoss
+runtime_file: src/losses/mtl_baselines.py
+source_doc: ""

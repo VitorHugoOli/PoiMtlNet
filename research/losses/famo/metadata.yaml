@@ -1,0 +1,7 @@
+name: famo
+domain: losses
+status: implemented
+registry_key: famo
+runtime_class: losses.mtl_baselines.FAMOLoss
+runtime_file: src/losses/mtl_baselines.py
+source_doc: ""

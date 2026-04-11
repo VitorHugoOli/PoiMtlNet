@@ -1,0 +1,7 @@
+name: category_ensemble
+domain: category
+status: implemented
+registry_key: category_ensemble
+runtime_class: models.heads.category.CategoryHeadEnsemble
+runtime_file: src/models/heads/category.py
+source_doc: ""

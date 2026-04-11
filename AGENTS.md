@@ -17,10 +17,12 @@
 │   └── train/          # Training pipeline wrappers (delegate to scripts/train.py)
 ├── scripts/
 │   ├── train.py        # Canonical CLI entrypoint (--task, --state, --engine)
+│   ├── run_mtl_ablation.py # Canonical staged ablation CLI
 │   ├── evaluate.py     # Checkpoint evaluation
 │   ├── train_hydra.py  # Optional Hydra entrypoint
 │   └── generate_feasibility_report.py
 ├── src/
+│   ├── ablation/       # Candidate matrix + ablation runner logic
 │   ├── configs/        # ExperimentConfig, InputsConfig, paths, globals
 │   ├── data/           # Fold creation, dataset, input builders, schemas
 │   │   └── inputs/     # Modular input generation (core, builders, fusion, loaders)
@@ -33,7 +35,11 @@
 │   │   └── runners/    # CV runners + trainers (mtl, category, next)
 │   └── utils/          # FLOPs, MPS support, profiler, progress bar
 ├── research/
-│   └── embeddings/     # Embedding trainers (dgi, hgi, check2hgi, poi2hgi, time2vec, space2vec, hmrm)
+│   ├── embeddings/     # Embedding trainers (dgi, hgi, check2hgi, poi2hgi, time2vec, space2vec, hmrm)
+│   ├── losses/         # Loss variant metadata + wrappers by variant
+│   ├── mtl/            # MTL architecture variant metadata + wrappers
+│   ├── next/           # Next-task head variants
+│   └── category/       # Category-task head variants
 ├── experiments/
 │   ├── configs/        # Declarative ExperimentConfig constructors
 │   ├── hydra_configs/  # Hydra YAML configs
@@ -156,7 +162,8 @@ Each engine lives in `research/embeddings/<engine>/` and may have its own AGENTS
 
 ## Loss Functions
 
-All in `src/losses/`, with `registry.py` for dynamic registration:
+Runtime loss registry remains in `src/losses/registry.py`.
+Research variant docs/wrappers live in `research/losses/<variant>/`.
 
 | File | Class | Description |
 |------|-------|-------------|

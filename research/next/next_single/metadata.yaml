@@ -1,0 +1,7 @@
+name: next_single
+domain: next
+status: implemented
+registry_key: next_single
+runtime_class: models.heads.next.NextHeadSingle
+runtime_file: src/models/heads/next.py
+source_doc: ""

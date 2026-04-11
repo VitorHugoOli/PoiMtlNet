@@ -1,0 +1,7 @@
+name: fairgrad
+domain: losses
+status: implemented
+registry_key: fairgrad
+runtime_class: losses.mtl_baselines.FairGradLoss
+runtime_file: src/losses/mtl_baselines.py
+source_doc: docs/mtl_optimizers/fairgrad/README.md

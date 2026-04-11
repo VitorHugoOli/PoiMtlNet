@@ -1,0 +1,7 @@
+name: bayesagg_mtl
+domain: losses
+status: implemented
+registry_key: bayesagg_mtl
+runtime_class: losses.mtl_baselines.BayesAggMTLLoss
+runtime_file: src/losses/mtl_baselines.py
+source_doc: docs/mtl_optimizers/bayesagg_mtl/README.md

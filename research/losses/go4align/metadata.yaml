@@ -1,0 +1,7 @@
+name: go4align
+domain: losses
+status: implemented
+registry_key: go4align
+runtime_class: losses.mtl_baselines.GO4AlignLoss
+runtime_file: src/losses/mtl_baselines.py
+source_doc: docs/mtl_optimizers/go4align/README.md

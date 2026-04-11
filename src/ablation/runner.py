@@ -14,6 +14,7 @@ import subprocess
 import sys
 import time
 from dataclasses import asdict, dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -40,6 +41,7 @@ class AblationResult:
     run_dir: str
     log_file: str
     duration_seconds: float
+    command: str
     joint_score: float | None = None
     next_f1: float | None = None
     category_f1: float | None = None
@@ -152,10 +154,11 @@ def _run_candidate(
     env["PYTHONPATH"] = "src:."
 
     argv = _candidate_argv(candidate, state, engine, epochs, folds, seed)
+    command = " ".join(argv)
     started = time.time()
     print(f"[ablation] running {candidate.name} ({folds} fold(s), {epochs} epochs)")
     with log_file.open("w", encoding="utf-8") as log:
-        log.write("$ " + " ".join(argv) + "\n\n")
+        log.write("$ " + command + "\n\n")
         proc = subprocess.run(
             argv,
             cwd=_root,
@@ -186,6 +189,7 @@ def _run_candidate(
         run_dir=str(run_dir) if run_dir else "",
         log_file=str(log_file),
         duration_seconds=duration,
+        command=command,
         joint_score=joint_score,
         next_f1=next_f1,
         category_f1=category_f1,
@@ -200,6 +204,43 @@ def _top_candidates(rows: list[AblationResult], top_k: int) -> list[str]:
     ]
     successful.sort(key=lambda row: row.joint_score or float("-inf"), reverse=True)
     return [row.candidate for row in successful[:top_k]]
+
+
+def _write_manifest(
+    path: Path,
+    *,
+    stage: str,
+    state: str,
+    engine: str,
+    epochs: int,
+    folds: int,
+    seed: int | None,
+    candidates: tuple[MTLCandidate, ...],
+    promoted_from: str | None = None,
+) -> None:
+    data = {
+        "created_at_utc": datetime.now(timezone.utc).isoformat(),
+        "stage": stage,
+        "state": state,
+        "engine": engine,
+        "epochs": epochs,
+        "folds": folds,
+        "seed": seed,
+        "promoted_from": promoted_from,
+        "candidates": [
+            {
+                "name": candidate.name,
+                "stage": candidate.stage,
+                "model_name": candidate.model_name,
+                "model_params": dict(candidate.model_params),
+                "mtl_loss": candidate.mtl_loss,
+                "mtl_loss_params": dict(candidate.mtl_loss_params),
+                "rationale": candidate.rationale,
+            }
+            for candidate in candidates
+        ],
+    }
+    path.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
 
 def _parse_args(argv=None):
@@ -247,6 +288,18 @@ def main(argv=None) -> None:
     label = f"{args.stage}_{args.folds}fold_{args.epochs}ep{seed_suffix}"
     label_root = args.results_root / label
     label_root.mkdir(parents=True, exist_ok=True)
+    manifest_path = label_root / "manifest.json"
+    _write_manifest(
+        manifest_path,
+        stage=args.stage,
+        state=args.state,
+        engine=args.engine,
+        epochs=args.epochs,
+        folds=args.folds,
+        seed=args.seed,
+        candidates=candidates,
+    )
+    print(f"[ablation] wrote manifest: {manifest_path}")
 
     rows = [
         _run_candidate(
@@ -268,16 +321,30 @@ def main(argv=None) -> None:
 
     if args.promote_top > 0:
         promoted_names = _top_candidates(rows, args.promote_top)
+        promoted_candidates = tuple(get_candidate(name) for name in promoted_names)
         promoted_label = (
             f"{args.stage}_promoted_{args.promote_folds}fold_"
             f"{args.promote_epochs}ep{seed_suffix}"
         )
         promoted_root = args.results_root / promoted_label
         promoted_root.mkdir(parents=True, exist_ok=True)
+        promoted_manifest = promoted_root / "manifest.json"
+        _write_manifest(
+            promoted_manifest,
+            stage=f"{args.stage}_promoted",
+            state=args.state,
+            engine=args.engine,
+            epochs=args.promote_epochs,
+            folds=args.promote_folds,
+            seed=args.seed,
+            candidates=promoted_candidates,
+            promoted_from=str(summary_path),
+        )
+        print(f"[ablation] wrote promoted manifest: {promoted_manifest}")
         print(f"[ablation] promoting: {', '.join(promoted_names)}")
         promoted_rows = [
             _run_candidate(
-                get_candidate(name),
+                candidate,
                 state=args.state,
                 engine=args.engine,
                 epochs=args.promote_epochs,
@@ -287,7 +354,7 @@ def main(argv=None) -> None:
                 data_root=args.data_root,
                 output_dir=args.output_dir,
             )
-            for name in promoted_names
+            for candidate in promoted_candidates
         ]
         promoted_summary = promoted_root / "summary.csv"
         _write_summary(promoted_summary, promoted_rows)

@@ -1,0 +1,7 @@
+name: uw_so
+domain: losses
+status: implemented
+registry_key: uw_so
+runtime_class: losses.mtl_baselines.SoftOptimalUncertaintyWeightingLoss
+runtime_file: src/losses/mtl_baselines.py
+source_doc: ""

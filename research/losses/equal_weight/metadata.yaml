@@ -1,0 +1,7 @@
+name: equal_weight
+domain: losses
+status: implemented
+registry_key: equal_weight
+runtime_class: losses.mtl_baselines.EqualWeightLoss
+runtime_file: src/losses/mtl_baselines.py
+source_doc: ""

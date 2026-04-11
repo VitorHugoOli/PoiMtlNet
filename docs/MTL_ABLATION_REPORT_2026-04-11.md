@@ -73,8 +73,10 @@ Implemented `mtlnet_dselectk` as a sequence-aware MoE-style variant with selecto
 
 Added/used:
 
-- `experiments/mtl_candidates.py`
-- `experiments/run_mtl_ablation.py`
+- `src/ablation/candidates.py`
+- `src/ablation/runner.py`
+- `scripts/run_mtl_ablation.py` (canonical CLI)
+- `experiments/run_mtl_ablation.py` (compatibility shim)
 
 to run staged matrices and promoted reruns in a reproducible way.
 
