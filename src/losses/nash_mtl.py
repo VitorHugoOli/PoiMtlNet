@@ -281,11 +281,12 @@ class NashMTL(WeightMethod):
             G = torch.stack(tuple(v for v in grads.values()))
             GTG = torch.mm(G, G.t())
 
-            self.normalization_factor = (
-                torch.norm(GTG).detach().cpu().numpy().reshape((1,))
-            )
-            GTG = GTG / self.normalization_factor.item()
-            alpha_np = self.solve_optimization(GTG.cpu().detach().numpy())
+            # Compute the norm and divide on-device. Only sync to CPU once
+            # for the cvxpy/ECOS solver, which has to run on the host.
+            norm = torch.norm(GTG).detach()
+            GTG_norm = GTG / norm
+            self.normalization_factor = norm.cpu().numpy().reshape((1,))
+            alpha_np = self.solve_optimization(GTG_norm.detach().cpu().numpy())
             # Move alpha onto the same device/dtype as the losses so the
             # weighted-loss multiplication works on MPS (which doesn't
             # support float64) and CUDA (which can't mix devices).
