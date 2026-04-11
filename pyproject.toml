@@ -28,7 +28,11 @@ dependencies = [
     "safetensors==0.5.3",
 
     # Optimization (NashMTL solver chain)
+    # ecos is the primary solver — Nash-MTL calls cp.ECOS explicitly. Without
+    # it cvxpy raises SolverError inside the bare-except in solve_optimization
+    # and the optimizer collapses to fixed [1,1] task weights.
     "cvxpy==1.6.4",
+    "ecos==2.0.14",
     "clarabel==0.10.0",
     "scs==3.2.7.post2",
     "osqp==1.0.3",
