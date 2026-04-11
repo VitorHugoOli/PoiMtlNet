@@ -31,9 +31,13 @@ def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_c
 
     for data_next, data_cat in zip_longest_cycle(*dataloaders):
         x_next, y_next = data_next
-        x_next, y_next = x_next.to(device, non_blocking=True), y_next.to(device, non_blocking=True)
+        if x_next.device != device:
+            x_next = x_next.to(device, non_blocking=True)
+            y_next = y_next.to(device, non_blocking=True)
         x_category, y_category = data_cat
-        x_category, y_category = x_category.to(device, non_blocking=True), y_category.to(device, non_blocking=True)
+        if x_category.device != device:
+            x_category = x_category.to(device, non_blocking=True)
+            y_category = y_category.to(device, non_blocking=True)
 
         # Forward pass
         cat_out, next_out = model((x_category, x_next))

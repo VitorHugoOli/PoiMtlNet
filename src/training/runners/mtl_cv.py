@@ -37,6 +37,8 @@ def train_model(model: torch.nn.Module,
                 mtl_criterion,
                 num_epochs,
                 num_classes,
+                shared_parameters: Optional[list] = None,
+                task_specific_parameters: Optional[list] = None,
                 fold_history=FoldHistory.standalone({'next', 'category'}),
                 max_grad_norm: float = 1.0,
                 timeout: Optional[int] = None,
@@ -48,6 +50,14 @@ def train_model(model: torch.nn.Module,
     Train the model with multi-task learning.
     """
     start_time = time.time()
+
+    # Cache parameter group lists once. The shared/task partition is fixed
+    # for the model's lifetime, so generating these per batch (the previous
+    # behaviour) just walks named_parameters() repeatedly to no benefit.
+    if shared_parameters is None:
+        shared_parameters = list(model.shared_parameters())
+    if task_specific_parameters is None:
+        task_specific_parameters = list(model.task_specific_parameters())
 
     # Create progress bar that extends tqdm
     progress = TrainingProgressBar(
@@ -88,18 +98,21 @@ def train_model(model: torch.nn.Module,
         all_next_preds, all_next_targets = [], []
         all_cat_preds, all_cat_targets = [], []
 
-        # Reset gradients at the beginning
-        optimizer.zero_grad(set_to_none=True)
-
         # Iterate over batches with automatic progress tracking
+        # (zero_grad is called inside the loop on every batch — no need to
+        # call it once before the first batch as well)
         for data_next, data_category in progress.iter_epoch():
-            # Move data to device
+            # When the dataset is pre-moved to DEVICE (item #3, MPS path with
+            # num_workers=0), the .to() calls are no-ops. Keep the guards so
+            # the loop still works under a CPU-side dataloader path.
             x_next, y_next = data_next
-            x_next = x_next.to(DEVICE, non_blocking=True)
-            y_next = y_next.to(DEVICE, non_blocking=True)
+            if x_next.device != DEVICE:
+                x_next = x_next.to(DEVICE, non_blocking=True)
+                y_next = y_next.to(DEVICE, non_blocking=True)
             x_category, y_category = data_category
-            x_category = x_category.to(DEVICE, non_blocking=True)
-            y_category = y_category.to(DEVICE, non_blocking=True)
+            if x_category.device != DEVICE:
+                x_category = x_category.to(DEVICE, non_blocking=True)
+                y_category = y_category.to(DEVICE, non_blocking=True)
 
             optimizer.zero_grad(set_to_none=True)
 
@@ -113,8 +126,8 @@ def train_model(model: torch.nn.Module,
             category_loss = category_criterion(pred_category, truth_category)
             loss, _ = mtl_criterion.backward(
                 torch.stack([next_loss, category_loss]),
-                shared_parameters=list(model.shared_parameters()),
-                task_specific_parameters=list(model.task_specific_parameters()),
+                shared_parameters=shared_parameters,
+                task_specific_parameters=task_specific_parameters,
             )
 
             optimizer.step()
@@ -268,6 +281,11 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
         # Initialize model via registry
         model = create_model(config.model_name, **config.model_params).to(DEVICE)
 
+        # Cache parameter group lists once per fold (item #2 — avoids
+        # walking named_parameters() on every NashMTL backward call).
+        cached_shared_params = list(model.shared_parameters())
+        cached_task_params = list(model.task_specific_parameters())
+
         # Get dataloaders
         dataloader_next: TaskFoldData = dataloader.next
         dataloader_category: TaskFoldData = dataloader.category
@@ -334,6 +352,8 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             dataloader_next, dataloader_category,
             next_criterion, category_criterion, mtl_criterion,
             config.epochs, num_classes,
+            shared_parameters=cached_shared_params,
+            task_specific_parameters=cached_task_params,
             fold_history=history.get_curr_fold(),
             max_grad_norm=config.max_grad_norm,
             timeout=config.timeout,
