@@ -24,6 +24,7 @@ import os
 import pickle as pkl
 
 import pandas as pd
+import pytorch_warmup as warmup
 import torch
 from torch.nn.utils import clip_grad_norm_
 from torch.optim.lr_scheduler import StepLR
@@ -78,7 +79,7 @@ def _hgi_thread_context():
         torch.set_num_threads(previous)
 
 
-def train_epoch(data, model, optimizer, scheduler, args):
+def train_epoch(data, model, optimizer, scheduler, warmup_scheduler, args):
     """Train HGI model for one epoch."""
     model.train()
     optimizer.zero_grad()
@@ -89,7 +90,10 @@ def train_epoch(data, model, optimizer, scheduler, args):
     loss.backward()
     clip_grad_norm_(model.parameters(), max_norm=args.max_norm)
     optimizer.step()
-    scheduler.step()
+    # Mirrors RightBank/HGI/train.py: warmup dampens StepLR for the first
+    # `warmup_period` epochs (linear ramp from 0 to args.lr).
+    with warmup_scheduler.dampening():
+        scheduler.step()
 
     return loss.item()
 
@@ -156,6 +160,7 @@ def train_hgi(city, args):
 
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
+    warmup_scheduler = warmup.LinearWarmup(optimizer, args.warmup_period)
 
     # Training loop — pin CPU thread count for the duration so each epoch
     # benefits from the optimal setting without polluting global state.
@@ -165,7 +170,7 @@ def train_hgi(city, args):
 
     with _hgi_thread_context():
         for epoch in t:
-            loss = train_epoch(data, model, optimizer, scheduler, args)
+            loss = train_epoch(data, model, optimizer, scheduler, warmup_scheduler, args)
             if loss < lowest_loss:
                 best_region_emb, best_poi_emb = model.get_region_emb()
                 lowest_loss = loss
