@@ -130,7 +130,7 @@ class TestExperimentConfigFactories:
         assert c.use_class_weights is True
         assert c.mtl_loss == "nash_mtl"
         assert c.mtl_loss_params == {
-            "max_norm": 2.2,
+            "max_norm": 1.0,
             "update_weights_every": 4,
             "optim_niter": 30,
         }

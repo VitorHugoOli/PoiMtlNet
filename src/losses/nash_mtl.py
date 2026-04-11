@@ -1,10 +1,13 @@
 import copy
+import logging
 import random
 from typing import Dict, List, Tuple, Union
 from abc import abstractmethod
 import numpy as np
 import torch
 import cvxpy as cp
+
+logger = logging.getLogger(__name__)
 
 class WeightMethod:
     def __init__(self, n_tasks: int, device: torch.device):
@@ -89,6 +92,9 @@ class WeightMethod:
         """return learnable parameters"""
         return []
 
+_NASH_SOLVER_FALLBACK = ("ECOS", "SCS")
+
+
 class NashMTL(WeightMethod):
     def __init__(
         self,
@@ -113,6 +119,31 @@ class NashMTL(WeightMethod):
         self.step = 0.0
         self.prvs_alpha = np.ones(self.n_tasks, dtype=np.float32)
 
+        # Pick the solver once, fail loudly at construction time if none of
+        # the supported solvers are available. The original upstream code
+        # hard-codes ECOS inside a bare `except:`, which means a missing
+        # `ecos` package degrades NashMTL into fixed [1,1] weights without
+        # any warning. Detect that here.
+        installed = set(cp.installed_solvers())
+        for candidate in _NASH_SOLVER_FALLBACK:
+            if candidate in installed:
+                self._solver = candidate
+                break
+        else:
+            raise RuntimeError(
+                "NashMTL requires one of the cvxpy solvers "
+                f"{_NASH_SOLVER_FALLBACK}, but none are installed. "
+                f"Installed: {sorted(installed)}. "
+                "Install ECOS with `pip install ecos`."
+            )
+        if self._solver != "ECOS":
+            logger.warning(
+                "NashMTL: ECOS not installed, falling back to %s. "
+                "Results may differ slightly from the paper.",
+                self._solver,
+            )
+        self._solver_failures = 0
+
     def _stop_criteria(self, gtg, alpha_t):
         return (
             (self.alpha_param.value is None)
@@ -133,8 +164,24 @@ class NashMTL(WeightMethod):
             self.prvs_alpha_param.value = alpha_t
 
             try:
-                self.prob.solve(solver=cp.ECOS, warm_start=True, max_iters=100)
-            except:
+                solve_kwargs = {"solver": self._solver, "warm_start": True}
+                if self._solver == "ECOS":
+                    solve_kwargs["max_iters"] = 100
+                elif self._solver == "SCS":
+                    solve_kwargs["max_iters"] = 2500
+                self.prob.solve(**solve_kwargs)
+            except cp.error.SolverError as exc:
+                # Don't silently swallow — this is the failure mode that used
+                # to collapse Nash-MTL to constant [1,1] weights. Log once
+                # then keep the warm-start value as a last resort.
+                if self._solver_failures == 0:
+                    logger.error(
+                        "NashMTL solver %s raised SolverError on step %s: %s. "
+                        "Alpha will fall back to the warm-start value, which "
+                        "degrades Nash-MTL to fixed task weights.",
+                        self._solver, self.step, exc,
+                    )
+                self._solver_failures += 1
                 self.alpha_param.value = self.prvs_alpha_param.value
 
             if self._stop_criteria(gtg, alpha_t):
@@ -142,8 +189,21 @@ class NashMTL(WeightMethod):
 
             alpha_t = self.alpha_param.value
 
-        if alpha_t is not None:
+        # Defensive: cvxpy can return slightly inaccurate solutions
+        # ("optimal_inaccurate") and on rare degenerate Gram matrices that
+        # leak NaN/Inf into alpha_t. Reject those silently and fall back to
+        # the previous alpha so a single bad step can't poison the
+        # weighted-loss multiplication and the optimizer state.
+        if alpha_t is not None and np.all(np.isfinite(alpha_t)):
             self.prvs_alpha = alpha_t
+        elif alpha_t is not None:
+            if self._solver_failures == 0:
+                logger.error(
+                    "NashMTL solver %s returned non-finite alpha=%s on step %s; "
+                    "keeping previous alpha=%s.",
+                    self._solver, alpha_t, self.step, self.prvs_alpha,
+                )
+            self._solver_failures += 1
 
         return self.prvs_alpha
 
@@ -225,19 +285,19 @@ class NashMTL(WeightMethod):
                 torch.norm(GTG).detach().cpu().numpy().reshape((1,))
             )
             GTG = GTG / self.normalization_factor.item()
-            alpha = self.solve_optimization(GTG.cpu().detach().numpy())
-            # Cast to float32 + move to losses' device to avoid two issues:
-            # 1. cvxpy returns numpy float64 after a multi-iter solve, which
-            #    cannot be multiplied against float32 loss tensors on MPS
-            #    (MPS does not support float64) — produces a misleading
-            #    "unsupported operand type(s) for *: 'Tensor' and 'Tensor'".
-            # 2. The CPU/MPS device mismatch otherwise requires per-element
-            #    autograd-aware copies in the multiply loop below.
-            alpha = torch.from_numpy(alpha).float().to(losses[0].device)
+            alpha_np = self.solve_optimization(GTG.cpu().detach().numpy())
+            # Move alpha onto the same device/dtype as the losses so the
+            # weighted-loss multiplication works on MPS (which doesn't
+            # support float64) and CUDA (which can't mix devices).
+            alpha = torch.as_tensor(
+                alpha_np, dtype=losses.dtype, device=losses.device
+            )
 
         else:
             self.step += 1
-            alpha = self.prvs_alpha
+            alpha = torch.as_tensor(
+                self.prvs_alpha, dtype=losses.dtype, device=losses.device
+            )
 
         weighted_loss = sum([losses[i] * alpha[i] for i in range(len(alpha))])
         extra_outputs["weights"] = alpha
