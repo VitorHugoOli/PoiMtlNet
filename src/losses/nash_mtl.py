@@ -189,8 +189,21 @@ class NashMTL(WeightMethod):
 
             alpha_t = self.alpha_param.value
 
-        if alpha_t is not None:
+        # Defensive: cvxpy can return slightly inaccurate solutions
+        # ("optimal_inaccurate") and on rare degenerate Gram matrices that
+        # leak NaN/Inf into alpha_t. Reject those silently and fall back to
+        # the previous alpha so a single bad step can't poison the
+        # weighted-loss multiplication and the optimizer state.
+        if alpha_t is not None and np.all(np.isfinite(alpha_t)):
             self.prvs_alpha = alpha_t
+        elif alpha_t is not None:
+            if self._solver_failures == 0:
+                logger.error(
+                    "NashMTL solver %s returned non-finite alpha=%s on step %s; "
+                    "keeping previous alpha=%s.",
+                    self._solver, alpha_t, self.step, self.prvs_alpha,
+                )
+            self._solver_failures += 1
 
         return self.prvs_alpha
 

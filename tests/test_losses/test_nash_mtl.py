@@ -149,3 +149,39 @@ class TestNashMTL:
             np.asarray(extras["weights"], dtype=np.float64),
             np.asarray(nash.prvs_alpha, dtype=np.float64),
         )
+
+    def test_solve_optimization_rejects_nan_alpha(self):
+        """If the cvxpy solver leaves non-finite alpha, prvs_alpha is preserved."""
+        # optim_niter=1 so the loop runs exactly one iteration: solve poisons
+        # alpha_param._value to NaN, alpha_t = self.alpha_param.value picks
+        # the NaN up, and the loop exits naturally. Then the guard at the
+        # end of solve_optimization should reject it and keep prvs_alpha.
+        nash = NashMTL(n_tasks=2, device=torch.device("cpu"),
+                       update_weights_every=1, optim_niter=1)
+        nash._init_optim_problem()
+        # Seed a known-good prvs_alpha by running one real solve first.
+        nash.solve_optimization(
+            np.array([[0.27, 0.08], [0.08, 0.95]], dtype=np.float64)
+        )
+        good_alpha = nash.prvs_alpha.copy()
+        failures_before = nash._solver_failures
+
+        # cvxpy's public setter validates `nonneg=True` and would reject NaN,
+        # so write directly into the private _value slot — that's exactly the
+        # failure mode the guard is meant to catch (cvxpy returning a
+        # degenerate solution that propagates non-finite values).
+        def poisoned_solve(**kwargs):
+            nash.alpha_param._value = np.array([np.nan, np.nan])
+
+        nash.prob.solve = poisoned_solve
+
+        # Use a *different* gtg for the second solve so the stop-criterion's
+        # "is alpha_t already a Nash equilibrium for this gtg" check returns
+        # False and the loop body actually runs to the alpha_t reassignment.
+        result = nash.solve_optimization(
+            np.array([[0.95, 0.04], [0.04, 0.31]], dtype=np.float64)
+        )
+        # Guard must reject the NaN and keep the previous good alpha.
+        assert np.all(np.isfinite(result)), f"alpha leaked NaN: {result}"
+        assert np.allclose(result, good_alpha)
+        assert nash._solver_failures > failures_before
