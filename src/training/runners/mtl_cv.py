@@ -309,10 +309,10 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
         )
 
         alpha_next = compute_class_weights(
-            dataloader_next.train.y.numpy(), num_classes, DEVICE
+            dataloader_next.train.y.cpu().numpy(), num_classes, DEVICE
         )
         alpha_cat = compute_class_weights(
-            dataloader_category.train.y.numpy(), num_classes, DEVICE
+            dataloader_category.train.y.cpu().numpy(), num_classes, DEVICE
         )
 
         next_criterion = CrossEntropyLoss(reduction='mean')

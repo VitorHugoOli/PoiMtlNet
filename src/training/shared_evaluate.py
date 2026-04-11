@@ -23,7 +23,7 @@ def evaluate(model: nn.Module, loader: DataLoader, device: torch.device,
 
     # Single GPU→CPU transfer for all predictions
     preds = torch.cat(preds_list).cpu().numpy()
-    truths = torch.cat(truths_list).numpy()
+    truths = torch.cat(truths_list).cpu().numpy()
 
     report = classification_report(
         truths,
