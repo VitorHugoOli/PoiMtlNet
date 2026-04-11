@@ -383,7 +383,7 @@ class TestTemporalContrastiveDataset:
             assert label in (0, 1)
 
     def test_negative_pairs_distance_exceeds_r_neg(self):
-        """For label=0 pairs, |t_i - t_j| >= r_neg_hours."""
+        """For label=0 pairs, |t_i - t_j| >= r_neg_hours (absolute_time mode only)."""
         df = make_checkins(200, seed=99)
         time_hours, time_feats = TemporalContrastiveDataset.extract_time_features(df)
         r_neg = 24.0
@@ -391,6 +391,7 @@ class TestTemporalContrastiveDataset:
             time_hours, time_feats,
             r_pos_hours=1.0, r_neg_hours=r_neg,
             max_pairs=1000, k_neg_per_i=3, max_pos_per_i=5, seed=1,
+            sampling_mode="absolute_time",
         )
         for i_idx, j_idx, label in ds.pairs:
             if label == 0:
@@ -398,7 +399,7 @@ class TestTemporalContrastiveDataset:
                 assert diff >= r_neg, f"Negative pair too close: {diff:.2f}h < {r_neg}h"
 
     def test_positive_pairs_within_r_pos(self):
-        """For label=1 pairs, |t_i - t_j| <= r_pos_hours."""
+        """For label=1 pairs, |t_i - t_j| <= r_pos_hours (absolute_time mode only)."""
         df = make_checkins(200, seed=99)
         time_hours, time_feats = TemporalContrastiveDataset.extract_time_features(df)
         r_pos = 1.0
@@ -406,6 +407,7 @@ class TestTemporalContrastiveDataset:
             time_hours, time_feats,
             r_pos_hours=r_pos, r_neg_hours=24.0,
             max_pairs=500, k_neg_per_i=3, max_pos_per_i=5, seed=2,
+            sampling_mode="absolute_time",
         )
         for i_idx, j_idx, label in ds.pairs:
             if label == 1:
@@ -439,6 +441,77 @@ class TestTemporalContrastiveDataset:
         ds = TemporalContrastiveDataset.from_checkins(df, max_pairs=100, seed=0)
         assert len(ds) <= 100
         assert len(ds) > 0
+
+    def test_default_sampling_mode_is_feat_space(self):
+        """Pin: the library default is sampling_mode='feat_space' (flipped on
+        2026-04-11 after the paper-faithfulness seed sweep showed +0.81 ± 0.19
+        pp on Alabama MTLnet next-task). See research/embeddings/time2vec/README.md.
+        """
+        df = make_checkins(120, seed=7)
+        time_hours, time_feats = TemporalContrastiveDataset.extract_time_features(df)
+        kwargs = dict(
+            time_hours=time_hours, time_feats=time_feats,
+            max_pairs=300, k_neg_per_i=3, max_pos_per_i=5, seed=42,
+        )
+        ds_default = TemporalContrastiveDataset(**kwargs)
+        ds_explicit = TemporalContrastiveDataset(**kwargs, sampling_mode="feat_space")
+        assert ds_default.sampling_mode == "feat_space"
+        assert ds_default.pairs == ds_explicit.pairs
+
+    def test_feat_space_sampler_resolves_issue_A(self):
+        """Rec 1 / D6 Issue A regression check.
+
+        Construct a fixture where two check-ins share IDENTICAL (hour/24, dow/7)
+        features but are >48h apart in absolute time. Under the legacy
+        absolute_time sampler they'd be labelled as negatives (contradiction:
+        identical inputs must have max cosine sim = 1 but the loss asks for 0).
+        Under feat_space sampling the same pair must NOT appear as a negative.
+        """
+        # 4 check-ins. Index 0 and 2 share the same (hour, dow) but are
+        # separated by 100 hours in wall time. Indices 1 and 3 are distractors.
+        time_hours = np.array([0.0, 5.0, 100.0, 150.0], dtype=np.float32)
+        time_feats = np.array([
+            [0.5, 0.3],   # 0
+            [0.9, 0.7],   # 1
+            [0.5, 0.3],   # 2 — identical features to #0
+            [0.1, 0.6],   # 3
+        ], dtype=np.float32)
+
+        # Legacy sampler WOULD treat (0, 2) as a negative.
+        ds_legacy = TemporalContrastiveDataset(
+            time_hours, time_feats,
+            r_pos_hours=1.0, r_neg_hours=50.0,
+            max_pairs=200, k_neg_per_i=5, max_pos_per_i=5, seed=0,
+            sampling_mode="absolute_time",
+        )
+        legacy_negs = {(min(i, j), max(i, j)) for i, j, lbl in ds_legacy.pairs if lbl == 0}
+        # We can't guarantee the sampler picked them (it's random), but the
+        # behaviour this test pins is the feat_space mode, not legacy.
+
+        # feat_space sampler must NEVER produce (0, 2) as a negative because
+        # their feature-space distance is 0.
+        ds_feat = TemporalContrastiveDataset(
+            time_hours, time_feats,
+            r_pos_hours=1.0, r_neg_hours=50.0,  # unused in feat_space
+            r_pos_feat=0.05, r_neg_feat=0.20,
+            max_pairs=200, k_neg_per_i=5, max_pos_per_i=5, seed=0,
+            sampling_mode="feat_space",
+            feat_cand_pool=4,
+        )
+        feat_negs = {(min(i, j), max(i, j)) for i, j, lbl in ds_feat.pairs if lbl == 0}
+        assert (0, 2) not in feat_negs, \
+            "feat_space sampler must not label identical-input pair (0, 2) as negative"
+
+        # Also assert every negative under feat_space has feat-space distance
+        # >= r_neg_feat (wrap-aware).
+        for i, j, lbl in ds_feat.pairs:
+            if lbl == 0:
+                dh = abs(time_feats[i, 0] - time_feats[j, 0])
+                dd = abs(time_feats[i, 1] - time_feats[j, 1])
+                dh = min(dh, 1.0 - dh)
+                dd = min(dd, 1.0 - dd)
+                d = math.sqrt(dh * dh + dd * dd)
+                assert d + 1e-6 >= 0.20, f"feat_space negative too close: {d:.3f}"
 
 
 # ---------------------------------------------------------------------------

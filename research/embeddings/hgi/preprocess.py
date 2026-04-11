@@ -19,13 +19,23 @@ from configs.paths import IoPaths, Resources
 from embeddings.hgi.utils import SpatialUtils, mode_or_first
 
 
+DEFAULT_CROSS_REGION_WEIGHT = 0.7
+
+
 class HGIPreprocess:
     """Preprocessing pipeline for HGI embeddings."""
 
-    def __init__(self, pois_filename, boroughs_filename, temp_path):
+    def __init__(self, pois_filename, boroughs_filename, temp_path,
+                 cross_region_weight: float = DEFAULT_CROSS_REGION_WEIGHT):
         self.pois_filename = pois_filename
         self.boroughs_filename = boroughs_filename
         self.temp_path = temp_path
+        # Cross-region edge weight `w_r` (Eq. 2 of Huang et al., ISPRS 2023).
+        # Paper uses 0.4 (Xiamen/Shenzhen); third-party reference uses 0.5.
+        # On our Alabama sweep (w_r ∈ {0.4, 0.5, 0.6, 0.7}) Cat F1 rose monotonically
+        # 0.74 → 0.82, so the optimum is dataset-specific. Default 0.7 is best-known
+        # for US state-scale sparse datasets; sweep per state when tuning.
+        self.cross_region_weight = float(cross_region_weight)
 
     def _read_poi_data(self):
         """Load and prepare POI data."""
@@ -134,8 +144,10 @@ class HGIPreprocess:
                     seen.add((x, y))
                     dist = SpatialUtils.haversine_np(*points[x], *points[y])
                     w1 = np.log((1 + D ** 1.5) / (1 + dist ** 1.5))
-                    # Region transition weight: 1.0 for same region, 0.5 for cross-region (reference standard)
-                    w2 = 1.0 if self.pois.iloc[x]["GEOID"] == self.pois.iloc[y]["GEOID"] else 0.5
+                    # Eq. (2) of Huang et al. (ISPRS 2023): intra-region weight is
+                    # always 1.0; cross-region weight `w_r` is configurable
+                    # (paper 0.4, repro 0.5, our best on Alabama 0.7).
+                    w2 = 1.0 if self.pois.iloc[x]["GEOID"] == self.pois.iloc[y]["GEOID"] else self.cross_region_weight
                     edges.append({'source': x, 'target': y, 'weight': w1 * w2})
 
         self.edges = pd.DataFrame(edges)
@@ -308,8 +320,17 @@ class HGIPreprocess:
         }
 
 
-def preprocess_hgi(city, city_shapefile, poi_emb_path=None, cta_file=None, use_onehot_fallback=False):
-    """Main preprocessing function for HGI (Phase 3a only)."""
+def preprocess_hgi(city, city_shapefile, poi_emb_path=None, cta_file=None,
+                   use_onehot_fallback=False,
+                   cross_region_weight: float = DEFAULT_CROSS_REGION_WEIGHT):
+    """Main preprocessing function for HGI (Phase 3a only).
+
+    Args:
+        cross_region_weight: Eq. (2) cross-region edge weight `w_r`. Defaults to
+            DEFAULT_CROSS_REGION_WEIGHT (0.7). Paper uses 0.4, third-party
+            reference 0.5. Sweep per dataset when tuning — Alabama's optimum
+            (0.7) differs from the paper's Xiamen/Shenzhen value (0.4).
+    """
     temp_folder = IoPaths.HGI.get_temp_dir(city)
     temp_folder.mkdir(parents=True, exist_ok=True)
 
@@ -326,7 +347,9 @@ def preprocess_hgi(city, city_shapefile, poi_emb_path=None, cta_file=None, use_o
         census[['GEOID', 'geometry']].to_csv(boroughs_path, index=False)
 
     # Run preprocessing (Phase 3a: create graph structure)
-    pre = HGIPreprocess(str(checkins), str(boroughs_path), temp_folder)
+    pre = HGIPreprocess(str(checkins), str(boroughs_path), temp_folder,
+                        cross_region_weight=cross_region_weight)
+    print(f"  Cross-region edge weight w_r = {pre.cross_region_weight}")
     data = pre.get_data_torch(poi_emb_path=poi_emb_path, use_onehot_fallback=use_onehot_fallback)
 
     print(f"✓ Phase 3a complete: Delaunay graph created")
@@ -341,9 +364,11 @@ def preprocess_hgi(city, city_shapefile, poi_emb_path=None, cta_file=None, use_o
     return data
 
 
-def create_hgi_graph_pickle(city, poi_emb_path=None, use_onehot_fallback=False):
+def create_hgi_graph_pickle(city, poi_emb_path=None, use_onehot_fallback=False,
+                            cross_region_weight: float = DEFAULT_CROSS_REGION_WEIGHT):
     """Phase 4: Create final HGI graph pickle file."""
-    data = preprocess_hgi(city, None, poi_emb_path, None, use_onehot_fallback)
+    data = preprocess_hgi(city, None, poi_emb_path, None, use_onehot_fallback,
+                          cross_region_weight=cross_region_weight)
 
     output_path = IoPaths.HGI.get_graph_data_file(city)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -365,13 +390,19 @@ if __name__ == '__main__':
                         help='Use one-hot encoding for POIs missing embeddings')
     parser.add_argument('--save_pickle', action='store_true',
                         help='Save pickle file (Phase 4) instead of just returning data (Phase 3a)')
+    parser.add_argument('--cross_region_weight', type=float, default=DEFAULT_CROSS_REGION_WEIGHT,
+                        help=(f'Cross-region edge weight w_r (Eq. 2). '
+                              f'Default {DEFAULT_CROSS_REGION_WEIGHT}. Paper 0.4, repro 0.5. '
+                              f'Sweep per dataset when tuning.'))
 
     args = parser.parse_args()
 
     if args.save_pickle:
         create_hgi_graph_pickle(city=args.city, poi_emb_path=args.poi_emb,
-                                use_onehot_fallback=args.use_onehot_fallback)
+                                use_onehot_fallback=args.use_onehot_fallback,
+                                cross_region_weight=args.cross_region_weight)
     else:
         preprocess_hgi(city=args.city, city_shapefile=args.shapefile,
                        poi_emb_path=args.poi_emb, cta_file=args.cta,
-                       use_onehot_fallback=args.use_onehot_fallback)
+                       use_onehot_fallback=args.use_onehot_fallback,
+                       cross_region_weight=args.cross_region_weight)

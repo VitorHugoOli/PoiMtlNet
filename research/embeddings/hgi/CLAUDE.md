@@ -68,9 +68,10 @@ from argparse import Namespace
 
 args = Namespace(
     dim=64, epoch=2000, poi2vec_epochs=100,
-    alpha=0.5, attention_head=4, lr=0.001,
+    alpha=0.5, attention_head=4, lr=0.006, warmup_period=40,
     gamma=1.0, max_norm=0.9, device='cpu',
-    shapefile='/path/to/tracts.shp', force_preprocess=True
+    shapefile='/path/to/tracts.shp', force_preprocess=True,
+    cross_region_weight=0.7,  # Eq. 2 w_r — sweep per state, see README §5
 )
 create_embedding(state="Texas", args=args)
 ```
@@ -113,7 +114,7 @@ poi_emb_path = train_poi2vec(city="Texas", epochs=100, embedding_dim=64)
 1. **POI2Vec is fclass-level**: Don't expect unique embeddings per POI
 2. **Two preprocess calls**: First without embeddings, second with
 3. **Shapefile requirement**: Must have `GEOID` column for census tracts
-4. **Edge weights**: Combine spatial distance AND regional penalties (same region = 1.0, different = 0.5)
+4. **Edge weights**: Same region = 1.0, cross-region = `cross_region_weight` (default **0.7**). The paper uses 0.4 but that's tuned for dense Chinese cities; on Alabama Cat F1 rises monotonically 0.74 → 0.82 as `w_r` goes 0.4 → 0.7. The optimum is dataset-specific — sweep per state via `CROSS_REGION_WEIGHT_PER_STATE` in `pipelines/embedding/hgi.pipe.py`. See `README.md §5` for the full table.
 5. **Hard negatives in HGI**: 25% of negatives are "hard" (similarity 0.6-0.8)
 
 ## Data Dict Structure (`graph_data.pkl`)

@@ -128,34 +128,10 @@ def create_embedding(state: str, args):
     print(f"Valid check-ins: {len(checkins_valid)}")
     print(f"Time features shape: {time_feats.shape}")
 
-    # Create contrastive dataset
-    print("Creating contrastive dataset...")
-    dataset = TemporalContrastiveDataset(
-        time_hours=time_hours,
-        time_feats=time_feats,
-        r_pos_hours=args.r_pos_hours,
-        r_neg_hours=args.r_neg_hours,
-        max_pairs=args.max_pairs,
-        k_neg_per_i=args.k_neg_per_i,
-        max_pos_per_i=args.max_pos_per_i,
-        seed=args.seed,
-    )
-
-    # Pre-gather pair tensors once — eliminates DataLoader overhead, which
-    # dominated runtime for this tiny model. See build_pair_tensors() docstring.
-    print("Materialising pair tensors...")
-    feat_i, feat_j, labels = build_pair_tensors(dataset, args.device)
-    print(f"  feat_i: {tuple(feat_i.shape)}  memory: "
-          f"{(feat_i.numel() + feat_j.numel() + labels.numel()) * 4 / 1e6:.1f}MB")
-
-    # Seeded generator so epoch shuffles stay reproducible
-    perm_gen = torch.Generator(device=args.device)
-    perm_gen.manual_seed(args.seed)
-
-    # Initialize model
+    # Initialize model first (no_train path skips dataset construction entirely).
     print(f"Initializing model: activation={args.activation}, "
           f"out_features={args.out_features}, embed_dim={args.dim}")
-
+    torch.manual_seed(args.seed)
     model = Time2VecContrastiveModel(
         activation=args.activation,
         out_features=args.out_features,
@@ -163,30 +139,54 @@ def create_embedding(state: str, args):
         in_features=2,
     ).to(args.device)
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
-
-    # Optional torch.compile (~10% extra speedup, bit-identical loss on Alabama).
-    # The first epoch pays a one-off compilation cost (a few seconds); steady-
-    # state epochs are faster. We compile a thin wrapper so train_epoch() still
-    # calls the compiled object, and we keep `model` un-compiled for saving
-    # the state dict without the _orig_mod prefix.
-    train_model = model
-    if getattr(args, "compile", False):
-        print("Compiling model with torch.compile(mode='default') ...")
-        train_model = torch.compile(model)
-
-    # Training loop
-    print(f"Training for {args.epoch} epochs on {args.device}...")
-    bar = tqdm(range(1, args.epoch + 1), desc="Training")
-
-    for epoch in bar:
-        avg_loss = train_epoch(
-            train_model, feat_i, feat_j, labels,
-            optimizer, args.device, args.tau,
-            batch_size=args.batch_size,
-            generator=perm_gen,
+    if getattr(args, "no_train", False):
+        print("--no_train: skipping training (frozen random-init ablation).")
+    else:
+        # Create contrastive dataset
+        print(f"Creating contrastive dataset (mode={args.sampling_mode})...")
+        dataset = TemporalContrastiveDataset(
+            time_hours=time_hours,
+            time_feats=time_feats,
+            r_pos_hours=args.r_pos_hours,
+            r_neg_hours=args.r_neg_hours,
+            max_pairs=args.max_pairs,
+            k_neg_per_i=args.k_neg_per_i,
+            max_pos_per_i=args.max_pos_per_i,
+            seed=args.seed,
+            sampling_mode=args.sampling_mode,
+            r_pos_feat=args.r_pos_feat,
+            r_neg_feat=args.r_neg_feat,
         )
-        bar.set_postfix(loss=f"{avg_loss:.4f}")
+
+        # Pre-gather pair tensors once — eliminates DataLoader overhead.
+        print("Materialising pair tensors...")
+        feat_i, feat_j, labels = build_pair_tensors(dataset, args.device)
+        print(f"  feat_i: {tuple(feat_i.shape)}  memory: "
+              f"{(feat_i.numel() + feat_j.numel() + labels.numel()) * 4 / 1e6:.1f}MB")
+
+        # Seeded generator so epoch shuffles stay reproducible
+        perm_gen = torch.Generator(device=args.device)
+        perm_gen.manual_seed(args.seed)
+
+        optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+
+        # Optional torch.compile (~10% extra speedup, bit-identical loss on Alabama).
+        train_model = model
+        if getattr(args, "compile", False):
+            print("Compiling model with torch.compile(mode='default') ...")
+            train_model = torch.compile(model)
+
+        print(f"Training for {args.epoch} epochs on {args.device}...")
+        bar = tqdm(range(1, args.epoch + 1), desc="Training")
+
+        for epoch in bar:
+            avg_loss = train_epoch(
+                train_model, feat_i, feat_j, labels,
+                optimizer, args.device, args.tau,
+                batch_size=args.batch_size,
+                generator=perm_gen,
+            )
+            bar.set_postfix(loss=f"{avg_loss:.4f}")
 
     # Save trained model (use the eager `model`, not the compiled wrapper, so
     # the saved state dict keys don't get a '_orig_mod.' prefix)
@@ -260,6 +260,21 @@ if __name__ == '__main__':
                         help='Enable torch.compile for an extra ~10%% speedup '
                              '(bit-identical loss on Alabama). Off by default '
                              'since it adds a one-off compilation delay.')
+    parser.add_argument('--sampling_mode', type=str, default='feat_space',
+                        choices=['absolute_time', 'feat_space'],
+                        help='Contrastive pair sampling strategy. "feat_space" '
+                             '(default, paper-aligned) samples by wrap-aware '
+                             'distance in (hour/24, dow/7) space. "absolute_time" '
+                             'is the legacy sampler (pre-2026-04-11) kept for '
+                             'notebook equivalence tests.')
+    parser.add_argument('--r_pos_feat', type=float, default=0.03,
+                        help='Positive-pair radius in feature space (feat_space mode)')
+    parser.add_argument('--r_neg_feat', type=float, default=0.30,
+                        help='Negative-pair radius in feature space (feat_space mode)')
+    parser.add_argument('--no_train', action='store_true',
+                        help='Skip training entirely and dump frozen random-init '
+                             'embeddings (Recommendation 2 ablation: measures how '
+                             'much of downstream F1 is inductive bias vs training).')
 
     args = parser.parse_args()
     create_embedding(state=args.state, args=args)

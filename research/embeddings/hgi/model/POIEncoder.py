@@ -26,10 +26,10 @@ class POIEncoder(nn.Module):
         self.hidden_channels = hidden_channels
 
         # Graph convolutional layer
-        self.conv = GCNConv(in_channels, hidden_channels, cached=False, bias=True)
+        self.conv = GCNConv(in_channels, hidden_channels, cached=True, bias=True)
 
-        # PReLU activation
-        self.prelu = nn.PReLU()
+        # PReLU activation (channelwise — matches canonical RightBank/HGI)
+        self.prelu = nn.PReLU(hidden_channels)
 
     def forward(self, x, edge_index, edge_weight):
         """

@@ -21,6 +21,10 @@ class TemporalContrastiveDataset(Dataset):
         k_neg_per_i: int = 5,
         max_pos_per_i: int = 20,
         seed: int = 42,
+        sampling_mode: str = "feat_space",
+        r_pos_feat: float = 0.03,
+        r_neg_feat: float = 0.30,
+        feat_cand_pool: int = 4096,
     ):
         """
         Initialize the temporal contrastive dataset.
@@ -28,12 +32,23 @@ class TemporalContrastiveDataset(Dataset):
         Args:
             time_hours: Array of absolute time in hours since first check-in
             time_feats: Array of normalized time features (hour/24, dow/7)
-            r_pos_hours: Radius in hours for positive pairs
-            r_neg_hours: Minimum distance in hours for negative pairs
+            r_pos_hours: Radius in hours for positive pairs (absolute_time mode)
+            r_neg_hours: Minimum distance in hours for negative pairs (absolute_time mode)
             max_pairs: Maximum number of pairs to generate
             k_neg_per_i: Number of negative pairs per anchor
             max_pos_per_i: Maximum positive pairs per anchor
             seed: Random seed for reproducibility
+            sampling_mode: "feat_space" (default, paper-aligned) samples pairs
+                by wrap-aware distance in (hour/24, dow/7) space — resolves the
+                "identical inputs labelled as negatives" issue and delivers
+                +0.81 ± 0.19pp MTLnet next-task F1 over 4 seeds on Alabama.
+                "absolute_time" is the legacy paper-misaligned sampler, kept
+                for the 44 notebook-equivalence tests in test_time2vec.py.
+                See plans/time2vec_paper_analysis.md for the full analysis.
+            r_pos_feat: Positive-pair radius in feature space (feat_space mode)
+            r_neg_feat: Negative-pair radius in feature space (feat_space mode)
+            feat_cand_pool: Candidate pool size per anchor (feat_space mode);
+                bounds per-anchor cost at O(feat_cand_pool) instead of O(N).
         """
         super().__init__()
         self.times = np.asarray(time_hours, dtype=np.float32)
@@ -41,10 +56,23 @@ class TemporalContrastiveDataset(Dataset):
         self.N = len(self.times)
         self.r_pos = float(r_pos_hours)
         self.r_neg = float(r_neg_hours)
+        self.sampling_mode = sampling_mode
+        self.r_pos_feat = float(r_pos_feat)
+        self.r_neg_feat = float(r_neg_feat)
+        self.feat_cand_pool = int(feat_cand_pool)
         self.rng = np.random.default_rng(seed)
 
-        self.pairs = self._generate_pairs(max_pairs, k_neg_per_i, max_pos_per_i)
-        print(f"Total pairs generated: {len(self.pairs)}")
+        if sampling_mode == "absolute_time":
+            self.pairs = self._generate_pairs(max_pairs, k_neg_per_i, max_pos_per_i)
+        elif sampling_mode == "feat_space":
+            self.pairs = self._generate_pairs_feat_space(
+                max_pairs, k_neg_per_i, max_pos_per_i
+            )
+        else:
+            raise ValueError(
+                f"sampling_mode must be 'absolute_time' or 'feat_space', got {sampling_mode!r}"
+            )
+        print(f"Total pairs generated: {len(self.pairs)} (mode={sampling_mode})")
 
     def _generate_pairs(self, max_pairs: int, k_neg_per_i: int, max_pos_per_i: int) -> list:
         """Generate contrastive pairs."""
@@ -93,6 +121,78 @@ class TemporalContrastiveDataset(Dataset):
                     pairs_j.append(j)
                     labels.append(0)
                     got += 1
+
+        return list(zip(pairs_i, pairs_j, labels))
+
+    def _generate_pairs_feat_space(
+        self, max_pairs: int, k_neg_per_i: int, max_pos_per_i: int
+    ) -> list:
+        """Generate contrastive pairs using wrap-aware distance in (hour/24, dow/7) space.
+
+        Resolves the structural flaw documented in plans/time2vec_paper_analysis.md
+        (Deviation D6, Issue A): under the legacy absolute-time sampler, two
+        check-ins with *identical* (hour, dow) but far apart in wall time would
+        be labelled as negatives, forcing the model to disambiguate physically
+        identical inputs.
+
+        Cost bound: per anchor we sample at most `feat_cand_pool` random
+        candidates and compute distances on that subset, so the total is
+        O(N_anchors * feat_cand_pool) instead of O(N^2).
+        """
+        pairs_i, pairs_j, labels = [], [], []
+
+        approx_pairs_per_i = (max_pos_per_i or 1) + k_neg_per_i
+        max_i = min(self.N, max_pairs // max(1, approx_pairs_per_i) + 1)
+        chosen = self.rng.choice(self.N, size=max_i, replace=False)
+
+        cand_pool = min(self.feat_cand_pool, self.N)
+        r_pos2 = self.r_pos_feat * self.r_pos_feat
+        r_neg2 = self.r_neg_feat * self.r_neg_feat
+
+        for i in chosen:
+            if len(pairs_i) >= max_pairs:
+                break
+
+            # Random candidate subset (keeps O(feat_cand_pool) per anchor).
+            cands = self.rng.choice(self.N, size=cand_pool, replace=False)
+            cands = cands[cands != i]
+            if cands.size == 0:
+                continue
+
+            dh = np.abs(self.feats[cands, 0] - self.feats[i, 0])
+            dd = np.abs(self.feats[cands, 1] - self.feats[i, 1])
+            # Wrap-aware circular distance on each normalized axis (period = 1).
+            dh = np.minimum(dh, 1.0 - dh)
+            dd = np.minimum(dd, 1.0 - dd)
+            d2 = dh * dh + dd * dd
+
+            pos_mask = d2 <= r_pos2
+            neg_mask = d2 >= r_neg2
+
+            pos_cands = cands[pos_mask]
+            if pos_cands.size > 0:
+                if max_pos_per_i is not None and pos_cands.size > max_pos_per_i:
+                    pos_cands = self.rng.choice(pos_cands, size=max_pos_per_i, replace=False)
+                for j in pos_cands:
+                    if len(pairs_i) >= max_pairs:
+                        break
+                    pairs_i.append(int(i))
+                    pairs_j.append(int(j))
+                    labels.append(1)
+
+            if len(pairs_i) >= max_pairs:
+                break
+
+            neg_cands = cands[neg_mask]
+            if neg_cands.size > 0:
+                take = min(k_neg_per_i, neg_cands.size)
+                neg_chosen = self.rng.choice(neg_cands, size=take, replace=False)
+                for j in neg_chosen:
+                    if len(pairs_i) >= max_pairs:
+                        break
+                    pairs_i.append(int(i))
+                    pairs_j.append(int(j))
+                    labels.append(0)
 
         return list(zip(pairs_i, pairs_j, labels))
 

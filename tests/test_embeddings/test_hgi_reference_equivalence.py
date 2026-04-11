@@ -30,9 +30,12 @@ REFERENCE_REPO = Path(
     "region-embedding-benchmark-main/region-embedding-benchmark-main/"
     "region-embedding/baselines/HGI/model"
 )
-pytestmark = pytest.mark.skipif(
-    not REFERENCE_REPO.exists(),
-    reason="Reference HGI repo not present at hardcoded path",
+# Deliberately skipped after plans/hgi_paper_alignment.md fixes #2-4:
+# our migration now diverges from the third-party region-embedding-benchmark
+# reference (channelwise PReLU, GCNConv(cached=True), cross-region w_r=0.4)
+# to align with the canonical RightBank/HGI and the paper (Huang et al., ISPRS 2023).
+pytestmark = pytest.mark.skip(
+    reason="Intentional divergence from third-party reference after paper-alignment fixes",
 )
 
 

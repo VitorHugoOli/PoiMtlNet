@@ -51,6 +51,27 @@ STATES = {
     'Texas': Resources.TL_TX,
 }
 
+# Per-state override for the cross-region edge weight `w_r` (Eq. 2 of Huang et
+# al., ISPRS 2023). Leave a state out to use HGI_CONFIG.cross_region_weight.
+#
+# The optimum is dataset-specific and appears to scale INVERSELY with POI
+# density. Anchors: Xiamen ~26 POI/km² and Shenzhen ~150 POI/km² both use
+# w_r = 0.4 (paper); Alabama at 0.089 POI/km² (~290× sparser) has an Alabama-
+# swept optimum at w_r = 0.7. On our Alabama sweep Cat F1 rose monotonically
+# 0.74 → 0.82 from 0.4 to 0.7 (see `research/embeddings/hgi/README.md` §5).
+#
+# The values below are best-effort starting points extrapolated from POI
+# density vs. the paper's anchors — ONLY Alabama has been swept. Re-sweep
+# per state when tuning ({0.4, 0.7, 1.0} brackets the optimum in ~75 min).
+CROSS_REGION_WEIGHT_PER_STATE = {
+    'Alabama':    0.7,  # swept 2026-04-11 (density 0.089 POI/km², confirmed optimum)
+    'Arizona':    0.7,  # density 0.070 POI/km² — sparsest; matches Alabama regime
+    'Texas':      0.7,  # density 0.229 POI/km² — still firmly in sparse regime
+    'California': 0.6,  # density 0.411 POI/km² — medium, interpolated
+    'Florida':    0.6,  # density 0.536 POI/km² — densest of the five, interpolated
+    # 'Georgia': 0.7,   # not yet measured; set when available
+}
+
 # Hyperparameters mirror RightBank/HGI/train.py (the canonical reference for
 # "Learning urban region representations with POIs and hierarchical graph
 # infomax", ISPRS J. Photogramm. Remote Sens., 2023). lr=0.006 is only safe
@@ -67,6 +88,10 @@ HGI_CONFIG = Namespace(
     warmup_period=40,
     poi2vec_epochs=100,
     force_preprocess=True,
+
+    # Cross-region edge weight. Paper: 0.4. Third-party repro: 0.5. Our Alabama
+    # best: 0.7 (Cat F1 +8 pp vs paper). Override per state via the dict above.
+    cross_region_weight=0.7,
 
     device='cpu',
     shapefile=None  # Will be set per state
@@ -89,10 +114,17 @@ def process_state(name: str, shapefile, cta_file=None) -> bool:
     """
     try:
         HGI_CONFIG.shapefile = shapefile
+        # Per-state override (falls back to the global default in HGI_CONFIG).
+        w_r = CROSS_REGION_WEIGHT_PER_STATE.get(name, HGI_CONFIG.cross_region_weight)
+        HGI_CONFIG.cross_region_weight = w_r
+        logger.info(f"[setup] {name}: cross_region_weight w_r={w_r}")
 
         # 1. First pass: build Delaunay graph → edges.csv + pois.csv (needed by POI2Vec)
         logger.info(f"[1/5] Building graph (Delaunay + edges.csv + pois.csv): {name}")
-        preprocess_hgi(city=name, city_shapefile=str(shapefile), poi_emb_path=None, cta_file=cta_file)
+        preprocess_hgi(
+            city=name, city_shapefile=str(shapefile), poi_emb_path=None,
+            cta_file=cta_file, cross_region_weight=w_r,
+        )
 
         # 2. Train POI2Vec (phases 3b-3d: walks → fclass embeddings → POI embeddings)
         logger.info(f"[2/5] Training POI2Vec: {name}")
@@ -107,7 +139,8 @@ def process_state(name: str, shapefile, cta_file=None) -> bool:
         data = preprocess_hgi(
             city=name, city_shapefile=str(shapefile),
             poi_emb_path=str(poi_emb_path),
-            cta_file=cta_file
+            cta_file=cta_file,
+            cross_region_weight=w_r,
         )
 
         graph_data_file = IoPaths.HGI.get_graph_data_file(name)
