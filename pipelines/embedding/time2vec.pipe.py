@@ -21,7 +21,7 @@ from datetime import datetime
 
 import torch
 from configs.globals import DEVICE
-from configs.paths import Resources, EmbeddingEngine
+from configs.paths import EmbeddingEngine
 from configs.model import InputsConfig
 from embeddings.time2vec.time2vec import create_embedding
 from data.inputs.builders import generate_category_input, generate_next_input_from_checkins
@@ -55,12 +55,8 @@ TIME2VEC_CONFIG = Namespace(
     max_pos_per_i=20,
     seed=42,
     tau=0.3,
-    device="cpu",
+    device=torch.device("cpu"),  # CPU is faster than MPS/GPU for this small model
 )
-
-# Ensure device is correct type
-if isinstance(TIME2VEC_CONFIG.device, str):
-    TIME2VEC_CONFIG.device = torch.device(TIME2VEC_CONFIG.device)
 
 
 # =============================================================================

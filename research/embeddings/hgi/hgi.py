@@ -41,8 +41,8 @@ def train_epoch(data, model, optimizer, scheduler, args):
     model.train()
     optimizer.zero_grad()
 
-    pos_poi, pos_reg, neg_reg, all_reg, all_reg_neg, city = model(data)
-    loss = model.loss(pos_poi, pos_reg, neg_reg, all_reg, all_reg_neg, city)
+    outputs = model(data)
+    loss = model.loss(*outputs)
 
     loss.backward()
     clip_grad_norm_(model.parameters(), max_norm=args.max_norm)

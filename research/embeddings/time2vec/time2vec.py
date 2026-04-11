@@ -101,13 +101,15 @@ def create_embedding(state: str, args):
 
     # Optimized DataLoader configuration
     num_workers = min(8, os.cpu_count() or 1)
+    use_pin_memory = str(args.device) == 'cuda' or (hasattr(args.device, 'type') and args.device.type == 'cuda')
     dataloader = DataLoader(
         dataset,
         batch_size=args.batch_size,
         shuffle=True,
         drop_last=True,
         num_workers=num_workers,
-        pin_memory_device=str(DEVICE) if hasattr(DEVICE, 'index') else None,
+        pin_memory=use_pin_memory,
+        pin_memory_device=str(args.device) if use_pin_memory else "",
         persistent_workers=True,
         prefetch_factor=5,
         worker_init_fn=worker_init_fn,
