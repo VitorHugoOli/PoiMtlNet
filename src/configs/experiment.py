@@ -161,7 +161,13 @@ class ExperimentConfig:
             task_loss="cross_entropy",
             mtl_loss="nash_mtl",
             mtl_loss_params={
-                "max_norm": 2.2,
+                # max_norm=1.0 is the upstream Nash-MTL paper default. The
+                # previous 2.2 was tuned against the broken-NashMTL ([1,1])
+                # regime; under real Nash weighting the dgi+alabama 2-fold
+                # sweep showed 1.0 wins on cat F1/Acc and matches 2.2 on
+                # next-F1 within fold noise, with the tightest per-fold
+                # spread on next-F1 (range 0.001 vs 0.013 for 2.2).
+                "max_norm": 1.0,
                 "update_weights_every": 4,
                 "optim_niter": 30,
             },
