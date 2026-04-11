@@ -226,7 +226,14 @@ class NashMTL(WeightMethod):
             )
             GTG = GTG / self.normalization_factor.item()
             alpha = self.solve_optimization(GTG.cpu().detach().numpy())
-            alpha = torch.from_numpy(alpha)
+            # Cast to float32 + move to losses' device to avoid two issues:
+            # 1. cvxpy returns numpy float64 after a multi-iter solve, which
+            #    cannot be multiplied against float32 loss tensors on MPS
+            #    (MPS does not support float64) — produces a misleading
+            #    "unsupported operand type(s) for *: 'Tensor' and 'Tensor'".
+            # 2. The CPU/MPS device mismatch otherwise requires per-element
+            #    autograd-aware copies in the multiply loop below.
+            alpha = torch.from_numpy(alpha).float().to(losses[0].device)
 
         else:
             self.step += 1

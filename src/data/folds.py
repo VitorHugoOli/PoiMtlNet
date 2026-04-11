@@ -603,8 +603,23 @@ class FoldCreator:
                 cat_train_pois = set(train_exclusive) | set(ambiguous)
                 cat_val_pois = set(val_exclusive)
 
-                train_cat_idx = np.where(np.isin(cat_placeids, list(cat_train_pois)))[0]
-                val_cat_idx = np.where(np.isin(cat_placeids, list(cat_val_pois)))[0]
+                # Coerce both sides to str before set membership.
+                # `cat_placeids` dtype depends on the upstream embedding engine:
+                #   - space2vec / sphere2vec / notebook-style engines store
+                #     `placeid` as Python str (object dtype) in category.parquet
+                #   - fusion (and any engine that preserves the raw int64) stores
+                #     it as int64
+                # `poi_users` (built from raw checkins via build_poi_user_mapping)
+                # always has int keys, so without this coercion `np.isin` returns
+                # all-False whenever the embedding engine cast placeid to str —
+                # producing empty category folds and a downstream
+                # `num_samples=0` crash in DataLoader.
+                cat_placeids_str = cat_placeids.astype(str)
+                cat_train_pois_str = {str(p) for p in cat_train_pois}
+                cat_val_pois_str = {str(p) for p in cat_val_pois}
+
+                train_cat_idx = np.where(np.isin(cat_placeids_str, list(cat_train_pois_str)))[0]
+                val_cat_idx = np.where(np.isin(cat_placeids_str, list(cat_val_pois_str)))[0]
             else:
                 # Fallback: use pre-computed StratifiedKFold splits for category
                 train_exclusive, val_exclusive, ambiguous = [], [], []

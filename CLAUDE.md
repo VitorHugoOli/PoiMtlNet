@@ -130,7 +130,7 @@ Configure `state` (florida, alabama, etc.) and engine. Outputs go to `results/{e
 - `InputsConfig`: EMBEDDING_DIM=64, SLIDE_WINDOW=9, PAD_VALUE=0
 
 **`src/configs/paths.py`**:
-- `EmbeddingEngine` enum: DGI, HGI, HMRM, TIME2VEC, SPACE2VEC, CHECK2HGI, POI2HGI, **FUSION**
+- `EmbeddingEngine` enum: DGI, HGI, HMRM, TIME2VEC, SPACE2VEC, SPHERE2VEC, CHECK2HGI, POI2HGI, **FUSION**
 - `IoPaths`: Centralized path management with `get_embedd()`, `get_category()`, `get_next()`, `get_results_dir()`, and `load_*()` methods
 - FUSION routing: Automatically routes FUSION engine to fusion-specific paths
 - Respects `$DATA_ROOT` env var (default: `data/`)
@@ -151,6 +151,7 @@ Each engine lives in `research/embeddings/<engine>/` and may have its own CLAUDE
 | POI2HGI | `research/embeddings/poi2hgi/` | POI-level HGI variant |
 | Time2Vec | `research/embeddings/time2vec/` | Temporal embeddings from check-in timestamps |
 | Space2Vec | `research/embeddings/space2vec/` | Spatial embeddings from coordinates |
+| Sphere2Vec | `research/embeddings/sphere2vec/` | Spherical-RBF location encoder (sphereM variant) - 64-dim POI embeddings |
 | HMRM | `research/embeddings/hmrm/` | Heterogeneous Mobility Representation Model - 107-dim |
 | **FUSION** | `src/data/inputs/fusion.py` | Multi-embedding fusion - concatenates multiple embeddings |
 

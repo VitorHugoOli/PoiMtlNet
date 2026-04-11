@@ -23,7 +23,7 @@ class EmbeddingLevel(Enum):
     Embedding granularity level.
 
     POI: One embedding per unique POI (same POI = same embedding across all visits)
-          Examples: DGI, HGI, Space2Vec, POI2HGI
+          Examples: DGI, HGI, Space2Vec, Sphere2Vec, POI2HGI
 
     CHECKIN: One embedding per check-in event (same POI at different times = different embeddings)
              Examples: Time2Vec, Check2HGI
@@ -61,6 +61,7 @@ class EmbeddingSpec:
             EmbeddingEngine.HGI,
             EmbeddingEngine.DGI,
             EmbeddingEngine.SPACE2VEC,
+            EmbeddingEngine.SPHERE2VEC,
             EmbeddingEngine.POI2HGI,
             EmbeddingEngine.HMRM
         ]:
