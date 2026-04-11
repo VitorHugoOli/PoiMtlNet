@@ -105,17 +105,29 @@ class NextHeadMTL(nn.Module):
         self.layer_norm = nn.LayerNorm(embed_dim)
         self.classifier = nn.Linear(embed_dim, num_classes)
 
-    def forward(self, x):
-        batch_size, seq_length, _ = x.size()
-        device = x.device
+        # Causal mask is a fixed [seq_length, seq_length] upper-triangular
+        # tensor — register it as a buffer so it's allocated once at init
+        # time and moves with the module across .to(device) calls, instead
+        # of being re-built on every forward pass.
+        causal_mask = torch.triu(
+            torch.ones(seq_length, seq_length, dtype=torch.bool),
+            diagonal=1,
+        )
+        self.register_buffer('causal_mask', causal_mask, persistent=False)
 
-        padding_mask = (x.abs().sum(dim=-1) == 0)
+    def forward(self, x, padding_mask=None):
+        batch_size, seq_length, _ = x.size()
+
+        # Padding mask is a property of the original input positions, not
+        # of activations — the caller (MTLnet) already computed it for the
+        # input layer, so accept it via kwarg to avoid recomputing.
+        if padding_mask is None:
+            padding_mask = (x.abs().sum(dim=-1) == 0)
         x = self.pe(x, padding_mask)
 
-        causal_mask = torch.triu(
-            torch.ones(seq_length, seq_length, dtype=torch.bool, device=device),
-            diagonal=1
-        )
+        # Slice the cached causal mask to the actual sequence length so the
+        # module still handles shorter sequences than seq_length at inference.
+        causal_mask = self.causal_mask[:seq_length, :seq_length]
 
         x = self.transformer_encoder(x, mask=causal_mask, src_key_padding_mask=padding_mask)
         x = self.layer_norm(x)

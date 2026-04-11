@@ -177,21 +177,21 @@ class MTLnet(nn.Module):
         category_input, next_input = inputs  # ([B, 1, feature_size], [B, seq_len, feature_size])
 
         pad_value = InputsConfig.PAD_VALUE
-        mask = (next_input.abs().sum(dim=-1) == pad_value)  # (batch_size, seq_len)
-        next_input = next_input.masked_fill(mask.unsqueeze(-1), 0)  # zero out all-pad tokens
+        next_padding_mask = (next_input.abs().sum(dim=-1) == pad_value)  # (batch_size, seq_len)
+        next_input = next_input.masked_fill(next_padding_mask.unsqueeze(-1), 0)  # zero out all-pad tokens
 
         # Task‐specific encoding
         enc_cat = self.category_encoder(category_input)  # [batch, shared_size]
         enc_next = self.next_encoder(next_input)  # [batch, shared_size]
 
-        # Build task‐ID vectors
-        b_cat = enc_cat.size(0)
-        b_next = enc_next.size(0)
-        id_cat = torch.zeros(b_cat, dtype=torch.long, device=enc_cat.device)
-        id_next = torch.ones(b_next, dtype=torch.long, device=enc_next.device)
-
-        emb_cat = self.task_embedding(id_cat)
-        emb_next = self.task_embedding(id_next)
+        # Look up the two task embeddings directly from the weight matrix
+        # and broadcast to the batch dimension. Equivalent to building a
+        # long-int id vector and calling self.task_embedding(ids), but
+        # avoids allocating an int tensor and an Embedding gather kernel
+        # on every forward pass — the gradient still flows because the
+        # weight slice itself is a view into the Embedding parameter.
+        emb_cat = self.task_embedding.weight[0].expand(enc_cat.size(0), -1)
+        emb_next = self.task_embedding.weight[1].expand(enc_next.size(0), -1)
 
         # FiLM modulation
         mod_cat = self.film(enc_cat, emb_cat)
@@ -205,7 +205,11 @@ class MTLnet(nn.Module):
         # Cat in: [batch, 1, shared_size] → squeeze → [batch, shared_size]
         out_cat = self.category_poi(shared_cat.squeeze(1)).view(-1, self.num_classes)
         # Next in: [batch, seq_len, shared_size] Next out: [batch, seq_len, num_classes]
-        out_next = self.next_poi(shared_next)
+        # Reuse the padding mask we already computed at input time — the
+        # padding pattern is determined by raw sequence positions, not by
+        # post-shared-layers activations, so this avoids a duplicate
+        # abs().sum(-1) reduction inside NextHeadMTL.
+        out_next = self.next_poi(shared_next, padding_mask=next_padding_mask)
 
         return out_cat, out_next
 
