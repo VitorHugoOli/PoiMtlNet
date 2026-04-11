@@ -7,7 +7,7 @@ for Large-Scale Geospatial Predictions (Sphere2Vec-sphereM).ipynb".
 
 Deliberate divergences from the notebook:
 
-1. Random seeds: the notebook sets none. The buffers in `SpherePositionEncoder`
+1. Random seeds: the notebook sets none. The buffers in `SphereRBFPositionEncoder`
    (256 RBF centroids initialized with `torch.randn`) are non-deterministic in
    the original. This module does NOT seed internally — seeding is the caller's
    responsibility (`create_embedding` and the equivalence test do it). This
@@ -200,9 +200,17 @@ class MultiLayerFeedForwardNN(nn.Module):
         return output
 
 
-class SpherePositionEncoder(nn.Module):
+class SphereRBFPositionEncoder(nn.Module):
     """
     Multi-scale RBF position encoder on the unit 3-sphere.
+
+    .. warning::
+       **This is the notebook's custom RBF encoder, NOT the paper's Eq. 8
+       sphereM.** The class was historically named ``SpherePositionEncoder``
+       and that name is still exported as a backward-compatibility alias, but
+       the "sphere" prefix is misleading — this has no architectural
+       relationship to ``Sphere2Vec-sphereM`` in Mai et al. 2023. For the
+       paper-faithful variant, use ``SphereMixScalePositionEncoder``.
 
     Steps:
         1. Convert (lat, lon) degrees to (x, y, z) on the unit sphere.
@@ -272,6 +280,14 @@ class SpherePositionEncoder(nn.Module):
         emb = rbf_feat.flatten(1)
 
         return emb
+
+
+# Backward-compat alias: older code imports ``SpherePositionEncoder``, which
+# is a misnomer (the class is an RBF encoder, not the paper's sphereM). The
+# alias keeps those imports working while new code should prefer the explicit
+# ``SphereRBFPositionEncoder`` name. Do NOT remove until every external
+# caller has migrated.
+SpherePositionEncoder = SphereRBFPositionEncoder
 
 
 class SphereMixScalePositionEncoder(nn.Module):
@@ -374,7 +390,7 @@ class SphereMixScalePositionEncoder(nn.Module):
                 in **degrees** (matching the rest of this package). The
                 upstream numpy reference expects ``(lon, lat)``; the swap
                 is performed here so that calling conventions stay
-                consistent with ``SpherePositionEncoder``.
+                consistent with ``SphereRBFPositionEncoder``.
 
         Returns:
             Tensor of shape ``(B, 8 * frequency_num)`` in float32, on the
@@ -474,7 +490,7 @@ class SphereLocationEncoder(nn.Module):
         self.encoder_variant = encoder_variant
 
         if encoder_variant == "rbf":
-            self.position_encoder = SpherePositionEncoder(
+            self.position_encoder = SphereRBFPositionEncoder(
                 min_scale=min_scale,
                 max_scale=max_scale,
                 num_scales=num_scales,

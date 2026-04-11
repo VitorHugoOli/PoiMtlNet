@@ -259,7 +259,7 @@ the documentation reflects the measured numbers.
 ### 6. We added seeding (`seed_everything` + `worker_init_fn`)
 
 The notebook sets no seeds at all. Two consequences:
-- The 256 random unit centroids in `SpherePositionEncoder` differ across
+- The 256 random unit centroids in `SphereRBFPositionEncoder` differ across
   runs.
 - The dropout pattern during training and inference differs.
 

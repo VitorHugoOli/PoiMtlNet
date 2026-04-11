@@ -14,7 +14,8 @@ from embeddings.sphere2vec.sphere2vec import create_embedding
 from embeddings.sphere2vec.model.Sphere2VecModule import (
     SphereLocationContrastiveModel,
     SphereLocationEncoder,
-    SpherePositionEncoder,
+    SphereRBFPositionEncoder,
+    SpherePositionEncoder,  # backward-compat alias for SphereRBFPositionEncoder
     SphereMixScalePositionEncoder,
     contrastive_bce,
 )
@@ -27,6 +28,7 @@ __all__ = [
     "create_embedding",
     "SphereLocationContrastiveModel",
     "SphereLocationEncoder",
+    "SphereRBFPositionEncoder",
     "SpherePositionEncoder",
     "SphereMixScalePositionEncoder",
     "ContrastiveSpatialDataset",

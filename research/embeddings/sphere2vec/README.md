@@ -194,7 +194,7 @@ and any existing programmatic callers. Only the pipe changed.
 Input coords [lat, lon] (degrees)
     │
     ▼ deg → rad → unit-sphere Cartesian (x, y, z)
-SpherePositionEncoder    (frozen RBF: 256 random unit centroids × 32 log-spaced scales)
+SphereRBFPositionEncoder (frozen RBF: 256 random unit centroids × 32 log-spaced scales)
     │  → [B, 256·32 = 8192]
 Linear input_projector    8192 → 512
     │
@@ -372,5 +372,5 @@ radii when using `--encoder_variant paper`.**
 `tests/test_embeddings/_sphere2vec_reference.py` is a frozen verbatim copy of the
 notebook's model code. `tests/test_embeddings/test_sphere2vec.py` seeds both
 versions identically and asserts forward-pass equivalence at every layer
-(`SpherePositionEncoder`, `SphereLocationEncoder`, `SphereLocationContrastiveModel`)
+(`SphereRBFPositionEncoder`, `SphereLocationEncoder`, `SphereLocationContrastiveModel`)
 plus loss equivalence and a tiny end-to-end smoke test on synthetic data.

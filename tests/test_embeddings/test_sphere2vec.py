@@ -39,15 +39,17 @@ def seed_everything(seed: int = 0) -> None:
 
 
 # ---------------------------------------------------------------------------
-# 1. SpherePositionEncoder forward equivalence
+# 1. SphereRBFPositionEncoder forward equivalence (class was historically named
+#    ``SpherePositionEncoder`` — the reference snapshot keeps the old name and
+#    we assert the backward-compat alias still works below.)
 # ---------------------------------------------------------------------------
 
-class TestSpherePositionEncoderEquivalence:
+class TestSphereRBFPositionEncoderEquivalence:
 
     def _build_pair(self, seed: int = 0):
         from tests.test_embeddings import _sphere2vec_reference as ref
         from embeddings.sphere2vec.model.Sphere2VecModule import (
-            SpherePositionEncoder as SpherePositionEncoderNew,
+            SphereRBFPositionEncoder as SpherePositionEncoderNew,
         )
 
         kwargs = dict(
@@ -910,3 +912,26 @@ class TestSphereLocationEncoderPaperVariant:
         )
         with pytest.raises(ValueError, match="encoder_variant"):
             SphereLocationEncoder(encoder_variant="bogus")
+
+
+class TestBackwardCompatAlias:
+    """
+    ``SpherePositionEncoder`` was the original (misnomer) class name for the
+    RBF encoder. It is retained as a backward-compat alias for
+    ``SphereRBFPositionEncoder``. This test pins the alias so a future
+    refactor cannot silently remove it without failing CI.
+    """
+
+    def test_module_level_alias_is_same_class(self):
+        from embeddings.sphere2vec.model.Sphere2VecModule import (
+            SpherePositionEncoder,
+            SphereRBFPositionEncoder,
+        )
+        assert SpherePositionEncoder is SphereRBFPositionEncoder
+
+    def test_package_level_alias_is_same_class(self):
+        from embeddings.sphere2vec import (
+            SpherePositionEncoder,
+            SphereRBFPositionEncoder,
+        )
+        assert SpherePositionEncoder is SphereRBFPositionEncoder

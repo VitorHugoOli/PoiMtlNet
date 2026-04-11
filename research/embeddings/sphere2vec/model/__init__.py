@@ -3,7 +3,9 @@
 from embeddings.sphere2vec.model.Sphere2VecModule import (
     SphereLocationContrastiveModel,
     SphereLocationEncoder,
-    SpherePositionEncoder,
+    SphereRBFPositionEncoder,
+    SpherePositionEncoder,  # backward-compat alias for SphereRBFPositionEncoder
+    SphereMixScalePositionEncoder,
     MultiLayerFeedForwardNN,
     SingleFeedForwardNN,
     get_activation_function,
@@ -17,7 +19,9 @@ from embeddings.sphere2vec.model.dataset import (
 __all__ = [
     "SphereLocationContrastiveModel",
     "SphereLocationEncoder",
+    "SphereRBFPositionEncoder",
     "SpherePositionEncoder",
+    "SphereMixScalePositionEncoder",
     "MultiLayerFeedForwardNN",
     "SingleFeedForwardNN",
     "get_activation_function",
