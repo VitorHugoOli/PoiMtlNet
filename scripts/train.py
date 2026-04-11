@@ -286,7 +286,7 @@ def _parse_args(argv=None) -> argparse.Namespace:
         type=str,
         default=None,
         help=(
-            "Named MTL candidate from experiments/mtl_candidates.py, e.g. "
+            "Named MTL candidate from src/ablation/candidates.py, e.g. "
             "equal_weight, baseline_nash, cgc_equal, or cgc_famo. "
             "Explicit --model, --model-param, --mtl-loss, and "
             "--mtl-loss-param flags override candidate defaults."
@@ -427,7 +427,7 @@ def _apply_cli_overrides(
     if args.candidate is not None:
         if config.task_type != "mtl":
             raise ValueError("--candidate can only be used with --task mtl")
-        from experiments.mtl_candidates import get_candidate
+        from ablation.candidates import get_candidate
 
         try:
             candidate = get_candidate(args.candidate)

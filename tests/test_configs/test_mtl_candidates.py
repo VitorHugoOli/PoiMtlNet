@@ -2,7 +2,7 @@
 
 import pytest
 
-from experiments.mtl_candidates import get_candidate, iter_candidates
+from ablation.candidates import get_candidate, iter_candidates
 
 
 def test_phase1_candidates_include_simple_weighting_grid():

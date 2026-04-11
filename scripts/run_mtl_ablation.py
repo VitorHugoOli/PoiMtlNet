@@ -1,8 +1,6 @@
-"""Backward-compatible shim for staged MTL ablation runner.
+"""Canonical CLI entrypoint for staged MTL ablations."""
 
-Canonical script entrypoint lives at ``scripts/run_mtl_ablation.py`` and logic
-lives at ``src/ablation/runner.py``.
-"""
+from __future__ import annotations
 
 import sys
 from pathlib import Path
