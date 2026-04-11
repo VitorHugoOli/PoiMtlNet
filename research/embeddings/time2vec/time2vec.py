@@ -251,8 +251,11 @@ if __name__ == '__main__':
     parser.add_argument('--tau', type=float, default=0.3,
                         help='Temperature for contrastive loss')
     parser.add_argument('--device', type=str,
-                        default='cpu',
-                        help='Device to use for training')
+                        default=str(DEVICE),
+                        help='Device to use for training. Defaults to auto-'
+                             'detected DEVICE (MPS on Apple Silicon, CUDA '
+                             'otherwise, CPU fallback). MPS is ~2.4x faster '
+                             'than CPU on the new manual-slicing path.')
     parser.add_argument('--compile', action='store_true',
                         help='Enable torch.compile for an extra ~10%% speedup '
                              '(bit-identical loss on Alabama). Off by default '
