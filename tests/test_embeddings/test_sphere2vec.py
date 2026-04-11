@@ -743,3 +743,170 @@ class TestEndToEndPipelineEquivalence:
             f"per-POI embeddings differ between notebook reference and "
             f"migrated pipeline.\n  max abs diff: {np.abs(ref_emb - mig_emb).max()}"
         )
+
+
+# ---------------------------------------------------------------------------
+# Paper-variant (SphereMixScale / Eq.8) equivalence tests
+# ---------------------------------------------------------------------------
+
+class TestSphereMixScalePaperEncoder:
+    """
+    Validate that our `SphereMixScalePositionEncoder` is numerically equivalent
+    to the frozen upstream reference in `_sphere2vec_paper_reference.py`.
+
+    Two axes are exercised:
+    1. Output dimensionality is the expected ``8 * frequency_num`` (upstream's
+       ``cal_input_dim`` is stale and returns ``4 * frequency_num``; the
+       ``forward`` body concatenates 8 terms, so that is the real dim).
+    2. Forward output matches the upstream numpy reference on a fixed batch.
+       The coordinate-order swap (our pipeline uses ``(lat, lon)`` while the
+       upstream code uses ``(lon, lat)``) is accounted for at the input.
+    """
+
+    def _fixed_coords(self):
+        # A handful of realistic (lat, lon) points spanning a continent.
+        return np.array(
+            [
+                [32.5, -86.8],   # Montgomery, AL
+                [40.7, -74.0],   # NYC
+                [-33.9, 151.2],  # Sydney
+                [51.5, -0.12],   # London
+                [0.0, 0.0],      # Null Island
+            ],
+            dtype=np.float32,
+        )
+
+    def test_output_dim_is_eight_times_frequency_num(self):
+        from embeddings.sphere2vec.model.Sphere2VecModule import (
+            SphereMixScalePositionEncoder,
+        )
+
+        for F_num in (4, 8, 16, 32):
+            enc = SphereMixScalePositionEncoder(
+                frequency_num=F_num, min_radius=10, max_radius=10000
+            )
+            assert enc.output_dim == 8 * F_num
+            out = enc(torch.from_numpy(self._fixed_coords()))
+            assert out.shape == (5, 8 * F_num)
+            assert out.dtype == torch.float32
+
+    def test_forward_matches_upstream_reference(self):
+        from tests.test_embeddings import _sphere2vec_paper_reference as pref
+        from embeddings.sphere2vec.model.Sphere2VecModule import (
+            SphereMixScalePositionEncoder,
+        )
+
+        coords_latlon = self._fixed_coords()
+        # Upstream expects (B, num_ctx, 2) with (lon, lat). Swap cols.
+        coords_lonlat = coords_latlon[:, [1, 0]][:, None, :]  # (B, 1, 2)
+
+        ref_enc = pref.SphereMixScaleSpatialRelationEncoder(
+            spa_embed_dim=128,
+            coord_dim=2,
+            frequency_num=32,
+            min_radius=10,
+            max_radius=10000,
+            freq_init="geometric",
+            ffn=None,
+            device="cpu",
+        )
+        ref_out = ref_enc(coords_lonlat)  # (B, 1, 8*32)
+        ref_out_np = ref_out.detach().cpu().numpy().reshape(5, -1)
+
+        new_enc = SphereMixScalePositionEncoder(
+            frequency_num=32, min_radius=10, max_radius=10000, device="cpu"
+        )
+        new_out = new_enc(torch.from_numpy(coords_latlon))
+        new_out_np = new_out.detach().cpu().numpy()
+
+        assert ref_out_np.shape == new_out_np.shape == (5, 256)
+        # Upstream uses float64 internally and casts to FloatTensor at the
+        # end; our impl stays in float32. Allow loose atol for the cast slop.
+        max_abs = np.abs(ref_out_np - new_out_np).max()
+        assert max_abs < 1e-5, (
+            f"SphereMixScale paper-variant output differs from upstream "
+            f"reference: max abs diff = {max_abs}"
+        )
+
+    def test_zero_learned_parameters(self):
+        """
+        The paper's position encoder is fully closed-form. The only persistent
+        module state is the ``freq_mat`` buffer — no ``nn.Parameter`` should
+        be registered.
+        """
+        from embeddings.sphere2vec.model.Sphere2VecModule import (
+            SphereMixScalePositionEncoder,
+        )
+        enc = SphereMixScalePositionEncoder(
+            frequency_num=32, min_radius=10, max_radius=10000
+        )
+        assert list(enc.parameters()) == []
+        assert "freq_mat" in dict(enc.named_buffers())
+
+    def test_deterministic_across_inits(self):
+        """Same hyperparameters → identical freq buffer, no randomness."""
+        from embeddings.sphere2vec.model.Sphere2VecModule import (
+            SphereMixScalePositionEncoder,
+        )
+        a = SphereMixScalePositionEncoder(
+            frequency_num=32, min_radius=10, max_radius=10000
+        )
+        b = SphereMixScalePositionEncoder(
+            frequency_num=32, min_radius=10, max_radius=10000
+        )
+        assert torch.equal(a.freq_mat, b.freq_mat)
+        coords = torch.from_numpy(self._fixed_coords())
+        assert torch.equal(a(coords), b(coords))
+
+
+class TestSphereLocationEncoderPaperVariant:
+    """
+    End-to-end sanity: ``SphereLocationEncoder(encoder_variant='paper')``
+    constructs, forwards to the correct output shape, and the RBF-variant
+    default path is unchanged.
+    """
+
+    def test_paper_variant_wires_correctly(self):
+        from embeddings.sphere2vec.model.Sphere2VecModule import (
+            SphereLocationEncoder,
+        )
+        enc = SphereLocationEncoder(
+            spa_embed_dim=128,
+            num_scales=32,
+            min_scale=10,
+            max_scale=10000,
+            num_centroids=256,  # ignored in paper variant
+            ffn_hidden_dim=512,
+            encoder_variant="paper",
+        )
+        assert enc.encoder_variant == "paper"
+        # Input projector should map 8*32 = 256 → 512
+        assert enc.input_projector.in_features == 256
+        assert enc.input_projector.out_features == 512
+        coords = torch.tensor(
+            [[32.5, -86.8], [40.7, -74.0]], dtype=torch.float32
+        )
+        out = enc(coords)
+        assert out.shape == (2, 128)
+
+    def test_rbf_variant_default_unchanged(self):
+        from embeddings.sphere2vec.model.Sphere2VecModule import (
+            SphereLocationEncoder,
+        )
+        enc = SphereLocationEncoder(
+            spa_embed_dim=128,
+            num_scales=32,
+            min_scale=10,
+            max_scale=1e7,
+            num_centroids=256,
+            ffn_hidden_dim=512,
+        )
+        assert enc.encoder_variant == "rbf"
+        assert enc.input_projector.in_features == 256 * 32  # 8192
+
+    def test_invalid_variant_raises(self):
+        from embeddings.sphere2vec.model.Sphere2VecModule import (
+            SphereLocationEncoder,
+        )
+        with pytest.raises(ValueError, match="encoder_variant"):
+            SphereLocationEncoder(encoder_variant="bogus")

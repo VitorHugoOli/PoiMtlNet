@@ -39,6 +39,17 @@ MLP. The position encoder itself is **frozen** (random unit centroids on
 the sphere stored as a buffer); only the input projector + MLP + final
 projector are trained.
 
+> ⚠️ **Architectural discrepancy with the original paper.** The
+> `sphere2vec/` package migrates a Colab notebook labeled "Sphere2Vec-sphereM"
+> whose position encoder has **no relationship** to Equation 8 in Mai et al.
+> 2023 — it is a custom random-RBF-on-sphere encoder. As of 2026-04-11 the
+> package also exposes a paper-faithful `SphereMixScalePositionEncoder`
+> (the official `SphereMixScaleSpatialRelationEncoder` from
+> `gengchenmai/sphere2vec`), selectable via `--encoder_variant paper`.
+> Default stays `rbf` for backward compatibility. See
+> `sphere2vec/README.md` for the ablation table and
+> `plans/sphere2vec_paper_vs_notebook_analysis.md` for the full derivation.
+
 The training objective is contrastive BCE on cosine similarity:
 - **Positive pairs**: `(coord_i, coord_i + N(0, 0.01°))` — same point with
   ~1.1 km Gaussian noise.

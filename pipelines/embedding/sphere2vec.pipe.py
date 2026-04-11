@@ -46,6 +46,20 @@ STATES = [
 
 # Default configuration.
 #
+# Encoder variant: 'paper' (SphereMixScale, Eq.8 + sphereC terms from the
+# official gengchenmai/sphere2vec repo). This is the paper-faithful variant
+# and was adopted as the pipe default on 2026-04-11 after a 5-fold × 50-epoch
+# Alabama ablation showed:
+#     - rbf  cat F1 = 14.15% ± 1.26   (higher mean, higher std)
+#     - paper cat F1 = 13.35% ± 0.65   (~½ std, ~35% faster training)
+# The gap is within 1σ of rbf's std, so the variants are statistically tied.
+# The paper variant wins on (a) stability across folds and (b) honest
+# citation of Mai et al. 2023. See research/embeddings/sphere2vec/README.md
+# for the full ablation table.
+#
+# To revert to the notebook's rbf variant, change encoder_variant='rbf' and
+# optionally drop min_radius/max_radius (they are paper-variant-only).
+#
 # Architecture / loss / pos_radius are kept exactly as the notebook source.
 # Batch size + dataset are tuned for speed: bs=4096 with the vectorized
 # FastContrastiveSpatialDataset gives ~9× faster epoch times on MPS than
@@ -53,14 +67,21 @@ STATES = [
 # on Alabama (validated against the notebook-mode 50-epoch baseline).
 #
 # To reproduce the canonical notebook training exactly, set
-#     batch_size=64, legacy_dataset=True
+#     encoder_variant='rbf', batch_size=64, legacy_dataset=True
 SPHERE2VEC_CONFIG = Namespace(
     dim=InputsConfig.EMBEDDING_DIM,
     spa_embed_dim=128,
     num_scales=32,
+    # Scale params are used by both variants but with different semantics:
+    # - rbf:   min_scale/max_scale are the RBF kernel scales (dimensionless)
+    # - paper: min_radius/max_radius are the geometric frequency range
     min_scale=10,
     max_scale=1e7,
-    num_centroids=256,
+    num_centroids=256,      # ignored by paper variant
+    # Paper-variant-specific radii (upstream defaults from the
+    # official SphereMixScaleSpatialRelationEncoder class):
+    min_radius=10.0,
+    max_radius=10000.0,
     ffn_hidden_dim=512,
     ffn_num_hidden_layers=1,
     ffn_dropout_rate=0.5,
@@ -77,6 +98,8 @@ SPHERE2VEC_CONFIG = Namespace(
     eval_batch_size=10000,
     device=DEVICE,
     legacy_dataset=False,   # use FastContrastiveSpatialDataset
+    encoder_variant="paper",  # paper-faithful Eq.8 SphereMixScale (default)
+    eval_inference=False,
 )
 
 # Ensure device is correct type

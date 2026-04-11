@@ -1,12 +1,19 @@
 # Sphere2Vec (sphereM)
 
-POI-level location embedding ported faithfully from a Colab notebook
-(`Location Encoders/...Sphere2Vec-sphereM.ipynb`).
+POI-level location embedding package with **two encoder variants** (selectable via `encoder_variant`):
+
+⚠️ **The `rbf` default is NOT the paper's sphereM.** It is a custom random-RBF-on-sphere
+encoder from a mislabeled Colab notebook. The paper's Eq.8 `SphereMixScaleSpatialRelationEncoder`
+is available as `encoder_variant='paper'`. See `README.md` for the discrepancy table and
+`plans/sphere2vec_paper_vs_notebook_analysis.md` for the full derivation.
 
 ## Architecture
 
-- **Frozen** spherical-RBF position encoder (256 random unit centroids × 32 log-spaced scales).
-- Trained: `Linear(8192→512)` → `MultiLayerFeedForwardNN(512→512→128)` → `Linear(128→64)` → L2-norm.
+- **`rbf` variant (default, backward-compat)** — Frozen spherical-RBF position
+  encoder (256 random unit centroids × 32 log-spaced scales). Output 8192 → FFN → 64.
+- **`paper` variant** — Closed-form Eq.8 (`SphereMixScalePositionEncoder`),
+  deterministic, no random buffers. Output 8·S = 256 → FFN → 64.
+- Trained (both variants): `Linear(in→512)` → `MultiLayerFeedForwardNN(512→512→128)` → `Linear(128→64)` → L2-norm.
 - Contrastive loss: BCE on cosine similarity, positives = `coord + N(0, 0.01°)`, negatives = random other coord.
 
 ## Entry point
