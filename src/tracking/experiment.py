@@ -128,7 +128,8 @@ class MLHistory:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.end()
         if exc_type is None and self._save_path is not None:
-            self.storage.save(path=self._save_path, label_map=self._label_map)
+            run_path = self.storage.save(path=self._save_path, label_map=self._label_map)
+            self._compare_and_save_records(run_path)
 
     # --- Iterator ---
 
@@ -208,6 +209,27 @@ class MLHistory:
                 "num_folds": self.num_folds,
                 "tasks": list(self.tasks),
             })
+
+    def _compare_and_save_records(self, run_path: Path) -> None:
+        """Compare the current run against historical bests and display/save records."""
+        summary_path = run_path / "summary" / "full_summary.json"
+        if not summary_path.exists():
+            return
+        try:
+            import json
+            from tracking.records import compare_records, save_best_record
+
+            current_summary = json.loads(summary_path.read_text(encoding="utf-8"))
+            comparison = compare_records(self._save_path, current_summary, run_path.name)
+            self.display.display_records(comparison)
+            save_best_record(
+                self._save_path, comparison, current_summary, run_path.name,
+            )
+        except Exception as exc:
+            import logging
+            logging.getLogger(__name__).warning(
+                "Record comparison failed: %s", exc,
+            )
 
     def end(self):
         if self._ended:

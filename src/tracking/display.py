@@ -2,7 +2,6 @@ import logging
 from statistics import mean, stdev
 from typing import Dict, Optional, Sequence, TYPE_CHECKING
 
-
 def _safe_stdev(xs: Sequence[float]) -> float:
     """stdev() that returns 0.0 for a single data point instead of raising.
 
@@ -16,6 +15,7 @@ def _safe_stdev(xs: Sequence[float]) -> float:
 
 if TYPE_CHECKING:
     from tracking.experiment import MLHistory
+    from tracking.records import RecordComparison
 
 logging.basicConfig(
     level=logging.INFO,
@@ -305,6 +305,39 @@ class HistoryDisplay:
                 self.display_report(final_report)
 
         self.log.info(self._sep("End of all folds", width=60))
+
+    def display_records(self, comparison: "RecordComparison") -> None:
+        """Show per-task record comparison after training ends."""
+        if not comparison.tasks:
+            return
+
+        self.log.info(self._sep("Record Comparison", width=60, sep="-"))
+
+        for tr in comparison.tasks:
+            f1_pct = tr.current_f1 * 100
+            if tr.previous_best_run == "":
+                # First run ever for this task in this engine+state.
+                self.log.info(
+                    f"  {tr.task:<12} F1: {f1_pct:6.2f}%  |  "
+                    f"First run - baseline established"
+                )
+            elif tr.is_new_record:
+                prev_pct = tr.previous_best_f1 * 100
+                self.log.info(
+                    f"  {tr.task:<12} F1: {f1_pct:6.2f}%  |  "
+                    f"NEW RECORD  (prev: {prev_pct:.2f}%)"
+                )
+            else:
+                prev_pct = tr.previous_best_f1 * 100
+                run_short = tr.previous_best_run[:35]
+                if len(tr.previous_best_run) > 35:
+                    run_short += "..."
+                self.log.info(
+                    f"  {tr.task:<12} F1: {f1_pct:6.2f}%  |  "
+                    f"Previous best: {prev_pct:.2f}% ({run_short})"
+                )
+
+        self.log.info(self._sep("", width=60, sep="-"))
 
     def flops(self):
         if self.h.flops:
