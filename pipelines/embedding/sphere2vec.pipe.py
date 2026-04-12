@@ -62,7 +62,7 @@ CONFIG = Namespace(
     tau=0.15,
     pos_radius=0.01,
     seed=42,
-    num_workers=2,
+    num_workers=0, #MPS 0 workers
     eval_batch_size=10000,
     device=DEVICE,
     legacy_dataset=False,
@@ -78,10 +78,10 @@ CONFIG = Namespace(
 # =============================================================================
 
 STATES = {
-    'Alabama': {},
+    # 'Alabama': {},
     # 'Arizona': {},
     # 'Georgia': {},
-    # 'Florida': {},
+    'Florida': {},
     # 'California': {},
     # 'Texas': {},
 }

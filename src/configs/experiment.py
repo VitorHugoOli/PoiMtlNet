@@ -240,7 +240,7 @@ class ExperimentConfig:
                 "dropout": 0.1,
             },
             task_type="next",
-            epochs=50,
+            epochs=100,
             batch_size=2**13,
             learning_rate=1e-4,
             max_lr=1e-2,
