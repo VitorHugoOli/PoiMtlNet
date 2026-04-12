@@ -38,4 +38,5 @@ build/
 
 # Worktrees and local tooling
 .claude/worktrees/
+.claude/settings.local.json
 .codex/
