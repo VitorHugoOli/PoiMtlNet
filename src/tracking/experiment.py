@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+import logging
 import time
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Union
@@ -216,17 +218,16 @@ class MLHistory:
         if not summary_path.exists():
             return
         try:
-            import json
             from tracking.records import compare_records, save_best_record
 
             current_summary = json.loads(summary_path.read_text(encoding="utf-8"))
             comparison = compare_records(self._save_path, current_summary, run_path.name)
-            self.display.display_records(comparison)
+            if self._verbose:
+                self.display.display_records(comparison)
             save_best_record(
                 self._save_path, comparison, current_summary, run_path.name,
             )
         except Exception as exc:
-            import logging
             logging.getLogger(__name__).warning(
                 "Record comparison failed: %s", exc,
             )

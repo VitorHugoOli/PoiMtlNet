@@ -19,7 +19,7 @@ if _src not in sys.path:
     sys.path.insert(0, _src)
 
 from configs.paths import RESULTS_ROOT, EmbeddingEngine, IoPaths
-from tracking.records import compute_best_record, scan_previous_bests
+from tracking.records import compute_best_record
 
 logging.basicConfig(
     level=logging.INFO,
@@ -58,15 +58,18 @@ def _parse_args(argv=None) -> argparse.Namespace:
 
 def _process_dir(results_dir: Path, label: str) -> None:
     """Compute best_record.json for a single results directory."""
-    bests = scan_previous_bests(results_dir)
-    if not bests:
+    # Check if any runs exist before writing.
+    if not list(results_dir.glob("*/summary/full_summary.json")):
         logger.info("  %s: no runs found, skipping.", label)
         return
 
     record_path = compute_best_record(results_dir)
     logger.info("  %s: wrote %s", label, record_path)
-    for task, (f1, folder) in sorted(bests.items()):
-        logger.info("    %s: F1=%.4f (%s)", task, f1, folder)
+
+    import json
+    data = json.loads(record_path.read_text(encoding="utf-8"))
+    for task, info in sorted(data.get("tasks", {}).items()):
+        logger.info("    %s: F1=%.4f (%s)", task, info["f1_mean"], info["run_folder"])
 
 
 def main(argv=None) -> None:

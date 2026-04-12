@@ -127,6 +127,16 @@ class TestCompareRecords:
         assert len(comp.tasks) == 2
         assert all(t.is_new_record for t in comp.tasks)
 
+    def test_degenerate_first_run_not_a_record(self, tmp_path):
+        """A first run with F1=0.0 should not be marked as a record."""
+        current = {
+            "category": {"f1": {"mean": 0.0, "std": 0.0}},
+        }
+        comp = compare_records(tmp_path, current, "broken_run")
+
+        assert len(comp.tasks) == 1
+        assert comp.tasks[0].is_new_record is False
+
     def test_mixed_tasks_some_record_some_not(self, tmp_path):
         _write_summary(tmp_path, "old_run", {
             "category": {"f1": {"mean": 0.50, "std": 0.01}},
@@ -159,6 +169,7 @@ class TestSaveBestRecord:
 
         path = save_best_record(tmp_path, comparison, current_summary, "new_run")
 
+        assert path is not None
         assert path.exists()
         data = json.loads(path.read_text())
         assert "category" in data["tasks"]
@@ -166,6 +177,19 @@ class TestSaveBestRecord:
         assert data["tasks"]["category"]["run_folder"] == "new_run"
         # next was not a record — should not be in tasks (no prior entry either).
         assert "next" not in data["tasks"]
+
+    def test_returns_none_when_no_new_records(self, tmp_path):
+        comparison = RecordComparison(tasks=[
+            TaskRecord("next", 0.25, 0.30, "old_run", False),
+        ])
+        current_summary = {
+            "next": {"f1": {"mean": 0.25, "std": 0.01}},
+        }
+
+        result = save_best_record(tmp_path, comparison, current_summary, "new_run")
+
+        assert result is None
+        assert not (tmp_path / "best_record.json").exists()
 
     def test_updates_existing_record(self, tmp_path):
         # Pre-existing record.

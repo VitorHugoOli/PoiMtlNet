@@ -2,6 +2,7 @@ import logging
 from statistics import mean, stdev
 from typing import Dict, Optional, Sequence, TYPE_CHECKING
 
+
 def _safe_stdev(xs: Sequence[float]) -> float:
     """stdev() that returns 0.0 for a single data point instead of raising.
 
@@ -88,6 +89,17 @@ class HistoryDisplay:
             return f"{seconds:.2f}s"
         minutes = seconds / 60
         return f"{minutes:.2f}m"
+
+    @staticmethod
+    def _format_si(value: float) -> str:
+        """Format a number with K/M/G SI suffix."""
+        if value >= 1e9:
+            return f"{value / 1e9:.2f}G"
+        if value >= 1e6:
+            return f"{value / 1e6:.2f}M"
+        if value >= 1e3:
+            return f"{value / 1e3:.2f}K"
+        return f"{value:.0f}"
 
     def _format_metric(self, value, is_percentage: bool = True, width: int = 8) -> str:
         if isinstance(value, (int, float)):
@@ -257,21 +269,9 @@ class HistoryDisplay:
             flops_val = self.h.flops.flops
             params_val = self.h.flops.params
             if isinstance(flops_val, (int, float)) and flops_val > 0:
-                if flops_val >= 1e9:
-                    stats_parts.append(f"FLOPs: {flops_val / 1e9:.2f}G")
-                elif flops_val >= 1e6:
-                    stats_parts.append(f"FLOPs: {flops_val / 1e6:.2f}M")
-                elif flops_val >= 1e3:
-                    stats_parts.append(f"FLOPs: {flops_val / 1e3:.2f}K")
-                else:
-                    stats_parts.append(f"FLOPs: {flops_val}")
+                stats_parts.append(f"FLOPs: {self._format_si(flops_val)}")
             if isinstance(params_val, (int, float)) and params_val > 0:
-                if params_val >= 1e6:
-                    stats_parts.append(f"Params: {params_val / 1e6:.2f}M")
-                elif params_val >= 1e3:
-                    stats_parts.append(f"Params: {params_val / 1e3:.2f}K")
-                else:
-                    stats_parts.append(f"Params: {params_val}")
+                stats_parts.append(f"Params: {self._format_si(params_val)}")
         self.log.info(" | ".join(stats_parts))
 
         if self.show_report:
@@ -337,7 +337,7 @@ class HistoryDisplay:
                     f"Previous best: {prev_pct:.2f}% ({run_short})"
                 )
 
-        self.log.info(self._sep("", width=60, sep="-"))
+        self.log.info("-" * 60)
 
     def flops(self):
         if self.h.flops:

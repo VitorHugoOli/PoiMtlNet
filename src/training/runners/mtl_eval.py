@@ -66,6 +66,15 @@ def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_c
         truths_cat_list.append(y_category)
         batches += 1
 
+    if batches == 0:
+        empty = compute_classification_metrics(
+            torch.zeros(0, model.num_classes, device=device),
+            torch.zeros(0, dtype=torch.long, device=device),
+            num_classes=model.num_classes,
+        )
+        empty['loss'] = 0.0
+        return empty, dict(empty), 0.0
+
     loss_combined = combined_running_loss.item() / batches
     loss_next = next_running_loss.item() / batches
     loss_category = category_running_loss.item() / batches
