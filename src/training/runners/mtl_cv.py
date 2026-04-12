@@ -206,17 +206,19 @@ def train_model(model: torch.nn.Module,
             cat_improved = f1_val_category > fold_history.task('category').best.best_value
             state = model.state_dict() if (next_improved or cat_improved) else None
 
+            # Per-task val losses now come from evaluate_model() inside the
+            # metric dicts, so log_val no longer needs a hand-wired scalar.
+            # model_task keeps the combined MTL loss; the f1=0/accuracy=0
+            # placeholders stay as stable schema on the MTL summary store.
             fold_history.model_task.log_val(loss=loss_val, f1=0, accuracy=0)
             fold_history.log_val(
                 'next',
-                loss=0,
                 **val_metrics_next,
                 model_state=state if next_improved else None,
                 elapsed_time=fold_history.timer.timer(),
             )
             fold_history.log_val(
                 'category',
-                loss=0,
                 **val_metrics_cat,
                 model_state=state if cat_improved else None,
                 elapsed_time=fold_history.timer.timer(),

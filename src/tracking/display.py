@@ -118,18 +118,22 @@ class HistoryDisplay:
             f"Total: {self._format_time(elapsed)} | Remaining: {self._format_time(remaining)}"
         )
         self.log.info(self._sep(f"Summary Fold {idx + 1}", width=60, sep='-'))
-        header_cells = [f"{'Task':<10}", f"{'Best Epoch':<10}"]
+        # Column widths are unified at 10 chars so header and row cells
+        # line up regardless of how many headline metrics are configured.
+        col = 10
+        header_cells = [f"{'Task':<{col}}", f"{'Best Epoch':<{col}}"]
         for metric in self.headline_metrics:
-            header_cells.append(f"{metric.replace('_', ' ').title():<10}")
+            header_cells.append(f"{metric.replace('_', ' ').title():<{col}}")
         self.log.info(" | ".join(header_cells) + " |")
         for t in self.h.tasks:
             th = self.h.folds[idx].task(t)
             be = th.best.best_epoch
-            row = [f"{t:<10}", f"{be:^10d}"]
+            row = [f"{t:<{col}}", f"{be:^{col}d}"]
             for metric in self.headline_metrics:
                 vals = th.val.get(metric)
                 v = vals[be] if vals and be >= 0 and be < len(vals) else 0.0
-                row.append(f"{v * 100:>8.2f}% ")
+                # Reserve one char for '%', leave col-1 for the number.
+                row.append(f"{v * 100:>{col - 1}.2f}%")
             self.log.info(" | ".join(row) + " |")
 
         if self.show_report:

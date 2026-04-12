@@ -21,6 +21,7 @@ if _src not in sys.path:
 from configs.experiment import ExperimentConfig
 from configs.paths import EmbeddingEngine, IoPaths
 from data.folds import FoldCreator, TaskType
+from tracking.metrics import compute_classification_metrics
 from training.evaluate import collect_predictions, build_report
 
 import torch
@@ -144,8 +145,6 @@ def main(argv=None) -> None:
     logger.info("Loaded checkpoint: %s", checkpoint_path)
 
     # Evaluate
-    from tracking.metrics import compute_classification_metrics
-
     num_classes = config.model_params.get("num_classes", 7)
 
     def _log_metrics(label: str, logits, targets_np):

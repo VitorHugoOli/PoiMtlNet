@@ -23,8 +23,7 @@ The ``'f1'`` key stays identical to the previous
 
 from __future__ import annotations
 
-import math
-from typing import Dict, Iterable, Tuple
+from typing import Dict, Iterable
 
 import torch
 from torchmetrics.functional.classification import (
@@ -34,10 +33,11 @@ from torchmetrics.functional.classification import (
 
 
 def _top_k_accuracy(logits: torch.Tensor, targets: torch.Tensor, k: int) -> float:
-    """Fraction of samples whose true class is in the top-k predictions."""
-    if k <= 1:
-        preds = logits.argmax(dim=-1)
-        return (preds == targets).float().mean().item()
+    """Fraction of samples whose true class is in the top-k predictions.
+
+    Caller must pass ``k >= 2`` — the main API skips ``k == 1`` since that
+    would duplicate ``accuracy``.
+    """
     k_eff = min(k, logits.shape[-1])
     top_k = logits.topk(k_eff, dim=-1).indices  # (N, k_eff)
     hit = (top_k == targets.unsqueeze(-1)).any(dim=-1)
@@ -45,16 +45,22 @@ def _top_k_accuracy(logits: torch.Tensor, targets: torch.Tensor, k: int) -> floa
 
 
 def _rank_of_target(logits: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
-    """1-indexed rank of the true class in each row's descending sort.
+    """1-indexed "best-case" rank of the true class in each row.
 
-    Uses ``argsort`` rather than ``multiclass_accuracy(top_k=...)`` because we
-    want the actual rank, not a thresholded hit. Ties are broken by the
-    underlying sort stability (same contract as ``torch.argsort``).
+    Computed as ``1 + #{classes with a strictly higher logit than the target}``.
+    This is the canonical tie-handling for ranking metrics: if two classes
+    share the top score and one of them is the target, the target ranks 1,
+    not 2. An ``argsort``-based implementation would break ties by the
+    platform's sort stability, which is an implementation detail the caller
+    shouldn't depend on.
+
+    Returns an int64 tensor of shape ``(N,)``.
     """
-    order = logits.argsort(dim=-1, descending=True)         # (N, C)
-    matches = (order == targets.unsqueeze(-1)).int()         # (N, C)
-    rank_zero_indexed = matches.argmax(dim=-1)               # (N,)
-    return rank_zero_indexed + 1                              # 1-indexed
+    # (N, 1) gather — score of the true class per row
+    target_scores = logits.gather(dim=-1, index=targets.unsqueeze(-1))
+    # Count strictly higher-scoring classes; add 1 for the target itself.
+    higher = (logits > target_scores).sum(dim=-1)
+    return higher + 1
 
 
 def _mean_reciprocal_rank(logits: torch.Tensor, targets: torch.Tensor) -> float:
@@ -101,10 +107,9 @@ def compute_classification_metrics(
         ``dict[str, float]``: every value is a plain Python float, safe to
         pass straight into ``MetricStore.log(**kwargs)``.
 
-    Edge cases:
-        * Empty batch (``N == 0``): returns all zeros. Callers should guard
-          against this upstream, but we handle it defensively so tests with
-          degenerate loaders don't crash.
+    Empty batch (``N == 0``) is tolerated and returns zeros for every key
+    the non-empty path would have produced — this keeps test harnesses with
+    degenerate loaders happy without forcing a guard at every call site.
     """
     if logits.ndim != 2:
         raise ValueError(f"logits must be 2-D (N, C); got shape {tuple(logits.shape)}")

@@ -199,3 +199,43 @@ class TestEdgeCases:
         logits = torch.tensor([[5.0, 0.1], [0.1, 5.0]], device="cpu")
         m = compute_classification_metrics(logits, targets, num_classes=2)
         assert m["accuracy"] == pytest.approx(1.0)
+
+
+class TestTieBreaking:
+    """Explicitly document the tie-handling semantics of ``_rank_of_target``.
+
+    When multiple classes share the top logit and one of them is the target,
+    we count "how many classes strictly beat the target", so the target
+    gets the best-case rank. This is the canonical choice for ranking
+    metrics and avoids depending on ``argsort`` stability.
+    """
+
+    def test_all_tied_gives_rank_one(self):
+        # 3 classes, all with logit 0.5 — target should rank 1 (best case).
+        logits = torch.tensor([[0.5, 0.5, 0.5]])
+        targets = torch.tensor([1])
+        m = compute_classification_metrics(
+            logits, targets, num_classes=3, top_k=(3,)
+        )
+        assert m["mrr"] == pytest.approx(1.0)      # 1/rank = 1/1
+        assert m["top3_acc"] == pytest.approx(1.0)  # trivially in top-3
+
+    def test_target_tied_with_one_class_at_top(self):
+        # Classes 0 and 1 tied at the top; target = 0 → strictly-higher
+        # count is 0, so rank=1.
+        logits = torch.tensor([[5.0, 5.0, 1.0]])
+        targets = torch.tensor([0])
+        m = compute_classification_metrics(
+            logits, targets, num_classes=3, top_k=(3,)
+        )
+        assert m["mrr"] == pytest.approx(1.0)
+
+    def test_one_class_strictly_beats_target(self):
+        # Class 2 strictly wins; target=0 has the same score as class 1.
+        # strictly_higher = 1 (only class 2), so rank = 2.
+        logits = torch.tensor([[4.0, 4.0, 9.0]])
+        targets = torch.tensor([0])
+        m = compute_classification_metrics(
+            logits, targets, num_classes=3, top_k=(3,)
+        )
+        assert m["mrr"] == pytest.approx(0.5)  # 1/2

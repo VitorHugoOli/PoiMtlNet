@@ -115,8 +115,12 @@ def train_single_task(
             train_acc = train_metrics['accuracy']
             avg_grad_norm = float(torch.stack(epoch_grad_norms).mean().item()) if epoch_grad_norms else 0.0
         else:
-            # Fallback: only loss + cheap top-1 accuracy are logged.
-            train_metrics = {'accuracy': train_acc}
+            # Fallback: only loss + cheap top-1 accuracy are computed. We
+            # still emit an ``f1`` key (=0.0) so ``fold{i}_{task}_train.csv``
+            # columns stay stable across runs with/without
+            # ``compute_train_f1``; anything analysing CSV schemas would
+            # otherwise see a column disappear from old-style runs.
+            train_metrics = {'accuracy': train_acc, 'f1': 0.0}
             train_f1 = 0.0
             avg_grad_norm = 0.0
 

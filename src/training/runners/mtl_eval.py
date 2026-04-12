@@ -12,7 +12,9 @@ def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_c
     is cycled so all samples from both loaders are evaluated. Logits are kept
     on-device through ``compute_classification_metrics``, which produces the
     legacy ``f1``/``accuracy`` keys **plus** ``f1_weighted``, ``accuracy_macro``,
-    ``top{k}_acc``, ``mrr`` and ``ndcg_{k}``.
+    ``top{k}_acc``, ``mrr`` and ``ndcg_{k}``. Each per-task metric dict also
+    carries its own ``'loss'`` key so the caller can forward the whole dict
+    via ``**`` straight into ``log_val`` without hand-wiring scalars.
 
     Args:
         model: The MTLPOI model.
@@ -23,15 +25,21 @@ def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_c
         device: Device to run evaluation on.
 
     Returns:
-        Tuple ``(metrics_next, metrics_category, loss)`` where each
-        ``metrics_*`` is the unprefixed dict returned by
-        ``compute_classification_metrics``.
+        Tuple ``(metrics_next, metrics_category, loss_combined)``:
+            * ``metrics_next`` / ``metrics_category`` — dicts from
+              ``compute_classification_metrics`` with an added
+              per-task ``'loss'`` key.
+            * ``loss_combined`` — scalar average of
+              ``(next_loss + category_loss) / 2`` across batches, kept
+              for the MTL-level ``model_task`` tracking store.
     """
     model.eval()
-    running_loss = torch.tensor(0.0, device=device)
+    combined_running_loss = torch.tensor(0.0, device=device)
+    next_running_loss = torch.tensor(0.0, device=device)
+    category_running_loss = torch.tensor(0.0, device=device)
     logits_next_list, truths_next_list = [], []
     logits_cat_list, truths_cat_list = [], []
-    batchs = 0
+    batches = 0
 
     for data_next, data_cat in zip_longest_cycle(*dataloaders):
         x_next, y_next = data_next
@@ -47,15 +55,21 @@ def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_c
 
         next_loss = next_criterion(next_out, y_next)
         category_loss = category_criterion(cat_out, y_category)
-        running_loss += (next_loss.detach() + category_loss.detach()) / 2
+        # Accumulate on-device; single .item() sync after the loop.
+        next_running_loss += next_loss.detach()
+        category_running_loss += category_loss.detach()
+        combined_running_loss += (next_loss.detach() + category_loss.detach()) / 2
 
         logits_next_list.append(next_out.detach())
         truths_next_list.append(y_next)
         logits_cat_list.append(cat_out.detach())
         truths_cat_list.append(y_category)
-        batchs += 1
+        batches += 1
 
-    loss = running_loss.item() / batchs
+    loss_combined = combined_running_loss.item() / batches
+    loss_next = next_running_loss.item() / batches
+    loss_category = category_running_loss.item() / batches
+
     all_logits_next = torch.cat(logits_next_list)
     all_truths_next = torch.cat(truths_next_list)
     all_logits_category = torch.cat(logits_cat_list)
@@ -69,5 +83,7 @@ def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_c
     metrics_category = compute_classification_metrics(
         all_logits_category, all_truths_category, num_classes=num_classes,
     )
+    metrics_next['loss'] = loss_next
+    metrics_category['loss'] = loss_category
 
-    return metrics_next, metrics_category, loss
+    return metrics_next, metrics_category, loss_combined
