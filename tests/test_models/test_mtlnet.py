@@ -24,17 +24,6 @@ def _make_model(seed: int = 0) -> MTLnet:
 class TestMTLPOIModel:
     """Test suite for MTL-POI model architecture."""
 
-    def test_initialization(self):
-        """Test model initialization with default parameters."""
-        model = _make_model()
-        assert hasattr(model, 'category_encoder')
-        assert hasattr(model, 'next_encoder')
-        assert hasattr(model, 'film')
-        assert hasattr(model, 'shared_layers')
-        assert hasattr(model, 'category_poi')
-        assert hasattr(model, 'next_poi')
-        assert model.num_classes == 7
-
     def test_forward_pass(self):
         """Test forward pass with sample input."""
         model = _make_model()

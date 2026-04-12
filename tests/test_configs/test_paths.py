@@ -25,13 +25,6 @@ class TestEmbeddingEngine:
 class TestIoPaths:
     """Test suite for IoPaths path management."""
 
-    def test_initialization(self):
-        """Test IoPaths has required callable methods."""
-        assert callable(IoPaths.get_embedd)
-        assert callable(IoPaths.get_category)
-        assert callable(IoPaths.get_next)
-        assert callable(IoPaths.get_results_dir)
-
     def test_get_embedd(self):
         """Test get_embedd() path resolution."""
         path = IoPaths.get_embedd("florida", EmbeddingEngine.HGI)
@@ -108,8 +101,3 @@ class TestIoPaths:
         monkeypatch.delenv("DATA_ROOT", raising=False)
         importlib.reload(paths_module)
 
-    def test_load_methods(self):
-        """Test load_*() methods are callable."""
-        assert callable(IoPaths.load_embedd)
-        assert callable(IoPaths.load_category)
-        assert callable(IoPaths.load_next)

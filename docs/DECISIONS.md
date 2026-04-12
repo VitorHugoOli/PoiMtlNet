@@ -69,7 +69,7 @@ grep -r "StratifiedKFold\|StratifiedGroupKFold" src/etl/ --include="*.py" -l
 
 #### [0.2] pyproject.toml
 
-**Decision:** Created `pyproject.toml` with exact-pinned dependencies from `.venv_new` (Python 3.12.11, pip freeze snapshot 2026-03-26). Local package `graphgps` noted as manual install.
+**Decision:** Created `pyproject.toml` with exact-pinned dependencies from `.venv` (Python 3.12.11, pip freeze snapshot 2026-03-26). Local package `graphgps` noted as manual install.
 
 **Rationale:** No dependency manifest existed. Multiple stale requirements files (`requirements-bckp.txt`, `requirements_upgrad.txt`) were unreliable. Exact pins ensure reproducibility.
 

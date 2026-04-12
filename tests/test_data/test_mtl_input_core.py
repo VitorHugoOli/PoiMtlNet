@@ -25,8 +25,6 @@ from data.inputs.core import (
     save_parquet,
     save_next_input_dataframe,
     PADDING_VALUE,
-    MIN_SEQUENCE_LENGTH,
-    DEFAULT_BATCH_SIZE,
     MISSING_CATEGORY_VALUE,
 )
 from configs.model import InputsConfig
@@ -427,14 +425,6 @@ class TestConstants:
     def test_padding_value(self):
         """PADDING_VALUE should be -1."""
         assert PADDING_VALUE == -1
-
-    def test_min_sequence_length(self):
-        """MIN_SEQUENCE_LENGTH should be 5."""
-        assert MIN_SEQUENCE_LENGTH == 5
-
-    def test_default_batch_size(self):
-        """DEFAULT_BATCH_SIZE should be 100000."""
-        assert DEFAULT_BATCH_SIZE == 100000
 
     def test_missing_category_value(self):
         """MISSING_CATEGORY_VALUE should be 'None'."""

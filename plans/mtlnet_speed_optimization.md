@@ -4,7 +4,7 @@
 **Audience:** Future Claude Code session that will implement the optimizations
 **Scope:** Performance-only changes. **No change to model math, loss computation, RNG-dependent behavior, or metric values.**
 **Repo root:** `/Users/vitor/Desktop/mestrado/ingred`
-**Target venv:** `.venv_new` (Python 3.12, PyTorch 2.9.1, MPS on Apple Silicon)
+**Target venv:** `.venv` (Python 3.12, PyTorch 2.9.1, MPS on Apple Silicon)
 
 ---
 
@@ -40,7 +40,7 @@ The ~0.01 Cat F1 shortfall is likely stochastic (different DGI embedding seed + 
 
 **Verification command after any optimization:**
 ```bash
-.venv_new/bin/python scripts/train.py --task mtl --state arizona --engine dgi
+.venv/bin/python scripts/train.py --task mtl --state arizona --engine dgi
 # Then compare the resulting summary/full_summary.json against the "Current post-fix" row above
 ```
 
@@ -71,8 +71,8 @@ A separate fix landed around the same time (see `memory/nash_mtl_solver_bug.md` 
 
 - **No dependency upgrades** in the "safe batch" (items #1-#7 below). Torch upgrade and torch.compile are optional separate tasks.
 - **No numerics changes**: no AMP/float16, no different reduction modes, no architecture tweaks.
-- **Always run the full test suite** after each change: `.venv_new/bin/pytest tests/test_models/ tests/test_training/ tests/test_data/ -q`. Should be 354+ passing, 79 skipped, 0 failures.
-- **Benchmark before and after** each change: time a single-fold Arizona run to see per-step and per-fold improvement. Use `time .venv_new/bin/python scripts/train.py --task mtl --state arizona --engine dgi` or measure fold duration in `folds/fold1_info.json`.
+- **Always run the full test suite** after each change: `.venv/bin/pytest tests/test_models/ tests/test_training/ tests/test_data/ -q`. Should be 354+ passing, 79 skipped, 0 failures.
+- **Benchmark before and after** each change: time a single-fold Arizona run to see per-step and per-fold improvement. Use `time .venv/bin/python scripts/train.py --task mtl --state arizona --engine dgi` or measure fold duration in `folds/fold1_info.json`.
 - **Commit each item as its own commit** with a message describing the expected speedup and what was measured.
 
 ---
@@ -114,8 +114,8 @@ def _get_num_workers() -> int:
 
 **Verification:**
 ```bash
-.venv_new/bin/pytest tests/test_data/ -q
-.venv_new/bin/python scripts/train.py --task mtl --state arizona --engine dgi
+.venv/bin/pytest tests/test_data/ -q
+.venv/bin/python scripts/train.py --task mtl --state arizona --engine dgi
 # Compare fold1_info.json duration vs baseline
 ```
 
@@ -290,7 +290,7 @@ Do the exact same pattern in `src/training/runners/mtl_eval.py` (around line 33-
 
 **Why approach A not B:** A more aggressive approach (throw away DataLoader entirely, use `torch.randperm` on-device + tensor indexing) would give another 2-5% on top but breaks the `WeightedRandomSampler` branch and requires rewriting the batching loop. Not worth the risk for a performance-only PR.
 
-**Caveat for test suite:** some tests construct `POIDataset` directly with CPU tensors. The `device=None` default preserves old behavior. Verify: `.venv_new/bin/pytest tests/test_data/test_folds.py -q` (or whatever the folds test file is).
+**Caveat for test suite:** some tests construct `POIDataset` directly with CPU tensors. The `device=None` default preserves old behavior. Verify: `.venv/bin/pytest tests/test_data/test_folds.py -q` (or whatever the folds test file is).
 
 ### Item #4 — `PYTORCH_ENABLE_MPS_FALLBACK=1` (safety, no perf)
 
@@ -371,8 +371,8 @@ alpha = self.solve_optimization(GTG_norm.detach().cpu().numpy())
 
 **Verification:** this is the most numerics-sensitive change in the safe batch. Run:
 ```bash
-.venv_new/bin/pytest tests/test_losses/ -q
-.venv_new/bin/python scripts/train.py --task mtl --state arizona --engine dgi
+.venv/bin/pytest tests/test_losses/ -q
+.venv/bin/python scripts/train.py --task mtl --state arizona --engine dgi
 # Verify summary/full_summary.json matches baseline within ±0.5pp
 ```
 
@@ -464,7 +464,7 @@ If you're at all unsure, **skip item #7**. The combined savings from #1-#6 alone
 
 **Procedure:**
 1. Create a worktree: `git worktree add .claude/worktrees/torch-upgrade -b perf/torch-upgrade`
-2. In the worktree: `.venv_new/bin/pip install -U torch torch-geometric`
+2. In the worktree: `.venv/bin/pip install -U torch torch-geometric`
 3. Run the full test suite. Fix any breakages that come from API changes.
 4. Run Arizona MTL DGI and compare against baseline. The F1/accuracy should still be within ±1pp (noise from different kernel numerics is expected).
 5. If metrics are stable, update `requirements.txt` with the new pin and commit.
@@ -491,7 +491,7 @@ if os.environ.get('TORCH_COMPILE', '0') == '1':
 
 **Validation:**
 ```bash
-TORCH_COMPILE=1 .venv_new/bin/python scripts/train.py --task mtl --state arizona --engine dgi
+TORCH_COMPILE=1 .venv/bin/python scripts/train.py --task mtl --state arizona --engine dgi
 ```
 
 Watch the first epoch — it will be slow due to compile warmup (~30s). Subsequent epochs should be noticeably faster.
@@ -519,8 +519,8 @@ Keep the existing sklearn call for the final per-class JSON report (`validation_
 
 ### Phase B — Baseline measurement (10 min)
 
-1. Run `.venv_new/bin/pytest tests/test_models/ tests/test_training/ tests/test_data/ tests/test_losses/ -q`. Record the pass count.
-2. Run `time .venv_new/bin/python scripts/train.py --task mtl --state arizona --engine dgi > /tmp/baseline_arizona.log 2>&1`. Record total wall time.
+1. Run `.venv/bin/pytest tests/test_models/ tests/test_training/ tests/test_data/ tests/test_losses/ -q`. Record the pass count.
+2. Run `time .venv/bin/python scripts/train.py --task mtl --state arizona --engine dgi > /tmp/baseline_arizona.log 2>&1`. Record total wall time.
 3. Read `results/dgi/arizona/mtlnet_lr1.0e-04_bs2048_ep50_<timestamp>/summary/full_summary.json`. Record Cat F1, Cat Acc, Next F1, Next Acc.
 4. Read each fold's `fold*_info.json` `duration` field. Record per-fold durations.
 
@@ -528,7 +528,7 @@ Keep the existing sklearn call for the final per-class JSON report (`validation_
 
 Implement each item in order, one commit per item. After each:
 
-1. Run `.venv_new/bin/pytest tests/test_models/ tests/test_training/ tests/test_data/ tests/test_losses/ -q` — must still pass.
+1. Run `.venv/bin/pytest tests/test_models/ tests/test_training/ tests/test_data/ tests/test_losses/ -q` — must still pass.
 2. For items #3 and #6 specifically (potential numerics sensitivity), run the full Arizona MTL and verify metrics match baseline within ±0.5pp.
 3. Commit with message format:
    ```
@@ -547,7 +547,7 @@ This is the highest-risk item in the safe batch. Read the caveat in item #7 care
 
 ### Phase E — Full validation (15 min)
 
-1. Run the **full** test suite: `.venv_new/bin/pytest -q`. Verify 354+ passed, 0 failed. (After the PR #7 NashMTL additions, expect ≥ 363 passed.)
+1. Run the **full** test suite: `.venv/bin/pytest -q`. Verify 354+ passed, 0 failed. (After the PR #7 NashMTL additions, expect ≥ 363 passed.)
 2. Run both Alabama and Arizona MTL DGI end-to-end. Compare each state's summary against the "Current post-fix" row in Section 1.1 (NOT the Nov 5 baselines — the current code intentionally performs differently on Next Acc because of the unweighted-CE fix). Minimum acceptable thresholds (±1pp band around the post-fix numbers):
    - Alabama: Cat F1 ≥ 0.442, Cat Acc ≥ 53.1%, Next F1 ≥ 0.255, Next Acc ≥ 35.8%
    - Arizona: Cat F1 ≥ 0.443, Cat Acc ≥ 52.3%, Next F1 ≥ 0.263, Next Acc ≥ 36.9%

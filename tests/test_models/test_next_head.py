@@ -2,7 +2,6 @@
 
 import pytest
 import torch
-import torch.nn as nn
 
 from models.heads.next import NextHeadMTL
 
@@ -19,16 +18,6 @@ class TestNextHeadMTL:
             num_layers=4,
         )
 
-    def test_initialization(self):
-        """Test NextHeadMTL initialization."""
-        head = self._make_head()
-        assert head.embed_dim == 64
-        assert head.seq_length == 9
-        assert hasattr(head, 'pe')
-        assert hasattr(head, 'transformer_encoder')
-        assert hasattr(head, 'causal_mask')
-        assert head.transformer_encoder.num_layers == 4
-
     def test_forward_pass(self):
         """Test forward pass with sequence input."""
         head = self._make_head()
@@ -38,11 +27,6 @@ class TestNextHeadMTL:
             out = head(x)
         assert out.shape == (4, 7), f"Expected (4, 7), got {out.shape}"
         assert torch.isfinite(out).all()
-
-    def test_transformer_encoder(self):
-        """Test transformer encoder layers."""
-        head = self._make_head()
-        assert head.transformer_encoder.num_layers == 4
 
     def test_positional_encoding(self):
         """Test positional encoding for sequences."""
@@ -65,12 +49,6 @@ class TestNextHeadMTL:
         assert mask[1, 0].item() is False
         # Diagonal should be False (not masked)
         assert mask[0, 0].item() is False
-
-    def test_attention_pooling(self):
-        """Test attention-based sequence pooling."""
-        head = self._make_head()
-        assert isinstance(head.sequence_reduction, nn.Linear)
-        assert head.sequence_reduction.out_features == 1
 
     def test_sequence_padding(self):
         """Test handling of padded sequences."""

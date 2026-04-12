@@ -10,7 +10,7 @@ to find a config that's faster without drifting final-loss more than a few
 percent from baseline on this short run.
 
 Usage:
-  PYTHONPATH=src:research .venv_new/bin/python scripts/bench_time2vec_configs.py
+  PYTHONPATH=src:research .venv/bin/python scripts/bench_time2vec_configs.py
 """
 from __future__ import annotations
 

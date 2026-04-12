@@ -33,8 +33,7 @@
       "Bash(.venv/bin/python:*)",
       "Bash(PYTHONPATH=src python:*)",
       "Bash(PYTHONPATH=src .venv/bin/python:*)",
-      "Bash(PYTHONPATH=src .venv_new/bin/python:*)",
-      "Bash(PYTHONPATH=src:research .venv_new/bin/python:*)",
+      "Bash(PYTHONPATH=src:research .venv/bin/python:*)",
       "Bash(PYTHONPATH=. .venv/bin/python:*)",
 
       // ── pytest ─────────────────────────────────────────────────────────────
@@ -45,7 +44,6 @@
       // ── pip / package management ───────────────────────────────────────────
       "Bash(pip:*)",
       "Bash(.venv/bin/pip:*)",
-      "Bash(.venv_new/bin/pip:*)",
 
       // ── Linting ────────────────────────────────────────────────────────────
       "Bash(ruff:*)",

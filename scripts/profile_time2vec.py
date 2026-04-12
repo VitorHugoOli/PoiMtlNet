@@ -8,7 +8,7 @@ Reports:
   - Total time for 1 epoch
 
 Usage:
-  PYTHONPATH=src:research .venv_new/bin/python scripts/profile_time2vec.py
+  PYTHONPATH=src:research .venv/bin/python scripts/profile_time2vec.py
 
 Output is printed to stdout. Nothing is written to disk.
 """
