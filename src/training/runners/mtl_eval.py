@@ -5,7 +5,15 @@ from utils.progress import zip_longest_cycle
 
 
 @torch.no_grad()
-def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_creterion, device):
+def evaluate_model(
+    model,
+    dataloaders,
+    next_criterion,
+    category_criterion,
+    mtl_creterion,
+    device,
+    num_classes: int | None = None,
+):
     """
     Unified evaluation function for both validation and testing.
 
@@ -19,6 +27,9 @@ def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_c
         category_criterion: Loss function for category task
         mtl_creterion: MTL loss (unused for validation loss, kept for API compat)
         device: Device to run evaluation on
+        num_classes: Number of output classes. If omitted, read from
+            ``model.num_classes`` — callers that train arbitrary modules
+            should always pass this explicitly.
 
     Returns:
         Tuple of (acc_next, f1_next, acc_category, f1_category, loss)
@@ -63,7 +74,8 @@ def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_c
     all_predictions_category = torch.cat(preds_cat_list)
     all_truths_category = torch.cat(truths_cat_list)
 
-    num_classes = model.num_classes
+    if num_classes is None:
+        num_classes = model.num_classes
 
     f1_next = multiclass_f1_score(
         all_predictions_next, all_truths_next,

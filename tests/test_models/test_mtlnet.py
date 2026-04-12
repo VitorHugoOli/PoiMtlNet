@@ -273,6 +273,71 @@ class TestMTLnetMMoELite:
         assert shared_ids | task_ids == all_ids
 
 
+class TestMTLnetHeadSelection:
+    """Pins the contract for the parameterized head-selection kwargs.
+
+    MTLnet defaults must stay bit-exact with the historical model
+    (so test_regression floors survive), but ``category_head`` /
+    ``next_head`` must let ablation candidates swap heads via the
+    model registry without touching MTLnet itself.
+    """
+
+    def test_defaults_use_historical_heads(self):
+        from models.category import CategoryHeadTransformer
+        from models.next import NextHeadMTL
+
+        model = _make_model()
+        assert isinstance(model.category_poi, CategoryHeadTransformer)
+        assert isinstance(model.next_poi, NextHeadMTL)
+
+    def test_category_head_can_be_swapped_via_registry(self):
+        from models.category import CategoryHeadSingle
+
+        model = MTLnet(
+            feature_size=64,
+            shared_layer_size=256,
+            num_classes=7,
+            num_heads=8,
+            num_layers=4,
+            seq_length=9,
+            num_shared_layers=4,
+            category_head="category_single",
+            category_head_params={
+                "hidden_dims": (128, 64),
+                "dropout": 0.1,
+            },
+        )
+        assert isinstance(model.category_poi, CategoryHeadSingle)
+
+        model.eval()
+        out = model.cat_forward(torch.randn(3, 64))
+        assert out.shape == (3, 7)
+
+    def test_next_head_can_be_swapped_via_registry(self):
+        from models.next import NextHeadGRU
+
+        model = MTLnet(
+            feature_size=64,
+            shared_layer_size=256,
+            num_classes=7,
+            num_heads=8,
+            num_layers=4,
+            seq_length=9,
+            num_shared_layers=4,
+            next_head="next_gru",
+            next_head_params={
+                "hidden_dim": 128,
+                "num_layers": 2,
+                "dropout": 0.1,
+            },
+        )
+        assert isinstance(model.next_poi, NextHeadGRU)
+
+        model.eval()
+        out = model.next_forward(torch.randn(3, 9, 64))
+        assert out.shape == (3, 7)
+
+
 class TestMTLnetDSelectKLite:
     """Tests for the sequence-aware DSelect-k-lite MTLnet variant."""
 

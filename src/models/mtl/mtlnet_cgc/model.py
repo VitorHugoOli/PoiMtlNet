@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Iterator, Tuple
+from typing import Any, Iterator, Optional, Tuple
 
 import torch
 from torch import nn
@@ -32,7 +32,13 @@ class MTLnetCGC(MTLnet):
         shared_dropout: float = 0.15,
         num_shared_experts: int = 2,
         num_task_experts: int = 1,
+        category_head: Optional[str] = None,
+        next_head: Optional[str] = None,
+        category_head_params: Optional[dict[str, Any]] = None,
+        next_head_params: Optional[dict[str, Any]] = None,
     ):
+        self._num_shared_experts = int(num_shared_experts)
+        self._num_task_experts = int(num_task_experts)
         super().__init__(
             feature_size=feature_size,
             shared_layer_size=shared_layer_size,
@@ -45,15 +51,23 @@ class MTLnetCGC(MTLnet):
             num_encoder_layers=num_encoder_layers,
             encoder_dropout=encoder_dropout,
             shared_dropout=shared_dropout,
+            category_head=category_head,
+            next_head=next_head,
+            category_head_params=category_head_params,
+            next_head_params=next_head_params,
         )
-        del self.task_embedding
-        del self.film
-        del self.shared_layers
+
+    def _build_shared_backbone(
+        self,
+        shared_layer_size: int,
+        num_shared_layers: int,
+        shared_dropout: float,
+    ) -> None:
         self.cgc = CGCLiteLayer(
             layer_size=shared_layer_size,
             num_shared_layers=num_shared_layers,
-            num_shared_experts=num_shared_experts,
-            num_task_experts=num_task_experts,
+            num_shared_experts=self._num_shared_experts,
+            num_task_experts=self._num_task_experts,
             dropout=shared_dropout,
         )
 

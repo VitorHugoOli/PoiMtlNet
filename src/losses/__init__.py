@@ -16,7 +16,7 @@ from losses.naive.loss import NaiveLoss
 from losses.nash_mtl.loss import NashMTL, WeightMethod
 from losses.pcgrad.loss import PCGrad
 from losses.random_weight.loss import RandomWeightLoss
-from losses.registry import create_loss, list_losses, register_loss
+from losses.registry import create_loss, list_losses
 from losses.static_weight.loss import StaticWeightLoss
 from losses.stch.loss import STCHLoss
 from losses.uncertainty_weighting.loss import UncertaintyWeightingLoss
@@ -41,7 +41,6 @@ __all__ = [
     "ExcessMTLLoss",
     "STCHLoss",
     "DBMTLLoss",
-    "register_loss",
     "create_loss",
     "list_losses",
 ]

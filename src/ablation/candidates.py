@@ -477,6 +477,44 @@ CANDIDATES: tuple[MTLCandidate, ...] = (
 )
 
 
+def grid(
+    models: list[tuple[str, dict[str, Any]]],
+    losses: list[tuple[str, dict[str, Any]]],
+    stage: str,
+    name_prefix: str = "",
+    rationale_template: str = "{model_name} + {loss_name}",
+) -> list[MTLCandidate]:
+    """Generate a cartesian product of (model, loss) candidates.
+
+    Each entry in ``models`` is ``(model_name, model_params_dict)``.
+    Each entry in ``losses`` is ``(loss_name, loss_params_dict)``.
+
+    Returns one ``MTLCandidate`` per combination, with auto-generated
+    names like ``{prefix}{model_short}_{loss_short}``. Use this to avoid
+    hand-writing repetitive architecture-sweep blocks.
+    """
+    candidates: list[MTLCandidate] = []
+    for model_name, model_params in models:
+        for loss_name, loss_params in losses:
+            m_short = model_name.replace("mtlnet_", "").replace("mtlnet", "base")
+            l_short = loss_name.replace("_weight", "").replace("_mtl", "")
+            name = f"{name_prefix}{m_short}_{l_short}"
+            candidates.append(
+                MTLCandidate(
+                    name=name,
+                    stage=stage,
+                    model_name=model_name,
+                    model_params=dict(model_params),
+                    mtl_loss=loss_name,
+                    mtl_loss_params=dict(loss_params),
+                    rationale=rationale_template.format(
+                        model_name=model_name, loss_name=loss_name
+                    ),
+                )
+            )
+    return candidates
+
+
 def get_candidate(name: str) -> MTLCandidate:
     for candidate in CANDIDATES:
         if candidate.name == name:

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Iterator, Tuple
+from typing import Any, Iterator, Optional, Tuple
 
 import torch
 from torch import nn
@@ -31,7 +31,12 @@ class MTLnetMMoE(MTLnet):
         encoder_dropout: float = 0.1,
         shared_dropout: float = 0.15,
         num_experts: int = 4,
+        category_head: Optional[str] = None,
+        next_head: Optional[str] = None,
+        category_head_params: Optional[dict[str, Any]] = None,
+        next_head_params: Optional[dict[str, Any]] = None,
     ):
+        self._num_experts = int(num_experts)
         super().__init__(
             feature_size=feature_size,
             shared_layer_size=shared_layer_size,
@@ -44,14 +49,22 @@ class MTLnetMMoE(MTLnet):
             num_encoder_layers=num_encoder_layers,
             encoder_dropout=encoder_dropout,
             shared_dropout=shared_dropout,
+            category_head=category_head,
+            next_head=next_head,
+            category_head_params=category_head_params,
+            next_head_params=next_head_params,
         )
-        del self.task_embedding
-        del self.film
-        del self.shared_layers
+
+    def _build_shared_backbone(
+        self,
+        shared_layer_size: int,
+        num_shared_layers: int,
+        shared_dropout: float,
+    ) -> None:
         self.mmoe = MMoELiteLayer(
             layer_size=shared_layer_size,
             num_shared_layers=num_shared_layers,
-            num_experts=num_experts,
+            num_experts=self._num_experts,
             dropout=shared_dropout,
         )
 

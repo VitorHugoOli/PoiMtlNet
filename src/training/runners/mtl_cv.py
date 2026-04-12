@@ -213,9 +213,19 @@ def train_model(model: torch.nn.Module,
         all_next_preds, all_next_targets = [], []
         all_cat_preds, all_cat_targets = [], []
 
-        # Iterate over batches with automatic progress tracking
-        # (zero_grad is called inside the loop on every batch — no need to
-        # call it once before the first batch as well)
+        # Per-epoch diagnostics — recomputed once per epoch on batch 0
+        # (see Phase 0 §60 of plan/MTL_IMPROVEMENT_PLAN.md).
+        epoch_grad_cosine: float = float("nan")
+        epoch_next_grad_norm: float = 0.0
+        epoch_category_grad_norm: float = 0.0
+        epoch_loss_weights: Optional[torch.Tensor] = None
+        accumulated_in_group: int = 0
+
+        # Iterate over batches with automatic progress tracking.
+        # zero_grad is called at the end of every optimizer step, so the
+        # loop starts each epoch with clean gradients (the last batch of
+        # the previous epoch is always forced to step via the
+        # `(batch_idx + 1) == batches_per_epoch` branch below).
         for batch_idx, (data_next, data_category) in enumerate(progress.iter_epoch()):
             # When the dataset is pre-moved to DEVICE (item #3, MPS path with
             # num_workers=0), the .to() calls are no-ops. Keep the guards so
@@ -237,12 +247,26 @@ def train_model(model: torch.nn.Module,
             # Calculate losses
             next_loss = next_criterion(pred_next, truth_next)
             category_loss = category_criterion(pred_category, truth_category)
-            loss, _ = mtl_criterion.backward(
-                torch.stack([next_loss, category_loss]),
+            losses = torch.stack([next_loss, category_loss])
+
+            # Shared-gradient cosine once per epoch. torch.autograd.grad does
+            # not populate .grad, so it leaves the subsequent backward path
+            # untouched — but it requires retain_graph=True, which the helper
+            # already sets.
+            if batch_idx == 0 and shared_parameters:
+                (
+                    epoch_grad_cosine,
+                    epoch_next_grad_norm,
+                    epoch_category_grad_norm,
+                ) = _compute_gradient_cosine(losses, shared_parameters)
+
+            loss, extra_outputs, already_backpropagated = _get_weighted_loss(
+                mtl_criterion,
+                losses,
                 shared_parameters=shared_parameters,
                 task_specific_parameters=task_specific_parameters,
             )
-            if already_backpropagated and group_size > 1:
+            if already_backpropagated and gradient_accumulation_steps > 1:
                 raise TypeError(
                     f"{mtl_criterion.__class__.__name__} is not compatible with "
                     "gradient accumulation; use gradient_accumulation_steps=1 "
@@ -251,13 +275,31 @@ def train_model(model: torch.nn.Module,
             if extra_outputs and "weights" in extra_outputs:
                 epoch_loss_weights = extra_outputs["weights"]
             if not already_backpropagated:
-                (loss / group_size).backward()
+                # Scale by the accumulation group size so the effective
+                # gradient magnitude matches a full-size batch. Partial
+                # trailing groups are rescaled at step time below.
+                (loss / gradient_accumulation_steps).backward()
+            accumulated_in_group += 1
 
             should_step = (
                 ((batch_idx + 1) % gradient_accumulation_steps) == 0
                 or (batch_idx + 1) == batches_per_epoch
             )
             if should_step:
+                # Compensate for partial trailing groups: if we accumulated
+                # fewer batches than the nominal group size, re-scale grads
+                # by gradient_accumulation_steps / accumulated_in_group so
+                # the update matches an averaged mini-batch. No-op for full
+                # groups and loss variants that already backpropagated.
+                if (
+                    not already_backpropagated
+                    and accumulated_in_group != gradient_accumulation_steps
+                    and accumulated_in_group > 0
+                ):
+                    scale = gradient_accumulation_steps / accumulated_in_group
+                    for p in model.parameters():
+                        if p.grad is not None:
+                            p.grad.mul_(scale)
                 if max_grad_norm and max_grad_norm > 0:
                     torch.nn.utils.clip_grad_norm_(
                         list(model.parameters()) + _criterion_parameters(mtl_criterion),
@@ -266,6 +308,7 @@ def train_model(model: torch.nn.Module,
                 optimizer.step()
                 scheduler.step()
                 optimizer.zero_grad(set_to_none=True)
+                accumulated_in_group = 0
 
             # Accumulate on-device — no .item() sync per batch
             running_loss += loss.detach()
@@ -360,6 +403,7 @@ def train_model(model: torch.nn.Module,
                 category_criterion,
                 mtl_criterion,
                 DEVICE,
+                num_classes=num_classes,
             )
 
             joint_score = 0.5 * (f1_val_next + f1_val_category)
