@@ -1,3 +1,5 @@
+import contextlib
+
 import torch
 
 from tracking.metrics import compute_classification_metrics
@@ -41,6 +43,12 @@ def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_c
     logits_cat_list, truths_cat_list = [], []
     batches = 0
 
+    _autocast_ctx = (
+        torch.autocast(device.type, dtype=torch.float16)
+        if device.type == 'cuda'
+        else contextlib.nullcontext()
+    )
+
     for data_next, data_cat in zip_longest_cycle(*dataloaders):
         x_next, y_next = data_next
         if x_next.device != device:
@@ -51,10 +59,10 @@ def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_c
             x_category = x_category.to(device, non_blocking=True)
             y_category = y_category.to(device, non_blocking=True)
 
-        cat_out, next_out = model((x_category, x_next))
-
-        next_loss = next_criterion(next_out, y_next)
-        category_loss = category_criterion(cat_out, y_category)
+        with _autocast_ctx:
+            cat_out, next_out = model((x_category, x_next))
+            next_loss = next_criterion(next_out, y_next)
+            category_loss = category_criterion(cat_out, y_category)
         # Accumulate on-device; single .item() sync after the loop.
         next_running_loss += next_loss.detach()
         category_running_loss += category_loss.detach()

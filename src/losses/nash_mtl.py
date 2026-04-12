@@ -275,20 +275,33 @@ class NashMTL(WeightMethod):
         if (self.step % self.update_weights_every) == 0:
             self.step += 1
 
-            grads = {}
+            # Compute per-task gradients w.r.t. shared parameters.
+            grads = []
             for i, loss in enumerate(losses):
-                g = list(
+                grads.append(
                     torch.autograd.grad(
                         loss,
                         shared_parameters,
                         retain_graph=True,
                     )
                 )
-                grad = torch.cat([torch.flatten(grad) for grad in g])
-                grads[i] = grad
 
-            G = torch.stack(tuple(v for v in grads.values()))
-            GTG = torch.mm(G, G.t())
+            # Build the (n_tasks, n_tasks) Gram matrix directly via
+            # per-parameter dot products.  This avoids allocating two
+            # vectors of length `total_shared_params` and the subsequent
+            # matrix multiply — for n_tasks=2 we only need 3 dot products
+            # (the matrix is symmetric).
+            n = self.n_tasks
+            GTG = torch.empty(n, n, device=losses.device, dtype=losses.dtype)
+            for i in range(n):
+                for j in range(i, n):
+                    dot = sum(
+                        (gi * gj).sum()
+                        for gi, gj in zip(grads[i], grads[j])
+                    )
+                    GTG[i, j] = dot
+                    if i != j:
+                        GTG[j, i] = dot
 
             # Compute the norm and divide on-device. Only sync to CPU once
             # for the cvxpy/ECOS solver, which has to run on the host.

@@ -1,3 +1,4 @@
+import contextlib
 import logging
 import numpy as np
 import torch
@@ -75,6 +76,14 @@ def train_model(model: torch.nn.Module,
 
     cb.on_train_begin(CallbackContext(epoch=0, epochs_total=num_epochs))
 
+    # Mixed-precision autocast: float16 forward passes on CUDA, no-op otherwise.
+    # MPS float16 autocast adds overhead for small tensors — disabled there.
+    _autocast_ctx = (
+        torch.autocast(DEVICE.type, dtype=torch.float16)
+        if DEVICE.type == 'cuda'
+        else contextlib.nullcontext()
+    )
+
     cutoff_hits = {
         'next': False,
         'category': False
@@ -118,14 +127,17 @@ def train_model(model: torch.nn.Module,
 
             optimizer.zero_grad(set_to_none=True)
 
-            category_output, next_poi_output = model((x_category, x_next))
+            with _autocast_ctx:
+                category_output, next_poi_output = model((x_category, x_next))
 
-            pred_next, truth_next = next_poi_output, y_next
-            pred_category, truth_category = category_output, y_category
+                pred_next, truth_next = next_poi_output, y_next
+                pred_category, truth_category = category_output, y_category
 
-            # Calculate losses
-            next_loss = next_criterion(pred_next, truth_next)
-            category_loss = category_criterion(pred_category, truth_category)
+                # Calculate losses (inside autocast so CE uses float16 logits)
+                next_loss = next_criterion(pred_next, truth_next)
+                category_loss = category_criterion(pred_category, truth_category)
+
+            # NashMTL backward stays outside autocast — gradients in float32
             loss, _ = mtl_criterion.backward(
                 torch.stack([next_loss, category_loss]),
                 shared_parameters=shared_parameters,
@@ -281,6 +293,8 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
 
         # Initialize model via registry
         model = create_model(config.model_name, **config.model_params).to(DEVICE)
+        if config.use_torch_compile and DEVICE.type == 'cuda':
+            model = torch.compile(model)
 
         # Cache parameter group lists once per fold (item #2 — avoids
         # walking named_parameters() on every NashMTL backward call).

@@ -1,3 +1,4 @@
+import contextlib
 from typing import Union
 
 import numpy as np
@@ -14,10 +15,19 @@ def evaluate(model: nn.Module, loader: DataLoader, device: torch.device,
     if best_state is not None:
         model.load_state_dict(best_state)
     preds_list, truths_list = [], []
+
+    _autocast_ctx = (
+        torch.autocast(device.type, dtype=torch.float16)
+        if device.type == 'cuda'
+        else contextlib.nullcontext()
+    )
+
     with torch.no_grad():
         for X_batch, y_batch in loader:
-            X_batch = X_batch.to(device, non_blocking=True)
-            logits = model(X_batch)
+            if X_batch.device != device:
+                X_batch = X_batch.to(device, non_blocking=True)
+            with _autocast_ctx:
+                logits = model(X_batch)
             preds_list.append(logits.argmax(dim=1))
             truths_list.append(y_batch)
 
