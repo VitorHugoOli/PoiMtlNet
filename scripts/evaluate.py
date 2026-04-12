@@ -144,6 +144,21 @@ def main(argv=None) -> None:
     logger.info("Loaded checkpoint: %s", checkpoint_path)
 
     # Evaluate
+    from tracking.metrics import compute_classification_metrics
+
+    num_classes = config.model_params.get("num_classes", 7)
+
+    def _log_metrics(label: str, logits, targets_np):
+        targets_t = torch.as_tensor(targets_np)
+        metrics = compute_classification_metrics(
+            logits, targets_t, num_classes=num_classes,
+        )
+        logger.info(
+            "%s metrics: %s",
+            label,
+            {k: round(v, 4) for k, v in metrics.items()},
+        )
+
     if task == "mtl":
         # MTLnet exposes per-head entry points (cat_forward / next_forward)
         # that run only the relevant subgraph — no dummy zero tensors, no
@@ -151,11 +166,11 @@ def main(argv=None) -> None:
         # heads are independent is now expressed on the model class itself
         # instead of being implicit in eval helper code. See
         # src/models/mtlnet.py:cat_forward / next_forward.
-        cat_preds, cat_targets = collect_predictions(
+        cat_preds, cat_targets, cat_logits = collect_predictions(
             model, fold.category.val.dataloader, DEVICE,
             forward_fn=lambda m, x: m.cat_forward(x),
         )
-        next_preds, next_targets = collect_predictions(
+        next_preds, next_targets, next_logits = collect_predictions(
             model, fold.next.val.dataloader, DEVICE,
             forward_fn=lambda m, x: m.next_forward(x),
         )
@@ -165,21 +180,24 @@ def main(argv=None) -> None:
             "Evaluation report (fold %d, task=mtl, head=category):\n%s",
             args.fold, cat_report,
         )
+        _log_metrics("category", cat_logits, cat_targets)
         logger.info(
             "Evaluation report (fold %d, task=mtl, head=next):\n%s",
             args.fold, next_report,
         )
+        _log_metrics("next", next_logits, next_targets)
         return
 
     if task == "category":
         loader = fold.category.val.dataloader
-        preds, targets = collect_predictions(model, loader, DEVICE)
+        preds, targets, logits = collect_predictions(model, loader, DEVICE)
     else:
         loader = fold.next.val.dataloader
-        preds, targets = collect_predictions(model, loader, DEVICE)
+        preds, targets, logits = collect_predictions(model, loader, DEVICE)
 
     report = build_report(preds, targets)
     logger.info("Evaluation report (fold %d, task=%s):\n%s", args.fold, task, report)
+    _log_metrics(task, logits, targets)
 
 
 if __name__ == "__main__":

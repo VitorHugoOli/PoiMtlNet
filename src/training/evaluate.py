@@ -19,22 +19,32 @@ def collect_predictions(
     loader: DataLoader,
     device: torch.device,
     forward_fn: Optional[Callable] = None,
-) -> tuple[np.ndarray, np.ndarray]:
-    """Run model over loader, return (predictions, targets) as numpy.
+) -> tuple[np.ndarray, np.ndarray, torch.Tensor]:
+    """Run model over loader, return ``(predictions, targets, logits)``.
+
+    Logits are preserved (on-device, detached) so downstream code can compute
+    ranking metrics (Top-K, MRR, NDCG@K) without a second pass. ``predictions``
+    and ``targets`` are still returned as numpy for the sklearn
+    classification_report path.
 
     Args:
-        model: The model to evaluate (must be in eval mode or will be set).
-        loader: DataLoader yielding (X_batch, y_batch) tuples.
+        model: The model to evaluate (will be set to ``.eval()``).
+        loader: DataLoader yielding ``(X_batch, y_batch)`` tuples.
         device: Device to run on.
-        forward_fn: Optional callable(model, X_batch) -> logits.
-            If None, uses model(X_batch). Useful for MTL where the
+        forward_fn: Optional ``callable(model, X_batch) -> logits``.
+            If ``None``, uses ``model(X_batch)``. Useful for MTL where the
             model returns a tuple and only one head is needed.
 
     Returns:
-        Tuple of (predictions, targets) as numpy int arrays.
+        Tuple ``(preds, targets, logits)``:
+            * ``preds`` — ``np.ndarray[int]`` of argmax predictions.
+            * ``targets`` — ``np.ndarray[int]`` of true labels.
+            * ``logits`` — ``torch.Tensor`` of shape ``(N, C)`` (detached),
+              kept on ``device`` to avoid unnecessary transfers when the
+              caller wants to run ``compute_classification_metrics``.
     """
     model.eval()
-    preds_list, targets_list = [], []
+    logits_list, targets_list = [], []
 
     for X_batch, y_batch in loader:
         X_batch = X_batch.to(device, non_blocking=True)
@@ -44,12 +54,13 @@ def collect_predictions(
         else:
             logits = model(X_batch)
 
-        preds_list.append(logits.argmax(dim=1))
+        logits_list.append(logits.detach())
         targets_list.append(y_batch)
 
-    preds = torch.cat(preds_list).cpu().numpy()
+    all_logits = torch.cat(logits_list)
+    preds = all_logits.argmax(dim=1).cpu().numpy()
     targets = torch.cat(targets_list).cpu().numpy()
-    return preds, targets
+    return preds, targets, all_logits
 
 
 def build_report(

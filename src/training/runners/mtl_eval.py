@@ -1,32 +1,36 @@
 import torch
-from torchmetrics.functional.classification import multiclass_f1_score, multiclass_accuracy
 
+from tracking.metrics import compute_classification_metrics
 from utils.progress import zip_longest_cycle
 
 
 @torch.no_grad()
 def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_creterion, device):
-    """
-    Unified evaluation function for both validation and testing.
+    """Unified MTL validation pass — computes loss and the full metric dict per task.
 
-    Uses zip_longest_cycle() to match training coverage — the shorter loader
-    is cycled so all samples from both loaders are evaluated.
+    Uses ``zip_longest_cycle`` to match training coverage — the shorter loader
+    is cycled so all samples from both loaders are evaluated. Logits are kept
+    on-device through ``compute_classification_metrics``, which produces the
+    legacy ``f1``/``accuracy`` keys **plus** ``f1_weighted``, ``accuracy_macro``,
+    ``top{k}_acc``, ``mrr`` and ``ndcg_{k}``.
 
     Args:
-        model: The MTLPOI model
-        dataloaders: List of [next_dataloader, category_dataloader]
-        next_criterion: Loss function for next task
-        category_criterion: Loss function for category task
-        mtl_creterion: MTL loss (unused for validation loss, kept for API compat)
-        device: Device to run evaluation on
+        model: The MTLPOI model.
+        dataloaders: List of ``[next_dataloader, category_dataloader]``.
+        next_criterion: Loss function for the next task.
+        category_criterion: Loss function for the category task.
+        mtl_creterion: MTL loss (unused for validation loss — kept for API compat).
+        device: Device to run evaluation on.
 
     Returns:
-        Tuple of (acc_next, f1_next, acc_category, f1_category, loss)
+        Tuple ``(metrics_next, metrics_category, loss)`` where each
+        ``metrics_*`` is the unprefixed dict returned by
+        ``compute_classification_metrics``.
     """
     model.eval()
     running_loss = torch.tensor(0.0, device=device)
-    preds_next_list, truths_next_list = [], []
-    preds_cat_list, truths_cat_list = [], []
+    logits_next_list, truths_next_list = [], []
+    logits_cat_list, truths_cat_list = [], []
     batchs = 0
 
     for data_next, data_cat in zip_longest_cycle(*dataloaders):
@@ -39,48 +43,31 @@ def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_c
             x_category = x_category.to(device, non_blocking=True)
             y_category = y_category.to(device, non_blocking=True)
 
-        # Forward pass
         cat_out, next_out = model((x_category, x_next))
-        pred_next, truth_next = next_out, y_next
-        pred_category, truth_category = cat_out, y_category
 
-        next_loss = next_criterion(pred_next, truth_next)
-        category_loss = category_criterion(pred_category, truth_category)
+        next_loss = next_criterion(next_out, y_next)
+        category_loss = category_criterion(cat_out, y_category)
         running_loss += (next_loss.detach() + category_loss.detach()) / 2
 
-        # Collect predictions on-device
-        preds_next_list.append(torch.argmax(pred_next, dim=1))
-        truths_next_list.append(truth_next)
-        preds_cat_list.append(torch.argmax(pred_category, dim=1))
-        truths_cat_list.append(truth_category)
+        logits_next_list.append(next_out.detach())
+        truths_next_list.append(y_next)
+        logits_cat_list.append(cat_out.detach())
+        truths_cat_list.append(y_category)
         batchs += 1
 
-    # Stay on device — torchmetrics functional API computes metrics
-    # without bulk-transferring all predictions to CPU.
     loss = running_loss.item() / batchs
-    all_predictions_next = torch.cat(preds_next_list)
+    all_logits_next = torch.cat(logits_next_list)
     all_truths_next = torch.cat(truths_next_list)
-    all_predictions_category = torch.cat(preds_cat_list)
+    all_logits_category = torch.cat(logits_cat_list)
     all_truths_category = torch.cat(truths_cat_list)
 
     num_classes = model.num_classes
 
-    f1_next = multiclass_f1_score(
-        all_predictions_next, all_truths_next,
-        num_classes=num_classes, average='macro', zero_division=0,
-    ).item()
-    acc_next = multiclass_accuracy(
-        all_predictions_next, all_truths_next,
-        num_classes=num_classes, average='micro',
-    ).item()
+    metrics_next = compute_classification_metrics(
+        all_logits_next, all_truths_next, num_classes=num_classes,
+    )
+    metrics_category = compute_classification_metrics(
+        all_logits_category, all_truths_category, num_classes=num_classes,
+    )
 
-    f1_category = multiclass_f1_score(
-        all_predictions_category, all_truths_category,
-        num_classes=num_classes, average='macro', zero_division=0,
-    ).item()
-    acc_category = multiclass_accuracy(
-        all_predictions_category, all_truths_category,
-        num_classes=num_classes, average='micro',
-    ).item()
-
-    return acc_next, f1_next, acc_category, f1_category, loss
+    return metrics_next, metrics_category, loss

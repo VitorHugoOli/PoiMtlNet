@@ -8,8 +8,8 @@ from typing import Optional
 logger = logging.getLogger(__name__)
 
 from torch.nn import CrossEntropyLoss
-from torchmetrics.functional.classification import multiclass_f1_score, multiclass_accuracy
 
+from tracking.metrics import compute_classification_metrics
 from utils.flops import calculate_model_flops
 from utils.mps import clear_mps_cache
 from utils.progress import TrainingProgressBar
@@ -94,9 +94,11 @@ def train_model(model: torch.nn.Module,
         category_running_loss = torch.tensor(0.0, device=DEVICE)
         steps = 0
 
-        # Collect predictions on-device, compute metrics once per epoch
-        all_next_preds, all_next_targets = [], []
-        all_cat_preds, all_cat_targets = [], []
+        # Collect logits on-device so compute_classification_metrics() can
+        # produce the full metric dict (Macro/Weighted F1, Top-K, MRR, NDCG)
+        # in a single per-epoch call.
+        all_next_logits, all_next_targets = [], []
+        all_cat_logits, all_cat_targets = [], []
 
         # Iterate over batches with automatic progress tracking
         # (zero_grad is called inside the loop on every batch — no need to
@@ -138,40 +140,31 @@ def train_model(model: torch.nn.Module,
             next_running_loss += next_loss.detach()
             category_running_loss += category_loss.detach()
 
-            # Collect predictions on-device for epoch-level metrics
+            # Collect logits on-device for epoch-level metrics. We keep the
+            # full logit tensor (not argmax) so ranking metrics are free.
             with torch.no_grad():
-                all_next_preds.append(torch.argmax(pred_next, dim=1))
+                all_next_logits.append(pred_next.detach())
                 all_next_targets.append(truth_next)
-                all_cat_preds.append(torch.argmax(pred_category, dim=1))
+                all_cat_logits.append(pred_category.detach())
                 all_cat_targets.append(truth_category)
 
             steps += 1
 
-        # Stay on device — torchmetrics functional API computes metrics
-        # without bulk-transferring per-epoch predictions to CPU.
-        epoch_next_preds = torch.cat(all_next_preds)
+        epoch_next_logits = torch.cat(all_next_logits)
         epoch_next_targets = torch.cat(all_next_targets)
-        epoch_cat_preds = torch.cat(all_cat_preds)
+        epoch_cat_logits = torch.cat(all_cat_logits)
         epoch_cat_targets = torch.cat(all_cat_targets)
 
-        # Compute metrics once per epoch (matches the previous sklearn
-        # call site, but on-device with a single .item() sync per metric).
-        f1_next = multiclass_f1_score(
-            epoch_next_preds, epoch_next_targets,
-            num_classes=num_classes, average='macro', zero_division=0,
-        ).item()
-        next_acc = multiclass_accuracy(
-            epoch_next_preds, epoch_next_targets,
-            num_classes=num_classes, average='micro',
-        ).item()
-        f1_category = multiclass_f1_score(
-            epoch_cat_preds, epoch_cat_targets,
-            num_classes=num_classes, average='macro', zero_division=0,
-        ).item()
-        category_acc = multiclass_accuracy(
-            epoch_cat_preds, epoch_cat_targets,
-            num_classes=num_classes, average='micro',
-        ).item()
+        train_metrics_next = compute_classification_metrics(
+            epoch_next_logits, epoch_next_targets, num_classes=num_classes,
+        )
+        train_metrics_cat = compute_classification_metrics(
+            epoch_cat_logits, epoch_cat_targets, num_classes=num_classes,
+        )
+        f1_next = train_metrics_next['f1']
+        next_acc = train_metrics_next['accuracy']
+        f1_category = train_metrics_cat['f1']
+        category_acc = train_metrics_cat['accuracy']
 
         # Calculate epoch metrics (single sync for losses)
         epoch_loss = running_loss.item() / steps
@@ -185,18 +178,16 @@ def train_model(model: torch.nn.Module,
         })
 
         fold_history.model_task.log_train(loss=epoch_loss, accuracy=0)
-        fold_history.log_train('next',
-                               loss=epoch_loss_next,
-                               f1=f1_next,
-                               accuracy=next_acc)
-        fold_history.log_train('category',
-                               loss=epoch_loss_category,
-                               f1=f1_category,
-                               accuracy=category_acc)
+        fold_history.log_train(
+            'next', loss=epoch_loss_next, **train_metrics_next,
+        )
+        fold_history.log_train(
+            'category', loss=epoch_loss_category, **train_metrics_cat,
+        )
 
         # Validation phase with progress tracking
         with progress.validation():
-            acc_val_next, f1_val_next, acc_val_category, f1_val_category, loss_val = evaluate_model(
+            val_metrics_next, val_metrics_cat, loss_val = evaluate_model(
                 model,
                 [dataloader_next.val.dataloader, dataloader_category.val.dataloader],
                 next_criterion,
@@ -205,7 +196,12 @@ def train_model(model: torch.nn.Module,
                 DEVICE,
             )
 
-            # Only create state_dict when at least one task improves
+            f1_val_next = val_metrics_next['f1']
+            f1_val_category = val_metrics_cat['f1']
+            acc_val_next = val_metrics_next['accuracy']
+            acc_val_category = val_metrics_cat['accuracy']
+
+            # Only create state_dict when at least one task improves.
             next_improved = f1_val_next > fold_history.task('next').best.best_value
             cat_improved = f1_val_category > fold_history.task('category').best.best_value
             state = model.state_dict() if (next_improved or cat_improved) else None
@@ -214,16 +210,14 @@ def train_model(model: torch.nn.Module,
             fold_history.log_val(
                 'next',
                 loss=0,
-                accuracy=acc_val_next,
-                f1=f1_val_next,
+                **val_metrics_next,
                 model_state=state if next_improved else None,
                 elapsed_time=fold_history.timer.timer(),
             )
             fold_history.log_val(
                 'category',
                 loss=0,
-                accuracy=acc_val_category,
-                f1=f1_val_category,
+                **val_metrics_cat,
                 model_state=state if cat_improved else None,
                 elapsed_time=fold_history.timer.timer(),
             )

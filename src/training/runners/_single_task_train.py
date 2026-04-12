@@ -13,6 +13,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from tracking.fold import FoldHistory
+from tracking.metrics import compute_classification_metrics
 from training.callbacks import CallbackContext, CallbackList
 
 logger = logging.getLogger(__name__)
@@ -68,7 +69,7 @@ def train_single_task(
         running_loss = torch.tensor(0.0, device=device)
         running_correct = torch.tensor(0, device=device, dtype=torch.long)
         total = 0
-        train_preds_list, train_targets_list = [], []
+        train_logits_list, train_targets_list = [], []
         epoch_grad_norms = []
 
         for X_batch, y_batch in train_loader:
@@ -84,13 +85,17 @@ def train_single_task(
             if scheduler is not None:
                 scheduler.step()
 
+            # Cheap top-1 accuracy accumulation (no logit retention).
             preds = logits.argmax(dim=1)
             running_loss += loss.detach() * y_batch.size(0)
             running_correct += (preds == y_batch).sum()
             total += y_batch.size(0)
 
+            # Only keep logits when the caller opted into full train metrics.
+            # Retaining all train logits would balloon memory for large
+            # datasets, so the legacy ``compute_train_f1`` flag still gates it.
             if compute_train_f1:
-                train_preds_list.append(preds.detach())
+                train_logits_list.append(logits.detach())
                 train_targets_list.append(y_batch)
 
         if total == 0:
@@ -98,52 +103,57 @@ def train_single_task(
         train_loss = running_loss.item() / total
         train_acc = running_correct.item() / total
 
-        if compute_train_f1 and train_preds_list:
-            train_preds = torch.cat(train_preds_list)
+        if compute_train_f1 and train_logits_list:
+            train_logits = torch.cat(train_logits_list)
             train_targets = torch.cat(train_targets_list)
-            train_f1 = multiclass_f1_score(
-                train_preds, train_targets,
-                num_classes=num_classes, average='macro', zero_division=0,
-            ).item()
+            train_metrics = compute_classification_metrics(
+                train_logits, train_targets, num_classes=num_classes,
+            )
+            train_f1 = train_metrics['f1']
+            # Prefer the torchmetrics-derived accuracy — identical value,
+            # avoids drift if the running_correct path is ever removed.
+            train_acc = train_metrics['accuracy']
             avg_grad_norm = float(torch.stack(epoch_grad_norms).mean().item()) if epoch_grad_norms else 0.0
         else:
+            # Fallback: only loss + cheap top-1 accuracy are logged.
+            train_metrics = {'accuracy': train_acc}
             train_f1 = 0.0
             avg_grad_norm = 0.0
 
         # Validation
         model.eval()
         val_running_loss = torch.tensor(0.0, device=device)
-        val_running_correct = torch.tensor(0, device=device, dtype=torch.long)
         val_total = 0
-        val_preds_list, val_targets_list = [], []
+        val_logits_list, val_targets_list = [], []
 
         with torch.no_grad():
             for X_batch, y_batch in val_loader:
                 X_batch, y_batch = X_batch.to(device, non_blocking=True), y_batch.to(device, non_blocking=True)
                 logits = model(X_batch)
                 loss = criterion(logits, y_batch)
-                preds = logits.argmax(dim=1)
 
                 val_running_loss += loss.detach() * y_batch.size(0)
-                val_running_correct += (preds == y_batch).sum()
                 val_total += y_batch.size(0)
 
-                val_preds_list.append(preds)
+                val_logits_list.append(logits)
                 val_targets_list.append(y_batch)
 
         if val_total == 0:
             continue
         val_loss = val_running_loss.item() / val_total
-        val_acc = val_running_correct.item() / val_total
-        val_preds = torch.cat(val_preds_list)
+        val_logits = torch.cat(val_logits_list)
         val_targets = torch.cat(val_targets_list)
-        val_f1 = multiclass_f1_score(
-            val_preds, val_targets,
-            num_classes=num_classes, average='macro', zero_division=0,
-        ).item()
+        val_metrics = compute_classification_metrics(
+            val_logits, val_targets, num_classes=num_classes,
+        )
+        val_f1 = val_metrics['f1']
+        val_acc = val_metrics['accuracy']
 
-        # Per-class F1 diagnostics
+        # Per-class F1 diagnostics (kept separate: goes to fold.diagnostics,
+        # not to the task MetricStore — the docs call out per-class as a
+        # detailed breakdown, not a headline metric).
         if diagnostic_class_names:
+            val_preds = val_logits.argmax(dim=1)
             per_class = multiclass_f1_score(
                 val_preds, val_targets,
                 num_classes=num_classes, average=None, zero_division=0,
@@ -154,14 +164,13 @@ def train_single_task(
                 **{f'per_class_f1_{name}': float(f1) for name, f1 in zip(diagnostic_class_names, per_class)},
             )
 
-        history.log_train(task_name, loss=train_loss, accuracy=train_acc, f1=train_f1)
+        history.log_train(task_name, loss=train_loss, **train_metrics)
         current_best = history.task(task_name).best.best_value
         is_improvement = val_f1 > current_best
         history.log_val(
             task_name,
             loss=val_loss,
-            accuracy=val_acc,
-            f1=val_f1,
+            **val_metrics,
             model_state=model.state_dict() if is_improvement else None,
             elapsed_time=history.timer.timer(),
         )

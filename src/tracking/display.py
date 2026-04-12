@@ -39,15 +39,22 @@ class ClassColorFormatter(logging.Formatter):
 class HistoryDisplay:
     LOGGER_NAME = "ml.history.display"
 
+    # Headline metric names shown in the end-of-fold summary table, in
+    # display order. Override via constructor to surface extra metrics
+    # (e.g. ``top3_acc``, ``f1_weighted``) in the terminal output.
+    DEFAULT_HEADLINE_METRICS = ("f1", "accuracy")
+
     def __init__(
         self,
         history: "MLHistory",
         label_map: Optional[Dict[int, str]] = None,
         show_report: bool = False,
+        headline_metrics: Optional[Sequence[str]] = None,
     ):
         self.h = history
         self.label_map = label_map or {}
         self.show_report = show_report
+        self.headline_metrics = tuple(headline_metrics) if headline_metrics else self.DEFAULT_HEADLINE_METRICS
         self.log = logging.getLogger(self.LOGGER_NAME)
 
         if not any(isinstance(h, logging.StreamHandler) for h in self.log.handlers):
@@ -111,19 +118,19 @@ class HistoryDisplay:
             f"Total: {self._format_time(elapsed)} | Remaining: {self._format_time(remaining)}"
         )
         self.log.info(self._sep(f"Summary Fold {idx + 1}", width=60, sep='-'))
-        self.log.info(
-            f"{'Task':<10} | {'Best Epoch':<10} | {'Accuracy':<9} | {'F1 Score':<9} |"
-        )
+        header_cells = [f"{'Task':<10}", f"{'Best Epoch':<10}"]
+        for metric in self.headline_metrics:
+            header_cells.append(f"{metric.replace('_', ' ').title():<10}")
+        self.log.info(" | ".join(header_cells) + " |")
         for t in self.h.tasks:
             th = self.h.folds[idx].task(t)
             be = th.best.best_epoch
-            acc_vals = th.val.get('accuracy')
-            f1_vals = th.val.get('f1')
-            acc = acc_vals[be] if acc_vals and be >= 0 and be < len(acc_vals) else 0.0
-            f1 = f1_vals[be] if f1_vals and be >= 0 and be < len(f1_vals) else 0.0
-            self.log.info(
-                f"{t:<10} | {be:^10d} | {acc * 100:>7.2f}%  | {f1 * 100:>7.2f}%  |"
-            )
+            row = [f"{t:<10}", f"{be:^10d}"]
+            for metric in self.headline_metrics:
+                vals = th.val.get(metric)
+                v = vals[be] if vals and be >= 0 and be < len(vals) else 0.0
+                row.append(f"{v * 100:>8.2f}% ")
+            self.log.info(" | ".join(row) + " |")
 
         if self.show_report:
             for t in self.h.tasks:
