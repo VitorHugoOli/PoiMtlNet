@@ -4,41 +4,82 @@ import pytest
 import torch
 import torch.nn as nn
 
+from models.heads.next import NextHeadMTL
+
 
 class TestNextHeadMTL:
     """Test suite for NextHeadMTL."""
 
+    def _make_head(self):
+        return NextHeadMTL(
+            embed_dim=64,
+            num_classes=7,
+            num_heads=8,
+            seq_length=9,
+            num_layers=4,
+        )
+
     def test_initialization(self):
         """Test NextHeadMTL initialization."""
-        # TODO: Implement test
-        pytest.skip("Not implemented yet")
+        head = self._make_head()
+        assert head.embed_dim == 64
+        assert head.seq_length == 9
+        assert hasattr(head, 'pe')
+        assert hasattr(head, 'transformer_encoder')
+        assert hasattr(head, 'causal_mask')
+        assert head.transformer_encoder.num_layers == 4
 
     def test_forward_pass(self):
         """Test forward pass with sequence input."""
-        # TODO: Implement test
-        pytest.skip("Not implemented yet")
+        head = self._make_head()
+        head.eval()
+        x = torch.randn(4, 9, 64)
+        with torch.no_grad():
+            out = head(x)
+        assert out.shape == (4, 7), f"Expected (4, 7), got {out.shape}"
+        assert torch.isfinite(out).all()
 
     def test_transformer_encoder(self):
         """Test transformer encoder layers."""
-        # TODO: Implement test
-        pytest.skip("Not implemented yet")
+        head = self._make_head()
+        assert head.transformer_encoder.num_layers == 4
 
     def test_positional_encoding(self):
         """Test positional encoding for sequences."""
-        # TODO: Implement test
-        pytest.skip("Not implemented yet")
+        head = self._make_head()
+        head.eval()
+        x = torch.randn(4, 9, 64)
+        padding_mask = torch.zeros(4, 9, dtype=torch.bool)
+        with torch.no_grad():
+            out = head.pe(x, padding_mask)
+        assert out.shape == x.shape
 
     def test_causal_masking(self):
         """Test causal masking for sequence prediction."""
-        # TODO: Implement test
-        pytest.skip("Not implemented yet")
+        head = self._make_head()
+        mask = head.causal_mask
+        assert mask.shape == (9, 9)
+        # Above diagonal should be True (masked)
+        assert mask[0, 1].item() is True
+        # Below diagonal should be False (not masked)
+        assert mask[1, 0].item() is False
+        # Diagonal should be False (not masked)
+        assert mask[0, 0].item() is False
 
     def test_attention_pooling(self):
         """Test attention-based sequence pooling."""
-        # TODO: Implement test
-        pytest.skip("Not implemented yet")
+        head = self._make_head()
+        assert isinstance(head.sequence_reduction, nn.Linear)
+        assert head.sequence_reduction.out_features == 1
 
     def test_sequence_padding(self):
         """Test handling of padded sequences."""
-        # TODO: Implement test
-        pytest.skip("Not implemented yet")
+        head = self._make_head()
+        head.eval()
+        x = torch.randn(4, 9, 64)
+        # Zero out last 3 positions to simulate padding
+        x[:, 6:, :] = 0.0
+        with torch.no_grad():
+            out = head(x)
+        assert out.shape == (4, 7), f"Expected (4, 7), got {out.shape}"
+        assert torch.isfinite(out).all()

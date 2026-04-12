@@ -26,23 +26,52 @@ class TestMTLPOIModel:
 
     def test_initialization(self):
         """Test model initialization with default parameters."""
-        # TODO: Implement test
-        pytest.skip("Not implemented yet")
+        model = _make_model()
+        assert hasattr(model, 'category_encoder')
+        assert hasattr(model, 'next_encoder')
+        assert hasattr(model, 'film')
+        assert hasattr(model, 'shared_layers')
+        assert hasattr(model, 'category_poi')
+        assert hasattr(model, 'next_poi')
+        assert model.num_classes == 7
 
     def test_forward_pass(self):
         """Test forward pass with sample input."""
-        # TODO: Implement test
-        pytest.skip("Not implemented yet")
+        model = _make_model()
+        model.eval()
+        B = 4
+        cat_in = torch.randn(B, 64)
+        next_in = torch.randn(B, 9, 64)
+        with torch.no_grad():
+            cat_out, next_out = model((cat_in, next_in))
+        assert cat_out.shape == (B, 7), f"Expected cat_out shape (4, 7), got {cat_out.shape}"
+        assert next_out.shape == (B, 7), f"Expected next_out shape (4, 7), got {next_out.shape}"
 
     def test_task_specific_encoders(self):
         """Test task-specific encoder layers."""
-        # TODO: Implement test
-        pytest.skip("Not implemented yet")
+        model = _make_model()
+        model.eval()
+        B = 4
+        x = torch.randn(B, 64)
+        with torch.no_grad():
+            cat_enc_out = model.category_encoder(x)
+            next_enc_out = model.next_encoder(x)
+        # Both encoders map (B, feature_size) -> (B, shared_layer_size=256)
+        assert cat_enc_out.shape == (B, 256), f"Expected (4, 256), got {cat_enc_out.shape}"
+        assert next_enc_out.shape == (B, 256), f"Expected (4, 256), got {next_enc_out.shape}"
 
     def test_shared_backbone(self):
         """Test shared backbone layers."""
-        # TODO: Implement test
-        pytest.skip("Not implemented yet")
+        model = _make_model()
+        model.eval()
+        B = 4
+        x = torch.randn(B, 256)
+        with torch.no_grad():
+            out = model.shared_layers(x)
+        # shared_layers preserves shape
+        assert out.shape == x.shape, f"Expected shape {x.shape}, got {out.shape}"
+        # Output should differ from input (transformation is non-trivial)
+        assert not torch.equal(out, x)
 
 
 class TestMTLnetPerHeadForwards:
@@ -133,13 +162,33 @@ class TestMTLnetPerHeadForwards:
 
     def test_film_modulation(self):
         """Test FiLM (Feature-wise Linear Modulation) layers."""
-        # TODO: Implement test
-        pytest.skip("Not implemented yet")
+        model = _make_model()
+        model.eval()
+        B = 4
+        x = torch.randn(B, 256)
+        with torch.no_grad():
+            # Use task embedding weights directly for two different tasks
+            emb_cat = model.task_embedding.weight[0].expand(B, -1)
+            emb_next = model.task_embedding.weight[1].expand(B, -1)
+            out_cat = model.film(x, emb_cat)
+            out_next = model.film(x, emb_next)
+        # FiLM outputs with different task embeddings should differ
+        assert not torch.equal(out_cat, out_next), (
+            "FiLM outputs should differ for different task embeddings"
+        )
 
     def test_residual_blocks(self):
         """Test residual block connections."""
-        # TODO: Implement test
-        pytest.skip("Not implemented yet")
+        model = _make_model()
+        model.eval()
+        B = 4
+        x = torch.randn(B, 256)
+        with torch.no_grad():
+            out = model.shared_layers(x)
+        # Shape is preserved
+        assert out.shape == x.shape
+        # Output differs from input (residual blocks apply transformations)
+        assert not torch.equal(out, x)
 
 
 class TestParameterSeparation:
@@ -147,15 +196,38 @@ class TestParameterSeparation:
 
     def test_shared_parameters(self):
         """Test shared_parameters() method returns correct params."""
-        # TODO: Implement test
-        pytest.skip("Not implemented yet")
+        model = _make_model()
+        shared_params = list(model.shared_parameters())
+        assert len(shared_params) > 0
+        shared_ids = {id(p) for p in shared_params}
+        # Verify that parameters from shared_layers, task_embedding, and film are included
+        for name, p in model.named_parameters():
+            if any(key in name for key in ('shared_layers', 'task_embedding', 'film')):
+                assert id(p) in shared_ids, f"Expected '{name}' in shared_parameters()"
 
     def test_task_specific_parameters(self):
         """Test task_specific_parameters() method returns correct params."""
-        # TODO: Implement test
-        pytest.skip("Not implemented yet")
+        model = _make_model()
+        task_params = list(model.task_specific_parameters())
+        assert len(task_params) > 0
+        task_ids = {id(p) for p in task_params}
+        # Verify that parameters from task-specific submodules are included
+        for name, p in model.named_parameters():
+            if any(key in name for key in ('category_encoder', 'next_encoder', 'category_poi', 'next_poi')):
+                assert id(p) in task_ids, f"Expected '{name}' in task_specific_parameters()"
 
     def test_no_parameter_overlap(self):
         """Test that shared and task-specific params don't overlap."""
-        # TODO: Implement test
-        pytest.skip("Not implemented yet")
+        model = _make_model()
+        shared_params = list(model.shared_parameters())
+        task_params = list(model.task_specific_parameters())
+        shared_ids = {id(p) for p in shared_params}
+        task_ids = {id(p) for p in task_params}
+        # No overlap
+        overlap = shared_ids & task_ids
+        assert len(overlap) == 0, f"Found {len(overlap)} parameter(s) in both shared and task-specific sets"
+        # Union covers all parameters
+        all_ids = {id(p) for p in model.parameters()}
+        assert shared_ids | task_ids == all_ids, (
+            "Union of shared and task-specific parameters does not cover all model parameters"
+        )
