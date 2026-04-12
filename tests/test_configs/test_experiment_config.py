@@ -121,7 +121,7 @@ class TestExperimentConfigFactories:
         c = ExperimentConfig.default_mtl("test", "florida", "hgi")
         assert c.task_type == "mtl"
         assert c.epochs == 50
-        assert c.batch_size == 2048
+        assert c.batch_size == 2**12
         assert c.learning_rate == 1e-4
         assert c.max_lr == 1e-3
         assert c.weight_decay == 0.05
@@ -158,8 +158,8 @@ class TestExperimentConfigFactories:
     def test_default_next(self):
         c = ExperimentConfig.default_next("test", "alabama", "check2hgi")
         assert c.task_type == "next"
-        assert c.epochs == 100
-        assert c.batch_size == 512
+        assert c.epochs == 50
+        assert c.batch_size == 2**13
         assert c.learning_rate == 1e-4
         assert c.max_lr == 1e-2
         assert c.weight_decay == 0.01
@@ -177,7 +177,7 @@ class TestExperimentConfigFactories:
         assert c.epochs == 10
         assert c.learning_rate == 3e-4
         # Non-overridden defaults preserved
-        assert c.batch_size == 2048
+        assert c.batch_size == 2**12
 
     def test_factory_round_trip(self, tmp_path):
         for factory in [

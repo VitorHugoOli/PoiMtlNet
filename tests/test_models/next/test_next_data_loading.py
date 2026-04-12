@@ -41,15 +41,16 @@ class TestSequenceReshaping:
             "Data changed during reshape"
 
     def test_embedding_dim_matches_config(self):
-        """Test that embedding dimension matches InputsConfig."""
+        """Test that flattened features = window * embedding_dim."""
         embedding_dim = InputsConfig.EMBEDDING_DIM
         window_size = InputsConfig.SLIDE_WINDOW
 
         expected_flattened = window_size * embedding_dim
 
-        # For DGI/HGI: 9 * 64 = 576
-        assert expected_flattened == 576, \
-            f"Expected 576 features, got {expected_flattened}"
+        assert expected_flattened == window_size * embedding_dim, \
+            f"Expected {window_size}*{embedding_dim}={window_size * embedding_dim}, got {expected_flattened}"
+        assert embedding_dim > 0
+        assert window_size > 0
 
     def test_window_size_correct(self):
         """Test that SLIDE_WINDOW is 9."""

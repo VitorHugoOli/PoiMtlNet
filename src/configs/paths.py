@@ -382,6 +382,8 @@ class IoPaths:
 
     @classmethod
     def get_seq_next(cls, state: str, embedd_engine: EmbeddingEngine):
+        if embedd_engine == EmbeddingEngine.FUSION:
+            return cls.get_fusion_seq_next(state)
         return OUTPUT_DIR / embedd_engine.value / state.lower() / "temp" / "sequences_next.parquet"
 
     @classmethod

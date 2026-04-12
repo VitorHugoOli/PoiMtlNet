@@ -1,51 +1,117 @@
-"""DEPRECATED: Use scripts/train.py directly instead.
+"""Category head training pipeline — train category task via scripts/train.py. Usage: python pipelines/train/cat_head.pipe.py"""
 
-Usage:
-    python scripts/train.py --task category --state california --engine poi2hgi
-
-This wrapper will be removed in a future release.
-"""
-import warnings
-warnings.warn(
-    "pipelines/train/cat_head.pipe.py is deprecated. Use scripts/train.py directly.",
-    DeprecationWarning,
-    stacklevel=1,
-)
 import sys
+import logging
 import subprocess
 from pathlib import Path
+from datetime import datetime
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
-_root = str(Path(__file__).resolve().parent.parent.parent)
-_train = str(Path(_root) / "scripts" / "train.py")
+_root = Path(__file__).resolve().parent.parent.parent
+_train = str(_root / "scripts" / "train.py")
+sys.path.insert(0, str(_root / "src"))
+
+from configs.paths import EmbeddingEngine
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+# =============================================================================
+# SETTINGS
+# =============================================================================
+
+MAX_WORKERS = 1
+
+# =============================================================================
+# CONFIG
+# =============================================================================
+
+CONFIG = {
+    'engine': EmbeddingEngine.TIME2VEC.value,
+    'embedding_dim': None,
+    'epochs': None,
+    'folds': None,
+}
+
+# =============================================================================
+# STATES
+# Ordered dict — execution follows insertion order, MAX_WORKERS at a time.
+# Each entry: 'StateName': {...overrides, 'config': <dict>}
+# When 'config' key is absent, CONFIG (default) is used.
+# =============================================================================
+
+STATES = {
+    'alabama': {},
+    # 'arizona': {},
+    # 'georgia': {},
+    # 'florida': {},
+    # 'california': {},
+    # 'texas': {},
+}
+
+# =============================================================================
+# PIPELINE
+# =============================================================================
 
 
-def _parse_args():
-    import argparse
-    sys.path.insert(0, str(Path(_root) / "src"))
-    from configs.paths import EmbeddingEngine
+def process_state(name: str, state_cfg: dict) -> bool:
+    """Train category head for a single state via scripts/train.py."""
+    try:
+        state_cfg = dict(state_cfg)
+        base = dict(state_cfg.pop('config', CONFIG))
+        base.update(state_cfg)
 
-    parser = argparse.ArgumentParser(description="Category training pipeline (thin wrapper)")
-    parser.add_argument(
-        "--state", type=str, nargs="+",
-        default=["california"],
-        help="State(s) to train on",
-    )
-    parser.add_argument(
-        "--engine", type=str, nargs="+",
-        default=["poi2hgi"],
-        choices=[e.value for e in EmbeddingEngine],
-        help="Embedding engine(s) to use",
-    )
-    return parser.parse_args()
+        cmd = [sys.executable, _train, "--state", name, "--engine", base['engine'], "--task", "category"]
+        if base.get('embedding_dim') is not None:
+            cmd += ["--embedding-dim", str(base['embedding_dim'])]
+        if base.get('epochs') is not None:
+            cmd += ["--epochs", str(base['epochs'])]
+        if base.get('folds') is not None:
+            cmd += ["--folds", str(base['folds'])]
+
+        logger.info(f"[{name}] Running: {' '.join(cmd)}")
+        result = subprocess.run(cmd)
+
+        if result.returncode != 0:
+            logger.error(f"[{name}] Failed with return code {result.returncode}")
+            return False
+        return True
+    except Exception as e:
+        logger.error(f"[{name}] Failed: {e}", exc_info=True)
+        return False
+
+
+def run_pipeline():
+    """Process all configured states in order, MAX_WORKERS at a time."""
+    logger.info(f"Category Training Pipeline - {len(STATES)} state(s) | engine={CONFIG['engine']}")
+
+    start = datetime.now()
+    results = {}
+    states = list(STATES.items())
+
+    for i in range(0, len(states), MAX_WORKERS):
+        chunk = states[i:i + MAX_WORKERS]
+        if MAX_WORKERS == 1:
+            for name, cfg in chunk:
+                results[name] = process_state(name, cfg)
+        else:
+            with ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:
+                futures = {
+                    executor.submit(process_state, name, dict(cfg)): name
+                    for name, cfg in chunk
+                }
+                for future in as_completed(futures):
+                    results[futures[future]] = future.result()
+
+    duration = (datetime.now() - start).total_seconds()
+    success = sum(results.values())
+    logger.info(f"Completed: {success}/{len(STATES)} succeeded in {duration / 60:.1f}min")
+    for name, ok in results.items():
+        logger.info(f"  {'✓' if ok else '✗'} {name}")
+
+    return results
 
 
 if __name__ == "__main__":
-    args = _parse_args()
-    rc = 0
-    for state in args.state:
-        for engine in args.engine:
-            cmd = [sys.executable, _train, "--state", state, "--engine", engine, "--task", "category"]
-            result = subprocess.run(cmd)
-            if result.returncode != 0:
-                rc = result.returncode
-    sys.exit(rc)
+    results = run_pipeline()
+    exit(0 if all(results.values()) else 1)

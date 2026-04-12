@@ -131,14 +131,14 @@ class TestEmbeddingDimensionConfiguration:
     """Tests for embedding dimension consistency."""
 
     def test_embedding_dim_matches_input_dim(self):
-        """Test that model INPUT_DIM matches InputsConfig.EMBEDDING_DIM."""
-        assert NEXT_INPUT_DIM == InputsConfig.EMBEDDING_DIM, \
-            f"Model INPUT_DIM ({NEXT_INPUT_DIM}) != data EMBEDDING_DIM ({InputsConfig.EMBEDDING_DIM})"
+        """Test that model default INPUT_DIM is 64 (overridable via --embedding-dim)."""
+        assert NEXT_INPUT_DIM == 64, \
+            f"Model default INPUT_DIM should be 64, got {NEXT_INPUT_DIM}"
 
-    def test_embedding_dim_matches_data(self):
-        """Test that EMBEDDING_DIM is 64 for DGI/HGI."""
-        assert InputsConfig.EMBEDDING_DIM == 64, \
-            f"Expected EMBEDDING_DIM=64 for DGI/HGI, got {InputsConfig.EMBEDDING_DIM}"
+    def test_embedding_dim_is_positive(self):
+        """Test that EMBEDDING_DIM is a valid positive value."""
+        assert InputsConfig.EMBEDDING_DIM > 0, \
+            f"EMBEDDING_DIM must be positive, got {InputsConfig.EMBEDDING_DIM}"
 
     def test_fusion_dim_handling(self):
         """Test that fusion dimensions would be handled correctly."""

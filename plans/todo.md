@@ -1,14 +1,11 @@
-1. Test the new code agains the olds results and see the results are the same
-   1.2. Test the new code to generate the input with the dgi
+1. 
 
-2. Passing and valid the time2vec
-3. Passing and valid the hgi - Also whether is or not a dataleak and waht we gonna do with it
-4. Passing and valid the Siren & space2vec
-   Propmt:
-   Can you help me to valid the implementation of this embeeding on my codebase, notive that I have made some changes to
-   gave this embedding more flexibility and be faster on mps. But we need to ensure that this is equivalent to this
-   source
-   code, and equivalent to the article that propose it.
+
+Enter in the branch copilot/create-improvement-plan-for-mtlnet(PR#6) and do a full /review of the code. Be    
+  very critical, analysis on how we are managing the rest of the code and if this new changes are compatible    
+  and if it make easy future expereiments and easy abalation studies   
+
+----
 
 5. Refactor codebase
    Prompt:
@@ -43,6 +40,21 @@
 11. Run the baselines
 12. Execute flops and wall test to compare mtlnet
 13. Analise de variancia de analise the hipotese estatistica
---- Extras
+    --- Extras
 13. Implemented new datasets
 14. Top-k as metric
+
+We use a implementation as based, but I would like you scrapy the article and the code related to this embedding to
+ensure that our changes and waht we have is solid and is in vias with the orignal article propose. Also if not evalute
+if worth to do the change or is expected. Be very critical and dig deep.
+
+HGI (Hierarchical Graph Infomax)
+
+Article: "Learning urban region representations with POIs and hierarchical graph
+infomax"                                                                                                                                                                                                                                                                                                                                      
+Authors: Weiming Huang, Daokun Zhang, Gengchen Mai, Xu Guo, Lizhen
+Cui                                                                                                                                                                                                                                                                                                                                                         
+Published: ISPRS Journal of Photogrammetry and Remote Sensing, vol. 196, pp. 134–145,
+2023                                                                                                                                                                                                                                                                                                                                     
+Code: https://github.com/RightBank/HGI                                                                                                                                                                                                                                                                                                                                                                                         
+                                           
