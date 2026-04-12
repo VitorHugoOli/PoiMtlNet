@@ -42,7 +42,7 @@ class HistoryDisplay:
     # Headline metric names shown in the end-of-fold summary table, in
     # display order. Override via constructor to surface extra metrics
     # (e.g. ``top3_acc``, ``f1_weighted``) in the terminal output.
-    DEFAULT_HEADLINE_METRICS = ("f1", "accuracy")
+    DEFAULT_HEADLINE_METRICS = ("f1", "accuracy", "top3_acc")
 
     def __init__(
         self,
