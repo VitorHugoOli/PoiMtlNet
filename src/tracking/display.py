@@ -170,6 +170,65 @@ class HistoryDisplay:
                 f"{'macro avg':<12} | {p_str} | {r_str} | {f_str} | {'':>10}"
             )
 
+    def _collect_best_epoch_metrics(self) -> Dict[str, Dict[str, list]]:
+        """Collect headline metric values at each fold's best epoch, per task.
+
+        Returns ``{task: {metric_name: [val_fold0, val_fold1, ...]}}``.
+        """
+        result: Dict[str, Dict[str, list]] = {}
+        for fold in self.h.folds:
+            for task in self.h.tasks:
+                th = fold.tasks.get(task)
+                if not th:
+                    continue
+                be = th.best.best_epoch
+                if be < 0:
+                    continue
+                task_dict = result.setdefault(task, {})
+                for metric in self.headline_metrics:
+                    vals = th.val.get(metric)
+                    if vals and be < len(vals):
+                        task_dict.setdefault(metric, []).append(vals[be])
+        return result
+
+    def _display_final_results(self) -> None:
+        """Print a compact "Final Results" table across all folds.
+
+        Always shown — this is the first thing a researcher looks at after a
+        run finishes. For N > 1 folds, values are ``mean +- stdev``.
+        """
+        perf = self._collect_best_epoch_metrics()
+        if not perf:
+            return
+
+        n_folds = self.h.num_folds
+        title = f"Final Results ({n_folds} fold{'s' if n_folds > 1 else ''})"
+        self.log.info(self._sep(title, width=60, sep='-'))
+
+        # Decide column width: "mean +- std" needs more room than a bare value.
+        col_val = 18 if n_folds > 1 else 10
+        col_task = 10
+        header = [f"{'Task':<{col_task}}"]
+        for m in self.headline_metrics:
+            header.append(f"{m.replace('_', ' ').title():<{col_val}}")
+        self.log.info(" | ".join(header) + " |")
+
+        for task in self.h.tasks:
+            task_metrics = perf.get(task, {})
+            row = [f"{task:<{col_task}}"]
+            for m in self.headline_metrics:
+                values = task_metrics.get(m, [])
+                if not values:
+                    row.append(f"{'N/A':>{col_val}}")
+                elif n_folds > 1:
+                    avg = mean(values) * 100
+                    std = _safe_stdev(values) * 100
+                    cell = f"{avg:.2f} ± {std:.2f}%"
+                    row.append(f"{cell:>{col_val}}")
+                else:
+                    row.append(f"{values[0] * 100:>{col_val - 1}.2f}%")
+            self.log.info(" | ".join(row) + " |")
+
     def end_training(self):
         self.log.info(self._sep("Training Complete"))
         self.log.info(self._sep("Summary", width=60, sep='-'))
@@ -185,6 +244,10 @@ class HistoryDisplay:
                 f"N. Epochs: {self.h.model_parms.num_epochs} | "
                 f"Batch Size: {self.h.model_parms.batch_size}"
             )
+
+        # Always show the compact aggregate results table — this is the
+        # first thing a researcher cares about after a training run.
+        self._display_final_results()
 
         if self.show_report:
             for task in self.h.tasks:
