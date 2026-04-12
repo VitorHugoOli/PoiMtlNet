@@ -36,11 +36,11 @@ FUSION_PRESET = "space_hgi_time"  # Options: space_hgi_time, hgi_time, space_tim
 # =============================================================================
 
 STATES = {
-    'alabama': {},
+    # 'alabama': {},
     # 'texas': {},
     # 'arizona': {},
     # 'georgia': {},
-    # 'florida': {},
+    'florida': {},
     # 'california': {},
 }
 

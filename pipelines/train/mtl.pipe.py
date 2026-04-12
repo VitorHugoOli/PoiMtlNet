@@ -41,10 +41,10 @@ CONFIG = {
 # =============================================================================
 
 STATES = {
-    'alabama': {},
+    # 'alabama': {},
     # 'arizona': {},
     # 'georgia': {},
-    # 'florida': {},
+    'florida': {},
     # 'california': {},
     # 'texas': {},
 }
