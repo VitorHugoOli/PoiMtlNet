@@ -249,6 +249,31 @@ class HistoryDisplay:
         # first thing a researcher cares about after a training run.
         self._display_final_results()
 
+        # Execution stats below the metric table — total wall time + model
+        # complexity so runs are easy to compare at a glance.
+        duration = self.h.timer.get_duration() if hasattr(self.h.timer, 'get_duration') else 0
+        stats_parts = [f"Total Time: {self._format_time(duration)}"]
+        if self.h.flops:
+            flops_val = self.h.flops.flops
+            params_val = self.h.flops.params
+            if isinstance(flops_val, (int, float)) and flops_val > 0:
+                if flops_val >= 1e9:
+                    stats_parts.append(f"FLOPs: {flops_val / 1e9:.2f}G")
+                elif flops_val >= 1e6:
+                    stats_parts.append(f"FLOPs: {flops_val / 1e6:.2f}M")
+                elif flops_val >= 1e3:
+                    stats_parts.append(f"FLOPs: {flops_val / 1e3:.2f}K")
+                else:
+                    stats_parts.append(f"FLOPs: {flops_val}")
+            if isinstance(params_val, (int, float)) and params_val > 0:
+                if params_val >= 1e6:
+                    stats_parts.append(f"Params: {params_val / 1e6:.2f}M")
+                elif params_val >= 1e3:
+                    stats_parts.append(f"Params: {params_val / 1e3:.2f}K")
+                else:
+                    stats_parts.append(f"Params: {params_val}")
+        self.log.info(" | ".join(stats_parts))
+
         if self.show_report:
             for task in self.h.tasks:
                 self.log.info(self._sep(f"Avg. Task: {task}", width=60, sep='-'))
