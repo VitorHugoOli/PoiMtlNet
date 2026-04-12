@@ -1,0 +1,84 @@
+{
+  "permissions": {
+    "allow": [
+
+      // ── Reads ──────────────────────────────────────────────────────────────
+      "Read(**)",
+
+      // ── Shell utilities ────────────────────────────────────────────────────
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(tree:*)",
+      "Bash(wc:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(rsync:*)",
+      "Bash(awk:*)",
+      "Bash(sort:*)",
+      "Bash(xargs:*)",
+      "Bash(tee:*)",
+      "Bash(curl:*)",
+
+      // ── System info ────────────────────────────────────────────────────────
+      "Bash(sw_vers)",
+      "Bash(sysctl:*)",
+      "Bash(system_profiler:*)",
+
+      // ── Python (all project venvs + PYTHONPATH variants) ──────────────────
+      "Bash(python:*)",
+      "Bash(python3:*)",
+      "Bash(python3.12:*)",
+      "Bash(.venv/bin/python:*)",
+      "Bash(PYTHONPATH=src python:*)",
+      "Bash(PYTHONPATH=src .venv/bin/python:*)",
+      "Bash(PYTHONPATH=src:research .venv/bin/python:*)",
+      "Bash(PYTHONPATH=. .venv/bin/python:*)",
+
+      // ── pytest ─────────────────────────────────────────────────────────────
+      "Bash(pytest:*)",
+      "Bash(.venv/bin/pytest:*)",
+      "Bash(PYTHONPATH=src pytest:*)",
+
+      // ── pip / package management ───────────────────────────────────────────
+      "Bash(pip:*)",
+      "Bash(.venv/bin/pip:*)",
+
+      // ── Linting ────────────────────────────────────────────────────────────
+      "Bash(ruff:*)",
+
+      // ── Jupyter ────────────────────────────────────────────────────────────
+      "Bash(jupyter:*)",
+
+      // ── Git (read + write; force-push and reset --hard require confirmation
+      //        via Claude Code's built-in guardrails) ─────────────────────────
+      "Bash(git:*)",
+
+      // ── GitHub CLI ─────────────────────────────────────────────────────────
+      "Bash(gh:*)",
+
+      // ── Process management (stopping runaway training jobs) ────────────────
+      "Bash(pkill:*)",
+
+      // ── Web ────────────────────────────────────────────────────────────────
+      "WebSearch",
+      "WebFetch(domain:arxiv.org)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:docs.pytorch.org)",
+      "WebFetch(domain:deepwiki.com)",
+      "WebFetch(domain:towardsdatascience.com)",
+      "WebFetch(domain:www.anthropic.com)",
+      "WebFetch(domain:addyosmani.com)",
+      "WebFetch(domain:blog.ezyang.com)",
+      "WebFetch(domain:gengchenmai.github.io)",
+
+      // ── MCP tools ──────────────────────────────────────────────────────────
+      "mcp__pycharm__list_directory_tree",
+      "mcp__pycharm__get_file_text_by_path"
+
+    ],
+    "deny": []
+  }
+}

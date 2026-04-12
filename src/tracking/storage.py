@@ -338,12 +338,24 @@ class HistoryStorage:
                 df = pd.DataFrame([{'Category': k, **v} for k, v in report.items()])
 
                 be = th.best.best_epoch
-                acc_vals = th.val.get('accuracy')
-                f1_vals = th.val.get('f1')
-                acc = acc_vals[be] if acc_vals and be >= 0 and be < len(acc_vals) else None
-                f1 = f1_vals[be] if f1_vals and be >= 0 and be < len(f1_vals) else None
-                fold_info['diagnostic_best_epochs'][task] = {
-                    'epoch': be, 'accuracy': acc, 'f1': f1, 'time': th.best.best_time
+                # Export every metric present in the val MetricStore at the
+                # best epoch — no hardcoded (f1, accuracy) list, so new
+                # metrics (f1_weighted, top3_acc, mrr, ndcg_*) flow into
+                # fold_info.json automatically.
+                metrics_at_best: Dict[str, Any] = {}
+                if be >= 0:
+                    for metric_name, values in th.val.items():
+                        if be < len(values):
+                            metrics_at_best[metric_name] = values[be]
+                fold_info['best_epochs'][task] = {
+                    'epoch': be,
+                    'time': th.best.best_time,
+                    'metrics': metrics_at_best,
+                    # Legacy top-level keys kept so downstream consumers that
+                    # read fold_info['best_epochs'][task]['accuracy'] keep
+                    # working without a shim.
+                    'accuracy': metrics_at_best.get('accuracy'),
+                    'f1': metrics_at_best.get('f1'),
                 }
 
                 primary_epoch = joint_epoch if joint_epoch >= 0 else be

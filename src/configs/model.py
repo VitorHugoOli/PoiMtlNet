@@ -1,7 +1,8 @@
 class InputsConfig:
-    # EMBEDDING_DIM = 128 # DGI
-    EMBEDDING_DIM = 64 # DGI
-    # EMBEDDING_DIM = 128 # DGI
+    # Per-engine base dimension (64 for DGI, HGI, Space2Vec, Time2Vec, Sphere2Vec).
+    # Fusion combines multiple engines → total dim is sum of sources (e.g. 128).
+    # Use --embedding-dim in scripts/train.py to set the model's input dimension.
+    EMBEDDING_DIM = 64
     # EMBEDDING_DIM = 256 # HGI
     # EMBEDDING_DIM = 50*2+7 #HMRM
     SLIDE_WINDOW = 9

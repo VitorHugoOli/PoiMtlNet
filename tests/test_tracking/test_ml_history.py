@@ -747,6 +747,82 @@ class TestIntegrationStorage:
         assert summary['diagnostic_task_best']['next']['f1']['mean'] == pytest.approx(0.90)
 
 
+class TestIntegrationNewMetrics:
+    """End-to-end checks that the new metric keys (f1_weighted, top3_acc,
+    mrr, ndcg_{k}, accuracy_macro) flow through FoldHistory, storage, and
+    are reflected in fold_info.json and the auto-generated plots."""
+
+    def _make_history_with_new_metrics(self, tmp_path):
+        h = MLHistory('MetricTest', tasks='next', num_folds=1)
+        h.start()
+        h.set_model_parms(NeuralParams(batch_size=32, num_epochs=2, learning_rate=1e-3))
+
+        fold = h.get_curr_fold()
+        # Simulate compute_classification_metrics output across 3 epochs.
+        series = [
+            dict(loss=1.0, accuracy=0.50, accuracy_macro=0.48, f1=0.40,
+                 f1_weighted=0.55, top3_acc=0.80, top5_acc=0.90,
+                 mrr=0.60, ndcg_3=0.70, ndcg_5=0.75),
+            dict(loss=0.8, accuracy=0.60, accuracy_macro=0.58, f1=0.50,
+                 f1_weighted=0.65, top3_acc=0.85, top5_acc=0.92,
+                 mrr=0.70, ndcg_3=0.77, ndcg_5=0.80),
+            dict(loss=0.6, accuracy=0.70, accuracy_macro=0.68, f1=0.65,
+                 f1_weighted=0.75, top3_acc=0.90, top5_acc=0.95,
+                 mrr=0.80, ndcg_3=0.83, ndcg_5=0.86),
+        ]
+        for epoch_metrics in series:
+            fold.log_train('next', **epoch_metrics)
+            fold.log_val('next', model_state={'ok': True}, **epoch_metrics)
+
+        fold.task('next').report = {
+            'macro avg': {'precision': 0.7, 'recall': 0.65, 'f1-score': 0.65, 'support': 300}
+        }
+        h.step()
+        return h
+
+    def test_new_metric_keys_are_stored(self, tmp_path):
+        h = self._make_history_with_new_metrics(tmp_path)
+        val_keys = set(h.folds[0].task('next').val.keys())
+        expected = {
+            'loss', 'accuracy', 'accuracy_macro', 'f1', 'f1_weighted',
+            'top3_acc', 'top5_acc', 'mrr', 'ndcg_3', 'ndcg_5',
+        }
+        assert expected.issubset(val_keys), (
+            f"Missing new metric keys: {expected - val_keys}"
+        )
+
+    def test_fold_info_json_contains_all_metrics_at_best_epoch(self, tmp_path):
+        h = self._make_history_with_new_metrics(tmp_path)
+        base = h.storage.save(tmp_path)
+        fold_info = json.loads((base / 'folds' / 'fold1_info.json').read_text())
+        metrics_at_best = fold_info['best_epochs']['next']['metrics']
+        # Best epoch is epoch 2 (F1 = 0.65), so values should match the
+        # third row of the series above.
+        assert metrics_at_best['f1'] == pytest.approx(0.65)
+        assert metrics_at_best['f1_weighted'] == pytest.approx(0.75)
+        assert metrics_at_best['top3_acc'] == pytest.approx(0.90)
+        assert metrics_at_best['mrr'] == pytest.approx(0.80)
+        assert metrics_at_best['ndcg_3'] == pytest.approx(0.83)
+        # Legacy top-level keys still populated for backwards compatibility.
+        assert fold_info['best_epochs']['next']['f1'] == pytest.approx(0.65)
+        assert fold_info['best_epochs']['next']['accuracy'] == pytest.approx(0.70)
+
+    def test_plots_generated_for_all_metrics(self, tmp_path):
+        h = self._make_history_with_new_metrics(tmp_path)
+        base = h.storage.save(tmp_path)
+        plots_dir = base / 'plots' / 'next'
+        # Auto-discovery should produce one plot per tracked metric.
+        expected_plots = {
+            'loss.png', 'accuracy.png', 'accuracy_macro.png',
+            'f1.png', 'f1_weighted.png', 'top3_acc.png', 'top5_acc.png',
+            'mrr.png', 'ndcg_3.png', 'ndcg_5.png',
+        }
+        actual = {p.name for p in plots_dir.glob('*.png')}
+        assert expected_plots.issubset(actual), (
+            f"Missing plots: {expected_plots - actual}"
+        )
+
+
 # ── Group H: Auto-Lifecycle ──────────────────────────────────────────
 
 

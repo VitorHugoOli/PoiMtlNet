@@ -1,15 +1,4 @@
-"""
-HGI Pipeline - Train HGI embeddings for multiple states.
-
-Reference flow (from hgi_texas.py / CLAUDE.md):
-  Phase 3a: preprocess_hgi(no embeddings) → Delaunay graph, edges.csv, pois.csv
-  Phase 3b-d: train_poi2vec() → fclass walks, train, reconstruct POI embeddings
-  Phase 4: preprocess_hgi(with embeddings) → full data dict, save pickle
-  Phase 5: train_hgi() → train HGI model, save POI + region embeddings
-  + create_input() → generate downstream task inputs
-
-Usage: python pipelines/embedding/hgi.pipe.py
-"""
+"""HGI Pipeline — train HGI embeddings (5-stage), generate inputs. Usage: python pipelines/embedding/hgi.pipe.py"""
 
 import sys
 from pathlib import Path
@@ -25,7 +14,9 @@ if _research not in sys.path:
 import logging
 import pickle as pkl
 from argparse import Namespace
+from copy import copy
 from datetime import datetime
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 import torch
 
@@ -40,44 +31,21 @@ from data.inputs.builders import generate_category_input, generate_next_input_fr
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-STATES = {
-    # Local
-    'Alabama': Resources.TL_AL,
-    'Arizona': Resources.TL_AZ,
-    'Georgia': Resources.TL_GA,
-    # Articles
-    'Florida': Resources.TL_FL,
-    'California': Resources.TL_CA,
-    'Texas': Resources.TL_TX,
-}
+# =============================================================================
+# SETTINGS
+# =============================================================================
 
-# Per-state override for the cross-region edge weight `w_r` (Eq. 2 of Huang et
-# al., ISPRS 2023). Leave a state out to use HGI_CONFIG.cross_region_weight.
-#
-# The optimum is dataset-specific and appears to scale INVERSELY with POI
-# density. Anchors: Xiamen ~26 POI/km² and Shenzhen ~150 POI/km² both use
-# w_r = 0.4 (paper); Alabama at 0.089 POI/km² (~290× sparser) has an Alabama-
-# swept optimum at w_r = 0.7. On our Alabama sweep Cat F1 rose monotonically
-# 0.74 → 0.82 from 0.4 to 0.7 (see `research/embeddings/hgi/README.md` §5).
-#
-# The values below are best-effort starting points extrapolated from POI
-# density vs. the paper's anchors — ONLY Alabama has been swept. Re-sweep
-# per state when tuning ({0.4, 0.7, 1.0} brackets the optimum in ~75 min).
-CROSS_REGION_WEIGHT_PER_STATE = {
-    'Alabama':    0.7,  # swept 2026-04-11 (density 0.089 POI/km², confirmed optimum)
-    'Arizona':    0.7,  # density 0.070 POI/km² — sparsest; matches Alabama regime
-    'Texas':      0.7,  # density 0.229 POI/km² — still firmly in sparse regime
-    'California': 0.6,  # density 0.411 POI/km² — medium, interpolated
-    'Florida':    0.6,  # density 0.536 POI/km² — densest of the five, interpolated
-    # 'Georgia': 0.7,   # not yet measured; set when available
-}
+MAX_WORKERS = 1
 
-# Hyperparameters mirror RightBank/HGI/train.py (the canonical reference for
-# "Learning urban region representations with POIs and hierarchical graph
-# infomax", ISPRS J. Photogramm. Remote Sens., 2023). lr=0.006 is only safe
-# in combination with the 40-epoch LinearWarmup wired into train_hgi —
-# do not bump one without the other.
-HGI_CONFIG = Namespace(
+# =============================================================================
+# CONFIG
+# =============================================================================
+
+# Mirrors RightBank/HGI/train.py (Huang et al., ISPRS 2023).
+# lr=0.006 requires the 40-epoch LinearWarmup in train_hgi — don't change one without the other.
+# cross_region_weight (w_r, Eq. 2): scales inversely with POI density.
+# Only Alabama has been swept; other values are extrapolated from density. See hgi/README.md §5.
+CONFIG = Namespace(
     dim=InputsConfig.EMBEDDING_DIM,
     alpha=0.5,
     attention_head=4,
@@ -88,59 +56,66 @@ HGI_CONFIG = Namespace(
     warmup_period=40,
     poi2vec_epochs=100,
     force_preprocess=True,
-
-    # Cross-region edge weight. Paper: 0.4. Third-party repro: 0.5. Our Alabama
-    # best: 0.7 (Cat F1 +8 pp vs paper). Override per state via the dict above.
     cross_region_weight=0.7,
-
-    device='cpu',
-    shapefile=None  # Will be set per state
+    device='cpu',  # CPU pinned: HGI small-ops workload is ~176x slower on MPS
+    shapefile=None,
 )
 
+# =============================================================================
+# STATES
+# Ordered dict — execution follows insertion order, MAX_WORKERS at a time.
+# Each entry: 'StateName': {'shapefile': <Resource>, ...overrides, 'config': <Namespace>}
+# When 'config' key is absent, CONFIG (default) is used.
+# =============================================================================
+
+STATES = {
+    # 'Alabama':    {'shapefile': Resources.TL_AL, 'cross_region_weight': 0.7},   # swept, confirmed
+    # 'Arizona':    {'shapefile': Resources.TL_AZ, 'cross_region_weight': 0.7},   # extrapolated (sparse)
+    # 'Georgia':    {'shapefile': Resources.TL_GA},
+    'Florida':    {'shapefile': Resources.TL_FL, 'cross_region_weight': 0.7},   # extrapolated (dense)
+    # 'California': {'shapefile': Resources.TL_CA, 'cross_region_weight': 0.6},   # extrapolated (medium)
+    # 'Texas':      {'shapefile': Resources.TL_TX, 'cross_region_weight': 0.7},   # extrapolated (sparse)
+}
 
 # =============================================================================
 # PIPELINE
 # =============================================================================
 
-def process_state(name: str, shapefile, cta_file=None) -> bool:
-    """Run full HGI pipeline for a single state.
 
-    Steps:
-        1. Preprocess (graph only) → edges.csv, pois.csv for POI2Vec
-        2. Train POI2Vec → fclass embeddings → POI embeddings
-        3. Preprocess (with embeddings) → full data dict → save pickle
-        4. Train HGI → POI + region embeddings
-        5. Generate downstream inputs
-    """
+def process_state(name: str, state_cfg: dict) -> bool:
+    """Run full HGI pipeline for a single state (5 stages)."""
     try:
-        HGI_CONFIG.shapefile = shapefile
-        # Per-state override (falls back to the global default in HGI_CONFIG).
-        w_r = CROSS_REGION_WEIGHT_PER_STATE.get(name, HGI_CONFIG.cross_region_weight)
-        HGI_CONFIG.cross_region_weight = w_r
+        state_cfg = dict(state_cfg)
+        base = state_cfg.pop('config', CONFIG)
+        config = copy(base)
+        config.shapefile = state_cfg.pop('shapefile')
+        for k, v in state_cfg.items():
+            setattr(config, k, v)
+
+        w_r = config.cross_region_weight
         logger.info(f"[setup] {name}: cross_region_weight w_r={w_r}")
 
-        # 1. First pass: build Delaunay graph → edges.csv + pois.csv (needed by POI2Vec)
-        logger.info(f"[1/5] Building graph (Delaunay + edges.csv + pois.csv): {name}")
+        # 1. Build Delaunay graph -> edges.csv + pois.csv (needed by POI2Vec)
+        logger.info(f"[1/5] Building graph: {name}")
         preprocess_hgi(
-            city=name, city_shapefile=str(shapefile), poi_emb_path=None,
-            cta_file=cta_file, cross_region_weight=w_r,
+            city=name, city_shapefile=str(config.shapefile), poi_emb_path=None,
+            cta_file=None, cross_region_weight=w_r,
         )
 
-        # 2. Train POI2Vec (phases 3b-3d: walks → fclass embeddings → POI embeddings)
+        # 2. Train POI2Vec (walks -> fclass embeddings -> POI embeddings)
         logger.info(f"[2/5] Training POI2Vec: {name}")
         poi_emb_path = train_poi2vec(
-            city=name, epochs=HGI_CONFIG.poi2vec_epochs,
-            embedding_dim=HGI_CONFIG.dim,
+            city=name, epochs=config.poi2vec_epochs,
+            embedding_dim=config.dim,
             device="cuda" if torch.cuda.is_available() else "cpu"
         )
 
-        # 3. Second pass: preprocess with learned embeddings → save pickle
+        # 3. Preprocess with learned embeddings -> save pickle
         logger.info(f"[3/5] Preprocessing with embeddings: {name}")
         data = preprocess_hgi(
-            city=name, city_shapefile=str(shapefile),
+            city=name, city_shapefile=str(config.shapefile),
             poi_emb_path=str(poi_emb_path),
-            cta_file=cta_file,
-            cross_region_weight=w_r,
+            cta_file=None, cross_region_weight=w_r,
         )
 
         graph_data_file = IoPaths.HGI.get_graph_data_file(name)
@@ -149,9 +124,9 @@ def process_state(name: str, shapefile, cta_file=None) -> bool:
             pkl.dump(data, f)
         logger.info(f"Saved graph data: {graph_data_file}")
 
-        # 4. Train HGI model (loads pickle, trains, saves embeddings)
+        # 4. Train HGI model
         logger.info(f"[4/5] Training HGI: {name}")
-        train_hgi(name, HGI_CONFIG)
+        train_hgi(name, config)
 
         # 5. Generate downstream inputs
         logger.info(f"[5/5] Generating inputs: {name}")
@@ -165,20 +140,31 @@ def process_state(name: str, shapefile, cta_file=None) -> bool:
 
 
 def run_pipeline():
-    """Process all configured states."""
-    # NOTE: HGI and POI2Vec are pinned to CPU in HGI_CONFIG/process_state because
-    # the global DEVICE (MPS on Apple Silicon) is ~176x slower than CPU for HGI's
-    # many-small-ops workload. We log both so the discrepancy is visible.
+    """Process all configured states in order, MAX_WORKERS at a time."""
     logger.info(
         f"HGI Pipeline - {len(STATES)} state(s) | "
-        f"hgi_device={HGI_CONFIG.device} | global_device={DEVICE} | dim={HGI_CONFIG.dim}"
+        f"hgi_device={CONFIG.device} | global_device={DEVICE} | dim={CONFIG.dim}"
     )
 
     start = datetime.now()
-    results = {name: process_state(name, shp) for name, shp in STATES.items()}
-    duration = (datetime.now() - start).total_seconds()
+    results = {}
+    states = list(STATES.items())
 
-    # Summary
+    for i in range(0, len(states), MAX_WORKERS):
+        chunk = states[i:i + MAX_WORKERS]
+        if MAX_WORKERS == 1:
+            for name, cfg in chunk:
+                results[name] = process_state(name, cfg)
+        else:
+            with ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:
+                futures = {
+                    executor.submit(process_state, name, dict(cfg)): name
+                    for name, cfg in chunk
+                }
+                for future in as_completed(futures):
+                    results[futures[future]] = future.result()
+
+    duration = (datetime.now() - start).total_seconds()
     success = sum(results.values())
     logger.info(f"Completed: {success}/{len(STATES)} succeeded in {duration / 60:.1f}min")
     for name, ok in results.items():

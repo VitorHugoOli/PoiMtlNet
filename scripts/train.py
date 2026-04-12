@@ -368,6 +368,15 @@ def _parse_args(argv=None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--embedding-dim",
+        type=int,
+        default=None,
+        help=(
+            "Embedding dimension. Overrides model_params feature_size/input_dim/embed_dim. "
+            "Required for engines with non-default dimensions (e.g. fusion=128)."
+        ),
+    )
+    parser.add_argument(
         "--config",
         type=str,
         default=None,
@@ -516,6 +525,18 @@ def main(argv=None) -> None:
     except ValueError as exc:
         print(f"error: {exc}", file=sys.stderr)
         sys.exit(2)
+
+    # --embedding-dim: override the dimension key in model_params.
+    if args.embedding_dim is not None:
+        _DIM_KEYS = {
+            "mtl": "feature_size",
+            "category": "input_dim",
+            "next": "embed_dim",
+        }
+        dim_key = _DIM_KEYS.get(args.task, _DIM_KEYS.get(config.task_type, "feature_size"))
+        updated_params = dict(config.model_params)
+        updated_params[dim_key] = args.embedding_dim
+        config = dataclasses.replace(config, model_params=updated_params)
 
     # --folds: limits execution, doesn't change split structure.
     # StratifiedKFold requires n_splits >= 2, so we use max(2, requested).

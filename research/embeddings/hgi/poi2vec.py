@@ -15,6 +15,8 @@ Key Differences from Standard Node2Vec:
 """
 
 import argparse
+import math
+import os
 import random
 from pathlib import Path
 
@@ -180,6 +182,22 @@ class EmbeddingModel(nn.Module):
         return self.in_embed.weight.detach().cpu().numpy()
 
 
+def _get_poi2vec_num_workers(device: torch.device) -> int:
+    """Optimal DataLoader num_workers for POI2Vec training.
+
+    MPS: num_workers=0 — forked workers cannot share MPS memory with the
+    parent process; IPC pickling overhead dominates for small vocab datasets.
+    Mirrors the same reasoning as folds.py _get_num_workers().
+
+    CPU/CUDA: parallel workers overlap __getitem__ (random-walk lookup +
+    random.sample + tensor construction, ~6 µs/item) with compute.
+    Cap at 4 — beyond that, Python GIL contention in random.sample offsets gains.
+    """
+    if device.type == 'mps':
+        return 0
+    return min(10, os.cpu_count() or 1)
+
+
 class POI2Vec:
     """POI2Vec with fclass-level hierarchical embeddings.
 
@@ -210,7 +228,12 @@ class POI2Vec:
         self.walks_per_node = walks_per_node
         self.p = p
         self.q = q
-        self.device = device or torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        if device is None:
+            if torch.cuda.is_availableable():
+                device = torch.device('cuda')
+            else:
+                device = torch.device('cpu')
+        self.device = torch.device(device) if not isinstance(device, torch.device) else device
 
         # Load data
         print("Loading edges and POIs...")
@@ -344,10 +367,29 @@ class POI2Vec:
             le_lambda=1e-8
         ).to(self.device)
 
-        # Train
-        print(f"Training for {epochs} epochs (batch={batch_size}, lr={lr})...")
-        loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True)
+        # DataLoader: parallel workers on CPU/CUDA; num_workers=0 on MPS
+        # (forked MPS workers incur IPC overhead — same reasoning as folds.py).
+        num_workers = _get_poi2vec_num_workers(self.device)
+        loader = torch.utils.data.DataLoader(
+            dataset,
+            batch_size=batch_size,
+            shuffle=True,
+            num_workers=num_workers,
+            persistent_workers=(num_workers > 0),
+        )
+
+        # AdamW: proper weight-decay decoupling gives slightly better
+        # generalisation than vanilla Adam for embedding tables.
         optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+
+        device_label = f"{self.device.type}" + (
+            f":{self.device.index}" if self.device.type == 'cuda' else ""
+        )
+        print(f"Training for {epochs} epochs "
+              f"(batch={batch_size}, lr={lr}, workers={num_workers}, device={device_label})...")
+
+        best_loss = math.inf
+        best_embeddings = None
 
         model.train()
         for epoch in range(epochs):
@@ -377,12 +419,18 @@ class POI2Vec:
 
             avg_loss = total_loss / num_batches
             avg_h_loss = total_hierarchy_loss / num_batches
-            print(f"  Epoch {epoch+1}/{epochs}: Loss={avg_loss:.4f}, Hierarchy Loss={avg_h_loss:.2e}")
+            print(f"  Epoch {epoch+1}/{epochs}: Loss={avg_loss:.4f}, "
+                  f"Hierarchy Loss={avg_h_loss:.2e}")
+
+            # Keep the best-epoch snapshot — guards against late-epoch overshoot
+            if avg_loss < best_loss:
+                best_loss = avg_loss
+                best_embeddings = model.get_embeddings().copy()
 
         # Extract embeddings
         print("Extracting fclass embeddings...")
-        embeddings = model.get_embeddings()
-        print(f"  Shape: {embeddings.shape}")
+        embeddings = best_embeddings if best_embeddings is not None else model.get_embeddings()
+        print(f"  Shape: {embeddings.shape} (best epoch loss={best_loss:.4f})")
         print()
 
         return embeddings

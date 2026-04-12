@@ -23,7 +23,8 @@ def generate_sequences(
     window_size: int = InputsConfig.SLIDE_WINDOW,
     pad_value: int = PADDING_VALUE,
     stride: int = None,
-) -> List[List[int]]:
+    return_start_indices: bool = False,
+):
     """
     Generate sequences of fixed length for next-POI prediction.
 
@@ -36,15 +37,21 @@ def generate_sequences(
         window_size: Number of historical visits per sequence (default: SLIDE_WINDOW)
         pad_value: Value for padding short sequences (default: -1)
         stride: Step between sequence starts (default: window_size, i.e. non-overlapping)
+        return_start_indices: If True, return List[Tuple[int, List[int]]] where each
+            tuple is (start_idx, sequence). Needed for position-based embedding lookup
+            in check-in-level conversion.
 
     Returns:
-        List of sequences, each of length (window_size + 1).
+        If return_start_indices is False:
+            List of sequences, each of length (window_size + 1).
+        If return_start_indices is True:
+            List of (start_idx, sequence) tuples.
         Empty list if insufficient data.
     """
     if not places_visited or len(places_visited) < MIN_SEQUENCE_LENGTH:
         return []
 
-    sequences: List[List[int]] = []
+    sequences = []
     step = stride if stride is not None else window_size
     total_visits = len(places_visited)
 
@@ -74,7 +81,11 @@ def generate_sequences(
         if all(x == pad_value for x in history) or target_poi == pad_value:
             continue
 
-        sequences.append(history + [target_poi])
+        seq = history + [target_poi]
+        if return_start_indices:
+            sequences.append((start_idx, seq))
+        else:
+            sequences.append(seq)
 
     return sequences
 
@@ -371,23 +382,21 @@ def convert_user_checkins_to_sequences(
     n_rows = len(user_df)
     zero_emb = np.zeros(embedding_dim, dtype=np.float32)
 
-    # Generate POI sequences using shared function
+    # Generate POI sequences using shared function (with start indices for position safety)
     places = placeids.tolist()
-    sequences = generate_sequences(places, window_size=window_size)
+    sequences_with_idx = generate_sequences(
+        places, window_size=window_size, return_start_indices=True
+    )
 
-    if not sequences:
+    if not sequences_with_idx:
         return [], []
 
-    for seq_idx, seq in enumerate(sequences):
+    for history_start_idx, seq in sequences_with_idx:
         history_pois = seq[:window_size]
         target_poi = seq[window_size]
 
         # Save POI sequence for intermediate output
         poi_sequences.append(seq + [userid])
-
-        # Calculate starting position in user's chronological history
-        # Non-overlapping sequences: seq 0 starts at 0, seq 1 at window_size, etc.
-        history_start_idx = seq_idx * window_size
 
         # Build embeddings using POSITION-based lookup (not POI ID search)
         seq_embeddings = []

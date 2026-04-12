@@ -5,6 +5,7 @@ __pycache__/
 /data/*
 /temp/
 /output/*
+.venv*
 
 # Python cache
 __pycache__/
@@ -37,4 +38,5 @@ build/
 
 # Worktrees and local tooling
 .claude/worktrees/
+.claude/settings.local.json
 .codex/

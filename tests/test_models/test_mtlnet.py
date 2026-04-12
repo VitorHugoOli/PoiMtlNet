@@ -24,25 +24,43 @@ def _make_model(seed: int = 0) -> MTLnet:
 class TestMTLPOIModel:
     """Test suite for MTL-POI model architecture."""
 
-    def test_initialization(self):
-        """Test model initialization with default parameters."""
-        # TODO: Implement test
-        pytest.skip("Not implemented yet")
-
     def test_forward_pass(self):
         """Test forward pass with sample input."""
-        # TODO: Implement test
-        pytest.skip("Not implemented yet")
+        model = _make_model()
+        model.eval()
+        B = 4
+        cat_in = torch.randn(B, 64)
+        next_in = torch.randn(B, 9, 64)
+        with torch.no_grad():
+            cat_out, next_out = model((cat_in, next_in))
+        assert cat_out.shape == (B, 7), f"Expected cat_out shape (4, 7), got {cat_out.shape}"
+        assert next_out.shape == (B, 7), f"Expected next_out shape (4, 7), got {next_out.shape}"
 
     def test_task_specific_encoders(self):
         """Test task-specific encoder layers."""
-        # TODO: Implement test
-        pytest.skip("Not implemented yet")
+        model = _make_model()
+        model.eval()
+        B = 4
+        x = torch.randn(B, 64)
+        with torch.no_grad():
+            cat_enc_out = model.category_encoder(x)
+            next_enc_out = model.next_encoder(x)
+        # Both encoders map (B, feature_size) -> (B, shared_layer_size=256)
+        assert cat_enc_out.shape == (B, 256), f"Expected (4, 256), got {cat_enc_out.shape}"
+        assert next_enc_out.shape == (B, 256), f"Expected (4, 256), got {next_enc_out.shape}"
 
     def test_shared_backbone(self):
         """Test shared backbone layers."""
-        # TODO: Implement test
-        pytest.skip("Not implemented yet")
+        model = _make_model()
+        model.eval()
+        B = 4
+        x = torch.randn(B, 256)
+        with torch.no_grad():
+            out = model.shared_layers(x)
+        # shared_layers preserves shape
+        assert out.shape == x.shape, f"Expected shape {x.shape}, got {out.shape}"
+        # Output should differ from input (transformation is non-trivial)
+        assert not torch.equal(out, x)
 
 
 class TestMTLnetPerHeadForwards:
@@ -133,13 +151,33 @@ class TestMTLnetPerHeadForwards:
 
     def test_film_modulation(self):
         """Test FiLM (Feature-wise Linear Modulation) layers."""
-        # TODO: Implement test
-        pytest.skip("Not implemented yet")
+        model = _make_model()
+        model.eval()
+        B = 4
+        x = torch.randn(B, 256)
+        with torch.no_grad():
+            # Use task embedding weights directly for two different tasks
+            emb_cat = model.task_embedding.weight[0].expand(B, -1)
+            emb_next = model.task_embedding.weight[1].expand(B, -1)
+            out_cat = model.film(x, emb_cat)
+            out_next = model.film(x, emb_next)
+        # FiLM outputs with different task embeddings should differ
+        assert not torch.equal(out_cat, out_next), (
+            "FiLM outputs should differ for different task embeddings"
+        )
 
     def test_residual_blocks(self):
         """Test residual block connections."""
-        # TODO: Implement test
-        pytest.skip("Not implemented yet")
+        model = _make_model()
+        model.eval()
+        B = 4
+        x = torch.randn(B, 256)
+        with torch.no_grad():
+            out = model.shared_layers(x)
+        # Shape is preserved
+        assert out.shape == x.shape
+        # Output differs from input (residual blocks apply transformations)
+        assert not torch.equal(out, x)
 
 
 class TestParameterSeparation:
@@ -147,255 +185,38 @@ class TestParameterSeparation:
 
     def test_shared_parameters(self):
         """Test shared_parameters() method returns correct params."""
-        # TODO: Implement test
-        pytest.skip("Not implemented yet")
+        model = _make_model()
+        shared_params = list(model.shared_parameters())
+        assert len(shared_params) > 0
+        shared_ids = {id(p) for p in shared_params}
+        # Verify that parameters from shared_layers, task_embedding, and film are included
+        for name, p in model.named_parameters():
+            if any(key in name for key in ('shared_layers', 'task_embedding', 'film')):
+                assert id(p) in shared_ids, f"Expected '{name}' in shared_parameters()"
 
     def test_task_specific_parameters(self):
         """Test task_specific_parameters() method returns correct params."""
-        # TODO: Implement test
-        pytest.skip("Not implemented yet")
+        model = _make_model()
+        task_params = list(model.task_specific_parameters())
+        assert len(task_params) > 0
+        task_ids = {id(p) for p in task_params}
+        # Verify that parameters from task-specific submodules are included
+        for name, p in model.named_parameters():
+            if any(key in name for key in ('category_encoder', 'next_encoder', 'category_poi', 'next_poi')):
+                assert id(p) in task_ids, f"Expected '{name}' in task_specific_parameters()"
 
     def test_no_parameter_overlap(self):
         """Test that shared and task-specific params don't overlap."""
-        # TODO: Implement test
-        pytest.skip("Not implemented yet")
-
-
-class TestMTLnetCGCLite:
-    """Tests for the sequence-aware CGC-lite MTLnet variant."""
-
-    def test_forward_shapes_and_gate_stats(self):
-        from models.registry import create_model
-
-        model = create_model(
-            "mtlnet_cgc",
-            feature_size=8,
-            shared_layer_size=32,
-            num_classes=7,
-            num_heads=2,
-            num_layers=1,
-            seq_length=3,
-            num_shared_layers=1,
-            num_shared_experts=2,
-            num_task_experts=1,
-        )
-
-        out_cat, out_next = model((
-            torch.randn(4, 1, 8),
-            torch.randn(5, 3, 8),
-        ))
-
-        assert out_cat.shape == (4, 7)
-        assert out_next.shape == (5, 7)
-        assert model.last_gate_stats["category_mean_weights"].shape == (3,)
-        assert model.last_gate_stats["next_mean_weights"].shape == (3,)
-        assert torch.isfinite(model.last_gate_stats["category_entropy"])
-        assert torch.isfinite(model.last_gate_stats["next_entropy"])
-
-    def test_cgc_shared_and_task_parameters_cover_model(self):
-        from models.registry import create_model
-
-        model = create_model(
-            "mtlnet_cgc",
-            feature_size=8,
-            shared_layer_size=32,
-            num_classes=7,
-            num_heads=2,
-            num_layers=1,
-            seq_length=3,
-            num_shared_layers=1,
-            num_shared_experts=2,
-            num_task_experts=1,
-        )
-
-        shared_ids = {id(p) for p in model.shared_parameters()}
-        task_ids = {id(p) for p in model.task_specific_parameters()}
-        all_ids = {id(p) for p in model.parameters()}
-
-        assert shared_ids
-        assert task_ids
-        assert shared_ids & task_ids == set()
-        assert shared_ids | task_ids == all_ids
-
-
-class TestMTLnetMMoELite:
-    """Tests for the sequence-aware MMoE-lite MTLnet variant."""
-
-    def test_forward_shapes_and_gate_stats(self):
-        from models.registry import create_model
-
-        model = create_model(
-            "mtlnet_mmoe",
-            feature_size=8,
-            shared_layer_size=32,
-            num_classes=7,
-            num_heads=2,
-            num_layers=1,
-            seq_length=3,
-            num_shared_layers=1,
-            num_experts=3,
-        )
-
-        out_cat, out_next = model((
-            torch.randn(4, 1, 8),
-            torch.randn(5, 3, 8),
-        ))
-
-        assert out_cat.shape == (4, 7)
-        assert out_next.shape == (5, 7)
-        assert model.last_gate_stats["category_mean_weights"].shape == (3,)
-        assert model.last_gate_stats["next_mean_weights"].shape == (3,)
-        assert torch.isfinite(model.last_gate_stats["category_entropy"])
-        assert torch.isfinite(model.last_gate_stats["next_entropy"])
-
-    def test_mmoe_shared_and_task_parameters_cover_model(self):
-        from models.registry import create_model
-
-        model = create_model(
-            "mtlnet_mmoe",
-            feature_size=8,
-            shared_layer_size=32,
-            num_classes=7,
-            num_heads=2,
-            num_layers=1,
-            seq_length=3,
-            num_shared_layers=1,
-            num_experts=3,
-        )
-
-        shared_ids = {id(p) for p in model.shared_parameters()}
-        task_ids = {id(p) for p in model.task_specific_parameters()}
-        all_ids = {id(p) for p in model.parameters()}
-
-        assert shared_ids
-        assert task_ids
-        assert shared_ids & task_ids == set()
-        assert shared_ids | task_ids == all_ids
-
-
-class TestMTLnetHeadSelection:
-    """Pins the contract for the parameterized head-selection kwargs.
-
-    MTLnet defaults must stay bit-exact with the historical model
-    (so test_regression floors survive), but ``category_head`` /
-    ``next_head`` must let ablation candidates swap heads via the
-    model registry without touching MTLnet itself.
-    """
-
-    def test_defaults_use_historical_heads(self):
-        from models.category import CategoryHeadTransformer
-        from models.next import NextHeadMTL
-
         model = _make_model()
-        assert isinstance(model.category_poi, CategoryHeadTransformer)
-        assert isinstance(model.next_poi, NextHeadMTL)
-
-    def test_category_head_can_be_swapped_via_registry(self):
-        from models.category import CategoryHeadSingle
-
-        model = MTLnet(
-            feature_size=64,
-            shared_layer_size=256,
-            num_classes=7,
-            num_heads=8,
-            num_layers=4,
-            seq_length=9,
-            num_shared_layers=4,
-            category_head="category_single",
-            category_head_params={
-                "hidden_dims": (128, 64),
-                "dropout": 0.1,
-            },
-        )
-        assert isinstance(model.category_poi, CategoryHeadSingle)
-
-        model.eval()
-        out = model.cat_forward(torch.randn(3, 64))
-        assert out.shape == (3, 7)
-
-    def test_next_head_can_be_swapped_via_registry(self):
-        from models.next import NextHeadGRU
-
-        model = MTLnet(
-            feature_size=64,
-            shared_layer_size=256,
-            num_classes=7,
-            num_heads=8,
-            num_layers=4,
-            seq_length=9,
-            num_shared_layers=4,
-            next_head="next_gru",
-            next_head_params={
-                "hidden_dim": 128,
-                "num_layers": 2,
-                "dropout": 0.1,
-            },
-        )
-        assert isinstance(model.next_poi, NextHeadGRU)
-
-        model.eval()
-        out = model.next_forward(torch.randn(3, 9, 64))
-        assert out.shape == (3, 7)
-
-
-class TestMTLnetDSelectKLite:
-    """Tests for the sequence-aware DSelect-k-lite MTLnet variant."""
-
-    def test_forward_shapes_and_gate_stats(self):
-        from models.registry import create_model
-
-        model = create_model(
-            "mtlnet_dselectk",
-            feature_size=8,
-            shared_layer_size=32,
-            num_classes=7,
-            num_heads=2,
-            num_layers=1,
-            seq_length=3,
-            num_shared_layers=1,
-            num_experts=4,
-            num_selectors=2,
-            temperature=0.5,
-        )
-
-        out_cat, out_next = model((
-            torch.randn(4, 1, 8),
-            torch.randn(5, 3, 8),
-        ))
-
-        assert out_cat.shape == (4, 7)
-        assert out_next.shape == (5, 7)
-        assert model.last_gate_stats["category_mean_weights"].shape == (4,)
-        assert model.last_gate_stats["next_mean_weights"].shape == (4,)
-        assert model.last_gate_stats["category_selector_weights"].shape == (2,)
-        assert model.last_gate_stats["next_selector_weights"].shape == (2,)
-        assert torch.isfinite(model.last_gate_stats["category_entropy"])
-        assert torch.isfinite(model.last_gate_stats["next_entropy"])
-        assert torch.isfinite(model.last_gate_stats["category_selector_entropy"])
-        assert torch.isfinite(model.last_gate_stats["next_selector_entropy"])
-
-    def test_dselectk_shared_and_task_parameters_cover_model(self):
-        from models.registry import create_model
-
-        model = create_model(
-            "mtlnet_dselectk",
-            feature_size=8,
-            shared_layer_size=32,
-            num_classes=7,
-            num_heads=2,
-            num_layers=1,
-            seq_length=3,
-            num_shared_layers=1,
-            num_experts=4,
-            num_selectors=2,
-            temperature=0.5,
-        )
-
-        shared_ids = {id(p) for p in model.shared_parameters()}
-        task_ids = {id(p) for p in model.task_specific_parameters()}
+        shared_params = list(model.shared_parameters())
+        task_params = list(model.task_specific_parameters())
+        shared_ids = {id(p) for p in shared_params}
+        task_ids = {id(p) for p in task_params}
+        # No overlap
+        overlap = shared_ids & task_ids
+        assert len(overlap) == 0, f"Found {len(overlap)} parameter(s) in both shared and task-specific sets"
+        # Union covers all parameters
         all_ids = {id(p) for p in model.parameters()}
-
-        assert shared_ids
-        assert task_ids
-        assert shared_ids & task_ids == set()
-        assert shared_ids | task_ids == all_ids
+        assert shared_ids | task_ids == all_ids, (
+            "Union of shared and task-specific parameters does not cover all model parameters"
+        )

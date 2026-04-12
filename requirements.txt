@@ -16,6 +16,7 @@ scikit-learn==1.6.1
 
 # Data
 pandas==2.2.3
+pyarrow           # parquet backend for pandas (read_parquet / to_parquet)
 h5py==3.13.0
 geopandas==1.0.1
 shapely==2.1.2
@@ -31,6 +32,9 @@ ecos==2.0.14
 
 # Visualization
 matplotlib==3.9.4
+
+# Metrics
+torchmetrics      # multiclass_f1_score, multiclass_accuracy, multiclass_confusion_matrix
 
 # Utilities
 tqdm==4.67.1

@@ -30,7 +30,7 @@ original notebook).
 ### Single state via CLI
 
 ```bash
-PYTHONPATH=src:research .venv_new/bin/python \
+PYTHONPATH=src:research .venv/bin/python \
     research/embeddings/time2vec/time2vec.py \
     --state Alabama
 ```
@@ -53,7 +53,7 @@ below). Useful flags:
 ### Multiple states via the pipeline
 
 ```bash
-PYTHONPATH=src:research .venv_new/bin/python pipelines/embedding/time2vec.pipe.py
+PYTHONPATH=src:research .venv/bin/python pipelines/embedding/time2vec.pipe.py
 ```
 
 Edit the `STATES` list at the top of the pipe to control which states get

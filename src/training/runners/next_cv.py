@@ -94,6 +94,8 @@ def run_cv(
 
     for idx, (train_loader, val_loader) in enumerate(folds):
         model = create_model(config.model_name, **config.model_params).to(DEVICE)
+        if config.use_torch_compile and DEVICE.type == 'cuda':
+            model = torch.compile(model)
 
         alpha = compute_class_weights(
             train_loader.dataset.targets, num_classes, DEVICE

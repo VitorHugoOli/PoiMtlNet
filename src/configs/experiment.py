@@ -48,6 +48,10 @@ class ExperimentConfig:
     max_grad_norm: float = 1.0
     optimizer_eps: float = 1e-8
 
+    # torch.compile: disabled by default.  On CUDA it uses the inductor
+    # backend; MPS compatibility needs separate testing first.
+    use_torch_compile: bool = False
+
     # --- Loss ---
     task_loss: str = "cross_entropy"
     mtl_loss: str = "nash_mtl"
@@ -156,7 +160,7 @@ class ExperimentConfig:
             },
             task_type="mtl",
             epochs=50,
-            batch_size=2048,
+            batch_size=2**12,
             learning_rate=1e-4,
             max_lr=1e-3,
             weight_decay=0.05,
@@ -246,7 +250,7 @@ class ExperimentConfig:
             },
             task_type="next",
             epochs=100,
-            batch_size=512,
+            batch_size=2**13,
             learning_rate=1e-4,
             max_lr=1e-2,
             weight_decay=0.01,

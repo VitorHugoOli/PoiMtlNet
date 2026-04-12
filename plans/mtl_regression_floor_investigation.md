@@ -96,7 +96,7 @@ next_f1 = ???      # test fails on the cat assertion before reaching the next on
 Already verified during the sphere2vec session:
 
 - **Not caused by PR #12.** `git stash` on an unmodified `worktree-sphere` base (at commit `5235e3e`) reproduces the failure. This is noted both in the PR #12 description and in `/tmp/mtl_baseline_rbf.log` session artifacts.
-- **Not torch version drift.** Calibration used `torch==2.9.1`; current venv `.venv_new` still has `torch==2.9.1`.
+- **Not torch version drift.** Calibration used `torch==2.9.1`; current venv `.venv` still has `torch==2.9.1`.
 - **Not the NashMTL solver bug** fixed in PR #12. The regression test does NOT invoke `NashMTL` at all — it uses plain `CrossEntropyLoss()` summed across tasks. The solver crash only affects production training in `src/training/runners/mtl_cv.py`.
 - **Not a test-side change.** `make_category_data` / `make_next_data` / `make_loaders` / `seed_everything` in `tests/test_integration/conftest.py` have been stable since Phase 7 (commit `4812a52`, which predates calibration — see §4.2).
 - **Not `MTL_PARAM_COUNT` drift.** The Layer-1 test `test_mtl_shared_vs_task_params` still passes, so the model still has the exact param count (`4307855`) it had at calibration. The forward path produces different training dynamics without changing parameter shape.
@@ -155,7 +155,7 @@ From a clean checkout of the repo:
 
 ```bash
 cd /Users/vitor/Desktop/mestrado/ingred
-source .venv_new/bin/activate
+source .venv/bin/activate
 # Verify torch version matches calibration
 python -c "import torch; assert torch.__version__ == '2.9.1', torch.__version__"
 # Run only the failing test
@@ -191,7 +191,7 @@ If that commit passes the test and produces `cat_f1 = 0.9286`, it is the known-g
 git bisect start
 git bisect bad HEAD
 git bisect good <commit-from-step-1>
-git bisect run bash -c 'source .venv_new/bin/activate && pytest tests/test_regression/test_regression.py::TestMTLRegression::test_mtl_f1_within_tolerance -q'
+git bisect run bash -c 'source .venv/bin/activate && pytest tests/test_regression/test_regression.py::TestMTLRegression::test_mtl_f1_within_tolerance -q'
 ```
 
 Expected bisect duration: ~5 commits between 2026-03-26 and 2026-04-11 (based on `git log --oneline --since='2026-03-26'`), so ≤ 3 bisect iterations.
