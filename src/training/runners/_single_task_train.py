@@ -1,5 +1,6 @@
 """Unified single-task training loop for category and next-POI tasks."""
 
+import contextlib
 import logging
 import time
 from typing import Optional, List
@@ -60,6 +61,12 @@ def train_single_task(
 
     cb.on_train_begin(CallbackContext(epoch=0, epochs_total=epochs))
 
+    _autocast_ctx = (
+        torch.autocast(device.type, dtype=torch.float16)
+        if device.type == 'cuda'
+        else contextlib.nullcontext()
+    )
+
     loop = tqdm(range(epochs), unit="batch", desc="Training")
     epoch_idx = 0
 
@@ -72,10 +79,13 @@ def train_single_task(
         epoch_grad_norms = []
 
         for X_batch, y_batch in train_loader:
-            X_batch, y_batch = X_batch.to(device, non_blocking=True), y_batch.to(device, non_blocking=True)
+            if X_batch.device != device:
+                X_batch = X_batch.to(device, non_blocking=True)
+                y_batch = y_batch.to(device, non_blocking=True)
             optimizer.zero_grad(set_to_none=True)
-            logits = model(X_batch)
-            loss = criterion(logits, y_batch)
+            with _autocast_ctx:
+                logits = model(X_batch)
+                loss = criterion(logits, y_batch)
             loss.backward()
             grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), max_grad_norm)
             if compute_train_f1:
@@ -119,9 +129,12 @@ def train_single_task(
 
         with torch.no_grad():
             for X_batch, y_batch in val_loader:
-                X_batch, y_batch = X_batch.to(device, non_blocking=True), y_batch.to(device, non_blocking=True)
-                logits = model(X_batch)
-                loss = criterion(logits, y_batch)
+                if X_batch.device != device:
+                    X_batch = X_batch.to(device, non_blocking=True)
+                    y_batch = y_batch.to(device, non_blocking=True)
+                with _autocast_ctx:
+                    logits = model(X_batch)
+                    loss = criterion(logits, y_batch)
                 preds = logits.argmax(dim=1)
 
                 val_running_loss += loss.detach() * y_batch.size(0)

@@ -1,3 +1,5 @@
+import contextlib
+
 import torch
 from torchmetrics.functional.classification import multiclass_f1_score, multiclass_accuracy
 
@@ -29,6 +31,12 @@ def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_c
     preds_cat_list, truths_cat_list = [], []
     batchs = 0
 
+    _autocast_ctx = (
+        torch.autocast(device.type, dtype=torch.float16)
+        if device.type == 'cuda'
+        else contextlib.nullcontext()
+    )
+
     for data_next, data_cat in zip_longest_cycle(*dataloaders):
         x_next, y_next = data_next
         if x_next.device != device:
@@ -39,13 +47,13 @@ def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_c
             x_category = x_category.to(device, non_blocking=True)
             y_category = y_category.to(device, non_blocking=True)
 
-        # Forward pass
-        cat_out, next_out = model((x_category, x_next))
-        pred_next, truth_next = next_out, y_next
-        pred_category, truth_category = cat_out, y_category
+        with _autocast_ctx:
+            cat_out, next_out = model((x_category, x_next))
+            pred_next, truth_next = next_out, y_next
+            pred_category, truth_category = cat_out, y_category
 
-        next_loss = next_criterion(pred_next, truth_next)
-        category_loss = category_criterion(pred_category, truth_category)
+            next_loss = next_criterion(pred_next, truth_next)
+            category_loss = category_criterion(pred_category, truth_category)
         running_loss += (next_loss.detach() + category_loss.detach()) / 2
 
         # Collect predictions on-device
