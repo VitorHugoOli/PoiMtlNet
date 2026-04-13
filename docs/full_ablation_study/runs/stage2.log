@@ -1,0 +1,32 @@
+[study] ========== STAGE 2: Head Variants ==========
+[study] Stage 1 top-3: s1_dsk42_al, s1_dsk42_ca, s1_cgc21_ca
+[ablation] running s2_dsk42_al_hd_dcn (2 fold(s), 15 epochs)
+[ablation] finished s2_dsk42_al_hd_dcn: status=ok joint=0.5275348052382469 next=0.27238957583904266 category=0.7826800346374512
+[ablation] running s2_dsk42_al_hd_tcnr (2 fold(s), 15 epochs)
+[ablation] finished s2_dsk42_al_hd_tcnr: status=ok joint=0.5047420635819435 next=0.24166850745677948 category=0.7678156197071075
+[ablation] running s2_dsk42_al_hd_both (2 fold(s), 15 epochs)
+[ablation] finished s2_dsk42_al_hd_both: status=ok joint=0.49447332322597504 next=0.23412388563156128 category=0.7548227608203888
+[ablation] running s2_dsk42_ca_hd_dcn (2 fold(s), 15 epochs)
+[ablation] finished s2_dsk42_ca_hd_dcn: status=ok joint=0.5256723016500473 next=0.26695576310157776 category=0.7843888401985168
+[ablation] running s2_dsk42_ca_hd_tcnr (2 fold(s), 15 epochs)
+[ablation] finished s2_dsk42_ca_hd_tcnr: status=ok joint=0.5041302368044853 next=0.23988185822963715 category=0.7683786153793335
+[ablation] running s2_dsk42_ca_hd_both (2 fold(s), 15 epochs)
+[ablation] finished s2_dsk42_ca_hd_both: status=ok joint=0.49970215931534767 next=0.23847246915102005 category=0.7609318494796753
+[ablation] running s2_cgc21_ca_hd_dcn (2 fold(s), 15 epochs)
+[ablation] finished s2_cgc21_ca_hd_dcn: status=ok joint=0.5089342296123505 next=0.2671310603618622 category=0.7507373988628387
+[ablation] running s2_cgc21_ca_hd_tcnr (2 fold(s), 15 epochs)
+[ablation] finished s2_cgc21_ca_hd_tcnr: status=ok joint=0.5172600969672203 next=0.2542083114385605 category=0.7803118824958801
+[ablation] running s2_cgc21_ca_hd_both (2 fold(s), 15 epochs)
+[ablation] finished s2_cgc21_ca_hd_both: status=ok joint=0.5043598189949989 next=0.2515699714422226 category=0.7571496665477753
+[study] wrote summary: /Volumes/Vitor's SSD/ingred/results/ablations/full_fusion_study/s2_heads_2f_15ep/summary.csv
+
+[study] === S2_HEADS_2F_15EP RANKING ===
+   1. s2_dsk42_al_hd_dcn              joint=0.5275  next=0.2724  cat=0.7827  time=167s
+   2. s2_dsk42_ca_hd_dcn              joint=0.5257  next=0.2670  cat=0.7844  time=168s
+   3. s2_cgc21_ca_hd_tcnr             joint=0.5173  next=0.2542  cat=0.7803  time=89s
+   4. s2_cgc21_ca_hd_dcn              joint=0.5089  next=0.2671  cat=0.7507  time=143s
+   5. s2_dsk42_al_hd_tcnr             joint=0.5047  next=0.2417  cat=0.7678  time=117s
+   6. s2_cgc21_ca_hd_both             joint=0.5044  next=0.2516  cat=0.7571  time=80s
+   7. s2_dsk42_ca_hd_tcnr             joint=0.5041  next=0.2399  cat=0.7684  time=114s
+   8. s2_dsk42_ca_hd_both             joint=0.4997  next=0.2385  cat=0.7609  time=107s
+   9. s2_dsk42_al_hd_both             joint=0.4945  next=0.2341  cat=0.7548  time=107s
