@@ -7,7 +7,15 @@ from utils.progress import zip_longest_cycle
 
 
 @torch.no_grad()
-def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_creterion, device):
+def evaluate_model(
+    model,
+    dataloaders,
+    next_criterion,
+    category_criterion,
+    mtl_creterion,
+    device,
+    num_classes: int | None = None,
+):
     """Unified MTL validation pass — computes loss and the full metric dict per task.
 
     Uses ``zip_longest_cycle`` to match training coverage — the shorter loader
@@ -92,7 +100,8 @@ def evaluate_model(model, dataloaders, next_criterion, category_criterion, mtl_c
     all_logits_category = torch.cat(logits_cat_list)
     all_truths_category = torch.cat(truths_cat_list)
 
-    num_classes = model.num_classes
+    if num_classes is None:
+        num_classes = model.num_classes
 
     metrics_next = compute_classification_metrics(
         all_logits_next, all_truths_next, num_classes=num_classes,

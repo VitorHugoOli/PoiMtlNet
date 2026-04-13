@@ -152,7 +152,7 @@ class TestCategoryRegression:
 
     # --- Layer 1: deterministic shapes ---
     def test_category_output_shape(self):
-        from models.heads.category import CategoryHeadSingle
+        from models.category import CategoryHeadSingle
         model = CategoryHeadSingle(input_dim=EMBED_DIM, hidden_dims=(128, 64, 32),
                                    num_classes=NUM_CLASSES, dropout=0.1)
         x = torch.randn(BATCH_SIZE, EMBED_DIM)
@@ -160,7 +160,7 @@ class TestCategoryRegression:
         assert out.shape == (BATCH_SIZE, NUM_CLASSES)
 
     def test_category_param_count(self):
-        from models.heads.category import CategoryHeadSingle
+        from models.category import CategoryHeadSingle
         model = CategoryHeadSingle(input_dim=EMBED_DIM, hidden_dims=(128, 64, 32),
                                    num_classes=NUM_CLASSES, dropout=0.1)
         total = sum(p.numel() for p in model.parameters())
@@ -178,7 +178,7 @@ class TestCategoryRegression:
 
     # --- Layer 3: coarse metric ---
     def test_category_f1_within_tolerance(self):
-        from models.heads.category import CategoryHeadSingle
+        from models.category import CategoryHeadSingle
         seed_everything()
         X_train, y_train = make_category_data(NUM_TRAIN // NUM_CLASSES, seed=SEED)
         X_val, y_val = make_category_data(NUM_VAL // NUM_CLASSES, seed=SEED + 1)
@@ -210,7 +210,7 @@ class TestNextRegression:
 
     # --- Layer 1: deterministic shapes ---
     def test_next_output_shape(self):
-        from models.heads.next import NextHeadSingle
+        from models.next import NextHeadSingle
         model = NextHeadSingle(embed_dim=EMBED_DIM, num_classes=NUM_CLASSES,
                                num_heads=4, seq_length=SEQ_LEN, num_layers=2, dropout=0.1)
         x = torch.randn(BATCH_SIZE, SEQ_LEN, EMBED_DIM)
@@ -218,7 +218,7 @@ class TestNextRegression:
         assert out.shape == (BATCH_SIZE, NUM_CLASSES)
 
     def test_next_param_count(self):
-        from models.heads.next import NextHeadSingle
+        from models.next import NextHeadSingle
         model = NextHeadSingle(embed_dim=EMBED_DIM, num_classes=NUM_CLASSES,
                                num_heads=4, seq_length=SEQ_LEN, num_layers=2, dropout=0.1)
         total = sum(p.numel() for p in model.parameters())
@@ -235,7 +235,7 @@ class TestNextRegression:
 
     # --- Layer 3: coarse metric ---
     def test_next_f1_within_tolerance(self):
-        from models.heads.next import NextHeadSingle
+        from models.next import NextHeadSingle
         seed_everything()
         X_train, y_train = make_next_data(NUM_TRAIN // NUM_CLASSES, seed=SEED)
         X_val, y_val = make_next_data(NUM_VAL // NUM_CLASSES, seed=SEED + 1)

@@ -33,16 +33,29 @@ def _extract_diagnostics(
     class_labels = list(range(num_classes))
     class_names = [CATEGORIES_MAP.get(i, f"Class-{i}") for i in class_labels]
 
+    # Check if the model supports return_attention (not all head variants do).
+    # Use try/except for robustness with torch.compile'd or wrapped models.
+    import inspect
+    try:
+        _sig = inspect.signature(model.forward)
+        supports_attention = "return_attention" in _sig.parameters
+    except (ValueError, TypeError):
+        supports_attention = False
+
     preds_list, targets_list = [], []
     attn_list = []
 
     with torch.no_grad():
         for X_batch, y_batch in val_loader:
             X_batch = X_batch.to(device, non_blocking=True)
-            logits, attn = model(X_batch, return_attention=True)
+            if supports_attention:
+                logits, attn = model(X_batch, return_attention=True)
+                attn_list.append(attn)
+            else:
+                out = model(X_batch)
+                logits = out[0] if isinstance(out, tuple) else out
             preds_list.append(logits.argmax(dim=1))
             targets_list.append(y_batch)
-            attn_list.append(attn)
 
     # Compute confusion matrix on-device, then sync everything to CPU once
     # for the downstream numpy slicing of attention weights.
@@ -55,31 +68,33 @@ def _extract_diagnostics(
 
     all_preds = preds_t.cpu().numpy()
     all_targets = targets_t.cpu().numpy() if targets_t.device.type != 'cpu' else targets_t.numpy()
-    all_attn = torch.cat(attn_list).cpu().numpy()  # (N, seq)
 
     fold_history.add_artifact('confusion_matrix', {
         'matrix': cm,
         'labels': class_names,
     })
 
-    # Overall attention weights: mean/std per position
-    fold_history.add_artifact('attention_weights', {
-        'mean': all_attn.mean(axis=0).tolist(),
-        'std': all_attn.std(axis=0).tolist(),
-    })
+    if attn_list:
+        all_attn = torch.cat(attn_list).cpu().numpy()  # (N, seq)
 
-    # Per-class attention: mean/std grouped by target class
-    per_class_attn = {}
-    for cls_idx, cls_name in zip(class_labels, class_names):
-        mask = all_targets == cls_idx
-        if mask.sum() > 0:
-            cls_attn = all_attn[mask]
-            per_class_attn[cls_name] = {
-                'mean': cls_attn.mean(axis=0).tolist(),
-                'std': cls_attn.std(axis=0).tolist(),
-                'count': int(mask.sum()),
-            }
-    fold_history.add_artifact('attention_per_class', per_class_attn)
+        # Overall attention weights: mean/std per position
+        fold_history.add_artifact('attention_weights', {
+            'mean': all_attn.mean(axis=0).tolist(),
+            'std': all_attn.std(axis=0).tolist(),
+        })
+
+        # Per-class attention: mean/std grouped by target class
+        per_class_attn = {}
+        for cls_idx, cls_name in zip(class_labels, class_names):
+            mask = all_targets == cls_idx
+            if mask.sum() > 0:
+                cls_attn = all_attn[mask]
+                per_class_attn[cls_name] = {
+                    'mean': cls_attn.mean(axis=0).tolist(),
+                    'std': cls_attn.std(axis=0).tolist(),
+                    'count': int(mask.sum()),
+                }
+        fold_history.add_artifact('attention_per_class', per_class_attn)
 
 
 def run_cv(

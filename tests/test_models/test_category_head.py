@@ -4,15 +4,15 @@ import pytest
 import torch
 import torch.nn as nn
 
-from models.heads.category import CategoryHeadMTL, CategoryHeadTransformer
+from models.category import CategoryHeadEnsemble, CategoryHeadTransformer
 
 
-class TestCategoryHeadMTL:
-    """Test suite for CategoryHeadMTL."""
+class TestCategoryHeadEnsemble:
+    """Test suite for CategoryHeadEnsemble."""
 
     def test_forward_pass(self):
         """Test forward pass with embedding input."""
-        head = CategoryHeadMTL(input_dim=64, hidden_dim=128, num_paths=3, num_classes=7)
+        head = CategoryHeadEnsemble(input_dim=64, hidden_dim=128, num_paths=3, num_classes=7)
         head.eval()
         x = torch.randn(8, 64)
         with torch.no_grad():
@@ -22,7 +22,7 @@ class TestCategoryHeadMTL:
 
     def test_multi_path_ensemble(self):
         """Test multi-path ensemble architecture."""
-        head = CategoryHeadMTL(input_dim=64, hidden_dim=128, num_paths=3, num_classes=7)
+        head = CategoryHeadEnsemble(input_dim=64, hidden_dim=128, num_paths=3, num_classes=7)
         head.eval()
         B = 4
         x = torch.randn(B, 64)
@@ -35,7 +35,7 @@ class TestCategoryHeadMTL:
 
     def test_output_shape(self):
         """Test output shape matches number of categories."""
-        head_eval = lambda nc: CategoryHeadMTL(input_dim=64, hidden_dim=128, num_paths=3, num_classes=nc)
+        head_eval = lambda nc: CategoryHeadEnsemble(input_dim=64, hidden_dim=128, num_paths=3, num_classes=nc)
         x = torch.randn(4, 64)
         for num_classes in [5, 7, 10]:
             head = head_eval(num_classes)

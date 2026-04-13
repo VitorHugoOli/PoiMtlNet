@@ -80,16 +80,29 @@ class SummaryGenerator:
     def generate(self, out_dir: Path) -> None:
         out = ensure_dir(out_dir)
         perf = self._collect_performance()
+        diagnostic_perf = self._collect_task_best_performance()
         cat_metrics = self._collect_category_metrics()
 
         # Overall summary
-        stats = {
+        stats: Dict[str, Any] = {
             task: {
                 metric: self._stats(vals)
                 for metric, vals in metrics.items()
             }
             for task, metrics in perf.items()
         }
+        if diagnostic_perf:
+            stats['_selection'] = {
+                'primary': 'joint_score' if self._has_joint_selection() else 'task_best',
+                'diagnostic_task_best': 'per-task best validation f1',
+            }
+            stats['diagnostic_task_best'] = {
+                task: {
+                    metric: self._stats(vals)
+                    for metric, vals in metrics.items()
+                }
+                for task, metrics in diagnostic_perf.items()
+            }
         save_json(stats, out / 'full_summary.json')
 
         # Category summaries
@@ -128,22 +141,64 @@ class SummaryGenerator:
         }
 
     def _collect_performance(self) -> Dict[str, Dict[str, List[float]]]:
-        """Collect best-epoch metrics dynamically from val MetricStore."""
+        """Collect primary checkpoint metrics dynamically from val MetricStore.
+
+        For MTL folds, the primary checkpoint is the model-level joint score.
+        Per-task best epochs are intentionally handled separately as diagnostics.
+        For single-task runs, this falls back to each task's own best epoch.
+        """
         perf: Dict[str, Dict[str, List[float]]] = {}
         for fold in self.history.folds:
+            joint_epoch = -1
+            if fold.model_task is not None and fold.model_task.best.best_epoch >= 0:
+                joint_epoch = fold.model_task.best.best_epoch
+                model_perf = perf.setdefault('model', {})
+                model_perf.setdefault('joint_score', []).append(
+                    fold.model_task.best.best_value
+                )
+                loss_vals = fold.model_task.val.get('loss')
+                if loss_vals and joint_epoch < len(loss_vals):
+                    model_perf.setdefault('loss', []).append(loss_vals[joint_epoch])
+
             for task in self.history.tasks:
                 th = fold.tasks.get(task)
                 if not th:
                     continue
                 if task not in perf:
                     perf[task] = {}
-                best_epoch = th.best.best_epoch
+                best_epoch = joint_epoch if joint_epoch >= 0 else th.best.best_epoch
                 if best_epoch < 0:
                     continue
                 for metric_name, values in th.val.items():
                     if best_epoch < len(values):
                         perf[task].setdefault(metric_name, []).append(values[best_epoch])
         return perf
+
+    def _collect_task_best_performance(self) -> Dict[str, Dict[str, List[float]]]:
+        """Collect diagnostic per-task best-epoch metrics."""
+        if not self._has_joint_selection():
+            return {}
+
+        perf: Dict[str, Dict[str, List[float]]] = {}
+        for fold in self.history.folds:
+            for task in self.history.tasks:
+                th = fold.tasks.get(task)
+                if not th:
+                    continue
+                best_epoch = th.best.best_epoch
+                if best_epoch < 0:
+                    continue
+                task_perf = perf.setdefault(task, {})
+                for metric_name, values in th.val.items():
+                    if best_epoch < len(values):
+                        task_perf.setdefault(metric_name, []).append(values[best_epoch])
+        return perf
+
+    def _has_joint_selection(self) -> bool:
+        return any(
+            fold.model_task is not None and fold.model_task.best.best_epoch >= 0
+            for fold in self.history.folds
+        )
 
     def _collect_category_metrics(self) -> Dict[str, Dict[str, Dict[str, List[float]]]]:
         result: Dict[str, Dict[str, Dict[str, List[float]]]] = {}
@@ -245,10 +300,30 @@ class HistoryStorage:
 
     def _save_reports(self, path: Path) -> None:
         for i, fold in enumerate(self.history.folds, start=1):
+            joint_epoch = -1
+            joint_score = None
+            joint_time = 0.0
+            joint_loss = None
+            if fold.model_task is not None and fold.model_task.best.best_epoch >= 0:
+                joint_epoch = fold.model_task.best.best_epoch
+                joint_score = fold.model_task.best.best_value
+                joint_time = fold.model_task.best.best_time
+                joint_loss_vals = fold.model_task.val.get('loss')
+                if joint_loss_vals and joint_epoch < len(joint_loss_vals):
+                    joint_loss = joint_loss_vals[joint_epoch]
+
             fold_info: Dict[str, Any] = {
                 'fold_number': i,
                 'duration': fold.timer.get_duration() if fold.timer.duration else 0,
-                'best_epochs': {}
+                'primary_checkpoint': {
+                    'selection_metric': 'joint_score' if joint_epoch >= 0 else 'task_best_f1',
+                    'epoch': joint_epoch if joint_epoch >= 0 else None,
+                    'joint_score': joint_score,
+                    'loss': joint_loss,
+                    'time': joint_time,
+                    'task_metrics': {},
+                },
+                'diagnostic_best_epochs': {},
             }
             for task in self.history.tasks:
                 th = fold.tasks.get(task)
@@ -272,18 +347,42 @@ class HistoryStorage:
                     for metric_name, values in th.val.items():
                         if be < len(values):
                             metrics_at_best[metric_name] = values[be]
-                fold_info['best_epochs'][task] = {
+                fold_info['diagnostic_best_epochs'][task] = {
                     'epoch': be,
                     'time': th.best.best_time,
                     'metrics': metrics_at_best,
-                    # Legacy top-level keys kept so downstream consumers that
-                    # read fold_info['best_epochs'][task]['accuracy'] keep
-                    # working without a shim.
                     'accuracy': metrics_at_best.get('accuracy'),
                     'f1': metrics_at_best.get('f1'),
                 }
 
+                primary_epoch = joint_epoch if joint_epoch >= 0 else be
+                if joint_epoch < 0 and fold_info['primary_checkpoint']['epoch'] is None:
+                    fold_info['primary_checkpoint']['epoch'] = be if be >= 0 else None
+                    fold_info['primary_checkpoint']['time'] = th.best.best_time
+                acc_vals = list(th.val.get('accuracy', []))
+                f1_vals = list(th.val.get('f1', []))
+                primary_acc = (
+                    acc_vals[primary_epoch]
+                    if acc_vals and primary_epoch >= 0 and primary_epoch < len(acc_vals)
+                    else None
+                )
+                primary_f1 = (
+                    f1_vals[primary_epoch]
+                    if f1_vals and primary_epoch >= 0 and primary_epoch < len(f1_vals)
+                    else None
+                )
+                fold_info['primary_checkpoint']['task_metrics'][task] = {
+                    'accuracy': primary_acc,
+                    'f1': primary_f1,
+                }
+
                 save_csv(df, path / f'fold{i}_{task}_report.csv', float_format='%.4f')
+            # Single-task runs (no model_task / no joint checkpoint) expose
+            # diagnostic_best_epochs under the legacy 'best_epochs' key so
+            # downstream consumers that read fold_info['best_epochs'] keep
+            # working without a shim.
+            if joint_epoch < 0:
+                fold_info['best_epochs'] = fold_info['diagnostic_best_epochs']
             save_json(fold_info, path / f'fold{i}_info.json')
 
     def _save_plots(self, path: Path) -> None:

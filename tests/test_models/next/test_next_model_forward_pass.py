@@ -9,8 +9,15 @@ import pytest
 import torch
 import torch.nn as nn
 
-from models.heads.next import NextHeadSingle
-from models.heads.next import NextHeadHybrid, NextHeadGRU
+from models.next import NextHeadSingle
+from models.next import (
+    NextHeadHybrid,
+    NextHeadGRU,
+    NextHeadConvAttn,
+    NextHeadTCNResidual,
+    NextHeadTransformerOptimized,
+    NextHeadTransformerRelPos,
+)
 
 
 class TestForwardPassBasic:
@@ -19,7 +26,11 @@ class TestForwardPassBasic:
     @pytest.fixture(params=[
         'NextHeadSingle',
         'NextHeadHybrid',
-        'NextHeadGRU'
+        'NextHeadGRU',
+        'NextHeadConvAttn',
+        'NextHeadTCNResidual',
+        'NextHeadTransformerOptimized',
+        'NextHeadTransformerRelPos',
     ])
     def model(self, request):
         """Parametrized fixture to test all model architectures."""
@@ -37,6 +48,26 @@ class TestForwardPassBasic:
             return NextHeadGRU(
                 embed_dim=64, hidden_dim=256, num_classes=7,
                 num_layers=2, dropout=0.3
+            )
+        elif request.param == 'NextHeadConvAttn':
+            return NextHeadConvAttn(
+                embed_dim=64, hidden_channels=128, num_classes=7,
+                num_conv_layers=3, kernel_size=3, num_heads=4, dropout=0.2,
+            )
+        elif request.param == 'NextHeadTCNResidual':
+            return NextHeadTCNResidual(
+                embed_dim=64, hidden_channels=128, num_classes=7,
+                num_blocks=4, kernel_size=3, dropout=0.2,
+            )
+        elif request.param == 'NextHeadTransformerOptimized':
+            return NextHeadTransformerOptimized(
+                embed_dim=64, num_classes=7, num_heads=4,
+                num_layers=2, seq_length=9, dropout=0.1,
+            )
+        elif request.param == 'NextHeadTransformerRelPos':
+            return NextHeadTransformerRelPos(
+                embed_dim=64, num_classes=7, num_heads=4,
+                num_layers=2, seq_length=9, dropout=0.2,
             )
 
     def test_forward_with_full_sequence(self, model):

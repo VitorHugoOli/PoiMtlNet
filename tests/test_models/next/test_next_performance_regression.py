@@ -14,8 +14,8 @@ import time
 import psutil
 import os
 
-from models.heads.next import NextHeadSingle
-from models.heads.next import NextHeadHybrid, NextHeadGRU
+from models.next import NextHeadSingle
+from models.next import NextHeadHybrid, NextHeadGRU
 
 
 class TestForwardPassSpeed:

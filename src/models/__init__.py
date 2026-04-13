@@ -1,5 +1,9 @@
-"""Consolidated model definitions and registry.
+"""Model domains and registry.
 
-Created in Phase 4a. Canonical location for all model classes.
-Old src/model/ files become thin re-export shims after consolidation.
+Canonical runtime modules:
+- ``models.mtl``
+- ``models.category``
+- ``models.next``
+
+Compatibility shim remains under ``models.mtlnet``.
 """

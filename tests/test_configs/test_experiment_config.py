@@ -37,6 +37,15 @@ class TestExperimentConfigBasic:
         with pytest.raises(ValueError, match="Unsupported schema_version"):
             ExperimentConfig(name="t", state="fl", embedding_engine="dgi", schema_version=99)
 
+    def test_bad_next_target_raises(self):
+        with pytest.raises(ValueError, match="next_target"):
+            ExperimentConfig(
+                name="t",
+                state="fl",
+                embedding_engine="dgi",
+                next_target="bad",
+            )
+
 
 class TestExperimentConfigSaveLoad:
     """Round-trip serialization."""
