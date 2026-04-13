@@ -25,7 +25,8 @@ def test_category_candidates_exist():
     assert "cat_residual" in names
     assert "cat_dcn" in names
     assert "cat_se" in names
-    assert len(names) == 8
+    assert "cat_linear" in names
+    assert len(names) == 9
 
 
 def test_next_candidates_exist():
@@ -38,14 +39,17 @@ def test_next_candidates_exist():
     assert "next_temporal_cnn" in names
     assert "next_hybrid" in names
     assert "next_transformer_opt" in names
-    assert len(names) == 7
+    assert "next_tcn_residual" in names
+    assert "next_conv_attn" in names
+    assert "next_transformer_relpos" in names
+    assert len(names) == 10
 
 
 def test_iter_all_returns_both_tasks():
     all_candidates = iter_head_candidates("all")
     tasks = {c.task for c in all_candidates}
     assert tasks == {"category", "next"}
-    assert len(all_candidates) == 15
+    assert len(all_candidates) == 19
 
 
 def test_unknown_head_candidate_raises():

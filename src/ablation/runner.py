@@ -80,6 +80,7 @@ class AblationRunConfig:
     epochs: int = 10
     folds: int = 1
     seed: int | None = None
+    embedding_dim: int | None = None
     promote_top: int = 0
     promote_epochs: int = 15
     promote_folds: int = 2
@@ -96,6 +97,7 @@ def _candidate_argv(
     epochs: int,
     folds: int,
     seed: int | None,
+    embedding_dim: int | None = None,
 ) -> list[str]:
     argv = [
         sys.executable,
@@ -117,6 +119,8 @@ def _candidate_argv(
     ]
     if seed is not None:
         argv.extend(["--seed", str(seed)])
+    if embedding_dim is not None:
+        argv.extend(["--embedding-dim", str(embedding_dim)])
     for key, value in candidate.model_params.items():
         argv.extend(["--model-param", f"{key}={format_cli_value(value)}"])
     for key, value in candidate.mtl_loss_params.items():
@@ -178,6 +182,7 @@ def _run_candidate(
     label_root: Path,
     data_root: Path,
     output_dir: Path,
+    embedding_dim: int | None = None,
 ) -> AblationResult:
     candidate_root = label_root / candidate.name
     log_dir = label_root / "logs"
@@ -191,7 +196,7 @@ def _run_candidate(
     env["RESULTS_ROOT"] = str(candidate_root)
     env["PYTHONPATH"] = f"{_root / 'src'}:{_root}"
 
-    argv = _candidate_argv(candidate, state, engine, epochs, folds, seed)
+    argv = _candidate_argv(candidate, state, engine, epochs, folds, seed, embedding_dim)
     command = " ".join(argv)
     started = time.time()
     print(f"[ablation] running {candidate.name} ({folds} fold(s), {epochs} epochs)")
@@ -283,7 +288,7 @@ def _write_manifest(
 
 def run_ablation(config: AblationRunConfig) -> dict[str, Path | None]:
     """Execute a staged ablation run and return generated summary paths."""
-    if config.stage not in {"phase1", "phase2", "all"}:
+    if config.stage not in {"phase1", "phase2", "phase3", "phase4", "all"}:
         raise ValueError(f"Invalid stage: {config.stage!r}")
     if config.epochs <= 0:
         raise ValueError("epochs must be > 0")
@@ -330,6 +335,7 @@ def run_ablation(config: AblationRunConfig) -> dict[str, Path | None]:
             label_root=label_root,
             data_root=config.data_root,
             output_dir=config.output_dir,
+            embedding_dim=config.embedding_dim,
         )
         for candidate in candidates
     ]
@@ -372,6 +378,7 @@ def run_ablation(config: AblationRunConfig) -> dict[str, Path | None]:
                 label_root=promoted_root,
                 data_root=config.data_root,
                 output_dir=config.output_dir,
+                embedding_dim=config.embedding_dim,
             )
             for candidate in promoted_candidates
         ]
@@ -646,11 +653,13 @@ def _parse_legacy_args(argv=None):
     )
     parser.add_argument("--state", default="alabama")
     parser.add_argument("--engine", default="dgi")
-    parser.add_argument("--stage", choices=("phase1", "phase2", "all"), default="phase1")
+    parser.add_argument("--stage", choices=("phase1", "phase2", "phase3", "phase4", "all"), default="phase1")
     parser.add_argument("--candidate", action="append", default=[])
     parser.add_argument("--epochs", type=int, default=10)
     parser.add_argument("--folds", type=int, default=1)
     parser.add_argument("--seed", type=int, default=None)
+    parser.add_argument("--embedding-dim", type=int, default=None,
+                        help="Override embedding dimension (e.g. 128 for fusion).")
     parser.add_argument("--promote-top", type=int, default=0)
     parser.add_argument("--promote-epochs", type=int, default=15)
     parser.add_argument("--promote-folds", type=int, default=2)
@@ -683,6 +692,7 @@ def main(argv=None) -> None:
         epochs=args.epochs,
         folds=args.folds,
         seed=args.seed,
+        embedding_dim=args.embedding_dim,
         promote_top=args.promote_top,
         promote_epochs=args.promote_epochs,
         promote_folds=args.promote_folds,

@@ -64,7 +64,7 @@ def _parse_args(argv=None) -> argparse.Namespace:
     )
     parser.add_argument("--state", default="alabama")
     parser.add_argument("--engine", default="dgi")
-    parser.add_argument("--stage", choices=("phase1", "phase2", "all"), default="phase1")
+    parser.add_argument("--stage", choices=("phase1", "phase2", "phase3", "phase4", "all"), default="phase1")
     parser.add_argument("--candidate", action="append", default=[])
 
     parser.add_argument(
@@ -79,6 +79,10 @@ def _parse_args(argv=None) -> argparse.Namespace:
     parser.add_argument("--promote-top", type=int, default=None)
     parser.add_argument("--promote-epochs", type=int, default=None)
     parser.add_argument("--promote-folds", type=int, default=None)
+    parser.add_argument(
+        "--embedding-dim", type=int, default=None,
+        help="Override embedding dimension (e.g. 128 for fusion engine).",
+    )
     parser.add_argument("--list-profiles", action="store_true")
 
     parser.add_argument("--results-root", type=Path, default=None)
@@ -115,6 +119,7 @@ def _build_config(args: argparse.Namespace) -> AblationRunConfig:
         epochs=_resolve_int_arg(args, "epochs", args.profile),
         folds=_resolve_int_arg(args, "folds", args.profile),
         seed=args.seed,
+        embedding_dim=args.embedding_dim,
         promote_top=_resolve_int_arg(args, "promote_top", args.profile),
         promote_epochs=_resolve_int_arg(args, "promote_epochs", args.profile),
         promote_folds=_resolve_int_arg(args, "promote_folds", args.profile),

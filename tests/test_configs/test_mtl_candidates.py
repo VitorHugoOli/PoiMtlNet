@@ -103,11 +103,10 @@ def test_dselectk_candidate_builds_config_with_model_params():
 
 
 def _all_candidate_names():
-    """Collect all candidate names across both phases."""
+    """Collect all candidate names across all phases."""
     names = []
-    for phase in ("phase1", "phase2"):
-        for c in iter_candidates(phase):
-            names.append(c.name)
+    for c in iter_candidates("all"):
+        names.append(c.name)
     return names
 
 

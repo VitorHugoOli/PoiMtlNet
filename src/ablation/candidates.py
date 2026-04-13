@@ -575,6 +575,155 @@ CANDIDATES: tuple[MTLCandidate, ...] = (
         mtl_loss="equal_weight",
         rationale="PLE(levels=3, s=2, t=1) + equal_weight, deeper extraction.",
     ),
+    # ================================================================
+    # Phase 4: Head swap ablation
+    # ================================================================
+    #
+    # Rationale:
+    #   - Standalone head ablation showed category heads are near-identical
+    #     (0.42-0.43 F1) while the default CategoryHeadTransformer uses 14%
+    #     of params for a synthetic tokenization of a flat 128-d vector.
+    #   - Standalone next head ablation: temporal_cnn (F1=0.24) and
+    #     transformer_opt (F1=0.24) massively outperform next_mtl (F1=0.03).
+    #   - Tests whether these standalone findings transfer to the MTL setting.
+    #
+    # --- Base MTLnet with head swaps + equal_weight (best simple loss) ---
+    MTLCandidate(
+        name="head_cat_single",
+        stage="phase4",
+        model_name="mtlnet",
+        model_params={
+            "category_head": "category_single",
+            "category_head_params": {"hidden_dims": [128, 64], "dropout": 0.2},
+        },
+        mtl_loss="equal_weight",
+        rationale="Isolate category head: simple MLP vs default transformer.",
+    ),
+    MTLCandidate(
+        name="head_next_tcnn",
+        stage="phase4",
+        model_name="mtlnet",
+        model_params={
+            "next_head": "next_temporal_cnn",
+            "next_head_params": {
+                "hidden_channels": 128, "num_layers": 4,
+                "kernel_size": 3, "dropout": 0.2,
+            },
+        },
+        mtl_loss="equal_weight",
+        rationale="Isolate next head: temporal CNN vs default transformer.",
+    ),
+    MTLCandidate(
+        name="head_next_topt",
+        stage="phase4",
+        model_name="mtlnet",
+        model_params={
+            "next_head": "next_transformer_optimized",
+            "next_head_params": {},
+        },
+        mtl_loss="equal_weight",
+        rationale="Isolate next head: optimized transformer vs default.",
+    ),
+    MTLCandidate(
+        name="head_both_tcnn",
+        stage="phase4",
+        model_name="mtlnet",
+        model_params={
+            "category_head": "category_single",
+            "category_head_params": {"hidden_dims": [128, 64], "dropout": 0.2},
+            "next_head": "next_temporal_cnn",
+            "next_head_params": {
+                "hidden_channels": 128, "num_layers": 4,
+                "kernel_size": 3, "dropout": 0.2,
+            },
+        },
+        mtl_loss="equal_weight",
+        rationale="Both heads swapped: simple MLP cat + temporal CNN next.",
+    ),
+    MTLCandidate(
+        name="head_both_topt",
+        stage="phase4",
+        model_name="mtlnet",
+        model_params={
+            "category_head": "category_single",
+            "category_head_params": {"hidden_dims": [128, 64], "dropout": 0.2},
+            "next_head": "next_transformer_optimized",
+            "next_head_params": {},
+        },
+        mtl_loss="equal_weight",
+        rationale="Both heads swapped: simple MLP cat + optimized transformer next.",
+    ),
+    # --- Best head combo on best architectures ---
+    MTLCandidate(
+        name="head_cgc_s2t2_both_tcnn",
+        stage="phase4",
+        model_name="mtlnet_cgc",
+        model_params={
+            "num_shared_experts": 2, "num_task_experts": 2,
+            "category_head": "category_single",
+            "category_head_params": {"hidden_dims": [128, 64], "dropout": 0.2},
+            "next_head": "next_temporal_cnn",
+            "next_head_params": {
+                "hidden_channels": 128, "num_layers": 4,
+                "kernel_size": 3, "dropout": 0.2,
+            },
+        },
+        mtl_loss="equal_weight",
+        rationale="Best HGI arch + swapped heads. Tests if head gains stack with arch gains.",
+    ),
+    MTLCandidate(
+        name="head_cgc_s2t2_both_tcnn_db",
+        stage="phase4",
+        model_name="mtlnet_cgc",
+        model_params={
+            "num_shared_experts": 2, "num_task_experts": 2,
+            "category_head": "category_single",
+            "category_head_params": {"hidden_dims": [128, 64], "dropout": 0.2},
+            "next_head": "next_temporal_cnn",
+            "next_head_params": {
+                "hidden_channels": 128, "num_layers": 4,
+                "kernel_size": 3, "dropout": 0.2,
+            },
+        },
+        mtl_loss="db_mtl",
+        mtl_loss_params={"beta": 0.9, "beta_sigma": 0.5},
+        rationale="Best HGI arch + swapped heads + db_mtl. Full combination test.",
+    ),
+    MTLCandidate(
+        name="head_ple_l2_both_tcnn",
+        stage="phase4",
+        model_name="mtlnet_ple",
+        model_params={
+            "num_levels": 2, "num_shared_experts": 2, "num_task_experts": 2,
+            "category_head": "category_single",
+            "category_head_params": {"hidden_dims": [128, 64], "dropout": 0.2},
+            "next_head": "next_temporal_cnn",
+            "next_head_params": {
+                "hidden_channels": 128, "num_layers": 4,
+                "kernel_size": 3, "dropout": 0.2,
+            },
+        },
+        mtl_loss="equal_weight",
+        rationale="PLE + swapped heads. Tests if deeper extraction + better heads compound.",
+    ),
+    MTLCandidate(
+        name="head_dselectk_both_tcnn",
+        stage="phase4",
+        model_name="mtlnet_dselectk",
+        model_params={
+            "num_experts": 4, "num_selectors": 2, "temperature": 0.5,
+            "category_head": "category_single",
+            "category_head_params": {"hidden_dims": [128, 64], "dropout": 0.2},
+            "next_head": "next_temporal_cnn",
+            "next_head_params": {
+                "hidden_channels": 128, "num_layers": 4,
+                "kernel_size": 3, "dropout": 0.2,
+            },
+        },
+        mtl_loss="db_mtl",
+        mtl_loss_params={"beta": 0.9, "beta_sigma": 0.5},
+        rationale="Best DGI arch + swapped heads + db_mtl.",
+    ),
 )
 
 
@@ -794,6 +943,34 @@ HEAD_CANDIDATES: tuple[HeadCandidate, ...] = (
         task="next",
         model_name="next_transformer_optimized",
         rationale="Optimized transformer with temporal decay positional encoding.",
+    ),
+    # --- New heads (Phase 5) ---
+    HeadCandidate(
+        name="cat_linear",
+        task="category",
+        model_name="category_linear",
+        rationale="Diagnostic linear probe — tests if backbone does all representational work.",
+    ),
+    HeadCandidate(
+        name="next_tcn_residual",
+        task="next",
+        model_name="next_tcn_residual",
+        model_params={"hidden_channels": 128, "num_blocks": 4, "kernel_size": 3, "dropout": 0.2},
+        rationale="Canonical TCN with residual blocks + dilation scheduling (Bai et al. 2018).",
+    ),
+    HeadCandidate(
+        name="next_conv_attn",
+        task="next",
+        model_name="next_conv_attn",
+        model_params={"hidden_channels": 128, "num_conv_layers": 3, "num_heads": 4, "dropout": 0.2},
+        rationale="TCN encoder + single cross-attention pooling. Tests adaptive vs avg pooling.",
+    ),
+    HeadCandidate(
+        name="next_transformer_relpos",
+        task="next",
+        model_name="next_transformer_relpos",
+        model_params={"num_heads": 4, "num_layers": 2, "seq_length": 9, "dropout": 0.2},
+        rationale="Lightweight Transformer with relative position bias (ALiBi-inspired).",
     ),
 )
 
