@@ -1,8 +1,10 @@
 """Tests for reusable MTL candidate matrix."""
 
 import pytest
+import torch
 
 from ablation.candidates import get_candidate, iter_candidates
+from models.registry import create_model
 
 
 def test_phase1_candidates_include_simple_weighting_grid():
@@ -98,3 +100,39 @@ def test_dselectk_candidate_builds_config_with_model_params():
     assert config.model_params["temperature"] == 0.5
     assert config.mtl_loss == "db_mtl"
     assert config.mtl_loss_params["beta"] == pytest.approx(0.9)
+
+
+def _all_candidate_names():
+    """Collect all candidate names across both phases."""
+    names = []
+    for phase in ("phase1", "phase2"):
+        for c in iter_candidates(phase):
+            names.append(c.name)
+    return names
+
+
+@pytest.mark.parametrize("candidate_name", _all_candidate_names())
+def test_candidate_instantiates_model_and_forward_passes(candidate_name):
+    """Each candidate must produce a config that builds a working model."""
+    candidate = get_candidate(candidate_name)
+    config = candidate.build_config(
+        state="florida", engine="dgi", epochs=1, folds=1,
+    )
+
+    model = create_model(config.model_name, **config.model_params)
+    model.eval()
+
+    # Synthetic inputs matching the expected shapes
+    batch = 4
+    feature_size = config.model_params.get("feature_size", 64)
+    seq_len = config.model_params.get("seq_length", 9)
+
+    cat_input = torch.randn(batch, feature_size)
+    next_input = torch.randn(batch, seq_len, feature_size)
+
+    with torch.no_grad():
+        cat_out, next_out = model((cat_input, next_input))
+
+    num_classes = config.model_params.get("num_classes", 7)
+    assert cat_out.shape == (batch, num_classes)
+    assert next_out.shape == (batch, num_classes)

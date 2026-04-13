@@ -18,6 +18,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from ablation._utils import format_cli_value
+
 _root = Path(__file__).resolve().parents[2]
 _src = str(_root / "src")
 if _src in sys.path:
@@ -26,7 +28,14 @@ sys.path.insert(0, _src)
 if str(_root) not in sys.path:
     sys.path.insert(0, str(_root))
 
-from ablation.candidates import MTLCandidate, get_candidate, iter_candidates
+from ablation.candidates import (
+    HeadCandidate,
+    MTLCandidate,
+    get_candidate,
+    get_head_candidate,
+    iter_candidates,
+    iter_head_candidates,
+)
 
 
 @dataclass
@@ -79,11 +88,6 @@ class AblationRunConfig:
     output_dir: Path = field(default_factory=_default_output_dir)
 
 
-def _format_value(value: Any) -> str:
-    if isinstance(value, str):
-        return value
-    return json.dumps(value)
-
 
 def _candidate_argv(
     candidate: MTLCandidate,
@@ -114,12 +118,12 @@ def _candidate_argv(
     if seed is not None:
         argv.extend(["--seed", str(seed)])
     for key, value in candidate.model_params.items():
-        argv.extend(["--model-param", f"{key}={_format_value(value)}"])
+        argv.extend(["--model-param", f"{key}={format_cli_value(value)}"])
     for key, value in candidate.mtl_loss_params.items():
         if candidate.mtl_loss == "static_weight" and key == "category_weight":
             argv.extend(["--category-weight", str(value)])
         else:
-            argv.extend(["--mtl-loss-param", f"{key}={_format_value(value)}"])
+            argv.extend(["--mtl-loss-param", f"{key}={format_cli_value(value)}"])
     return argv
 
 
@@ -376,6 +380,260 @@ def run_ablation(config: AblationRunConfig) -> dict[str, Path | None]:
         "summary": summary_path,
         "promoted_summary": promoted_summary_path,
     }
+
+
+# =====================================================================
+# Head ablation — standalone head variant comparison
+# =====================================================================
+
+
+@dataclass(frozen=True)
+class HeadAblationResult:
+    """Result of a single head ablation candidate run."""
+
+    candidate: str
+    task: str
+    model_name: str
+    epochs: int
+    folds: int
+    seed: int | None
+    status: str
+    returncode: int
+    run_dir: str
+    log_file: str
+    duration_seconds: float
+    command: str
+    f1: float | None
+    accuracy: float | None
+    error: str = ""
+
+
+@dataclass(frozen=True)
+class HeadAblationConfig:
+    """Execution config for a head ablation run."""
+
+    task: str = "category"  # "category", "next", or "all"
+    state: str = "alabama"
+    engine: str = "dgi"
+    candidate_names: tuple[str, ...] = ()
+    epochs: int = 10
+    folds: int = 1
+    seed: int | None = None
+    embedding_dim: int | None = None
+    results_root: Path = field(default_factory=_default_results_root)
+    data_root: Path = field(default_factory=_default_data_root)
+    output_dir: Path = field(default_factory=_default_output_dir)
+
+
+def _head_candidate_argv(
+    candidate: HeadCandidate,
+    state: str,
+    engine: str,
+    epochs: int,
+    folds: int,
+    seed: int | None,
+    embedding_dim: int | None,
+) -> list[str]:
+    # Build the full config to get the resolved model_params, then pass
+    # ALL of them via --replace-model-params + --model-param. This
+    # avoids signature conflicts between the default factory's params
+    # and the target head's constructor.
+    config = candidate.build_config(state, engine, epochs, folds)
+    argv = [
+        sys.executable,
+        "scripts/train.py",
+        "--task",
+        candidate.task,
+        "--state",
+        state,
+        "--engine",
+        engine,
+        "--epochs",
+        str(epochs),
+        "--folds",
+        str(folds),
+        "--model",
+        candidate.model_name,
+        "--replace-model-params",
+    ]
+    if seed is not None:
+        argv.extend(["--seed", str(seed)])
+    if embedding_dim is not None:
+        argv.extend(["--embedding-dim", str(embedding_dim)])
+    for key, value in config.model_params.items():
+        argv.extend(["--model-param", f"{key}={format_cli_value(value)}"])
+    return argv
+
+
+def _parse_head_metrics(run_dir: Path | None, task: str) -> tuple[float | None, float | None]:
+    """Extract F1 and accuracy from a standalone head run."""
+    if run_dir is None:
+        return None, None
+    summary_path = run_dir / "summary" / "full_summary.json"
+    if not summary_path.exists():
+        return None, None
+    try:
+        data = json.loads(summary_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return None, None
+    task_data = data.get(task, {})
+    f1 = task_data.get("f1", {}).get("mean")
+    accuracy = task_data.get("accuracy", {}).get("mean")
+    return f1, accuracy
+
+
+def _run_head_candidate(
+    candidate: HeadCandidate,
+    state: str,
+    engine: str,
+    epochs: int,
+    folds: int,
+    seed: int | None,
+    embedding_dim: int | None,
+    label_root: Path,
+    data_root: Path,
+    output_dir: Path,
+) -> HeadAblationResult:
+    candidate_root = label_root / candidate.name
+    log_dir = label_root / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    seed_tag = f"_seed{seed}" if seed is not None else ""
+    log_file = log_dir / f"{candidate.name}{seed_tag}.log"
+
+    env = os.environ.copy()
+    env["DATA_ROOT"] = str(data_root)
+    env["OUTPUT_DIR"] = str(output_dir)
+    env["RESULTS_ROOT"] = str(candidate_root)
+    env["PYTHONPATH"] = f"{_root / 'src'}:{_root}"
+
+    argv = _head_candidate_argv(
+        candidate, state, engine, epochs, folds, seed, embedding_dim,
+    )
+    command = " ".join(argv)
+    started = time.time()
+    print(f"[head-ablation] running {candidate.name} (task={candidate.task}, {folds} fold(s), {epochs} epochs)")
+    with log_file.open("w", encoding="utf-8") as log:
+        log.write("$ " + command + "\n\n")
+        proc = subprocess.run(
+            argv,
+            cwd=_root,
+            env=env,
+            stdout=log,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
+
+    duration = time.time() - started
+    run_dir = _latest_run_dir(candidate_root, engine, state, epochs)
+    f1, accuracy = _parse_head_metrics(run_dir, candidate.task)
+    status = "ok" if proc.returncode == 0 else "failed"
+    error = "" if proc.returncode == 0 else f"see {log_file}"
+    print(
+        f"[head-ablation] finished {candidate.name}: "
+        f"status={status} f1={f1} accuracy={accuracy}"
+    )
+    return HeadAblationResult(
+        candidate=candidate.name,
+        task=candidate.task,
+        model_name=candidate.model_name,
+        epochs=epochs,
+        folds=folds,
+        seed=seed,
+        status=status,
+        returncode=proc.returncode,
+        run_dir=str(run_dir) if run_dir else "",
+        log_file=str(log_file),
+        duration_seconds=duration,
+        command=command,
+        f1=f1,
+        accuracy=accuracy,
+        error=error,
+    )
+
+
+def _write_head_summary(path: Path, rows: list[HeadAblationResult]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=list(asdict(rows[0]).keys()) if rows else [])
+        writer.writeheader()
+        for row in rows:
+            writer.writerow(asdict(row))
+
+
+def run_head_ablation(config: HeadAblationConfig) -> Path:
+    """Execute a head ablation run and return the summary CSV path."""
+    if config.task not in {"category", "next", "all"}:
+        raise ValueError(f"Invalid task: {config.task!r}")
+    if config.epochs <= 0:
+        raise ValueError("epochs must be > 0")
+    if config.folds <= 0:
+        raise ValueError("folds must be > 0")
+
+    candidates = (
+        tuple(get_head_candidate(name) for name in config.candidate_names)
+        if config.candidate_names
+        else iter_head_candidates(config.task)
+    )
+
+    seed_suffix = f"_seed{config.seed}" if config.seed is not None else ""
+    label = f"head_{config.task}_{config.folds}fold_{config.epochs}ep{seed_suffix}"
+    label_root = config.results_root / label
+    label_root.mkdir(parents=True, exist_ok=True)
+
+    # Write manifest
+    manifest = {
+        "created_at_utc": datetime.now(timezone.utc).isoformat(),
+        "task": config.task,
+        "state": config.state,
+        "engine": config.engine,
+        "epochs": config.epochs,
+        "folds": config.folds,
+        "seed": config.seed,
+        "embedding_dim": config.embedding_dim,
+        "candidates": [
+            {
+                "name": c.name,
+                "task": c.task,
+                "model_name": c.model_name,
+                "model_params": dict(c.model_params),
+                "rationale": c.rationale,
+            }
+            for c in candidates
+        ],
+    }
+    manifest_path = label_root / "manifest.json"
+    manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    print(f"[head-ablation] wrote manifest: {manifest_path}")
+
+    rows = [
+        _run_head_candidate(
+            candidate,
+            state=config.state,
+            engine=config.engine,
+            epochs=config.epochs,
+            folds=config.folds,
+            seed=config.seed,
+            embedding_dim=config.embedding_dim,
+            label_root=label_root,
+            data_root=config.data_root,
+            output_dir=config.output_dir,
+        )
+        for candidate in candidates
+    ]
+
+    summary_path = label_root / "summary.csv"
+    _write_head_summary(summary_path, rows)
+    print(f"[head-ablation] wrote summary: {summary_path}")
+
+    # Print ranking
+    successful = [r for r in rows if r.status == "ok" and r.f1 is not None]
+    if successful:
+        successful.sort(key=lambda r: r.f1 or 0.0, reverse=True)
+        print(f"\n[head-ablation] === {config.task.upper()} HEAD RANKING ===")
+        for i, r in enumerate(successful, 1):
+            print(f"  {i}. {r.candidate:30s}  F1={r.f1:.4f}  Acc={r.accuracy:.4f}  Time={r.duration_seconds:7.1f}s")
+
+    return summary_path
 
 
 def _parse_legacy_args(argv=None):

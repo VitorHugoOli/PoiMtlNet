@@ -25,8 +25,9 @@ class ExcessMTLLoss(EqualWeightLoss):
             raise ValueError(f"robust_step_size must be > 0, got {robust_step_size}")
         self.robust_step_size = float(robust_step_size)
         self.eps = float(eps)
-        self.grad_sum: torch.Tensor | None = None
-        self.initial_w: torch.Tensor | None = None
+        self.grad_sum = torch.zeros(n_tasks, 1, device=device)
+        self.initial_w = torch.zeros(n_tasks, device=device)
+        self._initial_w_set = False
         self.loss_weight = torch.ones(n_tasks, device=device)
 
     def get_weighted_loss(
@@ -40,7 +41,7 @@ class ExcessMTLLoss(EqualWeightLoss):
             weights = torch.ones(self.n_tasks, dtype=losses.dtype, device=losses.device)
             return torch.sum(losses * weights), {"weights": weights.detach()}
 
-        if self.grad_sum is None:
+        if self.grad_sum.shape != grads.shape:
             self.grad_sum = torch.zeros_like(grads)
         self.grad_sum = self.grad_sum.to(device=grads.device, dtype=grads.dtype)
 
@@ -48,8 +49,9 @@ class ExcessMTLLoss(EqualWeightLoss):
         h = torch.sqrt(self.grad_sum + self.eps)
         w = torch.sum((grads * grads) / h, dim=1)
 
-        if self.initial_w is None:
+        if not self._initial_w_set:
             self.initial_w = torch.clamp(w.detach(), min=self.eps)
+            self._initial_w_set = True
         else:
             normalized = w / torch.clamp(
                 self.initial_w.to(device=w.device, dtype=w.dtype),

@@ -13,6 +13,8 @@ import shlex
 from dataclasses import dataclass, field
 from typing import Any
 
+from ablation._utils import format_cli_value
+
 from configs.experiment import ExperimentConfig
 
 
@@ -54,12 +56,6 @@ class MTLCandidate:
             }
         )
 
-    @staticmethod
-    def _format_value(value: Any) -> str:
-        if isinstance(value, str):
-            return value
-        return json.dumps(value)
-
     def command(
         self,
         state: str,
@@ -88,12 +84,12 @@ class MTLCandidate:
             self.mtl_loss,
         ]
         for key, value in self.model_params.items():
-            args.extend(["--model-param", f"{key}={self._format_value(value)}"])
+            args.extend(["--model-param", f"{key}={format_cli_value(value)}"])
         for key, value in self.mtl_loss_params.items():
             if self.mtl_loss == "static_weight" and key == "category_weight":
                 args.extend(["--category-weight", str(value)])
             else:
-                args.extend(["--mtl-loss-param", f"{key}={self._format_value(value)}"])
+                args.extend(["--mtl-loss-param", f"{key}={format_cli_value(value)}"])
         return " ".join(shlex.quote(part) for part in args)
 
 
@@ -513,6 +509,202 @@ def grid(
                 )
             )
     return candidates
+
+
+# =====================================================================
+# Head ablation candidates — standalone head variant evaluation
+# =====================================================================
+
+
+@dataclass(frozen=True)
+class HeadCandidate:
+    """Single runnable standalone head candidate."""
+
+    name: str
+    task: str  # "category" or "next"
+    model_name: str
+    rationale: str
+    model_params: dict[str, Any] = field(default_factory=dict)
+
+    def build_config(
+        self,
+        state: str,
+        engine: str,
+        epochs: int,
+        folds: int,
+    ) -> ExperimentConfig:
+        factory = {
+            "category": ExperimentConfig.default_category,
+            "next": ExperimentConfig.default_next,
+        }[self.task]
+        base = factory(
+            name=f"{self.name}_{state}_{engine}",
+            state=state,
+            embedding_engine=engine,
+            epochs=epochs,
+            k_folds=max(2, folds),
+            model_name=self.model_name,
+        )
+        # Head variants have different constructor signatures, so we
+        # only inherit dimension and class count from the base defaults.
+        # Everything else must come from the candidate's model_params.
+        _INHERIT_KEYS = {"input_dim", "embed_dim", "num_classes"}
+        model_params = {
+            k: v for k, v in base.model_params.items() if k in _INHERIT_KEYS
+        }
+        model_params.update(self.model_params)
+        return ExperimentConfig(
+            **{
+                **base.__dict__,
+                "model_params": model_params,
+            }
+        )
+
+    def command(
+        self,
+        state: str,
+        engine: str,
+        epochs: int,
+        folds: int,
+        python: str = "python",
+    ) -> str:
+        args = [
+            "PYTHONPATH=src",
+            python,
+            "scripts/train.py",
+            "--task",
+            self.task,
+            "--state",
+            state,
+            "--engine",
+            engine,
+            "--epochs",
+            str(epochs),
+            "--folds",
+            str(folds),
+            "--model",
+            self.model_name,
+        ]
+        for key, value in self.model_params.items():
+            args.extend(["--model-param", f"{key}={format_cli_value(value)}"])
+        return " ".join(shlex.quote(part) for part in args)
+
+
+HEAD_CANDIDATES: tuple[HeadCandidate, ...] = (
+    # --- Category heads ---
+    HeadCandidate(
+        name="cat_ensemble",
+        task="category",
+        model_name="category_ensemble",
+        rationale="Default multi-path ensemble (3 paths, depth 2-4). Current baseline.",
+    ),
+    HeadCandidate(
+        name="cat_single",
+        task="category",
+        model_name="category_single",
+        model_params={"hidden_dims": [128, 64], "dropout": 0.2},
+        rationale="Minimal MLP baseline — tests how much head complexity matters.",
+    ),
+    HeadCandidate(
+        name="cat_attention",
+        task="category",
+        model_name="category_attention",
+        rationale="Attention pooling over features, tests if input weighting helps.",
+    ),
+    HeadCandidate(
+        name="cat_transformer",
+        task="category",
+        model_name="category_transformer",
+        model_params={"num_tokens": 4, "token_dim": 16},
+        rationale="Tokenize embedding → transformer encoder. Heavy for a 1D embedding.",
+    ),
+    HeadCandidate(
+        name="cat_gated",
+        task="category",
+        model_name="category_gated",
+        model_params={"hidden_dims": [128, 64], "dropout": 0.2},
+        rationale="Gated expert paths with learned routing.",
+    ),
+    HeadCandidate(
+        name="cat_residual",
+        task="category",
+        model_name="category_residual",
+        model_params={"hidden_dims": [128, 64], "dropout": 0.2},
+        rationale="Deep residual MLP with skip connections.",
+    ),
+    HeadCandidate(
+        name="cat_dcn",
+        task="category",
+        model_name="category_dcn",
+        model_params={"hidden_dims": [128, 64], "cross_layers": 2},
+        rationale="Deep & Cross Network — explicit feature crosses.",
+    ),
+    HeadCandidate(
+        name="cat_se",
+        task="category",
+        model_name="category_se",
+        rationale="Squeeze-and-Excitation channel reweighting.",
+    ),
+    # --- Next-POI heads ---
+    HeadCandidate(
+        name="next_single",
+        task="next",
+        model_name="next_single",
+        model_params={"num_heads": 4, "seq_length": 9, "num_layers": 4, "dropout": 0.2},
+        rationale="Transformer encoder baseline. Current default for standalone next.",
+    ),
+    HeadCandidate(
+        name="next_mtl",
+        task="next",
+        model_name="next_mtl",
+        model_params={"num_heads": 8, "seq_length": 9, "num_layers": 4, "dropout": 0.35},
+        rationale="Transformer variant used inside MTLnet (8 heads, 4 layers).",
+    ),
+    HeadCandidate(
+        name="next_lstm",
+        task="next",
+        model_name="next_lstm",
+        rationale="Bi-LSTM sequential encoder. Tests RNN vs attention.",
+    ),
+    HeadCandidate(
+        name="next_gru",
+        task="next",
+        model_name="next_gru",
+        rationale="GRU sequential encoder. Lighter than LSTM.",
+    ),
+    HeadCandidate(
+        name="next_temporal_cnn",
+        task="next",
+        model_name="next_temporal_cnn",
+        rationale="Dilated causal convolutions. Tests local vs global attention.",
+    ),
+    HeadCandidate(
+        name="next_hybrid",
+        task="next",
+        model_name="next_hybrid",
+        rationale="GRU + cross-attention hybrid. Best of both worlds?",
+    ),
+    HeadCandidate(
+        name="next_transformer_opt",
+        task="next",
+        model_name="next_transformer_optimized",
+        rationale="Optimized transformer with temporal decay positional encoding.",
+    ),
+)
+
+
+def get_head_candidate(name: str) -> HeadCandidate:
+    for candidate in HEAD_CANDIDATES:
+        if candidate.name == name:
+            return candidate
+    available = ", ".join(c.name for c in HEAD_CANDIDATES)
+    raise KeyError(f"Unknown head candidate {name!r}. Available: {available}")
+
+
+def iter_head_candidates(task: str = "all") -> tuple[HeadCandidate, ...]:
+    if task == "all":
+        return HEAD_CANDIDATES
+    return tuple(c for c in HEAD_CANDIDATES if c.task == task)
 
 
 def get_candidate(name: str) -> MTLCandidate:

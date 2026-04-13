@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Dict, Tuple
 
 import torch
 
 from losses._common import compute_task_gradients
 from losses.equal_weight.loss import EqualWeightLoss
+
+logger = logging.getLogger(__name__)
 
 
 class FairGradLoss(EqualWeightLoss):
@@ -51,12 +54,23 @@ class FairGradLoss(EqualWeightLoss):
 
         weights = self._weights.to(device=losses.device, dtype=losses.dtype)
         residual_norm = torch.tensor(float("nan"), device=losses.device, dtype=losses.dtype)
+        converged = False
         for _ in range(self.solver_steps):
             rhs = torch.pow(torch.clamp(weights, min=self.eps), -1.0 / self.alpha)
             residual = torch.mv(gtg, weights) - rhs
             residual_norm = torch.norm(residual)
+            if residual_norm < 1e-6:
+                converged = True
+                break
             weights = torch.clamp(weights - self.step_size * residual, min=self.eps)
             weights = weights / torch.clamp(torch.sum(weights), min=self.eps)
+        if not converged:
+            logger.warning(
+                "FairGrad solver did not converge after %d steps "
+                "(residual_norm=%.4e). Consider tuning step_size or solver_steps.",
+                self.solver_steps,
+                residual_norm.item(),
+            )
 
         self._weights = weights.detach().to(device=self.device, dtype=torch.float32)
         weighted = torch.sum(losses * weights.detach())

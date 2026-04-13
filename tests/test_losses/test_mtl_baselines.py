@@ -89,5 +89,4 @@ def test_random_weight_samples_simplex_weights():
     )
 
     assert torch.all(extra["weights"] > 0)
-    assert torch.sum(extra["weights"]).item() == torch.sum(extra["weights"]).item()
     assert torch.isclose(torch.sum(extra["weights"]), torch.tensor(1.0), atol=1e-6)

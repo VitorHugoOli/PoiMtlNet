@@ -385,6 +385,16 @@ def _parse_args(argv=None) -> argparse.Namespace:
             "CLI flags override values from the file."
         ),
     )
+    parser.add_argument(
+        "--replace-model-params",
+        action="store_true",
+        default=False,
+        help=(
+            "When set, --model-param values REPLACE the default model_params "
+            "instead of merging. Useful when switching to a model with a "
+            "different constructor signature."
+        ),
+    )
     return parser.parse_args(argv)
 
 
@@ -458,8 +468,11 @@ def _apply_cli_overrides(
     if args.model_name is not None:
         config = dataclasses.replace(config, model_name=args.model_name)
     if model_param_overrides:
-        model_params = dict(config.model_params)
-        model_params.update(model_param_overrides)
+        if getattr(args, "replace_model_params", False):
+            model_params = model_param_overrides
+        else:
+            model_params = dict(config.model_params)
+            model_params.update(model_param_overrides)
         config = dataclasses.replace(config, model_params=model_params)
 
     loss_param_overrides = _parse_key_value_overrides(
@@ -588,6 +601,23 @@ def main(argv=None) -> None:
         len(fold_results),
     )
     logger.info("=" * 72)
+
+    # Validate loss + gradient accumulation compatibility before training.
+    _BACKWARD_ONLY_LOSSES = {"nash_mtl", "pcgrad", "gradnorm"}
+    grad_accum = getattr(config, "gradient_accumulation_steps", 1) or 1
+    if (
+        task_key == "mtl"
+        and grad_accum > 1
+        and config.mtl_loss in _BACKWARD_ONLY_LOSSES
+    ):
+        logger.error(
+            "--mtl-loss %r calls backward() internally and is incompatible "
+            "with gradient_accumulation_steps=%d. Use "
+            "gradient_accumulation_steps=1 or a loss with get_weighted_loss().",
+            config.mtl_loss,
+            grad_accum,
+        )
+        sys.exit(2)
 
     runner = _RUNNERS[task_key]
     runner(config, results_path, fold_results)

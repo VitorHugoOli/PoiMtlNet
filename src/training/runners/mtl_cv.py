@@ -281,6 +281,7 @@ def train_model(model: torch.nn.Module,
                 losses,
                 shared_parameters=shared_parameters,
                 task_specific_parameters=task_specific_parameters,
+                epoch=epoch_idx,
             )
             if already_backpropagated and gradient_accumulation_steps > 1:
                 raise TypeError(
