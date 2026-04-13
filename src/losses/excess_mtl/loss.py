@@ -25,7 +25,9 @@ class ExcessMTLLoss(EqualWeightLoss):
             raise ValueError(f"robust_step_size must be > 0, got {robust_step_size}")
         self.robust_step_size = float(robust_step_size)
         self.eps = float(eps)
-        self.grad_sum = torch.zeros(n_tasks, 1, device=device)
+        # Lazy-reshaped on first call to match grads shape from
+        # compute_task_gradients (n_tasks, flattened_params).
+        self.grad_sum = torch.empty(0, device=device)
         self.initial_w = torch.zeros(n_tasks, device=device)
         self._initial_w_set = False
         self.loss_weight = torch.ones(n_tasks, device=device)

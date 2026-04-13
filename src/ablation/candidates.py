@@ -470,6 +470,111 @@ CANDIDATES: tuple[MTLCandidate, ...] = (
         mtl_loss_params={"alpha": 2.0, "solver_steps": 25},
         rationale="Architecture sweep: DSelect-k(e=4,k=2) + fairgrad(alpha=2).",
     ),
+    # ================================================================
+    # Phase 3: New optimizer and architecture candidates
+    # ================================================================
+    # --- New optimizers on base MTLnet ---
+    MTLCandidate(
+        name="cagrad",
+        stage="phase3",
+        model_name="mtlnet",
+        mtl_loss="cagrad",
+        mtl_loss_params={"c": 0.4},
+        rationale="CAGrad conflict-averse gradient (NeurIPS 2021), c=0.4 default.",
+    ),
+    MTLCandidate(
+        name="cagrad_c02",
+        stage="phase3",
+        model_name="mtlnet",
+        mtl_loss="cagrad",
+        mtl_loss_params={"c": 0.2},
+        rationale="CAGrad with smaller conflict-aversion radius c=0.2.",
+    ),
+    MTLCandidate(
+        name="aligned_mtl",
+        stage="phase3",
+        model_name="mtlnet",
+        mtl_loss="aligned_mtl",
+        rationale="Aligned-MTL gradient alignment (CVPR 2023), no hyperparams.",
+    ),
+    MTLCandidate(
+        name="dwa",
+        stage="phase3",
+        model_name="mtlnet",
+        mtl_loss="dwa",
+        mtl_loss_params={"temperature": 2.0},
+        rationale="DWA loss-rate-based weighting (CVPR 2019), T=2.0 default.",
+    ),
+    MTLCandidate(
+        name="dwa_t1",
+        stage="phase3",
+        model_name="mtlnet",
+        mtl_loss="dwa",
+        mtl_loss_params={"temperature": 1.0},
+        rationale="DWA with more aggressive rebalancing T=1.0.",
+    ),
+    # --- New optimizers on best architectures ---
+    MTLCandidate(
+        name="arch_cgc_s2t2_cagrad",
+        stage="phase3",
+        model_name="mtlnet_cgc",
+        model_params={"num_shared_experts": 2, "num_task_experts": 2},
+        mtl_loss="cagrad",
+        mtl_loss_params={"c": 0.4},
+        rationale="Best HGI arch CGC(s=2,t=2) + CAGrad.",
+    ),
+    MTLCandidate(
+        name="arch_cgc_s2t2_aligned_mtl",
+        stage="phase3",
+        model_name="mtlnet_cgc",
+        model_params={"num_shared_experts": 2, "num_task_experts": 2},
+        mtl_loss="aligned_mtl",
+        rationale="Best HGI arch CGC(s=2,t=2) + Aligned-MTL.",
+    ),
+    MTLCandidate(
+        name="arch_dselectk_e4k2_cagrad",
+        stage="phase3",
+        model_name="mtlnet_dselectk",
+        model_params={"num_experts": 4, "num_selectors": 2, "temperature": 0.5},
+        mtl_loss="cagrad",
+        mtl_loss_params={"c": 0.4},
+        rationale="Best DGI arch DSelect-k(e=4,k=2) + CAGrad.",
+    ),
+    # --- PLE architecture candidates ---
+    MTLCandidate(
+        name="arch_ple_l2_equal",
+        stage="phase3",
+        model_name="mtlnet_ple",
+        model_params={"num_levels": 2, "num_shared_experts": 2, "num_task_experts": 2},
+        mtl_loss="equal_weight",
+        rationale="PLE(levels=2, s=2, t=2) + equal_weight.",
+    ),
+    MTLCandidate(
+        name="arch_ple_l2_db_mtl",
+        stage="phase3",
+        model_name="mtlnet_ple",
+        model_params={"num_levels": 2, "num_shared_experts": 2, "num_task_experts": 2},
+        mtl_loss="db_mtl",
+        mtl_loss_params={"beta": 0.9, "beta_sigma": 0.5},
+        rationale="PLE(levels=2, s=2, t=2) + db_mtl.",
+    ),
+    MTLCandidate(
+        name="arch_ple_l2_cagrad",
+        stage="phase3",
+        model_name="mtlnet_ple",
+        model_params={"num_levels": 2, "num_shared_experts": 2, "num_task_experts": 2},
+        mtl_loss="cagrad",
+        mtl_loss_params={"c": 0.4},
+        rationale="PLE(levels=2, s=2, t=2) + CAGrad.",
+    ),
+    MTLCandidate(
+        name="arch_ple_l3_equal",
+        stage="phase3",
+        model_name="mtlnet_ple",
+        model_params={"num_levels": 3, "num_shared_experts": 2, "num_task_experts": 1},
+        mtl_loss="equal_weight",
+        rationale="PLE(levels=3, s=2, t=1) + equal_weight, deeper extraction.",
+    ),
 )
 
 

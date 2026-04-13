@@ -328,11 +328,68 @@ class DSelectKLiteLayer(nn.Module):
         return category_out, next_out
 
 
+class PLELiteLayer(nn.Module):
+    """Progressive Layered Extraction: stacked CGC levels with inter-level gating.
+
+    Each level is a CGCLiteLayer. The gated outputs of level L become the
+    inputs to level L+1, enabling progressive refinement of shared and
+    task-specific representations.
+    """
+
+    def __init__(
+        self,
+        layer_size: int,
+        num_shared_layers: int,
+        num_levels: int = 2,
+        num_shared_experts: int = 2,
+        num_task_experts: int = 2,
+        dropout: float = 0.15,
+    ):
+        super().__init__()
+        if num_levels < 1:
+            raise ValueError("num_levels must be >= 1")
+
+        self.num_levels = num_levels
+        self.levels = nn.ModuleList(
+            [
+                CGCLiteLayer(
+                    layer_size=layer_size,
+                    num_shared_layers=num_shared_layers,
+                    num_shared_experts=num_shared_experts,
+                    num_task_experts=num_task_experts,
+                    dropout=dropout,
+                )
+                for _ in range(num_levels)
+            ]
+        )
+        self.last_gate_stats: dict[str, torch.Tensor] = {}
+
+    def forward(
+        self,
+        category_x: torch.Tensor,
+        next_x: torch.Tensor,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        cat_h, next_h = category_x, next_x
+        for i, level in enumerate(self.levels):
+            cat_h, next_h = level(cat_h, next_h)
+
+        # Aggregate gate stats from all levels (report last level stats
+        # directly, and prefix earlier levels).
+        self.last_gate_stats.clear()
+        for i, level in enumerate(self.levels):
+            for key, val in level.last_gate_stats.items():
+                prefix = f"L{i}_" if i < self.num_levels - 1 else ""
+                self.last_gate_stats[f"{prefix}{key}"] = val
+
+        return cat_h, next_h
+
+
 __all__ = [
     "ResidualBlock",
     "FiLMLayer",
     "CGCLiteLayer",
     "MMoELiteLayer",
     "DSelectKLiteLayer",
+    "PLELiteLayer",
 ]
 

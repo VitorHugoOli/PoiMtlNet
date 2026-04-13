@@ -147,7 +147,10 @@ def _parse_metrics(run_dir: Path | None) -> tuple[float | None, float | None, fl
     summary_path = run_dir / "summary" / "full_summary.json"
     if not summary_path.exists():
         return None, None, None
-    data = json.loads(summary_path.read_text(encoding="utf-8"))
+    try:
+        data = json.loads(summary_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return None, None, None
     next_f1 = data.get("next", {}).get("f1", {}).get("mean")
     category_f1 = data.get("category", {}).get("f1", {}).get("mean")
     joint_score = data.get("model", {}).get("joint_score", {}).get("mean")

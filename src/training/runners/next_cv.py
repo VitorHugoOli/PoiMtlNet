@@ -34,9 +34,13 @@ def _extract_diagnostics(
     class_names = [CATEGORIES_MAP.get(i, f"Class-{i}") for i in class_labels]
 
     # Check if the model supports return_attention (not all head variants do).
+    # Use try/except for robustness with torch.compile'd or wrapped models.
     import inspect
-    _sig = inspect.signature(model.forward)
-    supports_attention = "return_attention" in _sig.parameters
+    try:
+        _sig = inspect.signature(model.forward)
+        supports_attention = "return_attention" in _sig.parameters
+    except (ValueError, TypeError):
+        supports_attention = False
 
     preds_list, targets_list = [], []
     attn_list = []

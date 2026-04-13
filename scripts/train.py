@@ -467,6 +467,8 @@ def _apply_cli_overrides(
     )
     if args.model_name is not None:
         config = dataclasses.replace(config, model_name=args.model_name)
+    if getattr(args, "replace_model_params", False) and not model_param_overrides:
+        raise ValueError("--replace-model-params requires at least one --model-param")
     if model_param_overrides:
         if getattr(args, "replace_model_params", False):
             model_params = model_param_overrides

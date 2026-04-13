@@ -36,6 +36,9 @@ def _canonical_entries() -> list[tuple[str, Type]]:
     from losses.excess_mtl.loss import ExcessMTLLoss
     from losses.stch.loss import STCHLoss
     from losses.db_mtl.loss import DBMTLLoss
+    from losses.cagrad.loss import CAGradLoss
+    from losses.aligned_mtl.loss import AlignedMTLLoss
+    from losses.dwa.loss import DWALoss
     from losses.focal import FocalLoss
     from losses.pcgrad import PCGrad
     from losses.gradnorm import GradNormLoss
@@ -55,6 +58,9 @@ def _canonical_entries() -> list[tuple[str, Type]]:
         ("excess_mtl", ExcessMTLLoss),
         ("stch", STCHLoss),
         ("db_mtl", DBMTLLoss),
+        ("cagrad", CAGradLoss),
+        ("aligned_mtl", AlignedMTLLoss),
+        ("dwa", DWALoss),
         ("focal", FocalLoss),
         ("pcgrad", PCGrad),
         ("gradnorm", GradNormLoss),
