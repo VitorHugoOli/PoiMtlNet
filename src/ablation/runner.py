@@ -125,6 +125,11 @@ def _candidate_argv(
         argv.extend(["--seed", str(seed)])
     if embedding_dim is not None:
         argv.extend(["--embedding-dim", str(embedding_dim)])
+    # CAGrad / Aligned-MTL / PCGrad require per-step gradient surgery and are
+    # incompatible with gradient accumulation >1. Force accumulation=1 for
+    # these losses so ablation runs complete instead of crashing.
+    if candidate.mtl_loss in {"cagrad", "aligned_mtl", "pcgrad"}:
+        argv.extend(["--gradient-accumulation-steps", "1"])
     for key, value in candidate.model_params.items():
         argv.extend(["--model-param", f"{key}={format_cli_value(value)}"])
     for key, value in candidate.mtl_loss_params.items():

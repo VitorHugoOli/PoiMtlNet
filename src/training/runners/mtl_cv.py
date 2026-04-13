@@ -89,6 +89,11 @@ def _get_weighted_loss(
             task_specific_parameters=task_specific_parameters,
             **context,
         )
+        # Gradient-surgery losses (CAGrad, Aligned-MTL) do the backward pass
+        # internally and return loss=None. Fall back to the raw loss sum for
+        # reporting (detached so it can't trigger another backward).
+        if loss is None:
+            loss = losses.sum().detach()
         return loss, extra_outputs, True
     try:
         loss, extra_outputs = mtl_criterion.get_weighted_loss(
@@ -105,6 +110,8 @@ def _get_weighted_loss(
             task_specific_parameters=task_specific_parameters,
             **context,
         )
+        if loss is None:
+            loss = losses.sum().detach()
         return loss, extra_outputs, True
 
 
