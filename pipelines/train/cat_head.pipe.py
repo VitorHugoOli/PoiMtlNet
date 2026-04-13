@@ -27,7 +27,7 @@ MAX_WORKERS = 1
 # =============================================================================
 
 CONFIG = {
-    'engine': EmbeddingEngine.TIME2VEC.value,
+    'engine': EmbeddingEngine.SPHERE2VEC.value,
     'embedding_dim': None,
     'epochs': None,
     'folds': None,

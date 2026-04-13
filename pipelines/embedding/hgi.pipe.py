@@ -69,11 +69,11 @@ CONFIG = Namespace(
 # =============================================================================
 
 STATES = {
-    # 'Alabama':    {'shapefile': Resources.TL_AL, 'cross_region_weight': 0.7},   # swept, confirmed
+    'Alabama':    {'shapefile': Resources.TL_AL, 'cross_region_weight': 0.7},   # swept, confirmed
     # 'Arizona':    {'shapefile': Resources.TL_AZ, 'cross_region_weight': 0.7},   # extrapolated (sparse)
     # 'Georgia':    {'shapefile': Resources.TL_GA},
-    'Florida':    {'shapefile': Resources.TL_FL, 'cross_region_weight': 0.7},   # extrapolated (dense)
-    # 'California': {'shapefile': Resources.TL_CA, 'cross_region_weight': 0.6},   # extrapolated (medium)
+    # 'Florida':    {'shapefile': Resources.TL_FL, 'cross_region_weight': 0.7},   # extrapolated (dense)
+    # 'California': {'shapefile': Resources.TL_CA, 'cross_region_weight': 0.7},   # extrapolated (medium)
     # 'Texas':      {'shapefile': Resources.TL_TX, 'cross_region_weight': 0.7},   # extrapolated (sparse)
 }
 
