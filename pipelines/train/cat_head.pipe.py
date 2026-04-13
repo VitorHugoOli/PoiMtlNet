@@ -1,11 +1,11 @@
 """Category head training pipeline — train category task via scripts/train.py. Usage: python pipelines/train/cat_head.pipe.py"""
 
-import sys
 import logging
 import subprocess
-from pathlib import Path
-from datetime import datetime
+import sys
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from datetime import datetime
+from pathlib import Path
 
 _root = Path(__file__).resolve().parent.parent.parent
 _train = str(_root / "scripts" / "train.py")
@@ -13,7 +13,9 @@ sys.path.insert(0, str(_root / "src"))
 
 from configs.paths import EmbeddingEngine
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 # =============================================================================
@@ -27,10 +29,10 @@ MAX_WORKERS = 1
 # =============================================================================
 
 CONFIG = {
-    'engine': EmbeddingEngine.SPHERE2VEC.value,
-    'embedding_dim': None,
-    'epochs': None,
-    'folds': None,
+    "engine": EmbeddingEngine.SPHERE2VEC.value,
+    "embedding_dim": None,
+    "epochs": None,
+    "folds": None,
 }
 
 # =============================================================================
@@ -41,7 +43,7 @@ CONFIG = {
 # =============================================================================
 
 STATES = {
-    'alabama': {},
+    "alabama": {},
     # 'arizona': {},
     # 'georgia': {},
     # 'florida': {},
@@ -58,16 +60,25 @@ def process_state(name: str, state_cfg: dict) -> bool:
     """Train category head for a single state via scripts/train.py."""
     try:
         state_cfg = dict(state_cfg)
-        base = dict(state_cfg.pop('config', CONFIG))
+        base = dict(state_cfg.pop("config", CONFIG))
         base.update(state_cfg)
 
-        cmd = [sys.executable, _train, "--state", name, "--engine", base['engine'], "--task", "category"]
-        if base.get('embedding_dim') is not None:
-            cmd += ["--embedding-dim", str(base['embedding_dim'])]
-        if base.get('epochs') is not None:
-            cmd += ["--epochs", str(base['epochs'])]
-        if base.get('folds') is not None:
-            cmd += ["--folds", str(base['folds'])]
+        cmd = [
+            sys.executable,
+            _train,
+            "--state",
+            name,
+            "--engine",
+            base["engine"],
+            "--task",
+            "category",
+        ]
+        if base.get("embedding_dim") is not None:
+            cmd += ["--embedding-dim", str(base["embedding_dim"])]
+        if base.get("epochs") is not None:
+            cmd += ["--epochs", str(base["epochs"])]
+        if base.get("folds") is not None:
+            cmd += ["--folds", str(base["folds"])]
 
         logger.info(f"[{name}] Running: {' '.join(cmd)}")
         result = subprocess.run(cmd)
@@ -83,14 +94,16 @@ def process_state(name: str, state_cfg: dict) -> bool:
 
 def run_pipeline():
     """Process all configured states in order, MAX_WORKERS at a time."""
-    logger.info(f"Category Training Pipeline - {len(STATES)} state(s) | engine={CONFIG['engine']}")
+    logger.info(
+        f"Category Training Pipeline - {len(STATES)} state(s) | engine={CONFIG['engine']}"
+    )
 
     start = datetime.now()
     results = {}
     states = list(STATES.items())
 
     for i in range(0, len(states), MAX_WORKERS):
-        chunk = states[i:i + MAX_WORKERS]
+        chunk = states[i : i + MAX_WORKERS]
         if MAX_WORKERS == 1:
             for name, cfg in chunk:
                 results[name] = process_state(name, cfg)
@@ -105,7 +118,9 @@ def run_pipeline():
 
     duration = (datetime.now() - start).total_seconds()
     success = sum(results.values())
-    logger.info(f"Completed: {success}/{len(STATES)} succeeded in {duration / 60:.1f}min")
+    logger.info(
+        f"Completed: {success}/{len(STATES)} succeeded in {duration / 60:.1f}min"
+    )
     for name, ok in results.items():
         logger.info(f"  {'✓' if ok else '✗'} {name}")
 

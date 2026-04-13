@@ -18,7 +18,7 @@ from typing import List
 from pathlib import Path
 from tqdm import tqdm
 
-from configs.paths import IoPaths
+from configs.paths import IoPaths, EmbeddingEngine
 from configs.embedding_fusion import EmbeddingSpec, EmbeddingLevel, FusionConfig
 from configs.model import InputsConfig
 from .core import (
@@ -26,6 +26,7 @@ from .core import (
     PADDING_VALUE,
     convert_sequences_to_poi_embeddings,
     convert_user_checkins_to_sequences,
+    save_next_input_dataframe,
     save_parquet,
     create_embedding_lookup,
     create_category_lookup,
@@ -85,24 +86,20 @@ class EmbeddingAligner:
             # Ensure placeid is int64 in emb_data
             emb_data['placeid'] = emb_data['placeid'].astype('int64')
 
-            # Deduplicate identical rows; raise on conflicting duplicates
-            n_before = len(emb_data)
-            emb_data = emb_data.drop_duplicates()
-            n_exact = n_before - len(emb_data)
-
-            poi_dupes = emb_data.duplicated(subset=['placeid'], keep=False)
-            if poi_dupes.any():
-                raise ValueError(
-                    f"{spec.engine.value} has {poi_dupes.sum()} rows with duplicate "
-                    f"placeid but DIFFERENT embeddings in align_poi_level. "
-                    f"This would cause row multiplication during alignment."
-                )
-
-            if n_exact > 0:
-                print(
-                    f"  INFO: Deduplicated {n_exact} identical rows "
-                    f"from {spec.engine.value} embeddings"
-                )
+            # Deduplicate: drop identical rows; raise on conflicting duplicates
+            dups = emb_data[emb_data.duplicated(subset=['placeid'], keep=False)]
+            if not dups.empty:
+                # Check whether all duplicates have identical embedding values
+                conflict = dups[dups.duplicated(subset=['placeid'] + emb_cols, keep=False) == False]
+                if not conflict.empty:
+                    bad_ids = conflict['placeid'].unique()[:3].tolist()
+                    raise ValueError(
+                        f"{spec.engine.value}: duplicate placeid(s) {bad_ids} with DIFFERENT embedding "
+                        f"values — cannot merge safely"
+                    )
+                n_before = len(emb_data)
+                emb_data = emb_data.drop_duplicates(subset=['placeid'] + emb_cols)
+                print(f"  INFO: Deduplicated {n_before - len(emb_data)} identical rows from {spec.engine.value} embeddings")
 
             # Rename columns to avoid conflicts: 0, 1, ... -> engine_0, engine_1, ...
             emb_data = emb_data.rename(columns={
@@ -171,26 +168,19 @@ class EmbeddingAligner:
                 # Ensure placeid is int64
                 emb_data['placeid'] = emb_data['placeid'].astype('int64')
 
-                # Deduplicate identical rows; raise on conflicting duplicates
-                merge_keys = ['userid', 'placeid', 'datetime']
-                n_before_dedup = len(emb_data)
-                emb_data = emb_data.drop_duplicates()
-                n_exact_dupes = n_before_dedup - len(emb_data)
-
-                # Check for remaining duplicates (same key, different embeddings)
-                key_dupes = emb_data.duplicated(subset=merge_keys, keep=False)
-                if key_dupes.any():
-                    raise ValueError(
-                        f"{spec.engine.value} has {key_dupes.sum()} rows with duplicate "
-                        f"(userid, placeid, datetime) but DIFFERENT embeddings. "
-                        f"This would cause row multiplication during alignment."
-                    )
-
-                if n_exact_dupes > 0:
-                    print(
-                        f"  INFO: Deduplicated {n_exact_dupes} identical rows "
-                        f"from {spec.engine.value} embeddings"
-                    )
+                # Deduplicate: drop identical rows; raise on conflicting composite keys
+                key_cols = ['userid', 'placeid', 'datetime']
+                dups = emb_data[emb_data.duplicated(subset=key_cols, keep=False)]
+                if not dups.empty:
+                    conflict = dups[dups.duplicated(subset=key_cols + emb_cols, keep=False) == False]
+                    if not conflict.empty:
+                        raise ValueError(
+                            f"{spec.engine.value}: duplicate composite key(s) with DIFFERENT embedding "
+                            f"values — cannot merge safely"
+                        )
+                    n_before = len(emb_data)
+                    emb_data = emb_data.drop_duplicates(subset=key_cols + emb_cols)
+                    print(f"  INFO: Deduplicated {n_before - len(emb_data)} identical rows from {spec.engine.value} embeddings")
 
                 # Rename columns
                 emb_data = emb_data.rename(columns={
@@ -218,24 +208,19 @@ class EmbeddingAligner:
                 # Ensure placeid is int64
                 emb_data['placeid'] = emb_data['placeid'].astype('int64')
 
-                # Deduplicate identical rows; raise on conflicting duplicates
-                n_before = len(emb_data)
-                emb_data = emb_data.drop_duplicates()
-                n_exact = n_before - len(emb_data)
-
-                poi_dupes = emb_data.duplicated(subset=['placeid'], keep=False)
-                if poi_dupes.any():
-                    raise ValueError(
-                        f"{spec.engine.value} has {poi_dupes.sum()} rows with duplicate "
-                        f"placeid but DIFFERENT embeddings. "
-                        f"This would cause row multiplication during alignment."
-                    )
-
-                if n_exact > 0:
-                    print(
-                        f"  INFO: Deduplicated {n_exact} identical rows "
-                        f"from {spec.engine.value} embeddings"
-                    )
+                # Deduplicate: drop identical rows; raise on conflicting placeids
+                dups = emb_data[emb_data.duplicated(subset=['placeid'], keep=False)]
+                if not dups.empty:
+                    conflict = dups[dups.duplicated(subset=['placeid'] + emb_cols, keep=False) == False]
+                    if not conflict.empty:
+                        bad_ids = conflict['placeid'].unique()[:3].tolist()
+                        raise ValueError(
+                            f"{spec.engine.value}: duplicate placeid(s) {bad_ids} with DIFFERENT embedding "
+                            f"values — cannot merge safely"
+                        )
+                    n_before = len(emb_data)
+                    emb_data = emb_data.drop_duplicates(subset=['placeid'] + emb_cols)
+                    print(f"  INFO: Deduplicated {n_before - len(emb_data)} identical rows from {spec.engine.value} embeddings")
 
                 emb_data = emb_data.rename(columns={
                     str(i): f"{spec.engine.value}_{i}" for i in range(spec.dimension)
@@ -500,7 +485,7 @@ class MultiEmbeddingInputGenerator:
             window_size, total_dim, DEFAULT_BATCH_SIZE
         )
 
-        # Save output to the caller-specified path
+        # Build and save the output DataFrame to the caller-specified path
         num_features = window_size * total_dim
         columns = list(map(str, range(num_features))) + ['next_category', 'userid']
         output_df = pd.DataFrame(all_results, columns=columns)

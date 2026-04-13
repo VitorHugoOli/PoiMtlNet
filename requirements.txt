@@ -42,6 +42,7 @@ psutil==7.0.0
 
 # Testing
 pytest
+torchmetrics
 
 # Optional: experiment tracking (deferred import, set TRACKING_BACKEND=wandb)
 wandb

@@ -69,12 +69,12 @@ CONFIG = Namespace(
 # =============================================================================
 
 STATES = {
-    'Alabama':    {'shapefile': Resources.TL_AL, 'cross_region_weight': 0.7},   # swept, confirmed
+    'Alabama':    {'shapefile': Resources.TL_AL, 'cross_region_weight': 0.7},   # swept 2026-04-12, 3f25e: 0.4→0.718, 0.7→0.791
     # 'Arizona':    {'shapefile': Resources.TL_AZ, 'cross_region_weight': 0.7},   # extrapolated (sparse)
     # 'Georgia':    {'shapefile': Resources.TL_GA},
-    # 'Florida':    {'shapefile': Resources.TL_FL, 'cross_region_weight': 0.7},   # extrapolated (dense)
-    # 'California': {'shapefile': Resources.TL_CA, 'cross_region_weight': 0.7},   # extrapolated (medium)
-    # 'Texas':      {'shapefile': Resources.TL_TX, 'cross_region_weight': 0.7},   # extrapolated (sparse)
+    # 'Florida':    {'shapefile': Resources.TL_FL, 'cross_region_weight': 0.7},   # swept 2026-04-12/13, 3f25e: 0.4→0.744, 0.5→0.761, 0.7→0.783*, 0.9→0.769, 1.0→0.747
+    # 'California': {'shapefile': Resources.TL_CA, 'cross_region_weight': 0.7},   # swept 2026-04-13, 3f25e: 0.4→0.735, 0.7→0.767* (1.0 failed: use_torch_compile bug, skip)
+    # 'Texas':      {'shapefile': Resources.TL_TX, 'cross_region_weight': 0.7},   # swept 2026-04-13, 3f25e: 0.4→0.765, 0.7→0.799* (1.0 killed: OOM, TX too large for parallel runs)
 }
 
 # =============================================================================

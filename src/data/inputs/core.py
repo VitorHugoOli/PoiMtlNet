@@ -4,18 +4,19 @@ Pure logic functions for MTL input generation (no I/O).
 This module contains stateless, testable functions extracted from create_input.py.
 """
 
-from typing import List, Dict, Tuple
 from pathlib import Path
+from typing import Dict, List, Tuple
+
 import numpy as np
 import pandas as pd
-from configs.model import InputsConfig
 
+from configs.model import InputsConfig
 
 # Constants
 PADDING_VALUE = -1
 MIN_SEQUENCE_LENGTH = 5
 DEFAULT_BATCH_SIZE = 100000
-MISSING_CATEGORY_VALUE = 'None'
+MISSING_CATEGORY_VALUE = "None"
 
 
 def generate_sequences(
@@ -57,7 +58,7 @@ def generate_sequences(
 
     for start_idx in range(0, total_visits, step):
         # Extract history window (always window_size items, regardless of stride)
-        history = places_visited[start_idx:start_idx + window_size]
+        history = places_visited[start_idx : start_idx + window_size]
 
         # Pad if history is shorter than window_size
         if len(history) < window_size:
@@ -72,7 +73,7 @@ def generate_sequences(
             for j in range(len(history) - 1, -1, -1):
                 if history[j] != pad_value:
                     target_poi = history[j]
-                    history = history[:j] + history[j + 1:] + [pad_value]
+                    history = history[:j] + history[j + 1 :] + [pad_value]
                     break
             else:
                 target_poi = pad_value
@@ -91,8 +92,7 @@ def generate_sequences(
 
 
 def create_embedding_lookup(
-    embeddings_df: pd.DataFrame,
-    embedding_dim: int
+    embeddings_df: pd.DataFrame, embedding_dim: int
 ) -> Dict[int, np.ndarray]:
     """
     Build POI → embedding lookup dictionary.
@@ -111,15 +111,14 @@ def create_embedding_lookup(
     emb_cols = [str(i) for i in range(embedding_dim)]
 
     # Set placeid as index if not already
-    if 'placeid' in embeddings_df.columns:
-        emb_df = embeddings_df.set_index('placeid')[emb_cols]
+    if "placeid" in embeddings_df.columns:
+        emb_df = embeddings_df.set_index("placeid")[emb_cols]
     else:
         emb_df = embeddings_df[emb_cols]
 
     # Build lookup dictionary
     lookup = {
-        poi_id: row.values.astype(np.float32)
-        for poi_id, row in emb_df.iterrows()
+        poi_id: row.values.astype(np.float32) for poi_id, row in emb_df.iterrows()
     }
 
     # Add zero embedding for padding
@@ -129,8 +128,7 @@ def create_embedding_lookup(
 
 
 def create_category_lookup(
-    checkins_df: pd.DataFrame,
-    default_value: str = None
+    checkins_df: pd.DataFrame, default_value: str = None
 ) -> Dict[int, str]:
     """
     Build POI → category lookup dictionary.
@@ -149,8 +147,8 @@ def create_category_lookup(
         default_value = MISSING_CATEGORY_VALUE
 
     # Handle duplicate placeids by taking first occurrence
-    unique_checkins = checkins_df.drop_duplicates(subset=['placeid'], keep='first')
-    lookup = dict(zip(unique_checkins['placeid'], unique_checkins['category']))
+    unique_checkins = checkins_df.drop_duplicates(subset=["placeid"], keep="first")
+    lookup = dict(zip(unique_checkins["placeid"], unique_checkins["category"]))
 
     # Add explicit padding entry
     lookup[PADDING_VALUE] = default_value
@@ -189,10 +187,7 @@ def parse_and_sort_checkins(checkin_timestamps: List[str]) -> List:
 
 
 def save_parquet(
-    df: pd.DataFrame,
-    output_path,
-    create_dirs: bool = True,
-    index: bool = False
+    df: pd.DataFrame, output_path, create_dirs: bool = True, index: bool = False
 ) -> None:
     """
     Save DataFrame to parquet with automatic directory creation.
@@ -216,11 +211,7 @@ def save_parquet(
 
 
 def save_next_input_dataframe(
-    results: List[np.ndarray],
-    window_size: int,
-    embedding_dim: int,
-    state: str,
-    engine
+    results: List[np.ndarray], window_size: int, embedding_dim: int, state: str, engine
 ) -> None:
     """
     Save next-POI input results to parquet.
@@ -242,7 +233,7 @@ def save_next_input_dataframe(
 
     # Create column names
     num_features = window_size * embedding_dim
-    columns = list(map(str, range(num_features))) + ['next_category', 'userid']
+    columns = list(map(str, range(num_features))) + ["next_category", "userid"]
 
     # Create DataFrame
     output_df = pd.DataFrame(results, columns=columns)
@@ -259,7 +250,7 @@ def convert_sequences_to_poi_embeddings(
     window_size: int,
     embedding_dim: int,
     batch_size: int = None,
-    show_progress: bool = True
+    show_progress: bool = True,
 ) -> List[np.ndarray]:
     """
     Convert POI sequences to flattened embedding sequences.
@@ -304,19 +295,21 @@ def convert_sequences_to_poi_embeddings(
         iterator = tqdm(iterator, desc="Processing batches")
 
     for start_idx in iterator:
-        batch = sequences_df.iloc[start_idx:start_idx + batch_size]
+        batch = sequences_df.iloc[start_idx : start_idx + batch_size]
 
         for _, row in batch.iterrows():
             # Extract history POI IDs (first window_size columns)
             history_pois = row.iloc[:window_size].values.astype(int)
             target_poi = int(row.iloc[window_size])
-            userid = row['userid']
+            userid = row["userid"]
 
             # Build sequence embeddings using lookup
-            sequence_embeddings = np.vstack([
-                embedding_lookup.get(int(poi_id), embedding_lookup[PADDING_VALUE])
-                for poi_id in history_pois
-            ])
+            sequence_embeddings = np.vstack(
+                [
+                    embedding_lookup.get(int(poi_id), embedding_lookup[PADDING_VALUE])
+                    for poi_id in history_pois
+                ]
+            )
 
             # Flatten to 1D: [window_size × embedding_dim] features
             flattened = sequence_embeddings.ravel()
@@ -325,10 +318,7 @@ def convert_sequences_to_poi_embeddings(
             target_category = category_lookup.get(target_poi, MISSING_CATEGORY_VALUE)
 
             # Append target category and userid
-            all_results.append(np.concatenate([
-                flattened,
-                [target_category, userid]
-            ]))
+            all_results.append(np.concatenate([flattened, [target_category, userid]]))
 
     return all_results
 
@@ -373,12 +363,12 @@ def convert_user_checkins_to_sequences(
     poi_sequences = []
 
     # Get user ID (same for all rows in user_df)
-    userid = user_df['userid'].iloc[0]
+    userid = user_df["userid"].iloc[0]
 
     # Pre-extract numpy arrays for fast indexed access (avoids slow iloc in loop)
     emb_matrix = user_df[embedding_cols].values.astype(np.float32)
-    categories = user_df['category'].values
-    placeids = user_df['placeid'].values
+    categories = user_df["category"].values
+    placeids = user_df["placeid"].values
     n_rows = len(user_df)
     zero_emb = np.zeros(embedding_dim, dtype=np.float32)
 
@@ -418,15 +408,11 @@ def convert_user_checkins_to_sequences(
             # Fallback: look up target POI's category by POI ID
             matches = np.where(placeids == target_poi)[0]
             target_category = (
-                categories[matches[0]]
-                if len(matches) > 0
-                else MISSING_CATEGORY_VALUE
+                categories[matches[0]] if len(matches) > 0 else MISSING_CATEGORY_VALUE
             )
 
         # Flatten embeddings and append metadata
         flattened = np.vstack(seq_embeddings).ravel()
-        embedding_results.append(np.concatenate([
-            flattened, [target_category, userid]
-        ]))
+        embedding_results.append(np.concatenate([flattened, [target_category, userid]]))
 
     return embedding_results, poi_sequences

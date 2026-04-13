@@ -595,7 +595,11 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             sample_category = sample_category.to(DEVICE)
             sample_next = sample_next.to(DEVICE)
             result = calculate_model_flops(model, [sample_category[1:], sample_next[1:]], print_report=True, units='K')
-            history.set_flops(FlopsMetrics(flops=result['total_flops'], params=result['params']['total']))
+            if 'total_flops' in result and 'params' in result:
+                history.set_flops(FlopsMetrics(flops=result['total_flops'], params=result['params']['total']))
+            else:
+                # fvcore unavailable — set a sentinel so we don't retry every fold
+                history.set_flops(FlopsMetrics(flops=0, params=0))
 
         # Train the model
         train_model(

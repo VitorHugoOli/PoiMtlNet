@@ -151,7 +151,10 @@ def run_cv(
                                            print_report=True,
                                            units='K'
                                            )
-            history.set_flops(FlopsMetrics(flops=result['total_flops'], params=result['params']['total']))
+            if 'total_flops' in result and 'params' in result:
+                history.set_flops(FlopsMetrics(flops=result['total_flops'], params=result['params']['total']))
+            else:
+                history.set_flops(FlopsMetrics(flops=0, params=0))
 
         train(
             model,

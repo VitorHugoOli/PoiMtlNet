@@ -129,34 +129,40 @@ class TestExperimentConfigFactories:
     def test_default_mtl(self):
         c = ExperimentConfig.default_mtl("test", "florida", "hgi")
         assert c.task_type == "mtl"
-        assert c.model_name == "mtlnet"
-        assert c.use_class_weights is True
-        assert c.mtl_loss == "nash_mtl"
-        # Constraint checks — no exact hyperparameter values
         assert c.epochs > 0
         assert c.batch_size > 0
         assert c.learning_rate > 0
         assert c.max_lr >= c.learning_rate
+        assert c.weight_decay >= 0
+        assert c.gradient_accumulation_steps >= 1
+        assert c.max_grad_norm > 0
+        assert c.use_class_weights is True
+        assert c.mtl_loss != ""
+        assert c.model_name == "mtlnet"
+        assert c.model_params["num_classes"] > 0
 
     def test_default_category(self):
         c = ExperimentConfig.default_category("test", "florida", "dgi")
         assert c.task_type == "category"
-        assert c.model_name == "category_ensemble"
-        # Constraint checks — no exact hyperparameter values
         assert c.epochs > 0
         assert c.batch_size > 0
         assert c.learning_rate > 0
         assert c.max_lr >= c.learning_rate
+        assert c.mtl_loss == ""
+        assert c.model_name == "category_ensemble"
+        assert c.model_params["num_classes"] > 0
 
     def test_default_next(self):
         c = ExperimentConfig.default_next("test", "alabama", "check2hgi")
         assert c.task_type == "next"
-        assert c.model_name == "next_single"
-        # Constraint checks — no exact hyperparameter values
         assert c.epochs > 0
         assert c.batch_size > 0
         assert c.learning_rate > 0
         assert c.max_lr >= c.learning_rate
+        assert c.mtl_loss == ""
+        assert c.model_name == "next_single"
+        assert c.model_params["embed_dim"] > 0
+        assert c.model_params["num_heads"] > 0
 
     def test_factory_overrides(self):
         c = ExperimentConfig.default_mtl(
@@ -164,7 +170,7 @@ class TestExperimentConfigFactories:
         )
         assert c.epochs == 10
         assert c.learning_rate == 3e-4
-        # Non-overridden defaults still valid
+        # Non-overridden defaults preserved
         assert c.batch_size > 0
 
     def test_factory_round_trip(self, tmp_path):
