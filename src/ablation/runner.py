@@ -9,14 +9,17 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import logging
 import os
 import subprocess
 import sys
 import time
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, fields as dc_fields
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+_logger = logging.getLogger(__name__)
 
 from ablation._utils import format_cli_value
 
@@ -84,6 +87,7 @@ class AblationRunConfig:
     promote_top: int = 0
     promote_epochs: int = 15
     promote_folds: int = 2
+    timeout_seconds: int | None = None  # per-candidate subprocess timeout
     results_root: Path = field(default_factory=_default_results_root)
     data_root: Path = field(default_factory=_default_data_root)
     output_dir: Path = field(default_factory=_default_output_dir)
@@ -145,18 +149,76 @@ def _latest_run_dir(candidate_root: Path, engine: str, state: str, epochs: int) 
     return max(runs, key=lambda path: path.stat().st_mtime)
 
 
-def _parse_metrics(run_dir: Path | None) -> tuple[float | None, float | None, float | None]:
+def _execute_subprocess(
+    argv: list[str],
+    candidate_name: str,
+    candidate_root: Path,
+    label_root: Path,
+    seed: int | None,
+    data_root: Path,
+    output_dir: Path,
+    engine: str,
+    state: str,
+    epochs: int,
+    timeout_seconds: int | None,
+) -> tuple[subprocess.CompletedProcess | None, Path, float, Path | None]:
+    """Run a training subprocess, redirect output to a log file, and return metadata.
+
+    Returns ``(proc, log_file, duration, run_dir)``.  ``proc`` is ``None`` on timeout.
+    """
+    log_dir = label_root / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    seed_tag = f"_seed{seed}" if seed is not None else ""
+    log_file = log_dir / f"{candidate_name}{seed_tag}.log"
+
+    env = os.environ.copy()
+    env["DATA_ROOT"] = str(data_root)
+    env["OUTPUT_DIR"] = str(output_dir)
+    env["RESULTS_ROOT"] = str(candidate_root)
+    env["PYTHONPATH"] = f"{_root / 'src'}:{_root}"
+
+    started = time.time()
+    proc: subprocess.CompletedProcess | None = None
+    with log_file.open("w", encoding="utf-8") as log:
+        log.write("$ " + " ".join(argv) + "\n\n")
+        try:
+            proc = subprocess.run(
+                argv,
+                cwd=_root,
+                env=env,
+                stdout=log,
+                stderr=subprocess.STDOUT,
+                text=True,
+                timeout=timeout_seconds,
+            )
+        except subprocess.TimeoutExpired:
+            log.write(f"\n[ablation] TIMED OUT after {timeout_seconds}s\n")
+            _logger.warning("[ablation] %s timed out after %ss", candidate_name, timeout_seconds)
+
+    duration = time.time() - started
+    run_dir = _latest_run_dir(candidate_root, engine, state, epochs)
+    return proc, log_file, duration, run_dir
+
+
+def _parse_metrics(
+    run_dir: Path | None,
+    candidate_name: str = "",
+) -> tuple[float | None, float | None, float | None]:
     if run_dir is None:
+        _logger.warning("[ablation] no run directory found for %s", candidate_name)
         return None, None, None
     summary_path = run_dir / "summary" / "full_summary.json"
     if not summary_path.exists():
+        _logger.warning("[ablation] summary not found: %s", summary_path)
         return None, None, None
     try:
         data = json.loads(summary_path.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
+    except (json.JSONDecodeError, OSError) as exc:
+        _logger.warning("[ablation] failed to parse %s: %s", summary_path, exc)
         return None, None, None
     next_f1 = data.get("next", {}).get("f1", {}).get("mean")
     category_f1 = data.get("category", {}).get("f1", {}).get("mean")
+    # Prefer the pre-computed joint_score from the summary; fall back to equal weighting.
     joint_score = data.get("model", {}).get("joint_score", {}).get("mean")
     if joint_score is None and next_f1 is not None and category_f1 is not None:
         joint_score = 0.5 * (float(next_f1) + float(category_f1))
@@ -165,8 +227,9 @@ def _parse_metrics(run_dir: Path | None) -> tuple[float | None, float | None, fl
 
 def _write_summary(path: Path, rows: list[AblationResult]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
+    fieldnames = [f.name for f in dc_fields(AblationResult)]
     with path.open("w", encoding="utf-8", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=list(asdict(rows[0]).keys()) if rows else [])
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         for row in rows:
             writer.writerow(asdict(row))
@@ -183,39 +246,24 @@ def _run_candidate(
     data_root: Path,
     output_dir: Path,
     embedding_dim: int | None = None,
+    timeout_seconds: int | None = None,
 ) -> AblationResult:
     candidate_root = label_root / candidate.name
-    log_dir = label_root / "logs"
-    log_dir.mkdir(parents=True, exist_ok=True)
-    seed_tag = f"_seed{seed}" if seed is not None else ""
-    log_file = log_dir / f"{candidate.name}{seed_tag}.log"
-
-    env = os.environ.copy()
-    env["DATA_ROOT"] = str(data_root)
-    env["OUTPUT_DIR"] = str(output_dir)
-    env["RESULTS_ROOT"] = str(candidate_root)
-    env["PYTHONPATH"] = f"{_root / 'src'}:{_root}"
-
     argv = _candidate_argv(candidate, state, engine, epochs, folds, seed, embedding_dim)
     command = " ".join(argv)
-    started = time.time()
     print(f"[ablation] running {candidate.name} ({folds} fold(s), {epochs} epochs)")
-    with log_file.open("w", encoding="utf-8") as log:
-        log.write("$ " + command + "\n\n")
-        proc = subprocess.run(
-            argv,
-            cwd=_root,
-            env=env,
-            stdout=log,
-            stderr=subprocess.STDOUT,
-            text=True,
-        )
-
-    duration = time.time() - started
-    run_dir = _latest_run_dir(candidate_root, engine, state, epochs)
-    joint_score, next_f1, category_f1 = _parse_metrics(run_dir)
-    status = "ok" if proc.returncode == 0 else "failed"
-    error = "" if proc.returncode == 0 else f"see {log_file}"
+    proc, log_file, duration, run_dir = _execute_subprocess(
+        argv, candidate.name, candidate_root, label_root, seed,
+        data_root, output_dir, engine, state, epochs, timeout_seconds,
+    )
+    joint_score, next_f1, category_f1 = _parse_metrics(run_dir, candidate.name)
+    if proc is None:
+        status, returncode = "timeout", -1
+        error = f"timed out after {timeout_seconds}s; see {log_file}"
+    else:
+        status = "ok" if proc.returncode == 0 else "failed"
+        returncode = proc.returncode
+        error = "" if proc.returncode == 0 else f"see {log_file}"
     print(
         "[ablation] finished "
         f"{candidate.name}: status={status} joint={joint_score} "
@@ -228,7 +276,7 @@ def _run_candidate(
         folds=folds,
         seed=seed,
         status=status,
-        returncode=proc.returncode,
+        returncode=returncode,
         run_dir=str(run_dir) if run_dir else "",
         log_file=str(log_file),
         duration_seconds=duration,
@@ -336,6 +384,7 @@ def run_ablation(config: AblationRunConfig) -> dict[str, Path | None]:
             data_root=config.data_root,
             output_dir=config.output_dir,
             embedding_dim=config.embedding_dim,
+            timeout_seconds=config.timeout_seconds,
         )
         for candidate in candidates
     ]
@@ -379,6 +428,7 @@ def run_ablation(config: AblationRunConfig) -> dict[str, Path | None]:
                 data_root=config.data_root,
                 output_dir=config.output_dir,
                 embedding_dim=config.embedding_dim,
+                timeout_seconds=config.timeout_seconds,
             )
             for candidate in promoted_candidates
         ]
@@ -430,6 +480,7 @@ class HeadAblationConfig:
     folds: int = 1
     seed: int | None = None
     embedding_dim: int | None = None
+    timeout_seconds: int | None = None  # per-candidate subprocess timeout
     results_root: Path = field(default_factory=_default_results_root)
     data_root: Path = field(default_factory=_default_data_root)
     output_dir: Path = field(default_factory=_default_output_dir)
@@ -475,16 +526,23 @@ def _head_candidate_argv(
     return argv
 
 
-def _parse_head_metrics(run_dir: Path | None, task: str) -> tuple[float | None, float | None]:
+def _parse_head_metrics(
+    run_dir: Path | None,
+    task: str,
+    candidate_name: str = "",
+) -> tuple[float | None, float | None]:
     """Extract F1 and accuracy from a standalone head run."""
     if run_dir is None:
+        _logger.warning("[head-ablation] no run directory found for %s", candidate_name)
         return None, None
     summary_path = run_dir / "summary" / "full_summary.json"
     if not summary_path.exists():
+        _logger.warning("[head-ablation] summary not found: %s", summary_path)
         return None, None
     try:
         data = json.loads(summary_path.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
+    except (json.JSONDecodeError, OSError) as exc:
+        _logger.warning("[head-ablation] failed to parse %s: %s", summary_path, exc)
         return None, None
     task_data = data.get(task, {})
     f1 = task_data.get("f1", {}).get("mean")
@@ -503,41 +561,24 @@ def _run_head_candidate(
     label_root: Path,
     data_root: Path,
     output_dir: Path,
+    timeout_seconds: int | None = None,
 ) -> HeadAblationResult:
     candidate_root = label_root / candidate.name
-    log_dir = label_root / "logs"
-    log_dir.mkdir(parents=True, exist_ok=True)
-    seed_tag = f"_seed{seed}" if seed is not None else ""
-    log_file = log_dir / f"{candidate.name}{seed_tag}.log"
-
-    env = os.environ.copy()
-    env["DATA_ROOT"] = str(data_root)
-    env["OUTPUT_DIR"] = str(output_dir)
-    env["RESULTS_ROOT"] = str(candidate_root)
-    env["PYTHONPATH"] = f"{_root / 'src'}:{_root}"
-
-    argv = _head_candidate_argv(
-        candidate, state, engine, epochs, folds, seed, embedding_dim,
-    )
+    argv = _head_candidate_argv(candidate, state, engine, epochs, folds, seed, embedding_dim)
     command = " ".join(argv)
-    started = time.time()
     print(f"[head-ablation] running {candidate.name} (task={candidate.task}, {folds} fold(s), {epochs} epochs)")
-    with log_file.open("w", encoding="utf-8") as log:
-        log.write("$ " + command + "\n\n")
-        proc = subprocess.run(
-            argv,
-            cwd=_root,
-            env=env,
-            stdout=log,
-            stderr=subprocess.STDOUT,
-            text=True,
-        )
-
-    duration = time.time() - started
-    run_dir = _latest_run_dir(candidate_root, engine, state, epochs)
-    f1, accuracy = _parse_head_metrics(run_dir, candidate.task)
-    status = "ok" if proc.returncode == 0 else "failed"
-    error = "" if proc.returncode == 0 else f"see {log_file}"
+    proc, log_file, duration, run_dir = _execute_subprocess(
+        argv, candidate.name, candidate_root, label_root, seed,
+        data_root, output_dir, engine, state, epochs, timeout_seconds,
+    )
+    f1, accuracy = _parse_head_metrics(run_dir, candidate.task, candidate.name)
+    if proc is None:
+        status, returncode = "timeout", -1
+        error = f"timed out after {timeout_seconds}s; see {log_file}"
+    else:
+        status = "ok" if proc.returncode == 0 else "failed"
+        returncode = proc.returncode
+        error = "" if proc.returncode == 0 else f"see {log_file}"
     print(
         f"[head-ablation] finished {candidate.name}: "
         f"status={status} f1={f1} accuracy={accuracy}"
@@ -550,7 +591,7 @@ def _run_head_candidate(
         folds=folds,
         seed=seed,
         status=status,
-        returncode=proc.returncode,
+        returncode=returncode,
         run_dir=str(run_dir) if run_dir else "",
         log_file=str(log_file),
         duration_seconds=duration,
@@ -563,8 +604,9 @@ def _run_head_candidate(
 
 def _write_head_summary(path: Path, rows: list[HeadAblationResult]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
+    fieldnames = [f.name for f in dc_fields(HeadAblationResult)]
     with path.open("w", encoding="utf-8", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=list(asdict(rows[0]).keys()) if rows else [])
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         for row in rows:
             writer.writerow(asdict(row))
@@ -627,6 +669,7 @@ def run_head_ablation(config: HeadAblationConfig) -> Path:
             label_root=label_root,
             data_root=config.data_root,
             output_dir=config.output_dir,
+            timeout_seconds=config.timeout_seconds,
         )
         for candidate in candidates
     ]

@@ -3,7 +3,10 @@
 Import from this module (or from each variant package) as the canonical API.
 """
 
+from losses.aligned_mtl.loss import AlignedMTLLoss
 from losses.bayesagg_mtl.loss import BayesAggMTLLoss
+from losses.cagrad.loss import CAGradLoss
+from losses.dwa.loss import DWALoss
 from losses.db_mtl.loss import DBMTLLoss
 from losses.equal_weight.loss import EqualWeightLoss
 from losses.excess_mtl.loss import ExcessMTLLoss
@@ -25,6 +28,9 @@ from losses.uw_so.loss import SoftOptimalUncertaintyWeightingLoss
 __all__ = [
     "WeightMethod",
     "NashMTL",
+    "AlignedMTLLoss",
+    "CAGradLoss",
+    "DWALoss",
     "FocalLoss",
     "PCGrad",
     "GradNormLoss",
