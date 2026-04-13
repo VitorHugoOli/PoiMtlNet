@@ -263,7 +263,20 @@ Evaluation: macro-averaged F1 over 7 categories, 5-fold cross-validation.
 | Nightlife | 77.95 ± 0.7 | 63.07 ± 2.9 | 24.38 ± 5.0 | 7.40 ± 0.2 |
 | **Macro F1** | **~59.8** | **~46.2** | **~36.3** | **~14.2** |
 
-**Our reproduced results:** Not yet available.
+#### Our reproduced results — per US state (mean ± std, 5 folds)
+
+**Florida:**
+
+| Category | Precision (%) | Recall (%) | F1 (%) |
+|----------|--------------|-----------|--------|
+| Shopping | 46.38 ± 0.91 | 61.73 ± 2.49 | 52.93 ± 0.58 |
+| Community | 69.71 ± 2.44 | 11.47 ± 1.21 | 19.66 ± 1.73 |
+| Food | 55.56 ± 0.89 | 70.99 ± 1.55 | 62.31 ± 0.29 |
+| Entertainment | 80.53 ± 2.39 | 66.04 ± 1.50 | 72.52 ± 0.17 |
+| Travel | 85.40 ± 2.39 | 60.25 ± 1.67 | 70.61 ± 0.73 |
+| Outdoors | 75.51 ± 3.50 | 36.62 ± 2.10 | 49.22 ± 1.33 |
+| Nightlife | 66.45 ± 2.20 | 43.29 ± 1.81 | 52.37 ± 1.08 |
+| **Macro F1** | | | **54.23** |
 
 ---
 
