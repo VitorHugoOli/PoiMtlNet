@@ -1,0 +1,32 @@
+A predição e classificação de POIs são desafios fundamentais em sistemas de recomendação baseados em localização e em análise de mobilidade urbana. Esta seção organiza os trabalhos relacionados em quatro eixos: representações baseadas em grafos, codificadores espaciais, representações temporais e aprendizado multitarefa aplicado a POIs.
+
+\subsection{Representações de POIs Baseadas em Grafos}
+
+A modelagem de POIs por meio de grafos permite capturar relações de vizinhança espacial e semântica entre locais. O modelo POI2Vec \cite{feng2017poi2vec} adapta a arquitetura Word2Vec para gerar \textit{embeddings} de POIs que incorporam a influência geográfica entre locais por meio de uma estrutura de árvore binária geográfica. O CATAPE (\textit{Category-Aware Location Embedding}) \cite{rahmani2019category} estende essa ideia incorporando informações categóricas e sequenciais, capturando a influência geográfica entre POIs com base na sequência temporal de visitas dos usuários.
+
+Em uma abordagem auto-supervisionada, o \textit{Deep Graph Infomax} (DGI) \cite{velickovic2019deep} maximiza a informação mútua entre representações locais (nós) e globais (grafo) para gerar \textit{embeddings} sem supervisão explícita. O HGI (\textit{Hierarchical Graph Infomax}) \cite{huang2023learning} avança sobre essa linha ao operar em múltiplos níveis hierárquicos (POI, região e cidade), produzindo representações enriquecidas com informações regionais por meio de convoluções em grafos e mecanismos de multi-atenção. 
+% O HAVANA \cite{dos2024havana} combina \textit{Graph Attention Networks} (GAT) \cite{velivckovic2017graph} com filtros ARMA para anotação semântica de locais, mostrando a eficácia de modelos híbridos de grafos para a tarefa de classificação categórica.
+
+No entanto, essas abordagens codificam informações espaciais de forma implícita por meio da topologia do grafo, sem utilizar diretamente as coordenadas geográficas como sinal de entrada para a representação.
+
+\subsection{Representações Espaciais}
+
+O uso direto de coordenadas geográficas para a geração de características latentes espaciais é uma abordagem distinta das representações baseadas em grafos. O \textit{framework} TorchSpatial \cite{wu2024torchspatial} estabelece um \textit{benchmark} unificado para a avaliação de estratégias de representação espacial, permitindo a comparação sistemática entre diferentes arquiteturas.
+
+% O Space2Vec \cite{mai2020multiscalerepresentationlearningspatial} propõe uma codificação posicional multi-escala inspirada em \textit{grid cells} do sistema nervoso, utilizando funções senoidais com frequências logaritmicamente espaçadas para transformar coordenadas em representações vetoriais. A abordagem 
+A metodologia SIREN (\textit{Sinusoidal Representation Networks}) \cite{sitzmann2020implicit}, aplicada ao contexto geográfico \cite{rußwurm2024geographiclocationencodingspherical}, modela funções contínuas por meio de ativações senoidais, sendo capaz de representar sinais de alta frequência em dados espaciais. O Sphere2Vec \cite{mai2023sphere2vecgeneralpurposelocationrepresentation} opera diretamente sobre coordenadas esféricas com múltiplas escalas de resolução, preservando propriedades de distância geodésica que são perdidas em projeções planares.
+
+Embora essas estratégias tenham sido avaliadas em tarefas geoespaciais como predição de espécies e estimativa de população, sua aplicação pode ser estendida para modelos de predição e classificação de POIs como proposto neste trabalho.
+
+\subsection{Representações Temporais}
+
+A dimensão temporal é central para tarefas de predição de POIs, uma vez que os padrões de visitação dos usuários apresentam regularidades (e.g., horários de refeição, deslocamentos semanais). O modelo LSTPM (\textit{Long- and Short-Term Preference Modeling}) \cite{sun2020go} captura preferências de curto e longo prazo utilizando uma Geo-Dilated RNN que relaciona POIs não consecutivos por meio de sequências temporais de visita e informações geográficas. O TransTARec \cite{sun2024transtarec} propõe um modelo de tradução temporal adaptativa que une representações do POI, do \textit{timestamp} e das preferências do usuário para predição do próximo POI.
+
+Esses modelos incorporam a dimensão temporal principalmente no contexto da sequência de visitas do usuário. Nesse sentido, o Time2Vec \cite{kazemi2019time2vec} propõe uma representação temporal que combina termos lineares com funções senoidais de frequência e fase aprendíveis, capturando padrões periódicos e não periódicos a partir de valores temporais contínuos. 
+
+\subsection{Aprendizado Multitarefa para Tarefas de POI}
+
+O aprendizado multitarefa (\textit{Multitask Learning}, MTL) \cite{caruana1997multitask} tem sido explorado em tarefas de POIs principalmente para combinar a predição do próximo POI com sinais temporais, comportamentais ou regionais. O MCARNN \cite{Liao2018} integra dependências sequenciais e regularidades temporais para predizer simultaneamente atividades e locais futuros. O MTPR \cite{Xia2020} modela conjuntamente localização e contexto temporal por meio de LSTMs geográficas e aprendizado adversarial. Em uma linha mais recente, Halder et al. \cite{Halder2022} propõem um modelo multitarefa baseado em \textit{Transformers} para recomendar o próximo POI e predizer simultaneamente o tempo de espera.
+
+Na classificação categórica, o TME \cite{Xu2023} explora uma estrutura hierárquica de categorias para anotação semântica de POIs, enquanto o HMT-GRN \cite{Lim2022} combina predição do próximo POI e de sua região geográfica em um modelo recorrente com grafos hierárquicos. Em conjunto, esses trabalhos indicam que o MTL é promissor em problemas de POIs, mas ainda há pouca exploração de arquiteturas que tratem conjuntamente a \textit{classificação de categoria de POI} e a \textit{predição do próximo POI} com representações espaciais contínuas e temporais explícitas. Essa lacuna motiva a investigação proposta neste trabalho.
+

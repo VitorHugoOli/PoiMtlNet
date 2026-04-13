@@ -1,0 +1,27 @@
+Redes Sociais Baseadas em Localização (\textit{Location-Based Social Networks}, LBSNs), como o Gowalla \cite{cho2011friendship,jure2014snap}, registram \textit{check-ins} de usuários com localização geográfica, horário de visita e categoria do local visitado. Nesse contexto, um Ponto de Interesse (POI) corresponde a um local físico semanticamente identificável, como restaurantes, lojas, aeroportos ou parques. A análise desses dados é relevante para aplicações como recomendação e mobilidade urbana. Nesse cenário, duas tarefas se destacam:
+
+\begin{enumerate}
+    \item \textbf{Classificação de Categoria de POI}: classificar a categoria semântica (e.g., \textit{Food}, \textit{Shopping}, \textit{Travel}) de um POI a partir de suas características.
+    \item \textbf{Predição do Próximo POI}: prever a categoria do próximo POI que um usuário visitará, dada a sequência histórica de seus \textit{check-ins}.
+\end{enumerate}
+
+Em princípio, essas tarefas podem ser tratadas como relacionadas, pois compartilham a mesma base de dados de mobilidade e o mesmo espaço semântico de categorias, o que torna o aprendizado multitarefa (\textit{Multitask Learning}, MTL) uma estratégia promissora para explorar informação compartilhada entre elas \cite{caruana1997multitask}. No entanto, elas impõem demandas distintas. A classificação de categoria de POI é uma tarefa não sequencial, pois depende principalmente dos atributos do próprio POI e de seu contexto espacial. Já a predição do próximo POI é explicitamente sequencial, exigindo a modelagem de ordem temporal, recorrência e transições ao longo da trajetória do usuário. Assim, as informações úteis para uma tarefa podem não beneficiar a outra da mesma forma.
+
+O MTLNet, proposto em \cite{silva2025mtlnet}, explora esse potencial ao modelar as duas tarefas em uma única arquitetura multitarefa com compartilhamento rígido de parâmetros. No entanto, o modelo utiliza exclusivamente representações vetoriais baseadas na estrutura do grafo, geradas pelo\textit{ Deep Graph Infomax} (DGI), que codifica informações espaciais e categóricas em um único vetor de 64 dimensões, sem incorporar explicitamente coordenadas geográficas contínuas nem padrões temporais de visitação.
+
+Diante disso, surge o questionamento se a decomposição da entrada em \textit{encoders} especializados para espaço, tempo e categoria produz uma base mais adequada para as duas tarefas do que o \textit{embedding} monolítico do DGI. A hipótese é que representações desacopladas capturam dimensões complementares da mobilidade humana que não são modeladas explicitamente pela abordagem original.
+
+Nesse sentido, este trabalho propõe o ST-MTLNet (\textit{Spatial-Temporal MTLNet}), que integra três representações independentes: uma representação espacial contínua para coordenadas geográficas, uma representação temporal (Time2Vec) para padrões de visitação e uma representação categórica hierárquica para relações regionais e estruturais entre POIs. Na dimensão espacial, avaliamos duas arquiteturas com pressupostos distintos, SIREN e Sphere2Vec-M, originalmente validadas em tarefas geoespaciais de sensoriamento remoto e ecologia \cite{wu2024torchspatial}, mas ainda pouco exploradas no aprendizado multitarefa de POIs em LBSNs.
+
+Os experimentos foram realizados com a base pública Gowalla \cite{jure2014snap} nos estados da Flórida, Califórnia e Texas. Na classificação categórica, o ST-MTLNet supera o MTLNet em todas as combinações de categoria e estado avaliadas, com ganhos médios de 20 a 24 pontos percentuais. Na predição do próximo POI, o modelo proposto vence na maioria dos cenários, com destaque para categorias como \textit{Food}. A comparação entre SIREN e Sphere2Vec-M mostra ainda que, embora a abordagem modular seja consistentemente superior ao \textit{baseline}, o \textit{encoder} espacial mais adequado depende da distribuição geográfica dos POIs em cada território.
+
+Portanto, as principais contribuições deste trabalho são:
+\begin{itemize}
+\item A proposição do ST-MTLNet, que incorpora representações espaciais contínuas, temporais e categóricas hierárquicas ao MTLNet.
+
+\item A avaliação comparativa de SIREN e Sphere2Vec-M em três estados com estruturas territoriais distintas.
+
+\item A disponibilização pública do código-fonte e do \textit{pipeline} experimental.\footnote{O código-fonte completo está disponível em \url{https://github.com/TarikSalles/Spatial_Embeddings}}
+\end{itemize}
+
+A organização deste trabalho segue o seguinte formato: a Seção \ref{sec:related_works} apresenta os trabalhos relacionados. A Seção \ref{sec:methods} descreve a metodologia proposta. A Seção \ref{sec:results} discute os resultados experimentais. Por fim, a Seção \ref{sec:conclusion} apresenta as conclusões e trabalhos futuros.
