@@ -36,7 +36,7 @@ class NextHeadTransformerOptimized(nn.Module):
             batch_first=True,
             norm_first=True,
         )
-        self.transformer = nn.TransformerEncoder(encoder_layer, num_layers)
+        self.transformer = nn.TransformerEncoder(encoder_layer, num_layers, enable_nested_tensor=False)
 
         if use_temporal_decay:
             decay = torch.exp(-torch.arange(seq_length - 1, -1, -1).float() * 0.5)

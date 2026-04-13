@@ -332,9 +332,12 @@ def run_stage_1(dry_run: bool = False) -> Path:
     # Promote top 5 to 2f x 15ep
     rows = _load_summary(summary)
     top5_names = _top_candidates(rows, 5)
-    top5 = tuple(_find_candidate_by_name(n, STAGE_1_CANDIDATES) for n in top5_names)
+    if not top5_names:
+        print("[study] ERROR: Stage 1 produced no successful candidates. Cannot promote.")
+        sys.exit(1)
 
-    print(f"\n[study] Promoting top 5: {', '.join(top5_names)}")
+    top5 = tuple(_find_candidate_by_name(n, STAGE_1_CANDIDATES) for n in top5_names)
+    print(f"\n[study] Promoting top {len(top5)}: {', '.join(top5_names)}")
     promoted = _run_stage("s1_promoted_2f_15ep", top5, epochs=15, folds=2)
     return promoted
 
@@ -350,9 +353,12 @@ def run_stage_2(dry_run: bool = False) -> Path:
 
     rows = _load_summary(promoted_path)
     top3_names = _top_candidates(rows, 3)
+    if not top3_names:
+        print("[study] ERROR: Stage 1 promoted results contain no successful candidates.")
+        sys.exit(1)
     top3 = [_find_candidate_by_name(n, STAGE_1_CANDIDATES) for n in top3_names]
 
-    print(f"[study] Stage 1 top-3: {', '.join(top3_names)}")
+    print(f"[study] Stage 1 top-{len(top3)}: {', '.join(top3_names)}")
 
     s2_candidates = _build_stage2_candidates(top3)
     return _run_stage("s2_heads_2f_15ep", s2_candidates, epochs=15, folds=2, dry_run=dry_run)
@@ -417,7 +423,11 @@ def run_stage_4(dry_run: bool = False) -> Path:
         sys.exit(1)
 
     rows = _load_summary(s3_path)
-    top1_name = _top_candidates(rows, 1)[0]
+    top1_results = _top_candidates(rows, 1)
+    if not top1_results:
+        print("[study] ERROR: Stage 3 produced no successful candidates.")
+        sys.exit(1)
+    top1_name = top1_results[0]
 
     # Strip s3_ prefix to find the original candidate
     original_name = top1_name[3:]  # remove "s3_"

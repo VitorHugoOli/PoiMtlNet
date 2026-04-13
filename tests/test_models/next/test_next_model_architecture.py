@@ -14,7 +14,10 @@ from models.next import (
     NextHeadGRU,
     NextHeadLSTM,
     NextHeadTransformerOptimized,
-    NextHeadTemporalCNN
+    NextHeadTemporalCNN,
+    NextHeadConvAttn,
+    NextHeadTCNResidual,
+    NextHeadTransformerRelPos,
 )
 from configs.experiment import ExperimentConfig
 
@@ -230,6 +233,190 @@ class TestNextHeadGRUArchitecture:
         # GRU with hidden_dim=256: ~640k parameters
         assert 400_000 < total_params < 1_000_000, \
             f"Parameter count {total_params:,} outside expected range"
+
+
+class TestNextHeadConvAttnArchitecture:
+    """Tests for NextHeadConvAttn (TCN + cross-attention pooling)."""
+
+    @pytest.fixture
+    def model(self):
+        return NextHeadConvAttn(
+            embed_dim=64,
+            hidden_channels=128,
+            num_classes=7,
+            num_conv_layers=3,
+            kernel_size=3,
+            num_heads=4,
+            dropout=0.2,
+        )
+
+    def test_output_shape(self, model):
+        x = torch.randn(16, 9, 64)
+        assert model(x).shape == (16, 7)
+
+    def test_output_finite(self, model):
+        x = torch.randn(16, 9, 64)
+        assert torch.isfinite(model(x)).all()
+
+    def test_batch_size_one(self, model):
+        assert model(torch.randn(1, 9, 64)).shape == (1, 7)
+
+    def test_padded_sequence(self, model):
+        x = torch.randn(8, 9, 64)
+        x[:, 6:, :] = 0
+        out = model(x)
+        assert out.shape == (8, 7)
+        assert torch.isfinite(out).all()
+
+    def test_learned_query_shape(self, model):
+        assert model.query.shape == (1, 1, 128)
+
+    def test_parameter_count(self, model):
+        total = sum(p.numel() for p in model.parameters())
+        assert 50_000 < total < 500_000, f"Unexpected param count: {total:,}"
+
+
+class TestNextHeadTCNResidualArchitecture:
+    """Tests for NextHeadTCNResidual (canonical TCN with exponential dilation)."""
+
+    @pytest.fixture
+    def model(self):
+        return NextHeadTCNResidual(
+            embed_dim=64,
+            hidden_channels=128,
+            num_classes=7,
+            num_blocks=4,
+            kernel_size=3,
+            dropout=0.2,
+        )
+
+    def test_output_shape(self, model):
+        x = torch.randn(16, 9, 64)
+        assert model(x).shape == (16, 7)
+
+    def test_output_finite(self, model):
+        x = torch.randn(16, 9, 64)
+        assert torch.isfinite(model(x)).all()
+
+    def test_batch_size_one(self, model):
+        assert model(torch.randn(1, 9, 64)).shape == (1, 7)
+
+    def test_dilation_schedule(self, model):
+        """Blocks must have exponential dilation: 1, 2, 4, 8."""
+        expected = [1, 2, 4, 8]
+        for block, dil in zip(model.network, expected):
+            assert block.conv1.dilation == (dil,), (
+                f"Expected dilation {dil}, got {block.conv1.dilation}"
+            )
+
+    def test_num_blocks(self, model):
+        assert len(model.network) == 4
+
+    def test_parameter_count(self, model):
+        total = sum(p.numel() for p in model.parameters())
+        assert 100_000 < total < 1_000_000, f"Unexpected param count: {total:,}"
+
+
+class TestNextHeadTransformerOptimizedArchitecture:
+    """Tests for NextHeadTransformerOptimized (temporal-decay pooling)."""
+
+    @pytest.fixture
+    def model(self):
+        return NextHeadTransformerOptimized(
+            embed_dim=64,
+            num_classes=7,
+            num_heads=4,
+            num_layers=2,
+            seq_length=9,
+            dropout=0.1,
+            use_temporal_decay=True,
+        )
+
+    def test_output_shape(self, model):
+        x = torch.randn(16, 9, 64)
+        assert model(x).shape == (16, 7)
+
+    def test_output_finite(self, model):
+        x = torch.randn(16, 9, 64)
+        assert torch.isfinite(model(x)).all()
+
+    def test_batch_size_one(self, model):
+        assert model(torch.randn(1, 9, 64)).shape == (1, 7)
+
+    def test_no_nested_tensor_warning(self, model):
+        """TransformerEncoder must be constructed with enable_nested_tensor=False."""
+        assert not model.transformer.enable_nested_tensor
+
+    def test_temporal_decay_buffer_shape(self, model):
+        assert model.temporal_decay.shape == (9,)
+
+    def test_without_temporal_decay(self):
+        m = NextHeadTransformerOptimized(
+            embed_dim=64, num_classes=7, num_heads=4,
+            num_layers=2, seq_length=9, use_temporal_decay=False,
+        )
+        x = torch.randn(4, 9, 64)
+        assert m(x).shape == (4, 7)
+
+    def test_padded_sequence(self, model):
+        x = torch.randn(8, 9, 64)
+        x[:, 6:, :] = 0
+        out = model(x)
+        assert out.shape == (8, 7)
+        assert torch.isfinite(out).all()
+
+
+class TestNextHeadTransformerRelPosArchitecture:
+    """Tests for NextHeadTransformerRelPos (relative position bias)."""
+
+    @pytest.fixture
+    def model(self):
+        return NextHeadTransformerRelPos(
+            embed_dim=64,
+            num_classes=7,
+            num_heads=4,
+            num_layers=2,
+            seq_length=9,
+            dropout=0.2,
+        )
+
+    def test_output_shape(self, model):
+        x = torch.randn(16, 9, 64)
+        assert model(x).shape == (16, 7)
+
+    def test_output_finite(self, model):
+        x = torch.randn(16, 9, 64)
+        assert torch.isfinite(model(x)).all()
+
+    def test_batch_size_one(self, model):
+        assert model(torch.randn(1, 9, 64)).shape == (1, 7)
+
+    def test_causal_mask_buffer_shape(self, model):
+        assert model.causal_mask.shape == (9, 9)
+
+    def test_causal_mask_is_upper_triangular(self, model):
+        # Upper triangle (above diagonal) must all be True (masked)
+        mask = model.causal_mask
+        for i in range(9):
+            for j in range(9):
+                if j > i:
+                    assert mask[i, j], f"({i},{j}) should be masked"
+                else:
+                    assert not mask[i, j], f"({i},{j}) should not be masked"
+
+    def test_rel_pos_bias_shape(self, model):
+        for layer in model.layers:
+            assert layer.rel_pos_bias.shape == (4, 9, 9)
+
+    def test_padded_sequence(self, model):
+        x = torch.randn(8, 9, 64)
+        x[:, 6:, :] = 0
+        out = model(x)
+        assert out.shape == (8, 7)
+        assert torch.isfinite(out).all()
+
+    def test_num_layers(self, model):
+        assert len(model.layers) == 2
 
 
 if __name__ == "__main__":
