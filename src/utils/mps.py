@@ -2,10 +2,12 @@ import gc
 
 import torch
 
+from configs.globals import DEVICE
+
 
 def clear_mps_cache():
     """Thoroughly clear MPS memory between training runs"""
-    if DEVICE.type == 'mps':
+    if DEVICE.type != 'mps':
         return
     gc.collect()
     torch.mps.empty_cache()
