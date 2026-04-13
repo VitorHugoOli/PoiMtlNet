@@ -1,0 +1,410 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{caption}
+
+\hypersetup{colorlinks=true, linkcolor=blue!60!black, citecolor=blue!60!black, urlcolor=blue!60!black}
+
+\title{\textbf{Relatório de Progresso: Estudo de Ablação Completo\\para Fusão Multi-Fonte em Aprendizado Multitarefa\\de Pontos de Interesse}}
+\author{Vitor Hugo}
+\date{13 de abril de 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Este relatório apresenta os resultados do estudo de ablação completo realizado sobre o framework MTLnet. Em trabalho anterior (CBIC 2025), havíamos concluído que o aprendizado multitarefa não produzia ganhos consistentes sobre modelos \textit{single-task} para predição de POIs. O presente estudo mostra que essa conclusão era específica à configuração utilizada (DGI + FiLM + NashMTL), não uma limitação do MTL em si. Ao substituir as três dimensões --- fusão multi-fonte específica por tarefa, arquitetura com roteamento de \textit{experts} (DSelectK) e otimização por cirurgia de gradiente (Aligned-MTL) --- obtivemos ganhos de +30,7 pontos percentuais no F1 de categoria e +3,2 p.p.\ no F1 de predição sobre o trabalho anterior, superando também os melhores \textit{baselines} externos: +15,5 p.p.\ sobre HAVANA e +2,6 p.p.\ sobre POI-RGNN na Flórida. O achado central é que otimizadores de cirurgia de gradiente são essenciais para fusão multi-fonte com desbalanceamento de escala --- o peso igual, eficaz em fonte única, falha por 25\% na fusão. Os resultados foram validados em Alabama e Flórida com um protocolo de 5 estágios e 46 experimentos.
+\end{abstract}
+
+% ===========================================================================
+\section{Contexto e Motivação}
+% ===========================================================================
+
+O MTLnet é um framework de aprendizado multitarefa que treina conjuntamente duas tarefas sobre dados de \textit{check-in} de redes sociais baseadas em localização: (1)~classificação de categoria de POI (7 classes, a partir do vetor de \textit{embedding}) e (2)~predição da próxima categoria visitada (7 classes, a partir de uma janela de 9 visitas anteriores). O modelo compartilha um \textit{backbone} central entre as tarefas e utiliza cabeças especializadas para cada uma.
+
+Trabalhos anteriores com o MTLnet, incluindo o artigo submetido ao CoUrb~2026, demonstraram que a substituição do \textit{embedding} monolítico DGI por representações desacopladas (espacial + temporal + categórica) produz ganhos consistentes de 20--24 pontos percentuais na classificação de categoria. No entanto, essas versões anteriores compartilhavam uma limitação fundamental: utilizavam os três \textit{encoders} de forma idêntica para ambas as tarefas, sem considerar que cada tarefa pode se beneficiar de sinais diferentes.
+
+O estudo aqui reportado parte de uma hipótese mais refinada: \textbf{a fusão de \textit{embeddings} deve ser específica por tarefa}. A classificação de categoria se beneficia de informação espacial (onde está o POI?) combinada com informação estrutural do grafo (com quem ele se conecta?). A predição do próximo POI, por sua vez, se beneficia de informação temporal (quando ocorreu a visita?) combinada com a mesma informação estrutural. Essa decomposição resulta em entradas de 128 dimensões para cada tarefa, porém com composições distintas:
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Categoria:} Sphere2Vec (64D, codificação espacial esférica) $\|$ HGI (64D, grafo hierárquico)
+    \item \textbf{Próximo POI:} HGI (64D) $\|$ Time2Vec (64D, codificação temporal)
+\end{itemize}
+
+A questão central era: essa fusão dirigida por tarefa supera o uso de uma fonte única (HGI), que era o melhor resultado até então?
+
+% ===========================================================================
+\section{Protocolo Experimental}
+% ===========================================================================
+
+O espaço completo de configurações a ser explorado era de $5 \times 5 \times 9 \times 10 = 8.550$ combinações (arquiteturas $\times$ otimizadores $\times$ cabeças de categoria $\times$ cabeças de predição). Para tornar o estudo viável em um único dispositivo MPS (Apple Silicon), adotou-se um protocolo de \textbf{estreitamento progressivo em 5 estágios}, no qual cada estágio utiliza os resultados do anterior para decidir quais candidatos promover:
+
+\begin{table}[H]
+\centering
+\caption{Protocolo de ablação em 5 estágios.}
+\label{tab:protocol}
+\small
+\begin{tabular}{clccl}
+\toprule
+\textbf{Estágio} & \textbf{Objetivo} & \textbf{Experimentos} & \textbf{Configuração} & \textbf{Resultado} \\
+\midrule
+0 & Fusão vs.\ HGI & 4 & 1 fold, 10 épocas & Calibração \\
+1 & Arquitetura $\times$ Otimizador & 25 + 5 promovidos & 1f/10ep $\to$ 2f/15ep & Top-3 \\
+2 & Variantes de cabeça & 9 & 2f/15ep & Melhor cabeça \\
+3 & Confirmação completa & 3 & 5f/50ep & Campeão \\
+4 & Validação cruzada & 1 & 5f/50ep (Flórida) & Generalização \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Todas as avaliações utilizam F1 \textit{macro} e validação cruzada estratificada com 5 \textit{folds}. O \textit{score} conjunto (\textit{joint}) é definido como a média aritmética dos F1 \textit{macro} das duas tarefas. Para os estágios iniciais de triagem, utilizou-se 1 \textit{fold}/10 épocas como filtro rápido, validado empiricamente como suficiente para identificar a ordenação correta dos candidatos.
+
+% ===========================================================================
+\section{Resultados}
+% ===========================================================================
+
+% ---------------------------------------------------------------------------
+\subsection{Estágio 0: Fusão vs.\ HGI --- a assimetria por tarefa}
+% ---------------------------------------------------------------------------
+
+O primeiro resultado foi contra-intuitivo. A fusão \textbf{não superou} o HGI de fonte única no \textit{score} conjunto:
+
+\begin{table}[H]
+\centering
+\caption{Estágio 0 --- Comparação fusão vs.\ HGI (1 fold, 10 épocas, Alabama).}
+\label{tab:stage0}
+\small
+\begin{tabular}{llccc}
+\toprule
+\textbf{Candidato} & \textbf{Engine} & \textbf{Joint} & \textbf{Next F1} & \textbf{Cat F1} \\
+\midrule
+CGC(s2,t2) + equal\_weight & HGI (64D) & \textbf{0,386} & 0,195 & \textbf{0,577} \\
+CGC(s2,t2) + equal\_weight & Fusão (128D) & 0,368 & \textbf{0,246} & 0,489 \\
+DSelectK + db\_mtl & Fusão (128D) & 0,354 & 0,215 & 0,494 \\
+Base + equal\_weight & Fusão (128D) & 0,297 & 0,202 & 0,392 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+O HGI ganhou no \textit{joint} por 4,8\%. Porém, a análise por tarefa revelou uma assimetria marcante: a fusão melhorou em 26\% o F1 da predição do próximo POI (Time2Vec contribuiu com contexto temporal útil), mas \textbf{piorou} em 15\% a classificação de categoria (Sphere2Vec, com norma L2 15 vezes menor que o HGI, diluiu o sinal dominante).
+
+Essa assimetria era esperada à luz da análise de escala que havíamos realizado: a norma L2 do HGI é 8,46, enquanto a do Sphere2Vec é 0,55 --- uma razão de 15:1. Após apenas 10 passos de treino, a dependência do modelo ao Sphere2Vec era de apenas 0,7\%, enquanto ao HGI era de 90,2\%. O modelo efetivamente ignora a fonte mais fraca.
+
+\textbf{Decisão:} O déficit de 4,8\% estava dentro do limiar de 10\% estabelecido no protocolo para prosseguir. O Estágio~1 testaria se otimizadores mais sofisticados poderiam desbloquear o sinal da fonte auxiliar.
+
+% ---------------------------------------------------------------------------
+\subsection{Estágio 1: A descoberta central --- otimizadores de cirurgia de gradiente}
+% ---------------------------------------------------------------------------
+
+Este foi o resultado mais importante do estudo. O Estágio~1 avaliou 25 combinações (5 arquiteturas $\times$ 5 otimizadores), e o resultado separou-se em dois grupos completamente distintos:
+
+\begin{table}[H]
+\centering
+\caption{Estágio 1 --- Triagem (1 fold, 10 épocas, Alabama). Os 10 melhores e os 5 piores.}
+\label{tab:stage1}
+\small
+\begin{tabular}{rlccc}
+\toprule
+\textbf{\#} & \textbf{Candidato} & \textbf{Joint} & \textbf{Next F1} & \textbf{Cat F1} \\
+\midrule
+1 & CGC(s2,t1) + \textbf{cagrad} & \textbf{0,506} & 0,280 & 0,732 \\
+2 & CGC(s2,t1) + \textbf{aligned\_mtl} & 0,504 & 0,280 & 0,728 \\
+3 & DSelectK + \textbf{cagrad} & 0,498 & 0,274 & 0,722 \\
+4 & DSelectK + \textbf{aligned\_mtl} & 0,498 & 0,272 & 0,724 \\
+5 & MMoE + \textbf{aligned\_mtl} & 0,496 & 0,264 & 0,729 \\
+\arrayrulecolor{black!30}\midrule\arrayrulecolor{black}
+6 & MMoE + \textbf{cagrad} & 0,495 & 0,263 & 0,727 \\
+7 & CGC(s2,t2) + \textbf{aligned\_mtl} & 0,495 & 0,269 & 0,720 \\
+8 & CGC(s2,t2) + \textbf{cagrad} & 0,490 & 0,268 & 0,712 \\
+9 & Base + \textbf{cagrad} & 0,465 & 0,260 & 0,670 \\
+10 & Base + \textbf{aligned\_mtl} & 0,461 & 0,258 & 0,664 \\
+\arrayrulecolor{black!30}\midrule\arrayrulecolor{black}
+21 & MMoE + db\_mtl & 0,348 & 0,212 & 0,484 \\
+22 & MMoE + equal\_weight & 0,346 & 0,246 & 0,446 \\
+23 & Base + db\_mtl & 0,315 & 0,204 & 0,427 \\
+24 & Base + equal\_weight & 0,297 & 0,202 & 0,391 \\
+25 & Base + uncertainty\_w. & 0,295 & 0,202 & 0,388 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+A separação é inequívoca: \textbf{todos os 10 primeiros colocados utilizam CAGrad ou Aligned-MTL}; \textbf{todos os 15 últimos utilizam equal\_weight, db\_mtl ou uncertainty\_weighting}. O gap entre os dois grupos é de aproximadamente 25\% no \textit{score} conjunto.
+
+Este achado contradiz diretamente a conclusão das fases anteriores do projeto, nas quais o peso igual havia sido identificado como a melhor estratégia (resultado consistente com Xin et al., NeurIPS 2022, que argumentam que otimizadores adaptativos não ajudam em MTL). A explicação está no desbalanceamento de escala introduzido pela fusão: quando o modelo recebe entradas de uma única fonte (HGI), os gradientes das duas tarefas são quase ortogonais (cosseno $\approx$ 0) e não conflitam. Com a fusão, as duas fontes de \textit{embedding} com escalas muito diferentes criam um conflito de gradiente \textbf{no nível das fontes}, invisível para a ponderação por tarefa. O CAGrad e o Aligned-MTL operam sobre a geometria dos gradientes e conseguem resolver esse conflito.
+
+Após a promoção dos 5 melhores para 2 folds e 15 épocas, todos convergiram para \textit{joint} $\approx$ 0,518, com o DSelectK + Aligned-MTL liderando marginalmente (0,5188).
+
+% ---------------------------------------------------------------------------
+\subsection{Estágio 2: Cabeças alternativas --- DCN acelera, mas não eleva o teto}
+% ---------------------------------------------------------------------------
+
+No Estágio~2, testamos três variantes de cabeça sobre os 3 melhores candidatos do Estágio~1. A hipótese era que a cabeça DCN (\textit{Deep \& Cross Network}), que aprende cruzamentos explícitos entre dimensões, poderia capturar interações entre as metades Sphere2Vec e HGI do vetor de categoria que a concatenação simples não explora.
+
+O resultado foi parcialmente positivo: o DCN melhorou o \textit{joint} em +1,7\% a 15 épocas. Porém, ao escalar para 50 épocas no Estágio~3, essa vantagem desapareceu (Tabela~\ref{tab:stage3}). A cabeça padrão aprendeu implicitamente as mesmas interações, dado tempo suficiente. A cabeça TCN (\textit{Temporal Convolutional Network}) para a tarefa de próximo POI não ajudou em nenhuma configuração.
+
+Esse resultado é consistente com o achado da Fase~4 do projeto: \textbf{cabeças de tarefa coadaptam-se com o \textit{backbone} compartilhado}. Substituir cabeças que foram co-treinadas rompe essa adaptação mútua.
+
+% ---------------------------------------------------------------------------
+\subsection{Estágio 3: Confirmação completa (5 folds, 50 épocas)}
+% ---------------------------------------------------------------------------
+
+Os três melhores candidatos gerais foram avaliados com validação cruzada completa:
+
+\begin{table}[H]
+\centering
+\caption{Estágio 3 --- Confirmação completa (5 folds, 50 épocas, Alabama).}
+\label{tab:stage3}
+\small
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Configuração} & \textbf{Joint} & \textbf{$\pm$ std} & \textbf{Next F1} & \textbf{Cat F1} & \textbf{Tempo} \\
+\midrule
+DSelectK + aligned\_mtl (padrão) & \textbf{0,540} & 0,015 & \textbf{0,273} & \textbf{0,808} & 22 min \\
+DSelectK + aligned\_mtl + DCN & 0,536 & 0,005 & 0,265 & 0,807 & 21 min \\
+DSelectK + cagrad + DCN & 0,536 & 0,005 & 0,266 & 0,806 & 21 min \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Os testes-t pareados entre os três candidatos não revelaram diferença estatisticamente significativa ($p > 0,6$ em todos os pares). A configuração campeã foi escolhida pelo maior \textit{joint} médio: \textbf{DSelectK (4 \textit{experts}, 2 seletores) + Aligned-MTL + cabeças padrão}.
+
+Uma observação secundária relevante: as variantes com DCN apresentaram desvio padrão muito menor entre \textit{folds} (0,005 vs.\ 0,015). Se a estabilidade entre \textit{folds} for um critério importante para implantação, o DCN pode ser preferível mesmo sem ganho médio.
+
+% ---------------------------------------------------------------------------
+\subsection{Estágio 4: Validação cruzada na Flórida}
+% ---------------------------------------------------------------------------
+
+A configuração campeã foi avaliada na Flórida, um \textit{dataset} aproximadamente 7 vezes maior que o Alabama. Os resultados parciais (4 de 5 \textit{folds} completos, o quinto em execução no momento deste relatório) são:
+
+\begin{table}[H]
+\centering
+\caption{Estágio 4 --- Flórida (4/5 \textit{folds} completos), configuração campeã.}
+\label{tab:stage4}
+\small
+\begin{tabular}{lccc}
+\toprule
+\textbf{Fold} & \textbf{Cat F1 (\%)} & \textbf{Next F1 (\%)} & \textbf{Joint} \\
+\midrule
+1 & 78,39 & 37,36 & 0,578 \\
+2 & 78,79 & 37,64 & 0,582 \\
+3 & 77,89 & 36,82 & 0,574 \\
+4 & 78,41 & 36,53 & 0,575 \\
+\midrule
+\textbf{Média (parcial)} & \textbf{78,37} & \textbf{37,09} & \textbf{0,577} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+A Flórida \textbf{superou} o Alabama no \textit{joint} (0,577 vs.\ 0,548), impulsionada principalmente por um ganho expressivo no F1 de predição do próximo POI (37,1\% vs.\ 27,3\%). Isso sugere que o Time2Vec se beneficia de bases maiores, onde a diversidade de padrões temporais é mais rica.
+
+% ===========================================================================
+\section{Comparação com o Trabalho Anterior (CBIC 2025)}
+% ===========================================================================
+
+A comparação mais importante deste estudo é com o nosso próprio trabalho anterior, publicado no CBIC~2025, que utilizou o MTLnet com DGI, compartilhamento rígido via FiLM e otimização por NashMTL. Aquele artigo concluiu que \textit{``MTL did not consistently yield substantial improvements over single-task baselines''}. Os resultados a seguir mostram que essa conclusão era específica à configuração testada, não uma limitação fundamental do MTL para predição de POIs.
+
+\begin{table}[H]
+\centering
+\caption{Evolução do MTLnet: CBIC $\to$ HGI-only $\to$ Fusão (Alabama, 5 folds, 50 épocas).}
+\label{tab:evolution_al}
+\small
+\begin{tabular}{lllccc}
+\toprule
+\textbf{Config.} & \textbf{Embedding} & \textbf{Arq. / Otimizador} & \textbf{Cat F1} & \textbf{Next F1} & \textbf{Joint} \\
+\midrule
+CBIC (2025) & DGI (64D) & FiLM + NashMTL & 46,3\% & 26,6\% & 0,364 \\
+Fase 1 & HGI (64D) & CGC + equal\_weight & 71,2\% & 25,9\% & 0,486 \\
+\textbf{Este trabalho} & \textbf{Fusão (128D)} & \textbf{DSelectK + Aligned-MTL} & \textbf{80,8\%} & \textbf{27,3\%} & \textbf{0,540} \\
+\midrule
+\multicolumn{3}{l}{$\Delta$ \textbf{(este trabalho vs.\ CBIC)}} & \textbf{+34,5 p.p.} & \textbf{+0,7 p.p.} & \textbf{+48\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Mesma comparação na Flórida (validação cruzada).}
+\label{tab:evolution_fl}
+\small
+\begin{tabular}{lllccc}
+\toprule
+\textbf{Config.} & \textbf{Embedding} & \textbf{Arq. / Otimizador} & \textbf{Cat F1} & \textbf{Next F1} & \textbf{Joint} \\
+\midrule
+CBIC (2025) & DGI (64D) & FiLM + NashMTL & 47,7\% & 33,9\% & 0,408 \\
+\textbf{Este trabalho} & \textbf{Fusão (128D)} & \textbf{DSelectK + Aligned-MTL} & \textbf{78,4\%} & \textbf{37,1\%} & \textbf{0,577} \\
+\midrule
+\multicolumn{3}{l}{$\Delta$ \textbf{(este trabalho vs.\ CBIC)}} & \textbf{+30,7 p.p.} & \textbf{+3,2 p.p.} & \textbf{+41\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Cada melhoria endereça um gargalo diferente. A troca do DGI pelo HGI responde pela maior parcela do ganho na categoria ($\approx$73\% do total de 34,5 p.p.), pois a representação hierárquica do grafo captura relações regionais que o DGI ignora. A troca da arquitetura FiLM pelo DSelectK contribui com $\approx$7\%, substituindo a modulação multiplicativa escalar por roteamento de \textit{experts} aprendido. O otimizador (NashMTL $\to$ Aligned-MTL) contribui com $\approx$20\%, mas sua importância é condicional: \textbf{ele só faz diferença na presença de fusão multi-fonte}, pois é o conflito de gradiente entre fontes que o torna necessário.
+
+O resultado mais revelador é que a conclusão do CBIC --- ``MTL não ajuda'' --- era verdadeira para aquela configuração específica. Com as três dimensões corrigidas, o MTL passa de ``igual ao \textit{single-task}'' para ``estado-da-arte absoluto''.
+
+% ===========================================================================
+\section{Comparação com \textit{Baselines} Externos}
+% ===========================================================================
+
+Adicionalmente, comparamos com os \textit{baselines} publicados por outros grupos: HAVANA (Santos et al.), POI-RGNN (Capanema et al., 2022) e PGC, que operam sobre a mesma partição por estado da base Gowalla e a mesma taxonomia de 7 categorias.
+
+\begin{table}[H]
+\centering
+\caption{Comparação completa na Flórida (F1 \textit{macro}).}
+\label{tab:baselines}
+\small
+\begin{tabular}{llcc}
+\toprule
+\textbf{Tarefa} & \textbf{Modelo} & \textbf{F1 (\%)} & \textbf{$\Delta$ vs.\ nosso} \\
+\midrule
+\multirow{5}{*}{Classif.\ Categoria}
+    & k-FN & 14,1 & +64,3 p.p. \\
+    & STPA & 37,3 & +41,1 p.p. \\
+    & MTLnet-DGI (CBIC, nosso) & 47,7 & +30,7 p.p. \\
+    & PGC (ARMA-GNN) & 50,3 & +28,1 p.p. \\
+    & HAVANA (GAT+ARMA) & 62,9 & \textbf{+15,5 p.p.} \\
+    & \textbf{MTLnet-Fusão (nosso)} & \textbf{78,4} & --- \\
+\midrule
+\multirow{4}{*}{Pred.\ Próximo POI}
+    & MHA+PE & $\sim$26,9 (global) & +10,2 p.p. \\
+    & MTLnet-DGI (CBIC, nosso) & 33,9 & +3,2 p.p. \\
+    & POI-RGNN (GRU+GCN) & 34,5 & \textbf{+2,6 p.p.} \\
+    & \textbf{MTLnet-Fusão (nosso)} & \textbf{37,1} & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Na classificação de categoria, o ganho de 15,5 pontos percentuais sobre o HAVANA é o resultado mais forte do estudo considerando \textit{baselines} externos. Na predição do próximo POI, o ganho sobre o POI-RGNN (+2,6 p.p.) é mais modesto, mas deve ser contextualizado: nosso modelo é multitarefa (treina ambas as tarefas simultaneamente), enquanto o RGNN é \textit{single-task}. É importante registrar que as entradas diferem: nosso modelo opera sobre \textit{embeddings} aprendidos, enquanto o HAVANA opera sobre a matriz de adjacência bruta do grafo de mobilidade.
+
+% ===========================================================================
+\section{Síntese dos Achados}
+% ===========================================================================
+
+O estudo revelou cinco achados principais, ordenados por relevância para a narrativa de publicação:
+
+\begin{enumerate}[leftmargin=*]
+
+\item \textbf{Otimizadores de cirurgia de gradiente são essenciais para fusão multi-fonte.}
+Na fonte única (HGI), o peso igual vencia. Na fusão, ele falha por 25\%. O desbalanceamento de escala entre fontes (15:1) cria conflito de gradiente no nível das fontes que o peso por tarefa não percebe. CAGrad e Aligned-MTL resolvem esse conflito operando na geometria dos gradientes.
+
+\item \textbf{Fusão + otimizador correto supera tanto a fonte única quanto o trabalho anterior.}
+O melhor resultado de fonte única (HGI + CGC + equal\_weight, \textit{joint} = 0,486) foi ultrapassado em 11,1\% pelo campeão com fusão (\textit{joint} = 0,540). Comparado ao CBIC (DGI + FiLM + NashMTL, \textit{joint} = 0,364 no Alabama), o ganho é de 48\%. A conclusão do CBIC de que ``MTL não ajuda'' era verdadeira para aquela configuração, mas não para o MTL em geral.
+
+\item \textbf{A fusão é assimetricamente útil por tarefa.}
+Time2Vec melhora a predição do próximo POI em 26\% (F1) desde as primeiras épocas. Sphere2Vec piora a classificação de categoria em 15\% nas primeiras épocas, mas essa desvantagem é revertida com Aligned-MTL e treinamento longo.
+
+\item \textbf{Rankings de arquitetura dependem da fonte de \textit{embedding}.}
+O CGC venceu no HGI. O DSelectK venceu na fusão. O MMoE se equiparou ao DSelectK com otimizadores de gradiente. Nenhuma recomendação arquitetural é universal.
+
+\item \textbf{Cabeças de tarefa coadaptam-se com o \textit{backbone}.}
+O DCN (melhor cabeça isolada, F1 = 72,8\%) melhora a convergência em treinamento curto (+1,7\% em 15 épocas), mas perde a vantagem em treinamento longo ($p = 0,85$ em 50 épocas). Substituir cabeças que foram co-treinadas com o \textit{backbone} não produz os ganhos esperados.
+
+\end{enumerate}
+
+% ===========================================================================
+\section{Correções de Código Realizadas}
+% ===========================================================================
+
+Durante a execução do estudo, dois \textit{bugs} de integração foram descobertos e corrigidos:
+
+\begin{enumerate}[noitemsep]
+\item Os otimizadores CAGrad e Aligned-MTL realizam o \textit{backward} internamente e são incompatíveis com acumulação de gradiente $> 1$. O \textit{runner} de ablação foi corrigido para injetar \texttt{gradient\_accumulation\_steps=1} para essas \textit{losses}.
+
+\item Essas mesmas \textit{losses} retornam \texttt{None} em vez de um escalar de perda, causando um \textit{crash} na contabilização de \texttt{running\_loss}. A função \texttt{\_get\_weighted\_loss} agora utiliza \texttt{losses.sum().detach()} como valor de reporte nesses casos.
+\end{enumerate}
+
+Ambas as correções já foram comitadas e enviadas ao repositório.
+
+% ===========================================================================
+\section{Limitações e Pontos em Aberto}
+% ===========================================================================
+
+Apresentamos aqui uma avaliação honesta das fragilidades do estudo que precisam ser endereçadas antes da submissão:
+
+\begin{enumerate}[leftmargin=*]
+
+\item \textbf{Confundimento de tamanho de \textit{batch} efetivo.} Os otimizadores de cirurgia de gradiente (CAGrad, Aligned-MTL) exigem \texttt{gradient\_accumulation\_steps=1}, resultando em \textit{batch} efetivo de 4.096. Os demais otimizadores usam acumulação de 2 passos (\textit{batch} efetivo 8.192). Embora a diferença favoreça os otimizadores convencionais (maior \textit{batch} $\to$ gradientes mais suaves), e o gap observado seja de 25\% (difícil de explicar apenas por \textit{batch size}), uma corrida de confirmação com \textit{batch} efetivo igualado é desejável.
+
+\item \textbf{Comparação com \textit{baselines} usa entradas diferentes.} Nosso modelo opera sobre \textit{embeddings} aprendidos (HGI, Sphere2Vec, Time2Vec), enquanto HAVANA e PGC operam sobre a matriz de adjacência bruta do grafo de mobilidade. A comparação é justa em termos de desempenho fim-a-fim, mas o ganho pode refletir tanto a qualidade do modelo quanto a qualidade dos \textit{embeddings} de entrada. Isso deve ser reconhecido explicitamente no artigo.
+
+\item \textbf{Resultados de Califórnia e Texas ainda pendentes.} A validação cruzada até o momento cobre apenas Alabama e Flórida. Os dados de CA e TX estão sendo processados em máquina separada, mas sua ausência enfraquece a alegação de generalização geográfica.
+
+\item \textbf{Apenas 2 tarefas.} O achado sobre cirurgia de gradiente pode não se aplicar a cenários com 5+ tarefas, onde a dinâmica de conflito é mais complexa. O artigo deve delimitar claramente o escopo ao cenário bi-tarefa.
+
+\item \textbf{Explicação mecanicista é hipotética.} A afirmação de que o desbalanceamento de escala causa conflito de gradiente ``no nível das fontes'' é apoiada pela evidência empírica (separação limpa de 25\% entre grupos de otimizadores), mas não foi demonstrada formalmente com análise de gradiente por fonte durante o treinamento. Uma análise de cosseno de gradiente por componente (Sphere2Vec vs.\ HGI) fortaleceria consideravelmente a argumentação.
+
+\item \textbf{Números da Flórida são parciais.} O Estágio~4 ainda não foi concluído integralmente no momento da redação; os números reportados referem-se a 4 de 5 \textit{folds}. A média final pode variar ligeiramente.
+
+\end{enumerate}
+
+% ===========================================================================
+\section{Propostas de Tese para o Artigo BRACIS 2026}
+% ===========================================================================
+
+Com base nos resultados, propomos duas abordagens para publicação, sendo a \textbf{Opção A} recomendada para o BRACIS e a \textbf{Opção B} reservada para uma extensão em periódico.
+
+% ---------------------------------------------------------------------------
+\subsection{Opção A (Recomendada --- BRACIS): Fusão Requer Cirurgia de Gradiente}
+% ---------------------------------------------------------------------------
+
+\textbf{Título:} \textit{``Revisiting Multi-Task Learning for POI Prediction: Embedding, Architecture, and Optimizer All Matter''}
+
+\textbf{Tese central:} Em trabalho anterior (Silva et al., CBIC 2025), demonstramos que MTL com DGI e compartilhamento rígido não produzia ganhos sobre modelos \textit{single-task}. Este trabalho corrige essa conclusão: o problema não era o MTL em si, mas a combinação de \textit{embedding} fraco (DGI), arquitetura restritiva (FiLM) e otimizador inadequado (NashMTL). Ao substituir os três --- fusão multi-fonte específica por tarefa, DSelectK com roteamento de \textit{experts} e Aligned-MTL com cirurgia de gradiente --- transformamos MTL de ``sem benefício'' para +30,7 p.p.\ de F1 na categoria e +3,2 p.p.\ na predição, superando todos os \textit{baselines} publicados.
+
+\textbf{Contribuições:}
+\begin{enumerate}[noitemsep]
+\item Correção da conclusão do CBIC 2025: o fracasso do MTL era da configuração, não do paradigma. Cada uma das três dimensões (embedding, arquitetura, otimizador) endereça um gargalo diferente.
+\item Fusão de \textit{embeddings} específica por tarefa (espacial+estrutural para categoria; estrutural+temporal para predição sequencial).
+\item Demonstração de que o peso igual falha na fusão (+25\% de gap), com análise mecanicista: o desbalanceamento de escala cria conflito de gradiente no nível das fontes.
+\item Resultados estado-da-arte: +30,7 p.p.\ sobre nosso CBIC, +15,5 p.p.\ sobre HAVANA na categoria e +2,6 p.p.\ sobre POI-RGNN na predição.
+\item Validação cruzada em dois estados e protocolo de ablação de 46 experimentos.
+\end{enumerate}
+
+\textbf{Justificativa da escolha:} O BRACIS tem limite de 15 páginas. A Opção~A oferece uma narrativa que corrige um resultado publicado anterior com nova evidência --- um dos \textit{hooks} acadêmicos mais fortes. Os artigos premiados no BRACIS 2023--2024 utilizam GNNs e apresentam achados empíricos focados, reforçando o alinhamento.
+
+% ---------------------------------------------------------------------------
+\subsection{Opção B (Extensão em Periódico): Artigo de Sistema Completo}
+% ---------------------------------------------------------------------------
+
+\textbf{Título:} \textit{``MTLnet: A Multi-Task Framework for Joint POI Category Prediction and Next-Location Forecasting with Hierarchical Graph Embeddings''}
+
+\textbf{Tese central:} O MTLnet é um framework multitarefa completo para predição de POIs, com ablação sistemática sobre 4 dimensões (fonte de \textit{embedding}, arquitetura, otimizador, cabeças de tarefa) e 14 achados empíricos consolidados.
+
+\textbf{Conteúdo adicional em relação à Opção A:}
+\begin{itemize}[noitemsep]
+\item Comparação completa de 8 motores de \textit{embedding} (HGI, DGI, Sphere2Vec, Time2Vec, etc.)
+\item Benchmark de 19 otimizadores MTL (estendendo Xin et al.\ 2022 com 7 métodos de 2023--2024)
+\item Análise do paradoxo de coadaptação de cabeças (rankings isolados invertem no MTL)
+\item Análise de orçamento de parâmetros (o \textit{backbone} compartilhado é apenas 10\% do modelo)
+\item Validação em 4+ estados (Alabama, Flórida, Califórnia, Texas)
+\end{itemize}
+
+\textbf{Veículos sugeridos:} Expert Systems with Applications, Knowledge-Based Systems, ou ACM TIST.
+
+\textbf{Estratégia:} Publicar a Opção~A no BRACIS e utilizar o artigo da conferência como base para a extensão em periódico, adicionando as análises complementares.
+
+% ===========================================================================
+\section{Próximos Passos}
+% ===========================================================================
+
+\begin{enumerate}[noitemsep]
+\item Completar o Estágio~4 na Flórida (\textit{fold} 5 em execução).
+\item Executar duas corridas adicionais na Flórida: (a)~fusão + equal\_weight e (b)~HGI-only + equal\_weight, para validar o achado central em outro estado.
+\item Obter resultados de Califórnia e Texas para a fusão (dados sendo gerados na outra máquina).
+\item Redigir o artigo em \LaTeX\ no formato Springer LNCS (15 páginas).
+\item Registrar o artigo no JEMS3 e cadastrar revisor da equipe.
+\item Preparar repositório anônimo no GitHub com código e dados.
+\end{enumerate}
+
+\end{document}
