@@ -406,7 +406,8 @@ def run_ablation(config: AblationRunConfig) -> dict[str, Path | None]:
     print(f"[ablation] wrote manifest: {manifest_path}")
 
     summary_path = label_root / "summary.csv"
-    prior_rows = _load_summary(summary_path)
+    current_names = {c.name for c in candidates}
+    prior_rows = [r for r in _load_summary(summary_path) if r.candidate in current_names]
     completed_names = {r.candidate for r in prior_rows if r.status == "ok"}
     if completed_names:
         print(f"[ablation] resuming — skipping {len(completed_names)} already-completed candidate(s): {', '.join(sorted(completed_names))}")
@@ -457,7 +458,8 @@ def run_ablation(config: AblationRunConfig) -> dict[str, Path | None]:
         print(f"[ablation] wrote promoted manifest: {promoted_manifest}")
         print(f"[ablation] promoting: {', '.join(promoted_names)}")
         promoted_summary_path = promoted_root / "summary.csv"
-        prior_promoted_rows = _load_summary(promoted_summary_path)
+        current_promoted_names = {c.name for c in promoted_candidates}
+        prior_promoted_rows = [r for r in _load_summary(promoted_summary_path) if r.candidate in current_promoted_names]
         completed_promoted = {r.candidate for r in prior_promoted_rows if r.status == "ok"}
         if completed_promoted:
             print(f"[ablation] resuming promoted — skipping {len(completed_promoted)} candidate(s): {', '.join(sorted(completed_promoted))}")
