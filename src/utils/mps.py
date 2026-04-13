@@ -5,6 +5,8 @@ import torch
 
 def clear_mps_cache():
     """Thoroughly clear MPS memory between training runs"""
+    if DEVICE.type == 'mps':
+        return
     gc.collect()
     torch.mps.empty_cache()
     if hasattr(torch.mps, 'synchronize'):  # Check if available in your PyTorch version

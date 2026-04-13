@@ -66,10 +66,10 @@ CONFIG = Namespace(
 # =============================================================================
 
 STATES = {
-    # 'Alabama': {},
+    'Alabama': {},
     # 'Arizona': {},
     # 'Georgia': {},
-    'Florida': {},
+    # 'Florida': {},
     # 'California': {},
     # 'Texas': {},
 }
