@@ -9,7 +9,7 @@ import pytest
 
 from configs.experiment import ExperimentConfig
 from configs.model import InputsConfig
-from models.heads.next import NextHeadSingle
+from models.next import NextHeadSingle
 
 # Derive all defaults from the canonical config source
 _CFG = ExperimentConfig.default_next("_test", "test", "dgi")

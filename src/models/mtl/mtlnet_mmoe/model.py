@@ -91,6 +91,23 @@ class MTLnetMMoE(MTLnet):
         out_next = self.next_poi(shared_next)
         return out_cat, out_next
 
+    def cat_forward(self, category_input: torch.Tensor) -> torch.Tensor:
+        """Run only the category subgraph through MMoE experts."""
+        enc_cat = self.category_encoder(category_input)
+        dummy_next = torch.zeros_like(enc_cat)
+        shared_cat, _ = self.mmoe(enc_cat, dummy_next)
+        return self.category_poi(shared_cat.squeeze(1)).view(-1, self.num_classes)
+
+    def next_forward(self, next_input: torch.Tensor) -> torch.Tensor:
+        """Run only the next-POI subgraph through MMoE experts."""
+        pad_value = InputsConfig.PAD_VALUE
+        mask = (next_input.abs().sum(dim=-1) == pad_value)
+        next_input = next_input.masked_fill(mask.unsqueeze(-1), 0)
+        enc_next = self.next_encoder(next_input)
+        dummy_cat = torch.zeros(enc_next.size(0), enc_next.size(-1), device=enc_next.device)
+        _, shared_next = self.mmoe(dummy_cat, enc_next)
+        return self.next_poi(shared_next)
+
     def shared_parameters(self) -> Iterator[nn.Parameter]:
         return (
             p

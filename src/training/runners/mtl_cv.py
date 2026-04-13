@@ -411,6 +411,11 @@ def train_model(model: torch.nn.Module,
                 num_classes=num_classes,
             )
 
+            f1_val_next = val_metrics_next['f1']
+            f1_val_category = val_metrics_cat['f1']
+            acc_val_next = val_metrics_next['accuracy']
+            acc_val_category = val_metrics_cat['accuracy']
+
             joint_score = 0.5 * (f1_val_next + f1_val_category)
             pareto_points.append((f1_val_next, f1_val_category))
             pareto_front = _pareto_front_indices(pareto_points)
@@ -426,14 +431,11 @@ def train_model(model: torch.nn.Module,
                 ],
             )
 
-            f1_val_next = val_metrics_next['f1']
-            f1_val_category = val_metrics_cat['f1']
-            acc_val_next = val_metrics_next['accuracy']
-            acc_val_category = val_metrics_cat['accuracy']
-
             # Only create state_dict when at least one task improves.
             next_improved = f1_val_next > fold_history.task('next').best.best_value
             cat_improved = f1_val_category > fold_history.task('category').best.best_value
+            prev_joint_best = fold_history.model_task.best.best_value if fold_history.model_task.best.best_epoch >= 0 else -1.0
+            joint_improved = joint_score > prev_joint_best
             state = model.state_dict() if (joint_improved or next_improved or cat_improved) else None
 
             # Per-task val losses now come from evaluate_model() inside the

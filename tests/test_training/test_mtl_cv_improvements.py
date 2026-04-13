@@ -1,5 +1,6 @@
 """Focused tests for MTL CV runner improvements."""
 
+import pytest
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, TensorDataset
@@ -48,6 +49,10 @@ def _task_data(features: torch.Tensor, targets: torch.Tensor, batch_size: int) -
     )
 
 
+@pytest.mark.skipif(
+    DEVICE.type == "mps",
+    reason="MPS corrupts tiny integer tensors in unit-test-sized batches",
+)
 def test_mtl_train_model_accumulates_gradients_and_tracks_joint_best():
     torch.manual_seed(42)
     batch_size = 2

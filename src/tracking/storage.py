@@ -347,13 +347,10 @@ class HistoryStorage:
                     for metric_name, values in th.val.items():
                         if be < len(values):
                             metrics_at_best[metric_name] = values[be]
-                fold_info['best_epochs'][task] = {
+                fold_info['diagnostic_best_epochs'][task] = {
                     'epoch': be,
                     'time': th.best.best_time,
                     'metrics': metrics_at_best,
-                    # Legacy top-level keys kept so downstream consumers that
-                    # read fold_info['best_epochs'][task]['accuracy'] keep
-                    # working without a shim.
                     'accuracy': metrics_at_best.get('accuracy'),
                     'f1': metrics_at_best.get('f1'),
                 }
@@ -362,6 +359,8 @@ class HistoryStorage:
                 if joint_epoch < 0 and fold_info['primary_checkpoint']['epoch'] is None:
                     fold_info['primary_checkpoint']['epoch'] = be if be >= 0 else None
                     fold_info['primary_checkpoint']['time'] = th.best.best_time
+                acc_vals = list(th.val.get('accuracy', []))
+                f1_vals = list(th.val.get('f1', []))
                 primary_acc = (
                     acc_vals[primary_epoch]
                     if acc_vals and primary_epoch >= 0 and primary_epoch < len(acc_vals)
@@ -378,6 +377,12 @@ class HistoryStorage:
                 }
 
                 save_csv(df, path / f'fold{i}_{task}_report.csv', float_format='%.4f')
+            # Single-task runs (no model_task / no joint checkpoint) expose
+            # diagnostic_best_epochs under the legacy 'best_epochs' key so
+            # downstream consumers that read fold_info['best_epochs'] keep
+            # working without a shim.
+            if joint_epoch < 0:
+                fold_info['best_epochs'] = fold_info['diagnostic_best_epochs']
             save_json(fold_info, path / f'fold{i}_info.json')
 
     def _save_plots(self, path: Path) -> None:

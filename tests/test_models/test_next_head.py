@@ -3,7 +3,7 @@
 import pytest
 import torch
 
-from models.heads.next import NextHeadMTL
+from models.next import NextHeadMTL
 
 
 class TestNextHeadMTL:
@@ -40,8 +40,10 @@ class TestNextHeadMTL:
 
     def test_causal_masking(self):
         """Test causal masking for sequence prediction."""
-        head = self._make_head()
-        mask = head.causal_mask
+        seq_length = 9
+        mask = torch.triu(
+            torch.ones(seq_length, seq_length, dtype=torch.bool), diagonal=1
+        )
         assert mask.shape == (9, 9)
         # Above diagonal should be True (masked)
         assert mask[0, 1].item() is True

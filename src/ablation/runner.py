@@ -53,11 +53,11 @@ def _default_results_root() -> Path:
 
 
 def _default_data_root() -> Path:
-    return Path(os.environ.get("DATA_ROOT", "/Users/vitor/Desktop/mestrado/ingred/data"))
+    return Path(os.environ.get("DATA_ROOT", str(_root / "data")))
 
 
 def _default_output_dir() -> Path:
-    return Path(os.environ.get("OUTPUT_DIR", "/Users/vitor/Desktop/mestrado/ingred/output"))
+    return Path(os.environ.get("OUTPUT_DIR", str(_root / "output")))
 
 
 @dataclass(frozen=True)
@@ -182,7 +182,7 @@ def _run_candidate(
     env["DATA_ROOT"] = str(data_root)
     env["OUTPUT_DIR"] = str(output_dir)
     env["RESULTS_ROOT"] = str(candidate_root)
-    env["PYTHONPATH"] = "src:."
+    env["PYTHONPATH"] = f"{_root / 'src'}:{_root}"
 
     argv = _candidate_argv(candidate, state, engine, epochs, folds, seed)
     command = " ".join(argv)
@@ -401,12 +401,12 @@ def _parse_legacy_args(argv=None):
     parser.add_argument(
         "--data-root",
         type=Path,
-        default=Path(os.environ.get("DATA_ROOT", "/Users/vitor/Desktop/mestrado/ingred/data")),
+        default=Path(os.environ.get("DATA_ROOT", str(_root / "data"))),
     )
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=Path(os.environ.get("OUTPUT_DIR", "/Users/vitor/Desktop/mestrado/ingred/output")),
+        default=Path(os.environ.get("OUTPUT_DIR", str(_root / "output"))),
     )
     return parser.parse_args(argv)
 
