@@ -134,7 +134,7 @@ class FusionConfig:
 FUSION_PRESETS = {
     "space_hgi_time": FusionConfig(
         category_embeddings=[
-            EmbeddingSpec(EmbeddingEngine.SPACE2VEC, EmbeddingLevel.POI, 64),
+            EmbeddingSpec(EmbeddingEngine.SPHERE2VEC, EmbeddingLevel.POI, 64),
             EmbeddingSpec(EmbeddingEngine.HGI, EmbeddingLevel.POI, 64),
         ],
         next_embeddings=[
@@ -146,7 +146,7 @@ FUSION_PRESETS = {
     "hgi_time": FusionConfig(
         category_embeddings=[
             EmbeddingSpec(EmbeddingEngine.HGI, EmbeddingLevel.POI, 64),
-            # EmbeddingSpec(EmbeddingEngine.TIME2VEC, EmbeddingLevel.POI, 64),
+            EmbeddingSpec(EmbeddingEngine.SPHERE2VEC, EmbeddingLevel.POI, 64),
         ],
         next_embeddings=[
             EmbeddingSpec(EmbeddingEngine.HGI, EmbeddingLevel.POI, 64),
@@ -156,10 +156,10 @@ FUSION_PRESETS = {
 
     "space_time": FusionConfig(
         category_embeddings=[
-            EmbeddingSpec(EmbeddingEngine.SPACE2VEC, EmbeddingLevel.POI, 64),
+            EmbeddingSpec(EmbeddingEngine.SPHERE2VEC, EmbeddingLevel.POI, 64),
         ],
         next_embeddings=[
-            EmbeddingSpec(EmbeddingEngine.SPACE2VEC, EmbeddingLevel.POI, 64),
+            EmbeddingSpec(EmbeddingEngine.SPHERE2VEC, EmbeddingLevel.POI, 64),
             EmbeddingSpec(EmbeddingEngine.TIME2VEC, EmbeddingLevel.CHECKIN, 64),
         ],
     ),
