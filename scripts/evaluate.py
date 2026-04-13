@@ -159,12 +159,12 @@ def main(argv=None) -> None:
         )
 
     if task == "mtl":
-        # MTLnet exposes per-head entry points (cat_forward / next_forward)
-        # that run only the relevant subgraph — no dummy zero tensors, no
-        # wasted compute on the unused side, and the contract that the two
-        # heads are independent is now expressed on the model class itself
-        # instead of being implicit in eval helper code. See
-        # src/models/mtlnet.py:cat_forward / next_forward.
+        # MTLnet exposes per-head entry points (cat_forward / next_forward).
+        # For the original MTLnet (FiLM-based), each path is fully independent.
+        # For expert-routing variants (CGC, MMoE, PLE) the unused task still
+        # runs through its expert stack with a zero input, but its output is
+        # discarded — the active task's output is unaffected. See
+        # src/models/mtl/ for per-variant implementations.
         cat_preds, cat_targets, cat_logits = collect_predictions(
             model, fold.category.val.dataloader, DEVICE,
             forward_fn=lambda m, x: m.cat_forward(x),

@@ -235,6 +235,39 @@ def _write_summary(path: Path, rows: list[AblationResult]) -> None:
             writer.writerow(asdict(row))
 
 
+def _load_summary(path: Path) -> list[AblationResult]:
+    """Load completed results from an existing summary CSV."""
+    if not path.exists():
+        return []
+    rows: list[AblationResult] = []
+    try:
+        with path.open(encoding="utf-8", newline="") as f:
+            for record in csv.DictReader(f):
+                try:
+                    rows.append(AblationResult(
+                        candidate=record["candidate"],
+                        stage=record["stage"],
+                        epochs=int(record["epochs"]),
+                        folds=int(record["folds"]),
+                        seed=int(record["seed"]) if record.get("seed") else None,
+                        status=record["status"],
+                        returncode=int(record["returncode"]),
+                        run_dir=record["run_dir"],
+                        log_file=record["log_file"],
+                        duration_seconds=float(record["duration_seconds"]),
+                        command=record["command"],
+                        joint_score=float(record["joint_score"]) if record.get("joint_score") else None,
+                        next_f1=float(record["next_f1"]) if record.get("next_f1") else None,
+                        category_f1=float(record["category_f1"]) if record.get("category_f1") else None,
+                        error=record.get("error", ""),
+                    ))
+                except (KeyError, ValueError) as exc:
+                    _logger.warning("[ablation] skipping malformed summary row: %s", exc)
+    except OSError as exc:
+        _logger.warning("[ablation] could not read existing summary %s: %s", path, exc)
+    return rows
+
+
 def _run_candidate(
     candidate: MTLCandidate,
     state: str,
@@ -372,7 +405,13 @@ def run_ablation(config: AblationRunConfig) -> dict[str, Path | None]:
     )
     print(f"[ablation] wrote manifest: {manifest_path}")
 
-    rows = [
+    summary_path = label_root / "summary.csv"
+    prior_rows = _load_summary(summary_path)
+    completed_names = {r.candidate for r in prior_rows if r.status == "ok"}
+    if completed_names:
+        print(f"[ablation] resuming — skipping {len(completed_names)} already-completed candidate(s): {', '.join(sorted(completed_names))}")
+
+    new_rows = [
         _run_candidate(
             candidate,
             state=config.state,
@@ -387,8 +426,9 @@ def run_ablation(config: AblationRunConfig) -> dict[str, Path | None]:
             timeout_seconds=config.timeout_seconds,
         )
         for candidate in candidates
+        if candidate.name not in completed_names
     ]
-    summary_path = label_root / "summary.csv"
+    rows = prior_rows + new_rows
     _write_summary(summary_path, rows)
     print(f"[ablation] wrote summary: {summary_path}")
 
@@ -416,7 +456,12 @@ def run_ablation(config: AblationRunConfig) -> dict[str, Path | None]:
         )
         print(f"[ablation] wrote promoted manifest: {promoted_manifest}")
         print(f"[ablation] promoting: {', '.join(promoted_names)}")
-        promoted_rows = [
+        promoted_summary_path = promoted_root / "summary.csv"
+        prior_promoted_rows = _load_summary(promoted_summary_path)
+        completed_promoted = {r.candidate for r in prior_promoted_rows if r.status == "ok"}
+        if completed_promoted:
+            print(f"[ablation] resuming promoted — skipping {len(completed_promoted)} candidate(s): {', '.join(sorted(completed_promoted))}")
+        new_promoted_rows = [
             _run_candidate(
                 candidate,
                 state=config.state,
@@ -431,8 +476,9 @@ def run_ablation(config: AblationRunConfig) -> dict[str, Path | None]:
                 timeout_seconds=config.timeout_seconds,
             )
             for candidate in promoted_candidates
+            if candidate.name not in completed_promoted
         ]
-        promoted_summary_path = promoted_root / "summary.csv"
+        promoted_rows = prior_promoted_rows + new_promoted_rows
         _write_summary(promoted_summary_path, promoted_rows)
         print(f"[ablation] wrote promoted summary: {promoted_summary_path}")
 
