@@ -145,7 +145,7 @@ def _fmt_metric(value: float) -> str:
     """Compact numeric formatter for progress-bar metrics."""
     if not math.isfinite(value):
         return "-"
-    return f"{value:.3f}"
+    return f"{value * 100:.2f}"
 
 
 # Training Function
