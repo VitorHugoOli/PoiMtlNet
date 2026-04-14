@@ -99,7 +99,7 @@ docs/studies/
    - `scripts/study/archive_result.py`
    - `scripts/study/launch_test.py`
    - `/study` Skill (min viable)
-3. **Once embeddings are ready:** run P0.2 (integrity) + P0.4 (sanity CBIC replication) → if both pass, commit state.json and begin P1.
+3. **Once embeddings are ready:** run P0.2 (integrity) + P0.4 (sanity CBIC replication) + P0.8 (`scripts/study/freeze_folds.py --default-set`) → if all pass, commit state.json and begin P1.
 
 ---
 

@@ -164,27 +164,50 @@ Advanced actions (can come later):
 
 **References:** Dietterich 1998 (5×2cv paired-t origin), Raschka 2018 "Model Evaluation…" (arXiv:1811.12808), sklearn Common Pitfalls ("Controlling Randomness"), NeurIPS Paper Checklist ("state which factors of variability error bars capture").
 
-**Implementation:**
+**Implementation (landed — commit `2ea3199`):**
 
-1. Write `scripts/study/freeze_folds.py`:
-   - For each (state, engine) in the study plan: call `FoldCreator(seed=42).create_folds(state, engine)`, then `.save(Path("output") / engine / state / "folds")`.
-   - Tag the saved dict with the `DatasetSignature` (streaming SHA-256 from `src/configs/experiment.py`) of the input parquets so the cache invalidates loudly if inputs change.
-   - Writes `output/{engine}/{state}/folds/fold_indices.pt` and a companion `.meta.json` with the signature.
+1. `scripts/study/freeze_folds.py` — writes `fold_indices_{task}.pt` under `output/{engine}/{state}/folds/` (via `IoPaths.get_folds_dir`, which routes FUSION correctly). Each fold file ships a companion `fold_indices_{task}.meta.json` recording:
+   - `DatasetSignature` (SHA-256) of every input parquet the task depends on
+   - `sklearn_version`, `torch_version`, `seed`, `n_splits`, `created_at`
+   - Per-fold train/val sizes for quick inspection
 
-2. Plumb `load_folds()` into `scripts/train.py`:
-   - Add optional `--folds-path` flag.
-   - When present, use `rebuild_dataloaders()` instead of creating folds from scratch.
-   - When absent but a cached file exists at the canonical path, load it (with signature check). Otherwise fall back to on-the-fly generation (and warn).
+2. `scripts/train.py` auto-resolves folds in this order:
+   1. `--folds-path <file>` — explicit override (errors loudly if the file is missing)
+   2. `--no-folds-cache` — force regeneration (debugging only)
+   3. Canonical cache at `output/{engine}/{state}/folds/fold_indices_{task}.pt` — loaded iff every input parquet's current SHA-256 still matches the meta. Mismatch → warn + regenerate.
+   4. Otherwise: on-the-fly generation with a WARNING that prints the exact `freeze_folds.py` invocation needed.
 
-3. Update every test config in `state.json` to use `seed: 42` (already the default but verify).
+3. Every test config in `state.json` must set `seed: 42`. The default factories already do this; `/study next` dry-run verifies it.
 
 4. For **C18 multi-seed robustness** (P5.1): only `torch.manual_seed` varies across the {42, 123, 2024} runs. Folds stay frozen. This isolates model-stochasticity variance from fold-split variance — exactly what NeurIPS asks you to state explicitly.
 
-**Freeze order:** AL first (fastest path to unblock P1), then AZ, then FL. For each state × engine in {dgi, hgi, fusion, sphere2vec, time2vec, poi2vec}.
+**Runbook.**
 
-**Output:** JSON manifest at `docs/studies/results/P0/folds/frozen.json` listing every (state, engine) that has a cached fold file, plus the input signature and fold-size summary.
+```bash
+# Freeze one specific (state, engine, task):
+.venv/bin/python scripts/study/freeze_folds.py --state alabama --engine fusion --task mtl
 
-**Phase gate:** any test enrolled in P1 must point at cached folds. A test that regenerates folds from scratch fails P0.8 review.
+# Freeze the P0.8 minimum set in one shot (AL+AZ × {dgi,hgi,fusion} × mtl):
+.venv/bin/python scripts/study/freeze_folds.py --default-set
+
+# Re-freeze after an input regeneration:
+.venv/bin/python scripts/study/freeze_folds.py --state alabama --engine fusion --task mtl --force
+
+# Training auto-loads the cache; no test-config change required.
+# The rollup manifest lives at docs/studies/results/P0/folds/frozen.json
+# (versioned — every freeze updates it with repo-relative paths).
+```
+
+**Freeze order:** AL first (unblocks P1 fastest), then AZ, then FL. For each state × engine pair in {dgi, hgi, fusion}. Extend to {sphere2vec, time2vec, poi2vec} only when P3 needs them.
+
+**Output artifacts:**
+- `output/{engine}/{state}/folds/fold_indices_{task}.pt` — binary, gitignored (size ≈ 65 MB for Alabama/fusion; larger for Florida)
+- `output/{engine}/{state}/folds/fold_indices_{task}.meta.json` — gitignored next to the .pt
+- `docs/studies/results/P0/folds/frozen.json` — versioned rollup index
+
+**Verification.** The implementation was validated by generating folds twice — once via `freeze_folds.py` and once via a fresh `FoldCreator` run in the same process — and confirming byte-identical `train_indices` and `val_indices` across all 5 folds × 2 tasks (20/20 arrays matched). `_resolve_folds()` in `train.py` is unit-exercised by the existing `scripts/study/_smoke_test.py`.
+
+**Phase gate:** any test enrolled in P1 must point at cached folds. A test run that logs the on-the-fly `Generating folds on the fly (...)` warning fails P0.8 review and must be re-run after freezing.
 
 ---
 
