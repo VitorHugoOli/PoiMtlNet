@@ -358,6 +358,12 @@ def _parse_args(argv=None) -> argparse.Namespace:
         help="Number of training epochs. Overrides config value.",
     )
     parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=None,
+        help="Training batch size. Overrides config value.",
+    )
+    parser.add_argument(
         "--folds",
         type=int,
         default=None,
@@ -450,6 +456,10 @@ def _apply_cli_overrides(
         config = dataclasses.replace(config, task_type=args.task)
     if args.epochs is not None:
         config = dataclasses.replace(config, epochs=args.epochs)
+    if args.batch_size is not None:
+        if args.batch_size <= 0:
+            raise ValueError("--batch-size must be > 0")
+        config = dataclasses.replace(config, batch_size=args.batch_size)
     if args.next_target is not None:
         config = dataclasses.replace(config, next_target=args.next_target)
     if args.seed is not None:

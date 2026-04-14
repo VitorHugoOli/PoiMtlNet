@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 # SETTINGS
 # =============================================================================
 
-MAX_WORKERS = 1  # Fusion is memory-intensive
+MAX_WORKERS = 2  # Fusion is memory-intensive
 FUSION_PRESET = "space_hgi_time"  # Options: space_hgi_time, hgi_time, space_time
 
 # =============================================================================
@@ -36,12 +36,13 @@ FUSION_PRESET = "space_hgi_time"  # Options: space_hgi_time, hgi_time, space_tim
 # =============================================================================
 
 STATES = {
-    # 'alabama': {},
-    # 'texas': {},
-    # 'arizona': {},
-    # 'georgia': {},
+    'arizona': {},
     'florida': {},
-    # 'california': {},
+
+    'alabama': {},
+    'california': {},
+    'texas': {},
+
 }
 
 

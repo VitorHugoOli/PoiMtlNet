@@ -40,7 +40,7 @@ class ExperimentConfig:
     task_type: str = "mtl"  # "mtl", "category", "next"
     next_target: str = "next_category"  # reserved for future "next_poi" ranking target
     epochs: int = 50
-    batch_size: int = 2048
+    batch_size: int = 2**12
     learning_rate: float = 1e-4
     max_lr: float = 1e-3
     weight_decay: float = 0.05
