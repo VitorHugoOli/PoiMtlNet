@@ -262,8 +262,97 @@ This is the **authoritative list** of every claim/hypothesis we intend to valida
 
 **Source:** Critical review — close the loop on CBIC's compute concern.
 **Test:** P2.6 — log wall-clock for single-task-cat, single-task-next, MTL; compare ratios.
-**Phase:** P2.
+**Phase:** P2 (instrumentation); rollup analysis in P6.
 **Status:** `pending`.
+**Notes:** Sharpened and analyzed alongside C22/C23 in P6. C21 captures the *raw* single-run wall-clock; C23 is the aggregate ratio claim.
+
+---
+
+## Tier G — Canonical MTL benefit claims revisited (Phase 6)
+
+These test the classic Caruana (1997) / Ruder (2017) / Crawshaw (2020) MTL mechanisms against our modern config (DSelectK + fusion + gradient surgery). The CBIC 2025 paper tested several of these with a worse config and reported MTL ≤ single-task — P6 re-tests whether the new configuration flips those findings.
+
+### C22 — MTL reaches target F1 in fewer epochs than cumulative single-task
+
+**Statement:** For both tasks, MTL crosses a predefined target F1 threshold in ≤ the total epochs needed by the two single-task models combined.
+
+**Source:** Caruana 1997 §2.1 (statistical data amplification → faster convergence). CBIC 2025 Table 3 reported ~3.2–3.8 epochs for all three models, so the per-epoch count was similar, but MTL's wall-clock ballooned. We re-test epoch efficiency with modern config.
+**Test:** P6.1 — from per-epoch val F1 logs (already stored in `MetricStore` under each run dir), compute epochs-to-target for MTL vs each single-task. Target = 90% of each model's own best epoch score (intrinsic target, not fixed across models).
+**Phase:** P6.
+**Status:** `pending`.
+
+---
+
+### C23 — Modern MTL total wall-clock ≤ 2× cumulative single-task
+
+**Statement:** `wall_MTL / (wall_single_cat + wall_single_next)` is less than 2 on the champion config.
+
+**Source:** Sharpening C21. CBIC reported this ratio at ~4; modern gradient-surgery / expert-gating might cut it.
+**Test:** P6.2 — post-hoc analysis of P2 single-task runs + champion MTL run on AL. Report the ratio at 5f × 50ep.
+**Phase:** P6.
+**Status:** `pending`.
+**Notes:** If ratio > 2 we should still report honestly — negative findings are fine here.
+
+---
+
+### C24 — MTL shows smaller train-val generalization gap than single-task
+
+**Statement:** Final-epoch `F1_train − F1_val` is lower for MTL's category head than for single-task-cat, and likewise for MTL's next head vs single-task-next.
+
+**Source:** Caruana 1997 §2.5 (implicit bias / regularization); Ruder 2017 §3.5.
+**Test:** P6.3 — pull train and val F1 trajectories from the existing `MetricStore` logs for P2 runs (no new training needed). Mean train-val gap over 5 folds per model.
+**Phase:** P6.
+**Status:** `pending`.
+**Notes:** Free from existing logs; reviewer-expected result.
+
+---
+
+### C25 — MTL degrades more gracefully than single-task under input noise
+
+**Statement:** When Gaussian noise σ ∈ {0.05, 0.1, 0.2} is added to the fused embedding at inference time, MTL's F1 drop is smaller than single-task's.
+
+**Source:** Caruana 1997 §2.3 (eavesdropping / attention focusing); Ruder 2017 §3.2.
+**Test:** P6.4 — re-evaluate (inference-only) best MTL and best single-task checkpoints on AL val folds with noise injection on the fusion input. Plot F1 vs σ.
+**Phase:** P6.
+**Status:** `pending`.
+**Notes:** Inference-only — no retraining. ~1 h compute.
+
+---
+
+### C26 — MTL's advantage grows with less training data (sample efficiency)
+
+**Statement:** The joint F1 gap between MTL and single-task is larger at 25% training data than at 100%.
+
+**Source:** Caruana 1997 §2.1 — *the* empirical claim Caruana makes in his road-following and pneumonia experiments. The defining MTL mechanism.
+**Test:** P6.5 — subsample AL training folds to {25%, 50%, 75%, 100%} (stratified, fixed seed). Train MTL + 2 single-task baselines at each fraction, 5 folds each. ~60 new runs.
+**Phase:** P6.
+**Status:** `deferred_to_journal` — ~60 runs is borderline for BRACIS timeline. Include as future work unless P6 finishes ahead of schedule. If attempted: restrict to AL + 3 fractions {25%, 50%, 100%} to cut compute to ~45 runs.
+
+---
+
+### C27 — MTL backbone transfers better than single-task backbone
+
+**Statement:** Freezing the trained shared backbone and training a fresh linear head on a held-out-task or held-out-state gives higher F1 when the backbone came from MTL than from single-task training.
+
+**Source:** Caruana 1997 §2.4 (representation bias); Ruder 2017 §3.4 (eavesdropping / shared-feature transfer).
+**Test:** P6.6 — two variants:
+  a) **Cross-task probe:** freeze MTL backbone from AL; train linear head for next-task only. Compare to single-task-next backbone with linear head.
+  b) **Cross-state probe:** backbone trained on AL, linear head trained on AZ (and vice versa).
+**Phase:** P6.
+**Status:** `pending`.
+**Notes:** Clean narrative for the paper's "MTL learns transferable representations" paragraph. ~2 h to script.
+
+---
+
+### C28 — No negative transfer: per-task MTL F1 ≥ best single-task F1
+
+**Statement:** For *each* task individually (category and next), MTL's per-task F1 is not worse than the best single-task baseline at the 95% confidence level (Wilcoxon signed-rank paired across 5 folds).
+
+**Source:** Crawshaw 2020 §1 (negative-transfer critique); Zhang & Yang 2022 "Survey on Negative Transfer" (IEEE/CAA JAS). **Reviewers 2024–2026 explicitly expect this test for any MTL paper.**
+**Test:** P6.7 — paired-fold test on P2 single-task data vs champion MTL per-task F1. One row per fold, Wilcoxon signed-rank + Cohen's d.
+**Phase:** P6.
+**Status:** `pending`.
+**Notes:** **Highest reviewer-priority gap in the current plan.** C06 tests MTL ≥ single-task on *joint* score; C28 tests the stronger per-task claim (neither head is sacrificed). Free from existing P2 logs — mandatory.
 
 ---
 
@@ -271,9 +360,11 @@ This is the **authoritative list** of every claim/hypothesis we intend to valida
 
 ### N01 — We do NOT claim our framework is universally state-of-the-art
 
-**Statement:** We claim it's SOTA on Gowalla state-split POI prediction with the 7-class taxonomy, not universally.
+**Statement:** We claim it's SOTA on Gowalla state-split POI prediction with the 7-class taxonomy (Alabama/Arizona/Florida), not universally.
 
-**Source:** Critical review — HAVANA uses different inputs; comparisons are not 1:1.
+**Source:** Critical review. HAVANA (Santos et al.) uses the **same Gowalla** dataset with FL/CA/TX state splits — the non-1:1-ness of comparisons stems from **preprocessing and task formulation** (HAVANA does semantic venue annotation over a spatial/spectral graph; we do trajectory-based MTL with a 7-category taxonomy), not from different datasets. Numbers are therefore directionally comparable but not strictly head-to-head.
+
+**Future-work note:** other POI benchmarks worth adding to strengthen external validity (journal extension, not BRACIS scope): **Foursquare NYC / TKY** (standard alternative trajectory benchmark, different user base, different taxonomy granularity), **Brightkite** (smaller Gowalla-era LBSN). Both would require new embedding pipelines and category harmonization — explicitly out of scope for the current study.
 
 ---
 

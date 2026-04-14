@@ -308,7 +308,7 @@ def run_test(
 
 def list_tests(phase: str | None, state_path: Path | None = None) -> int:
     state = _load_state(state_path)
-    phases = [phase] if phase else ["P0", "P1", "P2", "P3", "P4", "P5"]
+    phases = [phase] if phase else ["P0", "P1", "P2", "P3", "P4", "P5", "P6"]
     any_printed = False
     for ph in phases:
         tests = state.get("phases", {}).get(ph, {}).get("tests", {})

@@ -158,7 +158,37 @@ Advanced actions (can come later):
 
 ---
 
-### P0.7 — Phase 0 exit criteria
+### P0.8 — Freeze fold indices (methodological prerequisite)
+
+**Why:** every test in P1–P6 is a paired comparison against other tests on the same (state, engine) pair. Paired statistical tests (Wilcoxon signed-rank, paired t) require **byte-identical train/val splits** across the models being compared (Dietterich 1998; Raschka 2018). `StratifiedGroupKFold(random_state=42)` is deterministic today but can shift silently across sklearn minor versions and across input-parquet regenerations. Freezing the fold indices once and loading them everywhere removes both risks and is a precondition for C28 (no-negative-transfer) and every paired claim in the catalog.
+
+**References:** Dietterich 1998 (5×2cv paired-t origin), Raschka 2018 "Model Evaluation…" (arXiv:1811.12808), sklearn Common Pitfalls ("Controlling Randomness"), NeurIPS Paper Checklist ("state which factors of variability error bars capture").
+
+**Implementation:**
+
+1. Write `scripts/study/freeze_folds.py`:
+   - For each (state, engine) in the study plan: call `FoldCreator(seed=42).create_folds(state, engine)`, then `.save(Path("output") / engine / state / "folds")`.
+   - Tag the saved dict with the `DatasetSignature` (streaming SHA-256 from `src/configs/experiment.py`) of the input parquets so the cache invalidates loudly if inputs change.
+   - Writes `output/{engine}/{state}/folds/fold_indices.pt` and a companion `.meta.json` with the signature.
+
+2. Plumb `load_folds()` into `scripts/train.py`:
+   - Add optional `--folds-path` flag.
+   - When present, use `rebuild_dataloaders()` instead of creating folds from scratch.
+   - When absent but a cached file exists at the canonical path, load it (with signature check). Otherwise fall back to on-the-fly generation (and warn).
+
+3. Update every test config in `state.json` to use `seed: 42` (already the default but verify).
+
+4. For **C18 multi-seed robustness** (P5.1): only `torch.manual_seed` varies across the {42, 123, 2024} runs. Folds stay frozen. This isolates model-stochasticity variance from fold-split variance — exactly what NeurIPS asks you to state explicitly.
+
+**Freeze order:** AL first (fastest path to unblock P1), then AZ, then FL. For each state × engine in {dgi, hgi, fusion, sphere2vec, time2vec, poi2vec}.
+
+**Output:** JSON manifest at `docs/studies/results/P0/folds/frozen.json` listing every (state, engine) that has a cached fold file, plus the input signature and fold-size summary.
+
+**Phase gate:** any test enrolled in P1 must point at cached folds. A test that regenerates folds from scratch fails P0.8 review.
+
+---
+
+### P0.9 — Phase 0 exit criteria
 
 Tick each box:
 
@@ -167,6 +197,7 @@ Tick each box:
 - [ ] P0.4 sanity run completes within expected range (or investigation concluded)
 - [ ] P0.5 scripts present and runnable
 - [ ] P0.6 `/study status` works and returns state.json summary
+- [ ] P0.8 fold indices frozen for AL + AZ × {dgi, hgi, fusion} at minimum
 - [ ] This phase doc's status in state.json is `completed`
 - [ ] A git commit captures the P0 outputs
 
@@ -180,4 +211,4 @@ These are not blockers but should be tracked:
 
 1. **Do we have fusion inputs for AZ?** If not, generate during P0.
 2. **Does the codebase still have the T0.2 gradient-accumulation fix?** Verify `src/ablation/runner.py::_candidate_argv` still injects `--gradient-accumulation-steps 1` for `cagrad`/`aligned_mtl`/`pcgrad`. (It should — we committed this.)
-3. **Are the data splits stable across embedding regeneration?** If user IDs change (e.g., because a user was removed due to the label bug), stratified folds may differ. Decide whether to freeze the split mapping now.
+3. ~~**Are the data splits stable across embedding regeneration?** If user IDs change (e.g., because a user was removed due to the label bug), stratified folds may differ. Decide whether to freeze the split mapping now.~~ **Resolved by P0.8** — folds are frozen once post-regeneration and loaded by every downstream test.

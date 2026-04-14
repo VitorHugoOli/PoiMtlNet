@@ -12,12 +12,13 @@ A clean-slate empirical study of MTLnet on newly-regenerated (bug-fixed) embeddi
 
 ## Phase order
 
-1. **P0** — Prep. Embeddings regenerated, integrity checks, tooling built, sanity run. **~2-4 h**.
+1. **P0** — Prep. Embeddings regenerated, integrity checks, tooling built, fold indices frozen, sanity run. **~2-4 h**.
 2. **P1** — 5 archs × 20 optimizers grid on fusion (AL + AZ). Finds best (arch, optim). **~4-8 h**.
 3. **P2** — 9 category × 10 next heads, + MTL vs single-task (critical control for C06). **~8-10 h**.
 4. **P3** — Best config on {DGI, HGI, Fusion} + CBIC config on same → proves CBIC's failure was config-specific. **~6-10 h**.
 5. **P4** — Hyperparameter sensitivity on the champion. **~7-8 h**.
-6. **P5** — Remaining claims, gradient-cosine mechanism, per-category analysis. **~4-6 h**.
+6. **P5** — Mechanistic / diagnostic (gradient cosine, per-category F1, stats package). **~4-6 h**.
+7. **P6** — Canonical MTL claims revisited: convergence, no negative transfer, transferable representations (Caruana/Ruder). **~3-5 h, parallel to P5**.
 
 **Total:** 36-48 h wall-clock, 5-7 days with parallelism.
 
@@ -37,11 +38,14 @@ A clean-slate empirical study of MTLnet on newly-regenerated (bug-fixed) embeddi
 - **C01** Fusion > HGI-only on champion config
 - **C02** Gradient-surgery > equal weight on fusion (at matched batch)
 - **C05** Expert gating > FiLM hard sharing
-- **C06** MTL > single-task (THE critical control — P2)
+- **C06** MTL > single-task on joint score (THE critical control — P2)
 - **C11** Embedding quality dominates other choices
 - **C12** CBIC's config fails on all embeddings, not just DGI
 - **C15-17** Champion is robust to hyperparameters
 - **C19-20** Scale imbalance causes source-level gradient conflict (mechanism)
+- **C22-23** Modern MTL reaches target F1 without CBIC's 4× wall-clock penalty
+- **C24-27** Canonical MTL benefits (regularization, noise robustness, transfer)
+- **C28** **No negative transfer** — MTL per-task F1 ≥ single-task (mandatory reviewer shield)
 
 Full list: `CLAIMS_AND_HYPOTHESES.md`.
 
@@ -76,7 +80,8 @@ docs/studies/
 │   ├── P2_heads_and_mtl.md
 │   ├── P3_embedding_cross.md
 │   ├── P4_hyperparams.md
-│   └── P5_remaining_claims.md
+│   ├── P5_remaining_claims.md
+│   └── P6_convergence_and_mtl_claims.md
 ├── coordinator/
 │   ├── integrity_checks.md
 │   └── state_schema.md

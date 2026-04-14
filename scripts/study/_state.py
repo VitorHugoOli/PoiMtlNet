@@ -20,7 +20,7 @@ STATE_PATH = STUDIES_DIR / "state.json"
 RESULTS_DIR = STUDIES_DIR / "results"
 
 STUDY_VERSION = "1.0"
-PHASES = ["P0", "P1", "P2", "P3", "P4", "P5"]
+PHASES = ["P0", "P1", "P2", "P3", "P4", "P5", "P6"]
 
 
 def utcnow() -> str:

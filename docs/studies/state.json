@@ -40,6 +40,12 @@
       "started": null,
       "finished": null,
       "tests": {}
+    },
+    "P6": {
+      "status": "planned",
+      "started": null,
+      "finished": null,
+      "tests": {}
     }
   }
 }

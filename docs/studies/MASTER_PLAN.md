@@ -68,10 +68,17 @@ This is the overall strategy. Each phase is detailed in `phases/Pk_*.md`. Claims
                  └───────────────┬────────────────────────┘
                                  │
                  ┌───────────────▼────────────────────────┐
-                 │  P5 — Remaining claims                 │
-                 │  Anything not resolved in P1-P4         │
-                 │  Extra analyses (gradient cosine,       │
-                 │  wall-clock, per-category F1)           │
+                 │  P5 — Mechanistic / diagnostic         │
+                 │  Gradient cosine, per-source gradients  │
+                 │  Per-category F1, statistical package   │
+                 │  Embedded claims: C18-C21               │
+                 └───────────────┬────────────────────────┘
+                                 │  (runs parallel to P5)
+                 ┌───────────────▼────────────────────────┐
+                 │  P6 — Convergence & MTL benefit claims │
+                 │  Revisit Caruana/Ruder canonical claims │
+                 │  with modern config (DSelectK+fusion)   │
+                 │  Embedded claims: C22-C28               │
                  └───────────────┬────────────────────────┘
                                  │
                  ┌───────────────▼────────────────────────┐
@@ -79,6 +86,8 @@ This is the overall strategy. Each phase is detailed in `phases/Pk_*.md`. Claims
                  │  Paper writing                          │
                  └────────────────────────────────────────┘
 ```
+
+**Note on P5 vs P6:** both run after P4 locks the champion. P5 = *mechanism* (why does it work? gradient diagnostics, per-category breakdowns). P6 = *benefits* (does it deliver what MTL promises? convergence, no negative transfer, transferable representations). They can run in parallel — P6 is mostly post-hoc analysis of P2 data.
 
 ---
 
@@ -113,13 +122,14 @@ User runs experiments on other machine → copies the run directory back to `res
 
 | Phase | AL | AZ | FL | Wall-clock (best case, parallel) |
 |-------|----|----|----|-----------------------------------|
-| P0 | — | — | — | 2-4 h (embedding regen + tooling) |
+| P0 | — | — | — | 2-4 h (embedding regen + tooling + fold freezing) |
 | P1 | ~4 h | ~4 h | 1 run, 4 h | **6-8 h** (AZ in parallel on other box) |
 | P2 | ~6 h | ~6 h | 1 run, 4 h | **8-10 h** |
 | P3 | ~1.5 h | ~1.5 h | 2 runs, 8 h | **8-10 h** |
 | P4 | ~7 h | — | — | **7-8 h** |
 | P5 | 2-4 h | 1-2 h | 1-2 runs | **4-8 h** |
-| **Total** | ~21 h | ~13 h | ~25 h | **~36-48 h wall-clock** over ~5-7 days |
+| P6 | ~3 h (mostly post-hoc) | — | — | **~3-5 h** (runs parallel to P5) |
+| **Total** | ~24 h | ~13 h | ~25 h | **~36-48 h wall-clock** over ~5-7 days |
 
 This is tight for BRACIS deadline (2026-04-20). If needed, we ship after P3 + partial P4.
 
@@ -142,6 +152,10 @@ After P3: **Does the best config beat CBIC baseline on ALL three embeddings?**
 After P4: **Is the champion robust to hyperparameter choices?**
   → If yes: ship the paper with the found values.
   → If no: investigate, possibly re-run P3 with better tuning.
+
+After P6: **Does the champion clear the canonical MTL claims (no negative transfer, comparable convergence, transferable representations)?**
+  → If yes: the paper's "MTL delivers when configured right" chapter is complete.
+  → If **C28 fails (negative transfer on a task)**: reframe paper honestly — "MTL improves joint score but costs task X per-task F1 — trade-off discussion."
 
 ---
 
