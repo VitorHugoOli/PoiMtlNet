@@ -487,8 +487,11 @@ class MultiEmbeddingInputGenerator:
 
         # Build and save the output DataFrame to the caller-specified path
         num_features = window_size * total_dim
-        columns = list(map(str, range(num_features))) + ['next_category', 'userid']
-        output_df = pd.DataFrame(all_results, columns=columns)
+        emb_cols = list(map(str, range(num_features)))
+        arr = np.array(all_results)  # (N, num_features + 2), object dtype
+        output_df = pd.DataFrame(arr[:, :num_features].astype(np.float32), columns=emb_cols)
+        output_df['next_category'] = arr[:, num_features].tolist()
+        output_df['userid'] = arr[:, num_features + 1].tolist()
         save_parquet(output_df, embeddings_output_path)
         print(f"✓ Next-POI input saved (POI-level): {embeddings_output_path}")
 
@@ -530,7 +533,10 @@ class MultiEmbeddingInputGenerator:
 
         # Save output to the caller-specified path
         num_features = window_size * total_dim
-        columns = list(map(str, range(num_features))) + ['next_category', 'userid']
-        output_df = pd.DataFrame(all_results, columns=columns)
+        emb_cols = list(map(str, range(num_features)))
+        arr = np.array(all_results)  # (N, num_features + 2), object dtype
+        output_df = pd.DataFrame(arr[:, :num_features].astype(np.float32), columns=emb_cols)
+        output_df['next_category'] = arr[:, num_features].tolist()
+        output_df['userid'] = arr[:, num_features + 1].tolist()
         save_parquet(output_df, embeddings_output_path)
         print(f"✓ Next-POI input saved (check-in level): {embeddings_output_path}")

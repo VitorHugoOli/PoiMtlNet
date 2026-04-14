@@ -231,14 +231,25 @@ def save_next_input_dataframe(
     """
     from configs.paths import IoPaths
 
-    # Create column names
     num_features = window_size * embedding_dim
-    columns = list(map(str, range(num_features))) + ["next_category", "userid"]
+    emb_cols = list(map(str, range(num_features)))
 
-    # Create DataFrame
-    output_df = pd.DataFrame(results, columns=columns)
+    if results:
+        # Each result row mixes float32 embeddings with a string category and userid,
+        # forcing object dtype on the whole array. Building a DataFrame directly from
+        # N object-dtype rows is slow (pandas does per-element type inference).
+        # Splitting into a typed float32 matrix + metadata columns is much faster,
+        # and matches the float32 precision already used everywhere else in the pipeline
+        # (create_embedding_lookup, convert_user_checkins_to_sequences, load_next_data).
+        arr = np.array(results)  # (N, num_features + 2), object dtype
+        output_df = pd.DataFrame(
+            arr[:, :num_features].astype(np.float32), columns=emb_cols
+        )
+        output_df["next_category"] = arr[:, num_features].tolist()
+        output_df["userid"] = arr[:, num_features + 1].tolist()
+    else:
+        output_df = pd.DataFrame(columns=emb_cols + ["next_category", "userid"])
 
-    # Save to output path
     output_path = IoPaths.get_next(state, engine)
     save_parquet(output_df, output_path)
 
