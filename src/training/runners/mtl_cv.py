@@ -141,6 +141,13 @@ def _criterion_parameters(mtl_criterion) -> list[torch.nn.Parameter]:
     return list(parameters())
 
 
+def _fmt_metric(value: float) -> str:
+    """Compact numeric formatter for progress-bar metrics."""
+    if not math.isfinite(value):
+        return "-"
+    return f"{value:.3f}"
+
+
 # Training Function
 def train_model(model: torch.nn.Module,
                 optimizer,
@@ -361,9 +368,7 @@ def train_model(model: torch.nn.Module,
             epoch_cat_logits, epoch_cat_targets, num_classes=num_classes,
         )
         f1_next = train_metrics_next['f1']
-        next_acc = train_metrics_next['accuracy']
         f1_category = train_metrics_cat['f1']
-        category_acc = train_metrics_cat['accuracy']
 
         # Calculate epoch metrics (single sync for losses)
         epoch_loss = running_loss.item() / steps
@@ -371,10 +376,12 @@ def train_model(model: torch.nn.Module,
         epoch_loss_category = category_running_loss.item() / steps
         loss_ratio_next_to_category = epoch_loss_next / max(epoch_loss_category, 1e-8)
 
+        best_next = fold_history.task('next').best.best_value
+        best_cat = fold_history.task('category').best.best_value
         progress.set_postfix({
-            'loss': f'{epoch_loss:.4f}',
-            'next': f'{f1_next:.4f}({next_acc:.4f})',
-            'cat': f'{f1_category:.4f}({category_acc:.4f})'
+            'tr': f'N{_fmt_metric(f1_next)}|C{_fmt_metric(f1_category)}',
+            'val': '-',
+            'best': f'N{_fmt_metric(best_next)}|C{_fmt_metric(best_cat)}',
         })
 
         fold_history.model_task.log_train(loss=epoch_loss, accuracy=0)
@@ -421,8 +428,6 @@ def train_model(model: torch.nn.Module,
 
             f1_val_next = val_metrics_next['f1']
             f1_val_category = val_metrics_cat['f1']
-            acc_val_next = val_metrics_next['accuracy']
-            acc_val_category = val_metrics_cat['accuracy']
 
             joint_score = 0.5 * (f1_val_next + f1_val_category)
             pareto_points.append((f1_val_next, f1_val_category))
@@ -470,11 +475,13 @@ def train_model(model: torch.nn.Module,
                 elapsed_time=fold_history.timer.timer(),
             )
 
-        # Update metrics on progress bar with validation results
+        # Update compact F1-only metrics on progress bar.
+        best_next = fold_history.task('next').best.best_value
+        best_cat = fold_history.task('category').best.best_value
         progress.set_postfix({
-            'val_loss': f'{loss_val:.4f}',
-            'next_val': f'{f1_val_next:.4f}({acc_val_next:.4f})',
-            'cat_val': f'{f1_val_category:.4f}({acc_val_category:.4f})'
+            'tr': f'N{_fmt_metric(f1_next)}|C{_fmt_metric(f1_category)}',
+            'val': f'N{_fmt_metric(f1_val_next)}|C{_fmt_metric(f1_val_category)}',
+            'best': f'N{_fmt_metric(best_next)}|C{_fmt_metric(best_cat)}',
         })
 
         cb.on_epoch_end(CallbackContext(
