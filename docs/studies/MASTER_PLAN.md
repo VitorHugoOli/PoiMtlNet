@@ -93,6 +93,31 @@ This is the overall strategy. Each phase is detailed in `phases/Pk_*.md`. Claims
 
 ## Parallelism strategy
 
+### Hardware: M4 Pro 24GB > M2 Pro 32GB for this workload
+
+Decision recorded here so future reviewers don't second-guess the choice.
+
+| Factor | M4 Pro 24GB | M2 Pro 32GB |
+|---|---|---|
+| Memory bandwidth | 273 GB/s | 200 GB/s |
+| MPS matmul/attention (FP16) | ~30-40% faster | baseline |
+| Unified RAM | 24 GB | 32 GB |
+| macOS 15 kernel optimizations | yes | partial |
+
+**Memory is not the bottleneck.** Peak footprint for the worst case (Florida MTL, 5f × 50ep):
+  MTLnet + optimizer + activations ≈ 2 GB · both fold dataloaders ≈ 4 GB · PyTorch + MPS cache + Python + OS ≈ 8 GB → total ~15 GB. 24 GB leaves ~8 GB headroom; the extra 8 GB on M2 Pro is dead weight.
+
+**Throughput is the bottleneck.** P1 alone is 100 runs × 1 min on AL plus 100 × 25 min on AZ. A 30-40% faster GPU knocks ~10 h off the BRACIS path.
+
+**When M2 Pro 32GB would actually be better:** running two training processes in parallel on the same box (24 GB gets tight with two × ~10 GB), or keeping Florida + a Jupyter notebook with the full raw checkin parquet resident (~5 GB) during training. Neither is the plan here — Colab handles parallelism.
+
+**MPS tuning before long runs** (either box):
+
+```bash
+export PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0   # prevent OOM from aggressive MPS caching on FL
+export PYTORCH_ENABLE_MPS_FALLBACK=1           # quietly CPU-fall back on unimplemented ops
+```
+
 ### This machine (MPS, always sequential for training)
 
 - Queue Phase 1 screening on AL (100 runs × ~1 min)
