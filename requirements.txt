@@ -12,7 +12,7 @@ torch_sparse==0.6.18
 pytorch-warmup==0.2.0
 numpy==2.0.2
 scipy==1.16.3
-scikit-learn==1.6.1
+scikit-learn==1.8.0  # 1.8 fixes StratifiedGroupKFold stratification with shuffle=True (PR #32540)
 
 # Data
 pandas==2.2.3

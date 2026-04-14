@@ -32,10 +32,10 @@ _src = str(Path(__file__).resolve().parent.parent / "src")
 if _src not in sys.path:
     sys.path.insert(0, _src)
 
-from configs.experiment import ExperimentConfig
+from configs.experiment import DatasetSignature, ExperimentConfig
 from configs.globals import CATEGORIES_MAP
 from configs.paths import EmbeddingEngine, IoPaths
-from data.folds import FoldCreator, TaskType
+from data.folds import FoldCreator, TaskType, load_folds, rebuild_dataloaders
 from training.callbacks import ModelCheckpoint
 from utils.seed import seed_everything
 from tracking import DatasetHistory, MLHistory
@@ -395,6 +395,25 @@ def _parse_args(argv=None) -> argparse.Namespace:
             "different constructor signature."
         ),
     )
+    parser.add_argument(
+        "--folds-path",
+        type=str,
+        default=None,
+        help=(
+            "Path to a frozen fold_indices_{task}.pt file (see "
+            "scripts/study/freeze_folds.py). When omitted, the canonical "
+            "path output/{engine}/{state}/folds/fold_indices_{task}.pt is "
+            "auto-loaded if present and its input signatures still match; "
+            "otherwise folds are generated from scratch and a warning is "
+            "logged."
+        ),
+    )
+    parser.add_argument(
+        "--no-folds-cache",
+        action="store_true",
+        default=False,
+        help="Ignore any cached folds and always regenerate. Use only for debugging.",
+    )
     return parser.parse_args(argv)
 
 
@@ -502,6 +521,98 @@ def _apply_cli_overrides(
     return config
 
 
+def _signatures_match(meta_path: Path, task: str, state: str, engine: EmbeddingEngine) -> bool:
+    """Check if cached meta.json's input signatures still match the current parquets.
+
+    Loud mismatch beats silent cache hit: if inputs changed since freeze, force
+    regeneration rather than serve stale splits.
+    """
+    if not meta_path.exists():
+        return False
+    try:
+        meta = json.loads(meta_path.read_text())
+    except json.JSONDecodeError:
+        return False
+    cached = meta.get("inputs_signatures", {})
+    expected_files: list[tuple[str, Path]] = []
+    if task in ("mtl", "category"):
+        expected_files.append(("category.parquet", IoPaths.get_category(state, engine)))
+    if task in ("mtl", "next"):
+        expected_files.append(("next.parquet", IoPaths.get_next(state, engine)))
+    for name, path in expected_files:
+        if name not in cached or not path.exists():
+            return False
+        live = DatasetSignature.from_path(path)
+        if live.sha256 != cached[name].get("sha256"):
+            return False
+    return True
+
+
+def _resolve_folds(
+    args: argparse.Namespace,
+    config: ExperimentConfig,
+    engine: EmbeddingEngine,
+    task_key: str,
+) -> dict:
+    """Return the fold_results dict — either loaded from a frozen cache or
+    generated on the fly.
+
+    Precedence:
+      1. Explicit --folds-path (fail loud if missing or unreadable)
+      2. --no-folds-cache forces regeneration
+      3. Canonical cache at output/{engine}/{state}/folds/fold_indices_{task}.pt
+         IF its input signatures still match the current parquets
+      4. Generate from scratch, with a warning pointing at freeze_folds.py
+    """
+    task_type = _TASK_TYPES[task_key]
+
+    def _from_scratch(reason: str) -> dict:
+        logger.warning(
+            "Generating folds on the fly (%s). "
+            "Run `python scripts/study/freeze_folds.py --state %s --engine %s --task %s` "
+            "to freeze them; paired statistical tests require frozen splits.",
+            reason, config.state, engine.value, task_key,
+        )
+        creator = FoldCreator(
+            task_type=task_type,
+            n_splits=config.k_folds,
+            batch_size=config.batch_size,
+            seed=config.seed,
+            use_weighted_sampling=False,
+        )
+        return creator.create_folds(config.state, engine)
+
+    if args.no_folds_cache:
+        return _from_scratch("--no-folds-cache set")
+
+    if args.folds_path is not None:
+        cache_path = Path(args.folds_path)
+        if not cache_path.exists():
+            raise SystemExit(f"--folds-path {cache_path} does not exist")
+        logger.info("Loading folds from %s (explicit --folds-path)", cache_path)
+        serialized = load_folds(cache_path)
+        return rebuild_dataloaders(serialized, batch_size=config.batch_size, use_weighted_sampling=False)
+
+    canonical = IoPaths.get_folds_dir(config.state, engine) / f"fold_indices_{task_key}.pt"
+    meta = canonical.with_suffix(".meta.json")
+    if not canonical.exists():
+        return _from_scratch(f"no cache at {canonical}")
+    if not _signatures_match(meta, task_key, config.state, engine):
+        return _from_scratch(
+            f"cache {canonical} is stale (input parquet signature changed since freeze)"
+        )
+    logger.info("Loading frozen folds from %s", canonical)
+    serialized = load_folds(canonical)
+    # Warn if cached n_splits < requested k_folds (can't expand)
+    cached_n = len(next(iter(serialized.fold_indices.values())))
+    if cached_n < config.k_folds:
+        raise SystemExit(
+            f"cached folds have n_splits={cached_n} but config requests "
+            f"k_folds={config.k_folds}; re-freeze with --n-splits or reduce --folds"
+        )
+    return rebuild_dataloaders(serialized, batch_size=config.batch_size, use_weighted_sampling=False)
+
+
 def _load_config_from_file(path: str) -> ExperimentConfig:
     """Load ExperimentConfig from a Python file that exports config()."""
     p = Path(path).resolve()
@@ -565,15 +676,12 @@ def main(argv=None) -> None:
     engine = EmbeddingEngine(config.embedding_engine)
     task_key = config.task_type if config.task_type in _RUNNERS else "mtl"
 
-    # Create folds
-    creator = FoldCreator(
-        task_type=_TASK_TYPES[task_key],
-        n_splits=config.k_folds,
-        batch_size=config.batch_size,
-        seed=config.seed,
-        use_weighted_sampling=False,
-    )
-    fold_results = creator.create_folds(config.state, engine)
+    # Resolve folds: prefer the frozen cache under
+    # output/{engine}/{state}/folds/fold_indices_{task}.pt (see
+    # scripts/study/freeze_folds.py). Falls back to on-the-fly generation
+    # with a warning — required for paired statistical tests across
+    # ablation runs.
+    fold_results = _resolve_folds(args, config, engine, task_key)
 
     # Apply max_folds limit (run only first N folds).
     # config.k_folds stays as the split structure count (>= 2);

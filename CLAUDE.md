@@ -50,7 +50,31 @@
 │   ├── test_training/      # Training runners
 │   └── test_utils/         # FLOPs, training progress
 └── docs/               # Analysis documents, decisions log
+    ├── studies/            # ACTIVE master study (read this first — plan, claims, phases)
+    ├── archive/            # Outdated (pre-bugfix) analyses — historical reference only
+    ├── baselines/          # External baseline references (HAVANA, POI-RGNN, PGC)
+    ├── context/            # Task / embedding / architecture background
+    ├── issues/             # Data-leakage, critical reviews, POI metrics surveys
+    ├── thesis/             # Paper thesis options A / B
+    ├── BRACIS_GUIDE.md     # Conference submission guide
+    ├── PAPER_FINDINGS.md   # Legacy findings (revalidate, don't trust pre-bugfix)
+    └── KNOWLEDGE_SNAPSHOT.md  # Current project snapshot (see below)
 ```
+
+## Current status (read first)
+
+The project is in a **clean-slate ablation phase** (2026-04-13+): the prior dataset had a labeling bug that invalidated all earlier comparisons with published baselines. Embeddings are being regenerated. **All prior results are suspect.**
+
+The active plan lives in `docs/studies/`:
+
+- `docs/studies/README.md` — entry point
+- `docs/studies/QUICK_REFERENCE.md` — one-page overview
+- `docs/studies/MASTER_PLAN.md` — 6-phase strategy (P0 prep → P1 arch×optim → P2 heads+MTL → P3 cross-embedding → P4 hparams → P5 mechanism)
+- `docs/studies/CLAIMS_AND_HYPOTHESES.md` — authoritative claim catalog (C01..Cnn)
+- `docs/studies/COORDINATOR.md` — orchestrator agent spec
+- `docs/studies/phases/` — per-phase execution plans
+
+Before doing any scientific work, consult `docs/studies/QUICK_REFERENCE.md` and `docs/KNOWLEDGE_SNAPSHOT.md`.
 
 ## MTLnet Model
 

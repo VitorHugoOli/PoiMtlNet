@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-04-14T15:21:42+00:00",
+  "sklearn_version": "1.8.0",
+  "entries": [
+    {
+      "key": "alabama/fusion/mtl",
+      "status": "frozen",
+      "state": "alabama",
+      "engine": "fusion",
+      "task": "mtl",
+      "fold_file": "output/fusion/alabama/folds/fold_indices_mtl.pt",
+      "meta": {
+        "schema_version": 1,
+        "state": "alabama",
+        "engine": "fusion",
+        "task": "mtl",
+        "seed": 42,
+        "n_splits": 5,
+        "sklearn_version": "1.8.0",
+        "torch_version": "2.11.0",
+        "created_at": "2026-04-14T15:21:42+00:00",
+        "inputs_signatures": {
+          "category.parquet": {
+            "path": "output/fusion/alabama/input/category.parquet",
+            "sha256": "baa12410eed1b68eba5e4fa2116218b0d7ac293d37c60b6d2c08b56c471e3cec",
+            "size_bytes": 8809047,
+            "mtime": "2026-04-13T02:18:07.466897+00:00"
+          },
+          "next.parquet": {
+            "path": "output/fusion/alabama/input/next.parquet",
+            "sha256": "45444834b57a6e1a9fc0e1cb02f9a5eb15b5cad8e06f0dfd1a658b36de1c5f00",
+            "size_bytes": 78200833,
+            "mtime": "2026-04-13T02:18:16.702820+00:00"
+          }
+        },
+        "fold_sizes": {
+          "next": [
+            {
+              "fold_idx": 0,
+              "train": 10167,
+              "val": 2542
+            },
+            {
+              "fold_idx": 1,
+              "train": 10167,
+              "val": 2542
+            },
+            {
+              "fold_idx": 2,
+              "train": 10167,
+              "val": 2542
+            },
+            {
+              "fold_idx": 3,
+              "train": 10167,
+              "val": 2542
+            },
+            {
+              "fold_idx": 4,
+              "train": 10168,
+              "val": 2541
+            }
+          ],
+          "category": [
+            {
+              "fold_idx": 0,
+              "train": 10937,
+              "val": 729
+            },
+            {
+              "fold_idx": 1,
+              "train": 10934,
+              "val": 732
+            },
+            {
+              "fold_idx": 2,
+              "train": 10906,
+              "val": 760
+            },
+            {
+              "fold_idx": 3,
+              "train": 10836,
+              "val": 830
+            },
+            {
+              "fold_idx": 4,
+              "train": 10842,
+              "val": 824
+            }
+          ]
+        },
+        "fold_file": "fold_indices_mtl.pt"
+      }
+    }
+  ]
+}
