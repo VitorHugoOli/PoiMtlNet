@@ -1,0 +1,45 @@
+{
+  "study_version": "1.0",
+  "study_started": "2026-04-14T05:58:14+00:00",
+  "last_update": "2026-04-14T05:58:14+00:00",
+  "current_phase": "P0",
+  "open_issues": [],
+  "phases": {
+    "P0": {
+      "status": "running",
+      "started": "2026-04-14T05:58:14+00:00",
+      "finished": null,
+      "tests": {}
+    },
+    "P1": {
+      "status": "planned",
+      "started": null,
+      "finished": null,
+      "tests": {}
+    },
+    "P2": {
+      "status": "planned",
+      "started": null,
+      "finished": null,
+      "tests": {}
+    },
+    "P3": {
+      "status": "planned",
+      "started": null,
+      "finished": null,
+      "tests": {}
+    },
+    "P4": {
+      "status": "planned",
+      "started": null,
+      "finished": null,
+      "tests": {}
+    },
+    "P5": {
+      "status": "planned",
+      "started": null,
+      "finished": null,
+      "tests": {}
+    }
+  }
+}
