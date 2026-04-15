@@ -68,9 +68,9 @@ CONFIG = Namespace(
 
 STATES = {
     'Alabama': {'shapefile': Resources.TL_AL},
+    'Florida': {'shapefile': Resources.TL_FL},
     # 'Arizona': {'shapefile': Resources.TL_AZ},
     # 'Georgia': {'shapefile': Resources.TL_GA},
-    # 'Florida': {'shapefile': Resources.TL_FL},
     # 'California': {'shapefile': Resources.TL_CA},
     # 'Texas': {'shapefile': Resources.TL_TX},
 }

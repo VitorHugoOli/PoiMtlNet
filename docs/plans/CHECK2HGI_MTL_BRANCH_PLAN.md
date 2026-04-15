@@ -1,5 +1,7 @@
 # Plan — Check2HGI MTL Branch (next-POI + Next-Region)
 
+> **Revision note (post-research):** decisions in this plan are refined by `docs/plans/CHECK2HGI_MTL_OVERVIEW.md`. Key deltas: (1) new P-1 prerequisite — generate vanilla check2HGI embeddings for FL + AL, running in background concurrent with code scaffolding; (2) next_region head reports **Acc@{1,5,10} + MRR** as primary, macro-F1 secondary — next_category unchanged; (3) joint score: monitor `joint_acc1 = mean(acc1_cat, acc1_region)`, report `joint_f1` alongside; (4) all enrichment phases deferred.
+
 ## Context
 
 The project currently trains MTL jointly on (POI-category classification, next-POI-category prediction) over a fused embedding. Two things are shifting:
