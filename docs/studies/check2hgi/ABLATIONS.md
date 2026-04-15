@@ -83,9 +83,66 @@ Row 5 establishes the noise floor for every other comparison — if seed varianc
 
 ---
 
+## Table 5 — MTL architecture × optimiser grid (Phase P5)
+
+Ported from legacy `docs/studies/phases/P1_arch_x_optimizer.md` and adapted to check2HGI's 2-task pair. Full runbook in `phases/P5_arch_optimizer_grid.md`.
+
+**Architectures (5):** `base` (mtlnet), `cgc22`, `cgc21`, `mmoe4`, `dsk42`.
+
+**MTL optimisers (priority-1 first, extend to 20):**
+
+| Category | Priority-1 | Priority-2 (extend later) |
+|---|---|---|
+| Static | `equal_weight`, `static_weight` | `uncertainty_weighting` |
+| Loss-based | `nash_mtl`, `dwa` | `famo`, `bayesagg_mtl`, `excess_mtl`, `stch` |
+| Gradient-based | `cagrad`, `aligned_mtl` | `pcgrad`, `gradnorm`, `db_mtl`, `fairgrad`, `graddrop`, `mgda`, `moco`, `sdmgrad`, `imtl_h`, `imtl_l` |
+
+Screen: 5 × 20 = 100 cells per state at 1f × 10ep. Top-10 promoted to 2f × 15ep; top-5 confirmed at 5f × 50ep. AL + AZ.
+
+Claims addressed: **CH14** (gradient-surgery vs equal-weight on check2HGI), **CH15** (expert-gating vs FiLM), **CH16** (winner transfer vs legacy HGI track).
+
+**Prerequisite:** `MTLnetCGC / MTLnetMMoE / MTLnetDSelectK / MTLnetPLE` need the same `task_set` parameterisation we applied to `MTLnet` in P1-b. ~150 LOC per variant — a mechanical port, but not yet done.
+
+---
+
+## Table 6 — Head sweep + MTL-vs-single-task (Phase P6)
+
+Ported from legacy `docs/studies/phases/P2_heads_and_mtl.md` and adapted. Full runbook in `phases/P6_head_sweep.md`.
+
+Both heads on check2HGI are sequential → both pull from the same pool of ~10 next-family heads (`next_mtl`, `next_lstm`, `next_gru`, `next_tcn_residual`, …). Legacy P2's 9-cat × 10-next = 90 grid becomes a symmetric 10 × 10 pool with a two-axis efficient sweep:
+
+- P6a-A: fix task_b, vary task_a across 10 heads (10 runs)
+- P6a-B: fix task_a, vary task_b across 10 heads (10 runs)
+- P6a-combo: top-3 × top-3 = 9 runs
+- P6b: single-task baselines for the MTL champion heads (2 runs)
+- P6c: MTL vs single-task (paired t-test, the critical control for CH02)
+- P6d (optional): per-head co-adaptation probe
+
+Total ~50 runs per state. Claims addressed: **CH02** (MTL lift, headline), **CH03** (no negative transfer), **CH17** (MTL head ranking ≠ standalone), **CH18** (frozen-backbone co-adaptation), **CH19** (co-adaptation mechanism).
+
+---
+
+## Table 7 — Dual-stream input & cross-attention (Phase P7)
+
+Options A and C from `CRITICAL_REVIEW.md` and `OPTION_C_SPEC.md`. Full runbook in `phases/P7_dual_stream_cross_attention.md`.
+
+Decision-gated: P7b (cross-attention) only runs if P7a (dual-stream concat) shows ≥ 2 p.p. Acc@1 lift on next_region at Florida scale.
+
+| # | Setup | Architecture | Input stream | Purpose |
+|---|---|---|---|---|
+| 1 | Baseline (vanilla P3) | MTLnet (champion) | Check-in only | Reference `[PAPER]` |
+| 2 | Option A | MTLnet | Concat(check-in, region) | Region-emb as input `[PAPER]` |
+| 3 | Option C (K=2) | MTLnetCrossAttn | Dual stream | Cross-attention `[PAPER]` (if gate passes) |
+| 4 | Option C (K=1) | MTLnetCrossAttn | Dual stream | Depth ablation `[APPENDIX]` |
+| 5 | Option C (K=3) | MTLnetCrossAttn | Dual stream | Depth ablation `[APPENDIX]` |
+
+All run on FL + AL. Claims: **CH12** (dual-stream helps), **CH13** (cross-attention helps more), **CH20** (gain is state-dependent — predicted by the probing experiment).
+
+---
+
 ## Not in this table (deferred)
 
 - FSQ-NYC / TKY replication (CH10 — declared limitation).
 - Encoder enrichment phases (CH11 — declared scope).
-- Texas / Arizona states (out of scope for FL + AL focus).
+- Texas / Georgia / California states (AL + FL + AZ are the planned triple).
 - 3-task extension with `next_time_gap` (scaffolded but not evaluated).

@@ -210,20 +210,21 @@ Replace NextHeadMTL's transformer with one that attends between check-in and reg
 
 You asked me to check whether the check-in embedding already contains the region info. Ran `scripts/exp_embedding_region_info.py` — a simple logistic-regression probe.
 
-**Alabama (1109 regions, 30k sample):**
-- (B) Majority-class baseline Acc@1: **0.0233** (2.3%)
-- (A) Check-in emb → region Acc@1: **0.0785** (7.9%)
-- (C) POI emb → region Acc@1: **0.0658** (6.6%)
+**Three-state probe results (30k samples per state):**
 
-**Florida (4703 regions, 30k sample):**
-- (B) Majority-class baseline Acc@1: **0.2251** (22.5%) — severe imbalance
-- (A) Check-in emb → region Acc@1: **0.2347** (23.5%) — **only 1pp above majority**
-- (C) POI emb → region Acc@1: **0.0512** (5.1%)
+| State | n_regions | (B) Majority | (A) Check-in → region | (C) POI → region | Lift (A/B) |
+|---|---|---|---|---|---|
+| Alabama | 1,109 | 2.33% | **7.85%** | 6.58% | **3.4×** |
+| **Arizona** | **1,547** | **6.35%** | **10.73%** | **5.78%** | **1.7×** |
+| Florida | 4,703 | 22.51% | 23.47% | 5.12% | 1.04× |
+
+**Arizona triangulates the pattern.** As `n_regions` grows (and the majority-class dominates more of the distribution), the linear probe's ability to recover region from check-in emb degrades monotonically. This is a clean signal-degradation curve across three states.
 
 **Interpretation:**
 
-- **Alabama tells one story:** both check-in and POI embeddings encode region info well above chance (3× majority). The hierarchical MI training does propagate region context. Check-in beats POI slightly (more training data per embedding).
-- **Florida tells a *different* story:** the linear probe essentially fails — check-in is only 1pp above always-predict-majority. This is not necessarily because the signal is absent, it's because (a) 4,703 classes × 30k samples × severe imbalance is a hard regime for linear LR, (b) the LR training didn't converge cleanly (there were divide-by-zero warnings on matmul), and (c) POI→region fails even worse (5.1%) because most POIs have only 1–2 visits under this sampling.
+- **Alabama tells one story:** both check-in and POI embeddings encode region info well above chance (3.4× majority). The hierarchical MI training does propagate region context. Check-in beats POI slightly (more training data per embedding).
+- **Arizona sits in the middle** (1.7× majority). Linear signal is weakening as label space grows.
+- **Florida tells a *different* story:** the linear probe essentially fails — check-in is only 1pp above always-predict-majority (1.04×). This is not necessarily because the signal is absent, it's because (a) 4,703 classes × 30k samples × severe imbalance is a hard regime for linear LR, (b) the LR training didn't converge cleanly (there were divide-by-zero warnings on matmul), and (c) POI→region fails even worse (5.1%) because most POIs have only 1–2 visits under this sampling.
 
 **What this cross-state split actually tells us:**
 

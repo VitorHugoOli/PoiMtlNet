@@ -6,14 +6,17 @@
 
 | Phase | Purpose | Claims addressed | Wall-clock (est.) | Parallelisable with |
 |---|---|---|---|---|
-| **P-1** | Generate vanilla check2HGI embeddings for FL + AL | (prerequisite) | ~10h CPU (both states) | P1 code work |
+| **P-1** | Generate vanilla check2HGI embeddings for FL + AL (+ AZ if triangulating probe) | (prerequisite) | ~20 min per state on MPS | P1 code work |
 | **P0** | Build next_region label-derivation pipeline | (prerequisite) | ~1h | needs P-1 graph artifact |
-| **P1** | Parameterise MTLnet + mtl_cv.py with TaskConfig | (prerequisite) | ~3–4h | P-1 |
+| **P1** | Parameterise MTLnet + mtl_cv.py with TaskConfig | (prerequisite) | ~3–4h (done) | P-1 |
 | **P2** | Single-task baselines (next-cat, next-region) on both engines | CH01, CH04, CH05 | ~3h compute + 1h analysis | — |
 | **P3** | 2-task MTL headline runs | CH02, CH03 | ~4h compute + 1h analysis | — |
-| **P4** | Ablations (head arch, MTL optimiser, task embedding, monitor) | CH06, CH07, CH08, CH09 | ~8h compute + 2h analysis | — |
+| **P4** | Micro-ablations (head arch, MTL optimiser, task embedding, monitor) | CH06, CH07, CH08, CH09 | ~8h compute + 2h analysis | — |
+| **P5** | MTL arch × optimiser grid (ported legacy P1) | CH14, CH15, CH16 | ~8h (AL + AZ) + ~1.5h analysis | requires other MTL models to be TaskSet-parameterised |
+| **P6** | Head sweep + MTL-vs-single-task (ported legacy P2) | CH02, CH03, CH17, CH18, CH19 | ~8h (AL + AZ) + ~1h analysis | — |
+| **P7** | Dual-stream input & cross-attention (Options A + C) | CH12, CH13, CH20 | ~3h if A only; +6h if C | decision-gated on CH02 confirmed in P6 |
 
-**Total compute budget (sequential):** ~30h wall-clock, of which ~10h is the embedding generation and ~20h is MTL training. The user has approved parallel embedding + code work, so effective wall-clock is ~20h if started now.
+**Total compute budget (sequential):** ~60h wall-clock if the full P5–P7 loop runs. P5 and P6 are the "legacy ablation study ported to check2HGI" the user explicitly requested.
 
 ## Critical-path ordering
 

@@ -202,13 +202,151 @@ These are claims we expect to *refute* or *flag* — paper limitations, not cont
 
 ---
 
+## Tier E — Ported legacy ablations (P5, P6)
+
+Mirror claims from the legacy `docs/studies/phases/P1_arch_x_optimizer.md` + `P2_heads_and_mtl.md` applied to the check2HGI track. Let us compare check2HGI directly with the legacy HGI / fusion findings.
+
+### CH14 — Gradient-surgery optimisers beat equal-weight on check2HGI
+
+**Statement:** On check2HGI `{next_category, next_region}`, `cagrad` / `aligned_mtl` achieve joint_acc1 ≥ 2 p.p. higher than `equal_weight` / `static_weight` at matched `gradient_accumulation_steps=1, batch_size=4096`, on AL and AZ.
+
+**Source:** Legacy C02 mirror. Check2HGI's task-scale imbalance (7-class vs 1109-class labels) is much larger than the legacy fusion pair's — gradient-surgery advantages could be amplified.
+
+**Test:** P5 confirmation stage (5-fold × 50-epoch top-5 comparison).
+
+**Phase:** P5.
+
+**Status:** `pending`.
+
+**Notes:** If `equal_weight` wins here, a Xin-et-al.-style finding extends to check2HGI — publishable and counter-intuitive.
+
+---
+
+### CH15 — Expert-gating architectures beat FiLM-only on check2HGI
+
+**Statement:** `mtlnet_cgc`, `mtlnet_mmoe`, `mtlnet_dselectk` achieve higher mean joint_acc1 than `mtlnet` (FiLM-only) when averaged across optimisers.
+
+**Source:** Legacy C05 mirror.
+
+**Test:** P5 post-analysis.
+
+**Phase:** P5.
+
+**Status:** `pending` (blocked on TaskSet parameterisation of the expert-gating variants).
+
+---
+
+### CH16 — Winning (arch, optim) pair on check2HGI differs from HGI
+
+**Statement:** The P5 champion on check2HGI is not the same (arch, optim) pair as the legacy study's winner on HGI / fusion. Dataset-dependent architecture-optimiser interaction.
+
+**Source:** Legacy C04 mirror.
+
+**Test:** P5 vs legacy results cross-ref.
+
+**Phase:** P5.
+
+**Status:** `pending`.
+
+---
+
+### CH17 — Head rankings in MTL differ from standalone rankings
+
+**Statement:** The ranking of task_a heads when trained in the 2-task MTL differs (by Spearman ρ < 0.7) from the ranking of the same heads trained as single-task next-category models.
+
+**Source:** Legacy C08 mirror.
+
+**Test:** P6a vs P6b ranking comparison.
+
+**Phase:** P6.
+
+**Status:** `pending`.
+
+---
+
+### CH18 — Frozen-backbone head-swap matches MTL rankings better than standalone
+
+**Statement:** When the MTL backbone from the P5/P6 champion is frozen and alternative heads are fine-tuned on it, the resulting head ranking correlates more strongly with the MTL-end-to-end ranking (Spearman ρ > 0.8) than with the standalone ranking.
+
+**Source:** Legacy C09 mirror. Tests the co-adaptation-to-backbone hypothesis.
+
+**Test:** P6d probe.
+
+**Phase:** P6 (optional).
+
+**Status:** `pending`.
+
+---
+
+### CH19 — Head co-adaptation mechanism (narrative claim)
+
+**Statement:** In MTL on check2HGI, each head adapts to the backbone representation more than to the raw embedding — i.e., the backbone effectively compiles a task-specialised feature for each head, and heads are selected for "how well they read that compiled feature," not "how well they solve the task in isolation."
+
+**Source:** Narrative framing of CH17 + CH18 for the paper.
+
+**Test:** P6d + qualitative analysis of backbone activations per-task.
+
+**Phase:** P6.
+
+**Status:** `pending`.
+
+---
+
+## Tier F — Option A / Option C (Phase P7)
+
+### CH12 — Region embeddings as input improve next-region Acc@1
+
+**Statement:** Using dual-stream input (concat check-in emb + region emb per timestep) instead of check-in only increases `val_acc1_next_region` by ≥ 2 p.p. on Florida at 5f × 50ep, champion backbone + optimiser.
+
+**Source:** Probe experiment (`scripts/exp_embedding_region_info.py`) + literature (HMT-GRN, Bi-Level GSL).
+
+**Test:** P7a ablation.
+
+**Phase:** P7.
+
+**Status:** `pending`.
+
+**Notes:** Probe predicts this will be larger on FL (4703 regions, probe at 23.5% ≈ majority) than on AL (1109 regions, probe at 7.9% ≫ majority).
+
+---
+
+### CH13 — Bidirectional cross-attention between streams improves over concat
+
+**Statement:** At equal parameter budget, `MTLnetCrossAttn` (K=2 cross-attention layers) achieves joint_acc1 > Option A (dual-stream concat) on FL.
+
+**Source:** HMT-GRN's hierarchical-attention design as a template.
+
+**Test:** P7b ablation.
+
+**Phase:** P7 (gated on CH12 succeeding).
+
+**Status:** `pending`.
+
+---
+
+### CH20 — Region-input gain is state-dependent
+
+**Statement:** The Δ Acc@1 from adding dual-stream region input (Option A or C vs vanilla) is larger on Florida (4703 regions) than Alabama (1109 regions) by at least 2×.
+
+**Source:** Probing experiment showed check-in emb is 3× above majority on AL but barely above majority on FL under LR; the gap at the MTL level should track this pattern.
+
+**Test:** P7 comparison across states.
+
+**Phase:** P7.
+
+**Status:** `pending`.
+
+**Notes:** CH20 is paper-valuable even if CH12/CH13 are partial — it tells readers *when* the design choice matters.
+
+---
+
 ## Summary dashboard
 
 | ID | Tier | Phase | Status | Decides |
 |----|------|-------|--------|---------|
 | CH01 | A | P2 | pending | Embedding-quality claim |
-| CH02 | A | P3 | pending | MTL lift claim (headline) |
-| CH03 | A | P3 | pending | No negative transfer |
+| CH02 | A | P3, P6 | pending | MTL lift claim (headline) |
+| CH03 | A | P3, P6 | pending | No negative transfer |
 | CH04 | B | P2 | pending | Next-region is meaningful |
 | CH05 | B | P2 | pending | Ranking-metric methodology |
 | CH06 | B | P4 | pending | Monitor-choice robustness |
@@ -217,3 +355,12 @@ These are claims we expect to *refute* or *flag* — paper limitations, not cont
 | CH09 | C | P4 | pending | Task-embedding ablation |
 | CH10 | D | — | declared | External-validity limit |
 | CH11 | D | — | declared | Enrichment out of scope |
+| CH12 | F | P7 | pending | Dual-stream region input helps |
+| CH13 | F | P7 | pending | Cross-attention > concat |
+| CH14 | E | P5 | pending | Gradient-surgery optimisers (legacy mirror) |
+| CH15 | E | P5 | pending | Expert-gating > FiLM (legacy mirror) |
+| CH16 | E | P5 | pending | Winner differs across engines |
+| CH17 | E | P6 | pending | MTL head ranking ≠ standalone |
+| CH18 | E | P6 | pending | Frozen-backbone-swap matches MTL ranking |
+| CH19 | E | P6 | pending | Co-adaptation mechanism (narrative) |
+| CH20 | F | P7 | pending | Gain is state-dependent (from probe) |

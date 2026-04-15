@@ -67,9 +67,10 @@ CONFIG = Namespace(
 # =============================================================================
 
 STATES = {
-    'Alabama': {'shapefile': Resources.TL_AL},
-    'Florida': {'shapefile': Resources.TL_FL},
-    # 'Arizona': {'shapefile': Resources.TL_AZ},
+    # AL + FL already generated in a prior run; AZ added for probe triangulation.
+    # 'Alabama': {'shapefile': Resources.TL_AL},
+    # 'Florida': {'shapefile': Resources.TL_FL},
+    'Arizona': {'shapefile': Resources.TL_AZ},
     # 'Georgia': {'shapefile': Resources.TL_GA},
     # 'California': {'shapefile': Resources.TL_CA},
     # 'Texas': {'shapefile': Resources.TL_TX},
