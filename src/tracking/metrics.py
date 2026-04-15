@@ -145,17 +145,31 @@ def compute_classification_metrics(
     # torchmetrics expects integer predictions for the top-1 path.
     preds = logits.argmax(dim=-1)
 
+    # High-cardinality heads (e.g. next_region with ~10^3 classes) blow up
+    # MPS memory in torchmetrics' confusion-matrix path — bincount tries to
+    # allocate ``num_classes**2 * batch_size`` floats. For ~1K classes and
+    # 2K batch that's ~10GB per metric, >MPS buffer cap. We run the
+    # torchmetrics calls on CPU for large label spaces; the hand-rolled
+    # ranking metrics (top-K, MRR, NDCG) are fine on-device either way.
+    _CARDINALITY_CPU_THRESHOLD = 256
+    if num_classes > _CARDINALITY_CPU_THRESHOLD and preds.device.type == "mps":
+        preds_tm = preds.cpu()
+        targets_tm = targets.cpu()
+    else:
+        preds_tm = preds
+        targets_tm = targets
+
     acc_micro = multiclass_accuracy(
-        preds, targets, num_classes=num_classes, average="micro"
+        preds_tm, targets_tm, num_classes=num_classes, average="micro"
     ).item()
     acc_macro = multiclass_accuracy(
-        preds, targets, num_classes=num_classes, average="macro"
+        preds_tm, targets_tm, num_classes=num_classes, average="macro"
     ).item()
     f1_macro = multiclass_f1_score(
-        preds, targets, num_classes=num_classes, average="macro", zero_division=0
+        preds_tm, targets_tm, num_classes=num_classes, average="macro", zero_division=0
     ).item()
     f1_weighted = multiclass_f1_score(
-        preds, targets, num_classes=num_classes, average="weighted", zero_division=0
+        preds_tm, targets_tm, num_classes=num_classes, average="weighted", zero_division=0
     ).item()
 
     metrics: Dict[str, float] = {

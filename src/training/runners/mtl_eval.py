@@ -15,6 +15,8 @@ def evaluate_model(
     mtl_creterion,
     device,
     num_classes: int | None = None,
+    task_b_num_classes: int | None = None,
+    task_a_num_classes: int | None = None,
 ):
     """Unified MTL validation pass — computes loss and the full metric dict per task.
 
@@ -102,12 +104,18 @@ def evaluate_model(
 
     if num_classes is None:
         num_classes = model.num_classes
+    # Default: use the same num_classes for both (legacy 2-task path).
+    # For non-legacy task_sets (e.g. check2HGI: cat=7, region~1109) the
+    # caller passes per-task values to avoid torchmetrics OOM at
+    # num_classes^2 on the large-cardinality head.
+    nc_b = task_b_num_classes if task_b_num_classes is not None else num_classes
+    nc_a = task_a_num_classes if task_a_num_classes is not None else num_classes
 
     metrics_next = compute_classification_metrics(
-        all_logits_next, all_truths_next, num_classes=num_classes,
+        all_logits_next, all_truths_next, num_classes=nc_b,
     )
     metrics_category = compute_classification_metrics(
-        all_logits_category, all_truths_category, num_classes=num_classes,
+        all_logits_category, all_truths_category, num_classes=nc_a,
     )
     metrics_next['loss'] = loss_next
     metrics_category['loss'] = loss_category

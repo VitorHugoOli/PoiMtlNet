@@ -186,6 +186,12 @@ def train_model(model: torch.nn.Module,
     """
     task_a_name = task_set.task_a.name  # slot A (category-slot)
     task_b_name = task_set.task_b.name  # slot B (next-slot)
+    # Per-task num_classes. Legacy preset has both==num_classes==7 so the
+    # metric output is unchanged. Non-legacy check2HGI has task_b=~1109
+    # (region), task_a=7 (category); passing them separately avoids the
+    # MPS bincount OOM in torchmetrics when num_classes**2 blows up.
+    task_a_num_classes = task_set.task_a.num_classes or num_classes
+    task_b_num_classes = task_set.task_b.num_classes or num_classes
 
     start_time = time.time()
 
@@ -382,10 +388,10 @@ def train_model(model: torch.nn.Module,
         epoch_cat_targets = torch.cat(all_cat_targets)
 
         train_metrics_next = compute_classification_metrics(
-            epoch_next_logits, epoch_next_targets, num_classes=num_classes,
+            epoch_next_logits, epoch_next_targets, num_classes=task_b_num_classes,
         )
         train_metrics_cat = compute_classification_metrics(
-            epoch_cat_logits, epoch_cat_targets, num_classes=num_classes,
+            epoch_cat_logits, epoch_cat_targets, num_classes=task_a_num_classes,
         )
         f1_next = train_metrics_next['f1']
         f1_category = train_metrics_cat['f1']
@@ -444,6 +450,8 @@ def train_model(model: torch.nn.Module,
                 mtl_criterion,
                 DEVICE,
                 num_classes=num_classes,
+                task_b_num_classes=task_b_num_classes,
+                task_a_num_classes=task_a_num_classes,
             )
 
             f1_val_next = val_metrics_next['f1']
