@@ -24,6 +24,7 @@ from training.callbacks import CallbackContext, CallbackList
 from data.folds import TaskFoldData, FoldResult
 from tracking import MLHistory, FlopsMetrics, NeuralParams
 from tracking.fold import FoldHistory, TaskHistory
+from tasks import LEGACY_CATEGORY_NEXT, TaskSet
 from training.runners.mtl_eval import evaluate_model
 from training.runners.mtl_validation import validation_best_model
 
@@ -161,18 +162,37 @@ def train_model(model: torch.nn.Module,
                 num_classes,
                 shared_parameters: Optional[list] = None,
                 task_specific_parameters: Optional[list] = None,
-                fold_history=FoldHistory.standalone({'next', 'category'}),
+                fold_history: Optional[FoldHistory] = None,
                 max_grad_norm: float = 1.0,
                 gradient_accumulation_steps: int = 1,
                 timeout: Optional[int] = None,
                 next_target_cutoff: Optional[float] = None,
                 category_target_cutoff: Optional[float] = None,
                 callbacks: Optional[list] = None,
+                task_set: TaskSet = LEGACY_CATEGORY_NEXT,
                 ):
     """
     Train the model with multi-task learning.
+
+    ``task_set`` names the two task slots; defaults to the legacy
+    ``{category, next}`` pair which keeps every metric key and
+    fold_history task name bit-exact with the pre-parameterisation
+    runner. Non-legacy task sets (e.g. ``CHECK2HGI_NEXT_REGION``)
+    re-label the slots in every emitted metric key; the internal
+    variable naming (``next_*`` for slot B, ``category_*`` for slot A)
+    is preserved so the implementation stays comparable. The loss
+    tensor ordering is unchanged: ``losses[0] = task_b`` (``next_*``),
+    ``losses[1] = task_a`` (``category_*``).
     """
+    task_a_name = task_set.task_a.name  # slot A (category-slot)
+    task_b_name = task_set.task_b.name  # slot B (next-slot)
+
     start_time = time.time()
+
+    # FoldHistory default is built here (not as a mutable default arg) so
+    # the task-name set can depend on ``task_set`` at call time.
+    if fold_history is None:
+        fold_history = FoldHistory.standalone({task_a_name, task_b_name})
 
     # Cache parameter group lists once. The shared/task partition is fixed
     # for the model's lifetime, so generating these per batch (the previous
@@ -207,8 +227,8 @@ def train_model(model: torch.nn.Module,
     )
 
     cutoff_hits = {
-        'next': False,
-        'category': False
+        task_b_name: False,
+        task_a_name: False,
     }
 
     # Initialize model-level tracking
@@ -376,8 +396,8 @@ def train_model(model: torch.nn.Module,
         epoch_loss_category = category_running_loss.item() / steps
         loss_ratio_next_to_category = epoch_loss_next / max(epoch_loss_category, 1e-8)
 
-        best_next = fold_history.task('next').best.best_value
-        best_cat = fold_history.task('category').best.best_value
+        best_next = fold_history.task(task_b_name).best.best_value
+        best_cat = fold_history.task(task_a_name).best.best_value
         progress.set_postfix({
             'tr': f'N{_fmt_metric(f1_next)}|C{_fmt_metric(f1_category)}',
             'val': '-',
@@ -386,22 +406,22 @@ def train_model(model: torch.nn.Module,
 
         fold_history.model_task.log_train(loss=epoch_loss, accuracy=0)
         fold_history.log_train(
-            'next', loss=epoch_loss_next, **train_metrics_next,
+            task_b_name, loss=epoch_loss_next, **train_metrics_next,
         )
         fold_history.log_train(
-            'category', loss=epoch_loss_category, **train_metrics_cat,
+            task_a_name, loss=epoch_loss_category, **train_metrics_cat,
         )
         diagnostic_payload = {
             "grad_cosine_shared": epoch_grad_cosine,
-            "grad_norm_next_shared": epoch_next_grad_norm,
-            "grad_norm_category_shared": epoch_category_grad_norm,
-            "loss_ratio_next_to_category": loss_ratio_next_to_category,
+            f"grad_norm_{task_b_name}_shared": epoch_next_grad_norm,
+            f"grad_norm_{task_a_name}_shared": epoch_category_grad_norm,
+            f"loss_ratio_{task_b_name}_to_{task_a_name}": loss_ratio_next_to_category,
         }
         if epoch_loss_weights is not None:
             weights_cpu = epoch_loss_weights.detach().cpu()
             if len(weights_cpu) >= 2:
-                diagnostic_payload["loss_weight_next"] = float(weights_cpu[0])
-                diagnostic_payload["loss_weight_category"] = float(weights_cpu[1])
+                diagnostic_payload[f"loss_weight_{task_b_name}"] = float(weights_cpu[0])
+                diagnostic_payload[f"loss_weight_{task_a_name}"] = float(weights_cpu[1])
         gate_stats = getattr(model, "last_gate_stats", {})
         if gate_stats:
             if "category_entropy" in gate_stats:
@@ -437,16 +457,16 @@ def train_model(model: torch.nn.Module,
                 [
                     {
                         "epoch": idx,
-                        "next_f1": pareto_points[idx][0],
-                        "category_f1": pareto_points[idx][1],
+                        f"{task_b_name}_f1": pareto_points[idx][0],
+                        f"{task_a_name}_f1": pareto_points[idx][1],
                     }
                     for idx in pareto_front
                 ],
             )
 
             # Only create state_dict when at least one task improves.
-            next_improved = f1_val_next > fold_history.task('next').best.best_value
-            cat_improved = f1_val_category > fold_history.task('category').best.best_value
+            next_improved = f1_val_next > fold_history.task(task_b_name).best.best_value
+            cat_improved = f1_val_category > fold_history.task(task_a_name).best.best_value
             prev_joint_best = fold_history.model_task.best.best_value if fold_history.model_task.best.best_epoch >= 0 else -1.0
             joint_improved = joint_score > prev_joint_best
             state = model.state_dict() if (joint_improved or next_improved or cat_improved) else None
@@ -463,21 +483,21 @@ def train_model(model: torch.nn.Module,
                 elapsed_time=fold_history.timer.timer(),
             )
             fold_history.log_val(
-                'next',
+                task_b_name,
                 **val_metrics_next,
                 model_state=state if next_improved else None,
                 elapsed_time=fold_history.timer.timer(),
             )
             fold_history.log_val(
-                'category',
+                task_a_name,
                 **val_metrics_cat,
                 model_state=state if cat_improved else None,
                 elapsed_time=fold_history.timer.timer(),
             )
 
         # Update compact F1-only metrics on progress bar.
-        best_next = fold_history.task('next').best.best_value
-        best_cat = fold_history.task('category').best.best_value
+        best_next = fold_history.task(task_b_name).best.best_value
+        best_cat = fold_history.task(task_a_name).best.best_value
         progress.set_postfix({
             'tr': f'N{_fmt_metric(f1_next)}|C{_fmt_metric(f1_category)}',
             'val': f'N{_fmt_metric(f1_val_next)}|C{_fmt_metric(f1_val_category)}',
@@ -488,25 +508,26 @@ def train_model(model: torch.nn.Module,
             epoch=epoch_idx,
             epochs_total=num_epochs,
             metrics={
-                "val_f1_next": f1_val_next,
-                "val_f1_category": f1_val_category,
+                f"val_f1_{task_b_name}": f1_val_next,
+                f"val_f1_{task_a_name}": f1_val_category,
                 "val_joint_score": joint_score,
                 "val_loss": loss_val,
                 "train_loss": epoch_loss,
-                "train_f1_next": f1_next,
-                "train_f1_category": f1_category,
+                f"train_f1_{task_b_name}": f1_next,
+                f"train_f1_{task_a_name}": f1_category,
             },
         ))
 
         if next_target_cutoff is not None and f1_val_next * 100 >= next_target_cutoff:
-            cutoff_hits['next'] = True
+            cutoff_hits[task_b_name] = True
 
         if category_target_cutoff is not None and f1_val_category * 100 >= category_target_cutoff:
-            cutoff_hits['category'] = True
+            cutoff_hits[task_a_name] = True
 
-        if cutoff_hits['next'] and cutoff_hits['category']:
+        if cutoff_hits[task_b_name] and cutoff_hits[task_a_name]:
             logger.info("Stopping early at epoch %d with validation F1 scores: "
-                        "Next: %.4f, Category: %.4f.", epoch_idx + 1, f1_val_next, f1_val_category)
+                        "%s: %.4f, %s: %.4f.", epoch_idx + 1,
+                        task_b_name, f1_val_next, task_a_name, f1_val_category)
             break
 
         current_time = time.time()
@@ -527,8 +548,11 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                                 history: MLHistory,
                                 config: ExperimentConfig,
                                 results_path: Optional[Path] = None,
-                                callbacks: Optional[list] = None):
+                                callbacks: Optional[list] = None,
+                                task_set: TaskSet = LEGACY_CATEGORY_NEXT):
     num_classes = config.model_params.get('num_classes', 7)
+    task_a_name = task_set.task_a.name
+    task_b_name = task_set.task_b.name
 
     for fold_idx, (i_fold, dataloader) in enumerate(dataloaders.items()):
         clear_mps_cache()
@@ -592,13 +616,13 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                 scheduler_state=scheduler.state_dict(),
                 criterion={
                     'mtl': mtl_criterion.__class__.__name__,
-                    'next': next_criterion.__class__.__name__,
-                    'category': category_criterion.__class__.__name__
+                    task_b_name: next_criterion.__class__.__name__,
+                    task_a_name: category_criterion.__class__.__name__,
                 },
                 criterion_state={
                     'mtl': {},
-                    'next': next_criterion.state_dict(),
-                    'category': category_criterion.state_dict()
+                    task_b_name: next_criterion.state_dict(),
+                    task_a_name: category_criterion.state_dict(),
                 }
             )
         )
@@ -630,6 +654,7 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             next_target_cutoff=config.target_cutoff,
             category_target_cutoff=config.target_cutoff,
             callbacks=callbacks,
+            task_set=task_set,
         )
 
         # Run final validation
@@ -649,8 +674,8 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             model
         )
 
-        history.fold.task('next').report = report_next
-        history.fold.task('category').report = report_category
+        history.fold.task(task_b_name).report = report_next
+        history.fold.task(task_a_name).report = report_category
 
         history.step()
 
