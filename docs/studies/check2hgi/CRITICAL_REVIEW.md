@@ -206,6 +206,46 @@ Replace NextHeadMTL's transformer with one that attends between check-in and reg
 - **Add as a new claim:** CH12 — "Region embeddings as input improve next-region Acc@1 over check-in-embeddings-only." Single ablation row.
 - **Keep the current check-in-only path as the A-side of that ablation.** It becomes a useful comparison: "without region embeddings in input" vs "with region embeddings in input."
 
+### 3.6 Empirical probe — does check-in embedding already encode region?
+
+You asked me to check whether the check-in embedding already contains the region info. Ran `scripts/exp_embedding_region_info.py` — a simple logistic-regression probe.
+
+**Alabama (1109 regions, 30k sample):**
+- (B) Majority-class baseline Acc@1: **0.0233** (2.3%)
+- (A) Check-in emb → region Acc@1: **0.0785** (7.9%)
+- (C) POI emb → region Acc@1: **0.0658** (6.6%)
+
+**Florida (4703 regions, 30k sample):**
+- (B) Majority-class baseline Acc@1: **0.2251** (22.5%) — severe imbalance
+- (A) Check-in emb → region Acc@1: **0.2347** (23.5%) — **only 1pp above majority**
+- (C) POI emb → region Acc@1: **0.0512** (5.1%)
+
+**Interpretation:**
+
+- **Alabama tells one story:** both check-in and POI embeddings encode region info well above chance (3× majority). The hierarchical MI training does propagate region context. Check-in beats POI slightly (more training data per embedding).
+- **Florida tells a *different* story:** the linear probe essentially fails — check-in is only 1pp above always-predict-majority. This is not necessarily because the signal is absent, it's because (a) 4,703 classes × 30k samples × severe imbalance is a hard regime for linear LR, (b) the LR training didn't converge cleanly (there were divide-by-zero warnings on matmul), and (c) POI→region fails even worse (5.1%) because most POIs have only 1–2 visits under this sampling.
+
+**What this cross-state split actually tells us:**
+
+- On Alabama-scale problems (low-hundreds of regions), check-in embeddings carry meaningful region info implicitly. Dual-stream region input (Option A) may give only moderate lift.
+- On Florida-scale problems (thousands of regions, high imbalance), a linear probe of check-in emb barely beats majority. This is either (i) the check-in emb truly loses region signal at that scale → dual-stream input (Option A/C) matters more, or (ii) the probe is too weak to extract signal → a transformer sequence model will do better anyway.
+- Either way, **FL is the state where dual-stream region input is more likely to help**. AL is the safer win for the narrow-thesis setup.
+
+**Your intuition ("check-in already has region info") is confirmed on Alabama but ambiguous on Florida.**
+
+**What this means for A vs C decision:**
+
+- Option A (dual-stream concat, cheap, ~2h) is worth running **especially on Florida**. AL is the control; FL is where Option A should shine if it's going to shine anywhere.
+- Option C (cross-attention) becomes defensible only if Option A shows a measurable lift. Run the decision gate in `OPTION_C_SPEC.md §8` on Florida specifically, not Alabama.
+
+Revised recommendation:
+- Run P3 headline twice on Florida: current baseline vs Option A.
+- If FL Option A adds ≥ 2% Acc@1 on next_region, go to Option C for the final paper table.
+- On Alabama, keep the current baseline — Option A may be a wash, and a wash is informative.
+- Details of Option C architecture in `OPTION_C_SPEC.md`.
+
+**One caveat:** the linear-probe result is not the final word. A 4-layer transformer over a 9-window sequence can extract much more than a flat LR. The probe tells us about *what's directly linearly accessible* in the embedding; it doesn't upper-bound what the full MTL model can do. Read the probe numbers as a *lower bound on region-signal-presence*, not a verdict on final task performance.
+
 ### 3.5 Effort to implement
 
 - `src/data/inputs/next_region_dual.py` — new loader that joins region embeddings into the X tensor. ~50 LOC.
