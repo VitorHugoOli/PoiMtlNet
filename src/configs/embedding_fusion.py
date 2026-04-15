@@ -134,8 +134,8 @@ class FusionConfig:
 FUSION_PRESETS = {
     "space_hgi_time": FusionConfig(
         category_embeddings=[
-            EmbeddingSpec(EmbeddingEngine.SPHERE2VEC, EmbeddingLevel.POI, 64),
             EmbeddingSpec(EmbeddingEngine.HGI, EmbeddingLevel.POI, 64),
+            EmbeddingSpec(EmbeddingEngine.SPHERE2VEC, EmbeddingLevel.POI, 64),
         ],
         next_embeddings=[
             EmbeddingSpec(EmbeddingEngine.HGI, EmbeddingLevel.POI, 64),

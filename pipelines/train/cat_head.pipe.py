@@ -29,7 +29,7 @@ MAX_WORKERS = 1
 # =============================================================================
 
 CONFIG = {
-    "engine": EmbeddingEngine.SPHERE2VEC.value,
+    "engine": EmbeddingEngine.CHECK2HGI.value,
     "embedding_dim": None,
     "epochs": None,
     "folds": None,
