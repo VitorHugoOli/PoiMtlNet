@@ -160,11 +160,11 @@ class ExperimentConfig:
             },
             task_type="mtl",
             epochs=50,
-            batch_size=2**10,
+            batch_size=2**11,  # effective batch=2048; grad_accum kept at 1 (NashMTL calls backward() internally)
             learning_rate=1e-4,
             max_lr=1e-3,
             weight_decay=0.05,
-            gradient_accumulation_steps=2,
+            gradient_accumulation_steps=1,
             max_grad_norm=1.0,
             optimizer_eps=1e-8,
             task_loss="cross_entropy",
