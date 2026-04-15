@@ -138,11 +138,11 @@ that doesn't admit the fclass shortcut.
 ## Reproduce
 
 ```
-.venv/bin/python scripts/hgi_leakage_ablation.py \
+.venv/bin/python experiments/hgi_leakage_ablation.py \
     --arms baseline,A_no_hierarchy,B_uniform_negs,AB_both
 ```
 
-Driver: `scripts/hgi_leakage_ablation.py`.
+Driver: `experiments/hgi_leakage_ablation.py`.
 Code hooks added: `le_lambda` exposed in `research/embeddings/hgi/poi2vec.py`,
 `hard_neg_prob` exposed in `research/embeddings/hgi/model/HGIModule.py` and
 threaded through `research/embeddings/hgi/hgi.py`.

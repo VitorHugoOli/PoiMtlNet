@@ -26,9 +26,9 @@ Examples:
 1. **Parse `$ARGUMENTS`.** Validate phase is one of P0..P5.
 2. **Collect state.** Run:
    - `python scripts/study/study.py status` — overall snapshot.
-   - Read `docs/studies/fusion/state.json` directly for full test details in the target phase.
-   - Read the corresponding `docs/studies/fusion/phases/<phase>_*.md` — it defines the phase gate and expected tests.
-   - Read `docs/studies/fusion/CLAIMS_AND_HYPOTHESES.md` — for claim definitions touched by the phase.
+   - Read `state.json` directly (path: `$STUDY_DIR/state.json`, default `docs/studies/fusion/state.json`) for full test details in the target phase.
+   - Read the corresponding `phases/<phase>_*.md` inside the study dir — it defines the phase gate and expected tests.
+   - Read `CLAIMS_AND_HYPOTHESES.md` in the study dir — for claim definitions touched by the phase.
 3. **Per-test sanity sweep.** For each test in the phase:
    - If `status ∈ {completed, analyzed, archived}` but `verdict` is absent: run `/study analyze --phase <phase> --test-id <id>`.
    - If `status == running` and `started_at` > 24 h ago: flag as possibly stuck.
@@ -45,7 +45,7 @@ Examples:
    - List which conditions are met / unmet.
    - If all met: recommend `/study advance`.
    - If some missing: list the specific tests or evidence still needed.
-7. **Write a phase summary.** Append / update `docs/studies/fusion/results/<phase>/SUMMARY.md` with:
+7. **Write a phase summary.** Append / update `results/<phase>/SUMMARY.md` inside the study dir with:
    - Run counts and wall-clock budget used
    - Claim status table
    - Open surprises + recommended follow-ups

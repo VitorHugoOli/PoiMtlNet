@@ -80,7 +80,7 @@ confirmed; the required paper-side actions remain as stated.
 ## Reproduce
 
 ```
-.venv/bin/python scripts/hgi_leakage_ablation.py \
+.venv/bin/python experiments/hgi_leakage_ablation.py \
     --state Florida --arms baseline,C_fclass_shuffle
 ```
 

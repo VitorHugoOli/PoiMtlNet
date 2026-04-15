@@ -14,7 +14,7 @@ deterministic given a fixed `random_state`, but splits can drift silently
 across sklearn versions or if the input parquet is regenerated. Freezing
 indices once and loading them everywhere removes both risks.
 
-See `docs/studies/fusion/phases/P0_preparation.md` §P0.8 for the methodological
+See the study phases/P0_preparation.md §P0.8 for the methodological
 rationale.
 
 Usage

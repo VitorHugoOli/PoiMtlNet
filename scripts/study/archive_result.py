@@ -1,4 +1,4 @@
-"""Archive a training run into docs/studies/fusion/results/<phase>/<test_id>/.
+"""Archive a training run into $STUDY_DIR/results/<phase>/<test_id>/.
 
 Copies summary/full_summary.json, the run's manifest.json (if present), and
 per-fold info so the raw numbers stay inspectable. Writes a slim metadata.json
@@ -149,7 +149,7 @@ def archive(
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Archive a training run into docs/studies/fusion/results/.")
+    parser = argparse.ArgumentParser(description="Archive a training run into $STUDY_DIR/results/.")
     parser.add_argument("--run-dir", required=True, help="Path to the training run directory.")
     parser.add_argument("--phase", required=True, help="Phase ID (P0..P5).")
     parser.add_argument("--test-id", required=True, help="Test ID used in state.json.")

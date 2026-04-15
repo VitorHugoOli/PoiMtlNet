@@ -1,7 +1,7 @@
 """Single-entry CLI behind the /study Skill.
 
 Subcommands:
-  init           — write docs/studies/fusion/state.json (guards against overwrite)
+  init           — write $STUDY_DIR/state.json (guards against overwrite)
   status         — summarize state.json
   next           — launch next planned test in current phase (delegates to launch_test)
   import         — archive a run (delegates to archive_result)
@@ -180,7 +180,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--dry-run", action="store_true")
     sp.set_defaults(func=cmd_next)
 
-    sp = sub.add_parser("import", help="Archive a run directory into docs/studies/fusion/results/")
+    sp = sub.add_parser("import", help="Archive a run directory into $STUDY_DIR/results/")
     sp.add_argument("--run-dir", required=True)
     sp.add_argument("--phase", required=True)
     sp.add_argument("--test-id", required=True)

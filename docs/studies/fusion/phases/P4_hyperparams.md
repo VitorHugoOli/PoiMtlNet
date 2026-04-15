@@ -117,8 +117,8 @@ something worse than an incidental baseline.
 **Config that produced the reference baseline (reproducible today):**
 
 ```
-.venv/bin/python scripts/hgi_leakage_ablation.py --state Florida --arms baseline
-.venv/bin/python scripts/hgi_leakage_ablation.py --state Alabama --arms baseline
+.venv/bin/python experiments/hgi_leakage_ablation.py --state Florida --arms baseline
+.venv/bin/python experiments/hgi_leakage_ablation.py --state Alabama --arms baseline
 ```
 
 - State: Florida / Alabama
@@ -235,7 +235,7 @@ only. On alabama that's 13 runs × ~10 min = ~2 h. On florida 13 × ~50 min
 - `shuffle_fclass_seed` — `research/embeddings/hgi/preprocess.py::preprocess_hgi(shuffle_fclass_seed=...)` (diagnostic only, NOT part of the sweep)
 - `alpha`, `poi2vec_epochs`, `cross_region_weight`, Node2Vec params — all already CLI-threaded in `pipelines/embedding/hgi.pipe.py` CONFIG
 
-**Driver:** `scripts/hgi_leakage_ablation.py` extended with per-arm
+**Driver:** `experiments/hgi_leakage_ablation.py` extended with per-arm
 entries, or a dedicated `scripts/hgi_hparam_sweep.py` (to write when
 phase 6.1 starts — avoid scope creep in the leakage driver).
 

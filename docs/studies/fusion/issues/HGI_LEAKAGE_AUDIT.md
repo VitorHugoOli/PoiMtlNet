@@ -233,7 +233,7 @@ per-state details archived at
 ## 8. Ablation results (2026-04-15, alabama, 1 fold, seed 42)
 
 Ran on alabama, HGI-only, DSelect-k(e=4,k=2) + aligned_mtl, fold 0, seed 42.
-Driver: `scripts/hgi_leakage_ablation.py`. Full write-up at
+Driver: `experiments/hgi_leakage_ablation.py`. Full write-up at
 `docs/studies/fusion/results/P0/leakage_ablation/alabama/README.md`.
 
 ```

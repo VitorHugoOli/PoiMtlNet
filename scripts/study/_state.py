@@ -1,4 +1,9 @@
-"""Shared helpers for docs/studies/fusion/state.json.
+"""Shared helpers for a study's state.json.
+
+The active study directory is resolved from the ``STUDY_DIR`` environment
+variable (absolute or repo-relative path).  If the variable is not set, it
+defaults to ``docs/studies/fusion`` so existing workflows keep working on the
+fusion branch without any change.
 
 Atomic read/modify/write + small query helpers. No training logic here —
 each script composes these primitives.
@@ -15,7 +20,15 @@ from pathlib import Path
 from typing import Any, Iterator
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-STUDIES_DIR = REPO_ROOT / "docs" / "studies" / "fusion"
+
+_study_dir_env = os.environ.get("STUDY_DIR", "")
+if _study_dir_env:
+    STUDIES_DIR = Path(_study_dir_env)
+    if not STUDIES_DIR.is_absolute():
+        STUDIES_DIR = REPO_ROOT / STUDIES_DIR
+else:
+    STUDIES_DIR = REPO_ROOT / "docs" / "studies" / "fusion"
+
 STATE_PATH = STUDIES_DIR / "state.json"
 RESULTS_DIR = STUDIES_DIR / "results"
 

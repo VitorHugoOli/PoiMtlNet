@@ -378,7 +378,7 @@ spatial-structure-only signal contributes near-zero category-discriminative
 capacity.
 
 **Source:** In-study discovery, 2026-04-15 HGI leakage audit follow-up.
-**Test:** `scripts/hgi_leakage_ablation.py` arm `C_fclass_shuffle` —
+**Test:** `experiments/hgi_leakage_ablation.py` arm `C_fclass_shuffle` —
 permute encoded fclass column across POIs (category intact, matched
 `shuffle_fclass_seed` in Phase 3a and Phase 4), retrain POI2Vec + HGI +
 MTL (1 fold, seed 42, DSelectK + aligned_mtl, HGI-only).
