@@ -48,7 +48,8 @@ class HierarchicalGraphInfomax(nn.Module):
         poi2region,
         region2city,
         corruption,
-        alpha
+        alpha,
+        hard_neg_prob=0.25,
     ):
         """
         Initialize HGI module.
@@ -60,6 +61,10 @@ class HierarchicalGraphInfomax(nn.Module):
             region2city: Region-to-city aggregation function
             corruption: Corruption function for negative sampling
             alpha: Balance parameter between POI-region and region-city loss (0 to 1)
+            hard_neg_prob: Probability of drawing a hard negative from the
+                coarse_region_similarity-based candidate pool. Default 0.25
+                matches the reference implementation. Set to 0.0 for purely
+                uniform random negatives (leakage ablation arm B).
         """
         super(HierarchicalGraphInfomax, self).__init__()
 
@@ -69,6 +74,7 @@ class HierarchicalGraphInfomax(nn.Module):
         self.region2city = region2city
         self.corruption = corruption
         self.alpha = alpha
+        self.hard_neg_prob = hard_neg_prob
 
         # Bilinear transformation weights for discrimination
         self.weight_poi2region = nn.Parameter(torch.Tensor(hidden_channels, hidden_channels))
@@ -134,7 +140,7 @@ class HierarchicalGraphInfomax(nn.Module):
         # The expensive parts of the loop (similarity slicing, candidate listing)
         # are PRECOMPUTED ONCE per data object and cached on `data` itself.
         num_regions = int(torch.max(data.region_id).item()) + 1
-        hard_neg_prob = 0.25
+        hard_neg_prob = self.hard_neg_prob
         device = data.x.device
 
         if not hasattr(data, "_hgi_neg_cache") or data._hgi_neg_cache.get("R") != num_regions:

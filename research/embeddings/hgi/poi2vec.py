@@ -321,7 +321,7 @@ class POI2Vec:
         print()
         return self.fclass_walks, self.global_co_occurrence
 
-    def train(self, epochs=5, batch_size=2048, lr=0.05, k=5):
+    def train(self, epochs=5, batch_size=2048, lr=0.05, k=5, le_lambda=1e-8):
         """
         Phase 3c: Train fclass embeddings with hierarchical loss.
 
@@ -330,6 +330,9 @@ class POI2Vec:
             batch_size: Batch size (default 2048, same as reference)
             lr: Learning rate (default 0.05, same as reference)
             k: Negative samples per positive (default 5)
+            le_lambda: Weight on the category-fclass hierarchical L2 loss.
+                Set to 0.0 to disable the only explicit category-label path
+                into fclass embeddings (leakage ablation arm A).
 
         Returns:
             fclass_embeddings: numpy array [vocab_size, embedding_dim]
@@ -364,7 +367,7 @@ class POI2Vec:
             vocab_size=self.vocab_size,
             embed_size=self.embedding_dim,
             hierarchy_pairs=hierarchy_pairs,
-            le_lambda=1e-8
+            le_lambda=le_lambda
         ).to(self.device)
 
         # DataLoader: parallel workers on CPU/CUDA; num_workers=0 on MPS
@@ -537,7 +540,8 @@ class POI2Vec:
 
 
 def train_poi2vec(city, epochs=5, embedding_dim=64, batch_size=2048,
-                  lr=0.05, k=5, device=None, save_intermediate=True):
+                  lr=0.05, k=5, device=None, save_intermediate=True,
+                  le_lambda=1e-8):
     """
     Train POI2Vec embeddings for a city (all three phases).
 
@@ -589,7 +593,8 @@ def train_poi2vec(city, epochs=5, embedding_dim=64, batch_size=2048,
         epochs=epochs,
         batch_size=batch_size,
         lr=lr,
-        k=k
+        k=k,
+        le_lambda=le_lambda,
     )
 
     # Phase 3d: Reconstruct POI embeddings

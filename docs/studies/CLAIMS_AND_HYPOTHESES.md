@@ -356,6 +356,110 @@ These test the classic Caruana (1997) / Ruder (2017) / Crawshaw (2020) MTL mecha
 
 ---
 
+## Tier H — Audit findings from P0 leakage review (2026-04-15)
+
+> Appended via append-only discipline — existing C01–C28 untouched.
+> These claims arose from the in-study HGI leakage audit; they refine
+> evaluation methodology rather than propose new model mechanisms.
+> Companion docs: `docs/issues/HGI_LEAKAGE_AUDIT.md` (technical),
+> `docs/issues/HGI_LEAKAGE_EXPLAINED.md` (glossary),
+> `docs/studies/results/P0/leakage_ablation/`.
+
+### C29 — Category F1 on OSM-Gowalla data primarily measures fclass-identity preservation, not learned representation quality
+
+**Statement:** In every available Gowalla state (Alabama, Arizona,
+California, Florida, Georgia, Texas), each OSM `fclass` maps to a unique
+coarse `category` (`fclass → category` purity = 1.0, macro and
+size-weighted, across ≥ 11k POIs per state). POI2Vec embeds at fclass
+level, so every POI's HGI input feature is a deterministic function of
+its fclass. Consequently, Category F1 on these datasets primarily measures
+how faithfully a 64-dim embedding preserves fclass identity, and
+spatial-structure-only signal contributes near-zero category-discriminative
+capacity.
+
+**Source:** In-study discovery, 2026-04-15 HGI leakage audit follow-up.
+**Test:** `scripts/hgi_leakage_ablation.py` arm `C_fclass_shuffle` —
+permute encoded fclass column across POIs (category intact, matched
+`shuffle_fclass_seed` in Phase 3a and Phase 4), retrain POI2Vec + HGI +
+MTL (1 fold, seed 42, DSelectK + aligned_mtl, HGI-only).
+**Phase:** P0 (follow-up to leakage audit).
+**Status:** `confirmed` cross-state on Alabama and Florida with paired
+baselines (1 fold, seed 42):
+- Alabama: Category macro F1 0.7855 → 0.1437 (Δ = −64.19 p.p.), Next-POI
+  0.2383 → 0.1988 (Δ = −3.95 p.p.).
+- Florida: Category macro F1 0.7649 → 0.1506 (Δ = −61.43 p.p.), Next-POI
+  0.3627 → 0.2982 (Δ = −6.46 p.p.).
+
+On both states Category lands at the 1/7 ≈ 0.143 random-chance floor
+while Next-POI drops an order of magnitude less. Cross-state fclass→category
+purity = 1.0 already confirmed on all six available Gowalla states
+(`docs/studies/results/P0/leakage_ablation/fclass_purity.json`).
+
+**Evidence:** `docs/studies/results/P0/leakage_ablation/alabama/C_fclass_shuffle/`
+(embeddings, fclass .pt, MTL log, full results); `HGI_LEAKAGE_AUDIT.md` §7b, §8, §9.
+
+**Implications for the paper:**
+1. **Next-POI F1 becomes the primary representation-quality metric.**
+   Arm C dropped Next-POI by only −3.95 p.p., confirming it was not
+   riding on the fclass shortcut.
+2. **Category F1 is a sanity check** on embedding fidelity. Cross-engine
+   Category F1 comparisons (HGI vs DGI vs Fusion) should be framed as
+   *"fclass-identity preservation in 64-dim"*.
+3. **Joint F1 inherits the shortcut partially** (it weights Category
+   alongside Next-POI). Options: (a) report the two metrics separately
+   and avoid Joint F1 as primary evidence, (b) down-weight Category,
+   (c) substitute Joint with a metric that doesn't inherit the shortcut.
+4. **Evaluation section must include a caveat paragraph** stating (i)
+   fclass→category determinism, (ii) arm C result, (iii) metric
+   re-framing. Pre-empts the first objection any OSM-literate reviewer
+   will raise.
+
+### C30 — No classical label leakage in HGI / POI2Vec training
+
+**Statement:** No validation-set `category` labels flow into HGI or
+POI2Vec training through any code path. The concerns originally raised
+in `docs/issues/DATA_LEAKAGE_ANALYSIS.md` (written pre-refactor) about
+transductive label leakage in HGI are not supported by the current code
++ ablation evidence.
+
+**Source:** In-study discovery, 2026-04-15 — line-by-line code audit
++ arms A / B / A+B of `hgi_leakage_ablation.py`.
+**Test:** `HGI_LEAKAGE_AUDIT.md` §2–§5 (cleared code paths inventory);
+arms A and B null/asymmetric results.
+**Phase:** P0.
+**Status:** `confirmed`.
+
+**Evidence:**
+- HGI loss (`HGIModule.py:259-300`) is purely contrastive
+  POI↔Region + Region↔City — no classification head, no CE against
+  category, no read of `data.y` during training (grep-verified across
+  `research/embeddings/hgi/**/*.py`).
+- The only explicit `category` → embedding path (POI2Vec hierarchy L2
+  loss, `poi2vec.py:162-174`) is cosmetic at `le_lambda = 1e-8`:
+  arm A null result (Δ Category F1 = +1.36 p.p., direction wrong for
+  leakage).
+- Hard-negative sampling (`HGIModule.py:125-200`) uses per-region
+  **fclass** distributions (public OSM), not category labels. Arm B
+  shows asymmetric per-task trade-off (−1.3 Cat / +2.4 Next), not
+  one-sided leakage signature.
+- Best-epoch selection is training-loss only (`hgi.py:168-177`), no
+  validation metric.
+- `data.y` is never read during training; only used post-hoc to decorate
+  the output parquet (`hgi.py:140, 186-188`).
+
+**Caveat:** Transductive graph training *is* present — validation POIs
+are nodes in the Delaunay graph seen during HGI's self-supervised
+training. Standard GNN-benchmark practice, mild effect, should be
+declared in the paper's methodology section as a caveat, not as a bug.
+
+**Does NOT apply to Check2HGI:**
+`research/embeddings/check2hgi/preprocess.py:217-219` concatenates
+category one-hot directly into check-in node features. That *is*
+classical label leakage and must be removed before Check2HGI is ever
+activated. Tracked separately.
+
+---
+
 ## Tier F — Refutations / things we don't claim
 
 ### N01 — We do NOT claim our framework is universally state-of-the-art
@@ -371,6 +475,26 @@ These test the classic Caruana (1997) / Ruder (2017) / Crawshaw (2020) MTL mecha
 ### N02 — We do NOT claim gradient surgery is required (as of T0.2 evidence)
 
 **Statement:** The current best evidence (T0.2, pre-bug) suggests gradient surgery accelerates convergence but doesn't raise the ceiling at matched training budget. Will be re-tested in C02 on new data.
+
+---
+
+### N03 — We do NOT claim Category F1 measures learned spatial/semantic representation quality on OSM-Gowalla data
+
+**Statement:** Any paper claim of the form "HGI/DGI/Fusion learns better
+*representations* because Category F1 improves by X p.p." is not supported
+on this dataset. Category F1 primarily reports how well a 64-dim embedding
+preserves OSM fclass identity, because `fclass → category` is deterministic
+in all Gowalla states we evaluated (purity = 1.0; see C29).
+
+**Source:** Added 2026-04-15 in response to C29 / arm C result.
+**Scope:** Applies to any engine that embeds at fclass level or
+concatenates fclass-derived features. DGI, Check2HGI, and any fusion that
+includes them all inherit the property.
+
+**What we *do* claim instead:** Next-POI F1 is our representation-quality
+metric. Category F1 is a retained sanity check on embedding fidelity
+("does the 64-dim vector preserve the sub-type category enough to recover
+it?"), reported separately with a caveat paragraph.
 
 ---
 

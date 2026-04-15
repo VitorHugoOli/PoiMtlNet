@@ -194,5 +194,16 @@ Proceed to P4 if:
 1. At least AL core (6 cells) done.
 2. Champion config confirms it improves over CBIC config on at least 2 of 3 embeddings.
 3. At least one state confirms C01 (fusion > HGI on champion config).
+4. **Champion Next-POI F1 matches or beats the P0 reference baseline**
+   (`docs/studies/phases/P4_hyperparams.md` §"Pre-sweep reference
+   baseline"): Florida HGI-only Next-POI F1 ≥ 0.3627, Alabama HGI-only
+   Next-POI F1 ≥ 0.2383, same 1-fold seed-42 protocol. If the P3
+   champion is evaluated on fusion rather than HGI-only, rerun the P0
+   reference arm with fusion before the comparison.
 
 If champion ≈ CBIC on any embedding: investigate before proceeding — may signal a code bug.
+If champion Next-POI F1 < P0 reference: **halt** — the formal ablation
+has selected something worse than an incidental untuned baseline. Likely
+causes: configuration drift, grad-accumulation mismatch with Aligned-MTL,
+or the chosen arch/optim combination actually underperforming
+`DSelect-k + Aligned-MTL`. Fix the center before running P4.

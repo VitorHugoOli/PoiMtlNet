@@ -26,7 +26,8 @@ class HGIPreprocess:
     """Preprocessing pipeline for HGI embeddings."""
 
     def __init__(self, pois_filename, boroughs_filename, temp_path,
-                 cross_region_weight: float = DEFAULT_CROSS_REGION_WEIGHT):
+                 cross_region_weight: float = DEFAULT_CROSS_REGION_WEIGHT,
+                 shuffle_fclass_seed: int | None = None):
         self.pois_filename = pois_filename
         self.boroughs_filename = boroughs_filename
         self.temp_path = temp_path
@@ -36,6 +37,11 @@ class HGIPreprocess:
         # 0.74 → 0.82, so the optimum is dataset-specific. Default 0.7 is best-known
         # for US state-scale sparse datasets; sweep per state when tuning.
         self.cross_region_weight = float(cross_region_weight)
+        # Leakage-ablation arm C: when set, the encoded fclass column is
+        # randomly permuted across POIs right after LabelEncoding. Category
+        # is NOT touched. Breaks the fclass→category determinism that makes
+        # the Category task a near-trivial lookup on OSM data.
+        self.shuffle_fclass_seed = shuffle_fclass_seed
 
     def _read_poi_data(self):
         """Load and prepare POI data."""
@@ -106,6 +112,18 @@ class HGIPreprocess:
 
         self.fclass_encoder = LabelEncoder()
         self.pois["fclass"] = self.fclass_encoder.fit_transform(self.pois["fclass"].values)
+
+        # Leakage-ablation arm C: permute fclass values across POIs, keeping
+        # category intact. This breaks the fclass→category determinism while
+        # preserving graph topology, region assignment, and the downstream
+        # MTL category target.
+        if self.shuffle_fclass_seed is not None:
+            rng = np.random.RandomState(self.shuffle_fclass_seed)
+            self.pois["fclass"] = rng.permutation(self.pois["fclass"].values)
+            print(
+                f"  ⚠  ABLATION: fclass values shuffled across POIs "
+                f"(seed={self.shuffle_fclass_seed})"
+            )
 
         # Save the class lists for return dictionary
         self.category_classes = self.category_encoder.classes_.tolist()
@@ -322,7 +340,8 @@ class HGIPreprocess:
 
 def preprocess_hgi(city, city_shapefile, poi_emb_path=None, cta_file=None,
                    use_onehot_fallback=False,
-                   cross_region_weight: float = DEFAULT_CROSS_REGION_WEIGHT):
+                   cross_region_weight: float = DEFAULT_CROSS_REGION_WEIGHT,
+                   shuffle_fclass_seed: int | None = None):
     """Main preprocessing function for HGI (Phase 3a only).
 
     Args:
@@ -330,6 +349,10 @@ def preprocess_hgi(city, city_shapefile, poi_emb_path=None, cta_file=None,
             DEFAULT_CROSS_REGION_WEIGHT (0.7). Paper uses 0.4, third-party
             reference 0.5. Sweep per dataset when tuning — Alabama's optimum
             (0.7) differs from the paper's Xiamen/Shenzhen value (0.4).
+        shuffle_fclass_seed: Leakage-ablation arm C. When set, permutes the
+            encoded fclass column across POIs (category untouched). Use the
+            same seed across the Phase 3a and Phase 4 preprocess calls so
+            POI2Vec training and region similarity see a consistent shuffle.
     """
     temp_folder = IoPaths.HGI.get_temp_dir(city)
     temp_folder.mkdir(parents=True, exist_ok=True)
@@ -348,7 +371,8 @@ def preprocess_hgi(city, city_shapefile, poi_emb_path=None, cta_file=None,
 
     # Run preprocessing (Phase 3a: create graph structure)
     pre = HGIPreprocess(str(checkins), str(boroughs_path), temp_folder,
-                        cross_region_weight=cross_region_weight)
+                        cross_region_weight=cross_region_weight,
+                        shuffle_fclass_seed=shuffle_fclass_seed)
     print(f"  Cross-region edge weight w_r = {pre.cross_region_weight}")
     data = pre.get_data_torch(poi_emb_path=poi_emb_path, use_onehot_fallback=use_onehot_fallback)
 

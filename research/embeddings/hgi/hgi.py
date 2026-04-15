@@ -154,6 +154,7 @@ def train_hgi(city, args):
         region2city=region2city,
         corruption=corruption,
         alpha=args.alpha,
+        hard_neg_prob=getattr(args, "hard_neg_prob", 0.25),
     ).to(args.device)
 
     print(f"Parameters: {sum(p.numel() for p in model.parameters()):,}")

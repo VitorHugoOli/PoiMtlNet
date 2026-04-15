@@ -1,0 +1,23 @@
+{
+  "started": "2026-04-15T09:37:58.058000",
+  "ended": "2026-04-15T09:46:59.159634",
+  "total_wall_seconds": 541.101634,
+  "seed": 42,
+  "folds": 1,
+  "state": "Alabama",
+  "frozen_folds": "output/hgi/alabama/folds/fold_indices_mtl.pt",
+  "arms": [
+    {
+      "arm": "C_fclass_shuffle",
+      "start": "2026-04-15T09:37:58.058035",
+      "name": "C_fclass_shuffle",
+      "le_lambda": 1e-08,
+      "hard_neg_prob": 0.25,
+      "shuffle_fclass_seed": 42,
+      "mtl_return_code": 0,
+      "mtl_results": "docs/studies/results/P0/leakage_ablation/alabama/C_fclass_shuffle/mtl_results",
+      "end": "2026-04-15T09:46:59.159429",
+      "wall_seconds": 541.101394
+    }
+  ]
+}
