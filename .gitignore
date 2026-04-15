@@ -54,4 +54,4 @@ desktop.ini
 
 # Large regeneratable artefacts inside the leakage-ablation results tree.
 # Reproduce via `python scripts/hgi_leakage_ablation.py --state <State> --arms <arm>`.
-docs/studies/results/P0/leakage_ablation/*/*/embeddings.parquet
+docs/studies/fusion/results/P0/leakage_ablation/*/*/embeddings.parquet

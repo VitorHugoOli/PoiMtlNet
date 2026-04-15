@@ -50,8 +50,7 @@
 │   ├── test_training/      # Training runners
 │   └── test_utils/         # FLOPs, training progress
 └── docs/               # Analysis documents, decisions log
-    ├── studies/
-    │   └── fusion/         # ACTIVE master study (read this first — plan, claims, phases)
+    ├── studies/            # Per-study namespaced subdirs (e.g. studies/fusion/)
     ├── archive/            # Outdated (pre-bugfix) analyses — historical reference only
     ├── baselines/          # External baseline references (HAVANA, POI-RGNN, PGC)
     ├── context/            # Task / embedding / architecture background
@@ -59,21 +58,6 @@
     ├── BRACIS_GUIDE.md     # Conference submission guide
     └── PAPER_FINDINGS.md   # Legacy findings (revalidate, don't trust pre-bugfix)
 ```
-
-## Current status (read first)
-
-The project is in a **clean-slate ablation phase** (2026-04-13+): the prior dataset had a labeling bug that invalidated all earlier comparisons with published baselines. Embeddings are being regenerated. **All prior results are suspect.**
-
-The active plan lives in `docs/studies/fusion/`:
-
-- `docs/studies/fusion/README.md` — entry point
-- `docs/studies/fusion/QUICK_REFERENCE.md` — one-page overview
-- `docs/studies/fusion/MASTER_PLAN.md` — 6-phase strategy (P0 prep → P1 arch×optim → P2 heads+MTL → P3 cross-embedding → P4 hparams → P5 mechanism)
-- `docs/studies/fusion/CLAIMS_AND_HYPOTHESES.md` — authoritative claim catalog (C01..Cnn)
-- `docs/studies/fusion/COORDINATOR.md` — orchestrator agent spec
-- `docs/studies/fusion/phases/` — per-phase execution plans
-
-Before doing any scientific work, consult `docs/studies/fusion/QUICK_REFERENCE.md` and `docs/studies/fusion/KNOWLEDGE_SNAPSHOT.md`.
 
 ## MTLnet Model
 
@@ -233,3 +217,12 @@ python pipelines/create_inputs.pipe.py
 ```
 
 All pipelines are configured by editing variables at the top of each script (state, embedding engine, etc.).
+
+## Branch-scoped study context
+
+If a file `CLAUDE.local.md` exists at the repo root, read it — it points to
+the active study on this branch (e.g. `docs/studies/<study>/AGENT_CONTEXT.md`).
+
+If `CLAUDE.local.md` does not exist, proceed without study context. Do NOT
+assume any particular study is active; branches may be working on unrelated
+experiments.
