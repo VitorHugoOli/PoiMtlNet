@@ -1,7 +1,9 @@
 # MTLnet Master Study — Entry Point
 
-**Status:** Planning (2026-04-13)
+**Status:** P0 active (2026-04-14)
 **Trigger:** label bug in previous dataset → embeddings being regenerated → all prior results are suspect and must be redone. This is our opportunity to design a comprehensive, claim-driven study.
+
+> **If you're starting a fresh session**, read [`HANDOFF.md`](HANDOFF.md) **first** for the current data-availability snapshot, the exact runbook when embeddings arrive, and what blocks P1 enrollment.
 
 ## Why this study exists
 
