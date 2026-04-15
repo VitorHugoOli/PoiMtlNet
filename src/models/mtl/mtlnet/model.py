@@ -12,6 +12,7 @@ from models.category import CategoryHeadTransformer
 from models.mtl._components import FiLMLayer, ResidualBlock
 from models.next import NextHeadMTL
 from models.registry import create_model, register_model
+from tasks import LEGACY_CATEGORY_NEXT, TaskSet
 
 
 @register_model("mtlnet")
@@ -23,6 +24,13 @@ class MTLnet(nn.Module):
     (kwargs forwarded to the head constructor). The defaults reproduce the
     historical `CategoryHeadTransformer` + `NextHeadMTL` configuration
     bit-exactly so existing regression floors stay valid.
+
+    ``task_set`` opts in to alternate 2-task topologies (e.g. the
+    check2HGI ``{next_category, next_region}`` pair where both slots are
+    sequential ``next_mtl`` heads with different ``num_classes``). When
+    ``task_set is None`` the legacy ``{category, next}`` pair is used and
+    every code path hits the pre-parameterisation branches — the
+    regression floors in ``tests/test_regression`` stay pinned.
     """
 
     def __init__(
@@ -42,9 +50,32 @@ class MTLnet(nn.Module):
         next_head: Optional[str] = None,
         category_head_params: Optional[dict[str, Any]] = None,
         next_head_params: Optional[dict[str, Any]] = None,
+        task_set: Optional[TaskSet] = None,
     ):
         super().__init__()
-        self.num_classes = num_classes
+        self._task_set = task_set if task_set is not None else LEGACY_CATEGORY_NEXT
+
+        # Attribute names keep the legacy ``category_*`` / ``next_*``
+        # vocabulary. The ``_task_set`` above is the source of truth for
+        # task-level metadata (label space, primary metric, input rank);
+        # the attribute names are a stable interface for the runner and
+        # tests and do not imply semantics beyond "slot A" / "slot B".
+        task_a, task_b = self._task_set.task_a, self._task_set.task_b
+
+        # When ``task_set is None`` (legacy), resolve num_classes from
+        # the constructor arg exactly as before — this preserves the
+        # bit-exact contract with pre-parameterisation checkpoints.
+        self.num_classes_task_a = (
+            num_classes if task_set is None else task_a.num_classes
+        )
+        self.num_classes_task_b = (
+            num_classes if task_set is None else task_b.num_classes
+        )
+        # Back-compat alias — some external code reads ``self.num_classes``.
+        self.num_classes = self.num_classes_task_a
+
+        self._task_a_is_sequential = task_a.is_sequential
+        self._task_b_is_sequential = task_b.is_sequential
 
         self.category_encoder = self._build_encoder(
             in_size=feature_size,
@@ -67,22 +98,50 @@ class MTLnet(nn.Module):
             shared_dropout=shared_dropout,
         )
 
-        self.category_poi = self._build_category_head(
-            name=category_head,
-            shared_layer_size=shared_layer_size,
-            num_classes=num_classes,
-            num_heads=num_heads,
-            num_layers=num_layers,
-            overrides=category_head_params,
-        )
+        # Resolve head factories. ``task_set is None`` → legacy path
+        # where ``category_head`` / ``next_head`` + ``*_head_params``
+        # args drive construction (``None`` → hardcoded historical
+        # default inside the private builders). ``task_set`` provided →
+        # read names and params from the preset.
+        if task_set is None:
+            task_a_head_name, task_a_head_params = category_head, category_head_params
+            task_b_head_name, task_b_head_params = next_head, next_head_params
+        else:
+            task_a_head_name, task_a_head_params = task_a.head_factory, task_a.head_params
+            task_b_head_name, task_b_head_params = task_b.head_factory, task_b.head_params
+
+        # Task-A head: branch on is_sequential. Legacy category slot is
+        # flat → ``_build_category_head`` path (hits the historical
+        # default when ``name is None``). Non-legacy sequential-A slots
+        # (e.g. CHECK2HGI_NEXT_REGION's ``next_category``) use the
+        # next-head factory so the head's forward receives [B, T, D].
+        if self._task_a_is_sequential:
+            self.category_poi = self._build_next_head(
+                name=task_a_head_name,
+                shared_layer_size=shared_layer_size,
+                num_classes=self.num_classes_task_a,
+                num_heads=num_heads,
+                num_layers=num_layers,
+                seq_length=seq_length,
+                overrides=task_a_head_params,
+            )
+        else:
+            self.category_poi = self._build_category_head(
+                name=task_a_head_name,
+                shared_layer_size=shared_layer_size,
+                num_classes=self.num_classes_task_a,
+                num_heads=num_heads,
+                num_layers=num_layers,
+                overrides=task_a_head_params,
+            )
         self.next_poi = self._build_next_head(
-            name=next_head,
+            name=task_b_head_name,
             shared_layer_size=shared_layer_size,
-            num_classes=num_classes,
+            num_classes=self.num_classes_task_b,
             num_heads=num_heads,
             num_layers=num_layers,
             seq_length=seq_length,
-            overrides=next_head_params,
+            overrides=task_b_head_params,
         )
 
     def _build_shared_backbone(
@@ -239,6 +298,13 @@ class MTLnet(nn.Module):
         mask = (next_input.abs().sum(dim=-1) == pad_value)
         next_input = next_input.masked_fill(mask.unsqueeze(-1), 0)
 
+        # Sequential task_a (non-legacy task sets, e.g. check2HGI) needs
+        # the same pad-masking treatment as task_b. Guarded by the flag
+        # so the legacy flat-category path is bit-exact preserved.
+        if self._task_a_is_sequential:
+            mask_a = (category_input.abs().sum(dim=-1) == pad_value)
+            category_input = category_input.masked_fill(mask_a.unsqueeze(-1), 0)
+
         enc_cat = self.category_encoder(category_input)
         enc_next = self.next_encoder(next_input)
 
@@ -256,7 +322,16 @@ class MTLnet(nn.Module):
         shared_cat = self.shared_layers(mod_cat)
         shared_next = self.shared_layers(mod_next)
 
-        out_cat = self.category_poi(shared_cat.squeeze(1)).view(-1, self.num_classes)
+        # Sequence-head task_a (e.g. next_mtl for next_category) consumes
+        # [B, T, D] directly and returns [B, num_classes]. Flat-head
+        # task_a (legacy CategoryHeadTransformer) needs the squeeze+view
+        # contract — preserved to keep pinned checkpoints valid.
+        if self._task_a_is_sequential:
+            out_cat = self.category_poi(shared_cat)
+        else:
+            out_cat = self.category_poi(shared_cat.squeeze(1)).view(
+                -1, self.num_classes_task_a
+            )
         out_next = self.next_poi(shared_next)
         return out_cat, out_next
 
@@ -270,12 +345,19 @@ class MTLnet(nn.Module):
         for the pinned contract. In train mode it will differ because
         Dropout samples a different RNG subsequence; use only for eval.
         """
+        if self._task_a_is_sequential:
+            pad_value = InputsConfig.PAD_VALUE
+            mask = (category_input.abs().sum(dim=-1) == pad_value)
+            category_input = category_input.masked_fill(mask.unsqueeze(-1), 0)
+
         enc = self.category_encoder(category_input)
         task_id = torch.zeros(enc.size(0), dtype=torch.long, device=enc.device)
         task_emb = self.task_embedding(task_id)
         modulated = self.film(enc, task_emb)
         shared = self.shared_layers(modulated)
-        return self.category_poi(shared.squeeze(1)).view(-1, self.num_classes)
+        if self._task_a_is_sequential:
+            return self.category_poi(shared)
+        return self.category_poi(shared.squeeze(1)).view(-1, self.num_classes_task_a)
 
     def next_forward(self, next_input: torch.Tensor) -> torch.Tensor:
         """Run only the next-POI subgraph (see ``cat_forward``)."""

@@ -35,11 +35,15 @@ class TaskConfig:
             Legacy slots are ``"category"`` and ``"next"``.
         num_classes: label-space size for this head. Data-derived for
             ``next_region`` (run-time); fixed at 7 for category/next.
-        head_factory: model-registry name for the head. Legacy uses
-            ``"category_transformer"`` and ``"next_mtl"``.
-        head_params: extra kwargs for the head factory. ``None`` triggers
-            the legacy-default construction path in ``MTLnet`` (see the
-            bit-exact contract in ``MTLnet._build_{category,next}_head``).
+        head_factory: model-registry name for the head, or ``None`` to
+            route through ``MTLnet``'s hardcoded historical-default
+            construction path (used by the legacy preset to preserve the
+            bit-exact checkpoint contract).
+        head_params: extra kwargs for the head factory. Required when
+            ``head_factory`` names a registry model that has
+            non-defaultable constructor args (e.g.
+            ``category_transformer`` needs ``num_tokens`` /
+            ``token_dim``). Ignored on the ``head_factory is None`` path.
         is_sequential: ``True`` if the head expects ``[B, T, D]`` inputs
             with left-padding masking, ``False`` for ``[B, D]`` flat input.
             Category-slot defaults to flat; next-slot and region heads are
@@ -52,7 +56,7 @@ class TaskConfig:
 
     name: str
     num_classes: int
-    head_factory: str
+    head_factory: Optional[str]
     head_params: Optional[dict] = None
     is_sequential: bool = True
     primary_metric: PrimaryMetric = PrimaryMetric.F1

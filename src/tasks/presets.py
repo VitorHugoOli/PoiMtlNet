@@ -43,14 +43,23 @@ LEGACY_CATEGORY_NEXT = TaskSet(
     task_a=TaskConfig(
         name="category",
         num_classes=7,
-        head_factory="category_transformer",
+        # ``head_factory=None`` routes MTLnet through its hardcoded
+        # historical ``CategoryHeadTransformer`` default path (with
+        # ``num_tokens=2``, ``token_dim=shared_layer_size//2``,
+        # ``dropout=0.1``). That path is tied to the regression floors
+        # in ``tests/test_regression`` — do not swap to an explicit
+        # registry name without re-pinning the checkpoint shapes.
+        head_factory=None,
         is_sequential=False,
         primary_metric=PrimaryMetric.F1,
     ),
     task_b=TaskConfig(
         name="next",
         num_classes=7,
-        head_factory="next_mtl",
+        # Same argument: ``None`` hits the historical ``NextHeadMTL``
+        # default in ``_build_next_head`` (``dropout=0.1``), bit-exact
+        # with the pre-parameterisation model.
+        head_factory=None,
         is_sequential=True,
         primary_metric=PrimaryMetric.F1,
     ),
@@ -65,7 +74,10 @@ CHECK2HGI_NEXT_REGION = TaskSet(
     task_a=TaskConfig(
         name="next_category",
         num_classes=7,
-        head_factory="next_mtl",
+        # Use the historical NextHeadMTL default path (dropout=0.1,
+        # num_heads/seq_length/num_layers injected by MTLnet) so the
+        # head is constructed identically to the legacy next slot.
+        head_factory=None,
         is_sequential=True,
         primary_metric=PrimaryMetric.F1,
     ),
@@ -76,7 +88,7 @@ CHECK2HGI_NEXT_REGION = TaskSet(
         # docs/plans/CHECK2HGI_MTL_BRANCH_PLAN.md.
         name="next_region",
         num_classes=0,
-        head_factory="next_mtl",
+        head_factory=None,
         is_sequential=True,
         primary_metric=PrimaryMetric.ACCURACY,
     ),
