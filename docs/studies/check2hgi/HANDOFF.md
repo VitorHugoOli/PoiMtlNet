@@ -131,6 +131,62 @@ Write results under `docs/studies/check2hgi/results/P3/`. Update CH02 and CH03 c
 - **next.parquet / sequences_next.parquet userid dtype mismatch:** already handled in `src/data/inputs/next_region.py` (cast both to str). If a new state adds a third dtype (e.g. int32), update that function.
 - **Corrupt checkin_graph.pt:** rerun `pipelines/embedding/check2hgi.pipe.py` for that state. Preprocessing is deterministic, but SIGTERM mid-write leaves a corrupt file.
 
+## Advisor concerns surfaced end-of-session
+
+Three items flagged before P2/P3 runs. Address them BEFORE investing in the 5-fold × 50-epoch baseline loop — skipping them risks a wasted experimental cycle.
+
+### (1) Check2HGI embeddings may be undertrained
+
+Log-parse on `.claude/run_logs/check2hgi_embed.log` shows best-loss progression (Alabama):
+
+| epoch | best loss |
+|---|---|
+| 1 | 1.40 |
+| 49 | 0.89 |
+| 99 | 0.73 |
+| 199 | 0.60 |
+| 299 | 0.53 |
+| 399 | 0.49 |
+| 493 | 0.47 |
+
+Loss is still dropping (0.60 → 0.47 between ep 200 and 493, a ~22% relative drop over 300 epochs) but decelerating. Not plateaued.
+
+**Risk:** if CH01 (check2HGI > HGI) fails in P2, the cause could be undertrained embeddings rather than a refuted thesis. HGI may have been trained longer in a prior run, creating an unfair comparison.
+
+**Mitigation options:**
+- (a) Extend to 1000 epochs and re-run. Cheap (~20 min more per state on the current hardware rate).
+- (b) Document the 500-epoch limit as a paper limitation; if CH01 is positive, we can claim a stronger effect after follow-up with longer training.
+- (c) Compare training-length budget apples-to-apples across engines: retrain HGI at matched FLOPs.
+
+**Recommendation:** (a) if timeline permits; (b) otherwise, with explicit wording in the paper.
+
+### (2) Florida 22% majority-region → CH03 risk
+
+Florida's next_region class distribution has one region holding 22.2% of sequences. This creates a gradient-imbalance risk under NashMTL:
+
+- The region head's loss is dominated by easy majority-class predictions.
+- NashMTL will over-weight next_region's alpha → next_category gradient starved → CH03 (no negative transfer) could fail specifically on FL.
+
+**This is a predictable failure mode; plan the mitigation in the paper's experiment design section, not post-hoc:**
+
+- Use class-weighted CE for the region head (weighted by inverse class frequency).
+- If CH03 still fails on FL with class weights, document as a data-specific limitation, not a method failure.
+
+Add this to P3 phase doc before running FL headline. See `phases/P3_mtl_next_region.md` failure-modes section.
+
+### (3) Per-task class weights in `train_with_cross_validation`
+
+`mtl_cv.py:572-576` computes class weights with `num_classes` singular:
+
+```python
+alpha_next = compute_class_weights(dataloader_next.train.y, num_classes, DEVICE)
+alpha_cat  = compute_class_weights(dataloader_category.train.y, num_classes, DEVICE)
+```
+
+This was not generalised in P1-c — the per-task num_classes wiring covered metrics but not class-weight computation. When you wire the real `train.py --task-set` path, update these calls to `task_b_num_classes` / `task_a_num_classes` respectively.
+
+Currently unused in the smoke test (which constructs CrossEntropyLoss without class weights), so the bug hasn't triggered. Still must be fixed before P3 headline runs.
+
 ## What wasn't done this session
 
 - `FoldCreator` still doesn't have a check2HGI dispatch path — smoke test uses its own hand-rolled fold loading.
