@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import inspect
 from typing import Any, Iterator, Optional, Tuple
 
 import torch
@@ -11,8 +12,27 @@ from configs.model import InputsConfig
 from models.category import CategoryHeadTransformer
 from models.mtl._components import FiLMLayer, ResidualBlock
 from models.next import NextHeadMTL
-from models.registry import create_model, register_model
+from models.registry import _MODEL_REGISTRY, create_model, register_model
 from tasks import LEGACY_CATEGORY_NEXT, TaskSet
+
+
+def _filter_kwargs(target_cls: type, kwargs: dict[str, Any]) -> dict[str, Any]:
+    """Drop kwargs that ``target_cls.__init__`` wouldn't accept.
+
+    Heads in this codebase have divergent constructor signatures:
+    ``NextHeadMTL`` wants ``num_heads`` / ``seq_length`` / ``num_layers``;
+    ``NextLSTM`` wants ``hidden_dim`` and not ``num_heads``. The MTLnet
+    builder injects every plausible context arg as a default; this helper
+    then filters down to the subset that ``target_cls`` actually accepts
+    before the registry call — avoiding ``TypeError: got an unexpected
+    keyword argument`` on heads with narrower signatures.
+    """
+    sig = inspect.signature(target_cls.__init__)
+    accepts = {
+        p.name for p in sig.parameters.values()
+        if p.kind in (p.POSITIONAL_OR_KEYWORD, p.KEYWORD_ONLY)
+    }
+    return {k: v for k, v in kwargs.items() if k in accepts}
 
 
 @register_model("mtlnet")
@@ -195,12 +215,26 @@ class MTLnet(nn.Module):
                 dropout=0.1,
                 num_classes=num_classes,
             )
-        params: dict[str, Any] = {
+        # Inject every plausible default from MTLnet's init context;
+        # filter down to what this head's __init__ actually accepts so
+        # heads with narrower signatures don't get unexpected kwargs.
+        # Overrides win over defaults.
+        defaults: dict[str, Any] = {
             "input_dim": shared_layer_size,
+            "embed_dim": shared_layer_size,
             "num_classes": num_classes,
+            "num_heads": num_heads,
+            "num_layers": num_layers,
+            "num_tokens": 2,
+            "token_dim": shared_layer_size // 2,
+            "dropout": 0.1,
         }
-        params.update(overrides or {})
-        return create_model(name, **params)
+        defaults.update(overrides or {})
+        target_cls = _MODEL_REGISTRY.get(name)
+        if target_cls is None:
+            # Lazily populate via create_model's registration side-effect.
+            return create_model(name, **defaults)
+        return create_model(name, **_filter_kwargs(target_cls, defaults))
 
     @staticmethod
     def _build_next_head(
@@ -212,15 +246,7 @@ class MTLnet(nn.Module):
         seq_length: int,
         overrides: Optional[dict[str, Any]],
     ) -> nn.Module:
-        """Instantiate the next-POI head (see ``_build_category_head``).
-
-        Only the universal ``embed_dim`` + ``num_classes`` pair is
-        injected for non-default heads. The caller must supply the
-        remaining kwargs (``num_heads``, ``seq_length``, ``hidden_dim``…)
-        in ``overrides`` — heads in this codebase have divergent
-        constructor signatures so there is no one-shot default that
-        works across GRU, LSTM, transformer and CNN heads.
-        """
+        """Instantiate the next-POI head (see ``_build_category_head``)."""
         if name is None:
             return NextHeadMTL(
                 shared_layer_size,
@@ -230,12 +256,23 @@ class MTLnet(nn.Module):
                 num_layers,
                 dropout=0.1,
             )
-        params: dict[str, Any] = {
+        # Same "inject + filter" pattern as _build_category_head so
+        # heads like next_lstm (which don't accept num_heads) don't
+        # error on unexpected kwargs.
+        defaults: dict[str, Any] = {
             "embed_dim": shared_layer_size,
+            "input_dim": shared_layer_size,
             "num_classes": num_classes,
+            "num_heads": num_heads,
+            "num_layers": num_layers,
+            "seq_length": seq_length,
+            "dropout": 0.1,
         }
-        params.update(overrides or {})
-        return create_model(name, **params)
+        defaults.update(overrides or {})
+        target_cls = _MODEL_REGISTRY.get(name)
+        if target_cls is None:
+            return create_model(name, **defaults)
+        return create_model(name, **_filter_kwargs(target_cls, defaults))
 
     def _build_encoder(
         self,

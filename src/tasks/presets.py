@@ -8,6 +8,7 @@ runner); for now we stay with the 2-slot contract to avoid that work.
 
 from __future__ import annotations
 
+import dataclasses
 from dataclasses import dataclass
 from typing import Dict, Iterator, Optional
 
@@ -117,10 +118,54 @@ def list_presets() -> list[str]:
     return sorted(_PRESETS)
 
 
+def resolve_task_set(
+    preset: TaskSet,
+    *,
+    task_a_num_classes: Optional[int] = None,
+    task_b_num_classes: Optional[int] = None,
+    task_a_head_params: Optional[dict] = None,
+    task_b_head_params: Optional[dict] = None,
+) -> TaskSet:
+    """Return a ``TaskSet`` with per-slot fields overridden at runtime.
+
+    The ``CHECK2HGI_NEXT_REGION`` preset hardcodes ``task_b.num_classes=0``
+    because the true region cardinality is only known after the fold
+    data loads. Without this helper, callers had to reconstruct the
+    whole preset field-by-field (see the pre-1.1 smoke-test code in
+    ``scripts/smoke_check2hgi_mtl.py``). ``resolve_task_set`` applies
+    the same overrides via ``dataclasses.replace``, staying safe under
+    ``frozen=True`` and keeping call sites to one line.
+
+    Example::
+
+        resolved = resolve_task_set(
+            CHECK2HGI_NEXT_REGION,
+            task_b_num_classes=1109,   # derived from next_region.parquet
+        )
+
+    Pass ``None`` to leave a field unchanged. Passing both slot-level
+    overrides in a single call is supported.
+    """
+    task_a = preset.task_a
+    task_b = preset.task_b
+    if task_a_num_classes is not None:
+        task_a = dataclasses.replace(task_a, num_classes=task_a_num_classes)
+    if task_a_head_params is not None:
+        task_a = dataclasses.replace(task_a, head_params=task_a_head_params)
+    if task_b_num_classes is not None:
+        task_b = dataclasses.replace(task_b, num_classes=task_b_num_classes)
+    if task_b_head_params is not None:
+        task_b = dataclasses.replace(task_b, head_params=task_b_head_params)
+    if task_a is preset.task_a and task_b is preset.task_b:
+        return preset  # No-op; return the original so identity checks keep working.
+    return dataclasses.replace(preset, task_a=task_a, task_b=task_b)
+
+
 __all__ = [
     "TaskSet",
     "LEGACY_CATEGORY_NEXT",
     "CHECK2HGI_NEXT_REGION",
     "get_preset",
     "list_presets",
+    "resolve_task_set",
 ]

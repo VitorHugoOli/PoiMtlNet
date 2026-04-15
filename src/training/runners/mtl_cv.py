@@ -456,8 +456,16 @@ def train_model(model: torch.nn.Module,
 
             f1_val_next = val_metrics_next['f1']
             f1_val_category = val_metrics_cat['f1']
+            # Acc@1 per head (already computed by compute_classification_metrics
+            # under the ``accuracy`` key). Used for the joint_acc1 monitor
+            # recommended by docs/plans/CHECK2HGI_MTL_OVERVIEW.md §2 for the
+            # check2HGI track, where next_region has ~10^3 classes and macro-F1
+            # is a weak summary statistic.
+            acc1_val_next = val_metrics_next.get('accuracy', 0.0)
+            acc1_val_category = val_metrics_cat.get('accuracy', 0.0)
 
             joint_score = 0.5 * (f1_val_next + f1_val_category)
+            joint_acc1 = 0.5 * (acc1_val_next + acc1_val_category)
             pareto_points.append((f1_val_next, f1_val_category))
             pareto_front = _pareto_front_indices(pareto_points)
             fold_history.add_artifact(
@@ -518,7 +526,10 @@ def train_model(model: torch.nn.Module,
             metrics={
                 f"val_f1_{task_b_name}": f1_val_next,
                 f"val_f1_{task_a_name}": f1_val_category,
-                "val_joint_score": joint_score,
+                f"val_accuracy_{task_b_name}": acc1_val_next,
+                f"val_accuracy_{task_a_name}": acc1_val_category,
+                "val_joint_score": joint_score,   # = mean(val_f1_*) — legacy default
+                "val_joint_acc1": joint_acc1,     # = mean(val_accuracy_*) — check2HGI default
                 "val_loss": loss_val,
                 "train_loss": epoch_loss,
                 f"train_f1_{task_b_name}": f1_next,
@@ -561,6 +572,12 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
     num_classes = config.model_params.get('num_classes', 7)
     task_a_name = task_set.task_a.name
     task_b_name = task_set.task_b.name
+    # Per-task label-space sizes. Legacy preset has both == 7 so
+    # compute_class_weights behaves identically. Non-legacy task_sets
+    # (check2HGI: task_b = ~1109 regions) need per-task values or the
+    # class-weight computation silently mis-sizes its output tensor.
+    task_a_num_classes = task_set.task_a.num_classes or num_classes
+    task_b_num_classes = task_set.task_b.num_classes or num_classes
 
     for fold_idx, (i_fold, dataloader) in enumerate(dataloaders.items()):
         clear_mps_cache()
@@ -601,15 +618,26 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             steps_per_epoch,
         )
 
+        # Per-task class weights. Legacy behaviour (unchanged): weights
+        # computed but not passed to CE — kept as a diagnostic. When
+        # config.use_class_weights is set (see task-30 follow-up),
+        # they are also passed as the ``weight`` kwarg.
         alpha_next = compute_class_weights(
-            dataloader_next.train.y, num_classes, DEVICE
+            dataloader_next.train.y, task_b_num_classes, DEVICE
         )
         alpha_cat = compute_class_weights(
-            dataloader_category.train.y, num_classes, DEVICE
+            dataloader_category.train.y, task_a_num_classes, DEVICE
         )
 
-        next_criterion = CrossEntropyLoss(reduction='mean')
-        category_criterion = CrossEntropyLoss(reduction='mean')
+        _use_class_weights = bool(getattr(config, "use_class_weights", False))
+        next_criterion = CrossEntropyLoss(
+            reduction='mean',
+            weight=alpha_next if _use_class_weights else None,
+        )
+        category_criterion = CrossEntropyLoss(
+            reduction='mean',
+            weight=alpha_cat if _use_class_weights else None,
+        )
 
         history.set_model_arch(str(model))
 

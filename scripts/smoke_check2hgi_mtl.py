@@ -37,8 +37,7 @@ from configs.paths import EmbeddingEngine, IoPaths
 from data.folds import FoldData, FoldResult, POIDataset, TaskFoldData
 from losses.registry import create_loss
 from models.mtl import MTLnet
-from tasks import CHECK2HGI_NEXT_REGION, PrimaryMetric, TaskConfig
-from tasks.presets import TaskSet
+from tasks import CHECK2HGI_NEXT_REGION, resolve_task_set
 from torch.utils.data import DataLoader
 from tracking.fold import FoldHistory
 from training.runners.mtl_cv import train_model
@@ -128,20 +127,7 @@ def smoke(state: str, batch_size: int = 2048, epochs: int = 2):
         ),
     )
 
-    # Resolve the task_set with runtime num_regions.
-    tb = CHECK2HGI_NEXT_REGION.task_b
-    resolved = TaskSet(
-        name=CHECK2HGI_NEXT_REGION.name,
-        task_a=CHECK2HGI_NEXT_REGION.task_a,
-        task_b=TaskConfig(
-            name=tb.name,
-            num_classes=n_regions,
-            head_factory=tb.head_factory,
-            head_params=tb.head_params,
-            is_sequential=tb.is_sequential,
-            primary_metric=tb.primary_metric,
-        ),
-    )
+    resolved = resolve_task_set(CHECK2HGI_NEXT_REGION, task_b_num_classes=n_regions)
     logger.info(f"task_set: task_a={resolved.task_a.name}/{resolved.task_a.num_classes}, task_b={resolved.task_b.name}/{resolved.task_b.num_classes}")
 
     # Build the model. num_classes arg is ignored when task_set is provided.

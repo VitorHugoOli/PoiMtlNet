@@ -43,9 +43,19 @@ def compute_class_weights(
     """
     if isinstance(targets, torch.Tensor):
         targets = targets.detach().cpu().numpy()
-    cls = np.arange(num_classes)
-    weights = compute_class_weight('balanced', classes=cls, y=targets)
-    return torch.tensor(weights, dtype=torch.float32, device=device)
+    # sklearn's ``compute_class_weight`` requires every class in ``classes``
+    # to appear in ``y``. That's fine for 7-class category labels but fails
+    # for high-cardinality heads (e.g. next_region with ~10^3 classes, many
+    # of which are absent from any given train fold). Fill weights only
+    # for observed classes and default to 1.0 for absent classes — the
+    # head will never predict an absent class as positive, so its weight
+    # is inert; keeping it at 1.0 preserves CE normalisation.
+    present = np.unique(targets)
+    weights_full = np.ones(num_classes, dtype=np.float32)
+    if present.size > 0:
+        weights_present = compute_class_weight('balanced', classes=present, y=targets)
+        weights_full[present] = weights_present
+    return torch.tensor(weights_full, dtype=torch.float32, device=device)
 
 
 def setup_optimizer(

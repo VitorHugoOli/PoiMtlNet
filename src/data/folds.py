@@ -51,6 +51,11 @@ class TaskType(Enum):
     CATEGORY = "category"
     NEXT = "next"
     MTL = "mtl"
+    # Check2HGI 2-task MTL: both heads sequential, shared X rows across
+    # next_category (labels from next.parquet) and next_region (labels
+    # from next_region.parquet). No POI-exclusivity protocol — user-level
+    # StratifiedGroupKFold only.
+    MTL_CHECK2HGI = "mtl_check2hgi"
 
 
 @dataclass
@@ -480,8 +485,9 @@ class FoldCreator:
 
         if self.task_type == TaskType.MTL:
             return self._create_mtl_folds(state, embedding_engine)
-        else:
-            return self._create_single_task_folds(state, embedding_engine)
+        if self.task_type == TaskType.MTL_CHECK2HGI:
+            return self._create_check2hgi_mtl_folds(state, embedding_engine)
+        return self._create_single_task_folds(state, embedding_engine)
 
     def _create_single_task_folds(
             self,
@@ -708,6 +714,131 @@ class FoldCreator:
                         _create_dataloader(x_cat_tensor[val_cat_idx], y_cat_tensor[val_cat_idx],
                                            self.batch_size, False, False, self.seed),
                         x_cat_tensor[val_cat_idx], y_cat_tensor[val_cat_idx]
+                    ),
+                ),
+            )
+            gc.collect()
+
+        return fold_results
+
+    def _create_check2hgi_mtl_folds(
+            self,
+            state: str,
+            embedding_engine: EmbeddingEngine,
+    ) -> Dict[int, FoldResult]:
+        """Check2HGI 2-task MTL fold creation.
+
+        Both tasks (next_category + next_region) share the same X rows
+        from ``next.parquet`` — only the label column differs. A single
+        StratifiedGroupKFold on userids (stratified on next_category
+        to stay stable; region labels are too sparse to stratify on)
+        assigns the same fold indices to both tasks.
+
+        Returns a ``FoldResult`` where ``.category`` carries the
+        next_category task (task_a slot) and ``.next`` carries the
+        next_region task (task_b slot). The runner reads these via
+        ``dataloader.next`` / ``dataloader.category`` by convention and
+        the emitted metric keys come from the ``task_set`` argument.
+        """
+        if embedding_engine != EmbeddingEngine.CHECK2HGI:
+            raise ValueError(
+                f"MTL_CHECK2HGI requires engine=CHECK2HGI (got {embedding_engine})."
+            )
+
+        # Load X + next_category labels from next.parquet.
+        X, y_cat, userids, next_dim = load_next_data(state, embedding_engine)
+
+        # Load region labels (row-aligned with next.parquet — validated by
+        # build_next_region_frame in src/data/inputs/next_region.py).
+        region_df = IoPaths.load_next_region(state, embedding_engine)
+        if len(region_df) != len(X):
+            raise ValueError(
+                f"next_region.parquet rows ({len(region_df)}) disagree with "
+                f"next.parquet rows ({len(X)}) for {state}. Regenerate both."
+            )
+        y_region = region_df["region_idx"].to_numpy(dtype=np.int64)
+
+        slide_window = InputsConfig.SLIDE_WINDOW
+        x_tensor, y_cat_tensor = _convert_to_tensors(
+            X, y_cat, TaskType.NEXT, embedding_dim=next_dim, slide_window=slide_window,
+        )
+        # y_region has same row-order as X; just cast to tensor (no reshape).
+        y_region_tensor = torch.from_numpy(np.ascontiguousarray(y_region, dtype=np.int64))
+
+        # Store task tensors under the legacy TaskType keys — the runner
+        # and serialization code index by (NEXT, CATEGORY) and we preserve
+        # that convention: NEXT slot = task_b (region), CATEGORY slot = task_a (cat).
+        self._task_tensors[TaskType.NEXT] = TaskTensors(
+            TaskType.NEXT, x_tensor, y_region_tensor,
+        )
+        self._task_tensors[TaskType.CATEGORY] = TaskTensors(
+            TaskType.CATEGORY, x_tensor, y_cat_tensor,
+        )
+        self._fold_indices[TaskType.NEXT] = []
+        self._fold_indices[TaskType.CATEGORY] = []
+
+        sgkf = StratifiedGroupKFold(
+            n_splits=self.n_splits, shuffle=True, random_state=self.seed,
+        )
+        fold_results: Dict[int, FoldResult] = {}
+        self._fold_manifests: List[dict] = []
+
+        for fold_idx, (train_idx, val_idx) in enumerate(
+            sgkf.split(X, y_cat, groups=userids)
+        ):
+            logger.info(
+                f"Fold {fold_idx + 1}/{self.n_splits}: "
+                f"train={len(train_idx)} val={len(val_idx)} "
+                f"(users train={len(set(userids[train_idx]))} "
+                f"val={len(set(userids[val_idx]))})"
+            )
+            # Same indices apply to both tasks — they share X rows.
+            self._fold_indices[TaskType.NEXT].append(
+                FoldIndices(fold_idx, train_idx, val_idx)
+            )
+            self._fold_indices[TaskType.CATEGORY].append(
+                FoldIndices(fold_idx, train_idx, val_idx)
+            )
+
+            self._fold_manifests.append({
+                'fold_idx': fold_idx,
+                'train_count': int(len(train_idx)),
+                'val_count': int(len(val_idx)),
+                'split_mode': 'check2hgi_mtl_user_group',
+                'seed': self.seed,
+            })
+
+            fold_results[fold_idx] = FoldResult(
+                next=TaskFoldData(
+                    train=FoldData(
+                        _create_dataloader(
+                            x_tensor[train_idx], y_region_tensor[train_idx],
+                            self.batch_size, True, self.use_weighted_sampling, self.seed,
+                        ),
+                        x_tensor[train_idx], y_region_tensor[train_idx],
+                    ),
+                    val=FoldData(
+                        _create_dataloader(
+                            x_tensor[val_idx], y_region_tensor[val_idx],
+                            self.batch_size, False, False, self.seed,
+                        ),
+                        x_tensor[val_idx], y_region_tensor[val_idx],
+                    ),
+                ),
+                category=TaskFoldData(
+                    train=FoldData(
+                        _create_dataloader(
+                            x_tensor[train_idx], y_cat_tensor[train_idx],
+                            self.batch_size, True, self.use_weighted_sampling, self.seed,
+                        ),
+                        x_tensor[train_idx], y_cat_tensor[train_idx],
+                    ),
+                    val=FoldData(
+                        _create_dataloader(
+                            x_tensor[val_idx], y_cat_tensor[val_idx],
+                            self.batch_size, False, False, self.seed,
+                        ),
+                        x_tensor[val_idx], y_cat_tensor[val_idx],
                     ),
                 ),
             )

@@ -23,6 +23,7 @@ import logging
 import sys
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
 # Ensure repo root and src/ are on sys.path when invoked directly.
 _root = str(Path(__file__).resolve().parent.parent)
@@ -36,6 +37,8 @@ from configs.experiment import DatasetSignature, ExperimentConfig
 from configs.globals import CATEGORIES_MAP
 from configs.paths import EmbeddingEngine, IoPaths
 from data.folds import FoldCreator, TaskType, load_folds, rebuild_dataloaders
+from tasks import CHECK2HGI_NEXT_REGION, LEGACY_CATEGORY_NEXT, TaskSet, get_preset, resolve_task_set
+from tasks.presets import list_presets
 from training.callbacks import ModelCheckpoint
 from utils.seed import seed_everything
 from tracking import DatasetHistory, MLHistory
@@ -142,6 +145,63 @@ def _run_mtl(config: ExperimentConfig, results_path: Path, fold_results: dict) -
     return results
 
 
+def _run_mtl_check2hgi(
+    config: ExperimentConfig,
+    results_path: Path,
+    fold_results: dict,
+    task_set: TaskSet,
+) -> dict:
+    """Dispatch MTL runs on the check2HGI preset (or any non-legacy task_set).
+
+    Differs from ``_run_mtl`` on four axes:
+
+    * ``MLHistory.tasks`` uses the preset's slot names
+      (``next_category`` / ``next_region`` instead of ``category`` / ``next``).
+    * ``DatasetHistory`` points at ``next.parquet`` + ``next_region.parquet``
+      (there is no separate category.parquet on this track).
+    * ``ModelCheckpoint`` watches ``val_joint_acc1`` — the metric emitted
+      by ``mtl_cv.py`` alongside ``val_joint_score`` specifically for
+      high-cardinality-head setups where macro-F1 is a weak summary.
+    * ``train_with_cross_validation`` receives the resolved ``task_set``.
+    """
+    from training.runners.mtl_cv import train_with_cross_validation
+
+    engine = EmbeddingEngine(config.embedding_engine)
+    history = MLHistory(
+        model_name="MTLNet",
+        tasks={task_set.task_a.name, task_set.task_b.name},
+        num_folds=len(fold_results),
+        datasets={
+            DatasetHistory(
+                raw_data=IoPaths.get_next(config.state, engine),
+                folds_signature=None,
+                description="next_category input (shared X)",
+            ),
+            DatasetHistory(
+                raw_data=IoPaths.get_next_region(config.state, engine),
+                folds_signature=None,
+                description="next_region input (shared X, region labels)",
+            ),
+        },
+        label_map=CATEGORIES_MAP,
+        save_path=results_path,
+        verbose=True,
+    )
+
+    run_dir = _make_run_dir(results_path, task=f"mtl__{task_set.name}", config=config)
+    with history:
+        results = train_with_cross_validation(
+            dataloaders=fold_results,
+            history=history,
+            config=config,
+            results_path=results_path,
+            callbacks=_default_checkpoint_callbacks(run_dir, monitor="val_joint_acc1"),
+            task_set=task_set,
+        )
+
+    return results
+
+
 def _run_category(config: ExperimentConfig, results_path: Path, fold_results: dict) -> dict:
     from training.runners.category_cv import run_cv
 
@@ -230,6 +290,7 @@ _RUNNERS = {
 
 _TASK_TYPES = {
     "mtl": TaskType.MTL,
+    "mtl_check2hgi": TaskType.MTL_CHECK2HGI,
     "category": TaskType.CATEGORY,
     "next": TaskType.NEXT,
 }
@@ -269,6 +330,18 @@ def _parse_args(argv=None) -> argparse.Namespace:
         default=None,
         choices=_VALID_TASKS,
         help="Task type to train (mtl / category / next). Defaults to mtl.",
+    )
+    parser.add_argument(
+        "--task-set",
+        type=str,
+        default=None,
+        choices=list_presets(),
+        help=(
+            "MTL task-set preset. Only used with --task mtl. Defaults to "
+            "legacy_category_next (bit-exact with the pre-parameterisation "
+            "runner). check2hgi_next_region activates the 2-task "
+            "{next_category, next_region} pair on check2HGI embeddings."
+        ),
     )
     parser.add_argument(
         "--model",
@@ -686,12 +759,48 @@ def main(argv=None) -> None:
     engine = EmbeddingEngine(config.embedding_engine)
     task_key = config.task_type if config.task_type in _RUNNERS else "mtl"
 
+    # Resolve task_set for MTL runs. Default preset keeps legacy
+    # {category, next} behaviour bit-exact; non-legacy preset activates
+    # the check2HGI task pair and switches fold-creation to MTL_CHECK2HGI.
+    task_set: Optional[TaskSet] = None
+    is_check2hgi_track = False
+    if task_key == "mtl":
+        preset_name = args.task_set or LEGACY_CATEGORY_NEXT.name
+        task_set = get_preset(preset_name)
+        is_check2hgi_track = preset_name == CHECK2HGI_NEXT_REGION.name
+        if is_check2hgi_track and engine != EmbeddingEngine.CHECK2HGI:
+            print(
+                f"error: --task-set {preset_name} requires --engine check2hgi "
+                f"(got {engine.value}).",
+                file=sys.stderr,
+            )
+            sys.exit(2)
+
     # Resolve folds: prefer the frozen cache under
     # output/{engine}/{state}/folds/fold_indices_{task}.pt (see
     # scripts/study/freeze_folds.py). Falls back to on-the-fly generation
     # with a warning — required for paired statistical tests across
     # ablation runs.
-    fold_results = _resolve_folds(args, config, engine, task_key)
+    fold_resolve_key = "mtl_check2hgi" if is_check2hgi_track else task_key
+    fold_results = _resolve_folds(args, config, engine, fold_resolve_key)
+
+    # For the check2HGI track: resolve task_b.num_classes from the actual
+    # region-label tensor (the preset stores 0 as a placeholder) and
+    # inject the resolved ``task_set`` into model_params so the MTLnet
+    # constructor receives the right num_classes per head.
+    if is_check2hgi_track:
+        assert task_set is not None
+        first_fold = next(iter(fold_results.values()))
+        n_regions = int(first_fold.next.train.y.max().item()) + 1
+        task_set = resolve_task_set(task_set, task_b_num_classes=n_regions)
+        logger.info(
+            "check2HGI task_set resolved: task_a=%s/%d, task_b=%s/%d",
+            task_set.task_a.name, task_set.task_a.num_classes,
+            task_set.task_b.name, task_set.task_b.num_classes,
+        )
+        updated_params = dict(config.model_params)
+        updated_params["task_set"] = task_set
+        config = dataclasses.replace(config, model_params=updated_params)
 
     # Apply max_folds limit (run only first N folds).
     # config.k_folds stays as the split structure count (>= 2);
@@ -739,8 +848,12 @@ def main(argv=None) -> None:
         )
         sys.exit(2)
 
-    runner = _RUNNERS[task_key]
-    runner(config, results_path, fold_results)
+    if is_check2hgi_track:
+        assert task_set is not None
+        _run_mtl_check2hgi(config, results_path, fold_results, task_set)
+    else:
+        runner = _RUNNERS[task_key]
+        runner(config, results_path, fold_results)
 
     logger.info("Done. Results written to: %s", results_path)
 

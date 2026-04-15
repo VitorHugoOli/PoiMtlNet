@@ -16,6 +16,7 @@ from tasks.presets import (
     CHECK2HGI_NEXT_REGION,
     TaskSet,
     get_preset,
+    resolve_task_set,
 )
 
 __all__ = [
@@ -25,4 +26,5 @@ __all__ = [
     "LEGACY_CATEGORY_NEXT",
     "CHECK2HGI_NEXT_REGION",
     "get_preset",
+    "resolve_task_set",
 ]
