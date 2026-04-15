@@ -12,7 +12,8 @@ dataset had a labeling bug that invalidated all earlier comparisons with
 published baselines. Embeddings were regenerated. **All prior results are
 suspect.**
 
-Phase P0 is complete (CBIC sanity verified). P1 starts next.
+Phase P0 is in exit review — the coordinator has passed the gate;
+`/study advance` will flip P0 → completed and open P1.
 
 ---
 

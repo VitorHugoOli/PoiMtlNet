@@ -157,6 +157,23 @@ Every claim in `CLAIMS_AND_HYPOTHESES.md` has:
 
 **No claim left as `pending` at study completion.**
 
+### P5_protocol_delta — measure GroupKFold vs KFold cost
+
+**Claim:** N04 (provisional).
+
+**Design:** AL/DGI, mtlnet + nash_mtl, 5f × 50ep, seed 42, two runs:
+  a) `StratifiedGroupKFold(groups=userid)` — current default  
+  b) `StratifiedKFold` — record-level (CBIC/HAVANA protocol)
+
+**Expected:** record-level yields next_F1 ~0.01–0.03 higher than
+user-isolated; category F1 change expected to be negligible.
+
+**Budget:** ~30 min compute (two AL/DGI 5f × 50ep runs).
+
+**Output:** `docs/studies/fusion/results/P5/protocol_delta/`
+
+**Status:** planned — do NOT run until P1–P4 complete.
+
 ---
 
 ## Transition to synthesis

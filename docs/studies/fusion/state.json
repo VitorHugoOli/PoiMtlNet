@@ -206,7 +206,8 @@
             "folds": 5,
             "seed": 42,
             "mtl_loss": "nash_mtl"
-          }
+          },
+          "verdict_rationale": "next_F1 shortfall attributed to StratifiedGroupKFold vs CBIC's StratifiedKFold protocol (N04 provisional). To be verified by P5_protocol_delta. Within the 5pp stop-rule budget, so accepted as P0 exit."
         },
         "leakage_AL_arm_A": {
           "status": "completed",

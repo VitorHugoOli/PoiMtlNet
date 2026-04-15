@@ -500,16 +500,21 @@ it?"), reported separately with a caveat paragraph.
 
 ### N04 — Our next-F1 numbers are not directly comparable to CBIC 2025 / HAVANA
 
+**Status:** `provisional` — the 1–3pp protocol-delta claim is rationalized
+from a single CBIC-sanity run (AL/DGI, next_F1 = 0.243 vs CBIC's 0.26–0.28),
+not from a matched-protocol experiment. Pending verification via
+`P5_protocol_delta`.
+
 **Statement:** CBIC 2025 and HAVANA report POI-prediction F1 under
 `StratifiedKFold` (record-level splits — a user's check-ins can appear in
 both train and val folds). Our pipeline uses `StratifiedGroupKFold(groups=userid)`
 (user-isolated splits), which is strictly harder: validation users are fully
 held out, so the model cannot exploit memorized trajectories. Absolute-number
-comparisons are therefore not head-to-head; our numbers will typically be
-1–3 pp lower on next-F1 under otherwise-identical configs.
+comparisons are therefore not head-to-head; we conjecture 1–3pp lower on
+next-F1 under otherwise-identical configs, pending direct measurement.
 
 **Source:** In-study discovery, 2026-04-15, from P0.4 CBIC sanity
-(next_F1 = 0.245 vs CBIC's reported 0.26–0.28) on matched
+(next_F1 = 0.243 vs CBIC's reported 0.26–0.28) on matched
 (AL, DGI, nash_mtl, 5f × 50ep, seed 42) configuration.
 
 **Scope:** Applies to every AL/DGI, AL/HGI, AL/fusion, AZ/HGI, AZ/fusion,

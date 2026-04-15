@@ -6,12 +6,13 @@ Snapshot written at session close so the next session (using `/coordinator` + `/
 
 ## Study status at a glance
 
-- **Current phase:** P0 (running — CBIC sanity in progress, awaiting result archive)
-- **Claims catalog:** 30 claims + 3 negations in `CLAIMS_AND_HYPOTHESES.md` (C01–C30 + N01–N03)
+- **Current phase:** P0 (in exit review — coordinator passed the gate; run `/study advance` to open P1)
+- **Claims catalog:** 30 claims + 4 negations in `CLAIMS_AND_HYPOTHESES.md` (C01–C30 + N01–N04)
   - C29, C30, N03 added 2026-04-15 from HGI leakage audit; both **confirmed**, enrolled in state.json as P0 tests
+  - N04 added 2026-04-15: protocol-delta caveat (provisional, pending `P5_protocol_delta`)
 - **Phases registered:** P0–P6
 - **Test suite:** 692 passed, 17 skipped (sklearn 1.8.0, torch 2.11.0)
-- **Git:** `main` is clean; latest meaningful commit `19b9c2b` (leakage audit + C_fclass_shuffle arm for AL/FL)
+- **Git:** `main` is clean; latest meaningful commit `94c4dda` (study-agnostic scripts + leakage script move)
 
 ---
 
@@ -25,7 +26,7 @@ Snapshot written at session close so the next session (using `/coordinator` + `/
 
 ✓* = data present but **category parquet is pre-Phase-2 format** (missing `placeid` column). Folds frozen using independent StratifiedKFold fallback. Regenerate via Phase-2 pipeline before any experiment that needs POI-level user isolation for category.
 
-**Integrity check results** (`docs/studies/results/P0/integrity/*.json`):
+**Integrity check results** (`docs/studies/fusion/results/P0/integrity/*.json`):
 
 | State   | engine  | status | notes                                      |
 |---------|---------|--------|--------------------------------------------|
@@ -47,7 +48,7 @@ normalization was confirmed to hurt in AL so don't normalize blindly.
 
 ## Frozen folds snapshot
 
-Rollup at `docs/studies/results/P0/folds/frozen.json` — **9 entries** (all locally frozen):
+Rollup at `docs/studies/fusion/results/P0/folds/frozen.json` — **9 entries** (all locally frozen):
 
 | key                  | status | fold_file (local)                                      | notes |
 |----------------------|--------|--------------------------------------------------------|-------|
@@ -67,16 +68,20 @@ The external-SSD alabama/fusion entry from the prior frozen.json has been replac
 
 ## P0 leakage audit — state.json entries
 
-Four test entries enrolled in P0 as of 2026-04-15:
+Eight test entries enrolled in P0 as of 2026-04-15:
 
 | test_id              | claims    | verdict             | cat_f1 | next_f1 |
 |----------------------|-----------|---------------------|--------|---------|
 | leakage_AL_baseline  | C29, C30  | matches_hypothesis  | 0.786  | 0.238   |
+| leakage_AL_arm_A     | C29       | completed           | —      | —       |
+| leakage_AL_arm_B     | C29       | completed           | —      | —       |
+| leakage_AL_arm_AB    | C29       | completed           | —      | —       |
 | leakage_AL_arm_C     | C29, N03  | matches_hypothesis  | 0.144  | 0.199   |
 | leakage_FL_baseline  | C29, C30  | matches_hypothesis  | 0.765  | 0.363   |
 | leakage_FL_arm_C     | C29, N03  | matches_hypothesis  | 0.151  | 0.298   |
+| cbic_AL_dgi          | C01, C03  | partial_match       | 0.461  | 0.243   |
 
-Evidence lives in `docs/studies/results/P0/leakage_ablation/{alabama,florida}/`.
+Evidence lives in `docs/studies/fusion/results/P0/leakage_ablation/{alabama,florida}/`.
 
 ---
 
@@ -87,7 +92,7 @@ Evidence lives in `docs/studies/results/P0/leakage_ablation/{alabama,florida}/`.
 | P0.1 Embeddings regenerated for AL + AZ + FL | ✓ | All 9 combos have inputs. AZ+FL DGI pre-Phase-2 (no placeid) — usable with fallback folds |
 | P0.2 `validate_inputs` tool built + exercised | ✓ | 9 pairs validated; 2 FAIL (DGI placeid), 1 WARN (FL/fusion scale) |
 | P0.3 state.json initialized (P0–P6) | ✓ | Current phase P0; 4 leakage tests enrolled |
-| P0.4 CBIC sanity run on AL + DGI | ✓ | cat_f1=0.463 (target 0.46–0.48 ✓), next_f1=0.245 (target 0.26–0.28, −1.3pp ✓ within ±3pp tolerance); verdict=partial_match; archived as P0/cbic_AL_dgi |
+| P0.4 CBIC sanity run on AL + DGI | ✓ | cat_f1=0.461 (target 0.46–0.48 ✓), next_f1=0.243 (target 0.26–0.28, −1.7pp ✓ within ±3pp; N04 provisional); verdict=partial_match; archived as P0/cbic_AL_dgi |
 | P0.5 `launch / archive / analyze / validate` scripts | ✓ | 21/21 smoke |
 | P0.6 `/study` skill | ✓ | `.claude/commands/study.md` |
 | P0.7 `/worker` + `/coordinator` skills | ✓ | `.claude/commands/{worker,coordinator}.md` |
@@ -99,14 +104,14 @@ Evidence lives in `docs/studies/results/P0/leakage_ablation/{alabama,florida}/`.
 
 ## CBIC sanity — COMPLETED 2026-04-15
 
-Run: `results/dgi/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260415_1722`
-Archive: `docs/studies/results/P0/cbic_AL_dgi/`
+Run: `results/dgi/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260415_1831` (clean re-run; earlier 1722 used wrong model)
+Archive: `docs/studies/fusion/results/P0/cbic_AL_dgi/`
 
 | metric  | observed | target   | verdict          |
 |---------|----------|----------|------------------|
-| cat_f1  | 0.463    | 0.46–0.48 | matches_hypothesis |
-| next_f1 | 0.245    | 0.26–0.28 | partial_match (−1.3pp, within ±3pp) |
-| joint   | 0.354    | 0.33–0.38 | partial_match    |
+| cat_f1  | 0.461    | 0.46–0.48 | matches_hypothesis |
+| next_f1 | 0.243    | 0.26–0.28 | partial_match (−1.7pp, within ±3pp; N04 provisional) |
+| joint   | 0.318    | 0.33–0.38 | partial_match    |
 
 **Conclusion:** CBIC sanity passes. No investigation needed. Safe to advance P0 → P1.
 
