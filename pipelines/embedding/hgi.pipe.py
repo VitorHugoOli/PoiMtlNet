@@ -28,6 +28,9 @@ from embeddings.hgi.preprocess import preprocess_hgi
 from embeddings.hgi.poi2vec import train_poi2vec
 from data.inputs.builders import generate_category_input, generate_next_input_from_poi
 
+# Grid-borough generator for cities without a census tract shapefile
+from etl.utils.grid_boroughs import create_grid_boroughs
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
@@ -69,18 +72,40 @@ CONFIG = Namespace(
 # =============================================================================
 
 STATES = {
-    'Alabama':    {'shapefile': Resources.TL_AL, 'cross_region_weight': 0.7},   # swept 2026-04-12, 3f25e: 0.4→0.718, 0.7→0.791
-    'California': {'shapefile': Resources.TL_CA, 'cross_region_weight': 0.7},
-    # swept 2026-04-13, 3f25e: 0.4→0.735, 0.7→0.767* (1.0 failed: use_torch_compile bug, skip)
-    'Arizona':    {'shapefile': Resources.TL_AZ, 'cross_region_weight': 0.7},   # extrapolated (sparse)
-    # 'Georgia':    {'shapefile': Resources.TL_GA},
-    'Florida':    {'shapefile': Resources.TL_FL, 'cross_region_weight': 0.7},   # swept 2026-04-12/13, 3f25e: 0.4→0.744, 0.5→0.761, 0.7→0.783*, 0.9→0.769, 1.0→0.747
-    'Texas':      {'shapefile': Resources.TL_TX, 'cross_region_weight': 0.7},   # swept 2026-04-13, 3f25e: 0.4→0.765, 0.7→0.799* (1.0 killed: OOM, TX too large for parallel runs)
+    # ── Gowalla (US states — census tract shapefiles available) ─────────────
+    # 'Alabama':    {'shapefile': Resources.TL_AL, 'cross_region_weight': 0.7},
+    # 'California': {'shapefile': Resources.TL_CA, 'cross_region_weight': 0.7},
+    # 'Arizona':    {'shapefile': Resources.TL_AZ, 'cross_region_weight': 0.7},
+    # 'Florida':    {'shapefile': Resources.TL_FL, 'cross_region_weight': 0.7},
+    # 'Texas':      {'shapefile': Resources.TL_TX, 'cross_region_weight': 0.7},
+    # ── Foursquare TIST2015 ─────────────────────────────────────────────────
+    'nyc_fsq':   {'shapefile': Resources.TL_NY,  'cross_region_weight': 0.7},
+    # Tokyo: no census tract shapefile → synthetic 0.01° grid (see grid_boroughs.py)
+    # 'tokyo_fsq': {'shapefile': Resources.GRID,   'cross_region_weight': 0.7},  # already done
+    # ── Massive-STEPS ───────────────────────────────────────────────────────
+    'new_york_ms': {'shapefile': Resources.TL_NY,  'cross_region_weight': 0.7},
+    # 'tokyo_ms':    {'shapefile': Resources.GRID,   'cross_region_weight': 0.7},  # already done
 }
 
 # =============================================================================
 # PIPELINE
 # =============================================================================
+
+
+def _get_boroughs_file(name: str, shapefile) -> str | None:
+    """Return cta_file path: pre-built CSV if it exists, else None (preprocess_hgi creates it).
+    For grid-based cities (shapefile=None), build the CSV from the checkins bounding box.
+    """
+    boroughs_path = IoPaths.HGI.get_boroughs_file(name)
+    if boroughs_path.exists():
+        return str(boroughs_path)
+    if shapefile is None:
+        # Build synthetic grid boroughs from the city's POI bounding box
+        checkins_path = IoPaths.get_city(name)
+        logger.info(f"[setup] {name}: shapefile=None → building grid boroughs from {checkins_path}")
+        create_grid_boroughs(checkins_path, boroughs_path, cell_size_deg=0.01)
+        return str(boroughs_path)
+    return None  # Let preprocess_hgi build it from the shapefile
 
 
 def process_state(name: str, state_cfg: dict) -> bool:
@@ -94,13 +119,15 @@ def process_state(name: str, state_cfg: dict) -> bool:
             setattr(config, k, v)
 
         w_r = config.cross_region_weight
-        logger.info(f"[setup] {name}: cross_region_weight w_r={w_r}")
+        shapefile_str = str(config.shapefile) if config.shapefile is not None else None
+        cta_file = _get_boroughs_file(name, config.shapefile)
+        logger.info(f"[setup] {name}: cross_region_weight w_r={w_r}, shapefile={shapefile_str or 'grid'}")
 
-        # 1. Build Delaunay graph -> edges.csv + pois.csv (needed by POI2Vec)
+        # 1. Build -> edges.csv .csv (needed by POI2Vec)
         logger.info(f"[1/5] Building graph: {name}")
         preprocess_hgi(
-            city=name, city_shapefile=str(config.shapefile), poi_emb_path=None,
-            cta_file=None, cross_region_weight=w_r,
+            city=name, city_shapefile=shapefile_str, poi_emb_path=None,
+            cta_file=cta_file, cross_region_weight=w_r,
         )
 
         # 2. Train POI2Vec (walks -> fclass embeddings -> POI embeddings)
@@ -114,9 +141,9 @@ def process_state(name: str, state_cfg: dict) -> bool:
         # 3. Preprocess with learned embeddings -> save pickle
         logger.info(f"[3/5] Preprocessing with embeddings: {name}")
         data = preprocess_hgi(
-            city=name, city_shapefile=str(config.shapefile),
+            city=name, city_shapefile=shapefile_str,
             poi_emb_path=str(poi_emb_path),
-            cta_file=None, cross_region_weight=w_r,
+            cta_file=cta_file, cross_region_weight=w_r,
         )
 
         graph_data_file = IoPaths.HGI.get_graph_data_file(name)

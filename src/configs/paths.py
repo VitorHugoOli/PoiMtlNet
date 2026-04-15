@@ -44,12 +44,19 @@ class Resources:
     Static paths for resource files.
     """
     _miscellaneous_dir = DATA_ROOT / "miscellaneous"
+    # US Census TIGER tract shapefiles (Gowalla states)
     TL_AL: Path = _miscellaneous_dir / "tl_2022_01_tract_AL" / "tl_2022_01_tract.shp"
     TL_AZ: Path = _miscellaneous_dir / "tl_2022_04_tract_AZ" / "tl_2022_04_tract.shp"
     TL_GA: Path = _miscellaneous_dir / "tl_2022_13_tract_GA" / "tl_2022_13_tract.shp"
     TL_FL: Path = _miscellaneous_dir / "tl_2022_12_tract_FL" / "tl_2022_12_tract.shp"
     TL_CA: Path = _miscellaneous_dir / "tl_2022_06_tract_CA" / "tl_2022_06_tract.shp"
     TL_TX: Path = _miscellaneous_dir / "tl_2022_48_tract_TX" / "tl_2022_48_tract.shp"
+    # New York state tracts — covers NYC (FSQ + STEPS).
+    # Download: https://www2.census.gov/geo/tiger/TIGER2022/TRACT/tl_2022_36_tract.zip
+    TL_NY: Path = _miscellaneous_dir / "tl_2022_36_tract_NY" / "tl_2022_36_tract.shp"
+    # Sentinel for grid-based synthetic boroughs (international cities: Tokyo, etc.)
+    # When set to None in the HGI pipeline, grid_boroughs.create_grid_boroughs() is used.
+    GRID: None = None
 
 
 

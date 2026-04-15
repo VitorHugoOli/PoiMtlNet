@@ -40,3 +40,10 @@ build/
 .claude/worktrees/
 .claude/settings.local.json
 .codex/
+
+# Local-only Claude config (machine-specific, not shared)
+CLAUDE.local.md
+
+# Windows Explorer metadata — ignore everywhere except the top-level baselines index
+desktop.ini
+!results/baselines/desktop.ini
