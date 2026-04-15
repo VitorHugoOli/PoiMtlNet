@@ -9,7 +9,7 @@ Runs four arms sequentially on Alabama, 1 fold, seed 42, HGI-only:
 Each arm:
   1. Rebuilds POI2Vec → HGI → category/next inputs with arm-specific flags.
   2. Archives the resulting embeddings.parquet to
-     docs/studies/results/P0/leakage_ablation/alabama/<arm>/.
+     docs/studies/fusion/results/P0/leakage_ablation/alabama/<arm>/.
   3. Runs scripts/train.py with --folds-path pinned to the frozen
      alabama/hgi fold indices so paired comparison survives across arms.
   4. Captures the MTL results directory produced by that run.
@@ -76,12 +76,12 @@ def _configure_state(state: str) -> None:
     global STATE, STATE_LOWER, ARCHIVE_ROOT, FROZEN_FOLDS, HGI_CONFIG
     STATE = state
     STATE_LOWER = state.lower()
-    ARCHIVE_ROOT = ROOT / f"docs/studies/results/P0/leakage_ablation/{STATE_LOWER}"
+    ARCHIVE_ROOT = ROOT / f"docs/studies/fusion/results/P0/leakage_ablation/{STATE_LOWER}"
     FROZEN_FOLDS = ROOT / f"output/hgi/{STATE_LOWER}/folds/fold_indices_mtl.pt"
     HGI_CONFIG.shapefile = str(getattr(Resources, _STATE_RESOURCES[state]))
 
 
-ARCHIVE_ROOT = ROOT / "docs/studies/results/P0/leakage_ablation/alabama"
+ARCHIVE_ROOT = ROOT / "docs/studies/fusion/results/P0/leakage_ablation/alabama"
 FROZEN_FOLDS = ROOT / "output/hgi/alabama/folds/fold_indices_mtl.pt"
 
 ARMS = [

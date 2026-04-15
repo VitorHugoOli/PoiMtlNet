@@ -7,8 +7,8 @@ generalises to a larger, independently-processed state.
 (fold 0 of StratifiedGroupKFold), seed 42, 50 epochs, batch 4096,
 grad_accum_steps=1, embedding_dim=64.
 **Companion:** `../alabama/README.md` (full arm explanation),
-`docs/issues/HGI_LEAKAGE_AUDIT.md` (technical audit),
-`docs/issues/HGI_LEAKAGE_EXPLAINED.md` (glossary).
+`docs/studies/fusion/issues/HGI_LEAKAGE_AUDIT.md` (technical audit),
+`docs/studies/fusion/issues/HGI_LEAKAGE_EXPLAINED.md` (glossary).
 
 ## Arms
 
@@ -68,13 +68,13 @@ Alabama/Florida coincidence:
 | Georgia | 29 667 | 313 | 313 | 1.0000 | 1.0000 |
 | Texas | 160 938 | 365 | 365 | 1.0000 | 1.0000 |
 
-Archived at `docs/studies/results/P0/leakage_ablation/fclass_purity.json`.
+Archived at `docs/studies/fusion/results/P0/leakage_ablation/fclass_purity.json`.
 
 ## Decision
 
 The Florida replication **does not change** the conclusion or plan
 described in the Alabama README (`../alabama/README.md`) and the audit
-doc (`docs/issues/HGI_LEAKAGE_AUDIT.md` §9). C29 is now cross-state
+doc (`docs/studies/fusion/issues/HGI_LEAKAGE_AUDIT.md` §9). C29 is now cross-state
 confirmed; the required paper-side actions remain as stated.
 
 ## Reproduce

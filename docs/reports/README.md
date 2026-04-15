@@ -20,9 +20,9 @@ Example: `report_v1_20260415.md`
 | Content | Where |
 |---------|-------|
 | Meeting-ready summary of findings | `docs/reports/` ← here |
-| Raw experiment numbers and analysis | `docs/studies/results/` |
-| Active study plan and phase details | `docs/studies/` |
-| Architecture and project overview | `docs/KNOWLEDGE_SNAPSHOT.md` |
+| Raw experiment numbers and analysis | `docs/studies/fusion/results/` |
+| Active study plan and phase details | `docs/studies/fusion/` |
+| Architecture and project overview | `docs/studies/fusion/KNOWLEDGE_SNAPSHOT.md` |
 | Archived (pre-bugfix) material | `docs/archive/` |
 
 ## Writing guidelines for new reports
@@ -32,7 +32,7 @@ Example: `report_v1_20260415.md`
   Avoid implementation jargon (optimizer names, layer counts, etc.) unless
   briefly explained in-line.
 - **Structure:** titled topics, each with a short paragraph. Bullet lists for
-  outcomes. Cross-reference the analysis doc (link to `docs/studies/results/`).
+  outcomes. Cross-reference the analysis doc (link to `docs/studies/fusion/results/`).
 - **Length:** aim for something that can be scanned in 5 minutes and read
   thoroughly in 15.
 - **Pending items:** mark open questions with `> **Em aberto:**` blockquotes so

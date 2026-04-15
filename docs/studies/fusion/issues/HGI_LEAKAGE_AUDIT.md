@@ -173,8 +173,8 @@ To bound how much each leakage channel actually contributes, three paired runs a
 
 ### Result archival
 
-- One JSON per arm under `docs/studies/results/P0/leakage_ablation/alabama/{baseline,A,B,AB}.json`.
-- Summary table in `docs/studies/results/P0/leakage_ablation/README.md`.
+- One JSON per arm under `docs/studies/fusion/results/P0/leakage_ablation/alabama/{baseline,A,B,AB}.json`.
+- Summary table in `docs/studies/fusion/results/P0/leakage_ablation/README.md`.
 - Claim status update: if results are material, add to `CLAIMS_AND_HYPOTHESES.md` as C29 ("HGI's category-derived training signals are negligible / material / dominant").
 
 ---
@@ -228,13 +228,13 @@ shortcut found in arm C generalizes to every Gowalla state we can
 evaluate on — this is a taxonomy property of the dataset, not a
 per-state artefact. Raw data lives at `data/checkins/<State>.parquet`;
 per-state details archived at
-`docs/studies/results/P0/leakage_ablation/fclass_purity.json`.
+`docs/studies/fusion/results/P0/leakage_ablation/fclass_purity.json`.
 
 ## 8. Ablation results (2026-04-15, alabama, 1 fold, seed 42)
 
 Ran on alabama, HGI-only, DSelect-k(e=4,k=2) + aligned_mtl, fold 0, seed 42.
 Driver: `scripts/hgi_leakage_ablation.py`. Full write-up at
-`docs/studies/results/P0/leakage_ablation/alabama/README.md`.
+`docs/studies/fusion/results/P0/leakage_ablation/alabama/README.md`.
 
 ```
 arm                  cat_f1   Δcat    cat_acc   next_f1   Δnxt    next_acc
@@ -281,7 +281,7 @@ by hard-negative sampling.
 On both states the Category metric lands at the 1/7 ≈ 0.143 random-chance
 floor, and the drop is an order of magnitude larger than the Next-POI
 drop. Florida was run on the same driver with `--state Florida` — full
-run log at `docs/studies/results/P0/leakage_ablation/florida/run_log.json`.
+run log at `docs/studies/fusion/results/P0/leakage_ablation/florida/run_log.json`.
 
 Florida's absolute Next-POI F1 is higher (0.36 vs 0.24) simply because
 Florida has ~6× more sequences. The Next-POI shuffle-drop is mildly
@@ -404,7 +404,7 @@ impact — it changes which metric the paper should anchor claims on.
    on OSM-tagged data is upper-bounded by fclass-identity preservation
    because fclass → category is deterministic; spatial structure alone
    contributes negligible category-discriminative signal. Evidence:
-   `docs/studies/results/P0/leakage_ablation/alabama/C_fclass_shuffle/`."
+   `docs/studies/fusion/results/P0/leakage_ablation/alabama/C_fclass_shuffle/`."
 5. **Replicate arm C on florida** before BRACIS submission (~15 min)
    to confirm the 1:1 mapping holds there too. If purity < 1.0 on
    florida, the Category F1 ceiling shifts accordingly.

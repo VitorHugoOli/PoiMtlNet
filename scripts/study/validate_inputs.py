@@ -5,7 +5,7 @@ Exit codes:
   1 — warnings only
   2 — fail
 
-Writes JSON report to docs/studies/results/P0/integrity/<state>_<engine>.json.
+Writes JSON report to docs/studies/fusion/results/P0/integrity/<state>_<engine>.json.
 """
 
 from __future__ import annotations
@@ -280,7 +280,7 @@ def main() -> int:
     )
     parser.add_argument(
         "--report-dir", default=None,
-        help="Directory to write JSON report (default: docs/studies/results/P0/integrity/).",
+        help="Directory to write JSON report (default: docs/studies/fusion/results/P0/integrity/).",
     )
     args = parser.parse_args()
 

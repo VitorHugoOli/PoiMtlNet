@@ -1,4 +1,4 @@
-"""Shared helpers for docs/studies/state.json.
+"""Shared helpers for docs/studies/fusion/state.json.
 
 Atomic read/modify/write + small query helpers. No training logic here —
 each script composes these primitives.
@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any, Iterator
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-STUDIES_DIR = REPO_ROOT / "docs" / "studies"
+STUDIES_DIR = REPO_ROOT / "docs" / "studies" / "fusion"
 STATE_PATH = STUDIES_DIR / "state.json"
 RESULTS_DIR = STUDIES_DIR / "results"
 

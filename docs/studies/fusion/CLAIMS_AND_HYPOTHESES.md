@@ -361,8 +361,8 @@ These test the classic Caruana (1997) / Ruder (2017) / Crawshaw (2020) MTL mecha
 > Appended via append-only discipline — existing C01–C28 untouched.
 > These claims arose from the in-study HGI leakage audit; they refine
 > evaluation methodology rather than propose new model mechanisms.
-> Companion docs: `docs/issues/HGI_LEAKAGE_AUDIT.md` (technical),
-> `docs/issues/HGI_LEAKAGE_EXPLAINED.md` (glossary),
+> Companion docs: `docs/studies/fusion/issues/HGI_LEAKAGE_AUDIT.md` (technical),
+> `docs/studies/fusion/issues/HGI_LEAKAGE_EXPLAINED.md` (glossary),
 > `docs/studies/results/P0/leakage_ablation/`.
 
 ### C29 — Category F1 on OSM-Gowalla data primarily measures fclass-identity preservation, not learned representation quality

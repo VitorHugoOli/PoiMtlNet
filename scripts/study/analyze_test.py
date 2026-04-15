@@ -1,6 +1,6 @@
 """Analyze a completed/archived test against its expected ranges.
 
-Reads docs/studies/state.json, fetches the test's `observed` + `expected`
+Reads docs/studies/fusion/state.json, fetches the test's `observed` + `expected`
 blocks, assigns a verdict, and (for out-of-range results) opens an issue.
 
 Verdicts:

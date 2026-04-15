@@ -48,7 +48,7 @@
             "epochs": 50,
             "seed": 42
           },
-          "results_archive": "docs/studies/results/P0/leakage_ablation/alabama/baseline/mtl_results",
+          "results_archive": "docs/studies/fusion/results/P0/leakage_ablation/alabama/baseline/mtl_results",
           "observed": {
             "cat_f1": 0.7855,
             "cat_f1_std": 0.0,
@@ -79,7 +79,7 @@
             "epochs": 50,
             "seed": 42
           },
-          "results_archive": "docs/studies/results/P0/leakage_ablation/alabama/C_fclass_shuffle/mtl_results",
+          "results_archive": "docs/studies/fusion/results/P0/leakage_ablation/alabama/C_fclass_shuffle/mtl_results",
           "observed": {
             "cat_f1": 0.14366,
             "cat_f1_std": 0.0,
@@ -110,7 +110,7 @@
             "epochs": 50,
             "seed": 42
           },
-          "results_archive": "docs/studies/results/P0/leakage_ablation/florida/baseline/mtl_results",
+          "results_archive": "docs/studies/fusion/results/P0/leakage_ablation/florida/baseline/mtl_results",
           "observed": {
             "cat_f1": 0.7649,
             "cat_f1_std": 0.0,
@@ -141,7 +141,7 @@
             "epochs": 50,
             "seed": 42
           },
-          "results_archive": "docs/studies/results/P0/leakage_ablation/florida/C_fclass_shuffle/mtl_results",
+          "results_archive": "docs/studies/fusion/results/P0/leakage_ablation/florida/C_fclass_shuffle/mtl_results",
           "observed": {
             "cat_f1": 0.1506,
             "cat_f1_std": 0.0,
@@ -159,7 +159,7 @@
           "status": "archived",
           "phase": "P0",
           "test_id": "cbic_AL_dgi",
-          "results_archive": "docs/studies/results/P0/cbic_AL_dgi",
+          "results_archive": "docs/studies/fusion/results/P0/cbic_AL_dgi",
           "observed": {
             "cat_f1": 0.4610095679759979,
             "cat_f1_std": 0.015623388110921671,
@@ -225,7 +225,7 @@
             "epochs": 50,
             "seed": 42
           },
-          "results_archive": "docs/studies/results/P0/leakage_ablation/alabama/A_no_hierarchy/mtl_results",
+          "results_archive": "docs/studies/fusion/results/P0/leakage_ablation/alabama/A_no_hierarchy/mtl_results",
           "observed": {
             "cat_f1": 0.7992,
             "cat_f1_std": 0.0,
@@ -256,7 +256,7 @@
             "epochs": 50,
             "seed": 42
           },
-          "results_archive": "docs/studies/results/P0/leakage_ablation/alabama/B_uniform_negs/mtl_results",
+          "results_archive": "docs/studies/fusion/results/P0/leakage_ablation/alabama/B_uniform_negs/mtl_results",
           "observed": {
             "cat_f1": 0.7723,
             "cat_f1_std": 0.0,
@@ -287,7 +287,7 @@
             "epochs": 50,
             "seed": 42
           },
-          "results_archive": "docs/studies/results/P0/leakage_ablation/alabama/AB_both/mtl_results",
+          "results_archive": "docs/studies/fusion/results/P0/leakage_ablation/alabama/AB_both/mtl_results",
           "observed": {
             "cat_f1": 0.769,
             "cat_f1_std": 0.0,

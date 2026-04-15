@@ -2,7 +2,7 @@
 
 **Purpose:** a single entry-point doc that any future agent (or human) can read to understand *exactly* where the project is and why. It supersedes the older `KNOWLEDGE_BASE_2026-04-13.md` (which described pre-bugfix state) and points to the active plan.
 
-If you read nothing else, read this. Then drop into `docs/studies/` for the plan.
+If you read nothing else, read this. Then drop into `docs/studies/fusion/` for the plan.
 
 ---
 
@@ -25,14 +25,14 @@ The user is regenerating embeddings + fusion inputs on the corrected data. Until
 
 ## Active plan
 
-Everything lives in `docs/studies/`. Entry points:
+Everything lives in `docs/studies/fusion/`. Entry points:
 
-- `docs/studies/README.md` — navigation
-- `docs/studies/QUICK_REFERENCE.md` — TL;DR
-- `docs/studies/MASTER_PLAN.md` — 6-phase strategy
-- `docs/studies/CLAIMS_AND_HYPOTHESES.md` — claim catalog (C01..C21+)
-- `docs/studies/COORDINATOR.md` — orchestrator spec
-- `docs/studies/phases/Pk_*.md` — detailed phase plans
+- `docs/studies/fusion/README.md` — navigation
+- `docs/studies/fusion/QUICK_REFERENCE.md` — TL;DR
+- `docs/studies/fusion/MASTER_PLAN.md` — 6-phase strategy
+- `docs/studies/fusion/CLAIMS_AND_HYPOTHESES.md` — claim catalog (C01..C21+)
+- `docs/studies/fusion/COORDINATOR.md` — orchestrator spec
+- `docs/studies/fusion/phases/Pk_*.md` — detailed phase plans
 
 The plan is **claim-driven**: every test exists to validate or refute a specific numbered claim. We do not run experiments "to see what happens."
 
@@ -93,11 +93,11 @@ Everything under `docs/archive/` is from the **pre-bugfix** era. Useful for:
 **Do not cite these numbers in the paper.** They are not evidence.
 
 Files of interest:
-- `archive/full_ablation_study/STUDY_DESIGN.md` — the 5-stage protocol that inspired the current plan
-- `archive/full_ablation_study/runs/STAGE_*.md` — individual stage analyses (numbers invalid, methodology OK)
-- `archive/full_ablation_study/FUSION_RATIONALE.md` — the task-specific fusion rationale (still valid as argument)
-- `archive/abalation_studies/MTL_ABLATION_REPORT_2026-04-11.md` — Phase 1-2 report
-- `archive/HGI_HYPERPARAMETER_TUNING_2026-04-13.md` — HGI hparam search (may need redoing)
+- `docs/studies/fusion/archive/full_ablation_study/STUDY_DESIGN.md` — the 5-stage protocol that inspired the current plan
+- `docs/studies/fusion/archive/full_ablation_study/runs/STAGE_*.md` — individual stage analyses (numbers invalid, methodology OK)
+- `docs/studies/fusion/archive/full_ablation_study/FUSION_RATIONALE.md` — the task-specific fusion rationale (still valid as argument)
+- `docs/studies/fusion/archive/ablation_studies/MTL_ABLATION_REPORT_2026-04-11.md` — Phase 1-2 report
+- `docs/archive/HGI_HYPERPARAMETER_TUNING_2026-04-13.md` — HGI hparam search (may need redoing)
 
 ---
 
@@ -136,15 +136,15 @@ If post-bugfix numbers deviate by more than 5-10 p.p. from these, something is o
 ## Key commits to know about
 
 - `e19bc9a` — gradient-surgery losses: runner injection + None-loss fallback
-- `af8aa64` — master study plan (`docs/studies/`)
+- `af8aa64` — master study plan (`docs/studies/fusion/`)
 - `76f4009` — reorg: archive old docs, consolidate report
 
 ---
 
 ## What to do if you're Claude starting fresh here
 
-1. Read `docs/studies/QUICK_REFERENCE.md`.
-2. Check `docs/studies/state.json` if it exists (tells you current phase).
+1. Read `docs/studies/fusion/QUICK_REFERENCE.md`.
+2. Check `docs/studies/fusion/state.json` if it exists (tells you current phase).
 3. If state.json doesn't exist, we're in P0: waiting on embeddings, building tooling.
 4. Ask the user: "are the new embeddings ready?" before running anything scientific.
 5. Do NOT use numbers from `docs/archive/` as evidence. They're pre-bugfix.
@@ -155,9 +155,9 @@ If post-bugfix numbers deviate by more than 5-10 p.p. from these, something is o
 
 ## What to do if you're a human collaborator
 
-1. Skim `docs/studies/QUICK_REFERENCE.md` — 1 page.
-2. Open `docs/studies/CLAIMS_AND_HYPOTHESES.md` to see the 21 claims we're validating.
-3. If you want to run experiments on your machine: see `docs/studies/phases/Pk_*.md` for the command schemas.
+1. Skim `docs/studies/fusion/QUICK_REFERENCE.md` — 1 page.
+2. Open `docs/studies/fusion/CLAIMS_AND_HYPOTHESES.md` to see the 21 claims we're validating.
+3. If you want to run experiments on your machine: see `docs/studies/fusion/phases/Pk_*.md` for the command schemas.
 4. Copy result directories to this machine and let the coordinator archive them via `/study import` (once the Skill is built in P0).
 
 ---

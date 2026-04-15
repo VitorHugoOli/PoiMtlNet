@@ -14,7 +14,7 @@ deterministic given a fixed `random_state`, but splits can drift silently
 across sklearn versions or if the input parquet is regenerated. Freezing
 indices once and loading them everywhere removes both risks.
 
-See `docs/studies/phases/P0_preparation.md` §P0.8 for the methodological
+See `docs/studies/fusion/phases/P0_preparation.md` §P0.8 for the methodological
 rationale.
 
 Usage
@@ -58,7 +58,7 @@ from data.folds import FoldCreator, TaskType
 logging.basicConfig(level=logging.INFO, format="%(asctime)s  %(levelname)s  %(message)s")
 logger = logging.getLogger("freeze_folds")
 
-STUDY_ROLLUP_PATH = _REPO_ROOT / "docs" / "studies" / "results" / "P0" / "folds" / "frozen.json"
+STUDY_ROLLUP_PATH = _REPO_ROOT / "docs" / "studies" / "fusion" / "results" / "P0" / "folds" / "frozen.json"
 
 _TASK_TYPES: dict[str, TaskType] = {
     "mtl": TaskType.MTL,

@@ -100,7 +100,7 @@ State schema: `coordinator/state_schema.md`.
 ## Folder map
 
 ```
-docs/studies/
+docs/studies/fusion/
 ├── README.md                 entry point
 ├── QUICK_REFERENCE.md        (this file)
 ├── MASTER_PLAN.md            detailed strategy

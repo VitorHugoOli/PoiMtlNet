@@ -187,7 +187,7 @@ Ver §9 do `HGI_LEAKAGE_AUDIT.md` para o plano de ação completo e §8 para os 
 
 ## 8. Referências internas
 
-- `docs/issues/HGI_LEAKAGE_AUDIT.md` — documento técnico completo (código, linhas, severidade por canal).
+- `docs/studies/fusion/issues/HGI_LEAKAGE_AUDIT.md` — documento técnico completo (código, linhas, severidade por canal).
 - `docs/studies/results/P0/leakage_ablation/alabama/` — artefatos (JSONs por braço, README de resultados).
 - `scripts/hgi_leakage_ablation.py` — driver do experimento dos 5 braços.
 - `docs/issues/CHECK2HGI_ENRICHMENT_PROPOSAL.md` — landmine separada do Check2HGI.

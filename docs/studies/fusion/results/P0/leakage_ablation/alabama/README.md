@@ -4,7 +4,7 @@
 **Config:** alabama, HGI-only (not fusion), DSelect-k(e=4,k=2) + aligned_mtl,
 1 fold (fold 0 of the StratifiedGroupKFold split), seed 42, 50 epochs,
 batch 4096, grad_accum_steps=1, embedding_dim=64.
-**Companion audit:** `docs/issues/HGI_LEAKAGE_AUDIT.md`.
+**Companion audit:** `docs/studies/fusion/issues/HGI_LEAKAGE_AUDIT.md`.
 
 ## What each arm does
 
