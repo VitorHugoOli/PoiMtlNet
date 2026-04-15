@@ -383,6 +383,29 @@ class IoPaths:
         return cls.get_input_dir(state, embedd_engine) / "next.parquet"
 
     @classmethod
+    def get_next_region(cls, state: str, embedd_engine: EmbeddingEngine) -> Path:
+        """Next-region input path.
+
+        The next-region label space is derived from the check2HGI
+        preprocessing graph artifact (``poi_to_region`` tensor); this
+        path helper only covers the CHECK2HGI engine because other
+        engines don't produce a region assignment. If the caller needs
+        next-region labels on a different engine, port the region-
+        definition pipeline first.
+        """
+        if embedd_engine != EmbeddingEngine.CHECK2HGI:
+            raise ValueError(
+                f"next_region labels are only defined on CHECK2HGI (got "
+                f"{embedd_engine}). See docs/plans/CHECK2HGI_MTL_OVERVIEW.md §4."
+            )
+        return cls.get_input_dir(state, embedd_engine) / "next_region.parquet"
+
+    @classmethod
+    def load_next_region(cls, state: str, embedd_engine: EmbeddingEngine) -> DataFrame:
+        """Load next-region input data for a state (CHECK2HGI only)."""
+        return pd.read_parquet(cls.get_next_region(state, embedd_engine))
+
+    @classmethod
     def load_next(cls, state: str, embedd_engine: EmbeddingEngine) -> DataFrame:
         """Load next-POI input data for a specific state and engine."""
         return pd.read_parquet(cls.get_next(state, embedd_engine))
