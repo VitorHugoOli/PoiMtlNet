@@ -131,61 +131,33 @@ Write results under `docs/studies/check2hgi/results/P3/`. Update CH02 and CH03 c
 - **next.parquet / sequences_next.parquet userid dtype mismatch:** already handled in `src/data/inputs/next_region.py` (cast both to str). If a new state adds a third dtype (e.g. int32), update that function.
 - **Corrupt checkin_graph.pt:** rerun `pipelines/embedding/check2hgi.pipe.py` for that state. Preprocessing is deterministic, but SIGTERM mid-write leaves a corrupt file.
 
-## Advisor concerns surfaced end-of-session
+## Advisor & reviewer concerns
 
-Three items flagged before P2/P3 runs. Address them BEFORE investing in the 5-fold × 50-epoch baseline loop — skipping them risks a wasted experimental cycle.
+**Status update (2026-04-15 post-critical-review):** a standalone critical-review agent audited the plan and code; results captured below with explicit resolution notes. The original three advisor concerns (training budget, FL class imbalance, per-task class weights) have been partially addressed — see status table.
 
-### (1) Check2HGI embeddings may be undertrained
+| # | Issue | Original severity | Current status | Resolution |
+|---|---|---|---|---|
+| Adv-1 | Check2HGI may be undertrained at 500 epochs | PAPER | **OPEN** — strategic decision | Reviewer flagged this turns CH01 into a non-falsifiable test unless HGI training budget is matched. Paper-time decision: either extend check2HGI to 1000 epochs AND match HGI's budget, or pre-register the limit as a scope caveat. See §Open strategic decisions below. |
+| Adv-2 | FL 22% majority-region → negative-transfer risk under NashMTL | PAPER | **PARTIAL** — code ready, flag not wired | `src/training/helpers.py::compute_class_weights` now handles absent classes; `mtl_cv.py` passes `weight=alpha_*` to `CrossEntropyLoss` when `config.use_class_weights=True`. CLI flag `--use-class-weights` pending (task 30). |
+| Adv-3 | `compute_class_weights` used shared `num_classes` | BLOCK | ✅ **RESOLVED** (commit `7662085`) | `task_a_num_classes` / `task_b_num_classes` now derived from `task_set` and passed through. |
+| Rev-1 | `joint_acc1` scale-incoherent (easier head dominates monitor) | HIGH | ✅ **RESOLVED** (this commit) | New `val_joint_lift = mean(acc1_cat/maj_cat, acc1_reg/maj_reg)` normalises per-head Acc@1 by majority-class fraction so both heads contribute on a comparable scale. `ModelCheckpoint` monitor for the check2HGI track switched to `val_joint_lift`. |
+| Rev-2 | Plan over-engineered for BRACIS (20 claims, 8 phases, 60h compute) | PAPER | **OPEN** — strategic decision | Reviewer recommends demoting P5 (arch×optim grid) and P6 (head sweep) to "future work" or a follow-up paper. See §Open strategic decisions. |
+| Rev-3 | Slot-naming bug: `NEXT` slot holds region, `category_loss` = next_cat_loss | TECH → ELEVATED | **OPEN** — task 32 | Reviewer: fix before P5 ports the bug across 4 MTL variants. Rename `next_*`/`category_*` → `task_a_*`/`task_b_*` in `mtl_cv.py`. |
+| Rev-4 | FL probe (1.04× lift) built on a non-converged LR fit | PAPER | **OPEN** — strategic decision | Reviewer: rerun FL probe with class-weighted LR or MLP probe before using it to gate P7, or drop FL-specific P7 framing. |
+| Rev-5 | "Light version" framing clashes with citing HMT-GRN/MGCL | PAPER | **OPEN** — strategic decision | Either reframe claims to "does the simpler approach suffice?" or build at least one cited mechanism (Option C from OPTION_C_SPEC.md). |
+| Rev-6 | Statistical power at n=5 folds is inadequate for 2pp paired-t claims | METHOD | **OPEN** — strategic decision | Multi-seed (≥3 seeds × 5 folds = n=15) or relax decision thresholds. |
+| Rev-7 | P7's 2pp gate treats Option C as conditional on Option A — different mechanisms | METHOD | **OPEN** — strategic decision | Gate Option C on its own signal (cross-stream mutual-info probe or K=1 pilot), not Option A. |
 
-Log-parse on `.claude/run_logs/check2hgi_embed.log` shows best-loss progression (Alabama):
+## Open strategic decisions
 
-| epoch | best loss |
-|---|---|
-| 1 | 1.40 |
-| 49 | 0.89 |
-| 99 | 0.73 |
-| 199 | 0.60 |
-| 299 | 0.53 |
-| 399 | 0.49 |
-| 493 | 0.47 |
+These need your call before P2 runs. Each is surfaced here rather than decided unilaterally.
 
-Loss is still dropping (0.60 → 0.47 between ep 200 and 493, a ~22% relative drop over 300 epochs) but decelerating. Not plateaued.
-
-**Risk:** if CH01 (check2HGI > HGI) fails in P2, the cause could be undertrained embeddings rather than a refuted thesis. HGI may have been trained longer in a prior run, creating an unfair comparison.
-
-**Mitigation options:**
-- (a) Extend to 1000 epochs and re-run. Cheap (~20 min more per state on the current hardware rate).
-- (b) Document the 500-epoch limit as a paper limitation; if CH01 is positive, we can claim a stronger effect after follow-up with longer training.
-- (c) Compare training-length budget apples-to-apples across engines: retrain HGI at matched FLOPs.
-
-**Recommendation:** (a) if timeline permits; (b) otherwise, with explicit wording in the paper.
-
-### (2) Florida 22% majority-region → CH03 risk
-
-Florida's next_region class distribution has one region holding 22.2% of sequences. This creates a gradient-imbalance risk under NashMTL:
-
-- The region head's loss is dominated by easy majority-class predictions.
-- NashMTL will over-weight next_region's alpha → next_category gradient starved → CH03 (no negative transfer) could fail specifically on FL.
-
-**This is a predictable failure mode; plan the mitigation in the paper's experiment design section, not post-hoc:**
-
-- Use class-weighted CE for the region head (weighted by inverse class frequency).
-- If CH03 still fails on FL with class weights, document as a data-specific limitation, not a method failure.
-
-Add this to P3 phase doc before running FL headline. See `phases/P3_mtl_next_region.md` failure-modes section.
-
-### (3) Per-task class weights in `train_with_cross_validation`
-
-`mtl_cv.py:572-576` computes class weights with `num_classes` singular:
-
-```python
-alpha_next = compute_class_weights(dataloader_next.train.y, num_classes, DEVICE)
-alpha_cat  = compute_class_weights(dataloader_category.train.y, num_classes, DEVICE)
-```
-
-This was not generalised in P1-c — the per-task num_classes wiring covered metrics but not class-weight computation. When you wire the real `train.py --task-set` path, update these calls to `task_b_num_classes` / `task_a_num_classes` respectively.
-
-Currently unused in the smoke test (which constructs CrossEntropyLoss without class weights), so the bug hasn't triggered. Still must be fixed before P3 headline runs.
+1. **BRACIS scope cut.** Keep all 20 claims + 8 phases, or cut to a BRACIS-sized core (CH01 + CH02 + CH03 + one ablation), demoting P5/P6 to future work?
+2. **Training-budget matching for CH01.** Extend check2HGI to 1000 epochs and retrain HGI at matched FLOPs, or document the 500-epoch limit as a scope caveat?
+3. **Thesis reframing.** Keep the "light version" framing (SOTA-light), or implement Option C unconditionally to match the cited HMT-GRN/MGCL lineage?
+4. **FL probe rerun.** Rerun with class-weighted LR / MLP probe to salvage CH20's state-dependent framing, or drop FL-specific reasoning?
+5. **Seed plan.** Single-seed (42) or multi-seed (42, 123, 2024)? The latter multiplies compute budget by 3× but gives n=15 paired samples instead of n=5.
+6. **Option C gate.** Keep "Option A ≥ 2pp → Option C" gate, or decouple them (independent pilot for C)?
 
 ## What wasn't done this session
 

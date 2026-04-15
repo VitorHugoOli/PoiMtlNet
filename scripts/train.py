@@ -195,7 +195,11 @@ def _run_mtl_check2hgi(
             history=history,
             config=config,
             results_path=results_path,
-            callbacks=_default_checkpoint_callbacks(run_dir, monitor="val_joint_acc1"),
+            # val_joint_lift = mean(acc1_cat / maj_cat, acc1_reg / maj_reg)
+            # Scale-coherent across heads of very different cardinality —
+            # see CRITICAL_REVIEW.md (joint_acc1 scale-incoherence fix)
+            # and mtl_cv.py::_class_majority_fraction.
+            callbacks=_default_checkpoint_callbacks(run_dir, monitor="val_joint_lift"),
             task_set=task_set,
         )
 
@@ -412,6 +416,26 @@ def _parse_args(argv=None) -> argparse.Namespace:
         help="Override gradient accumulation steps.",
     )
     parser.add_argument(
+        "--use-class-weights",
+        dest="use_class_weights",
+        action="store_true",
+        default=None,
+        help=(
+            "Pass class-balanced weights to per-head CrossEntropyLoss. "
+            "Recommended for the check2HGI next_region head on Florida "
+            "(22% majority-class region would otherwise dominate the "
+            "loss and starve the next_category gradient under NashMTL). "
+            "Absent classes get weight 1.0 (see src/training/helpers.py)."
+        ),
+    )
+    parser.add_argument(
+        "--no-class-weights",
+        dest="use_class_weights",
+        action="store_false",
+        default=None,
+        help="Force-disable class-balanced CE weighting even if the config default is on.",
+    )
+    parser.add_argument(
         "--next-target",
         type=str,
         choices=("next_category", "next_poi"),
@@ -544,6 +568,8 @@ def _apply_cli_overrides(
             config,
             gradient_accumulation_steps=args.gradient_accumulation_steps,
         )
+    if args.use_class_weights is not None:
+        config = dataclasses.replace(config, use_class_weights=args.use_class_weights)
 
     if args.candidate is not None:
         if config.task_type != "mtl":
@@ -784,14 +810,27 @@ def main(argv=None) -> None:
     fold_resolve_key = "mtl_check2hgi" if is_check2hgi_track else task_key
     fold_results = _resolve_folds(args, config, engine, fold_resolve_key)
 
-    # For the check2HGI track: resolve task_b.num_classes from the actual
-    # region-label tensor (the preset stores 0 as a placeholder) and
-    # inject the resolved ``task_set`` into model_params so the MTLnet
-    # constructor receives the right num_classes per head.
+    # For the check2HGI track: resolve task_b.num_classes from the
+    # full next_region label space (the preset stores 0 as a
+    # placeholder) and inject the resolved ``task_set`` into model_params.
+    #
+    # Computing ``n_regions`` from a single fold's train labels is a
+    # subtle bug: val folds can contain regions absent from any given
+    # train fold (cross-fold user partition doesn't preserve region
+    # support). If the model is sized for a too-small n_regions and
+    # val/other-fold labels exceed that range, bincount-based metrics
+    # fail at runtime. Using the max across EVERY fold's (train ∪ val)
+    # labels yields the true label-space size.
     if is_check2hgi_track:
         assert task_set is not None
-        first_fold = next(iter(fold_results.values()))
-        n_regions = int(first_fold.next.train.y.max().item()) + 1
+        max_label = -1
+        for fr in fold_results.values():
+            max_label = max(
+                max_label,
+                int(fr.next.train.y.max().item()),
+                int(fr.next.val.y.max().item()),
+            )
+        n_regions = max_label + 1
         task_set = resolve_task_set(task_set, task_b_num_classes=n_regions)
         logger.info(
             "check2HGI task_set resolved: task_a=%s/%d, task_b=%s/%d",
