@@ -39,7 +39,11 @@ build/
 # Worktrees and local tooling
 .claude/worktrees/
 .claude/settings.local.json
+.claude/scheduled_tasks.lock
 .codex/
+
+# Obsidian personal vault (not project-shared)
+.obsidian/
 
 # Local-only Claude config (machine-specific, not shared)
 CLAUDE.local.md
