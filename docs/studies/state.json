@@ -1,15 +1,307 @@
 {
   "study_version": "1.0",
   "study_started": "2026-04-14T05:58:14+00:00",
-  "last_update": "2026-04-14T05:58:14+00:00",
+  "last_update": "2026-04-15T21:55:15+00:00",
   "current_phase": "P0",
-  "open_issues": [],
+  "open_issues": [
+    {
+      "issue_id": "az_fl_dgi_stale",
+      "test_id": null,
+      "type": "data_integrity",
+      "severity": "blocker_for_P3",
+      "raised_at": "2026-04-15T21:33:15+00:00",
+      "description": "AZ/FL DGI parquets are pre-bugfix (missing placeid column). Folds frozen with StratifiedKFold fallback \u2014 inconsistent with user-isolation protocol used by all HGI/fusion parquets. Regenerate AZ/FL DGI inputs via Phase-2 pipeline before any DGI \u00d7 {AZ,FL} test in P3.",
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "issue_id": "fl_fusion_scale",
+      "test_id": null,
+      "type": "data_integrity",
+      "severity": "watch",
+      "raised_at": "2026-04-15T21:33:15+00:00",
+      "description": "Florida/fusion category half-L2 ratio = 40.99\u00d7 (expected 5\u201330\u00d7, Alabama is ~15\u00d7). Likely a scale imbalance between HGI and Sphere2Vec components in the Florida fusion. Confounds C02/C19 on FL. Investigate before P3 FL experiments.",
+      "status": "open",
+      "resolution": null
+    }
+  ],
   "phases": {
     "P0": {
       "status": "running",
       "started": "2026-04-14T05:58:14+00:00",
       "finished": null,
-      "tests": {}
+      "tests": {
+        "leakage_AL_baseline": {
+          "status": "completed",
+          "phase": "P0",
+          "test_id": "leakage_AL_baseline",
+          "claim_ids": [
+            "C29",
+            "C30"
+          ],
+          "description": "HGI leakage ablation: Alabama baseline arm (1 fold, seed 42, DSelectK+aligned_mtl)",
+          "config": {
+            "state": "alabama",
+            "engine": "hgi",
+            "arm": "baseline",
+            "folds": 1,
+            "epochs": 50,
+            "seed": 42
+          },
+          "results_archive": "docs/studies/results/P0/leakage_ablation/alabama/baseline/mtl_results",
+          "observed": {
+            "cat_f1": 0.7855,
+            "cat_f1_std": 0.0,
+            "cat_accuracy": 0.825,
+            "next_f1": 0.2383,
+            "next_f1_std": 0.0,
+            "next_accuracy": 0.3029,
+            "joint_f1": 0.365
+          },
+          "verdict": "matches_hypothesis",
+          "archived_at": "2026-04-15T20:23:19+00:00",
+          "notes": "Baseline for arm C comparison. cat_f1=0.786 is the pre-shuffle ceiling."
+        },
+        "leakage_AL_arm_C": {
+          "status": "completed",
+          "phase": "P0",
+          "test_id": "leakage_AL_arm_C",
+          "claim_ids": [
+            "C29",
+            "N03"
+          ],
+          "description": "HGI leakage ablation: Alabama C_fclass_shuffle arm (1 fold, seed 42)",
+          "config": {
+            "state": "alabama",
+            "engine": "hgi",
+            "arm": "C_fclass_shuffle",
+            "folds": 1,
+            "epochs": 50,
+            "seed": 42
+          },
+          "results_archive": "docs/studies/results/P0/leakage_ablation/alabama/C_fclass_shuffle/mtl_results",
+          "observed": {
+            "cat_f1": 0.14366,
+            "cat_f1_std": 0.0,
+            "cat_accuracy": 0.26231,
+            "next_f1": 0.1988,
+            "next_f1_std": 0.0,
+            "next_accuracy": 0.25869,
+            "joint_f1": 0.17123
+          },
+          "verdict": "matches_hypothesis",
+          "archived_at": "2026-04-15T20:23:19+00:00",
+          "notes": "cat_f1 collapses 64.19pp to 0.144 (\u2248 1/7 random floor). next_f1 drops only 3.95pp. Confirms C29."
+        },
+        "leakage_FL_baseline": {
+          "status": "completed",
+          "phase": "P0",
+          "test_id": "leakage_FL_baseline",
+          "claim_ids": [
+            "C29",
+            "C30"
+          ],
+          "description": "HGI leakage ablation: Florida baseline arm (1 fold, seed 42, DSelectK+aligned_mtl)",
+          "config": {
+            "state": "florida",
+            "engine": "hgi",
+            "arm": "baseline",
+            "folds": 1,
+            "epochs": 50,
+            "seed": 42
+          },
+          "results_archive": "docs/studies/results/P0/leakage_ablation/florida/baseline/mtl_results",
+          "observed": {
+            "cat_f1": 0.7649,
+            "cat_f1_std": 0.0,
+            "cat_accuracy": null,
+            "next_f1": 0.3627,
+            "next_f1_std": 0.0,
+            "next_accuracy": null,
+            "joint_f1": 0.4964
+          },
+          "verdict": "matches_hypothesis",
+          "archived_at": "2026-04-15T20:23:19+00:00",
+          "notes": "Baseline for FL arm C comparison."
+        },
+        "leakage_FL_arm_C": {
+          "status": "completed",
+          "phase": "P0",
+          "test_id": "leakage_FL_arm_C",
+          "claim_ids": [
+            "C29",
+            "N03"
+          ],
+          "description": "HGI leakage ablation: Florida C_fclass_shuffle arm (1 fold, seed 42)",
+          "config": {
+            "state": "florida",
+            "engine": "hgi",
+            "arm": "C_fclass_shuffle",
+            "folds": 1,
+            "epochs": 50,
+            "seed": 42
+          },
+          "results_archive": "docs/studies/results/P0/leakage_ablation/florida/C_fclass_shuffle/mtl_results",
+          "observed": {
+            "cat_f1": 0.1506,
+            "cat_f1_std": 0.0,
+            "cat_accuracy": 0.2915,
+            "next_f1": 0.2982,
+            "next_f1_std": 0.0,
+            "next_accuracy": 0.3715,
+            "joint_f1": 0.22438
+          },
+          "verdict": "matches_hypothesis",
+          "archived_at": "2026-04-15T20:23:19+00:00",
+          "notes": "cat_f1 collapses 61.43pp to 0.151 (\u2248 1/7 random floor). next_f1 drops only 6.46pp. Cross-state replication of C29."
+        },
+        "cbic_AL_dgi": {
+          "status": "archived",
+          "phase": "P0",
+          "test_id": "cbic_AL_dgi",
+          "results_archive": "docs/studies/results/P0/cbic_AL_dgi",
+          "observed": {
+            "cat_f1": 0.4610095679759979,
+            "cat_f1_std": 0.015623388110921671,
+            "cat_accuracy": 0.5442392110824585,
+            "next_f1": 0.24297572672367096,
+            "next_f1_std": 0.017326565188596682,
+            "next_accuracy": 0.3745967924594879,
+            "joint_f1": 0.3182286211058447
+          },
+          "archived_at": "2026-04-15T21:55:08+00:00",
+          "claim_ids": [
+            "C01",
+            "C03"
+          ],
+          "git_commit": "45de344847a3ccc0d2cb1c66fd8f76f92e306d5b",
+          "verdict": "partial_match",
+          "verdict_detail": {
+            "joint": "partial_match",
+            "category": "matches_hypothesis",
+            "next": "partial_match"
+          },
+          "analyzed_at": "2026-04-15T21:55:15+00:00",
+          "expected": {
+            "cat_f1_range": [
+              0.46,
+              0.48
+            ],
+            "next_f1_range": [
+              0.26,
+              0.28
+            ],
+            "joint_range": [
+              0.33,
+              0.38
+            ],
+            "notes": "CBIC 2025 baseline: Alabama/DGI, default MTLnet, 5-fold CV"
+          },
+          "description": "P0.4 CBIC sanity replication: Alabama/DGI, nash_mtl, 5f\u00d750ep, seed 42",
+          "config": {
+            "state": "alabama",
+            "engine": "dgi",
+            "task": "mtl",
+            "epochs": 50,
+            "folds": 5,
+            "seed": 42,
+            "mtl_loss": "nash_mtl"
+          }
+        },
+        "leakage_AL_arm_A": {
+          "status": "completed",
+          "phase": "P0",
+          "test_id": "leakage_AL_arm_A",
+          "claim_ids": [
+            "C29",
+            "C30"
+          ],
+          "description": "HGI leakage ablation: Alabama A_no_hierarchy arm (le_lambda=0.0, 1 fold, seed 42)",
+          "config": {
+            "state": "alabama",
+            "engine": "hgi",
+            "arm": "A_no_hierarchy",
+            "folds": 1,
+            "epochs": 50,
+            "seed": 42
+          },
+          "results_archive": "docs/studies/results/P0/leakage_ablation/alabama/A_no_hierarchy/mtl_results",
+          "observed": {
+            "cat_f1": 0.7992,
+            "cat_f1_std": 0.0,
+            "cat_accuracy": 0.8296,
+            "next_f1": 0.239,
+            "next_f1_std": 0.0,
+            "next_accuracy": 0.3177,
+            "joint_f1": 0.368
+          },
+          "verdict": "matches_hypothesis",
+          "archived_at": "2026-04-15T21:33:15+00:00",
+          "notes": "Arm A: removing explicit category-fclass L2 path (le_lambda=0\u21920.0) has negligible effect (\u0394cat=+1.36pp, \u0394nxt=+0.06pp). Confirms the hierarchy loss is cosmetic at le_lambda=1e-8. C30 supported."
+        },
+        "leakage_AL_arm_B": {
+          "status": "completed",
+          "phase": "P0",
+          "test_id": "leakage_AL_arm_B",
+          "claim_ids": [
+            "C29",
+            "C30"
+          ],
+          "description": "HGI leakage ablation: Alabama B_uniform_negs arm (hard_neg_prob=0.0, 1 fold, seed 42)",
+          "config": {
+            "state": "alabama",
+            "engine": "hgi",
+            "arm": "B_uniform_negs",
+            "folds": 1,
+            "epochs": 50,
+            "seed": 42
+          },
+          "results_archive": "docs/studies/results/P0/leakage_ablation/alabama/B_uniform_negs/mtl_results",
+          "observed": {
+            "cat_f1": 0.7723,
+            "cat_f1_std": 0.0,
+            "cat_accuracy": 0.8165,
+            "next_f1": 0.2623,
+            "next_f1_std": 0.0,
+            "next_accuracy": 0.3314,
+            "joint_f1": 0.3916
+          },
+          "verdict": "matches_hypothesis",
+          "archived_at": "2026-04-15T21:33:15+00:00",
+          "notes": "Arm B: uniform negatives \u2192 \u0394cat=\u22121.32pp, \u0394nxt=+2.40pp. Asymmetric per-task effect; not leakage signature. Hard-neg sampling is a design trade-off. C30 supported."
+        },
+        "leakage_AL_arm_AB": {
+          "status": "completed",
+          "phase": "P0",
+          "test_id": "leakage_AL_arm_AB",
+          "claim_ids": [
+            "C29",
+            "C30"
+          ],
+          "description": "HGI leakage ablation: Alabama AB_both arm (le_lambda=0 + hard_neg_prob=0, 1 fold, seed 42)",
+          "config": {
+            "state": "alabama",
+            "engine": "hgi",
+            "arm": "AB_both",
+            "folds": 1,
+            "epochs": 50,
+            "seed": 42
+          },
+          "results_archive": "docs/studies/results/P0/leakage_ablation/alabama/AB_both/mtl_results",
+          "observed": {
+            "cat_f1": 0.769,
+            "cat_f1_std": 0.0,
+            "cat_accuracy": 0.8162,
+            "next_f1": 0.255,
+            "next_f1_std": 0.0,
+            "next_accuracy": 0.3503,
+            "joint_f1": 0.383
+          },
+          "verdict": "matches_hypothesis",
+          "archived_at": "2026-04-15T21:33:15+00:00",
+          "notes": "Arm AB: sub-additive interaction (\u0394cat=\u22121.66pp, \u0394nxt=+1.66pp). Most movement driven by hard-neg sampling (arm B), not hierarchy loss."
+        }
+      }
     },
     "P1": {
       "status": "planned",

@@ -1,0 +1,47 @@
+{
+  "state": "florida",
+  "engine": "hgi",
+  "passed": true,
+  "warnings": [],
+  "errors": [],
+  "details": {
+    "category": {
+      "rows": 76544,
+      "cols": 66,
+      "embedding_dim": 64,
+      "label_distribution": {
+        "Shopping": 0.318156877090301,
+        "Food": 0.30050689799331104,
+        "Community": 0.12208664297658862,
+        "Entertainment": 0.07752403846153846,
+        "Travel": 0.07172345317725752,
+        "Outdoors": 0.07070443143812709,
+        "Nightlife": 0.039297658862876256
+      },
+      "l2_norm": {
+        "mean": 19.253313739432038,
+        "std": 7.987819455073218,
+        "min": 5.93605570432059,
+        "max": 104.47043392331116
+      },
+      "num_placeids": 76544
+    },
+    "next": {
+      "rows": 159175,
+      "cols": 578,
+      "window": 9,
+      "embedding_dim": 64,
+      "label_distribution": {
+        "Food": 0.24687293858960263,
+        "Travel": 0.242877336265117,
+        "Shopping": 0.2105167268729386,
+        "Community": 0.09877807444636406,
+        "Entertainment": 0.0870614103973614,
+        "Outdoors": 0.06961520339249254,
+        "Nightlife": 0.044278310036123765
+      },
+      "num_users": 13935
+    }
+  },
+  "generated_at": "2026-04-15T20:21:42+00:00"
+}

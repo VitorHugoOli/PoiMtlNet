@@ -1,15 +1,105 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-04-14T15:30:50+00:00",
+  "updated_at": "2026-04-15T20:20:36+00:00",
   "sklearn_version": "1.8.0",
   "entries": [
     {
+      "key": "alabama/dgi/mtl",
+      "status": "frozen",
+      "state": "alabama",
+      "engine": "dgi",
+      "task": "mtl",
+      "fold_file": "output/dgi/alabama/folds/fold_indices_mtl.pt",
+      "meta": {
+        "schema_version": 1,
+        "state": "alabama",
+        "engine": "dgi",
+        "task": "mtl",
+        "seed": 42,
+        "n_splits": 5,
+        "sklearn_version": "1.8.0",
+        "torch_version": "2.11.0",
+        "created_at": "2026-04-15T20:19:34+00:00",
+        "inputs_signatures": {
+          "category.parquet": {
+            "path": "output/dgi/alabama/input/category.parquet",
+            "sha256": "222d7feef87441d7597af22873c91b0fa3d7177ba095bb9b9f91740b12f5cdd3",
+            "size_bytes": 4152697,
+            "mtime": "2026-04-12T04:46:35.163017+00:00"
+          },
+          "next.parquet": {
+            "path": "output/dgi/alabama/input/next.parquet",
+            "sha256": "b0fd88f6a653211b6c6d5023e98dc532ba5003a599f12403e15f297510a802c2",
+            "size_bytes": 33771234,
+            "mtime": "2026-04-12T04:46:41.075641+00:00"
+          }
+        },
+        "fold_sizes": {
+          "next": [
+            {
+              "fold_idx": 0,
+              "train": 10159,
+              "val": 2540
+            },
+            {
+              "fold_idx": 1,
+              "train": 10159,
+              "val": 2540
+            },
+            {
+              "fold_idx": 2,
+              "train": 10159,
+              "val": 2540
+            },
+            {
+              "fold_idx": 3,
+              "train": 10159,
+              "val": 2540
+            },
+            {
+              "fold_idx": 4,
+              "train": 10160,
+              "val": 2539
+            }
+          ],
+          "category": [
+            {
+              "fold_idx": 0,
+              "train": 10698,
+              "val": 832
+            },
+            {
+              "fold_idx": 1,
+              "train": 10880,
+              "val": 650
+            },
+            {
+              "fold_idx": 2,
+              "train": 10878,
+              "val": 652
+            },
+            {
+              "fold_idx": 3,
+              "train": 10819,
+              "val": 711
+            },
+            {
+              "fold_idx": 4,
+              "train": 10671,
+              "val": 859
+            }
+          ]
+        },
+        "fold_file": "fold_indices_mtl.pt"
+      }
+    },
+    {
       "key": "alabama/fusion/mtl",
-      "status": "skipped",
+      "status": "frozen",
       "state": "alabama",
       "engine": "fusion",
       "task": "mtl",
-      "fold_file": "/Volumes/Vitor's SSD/ingred/output/fusion/alabama/folds/fold_indices_mtl.pt",
+      "fold_file": "output/fusion/alabama/folds/fold_indices_mtl.pt",
       "meta": {
         "schema_version": 1,
         "state": "alabama",
@@ -19,19 +109,19 @@
         "n_splits": 5,
         "sklearn_version": "1.8.0",
         "torch_version": "2.11.0",
-        "created_at": "2026-04-14T15:21:42+00:00",
+        "created_at": "2026-04-15T20:19:36+00:00",
         "inputs_signatures": {
           "category.parquet": {
             "path": "output/fusion/alabama/input/category.parquet",
-            "sha256": "baa12410eed1b68eba5e4fa2116218b0d7ac293d37c60b6d2c08b56c471e3cec",
-            "size_bytes": 8809047,
-            "mtime": "2026-04-13T02:18:07.466897+00:00"
+            "sha256": "0c5113ad990f6736c9a4d80cdf5a345279deb10debec55c433a2f6db9693b16e",
+            "size_bytes": 8809055,
+            "mtime": "2026-04-14T15:38:56.045063+00:00"
           },
           "next.parquet": {
             "path": "output/fusion/alabama/input/next.parquet",
-            "sha256": "45444834b57a6e1a9fc0e1cb02f9a5eb15b5cad8e06f0dfd1a658b36de1c5f00",
-            "size_bytes": 78200833,
-            "mtime": "2026-04-13T02:18:16.702820+00:00"
+            "sha256": "9e7684221e9b0752828d07a493f6d7552acec8667671f256666fda0f16497e3f",
+            "size_bytes": 49404043,
+            "mtime": "2026-04-14T15:39:04.328852+00:00"
           }
         },
         "fold_sizes": {
@@ -65,28 +155,28 @@
           "category": [
             {
               "fold_idx": 0,
-              "train": 10937,
-              "val": 729
+              "train": 10924,
+              "val": 742
             },
             {
               "fold_idx": 1,
-              "train": 10934,
-              "val": 732
+              "train": 10864,
+              "val": 802
             },
             {
               "fold_idx": 2,
-              "train": 10906,
-              "val": 760
+              "train": 10991,
+              "val": 675
             },
             {
               "fold_idx": 3,
-              "train": 10836,
-              "val": 830
+              "train": 10911,
+              "val": 755
             },
             {
               "fold_idx": 4,
-              "train": 10842,
-              "val": 824
+              "train": 10847,
+              "val": 819
             }
           ]
         },
@@ -109,19 +199,19 @@
         "n_splits": 5,
         "sklearn_version": "1.8.0",
         "torch_version": "2.11.0",
-        "created_at": "2026-04-14T15:30:50+00:00",
+        "created_at": "2026-04-15T20:19:35+00:00",
         "inputs_signatures": {
           "category.parquet": {
             "path": "output/hgi/alabama/input/category.parquet",
-            "sha256": "4404cba197d598c46b266f6f0907f51a91c1e9b4a8a079e1474473dcb84e413d",
-            "size_bytes": 4414960,
-            "mtime": "2026-04-13T02:16:53.920891+00:00"
+            "sha256": "402a950cf55753b6007d7760b890b8e0f3dafd8d0d27e63ddb2689745293bf79",
+            "size_bytes": 4414968,
+            "mtime": "2026-04-14T12:45:32.626402+00:00"
           },
           "next.parquet": {
             "path": "output/hgi/alabama/input/next.parquet",
-            "sha256": "0b8600c13cb100448979c4579724f77dc72ffc66f7bb90f76b71cff1629919d5",
-            "size_bytes": 37747743,
-            "mtime": "2026-04-13T02:16:59.066806+00:00"
+            "sha256": "a5c9f21501ceb32bd76e485b310a288a63ff534ff753a52e8f8f8186246ad7e3",
+            "size_bytes": 37753588,
+            "mtime": "2026-04-14T12:45:37.384259+00:00"
           }
         },
         "fold_sizes": {
@@ -155,28 +245,568 @@
           "category": [
             {
               "fold_idx": 0,
-              "train": 10937,
-              "val": 729
+              "train": 10924,
+              "val": 742
             },
             {
               "fold_idx": 1,
-              "train": 10934,
-              "val": 732
+              "train": 10864,
+              "val": 802
             },
             {
               "fold_idx": 2,
-              "train": 10906,
-              "val": 760
+              "train": 10991,
+              "val": 675
             },
             {
               "fold_idx": 3,
-              "train": 10836,
-              "val": 830
+              "train": 10911,
+              "val": 755
             },
             {
               "fold_idx": 4,
-              "train": 10842,
-              "val": 824
+              "train": 10847,
+              "val": 819
+            }
+          ]
+        },
+        "fold_file": "fold_indices_mtl.pt"
+      }
+    },
+    {
+      "key": "arizona/dgi/mtl",
+      "status": "frozen",
+      "state": "arizona",
+      "engine": "dgi",
+      "task": "mtl",
+      "fold_file": "output/dgi/arizona/folds/fold_indices_mtl.pt",
+      "meta": {
+        "schema_version": 1,
+        "state": "arizona",
+        "engine": "dgi",
+        "task": "mtl",
+        "seed": 42,
+        "n_splits": 5,
+        "sklearn_version": "1.8.0",
+        "torch_version": "2.11.0",
+        "created_at": "2026-04-15T20:19:37+00:00",
+        "inputs_signatures": {
+          "category.parquet": {
+            "path": "output/dgi/arizona/input/category.parquet",
+            "sha256": "d31317c3cdb4cee1890d5bb8005370c11ed501d0f048e53092602876a1f9a599",
+            "size_bytes": 7264726,
+            "mtime": "2025-10-22T21:44:47.003862+00:00"
+          },
+          "next.parquet": {
+            "path": "output/dgi/arizona/input/next.parquet",
+            "sha256": "58ee89ebf8c7d8fb6a11d95ef50eb8315984fe1c1fd3616113ac98bd5dfa4d65",
+            "size_bytes": 43679439,
+            "mtime": "2025-10-22T21:44:51.649792+00:00"
+          }
+        },
+        "fold_sizes": {
+          "next": [
+            {
+              "fold_idx": 0,
+              "train": 20066,
+              "val": 5017
+            },
+            {
+              "fold_idx": 1,
+              "train": 20068,
+              "val": 5015
+            },
+            {
+              "fold_idx": 2,
+              "train": 20067,
+              "val": 5016
+            },
+            {
+              "fold_idx": 3,
+              "train": 20063,
+              "val": 5020
+            },
+            {
+              "fold_idx": 4,
+              "train": 20068,
+              "val": 5015
+            }
+          ],
+          "category": [
+            {
+              "fold_idx": 0,
+              "train": 16352,
+              "val": 4088
+            },
+            {
+              "fold_idx": 1,
+              "train": 16352,
+              "val": 4088
+            },
+            {
+              "fold_idx": 2,
+              "train": 16352,
+              "val": 4088
+            },
+            {
+              "fold_idx": 3,
+              "train": 16352,
+              "val": 4088
+            },
+            {
+              "fold_idx": 4,
+              "train": 16352,
+              "val": 4088
+            }
+          ]
+        },
+        "fold_file": "fold_indices_mtl.pt"
+      }
+    },
+    {
+      "key": "arizona/fusion/mtl",
+      "status": "frozen",
+      "state": "arizona",
+      "engine": "fusion",
+      "task": "mtl",
+      "fold_file": "output/fusion/arizona/folds/fold_indices_mtl.pt",
+      "meta": {
+        "schema_version": 1,
+        "state": "arizona",
+        "engine": "fusion",
+        "task": "mtl",
+        "seed": 42,
+        "n_splits": 5,
+        "sklearn_version": "1.8.0",
+        "torch_version": "2.11.0",
+        "created_at": "2026-04-15T20:19:42+00:00",
+        "inputs_signatures": {
+          "category.parquet": {
+            "path": "output/fusion/arizona/input/category.parquet",
+            "sha256": "e8381bf280f8e6dc391f126a216b7e4176e057046800c50f7501a77ff8726a7e",
+            "size_bytes": 15630441,
+            "mtime": "2026-04-14T15:37:01.473387+00:00"
+          },
+          "next.parquet": {
+            "path": "output/fusion/arizona/input/next.parquet",
+            "sha256": "a9e8ec4ad90685d65d491d2d76aec8a6bbfe47789e6b59b599434dd64f7968ef",
+            "size_bytes": 90594911,
+            "mtime": "2026-04-14T15:37:19.485969+00:00"
+          }
+        },
+        "fold_sizes": {
+          "next": [
+            {
+              "fold_idx": 0,
+              "train": 21117,
+              "val": 5279
+            },
+            {
+              "fold_idx": 1,
+              "train": 21117,
+              "val": 5279
+            },
+            {
+              "fold_idx": 2,
+              "train": 21117,
+              "val": 5279
+            },
+            {
+              "fold_idx": 3,
+              "train": 21116,
+              "val": 5280
+            },
+            {
+              "fold_idx": 4,
+              "train": 21117,
+              "val": 5279
+            }
+          ],
+          "category": [
+            {
+              "fold_idx": 0,
+              "train": 19292,
+              "val": 1177
+            },
+            {
+              "fold_idx": 1,
+              "train": 19446,
+              "val": 1023
+            },
+            {
+              "fold_idx": 2,
+              "train": 19252,
+              "val": 1217
+            },
+            {
+              "fold_idx": 3,
+              "train": 19410,
+              "val": 1059
+            },
+            {
+              "fold_idx": 4,
+              "train": 19422,
+              "val": 1047
+            }
+          ]
+        },
+        "fold_file": "fold_indices_mtl.pt"
+      }
+    },
+    {
+      "key": "arizona/hgi/mtl",
+      "status": "frozen",
+      "state": "arizona",
+      "engine": "hgi",
+      "task": "mtl",
+      "fold_file": "output/hgi/arizona/folds/fold_indices_mtl.pt",
+      "meta": {
+        "schema_version": 1,
+        "state": "arizona",
+        "engine": "hgi",
+        "task": "mtl",
+        "seed": 42,
+        "n_splits": 5,
+        "sklearn_version": "1.8.0",
+        "torch_version": "2.11.0",
+        "created_at": "2026-04-15T20:19:40+00:00",
+        "inputs_signatures": {
+          "category.parquet": {
+            "path": "output/hgi/arizona/input/category.parquet",
+            "sha256": "47daf69098d8f1f6a1fe488a1eddd961ad34fae2907be397d8333b512139fc49",
+            "size_bytes": 7824461,
+            "mtime": "2026-04-14T13:57:41.343129+00:00"
+          },
+          "next.parquet": {
+            "path": "output/hgi/arizona/input/next.parquet",
+            "sha256": "eb25c2c97a91cbd4475df86586a8ef6aa676e7c6b26d70d4b977688c344916d5",
+            "size_bytes": 73791592,
+            "mtime": "2026-04-14T13:57:51.236567+00:00"
+          }
+        },
+        "fold_sizes": {
+          "next": [
+            {
+              "fold_idx": 0,
+              "train": 21117,
+              "val": 5279
+            },
+            {
+              "fold_idx": 1,
+              "train": 21117,
+              "val": 5279
+            },
+            {
+              "fold_idx": 2,
+              "train": 21117,
+              "val": 5279
+            },
+            {
+              "fold_idx": 3,
+              "train": 21116,
+              "val": 5280
+            },
+            {
+              "fold_idx": 4,
+              "train": 21117,
+              "val": 5279
+            }
+          ],
+          "category": [
+            {
+              "fold_idx": 0,
+              "train": 19292,
+              "val": 1177
+            },
+            {
+              "fold_idx": 1,
+              "train": 19446,
+              "val": 1023
+            },
+            {
+              "fold_idx": 2,
+              "train": 19252,
+              "val": 1217
+            },
+            {
+              "fold_idx": 3,
+              "train": 19410,
+              "val": 1059
+            },
+            {
+              "fold_idx": 4,
+              "train": 19422,
+              "val": 1047
+            }
+          ]
+        },
+        "fold_file": "fold_indices_mtl.pt"
+      }
+    },
+    {
+      "key": "florida/dgi/mtl",
+      "status": "frozen",
+      "state": "florida",
+      "engine": "dgi",
+      "task": "mtl",
+      "fold_file": "output/dgi/florida/folds/fold_indices_mtl.pt",
+      "meta": {
+        "schema_version": 1,
+        "state": "florida",
+        "engine": "dgi",
+        "task": "mtl",
+        "seed": 42,
+        "n_splits": 5,
+        "sklearn_version": "1.8.0",
+        "torch_version": "2.11.0",
+        "created_at": "2026-04-15T20:20:05+00:00",
+        "inputs_signatures": {
+          "category.parquet": {
+            "path": "output/dgi/florida/input/category.parquet",
+            "sha256": "0adf5ebed071ae1baeb4745f63f211c59e24c5f8ec5dd31bf9bf1484ca770c04",
+            "size_bytes": 26545965,
+            "mtime": "2025-10-22T18:12:16.473605+00:00"
+          },
+          "next.parquet": {
+            "path": "output/dgi/florida/input/next.parquet",
+            "sha256": "ac29c501a01372529ad9e5b5242db2745f04bbb53992b503011932c9ca08de82",
+            "size_bytes": 256599692,
+            "mtime": "2025-10-22T18:12:38.944201+00:00"
+          }
+        },
+        "fold_sizes": {
+          "next": [
+            {
+              "fold_idx": 0,
+              "train": 123712,
+              "val": 30928
+            },
+            {
+              "fold_idx": 1,
+              "train": 123713,
+              "val": 30927
+            },
+            {
+              "fold_idx": 2,
+              "train": 123711,
+              "val": 30929
+            },
+            {
+              "fold_idx": 3,
+              "train": 123712,
+              "val": 30928
+            },
+            {
+              "fold_idx": 4,
+              "train": 123712,
+              "val": 30928
+            }
+          ],
+          "category": [
+            {
+              "fold_idx": 0,
+              "train": 59889,
+              "val": 14973
+            },
+            {
+              "fold_idx": 1,
+              "train": 59889,
+              "val": 14973
+            },
+            {
+              "fold_idx": 2,
+              "train": 59890,
+              "val": 14972
+            },
+            {
+              "fold_idx": 3,
+              "train": 59890,
+              "val": 14972
+            },
+            {
+              "fold_idx": 4,
+              "train": 59890,
+              "val": 14972
+            }
+          ]
+        },
+        "fold_file": "fold_indices_mtl.pt"
+      }
+    },
+    {
+      "key": "florida/fusion/mtl",
+      "status": "frozen",
+      "state": "florida",
+      "engine": "fusion",
+      "task": "mtl",
+      "fold_file": "output/fusion/florida/folds/fold_indices_mtl.pt",
+      "meta": {
+        "schema_version": 1,
+        "state": "florida",
+        "engine": "fusion",
+        "task": "mtl",
+        "seed": 42,
+        "n_splits": 5,
+        "sklearn_version": "1.8.0",
+        "torch_version": "2.11.0",
+        "created_at": "2026-04-15T20:20:35+00:00",
+        "inputs_signatures": {
+          "category.parquet": {
+            "path": "output/fusion/florida/input/category.parquet",
+            "sha256": "bf62bebee1735ade3f8ad106ca99d24d535c546c1892a1563410bd3a3fa20240",
+            "size_bytes": 60009927,
+            "mtime": "2026-04-14T15:37:01.757858+00:00"
+          },
+          "next.parquet": {
+            "path": "output/fusion/florida/input/next.parquet",
+            "sha256": "c25ad8364a95308b1c12b9b61631f65b8e72c4f216192c033f41d1295582baa7",
+            "size_bytes": 459876924,
+            "mtime": "2026-04-14T15:38:53.817872+00:00"
+          }
+        },
+        "fold_sizes": {
+          "next": [
+            {
+              "fold_idx": 0,
+              "train": 127340,
+              "val": 31835
+            },
+            {
+              "fold_idx": 1,
+              "train": 127340,
+              "val": 31835
+            },
+            {
+              "fold_idx": 2,
+              "train": 127339,
+              "val": 31836
+            },
+            {
+              "fold_idx": 3,
+              "train": 127340,
+              "val": 31835
+            },
+            {
+              "fold_idx": 4,
+              "train": 127341,
+              "val": 31834
+            }
+          ],
+          "category": [
+            {
+              "fold_idx": 0,
+              "train": 73151,
+              "val": 3115
+            },
+            {
+              "fold_idx": 1,
+              "train": 73514,
+              "val": 2752
+            },
+            {
+              "fold_idx": 2,
+              "train": 73653,
+              "val": 2613
+            },
+            {
+              "fold_idx": 3,
+              "train": 73490,
+              "val": 2776
+            },
+            {
+              "fold_idx": 4,
+              "train": 73023,
+              "val": 3243
+            }
+          ]
+        },
+        "fold_file": "fold_indices_mtl.pt"
+      }
+    },
+    {
+      "key": "florida/hgi/mtl",
+      "status": "frozen",
+      "state": "florida",
+      "engine": "hgi",
+      "task": "mtl",
+      "fold_file": "output/hgi/florida/folds/fold_indices_mtl.pt",
+      "meta": {
+        "schema_version": 1,
+        "state": "florida",
+        "engine": "hgi",
+        "task": "mtl",
+        "seed": 42,
+        "n_splits": 5,
+        "sklearn_version": "1.8.0",
+        "torch_version": "2.11.0",
+        "created_at": "2026-04-15T20:20:24+00:00",
+        "inputs_signatures": {
+          "category.parquet": {
+            "path": "output/hgi/florida/input/category.parquet",
+            "sha256": "cacd1d5cc9956ea979d64c9ad4b95090e18540a3e176e4bbe77a4a97bb90a957",
+            "size_bytes": 29970305,
+            "mtime": "2026-04-14T14:15:13.007142+00:00"
+          },
+          "next.parquet": {
+            "path": "output/hgi/florida/input/next.parquet",
+            "sha256": "42ca74a973b58fb001a933c92eec10f217db6d231e4181c728ccda79a9938f64",
+            "size_bytes": 382739121,
+            "mtime": "2026-04-14T14:16:17.132723+00:00"
+          }
+        },
+        "fold_sizes": {
+          "next": [
+            {
+              "fold_idx": 0,
+              "train": 127340,
+              "val": 31835
+            },
+            {
+              "fold_idx": 1,
+              "train": 127340,
+              "val": 31835
+            },
+            {
+              "fold_idx": 2,
+              "train": 127339,
+              "val": 31836
+            },
+            {
+              "fold_idx": 3,
+              "train": 127340,
+              "val": 31835
+            },
+            {
+              "fold_idx": 4,
+              "train": 127341,
+              "val": 31834
+            }
+          ],
+          "category": [
+            {
+              "fold_idx": 0,
+              "train": 73151,
+              "val": 3115
+            },
+            {
+              "fold_idx": 1,
+              "train": 73514,
+              "val": 2752
+            },
+            {
+              "fold_idx": 2,
+              "train": 73653,
+              "val": 2613
+            },
+            {
+              "fold_idx": 3,
+              "train": 73490,
+              "val": 2776
+            },
+            {
+              "fold_idx": 4,
+              "train": 73023,
+              "val": 3243
             }
           ]
         },

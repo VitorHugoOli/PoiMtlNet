@@ -31,6 +31,39 @@ A clean-slate empirical study of MTLnet on newly-regenerated (bug-fixed) embeddi
 - **Florida** — slow heavy validation (~4 h / run)
 - Optional: California, Texas, Georgia for external-baseline matching
 
+### Data scale vs published papers (verified 2026-04-15)
+
+Raw Gowalla check-ins (our ETL, `data/checkins/`):
+
+| State | Check-ins | POIs | Users |
+|-------|-----------|------|-------|
+| Alabama | 113,846 | 11,848 | 3,858 |
+| Arizona | 236,450 | 20,666 | 7,869 |
+| Florida | 1,407,034 | 76,544 | 21,052 |
+
+Processed inputs (after sequence window=9, min-5-visits filter):
+
+| State | POIs (model) | Active users | Sequences |
+|-------|-------------|--------------|-----------|
+| Alabama | 11,706 | 1,623 | 12,699 |
+| Arizona | 20,440 | 2,134 | 25,083 |
+| Florida | 74,862 | 10,531 | 154,640 |
+
+**CBIC 2025** used Florida + DGI (64-dim). Dataset numbers (`N_users`, `N_poi`, `N_checkins`) are **unfilled template variables** in the LaTeX source — numbers above are the ground truth from our ETL.
+CBIC results: cat macro F1 ≈ 47.7%, next macro F1 ≈ 34% (Florida/DGI, 5-fold CV).
+
+**CoUrb 2026** uses Florida, California, Texas + HGI+Sphere2Vec+Time2Vec (192-dim fusion):
+
+| State | Check-ins (CoUrb) | POIs (CoUrb) | Users (CoUrb) | Δ vs our ETL |
+|-------|-------------------|--------------|---------------|--------------|
+| Florida | 990,518 | 65,009 | 20,301 | ~30% fewer check-ins, ~15% fewer POIs |
+| California | 2,535,573 | 148,314 | 36,106 | ~20% fewer |
+| Texas | 3,355,419 | 135,570 | 37,522 | — (not in our ETL yet) |
+
+**The ~30% gap for Florida is real**: CoUrb applies a stricter preprocessing filter (higher min-check-ins threshold or narrower date range). Before a head-to-head comparison with CoUrb, either align preprocessing or flag the discrepancy explicitly in the paper.
+
+CoUrb results on Florida: Category F1 up to 73% (vs CBIC's 47.7%), Next F1 up to 40% — improvement attributed to richer fusion, not different data size.
+
 ---
 
 ## Key claims (abbreviated)

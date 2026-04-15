@@ -1,0 +1,47 @@
+{
+  "state": "alabama",
+  "engine": "dgi",
+  "passed": true,
+  "warnings": [],
+  "errors": [],
+  "details": {
+    "category": {
+      "rows": 11706,
+      "cols": 66,
+      "embedding_dim": 64,
+      "label_distribution": {
+        "Food": 0.3253032632837861,
+        "Shopping": 0.3131727319323424,
+        "Community": 0.15009396890483512,
+        "Entertainment": 0.06500939689048352,
+        "Outdoors": 0.06133606697420126,
+        "Travel": 0.06048180420297283,
+        "Nightlife": 0.02460276781137878
+      },
+      "l2_norm": {
+        "mean": 7.533104230510093,
+        "std": 0.03413694273348555,
+        "min": 7.37661499176463,
+        "max": 7.650794325847298
+      },
+      "num_placeids": 11706
+    },
+    "next": {
+      "rows": 12699,
+      "cols": 578,
+      "window": 9,
+      "embedding_dim": 64,
+      "label_distribution": {
+        "Food": 0.34207417906921805,
+        "Shopping": 0.25986298133711316,
+        "Community": 0.17521064650759902,
+        "Travel": 0.06961178045515395,
+        "Entertainment": 0.06220962280494527,
+        "Outdoors": 0.05543743601858414,
+        "Nightlife": 0.03559335380738641
+      },
+      "num_users": 1623
+    }
+  },
+  "generated_at": "2026-04-15T20:21:29+00:00"
+}

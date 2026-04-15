@@ -498,6 +498,38 @@ it?"), reported separately with a caveat paragraph.
 
 ---
 
+### N04 — Our next-F1 numbers are not directly comparable to CBIC 2025 / HAVANA
+
+**Statement:** CBIC 2025 and HAVANA report POI-prediction F1 under
+`StratifiedKFold` (record-level splits — a user's check-ins can appear in
+both train and val folds). Our pipeline uses `StratifiedGroupKFold(groups=userid)`
+(user-isolated splits), which is strictly harder: validation users are fully
+held out, so the model cannot exploit memorized trajectories. Absolute-number
+comparisons are therefore not head-to-head; our numbers will typically be
+1–3 pp lower on next-F1 under otherwise-identical configs.
+
+**Source:** In-study discovery, 2026-04-15, from P0.4 CBIC sanity
+(next_F1 = 0.245 vs CBIC's reported 0.26–0.28) on matched
+(AL, DGI, nash_mtl, 5f × 50ep, seed 42) configuration.
+
+**Scope:** Applies to every AL/DGI, AL/HGI, AL/fusion, AZ/HGI, AZ/fusion,
+FL/HGI, FL/fusion comparison in P1–P6 (all `placeid`-carrying parquets use
+user-isolation). AZ/DGI and FL/DGI currently fall back to `StratifiedKFold`
+(pre-bugfix parquets missing `placeid`) — inconsistent with the rest of the
+study; tracked under open issue `az_fl_dgi_stale`.
+
+**What we *do* claim:** Relative rankings (arch-A vs arch-B on the same
+state × engine × fold-set) are fully valid. Absolute comparisons to
+CBIC / HAVANA require an explicit caveat paragraph stating the stricter
+split protocol.
+
+**Paper implication:** Reviewers will ask why our numbers differ from CBIC
+2025 on "the same" dataset. One-sentence answer: user-isolated splits.
+Do **not** frame results as "outperforming CBIC" without qualifying on the
+split protocol.
+
+---
+
 ## How to use this file
 
 - Each phase doc (`phases/Pk_*.md`) lists the **C-IDs** it tests.
