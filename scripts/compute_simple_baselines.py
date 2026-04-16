@@ -80,10 +80,11 @@ def _load_task_data(state: str, task: str) -> Tuple[np.ndarray, np.ndarray, np.n
     y_strat = next_df["next_category"].map(inv_categories).to_numpy(dtype=np.int64)
 
     # Load task-specific labels
-    if task == "next_poi":
-        task_df = IoPaths.load_next_poi(state, engine)
-        y = task_df["poi_idx"].to_numpy(dtype=np.int64)
-        n_classes = int(y.max()) + 1
+    if task == "next_category":
+        # next_category uses the same labels as next.parquet's next_category
+        # column — already loaded as y_strat above. Just reuse.
+        y = y_strat
+        n_classes = 7
     elif task == "next_region":
         task_df = IoPaths.load_next_region(state, engine)
         y = task_df["region_idx"].to_numpy(dtype=np.int64)
@@ -324,10 +325,10 @@ def main():
     parser = argparse.ArgumentParser(description="Compute simple baselines for check2HGI study")
     parser.add_argument("--state", type=str, action="append", default=None)
     parser.add_argument("--task", type=str, action="append", default=None,
-                        choices=["next_poi", "next_region"])
+                        choices=["next_category", "next_region"])
     args = parser.parse_args()
     states = args.state or ["alabama", "florida"]
-    tasks = args.task or ["next_poi", "next_region"]
+    tasks = args.task or ["next_category", "next_region"]
 
     study_dir = Path("docs/studies/check2hgi/results/P0/simple_baselines")
 

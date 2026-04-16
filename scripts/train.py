@@ -38,19 +38,12 @@ from configs.globals import CATEGORIES_MAP
 from configs.paths import EmbeddingEngine, IoPaths
 from data.folds import FoldCreator, TaskType, load_folds, rebuild_dataloaders
 from tasks import (
-    CHECK2HGI_NEXT_POI_REGION,
     CHECK2HGI_NEXT_REGION,
     LEGACY_CATEGORY_NEXT,
     TaskSet,
     get_preset,
     resolve_task_set,
 )
-
-# Preset names that activate the check2HGI MTL fold path.
-_CHECK2HGI_PRESET_NAMES = frozenset({
-    CHECK2HGI_NEXT_REGION.name,
-    CHECK2HGI_NEXT_POI_REGION.name,
-})
 from tasks.presets import list_presets
 from training.callbacks import ModelCheckpoint
 from utils.seed import seed_everything
@@ -811,7 +804,7 @@ def main(argv=None) -> None:
     if task_key == "mtl":
         preset_name = args.task_set or LEGACY_CATEGORY_NEXT.name
         task_set = get_preset(preset_name)
-        is_check2hgi_track = preset_name in _CHECK2HGI_PRESET_NAMES
+        is_check2hgi_track = preset_name == CHECK2HGI_NEXT_REGION.name
         if is_check2hgi_track and engine != EmbeddingEngine.CHECK2HGI:
             print(
                 f"error: --task-set {preset_name} requires --engine check2hgi "
@@ -849,6 +842,7 @@ def main(argv=None) -> None:
         # doesn't preserve region support, so a single fold's train
         # labels can miss classes present in val or other folds; a
         # too-small n_regions breaks bincount-based metrics at runtime.
+        # task_a (next_category) is always 7 — no runtime resolution needed.
         max_b = -1
         for fr in fold_results.values():
             max_b = max(
@@ -856,24 +850,8 @@ def main(argv=None) -> None:
                 int(fr.next.train.y.max().item()),
                 int(fr.next.val.y.max().item()),
             )
-        n_b = max_b + 1
-        resolve_kwargs: Dict[str, int] = {"task_b_num_classes": n_b}
-
-        # Resolve task_a too when the preset carries a placeholder
-        # (num_classes == 0) — currently the case for next_poi slot A
-        # in CHECK2HGI_NEXT_POI_REGION. Legacy presets with
-        # task_a.num_classes == 7 (fixed category space) are untouched.
-        if task_set.task_a.num_classes == 0:
-            max_a = -1
-            for fr in fold_results.values():
-                max_a = max(
-                    max_a,
-                    int(fr.category.train.y.max().item()),
-                    int(fr.category.val.y.max().item()),
-                )
-            resolve_kwargs["task_a_num_classes"] = max_a + 1
-
-        task_set = resolve_task_set(task_set, **resolve_kwargs)
+        n_regions = max_b + 1
+        task_set = resolve_task_set(task_set, task_b_num_classes=n_regions)
         logger.info(
             "check2HGI task_set resolved: task_a=%s/%d, task_b=%s/%d",
             task_set.task_a.name, task_set.task_a.num_classes,

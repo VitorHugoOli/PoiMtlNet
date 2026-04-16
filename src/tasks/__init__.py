@@ -14,7 +14,6 @@ from tasks.registry import PrimaryMetric, TaskConfig
 from tasks.presets import (
     LEGACY_CATEGORY_NEXT,
     CHECK2HGI_NEXT_REGION,
-    CHECK2HGI_NEXT_POI_REGION,
     TaskSet,
     get_preset,
     resolve_task_set,
@@ -26,7 +25,6 @@ __all__ = [
     "TaskSet",
     "LEGACY_CATEGORY_NEXT",
     "CHECK2HGI_NEXT_REGION",
-    "CHECK2HGI_NEXT_POI_REGION",
     "get_preset",
     "resolve_task_set",
 ]

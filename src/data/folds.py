@@ -736,59 +736,24 @@ class FoldCreator:
     ) -> Dict[int, FoldResult]:
         """Check2HGI 2-task MTL fold creation.
 
-        Both tasks share the same X rows from ``next.parquet`` — only
-        the label column differs. A single StratifiedGroupKFold on
-        userids (stratified on next_category as a surrogate — POI/region
-        labels are too sparse to stratify on directly) assigns the same
-        fold indices to both tasks.
+        Both tasks (next_category + next_region) share the same X rows
+        from ``next.parquet`` — only the label column differs. A single
+        StratifiedGroupKFold on userids (stratified on next_category)
+        assigns the same fold indices to both tasks.
 
-        Task-slot assignment depends on ``self.task_set`` (set by the
-        FoldCreator caller):
-
-        * ``task_a.name == 'next_category'`` (legacy mixed-scope
-          preset, default when ``task_set is None``): slot A (→
-          ``FoldResult.category``) carries next_category labels, slot
-          B (→ ``FoldResult.next``) carries next_region labels.
-        * ``task_a.name == 'next_poi'`` (standalone scope preset for
-          the BRACIS paper): slot A carries next_poi labels, slot B
-          carries next_region labels. next_category is still loaded
-          transiently because it's the StratifiedGroupKFold
-          stratification key — POI cardinality is far too large to
-          stratify on directly.
-
-        Legacy naming: ``FoldResult.category`` stores whatever sits in
-        slot A regardless of semantic name. Readers should not assume
-        it holds 7-class category labels.
+        Returns a ``FoldResult`` where ``.category`` carries the
+        next_category task (task_a slot, 7 classes) and ``.next``
+        carries the next_region task (task_b slot, ~1K-5K classes).
         """
         if embedding_engine != EmbeddingEngine.CHECK2HGI:
             raise ValueError(
                 f"MTL_CHECK2HGI requires engine=CHECK2HGI (got {embedding_engine})."
             )
 
-        # Decide which label goes into task_a slot. Duck-type on
-        # ``task_set`` so this module stays free of a tasks-package
-        # import. ``None`` → legacy next_category-as-slot-A behaviour.
-        task_a_name = "next_category"
-        if self.task_set is not None:
-            try:
-                task_a_name = self.task_set.task_a.name
-            except AttributeError as exc:
-                raise ValueError(
-                    f"FoldCreator.task_set is not a valid TaskSet "
-                    f"(missing task_a.name): {exc}"
-                ) from exc
-        if task_a_name not in ("next_category", "next_poi"):
-            raise ValueError(
-                f"Unsupported task_a='{task_a_name}' for MTL_CHECK2HGI. "
-                f"Expected 'next_category' or 'next_poi'."
-            )
-
-        # Load X + next_category labels from next.parquet. next_category
-        # is always loaded: either it IS slot A (legacy preset) or it's
-        # the stratification key used by StratifiedGroupKFold.
+        # Load X + next_category labels from next.parquet.
         X, y_cat, userids, next_dim = load_next_data(state, embedding_engine)
 
-        # Load region labels (slot B, always).
+        # Load region labels (row-aligned with next.parquet).
         region_df = IoPaths.load_next_region(state, embedding_engine)
         if len(region_df) != len(X):
             raise ValueError(
@@ -797,38 +762,19 @@ class FoldCreator:
             )
         y_region = region_df["region_idx"].to_numpy(dtype=np.int64)
 
-        # Load POI labels if slot A is next_poi.
-        y_poi: Optional[np.ndarray] = None
-        if task_a_name == "next_poi":
-            poi_df = IoPaths.load_next_poi(state, embedding_engine)
-            if len(poi_df) != len(X):
-                raise ValueError(
-                    f"next_poi.parquet rows ({len(poi_df)}) disagree with "
-                    f"next.parquet rows ({len(X)}) for {state}. Regenerate both."
-                )
-            y_poi = poi_df["poi_idx"].to_numpy(dtype=np.int64)
-
         slide_window = InputsConfig.SLIDE_WINDOW
         x_tensor, y_cat_tensor = _convert_to_tensors(
             X, y_cat, TaskType.NEXT, embedding_dim=next_dim, slide_window=slide_window,
         )
         y_region_tensor = torch.from_numpy(np.ascontiguousarray(y_region, dtype=np.int64))
-        y_poi_tensor: Optional[torch.Tensor] = None
-        if y_poi is not None:
-            y_poi_tensor = torch.from_numpy(np.ascontiguousarray(y_poi, dtype=np.int64))
 
-        # Pick slot-A tensor based on the preset.
-        y_task_a_tensor = y_poi_tensor if task_a_name == "next_poi" else y_cat_tensor
-
-        # Store task tensors under the legacy TaskType keys — the runner
-        # and serialization code index by (NEXT, CATEGORY) and we
-        # preserve that convention: NEXT slot = task_b (region),
-        # CATEGORY slot = task_a (either next_category or next_poi).
+        # Store under legacy TaskType keys: NEXT = region (task_b),
+        # CATEGORY = next_category (task_a).
         self._task_tensors[TaskType.NEXT] = TaskTensors(
             TaskType.NEXT, x_tensor, y_region_tensor,
         )
         self._task_tensors[TaskType.CATEGORY] = TaskTensors(
-            TaskType.CATEGORY, x_tensor, y_task_a_tensor,
+            TaskType.CATEGORY, x_tensor, y_cat_tensor,
         )
         self._fold_indices[TaskType.NEXT] = []
         self._fold_indices[TaskType.CATEGORY] = []
@@ -839,9 +785,6 @@ class FoldCreator:
         fold_results: Dict[int, FoldResult] = {}
         self._fold_manifests: List[dict] = []
 
-        # Always stratify on y_cat — even when slot A is next_poi —
-        # because POI/region cardinality is too high to yield stable
-        # stratification with ~10³–10⁵ classes across 5 folds.
         for fold_idx, (train_idx, val_idx) in enumerate(
             sgkf.split(X, y_cat, groups=userids)
         ):
@@ -863,7 +806,6 @@ class FoldCreator:
                 'train_count': int(len(train_idx)),
                 'val_count': int(len(val_idx)),
                 'split_mode': 'check2hgi_mtl_user_group',
-                'task_a_name': task_a_name,
                 'seed': self.seed,
             })
 
@@ -887,17 +829,17 @@ class FoldCreator:
                 category=TaskFoldData(
                     train=FoldData(
                         _create_dataloader(
-                            x_tensor[train_idx], y_task_a_tensor[train_idx],
+                            x_tensor[train_idx], y_cat_tensor[train_idx],
                             self.batch_size, True, self.use_weighted_sampling, self.seed,
                         ),
-                        x_tensor[train_idx], y_task_a_tensor[train_idx],
+                        x_tensor[train_idx], y_cat_tensor[train_idx],
                     ),
                     val=FoldData(
                         _create_dataloader(
-                            x_tensor[val_idx], y_task_a_tensor[val_idx],
+                            x_tensor[val_idx], y_cat_tensor[val_idx],
                             self.batch_size, False, False, self.seed,
                         ),
-                        x_tensor[val_idx], y_task_a_tensor[val_idx],
+                        x_tensor[val_idx], y_cat_tensor[val_idx],
                     ),
                 ),
             )
