@@ -48,6 +48,7 @@ logger = logging.getLogger(__name__)
 
 _VALID_TASKS = ("mtl", "category", "next")
 _VALID_ENGINES = [e.value for e in EmbeddingEngine]
+_NO_CHECKPOINTS = False
 
 
 def _make_run_dir(results_path: Path, task: str, config: ExperimentConfig) -> Path:
@@ -129,14 +130,18 @@ def _run_mtl(config: ExperimentConfig, results_path: Path, fold_results: dict) -
         verbose=True,
     )
 
-    run_dir = _make_run_dir(results_path, task="mtl", config=config)
+    if _NO_CHECKPOINTS:
+        cbs = []
+    else:
+        run_dir = _make_run_dir(results_path, task="mtl", config=config)
+        cbs = _default_checkpoint_callbacks(run_dir, monitor="val_f1_category")
     with history:
         results = train_with_cross_validation(
             dataloaders=fold_results,
             history=history,
             config=config,
             results_path=results_path,
-            callbacks=_default_checkpoint_callbacks(run_dir, monitor="val_f1_category"),
+            callbacks=cbs,
         )
 
     return results
@@ -170,12 +175,16 @@ def _run_category(config: ExperimentConfig, results_path: Path, fold_results: di
         display_report=True,
     )
 
-    run_dir = _make_run_dir(results_path, task="category", config=config)
+    if _NO_CHECKPOINTS:
+        cbs = []
+    else:
+        run_dir = _make_run_dir(results_path, task="category", config=config)
+        cbs = _default_checkpoint_callbacks(run_dir, monitor="val_f1")
     with history:
         results = run_cv(
             history, folds, config,
             results_path=results_path,
-            callbacks=_default_checkpoint_callbacks(run_dir, monitor="val_f1"),
+            callbacks=cbs,
         )
 
     history.display.end_training()
@@ -210,12 +219,16 @@ def _run_next(config: ExperimentConfig, results_path: Path, fold_results: dict) 
         display_report=True,
     )
 
-    run_dir = _make_run_dir(results_path, task="next", config=config)
+    if _NO_CHECKPOINTS:
+        cbs = []
+    else:
+        run_dir = _make_run_dir(results_path, task="next", config=config)
+        cbs = _default_checkpoint_callbacks(run_dir, monitor="val_f1")
     with history:
         results = run_cv(
             history, folds, config,
             results_path=results_path,
-            callbacks=_default_checkpoint_callbacks(run_dir, monitor="val_f1"),
+            callbacks=cbs,
         )
 
     history.display.end_training()
@@ -419,6 +432,12 @@ def _parse_args(argv=None) -> argparse.Namespace:
         action="store_true",
         default=False,
         help="Ignore any cached folds and always regenerate. Use only for debugging.",
+    )
+    parser.add_argument(
+        "--no-checkpoints",
+        action="store_true",
+        default=False,
+        help="Skip saving model checkpoints. Saves disk for disposable runs (screen, promote).",
     )
     return parser.parse_args(argv)
 
@@ -738,6 +757,9 @@ def main(argv=None) -> None:
             grad_accum,
         )
         sys.exit(2)
+
+    global _NO_CHECKPOINTS
+    _NO_CHECKPOINTS = getattr(args, "no_checkpoints", False)
 
     runner = _RUNNERS[task_key]
     runner(config, results_path, fold_results)

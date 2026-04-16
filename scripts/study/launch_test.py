@@ -94,6 +94,10 @@ def _build_command(config: dict[str, Any]) -> list[str]:
     if config.get("mtl_loss") in {"cagrad", "aligned_mtl", "pcgrad"}:
         if "--gradient-accumulation-steps" not in cmd:
             cmd.extend(["--gradient-accumulation-steps", "1"])
+
+    if config.get("tier") in {"screen", "promote"}:
+        cmd.append("--no-checkpoints")
+
     return cmd
 
 
