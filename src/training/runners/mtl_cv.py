@@ -480,6 +480,17 @@ def train_model(model: torch.nn.Module,
 
         # Validation phase with progress tracking
         with progress.validation():
+            # Build train-label sets for OOD-restricted Acc@K (CH06).
+            # Only populated when task_set is non-legacy (high-cardinality
+            # heads where OOD filtering matters). Legacy 7-class heads
+            # always have all classes in every fold → OOD is empty → skip.
+            _tl_b: set[int] | None = None
+            _tl_a: set[int] | None = None
+            if task_b_num_classes is not None and task_b_num_classes > 256:
+                _tl_b = set(dataloader_next.train.y.unique().tolist())
+            if task_a_num_classes is not None and task_a_num_classes > 256:
+                _tl_a = set(dataloader_category.train.y.unique().tolist())
+
             val_metrics_task_b, val_metrics_task_a, loss_val = evaluate_model(
                 model,
                 [dataloader_next.val.dataloader, dataloader_category.val.dataloader],
@@ -490,6 +501,8 @@ def train_model(model: torch.nn.Module,
                 num_classes=num_classes,
                 task_b_num_classes=task_b_num_classes,
                 task_a_num_classes=task_a_num_classes,
+                train_labels_b=_tl_b,
+                train_labels_a=_tl_a,
             )
 
             f1_val_task_b = val_metrics_task_b['f1']

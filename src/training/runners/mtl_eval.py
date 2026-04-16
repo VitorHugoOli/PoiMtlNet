@@ -6,6 +6,55 @@ from tracking.metrics import compute_classification_metrics
 from utils.progress import zip_longest_cycle
 
 
+def _ood_restricted_topk(
+    logits: torch.Tensor,
+    targets: torch.Tensor,
+    train_label_set: set[int],
+    ks: tuple[int, ...] = (1, 5, 10),
+) -> dict[str, float]:
+    """Acc@K restricted to in-distribution samples (target in train set).
+
+    Returns keys ``top{k}_acc_indist`` for each k, plus ``n_indist``
+    (count of in-distribution samples) and ``n_ood`` (count of OOD).
+    If all samples are OOD, returns 0.0 for every metric.
+    """
+    in_dist_mask = torch.tensor(
+        [int(t.item()) in train_label_set for t in targets],
+        dtype=torch.bool,
+        device=targets.device,
+    )
+    n_indist = int(in_dist_mask.sum().item())
+    n_ood = len(targets) - n_indist
+
+    result: dict[str, float] = {
+        "n_indist": float(n_indist),
+        "n_ood": float(n_ood),
+        "ood_fraction": float(n_ood / max(len(targets), 1)),
+    }
+
+    if n_indist == 0:
+        for k in ks:
+            result[f"top{k}_acc_indist"] = 0.0
+        result["mrr_indist"] = 0.0
+        return result
+
+    logits_id = logits[in_dist_mask]
+    targets_id = targets[in_dist_mask]
+
+    for k in ks:
+        k_eff = min(k, logits_id.shape[-1])
+        topk = logits_id.topk(k_eff, dim=-1).indices
+        hit = (topk == targets_id.unsqueeze(-1)).any(dim=-1)
+        result[f"top{k}_acc_indist"] = float(hit.float().mean().item())
+
+    # MRR on in-distribution subset
+    from tracking.metrics import _rank_of_target
+    rank = _rank_of_target(logits_id, targets_id).float()
+    result["mrr_indist"] = float((1.0 / rank).mean().item())
+
+    return result
+
+
 @torch.no_grad()
 def evaluate_model(
     model,
@@ -17,6 +66,8 @@ def evaluate_model(
     num_classes: int | None = None,
     task_b_num_classes: int | None = None,
     task_a_num_classes: int | None = None,
+    train_labels_b: set[int] | None = None,
+    train_labels_a: set[int] | None = None,
 ):
     """Unified MTL validation pass — computes loss and the full metric dict per task.
 
@@ -119,5 +170,18 @@ def evaluate_model(
     )
     metrics_next['loss'] = loss_next
     metrics_category['loss'] = loss_category
+
+    # OOD-restricted Acc@K for CH06. When the caller provides the set of
+    # labels seen in the current training fold, we filter val samples to
+    # those whose target label is in-distribution and compute ranking
+    # metrics on that subset. Keys are suffixed ``_indist``. This guards
+    # against the artefact where a model scores well on train-overlap
+    # POIs but 0 on OOD POIs, and the raw Acc@K averages across both.
+    if train_labels_b is not None:
+        ood_b = _ood_restricted_topk(all_logits_next, all_truths_next, train_labels_b)
+        metrics_next.update(ood_b)
+    if train_labels_a is not None:
+        ood_a = _ood_restricted_topk(all_logits_category, all_truths_category, train_labels_a)
+        metrics_category.update(ood_a)
 
     return metrics_next, metrics_category, loss_combined
