@@ -100,9 +100,42 @@ imbalanced); next-region primary is Acc@1 because region cardinality is
 ~10^3 (ranking-metric regime, per HMT-GRN / MGCL)."""
 
 
+CHECK2HGI_NEXT_POI_REGION = TaskSet(
+    name="check2hgi_next_poi_region",
+    task_a=TaskConfig(
+        # num_classes is a placeholder — the runner resolves it from the
+        # observed POI label space across folds before constructing the
+        # model. Cardinality is O(10^4) (AL ≈ 11.8k; FL ≈ 76k).
+        name="next_poi",
+        num_classes=0,
+        # Use the historical NextHeadMTL default path; next_poi is a
+        # sequential ranking task with the same head family as next.
+        head_factory=None,
+        is_sequential=True,
+        primary_metric=PrimaryMetric.ACCURACY,
+    ),
+    task_b=TaskConfig(
+        name="next_region",
+        num_classes=0,
+        head_factory=None,
+        is_sequential=True,
+        primary_metric=PrimaryMetric.ACCURACY,
+    ),
+)
+"""Standalone check2HGI pair for the next-POI study.
+
+Both heads are sequential NextHeadMTL transformers. ``task_a`` is the
+headline ranking task (next_poi), ``task_b`` is the hierarchical
+auxiliary (next_region). This replaces the mixed-scope
+``CHECK2HGI_NEXT_REGION`` preset for the BRACIS paper scope; that
+preset stays registered for backward compatibility with the archived
+v1 mixed-scope runs under ``docs/studies/check2hgi/archive/``."""
+
+
 _PRESETS: Dict[str, TaskSet] = {
     LEGACY_CATEGORY_NEXT.name: LEGACY_CATEGORY_NEXT,
     CHECK2HGI_NEXT_REGION.name: CHECK2HGI_NEXT_REGION,
+    CHECK2HGI_NEXT_POI_REGION.name: CHECK2HGI_NEXT_POI_REGION,
 }
 
 
@@ -165,6 +198,7 @@ __all__ = [
     "TaskSet",
     "LEGACY_CATEGORY_NEXT",
     "CHECK2HGI_NEXT_REGION",
+    "CHECK2HGI_NEXT_POI_REGION",
     "get_preset",
     "list_presets",
     "resolve_task_set",

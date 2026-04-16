@@ -23,7 +23,7 @@ import logging
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Dict, Optional
 
 # Ensure repo root and src/ are on sys.path when invoked directly.
 _root = str(Path(__file__).resolve().parent.parent)
@@ -37,7 +37,20 @@ from configs.experiment import DatasetSignature, ExperimentConfig
 from configs.globals import CATEGORIES_MAP
 from configs.paths import EmbeddingEngine, IoPaths
 from data.folds import FoldCreator, TaskType, load_folds, rebuild_dataloaders
-from tasks import CHECK2HGI_NEXT_REGION, LEGACY_CATEGORY_NEXT, TaskSet, get_preset, resolve_task_set
+from tasks import (
+    CHECK2HGI_NEXT_POI_REGION,
+    CHECK2HGI_NEXT_REGION,
+    LEGACY_CATEGORY_NEXT,
+    TaskSet,
+    get_preset,
+    resolve_task_set,
+)
+
+# Preset names that activate the check2HGI MTL fold path.
+_CHECK2HGI_PRESET_NAMES = frozenset({
+    CHECK2HGI_NEXT_REGION.name,
+    CHECK2HGI_NEXT_POI_REGION.name,
+})
 from tasks.presets import list_presets
 from training.callbacks import ModelCheckpoint
 from utils.seed import seed_everything
@@ -665,6 +678,7 @@ def _resolve_folds(
     config: ExperimentConfig,
     engine: EmbeddingEngine,
     task_key: str,
+    task_set: Optional[TaskSet] = None,
 ) -> dict:
     """Return the fold_results dict — either loaded from a frozen cache or
     generated on the fly.
@@ -691,6 +705,7 @@ def _resolve_folds(
             batch_size=config.batch_size,
             seed=config.seed,
             use_weighted_sampling=False,
+            task_set=task_set,
         )
         return creator.create_folds(config.state, engine)
 
@@ -796,7 +811,7 @@ def main(argv=None) -> None:
     if task_key == "mtl":
         preset_name = args.task_set or LEGACY_CATEGORY_NEXT.name
         task_set = get_preset(preset_name)
-        is_check2hgi_track = preset_name == CHECK2HGI_NEXT_REGION.name
+        is_check2hgi_track = preset_name in _CHECK2HGI_PRESET_NAMES
         if is_check2hgi_track and engine != EmbeddingEngine.CHECK2HGI:
             print(
                 f"error: --task-set {preset_name} requires --engine check2hgi "
@@ -811,7 +826,10 @@ def main(argv=None) -> None:
     # with a warning — required for paired statistical tests across
     # ablation runs.
     fold_resolve_key = "mtl_check2hgi" if is_check2hgi_track else task_key
-    fold_results = _resolve_folds(args, config, engine, fold_resolve_key)
+    fold_results = _resolve_folds(
+        args, config, engine, fold_resolve_key,
+        task_set=task_set if is_check2hgi_track else None,
+    )
 
     # For the check2HGI track: resolve task_b.num_classes from the
     # full next_region label space (the preset stores 0 as a
@@ -826,15 +844,36 @@ def main(argv=None) -> None:
     # labels yields the true label-space size.
     if is_check2hgi_track:
         assert task_set is not None
-        max_label = -1
+        # Resolve task_b (region) num_classes from the union of train
+        # and val labels across every fold. Cross-fold user partition
+        # doesn't preserve region support, so a single fold's train
+        # labels can miss classes present in val or other folds; a
+        # too-small n_regions breaks bincount-based metrics at runtime.
+        max_b = -1
         for fr in fold_results.values():
-            max_label = max(
-                max_label,
+            max_b = max(
+                max_b,
                 int(fr.next.train.y.max().item()),
                 int(fr.next.val.y.max().item()),
             )
-        n_regions = max_label + 1
-        task_set = resolve_task_set(task_set, task_b_num_classes=n_regions)
+        n_b = max_b + 1
+        resolve_kwargs: Dict[str, int] = {"task_b_num_classes": n_b}
+
+        # Resolve task_a too when the preset carries a placeholder
+        # (num_classes == 0) — currently the case for next_poi slot A
+        # in CHECK2HGI_NEXT_POI_REGION. Legacy presets with
+        # task_a.num_classes == 7 (fixed category space) are untouched.
+        if task_set.task_a.num_classes == 0:
+            max_a = -1
+            for fr in fold_results.values():
+                max_a = max(
+                    max_a,
+                    int(fr.category.train.y.max().item()),
+                    int(fr.category.val.y.max().item()),
+                )
+            resolve_kwargs["task_a_num_classes"] = max_a + 1
+
+        task_set = resolve_task_set(task_set, **resolve_kwargs)
         logger.info(
             "check2HGI task_set resolved: task_a=%s/%d, task_b=%s/%d",
             task_set.task_a.name, task_set.task_a.num_classes,

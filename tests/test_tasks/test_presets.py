@@ -7,6 +7,7 @@ import dataclasses
 import pytest
 
 from tasks import (
+    CHECK2HGI_NEXT_POI_REGION,
     CHECK2HGI_NEXT_REGION,
     LEGACY_CATEGORY_NEXT,
     PrimaryMetric,
@@ -119,3 +120,40 @@ def test_taskconfig_is_frozen():
     regression if someone flips the decorator."""
     with pytest.raises(dataclasses.FrozenInstanceError):
         LEGACY_CATEGORY_NEXT.task_a.num_classes = 99  # type: ignore[misc]
+
+
+# -------------------------------------------------------------------
+# CHECK2HGI_NEXT_POI_REGION preset
+# -------------------------------------------------------------------
+
+
+def test_check2hgi_next_poi_region_has_placeholder_num_classes():
+    assert CHECK2HGI_NEXT_POI_REGION.task_a.name == "next_poi"
+    assert CHECK2HGI_NEXT_POI_REGION.task_a.num_classes == 0
+    assert CHECK2HGI_NEXT_POI_REGION.task_b.name == "next_region"
+    assert CHECK2HGI_NEXT_POI_REGION.task_b.num_classes == 0
+    assert CHECK2HGI_NEXT_POI_REGION.task_a.is_sequential is True
+    assert CHECK2HGI_NEXT_POI_REGION.task_b.is_sequential is True
+    assert CHECK2HGI_NEXT_POI_REGION.task_a.primary_metric == PrimaryMetric.ACCURACY
+    assert CHECK2HGI_NEXT_POI_REGION.task_b.primary_metric == PrimaryMetric.ACCURACY
+
+
+def test_check2hgi_next_poi_region_names_property():
+    assert CHECK2HGI_NEXT_POI_REGION.names == ("next_poi", "next_region")
+
+
+def test_check2hgi_next_poi_region_registered():
+    assert get_preset(CHECK2HGI_NEXT_POI_REGION.name) is CHECK2HGI_NEXT_POI_REGION
+    assert CHECK2HGI_NEXT_POI_REGION.name in list_presets()
+
+
+def test_resolve_task_set_both_slots_for_next_poi_region():
+    resolved = resolve_task_set(
+        CHECK2HGI_NEXT_POI_REGION,
+        task_a_num_classes=11848,
+        task_b_num_classes=1109,
+    )
+    assert resolved.task_a.num_classes == 11848
+    assert resolved.task_b.num_classes == 1109
+    assert resolved.task_a.name == "next_poi"
+    assert resolved.task_b.name == "next_region"

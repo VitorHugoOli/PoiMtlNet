@@ -406,6 +406,27 @@ class IoPaths:
         return pd.read_parquet(cls.get_next_region(state, embedd_engine))
 
     @classmethod
+    def get_next_poi(cls, state: str, embedd_engine: EmbeddingEngine) -> Path:
+        """Next-POI input path (POI-index labels, not category).
+
+        Like ``get_next_region`` but the label is the POI index itself
+        rather than the region the POI belongs to. CHECK2HGI only — the
+        label derivation uses ``placeid_to_idx`` from the checkin graph
+        artefact which no other engine produces.
+        """
+        if embedd_engine != EmbeddingEngine.CHECK2HGI:
+            raise ValueError(
+                f"next_poi labels are only defined on CHECK2HGI (got "
+                f"{embedd_engine})."
+            )
+        return cls.get_input_dir(state, embedd_engine) / "next_poi.parquet"
+
+    @classmethod
+    def load_next_poi(cls, state: str, embedd_engine: EmbeddingEngine) -> DataFrame:
+        """Load next-POI input data for a state (CHECK2HGI only)."""
+        return pd.read_parquet(cls.get_next_poi(state, embedd_engine))
+
+    @classmethod
     def load_next(cls, state: str, embedd_engine: EmbeddingEngine) -> DataFrame:
         """Load next-POI input data for a specific state and engine."""
         return pd.read_parquet(cls.get_next(state, embedd_engine))
