@@ -14,6 +14,7 @@
 | **P3** | MTL headline with P2 champion, multi-seed n=15 | **CH01**, CH02, CH07 |
 | **P4** | Dual-stream region_embedding input | CH03, CH08 |
 | P5 | Cross-attention (gated on P4) | CH09 |
+| **P6** | Check2HGI encoder enrichment (literature research → implement → ablation) | CH12, CH13 |
 
 ## Claims
 
@@ -29,7 +30,9 @@
 | CH08 | Region-input gain is state-dependent |
 | CH09 | Cross-attention > concat (gated) |
 | CH10 | Gowalla ≠ FSQ-NYC/TKY (declared) |
-| CH11 | Enrichment deferred (declared) |
+| CH11 | Enrichment is a research track (P6) |
+| CH12 | Temporal enrichment (Time2Vec-like) improves F1 |
+| CH13 | Spatial enrichment (Sphere2Vec-like) improves F1 |
 
 ## Baselines
 

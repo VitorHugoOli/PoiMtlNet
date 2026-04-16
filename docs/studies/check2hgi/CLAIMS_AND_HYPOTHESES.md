@@ -107,10 +107,32 @@ Task pair: `{next_category (7 classes), next_region (~1K classes)}` on Check2HGI
 **Statement:** Results not directly comparable to HMT-GRN/MGCL/GETNext on FSQ-NYC/TKY. External numbers in appendix only.
 **Status:** `declared`.
 
-### CH11 — Encoder enrichment deferred
+### CH11 — Encoder enrichment is a separate research track (P6)
 
-**Statement:** Vanilla Check2HGI only. Temporal/spatial/hard-negative enrichment is future work.
-**Status:** `declared`.
+**Statement:** The P6 enrichment phase tests whether improving Check2HGI's input features (temporal, spatial, graph) lifts the downstream MTL task beyond what vanilla Check2HGI achieves. Requires literature review before implementation.
+**Status:** `pending` (research phase).
+
+---
+
+## Tier F — Encoder enrichment (P6, research-gated)
+
+### CH12 — Temporal enrichment (Time2Vec-like) improves next-category F1 over vanilla Check2HGI
+
+**Statement:** Replacing the fixed 4D sin/cos temporal features in Check2HGI preprocessing with learnable multi-frequency time embeddings (Time2Vec-inspired) + time-gap + recency decay features improves the P3 champion's next-category macro-F1 by ≥ 1pp on AL.
+
+**Source:** Time2Vec (Kazemi et al. 2019), TiSASRec (Li et al. 2020), ImNext (He et al. 2024) show learnable temporal encodings outperform fixed sin/cos in sequential recommendation.
+**Test:** P6 ablation — enriched vs vanilla at matched MTL config.
+**Phase:** P6.
+**Status:** `pending` (requires literature review to finalise implementation).
+
+### CH13 — Spatial enrichment improves next-category F1 over vanilla Check2HGI
+
+**Statement:** Adding continuous geospatial positional encoding from (lat, lon) + distance-to-previous-POI + distance-to-region-centroid as node features improves the P3 champion's next-category macro-F1 by ≥ 1pp on AL.
+
+**Source:** Sphere2Vec (Mai et al. 2023), Space2Vec (Mai et al. 2020). Current Check2HGI has no explicit spatial features — geography enters only via region assignment and graph structure.
+**Test:** P6 ablation — enriched vs vanilla at matched MTL config.
+**Phase:** P6.
+**Status:** `pending` (requires literature review to finalise implementation).
 
 ---
 
@@ -128,4 +150,6 @@ Task pair: `{next_category (7 classes), next_region (~1K classes)}` on Check2HGI
 | CH08 | C | P4 | pending | State-dependent gain |
 | CH09 | D | P5 (gated) | pending | Cross-attention > concat |
 | CH10 | E | — | declared | External-validity limit |
-| CH11 | E | — | declared | Enrichment out of scope |
+| CH11 | E | P6 | pending | Enrichment is a research track |
+| CH12 | F | P6 | pending | Temporal enrichment (Time2Vec-like) |
+| CH13 | F | P6 | pending | Spatial enrichment (Sphere2Vec-like) |

@@ -13,7 +13,9 @@
 | **P4** | Dual-stream: region_embedding as parallel input | CH03, CH08 | ~3h | P3 |
 | **P5** | Cross-attention (gated on P4 ≥ 2pp on FL) | CH09 | ~6h | P4 |
 
-**Total:** ~16h sequential (excluding P5 if gated out). P2 is the heaviest phase.
+| **P6** | Check2HGI encoder enrichment (literature research + implementation + ablation) | CH12, CH13 | ~2 days | P3 baseline needed |
+
+**Total:** ~18h for P0–P5 sequential (excluding P5 if gated). P6 is an independent research track that can run in parallel with P4/P5 once P3 baseline exists.
 
 ## Execution order rationale
 
@@ -101,6 +103,32 @@ Only runs if P4 shows ≥ 2pp next-category F1 lift on FL. New `MTLnetCrossAttn`
 | Alabama (primary) | 113,846 | 11,848 | 1,109 | 12,709 |
 | Florida (replication) | 1,407,034 | 76,544 | 4,703 | 159,175 |
 | Arizona (triangulation) | ~120K | ~10K | 1,547 | 26,396 |
+
+### P6 — Check2HGI encoder enrichment (research + implementation + ablation)
+
+**This is a research phase, not a pure execution phase.** Requires literature review and evaluation before implementation.
+
+**Source:** `docs/issues/CHECK2HGI_ENRICHMENT_PROPOSAL.md` proposes four tracks:
+
+| Track | What | Literature to review | Expected impact |
+|---|---|---|---|
+| **Temporal** | Replace fixed 4D sin/cos with learnable multi-frequency time embedding (Time2Vec-like). Add time-gap, dwell-time proxy, recency decay. | Time2Vec (Kazemi et al. 2019), TiSASRec (Li et al. 2020), ImNext (He et al. 2024) | Medium — temporal patterns drive next-category prediction |
+| **Spatial** | Add continuous geospatial positional encoding from (lat,lon). Add distance-to-previous-POI, distance-to-user-centroid, distance-to-region-centroid. | Sphere2Vec (Mai et al. 2023), Space2Vec (Mai et al. 2020), PE-GNN (Zhang et al. 2023) | Medium — spatial context currently enters only via graph edges |
+| **Graph** | New edge families: KNN spatial, temporal-window co-occurrence, revisit-strength. | LSTPM (Sun et al. 2020), Graph-Flashback (Rao et al. 2022), STAN (Luo et al. 2021) | Small-medium — edge enrichment is a known but modest boost |
+| **Loss** | Multi-view contrastive, hard negatives, auxiliary pretext tasks (masked check-in reconstruction). | MGCL (Zhu et al. 2024), SelfMove (2023), GraphCL (You et al. 2020) | Unknown — research-grade |
+
+**Execution plan:**
+
+1. **Literature survey** (~4h): for each track, read the 2–3 papers listed, extract the mechanism, assess implementation cost, and predict whether it helps on our data characteristics (Gowalla state-level, 7 categories, ~1K regions, user-sequence-dominant graph).
+2. **Prioritise:** rank tracks by expected-lift / implementation-cost ratio. Start with the cheapest high-impact track.
+3. **Implement Phase 1 enrichment** (the winner): modify `research/embeddings/check2hgi/preprocess.py::_build_node_features` with a config flag (`temporal_mode={basic, enriched}`, `spatial_mode={none, geo_basis}`). Keep backward compatibility — `basic` reproduces the current 11-feature vector.
+4. **Regenerate embeddings** for AL with the enriched config. ~20 min.
+5. **Ablation:** compare enriched vs vanilla Check2HGI on the P3 champion MTL config. If enriched wins by ≥ 2pp next-category F1 → adopt as the new default.
+6. **If Phase 1 enrichment works**, consider stacking Phase 2 (second track).
+
+**Gate:** P3 must exist as the vanilla-Check2HGI baseline before any enrichment is tested — otherwise the lift is unattributable ("was it the enrichment or the new MTL config?").
+
+**Key question for the literature review:** does temporal enrichment (Time2Vec-like learnable frequencies) help more than spatial enrichment (geo positional encoding) for **next-category** prediction specifically? The fusion study's Sphere2Vec + Time2Vec results on the category task may give a prior — but on POI-level embeddings, not check-in-level. The check-in-level context might absorb temporal info naturally from the user-sequence edges (which carry exponential time-decay weights), making spatial enrichment the higher-value addition.
 
 ## Exit criteria
 
