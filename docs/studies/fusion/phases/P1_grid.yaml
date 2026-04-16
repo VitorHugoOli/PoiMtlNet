@@ -58,12 +58,8 @@ optimizers:
   - id: aligned_mtl
   - id: db_mtl
   - id: fairgrad
-  - id: graddrop
-  - id: mgda
-  - id: moco
-  - id: sdmgrad
-  - id: imtl_h
-  - id: imtl_l
+  # NOT implemented (not in loss registry — do not enroll):
+  # graddrop, mgda, moco, sdmgrad, imtl_h, imtl_l
 
 # States for main P1 grid (FL deferred to P3)
 states:
