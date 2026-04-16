@@ -83,6 +83,20 @@ def cmd_next(args: argparse.Namespace) -> int:
         forward += ["--test-id", args.test_id]
     if args.dry_run:
         forward += ["--dry-run"]
+    if args.no_sync:
+        forward += ["--no-sync"]
+    if args.state:
+        forward += ["--state", args.state]
+    if args.tier:
+        forward += ["--tier", args.tier]
+    if args.arch:
+        forward += ["--arch", args.arch]
+    if args.optim:
+        forward += ["--optim", args.optim]
+    if args.max_runtime_min is not None:
+        forward += ["--max-runtime-min", str(args.max_runtime_min)]
+    if args.worker_id:
+        forward += ["--worker-id", args.worker_id]
     return _run("launch_test.py", *forward)
 
 
@@ -178,6 +192,17 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--phase", default=None)
     sp.add_argument("--test-id", default=None)
     sp.add_argument("--dry-run", action="store_true")
+    sp.add_argument(
+        "--no-sync", action="store_true",
+        help="Do not update state.json running/completed status (parallel-safe mode).",
+    )
+    sp.add_argument("--state", "-s", default=None, help="Filter by state code(s), e.g. AL,AZ.")
+    sp.add_argument("--tier", "-t", default=None, help="Filter by tier(s): screen,promote,confirm,heavy.")
+    sp.add_argument("--arch", "-a", default=None, help="Filter by arch id(s).")
+    sp.add_argument("--optim", "-o", default=None, help="Filter by optimizer id(s).")
+    sp.add_argument("--max-runtime-min", type=int, default=None, metavar="N",
+                    help="Skip tests whose tier estimate exceeds N minutes.")
+    sp.add_argument("--worker-id", default=None, help="Heartbeat worker identifier.")
     sp.set_defaults(func=cmd_next)
 
     sp = sub.add_parser("import", help="Archive a run directory into $STUDY_DIR/results/")
