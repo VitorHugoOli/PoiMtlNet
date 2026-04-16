@@ -120,12 +120,104 @@ def iter_tests(state: dict[str, Any], phase: str | None = None) -> Iterator[tupl
             yield ph, tid, entry
 
 
-def find_next_planned(state: dict[str, Any], phase: str | None = None) -> tuple[str, str, dict[str, Any]] | None:
+# Tier-to-minutes constants (also used by enroll_p1.py / launch_test.py).
+# Per-test config.compute_weight_min overrides these.
+TIER_MINUTES: dict[str, int] = {
+    "screen": 3,
+    "promote": 6,
+    "confirm": 30,
+    "heavy": 120,
+}
+
+
+def _matches_filters(
+    entry: dict[str, Any],
+    *,
+    filter_states: list[str] | None = None,
+    filter_tiers: list[str] | None = None,
+    filter_archs: list[str] | None = None,
+    filter_optims: list[str] | None = None,
+    max_runtime_min: int | None = None,
+) -> bool:
+    """Return True if the planned-test entry passes all active filters."""
+    config = entry.get("config") or {}
+    if filter_states:
+        state_val = (config.get("state") or "").upper()
+        if state_val not in [s.upper() for s in filter_states]:
+            return False
+    if filter_tiers:
+        tier_val = config.get("tier") or "screen"
+        if tier_val not in filter_tiers:
+            return False
+    if filter_archs:
+        arch_val = config.get("arch") or config.get("model_name") or ""
+        if arch_val not in filter_archs:
+            return False
+    if filter_optims:
+        optim_val = config.get("optim") or config.get("mtl_loss") or ""
+        if optim_val not in filter_optims:
+            return False
+    if max_runtime_min is not None:
+        tier_val = config.get("tier") or "screen"
+        weight_min = config.get("compute_weight_min") or TIER_MINUTES.get(tier_val, TIER_MINUTES["screen"])
+        if weight_min > max_runtime_min:
+            return False
+    return True
+
+
+def find_next_planned(
+    state: dict[str, Any],
+    phase: str | None = None,
+    *,
+    filter_states: list[str] | None = None,
+    filter_tiers: list[str] | None = None,
+    filter_archs: list[str] | None = None,
+    filter_optims: list[str] | None = None,
+    max_runtime_min: int | None = None,
+) -> tuple[str, str, dict[str, Any]] | None:
+    """Return the first planned test in the target phase matching all filters."""
     target = phase or state.get("current_phase")
     for ph, tid, entry in iter_tests(state, target):
-        if entry.get("status") == "planned":
+        if entry.get("status") != "planned":
+            continue
+        if _matches_filters(
+            entry,
+            filter_states=filter_states,
+            filter_tiers=filter_tiers,
+            filter_archs=filter_archs,
+            filter_optims=filter_optims,
+            max_runtime_min=max_runtime_min,
+        ):
             return ph, tid, entry
     return None
+
+
+def find_all_planned(
+    state: dict[str, Any],
+    phase: str | None = None,
+    *,
+    filter_states: list[str] | None = None,
+    filter_tiers: list[str] | None = None,
+    filter_archs: list[str] | None = None,
+    filter_optims: list[str] | None = None,
+    max_runtime_min: int | None = None,
+) -> list[tuple[str, str, dict[str, Any]]]:
+    """Return all planned tests matching filters (for dry-run display)."""
+    target = phase or state.get("current_phase")
+    results = []
+    for ph, tid, entry in iter_tests(state, target):
+        if entry.get("status") != "planned":
+            continue
+        if _matches_filters(
+            entry,
+            filter_states=filter_states,
+            filter_tiers=filter_tiers,
+            filter_archs=filter_archs,
+            filter_optims=filter_optims,
+            max_runtime_min=max_runtime_min,
+        ):
+            results.append((ph, tid, entry))
+    return results
 
 
 def open_issue(

@@ -13,11 +13,19 @@ study coordinator workflow. Counterpart to `/coordinator`.
 - `<phase>` — required. One of `P0`..`P5`.
 - `[count|all]` — optional. Max number of planned tests to run this invocation (default: `1`). Use `all` to drain every remaining planned test in the phase.
 - `--dry-run` — optional. Print what would be launched without running `scripts/train.py`.
+- `--no-sync` — optional. **Parallel-safe mode.** Runs the test, writes artifacts to `results/<phase>/<test_id>/`, but does NOT update state.json. The coordinator reconciles via `study import` + `study analyze` after the fact. Heartbeat still writes/cleans.
+- `--state <s>` — optional. Filter planned tests to those with matching state code(s) (comma-separated, e.g. `AL,AZ`).
+- `--tier <t>` — optional. Filter by tier: `screen`, `promote`, `confirm`, `heavy`.
+- `--arch <a>` — optional. Filter by architecture id (e.g. `base`, `cgc22`, `dsk42`).
+- `--optim <o>` — optional. Filter by optimizer id (e.g. `cagrad`, `equal_weight`).
+- `--max-runtime-min N` — optional. Skip tests whose tier estimate exceeds N minutes (screen=3, promote=6, confirm=30, heavy=120).
+- `--worker-id <id>` — optional. Sets the worker ID in the heartbeat filename. Falls back to `$WORKER_ID` env var then `socket.gethostname()`.
 
 Examples:
 - `/worker P1` — run the next one planned test in P1.
 - `/worker P1 5` — run up to 5 planned tests.
 - `/worker P2 all --dry-run` — list what would happen for the whole phase.
+- `/worker P1 all --state AL --tier screen --no-sync` — drain all Alabama screen tests in parallel-safe mode.
 
 ## What you (the assistant) MUST do when this command fires
 
@@ -43,6 +51,7 @@ Examples:
 - **Gradient-surgery tests** (`cagrad`, `aligned_mtl`, `pcgrad`) have `--gradient-accumulation-steps 1` injected automatically; do not override.
 - If a planned test is missing a `config.state` / `config.engine`, skip it with a warning (operator must enroll it properly).
 - Respect `--dry-run`: in dry-run mode, call `/study next --dry-run` and do NOT import/analyze.
+- **Respect `--no-sync`**: when running in parallel-safe mode, do NOT call `study import` or `study analyze` in the loop. Results land in `results/<phase>/<test_id>/`. The coordinator reconciles state.json offline.
 
 ## Failure handling
 
