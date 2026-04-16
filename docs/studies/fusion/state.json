@@ -1,8 +1,8 @@
 {
   "study_version": "1.0",
   "study_started": "2026-04-14T05:58:14+00:00",
-  "last_update": "2026-04-15T21:55:15+00:00",
-  "current_phase": "P0",
+  "last_update": "2026-04-16T01:06:08+00:00",
+  "current_phase": "P1",
   "open_issues": [
     {
       "issue_id": "az_fl_dgi_stale",
@@ -27,9 +27,9 @@
   ],
   "phases": {
     "P0": {
-      "status": "running",
+      "status": "completed",
       "started": "2026-04-14T05:58:14+00:00",
-      "finished": null,
+      "finished": "2026-04-15T21:55:15+00:00",
       "tests": {
         "leakage_AL_baseline": {
           "status": "completed",
@@ -305,8 +305,8 @@
       }
     },
     "P1": {
-      "status": "planned",
-      "started": null,
+      "status": "running",
+      "started": "2026-04-15T21:55:15+00:00",
       "finished": null,
       "tests": {}
     },
