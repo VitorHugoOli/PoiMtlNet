@@ -1,0 +1,112 @@
+# P1 experiment grid — Architecture × Optimizer
+#
+# Source of truth: P1_arch_x_optimizer.md §Experimental Design
+# Used by: scripts/study/enroll_p1.py
+#
+# Test ID format: P1_<STATE>_<stage>_<arch>_<optim>_seed<N>
+# Example:        P1_AL_screen_dsk42_aligned_mtl_seed42
+
+archs:
+  - id: base
+    model: mtlnet
+    model_params: {}
+
+  - id: cgc22
+    model: mtlnet_cgc
+    model_params:
+      num_shared_experts: 2
+      num_task_experts: 2
+
+  - id: cgc21
+    model: mtlnet_cgc
+    model_params:
+      num_shared_experts: 2
+      num_task_experts: 1
+
+  - id: mmoe4
+    model: mtlnet_mmoe
+    model_params:
+      num_experts: 4
+
+  - id: dsk42
+    model: mtlnet_dselectk
+    model_params:
+      num_experts: 4
+      num_selectors: 2
+      temperature: 0.5
+
+# Optimizer IDs must match the loss registry (src/losses/registry.py).
+# static
+# loss-based dynamic
+# gradient-based
+optimizers:
+  # Static
+  - id: equal_weight
+  - id: static_weight
+  - id: uncertainty_weighting
+  # Loss-based dynamic
+  - id: dwa
+  - id: famo
+  - id: bayesagg_mtl
+  - id: excess_mtl
+  - id: nash_mtl
+  - id: stch
+  # Gradient-based
+  - id: pcgrad
+  - id: gradnorm
+  - id: cagrad
+  - id: aligned_mtl
+  - id: db_mtl
+  - id: fairgrad
+  - id: graddrop
+  - id: mgda
+  - id: moco
+  - id: sdmgrad
+  - id: imtl_h
+  - id: imtl_l
+
+# States for main P1 grid (FL deferred to P3)
+states:
+  - AL
+  - AZ
+
+# Stage definitions
+stages:
+  screen:
+    tier: screen
+    folds: 1
+    epochs: 10
+    batch_size: 4096
+    gradient_accumulation_steps: 1
+    expected:
+      joint_range: [0.10, 0.65]
+      cat_f1_range: [0.10, 0.90]
+      next_f1_range: [0.05, 0.55]
+
+  promote:
+    tier: promote
+    folds: 2
+    epochs: 15
+    batch_size: 4096
+    gradient_accumulation_steps: 1
+    expected:
+      joint_range: [0.20, 0.65]
+      cat_f1_range: [0.20, 0.90]
+      next_f1_range: [0.10, 0.55]
+
+  confirm:
+    tier: confirm
+    folds: 5
+    epochs: 50
+    batch_size: 4096
+    gradient_accumulation_steps: 1
+    expected:
+      joint_range: [0.30, 0.60]
+      cat_f1_range: [0.30, 0.85]
+      next_f1_range: [0.15, 0.55]
+
+# Claims tested in P1 (every screen run contributes to all four)
+claim_ids: [C02, C03, C04, C05]
+
+# Default seed
+default_seed: 42
