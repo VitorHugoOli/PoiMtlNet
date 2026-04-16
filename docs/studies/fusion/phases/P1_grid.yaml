@@ -110,3 +110,10 @@ claim_ids: [C02, C03, C04, C05]
 
 # Default seed
 default_seed: 42
+
+# Engine defaults — injected into every enrolled test's config unless overridden.
+# fusion concatenates HGI (64) + Sphere2Vec (64) = 128-dim input; --embedding-dim
+# is required by scripts/train.py for engines with non-default dims.
+engine_defaults:
+  fusion:
+    embedding_dim: 128

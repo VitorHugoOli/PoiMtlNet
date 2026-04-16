@@ -36,7 +36,7 @@ _STUDY_SCRIPTS = Path(__file__).resolve().parent
 if str(_STUDY_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(_STUDY_SCRIPTS))
 
-from _state import STUDIES_DIR, get_test, mutate_state, read_state, set_test, utcnow  # noqa: E402
+from _state import STUDIES_DIR, _normalize_state, get_test, mutate_state, read_state, set_test, utcnow  # noqa: E402
 
 DEFAULT_GRID_FILE = STUDIES_DIR / "phases" / "P1_grid.yaml"
 
@@ -75,10 +75,12 @@ def _make_entry(
     stage_cfg: dict[str, Any],
     claim_ids: list[str],
     seed: int,
+    engine_defaults: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    engine = "fusion"
     config: dict[str, Any] = {
-        "state": state.lower(),  # scripts/train.py expects lowercase
-        "engine": "fusion",
+        "state": _normalize_state(state),  # AL → alabama (scripts/train.py expects full name)
+        "engine": engine,
         "task": "mtl",
         "arch": arch["id"],
         "model": arch["model"],
@@ -93,6 +95,11 @@ def _make_entry(
         "batch_size": stage_cfg["batch_size"],
         "gradient_accumulation_steps": stage_cfg["gradient_accumulation_steps"],
     }
+    # Inject engine defaults (e.g. embedding_dim=128 for fusion) so launch_test.py
+    # forwards --embedding-dim to train.py. Without this, fusion would silently
+    # train with feature_size=64.
+    for k, v in ((engine_defaults or {}).get(engine) or {}).items():
+        config.setdefault(k, v)
     # Gradient-surgery methods require grad_accum=1; already set in grid but add note.
     if optim["id"] in {"cagrad", "aligned_mtl", "pcgrad"}:
         config["gradient_accumulation_steps"] = 1
@@ -124,6 +131,7 @@ def generate_entries(
     """Return list of (test_id, entry) for the full or filtered grid."""
     seed = grid.get("default_seed", 42)
     claim_ids = grid.get("claim_ids", ["C02", "C03", "C04", "C05"])
+    engine_defaults = grid.get("engine_defaults") or {}
     archs = grid["archs"]
     optimizers = grid["optimizers"]
     states = grid["states"]
@@ -153,6 +161,7 @@ def generate_entries(
                         stage_cfg=stage_cfg,
                         claim_ids=claim_ids,
                         seed=seed,
+                        engine_defaults=engine_defaults,
                     )
                     entries.append((test_id, entry))
     return entries
