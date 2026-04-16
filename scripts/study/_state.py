@@ -130,6 +130,27 @@ TIER_MINUTES: dict[str, int] = {
 }
 
 
+# Map US state abbreviations to full lowercase names as stored in config
+_STATE_ABBREV: dict[str, str] = {
+    "AL": "alabama",
+    "AZ": "arizona",
+    "FL": "florida",
+    "CA": "california",
+    "NY": "new_york",
+}
+
+
+def _normalize_state(s: str) -> str:
+    """Normalize a state identifier to lowercase full name.
+
+    Accepts abbreviations (AL → alabama) or full names (alabama → alabama).
+    """
+    upper = s.upper()
+    if upper in _STATE_ABBREV:
+        return _STATE_ABBREV[upper]
+    return s.lower()
+
+
 def _matches_filters(
     entry: dict[str, Any],
     *,
@@ -142,8 +163,9 @@ def _matches_filters(
     """Return True if the planned-test entry passes all active filters."""
     config = entry.get("config") or {}
     if filter_states:
-        state_val = (config.get("state") or "").upper()
-        if state_val not in [s.upper() for s in filter_states]:
+        state_val = _normalize_state(config.get("state") or "")
+        normalized_filter = [_normalize_state(s) for s in filter_states]
+        if state_val not in normalized_filter:
             return False
     if filter_tiers:
         tier_val = config.get("tier") or "screen"
