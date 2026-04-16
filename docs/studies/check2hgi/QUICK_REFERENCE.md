@@ -1,76 +1,98 @@
-# Check2HGI Track — Quick Reference
+# Check2HGI Study — Quick Reference
 
-Scannable cheat-sheet. For rationale/depth, see `README.md` and `CLAIMS_AND_HYPOTHESES.md`.
+**Thesis:** Check-in-level embeddings (Check2HGI) + next-region auxiliary task improve next-POI prediction over POI-level embeddings (HGI) with single-task training, at matched compute, without negative transfer.
+
+## Task pair
+
+| Slot | Name | Cardinality | Primary metrics | Secondary |
+|---|---|---|---|---|
+| task_a | `next_poi` | ~10K (AL) / ~80K (FL) | Acc@{1,5,10}, MRR, NDCG@{5,10} | macro-F1 (noisy at this scale) |
+| task_b | `next_region` | ~1.1K (AL) / ~4.7K (FL) / ~1.5K (AZ) | Acc@{1,5,10}, MRR | macro-F1 |
+
+**Joint monitor:** `val_joint_lift = mean(acc1_poi / majority_poi, acc1_region / majority_region)` — scale-coherent across the two heads. Checkpoint selection uses this.
+
+## Phases
+
+| Phase | Duration | Claims addressed | Gate to next |
+|---|---|---|---|
+| P0 | ~1h | CH04 (next-region meaningful), CH05 (ranking metrics > F1) | integrity green + labels generated |
+| P1 | ~4h | CH01 (check2HGI > HGI single-task) | CH01 resolved ∈ {confirmed, refuted, partial} |
+| P2 | ~5h | CH02 (MTL lift), CH03 (no negative transfer) | CH02 resolved |
+| P3 | ~3h | CH06 (dual-stream helps), CH11 (state-dependent gain) | CH06 resolved |
+| P4 | ~6h | CH07 (cross-attn > concat) | only runs if CH06 shows ≥ 2pp on FL |
+| P5 | ~4h | CH08 (head choice), CH09 (optimiser), CH10 (seed variance) | — |
+
+Full details in `MASTER_PLAN.md`.
 
 ## Claims at a glance
 
-- **CH01:** check2HGI > HGI on next-category (embedding claim).
-- **CH02:** 2-task MTL {next_cat, next_region} > single-task next_cat on check2HGI (MTL lift — headline).
-- **CH03:** no per-head regression under MTL (negative-transfer control).
-- **CH04:** next_region is a meaningful task (not a noise-injection regulariser).
-- **CH05:** ranking metrics differentiate where macro-F1 collapses.
-- **CH06:** monitor choice (`joint_acc1`) stable.
-- **CH07:** `next_mtl` > other seq heads on region.
-- **CH08:** NashMTL vs naive vs CAGrad on this task pair.
-- **CH09:** task embedding contributes.
-- **CH10:** FSQ-NYC/TKY limitation (declared).
-- **CH11:** enrichment deferred (declared).
+- **CH01** check2HGI > HGI single-task next-POI
+- **CH02** MTL {next_POI, next_region} > single-task next_POI (headline)
+- **CH03** no per-head negative transfer under MTL
+- **CH04** next-region meaningful (beats majority by > 2×)
+- **CH05** ranking metrics discriminate where macro-F1 collapses
+- **CH06** dual-stream region-emb input improves next-POI Acc@10
+- **CH07** bidirectional cross-attention > concat (gated on CH06)
+- **CH08** next-POI head architecture: next_mtl vs seq baselines
+- **CH09** MTL optimiser: NashMTL vs equal_weight vs CAGrad
+- **CH10** seed variance ≤ the 2pp effects we call "decisive"
+- **CH11** region-input gain is state-dependent (larger on FL)
+- **CH12** limitation: Gowalla state-level ≠ FSQ-NYC/TKY
+- **CH13** limitation: encoder enrichment out of scope
+- **CH14** check2HGI inheritance of HGI fclass shortcut — audit
 
-Full catalog: `CLAIMS_AND_HYPOTHESES.md`.
+Full text + test specs in `CLAIMS_AND_HYPOTHESES.md`.
 
-## Presets
+## Baselines
 
-From `src/tasks/presets.py`:
+**Ranking baselines from next-POI literature:** HMT-GRN (SIGIR '22), MGCL (Frontiers '24), Bi-Level GSL, LSTPM, STAN, GETNext, Graph-Flashback, ImNext. Reported numbers are on FSQ-NYC/TKY or Gowalla-global; our state-level runs are **not** directly comparable. Declared in CH12.
 
-```python
-LEGACY_CATEGORY_NEXT        # (category, next)   flat/seq,  F1/F1
-CHECK2HGI_NEXT_REGION       # (next_cat, region) seq/seq,   F1/Acc@1
-```
+**Internal baselines (primary comparison):**
+- HGI (POI-level) + single-task next-POI
+- Check2HGI + single-task next-POI
+- Check2HGI + MTL {next_POI, next_region}
+- (optional) Check2HGI + MTL + dual-stream input
+- (optional) Check2HGI + MTL + cross-attention
 
-## CLI — track runs
+## Datasets
 
-> These are planned commands; the `--task-set` flag is being added in P1.
+Gowalla state-split:
 
-```bash
-# Generate embeddings (P-1)
-python pipelines/embedding/check2hgi.pipe.py          # runs states in STATES dict
+| State | Check-ins | POIs | Regions | Seq rows |
+|---|---|---|---|---|
+| Alabama | 113,846 | 11,848 | 1,109 | 12,709 |
+| Florida | 1,407,034 | 76,544 | 4,703 | 159,175 |
+| Arizona (triangulation) | ~120K | ~10K | 1,547 | 26,396 |
 
-# Derive next_region labels (P0, after P-1 finishes)
-python pipelines/create_inputs_check2hgi.pipe.py --state florida
-
-# P2 — single-task baselines
-python scripts/train.py --state alabama --engine check2hgi --task next --folds 5 --epochs 50
-
-# P3 — 2-task MTL headline
-python scripts/train.py --state alabama --engine check2hgi --task mtl --task-set check2hgi_next_region --folds 5 --epochs 50
-
-# P4 — ablations: head swap, MTL optimiser, etc. (configured via ExperimentConfig overrides)
-```
-
-## Monitors
-
-- Legacy track (unchanged): `val_f1_category`.
-- Check2HGI track: `val_joint_acc1 = mean(val_accuracy_next_category, val_accuracy_next_region)`.
-- Always reported alongside: `val_joint_f1`, per-head Acc@{1,5,10}, MRR.
-
-## State paths
+## Artefact paths
 
 - Embeddings: `output/check2hgi/{state}/{embeddings,poi_embeddings,region_embeddings}.parquet`.
-- Next-POI sequences (already produced by embedding pipeline): `output/check2hgi/{state}/temp/sequences_next.parquet`.
-- Next-region inputs (to be produced by P0): `output/check2hgi/{state}/input/next_region.parquet`.
-- Region map (in graph artifact): `output/check2hgi/{state}/temp/checkin_graph.pt` → `poi_to_region` key.
+- Next-POI sequence X: `output/check2hgi/{state}/input/next.parquet` (576 cols + `target_poi` raw placeid + `userid`).
+- Next-region labels: `output/check2hgi/{state}/input/next_region.parquet` (X + `region_idx` + `userid`).
+- Preprocessing artefact: `output/check2hgi/{state}/temp/checkin_graph.pt` (pickle: `placeid_to_idx`, `poi_to_region`).
+
+## CLI
+
+```bash
+# Single-task next-POI (once P1 loaders + script flag are wired)
+STUDY_DIR=docs/studies/check2hgi python scripts/train.py \
+  --state alabama --engine check2hgi --task next_poi \
+  --folds 5 --epochs 50
+
+# 2-task MTL headline
+STUDY_DIR=docs/studies/check2hgi python scripts/train.py \
+  --state alabama --engine check2hgi --task mtl \
+  --task-set check2hgi_next_poi_region \
+  --folds 5 --epochs 50 --gradient-accumulation-steps 1
+```
 
 ## Env vars
 
-- `DATA_ROOT` — defaults to `<project>/data` (use main-repo data dir on this worktree).
-- `OUTPUT_DIR` — defaults to `<project>/output`.
-- `RESULTS_ROOT` — defaults to `<project>/results`.
+- `DATA_ROOT` — default `<project>/data` (use main repo's data dir on this worktree).
+- `OUTPUT_DIR` — default `<project>/output`.
+- `STUDY_DIR` — default `docs/studies/fusion`. **Always set to `docs/studies/check2hgi` on this branch.**
+- `PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0` before long runs.
 
-## Gates between phases
+## Related studies
 
-- P-1 → P0: embedding convergence check + all 3 parquet files exist per state.
-- P0 → P2: `next_region.parquet` with zero unmapped placeids; region cardinality logged.
-- P1 → P2: `pytest tests/test_regression -q` green; legacy smoke reproduces seed-42 metric bit-exactly.
-- P2 → P3: CH01, CH04, CH05 resolved.
-- P3 → P4: CH02, CH03 resolved.
-- P4 → merge: ablations resolved; `PAPER_FINDINGS.md` draft updated.
+`docs/studies/fusion/` — sibling study on POI-category classification. Different task, different baselines, different state machine. Do not cross-modify.

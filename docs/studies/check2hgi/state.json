@@ -1,0 +1,115 @@
+{
+  "study_version": "1.0",
+  "study_started": "2026-04-15T00:00:00+00:00",
+  "last_update": "2026-04-15T00:00:00+00:00",
+  "current_phase": "P0",
+  "sibling_studies": [
+    {
+      "name": "fusion",
+      "path": "docs/studies/fusion",
+      "relationship": "parallel — separate task (POI-category classification), separate baselines (HAVANA/PGC/POI-RGNN), separate state machine. Shared codebase + infrastructure."
+    }
+  ],
+  "open_issues": [],
+  "phases": {
+    "P0": {
+      "status": "running",
+      "started": "2026-04-15T00:00:00+00:00",
+      "finished": null,
+      "tests": {
+        "p0_integrity_check2hgi_al": {
+          "status": "planned",
+          "phase": "P0",
+          "test_id": "p0_integrity_check2hgi_al",
+          "claim_ids": [],
+          "description": "Run integrity checks on Check2HGI Alabama artefacts (embeddings, next.parquet, next_region.parquet, checkin_graph.pt).",
+          "config": {
+            "state": "alabama",
+            "engine": "check2hgi"
+          },
+          "results_archive": null,
+          "observed": {},
+          "verdict": null,
+          "archived_at": null,
+          "notes": "Run before any training. See coordinator/integrity_checks.md."
+        },
+        "p0_integrity_check2hgi_fl": {
+          "status": "planned",
+          "phase": "P0",
+          "test_id": "p0_integrity_check2hgi_fl",
+          "claim_ids": [],
+          "description": "Run integrity checks on Check2HGI Florida artefacts.",
+          "config": {
+            "state": "florida",
+            "engine": "check2hgi"
+          },
+          "results_archive": null,
+          "observed": {},
+          "verdict": null,
+          "archived_at": null,
+          "notes": "Florida is ~4x Alabama's size; verify no NaN / Inf / shape mismatches."
+        },
+        "p0_fclass_shortcut_audit_al": {
+          "status": "planned",
+          "phase": "P0",
+          "test_id": "p0_fclass_shortcut_audit_al",
+          "claim_ids": ["CH14"],
+          "description": "Audit whether Check2HGI inherits the HGI fclass -> category 1:1 shortcut (fusion C29 finding). Inspect preprocessing pipeline for POI2Vec dependency; if present, run an fclass-shuffle arm C ablation on next_poi (not next_category — which is not our task).",
+          "config": {
+            "state": "alabama",
+            "engine": "check2hgi",
+            "arm": "fclass_shuffle_if_applicable"
+          },
+          "results_archive": null,
+          "observed": {},
+          "verdict": null,
+          "archived_at": null,
+          "notes": "Depends on whether Check2HGI preprocessing (research/embeddings/check2hgi/preprocess.py) uses POI2Vec. If not, the audit becomes a declared 'not applicable' and CH14 resolves to confirmed-by-construction."
+        },
+        "p0_code_deltas_next_poi_loader": {
+          "status": "planned",
+          "phase": "P0",
+          "test_id": "p0_code_deltas_next_poi_loader",
+          "claim_ids": [],
+          "description": "Code delta: add src/data/inputs/next_poi.py + IoPaths.get_next_poi + CHECK2HGI_NEXT_POI_REGION preset + next_poi pipeline + FoldCreator route. Unit tests pass.",
+          "config": {},
+          "results_archive": null,
+          "observed": {},
+          "verdict": null,
+          "archived_at": null,
+          "notes": "~2-3h of mechanical code work. Infrastructure delta (not a scientific test), but the coordinator should track it as the P1 prerequisite."
+        }
+      }
+    },
+    "P1": {
+      "status": "planned",
+      "started": null,
+      "finished": null,
+      "tests": {}
+    },
+    "P2": {
+      "status": "planned",
+      "started": null,
+      "finished": null,
+      "tests": {}
+    },
+    "P3": {
+      "status": "planned",
+      "started": null,
+      "finished": null,
+      "tests": {}
+    },
+    "P4": {
+      "status": "planned",
+      "started": null,
+      "finished": null,
+      "tests": {}
+    },
+    "P5": {
+      "status": "planned",
+      "started": null,
+      "finished": null,
+      "tests": {}
+    }
+  }
+}
