@@ -195,11 +195,14 @@ def _run_mtl_check2hgi(
             history=history,
             config=config,
             results_path=results_path,
-            # val_joint_lift = mean(acc1_cat / maj_cat, acc1_reg / maj_reg)
+            # val_joint_geom_lift = sqrt((acc1_a/maj_a) * (acc1_b/maj_b))
+            # Geometric mean of per-head lifts over majority baseline.
             # Scale-coherent across heads of very different cardinality —
-            # see CRITICAL_REVIEW.md (joint_acc1 scale-incoherence fix)
-            # and mtl_cv.py::_class_majority_fraction.
-            callbacks=_default_checkpoint_callbacks(run_dir, monitor="val_joint_lift"),
+            # the arithmetic-mean predecessor was dominated by the head
+            # with lower majority fraction (see review-agent finding #2.1,
+            # fixed 2026-04-15 in mtl_cv.py::joint_geom_lift).
+            # "val_joint_lift" (kept as alias) resolves to val_joint_geom_lift.
+            callbacks=_default_checkpoint_callbacks(run_dir, monitor="val_joint_geom_lift"),
             task_set=task_set,
         )
 

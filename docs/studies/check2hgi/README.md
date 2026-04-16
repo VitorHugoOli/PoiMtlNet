@@ -29,12 +29,12 @@ docs/studies/check2hgi/
 ├── HANDOFF.md                    ← session handoff notes
 ├── state.json                    ← runtime state (coordinator-managed)
 ├── phases/
-│   ├── P0_preparation.md         ← embeddings + labels + integrity checks
-│   ├── P1_single_task_baselines.md  ← next-POI and next-region single-task on {HGI, check2HGI}
-│   ├── P2_mtl_headline.md        ← 2-task MTL {next_POI, next_region} on check2HGI
-│   ├── P3_dual_stream.md         ← Option A: region-embedding as a second input stream
-│   ├── P4_cross_attention.md     ← Option C: bidirectional cross-attention (gated on P3)
-│   └── P5_ablations.md           ← heads, optimiser, seed sweep
+│   ├── P0_preparation.md         ← embeddings + labels + integrity + simple baselines + audits
+│   ├── P1_single_task_baselines.md  ← next-POI + next-region single-task on Check2HGI (internal reference)
+│   ├── P2_mtl_headline.md        ← 2-task MTL {next_POI, next_region} on Check2HGI
+│   ├── P3_dual_stream.md         ← region-embedding as a second input stream
+│   ├── P4_cross_attention.md     ← bidirectional cross-attention (gated on P3)
+│   └── P5_ablations.md           ← heads, optimiser, sensitivity
 ├── coordinator/
 │   ├── integrity_checks.md       ← check2HGI-specific schema + class-distribution checks
 │   └── state_schema.md           ← state.json schema (shared with fusion)
@@ -46,13 +46,17 @@ docs/studies/check2hgi/
 
 ## Paper thesis (this study's contribution)
 
-> **Check-in-level contextual embeddings (Check2HGI), combined with a hierarchical auxiliary task (next-region), improve next-POI prediction over POI-level embeddings (HGI) with single-task next-POI training, at matched compute, without negative transfer on either head.**
+> **On check-in-level contextual embeddings (Check2HGI), hierarchical auxiliary supervision (next-region) improves next-POI ranking prediction over single-task training, at matched compute, with no per-head negative transfer. Characterised across two Gowalla state-level datasets (Alabama, Florida) with a decreasing-signal cardinality spectrum.**
 
-Three falsifiable components:
+**Standalone study** — no cross-engine comparison (no HGI, no fusion), no replication of prior-work numbers (no CBIC, no HAVANA/PGC/POI-RGNN).
 
-1. **Embedding:** Check2HGI > HGI on single-task next-POI (Acc@10, MRR) on AL + FL.
-2. **Task:** MTL `{next_POI, next_region}` ≥ single-task next-POI at matched budget.
-3. **No regression:** per-head metrics under MTL are ≥ single-task baselines.
+Three falsifiable headline claims:
+
+1. **MTL lift (CH01):** 2-task `{next_POI, next_region}` MTL > single-task next-POI on Check2HGI.
+2. **No negative transfer (CH02):** per-head metrics under MTL ≥ single-task baselines.
+3. **Dual-stream region input (CH03):** region embeddings as parallel input stream improve next-POI beyond MTL alone.
+
+Baselines are internal (single-task Check2HGI is the reference for every MTL/dual-stream claim) + simple-baselines floor (majority, random, 1-step Markov, top-K popularity computed on our data in P0.5). External literature numbers (HMT-GRN, MGCL, etc.) go in an appendix table with scope caveat — direct numeric comparison is not valid (different datasets, different preprocessing).
 
 ## Current phase
 

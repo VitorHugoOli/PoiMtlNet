@@ -5,9 +5,9 @@
 **Duration:** ~4h (Alabama only; FL reserved for headline phases).
 
 **Embedded claims tested:**
-- CH08 — `next_mtl` transformer beats simpler sequence heads on next_POI.
-- CH09 — NashMTL vs equal_weight vs CAGrad on the new task pair.
-- CH10 — Seed variance is below the "decisive" threshold (≤ 2pp).
+- CH09 — `next_mtl` transformer beats simpler sequence heads on next_POI.
+- CH10 — NashMTL vs equal_weight vs CAGrad on the new task pair.
+- CH11 — Seed variance is below the "decisive" threshold (≤ 2pp).
 
 **Gates:** P2 complete.
 
@@ -17,7 +17,7 @@
 
 P5 is deliberately **lighter** than fusion's P1 arch × optim grid. We do not sweep 5 × 20 = 100 cells. Instead, each axis is ablated along a small, claim-justified menu.
 
-### CH08 — Head architecture
+### CH09 — Head architecture
 
 Fix everything at P2 champion (dual-stream off; single-stream check-in emb only; MTLnet + FiLM; NashMTL). Vary the `task_a` head factory (and symmetrically `task_b`, since both are sequential).
 
@@ -31,19 +31,21 @@ Fix everything at P2 champion (dual-stream off; single-stream check-in emb only;
 
 5 cells. Alabama only. 5-fold × 50 epochs each. ~2h total.
 
-### CH09 — MTL optimiser
+### CH10 — MTL optimiser (AL + FL per review-agent finding #4.3)
 
-Fix at P2 champion heads. Vary the MTL criterion.
+Fix at P2 champion heads. Vary the MTL criterion on **both AL and FL** — optimizer behaviour is imbalance-sensitive, and FL's 22.5% majority next-region class may flip the winner vs AL.
 
-| # | MTL criterion | Purpose |
-|---|---|---|
-| P5.2.nash (baseline) | nash_mtl | P2 reference |
-| P5.2.eq | equal_weight | Static baseline; Xin-et-al. test |
-| P5.2.cagrad | cagrad | Gradient-surgery alt |
+| # | State | MTL criterion | Purpose |
+|---|---|---|---|
+| P5.2.AL.nash (baseline) | AL | nash_mtl | P2 reference |
+| P5.2.AL.eq | AL | equal_weight | Static baseline; Xin-et-al. test |
+| P5.2.AL.cagrad | AL | cagrad | Gradient-surgery alt |
+| P5.2.FL.eq | FL | equal_weight | Imbalance-sensitivity check |
+| P5.2.FL.cagrad | FL | cagrad | Imbalance-sensitivity check |
 
-3 cells. Alabama. ~1h.
+(FL nash is the P2.1.FL result; reused.) 5 new cells + 1 reuse. ~2h.
 
-### CH10 — Seed variance
+### CH11 — Seed variance
 
 Fix at P2 champion. Run 2 additional seeds.
 
@@ -96,17 +98,17 @@ done
 
 ## Analysis
 
-### CH08
+### CH09
 
 Rank the 5 head variants by Acc@10 on next_poi. Confirm `next_mtl` wins (or partial: within noise of the winner).
 
-### CH09
-
-- If `nash_mtl` > `equal_weight` by ≥ 1pp on joint_lift → **confirm CH09 positive** (gradient-surgery helps).
-- If within 1pp → **confirm CH09 negative** (equal_weight suffices; drop NashMTL's cvxpy dependency for simplicity).
-- If `equal_weight` > `nash_mtl` → **refute CH09 positive** (strong finding — replicates Xin et al. beyond single-source embeddings).
-
 ### CH10
+
+- If `nash_mtl` > `equal_weight` by ≥ 1pp on joint_lift → **confirm CH10 positive** (gradient-surgery helps).
+- If within 1pp → **confirm CH10 negative** (equal_weight suffices; drop NashMTL's cvxpy dependency for simplicity).
+- If `equal_weight` > `nash_mtl` → **refute CH10 positive** (strong finding — replicates Xin et al. beyond single-source embeddings).
+
+### CH11
 
 Compute fold-variance on next_poi Acc@10 across the 3 seeds. If std > 2pp → the "≥ 2pp lift" claims in CH01/CH02/CH06 need downgrading. If std ≤ 1pp → headline decisions are solid.
 
@@ -139,8 +141,8 @@ docs/studies/check2hgi/results/P5/
 Branch merges when:
 
 1. CH01, CH02, CH03 resolved (P1 + P2).
-2. ≥ 2 of {CH06, CH07, CH11} resolved (P3 + P4).
-3. CH08, CH09, CH10 resolved (this phase).
+2. ≥ 2 of {CH03, CH07, CH08} resolved (P3 + P4).
+3. CH09, CH10, CH11 resolved (this phase).
 4. Legacy + fusion tests green.
 5. `docs/PAPER_FINDINGS.md` has a check2HGI section drafted (sibling to fusion's).
 

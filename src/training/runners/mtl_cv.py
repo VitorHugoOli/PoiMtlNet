@@ -514,13 +514,15 @@ def train_model(model: torch.nn.Module,
             # CRITICAL_REVIEW.md §1 item (joint_acc1 scale-incoherence).
             joint_acc1 = 0.5 * (acc1_val_task_b + acc1_val_task_a)
             # Scale-coherent joint: each head contributes its *lift over
-            # majority-class baseline*. On the check2HGI track a head with
-            # majority 22% that predicts 23% contributes 1.05×; a head with
-            # majority 2.3% that predicts 7.9% contributes 3.4×. Both on
-            # the same "ratio above random-guess" scale regardless of
-            # cardinality. Falls back to raw Acc@1 for legacy-coincident
-            # majority values (both heads 7-class with similar majority
-            # fractions → lift is ~equivalent to mean Acc@1).
+            # majority-class baseline*. The 2026-04-15 review-agent finding
+            # showed arithmetic mean is STILL dominated by the head with the
+            # smaller majority fraction when the two differ by orders of
+            # magnitude (e.g. FL next_poi majority ~0.001% vs next_region
+            # 22.5% → POI lift can be 1000×, region lift ~1× → arithmetic
+            # mean ~500 is dominated by POI). Geometric mean forces both
+            # heads to contribute multiplicatively, penalising either head
+            # collapsing to majority-class behaviour.
+            #
             # Compute per-head majority fractions once and cache across epochs
             # (train labels don't change mid-fold). The attribute is stored on
             # fold_history so subsequent epochs reuse the cached value.
@@ -530,10 +532,14 @@ def train_model(model: torch.nn.Module,
                     max(_class_majority_fraction(dataloader_category.train.y), 1e-6),
                 )
             task_b_majority, task_a_majority = fold_history._joint_lift_majority
-            joint_lift = 0.5 * (
-                acc1_val_task_b / task_b_majority
-                + acc1_val_task_a / task_a_majority
-            )
+            task_b_lift = max(acc1_val_task_b / task_b_majority, 1e-8)
+            task_a_lift = max(acc1_val_task_a / task_a_majority, 1e-8)
+            # Geometric mean of per-head lifts (scale-coherent; the checkpoint
+            # monitor for the check2HGI track).
+            joint_geom_lift = math.sqrt(task_b_lift * task_a_lift)
+            # Arithmetic mean kept for back-compat + side-by-side reporting
+            # (paper can show it as the "naive" number in appendix).
+            joint_arith_lift = 0.5 * (task_b_lift + task_a_lift)
             pareto_points.append((f1_val_task_b, f1_val_task_a))
             pareto_front = _pareto_front_indices(pareto_points)
             fold_history.add_artifact(
@@ -596,9 +602,12 @@ def train_model(model: torch.nn.Module,
                 f"val_f1_{task_a_name}": f1_val_task_a,
                 f"val_accuracy_{task_b_name}": acc1_val_task_b,
                 f"val_accuracy_{task_a_name}": acc1_val_task_a,
-                "val_joint_score": joint_score,   # = mean(val_f1_*) — legacy default
-                "val_joint_acc1": joint_acc1,     # = mean(val_accuracy_*) — reported, not the monitor
-                "val_joint_lift": joint_lift,     # = mean(acc1_* / majority_*) — check2HGI default monitor
+                "val_joint_score": joint_score,         # = mean(val_f1_*) — legacy default
+                "val_joint_acc1": joint_acc1,           # = mean(val_accuracy_*) — reported, not the monitor
+                "val_joint_arith_lift": joint_arith_lift,  # = mean(acc1_*/majority_*) — reported, v1 formula
+                "val_joint_geom_lift": joint_geom_lift,    # = geometric mean — check2HGI monitor (fixed 2026-04-15)
+                # Aliases so existing `monitor="val_joint_lift"` doesn't silently no-op:
+                "val_joint_lift": joint_geom_lift,
                 "val_loss": loss_val,
                 "train_loss": epoch_loss,
                 f"train_f1_{task_b_name}": f1_task_b,

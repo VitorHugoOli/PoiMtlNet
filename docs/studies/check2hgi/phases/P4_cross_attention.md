@@ -6,7 +6,7 @@
 
 **Embedded claim:** CH07.
 
-**Gates:** P3 complete with CH06 confirming ≥ 2pp Acc@10 lift on Florida. If P3 fails the gate, this phase is documented as future work and **does not run**.
+**Gates:** P3 complete with CH03 confirming ≥ 2pp Acc@10 lift on Florida. If P3 fails the gate, this phase is documented as future work and **does not run**.
 
 ---
 

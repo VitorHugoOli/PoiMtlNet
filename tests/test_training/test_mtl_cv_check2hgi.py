@@ -177,7 +177,11 @@ def test_check2hgi_metric_keys_use_preset_task_names():
     assert "val_accuracy_next_region" in metrics
     assert "val_joint_score" in metrics
     assert "val_joint_acc1" in metrics
-    assert "val_joint_lift" in metrics
+    assert "val_joint_lift" in metrics          # alias
+    assert "val_joint_geom_lift" in metrics     # canonical name (geometric mean)
+    assert "val_joint_arith_lift" in metrics    # reported for comparison
+    # val_joint_lift alias should equal val_joint_geom_lift bit-exactly
+    assert metrics["val_joint_lift"] == metrics["val_joint_geom_lift"]
 
     # Legacy names must NOT leak into the metrics dict under a non-legacy preset.
     for legacy_key in ("val_f1_category", "val_f1_next", "val_accuracy_category", "val_accuracy_next"):

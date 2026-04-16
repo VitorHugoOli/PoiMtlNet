@@ -1,6 +1,6 @@
 # Check2HGI Study — Quick Reference
 
-**Thesis:** Check-in-level embeddings (Check2HGI) + next-region auxiliary task improve next-POI prediction over POI-level embeddings (HGI) with single-task training, at matched compute, without negative transfer.
+**Thesis:** On Check2HGI check-in-level embeddings, MTL `{next_poi, next_region}` improves next-POI prediction over single-task training, without negative transfer. Standalone study — no cross-engine or prior-work comparisons. Baselines are internal + simple-baselines floor (majority/random/Markov/top-K on our data).
 
 ## Task pair
 
@@ -9,50 +9,61 @@
 | task_a | `next_poi` | ~10K (AL) / ~80K (FL) | Acc@{1,5,10}, MRR, NDCG@{5,10} | macro-F1 (noisy at this scale) |
 | task_b | `next_region` | ~1.1K (AL) / ~4.7K (FL) / ~1.5K (AZ) | Acc@{1,5,10}, MRR | macro-F1 |
 
-**Joint monitor:** `val_joint_lift = mean(acc1_poi / majority_poi, acc1_region / majority_region)` — scale-coherent across the two heads. Checkpoint selection uses this.
+**Joint monitor:** `val_joint_geom_lift = sqrt((acc1_poi/majority_poi) * (acc1_region/majority_region))` — **geometric** mean of per-head lifts. Fixed on 2026-04-15 from the arithmetic-mean version (which was dominated by the POI head when cardinalities differ by orders of magnitude). Checkpoint selection uses this. Reported alongside: `val_joint_arith_lift` (old formula, for cross-ref), per-head raw Acc@K, and **OOD-restricted Acc@K** (sequences where target POI appears in train fold).
 
 ## Phases
 
 | Phase | Duration | Claims addressed | Gate to next |
 |---|---|---|---|
-| P0 | ~1h | CH04 (next-region meaningful), CH05 (ranking metrics > F1) | integrity green + labels generated |
-| P1 | ~4h | CH01 (check2HGI > HGI single-task) | CH01 resolved ∈ {confirmed, refuted, partial} |
-| P2 | ~5h | CH02 (MTL lift), CH03 (no negative transfer) | CH02 resolved |
-| P3 | ~3h | CH06 (dual-stream helps), CH11 (state-dependent gain) | CH06 resolved |
-| P4 | ~6h | CH07 (cross-attn > concat) | only runs if CH06 shows ≥ 2pp on FL |
-| P5 | ~4h | CH08 (head choice), CH09 (optimiser), CH10 (seed variance) | — |
+| P0 | ~3h | CH04 (beats baselines), CH05, CH14 (shortcut audit), CH15 (leakage audit) | integrity green + labels + simple baselines computed + audits resolved |
+| P1 | ~3h | CH04 floor check, CH05, CH06 (OOD) | single-task references exist for P2 pairing |
+| P2 | ~12h | **CH01 (MTL lift, HEADLINE), CH02 (no negative transfer)** | CH01 resolved — 3 seeds × 5 folds |
+| P3 | ~9h | CH03 (dual-stream helps), CH08 (state-dependent gain) | CH03 resolved |
+| P4 | ~6h | CH07 (cross-attn > concat) | only runs if CH03 shows ≥ 2pp on FL |
+| P5 | ~4h | CH09 (head choice), CH10 (optimiser on AL+FL), CH11 (seed variance) | — |
+
+**P2 is ~3× longer than v1** because multi-seed (n=15) became the default for CH01/CH02 per review-agent recommendation — n=5 Wilcoxon couldn't detect 2pp effects with any power.
 
 Full details in `MASTER_PLAN.md`.
 
 ## Claims at a glance
 
-- **CH01** check2HGI > HGI single-task next-POI
-- **CH02** MTL {next_POI, next_region} > single-task next_POI (headline)
-- **CH03** no per-head negative transfer under MTL
-- **CH04** next-region meaningful (beats majority by > 2×)
+- **CH01** MTL {next_POI, next_region} > single-task next_POI on Check2HGI (HEADLINE)
+- **CH02** no per-head negative transfer
+- **CH03** dual-stream region-emb input improves next-POI
+- **CH04** learned models beat simple baselines (majority/random/Markov/top-K) by ≥ 2×
 - **CH05** ranking metrics discriminate where macro-F1 collapses
-- **CH06** dual-stream region-emb input improves next-POI Acc@10
-- **CH07** bidirectional cross-attention > concat (gated on CH06)
-- **CH08** next-POI head architecture: next_mtl vs seq baselines
-- **CH09** MTL optimiser: NashMTL vs equal_weight vs CAGrad
-- **CH10** seed variance ≤ the 2pp effects we call "decisive"
-- **CH11** region-input gain is state-dependent (larger on FL)
+- **CH06** OOD-restricted Acc@K still beats baselines (train-memorisation guard)
+- **CH07** bidirectional cross-attention > concat (gated on CH03)
+- **CH08** region-input gain is state-dependent
+- **CH09** head architecture: next_mtl vs seq baselines
+- **CH10** MTL optimiser: NashMTL vs equal_weight vs CAGrad (AL + FL)
+- **CH11** seed variance bound ≤ 2pp
 - **CH12** limitation: Gowalla state-level ≠ FSQ-NYC/TKY
 - **CH13** limitation: encoder enrichment out of scope
-- **CH14** check2HGI inheritance of HGI fclass shortcut — audit
+- **CH14** preprocessing shortcut audit (standalone; not HGI-comparison)
+- **CH15** transductive embedding-leakage audit
 
 Full text + test specs in `CLAIMS_AND_HYPOTHESES.md`.
 
-## Baselines
+## Baselines (three tiers)
 
-**Ranking baselines from next-POI literature:** HMT-GRN (SIGIR '22), MGCL (Frontiers '24), Bi-Level GSL, LSTPM, STAN, GETNext, Graph-Flashback, ImNext. Reported numbers are on FSQ-NYC/TKY or Gowalla-global; our state-level runs are **not** directly comparable. Declared in CH12.
+### 1. Simple baselines on our data (P0.5) — the floor
+- Majority-class POI (always predict most frequent)
+- Random POI (uniform over n_pois)
+- 1-step Markov: P(next_poi | current_poi) learned from train folds
+- Top-K popular: Acc@K equals cumulative frequency of top-K POIs
+- User-history top-K: per-user most-visited POIs
+- Same 5 baselines for next_region.
 
-**Internal baselines (primary comparison):**
-- HGI (POI-level) + single-task next-POI
-- Check2HGI + single-task next-POI
-- Check2HGI + MTL {next_POI, next_region}
-- (optional) Check2HGI + MTL + dual-stream input
-- (optional) Check2HGI + MTL + cross-attention
+### 2. Internal baselines (P1–P4) — the contribution chain
+- Check2HGI + single-task next-POI (P1)
+- Check2HGI + MTL `{next_POI, next_region}` (P2)
+- + dual-stream region input (P3)
+- + cross-attention (P4, gated)
+
+### 3. External-literature baselines (appendix only)
+HMT-GRN (SIGIR '22), MGCL (Frontiers '24), Bi-Level GSL, LSTPM, STAN, GETNext, Graph-Flashback, ImNext. Reported on FSQ-NYC/TKY / Gowalla-global — **not directly comparable** to our Gowalla state-level numbers. Appendix table with scope caveat (CH12).
 
 ## Datasets
 

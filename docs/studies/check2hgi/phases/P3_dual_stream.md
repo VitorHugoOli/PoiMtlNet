@@ -5,10 +5,12 @@
 **Duration:** ~3h (2 states × 1 config × 5f × 50ep — same as P2 + a parquet materialisation step).
 
 **Embedded claims tested:**
-- CH06 — Region embeddings as input improve next-POI Acc@10.
-- CH11 — Region-input gain is state-dependent (larger on FL than AL).
+- **CH03** — Dual-stream region embeddings as input improve next-POI Acc@10 (Tier-A, independent of MTL).
+- CH08 — Region-input gain is state-dependent (larger on FL than AL).
 
-**Gates:** P2 complete; CH02 at least `partial`.
+**Gates:** P2 complete. Note: P3 is run even if CH01 (MTL) refutes — CH03 is orthogonal (tests whether region as *input* helps, regardless of whether region as *auxiliary task* helps). If both CH01 and CH03 refute, the paper reframes around methodology-only.
+
+**Multi-seed:** 3 seeds × 5 folds × 2 states = 30 runs per variant. Matches the P2 n=15 paired-samples protocol.
 
 ---
 
@@ -31,8 +33,8 @@ Input shape `[B, 9, 128]`. MTLnet's encoder first-layer Linear adapts automatica
 
 | # | State | Input | Optimiser | Purpose |
 |---|---|---|---|---|
-| P3.1.AL.dual | AL | dual-stream (128-dim per timestep) | NashMTL | CH06 on AL |
-| P3.1.FL.dual | FL | dual-stream | NashMTL | CH06 on FL + CH11 |
+| P3.1.AL.dual | AL | dual-stream (128-dim per timestep) | NashMTL | CH03 on AL |
+| P3.1.FL.dual | FL | dual-stream | NashMTL | CH03 on FL + CH08 |
 
 Comparison baselines: P2.1.AL and P2.1.FL (check-in-only, 64-dim per timestep).
 
@@ -52,24 +54,24 @@ Estimate: ~3h code work.
 
 ## Analysis
 
-### CH06 — Dual-stream helps
+### CH03 — Dual-stream helps (Tier-A)
 
 Per state:
 - `dual_stream_next_poi_acc10` vs `check_in_only_next_poi_acc10` (from P2)
 
 **Decision:**
-- `confirm CH06` if dual > check-in-only by ≥ 2pp on at least one state, paired-test p < 0.05.
-- `partial` if < 2pp but positive.
+- `confirm CH03` if dual > check-in-only by ≥ 2pp on at least one state, Wilcoxon p < 0.05 on 15 paired samples.
+- `partial` if 1–2pp positive or p < 0.10.
 - `refute` if dual ≤ check-in-only on both states.
 
-### CH11 — State-dependent gain
+### CH08 — State-dependent gain
 
 Compare:
 - `Δ_AL = dual_AL_acc10 − check_in_only_AL_acc10`
 - `Δ_FL = dual_FL_acc10 − check_in_only_FL_acc10`
 
 **Decision:**
-- `confirm CH11` if `|Δ_FL| ≥ 2 × |Δ_AL|` (FL gain is at least twice AL's).
+- `confirm CH08` if `|Δ_FL| ≥ 2 × |Δ_AL|` (FL gain is at least twice AL's).
 - `partial` if same sign but smaller ratio.
 - `refute` if AL gain ≥ FL gain.
 
@@ -79,9 +81,9 @@ This claim is built on the AL/AZ/FL linear-probe result (3.4× / 1.7× / 1.04× 
 
 ## Decision gate → P4
 
-**P4 runs if and only if CH06 confirms with ≥ 2pp Acc@10 lift on FL specifically** (the state where the probe predicted the biggest gap).
+**P4 runs if and only if CH03 confirms with ≥ 2pp Acc@10 lift on FL specifically** (the state where the probe predicted the biggest gap).
 
-If CH06 shows < 2pp on FL: document P4 (cross-attention) as future work, skip to P5.
+If CH03 shows < 2pp on FL: document P4 (cross-attention) as future work, skip to P5.
 
 ---
 

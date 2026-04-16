@@ -8,7 +8,7 @@ If you read nothing else, read this. Then drop into the rest of `docs/studies/ch
 
 ## Study in one paragraph
 
-This study tests whether **check-in-level contextual embeddings** (Check2HGI) plus a **next-region auxiliary task** improve **next-POI prediction** over POI-level embeddings (HGI) with single-task next-POI training. It runs on Gowalla state-level data (AL + FL, with AZ as triangulation). The natural evaluation is ranking-metric (Acc@K, MRR, NDCG), not macro-F1. It is a sibling study to the fusion track (`docs/studies/fusion/`), which handles POI-category classification on POI-level fused embeddings and uses HAVANA/PGC/POI-RGNN as baselines — a different task and different baseline lineage.
+This study is a **standalone** investigation: does adding a next-region auxiliary task under MTL improve next-POI prediction on Check2HGI check-in-level contextual embeddings, at matched compute, without per-head negative transfer? **No cross-engine comparison** (no HGI) and **no prior-work replication** (no CBIC, no HAVANA/PGC/POI-RGNN — those are fusion-study territory). Baselines are internal: single-task Check2HGI is the reference for every MTL / dual-stream / cross-attention claim, anchored by simple-baselines floor (majority/random/Markov/top-K computed on our data in P0.5). External literature numbers (HMT-GRN, MGCL, etc.) appear only in an appendix with scope caveat. Runs on Gowalla-AL + Gowalla-FL with AZ as triangulation. Ranking metrics (Acc@K, MRR, NDCG) are primary; macro-F1 reported for completeness only.
 
 ---
 
@@ -24,37 +24,37 @@ Three orthogonal reasons:
 
 ## What we (currently) believe (tier: hypothesis, not yet confirmed on clean data)
 
-These are the hypotheses this study exists to validate or refute. None are confirmed; all map to specific CH-claims.
+These hypotheses drive the study. None confirmed; all map to specific CH-claims.
 
-1. **Check-in-level embeddings carry more trajectory-phase signal than POI-level embeddings** — contextual information (morning vs evening, weekday vs weekend) that a static POI-level embedding discards. **Maps to CH01.** Expected: Check2HGI single-task next-POI > HGI single-task next-POI on Acc@10.
+1. **A hierarchical auxiliary task (next-region) provides useful inductive bias for next-POI prediction under MTL** — region-level supervision structures the shared backbone so the fine-grained POI head learns transferable features. **Maps to CH01 (HEADLINE).** Expected: 2-task MTL > single-task next-POI on Check2HGI.
 
-2. **A hierarchical auxiliary task (next-region) provides useful inductive bias for next-POI prediction under MTL** — the region-level supervision structures the shared backbone so the fine-grained POI head learns transferable features. **Maps to CH02.** Expected: 2-task MTL > single-task on next-POI Acc@10.
+2. **No per-head negative transfer** — NashMTL (or equal_weight alternative) retains both heads' single-task performance. **Maps to CH02.**
 
-3. **No per-head negative transfer** — under NashMTL (or a suitable equal-weight alternative), both heads retain their single-task performance. **Maps to CH03.**
+3. **Region embeddings as an explicit input stream help independently of the auxiliary task** — giving the encoder direct region information (via dual-stream concat) improves next-POI beyond what the shared backbone alone picks up from the next-region head. **Maps to CH03 (Tier-A).** Tested in P3.
 
-4. **Region embeddings as an explicit input stream help most on states where check-in embeddings lose region signal** — preliminary linear-probe experiment (2026-04-15) showed check-in → region recovery degrades from 3.4× majority lift on AL to 1.04× on FL, so FL should benefit most from dual-stream input. **Maps to CH06 and CH11.**
+4. **Region-input gain is state-dependent** — preliminary linear-probe experiment showed check-in → region recovery degrades from 3.4× (AL) to 1.7× (AZ) to 1.04× (FL) majority lift, so FL should benefit most from dual-stream input. **Maps to CH08.** Caveat: FL probe was a non-converged LR fit; rerun with class-weighted MLP before P3.
 
-5. **Bidirectional cross-attention between check-in and region streams extracts structure concat hides** (gated on #4) — closer to HMT-GRN's hierarchical-attention design. **Maps to CH07.**
+5. **Bidirectional cross-attention between check-in and region streams extracts structure concat hides** (gated on #3) — closer to HMT-GRN's hierarchical-attention design. **Maps to CH07.**
 
-**None of these are confirmed yet.** They are the hypotheses that drive P1–P4.
+6. **Check-in-level embeddings are doing real work** — simple baselines (majority / random / 1-step Markov / top-K popular / user-history top-K) are substantially beaten by any learned Check2HGI model. **Maps to CH04 (floor / known-good reference).** This is the lower-bound check that catches pipeline bugs before any headline claim.
+
+**None confirmed yet.** They drive P1–P4.
 
 ---
 
 ## The critical open question (#1 reviewer risk)
 
-**Does Check2HGI actually beat HGI at matched training budget?**
+**Does MTL with next-region actually help next-POI prediction on Check2HGI?** (CH01)
 
-The fusion study flagged (advisor + critical-review agent) that Check2HGI was trained to 500 epochs with the loss still decreasing — while HGI's reference checkpoints may have been trained for longer or with different optimiser settings. Without budget matching, any CH01 result could be attributed to training time rather than embedding quality. **This is the single most important control in this study.**
+Prior MTL-research has found that adding auxiliary tasks helps in some settings but hurts in others (Xin et al. 2022 showed equal-weight can match adaptive methods on single-source embeddings). On Gowalla state-level Check2HGI data, with a 2-task pair that has ×10 or more label-space cardinality asymmetry (next_poi ~10–80K classes vs next_region ~1–5K classes), the behaviour is unstudied. **This is the single most important control in this study — if CH01 refutes, the paper thesis reframes around CH03 (dual-stream input helps even without MTL).**
 
-Mitigation plan: match FLOPs (or epoch-count + parameter count) between HGI and Check2HGI before P1 runs; see `docs/studies/check2hgi/archive/v1_wip_mixed_scope/TRAINING_BUDGET_DECISION.md` for the three options considered.
-
----
+Multi-seed (n=15) is the default for this test per review-agent finding — n=5 Wilcoxon has near-zero statistical power at the 2pp effect sizes we'd call decisive.
 
 ## The #2 reviewer risk
 
-**Does Check2HGI inherit the HGI fclass → category shortcut?**
+**Does Check2HGI's preprocessing contain a task shortcut?**
 
-Fusion study's C29 finding (`docs/studies/fusion/issues/HGI_LEAKAGE_AUDIT.md`) showed the Gowalla HGI/POI2Vec pipeline has an fclass → category 1:1 determinism that makes category classification trivially solvable. Check2HGI's preprocessing may or may not inherit this. If it does, and it also propagates to next-POI predictions, our headline comparison is confounded. **Maps to CH14.** To be audited in P0.
+Fusion study's C29 finding (`docs/studies/fusion/issues/HGI_LEAKAGE_AUDIT.md`) showed the Gowalla HGI/POI2Vec preprocessing has an fclass → category 1:1 determinism that makes category classification trivially solvable. Check2HGI uses a different preprocessing chain — it may or may not have an analogous shortcut for next-POI / next-region. **Maps to CH14.** P0.6 does both (a) code inspection and (b) unconditional fclass-shuffle ablation on AL single-task next-POI. If the ablation shows a large Acc@10 drop, the representation relies on a shortcut and the paper reframes around the finding.
 
 ---
 

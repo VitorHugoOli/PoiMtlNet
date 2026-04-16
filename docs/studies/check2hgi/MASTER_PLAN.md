@@ -8,14 +8,19 @@
 
 | Phase | Purpose | Claims addressed | Wall-clock (est.) | Requires |
 |---|---|---|---|---|
-| **P0** | Embeddings, labels, integrity checks, fclass-shortcut audit | CH04, CH05, CH14 | ~2h (integrity + audit) | Check2HGI embeddings for FL + AL already generated |
-| **P1** | Single-task baselines: next-POI on {HGI, Check2HGI}, next-region on Check2HGI | CH01, CH04, CH05 | ~4h (AL + FL × 3 single-task runs × 5f × 50ep) | P0 complete |
-| **P2** | 2-task MTL headline: `{next_poi, next_region}` on Check2HGI vs single-task next-POI | CH02, CH03 | ~5h (AL + FL × MTL × 5f × 50ep) | P1 complete; CH01 resolved |
-| **P3** | Dual-stream input (region emb as parallel stream) | CH06, CH11 | ~3h (AL + FL) | P2 complete; CH02 at least `partial` |
-| **P4** | Cross-attention (new architecture), **gated on P3 ≥ 2pp on FL** | CH07 | ~6h (arch implementation ~1 day + 2 runs) | P3 complete; CH06 shows ≥ 2pp FL lift |
-| **P5** | Ablations: head architecture, MTL optimiser, seed variance | CH08, CH09, CH10 | ~4h | P2 complete |
+| **P0** | Embeddings + labels + integrity + **simple baselines** + shortcut/leakage audits | CH04, CH05, CH14, CH15 | ~3h | Check2HGI embeddings for FL + AL already generated; next_poi loader code-deltas (P0.3) |
+| **P1** | Single-task references: next-POI and next-region on Check2HGI | CH04 floor check, CH05, CH06 | ~3h (AL + FL × 2 single-task runs × 5f × 50ep × 1 seed — the primary seed; multi-seed lives in P2) | P0 complete |
+| **P2** | **HEADLINE:** 2-task MTL `{next_poi, next_region}` on Check2HGI vs single-task next-POI, **multi-seed** | **CH01**, CH02 | **~12h** (AL + FL × 3 seeds × 5 folds × 50ep each = n=15 paired samples; required for statistical power at 2pp effects) | P1 complete |
+| **P3** | Dual-stream input (region emb as parallel stream), **multi-seed** | **CH03**, CH08 | ~9h (AL + FL × 3 seeds × 5 folds) | P2 complete; CH01 at least `partial` |
+| **P4** | Cross-attention, **gated on P3 ≥ 2pp on FL** | CH07 | ~6h (new arch implementation ~1 day + 2 runs × 3 seeds) | P3 complete; CH03 shows ≥ 2pp FL lift |
+| **P5** | Sensitivity: head arch, MTL optimiser (AL + FL), variance analysis | CH09, CH10, CH11 | ~5h | P2 complete |
 
-**Compute budget:** ~24h wall-clock sequential (P0 through P5 assuming P4 runs). ~18h if P4 skipped. Per-fold training time on MPS with current model is ~22 min for 5f × 50ep MTL on AL; FL is ~4× larger.
+**Compute budget:** ~38h wall-clock sequential (P0 through P5 assuming P4 runs). ~32h if P4 skipped. P2 tripled vs v1 because **multi-seed (n=15) became the default** for the headline per review-agent finding: n=5 Wilcoxon has near-zero power at 2pp effect sizes, so the whole headline comparison was statistically meaningless at single-seed.
+
+**Compute-cost mitigations considered:**
+- Dropping P5.1 (head architecture) to pay for the multi-seed bump → **kept** but moved to post-P2 after headlines land.
+- Running CH10 (optimiser ablation) on AL only → **rejected** per review-agent finding #4.3 — optimiser behaviour is most likely to be imbalance-sensitive; must include FL.
+- Reducing to 2 seeds (n=10) → minimum-detectable-effect drops ~30% but n=10 paired Wilcoxon still has weak power. Stay at n=15.
 
 ## Critical-path ordering
 
@@ -31,12 +36,12 @@ P0 (integrity + audit) ─► P1 (single-task) ─► P2 (MTL headline) ─┬�
 
 Move to the next phase only when:
 
-- **Out of P0:** Check2HGI embeddings + next_region labels exist for both FL and AL; `coordinator/integrity_checks.md` passes; CH14 audit resolved (shortcut present or not; if present, mitigation plan documented).
-- **Out of P1:** CH01, CH04, CH05 have status ∈ {confirmed, refuted, partial}; results archived under `results/P1/<test_id>/`.
-- **Out of P2:** CH02, CH03 resolved. Headline paper-table entries drafted.
-- **Out of P3:** CH06 and CH11 resolved. P4 gate evaluated.
+- **Out of P0:** Check2HGI embeddings + next_region + next_poi labels exist for both FL and AL; `coordinator/integrity_checks.md` passes; simple baselines (P0.5) computed + archived; CH14 (shortcut audit, both code inspection AND unconditional fclass-shuffle ablation on AL) + CH15 (leakage audit) resolved.
+- **Out of P1:** single-task next-POI and next-region references exist; **CH04 floor check passed on both** (learned Acc@10 ≥ 2× best simple baseline); CH05, CH06 documented.
+- **Out of P2:** CH01 + CH02 resolved via n=15 paired Wilcoxon. Headline paper-table entries drafted. CH11 (seed variance) computed from the n=15 runs.
+- **Out of P3:** CH03, CH08 resolved. P4 gate evaluated (CH03 ≥ 2pp on FL?).
 - **Out of P4 (if run):** CH07 resolved.
-- **Out of P5:** CH08, CH09, CH10 resolved.
+- **Out of P5:** CH09, CH10 resolved.
 
 ## Datasets
 
@@ -67,11 +72,13 @@ If the FL run shows surprising results (e.g. CH02 fails on FL but passes on AL),
 
 | Risk | Impact | Mitigation |
 |---|---|---|
-| CH14 audit shows Check2HGI inherits the HGI fclass shortcut | Invalidates CH01 headline comparison | If shortcut present: run shuffle-ablation on both engines, report the ratio not the absolute number, reframe thesis around "shortcut-robust representation" |
-| FL next_region NashMTL over-weights (22.5% majority region) | CH03 negative on FL | Enable `--use-class-weights` for FL runs; document as FL-specific mitigation |
-| Check2HGI embeddings undertrained at 500 epochs (loss still decreasing) | CH01 confounded by training budget | Option 1 from `archive/v1_wip_mixed_scope/TRAINING_BUDGET_DECISION.md`: match FLOPs vs HGI before P1 |
-| Seed variance ≥ 2pp on headline | CH02's "+≥2pp lift" claim non-statistically-significant | Pre-register: effects < 1.5σ reported as `partial` or `inconclusive`, not `confirmed` |
+| CH14 audit shows Check2HGI preprocessing has a shortcut | Invalidates CH01 headline claim | P0.6 runs fclass-shuffle ablation **unconditionally** (not just if inspection suggests); if shortcut present, mitigation becomes part of the paper contribution ("shortcut-robust representation") |
+| FL next_region NashMTL over-weights (22.5% majority region) | CH02 negative on FL | Enable `--use-class-weights` for FL runs; document as FL-specific mitigation |
+| Check2HGI embeddings undertrained at 500 epochs (loss still decreasing) | CH01 still confounded if single-task next-POI is also poor | **No longer a blocker** — we don't compare against HGI. Train Check2HGI to a committed budget (default 500 epochs, extend if P1 single-task Acc@10 is below simple-baseline floor). Document the budget in the paper. |
+| Seed variance ≥ 2pp on headline | CH01's "+≥2pp lift" claim non-significant | Multi-seed is default (n=15); CH11 reports variance bound. Effects below 1.5σ reported as `partial` or `inconclusive`. |
 | n_region mismatch between train/val/test folds | Model output under-sized for val labels | Already handled in `scripts/train.py::_run_mtl_check2hgi` (takes max across all folds); verify in P0 |
+| OOD POI labels in val folds mechanically = Acc@0 regardless of model | Cross-state comparisons confounded by OOD-rate, not region cardinality | Report BOTH raw and OOD-restricted Acc@K per run. CH06 formalises. |
+| Transductive embedding training on 100% check-ins before user-hold-out splits | CH01 inflated by upstream leakage | CH15 audits magnitude by retraining Check2HGI with one fold's users held out, comparing Acc@10. Run once as upper bound; if gap < 1pp, declare bounded. |
 
 ## Exit criteria
 

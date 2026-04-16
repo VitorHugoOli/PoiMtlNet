@@ -1,5 +1,5 @@
 {
-  "study_version": "1.0",
+  "study_version": "1.1",
   "study_started": "2026-04-15T00:00:00+00:00",
   "last_update": "2026-04-15T00:00:00+00:00",
   "current_phase": "P0",
@@ -11,105 +11,156 @@
     }
   ],
   "open_issues": [],
+  "revision_notes": "1.1 (2026-04-15): study re-scoped to standalone next-POI + next-region. CH01 rewritten as MTL-lift (no HGI comparison). Added CH04 simple-baseline floor, CH06 OOD-restricted Acc@K, CH14 shortcut audit, CH15 transductive-leakage audit. Removed HGI cross-engine runs from P1. Multi-seed (n=15) default for CH01/CH02/CH03 headlines. val_joint_geom_lift replaces arithmetic val_joint_lift as the check2HGI monitor (fix: review-agent finding #2.1).",
   "phases": {
     "P0": {
       "status": "running",
       "started": "2026-04-15T00:00:00+00:00",
       "finished": null,
       "tests": {
-        "p0_integrity_check2hgi_al": {
+        "p0_1_integrity_al": {
           "status": "planned",
           "phase": "P0",
-          "test_id": "p0_integrity_check2hgi_al",
+          "test_id": "p0_1_integrity_al",
           "claim_ids": [],
-          "description": "Run integrity checks on Check2HGI Alabama artefacts (embeddings, next.parquet, next_region.parquet, checkin_graph.pt).",
-          "config": {
-            "state": "alabama",
-            "engine": "check2hgi"
-          },
+          "description": "PI.1–PI.7 preflight integrity checks on Check2HGI Alabama artefacts.",
+          "config": {"state": "alabama", "engine": "check2hgi"},
           "results_archive": null,
           "observed": {},
           "verdict": null,
           "archived_at": null,
           "notes": "Run before any training. See coordinator/integrity_checks.md."
         },
-        "p0_integrity_check2hgi_fl": {
+        "p0_1_integrity_fl": {
           "status": "planned",
           "phase": "P0",
-          "test_id": "p0_integrity_check2hgi_fl",
+          "test_id": "p0_1_integrity_fl",
           "claim_ids": [],
-          "description": "Run integrity checks on Check2HGI Florida artefacts.",
-          "config": {
-            "state": "florida",
-            "engine": "check2hgi"
-          },
+          "description": "PI.1–PI.7 preflight integrity checks on Check2HGI Florida artefacts.",
+          "config": {"state": "florida", "engine": "check2hgi"},
           "results_archive": null,
           "observed": {},
           "verdict": null,
           "archived_at": null,
-          "notes": "Florida is ~4x Alabama's size; verify no NaN / Inf / shape mismatches."
+          "notes": "FL is ~4× AL's size; verify no NaN/Inf/shape mismatches."
         },
-        "p0_fclass_shortcut_audit_al": {
+        "p0_2_label_roundtrip_al": {
           "status": "planned",
           "phase": "P0",
-          "test_id": "p0_fclass_shortcut_audit_al",
-          "claim_ids": ["CH14"],
-          "description": "Audit whether Check2HGI inherits the HGI fclass -> category 1:1 shortcut (fusion C29 finding). Inspect preprocessing pipeline for POI2Vec dependency; if present, run an fclass-shuffle arm C ablation on next_poi (not next_category — which is not our task).",
-          "config": {
-            "state": "alabama",
-            "engine": "check2hgi",
-            "arm": "fclass_shuffle_if_applicable"
-          },
+          "test_id": "p0_2_label_roundtrip_al",
+          "claim_ids": [],
+          "description": "20-sample hand-verified round-trip of poi_idx → idx_to_placeid → raw checkin stream, for both next_poi and next_region labels. Catches indexing bugs PI.3 (range-only) misses.",
+          "config": {"state": "alabama", "engine": "check2hgi"},
           "results_archive": null,
           "observed": {},
           "verdict": null,
           "archived_at": null,
-          "notes": "Depends on whether Check2HGI preprocessing (research/embeddings/check2hgi/preprocess.py) uses POI2Vec. If not, the audit becomes a declared 'not applicable' and CH14 resolves to confirmed-by-construction."
+          "notes": "See phases/P0_preparation.md §P0.2."
         },
-        "p0_code_deltas_next_poi_loader": {
+        "p0_2_label_roundtrip_fl": {
           "status": "planned",
           "phase": "P0",
-          "test_id": "p0_code_deltas_next_poi_loader",
+          "test_id": "p0_2_label_roundtrip_fl",
           "claim_ids": [],
-          "description": "Code delta: add src/data/inputs/next_poi.py + IoPaths.get_next_poi + CHECK2HGI_NEXT_POI_REGION preset + next_poi pipeline + FoldCreator route. Unit tests pass.",
+          "description": "Same round-trip on Florida.",
+          "config": {"state": "florida", "engine": "check2hgi"},
+          "results_archive": null,
+          "observed": {},
+          "verdict": null,
+          "archived_at": null,
+          "notes": ""
+        },
+        "p0_3_code_deltas_next_poi_loader": {
+          "status": "planned",
+          "phase": "P0",
+          "test_id": "p0_3_code_deltas_next_poi_loader",
+          "claim_ids": [],
+          "description": "Code delta: next_poi loader + IoPaths + CHECK2HGI_NEXT_POI_REGION preset + pipeline + FoldCreator branch + train.py task_a.num_classes resolution + extend evaluate_model with OOD-restricted Acc@K + unit tests.",
           "config": {},
           "results_archive": null,
           "observed": {},
           "verdict": null,
           "archived_at": null,
-          "notes": "~2-3h of mechanical code work. Infrastructure delta (not a scientific test), but the coordinator should track it as the P1 prerequisite."
+          "notes": "~2-3h. Tracked as P1 prerequisite. See phases/P0_preparation.md §P0.3."
+        },
+        "p0_4_smoke_al": {
+          "status": "planned",
+          "phase": "P0",
+          "test_id": "p0_4_smoke_al",
+          "claim_ids": [],
+          "description": "End-to-end CLI smoke with check2hgi_next_poi_region preset on Alabama, 1 fold, 2 epochs.",
+          "config": {
+            "state": "alabama",
+            "engine": "check2hgi",
+            "task": "mtl",
+            "task_set": "check2hgi_next_poi_region",
+            "folds": 1,
+            "epochs": 2
+          },
+          "results_archive": null,
+          "observed": {},
+          "verdict": null,
+          "archived_at": null,
+          "notes": "Exit 0 required; val_joint_geom_lift + per-head val_accuracy_* must all be in metrics dict."
+        },
+        "p0_5_simple_baselines_al": {
+          "status": "planned",
+          "phase": "P0",
+          "test_id": "p0_5_simple_baselines_al",
+          "claim_ids": ["CH04"],
+          "description": "Compute simple baselines on AL: random, majority-class, 1-step Markov, top-K popular, user-history top-K for both next_poi and next_region tasks. Writes the 'known-good reference' floor.",
+          "config": {"state": "alabama", "engine": "check2hgi"},
+          "results_archive": null,
+          "observed": {},
+          "verdict": null,
+          "archived_at": null,
+          "notes": "User implementing on a separate branch. See phases/P0_preparation.md §P0.5 for spec."
+        },
+        "p0_5_simple_baselines_fl": {
+          "status": "planned",
+          "phase": "P0",
+          "test_id": "p0_5_simple_baselines_fl",
+          "claim_ids": ["CH04"],
+          "description": "Same simple-baselines computation on Florida.",
+          "config": {"state": "florida", "engine": "check2hgi"},
+          "results_archive": null,
+          "observed": {},
+          "verdict": null,
+          "archived_at": null,
+          "notes": ""
+        },
+        "p0_6_shortcut_audit_al": {
+          "status": "planned",
+          "phase": "P0",
+          "test_id": "p0_6_shortcut_audit_al",
+          "claim_ids": ["CH14"],
+          "description": "Two-step shortcut audit: (a) code inspection of check2HGI preprocessing for fclass / category / POI-identity shortcut channels; (b) unconditional fclass-shuffle ablation on AL single-task next-POI, 1 fold 10 epochs. Compare Acc@10 drop.",
+          "config": {"state": "alabama", "engine": "check2hgi", "ablation_arm": "fclass_shuffle"},
+          "results_archive": null,
+          "observed": {},
+          "verdict": null,
+          "archived_at": null,
+          "notes": "Unconditional per review-agent #2.3. Even if code inspection shows no shortcut, run the shuffle to catch what inspection misses."
+        },
+        "p0_7_leakage_audit_al": {
+          "status": "planned",
+          "phase": "P0",
+          "test_id": "p0_7_leakage_audit_al",
+          "claim_ids": ["CH15"],
+          "description": "Transductive-leakage audit: retrain Check2HGI on AL with one val fold's users held out; compare next-POI Acc@10 on that fold vs the standard-trained embeddings.",
+          "config": {"state": "alabama", "engine": "check2hgi", "held_out_fold": 0},
+          "results_archive": null,
+          "observed": {},
+          "verdict": null,
+          "archived_at": null,
+          "notes": "Run once as an upper bound. ~30min total."
         }
       }
     },
-    "P1": {
-      "status": "planned",
-      "started": null,
-      "finished": null,
-      "tests": {}
-    },
-    "P2": {
-      "status": "planned",
-      "started": null,
-      "finished": null,
-      "tests": {}
-    },
-    "P3": {
-      "status": "planned",
-      "started": null,
-      "finished": null,
-      "tests": {}
-    },
-    "P4": {
-      "status": "planned",
-      "started": null,
-      "finished": null,
-      "tests": {}
-    },
-    "P5": {
-      "status": "planned",
-      "started": null,
-      "finished": null,
-      "tests": {}
-    }
+    "P1": {"status": "planned", "started": null, "finished": null, "tests": {}},
+    "P2": {"status": "planned", "started": null, "finished": null, "tests": {}},
+    "P3": {"status": "planned", "started": null, "finished": null, "tests": {}},
+    "P4": {"status": "planned", "started": null, "finished": null, "tests": {}},
+    "P5": {"status": "planned", "started": null, "finished": null, "tests": {}}
   }
 }

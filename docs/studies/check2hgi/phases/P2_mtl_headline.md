@@ -1,75 +1,100 @@
-# Phase P2 — MTL headline
+# Phase P2 — HEADLINE: MTL lift + no negative transfer
 
-**Goal:** validate the headline paper claim — that the 2-task MTL `{next_poi, next_region}` on Check2HGI improves next-POI prediction over the P1 single-task baseline, without per-head negative transfer.
+**Goal:** resolve the paper's two headline claims — that the 2-task MTL `{next_poi, next_region}` on Check2HGI beats the single-task next-POI baseline (CH01), and that neither head regresses vs its single-task counterpart (CH02). Multi-seed by design for statistical power.
 
-**Duration:** ~5h (2 states × 1 MTL config × 5f × 50ep).
+**Duration:** ~12h (2 states × 3 seeds × 5 folds × 50 epochs).
 
 **Embedded claims tested:**
-- CH02 — MTL lift (headline).
-- CH03 — No per-head negative transfer.
+- **CH01 (headline)** — MTL next-POI Acc@10 > P1 single-task next-POI Acc@10.
+- **CH02** — MTL per-head Acc@10 ≥ single-task per-head baseline (both heads).
+- **CH11** — seed variance computed as a by-product.
 
-**Gates:** P1 complete with CH01 at least `partial`; frozen folds available.
+**Gates:** P1 complete; CH04 floor passed on all states × tasks; frozen folds available.
+
+---
+
+## Why multi-seed is the default here
+
+Review-agent finding §2.2: with n=5 folds, Wilcoxon signed-rank has **min possible p-value = 0.03125** (and only when all 5 folds agree on direction). A single fold flipping direction takes p above 0.05. For the "≥ 2 pp" effect size we need to detect, n=5 has near-zero power. n=15 (3 seeds × 5 folds) gives:
+- min p = 2⁻¹⁵ ≈ 3 × 10⁻⁵ (plenty of headroom)
+- realistic MDE at 95% power: ~1.2 pp
+- matches how next-POI literature papers typically report variance
+
+Pre-P1 code-delta list includes extending `scripts/train.py` to loop over a list of seeds inside a single invocation, archiving per-seed results.
 
 ---
 
 ## Experiments
 
-| # | State | Task set | Optimiser | Seed | Purpose |
-|---|---|---|---|---|---|
-| P2.1.AL | AL | check2hgi_next_poi_region | NashMTL | 42 | CH02 + CH03 headline |
-| P2.1.FL | FL | check2hgi_next_poi_region | NashMTL | 42 | CH02 + CH03 replication |
+| # | State | Seeds | Folds/seed | Purpose |
+|---|---|---|---|---|
+| P2.1.AL | AL | {42, 123, 2024} | 5 | CH01 + CH02 AL headline |
+| P2.1.FL | FL | {42, 123, 2024} | 5 | CH01 + CH02 FL headline |
 
-Default architecture: baseline MTLnet with FiLM + shared residual backbone. NextHeadMTL on both slots. `val_joint_lift` as checkpoint monitor.
+Task-set: `check2hgi_next_poi_region`. Baseline config = P2 champion from `docs/studies/check2hgi/state.json` (initially defaults: MTLnet + FiLM + NashMTL). FL runs with `--use-class-weights` to mitigate the 22.5% majority next_region class.
 
-**FL note:** enable `--use-class-weights` on FL to mitigate the 22.5% next_region majority class (see HANDOFF §Advisor-2 and critical-review Rev-2).
+Per-run outputs: 3 × 5 = 15 paired samples per state.
 
 ---
 
 ## Runbook
 
 ```bash
-# P2.1.AL
+# P2.1 AL
 STUDY_DIR=docs/studies/check2hgi python scripts/train.py \
   --state alabama --engine check2hgi --task mtl \
   --task-set check2hgi_next_poi_region \
-  --folds 5 --epochs 50 --seed 42 \
+  --folds 5 --epochs 50 \
+  --seed 42 --seed 123 --seed 2024 \
   --gradient-accumulation-steps 1 --batch-size 4096
 
-# P2.1.FL (with class weights)
+# P2.1 FL (class-weighted)
 STUDY_DIR=docs/studies/check2hgi python scripts/train.py \
   --state florida --engine check2hgi --task mtl \
   --task-set check2hgi_next_poi_region \
-  --folds 5 --epochs 50 --seed 42 \
+  --folds 5 --epochs 50 \
+  --seed 42 --seed 123 --seed 2024 \
   --gradient-accumulation-steps 1 --batch-size 4096 \
   --use-class-weights
 ```
+
+The `--seed` multi-arg ability is a pre-P1 code-delta (add to `scripts/train.py::_parse_args`). Alternative: loop externally.
 
 ---
 
 ## Analysis
 
-### CH02 — MTL > single-task on next_POI
+### CH01 — MTL > single-task next-POI
 
-Paired comparison across 5 folds:
-- MTL next_poi Acc@10 (P2.1.AL) vs single-task next_poi Acc@10 (P1.1.AL.C2HGI)
-- Same on FL
+For each state, compare per-paired-sample (seed × fold):
+- MTL next_poi Acc@10 (from P2.1)
+- single-task next_poi Acc@10 (from P1.1, same frozen folds)
 
-**Wilcoxon signed-rank, α=0.05.**
+Wilcoxon signed-rank on the 15 paired deltas, α=0.05.
 
-Verdicts:
-- **confirm** — MTL > single by > 2pp AND paired-test p < 0.05.
-- **partial** — positive trend, < 2pp or p < 0.10.
-- **refute** — MTL ≤ single. Paper pivots to "check-in-level embeddings alone suffice, auxiliary task doesn't help on this data" — still publishable.
+**Verdicts:**
+- `confirm` — MTL > single by ≥ 2pp AND paired-test p < 0.05.
+- `partial` — positive trend, 1–2pp, OR p < 0.10.
+- `refute` — MTL ≤ single. Paper pivots per MASTER_PLAN §"Minimum viable paper".
 
-### CH03 — No per-head negative transfer
+**Report in `ANALYSIS.md`:** paired delta distribution (histogram), mean ± std, Wilcoxon statistic, p-value.
 
-For each head:
-- `val_next_poi_acc10` under MTL ≥ single-task baseline (from P1.1)
-- `val_next_region_acc10` under MTL ≥ single-task baseline (from P1.2)
+### CH02 — No per-head negative transfer
 
-If either drops by > 2pp: **CH03 partial or refuted**. Document as "asymmetric transfer — one task gains, the other regresses." This is the #1 reviewer concern for MTL papers; plan honestly.
+For each head (next_poi, next_region):
+- `val_acc10_<head>` under MTL ≥ single-task baseline
 
-**FL-specific risk:** without class weights, NashMTL tends to over-weight the region head (large majority class gives low loss, so alpha concentrates on it), starving next_poi's gradient. We pre-emptively ran FL with `--use-class-weights`; if CH03 is still negative on FL, the diagnosis is likely still class-imbalance — report it.
+Paired Wilcoxon per head, same 15 samples. Verdict:
+- Both heads ≥ single-task with p > 0.05 (non-significant drop) → `confirm CH02`.
+- Either head drops significantly (p < 0.05 negative) → `refute CH02 for that head`; document as FL-specific or AL-specific depending on pattern. Investigate mitigations (class weights already enabled on FL).
+
+### CH11 — Seed variance bound
+
+From the 15 paired samples: compute std(next_poi_acc10) across the 15 values.
+
+**Verdict:**
+- std < 2pp → seed variance is below the "decisive" threshold. CH01 and subsequent claims can use 2pp as the confidence threshold.
+- std ≥ 2pp → downgrade all claims' confidence thresholds to 1.5σ of observed variance.
 
 ---
 
@@ -78,18 +103,27 @@ If either drops by > 2pp: **CH03 partial or refuted**. Document as "asymmetric t
 ```
 docs/studies/check2hgi/results/P2/
 ├── P2.1.AL/
+│   ├── seed_42/
+│   │   ├── summary.json
+│   │   ├── ood_summary.json
+│   │   └── per_fold/
+│   ├── seed_123/
+│   ├── seed_2024/
+│   └── aggregate.json           # 15 paired samples summary
 ├── P2.1.FL/
-└── ANALYSIS.md
+└── ANALYSIS.md                  # CH01 + CH02 + CH11 verdicts
 ```
 
 ---
 
 ## Decision gate → P3 and P5
 
-Proceed to P3 + P5 only when:
+Proceed to P3 and P5 when:
+1. Both P2.1 runs archived with per-seed + aggregate summaries.
+2. CH01 resolved (confirmed / partial / refuted with evidence).
+3. CH02 resolved.
+4. CH11 seed variance computed.
 
-1. Both P2.1 runs archived.
-2. CH02 status ∈ {confirmed, partial, refuted} with `ANALYSIS.md`.
-3. CH03 status documented. If refuted on both states, escalate before P3 — the rest of the plan depends on MTL being useful.
+P3 and P5 are independent after P2 — run in parallel on separate machines if available.
 
-P3 and P5 are independent of each other after P2 completes.
+**If CH01 refutes on both states:** pause before P3. The rest of the plan assumes MTL has value; without it, consider whether P3 (dual-stream, independent of MTL) is still worth running.

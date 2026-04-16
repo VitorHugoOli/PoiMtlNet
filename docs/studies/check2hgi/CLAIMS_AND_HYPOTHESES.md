@@ -1,6 +1,6 @@
 # Claims and Hypotheses Catalog — Check2HGI Study
 
-This is the **authoritative list** of every claim/hypothesis this study intends to validate. Same shape as the fusion study's catalog, but scoped to **next-POI + next-region prediction on check-in-level contextual embeddings**.
+This is the **authoritative list** of every claim/hypothesis this study intends to validate. Same shape as the fusion study's catalog, but scoped to **next-POI + next-region prediction on check-in-level contextual embeddings** — a **standalone** study with no cross-engine comparisons (no HGI, no fusion) and no replication of prior work (no CBIC baselines).
 
 Each entry has:
 - **ID** (`CH01`, `CH02`, …) for stable referencing (note: `CH` prefix distinguishes from fusion's `C##` — they live in the same repo).
@@ -18,151 +18,151 @@ Each entry has:
 
 ## Tier A — Headline paper thesis
 
-Three claims; the paper lives or dies by them. Every other tier either supports interpretation (B, D) or constrains scope (E).
+Three claims. The paper lives or dies by them. Every other tier either supports interpretation (B, C), characterises sensitivity (D), or constrains scope (E).
 
-### CH01 — Check2HGI (check-in-level) beats HGI (POI-level) on single-task next-POI
+### CH01 — Next-region auxiliary task improves next-POI prediction under MTL on Check2HGI (HEADLINE)
 
-**Statement:** In the single-task setting, training a `next_mtl` transformer head on a 9-window of Check2HGI check-in-level embeddings achieves higher Acc@10 and MRR on next-POI prediction than the same head trained on HGI POI-level embeddings, at matched 5-fold user-held-out CV, matched 50 epochs, matched batch, on Alabama and Florida.
+**Statement:** On Check2HGI check-in-level embeddings, the 2-task MTL `{next_poi, next_region}` raises next-POI Acc@10 over the single-task next-POI baseline by a margin exceeding the per-seed × per-fold CI, on Alabama and Florida. Comparison uses **3 seeds × 5 folds** (n=15 paired samples) via Wilcoxon signed-rank, α=0.05. Monitor: `val_joint_geom_lift` (geometric mean of per-head lifts over majority baseline).
 
-**Source:** Paper thesis — contextual check-in vectors should encode trajectory phase (morning commute vs evening leisure vs weekend vs weekday) that POI-level vectors blur out.
+**Source:** HMT-GRN (SIGIR '22), MGCL (Frontiers '24), Bi-Level GSL (arXiv '24), Learning Hierarchical Spatial Tasks (TORS '24) all report lift from hierarchical region-level auxiliaries on next-POI tasks. This study tests whether the same mechanism transfers to Check2HGI's contextual check-in-level embeddings on Gowalla state-level data.
 
-**Test:** P1.1 — run single-task next-POI on {HGI, Check2HGI} × {AL, FL}. Report Acc@{1,5,10}, MRR, NDCG@{5,10}. Report bootstrapped 95% CI across folds.
-
-**Phase:** P1.
-
-**Status:** `pending`.
-
-**Notes:** Negative result is still publishable — "contextual embeddings help only on high-cardinality sequence tasks, not on per-POI classification" (see also CH02). If CH01 refutes AND CH02 confirms, the paper reframes around the MTL contribution. Training budget must be matched to avoid the confound identified by the critical-review agent (see `docs/studies/check2hgi/archive/v1_wip_mixed_scope/TRAINING_BUDGET_DECISION.md`).
-
----
-
-### CH02 — Next-region auxiliary task improves next-POI under MTL on Check2HGI (headline)
-
-**Statement:** On Check2HGI embeddings, the 2-task MTL `{next_poi, next_region}` raises next-POI Acc@10 over the single-task next-POI baseline by a margin exceeding the 5-fold CI, on AL and FL. MTL balancer: NashMTL with `val_joint_lift` monitor.
-
-**Source:** HMT-GRN (SIGIR '22), MGCL (Frontiers '24), Bi-Level GSL (arXiv '24), Learning Hierarchical Spatial Tasks (TORS '24) all report lift from hierarchical region-level auxiliaries on next-POI tasks. We test whether the same mechanism transfers to Check2HGI's contextual embeddings.
-
-**Test:** P2.1 — compare (a) single-task next-POI on Check2HGI (the CH01 winner) vs (b) 2-task MTL `{next_poi, next_region}` on Check2HGI. 5-fold CV, 50 epochs, NashMTL.
+**Test:** P2.1 — compare (a) single-task next-POI on Check2HGI (from P1) vs (b) 2-task MTL `{next_poi, next_region}` on Check2HGI. 3 seeds × 5-fold user-held-out StratifiedGroupKFold, 50 epochs, NashMTL.
 
 **Phase:** P2.
 
 **Status:** `pending`.
 
-**Notes:** This is the paper's headline comparison. If CH02 is negative on both states, the narrative shrinks to CH01 alone and the paper becomes "check-in-level embeddings help next-POI; auxiliary tasks don't add signal on this data." Still publishable, weaker contribution.
+**Notes:** Per-head tasks and the comparison run on frozen folds so the Wilcoxon pair is valid. If CH01 refutes on both states, the paper reframes around CH03 (dual-stream input helps next-POI even without MTL) or CH04/CH05 (methodology). If it refutes on only one state, flag state-dependent behaviour and investigate before publication. See MASTER_PLAN §Exit criteria for the "minimum viable paper" positioning.
 
 ---
 
-### CH03 — No per-head negative transfer under MTL
+### CH02 — No per-head negative transfer under MTL
 
-**Statement:** Under the 2-task MTL from CH02, each head's validation metrics are ≥ its single-task baseline by a margin larger than the 5-fold CI:
+**Statement:** Under the 2-task MTL from CH01, each head's validation metrics are ≥ its single-task baseline by a margin larger than seed × fold CI:
 - next_POI under MTL ≥ next_POI single-task (Acc@10 and MRR)
 - next_region under MTL ≥ next_region single-task (Acc@10 and MRR)
 
-**Source:** Critical-reviewer concern — without this control, a composite "joint_lift goes up" claim is confounded with one head improving at the other's expense.
+**Source:** Critical-reviewer concern — without this control, a composite "joint metric goes up" claim is confounded with one head improving at the other's expense.
 
-**Test:** P2.2 — single-task next-region head must also be run (P1.2), then compared against its MTL counterpart.
+**Test:** P2.2 — single-task next-region head must also be run (P1.2), then compared against its MTL counterpart with the same 3 × 5 pairing as CH01.
 
 **Phase:** P2.
 
 **Status:** `pending`.
 
-**Notes:** The fusion study's analogous claim is C28. A negative result on either head is the #1 reviewer ask; plan for it by (a) reporting it honestly, (b) proposing a mitigation (class-weighted CE, especially on Florida where next_region has a 22.5% majority class), and (c) showing whether mitigation rescues the head.
+**Notes:** Florida has a 22.5% majority next-region class; `--use-class-weights` is the pre-registered mitigation. If CH02 still fails on FL with class weights, document as a data-specific limitation, not a method failure. This is the #1 reviewer ask for any MTL paper; plan for the negative result.
+
+---
+
+### CH03 — Region embeddings as an explicit input stream improve next-POI over check-in-only input
+
+**Statement:** Feeding the region embedding of each timestep's POI as a parallel input stream (dual-stream concat, `[B, 9, 128]` instead of `[B, 9, 64]`) improves next-POI Acc@10 over the MTL baseline from CH01, on at least one of Alabama or Florida, at matched training budget.
+
+**Source:** HMT-GRN / Bi-Level GSL use region-level features as explicit model input, not just as auxiliary supervision. Tests whether giving the encoder direct region information (beyond what the shared backbone learns from the next-region auxiliary head) helps the POI task.
+
+**Test:** P3.1 — same P2-champion backbone + optimiser, two input variants (check-in-only vs check-in⊕region-emb). 3 seeds × 5 folds × 50 epochs.
+
+**Phase:** P3.
+
+**Status:** `pending`.
+
+**Notes:** CH03 is independent of CH01 — dual-stream can help even if MTL doesn't, and MTL can help even if dual-stream doesn't. The paper's strongest positioning has both confirmed.
 
 ---
 
 ## Tier B — Methodology & supporting claims
 
-### CH04 — Next-region is a meaningful task (not a noise-injection regulariser)
+### CH04 — Check2HGI learned models beat simple baselines by ≥ 2× on both heads
 
-**Statement:** Single-task next-region prediction on Check2HGI embeddings achieves Acc@1 at least 2× the majority-class baseline on both states (AL majority ~2.3% → learned ≥ 4.6%; FL majority ~22.5% → learned ≥ 45%). Acc@10 ≥ Acc@1 by a meaningful margin.
+**Statement:** On both next-POI and next-region tasks, every Check2HGI-based learned model (single-task or MTL) achieves Acc@10 at least 2× the strongest non-learned baseline (majority-class, random, 1-step Markov, user-history top-K) on both Alabama and Florida.
 
-**Source:** Sanity / anti-debugging. If next-region is trivial to saturate at majority-class, any lift in CH02 could be a regularisation artefact (noise injection), not genuine task signal.
+**Source:** Pipeline-correctness floor. If a learned model doesn't beat 1-step Markov on its own data, something is fundamentally broken before any paper claim is made. This is the "known-good reference" equivalent to fusion's P0.4 CBIC replication — except instead of replicating an external number, we verify our learned model actually learns something over trivial baselines on our own data.
 
-**Test:** P1.2 — single-task next-region on Check2HGI. Report Acc@{1,5,10}, MRR, majority-class baseline.
+**Test:** P0.5 (baselines) + P1.1/P1.2 (single-task) + P2.1 (MTL). Every row's Acc@10 compared against the best simple baseline in the same `results/P0/simple_baselines/<state>/` summary.
 
-**Phase:** P1.
+**Phase:** P0 + P1 + P2 (ongoing check).
 
 **Status:** `pending`.
 
-**Notes:** From the 2026-04-15 probing experiment (linear-probe-from-embedding → region), we already know the signal is non-trivial on AL (3.4× majority) and inconclusive on FL under linear probing (1.04× — but a transformer sequence model should do much better).
+**Notes:** Simple baselines are computed once in P0.5 and referenced throughout. The paper's main experimental table starts with a simple-baselines row so readers see the floor explicitly.
 
 ---
 
 ### CH05 — Ranking metrics discriminate where macro-F1 collapses
 
-**Statement:** On both heads (next_poi and next_region), Acc@10 and MRR differentiate Check2HGI from HGI with a statistically significant margin, while macro-F1 on either head is effectively zero for both engines (the label space is too large and sparse for class-balanced F1 to separate).
+**Statement:** On both heads, Acc@{1, 5, 10} and MRR differentiate model variants with margins that match the practical-significance threshold set in MASTER_PLAN, while macro-F1 on either head is effectively zero-variance across variants (label spaces of 10³–10⁵ classes with sparse support).
 
-**Source:** Methodology / justification. HMT-GRN and MGCL use ranking metrics precisely because macro-F1 is uninformative at ~10³–10⁵ classes with sparse support. Our `compute_classification_metrics` already has the hand-rolled high-cardinality path (see `src/tracking/metrics.py::_handrolled_cls_metrics`).
+**Source:** Methodology justification. HMT-GRN, MGCL and the broader next-POI literature use ranking metrics precisely because macro-F1 is uninformative at high cardinality. This claim empirically documents that on our specific data.
 
-**Test:** P1.1 output — both macro-F1 and Acc@K/MRR reported per engine. Differences compared.
+**Test:** Every P1 / P2 run reports both macro-F1 and Acc@K / MRR. Differences compared.
 
 **Phase:** P1.
 
 **Status:** `pending`.
 
-**Notes:** Paper methods section — explicitly documents why ranking metrics are primary and macro-F1 is reported only for completeness.
+**Notes:** Paper methods section — explicitly documents why ranking metrics are primary and macro-F1 is reported only for completeness. Saves us from a reviewer asking "why not F1?".
 
 ---
 
-## Tier C — Region-input mechanism (gated)
+### CH06 — Check2HGI learned models beat simple baselines on OOD-restricted Acc@K (guards against train-memorisation artefact)
 
-### CH06 — Region embeddings as input improve next-POI Acc@10
+**Statement:** When Acc@K is restricted to sequences whose target POI also appears in the current training fold ("in-distribution" POIs), Check2HGI models still beat simple baselines (CH04 standard). Equivalently: the learned Acc@K on the in-distribution subset is not a trivial consequence of memorising training POIs.
 
-**Statement:** Using dual-stream input (concatenating the region embedding of each check-in's POI to the check-in embedding per timestep, doubling the per-timestep feature width from 64 to 128) improves next-POI Acc@10 on Check2HGI over the check-in-only input baseline, on at least one of Florida or Alabama.
+**Source:** Critical-review concern: StratifiedGroupKFold holds users out, but next-POI labels are POI indices. Some val users visit POIs that no training user visited — for those sequences, Acc@K is mechanically 0 regardless of model quality. Report both raw Acc@K (for completeness) and OOD-restricted Acc@K (for the defensible comparison).
 
-**Source:** Probe experiment (AL/AZ/FL linear-probe of check-in emb → region showed 3.4× / 1.7× / 1.04× majority lift respectively). The FL result suggests that at high region cardinality, check-in embeddings lose region signal — dual-stream input should help most on FL.
+**Test:** Every P1 / P2 / P3 / P4 run reports two Acc@K numbers: raw and OOD-restricted. `coordinator/integrity_checks.md` PO.4 asserts OOD-restricted > raw.
 
-**Test:** P3.1 — same P2-champion backbone + optimiser, two input variants (check-in-only vs check-in⊕region-emb). 5-fold × 50ep.
-
-**Phase:** P3.
+**Phase:** P1 onwards.
 
 **Status:** `pending`.
 
-**Notes:** See `docs/studies/check2hgi/archive/v1_wip_mixed_scope/CRITICAL_REVIEW.md §3.6` for the empirical probe that motivates this claim.
+**Notes:** AL and FL have different OOD rates (sparse vs dense coverage). Cross-state comparisons use OOD-restricted numbers to avoid confounding. Raw Acc@K remains in the appendix paper table.
 
 ---
 
-### CH07 — Bidirectional cross-attention > concat (gated on CH06)
+## Tier C — Region-input mechanism
 
-**Statement:** At matched parameter budget, a new `MTLnetCrossAttn` architecture with two cross-attention layers between the check-in stream and the region-embedding stream achieves higher Acc@10 on next_POI than the concat baseline (P3.1 winner), on FL.
+### CH07 — Bidirectional cross-attention between check-in and region streams improves over concat (gated on CH03)
 
-**Source:** HMT-GRN / Bi-Level GSL use explicit cross-level attention, not just concatenation. Tests whether bidirectional information flow between streams captures structure that static concatenation misses.
+**Statement:** A new `MTLnetCrossAttn` architecture with two cross-attention layers between the check-in stream and the region-embedding stream achieves higher next-POI Acc@10 than the concat baseline (P3.1 winner) at matched parameter budget, on Florida.
 
-**Test:** P4.1 — `MTLnetCrossAttn` vs concat baseline, same data, matched parameter count.
+**Source:** HMT-GRN / Bi-Level GSL use explicit cross-level attention, not just concatenation. Tests whether bidirectional information flow between streams captures structure that static concat misses.
 
-**Phase:** P4 (only runs if CH06 shows ≥ 2pp Acc@10 lift on FL in P3).
+**Test:** P4.1 — `MTLnetCrossAttn` vs concat baseline, same data, matched parameter count, 3 seeds × 5 folds.
+
+**Phase:** P4 (only runs if CH03 shows ≥ 2pp Acc@10 lift on FL in P3).
 
 **Status:** `pending (gated)`.
 
-**Notes:** Full architecture spec was in `archive/v1_wip_mixed_scope/OPTION_C_SPEC.md`. Separate model class; legacy MTLnet untouched.
+**Notes:** Full architecture spec in `archive/v1_wip_mixed_scope/OPTION_C_SPEC.md`. Separate model class; legacy MTLnet untouched.
 
 ---
 
-### CH11 — Region-input gain is state-dependent
+### CH08 — Region-input gain is state-dependent (AL → FL spectrum)
 
-**Statement:** The Δ Acc@10 from adding region embeddings as input (CH06 or CH07, whichever is tested) is larger on Florida (4,703 regions, 22.5% majority) than on Alabama (1,109 regions, 2.3% majority) by at least 2×.
+**Statement:** The Δ next-POI Acc@10 from adding the region embedding stream (CH03 or CH07, whichever is tested) differs between Alabama (1,109 regions, 2.3% majority next-region) and Florida (4,703 regions, 22.5% majority next-region) by a measurable margin.
 
-**Source:** Probe-experiment trend — linear-recovery lift of region from check-in embedding shrinks monotonically with region cardinality. The full transformer's lift should follow.
+**Source:** The preliminary linear-probe (AL/AZ/FL check-in-emb → region recovery) showed decreasing signal as region cardinality grows. If transformers extract more than linear probes can, the state-dependence may flatten — that's a finding in itself.
 
-**Test:** P3 comparison across both states.
+**Test:** P3 cross-state comparison.
 
 **Phase:** P3.
 
 **Status:** `pending`.
 
-**Notes:** CH11 is paper-valuable even if CH06 / CH07 are partial — it characterises *when* hierarchical-input-representation matters.
+**Notes:** CH08 is paper-valuable even if CH03 and CH07 are partial — characterises *when* hierarchical input representation matters.
 
 ---
 
-## Tier D — Ablations (light, not a full legacy port)
+## Tier D — Sensitivity ablations (Alabama primary, FL spot-check)
 
-### CH08 — `next_mtl` head outperforms simpler sequence heads on next-POI
+### CH09 — `next_mtl` head outperforms simpler sequence heads on next-POI
 
-**Statement:** Among sequential head variants in the registry (`next_mtl`, `next_lstm`, `next_gru`, `next_tcn_residual`, `next_temporal_cnn`), `next_mtl` (4-layer transformer + causal + attention pool) achieves the highest Acc@10 on next_POI head at matched capacity.
+**Statement:** Among sequential head variants in the registry (`next_mtl`, `next_lstm`, `next_gru`, `next_tcn_residual`, `next_temporal_cnn`), `next_mtl` (4-layer transformer + causal + attention pool) achieves the highest next-POI Acc@10 at matched capacity.
 
-**Source:** Prior single-task experiments on the fusion track (C08 analogue) showed transformer heads dominate on high-cardinality sequence prediction; test whether this replicates on Check2HGI.
+**Source:** Prior experiments on high-cardinality sequence prediction showed transformer heads dominate; test whether this replicates on Check2HGI.
 
-**Test:** P5.1 — swap `next_poi` head across 5 candidates; keep everything else at the P2 champion. Alabama only.
+**Test:** P5.1 — swap both heads across 5 candidates (both slots sequential); keep everything else at the P2 champion. Alabama only.
 
 **Phase:** P5.
 
@@ -172,13 +172,13 @@ Three claims; the paper lives or dies by them. Every other tier either supports 
 
 ---
 
-### CH09 — NashMTL vs equal_weight vs CAGrad on this task pair
+### CH10 — MTL optimiser: NashMTL vs equal_weight vs CAGrad
 
-**Statement:** On Check2HGI `{next_poi, next_region}`, NashMTL achieves `val_joint_lift` ≥ equal_weight and ≥ CAGrad by a margin larger than the 5-fold CI.
+**Statement:** On Check2HGI `{next_poi, next_region}`, NashMTL achieves `val_joint_geom_lift` ≥ equal_weight and ≥ CAGrad by a margin larger than seed × fold CI.
 
-**Source:** Fusion track's C02/C03 analogue. Next_POI and next_region have very different label-space magnitudes (ratio ~10× in cardinality, larger in loss magnitude) — gradient-surgery optimisers may help. Or equal_weight may suffice (the Xin et al. finding on single-source embeddings).
+**Source:** Next_POI and next_region have very different label-space magnitudes — gradient-surgery optimisers may help. Or equal_weight may suffice (Xin-et-al. finding).
 
-**Test:** P5.2 — same fold data, same arch, 3 MTL criteria: `nash_mtl`, `equal_weight`, `cagrad`.
+**Test:** P5.2 — same fold data, same arch, 3 MTL criteria. Run on both AL and FL (per reviewer suggestion — optimiser behaviour is most likely to be imbalance-sensitive).
 
 **Phase:** P5.
 
@@ -188,19 +188,19 @@ Three claims; the paper lives or dies by them. Every other tier either supports 
 
 ---
 
-### CH10 — Seed variance bounds
+### CH11 — Seed variance bound
 
-**Statement:** The 5-fold standard deviation of Acc@10 for next_POI on Check2HGI + MTL + P2 champion is < 2 pp across seeds {42, 123, 2024}.
+**Statement:** The 3-seed × 5-fold standard deviation of next-POI Acc@10 on the P2 champion is < 2 pp. (Required for CH01's "≥ 2pp margin" claims to be statistically meaningful.)
 
-**Source:** Methodology — a paired-test claim of "+3 pp from MTL" is meaningless if seed variance is ±4 pp. Pre-register variance floor.
+**Source:** Methodology — a paired-test claim of "+3 pp from MTL" is meaningless if seed variance is ±4 pp. Pre-register the variance bound.
 
-**Test:** P5.3 — replicate P2 champion across 3 seeds on Alabama.
+**Test:** CH01 and CH02 are already multi-seed (3 × 5 = n=15), so this variance is computed as a by-product. No additional runs needed beyond re-analysing those results.
 
-**Phase:** P5.
+**Phase:** P2 (analysis); reported explicitly in P5.3 summary.
 
 **Status:** `pending`.
 
-**Notes:** If seed variance is high, downgrade "confirmed" thresholds across the catalog and publish CIs explicitly. This is the bound referenced in CH02 and CH06 "margin larger than CI" language.
+**Notes:** If observed seed variance > 2 pp, downgrade "confirmed" thresholds in CH01/CH03/CH07 accordingly and report CIs explicitly in the paper table.
 
 ---
 
@@ -208,9 +208,9 @@ Three claims; the paper lives or dies by them. Every other tier either supports 
 
 ### CH12 — Gowalla state-level results do not transfer to FSQ-NYC/TKY
 
-**Statement:** Because Check2HGI relies on census-tract region assignment (US-only in the current pipeline), results on Gowalla-AL/FL are not directly comparable to reported HMT-GRN / MGCL / GETNext numbers on FSQ-NYC/TKY or Gowalla-global. Our numbers sit in the Gowalla-state sibling lineage.
+**Statement:** Results on Gowalla-AL/FL are not directly comparable to reported HMT-GRN / MGCL / GETNext numbers on FSQ-NYC/TKY or Gowalla-global. External literature numbers appear only in an appendix table with a scope caveat; the paper's headline comparisons are internal (simple baselines → single-task Check2HGI → MTL → dual-stream → cross-attn).
 
-**Source:** External-validity disclosure required by any reviewer who knows the next-POI literature.
+**Source:** External-validity disclosure. Check2HGI relies on census-tract region assignment (US-only), and our preprocessing differs from those papers'.
 
 **Test:** N/A — declared scope limitation, documented in paper threats-to-validity.
 
@@ -218,7 +218,7 @@ Three claims; the paper lives or dies by them. Every other tier either supports 
 
 **Status:** `declared`.
 
-**Notes:** Follow-up work (future paper): port the region-definition pipeline to FSQ-NYC/TKY using administrative units or neighbourhood polygons.
+**Notes:** Follow-up work: port the region-definition pipeline to FSQ-NYC/TKY using administrative units or neighbourhood polygons.
 
 ---
 
@@ -238,19 +238,35 @@ Three claims; the paper lives or dies by them. Every other tier either supports 
 
 ---
 
-### CH14 — Check2HGI's relationship to the HGI fclass-identity shortcut (audit)
+### CH14 — Check2HGI preprocessing shortcut audit
 
-**Statement:** Check2HGI embeddings are evaluated for inheritance of the fclass → category 1:1 determinism shortcut that main's commit `19b9c2b` identified in HGI preprocessing. Specifically: under an fclass-shuffle ablation (arm C analogue, if applicable to check2HGI preprocessing), next-POI Acc@10 drop is **smaller** than next-category F1 drop — demonstrating that check2HGI's representation does not collapse to the fclass shortcut.
+**Statement:** Check2HGI's preprocessing pipeline does not contain a task-level shortcut that trivially solves next-POI or next-region (analogous to the fclass→category 1:1 determinism that fusion's C29 identified in HGI/POI2Vec, but audited here with respect to our own tasks).
 
-**Source:** Reviewer finding from main (C29 in fusion study): HGI + POI2Vec pipeline on Gowalla preserves a 1:1 fclass→category mapping via POI2Vec's fclass-level embedding sharing, which makes POI-category classification trivially solvable. Check2HGI's preprocessing uses a different POI2Vec path (or none) — we must verify empirically.
+**Source:** Fusion-study audit (C29) raised the possibility that shared Gowalla input features (fclass, category, raw POI ids) could create shortcuts. We verify that Check2HGI's different preprocessing chain doesn't reproduce an equivalent shortcut for our tasks.
 
-**Test:** P0.2 — inspect Check2HGI preprocessing for the shortcut; if present, replicate the arm C fclass-shuffle ablation on Check2HGI single-task next-POI and next-region (not next-category, which is not our task). Compare the Δ Acc@10 to the fusion study's arm-C results.
+**Test:** P0.6 — (a) code inspection of `research/embeddings/check2hgi/preprocess.py` for any fclass / category / POI-identity channel that could be exploited for next-POI or next-region; (b) **unconditionally** (per review-agent recommendation) run an fclass-shuffle ablation on next-POI on Alabama, single-task, 1 fold, 10 epochs — compare Acc@10 drop.
 
 **Phase:** P0.
 
 **Status:** `pending`.
 
-**Notes:** If the shortcut IS present in Check2HGI and it affects next-POI prediction (not just next-category), our headline comparison may inherit a confound. This claim is the first thing to check in P0.
+**Notes:** If shortcut is found: document as CH14 `refuted_by_construction` + mitigation plan. If no shortcut: document the negative result (also publishable — proves the representation is doing real work). The unconditional shuffle test is cheap (~30 min) and catches shortcuts the inspection might miss.
+
+---
+
+### CH15 — Upstream (transductive) embedding leakage
+
+**Statement:** Check2HGI is trained on 100% of Gowalla check-ins for all users before the downstream task uses user-held-out folds. Validation-fold users' trajectories shape the embeddings they're then evaluated on. We audit the magnitude of this effect by retraining Check2HGI with one fold's users held out and comparing downstream next-POI Acc@10.
+
+**Source:** Fusion study's C30 flagged this for HGI. The transductive-training effect is potentially larger for next-POI prediction than for category classification, because the label IS a POI index whose embedding was directly shaped by the sequences being predicted.
+
+**Test:** P0.7 — retrain Check2HGI on 4-of-5 train folds only (one audit fold; not full 5× re-training), compute next-POI Acc@10 on the held-out fold, compare to the standard result on the same fold.
+
+**Phase:** P0.
+
+**Status:** `pending` (expensive — ~20 min extra per held-out fold; run once as an upper-bound on the effect).
+
+**Notes:** If the gap is small (< 1 pp), declare the effect as bounded. If large, this becomes a paper limitation section — it's a Gowalla-specific transductive-learning phenomenon, not a method failure.
 
 ---
 
@@ -258,23 +274,26 @@ Three claims; the paper lives or dies by them. Every other tier either supports 
 
 | ID | Tier | Phase | Status | Decides |
 |----|------|-------|--------|---------|
-| CH01 | A | P1 | pending | Embedding-quality claim (single-task next-POI) |
-| CH02 | A | P2 | pending | MTL lift (headline) |
-| CH03 | A | P2 | pending | No per-head negative transfer |
-| CH04 | B | P1 | pending | Next-region is meaningful |
+| **CH01** | A | P2 | pending | MTL lift on next-POI (HEADLINE) |
+| **CH02** | A | P2 | pending | No per-head negative transfer |
+| **CH03** | A | P3 | pending | Dual-stream region-input helps |
+| CH04 | B | P0.5, P1, P2 | pending | Learned models beat simple baselines |
 | CH05 | B | P1 | pending | Ranking metrics > macro-F1 methodology |
-| CH06 | C | P3 | pending | Region emb as input helps |
+| CH06 | B | P1+ | pending | OOD-restricted Acc@K (train-memorisation guard) |
 | CH07 | C | P4 (gated) | pending | Cross-attention > concat |
-| CH08 | D | P5 | pending | Head architecture ablation |
-| CH09 | D | P5 | pending | MTL optimiser ablation |
-| CH10 | D | P5 | pending | Seed variance bound |
-| CH11 | C | P3 | pending | State-dependent gain |
-| CH12 | E | — | declared | External-validity limit |
-| CH13 | E | — | declared | Enrichment out of scope |
-| CH14 | E | P0 | pending | Fclass shortcut audit |
+| CH08 | C | P3 | pending | State-dependent gain |
+| CH09 | D | P5 | pending | Head architecture ablation |
+| CH10 | D | P5 | pending | MTL optimiser ablation (AL + FL) |
+| CH11 | D | P2 analysis | pending | Seed variance bound |
+| CH12 | E | — | declared | Gowalla state-level ≠ FSQ-NYC/TKY |
+| CH13 | E | — | declared | Encoder enrichment deferred |
+| CH14 | E | P0 | pending | Preprocessing shortcut audit |
+| CH15 | E | P0 | pending | Transductive embedding leakage audit |
 
-**Deferred (not in this study; captured in `docs/studies/check2hgi/archive/v1_wip_mixed_scope/` for reference):**
-- Next_time_gap auxiliary task.
-- Expert-gating MTL architectures (CGC/MMoE/DSelect-K).
-- Full P5-legacy arch×optim grid (5×20).
+**Deferred** (not in this study; kept in `archive/v1_wip_mixed_scope/` for reference):
+- Next_time_gap third auxiliary task.
+- Expert-gating MTL architectures (CGC/MMoE/DSelect-K) — covered by fusion study.
 - Frozen-backbone head-swap co-adaptation probe.
+- Full P5-legacy arch×optim grid (5×20).
+
+**Minimum viable paper** (if Tier-A CH01 refutes): reframe around CH03 (dual-stream helps without MTL) and CH04/CH05 (methodology contribution) — still a BRACIS-sized paper, weaker contribution.

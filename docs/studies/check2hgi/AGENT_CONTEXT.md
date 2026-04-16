@@ -50,7 +50,18 @@ If `STUDY_DIR` is unset, commands default to `docs/studies/fusion/` — do NOT r
 
 **Slot B (`task_b`):** `next_region` — predict the region of the next POI. Cardinality: ~1.1K (AL), ~4.7K (FL), ~1.5K (AZ) classes. Primary metric: **Acc@{1, 5, 10}, MRR**. Macro-F1 reported for completeness only.
 
-Both heads are sequential (`next_mtl` transformer) and consume the same X tensor `[B, 9, 64]` of check-in embeddings. Labels differ. Joint monitor: `val_joint_lift = mean(acc1_poi / majority_poi, acc1_region / majority_region)` — scale-coherent across the two heads' very different cardinalities.
+Both heads are sequential (`next_mtl` transformer) and consume the same X tensor `[B, 9, 64]` of check-in embeddings. Labels differ. Joint monitor:
+
+```
+val_joint_geom_lift = sqrt(
+    max(acc1_poi    / majority_poi,    1e-8) *
+    max(acc1_region / majority_region, 1e-8)
+)
+```
+
+**Geometric** mean of per-head lifts-over-majority, NOT arithmetic mean. The arithmetic version (used in v1 and since fixed on 2026-04-15 per the review-agent finding) is scale-incoherent when head cardinalities span orders of magnitude (FL next_poi majority ~0.001% vs FL next_region majority 22.5% — arithmetic mean is dominated by the POI term). The geometric mean forces both heads to contribute multiplicatively so the monitor penalises either head collapsing.
+
+**Reported alongside:** `val_joint_arith_lift` (the old formula) + per-head raw Acc@K and OOD-restricted Acc@K. The paper uses `val_joint_geom_lift` as the checkpoint monitor but reports the full metric suite.
 
 ---
 
