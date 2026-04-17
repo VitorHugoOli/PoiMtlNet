@@ -53,6 +53,40 @@ Integration test: **[CH01/CH02] Bidirectional MTL** — with (1)+(2)+(3), does M
 
 **Note:** the old `markov_1step` (POI-level) baseline (21.3% AL / 45.9% FL) had a ~50% fallback rate to top-k-popular — it was a degenerate baseline. The corrected `markov_1step_region` is the paper-reported floor. The POI-level entry is kept for continuity but not used as a floor.
 
+## 2026-04-17 mid-morning — P2 deep-dive results
+
+**Three important findings (in order of discovery):**
+
+### C11 fold leakage fixed; CH16 sharpened
+
+STL `next` single-task used `StratifiedKFold` (not user-disjoint), unlike MTL's grouped scheme. Fix applied (`5217095`). After refair on AL 5f × 50ep: Check2HGI F1 38.58 ± 1.23 (was 39.16), HGI F1 20.29 ± 1.34 (was 23.48). **CH16 Δ grew from +15.67 to +18.30 pp** — Check2HGI is *more* advantaged on fair folds because HGI leaks through POI-level taste memorisation. See `issues/FOLD_LEAKAGE_AUDIT.md`.
+
+### REGION_HEAD_MISMATCH fixed, reveals deeper issue
+
+GRU region head wired in + pad-mask re-zero in MTL forward (`b92fc62`). Lifted MTL reg Acc@10 by only +1.26 pp (47.62 Transformer → 48.88 GRU). The remaining gap to STL-GRU-standalone's 56.94% is **backbone dilution**, not head choice. See `issues/REGION_HEAD_MISMATCH.md` + `issues/BACKBONE_DILUTION.md`.
+
+### CH01 bidirectional FAILS on AL
+
+MTL dselectk+pcgrad 5f × 50ep GRU head:
+- cat F1: 36.08 ± 1.96 vs STL 38.58 ± 1.23 (Δ −2.50, σ-overlap)
+- reg Acc@10: 48.88 ± 6.26 vs STL 56.94 ± 4.01 (Δ −8.06, σ-overlap)
+- Δm = −14.12%; Pareto gate fails on both r_A and r_B.
+
+**Mechanistic finding (paper-worthy on its own):** MTL lift is **inversely related to task-B head's standalone strength**. Weak head (Transformer, 7.4% standalone) → MTL lifts to 47.62% (+40 pp). Strong head (GRU, 56.94% standalone) → MTL dilutes to 48.88% (−8 pp). Shared backbone's fixed capacity cannot exceed a strong head's own ceiling.
+
+### Next experiments launched
+
+1. **FL 1f × 50ep validate** (bg `bpnvxd3b4`) — does 127K samples close the dilution gap?
+2. **Research subagent** (agent `abe5733efde94d6d4`) — SOTA MTL papers for backbone-dilution fixes.
+
+### Three-path decision matrix post-FL
+
+- FL succeeds → CH01 survives on headline states; AL framed as small-data caveat.
+- FL partially succeeds → loosen CH01 to "no regression on either head."
+- FL fails → retire CH01; lead paper with CH16 + CH03 + mechanistic insight.
+
+---
+
 ## P1.5 — embedding comparison (2026-04-16)
 
 Check2HGI vs HGI region embeddings on AL, TCN head, 5f × 50ep, region input, seed 42:

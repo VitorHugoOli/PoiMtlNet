@@ -11,7 +11,8 @@ Convention (mirrors `docs/studies/fusion/issues/`):
 | Issue | Severity | Detected | Status | Fix |
 |-------|----------|----------|--------|-----|
 | [FOLD_LEAKAGE_AUDIT](FOLD_LEAKAGE_AUDIT.md) | HIGH | 2026-04-17 (P2 critical review) | FIXED + VERIFIED | `src/data/folds.py::_create_single_task_folds` uses `StratifiedGroupKFold` for NEXT task |
-| [REGION_HEAD_MISMATCH](REGION_HEAD_MISMATCH.md) | HIGH | 2026-04-16 (P1) | FIX PENDING | Swap `next_mtl` Transformer → `next_gru` in MTL region slot |
+| [REGION_HEAD_MISMATCH](REGION_HEAD_MISMATCH.md) | HIGH | 2026-04-16 (P1) | FIXED — +1 pp lift only | GRU preset + pad-mask re-zero in MTL forward (commit `b92fc62`). Reveals deeper BACKBONE_DILUTION issue. |
+| [BACKBONE_DILUTION](BACKBONE_DILUTION.md) | HIGH | 2026-04-17 (P2-validate) | CHARACTERISED | Shared backbone dilutes strong standalone heads (−8 pp GRU-on-region) while lifting weak ones (+40 pp Transformer-on-region). CH01 fails on AL. FL test pending. |
 | [GRADNORM_EXPERT_GATING](GRADNORM_EXPERT_GATING.md) | MEDIUM | 2026-04-17 (P2 screen) | WORKAROUND | Skip gradnorm × expert-gating combos until root-caused |
 
 ## Related logs
