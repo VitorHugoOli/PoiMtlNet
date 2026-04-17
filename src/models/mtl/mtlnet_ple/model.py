@@ -17,7 +17,7 @@ from configs.model import InputsConfig
 from models.mtl._components import PLELiteLayer
 from models.mtl.mtlnet.model import MTLnet
 from models.registry import register_model
-from tasks import TaskSet
+from tasks import LEGACY_CATEGORY_NEXT, TaskSet
 
 
 @register_model("mtlnet_ple")
@@ -108,6 +108,13 @@ class MTLnetPLE(MTLnet):
         enc_next = self.next_encoder(next_input)
 
         shared_cat, shared_next = self.ple(enc_cat, enc_next)
+
+        # Re-zero at original pad positions before the heads; see MTLnet
+        # base class forward() docstring. Non-legacy path only.
+        if self._task_set is not LEGACY_CATEGORY_NEXT:
+            shared_next = shared_next.masked_fill(mask.unsqueeze(-1), 0)
+            if self._task_a_is_sequential:
+                shared_cat = shared_cat.masked_fill(mask_a.unsqueeze(-1), 0)
 
         if self._task_a_is_sequential:
             out_cat = self.category_poi(shared_cat)

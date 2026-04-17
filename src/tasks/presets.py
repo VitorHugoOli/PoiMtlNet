@@ -89,15 +89,21 @@ CHECK2HGI_NEXT_REGION = TaskSet(
         # docs/plans/CHECK2HGI_MTL_BRANCH_PLAN.md.
         name="next_region",
         num_classes=0,
-        head_factory=None,
+        # GRU head is the region-task champion per P1 head ablation on
+        # AL 5f × 50ep: `next_gru` 56.94 ± 4.01 Acc@10 vs `next_mtl`
+        # (Transformer) 7.40% (below random-tier for a 1109-class task).
+        # The Transformer head is tuned for low-cardinality outputs
+        # (7-class next-category) and does not scale to 1109/4702-class
+        # region. See issues/REGION_HEAD_MISMATCH.md for the full audit.
+        head_factory="next_gru",
         is_sequential=True,
         primary_metric=PrimaryMetric.ACCURACY,
     ),
 )
-"""Check2HGI-track pair: both heads are sequential NextHead transformers.
-Next-category keeps macro-F1 as primary (category space is 7 and
-imbalanced); next-region primary is Acc@1 because region cardinality is
-~10^3 (ranking-metric regime, per HMT-GRN / MGCL)."""
+"""Check2HGI-track pair. Task-a (`next_category`, 7 classes) uses the
+historical NextHeadMTL Transformer (its design target). Task-b
+(`next_region`, ~10^3 classes) uses `next_gru` because the Transformer
+collapses on high-cardinality region output."""
 
 
 _PRESETS: Dict[str, TaskSet] = {

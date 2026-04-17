@@ -359,6 +359,20 @@ class MTLnet(nn.Module):
         shared_cat = self.shared_layers(mod_cat)
         shared_next = self.shared_layers(mod_next)
 
+        # Re-zero shared_{cat,next} at the ORIGINAL pad positions before
+        # the heads. After {category,next}_encoder + FiLM + shared_layers,
+        # originally-zero pad steps become non-zero (bias/gamma/beta
+        # additions), so heads that detect padding via ``x.abs().sum(-1)
+        # == 0`` (GRU, LSTM, TCN, Transformer) see a fully-dense sequence
+        # and treat pad as real data. Sequential GRU/LSTM are particularly
+        # sensitive because their "take last valid timestep" rule then
+        # points into noise. Guarded on the non-legacy path so
+        # LEGACY_CATEGORY_NEXT regression tests stay bit-exact.
+        if self._task_set is not LEGACY_CATEGORY_NEXT:
+            shared_next = shared_next.masked_fill(mask.unsqueeze(-1), 0)
+            if self._task_a_is_sequential:
+                shared_cat = shared_cat.masked_fill(mask_a.unsqueeze(-1), 0)
+
         # Sequence-head task_a (e.g. next_mtl for next_category) consumes
         # [B, T, D] directly and returns [B, num_classes]. Flat-head
         # task_a (legacy CategoryHeadTransformer) needs the squeeze+view
