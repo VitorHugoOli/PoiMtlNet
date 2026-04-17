@@ -35,7 +35,7 @@ This is the **authoritative list** of every claim/hypothesis we intend to valida
 **Source:** Prior Stage 1 result (Stage 1 showed 25% gap, but at short training and unmatched batch — weakened by T0.2 at matched batch showing essentially zero gap).
 **Test:** P1.2 — within the 5×20 grid, compare ca/al vs eq for DSelectK on fusion, matched batch (grad_accum=1), at both 1f×10ep screening and 5f×50ep confirmation.
 **Phase:** P1.
-**Status:** `partially_refuted` — after the full 3-stage P1 grid under matched effective batch, gradient-surgery shows **no measurable advantage** over equal_weight. Observed +0.0051 AL gap at joint-peak selection is **Z ≈ 0.39 vs pooled fold-noise (0.0133) — statistically indistinguishable from zero at seed 42**. Under per-task-best checkpoint selection (see C32/F1), the AL gap *flips sign* to −0.0009. Effect is null.
+**Status:** `refuted` — **upgraded from `partially_refuted` after F2 multi-seed (3 seeds per config) on 2026-04-17.** Under matched effective batch and multi-seed on both states, gradient-surgery shows **no statistically significant advantage** over equal_weight/uncertainty_weighting. The single-seed +0.0051 AL gap at joint-peak inverts to −0.0034 under multi-seed (eq wins); at joint@T Δ = −0.0005 (tied). AZ: uw vs dwa within ±0.0018. All Welch-like t-stats |t| < 0.7. **C02 finding is null across both states, both checkpoint policies, and 3 seeds.**
 **Evidence (P1a screen, 1f × 10ep, 2026-04-16):** Best-gradient vs best-equal_weight: AL +0.0010, AZ +0.0061. Top-10 of both states mixes gradient, loss-dynamic, and static optimizers; no optim class dominates.
 **Evidence (P1b promote 2f × 15ep, 2026-04-17):** AL best-grad − best-eq = **−0.0011** (equal_weight edges grad-surgery).
 **Evidence (P1c confirm 5f × 50ep, 2026-04-17):**
@@ -44,7 +44,16 @@ This is the **authoritative list** of every claim/hypothesis we intend to valida
 - AZ, joint-peak selection: best gradient = 0.4369 vs best static (uw) = 0.4374 → Δ = −0.0005.
 - AZ, per-task-best selection: best gradient 0.4406 vs best static 0.4416 → Δ = −0.0010.
 - Combined: across both states and both checkpoint policies, effect size is within noise. Equal-weighting is fully competitive on fusion at matched batch.
-**Notes:** Ratifies N02 and the original T0.2 observation. Paper narrative: "Under matched effective batch, gradient-surgery optimizers on 128-dim fusion provide no measurable benefit beyond equal_weight for joint F1 at 5f × 50ep. This contradicts the naive reading of Stage 1's 25% gap, which was a combined effect of unmatched batch and short training." See also `issues/P1_METHODOLOGY_FLAWS.md` F1, F2.
+**Evidence (F2 multi-seed 3 seeds × 4 configs, 5f × 50ep, 2026-04-17):**
+- AL mmoe4 × gradnorm (gradient): joint@J = **0.4080 ± 0.0008**, joint@T = 0.4232 ± 0.0022.
+- AL cgc22 × equal_weight (static): joint@J = **0.4115 ± 0.0087**, joint@T = 0.4237 ± 0.0026.
+- AL Δ(grad − eq): joint@J = **−0.0034**, joint@T = **−0.0005**. Welch-like t ≈ −0.68, −0.25. Static *mean* beats grad at joint@J, tied at joint@T.
+- AZ cgc21 × uncertainty_weighting (static): joint@J = 0.4337 ± 0.0049, joint@T = 0.4394 ± 0.0033.
+- AZ cgc21 × dwa (loss-dynamic): joint@J = 0.4330 ± 0.0029, joint@T = 0.4412 ± 0.0040.
+- AZ Δ(dwa − uw): joint@J = −0.0006, joint@T = +0.0018. Welch-like t ≈ +0.18, −0.58.
+- **All 4 Welch |t| < 0.7.** No config class provides measurable ceiling advantage.
+**Secondary finding (C18 reproducibility):** mmoe4 × gradnorm has the *lowest* seed variance (0.0008 on joint@J) — remarkably stable. cgc22 × equal_weight has the *highest* (0.0087) — driven by seed-2024 outlier (0.4204). The stable mean isn't gradient-surgery; it's the interaction of `mmoe4` routing with `gradnorm`'s adaptive weighting.
+**Notes:** Ratifies N02 and the original T0.2 observation. **Updated paper narrative:** "Under matched effective batch, optimizer choice on 128-dim fusion is a null effect on joint F1 ceiling; it affects *reliability* (seed variance). The first-order lever on fusion is neither architecture nor optimizer — both are second-order at 5f × 50ep." See `issues/P1_METHODOLOGY_FLAWS.md` F1, F2.
 
 ---
 
@@ -244,9 +253,19 @@ This is the **authoritative list** of every claim/hypothesis we intend to valida
 **Statement:** Std across seeds {42, 123, 2024} is < 0.01 on joint F1.
 
 **Source:** Prior Finding 10 (small std across seeds on DGI).
-**Test:** P5.1 — champion at 3 seeds on AL (+ AZ).
-**Phase:** P5.
-**Status:** `pending`.
+**Test:** P5.1 — champion at 3 seeds on AL (+ AZ). **Early answer delivered in F2 (2026-04-17)** via the P1 champion-candidate multi-seed drain.
+**Phase:** P5 (early-resolved).
+**Status:** `confirmed` — passes on joint@J for all 4 candidates tested; cgc22×eq borderline.
+**Evidence (F2, 2026-04-17, 3 seeds per cell):**
+
+| State | Config | joint@J std | joint@T std | Passes (<0.01)? |
+|-------|--------|------------:|------------:|:---------------:|
+| AL | mmoe4 × gradnorm | **0.0008** | 0.0022 | ✅ easily |
+| AL | cgc22 × equal_weight | **0.0087** | 0.0026 | ✅ borderline on joint@J |
+| AZ | cgc21 × uncertainty_weighting | 0.0049 | 0.0033 | ✅ |
+| AZ | cgc21 × dwa | 0.0029 | 0.0040 | ✅ |
+
+**Notes:** joint@T std is uniformly lower than joint@J std — per-task-best selection is more reproducible. Big seed variance for cgc22×eq joint@J is driven by seed-2024 outlier (0.4204). This suggests the joint-peak checkpoint landing for cgc22×eq is more sensitive to random init than for other configs. **P2 champion recommendation weighted to stability, not maximum mean:** pick mmoe4×gradnorm on AL.
 
 ---
 

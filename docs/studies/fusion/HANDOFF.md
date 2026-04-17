@@ -13,9 +13,14 @@ Snapshot written at session close. This file is **transient**; trust `state.json
 ## Study status at a glance
 
 - **Current phase:** P2 (P1 → completed via `/study advance` 2026-04-17).
-- **P0 ✅ closed. P1 ✅ closed** (180/180 tests archived). P2 open, 0 enrolled. P3–P6 planned.
-- **Claims catalog:** 32 claims + 4 negations (**C31** fclass-on-fusion pending, **C32** joint-peak checkpoint bias confirmed added 2026-04-17). C02 downgraded from `partial` to **`partially_refuted`** after per-task-best reanalysis (null effect). C05 `confirmed` (screen+promote; note `base` not at 5f×50ep — F4). Full details in `CLAIMS_AND_HYPOTHESES.md`.
-- **Git:** working tree has ~30 new P1 test archive dirs, CLAIMS, SUMMARY, HANDOFF, state.json, new issue doc all **uncommitted**. Latest commit `97f7fdb`. Commit before touching P2.
+- **P0 ✅ closed. P1 ✅ closed** (189 P1 tests archived: 180 original + 1 F4 base + 8 F2 multi-seed). P2 open, 0 enrolled. P3–P6 planned.
+- **Claims catalog:** 32 claims + 4 negations.
+  - **C02** (grad-surgery > eq): **`refuted`** — multi-seed null, t-stats |t|<0.7.
+  - **C05** (expert > base): **`partial`** — screen supports, confirm inverts direction.
+  - **C18** (reproducibility): **`confirmed`** — all 4 F2 candidates std<0.01 on joint@J; std<0.004 on joint@T.
+  - **C31** (fclass shortcut on fusion): **`partial`** — linear probe strongly supports; full arm-C retrain pending.
+  - **C32** (joint-peak checkpoint bias): **`confirmed`** — joint@T now first-class metric.
+- **Git:** clean-ish. Latest commits: `0161c7a` F1/F3, `42b4035` F4, then this session's F2 finalization (still uncommitted at this note).
 
 ---
 
@@ -68,18 +73,22 @@ Open issues (state.json):
 
 ---
 
-## Next steps (ordered — do NOT skip F1/F2/F3 before P2)
+## Next steps (F1–F4 now resolved; ready for P2)
 
-1. **Commit P1 artifacts now.** `git add docs/studies/fusion/ src/ tests/ && git commit`. Risk of rebase loss. See issue F10.
-2. **Resolve F3 (C31) — fclass-on-fusion shuffle.** 1 fold, ~10 min. If shortcut dominates on fusion, reframe the paper's category-F1 story before P2.
-3. **Resolve F1 via analysis (no new runs).** Add `joint_f1_taskbest` to `_extract_observed` in `scripts/study/archive_result.py`; backfill P1 entries from existing `full_summary.json`. Makes joint@T a first-class metric in state.json.
-4. **Resolve F2 — multi-seed the P1 champion candidates.** Recommended set:
-   - AL: `mmoe4 × gradnorm` + `cgc22 × equal_weight` at seeds 123 + 2024, 5f × 50ep = 4 runs × ~35 min ≈ 2.5 h.
-   - AZ: `cgc21 × uncertainty_weighting` + `cgc21 × dwa` at seeds 123 + 2024, 5f × 50ep = 4 runs × ~35 min ≈ 2.5 h.
-   - **Only then can we claim a reliable champion.**
-5. **Resolve F4 — `base × equal_weight` at 5f × 50ep on AL.** 1 run, ~35 min. Locks C05 under the same protocol as C02.
-6. **Enroll P2.** Champion = whichever config survives F1+F2 best at joint@T (likely `cgc22 × equal_weight` for AL on current evidence, but wait for multi-seed).
-   - Sensitivity arm for C06: also run AZ champion (`cgc21 × dwa` post-F1, or `uw` if you stick with joint@J ordering).
+**Completed 2026-04-17:** F1 (joint@T backfilled for 181 tests + archive_result.py emits going forward), F2 (8 multi-seed runs), F3 proxy (fclass probe; full arm-C retrain still pending but the proxy signal is decisive), F4 (base × eq AL confirm — C05 downgraded).
+
+**Remaining P1 loose ends (not blocking P2):**
+1. **F3 primary test** — full arm-C retrain on fusion (not just linear probe). ~45 min. Converts C31 from `partial` → `confirmed`.
+2. **F4 follow-up** — base × nash_mtl (or × gradnorm) AL confirm (~35 min). Cross-checks base tie at confirm under a gradient-based optimizer.
+
+**P2 ready to start** with the following champion choices (post-F2 multi-seed):
+
+| State | Champion | Why |
+|-------|----------|-----|
+| AL | **`mmoe4 × gradnorm`** | Most stable (seed std 0.0008 joint@J). Mean joint tied at joint@T (0.4232 vs cgc22×eq 0.4237 = −0.0005). |
+| AZ | **`cgc21 × uncertainty_weighting`** *or* `cgc21 × dwa` | Tied at joint@T (0.4394 vs 0.4412). Pick uw for continuity with the P1 headline; either is fine. |
+
+For C06 (MTL vs single-task) in P2, report both joint@J and joint@T. The joint@J metric will favor single-task-next because of the NextHead-peak-early pattern (F5); joint@T is the fair comparison.
 
 ## Worth-answering open questions (for P2 and beyond)
 

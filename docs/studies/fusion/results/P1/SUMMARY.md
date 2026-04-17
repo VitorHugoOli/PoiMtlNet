@@ -85,6 +85,44 @@ Per-fold noise on joint at confirm is ~0.01. The AL winner margin over `equal_we
 
 ---
 
+## F2 multi-seed reanalysis (added 2026-04-17 evening)
+
+After the initial single-seed P1 grid, 8 additional 5f × 50ep runs were executed at seeds {123, 2024} to measure inter-seed variance on the two AL candidates and two AZ candidates.
+
+**AL multi-seed:**
+
+| Config | seed 42 | seed 123 | seed 2024 | joint@J mean ± std | joint@T mean ± std |
+|--------|---------|----------|-----------|--------------------|--------------------|
+| mmoe4 × gradnorm | 0.4082 | 0.4088 | 0.4072 | **0.4080 ± 0.0008** | 0.4232 ± 0.0022 |
+| cgc22 × equal_weight | 0.4031 | 0.4109 | 0.4204 | **0.4115 ± 0.0087** | 0.4237 ± 0.0026 |
+
+**AZ multi-seed:**
+
+| Config | seed 42 | seed 123 | seed 2024 | joint@J mean ± std | joint@T mean ± std |
+|--------|---------|----------|-----------|--------------------|--------------------|
+| cgc21 × uncertainty_weighting | 0.4374 | 0.4281 | 0.4355 | 0.4337 ± 0.0049 | 0.4394 ± 0.0033 |
+| cgc21 × dwa | 0.4352 | 0.4297 | 0.4343 | 0.4330 ± 0.0029 | 0.4412 ± 0.0040 |
+
+**C02 verdict at multi-seed:**
+
+| State | Comparison | Δ (grad − eq) joint@J | Δ joint@T | Welch-like t |
+|-------|-----------|-----------------------|-----------|--------------|
+| AL | mmoe4×gradnorm − cgc22×equal_weight | **−0.0034** (eq wins) | **−0.0005** | −0.68, −0.25 |
+| AZ | cgc21×dwa − cgc21×uncertainty_weighting | −0.0006 | +0.0018 | +0.18, −0.58 |
+
+**All |t| < 0.7. C02 is null.** CLAIMS status upgraded from `partially_refuted` to `refuted`.
+
+**C18 (reproducibility) verdict at multi-seed:** all 4 candidates have joint@J std < 0.01, **C18 confirmed** (cgc22×eq borderline at 0.0087). joint@T std is uniformly smaller than joint@J std (another point for per-task-best as the reliability metric).
+
+**Champion for P2 (recommended):** `mmoe4 × gradnorm` on AL. Rationale:
+- Its mean joint is not the highest (cgc22×eq wins by a hair at joint@J mean) but its **seed variance is 10× smaller** (0.0008 vs 0.0087).
+- A champion we use across P2–P6 should be *reliable*, not *occasionally-best*.
+- At joint@T all 4 candidates tie within 0.003 — so picking on reliability costs nothing in ceiling performance.
+
+For AZ: either `cgc21 × uncertainty_weighting` (established) or `cgc21 × dwa` (higher joint@T by 0.0018). Not a load-bearing choice.
+
+---
+
 ## ⚠️ Per-task-best reanalysis (C32 — added 2026-04-17)
 
 Reported `joint_f1` uses the **joint-peak** checkpoint (where `joint_score` was max during training). But `full_summary.json` also logs each task's F1 at its own per-task-best epoch via `diagnostic_task_best`. Recomputing `joint_f1` as HM(cat@best, next@best):

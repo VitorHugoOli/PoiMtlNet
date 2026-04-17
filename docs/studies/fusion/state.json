@@ -1,7 +1,7 @@
 {
   "study_version": "1.0",
   "study_started": "2026-04-14T05:58:14+00:00",
-  "last_update": "2026-04-17T11:21:40+00:00",
+  "last_update": "2026-04-17T14:41:20+00:00",
   "current_phase": "P2",
   "open_issues": [
     {
@@ -13064,7 +13064,7 @@
         "P1_AL_confirm_mmoe4_gradnorm_seed123": {
           "test_id": "P1_AL_confirm_mmoe4_gradnorm_seed123",
           "phase": "P1",
-          "status": "running",
+          "status": "archived",
           "claim_ids": [
             "C02",
             "C03",
@@ -13109,13 +13109,37 @@
           },
           "enrolled_at": "2026-04-17T11:13:27+00:00",
           "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task mtl --state alabama --engine fusion --model mtlnet_mmoe --mtl-loss gradnorm --seed 123 --epochs 50 --folds 5 --embedding-dim 128 --gradient-accumulation-steps 1 --batch-size 4096 --model-param num_experts=4",
-          "git_commit": "0161c7a5778d678f692aec74e9c869d3dccc7aac",
-          "started_at": "2026-04-17T11:21:40+00:00"
+          "git_commit": "42b403587172a67403ee53fffb3162ca4cc33690",
+          "started_at": "2026-04-17T11:21:40+00:00",
+          "finished_at": "2026-04-17T11:46:43+00:00",
+          "wall_clock_seconds": 1503.2,
+          "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260417_0821",
+          "results_archive": "docs/studies/fusion/results/P1/P1_AL_confirm_mmoe4_gradnorm_seed123",
+          "observed": {
+            "cat_f1": 0.8297492504119873,
+            "cat_f1_std": 0.020263486255424373,
+            "cat_accuracy": 0.8434342265129089,
+            "next_f1": 0.27117711305618286,
+            "next_f1_std": 0.014262148635888459,
+            "next_accuracy": 0.34393048882484434,
+            "joint_f1": 0.4087630449295893,
+            "cat_f1_taskbest": 0.837469220161438,
+            "next_f1_taskbest": 0.28547934293746946,
+            "joint_f1_taskbest": 0.42580786076661015
+          },
+          "archived_at": "2026-04-17T11:46:43+00:00",
+          "verdict": "matches_hypothesis",
+          "verdict_detail": {
+            "joint": "matches_hypothesis",
+            "category": "matches_hypothesis",
+            "next": "matches_hypothesis"
+          },
+          "analyzed_at": "2026-04-17T11:46:44+00:00"
         },
         "P1_AL_confirm_mmoe4_gradnorm_seed2024": {
           "test_id": "P1_AL_confirm_mmoe4_gradnorm_seed2024",
           "phase": "P1",
-          "status": "planned",
+          "status": "archived",
           "claim_ids": [
             "C02",
             "C03",
@@ -13158,12 +13182,39 @@
               0.55
             ]
           },
-          "enrolled_at": "2026-04-17T11:13:27+00:00"
+          "enrolled_at": "2026-04-17T11:13:27+00:00",
+          "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task mtl --state alabama --engine fusion --model mtlnet_mmoe --mtl-loss gradnorm --seed 2024 --epochs 50 --folds 5 --embedding-dim 128 --gradient-accumulation-steps 1 --batch-size 4096 --model-param num_experts=4",
+          "git_commit": "42b403587172a67403ee53fffb3162ca4cc33690",
+          "started_at": "2026-04-17T11:46:44+00:00",
+          "finished_at": "2026-04-17T12:11:36+00:00",
+          "wall_clock_seconds": 1492.4,
+          "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260417_0846",
+          "results_archive": "docs/studies/fusion/results/P1/P1_AL_confirm_mmoe4_gradnorm_seed2024",
+          "observed": {
+            "cat_f1": 0.8175055623054505,
+            "cat_f1_std": 0.013387494895418557,
+            "cat_accuracy": 0.8320273876190185,
+            "next_f1": 0.2710946977138519,
+            "next_f1_std": 0.021892438145299977,
+            "next_accuracy": 0.3477062463760376,
+            "joint_f1": 0.4071676839185377,
+            "cat_f1_taskbest": 0.8238598942756653,
+            "next_f1_taskbest": 0.2834677040576935,
+            "joint_f1_taskbest": 0.4218041220087624
+          },
+          "archived_at": "2026-04-17T12:11:36+00:00",
+          "verdict": "matches_hypothesis",
+          "verdict_detail": {
+            "joint": "matches_hypothesis",
+            "category": "matches_hypothesis",
+            "next": "matches_hypothesis"
+          },
+          "analyzed_at": "2026-04-17T12:11:36+00:00"
         },
         "P1_AL_confirm_cgc22_equal_weight_seed123": {
           "test_id": "P1_AL_confirm_cgc22_equal_weight_seed123",
           "phase": "P1",
-          "status": "planned",
+          "status": "archived",
           "claim_ids": [
             "C02",
             "C03",
@@ -13207,12 +13258,39 @@
               0.55
             ]
           },
-          "enrolled_at": "2026-04-17T11:13:27+00:00"
+          "enrolled_at": "2026-04-17T11:13:27+00:00",
+          "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task mtl --state alabama --engine fusion --model mtlnet_cgc --mtl-loss equal_weight --seed 123 --epochs 50 --folds 5 --embedding-dim 128 --gradient-accumulation-steps 1 --batch-size 4096 --model-param num_shared_experts=2 --model-param num_task_experts=2",
+          "git_commit": "42b403587172a67403ee53fffb3162ca4cc33690",
+          "started_at": "2026-04-17T12:11:37+00:00",
+          "finished_at": "2026-04-17T12:29:05+00:00",
+          "wall_clock_seconds": 1047.8,
+          "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260417_0911",
+          "results_archive": "docs/studies/fusion/results/P1/P1_AL_confirm_cgc22_equal_weight_seed123",
+          "observed": {
+            "cat_f1": 0.820667564868927,
+            "cat_f1_std": 0.02348957135143572,
+            "cat_accuracy": 0.8376086235046387,
+            "next_f1": 0.2740293085575104,
+            "next_f1_std": 0.008155522686679989,
+            "next_accuracy": 0.34196155667304995,
+            "joint_f1": 0.410866187372408,
+            "cat_f1_taskbest": 0.8300434112548828,
+            "next_f1_taskbest": 0.2826319456100464,
+            "joint_f1_taskbest": 0.42168056085068084
+          },
+          "archived_at": "2026-04-17T12:29:05+00:00",
+          "verdict": "matches_hypothesis",
+          "verdict_detail": {
+            "joint": "matches_hypothesis",
+            "category": "matches_hypothesis",
+            "next": "matches_hypothesis"
+          },
+          "analyzed_at": "2026-04-17T12:29:05+00:00"
         },
         "P1_AL_confirm_cgc22_equal_weight_seed2024": {
           "test_id": "P1_AL_confirm_cgc22_equal_weight_seed2024",
           "phase": "P1",
-          "status": "planned",
+          "status": "archived",
           "claim_ids": [
             "C02",
             "C03",
@@ -13256,12 +13334,39 @@
               0.55
             ]
           },
-          "enrolled_at": "2026-04-17T11:13:27+00:00"
+          "enrolled_at": "2026-04-17T11:13:27+00:00",
+          "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task mtl --state alabama --engine fusion --model mtlnet_cgc --mtl-loss equal_weight --seed 2024 --epochs 50 --folds 5 --embedding-dim 128 --gradient-accumulation-steps 1 --batch-size 4096 --model-param num_shared_experts=2 --model-param num_task_experts=2",
+          "git_commit": "42b403587172a67403ee53fffb3162ca4cc33690",
+          "started_at": "2026-04-17T12:29:05+00:00",
+          "finished_at": "2026-04-17T12:46:26+00:00",
+          "wall_clock_seconds": 1040.6,
+          "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260417_0929",
+          "results_archive": "docs/studies/fusion/results/P1/P1_AL_confirm_cgc22_equal_weight_seed2024",
+          "observed": {
+            "cat_f1": 0.8221506237983703,
+            "cat_f1_std": 0.011341846212432333,
+            "cat_accuracy": 0.8426275134086609,
+            "next_f1": 0.2824422359466553,
+            "next_f1_std": 0.01907042204946561,
+            "next_accuracy": 0.3621829688549042,
+            "joint_f1": 0.4204446161713384,
+            "cat_f1_taskbest": 0.8401118040084838,
+            "next_f1_taskbest": 0.2858726382255554,
+            "joint_f1_taskbest": 0.42658667173026005
+          },
+          "archived_at": "2026-04-17T12:46:26+00:00",
+          "verdict": "matches_hypothesis",
+          "verdict_detail": {
+            "joint": "matches_hypothesis",
+            "category": "matches_hypothesis",
+            "next": "matches_hypothesis"
+          },
+          "analyzed_at": "2026-04-17T12:46:26+00:00"
         },
         "P1_AZ_confirm_cgc21_uncertainty_weighting_seed123": {
           "test_id": "P1_AZ_confirm_cgc21_uncertainty_weighting_seed123",
           "phase": "P1",
-          "status": "planned",
+          "status": "archived",
           "claim_ids": [
             "C02",
             "C03",
@@ -13305,12 +13410,39 @@
               0.55
             ]
           },
-          "enrolled_at": "2026-04-17T11:13:27+00:00"
+          "enrolled_at": "2026-04-17T11:13:27+00:00",
+          "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task mtl --state arizona --engine fusion --model mtlnet_cgc --mtl-loss uncertainty_weighting --seed 123 --epochs 50 --folds 5 --embedding-dim 128 --gradient-accumulation-steps 1 --batch-size 4096 --model-param num_shared_experts=2 --model-param num_task_experts=1",
+          "git_commit": "42b403587172a67403ee53fffb3162ca4cc33690",
+          "started_at": "2026-04-17T12:46:26+00:00",
+          "finished_at": "2026-04-17T13:15:15+00:00",
+          "wall_clock_seconds": 1728.5,
+          "run_dir": "results/fusion/arizona/mtlnet_lr1.0e-04_bs4096_ep50_20260417_0946",
+          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_confirm_cgc21_uncertainty_weighting_seed123",
+          "observed": {
+            "cat_f1": 0.728917407989502,
+            "cat_f1_std": 0.014551583719684702,
+            "cat_accuracy": 0.7712761759757996,
+            "next_f1": 0.30301483869552615,
+            "next_f1_std": 0.0054868095262333525,
+            "next_accuracy": 0.3823689103126526,
+            "joint_f1": 0.42807614843674113,
+            "cat_f1_taskbest": 0.7309366226196289,
+            "next_f1_taskbest": 0.31057690382003783,
+            "joint_f1_taskbest": 0.43592719130187935
+          },
+          "archived_at": "2026-04-17T13:15:15+00:00",
+          "verdict": "matches_hypothesis",
+          "verdict_detail": {
+            "joint": "matches_hypothesis",
+            "category": "matches_hypothesis",
+            "next": "matches_hypothesis"
+          },
+          "analyzed_at": "2026-04-17T13:15:15+00:00"
         },
         "P1_AZ_confirm_cgc21_uncertainty_weighting_seed2024": {
           "test_id": "P1_AZ_confirm_cgc21_uncertainty_weighting_seed2024",
           "phase": "P1",
-          "status": "planned",
+          "status": "archived",
           "claim_ids": [
             "C02",
             "C03",
@@ -13354,12 +13486,39 @@
               0.55
             ]
           },
-          "enrolled_at": "2026-04-17T11:13:27+00:00"
+          "enrolled_at": "2026-04-17T11:13:27+00:00",
+          "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task mtl --state arizona --engine fusion --model mtlnet_cgc --mtl-loss uncertainty_weighting --seed 2024 --epochs 50 --folds 5 --embedding-dim 128 --gradient-accumulation-steps 1 --batch-size 4096 --model-param num_shared_experts=2 --model-param num_task_experts=1",
+          "git_commit": "42b403587172a67403ee53fffb3162ca4cc33690",
+          "started_at": "2026-04-17T13:15:15+00:00",
+          "finished_at": "2026-04-17T13:43:57+00:00",
+          "wall_clock_seconds": 1722.1,
+          "run_dir": "results/fusion/arizona/mtlnet_lr1.0e-04_bs4096_ep50_20260417_1015",
+          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_confirm_cgc21_uncertainty_weighting_seed2024",
+          "observed": {
+            "cat_f1": 0.7350067138671875,
+            "cat_f1_std": 0.022435366983859974,
+            "cat_accuracy": 0.7772444486618042,
+            "next_f1": 0.30940590500831605,
+            "next_f1_std": 0.014109487470661056,
+            "next_accuracy": 0.3860817730426788,
+            "joint_f1": 0.43548960129592995,
+            "cat_f1_taskbest": 0.7429500937461853,
+            "next_f1_taskbest": 0.3149815022945404,
+            "joint_f1_taskbest": 0.44240201830409176
+          },
+          "archived_at": "2026-04-17T13:43:58+00:00",
+          "verdict": "matches_hypothesis",
+          "verdict_detail": {
+            "joint": "matches_hypothesis",
+            "category": "matches_hypothesis",
+            "next": "matches_hypothesis"
+          },
+          "analyzed_at": "2026-04-17T13:43:58+00:00"
         },
         "P1_AZ_confirm_cgc21_dwa_seed123": {
           "test_id": "P1_AZ_confirm_cgc21_dwa_seed123",
           "phase": "P1",
-          "status": "planned",
+          "status": "archived",
           "claim_ids": [
             "C02",
             "C03",
@@ -13403,12 +13562,39 @@
               0.55
             ]
           },
-          "enrolled_at": "2026-04-17T11:13:27+00:00"
+          "enrolled_at": "2026-04-17T11:13:27+00:00",
+          "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task mtl --state arizona --engine fusion --model mtlnet_cgc --mtl-loss dwa --seed 123 --epochs 50 --folds 5 --embedding-dim 128 --gradient-accumulation-steps 1 --batch-size 4096 --model-param num_shared_experts=2 --model-param num_task_experts=1",
+          "git_commit": "42b403587172a67403ee53fffb3162ca4cc33690",
+          "started_at": "2026-04-17T13:43:58+00:00",
+          "finished_at": "2026-04-17T14:12:38+00:00",
+          "wall_clock_seconds": 1719.5,
+          "run_dir": "results/fusion/arizona/mtlnet_lr1.0e-04_bs4096_ep50_20260417_1044",
+          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_confirm_cgc21_dwa_seed123",
+          "observed": {
+            "cat_f1": 0.7330549001693726,
+            "cat_f1_std": 0.011856257212116151,
+            "cat_accuracy": 0.7709185600280761,
+            "next_f1": 0.3039701998233795,
+            "next_f1_std": 0.013942579847508026,
+            "next_accuracy": 0.38017120361328127,
+            "joint_f1": 0.42974243243977234,
+            "cat_f1_taskbest": 0.7336270928382873,
+            "next_f1_taskbest": 0.311139851808548,
+            "joint_f1_taskbest": 0.43695989065886837
+          },
+          "archived_at": "2026-04-17T14:12:38+00:00",
+          "verdict": "matches_hypothesis",
+          "verdict_detail": {
+            "joint": "matches_hypothesis",
+            "category": "matches_hypothesis",
+            "next": "matches_hypothesis"
+          },
+          "analyzed_at": "2026-04-17T14:12:38+00:00"
         },
         "P1_AZ_confirm_cgc21_dwa_seed2024": {
           "test_id": "P1_AZ_confirm_cgc21_dwa_seed2024",
           "phase": "P1",
-          "status": "planned",
+          "status": "archived",
           "claim_ids": [
             "C02",
             "C03",
@@ -13452,7 +13638,34 @@
               0.55
             ]
           },
-          "enrolled_at": "2026-04-17T11:13:27+00:00"
+          "enrolled_at": "2026-04-17T11:13:27+00:00",
+          "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task mtl --state arizona --engine fusion --model mtlnet_cgc --mtl-loss dwa --seed 2024 --epochs 50 --folds 5 --embedding-dim 128 --gradient-accumulation-steps 1 --batch-size 4096 --model-param num_shared_experts=2 --model-param num_task_experts=1",
+          "git_commit": "42b403587172a67403ee53fffb3162ca4cc33690",
+          "started_at": "2026-04-17T14:12:38+00:00",
+          "finished_at": "2026-04-17T14:41:20+00:00",
+          "wall_clock_seconds": 1721.6,
+          "run_dir": "results/fusion/arizona/mtlnet_lr1.0e-04_bs4096_ep50_20260417_1112",
+          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_confirm_cgc21_dwa_seed2024",
+          "observed": {
+            "cat_f1": 0.73562171459198,
+            "cat_f1_std": 0.017417102430877008,
+            "cat_accuracy": 0.7794187307357788,
+            "next_f1": 0.30805194973945615,
+            "next_f1_std": 0.01420506764268155,
+            "next_accuracy": 0.39593152403831483,
+            "joint_f1": 0.43425394583642085,
+            "cat_f1_taskbest": 0.7456146359443665,
+            "next_f1_taskbest": 0.3171243190765381,
+            "joint_f1_taskbest": 0.44498704521978677
+          },
+          "archived_at": "2026-04-17T14:41:20+00:00",
+          "verdict": "matches_hypothesis",
+          "verdict_detail": {
+            "joint": "matches_hypothesis",
+            "category": "matches_hypothesis",
+            "next": "matches_hypothesis"
+          },
+          "analyzed_at": "2026-04-17T14:41:20+00:00"
         }
       }
     },
