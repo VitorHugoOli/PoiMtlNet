@@ -84,6 +84,19 @@ First data point from 5f × 50ep MTL (mtlnet_dselectk+pcgrad, GRU region head + 
 
 **Status `interim` — AL FAILS, FL/CA/TX verdict pending.**
 
+### CH01 FL 1f × 50ep update (2026-04-17)
+
+**FL regresses too.** With 13× more data than AL, the pattern replicates:
+
+| Task | FL MTL (1f×50ep) | FL STL fair | Δ |
+|---|---|---|---|
+| cat F1 | 64.78 | TBD (launching) | ? |
+| reg Acc@10 | **57.05** | **68.33 ± 0.58** (5f GRU) | **−11.28 pp** |
+
+This **rules out the small-data caveat** as the sole explanation. Backbone dilution is structural, not data-quantity-bound. CH01 on AL and FL both show MTL regressing on region by a margin well outside expected variance.
+
+Upgrading status: **`failing consistently on 2/2 states` with a mechanistic explanation (backbone dilution). Paper pivot:** from "MTL helps both heads" to "shared-backbone MTL is the wrong inductive bias when the task-B head is strong standalone; per-task capacity fixes (MTLoRA, AdaShare) are required to close the gap." See `research/MTL_ABLATION_PROTOCOL.md` for the ablation that tests this.
+
 ### CH01 — MTL {next_category, next_region} improves BOTH heads over single-task (HEADLINE, bidirectional)
 
 **Statement:** On Check2HGI, the 2-task MTL with champion architecture + optimiser + per-task input modality (CH03) improves **both** heads over their respective single-task baselines at matched compute, on AL and FL. Specifically, all four of the following hold:

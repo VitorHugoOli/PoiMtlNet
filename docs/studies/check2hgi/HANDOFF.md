@@ -85,6 +85,22 @@ MTL dselectk+pcgrad 5f × 50ep GRU head:
 - FL partially succeeds → loosen CH01 to "no regression on either head."
 - FL fails → retire CH01; lead paper with CH16 + CH03 + mechanistic insight.
 
+### FL 1f × 50ep VERDICT (2026-04-17)
+
+**Pattern from AL replicates on FL — MTL regresses on region:**
+
+| Task | FL MTL | FL STL fair | Δ |
+|---|---|---|---|
+| next-cat F1 | 64.78% | TBD (1f×50ep launching) | ? |
+| next-region Acc@10 | **57.05%** | **68.33 ± 0.58** (5f GRU) | **−11.28 pp** |
+| next-region MRR | 27.49% | — | — |
+
+The 11-pp region regression on FL — with 13× more data than AL — **rules out the "small-data caveat" framing**. Backbone dilution is not a data-quantity issue; it's structural. CH01 likely fails bidirectionally on headline states too.
+
+**This elevates the ablation protocol (`research/MTL_ABLATION_PROTOCOL.md`) from a contingency to the paper's main experimental contribution.** Starting cheapest-first (RLW sanity → gradient-scaling asymmetric transfer → curriculum warmup → MTLoRA → AdaShare).
+
+**Perf fix deployed mid-run (commit `37cbca1`):** vectorised `NextHeadGRU`'s last-valid-timestep extraction. The Python for-loop version made FL 1f × 50ep take 2h34m; future ablation runs should be ~50% faster.
+
 ---
 
 ## P1.5 — embedding comparison (2026-04-16)
