@@ -6,7 +6,8 @@
 |---|---|
 | **P0** | ✅ complete — integrity, simple baselines (region Markov 1/2/3-step), CH14 audit |
 | **P1** | ✅ complete — 5 heads × {checkin, region, concat}; GRU confirmed on AL 5f×50ep (56.94 ± 4.01) + FL 5f×50ep (68.33 ± 0.58); `next_mtl` scrapped as region-head candidate |
-| **P1.5** | 🟡 planned — Check2HGI vs POI2HGI on AL region single-task (addresses reviewer "why this substrate?" — CH15) |
+| **P1.5** | ✅ complete — Check2HGI vs HGI on AL region single-task. Tied (57.02 vs 56.11 Acc@10). Expected — pooling to region erases check-in-level variance. See CH15. |
+| **P1.5b** | 🟡 running — Check2HGI vs HGI on AL next-category single-task. This is the paper's PRIMARY substrate claim (CH16). |
 | **P2-prep** | ✅ CGC/MMoE/DSelectK/PLE TaskSet-aware |
 | **P4-prep** | ✅ per-task input pipeline shipped (`FoldCreator.task_a_input_type` / `task_b_input_type`, CLI flags, `region_sequence.py`) |
 | **P2** | ready — arch × optim grid with TCN region head (compute-efficient); GRU sanity check on top-3 at end |
@@ -17,11 +18,17 @@
 
 **Concerns log:** `CONCERNS.md` now tracks 9 open issues with resolutions/fallbacks (dataset breadth, FL saturation, joint metric, head swap framing, null-result backup, GRU vs TCN, embedding choice, CH04 reframe, SSD reliability).
 
-## Thesis (clarified 2026-04-16)
+## Paper contribution (revised 2026-04-16 evening after user clarification)
 
-**Bidirectional.** MTL `{next_category, next_region}` must improve *both* heads over their single-task baselines. A one-sided lift does not satisfy the thesis. See CH01/CH02 in CLAIMS_AND_HYPOTHESES.md.
+Three intertwined claims — all three must land for the paper to be strong; any two still gives a workshop-grade result:
 
-Architectural plan for P3/P4: **per-task input modality** — feed check-in embedding sequence to `category_encoder`, region embedding sequence to `next_encoder`, let the shared backbone bridge. Supersedes the earlier "dual-stream concat" framing of CH03.
+1. **[CH16] Check2HGI improves next-category prediction over HGI.** Check2HGI was designed as an HGI modification that adds check-in-level contextual variation. The PRIMARY substrate claim is that this design lifts next-category F1. Region-side tie (CH15, confirmed) is expected because pooling to region erases per-visit variance.
+2. **[CH17] Check2HGI surpasses POI-RGNN (published) and a prior HGI-based next-category article.** External published comparisons anchoring the paper's contribution.
+3. **[CH03] Per-task input modality is the Pareto-bidirectional MTL design.** Check2HGI uniquely enables it because it supplies both check-in and region modalities simultaneously; HGI architecturally cannot. Confirmed directionally on AL (P4-dev).
+
+Integration test: **[CH01/CH02] Bidirectional MTL** — with (1)+(2)+(3), does MTL preserve / improve both heads? Tested in P3 on FL/CA/TX headline.
+
+**Out of scope — Future work (P6):** region-side encoder enrichment (temporal / spatial / graph / loss) is the planned research track to improve next-region. Check2HGI's current region numbers are deliberately not optimized; improving them is a separate contribution.
 
 ## Task pair
 

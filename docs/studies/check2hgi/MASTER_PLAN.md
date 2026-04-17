@@ -1,6 +1,12 @@
 # Check2HGI Study — Master Plan
 
-**Goal:** Validate that MTL `{next_category, next_region}` on Check2HGI check-in-level embeddings **improves both heads bidirectionally** over their single-task baselines, with a champion configuration found through systematic ablation.
+**Paper contribution (revised 2026-04-16 evening):** three intertwined claims, summarized in `HANDOFF.md` §Paper contribution:
+
+1. **[CH16] Check2HGI improves next-category F1 over HGI** (primary substrate claim; Check2HGI was designed for exactly this).
+2. **[CH17] Check2HGI surpasses POI-RGNN and a prior HGI-based next-category article** (external published comparisons).
+3. **[CH03] Per-task input modality is the Pareto-bidirectional MTL design** (architectural claim; confirmed directionally on AL).
+
+Integration test: **[CH01/CH02]** bidirectional MTL preserves / improves both heads on FL+CA+TX.
 
 **Development vs headline states:**
 - **Development / ablation (cheap iteration):** Alabama (AL). Small, sparse, ~30 min per 5f×50ep run.
@@ -12,8 +18,9 @@
 |---|---|---|---|---|
 | **P0** | Integrity + simple baselines (region Markov, 1/2/3-step) + audits | floor | done | ✅ |
 | **P1** | Region-head ablation × input type {checkin, region, concat} + hparam sweep | CH04 (reframed), CH05 | done | ✅ |
-| **P1.5** | Embedding comparison: Check2HGI vs POI2HGI (AL, region single-task) | **CH15** | ~1h | P1 done; small `--engine` flag in ablation script |
-| **P2** | Full arch × optim ablation (AL only, TCN head for compute) | CH06 | ~1 day | P1.5 (substrate decision) |
+| **P1.5** | Embedding comparison region-side: Check2HGI vs HGI (AL, region single-task) | CH15 | done | ✅ tied — expected |
+| **P1.5b** | Embedding comparison category-side: Check2HGI vs HGI (AL, next-category single-task) | **CH16** | ~20 min | P1 done; running 2026-04-16 evening |
+| **P2** | Full arch × optim ablation (AL only, TCN head for compute) | CH06 | ~1 day | P1.5b (primary substrate claim) |
 | **P3** | MTL headline (bidirectional, Δm): champion config, multi-seed n=15, on FL + CA + TX | **CH01**, **CH02**, CH07 | ~15h | P2 champion |
 | **P4** | Per-task input modality: 4-way ablation on AL, top-2 replicated on CA/TX | **CH03**, CH08 | ~4h AL + ~6h CA/TX | P4 pipeline ✅; runs in parallel with P2 or after |
 | **P5** | Cross-attention between task-specific encoders (gated on P4 outcome) | CH09 | ~6h | P4 |

@@ -2,13 +2,50 @@
 
 Task pair: `{next_category (7 classes), next_region (~1K classes)}` on Check2HGI check-in-level embeddings.
 
-**Core thesis (bidirectional, clarified 2026-04-16):** The two tasks help each other. MTL must improve **both heads** (next-category macro-F1 AND next-region Acc@10) over their respective single-task baselines. A single-direction lift (e.g., category improved, region degraded) does not satisfy the thesis.
+## Paper's contribution — three intertwined claims (revised 2026-04-16 evening)
+
+1. **Check2HGI (check-in-level contextual) improves next-category prediction over POI-level alternatives (HGI) and over published next-category baselines (POI-RGNN).** The check-in-level granularity — same POI visited twice yields different vectors — captures the user's *immediate* intent shifts that POI-level embeddings cannot. This is Check2HGI's design target and the paper's primary substrate claim. **CH16.**
+2. **Per-task input modality** (check-in to the category head, region to the region head) is the Pareto-bidirectional MTL design; shared-modality or concat variants each collapse one head. Check2HGI uniquely enables this because it supplies both granularities simultaneously; HGI cannot produce per-visit variation. **CH03.**
+3. **Bidirectional MTL preserves / improves both heads** under this design (category via Check2HGI's native strength, region via the shared-backbone bridge without regression). **CH01 / CH02.**
+
+At the region level, Check2HGI and HGI converge (P1.5 confirmed tied Acc@10) because pooling to region smooths out per-visit variation. Future work (P6 encoder enrichment) targets the region side specifically; out of scope for BRACIS.
 
 **Rule:** no claim enters the paper without `status ∈ {confirmed, partial}` and an evidence pointer.
 
 ---
 
 ## Tier A — Headline
+
+### CH16 — Check2HGI check-in embeddings improve next-category F1 over HGI POI embeddings (PRIMARY SUBSTRATE CLAIM)
+
+**Statement:** Single-task next-category macro-F1 on Check2HGI (check-in-level, per-visit contextual) is strictly greater than on HGI (POI-level, one-vector-per-POI) at matched compute on the Gowalla state-level corpus. Specifically, Δ = F1(Check2HGI) − F1(HGI) ≥ 2 pp on AL with non-overlapping std envelopes (5f × 50ep, seed 42, same head class).
+
+**Why this claim exists:** Check2HGI was designed specifically as an HGI modification that introduces check-in-level contextual variation (same POI visited twice → different vectors). The *paper's primary contribution* is that this design choice lifts next-category prediction; the region-side tie (CH15) is expected because region-level pooling erases the per-visit variance Check2HGI adds. Without CH16 landing, the study's substrate justification collapses.
+
+**Why HGI cannot match this architecturally:** HGI produces one vector per POI. Two check-ins at the same POI receive identical embeddings, discarding all temporal, co-visitor, and context-window structure. For next-category, where the user's *immediate* intent varies across visits of the same POI (e.g., visiting a café for breakfast vs. an evening meetup), this information is lost.
+
+**Source:** P1.5b measurement (CHECK2HGI vs HGI on next-category, AL, 5f × 50ep). Same head class, same optim, identical splits.
+**Test:** P1.5b — launched 2026-04-16 evening.
+**Phase:** P1.5b.
+**Status:** `pending` (running).
+
+### CH17 — Check2HGI strongly surpasses published POI-RGNN next-category on Gowalla state-level
+
+**Statement:** Our single-task next-category macro-F1 with Check2HGI exceeds POI-RGNN's published numbers (31.8% FL, 34.5% CA) on the matched states by ≥ 4 pp. The MTL configuration (P3) exceeds by a larger margin.
+
+**Why this claim exists:** POI-RGNN is the most-cited comparable baseline for next-POI-category on Gowalla state-level data. Beating it establishes that Check2HGI is not merely incremental over HGI but competitive against the strongest published method on this data.
+
+**Known prior values (HANDOFF.md, current study):**
+- AL single-task next-category (Check2HGI, 5f × 50ep, prior run): **38.67%** macro-F1.
+- POI-RGNN reported FL 31.8% / CA 34.5%. Direct AL comparison would need POI-RGNN run on AL — otherwise state-level comparison only.
+- Δ on FL: Check2HGI single-task FL TBD (pending P1.5b extension to FL).
+
+**Plus a related published HGI-based next-category number** (TBD reference — user's or related group's prior work using HGI for next-category on matched data). Frame as "HGI with the same downstream pipeline achieved X%; Check2HGI achieves Y%, a Δ of Z pp on matched data." This strengthens CH16 externally — CH16 is an internal controlled comparison on our pipeline; this is an external published comparison.
+
+**Source:** POI-RGNN paper (FL/CA/TX published numbers); to-be-located HGI-for-next-category article (user-supplied reference TBD); our Check2HGI numbers (P1 + P1.5b + P3).
+**Test:** reporting table in paper, not a separate training run. Numbers come from P3 headline + single-task baselines.
+**Phase:** paper write-up after P3.
+**Status:** `pending` — numeric comparisons pending. Need to locate the specific HGI-next-category reference the user plans to cite.
 
 ### CH01 — MTL {next_category, next_region} improves BOTH heads over single-task (HEADLINE, bidirectional)
 
@@ -263,7 +300,9 @@ The paper's framing therefore shifts from "Check2HGI is a better embedding" to "
 
 | ID | Tier | Phase | Status | Decides |
 |----|------|-------|--------|---------|
-| **CH01** | A | P3 | pending | Bidirectional MTL lift on both heads (HEADLINE) |
+| **CH16** | **A** | **P1.5b** | **pending (running)** | **Check2HGI > HGI on next-category (PRIMARY SUBSTRATE)** |
+| **CH17** | **A** | **paper** | **pending** | **Check2HGI > POI-RGNN + prior HGI-next-category article** |
+| **CH01** | A | P3 | pending | Bidirectional MTL lift on both heads |
 | **CH02** | A | P3 | pending | No negative transfer on either head (statistical) |
 | **CH03** | A | P4 | partial (AL dev) | Per-task input modality > shared / concat — confirmed directionally on AL |
 | CH04 | B | P1 | retired | Region head validates — demoted to reported comparison (1.16× Markov-1-region) |

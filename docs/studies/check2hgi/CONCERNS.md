@@ -131,6 +131,23 @@ This tightens the paper's story: the contribution is framed around what Check2HG
 
 ---
 
+## C10 — External published comparisons: POI-RGNN + HGI-next-category article (CH17)
+
+**Concern raised:** 2026-04-16 evening (user clarification). The paper's CH17 claim is that Check2HGI surpasses not only HGI in our controlled pipeline (CH16) but also published external baselines: POI-RGNN (known numbers: FL 31.8%, CA 34.5% macro-F1 for next-category on Gowalla state-level) and a prior HGI-based next-category article (specific reference pending user confirmation).
+
+**What's needed:**
+1. **POI-RGNN:** already have the reference (prior mention in HANDOFF). Line up our FL/CA/TX single-task next-category numbers (from P1.5b extension or P3 baseline) vs POI-RGNN's published numbers. No re-run of POI-RGNN is required; citation-and-compare.
+2. **HGI-based next-category article:** user mentioned "courb article" that applied HGI to next-category — specific reference TBD. Once located, note whether the pipeline matches (data preprocessing, folds, head) so the comparison is fair. If the article's pipeline differs, frame as "same-data external comparison" rather than controlled.
+
+**Resolution plan:**
+- CH16 (P1.5b) provides the controlled comparison on our pipeline.
+- CH17 provides the external anchors.
+- Paper Results table gets two columns: "Prior work" (POI-RGNN + HGI-article) and "Ours" (Check2HGI single-task + MTL).
+
+**Status:** `open` — needs the exact HGI-next-category reference from the user. Paper framing otherwise ready.
+
+---
+
 ## Index
 
 | ID | Concern | Status | Trigger to revisit |
@@ -144,3 +161,4 @@ This tightens the paper's story: the contribution is framed around what Check2HG
 | C07 | Embedding comparison: Check2HGI vs HGI | resolved 2026-04-16 (tied; paper framing pivot) | HGI develops check-in granularity |
 | C08 | CH04 retirement reframing | resolved | — |
 | C09 | SSD reliability | monitored | Large data on CA/TX |
+| C10 | POI-RGNN + HGI-article external baselines (CH17) | open | User provides HGI-article reference |
