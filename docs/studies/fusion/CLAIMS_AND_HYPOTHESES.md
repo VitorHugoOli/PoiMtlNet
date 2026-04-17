@@ -35,8 +35,14 @@ This is the **authoritative list** of every claim/hypothesis we intend to valida
 **Source:** Prior Stage 1 result (Stage 1 showed 25% gap, but at short training and unmatched batch — weakened by T0.2 at matched batch showing essentially zero gap).
 **Test:** P1.2 — within the 5×20 grid, compare ca/al vs eq for DSelectK on fusion, matched batch (grad_accum=1), at both 1f×10ep screening and 5f×50ep confirmation.
 **Phase:** P1.
-**Status:** `partially_refuted` — pre-bug T0.2 showed eq ≈ al at 5f×50ep matched batch. Must replicate on new data.
-**Notes:** If refuted on new data too, the finding becomes "gradient-surgery accelerates convergence but doesn't raise the ceiling" (weaker but publishable).
+**Status:** `partial` — AL P1c shows +0.51 p.p. favor grad-surgery (within the phase-doc "partially confirm" band of <2 p.p.); AZ P1c shows static slightly better (-0.05 p.p.). Net effect is small, not state-consistent.
+**Evidence (P1a screen, 2026-04-16):** Best-vs-best joint gap is +0.001 on AL and +0.006 on AZ; mean-across-arch gap ≈ 0 on both states; `equal_weight` appears in top-10 of both states (cgc22×eq at AL 0.4037, AZ 0.4315).
+**Evidence (P1b promote 2f × 15ep, 2026-04-17):** AL grad−eq = **−0.0011** (equal_weight actually edges grad-surgery); AZ had no eq in top-10 but `cgc21×uw` and `cgc21×gradnorm` are tied.
+**Evidence (P1c confirm 5f × 50ep, 2026-04-17):**
+- AL winner: **mmoe4 × gradnorm = 0.4082** (gradient). Best equal_weight = 0.4031. Δ = **+0.0051** (≈ within noise at ±1 p.p.).
+- AZ winner: **cgc21 × uncertainty_weighting = 0.4374** (*static*). Best gradient = 0.4369. Δ = **−0.0005**.
+- Across both states at 5f × 50ep: gradient-surgery mean advantage ≈ +0.002 p.p. — well below the 2 p.p. "confirm" threshold.
+**Notes:** Consistent with N02 — gradient-surgery accelerates convergence but does not raise the ceiling at matched effective batch. Paper framing already captured. Cross-state winner disagreement (gradient on AL vs static on AZ) is itself notable — supports N02 beyond simple parity.
 
 ---
 
@@ -71,7 +77,10 @@ This is the **authoritative list** of every claim/hypothesis we intend to valida
 **Source:** Prior Finding 7, 12.
 **Test:** P1.4 — within the 5×20 grid, compare mean joint of base arch vs each expert-gating arch.
 **Phase:** P1.
-**Status:** `pending` (prior data showed +16% for CGC over base).
+**Status:** `confirmed` — every expert-gating arch beats base in both states at screen. AL effect is large (+3-4.5 p.p.), AZ effect is modest but directionally consistent (+0.5-1.7 p.p.). P1c did not re-run `base` (top-5 had none), so direct 5f × 50ep comparison is absent, but the screen evidence spans 75 cells per state and the direction is unambiguous.
+**Evidence (P1a screen, 2026-04-16):** AL base mean joint = 0.352; cgc22 = 0.394, cgc21 = 0.384, mmoe4 = 0.396, dsk42 = 0.382 (+0.03–0.04 over base). AZ base mean = 0.414; cgc22 = 0.419, cgc21 = 0.431, mmoe4 = 0.426, dsk42 = 0.423 (+0.005–0.017 over base). Every expert-gating arch > base in both states.
+**Evidence (P1b, P1c — all stages, 2026-04-17):** No `base` arch in top-10 of either state's P1b; no `base` in either P1c. Zero `base` cells survived the screen cut. Consistent with the claim.
+**Notes:** Winning archs differ by state — AL favors `mmoe4` (+0.0446 over base) and `cgc22` (+0.0425); AZ favors `cgc21` (+0.0173). This is a partial signal for C04 (embedding-dependent → state-dependent) within the *same* fusion engine.
 
 ---
 
