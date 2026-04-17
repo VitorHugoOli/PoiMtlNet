@@ -1,33 +1,39 @@
 # Check2HGI Study — Master Plan
 
-**Goal:** Validate that next-region as an auxiliary task improves next-category prediction on Check2HGI check-in-level embeddings, with a champion MTL configuration found through systematic ablation.
+**Goal:** Validate that MTL `{next_category, next_region}` on Check2HGI check-in-level embeddings **improves both heads bidirectionally** over their single-task baselines, with a champion configuration found through systematic ablation.
+
+**Development vs headline states:**
+- **Development / ablation (cheap iteration):** Alabama (AL). Small, sparse, ~30 min per 5f×50ep run.
+- **Headline paper table:** Florida (FL) + California (CA) + Texas (TX) — the three large states Check2HGI is trained on. See `CONCERNS.md §C01–C02`.
 
 ## Phase overview
 
-| Phase | What | Claims | Duration | Requires |
+| Phase | What | Claims | Duration | Status / Requires |
 |---|---|---|---|---|
-| **P0** | ✅ Integrity + simple baselines (region-level Markov) + audits | floor | done | — |
-| **P1** | Region-head ablation × input type {check-in, region, concat} + hparam sweep | CH04 (retired), CH05 | ~3h | P0 |
-| **P2** | TaskSet-parameterise all MTL archs + full arch × optim ablation | CH06 | ~1 day | P1 (head winner) |
-| **P3** | MTL headline (bidirectional): champion config, multi-seed n=15, **paired test on both heads** | **CH01**, **CH02**, CH07 | ~4h | P2 (champion) |
-| **P4** | **Per-task input modality**: 4-way {per_task, concat, shared_checkin, shared_region} | **CH03**, CH08 | ~4h | P3 + per-task X pipeline (~80 LOC) |
-| **P5** | Cross-attention between task-specific encoders (gated on P4) | CH09 | ~6h | P4 |
+| **P0** | Integrity + simple baselines (region Markov, 1/2/3-step) + audits | floor | done | ✅ |
+| **P1** | Region-head ablation × input type {checkin, region, concat} + hparam sweep | CH04 (reframed), CH05 | done | ✅ |
+| **P1.5** | Embedding comparison: Check2HGI vs POI2HGI (AL, region single-task) | **CH15** | ~1h | P1 done; small `--engine` flag in ablation script |
+| **P2** | Full arch × optim ablation (AL only, TCN head for compute) | CH06 | ~1 day | P1.5 (substrate decision) |
+| **P3** | MTL headline (bidirectional, Δm): champion config, multi-seed n=15, on FL + CA + TX | **CH01**, **CH02**, CH07 | ~15h | P2 champion |
+| **P4** | Per-task input modality: 4-way ablation on AL, top-2 replicated on CA/TX | **CH03**, CH08 | ~4h AL + ~6h CA/TX | P4 pipeline ✅; runs in parallel with P2 or after |
+| **P5** | Cross-attention between task-specific encoders (gated on P4 outcome) | CH09 | ~6h | P4 |
+| **P6** | Check2HGI encoder enrichment (literature + implementation + ablation) | CH12, CH13 | ~2 days | P3 baseline |
 
-| **P6** | Check2HGI encoder enrichment (literature research + implementation + ablation) | CH12, CH13 | ~2 days | P3 baseline needed |
+**Total:** ~40 h for the sequential path through P3 on all three headline states; ~50 h including P4 headline. P5 gated; P6 independent.
 
-**Total:** ~18h for P0–P5 sequential (excluding P5 if gated). P6 is an independent research track that can run in parallel with P4/P5 once P3 baseline exists.
+**Head champion (see `CONCERNS.md §C06`):** `next_gru` is the reported champion (HMT-GRN-aligned, statistically best on AL 5f×50ep). `next_tcn_residual` is the compute-efficient substitute used for grids (P2 arch×optim, P4 on AL) — ~20× faster with statistically equivalent region-task Acc@10 on AL. At the end of P2, the top-3 arch×optim configs get re-run with `next_gru` on AL as a sanity check before P3 commits.
 
 ## Execution order rationale
 
-**P1 (heads) before P2 (MTL ablation):**
-- The region head is **untested** — it's the next-category head repurposed for ~1K classes. We need to know it works before layering MTL.
-- The head winner feeds into the MTL ablation as a **fixed choice**. Wrong head → wrong MTL conclusions.
-- HMT-GRN uses a GRU for their region head (not a transformer). If GRU wins in P1, that changes which MTL backbone benefits most in P2.
-- P1 is cheaper (~5 runs) than P2 (~15+ runs).
+**P1 (heads) before P1.5 (embedding):** confirmed the region task is learnable with a GRU head. Needed a working head before asking "which embedding is better at driving that head?"
 
-**P2 (MTL ablation) before P3 (headline):**
-- The headline must use the champion (arch, optim) pair, not an arbitrary default.
-- Running the headline first with NashMTL+base-MTLnet and then discovering CGC+equal_weight is better would waste the multi-seed n=15 budget.
+**P1.5 (embedding) before P2 (arch × optim):** if POI2HGI wins on the region task, the whole paper substrate shifts and we'd be wasting a 20-run arch×optim grid on the wrong embedding. Cheap gate (~1 h, 1 state), high-value decision.
+
+**P2 before P3 (headline):** the headline must use the champion (arch, optim) pair, not an arbitrary default. Running the n=15 headline with NashMTL+FiLM and then discovering CGC+GradNorm is better would waste the multi-seed budget on the three headline states.
+
+**P4 (per-task modality) parallel with P2:** the per-task input pipeline is already shipped. P4's AL development phase (4 variants × 5f × 50ep × 1 seed) can run in parallel with P2's grid — they use the same compute and don't depend on each other. Only the P4 CA/TX replication depends on the P3 champion arch.
+
+**P3 (headline) before P5 / P6:** both P5 (cross-attention) and P6 (encoder enrichment) need a P3 vanilla-baseline to compare against; otherwise any lift is unattributable.
 
 ## Phase details
 
@@ -144,9 +150,10 @@ Only runs if P4's per-task-modality champion does not saturate the single-task c
 ## Exit criteria
 
 Branch merges when:
-1. CH01 + CH02 resolved with evidence (P3).
-2. CH06 resolved (P2 champion identified).
-3. CH03 resolved (P4 dual-stream tested).
-4. P1 head ablation documented.
-5. All legacy tests green.
-6. Paper findings section drafted.
+1. CH01 + CH02 resolved with evidence on FL + CA + TX (P3).
+2. CH03 resolved (P4 per-task modality 4-way comparison).
+3. CH06 resolved (P2 champion identified with GRU sanity check).
+4. CH15 resolved (P1.5 embedding choice justified).
+5. All `CONCERNS.md` entries at status `resolved`, `monitored`, or explicit `deferred` — no `open`.
+6. All legacy tests green.
+7. Paper findings section drafted (both primary and backup narrative paths pre-written — see `CONCERNS.md §C05`).

@@ -4,15 +4,18 @@
 
 | Phase | Status |
 |---|---|
-| **P0** | ✅ complete — integrity, simple baselines (region-level Markov added), CH14 audit |
-| **P1** | ✅ complete — 5 heads × checkin/region/concat baselined on AL, GRU confirmed on AL 5f×50ep + FL 5f×50ep, `next_mtl` scrapped as region-head candidate |
-| **P2-prep** | ✅ CGC/MMoE/DSelectK/PLE ported to TaskSet-aware |
+| **P0** | ✅ complete — integrity, simple baselines (region Markov 1/2/3-step), CH14 audit |
+| **P1** | ✅ complete — 5 heads × {checkin, region, concat}; GRU confirmed on AL 5f×50ep (56.94 ± 4.01) + FL 5f×50ep (68.33 ± 0.58); `next_mtl` scrapped as region-head candidate |
+| **P1.5** | 🟡 planned — Check2HGI vs POI2HGI on AL region single-task (addresses reviewer "why this substrate?" — CH15) |
+| **P2-prep** | ✅ CGC/MMoE/DSelectK/PLE TaskSet-aware |
 | **P4-prep** | ✅ per-task input pipeline shipped (`FoldCreator.task_a_input_type` / `task_b_input_type`, CLI flags, `region_sequence.py`) |
-| P2 | ready to launch — arch × optim grid with per-task input modality |
-| P3 | blocked on P2 |
-| P4 | unblocked (pipeline ready); gated on P3 champion |
-| P5 | gated on P4 |
-| P6 | research track — no blocker |
+| **P2** | ready — arch × optim grid with TCN region head (compute-efficient); GRU sanity check on top-3 at end |
+| **P3** | ready after P2 champion — headline multi-seed on **FL + CA + TX** (not AL alone; AL stays as ablation state) |
+| **P4** | pipeline ready; development on AL can run in parallel with P2; headline replication on CA/TX after P3 champion |
+| **P5** | gated on P4 outcome |
+| **P6** | research track — no blocker |
+
+**Concerns log:** `CONCERNS.md` now tracks 9 open issues with resolutions/fallbacks (dataset breadth, FL saturation, joint metric, head swap framing, null-result backup, GRU vs TCN, embedding choice, CH04 reframe, SSD reliability).
 
 ## Thesis (clarified 2026-04-16)
 
