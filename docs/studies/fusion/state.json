@@ -1,7 +1,7 @@
 {
   "study_version": "1.0",
   "study_started": "2026-04-14T05:58:14+00:00",
-  "last_update": "2026-04-17T07:15:09+00:00",
+  "last_update": "2026-04-17T08:38:11+00:00",
   "current_phase": "P2",
   "open_issues": [
     {
@@ -21,6 +21,33 @@
       "severity": "watch",
       "raised_at": "2026-04-15T21:33:15+00:00",
       "description": "Florida/fusion category half-L2 ratio = 40.99\u00d7 (expected 5\u201330\u00d7, Alabama is ~15\u00d7). Likely a scale imbalance between HGI and Sphere2Vec components in the Florida fusion. Confounds C02/C19 on FL. Investigate before P3 FL experiments.",
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "issue_id": "ISS-003",
+      "test_id": "P1_phase_level",
+      "type": "methodology",
+      "raised_at": "2026-04-17T08:38:11+00:00",
+      "description": "F1: joint-peak checkpoint selection biases config rankings. AL winner mmoe4\u00d7gradnorm (joint@J=0.4082) drops to mid-pack under per-task-best (joint@T=0.4220); equal_weight leads at joint@T. See docs/studies/fusion/issues/P1_METHODOLOGY_FLAWS.md F1 and claim C32.",
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "issue_id": "ISS-004",
+      "test_id": "P1_phase_level",
+      "type": "methodology",
+      "raised_at": "2026-04-17T08:38:11+00:00",
+      "description": "F2: no multi-seed replication on P1 \u2014 all 180 runs at seed=42. Inter-config differences in P1c top-5 are 0.0005-0.0051 (within fold noise 0.011). Cannot distinguish champion from noise without multi-seed. See issues/P1_METHODOLOGY_FLAWS.md F2.",
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "issue_id": "ISS-005",
+      "test_id": "P1_phase_level",
+      "type": "methodology",
+      "raised_at": "2026-04-17T08:38:11+00:00",
+      "description": "F3: C31 fclass-shortcut-on-fusion untested. C29 confirmed shortcut on HGI-only (category F1 0.786\u21920.144 under shuffle); fusion adds Sphere2Vec but hasn't been tested. Blocker for trusting fusion category F1 as representation quality. See issues/P1_METHODOLOGY_FLAWS.md F3.",
       "status": "open",
       "resolution": null
     }

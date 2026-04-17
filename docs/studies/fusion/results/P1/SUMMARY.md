@@ -85,6 +85,43 @@ Per-fold noise on joint at confirm is ~0.01. The AL winner margin over `equal_we
 
 ---
 
+## ⚠️ Per-task-best reanalysis (C32 — added 2026-04-17)
+
+Reported `joint_f1` uses the **joint-peak** checkpoint (where `joint_score` was max during training). But `full_summary.json` also logs each task's F1 at its own per-task-best epoch via `diagnostic_task_best`. Recomputing `joint_f1` as HM(cat@best, next@best):
+
+**AL P1c — joint@J (reported) vs joint@T (per-task-best):**
+
+| Config | joint@J | joint@T | Δ |
+|--------|---------|---------|----|
+| cgc21 × bayesagg_mtl | 0.4034 | 0.4215 | +0.0181 |
+| cgc22 × equal_weight | 0.4031 | **0.4229** | +0.0198 |
+| cgc22 × excess_mtl | 0.4043 | 0.4215 | +0.0173 |
+| cgc22 × nash_mtl | 0.4034 | 0.4217 | +0.0183 |
+| mmoe4 × gradnorm | **0.4082** | 0.4220 | +0.0138 |
+
+Under per-task-best selection **all 5 AL configs collapse into a 0.4215–0.4229 range (spread 0.0014).** `equal_weight` leads by ~0.0009 over `gradnorm`. **The AL "winner" ordering is an artifact of joint-peak checkpoint selection**, not a property of the configurations.
+
+**AZ P1c — same analysis:**
+
+| Config | joint@J | joint@T | Δ |
+|--------|---------|---------|----|
+| cgc21 × dwa | 0.4352 | **0.4416** | +0.0064 |
+| cgc21 × gradnorm | 0.4369 | 0.4406 | +0.0037 |
+| cgc21 × pcgrad | 0.4361 | 0.4392 | +0.0031 |
+| cgc21 × uncertainty_weighting | **0.4374** | 0.4400 | +0.0026 |
+| mmoe4 × nash_mtl | 0.4277 | 0.4367 | +0.0090 |
+
+AZ winner flips: `cgc21 × uw` (joint@J) → `cgc21 × dwa` (joint@T). Top-4 cgc21 still within 0.0024.
+
+**Mechanism (from `fold*_info.json` per-task best epochs):** Category peaks at epochs 17–45 (uses full schedule). Next peaks at epochs 10–22 (first third). The joint-peak checkpoint sits *after* next's peak and *before* category's peak — a compromise epoch that under-reports next F1 by ~0.012–0.017 and under-reports category F1 by ~0.004–0.012.
+
+**Implications:**
+- **C02 refuted under per-task-best selection.** AL: grad − eq = −0.0009; AZ: grad − static = −0.0010.
+- **P2 C06 (MTL vs single-task) must report both joint@J and joint@T** — otherwise single-task-next will look artificially superior.
+- Logged as claim `C32` and flaw `F1` in `issues/P1_METHODOLOGY_FLAWS.md`.
+
+---
+
 ## Decision gate for P2
 
 From `P1_arch_x_optimizer.md §Phase gate`:
@@ -95,7 +132,10 @@ From `P1_arch_x_optimizer.md §Phase gate`:
 Additionally:
 4. **`equal_weight` near-tie at AL P1c (0.4031 vs 0.4082 = 0.005 behind)** — the phase doc flagged this as the "pause and re-plan" condition. The winner is strictly gradnorm (not equal_weight), so we do not technically trigger the pause. But the proximity is itself a finding. **Paper narrative should lead with C05 (expert-gating) as the first-order lever, not C02.**
 
-**Gate: PASS.** P1 can advance to P2.
+**Gate: PASS** (on the phase-doc criteria) **but with important caveats** — see §Per-task-best reanalysis, `issues/P1_METHODOLOGY_FLAWS.md`. Reasonable to advance to P2 only if we commit to:
+- Reporting both joint@J and joint@T in P2 analyses.
+- Multi-seed replicating the P2 champion config.
+- Running the C31 fclass-on-fusion shuffle check as a P2 blocker.
 
 ---
 

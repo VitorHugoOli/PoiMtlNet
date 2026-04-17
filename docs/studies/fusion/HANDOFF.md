@@ -1,15 +1,21 @@
-# Handoff — state as of 2026-04-17 (P1 complete)
+# Handoff — state as of 2026-04-17 (P1 closed, critical review complete)
 
 Snapshot written at session close. This file is **transient**; trust `state.json` when in doubt.
 
 ---
 
+## ⚠️ Read first
+
+`docs/studies/fusion/issues/P1_METHODOLOGY_FLAWS.md` catalogs 10 flaws identified in the post-P1 critical review. The two high-severity items (F1 joint-peak checkpoint bias; F2 single-seed) **must be resolved or explicitly acknowledged before P2 runs** — P2's #1 paper claim (C06 MTL vs single-task) rides on the champion we freeze from P1.
+
+---
+
 ## Study status at a glance
 
-- **Current phase marker:** P1 (status=running in state.json but **phase gate PASSES** — awaiting `/study advance` to open P2).
-- **P0 ✅ closed.** P1 ✅ **complete, full three-stage 180-test grid on AL + AZ**. P2–P6 planned.
-- **Claims catalog:** 30 claims + 4 negations. C02 → `partial`, C05 → `confirmed`, C29/C30/N03 already confirmed in P0. See `CLAIMS_AND_HYPOTHESES.md`.
-- **Git:** `main` is clean-ish; working-tree edits (CLAIMS, P1 SUMMARY, this file, state.json mutations from drains) are **uncommitted**. Latest commit `97f7fdb fix: fix the gradnorm`.
+- **Current phase:** P2 (P1 → completed via `/study advance` 2026-04-17).
+- **P0 ✅ closed. P1 ✅ closed** (180/180 tests archived). P2 open, 0 enrolled. P3–P6 planned.
+- **Claims catalog:** 32 claims + 4 negations (**C31** fclass-on-fusion pending, **C32** joint-peak checkpoint bias confirmed added 2026-04-17). C02 downgraded from `partial` to **`partially_refuted`** after per-task-best reanalysis (null effect). C05 `confirmed` (screen+promote; note `base` not at 5f×50ep — F4). Full details in `CLAIMS_AND_HYPOTHESES.md`.
+- **Git:** working tree has ~30 new P1 test archive dirs, CLAIMS, SUMMARY, HANDOFF, state.json, new issue doc all **uncommitted**. Latest commit `97f7fdb`. Commit before touching P2.
 
 ---
 
@@ -21,26 +27,30 @@ Snapshot written at session close. This file is **transient**; trust `state.json
 | promote (2f×15ep) | 10 | 10 | all `matches_hypothesis` |
 | confirm (5f×50ep) | 5 | 5 | all `matches_hypothesis` |
 
-- **AL P1c winner:** `mmoe4 × gradnorm` joint **0.4082** (cat 0.822±0.012, next 0.272±0.011).
-- **AZ P1c winner:** `cgc21 × uncertainty_weighting` joint **0.4374** (cat 0.732±0.015, next 0.312±0.014).
-- **Winner disagreement across states** — different arch AND different optim class. Paper must carry a state-sensitivity caveat.
-- Full tables + cross-stage trajectory: `docs/studies/fusion/results/P1/SUMMARY.md`.
+- **AL "winner" at joint-peak selection (joint@J):** `mmoe4 × gradnorm` = **0.4082**.
+- **AL at per-task-best selection (joint@T):** `cgc22 × equal_weight` = **0.4229**. All 5 AL top-5 collapse to 0.4215–0.4229 (spread 0.0014). **The AL joint@J ranking is a checkpoint-selection artifact (C32/F1).**
+- **AZ "winner" at joint@J:** `cgc21 × uncertainty_weighting` = **0.4374**.
+- **AZ at joint@T:** `cgc21 × dwa` = **0.4416**. Top-4 cgc21 within 0.0024.
+- **C02 refuted under joint@T.** AL grad−eq = −0.0009; AZ grad−static = −0.0010.
+- Full tables + per-task-best reanalysis: `docs/studies/fusion/results/P1/SUMMARY.md`.
 
 ### Claim updates from P1
 
-| Claim | Before P1 | After P1c | Delta |
-|-------|-----------|-----------|-------|
-| **C02** grad-surgery > eq on fusion | `partially_refuted` | **`partial`** | AL +0.0051 (marginal), AZ −0.0005 (static tied/better). Within noise. |
-| **C05** expert-gating > FiLM base | `partial` | **`confirmed`** | Every expert arch > base on both states at screen (75 cells each). |
+| Claim | Before | After P1 + critical review | Delta |
+|-------|--------|----------------------------|-------|
+| **C02** grad-surgery > eq on fusion | `partially_refuted` | **`partially_refuted`** (reinforced) | AL joint@J +0.0051 (Z=0.39 → null); AL joint@T −0.0009; AZ joint@T −0.0010. No measurable advantage. |
+| **C05** expert-gating > FiLM base | `partial` | **`confirmed`** (with F4 caveat — `base` not at 5f×50ep) | Every expert arch > base at screen (75 cells × 2 states); unanimous direction. |
+| **C31** fclass shortcut on fusion | — (new) | `pending` (blocking for P2/P3) | 1-fold arm-C run on fusion needed. Results unknown. |
+| **C32** joint-peak checkpoint bias | — (new) | `confirmed` | Ranking changes under per-task-best selection; must report both going forward. |
 
 C03, C04 still `pending` — deferred to P3 (DGI/HGI cross-engine).
 
 ### P1-derived second-order observations worth noting for the paper
 
-1. **C02 is effectively null at matched batch.** The +0.0051 AL advantage is within noise; AZ reverses sign. On fusion, the optimizer choice is second-order. Architecture (C05) is first-order.
-2. **`equal_weight` placed within 0.5 p.p. of the AL winner** at 5f×50ep. Had the phase doc's "pause-and-replan" trigger been strict rather than "winner === equal_weight", this would have fired.
-3. **NextHead overfitting signature.** Next F1 loses ~2 p.p. going from promote (2f×15ep) to confirm (5f×50ep) on 4 of 5 AL cells. Only `mmoe4 × gradnorm` avoids the drop. Early-stopping the next head or adding dropout may unlock more joint F1.
-4. **Cross-state arch winners differ.** AL likes `mmoe4`/`cgc22`, AZ likes `cgc21`. Fusion engine same, state-dependence real. Treat any single "champion" with skepticism — it may not transfer to FL.
+1. **C02 is null at matched batch** under both checkpoint policies. On fusion, optimizer choice is not a measurable knob. Architecture (C05) is first-order.
+2. **`equal_weight` leads AL under per-task-best selection.** The paper narrative shifts: "MTL balancing is over-engineered; on fusion, equal_weight works."
+3. **Asymmetric per-task peak epochs (C32).** Category peaks epoch 17–45; next peaks epoch 10–22. Any single-checkpoint joint F1 is a compromise; P2 must report both joint@J and joint@T.
+4. **Cross-state arch preference** (AL likes mmoe4/cgc22, AZ likes cgc21) persists under both checkpoint policies. Is it real or seed-42 noise? Unknown without F2 multi-seed. Treat any single "champion" with skepticism — it may not transfer to FL.
 
 ---
 
@@ -58,13 +68,18 @@ Open issues (state.json):
 
 ---
 
-## Next steps (recommended order)
+## Next steps (ordered — do NOT skip F1/F2/F3 before P2)
 
-1. **Advance phase gate.** Run `.venv/bin/python scripts/study/study.py advance` (or `/study advance`) to flip P1 → completed and open P2. Gate passes cleanly. This is a paper-direction-safe call (neither state's winner is `equal_weight`).
-2. **Commit P1 artifacts.** Working-tree changes to commit: `CLAIMS_AND_HYPOTHESES.md`, `docs/studies/fusion/results/P1/SUMMARY.md`, `docs/studies/fusion/results/P1/<180 archived test dirs>`, `docs/studies/fusion/state.json`, `docs/studies/fusion/HANDOFF.md`. (Also housekeeping: `docs/studies/fusion/CLAIMS_AND_HYPOTHESES.md`, `pipelines/train/next_head.pipe.py`, `src/losses/gradnorm/loss.py`, `tests/test_losses/test_gradnorm.py` per `git status`.)
-3. **Enroll P2** — see `docs/studies/fusion/phases/P2_heads_and_mtl.md`.
-   - Champion to freeze into P2: **`mmoe4 × gradnorm`** (AL winner; only config to improve screen → confirm).
-   - Sensitivity check: also run P2's C06 (MTL vs single-task) on AZ's `cgc21 × uncertainty_weighting` to cover the cross-state disagreement.
+1. **Commit P1 artifacts now.** `git add docs/studies/fusion/ src/ tests/ && git commit`. Risk of rebase loss. See issue F10.
+2. **Resolve F3 (C31) — fclass-on-fusion shuffle.** 1 fold, ~10 min. If shortcut dominates on fusion, reframe the paper's category-F1 story before P2.
+3. **Resolve F1 via analysis (no new runs).** Add `joint_f1_taskbest` to `_extract_observed` in `scripts/study/archive_result.py`; backfill P1 entries from existing `full_summary.json`. Makes joint@T a first-class metric in state.json.
+4. **Resolve F2 — multi-seed the P1 champion candidates.** Recommended set:
+   - AL: `mmoe4 × gradnorm` + `cgc22 × equal_weight` at seeds 123 + 2024, 5f × 50ep = 4 runs × ~35 min ≈ 2.5 h.
+   - AZ: `cgc21 × uncertainty_weighting` + `cgc21 × dwa` at seeds 123 + 2024, 5f × 50ep = 4 runs × ~35 min ≈ 2.5 h.
+   - **Only then can we claim a reliable champion.**
+5. **Resolve F4 — `base × equal_weight` at 5f × 50ep on AL.** 1 run, ~35 min. Locks C05 under the same protocol as C02.
+6. **Enroll P2.** Champion = whichever config survives F1+F2 best at joint@T (likely `cgc22 × equal_weight` for AL on current evidence, but wait for multi-seed).
+   - Sensitivity arm for C06: also run AZ champion (`cgc21 × dwa` post-F1, or `uw` if you stick with joint@J ordering).
 
 ## Worth-answering open questions (for P2 and beyond)
 
@@ -90,14 +105,30 @@ Open issues (state.json):
 
 ## How to invoke next session
 
+P1 has been closed via `/study advance`. Before any P2 work:
+
 ```
-.venv/bin/python scripts/study/study.py advance   # close P1, open P2
-# then
-/coordinator P2                                     # set champion, list tests
-/worker P2 all                                      # drain
+# 1. Commit the P1 body of work
+git status
+git add docs/studies/fusion/ src/losses/gradnorm/loss.py tests/test_losses/test_gradnorm.py pipelines/train/next_head.pipe.py
+git commit -m "study(P1): complete 3-stage grid + critical review + flaw tracker"
+
+# 2. Run the fclass-on-fusion check (C31)
+.venv/bin/python experiments/hgi_leakage_ablation.py --engine fusion --arm C_fclass_shuffle --state alabama
+
+# 3. Backfill joint@T into state.json (one-off script)
+#    See issues/P1_METHODOLOGY_FLAWS.md F1 resolution
+
+# 4. Multi-seed AL+AZ champion candidates (F2)
+#    Enrollment script needed — see F2 resolution. ~5 h total.
+
+# 5. Only then: enroll and drain P2
+/coordinator P2
+/worker P2 all
 ```
 
 Session checklist on resume:
-- Confirm `state.json` current_phase = P2 (not P1).
-- Confirm uncommitted P1 artifacts were either committed or intentionally left.
-- Re-read `phases/P2_heads_and_mtl.md`; decide champion = mmoe4×gradnorm + (optional) cgc21×uw robustness arm.
+- Confirm `state.json` current_phase = P2.
+- Confirm working tree is clean (P1 committed).
+- Read `issues/P1_METHODOLOGY_FLAWS.md` first — the F1/F2/F3 remediation plan determines what P2 actually measures.
+- Re-read `phases/P2_heads_and_mtl.md` and reconcile the champion picked post-F2 with the "arch* × optim*" assumption it makes.

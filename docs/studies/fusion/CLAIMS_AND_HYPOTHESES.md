@@ -35,14 +35,16 @@ This is the **authoritative list** of every claim/hypothesis we intend to valida
 **Source:** Prior Stage 1 result (Stage 1 showed 25% gap, but at short training and unmatched batch — weakened by T0.2 at matched batch showing essentially zero gap).
 **Test:** P1.2 — within the 5×20 grid, compare ca/al vs eq for DSelectK on fusion, matched batch (grad_accum=1), at both 1f×10ep screening and 5f×50ep confirmation.
 **Phase:** P1.
-**Status:** `partial` — AL P1c shows +0.51 p.p. favor grad-surgery (within the phase-doc "partially confirm" band of <2 p.p.); AZ P1c shows static slightly better (-0.05 p.p.). Net effect is small, not state-consistent.
-**Evidence (P1a screen, 2026-04-16):** Best-vs-best joint gap is +0.001 on AL and +0.006 on AZ; mean-across-arch gap ≈ 0 on both states; `equal_weight` appears in top-10 of both states (cgc22×eq at AL 0.4037, AZ 0.4315).
-**Evidence (P1b promote 2f × 15ep, 2026-04-17):** AL grad−eq = **−0.0011** (equal_weight actually edges grad-surgery); AZ had no eq in top-10 but `cgc21×uw` and `cgc21×gradnorm` are tied.
+**Status:** `partially_refuted` — after the full 3-stage P1 grid under matched effective batch, gradient-surgery shows **no measurable advantage** over equal_weight. Observed +0.0051 AL gap at joint-peak selection is **Z ≈ 0.39 vs pooled fold-noise (0.0133) — statistically indistinguishable from zero at seed 42**. Under per-task-best checkpoint selection (see C32/F1), the AL gap *flips sign* to −0.0009. Effect is null.
+**Evidence (P1a screen, 1f × 10ep, 2026-04-16):** Best-gradient vs best-equal_weight: AL +0.0010, AZ +0.0061. Top-10 of both states mixes gradient, loss-dynamic, and static optimizers; no optim class dominates.
+**Evidence (P1b promote 2f × 15ep, 2026-04-17):** AL best-grad − best-eq = **−0.0011** (equal_weight edges grad-surgery).
 **Evidence (P1c confirm 5f × 50ep, 2026-04-17):**
-- AL winner: **mmoe4 × gradnorm = 0.4082** (gradient). Best equal_weight = 0.4031. Δ = **+0.0051** (≈ within noise at ±1 p.p.).
-- AZ winner: **cgc21 × uncertainty_weighting = 0.4374** (*static*). Best gradient = 0.4369. Δ = **−0.0005**.
-- Across both states at 5f × 50ep: gradient-surgery mean advantage ≈ +0.002 p.p. — well below the 2 p.p. "confirm" threshold.
-**Notes:** Consistent with N02 — gradient-surgery accelerates convergence but does not raise the ceiling at matched effective batch. Paper framing already captured. Cross-state winner disagreement (gradient on AL vs static on AZ) is itself notable — supports N02 beyond simple parity.
+- AL, joint-peak selection: mmoe4 × gradnorm = 0.4082 vs best equal_weight cgc22×eq = 0.4031 → **Δ = +0.0051 (Z = 0.39)**.
+- AL, **per-task-best selection**: best gradient 0.4220 vs best equal_weight 0.4229 → **Δ = −0.0009**. equal_weight tied for first.
+- AZ, joint-peak selection: best gradient = 0.4369 vs best static (uw) = 0.4374 → Δ = −0.0005.
+- AZ, per-task-best selection: best gradient 0.4406 vs best static 0.4416 → Δ = −0.0010.
+- Combined: across both states and both checkpoint policies, effect size is within noise. Equal-weighting is fully competitive on fusion at matched batch.
+**Notes:** Ratifies N02 and the original T0.2 observation. Paper narrative: "Under matched effective batch, gradient-surgery optimizers on 128-dim fusion provide no measurable benefit beyond equal_weight for joint F1 at 5f × 50ep. This contradicts the naive reading of Stage 1's 25% gap, which was a combined effect of unmatched batch and short training." See also `issues/P1_METHODOLOGY_FLAWS.md` F1, F2.
 
 ---
 
@@ -422,6 +424,92 @@ purity = 1.0 already confirmed on all six available Gowalla states
    fclass→category determinism, (ii) arm C result, (iii) metric
    re-framing. Pre-empts the first objection any OSM-literate reviewer
    will raise.
+
+### C31 — Fclass shortcut on fusion (does Sphere2Vec break the C29 shortcut?)
+
+**Statement:** Category F1 on OSM-Gowalla fusion (HGI ⊕ Sphere2Vec, 128-dim) is
+primarily dominated by the HGI half's fclass-identity preservation (per C29),
+and Sphere2Vec does *not* substantially reduce the fclass-shortcut contribution
+to category F1. Specifically: permuting fclass across POIs in the HGI half of
+the fusion input should still produce a category F1 drop ≥ 30 p.p., similar
+in magnitude to the HGI-only result (−64.2 p.p.), though possibly partially
+mitigated by Sphere2Vec's spatial signal.
+
+**Source:** Added 2026-04-17 (`issues/P1_METHODOLOGY_FLAWS.md` F3). Follow-up
+to C29/N03.
+**Test:** Arm-C `fclass_shuffle` variant of `experiments/hgi_leakage_ablation.py`
+extended to fusion (shuffle HGI half's fclass column; keep Sphere2Vec intact);
+retrain 1 fold on AL fusion at seed 42 with the P1c champion config.
+**Phase:** Blocking-issue for P1→P2 transition. Schedule immediately.
+**Status:** `pending`.
+
+**Implications:**
+- If confirmed: any cross-engine (HGI vs DGI vs Fusion) category F1 comparison
+  in P3 must be framed as "fclass-preservation fidelity in X-dim," not
+  "representation quality." **Next F1 remains the primary representation-quality
+  metric** on fusion, as it already is on HGI (C29).
+- If refuted (Sphere2Vec *does* break the shortcut partly): report the mitigation
+  as a novel finding. Category F1 on fusion becomes a valid representation
+  metric in a way it is not on HGI-only.
+- Either outcome tightens N03 (which claims the shortcut *inherits* partially
+  into joint) with quantified evidence.
+
+---
+
+### C32 — Joint-peak checkpoint selection biases config rankings on fusion MTL
+
+**Statement:** On fusion MTL with OneCycleLR over 50 epochs, category peaks in
+the second half of training (epochs 17–45 across AL P1c cells) while next peaks
+in the first half (epochs 10–22). Reporting a single "joint best" checkpoint
+collapses this asymmetry into an epoch that is past next's peak and before
+category's peak, producing a harmonic-mean joint F1 that is a **tradeoff
+artifact** rather than a property of the configuration. Consequently, config
+rankings computed at joint-peak selection differ from those computed at
+per-task-best selection.
+
+**Statement, concrete form:** For AL P1c top-5, the ranking under joint-peak vs.
+per-task-best selection is not rank-correlated (ρ < 0.5). The "AL winner"
+`mmoe4 × gradnorm` (joint-peak) is mid-pack under per-task-best; the "AL loser"
+`cgc22 × equal_weight` (joint-peak 5th) is top under per-task-best.
+
+**Source:** In-study discovery, 2026-04-17, analyzing
+`diagnostic_task_best` logs from P1c.
+**Test:** Completed already. See `docs/studies/fusion/results/P1/SUMMARY.md`
+§Per-task-best reanalysis and `issues/P1_METHODOLOGY_FLAWS.md` F1 for the table.
+**Phase:** P1 (discovered), but applies to every MTL phase going forward.
+**Status:** `confirmed` on AL P1c data; also demonstrated on AZ P1c (smaller
+but same-direction effect).
+
+**Evidence (AL P1c, 5f × 50ep, seed 42):**
+
+| cell | joint@J | joint@T | Δ |
+|------|---------|---------|----|
+| cgc21 × bayesagg_mtl | 0.4034 | 0.4215 | +0.0181 |
+| cgc22 × equal_weight | 0.4031 | **0.4229** | +0.0198 |
+| cgc22 × excess_mtl | 0.4043 | 0.4215 | +0.0173 |
+| cgc22 × nash_mtl | 0.4034 | 0.4217 | +0.0183 |
+| mmoe4 × gradnorm | **0.4082** | 0.4220 | +0.0138 |
+
+Joint@J winner: mmoe4 × gradnorm. Joint@T winner: cgc22 × equal_weight.
+
+**Implications:**
+1. P2 C06 (MTL vs single-task) comparisons must report **both** joint@J and
+   joint@T, or MTL will be artificially disadvantaged on next F1 relative to
+   a single-task-next baseline that naturally uses next-peak selection.
+2. Ratifies C02 as `partially_refuted`: per-task-best selection shows
+   equal_weight matches or beats grad-surgery on AL.
+3. Supports C07 (asymmetric MTL benefit per task) mechanistically — the
+   asymmetry is temporal (next peaks first, category peaks later).
+
+**Resolution / paper methodology:**
+- Report both checkpoint policies throughout P2–P6.
+- Add `joint_f1_taskbest` to `_extract_observed` in `archive_result.py` so
+  state.json carries both values going forward (P1 can be back-filled; data
+  is already in each test's `full_summary.json`).
+- Separate "scientific comparison" (per-task-best) from "deployment champion"
+  (joint-peak) in paper text.
+
+---
 
 ### C30 — No classical label leakage in HGI / POI2Vec training
 
