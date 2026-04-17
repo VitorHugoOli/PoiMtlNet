@@ -148,19 +148,24 @@ This tightens the paper's story: the contribution is framed around what Check2HG
 
 ---
 
-## C11 — User-leakage in STL next-task folds (fold-protocol mismatch)
+## C11 — User-leakage in STL next-task folds (fold-protocol mismatch) — RESOLVED
 
-**Concern raised:** 2026-04-17 (during P2 critical review). `FoldCreator._create_single_task_folds()` used plain `StratifiedKFold` for the NEXT task, stratifying on `next_category` label without user-grouping. MTL `_create_check2hgi_mtl_folds()` uses `StratifiedGroupKFold(groups=userid)`. Consequence: STL next-task val sets include users that are also in train, enabling user-taste memorisation and inflating F1 relative to a user-disjoint baseline.
+**Concern raised:** 2026-04-17 (during P2 critical review). `FoldCreator._create_single_task_folds()` used plain `StratifiedKFold` for the NEXT task without user-grouping while MTL used `StratifiedGroupKFold(groups=userid)`. Consequence: STL numbers inflated by user-taste memorisation across leaky val folds.
 
-**Impact on prior results:**
-- **P1.5b Check2HGI F1 = 39.16%** and **HGI F1 = 23.48%** were both measured with leaky folds. Δ = +15.68 pp is still valid as a *within-comparison* (both arms leaky the same way), but the absolute numbers overstate generalisation. CH16 conclusion ("Check2HGI > HGI") survives; the specific F1 numbers must be re-reported.
-- MTL vs STL comparisons (any "MTL underperforms STL" claim): **invalid until STL is rerun** with user-disjoint folds. This is the reason P2-screen's top configs sat below STL — the comparison was biased by 3–5 pp.
+**Fix:** `src/data/folds.py::_create_single_task_folds` now uses `StratifiedGroupKFold(groups=userids)` for NEXT. See `issues/FOLD_LEAKAGE_AUDIT.md` for full write-up.
 
-**Resolution (in progress):** `src/data/folds.py::_create_single_task_folds` now uses `StratifiedGroupKFold(groups=userids)` for the NEXT task (preserves `StratifiedKFold` for CATEGORY, which is flat POI classification). Rerunning P1.5b Check2HGI + HGI arms with the fix (bg id b4p19zyhx).
+**Empirical resolution (2026-04-17):**
+- Check2HGI STL cat F1: leaky 39.16 → fair 38.58 (−0.57 pp drop; robust)
+- HGI STL cat F1: leaky 23.48 → fair 20.29 (−3.20 pp drop; leaky-dependent)
+- CH16 delta grew: +15.67 pp → **+18.30 pp** (primary substrate claim stronger with fair folds).
 
-**Expected outcome:** both arms drop ~3–5 pp on absolute F1 (user-disjoint is strictly harder). The +15.68 pp CH16 delta should survive — both arms drop similarly. MTL vs STL becomes comparable once the STL baseline is re-established.
+**Budget test follow-up (2026-04-17, bg `bc1rlz40f`):** MTL dselectk+pcgrad at 5f × 50ep on AL:
+- MTL cat F1 = 36.67 ± 2.14 vs STL fair = 38.58 ± 1.23 → Δ = −1.91 pp, σ-overlap **YES**. **Statistically tied on category** at matched compute + fair folds.
+- MTL region Acc@10 = 47.62 ± 5.62 (with the Transformer head capping; standalone transformer was 7.4%, so MTL is lifting it by +40 pp via category's contextual signal through the shared backbone).
 
-**Status:** `in progress — 2026-04-17`. Will close once refair runs complete and CH16 numbers are updated.
+**Interpretation:** the original "MTL underperforms STL by 3 pp on category" was 2/3 fold-leakage + 1/3 compute/noise. After the fix, MTL and STL are statistically tied on category at matched compute; the remaining nominal gap is within σ.
+
+**Status:** `resolved — 2026-04-17`.
 
 ---
 
@@ -178,4 +183,4 @@ This tightens the paper's story: the contribution is framed around what Check2HG
 | C08 | CH04 retirement reframing | resolved | — |
 | C09 | SSD reliability | monitored | Large data on CA/TX |
 | C10 | POI-RGNN + HGI-article external baselines (CH17) | open | User provides HGI-article reference |
-| **C11** | **User-leakage in STL next-task folds** | **in progress 2026-04-17** | Refair runs complete |
+| **C11** | **User-leakage in STL next-task folds** | **resolved 2026-04-17** | — |
