@@ -79,14 +79,28 @@ class MTLnetDSelectK(MTLnet):
             dropout=shared_dropout,
             temperature=self._temperature,
         )
-        # Learnable skip-α (per-task). Initialised at 0 so at training
-        # step 0 the network behaves bit-exact identical to the vanilla
-        # backbone (baseline). The optimizer may learn to grow these
-        # if direct encoder→head signal helps the task. Guarded in
-        # forward() by ``self._task_set is not LEGACY_CATEGORY_NEXT``
-        # so legacy regression tests aren't perturbed.
+        # Learnable skip-α (per-task; kept for reference / comparison).
         self.skip_alpha_cat = nn.Parameter(torch.zeros(1))
         self.skip_alpha_next = nn.Parameter(torch.zeros(1))
+
+        # Per-task LoRA adapters (MTLoRA, CVPR 2024). Each task gets a
+        # rank-r additive adapter on top of the shared DSelect-K output,
+        # giving the task-specific path dedicated low-rank capacity
+        # without modifying the shared backbone. B is initialised to
+        # zero so step-0 contribution is identical to baseline (bit-
+        # exact), but gradients flow through A and B from the start
+        # (unlike the scalar α-gate which could get stuck at 0). Guarded
+        # in forward() on non-legacy task_set.
+        #
+        # Rank set via class-level LORA_RANK (default 8). Params per
+        # task: 2 × rank × layer_size (~2-8K depending on rank).
+        lora_rank = getattr(self, "_lora_rank", 8)
+        self.lora_A_cat = nn.Linear(shared_layer_size, lora_rank, bias=False)
+        self.lora_B_cat = nn.Linear(lora_rank, shared_layer_size, bias=False)
+        self.lora_A_next = nn.Linear(shared_layer_size, lora_rank, bias=False)
+        self.lora_B_next = nn.Linear(lora_rank, shared_layer_size, bias=False)
+        nn.init.zeros_(self.lora_B_cat.weight)
+        nn.init.zeros_(self.lora_B_next.weight)
 
     @property
     def last_gate_stats(self) -> dict[str, torch.Tensor]:
@@ -111,20 +125,20 @@ class MTLnetDSelectK(MTLnet):
 
         shared_cat, shared_next = self.dselect(enc_cat, enc_next)
 
-        # Per-task LEARNABLE-GATED additive skip around the shared
-        # DSelect-k mixer. Rationale: ablation step 2 λ=0.0 isolation
-        # measured ~5.4pp architectural overhead on AL region (STL GRU
-        # 56.94 → MTL region-only 51.53). A naive unit-scale skip
-        # (shared + enc) doubles signal magnitude and destabilises
-        # training (1.43% reg Acc@10 at 10ep vs ~30% baseline in
-        # 2026-04-17 smoke). Using a learnable scalar α per task,
-        # initialised at 0, starts bit-exact with the vanilla backbone
-        # and lets the optimizer discover the useful skip weight.
-        # See results/P2/ablation_architectural_overhead.md and
-        # issues/BACKBONE_DILUTION.md.
+        # Per-task MTLoRA adapter (CVPR 2024) on top of shared DSelect-K.
+        # Adds rank-r dedicated capacity per task. B initialised to 0
+        # so step-0 contribution = baseline (bit-exact), but gradients
+        # flow through A,B so the adapter is *active* from step 1 —
+        # unlike the scalar α-gate variant (ablation step 3) which got
+        # stuck at α=0 throughout. The α-gated skip is kept in this
+        # forward path as an additional learnable contribution; α=0 init
+        # means it starts as "MTLoRA only" and the optimizer can learn
+        # to use the scalar skip if it helps.
         if self._task_set is not LEGACY_CATEGORY_NEXT:
-            shared_cat = shared_cat + self.skip_alpha_cat * enc_cat
-            shared_next = shared_next + self.skip_alpha_next * enc_next
+            lora_cat = self.lora_B_cat(self.lora_A_cat(enc_cat))
+            lora_next = self.lora_B_next(self.lora_A_next(enc_next))
+            shared_cat = shared_cat + lora_cat + self.skip_alpha_cat * enc_cat
+            shared_next = shared_next + lora_next + self.skip_alpha_next * enc_next
 
         # Re-zero at original pad positions before the heads; see MTLnet
         # base class forward() docstring. Non-legacy path only.
