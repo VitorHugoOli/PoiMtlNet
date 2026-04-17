@@ -37,6 +37,7 @@ class MTLnetDSelectK(MTLnet):
         num_experts: int = 4,
         num_selectors: int = 2,
         temperature: float = 0.5,
+        lora_rank: int = 8,
         category_head: Optional[str] = None,
         next_head: Optional[str] = None,
         category_head_params: Optional[dict[str, Any]] = None,
@@ -46,6 +47,7 @@ class MTLnetDSelectK(MTLnet):
         self._num_experts = int(num_experts)
         self._num_selectors = int(num_selectors)
         self._temperature = float(temperature)
+        self._lora_rank = int(lora_rank)
         super().__init__(
             feature_size=feature_size,
             shared_layer_size=shared_layer_size,
