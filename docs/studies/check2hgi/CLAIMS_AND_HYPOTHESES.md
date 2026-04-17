@@ -24,23 +24,30 @@ At the region level, Check2HGI and HGI converge (P1.5 confirmed tied Acc@10) bec
 
 **Why HGI cannot match this architecturally:** HGI produces one vector per POI. Two check-ins at the same POI receive identical embeddings, discarding all temporal, co-visitor, and context-window structure. For next-category, where the user's *immediate* intent varies across visits of the same POI (e.g., visiting a café for breakfast vs. an evening meetup), this information is lost.
 
-**Result (P1.5b, 2026-04-16 evening, AL, 5f × 50ep, seed 42, default `next_mtl` head, identical pipeline except substrate):**
+**Result (P1.5b-refair, 2026-04-17, AL, 5f × 50ep, seed 42, default `next_mtl` head, identical pipeline except substrate; user-disjoint folds via `StratifiedGroupKFold(groups=userid)`):**
 
 | Metric | Check2HGI | HGI | Δ (pp) | std-overlap? |
 |--------|-----------|-----|--------|--------------|
-| Acc@1 | 40.33 ± 0.88 | 27.29 ± 1.02 | **+13.04** | No |
-| **macro-F1** | **39.16 ± 0.83** | 23.48 ± 1.19 | **+15.68** | **No** |
-| Weighted F1 | 40.36 ± 0.69 | 28.00 ± 0.97 | +12.36 | No |
-| MRR | 62.74 ± 0.80 | 53.04 ± 0.79 | +9.70 | No |
-| Top-3 Acc | 82.98 ± 1.04 | 75.58 ± 1.03 | +7.40 | No |
-| Top-5 Acc | 95.55 ± 0.70 | 91.90 ± 0.51 | +3.65 | No |
+| Acc@1 | 40.18 ± 0.95 | 24.10 ± 1.54 | **+16.08** | No |
+| **macro-F1** | **38.58 ± 1.23** | 20.29 ± 1.34 | **+18.30** | **No** |
+| MRR | 62.35 ± 0.48 | 50.29 ± 1.32 | +12.06 | No |
 
-All six metrics favor Check2HGI with non-overlapping std envelopes over 5 folds. The +15.68 pp macro-F1 delta is approximately 13× the larger std — highly significant under any reasonable paired test.
+All metrics favor Check2HGI with non-overlapping std envelopes over 5 folds. The +18.30 pp macro-F1 delta is approximately 14× the larger std — highly significant.
 
-**Source:** `docs/studies/check2hgi/results/P1_5b/next_category_alabama_{check2hgi,hgi}_5f_50ep.json` (copied from `results/check2hgi/alabama/next_lr1.0e-04_bs1024_ep50_20260416_2327/` and `results/hgi/alabama/next_lr1.0e-04_bs1024_ep50_20260416_2329/` — the actual training dirs are gitignored; summary JSONs tracked).
-**Test:** P1.5b — COMPLETE.
+**Prior (leaky) numbers for reference** (same run but with non-grouped `StratifiedKFold`, 2026-04-16):
+
+| Arm | Leaky F1 | Fair F1 | Leaky→Fair drop |
+|-----|----------|---------|-----------------|
+| Check2HGI | 39.16 ± 0.83 | 38.58 ± 1.23 | −0.57 pp (robust) |
+| HGI | 23.48 ± 1.19 | 20.29 ± 1.34 | **−3.20 pp** (leaky) |
+| Δ | +15.67 pp | **+18.30 pp** | CH16 grew +2.63 pp |
+
+**Interpretation (crucial for paper):** Check2HGI's check-in-level contextual variance forces user-agnostic generalisation. HGI's POI-level vectors encode stable user-POI co-visit structure that memorises across leaky folds but doesn't generalise to unseen users. When folds enforce user-disjoint splits, HGI's advantage from memorisation evaporates (−3.20 pp) while Check2HGI holds up (−0.57 pp). The substrate claim is not just that Check2HGI wins — it wins *more* when the evaluation is harder and more realistic. This is the paper-quality finding.
+
+**Source:** `docs/studies/check2hgi/results/P1_5b/next_category_alabama_{check2hgi,hgi}_5f_50ep_fair.json`.
+**Test:** P1.5b — COMPLETE (refair 2026-04-17).
 **Phase:** P1.5b.
-**Status:** `confirmed` — the paper's primary substrate claim lands robustly. Replication on FL/CA/TX for the paper table is pending (expected to reproduce given the effect size on AL).
+**Status:** `confirmed` — primary substrate claim lands robustly and STRONGER with fair folds. Replication on FL/CA/TX for the paper table is pending (expected to reproduce given the effect size on AL).
 
 ### CH17 — Check2HGI strongly surpasses published POI-RGNN next-category on Gowalla state-level
 
