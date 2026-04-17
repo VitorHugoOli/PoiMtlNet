@@ -11,11 +11,15 @@ from configs.model import InputsConfig
 from models.mtl._components import DSelectKLiteLayer
 from models.mtl.mtlnet.model import MTLnet
 from models.registry import register_model
+from tasks import TaskSet
 
 
 @register_model("mtlnet_dselectk")
 class MTLnetDSelectK(MTLnet):
-    """MTLnet variant with DSelect-k style sparse expert selection."""
+    """MTLnet variant with DSelect-k style sparse expert selection.
+
+    See :class:`MTLnet` for ``task_set`` semantics.
+    """
 
     def __init__(
         self,
@@ -37,6 +41,7 @@ class MTLnetDSelectK(MTLnet):
         next_head: Optional[str] = None,
         category_head_params: Optional[dict[str, Any]] = None,
         next_head_params: Optional[dict[str, Any]] = None,
+        task_set: Optional[TaskSet] = None,
     ):
         self._num_experts = int(num_experts)
         self._num_selectors = int(num_selectors)
@@ -57,6 +62,7 @@ class MTLnetDSelectK(MTLnet):
             next_head=next_head,
             category_head_params=category_head_params,
             next_head_params=next_head_params,
+            task_set=task_set,
         )
 
     def _build_shared_backbone(
@@ -88,21 +94,37 @@ class MTLnetDSelectK(MTLnet):
         mask = (next_input.abs().sum(dim=-1) == pad_value)
         next_input = next_input.masked_fill(mask.unsqueeze(-1), 0)
 
+        if self._task_a_is_sequential:
+            mask_a = (category_input.abs().sum(dim=-1) == pad_value)
+            category_input = category_input.masked_fill(mask_a.unsqueeze(-1), 0)
+
         enc_cat = self.category_encoder(category_input)
         enc_next = self.next_encoder(next_input)
 
         shared_cat, shared_next = self.dselect(enc_cat, enc_next)
 
-        out_cat = self.category_poi(shared_cat.squeeze(1)).view(-1, self.num_classes)
+        if self._task_a_is_sequential:
+            out_cat = self.category_poi(shared_cat)
+        else:
+            out_cat = self.category_poi(shared_cat.squeeze(1)).view(
+                -1, self.num_classes_task_a
+            )
         out_next = self.next_poi(shared_next)
         return out_cat, out_next
 
     def cat_forward(self, category_input: torch.Tensor) -> torch.Tensor:
         """Run only the category subgraph through DSelect-k experts."""
+        if self._task_a_is_sequential:
+            pad_value = InputsConfig.PAD_VALUE
+            mask = (category_input.abs().sum(dim=-1) == pad_value)
+            category_input = category_input.masked_fill(mask.unsqueeze(-1), 0)
+
         enc_cat = self.category_encoder(category_input)
         dummy_next = torch.zeros_like(enc_cat)
         shared_cat, _ = self.dselect(enc_cat, dummy_next)
-        return self.category_poi(shared_cat.squeeze(1)).view(-1, self.num_classes)
+        if self._task_a_is_sequential:
+            return self.category_poi(shared_cat)
+        return self.category_poi(shared_cat.squeeze(1)).view(-1, self.num_classes_task_a)
 
     def next_forward(self, next_input: torch.Tensor) -> torch.Tensor:
         """Run only the next-POI subgraph through DSelect-k experts."""

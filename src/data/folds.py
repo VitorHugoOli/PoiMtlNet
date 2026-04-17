@@ -455,6 +455,8 @@ class FoldCreator:
             seed: int = 42,
             use_weighted_sampling: bool = False,
             task_set: Optional[object] = None,
+            task_a_input_type: str = "checkin",
+            task_b_input_type: str = "checkin",
     ):
         self.task_type = task_type
         self.n_splits = n_splits
@@ -468,6 +470,25 @@ class FoldCreator:
         # ``_create_check2hgi_mtl_folds``. Default ``None`` preserves the
         # legacy next_category-as-task_a behaviour.
         self.task_set = task_set
+        # Per-task input modality — only consumed by ``_create_check2hgi_mtl_folds``.
+        # Valid values: ``"checkin"`` (9-window of check-in embeddings, the
+        # default and bit-exact-legacy), ``"region"`` (9-window of region
+        # embeddings, one per step via placeid→poi→region→emb lookup), or
+        # ``"concat"`` (the two stacked along the feature dim → 2D per step).
+        # Setting either task to anything other than ``"checkin"`` triggers the
+        # region-sequence builder and may extend the fold-generation time; the
+        # default preserves the pre-CH03 behaviour exactly.
+        valid_inputs = {"checkin", "region", "concat"}
+        if task_a_input_type not in valid_inputs:
+            raise ValueError(
+                f"task_a_input_type must be one of {valid_inputs}, got {task_a_input_type}"
+            )
+        if task_b_input_type not in valid_inputs:
+            raise ValueError(
+                f"task_b_input_type must be one of {valid_inputs}, got {task_b_input_type}"
+            )
+        self.task_a_input_type = task_a_input_type
+        self.task_b_input_type = task_b_input_type
 
         self._config = FoldConfig(
             n_splits=n_splits,
@@ -763,18 +784,48 @@ class FoldCreator:
         y_region = region_df["region_idx"].to_numpy(dtype=np.int64)
 
         slide_window = InputsConfig.SLIDE_WINDOW
-        x_tensor, y_cat_tensor = _convert_to_tensors(
+        x_checkin, y_cat_tensor = _convert_to_tensors(
             X, y_cat, TaskType.NEXT, embedding_dim=next_dim, slide_window=slide_window,
         )
         y_region_tensor = torch.from_numpy(np.ascontiguousarray(y_region, dtype=np.int64))
 
+        # Per-task modality: task_a = next_category (CATEGORY slot),
+        # task_b = next_region (NEXT slot). Each slot picks its own X:
+        # check-in embedding, region embedding, or concat of the two.
+        # When both request "checkin" (the default), this code path is
+        # bit-equivalent to the pre-CH03 version — x_checkin is shared
+        # across both slots and no region-sequence build is triggered.
+        def _resolve_x(input_type: str) -> torch.Tensor:
+            if input_type == "checkin":
+                return x_checkin
+            # Lazy import so engines that can't produce a region-sequence
+            # (non-CHECK2HGI paths) don't pay the import cost.
+            from data.inputs.region_sequence import (
+                build_region_sequence_tensor,
+                build_concat_sequence_tensor,
+            )
+            if input_type == "region":
+                return build_region_sequence_tensor(state)
+            if input_type == "concat":
+                return build_concat_sequence_tensor(state, x_checkin)
+            raise ValueError(f"Unknown input_type: {input_type}")
+
+        x_task_a = _resolve_x(self.task_a_input_type)
+        x_task_b = _resolve_x(self.task_b_input_type)
+        logger.info(
+            "MTL_CHECK2HGI input modality: task_a=%s (%s), task_b=%s (%s)",
+            self.task_a_input_type, tuple(x_task_a.shape),
+            self.task_b_input_type, tuple(x_task_b.shape),
+        )
+
         # Store under legacy TaskType keys: NEXT = region (task_b),
-        # CATEGORY = next_category (task_a).
+        # CATEGORY = next_category (task_a). Each slot carries its own
+        # X tensor — they may be the same object if both are "checkin".
         self._task_tensors[TaskType.NEXT] = TaskTensors(
-            TaskType.NEXT, x_tensor, y_region_tensor,
+            TaskType.NEXT, x_task_b, y_region_tensor,
         )
         self._task_tensors[TaskType.CATEGORY] = TaskTensors(
-            TaskType.CATEGORY, x_tensor, y_cat_tensor,
+            TaskType.CATEGORY, x_task_a, y_cat_tensor,
         )
         self._fold_indices[TaskType.NEXT] = []
         self._fold_indices[TaskType.CATEGORY] = []
@@ -813,33 +864,33 @@ class FoldCreator:
                 next=TaskFoldData(
                     train=FoldData(
                         _create_dataloader(
-                            x_tensor[train_idx], y_region_tensor[train_idx],
+                            x_task_b[train_idx], y_region_tensor[train_idx],
                             self.batch_size, True, self.use_weighted_sampling, self.seed,
                         ),
-                        x_tensor[train_idx], y_region_tensor[train_idx],
+                        x_task_b[train_idx], y_region_tensor[train_idx],
                     ),
                     val=FoldData(
                         _create_dataloader(
-                            x_tensor[val_idx], y_region_tensor[val_idx],
+                            x_task_b[val_idx], y_region_tensor[val_idx],
                             self.batch_size, False, False, self.seed,
                         ),
-                        x_tensor[val_idx], y_region_tensor[val_idx],
+                        x_task_b[val_idx], y_region_tensor[val_idx],
                     ),
                 ),
                 category=TaskFoldData(
                     train=FoldData(
                         _create_dataloader(
-                            x_tensor[train_idx], y_cat_tensor[train_idx],
+                            x_task_a[train_idx], y_cat_tensor[train_idx],
                             self.batch_size, True, self.use_weighted_sampling, self.seed,
                         ),
-                        x_tensor[train_idx], y_cat_tensor[train_idx],
+                        x_task_a[train_idx], y_cat_tensor[train_idx],
                     ),
                     val=FoldData(
                         _create_dataloader(
-                            x_tensor[val_idx], y_cat_tensor[val_idx],
+                            x_task_a[val_idx], y_cat_tensor[val_idx],
                             self.batch_size, False, False, self.seed,
                         ),
-                        x_tensor[val_idx], y_cat_tensor[val_idx],
+                        x_task_a[val_idx], y_cat_tensor[val_idx],
                     ),
                 ),
             )

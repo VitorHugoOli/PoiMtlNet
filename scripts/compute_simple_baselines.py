@@ -61,12 +61,16 @@ SLIDE_WINDOW = InputsConfig.SLIDE_WINDOW
 # Data loading
 # ---------------------------------------------------------------------------
 
-def _load_task_data(state: str, task: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray, int]:
+def _load_task_data(state: str, task: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, int]:
     """Load labels + userids + sequence POI windows for a task.
 
-    Returns (y_labels, userids, window_last_pois, n_classes).
-    window_last_pois is the POI index of the last position in each
-    9-window (needed for 1-step Markov).
+    Returns (y_labels, userids, y_strat, window_last_pois, window_last_regions, n_classes).
+
+    - window_last_pois: POI index of the last position (for legacy
+      POI-level Markov-1step).
+    - window_last_regions: [N, SLIDE_WINDOW] int array of region indices
+      along the 9-step window (for N-step region-level Markov); padded
+      positions (placeid == -1) are filled with -1.
     """
     engine = EmbeddingEngine.CHECK2HGI
 
@@ -92,23 +96,37 @@ def _load_task_data(state: str, task: str) -> Tuple[np.ndarray, np.ndarray, np.n
     else:
         raise ValueError(f"Unknown task: {task}")
 
-    # Extract last-position POI from sequences_next.parquet for Markov baseline
+    # Load graph maps (placeid↔poi_idx, poi_idx→region_idx) + sequences
     seq_path = IoPaths.CHECK2HGI.get_temp_dir(state) / "sequences_next.parquet"
     seq_df = pd.read_parquet(seq_path)
-    # Last real POI in the window (poi_8 is position 8, the last)
     import pickle as pkl
     with open(IoPaths.CHECK2HGI.get_graph_data_file(state), "rb") as f:
         graph = pkl.load(f)
     placeid_to_idx = graph["placeid_to_idx"]
+    poi_to_region = graph["poi_to_region"]
+    if hasattr(poi_to_region, "cpu"):
+        poi_to_region = poi_to_region.cpu().numpy()
+    poi_to_region = np.asarray(poi_to_region, dtype=np.int64)
 
+    # Last-POI (poi_8) for legacy Markov-1step
     last_poi_col = f"poi_{SLIDE_WINDOW - 1}"
     last_pois_raw = seq_df[last_poi_col].astype(np.int64).to_numpy()
-    # Map raw placeids to poi_idx (for Markov transition matrix)
     window_last_pois = np.array([
         placeid_to_idx.get(int(pid), -1) for pid in last_pois_raw
     ], dtype=np.int64)
 
-    return y, userids, y_strat, window_last_pois, n_classes
+    # Full region trajectory for N-step region-level Markov.
+    # Padded positions (placeid == -1) → -1 in window_last_regions.
+    window_last_regions = np.full((len(seq_df), SLIDE_WINDOW), -1, dtype=np.int64)
+    for i in range(SLIDE_WINDOW):
+        col = f"poi_{i}"
+        placeids = seq_df[col].astype(np.int64).to_numpy()
+        mask = placeids != -1
+        valid = placeids[mask]
+        poi_idx = pd.Series(valid).map(placeid_to_idx).to_numpy(dtype=np.int64)
+        window_last_regions[np.where(mask)[0], i] = poi_to_region[poi_idx]
+
+    return y, userids, y_strat, window_last_pois, window_last_regions, n_classes
 
 
 # ---------------------------------------------------------------------------
@@ -212,6 +230,74 @@ def baseline_markov_1step(
     }
 
 
+def baseline_markov_kstep_region(
+    regions_train: np.ndarray,   # [N_train, SLIDE_WINDOW]
+    y_train: np.ndarray,          # [N_train]
+    regions_val: np.ndarray,      # [N_val, SLIDE_WINDOW]
+    y_val: np.ndarray,            # [N_val]
+    k: int,
+    max_k_topk: int = 10,
+) -> Dict[str, float]:
+    """K-step region-level Markov with N-gram backoff.
+
+    Conditions on the last ``k`` regions in the input window and predicts
+    the next region. Keys with fewer than 1 train sample fall back to
+    k-1 history (then k-2, ..., then global frequency). This is the
+    classical NLP "stupid backoff" approach for sparse N-grams — with
+    only ~10K-160K training rows and 1109+ regions, raw K>1 counts are
+    too sparse to use without backoff.
+
+    This is the sequence-aware baseline to compare the neural head
+    (which sees the full 9-step window) against — a count-based method
+    given progressively more context.
+    """
+    if k < 1 or k > regions_train.shape[1]:
+        raise ValueError(f"k must be in [1, {regions_train.shape[1]}], got {k}")
+
+    # Build transition maps for each order 1..k
+    # transition_maps[m] maps tuple(last_m_regions) -> Counter(next_region).
+    transition_maps: List[Dict[tuple, Counter]] = [defaultdict(Counter) for _ in range(k + 1)]
+    for row_idx in range(len(y_train)):
+        label = int(y_train[row_idx])
+        row = regions_train[row_idx]
+        # For each order m, key is the last m regions in the window
+        # (skipping if any are padded -1).
+        for m in range(1, k + 1):
+            tail = tuple(int(r) for r in row[-m:])
+            if -1 in tail:
+                continue
+            transition_maps[m][tail][label] += 1
+
+    # Global fallback from train-only label distribution
+    global_counts = Counter(int(y) for y in y_train)
+    global_topk = [label for label, _ in global_counts.most_common(max_k_topk)]
+
+    preds_list = []
+    for row_idx in range(len(y_val)):
+        row = regions_val[row_idx]
+        topk = None
+        # Try order k, then k-1, ..., then 1. First hit wins.
+        for m in range(k, 0, -1):
+            tail = tuple(int(r) for r in row[-m:])
+            if -1 in tail:
+                continue
+            if tail in transition_maps[m]:
+                topk = [label for label, _ in transition_maps[m][tail].most_common(max_k_topk)]
+                break
+        if topk is None:
+            topk = global_topk
+        topk = topk[:max_k_topk] + [-1] * (max_k_topk - len(topk))
+        preds_list.append(topk)
+
+    preds = np.array(preds_list)
+    return {
+        "acc1": _acc_at_k(preds, y_val, 1),
+        "acc5": _acc_at_k(preds, y_val, 5),
+        "acc10": _acc_at_k(preds, y_val, 10),
+        "mrr": _mrr(preds, y_val),
+    }
+
+
 def baseline_user_history(
     userids_train: np.ndarray,
     y_train: np.ndarray,
@@ -256,7 +342,7 @@ def compute_baselines_for_task(state: str, task: str) -> Dict:
 
     Returns a dict ready to write as JSON.
     """
-    y, userids, y_strat, window_last_pois, n_classes = _load_task_data(state, task)
+    y, userids, y_strat, window_last_pois, window_last_regions, n_classes = _load_task_data(state, task)
 
     sgkf = StratifiedGroupKFold(n_splits=N_SPLITS, shuffle=True, random_state=SEED)
     fold_results = []
@@ -265,6 +351,7 @@ def compute_baselines_for_task(state: str, task: str) -> Dict:
         y_train, y_val = y[train_idx], y[val_idx]
         uid_train, uid_val = userids[train_idx], userids[val_idx]
         lp_train, lp_val = window_last_pois[train_idx], window_last_pois[val_idx]
+        reg_train, reg_val = window_last_regions[train_idx], window_last_regions[val_idx]
 
         fold = {
             "fold": fold_idx,
@@ -281,18 +368,34 @@ def compute_baselines_for_task(state: str, task: str) -> Dict:
         fold["user_history"] = baseline_user_history(
             uid_train, y_train, uid_val, y_val,
         )
+        # Region-level N-step Markov with backoff. Only for next_region —
+        # next_category uses 7 classes, where Markov-K is trivially bounded
+        # by the majority baseline anyway.
+        if task == "next_region":
+            for m in (1, 2, 3):
+                fold[f"markov_{m}step_region"] = baseline_markov_kstep_region(
+                    reg_train, y_train, reg_val, y_val, k=m,
+                )
         fold_results.append(fold)
 
-        logger.info(
-            "[%s/%s] fold %d: majority_acc1=%.4f markov_acc1=%.4f user_hist_acc1=%.4f",
-            state, task, fold_idx,
-            fold["majority"]["acc1"],
-            fold["markov_1step"]["acc1"],
-            fold["user_history"]["acc1"],
+        msg = (
+            f"[{state}/{task}] fold {fold_idx}: "
+            f"majority_acc1={fold['majority']['acc1']:.4f} "
+            f"markov_acc1={fold['markov_1step']['acc1']:.4f} "
+            f"user_hist_acc1={fold['user_history']['acc1']:.4f}"
         )
+        if task == "next_region":
+            msg += (
+                f" | mk1_region_acc10={fold['markov_1step_region']['acc10']:.4f}"
+                f" mk2={fold['markov_2step_region']['acc10']:.4f}"
+                f" mk3={fold['markov_3step_region']['acc10']:.4f}"
+            )
+        logger.info(msg)
 
     # Aggregate across folds
     baseline_names = ["random", "majority", "top_k_popular", "markov_1step", "user_history"]
+    if task == "next_region":
+        baseline_names += ["markov_1step_region", "markov_2step_region", "markov_3step_region"]
     metric_names = ["acc1", "acc5", "acc10", "mrr"]
     aggregate = {}
     for bl in baseline_names:

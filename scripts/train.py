@@ -458,6 +458,30 @@ def _parse_args(argv=None) -> argparse.Namespace:
         help="Force-disable class-balanced CE weighting even if the config default is on.",
     )
     parser.add_argument(
+        "--task-a-input-type",
+        type=str,
+        choices=("checkin", "region", "concat"),
+        default="checkin",
+        help=(
+            "Check2HGI MTL only: input modality for task-a slot (next_category). "
+            "'checkin' (default, bit-exact-legacy) = 9-window of check-in emb; "
+            "'region' = 9-window of region emb via placeid→region lookup; "
+            "'concat' = [checkin ⊕ region] stacked on feature axis. Used by the "
+            "P4 per-task-modality ablation (CH03)."
+        ),
+    )
+    parser.add_argument(
+        "--task-b-input-type",
+        type=str,
+        choices=("checkin", "region", "concat"),
+        default="checkin",
+        help=(
+            "Check2HGI MTL only: input modality for task-b slot (next_region). "
+            "See --task-a-input-type. P1 showed region-emb input is the right "
+            "modality for the region head (53% Acc@10 vs 20% on check-in)."
+        ),
+    )
+    parser.add_argument(
         "--next-target",
         type=str,
         choices=("next_category", "next_poi"),
@@ -718,6 +742,8 @@ def _resolve_folds(
             seed=config.seed,
             use_weighted_sampling=False,
             task_set=task_set,
+            task_a_input_type=getattr(args, "task_a_input_type", "checkin"),
+            task_b_input_type=getattr(args, "task_b_input_type", "checkin"),
         )
         return creator.create_folds(config.state, engine)
 
