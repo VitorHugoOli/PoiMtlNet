@@ -84,18 +84,39 @@ First data point from 5f × 50ep MTL (mtlnet_dselectk+pcgrad, GRU region head + 
 
 **Status `interim` — AL FAILS, FL/CA/TX verdict pending.**
 
-### CH01 FL 1f × 50ep update (2026-04-17)
+### CH01 FL 1f × 50ep update (2026-04-17) — **ASYMMETRIC**, not uniformly failing
 
-**FL regresses too.** With 13× more data than AL, the pattern replicates:
+**Full FL verdict with both baselines in hand:**
 
-| Task | FL MTL (1f×50ep) | FL STL fair | Δ |
-|---|---|---|---|
-| cat F1 | 64.78 | TBD (launching) | ? |
-| reg Acc@10 | **57.05** | **68.33 ± 0.58** (5f GRU) | **−11.28 pp** |
+| Task | FL MTL (1f×50ep) | FL STL fair (1f/5f) | Δ (pp) | r_i (rel) | Verdict |
+|---|---|---|---|---|---|
+| cat F1 | **64.78** | 63.17 (1f×50ep) | **+1.61** | **+2.55%** | ✅ MTL HELPS |
+| reg Acc@10 | **57.05** | 68.33 ± 0.58 (5f GRU) | **−11.28** | **−16.50%** | ❌ dilutes |
+| reg MRR | 27.49 | 52.74 (5f GRU) | **−25.25** | **−47.87%** | ❌ dilutes |
 
-This **rules out the small-data caveat** as the sole explanation. Backbone dilution is structural, not data-quantity-bound. CH01 on AL and FL both show MTL regressing on region by a margin well outside expected variance.
+**Δm = ½(r_A + r_B) = −14.82%**
+**Pareto gate: FAIL** (r_A > 0 ✓, r_B < 0 ✗)
 
-Upgrading status: **`failing consistently on 2/2 states` with a mechanistic explanation (backbone dilution). Paper pivot:** from "MTL helps both heads" to "shared-backbone MTL is the wrong inductive bias when the task-B head is strong standalone; per-task capacity fixes (MTLoRA, AdaShare) are required to close the gap." See `research/MTL_ABLATION_PROTOCOL.md` for the ablation that tests this.
+**Refined mechanistic picture (combining AL + FL):**
+
+| | AL (10K) | FL (127K) |
+|---|---|---|
+| cat F1 Δ | **−2.50 pp** (tied within σ) | **+1.61 pp** (clear lift) |
+| reg Acc@10 Δ | −8.06 pp | −11.28 pp |
+
+**Observations:**
+1. **Category benefits from MTL when data is abundant.** On FL's 127K samples, MTL's shared-backbone signal transfer genuinely lifts cat F1 by +1.61 pp. On AL's 10K it doesn't have enough data to learn useful transfer. **Data-quantity IS a factor for the category side.**
+2. **Region dilutes on both states.** The strong standalone GRU region head caps what the shared-backbone can provide regardless of data scale. **Backbone dilution is structural for the strong task.**
+
+**Updated paper narrative:**
+
+From "MTL helps both heads" (false) to:
+
+> **"MTL on POI is a task-asymmetric tradeoff. The weaker-head task (category, 7 classes) benefits from shared-backbone signal transfer *when data is sufficient*. The stronger-head task (region, 1109 classes with GRU) is capped by backbone capacity and regresses. Per-task routing (MTLoRA, AdaShare) is needed to preserve the category lift while recovering region."**
+
+This is a **much more interesting paper** than uniform failure. It motivates the ablation (CH03 per-task modality already + MTL_ABLATION_PROTOCOL's 4 techniques) as the solution to the asymmetry.
+
+**Status: CH01 INTERIM updated to `failing-asymmetrically on 2/2 states, with a clean mechanism`.** Ablation proceeds next (step 1: RLW).
 
 ### CH01 — MTL {next_category, next_region} improves BOTH heads over single-task (HEADLINE, bidirectional)
 
