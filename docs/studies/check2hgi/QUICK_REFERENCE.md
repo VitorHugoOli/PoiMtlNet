@@ -2,33 +2,33 @@
 
 **Task pair:** `{next_category (7 cls, macro-F1), next_region (~1K cls, Acc@K/MRR)}`
 **Preset:** `CHECK2HGI_NEXT_REGION`
-**Thesis:** Adding next-region auxiliary to next-category on Check2HGI improves macro-F1 without negative transfer.
+**Thesis (bidirectional):** MTL `{next_category, next_region}` must improve **both** heads over single-task — via per-task input modality (check-in emb → category head, region emb → region head) through a shared MTL backbone.
 
 ## Phases
 
 | Phase | What | Key claim |
 |---|---|---|
-| P0 ✅ | Integrity + simple baselines + audits | CH04 floor |
-| **P1** | Region-head validation + head ablation (5 heads, single-task) | CH04, CH05 |
-| **P2** | Parameterise all MTL archs + full arch×optim ablation (screen→promote→confirm) | CH06 |
-| **P3** | MTL headline with P2 champion, multi-seed n=15 | **CH01**, CH02, CH07 |
-| **P4** | Dual-stream region_embedding input | CH03, CH08 |
-| P5 | Cross-attention (gated on P4) | CH09 |
+| P0 ✅ | Integrity + simple baselines (**region-level Markov**) + audits | floor |
+| **P1** | Region-head ablation × input type {check-in, region, concat} | CH04 (retired), CH05 |
+| **P2** | Parameterise all MTL archs (TaskSet port) + full arch×optim ablation | CH06 |
+| **P3** | MTL headline: champion + multi-seed n=15, **bidirectional per-head comparison** | **CH01**, **CH02**, CH07 |
+| **P4** | **Per-task input modality**: 4-way {per_task, concat, shared_checkin, shared_region} | **CH03**, CH08 |
+| P5 | Cross-attention between task-specific encoders (gated on P4) | CH09 |
 | **P6** | Check2HGI encoder enrichment (literature research → implement → ablation) | CH12, CH13 |
 
 ## Claims
 
 | ID | Statement |
 |---|---|
-| **CH01** | MTL {next_cat, next_region} > single-task next_cat (HEADLINE) |
-| **CH02** | No per-head negative transfer |
-| **CH03** | Dual-stream region-emb input helps |
-| CH04 | Region head validates (beats simple baselines ≥ 2×) |
-| CH05 | Head choice matters for region (GRU vs transformer?) |
+| **CH01** | MTL improves **both** next-category F1 AND next-region Acc@10 over single-task, on AL and FL (HEADLINE, bidirectional) |
+| **CH02** | No per-head negative transfer (statistical test on both heads, α=0.05) |
+| **CH03** | **Per-task input modality** (check-in → cat, region → region) > shared / concat (ARCH CHOICE) |
+| CH04 | Region head vs Markov-1-region — retired as gate, reported as context (AL 1.16× Markov) |
+| CH05 | Head choice matters for region — `next_gru` wins, transformer collapses (confirmed) |
 | CH06 | Champion MTL arch × optim identified |
 | CH07 | Seed variance < 2pp |
-| CH08 | Region-input gain is state-dependent |
-| CH09 | Cross-attention > concat (gated) |
+| CH08 | MTL gain is state-dependent |
+| CH09 | Cross-attention between task-specific encoders > per-task modality (gated) |
 | CH10 | Gowalla ≠ FSQ-NYC/TKY (declared) |
 | CH11 | Enrichment is a research track (P6) |
 | CH12 | Temporal enrichment (Time2Vec-like) improves F1 |
@@ -37,8 +37,12 @@
 ## Baselines
 
 **Next-category:** POI-RGNN (FL: 31.8–34.5% F1), MHA+PE (26.9% F1). Our single-task AL: **38.67%**.
-**Next-region:** HMT-GRN, MGCL (concept-aligned, different datasets).
-**Simple floor:** AL majority 34.2%, Markov 31.7% (next-cat). AL Markov Acc@10 21.3% (next-region).
+**Next-region:** HMT-GRN, MGCL (concept-aligned, different datasets). Our single-task AL (region-emb input, `next_gru` default, 5f×50ep): **56.94% ± 4.01 Acc@10** (1.21× Markov). FL (1f×30ep): **65.91% Acc@10** (only 1.013× Markov — dense-data regime).
+**Simple floor (updated 2026-04-16 — use region-level Markov):**
+- next-cat: AL majority 34.2%, Markov 31.7% / FL majority 24.7%, Markov 37.2%
+- next-region: AL **Markov-1-region 47.01%** Acc@10 / FL **Markov-1-region 65.05%** Acc@10
+
+The old POI-level `markov_1step` (21.3% AL / 45.9% FL) had ~50% fallback rate to top-k popularity and underestimated the floor by 2×. Paper reports the region-level version.
 
 ## Joint monitor
 

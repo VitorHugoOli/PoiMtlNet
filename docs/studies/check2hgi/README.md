@@ -16,7 +16,9 @@
 
 ## Paper thesis
 
-> **Adding next-region as a hierarchical auxiliary task to next-POI-category prediction on check-in-level embeddings (Check2HGI) improves next-category macro-F1 over single-task training, without negative transfer, on Gowalla state-level data.**
+> **On Check2HGI check-in-level embeddings, the two tasks `{next_category, next_region}` help each other: joint MTL training improves *both* next-category macro-F1 AND next-region Acc@10 over their respective single-task baselines, without negative transfer, on Gowalla state-level data. The mechanism is per-task input modality (check-in emb → category head, region emb → region head) coupled through a shared MTL backbone.**
+
+The thesis is **bidirectional** — a one-sided lift (category improved, region degraded, or vice versa) fails the thesis. See CH01 + CH02 in the claim catalog.
 
 ## Baselines
 
@@ -29,23 +31,26 @@
 - **HMT-GRN** (SIGIR '22): hierarchical region auxiliary, GRU-based region head
 - **MGCL** (Frontiers '24): multi-granularity contrastive with region + category heads
 - Direct numeric comparison limited (different datasets); concept-alignment is the contribution
+- Our Check2HGI single-task on AL (region-emb input, `next_gru` default, **5f × 50ep**): **56.94% ± 4.01 Acc@10** (1.21× Markov-1-region)
+- Our Check2HGI single-task on FL (region-emb input, `next_gru` default, **1f × 30ep**): **65.91% Acc@10** (only 1.013× Markov-1-region — dense-data regime, very tight margin)
 
-**Simple-baseline floor (from P0.5):**
+**Simple-baseline floor (from P0.5, updated 2026-04-16):**
 - AL next_category: majority 34.2%, Markov 31.7%
 - FL next_category: majority 24.7%, Markov 37.2%
-- AL next_region: Markov Acc@10 = 21.3%
-- FL next_region: Markov Acc@10 = 45.9%
+- AL next_region: **Markov-1-region Acc@10 = 47.01%** (the POI-level `markov_1step` was a degenerate baseline; see CH04 notes)
+- FL next_region: **Markov-1-region Acc@10 = 65.05%**
 
 ## Phases
 
 | Phase | What | Claims | Duration |
 |---|---|---|---|
-| **P0** | ✅ Integrity + baselines + audits | CH08, CH09 | done |
-| **P1** | Region-head validation + head ablation (single-task) | CH04, CH05 | ~2h |
-| **P2** | Parameterize all MTL architectures + full arch×optim ablation | CH06 | ~1 day |
-| **P3** | MTL headline: champion config, multi-seed n=15 | **CH01**, CH02, CH07 | ~4h |
-| **P4** | Dual-stream: region_embedding as parallel input | CH03 | ~3h |
-| **P5** | Cross-attention (gated on P4) | CH10 | ~6h (gated) |
+| **P0** | ✅ Integrity + baselines (with corrected region-level Markov) + audits | floor | done |
+| **P1** | Region-head validation + head ablation × {check-in, region, concat} input | CH04, CH05 | ~3h |
+| **P2** | Parameterize all MTL architectures + full arch×optim ablation under per-task modality | CH06 | ~1 day |
+| **P3** | MTL headline: champion config, multi-seed n=15, **bidirectional per-head comparison** | **CH01, CH02**, CH07 | ~4h |
+| **P4** | **Per-task input modality**: 4-way comparison {per_task, concat, shared_checkin, shared_region} | **CH03**, CH08 | ~4h |
+| **P5** | Cross-attention between task-specific encoders (gated on P4) | CH09 | ~6h (gated) |
+| **P6** | Check2HGI encoder enrichment (research-gated) | CH12, CH13 | ~2 days |
 
 ## Navigation
 

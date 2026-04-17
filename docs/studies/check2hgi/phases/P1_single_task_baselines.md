@@ -1,5 +1,20 @@
 # Phase P1 — Single-task references
 
+> **✅ COMPLETE (2026-04-16).** This doc's original framing (next_poi, single `next_mtl` head) is superseded. See `HANDOFF.md §P1 findings` for the frozen outcome; the body below is retained for historical context.
+>
+> **Frozen baselines** (5f × 50ep, region-embedding input, `next_gru` head):
+>
+> | State | Acc@1 | Acc@5 | Acc@10 | MRR |
+> |-------|-------|-------|--------|-----|
+> | Alabama | 23.60 ± 1.86 | 46.51 ± 3.40 | **56.94 ± 4.01** | 34.57 ± 2.34 |
+> | Florida | 44.49 ± 0.51 | 61.89 ± 0.57 | **68.33 ± 0.58** | 52.74 ± 0.45 |
+>
+> **Alabama `next_tcn_residual` (ties GRU, 20× faster):** Acc@10 = 56.11% ± 4.02.
+>
+> **Key decisions made in P1:** (1) region-embedding input > check-in > concat; (2) `next_mtl` scrapped as region-head candidate (7.40% Acc@10); (3) `next_gru` and `next_tcn_residual` promoted as region-head champions for P2/P3; (4) CH04 (2× Markov gate) retired, demoted to reported comparison.
+>
+> **Authoritative:** `MASTER_PLAN.md §P1`, `CLAIMS_AND_HYPOTHESES.md`, `results/P1/region_head_*_5f_50ep_*.json`.
+
 **Goal:** produce the single-task reference numbers for next-POI and next-region on Check2HGI. These become the **internal baselines** against which every MTL / dual-stream / cross-attention claim in P2+ is measured.
 
 **This study is standalone — no HGI or other cross-engine comparison here.**

@@ -1,5 +1,7 @@
 # Phase P2 — HEADLINE: MTL lift + no negative transfer
 
+> **⚠️ STALE (2026-04-16).** Predates the task-pair correction (next_poi → next_category), the bidirectional-thesis clarification (both heads must improve), and the per-task-input-modality design. Phase numbering also shifted: the headline is now master-plan **P3**; this file's P2 number is obsolete. Authoritative plan: `docs/studies/check2hgi/MASTER_PLAN.md §P3`. Claims: `CLAIMS_AND_HYPOTHESES.md` (CH01 bidirectional; CH02 paired statistical test). Read for historical framing only.
+
 **Goal:** resolve the paper's two headline claims — that the 2-task MTL `{next_poi, next_region}` on Check2HGI beats the single-task next-POI baseline (CH01), and that neither head regresses vs its single-task counterpart (CH02). Multi-seed by design for statistical power.
 
 **Duration:** ~12h (2 states × 3 seeds × 5 folds × 50 epochs).

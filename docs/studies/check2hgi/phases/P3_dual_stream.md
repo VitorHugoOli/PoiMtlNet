@@ -1,5 +1,7 @@
 # Phase P3 — Dual-stream input (region embeddings as explicit parallel stream)
 
+> **⚠️ STALE (2026-04-16).** The "dual-stream concat" design this file describes has been superseded by **per-task input modality** (check-in → category_encoder, region → next_encoder) — P1 evidence showed concat is strictly worse than region-only for the region head. Phase numbering also shifted: this is now master-plan **P4**; the concat variant is one of 4 ablation arms, not the headline. Authoritative plan: `docs/studies/check2hgi/MASTER_PLAN.md §P4`. Claims: `CLAIMS_AND_HYPOTHESES.md` (CH03 per-task modality; CH08 state-dependent gain). Read for historical framing only.
+
 **Goal:** test whether feeding region embeddings alongside check-in embeddings at the input layer improves next-POI prediction. This is "Option A" from the prior critical-review work.
 
 **Duration:** ~3h (2 states × 1 config × 5f × 50ep — same as P2 + a parquet materialisation step).

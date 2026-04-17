@@ -6,12 +6,12 @@
 
 | Phase | What | Claims | Duration | Requires |
 |---|---|---|---|---|
-| **P0** | ✅ Integrity + simple baselines + audits | CH04 floor | done | — |
-| **P1** | Region-head validation + head ablation (single-task) | CH04, CH05 | ~2h | P0 |
+| **P0** | ✅ Integrity + simple baselines (region-level Markov) + audits | floor | done | — |
+| **P1** | Region-head ablation × input type {check-in, region, concat} + hparam sweep | CH04 (retired), CH05 | ~3h | P0 |
 | **P2** | TaskSet-parameterise all MTL archs + full arch × optim ablation | CH06 | ~1 day | P1 (head winner) |
-| **P3** | MTL headline: champion config, multi-seed n=15 | **CH01**, CH02, CH07 | ~4h | P2 (champion) |
-| **P4** | Dual-stream: region_embedding as parallel input | CH03, CH08 | ~3h | P3 |
-| **P5** | Cross-attention (gated on P4 ≥ 2pp on FL) | CH09 | ~6h | P4 |
+| **P3** | MTL headline (bidirectional): champion config, multi-seed n=15, **paired test on both heads** | **CH01**, **CH02**, CH07 | ~4h | P2 (champion) |
+| **P4** | **Per-task input modality**: 4-way {per_task, concat, shared_checkin, shared_region} | **CH03**, CH08 | ~4h | P3 + per-task X pipeline (~80 LOC) |
+| **P5** | Cross-attention between task-specific encoders (gated on P4) | CH09 | ~6h | P4 |
 
 | **P6** | Check2HGI encoder enrichment (literature research + implementation + ablation) | CH12, CH13 | ~2 days | P3 baseline needed |
 
@@ -73,28 +73,39 @@
 
 **Gate:** champion identified with sensible metrics (next-category F1 > 30%, next-region Acc@10 > 15% on AL).
 
-### P3 — MTL headline (multi-seed n=15)
+### P3 — MTL headline (multi-seed n=15, bidirectional)
 
-Champion arch + optim + heads from P2.
+Champion arch + optim + heads from P2. **Tests CH01 (bidirectional) + CH02 (no negative transfer).**
 
 | Run | State | Seeds | Folds | Purpose |
 |---|---|---|---|---|
-| P3.1.AL | AL | {42, 123, 2024} | 5 each | CH01 + CH02 |
-| P3.1.FL | FL | {42, 123, 2024} | 5 each | CH01 + CH02 replication |
+| P3.1.AL | AL | {42, 123, 2024} | 5 each | CH01 + CH02 on BOTH heads |
+| P3.1.FL | FL | {42, 123, 2024} | 5 each | CH01 + CH02 on BOTH heads (replication) |
 
-Compare against P1 single-task references (same folds, same seeds).
+**Comparison:** paired MTL-vs-single-task on **each head** (cat F1 on AL/FL, region Acc@10 on AL/FL) across 15 paired samples. All four comparisons must show MTL ≥ single-task with α=0.05 for CH01 to pass.
 
 FL runs with `--use-class-weights` to mitigate 22.5% majority next-region class.
 
-### P4 — Dual-stream region input
+### P4 — Per-task input modality (CH03)
 
-Feed `[B, 9, 128]` (check-in ⊕ region embedding per timestep) instead of `[B, 9, 64]`.
+The MTL architecture has two independent task-specific encoders. Rather than forcing both to see the same input, feed each its task-appropriate modality and let the shared backbone bridge them.
 
-Same champion config as P3. Multi-seed on AL + FL.
+**4-way comparison** at the P3 champion MTL arch + optim:
 
-### P5 — Cross-attention (gated on P4)
+| Variant | Task A (`category_encoder`) input | Task B (`next_encoder`) input | Feature dim |
+|---|---|---|---|
+| **per_task** (proposed) | check-in emb `[B, 9, 64]` | region emb `[B, 9, 64]` | 64 each |
+| concat | `[checkin ⊕ region]` `[B, 9, 128]` | `[checkin ⊕ region]` `[B, 9, 128]` | 128 each |
+| shared_checkin | check-in emb | check-in emb | 64 each |
+| shared_region | region emb | region emb | 64 each |
 
-Only runs if P4 shows ≥ 2pp next-category F1 lift on FL. New `MTLnetCrossAttn` architecture with bidirectional cross-attention between check-in and region streams.
+All variants at the champion arch + multi-seed n=15 on AL; top-2 replicated on FL (CH08 state-dependence).
+
+**Implementation note:** requires a small extension to the MTL fold creator (`FoldCreator` path for check2HGI) to produce per-task X tensors, plus CLI flags `--task-a-input-type` / `--task-b-input-type`. ~80 LOC in the data pipeline, zero in the model (MTLnet already unpacks `(category_input, next_input)` separately).
+
+### P5 — Cross-attention between task-specific encoders (gated on P4)
+
+Only runs if P4's per-task-modality champion does not saturate the single-task ceilings (i.e., further arch capacity has room to add value). `MTLnetCrossAttn` with bidirectional cross-attention between `category_encoder`'s output and `next_encoder`'s output, applied before the shared backbone.
 
 ## Datasets
 

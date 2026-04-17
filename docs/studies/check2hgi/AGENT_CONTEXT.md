@@ -6,9 +6,13 @@ Read this before any scientific work on the `worktree-check2hgi-mtl` branch. It 
 
 ## Current status
 
-This study runs **alongside** the fusion study — they coexist under `docs/studies/`. Fusion investigates POI-category classification on fused POI-level embeddings; this study investigates **next-POI + next-region prediction on check-in-level contextual embeddings** (Check2HGI). Do not cross-reference or mix artefacts between the two studies.
+This study runs **alongside** the fusion study — they coexist under `docs/studies/`. Fusion investigates POI-category classification on fused POI-level embeddings; this study investigates **joint next_category + next_region prediction on check-in-level contextual embeddings** (Check2HGI). Do not cross-reference or mix artefacts between the two studies.
 
-Phase P0 is active: embeddings have been generated for Alabama + Florida (+ Arizona as triangulation); next_region labels are derived; integrity checks are outstanding.
+P0 complete, P1 in progress (2026-04-16). Embeddings + next_region labels exist for AL / FL / AZ; Markov floor corrected to region granularity; single-task baselines established; MTL variant code (CGC/MMoE/DSelectK/PLE) ported to the TaskSet preset system.
+
+## Thesis (bidirectional, 2026-04-16)
+
+MTL `{next_category, next_region}` must improve **both** heads over their respective single-task baselines on AL and FL. A one-sided lift fails the thesis. The architectural hypothesis for P3/P4 is **per-task input modality** (check-in emb → `category_encoder`, region emb → `next_encoder`) rather than shared or concatenated inputs. See CH01/CH02/CH03 in the claim catalog.
 
 ---
 
@@ -18,7 +22,7 @@ Phase P0 is active: embeddings have been generated for Alabama + Florida (+ Ariz
 |------|---------|
 | `docs/studies/check2hgi/README.md` | Entry point + scope statement |
 | `docs/studies/check2hgi/QUICK_REFERENCE.md` | One-page overview |
-| `docs/studies/check2hgi/MASTER_PLAN.md` | 5-phase strategy (P0 prep → P1 single-task baselines → P2 MTL headline → P3 dual-stream → P4 cross-attention → P5 ablations) |
+| `docs/studies/check2hgi/MASTER_PLAN.md` | 6-phase strategy (P0 prep → P1 single-task + input-modality ablation → P2 MTL arch×optim grid → P3 MTL headline bidirectional → P4 per-task input modality → P5 cross-attention (gated) → P6 encoder enrichment) |
 | `docs/studies/check2hgi/CLAIMS_AND_HYPOTHESES.md` | Authoritative claim catalog (CH01..CHnn) |
 | `docs/studies/check2hgi/COORDINATOR.md` | Orchestrator agent spec |
 | `docs/studies/check2hgi/phases/` | Per-phase execution plans |
@@ -46,43 +50,53 @@ If `STUDY_DIR` is unset, commands default to `docs/studies/fusion/` — do NOT r
 
 ## Task pair
 
-**Slot A (`task_a`):** `next_poi` — predict the exact next POI id from a 9-window of check-in embeddings. Cardinality: ~10K (AL) to ~80K (FL) classes. Primary metric: **Acc@{1, 5, 10}, MRR, NDCG@{5, 10}**. Macro-F1 reported for completeness only.
+**Slot A (`task_a`):** `next_category` — predict the next check-in's category from a 9-window. Cardinality: 7 classes. Primary metric: **macro-F1** (tail-class sensitive). Top-K is reported but not primary because K=5 over 7 classes is near-trivial.
 
-**Slot B (`task_b`):** `next_region` — predict the region of the next POI. Cardinality: ~1.1K (AL), ~4.7K (FL), ~1.5K (AZ) classes. Primary metric: **Acc@{1, 5, 10}, MRR**. Macro-F1 reported for completeness only.
+**Slot B (`task_b`):** `next_region` — predict the region of the next POI. Cardinality: 1,109 (AL), 4,703 (FL), 1,547 (AZ) classes. Primary metric: **Acc@{1, 5, 10}, MRR**. Macro-F1 reported for completeness (tiny, given tail classes have ≤10 samples).
 
-Both heads are sequential (`next_mtl` transformer) and consume the same X tensor `[B, 9, 64]` of check-in embeddings. Labels differ. Joint monitor:
+Both heads are **sequential**; under the P3 champion they will consume **different input modalities** (see CH03 / per-task input modality) routed through their task-specific encoders, not a shared X tensor. Joint monitor:
 
 ```
 val_joint_geom_lift = sqrt(
-    max(acc1_poi    / majority_poi,    1e-8) *
-    max(acc1_region / majority_region, 1e-8)
+    max(f1_category      / majority_category,   1e-8) *
+    max(acc1_region      / majority_region,     1e-8)
 )
 ```
 
-**Geometric** mean of per-head lifts-over-majority, NOT arithmetic mean. The arithmetic version (used in v1 and since fixed on 2026-04-15 per the review-agent finding) is scale-incoherent when head cardinalities span orders of magnitude (FL next_poi majority ~0.001% vs FL next_region majority 22.5% — arithmetic mean is dominated by the POI term). The geometric mean forces both heads to contribute multiplicatively so the monitor penalises either head collapsing.
+**Geometric** mean of per-head lifts-over-majority, NOT arithmetic. The arithmetic version is scale-incoherent when head cardinalities span orders of magnitude (F1 on 7 classes vs Acc@1 on 1,109 classes — arithmetic mean is dominated by F1). Geometric mean forces both heads to contribute multiplicatively so the monitor penalises either collapsing.
 
-**Reported alongside:** `val_joint_arith_lift` (the old formula) + per-head raw Acc@K and OOD-restricted Acc@K. The paper uses `val_joint_geom_lift` as the checkpoint monitor but reports the full metric suite.
+**Reported alongside:** `val_joint_arith_lift` (old formula, for continuity) + per-head raw metrics (F1 for category; Acc@K, MRR for region) + OOD-restricted Acc@K on the region head.
 
 ---
 
 ## Baselines
 
-**Next-POI literature (ranking metrics).** All report Acc@K / MRR / NDCG on Foursquare-NYC/TKY or Gowalla-global.
+**For `next_category` (classification, macro-F1):**
 
 | Paper | Venue | Relevance |
 |---|---|---|
-| HMT-GRN (Lim et al.) | SIGIR '22 | Closest: hierarchical GRU on region-seq + POI-seq, MTL |
-| MGCL (Zhu et al.) | Frontiers '24 | Multi-granularity contrastive + region + category auxiliary |
+| POI-RGNN (Capanema et al.) | IJCNN '19 | Next-category on Gowalla FL/CA/TX: 31.8–34.5% macro-F1 |
+| MHA+PE (Zeng et al.) | 2019 | Next-category on Gowalla global: 26.9% F1 |
+
+Our single-task Check2HGI on AL: **38.67% F1** (already above POI-RGNN's 31.8–34.5% range).
+
+**For `next_region` (ranking, Acc@K/MRR) — concept-aligned, different datasets:**
+
+| Paper | Venue | Relevance |
+|---|---|---|
+| HMT-GRN (Lim et al.) | SIGIR '22 | Hierarchical GRU on region-seq + POI-seq, MTL — closest architectural match |
+| MGCL (Zhu et al.) | Frontiers '24 | Multi-granularity contrastive with region + category auxiliary heads |
 | Bi-Level GSL | arXiv '24 | Explicit region-POI bi-level graph |
-| LSTPM (Sun et al.) | AAAI '20 | Long/short-term user prefs |
-| STAN (Luo et al.) | WWW '21 | Spatio-temporal attention |
-| GETNext (Yang et al.) | SIGIR '22 | Trajectory flow + transformer |
-| Graph-Flashback | KDD '22 | Sequential + graph |
-| ImNext (He et al.) | KBS '24 | Irregular interval MTL |
 
-**What this study does NOT benchmark against:** HAVANA / PGC / POI-RGNN. Those are POI-category classification baselines on Gowalla state-level; different task, different metric family, covered by the fusion study.
+Our single-task Check2HGI on AL (region-emb input, `next_gru` default, **5f × 50ep**): **56.94% ± 4.01 Acc@10**.
 
-**Direct-numeric-comparison honesty:** our state-level Gowalla runs are not directly comparable to the NYC/TKY/Gowalla-global numbers those papers report. Declared limitation (CH12).
+**Simple-baseline floor (updated 2026-04-16):**
+- AL next_category: majority 34.2%, Markov 31.7%
+- FL next_category: majority 24.7%, Markov 37.2%
+- AL next_region: **Markov-1-region 47.01%** Acc@10 (the old POI-level `markov_1step` reporting 21.3% was degenerate — ~50% of val rows fell back to top-k-popular)
+- FL next_region: **Markov-1-region 65.05%** Acc@10
+
+**Direct-numeric-comparison honesty:** our state-level Gowalla runs are not directly comparable to the NYC/TKY/Gowalla-global numbers HMT-GRN / MGCL / GETNext report. Declared limitation (CH10).
 
 ---
 
@@ -99,16 +113,24 @@ val_joint_geom_lift = sqrt(
 ## CLI entry point
 
 ```bash
-# Smoke the end-to-end path on Alabama (uses task_set=check2hgi_next_poi_region)
+# Smoke the end-to-end path on Alabama (uses task_set=CHECK2HGI_NEXT_REGION)
 PYTHONPATH=src DATA_ROOT=/path/to/data OUTPUT_DIR=/path/to/output \
   python scripts/train.py \
     --state alabama --engine check2hgi --task mtl \
-    --task-set check2hgi_next_poi_region \
+    --task-set check2hgi_next_region \
     --folds 1 --epochs 2 --gradient-accumulation-steps 1 \
     --no-folds-cache
+
+# P1 region-head ablation (single-task next_region)
+PYTHONPATH=src DATA_ROOT=/path/to/data OUTPUT_DIR=/path/to/output \
+  python scripts/p1_region_head_ablation.py \
+    --state alabama --heads next_gru next_temporal_cnn \
+    --folds 1 --epochs 30 --input-type region --tag E_region_only
 ```
 
-The `check2hgi_next_poi_region` preset resolves `task_b.num_classes` from the actual next_region label tensor at runtime (see `src/tasks/presets.py::resolve_task_set`).
+The `CHECK2HGI_NEXT_REGION` preset resolves `task_b.num_classes` (n_regions) from the actual next_region label tensor at runtime (see `src/tasks/presets.py::resolve_task_set`). `task_a` (`next_category`) has a fixed num_classes=7.
+
+For P4 (per-task input modality), new flags `--task-a-input-type` / `--task-b-input-type` with values `{checkin, region, concat}` are planned but not yet wired (require FoldCreator extension, ~80 LOC).
 
 ---
 

@@ -1,5 +1,7 @@
 # Phase P5 — Ablations
 
+> **⚠️ STALE (2026-04-16).** Pre-refactor phase file. The ablation work is now distributed across master-plan P1 (head × input-type matrix, mostly done), P2 (arch × optim grid) and P4 (4-way input-modality comparison); there is no single "Ablations" phase in the current plan. Authoritative plan: `docs/studies/check2hgi/MASTER_PLAN.md`. Read for historical framing only.
+
 **Goal:** characterise the sensitivity of the P2 headline result to three design axes — head architecture, MTL optimiser, and random seed — enough to satisfy a reviewer's ask without blowing the compute budget.
 
 **Duration:** ~4h (Alabama only; FL reserved for headline phases).

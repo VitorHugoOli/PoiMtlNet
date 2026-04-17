@@ -1,5 +1,7 @@
 # Phase P4 — Cross-attention (Option C, gated)
 
+> **⚠️ STALE (2026-04-16).** Phase numbering shifted: this is now master-plan **P5** (gated on P4's per-task-modality outcome, not on a "dual-stream" CH03 threshold). The substantive idea — bidirectional cross-attention between the two task-specific encoders — survives but is reframed around per-task input modality rather than shared-input dual-stream. Authoritative plan: `docs/studies/check2hgi/MASTER_PLAN.md §P5`. Claims: `CLAIMS_AND_HYPOTHESES.md` (CH09). Read for historical framing only.
+
 **Goal:** test whether bidirectional cross-attention between the check-in stream and the region stream improves over naive concatenation (P3). This is "Option C" from the prior critical-review work.
 
 **Duration:** ~1 day implementation + ~6h training (2 states × 3 K values × 5f × 50ep if full, or a single K=2 run if tight).
