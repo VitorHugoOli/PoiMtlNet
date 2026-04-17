@@ -1,0 +1,95 @@
+{
+  "state": "florida",
+  "folds": 5,
+  "epochs": 50,
+  "seed": 42,
+  "input_type": "region",
+  "n_regions": 4702,
+  "heads": {
+    "next_gru": {
+      "per_fold": [
+        {
+          "accuracy": 0.4415,
+          "accuracy_macro": 0.0,
+          "f1": 0.0856,
+          "f1_weighted": 0.0,
+          "mrr": 0.5243,
+          "top5_acc": 0.6152,
+          "ndcg_5": 0.0,
+          "top10_acc": 0.6782,
+          "ndcg_10": 0.0,
+          "best_epoch": 22,
+          "_salvaged_from_log": true
+        },
+        {
+          "accuracy": 0.4492,
+          "accuracy_macro": 0.0,
+          "f1": 0.0846,
+          "f1_weighted": 0.0,
+          "mrr": 0.5324,
+          "top5_acc": 0.6248,
+          "ndcg_5": 0.0,
+          "top10_acc": 0.689,
+          "ndcg_10": 0.0,
+          "best_epoch": 23,
+          "_salvaged_from_log": true
+        },
+        {
+          "accuracy": 0.4525522291660309,
+          "accuracy_macro": 0.09611868444894779,
+          "f1": 0.08462110161781311,
+          "f1_weighted": 0.4187636971473694,
+          "mrr": 0.5333050489425659,
+          "top5_acc": 0.6214543581008911,
+          "ndcg_5": 0.5433191657066345,
+          "top10_acc": 0.6860373616218567,
+          "ndcg_10": 0.5641871690750122,
+          "best_epoch": 21
+        },
+        {
+          "accuracy": 0.4426085352897644,
+          "accuracy_macro": 0.09150974229006305,
+          "f1": 0.07791467756032944,
+          "f1_weighted": 0.40291839838027954,
+          "mrr": 0.5221366286277771,
+          "top5_acc": 0.6095369458198547,
+          "ndcg_5": 0.531692385673523,
+          "top10_acc": 0.6747188568115234,
+          "ndcg_10": 0.5527961254119873,
+          "best_epoch": 18
+        },
+        {
+          "accuracy": 0.43873095512390137,
+          "accuracy_macro": 0.0908824779369213,
+          "f1": 0.07896751165390015,
+          "f1_weighted": 0.39863964915275574,
+          "mrr": 0.5250979065895081,
+          "top5_acc": 0.6235904097557068,
+          "ndcg_5": 0.5375481247901917,
+          "top10_acc": 0.6885503530502319,
+          "ndcg_10": 0.5586469769477844,
+          "best_epoch": 18
+        }
+      ],
+      "aggregate": {
+        "accuracy_mean": 0.4449183439159393,
+        "accuracy_std": 0.005136396673053349,
+        "top5_acc_mean": 0.6189163427352906,
+        "top5_acc_std": 0.005739166091678647,
+        "top10_acc_mean": 0.6833013142967224,
+        "top10_acc_std": 0.0057826527750704715,
+        "mrr_mean": 0.5274479168319702,
+        "mrr_std": 0.00452704837996535,
+        "f1_mean": 0.08234065816640854,
+        "f1_std": 0.0032216697150547753
+      },
+      "config": {
+        "max_lr": 0.003,
+        "label_smoothing": 0.0,
+        "input_layernorm": false,
+        "overrides": {},
+        "input_type": "region"
+      }
+    }
+  }
+}
