@@ -11,9 +11,9 @@ Status column legend: `open` / `investigating` / `mitigated` / `resolved` / `won
 
 | ID | Severity | Status | Short description |
 |----|----------|--------|-------------------|
-| **F1** | HIGH | open | Joint-peak checkpoint selection biases the ranking (mmoe4×gradnorm "champion" is an artifact). |
+| **F1** | HIGH | **mitigated** | `joint_f1_taskbest` now in state.json for all 181 tests; `archive_result.py` computes it for future runs. Analysis discipline: report both joint@J and joint@T. |
 | **F2** | HIGH | open | No multi-seed — P1 rankings within top-5 are inside fold-noise; champion is seed-42-specific. |
-| **F3** | HIGH | open | Fclass shortcut (C29) not yet tested on fusion — category F1 comparison may still be shortcut-riding. |
+| **F3** | HIGH | **proxy-mitigated** | Fclass shortcut survives on fusion (linear probe: HGI half 0.688 F1 vs Sphere2Vec half 0.111). Full arm-C retrain pending for MTL-level quantification. |
 | **F4** | MED  | open | `base` arch never evaluated at 5f × 50ep — C05 rests on screen+promote only. |
 | **F5** | MED  | open | NextHead best-epoch is 10–20 even at 50-epoch schedules — LR schedule mismatched for next task. |
 | **F6** | MED  | open | `bayesagg_mtl × cgc22` AZ screen collapsed (joint=0.271 vs peers ~0.40); analyzer did not flag (verdict band too wide). |
@@ -73,9 +73,18 @@ AZ winner flips from `cgc21 × uw` → `cgc21 × dwa` under per-task-best. Top-4
 - **Option C:** adopt per-task-best as the scientific-comparison metric; keep joint-peak only for "deployment champion" selection. Document both in the paper.
 - **Option D (cheapest immediate):** update the coordinator synthesis to always compute joint@T alongside joint@J. No code change, just analysis discipline.
 
-### Action
+### Action (completed 2026-04-17)
 
-- [ ] Pick Option A + D for now: (a) analyze C06 using both, (b) add `joint_f1_taskbest` to `_extract_observed` in `archive_result.py` going forward (backfilling P1 tests is one-line since diagnostic_task_best is already stored in full_summary.json).
+- [x] Added `joint_f1_taskbest`, `cat_f1_taskbest`, `next_f1_taskbest` to
+  `_extract_observed` in `scripts/study/archive_result.py`. New runs record them
+  automatically.
+- [x] Wrote `scripts/study/_backfill_joint_taskbest.py` and ran it:
+  181 existing tests in state.json now carry the new fields (re-parsed from
+  each test's `full_summary.json`).
+- [x] P1 SUMMARY.md and CLAIMS C02/C32 updated with joint@T comparisons.
+- [ ] Discipline: all future coordinator synthesis must tabulate joint@J
+  and joint@T side-by-side. Consider adding a `--metric {joint_f1,joint_f1_taskbest}`
+  flag to `scripts/study/analyze_test.py` for automated verdicts under each.
 
 ---
 
@@ -130,9 +139,10 @@ C29 was confirmed on HGI-only: category F1 drops from 0.786 → 0.144 (random-ch
 
 ### Resolution
 
-- [ ] Run the `C_fclass_shuffle` arm of `experiments/hgi_leakage_ablation.py` on the fusion inputs (not HGI-only). Need to extend the script to accept `--engine fusion` if it doesn't already; the shuffle applies to the HGI half only (Sphere2Vec has no fclass exposure).
-- [ ] 1 run, 1 fold, ~10 min. **Decisive.**
-- [ ] Append result to C29 evidence block and add N05 or similar if result warrants.
+- [x] **Cheap proxy completed (2026-04-17):** linear probe on AL fusion category input. See `docs/studies/fusion/results/P1/linear_probe_fusion_AL.json`. Sphere2Vec-half probe F1 = 0.111 (below chance); HGI-half probe F1 = 0.688 (88% of MTL ceiling); full-fusion probe 0.682 (no lift from Sphere2Vec). **Shortcut fully carried by HGI half; Sphere2Vec does not mitigate.** C31 status updated from `pending` → `partial`.
+- [ ] **Primary test pending:** extend `experiments/hgi_leakage_ablation.py` to generate a fusion input from a fclass-shuffled HGI embedding, then train MTL. Expected: MTL category F1 ≈ 0.15 (chance), matching the HGI-only arm-C result. ~30 min of plumbing + 1 training run (~10 min at 1f×10ep, or 35 min at 5f×50ep if we want apples-to-apples with the P1c cells).
+- [ ] Update CLAIMS C31 status from `partial` → `confirmed` once primary test lands.
+- [ ] Paper: add N05 or amend N03 to explicitly cover fusion.
 
 ---
 

@@ -437,11 +437,53 @@ mitigated by Sphere2Vec's spatial signal.
 
 **Source:** Added 2026-04-17 (`issues/P1_METHODOLOGY_FLAWS.md` F3). Follow-up
 to C29/N03.
-**Test:** Arm-C `fclass_shuffle` variant of `experiments/hgi_leakage_ablation.py`
-extended to fusion (shuffle HGI half's fclass column; keep Sphere2Vec intact);
-retrain 1 fold on AL fusion at seed 42 with the P1c champion config.
-**Phase:** Blocking-issue for P1→P2 transition. Schedule immediately.
-**Status:** `pending`.
+**Test (primary, pending):** Arm-C `fclass_shuffle` variant of
+`experiments/hgi_leakage_ablation.py` extended to fusion (shuffle HGI half's
+fclass column; keep Sphere2Vec intact); retrain 1 fold on AL fusion at seed 42
+with the P1c champion config.
+**Test (cheap proxy, completed 2026-04-17):** Linear-probe (5-fold
+StratifiedKFold, LogisticRegression C=1.0) on the **raw fusion category input**
+(11,848 POIs × 128-dim, preset `space_hgi_time`: [Sphere2Vec(64), HGI(64)]).
+Script: `/tmp/linear_probe_fusion.py`. Output:
+`docs/studies/fusion/results/P1/linear_probe_fusion_AL.json`.
+**Phase:** Blocking-issue for P1→P2 transition. Primary test still scheduled;
+proxy is strong evidence.
+**Status:** `partial` — proxy strongly supports the claim; full arm-C retrain
+pending to quantify at the MTL level.
+
+**Evidence (linear probe, AL fusion, 2026-04-17):**
+| Probe input | # features | Category macro-F1 | Notes |
+|-------------|-----------|-------------------|-------|
+| Sphere2Vec half (cols 0-63) | 64 | **0.1108 ± 0.0008** | Below chance (1/7 = 0.143); carries essentially zero category signal. |
+| HGI half (cols 64-127) | 64 | **0.6883 ± 0.0093** | 88% of the full-MTL ceiling (0.786 from C29 baseline). |
+| Full fusion | 128 | **0.6815 ± 0.0106** | *Lower* than HGI alone — Sphere2Vec degrades a linear probe. |
+| C29 reference (HGI-only, arm-C fclass shuffle) | 64 | 0.1437 | At shuffle, even MTL falls to chance. |
+
+**Interpretation:**
+- **Sphere2Vec carries ~zero category signal** at the embedding level. The
+  representation was trained for spatial proximity, not categorization.
+- **The HGI half of fusion carries 88% of the MTL's category capacity** via a
+  single linear layer — strong evidence the fclass shortcut is fully inherited
+  by fusion's HGI component.
+- **Adding Sphere2Vec does not mitigate** the shortcut. A linear probe is
+  slightly *degraded* by including the Sphere2Vec half. Any category-F1 gain
+  from fusion vs HGI-only in downstream MTL must come from backbone
+  nonlinearity, not from intrinsic fusion signal.
+- **The stronger arm-C retrain (still pending) will confirm:** if we shuffle
+  fclass during HGI training *and* build fusion from that shuffled HGI,
+  expect MTL category F1 to drop to ~0.15 (chance) — matching C29's HGI-only
+  result within fold noise.
+
+**Paper implications (preliminary — confirm with full arm-C):**
+1. **Category F1 on fusion is not a representation-quality metric.** It is
+   "fclass-identity preservation + slight backbone reshaping." N03 applies
+   with equal force on fusion as on HGI-only.
+2. **Next F1 remains the primary representation-quality metric** on fusion.
+   The "fusion > HGI" story (C01) must lead with next F1 improvements.
+3. **Joint F1 inherits the shortcut proportionally.** Under harmonic mean,
+   joint F1 is dominated by the smaller value (next), which limits how much
+   the shortcut can inflate joint. But any AL P1c joint comparison where
+   cat F1 is ~0.82 is ~50% a measurement of fclass-preservation fidelity.
 
 **Implications:**
 - If confirmed: any cross-engine (HGI vs DGI vs Fusion) category F1 comparison

@@ -44,15 +44,39 @@ def _resolve_manifest(run_dir: Path) -> Path | None:
     return None
 
 
+def _harmonic(a: float | None, b: float | None) -> float | None:
+    if a is None or b is None:
+        return None
+    if a + b == 0:
+        return 0.0
+    return 2 * a * b / (a + b)
+
+
 def _joint_score(summary: dict[str, Any]) -> float | None:
+    """Joint F1 at joint-peak checkpoint (reported as `joint_f1`)."""
     try:
         cat = float(summary["category"]["f1"]["mean"])
         nxt = float(summary["next"]["f1"]["mean"])
     except (KeyError, TypeError):
         return None
-    if cat + nxt == 0:
-        return 0.0
-    return 2 * cat * nxt / (cat + nxt)
+    return _harmonic(cat, nxt)
+
+
+def _joint_score_taskbest(summary: dict[str, Any]) -> tuple[float | None, float | None, float | None]:
+    """Joint F1 computed from per-task-best checkpoints (diagnostic).
+
+    Returns (joint_f1_taskbest, cat_f1_taskbest, next_f1_taskbest).
+    Reveals ceiling performance when each task selects its own best epoch,
+    vs. the single joint-peak checkpoint used for deployment.
+    See claim C32 and docs/studies/fusion/issues/P1_METHODOLOGY_FLAWS.md F1.
+    """
+    try:
+        db = summary["diagnostic_task_best"]
+        cat_t = float(db["category"]["f1"]["mean"])
+        nxt_t = float(db["next"]["f1"]["mean"])
+    except (KeyError, TypeError):
+        return (None, None, None)
+    return (_harmonic(cat_t, nxt_t), cat_t, nxt_t)
 
 
 def _extract_observed(summary: dict[str, Any]) -> dict[str, Any]:
@@ -68,6 +92,8 @@ def _extract_observed(summary: dict[str, Any]) -> dict[str, Any]:
         except (KeyError, TypeError):
             return None
 
+    joint_tb, cat_tb, next_tb = _joint_score_taskbest(summary)
+
     return {
         "cat_f1": get("category", "f1"),
         "cat_f1_std": get_std("category", "f1"),
@@ -76,6 +102,9 @@ def _extract_observed(summary: dict[str, Any]) -> dict[str, Any]:
         "next_f1_std": get_std("next", "f1"),
         "next_accuracy": get("next", "accuracy"),
         "joint_f1": _joint_score(summary),
+        "cat_f1_taskbest": cat_tb,
+        "next_f1_taskbest": next_tb,
+        "joint_f1_taskbest": joint_tb,
     }
 
 
