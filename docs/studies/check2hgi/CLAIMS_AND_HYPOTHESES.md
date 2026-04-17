@@ -24,10 +24,23 @@ At the region level, Check2HGI and HGI converge (P1.5 confirmed tied Acc@10) bec
 
 **Why HGI cannot match this architecturally:** HGI produces one vector per POI. Two check-ins at the same POI receive identical embeddings, discarding all temporal, co-visitor, and context-window structure. For next-category, where the user's *immediate* intent varies across visits of the same POI (e.g., visiting a café for breakfast vs. an evening meetup), this information is lost.
 
-**Source:** P1.5b measurement (CHECK2HGI vs HGI on next-category, AL, 5f × 50ep). Same head class, same optim, identical splits.
-**Test:** P1.5b — launched 2026-04-16 evening.
+**Result (P1.5b, 2026-04-16 evening, AL, 5f × 50ep, seed 42, default `next_mtl` head, identical pipeline except substrate):**
+
+| Metric | Check2HGI | HGI | Δ (pp) | std-overlap? |
+|--------|-----------|-----|--------|--------------|
+| Acc@1 | 40.33 ± 0.88 | 27.29 ± 1.02 | **+13.04** | No |
+| **macro-F1** | **39.16 ± 0.83** | 23.48 ± 1.19 | **+15.68** | **No** |
+| Weighted F1 | 40.36 ± 0.69 | 28.00 ± 0.97 | +12.36 | No |
+| MRR | 62.74 ± 0.80 | 53.04 ± 0.79 | +9.70 | No |
+| Top-3 Acc | 82.98 ± 1.04 | 75.58 ± 1.03 | +7.40 | No |
+| Top-5 Acc | 95.55 ± 0.70 | 91.90 ± 0.51 | +3.65 | No |
+
+All six metrics favor Check2HGI with non-overlapping std envelopes over 5 folds. The +15.68 pp macro-F1 delta is approximately 13× the larger std — highly significant under any reasonable paired test.
+
+**Source:** `docs/studies/check2hgi/results/P1_5b/next_category_alabama_{check2hgi,hgi}_5f_50ep.json` (copied from `results/check2hgi/alabama/next_lr1.0e-04_bs1024_ep50_20260416_2327/` and `results/hgi/alabama/next_lr1.0e-04_bs1024_ep50_20260416_2329/` — the actual training dirs are gitignored; summary JSONs tracked).
+**Test:** P1.5b — COMPLETE.
 **Phase:** P1.5b.
-**Status:** `pending` (running).
+**Status:** `confirmed` — the paper's primary substrate claim lands robustly. Replication on FL/CA/TX for the paper table is pending (expected to reproduce given the effect size on AL).
 
 ### CH17 — Check2HGI strongly surpasses published POI-RGNN next-category on Gowalla state-level
 
@@ -300,7 +313,7 @@ The paper's framing therefore shifts from "Check2HGI is a better embedding" to "
 
 | ID | Tier | Phase | Status | Decides |
 |----|------|-------|--------|---------|
-| **CH16** | **A** | **P1.5b** | **pending (running)** | **Check2HGI > HGI on next-category (PRIMARY SUBSTRATE)** |
+| **CH16** | **A** | **P1.5b** | **confirmed ✅** | **Check2HGI > HGI on next-category by +15.68 pp F1 (PRIMARY SUBSTRATE)** |
 | **CH17** | **A** | **paper** | **pending** | **Check2HGI > POI-RGNN + prior HGI-next-category article** |
 | **CH01** | A | P3 | pending | Bidirectional MTL lift on both heads |
 | **CH02** | A | P3 | pending | No negative transfer on either head (statistical) |

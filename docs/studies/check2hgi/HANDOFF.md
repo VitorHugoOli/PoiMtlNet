@@ -7,7 +7,7 @@
 | **P0** | ✅ complete — integrity, simple baselines (region Markov 1/2/3-step), CH14 audit |
 | **P1** | ✅ complete — 5 heads × {checkin, region, concat}; GRU confirmed on AL 5f×50ep (56.94 ± 4.01) + FL 5f×50ep (68.33 ± 0.58); `next_mtl` scrapped as region-head candidate |
 | **P1.5** | ✅ complete — Check2HGI vs HGI on AL region single-task. Tied (57.02 vs 56.11 Acc@10). Expected — pooling to region erases check-in-level variance. See CH15. |
-| **P1.5b** | 🟡 running — Check2HGI vs HGI on AL next-category single-task. This is the paper's PRIMARY substrate claim (CH16). |
+| **P1.5b** | ✅ complete — Check2HGI vs HGI on AL next-category. **Check2HGI wins by +15.68 pp F1 (39.16 vs 23.48)** with non-overlapping std envelopes on all 6 metrics. CH16 confirmed robustly. |
 | **P2-prep** | ✅ CGC/MMoE/DSelectK/PLE TaskSet-aware |
 | **P4-prep** | ✅ per-task input pipeline shipped (`FoldCreator.task_a_input_type` / `task_b_input_type`, CLI flags, `region_sequence.py`) |
 | **P2** | ready — arch × optim grid with TCN region head (compute-efficient); GRU sanity check on top-3 at end |
