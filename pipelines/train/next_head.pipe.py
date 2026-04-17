@@ -27,8 +27,8 @@ MAX_WORKERS = 1
 # =============================================================================
 
 CONFIG = {
-    'engine': EmbeddingEngine.FUSION.value,
-    'embedding_dim': 128,
+    'engine': EmbeddingEngine.CHECK2HGI.value,
+    'embedding_dim': 64,
     'epochs': None,
     'folds': None,
 }
@@ -41,10 +41,10 @@ CONFIG = {
 # =============================================================================
 
 STATES = {
-    # 'alabama': {},
+    'alabama': {},
     # 'arizona': {},
     # 'georgia': {},
-    'florida': {},
+    # 'florida': {},
     # 'california': {},
     # 'texas': {},
 }
