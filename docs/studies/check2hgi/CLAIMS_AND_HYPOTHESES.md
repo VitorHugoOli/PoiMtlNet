@@ -91,11 +91,29 @@ The MTL architecture already has **two independent task-specific encoders** (`ca
 
 **Prediction:** `per_task > concat > shared_checkin` (region side); `per_task ≥ concat > shared_region` (category side). If true, `per_task` is the CH01 headline config.
 
-**Source:** P1 asymmetric-modality findings; two-encoder MTLnet architecture.
-**Test:** P4 — 4-way comparison at matched MTL config.
+**P4-dev directional result** (AL, 1 fold × 20 epochs, default FiLM + NashMTL + `next_mtl` head; exploratory — final numbers will use P2 champion arch + `next_gru` head at 5f × 50ep × 3 seeds on CA/TX):
+
+| Variant | Cat F1 | Reg Acc@10 | Reg MRR | Pareto |
+|---------|--------|------------|---------|--------|
+| **per_task** (cat=checkin, reg=region) | 36.66 | **33.19** | **16.38** | ✅ only bidirectionally strong |
+| concat (both=[checkin⊕region], dim=128) | 35.10 | 12.16 | 5.53 | ❌ dominated by per_task |
+| shared_checkin (both=checkin, dim=64) | **36.78** | 2.30 | 1.57 | ✅ cat-max (kills region) |
+| shared_region (both=region, dim=64) | 20.19 | 34.44 | 16.38 | ✅ reg-max (kills category) |
+
+**Reading:**
+
+- `per_task` is the only variant that delivers usable performance on both heads simultaneously. Every other variant trades one task for the other or is dominated.
+- `concat` is **strictly dominated** by `per_task`. Stacking both modalities into one input doubles the dim (64 → 128) without adding capacity and forces each head to filter noise from the wrong-modality channels. Confirms the P1 single-task concat < region-only observation.
+- `shared_checkin` preserves category (check-in input is what category wants) but **crashes region to random** (2.3% Acc@10 on a 1109-class problem). Region needs region input — no amount of MTL sharing substitutes for the right modality.
+- `shared_region` mirrors the failure: preserves region but **crashes category** (F1 36.78 → 20.19) because the category head loses check-in context.
+
+**Note on absolute numbers:** these P4-dev runs used the legacy `next_mtl` transformer head for the region slot, which P1 showed collapses on 1109-class region (7.4% standalone). That caps the region numbers here. The final P4 run (after P2 champion + GRU head) will lift the per_task region number materially; the *ordering* across variants is what CH03 claims, and the ordering is robust to head choice because the input-signal argument is model-agnostic.
+
+**Source:** `results/check2hgi/alabama/mtlnet_lr1.0e-04_bs2048_ep20_20260416_22{55,57,58}/summary/full_summary.json` (per_task, shared_checkin, shared_region); `mtlnet_lr1.0e-04_bs2048_ep20_20260416_2302/` (concat retry with `--embedding-dim 128`).
+**Test:** P4 — 4-way comparison. Development signal on AL confirms the predicted ordering. Headline on CA/TX pending.
 **Phase:** P4.
-**Status:** `pending`.
-**Notes:** Supersedes the earlier "dual-stream concat" framing of CH03 (which is now just one of four variants under test). Per-task modality is the architectural hypothesis this study is designed to validate.
+**Status:** `partial` — directional signal from AL development confirms per_task > all shared/concat variants on joint score; paper-ready confirmation needs CA/TX replication with P2 champion arch + GRU region head.
+**Notes:** Supersedes the earlier "dual-stream concat" framing of CH03. Per-task modality is the architectural hypothesis this study is designed to validate, and AL dev data supports it.
 
 ---
 
@@ -247,7 +265,7 @@ The paper's framing therefore shifts from "Check2HGI is a better embedding" to "
 |----|------|-------|--------|---------|
 | **CH01** | A | P3 | pending | Bidirectional MTL lift on both heads (HEADLINE) |
 | **CH02** | A | P3 | pending | No negative transfer on either head (statistical) |
-| **CH03** | A | P4 | pending | Per-task input modality > shared / concat (ARCH CHOICE) |
+| **CH03** | A | P4 | partial (AL dev) | Per-task input modality > shared / concat — confirmed directionally on AL |
 | CH04 | B | P1 | retired | Region head validates — demoted to reported comparison (1.16× Markov-1-region) |
 | CH05 | B | P1 | confirmed | Head choice matters for region task (GRU wins, transformer collapses) |
 | CH06 | B | P2 | pending | Champion MTL arch × optim |

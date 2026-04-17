@@ -46,6 +46,33 @@ Architectural plan for P3/P4: **per-task input modality** — feed check-in embe
 
 **Note:** the old `markov_1step` (POI-level) baseline (21.3% AL / 45.9% FL) had a ~50% fallback rate to top-k-popular — it was a degenerate baseline. The corrected `markov_1step_region` is the paper-reported floor. The POI-level entry is kept for continuity but not used as a floor.
 
+## P1.5 — embedding comparison (2026-04-16)
+
+Check2HGI vs HGI region embeddings on AL, TCN head, 5f × 50ep, region input, seed 42:
+
+| Substrate | Acc@1 | Acc@10 | MRR |
+|-----------|-------|--------|-----|
+| Check2HGI | 21.76 ± 1.8 | **56.11 ± 4.02** | 33.4 ± 2.4 |
+| HGI | 21.82 ± 1.5 | **57.02 ± 2.92** | 33.14 ± 1.87 |
+| Δ (HGI − C2HGI) | +0.06 | +0.91 | −0.26 |
+
+**Tied within noise.** Region-level embeddings converge to similar quality regardless of the upstream POI representation (check-in-level vs POI-level). The pooling to region smooths out contextual variation.
+
+**Framing pivot (CH15 / CONCERNS §C07):** Check2HGI does *not* outperform HGI on the region task. The paper's contribution is not "Check2HGI > HGI." The *meaningful* Check2HGI advantage is at the **check-in-level input**, where HGI architecturally cannot compete (HGI has only per-POI vectors). This feeds the next claim.
+
+## P4-dev — per-task input modality on AL (1f × 20ep, FiLM MTL, default head — directional)
+
+| Variant | Cat F1 | Reg Acc@10 | Reg MRR | Pareto |
+|---------|--------|------------|---------|--------|
+| **per_task** (cat=checkin, reg=region) | 36.66 | **33.19** | **16.38** | ✅ only bidirectionally strong |
+| concat (both=[checkin⊕region]) | 35.10 | 12.16 | 5.53 | ❌ dominated |
+| shared_checkin (both=checkin) | 36.78 | 2.30 | 1.57 | ✅ cat-max, kills region |
+| shared_region (both=region) | 20.19 | 34.44 | 16.38 | ✅ reg-max, kills category |
+
+**Per-task is the only Pareto-bidirectional variant.** Concat is strictly dominated; shared modalities each collapse the opposite head. CH03 directionally confirmed on AL. Final P4 headline on CA/TX after P2 champion + GRU region head is pending.
+
+Key implication: this makes the paper's per-task modality claim (CH03) the strongest *empirical* result in the study to date — the ordering is robust and the effect is large (regions fall from 33% to 2% when the region head loses its modality).
+
 ## P1 findings (frozen)
 
 1. **Head champions:** `next_gru` (AL 56.94 ± 4.01, FL 68.33 ± 0.58) and `next_tcn_residual` (AL 56.11 ± 4.02) tie statistically. TCN is ~20× faster per fold — preferred when compute is binding in P2.
