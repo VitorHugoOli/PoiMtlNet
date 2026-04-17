@@ -48,9 +48,21 @@ Symptoms:
 
 Most plausible root cause: gradnorm uses `create_graph=True` on the backward pass to allow the auxiliary gradient-norm loss to differentiate through the per-task gradient magnitudes into the learnable `loss_scale` parameter. CGC's expert-routing adds several non-standard autograd operations (gated expert combination, per-task routing heads). The combination may produce a backward graph with circular or unusually deep dependencies — triggering a silent deadlock in PyTorch's autograd or MPS kernel dispatch.
 
-### Prediction: gradnorm × {MMoE, DSelectK, PLE} likely fail similarly
+### Verification: gradnorm × MMoE also deadlocks (skip decision confirmed)
 
-Skipped in P2-screen-resume based on this prediction. Not yet verified. Planned quick test: run each at 20 epochs with a 5-min hard timeout. If they complete, we've learned the deadlock is CGC-specific; if they hang, the skip decision was correct.
+**Run 2026-04-17 ~05:56, bg `bksjb8gg9`** — `mtlnet_mmoe + gradnorm` at 1f × 20ep:
+
+- Got past model construction and started training.
+- Log shows `Epoch 1/20: 1%| | 1/80 [00:01<02:14, 1.70s/batch]` then silent.
+- Process alive 17 min later, zero additional batch output. Killed.
+
+The failure mode is **slightly different from CGC but ends the same way**: MMoE + gradnorm reaches the training loop and completes 1 batch before hanging; CGC + gradnorm hangs during setup. Both end in indefinite stalls with no recoverable progress.
+
+This confirms the skip decision for MMoE. DSelectK + gradnorm and PLE + gradnorm were not independently verified (killed the shell loop after MMoE hung to avoid compounding stalled compute), but given two of four expert-gating archs deadlock identically, the pattern is strong evidence that gradnorm is broadly incompatible with expert-routing backbones in this codebase.
+
+**Diagnostic hypothesis refined:** gradnorm's `create_graph=True` on the per-task backward pass creates a second-order autograd graph that interacts pathologically with gating-arch operations that involve non-standard index/gather operations in the expert routing. Not triaged into a minimal reproducer; reported here as a compatibility note.
+
+**Side issue discovered:** the planned `timeout 300` / `gtimeout 300` fallback in the verification shell was ineffective because **neither `timeout` nor `gtimeout` is in `$PATH` on this macOS** (coreutils not installed). The shell had to be killed manually. If we retry any deadlock-prone config in future, we should either install `coreutils` (`brew install coreutils` gives `gtimeout`) or implement a Python-level timeout wrapper.
 
 ---
 
