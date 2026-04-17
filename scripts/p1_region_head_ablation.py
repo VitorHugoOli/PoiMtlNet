@@ -78,9 +78,20 @@ _HEAD_MAX_LR = {
 }
 
 
-def _load_region_embeddings(state: str) -> tuple[np.ndarray, int]:
-    """Load region_embeddings.parquet as [n_regions, 64] array."""
-    path = IoPaths.CHECK2HGI.get_state_dir(state) / "region_embeddings.parquet"
+def _load_region_embeddings(state: str, source: str = "check2hgi") -> tuple[np.ndarray, int]:
+    """Load region_embeddings.parquet as [n_regions, D] array.
+
+    ``source`` switches which engine's region embeddings are consulted.
+    Only the region-embedding *lookup* changes; region labels, placeid→
+    region map, and sequences are always taken from check2hgi for a
+    like-for-like task definition (CH15 / P1.5).
+    """
+    if source == "check2hgi":
+        path = IoPaths.CHECK2HGI.get_state_dir(state) / "region_embeddings.parquet"
+    elif source == "hgi":
+        path = IoPaths.HGI.get_state_dir(state) / "region_embeddings.parquet"
+    else:
+        raise ValueError(f"Unknown region-emb source: {source} (expected 'check2hgi' or 'hgi').")
     df = pd.read_parquet(path)
     emb_cols = [c for c in df.columns if c.startswith("reg_")]
     df = df.sort_values("region_id").reset_index(drop=True)
@@ -99,18 +110,27 @@ def _load_graph_maps(state: str) -> tuple[dict, np.ndarray]:
     return placeid_to_idx, np.asarray(poi_to_region, dtype=np.int64)
 
 
-def _build_region_sequence_tensor(state: str, region_emb_dim: int) -> torch.Tensor:
+def _build_region_sequence_tensor(
+    state: str,
+    region_emb_dim: int,
+    region_emb_source: str = "check2hgi",
+) -> torch.Tensor:
     """Build [N, 9, D] tensor where each step is the region embedding of
     the region the user was in at that check-in.
 
     Padded positions (poi_k == -1) map to the zero vector so the heads'
     `x.abs().sum(dim=-1) == 0` padding mask logic works identically to
     the check-in path.
+
+    ``region_emb_source`` selects which engine's region embeddings are
+    used for the lookup (see ``_load_region_embeddings``). Default
+    ``check2hgi`` preserves prior behaviour; ``hgi`` is used for the
+    P1.5 substrate comparison (CH15).
     """
     seq_path = IoPaths.CHECK2HGI.get_temp_dir(state) / "sequences_next.parquet"
     seq_df = pd.read_parquet(seq_path)
     placeid_to_idx, poi_to_region = _load_graph_maps(state)
-    region_emb, _ = _load_region_embeddings(state)
+    region_emb, _ = _load_region_embeddings(state, source=region_emb_source)
 
     n = len(seq_df)
     seq_len = 9
@@ -145,7 +165,7 @@ def _load_checkin_region_data(state: str):
     return x_tensor, y_region_tensor, y_cat, userids, emb_dim, n_regions
 
 
-def _load_data(state: str, input_type: str):
+def _load_data(state: str, input_type: str, region_emb_source: str = "check2hgi"):
     """Route to the correct input loader. Returns unified
     (x_tensor, y_region_tensor, y_cat, userids, emb_dim, n_regions).
     """
@@ -155,7 +175,7 @@ def _load_data(state: str, input_type: str):
         return x_checkin, y_region_tensor, y_cat, userids, checkin_dim, n_regions
 
     # Build region-emb sequence and align row-for-row with the check-in tensor.
-    x_region = _build_region_sequence_tensor(state, region_emb_dim=checkin_dim)
+    x_region = _build_region_sequence_tensor(state, region_emb_dim=checkin_dim, region_emb_source=region_emb_source)
     # Row counts must match (sequences_next.parquet is authoritative upstream).
     if x_region.shape[0] != x_checkin.shape[0]:
         raise RuntimeError(
@@ -346,9 +366,10 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
                  batch_size: int, seed: int, input_type: str,
                  overrides: dict, max_lr: float | None,
                  label_smoothing: float, input_ln: bool,
-                 tag: str | None, resume: bool = True):
-    logger.info("Loading data for %s (input_type=%s)...", state, input_type)
-    x_tensor, y_region, y_cat, userids, emb_dim, n_regions = _load_data(state, input_type)
+                 tag: str | None, resume: bool = True,
+                 region_emb_source: str = "check2hgi"):
+    logger.info("Loading data for %s (input_type=%s, region_emb=%s)...", state, input_type, region_emb_source)
+    x_tensor, y_region, y_cat, userids, emb_dim, n_regions = _load_data(state, input_type, region_emb_source)
     logger.info("x=%s, emb_dim=%d, n_regions=%d, n_seqs=%d",
                 x_tensor.shape, emb_dim, n_regions, len(y_region))
 
@@ -533,6 +554,10 @@ def main():
                         help="Resume from checkpoint if one exists (default: on).")
     parser.add_argument("--no-resume", dest="resume", action="store_false",
                         help="Ignore any existing checkpoint and start fresh.")
+    parser.add_argument("--region-emb-source", choices=["check2hgi", "hgi"], default="check2hgi",
+                        help="Which engine's region_embeddings.parquet to use for region/concat input_type. "
+                             "Labels + sequences always come from check2hgi — only the embedding lookup changes. "
+                             "Used for P1.5 embedding-substrate comparison (CH15).")
     args = parser.parse_args()
 
     overrides = _parse_overrides(args.override_hparams)
@@ -540,6 +565,7 @@ def main():
         args.state, args.heads, args.folds, args.epochs, args.batch_size, args.seed,
         args.input_type, overrides, args.max_lr, args.label_smoothing,
         args.input_layernorm, args.tag, resume=args.resume,
+        region_emb_source=args.region_emb_source,
     )
 
 
