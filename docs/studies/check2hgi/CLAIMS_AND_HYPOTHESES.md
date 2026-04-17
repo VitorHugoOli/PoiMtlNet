@@ -200,18 +200,33 @@ The MTL architecture already has **two independent task-specific encoders** (`ca
 **Phase:** P6.
 **Status:** `pending` (requires literature review to finalise implementation).
 
-### CH15 — Check2HGI substrate is at least as good as POI-level HGI-family embeddings for the region task
+### CH15 — Check2HGI and HGI region embeddings are statistically tied on the region task
 
-**Statement:** Single-task `next_region` Acc@10 (5f × 50ep, `next_tcn_residual`, region-emb input) on Alabama does not decrease when swapping Check2HGI for POI2HGI. Specifically, `Check2HGI_Acc@10 − POI2HGI_Acc@10 ≥ 0 − 2pp` (ties or beats by the noise floor).
+**Statement:** Single-task `next_region` Acc@10 (5f × 50ep, `next_tcn_residual`, region-emb input) on Alabama is statistically indistinguishable between Check2HGI and HGI-sourced region embeddings.
 
-**Why this claim exists:** preempts the "why this embedding?" reviewer question and grounds the substrate choice empirically.
+| Substrate | Acc@1 | Acc@10 | MRR |
+|-----------|-------|--------|-----|
+| Check2HGI (region emb pooled from check-in vectors) | 21.76 ± 1.8 | **56.11 ± 4.02** | 33.4 ± 2.4 |
+| HGI (region emb pooled from POI-level vectors) | 21.82 ± 1.50 | **57.02 ± 2.92** | 33.14 ± 1.87 |
+| Δ (HGI − Check2HGI) | +0.06 | **+0.91** (within noise) | −0.26 |
 
-**Decision rule:** see P1.5 phase file §Analysis for framing pivots if POI2HGI clearly wins.
+Both std envelopes overlap heavily; the 0.91 pp delta is well within either arm's single-seed fold-to-fold std.
 
-**Source:** `results/P1/region_head_alabama_region_5f_50ep_E_confirm_tcn_region.json` (Check2HGI arm, Acc@10 = 56.11 ± 4.02) + new P1.5 arm on POI2HGI (TBD).
-**Test:** P1.5.
+**Interpretation:** region-level embeddings converge to similar quality regardless of whether the upstream POI representation is check-in-level (Check2HGI) or POI-level (HGI). The pooling to region level smooths out the contextual variation that Check2HGI adds at the check-in level.
+
+**Implication for paper framing (pivot from original hypothesis):**
+
+The original claim expected Check2HGI to clearly win on the region task. It doesn't. The *meaningful* Check2HGI contribution is therefore not at the region-level input; it is at the **check-in-level** input where HGI *architecturally cannot compete* because HGI produces only POI-level embeddings (same POI visited twice → same vector). Check2HGI uniquely enables:
+
+1. **Per-task MTL with distinct input modalities** (check-in emb for next-category, region emb for next-region) — P4 / CH03 tests whether this design choice is advantageous.
+2. **Check-in-level contextual variation** — two check-ins at the same POI can differ in time, user, co-visitor structure, etc. HGI cannot see any of these at the POI-embedding level.
+
+The paper's framing therefore shifts from "Check2HGI is a better embedding" to "**Check2HGI uniquely supports per-task MTL with distinct modalities, which we show (P4) gives a measurable advantage.**"
+
+**Source:** `results/P1/region_head_alabama_region_5f_50ep_E_confirm_tcn_region.json` (Check2HGI), `results/P1/region_head_alabama_region_5f_50ep_P15_hgi_al_tcn.json` (HGI).
+**Test:** P1.5 — COMPLETE.
 **Phase:** P1.5.
-**Status:** `pending`.
+**Status:** `confirmed (tied)` — closes C07 with a "tied" outcome and a pivot in paper framing.
 
 ---
 

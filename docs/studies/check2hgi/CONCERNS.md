@@ -95,13 +95,17 @@ If the second delta is larger, pivot the paper to the modality-first framing. CL
 
 ---
 
-## C07 — No embedding comparison yet; "why Check2HGI" is unanswered
+## C07 — Embedding comparison outcome: Check2HGI and HGI tie at the region level
 
-**Concern raised:** 2026-04-16. We committed to Check2HGI (check-in-level contextual) without comparing against POI-level variants like POI2HGI or HGI on the same tasks. A reviewer will want a row in the final table showing this was a considered choice, not a default.
+**Concern raised:** 2026-04-16. We committed to Check2HGI without comparing against POI-level HGI on the same task. A reviewer will want to see this was a considered choice.
 
-**Resolution (adopted):** Add **P1.5 — embedding comparison** as a gate before P2. Compare Check2HGI vs POI2HGI on AL next_region single-task (5f × 50ep, `next_gru`, seed 42). If Check2HGI wins meaningfully, the story is "check-in-level contextual embeddings lift the region task." If POI2HGI wins or ties, we either pivot the substrate or frame the study as "given Check2HGI as substrate, what is the best MTL design."
+**Resolution (adopted — result in):** P1.5 ran Check2HGI vs HGI region embeddings on AL next_region single-task, 5f × 50ep, TCN-residual head, seed 42. Result: **statistically tied** (Check2HGI 56.11 ± 4.02 vs HGI 57.02 ± 2.92 Acc@10).
 
-**Status:** `open` — phase file `phases/P1.5_embedding_comparison.md` to be created; runs after current doc consolidation.
+**Implication (pivot):** the paper's substrate-advantage claim cannot be "Check2HGI beats HGI" at the region level. It becomes "**Check2HGI uniquely enables per-task MTL with distinct modalities (check-in-level and region-level), which HGI architecturally cannot provide because HGI has no per-visit granularity.**" The advantage must then be shown at the **task-A (next_category) input** side (check-in-level contextual vectors) and at the **per-task modality design choice** side (P4 / CH03). Region-level embeddings are merely the "floor input" shared by both engines.
+
+This tightens the paper's story: the contribution is framed around what Check2HGI *uniquely enables*, not what it *beats HGI at*. Closes C07.
+
+**Status:** `resolved — 2026-04-16`. Re-opens only if HGI also shows some form of check-in-level contextual variation (it doesn't, by its architecture).
 
 ---
 
@@ -137,6 +141,6 @@ If the second delta is larger, pivot the paper to the modality-first framing. CL
 | C04 | `next_mtl` → GRU head swap | resolved | Reviewer pushback |
 | C05 | P3 null-result fallback | deferred | P3 fails on CA/TX |
 | C06 | GRU champion, TCN for grids | resolved | TCN proves inferior in sanity check |
-| C07 | No embedding comparison | open | P1.5 launch |
+| C07 | Embedding comparison: Check2HGI vs HGI | resolved 2026-04-16 (tied; paper framing pivot) | HGI develops check-in granularity |
 | C08 | CH04 retirement reframing | resolved | — |
 | C09 | SSD reliability | monitored | Large data on CA/TX |
