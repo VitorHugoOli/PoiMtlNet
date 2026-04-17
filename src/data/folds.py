@@ -524,20 +524,35 @@ class FoldCreator:
             embedding_engine: EmbeddingEngine,
     ) -> Dict[int, FoldResult]:
         task = self.task_type
+        userids = None
 
         if task == TaskType.CATEGORY:
             X, y, _placeids, embedding_dim = load_category_data(state, embedding_engine)
         else:
-            X, y, _userids, embedding_dim = load_next_data(state, embedding_engine)
+            # For NEXT task we load userids alongside so we can enforce
+            # user-disjoint folds via StratifiedGroupKFold below. Without
+            # groups, the same user's check-ins can end up in both train
+            # and val, which is a leakage bug for sequence prediction —
+            # the model can effectively memorise a user's taste instead
+            # of generalising. See CONCERNS.md §C11.
+            X, y, userids, embedding_dim = load_next_data(state, embedding_engine)
 
         x_tensor, y_tensor = _convert_to_tensors(X, y, task, embedding_dim=embedding_dim)
         self._task_tensors[task] = TaskTensors(task, x_tensor, y_tensor)
         self._fold_indices[task] = []
 
-        skf = StratifiedKFold(n_splits=self.n_splits, shuffle=True, random_state=self.seed)
+        # NEXT: user-disjoint (StratifiedGroupKFold on userid). CATEGORY:
+        # stratified on category label (flat POI-level task; no user grouping).
+        if task == TaskType.NEXT and userids is not None:
+            skf = StratifiedGroupKFold(n_splits=self.n_splits, shuffle=True, random_state=self.seed)
+            split_iter = skf.split(X, y, groups=userids)
+            logger.info("NEXT single-task: user-disjoint folds via StratifiedGroupKFold.")
+        else:
+            skf = StratifiedKFold(n_splits=self.n_splits, shuffle=True, random_state=self.seed)
+            split_iter = skf.split(X, y)
         fold_results: Dict[int, FoldResult] = {}
 
-        for fold_idx, (train_idx, val_idx) in enumerate(skf.split(X, y)):
+        for fold_idx, (train_idx, val_idx) in enumerate(split_iter):
             self._fold_indices[task].append(FoldIndices(fold_idx, train_idx, val_idx))
             logger.info(f"Fold {fold_idx + 1}/{self.n_splits}: train={len(train_idx)}, val={len(val_idx)}")
 

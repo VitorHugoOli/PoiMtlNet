@@ -148,6 +148,22 @@ This tightens the paper's story: the contribution is framed around what Check2HG
 
 ---
 
+## C11 — User-leakage in STL next-task folds (fold-protocol mismatch)
+
+**Concern raised:** 2026-04-17 (during P2 critical review). `FoldCreator._create_single_task_folds()` used plain `StratifiedKFold` for the NEXT task, stratifying on `next_category` label without user-grouping. MTL `_create_check2hgi_mtl_folds()` uses `StratifiedGroupKFold(groups=userid)`. Consequence: STL next-task val sets include users that are also in train, enabling user-taste memorisation and inflating F1 relative to a user-disjoint baseline.
+
+**Impact on prior results:**
+- **P1.5b Check2HGI F1 = 39.16%** and **HGI F1 = 23.48%** were both measured with leaky folds. Δ = +15.68 pp is still valid as a *within-comparison* (both arms leaky the same way), but the absolute numbers overstate generalisation. CH16 conclusion ("Check2HGI > HGI") survives; the specific F1 numbers must be re-reported.
+- MTL vs STL comparisons (any "MTL underperforms STL" claim): **invalid until STL is rerun** with user-disjoint folds. This is the reason P2-screen's top configs sat below STL — the comparison was biased by 3–5 pp.
+
+**Resolution (in progress):** `src/data/folds.py::_create_single_task_folds` now uses `StratifiedGroupKFold(groups=userids)` for the NEXT task (preserves `StratifiedKFold` for CATEGORY, which is flat POI classification). Rerunning P1.5b Check2HGI + HGI arms with the fix (bg id b4p19zyhx).
+
+**Expected outcome:** both arms drop ~3–5 pp on absolute F1 (user-disjoint is strictly harder). The +15.68 pp CH16 delta should survive — both arms drop similarly. MTL vs STL becomes comparable once the STL baseline is re-established.
+
+**Status:** `in progress — 2026-04-17`. Will close once refair runs complete and CH16 numbers are updated.
+
+---
+
 ## Index
 
 | ID | Concern | Status | Trigger to revisit |
@@ -162,3 +178,4 @@ This tightens the paper's story: the contribution is framed around what Check2HG
 | C08 | CH04 retirement reframing | resolved | — |
 | C09 | SSD reliability | monitored | Large data on CA/TX |
 | C10 | POI-RGNN + HGI-article external baselines (CH17) | open | User provides HGI-article reference |
+| **C11** | **User-leakage in STL next-task folds** | **in progress 2026-04-17** | Refair runs complete |
