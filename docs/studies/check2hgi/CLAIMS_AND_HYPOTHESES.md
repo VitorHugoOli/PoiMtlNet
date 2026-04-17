@@ -67,6 +67,23 @@ All metrics favor Check2HGI with non-overlapping std envelopes over 5 folds. The
 **Phase:** paper write-up after P3.
 **Status:** `pending` — numeric comparisons pending. Need to locate the specific HGI-next-category reference the user plans to cite.
 
+### CH01-INTERIM (AL development): **FAILS on AL**
+
+First data point from 5f × 50ep MTL (mtlnet_dselectk+pcgrad, GRU region head + pad-mask fix, per-task modality, fair folds):
+
+| | MTL | STL fair | Δ | σ-overlap |
+|---|---|---|---|---|
+| cat F1 | 36.08 ± 1.96 | **38.58 ± 1.23** | −2.50 | YES |
+| reg Acc@10 | 48.88 ± 6.26 | **56.94 ± 4.01** | −8.06 | YES |
+
+Δm = −14.12%; Pareto gate fails on both r_A and r_B.
+
+**Mechanistic finding (important for paper framing):** MTL provides huge lift (+40 pp) when the task-b head is weak standalone (Transformer region: 7→47 via MTL), but **dilutes** when the task-b head is strong standalone (GRU region: 57→49 via MTL). The shared-backbone bottleneck creates a ceiling the strong standalone head already exceeds. See `results/P2/ch01_al_verdict.md`.
+
+**Why CH01 is not abandoned:** AL is dev state; small data (10K) may not support 2-task capacity split. FL/CA/TX headline states (100K+ samples) have room to test whether MTL lift returns at scale. Also, different (arch, optim) combos may shift the dilution/transfer balance.
+
+**Status `interim` — AL FAILS, FL/CA/TX verdict pending.**
+
 ### CH01 — MTL {next_category, next_region} improves BOTH heads over single-task (HEADLINE, bidirectional)
 
 **Statement:** On Check2HGI, the 2-task MTL with champion architecture + optimiser + per-task input modality (CH03) improves **both** heads over their respective single-task baselines at matched compute, on AL and FL. Specifically, all four of the following hold:

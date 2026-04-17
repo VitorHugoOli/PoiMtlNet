@@ -4,7 +4,9 @@
 
 **Detected:** 2026-04-16 during P1 region-head ablation. `next_mtl` (Transformer) achieved 7.4% Acc@10 on AL region (5f × 50ep standalone), vs `next_gru` at 56.94% ± 4.01. A 49-pp gap.
 
-**Status:** **FIX PENDING** — documented but not yet implemented in the MTL model. Would block paper-ready P3 headline numbers.
+**Status:** **FIXED + SURPRISINGLY LITTLE IMPACT** — GRU head now wired in; MTL reg Acc@10 on AL moved from 47.62% (Transformer) to 48.88% (GRU) at 5f × 50ep. The head-swap unlocked ~1 pp; the bigger gap to STL GRU's 56.94% appears to be **shared-backbone dilution**, not head choice. Fix commit `b92fc62`.
+
+**New finding from the fix:** MTL lifts Transformer region by +40 pp (via shared backbone + category signal) but *dilutes* GRU region by −8 pp (shared backbone bottleneck caps a head that's strong standalone). See `results/P2/ch01_al_verdict.md`.
 
 ---
 
