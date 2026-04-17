@@ -79,6 +79,14 @@ class MTLnetDSelectK(MTLnet):
             dropout=shared_dropout,
             temperature=self._temperature,
         )
+        # Learnable skip-α (per-task). Initialised at 0 so at training
+        # step 0 the network behaves bit-exact identical to the vanilla
+        # backbone (baseline). The optimizer may learn to grow these
+        # if direct encoder→head signal helps the task. Guarded in
+        # forward() by ``self._task_set is not LEGACY_CATEGORY_NEXT``
+        # so legacy regression tests aren't perturbed.
+        self.skip_alpha_cat = nn.Parameter(torch.zeros(1))
+        self.skip_alpha_next = nn.Parameter(torch.zeros(1))
 
     @property
     def last_gate_stats(self) -> dict[str, torch.Tensor]:
@@ -102,6 +110,21 @@ class MTLnetDSelectK(MTLnet):
         enc_next = self.next_encoder(next_input)
 
         shared_cat, shared_next = self.dselect(enc_cat, enc_next)
+
+        # Per-task LEARNABLE-GATED additive skip around the shared
+        # DSelect-k mixer. Rationale: ablation step 2 λ=0.0 isolation
+        # measured ~5.4pp architectural overhead on AL region (STL GRU
+        # 56.94 → MTL region-only 51.53). A naive unit-scale skip
+        # (shared + enc) doubles signal magnitude and destabilises
+        # training (1.43% reg Acc@10 at 10ep vs ~30% baseline in
+        # 2026-04-17 smoke). Using a learnable scalar α per task,
+        # initialised at 0, starts bit-exact with the vanilla backbone
+        # and lets the optimizer discover the useful skip weight.
+        # See results/P2/ablation_architectural_overhead.md and
+        # issues/BACKBONE_DILUTION.md.
+        if self._task_set is not LEGACY_CATEGORY_NEXT:
+            shared_cat = shared_cat + self.skip_alpha_cat * enc_cat
+            shared_next = shared_next + self.skip_alpha_next * enc_next
 
         # Re-zero at original pad positions before the heads; see MTLnet
         # base class forward() docstring. Non-legacy path only.
