@@ -14,7 +14,7 @@ Status column legend: `open` / `investigating` / `mitigated` / `resolved` / `won
 | **F1** | HIGH | **mitigated** | `joint_f1_taskbest` now in state.json for all 181 tests; `archive_result.py` computes it for future runs. Analysis discipline: report both joint@J and joint@T. |
 | **F2** | HIGH | open | No multi-seed — P1 rankings within top-5 are inside fold-noise; champion is seed-42-specific. |
 | **F3** | HIGH | **proxy-mitigated** | Fclass shortcut survives on fusion (linear probe: HGI half 0.688 F1 vs Sphere2Vec half 0.111). Full arm-C retrain pending for MTL-level quantification. |
-| **F4** | MED  | open | `base` arch never evaluated at 5f × 50ep — C05 rests on screen+promote only. |
+| **F4** | MED  | **resolved (with surprise)** | base × eq AL 5f × 50ep = 0.4070 joint@J (joint@T 0.4217). At confirm protocol, base is **TIED with expert cells** (spread 0.0014 at joint@T across 6 configs). C05 downgraded to `partial`. |
 | **F5** | MED  | open | NextHead best-epoch is 10–20 even at 50-epoch schedules — LR schedule mismatched for next task. |
 | **F6** | MED  | open | `bayesagg_mtl × cgc22` AZ screen collapsed (joint=0.271 vs peers ~0.40); analyzer did not flag (verdict band too wide). |
 | **F7** | LOW  | open | `expected.joint_range = [0.1, 0.65]` is so wide every test verdicts `matches_hypothesis`. Auto-analyzer is effectively a no-op. |
@@ -162,10 +162,24 @@ C29 was confirmed on HGI-only: category F1 drops from 0.786 → 0.144 (random-ch
 
 Reviewer could argue C05 is protocol-conditional: "You showed expert-gating wins at 10 epochs; did it win at 50?". We believe yes (direction very clear at screen), but have no direct measurement.
 
-### Resolution
+### Resolution (completed 2026-04-17 — **paradigm-shift finding**)
 
-- [ ] Run `base × equal_weight` on AL at 5f × 50ep. 1 run × ~35 min. Locks C05.
-- [ ] Optionally AZ same. Total ≤ 1.5 h.
+- [x] Ran `P1_AL_confirm_base_equal_weight_seed42` at 5f × 50ep.
+  Result: joint@J = 0.4070, joint@T = 0.4217.
+- **Did NOT lock C05 — it falsified the strong form.** At confirm protocol,
+  `base × eq` ties with expert-gating cells at joint@T (all 6 configs within
+  0.0014) and **beats 4 of 5 expert cells at joint@J**. Matched-optimizer
+  comparison (`base × eq` vs `cgc22 × eq`): +0.0040 joint@J (base wins) but
+  −0.0011 joint@T (cgc22 wins); flips inside noise.
+- **C05 downgraded** from `confirmed` to `partial`. Revised framing:
+  "expert-gating accelerates convergence at short training budgets but does
+  not raise the 5f × 50ep ceiling."
+- [ ] Follow-up for completeness (not blocking): `base × nash_mtl` or
+  `base × gradnorm` at 5f × 50ep on AL to cross-check the tie under a
+  gradient-based optimizer. Also multi-seed of `base × eq` (F2 analogue).
+- [ ] AZ `base × equal_weight` at confirm — low priority; AZ screen already
+  showed tighter expert−base gap (+0.005–0.017 vs AL's +0.030–0.045) so a
+  tie at confirm is even more expected on AZ.
 
 ---
 

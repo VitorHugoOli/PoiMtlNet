@@ -79,10 +79,18 @@ This is the **authoritative list** of every claim/hypothesis we intend to valida
 **Source:** Prior Finding 7, 12.
 **Test:** P1.4 — within the 5×20 grid, compare mean joint of base arch vs each expert-gating arch.
 **Phase:** P1.
-**Status:** `confirmed` — every expert-gating arch beats base in both states at screen. AL effect is large (+3-4.5 p.p.), AZ effect is modest but directionally consistent (+0.5-1.7 p.p.). P1c did not re-run `base` (top-5 had none), so direct 5f × 50ep comparison is absent, but the screen evidence spans 75 cells per state and the direction is unambiguous.
+**Status:** `partial` — **downgraded 2026-04-17 after F4 base×eq confirm run.** Screen evidence (1f × 10ep, 75 cells per state) strongly supports the claim: every expert arch beats base with +0.03–0.045 on AL, +0.005–0.017 on AZ. **However, at confirm protocol (5f × 50ep), base × equal_weight matches or beats most expert cells** at joint@J and is within 0.0014 (pooled fold-noise 0.012) of *every* expert cell at joint@T. The direction of C05 inverts between the two protocols. Claim must be stated carefully: expert-gating helps at short training but not at matched 5f × 50ep.
 **Evidence (P1a screen, 2026-04-16):** AL base mean joint = 0.352; cgc22 = 0.394, cgc21 = 0.384, mmoe4 = 0.396, dsk42 = 0.382 (+0.03–0.04 over base). AZ base mean = 0.414; cgc22 = 0.419, cgc21 = 0.431, mmoe4 = 0.426, dsk42 = 0.423 (+0.005–0.017 over base). Every expert-gating arch > base in both states.
-**Evidence (P1b, P1c — all stages, 2026-04-17):** No `base` arch in top-10 of either state's P1b; no `base` in either P1c. Zero `base` cells survived the screen cut. Consistent with the claim.
-**Notes:** Winning archs differ by state — AL favors `mmoe4` (+0.0446 over base) and `cgc22` (+0.0425); AZ favors `cgc21` (+0.0173). This is a partial signal for C04 (embedding-dependent → state-dependent) within the *same* fusion engine.
+**Evidence (F4 base × equal_weight AL 5f × 50ep, 2026-04-17):**
+- Reported: `P1_AL_confirm_base_equal_weight_seed42` — joint@J = **0.4070**, joint@T = **0.4217**, cat = 0.8282, next = 0.2698.
+- **AL confirm ranking at joint@J (with F4)**: mmoe4×gradnorm 0.4082 > **base×eq 0.4070** > cgc22×excess 0.4043 > cgc22×nash 0.4034 > cgc21×bayes 0.4034 > cgc22×eq 0.4031. Base lands 2nd, ahead of 4 expert cells.
+- **AL confirm ranking at joint@T (with F4)**: cgc22×eq 0.4229 > mmoe4×gradnorm 0.4220 > cgc22×nash 0.4217 ≈ **base×eq 0.4217** ≈ cgc22×excess 0.4215 ≈ cgc21×bayes 0.4215. All 6 configs within 0.0014. Effective tie; base is indistinguishable from expert gating.
+- Matched-optimizer comparison (same optimizer, vary arch): `base × eq` vs `cgc22 × eq` on AL: joint@J Δ = **+0.0040** (base wins); joint@T Δ = **−0.0011** (cgc22 wins by 1 part in 400). Flips sign across checkpoint policies — well inside noise.
+**Notes:**
+- The screen → confirm pattern: expert-gating matters most when training budget is tight (1f × 10ep). At 5 folds × 50 epochs, the extra training data/epochs let base arch catch up.
+- Winning archs differ by state (AL favors mmoe4/cgc22; AZ favors cgc21) — partial signal for C04 (embedding → state dependence) within same fusion engine.
+- **Paper implication:** reframe C05 as "expert-gating accelerates convergence; the long-training ceiling is the same." Weaker claim but still publishable; aligns with the C02/N02 framing.
+- **Follow-up needed:** one `base × nash_mtl` (or `base × gradnorm`) confirm cell would strengthen the negative finding. Multi-seed of base × equal_weight would formalize the tie under F2-style variance estimation.
 
 ---
 
