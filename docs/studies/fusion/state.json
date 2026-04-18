@@ -1,7 +1,7 @@
 {
   "study_version": "1.0",
   "study_started": "2026-04-14T05:58:14+00:00",
-  "last_update": "2026-04-18T05:38:23+00:00",
+  "last_update": "2026-04-18T12:46:27+00:00",
   "current_phase": "P2",
   "open_issues": [
     {
@@ -66,6 +66,69 @@
       "type": "corrupt",
       "raised_at": "2026-04-18T05:38:23+00:00",
       "description": "P2_AL_single_next_seed42: observed metrics missing or NaN",
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "issue_id": "ISS-008",
+      "test_id": "P2_AL_single_cat_seed123",
+      "type": "corrupt",
+      "raised_at": "2026-04-18T12:29:49+00:00",
+      "description": "P2_AL_single_cat_seed123: observed metrics missing or NaN",
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "issue_id": "ISS-009",
+      "test_id": "P2_AL_single_cat_seed2024",
+      "type": "corrupt",
+      "raised_at": "2026-04-18T12:30:25+00:00",
+      "description": "P2_AL_single_cat_seed2024: observed metrics missing or NaN",
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "issue_id": "ISS-010",
+      "test_id": "P2_AL_single_next_seed123",
+      "type": "corrupt",
+      "raised_at": "2026-04-18T12:33:51+00:00",
+      "description": "P2_AL_single_next_seed123: observed metrics missing or NaN",
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "issue_id": "ISS-011",
+      "test_id": "P2_AL_single_next_seed2024",
+      "type": "corrupt",
+      "raised_at": "2026-04-18T12:37:11+00:00",
+      "description": "P2_AL_single_next_seed2024: observed metrics missing or NaN",
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "issue_id": "ISS-012",
+      "test_id": "P2_AZ_single_cat_seed42",
+      "type": "corrupt",
+      "raised_at": "2026-04-18T12:38:12+00:00",
+      "description": "P2_AZ_single_cat_seed42: observed metrics missing or NaN",
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "issue_id": "ISS-013",
+      "test_id": "P2_AZ_single_next_seed42",
+      "type": "corrupt",
+      "raised_at": "2026-04-18T12:44:53+00:00",
+      "description": "P2_AZ_single_next_seed42: observed metrics missing or NaN",
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "issue_id": "ISS-014",
+      "test_id": "P2_AL_single_cat_seed2024",
+      "type": "corrupt",
+      "raised_at": "2026-04-18T12:46:26+00:00",
+      "description": "P2_AL_single_cat_seed2024: observed metrics missing or NaN",
       "status": "open",
       "resolution": null
     }
@@ -13815,6 +13878,519 @@
             "next": "matches_hypothesis"
           },
           "analyzed_at": "2026-04-18T05:38:23+00:00"
+        },
+        "P2_AL_single_cat_seed123": {
+          "test_id": "P2_AL_single_cat_seed123",
+          "phase": "P2",
+          "status": "corrupt",
+          "claim_ids": [
+            "C06",
+            "C07",
+            "C18",
+            "C28",
+            "C32"
+          ],
+          "description": "P2 C06 single-task baseline: category on alabama fusion, seed 123",
+          "config": {
+            "state": "alabama",
+            "engine": "fusion",
+            "task": "category",
+            "stage": "confirm",
+            "tier": "confirm",
+            "seed": 123,
+            "epochs": 50,
+            "folds": 5,
+            "batch_size": 4096,
+            "gradient_accumulation_steps": 1,
+            "embedding_dim": 128
+          },
+          "expected": {
+            "cat_f1_range": [
+              0.7,
+              0.9
+            ],
+            "joint_range": [
+              0.7,
+              0.9
+            ]
+          },
+          "enrolled_at": "2026-04-18T12:28:34+00:00",
+          "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task category --state alabama --engine fusion --seed 123 --epochs 50 --folds 5 --embedding-dim 128 --gradient-accumulation-steps 1 --batch-size 4096",
+          "git_commit": "a9df3edeeaeb77598d13e1317348be7337740ee3",
+          "started_at": "2026-04-18T12:29:11+00:00",
+          "finished_at": "2026-04-18T12:29:49+00:00",
+          "wall_clock_seconds": 38.3,
+          "run_dir": "results/fusion/alabama/category_lr1.0e-04_bs4096_ep50_20260418_0929",
+          "results_archive": "docs/studies/fusion/results/P2/P2_AL_single_cat_seed123",
+          "observed": {
+            "cat_f1": 0.8081502199172974,
+            "cat_f1_std": 0.010245215072903708,
+            "cat_accuracy": 0.8271437525749207,
+            "next_f1": null,
+            "next_f1_std": null,
+            "next_accuracy": null,
+            "joint_f1": null,
+            "cat_f1_taskbest": null,
+            "next_f1_taskbest": null,
+            "joint_f1_taskbest": null
+          },
+          "archived_at": "2026-04-18T12:29:49+00:00",
+          "verdict": "unreliable",
+          "verdict_detail": {
+            "joint": "unreliable",
+            "category": "matches_hypothesis",
+            "next": "unreliable"
+          },
+          "analyzed_at": "2026-04-18T12:29:49+00:00"
+        },
+        "P2_AL_single_cat_seed2024": {
+          "test_id": "P2_AL_single_cat_seed2024",
+          "phase": "P2",
+          "status": "corrupt",
+          "claim_ids": [
+            "C06",
+            "C07",
+            "C18",
+            "C28",
+            "C32"
+          ],
+          "description": "P2 C06 single-task baseline: category on alabama fusion, seed 2024",
+          "config": {
+            "state": "alabama",
+            "engine": "fusion",
+            "task": "category",
+            "stage": "confirm",
+            "tier": "confirm",
+            "seed": 2024,
+            "epochs": 50,
+            "folds": 5,
+            "batch_size": 4096,
+            "gradient_accumulation_steps": 1,
+            "embedding_dim": 128
+          },
+          "expected": {
+            "cat_f1_range": [
+              0.7,
+              0.9
+            ],
+            "joint_range": [
+              0.7,
+              0.9
+            ]
+          },
+          "enrolled_at": "2026-04-18T12:28:34+00:00",
+          "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task category --state alabama --engine fusion --seed 2024 --epochs 50 --folds 5 --embedding-dim 128 --gradient-accumulation-steps 1 --batch-size 4096",
+          "git_commit": "a9df3edeeaeb77598d13e1317348be7337740ee3",
+          "started_at": "2026-04-18T12:45:50+00:00",
+          "finished_at": "2026-04-18T12:46:26+00:00",
+          "wall_clock_seconds": 36.2,
+          "run_dir": "results/fusion/alabama/category_lr1.0e-04_bs4096_ep50_20260418_094555",
+          "results_archive": "docs/studies/fusion/results/P2/P2_AL_single_cat_seed2024",
+          "observed": {
+            "cat_f1": 0.8074172139167786,
+            "cat_f1_std": 0.012049281639291955,
+            "cat_accuracy": 0.826468825340271,
+            "next_f1": null,
+            "next_f1_std": null,
+            "next_accuracy": null,
+            "joint_f1": null,
+            "cat_f1_taskbest": null,
+            "next_f1_taskbest": null,
+            "joint_f1_taskbest": null
+          },
+          "archived_at": "2026-04-18T12:46:26+00:00",
+          "verdict": "unreliable",
+          "verdict_detail": {
+            "joint": "unreliable",
+            "category": "matches_hypothesis",
+            "next": "unreliable"
+          },
+          "analyzed_at": "2026-04-18T12:46:26+00:00"
+        },
+        "P2_AL_single_next_seed123": {
+          "test_id": "P2_AL_single_next_seed123",
+          "phase": "P2",
+          "status": "corrupt",
+          "claim_ids": [
+            "C06",
+            "C07",
+            "C18",
+            "C28",
+            "C32"
+          ],
+          "description": "P2 C06 single-task baseline: next on alabama fusion, seed 123",
+          "config": {
+            "state": "alabama",
+            "engine": "fusion",
+            "task": "next",
+            "stage": "confirm",
+            "tier": "confirm",
+            "seed": 123,
+            "epochs": 50,
+            "folds": 5,
+            "batch_size": 4096,
+            "gradient_accumulation_steps": 1,
+            "embedding_dim": 128
+          },
+          "expected": {
+            "next_f1_range": [
+              0.2,
+              0.4
+            ],
+            "joint_range": [
+              0.2,
+              0.4
+            ]
+          },
+          "enrolled_at": "2026-04-18T12:28:34+00:00",
+          "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task next --state alabama --engine fusion --seed 123 --epochs 50 --folds 5 --embedding-dim 128 --gradient-accumulation-steps 1 --batch-size 4096",
+          "git_commit": "a9df3edeeaeb77598d13e1317348be7337740ee3",
+          "started_at": "2026-04-18T12:30:25+00:00",
+          "finished_at": "2026-04-18T12:33:51+00:00",
+          "wall_clock_seconds": 206.3,
+          "run_dir": "results/fusion/alabama/next_lr1.0e-04_bs4096_ep50_20260418_0930",
+          "results_archive": "docs/studies/fusion/results/P2/P2_AL_single_next_seed123",
+          "observed": {
+            "cat_f1": null,
+            "cat_f1_std": null,
+            "cat_accuracy": null,
+            "next_f1": 0.2706724464893341,
+            "next_f1_std": 0.008094117968459878,
+            "next_accuracy": 0.31206321716308594,
+            "joint_f1": null,
+            "cat_f1_taskbest": null,
+            "next_f1_taskbest": null,
+            "joint_f1_taskbest": null
+          },
+          "archived_at": "2026-04-18T12:33:51+00:00",
+          "verdict": "unreliable",
+          "verdict_detail": {
+            "joint": "unreliable",
+            "category": "unreliable",
+            "next": "matches_hypothesis"
+          },
+          "analyzed_at": "2026-04-18T12:33:51+00:00"
+        },
+        "P2_AL_single_next_seed2024": {
+          "test_id": "P2_AL_single_next_seed2024",
+          "phase": "P2",
+          "status": "corrupt",
+          "claim_ids": [
+            "C06",
+            "C07",
+            "C18",
+            "C28",
+            "C32"
+          ],
+          "description": "P2 C06 single-task baseline: next on alabama fusion, seed 2024",
+          "config": {
+            "state": "alabama",
+            "engine": "fusion",
+            "task": "next",
+            "stage": "confirm",
+            "tier": "confirm",
+            "seed": 2024,
+            "epochs": 50,
+            "folds": 5,
+            "batch_size": 4096,
+            "gradient_accumulation_steps": 1,
+            "embedding_dim": 128
+          },
+          "expected": {
+            "next_f1_range": [
+              0.2,
+              0.4
+            ],
+            "joint_range": [
+              0.2,
+              0.4
+            ]
+          },
+          "enrolled_at": "2026-04-18T12:28:34+00:00",
+          "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task next --state alabama --engine fusion --seed 2024 --epochs 50 --folds 5 --embedding-dim 128 --gradient-accumulation-steps 1 --batch-size 4096",
+          "git_commit": "a9df3edeeaeb77598d13e1317348be7337740ee3",
+          "started_at": "2026-04-18T12:33:51+00:00",
+          "finished_at": "2026-04-18T12:37:11+00:00",
+          "wall_clock_seconds": 199.7,
+          "run_dir": "results/fusion/alabama/next_lr1.0e-04_bs4096_ep50_20260418_0933",
+          "results_archive": "docs/studies/fusion/results/P2/P2_AL_single_next_seed2024",
+          "observed": {
+            "cat_f1": null,
+            "cat_f1_std": null,
+            "cat_accuracy": null,
+            "next_f1": 0.26883599162101746,
+            "next_f1_std": 0.00724772057661687,
+            "next_accuracy": 0.3126904726028442,
+            "joint_f1": null,
+            "cat_f1_taskbest": null,
+            "next_f1_taskbest": null,
+            "joint_f1_taskbest": null
+          },
+          "archived_at": "2026-04-18T12:37:11+00:00",
+          "verdict": "unreliable",
+          "verdict_detail": {
+            "joint": "unreliable",
+            "category": "unreliable",
+            "next": "matches_hypothesis"
+          },
+          "analyzed_at": "2026-04-18T12:37:11+00:00"
+        },
+        "P2_AZ_single_cat_seed42": {
+          "test_id": "P2_AZ_single_cat_seed42",
+          "phase": "P2",
+          "status": "corrupt",
+          "claim_ids": [
+            "C06",
+            "C07",
+            "C18",
+            "C28",
+            "C32"
+          ],
+          "description": "P2 C06 single-task baseline: category on arizona fusion, seed 42",
+          "config": {
+            "state": "arizona",
+            "engine": "fusion",
+            "task": "category",
+            "stage": "confirm",
+            "tier": "confirm",
+            "seed": 42,
+            "epochs": 50,
+            "folds": 5,
+            "batch_size": 4096,
+            "gradient_accumulation_steps": 1,
+            "embedding_dim": 128
+          },
+          "expected": {
+            "cat_f1_range": [
+              0.7,
+              0.9
+            ],
+            "joint_range": [
+              0.7,
+              0.9
+            ]
+          },
+          "enrolled_at": "2026-04-18T12:28:34+00:00",
+          "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task category --state arizona --engine fusion --seed 42 --epochs 50 --folds 5 --embedding-dim 128 --gradient-accumulation-steps 1 --batch-size 4096",
+          "git_commit": "a9df3edeeaeb77598d13e1317348be7337740ee3",
+          "started_at": "2026-04-18T12:37:12+00:00",
+          "finished_at": "2026-04-18T12:38:12+00:00",
+          "wall_clock_seconds": 60.4,
+          "run_dir": "results/fusion/arizona/category_lr1.0e-04_bs4096_ep50_20260418_093717",
+          "results_archive": "docs/studies/fusion/results/P2/P2_AZ_single_cat_seed42",
+          "observed": {
+            "cat_f1": 0.7508360385894776,
+            "cat_f1_std": 0.010348285535337141,
+            "cat_accuracy": 0.7769283413887024,
+            "next_f1": null,
+            "next_f1_std": null,
+            "next_accuracy": null,
+            "joint_f1": null,
+            "cat_f1_taskbest": null,
+            "next_f1_taskbest": null,
+            "joint_f1_taskbest": null
+          },
+          "archived_at": "2026-04-18T12:38:12+00:00",
+          "verdict": "unreliable",
+          "verdict_detail": {
+            "joint": "unreliable",
+            "category": "matches_hypothesis",
+            "next": "unreliable"
+          },
+          "analyzed_at": "2026-04-18T12:38:12+00:00"
+        },
+        "P2_AZ_single_next_seed42": {
+          "test_id": "P2_AZ_single_next_seed42",
+          "phase": "P2",
+          "status": "corrupt",
+          "claim_ids": [
+            "C06",
+            "C07",
+            "C18",
+            "C28",
+            "C32"
+          ],
+          "description": "P2 C06 single-task baseline: next on arizona fusion, seed 42",
+          "config": {
+            "state": "arizona",
+            "engine": "fusion",
+            "task": "next",
+            "stage": "confirm",
+            "tier": "confirm",
+            "seed": 42,
+            "epochs": 50,
+            "folds": 5,
+            "batch_size": 4096,
+            "gradient_accumulation_steps": 1,
+            "embedding_dim": 128
+          },
+          "expected": {
+            "next_f1_range": [
+              0.2,
+              0.4
+            ],
+            "joint_range": [
+              0.2,
+              0.4
+            ]
+          },
+          "enrolled_at": "2026-04-18T12:28:34+00:00",
+          "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task next --state arizona --engine fusion --seed 42 --epochs 50 --folds 5 --embedding-dim 128 --gradient-accumulation-steps 1 --batch-size 4096",
+          "git_commit": "a9df3edeeaeb77598d13e1317348be7337740ee3",
+          "started_at": "2026-04-18T12:38:12+00:00",
+          "finished_at": "2026-04-18T12:44:52+00:00",
+          "wall_clock_seconds": 399.9,
+          "run_dir": "results/fusion/arizona/next_lr1.0e-04_bs4096_ep50_20260418_093817",
+          "results_archive": "docs/studies/fusion/results/P2/P2_AZ_single_next_seed42",
+          "observed": {
+            "cat_f1": null,
+            "cat_f1_std": null,
+            "cat_accuracy": null,
+            "next_f1": 0.3004924297332764,
+            "next_f1_std": 0.008249387593414724,
+            "next_accuracy": 0.3353918373584747,
+            "joint_f1": null,
+            "cat_f1_taskbest": null,
+            "next_f1_taskbest": null,
+            "joint_f1_taskbest": null
+          },
+          "archived_at": "2026-04-18T12:44:52+00:00",
+          "verdict": "unreliable",
+          "verdict_detail": {
+            "joint": "unreliable",
+            "category": "unreliable",
+            "next": "matches_hypothesis"
+          },
+          "analyzed_at": "2026-04-18T12:44:53+00:00"
+        },
+        "P2_AL_cbic_contrast_dgi_seed42": {
+          "test_id": "P2_AL_cbic_contrast_dgi_seed42",
+          "phase": "P2",
+          "status": "running",
+          "claim_ids": [
+            "C12"
+          ],
+          "description": "C12 CBIC contrast: base \u00d7 nash_mtl on dgi AL 5f \u00d7 50ep (matched bs=4096)",
+          "config": {
+            "state": "alabama",
+            "engine": "dgi",
+            "task": "mtl",
+            "arch": "base",
+            "model": "mtlnet",
+            "model_params": {},
+            "optim": "nash_mtl",
+            "mtl_loss": "nash_mtl",
+            "stage": "confirm",
+            "tier": "confirm",
+            "seed": 42,
+            "epochs": 50,
+            "folds": 5,
+            "batch_size": 4096,
+            "gradient_accumulation_steps": 1,
+            "embedding_dim": 64
+          },
+          "expected": {
+            "joint_range": [
+              0.2,
+              0.65
+            ],
+            "cat_f1_range": [
+              0.3,
+              0.85
+            ],
+            "next_f1_range": [
+              0.1,
+              0.55
+            ]
+          },
+          "enrolled_at": "2026-04-18T12:30:29+00:00",
+          "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task mtl --state alabama --engine dgi --model mtlnet --mtl-loss nash_mtl --seed 42 --epochs 50 --folds 5 --embedding-dim 64 --gradient-accumulation-steps 1 --batch-size 4096",
+          "git_commit": "a9df3edeeaeb77598d13e1317348be7337740ee3",
+          "started_at": "2026-04-18T12:46:27+00:00"
+        },
+        "P2_AL_cbic_contrast_hgi_seed42": {
+          "test_id": "P2_AL_cbic_contrast_hgi_seed42",
+          "phase": "P2",
+          "status": "planned",
+          "claim_ids": [
+            "C12"
+          ],
+          "description": "C12 CBIC contrast: base \u00d7 nash_mtl on hgi AL 5f \u00d7 50ep (matched bs=4096)",
+          "config": {
+            "state": "alabama",
+            "engine": "hgi",
+            "task": "mtl",
+            "arch": "base",
+            "model": "mtlnet",
+            "model_params": {},
+            "optim": "nash_mtl",
+            "mtl_loss": "nash_mtl",
+            "stage": "confirm",
+            "tier": "confirm",
+            "seed": 42,
+            "epochs": 50,
+            "folds": 5,
+            "batch_size": 4096,
+            "gradient_accumulation_steps": 1,
+            "embedding_dim": 64
+          },
+          "expected": {
+            "joint_range": [
+              0.2,
+              0.65
+            ],
+            "cat_f1_range": [
+              0.3,
+              0.85
+            ],
+            "next_f1_range": [
+              0.1,
+              0.55
+            ]
+          },
+          "enrolled_at": "2026-04-18T12:30:29+00:00"
+        },
+        "P2_AL_cbic_contrast_fusion_seed42": {
+          "test_id": "P2_AL_cbic_contrast_fusion_seed42",
+          "phase": "P2",
+          "status": "planned",
+          "claim_ids": [
+            "C12"
+          ],
+          "description": "C12 CBIC contrast: base \u00d7 nash_mtl on fusion AL 5f \u00d7 50ep (matched bs=4096)",
+          "config": {
+            "state": "alabama",
+            "engine": "fusion",
+            "task": "mtl",
+            "arch": "base",
+            "model": "mtlnet",
+            "model_params": {},
+            "optim": "nash_mtl",
+            "mtl_loss": "nash_mtl",
+            "stage": "confirm",
+            "tier": "confirm",
+            "seed": 42,
+            "epochs": 50,
+            "folds": 5,
+            "batch_size": 4096,
+            "gradient_accumulation_steps": 1,
+            "embedding_dim": 128
+          },
+          "expected": {
+            "joint_range": [
+              0.2,
+              0.65
+            ],
+            "cat_f1_range": [
+              0.3,
+              0.85
+            ],
+            "next_f1_range": [
+              0.1,
+              0.55
+            ]
+          },
+          "enrolled_at": "2026-04-18T12:30:29+00:00"
         }
       }
     },

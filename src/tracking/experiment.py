@@ -200,7 +200,7 @@ class MLHistory:
     def start(self):
         self._ended = False
         self.timer.start()
-        self.start_date = time.strftime("%Y%m%d_%H%M")
+        self.start_date = time.strftime("%Y%m%d_%H%M%S")
         self.get_curr_fold().start()
         if self._verbose:
             self.display.start_fold()
