@@ -1,7 +1,7 @@
 {
   "study_version": "1.0",
   "study_started": "2026-04-14T05:58:14+00:00",
-  "last_update": "2026-04-18T16:39:17+00:00",
+  "last_update": "2026-04-18T20:39:50+00:00",
   "current_phase": "P2",
   "open_issues": [
     {
@@ -14473,7 +14473,7 @@
         "P2_AL_hparam_mmoe4_ne2_gradnorm_seed42": {
           "test_id": "P2_AL_hparam_mmoe4_ne2_gradnorm_seed42",
           "phase": "P2",
-          "status": "running",
+          "status": "archived",
           "claim_ids": [
             "C15",
             "C16",
@@ -14517,13 +14517,37 @@
           },
           "enrolled_at": "2026-04-18T16:38:32+00:00",
           "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task mtl --state alabama --engine fusion --model mtlnet_mmoe --mtl-loss gradnorm --seed 42 --epochs 50 --folds 5 --embedding-dim 128 --gradient-accumulation-steps 1 --batch-size 4096 --model-param num_experts=2",
-          "git_commit": "155d1aaa290233c732bb72f417724b2007fd866b",
-          "started_at": "2026-04-18T16:39:17+00:00"
+          "git_commit": "02669b52a53f50e73c0204b00b0603caf4f05622",
+          "started_at": "2026-04-18T16:39:17+00:00",
+          "finished_at": "2026-04-18T17:00:42+00:00",
+          "wall_clock_seconds": 1284.5,
+          "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260418_133924",
+          "results_archive": "docs/studies/fusion/results/P2/P2_AL_hparam_mmoe4_ne2_gradnorm_seed42",
+          "observed": {
+            "cat_f1": 0.8229737877845764,
+            "cat_f1_std": 0.014026584699309333,
+            "cat_accuracy": 0.8376891851425171,
+            "next_f1": 0.2765182375907898,
+            "next_f1_std": 0.008197165650401761,
+            "next_accuracy": 0.35825069546699523,
+            "joint_f1": 0.41394981706013984,
+            "cat_f1_taskbest": 0.8351957678794861,
+            "next_f1_taskbest": 0.28396462798118594,
+            "joint_f1_taskbest": 0.42382853502418744
+          },
+          "archived_at": "2026-04-18T17:00:42+00:00",
+          "verdict": "matches_hypothesis",
+          "verdict_detail": {
+            "joint": "matches_hypothesis",
+            "category": "matches_hypothesis",
+            "next": "matches_hypothesis"
+          },
+          "analyzed_at": "2026-04-18T17:00:42+00:00"
         },
         "P2_AL_hparam_mmoe4_ne8_gradnorm_seed42": {
           "test_id": "P2_AL_hparam_mmoe4_ne8_gradnorm_seed42",
           "phase": "P2",
-          "status": "planned",
+          "status": "archived",
           "claim_ids": [
             "C15",
             "C16",
@@ -14565,12 +14589,39 @@
               0.4
             ]
           },
-          "enrolled_at": "2026-04-18T16:38:32+00:00"
+          "enrolled_at": "2026-04-18T16:38:32+00:00",
+          "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task mtl --state alabama --engine fusion --model mtlnet_mmoe --mtl-loss gradnorm --seed 42 --epochs 50 --folds 5 --embedding-dim 128 --gradient-accumulation-steps 1 --batch-size 4096 --model-param num_experts=8",
+          "git_commit": "02669b52a53f50e73c0204b00b0603caf4f05622",
+          "started_at": "2026-04-18T17:00:42+00:00",
+          "finished_at": "2026-04-18T17:32:48+00:00",
+          "wall_clock_seconds": 1925.6,
+          "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260418_140047",
+          "results_archive": "docs/studies/fusion/results/P2/P2_AL_hparam_mmoe4_ne8_gradnorm_seed42",
+          "observed": {
+            "cat_f1": 0.8243686079978942,
+            "cat_f1_std": 0.014876568287375467,
+            "cat_accuracy": 0.8403192400932312,
+            "next_f1": 0.2632891178131104,
+            "next_f1_std": 0.012610275838658766,
+            "next_accuracy": 0.3304741680622101,
+            "joint_f1": 0.3991095330854153,
+            "cat_f1_taskbest": 0.8270275831222534,
+            "next_f1_taskbest": 0.27825549244880676,
+            "joint_f1_taskbest": 0.41640910368872114
+          },
+          "archived_at": "2026-04-18T17:32:48+00:00",
+          "verdict": "matches_hypothesis",
+          "verdict_detail": {
+            "joint": "matches_hypothesis",
+            "category": "matches_hypothesis",
+            "next": "matches_hypothesis"
+          },
+          "analyzed_at": "2026-04-18T17:32:48+00:00"
         },
         "P2_AL_hparam_mmoe4_sl512_gradnorm_seed42": {
           "test_id": "P2_AL_hparam_mmoe4_sl512_gradnorm_seed42",
           "phase": "P2",
-          "status": "planned",
+          "status": "skipped_infeasible",
           "claim_ids": [
             "C15",
             "C16",
@@ -14613,12 +14664,16 @@
               0.4
             ]
           },
-          "enrolled_at": "2026-04-18T16:38:32+00:00"
+          "enrolled_at": "2026-04-18T16:38:32+00:00",
+          "git_commit": "02669b52a53f50e73c0204b00b0603caf4f05622",
+          "finished_at": "2026-04-18T19:49:40+00:00",
+          "wall_clock_seconds": 8211.9,
+          "notes": "Killed at epoch 17/fold1 after 2h16min. shared_layer_size=512 \u00d7 MPS \u00d7 95MB/epoch checkpointing \u2192 infeasible on this hardware. Re-try only on CUDA or without checkpoints."
         },
         "P2_AL_hparam_mmoe4_gradnorm_a05_seed42": {
           "test_id": "P2_AL_hparam_mmoe4_gradnorm_a05_seed42",
           "phase": "P2",
-          "status": "planned",
+          "status": "archived",
           "claim_ids": [
             "C15",
             "C16",
@@ -14662,12 +14717,39 @@
               0.4
             ]
           },
-          "enrolled_at": "2026-04-18T16:38:32+00:00"
+          "enrolled_at": "2026-04-18T16:38:32+00:00",
+          "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task mtl --state alabama --engine fusion --model mtlnet_mmoe --mtl-loss gradnorm --seed 42 --epochs 50 --folds 5 --embedding-dim 128 --gradient-accumulation-steps 1 --batch-size 4096 --model-param num_experts=4 --mtl-loss-param alpha=0.5",
+          "git_commit": "02669b52a53f50e73c0204b00b0603caf4f05622",
+          "started_at": "2026-04-18T19:50:30+00:00",
+          "finished_at": "2026-04-18T20:15:11+00:00",
+          "wall_clock_seconds": 1481.1,
+          "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260418_165035",
+          "results_archive": "docs/studies/fusion/results/P2/P2_AL_hparam_mmoe4_gradnorm_a05_seed42",
+          "observed": {
+            "cat_f1": 0.8148646712303161,
+            "cat_f1_std": 0.016196612323199622,
+            "cat_accuracy": 0.8375087261199952,
+            "next_f1": 0.2789091646671295,
+            "next_f1_std": 0.015045294794898302,
+            "next_accuracy": 0.3561246931552887,
+            "joint_f1": 0.4155762687139505,
+            "cat_f1_taskbest": 0.825449550151825,
+            "next_f1_taskbest": 0.2850944221019745,
+            "joint_f1_taskbest": 0.4238122368036908
+          },
+          "archived_at": "2026-04-18T20:15:11+00:00",
+          "verdict": "matches_hypothesis",
+          "verdict_detail": {
+            "joint": "matches_hypothesis",
+            "category": "matches_hypothesis",
+            "next": "matches_hypothesis"
+          },
+          "analyzed_at": "2026-04-18T20:15:11+00:00"
         },
         "P2_AL_hparam_mmoe4_gradnorm_a30_seed42": {
           "test_id": "P2_AL_hparam_mmoe4_gradnorm_a30_seed42",
           "phase": "P2",
-          "status": "planned",
+          "status": "archived",
           "claim_ids": [
             "C15",
             "C16",
@@ -14711,7 +14793,34 @@
               0.4
             ]
           },
-          "enrolled_at": "2026-04-18T16:38:32+00:00"
+          "enrolled_at": "2026-04-18T16:38:32+00:00",
+          "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task mtl --state alabama --engine fusion --model mtlnet_mmoe --mtl-loss gradnorm --seed 42 --epochs 50 --folds 5 --embedding-dim 128 --gradient-accumulation-steps 1 --batch-size 4096 --model-param num_experts=4 --mtl-loss-param alpha=3.0",
+          "git_commit": "02669b52a53f50e73c0204b00b0603caf4f05622",
+          "started_at": "2026-04-18T20:15:12+00:00",
+          "finished_at": "2026-04-18T20:39:50+00:00",
+          "wall_clock_seconds": 1478.6,
+          "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260418_171516",
+          "results_archive": "docs/studies/fusion/results/P2/P2_AL_hparam_mmoe4_gradnorm_a30_seed42",
+          "observed": {
+            "cat_f1": 0.8236160993576049,
+            "cat_f1_std": 0.008589952843216389,
+            "cat_accuracy": 0.8418503880500794,
+            "next_f1": 0.2716018855571747,
+            "next_f1_std": 0.013993311192537182,
+            "next_accuracy": 0.3449512362480164,
+            "joint_f1": 0.40849527425935556,
+            "cat_f1_taskbest": 0.8287356615066528,
+            "next_f1_taskbest": 0.2819650650024414,
+            "joint_f1_taskbest": 0.42076951799788226
+          },
+          "archived_at": "2026-04-18T20:39:50+00:00",
+          "verdict": "matches_hypothesis",
+          "verdict_detail": {
+            "joint": "matches_hypothesis",
+            "category": "matches_hypothesis",
+            "next": "matches_hypothesis"
+          },
+          "analyzed_at": "2026-04-18T20:39:50+00:00"
         }
       }
     },

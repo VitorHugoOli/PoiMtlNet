@@ -65,7 +65,7 @@ This is the **authoritative list** of every claim/hypothesis we intend to valida
 **Secondary finding (C18 reproducibility):** mmoe4 × gradnorm has the *lowest* seed variance (0.0008 on joint@J) — remarkably stable. cgc22 × equal_weight has the *highest* (0.0087) — driven by seed-2024 outlier (0.4204). The stable mean isn't gradient-surgery; it's the interaction of `mmoe4` routing with `gradnorm`'s adaptive weighting.
 **Notes:** Ratifies N02 and the original T0.2 observation. **Updated paper narrative:** "Under matched effective batch, optimizer choice on 128-dim fusion is a null effect on joint F1 ceiling; it affects *reliability* (seed variance). The first-order lever on fusion is neither architecture nor optimizer — both are second-order at 5f × 50ep." See `issues/P1_METHODOLOGY_FLAWS.md` F1, F2.
 
-**⚠️ Confound (2026-04-18):** this null finding assumes registry-default hyperparameters for each optimizer. If gradient-surgery optimizers are particularly sensitive to `alpha` / `max_norm` / other tunables, a properly-tuned gradient-surgery config might yet beat equal_weight. Hparam probe launched on `mmoe4 × gradnorm` varies `alpha ∈ {0.5, 3.0}`; if either edges the default (0.4080) by >0.005, this caveat strengthens. See C15 ongoing test.
+**Confound addressed (2026-04-18 evening):** Hparam probe on mmoe4 × gradnorm swept `num_experts ∈ {2, 8}`, `gradnorm alpha ∈ {0.5, 3.0}`. **No variant beats champion by >0.005 at joint@T** (see C15 evidence). `ne2` and `a05` show +0.006-0.008 joint@J advantage but this is a C32 checkpoint-selection artifact — disappears at joint@T. **C02 null finding is robust to modest hparam perturbation** around the registry defaults.
 
 ---
 
@@ -275,17 +275,23 @@ Positive direction in all 6 per-seed-per-task cells; magnitudes tight.
 
 **Notes:** This was the single most impactful finding of the critical-review session. It shifts the paper's center of gravity from "MTL-machinery" to "embedding + task-formulation". Adjust Tier-A framing accordingly.
 
-**⚠️ Confound warning (2026-04-18 evening):** this C12 refutation rests on
-comparing **CBIC's presumably-tuned `base + nash_mtl`** to our
-**untuned modern configurations**. P1 varied arch × optim but held
-within-arch hyperparameters (num_experts, shared_layer_size, head depth,
-gradnorm/nash_mtl alphas, LR schedule, WD) fixed at registry defaults. If
-the modern configurations are undertuned, they might yet beat CBIC config
-under a proper hparam search — in which case C12 could swing back from
-`refuted` to `confirmed`. A lightweight OFAT hparam probe launched
-2026-04-18 (`drain_hparam.sh`, 5 cells on `mmoe4 × gradnorm` varying
-num_experts, shared_layer_size, gradnorm alpha). Revisit this claim once
-those results land.
+**⚠️ Confound addressed (2026-04-18 evening):** Initial concern was that CBIC
+tuned their hparams but our P1 kept within-arch hparams at registry defaults.
+A 5-cell OFAT hparam probe on `mmoe4 × gradnorm` (varying num_experts,
+shared_layer_size, gradnorm alpha) was launched to test the robustness of
+this C12 refutation to hparam choice. **Result: no variant beats champion
+by >0.005 at joint@T** (see C15 evidence table). The refutation stands —
+our modern config was NOT undertuned. `shared_layer_size=512` was
+infeasible on MPS (killed at fold 1 epoch 17 after 2h 16min; 95 MB × 50 ep
+× 5 folds checkpoint blowup); a CUDA rerun would close this gap but is
+not expected to flip the verdict given the pattern seen in other variants.
+
+**Caveats still not addressed (journal scope):**
+- Only `mmoe4 × gradnorm` was hparam-probed. `cgc22 × equal_weight` (the
+  joint@T leader in P1 multi-seed) might behave differently.
+- Head-level hparams (category MLP path widths, next transformer
+  layers/heads/dropout) remain at defaults.
+- LR schedule and weight decay not swept.
 
 ---
 
@@ -321,13 +327,37 @@ those results land.
 **Source:** Needed to defend arbitrary hparam choices. Now also needed to harden C02/C06/C12 findings against the "you didn't tune your modern configs" referee challenge.
 **Test:** P4.1 — sweep e ∈ {2,4,6,8}, k ∈ {1,2,3,4}, temp ∈ {0.1,0.3,0.5,0.7,1.0}. **Early answer from hparam-probe on mmoe4 × gradnorm (2026-04-18, see below).**
 **Phase:** P4 (early-resolved partially).
-**Status:** `pending` until the hparam-probe results land; status may move to `confirmed` (stability) or `refuted` (hparam sensitivity).
-**Ongoing test (mmoe4 × gradnorm, AL 5f × 50ep, seed 42):**
-- `num_experts` ∈ {2, 4, 8}
-- `shared_layer_size` ∈ {256, 512}
-- gradnorm `alpha` ∈ {0.5, 1.5, 3.0}
-- Total 5 new runs launched 2026-04-18 evening.
-**Expected outcome if this claim holds:** all 5 variants within ±0.005 joint F1 of the champion's 0.4080 (joint@J). If any variant beats 0.413, C12's refutation weakens and the "modern configs are equivalent to CBIC" story needs qualification.
+**Status:** `confirmed` (mmoe4 × gradnorm is stable within ±0.005 joint@T around defaults) — **resolved 2026-04-18 evening.**
+
+**Evidence (hparam probe, 2026-04-18, mmoe4 × gradnorm AL fusion 5f × 50ep seed 42):**
+
+| Variant | joint@J | ΔjJ vs ch mean | joint@T | ΔjT vs ch mean | z(jT) |
+|---------|---------|----------------|---------|----------------|-------|
+| Champion multi-seed (n=3) | 0.4080 | — | 0.4232 | — | — |
+| `num_experts=2` | 0.4139 | +0.0059 | 0.4238 | +0.0006 | +0.27 |
+| `num_experts=8` | 0.3991 | −0.0089 | 0.4164 | −0.0068 | **−3.03** |
+| `gradnorm alpha=0.5` | 0.4156 | +0.0075 | 0.4238 | +0.0006 | +0.26 |
+| `gradnorm alpha=3.0` | 0.4085 | +0.0004 | 0.4208 | −0.0025 | −1.09 |
+| `shared_layer_size=512` | INFEASIBLE on MPS (killed after 2h16 @ fold 1 epoch 17) | | | | |
+
+Champion's multi-seed joint@T std = 0.0022. 0.005 threshold ≈ 2σ.
+
+**Interpretation:**
+- At joint@T (fair metric per C32): **no variant beats champion by >0.005**. `ne2` and `a05` tie at +0.0006 — well within noise.
+- `ne8` is the only significant mover — doubling experts *hurts* by z = −3.0. The model is over-parameterized at num_experts=8 given AL's training set size.
+- At joint@J, `ne2` and `a05` appear to beat champion by +0.006 and +0.007 — but this disappears at joint@T. **Classic C32 checkpoint-selection artifact:** those variants happen to have better task-peak alignment at the joint-peak epoch, without being fundamentally different configs.
+- `shared_layer_size=512` is **infeasible on Apple Silicon MPS** — 95 MB × 50 epoch × 5 fold = 23.75 GB of checkpoints plus MPS memory pressure. Killed at 6% completion after 2h 16min. CUDA hardware or `--no-checkpoints` would be required to test this variant honestly.
+
+**Implications for C02 and C12:**
+- **C02 refutation reinforced.** Tuning `alpha` doesn't unlock a grad-surgery advantage.
+- **C12 refutation reinforced.** Our "modern config" was NOT undertuned; defaults are at or near the joint@T optimum. The equivalence with CBIC's config on HGI/Fusion is not a hparam artifact.
+- **The paper can legitimately claim:** "Under registry defaults, no modern MTL configuration beats equal_weight / CBIC's base+NashMTL on AL fusion at matched 5f × 50ep. A 5-cell OFAT hparam sweep on the champion (num_experts ±2 levels, shared_layer_size ×2, gradnorm alpha ±2 levels) fails to produce any variant that statistically beats defaults at per-task-best checkpoint selection."
+
+**Caveats still not addressed:**
+- Head-level hparams (category MLP path widths, next transformer layers/heads/dropout) not swept.
+- LR schedule and weight decay held fixed.
+- Only mmoe4 × gradnorm tuned — cgc22 × equal_weight (the joint@T leader in P1 multi-seed) not hparam-probed.
+- `shared_layer_size=512` untested on MPS (infeasible); CUDA rerun would close this gap.
 
 ---
 

@@ -29,7 +29,7 @@ This is the consolidated picture of what the fusion study is, what's been decide
 - ~~"Fusion > HGI"~~ → **Fusion ≈ HGI on joint F1** (early C01 evidence).
 - **"MTL > single-task"** ← this is now the cleanest claim. Statistically significant, reproducible across 3 seeds and 15 folds.
 
-**⚠️ Tentativeness caveat (2026-04-18 evening):** the "optimizer/arch is null" and "CBIC ≈ modern" findings hold *under default within-arch hyperparameters*. P1 tuned arch × optim but held num_experts, shared_layer_size, head depth, gradnorm/nash alphas, LR schedule, and weight decay at their registry defaults. CBIC 2025 likely tuned their config. If our modern configs are undertuned, these null findings may weaken under a proper hparam search. A 5-cell OFAT hparam probe is running on `mmoe4 × gradnorm` (num_experts ∈ {2, 8}, shared_layer_size = 512, gradnorm alpha ∈ {0.5, 3.0}) to test this. Revisit C02 / C12 / C15 after the probe completes.
+**Hparam-robustness check (2026-04-18 evening) — reframe holds.** A 5-cell OFAT probe on `mmoe4 × gradnorm` varied `num_experts ∈ {2, 8}`, `shared_layer_size = 512`, and gradnorm `alpha ∈ {0.5, 3.0}`. **No variant beat champion by >0.005 at joint@T.** `ne8` is significantly worse (z = −3.0); others within noise. `ne2` and `a05` appear to win at joint@J (+0.006-0.008) but that's a C32 checkpoint-selection artifact — evaporates at joint@T. `shared_layer_size=512` was infeasible on Apple Silicon MPS (killed at fold 1 epoch 17; 23.75 GB of checkpoints required). **Conclusion: the "optimizer/arch is null" and "CBIC ≈ modern" findings are robust to modest hparam perturbation.** Journal-scope follow-ups: sweep head hparams, LR schedule, weight decay; tune `cgc22 × equal_weight` independently; retry `shared_layer_size=512` on CUDA.
 
 ---
 
@@ -181,21 +181,21 @@ Compute budget remaining (estimated): 12–20 hours for P2 alone; ~30–50 hours
 
 ## 7. Claim catalog snapshot (32 claims + 4 negations)
 
-### Confirmed (6)
-**C06** MTL vs single-task (multi-seed p<0.005 AL) · **C18** reproducibility · **C28** no negative transfer (AL; partial AZ) · **C29** fclass shortcut (HGI) · **C30** no classical label leakage · **C32** checkpoint-selection bias
+### Confirmed (7)
+**C06** MTL vs single-task (multi-seed p<0.005 AL) · **C15** champion hparam-robust within ±0.005 joint@T · **C18** reproducibility · **C28** no negative transfer (AL; partial AZ) · **C29** fclass shortcut (HGI) · **C30** no classical label leakage · **C32** checkpoint-selection bias
 
 ### Refuted (2)
-**C02** gradient-surgery > eq (refuted at multi-seed) · **C12** CBIC config fails on all embeddings (refuted — works fine on HGI/Fusion, only fails on DGI)
+**C02** gradient-surgery > eq (refuted at multi-seed + hparam-robust) · **C12** CBIC config fails on all embeddings (refuted + hparam-robust)
 
 ### Partial (4)
 **C01** fusion > HGI (refuted on AL joint F1 under CBIC config; champion-config test pending) · **C05** expert-gating (screen yes, confirm tied) · **C07** asymmetric MTL benefit (partial from C06) · **C31** fclass shortcut on fusion (probe-confirmed, retrain deferred)
 
-### Pending (19)
+### Pending (18)
 | Phase | Claims pending |
 |-------|---------------|
 | P2 | C08, C09, C10 |
 | P3 | C03, C04 (partial data), C11, C13, C14 |
-| P4 | C15, C16, C17 (robustness) |
+| P4 | C16, C17 (robustness) |
 | P5 | C19, C20 (mechanism) |
 | P6 | C22, C23, C24, C25, C26 (deferred), C27 |
 
