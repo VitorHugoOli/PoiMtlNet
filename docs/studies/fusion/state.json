@@ -1,7 +1,7 @@
 {
   "study_version": "1.0",
   "study_started": "2026-04-14T05:58:14+00:00",
-  "last_update": "2026-04-18T12:46:27+00:00",
+  "last_update": "2026-04-18T13:49:08+00:00",
   "current_phase": "P2",
   "open_issues": [
     {
@@ -14266,7 +14266,7 @@
         "P2_AL_cbic_contrast_dgi_seed42": {
           "test_id": "P2_AL_cbic_contrast_dgi_seed42",
           "phase": "P2",
-          "status": "running",
+          "status": "archived",
           "claim_ids": [
             "C12"
           ],
@@ -14305,13 +14305,37 @@
           },
           "enrolled_at": "2026-04-18T12:30:29+00:00",
           "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task mtl --state alabama --engine dgi --model mtlnet --mtl-loss nash_mtl --seed 42 --epochs 50 --folds 5 --embedding-dim 64 --gradient-accumulation-steps 1 --batch-size 4096",
-          "git_commit": "a9df3edeeaeb77598d13e1317348be7337740ee3",
-          "started_at": "2026-04-18T12:46:27+00:00"
+          "git_commit": "4cca35832f34979a0c668ef9651f213a3e045531",
+          "started_at": "2026-04-18T12:46:27+00:00",
+          "finished_at": "2026-04-18T13:07:26+00:00",
+          "wall_clock_seconds": 1259.7,
+          "run_dir": "results/dgi/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260418_094630",
+          "results_archive": "docs/studies/fusion/results/P2/P2_AL_cbic_contrast_dgi_seed42",
+          "observed": {
+            "cat_f1": 0.44678929448127747,
+            "cat_f1_std": 0.01463207154334852,
+            "cat_accuracy": 0.5410421133041382,
+            "next_f1": 0.2639892429113388,
+            "next_f1_std": 0.015301220997964405,
+            "next_accuracy": 0.3756986021995544,
+            "joint_f1": 0.33188274936853457,
+            "cat_f1_taskbest": 0.45737714171409605,
+            "next_f1_taskbest": 0.2668295979499817,
+            "joint_f1_taskbest": 0.3370356892610333
+          },
+          "archived_at": "2026-04-18T13:07:27+00:00",
+          "verdict": "matches_hypothesis",
+          "verdict_detail": {
+            "joint": "matches_hypothesis",
+            "category": "matches_hypothesis",
+            "next": "matches_hypothesis"
+          },
+          "analyzed_at": "2026-04-18T13:07:27+00:00"
         },
         "P2_AL_cbic_contrast_hgi_seed42": {
           "test_id": "P2_AL_cbic_contrast_hgi_seed42",
           "phase": "P2",
-          "status": "planned",
+          "status": "archived",
           "claim_ids": [
             "C12"
           ],
@@ -14348,12 +14372,39 @@
               0.55
             ]
           },
-          "enrolled_at": "2026-04-18T12:30:29+00:00"
+          "enrolled_at": "2026-04-18T12:30:29+00:00",
+          "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task mtl --state alabama --engine hgi --model mtlnet --mtl-loss nash_mtl --seed 42 --epochs 50 --folds 5 --embedding-dim 64 --gradient-accumulation-steps 1 --batch-size 4096",
+          "git_commit": "4cca35832f34979a0c668ef9651f213a3e045531",
+          "started_at": "2026-04-18T13:07:27+00:00",
+          "finished_at": "2026-04-18T13:28:11+00:00",
+          "wall_clock_seconds": 1243.8,
+          "run_dir": "results/hgi/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260418_100731",
+          "results_archive": "docs/studies/fusion/results/P2/P2_AL_cbic_contrast_hgi_seed42",
+          "observed": {
+            "cat_f1": 0.8186573386192322,
+            "cat_f1_std": 0.013090255548364493,
+            "cat_accuracy": 0.8376174211502075,
+            "next_f1": 0.28060790300369265,
+            "next_f1_std": 0.015499278506014824,
+            "next_accuracy": 0.36029407382011414,
+            "joint_f1": 0.41795503099756326,
+            "cat_f1_taskbest": 0.8265436291694641,
+            "next_f1_taskbest": 0.2838978826999664,
+            "joint_f1_taskbest": 0.42263186988626994
+          },
+          "archived_at": "2026-04-18T13:28:11+00:00",
+          "verdict": "matches_hypothesis",
+          "verdict_detail": {
+            "joint": "matches_hypothesis",
+            "category": "matches_hypothesis",
+            "next": "matches_hypothesis"
+          },
+          "analyzed_at": "2026-04-18T13:28:11+00:00"
         },
         "P2_AL_cbic_contrast_fusion_seed42": {
           "test_id": "P2_AL_cbic_contrast_fusion_seed42",
           "phase": "P2",
-          "status": "planned",
+          "status": "archived",
           "claim_ids": [
             "C12"
           ],
@@ -14390,7 +14441,34 @@
               0.55
             ]
           },
-          "enrolled_at": "2026-04-18T12:30:29+00:00"
+          "enrolled_at": "2026-04-18T12:30:29+00:00",
+          "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task mtl --state alabama --engine fusion --model mtlnet --mtl-loss nash_mtl --seed 42 --epochs 50 --folds 5 --embedding-dim 128 --gradient-accumulation-steps 1 --batch-size 4096",
+          "git_commit": "4cca35832f34979a0c668ef9651f213a3e045531",
+          "started_at": "2026-04-18T13:28:11+00:00",
+          "finished_at": "2026-04-18T13:49:08+00:00",
+          "wall_clock_seconds": 1256.7,
+          "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260418_102815",
+          "results_archive": "docs/studies/fusion/results/P2/P2_AL_cbic_contrast_fusion_seed42",
+          "observed": {
+            "cat_f1": 0.8239567637443542,
+            "cat_f1_std": 0.01580958788221419,
+            "cat_accuracy": 0.8426189184188843,
+            "next_f1": 0.2781801402568817,
+            "next_f1_std": 0.02076094693920773,
+            "next_accuracy": 0.3527414619922638,
+            "joint_f1": 0.41593454909618705,
+            "cat_f1_taskbest": 0.8282515287399292,
+            "next_f1_taskbest": 0.28552544116973877,
+            "joint_f1_taskbest": 0.42465752036901777
+          },
+          "archived_at": "2026-04-18T13:49:08+00:00",
+          "verdict": "matches_hypothesis",
+          "verdict_detail": {
+            "joint": "matches_hypothesis",
+            "category": "matches_hypothesis",
+            "next": "matches_hypothesis"
+          },
+          "analyzed_at": "2026-04-18T13:49:08+00:00"
         }
       }
     },

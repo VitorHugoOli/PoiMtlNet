@@ -10,18 +10,24 @@ This is the consolidated picture of what the fusion study is, what's been decide
 
 ## 1. What the paper is supposed to say
 
-Working thesis (subject to revision based on P2 C06 outcome):
+**Working thesis (2026-04-18, post C06 multi-seed + C12):**
 
-> On multi-source POI fusion (HGI + Sphere2Vec, 128-dim), a modern MTL
-> configuration (expert-gating architectures, matched effective batch)
-> outperforms single-task baselines on joint F1, contradicting CBIC 2025's
-> claim that "MTL doesn't help." Fusion is the first-order lever; optimizer
-> choice is null at matched batch; expert-gating helps at short training
-> but ties with FiLM base at 5-fold × 50-epoch confirmation.
+> On OSM-Gowalla state-split POI prediction, MTL joint training provides a
+> statistically significant benefit over matched single-task training
+> (p<0.005 paired n=15 folds). The benefit holds across multiple MTL
+> configurations (gradient-surgery, equal-weighting, and even the CBIC
+> paper's base+NashMTL), and is NOT a property of "modern MTL machinery."
+> Embedding choice is a distinct first-order lever: DGI underperforms
+> HGI and Fusion by ~10 p.p. joint. Fusion (HGI + Sphere2Vec) does NOT
+> meaningfully improve over HGI on joint F1 at matched 5f × 50ep
+> (Δ ~0.002). Category F1 on OSM-Gowalla primarily measures fclass-identity
+> preservation (C29/N03), so Next F1 is the representation-quality metric.
 
-Three Tier-A claims have moved substantially during P1 and the critical
-review. The paper narrative is weaker on *MTL optimizer machinery* than
-originally planned, and stronger on *embedding-source fusion* as the driver.
+**This is significantly different from the pre-P1 thesis.** Key reframes:
+- ~~"Modern MTL configuration beats CBIC's config"~~ → **CBIC's config works fine on HGI/Fusion; it underperformed on DGI only**.
+- ~~"Gradient-surgery / expert-gating is the key"~~ → **Optimizer/arch choice is null at matched protocol**.
+- ~~"Fusion > HGI"~~ → **Fusion ≈ HGI on joint F1** (early C01 evidence).
+- **"MTL > single-task"** ← this is now the cleanest claim. Statistically significant, reproducible across 3 seeds and 15 folds.
 
 ---
 
@@ -176,17 +182,17 @@ Compute budget remaining (estimated): 12–20 hours for P2 alone; ~30–50 hours
 ### Confirmed (6)
 **C06** MTL vs single-task (multi-seed p<0.005 AL) · **C18** reproducibility · **C28** no negative transfer (AL; partial AZ) · **C29** fclass shortcut (HGI) · **C30** no classical label leakage · **C32** checkpoint-selection bias
 
-### Refuted / partially refuted (1)
-**C02** gradient-surgery (refuted at multi-seed; N02 anticipated)
+### Refuted (2)
+**C02** gradient-surgery > eq (refuted at multi-seed) · **C12** CBIC config fails on all embeddings (refuted — works fine on HGI/Fusion, only fails on DGI)
 
-### Partial (3)
-**C05** expert-gating (screen yes, confirm tied) · **C07** asymmetric MTL benefit (partial data from C06) · **C31** fclass shortcut on fusion (probe-confirmed, retrain deferred)
+### Partial (4)
+**C01** fusion > HGI (refuted on AL joint F1 under CBIC config; champion-config test pending) · **C05** expert-gating (screen yes, confirm tied) · **C07** asymmetric MTL benefit (partial from C06) · **C31** fclass shortcut on fusion (probe-confirmed, retrain deferred)
 
-### Pending (20)
+### Pending (19)
 | Phase | Claims pending |
 |-------|---------------|
 | P2 | C08, C09, C10 |
-| P3 | C01, C03, C04 (partial data), C11, **C12** (running), C13, C14 |
+| P3 | C03, C04 (partial data), C11, C13, C14 |
 | P4 | C15, C16, C17 (robustness) |
 | P5 | C19, C20 (mechanism) |
 | P6 | C22, C23, C24, C25, C26 (deferred), C27 |

@@ -21,10 +21,20 @@ This is the **authoritative list** of every claim/hypothesis we intend to valida
 **Statement:** Concatenating complementary signals (Sphere2Vec+HGI for category, HGI+Time2Vec for next) outperforms the single-source HGI embedding on joint F1.
 
 **Source:** Core paper thesis.
-**Test:** P3.1 — run champion arch+optimizer on {DGI, HGI, Fusion} at matched 5f × 50ep on AL and AZ.
+**Test:** P3.1 — run champion arch+optimizer on {DGI, HGI, Fusion} at matched 5f × 50ep on AL and AZ. **Early partial answer from C12 runs, 2026-04-18.**
 **Phase:** P3.
-**Status:** `pending` (prior AL result from pre-bug data suggested yes, must be re-validated).
-**Notes:** If fusion ≈ HGI at matched settings, thesis weakens to "fusion is robust, not superior."
+**Status:** `partial` — **early evidence suggests fusion ≈ HGI** at joint F1. Under base × nash_mtl (CBIC config), AL 5f × 50ep: HGI joint@T = 0.4226, Fusion joint@T = 0.4247 → Δ = **+0.0021 (fusion wins by 0.2 p.p., within noise).** Full champion-config test still pending; AZ test still pending.
+**Evidence (AL 5f × 50ep, base × nash_mtl, seed 42, from C12):**
+- HGI: joint@J 0.4180 / joint@T 0.4226
+- Fusion: joint@J 0.4159 / joint@T 0.4247
+- Δ(fusion − HGI) = +0.0021 on joint@T; -0.0021 on joint@J. **Essentially tied.**
+- Fusion wins on next (+0.001) but loses on cat (+0.005). No strong direction.
+**Notes:**
+- **Strong form of C01 is refuted** — fusion does NOT outperform HGI on joint F1 on AL at matched protocol with base+nash_mtl.
+- Needs champion-config (mmoe4×gradnorm) run on HGI to confirm. If champion shows the same tie, C01 is definitively refuted.
+- If champion on HGI underperforms both CBIC-on-HGI (0.4226) and champion-on-fusion (0.4220), that suggests fusion helps BUT only with the right optimizer pairing — a complicated story.
+- **If fusion ≈ HGI at matched settings, thesis weakens to "fusion is robust, not superior."** This is where the paper may end up.
+- FL test pending (C01 requires FL too per phase doc); blocked on `fl_fusion_scale` issue.
 
 ---
 
@@ -232,10 +242,36 @@ Positive direction in all 6 per-seed-per-task cells; magnitudes tight.
 **Statement:** FiLM hard-sharing + NashMTL underperforms modern configurations regardless of which embedding is used.
 
 **Source:** Needed to defend "the CBIC paper's 'MTL doesn't help' was configuration-specific, not data-specific."
-**Test:** P3.4 — run CBIC config (base MTLnet + NashMTL) on {DGI, HGI, Fusion}; compare to new champion (DSelectK + best-optim) on same three.
-**Phase:** P3.
-**Status:** `pending`.
-**Notes:** Key for the paper narrative correcting CBIC 2025.
+**Test:** P3.4 (early-resolved in P2, 2026-04-18) — run CBIC config (base + NashMTL) on {DGI, HGI, Fusion}; compare to champion (mmoe4 × gradnorm) on fusion.
+**Phase:** P3 (early-resolved).
+**Status:** `refuted` — **The CBIC config performs equivalently to our "modern" champion on HGI and Fusion.** Only on DGI does it match CBIC's own reported underperformance.
+
+**Evidence (AL 5f × 50ep, seed 42, bs=4096 matched, 2026-04-18):**
+
+| Engine | CBIC config (base × nash_mtl) joint@J | joint@T | cat F1 | next F1 |
+|--------|----------------------------------------|---------|--------|---------|
+| DGI    | **0.3319** | 0.3370 | 0.4468 | 0.2640 |
+| HGI    | 0.4180 | 0.4226 | 0.8187 | 0.2806 |
+| Fusion | **0.4159** | **0.4247** | 0.8240 | 0.2782 |
+| *Champion mmoe4×gradnorm fusion (ref)* | *0.4082* | *0.4220* | *0.8219* | *0.2715* |
+
+**Interpretation:**
+- CBIC config **beats our champion at joint@J on HGI (+0.98 p.p.) and on Fusion (+0.77 p.p.)**. At joint@T, CBIC on Fusion edges the champion by +0.27 p.p.
+- CBIC config dramatically underperforms on DGI (joint 0.33 vs 0.42 on HGI/Fusion) — matching CBIC 2025's own reported findings.
+- **CBIC's "MTL doesn't help" wasn't caused by their optimizer choice (nash_mtl) or encoder (base FiLM). It was caused by using DGI embeddings.** On HGI and Fusion, their config works fine.
+- N02 anticipated this: "gradient-surgery accelerates convergence but doesn't raise the ceiling." Now generalized to: **no MTL optimizer appears to raise the ceiling on HGI/Fusion at matched 5f × 50ep**.
+
+**Paper-narrative implications (significant reframe):**
+1. **The paper is NOT about "modern MTL configuration beats CBIC's config."** It's about:
+   - **Embedding choice dominates.** DGI → 0.33; HGI → 0.42; Fusion → 0.42. The embedding is the lever.
+   - **MTL > single-task regardless of optimizer.** C06 confirmed this is robust (p<0.005).
+   - **Gradient surgery / expert gating are not required** — base + NashMTL delivers ~equivalent joint F1 on HGI/Fusion as expert-gating + gradnorm.
+2. **CBIC 2025's finding "MTL doesn't help" is partially re-explained:** their experimental setup used DGI, where the ceiling is ~0.33 joint F1; any MTL-vs-single comparison on DGI has small absolute room to show benefit. On richer embeddings the MTL benefit is more visible (C06).
+3. **The paper's C28 (no-negative-transfer) and C06 (MTL > ST) results still hold** — they were measured with `mmoe4 × gradnorm`, but given CBIC's equivalent performance, the findings likely transfer to the simpler CBIC config as well. Worth a follow-up run: `base × nash_mtl` vs single-task on HGI/Fusion to double-check.
+
+**Honest champion re-think:** Under multi-seed evidence, the "AL champion" question becomes moot. Any of `mmoe4×gradnorm`, `cgc22×eq`, `base×nash_mtl` give ~equivalent joint F1 on fusion at multi-seed. **The paper should acknowledge this and de-emphasize champion-picking.**
+
+**Notes:** This was the single most impactful finding of the critical-review session. It shifts the paper's center of gravity from "MTL-machinery" to "embedding + task-formulation". Adjust Tier-A framing accordingly.
 
 ---
 
