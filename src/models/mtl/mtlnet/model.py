@@ -71,9 +71,21 @@ class MTLnet(nn.Module):
         category_head_params: Optional[dict[str, Any]] = None,
         next_head_params: Optional[dict[str, Any]] = None,
         task_set: Optional[TaskSet] = None,
+        use_adashare: bool = False,
+        adashare_init_logit: float = 2.0,
+        adashare_temperature: float = 0.5,
     ):
         super().__init__()
         self._task_set = task_set if task_set is not None else LEGACY_CATEGORY_NEXT
+        # AdaShare per-task binary routing through shared residual blocks.
+        # use_adashare=False preserves legacy bit-exact. When True,
+        # each of the (num_shared_layers - 1) ResidualBlocks becomes
+        # gateable per task via a learnable logit; gate=1 → block applied,
+        # gate=0 → skip connection only. The first preproc block
+        # (Linear+LeakyReLU+LayerNorm+Dropout) is always applied because
+        # it sets up the 256-dim representation space.
+        self._use_adashare = bool(use_adashare)
+        self._adashare_temperature = float(adashare_temperature)
 
         # Attribute names keep the legacy ``category_*`` / ``next_*``
         # vocabulary. The ``_task_set`` above is the source of truth for
@@ -187,6 +199,24 @@ class MTLnet(nn.Module):
             num_blocks=num_shared_layers,
             dropout=shared_dropout,
         )
+        # AdaShare gates: per-task logits over the (num_shared_layers - 1)
+        # ResidualBlocks in self.shared_layers. The first 4 modules in the
+        # Sequential (Linear + LeakyReLU + LayerNorm + Dropout) form a
+        # preprocessing block that is always applied (it defines the
+        # 256-dim representation). The subsequent ResidualBlocks are
+        # gate-able.
+        if self._use_adashare:
+            num_residual_blocks = max(0, num_shared_layers - 1)
+            # Shape: [2 tasks, num_residual_blocks]. Initialised positive
+            # so at step 0 sigmoid(logit) ≈ 0.88 ("mostly open" — the
+            # block is likely used), giving the optimizer room to close
+            # gates if that helps a given task.
+            self.adashare_logits = nn.Parameter(
+                torch.full((2, num_residual_blocks), 2.0)
+            )
+            self._adashare_num_residual_blocks = num_residual_blocks
+        else:
+            self._adashare_num_residual_blocks = 0
 
     @staticmethod
     def _build_category_head(
@@ -318,6 +348,62 @@ class MTLnet(nn.Module):
             layers.append(ResidualBlock(layer_size, dropout))
         return nn.Sequential(*layers)
 
+    @staticmethod
+    def _gumbel_sigmoid(
+        logits: torch.Tensor,
+        temperature: float,
+        training: bool,
+    ) -> torch.Tensor:
+        """Binary gate via Gumbel-sigmoid with straight-through estimator.
+
+        Train: sample via Gumbel noise + sigmoid, then hard-threshold
+        with straight-through (forward binary, backward soft).
+        Eval: deterministic sigmoid threshold at 0.5.
+        """
+        if training:
+            # Sample two Gumbel noises (u1 for gate=1, u2 for gate=0)
+            # via the standard Gumbel-trick formula: g = -log(-log(U))
+            # with U ~ Uniform(0, 1). Safe-guarded against log(0).
+            u = torch.rand_like(logits)
+            u = u.clamp(min=1e-8, max=1.0 - 1e-8)
+            g1 = -torch.log(-torch.log(u))
+            u2 = torch.rand_like(logits)
+            u2 = u2.clamp(min=1e-8, max=1.0 - 1e-8)
+            g0 = -torch.log(-torch.log(u2))
+            # Binary concrete: logit for "gate=1" vs "gate=0".
+            y_soft = torch.sigmoid((logits + g1 - g0) / temperature)
+            y_hard = (y_soft > 0.5).to(y_soft.dtype)
+            # Straight-through: forward uses y_hard, backward uses y_soft.
+            return y_hard + (y_soft - y_soft.detach())
+        else:
+            return (torch.sigmoid(logits) > 0.5).to(logits.dtype)
+
+    def _adashare_forward(self, x: torch.Tensor, task_id: int) -> torch.Tensor:
+        """Route through shared_layers with per-task binary block gates.
+
+        The first 4 modules of shared_layers (Linear, LeakyReLU,
+        LayerNorm, Dropout) form an always-applied preprocessing block.
+        The subsequent ResidualBlocks are gated: gate=1 means apply the
+        block, gate=0 means skip (use the identity). Gates are sampled
+        per forward pass via Gumbel-sigmoid (train) or thresholded
+        sigmoid (eval).
+        """
+        # Preprocessing block (always applied).
+        for i in range(4):
+            x = self.shared_layers[i](x)
+        # Gated ResidualBlocks.
+        gates = self._gumbel_sigmoid(
+            self.adashare_logits[task_id],
+            self._adashare_temperature,
+            self.training,
+        )
+        for i in range(self._adashare_num_residual_blocks):
+            block = self.shared_layers[4 + i]
+            block_out = block(x)
+            gate = gates[i]
+            x = gate * block_out + (1 - gate) * x
+        return x
+
     def forward(
         self,
         inputs: Tuple[torch.Tensor, torch.Tensor],
@@ -356,8 +442,12 @@ class MTLnet(nn.Module):
         mod_cat = self.film(enc_cat, emb_cat)
         mod_next = self.film(enc_next, emb_next)
 
-        shared_cat = self.shared_layers(mod_cat)
-        shared_next = self.shared_layers(mod_next)
+        if self._use_adashare:
+            shared_cat = self._adashare_forward(mod_cat, task_id=0)
+            shared_next = self._adashare_forward(mod_next, task_id=1)
+        else:
+            shared_cat = self.shared_layers(mod_cat)
+            shared_next = self.shared_layers(mod_next)
 
         # Re-zero shared_{cat,next} at the ORIGINAL pad positions before
         # the heads. After {category,next}_encoder + FiLM + shared_layers,
