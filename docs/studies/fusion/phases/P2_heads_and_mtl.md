@@ -13,6 +13,37 @@
 
 ---
 
+## Methodology (updated 2026-04-18 from P1 critical review)
+
+**Mandatory metric discipline — every C06/C07/C08/C10 comparison in this phase
+must report BOTH `joint@J` and `joint@T`.** See claim C32 and
+`docs/studies/fusion/issues/P1_METHODOLOGY_FLAWS.md` F1.
+
+- `joint@J` = harmonic mean at the **joint-peak** checkpoint (deployment view).
+- `joint@T` = harmonic mean computed from **per-task-best** epochs
+  (`diagnostic_task_best` in `full_summary.json`).
+
+In P1 these metrics disagreed: at joint@J the "AL champion" was
+`mmoe4 × gradnorm`; at joint@T `cgc22 × equal_weight` led. Rankings are
+unstable across the two policies when task-peak epochs differ significantly
+(category peaks at 17–45; next peaks at 10–22 on AL fusion). For C06 this is
+load-bearing: a single-task-next model naturally picks its own next-peak
+checkpoint, so comparing to MTL's joint-peak artificially disadvantages MTL
+on the next task. **Use joint@T as the scientific comparison metric; joint@J
+as the deployment view; report both.**
+
+**Champion from P1 (multi-seed, 3 seeds):**
+- **AL:** `mmoe4 × gradnorm` (joint@J 0.4080 ± 0.0008, joint@T 0.4232 ± 0.0022).
+  Chosen for stability — not max mean. `cgc22 × equal_weight` ties at joint@T
+  but has 10× higher seed variance.
+- **AZ:** `cgc21 × uncertainty_weighting` or `cgc21 × dwa` (tied at joint@T
+  ≈ 0.44). Pick uw for headline continuity.
+
+**Multi-seed discipline:** any C06/P2 champion comparison should include
+≥ 2 seeds. A single-seed C06 conclusion is not publishable.
+
+---
+
 ## Preconditions
 
 - P1 completed with a clear champion (call it `arch* × optim*`).
@@ -82,15 +113,40 @@ Both at 5f × 50ep on AL and AZ.
 
 #### P2c — MTL vs single-task comparison (C06)
 
-Compute:
-- MTL joint F1 = 0.5 × (MTL-cat + MTL-next)
-- Single-task joint F1 = 0.5 × (single-cat + single-next)
+**Compute under BOTH checkpoint policies** (see Methodology section; this is
+C32-mandatory):
+- MTL `joint@J` = HM(MTL cat@joint-peak, MTL next@joint-peak).
+- MTL `joint@T` = HM(MTL cat@cat-peak, MTL next@next-peak).
+- Single-task-cat `cat F1` = cat@cat-peak (single-task naturally uses task-peak).
+- Single-task-next `next F1` = next@next-peak.
+- Single-task `joint@T` = HM(single-cat-F1, single-next-F1) — this is the
+  *deployment-fair* single-task joint (both heads at their own peak).
+- Single-task `joint@J` is ill-defined for single-task (no joint peak).
+  Report it as the same as `joint@T` or flag as N/A.
 
-If MTL joint > single-task joint by > 2 p.p. (paired t-test across folds, p < 0.05): **confirm C06**.
+**The load-bearing comparison is MTL `joint@T` vs single-task `joint@T`.**
+joint@J would artificially favor single-task because MTL's joint-peak
+checkpoint under-reports next F1 by ~0.012–0.017 (P1 evidence).
 
-If within 2 p.p.: **refute C06**, the paper needs reframing to be about fusion (not MTL).
+**Decision rules (under joint@T):**
+- If MTL joint@T > single-task joint@T by > 2 p.p. (paired t-test across folds, p < 0.05): **confirm C06**.
+- If within 2 p.p.: **refute C06**, the paper needs reframing to be about fusion (not MTL).
+- If MTL < single-task: MTL is actively harmful on this configuration — a publishable but awkward finding; investigate before paper.
 
-If MTL < single-task: MTL is actively harmful on this configuration — a publishable but awkward finding; investigate before paper.
+**Also report per-task deltas (C07):**
+- Δcat = MTL-cat@best-epoch − single-cat-F1
+- Δnext = MTL-next@best-epoch − single-next-F1
+- Even if joint C06 refutes, one direction of Δ can still make a C07 story.
+
+**Minimal C06 run (prescribed for this session, 2026-04-18):**
+- MTL: re-use `P1_AL_confirm_mmoe4_gradnorm_seed42` (already archived).
+  joint@T = 0.4220, cat = 0.8295, next = 0.2830.
+- Single-task-cat: new run `P2_AL_single_cat_seed42` — `mtlnet` base encoder,
+  default category head, `--task category`, fusion, 5f × 50ep.
+- Single-task-next: new run `P2_AL_single_next_seed42` — `mtlnet` base encoder,
+  default next head, `--task next`, fusion, 5f × 50ep.
+- Multi-seed extension (seeds 123, 2024) strongly recommended before
+  publishing; skipped in the minimal-run set to preserve budget.
 
 #### P2d — Head co-adaptation probe (C08, C09, optional)
 

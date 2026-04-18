@@ -496,10 +496,17 @@ pending to quantify at the MTL level.
   slightly *degraded* by including the Sphere2Vec half. Any category-F1 gain
   from fusion vs HGI-only in downstream MTL must come from backbone
   nonlinearity, not from intrinsic fusion signal.
-- **The stronger arm-C retrain (still pending) will confirm:** if we shuffle
-  fclass during HGI training *and* build fusion from that shuffled HGI,
-  expect MTL category F1 to drop to ~0.15 (chance) — matching C29's HGI-only
-  result within fold noise.
+- **The stronger arm-C retrain (deferred 2026-04-18):** would regenerate HGI
+  with shuffled fclass, rebuild fusion from (shuffled HGI + baseline
+  Sphere2Vec), retrain MTL, and compare cat F1 to baseline. Expected result:
+  MTL cat F1 drops to ~0.15 (chance), matching C29's HGI-only result within
+  fold noise. **Deferred because:** the linear-probe evidence is decisive at
+  the representation level (HGI-half alone retrieves 88% of MTL ceiling; a
+  linear layer on Sphere2Vec alone retrieves nothing). Full retrain is a
+  quantitative confirmation, not qualitative. Promoted from "blocking for P2"
+  to "journal extension / robustness check". Status kept at `partial` until
+  the full retrain lands; no decision in P2 relies on upgrading C31 to
+  `confirmed`.
 
 **Paper implications (preliminary — confirm with full arm-C):**
 1. **Category F1 on fusion is not a representation-quality metric.** It is
