@@ -1,6 +1,10 @@
 # Phase P4 — Cross-attention (Option C, gated)
 
-> **⚠️ STALE (2026-04-16).** Phase numbering shifted: this is now master-plan **P5** (gated on P4's per-task-modality outcome, not on a "dual-stream" CH03 threshold). The substantive idea — bidirectional cross-attention between the two task-specific encoders — survives but is reframed around per-task input modality rather than shared-input dual-stream. Authoritative plan: `docs/studies/check2hgi/MASTER_PLAN.md §P5`. Claims: `CLAIMS_AND_HYPOTHESES.md` (CH09). Read for historical framing only.
+> **✅ IMPLEMENTED + TESTED ON AL (2026-04-18).** `MTLnetCrossAttn` built, registered as `mtlnet_crossattn`, and ablated against 6 other intervention families (see `FINAL_ABLATION_SUMMARY.md`). Key finding: cross-attention **closes the category gap to STL exactly** (cat F1 = 38.58 ± 0.98 vs STL 38.58 ± 1.23) while the **region gap persists** (45.09 vs 56.94 = −11.85 pp).
+>
+> This is the only architecture in our ablation that reaches STL-parity on the weaker head (category). It supports the paper's task-asymmetric framing (CH-M1 ... CH-M4 in `FINAL_ABLATION_SUMMARY.md`).
+>
+> **Remaining open questions (next steps logged below).** Phase transitions from "design + run" to "replicate + extend".
 
 **Goal:** test whether bidirectional cross-attention between the check-in stream and the region stream improves over naive concatenation (P3). This is "Option C" from the prior critical-review work.
 
@@ -107,3 +111,95 @@ docs/studies/check2hgi/results/P4/
 ├── P4.2.FL.K3/   (optional)
 └── ANALYSIS.md
 ```
+
+---
+
+## ✅ Status 2026-04-18 — Implementation + AL ablation complete
+
+**Implementation:** `src/models/mtl/mtlnet_crossattn/model.py` (registered as `mtlnet_crossattn`). 2 blocks × 4 heads, per-task FFN, bidirectional cross-attention between task encoder outputs. No parameter sharing across tasks.
+
+**AL result** (5f × 50ep, seed 42, per-task modality, user-disjoint folds, GRU region head):
+
+| | MTL cross-attn | STL (fair) | Δ |
+|---|---:|---:|---:|
+| cat macro-F1 | **38.58 ± 0.98** | 38.58 ± 1.23 | **0.00 pp (matches)** |
+| reg Acc@10 | 45.09 ± 5.37 | 56.94 ± 4.01 (GRU) | −11.85 pp |
+| reg MRR | 20.94 | 34.57 | −13.63 pp |
+| Δm | −15.05% | 0 (ref) | |
+
+Result file: `docs/studies/check2hgi/results/P2/ablation_06_crossattn_al_5f50ep.json`. Full ablation landscape in `FINAL_ABLATION_SUMMARY.md`.
+
+**Paper-grade finding:** Cross-attention is the **first and only architecture in our 7-family ablation that reaches STL-parity on the weaker head (category)**. This asymmetry — helps weak head, doesn't help strong head — is the paper's central mechanistic claim (CH-M1).
+
+## 🟡 Next steps (saved here 2026-04-18)
+
+Ordered by expected value × cost:
+
+### NS-1 — FL replication of cross-attention (high priority, ~2h compute)
+
+**Question:** does the "cross-attn matches STL on cat" property hold at scale?
+
+**Why it matters:** AL is our dev state (10 K rows). FL (127 K rows) is the headline. A single AL data point is noisy-bounded (cat std 0.98 on cross-attn). Need FL replication to include in the paper's main table.
+
+**Command sketch:**
+```bash
+PYTHONPATH=src DATA_ROOT=... OUTPUT_DIR=/tmp/check2hgi_data \
+  python -u scripts/train.py --task mtl --task-set check2hgi_next_region \
+    --state florida --engine check2hgi --folds 1 --epochs 50 --seed 42 \
+    --task-a-input-type checkin --task-b-input-type region \
+    --model mtlnet_crossattn --mtl-loss pcgrad \
+    --gradient-accumulation-steps 1 --no-checkpoints
+```
+
+**Expected wall time:** ~1.5–2 h (1 fold FL; 5 folds would be 8–10 h).
+
+**Decision rule:**
+- If FL cross-attn cat F1 ≥ FL STL fair cat 63.17: CH-M4 (cross-attn uniquely closes weaker-head gap) generalises. Strong paper claim.
+- If FL cross-attn cat F1 < FL STL: AL was lucky; CH-M4 downgrades to AL-only. Paper adds a caveat.
+
+### NS-2 — Hybrid (cross-attn cat branch + dselectk reg branch) (medium priority, ~3 h)
+
+**Question:** can we combine the best of both — cross-attn's cat lift AND dselectk's reg capacity?
+
+**Design sketch:** pass enc_cat and enc_next through 2 cross-attn blocks → then route the resulting representations through a DSelectK mixer → task heads. Effectively splits the MTL backbone into an "early content exchange" stage (cross-attn) and a "late per-task routing" stage (DSelectK).
+
+**Expected lift:**
+- cat: near STL-ceiling 38.58 (from cross-attn component)
+- reg: approach dselectk+MTLoRA r=8 ceiling 50.72 (from DSelectK + MTLoRA component)
+- Overall Δm: −12 to −13%, better than either component alone
+
+**Implementation:** 1 new model class `MTLnetHybrid` inheriting from MTLnetCrossAttn and adding a DSelectK layer after the cross-attention stack. ~150 LOC + tests. Run AL 5f × 50ep ~25 min.
+
+**Decision rule:**
+- Hybrid reg Acc@10 > 51% AND cat F1 > 38 → new champion, promote to FL/CA/TX.
+- Hybrid ≤ component baselines → no combination benefit; paper keeps cross-attn as the cat-closer and dselectk+MTLoRA as the reg-closest.
+
+### NS-3 — Multi-seed cross-attention on AL (low priority, ~1.5 h)
+
+**Question:** is the cat F1 match to STL within σ robust across seeds, or was seed 42 lucky?
+
+**Runs:** cross-attn AL 5f × 50ep × {seed=42, 123, 2024}.
+
+**Decision rule:** median across seeds confirms or downgrades CH-M4.
+
+### NS-4 — Cross-attention block-count sweep (optional, ~2 h)
+
+**Question:** does more cross-attention capacity (3-4 blocks) help, or does 2 saturate?
+
+**Runs:** num_crossattn_blocks ∈ {1, 2, 3, 4} × AL 5f × 50ep.
+
+**Decision rule:** monotonic improvement → scale to 4 in headline. Plateau at 2 → use 2 in paper.
+
+### NS-5 — CA/TX replication for headline table (post-paper-draft)
+
+Once AL results stabilise across seeds, replicate winning configs on CA and TX at 5f × 50ep × 3 seeds per state. Pure compute (no new code). ~20 h total.
+
+---
+
+## Recommended execution order
+
+1. **NS-1** (FL replication) — validates the headline cat-closing claim at scale. Do first.
+2. **NS-2** (Hybrid) — could push reg Acc@10 to the 51+% range, completing the "paper improves both tasks" story.
+3. **NS-3** (multi-seed) — in parallel with NS-1/NS-2 if MPS has headroom.
+4. **NS-4** — optional sensitivity analysis.
+5. **NS-5** — gated on NS-1..3 outcomes; scaled up after draft is ready.
