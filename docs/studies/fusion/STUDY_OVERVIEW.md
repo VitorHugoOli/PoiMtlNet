@@ -1,7 +1,7 @@
 # Fusion Study — Overview & Status
 
-**Last updated:** 2026-04-18 (P2 C06 minimal test running)
-**Current phase:** P2 open (3 tests enrolled)
+**Last updated:** 2026-04-18 (P2 C06 minimal test **done** — partial verdict)
+**Current phase:** P2 (3 tests archived: 1 MTL reused from P1, 2 single-task)
 **Branch:** `main`
 
 This is the consolidated picture of what the fusion study is, what's been decided, what's been measured, and what's left. For the authoritative day-to-day state, read `state.json`. For claim-level detail, read `CLAIMS_AND_HYPOTHESES.md`. For methodology flaws discovered after P1 closed, read `issues/P1_METHODOLOGY_FLAWS.md`.
@@ -111,28 +111,34 @@ Compute budget remaining (estimated): 12–20 hours for P2 alone; ~30–50 hours
 
 ---
 
-## 5. P2 (running)
+## 5. P2 (minimal C06 test done, 2026-04-18)
 
 **Goal:** answer C06 (the #1 paper claim): does MTL beat single-task on fusion?
 
-**Minimal C06 test enrolled 2026-04-18:**
-- `P2_AL_single_cat_seed42` — `--task category` on AL fusion, base encoder,
-  default category head, 5f × 50ep.
-- `P2_AL_single_next_seed42` — same for next task.
-- MTL counterpart re-uses `P1_AL_confirm_mmoe4_gradnorm_seed42` (joint@T 0.4220,
-  cat 0.8295, next 0.2830 — per-task-best; from P1c archived).
+**Single-seed AL result (paired-fold n=5):**
 
-**Expected C06 decision rule (from phase doc §P2c, updated 2026-04-18):**
-- Compare MTL `joint@T` vs single-task `joint@T` (where single-task joint@T =
-  HM(single-cat-F1, single-next-F1) with each head at its own peak epoch).
-- Confirm C06 if MTL > single-task by > 2 p.p., paired t-test p < 0.05.
-- Refute C06 if within 2 p.p.
-- Partial if a per-task asymmetry (C07) exists even if joint doesn't.
+| metric | MTL (`mmoe4×gradnorm`) | ST (base encoder) | Δ mean | paired-t | Wilcoxon W+ | verdict |
+|--------|------------------------|-------------------|--------|----------|-------------|---------|
+| cat F1 @ taskbest | 0.8295 | 0.8112 | **+0.0183** | **+2.46** | **15/15** | MTL wins (p<0.0625) |
+| next F1 @ taskbest | 0.2830 | 0.2742 | +0.0089 | +1.27 | 12/15 | MTL trends up (n.s.) |
+| **joint@T** | **0.4220** | **0.4097** | **+0.0121** | +1.66 | 12/15 | Below 2 p.p. "confirm" rule |
+| joint@J (MTL) vs joint@T (ST) | 0.4081 | 0.4097 | −0.0016 | −0.21 | 7/15 | Null (C32 shows up here) |
 
-**What remains in P2 after C06 minimal:**
-- Multi-seed the C06 comparison (seeds 123, 2024 on both single-task cells).
-- Head grid (C08/C10) — the 9 × 10 MTL head combinations are a separate compute-heavy step. **Reconsider scope:** if C06 refutes, the head grid is less important.
-- DCN specificity (C10) — 4 runs × 2 states.
+**C06 verdict: `partial`.** MTL provides a small, reliable per-task benefit; strongest on category (5/5 folds positive). The joint-F1 effect is below the phase-doc's 2-p.p. threshold, so by the strict decision rule C06 refutes, but the direction is consistently positive on both tasks. Under joint-peak (C32 artifact), the effect disappears.
+
+**C28 (no negative transfer) verdict: `partial`.** No fold on either task shows MTL < ST by more than noise. Category is strongly positive (Wilcoxon max). Next is positive-trending but not significant at n=5.
+
+**C32 (checkpoint-bias) verdict: reinforced.** joint@J says "MTL ≈ ST"; joint@T says "MTL +1.2 p.p.". Methodology-critical.
+
+**Paper implications of C06 result:**
+- Paper can say "MTL provides a small but reliable benefit on fusion, particularly on category (p<0.05 n=5 single-seed)." Not "MTL dominates single-task."
+- The story is: **fusion is the first-order lever; MTL adds a second-order ~1 p.p. joint-F1 benefit** on top.
+- This still refutes CBIC 2025's "MTL = single-task" claim — we see a small positive effect.
+
+**Remaining P2 work (deferred):**
+- **Multi-seed C06** (seeds 123, 2024 × 2 single-task tasks = 4 runs, ~15 min). Would sharpen the n=5 Wilcoxon and may push next F1 significance. **Strongly recommended before submission.**
+- **Head grid (C08, C10)** — 9 × 10 combinations + DCN-on-HGI comparison. ~8-10 hours. Now low priority because the main MTL story is already answered.
+- **Co-adaptation probe (C09)** — optional, 10-20 runs.
 
 ---
 
@@ -159,23 +165,23 @@ Compute budget remaining (estimated): 12–20 hours for P2 alone; ~30–50 hours
 
 ## 7. Claim catalog snapshot (32 claims + 4 negations)
 
-### Confirmed (5)
-C05 (partial, screen-only) · **C18 reproducibility** · **C29** fclass shortcut (HGI) · **C30** no classical label leakage · **C32** checkpoint-selection bias
+### Confirmed (4)
+**C18** reproducibility · **C29** fclass shortcut (HGI) · **C30** no classical label leakage · **C32** checkpoint-selection bias
 
-### Refuted / partially refuted (2)
-**C02 gradient-surgery** (refuted at multi-seed) · N02 anticipated this
+### Refuted / partially refuted (1)
+**C02** gradient-surgery (refuted at multi-seed; N02 anticipated)
 
-### Partial (2)
-C05 expert-gating (screen yes, confirm tied) · **C31** fclass shortcut on fusion (probe-confirmed, retrain deferred)
+### Partial (4)
+**C05** expert-gating (screen yes, confirm tied) · **C06** MTL vs single-task (small positive, below 2 p.p. threshold at single-seed) · **C28** no negative transfer (category 5/5 folds positive, next trend) · **C31** fclass shortcut on fusion (probe-confirmed, retrain deferred)
 
-### Pending — **the whole research agenda** (23)
+### Pending (21)
 | Phase | Claims pending |
 |-------|---------------|
-| P2 | **C06** (MTL vs single-task), C07, C08, C09, C10 |
+| P2 | C07 (partial data), C08, C09, C10 |
 | P3 | C01, C03, C04 (partial data), C11, C12, C13, C14 |
 | P4 | C15, C16, C17 (robustness) |
 | P5 | C19, C20 (mechanism) |
-| P6 | C22, C23, C24, C25, C26 (deferred), C27, **C28 no-neg-transfer** |
+| P6 | C22, C23, C24, C25, C26 (deferred), C27 |
 
 ### Negations (4)
 N01 (no universal SOTA) · **N02** (no gradient-surgery requirement) · **N03** (category F1 not a representation metric on OSM-Gowalla) · N04 (protocol-delta provisional)

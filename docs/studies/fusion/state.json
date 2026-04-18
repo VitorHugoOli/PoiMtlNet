@@ -1,7 +1,7 @@
 {
   "study_version": "1.0",
   "study_started": "2026-04-14T05:58:14+00:00",
-  "last_update": "2026-04-18T05:34:56+00:00",
+  "last_update": "2026-04-18T05:38:23+00:00",
   "current_phase": "P2",
   "open_issues": [
     {
@@ -57,6 +57,15 @@
       "type": "corrupt",
       "raised_at": "2026-04-18T05:34:56+00:00",
       "description": "P2_AL_single_cat_seed42: observed metrics missing or NaN",
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "issue_id": "ISS-007",
+      "test_id": "P2_AL_single_next_seed42",
+      "type": "corrupt",
+      "raised_at": "2026-04-18T05:38:23+00:00",
+      "description": "P2_AL_single_next_seed42: observed metrics missing or NaN",
       "status": "open",
       "resolution": null
     }
@@ -13748,7 +13757,7 @@
         "P2_AL_single_next_seed42": {
           "test_id": "P2_AL_single_next_seed42",
           "phase": "P2",
-          "status": "running",
+          "status": "corrupt",
           "claim_ids": [
             "C06",
             "C07",
@@ -13780,8 +13789,32 @@
           },
           "enrolled_at": "2026-04-18T05:30:14+00:00",
           "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task next --state alabama --engine fusion --seed 42 --epochs 50 --folds 5 --embedding-dim 128 --gradient-accumulation-steps 1 --batch-size 4096",
-          "git_commit": "ee481d85ff540b8e72f8e11d94556f3c71e87d65",
-          "started_at": "2026-04-18T05:34:56+00:00"
+          "git_commit": "9318e0af6d57083ad6605224166a1b84642394b2",
+          "started_at": "2026-04-18T05:34:56+00:00",
+          "finished_at": "2026-04-18T05:38:23+00:00",
+          "wall_clock_seconds": 206.9,
+          "run_dir": "results/fusion/alabama/next_lr1.0e-04_bs4096_ep50_20260418_0235",
+          "results_archive": "docs/studies/fusion/results/P2/P2_AL_single_next_seed42",
+          "observed": {
+            "cat_f1": null,
+            "cat_f1_std": null,
+            "cat_accuracy": null,
+            "next_f1": 0.2741787374019623,
+            "next_f1_std": 0.007555944170588992,
+            "next_accuracy": 0.31135430932044983,
+            "joint_f1": null,
+            "cat_f1_taskbest": null,
+            "next_f1_taskbest": null,
+            "joint_f1_taskbest": null
+          },
+          "archived_at": "2026-04-18T05:38:23+00:00",
+          "verdict": "unreliable",
+          "verdict_detail": {
+            "joint": "unreliable",
+            "category": "unreliable",
+            "next": "matches_hypothesis"
+          },
+          "analyzed_at": "2026-04-18T05:38:23+00:00"
         }
       }
     },
