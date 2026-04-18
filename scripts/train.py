@@ -507,6 +507,12 @@ def _parse_args(argv=None) -> argparse.Namespace:
         help="Training batch size. Overrides config value.",
     )
     parser.add_argument(
+        "--max-lr",
+        type=float,
+        default=None,
+        help="OneCycleLR max_lr. Overrides config value. STL next uses 0.01, STL region GRU 0.003, MTL default 0.001.",
+    )
+    parser.add_argument(
         "--folds",
         type=int,
         default=None,
@@ -609,6 +615,10 @@ def _apply_cli_overrides(
         if args.batch_size <= 0:
             raise ValueError("--batch-size must be > 0")
         config = dataclasses.replace(config, batch_size=args.batch_size)
+    if args.max_lr is not None:
+        if args.max_lr <= 0:
+            raise ValueError("--max-lr must be > 0")
+        config = dataclasses.replace(config, max_lr=args.max_lr)
     if args.next_target is not None:
         config = dataclasses.replace(config, next_target=args.next_target)
     if args.seed is not None:

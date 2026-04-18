@@ -169,6 +169,47 @@ This tightens the paper's story: the contribution is framed around what Check2HG
 
 ---
 
+## C12 — Hyperparameter mismatch across STL vs MTL baselines
+
+**Concern raised:** 2026-04-18 (user feedback). Our "fair" STL vs MTL comparison uses different hyperparameters across baselines:
+
+| Baseline | batch_size | epochs | max_lr | source |
+|----------|-----------:|-------:|-------:|--------|
+| STL cat (Check2HGI, via `default_next`) | 1024 | 50 | **0.01** | `scripts/train.py --task next` default |
+| STL region GRU (via `p1_region_head_ablation.py`) | 2048 | 50 | **0.003** | per-head max_lr dict |
+| MTL (via `default_mtl`) | 2048 | 50 | **0.001** | `configs.experiment.default_mtl` |
+
+**Impact:** MTL's max_lr is 3× lower than the STL region GRU baseline and 10× lower than the STL cat baseline. A single OneCycleLR max_lr value is shared across all MTL parameters; the GRU region head cannot get its standalone-optimal LR of 0.003 while simultaneously allowing the MTL category path to train stably.
+
+**Earlier-study precedent (from user):** Simple-baseline Markov initially underperformed on STL region head before hyperparameter tuning fixed it; the LR-calibration lesson was learned once but not propagated to MTL configs.
+
+**Consequence for the "capacity-ceiling" claim:** the 5.4 pp "architectural overhead" measured by the λ=0.0 isolation was at MTL's default max_lr=0.001. At max_lr=0.003 (matching STL region GRU), this overhead may shrink. The "capacity-ceiling" claim needs re-verification at matched hyperparameters before it is paper-ready.
+
+**Fix (in progress):** Added `--max-lr` CLI flag to `scripts/train.py`. Launched sweep on AL 5f × 50ep dselectk+pcgrad at max_lr ∈ {0.003, 0.01} (step 7, bg `bauhto2o2`). Results will decide whether any / all of the ablation findings require re-measurement.
+
+**Status:** `under investigation — 2026-04-18`.
+
+---
+
+## C13 — Alabama is a 10K-row dev state; may over-extrapolate to FL/CA/TX
+
+**Concern raised:** 2026-04-18 (user feedback). All our ablation runs are on Alabama (10 K training rows × 1109 regions). The headline paper states are Florida (127 K × 4702), California, and Texas (both similarly large). A 10× data gap between dev and headline is risky:
+
+1. **Shared-backbone MTL might fail on AL specifically because of under-parameterisation**, not because of a fundamental capacity-ceiling. Evidence: on FL (127K), MTL *does* lift category by +1.61 pp; on AL it does not.
+2. **Per-task MTL architectures (cross-attention, MTLoRA) may scale differently**. The 50.72 vs 56.94 pp region gap on AL could compress or invert on FL.
+
+**Available states:** AL (10K), Arizona (26K), Florida (127K). Georgia not in our Check2HGI data. California and Texas are headline.
+
+**Proposed resolution:**
+- **Keep AL for fast screening** — cheapest, catches gross bugs quickly.
+- **Add Arizona (26K) as mid-scale validation** before FL. Tests whether AL findings replicate at 2× data.
+- **Run top AL configs (cross-attn, MTLoRA) on FL at least 1 fold** to confirm the asymmetric pattern holds.
+- The paper's "characterisation" section becomes a scale-curve: AL → Arizona → FL for both tasks. Makes the paper's scope clearer.
+
+**Status:** `open — 2026-04-18`. Decision deferred to after C12 (max_lr sweep) resolves.
+
+---
+
 ## Index
 
 | ID | Concern | Status | Trigger to revisit |
@@ -184,3 +225,5 @@ This tightens the paper's story: the contribution is framed around what Check2HG
 | C09 | SSD reliability | monitored | Large data on CA/TX |
 | C10 | POI-RGNN + HGI-article external baselines (CH17) | open | User provides HGI-article reference |
 | **C11** | **User-leakage in STL next-task folds** | **resolved 2026-04-17** | — |
+| **C12** | **Hyperparameter mismatch across STL vs MTL baselines** | **under investigation 2026-04-18** | Ablation step 7 max_lr sweep |
+| **C13** | **Alabama is a 10K-row dev state; may over-extrapolate to FL/CA/TX** | **open** | Arizona (26K) as intermediate |
