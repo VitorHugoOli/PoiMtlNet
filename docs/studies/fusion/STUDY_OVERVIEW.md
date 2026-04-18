@@ -29,6 +29,8 @@ This is the consolidated picture of what the fusion study is, what's been decide
 - ~~"Fusion > HGI"~~ → **Fusion ≈ HGI on joint F1** (early C01 evidence).
 - **"MTL > single-task"** ← this is now the cleanest claim. Statistically significant, reproducible across 3 seeds and 15 folds.
 
+**⚠️ Tentativeness caveat (2026-04-18 evening):** the "optimizer/arch is null" and "CBIC ≈ modern" findings hold *under default within-arch hyperparameters*. P1 tuned arch × optim but held num_experts, shared_layer_size, head depth, gradnorm/nash alphas, LR schedule, and weight decay at their registry defaults. CBIC 2025 likely tuned their config. If our modern configs are undertuned, these null findings may weaken under a proper hparam search. A 5-cell OFAT hparam probe is running on `mmoe4 × gradnorm` (num_experts ∈ {2, 8}, shared_layer_size = 512, gradnorm alpha ∈ {0.5, 3.0}) to test this. Revisit C02 / C12 / C15 after the probe completes.
+
 ---
 
 ## 2. Phase overview

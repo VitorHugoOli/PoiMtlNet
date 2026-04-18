@@ -1,7 +1,7 @@
 {
   "study_version": "1.0",
   "study_started": "2026-04-14T05:58:14+00:00",
-  "last_update": "2026-04-18T13:49:08+00:00",
+  "last_update": "2026-04-18T16:39:17+00:00",
   "current_phase": "P2",
   "open_issues": [
     {
@@ -14469,6 +14469,249 @@
             "next": "matches_hypothesis"
           },
           "analyzed_at": "2026-04-18T13:49:08+00:00"
+        },
+        "P2_AL_hparam_mmoe4_ne2_gradnorm_seed42": {
+          "test_id": "P2_AL_hparam_mmoe4_ne2_gradnorm_seed42",
+          "phase": "P2",
+          "status": "running",
+          "claim_ids": [
+            "C15",
+            "C16",
+            "C02"
+          ],
+          "description": "Hparam probe: mmoe4\u00d7gradnorm on fusion AL \u2014 num_experts=2 (halved) (seed 42, 5f\u00d750ep)",
+          "config": {
+            "state": "alabama",
+            "engine": "fusion",
+            "task": "mtl",
+            "arch": "mmoe4",
+            "model": "mtlnet_mmoe",
+            "model_params": {
+              "num_experts": 2
+            },
+            "optim": "gradnorm",
+            "mtl_loss": "gradnorm",
+            "mtl_loss_params": {},
+            "stage": "confirm",
+            "tier": "confirm",
+            "seed": 42,
+            "epochs": 50,
+            "folds": 5,
+            "batch_size": 4096,
+            "gradient_accumulation_steps": 1,
+            "embedding_dim": 128
+          },
+          "expected": {
+            "joint_range": [
+              0.3,
+              0.6
+            ],
+            "cat_f1_range": [
+              0.75,
+              0.9
+            ],
+            "next_f1_range": [
+              0.15,
+              0.4
+            ]
+          },
+          "enrolled_at": "2026-04-18T16:38:32+00:00",
+          "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task mtl --state alabama --engine fusion --model mtlnet_mmoe --mtl-loss gradnorm --seed 42 --epochs 50 --folds 5 --embedding-dim 128 --gradient-accumulation-steps 1 --batch-size 4096 --model-param num_experts=2",
+          "git_commit": "155d1aaa290233c732bb72f417724b2007fd866b",
+          "started_at": "2026-04-18T16:39:17+00:00"
+        },
+        "P2_AL_hparam_mmoe4_ne8_gradnorm_seed42": {
+          "test_id": "P2_AL_hparam_mmoe4_ne8_gradnorm_seed42",
+          "phase": "P2",
+          "status": "planned",
+          "claim_ids": [
+            "C15",
+            "C16",
+            "C02"
+          ],
+          "description": "Hparam probe: mmoe4\u00d7gradnorm on fusion AL \u2014 num_experts=8 (doubled) (seed 42, 5f\u00d750ep)",
+          "config": {
+            "state": "alabama",
+            "engine": "fusion",
+            "task": "mtl",
+            "arch": "mmoe4",
+            "model": "mtlnet_mmoe",
+            "model_params": {
+              "num_experts": 8
+            },
+            "optim": "gradnorm",
+            "mtl_loss": "gradnorm",
+            "mtl_loss_params": {},
+            "stage": "confirm",
+            "tier": "confirm",
+            "seed": 42,
+            "epochs": 50,
+            "folds": 5,
+            "batch_size": 4096,
+            "gradient_accumulation_steps": 1,
+            "embedding_dim": 128
+          },
+          "expected": {
+            "joint_range": [
+              0.3,
+              0.6
+            ],
+            "cat_f1_range": [
+              0.75,
+              0.9
+            ],
+            "next_f1_range": [
+              0.15,
+              0.4
+            ]
+          },
+          "enrolled_at": "2026-04-18T16:38:32+00:00"
+        },
+        "P2_AL_hparam_mmoe4_sl512_gradnorm_seed42": {
+          "test_id": "P2_AL_hparam_mmoe4_sl512_gradnorm_seed42",
+          "phase": "P2",
+          "status": "planned",
+          "claim_ids": [
+            "C15",
+            "C16",
+            "C02"
+          ],
+          "description": "Hparam probe: mmoe4\u00d7gradnorm on fusion AL \u2014 shared_layer_size=512 (doubled) (seed 42, 5f\u00d750ep)",
+          "config": {
+            "state": "alabama",
+            "engine": "fusion",
+            "task": "mtl",
+            "arch": "mmoe4",
+            "model": "mtlnet_mmoe",
+            "model_params": {
+              "num_experts": 4,
+              "shared_layer_size": 512
+            },
+            "optim": "gradnorm",
+            "mtl_loss": "gradnorm",
+            "mtl_loss_params": {},
+            "stage": "confirm",
+            "tier": "confirm",
+            "seed": 42,
+            "epochs": 50,
+            "folds": 5,
+            "batch_size": 4096,
+            "gradient_accumulation_steps": 1,
+            "embedding_dim": 128
+          },
+          "expected": {
+            "joint_range": [
+              0.3,
+              0.6
+            ],
+            "cat_f1_range": [
+              0.75,
+              0.9
+            ],
+            "next_f1_range": [
+              0.15,
+              0.4
+            ]
+          },
+          "enrolled_at": "2026-04-18T16:38:32+00:00"
+        },
+        "P2_AL_hparam_mmoe4_gradnorm_a05_seed42": {
+          "test_id": "P2_AL_hparam_mmoe4_gradnorm_a05_seed42",
+          "phase": "P2",
+          "status": "planned",
+          "claim_ids": [
+            "C15",
+            "C16",
+            "C02"
+          ],
+          "description": "Hparam probe: mmoe4\u00d7gradnorm on fusion AL \u2014 gradnorm alpha=0.5 (weaker balance) (seed 42, 5f\u00d750ep)",
+          "config": {
+            "state": "alabama",
+            "engine": "fusion",
+            "task": "mtl",
+            "arch": "mmoe4",
+            "model": "mtlnet_mmoe",
+            "model_params": {
+              "num_experts": 4
+            },
+            "optim": "gradnorm",
+            "mtl_loss": "gradnorm",
+            "mtl_loss_params": {
+              "alpha": 0.5
+            },
+            "stage": "confirm",
+            "tier": "confirm",
+            "seed": 42,
+            "epochs": 50,
+            "folds": 5,
+            "batch_size": 4096,
+            "gradient_accumulation_steps": 1,
+            "embedding_dim": 128
+          },
+          "expected": {
+            "joint_range": [
+              0.3,
+              0.6
+            ],
+            "cat_f1_range": [
+              0.75,
+              0.9
+            ],
+            "next_f1_range": [
+              0.15,
+              0.4
+            ]
+          },
+          "enrolled_at": "2026-04-18T16:38:32+00:00"
+        },
+        "P2_AL_hparam_mmoe4_gradnorm_a30_seed42": {
+          "test_id": "P2_AL_hparam_mmoe4_gradnorm_a30_seed42",
+          "phase": "P2",
+          "status": "planned",
+          "claim_ids": [
+            "C15",
+            "C16",
+            "C02"
+          ],
+          "description": "Hparam probe: mmoe4\u00d7gradnorm on fusion AL \u2014 gradnorm alpha=3.0 (stronger balance) (seed 42, 5f\u00d750ep)",
+          "config": {
+            "state": "alabama",
+            "engine": "fusion",
+            "task": "mtl",
+            "arch": "mmoe4",
+            "model": "mtlnet_mmoe",
+            "model_params": {
+              "num_experts": 4
+            },
+            "optim": "gradnorm",
+            "mtl_loss": "gradnorm",
+            "mtl_loss_params": {
+              "alpha": 3.0
+            },
+            "stage": "confirm",
+            "tier": "confirm",
+            "seed": 42,
+            "epochs": 50,
+            "folds": 5,
+            "batch_size": 4096,
+            "gradient_accumulation_steps": 1,
+            "embedding_dim": 128
+          },
+          "expected": {
+            "joint_range": [
+              0.3,
+              0.6
+            ],
+            "cat_f1_range": [
+              0.75,
+              0.9
+            ],
+            "next_f1_range": [
+              0.15,
+              0.4
+            ]
+          },
+          "enrolled_at": "2026-04-18T16:38:32+00:00"
         }
       }
     },

@@ -65,6 +65,8 @@ This is the **authoritative list** of every claim/hypothesis we intend to valida
 **Secondary finding (C18 reproducibility):** mmoe4 × gradnorm has the *lowest* seed variance (0.0008 on joint@J) — remarkably stable. cgc22 × equal_weight has the *highest* (0.0087) — driven by seed-2024 outlier (0.4204). The stable mean isn't gradient-surgery; it's the interaction of `mmoe4` routing with `gradnorm`'s adaptive weighting.
 **Notes:** Ratifies N02 and the original T0.2 observation. **Updated paper narrative:** "Under matched effective batch, optimizer choice on 128-dim fusion is a null effect on joint F1 ceiling; it affects *reliability* (seed variance). The first-order lever on fusion is neither architecture nor optimizer — both are second-order at 5f × 50ep." See `issues/P1_METHODOLOGY_FLAWS.md` F1, F2.
 
+**⚠️ Confound (2026-04-18):** this null finding assumes registry-default hyperparameters for each optimizer. If gradient-surgery optimizers are particularly sensitive to `alpha` / `max_norm` / other tunables, a properly-tuned gradient-surgery config might yet beat equal_weight. Hparam probe launched on `mmoe4 × gradnorm` varies `alpha ∈ {0.5, 3.0}`; if either edges the default (0.4080) by >0.005, this caveat strengthens. See C15 ongoing test.
+
 ---
 
 ### C03 — Equal weighting suffices on single-source embeddings (replicates Xin et al.)
@@ -273,6 +275,18 @@ Positive direction in all 6 per-seed-per-task cells; magnitudes tight.
 
 **Notes:** This was the single most impactful finding of the critical-review session. It shifts the paper's center of gravity from "MTL-machinery" to "embedding + task-formulation". Adjust Tier-A framing accordingly.
 
+**⚠️ Confound warning (2026-04-18 evening):** this C12 refutation rests on
+comparing **CBIC's presumably-tuned `base + nash_mtl`** to our
+**untuned modern configurations**. P1 varied arch × optim but held
+within-arch hyperparameters (num_experts, shared_layer_size, head depth,
+gradnorm/nash_mtl alphas, LR schedule, WD) fixed at registry defaults. If
+the modern configurations are undertuned, they might yet beat CBIC config
+under a proper hparam search — in which case C12 could swing back from
+`refuted` to `confirmed`. A lightweight OFAT hparam probe launched
+2026-04-18 (`drain_hparam.sh`, 5 cells on `mmoe4 × gradnorm` varying
+num_experts, shared_layer_size, gradnorm alpha). Revisit this claim once
+those results land.
+
 ---
 
 ### C13 — Fusion specifically (not just richer embedding dim) drives improvement
@@ -302,12 +316,18 @@ Positive direction in all 6 per-seed-per-task cells; magnitudes tight.
 
 ### C15 — DSelectK is insensitive to its hyperparameters near defaults
 
-**Statement:** DSelectK(e=4, k=2, temp=0.5) is within ±2% joint of neighboring values in a reasonable range.
+**Statement:** DSelectK(e=4, k=2, temp=0.5) is within ±2% joint of neighboring values in a reasonable range. **Broader (2026-04-18):** all modern MTL configs (MMoE/CGC/DSelectK × gradient-surgery / expert-gating / static optimizers) produce joint F1 within ±2 p.p. of each other around their registry defaults — i.e., our P1 findings are robust to modest hparam perturbations.
 
-**Source:** Needed to defend arbitrary hparam choices.
-**Test:** P4.1 — sweep e ∈ {2,4,6,8}, k ∈ {1,2,3,4}, temp ∈ {0.1,0.3,0.5,0.7,1.0}.
-**Phase:** P4.
-**Status:** `pending`.
+**Source:** Needed to defend arbitrary hparam choices. Now also needed to harden C02/C06/C12 findings against the "you didn't tune your modern configs" referee challenge.
+**Test:** P4.1 — sweep e ∈ {2,4,6,8}, k ∈ {1,2,3,4}, temp ∈ {0.1,0.3,0.5,0.7,1.0}. **Early answer from hparam-probe on mmoe4 × gradnorm (2026-04-18, see below).**
+**Phase:** P4 (early-resolved partially).
+**Status:** `pending` until the hparam-probe results land; status may move to `confirmed` (stability) or `refuted` (hparam sensitivity).
+**Ongoing test (mmoe4 × gradnorm, AL 5f × 50ep, seed 42):**
+- `num_experts` ∈ {2, 4, 8}
+- `shared_layer_size` ∈ {256, 512}
+- gradnorm `alpha` ∈ {0.5, 1.5, 3.0}
+- Total 5 new runs launched 2026-04-18 evening.
+**Expected outcome if this claim holds:** all 5 variants within ±0.005 joint F1 of the champion's 0.4080 (joint@J). If any variant beats 0.413, C12's refutation weakens and the "modern configs are equivalent to CBIC" story needs qualification.
 
 ---
 
