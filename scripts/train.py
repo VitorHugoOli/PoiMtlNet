@@ -199,21 +199,19 @@ def _run_mtl_check2hgi(
         verbose=True,
     )
 
-    run_dir = _make_run_dir(results_path, task=f"mtl__{task_set.name}", config=config)
+    if _NO_CHECKPOINTS:
+        cbs = []
+    else:
+        run_dir = _make_run_dir(results_path, task=f"mtl__{task_set.name}", config=config)
+        # val_joint_geom_lift = sqrt((acc1_a/maj_a) * (acc1_b/maj_b))
+        cbs = _default_checkpoint_callbacks(run_dir, monitor="val_joint_geom_lift")
     with history:
         results = train_with_cross_validation(
             dataloaders=fold_results,
             history=history,
             config=config,
             results_path=results_path,
-            # val_joint_geom_lift = sqrt((acc1_a/maj_a) * (acc1_b/maj_b))
-            # Geometric mean of per-head lifts over majority baseline.
-            # Scale-coherent across heads of very different cardinality —
-            # the arithmetic-mean predecessor was dominated by the head
-            # with lower majority fraction (see review-agent finding #2.1,
-            # fixed 2026-04-15 in mtl_cv.py::joint_geom_lift).
-            # "val_joint_lift" (kept as alias) resolves to val_joint_geom_lift.
-            callbacks=_default_checkpoint_callbacks(run_dir, monitor="val_joint_geom_lift"),
+            callbacks=cbs,
             task_set=task_set,
         )
 
