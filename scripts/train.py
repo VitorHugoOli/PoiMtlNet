@@ -513,6 +513,13 @@ def _parse_args(argv=None) -> argparse.Namespace:
         help="OneCycleLR max_lr. Overrides config value. STL next uses 0.01, STL region GRU 0.003, MTL default 0.001.",
     )
     parser.add_argument(
+        "--reg-head-param",
+        action="append",
+        default=[],
+        metavar="KEY=VALUE",
+        help="Override region head hyperparameter (task_b_head_params) in the MTL task_set. Repeatable. E.g. --reg-head-param hidden_dim=512 --reg-head-param num_layers=3",
+    )
+    parser.add_argument(
         "--folds",
         type=int,
         default=None,
@@ -906,7 +913,14 @@ def main(argv=None) -> None:
                 int(fr.next.val.y.max().item()),
             )
         n_regions = max_b + 1
-        task_set = resolve_task_set(task_set, task_b_num_classes=n_regions)
+        reg_head_params = _parse_key_value_overrides(
+            args.reg_head_param or [], "--reg-head-param"
+        )
+        task_set = resolve_task_set(
+            task_set,
+            task_b_num_classes=n_regions,
+            task_b_head_params=reg_head_params if reg_head_params else None,
+        )
         logger.info(
             "check2HGI task_set resolved: task_a=%s/%d, task_b=%s/%d",
             task_set.task_a.name, task_set.task_a.num_classes,
