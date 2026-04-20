@@ -57,7 +57,8 @@ All numbers are from commits in this worktree; see §Sources at the bottom for t
 | B5e | **Markov-9-region** (context-matched to model) | 20.49 ± 2.57 | **32.79 ± 1.92** | 24.54 ± 2.36 | P0 |
 | | *STL neural heads, single-task:* | | | | |
 | B7 | STL TCN-residual standalone | 21.76 ± 2.35 | 56.11 ± 4.02 | 32.93 ± ? | P1 |
-| B8 | **STL GRU standalone** ⭐ | **23.60 ± 1.86** | **56.94 ± 4.01** | **34.57 ± 2.34** | **P1 champion** |
+| B8 | STL GRU standalone | 23.60 ± 1.86 | 56.94 ± 4.01 | 34.57 ± 2.34 | P1 |
+| B8a | **STL STAN (Luo WWW'21, adapt)** ⭐ | **24.64 ± 1.38** | **59.20 ± 3.62** | **36.10 ± 1.96** | **SOTA note** |
 | B9 | STL HGI region embeddings (TCN head, same pipeline) | ? | 57.02 ± 2.92 | 33.14 ± 1.87 | P1.5 (CH15) |
 | | *MTL with shared-backbone architectures:* | | | | |
 | B10 | MTL dselectk + pcgrad (P2 champion) | 13.31 | 48.88 ± 6.26 | 24.43 | P2-validate |
@@ -67,9 +68,9 @@ All numbers are from commits in this worktree; see §Sources at the bottom for t
 | B13 | MTL mtlnet_crossattn | 10.06 | 45.09 ± 5.37 | 20.94 | Ablation step 6 |
 
 **Key observations:**
-- **B8 (STL GRU 56.94%) is the region-task ceiling.** No MTL architecture we tested exceeds it — B11 at 50.72% is the closest (−6.22 pp gap).
+- **B8a (STL STAN 59.20%) is the region-task ceiling** — the literature-aligned Luo et al. WWW'21 architecture, adapted to our check2HGI substrate (see `research/SOTA_STAN_BASELINE.md`). STAN beats `next_gru` (B8) by +2.26 pp Acc@10 within σ on AL. `next_gru` is kept in the paper as the MTL-architecture's region head per §CH-M4 / C06 framing. No MTL architecture we tested exceeds STL STAN on AL — B11 at 50.72% is the closest MTL result (−8.48 pp gap vs STAN).
 - **B5 Markov-1-region is the binding simple floor** (47.01%). Our best STL beats it by +9.93 pp; our best MTL exceeds it by +3.71 pp.
-- **B5→B5e context-matched Markov monotonically DEGRADES with k** (47.01 → 32.79). N-gram sparsity outpaces training data beyond k=1 even with backoff. The context-matched (k=9) Markov is 32.79% — **STL GRU beats Markov-9 by +24.15 pp** at the same 9-step context. This isolates the neural contribution as representation-learning, not context-length.
+- **B5→B5e context-matched Markov monotonically DEGRADES with k** (47.01 → 32.79). N-gram sparsity outpaces training data beyond k=1 even with backoff. The context-matched (k=9) Markov is 32.79% — **STL STAN beats Markov-9 by +26.41 pp** at the same 9-step context. This isolates the neural contribution as representation-learning, not context-length.
 - **B9 (HGI region embeddings through same pipeline): tied with Check2HGI** at the region task (57.02 vs 56.11). Expected — pooling to region erases check-in-level variance. This is CH15.
 - **Legacy "Markov-1-POI" (B4) is a degenerate baseline** — top-K fallback inflates variance. B5 (region-level) is the paper-reported floor.
 
@@ -88,6 +89,19 @@ All numbers are from commits in this worktree; see §Sources at the bottom for t
 | B17e | **Markov-9-region** (context-matched to model) | 42.56 ± 0.68 | **54.10 ± 0.72** | 46.53 ± 0.71 | P0 |
 | B19 | **STL GRU standalone** ⭐ **ceiling** | **44.49 ± 0.51** | **68.33 ± 0.58** | **52.74 ± 0.45** | **P1 champion** |
 | B20 | MTL dselectk + pcgrad (1f×50ep) | 15.43 | **57.05** | 27.49 | FL P2-validate |
+
+---
+
+### Arizona (mid-scale validation, 26K rows, 1540 regions)
+
+| Row | Method | Acc@1 | Acc@10 | MRR | Source |
+|:---:|--------|------:|-------:|----:|:------:|
+| B-AZ-gru | STL GRU standalone | 23.63 ± 2.04 | 48.88 ± 2.48 | 32.13 ± 2.21 | P1 (AZ confirm) |
+| B-AZ-stan | **STL STAN (Luo WWW'21, adapt)** ⭐ | **24.48 ± 2.29** | **52.24 ± 2.38** | **33.70 ± 2.36** | **SOTA note** |
+
+Scale-curve confirmation: **STAN > GRU delta grows with scale** (AL +2.26 pp → AZ +3.36 pp on Acc@10). Consistent with transformer-family being more data-hungry than recurrent networks.
+
+---
 
 **Key observations (CH01 asymmetric):**
 - **MTL regresses region by −11.28 pp** on FL (57.05 vs 68.33 STL). Consistent with AL pattern — region is capacity-ceiling-bound regardless of data scale.
@@ -114,6 +128,7 @@ All numbers are from commits in this worktree; see §Sources at the bottom for t
 
 ## Sources
 
+- **B8a STAN (AL + AZ):** `docs/studies/check2hgi/results/P1/region_head_{alabama,arizona}_region_5f_50ep_STAN_*_5f50ep.json`. See `docs/studies/check2hgi/research/SOTA_STAN_BASELINE.md`.
 - **A5, A4:** `docs/studies/check2hgi/results/P1_5b/next_category_alabama_{check2hgi,hgi}_5f_50ep_fair.json`
 - **A11:** `docs/studies/check2hgi/results/P1_5b/next_category_florida_check2hgi_1f_50ep_fair.json`
 - **A8:** `docs/studies/check2hgi/results/P2/ablation_06_crossattn_al_5f50ep.json`

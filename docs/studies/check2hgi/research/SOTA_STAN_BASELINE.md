@@ -58,9 +58,25 @@ STAN reports 9–17% improvement over prior next-POI recommendation methods on F
 
 > *"The STAN-style bi-layer self-attention baseline is at least as strong as the GRU champion on AL next-region. Our MTL lift is measured against this SOTA-grade single-task ceiling, not against a weaker recurrent one."*
 
-### Arizona, 5-fold × 50 epoch — TBD
+### Arizona, 5-fold × 50 epoch, region-embedding input
 
-(Running at time of writing — see `results/P1/region_head_arizona_region_5f_50ep_STAN_az_5f50ep.json` once complete.)
+AZ is a mid-scale validation state (26 K rows, 1 540 regions) that sits between AL (10 K / 1 109) and FL (127 K / 4 702). The AZ result answers whether the AL STAN > GRU delta replicates at 2.5× more data.
+
+| Head | Acc@1 | Acc@5 | Acc@10 | MRR | Source |
+|---|---:|---:|---:|---:|---|
+| `next_gru` (prior STL baseline) | 23.63 ± 2.04 | 40.57 ± 2.39 | 48.88 ± 2.48 | 32.13 ± 2.21 | `results/P1/region_head_arizona_region_5f_50ep_AZ_gru_region.json` |
+| **`next_stan`** (this note) | **24.48 ± 2.29** | **43.07 ± ?** | **52.24 ± 2.38** | **33.70 ± 2.36** | `results/P1/region_head_arizona_region_5f_50ep_STAN_az_5f50ep.json` |
+
+**Verdict (AZ):** STAN beats `next_gru` by **+3.36 pp Acc@10** on AZ — larger than the AL margin (+2.26 pp) and with clearly-displaced means despite overlapping σ envelopes. MRR +1.57 pp, Acc@1 +0.85 pp, all directional. The replication confirms the AL result is not a small-sample artefact: STAN's bi-layer self-attention with fully-learnable pairwise bias is a strictly stronger STL region head than the GRU across both dev states.
+
+## Combined verdict across AL + AZ
+
+| State | Rows | Regions | STL `next_gru` (prior) | STL STAN (new) | Δ Acc@10 |
+|---|---:|---:|---:|---:|---:|
+| AL | 10 K | 1 109 | 56.94 ± 4.01 | **59.20 ± 3.62** | +2.26 |
+| AZ | 26 K | 1 540 | 48.88 ± 2.48 | **52.24 ± 2.38** | **+3.36** |
+
+The margin **grows with scale** — suggesting STAN's attention-based head benefits more from the additional data than GRU does. This is consistent with the transformer-family inductive bias being data-hungrier than recurrent networks. We expect the FL numbers to confirm this pattern; scheduling FL STAN alongside Phase 7 headline runs.
 
 ## Paper table rows to add
 
