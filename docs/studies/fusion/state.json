@@ -1,7 +1,7 @@
 {
   "study_version": "1.0",
   "study_started": "2026-04-14T05:58:14+00:00",
-  "last_update": "2026-04-20T08:04:50+00:00",
+  "last_update": "2026-04-20T10:56:05+00:00",
   "current_phase": "P2",
   "open_issues": [
     {
@@ -15424,7 +15424,7 @@
         "P3_FL_champion_hgi_seed42": {
           "test_id": "P3_FL_champion_hgi_seed42",
           "phase": "P3",
-          "status": "running",
+          "status": "skipped_infeasible",
           "claim_ids": [
             "C01",
             "C06",
@@ -15466,14 +15466,15 @@
             ]
           },
           "enrolled_at": "2026-04-20T05:27:02+00:00",
-          "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task mtl --state florida --engine hgi --model mtlnet_mmoe --mtl-loss gradnorm --seed 42 --epochs 50 --folds 5 --embedding-dim 64 --gradient-accumulation-steps 1 --batch-size 4096 --model-param num_experts=4",
           "git_commit": "e65ab58e65ca286e047f7ecf6a39c57644a38448",
-          "started_at": "2026-04-20T08:04:50+00:00"
+          "finished_at": "2026-04-20T10:55:45+00:00",
+          "wall_clock_seconds": 10255.7,
+          "notes": "Killed 2026-04-20 after FL HGI showed ~2h per fold (epoch 24 @ 05:28 fold1; epoch 10 of fold 2 at 07:44). Extrapolated 5f \u00d7 50ep = ~10h per run \u00d7 2 engines = ~25h. Infeasible on Apple Silicon MPS. CUDA hardware or streaming checkpoint required for FL validation. Documented in STUDY_OVERVIEW \u00a7caveats."
         },
         "P3_FL_champion_fusion_seed42": {
           "test_id": "P3_FL_champion_fusion_seed42",
           "phase": "P3",
-          "status": "planned",
+          "status": "skipped_infeasible",
           "claim_ids": [
             "C01",
             "C06",
@@ -15514,7 +15515,8 @@
               0.55
             ]
           },
-          "enrolled_at": "2026-04-20T05:27:02+00:00"
+          "enrolled_at": "2026-04-20T05:27:02+00:00",
+          "notes": "Killed 2026-04-20 after FL HGI showed ~2h per fold (epoch 24 @ 05:28 fold1; epoch 10 of fold 2 at 07:44). Extrapolated 5f \u00d7 50ep = ~10h per run \u00d7 2 engines = ~25h. Infeasible on Apple Silicon MPS. CUDA hardware or streaming checkpoint required for FL validation. Documented in STUDY_OVERVIEW \u00a7caveats."
         }
       }
     },

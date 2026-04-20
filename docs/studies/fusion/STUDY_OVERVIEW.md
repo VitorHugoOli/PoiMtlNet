@@ -1,7 +1,7 @@
 # Fusion Study — Overview & Status
 
-**Last updated:** 2026-04-18 (P2 C06 minimal test **done** — partial verdict)
-**Current phase:** P2 (3 tests archived: 1 MTL reused from P1, 2 single-task)
+**Last updated:** 2026-04-20 (P3 AL+AZ cross-engine **done**; FL infeasible on MPS)
+**Current phase:** P3 (4 cross-engine cells archived: AL{DGI, HGI}, AZ{HGI, Fusion})
 **Branch:** `main`
 
 This is the consolidated picture of what the fusion study is, what's been decided, what's been measured, and what's left. For the authoritative day-to-day state, read `state.json`. For claim-level detail, read `CLAIMS_AND_HYPOTHESES.md`. For methodology flaws discovered after P1 closed, read `issues/P1_METHODOLOGY_FLAWS.md`.
@@ -10,18 +10,25 @@ This is the consolidated picture of what the fusion study is, what's been decide
 
 ## 1. What the paper is supposed to say
 
-**Working thesis (2026-04-18, post C06 multi-seed + C12):**
+**Working thesis (2026-04-20, post P3 AL+AZ cross-engine):**
 
 > On OSM-Gowalla state-split POI prediction, MTL joint training provides a
-> statistically significant benefit over matched single-task training
-> (p<0.005 paired n=15 folds). The benefit holds across multiple MTL
-> configurations (gradient-surgery, equal-weighting, and even the CBIC
-> paper's base+NashMTL), and is NOT a property of "modern MTL machinery."
-> Embedding choice is a distinct first-order lever: DGI underperforms
-> HGI and Fusion by ~10 p.p. joint. Fusion (HGI + Sphere2Vec) does NOT
-> meaningfully improve over HGI on joint F1 at matched 5f × 50ep
-> (Δ ~0.002). Category F1 on OSM-Gowalla primarily measures fclass-identity
-> preservation (C29/N03), so Next F1 is the representation-quality metric.
+> statistically significant benefit over matched single-task training on
+> joint F1 (p<0.005 paired n=15 folds, AL). **The benefit is state-dependent
+> on the per-task level**: on AL both tasks gain from MTL (Δcat +2.1 p.p.,
+> Δnext +1.3 p.p.); on AZ MTL gains on next (+1.0 p.p.) but regresses on
+> category (−1.3 p.p.). AZ joint F1 is still net-positive for MTL (+0.7 p.p.)
+> because next gain offsets category loss. The benefit holds across multiple
+> MTL configurations (gradient-surgery, equal-weighting, and even CBIC's
+> base+NashMTL), so is NOT a property of "modern MTL machinery." **Embedding
+> choice dominates all other design choices by ~1000× on AL**: inter-engine
+> range 0.09 p.p. (DGI vs HGI/Fusion) vs intra-engine range 0.003 p.p.
+> (across 6 MTL configs on Fusion). **Fusion (HGI + Sphere2Vec) does NOT
+> meaningfully improve over HGI on joint F1** at matched 5f × 50ep: on AL,
+> HGI edges Fusion by −0.004; on AZ, Fusion wins by +0.008; both state
+> effects are within single-seed noise. Category F1 on OSM-Gowalla primarily
+> measures fclass-identity preservation (C29/N03 — survives on fusion per
+> C31 probe), so Next F1 is the representation-quality metric.
 
 **This is significantly different from the pre-P1 thesis.** Key reframes:
 - ~~"Modern MTL configuration beats CBIC's config"~~ → **CBIC's config works fine on HGI/Fusion; it underperformed on DGI only**.
@@ -176,25 +183,27 @@ Compute budget remaining (estimated): 12–20 hours for P2 alone; ~30–50 hours
 - **F6 bayesagg_mtl × cgc22 AZ collapse.** Screen cell joint = 0.271 vs peers ~0.40. Analyzer didn't flag (band too wide). Low priority, but real.
 - **F7 expected-range calibration.** P2/P3 should use per-arch ±3σ instead of the uniform [0.10, 0.65] inherited from P1 grid.
 - **Full arm-C retrain on fusion** (F3 primary) — deferred to journal extension. Probe evidence is qualitatively decisive.
+- **FL validation INFEASIBLE on Apple Silicon MPS** (2026-04-20). Attempted `mmoe4×gradnorm` on FL/HGI: ran ~2h per fold × 5 folds = ~10h per run. FL/Fusion estimated similar or worse. Total ~20-25h for both. Killed after fold 1 completed + fold 2 @ epoch 10. **CUDA hardware required for FL validation.** AL+AZ (smaller states) provide the cross-state evidence for the paper; FL gap is a candidate for journal extension. Tests marked `skipped_infeasible` in state.json.
+- **AL/AZ cross-engine consistency tension:** on AL, HGI marginally beats Fusion (+0.004); on AZ, Fusion marginally beats HGI (+0.008). Both within single-seed noise. **C01 strong form refuted**; the honest paper framing is "fusion is a robust alternative to HGI, not an improvement."
 
 ---
 
 ## 7. Claim catalog snapshot (32 claims + 4 negations)
 
-### Confirmed (7)
-**C06** MTL vs single-task (multi-seed p<0.005 AL) · **C15** champion hparam-robust within ±0.005 joint@T · **C18** reproducibility · **C28** no negative transfer (AL; partial AZ) · **C29** fclass shortcut (HGI) · **C30** no classical label leakage · **C32** checkpoint-selection bias
+### Confirmed (8)
+**C06** MTL vs single-task (multi-seed p<0.005 AL) · **C11** embedding dominance (inter/intra ≈ 1000×) · **C15** champion hparam-robust within ±0.005 joint@T · **C18** reproducibility · **C28** no negative transfer (AL only) · **C29** fclass shortcut (HGI) · **C30** no classical label leakage · **C32** checkpoint-selection bias
 
-### Refuted (2)
-**C02** gradient-surgery > eq (refuted at multi-seed + hparam-robust) · **C12** CBIC config fails on all embeddings (refuted + hparam-robust)
+### Refuted (3)
+**C01** fusion > HGI (multi-state: flips direction, mean ≈ 0) · **C02** gradient-surgery > eq · **C12** CBIC config fails on all embeddings
 
-### Partial (4)
-**C01** fusion > HGI (refuted on AL joint F1 under CBIC config; champion-config test pending) · **C05** expert-gating (screen yes, confirm tied) · **C07** asymmetric MTL benefit (partial from C06) · **C31** fclass shortcut on fusion (probe-confirmed, retrain deferred)
+### Partial (3)
+**C05** expert-gating (screen yes, confirm tied) · **C07** asymmetric MTL benefit (AL both positive; AZ negative on cat) · **C31** fclass shortcut on fusion (probe-confirmed, retrain deferred)
 
-### Pending (18)
+### Pending (17)
 | Phase | Claims pending |
 |-------|---------------|
 | P2 | C08, C09, C10 |
-| P3 | C03, C04 (partial data), C11, C13, C14 |
+| P3 | C03, C04 (partial data), C13, C14 |
 | P4 | C16, C17 (robustness) |
 | P5 | C19, C20 (mechanism) |
 | P6 | C22, C23, C24, C25, C26 (deferred), C27 |
