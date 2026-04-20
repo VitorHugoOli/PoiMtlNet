@@ -131,6 +131,7 @@ def resolve_task_set(
     task_b_num_classes: Optional[int] = None,
     task_a_head_params: Optional[dict] = None,
     task_b_head_params: Optional[dict] = None,
+    task_b_head_factory: Optional[str] = None,
 ) -> TaskSet:
     """Return a ``TaskSet`` with per-slot fields overridden at runtime.
 
@@ -162,6 +163,8 @@ def resolve_task_set(
         task_b = dataclasses.replace(task_b, num_classes=task_b_num_classes)
     if task_b_head_params is not None:
         task_b = dataclasses.replace(task_b, head_params=task_b_head_params)
+    if task_b_head_factory is not None:
+        task_b = dataclasses.replace(task_b, head_factory=task_b_head_factory)
     if task_a is preset.task_a and task_b is preset.task_b:
         return preset  # No-op; return the original so identity checks keep working.
     return dataclasses.replace(preset, task_a=task_a, task_b=task_b)

@@ -518,6 +518,16 @@ def _parse_args(argv=None) -> argparse.Namespace:
         help="Override region head hyperparameter (task_b_head_params) in the MTL task_set. Repeatable. E.g. --reg-head-param hidden_dim=512 --reg-head-param num_layers=3",
     )
     parser.add_argument(
+        "--reg-head",
+        type=str,
+        default=None,
+        help=(
+            "Override the region-task head factory (task_b.head_factory) in the MTL task_set. "
+            "Default preserves the preset's choice (next_gru for CHECK2HGI_NEXT_REGION). "
+            "Use e.g. --reg-head next_stan to swap in the STAN head."
+        ),
+    )
+    parser.add_argument(
         "--folds",
         type=int,
         default=None,
@@ -918,6 +928,7 @@ def main(argv=None) -> None:
             task_set,
             task_b_num_classes=n_regions,
             task_b_head_params=reg_head_params if reg_head_params else None,
+            task_b_head_factory=args.reg_head,
         )
         logger.info(
             "check2HGI task_set resolved: task_a=%s/%d, task_b=%s/%d",
