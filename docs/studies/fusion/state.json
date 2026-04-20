@@ -1,7 +1,7 @@
 {
   "study_version": "1.0",
   "study_started": "2026-04-14T05:58:14+00:00",
-  "last_update": "2026-04-18T20:39:50+00:00",
+  "last_update": "2026-04-20T05:43:27+00:00",
   "current_phase": "P2",
   "open_issues": [
     {
@@ -21,8 +21,8 @@
       "severity": "watch",
       "raised_at": "2026-04-15T21:33:15+00:00",
       "description": "Florida/fusion category half-L2 ratio = 40.99\u00d7 (expected 5\u201330\u00d7, Alabama is ~15\u00d7). Likely a scale imbalance between HGI and Sphere2Vec components in the Florida fusion. Confounds C02/C19 on FL. Investigate before P3 FL experiments.",
-      "status": "open",
-      "resolution": null
+      "status": "resolved",
+      "resolution": "Diagnostic 2026-04-20: HGI L2 grows with state size (AL 8.3, AZ 14.1, FL 19.3); Sphere2Vec stable. FL ratio 40.99\u00d7 reflects dataset size, not a scale bug. Per fusion_embedding_design.md, normalization hurts; leave as-is. FL fusion safe for training."
     },
     {
       "issue_id": "ISS-003",
@@ -129,6 +129,42 @@
       "type": "corrupt",
       "raised_at": "2026-04-18T12:46:26+00:00",
       "description": "P2_AL_single_cat_seed2024: observed metrics missing or NaN",
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "issue_id": "ISS-015",
+      "test_id": "P2_AZ_single_cat_seed123",
+      "type": "corrupt",
+      "raised_at": "2026-04-20T05:28:47+00:00",
+      "description": "P2_AZ_single_cat_seed123: observed metrics missing or NaN",
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "issue_id": "ISS-016",
+      "test_id": "P2_AZ_single_cat_seed2024",
+      "type": "corrupt",
+      "raised_at": "2026-04-20T05:29:39+00:00",
+      "description": "P2_AZ_single_cat_seed2024: observed metrics missing or NaN",
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "issue_id": "ISS-017",
+      "test_id": "P2_AZ_single_next_seed123",
+      "type": "corrupt",
+      "raised_at": "2026-04-20T05:36:15+00:00",
+      "description": "P2_AZ_single_next_seed123: observed metrics missing or NaN",
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "issue_id": "ISS-018",
+      "test_id": "P2_AZ_single_next_seed2024",
+      "type": "corrupt",
+      "raised_at": "2026-04-20T05:42:52+00:00",
+      "description": "P2_AZ_single_next_seed2024: observed metrics missing or NaN",
       "status": "open",
       "resolution": null
     }
@@ -14821,6 +14857,262 @@
             "next": "matches_hypothesis"
           },
           "analyzed_at": "2026-04-18T20:39:50+00:00"
+        },
+        "P2_AZ_single_cat_seed123": {
+          "test_id": "P2_AZ_single_cat_seed123",
+          "phase": "P2",
+          "status": "corrupt",
+          "claim_ids": [
+            "C06",
+            "C07",
+            "C18",
+            "C28",
+            "C32"
+          ],
+          "description": "P2 C06 multi-seed: category on arizona fusion seed 123",
+          "config": {
+            "state": "arizona",
+            "engine": "fusion",
+            "task": "category",
+            "stage": "confirm",
+            "tier": "confirm",
+            "seed": 123,
+            "epochs": 50,
+            "folds": 5,
+            "batch_size": 4096,
+            "gradient_accumulation_steps": 1,
+            "embedding_dim": 128
+          },
+          "expected": {
+            "cat_f1_range": [
+              0.65,
+              0.85
+            ],
+            "joint_range": [
+              0.65,
+              0.85
+            ]
+          },
+          "enrolled_at": "2026-04-20T05:27:02+00:00",
+          "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task category --state arizona --engine fusion --seed 123 --epochs 50 --folds 5 --embedding-dim 128 --gradient-accumulation-steps 1 --batch-size 4096",
+          "git_commit": "f456454d156f261ed5349ed2bb74cf0bd27f46fb",
+          "started_at": "2026-04-20T05:27:49+00:00",
+          "finished_at": "2026-04-20T05:28:46+00:00",
+          "wall_clock_seconds": 57.2,
+          "run_dir": "results/fusion/arizona/category_lr1.0e-04_bs4096_ep50_20260420_022756",
+          "results_archive": "docs/studies/fusion/results/P2/P2_AZ_single_cat_seed123",
+          "observed": {
+            "cat_f1": 0.7525988221168518,
+            "cat_f1_std": 0.011910593723906049,
+            "cat_accuracy": 0.7771703124046325,
+            "next_f1": null,
+            "next_f1_std": null,
+            "next_accuracy": null,
+            "joint_f1": null,
+            "cat_f1_taskbest": null,
+            "next_f1_taskbest": null,
+            "joint_f1_taskbest": null
+          },
+          "archived_at": "2026-04-20T05:28:47+00:00",
+          "verdict": "unreliable",
+          "verdict_detail": {
+            "joint": "unreliable",
+            "category": "matches_hypothesis",
+            "next": "unreliable"
+          },
+          "analyzed_at": "2026-04-20T05:28:47+00:00"
+        },
+        "P2_AZ_single_cat_seed2024": {
+          "test_id": "P2_AZ_single_cat_seed2024",
+          "phase": "P2",
+          "status": "corrupt",
+          "claim_ids": [
+            "C06",
+            "C07",
+            "C18",
+            "C28",
+            "C32"
+          ],
+          "description": "P2 C06 multi-seed: category on arizona fusion seed 2024",
+          "config": {
+            "state": "arizona",
+            "engine": "fusion",
+            "task": "category",
+            "stage": "confirm",
+            "tier": "confirm",
+            "seed": 2024,
+            "epochs": 50,
+            "folds": 5,
+            "batch_size": 4096,
+            "gradient_accumulation_steps": 1,
+            "embedding_dim": 128
+          },
+          "expected": {
+            "cat_f1_range": [
+              0.65,
+              0.85
+            ],
+            "joint_range": [
+              0.65,
+              0.85
+            ]
+          },
+          "enrolled_at": "2026-04-20T05:27:02+00:00",
+          "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task category --state arizona --engine fusion --seed 2024 --epochs 50 --folds 5 --embedding-dim 128 --gradient-accumulation-steps 1 --batch-size 4096",
+          "git_commit": "f456454d156f261ed5349ed2bb74cf0bd27f46fb",
+          "started_at": "2026-04-20T05:28:47+00:00",
+          "finished_at": "2026-04-20T05:29:39+00:00",
+          "wall_clock_seconds": 52.3,
+          "run_dir": "results/fusion/arizona/category_lr1.0e-04_bs4096_ep50_20260420_022850",
+          "results_archive": "docs/studies/fusion/results/P2/P2_AZ_single_cat_seed2024",
+          "observed": {
+            "cat_f1": 0.751948869228363,
+            "cat_f1_std": 0.008529614338350394,
+            "cat_accuracy": 0.778089451789856,
+            "next_f1": null,
+            "next_f1_std": null,
+            "next_accuracy": null,
+            "joint_f1": null,
+            "cat_f1_taskbest": null,
+            "next_f1_taskbest": null,
+            "joint_f1_taskbest": null
+          },
+          "archived_at": "2026-04-20T05:29:39+00:00",
+          "verdict": "unreliable",
+          "verdict_detail": {
+            "joint": "unreliable",
+            "category": "matches_hypothesis",
+            "next": "unreliable"
+          },
+          "analyzed_at": "2026-04-20T05:29:39+00:00"
+        },
+        "P2_AZ_single_next_seed123": {
+          "test_id": "P2_AZ_single_next_seed123",
+          "phase": "P2",
+          "status": "corrupt",
+          "claim_ids": [
+            "C06",
+            "C07",
+            "C18",
+            "C28",
+            "C32"
+          ],
+          "description": "P2 C06 multi-seed: next on arizona fusion seed 123",
+          "config": {
+            "state": "arizona",
+            "engine": "fusion",
+            "task": "next",
+            "stage": "confirm",
+            "tier": "confirm",
+            "seed": 123,
+            "epochs": 50,
+            "folds": 5,
+            "batch_size": 4096,
+            "gradient_accumulation_steps": 1,
+            "embedding_dim": 128
+          },
+          "expected": {
+            "next_f1_range": [
+              0.2,
+              0.4
+            ],
+            "joint_range": [
+              0.2,
+              0.4
+            ]
+          },
+          "enrolled_at": "2026-04-20T05:27:02+00:00",
+          "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task next --state arizona --engine fusion --seed 123 --epochs 50 --folds 5 --embedding-dim 128 --gradient-accumulation-steps 1 --batch-size 4096",
+          "git_commit": "f456454d156f261ed5349ed2bb74cf0bd27f46fb",
+          "started_at": "2026-04-20T05:29:40+00:00",
+          "finished_at": "2026-04-20T05:36:15+00:00",
+          "wall_clock_seconds": 395.4,
+          "run_dir": "results/fusion/arizona/next_lr1.0e-04_bs4096_ep50_20260420_022944",
+          "results_archive": "docs/studies/fusion/results/P2/P2_AZ_single_next_seed123",
+          "observed": {
+            "cat_f1": null,
+            "cat_f1_std": null,
+            "cat_accuracy": null,
+            "next_f1": 0.30355858206748965,
+            "next_f1_std": 0.008999072897418376,
+            "next_accuracy": 0.33402796387672423,
+            "joint_f1": null,
+            "cat_f1_taskbest": null,
+            "next_f1_taskbest": null,
+            "joint_f1_taskbest": null
+          },
+          "archived_at": "2026-04-20T05:36:15+00:00",
+          "verdict": "unreliable",
+          "verdict_detail": {
+            "joint": "unreliable",
+            "category": "unreliable",
+            "next": "matches_hypothesis"
+          },
+          "analyzed_at": "2026-04-20T05:36:15+00:00"
+        },
+        "P2_AZ_single_next_seed2024": {
+          "test_id": "P2_AZ_single_next_seed2024",
+          "phase": "P2",
+          "status": "corrupt",
+          "claim_ids": [
+            "C06",
+            "C07",
+            "C18",
+            "C28",
+            "C32"
+          ],
+          "description": "P2 C06 multi-seed: next on arizona fusion seed 2024",
+          "config": {
+            "state": "arizona",
+            "engine": "fusion",
+            "task": "next",
+            "stage": "confirm",
+            "tier": "confirm",
+            "seed": 2024,
+            "epochs": 50,
+            "folds": 5,
+            "batch_size": 4096,
+            "gradient_accumulation_steps": 1,
+            "embedding_dim": 128
+          },
+          "expected": {
+            "next_f1_range": [
+              0.2,
+              0.4
+            ],
+            "joint_range": [
+              0.2,
+              0.4
+            ]
+          },
+          "enrolled_at": "2026-04-20T05:27:02+00:00",
+          "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task next --state arizona --engine fusion --seed 2024 --epochs 50 --folds 5 --embedding-dim 128 --gradient-accumulation-steps 1 --batch-size 4096",
+          "git_commit": "f456454d156f261ed5349ed2bb74cf0bd27f46fb",
+          "started_at": "2026-04-20T05:36:15+00:00",
+          "finished_at": "2026-04-20T05:42:52+00:00",
+          "wall_clock_seconds": 396.2,
+          "run_dir": "results/fusion/arizona/next_lr1.0e-04_bs4096_ep50_20260420_023620",
+          "results_archive": "docs/studies/fusion/results/P2/P2_AZ_single_next_seed2024",
+          "observed": {
+            "cat_f1": null,
+            "cat_f1_std": null,
+            "cat_accuracy": null,
+            "next_f1": 0.30566980242729186,
+            "next_f1_std": 0.009656150906195345,
+            "next_accuracy": 0.3318303644657135,
+            "joint_f1": null,
+            "cat_f1_taskbest": null,
+            "next_f1_taskbest": null,
+            "joint_f1_taskbest": null
+          },
+          "archived_at": "2026-04-20T05:42:52+00:00",
+          "verdict": "unreliable",
+          "verdict_detail": {
+            "joint": "unreliable",
+            "category": "unreliable",
+            "next": "matches_hypothesis"
+          },
+          "analyzed_at": "2026-04-20T05:42:52+00:00"
         }
       }
     },
@@ -14828,7 +15120,295 @@
       "status": "planned",
       "started": null,
       "finished": null,
-      "tests": {}
+      "tests": {
+        "P3_AL_champion_hgi_seed42": {
+          "test_id": "P3_AL_champion_hgi_seed42",
+          "phase": "P3",
+          "status": "running",
+          "claim_ids": [
+            "C01",
+            "C03",
+            "C04",
+            "C06",
+            "C11"
+          ],
+          "description": "P3 champion mmoe4\u00d7gradnorm on hgi alabama 5f\u00d750ep seed 42",
+          "config": {
+            "state": "alabama",
+            "engine": "hgi",
+            "task": "mtl",
+            "arch": "mmoe4",
+            "model": "mtlnet_mmoe",
+            "model_params": {
+              "num_experts": 4
+            },
+            "optim": "gradnorm",
+            "mtl_loss": "gradnorm",
+            "stage": "confirm",
+            "tier": "confirm",
+            "seed": 42,
+            "epochs": 50,
+            "folds": 5,
+            "batch_size": 4096,
+            "gradient_accumulation_steps": 1,
+            "embedding_dim": 64
+          },
+          "expected": {
+            "joint_range": [
+              0.2,
+              0.65
+            ],
+            "cat_f1_range": [
+              0.3,
+              0.9
+            ],
+            "next_f1_range": [
+              0.1,
+              0.55
+            ]
+          },
+          "enrolled_at": "2026-04-20T05:27:02+00:00",
+          "command": "/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python scripts/train.py --task mtl --state alabama --engine hgi --model mtlnet_mmoe --mtl-loss gradnorm --seed 42 --epochs 50 --folds 5 --embedding-dim 64 --gradient-accumulation-steps 1 --batch-size 4096 --model-param num_experts=4",
+          "git_commit": "f456454d156f261ed5349ed2bb74cf0bd27f46fb",
+          "started_at": "2026-04-20T05:43:27+00:00"
+        },
+        "P3_AL_champion_dgi_seed42": {
+          "test_id": "P3_AL_champion_dgi_seed42",
+          "phase": "P3",
+          "status": "planned",
+          "claim_ids": [
+            "C01",
+            "C03",
+            "C04",
+            "C06",
+            "C11"
+          ],
+          "description": "P3 champion mmoe4\u00d7gradnorm on dgi alabama 5f\u00d750ep seed 42",
+          "config": {
+            "state": "alabama",
+            "engine": "dgi",
+            "task": "mtl",
+            "arch": "mmoe4",
+            "model": "mtlnet_mmoe",
+            "model_params": {
+              "num_experts": 4
+            },
+            "optim": "gradnorm",
+            "mtl_loss": "gradnorm",
+            "stage": "confirm",
+            "tier": "confirm",
+            "seed": 42,
+            "epochs": 50,
+            "folds": 5,
+            "batch_size": 4096,
+            "gradient_accumulation_steps": 1,
+            "embedding_dim": 64
+          },
+          "expected": {
+            "joint_range": [
+              0.2,
+              0.65
+            ],
+            "cat_f1_range": [
+              0.3,
+              0.9
+            ],
+            "next_f1_range": [
+              0.1,
+              0.55
+            ]
+          },
+          "enrolled_at": "2026-04-20T05:27:02+00:00"
+        },
+        "P3_AZ_champion_hgi_seed42": {
+          "test_id": "P3_AZ_champion_hgi_seed42",
+          "phase": "P3",
+          "status": "planned",
+          "claim_ids": [
+            "C01",
+            "C03",
+            "C04",
+            "C06",
+            "C11"
+          ],
+          "description": "P3 champion mmoe4\u00d7gradnorm on hgi arizona 5f\u00d750ep seed 42",
+          "config": {
+            "state": "arizona",
+            "engine": "hgi",
+            "task": "mtl",
+            "arch": "mmoe4",
+            "model": "mtlnet_mmoe",
+            "model_params": {
+              "num_experts": 4
+            },
+            "optim": "gradnorm",
+            "mtl_loss": "gradnorm",
+            "stage": "confirm",
+            "tier": "confirm",
+            "seed": 42,
+            "epochs": 50,
+            "folds": 5,
+            "batch_size": 4096,
+            "gradient_accumulation_steps": 1,
+            "embedding_dim": 64
+          },
+          "expected": {
+            "joint_range": [
+              0.2,
+              0.65
+            ],
+            "cat_f1_range": [
+              0.3,
+              0.9
+            ],
+            "next_f1_range": [
+              0.1,
+              0.55
+            ]
+          },
+          "enrolled_at": "2026-04-20T05:27:02+00:00"
+        },
+        "P3_AZ_champion_fusion_seed42": {
+          "test_id": "P3_AZ_champion_fusion_seed42",
+          "phase": "P3",
+          "status": "planned",
+          "claim_ids": [
+            "C01",
+            "C03",
+            "C04",
+            "C06",
+            "C11"
+          ],
+          "description": "P3 champion mmoe4\u00d7gradnorm on fusion arizona 5f\u00d750ep seed 42",
+          "config": {
+            "state": "arizona",
+            "engine": "fusion",
+            "task": "mtl",
+            "arch": "mmoe4",
+            "model": "mtlnet_mmoe",
+            "model_params": {
+              "num_experts": 4
+            },
+            "optim": "gradnorm",
+            "mtl_loss": "gradnorm",
+            "stage": "confirm",
+            "tier": "confirm",
+            "seed": 42,
+            "epochs": 50,
+            "folds": 5,
+            "batch_size": 4096,
+            "gradient_accumulation_steps": 1,
+            "embedding_dim": 128
+          },
+          "expected": {
+            "joint_range": [
+              0.2,
+              0.65
+            ],
+            "cat_f1_range": [
+              0.3,
+              0.9
+            ],
+            "next_f1_range": [
+              0.1,
+              0.55
+            ]
+          },
+          "enrolled_at": "2026-04-20T05:27:02+00:00"
+        },
+        "P3_FL_champion_hgi_seed42": {
+          "test_id": "P3_FL_champion_hgi_seed42",
+          "phase": "P3",
+          "status": "planned",
+          "claim_ids": [
+            "C01",
+            "C06",
+            "C11"
+          ],
+          "description": "P3 champion mmoe4\u00d7gradnorm on hgi florida 5f\u00d750ep seed 42 (FL validation)",
+          "config": {
+            "state": "florida",
+            "engine": "hgi",
+            "task": "mtl",
+            "arch": "mmoe4",
+            "model": "mtlnet_mmoe",
+            "model_params": {
+              "num_experts": 4
+            },
+            "optim": "gradnorm",
+            "mtl_loss": "gradnorm",
+            "stage": "confirm",
+            "tier": "heavy",
+            "seed": 42,
+            "epochs": 50,
+            "folds": 5,
+            "batch_size": 4096,
+            "gradient_accumulation_steps": 1,
+            "embedding_dim": 64
+          },
+          "expected": {
+            "joint_range": [
+              0.2,
+              0.65
+            ],
+            "cat_f1_range": [
+              0.3,
+              0.9
+            ],
+            "next_f1_range": [
+              0.1,
+              0.55
+            ]
+          },
+          "enrolled_at": "2026-04-20T05:27:02+00:00"
+        },
+        "P3_FL_champion_fusion_seed42": {
+          "test_id": "P3_FL_champion_fusion_seed42",
+          "phase": "P3",
+          "status": "planned",
+          "claim_ids": [
+            "C01",
+            "C06",
+            "C11"
+          ],
+          "description": "P3 champion mmoe4\u00d7gradnorm on fusion florida 5f\u00d750ep seed 42 (FL validation)",
+          "config": {
+            "state": "florida",
+            "engine": "fusion",
+            "task": "mtl",
+            "arch": "mmoe4",
+            "model": "mtlnet_mmoe",
+            "model_params": {
+              "num_experts": 4
+            },
+            "optim": "gradnorm",
+            "mtl_loss": "gradnorm",
+            "stage": "confirm",
+            "tier": "heavy",
+            "seed": 42,
+            "epochs": 50,
+            "folds": 5,
+            "batch_size": 4096,
+            "gradient_accumulation_steps": 1,
+            "embedding_dim": 128
+          },
+          "expected": {
+            "joint_range": [
+              0.2,
+              0.65
+            ],
+            "cat_f1_range": [
+              0.3,
+              0.9
+            ],
+            "next_f1_range": [
+              0.1,
+              0.55
+            ]
+          },
+          "enrolled_at": "2026-04-20T05:27:02+00:00"
+        }
+      }
     },
     "P4": {
       "status": "planned",

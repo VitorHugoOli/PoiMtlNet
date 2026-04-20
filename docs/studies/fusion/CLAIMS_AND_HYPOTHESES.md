@@ -162,13 +162,18 @@ Per-seed deltas (consistency check):
 
 Positive direction in all 6 per-seed-per-task cells; magnitudes tight.
 
-**Evidence (cross-state AZ, 1 seed × 5 folds, 2026-04-18):**
-- AZ single-task-cat F1 = 0.7508 (vs AZ MTL cat = 0.7380)
-- AZ single-task-next F1 = 0.3005 (vs AZ MTL next = 0.3103)
-- **AZ direction inverts on cat!** Single-task-cat (0.7508) beats MTL-cat (0.7380) by +1.3 p.p.
-- AZ next: MTL (0.3103) beats single-task (0.3005) by +1.0 p.p.
-- Cross-state asymmetry is interesting. On AL both tasks benefit from MTL; on AZ only next does, while cat is hurt. May reflect state-size or AZ's different winning arch (cgc21 vs AL's mmoe4).
-- **AZ joint@T single-task HM(0.7508, 0.3005) = 0.4306 vs MTL joint@T = 0.4394. MTL still wins at joint level (+0.009 p.p.)** — the single-task-cat advantage on AZ is offset by next-POI loss.
+**Evidence (cross-state AZ multi-seed, 3 seeds × 5 folds, 2026-04-20):**
+| Side | Task | mean ± std | n |
+|------|------|------------|---|
+| MTL (cgc21×uw) | cat@T | 0.7384 ± 0.0065 | 3 |
+| ST | cat | 0.7518 ± 0.0009 | 3 |
+| MTL (cgc21×uw) | next@T | 0.3128 ± 0.0022 | 3 |
+| ST | next | 0.3032 ± 0.0026 | 3 |
+
+- Δ cat (MTL − ST) = **−0.0134 (ST wins by 1.3 p.p.)** — **negative transfer on category reproducible at multi-seed**
+- Δ next (MTL − ST) = +0.0096 (MTL wins by 1.0 p.p.)
+- Joint@T: MTL 0.4394, ST 0.4322 → Δ = +0.0073 (MTL +0.7 p.p.) — net-positive but smaller than AL's +1.7 p.p.
+- **AZ shows a state-specific asymmetry:** the single-task-cat model outperforms MTL-cat consistently at the 0.001-level std. This is not noise.
 
 **Paper narrative (post multi-seed, 2026-04-18):**
 - **AL: MTL confirmed to improve both tasks** over single-task with high confidence (p < 0.005 on both tasks).
@@ -530,10 +535,11 @@ These test the classic Caruana (1997) / Ruder (2017) / Crawshaw (2020) MTL mecha
  - **Category:** 14/15 folds MTL > ST. Wilcoxon W+ = 119/120. paired-t = +5.01 (df=14). p ≈ **0.0008**. Mean Δ = +0.0213 (+2.1 p.p.).
  - **Next:** 11/15 folds MTL > ST. Wilcoxon W+ = 110/120. paired-t = +3.56. p ≈ **0.0045**. Mean Δ = +0.0128 (+1.3 p.p.).
  - **No fold on either task shows MTL loss > 1 p.p.** Negative-transfer scenario does NOT occur on AL fusion.
-**Status on AZ:** `partial` — single-seed AZ evidence (2026-04-18) shows:
- - **Cat regression:** single-task-cat 0.7508 vs MTL-cat 0.7380 → Δ = −0.0128 (single-task wins). **Possible negative transfer on AZ category.**
- - **Next improvement:** MTL-next 0.3103 vs single-task-next 0.3005 → Δ = +0.0098 (MTL wins).
- - Joint@T still favors MTL by +0.009 — but the per-task asymmetry means C28 is NOT universally confirmed.
+**Status on AZ:** `refuted` — **multi-seed (3 seeds × 5 folds, 2026-04-20) confirms negative transfer on category:**
+ - **Cat regression:** ST cat 0.7518 ± 0.0009 vs MTL cat@T 0.7384 ± 0.0065 → Δ = **−0.0134 (ST wins by 1.3 p.p.)**. ST std is remarkably tight (0.0009) — this is not noise.
+ - **Next improvement:** MTL next@T 0.3128 ± 0.0022 vs ST next 0.3032 ± 0.0026 → Δ = **+0.0096** (MTL wins by 1.0 p.p.).
+ - Joint@T still net-positive for MTL (+0.0073) but dominated by the next-gain offsetting the cat-loss.
+ - **State-asymmetric negative transfer is real on this dataset:** C28 (strong form "no negative transfer") holds on AL but is refuted on AZ category.
 **Notes:**
 - **At per-task-best selection on AL, C28 holds strongly.** Reviewers asking the classic "does MTL sacrifice any task?" question get a clean no on AL.
 - **On AZ, category task shows a small negative effect.** Needs multi-seed replication. If it holds: paper should caveat "no negative transfer on AL; small category regression on AZ, still net-positive joint F1."
