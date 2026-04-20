@@ -43,39 +43,81 @@ python scripts/train.py \
 
 **Verdict (AL):** Swapping STAN in as the MTL region head lifts **every region metric by 2–5 pp**, with `Acc@10_indist` the cleanest: **+5.18 pp over the GRU-head MTL** at matched everything else. Category F1 moves +0.49 pp within σ — no meaningful change. So the region head change is a **unidirectional region-side improvement**, not a joint trade-off.
 
-## Arizona results — TBD
+## Arizona results — **lift DOES NOT replicate; result REVERSES at AZ scale**
 
-Running at time of writing (5f×50ep, AZ, same protocol). Will confirm whether the AL lift replicates at 2.5× more data. ETA ~30 min.
+5-fold × 50 epoch, fair user-disjoint folds, identical protocol to AL.
+
+| Metric | `mtl cross-attn + pcgrad + GRU` (prior, az1) | `mtl cross-attn + pcgrad + **STAN**` (new) | Δ |
+|---|---:|---:|---:|
+| **next_category F1** | 43.13 ± 0.55 | 42.64 ± 0.26 | −0.49 pp (within σ) |
+| next_category Acc@1 | 44.00 ± 0.51 | 44.07 ± 0.43 | +0.07 pp |
+| next_category MRR | 65.48 ± 0.40 | 65.65 ± 0.18 | +0.17 pp |
+| **next_region Acc@10** (in-dist) | **41.07 ± 3.46** | 37.47 ± 4.01 | **−3.60 pp** |
+| next_region Acc@1 | 13.20 ± 1.99 | 9.79 ± 1.98 | −3.41 pp |
+| next_region Acc@5 | 31.54 ± 3.57 | 26.96 ± 3.50 | −4.58 pp |
+| next_region MRR | 22.49 ± 2.49 | 18.53 ± 2.54 | −3.96 pp |
+| next_region macro-F1 | 5.44 ± 0.65 | 5.14 ± 0.62 | −0.30 pp |
+
+**Source:** `docs/studies/check2hgi/results/P8_sota/mtl_crossattn_pcgrad_az_stan_5f50ep.json`. Prior GRU-head reference: `docs/studies/check2hgi/results/P2/az1_crossattn_fairlr_5f50ep.json`.
+
+**Verdict (AZ):** MTL-STAN **regresses region by −3.60 pp Acc@10** at AZ scale, opposite direction from AL. Category F1 is unchanged within σ on both states. This is a **scale-dependent reversal**: STAN helps MTL region at AL (10 K rows) and hurts it at AZ (26 K rows).
+
+## Combined AL + AZ picture
+
+| State | Rows | Regions | STL `next_gru` | STL STAN | Δ_STL | MTL `cross-attn+GRU` | MTL `cross-attn+STAN` | Δ_MTL |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| AL | 10 K | 1 109 | 56.94 ± 4.01 | 59.20 ± 3.62 | **+2.26** | 45.09 ± 5.37 | **50.27 ± 4.47** | **+5.18** |
+| AZ | 26 K | 1 540 | 48.88 ± 2.48 | 52.24 ± 2.38 | **+3.36** | 41.07 ± 3.46 | 37.47 ± 4.01 | **−3.60** |
+
+**STL direction:** STAN > GRU on both states, margin grows with scale (+2.26 → +3.36 pp).
+
+**MTL direction:** STAN > GRU on AL, STAN < GRU on AZ. The sign flips between 10 K and 26 K rows.
+
+This is not what we expected. STL STAN consistently wins; MTL STAN wins only at small scale. The MTL setting adds a constraint (shared backbone + PCGrad gradient manipulation across heads) that interacts with STAN's inductive bias differently than with GRU's, and the interaction changes direction with data scale.
+
+**Candidate explanations (to test in follow-up):**
+
+1. **PCGrad gradient projection** penalizes the attention head's gradient direction more heavily when per-task gradients are larger (which happens at scale). The GRU head's smaller, more correlated gradient footprint survives PCGrad projection better.
+2. **The cross-attention backbone's output distribution** was implicitly tuned for GRU consumption during the P2 architecture sweep. STAN's bi-layer attention expects input statistics that mildly disagree with the cross-attn block's output at larger data scale.
+3. **Head parameter count** in MTL: STAN (~417 K) is comparable to GRU (~770 K) but the distribution of those parameters is very different — STAN's pairwise biases are dense per-position, GRU's recurrent weights are position-agnostic. At 26 K rows per user-disjoint split, STAN's per-position biases may overfit.
+4. **Optimizer-head interaction with OneCycleLR**: `max_lr=0.003` may be tuned for recurrent heads. STAN's attention could prefer a different schedule.
+
+All are ablatable but none are a-priori obvious.
 
 ## What this means for the CH-M4 / region-ceiling claims
 
-Our earlier papers framing said: *"Region is capacity-ceiling-bound in all MTL architectures; the shared backbone saturates signal extraction from the 9-step region sequence."*
+Our earlier paper framing said: *"Region is capacity-ceiling-bound in all MTL architectures; the shared backbone saturates signal extraction from the 9-step region sequence."*
 
-The MTL-STAN result **partially** refutes that framing on AL:
+The MTL-STAN result is **more nuanced than expected**:
 
-- The `next_gru` MTL region ceiling (45.09) was lower than the STAN MTL region ceiling (50.27) by 5 pp — even though STL GRU (56.94) and STL STAN (59.20) differ by only 2.26 pp.
-- That is, the **MTL→STL gap** went from 11.85 pp (STL GRU − MTL GRU) down to **8.93 pp** (STL STAN − MTL STAN) by changing just the head.
-- This is strong evidence that **a non-trivial fraction of the "ceiling" we attributed to shared-backbone capacity was actually head-capacity** — STAN's bi-layer attention extracts more signal from the backbone's output than GRU does.
+- **AL (10 K rows):** MTL→STL gap shrinks from 11.85 pp (GRU) → 8.93 pp (STAN). Head partially explains the ceiling.
+- **AZ (26 K rows):** MTL→STL gap widens from 7.81 pp (GRU: 48.88−41.07) → 14.77 pp (STAN: 52.24−37.47). Head *worsens* the ceiling.
 
-**Updated framing (for the paper's Discussion):** The MTL region task has *two* capacity bottlenecks: the shared-backbone's output and the head's ability to decode it. On AL, swapping the head closes about 25% of the prior MTL→STL gap without hurting the category task. The remaining gap (~9 pp) is a genuine shared-backbone dilution effect.
+A single head-swap cannot be claimed as a universal ceiling-lift. The correct framing is:
+
+> *"The MTL region ceiling is layered. At small scale (AL, 10 K), a stronger head (STAN) decodes more signal from the shared backbone. At moderate scale (AZ, 26 K), the MTL setup — cross-attention backbone under PCGrad gradient manipulation — interacts negatively with STAN's attention head, and the GRU head's simpler structure is preferable inside MTL. STL STAN is the correct ceiling reference across scales; MTL head choice is data-scale-dependent."*
+
+This is an **honest scale-dependent result**, not a clean win. It belongs in the paper's Discussion/Limitations, not in the headline claims.
 
 ## What this DOES NOT change
 
-- **CH-M1 (asymmetric MTL):** STAN-MTL region 50.27 is still below STL STAN 59.20 (−8.93 pp). Region is still capped below STL. Direction unchanged; magnitude smaller.
-- **CH-M4 (cross-attn uniquely closes cat gap):** unchanged — category F1 is still at STL-parity with cross-attn (39.07 vs STL 38.58, within σ).
-- **CH-M8 (scale-dependent transfer):** pending AZ + FL confirmation with the STAN head.
+- **CH-M1 (asymmetric MTL):** Region is still capped below STL at both scales. On AL, MTL-STAN 50.27 < STL STAN 59.20 (−8.93 pp). On AZ, MTL-STAN 37.47 < STL STAN 52.24 (−14.77 pp). Direction unchanged; magnitude scale-dependent.
+- **CH-M4 (cross-attn uniquely closes cat gap):** unchanged across both states — cross-attn's category-side behaviour is head-independent. AL: 39.07 (STAN) ≈ 38.58 (GRU) ≈ STL 38.58. AZ: 42.64 (STAN) ≈ 43.13 (GRU).
+- **CH-M8 (scale-dependent transfer):** the STAN result **adds a new scale-dependent axis**: MTL head compatibility reverses between 10 K and 26 K. Worth including as a dimension alongside the cat-transfer scale curve.
 
-## Follow-up runs to schedule
+## Follow-up runs to consider
 
-1. **AZ MTL-STAN** — running, confirms AL result replicates at 26K-row scale.
-2. **FL MTL-STAN** — paper-blocking if FL number changes the headline. Estimate: 12 h on M2 Pro; can be bundled with Phase 7 headline runs (add a 6th config: `mtl_crossattn_pcgrad_stan_5f50ep`).
-3. **AL MTL-STAN λ=0** — isolate architectural overhead with the new head. If the overhead shrinks too, we have a cleaner decomposition story for the paper.
+1. **FL MTL-STAN** — whether the scale-reversal holds at 127 K (FL) or the MTL-STAN penalty keeps growing with scale. Estimate: 12 h on M2 Pro; bundle with Phase 7 headline runs.
+2. **AL/AZ MTL-STAN λ=0** — isolate architectural overhead with the new head. If λ=0 region with STAN is different from the prior GRU λ=0 baseline, we know the head-swap interacts with the backbone-only regime too.
+3. **AZ MTL-STAN with static_weight instead of pcgrad** — tests the candidate explanation #1 (PCGrad penalizes attention heads).
+4. **AZ MTL-STAN with dselectk backbone** — tests explanation #2 (cross-attn tuned for GRU).
 
 ## Paper implications
 
-- Add an MTL-STAN row to [BASELINES_AND_BEST_MTL.md](../results/BASELINES_AND_BEST_MTL.md) Task B AL table.
-- The cross-attention design's "cat-closer" claim strengthens: it closes the cat gap to STL AND admits a stronger region head without hurting category — the shared backbone produces enough for STAN to decode 5 pp more than GRU did.
-- In the Limitations/Discussion section, reframe "MTL region ceiling" as a **layered** ceiling (head + backbone) rather than a single capacity bound.
+- Add **two** MTL-STAN rows to [BASELINES_AND_BEST_MTL.md](../results/BASELINES_AND_BEST_MTL.md) Task B tables: AL lift (+5.18 pp) and AZ regression (−3.60 pp). Honest scale-dependent pattern.
+- The cross-attention design's "cat-closer" claim **strengthens** — category F1 is robust to head swap across both scales. Cat-transfer is a shared-backbone property, not a head property.
+- The region-task claim gains a **nuance**: "MTL region is layered-ceiling-bound (head + backbone); head choice matters at small scale but the optimal head inside MTL is not always the STL-winner" — belongs in Discussion, not headline.
+- **CH04 gate update:** still gated by STAN (STL ceiling) on both states. MTL does not exceed STL on either region task at either scale.
 
 ## References
 
