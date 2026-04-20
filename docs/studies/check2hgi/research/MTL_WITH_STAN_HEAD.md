@@ -62,7 +62,57 @@ python scripts/train.py \
 
 **Verdict (AZ):** MTL-STAN **regresses region by −3.60 pp Acc@10** at AZ scale, opposite direction from AL. Category F1 is unchanged within σ on both states. This is a **scale-dependent reversal**: STAN helps MTL region at AL (10 K rows) and hurts it at AZ (26 K rows).
 
-## Combined AL + AZ picture
+## Update (2026-04-20 18:00) — Hp-tuning recovers AZ via d_model=256
+
+Per [STAN_CRITICAL_REVIEW.md §2.1](STAN_CRITICAL_REVIEW.md), the primary hypothesis was a **dimensional bottleneck**: in MTL, the region head receives `[B, 9, shared_layer_size=256]` from the backbone but our default STAN projects to `d_model=128` — compressing 50% of the signal before the first attention layer. GRU (hidden_dim=256) has no such projection.
+
+Test: re-run MTL-STAN on both states with `--reg-head-param d_model=256 --reg-head-param num_heads=8` (matching backbone output dimension, 8 heads keeps head_dim=32 as in the base STAN config).
+
+| Metric | MTL+GRU (prior) | MTL+STAN d=128 | MTL+STAN **d=256** | Δ (d=256 − d=128) |
+|---|---:|---:|---:|---:|
+| **AL — cat F1** | 38.58 ± 0.98 | 39.07 ± 1.18 | 38.11 ± 1.11 | −0.96 pp |
+| **AL — reg Acc@10_indist** | 45.09 ± 5.37 | 50.27 ± 4.47 | **51.60 ± 10.09** | +1.33 pp (**but variance doubled**) |
+| **AZ — cat F1** | 43.13 ± 0.55 | 42.64 ± 0.26 | 42.74 ± 0.45 | +0.10 pp |
+| **AZ — reg Acc@10_indist** | 41.07 ± 3.46 | 37.47 ± 4.01 | **41.04 ± 4.55** | **+3.57 pp** (regression recovered) |
+
+**Headline:** The d_model=128 → d_model=256 swap **recovers** the AZ regression completely — MTL-STAN d=256 on AZ is **statistically tied with MTL-GRU** (41.04 vs 41.07). The bottleneck hypothesis was correct.
+
+**But** on AL, d=256 has directional +1.33 pp gain over d=128 with **doubled variance** (σ=10.09 vs 4.47). Per-fold range is 34.16 → 58.95 — one fold overfits beautifully, another collapses. On 10K-row AL, d_model=256 STAN has more capacity than the fold partition can reliably estimate. **d=128 is still the cleaner choice on AL.**
+
+### What this says about the region ceiling
+
+The full AL+AZ picture with all three configs:
+
+| State | STL GRU | STL STAN | MTL+GRU | MTL+STAN d=128 | MTL+STAN **d=256** |
+|---|---:|---:|---:|---:|---:|
+| AL (10K) | 56.94 ± 4.01 | 59.20 ± 3.62 | 45.09 ± 5.37 | **50.27 ± 4.47** | 51.60 ± 10.09 |
+| AZ (26K) | 48.88 ± 2.48 | 52.24 ± 2.38 | 41.07 ± 3.46 | 37.47 ± 4.01 | 41.04 ± 4.55 |
+
+Updated reading:
+
+1. **STL STAN is the universal ceiling** across scales. Confirmed.
+2. **In MTL, STAN needs d_model matched to backbone output** to avoid losing signal. When matched, STAN neither hurts nor helps — it **ties** MTL-GRU on AZ, slightly beats it on AL but with wider variance.
+3. **The region ceiling IS mostly backbone-capacity-bound** at moderate scale (AZ). Head choice matters only at small scale (AL), where STAN has ~5 pp advantage over GRU inside MTL.
+4. **The paper's CH-M1 (asymmetric MTL, region capped below STL) holds in all configurations.** Best MTL region on AZ = 41.07 (GRU) or 41.04 (STAN d=256), both ~11 pp below STL STAN 52.24.
+
+### Recommendation for the paper's region head choice
+
+- **Headline MTL runs on AL:** use STAN d=128 (clean mean 50.27 ± 4.47, +5 pp over GRU).
+- **Headline MTL runs on AZ/FL:** use GRU (ties STAN d=256 with lower variance). Equivalent performance, simpler story, fewer hyperparameters to justify.
+- **STL ceiling reference:** always STAN (simple, universally stronger, reproducible).
+
+### Variance notes
+
+The variance blowup on AL d=256 (σ=10.09) is notable. Candidate causes (not yet ablated):
+- 5-fold CV at 10K rows = ~2K val/fold. At STAN d=256 (~1.2 M params), head capacity exceeds per-fold val set by ~600×. Overfitting risk is high.
+- `std=0.02` Gaussian init for pairwise bias gives different random bias patterns per fold → different attention patterns → different overfitting directions.
+- ALiBi-decay init (option 4.2 in critical review) would lower effective DOF and should reduce variance. Not tested yet.
+
+If AL d=256 is wanted in the paper, the recommended next step is **ALiBi-decay init + d=256 on AL**, expected to lower σ without hurting mean. Low-cost rerun (~25 min).
+
+---
+
+## Combined AL + AZ picture (d=128 only; kept for historical context below)
 
 | State | Rows | Regions | STL `next_gru` | STL STAN | Δ_STL | MTL `cross-attn+GRU` | MTL `cross-attn+STAN` | Δ_MTL |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|

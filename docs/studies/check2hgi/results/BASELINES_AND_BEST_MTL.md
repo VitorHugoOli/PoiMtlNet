@@ -66,7 +66,8 @@ All numbers are from commits in this worktree; see §Sources at the bottom for t
 | B12 | MTL λ=0.5 equal-weight (static) | 11.34 | 50.26 ± 4.34 | 25.35 | Ablation step 2 |
 | | *MTL with cross-attention:* | | | | |
 | B13 | MTL mtlnet_crossattn (region head: GRU) | 10.06 | 45.09 ± 5.37 | 20.94 | Ablation step 6 |
-| B13a | **MTL mtlnet_crossattn (region head: STAN)** ⭐ | 12.48 ± 1.44 | **50.27 ± 4.47** | **24.16 ± 2.25** | P8 MTL-STAN |
+| B13a | **MTL mtlnet_crossattn (region head: STAN d=128)** ⭐ | 12.48 ± 1.44 | **50.27 ± 4.47** | **24.16 ± 2.25** | P8 MTL-STAN |
+| B13b | MTL mtlnet_crossattn (region head: STAN d=256, 8h) | 13.86 ± 3.43 | 51.60 ± 10.09 | 25.69 ± 5.34 | P8 MTL-STAN hp-tuned (high var) |
 
 **Key observations:**
 - **B8a (STL STAN 59.20%) is the region-task ceiling** — the literature-aligned Luo et al. WWW'21 architecture, adapted to our check2HGI substrate (see `research/SOTA_STAN_BASELINE.md`). STAN beats `next_gru` (B8) by +2.26 pp Acc@10 within σ on AL. `next_gru` is kept in the paper as the MTL-architecture's region head per §CH-M4 / C06 framing. No MTL architecture we tested exceeds STL STAN on AL — B11 at 50.72% is the closest MTL result (−8.48 pp gap vs STAN).
@@ -99,12 +100,14 @@ All numbers are from commits in this worktree; see §Sources at the bottom for t
 |:---:|--------|------:|-------:|----:|:------:|
 | B-AZ-gru | STL GRU standalone | 23.63 ± 2.04 | 48.88 ± 2.48 | 32.13 ± 2.21 | P1 (AZ confirm) |
 | B-AZ-stan | **STL STAN (Luo WWW'21, adapt)** ⭐ | **24.48 ± 2.29** | **52.24 ± 2.38** | **33.70 ± 2.36** | **SOTA note** |
-| B-AZ-mtl-gru | MTL cross-attn+pcgrad (region head: GRU) | 13.20 ± 1.99 | 41.07 ± 3.46 (indist) | 22.49 ± 2.49 | P2 az1 |
-| B-AZ-mtl-stan | MTL cross-attn+pcgrad (region head: STAN) | 9.79 ± 1.98 | 37.47 ± 4.01 (indist) | 18.53 ± 2.54 | P8 MTL-STAN |
+| B-AZ-mtl-gru | MTL cross-attn+pcgrad (region head: GRU) | 13.20 ± 1.99 | **41.07 ± 3.46** (indist) | 22.49 ± 2.49 | P2 az1 |
+| B-AZ-mtl-stan-d128 | MTL cross-attn+pcgrad (region head: STAN d=128) | 9.79 ± 1.98 | 37.47 ± 4.01 (indist) | 18.53 ± 2.54 | P8 MTL-STAN |
+| B-AZ-mtl-stan-d256 | MTL cross-attn+pcgrad (region head: **STAN d=256, 8h**) | 11.53 ± 2.11 | **41.04 ± 4.55** (indist) | 20.93 ± 2.86 | P8 MTL-STAN hp-tuned (**ties GRU**) |
 
 Scale-curve notes:
 - **STL:** STAN > GRU margin grows with scale (AL +2.26 pp → AZ +3.36 pp Acc@10). Consistent with transformer-family data-hunger.
-- **MTL:** Head-swap direction **reverses** between AL and AZ. On AL, MTL-STAN > MTL-GRU by +5.18 pp Acc@10_indist. On AZ, MTL-STAN < MTL-GRU by −3.60 pp. See `research/MTL_WITH_STAN_HEAD.md` for candidate explanations.
+- **MTL (d=128, original):** Head-swap direction **reverses** between AL and AZ. On AL, MTL-STAN > MTL-GRU by +5.18 pp Acc@10_indist. On AZ, MTL-STAN < MTL-GRU by −3.60 pp.
+- **MTL (d=256, hp-tuned, matched to shared_layer_size):** AZ regression is **fully recovered** — MTL-STAN ties MTL-GRU (41.04 vs 41.07). AL d=256 has higher mean (+1.33 pp) but doubled variance (σ=10.09, per-fold range 34–59). The d_model bottleneck hypothesis is correct; see `research/STAN_CRITICAL_REVIEW.md` and `research/MTL_WITH_STAN_HEAD.md` for details.
 
 ---
 
