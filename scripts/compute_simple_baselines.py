@@ -372,7 +372,7 @@ def compute_baselines_for_task(state: str, task: str) -> Dict:
         # next_category uses 7 classes, where Markov-K is trivially bounded
         # by the majority baseline anyway.
         if task == "next_region":
-            for m in (1, 2, 3):
+            for m in (1, 2, 3, 5, 7, 9):
                 fold[f"markov_{m}step_region"] = baseline_markov_kstep_region(
                     reg_train, y_train, reg_val, y_val, k=m,
                 )
@@ -386,16 +386,19 @@ def compute_baselines_for_task(state: str, task: str) -> Dict:
         )
         if task == "next_region":
             msg += (
-                f" | mk1_region_acc10={fold['markov_1step_region']['acc10']:.4f}"
+                f" | mk1={fold['markov_1step_region']['acc10']:.4f}"
                 f" mk2={fold['markov_2step_region']['acc10']:.4f}"
                 f" mk3={fold['markov_3step_region']['acc10']:.4f}"
+                f" mk5={fold['markov_5step_region']['acc10']:.4f}"
+                f" mk7={fold['markov_7step_region']['acc10']:.4f}"
+                f" mk9={fold['markov_9step_region']['acc10']:.4f}"
             )
         logger.info(msg)
 
     # Aggregate across folds
     baseline_names = ["random", "majority", "top_k_popular", "markov_1step", "user_history"]
     if task == "next_region":
-        baseline_names += ["markov_1step_region", "markov_2step_region", "markov_3step_region"]
+        baseline_names += [f"markov_{m}step_region" for m in (1, 2, 3, 5, 7, 9)]
     metric_names = ["acc1", "acc5", "acc10", "mrr"]
     aggregate = {}
     for bl in baseline_names:
