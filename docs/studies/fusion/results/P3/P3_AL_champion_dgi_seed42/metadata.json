@@ -1,0 +1,83 @@
+{
+  "test_id": "P3_AL_champion_dgi_seed42",
+  "phase": "P3",
+  "claim_ids": [
+    "C01",
+    "C03",
+    "C04",
+    "C06",
+    "C11"
+  ],
+  "run_dir": "results/dgi/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260420_030818",
+  "summary_sha256": "4228e0e1658b5859c08bd51cd7fea406f0cf2173ad0db048bb5fcdd00cd810bf",
+  "archived_at": "2026-04-20T06:32:48+00:00",
+  "observed": {
+    "cat_f1": 0.45480924248695376,
+    "cat_f1_std": 0.014959443916042404,
+    "cat_accuracy": 0.5473012447357177,
+    "next_f1": 0.26140028834342954,
+    "next_f1_std": 0.014141231326026519,
+    "next_accuracy": 0.3771947205066681,
+    "joint_f1": 0.3319901844632169,
+    "cat_f1_taskbest": 0.4586029052734375,
+    "next_f1_taskbest": 0.2671008765697479,
+    "joint_f1_taskbest": 0.33758467589862257
+  },
+  "git_commit": "e65ab58e65ca286e047f7ecf6a39c57644a38448",
+  "config": {
+    "name": "mtl_alabama_dgi",
+    "state": "alabama",
+    "embedding_engine": "dgi",
+    "model_name": "mtlnet_mmoe",
+    "model_params": {
+      "feature_size": 64,
+      "shared_layer_size": 256,
+      "num_classes": 7,
+      "num_heads": 8,
+      "num_layers": 4,
+      "seq_length": 9,
+      "num_shared_layers": 4,
+      "num_experts": 4
+    },
+    "task_type": "mtl",
+    "next_target": "next_category",
+    "epochs": 50,
+    "batch_size": 4096,
+    "learning_rate": 0.0001,
+    "max_lr": 0.001,
+    "weight_decay": 0.05,
+    "gradient_accumulation_steps": 1,
+    "max_grad_norm": 1.0,
+    "optimizer_eps": 1e-08,
+    "use_torch_compile": false,
+    "task_loss": "cross_entropy",
+    "mtl_loss": "gradnorm",
+    "mtl_loss_params": {},
+    "use_class_weights": true,
+    "k_folds": 5,
+    "seed": 42,
+    "split_relaxation": false,
+    "min_category_val_fraction": 0.05,
+    "min_next_val_fraction": 0.05,
+    "min_class_count": 5,
+    "min_class_fraction": 0.03,
+    "timeout": null,
+    "target_cutoff": null,
+    "early_stopping_patience": -1,
+    "schema_version": 1
+  },
+  "dataset_signatures": {
+    "category_input": {
+      "path": "/Users/vitor/Desktop/mestrado/ingred/output/dgi/alabama/input/category.parquet",
+      "sha256": "222d7feef87441d7597af22873c91b0fa3d7177ba095bb9b9f91740b12f5cdd3",
+      "size_bytes": 4152697,
+      "mtime": "2026-04-12T04:46:35.163017+00:00"
+    },
+    "next_input": {
+      "path": "/Users/vitor/Desktop/mestrado/ingred/output/dgi/alabama/input/next.parquet",
+      "sha256": "b0fd88f6a653211b6c6d5023e98dc532ba5003a599f12403e15f297510a802c2",
+      "size_bytes": 33771234,
+      "mtime": "2026-04-12T04:46:41.075641+00:00"
+    }
+  }
+}

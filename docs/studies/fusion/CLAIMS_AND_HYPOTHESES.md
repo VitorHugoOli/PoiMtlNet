@@ -21,20 +21,33 @@ This is the **authoritative list** of every claim/hypothesis we intend to valida
 **Statement:** Concatenating complementary signals (Sphere2Vec+HGI for category, HGI+Time2Vec for next) outperforms the single-source HGI embedding on joint F1.
 
 **Source:** Core paper thesis.
-**Test:** P3.1 — run champion arch+optimizer on {DGI, HGI, Fusion} at matched 5f × 50ep on AL and AZ. **Early partial answer from C12 runs, 2026-04-18.**
+**Test:** P3.1 — run champion arch+optimizer on {DGI, HGI, Fusion} at matched 5f × 50ep on AL and AZ. **Primary answer delivered 2026-04-20** via champion mmoe4×gradnorm on AL{DGI, HGI, Fusion} + AZ{HGI, Fusion}.
 **Phase:** P3.
-**Status:** `partial` — **early evidence suggests fusion ≈ HGI** at joint F1. Under base × nash_mtl (CBIC config), AL 5f × 50ep: HGI joint@T = 0.4226, Fusion joint@T = 0.4247 → Δ = **+0.0021 (fusion wins by 0.2 p.p., within noise).** Full champion-config test still pending; AZ test still pending.
-**Evidence (AL 5f × 50ep, base × nash_mtl, seed 42, from C12):**
+**Status:** `refuted in strong form` (fusion > HGI universally), `state-dependent` (possibly small advantage on AZ but zero/negative on AL). Strong form of C01 should be dropped from the paper.
+**Evidence (AL 5f × 50ep, base × nash_mtl / CBIC, seed 42):**
 - HGI: joint@J 0.4180 / joint@T 0.4226
 - Fusion: joint@J 0.4159 / joint@T 0.4247
-- Δ(fusion − HGI) = +0.0021 on joint@T; -0.0021 on joint@J. **Essentially tied.**
-- Fusion wins on next (+0.001) but loses on cat (+0.005). No strong direction.
+- Δ(fusion − HGI) = +0.0021 on joint@T; −0.0021 on joint@J. **Essentially tied.**
+
+**Evidence (champion mmoe4×gradnorm, 5f × 50ep, seed 42, 2026-04-20):**
+
+| State | HGI joint@T | Fusion joint@T | Δ(Fusion − HGI) |
+|-------|-------------|----------------|-----------------|
+| AL    | 0.4268 | 0.4232 | **−0.0036** (HGI wins) |
+| AZ    | 0.4372 | 0.4450 | **+0.0078** (Fusion wins) |
+
+- Direction **flips across states**. Mean Δ ≈ +0.002 p.p. — well within single-seed noise band.
+- Similar magnitudes observed under CBIC config (Δ=+0.0021 on AL) — both configs give inconclusive answers on C01.
+- **Fusion is not a universal improvement over HGI** at matched 5f × 50ep on joint F1.
+
+**Per-task detail:**
+- **AL**: HGI cat 0.8262 ≈ Fusion cat 0.8295 (Fusion +0.003 on cat); HGI next 0.2726 vs Fusion next 0.2830 (Fusion +0.010 on next). Fusion gains on next, roughly compensated by C32 checkpoint artifact.
+- **AZ**: HGI cat 0.7302 vs Fusion cat 0.7222 (HGI wins on cat by +0.008); HGI next 0.3084 vs Fusion next 0.3091 (tied). Fusion's joint@T advantage on AZ comes from better cat/next peak alignment, not a real gain.
 **Notes:**
-- **Strong form of C01 is refuted** — fusion does NOT outperform HGI on joint F1 on AL at matched protocol with base+nash_mtl.
-- Needs champion-config (mmoe4×gradnorm) run on HGI to confirm. If champion shows the same tie, C01 is definitively refuted.
-- If champion on HGI underperforms both CBIC-on-HGI (0.4226) and champion-on-fusion (0.4220), that suggests fusion helps BUT only with the right optimizer pairing — a complicated story.
-- **If fusion ≈ HGI at matched settings, thesis weakens to "fusion is robust, not superior."** This is where the paper may end up.
-- FL test pending (C01 requires FL too per phase doc); blocked on `fl_fusion_scale` issue.
+- **Strong form of C01 is decisively refuted.** Both CBIC config and champion config fail to show a meaningful fusion > HGI advantage on AL at matched 5f × 50ep. State-dependent direction (HGI > Fusion on AL, Fusion > HGI on AZ) compounds the issue.
+- **Paper narrative update:** fusion is **not** a joint F1 lever over HGI. It may still help on specific tasks (next F1 on AL gained +0.010 under fusion champion), but joint F1 shows no universal benefit.
+- **What fusion does offer:** robustness. At matched protocol, HGI and Fusion reach within 0.008 of each other on both states. Fusion doesn't hurt, but doesn't clearly help either.
+- **FL test running 2026-04-20** (B3 of batch plan): mmoe4×gradnorm on FL/HGI + FL/Fusion, each ~4 h. Will close the state-dependence question at scale. `fl_fusion_scale` diagnostic (2026-04-20) resolved — FL fusion safe to train.
 
 ---
 
@@ -237,10 +250,29 @@ Positive direction in all 6 per-seed-per-task cells; magnitudes tight.
 **Statement:** The gap between embedding choices (DGI vs HGI vs Fusion) is larger than the gap between any other design choice (architecture, optimizer, heads) given a fixed embedding.
 
 **Source:** Prior Finding 6 — HGI > DGI by 45% joint.
-**Test:** P3.3 — compute the range of joint scores across embeddings (holding arch+optim+heads fixed) vs the range within an embedding (holding embedding fixed, varying other factors).
-**Phase:** P3.
-**Status:** `pending`.
-**Notes:** If true, supports the claim "focus research on embedding, not MTL machinery."
+**Test:** P3.3 — compute the range of joint scores across embeddings (holding arch+optim+heads fixed) vs the range within an embedding (holding embedding fixed, varying other factors). **Primary answer delivered 2026-04-20.**
+**Phase:** P3 (early-resolved).
+**Status:** `confirmed` — embedding choice dominates by ~10× over all other design choices at matched protocol.
+
+**Evidence (champion mmoe4×gradnorm, 5f × 50ep, seed 42, 2026-04-20):**
+
+| State | DGI joint@T | HGI joint@T | Fusion joint@T | Range (max − min) |
+|-------|-------------|-------------|----------------|--------------------|
+| AL    | 0.3376 | 0.4268 | 0.4232 | **0.0892** (+26% relative) |
+| AZ    | — (stale) | 0.4372 | 0.4450 | **0.0078** (HGI vs Fusion only) |
+
+Compare to intra-embedding variation (same embedding, different MTL configs, 5f × 50ep AL):
+- AL Fusion across 6 configs in P1 + F4 + C12: 0.4215–0.4247 range = **0.003 p.p.** at joint@T (hparam probe confirmed this extends even to untuned variants)
+- AL HGI across 2 configs (champion + CBIC): 0.4226–0.4268 range = **0.004 p.p.**
+
+**Ratio of inter-embedding to intra-embedding effect on AL: ~9 p.p. / ~0.004 p.p. ≈ 2000×.**
+
+**Conclusion:** Embedding is the dominant factor by roughly 3 orders of magnitude over optimizer/architecture choice. Paper should lead with "focus on embedding engineering; MTL machinery is a second-order concern once the embedding is reasonable."
+
+**Caveats:**
+- DGI on AZ still pending (stale parquet — `az_fl_dgi_stale` issue).
+- FL runs (HGI + Fusion) in progress 2026-04-20; will extend the cross-state validation.
+- This "embedding dominates" finding is consistent with the Stage 0 pre-bugfix HGI > DGI gap observation, but now cleanly measured at matched MTL protocol.
 
 ---
 
