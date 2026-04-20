@@ -49,8 +49,12 @@ All numbers are from commits in this worktree; see §Sources at the bottom for t
 | B2 | Majority | 1.97 | 1.97 | 1.97 | P0 |
 | B3 | Top-K popular | 1.97 | 14.67 | 4.87 | P0 |
 | B4 | Markov-1-POI | ~12 | **21.33 ± 1.55** | ~15.00 | P0 (legacy floor) |
-| B5 | **Markov-1-region** (paper floor) | 25.40 ± 2.73 | **47.01 ± 3.55** | 32.17 ± 2.90 | P0 |
-| B6 | Markov-2-region | 22.66 | 37.87 | 27.76 | P0 |
+| B5 | **Markov-1-region** (paper floor, best k) | 25.40 ± 2.73 | **47.01 ± 3.55** | 32.17 ± 2.90 | P0 |
+| B5a | Markov-2-region (w/ backoff) | 22.66 ± 2.91 | 37.87 ± 2.77 | 27.76 ± 2.92 | P0 |
+| B5b | Markov-3-region (w/ backoff) | 21.77 ± 2.96 | 35.22 ± 2.55 | 26.28 ± 2.86 | P0 |
+| B5c | Markov-5-region (w/ backoff) | 20.80 ± 2.65 | 33.42 ± 2.16 | 24.99 ± 2.53 | P0 |
+| B5d | Markov-7-region (w/ backoff) | 20.59 ± 2.57 | 32.87 ± 1.85 | 24.63 ± 2.34 | P0 |
+| B5e | **Markov-9-region** (context-matched to model) | 20.49 ± 2.57 | **32.79 ± 1.92** | 24.54 ± 2.36 | P0 |
 | | *STL neural heads, single-task:* | | | | |
 | B7 | STL TCN-residual standalone | 21.76 ± 2.35 | 56.11 ± 4.02 | 32.93 ± ? | P1 |
 | B8 | **STL GRU standalone** ⭐ | **23.60 ± 1.86** | **56.94 ± 4.01** | **34.57 ± 2.34** | **P1 champion** |
@@ -65,6 +69,7 @@ All numbers are from commits in this worktree; see §Sources at the bottom for t
 **Key observations:**
 - **B8 (STL GRU 56.94%) is the region-task ceiling.** No MTL architecture we tested exceeds it — B11 at 50.72% is the closest (−6.22 pp gap).
 - **B5 Markov-1-region is the binding simple floor** (47.01%). Our best STL beats it by +9.93 pp; our best MTL exceeds it by +3.71 pp.
+- **B5→B5e context-matched Markov monotonically DEGRADES with k** (47.01 → 32.79). N-gram sparsity outpaces training data beyond k=1 even with backoff. The context-matched (k=9) Markov is 32.79% — **STL GRU beats Markov-9 by +24.15 pp** at the same 9-step context. This isolates the neural contribution as representation-learning, not context-length.
 - **B9 (HGI region embeddings through same pipeline): tied with Check2HGI** at the region task (57.02 vs 56.11). Expected — pooling to region erases check-in-level variance. This is CH15.
 - **Legacy "Markov-1-POI" (B4) is a degenerate baseline** — top-K fallback inflates variance. B5 (region-level) is the paper-reported floor.
 
@@ -75,14 +80,19 @@ All numbers are from commits in this worktree; see §Sources at the bottom for t
 | B14 | Random | 0.02 | 0.21 | 0.19 | theoretical |
 | B15 | Majority | 22.25 | 22.25 | 22.25 | P0 |
 | B16 | Top-K popular | 22.25 | 33.82 | 25.65 | P0 |
-| B17 | **Markov-1-region** (paper floor) | 46.36 ± 0.89 | **65.05 ± 0.93** | 52.37 ± 0.90 | P0 |
-| B18 | Markov-2-region | 44.47 | 59.17 | 49.50 | P0 |
+| B17 | **Markov-1-region** (paper floor, best k) | 46.36 ± 0.89 | **65.05 ± 0.93** | 52.37 ± 0.90 | P0 |
+| B17a | Markov-2-region (w/ backoff) | 44.47 ± 0.77 | 59.17 ± 0.86 | 49.50 ± 0.80 | P0 |
+| B17b | Markov-3-region (w/ backoff) | 43.63 ± 0.75 | 56.65 ± 0.87 | 48.13 ± 0.79 | P0 |
+| B17c | Markov-5-region (w/ backoff) | 42.95 ± 0.69 | 54.91 ± 0.74 | 47.07 ± 0.71 | P0 |
+| B17d | Markov-7-region (w/ backoff) | 42.74 ± 0.68 | 54.43 ± 0.74 | 46.76 ± 0.71 | P0 |
+| B17e | **Markov-9-region** (context-matched to model) | 42.56 ± 0.68 | **54.10 ± 0.72** | 46.53 ± 0.71 | P0 |
 | B19 | **STL GRU standalone** ⭐ **ceiling** | **44.49 ± 0.51** | **68.33 ± 0.58** | **52.74 ± 0.45** | **P1 champion** |
 | B20 | MTL dselectk + pcgrad (1f×50ep) | 15.43 | **57.05** | 27.49 | FL P2-validate |
 
 **Key observations (CH01 asymmetric):**
 - **MTL regresses region by −11.28 pp** on FL (57.05 vs 68.33 STL). Consistent with AL pattern — region is capacity-ceiling-bound regardless of data scale.
 - The region GRU standalone (68.33%) is only 3.28 pp above Markov-1-region (65.05%) — FL is a dense-data regime where near-term transitions saturate signal extraction. MTL cannot find additional signal to add.
+- **B17→B17e context-matched Markov monotonically DEGRADES with k** (65.05 → 54.10). N-gram sparsity penalty holds even at FL's 127K rows. At k=9 (model's context), STL GRU beats Markov by **+14.23 pp** — again attributable to learned representations, not context-length.
 
 ---
 
