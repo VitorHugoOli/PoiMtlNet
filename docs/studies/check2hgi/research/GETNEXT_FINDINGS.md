@@ -54,7 +54,36 @@ The real test is MTL, where the region head is **below Markov-1 floor** at moder
 - **Category F1 unchanged** (38.56 vs 38.11 / 39.07 — all within σ). No cost to cat.
 - **Per-fold range tightens from 25 pp (STAN d=256) to 10.4 pp** (GETNext). Far more stable.
 
-**AZ results — running at time of writing.** Expected: same direction as AL but larger magnitude because the prior Markov-1 floor (42.96) now exceeds the prior MTL region result (41.04). Will update this section when the run completes.
+**AZ results — lift replicates at mid-scale.**
+
+| State | Head | reg Acc@1 | **reg Acc@10_indist** | reg MRR | cat F1 | σ Acc@10 |
+|---|---|---:|---:|---:|---:|---:|
+| AZ | MTL GRU (prior) | 13.20 ± 1.99 | 41.07 ± 3.46 | 22.49 ± 2.49 | **43.13 ± 0.55** | ±3.46 |
+| AZ | MTL STAN d=256 | 11.53 ± 2.11 | 41.04 ± 4.55 | 20.93 ± 2.86 | 42.74 ± 0.45 | ±4.55 |
+| AZ | MTL STAN d=256 ALiBi | 11.24 ± 1.41 | 41.04 ± 3.26 | 20.79 ± 2.03 | 42.04 ± 0.64 | ±3.26 |
+| AZ | **MTL GETNext d=256** ⭐ | **12.39 ± 1.79** | **46.66 ± 3.62** | **23.34 ± 2.33** | 42.82 ± 0.96 | ±3.62 |
+| AZ | Δ (vs STAN ALiBi) | +1.15 | **+5.62 pp** | +2.55 | +0.78 | similar |
+
+**AZ verdict:**
+- **+5.59 pp over every prior MTL config on AZ** — biggest jump seen in this study for MTL region.
+- **MTL region now above Markov-1 floor (42.96)** for the first time on AZ. Gap to Markov: +3.70 pp (was −1.89 pp with MTL STAN d=256).
+- **MTL → STL gap halves**: 52.24 − 46.66 = 5.58 pp (was 11.17 pp with MTL GRU).
+- **Category F1 unchanged within σ** (42.82 vs prior range 42.04–43.13). Same no-cost pattern as AL.
+- Per-fold min/max 41.55 / 51.40 (9.85 pp range) — stable.
+
+## Combined summary — AL + AZ
+
+| State | MTL+GRU | MTL+STAN d=256 | **MTL+GETNext** | MTL→STL gap closed | Above Markov? |
+|---|---:|---:|---:|---|:---:|
+| AL (10K) | 45.09 ± 5.37 | 51.60 ± 10.09 | **56.49 ± 4.25** | 9.0 pp → 2.7 pp | ✅ +9.48 |
+| AZ (26K) | 41.07 ± 3.46 | 41.04 ± 4.55 | **46.66 ± 3.62** | 11.2 pp → 5.6 pp | ✅ +3.70 |
+
+**GETNext consistently:**
+1. **Improves MTL region by 5–11 pp** vs the best prior MTL config at each state.
+2. **Cuts MTL→STL gap by ~50%** at both states.
+3. **Lifts MTL region above Markov-1 floor** at both states (restores the "MTL must beat Markov" sanity check that was broken for STAN/GRU on AZ/FL).
+4. **Maintains category F1** within σ on both states — no task trade-off.
+5. **Stabilizes variance** — σ on AL drops 10.09 → 4.25 (halved) vs STAN d=256.
 
 ## Why GETNext works in MTL but not STL
 

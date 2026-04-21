@@ -69,6 +69,7 @@ Comparable external baselines on the same state split are documented in `docs/ba
 | B-M5 | **mtlnet_crossattn + pcgrad + STAN d=128** ⭐ | Check2HGI | AL | 5f × 50ep | 12.48 ± 1.44 | **50.27 ± 4.47** | 24.16 ± 2.25 | **P8 MTL-STAN best-mean, low-σ** |
 | B-M6 | mtlnet_crossattn + pcgrad + STAN d=256, 8h | Check2HGI | AL | 5f × 50ep | 13.86 ± 3.43 | 51.60 ± 10.09 | 25.69 ± 5.34 | P8 MTL-STAN hp-tuned (high σ) |
 | B-M6a | mtlnet_crossattn + pcgrad + STAN d=256, 8h, ALiBi | Check2HGI | AL | 5f × 50ep | 14.09 ± 3.71 | 51.64 ± 8.92 | 25.69 ± 5.40 | P8 ALiBi — null on AL (σ unchanged) |
+| B-M6b | **mtlnet_crossattn + pcgrad + GETNext d=256, 8h** ⭐⭐ | Check2HGI | AL | 5f × 50ep | **15.25 ± 2.62** | **56.49 ± 4.25** | **28.08 ± 3.06** | **P8 GETNext — +11 pp vs GRU, closes 70% of MTL→STL gap** |
 | **Baselines — Arizona** | | | | | | | | |
 | B-B7 | Random (AZ) | — | AZ | theoretical | — | 0.65 ± 0.00 | — | 1540 classes |
 | B-B8-AZ | Majority (AZ) | — | AZ | closed form | 7.43 | 7.43 ± 0.70 | — | P0 |
@@ -82,7 +83,8 @@ Comparable external baselines on the same state split are documented in `docs/ba
 | B-M7 | mtlnet_crossattn + pcgrad + GRU | Check2HGI | AZ | 5f × 50ep | 13.20 ± 1.99 | **41.07 ± 3.46** | 22.49 ± 2.49 | P2 az1 |
 | B-M8 | mtlnet_crossattn + pcgrad + STAN d=128 | Check2HGI | AZ | 5f × 50ep | 9.79 ± 1.98 | 37.47 ± 4.01 | 18.53 ± 2.54 | P8 MTL-STAN (bottleneck) |
 | B-M9 | mtlnet_crossattn + pcgrad + STAN d=256, 8h | Check2HGI | AZ | 5f × 50ep | 11.53 ± 2.11 | 41.04 ± 4.55 | 20.93 ± 2.86 | P8 MTL-STAN hp-tuned (ties GRU) |
-| B-M9a | **mtlnet_crossattn + pcgrad + STAN d=256, 8h, ALiBi** ⭐ | Check2HGI | AZ | 5f × 50ep | 11.24 ± 1.41 | **41.04 ± 3.26** | 20.79 ± 2.03 | **P8 — same mean, σ narrows 28%** |
+| B-M9a | mtlnet_crossattn + pcgrad + STAN d=256, 8h, ALiBi | Check2HGI | AZ | 5f × 50ep | 11.24 ± 1.41 | 41.04 ± 3.26 | 20.79 ± 2.03 | P8 ALiBi — same mean, σ narrows 28% |
+| B-M9b | **mtlnet_crossattn + pcgrad + GETNext d=256, 8h** ⭐⭐ | Check2HGI | AZ | 5f × 50ep | **12.39 ± 1.79** | **46.66 ± 3.62** | **23.34 ± 2.33** | **P8 GETNext — +5.6 pp, ABOVE Markov-1 floor, gap halved** |
 | **Baselines — Florida** | | | | | | | | |
 | B-B8 | Random | — | FL | theoretical | 0.02 | 0.21 | 0.19 | 4702 classes |
 | B-B9 | Majority | — | FL | closed form | 22.25 | 22.25 | 22.25 | |
@@ -115,9 +117,9 @@ For each state × task, the two binding reference points are the **simple floor*
 | State | Task | Floor | STL ceiling | Best MTL | MTL − Floor | MTL − STL | Verdict |
 |---|---|---:|---:|---:|---:|---:|:---|
 | AL | cat F1 | 31.7 (Markov-POI) | **38.58** (A-S2) | 38.58 (A-M3) | +6.88 pp | 0.00 pp | MTL ties STL |
-| AL | reg Acc@10 | 47.01 (B-B4) | **59.20** (B-S4) | 50.27 (B-M5) / 51.60 (B-M6) | +3.26 / +4.59 pp | −8.93 / −7.60 pp | MTL capped below STL |
+| AL | reg Acc@10 | 47.01 (B-B4) | **59.20** (B-S4) | **56.49 (B-M6b GETNext)** | **+9.48 pp** | **−2.71 pp** | **GETNext closes 70% of MTL→STL gap** |
 | AZ | cat F1 | — | 42.08 (A-S3) | 43.13 (A-M6) | — | +1.05 pp | MTL slightly lifts |
-| AZ | reg Acc@10 | 42.96 (B-B10-AZ) | **52.24** (B-S6) | 41.07 (B-M7) / 41.04 (B-M9) | −1.89 / −1.92 pp | −11.17 / −11.20 pp | MTL capped, head-invariant at d=256, BELOW Markov floor |
+| AZ | reg Acc@10 | 42.96 (B-B10-AZ) | **52.24** (B-S6) | **46.66 (B-M9b GETNext)** | **+3.70 pp** | **−5.58 pp** | **GETNext recovers above Markov floor, halves MTL→STL gap** |
 | FL | cat F1 | 37.2 (Markov-POI) | 63.17 (A-S4, n=1) | 66.46 (A-M10, n=1) | +29.26 pp | +3.29 pp | MTL lifts (n=1, 5-fold pending) |
 | FL | reg Acc@10 | **65.05** (B-B11) | 68.33 (B-S7) | 57.60 (B-M11) / 57.71 (B-M12, STAN-d256) | −7.34 pp | −10.62 pp | MTL regresses below Markov at both heads (n=1) |
 
