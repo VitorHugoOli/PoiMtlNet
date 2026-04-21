@@ -101,6 +101,14 @@ Updated reading:
 - **Headline MTL runs on AZ/FL:** use GRU (ties STAN d=256 with lower variance). Equivalent performance, simpler story, fewer hyperparameters to justify.
 - **STL ceiling reference:** always STAN (simple, universally stronger, reproducible).
 
+### FL sanity check (n=1) — confirms AZ pattern
+
+At 1-fold on Florida (127 K rows, 4.7 K regions), MTL cross-attn + pcgrad with STAN d=256 region head ties MTL-GRU on Acc@10_indist (57.71 vs 57.60), but **MRR drops 3.6 pp** (24.51 vs 28.11) and **Acc@5 drops 14 pp** (34.36 vs 48.62). Category F1 is unchanged (66.16 vs 66.46, within 1-fold noise).
+
+Interpretation: STAN d=256 at FL scale places the correct region in the top-10 just as often as GRU but with **worse fine-grained ranking** inside that top-10. The shared-backbone + cross-attn exchange provides enough coarse signal to hit "right region neighborhood", but STAN's attention struggles to refine the ranking compared to GRU's recurrent state. This is opposite of our AL finding where STAN lifted everything.
+
+**n=1 caveat:** no σ envelope. The FL conclusion needs 5-fold confirmation before paper claims. The 1-fold result is consistent with the AZ pattern and with our earlier conclusion that the recommended FL MTL region head is GRU.
+
 ### Variance notes
 
 The variance blowup on AL d=256 (σ=10.09) is notable. Candidate causes (not yet ablated):

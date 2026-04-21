@@ -34,7 +34,7 @@ Comparable external baselines on the same state split are documented in `docs/ba
 | A-M8 | mtlnet_crossattn + pcgrad + STAN d=256 | Check2HGI | AZ | 5f × 50ep | 42.74 ± 0.45 | 44.05 ± 0.66 | 65.58 ± 0.29 | P8 MTL-STAN hp-tuned |
 | A-M9 | mtlnet_dselectk + pcgrad + GRU | Check2HGI | FL | 1f × 50ep | **64.78** | 67.44 | 79.70 | FL P2-validate (n=1) |
 | A-M10 | mtlnet_crossattn + pcgrad + GRU | Check2HGI | FL | 1f × 50ep | 66.46 | 68.92 | 80.47 | FL P2 (n=1) |
-| A-M11 | mtlnet_crossattn + pcgrad + STAN d=256 | Check2HGI | FL | 1f × 50ep | TBD | TBD | TBD | P8 sanity run |
+| A-M11 | mtlnet_crossattn + pcgrad + STAN d=256 | Check2HGI | FL | 1f × 50ep | 66.16 | 68.76 | 80.35 | P8 sanity (n=1, ties GRU) |
 
 **Task-A observations:**
 
@@ -90,7 +90,7 @@ Comparable external baselines on the same state split are documented in `docs/ba
 | **MTL — Florida** | | | | | | | | |
 | B-M10 | mtlnet_dselectk + pcgrad + GRU | Check2HGI | FL | 1f × 50ep | 15.43 | **57.05** | 27.49 | FL P2-validate (n=1) |
 | B-M11 | mtlnet_crossattn + pcgrad + GRU | Check2HGI | FL | 1f × 50ep | — | 57.60 | — | FL P2 (n=1) |
-| B-M12 | mtlnet_crossattn + pcgrad + STAN d=256, 8h | Check2HGI | FL | 1f × 50ep | TBD | TBD | TBD | P8 FL sanity |
+| B-M12 | mtlnet_crossattn + pcgrad + STAN d=256, 8h | Check2HGI | FL | 1f × 50ep | 12.09 | **57.71** (indist) | 24.51 | P8 FL sanity (n=1, **ties GRU on Acc@10**; MRR −3.6 pp, Acc@5 −14 pp — worse fine-grained ranking) |
 
 **Task-B observations:**
 
@@ -113,7 +113,7 @@ For each state × task, the two binding reference points are the **simple floor*
 | AZ | cat F1 | — | 42.08 (A-S3) | 43.13 (A-M6) | — | +1.05 pp | MTL slightly lifts |
 | AZ | reg Acc@10 | TBD | **52.24** (B-S6) | 41.07 (B-M7) / 41.04 (B-M9) | — | −11.17 / −11.20 pp | MTL capped, head-invariant at d=256 |
 | FL | cat F1 | 37.2 (Markov-POI) | 63.17 (A-S4, n=1) | 66.46 (A-M10, n=1) | +29.26 pp | +3.29 pp | MTL lifts (n=1, 5-fold pending) |
-| FL | reg Acc@10 | **65.05** (B-B11) | 68.33 (B-S7) | 57.60 (B-M11, n=1) | −7.45 pp | −10.73 pp | MTL regresses below Markov (n=1) |
+| FL | reg Acc@10 | **65.05** (B-B11) | 68.33 (B-S7) | 57.60 (B-M11) / 57.71 (B-M12, STAN-d256) | −7.34 pp | −10.62 pp | MTL regresses below Markov at both heads (n=1) |
 
 **Key cross-state patterns:**
 
