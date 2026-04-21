@@ -71,12 +71,49 @@ The real test is MTL, where the region head is **below Markov-1 floor** at moder
 - **Category F1 unchanged within σ** (42.82 vs prior range 42.04–43.13). Same no-cost pattern as AL.
 - Per-fold min/max 41.55 / 51.40 (9.85 pp range) — stable.
 
-## Combined summary — AL + AZ
+## Combined summary — AL + AZ + FL
 
-| State | MTL+GRU | MTL+STAN d=256 | **MTL+GETNext** | MTL→STL gap closed | Above Markov? |
-|---|---:|---:|---:|---|:---:|
-| AL (10K) | 45.09 ± 5.37 | 51.60 ± 10.09 | **56.49 ± 4.25** | 9.0 pp → 2.7 pp | ✅ +9.48 |
-| AZ (26K) | 41.07 ± 3.46 | 41.04 ± 4.55 | **46.66 ± 3.62** | 11.2 pp → 5.6 pp | ✅ +3.70 |
+| State | n_folds | MTL+GRU | MTL+STAN d=256 | **MTL+GETNext** | MTL→STL gap closed | Above Markov? |
+|---|---|---:|---:|---:|---|:---:|
+| AL (10K) | 5f | 45.09 ± 5.37 | 51.60 ± 10.09 | **56.49 ± 4.25** | 9.0 pp → 2.7 pp | ✅ +9.48 |
+| AZ (26K) | 5f | 41.07 ± 3.46 | 41.04 ± 4.55 | **46.66 ± 3.62** | 11.2 pp → 5.6 pp | ✅ +3.70 |
+| FL (127K) | 1f | 57.60 | 57.71 | **60.62** | 10.7 pp → 7.7 pp | ⚠ still −4.4 |
+
+**FL 1f caveat:** single-fold, no σ. GETNext lifts **Acc@10 by +3.02 pp** over MTL GRU (57.60 → 60.62) and remains below the Markov-1-region floor (65.05). The graph prior's contribution visibly **dilutes at FL's 4703-region scale** — the wider label space spreads the transition prior probability mass across many "plausible" regions, helping Acc@10 coverage but losing top-1/top-5 sharpness.
+
+## Acc@1 / Acc@5 / MRR — scale-dependent trade-off
+
+The MTL GETNext lift on Acc@10 does not translate uniformly to finer-grained metrics:
+
+| State | Metric | MTL GRU | **MTL GETNext** | Δ |
+|---|---|---:|---:|---:|
+| AL | Acc@1 | 10.06 | **15.25 ± 2.62** | +5.19 |
+| AL | Acc@5 | 32.05 | **43.40 ± 4.60** | +11.35 |
+| AL | MRR | 20.94 | **28.08 ± 3.06** | +7.14 |
+| AZ | Acc@1 | 13.20 ± 1.99 | 12.39 ± 1.79 | −0.81 |
+| AZ | Acc@5 (indist) | 32.17 ± 3.55 | **35.70 ± 3.38** | +3.53 |
+| AZ | MRR | 22.49 ± 2.49 | **23.34 ± 2.33** | +0.85 |
+| FL | Acc@1 | 15.80 | 12.51 | **−3.29** |
+| FL | Acc@5 (indist) | 49.50 | 36.01 | **−13.49** |
+| FL | MRR | 28.11 | 25.10 | **−3.01** |
+
+- **AL:** GETNext lifts every metric, large margins.
+- **AZ:** GETNext lifts Acc@10 and Acc@5/MRR slightly; Acc@1 essentially unchanged.
+- **FL:** GETNext lifts Acc@10 **only**; Acc@1, Acc@5 and MRR all regress by ~3 pp.
+
+### Interpretation
+
+As the label cardinality grows (1 109 AL → 1 547 AZ → 4 703 FL), the number of "one-step-plausible" regions grows too. At FL's 4 703 regions with avg ~9.2 non-zero transitions per row in `log_T`, the prior distributes probability across many candidates. The **Acc@10 window is wide enough to include the correct region regardless** (hence the lift), but the **top-1/5 ranking inside the window gets fuzzier** because the graph prior doesn't distinguish among the 5-10 plausible next-regions as sharply as the pure STAN attention did.
+
+This is a **paper-worthy nuance**, not a contradiction. The right claim is:
+
+> "The graph prior improves MTL region-task recall (Acc@10) at every scale tested (+11 pp AL, +5.6 pp AZ, +3 pp FL), but the precision trade-off (Acc@1 / MRR) is scale-dependent: improves at small scale, neutral at moderate scale, regresses at large scale. We attribute this to probability-mass spreading under large-label-space graph priors; a sharper head (e.g. temperature scaling the transition prior) may recover FL precision. Left as future work."
+
+## FL MTL still below Markov floor
+
+One remaining issue: **FL MTL GETNext 1f at Acc@10 = 60.62 is still below the Markov-1-region floor of 65.05**, by 4.43 pp. At FL scale, the classical Markov closed-form is stronger than *any* MTL config we've tested, including the graph-prior-enhanced version. This reinforces the shared-backbone-dilution finding: at FL's 127K rows, the MTL region head loses capacity faster than the graph prior can restore.
+
+A 5-fold FL MTL GETNext run (with σ) is needed before claiming this pattern holds, but the n=1 result is consistent with AL/AZ behavior.
 
 **GETNext consistently:**
 1. **Improves MTL region by 5–11 pp** vs the best prior MTL config at each state.

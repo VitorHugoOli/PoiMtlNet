@@ -99,6 +99,7 @@ Comparable external baselines on the same state split are documented in `docs/ba
 | B-M10 | mtlnet_dselectk + pcgrad + GRU | Check2HGI | FL | 1f × 50ep | 15.43 | **57.05** | 27.49 | FL P2-validate (n=1) |
 | B-M11 | mtlnet_crossattn + pcgrad + GRU | Check2HGI | FL | 1f × 50ep | — | 57.60 | — | FL P2 (n=1) |
 | B-M12 | mtlnet_crossattn + pcgrad + STAN d=256, 8h | Check2HGI | FL | 1f × 50ep | 12.09 | **57.71** (indist) | 24.51 | P8 FL sanity (n=1, **ties GRU on Acc@10**; MRR −3.6 pp, Acc@5 −14 pp — worse fine-grained ranking) |
+| B-M13 | **mtlnet_crossattn + pcgrad + GETNext d=256, 8h** ⭐ | Check2HGI | FL | 1f × 50ep | 12.51 | **60.62** (indist) | 25.10 | **P8 FL GETNext sanity (n=1): +3 pp Acc@10 vs GRU, but Acc@1/5/MRR drop 3-14 pp — graph prior dilutes at 4703-region scale** |
 
 **Task-B observations:**
 
@@ -121,7 +122,7 @@ For each state × task, the two binding reference points are the **simple floor*
 | AZ | cat F1 | — | 42.08 (A-S3) | 43.13 (A-M6) | — | +1.05 pp | MTL slightly lifts |
 | AZ | reg Acc@10 | 42.96 (B-B10-AZ) | **52.24** (B-S6) | **46.66 (B-M9b GETNext)** | **+3.70 pp** | **−5.58 pp** | **GETNext recovers above Markov floor, halves MTL→STL gap** |
 | FL | cat F1 | 37.2 (Markov-POI) | 63.17 (A-S4, n=1) | 66.46 (A-M10, n=1) | +29.26 pp | +3.29 pp | MTL lifts (n=1, 5-fold pending) |
-| FL | reg Acc@10 | **65.05** (B-B11) | 68.33 (B-S7) | 57.60 (B-M11) / 57.71 (B-M12, STAN-d256) | −7.34 pp | −10.62 pp | MTL regresses below Markov at both heads (n=1) |
+| FL | reg Acc@10 | **65.05** (B-B11) | 68.33 (B-S7) | 57.60 (B-M11) / 57.71 (B-M12 STAN) / **60.62** (B-M13 GETNext) | −4.43 pp | −7.71 pp | GETNext lifts Acc@10 by +3 pp but still below Markov; Acc@1/MRR worse than GRU at FL (scale-dependent precision trade-off) |
 
 **Key cross-state patterns:**
 
