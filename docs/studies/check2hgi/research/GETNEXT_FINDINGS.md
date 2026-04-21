@@ -130,7 +130,23 @@ A 5-fold FL MTL GETNext run (with σ) is needed before claiming this pattern hol
 
 Concretely: the α parameter likely learns a value > 0.1 (init) during MTL training because the graph prior provides signal the shared backbone has attenuated. In STL, α likely stays small because STAN's attention already does the job.
 
-(TODO: inspect learned α values from checkpoints after confirming final numbers.)
+### Learned α values — inspection results (2026-04-21)
+
+1-fold × 50-epoch runs with checkpoints enabled, extracting α from best checkpoint per state × head:
+
+| State | GETNext α | TGSTAN α | STA-Hyper α | STA-Hyper α_cluster |
+|---|---:|---:|---:|---:|
+| AL (10K) | 0.54 | 0.50 | 0.53 | 0.60 |
+| AZ (26K) | **0.72** | **0.66** | **0.70** | **0.96** |
+| Δ (AZ − AL) | +0.18 | +0.16 | +0.17 | +0.36 |
+
+All α initialized at 0.1 → all learned to 0.5–0.96 range. The graph prior is **load-bearing**, not decorative. Three paper-grade takeaways:
+
+1. **AZ α > AL α on every head** — the graph prior gets MORE weight where MTL is harder (AZ has the largest MTL→STL gap and MTL below-Markov situation without the prior).
+2. **GETNext / TGSTAN / STA-Hyper α are near-identical** within each state — the graph-prior weight is a property of the *scale*, not the head variant. This corroborates the AL/AZ performance tie we see (all three MTL variants sit within ±0.7 pp).
+3. **STA-Hyper's α_cluster saturates on AZ** (0.96 ≈ 1.0) — the model is placing nearly unit weight on the cluster prior in addition to the graph prior. Since the MTL performance doesn't improve correspondingly over GETNext, this is interpretable as the cluster prior **approximating** what the graph prior already provides (redundancy, not new signal). Paper reading: cluster prior is not needed when graph prior is present.
+
+Full backlog item B6 closed.
 
 ## Paper-level positioning
 
