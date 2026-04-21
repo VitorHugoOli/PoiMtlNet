@@ -347,14 +347,43 @@ When all 3 states × 5 runs = 15 JSONs are in `docs/studies/check2hgi/results/P4
 - **Data:** `data/checkins/<State>.parquet`, `data/miscellaneous/tl_2022_*_tract_*.shp` (for FL, CA, TX).
 - **Disk:** ~10-20 GB for outputs per state.
 
-## 11. What this phase does NOT include
+## 11. Multi-seed Headline (n=3) — **ADDED 2026-04-21**
+
+Per user request on 2026-04-21, the headline MTL config (§2.4 cross-attn + pcgrad) MUST be replicated with **3 seeds** on each of FL, CA, TX to survive reviewer pushback on stability. The 2 secondary runs add 2× per state on the headline row only (not full table).
+
+**Seeds chosen:** `42` (primary, current P7 commands), `123`, `2024`.
+
+**Scope reduction to keep total compute manageable:**
+
+- Only §2.4 (MTL cross-attn + pcgrad) is multi-seeded. §2.1–2.3 + 2.5 stay at n=1.
+- If reviewer demand escalates, n=5 at seeds `{42, 123, 2024, 777, 31337}` is a further 2× bump per state (deferred).
+
+**Per-state compute budget (updated):** 6–10 h × 3 seeds = **18–30 h** for the headline row alone, plus 3–5 h for the 4 other sections = **~21–35 h per state**. On 1 machine per state, this is 1–1.5 days per state. CA + TX in parallel on two machines = 1–1.5 days end-to-end.
+
+**Command template (seed = 123 example):**
+
+```bash
+STATE=florida SEED=123 WORKTREE=$(pwd) DATA_ROOT=... OUTPUT_DIR=... PY=... \
+    bash scripts/p7_launcher.sh > p7_${STATE}_seed${SEED}.log 2>&1 &
+```
+
+(P7 launcher currently hard-codes `--seed 42`. Adding a `SEED` env var is a one-line change if not already in place — update `scripts/p7_launcher.sh` §2.4 block to accept `SEED="${SEED:-42}"`.)
+
+**Reporting rule:** per-metric mean ± std across the 3 seeds (std over seed-level aggregates, not fold-level). The seed axis is the *outer* stat layer; 5-fold std is reported separately per-seed.
+
+**Graph-prior head configs (NEW, §11.5 added 2026-04-21):**
+
+Based on P8 (MTL-STAN) findings, consider also running the headline with the **GETNext** region head (`--reg-head next_getnext --reg-head-param d_model=256 --reg-head-param num_heads=8 --reg-head-param transition_path=...`). On AL+AZ it lifts MTL region by +5 to +11 pp with no cat cost (see `research/GETNEXT_FINDINGS.md`). Running GETNext as a 6th headline config adds another ~6-10 h per state; optional, but high-expected-value.
+
+## 12. What this phase does NOT include
 
 Out-of-scope for P7 (deferred or skipped):
-- **Multi-seed n=15** — can be a P8 if reviewers push back. +15× compute.
+- **Multi-seed n=5 or n=15** — deferred unless reviewers push. n=3 is the §11 commitment.
 - **Cross-attn λ=0 on FL** — only dselectk λ=0 was run. If we want exact decomposition, add a 6th run. But dselectk λ=0 and cross-attn λ=0 were within σ on AL (51.87 vs 52.27), so dselectk is a fine proxy.
 - **Hybrid arch, Nash-MTL, gated-skip, AdaShare** — all rejected as null on AZ; no reason to re-test at scale.
 - **Additional embeddings (DGI, HGI)** — not needed for headline; paper is about Check2HGI.
 - **POI-granularity next-POI** — out of scope for this study.
+- **TGSTAN / STA-Hyper heads** — unless AL/AZ results show meaningful lift over GETNext, skip at scale (they are GETNext-variants, not architecturally distinct baselines).
 
 ## Entry point
 
