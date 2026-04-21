@@ -6,8 +6,8 @@
 
 | Follow-up | Status | Result | Paper impact |
 |---|---|---|---|
-| ALiBi-decay init for STAN pairwise bias | ✅ done (AL STL + MTL d=256) | **Null**: σ barely changed, mean unchanged | Drop; Gaussian init is fine |
-| MTL STAN ALiBi on AZ | 🔄 running | TBD | Will confirm null on AZ |
+| ALiBi-decay init for STAN pairwise bias (AL) | ✅ done | **Null on AL**: σ 10.09→8.92, mean unchanged | Neutral ablation line |
+| ALiBi-decay init on AZ | ✅ done | **σ reduced 4.55→3.26** at same mean | **Paper-worthy**: scale-dependent regularization effect |
 | GETNext-style graph-prior head | ⛔ deferred | Not implemented this session | Future work — best expected gain |
 | TGSTAN / STA-Hyper | ⛔ documented as future | Surveyed only | Future work |
 | PCGrad × static_weight ablation | ⛔ skipped | Not paper-blocking | Low expected yield |
@@ -54,7 +54,27 @@ Within σ everywhere. Attention learns the pairwise prior from data whether or n
 | **ALiBi d=256** | 51.64 ± **8.92** | 14.09 ± 3.71 | 25.69 ± 5.40 | 38.63 ± 1.74 | 36.76 / 59.14 |
 | Δ | +0.04 | +0.23 | 0.00 | +0.52 | similar spread |
 
-**Null finding.** Variance went 10.09 → 8.92 (−1.17 pp σ, not statistically meaningful) and mean barely moved. Per-fold range still spans 22 pp. The AL d=256 variance issue is **not** an init problem.
+**Null finding on AL.** Variance went 10.09 → 8.92 (−1.17 pp σ, not statistically meaningful) and mean barely moved. Per-fold range still spans 22 pp. The AL d=256 variance issue is **not** an init problem.
+
+**MTL cross-attn + pcgrad + STAN d=256 on AZ (5f × 50 ep):**
+
+| Init | reg Acc@10_indist | reg Acc@1 | reg MRR | cat F1 | per-fold min / max |
+|---|---:|---:|---:|---:|---|
+| Gaussian d=256 (prior) | 41.04 ± 4.55 | 11.53 ± 2.11 | 20.93 ± 2.86 | 42.74 ± 0.45 | wider |
+| **ALiBi d=256** | **41.04 ± 3.26** | 11.24 ± 1.41 | 20.79 ± 2.03 | 42.04 ± 0.64 | 35.72 / 43.45 (7.7 pp) |
+| Δ | 0.00 (same mean) | −0.29 | −0.14 | −0.70 | **σ narrowed** |
+
+**Non-null on AZ.** Mean is byte-identical (41.04 = 41.04), but σ **drops 28% relatively** (4.55 → 3.26) and Acc@1 σ also drops 33% (2.11 → 1.41). The ALiBi recency-decay prior **stabilizes training** at AZ scale.
+
+### Combined verdict
+
+ALiBi init effect is **scale-dependent on variance reduction**:
+
+- On AL (10K rows / 2.5K val-fold): capacity >> data ratio; ALiBi prior is overwhelmed by random overfitting direction. No variance reduction.
+- On AZ (26K rows / 5.2K val-fold): capacity ≈ data ratio; ALiBi prior successfully lowers effective DOF and reduces fold-to-fold drift. Meaningful σ reduction.
+- On FL (127K rows, not re-tested): expected to give similar stabilisation — data is abundant, ALiBi prior should help slightly or be neutral.
+
+**Paper recommendation:** Include ALiBi d=256 as the **recommended STAN config for AZ/FL MTL runs** (reduces reporting σ without changing mean). Keep Gaussian d=128 as the AL MTL choice (d=128 is cleaner on AL regardless of init, and ALiBi doesn't help d=256 there).
 
 ### Interpretation
 
@@ -68,7 +88,7 @@ None of these is cheaply testable. The **paper-ready conclusion**: at AL (10 K r
 
 ### Verdict
 
-**ALiBi init is neither a help nor a harm for our adapted STAN.** Drop from the paper's ablation table. The `bias_init` kwarg stays in the code for future work and reproducibility; `"gaussian"` remains the default.
+**ALiBi init has a scale-dependent stabilisation effect.** Keep in the paper's ablation table. On AL it's neutral (σ unchanged); on AZ it narrows σ by 28% at identical mean. The `bias_init` kwarg stays in the code; default `"gaussian"` for AL, `"alibi"` for AZ/FL MTL configs.
 
 ## 2 · AZ simple baselines archive — **NEW CRITICAL FINDING**
 

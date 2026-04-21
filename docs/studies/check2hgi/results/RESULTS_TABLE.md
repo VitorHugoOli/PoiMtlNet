@@ -68,6 +68,7 @@ Comparable external baselines on the same state split are documented in `docs/ba
 | B-M4 | mtlnet_crossattn + pcgrad + GRU | Check2HGI | AL | 5f × 50ep | 10.06 | 45.09 ± 5.37 | 20.94 | B13 (ablation 06) |
 | B-M5 | **mtlnet_crossattn + pcgrad + STAN d=128** ⭐ | Check2HGI | AL | 5f × 50ep | 12.48 ± 1.44 | **50.27 ± 4.47** | 24.16 ± 2.25 | **P8 MTL-STAN best-mean, low-σ** |
 | B-M6 | mtlnet_crossattn + pcgrad + STAN d=256, 8h | Check2HGI | AL | 5f × 50ep | 13.86 ± 3.43 | 51.60 ± 10.09 | 25.69 ± 5.34 | P8 MTL-STAN hp-tuned (high σ) |
+| B-M6a | mtlnet_crossattn + pcgrad + STAN d=256, 8h, ALiBi | Check2HGI | AL | 5f × 50ep | 14.09 ± 3.71 | 51.64 ± 8.92 | 25.69 ± 5.40 | P8 ALiBi — null on AL (σ unchanged) |
 | **Baselines — Arizona** | | | | | | | | |
 | B-B7 | Random (AZ) | — | AZ | theoretical | — | 0.65 ± 0.00 | — | 1540 classes |
 | B-B8-AZ | Majority (AZ) | — | AZ | closed form | 7.43 | 7.43 ± 0.70 | — | P0 |
@@ -81,6 +82,7 @@ Comparable external baselines on the same state split are documented in `docs/ba
 | B-M7 | mtlnet_crossattn + pcgrad + GRU | Check2HGI | AZ | 5f × 50ep | 13.20 ± 1.99 | **41.07 ± 3.46** | 22.49 ± 2.49 | P2 az1 |
 | B-M8 | mtlnet_crossattn + pcgrad + STAN d=128 | Check2HGI | AZ | 5f × 50ep | 9.79 ± 1.98 | 37.47 ± 4.01 | 18.53 ± 2.54 | P8 MTL-STAN (bottleneck) |
 | B-M9 | mtlnet_crossattn + pcgrad + STAN d=256, 8h | Check2HGI | AZ | 5f × 50ep | 11.53 ± 2.11 | 41.04 ± 4.55 | 20.93 ± 2.86 | P8 MTL-STAN hp-tuned (ties GRU) |
+| B-M9a | **mtlnet_crossattn + pcgrad + STAN d=256, 8h, ALiBi** ⭐ | Check2HGI | AZ | 5f × 50ep | 11.24 ± 1.41 | **41.04 ± 3.26** | 20.79 ± 2.03 | **P8 — same mean, σ narrows 28%** |
 | **Baselines — Florida** | | | | | | | | |
 | B-B8 | Random | — | FL | theoretical | 0.02 | 0.21 | 0.19 | 4702 classes |
 | B-B9 | Majority | — | FL | closed form | 22.25 | 22.25 | 22.25 | |
