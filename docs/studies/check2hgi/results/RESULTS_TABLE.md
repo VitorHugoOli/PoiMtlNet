@@ -69,7 +69,11 @@ Comparable external baselines on the same state split are documented in `docs/ba
 | B-M5 | **mtlnet_crossattn + pcgrad + STAN d=128** ⭐ | Check2HGI | AL | 5f × 50ep | 12.48 ± 1.44 | **50.27 ± 4.47** | 24.16 ± 2.25 | **P8 MTL-STAN best-mean, low-σ** |
 | B-M6 | mtlnet_crossattn + pcgrad + STAN d=256, 8h | Check2HGI | AL | 5f × 50ep | 13.86 ± 3.43 | 51.60 ± 10.09 | 25.69 ± 5.34 | P8 MTL-STAN hp-tuned (high σ) |
 | **Baselines — Arizona** | | | | | | | | |
-| B-B7 | Markov-1-region (AZ) | — | AZ | closed form | TBD | TBD | TBD | P0 (not yet archived) |
+| B-B7 | Random (AZ) | — | AZ | theoretical | — | 0.65 ± 0.00 | — | 1540 classes |
+| B-B8-AZ | Majority (AZ) | — | AZ | closed form | 7.43 | 7.43 ± 0.70 | — | P0 |
+| B-B9-AZ | Top-K popular (AZ) | — | AZ | closed form | 7.43 | 20.82 ± 1.28 | — | P0 |
+| B-B10-AZ | **Markov-1-region (AZ)** ⭐ | — | AZ | closed form | 23.98 ± 1.13 | **42.96 ± 2.05** | — | **P0 floor** |
+| B-B11-AZ | Markov-9-region (AZ, ctx-matched) | — | AZ | closed form | — | 33.38 ± 1.33 | — | P0 |
 | **STL — Arizona** | | | | | | | | |
 | B-S5 | STL GRU (hd=256) | Check2HGI region | AZ | 5f × 50ep | 23.63 ± 2.04 | 48.88 ± 2.48 | 32.13 ± 2.21 | P1 |
 | B-S6 | **STL STAN (Luo WWW'21 adapt)** ⭐ | Check2HGI region | AZ | 5f × 50ep | **24.48 ± 2.29** | **52.24 ± 2.38** | **33.70 ± 2.36** | **P8 STL SOTA** |
@@ -111,7 +115,7 @@ For each state × task, the two binding reference points are the **simple floor*
 | AL | cat F1 | 31.7 (Markov-POI) | **38.58** (A-S2) | 38.58 (A-M3) | +6.88 pp | 0.00 pp | MTL ties STL |
 | AL | reg Acc@10 | 47.01 (B-B4) | **59.20** (B-S4) | 50.27 (B-M5) / 51.60 (B-M6) | +3.26 / +4.59 pp | −8.93 / −7.60 pp | MTL capped below STL |
 | AZ | cat F1 | — | 42.08 (A-S3) | 43.13 (A-M6) | — | +1.05 pp | MTL slightly lifts |
-| AZ | reg Acc@10 | TBD | **52.24** (B-S6) | 41.07 (B-M7) / 41.04 (B-M9) | — | −11.17 / −11.20 pp | MTL capped, head-invariant at d=256 |
+| AZ | reg Acc@10 | 42.96 (B-B10-AZ) | **52.24** (B-S6) | 41.07 (B-M7) / 41.04 (B-M9) | −1.89 / −1.92 pp | −11.17 / −11.20 pp | MTL capped, head-invariant at d=256, BELOW Markov floor |
 | FL | cat F1 | 37.2 (Markov-POI) | 63.17 (A-S4, n=1) | 66.46 (A-M10, n=1) | +29.26 pp | +3.29 pp | MTL lifts (n=1, 5-fold pending) |
 | FL | reg Acc@10 | **65.05** (B-B11) | 68.33 (B-S7) | 57.60 (B-M11) / 57.71 (B-M12, STAN-d256) | −7.34 pp | −10.62 pp | MTL regresses below Markov at both heads (n=1) |
 

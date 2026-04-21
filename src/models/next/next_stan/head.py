@@ -62,9 +62,17 @@ class _STANAttention(nn.Module):
     (ALiBi-style).
     """
 
-    def __init__(self, d_model: int, num_heads: int, seq_length: int, dropout: float):
+    def __init__(
+        self,
+        d_model: int,
+        num_heads: int,
+        seq_length: int,
+        dropout: float,
+        bias_init: str = "gaussian",
+    ):
         super().__init__()
         assert d_model % num_heads == 0, "d_model must divide num_heads"
+        assert bias_init in ("gaussian", "alibi"), "bias_init must be gaussian|alibi"
         self.num_heads = num_heads
         self.head_dim = d_model // num_heads
 
@@ -72,7 +80,19 @@ class _STANAttention(nn.Module):
         self.out_proj = nn.Linear(d_model, d_model)
 
         self.pair_bias = nn.Parameter(torch.zeros(num_heads, seq_length, seq_length))
-        nn.init.normal_(self.pair_bias, std=0.02)
+        if bias_init == "alibi":
+            # ALiBi-style recency-decay prior: head h gets slope
+            # 2^(-8(h+1)/num_heads). Bias b_ij = -slope * |i - j|.
+            # Newer tokens attended to more by default; lowers effective
+            # DOF vs free Gaussian init.
+            with torch.no_grad():
+                positions = torch.arange(seq_length).float()
+                rel_dist = (positions.unsqueeze(0) - positions.unsqueeze(1)).abs()
+                for h in range(num_heads):
+                    slope = 1.0 / (2.0 ** ((h + 1) * 8.0 / num_heads))
+                    self.pair_bias.data[h] = -slope * rel_dist
+        else:
+            nn.init.normal_(self.pair_bias, std=0.02)
 
         self.attn_dropout = nn.Dropout(dropout)
         self.resid_dropout = nn.Dropout(dropout)
@@ -118,10 +138,17 @@ class _STANAttention(nn.Module):
 class _STANBlock(nn.Module):
     """Self-attention + FFN with pre-norm residuals."""
 
-    def __init__(self, d_model: int, num_heads: int, seq_length: int, dropout: float):
+    def __init__(
+        self,
+        d_model: int,
+        num_heads: int,
+        seq_length: int,
+        dropout: float,
+        bias_init: str = "gaussian",
+    ):
         super().__init__()
         self.norm1 = nn.LayerNorm(d_model)
-        self.attn = _STANAttention(d_model, num_heads, seq_length, dropout)
+        self.attn = _STANAttention(d_model, num_heads, seq_length, dropout, bias_init=bias_init)
         self.norm2 = nn.LayerNorm(d_model)
         self.ffn = nn.Sequential(
             nn.Linear(d_model, d_model * 4),
@@ -153,6 +180,7 @@ class NextHeadSTAN(nn.Module):
         d_model: int = 128,
         num_heads: int = 4,
         dropout: float = 0.3,
+        bias_init: str = "gaussian",
     ):
         super().__init__()
         self.embed_dim = embed_dim
@@ -163,9 +191,9 @@ class NextHeadSTAN(nn.Module):
         self.input_norm = nn.LayerNorm(d_model)
         self.input_dropout = nn.Dropout(dropout)
 
-        self.trajectory_block = _STANBlock(d_model, num_heads, seq_length, dropout)
+        self.trajectory_block = _STANBlock(d_model, num_heads, seq_length, dropout, bias_init=bias_init)
         self.matching_norm = nn.LayerNorm(d_model)
-        self.matching_attn = _STANAttention(d_model, num_heads, seq_length, dropout)
+        self.matching_attn = _STANAttention(d_model, num_heads, seq_length, dropout, bias_init=bias_init)
 
         self.classifier = nn.Sequential(
             nn.LayerNorm(d_model),
