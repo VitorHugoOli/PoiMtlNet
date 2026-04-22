@@ -91,8 +91,18 @@ def _build_mtlnet_ple():
 
 
 def _build_mtlnet_dselectk():
+    """DSelectK under the check2HGI preset — the LoRA / α-skip branch
+    activates on non-legacy task_sets, which is where the partition bug
+    actually shows up. Legacy-task_set DSelectK deliberately excludes
+    those params (they are dead weight with no gradient path)."""
     from models.mtl.mtlnet_dselectk.model import MTLnetDSelectK
+    from tasks import CHECK2HGI_NEXT_REGION
+    from tasks.presets import resolve_task_set
 
+    task_set = resolve_task_set(
+        CHECK2HGI_NEXT_REGION,
+        task_b_num_classes=NUM_CLASSES,
+    )
     return MTLnetDSelectK(
         feature_size=EMBED_DIM,
         shared_layer_size=256,
@@ -101,6 +111,7 @@ def _build_mtlnet_dselectk():
         num_layers=4,
         seq_length=SEQ_LEN,
         num_shared_layers=4,
+        task_set=task_set,
     )
 
 

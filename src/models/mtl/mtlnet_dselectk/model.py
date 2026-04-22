@@ -195,28 +195,37 @@ class MTLnetDSelectK(MTLnet):
         # gradient-surgery losses (PCGrad / CAGrad / AlignedMTL) actually
         # set their .grad. Missing them causes a silent freeze — see
         # docs/studies/check2hgi/issues/MTL_PARAM_PARTITION_BUG.md.
+        #
+        # The LoRA branch is **gated off** on the legacy ``task_set``
+        # (see forward() line 139) — those parameters are not in the
+        # autograd graph there. Including them in this iterator on the
+        # legacy path causes ``torch.autograd.grad`` in PCGrad to raise
+        # "One of the differentiated Tensors appears to not have been
+        # used in the graph." So we only enumerate the LoRA / α-skip
+        # params when the forward pass actually uses them.
+        base_keys = (
+            "category_encoder",
+            "next_encoder",
+            "category_poi",
+            "next_poi",
+            "dselect.category_selector",
+            "dselect.next_selector",
+            "dselect.category_selector_weights",
+            "dselect.next_selector_weights",
+        )
+        lora_keys = (
+            "lora_A_cat",
+            "lora_B_cat",
+            "lora_A_next",
+            "lora_B_next",
+            "skip_alpha_cat",
+            "skip_alpha_next",
+        )
+        keys = base_keys + lora_keys if self._task_set is not LEGACY_CATEGORY_NEXT else base_keys
         return (
             p
             for name, p in self.named_parameters()
-            if any(
-                key in name
-                for key in (
-                    "category_encoder",
-                    "next_encoder",
-                    "category_poi",
-                    "next_poi",
-                    "dselect.category_selector",
-                    "dselect.next_selector",
-                    "dselect.category_selector_weights",
-                    "dselect.next_selector_weights",
-                    "lora_A_cat",
-                    "lora_B_cat",
-                    "lora_A_next",
-                    "lora_B_next",
-                    "skip_alpha_cat",
-                    "skip_alpha_next",
-                )
-            )
+            if any(key in name for key in keys)
         )
 
 
