@@ -882,6 +882,21 @@ def main(argv=None) -> None:
                 file=sys.stderr,
             )
             sys.exit(2)
+        # Apply --reg-head / --reg-head-param overrides BEFORE fold creation
+        # so FoldCreator sees the final ``task_b.head_factory`` when deciding
+        # which dataloader path to use (e.g. aux-publishing for the B5 head
+        # ``next_getnext_hard``). The later ``resolve_task_set`` call after
+        # fold creation additionally sets ``task_b_num_classes``, which can
+        # only be known once labels are loaded — that pass is kept.
+        if is_check2hgi_track and (args.reg_head or args.reg_head_param):
+            _early_reg_head_params = _parse_key_value_overrides(
+                args.reg_head_param or [], "--reg-head-param"
+            )
+            task_set = resolve_task_set(
+                task_set,
+                task_b_head_factory=args.reg_head,
+                task_b_head_params=_early_reg_head_params or None,
+            )
 
     # Resolve folds: prefer the frozen cache under
     # output/{engine}/{state}/folds/fold_indices_{task}.pt (see

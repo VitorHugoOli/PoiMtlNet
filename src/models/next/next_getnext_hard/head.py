@@ -100,9 +100,14 @@ class NextHeadGETNextHard(nn.Module):
         aux = get_current_aux()  # [B] int64 last_region_idx, or None
         if aux is None:
             # Defensive: eval outside AuxPublishingLoader (e.g. isolated
-            # unit tests). Fall back to pure STAN — callers that need
-            # the graph prior must route through the aux side-channel.
-            return stan_logits
+            # unit tests, FLOPs probe, or a misconfigured training run
+            # where the aux loader wasn't wired up). Fall back to pure
+            # STAN, but keep ``alpha`` in the autograd graph (via a
+            # zero-coefficient multiply) so gradient-surgery losses like
+            # PCGrad that enumerate ``task_specific_parameters`` don't
+            # crash with "unused in graph" when a batch reaches this
+            # branch.
+            return stan_logits + self.alpha * 0.0
 
         if aux.device != stan_logits.device:
             aux = aux.to(stan_logits.device)
