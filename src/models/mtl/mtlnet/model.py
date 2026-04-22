@@ -523,6 +523,12 @@ class MTLnet(nn.Module):
         )
 
     def task_specific_parameters(self) -> Iterator[nn.Parameter]:
+        # AdaShare gates are per-task (shape [2, num_blocks]) and control
+        # whether each shared block fires for each task, so they belong in
+        # the task-specific bucket. They must be enumerated here otherwise
+        # gradient-surgery losses (PCGrad / CAGrad / AlignedMTL) leave
+        # p.grad is None for every step — see
+        # docs/studies/check2hgi/issues/MTL_PARAM_PARTITION_BUG.md.
         return (
             p
             for name, p in self.named_parameters()
@@ -533,6 +539,7 @@ class MTLnet(nn.Module):
                     "next_encoder",
                     "category_poi",
                     "next_poi",
+                    "adashare_logits",
                 )
             )
         )

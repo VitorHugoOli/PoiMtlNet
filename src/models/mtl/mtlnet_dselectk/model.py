@@ -190,6 +190,11 @@ class MTLnetDSelectK(MTLnet):
         )
 
     def task_specific_parameters(self) -> Iterator[nn.Parameter]:
+        # LoRA A/B and skip_alpha are per-task adapters on top of the
+        # shared DSelect-K output; they must appear in this bucket so
+        # gradient-surgery losses (PCGrad / CAGrad / AlignedMTL) actually
+        # set their .grad. Missing them causes a silent freeze — see
+        # docs/studies/check2hgi/issues/MTL_PARAM_PARTITION_BUG.md.
         return (
             p
             for name, p in self.named_parameters()
@@ -204,6 +209,12 @@ class MTLnetDSelectK(MTLnet):
                     "dselect.next_selector",
                     "dselect.category_selector_weights",
                     "dselect.next_selector_weights",
+                    "lora_A_cat",
+                    "lora_B_cat",
+                    "lora_A_next",
+                    "lora_B_next",
+                    "skip_alpha_cat",
+                    "skip_alpha_next",
                 )
             )
         )
