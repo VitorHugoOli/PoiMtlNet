@@ -180,8 +180,15 @@ class NextHeadSTAN(nn.Module):
         d_model: int = 128,
         num_heads: int = 4,
         dropout: float = 0.3,
-        bias_init: str = "gaussian",
+        bias_init: str = "alibi",
     ):
+        # Default changed from "gaussian" to "alibi" on 2026-04-22 per
+        # docs/studies/check2hgi/issues/MODEL_DESIGN_REVIEW_2026-04-22.md
+        # §4: the unregularised Gaussian pair_bias (324 params/block) was
+        # overfit-prone; AZ ALiBi runs (commit f1ea416) showed scale-
+        # dependent σ reduction. Best STAN+GETNext paper numbers (B-M6d)
+        # already passed bias_init="alibi" explicitly, so the default
+        # flip aligns new runs with the champion configuration.
         super().__init__()
         self.embed_dim = embed_dim
         self.seq_length = seq_length
