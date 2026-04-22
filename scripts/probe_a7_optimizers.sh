@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# A7 optimizer probe — champion config (dselectk + MTLoRA r=8, AL 5f×50ep)
+# A7 optimizer probe — champion config (dselectk + MTLoRA r=8, 5f×50ep)
 # swept across {pcgrad, aligned_mtl, cagrad, db_mtl}.
 #
 # Purpose:
@@ -9,9 +9,25 @@
 #   2. Test the three optimizers the user asked for (Aligned-MTL, CAGrad,
 #      DB-MTL) on the same config, as apples-to-apples comparison points.
 #
-# Expected runtime: 4 runs × ~60min/run on MPS ≈ 4h sequential.
+# Usage:
+#   STATE=alabama bash scripts/probe_a7_optimizers.sh
+#   STATE=arizona bash scripts/probe_a7_optimizers.sh
+#
+# Expected runtime: 4 runs × ~40min/run on MPS ≈ 2.7h (AL scale).
+# AZ is ~2x AL, so ~5-6h.
 
 set -u
+
+STATE="${STATE:-alabama}"
+STATE_SHORT="${STATE_SHORT:-}"
+if [ -z "${STATE_SHORT}" ]; then
+    case "${STATE}" in
+        alabama)  STATE_SHORT="al" ;;
+        florida)  STATE_SHORT="fl" ;;
+        arizona)  STATE_SHORT="az" ;;
+        *)        STATE_SHORT="${STATE}" ;;
+    esac
+fi
 
 WORKTREE="${WORKTREE:-$(pwd)}"
 export PYTHONPATH="src"
@@ -29,7 +45,7 @@ mkdir -p "${DEST}"
 archive_summary() {
     local dest_name="$1"
     local latest
-    latest=$(ls -dt "${WORKTREE}/results/check2hgi/alabama/"*_lr*_bs*_ep50_* 2>/dev/null | head -1)
+    latest=$(ls -dt "${WORKTREE}/results/check2hgi/${STATE}/"*_lr*_bs*_ep50_* 2>/dev/null | head -1)
     if [ -n "${latest}" ] && [ -f "${latest}/summary/full_summary.json" ]; then
         cp "${latest}/summary/full_summary.json" "${DEST}/${dest_name}.json"
         echo "[PROBE] saved → ${DEST}/${dest_name}.json"
@@ -42,10 +58,10 @@ run() {
     local tag="$1" dest_name="$2"; shift 2
     echo ""
     echo "================================================================"
-    echo "=== [${tag}] start $(date)"
+    echo "=== [${tag}] start $(date) (state=${STATE})"
     echo "================================================================"
     "$PY" -u scripts/train.py \
-        --task mtl --engine check2hgi --state alabama \
+        --task mtl --engine check2hgi --state "${STATE}" \
         --task-set check2hgi_next_region \
         --task-a-input-type checkin --task-b-input-type region \
         --model mtlnet_dselectk --model-param lora_rank=8 \
@@ -61,17 +77,17 @@ run() {
 }
 
 echo "================================================================"
-echo "=== A7 optimizer probe starting $(date)"
+echo "=== A7 optimizer probe starting $(date) — STATE=${STATE}"
 echo "================================================================"
 
-run "a7_pcgrad_postfix"      "a7_mtlora_r8_al_5f50ep_postfix_pcgrad"      --mtl-loss pcgrad
-run "a7_aligned_mtl_postfix" "a7_mtlora_r8_al_5f50ep_postfix_aligned_mtl" --mtl-loss aligned_mtl
-run "a7_cagrad_postfix"      "a7_mtlora_r8_al_5f50ep_postfix_cagrad"      --mtl-loss cagrad
-run "a7_db_mtl_postfix"      "a7_mtlora_r8_al_5f50ep_postfix_db_mtl"      --mtl-loss db_mtl
+run "a7_pcgrad_${STATE_SHORT}_postfix"      "a7_mtlora_r8_${STATE_SHORT}_5f50ep_postfix_pcgrad"      --mtl-loss pcgrad
+run "a7_aligned_mtl_${STATE_SHORT}_postfix" "a7_mtlora_r8_${STATE_SHORT}_5f50ep_postfix_aligned_mtl" --mtl-loss aligned_mtl
+run "a7_cagrad_${STATE_SHORT}_postfix"      "a7_mtlora_r8_${STATE_SHORT}_5f50ep_postfix_cagrad"      --mtl-loss cagrad
+run "a7_db_mtl_${STATE_SHORT}_postfix"      "a7_mtlora_r8_${STATE_SHORT}_5f50ep_postfix_db_mtl"      --mtl-loss db_mtl
 
 echo ""
 echo "================================================================"
-echo "=== A7 probe complete at $(date)"
+echo "=== A7 probe complete at $(date) — STATE=${STATE}"
 echo "=== results in ${DEST}/"
 echo "================================================================"
-ls -la "${DEST}/a7_mtlora_r8_al_5f50ep_postfix_"*.json 2>/dev/null || echo "[PROBE] no archived JSONs found"
+ls -la "${DEST}/a7_mtlora_r8_${STATE_SHORT}_5f50ep_postfix_"*.json 2>/dev/null || echo "[PROBE] no archived JSONs found"
