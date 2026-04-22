@@ -1,7 +1,9 @@
 # B5 — Hard Index vs Soft Probe: Inference-Time Ablation
 
 **Date:** 2026-04-22. Script: `scripts/eval_hard_vs_soft_region_idx.py`.
-**Input checkpoints:** α-inspection 2f × 50-ep MTL-GETNext runs (epoch 8-9 captured).
+**Input checkpoints:** α-inspection 2f × 50-ep MTL-GETNext runs. Initial pass used
+epoch 8-9 state dicts (way undertrained); corrected pass below uses epoch 46-47
+state dicts, which are the near-final (champion-equivalent) trained weights.
 
 ## Question
 
@@ -38,6 +40,75 @@ to pure STAN).
 
 All metrics are restricted to in-distribution regions (labels that appear
 in the training fold).
+
+## Results — fully-trained (epoch 46-47) state dicts — AUTHORITATIVE
+
+These are the near-final weights of the 2-fold × 50-ep α-inspection runs. The
+MTL-GETNext 5f × 50-ep *champion* runs were launched with `--no-checkpoints` so
+no state dicts exist for them directly; the α-inspection runs share exactly the
+same config (`mtlnet_crossattn + pcgrad + GETNext d=256, 8h`) and seed=42, just
+with 2 folds instead of 5. Hyperparameters and learned head weights should be
+representative of the champion.
+
+### Alabama
+
+**Fold 0 (val = 6355, α = 0.543, epoch 46):**
+
+| Prior source | Acc@1 | Acc@5 | Acc@10 | MRR |
+|---|---:|---:|---:|---:|
+| soft (trained) | 14.13 | 39.64 | 52.43 | 25.02 |
+| **hard (faithful)** | **18.27** | **47.68** | **61.54** | **30.73** |
+| none (pure STAN) | 2.72 | 12.86 | 22.01 | 7.28 |
+| **Δ (hard − soft)** | **+4.14** | **+8.04** | **+9.11** | **+5.71** |
+
+Soft-probe argmax agrees with hard last_region_idx: **52.38%** (up from 7% at epoch 9).
+
+**Fold 1 (val = 6354, α = 0.543, epoch 46):**
+
+| Prior source | Acc@1 | Acc@5 | Acc@10 | MRR |
+|---|---:|---:|---:|---:|
+| soft (trained) | 40.56 | 70.73 | 80.80 | 53.31 |
+| **hard (faithful)** | **43.44** | **75.65** | **85.76** | **57.15** |
+| none (pure STAN) | 25.26 | 44.85 | 57.19 | 33.91 |
+| **Δ (hard − soft)** | **+2.88** | **+4.92** | **+4.96** | **+3.84** |
+
+Soft/hard argmax agreement: **53.71%**.
+
+Note: fold-1 numbers are much higher than fold-0 because the 2-fold split gives
+this user subgroup a much more predictable trajectory distribution. Not directly
+comparable to the 5-fold champion's per-fold numbers.
+
+### Arizona
+
+**Fold 0 (val = 13198, α = 0.715, epoch 47):**
+
+| Prior source | Acc@1 | Acc@5 | Acc@10 | MRR |
+|---|---:|---:|---:|---:|
+| soft (trained) | 12.48 | 33.04 | 42.88 | 21.23 |
+| **hard (faithful)** | **16.03** | **40.19** | **52.24** | **26.39** |
+| none (pure STAN) | 2.61 | 8.77 | 14.84 | 5.42 |
+| **Δ (hard − soft)** | **+3.55** | **+7.15** | **+9.36** | **+5.16** |
+
+Soft/hard argmax agreement: **55.44%**.
+
+## Why α grows 4–5× over training
+
+At the last epoch `α` is 0.54 (AL) / 0.72 (AZ) — an order of magnitude higher
+than epoch-9 values (0.13 / 0.15). The model *learns to trust the graph prior
+more* as the probe sharpens. This means early-epoch ablations overestimate the
+B5 lift: at epoch 9 the prior contribution is small so swapping it matters a
+lot; at epoch 46 the prior is already load-bearing and swapping it matters less
+in relative terms.
+
+## Correction log
+
+A first pass of this ablation (committed in `6517255`) used epoch-9 state dicts
+and reported Δ Acc@10 of +20 to +24 pp. **That number is misleading.** It
+represents the cost of a poorly trained probe at early training — not the gap
+between a fully trained soft probe and a hard index. The corrected epoch-46/47
+numbers above (Δ Acc@10 between +5.0 and +9.4 pp) are the authoritative ones.
+
+## Early-training numbers (epoch 9) — kept for reference
 
 ## Results — Alabama epoch 9 (2-fold α-inspection, α=0.131)
 
@@ -104,14 +175,18 @@ Soft/hard argmax agreement: **11.92%**.
    weight during training. If the prior were more accurate (hard), the
    model might learn to increase α further.
 
-## Implication for the paper
+## Implication for the paper — REVISED with epoch-46 data
 
 The current MTL-GETNext numbers (56.49 AL, 46.66 AZ, 60.62 FL-1f) on
-Acc@10 are **strictly suboptimal**. Retraining with `last_region_idx`
-as a hard input should lift all three states by an amount in the
-range of +5 to +15 pp Acc@10 (the inference-time substitution gives
-+20 pp, but we expect some of that to be clawed back once the STAN
-backbone re-adapts to a sharper prior).
+Acc@10 are suboptimal, but by less than the epoch-9 analysis suggested.
+At near-convergence the soft probe agrees with the hard index on
+~52% of samples and α grows to ~0.54 (AL) / ~0.72 (AZ), so the prior
+is already load-bearing and the probe is at least partially faithful.
+
+Retraining with `last_region_idx` as a hard input should lift all three
+states by an amount in the range of **+3 to +9 pp Acc@10** (point
+estimate from the epoch-46 inference-time gap, with some further claw-
+back expected once the STAN backbone re-adapts to a sharper prior).
 
 The "soft probe vs hard index" ablation is now a **paper-worthy
 finding**, not just a nuisance variable. Claim:
@@ -132,13 +207,13 @@ With the hypothesis confirmed, B5 proper (retraining with
 `last_region_idx` wired through the data pipeline) is now high-ROI.
 Implementation plan in `B5_IMPLEMENTATION_PLAN.md` (to follow).
 
-Estimated lift budget for the paper:
+Estimated lift budget for the paper (revised with epoch-46 evidence):
 
-| State | Current MTL-GETNext Acc@10 | Conservative B5 estimate | Optimistic |
+| State | Current MTL-GETNext Acc@10 | Conservative B5 | Optimistic B5 |
 |---|---:|---:|---:|
-| AL | 56.38 ± 4.11 | 60 ± 3 | 65 ± 3 |
-| AZ | 47.34 ± 2.93 | 52 ± 2 | 55 ± 2 |
-| FL (1f) | 60.62 | 65 | 70 |
+| AL | 56.38 ± 4.11 | 59 ± 3 (+3 pp) | 63 ± 3 (+7 pp) |
+| AZ | 47.34 ± 2.93 | 50 ± 2 (+3 pp) | 54 ± 2 (+7 pp) |
+| FL (1f) | 60.62 | 63 (+3 pp) | 67 (+7 pp) |
 
 ## Caveats
 

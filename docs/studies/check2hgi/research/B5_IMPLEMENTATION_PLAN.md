@@ -9,13 +9,14 @@ Train MTL-GETNext end-to-end with the faithful hard `last_region_idx`
 prior (as in GETNext's original SIGIR 2022 formulation), rather than the
 soft-probe adaptation we currently use.
 
-Target metric lifts (from `B5_HARD_VS_SOFT_INFERENCE.md §Implication`):
+Target metric lifts (from `B5_HARD_VS_SOFT_INFERENCE.md §Implication`,
+revised with epoch-46 evidence — earlier epoch-9 estimate was inflated):
 
 | State | Current | Conservative B5 | Optimistic |
 |---|---:|---:|---:|
-| AL | 56.38 | 60 ± 3 | 65 ± 3 |
-| AZ | 47.34 | 52 ± 2 | 55 ± 2 |
-| FL | 60.62 | 65 | 70 |
+| AL | 56.38 | 59 ± 3 (+3 pp) | 63 ± 3 (+7 pp) |
+| AZ | 47.34 | 50 ± 2 (+3 pp) | 54 ± 2 (+7 pp) |
+| FL | 60.62 | 63 (+3 pp) | 67 (+7 pp) |
 
 ## Implementation checklist (additive — safe while partition rerun is active)
 
