@@ -72,6 +72,7 @@ Comparable external baselines on the same state split are documented in `docs/ba
 | B-M6b | **mtlnet_crossattn + pcgrad + GETNext d=256, 8h** ⭐⭐ | Check2HGI | AL | 5f × 50ep | **15.25 ± 2.62** | **56.49 ± 4.25** | **28.08 ± 3.06** | **P8 GETNext — +11 pp vs GRU, closes 70% of MTL→STL gap** |
 | B-M6c | **mtlnet_crossattn + static_weight + GETNext d=256, 8h** | Check2HGI | AL | 5f × 50ep | 8.65 ± 0.56 (F1_macro) | **56.21 ± 3.91** | 28.74 ± 2.22 | **2026-04-22 attribution: Δ vs PCGrad = −0.17 pp Acc@10, within σ → graph prior is load-bearing, not optimizer** |
 | B-M6d | mtlnet_crossattn + pcgrad + GETNext d=256, 8h, **ALiBi** | Check2HGI | AL | 5f × 50ep | 9.25 ± 0.79 (F1_macro) | **57.46 ± 3.66** | 29.86 ± 2.53 | **2026-04-22 B7: +1.08 pp Acc@10, −11% σ; optional stabilizer** |
+| B-M6e | **mtlnet_crossattn + pcgrad + GETNext-HARD d=256, 8h** ⭐ | Check2HGI | AL | 5f × 50ep | 9.47 ± 0.71 (F1_macro) | **57.96 ± 5.09** | 28.93 ± 3.88 | **2026-04-22 B5: faithful hard last_region_idx; +1.47 pp Acc@10 over B-M6b (tied, within σ)** |
 | **Baselines — Arizona** | | | | | | | | |
 | B-B7 | Random (AZ) | — | AZ | theoretical | — | 0.65 ± 0.00 | — | 1540 classes |
 | B-B8-AZ | Majority (AZ) | — | AZ | closed form | 7.43 | 7.43 ± 0.70 | — | P0 |
@@ -88,6 +89,7 @@ Comparable external baselines on the same state split are documented in `docs/ba
 | B-M9a | mtlnet_crossattn + pcgrad + STAN d=256, 8h, ALiBi | Check2HGI | AZ | 5f × 50ep | 11.24 ± 1.41 | 41.04 ± 3.26 | 20.79 ± 2.03 | P8 ALiBi — same mean, σ narrows 28% |
 | B-M9b | **mtlnet_crossattn + pcgrad + GETNext d=256, 8h** ⭐⭐ | Check2HGI | AZ | 5f × 50ep | **12.39 ± 1.79** | **46.66 ± 3.62** | **23.34 ± 2.33** | **P8 GETNext — +5.6 pp, ABOVE Markov-1 floor, gap halved** |
 | B-M9c | **mtlnet_crossattn + static_weight + GETNext d=256, 8h** | Check2HGI | AZ | 5f × 50ep | 7.30 ± 0.46 (F1_macro) | **47.20 ± 2.55** | 24.05 ± 1.39 | **2026-04-22 attribution: Δ vs PCGrad = −0.14 pp Acc@10, within σ → cross-state confirms graph-prior is the driver** |
+| B-M9d | **mtlnet_crossattn + pcgrad + GETNext-HARD d=256, 8h** ⭐⭐⭐ | Check2HGI | AZ | 5f × 50ep | 8.95 ± 0.52 (F1_macro) | **53.25 ± 3.44** | **26.89 ± 2.62** | **2026-04-22 B5: +6.59 pp Acc@10 / +3.08 MRR over B-M9b (both outside σ). MTL-to-STL gap (53.25 vs 52.24) now reversed — MTL catches STL on AZ.** |
 | **Baselines — Florida** | | | | | | | | |
 | B-B8 | Random | — | FL | theoretical | 0.02 | 0.21 | 0.19 | 4702 classes |
 | B-B9 | Majority | — | FL | closed form | 22.25 | 22.25 | 22.25 | |
