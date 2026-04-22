@@ -38,17 +38,17 @@
 - **Expected outcome:** Either hard == soft (probe faithful; claim "our soft probe IS GETNext"), OR hard > soft (we should commit to hard).
 
 ### B6. Learned α inspection (GETNext / TGSTAN / STA-Hyper)
-- **Status:** Not possible on existing runs — `--no-checkpoints` flag disabled state-dict saves.
+- **Status:** ✅ Completed 2026-04-21. See `GETNEXT_FINDINGS.md §α inspection`.
+- Original gating note (kept for reference):
 - **Why:** Quantify how much weight the graph prior receives (α) across states. If α→0 on AZ and α→1 on AL, tells us when the prior matters.
 - **Effort:** Re-run one fold with checkpoints enabled per head family per state, load state dict, print α. ~30 min of compute + 30 min analysis.
 - **Expected outcome:** α > 0.3 on AL for GETNext; TBD on AZ. Paper gets a one-line figure or claim.
 - **Risk:** may require adding a CLI flag or modifying `_default_checkpoint_callbacks` to write minimal checkpoints (just final epoch) for this purpose.
 
 ### B7. GETNext + ALiBi init combination
-- **Status:** Not run. ALiBi reduced σ on AZ STAN d=256 by 28% at identical mean.
-- **Why:** ALiBi may stabilize GETNext on AZ the same way it stabilized STAN.
-- **Effort:** 1 run × 2 states = ~30 min + 45 min.
-- **Expected outcome:** Same mean, possibly lower σ. Not essential if variance already acceptable.
+- **Status:** ✅ Completed 2026-04-22 on AL. See `B7_ALIBI_GETNEXT_FINDINGS.md`.
+- **Result:** +1.08 pp Acc@10 (56.38 → 57.46) and −11% σ (4.11 → 3.66). Lift within σ; documented as optional paper stabilizer, not a default.
+- **AZ still open.** Low value given AZ σ on GETNext is already 2.93 (ALiBi stabilizer effect diminishes).
 
 ## Low priority (research / future work)
 
