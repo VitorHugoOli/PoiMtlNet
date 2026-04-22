@@ -235,6 +235,91 @@ class MTLnetCrossAttn(MTLnet):
         out_next = self.next_poi(shared_next)
         return out_cat, out_next
 
+    def cat_forward(self, category_input: torch.Tensor) -> torch.Tensor:
+        """Run the category subgraph with a zero-B stream.
+
+        The inherited ``MTLnet.cat_forward`` references ``self.film`` /
+        ``self.shared_layers`` which do not exist on this subclass — see
+        ``docs/studies/check2hgi/issues/CROSSATTN_PARTIAL_FORWARD_CRASH.md``.
+        This override feeds a zero-valued, fully-padded B stream into the
+        cross-attention stack, which makes the B contribution to A's
+        representation an exact zero (the cross-attention block's
+        ``key_padding_mask`` masks the entire B side, so the attention
+        output over B is zero; the block's per-stream FFN still runs).
+
+        NOT bit-exact with ``forward((cat, real_b))[0]`` — cross-attention
+        genuinely mixes the two streams during joint training. This is a
+        deterministic "cat-only" approximation useful for isolating the A
+        head in evaluation; callers that need the joint output must call
+        ``forward((cat, next))[0]`` directly.
+        """
+        pad_value = InputsConfig.PAD_VALUE
+        mask_a = None
+        if self._task_a_is_sequential:
+            mask_a = (category_input.abs().sum(dim=-1) == pad_value)
+            category_input = category_input.masked_fill(mask_a.unsqueeze(-1), 0)
+
+        enc_cat = self.category_encoder(category_input)
+        # Synthetic zero B stream matching cross-attention's expected
+        # shape ``[B, T, D]`` for sequential task A (or ``[B, 1, D]``
+        # when A is flat). Using V = 0 drives attention's
+        # ``softmax(QKᵀ) @ V`` contribution from B to exactly zero
+        # without needing a fully-True key_padding_mask (which triggers
+        # softmax-over-all-masked → NaN in PyTorch's MHA).
+        t_b = enc_cat.size(1) if enc_cat.dim() == 3 else 1
+        enc_next = torch.zeros(
+            enc_cat.size(0), t_b, enc_cat.size(-1),
+            device=enc_cat.device, dtype=enc_cat.dtype,
+        )
+        if enc_cat.dim() == 2:
+            enc_cat = enc_cat.unsqueeze(1)
+
+        a, b = enc_cat, enc_next
+        for block in self.crossattn_blocks:
+            # No b_pad_mask — the zero values of B already zero the A ← B
+            # attention output, and a fully-True pad mask would NaN the
+            # B ← A softmax for the B stream.
+            a, b = block(a, b, a_pad_mask=mask_a, b_pad_mask=None)
+        shared_cat = self.cat_final_ln(a)
+
+        if self._task_set is not LEGACY_CATEGORY_NEXT and mask_a is not None:
+            shared_cat = shared_cat.masked_fill(mask_a.unsqueeze(-1), 0)
+
+        if self._task_a_is_sequential:
+            return self.category_poi(shared_cat)
+        return self.category_poi(shared_cat.squeeze(1)).view(
+            -1, self.num_classes_task_a
+        )
+
+    def next_forward(self, next_input: torch.Tensor) -> torch.Tensor:
+        """Run the next subgraph with a zero-A stream — see ``cat_forward``
+        for the partial-forward caveat."""
+        pad_value = InputsConfig.PAD_VALUE
+        mask = (next_input.abs().sum(dim=-1) == pad_value)
+        next_input = next_input.masked_fill(mask.unsqueeze(-1), 0)
+
+        enc_next = self.next_encoder(next_input)
+        # Synthetic zero A stream. When task-A is sequential we mirror
+        # its length; when flat we use a single timestep so the cross-
+        # attention shapes line up. V = 0 already zeroes B's cross-
+        # attention contribution from A; no ``a_pad_mask`` (see
+        # cat_forward docstring on the NaN-from-fully-masked softmax).
+        t_a = enc_next.size(1) if self._task_a_is_sequential else 1
+        enc_cat = torch.zeros(
+            enc_next.size(0), t_a, enc_next.size(-1),
+            device=enc_next.device, dtype=enc_next.dtype,
+        )
+
+        a, b = enc_cat, enc_next
+        for block in self.crossattn_blocks:
+            a, b = block(a, b, a_pad_mask=None, b_pad_mask=mask)
+        shared_next = self.next_final_ln(b)
+
+        if self._task_set is not LEGACY_CATEGORY_NEXT:
+            shared_next = shared_next.masked_fill(mask.unsqueeze(-1), 0)
+
+        return self.next_poi(shared_next)
+
     def shared_parameters(self) -> Iterator[nn.Parameter]:
         """Parameters of the cross-attention stack (shared by both tasks
         conceptually via information exchange, even though each task has
