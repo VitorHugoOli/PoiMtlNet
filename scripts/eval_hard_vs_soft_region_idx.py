@@ -205,11 +205,14 @@ def main() -> None:
     # we do: re-run the fold creator's split on the same userids and
     # stratify col with the same seed, and get val_idx directly.
     val_last_region = last_region_idx_all[val_idx]
-    # For pad-only rows (last_region == -1) we'll use a zero prior contribution.
-    # Clip valid rows to the head's log_T range.
-    pad_mask = val_last_region < 0
+    # Zero the prior contribution for rows whose last_region is either:
+    #   (a) pad (-1; user had no valid POI in the 9-window), or
+    #   (b) >= num_regions (last POI maps to a region outside the training
+    #       target set — indexing log_T would be out-of-bounds).
+    # Silent clipping is wrong because it would use an unrelated transition
+    # row as if it were the true prior. Fall back to pure STAN in both cases.
+    pad_mask = (val_last_region < 0) | (val_last_region >= num_regions)
     val_last_region_safe = np.where(pad_mask, 0, val_last_region)
-    val_last_region_safe = np.clip(val_last_region_safe, 0, num_regions - 1)
 
     # Run the val dataloader once, capturing stan_logits, probe_logits, y.
     val_loader_b = fold_data.next.val.dataloader

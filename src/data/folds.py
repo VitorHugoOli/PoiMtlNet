@@ -139,6 +139,43 @@ class POIDataset(Dataset):
         return self.features[idx], self.targets[idx]
 
 
+class POIDatasetWithAux(Dataset):
+    """POIDataset variant that yields 3-tuples ``(features, labels, aux)``.
+
+    Used by the B5 faithful-GETNext path (``next_getnext_hard``). The aux
+    tensor is an ``int64`` per-sample ``last_region_idx``. Wrapped by
+    ``AuxPublishingLoader`` so the training loop sees 2-tuples — see
+    ``src/data/aux_side_channel.py``.
+    """
+
+    def __init__(
+        self,
+        features: torch.Tensor,
+        targets: torch.Tensor,
+        aux: torch.Tensor,
+        device: Optional[torch.device] = None,
+    ):
+        if device is not None:
+            self.features = features.to(device) if features.device != device else features
+            self.targets = targets.to(device) if targets.device != device else targets
+            self.aux = aux.to(device) if aux.device != device else aux
+        else:
+            self.features = features if features.device.type == 'cpu' else features.cpu()
+            self.targets = targets if targets.device.type == 'cpu' else targets.cpu()
+            self.aux = aux if aux.device.type == 'cpu' else aux.cpu()
+        if not (len(self.features) == len(self.targets) == len(self.aux)):
+            raise ValueError(
+                f"length mismatch: features={len(self.features)} "
+                f"targets={len(self.targets)} aux={len(self.aux)}"
+            )
+
+    def __len__(self) -> int:
+        return len(self.features)
+
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        return self.features[idx], self.targets[idx], self.aux[idx]
+
+
 # ============================================================
 # UTILITIES
 # ============================================================
@@ -277,6 +314,50 @@ def _create_dataloader(
         prefetch_factor=2 if num_workers > 0 else None,
         worker_init_fn=_worker_init_fn if num_workers > 0 else None,
     )
+
+
+def _create_aux_dataloader(
+        x: torch.Tensor,
+        y: torch.Tensor,
+        aux: torch.Tensor,
+        batch_size: int,
+        shuffle: bool,
+        use_weighted_sampling: bool,
+        seed: int,
+):
+    """Build a DataLoader over ``POIDatasetWithAux``, wrapped in
+    ``AuxPublishingLoader`` so the aux tensor is published to a
+    thread-local (read by the ``next_getnext_hard`` head) and the training
+    loop sees normal ``(x, y)`` 2-tuples.
+
+    Gated behind the ``next_getnext_hard`` head factory in
+    ``_create_check2hgi_mtl_folds``; other code paths continue to use
+    ``_create_dataloader``.
+    """
+    # Lazy import to avoid a circular import at module load time.
+    from data.aux_side_channel import AuxPublishingLoader
+
+    num_workers = _get_num_workers()
+    dataset_device = DEVICE if num_workers == 0 else None
+
+    sampler = None
+    if use_weighted_sampling:
+        y_np = y.numpy() if isinstance(y, torch.Tensor) else y
+        sampler = _create_weighted_sampler(y_np, seed)
+        shuffle = False
+
+    base = DataLoader(
+        POIDatasetWithAux(x, y, aux, device=dataset_device),
+        batch_size=batch_size,
+        shuffle=shuffle if sampler is None else False,
+        sampler=sampler,
+        num_workers=num_workers,
+        pin_memory=torch.cuda.is_available() and num_workers > 0,
+        persistent_workers=num_workers > 0,
+        prefetch_factor=2 if num_workers > 0 else None,
+        worker_init_fn=_worker_init_fn if num_workers > 0 else None,
+    )
+    return AuxPublishingLoader(base)
 
 
 # ============================================================
@@ -798,11 +879,34 @@ class FoldCreator:
             )
         y_region = region_df["region_idx"].to_numpy(dtype=np.int64)
 
+        # B5 hard-index path: when task_b head is ``next_getnext_hard``,
+        # also pull ``last_region_idx`` from the parquet. Missing column
+        # -> fail loud asking to regenerate the parquet (see
+        # ``scripts/regenerate_next_region.py``).
+        task_b_head = (
+            getattr(getattr(self.task_set, "task_b", None), "head_factory", None)
+            if self.task_set is not None else None
+        )
+        use_aux = task_b_head == "next_getnext_hard"
+        if use_aux:
+            if "last_region_idx" not in region_df.columns:
+                raise ValueError(
+                    f"next_region.parquet for {state} is missing the "
+                    f"'last_region_idx' column required by head "
+                    f"'next_getnext_hard'. Regenerate via "
+                    f"`python scripts/regenerate_next_region.py --state {state}`."
+                )
+            y_last_region = region_df["last_region_idx"].to_numpy(dtype=np.int64)
+
         slide_window = InputsConfig.SLIDE_WINDOW
         x_checkin, y_cat_tensor = _convert_to_tensors(
             X, y_cat, TaskType.NEXT, embedding_dim=next_dim, slide_window=slide_window,
         )
         y_region_tensor = torch.from_numpy(np.ascontiguousarray(y_region, dtype=np.int64))
+        aux_tensor = (
+            torch.from_numpy(np.ascontiguousarray(y_last_region, dtype=np.int64))
+            if use_aux else None
+        )
 
         # Per-task modality: task_a = next_category (CATEGORY slot),
         # task_b = next_region (NEXT slot). Each slot picks its own X:
@@ -875,20 +979,36 @@ class FoldCreator:
                 'seed': self.seed,
             })
 
+            # Task-b (region) dataloader: aux-aware if head needs last_region_idx.
+            if use_aux:
+                train_loader_b = _create_aux_dataloader(
+                    x_task_b[train_idx], y_region_tensor[train_idx],
+                    aux_tensor[train_idx],
+                    self.batch_size, True, self.use_weighted_sampling, self.seed,
+                )
+                val_loader_b = _create_aux_dataloader(
+                    x_task_b[val_idx], y_region_tensor[val_idx],
+                    aux_tensor[val_idx],
+                    self.batch_size, False, False, self.seed,
+                )
+            else:
+                train_loader_b = _create_dataloader(
+                    x_task_b[train_idx], y_region_tensor[train_idx],
+                    self.batch_size, True, self.use_weighted_sampling, self.seed,
+                )
+                val_loader_b = _create_dataloader(
+                    x_task_b[val_idx], y_region_tensor[val_idx],
+                    self.batch_size, False, False, self.seed,
+                )
+
             fold_results[fold_idx] = FoldResult(
                 next=TaskFoldData(
                     train=FoldData(
-                        _create_dataloader(
-                            x_task_b[train_idx], y_region_tensor[train_idx],
-                            self.batch_size, True, self.use_weighted_sampling, self.seed,
-                        ),
+                        train_loader_b,
                         x_task_b[train_idx], y_region_tensor[train_idx],
                     ),
                     val=FoldData(
-                        _create_dataloader(
-                            x_task_b[val_idx], y_region_tensor[val_idx],
-                            self.batch_size, False, False, self.seed,
-                        ),
+                        val_loader_b,
                         x_task_b[val_idx], y_region_tensor[val_idx],
                     ),
                 ),

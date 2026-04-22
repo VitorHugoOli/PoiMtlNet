@@ -13,10 +13,16 @@ Builds ``output/check2hgi/<state>/input/next_region.parquet`` from:
 
 Output schema::
 
-    col 0..575    — flattened 9-window of check2HGI check-in embeddings
-                    (identical to next.parquet columns '0'..'575')
-    region_idx    — int64 region index in ``[0, n_regions)``
-    userid        — int64 user id (for StratifiedGroupKFold)
+    col 0..575        — flattened 9-window of check2HGI check-in embeddings
+                        (identical to next.parquet columns '0'..'575')
+    region_idx        — int64 region index in ``[0, n_regions)``
+    userid            — int64 user id (for StratifiedGroupKFold)
+    last_region_idx   — int64 region index of the LAST observed POI in the
+                        9-window (derived from ``poi_{0..8}`` via
+                        ``placeid_to_idx`` + ``poi_to_region``). ``-1``
+                        sentinel for rows with no valid POI in the window
+                        (pad-only trajectories). Consumed by
+                        ``next_getnext_hard`` head (faithful GETNext).
 
 Fails loud on any target_poi that has no region assignment (should never
 happen — every POI goes through spatial join in preprocessing — but we
@@ -115,8 +121,50 @@ def build_next_region_frame(state: str) -> Tuple[pd.DataFrame, int]:
             f"Sample unassigned POI indices: {bad_pois}."
         )
 
+    # Compute last_region_idx from poi_{0..8}: last non-pad POI per row
+    # mapped through placeid_to_idx + poi_to_region. Rows with no valid
+    # POI (all-pad trajectories) get sentinel -1 — downstream heads
+    # (e.g. next_getnext_hard) zero the graph prior for those rows.
+    poi_cols = [f"poi_{i}" for i in range(9)]
+    poi_mat = seq_df[poi_cols].astype(np.int64).to_numpy()  # [N, 9]
+    valid = poi_mat >= 0
+    # last-non-pad position per row; -1 if no valid POI
+    last_pos = np.where(
+        valid.any(axis=1),
+        valid.shape[1] - 1 - valid[:, ::-1].argmax(axis=1),
+        -1,
+    )
+    N = poi_mat.shape[0]
+    last_poi = np.where(
+        last_pos >= 0,
+        poi_mat[np.arange(N), np.clip(last_pos, 0, None)],
+        -1,
+    )
+    unmapped_valid = (last_poi >= 0) & ~np.isin(last_poi, list(placeid_to_idx.keys()))
+    if unmapped_valid.any():
+        bad = last_poi[unmapped_valid][:5].tolist()
+        raise ValueError(
+            f"{int(unmapped_valid.sum())} last_poi values (non-pad) unmapped "
+            f"in placeid_to_idx for {state}. Sample: {bad}."
+        )
+    last_region_idx = np.full(N, -1, dtype=np.int64)
+    valid_mask = last_poi >= 0
+    if valid_mask.any():
+        last_poi_idx = (
+            pd.Series(last_poi[valid_mask])
+            .map(placeid_to_idx)
+            .to_numpy(dtype=np.int64)
+        )
+        last_region_idx[valid_mask] = poi_to_region[last_poi_idx]
+        if (last_region_idx[valid_mask] < 0).any():
+            raise ValueError(
+                f"{int((last_region_idx[valid_mask] < 0).sum())} last_poi "
+                f"entries resolve to unassigned regions for {state}."
+            )
+
     out = next_df.drop(columns=["next_category"]).copy()
     out["region_idx"] = region_idx.astype(np.int64)
+    out["last_region_idx"] = last_region_idx.astype(np.int64)
     return out, n_regions
 
 
