@@ -105,6 +105,7 @@ Comparable external baselines on the same state split are documented in `docs/ba
 | B-M11 | mtlnet_crossattn + pcgrad + GRU | Check2HGI | FL | 1f × 50ep | — | 57.60 | — | FL P2 (n=1) |
 | B-M12 | mtlnet_crossattn + pcgrad + STAN d=256, 8h | Check2HGI | FL | 1f × 50ep | 12.09 | **57.71** (indist) | 24.51 | P8 FL sanity (n=1, **ties GRU on Acc@10**; MRR −3.6 pp, Acc@5 −14 pp — worse fine-grained ranking) |
 | B-M13 | **mtlnet_crossattn + pcgrad + GETNext d=256, 8h** ⭐ | Check2HGI | FL | 1f × 50ep | 12.51 | **60.62** (indist) | 25.10 | **P8 FL GETNext sanity (n=1): +3 pp Acc@10 vs GRU, but Acc@1/5/MRR drop 3-14 pp — graph prior dilutes at 4703-region scale** |
+| B-M14 | **mtlnet_crossattn + pcgrad + GETNext-HARD d=256, 8h** | Check2HGI | FL | 1f × 50ep | 8.39 (F1_macro) | 58.88 (indist) | 28.01 | **2026-04-22 B5 scaling: reg Acc@5 +13.53 pp / MRR +2.46 pp / F1 +1.95 pp over B-M13 soft, but Acc@10 −1.74 pp AND cat F1 drops −10.58 pp (66.01 → 55.43). At 4703 regions the hard prior over-dominates MTL gradient, starving the category head. See `research/B5_FL_SCALING.md`.** |
 
 **Task-B observations:**
 
