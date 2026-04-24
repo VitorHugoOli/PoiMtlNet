@@ -528,6 +528,23 @@ def _parse_args(argv=None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--cat-head-param",
+        action="append",
+        default=[],
+        metavar="KEY=VALUE",
+        help="Override category head hyperparameter (task_a_head_params) in the MTL task_set. Repeatable. Symmetric to --reg-head-param.",
+    )
+    parser.add_argument(
+        "--cat-head",
+        type=str,
+        default=None,
+        help=(
+            "Override the category-task head factory (task_a.head_factory) in the MTL task_set. "
+            "Default preserves the preset's choice (None → MTLnet's CategoryHeadTransformer default). "
+            "Use e.g. --cat-head next_gru or --cat-head category_ensemble for the F27 cat-head ablation."
+        ),
+    )
+    parser.add_argument(
         "--folds",
         type=int,
         default=None,
@@ -882,18 +899,29 @@ def main(argv=None) -> None:
                 file=sys.stderr,
             )
             sys.exit(2)
-        # Apply --reg-head / --reg-head-param overrides BEFORE fold creation
-        # so FoldCreator sees the final ``task_b.head_factory`` when deciding
-        # which dataloader path to use (e.g. aux-publishing for the B5 head
-        # ``next_getnext_hard``). The later ``resolve_task_set`` call after
-        # fold creation additionally sets ``task_b_num_classes``, which can
-        # only be known once labels are loaded — that pass is kept.
-        if is_check2hgi_track and (args.reg_head or args.reg_head_param):
+        # Apply --reg-head / --reg-head-param / --cat-head / --cat-head-param
+        # overrides BEFORE fold creation so FoldCreator sees the final
+        # ``task_b.head_factory`` when deciding which dataloader path to use
+        # (e.g. aux-publishing for the B5 head ``next_getnext_hard``). Cat
+        # overrides don't currently affect fold creation but are applied here
+        # symmetrically so the early task_set is the authoritative source
+        # of head choice. The later ``resolve_task_set`` call after fold
+        # creation additionally sets ``task_b_num_classes``, which can only
+        # be known once labels are loaded — that pass is kept.
+        if is_check2hgi_track and (
+            args.reg_head or args.reg_head_param
+            or args.cat_head or args.cat_head_param
+        ):
             _early_reg_head_params = _parse_key_value_overrides(
                 args.reg_head_param or [], "--reg-head-param"
             )
+            _early_cat_head_params = _parse_key_value_overrides(
+                args.cat_head_param or [], "--cat-head-param"
+            )
             task_set = resolve_task_set(
                 task_set,
+                task_a_head_factory=args.cat_head,
+                task_a_head_params=_early_cat_head_params or None,
                 task_b_head_factory=args.reg_head,
                 task_b_head_params=_early_reg_head_params or None,
             )
@@ -939,8 +967,13 @@ def main(argv=None) -> None:
         reg_head_params = _parse_key_value_overrides(
             args.reg_head_param or [], "--reg-head-param"
         )
+        cat_head_params = _parse_key_value_overrides(
+            args.cat_head_param or [], "--cat-head-param"
+        )
         task_set = resolve_task_set(
             task_set,
+            task_a_head_factory=args.cat_head,
+            task_a_head_params=cat_head_params if cat_head_params else None,
             task_b_num_classes=n_regions,
             task_b_head_params=reg_head_params if reg_head_params else None,
             task_b_head_factory=args.reg_head,

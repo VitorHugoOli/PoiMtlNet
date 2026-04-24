@@ -58,7 +58,14 @@ from torch.utils.data import DataLoader
 from configs.globals import DEVICE
 from configs.model import InputsConfig
 from configs.paths import EmbeddingEngine, IoPaths, OUTPUT_DIR
-from data.folds import POIDataset, _convert_to_tensors, TaskType, load_next_data
+from data.aux_side_channel import AuxPublishingLoader
+from data.folds import (
+    POIDataset,
+    POIDatasetWithAux,
+    _convert_to_tensors,
+    TaskType,
+    load_next_data,
+)
 from models.registry import create_model
 from tracking.metrics import compute_classification_metrics
 from utils.seed import seed_everything
@@ -66,7 +73,10 @@ from utils.seed import seed_everything
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-ALL_HEADS = ["next_mtl", "next_gru", "next_lstm", "next_tcn_residual", "next_temporal_cnn"]
+ALL_HEADS = [
+    "next_mtl", "next_gru", "next_lstm", "next_tcn_residual", "next_temporal_cnn",
+    "next_stan", "next_getnext", "next_getnext_hard",
+]
 # Per-head default max_lr for OneCycleLR. Transformer converges at much
 # lower LRs; RNN/CNN heads tolerate 3e-3. Override via --max-lr.
 _HEAD_MAX_LR = {
@@ -75,7 +85,15 @@ _HEAD_MAX_LR = {
     "next_lstm": 3e-3,
     "next_tcn_residual": 3e-3,
     "next_temporal_cnn": 3e-3,
+    "next_stan": 3e-3,
+    "next_getnext": 3e-3,
+    "next_getnext_hard": 3e-3,
 }
+
+# Heads that require ``last_region_idx`` delivered via aux_side_channel.
+# For single-task ablation we wire POIDatasetWithAux + AuxPublishingLoader
+# around train/val DataLoaders when the head is in this set.
+_HEADS_REQUIRING_AUX = {"next_getnext_hard"}
 
 
 def _load_region_embeddings(state: str, source: str = "check2hgi") -> tuple[np.ndarray, int]:
@@ -150,7 +168,12 @@ def _build_region_sequence_tensor(
 
 
 def _load_checkin_region_data(state: str):
-    """Load check-in embedding tensor + region labels + stratification info."""
+    """Load check-in embedding tensor + region labels + stratification info.
+
+    Returns a 7-tuple adding ``last_region_tensor`` to the historical
+    6-tuple. ``last_region_tensor`` is None when the parquet lacks the
+    ``last_region_idx`` column (older schema, pre-commit ``6a2f808``).
+    """
     engine = EmbeddingEngine.CHECK2HGI
     X, y_cat, userids, emb_dim = load_next_data(state, engine)
 
@@ -158,21 +181,36 @@ def _load_checkin_region_data(state: str):
     y_region = region_df["region_idx"].to_numpy(dtype=np.int64)
     n_regions = int(y_region.max()) + 1
 
+    # ``last_region_idx`` is only present in the post-6a2f808 schema. Older
+    # parquets built before the B5 feature landed won't have it, so we
+    # return None and let the caller decide how to handle that.
+    last_region_tensor = None
+    if "last_region_idx" in region_df.columns:
+        last_region_np = region_df["last_region_idx"].to_numpy(dtype=np.int64)
+        last_region_tensor = torch.from_numpy(np.ascontiguousarray(last_region_np))
+
     slide_window = InputsConfig.SLIDE_WINDOW
     x_tensor, _ = _convert_to_tensors(X, y_cat, TaskType.NEXT, embedding_dim=emb_dim, slide_window=slide_window)
     y_region_tensor = torch.from_numpy(np.ascontiguousarray(y_region, dtype=np.int64))
 
-    return x_tensor, y_region_tensor, y_cat, userids, emb_dim, n_regions
+    return x_tensor, y_region_tensor, y_cat, userids, emb_dim, n_regions, last_region_tensor
 
 
 def _load_data(state: str, input_type: str, region_emb_source: str = "check2hgi"):
-    """Route to the correct input loader. Returns unified
-    (x_tensor, y_region_tensor, y_cat, userids, emb_dim, n_regions).
+    """Route to the correct input loader. Returns a 7-tuple:
+    ``(x_tensor, y_region_tensor, y_cat, userids, emb_dim, n_regions, last_region_tensor)``.
+
+    ``last_region_tensor`` is None when the underlying parquet lacks the
+    ``last_region_idx`` column (pre-``6a2f808`` schema). Heads in
+    ``_HEADS_REQUIRING_AUX`` refuse to run when it is None — that's a
+    data-prep gap the user must resolve via ``scripts/regenerate_next_region.py``.
     """
-    x_checkin, y_region_tensor, y_cat, userids, checkin_dim, n_regions = _load_checkin_region_data(state)
+    x_checkin, y_region_tensor, y_cat, userids, checkin_dim, n_regions, last_region_tensor = (
+        _load_checkin_region_data(state)
+    )
 
     if input_type == "checkin":
-        return x_checkin, y_region_tensor, y_cat, userids, checkin_dim, n_regions
+        return x_checkin, y_region_tensor, y_cat, userids, checkin_dim, n_regions, last_region_tensor
 
     # Build region-emb sequence and align row-for-row with the check-in tensor.
     x_region = _build_region_sequence_tensor(state, region_emb_dim=checkin_dim, region_emb_source=region_emb_source)
@@ -184,16 +222,26 @@ def _load_data(state: str, input_type: str, region_emb_source: str = "check2hgi"
         )
 
     if input_type == "region":
-        return x_region, y_region_tensor, y_cat, userids, checkin_dim, n_regions
+        return x_region, y_region_tensor, y_cat, userids, checkin_dim, n_regions, last_region_tensor
     if input_type == "concat":
         x_concat = torch.cat([x_checkin, x_region], dim=-1)  # [N, 9, 128]
-        return x_concat, y_region_tensor, y_cat, userids, checkin_dim * 2, n_regions
+        return x_concat, y_region_tensor, y_cat, userids, checkin_dim * 2, n_regions, last_region_tensor
     raise ValueError(f"Unknown input_type: {input_type}")
 
 
-def _dataloader(x, y, batch_size, shuffle):
-    ds = POIDataset(x, y, device=DEVICE)
-    return DataLoader(ds, batch_size=batch_size, shuffle=shuffle, num_workers=0)
+def _dataloader(x, y, batch_size, shuffle, aux=None):
+    """Build a DataLoader; if ``aux`` is provided, wrap with
+    ``POIDatasetWithAux`` + ``AuxPublishingLoader`` so the head can read
+    the auxiliary tensor via the thread-local side-channel. The training
+    loop still sees ``(x, y)`` 2-tuples — the wrapper publishes + strips
+    ``aux`` transparently.
+    """
+    if aux is None:
+        ds = POIDataset(x, y, device=DEVICE)
+        return DataLoader(ds, batch_size=batch_size, shuffle=shuffle, num_workers=0)
+    ds = POIDatasetWithAux(x, y, aux, device=DEVICE)
+    base = DataLoader(ds, batch_size=batch_size, shuffle=shuffle, num_workers=0)
+    return AuxPublishingLoader(base)
 
 
 def _parse_overrides(raw: list[str] | None) -> dict:
@@ -267,14 +315,37 @@ class _InputLN(torch.nn.Module):
 
 def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
                        emb_dim, n_classes, epochs, batch_size, seed,
-                       overrides, max_lr, label_smoothing, input_ln):
-    """Train a single-task model and return val metrics."""
+                       overrides, max_lr, label_smoothing, input_ln,
+                       aux_tensor=None):
+    """Train a single-task model and return val metrics.
+
+    ``aux_tensor`` — optional per-sample auxiliary int64 tensor (e.g.
+    ``last_region_idx``). When the head is in ``_HEADS_REQUIRING_AUX``
+    and ``aux_tensor`` is None, we raise because the head's forward pass
+    would silently fall back to pure STAN and the comparison would be
+    meaningless.
+    """
     seed_everything(seed)
+
+    if head_name in _HEADS_REQUIRING_AUX:
+        if aux_tensor is None:
+            raise RuntimeError(
+                f"Head '{head_name}' requires 'last_region_idx' aux but the "
+                f"parquet didn't contain it. Regenerate via "
+                f"`scripts/regenerate_next_region.py --state <state>`."
+            )
 
     x_train, y_train = x_tensor[train_idx], y_tensor[train_idx]
     x_val, y_val = x_tensor[val_idx], y_tensor[val_idx]
-    train_dl = _dataloader(x_train, y_train, batch_size, True)
-    val_dl = _dataloader(x_val, y_val, batch_size, False)
+
+    if head_name in _HEADS_REQUIRING_AUX and aux_tensor is not None:
+        aux_train = aux_tensor[train_idx]
+        aux_val = aux_tensor[val_idx]
+        train_dl = _dataloader(x_train, y_train, batch_size, True, aux=aux_train)
+        val_dl = _dataloader(x_val, y_val, batch_size, False, aux=aux_val)
+    else:
+        train_dl = _dataloader(x_train, y_train, batch_size, True)
+        val_dl = _dataloader(x_val, y_val, batch_size, False)
 
     seq_length = InputsConfig.SLIDE_WINDOW
     head = _build_head(head_name, emb_dim, n_classes, seq_length, overrides)
@@ -369,9 +440,12 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
                  tag: str | None, resume: bool = True,
                  region_emb_source: str = "check2hgi"):
     logger.info("Loading data for %s (input_type=%s, region_emb=%s)...", state, input_type, region_emb_source)
-    x_tensor, y_region, y_cat, userids, emb_dim, n_regions = _load_data(state, input_type, region_emb_source)
-    logger.info("x=%s, emb_dim=%d, n_regions=%d, n_seqs=%d",
-                x_tensor.shape, emb_dim, n_regions, len(y_region))
+    x_tensor, y_region, y_cat, userids, emb_dim, n_regions, last_region_tensor = _load_data(
+        state, input_type, region_emb_source,
+    )
+    aux_hint = "present" if last_region_tensor is not None else "missing"
+    logger.info("x=%s, emb_dim=%d, n_regions=%d, n_seqs=%d, last_region_idx=%s",
+                x_tensor.shape, emb_dim, n_regions, len(y_region), aux_hint)
 
     sgkf = StratifiedGroupKFold(n_splits=max(2, folds), shuffle=True, random_state=seed)
     splits = list(sgkf.split(np.zeros(len(y_cat)), y_cat, groups=userids))[:folds]
@@ -433,6 +507,7 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
                 head_name, x_tensor, y_region, train_idx, val_idx,
                 emb_dim, n_regions, epochs, batch_size, seed + fold_idx,
                 overrides, head_max_lr, label_smoothing, input_ln,
+                aux_tensor=last_region_tensor,
             )
             elapsed = time.time() - t0
             fold_metrics.append(metrics)

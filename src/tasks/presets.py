@@ -131,6 +131,7 @@ def resolve_task_set(
     task_b_num_classes: Optional[int] = None,
     task_a_head_params: Optional[dict] = None,
     task_b_head_params: Optional[dict] = None,
+    task_a_head_factory: Optional[str] = None,
     task_b_head_factory: Optional[str] = None,
 ) -> TaskSet:
     """Return a ``TaskSet`` with per-slot fields overridden at runtime.
@@ -159,6 +160,8 @@ def resolve_task_set(
         task_a = dataclasses.replace(task_a, num_classes=task_a_num_classes)
     if task_a_head_params is not None:
         task_a = dataclasses.replace(task_a, head_params=task_a_head_params)
+    if task_a_head_factory is not None:
+        task_a = dataclasses.replace(task_a, head_factory=task_a_head_factory)
     if task_b_num_classes is not None:
         task_b = dataclasses.replace(task_b, num_classes=task_b_num_classes)
     if task_b_head_params is not None:
