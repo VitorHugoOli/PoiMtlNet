@@ -166,6 +166,23 @@ class MLHistory:
                 fold_metrics[f"{task_name}_best_f1"] = best_f1
                 fold_metrics[f"{task_name}_best_epoch"] = best_ep
             self._adapter.on_fold_end(self.curr_i_fold, fold_metrics)
+        # Persist this fold's artefacts now so a later-fold crash (OOM SIGKILL,
+        # SSD SIGBUS on long MPS runs) doesn't wipe the work we already did.
+        # Best-effort: the storage method itself swallows exceptions so the
+        # per-fold partial save never aborts training.
+        if self._save_path is not None:
+            try:
+                self.storage.save_fold_partial(
+                    fold_idx=self.curr_i_fold,
+                    path=self._save_path,
+                    label_map=self._label_map,
+                )
+            except Exception as exc:  # defensive; should not propagate
+                import logging
+                logging.getLogger(__name__).warning(
+                    "per-fold partial save failed for fold %d: %s",
+                    self.curr_i_fold, exc,
+                )
         if self.curr_i_fold >= self.num_folds - 1:
             self.end()
             return
