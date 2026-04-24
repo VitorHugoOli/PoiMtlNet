@@ -1,6 +1,6 @@
 # Paper Structure — Single Source of Truth
 
-**Created:** 2026-04-23. **Owner:** this file defines the paper's table layout, baseline set, STL matching policy, and scope decisions. All other docs reference this.
+**Created:** 2026-04-23. **Last updated:** 2026-04-24 (post-F27 cat-head swap + F21c matched-head finding). **Owner:** this file defines the paper's table layout, baseline set, STL matching policy, and scope decisions. All other docs reference this.
 
 ---
 
@@ -11,12 +11,17 @@
 ```
 architecture   : mtlnet_crossattn
 mtl_loss       : static_weight(category_weight = 0.75)   # reg weight = 0.25
-task_a head    : CategoryHeadMTL                          # default inside mtlnet for next_category
+task_a head    : next_gru                                 # ← updated 2026-04-24 (F27), was next_mtl
 task_b head    : next_getnext_hard                        # STAN + α · log_T[last_region_idx]
 task_a input   : check-in embeddings (9-step window)
 task_b input   : region embeddings (9-step window)
 hparams        : d_model=256, 8 heads, max_lr=0.003, batch=2048, 50 epochs, seed 42
 ```
+
+### 1.1 · Paper-reshaping findings since 2026-04-23
+
+- **F27 (2026-04-24)** — cat-head swap `next_mtl → next_gru` lifts cat F1 by +3.43 pp (AL 5f) and +2.37 pp (AZ 5f, Wilcoxon p=0.0312 on 3 metrics). **FL 1f flipped sign (−0.93 pp)** → scale-dependence flag open; resolved by F33 (Colab FL 5f). See `research/F27_CATHEAD_FINDINGS.md`.
+- **F21c (2026-04-24)** — matched-head STL `next_getnext_hard` (graph-prior alone, single-task) **outperforms MTL-B3 on reg Acc@10 by 12–14 pp on AL + AZ**. The MTL coupling does not add value beyond the head choice at ablation-state scale. See `research/F21C_FINDINGS.md`. Paper framing shifts to Option B: matched-head STL baselines are a methodological finding; MTL-B3 is positioned as the joint-single-model deployment option, not the reg SOTA. CH18 in the claim catalog captures this.
 
 Validation status (as of 2026-04-23):
 
@@ -167,9 +172,9 @@ This is revisited after CA + TX 5-fold data lands. If CA and TX also show Markov
 | **CH16** — Check2HGI > HGI on cat F1 | 🟢 AL (+18.30 pp σ-clean) · 🔴 AZ/FL missing | F3 (AZ HGI cat 5f) + F9 (FL HGI cat 5f). CA/TX nice-to-have. |
 | **MTL > baselines — cat** | 🟢 clean everywhere we have data (AL/AZ/FL-1f) | CA/TX headline runs close this. |
 | **MTL > baselines — reg** | 🟢 AL/AZ (beat Markov by 10+ pp) · 🟡 FL (Markov saturation — approach (a)) | Acknowledge approach (a). |
-| **MTL > STL — cat** | 🟢 AZ (+1.65 pp, p=0.0312, F19 Wilcoxon) · 🟡 AL (tied) · 🟢 FL-1f (+2–3 pp) | FL 5f σ (planned). |
-| **MTL > STL — reg** | 🟡 AL (tied σ) · 🟡 AZ (tied vs STAN; +3.75 pp reg macro-F1 at p=0.0312) · 🔴 FL (trails) | F6 (FL STL STAN 5f) + FL 5f MTL. |
-| **MTL coupling vs head alone** | 🔴 unmeasured everywhere | **F21 (STL GETNext-hard per state)** is the binding experiment. |
+| **MTL > STL — cat** | 🟢 AZ (+3.73 pp post-F27, Wilcoxon p=0.0312 on cat F1/Acc@1/reg MRR, 5/5 folds) · 🟢 AL (+4.13 pp post-F27/F31) · 🟢 FL-1f (+2–3 pp) | FL 5f σ (F33 Colab). |
+| **MTL > STL — reg (vs STL STAN ceiling)** | 🟢 AL post-F27 (+0.40 pp over STAN, first cross) · 🟡 AZ (tied σ; +3.75 pp reg macro-F1 at p=0.0312) · 🔴 FL (trails) | F6 (FL STL STAN 5f) + FL 5f MTL. |
+| **MTL coupling vs matched-head STL (F21c)** | 🔴 AL/AZ: **STL GETNext-hard beats MTL-B3 by 12–14 pp Acc@10** (see CH18) · 🔴 FL unmeasured | Drives Option B reframing; FL F21c pending. |
 
 ---
 

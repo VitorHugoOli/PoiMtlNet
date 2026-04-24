@@ -48,6 +48,15 @@ class ExperimentConfig:
     max_grad_norm: float = 1.0
     optimizer_eps: float = 1e-8
 
+    # --- LR scheduler ---
+    # "onecycle" preserves legacy behaviour bit-exactly. "constant" and
+    # "cosine" are F44-F46 knobs for disentangling "more epochs" from
+    # "stretched schedule" in the CH18 attribution chain.
+    scheduler_type: str = "onecycle"
+    # pct_start only applies when scheduler_type == "onecycle". None →
+    # PyTorch default (0.3). Smaller values push peak LR earlier.
+    pct_start: Optional[float] = None
+
     # torch.compile: disabled by default.  On CUDA it uses the inductor
     # backend; MPS compatibility needs separate testing first.
     use_torch_compile: bool = False

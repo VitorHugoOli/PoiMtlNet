@@ -1,10 +1,12 @@
 # Objectives Status Table — Check2HGI Study
 
-**Date:** 2026-04-23 (v2, corrected to use joint-execution MTL rows). One-page snapshot of where we stand against the study's two scientific objectives, built from `results/RESULTS_TABLE.md` + `results/B5/*.json` + `results/P5_bugfix/SUMMARY.md`.
+**Date:** 2026-04-24 (v3, post-F2 / F21c / F27). One-page snapshot of where we stand against the study's two scientific objectives, built from `results/RESULTS_TABLE.md` + `results/B5/*.json` + `results/B3_validation/*.json` + `results/F27_validation/*.json` + `results/P5_bugfix/SUMMARY.md`.
 
-> **North-star MTL config (committed 2026-04-23):** `mtlnet_crossattn + pcgrad + next_getnext (soft probe) d=256, 8h` — see `NORTH_STAR.md` for the decision memo. All paper-relevant MTL comparisons use this configuration as the primary row. The hard-index variant remains as a reported ablation; FL-hard has a diagnosed training failure (see `review/2026-04-23_critical_review.md §FL-hard training pathology`).
+> **North-star MTL config (committed 2026-04-24):** **B3** = `mtlnet_crossattn + static_weight(category_weight=0.75) + next_gru (task_a) + next_getnext_hard (task_b) d=256, 8h` — see `NORTH_STAR.md` for the decision memo. All paper-relevant MTL comparisons now use B3 as the primary row. The soft-probe variant (prior north-star) remains as a reported ablation. Pre-F27 v2 rows using `GETNext-soft` are retained below for audit but are no longer the headline.
 
-> **Methodological note.** Each MTL row below is a **single execution** that jointly trains both heads. The cat-F1 and reg-Acc@10 columns on a given row come from the **same model, same fold set, same seed** — compared side-by-side against the cat-task baselines (POI-RGNN, Majority, Markov-1-POI) and the region-task baselines (Markov-1-region, STL STAN). Earlier drafts of this file cherry-picked the best MTL per (state × task) cell across different runs; that mixed runs and wasn't an honest joint claim. This version fixes that.
+> **Headline caveat (F21c, 2026-04-24).** Matched-head STL `next_getnext_hard` (graph-prior alone, single-task) dominates MTL-B3 on reg Acc@10 by 12–14 pp on AL and AZ (CH18). The MTL value proposition now lives primarily on cat F1 + joint single-model deployment, not on reg. See `research/F21C_FINDINGS.md`.
+
+> **Methodological note.** Each MTL row below is a **single execution** that jointly trains both heads. The cat-F1 and reg-Acc@10 columns on a given row come from the **same model, same fold set, same seed** — compared side-by-side against the cat-task baselines (POI-RGNN, Majority, Markov-1-POI) and the region-task baselines (Markov-1-region, STL STAN, STL GETNext-hard matched-head). Earlier drafts of this file cherry-picked the best MTL per (state × task) cell across different runs; that mixed runs and wasn't an honest joint claim. This version fixes that.
 
 ---
 
@@ -103,21 +105,33 @@ Each row is one MTL run. Compare its cat output vs cat baselines and its reg out
 
 ---
 
-## 3 · Condensed objectives scorecard (north-star = GETNext-soft)
+## 3 · Condensed objectives scorecard (north-star = B3 post-F27)
 
-Using the **committed north-star MTL config** (`cross-attn + pcgrad + GETNext-soft d=256`) at every state:
+Using the **committed north-star MTL config** (`mtlnet_crossattn + static_weight(cat=0.75) + next_gru (task_a) + next_getnext_hard (task_b) d=256`) at every state:
 
-| State | Row | Cat verdict vs (POI-RGNN / STL) | Reg verdict vs (Markov-1 / STL-STAN) | Joint success |
+| State | Row | Cat verdict vs (POI-RGNN / STL matched `next_mtl`) | Reg verdict vs (Markov-1 / STL STAN / STL GETNext-hard — CH18) | Joint success |
 |:-:|:-|:-|:-|:-:|
-| AL | B-M6b | cat: +4–7 pp > POI-RGNN · ties STL (−0.02 σ-tied) | reg: +9.48 pp > Markov · σ-tied with STL STAN (−2.71) | ✅ |
-| AZ | B-M9b | cat: ties STL (+0.74 σ-overlap) | reg: **+3.70 pp > Markov** · −5.58 vs STL STAN | 🟡 beats Markov, below STL |
-| FL | B-M13 (n=1) | cat: +31.5 pp > POI-RGNN · +2.84 pp > STL | reg: **−4.43 below Markov-1** · −7.71 vs STL GRU | 🟡 cat OK, reg fails Markov |
+| AL 5f | F31 (post-F27) | cat F1 **42.71** : **+8 pp > POI-RGNN** · **+4.13 pp > STL `next_mtl` (38.58)** | reg Acc@10 **59.60** : **+12.59 pp > Markov-1 (47.01)** · **+0.40 pp > STL STAN (59.20)** first cross · **−8.77 pp vs STL GETNext-hard (68.37)** CH18 | ✅ cat+reg beat STAN; 🔴 trails matched-head STL |
+| AZ 5f | F19-F27 | cat F1 **45.81** : ties STL-next_mtl (42.08) **+3.73 pp, Wilcoxon p=0.0312, 5/5 folds** | reg Acc@10 **53.82** : **+10.86 pp > Markov-1 (42.96)** · +1.58 σ-tied with STL STAN (52.24) · **−12.92 pp vs STL GETNext-hard (66.74)** CH18 | ✅ cat strict-gain; 🟡 reg tied STAN; 🔴 trails matched-head |
+| FL 1f | F32 (post-F27) | cat F1 **65.72** (n=1) : **+31.2 pp > POI-RGNN (34.49)** · +2–3 pp over STL (63.17 n=1) | reg Acc@10 **65.26** (n=1) : tied with Markov-1 (65.05) · 🔴 STL STAN pending (F6) · 🔴 STL GETNext-hard pending (F21c FL) | 🟡 n=1; F33 decides FL-scale cat head |
 
-**Objective 2 overall under the north-star config:**
-- **MTL > per-task baselines:** ✅ clean on cat in every state (big margins over POI-RGNN + Markov-POI + Majority). ✅ on AL + AZ region (beats Markov-1 by +3.70 to +9.48). ❌ fails on FL region vs Markov-1-region.
-- **MTL > STL:** ✅ cat at FL (+2.84, n=1); 🟡 cat tied within σ at AL + AZ. ❌ reg below STL across all states (MTL-soft trails STL STAN by 2.7–11 pp).
+**Objective 2 overall under B3 (post-F27):**
+- **MTL > per-task baselines:** ✅ clean on cat at every state (+8 to +31 pp over POI-RGNN, all > Majority / Markov-POI). ✅ AL + AZ region over Markov-1 by +10.86 to +12.59 pp. 🟡 FL region at Markov-saturation (approach (a) in `PAPER_STRUCTURE.md §6`).
+- **MTL > STL cat:** ✅ AL **+4.13 pp** (F31) · ✅ AZ **+3.73 pp Wilcoxon p=0.0312** (F27 5f) · 🟡 FL +2–3 pp (n=1, F33 5f pending).
+- **MTL > STL STAN reg:** ✅ AL first-cross **+0.40 pp** (F31) · 🟡 AZ tied σ (+1.58) · 🔴 FL pending.
+- **MTL > matched-head STL GETNext-hard reg (CH18):** 🔴 **AL and AZ lose by 12–14 pp** — F21c 2026-04-24 finding reframes the paper. FL pending.
 
-**What we gave up by choosing soft over hard:** the AZ strict MTL-over-STL region win (hard: +1.01 pp over STL STAN; soft: −5.58). See `NORTH_STAR.md` for the rationale — FL hard's diagnosed cat-training failure outweighs the AZ region gain for paper-quality uniformity.
+**What changed vs v2 (pre-F27 scorecard):** the F27 cat-head swap unlocked cat lifts that were previously tied-σ (AZ +0.74 → +3.73 p=0.0312; AL 0.00 → +4.13). AL reg Acc@10 now *crosses* STL STAN for the first time under MTL. But F21c exposed a stricter-than-STL-STAN ceiling: STL with the graph-prior head alone dominates the MTL coupling on reg by 12–14 pp. The paper's MTL contribution is therefore restated as: **joint-single-model deployment with a strict cat-F1 win over STL, accepting a 12–14 pp reg Acc@10 cost vs matched-head STL**.
+
+### Archived v2 scorecard (north-star = GETNext-soft, pre-F27) — retained for audit
+
+Before 2026-04-23 the committed north-star was `cross-attn + pcgrad + GETNext-soft d=256`. That scorecard is retained below as audit; do not cite against current claims.
+
+| State | Row | Cat verdict | Reg verdict | Joint |
+|:-:|:-|:-|:-|:-:|
+| AL | B-M6b | cat: +4–7 pp > POI-RGNN · ties STL (−0.02) | reg: +9.48 pp > Markov · σ-tied STL STAN (−2.71) | ✅ |
+| AZ | B-M9b | cat: ties STL (+0.74) | reg: +3.70 pp > Markov · −5.58 vs STL STAN | 🟡 |
+| FL | B-M13 (n=1) | cat: +31.5 pp > POI-RGNN · +2.84 pp > STL | reg: −4.43 below Markov-1 · −7.71 vs STL GRU | 🟡 |
 
 ### Alternate-config scorecard (GETNext-hard) — kept for paper ablation row
 

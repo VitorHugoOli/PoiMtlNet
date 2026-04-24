@@ -4,13 +4,17 @@ Deduplicates compute_class_weights / setup_optimizer / setup_fold patterns
 that were copy-pasted across category, next, and MTL cross-validation files.
 """
 
-from typing import Union
+from typing import Optional, Union
 
 import numpy as np
 import torch
 from sklearn.utils import compute_class_weight
 from torch.optim import AdamW
-from torch.optim.lr_scheduler import OneCycleLR
+from torch.optim.lr_scheduler import (
+    ConstantLR,
+    CosineAnnealingLR,
+    OneCycleLR,
+)
 from torch.utils.data import DataLoader
 from typing import Iterable
 
@@ -95,21 +99,56 @@ def setup_scheduler(
     max_lr: float,
     epochs: int,
     steps_per_epoch: int,
-) -> OneCycleLR:
-    """Create a OneCycleLR scheduler matching the project's conventions.
+    scheduler_type: str = "onecycle",
+    pct_start: Optional[float] = None,
+):
+    """Create an LR scheduler matching the project's conventions.
 
     Args:
         optimizer: The optimizer to schedule.
-        max_lr: Peak learning rate for OneCycleLR.
+        max_lr: Peak learning rate. For ``onecycle`` this is the peak;
+            for ``constant`` / ``cosine`` this is the initial/reference LR.
         epochs: Total training epochs.
         steps_per_epoch: Number of optimizer steps per epoch.
+        scheduler_type: One of ``{"onecycle", "constant", "cosine"}``.
+            Default ``onecycle`` preserves legacy behaviour bit-exactly.
+        pct_start: For ``onecycle``, fraction of training spent on warmup.
+            ``None`` → PyTorch default (0.3). Smaller values push peak LR
+            earlier and leave more epochs in the annealing phase.
 
     Returns:
-        Configured OneCycleLR scheduler.
+        Configured scheduler (OneCycleLR / ConstantLR / CosineAnnealingLR).
     """
-    return OneCycleLR(
-        optimizer=optimizer,
-        max_lr=max_lr,
-        epochs=epochs,
-        steps_per_epoch=steps_per_epoch,
+    if scheduler_type == "onecycle":
+        kwargs = dict(
+            optimizer=optimizer,
+            max_lr=max_lr,
+            epochs=epochs,
+            steps_per_epoch=steps_per_epoch,
+        )
+        if pct_start is not None:
+            kwargs["pct_start"] = float(pct_start)
+        return OneCycleLR(**kwargs)
+    if scheduler_type == "constant":
+        # Hold LR fixed at `max_lr` for the entire run (no warmup, no
+        # annealing). Isolates "more epochs" from "stretched OneCycleLR
+        # schedule" when paired with a higher --epochs value.
+        # The optimizer's base `lr` must be overwritten to `max_lr`
+        # before ConstantLR(factor=1.0) locks it.
+        for pg in optimizer.param_groups:
+            pg["lr"] = max_lr
+        return ConstantLR(optimizer=optimizer, factor=1.0, total_iters=1)
+    if scheduler_type == "cosine":
+        # Warmup-free cosine decay from `max_lr` → 0 over total steps.
+        # First set the optimizer's base lr to max_lr so CosineAnnealingLR
+        # starts at max_lr (not at AdamW's lr=1e-4 default).
+        for pg in optimizer.param_groups:
+            pg["lr"] = max_lr
+        return CosineAnnealingLR(
+            optimizer=optimizer,
+            T_max=int(epochs * steps_per_epoch),
+        )
+    raise ValueError(
+        f"Unknown scheduler_type '{scheduler_type}'; "
+        f"expected one of {{'onecycle', 'constant', 'cosine'}}."
     )

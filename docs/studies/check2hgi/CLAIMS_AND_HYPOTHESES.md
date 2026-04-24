@@ -67,7 +67,9 @@ All metrics favor Check2HGI with non-overlapping std envelopes over 5 folds. The
 **Phase:** paper write-up after P3.
 **Status:** `pending` — numeric comparisons pending. Need to locate the specific HGI-next-category reference the user plans to cite.
 
-### CH01-INTERIM (AL development): **FAILS on AL**
+### CH01-INTERIM (AL development): **SUPERSEDED by F31 (2026-04-24)**
+
+> **Status (2026-04-24):** this section is kept for audit. The MTL-dilution diagnosis it reports was specific to the pre-champion config (`mtlnet_dselectk + pcgrad + GRU`). The current champion B3 (`cross-attn + static(cat=0.75) + next_gru + next_getnext_hard`) on AL 5f × 50ep (F31, `results/F27_validation/al_5f50ep_b3_cathead_gru.json`) reaches **cat F1 42.71 ± 0.0137 (+4.13 pp over STL `next_mtl`)** and **reg Acc@10 59.60 ± 4.09 (+0.40 pp over STL STAN)** — the first AL cross of STL STAN by an MTL run. MTL no longer "dilutes" on AL under the champion config; the mechanistic finding below applies only to the superseded config.
 
 First data point from 5f × 50ep MTL (mtlnet_dselectk+pcgrad, GRU region head + pad-mask fix, per-task modality, fair folds):
 
@@ -272,6 +274,34 @@ The MTL architecture already has **two independent task-specific encoders** (`ca
 **Phase:** P3.
 **Status:** `pending`.
 
+### CH18 — Matched-head STL GETNext-hard dominates MTL-B3 on next-region at ≤1.5K-region scale (METHODOLOGICAL LIMITATION)
+
+**Statement:** On AL (1,109 regions) and AZ (1,547 regions), the single-task model `STL next_getnext_hard` (STAN backbone + hard `α · log_T[last_region_idx]` graph prior, trained single-task with the same aux side-channel pipeline as MTL-B3) delivers strictly higher **reg Acc@10, reg Acc@5, and reg MRR** than MTL-B3 at 5f × 50ep, with non-overlapping σ envelopes. The MTL coupling does not add value on the region head beyond the choice of head at ablation-state scale.
+
+**Why this claim exists:** CH01/CH02 were formulated on the premise "joint training lifts both heads over their single-task baselines". F21c (2026-04-24) ran the matched-head STL control that CH01/CH02 never executed — using the same `next_getnext_hard` head as B3's task_b, but trained standalone via `scripts/p1_region_head_ablation.py`. The single-task run dominates the joint run on region at both ablation states, by 12–14 pp Acc@10. This is a methodological finding: the study's earlier "MTL > STL on region" framing compared MTL against unmatched STL heads (GRU, STAN without prior), overstating the MTL contribution.
+
+**Why it is NOT a refutation of MTL:** MTL-B3 remains the single-model joint predictor. Deploying two STL models (one `GETNext-hard` for region + one matched cat head) doubles inference cost. MTL-B3 still lifts cat F1 over STL (CH01 post-F27: +4.13 pp AL, +3.73 pp AZ p=0.0312) — that contribution survives F21c. The paper's reframed contribution is "joint single-model deployment accepting a reg cost vs matched-head STL" rather than "MTL universally lifts both heads".
+
+**Numbers (5-fold × 50 epochs, seed 42, `StratifiedGroupKFold(groups=userid)`):**
+
+| State | Metric | STL `next_getnext_hard` | MTL-B3 | Δ (MTL − STL) | σ-overlap? |
+|:-:|:-|---:|---:|---:|:-:|
+| AL | Acc@10 | **68.37 ± 2.66** | 56.33 ± 8.16 | **−12.04** | No |
+| AL | MRR | **41.17 ± 2.28** | 28.55 ± 5.33 | **−12.62** | No |
+| AZ | Acc@10 | **66.74 ± 2.11** | 52.76 ± 3.92 | **−13.98** | No |
+| AZ | MRR | **41.15 ± 2.13** | 26.40 ± 2.45 | **−14.75** | No |
+
+Macro-F1 on region is *higher* for STL STAN (24.6 AL / 24.5 AZ) than for either STL GETNext-hard (~12) or MTL-B3 (~9) — the hard prior trades per-class calibration for top-K recall. Reported alongside Acc@10/MRR as the honest secondary metric.
+
+**Source:** `results/B3_baselines/stl_getnext_hard_{al,az}_5f50ep.json`; full analysis in `research/F21C_FINDINGS.md`.
+**Test:** F21c — COMPLETE on AL + AZ. FL 5f × 50ep pending (`FOLLOWUPS_TRACKER.md §F21c FL` — not launched; awaits headline-path decision).
+**Phase:** post-B3 (matched-head STL baseline program).
+**Status:** `confirmed at AL + AZ`; FL pending.
+
+**Tier placement rationale:** CH18 is filed as **Tier B (methodological limitation)** — it weakens CH01/CH02 without refuting the study's core claims (CH16 substrate lift + CH01 post-F27 cat-F1 MTL-over-STL + joint-model deployment motivation all survive). CH18 rises to **Tier A** if (a) a future MTL variant closes ≥75% of the 12–14 pp gap without regressing cat F1, or (b) FL F21c shows the matched-head STL dominance inverts at 4.7K-region scale (unlikely based on AL→AZ trend).
+
+**Room to recover to Tier A (paper-strength MTL lift):** per `research/F21C_FINDINGS.md §Next steps` + `research/B5_FL_TASKWEIGHT.md §Refined mechanism`, candidate recovery mechanisms for follow-up work include per-task weight clipping, prior-magnitude normalisation on the hard term, per-fold transition matrix (leakage-safe), PIF-style user-specific region frequency prior, and explicit shared-backbone regularization against the prior-magnified gradient direction. None are in-paper for the current submission.
+
 ---
 
 ## Tier C — Input-modality mechanism
@@ -354,6 +384,8 @@ The paper's framing therefore shifts from "Check2HGI is a better embedding" to "
 **Phase:** P1.5.
 **Status:** `confirmed (tied)` — closes C07 with a "tied" outcome and a pivot in paper framing.
 
+**Scope caveat (2026-04-24, post-F21c):** the tie was measured with `next_tcn_residual` STL on region-pooled embeddings. After F21c introduced `STL next_getnext_hard` (STAN + graph prior) as a new matched-head baseline, CH15 has not been re-tested under that head. A priori the graph-prior term `α · log_T[last_region_idx]` is substrate-agnostic (it reads from `region_transition_log.pt`, not from the embedding), so the tie is *expected* to hold — but the AL-pooled region embeddings do differ across Check2HGI vs HGI source, and the STAN backbone co-adapts differently. This is a minor follow-up item tracked in `FOLLOWUPS_TRACKER.md §3` (deferred, follow-up paper; only revisit if a reviewer asks whether CH16 replicates on reg under the graph-prior head).
+
 ---
 
 ### CH13 — Spatial enrichment improves next-category F1 over vanilla Check2HGI
@@ -369,7 +401,7 @@ The paper's framing therefore shifts from "Check2HGI is a better embedding" to "
 
 ## Summary dashboard
 
-**Reconciled 2026-04-23** against `OBJECTIVES_STATUS_TABLE.md` + `NORTH_STAR.md` + `review/2026-04-23_critical_review.md` + `research/B5_AZ_WILCOXON.md`.
+**Reconciled 2026-04-24** against `OBJECTIVES_STATUS_TABLE.md` v3 + `NORTH_STAR.md` (post-F27) + `review/2026-04-23_critical_review.md` + `research/F21C_FINDINGS.md` + `research/F27_CATHEAD_FINDINGS.md` + `research/B3_AZ_WILCOXON_VS_STL.md` + `research/B5_AZ_WILCOXON.md`.
 
 | ID | Tier | Phase | Status | Decides |
 |----|------|-------|--------|---------|
@@ -380,7 +412,7 @@ The paper's framing therefore shifts from "Check2HGI is a better embedding" to "
 | **CH03** | A | P4 | partial (AL dev only, 1f×20ep) | Per-task input modality > shared/concat, directional. Settled by design choice (north-star uses `task-a=checkin`, `task-b=region`); full P4 replication not executed and not paper-blocking — incorporated as configuration, not as a tested claim. |
 | CH04 | B | P1 | retired | Region head validates — demoted to reported pp-delta over Markov-1-region. |
 | CH05 | B | P1 | confirmed | Head choice matters for region task. Post-B5: GETNext-soft (north-star) > GRU ≫ NextHeadMTL on region. |
-| CH06 | B | P2 / B5 | settled as `mtlnet_crossattn + pcgrad + GETNext-soft d=256, 8h` | See `NORTH_STAR.md`. |
+| CH06 | B | P2 / B5 / B3 / F27 | settled as `mtlnet_crossattn + static_weight(cat=0.75) + next_gru (task_a) + next_getnext_hard (task_b) d=256, 8h` (post-F27 2026-04-24) | See `NORTH_STAR.md`. |
 | CH07 | B | P3 / F8 | pending (F8 multi-seed) | Seed-variance bound. Currently n=1 seed × 5 folds across champion rows. |
 | CH08 | C | P4 / B5 | confirmed via scale-curve findings | AL → AZ → FL scale-dependent MTL behaviour documented in `research/B5_MACRO_ANALYSIS.md` + `research/B5_FL_SCALING.md`. |
 | CH09 | D | P5 | done (cross-attn is the committed architecture) | Cross-attention IS the MTL architecture used across all P8/B5 champion runs. The `MTLnetCrossAttn` class with pcgrad + GETNext-soft is the north-star. |
@@ -388,7 +420,8 @@ The paper's framing therefore shifts from "Check2HGI is a better embedding" to "
 | CH11 | E | P6 | deferred | Enrichment is a post-paper research track. |
 | CH12 | F | P6 | deferred | Temporal enrichment (Time2Vec-like) |
 | CH13 | F | P6 | deferred | Spatial enrichment (Sphere2Vec-like) |
-| **CH15** | **B** | **P1.5** | **confirmed (tied)** | **Check2HGI ≈ HGI on region task** (POI2HGI not separately tested; HGI-region used as proxy). The meaningful Check2HGI advantage is on the cat-input side (CH16) — pivot documented 2026-04-16. |
+| **CH15** | **B** | **P1.5** | **confirmed (tied)** | **Check2HGI ≈ HGI on region task** (POI2HGI not separately tested; HGI-region used as proxy). The meaningful Check2HGI advantage is on the cat-input side (CH16) — pivot documented 2026-04-16. **Scope caveat (2026-04-24):** tie measured with `next_tcn_residual` STL head. Not re-tested under STL `next_getnext_hard` or under the MTL coupling; CH18-class matched-head comparisons could change the picture. Tracked as low-priority follow-up. |
+| **CH18** | **B** | **F21c (post-B3)** | **confirmed AL + AZ; FL pending** | **Matched-head STL `next_getnext_hard` > MTL-B3 on reg Acc@10 by 12–14 pp** at AL + AZ. Methodological-limitation finding, 2026-04-24. See full section above. Room to recover to Tier A via MTL variants that bridge the matched-head gap (follow-up paper). |
 
 ### Post-B5 additions (not in the original CH01-CH17 numbering, captured in `OBJECTIVES_STATUS_TABLE.md` and `review/2026-04-23_critical_review.md`)
 
@@ -398,5 +431,6 @@ The paper's framing therefore shifts from "Check2HGI is a better embedding" to "
 | CH-M5 | Fair LR (max_lr=0.003) dominates architecture | locked |
 | CH-M6 | Scale-curve (AL → AZ → FL) | documented, but FL n=1 limit noted |
 | CH-M7 | Markov-k monotone degrade | locked |
-| CH-B5-AZ | MTL-GETNext-hard strictly > STL STAN on AZ region | confirmed, n=5 paired (p=0.0312 on Acc@10/Acc@5/MRR/F1); ablation row in paper |
+| CH-B5-AZ | MTL-GETNext-hard (B-M9d, pcgrad) strictly > STL STAN on AZ region | confirmed on B-M9d only, n=5 paired (p=0.0312 on Acc@10/Acc@5/MRR/F1). **Caveat:** the current north-star B3 (`static + next_gru + hard`) lands at Acc@10 53.82 (tied σ with STAN; F19-followup Wilcoxon Δ=−0.81, 2/5 folds positive). The strict lift survives in B-M9d → kept as ablation row, not as B3's claim. |
+| **CH18** | **Matched-head STL `next_getnext_hard` (graph prior alone) > MTL-B3 on reg Acc@10 at ≤1.5K-region scale** | see CH18 below (Tier B) |
 | CH-B5-FL-fail | FL-hard cat head fails to train (gradient starvation) | diagnosed with JSON-level evidence; F2 is the rescue test |

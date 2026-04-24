@@ -8,29 +8,49 @@ Read this before any scientific work on the `worktree-check2hgi-mtl` branch. It 
 
 This study runs **alongside** the fusion study — they coexist under `docs/studies/`. Fusion investigates POI-category classification on fused POI-level embeddings; this study investigates **joint next_category + next_region prediction on check-in-level contextual embeddings** (Check2HGI). Do not cross-reference or mix artefacts between the two studies.
 
-P0 complete, P1 in progress (2026-04-16). Embeddings + next_region labels exist for AL / FL / AZ; Markov floor corrected to region granularity; single-task baselines established; MTL variant code (CGC/MMoE/DSelectK/PLE) ported to the TaskSet preset system.
+**Post-B3 era (2026-04-24).** The original P0→P6 phase plan is archived (`archive/phases_original/`). Active work is tracked against the **B3 champion** in `NORTH_STAR.md` with follow-ups enumerated in `FOLLOWUPS_TRACKER.md`. Current operational frontier: FL/CA/TX headline runs (F33/F34/F35 Colab) + Path A vs Path B decision on the F27 cat-head scale-dependence flag. **Before doing scientific work, read `SESSION_HANDOFF_2026-04-24.md` first** — it is the authoritative one-minute summary of where the study sits.
 
-## Thesis (bidirectional, 2026-04-16)
+AL + AZ 5f × 50ep ablation numbers are locked under post-F27 B3; FL 1f × 50ep has two replicates. Three paper-reshaping findings landed since 2026-04-22: **F2** (PCGrad × hard-prior × FL-scale gradient starvation mechanism), **F21c** (matched-head STL `next_getnext_hard` dominates MTL-B3 on reg by 12–14 pp at AL+AZ — CH18), **F27** (cat-head `next_mtl → next_gru` swap, scale-dependent on FL).
 
-MTL `{next_category, next_region}` must improve **both** heads over their respective single-task baselines on AL and FL. A one-sided lift fails the thesis. The architectural hypothesis for P3/P4 is **per-task input modality** (check-in emb → `category_encoder`, region emb → `next_encoder`) rather than shared or concatenated inputs. See CH01/CH02/CH03 in the claim catalog.
+## Thesis (post-F21c reframing, 2026-04-24)
+
+The bidirectional thesis ("MTL must lift both heads over STL") is **reformulated** in light of F21c. The paper's MTL contribution now rests on:
+
+1. **Check2HGI > HGI on cat F1** (CH16, primary substrate claim).
+2. **Strict MTL-over-STL on cat F1** at AL+AZ under B3 (F31 +4.13 pp AL, F27 +3.73 pp AZ Wilcoxon p=0.0312).
+3. **Joint single-model deployment** — B3 produces both heads in one forward pass. Accepting a 12–14 pp reg Acc@10 cost vs matched-head STL GETNext-hard (CH18) in exchange for halving inference cost and getting cat F1 for free.
+4. **Mechanism** — F2's PCGrad × hard-prior × FL-scale gradient-starvation + late-stage-handover rescue (paper-worthy independent of the headline claim).
+
+Room remains to recover CH18 to Tier A through MTL variants that bridge the matched-head gap (per-task weight clipping, prior-magnitude normalisation, etc.); those are follow-up paper territory. See `CLAIMS_AND_HYPOTHESES.md` for the full catalog.
 
 ---
 
 ## Study navigation
 
+**Active (read these first):**
+
 | File | Purpose |
 |------|---------|
 | `docs/studies/check2hgi/README.md` | Entry point + scope statement |
-| `docs/studies/check2hgi/QUICK_REFERENCE.md` | One-page overview |
-| `docs/studies/check2hgi/MASTER_PLAN.md` | 6-phase strategy (P0 prep → P1 single-task + input-modality ablation → P2 MTL arch×optim grid → P3 MTL headline bidirectional → P4 per-task input modality → P5 cross-attention (gated) → P6 encoder enrichment) |
-| `docs/studies/check2hgi/CLAIMS_AND_HYPOTHESES.md` | Authoritative claim catalog (CH01..CHnn) |
-| `docs/studies/check2hgi/COORDINATOR.md` | Orchestrator agent spec |
-| `docs/studies/check2hgi/phases/` | Per-phase execution plans |
-| `docs/studies/check2hgi/state.json` | Runtime state (current phase + test statuses) |
-| `docs/studies/check2hgi/KNOWLEDGE_SNAPSHOT.md` | Current baseline-knowledge snapshot |
-| `docs/studies/check2hgi/HANDOFF.md` | Session handoff notes |
+| `docs/studies/check2hgi/SESSION_HANDOFF_2026-04-24.md` | ⭐ One-minute summary of current state (most recent) |
+| `docs/studies/check2hgi/NORTH_STAR.md` | Committed B3 champion config + F27 scale-dependence flag |
+| `docs/studies/check2hgi/PAPER_STRUCTURE.md` | Paper scope, baselines, STL-matching policy |
+| `docs/studies/check2hgi/FOLLOWUPS_TRACKER.md` | Live work queue (F33/F34/F35 Colab etc.) |
+| `docs/studies/check2hgi/OBJECTIVES_STATUS_TABLE.md` | One-page scorecard |
+| `docs/studies/check2hgi/CLAIMS_AND_HYPOTHESES.md` | Authoritative claim catalog (CH01..CH18) |
+| `docs/studies/check2hgi/CONCERNS.md` | Acknowledged risks + resolutions (C01..C15) |
+| `docs/studies/check2hgi/results/RESULTS_TABLE.md` | Per-state × per-method canonical table |
+| `docs/studies/check2hgi/research/*` | Paper-substantive research notes (F21C, F27, B5_*, etc.) |
 
-Before any scientific work, read `QUICK_REFERENCE.md` and `KNOWLEDGE_SNAPSHOT.md`.
+**Archived (historical reference only):**
+
+| Location | Superseded by |
+|----------|---------------|
+| `archive/pre_b3_framing/` — MASTER_PLAN, QUICK_REFERENCE, KNOWLEDGE_SNAPSHOT, old HANDOFF, COORDINATOR, state.json, coordinator/ | NORTH_STAR.md + PAPER_STRUCTURE.md + tracker/handoff |
+| `archive/phases_original/` — P0..P7 phase plans | B3 + F* follow-up items in FOLLOWUPS_TRACKER |
+| `archive/research_pre_b3/` — pre-B3 research notes | post-B3 research/ directory |
+
+Before any scientific work, read `SESSION_HANDOFF_2026-04-24.md`, `NORTH_STAR.md`, and `PAPER_STRUCTURE.md`.
 
 ---
 
@@ -78,7 +98,7 @@ val_joint_geom_lift = sqrt(
 | POI-RGNN (Capanema et al.) | IJCNN '19 | Next-category on Gowalla FL/CA/TX: 31.8–34.5% macro-F1 |
 | MHA+PE (Zeng et al.) | 2019 | Next-category on Gowalla global: 26.9% F1 |
 
-Our single-task Check2HGI on AL: **38.67% F1** (already above POI-RGNN's 31.8–34.5% range).
+Our STL Check2HGI on AL (matched-head `next_mtl`, 5f × 50ep fair folds): **38.58% ± 1.23 F1** (already above POI-RGNN's 31.8–34.5% range). MTL-B3 post-F27 lifts to **42.71% ± 0.0137 F1** on AL (F31), **45.81% on AZ** (Wilcoxon p=0.0312 over STL).
 
 **For `next_region` (ranking, Acc@K/MRR) — concept-aligned, different datasets:**
 
@@ -88,7 +108,7 @@ Our single-task Check2HGI on AL: **38.67% F1** (already above POI-RGNN's 31.8–
 | MGCL (Zhu et al.) | Frontiers '24 | Multi-granularity contrastive with region + category auxiliary heads |
 | Bi-Level GSL | arXiv '24 | Explicit region-POI bi-level graph |
 
-Our single-task Check2HGI on AL (region-emb input, `next_gru` default, **5f × 50ep**): **56.94% ± 4.01 Acc@10**.
+Our STL Check2HGI on AL (region-emb input, `next_gru`, 5f × 50ep): **56.94% ± 4.01 Acc@10**. STL STAN (ceiling): **59.20% ± 3.62 Acc@10**. **STL `next_getnext_hard` matched-head (F21c)**: **68.37% ± 2.66 Acc@10** — the new reg ceiling at AL/AZ scale (CH18, 2026-04-24). MTL-B3 post-F27 on AL: **59.60 ± 4.09 Acc@10** (first MTL to cross STL STAN on AL; trails matched-head STL by −8.77 pp).
 
 **Simple-baseline floor (updated 2026-04-16):**
 - AL next_category: majority 34.2%, Markov 31.7%

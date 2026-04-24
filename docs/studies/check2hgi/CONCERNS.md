@@ -210,6 +210,51 @@ This tightens the paper's story: the contribution is framed around what Check2HG
 
 ---
 
+## C14 — F27 cat-head scale-dependence flag (FL may need a different task_a head)
+
+**Concern raised:** 2026-04-24. The F27 cat-head ablation swapped task_a `next_mtl (Transformer) → next_gru` and delivered **+3.43 pp cat F1 on AL 5f (F31)** and **+2.37 pp on AZ 5f with Wilcoxon p=0.0312, 5/5 folds positive (F27 validation)**. On FL at n=1 the sign **flipped** (−0.93 pp cat F1, F32). Within n=1 noise, but direction is opposite. Two interpretations:
+
+1. **n=1 fold-selection noise.** FL 1-fold cat F1 has ~0.9 pp variance across the three n=1 runs; F32's 0.6572 lands within the envelope [0.6623, 0.6706] minus noise.
+2. **Genuine scale-dependence.** At 127K rows × 4.7K regions, the Transformer head has enough capacity to use more of the signal than the GRU's last-timestep-summarisation bottleneck.
+
+**Resolution path:** F33 (Colab FL 5f × 50ep B3 + `next_gru`) is the decisive test. Three paths documented in `research/F27_CATHEAD_FINDINGS.md §Decision`:
+
+- **Path A** — Commit `next_gru` universally. Simpler narrative; accept small FL cost if at 5f the cat F1 drop is within σ.
+- **Path B** — Scale-dependent cat head: `next_gru` for AL/AZ, `next_mtl` for FL/CA/TX. Maximizes per-state performance but fragments the paper story.
+- **Path C** — Decisive FL 5f run (F33, in flight on Colab). Settles σ and lets the user commit confidently to A or B.
+
+The NORTH_STAR currently reflects **Path A** (`next_gru` universally) pending F33 results. If F33 shows FL cat F1 below the pre-F27 σ-envelope, Path B applies and `CA/TX` inherit the FL cat head (not the AL/AZ one).
+
+**Paper implication:** if Path B is chosen, the headline table has a footnote "task_a head is scale-dependent (next_gru for AL+AZ ablations, next_mtl for FL+CA+TX headline)". Methodologically honest; aesthetically fragmented.
+
+**Status:** `open — 2026-04-24`. Re-opens to Path B if F33 FL 5f cat F1 falls below the pre-F27 mean envelope minus σ.
+
+---
+
+## C15 — MTL coupling does not lift reg over matched-head STL at ablation scale (F21c reframing)
+
+**Concern raised:** 2026-04-24. F21c (`research/F21C_FINDINGS.md`) ran the matched-head STL baseline — `next_getnext_hard` trained single-task with the same aux side-channel pipeline as MTL-B3 — and found STL beats MTL-B3 on reg Acc@10 by **−12.04 pp on AL and −13.98 pp on AZ** at 5f × 50ep, non-overlapping σ. The implication reshapes the study's "MTL > STL on region" framing: under matched-head comparison, the MTL coupling does not add value on reg at ≤1.5K-region scale.
+
+**Impact on the thesis:**
+
+- **CH01 / CH02 post-F21c reframing:** "joint MTL lifts both heads over STL" is **false under matched-head STL on reg**. The cat-F1 MTL-over-STL lift survives (CH01 post-F27: +4.13 pp AL, +3.73 pp AZ p=0.0312); the reg-side lift does not. Documented in `CLAIMS_AND_HYPOTHESES.md §CH18`.
+- **Paper framing shift (Option B in F21c):** the paper's MTL contribution becomes "joint single-model deployment + strict cat-F1 MTL-over-STL + mechanism (F2)" rather than "MTL lifts both heads".
+- **Region is paper-primary but not MTL-primary.** STL GETNext-hard (68.37 AL / 66.74 AZ Acc@10) is a candidate headline reg baseline in its own right; the paper cites it alongside MTL-B3 with the tradeoff explicit.
+
+**Resolution (adopted):**
+1. Filed as **CH18 Tier B** in the claim catalog (room to rise to Tier A if a future MTL variant bridges the matched-head gap).
+2. `PAPER_STRUCTURE.md §1.1` + `OBJECTIVES_STATUS_TABLE.md v3 top caveat` document the reframing.
+3. `AGENT_CONTEXT.md §Thesis` restates the contribution around the four surviving claims (CH16, CH01-cat, joint deployment, F2 mechanism).
+
+**What would re-open:**
+- A MTL variant (per-task weight clipping, prior-magnitude normalisation, etc.) that closes ≥75% of the 12–14 pp gap without regressing cat F1 → CH18 rises to Tier A.
+- FL F21c (pending) shows matched-head STL dominance *inverts* at 4.7K-region scale → CH18 becomes state-dependent, not universal. Not expected based on AL→AZ trend.
+- A reviewer argues the matched-head comparison is a strawman (e.g., STL gets "free" hyperparameter tuning that MTL can't match). Our `scripts/p1_region_head_ablation.py` path uses the same trainer infrastructure and the same aux loader — the comparison is as matched as the codebase allows.
+
+**Status:** `resolved as methodological finding — 2026-04-24`. Re-opens on any of the three triggers above.
+
+---
+
 ## Index
 
 | ID | Concern | Status | Trigger to revisit |
@@ -227,3 +272,5 @@ This tightens the paper's story: the contribution is framed around what Check2HG
 | **C11** | **User-leakage in STL next-task folds** | **resolved 2026-04-17** | — |
 | **C12** | **Hyperparameter mismatch across STL vs MTL baselines** | **under investigation 2026-04-18** | Ablation step 7 max_lr sweep |
 | **C13** | **Alabama is a 10K-row dev state; may over-extrapolate to FL/CA/TX** | **open** | Arizona (26K) as intermediate |
+| **C14** | **F27 cat-head scale-dependence flag** | **open — 2026-04-24** | F33 Colab FL 5f decides Path A / B |
+| **C15** | **MTL coupling does not lift reg over matched-head STL at ablation scale (F21c)** | **resolved as methodological finding — 2026-04-24** | MTL variant closing ≥75% gap, or FL F21c inverting trend |

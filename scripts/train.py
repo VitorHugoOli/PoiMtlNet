@@ -511,6 +511,28 @@ def _parse_args(argv=None) -> argparse.Namespace:
         help="OneCycleLR max_lr. Overrides config value. STL next uses 0.01, STL region GRU 0.003, MTL default 0.001.",
     )
     parser.add_argument(
+        "--scheduler",
+        type=str,
+        choices=("onecycle", "constant", "cosine"),
+        default=None,
+        help=(
+            "LR scheduler type. 'onecycle' (default) preserves legacy "
+            "behaviour. 'constant' holds --max-lr fixed (disentangles "
+            "'more epochs' from 'stretched OneCycleLR schedule', F45). "
+            "'cosine' decays from --max-lr to 0 without warmup (F45 alt)."
+        ),
+    )
+    parser.add_argument(
+        "--pct-start",
+        type=float,
+        default=None,
+        help=(
+            "OneCycleLR pct_start (warmup fraction). PyTorch default 0.3. "
+            "Smaller values push peak LR earlier and leave more epochs in "
+            "annealing. Used by F46."
+        ),
+    )
+    parser.add_argument(
         "--reg-head-param",
         action="append",
         default=[],
@@ -651,6 +673,12 @@ def _apply_cli_overrides(
         if args.max_lr <= 0:
             raise ValueError("--max-lr must be > 0")
         config = dataclasses.replace(config, max_lr=args.max_lr)
+    if args.scheduler is not None:
+        config = dataclasses.replace(config, scheduler_type=args.scheduler)
+    if args.pct_start is not None:
+        if not (0 < args.pct_start < 1):
+            raise ValueError("--pct-start must be in (0, 1)")
+        config = dataclasses.replace(config, pct_start=args.pct_start)
     if args.next_target is not None:
         config = dataclasses.replace(config, next_target=args.next_target)
     if args.seed is not None:

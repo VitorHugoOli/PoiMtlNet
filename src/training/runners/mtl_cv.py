@@ -707,6 +707,8 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
         scheduler = setup_scheduler(
             optimizer, config.max_lr, config.epochs,
             steps_per_epoch,
+            scheduler_type=getattr(config, "scheduler_type", "onecycle"),
+            pct_start=getattr(config, "pct_start", None),
         )
 
         # Per-task class weights. Legacy behaviour (unchanged): weights

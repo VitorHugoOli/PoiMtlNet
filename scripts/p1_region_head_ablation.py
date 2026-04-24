@@ -313,10 +313,59 @@ class _InputLN(torch.nn.Module):
         return self.head(x_out)
 
 
+class _MTLPreencoder(torch.nn.Module):
+    """Wrap a head with MTLnet's next_encoder stack as pre-processor.
+
+    Mirrors ``MTLnet._build_encoder`` (Linear+ReLU+LayerNorm+Dropout stack)
+    so single-task evaluation sees the same input distribution the MTL
+    head would see — minus the cross-attn / shared-backbone blocks.
+    Used by F41 (Exp D) to isolate the *upstream encoder* contribution of
+    the CH18 STL-vs-MTL gap.
+
+    Padding semantics are preserved: positions that were zero in the
+    input are re-zeroed after the encoder so the head's padding mask
+    (``x.abs().sum(-1) == 0``) still fires. In MTL this is enforced by
+    the downstream cross-attn `mask.unsqueeze(-1)` step; we replicate it
+    directly here.
+    """
+
+    def __init__(self, in_size, hidden_size, out_size, num_layers=2,
+                 dropout=0.1, head=None):
+        super().__init__()
+        layers = [
+            torch.nn.Linear(in_size, hidden_size),
+            torch.nn.ReLU(),
+            torch.nn.LayerNorm(hidden_size),
+            torch.nn.Dropout(dropout),
+        ]
+        for _ in range(num_layers - 1):
+            layers += [
+                torch.nn.Linear(hidden_size, hidden_size),
+                torch.nn.ReLU(),
+                torch.nn.LayerNorm(hidden_size),
+                torch.nn.Dropout(dropout),
+            ]
+        layers += [
+            torch.nn.Linear(hidden_size, out_size),
+            torch.nn.ReLU(),
+            torch.nn.LayerNorm(out_size),
+        ]
+        self.encoder = torch.nn.Sequential(*layers)
+        self.head = head
+
+    def forward(self, x):
+        pad_mask = (x.abs().sum(dim=-1, keepdim=True) == 0)  # [B, T, 1] bool
+        x_enc = self.encoder(x)
+        x_enc = x_enc.masked_fill(pad_mask, 0.0)
+        return self.head(x_enc)
+
+
 def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
                        emb_dim, n_classes, epochs, batch_size, seed,
                        overrides, max_lr, label_smoothing, input_ln,
-                       aux_tensor=None):
+                       aux_tensor=None, mtl_preencoder=False,
+                       preenc_hidden=256, preenc_layers=2,
+                       preenc_dropout=0.1):
     """Train a single-task model and return val metrics.
 
     ``aux_tensor`` — optional per-sample auxiliary int64 tensor (e.g.
@@ -348,10 +397,23 @@ def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
         val_dl = _dataloader(x_val, y_val, batch_size, False)
 
     seq_length = InputsConfig.SLIDE_WINDOW
-    head = _build_head(head_name, emb_dim, n_classes, seq_length, overrides)
+    # Under --mtl-preencoder, the head's `embed_dim` must match the
+    # preencoder's output dim (e.g. 256), not the raw input dim (64).
+    # This mirrors MTL where the head receives the next_encoder output.
+    head_embed_dim = preenc_hidden if mtl_preencoder else emb_dim
+    head = _build_head(head_name, head_embed_dim, n_classes, seq_length, overrides)
     model = head
     if input_ln:
-        model = _InputLN(head, emb_dim)
+        model = _InputLN(head, head_embed_dim)
+    if mtl_preencoder:
+        model = _MTLPreencoder(
+            in_size=emb_dim,
+            hidden_size=preenc_hidden,
+            out_size=preenc_hidden,
+            num_layers=preenc_layers,
+            dropout=preenc_dropout,
+            head=model,
+        )
     model = model.to(DEVICE)
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=0.01)
@@ -438,7 +500,11 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
                  overrides: dict, max_lr: float | None,
                  label_smoothing: float, input_ln: bool,
                  tag: str | None, resume: bool = True,
-                 region_emb_source: str = "check2hgi"):
+                 region_emb_source: str = "check2hgi",
+                 mtl_preencoder: bool = False,
+                 preenc_hidden: int = 256,
+                 preenc_layers: int = 2,
+                 preenc_dropout: float = 0.1):
     logger.info("Loading data for %s (input_type=%s, region_emb=%s)...", state, input_type, region_emb_source)
     x_tensor, y_region, y_cat, userids, emb_dim, n_regions, last_region_tensor = _load_data(
         state, input_type, region_emb_source,
@@ -508,6 +574,10 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
                 emb_dim, n_regions, epochs, batch_size, seed + fold_idx,
                 overrides, head_max_lr, label_smoothing, input_ln,
                 aux_tensor=last_region_tensor,
+                mtl_preencoder=mtl_preencoder,
+                preenc_hidden=preenc_hidden,
+                preenc_layers=preenc_layers,
+                preenc_dropout=preenc_dropout,
             )
             elapsed = time.time() - t0
             fold_metrics.append(metrics)
@@ -633,6 +703,18 @@ def main():
                         help="Which engine's region_embeddings.parquet to use for region/concat input_type. "
                              "Labels + sequences always come from check2hgi — only the embedding lookup changes. "
                              "Used for P1.5 embedding-substrate comparison (CH15).")
+    parser.add_argument("--mtl-preencoder", action="store_true",
+                        help="Wrap the head with MTLnet's next_encoder stack (Linear+ReLU+LayerNorm+Dropout) "
+                             "as a pre-processor, mirroring the MTL pipeline's upstream encoder without the "
+                             "cross-attn / shared-backbone. Used by F41 (Exp D) to isolate the upstream "
+                             "encoder contribution to the CH18 STL-vs-MTL region gap. Forces the head's "
+                             "embed_dim to match --preenc-hidden.")
+    parser.add_argument("--preenc-hidden", type=int, default=256,
+                        help="Hidden / output dim of --mtl-preencoder (default 256, matches MTL shared_layer_size).")
+    parser.add_argument("--preenc-layers", type=int, default=2,
+                        help="Number of Linear blocks in --mtl-preencoder (default 2, matches MTL num_encoder_layers).")
+    parser.add_argument("--preenc-dropout", type=float, default=0.1,
+                        help="Dropout in --mtl-preencoder (default 0.1, matches MTL encoder_dropout).")
     args = parser.parse_args()
 
     overrides = _parse_overrides(args.override_hparams)
@@ -641,6 +723,10 @@ def main():
         args.input_type, overrides, args.max_lr, args.label_smoothing,
         args.input_layernorm, args.tag, resume=args.resume,
         region_emb_source=args.region_emb_source,
+        mtl_preencoder=args.mtl_preencoder,
+        preenc_hidden=args.preenc_hidden,
+        preenc_layers=args.preenc_layers,
+        preenc_dropout=args.preenc_dropout,
     )
 
 
