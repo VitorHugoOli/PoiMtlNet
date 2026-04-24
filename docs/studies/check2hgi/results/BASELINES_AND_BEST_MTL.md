@@ -1,6 +1,6 @@
 # Baselines + Best MTL Results — Paper Comparison Table
 
-**Date:** 2026-04-18. Fair folds (user-disjoint `StratifiedGroupKFold`) throughout.
+**Date:** 2026-04-18 (updated 2026-04-23 with post-partition-bug-fix MTLoRA numbers + post-B5 GETNext champion note). Fair folds (user-disjoint `StratifiedGroupKFold`) throughout. For the current north-star MTL config see `../NORTH_STAR.md`; for the joint-execution honest table see `../OBJECTIVES_STATUS_TABLE.md`.
 
 All numbers are from commits in this worktree; see §Sources at the bottom for the JSON path for each row.
 
@@ -62,7 +62,8 @@ All numbers are from commits in this worktree; see §Sources at the bottom for t
 | B9 | STL HGI region embeddings (TCN head, same pipeline) | ? | 57.02 ± 2.92 | 33.14 ± 1.87 | P1.5 (CH15) |
 | | *MTL with shared-backbone architectures:* | | | | |
 | B10 | MTL dselectk + pcgrad (P2 champion) | 13.31 | 48.88 ± 6.26 | 24.43 | P2-validate |
-| B11 | **MTL dselectk + MTLoRA r=8** ⭐ **best MTL reg** | 13.95 | **50.72 ± 4.36** | **25.36** | **Ablation step 4a** |
+| B11 | ~~MTL dselectk + MTLoRA r=8~~ *(SUPERSEDED: `MTL_PARAM_PARTITION_BUG` — pre-fix value 50.72 ± 4.36 reported)* | — | — | — | **pre-fix — retired** |
+| B11b | **MTL dselectk + MTLoRA r=8 (post-fix)** | 17.48 ± 1.35 | **53.71 ± 3.80** | **29.60 ± 2.01** | `results/P5_bugfix/a7_mtlora_r8_al_5f50ep_postfix_pcgrad.json` (2026-04-22, commits `5668856`+`c1c7f3e`) |
 | B12 | MTL λ=0.5 equal-weight (static) | 11.34 | 50.26 ± 4.34 | 25.35 | Ablation step 2 |
 | | *MTL with cross-attention:* | | | | |
 | B13 | MTL mtlnet_crossattn (region head: GRU) | 10.06 | 45.09 ± 5.37 | 20.94 | Ablation step 6 |
@@ -70,7 +71,7 @@ All numbers are from commits in this worktree; see §Sources at the bottom for t
 | B13b | MTL mtlnet_crossattn (region head: STAN d=256, 8h) | 13.86 ± 3.43 | 51.60 ± 10.09 | 25.69 ± 5.34 | P8 MTL-STAN hp-tuned (high var) |
 
 **Key observations:**
-- **B8a (STL STAN 59.20%) is the region-task ceiling** — the literature-aligned Luo et al. WWW'21 architecture, adapted to our check2HGI substrate (see `research/SOTA_STAN_BASELINE.md`). STAN beats `next_gru` (B8) by +2.26 pp Acc@10 within σ on AL. `next_gru` is kept in the paper as the MTL-architecture's region head per §CH-M4 / C06 framing. No MTL architecture we tested exceeds STL STAN on AL — B11 at 50.72% is the closest MTL result (−8.48 pp gap vs STAN).
+- **B8a (STL STAN 59.20%) is the region-task ceiling** — the literature-aligned Luo et al. WWW'21 architecture, adapted to our check2HGI substrate (see `research/SOTA_STAN_BASELINE.md`). STAN beats `next_gru` (B8) by +2.26 pp Acc@10 within σ on AL. `next_gru` is kept in the paper as the MTL-architecture's region head per §CH-M4 / C06 framing. **Post-B5 update (2026-04-22):** MTL-GETNext-hard (`next_getnext_hard`) reaches **57.96 ± 5.09** Acc@10 on AL (within σ of STL STAN) and **53.25 ± 3.44** on AZ (strictly above STL STAN 52.24). See `results/B5/*.json` + `research/B5_RESULTS.md`. B11b (MTLoRA post-fix) at 53.71 is now the second-best MTL region on AL, below GETNext-hard's 57.96.
 - **B5 Markov-1-region is the binding simple floor** (47.01%). Our best STL beats it by +9.93 pp; our best MTL exceeds it by +3.71 pp.
 - **B5→B5e context-matched Markov monotonically DEGRADES with k** (47.01 → 32.79). N-gram sparsity outpaces training data beyond k=1 even with backoff. The context-matched (k=9) Markov is 32.79% — **STL STAN beats Markov-9 by +26.41 pp** at the same 9-step context. This isolates the neural contribution as representation-learning, not context-length.
 - **B9 (HGI region embeddings through same pipeline): tied with Check2HGI** at the region task (57.02 vs 56.11). Expected — pooling to region erases check-in-level variance. This is CH15.

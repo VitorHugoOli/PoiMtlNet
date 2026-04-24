@@ -369,21 +369,34 @@ The paper's framing therefore shifts from "Check2HGI is a better embedding" to "
 
 ## Summary dashboard
 
+**Reconciled 2026-04-23** against `OBJECTIVES_STATUS_TABLE.md` + `NORTH_STAR.md` + `review/2026-04-23_critical_review.md` + `research/B5_AZ_WILCOXON.md`.
+
 | ID | Tier | Phase | Status | Decides |
 |----|------|-------|--------|---------|
-| **CH16** | **A** | **P1.5b** | **confirmed ✅** | **Check2HGI > HGI on next-category by +15.68 pp F1 (PRIMARY SUBSTRATE)** |
-| **CH17** | **A** | **paper** | **pending** | **Check2HGI > POI-RGNN + prior HGI-next-category article** |
-| **CH01** | A | P3 | pending | Bidirectional MTL lift on both heads |
-| **CH02** | A | P3 | pending | No negative transfer on either head (statistical) |
-| **CH03** | A | P4 | partial (AL dev) | Per-task input modality > shared / concat — confirmed directionally on AL |
-| CH04 | B | P1 | retired | Region head validates — demoted to reported comparison (1.16× Markov-1-region) |
-| CH05 | B | P1 | confirmed | Head choice matters for region task (GRU wins, transformer collapses) |
-| CH06 | B | P2 | pending | Champion MTL arch × optim |
-| CH07 | B | P3 | pending | Seed variance bound (<2pp std across 15 runs) |
-| CH08 | C | P4 | pending | State-dependent MTL gain (AL vs FL) |
-| CH09 | D | P5 (gated) | pending | Cross-attention > per-task modality |
+| **CH16** | **A** | **P1.5b** | **confirmed (AL only, +18.30 pp fair)** | **Check2HGI > HGI on next-category (PRIMARY SUBSTRATE).** AL only; F3 AZ HGI STL cat is the cheapest replication. |
+| **CH17** | **A** | **paper** | **pending (audit done 2026-04-23)** | **Check2HGI > POI-RGNN.** Reproduced POI-RGNN FL 34.49 / CA 31.78 / TX 33.03 vs ours FL 63.17 STL / 66.01 MTL = +28–32 pp. Protocol audit in `docs/baselines/POI_RGNN_AUDIT.md`. |
+| **CH01** | A | P3 / B5 | reframed → `OBJECTIVES_STATUS_TABLE.md §3` | "Bidirectional MTL lift" literal form no longer the headline. North-star (soft) gives ties/lifts on cat and region below STL; hard ablation delivers strict MTL-over-STL on AZ region (+1.01 pp, p=0.0312 F1). FL region below Markov under both variants. |
+| **CH02** | A | P3 / B5 | reframed → F1 Wilcoxon done | "No negative transfer" now tested via paired Wilcoxon on AZ hard-vs-soft: cat Δ p=0.44 two-sided (no regression), region all 4 metrics p=0.0312 one-sided (lift). See `research/B5_AZ_WILCOXON.md`. |
+| **CH03** | A | P4 | partial (AL dev only, 1f×20ep) | Per-task input modality > shared/concat, directional. Settled by design choice (north-star uses `task-a=checkin`, `task-b=region`); full P4 replication not executed and not paper-blocking — incorporated as configuration, not as a tested claim. |
+| CH04 | B | P1 | retired | Region head validates — demoted to reported pp-delta over Markov-1-region. |
+| CH05 | B | P1 | confirmed | Head choice matters for region task. Post-B5: GETNext-soft (north-star) > GRU ≫ NextHeadMTL on region. |
+| CH06 | B | P2 / B5 | settled as `mtlnet_crossattn + pcgrad + GETNext-soft d=256, 8h` | See `NORTH_STAR.md`. |
+| CH07 | B | P3 / F8 | pending (F8 multi-seed) | Seed-variance bound. Currently n=1 seed × 5 folds across champion rows. |
+| CH08 | C | P4 / B5 | confirmed via scale-curve findings | AL → AZ → FL scale-dependent MTL behaviour documented in `research/B5_MACRO_ANALYSIS.md` + `research/B5_FL_SCALING.md`. |
+| CH09 | D | P5 | done (cross-attn is the committed architecture) | Cross-attention IS the MTL architecture used across all P8/B5 champion runs. The `MTLnetCrossAttn` class with pcgrad + GETNext-soft is the north-star. |
 | CH10 | E | — | declared | External-validity limit (Gowalla ≠ FSQ) |
-| CH11 | E | P6 | pending | Enrichment is a research track |
-| CH12 | F | P6 | pending | Temporal enrichment (Time2Vec-like) |
-| CH13 | F | P6 | pending | Spatial enrichment (Sphere2Vec-like) |
-| **CH15** | **B** | **P1.5** | **pending** | **Check2HGI substrate ≥ POI2HGI on region task (preempt reviewer Q)** |
+| CH11 | E | P6 | deferred | Enrichment is a post-paper research track. |
+| CH12 | F | P6 | deferred | Temporal enrichment (Time2Vec-like) |
+| CH13 | F | P6 | deferred | Spatial enrichment (Sphere2Vec-like) |
+| **CH15** | **B** | **P1.5** | **confirmed (tied)** | **Check2HGI ≈ HGI on region task** (POI2HGI not separately tested; HGI-region used as proxy). The meaningful Check2HGI advantage is on the cat-input side (CH16) — pivot documented 2026-04-16. |
+
+### Post-B5 additions (not in the original CH01-CH17 numbering, captured in `OBJECTIVES_STATUS_TABLE.md` and `review/2026-04-23_critical_review.md`)
+
+| Ref | What | Status |
+|---|---|---|
+| CH-M4 | Cross-attn closes the MTL→STL cat gap | locked on AL; AZ +1.05 n=5; FL +3.29 n=1 |
+| CH-M5 | Fair LR (max_lr=0.003) dominates architecture | locked |
+| CH-M6 | Scale-curve (AL → AZ → FL) | documented, but FL n=1 limit noted |
+| CH-M7 | Markov-k monotone degrade | locked |
+| CH-B5-AZ | MTL-GETNext-hard strictly > STL STAN on AZ region | confirmed, n=5 paired (p=0.0312 on Acc@10/Acc@5/MRR/F1); ablation row in paper |
+| CH-B5-FL-fail | FL-hard cat head fails to train (gradient starvation) | diagnosed with JSON-level evidence; F2 is the rescue test |

@@ -1,82 +1,87 @@
 # Check2HGI Study — Entry Point
 
-**Status:** P0 complete, P1 ready (2026-04-16).
-**Scope:** Sibling to `docs/studies/fusion/`. Investigates whether check-in-level contextual embeddings (Check2HGI) with a next-region auxiliary task improve next-POI-category prediction over single-task training.
+**Status (2026-04-23):** B3 identified as unified joint-task champion candidate via F2 diagnostic; validated 5-fold on AL + AZ + FL-1f (×2). Headline FL + CA + TX 5-fold pending. Doc cleanup complete.
 
-> **If you're starting a fresh session:** read [`HANDOFF.md`](HANDOFF.md) first, then [`AGENT_CONTEXT.md`](AGENT_CONTEXT.md).
+**Scope:** Sibling to `docs/studies/fusion/`. Investigates whether check-in-level contextual embeddings (Check2HGI) with a next-region auxiliary task improve joint `{next_category, next_region}` prediction over HGI and over single-task training.
+
+---
+
+## Where to start (new agents, read in order)
+
+1. **[`SESSION_HANDOFF_2026-04-24.md`](SESSION_HANDOFF_2026-04-24.md)** ⭐ **most recent** — one-minute summary + what happened in 2026-04-22 → 04-24 + how to pick up cold.
+2. **[`NORTH_STAR.md`](NORTH_STAR.md)** — committed champion MTL config + F27 scale-dependence flag.
+3. **[`PAPER_STRUCTURE.md`](PAPER_STRUCTURE.md)** — paper scope, baselines, STL-matching policy, FL region Markov caveat.
+4. **[`FOLLOWUPS_TRACKER.md`](FOLLOWUPS_TRACKER.md)** — live work queue (F33 FL 5f + F34 CA 1f + F35 TX 1f are the next things to land).
+5. **[`research/F21C_FINDINGS.md`](research/F21C_FINDINGS.md)** — paper-reshaping matched-head STL finding (STL > MTL on reg by 12–14 pp).
+6. **[`research/F27_CATHEAD_FINDINGS.md`](research/F27_CATHEAD_FINDINGS.md)** — cat-head ablation + FL scale-dependence flag.
+7. **[`review/2026-04-23_critical_review.md`](review/2026-04-23_critical_review.md)** — analytical state of the study as of 2026-04-23 (pre-F21c/F27).
+8. **[`OBJECTIVES_STATUS_TABLE.md`](OBJECTIVES_STATUS_TABLE.md)** — one-page scorecard.
+9. **[`results/RESULTS_TABLE.md`](results/RESULTS_TABLE.md)** — canonical per-state × per-method table.
+10. **[`AGENT_CONTEXT.md`](AGENT_CONTEXT.md)** — long-form study context.
+11. **[`SESSION_HANDOFF_2026-04-22.md`](SESSION_HANDOFF_2026-04-22.md)** — operational gotchas G1–G7 (MPS memory, caffeinate, num_workers=0, etc.). G8 in the newer handoff.
+
+## What the paper claims (short)
+
+- **CH16:** Check2HGI > HGI on next-category macro-F1. AL locked (+18.30 pp σ-clean). Cross-state replication pending.
+- **Champion (B3):** `mtlnet_crossattn + static_weight(category_weight=0.75) + next_getnext_hard d=256, 8h`. Beats baselines on cat F1 everywhere; beats Markov-1-region on AL+AZ (FL Markov-saturated — approach (a)). Strict MTL-over-STL on AZ cat F1 (+1.65 pp, p=0.0312).
+- **Mechanism:** FL-hard-under-PCGrad gradient starvation + late-stage-handover rescue under unbalanced static weighting (`research/B5_FL_TASKWEIGHT.md`).
 
 ## Task pair
 
 | Slot | Task | Classes | Primary metric |
 |---|---|---|---|
 | **task_a** | `next_category` | 7 | macro-F1 |
-| **task_b** | `next_region` | ~1,109 (AL) / ~4,703 (FL) | Acc@K, MRR |
+| **task_b** | `next_region` | 1,109 (AL) / 1,547 (AZ) / 4,702 (FL) / TBD (CA, TX) | Acc@10, MRR |
 
-**Preset:** `CHECK2HGI_NEXT_REGION` — both heads sequential, shared X tensor `[B, 9, 64]`.
+**Preset:** `CHECK2HGI_NEXT_REGION`.
 
-## Paper thesis
+## Baselines (see `PAPER_STRUCTURE.md §3` for detail)
 
-> **On Check2HGI check-in-level embeddings, the two tasks `{next_category, next_region}` help each other: joint MTL training improves *both* next-category macro-F1 AND next-region Acc@10 over their respective single-task baselines, without negative transfer, on Gowalla state-level data. The mechanism is per-task input modality (check-in emb → category head, region emb → region head) coupled through a shared MTL backbone.**
-
-The thesis is **bidirectional** — a one-sided lift (category improved, region degraded, or vice versa) fails the thesis. See CH01 + CH02 in the claim catalog.
-
-## Baselines
-
-**For next_category (7 classes):**
-- **POI-RGNN** (Capanema et al. 2019): next-category on Gowalla FL/CA/TX, macro-F1 = 31.8–34.5%
-- **MHA+PE** (Zeng et al. 2019): next-category on Gowalla global, macro-F1 = 26.9%
-- Our Check2HGI single-task on AL: **38.67% F1** (already above POI-RGNN range)
-
-**For next_region (~1K classes):**
-- **HMT-GRN** (SIGIR '22): hierarchical region auxiliary, GRU-based region head
-- **MGCL** (Frontiers '24): multi-granularity contrastive with region + category heads
-- Direct numeric comparison limited (different datasets); concept-alignment is the contribution
-- Our Check2HGI single-task on AL (region-emb input, `next_gru` default, **5f × 50ep**): **56.94% ± 4.01 Acc@10** (1.21× Markov-1-region)
-- Our Check2HGI single-task on FL (region-emb input, `next_gru` default, **1f × 30ep**): **65.91% Acc@10** (only 1.013× Markov-1-region — dense-data regime, very tight margin)
-
-**Simple-baseline floor (from P0.5, updated 2026-04-16):**
-- AL next_category: majority 34.2%, Markov 31.7%
-- FL next_category: majority 24.7%, Markov 37.2%
-- AL next_region: **Markov-1-region Acc@10 = 47.01%** (the POI-level `markov_1step` was a degenerate baseline; see CH04 notes)
-- FL next_region: **Markov-1-region Acc@10 = 65.05%**
-
-## Phases
-
-| Phase | What | Claims | Duration |
-|---|---|---|---|
-| **P0** | ✅ Integrity + baselines (with corrected region-level Markov) + audits | floor | done |
-| **P1** | Region-head validation + head ablation × {check-in, region, concat} input | CH04, CH05 | ~3h |
-| **P2** | Parameterize all MTL architectures + full arch×optim ablation under per-task modality | CH06 | ~1 day |
-| **P3** | MTL headline: champion config, multi-seed n=15, **bidirectional per-head comparison** | **CH01, CH02**, CH07 | ~4h |
-| **P4** | **Per-task input modality**: 4-way comparison {per_task, concat, shared_checkin, shared_region} | **CH03**, CH08 | ~4h |
-| **P5** | Cross-attention between task-specific encoders (gated on P4) | CH09 | ~6h (gated) |
-| **P6** | Check2HGI encoder enrichment (research-gated) | CH12, CH13 | ~2 days |
+- **next-cat:** POI-RGNN (external published), Markov-1-POI / Majority (simple floors), STL Check2HGI cat (matched), STL HGI cat (substrate ablation CH16).
+- **next-reg:** Markov-1-region (simple floor), STL STAN (literature-aligned SOTA ceiling), STL GRU (secondary), STL GETNext-hard (matched-head — F21 pending). HMT-GRN / MGCL are concept-aligned references (different datasets, not directly comparable).
 
 ## Navigation
 
 ```
 docs/studies/check2hgi/
-├── README.md                     ← you are here
-├── AGENT_CONTEXT.md              ← study-scoped briefing
-├── QUICK_REFERENCE.md            ← one-page cheat sheet
-├── MASTER_PLAN.md                ← phases, budget, gates
-├── CLAIMS_AND_HYPOTHESES.md      ← claim catalog (CH01..CH11)
-├── KNOWLEDGE_SNAPSHOT.md         ← baseline knowledge state
-├── COORDINATOR.md                ← agent spec
-├── HANDOFF.md                    ← session handoff
-├── state.json                    ← runtime state
-├── phases/                       ← per-phase execution plans
-├── coordinator/                  ← integrity checks + state schema
-├── results/                      ← archived per-test summaries
-└── archive/                      ← prior scope iterations
+├── README.md                              ← you are here
+├── NORTH_STAR.md                          ← champion config decision
+├── PAPER_STRUCTURE.md                     ← paper scope + baselines + tables
+├── OBJECTIVES_STATUS_TABLE.md             ← one-page scorecard
+├── FOLLOWUPS_TRACKER.md                   ← live work queue (owners, costs)
+├── CLAIMS_AND_HYPOTHESES.md               ← reconciled claim catalog
+├── CONCERNS.md                            ← acknowledged risks + resolutions
+├── AGENT_CONTEXT.md                       ← long-form study-scoped briefing
+├── SESSION_HANDOFF_2026-04-22.md          ← operational gotchas
+├── issues/                                ← bug / design audits (MTL_PARAM_PARTITION_BUG, etc.)
+├── research/                              ← paper-substantive notes (B3_*, B5_*, GETNEXT_*, STAN_*, POSITIONING_*, ATTRIBUTION_*, NASH_MTL_*, MTL_WITH_STAN_HEAD)
+├── results/                               ← archived JSONs + tables
+│   ├── RESULTS_TABLE.md                   ← per-state × per-method canonical table
+│   ├── BASELINES_AND_BEST_MTL.md          ← legacy paper-comparison table (pre-B3 — kept for audit)
+│   ├── B3_validation/                     ← B3 5f JSONs on AL, AZ
+│   ├── B5/                                ← B5 hard-index JSONs on AL, AZ, FL-1f
+│   ├── F2_fl_diagnostic/                  ← F2 4-phase JSONs on FL-1f
+│   ├── P0/                                ← simple baselines (Markov k=1..9, Majority, Top-K)
+│   ├── P1/                                ← STL region-head JSONs
+│   ├── P1_5b/                             ← STL cat JSONs + CH16 HGI comparison
+│   ├── P2/                                ← MTL arch × optim grid
+│   ├── P5_bugfix/                         ← MTLoRA post-partition-bug reruns
+│   └── P8_sota/                           ← MTL-STAN / TGSTAN / STA-Hyper / GETNext
+├── review/                                ← dated critical reviews
+└── archive/                               ← superseded docs (safe to ignore)
+    ├── pre_b3_framing/                    ← MASTER_PLAN, KNOWLEDGE_SNAPSHOT, QUICK_REFERENCE, old HANDOFF, COORDINATOR, state.json, coordinator/
+    ├── phases_original/                   ← original P0–P7 phase plans
+    ├── research_pre_b3/                   ← pre-B3 research notes (MTL_ABLATION_PROTOCOL, SOTA_MTL_*, STRATEGIC_FRAMING, etc.)
+    ├── 2026-04-20_status_reports/         ← pre-B5 status reports
+    └── research_pre_b5/                   ← pre-B5 research notes (HYBRID_DECISION, EXECUTION_PLAN, CHAIN_FINDINGS)
 ```
 
 ## Out of scope
 
-- POI-category classification (fusion study).
-- HAVANA / PGC baselines (different task).
-- Exact next-POI-id prediction (~11K classes) — was considered, doesn't match the MTLnet architecture's classification paradigm.
-- Encoder enrichment (temporal/spatial features, hard negatives) — deferred.
+- POI-category classification from POI features alone (fusion study).
+- HAVANA baseline (different task: semantic annotation, not sequential).
+- Exact next-POI-id prediction (~11K classes) — outside MTLnet classification paradigm.
+- Encoder enrichment (temporal/spatial/graph features) — deferred to follow-up paper.
 
 ## Sibling study
 
