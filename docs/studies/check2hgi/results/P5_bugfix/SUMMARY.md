@@ -4,18 +4,20 @@
 `task_a_input=checkin`, `task_b_input=region`, `max_lr=0.003`, seed 42,
 5f × 50ep. Per-run variations call out the model/rank/optimizer axis.
 
-**Purpose.** Four related questions in one push:
+**Purpose.** Five related questions in one push:
 1. Does the MTLoRA-lift attributed to the A7 champion survive the
    partition-bug fix (commits `5668856` + `c1c7f3e`)?
 2. Are LibMTL optimizers (Aligned-MTL / CAGrad / DB-MTL) competitive
    with PCGrad on this config?
 3. Does the MTLoRA rank matter (r=8 / 16 / 32) once LoRA trains?
-4. Does the partition-bug fix rescue AdaShare? And does MTLoRA on AZ
-   hold up cross-state (A7 champion test)?
+4. Does the partition-bug fix rescue AdaShare?
+5. Does the A1 optimizer picture replicate on AZ (cross-state test)?
 
-**Runtime.** 4 probe runs (M2 Pro, 2h55m) + 4 resume runs (M4 Pro, 2h28m)
-+ 1 local A7 replicate = ~6h total wallclock across two machines
-(2026-04-22 11:19–17:08).
+**Runtime.** 4 AL probe runs (M2 Pro, 2h55m) + 4 resume runs
+(M4 Pro, 2h28m) + 1 local A7 replicate + 4 AZ probe runs
+(M2 Pro, ~20h spread 2026-04-22 15:56 → 2026-04-23 11:44, CAGrad AZ
+was a 14h outlier due to MPS memory pressure across folds)
+= ~25h total wallclock across two machines.
 
 ## A1 · Optimizer probe — A7 MTLoRA r=8 on AL
 
@@ -60,138 +62,41 @@ Does AdaShare close the gap to MTLoRA?
 | MTLoRA r=8 (post-fix, ref)    | 17.48 ± 1.35 | 53.71 ± 3.80      | 29.60 ± 2.01   |
 
 **AdaShare does NOT close the gap.** Even with gates trainable, AdaShare
-lands ~9 pp Acc@10 below MTLoRA r=8 (and ~8 pp below its own Acc@10
-reconstruction from pre-fix partial metrics, if we assume the same
-proportional lift). The "AdaShare neutral" framing in pre-fix tables
-was masking a real architectural gap. Recommendation: drop AdaShare
-as a paper row; it is not a competitive MTL sharing mechanism on
-this task.
+lands ~9 pp Acc@10 below MTLoRA r=8. The "AdaShare neutral" framing in
+pre-fix tables was masking a real architectural gap. Recommendation:
+drop AdaShare as a paper row; it is not a competitive MTL sharing
+mechanism on this task.
 
-## A4 · Cross-state A7 MTLoRA r=8 pcgrad on AZ (post-fix)
+## A4 · Cross-state optimizer probe — A7 MTLoRA r=8 on AZ
 
-| State | reg acc (%)  | reg Acc@10_indist | reg mrr_indist | reg f1 (%) |
-|-------|--------------|-------------------|----------------|-------------|
-| AL    | 17.48 ± 1.35 | 53.71 ± 3.80      | 29.60 ± 2.01   | 8.31 ± 1.02 |
-| AZ    | 11.31 ± 2.90 | **39.51 ± 3.83**  | 20.95 ± 2.96   | 4.85 ± 0.73 |
+The AL A1 probe was replicated on AZ with the same 4 optimizers.
 
-AZ numbers are ~14 pp Acc@10 lower than AL — consistent with AZ's
-larger region cardinality (1547 vs 1109) and the usual scale-hardness
-gradient. σ on Acc@10 is well-controlled post-fix (3.83) on both
-states, matching what the param-partition fix predicted.
+| Optimizer   | reg acc (%)      | reg f1 (%)     | reg top5         | reg mrr          | cat f1          |
+|-------------|------------------|----------------|------------------|------------------|-----------------|
+| pcgrad      | **13.38 ± 1.63** | 5.22 ± 0.63    | **31.02 ± 3.03** | **22.27 ± 1.97** | **42.13 ± 0.91** |
+| cagrad      | 12.77 ± 2.21     | 5.24 ± 0.72    | 30.93 ± 3.55     | 21.96 ± 2.83     | 41.24 ± 0.53    |
+| db_mtl      | 12.53 ± 2.26     | **5.33 ± 0.76**| 30.77 ± 3.65     | 21.72 ± 2.86     | **42.44 ± 0.47** |
+| aligned_mtl | 12.35 ± 1.64     | 5.26 ± 0.62    | 29.82 ± 3.07     | 21.19 ± 2.16     | 41.29 ± 0.59    |
 
-## Key findings
+(Second-machine M4 Pro replicate of AZ pcgrad at `az2_mtlora_r8_fairlr_5f50ep_postfix.json`:
+reg acc 11.31 ± 2.90, Acc@10_indist 39.51 ± 3.83 — sits slightly below
+the M2 Pro result, same ordering-noise story as AL pcgrad.)
 
-### 1. Partition-bug fix materially changes the result — in the opposite direction from the audit's prediction
+**Cross-state consistency.** All four optimizers statistically tied on
+both AL and AZ. 1σ bands:
+- AL pcgrad [16.13, 18.83] · cagrad [16.27, 18.21] · db_mtl [15.99, 18.39] · aligned_mtl [15.98, 17.42]
+- AZ pcgrad [11.75, 15.01] · cagrad [10.56, 14.98] · db_mtl [10.27, 14.79] · aligned_mtl [10.71, 13.99]
 
-PCGrad post-fix vs PCGrad pre-fix (same config, same seed, same hyperparams):
+Mean-to-mean differences are within fold-level noise (0.7–2.3 pp);
+relative ordering (pcgrad ≥ cagrad ≈ db_mtl ≥ aligned_mtl) is
+consistent across both states but not statistically separable at
+n=5 folds × 1 seed. A seed sweep would be needed to break the tie.
 
-| Metric       | pre-fix (LoRA frozen) | post-fix (LoRA trains) | Δ |
-|--------------|-----------------------|------------------------|---|
-| reg accuracy | 13.95 ± 1.44          | 17.48 ± 1.35           | **+3.53 pp** |
-| reg f1       |  7.05 ± 0.43          |  8.31 ± 1.02           | +1.26 pp |
-| reg top5     | 37.23 ± 3.26          | 40.54 ± 3.17           | +3.31 pp |
-| reg mrr      | 25.36 ± 1.89          | 28.68 ± 1.97           | +3.32 pp |
-
-Non-overlapping 1σ bands on every region metric → the fix is a real lift,
-not noise. The audit's prediction was that "MTLoRA r=8 gives +1.84 pp
-over DSelectK+PCGrad" would "evaporate into noise" once LoRA actually
-trained. **The opposite happened:** once LoRA trains, the MTLoRA lift
-widens. This reframes the audit's blast-radius conclusion:
-- the `(SUPERSEDED: MTL_PARAM_PARTITION_BUG)` rows in pre-fix tables are
-  numerically **worse** than post-fix, not numerically similar.
-- the "best MTL reg Acc@10 = 50.72 (MTLoRA r=8)" claim in B11 is now
-  understated for this config; need to pull the post-fix top10_acc from
-  the run JSON (not included in this table) to restate the B11 number.
-- MTLoRA is **more** load-bearing than the original (pre-fix) numbers
-  implied, not less.
-
-### 2. All four optimizers are statistically tied at 5 folds × seed 42
-
-The 1σ bands on region accuracy overlap across all four:
-- pcgrad:      17.48 ± 1.35 → [16.13, 18.83]
-- cagrad:      17.24 ± 0.97 → [16.27, 18.21]
-- db_mtl:      17.19 ± 1.20 → [15.99, 18.39]
-- aligned_mtl: 16.70 ± 0.72 → [15.98, 17.42]
-
-Mean-to-mean difference across the four is < 1 pp; fold-std is 0.7–1.4 pp
-— cannot distinguish with n=5 folds at one seed. A seed-sweep would be
-needed to tell these apart, and the ranking likely reorders under noise.
-
-### 3. DB-MTL is tied with the gradient-surgery methods despite using a scalar-backward path
-
-DB-MTL uses ``losses.sum() → weighted .backward()`` (inherits
-`EqualWeightLoss` with dynamic per-task weights derived from buffered
-log-loss gradients). It was **never** contaminated by
-`MTL_PARAM_PARTITION_BUG`. That it reaches the same region accuracy
-(17.19 vs 17.48) as PCGrad post-fix is quantitative evidence that the
-gradient-surgery vs scalar-weighting distinction is not driving
-differences on this task / config — a finding that supports the
-upcoming P5 attribution narrative
-(PCGrad ≈ static, commit `c5ed720`).
-
-### 4. AdaShare is not a competitive MTL sharing mechanism
-
-Post-fix AdaShare reaches only 44.51 ± 6.87 Acc@10 (AL, 5f × 50ep),
-well below MTLoRA r=8's 53.71 ± 3.80. The "AdaShare neutral" framing
-in pre-fix tables was masking this gap — pre-fix contamination
-suppressed both the numerator (AdaShare frozen logits) and the point
-of comparison (MTLoRA also hit by partition bug). Post-fix the
-architecture gap emerges clearly. Recommendation: drop AdaShare from
-paper headline tables.
-
-### 5. MTLoRA rank is insensitive
-
-r=8 / r=16 / r=32 all land within a common σ band (53.7 / 51.6 / 53.3).
-No monotonic trend with rank — the partition-bug fix lifts all ranks
-uniformly. r=8 remains the default (smallest parameter footprint).
-
-### 6. A7 MTLoRA on AZ holds up cross-state, but absolute numbers drop 14 pp
-
-AZ A7 MTLoRA r=8 pcgrad: 39.51 ± 3.83 Acc@10 (vs AL 53.71 ± 3.80).
-The ~14 pp Acc@10 gap matches the scale difference (AZ has 1547
-regions vs AL's 1109) and the usual scale-hardness gradient. σ is
-controlled on both states post-fix.
-
-## The winner question — does MTLoRA remain champion?
-
-**Short answer: NO. MTL-GETNext outperforms MTLoRA on both AL and AZ,
-so it should be the paper's MTL headline method.**
-
-Cross-method comparison on identical protocol (5f × 50ep, seed 42,
-PCGrad, `check2hgi_next_region`):
-
-| State | Method | Architecture | Acc@10_indist | MRR_indist |
-|-------|--------|--------------|--------------:|-----------:|
-| AL | **MTL-GETNext (soft)** | mtlnet_crossattn + next_getnext d=256 | **56.38 ± 4.11** | **29.07 ± 2.43** |
-| AL | MTL-MTLoRA r=8 pcgrad | mtlnet_dselectk + MTLoRA r=8 + next_gru | 53.71 ± 3.80 | 29.60 ± 2.01 |
-| AL | Δ (GETNext − MTLoRA) | | **+2.67 pp** | −0.53 (tied) |
-| AZ | **MTL-GETNext (soft)** | mtlnet_crossattn + next_getnext d=256 | **47.34 ± 2.93** | **24.16 ± 1.92** |
-| AZ | MTL-MTLoRA r=8 pcgrad | mtlnet_dselectk + MTLoRA r=8 + next_gru | 39.51 ± 3.83 | 20.95 ± 2.96 |
-| AZ | Δ (GETNext − MTLoRA) | | **+7.83 pp** | **+3.21 pp** |
-
-Interpretation:
-- On AL, GETNext edges MTLoRA by +2.67 pp Acc@10 but MRR is tied
-  (29.07 vs 29.60, within σ). A reviewer would call this a tie on
-  AL alone.
-- On AZ the gap widens to +7.83 pp Acc@10 and +3.21 pp MRR — both
-  outside σ. The effect is cross-state asymmetric.
-- The combination — GETNext wins AL Acc@10 by a small margin and
-  wins AZ decisively on every metric — is strong enough to reposition
-  GETNext as the paper's MTL headline method.
-
-**This reframes the earlier A7 "champion" framing.** Pre-fix, the
-partition bug made MTLoRA look weaker than it was, leaving the field
-unclear. Post-fix, MTLoRA recovers but GETNext still wins. The
-partition-bug fix did its job — it unblocked MTLoRA from appearing
-artificially bad — but the fix doesn't flip the head-to-head against
-GETNext.
-
-**Even more important** for the BRACIS narrative: the B5 inference-time
-ablation (`research/B5_HARD_VS_SOFT_INFERENCE.md`) shows a *hard*
-`last_region_idx` on the same GETNext head adds another +3 to +9 pp
-Acc@10 over the soft probe. Full B5 retraining (commit `6a2f808`,
-handoff at `research/B5_HANDOFF.md`) is queued for the 4050 and is
-expected to further widen the GETNext margin over MTLoRA.
+AZ region accuracy sits ~4 pp below AL — AZ has 1540 regions (vs AL
+1109), harder classification problem. AZ category F1 sits ~5 pp above
+AL (42 vs 36) — AZ has ~2× more check-ins so the 7-class category task
+has more data. These scale effects are consistent across all four
+optimizers.
 
 ## Updated conclusions for the study
 
@@ -205,42 +110,57 @@ expected to further widen the GETNext margin over MTLoRA.
 3. **AdaShare** is dropped from the paper tables — does not compete
    even fully trained.
 4. **LibMTL optimizer family** (Aligned-MTL / CAGrad / DB-MTL) is
-   effectively neutral against PCGrad on the A7 config. The PCGrad
-   vs static attribution result (`research/ATTRIBUTION_PCGRAD_VS_STATIC.md`)
-   already argued PCGrad is not load-bearing; this probe extends
-   the tie to the broader LibMTL family. No need to invoke
-   "sophisticated gradient balancing" in the paper narrative.
-5. **MTLoRA rank** doesn't need to be hyperparameter-swept — r=8 is
+   effectively neutral against PCGrad on the A7 config — on AL **and**
+   on AZ. The PCGrad vs static attribution result
+   (`research/ATTRIBUTION_PCGRAD_VS_STATIC.md`) already argued PCGrad
+   is not load-bearing; this probe extends the tie to the broader
+   LibMTL family across two states. No need to invoke "sophisticated
+   gradient balancing" in the paper narrative.
+5. **DB-MTL ties gradient-surgery on both states despite using a
+   scalar-backward path.** Quantitative evidence that gradient-surgery
+   vs scalar-weighting is not the distinguishing axis here.
+6. **MTLoRA rank** doesn't need to be hyperparameter-swept — r=8 is
    a fine default.
-6. **Partition-bug contamination** affected MTLoRA / AdaShare
-   only. GETNext, STAN, TGSTAN, STA-Hyper heads do not use LoRA or
-   AdaShare and were never contaminated. The paper's GETNext-family
-   numbers are unaffected.
+7. **Partition-bug contamination** affected MTLoRA / AdaShare only.
+   GETNext, STAN, TGSTAN, STA-Hyper heads do not use LoRA or AdaShare
+   and were never contaminated. The paper's GETNext-family numbers are
+   unaffected.
 
 ## Files
 
 | File | Description | Runtime |
 |------|-------------|---------|
-| `a7_mtlora_r8_al_5f50ep_postfix_pcgrad.json`      | AL A7 MTLoRA r=8 pcgrad (M2 Pro)    | 11:19–11:57 (38m) |
-| `a7_mtlora_r8_al_5f50ep_postfix_aligned_mtl.json` | AL A7 MTLoRA r=8 aligned_mtl (M2 Pro) | 11:57–12:35 (38m) |
-| `a7_mtlora_r8_al_5f50ep_postfix_cagrad.json`      | AL A7 MTLoRA r=8 cagrad (M2 Pro)     | 12:35–13:13 (38m) |
-| `a7_mtlora_r8_al_5f50ep_postfix_db_mtl.json`      | AL A7 MTLoRA r=8 db_mtl (M2 Pro)      | 13:13–14:10 (57m) |
-| `ablation_04_mtlora_r8_al_5f50ep_postfix.json`    | AL A7 MTLoRA r=8 pcgrad (M4 Pro replicate) | 11:46–12:23 (37m) |
-| `ablation_04_mtlora_r16_al_5f50ep_postfix.json`   | AL MTLoRA r=16 pcgrad (M4 Pro)         | 14:39–15:10 (31m) |
-| `ablation_04_mtlora_r32_al_5f50ep_postfix.json`   | AL MTLoRA r=32 pcgrad (M4 Pro)         | 15:10–15:39 (29m) |
-| `ablation_05_adashare_mtlnet_al_5f50ep_postfix.json` | AL AdaShare mtlnet pcgrad (M4 Pro) | 15:39–15:59 (20m) |
-| `az2_mtlora_r8_fairlr_5f50ep_postfix.json`        | AZ A7 MTLoRA r=8 pcgrad (M4 Pro)       | 15:59–17:08 (69m) |
+| `a7_mtlora_r8_al_5f50ep_postfix_pcgrad.json`      | AL A7 MTLoRA r=8 pcgrad (M2 Pro)          | 11:19–11:57 (38m) |
+| `a7_mtlora_r8_al_5f50ep_postfix_aligned_mtl.json` | AL A7 MTLoRA r=8 aligned_mtl (M2 Pro)     | 11:57–12:35 (38m) |
+| `a7_mtlora_r8_al_5f50ep_postfix_cagrad.json`      | AL A7 MTLoRA r=8 cagrad (M2 Pro)          | 12:35–13:13 (38m) |
+| `a7_mtlora_r8_al_5f50ep_postfix_db_mtl.json`      | AL A7 MTLoRA r=8 db_mtl (M2 Pro)           | 13:13–14:10 (57m) |
+| `ablation_04_mtlora_r8_al_5f50ep_postfix.json`    | AL A7 MTLoRA r=8 pcgrad (M4 Pro replicate)| 11:46–12:23 (37m) |
+| `ablation_04_mtlora_r16_al_5f50ep_postfix.json`   | AL MTLoRA r=16 pcgrad (M4 Pro)            | 14:39–15:10 (31m) |
+| `ablation_04_mtlora_r32_al_5f50ep_postfix.json`   | AL MTLoRA r=32 pcgrad (M4 Pro)            | 15:10–15:39 (29m) |
+| `ablation_05_adashare_mtlnet_al_5f50ep_postfix.json` | AL AdaShare mtlnet pcgrad (M4 Pro)     | 15:39–15:59 (20m) |
+| `az2_mtlora_r8_fairlr_5f50ep_postfix.json`        | AZ A7 MTLoRA r=8 pcgrad (M4 Pro)          | 15:59–17:08 (69m) |
+| `a7_mtlora_r8_az_5f50ep_postfix_pcgrad.json`      | AZ A7 MTLoRA r=8 pcgrad (M2 Pro)          | 15:56–18:09 (2h12m, 2026-04-22) |
+| `a7_mtlora_r8_az_5f50ep_postfix_aligned_mtl.json` | AZ A7 MTLoRA r=8 aligned_mtl (M2 Pro)     | 18:09–19:58 (1h49m) |
+| `a7_mtlora_r8_az_5f50ep_postfix_cagrad.json`      | AZ A7 MTLoRA r=8 cagrad (M2 Pro)          | 19:58–09:53+1d (13h55m, MPS slowdown) |
+| `a7_mtlora_r8_az_5f50ep_postfix_db_mtl.json`      | AZ A7 MTLoRA r=8 db_mtl (M2 Pro)           | 09:53–11:44 (1h51m, 2026-04-23) |
 
-Launchers: `scripts/probe_a7_optimizers.sh` (M2 Pro),
-`scripts/rerun_partition_bugfix.sh` (M4 Pro — crashed SIGBUS mid run 2),
-`scripts/rerun_partition_bugfix_resume.sh` (M4 Pro resume with
-caffeinate -s, completed cleanly).
+Launchers:
+- `scripts/probe_a7_optimizers.sh` (M2 Pro — accepts `STATE=alabama|arizona`)
+- `scripts/rerun_partition_bugfix.sh` (M4 Pro — crashed SIGBUS mid run 2)
+- `scripts/rerun_partition_bugfix_resume.sh` (M4 Pro resume with
+  caffeinate -s, completed cleanly).
 
-Commits landed: `5668856` (partition fix), `c1c7f3e` (DSelectK gating),
-`8afc9ac` (crossattn partial-forward), `06b799a` (STAN alibi default +
-DSelectK docstring), `3b6e7d9` (issues README status), `ac17da6` (probe
-launcher), `0c3eb68` (resume launcher), `6a2f808` (B5 hard-index
-implementation).
+Commits landed on `worktree-check2hgi-mtl`:
+- `5668856` partition fix (MTLnet + MTLnetDSelectK `task_specific_parameters`)
+- `c1c7f3e` DSelectK gating on legacy task_set
+- `8afc9ac` crossattn partial-forward override
+- `06b799a` STAN alibi default + DSelectK docstring
+- `3b6e7d9` issues README status update
+- `ac17da6` AL probe launcher
+- `754394c` STATE parameterization
+- `2fb55bb` AL probe results + v1 SUMMARY
+- `0c3eb68` resume launcher
+- `6a2f808` B5 hard-index implementation
 
 ## Next steps
 
