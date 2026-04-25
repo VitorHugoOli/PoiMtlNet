@@ -13,7 +13,9 @@ from torch.optim import AdamW
 from torch.optim.lr_scheduler import (
     ConstantLR,
     CosineAnnealingLR,
+    LinearLR,
     OneCycleLR,
+    SequentialLR,
 )
 from torch.utils.data import DataLoader
 from typing import Iterable
@@ -94,6 +96,55 @@ def setup_optimizer(
     )
 
 
+def setup_per_head_optimizer(
+    model: torch.nn.Module,
+    cat_lr: float,
+    reg_lr: float,
+    shared_lr: float,
+    weight_decay: float,
+    eps: float = 1e-8,
+    extra_parameters: Iterable[torch.nn.Parameter] | None = None,
+) -> AdamW:
+    """Build an AdamW with three param groups (F48-H3 per-head LR).
+
+    Requires the model to expose ``cat_specific_parameters``,
+    ``reg_specific_parameters`` and ``shared_parameters``. Currently
+    implemented by ``MTLnetCrossAttn`` only — F48-H3 is scoped to the
+    cross-attention MTL backbone.
+
+    Group layout:
+      * ``cat``    — cat encoder + cat head  → ``cat_lr``
+      * ``reg``    — next encoder + next head → ``reg_lr``
+      * ``shared`` — cross-attn blocks + cat/next final_ln → ``shared_lr``
+
+    ``extra_parameters`` (e.g. learnable MTL loss weights) ride along
+    with the ``reg`` group since they are typically tied to reg-loss
+    backward dynamics.
+    """
+    for required in ("cat_specific_parameters", "reg_specific_parameters",
+                     "shared_parameters"):
+        if not hasattr(model, required):
+            raise ValueError(
+                f"Per-head LR optimizer requires model.{required}(); "
+                f"{type(model).__name__} does not expose it. "
+                f"Currently supported: MTLnetCrossAttn."
+            )
+    cat_params = list(model.cat_specific_parameters())
+    reg_params = list(model.reg_specific_parameters())
+    shared_params = list(model.shared_parameters())
+    if extra_parameters is not None:
+        reg_params.extend(list(extra_parameters))
+    return AdamW(
+        [
+            {"name": "cat",    "params": cat_params,    "lr": cat_lr},
+            {"name": "reg",    "params": reg_params,    "lr": reg_lr},
+            {"name": "shared", "params": shared_params, "lr": shared_lr},
+        ],
+        weight_decay=weight_decay,
+        eps=eps,
+    )
+
+
 def setup_scheduler(
     optimizer: AdamW,
     max_lr: float,
@@ -129,26 +180,64 @@ def setup_scheduler(
         if pct_start is not None:
             kwargs["pct_start"] = float(pct_start)
         return OneCycleLR(**kwargs)
+    # Per-head LR mode (F48-H3) builds an optimizer with multiple param
+    # groups already at their target LRs. Detect and skip the single-LR
+    # overwrite below — otherwise `setup_per_head_optimizer`'s per-group
+    # LRs would be silently flattened to `max_lr` here.
+    multi_group_per_head = len(optimizer.param_groups) > 1
     if scheduler_type == "constant":
         # Hold LR fixed at `max_lr` for the entire run (no warmup, no
         # annealing). Isolates "more epochs" from "stretched OneCycleLR
         # schedule" when paired with a higher --epochs value.
         # The optimizer's base `lr` must be overwritten to `max_lr`
-        # before ConstantLR(factor=1.0) locks it.
-        for pg in optimizer.param_groups:
-            pg["lr"] = max_lr
+        # before ConstantLR(factor=1.0) locks it — but only in single-
+        # group (legacy) mode. Per-head mode preserves its own LRs.
+        if not multi_group_per_head:
+            for pg in optimizer.param_groups:
+                pg["lr"] = max_lr
         return ConstantLR(optimizer=optimizer, factor=1.0, total_iters=1)
     if scheduler_type == "cosine":
         # Warmup-free cosine decay from `max_lr` → 0 over total steps.
         # First set the optimizer's base lr to max_lr so CosineAnnealingLR
         # starts at max_lr (not at AdamW's lr=1e-4 default).
-        for pg in optimizer.param_groups:
-            pg["lr"] = max_lr
+        if not multi_group_per_head:
+            for pg in optimizer.param_groups:
+                pg["lr"] = max_lr
         return CosineAnnealingLR(
             optimizer=optimizer,
             T_max=int(epochs * steps_per_epoch),
         )
+    if scheduler_type == "warmup_constant":
+        # F48-H2: linear warmup over `pct_start * total_steps` from a low
+        # base, then hold constant at max_lr forever. Designed to give
+        # cat a stable warmup phase (avoiding the F45 cat-collapse from
+        # day-1 sustained 3e-3) and reg a long high-LR plateau (where
+        # `α` in next_getnext_hard can grow, per F45 mechanism).
+        # `pct_start` doubles as the warmup fraction (default 1/3 ≈
+        # 50ep warmup of the 150ep design from FINDINGS doc).
+        if not multi_group_per_head:
+            for pg in optimizer.param_groups:
+                pg["lr"] = max_lr
+        warmup_frac = float(pct_start) if pct_start is not None else (1.0 / 3.0)
+        if not (0 < warmup_frac < 1):
+            raise ValueError(f"warmup_constant pct_start must be in (0,1), got {warmup_frac}")
+        total_steps = int(epochs * steps_per_epoch)
+        warmup_steps = max(1, int(warmup_frac * total_steps))
+        # start at ~3% of target LR — gentle enough that 7-class cat head
+        # doesn't diverge in epoch 1, while keeping a single knob.
+        warmup = LinearLR(
+            optimizer,
+            start_factor=0.033,
+            end_factor=1.0,
+            total_iters=warmup_steps,
+        )
+        plateau = ConstantLR(optimizer, factor=1.0, total_iters=1)
+        return SequentialLR(
+            optimizer,
+            schedulers=[warmup, plateau],
+            milestones=[warmup_steps],
+        )
     raise ValueError(
         f"Unknown scheduler_type '{scheduler_type}'; "
-        f"expected one of {{'onecycle', 'constant', 'cosine'}}."
+        f"expected one of {{'onecycle', 'constant', 'cosine', 'warmup_constant'}}."
     )

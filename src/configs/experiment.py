@@ -57,6 +57,16 @@ class ExperimentConfig:
     # PyTorch default (0.3). Smaller values push peak LR earlier.
     pct_start: Optional[float] = None
 
+    # Per-head LR (F48-H3). When ALL three are set, the optimizer is
+    # built with three param groups (cat / reg / shared) at distinct
+    # LRs. Currently only honored by mtlnet_crossattn. ``--max-lr`` is
+    # ignored in this mode. Recommended pairing: scheduler_type =
+    # "constant" so the per-group LRs survive (OneCycleLR would override
+    # them with its own max_lr peak).
+    cat_lr: Optional[float] = None
+    reg_lr: Optional[float] = None
+    shared_lr: Optional[float] = None
+
     # torch.compile: disabled by default.  On CUDA it uses the inductor
     # backend; MPS compatibility needs separate testing first.
     use_torch_compile: bool = False

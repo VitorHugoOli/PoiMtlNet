@@ -19,7 +19,12 @@ from configs.globals import DEVICE
 from configs.experiment import ExperimentConfig
 from losses.registry import create_loss
 from models.registry import create_model
-from training.helpers import compute_class_weights, setup_optimizer, setup_scheduler
+from training.helpers import (
+    compute_class_weights,
+    setup_optimizer,
+    setup_per_head_optimizer,
+    setup_scheduler,
+)
 from training.callbacks import CallbackContext, CallbackList
 from data.folds import TaskFoldData, FoldResult
 from tracking import MLHistory, FlopsMetrics, NeuralParams
@@ -689,13 +694,32 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
 
         mtl_criterion = create_loss(config.mtl_loss, n_tasks=2, device=DEVICE, **config.mtl_loss_params)
 
-        optimizer = setup_optimizer(
-            model,
-            config.learning_rate,
-            config.weight_decay,
-            eps=config.optimizer_eps,
-            extra_parameters=_criterion_parameters(mtl_criterion),
-        )
+        # Per-head LR mode (F48-H3) — activated when all three of
+        # cat_lr/reg_lr/shared_lr are set in the config. Otherwise fall
+        # back to the legacy single-LR optimizer.
+        _cat_lr = getattr(config, "cat_lr", None)
+        _reg_lr = getattr(config, "reg_lr", None)
+        _shared_lr = getattr(config, "shared_lr", None)
+        _per_head = (_cat_lr is not None and _reg_lr is not None
+                     and _shared_lr is not None)
+        if _per_head:
+            optimizer = setup_per_head_optimizer(
+                model,
+                cat_lr=float(_cat_lr),
+                reg_lr=float(_reg_lr),
+                shared_lr=float(_shared_lr),
+                weight_decay=config.weight_decay,
+                eps=config.optimizer_eps,
+                extra_parameters=_criterion_parameters(mtl_criterion),
+            )
+        else:
+            optimizer = setup_optimizer(
+                model,
+                config.learning_rate,
+                config.weight_decay,
+                eps=config.optimizer_eps,
+                extra_parameters=_criterion_parameters(mtl_criterion),
+            )
         # steps_per_epoch must match zip_longest_cycle() — the longer loader
         batches_per_epoch = max(
             len(dataloader_next.train.dataloader),
@@ -710,6 +734,12 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             scheduler_type=getattr(config, "scheduler_type", "onecycle"),
             pct_start=getattr(config, "pct_start", None),
         )
+        # Smoke print for F48-H3: verify per-group LRs survived scheduler
+        # init. Only on the first fold to keep logs clean.
+        if _per_head and getattr(history, "curr_i_fold", 0) == 0:
+            _groups = [(pg.get("name", "?"), float(pg["lr"]))
+                       for pg in optimizer.param_groups]
+            print(f"[per-head-LR] optimizer groups after scheduler init: {_groups}")
 
         # Per-task class weights. Legacy behaviour (unchanged): weights
         # computed but not passed to CE — kept as a diagnostic. When

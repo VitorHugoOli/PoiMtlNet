@@ -513,13 +513,15 @@ def _parse_args(argv=None) -> argparse.Namespace:
     parser.add_argument(
         "--scheduler",
         type=str,
-        choices=("onecycle", "constant", "cosine"),
+        choices=("onecycle", "constant", "cosine", "warmup_constant"),
         default=None,
         help=(
             "LR scheduler type. 'onecycle' (default) preserves legacy "
             "behaviour. 'constant' holds --max-lr fixed (disentangles "
             "'more epochs' from 'stretched OneCycleLR schedule', F45). "
-            "'cosine' decays from --max-lr to 0 without warmup (F45 alt)."
+            "'cosine' decays from --max-lr to 0 without warmup. "
+            "'warmup_constant' (F48-H2) linearly warms LR over "
+            "--pct-start of total steps, then holds --max-lr forever."
         ),
     )
     parser.add_argument(
@@ -530,6 +532,34 @@ def _parse_args(argv=None) -> argparse.Namespace:
             "OneCycleLR pct_start (warmup fraction). PyTorch default 0.3. "
             "Smaller values push peak LR earlier and leave more epochs in "
             "annealing. Used by F46."
+        ),
+    )
+    parser.add_argument(
+        "--cat-lr",
+        type=float,
+        default=None,
+        help=(
+            "Per-head LR (F48-H3) — LR for the cat encoder + cat head "
+            "param group. When --cat-lr, --reg-lr and --shared-lr are "
+            "ALL set, the optimizer is built with three distinct param "
+            "groups and --max-lr is ignored. Pair with --scheduler "
+            "constant so the per-group LRs survive."
+        ),
+    )
+    parser.add_argument(
+        "--reg-lr",
+        type=float,
+        default=None,
+        help="Per-head LR — LR for the next encoder + next head group (F48-H3).",
+    )
+    parser.add_argument(
+        "--shared-lr",
+        type=float,
+        default=None,
+        help=(
+            "Per-head LR — LR for the cross-attn + final_ln group (F48-H3). "
+            "Default recommendation: shared_lr = reg_lr (cross-attn is in "
+            "the reg gradient path; throttling it reproduces F44 not H3)."
         ),
     )
     parser.add_argument(
@@ -679,6 +709,28 @@ def _apply_cli_overrides(
         if not (0 < args.pct_start < 1):
             raise ValueError("--pct-start must be in (0, 1)")
         config = dataclasses.replace(config, pct_start=args.pct_start)
+    # Per-head LR (F48-H3). Validate as a triple — partial sets are an
+    # error since the runner only switches to per-head mode when all
+    # three are present.
+    _per_head_set = {
+        "cat_lr": args.cat_lr,
+        "reg_lr": args.reg_lr,
+        "shared_lr": args.shared_lr,
+    }
+    _set_keys = [k for k, v in _per_head_set.items() if v is not None]
+    if _set_keys and len(_set_keys) != 3:
+        raise ValueError(
+            f"--cat-lr / --reg-lr / --shared-lr must all be set together, "
+            f"got only {_set_keys}. Per-head LR is an all-or-nothing mode."
+        )
+    if len(_set_keys) == 3:
+        for k, v in _per_head_set.items():
+            if v <= 0:
+                raise ValueError(f"--{k.replace('_', '-')} must be > 0")
+        config = dataclasses.replace(
+            config,
+            cat_lr=args.cat_lr, reg_lr=args.reg_lr, shared_lr=args.shared_lr,
+        )
     if args.next_target is not None:
         config = dataclasses.replace(config, next_target=args.next_target)
     if args.seed is not None:

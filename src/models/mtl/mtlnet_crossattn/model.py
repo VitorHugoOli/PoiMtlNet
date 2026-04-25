@@ -336,5 +336,20 @@ class MTLnetCrossAttn(MTLnet):
         yield from self.category_poi.parameters()
         yield from self.next_poi.parameters()
 
+    def cat_specific_parameters(self) -> Iterator[nn.Parameter]:
+        """Cat-only parameters: cat encoder + cat head. Excludes shared
+        cross-attn and final_ln, which stay in ``shared_parameters``.
+        Used by the per-head-LR optimizer (F48-H3) to give the cat tower
+        a different LR from the reg tower."""
+        yield from self.category_encoder.parameters()
+        yield from self.category_poi.parameters()
+
+    def reg_specific_parameters(self) -> Iterator[nn.Parameter]:
+        """Reg/next-only parameters: next encoder + next head. Excludes
+        shared cross-attn and final_ln. Used by the per-head-LR
+        optimizer (F48-H3)."""
+        yield from self.next_encoder.parameters()
+        yield from self.next_poi.parameters()
+
 
 __all__ = ["MTLnetCrossAttn"]
