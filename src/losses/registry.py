@@ -26,6 +26,7 @@ def _canonical_entries() -> list[tuple[str, Type]]:
     from losses.nash_mtl import NashMTL
     from losses.equal_weight.loss import EqualWeightLoss
     from losses.static_weight.loss import StaticWeightLoss
+    from losses.scheduled_static.loss import ScheduledStaticWeightLoss
     from losses.uncertainty_weighting.loss import UncertaintyWeightingLoss
     from losses.uw_so.loss import SoftOptimalUncertaintyWeightingLoss
     from losses.random_weight.loss import RandomWeightLoss
@@ -48,6 +49,7 @@ def _canonical_entries() -> list[tuple[str, Type]]:
         ("nash_mtl", NashMTL),
         ("equal_weight", EqualWeightLoss),
         ("static_weight", StaticWeightLoss),
+        ("scheduled_static", ScheduledStaticWeightLoss),
         ("uncertainty_weighting", UncertaintyWeightingLoss),
         ("uw_so", SoftOptimalUncertaintyWeightingLoss),
         ("random_weight", RandomWeightLoss),

@@ -294,6 +294,12 @@ def train_model(model: torch.nn.Module,
     # Main training loop
     for epoch_idx in progress:
         model.train()
+        # F40 — scheduled-loss epoch hook. Losses without `set_epoch`
+        # (i.e. all current ones except `scheduled_static`) are silently
+        # skipped via getattr default.
+        _set_epoch = getattr(mtl_criterion, "set_epoch", None)
+        if callable(_set_epoch):
+            _set_epoch(epoch_idx)
 
         # Initialize on-device accumulators to avoid per-batch MPS syncs
         running_loss = torch.tensor(0.0, device=DEVICE)
@@ -692,7 +698,13 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
         dataloader_next: TaskFoldData = dataloader.next
         dataloader_category: TaskFoldData = dataloader.category
 
-        mtl_criterion = create_loss(config.mtl_loss, n_tasks=2, device=DEVICE, **config.mtl_loss_params)
+        # F40 — scheduled_static needs total_epochs at construction time;
+        # default from config.epochs unless the user already pinned it via
+        # --mtl-loss-param.
+        _loss_params = dict(config.mtl_loss_params)
+        if config.mtl_loss == "scheduled_static" and "total_epochs" not in _loss_params:
+            _loss_params["total_epochs"] = int(config.epochs)
+        mtl_criterion = create_loss(config.mtl_loss, n_tasks=2, device=DEVICE, **_loss_params)
 
         # Per-head LR mode (F48-H3) — activated when all three of
         # cat_lr/reg_lr/shared_lr are set in the config. Otherwise fall
