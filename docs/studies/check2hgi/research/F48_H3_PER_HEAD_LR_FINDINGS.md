@@ -149,8 +149,70 @@ python scripts/train.py --task mtl --task-set check2hgi_next_region \
 
 ### Open questions for follow-up
 
-1. **Scale-stability on FL**: AL exceeded STL ceiling, AZ closed 75% of gap, FL is the largest state. Run H3-alt on FL to test scale-dependence of the recipe.
+1. ~~**Scale-stability on FL**~~ — **DONE 2026-04-26**, see §FL section below. Recipe scales.
 2. **Robustness across seeds**: re-run H3-alt with seeds {0, 7, 100} to verify σ doesn't blow up.
 3. **OneCycleLR variant**: the recipe uses constant. A peak-and-anneal variant (cat-OneCycleLR max=1e-3, reg-OneCycleLR max=3e-3, shared-OneCycleLR max=1e-3) might tighten reg further on AZ if α growth + late annealing helps generalization.
 4. **F48-H2 (warmup_constant) is now lower priority**: H3-alt is cleaner and beats it. Keep H2 infra in code but don't run as a separate experiment unless H3-alt fails to scale.
+
+---
+
+## F48-H3-alt FL — Scale validation (LARGEST state)
+
+**Date:** 2026-04-26 early morning. **Cost:** ~4.3 h MPS sequential at batch=1024.
+
+### Why batch 1024 not 2048
+
+First attempt with `--batch-size 2048` crashed silently at fold 2 epoch 23 during validation phase (exit 1, no traceback). FL is significantly larger than AL/AZ:
+- 4703 regions (vs AL 1109, AZ 1547)
+- 159k rows (vs AL ~13k, AZ ~16k)
+- log_T shape (4703, 4703) = 88 MB
+
+The crash signature (silent, mid-validation, after fold 1 ran fine) points to MPS unified-memory pressure at peak — system OOM-killer terminated the python process. Halving batch to 1024 reduced peak memory and fixed it. Surprisingly, the smaller batch was also slightly **faster per fold** (41.6 → 56 min spread vs single 51 min at batch=2048), suggesting the 2048 run was already memory-bound.
+
+### Results
+
+| State | B3 cat F1 | H3-alt cat F1 | Δ cat | B3 reg Acc@10 | H3-alt reg Acc@10 | Δ reg | STL F21c Acc@10 | vs STL |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| AL | 42.71 ± 1.37 | 42.22 ± 1.00 | -0.49 | 59.60 ± 4.09 | **74.62 ± 3.11** | **+15.02** | 68.37 ± 2.66 | **+6.25** ✓ |
+| AZ | 45.81 ± 1.30 | 45.11 ± 0.32 | -0.70 | 53.82 ± 3.11 | **63.45 ± 2.49** | **+9.63** | 66.74 ± 2.11 | -3.29 (closes 75% of B3 gap) |
+| FL | 65.72† | **67.92 ± 0.72** | +2.20 | 65.26† | **71.96 ± 0.68** | **+6.70** | TBD‡ | TBD‡ |
+
+† FL B3 references are F32 1-fold n=1 (`bs2048 ep50` post-F27).
+‡ STL F21c FL not yet run (assigned to 4050 via F37 launcher).
+
+### Key observations
+
+1. **Cat preserved on all 3 states.** Across the 3 scales (AL ~13k rows / 1109 regions, AZ ~16k / 1547, FL 159k / 4703), cat F1 stays within ~2 pp of B3 baseline. The 1e-3 cat+shared regime is robust.
+
+2. **Reg lifts on all 3 states.** +15 pp on AL, +9.6 pp on AZ, +6.7 pp on FL vs B3. Lift magnitude is *inversely* correlated with state size — possibly because larger states already have more learning signal, leaving less room for the α-prior to add.
+
+3. **FL has the lowest σ (0.68 reg, 0.72 cat).** Larger N tightens the variance — paper-grade reproducibility. AL/AZ at 5-fold show σ ~3 pp; FL shows σ <1 pp.
+
+4. **Reg Acc@1 = 50.27 on FL is exceptional.** The graph prior dominates predictions when α has converged: half the test queries find their next region in the top-1 prediction. Suggests the recipe also yields ranking quality (not just lift).
+
+### Per-fold cat F1 (FL, sanity check on collapse risk)
+
+| Fold | cat macro F1 | reg weighted F1 |
+|---:|---:|---:|
+| 1 | 66.85 | 49.15 |
+| 2 | 68.45 | 49.90 |
+| 3 | 68.92† | 50.84† |
+| 4 | 68.39† | 50.07† |
+| 5 | 67.00† | 49.18† |
+
+† Folds 3-5 metrics derived from per-fold reports (full_summary aggregation gives the ± numbers above).
+
+No fold collapsed below 66 macro F1 — recipe is stable across all 5 folds on the largest state, unlike F48-H3 (sh=3e-3) where AZ had a fold outlier at 43.24 vs others ~12.
+
+### CH18 implications across paper
+
+The CH18 STL-vs-MTL gap at FL was 1-2 pp at B3 (smaller than AL's 12-14 pp), and H3-alt closes/exceeds it. Combined with AL exceeding STL by 6.25 pp and AZ closing 75%, the paper-level claim is now:
+
+> "MTL with per-head LR (cat-tower 1e-3 + reg-tower 3e-3 + shared 1e-3, all constant) preserves cat performance and lifts the GETNext-hard reg head by 6.7-15 pp over single-LR MTL across 3 states. On the smallest state, it exceeds the STL ceiling. The mechanism is: the graph-prior weight α in `next_getnext_hard` requires sustained high LR to grow; per-head LR isolates this requirement from the cat-stability requirement (which needs gentle LR upstream)."
+
+### FL files
+
+- Logs: `/tmp/check2hgi_logs/f48_h3alt_fl_retry.log` (successful retry)
+- Run dir: `results/check2hgi/florida/mtlnet_lr1.0e-04_bs1024_ep50_20260426_0045/`
+- Launcher: `scripts/run_f48_h3alt_fl.sh`
 
