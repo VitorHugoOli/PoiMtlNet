@@ -18,11 +18,14 @@ def _ood_restricted_topk(
     (count of in-distribution samples) and ``n_ood`` (count of OOD).
     If all samples are OOD, returns 0.0 for every metric.
     """
-    in_dist_mask = torch.tensor(
-        [int(t.item()) in train_label_set for t in targets],
-        dtype=torch.bool,
-        device=targets.device,
+    # Vectorised membership test: building the mask via Python iteration with
+    # `.item()` per target forces an N-element host↔device sync — on FL val
+    # (~31K rows) that's ~31K syncs per validation pass, ≈1–2s wasted per
+    # epoch × 50 epochs × 5 folds. `torch.isin` does it in one kernel.
+    train_labels_t = torch.as_tensor(
+        sorted(train_label_set), dtype=targets.dtype, device=targets.device,
     )
+    in_dist_mask = torch.isin(targets, train_labels_t)
     n_indist = int(in_dist_mask.sum().item())
     n_ood = len(targets) - n_indist
 

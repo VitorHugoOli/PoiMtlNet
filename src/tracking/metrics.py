@@ -131,18 +131,12 @@ def _rank_of_target(logits: torch.Tensor, targets: torch.Tensor) -> torch.Tensor
     return higher + 1
 
 
-def _mean_reciprocal_rank(logits: torch.Tensor, targets: torch.Tensor) -> float:
-    rank = _rank_of_target(logits, targets).float()
-    return (1.0 / rank).mean().item()
+def _mrr_from_rank(rank: torch.Tensor) -> float:
+    return (1.0 / rank.float()).mean().item()
 
 
-def _ndcg_at_k(logits: torch.Tensor, targets: torch.Tensor, k: int) -> float:
-    """NDCG@K with single-relevant-item binary relevance.
-
-    IDCG is 1 (one relevant item, perfectly ranked). DCG is
-    ``1 / log2(rank + 1)`` if the true class falls in the top-k, else 0.
-    """
-    rank = _rank_of_target(logits, targets)                  # (N,)
+def _ndcg_from_rank(rank: torch.Tensor, k: int) -> float:
+    """NDCG@K with single-relevant-item binary relevance, given precomputed rank."""
     hit = rank <= k
     # Use float math; add 1 so rank=1 -> log2(2) = 1 -> DCG=1.
     dcg = torch.where(
@@ -151,6 +145,19 @@ def _ndcg_at_k(logits: torch.Tensor, targets: torch.Tensor, k: int) -> float:
         torch.zeros_like(rank, dtype=torch.float32),
     )
     return dcg.mean().item()
+
+
+def _mean_reciprocal_rank(logits: torch.Tensor, targets: torch.Tensor) -> float:
+    return _mrr_from_rank(_rank_of_target(logits, targets))
+
+
+def _ndcg_at_k(logits: torch.Tensor, targets: torch.Tensor, k: int) -> float:
+    """NDCG@K with single-relevant-item binary relevance.
+
+    IDCG is 1 (one relevant item, perfectly ranked). DCG is
+    ``1 / log2(rank + 1)`` if the true class falls in the top-k, else 0.
+    """
+    return _ndcg_from_rank(_rank_of_target(logits, targets), k)
 
 
 def compute_classification_metrics(
@@ -240,19 +247,25 @@ def compute_classification_metrics(
             preds, targets, num_classes=num_classes, average="weighted", zero_division=0
         ).item()
 
+    # Compute rank-of-target once and reuse for MRR + NDCG@k. The chunked
+    # `[N × C]` comparison inside `_rank_of_target` is the dominant cost on
+    # high-cardinality heads (FL: 31 chunks × ~80 MB each per validation
+    # pass) — without caching, MRR + NDCG@3 + NDCG@5 each rebuild it,
+    # tripling the work.
+    rank = _rank_of_target(logits, targets)
     metrics: Dict[str, float] = {
         _key("accuracy"): acc_micro,
         _key("accuracy_macro"): acc_macro,
         _key("f1"): f1_macro,
         _key("f1_weighted"): f1_weighted,
-        _key("mrr"): _mean_reciprocal_rank(logits, targets),
+        _key("mrr"): _mrr_from_rank(rank),
     }
 
     for k in top_k:
         if k <= 1:
             continue
         metrics[_key(f"top{k}_acc")] = _top_k_accuracy(logits, targets, k)
-        metrics[_key(f"ndcg_{k}")] = _ndcg_at_k(logits, targets, k)
+        metrics[_key(f"ndcg_{k}")] = _ndcg_from_rank(rank, k)
 
     return metrics
 
