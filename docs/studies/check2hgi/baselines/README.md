@@ -200,6 +200,7 @@ Top-level summary table:
 
 ## Cross-references
 
+- **Substrate comparison plan** (Check2HGI vs HGI, matched-head STL of MTL north_star, FL headline + critique remediation): [`SUBSTRATE_COMPARISON_PLAN.md`](SUBSTRATE_COMPARISON_PLAN.md).
 - Per-method findings docs: `../research/FAITHFUL_STAN_FINDINGS.md`, `../research/STAN_HGI_FINDINGS.md`, `../research/STAN_THREE_WAY_COMPARISON.md`, `../research/F21C_FINDINGS.md`.
 - Paper-level table layout: `../PAPER_STRUCTURE.md §3` and `../results/RESULTS_TABLE.md`.
 - Headline objective tracking: `../OBJECTIVES_STATUS_TABLE.md`.
