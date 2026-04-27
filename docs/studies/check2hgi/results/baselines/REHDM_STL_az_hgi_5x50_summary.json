@@ -1,0 +1,10 @@
+{
+  "tag": "REHDM_STL_az_hgi_5x50",
+  "state": "arizona",
+  "engine": "hgi",
+  "n_runs": 5,
+  "test_acc@10_mean": 0.4725311203319502,
+  "test_acc@10_std": 0.012597308096495978,
+  "test_mrr_mean": 0.2839816766556863,
+  "test_mrr_std": 0.005868850815683323
+}

@@ -1,0 +1,24 @@
+{
+  "tag": "REHDM_STL_STUDY_al_check2hgi_5f50ep",
+  "state": "alabama",
+  "engine": "check2hgi",
+  "fold": 1,
+  "config": {
+    "n_regions": 1109,
+    "emb_dim": 64,
+    "d_model": 192,
+    "n_heads": 4,
+    "d_ff": 256,
+    "n_hg_layers": 2,
+    "dropout": 0.2,
+    "beta": 0.5
+  },
+  "best_val_acc@10": 0.23957513768686073,
+  "metrics": {
+    "acc@1": 0.04287962234461054,
+    "acc@5": 0.15578284815106216,
+    "acc@10": 0.23957513768686073,
+    "mrr": 0.10777902490599338,
+    "n": 2542
+  }
+}
