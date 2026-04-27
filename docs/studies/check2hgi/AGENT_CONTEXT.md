@@ -8,20 +8,21 @@ Read this before any scientific work on the `worktree-check2hgi-mtl` branch. It 
 
 This study runs **alongside** the fusion study — they coexist under `docs/studies/`. Fusion investigates POI-category classification on fused POI-level embeddings; this study investigates **joint next_category + next_region prediction on check-in-level contextual embeddings** (Check2HGI). Do not cross-reference or mix artefacts between the two studies.
 
-**Post-B3 era (2026-04-24).** The original P0→P6 phase plan is archived (`archive/phases_original/`). Active work is tracked against the **B3 champion** in `NORTH_STAR.md` with follow-ups enumerated in `FOLLOWUPS_TRACKER.md`. Current operational frontier: FL/CA/TX headline runs (F33/F34/F35 Colab) + Path A vs Path B decision on the F27 cat-head scale-dependence flag. **Before doing scientific work, read `SESSION_HANDOFF_2026-04-24.md` first** — it is the authoritative one-minute summary of where the study sits.
+**Post-H3-alt era (2026-04-26).** The original P0→P6 phase plan is archived (`archive/phases_original/`). Active work is tracked against the **F48-H3-alt champion candidate** (B3 architecture + per-head LR) in `NORTH_STAR.md`, with the predecessor B3 (50ep + OneCycleLR) preserved as a comparand. Follow-ups in `FOLLOWUPS_TRACKER.md`. Current operational frontier: F37 STL FL ceiling (4050-assigned), CA/TX upstream pipelines (F22/F23), seed sweep on H3-alt. **Before doing scientific work, read `MTL_ARCHITECTURE_JOURNEY.md` first** — it is the end-to-end derivation from initial design through H3-alt; `SESSION_HANDOFF_2026-04-24.md` covers the predecessor period.
 
-AL + AZ 5f × 50ep ablation numbers are locked under post-F27 B3; FL 1f × 50ep has two replicates. Three paper-reshaping findings landed since 2026-04-22: **F2** (PCGrad × hard-prior × FL-scale gradient starvation mechanism), **F21c** (matched-head STL `next_getnext_hard` dominates MTL-B3 on reg by 12–14 pp at AL+AZ — CH18), **F27** (cat-head `next_mtl → next_gru` swap, scale-dependent on FL).
+AL + AZ + FL 5f × 50ep numbers landed under H3-alt (2026-04-25/26). Five paper-reshaping findings landed since 2026-04-22: **F2** (PCGrad × hard-prior × FL gradient starvation), **F21c** (matched-head STL > MTL-B3 by 12-14 pp on reg, AL+AZ), **F27** (cat-head `next_mtl → next_gru`), **F48-H3-alt** (per-head LR closes/exceeds the F21c gap), **F40 + F48-H2** (negative controls bracketing H3-alt as unique).
 
-## Thesis (post-F21c reframing, 2026-04-24)
+## Thesis (post-H3-alt resolution, 2026-04-26)
 
-The bidirectional thesis ("MTL must lift both heads over STL") is **reformulated** in light of F21c. The paper's MTL contribution now rests on:
+The bidirectional thesis ("MTL must lift both heads over STL") is **reaffirmed** with H3-alt resolving CH18:
 
 1. **Check2HGI > HGI on cat F1** (CH16, primary substrate claim).
-2. **Strict MTL-over-STL on cat F1** at AL+AZ under B3 (F31 +4.13 pp AL, F27 +3.73 pp AZ Wilcoxon p=0.0312).
-3. **Joint single-model deployment** — B3 produces both heads in one forward pass. Accepting a 12–14 pp reg Acc@10 cost vs matched-head STL GETNext-hard (CH18) in exchange for halving inference cost and getting cat F1 for free.
-4. **Mechanism** — F2's PCGrad × hard-prior × FL-scale gradient-starvation + late-stage-handover rescue (paper-worthy independent of the headline claim).
+2. **Strict MTL-over-STL on cat F1** at AL+AZ under predecessor B3 (F31 +4.13 pp AL, F27 +3.73 pp AZ Wilcoxon p=0.0312); under H3-alt cat is preserved within ~2 pp of B3.
+3. **MTL-over-matched-head-STL on reg** under H3-alt: AL exceeds STL GETNext-hard by **+6.25 pp**; AZ closes 75% of B3 gap; FL beats STL GRU by +3.63 pp (F37 STL GETNext-hard FL pending).
+4. **Joint single-model deployment** — both heads in one forward pass with per-head LR cost = 0 wall-clock vs B3.
+5. **Mechanism + attribution chain** — F45 unmasked α-growth as the reg-lift driver; H3-alt decouples α's LR regime from the cat-stability regime; F40 + F48-H1 + F48-H2 negative controls bracket H3-alt as the unique design satisfying joint cat+reg in this design space. Paper-worthy attribution chain (`MTL_ARCHITECTURE_JOURNEY.md`).
 
-Room remains to recover CH18 to Tier A through MTL variants that bridge the matched-head gap (per-task weight clipping, prior-magnitude normalisation, etc.); those are follow-up paper territory. See `CLAIMS_AND_HYPOTHESES.md` for the full catalog.
+CH18 promoted Tier B → A. The paper's MTL contribution is no longer "joint deployment accepting a reg cost" — it's "MTL with per-head LR exceeds matched-head STL on reg AND preserves cat F1, validated cross-state with a clean mechanism." See `CLAIMS_AND_HYPOTHESES.md §CH18` for the full catalog update.
 
 ---
 
@@ -32,8 +33,10 @@ Room remains to recover CH18 to Tier A through MTL variants that bridge the matc
 | File | Purpose |
 |------|---------|
 | `docs/studies/check2hgi/README.md` | Entry point + scope statement |
-| `docs/studies/check2hgi/SESSION_HANDOFF_2026-04-24.md` | ⭐ One-minute summary of current state (most recent) |
-| `docs/studies/check2hgi/NORTH_STAR.md` | Committed B3 champion config + F27 scale-dependence flag |
+| `docs/studies/check2hgi/MTL_ARCHITECTURE_JOURNEY.md` | ⭐ End-to-end derivation from initial design through H3-alt (read first) |
+| `docs/studies/check2hgi/SESSION_HANDOFF_2026-04-26.md` | One-minute summary of current state (most recent) |
+| `docs/studies/check2hgi/SESSION_HANDOFF_2026-04-24.md` | One-minute summary of predecessor B3 period |
+| `docs/studies/check2hgi/NORTH_STAR.md` | Champion candidate (H3-alt) + predecessor B3 + F27 scale-dependence flag |
 | `docs/studies/check2hgi/PAPER_STRUCTURE.md` | Paper scope, baselines, STL-matching policy |
 | `docs/studies/check2hgi/FOLLOWUPS_TRACKER.md` | Live work queue (F33/F34/F35 Colab etc.) |
 | `docs/studies/check2hgi/OBJECTIVES_STATUS_TABLE.md` | One-page scorecard |

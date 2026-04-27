@@ -1,10 +1,10 @@
 # Objectives Status Table — Check2HGI Study
 
-**Date:** 2026-04-24 (v3, post-F2 / F21c / F27). One-page snapshot of where we stand against the study's two scientific objectives, built from `results/RESULTS_TABLE.md` + `results/B5/*.json` + `results/B3_validation/*.json` + `results/F27_validation/*.json` + `results/P5_bugfix/SUMMARY.md`.
+**Date:** 2026-04-26 (v4, post-F48-H3-alt + F40 + F48-H2). One-page snapshot of where we stand against the study's two scientific objectives, built from `results/RESULTS_TABLE.md` + per-experiment summaries.
 
-> **North-star MTL config (committed 2026-04-24):** **B3** = `mtlnet_crossattn + static_weight(category_weight=0.75) + next_gru (task_a) + next_getnext_hard (task_b) d=256, 8h` — see `NORTH_STAR.md` for the decision memo. All paper-relevant MTL comparisons now use B3 as the primary row. The soft-probe variant (prior north-star) remains as a reported ablation. Pre-F27 v2 rows using `GETNext-soft` are retained below for audit but are no longer the headline.
+> **North-star MTL config candidate (2026-04-26):** **F48-H3-alt** = B3 architecture + per-head LR (`cat_lr=1e-3, reg_lr=3e-3, shared_lr=1e-3`, `--scheduler constant`). See `NORTH_STAR.md` for the recipe; `MTL_ARCHITECTURE_JOURNEY.md` for the derivation. All paper-relevant MTL comparisons use H3-alt as the primary row from 2026-04-26 onward. Predecessor B3 (50ep + OneCycleLR) remains as a reported comparand. Pre-F27 v2 rows using `GETNext-soft` are retained below for audit but are no longer the headline.
 
-> **Headline caveat (F21c, 2026-04-24).** Matched-head STL `next_getnext_hard` (graph-prior alone, single-task) dominates MTL-B3 on reg Acc@10 by 12–14 pp on AL and AZ (CH18). The MTL value proposition now lives primarily on cat F1 + joint single-model deployment, not on reg. See `research/F21C_FINDINGS.md`.
+> **Headline reversal (F48-H3-alt, 2026-04-26).** The F21c finding — STL `next_getnext_hard` dominates MTL by 12–14 pp on reg — is **resolved by the per-head LR recipe**. AL: MTL-H3-alt EXCEEDS STL F21c by +6.25 pp. AZ: closes 75% of the gap. FL: validates at scale, beats Markov-1 by +6.91 pp and STL GRU by +3.63 pp. CH18 promoted Tier B → Tier A. The MTL value proposition now includes paper-strength reg lift, joint single-model deployment, AND cat F1 lift over STL.
 
 > **Methodological note.** Each MTL row below is a **single execution** that jointly trains both heads. The cat-F1 and reg-Acc@10 columns on a given row come from the **same model, same fold set, same seed** — compared side-by-side against the cat-task baselines (POI-RGNN, Majority, Markov-1-POI) and the region-task baselines (Markov-1-region, STL STAN, STL GETNext-hard matched-head). Earlier drafts of this file cherry-picked the best MTL per (state × task) cell across different runs; that mixed runs and wasn't an honest joint claim. This version fixes that.
 
@@ -105,23 +105,33 @@ Each row is one MTL run. Compare its cat output vs cat baselines and its reg out
 
 ---
 
-## 3 · Condensed objectives scorecard (north-star = B3 post-F27)
+## 3 · Condensed objectives scorecard (north-star = F48-H3-alt, v4)
 
-Using the **committed north-star MTL config** (`mtlnet_crossattn + static_weight(cat=0.75) + next_gru (task_a) + next_getnext_hard (task_b) d=256`) at every state:
+Using the **2026-04-26 champion candidate** (B3 architecture + per-head LR `cat_lr=1e-3, reg_lr=3e-3, shared_lr=1e-3, --scheduler constant`) at every state:
 
 | State | Row | Cat verdict vs (POI-RGNN / STL matched `next_mtl`) | Reg verdict vs (Markov-1 / STL STAN / STL GETNext-hard — CH18) | Joint success |
 |:-:|:-|:-|:-|:-:|
-| AL 5f | F31 (post-F27) | cat F1 **42.71** : **+8 pp > POI-RGNN** · **+4.13 pp > STL `next_mtl` (38.58)** | reg Acc@10 **59.60** : **+12.59 pp > Markov-1 (47.01)** · **+0.40 pp > STL STAN (59.20)** first cross · **−8.77 pp vs STL GETNext-hard (68.37)** CH18 | ✅ cat+reg beat STAN; 🔴 trails matched-head STL |
-| AZ 5f | F19-F27 | cat F1 **45.81** : ties STL-next_mtl (42.08) **+3.73 pp, Wilcoxon p=0.0312, 5/5 folds** | reg Acc@10 **53.82** : **+10.86 pp > Markov-1 (42.96)** · +1.58 σ-tied with STL STAN (52.24) · **−12.92 pp vs STL GETNext-hard (66.74)** CH18 | ✅ cat strict-gain; 🟡 reg tied STAN; 🔴 trails matched-head |
-| FL 1f | F32 (post-F27) | cat F1 **65.72** (n=1) : **+31.2 pp > POI-RGNN (34.49)** · +2–3 pp over STL (63.17 n=1) | reg Acc@10 **65.26** (n=1) : tied with Markov-1 (65.05) · 🔴 STL STAN pending (F6) · 🔴 STL GETNext-hard pending (F21c FL) | 🟡 n=1; F33 decides FL-scale cat head |
+| AL 5f | F48-H3-alt | cat F1 **42.22 ± 1.00** : ≈ B3 post-F27 (-0.49) · **+8 pp > POI-RGNN** · **+3.64 pp > STL `next_mtl` (38.58)** | reg Acc@10 **74.62 ± 3.11** : **+27.61 pp > Markov-1 (47.01)** · **+15.42 pp > STL STAN (59.20)** · ✅ **+6.25 pp > STL GETNext-hard (68.37)** CH18 RESOLVED | ✅ joint cat + reg above all STL ceilings |
+| AZ 5f | F48-H3-alt | cat F1 **45.11 ± 0.32** : ≈ B3 post-F27 (-0.70) · **+3.03 pp > STL `next_mtl` (42.08)** | reg Acc@10 **63.45 ± 2.49** : **+20.49 pp > Markov-1 (42.96)** · **+11.21 pp > STL STAN (52.24)** · 🟡 **−3.29 pp vs STL GETNext-hard (66.74)** — 75% of B3-vs-STL gap closed | ✅ cat strict-gain; ✅ reg crosses STAN; 🟡 75% of CH18 closed |
+| FL 5f | F48-H3-alt | cat F1 **67.92 ± 0.72** : **+33.4 pp > POI-RGNN (34.49)** · +2.20 pp over predecessor B3 1f (65.72) | reg Acc@10 **71.96 ± 0.68** : **+6.91 pp > Markov-1 (65.05)** · **+3.63 pp > STL GRU (68.33)** · 🔴 STL STAN pending (F6) · 🔴 STL GETNext-hard pending (F37 4050) | ✅ joint cat + reg above Markov + STL GRU; matched-head STL ceiling pending |
 
-**Objective 2 overall under B3 (post-F27):**
-- **MTL > per-task baselines:** ✅ clean on cat at every state (+8 to +31 pp over POI-RGNN, all > Majority / Markov-POI). ✅ AL + AZ region over Markov-1 by +10.86 to +12.59 pp. 🟡 FL region at Markov-saturation (approach (a) in `PAPER_STRUCTURE.md §6`).
-- **MTL > STL cat:** ✅ AL **+4.13 pp** (F31) · ✅ AZ **+3.73 pp Wilcoxon p=0.0312** (F27 5f) · 🟡 FL +2–3 pp (n=1, F33 5f pending).
-- **MTL > STL STAN reg:** ✅ AL first-cross **+0.40 pp** (F31) · 🟡 AZ tied σ (+1.58) · 🔴 FL pending.
-- **MTL > matched-head STL GETNext-hard reg (CH18):** 🔴 **AL and AZ lose by 12–14 pp** — F21c 2026-04-24 finding reframes the paper. FL pending.
+**Objective 2 overall under H3-alt:**
+- **MTL > per-task baselines:** ✅ clean on cat at every state (+8 to +33 pp over POI-RGNN). ✅ All three states beat Markov-1-region by +6.91 to +27.61 pp. FL Markov-saturation issue is RESOLVED by H3-alt (+6.91 pp over Markov, vs predecessor B3 which tied Markov at n=1).
+- **MTL > STL cat (matched `next_mtl`):** ✅ AL **+3.64 pp** · ✅ AZ **+3.03 pp** · ✅ FL **+4.75 pp** vs STL (63.17 n=1).
+- **MTL > STL STAN reg:** ✅ AL **+15.42 pp** · ✅ AZ **+11.21 pp** · 🔴 FL pending.
+- **MTL > matched-head STL GETNext-hard reg (CH18):** ✅ AL EXCEEDS by **+6.25 pp** · 🟡 AZ closes 75% of B3 gap (-3.29 pp residual) · 🔴 FL pending (F37).
 
-**What changed vs v2 (pre-F27 scorecard):** the F27 cat-head swap unlocked cat lifts that were previously tied-σ (AZ +0.74 → +3.73 p=0.0312; AL 0.00 → +4.13). AL reg Acc@10 now *crosses* STL STAN for the first time under MTL. But F21c exposed a stricter-than-STL-STAN ceiling: STL with the graph-prior head alone dominates the MTL coupling on reg by 12–14 pp. The paper's MTL contribution is therefore restated as: **joint-single-model deployment with a strict cat-F1 win over STL, accepting a 12–14 pp reg Acc@10 cost vs matched-head STL**.
+**What changed vs v3 (B3 post-F27 scorecard):** H3-alt's per-head LR recipe lifted reg Acc@10 by +14.02 pp at AL, +9.63 pp at AZ, and +6.70 pp at FL (vs predecessor B3 numbers), while keeping cat F1 within ~2 pp of B3 baseline. The CH18 "MTL trails STL" gap is closed at AL (with surplus), 75% closed at AZ, and the FL B3-vs-Markov saturation issue is resolved. The paper's MTL contribution now reads: **joint single-model deployment with strict cat AND reg gains over matched STL baselines (where pending baselines land), with a clean attribution chain of negative controls (F40, F48-H1, F48-H2) bracketing H3-alt as the unique design.**
+
+### Archived v3 scorecard (north-star = B3 post-F27 + OneCycleLR) — retained for audit
+
+The v3 scorecard is preserved below with the original "trails matched-head STL by 12-14 pp" framing — kept to demonstrate the contribution of the per-head LR recipe between v3 and v4.
+
+| State | Row | Cat (B3) | Reg (B3) | Joint |
+|:-:|:-|:-|:-|:-:|
+| AL 5f | F31 | 42.71 (+4.13 vs STL `next_mtl`) | 59.60 (+0.40 STL STAN, **−8.77 STL GETNext-hard**) | ✅ cat / 🔴 trails matched-head |
+| AZ 5f | F19-F27 | 45.81 (Wilcoxon p=0.0312) | 53.82 (tied STAN, **−12.92 STL GETNext-hard**) | ✅ cat / 🔴 trails matched-head |
+| FL 1f | F32 | 65.72 (n=1, +2-3 vs STL n=1) | 65.26 (n=1, tied Markov) | 🟡 n=1 |
 
 ### Archived v2 scorecard (north-star = GETNext-soft, pre-F27) — retained for audit
 

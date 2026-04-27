@@ -13,7 +13,7 @@
 1. **[`MTL_ARCHITECTURE_JOURNEY.md`](MTL_ARCHITECTURE_JOURNEY.md)** ⭐ **start here** — end-to-end narrative from initial design through F48-H3-alt; explains *why* the current recipe looks the way it does.
 2. **[`NORTH_STAR.md`](NORTH_STAR.md)** — current champion candidate (F48-H3-alt per-head LR) + predecessor B3 + F27 scale-dependence flag.
 3. **[`research/F48_H3_PER_HEAD_LR_FINDINGS.md`](research/F48_H3_PER_HEAD_LR_FINDINGS.md)** — H3 + H3-alt + FL scale validation (the recipe in detail).
-4. **[`SESSION_HANDOFF_2026-04-24.md`](SESSION_HANDOFF_2026-04-24.md)** — one-minute summary + what happened in 2026-04-22 → 04-24 + how to pick up cold.
+4. **[`SESSION_HANDOFF_2026-04-26.md`](SESSION_HANDOFF_2026-04-26.md)** ⭐ **most recent** — one-minute summary of H3-alt session + pending work. Predecessor handoff at `SESSION_HANDOFF_2026-04-24.md`.
 5. **[`PAPER_STRUCTURE.md`](PAPER_STRUCTURE.md)** — paper scope, baselines, STL-matching policy, FL region Markov caveat.
 6. **[`FOLLOWUPS_TRACKER.md`](FOLLOWUPS_TRACKER.md)** — live work queue (F33 FL 5f + F34 CA 1f + F35 TX 1f are the next things to land).
 7. **[`research/F21C_FINDINGS.md`](research/F21C_FINDINGS.md)** — paper-reshaping matched-head STL finding that triggered the CH18 attribution chain.

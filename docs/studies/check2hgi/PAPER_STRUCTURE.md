@@ -1,36 +1,42 @@
 # Paper Structure — Single Source of Truth
 
-**Created:** 2026-04-23. **Last updated:** 2026-04-24 (post-F27 cat-head swap + F21c matched-head finding). **Owner:** this file defines the paper's table layout, baseline set, STL matching policy, and scope decisions. All other docs reference this.
+**Created:** 2026-04-23. **Last updated:** 2026-04-26 (post-F48-H3-alt per-head LR + F40/F48-H2 negative controls). **Owner:** this file defines the paper's table layout, baseline set, STL matching policy, and scope decisions. All other docs reference this.
 
 ---
 
-## 1 · Champion model (`NORTH_STAR.md`)
+## 1 · Champion model (`NORTH_STAR.md`, `MTL_ARCHITECTURE_JOURNEY.md`)
 
-**B3** — a single MTL configuration that produces both heads jointly:
+**F48-H3-alt** (champion candidate, 2026-04-26) — B3 architecture + per-head LR:
 
 ```
 architecture   : mtlnet_crossattn
-mtl_loss       : static_weight(category_weight = 0.75)   # reg weight = 0.25
-task_a head    : next_gru                                 # ← updated 2026-04-24 (F27), was next_mtl
+mtl_loss       : static_weight(category_weight = 0.75)
+task_a head    : next_gru                                 # F27 (was next_mtl)
 task_b head    : next_getnext_hard                        # STAN + α · log_T[last_region_idx]
 task_a input   : check-in embeddings (9-step window)
 task_b input   : region embeddings (9-step window)
-hparams        : d_model=256, 8 heads, max_lr=0.003, batch=2048, 50 epochs, seed 42
+hparams        : d_model=256, 8 heads, batch=2048 (1024 on FL), 50 epochs, seed 42
+LR scheduler   : constant (no OneCycleLR / no annealing)
+LR per group   : cat_lr=1e-3, reg_lr=3e-3, shared_lr=1e-3   # ← H3-alt recipe
 ```
+
+CLI delta vs predecessor B3: `--scheduler constant --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3`.
+
+**Predecessor (B3, 2026-04-24, kept as comparand):** B3 = same architecture but with OneCycleLR (max_lr=0.003) and single LR. The H3-alt contribution is measured against this baseline.
 
 ### 1.1 · Paper-reshaping findings since 2026-04-23
 
-- **F27 (2026-04-24)** — cat-head swap `next_mtl → next_gru` lifts cat F1 by +3.43 pp (AL 5f) and +2.37 pp (AZ 5f, Wilcoxon p=0.0312 on 3 metrics). **FL 1f flipped sign (−0.93 pp)** → scale-dependence flag open; resolved by F33 (Colab FL 5f). See `research/F27_CATHEAD_FINDINGS.md`.
-- **F21c (2026-04-24)** — matched-head STL `next_getnext_hard` (graph-prior alone, single-task) **outperforms MTL-B3 on reg Acc@10 by 12–14 pp on AL + AZ**. The MTL coupling does not add value beyond the head choice at ablation-state scale. See `research/F21C_FINDINGS.md`. Paper framing shifts to Option B: matched-head STL baselines are a methodological finding; MTL-B3 is positioned as the joint-single-model deployment option, not the reg SOTA. CH18 in the claim catalog captures this.
+- **F27 (2026-04-24)** — cat-head swap `next_mtl → next_gru` lifts cat F1 by +3.43 pp (AL 5f) and +2.37 pp (AZ 5f, Wilcoxon p=0.0312 on 3 metrics). **FL 1f flipped sign (−0.93 pp)** at n=1 noise; H3-alt FL 5f (+2.20 pp over predecessor B3) resolves the flag. See `research/F27_CATHEAD_FINDINGS.md`.
+- **F21c (2026-04-24)** — matched-head STL `next_getnext_hard` outperformed B3 on reg Acc@10 by 12–14 pp on AL + AZ. Triggered the CH18 attribution chain (F38–F48). **RESOLVED by F48-H3-alt (2026-04-26):** per-head LR closes/exceeds the gap (AL +6.25 pp over STL F21c, AZ closes 75% of B3 gap). CH18 promoted Tier B → A. See `research/F21C_FINDINGS.md` and `research/F48_H3_PER_HEAD_LR_FINDINGS.md`.
+- **F48-H3-alt (2026-04-26)** — per-head LR is the new champion candidate. Paper-strength MTL-over-STL contribution validated 5-fold on AL+AZ+FL. Three orthogonal negative controls (F40 loss-side, F48-H1 gentle constant, F48-H2 warmup-then-plateau) bracket H3-alt as the unique design satisfying joint cat+reg. See `MTL_ARCHITECTURE_JOURNEY.md` for end-to-end derivation.
 
-Validation status (as of 2026-04-23):
+Validation status (as of 2026-04-26):
 
-| State | Status | Source |
+| State | Status | H3-alt source |
 |---|---|---|
-| AL 5f | ✅ validated | `results/B3_validation/al_5f50ep_b3.json` |
-| AZ 5f | ✅ validated | `results/B3_validation/az_5f50ep_b3.json` |
-| FL 1f | ✅ two replicates | `results/F2_fl_diagnostic/fl_1f50ep_hard_static_cat0.75.json` + `results/check2hgi/florida/mtlnet_*_20260423_0630/folds/fold1_info.json` |
-| FL 5f | 🔴 pending | (F17 attempt killed at fold 2; needs re-run) |
+| AL 5f | ✅ validated | `results/check2hgi/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260425_1843/summary/full_summary.json` |
+| AZ 5f | ✅ validated | `results/check2hgi/arizona/mtlnet_lr1.0e-04_bs2048_ep50_20260425_1853/summary/full_summary.json` |
+| FL 5f | ✅ validated (batch=1024) | `results/check2hgi/florida/mtlnet_lr1.0e-04_bs1024_ep50_20260426_0045/summary/full_summary.json` |
 | CA 5f | 🔴 pending — upstream pipeline missing | F22/F24 |
 | TX 5f | 🔴 pending — upstream pipeline missing | F23/F25 |
 

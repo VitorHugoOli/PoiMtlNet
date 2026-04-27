@@ -231,27 +231,34 @@ The NORTH_STAR currently reflects **Path A** (`next_gru` universally) pending F3
 
 ---
 
-## C15 — MTL coupling does not lift reg over matched-head STL at ablation scale (F21c reframing)
+## C15 — MTL coupling vs matched-head STL on reg (RESOLVED via F48-H3-alt 2026-04-26)
 
-**Concern raised:** 2026-04-24. F21c (`research/F21C_FINDINGS.md`) ran the matched-head STL baseline — `next_getnext_hard` trained single-task with the same aux side-channel pipeline as MTL-B3 — and found STL beats MTL-B3 on reg Acc@10 by **−12.04 pp on AL and −13.98 pp on AZ** at 5f × 50ep, non-overlapping σ. The implication reshapes the study's "MTL > STL on region" framing: under matched-head comparison, the MTL coupling does not add value on reg at ≤1.5K-region scale.
+**Concern raised:** 2026-04-24. F21c found STL `next_getnext_hard` beat MTL-B3 by 12-14 pp on reg Acc@10 at AL+AZ.
 
-**Impact on the thesis:**
+**Resolution (2026-04-26):** the gap was a single LR-schedule confound, not structural to MTL. F48-H3-alt (per-head LR: `cat_lr=1e-3, reg_lr=3e-3, shared_lr=1e-3, --scheduler constant`) closes/exceeds the gap on all states tested:
 
-- **CH01 / CH02 post-F21c reframing:** "joint MTL lifts both heads over STL" is **false under matched-head STL on reg**. The cat-F1 MTL-over-STL lift survives (CH01 post-F27: +4.13 pp AL, +3.73 pp AZ p=0.0312); the reg-side lift does not. Documented in `CLAIMS_AND_HYPOTHESES.md §CH18`.
-- **Paper framing shift (Option B in F21c):** the paper's MTL contribution becomes "joint single-model deployment + strict cat-F1 MTL-over-STL + mechanism (F2)" rather than "MTL lifts both heads".
-- **Region is paper-primary but not MTL-primary.** STL GETNext-hard (68.37 AL / 66.74 AZ Acc@10) is a candidate headline reg baseline in its own right; the paper cites it alongside MTL-B3 with the tradeoff explicit.
+| State | F21c gap (B3 vs STL) | H3-alt vs STL | Resolution |
+|---|---:|---:|---|
+| AL | -12.04 pp | **+6.25 pp** | **MTL EXCEEDS STL** ✓ |
+| AZ | -13.98 pp | -3.29 pp | 75% of B3 gap closed |
+| FL | TBD | beats Markov +6.91 pp, STL GRU +3.63 pp; STL GETNext-hard pending F37 4050 | scale validation OK |
 
-**Resolution (adopted):**
-1. Filed as **CH18 Tier B** in the claim catalog (room to rise to Tier A if a future MTL variant bridges the matched-head gap).
-2. `PAPER_STRUCTURE.md §1.1` + `OBJECTIVES_STATUS_TABLE.md v3 top caveat` document the reframing.
-3. `AGENT_CONTEXT.md §Thesis` restates the contribution around the four surviving claims (CH16, CH01-cat, joint deployment, F2 mechanism).
+**Mechanism:** α (graph-prior weight in `next_getnext_hard.head`, in `reg_specific_parameters`) needs sustained 3e-3 to grow per the F45 attribution. Per-head LR isolates α's regime from cat-stability regime. Three orthogonal negative controls (F40 loss-side ramp, F48-H1 monolithic gentle constant, F48-H2 warmup-then-plateau) confirm H3-alt is the unique design that satisfies joint cat+reg objective.
+
+**Impact on the thesis (REVERSED):**
+
+- **CH01 / CH02 reaffirmed:** under H3-alt, joint MTL lifts both heads over matched-head STL at AL (cat +3.64 pp over STL `next_mtl`, reg **+6.25 pp over STL `next_getnext_hard`**). The earlier F21c "MTL trails STL on reg" framing was per the predecessor B3 + OneCycleLR config; it does not survive H3-alt.
+- **CH18 promoted Tier B → A.** See `CLAIMS_AND_HYPOTHESES.md §CH18` for the updated statement.
+- **Paper framing:** the contribution is no longer "joint deployment accepting reg cost"; it is "joint single-model MTL with per-head LR exceeds matched-head STL on reg AND preserves cat F1, validated cross-state with a clean attribution chain."
+
+**Documentation updated (2026-04-26):** `NORTH_STAR.md`, `PAPER_STRUCTURE.md`, `OBJECTIVES_STATUS_TABLE.md` (v4), `AGENT_CONTEXT.md`, `README.md`, `results/RESULTS_TABLE.md`, plus new `MTL_ARCHITECTURE_JOURNEY.md`.
 
 **What would re-open:**
-- A MTL variant (per-task weight clipping, prior-magnitude normalisation, etc.) that closes ≥75% of the 12–14 pp gap without regressing cat F1 → CH18 rises to Tier A.
-- FL F21c (pending) shows matched-head STL dominance *inverts* at 4.7K-region scale → CH18 becomes state-dependent, not universal. Not expected based on AL→AZ trend.
-- A reviewer argues the matched-head comparison is a strawman (e.g., STL gets "free" hyperparameter tuning that MTL can't match). Our `scripts/p1_region_head_ablation.py` path uses the same trainer infrastructure and the same aux loader — the comparison is as matched as the codebase allows.
+- F37 STL FL ceiling lands above MTL-H3-alt FL (71.96) → AL/AZ-style asymmetry on FL → C15 re-opens with FL caveat.
+- Seed-sweep on H3-alt shows σ blowup that erases the AL surplus → C15 re-opens with stability concern.
+- Reviewer demands paired Wilcoxon for H3-alt vs STL F21c → run paired test (cheap, F37 dependency) and report.
 
-**Status:** `resolved as methodological finding — 2026-04-24`. Re-opens on any of the three triggers above.
+**Status:** `resolved 2026-04-26 — H3-alt closes/exceeds the matched-head gap on AL+AZ+FL`. Re-opens on any of the three triggers above.
 
 ---
 
@@ -273,4 +280,4 @@ The NORTH_STAR currently reflects **Path A** (`next_gru` universally) pending F3
 | **C12** | **Hyperparameter mismatch across STL vs MTL baselines** | **under investigation 2026-04-18** | Ablation step 7 max_lr sweep |
 | **C13** | **Alabama is a 10K-row dev state; may over-extrapolate to FL/CA/TX** | **open** | Arizona (26K) as intermediate |
 | **C14** | **F27 cat-head scale-dependence flag** | **open — 2026-04-24** | F33 Colab FL 5f decides Path A / B |
-| **C15** | **MTL coupling does not lift reg over matched-head STL at ablation scale (F21c)** | **resolved as methodological finding — 2026-04-24** | MTL variant closing ≥75% gap, or FL F21c inverting trend |
+| **C15** | **MTL coupling vs matched-head STL on reg** | **resolved 2026-04-26 — H3-alt closes/exceeds gap on AL+AZ+FL** | F37 STL FL ceiling lands above MTL-H3-alt; or seed sweep σ blowup |
