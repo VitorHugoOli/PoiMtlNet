@@ -118,8 +118,16 @@ def _rank_of_target(logits: torch.Tensor, targets: torch.Tensor) -> torch.Tensor
     """
     # (N, 1) gather — score of the true class per row
     target_scores = logits.gather(dim=-1, index=targets.unsqueeze(-1))
-    # Count strictly higher-scoring classes; add 1 for the target itself.
-    higher = (logits > target_scores).sum(dim=-1)
+    # Chunked computation: the naive (logits > target_scores) materialises
+    # an [N × C] boolean tensor that, on FL (127K samples × 4702 regions
+    # × 1 byte ≈ 600 MB *expanded to 4.46 GB during the .sum reduction*),
+    # OOM-killed the T4 mid-validation. Process in row-chunks so peak
+    # allocation is bounded by chunk × C ≈ 80 MB on FL.
+    n = logits.size(0)
+    chunk = 4096
+    higher = torch.empty(n, dtype=torch.long, device=logits.device)
+    for i in range(0, n, chunk):
+        higher[i:i + chunk] = (logits[i:i + chunk] > target_scores[i:i + chunk]).sum(dim=-1)
     return higher + 1
 
 
