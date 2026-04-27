@@ -58,17 +58,24 @@ The matched-head finding says the previous CH15 verdict was head-coupled — STA
 
 ## 3 · Leg III — MTL counterfactual (B3 with HGI substrate)
 
-⏳ **Running.** AL (HGI) on fold 3/5 at 17:51; AZ (HGI) queued. ETA ~30 min from now (17:51).
+✅ **Complete.** AL HGI: 12.5 min wall-clock. AZ HGI: 25.4 min. Total ~38 min.
 
-Tags:
-- `MTL_B3_ALABAMA_hgi_5f50ep`
-- `MTL_B3_ARIZONA_hgi_5f50ep`
+Tags: `MTL_B3_ALABAMA_hgi_5f50ep`, `MTL_B3_ARIZONA_hgi_5f50ep`. Source dirs: `results/hgi/{alabama,arizona}/mtlnet_lr1.0e-04_bs2048_ep50_20260427_*/`.
 
-Comparator: existing MTL-B3 Check2HGI 5f×50ep results from `NORTH_STAR.md` §"Validation status":
-- AL B3 (post-F27): cat F1 0.4271 ± 0.0137 / reg Acc@10 0.5960 ± 0.0409
-- AZ B3 (post-F27): cat F1 0.4581 ± 0.0130 / reg Acc@10 0.5382 ± 0.0311
+| State | Substrate | cat F1 | reg Acc@10_indist | Δ_cat (C2HGI − HGI) | Δ_reg (C2HGI − HGI) |
+|---|---|---:|---:|---:|---:|
+| AL | Check2HGI (existing B3) | **42.71 ± 1.37** | **59.60 ± 4.09** | — | — |
+| AL | HGI (counterfactual) | 25.96 ± 1.61 | 29.95 ± 1.89 | **+16.75** | **+29.65** |
+| AZ | Check2HGI (existing B3) | **45.81 ± 1.30** | **53.82 ± 3.11** | — | — |
+| AZ | HGI (counterfactual) | 28.70 ± 0.51 | 22.10 ± 1.63 | **+17.11** | **+31.72** |
 
-Verdict pending; will populate when orchestrator finishes.
+**Verdict (paper-quality finding):** MTL B3 specifically requires the Check2HGI substrate.
+
+- **Reg head completely breaks** under HGI substrate (Acc@10_indist drops 30+ pp at both states; well below the STL HGI gethard baseline 67.52/64.40 → MTL+HGI is *worse than STL+HGI on reg* by ~37 pp at AL).
+- **Cat lift over STL collapses** under HGI (MTL HGI cat ≈ STL HGI cat at both states; MTL C2HGI gives a +1.95 pp cat lift over STL).
+- The MTL configuration (cross-attn + static cat=0.75 + GETNext-hard) was tuned to exploit Check2HGI's per-visit context. Substituting POI-stable HGI embeddings into the same configuration breaks the joint signal — the cat head underutilises the embedding (no per-visit variation to exploit) and the reg head's graph prior fails to combine productively with the smoother POI-level HGI features.
+
+Per-fold persisted to `results/phase1_perfold/{AL,AZ}_hgi_mtl_{cat,reg}.json`.
 
 ---
 
@@ -92,7 +99,19 @@ Decomposition of CH16's substrate gap (+12.14 pp = canonical − HGI):
 
 ### 4.2 Matched-head STL on pooled (AL)
 
-⏳ Pending — to launch after MTL CF orchestrator finishes (avoids MPS oversubscription).
+✅ AL Check2HGI POOLED with `next_gru` head, 5f × 50ep, seed 42:
+
+| Substrate | F1 macro |
+|---|---:|
+| Check2HGI (canonical, matched-head STL) | 40.76 ± 1.50 |
+| **Check2HGI POI-pooled** | **29.57** |
+| HGI (matched-head STL) | 25.26 ± 1.06 |
+
+**Decomposition under matched-head STL** (substrate gap +15.50 pp):
+- **Per-visit context:** canonical − pooled = **+11.19 pp (~72%)**.
+- **Embedding training signal:** pooled − HGI = **+4.31 pp (~28%)**.
+
+Linear-probe and STL agree on direction; matched-head STL gives an even stronger per-visit signal (~72% vs ~63% in linear probe). **C4 mechanism confirmed** — per-visit variation is the dominant contributor to CH16's cat substrate lift.
 
 ---
 

@@ -1,0 +1,40 @@
+2026-04-27 18:31:11,457 - WARNING - Generating folds on the fly (no cache at /Users/vitor/Desktop/mestrado/ingred/output/hgi/alabama/folds/fold_indices_next.pt). Run `python scripts/study/freeze_folds.py --state alabama --engine hgi --task next` to freeze them; paired statistical tests require frozen splits.
+2026-04-27 18:31:11,458 - INFO - Creating 5-fold CV for next
+2026-04-27 18:31:11,458 - INFO - Loading next-POI data: alabama/hgi
+2026-04-27 18:31:12,216 - INFO - Next-POI data: (12709, 576) (dim=64, window=9), distribution: {np.int64(0): np.int64(2193), np.int64(1): np.int64(837), np.int64(2): np.int64(4345), np.int64(3): np.int64(453), np.int64(4): np.int64(712), np.int64(5): np.int64(3288), np.int64(6): np.int64(881)}
+2026-04-27 18:31:12,264 - INFO - NEXT single-task: user-disjoint folds via StratifiedGroupKFold.
+2026-04-27 18:31:12,416 - INFO - Fold 1/5: train=10167, val=2542
+2026-04-27 18:31:12,501 - INFO - Fold 2/5: train=10167, val=2542
+2026-04-27 18:31:12,549 - INFO - Fold 3/5: train=10167, val=2542
+2026-04-27 18:31:12,598 - INFO - Fold 4/5: train=10167, val=2542
+2026-04-27 18:31:12,648 - INFO - Fold 5/5: train=10168, val=2541
+2026-04-27 18:31:12,698 - INFO - ========================================================================
+2026-04-27 18:31:12,699 - INFO - Training: state=alabama  engine=hgi  task=next  epochs=50  folds=5
+2026-04-27 18:31:12,699 - INFO - ========================================================================
+[36m[1m2026-04-27 18:31:13 - INFO  - ========================= FOLD 1/5 =========================[0m
+2026-04-27 18:31:13,740 - WARNING - Unsupported operator aten::abs encountered 1 time(s)
+2026-04-27 18:31:13,740 - WARNING - Unsupported operator aten::sum encountered 2 time(s)
+2026-04-27 18:31:13,740 - WARNING - Unsupported operator aten::add encountered 10 time(s)
+2026-04-27 18:31:13,740 - WARNING - Unsupported operator aten::mul encountered 22 time(s)
+2026-04-27 18:31:13,740 - WARNING - Unsupported operator aten::masked_fill_ encountered 1 time(s)
+2026-04-27 18:31:13,740 - WARNING - Unsupported operator aten::div encountered 4 time(s)
+2026-04-27 18:31:13,740 - WARNING - Unsupported operator aten::unflatten encountered 4 time(s)
+2026-04-27 18:31:13,740 - WARNING - Unsupported operator aten::scaled_dot_product_attention encountered 4 time(s)
+2026-04-27 18:31:13,740 - WARNING - Unsupported operator aten::softmax encountered 1 time(s)
+2026-04-27 18:31:13,740 - WARNING - Unsupported operator aten::nan_to_num encountered 1 time(s)
+2026-04-27 18:31:13,740 - WARNING - The following submodules of the model were never called during the trace of the graph. They may be unused, or they were accessed by direct calls to .forward() or via other python methods. In the latter case they will have zeros for statistics, though their statistics will still contribute to their parent calling module.
+transformer_encoder.layers.0.self_attn.out_proj, transformer_encoder.layers.1.self_attn.out_proj, transformer_encoder.layers.2.self_attn.out_proj, transformer_encoder.layers.3.self_attn.out_proj
+[36m[1m2026-04-27 18:31:13 - INFO  - FLOPS: 3592832 | Params: 201169[0m
+
+============================================================
+🔍 Model Profiling Report (Pytorch model)
+============================================================
+📊 Computational Complexity
+  - Total: 3592.83 KFLOPs
+
+📏 Model Parameters
+  - Total: 201.17 K
+  - Trainable: 201169 (100.0%)
+  - Non-trainable: 0 (0.0%)
+============================================================
+Training:   0%|          | 0/50 [00:00<?, ?batch/s]Training:   0%|          | 0/50 [00:01<?, ?batch/s, tr_loss=1.9494, tr_acc=0.1802, val_loss=1.8568, val_acc=0.2266(0.2070), best=0.2070]Training:   2%|▏         | 1/50 [00:01<00:49,  1.01s/batch, tr_loss=1.9494, tr_acc=0.1802, val_loss=1.8568, val_acc=0.2266(0.2070), best=0.2070]
