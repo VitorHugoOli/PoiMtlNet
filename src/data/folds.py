@@ -863,9 +863,12 @@ class FoldCreator:
         next_category task (task_a slot, 7 classes) and ``.next``
         carries the next_region task (task_b slot, ~1K-5K classes).
         """
-        if embedding_engine != EmbeddingEngine.CHECK2HGI:
+        # SUBSTRATE_COMPARISON_PLAN §5 — MTL counterfactual permits HGI
+        # provided next_region.parquet has been pre-built by
+        # scripts/probe/build_hgi_next_region.py.
+        if embedding_engine not in (EmbeddingEngine.CHECK2HGI, EmbeddingEngine.HGI):
             raise ValueError(
-                f"MTL_CHECK2HGI requires engine=CHECK2HGI (got {embedding_engine})."
+                f"MTL_CHECK2HGI requires engine in (CHECK2HGI, HGI); got {embedding_engine}."
             )
 
         # Load X + next_category labels from next.parquet.

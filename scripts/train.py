@@ -892,9 +892,15 @@ def main(argv=None) -> None:
         preset_name = args.task_set or LEGACY_CATEGORY_NEXT.name
         task_set = get_preset(preset_name)
         is_check2hgi_track = preset_name == CHECK2HGI_NEXT_REGION.name
-        if is_check2hgi_track and engine != EmbeddingEngine.CHECK2HGI:
+        # SUBSTRATE_COMPARISON_PLAN §5 — MTL counterfactual allows --engine hgi
+        # provided output/hgi/<state>/input/next_region.parquet exists (built
+        # by scripts/probe/build_hgi_next_region.py). Cat input also flips to
+        # HGI's input/next.parquet automatically via IoPaths.
+        _ALLOWED_ENGINES_FOR_C2HGI_PRESET = (EmbeddingEngine.CHECK2HGI, EmbeddingEngine.HGI)
+        if is_check2hgi_track and engine not in _ALLOWED_ENGINES_FOR_C2HGI_PRESET:
             print(
-                f"error: --task-set {preset_name} requires --engine check2hgi "
+                f"error: --task-set {preset_name} requires --engine in "
+                f"{[e.value for e in _ALLOWED_ENGINES_FOR_C2HGI_PRESET]} "
                 f"(got {engine.value}).",
                 file=sys.stderr,
             )
