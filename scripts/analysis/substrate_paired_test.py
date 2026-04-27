@@ -136,7 +136,7 @@ def paired_tests(deltas: list[float]) -> dict:
         sw_stat, sw_p = stats.shapiro(arr)
         out["shapiro_w"] = float(sw_stat)
         out["shapiro_p"] = float(sw_p)
-        out["normality_assumed"] = sw_p > 0.05
+        out["normality_assumed"] = bool(sw_p > 0.05)
     else:
         out["normality_assumed"] = False
 
@@ -178,7 +178,7 @@ def tost_non_inferiority(deltas: list[float], margin: float) -> dict:
     return {
         "margin": float(margin),
         "p_lower_one_sided": p_lower,
-        "non_inferior_at_alpha_0.05": p_lower < 0.05,
+        "non_inferior_at_alpha_0.05": bool(p_lower < 0.05),
         "shifted_mean": float(shifted.mean()),
     }
 
