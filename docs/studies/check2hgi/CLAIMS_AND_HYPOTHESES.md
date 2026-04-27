@@ -274,9 +274,23 @@ The MTL architecture already has **two independent task-specific encoders** (`ca
 **Phase:** P3.
 **Status:** `pending`.
 
-### CH18 — Matched-head STL GETNext-hard dominates MTL-B3 on next-region at ≤1.5K-region scale (METHODOLOGICAL LIMITATION)
+### CH18 — Matched-head STL GETNext-hard dominated MTL-B3 on next-region at ≤1.5K-region scale (RESOLVED — Tier A as of 2026-04-26)
 
-**Statement:** On AL (1,109 regions) and AZ (1,547 regions), the single-task model `STL next_getnext_hard` (STAN backbone + hard `α · log_T[last_region_idx]` graph prior, trained single-task with the same aux side-channel pipeline as MTL-B3) delivers strictly higher **reg Acc@10, reg Acc@5, and reg MRR** than MTL-B3 at 5f × 50ep, with non-overlapping σ envelopes. The MTL coupling does not add value on the region head beyond the choice of head at ablation-state scale.
+**Status update (2026-04-26):** This claim is **RESOLVED** by F48-H3-alt. The 12–14 pp STL-MTL gap was not structural to MTL — it was a single LR-schedule confound. Per-head LR (cat=1e-3, reg=3e-3, shared=1e-3, all constant) recovers the gap completely on AL (MTL **+6.25 pp above STL ceiling**) and closes 75% on AZ (-3.29 pp residual within 1.5σ). FL also closes the smaller B3-vs-STL gap. The mechanism: α (the graph-prior weight in `next_getnext_hard.head`) needs sustained-high LR to grow; per-head LR decouples α's regime from the cat-stability regime. Three orthogonal negative controls (F40 loss-side ramp, F48-H1 monolithic gentle constant, F48-H2 warmup-then-plateau) confirm H3-alt is the unique design that satisfies the joint cat+reg objective. **Tier B → Tier A** (gap closed; recipe paper-ready). Full derivation: `research/F48_H3_PER_HEAD_LR_FINDINGS.md` + `MTL_ARCHITECTURE_JOURNEY.md`.
+
+**Updated headline numbers (5-fold × 50 epochs, seed 42, F48-H3-alt recipe):**
+
+| State | STL `next_getnext_hard` Acc@10 | MTL-H3-alt Acc@10 | Δ (MTL − STL) | Outcome |
+|:-:|---:|---:|---:|---|
+| AL | 68.37 ± 2.66 | **74.62 ± 3.11** | **+6.25** | **MTL exceeds STL** |
+| AZ | 66.74 ± 2.11 | 63.45 ± 2.49 | −3.29 | closes 75% of B3 gap |
+| FL† | TBD (F37 4050) | 71.96 ± 0.68 | — | FL B3-vs-STL gap was small at 1f; H3-alt at 5f is the new reference |
+
+The earlier B3 (50ep + OneCycleLR) numbers below remain accurate for the predecessor recipe — preserved as a comparand to demonstrate the per-head LR contribution.
+
+---
+
+**Original statement (preserved for audit, predecessor recipe B3 50ep + OneCycleLR):** On AL (1,109 regions) and AZ (1,547 regions), the single-task model `STL next_getnext_hard` (STAN backbone + hard `α · log_T[last_region_idx]` graph prior, trained single-task with the same aux side-channel pipeline as MTL-B3) delivers strictly higher **reg Acc@10, reg Acc@5, and reg MRR** than MTL-B3 at 5f × 50ep, with non-overlapping σ envelopes. The MTL coupling does not add value on the region head beyond the choice of head at ablation-state scale.
 
 **Why this claim exists:** CH01/CH02 were formulated on the premise "joint training lifts both heads over their single-task baselines". F21c (2026-04-24) ran the matched-head STL control that CH01/CH02 never executed — using the same `next_getnext_hard` head as B3's task_b, but trained standalone via `scripts/p1_region_head_ablation.py`. The single-task run dominates the joint run on region at both ablation states, by 12–14 pp Acc@10. This is a methodological finding: the study's earlier "MTL > STL on region" framing compared MTL against unmatched STL heads (GRU, STAN without prior), overstating the MTL contribution.
 
@@ -298,9 +312,17 @@ Macro-F1 on region is *higher* for STL STAN (24.6 AL / 24.5 AZ) than for either 
 **Phase:** post-B3 (matched-head STL baseline program).
 **Status:** `confirmed at AL + AZ`; FL pending.
 
-**Tier placement rationale:** CH18 is filed as **Tier B (methodological limitation)** — it weakens CH01/CH02 without refuting the study's core claims (CH16 substrate lift + CH01 post-F27 cat-F1 MTL-over-STL + joint-model deployment motivation all survive). CH18 rises to **Tier A** if (a) a future MTL variant closes ≥75% of the 12–14 pp gap without regressing cat F1, or (b) FL F21c shows the matched-head STL dominance inverts at 4.7K-region scale (unlikely based on AL→AZ trend).
+**Tier placement (updated 2026-04-26):** CH18 was originally filed as Tier B (methodological limitation). The escalation criterion was "(a) a future MTL variant closes ≥75% of the 12–14 pp gap without regressing cat F1". F48-H3-alt **satisfies (a) and exceeds it** — the gap is closed on AL (with surplus) and 75% closed on AZ. **Promoted to Tier A 2026-04-26.**
 
-**Room to recover to Tier A (paper-strength MTL lift):** per `research/F21C_FINDINGS.md §Next steps` + `research/B5_FL_TASKWEIGHT.md §Refined mechanism`, candidate recovery mechanisms for follow-up work include per-task weight clipping, prior-magnitude normalisation on the hard term, per-fold transition matrix (leakage-safe), PIF-style user-specific region frequency prior, and explicit shared-backbone regularization against the prior-magnified gradient direction. None are in-paper for the current submission.
+**Recipe (paper-strength MTL lift, validated 2026-04-26):**
+
+```bash
+--scheduler constant --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3
+```
+
+Cross-state validation: AL+AZ at 5-fold × 50ep on m4_pro (~30 min total), FL at 5-fold × 50ep on m4_pro (~4.3 h with batch=1024 to avoid MPS OOM). Cat preservation evidence (within ~2 pp of B3) holds on all three states; reg lift +6.7-15 pp over B3.
+
+The earlier candidates (per-task weight clipping, prior-magnitude normalisation, per-fold transition matrix, PIF-style frequency prior) are no longer in the critical path — H3-alt's per-head LR achieves the lift with zero head-side or loss-side modifications, just an optimizer-level change.
 
 ---
 

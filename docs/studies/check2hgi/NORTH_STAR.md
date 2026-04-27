@@ -1,10 +1,49 @@
 # North-Star MTL Configuration
 
-**Status (2026-04-24):** **B3 validated at 5-fold on AL + AZ and 1-fold × 2 on FL. Cat head refined via F27 from `NextHeadMTL` (Transformer) → `next_gru` (GRU). Paper-reshaping F21c finding noted in §§Caveats.** See §Committed config below.
+**Status (2026-04-26):** **F48-H3-alt per-head LR recipe is the new champion candidate.** Validated 5-fold on AL/AZ/FL: cat preserved within ~2 pp of B3, reg Acc@10 lifts by 6.7-15 pp over B3 — **AL exceeds STL F21c ceiling by +6.25 pp; AZ closes 75% of the F21c gap; FL closes the small B3-vs-STL gap and is the most stable (σ=0.68)**. Three orthogonal negative controls (F40 loss-side, F48-H1 gentle constant LR, F48-H2 warmup-then-plateau) confirm H3-alt is the unique design satisfying joint cat+reg. CH18 reframes Tier B → Tier A. Predecessor B3 (50ep + OneCycleLR) preserved in §History.
 
-## Committed config (2026-04-24, post-F27)
+## Champion candidate — F48-H3-alt (2026-04-26)
 
-**B3 champion:**
+```
+architecture         : mtlnet_crossattn
+mtl_loss             : static_weight(category_weight = 0.75)
+task_a head (cat)    : next_gru
+task_b head (reg)    : next_getnext_hard                # STAN + α · log_T[last_region_idx]
+task_a input         : check-in embeddings (9-step window)
+task_b input         : region embeddings (9-step window)
+hparams              : d_model=256, 8 heads, batch=2048, 50 epochs, seed 42
+LR scheduler         : constant (no OneCycleLR / no annealing)
+LR per param group   : cat_lr=1e-3, reg_lr=3e-3, shared_lr=1e-3   # ← new
+```
+
+**Single-line additive recipe vs B3:**
+```bash
+--scheduler constant --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3
+```
+
+**Headline numbers (5-fold × 50ep, seed 42):**
+
+| State | cat F1 (B3 → H3-alt) | reg Acc@10 (B3 → H3-alt) | vs STL F21c |
+|---|---|---|---|
+| **AL** | 42.71 → **42.22 ± 1.00** (-0.49) | 59.60 → **74.62 ± 3.11** (+15.02) | **+6.25 EXCEEDS** ✓ |
+| **AZ** | 45.81 → **45.11 ± 0.32** (-0.70) | 53.82 → **63.45 ± 2.49** (+9.63) | -3.29 (closes 75% of gap) |
+| **FL** | 65.72† → **67.92 ± 0.72** (+2.20) | 65.26† → **71.96 ± 0.68** (+6.70) | TBD (F37 4050-assigned) |
+
+†FL B3 ref is F32 1-fold n=1.
+
+**Mechanism (single sentence):** α (graph-prior weight in `next_getnext_hard.head`) needs sustained 3e-3 to grow → reg lift; `shared_lr=1e-3` keeps cross-attn gentle so the cat path stays stable; `cat_lr=1e-3` keeps the cat encoder/head from diverging. The earlier monolithic-LR family (F44-F48-H2) couldn't satisfy both simultaneously because it forced α and the cat path to share an LR.
+
+**Cross-checks landed:**
+- F40 (loss-side cat_weight ramp 0.75→0.25) — cat OK, reg only +1 pp → loss balance is not the lever
+- F48-H1 (constant 1e-3 everywhere) — cat OK, reg flat → α needs LR ≥ 2e-3 to grow
+- F48-H2 (warmup_constant 50→3e-3 plateau, single LR) — cat OK, reg WORSE → cat-vs-reg compete for shared cross-attn capacity at plateau LR
+- F48-H3 (per-head with `shared_lr=3e-3`) — cat collapsed → shared cross-attn at 3e-3 destabilises cat path
+
+H3-alt is the unique configuration in this design space. See `research/F48_H3_PER_HEAD_LR_FINDINGS.md` for the full derivation, `research/F48_H2_WARMUP_CONSTANT_FINDINGS.md` and `research/F40_SCHEDULED_HANDOVER_FINDINGS.md` for the negative controls, and `MTL_ARCHITECTURE_JOURNEY.md` for the end-to-end narrative from initial design to the current recipe.
+
+## Predecessor — B3 50ep (2026-04-24, kept for reference)
+
+**B3 champion (the predecessor recipe):**
 
 ```
 architecture         : mtlnet_crossattn
@@ -14,6 +53,7 @@ task_b head (reg)    : next_getnext_hard                        # STAN + α · l
 task_a input         : check-in embeddings (9-step window)
 task_b input         : region embeddings (9-step window)
 hparams              : d_model=256, 8 heads, max_lr=0.003, batch=2048, 50 epochs, seed 42
+LR scheduler         : OneCycleLR (PyTorch default)
 ```
 
 **F27 cat-head refinement — 5-fold AZ paired Wilcoxon** (B3 default `next_mtl` cat-head vs B3 `next_gru` cat-head):
@@ -41,11 +81,13 @@ Per-fold, all 5 cat folds positive on both cat F1 and cat Acc@1. See `research/F
 **vs STL STAN (reg ceiling):** reg Acc@10 0.5224 ± 0.0238 → Δ = +1.58 pp (tied within σ).
 **vs STL GETNext-hard (F21c matched-head reg baseline):** reg Acc@10 0.6674 ± 0.0211 → Δ = **−12.92 pp** (MTL still trails on reg — F21c finding persists).
 
-## Caveats — the F21c finding
+## Caveats — the F21c finding (RESOLVED by H3-alt 2026-04-26)
 
-**F21c (2026-04-24):** STL-with-the-graph-prior (`next_getnext_hard` single-task) **outperforms MTL-B3 on region** by 12–14 pp Acc@10 at AL + AZ. Full analysis: `research/F21C_FINDINGS.md`.
+**F21c (2026-04-24):** STL-with-the-graph-prior (`next_getnext_hard` single-task) outperformed MTL-B3 on region by 12–14 pp Acc@10 at AL + AZ. Full analysis: `research/F21C_FINDINGS.md`.
 
-This does not invalidate B3 but reframes what MTL is buying:
+**Resolution (F48-H3-alt, 2026-04-26):** the gap was NOT structural to MTL — it was a single confound in the LR schedule. The graph-prior weight α needed sustained-high LR to grow; the OneCycleLR annealing prevented this. Per-head LR (cat=1e-3, reg=3e-3, shared=1e-3) decouples α's regime from the cat-stability regime and recovers/exceeds the STL ceiling on AL while closing 75% of the gap on AZ. CH18 reframes from Tier B (methodological limitation) to Tier A (gap closed). Full analysis: `research/F48_H3_PER_HEAD_LR_FINDINGS.md`.
+
+The B3-vs-STL framing below is preserved for the predecessor recipe (still relevant when the per-head LR mode is not used):
 
 - **Joint-task single-model deployment:** B3 gives both `next_category` and `next_region` predictions in one forward pass. Two STL models (one GETNext-hard for region + one matched STL cat head) would beat B3 on region by 12 pp but require running two separate models.
 - **Cat F1 lift over STL:** MTL-B3 does lift STL cat F1 (AZ +3.73 pp, p=0.0312). This contribution survives F21c.

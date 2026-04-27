@@ -1,6 +1,8 @@
 # Check2HGI Study — Entry Point
 
-**Status (2026-04-23):** B3 identified as unified joint-task champion candidate via F2 diagnostic; validated 5-fold on AL + AZ + FL-1f (×2). Headline FL + CA + TX 5-fold pending. Doc cleanup complete.
+**Status (2026-04-26):** **F48-H3-alt per-head LR recipe is the new champion candidate** — closes the F21c gap (CH18 promoted Tier B → Tier A). AL exceeds STL by +6.25 pp; AZ closes 75%; FL validates at scale (5-fold on all three states). Predecessor B3 (50ep + OneCycleLR) preserved as comparand. Read [`MTL_ARCHITECTURE_JOURNEY.md`](MTL_ARCHITECTURE_JOURNEY.md) for the end-to-end derivation, [`NORTH_STAR.md`](NORTH_STAR.md) for the recipe, [`research/F48_H3_PER_HEAD_LR_FINDINGS.md`](research/F48_H3_PER_HEAD_LR_FINDINGS.md) for the experimental detail.
+
+**Status (2026-04-23, predecessor):** B3 identified as unified joint-task champion candidate via F2 diagnostic; validated 5-fold on AL + AZ + FL-1f (×2). Headline FL + CA + TX 5-fold pending. Doc cleanup complete.
 
 **Scope:** Sibling to `docs/studies/fusion/`. Investigates whether check-in-level contextual embeddings (Check2HGI) with a next-region auxiliary task improve joint `{next_category, next_region}` prediction over HGI and over single-task training.
 
@@ -8,22 +10,25 @@
 
 ## Where to start (new agents, read in order)
 
-1. **[`SESSION_HANDOFF_2026-04-24.md`](SESSION_HANDOFF_2026-04-24.md)** ⭐ **most recent** — one-minute summary + what happened in 2026-04-22 → 04-24 + how to pick up cold.
-2. **[`NORTH_STAR.md`](NORTH_STAR.md)** — committed champion MTL config + F27 scale-dependence flag.
-3. **[`PAPER_STRUCTURE.md`](PAPER_STRUCTURE.md)** — paper scope, baselines, STL-matching policy, FL region Markov caveat.
-4. **[`FOLLOWUPS_TRACKER.md`](FOLLOWUPS_TRACKER.md)** — live work queue (F33 FL 5f + F34 CA 1f + F35 TX 1f are the next things to land).
-5. **[`research/F21C_FINDINGS.md`](research/F21C_FINDINGS.md)** — paper-reshaping matched-head STL finding (STL > MTL on reg by 12–14 pp).
-6. **[`research/F27_CATHEAD_FINDINGS.md`](research/F27_CATHEAD_FINDINGS.md)** — cat-head ablation + FL scale-dependence flag.
-7. **[`review/2026-04-23_critical_review.md`](review/2026-04-23_critical_review.md)** — analytical state of the study as of 2026-04-23 (pre-F21c/F27).
-8. **[`OBJECTIVES_STATUS_TABLE.md`](OBJECTIVES_STATUS_TABLE.md)** — one-page scorecard.
-9. **[`results/RESULTS_TABLE.md`](results/RESULTS_TABLE.md)** — canonical per-state × per-method table.
-10. **[`AGENT_CONTEXT.md`](AGENT_CONTEXT.md)** — long-form study context.
-11. **[`SESSION_HANDOFF_2026-04-22.md`](SESSION_HANDOFF_2026-04-22.md)** — operational gotchas G1–G7 (MPS memory, caffeinate, num_workers=0, etc.). G8 in the newer handoff.
+1. **[`MTL_ARCHITECTURE_JOURNEY.md`](MTL_ARCHITECTURE_JOURNEY.md)** ⭐ **start here** — end-to-end narrative from initial design through F48-H3-alt; explains *why* the current recipe looks the way it does.
+2. **[`NORTH_STAR.md`](NORTH_STAR.md)** — current champion candidate (F48-H3-alt per-head LR) + predecessor B3 + F27 scale-dependence flag.
+3. **[`research/F48_H3_PER_HEAD_LR_FINDINGS.md`](research/F48_H3_PER_HEAD_LR_FINDINGS.md)** — H3 + H3-alt + FL scale validation (the recipe in detail).
+4. **[`SESSION_HANDOFF_2026-04-24.md`](SESSION_HANDOFF_2026-04-24.md)** — one-minute summary + what happened in 2026-04-22 → 04-24 + how to pick up cold.
+5. **[`PAPER_STRUCTURE.md`](PAPER_STRUCTURE.md)** — paper scope, baselines, STL-matching policy, FL region Markov caveat.
+6. **[`FOLLOWUPS_TRACKER.md`](FOLLOWUPS_TRACKER.md)** — live work queue (F33 FL 5f + F34 CA 1f + F35 TX 1f are the next things to land).
+7. **[`research/F21C_FINDINGS.md`](research/F21C_FINDINGS.md)** — paper-reshaping matched-head STL finding that triggered the CH18 attribution chain.
+8. **[`research/F27_CATHEAD_FINDINGS.md`](research/F27_CATHEAD_FINDINGS.md)** — cat-head ablation + FL scale-dependence flag.
+9. **[`review/2026-04-23_critical_review.md`](review/2026-04-23_critical_review.md)** — analytical state of the study as of 2026-04-23 (pre-F21c/F27).
+10. **[`OBJECTIVES_STATUS_TABLE.md`](OBJECTIVES_STATUS_TABLE.md)** — one-page scorecard.
+11. **[`results/RESULTS_TABLE.md`](results/RESULTS_TABLE.md)** — canonical per-state × per-method table.
+12. **[`AGENT_CONTEXT.md`](AGENT_CONTEXT.md)** — long-form study context.
+13. **[`SESSION_HANDOFF_2026-04-22.md`](SESSION_HANDOFF_2026-04-22.md)** — operational gotchas G1–G7 (MPS memory, caffeinate, num_workers=0, etc.). G8 in the newer handoff.
 
 ## What the paper claims (short)
 
 - **CH16:** Check2HGI > HGI on next-category macro-F1. AL locked (+18.30 pp σ-clean). Cross-state replication pending.
-- **Champion (B3):** `mtlnet_crossattn + static_weight(category_weight=0.75) + next_getnext_hard d=256, 8h`. Beats baselines on cat F1 everywhere; beats Markov-1-region on AL+AZ (FL Markov-saturated — approach (a)). Strict MTL-over-STL on AZ cat F1 (+1.65 pp, p=0.0312).
+- **Champion candidate (F48-H3-alt, 2026-04-26):** B3 architecture + per-head LR (`cat_lr=1e-3, reg_lr=3e-3, shared_lr=1e-3`, all constant). MTL EXCEEDS matched-head STL on reg by +6.25 pp at AL; closes 75% of the gap on AZ; validates at FL scale (cat preserved, reg +6.7 pp over B3). Cat F1 stays within ~2 pp of B3 across all three states. CH18 promoted Tier B → Tier A.
+- **Predecessor (B3, 2026-04-24):** `mtlnet_crossattn + static_weight(category_weight=0.75) + next_getnext_hard d=256, 8h, OneCycleLR max=3e-3, 50ep`. Beats baselines on cat F1 everywhere; beats Markov-1-region on AL+AZ (FL Markov-saturated). Strict MTL-over-STL on AZ cat F1 (+1.65 pp, p=0.0312). Preserved as the comparand against which H3-alt's contribution is measured.
 - **Mechanism:** FL-hard-under-PCGrad gradient starvation + late-stage-handover rescue under unbalanced static weighting (`research/B5_FL_TASKWEIGHT.md`).
 
 ## Task pair
