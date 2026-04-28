@@ -1,6 +1,14 @@
 # North-Star MTL Configuration
 
-**Status (2026-04-24):** **B3 validated at 5-fold on AL + AZ and 1-fold × 2 on FL. Cat head refined via F27 from `NextHeadMTL` (Transformer) → `next_gru` (GRU). Paper-reshaping F21c finding noted in §§Caveats.** See §Committed config below.
+**Status (2026-04-27):** **B3 validated at 5-fold on AL + AZ + 1-fold × 2 on FL.** Phase-1 substrate validation (2026-04-27) adds three new findings on top of the F21c/F27 framing:
+
+1. **CH16 confirmed under matched-head, head-invariant** at AL+AZ (8/8 head-state probes positive, p=0.0312 each).
+2. **CH15 reframed** — under the matched MTL reg head, C2HGI ≥ HGI (was "HGI > C2HGI" under STAN).
+3. **CH18 — MTL B3 is substrate-specific.** Substituting HGI breaks the joint signal (cat −17 pp, reg −30 pp Acc@10_indist at both states; MTL+HGI is *worse than STL+HGI* on reg by ~37 pp).
+
+These findings **do not** change the committed B3 config — they validate it. See `baselines/PHASE1_VERDICT.md` and `SESSION_HANDOFF_2026-04-27.md`.
+
+**Status (2026-04-24):** Cat head refined via F27 from `NextHeadMTL` (Transformer) → `next_gru` (GRU). Paper-reshaping F21c finding noted in §§Caveats. See §Committed config below.
 
 ## Committed config (2026-04-24, post-F27)
 
@@ -40,6 +48,19 @@ Per-fold, all 5 cat folds positive on both cat F1 and cat Acc@1. See `research/F
 **vs STL Check2HGI cat (matched-class):** cat F1 0.4208 ± 0.0089 → **Δ = +3.73 pp** (much stronger than the pre-F27 +1.65 pp).
 **vs STL STAN (reg ceiling):** reg Acc@10 0.5224 ± 0.0238 → Δ = +1.58 pp (tied within σ).
 **vs STL GETNext-hard (F21c matched-head reg baseline):** reg Acc@10 0.6674 ± 0.0211 → Δ = **−12.92 pp** (MTL still trails on reg — F21c finding persists).
+
+## Caveats — Phase-1 substrate-specific addendum (2026-04-27)
+
+**MTL B3 only works with Check2HGI substrate.** Phase-1 Leg III (MTL counterfactual with HGI substituted, 5f × 50ep, seed 42 each at AL+AZ):
+
+| State | MTL+C2HGI cat F1 | MTL+HGI cat F1 | MTL+C2HGI reg Acc@10_indist | MTL+HGI reg Acc@10_indist |
+|---|---:|---:|---:|---:|
+| AL | **42.71** | 25.96 | **59.60** | 29.95 |
+| AZ | **45.81** | 28.70 | **53.82** | 22.10 |
+
+The MTL configuration was tuned around Check2HGI's per-visit context. Substituting POI-stable HGI embeddings into the same B3 setup actively **breaks the reg head** (MTL+HGI Acc@10 = 29.95 < STL+HGI gethard Acc@10 = 67.52 at AL — a 37 pp regression vs the standalone HGI baseline). Paper framing implication: the MTL win is interactional with the substrate, not architecture-only.
+
+Source: `results/hgi/{alabama,arizona}/mtlnet_lr1.0e-04_bs2048_ep50_20260427_*`. Full table in `CLAIMS_AND_HYPOTHESES.md §CH18` and `OBJECTIVES_STATUS_TABLE.md §2.4`.
 
 ## Caveats — the F21c finding
 

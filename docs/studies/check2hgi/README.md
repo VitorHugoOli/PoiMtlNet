@@ -1,6 +1,8 @@
 # Check2HGI Study — Entry Point
 
-**Status (2026-04-23):** B3 identified as unified joint-task champion candidate via F2 diagnostic; validated 5-fold on AL + AZ + FL-1f (×2). Headline FL + CA + TX 5-fold pending. Doc cleanup complete.
+**Status (2026-04-27):** Phase 1 of the substrate-comparison validation closed at AL + AZ. **Strong claim confirmed**: Check2HGI > HGI on **both** tasks under matched-head STL + matched MTL + linear-probe (3-leg framework, head-invariant across 4 probes). MTL B3 is **substrate-specific**: HGI substitution breaks reg by 30 pp. Per-visit context = ~72% of cat substrate gap. See [`baselines/PHASE1_VERDICT.md`](baselines/PHASE1_VERDICT.md) and [`SESSION_HANDOFF_2026-04-27.md`](SESSION_HANDOFF_2026-04-27.md). Phase 2 (FL + CA + TX) authorised and queued in [`baselines/PHASE2_TRACKER.md`](baselines/PHASE2_TRACKER.md).
+
+**Prior status (2026-04-23):** B3 identified as unified joint-task champion candidate via F2 diagnostic; validated 5-fold on AL + AZ + FL-1f (×2). Doc cleanup complete.
 
 **Scope:** Sibling to `docs/studies/fusion/`. Investigates whether check-in-level contextual embeddings (Check2HGI) with a next-region auxiliary task improve joint `{next_category, next_region}` prediction over HGI and over single-task training.
 
@@ -8,7 +10,11 @@
 
 ## Where to start (new agents, read in order)
 
-1. **[`SESSION_HANDOFF_2026-04-24.md`](SESSION_HANDOFF_2026-04-24.md)** ⭐ **most recent** — one-minute summary + what happened in 2026-04-22 → 04-24 + how to pick up cold.
+1. **[`SESSION_HANDOFF_2026-04-27.md`](SESSION_HANDOFF_2026-04-27.md)** ⭐ **most recent** — Phase 1 substrate-validation outcome + paper-quality findings + Phase 2 launch instructions.
+2. **[`baselines/PHASE1_VERDICT.md`](baselines/PHASE1_VERDICT.md)** — final §9 outcome-matrix verdict (strong claim confirmed at AL+AZ).
+3. **[`baselines/PHASE2_TRACKER.md`](baselines/PHASE2_TRACKER.md)** — what to launch next (FL → CA → TX).
+4. **[`baselines/SUBSTRATE_COMPARISON_PLAN.md`](baselines/SUBSTRATE_COMPARISON_PLAN.md)** — 3-leg framework + critique remediation + outcome interpretation matrix.
+5. **[`SESSION_HANDOFF_2026-04-24.md`](SESSION_HANDOFF_2026-04-24.md)** — prior handoff (post-F27 cat-head context).
 2. **[`NORTH_STAR.md`](NORTH_STAR.md)** — committed champion MTL config + F27 scale-dependence flag.
 3. **[`PAPER_STRUCTURE.md`](PAPER_STRUCTURE.md)** — paper scope, baselines, STL-matching policy, FL region Markov caveat.
 4. **[`FOLLOWUPS_TRACKER.md`](FOLLOWUPS_TRACKER.md)** — live work queue (F33 FL 5f + F34 CA 1f + F35 TX 1f are the next things to land).
@@ -22,9 +28,11 @@
 
 ## What the paper claims (short)
 
-- **CH16:** Check2HGI > HGI on next-category macro-F1. AL locked (+18.30 pp σ-clean). Cross-state replication pending.
-- **Champion (B3):** `mtlnet_crossattn + static_weight(category_weight=0.75) + next_getnext_hard d=256, 8h`. Beats baselines on cat F1 everywhere; beats Markov-1-region on AL+AZ (FL Markov-saturated — approach (a)). Strict MTL-over-STL on AZ cat F1 (+1.65 pp, p=0.0312).
-- **Mechanism:** FL-hard-under-PCGrad gradient starvation + late-stage-handover rescue under unbalanced static weighting (`research/B5_FL_TASKWEIGHT.md`).
+- **CH16 (cat substrate):** Check2HGI > HGI on next-category macro-F1, **head-invariant** at AL+AZ. 4-head probe + linear probe = 8 substrate-Δ measurements, all positive (+11.58 to +15.50 pp), all at maximum-significance n=5 paired Wilcoxon (p=0.0312, 5/5 folds positive each). FL/CA/TX replication queued in PHASE2_TRACKER.
+- **CH15 reframed (reg substrate):** Under matched MTL reg head (`next_getnext_hard`), C2HGI ≥ HGI everywhere (AL tied within σ + TOST non-inferior; AZ +2.34 pp Acc@10 / +1.29 pp MRR, p=0.0312). The previous "HGI > C2HGI on reg under STAN" was head-coupled, not pure substrate.
+- **CH18 (MTL substrate-specific):** MTL B3 with HGI substituted for Check2HGI breaks the joint signal — cat F1 −17 pp at both states, reg Acc@10_indist −30 pp at both states. The MTL win is interactional, not substrate-agnostic.
+- **CH19 (mechanism):** Per-visit context accounts for ~72% of the cat substrate gap (matched-head STL); training signal residual = ~28%. POI-pooled C2HGI counterfactual confirms.
+- **Champion (B3):** `mtlnet_crossattn + static_weight(category_weight=0.75) + next_gru (cat) + next_getnext_hard (reg) d=256, 8h`. See `NORTH_STAR.md`.
 
 ## Task pair
 

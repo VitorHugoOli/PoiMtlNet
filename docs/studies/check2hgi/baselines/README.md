@@ -165,7 +165,10 @@ Top-level summary table:
 | **ReHDM — faithful**     | ✅ | ✅ | 🔴 | 🔴 | 🔴 |
 | **ReHDM — stl_check2hgi** | ✅ | 🔴 | 🔴 | 🔴 | 🔴 |
 | **ReHDM — stl_hgi**      | ✅ | ✅ | 🔴 | 🔴 | 🔴 |
-| GETNext-hard — stl_check2hgi (matched-head, F21) | ✅ | ✅ | 🔴 | 🔴 | 🔴 |
+| GETNext-hard — stl_check2hgi (matched-head, F21c) | ✅ **68.37 ± 2.66** | ✅ **66.74 ± 2.11** | 🔴 (F36c) | 🔴 | 🔴 |
+| **GETNext-hard — stl_hgi (matched-head, Phase-1)** | ✅ **67.52 ± 2.80** | ✅ **64.40 ± 2.42** | 🔴 (F36c) | 🔴 | 🔴 |
+| **Δ matched-head (paired Wilcoxon, Acc@10)** | +0.85 (p=0.0625 marg, TOST non-inf) | **+2.34 (p=0.0312)** | 🔴 | 🔴 | 🔴 |
+| **MTL B3 — substrate-specific (CH18)** | C2HGI 59.60 vs HGI **29.95** | C2HGI 53.82 vs HGI **22.10** | 🔴 (F36d) | 🔴 | 🔴 |
 | GRU — stl_check2hgi      | ✅ | ✅ | ✅ | 🔴 | 🔴 |
 | GRU — stl_hgi            | ✅ | ✅ | 🔴 | 🔴 | 🔴 |
 
@@ -180,8 +183,13 @@ Top-level summary table:
 | Markov-K-cat (k=1..9) (floor) | ✅ | ✅ | ✅ | 🔴 | 🔴 |
 | POI-RGNN — faithful | ✅ | ✅ | ✅ | 🔴 | 🔴 |
 | MHA+PE — faithful | ✅ | ✅ | ✅ | 🔴 | 🔴 |
-| Check2HGI cat (matched-substrate STL) | ✅ | ✅ | 🟡 (1f) | 🔴 | 🔴 |
-| HGI cat (substrate ablation, CH16) | ✅ | 🔴 | 🔴 | 🔴 | 🔴 |
+| **C2HGI cat — matched-head `next_gru` (Phase-1)** | ✅ **40.76 ± 1.50** | ✅ **43.21 ± 0.78** | 🔴 (F36b) | 🔴 | 🔴 |
+| **HGI cat — matched-head `next_gru` (Phase-1)** | ✅ **25.26 ± 1.06** | ✅ **28.69 ± 0.71** | 🔴 (F36b) | 🔴 | 🔴 |
+| **Δ matched-head (paired Wilcoxon p_greater)** | **+15.50 (p=0.0312)** | **+14.52 (p=0.0312)** | 🔴 | 🔴 | 🔴 |
+| Substrate linear probe (head-free, Leg I) — C2HGI / HGI / Δ | 30.84 / 18.70 / **+12.14** | 34.12 / 22.54 / **+11.58** | 🔴 (F36a) | 🔴 | 🔴 |
+| C2 head-sensitivity probe (next_single, next_lstm) | ✅ all positive | ✅ all positive | 🔴 (not Phase-2 priority) | 🔴 | 🔴 |
+| C2HGI cat — `next_single` (legacy P1_5b) | ✅ 38.58 ± 1.23 | ✅ 42.08 ± 0.89 | 🟡 (1f) | 🔴 | 🔴 |
+| HGI cat — `next_single` (legacy P1_5b) | ✅ 20.29 ± 1.34 | ✅ 29.69 ± 0.97 (Phase-1) | 🔴 | 🔴 | 🔴 |
 
 (Updated when a new run lands. Mirror in `PAPER_STRUCTURE.md §7` if the cell affects the headline objective.)
 

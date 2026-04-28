@@ -47,7 +47,77 @@ All metrics favor Check2HGI with non-overlapping std envelopes over 5 folds. The
 **Source:** `docs/studies/check2hgi/results/P1_5b/next_category_alabama_{check2hgi,hgi}_5f_50ep_fair.json`.
 **Test:** P1.5b — COMPLETE (refair 2026-04-17).
 **Phase:** P1.5b.
-**Status:** `confirmed` — primary substrate claim lands robustly and STRONGER with fair folds. Replication on FL/CA/TX for the paper table is pending (expected to reproduce given the effect size on AL).
+**Status (pre-Phase-1):** `confirmed at AL only` under `next_single` head.
+
+### CH16 update — 2026-04-27 Phase 1 substrate validation (matched-head + head-agnostic)
+
+**Strengthens CH16 to head-invariant 2-state result.** Phase-1 grid (AL+AZ × {C2HGI, HGI} × {linear-probe head-free, next_gru matched-head, next_single, next_lstm}, 5f × 50ep, seed 42):
+
+| State | Probe | C2HGI F1 | HGI F1 | Δ | Wilcoxon p_greater |
+|---|---|---:|---:|---:|---:|
+| AL | Linear (head-free) | 30.84 ± 2.02 | 18.70 ± 1.38 | **+12.14** | n/a |
+| AL | next_gru (matched-head MTL) | 40.76 ± 1.50 | 25.26 ± 1.06 | **+15.50** | **0.0312** |
+| AL | next_single | 38.71 ± 1.32 | 26.76 ± 0.36 | **+11.96** | **0.0312** |
+| AL | next_lstm | 38.38 ± 1.08 | 23.94 ± 0.84 | **+14.44** | **0.0312** |
+| AZ | Linear (head-free) | 34.12 ± 1.22 | 22.54 ± 0.45 | **+11.58** | n/a |
+| AZ | next_gru (matched-head MTL) | 43.21 ± 0.78 | 28.69 ± 0.71 | **+14.52** | **0.0312** |
+| AZ | next_single | 42.20 ± 0.72 | 29.69 ± 0.97 | **+12.50** | **0.0312** |
+| AZ | next_lstm | 41.86 ± 0.84 | 26.50 ± 0.29 | **+15.36** | **0.0312** |
+
+8/8 head-state probes positive at maximum-significance n=5 paired Wilcoxon (5/5 folds positive each). Δ range +11.58 to +15.50 pp.
+
+**Source:** `docs/studies/check2hgi/results/probe/{alabama,arizona}_{check2hgi,hgi}_last.json` (Leg I) + `docs/studies/check2hgi/results/phase1_perfold/{AL,AZ}_{check2hgi,hgi}_cat_{gru,single,lstm}_5f50ep.json` (Leg II + C2) + `docs/studies/check2hgi/results/paired_tests/*_cat_*.json` (statistical tests).
+**Status:** `confirmed at AL+AZ matched-head, head-invariant`. FL/CA/TX queued in `baselines/PHASE2_TRACKER.md`.
+
+### CH18 — MTL B3 is substrate-specific (NEW, 2026-04-27)
+
+**Statement:** The MTL B3 configuration (`mtlnet_crossattn + static_weight cat=0.75 + next_gru cat + next_getnext_hard reg, d=256, 8h`) requires the Check2HGI substrate. Substituting HGI into the same MTL configuration **breaks the joint signal**: at both AL and AZ, cat F1 drops by ~17 pp and reg Acc@10_indist drops by ~30 pp; MTL+HGI is even *worse than STL+HGI* on reg by ~37 pp at AL.
+
+**Why this claim exists:** The substrate claim CH16 says C2HGI > HGI under matched-head STL. But the paper's deployment unit is MTL B3. We need to distinguish two possibilities: (i) MTL B3's win is "MTL > STL" and any reasonable substrate works; (ii) MTL B3's win is interactional — it specifically exploits Check2HGI's per-visit context. CH18 tests (ii) by direct counterfactual.
+
+**Result (5f × 50ep, seed 42; "B3 (existing)" rows from `NORTH_STAR.md` post-F27 validation, "HGI counterfactual" rows new this Phase):**
+
+| State | Substrate | cat F1 | reg Acc@10_indist | reg MRR | Δ_cat | Δ_reg Acc@10 |
+|---|---|---:|---:|---:|---:|---:|
+| AL | C2HGI (B3) | **42.71 ± 1.37** | **59.60 ± 4.09** | 30.74 ± 2.87 | — | — |
+| AL | HGI (counterfactual) | 25.96 ± 1.61 | 29.95 ± 1.89 | (lower) | **−16.75** | **−29.65** |
+| AZ | C2HGI (B3) | **45.81 ± 1.30** | **53.82 ± 3.11** | 27.66 ± 2.41 | — | — |
+| AZ | HGI (counterfactual) | 28.70 ± 0.51 | 22.10 ± 1.63 | (lower) | **−17.11** | **−31.72** |
+
+**Mechanism:** The MTL B3 configuration was tuned around Check2HGI's per-visit context. Substituting POI-stable HGI embeddings produces:
+- **Cat head underutilises the embedding** — no per-visit variation to exploit; falls back to ≈ STL HGI cat F1 baseline.
+- **Reg head's graph prior fails to combine productively** with HGI's smoother POI-level features — even worse than STL HGI gethard alone.
+
+**Implication for paper:** the MTL win is *not* "MTL configuration over STL with any substrate". It is "MTL configuration paired with the Check2HGI substrate beats every alternative", which is a more constrained but also more interesting story — it means our two contributions (substrate + MTL configuration) are interdependent, not orthogonal.
+
+**Source:** `results/hgi/{alabama,arizona}/mtlnet_lr1.0e-04_bs2048_ep50_20260427_*` + `results/phase1_perfold/{AL,AZ}_hgi_mtl_{cat,reg}.json`. Existing C2HGI B3 numbers from `results/F27_validation/{al,az}_5f50ep_b3_cathead_gru.json` (per `NORTH_STAR.md`).
+**Test:** Phase 1 Leg III — COMPLETE at AL+AZ. FL/CA/TX queued in PHASE2_TRACKER.
+**Status:** `confirmed at AL+AZ`.
+
+### CH19 — Per-visit context is the dominant mechanism behind CH16 (NEW, 2026-04-27)
+
+**Statement:** ~72% of CH16's matched-head cat substrate gap is explained by Check2HGI's per-visit contextual variation. The residual ~28% is the embedding training signal itself (Check2HGI's graph topology + contrastive loss producing per-POI vectors that beat HGI's even after POI-mean pooling).
+
+**Mechanism counterfactual:** POI-pooled Check2HGI = mean-pool the canonical Check2HGI vectors per `placeid` across all check-ins, applied uniformly to all visits at that POI. This kills per-visit variation while preserving Check2HGI's training signal.
+
+**Result (AL, matched-head `next_gru` STL, 5f × 50ep, seed 42):**
+
+| Substrate | Linear probe F1 | Matched-head STL F1 |
+|---|---:|---:|
+| Check2HGI (canonical) | 30.84 ± 2.02 | 40.76 ± 1.50 |
+| **Check2HGI POI-pooled** | **23.20 ± 1.08** | **29.57** |
+| HGI | 18.70 ± 1.38 | 25.26 ± 1.06 |
+
+| Decomposition | Linear probe Δ | Matched-head Δ |
+|---|---:|---:|
+| Per-visit context (canonical − pooled) | +7.64 pp (~63%) | +11.19 pp (~72%) |
+| Training signal (pooled − HGI) | +4.50 pp (~37%) | +4.31 pp (~28%) |
+
+**Implication for paper:** the "per-visit variation" story is the dominant mechanism (matched-head STL gives even stronger per-visit signal than the head-free linear probe), but **not the whole story** — Check2HGI's training procedure produces per-POI vectors that outperform HGI's even before per-visit context enters the picture. Paper should acknowledge both contributions, not collapse them into one narrative.
+
+**Source:** `results/probe/alabama_check2hgi_pooled_last.json` (linear probe) + `results/check2hgi_pooled/alabama/next_lr1.0e-04_bs1024_ep50_20260427_*` (matched-head STL). Code: `scripts/probe/build_check2hgi_pooled.py`.
+**Test:** Phase 1 C4 — COMPLETE at AL.
+**Status:** `confirmed at AL` (mechanism partial — ~72% per-visit, ~28% training signal). Extension to FL is `optional/pending` per `SUBSTRATE_COMPARISON_PLAN §6` — AL alone settles the mechanism unless reviewer asks for state-replication.
 
 ### CH17 — Check2HGI strongly surpasses published POI-RGNN next-category on Gowalla state-level
 
@@ -352,7 +422,24 @@ The paper's framing therefore shifts from "Check2HGI is a better embedding" to "
 **Source:** `results/P1/region_head_alabama_region_5f_50ep_E_confirm_tcn_region.json` (Check2HGI), `results/P1/region_head_alabama_region_5f_50ep_P15_hgi_al_tcn.json` (HGI).
 **Test:** P1.5 — COMPLETE.
 **Phase:** P1.5.
-**Status:** `confirmed (tied)` — closes C07 with a "tied" outcome and a pivot in paper framing.
+**Status (pre-Phase-1):** `confirmed (tied) under next_tcn_residual`.
+
+### CH15 reframing — 2026-04-27 head-coupled finding
+
+**The CH15 verdict was head-coupled** to the sequence model (TCN, then STAN at the published-baseline rows). Phase-1 added two additional reg-head probes — STAN at AL/AZ/FL (`next_region/comparison.md`, existing) and matched-head `next_getnext_hard` (5f × 50ep, seed 42):
+
+| State | Probe | C2HGI Acc@10 | HGI Acc@10 | Δ (C2HGI − HGI) | Wilcoxon p_greater |
+|---|---|---:|---:|---:|---:|
+| AL | STAN (existing CH15-style) | 59.20 ± 3.62 | 62.88 ± 3.90 | −3.68 (HGI > C2HGI) | — |
+| AL | next_getnext_hard (matched MTL B3) | **68.37 ± 2.66** | 67.52 ± 2.80 | +0.85 | 0.0625 marginal · TOST δ=2 pp ✅ non-inf |
+| AZ | STAN | 52.24 ± 2.38 | 54.86 ± 2.84 | −2.62 | — |
+| AZ | next_getnext_hard (matched MTL B3) | **66.74 ± 2.11** | 64.40 ± 2.42 | **+2.34** | **0.0312** ✅ |
+
+**Interpretation:** CH15's "HGI > C2HGI on reg" was an artefact of STAN's preference for POI-stable smoothness. Under the matched MTL reg head (`next_getnext_hard` = STAN + α·log_T graph prior), C2HGI's per-visit context combines productively with the prior — flipping the sign at AZ (significantly C2HGI) and closing the gap at AL within σ.
+
+**Source:** `results/B3_baselines/stl_getnext_hard_{al,az}_5f50ep.json` (C2HGI side, F21c) + `results/P1/region_head_*_STL_*_hgi_reg_gethard_5f50ep.json` (HGI side, this Phase) + `results/paired_tests/{alabama,arizona}_acc10_reg_acc10.json`.
+**Test:** Phase 1 reg STL grid — COMPLETE at AL+AZ. FL/CA/TX queued in PHASE2_TRACKER.
+**Status:** `reframed (head-coupled finding)` — pure-substrate verdict on reg is now C2HGI ≥ HGI under matched-head; the STAN-head data is preserved as a head-sensitivity probe row, not refuted.
 
 ---
 

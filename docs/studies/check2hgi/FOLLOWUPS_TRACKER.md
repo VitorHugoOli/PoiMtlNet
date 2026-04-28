@@ -1,6 +1,8 @@
 # Check2HGI Follow-ups Tracker
 
-**Created:** 2026-04-23. Updated 2026-04-23 evening after the B3 validation pass + paper-structure unification.
+**Created:** 2026-04-23. **Updated 2026-04-27** after Phase-1 substrate validation. Phase-2 (FL+CA+TX) follow-ups live in [`baselines/PHASE2_TRACKER.md`](baselines/PHASE2_TRACKER.md) — this tracker now points there for substrate-comparison work.
+
+> **Phase 1 closed 2026-04-27.** F3, F9, F26, F21c-FL deferred — superseded by Phase-2 tracker which replicates the full 3-leg grid (substrate probe + matched-head STL + MTL counterfactual) at FL/CA/TX. See `baselines/PHASE1_VERDICT.md` for outcome.
 
 **Champion:** `mtlnet_crossattn + static_weight(category_weight=0.75) + next_getnext_hard d=256, 8h`. See [`NORTH_STAR.md`](NORTH_STAR.md) and [`PAPER_STRUCTURE.md`](PAPER_STRUCTURE.md).
 
@@ -24,13 +26,14 @@
 | **F33** | **P1** | **FL 5f × 50ep B3+next_gru (decisive F27 FL resolution)** ⭐ | 2b | **colab** | ~6 h Colab T4 | Run MTL-B3 on FL with `--cat-head next_gru` at 5 folds. Compare to the two pre-F27 FL n=1 points (cat F1 0.6623 / 0.6706). Pass: cat F1 5f-mean within σ of 0.6623-to-0.6706 envelope → Path A (universal next_gru). Fail: cat F1 below envelope → Path B (scale-dependent cat head). | Scale-dependence was flagged by F32. FL is the paper's headline state — 5-fold σ is the binding criterion for committing the B3 champion universally. Colab run (not M4 Pro) to avoid the OOM/kill history at FL scale. |
 | **F34** | **P1** | **CA upstream pipeline + CA 1f × 50ep B3+next_gru** | headline | **colab** | ~6–12 h Colab T4 (pipeline + 1f train) | Steps: (a) Check2HGI embedding training on CA, (b) `compute_region_transition.py --state california`, (c) `create_inputs_check2hgi.pipe.py --state california`, (d) B3+gru 1f×50ep training. Land `results/headline/california/fl_1f50ep_b3_gru.json`. | First CA data point. Also tests whether F27's cat-head choice is scale-stable beyond FL (CA ~500K check-ins). |
 | **F35** | **P1** | **TX upstream pipeline + TX 1f × 50ep B3+next_gru** | headline | **colab** | ~6–12 h Colab T4 (pipeline + 1f train) | Same as F34 but TX. | First TX data point. |
-| **F3** | **P2** | AZ HGI STL cat (5f × 50ep, fair folds) | 1 | m4_pro | ~3 h MPS | HGI region embeddings through cat pipeline on AZ. Δ = F1(Check2HGI) − F1(HGI) with σ. Land `results/P1_5b/next_category_arizona_hgi_5f_50ep_fair.json`. | Extends CH16 from n=1 to n=2 states — cheapest Objective-1 fix. |
+| **F3** | — | (✅ closed 2026-04-27 by Phase-1) AZ HGI STL cat | 1 | — | done | Phase-1 superseded F3 with matched-head `next_gru` evidence: AZ Δ=+14.52 pp p=0.0312. See `baselines/PHASE1_VERDICT.md` §2.1. |
 | **F22** | — | (retired — merged into F34) CA upstream pipeline | — | — | — | CA upstream moved to F34 (Colab). | |
 | **F23** | — | (retired — merged into F35) TX upstream pipeline | — | — | — | TX upstream moved to F35 (Colab). | |
 | **F24** | **P2** | CA 5f headline (after F34 1f confirms config) | headline | colab/any | ~20–25 h | Full baselines + STL + MTL at 5f × 50ep seed 42. Gated on F34. | Part of the paper's primary table; launch only after F34 1f shows the config works on CA data. |
 | **F25** | **P2** | TX 5f headline (after F35 1f confirms config) | headline | colab/any | ~20–25 h | Same as F24 but TX. Gated on F35. | |
 | **F4** | **P1** | FL MTL-B3 5-fold (clean re-run) | headline | m4_pro / any | ~6–8 h MPS | Replace F17 partial result with a clean n=5 FL run of B3. With F20 per-fold persistence, partial progress survives crashes. | FL headline needs real σ. F17 attempt was user-killed; retry. |
-| **F9** | **P3** | FL HGI STL cat 5f | 1 | any | ~5–6 h MPS | Δ vs Check2HGI STL on cat F1 with σ on FL. | Completes CH16 across headline states. Run after F3 confirms AZ pattern. |
+| **F9** | — | (✅ moved into PHASE2_TRACKER F36b) FL HGI STL cat 5f | 1 | m4_pro | — | Phase-2 tracker covers FL HGI STL cat as part of the matched-head Phase-2 grid. See `baselines/PHASE2_TRACKER.md §F36b`. |
+| **F36–F40** | **P1** | Phase 2 (FL + CA + TX) substrate-comparison grid | headline | m4_pro | ~30 h × 3 states + upstream pipelines | See [`baselines/PHASE2_TRACKER.md`](baselines/PHASE2_TRACKER.md) for full per-state grid: substrate probe + cat STL × 2 substrates + reg STL × 2 substrates + MTL counterfactual. | Phase 2 of substrate-comparison plan. Authorised by `PHASE1_VERDICT.md §6` (strong claim confirmed at AL+AZ). |
 
 ---
 
@@ -88,7 +91,10 @@
 
 | Objective | AL | AZ | FL | CA | TX | What closes |
 |---|:-:|:-:|:-:|:-:|:-:|---|
-| **Obj 1** CH16 (Check2HGI > HGI cat) | 🟢 +18.30 pp σ-clean | 🔴 not run | 🔴 not run | 🔴 | 🔴 | F3 + F9 (CA/TX optional) |
+| **Obj 1** CH16 (C2HGI > HGI cat, matched-head head-invariant) | 🟢 **+15.50 pp p=0.0312 (Phase-1)** | 🟢 **+14.52 pp p=0.0312 (Phase-1)** | 🔴 | 🔴 | 🔴 | F36 (FL Phase-2) + F38 (CA) + F40 (TX) |
+| **CH15 reframed** (C2HGI ≥ HGI reg, matched MTL head) | 🟢 **AL TOST non-inf (Phase-1)** | 🟢 **AZ +2.34 pp p=0.0312 (Phase-1)** | 🔴 | 🔴 | 🔴 | F36c (FL reg STL) |
+| **CH18** MTL B3 substrate-specific | 🟢 **AL Δ_cat +16.75 / Δ_reg +29.65 (Phase-1)** | 🟢 **AZ Δ_cat +17.11 / Δ_reg +31.72 (Phase-1)** | 🔴 | 🔴 | 🔴 | F36d (FL MTL CF) |
+| **CH19** Per-visit mechanism (~72%) | 🟢 **AL (Phase-1)** | 🟡 not extended | 🟡 optional | 🟡 | 🟡 | F41 (FL extension only if asked) |
 | **Obj 2a** MTL > baselines (cat) | 🟢 | 🟢 | 🟢 n=1 | 🔴 | 🔴 | F24 + F25 |
 | **Obj 2a** MTL > baselines (reg) | 🟢 +10.95 pp | 🟢 +10.29 pp | 🟡 Markov saturation (approach a) | 🔴 | 🔴 | F24 + F25 |
 | **Obj 2b** MTL > STL (cat) | 🟡 tied | 🟢 +1.65 pp p=0.0312 | 🟢 n=1 +0.22 | 🔴 | 🔴 | F24 + F25 + F4 |

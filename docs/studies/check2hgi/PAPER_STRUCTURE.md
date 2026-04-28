@@ -1,6 +1,8 @@
 # Paper Structure — Single Source of Truth
 
-**Created:** 2026-04-23. **Owner:** this file defines the paper's table layout, baseline set, STL matching policy, and scope decisions. All other docs reference this.
+**Created:** 2026-04-23. **Updated 2026-04-27** with Phase-1 substrate-validation findings (CH16 head-invariant + CH15 reframed + CH18 MTL-substrate-specific + CH19 mechanism). **Owner:** this file defines the paper's table layout, baseline set, STL matching policy, and scope decisions. All other docs reference this.
+
+> **2026-04-27 STL-baseline matching policy revision.** Matched-head STL = `next_gru` (cat) / `next_getnext_hard` (reg) — these are the post-F27 MTL B3 task heads. The pre-Phase-1 matched-head policy (which used `next_single` for cat, STAN for reg) is retained as a **head-sensitivity probe row** (still valid as evidence; closes C2 critique). See `baselines/SUBSTRATE_COMPARISON_PLAN.md` §1.2 + `baselines/PHASE1_VERDICT.md` §5.
 
 ---
 
@@ -92,10 +94,10 @@ Compare MTL-B3 vs STL baselines along two axes:
 1. **Matched-head STL** — uses the same head class as B3's corresponding task head. Honest "MTL vs STL" comparison.
 2. **Literature-aligned STL** — uses the published strong single-task architecture. Reference ceiling.
 
-| Task | Matched-head STL | Literature-aligned STL |
-|---|---|---|
-| next-category | `next_mtl` (Transformer) — proxy for `CategoryHeadMTL`. Both are "small 7-class classifiers over a sequence encoder"; the architectural distance is small. Current STL cat numbers (AL 38.58, AZ 42.08, FL 63.17 n=1) use `next_mtl`. | **POI-RGNN** (external). |
-| next-region | **STL GETNext-hard** (F21, pending). | **STL STAN** (AL/AZ done; FL pending F6). |
+| Task | Matched-head STL (post-F27, post-Phase-1) | Head-sensitivity probe (former matched-head) | Literature-aligned STL |
+|---|---|---|---|
+| next-category | **`next_gru`** — matches MTL B3's task_a head exactly. AL+AZ Phase-1: C2HGI 40.76/43.21, HGI 25.26/28.69, Δ=+15.50/+14.52 pp p=0.0312 each. | `next_single` (existing P1_5b — Δ=+18.30 pp at AL) and `next_lstm` — preserve as C2 head-sensitivity rows. | **POI-RGNN** (external). |
+| next-region | **`next_getnext_hard`** (F21c + Phase-1 HGI side). AL+AZ: C2HGI 68.37/66.74, HGI 67.52/64.40 (AL TOST non-inf, AZ +2.34 pp p=0.0312). | STAN (existing CH15-style — preserved as head-sensitivity row showing the head-coupled flip). | **STL STAN** (AL/AZ/FL all done in `baselines/next_region/comparison.md`). |
 
 **Paper caveat to state explicitly:** "Our STL next-category baseline uses the `next_mtl` Transformer head rather than the MTLnet framework's internal `CategoryHeadMTL` multi-path ensemble. These are both small-head, last-token-softmax classifiers over a sequence encoder; the architectural distance is small. The MTL figure in the paper reports the version of the comparison where both heads are matched to the MTLnet architecture."
 
@@ -164,7 +166,10 @@ This is revisited after CA + TX 5-fold data lands. If CA and TX also show Markov
 
 | Objective | Evidence state | Binding work to close |
 |---|:-:|---|
-| **CH16** — Check2HGI > HGI on cat F1 | 🟢 AL (+18.30 pp σ-clean) · 🔴 AZ/FL missing | F3 (AZ HGI cat 5f) + F9 (FL HGI cat 5f). CA/TX nice-to-have. |
+| **CH16** — Check2HGI > HGI on cat F1 | 🟢 **AL+AZ matched-head + head-invariant (8/8 probes p=0.0312, Phase-1 closed 2026-04-27)** · 🔴 FL/CA/TX | F36 (FL Phase-2 grid) + F38 (CA) + F40 (TX) — see `baselines/PHASE2_TRACKER.md`. |
+| **CH15** — Check2HGI ≥ HGI on reg under matched MTL head | 🟢 **AZ +2.34 pp p=0.0312, AL TOST non-inf at δ=2 pp (Phase-1)** · 🔴 FL/CA/TX | F36c (FL reg STL). Reframed from prior CH15 (head-coupled). |
+| **CH18** — MTL B3 substrate-specific | 🟢 **AL+AZ (cat −17 pp / reg −30 pp under HGI substitution, Phase-1)** · 🔴 FL/CA/TX | F36d (FL MTL counterfactual). |
+| **CH19** — Per-visit mechanism (~72%) | 🟢 **AL (Phase-1)** · 🟡 FL/CA/TX optional | F41 (FL extension only if reviewer asks). |
 | **MTL > baselines — cat** | 🟢 clean everywhere we have data (AL/AZ/FL-1f) | CA/TX headline runs close this. |
 | **MTL > baselines — reg** | 🟢 AL/AZ (beat Markov by 10+ pp) · 🟡 FL (Markov saturation — approach (a)) | Acknowledge approach (a). |
 | **MTL > STL — cat** | 🟢 AZ (+1.65 pp, p=0.0312, F19 Wilcoxon) · 🟡 AL (tied) · 🟢 FL-1f (+2–3 pp) | FL 5f σ (planned). |

@@ -1,6 +1,10 @@
 # Objectives Status Table — Check2HGI Study
 
-**Date:** 2026-04-23 (v2, corrected to use joint-execution MTL rows). One-page snapshot of where we stand against the study's two scientific objectives, built from `results/RESULTS_TABLE.md` + `results/B5/*.json` + `results/P5_bugfix/SUMMARY.md`.
+**Date:** 2026-04-27 (v3, post-Phase-1 substrate validation). One-page snapshot of where we stand against the study's scientific objectives. Phase-1 results are the headline; Phase 2 (FL/CA/TX) queued in [`baselines/PHASE2_TRACKER.md`](baselines/PHASE2_TRACKER.md).
+
+> **NEW Objective 3 (post-Phase-1):** *MTL B3 is substrate-specific* — substituting HGI into the same MTL configuration breaks the joint signal. See §2.4 below + CH18 in `CLAIMS_AND_HYPOTHESES.md`. AL+AZ confirmed; FL/CA/TX queued.
+
+> **Prior date:** 2026-04-23 (v2, joint-execution MTL rows). Built from `results/RESULTS_TABLE.md` + `results/B5/*.json` + `results/P5_bugfix/SUMMARY.md`.
 
 > **North-star MTL config (committed 2026-04-23):** `mtlnet_crossattn + pcgrad + next_getnext (soft probe) d=256, 8h` — see `NORTH_STAR.md` for the decision memo. All paper-relevant MTL comparisons use this configuration as the primary row. The hard-index variant remains as a reported ablation; FL-hard has a diagnosed training failure (see `review/2026-04-23_critical_review.md §FL-hard training pathology`).
 
@@ -26,14 +30,35 @@
 
 Single-task substrate comparison; same pipeline, different embeddings.
 
-| State | Task | Check2HGI STL | HGI STL | Δ (C2HGI − HGI) | σ-overlap? | Evidence |
-|:-:|:-|:-:|:-:|:-:|:-:|:-:|
-| AL | cat F1 | **38.58 ± 1.23** | 20.29 ± 1.34 | **+18.30 pp** | **No** | ✅ `P1_5b/next_category_alabama_{check2hgi,hgi}_5f_50ep_fair.json` |
-| AL | reg Acc@10 (pooled) | 56.11 ± 4.02 | 57.02 ± 2.92 | −0.91 pp | Yes (tied) | CH15 — expected tie after region-pooling |
-| AZ | cat F1 | 42.08 ± 0.89 | **not run** | — | — | 🔴 F3 in `FOLLOWUPS_TRACKER.md` |
-| FL | cat F1 | 63.17 (n=1) | **not run** | — | — | 🔴 F9 |
+### Phase 1 (closed 2026-04-27) — matched-head + head-agnostic + linear probe at AL+AZ
 
-**Status:** `confirmed on AL only`. AL delta is 14× the larger σ. AZ HGI STL cat (F3, ~3 h MPS) is the cheapest next step to get n=2 states.
+Matched-head probe is `next_gru` (the post-F27 MTL B3 cat head). 5f × 50ep, seed 42:
+
+| State | Probe | C2HGI F1 | HGI F1 | Δ | Wilcoxon p_greater | Evidence |
+|:-:|:-|:-:|:-:|:-:|:-:|:-:|
+| AL | Linear (head-free) | 30.84 ± 2.02 | 18.70 ± 1.38 | **+12.14** | n/a | `results/probe/alabama_*_last.json` |
+| AL | next_gru (matched) | **40.76 ± 1.50** | 25.26 ± 1.06 | **+15.50** | **0.0312** ✅ | `results/phase1_perfold/AL_*_cat_gru_5f50ep.json` |
+| AL | next_single | 38.71 ± 1.32 | 26.76 ± 0.36 | **+11.96** | **0.0312** ✅ | (also includes existing `P1_5b/*` evidence Δ=+18.30 leaky-vs-fair) |
+| AL | next_lstm | 38.38 ± 1.08 | 23.94 ± 0.84 | **+14.44** | **0.0312** ✅ | C2 head sweep |
+| AZ | Linear (head-free) | 34.12 ± 1.22 | 22.54 ± 0.45 | **+11.58** | n/a | substrate-only Leg I |
+| AZ | next_gru (matched) | **43.21 ± 0.78** | 28.69 ± 0.71 | **+14.52** | **0.0312** ✅ | matched MTL cat head |
+| AZ | next_single | 42.20 ± 0.72 | 29.69 ± 0.97 | **+12.50** | **0.0312** ✅ | head-sensitivity probe |
+| AZ | next_lstm | 41.86 ± 0.84 | 26.50 ± 0.29 | **+15.36** | **0.0312** ✅ | head-sensitivity probe |
+
+8/8 head-state probes positive at maximum significance. Phase-2 row (FL/CA/TX) in `baselines/PHASE2_TRACKER.md`.
+
+**Status:** `confirmed at AL+AZ matched-head, head-invariant, paired-Wilcoxon p=0.0312 each`. Previous AL-only `next_single` evidence (Δ=+18.30, σ-clean) is preserved as a head-sensitivity probe row. Cross-state replication queued for Phase 2.
+
+### CH15 reframing (reg substrate, head-coupled)
+
+| State | Probe | C2HGI Acc@10 | HGI Acc@10 | Δ | Wilcoxon p (Acc@10) |
+|:-:|:-|:-:|:-:|:-:|:-:|
+| AL | STAN (existing CH15) | 59.20 ± 3.62 | **62.88 ± 3.90** | −3.68 (HGI > C2HGI under STAN) | — |
+| AL | next_getnext_hard (matched MTL) | **68.37 ± 2.66** | 67.52 ± 2.80 | +0.85 (TOST non-inf at δ=2 pp) | 0.0625 marginal |
+| AZ | STAN | 52.24 ± 2.38 | **54.86 ± 2.84** | −2.62 | — |
+| AZ | next_getnext_hard (matched MTL) | **66.74 ± 2.11** | 64.40 ± 2.42 | **+2.34** | **0.0312** ✅ |
+
+Previous "HGI > C2HGI on reg" was head-coupled to STAN's preference for POI-stable smoothness. Under the matched MTL reg head (graph prior), C2HGI ≥ HGI at both states (AL tied, AZ significantly C2HGI).
 
 ---
 
@@ -100,6 +125,21 @@ Each row is one MTL run. Compare its cat output vs cat baselines and its reg out
 - Reg head **below Markov-1-region** by −4.43 pp. No FL MTL run we've measured beats the classical 1-gram floor on Acc@10.
 - B-M14 (hard variant) trades cat for reg and still loses to Markov on reg — diagnosed in `research/B5_FL_SCALING.md`.
 - **Objective 2 on FL:** 🟡 clean win on cat (vs POI-RGNN and vs STL); clean fail on reg vs Markov. Paper has to frame FL as a scale-dependent / Markov-saturated regime OR report Acc@5 / MRR on the reg side (MTL beats Markov on both).
+
+---
+
+### 2.4 Objective 3 — MTL B3 is substrate-specific (NEW, post-Phase-1)
+
+MTL B3 with HGI substrate (5f × 50ep, seed 42), compared to existing MTL B3 with C2HGI:
+
+| State | Substrate | cat F1 | reg Acc@10_indist | Δ_cat (C2HGI − HGI) | Δ_reg (C2HGI − HGI) |
+|:-:|:-|:-:|:-:|:-:|:-:|
+| AL | C2HGI (B3) | **42.71 ± 1.37** | **59.60 ± 4.09** | — | — |
+| AL | HGI (counterfactual) | 25.96 ± 1.61 | 29.95 ± 1.89 | **+16.75** | **+29.65** |
+| AZ | C2HGI (B3) | **45.81 ± 1.30** | **53.82 ± 3.11** | — | — |
+| AZ | HGI (counterfactual) | 28.70 ± 0.51 | 22.10 ± 1.63 | **+17.11** | **+31.72** |
+
+**MTL+HGI is *worse than STL+HGI* on reg** (-37 pp Acc@10 at AL: STL HGI gethard 67.52 → MTL HGI 29.95). The B3 configuration was tuned around Check2HGI's per-visit context and does not generalise to HGI substrate. Status: `confirmed at AL+AZ`. FL/CA/TX queued.
 
 ---
 
