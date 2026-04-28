@@ -12,28 +12,44 @@ This tracker is the live work queue for **Phase 2 of `SUBSTRATE_COMPARISON_PLAN.
 
 🟢 = 5-fold complete · 🟡 = 1-fold or partial · 🔴 = pending · ⚫ = blocked on upstream pipeline.
 
-### FL (Florida) — data ready on disk
+### FL (Florida) — 5/7 captured 2026-04-28, 2 pending
 
 | Test | C2HGI | HGI | Combined paired test |
 |---|:-:|:-:|:-:|
-| Substrate-only linear probe | 🔴 | 🔴 | n/a (head-free) |
-| Cat STL matched-head (`next_gru`) | 🔴 | 🔴 | 🔴 |
-| Reg STL matched-head (`next_getnext_hard`) | 🔴 | 🔴 | 🔴 |
-| MTL B3 counterfactual | (existing data, see NORTH_STAR.md) | 🔴 | 🔴 |
+| Substrate-only linear probe | ✅ 40.77 ± 1.11 | ✅ 25.74 ± 0.26 (Δ=+15.03) | n/a (head-free) |
+| Cat STL matched-head (`next_gru`) | ✅ **63.43 ± 0.88** | ✅ 34.41 ± 0.94 (**Δ=+29.02 pp**) | 🟡 ready to compute |
+| Reg STL matched-head (`next_getnext_hard`) | ✅ Acc@10 82.54 ± 0.42 | 🟡 4/5 folds (Acc@10 82.22 ± 0.50) | 🔴 needs fold 5 |
+| MTL B3 counterfactual | (existing data) | 🔴 never ran | 🔴 |
 
-### CA (California) — upstream pipeline pending
+> **FL headline (post-harvest):** cat substrate Δ = +29 pp, ~2× the AL/AZ effect — substrate gap **grows** with scale on cat. Reg gap nearly neutralised at FL scale (+0.27 pp). See `PHASE2_FL_STATUS.md` for full state + retry instructions (daemon-launcher pattern to avoid Colab cell-timeout disconnect that caused the F36c-fold5/F36d losses).
 
-| Test | C2HGI | HGI | Combined paired test |
-|---|:-:|:-:|:-:|
-| Upstream pipeline (embeddings + inputs + transition matrix) | ⚫ | ⚫ | — |
-| All Phase-2 tests | ⚫ | ⚫ | ⚫ |
-
-### TX (Texas) — upstream pipeline pending
+### CA (California) — upstream ready on Drive, grid pending
 
 | Test | C2HGI | HGI | Combined paired test |
 |---|:-:|:-:|:-:|
-| Upstream pipeline | ⚫ | ⚫ | — |
-| All Phase-2 tests | ⚫ | ⚫ | ⚫ |
+| Upstream pipeline (embeddings + inputs + transition matrix) | ✅ on Drive | ✅ on Drive | — |
+| All Phase-2 tests | 🔴 | 🔴 | 🔴 |
+
+### TX (Texas) — upstream ready on Drive, grid pending
+
+| Test | C2HGI | HGI | Combined paired test |
+|---|:-:|:-:|:-:|
+| Upstream pipeline | ✅ on Drive | ✅ on Drive | — |
+| All Phase-2 tests | 🔴 | 🔴 | 🔴 |
+
+---
+
+## 0 · Active task list (in-session ⇄ persistent here)
+
+Three named tasks track Phase-2 closure end-to-end. They are also surfaced in the in-session task list (TaskCreate IDs #1/#2/#3) for live progress; this section is the durable copy.
+
+| Task | State | Status | Blocking |
+|---|:-:|:-:|:-:|
+| **T1** Close FL grid: F36c reg HGI fold 5 + F36d MTL counterfactual | FL | 🟡 5/7 done | — |
+| **T2** Run CA Phase-2 grid (7 experiments) | CA | 🔴 pending | T1 (validate daemon pattern) |
+| **T3** Run TX Phase-2 grid (7 experiments) | TX | 🔴 pending | T2 |
+
+After T3 completes, run paired-tests for FL+CA+TX, update SUBSTRATE_COMPARISON_FINDINGS, finalise CH16/CH15/CH18 with cross-state evidence, mark Phase 2 closed.
 
 ---
 
@@ -41,7 +57,7 @@ This tracker is the live work queue for **Phase 2 of `SUBSTRATE_COMPARISON_PLAN.
 
 | # | Pri | Item | State | Owner | Cost | Acceptance criterion |
 |---|:-:|---|:-:|:-:|:-:|---|
-| **F36** | **P1** | FL Phase-2 grid (Legs I + II + III) | FL | colab T4 (preferred) / m4_pro | T4 ~3 h / MPS ~30 h | All 5 cells (probe + 2 cat STL + 2 reg STL + MTL counterfactual) land. Paper tables filled. |
+| **F36** | **P1** | FL Phase-2 grid (Legs I + II + III) | FL | colab T4 (preferred) / m4_pro | T4 ~3 h / MPS ~30 h | All 5 cells (probe + 2 cat STL + 2 reg STL + MTL counterfactual) land. Paper tables filled. **Status: 5/7 captured 2026-04-28 (T1).** |
 | **F36a** | P1 | FL substrate linear probe (Leg I, head-free) | FL | m4_pro | ~5 min × 2 substrates | F1 ± σ for C2HGI and HGI on `output/<engine>/florida/input/next.parquet`. CPU-only — Colab not needed. |
 | **F36b** | P1 | FL cat STL `next_gru` × {C2HGI, HGI} (Leg II.1) | FL | colab T4 / m4_pro | T4 ~50 min × 2 / MPS ~5–6 h × 2 | 5f × 50ep × seed 42. Paired Wilcoxon vs HGI. Pass: Δ > 0 at p < 0.05. |
 | **F36c** | P1 | FL reg STL `next_getnext_hard` × {C2HGI, HGI} (Leg II.2) | FL | colab T4 / m4_pro | T4 ~50 min × 2 / MPS ~5–6 h × 2 | 5f × 50ep × seed 42. Paired test on Acc@10 + MRR + TOST δ=2 pp. |
