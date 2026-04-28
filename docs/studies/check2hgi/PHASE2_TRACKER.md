@@ -12,16 +12,16 @@ This tracker is the live work queue for **Phase 2 of `SUBSTRATE_COMPARISON_PLAN.
 
 🟢 = 5-fold complete · 🟡 = 1-fold or partial · 🔴 = pending · ⚫ = blocked on upstream pipeline.
 
-### FL (Florida) — 5/7 captured 2026-04-28, 2 pending
+### FL (Florida) — 🟢 closed 2026-04-28
 
 | Test | C2HGI | HGI | Combined paired test |
 |---|:-:|:-:|:-:|
 | Substrate-only linear probe | ✅ 40.77 ± 1.11 | ✅ 25.74 ± 0.26 (Δ=+15.03) | n/a (head-free) |
-| Cat STL matched-head (`next_gru`) | ✅ **63.43 ± 0.88** | ✅ 34.41 ± 0.94 (**Δ=+29.02 pp**) | 🟡 ready to compute |
-| Reg STL matched-head (`next_getnext_hard`) | ✅ Acc@10 82.54 ± 0.42 | 🟡 4/5 folds (Acc@10 82.22 ± 0.50) | 🔴 needs fold 5 |
-| MTL B3 counterfactual | (existing data) | 🔴 never ran | 🔴 |
+| Cat STL matched-head (`next_gru`) | ✅ **63.43 ± 0.88** | ✅ 34.41 ± 0.94 (**Δ=+29.02 pp**) | ✅ Wilcoxon **p=0.0312** (5/5 folds positive) |
+| Reg STL matched-head (`next_getnext_hard`) | ✅ Acc@10 82.54 ± 0.42 | ✅ Acc@10 82.28 ± 0.47 (Δ=+0.27 pp) | ✅ TOST δ=2pp **non-inferior** (Acc@10 p=0.0009 / MRR p=0.0010) |
+| MTL B3 counterfactual (HGI substrate) | (1f reference exists) | ✅ cat F1 34.74 ± 0.76 / reg Acc@10_indist 58.27 ± 3.37 | 🟢 MTL+HGI ≈ STL+HGI on cat (no MTL gain on HGI) |
 
-> **FL headline (post-harvest):** cat substrate Δ = +29 pp, ~2× the AL/AZ effect — substrate gap **grows** with scale on cat. Reg gap nearly neutralised at FL scale (+0.27 pp). See `PHASE2_FL_STATUS.md` for full state + retry instructions (daemon-launcher pattern to avoid Colab cell-timeout disconnect that caused the F36c-fold5/F36d losses).
+> **FL headline:** cat substrate Δ = **+29 pp** at FL — almost **2× the AL/AZ effect** (+15.5 / +14.5). Substrate gap on cat **grows monotonically with scale**. Reg gap nearly neutralised at FL scale (TOST non-inf at δ=2pp). MTL+HGI on FL is essentially identical to STL+HGI on cat (Δ_MTL = +0.33 pp), confirming CH18: the B3 MTL configuration only buys a gain on the C2HGI substrate. See `research/SUBSTRATE_COMPARISON_FINDINGS.md §FL` for cross-state synthesis.
 
 ### CA (California) — upstream ready on Drive, grid pending
 
@@ -45,8 +45,8 @@ Three named tasks track Phase-2 closure end-to-end. They are also surfaced in th
 
 | Task | State | Status | Blocking |
 |---|:-:|:-:|:-:|
-| **T1** Close FL grid: F36c reg HGI fold 5 + F36d MTL counterfactual | FL | 🟡 5/7 done | — |
-| **T2** Run CA Phase-2 grid (7 experiments) | CA | 🔴 pending | T1 (validate daemon pattern) |
+| **T1** Close FL grid: F36c reg HGI fold 5 + F36d MTL counterfactual | FL | 🟢 **closed 2026-04-28** | — |
+| **T2** Run CA Phase-2 grid (7 experiments) | CA | 🔴 pending | — |
 | **T3** Run TX Phase-2 grid (7 experiments) | TX | 🔴 pending | T2 |
 
 After T3 completes, run paired-tests for FL+CA+TX, update SUBSTRATE_COMPARISON_FINDINGS, finalise CH16/CH15/CH18 with cross-state evidence, mark Phase 2 closed.

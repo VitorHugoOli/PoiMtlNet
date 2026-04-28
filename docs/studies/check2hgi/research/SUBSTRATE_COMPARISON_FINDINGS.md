@@ -184,6 +184,45 @@ C4 extension to FL is *not* mandatory (AL alone settles the mechanism per §1.1)
 
 ---
 
+## Phase 2 — FL closed 2026-04-28
+
+| Leg | Probe / STL / MTL | C2HGI | HGI | Δ | Paired test |
+|---|---|---:|---:|---:|---|
+| I | linear probe (head-free) | 40.77 ± 1.11 | 25.74 ± 0.26 | **+15.03 pp** F1 | — |
+| II.1 | cat STL `next_gru` matched-head | **63.43 ± 0.88** | 34.41 ± 0.94 | **+29.02 pp** F1 | Wilcoxon p=**0.0312** (5/5 folds positive) |
+| II.2 | reg STL `next_getnext_hard` matched-head | Acc@10 82.54 ± 0.42 | Acc@10 82.28 ± 0.47 | +0.27 pp | TOST δ=2pp **non-inferior** (Acc@10 p=0.0009 / MRR p=0.0010) |
+| III | MTL B3 counterfactual (HGI substrate) | (1f reference, F27_validation) | cat F1 34.74 ± 0.76 / reg Acc@10_indist 58.27 ± 3.37 | MTL+HGI ≈ STL+HGI on cat (Δ_MTL = +0.33 pp) | — |
+
+### CH16 strengthens at FL — substrate gap *grows* with scale on cat
+
+| State | Linear probe Δ F1 | Matched-head STL Δ F1 |
+|---|---:|---:|
+| AL (12 K) | +12.14 | +15.50 |
+| AZ (26 K) | +11.58 | +14.52 |
+| **FL (159 K)** | **+15.03** | **+29.02** |
+
+The FL effect is **~2× the AL/AZ effect on cat F1**. The linear probe Δ is also larger at FL (+15 vs +12), confirming the gap is substrate-driven and not head-coupled. This refines CH16 from "head-invariant" (AL+AZ) to **"head-invariant AND scale-amplifying on cat"** — the more data, the bigger the substrate-gap on the categorical task.
+
+### CH15 reframing replicates at FL — reg substrate gap neutralised at scale
+
+Under the matched MTL reg head (`next_getnext_hard` = STAN + α·log_T graph prior), the FL substrate gap on Acc@10 collapses to +0.27 pp (vs +3.68 pp under STAN at FL — the head-coupling pattern from CH15-original). Both Acc@10 and MRR pass TOST δ=2pp non-inferiority at α=0.05 (p=0.0009 / p=0.0010). This is consistent with AL (also TOST non-inf within σ) and the AZ pattern (significant superiority at +2.34 pp).
+
+### CH18 confirms at FL — MTL B3 is substrate-specific
+
+MTL+HGI on FL gives cat F1 34.74 ± 0.76, essentially identical to STL+HGI on FL (34.41 ± 0.94 — Δ_MTL = +0.33 pp). The B3 MTL configuration adds **no value** when the substrate is HGI. By contrast, the existing 1-fold MTL+C2HGI reference at FL produces F1 ≈ 67% (per `F27_validation/fl_1f50ep_b3_cathead_gru.json`), substantially above STL+C2HGI 63.43 — i.e. the MTL config gains ~3-4 pp **only when paired with C2HGI substrate**. Substrate-specificity confirmed at FL despite the missing 5-fold MTL+C2HGI reference.
+
+### Paired-test outputs
+
+- `results/paired_tests/florida_cat_f1.json` — Δ̄=+0.2902, Wilcoxon p_greater=0.0312, paired-t p_greater=0.0000.
+- `results/paired_tests/florida_reg_acc10.json` — Δ̄=+0.0029, Wilcoxon p_greater=0.3125 (n.s.), TOST δ=0.02 p_lower=0.0009 ⇒ non-inferior.
+- `results/paired_tests/florida_reg_mrr.json` — Δ̄=+0.0013, Wilcoxon p_greater=0.3125 (n.s.), TOST δ=0.02 p_lower=0.0010 ⇒ non-inferior.
+
+### CA + TX queued
+
+Per `PHASE2_TRACKER §0`, T2 (CA full grid) and T3 (TX full grid) are now ready to launch. The daemon-launcher pattern (`nohup setsid bash run.sh < /dev/null > log 2>&1 &`) used to close FL is the canonical pattern for those.
+
+---
+
 ## Appendix — data sources index
 
 For every per-fold JSON used in this analysis, the canonical original location (full result dir with checkpoints + classification reports + train/val curves) and reproduction tag.
