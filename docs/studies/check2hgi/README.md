@@ -1,6 +1,6 @@
 # Check2HGI Study — Entry Point
 
-**Status (2026-04-27):** Phase 1 of the substrate-comparison validation closed at AL + AZ. **Strong claim confirmed**: Check2HGI > HGI on **both** tasks under matched-head STL + matched MTL + linear-probe (3-leg framework, head-invariant across 4 probes). MTL B3 is **substrate-specific**: HGI substitution breaks reg by 30 pp. Per-visit context = ~72% of cat substrate gap. See [`baselines/check2hgi_v_hgi/phase1_verdict.md`](baselines/check2hgi_v_hgi/phase1_verdict.md) and [`SESSION_HANDOFF_2026-04-27.md`](SESSION_HANDOFF_2026-04-27.md). Phase 2 (FL + CA + TX) authorised and queued in [`baselines/check2hgi_v_hgi/phase2_tracker.md`](baselines/check2hgi_v_hgi/phase2_tracker.md).
+**Status (2026-04-27):** Phase 1 of the substrate-comparison validation closed at AL + AZ. **Strong claim confirmed**: Check2HGI > HGI on **both** tasks under matched-head STL + matched MTL + linear-probe (3-leg framework, head-invariant across 4 probes). MTL B3 is **substrate-specific**: HGI substitution breaks reg by 30 pp. Per-visit context = ~72% of cat substrate gap. See [`research/SUBSTRATE_COMPARISON_FINDINGS.md`](research/SUBSTRATE_COMPARISON_FINDINGS.md) and [`SESSION_HANDOFF_2026-04-27.md`](SESSION_HANDOFF_2026-04-27.md). Phase 2 (FL + CA + TX) authorised and queued in [`PHASE2_TRACKER.md`](PHASE2_TRACKER.md).
 
 **Prior status (2026-04-23):** B3 identified as unified joint-task champion candidate via F2 diagnostic; validated 5-fold on AL + AZ + FL-1f (×2). Doc cleanup complete.
 
@@ -11,7 +11,7 @@
 ## Where to start (new agents, read in order)
 
 1. **[`SESSION_HANDOFF_2026-04-27.md`](SESSION_HANDOFF_2026-04-27.md)** ⭐ **most recent** — Phase 1 substrate-validation outcome + paper-quality findings + Phase 2 launch instructions.
-2. **[`baselines/check2hgi_v_hgi/`](baselines/check2hgi_v_hgi/)** — substrate-comparison audit hub (plan + Phase-1 verdict + Phase-2 tracker + per-fold data + paired tests).
+2. **[`research/SUBSTRATE_COMPARISON_FINDINGS.md`](research/SUBSTRATE_COMPARISON_FINDINGS.md)** — Phase-1 outcome matrix + paper-ready findings + sources appendix. Plan in [`research/SUBSTRATE_COMPARISON_PLAN.md`](research/SUBSTRATE_COMPARISON_PLAN.md); Phase-2 work queue in [`PHASE2_TRACKER.md`](PHASE2_TRACKER.md). Per-fold data: `results/{phase1_perfold,probe,paired_tests}/`.
 3. **[`NORTH_STAR.md`](NORTH_STAR.md)** — committed champion MTL config + Phase-1 substrate-specific addendum.
 4. **[`PAPER_STRUCTURE.md`](PAPER_STRUCTURE.md)** — paper scope, baselines, STL-matching policy, FL region Markov caveat.
 5. **[`FOLLOWUPS_TRACKER.md`](FOLLOWUPS_TRACKER.md)** — live work queue (F36–F40 = Phase-2 tracker pointer).
@@ -61,21 +61,22 @@ docs/studies/check2hgi/
 ├── SESSION_HANDOFF_2026-04-22.md          ← operational gotchas
 ├── SESSION_HANDOFF_2026-04-24.md          ← post-F27 cat-head context
 ├── SESSION_HANDOFF_2026-04-27.md          ← Phase-1 substrate-validation handoff (latest)
+├── PHASE2_TRACKER.md                      ← ⭐ FL+CA+TX substrate-comparison work queue
 ├── baselines/
 │   ├── README.md                          ← baselines index + status board
-│   ├── check2hgi_v_hgi/                   ← ⭐ substrate-comparison audit hub (plan, verdict, tracker, data)
-│   │   ├── README.md                      ← entry point + 60-second auditor walk
-│   │   ├── plan.md                        ← phase-gated 3-leg framework
-│   │   ├── phase1_verdict.md              ← AL+AZ outcome matrix + paper-ready findings
-│   │   ├── phase2_tracker.md              ← FL+CA+TX work queue
-│   │   └── data/                          ← per-fold + paired tests + linear probes (audit-self-contained)
-│   ├── next_category/                     ← per-baseline docs + per-state JSONs
-│   └── next_region/
+│   ├── next_category/                     ← per-baseline docs + per-state JSONs + comparison.md
+│   └── next_region/                       ← per-baseline docs + per-state JSONs + comparison.md
 ├── issues/                                ← bug / design audits (MTL_PARAM_PARTITION_BUG, etc.)
-├── research/                              ← paper-substantive notes (B3_*, B5_*, GETNEXT_*, STAN_*, POSITIONING_*, ATTRIBUTION_*, NASH_MTL_*, MTL_WITH_STAN_HEAD)
+├── research/                              ← paper-substantive notes
+│   ├── SUBSTRATE_COMPARISON_PLAN.md       ← ⭐ phase-gated 3-leg framework
+│   ├── SUBSTRATE_COMPARISON_FINDINGS.md   ← ⭐ AL+AZ outcome matrix + paper-ready findings + sources appendix
+│   └── (B3_*, B5_*, GETNEXT_*, STAN_*, POSITIONING_*, ATTRIBUTION_*, NASH_MTL_*, MTL_WITH_STAN_HEAD)
 ├── results/                               ← archived JSONs + tables
 │   ├── RESULTS_TABLE.md                   ← per-state × per-method canonical table
 │   ├── BASELINES_AND_BEST_MTL.md          ← legacy paper-comparison table (pre-B3 — kept for audit)
+│   ├── phase1_perfold/                    ← ⭐ Phase-1 substrate-comparison per-fold JSONs (cat/reg STL + MTL counterfactual + C4 pooled)
+│   ├── probe/                             ← ⭐ substrate linear-probe outputs (Leg I)
+│   ├── paired_tests/                      ← ⭐ Wilcoxon + paired-t + TOST analyser outputs
 │   ├── B3_validation/                     ← B3 5f JSONs on AL, AZ
 │   ├── B5/                                ← B5 hard-index JSONs on AL, AZ, FL-1f
 │   ├── F2_fl_diagnostic/                  ← F2 4-phase JSONs on FL-1f

@@ -95,3 +95,15 @@ K=3–5 is the sweet spot — beyond that, key sparsity (7^K vs ~10K–150K wind
 ## Variants we run (POI-RGNN)
 
 Only `faithful` for now. STL substrate variants (`stl_check2hgi`, `stl_hgi`) are deferred — see `poi_rgnn.md` §"Variants we run" for context.
+
+## Substrate-head matched STL — Phase 1 (next_gru, MTL B3 cat head)
+
+Quick reference for the substrate-comparison Phase-1 matched-head cat results. Authoritative source: [`../../research/SUBSTRATE_COMPARISON_FINDINGS.md`](../../research/SUBSTRATE_COMPARISON_FINDINGS.md). Per-fold JSONs: `../../results/phase1_perfold/{AL,AZ}_{check2hgi,hgi}_cat_gru_5f50ep.json`. Paired tests: `../../results/paired_tests/{alabama,arizona}_cat_f1.json`.
+
+| Substrate | Variant | AL macro-F1 | AZ macro-F1 | FL | CA | TX |
+|---|---|---:|---:|---:|---:|---:|
+| Check2HGI | matched-head `next_gru` STL | **40.76 ± 1.50** | **43.21 ± 0.78** | 🔴 (F36b) | 🔴 | 🔴 |
+| HGI | matched-head `next_gru` STL | 25.26 ± 1.06 | 28.69 ± 0.71 | 🔴 (F36b) | 🔴 | 🔴 |
+| **Δ (C2HGI − HGI)** | paired Wilcoxon | **+15.50 (p=0.0312)** | **+14.52 (p=0.0312)** | 🔴 | 🔴 | 🔴 |
+
+Head-sensitivity probes (`next_single`, `next_lstm`) and the head-free linear probe replicate the direction with all 8 head-state probes positive at maximum-significance n=5 paired Wilcoxon. See FINDINGS §5.1.

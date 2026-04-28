@@ -13,7 +13,7 @@
 >
 > Phase-1 also lands MTL+HGI counterfactual (CH18 in `CLAIMS_AND_HYPOTHESES.md`): MTL B3 with HGI substrate produces Acc@10_indist of 29.95 (AL) / 22.10 (AZ) — **worse than STL+HGI gethard alone by ~37 pp at AL**. The MTL configuration breaks when paired with HGI; F21c's "STL > MTL on reg" finding under Check2HGI substrate becomes "STL > MTL > broken" when extended to the HGI substrate.
 >
-> See `baselines/check2hgi_v_hgi/phase1_verdict.md` and `SESSION_HANDOFF_2026-04-27.md`.
+> See `research/SUBSTRATE_COMPARISON_FINDINGS.md` and `SESSION_HANDOFF_2026-04-27.md`.
 
 ## Headline
 

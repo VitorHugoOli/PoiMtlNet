@@ -110,3 +110,26 @@ Two honest takeaways at AL:
 - **Substrate contribution (HGI − Faithful) shrinks with scale**, from +28 pp (AL) → +16 pp (AZ) → +8 pp (FL). Pre-trained substrates buy more at small scale.
 
 Full deep-dive interpretation: `../../research/STAN_THREE_WAY_COMPARISON.md`.
+
+## Substrate-head matched STL — Phase 1 (next_getnext_hard, MTL B3 reg head)
+
+Quick reference for the substrate-comparison Phase-1 matched-head reg results. Authoritative source: [`../../research/SUBSTRATE_COMPARISON_FINDINGS.md`](../../research/SUBSTRATE_COMPARISON_FINDINGS.md). Per-fold JSONs: `../../results/phase1_perfold/{AL,AZ}_{check2hgi,hgi}_reg_gethard_5f50ep.json`. Paired tests + TOST: `../../results/paired_tests/{alabama,arizona}_acc10_reg_acc10.json`.
+
+| Substrate | Variant | AL Acc@10 | AZ Acc@10 | FL | CA | TX |
+|---|---|---:|---:|---:|---:|---:|
+| Check2HGI | matched-head `next_getnext_hard` STL | **68.37 ± 2.66** | **66.74 ± 2.11** | 🔴 (F36c) | 🔴 | 🔴 |
+| HGI | matched-head `next_getnext_hard` STL | 67.52 ± 2.80 | 64.40 ± 2.42 | 🔴 (F36c) | 🔴 | 🔴 |
+| **Δ (C2HGI − HGI)** | Wilcoxon (Acc@10) + TOST δ=2pp | +0.85 (p=0.0625 marg, **TOST non-inf**) | **+2.34 (p=0.0312)** | 🔴 | 🔴 | 🔴 |
+
+Under the matched MTL reg head (graph prior), C2HGI ≥ HGI everywhere: AL tied within σ + non-inferior at δ=2 pp; AZ significantly C2HGI. The earlier "HGI > C2HGI on reg under STAN" pattern in the table above was **head-coupled** — STAN prefers HGI's POI-stable smoothness; gethard's graph prior combines productively with C2HGI's per-visit context. See FINDINGS §2.2 for the reframing.
+
+## MTL B3 substrate-counterfactual — Phase 1 (CH18)
+
+| State | Substrate | cat F1 | reg Acc@10_indist | Δ_cat (C2HGI−HGI) | Δ_reg (C2HGI−HGI) |
+|---|---|---:|---:|---:|---:|
+| AL | C2HGI (existing) | **42.71 ± 1.37** | **59.60 ± 4.09** | — | — |
+| AL | HGI (counterfactual) | 25.96 ± 1.61 | 29.95 ± 1.89 | **+16.75** | **+29.65** |
+| AZ | C2HGI (existing) | **45.81 ± 1.30** | **53.82 ± 3.11** | — | — |
+| AZ | HGI (counterfactual) | 28.70 ± 0.51 | 22.10 ± 1.63 | **+17.11** | **+31.72** |
+
+MTL+HGI is **worse than STL+HGI** on reg by ~37 pp at AL — the B3 configuration does not generalise to HGI. CH18 = MTL B3 is substrate-specific. Per-fold JSONs: `../../results/phase1_perfold/{AL,AZ}_hgi_mtl_{cat,reg}.json`.

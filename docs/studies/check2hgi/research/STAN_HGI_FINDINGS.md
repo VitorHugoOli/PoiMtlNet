@@ -2,7 +2,7 @@
 
 **Date:** 2026-04-25. **Tracker:** F36. **Scope:** AL + AZ (FL/CA/TX deferred per user). **Status:** ✅ replicated across both states and both heads.
 
-> **Phase-1 reframing (2026-04-27).** This doc's headline ("HGI > Check2HGI for the region task") is based on the **STAN** sequence head. Phase 1 added the **matched MTL reg head** (`next_getnext_hard` = STAN + α·log_T graph prior) as a new probe. Under that head, the substrate preference **reverses** at AL+AZ (AL tied within σ + TOST non-inferior at δ=2 pp; AZ +2.34 pp Acc@10, p=0.0312, 5/5 folds positive). The STAN-head finding is therefore **head-coupled to STAN's POI-stable preference**, not pure substrate quality. CH15 was reframed accordingly — see `baselines/check2hgi_v_hgi/phase1_verdict.md §2.2` and `CLAIMS_AND_HYPOTHESES.md §CH15` reframing. The STAN-head data in this doc is preserved as a head-sensitivity probe, not refuted.
+> **Phase-1 reframing (2026-04-27).** This doc's headline ("HGI > Check2HGI for the region task") is based on the **STAN** sequence head. Phase 1 added the **matched MTL reg head** (`next_getnext_hard` = STAN + α·log_T graph prior) as a new probe. Under that head, the substrate preference **reverses** at AL+AZ (AL tied within σ + TOST non-inferior at δ=2 pp; AZ +2.34 pp Acc@10, p=0.0312, 5/5 folds positive). The STAN-head finding is therefore **head-coupled to STAN's POI-stable preference**, not pure substrate quality. CH15 was reframed accordingly — see `research/SUBSTRATE_COMPARISON_FINDINGS.md §2.2` and `CLAIMS_AND_HYPOTHESES.md §CH15` reframing. The STAN-head data in this doc is preserved as a head-sensitivity probe, not refuted.
 
 ## Summary
 

@@ -181,3 +181,117 @@ Per-visit context accounts for **~72%** of the matched-head substrate gap; the r
 Phase 1 closes with the strong claim confirmed. Per `SUBSTRATE_COMPARISON_PLAN §6 step 8`: **green light for Phase 2** — the same grid (substrate probe + matched-head STL + MTL counterfactual) replicated at FL → CA → TX, on M4 Pro under `caffeinate -s`, no framing changes required.
 
 C4 extension to FL is *not* mandatory (AL alone settles the mechanism per §1.1). Reuse the §3.1/§3.2 launch templates from the plan plus `scripts/run_phase1_*.sh` patterns.
+
+---
+
+## Appendix — data sources index
+
+For every per-fold JSON used in this analysis, the canonical original location (full result dir with checkpoints + classification reports + train/val curves) and reproduction tag.
+
+### Linear probe — `results/probe/`
+
+Generator: `scripts/probe/substrate_linear_probe.py`. No training (logistic regression on raw embeddings, ~2–4 sec per cell). All on `output/<engine>/<state>/input/next.parquet` last-window-position slice (cols 512..575), 5-fold StratifiedGroupKFold(seed=42).
+
+| File | Path | Run date |
+|---|---|---|
+| AL C2HGI | `results/probe/alabama_check2hgi_last.json` | 2026-04-27 |
+| AL HGI | `results/probe/alabama_hgi_last.json` | 2026-04-27 |
+| AZ C2HGI | `results/probe/arizona_check2hgi_last.json` | 2026-04-27 |
+| AZ HGI | `results/probe/arizona_hgi_last.json` | 2026-04-27 |
+| AL C2HGI POI-pooled (C4) | `results/probe/alabama_check2hgi_pooled_last.json` | 2026-04-27 |
+
+### Cat STL per-fold — `results/phase1_perfold/`
+
+Trainer: `scripts/train.py --task next --state $STATE --engine $ENGINE --model $HEAD --folds 5 --epochs 50 --seed 42 --no-checkpoints`. AdamW(1e-4, wd=0.01) + OneCycleLR(max=1e-2) + batch 1024.
+
+Per-fold JSONs contain `{fold_0..fold_4: {f1, accuracy}}` extracted from `<canonical_dir>/folds/foldN_info.json::diagnostic_best_epochs.next.metrics`.
+
+| File | Canonical training dir |
+|---|---|
+| `AL_check2hgi_cat_gru_5f50ep.json` | `results/check2hgi/alabama/next_lr1.0e-04_bs1024_ep50_20260427_1713/` |
+| `AL_hgi_cat_gru_5f50ep.json` | `results/hgi/alabama/next_lr1.0e-04_bs1024_ep50_20260427_1716/` |
+| `AZ_check2hgi_cat_gru_5f50ep.json` | `results/check2hgi/arizona/next_lr1.0e-04_bs1024_ep50_20260427_1718/` |
+| `AZ_hgi_cat_gru_5f50ep.json` | `results/hgi/arizona/next_lr1.0e-04_bs1024_ep50_20260427_1724/` |
+| `AL_check2hgi_cat_single_5f50ep.json` | `results/check2hgi/alabama/next_lr1.0e-04_bs1024_ep50_20260427_1829/` |
+| `AL_hgi_cat_single_5f50ep.json` | `results/hgi/alabama/next_lr1.0e-04_bs1024_ep50_20260427_1831/` |
+| `AZ_check2hgi_cat_single_5f50ep.json` | `results/check2hgi/arizona/next_lr1.0e-04_bs1024_ep50_20260427_1908/` |
+| `AZ_hgi_cat_single_5f50ep.json` | `results/hgi/arizona/next_lr1.0e-04_bs1024_ep50_20260427_1912/` |
+| `AL_check2hgi_cat_lstm_5f50ep.json` | `results/check2hgi/alabama/next_lr1.0e-04_bs1024_ep50_20260427_1833/` |
+| `AL_hgi_cat_lstm_5f50ep.json` | `results/hgi/alabama/next_lr1.0e-04_bs1024_ep50_20260427_1850/` |
+| `AZ_check2hgi_cat_lstm_5f50ep.json` | `results/check2hgi/arizona/next_lr1.0e-04_bs1024_ep50_20260427_1915/` |
+| `AZ_hgi_cat_lstm_5f50ep.json` | `results/hgi/arizona/next_lr1.0e-04_bs1024_ep50_20260427_1953/` |
+
+Orchestrators: `scripts/run_phase1_cat_stl.sh` (matched-head AL+AZ), `scripts/run_phase1_c2_head_sweep.sh` (C2 head sweep).
+
+### Reg STL per-fold — `results/phase1_perfold/`
+
+Trainer: `scripts/p1_region_head_ablation.py --heads next_getnext_hard --folds 5 --epochs 50 --seed 42 --input-type region --region-emb-source $ENGINE --override-hparams d_model=256 num_heads=8 transition_path=...`.
+
+Per-fold JSONs contain `{fold_0..fold_4: {acc1, acc5, acc10, mrr, f1}}` from `<canonical_dir>::heads.next_getnext_hard.per_fold[i]`.
+
+| File | Canonical original | Tag |
+|---|---|---|
+| `AL_check2hgi_reg_gethard_5f50ep.json` | `results/B3_baselines/stl_getnext_hard_al_5f50ep.json` | F21c (`stl_gethard`) |
+| `AZ_check2hgi_reg_gethard_5f50ep.json` | `results/B3_baselines/stl_getnext_hard_az_5f50ep.json` | F21c (`stl_gethard`) |
+| `AL_hgi_reg_gethard_5f50ep.json` | `results/P1/region_head_alabama_region_5f_50ep_STL_ALABAMA_hgi_reg_gethard_5f50ep.json` | `STL_ALABAMA_hgi_reg_gethard_5f50ep` |
+| `AZ_hgi_reg_gethard_5f50ep.json` | `results/P1/region_head_arizona_region_5f_50ep_STL_ARIZONA_hgi_reg_gethard_5f50ep.json` | `STL_ARIZONA_hgi_reg_gethard_5f50ep` |
+
+Orchestrator: `scripts/run_phase1_reg_stl.sh`. Transition matrix is substrate-independent — both runs read `output/check2hgi/<state>/region_transition_log.pt`.
+
+### MTL counterfactual per-fold — `results/phase1_perfold/`
+
+Trainer: `scripts/train.py --task mtl --state $STATE --engine hgi --task-set check2hgi_next_region --model mtlnet_crossattn --mtl-loss static_weight --category-weight 0.75 --reg-head next_getnext_hard --cat-head next_gru --folds 5 --epochs 50 --seed 42 --no-checkpoints`.
+
+Each per-fold JSON contains:
+- `_cat.json`: `{fold_0..fold_4: {f1, accuracy}}` from `<canonical>/folds/foldN_info.json::diagnostic_best_epochs.next_category.metrics`.
+- `_reg.json`: `{fold_0..fold_4: {f1, acc1, acc5, acc10, acc10_indist, mrr}}` from `next_region.metrics` (with `top10_acc_indist` aliased to `acc10`).
+
+| File | Canonical training dir |
+|---|---|
+| `AL_hgi_mtl_cat.json` + `AL_hgi_mtl_reg.json` | `results/hgi/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260427_1746/` |
+| `AZ_hgi_mtl_cat.json` + `AZ_hgi_mtl_reg.json` | `results/hgi/arizona/mtlnet_lr1.0e-04_bs2048_ep50_20260427_1759/` |
+
+Orchestrator: `scripts/run_phase1_mtl_counterfactual.sh`.
+
+**Comparator** — existing MTL B3 with C2HGI substrate:
+- `results/F27_validation/al_5f50ep_b3_cathead_gru.json` (cat F1 0.4271)
+- `results/F27_validation/az_5f50ep_b3_cathead_gru.json` (cat F1 0.4581)
+
+> The C2HGI MTL B3 runs only retain aggregate metrics in their result JSONs (no per-fold breakdown stored at run-time). For paired tests against MTL+HGI, the recommended approach is to re-aggregate from `results/check2hgi/<state>/mtlnet_*` run dirs. Queued as follow-up — Δ_cat ≈ +17 pp and Δ_reg ≈ +30 pp are far outside σ.
+
+### C4 POI-pooled per-fold — `results/phase1_perfold/`
+
+Generator chain:
+1. `scripts/probe/build_check2hgi_pooled.py --state alabama` → `output/check2hgi_pooled/alabama/{embeddings.parquet, input/next.parquet}`.
+2. `scripts/train.py --task next --state alabama --engine check2hgi_pooled --model next_gru --folds 5 --epochs 50 --seed 42 --no-checkpoints`.
+
+| File | Canonical training dir |
+|---|---|
+| `AL_check2hgi_pooled_cat_gru_5f50ep.json` | `results/check2hgi_pooled/alabama/next_lr1.0e-04_bs1024_ep50_20260427_1826/` |
+
+Linear-probe variant: `results/probe/alabama_check2hgi_pooled_last.json`.
+
+### Paired tests — `results/paired_tests/`
+
+Generator: `scripts/analysis/substrate_paired_test.py`. Inputs: per-fold JSONs from `results/phase1_perfold/`. Each output contains `check2hgi_per_fold + hgi_per_fold + deltas + superiority{paired_t, wilcoxon, shapiro} + non_inferiority_tost (when --tost-margin)`.
+
+| File | Test |
+|---|---|
+| `alabama_cat_f1.json` | Matched-head cat (next_gru) Δ F1 — AL |
+| `alabama_single_cat_f1.json` | Head-sensitivity probe (next_single) Δ F1 — AL |
+| `alabama_lstm_cat_f1.json` | Head-sensitivity probe (next_lstm) Δ F1 — AL |
+| `arizona_cat_f1.json` | Matched-head cat — AZ |
+| `arizona_single_cat_f1.json` | Head-sensitivity probe — AZ |
+| `arizona_lstm_cat_f1.json` | Head-sensitivity probe — AZ |
+| `alabama_acc10_reg_acc10.json` | Matched-head reg (next_getnext_hard) Δ Acc@10 + TOST δ=0.02 — AL |
+| `alabama_mrr_reg_mrr.json` | Matched-head reg Δ MRR + TOST — AL |
+| `arizona_acc10_reg_acc10.json` | Matched-head reg Δ Acc@10 + TOST — AZ |
+| `arizona_mrr_reg_mrr.json` | Matched-head reg Δ MRR + TOST — AZ |
+
+### Reverse map — paper-table number → underlying JSON
+
+Example: "Where does the +14.52 pp AZ matched-head cat F1 lift come from?"
+1. Aggregate: §5.1 row "AZ next_gru".
+2. Per-fold deltas: `results/paired_tests/arizona_cat_f1.json::deltas`.
+3. Source per-fold metrics: `results/phase1_perfold/AZ_{check2hgi,hgi}_cat_gru_5f50ep.json`.
+4. Training curves + classification reports: `results/check2hgi/arizona/next_lr1.0e-04_bs1024_ep50_20260427_1718/` (C2HGI), `results/hgi/arizona/next_lr1.0e-04_bs1024_ep50_20260427_1724/` (HGI).

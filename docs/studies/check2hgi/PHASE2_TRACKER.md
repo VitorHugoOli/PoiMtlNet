@@ -1,10 +1,10 @@
 # Phase 2 Tracker — FL + CA + TX final paper runs
 
-**Created 2026-04-27** after Phase 1 closed at AL+AZ with the strong claim confirmed (see [`PHASE1_VERDICT.md`](PHASE1_VERDICT.md)).
+**Created 2026-04-27** after Phase 1 closed at AL+AZ with the strong claim confirmed (see [`research/SUBSTRATE_COMPARISON_FINDINGS.md`](research/SUBSTRATE_COMPARISON_FINDINGS.md)).
 
 This tracker is the live work queue for **Phase 2 of `SUBSTRATE_COMPARISON_PLAN.md`**: the 3-leg substrate-comparison grid replicated at the headline states (Florida, California, Texas). Numbers from this phase land directly in the paper tables — no further framing changes after these runs.
 
-> **Phase 2 launch authorisation:** ✅ granted by `PHASE1_VERDICT.md §6` (strong claim confirmed at AL+AZ). Per the plan, no doc revision required before launch.
+> **Phase 2 launch authorisation:** ✅ granted by `research/SUBSTRATE_COMPARISON_FINDINGS.md §6` (strong claim confirmed at AL+AZ). Per the plan, no doc revision required before launch.
 
 ---
 
@@ -155,7 +155,7 @@ When all three pass: paper tables fill, `PAPER_STRUCTURE.md` confirms, study mov
 
 ## 7 · Cross-references
 
-- [`PHASE1_VERDICT.md`](PHASE1_VERDICT.md) — Phase 1 outcome verdict + paper-ready findings.
-- [`SUBSTRATE_COMPARISON_PLAN.md`](SUBSTRATE_COMPARISON_PLAN.md) — phase-gated 3-leg framework.
-- [`../FOLLOWUPS_TRACKER.md`](../FOLLOWUPS_TRACKER.md) — broader study tracker.
-- [`../OBJECTIVES_STATUS_TABLE.md`](../OBJECTIVES_STATUS_TABLE.md) — paper-objective scorecard.
+- [`research/SUBSTRATE_COMPARISON_FINDINGS.md`](research/SUBSTRATE_COMPARISON_FINDINGS.md) — Phase 1 outcome verdict + paper-ready findings.
+- [`research/SUBSTRATE_COMPARISON_PLAN.md`](research/SUBSTRATE_COMPARISON_PLAN.md) — phase-gated 3-leg framework.
+- [`FOLLOWUPS_TRACKER.md`](FOLLOWUPS_TRACKER.md) — broader study tracker.
+- [`OBJECTIVES_STATUS_TABLE.md`](OBJECTIVES_STATUS_TABLE.md) — paper-objective scorecard.

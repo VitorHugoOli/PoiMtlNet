@@ -2,7 +2,7 @@
 
 **Date:** 2026-04-26. **Scope:** AL + AZ + FL, all 5-fold × 50-epoch, single-task next-region. **Status:** ✅ all cells filled.
 
-> **Phase-1 reframing (2026-04-27).** This comparison uses the **STAN** sequence head. Under STAN, HGI > C2HGI by +0.96 to +3.68 pp Acc@10 (table below). Under the **matched MTL reg head `next_getnext_hard`** (STAN + α·log_T graph prior), the substrate preference at AL+AZ reverses (AL tied + TOST non-inf at δ=2 pp; AZ +2.34 pp p=0.0312). Phase-1 finding: the substrate-preference flip is **head-coupled, not pure substrate** — STAN prefers HGI's POI-stable smoothness; gethard's graph prior combines productively with C2HGI's per-visit context. See `CLAIMS_AND_HYPOTHESES.md §CH15` reframing + `baselines/check2hgi_v_hgi/phase1_verdict.md §2.2`. FL gethard substrate comparison queued in `baselines/check2hgi_v_hgi/phase2_tracker.md §F36c`.
+> **Phase-1 reframing (2026-04-27).** This comparison uses the **STAN** sequence head. Under STAN, HGI > C2HGI by +0.96 to +3.68 pp Acc@10 (table below). Under the **matched MTL reg head `next_getnext_hard`** (STAN + α·log_T graph prior), the substrate preference at AL+AZ reverses (AL tied + TOST non-inf at δ=2 pp; AZ +2.34 pp p=0.0312). Phase-1 finding: the substrate-preference flip is **head-coupled, not pure substrate** — STAN prefers HGI's POI-stable smoothness; gethard's graph prior combines productively with C2HGI's per-visit context. See `CLAIMS_AND_HYPOTHESES.md §CH15` reframing + `research/SUBSTRATE_COMPARISON_FINDINGS.md §2.2`. FL gethard substrate comparison queued in `PHASE2_TRACKER.md §F36c`.
 
 ## Headline table
 
