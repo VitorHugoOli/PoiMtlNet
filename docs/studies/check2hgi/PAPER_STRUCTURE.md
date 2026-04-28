@@ -2,7 +2,7 @@
 
 **Created:** 2026-04-23. **Updated 2026-04-27** with Phase-1 substrate-validation findings (CH16 head-invariant + CH15 reframed + CH18 MTL-substrate-specific + CH19 mechanism). **Owner:** this file defines the paper's table layout, baseline set, STL matching policy, and scope decisions. All other docs reference this.
 
-> **2026-04-27 STL-baseline matching policy revision.** Matched-head STL = `next_gru` (cat) / `next_getnext_hard` (reg) — these are the post-F27 MTL B3 task heads. The pre-Phase-1 matched-head policy (which used `next_single` for cat, STAN for reg) is retained as a **head-sensitivity probe row** (still valid as evidence; closes C2 critique). See `baselines/SUBSTRATE_COMPARISON_PLAN.md` §1.2 + `baselines/PHASE1_VERDICT.md` §5.
+> **2026-04-27 STL-baseline matching policy revision.** Matched-head STL = `next_gru` (cat) / `next_getnext_hard` (reg) — these are the post-F27 MTL B3 task heads. The pre-Phase-1 matched-head policy (which used `next_single` for cat, STAN for reg) is retained as a **head-sensitivity probe row** (still valid as evidence; closes C2 critique). See `baselines/check2hgi_v_hgi/plan.md` §1.2 + `baselines/check2hgi_v_hgi/phase1_verdict.md` §5.
 
 ---
 
@@ -166,7 +166,7 @@ This is revisited after CA + TX 5-fold data lands. If CA and TX also show Markov
 
 | Objective | Evidence state | Binding work to close |
 |---|:-:|---|
-| **CH16** — Check2HGI > HGI on cat F1 | 🟢 **AL+AZ matched-head + head-invariant (8/8 probes p=0.0312, Phase-1 closed 2026-04-27)** · 🔴 FL/CA/TX | F36 (FL Phase-2 grid) + F38 (CA) + F40 (TX) — see `baselines/PHASE2_TRACKER.md`. |
+| **CH16** — Check2HGI > HGI on cat F1 | 🟢 **AL+AZ matched-head + head-invariant (8/8 probes p=0.0312, Phase-1 closed 2026-04-27)** · 🔴 FL/CA/TX | F36 (FL Phase-2 grid) + F38 (CA) + F40 (TX) — see `baselines/check2hgi_v_hgi/phase2_tracker.md`. |
 | **CH15** — Check2HGI ≥ HGI on reg under matched MTL head | 🟢 **AZ +2.34 pp p=0.0312, AL TOST non-inf at δ=2 pp (Phase-1)** · 🔴 FL/CA/TX | F36c (FL reg STL). Reframed from prior CH15 (head-coupled). |
 | **CH18** — MTL B3 substrate-specific | 🟢 **AL+AZ (cat −17 pp / reg −30 pp under HGI substitution, Phase-1)** · 🔴 FL/CA/TX | F36d (FL MTL counterfactual). |
 | **CH19** — Per-visit mechanism (~72%) | 🟢 **AL (Phase-1)** · 🟡 FL/CA/TX optional | F41 (FL extension only if reviewer asks). |

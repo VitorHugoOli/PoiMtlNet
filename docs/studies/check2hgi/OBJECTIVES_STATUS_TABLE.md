@@ -1,6 +1,6 @@
 # Objectives Status Table — Check2HGI Study
 
-**Date:** 2026-04-27 (v3, post-Phase-1 substrate validation). One-page snapshot of where we stand against the study's scientific objectives. Phase-1 results are the headline; Phase 2 (FL/CA/TX) queued in [`baselines/PHASE2_TRACKER.md`](baselines/PHASE2_TRACKER.md).
+**Date:** 2026-04-27 (v3, post-Phase-1 substrate validation). One-page snapshot of where we stand against the study's scientific objectives. Phase-1 results are the headline; Phase 2 (FL/CA/TX) queued in [`baselines/check2hgi_v_hgi/phase2_tracker.md`](baselines/check2hgi_v_hgi/phase2_tracker.md).
 
 > **NEW Objective 3 (post-Phase-1):** *MTL B3 is substrate-specific* — substituting HGI into the same MTL configuration breaks the joint signal. See §2.4 below + CH18 in `CLAIMS_AND_HYPOTHESES.md`. AL+AZ confirmed; FL/CA/TX queued.
 
@@ -45,7 +45,7 @@ Matched-head probe is `next_gru` (the post-F27 MTL B3 cat head). 5f × 50ep, see
 | AZ | next_single | 42.20 ± 0.72 | 29.69 ± 0.97 | **+12.50** | **0.0312** ✅ | head-sensitivity probe |
 | AZ | next_lstm | 41.86 ± 0.84 | 26.50 ± 0.29 | **+15.36** | **0.0312** ✅ | head-sensitivity probe |
 
-8/8 head-state probes positive at maximum significance. Phase-2 row (FL/CA/TX) in `baselines/PHASE2_TRACKER.md`.
+8/8 head-state probes positive at maximum significance. Phase-2 row (FL/CA/TX) in `baselines/check2hgi_v_hgi/phase2_tracker.md`.
 
 **Status:** `confirmed at AL+AZ matched-head, head-invariant, paired-Wilcoxon p=0.0312 each`. Previous AL-only `next_single` evidence (Δ=+18.30, σ-clean) is preserved as a head-sensitivity probe row. Cross-state replication queued for Phase 2.
 

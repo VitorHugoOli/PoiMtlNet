@@ -6,7 +6,7 @@
 2. **CH15 reframed** — under the matched MTL reg head, C2HGI ≥ HGI (was "HGI > C2HGI" under STAN).
 3. **CH18 — MTL B3 is substrate-specific.** Substituting HGI breaks the joint signal (cat −17 pp, reg −30 pp Acc@10_indist at both states; MTL+HGI is *worse than STL+HGI* on reg by ~37 pp).
 
-These findings **do not** change the committed B3 config — they validate it. See `baselines/PHASE1_VERDICT.md` and `SESSION_HANDOFF_2026-04-27.md`.
+These findings **do not** change the committed B3 config — they validate it. See `baselines/check2hgi_v_hgi/phase1_verdict.md` and `SESSION_HANDOFF_2026-04-27.md`.
 
 **Status (2026-04-24):** Cat head refined via F27 from `NextHeadMTL` (Transformer) → `next_gru` (GRU). Paper-reshaping F21c finding noted in §§Caveats. See §Committed config below.
 

@@ -67,7 +67,7 @@ All metrics favor Check2HGI with non-overlapping std envelopes over 5 folds. The
 8/8 head-state probes positive at maximum-significance n=5 paired Wilcoxon (5/5 folds positive each). Δ range +11.58 to +15.50 pp.
 
 **Source:** `docs/studies/check2hgi/results/probe/{alabama,arizona}_{check2hgi,hgi}_last.json` (Leg I) + `docs/studies/check2hgi/results/phase1_perfold/{AL,AZ}_{check2hgi,hgi}_cat_{gru,single,lstm}_5f50ep.json` (Leg II + C2) + `docs/studies/check2hgi/results/paired_tests/*_cat_*.json` (statistical tests).
-**Status:** `confirmed at AL+AZ matched-head, head-invariant`. FL/CA/TX queued in `baselines/PHASE2_TRACKER.md`.
+**Status:** `confirmed at AL+AZ matched-head, head-invariant`. FL/CA/TX queued in `baselines/check2hgi_v_hgi/phase2_tracker.md`.
 
 ### CH18 — MTL B3 is substrate-specific (NEW, 2026-04-27)
 

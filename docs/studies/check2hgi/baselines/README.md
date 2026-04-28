@@ -208,7 +208,7 @@ Top-level summary table:
 
 ## Cross-references
 
-- **Substrate comparison plan** (Check2HGI vs HGI, matched-head STL of MTL north_star, FL headline + critique remediation): [`SUBSTRATE_COMPARISON_PLAN.md`](SUBSTRATE_COMPARISON_PLAN.md).
+- **Substrate comparison audit hub** (Check2HGI vs HGI — plan, Phase-1 verdict, Phase-2 tracker, per-fold data, paired tests, linear probes): [`check2hgi_v_hgi/`](check2hgi_v_hgi/README.md). Self-contained for paper-review audits.
 - Per-method findings docs: `../research/FAITHFUL_STAN_FINDINGS.md`, `../research/STAN_HGI_FINDINGS.md`, `../research/STAN_THREE_WAY_COMPARISON.md`, `../research/F21C_FINDINGS.md`.
 - Paper-level table layout: `../PAPER_STRUCTURE.md §3` and `../results/RESULTS_TABLE.md`.
 - Headline objective tracking: `../OBJECTIVES_STATUS_TABLE.md`.

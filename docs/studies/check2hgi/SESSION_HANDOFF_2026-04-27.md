@@ -6,17 +6,17 @@ This handoff supersedes `SESSION_HANDOFF_2026-04-24.md`. Read it after § 0 if y
 
 ## 0 · One-minute summary
 
-- **Phase 1 of the substrate-comparison plan is COMPLETE on AL + AZ.** The strong claim (Check2HGI > HGI on both tasks under matched-head + matched MTL + linear-probe) is **confirmed** at both ablation states. See [`baselines/PHASE1_VERDICT.md`](baselines/PHASE1_VERDICT.md) for the §9 outcome-matrix verdict.
+- **Phase 1 of the substrate-comparison plan is COMPLETE on AL + AZ.** The strong claim (Check2HGI > HGI on both tasks under matched-head + matched MTL + linear-probe) is **confirmed** at both ablation states. See [`baselines/check2hgi_v_hgi/phase1_verdict.md`](baselines/check2hgi_v_hgi/phase1_verdict.md) for the §9 outcome-matrix verdict.
 - **Three paper-quality findings landed today:**
   1. **CH16 head-invariant** (cat). 4 probes × 2 states × 5 folds = 8 substrate-Δ measurements; **all 8 positive at max-significance Wilcoxon p=0.0312** (5/5 folds positive each). Δ range +11.58 to +15.50 pp. Substrate effect is not a head amplification artefact.
   2. **CH15 reframed — head-coupled.** Existing "HGI > C2HGI on reg under STAN at 3 states" was an artefact of the STAN head's preference for POI-stable smoothness. Under the matched MTL reg head (`next_getnext_hard` = STAN + α·log_T graph prior), **C2HGI ≥ HGI everywhere**: AL tied within σ (TOST non-inferior at δ=2 pp Acc@10), AZ +2.34 pp Acc@10 / +1.29 pp MRR (5/5 folds, p=0.0312).
   3. **MTL B3 is substrate-specific.** Substituting HGI into the same B3 configuration **breaks the joint signal**: cat F1 collapses by 17 pp at both states; reg Acc@10_indist drops 30 pp at both states (29.95 / 22.10 vs C2HGI's 59.60 / 53.82). The MTL win is *interactional* — B3 exploits Check2HGI's per-visit context, and that context is what the architecture is paid for.
   4. **Mechanism — per-visit variation accounts for ~72% of the cat substrate gap.** POI-pooled Check2HGI (mean across check-ins per `placeid`) under matched-head STL `next_gru` at AL: F1 = 29.57 vs canonical 40.76 vs HGI 25.26. Per-visit context = +11.19 pp (~72%); training signal = +4.31 pp (~28%). Linear-probe agrees on direction (63%/37%); matched-head STL gives stronger per-visit signal.
-- **Open work**: Phase 2 (FL + CA + TX) is now authorised. See [`baselines/PHASE2_TRACKER.md`](baselines/PHASE2_TRACKER.md) for the launch queue. FL data is on disk and ready; CA + TX need upstream pipelines (F22/F23 in legacy tracker).
+- **Open work**: Phase 2 (FL + CA + TX) is now authorised. See [`baselines/check2hgi_v_hgi/phase2_tracker.md`](baselines/check2hgi_v_hgi/phase2_tracker.md) for the launch queue. FL data is on disk and ready; CA + TX need upstream pipelines (F22/F23 in legacy tracker).
 
 ## 1 · Phase 1 results — full table
 
-Compiled from `docs/studies/check2hgi/baselines/PHASE1_VERDICT.md` and `docs/studies/check2hgi/results/phase1_perfold/`.
+Compiled from `docs/studies/check2hgi/baselines/check2hgi_v_hgi/phase1_verdict.md` and `docs/studies/check2hgi/results/phase1_perfold/`.
 
 ### 1.1 next_category — substrate Δ across head probes
 
@@ -82,9 +82,9 @@ Per-visit variation is the dominant mechanism (~72% of matched-head gap). Traini
 
 ## 2 · What changed in the docs (this session)
 
-- **New** `baselines/SUBSTRATE_COMPARISON_PLAN.md` — phase-gated 3-leg framework + critique remediation + outcome interpretation matrix.
-- **New** `baselines/PHASE1_VERDICT.md` — live-updated outcome matrix; final §9 verdict committed 2026-04-27.
-- **New** `baselines/PHASE2_TRACKER.md` — Phase 2 launch queue (FL + CA + TX).
+- **New** `baselines/check2hgi_v_hgi/plan.md` — phase-gated 3-leg framework + critique remediation + outcome interpretation matrix.
+- **New** `baselines/check2hgi_v_hgi/phase1_verdict.md` — live-updated outcome matrix; final §9 verdict committed 2026-04-27.
+- **New** `baselines/check2hgi_v_hgi/phase2_tracker.md` — Phase 2 launch queue (FL + CA + TX).
 - **Code patches** that should NOT be reverted:
   - `src/models/registry.py::create_model` — silent kwarg-filter so STL can swap heads without conflicting `model_params` defaults.
   - `src/configs/paths.py::IoPaths.get_next_region` — allow `EmbeddingEngine.HGI` (data published by `scripts/probe/build_hgi_next_region.py`).
@@ -137,7 +137,7 @@ OUTPUT_DIR=/Users/vitor/Desktop/mestrado/ingred/output \
 
 Total FL ≈ 30 h sequential. Schedule overnight under `caffeinate -s` + F20 per-fold persistence. CA + TX add upstream-pipeline cost (~6–12 h each before the substrate grid).
 
-See `PHASE2_TRACKER.md` for the full launch queue + acceptance criteria.
+See `check2hgi_v_hgi/phase2_tracker.md` for the full launch queue + acceptance criteria.
 
 ## 5 · Don't
 
@@ -149,10 +149,10 @@ See `PHASE2_TRACKER.md` for the full launch queue + acceptance criteria.
 
 ## 6 · Files most worth reading (ranked)
 
-1. `baselines/PHASE1_VERDICT.md` — final outcome-matrix verdict + paper-ready findings.
-2. `baselines/SUBSTRATE_COMPARISON_PLAN.md` §9 — outcome interpretation matrix (resolved by §1 above).
+1. `baselines/check2hgi_v_hgi/phase1_verdict.md` — final outcome-matrix verdict + paper-ready findings.
+2. `baselines/check2hgi_v_hgi/plan.md` §9 — outcome interpretation matrix (resolved by §1 above).
 3. This file (`SESSION_HANDOFF_2026-04-27.md`).
-4. `baselines/PHASE2_TRACKER.md` — what to launch next.
+4. `baselines/check2hgi_v_hgi/phase2_tracker.md` — what to launch next.
 5. `CLAIMS_AND_HYPOTHESES.md §CH16, CH18, CH19` — the three paper-quality findings.
 6. `OBJECTIVES_STATUS_TABLE.md` — updated scorecard.
 7. `NORTH_STAR.md` — committed config + MTL substrate-specific addendum.
