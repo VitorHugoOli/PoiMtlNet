@@ -41,17 +41,17 @@ This tracker is the live work queue for **Phase 2 of `SUBSTRATE_COMPARISON_PLAN.
 
 | # | Pri | Item | State | Owner | Cost | Acceptance criterion |
 |---|:-:|---|:-:|:-:|:-:|---|
-| **F36** | **P1** | FL Phase-2 grid (Legs I + II + III) | FL | m4_pro | ~30 h sequential | All 5 cells (probe + 2 cat STL + 2 reg STL + MTL counterfactual) land. Paper tables filled. |
-| **F36a** | P1 | FL substrate linear probe (Leg I, head-free) | FL | m4_pro | ~5 min × 2 substrates | F1 ± σ for C2HGI and HGI on `output/<engine>/florida/input/next.parquet`. |
-| **F36b** | P1 | FL cat STL `next_gru` × {C2HGI, HGI} (Leg II.1) | FL | m4_pro | ~5–6 h × 2 ≈ 12 h | 5f × 50ep × seed 42. Paired Wilcoxon vs HGI. Pass: Δ > 0 at p < 0.05. |
-| **F36c** | P1 | FL reg STL `next_getnext_hard` × {C2HGI, HGI} (Leg II.2) | FL | m4_pro | ~5–6 h × 2 ≈ 12 h | 5f × 50ep × seed 42. Paired test on Acc@10 + MRR + TOST δ=2 pp. |
-| **F36d** | P1 | FL MTL B3 counterfactual (HGI substrate) (Leg III) | FL | m4_pro | ~5–6 h | 5f × 50ep × seed 42. Compare to existing MTL B3 C2HGI (NORTH_STAR.md). |
+| **F36** | **P1** | FL Phase-2 grid (Legs I + II + III) | FL | colab T4 (preferred) / m4_pro | T4 ~3 h / MPS ~30 h | All 5 cells (probe + 2 cat STL + 2 reg STL + MTL counterfactual) land. Paper tables filled. |
+| **F36a** | P1 | FL substrate linear probe (Leg I, head-free) | FL | m4_pro | ~5 min × 2 substrates | F1 ± σ for C2HGI and HGI on `output/<engine>/florida/input/next.parquet`. CPU-only — Colab not needed. |
+| **F36b** | P1 | FL cat STL `next_gru` × {C2HGI, HGI} (Leg II.1) | FL | colab T4 / m4_pro | T4 ~50 min × 2 / MPS ~5–6 h × 2 | 5f × 50ep × seed 42. Paired Wilcoxon vs HGI. Pass: Δ > 0 at p < 0.05. |
+| **F36c** | P1 | FL reg STL `next_getnext_hard` × {C2HGI, HGI} (Leg II.2) | FL | colab T4 / m4_pro | T4 ~50 min × 2 / MPS ~5–6 h × 2 | 5f × 50ep × seed 42. Paired test on Acc@10 + MRR + TOST δ=2 pp. |
+| **F36d** | P1 | FL MTL B3 counterfactual (HGI substrate) (Leg III) | FL | colab T4 / m4_pro | T4 ~50 min / MPS ~5–6 h | 5f × 50ep × seed 42. Compare to existing MTL B3 C2HGI (NORTH_STAR.md). |
 | **F37** | **P1** | CA upstream pipeline | CA | m4_pro / colab | ~6–12 h | Embeddings + inputs + region transition matrix on `output/{check2hgi,hgi}/california/`. |
-| **F38** | **P1** | CA Phase-2 grid (Legs I + II + III) | CA | m4_pro | ~30 h | Same as F36 but CA. Gated on F37. |
+| **F38** | **P1** | CA Phase-2 grid (Legs I + II + III) | CA | colab T4 / m4_pro | T4 ~3 h / MPS ~30 h | Same as F36 but CA. Gated on F37. |
 | **F39** | **P1** | TX upstream pipeline | TX | m4_pro / colab | ~6–12 h | Embeddings + inputs + region transition matrix on `output/{check2hgi,hgi}/texas/`. |
-| **F40** | **P1** | TX Phase-2 grid (Legs I + II + III) | TX | m4_pro | ~30 h | Same as F36 but TX. Gated on F39. |
+| **F40** | **P1** | TX Phase-2 grid (Legs I + II + III) | TX | colab T4 / m4_pro | T4 ~3 h / MPS ~30 h | Same as F36 but TX. Gated on F39. |
 
-Recommended execution order: F36 (FL, all data on disk) → F37/F38 (CA) → F39/F40 (TX). FL alone is ~30 h on M4 Pro under `caffeinate -s`; CA + TX add ~36–42 h each (pipeline + grid).
+Recommended execution order: F36 (FL, all data on disk) → F37/F38 (CA) → F39/F40 (TX). On Colab T4 the full FL grid is ~3 h vs ~30 h on M4 Pro — see [`../../docs/COLAB_GUIDE.md`](../../docs/COLAB_GUIDE.md) and template notebook [`../../notebooks/colab_check2hgi_mtl.ipynb`](../../notebooks/colab_check2hgi_mtl.ipynb). M4 Pro under `caffeinate -s` remains a valid fallback.
 
 ## 2 · Optional follow-ups (P2/P3, nice-to-have)
 
@@ -84,7 +84,15 @@ OUTPUT_DIR=$OUTPUT_DIR python3 scripts/probe/build_hgi_next_region.py --state <s
 
 If any artefact is missing, complete the upstream pipeline (F37 / F39) first.
 
-## 4 · Launch templates (FL example, M4 Pro)
+## 4 · Launch templates (FL example)
+
+### 4.0 · Colab T4 (preferred for FL grid — ~10× faster than MPS)
+
+The Phase-2 FL grid is the use case the Colab template was built for. F36b/c/d each take ~50 min on T4 vs ~5–6 h on MPS. See [`../../docs/COLAB_GUIDE.md`](../../docs/COLAB_GUIDE.md) for Drive layout, branch hygiene, the detached-subprocess launch pattern (mandatory for runs > 5 min), memory pitfalls (FL's 4702 regions hit a pairwise-comparison MRR OOM unless chunked — already handled in `feat/colab-gpu-perf`), and the verification recipe for confirming `git pull → relaunch` loaded fresh code.
+
+Template notebook: [`../../notebooks/colab_check2hgi_mtl.ipynb`](../../notebooks/colab_check2hgi_mtl.ipynb) — drop in, edit `STATE` + `--engine` + head args, run cells.
+
+### 4.1 · M4 Pro fallback
 
 ```bash
 # Set every-shell env
