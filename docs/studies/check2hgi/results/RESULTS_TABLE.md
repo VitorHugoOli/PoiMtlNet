@@ -1,6 +1,6 @@
 # Results Table — Check2HGI MTL Study
 
-**Last updated:** 2026-04-26 (F48-H3-alt per-head LR + F40 + F48-H2 + F31 post-F27 B3 + F21c STL GETNext-hard rows landed).
+**Last updated:** 2026-04-27 (Phase-1 substrate-comparison cells + F49 3-way decomposition cells appended; pre-2026-04-26 rows preserved verbatim above the new sections at the end of this file).
 
 **Champion candidate (2026-04-26):** **F48-H3-alt** = B3 architecture + per-head LR (`cat_lr=1e-3, reg_lr=3e-3, shared_lr=1e-3`, `--scheduler constant`). Closes the F21c STL gap (CH18 Tier B → A): AL exceeds STL by +6.25 pp; AZ closes 75%; FL validates at 5-fold scale (cat preserved, reg +6.7 pp over predecessor B3). See [`../NORTH_STAR.md`](../NORTH_STAR.md), [`../MTL_ARCHITECTURE_JOURNEY.md`](../MTL_ARCHITECTURE_JOURNEY.md) for derivation, [`../research/F48_H3_PER_HEAD_LR_FINDINGS.md`](../research/F48_H3_PER_HEAD_LR_FINDINGS.md) for detail.
 
@@ -220,3 +220,69 @@ Kept in source of truth for audit but not referenced in the paper:
 | STL reg heads (P1) | `results/P1/region_head_*_region_5f_50ep_*.json` |
 | Simple baselines (Markov k=1..9, Majority, Top-K, Random) | `results/P0/simple_baselines/{alabama,florida}/*.json`; AZ pending |
 | Historical comparisons (pre-B3 framing) | `BASELINES_AND_BEST_MTL.md` (kept for audit; annotated 2026-04-23) |
+| **Phase-1 substrate validation** (per-fold) | `results/phase1_perfold/` (probe + cat STL × 4 heads × 2 substrates × 2 states + reg STL × 2 substrates × 2 states + MTL counterfactual × 2 states + C4 POI-pooled). Index in `research/SUBSTRATE_COMPARISON_FINDINGS.md` Appendix. |
+| **Phase-1 paired tests** | `results/paired_tests/` (Wilcoxon + paired-t + TOST outputs from `scripts/analysis/paired_test_analyser.py`). |
+| **Phase-1 linear probe** | `results/probe/{state}_{check2hgi,hgi,check2hgi_pooled}_last.json` (head-free substrate probe). Generator: `scripts/probe/substrate_linear_probe.py`. |
+| **Phase-1 baseline ports** | `baselines/next_category/results/{state}.json` + `baselines/next_region/results/{state}.json` (faithful STAN, POI-RGNN, MHA+PE, REHDM ports). |
+| **F49 3-way decomposition (AL+AZ 5f, FL 5f via F49c)** | `results/check2hgi/{alabama,arizona}/mtlnet_lr1.0e-04_bs2048_ep50_2026042{7_1008,7_1019,7_1029,7_1049}/summary/full_summary.json` (AL+AZ); `results/check2hgi/florida/f49c_{lossside,frozen}_5f_2026042715/2026042718/summary/full_summary.json` (FL n=5); `results/check2hgi/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260427_1452/summary/full_summary.json` (F49b reproduction gate). Index in `research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md` §6. |
+
+---
+
+## Phase-1 substrate-comparison cells (NEW 2026-04-27)
+
+Source: `research/SUBSTRATE_COMPARISON_FINDINGS.md` (full verdict). Per-fold JSONs at `results/phase1_perfold/` and `results/probe/`. Paired tests at `results/paired_tests/`.
+
+### Cat STL substrate Δ (8 head-state probes; 8/8 positive at p=0.0312, 5/5 folds positive each)
+
+| Probe | AL C2HGI F1 | AL HGI F1 | AL Δ | AZ C2HGI F1 | AZ HGI F1 | AZ Δ |
+|---|---:|---:|---:|---:|---:|---:|
+| Linear (head-free) | 30.84 ± 2.02 | 18.70 ± 1.38 | **+12.14** | 34.12 ± 1.22 | 22.54 ± 0.45 | **+11.58** |
+| **next_gru (matched-head MTL)** | **40.76 ± 1.50** | 25.26 ± 1.06 | **+15.50** ✓ | **43.21 ± 0.78** | 28.69 ± 0.71 | **+14.52** ✓ |
+| next_single (head-sensitivity) | 38.71 ± 1.32 | 26.76 ± 0.36 | **+11.96** | 42.20 ± 0.72 | 29.69 ± 0.97 | **+12.50** |
+| next_lstm (head-sensitivity) | 38.38 ± 1.08 | 23.94 ± 0.84 | **+14.44** | 41.86 ± 0.84 | 26.50 ± 0.29 | **+15.36** |
+
+### Reg STL matched-head (`next_getnext_hard`) — CH15 reframed
+
+| State | C2HGI Acc@10 | HGI Acc@10 | Δ Acc@10 | Wilcoxon p | TOST δ=2pp |
+|---|---:|---:|---:|---:|---|
+| AL | **68.37 ± 2.66** | 67.52 ± 2.80 | +0.85 | 0.0625 marginal | non-inferior ✅ |
+| AZ | **66.74 ± 2.11** | 64.40 ± 2.42 | **+2.34** | **0.0312** ✅ | non-inferior ✅ |
+
+### MTL B3 substrate-counterfactual (CH18) — HGI substitution breaks B3
+
+| State | Substrate | cat F1 | reg Acc@10_indist | Δ_cat (C2HGI − HGI) | Δ_reg (C2HGI − HGI) |
+|---|---|---:|---:|---:|---:|
+| AL | C2HGI (B3) | **42.71 ± 1.37** | **59.60 ± 4.09** | — | — |
+| AL | HGI (counterfactual) | 25.96 ± 1.61 | 29.95 ± 1.89 | **+16.75** | **+29.65** |
+| AZ | C2HGI (B3) | **45.81 ± 1.30** | **53.82 ± 3.11** | — | — |
+| AZ | HGI (counterfactual) | 28.70 ± 0.51 | 22.10 ± 1.63 | **+17.11** | **+31.72** |
+
+MTL+HGI is *worse than STL+HGI* on reg by ~37 pp at AL.
+
+### C4 mechanism — per-visit context contribution (AL)
+
+| Substrate | Linear probe F1 | Matched-head STL F1 (`next_gru`) |
+|---|---:|---:|
+| Check2HGI (canonical) | 30.84 ± 2.02 | 40.76 ± 1.50 |
+| Check2HGI POI-pooled | 23.20 ± 1.08 | 29.57 |
+| HGI | 18.70 ± 1.38 | 25.26 ± 1.06 |
+
+Decomposition: per-visit context = +7.64 pp (~63%) linear / +11.19 pp (~72%) matched-head; training signal residual = +4.50 (~37%) / +4.31 (~28%).
+
+---
+
+## F49 3-way decomposition cells (NEW 2026-04-27)
+
+Source: `research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md` §10 + §13. Per-fold JSONs at the paths in `research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md` §6 + §13.
+
+H3-alt regime: `static_weight + cat_lr=1e-3 + reg_lr=3e-3 + shared_lr=1e-3 + scheduler constant`.
+
+| State | STL F21c | encoder-frozen λ=0 | loss-side λ=0 | Full MTL H3-alt | (frozen − STL) **arch** | (loss − frozen) **co-adapt** | (Full − loss) **transfer** |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| AL (5f) | 68.37 ± 2.66 | 74.85 ± 2.38 | 74.94 ± 2.01 | 74.62 ± 3.11 | **+6.48** ~2.7σ | +0.09 (null) | −0.32 (null) |
+| AZ (5f) | 66.74 ± 2.11 | 60.72 ± 1.64 | 62.70 ± 3.01 | 63.45 ± 2.49 | **−6.02** ~3.7σ | +1.98 (small+) | +0.75 (null) |
+| FL (5f, F49c) | TBD F37 | 64.22 ± 12.03 | 72.48 ± 1.40 | 71.96 ± 0.68 | TBD | +8.27 (~0.68σ) | −0.52 (~0.34σ null) |
+
+All cells are reg `top10_acc_indist`. **Cat-supervision transfer ≤ |0.75| pp on all 3 states (within σ of zero)** — refutes legacy "+14.2 pp transfer at FL" claim by ≥9σ on FL alone, ≥18σ aggregate.
+
+F49b reproduction gate (AL static_weight λ=0 + max_lr=3e-3 + OneCycleLR + next_gru, 5f×50ep): `top10_acc_indist = 53.18 ± 4.56` vs published 52.27 ± 5.03 → Δ +0.91 pp at ~0.13σ (σ-tight match). Infra validated.

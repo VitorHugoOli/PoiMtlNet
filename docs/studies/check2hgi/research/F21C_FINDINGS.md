@@ -2,6 +2,19 @@
 
 **Date:** 2026-04-24. **Tracker:** `FOLLOWUPS_TRACKER.md §F21c`. **Sources:** `results/B3_baselines/stl_getnext_hard_{al,az}_5f50ep.json`.
 
+> **Phase-1 update (2026-04-27):** F21c gave Check2HGI side at AL+AZ. Phase 1 added the **HGI side** at AL+AZ under the same matched head, allowing a direct substrate comparison. Findings (5f × 50ep, seed 42):
+>
+> | State | C2HGI Acc@10 | HGI Acc@10 | Δ | Wilcoxon p_greater |
+> |---|---:|---:|---:|---:|
+> | AL | 68.37 ± 2.66 | 67.52 ± 2.80 | +0.85 | 0.0625 marginal · TOST δ=2 pp ✅ non-inf |
+> | AZ | 66.74 ± 2.11 | 64.40 ± 2.42 | **+2.34** | **0.0312** ✅ |
+>
+> This **flips the existing CH15 verdict** ("HGI > C2HGI on reg under STAN at all 3 states"). Under the matched MTL reg head — the same `next_getnext_hard` head F21c uses — C2HGI ≥ HGI: AL tied within σ (TOST non-inferior at δ=2 pp), AZ significantly C2HGI. CH15 was head-coupled to STAN's POI-stable preference, not pure substrate quality.
+>
+> Phase-1 also lands MTL+HGI counterfactual (CH18 in `CLAIMS_AND_HYPOTHESES.md`): MTL B3 with HGI substrate produces Acc@10_indist of 29.95 (AL) / 22.10 (AZ) — **worse than STL+HGI gethard alone by ~37 pp at AL**. The MTL configuration breaks when paired with HGI; F21c's "STL > MTL on reg" finding under Check2HGI substrate becomes "STL > MTL > broken" when extended to the HGI substrate.
+>
+> See `research/SUBSTRATE_COMPARISON_FINDINGS.md` and `SESSION_HANDOFF_2026-04-27.md`.
+
 ## Headline
 
 **The hard graph prior alone, as a single-task STL model, beats MTL-B3 on next-region by 12–14 pp Acc@10 on AL and AZ.** The MTL coupling we've been treating as the paper's contribution provides no region-side lift — it dilutes.

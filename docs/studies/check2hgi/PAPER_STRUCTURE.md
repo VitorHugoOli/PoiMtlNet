@@ -1,6 +1,15 @@
 # Paper Structure — Single Source of Truth
 
-**Created:** 2026-04-23. **Last updated:** 2026-04-26 (post-F48-H3-alt per-head LR + F40/F48-H2 negative controls). **Owner:** this file defines the paper's table layout, baseline set, STL matching policy, and scope decisions. All other docs reference this.
+**Created:** 2026-04-23. **Updated 2026-04-27** with two complementary tracks: Phase-1 substrate-validation findings (substrate-side: CH16 head-invariant + CH15 reframed + CH18 MTL-substrate-specific) AND F49 architectural attribution (architecture-side: CH19 transfer-null + Layer 2 methodological). **Owner:** this file defines the paper's table layout, baseline set, STL matching policy, and scope decisions. All other docs reference this.
+
+> **2026-04-27 STL-baseline matching policy revision.** Matched-head STL = `next_gru` (cat) / `next_getnext_hard` (reg) — these are the post-F27 MTL B3 task heads. The pre-Phase-1 matched-head policy (which used `next_single` for cat, STAN for reg) is retained as a **head-sensitivity probe row** (still valid as evidence; closes C2 critique). See `research/SUBSTRATE_COMPARISON_PLAN.md` §1.2 + `research/SUBSTRATE_COMPARISON_FINDINGS.md` §5.
+
+> **F49 paper-claim layering (2026-04-27).** The H3-alt champion is unchanged. F49 sharpens *why* it works:
+> - **Layer 1 (Tier A):** cat-supervision transfer is small (≤|0.75| pp) on AL/AZ/FL n=5 — refutes legacy +14.2 pp claim by ≥9σ on FL alone.
+> - **Layer 2 (Tier A, methodological):** loss-side `task_weight=0` ablation is unsound under cross-attention MTL (silenced encoder co-adapts via attention K/V); encoder-frozen isolation is the only clean architectural decomposition.
+> - **Layer 3 (paper-grade for AL/AZ; FL absolute Δ pending F37):** AL architectural = +6.48 ± 2.4 pp (~2.7σ); AZ architectural = −6.02 ± 1.6 pp (~3.7σ) with cat-side rescue.
+>
+> See `research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md` and `CLAIMS_AND_HYPOTHESES.md §CH19`.
 
 ---
 
@@ -29,6 +38,7 @@ CLI delta vs predecessor B3: `--scheduler constant --cat-lr 1e-3 --reg-lr 3e-3 -
 - **F27 (2026-04-24)** — cat-head swap `next_mtl → next_gru` lifts cat F1 by +3.43 pp (AL 5f) and +2.37 pp (AZ 5f, Wilcoxon p=0.0312 on 3 metrics). **FL 1f flipped sign (−0.93 pp)** at n=1 noise; H3-alt FL 5f (+2.20 pp over predecessor B3) resolves the flag. See `research/F27_CATHEAD_FINDINGS.md`.
 - **F21c (2026-04-24)** — matched-head STL `next_getnext_hard` outperformed B3 on reg Acc@10 by 12–14 pp on AL + AZ. Triggered the CH18 attribution chain (F38–F48). **RESOLVED by F48-H3-alt (2026-04-26):** per-head LR closes/exceeds the gap (AL +6.25 pp over STL F21c, AZ closes 75% of B3 gap). CH18 promoted Tier B → A. See `research/F21C_FINDINGS.md` and `research/F48_H3_PER_HEAD_LR_FINDINGS.md`.
 - **F48-H3-alt (2026-04-26)** — per-head LR is the new champion candidate. Paper-strength MTL-over-STL contribution validated 5-fold on AL+AZ+FL. Three orthogonal negative controls (F40 loss-side, F48-H1 gentle constant, F48-H2 warmup-then-plateau) bracket H3-alt as the unique design satisfying joint cat+reg. See `MTL_ARCHITECTURE_JOURNEY.md` for end-to-end derivation.
+- **F49 (2026-04-27)** — 3-way decomposition (encoder-frozen λ=0 / loss-side λ=0 / Full MTL) under H3-alt regime. **AL: H3-alt reg lift is +6.48 pp from architecture alone**; cat-supervision transfer ≈ 0. **AZ: classical-MTL pattern** (architectural overhead, multi-task wrap rescues part). **FL n=5: cat-supervision transfer null on all 3 states** (≤|0.75| pp); refutes legacy "+14.2 pp transfer" claim at ≥9σ on FL alone. **Methodological contribution (Layer 2):** loss-side `task_weight=0` ablation is unsound under cross-attention MTL (silenced encoder co-adapts via attention K/V). CH19 added (Tier A). See `research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md`. F49b reproduction gate at `max_lr=3e-3` matches legacy 52.27 cleanly (53.18 ± 4.56 vs 52.27 ± 5.03, ~0.13σ).
 
 Validation status (as of 2026-04-26):
 
@@ -37,6 +47,8 @@ Validation status (as of 2026-04-26):
 | AL 5f | ✅ validated | `results/check2hgi/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260425_1843/summary/full_summary.json` |
 | AZ 5f | ✅ validated | `results/check2hgi/arizona/mtlnet_lr1.0e-04_bs2048_ep50_20260425_1853/summary/full_summary.json` |
 | FL 5f | ✅ validated (batch=1024) | `results/check2hgi/florida/mtlnet_lr1.0e-04_bs1024_ep50_20260426_0045/summary/full_summary.json` |
+| FL F49 5f loss-side λ=0 | ✅ (F49c) | `results/check2hgi/florida/f49c_lossside_5f_2026042715/summary/full_summary.json` |
+| FL F49 5f frozen-cat λ=0 | ✅ (F49c, frozen-cat unstable) | `results/check2hgi/florida/f49c_frozen_5f_2026042718/summary/full_summary.json` |
 | CA 5f | 🔴 pending — upstream pipeline missing | F22/F24 |
 | TX 5f | 🔴 pending — upstream pipeline missing | F23/F25 |
 
@@ -60,15 +72,20 @@ AL is dev-scale (10 K rows, 1.1 K regions) and AZ is mid-scale (26 K, 1.5 K); bo
 
 ### 3.1 next_category (7 classes, macro-F1 primary)
 
+> **Audit hub:** `baselines/next_category/` ([README](../../studies/check2hgi/baselines/README.md), [comparison.md](../../studies/check2hgi/baselines/next_category/comparison.md), per-baseline files [poi_rgnn.md](../../studies/check2hgi/baselines/next_category/poi_rgnn.md), [mha_pe.md](../../studies/check2hgi/baselines/next_category/mha_pe.md), per-state results at `baselines/next_category/results/{state}.json`). Faithful baseline ports landed 2026-04-27 (commit `6e3cd49`).
+
 | Baseline | Type | Source | Use |
 |---|:-:|---|---|
 | **Majority-class** | simple floor | P0 per-state stats | table floor row |
 | **Markov-1-POI** | simple floor | P0 per-state stats | table floor row |
-| **POI-RGNN** (Capanema et al. 2019, reproduced) | external published | `docs/baselines/BASELINE.md` + `docs/baselines/POI_RGNN_AUDIT.md` | primary external comparison; same Gowalla state-level partition, same 7-category taxonomy. Our +28–32 pp delta on FL is a conservative lower bound (POI-RGNN reproduction used non-user-disjoint folds — see audit). |
-| **STL Check2HGI cat** (matched-substrate STL) | internal ceiling | `P1_5b/*` for AL/AZ; pending for FL/CA/TX | the "MTL lifts STL" comparison; uses `next_mtl` Transformer head (matched-class to `CategoryHeadMTL`) |
-| **STL HGI cat** | substrate ablation (CH16) | AL only so far; F3 adds AZ, F9 adds FL, CA/TX nice-to-have | proves substrate claim Check2HGI > HGI on cat |
+| **POI-RGNN** (Capanema et al. 2019, reproduced) | external published | `docs/baselines/BASELINE.md` + `docs/baselines/POI_RGNN_AUDIT.md` + `baselines/next_category/poi_rgnn.md` + `baselines/next_category/results/<state>.json` | primary external comparison; same Gowalla state-level partition, same 7-category taxonomy. Our +28–32 pp delta on FL is a conservative lower bound (POI-RGNN reproduction used non-user-disjoint folds — see audit). |
+| **MHA+PE** (Zeng et al. 2019) | external published | `baselines/next_category/mha_pe.md` + per-state JSONs | secondary external comparison. |
+| **STL Check2HGI cat** (matched-substrate STL) | internal ceiling | Phase-1 `next_gru` matched-head: `results/phase1_perfold/{AL,AZ}_check2hgi_cat_gru_5f50ep.json` (post-2026-04-27); legacy `next_single` at `P1_5b/*` (head-sensitivity row, post-CONCERNS C17) | the "MTL lifts STL" comparison; **headline cat head: `next_gru`** (matched-head MTL B3) |
+| **STL HGI cat** | substrate ablation (CH16) | Phase-1 matched-head + 4-head sweep at AL+AZ landed 2026-04-27 (`results/phase1_perfold/{AL,AZ}_hgi_cat_*_5f50ep.json`); FL/CA/TX queued in `PHASE2_TRACKER.md` | proves substrate claim Check2HGI > HGI on cat. **Phase-1 confirms head-invariance: 8/8 head-state probes positive at p=0.0312, Δ +11.58 to +15.50 pp.** |
 
 ### 3.2 next_region (~1 K (AL) / ~1.5 K (AZ) / ~4.7 K (FL/CA/TX) classes, Acc@10 primary, MRR + Acc@5 secondary)
+
+> **Audit hub:** `baselines/next_region/` ([README](../../studies/check2hgi/baselines/README.md), [comparison.md](../../studies/check2hgi/baselines/next_region/comparison.md), per-baseline files [stan.md](../../studies/check2hgi/baselines/next_region/stan.md), [rehdm.md](../../studies/check2hgi/baselines/next_region/rehdm.md), per-state results at `baselines/next_region/results/{state}.json`). Faithful baseline ports + Phase-1 matched-head + MTL counterfactual rows landed 2026-04-27.
 
 | Baseline | Type | Source | Use |
 |---|:-:|---|---|
@@ -77,9 +94,10 @@ AL is dev-scale (10 K rows, 1.1 K regions) and AZ is mid-scale (26 K, 1.5 K); bo
 | **Top-K popular** | simple floor | P0 | table floor row |
 | **Markov-1-region** | classical prior | P0 (AL/FL/AZ done; CA/TX pending) | **primary simple floor.** Binds hard on FL (4.7 K region scale — Markov-saturated; see §6). |
 | **Markov-k-region, k=2,…,9** | classical priors | P0 (AL/FL done for k=2..9) | demonstrates monotone degrade with k; used to isolate "neural over equal-context Markov" (CH-M7). |
-| **STL GRU** | neural ceiling (secondary) | P1 (AL/FL done, AZ implicit) | literature-aligned with HMT-GRN; 2nd-best STL after STAN. |
-| **STL STAN** (Luo WWW'21 adapt) | **neural ceiling (primary)** | P1 AL + AZ done; **FL pending (F6)** | "STL SOTA" ceiling; primary comparand for MTL-beats-STL claim. |
-| **STL GETNext-hard** (matched-head STL) — **NEW in tracker F21** | **head-choice ablation** | pending — per state | isolates the MTL-coupling contribution. MTL-B3 vs STL-GETNext-hard measures what joint training adds beyond the shared head. |
+| **STL GRU** | neural ceiling (secondary) | P1 (AL/FL done, AZ implicit) + `baselines/next_region/comparison.md` | literature-aligned with HMT-GRN; 2nd-best STL after STAN. |
+| **STL STAN** (Luo WWW'21 adapt) | head-sensitivity probe (was: neural ceiling primary) | P1 AL + AZ done; **FL still pending (F6)**. `baselines/next_region/stan.md` + per-state JSONs. **CH15 reframed as head-coupled (CONCERNS §C16) — preserved as head-sensitivity row, not headline.** | preserved as the "head-coupled CH15" probe row; not the headline (matched-head reg head is `next_getnext_hard`). |
+| **STL `next_getnext_hard`** (matched-head MTL reg head) | **headline matched-head STL** | Phase-1 Leg II.2: `results/phase1_perfold/{AL,AZ}_{check2hgi,hgi}_reg_gethard_5f50ep.json` (post-2026-04-27); FL pending **F37** (4050-assigned). | **headline reg STL**: matched to MTL B3 reg head. Used by both Phase-1 (substrate Δ) and F49 (vs MTL architectural). |
+| **REHDM** (faithful port) | external concept-aligned | `baselines/next_region/rehdm.md` + per-state JSONs | external comparison; Phase-1 finding: ReHDM STL underperforms STAN STL by 20–37 pp at our protocol. |
 | **HMT-GRN, MGCL** | concept-aligned, different dataset | cited, not direct-comparable (CH10) | framing anchor, not paper table row. |
 
 ### 3.3 Important: GETNext is NOT a baseline
@@ -103,10 +121,10 @@ Compare MTL-B3 vs STL baselines along two axes:
 1. **Matched-head STL** — uses the same head class as B3's corresponding task head. Honest "MTL vs STL" comparison.
 2. **Literature-aligned STL** — uses the published strong single-task architecture. Reference ceiling.
 
-| Task | Matched-head STL | Literature-aligned STL |
-|---|---|---|
-| next-category | `next_mtl` (Transformer) — proxy for `CategoryHeadMTL`. Both are "small 7-class classifiers over a sequence encoder"; the architectural distance is small. Current STL cat numbers (AL 38.58, AZ 42.08, FL 63.17 n=1) use `next_mtl`. | **POI-RGNN** (external). |
-| next-region | **STL GETNext-hard** (F21, pending). | **STL STAN** (AL/AZ done; FL pending F6). |
+| Task | Matched-head STL (post-F27, post-Phase-1) | Head-sensitivity probe (former matched-head) | Literature-aligned STL |
+|---|---|---|---|
+| next-category | **`next_gru`** — matches MTL B3's task_a head exactly. AL+AZ Phase-1: C2HGI 40.76/43.21, HGI 25.26/28.69, Δ=+15.50/+14.52 pp p=0.0312 each. | `next_single` (existing P1_5b — Δ=+18.30 pp at AL) and `next_lstm` — preserve as C2 head-sensitivity rows. | **POI-RGNN** (external). |
+| next-region | **`next_getnext_hard`** (F21c + Phase-1 HGI side). AL+AZ: C2HGI 68.37/66.74, HGI 67.52/64.40 (AL TOST non-inf, AZ +2.34 pp p=0.0312). | STAN (existing CH15-style — preserved as head-sensitivity row showing the head-coupled flip). | **STL STAN** (AL/AZ/FL all done in `baselines/next_region/comparison.md`). |
 
 **Paper caveat to state explicitly:** "Our STL next-category baseline uses the `next_mtl` Transformer head rather than the MTLnet framework's internal `CategoryHeadMTL` multi-path ensemble. These are both small-head, last-token-softmax classifiers over a sequence encoder; the architectural distance is small. The MTL figure in the paper reports the version of the comparison where both heads are matched to the MTLnet architecture."
 
@@ -175,12 +193,19 @@ This is revisited after CA + TX 5-fold data lands. If CA and TX also show Markov
 
 | Objective | Evidence state | Binding work to close |
 |---|:-:|---|
-| **CH16** — Check2HGI > HGI on cat F1 | 🟢 AL (+18.30 pp σ-clean) · 🔴 AZ/FL missing | F3 (AZ HGI cat 5f) + F9 (FL HGI cat 5f). CA/TX nice-to-have. |
+| **CH16** — Check2HGI > HGI on cat F1 | 🟢 **AL+AZ matched-head + head-invariant (8/8 probes p=0.0312, Phase-1 closed 2026-04-27)** · 🔴 FL/CA/TX | F36 (FL Phase-2 grid) + F38 (CA) + F40 (TX) — see `PHASE2_TRACKER.md`. |
+| **CH15** — Check2HGI ≥ HGI on reg under matched MTL head | 🟢 **AZ +2.34 pp p=0.0312, AL TOST non-inf at δ=2 pp (Phase-1)** · 🔴 FL/CA/TX | F36c (FL reg STL). Reframed from prior CH15 (head-coupled). |
+| **CH18** — MTL B3 substrate-specific | 🟢 **AL+AZ (cat −17 pp / reg −30 pp under HGI substitution, Phase-1)** · 🔴 FL/CA/TX | F36d (FL MTL counterfactual). |
+| **CH19** — Per-visit mechanism (~72%) | 🟢 **AL (Phase-1)** · 🟡 FL/CA/TX optional | F41 (FL extension only if reviewer asks). |
 | **MTL > baselines — cat** | 🟢 clean everywhere we have data (AL/AZ/FL-1f) | CA/TX headline runs close this. |
 | **MTL > baselines — reg** | 🟢 AL/AZ (beat Markov by 10+ pp) · 🟡 FL (Markov saturation — approach (a)) | Acknowledge approach (a). |
 | **MTL > STL — cat** | 🟢 AZ (+3.73 pp post-F27, Wilcoxon p=0.0312 on cat F1/Acc@1/reg MRR, 5/5 folds) · 🟢 AL (+4.13 pp post-F27/F31) · 🟢 FL-1f (+2–3 pp) | FL 5f σ (F33 Colab). |
 | **MTL > STL — reg (vs STL STAN ceiling)** | 🟢 AL post-F27 (+0.40 pp over STAN, first cross) · 🟡 AZ (tied σ; +3.75 pp reg macro-F1 at p=0.0312) · 🔴 FL (trails) | F6 (FL STL STAN 5f) + FL 5f MTL. |
-| **MTL coupling vs matched-head STL (F21c)** | 🔴 AL/AZ: **STL GETNext-hard beats MTL-B3 by 12–14 pp Acc@10** (see CH18) · 🔴 FL unmeasured | Drives Option B reframing; FL F21c pending. |
+| **MTL coupling vs matched-head STL (F21c → H3-alt)** | 🟢 **RESOLVED by H3-alt 2026-04-26 + F49 attribution 2026-04-27.** AL: MTL-H3-alt EXCEEDS STL F21c by **+6.25 pp** ✓. AZ: closes 75% of B3 gap. FL: beats Markov+STL GRU; absolute Δ vs STL F21c pending F37. F49 attributes the lift as architecture-dominant (AL +6.48 pp from architecture alone, ~2.7σ). CH18 → Tier A; CH20 added Tier A. | Status now green. F37 closes Layer 3. |
+| **MTL B3 substrate-specific (CH18 Phase-1)** | 🟢 AL+AZ confirmed — MTL+HGI breaks reg by 30 pp (cat −17 pp). MTL+HGI is *worse than STL+HGI* on reg by ~37 pp at AL. See `research/SUBSTRATE_COMPARISON_FINDINGS.md §3`. | Phase-2 FL/CA/TX in `PHASE2_TRACKER.md`. |
+| **CH16 head-invariant (Phase-1 + C2)** | 🟢 AL+AZ — 8/8 head-state probes positive at p=0.0312 (linear/next_gru/next_single/next_lstm); Δ +11.58 to +15.50 pp. CH15 reframed as head-coupled. | Phase-2 cross-state replication. |
+| **Per-visit-context mechanism (CH19 Phase-1 C4)** | 🟢 AL — POI-pooled C2HGI counterfactual: per-visit context = ~72% of cat substrate gap; training signal residual = ~28%. | Phase-2 C4 extension to FL is optional. |
+| **Joint claim — architecture × substrate (CH21)** | 🟢 **TOP-LINE PAPER CLAIM (Tier A) 2026-04-27.** Synthesis of CH18 (substrate-specific) + CH19 (per-visit mechanism) + CH20 (architecture-dominant). The MTL win is interactional, not transfer. See `CLAIMS_AND_HYPOTHESES.md §CH21` + `SESSION_HANDOFF_2026-04-27.md §0.3`. | Paper section drafting (already on `PAPER_PREP_TRACKER.md §5`). |
 
 ---
 

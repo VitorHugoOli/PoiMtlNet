@@ -2,6 +2,8 @@
 
 **Date:** 2026-04-20. Written for the BRACIS 2026 related-work section.
 
+> **⚠ Deprecation note (2026-04-27, post-F49):** §72-77 + §86 of this document cite the legacy 2026-04-20 decomposition numbers ("25 pp architectural overhead at FL", "+14.2 pp cat→reg transfer at FL") from `archive/research_pre_b5/CHAIN_FINDINGS_2026-04-20.md`. Both numbers are **empirically refuted** by F49 (`research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md`). The corrected paper-distinctive contribution is **a per-state mechanism decomposition under a clean 3-way isolation (encoder-frozen λ=0 / loss-side λ=0 / Full MTL)** which shows: AL is architecture-dominant (+6.48 pp from architecture alone, transfer null); AZ has architectural overhead with modest multi-task rescue; FL has null transfer with frozen-cat reg-path instability. The methodological angle — loss-side `task_weight=0` is unsound under cross-attn — is itself a contribution beyond our specific result. **This document needs a rewrite for camera-ready** to use F49 numbers + the corrected framing. Until then, do not cite this document's quantitative decomposition numbers; cite F49_LAMBDA0_DECOMPOSITION_RESULTS.md instead. The qualitative HMT-GRN contrast (different substrate, different task hierarchy, ablation-heavy methodology) survives intact and remains the basis for the paper's positioning section.
+
 ## Why this doc exists
 
 HMT-GRN (Lim et al., SIGIR 2022) is the canonical hierarchical-MTL reference for next-POI recommendation and an obvious reviewer touchstone for our work. This document enumerates the architectural and experimental differences so the paper can cite HMT-GRN as **prior art whose design space ours complements and contrasts with**, not as a head-to-head baseline we need to beat numerically.

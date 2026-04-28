@@ -8,9 +8,11 @@ Read this before any scientific work on the `worktree-check2hgi-mtl` branch. It 
 
 This study runs **alongside** the fusion study — they coexist under `docs/studies/`. Fusion investigates POI-category classification on fused POI-level embeddings; this study investigates **joint next_category + next_region prediction on check-in-level contextual embeddings** (Check2HGI). Do not cross-reference or mix artefacts between the two studies.
 
-**Post-H3-alt era (2026-04-26).** The original P0→P6 phase plan is archived (`archive/phases_original/`). Active work is tracked against the **F48-H3-alt champion candidate** (B3 architecture + per-head LR) in `NORTH_STAR.md`, with the predecessor B3 (50ep + OneCycleLR) preserved as a comparand. Follow-ups in `FOLLOWUPS_TRACKER.md`. Current operational frontier: F37 STL FL ceiling (4050-assigned), CA/TX upstream pipelines (F22/F23), seed sweep on H3-alt. **Before doing scientific work, read `MTL_ARCHITECTURE_JOURNEY.md` first** — it is the end-to-end derivation from initial design through H3-alt; `SESSION_HANDOFF_2026-04-24.md` covers the predecessor period.
+**Post-H3-alt + F49 + Phase-1 substrate era (2026-04-27).** The original P0→P6 phase plan is archived (`archive/phases_original/`). Active work is tracked against the **F48-H3-alt champion candidate** (B3 architecture + per-head LR) in `NORTH_STAR.md`, with the predecessor B3 (50ep + OneCycleLR) preserved as a comparand. Follow-ups in `FOLLOWUPS_TRACKER.md` (per-experiment) and `PAPER_PREP_TRACKER.md` (paper-deliverable). Phase-2 substrate replication queue in `PHASE2_TRACKER.md`. Current operational frontier: F37 STL FL ceiling (4050-assigned, closes F49 Layer 3), Phase-2 FL/CA/TX substrate grid (`PHASE2_TRACKER.md`), paired Wilcoxon on F49 cells, seed sweep on H3-alt. **Before doing scientific work, read `SESSION_HANDOFF_2026-04-27.md` first** — it covers BOTH tracks (Phase-1 substrate-side §0.1 + F49 architecture-side §0.2 + joint claim §0.3). `research/SUBSTRATE_COMPARISON_FINDINGS.md` is the Phase-1 verdict; `research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md` is the F49 verdict. `MTL_ARCHITECTURE_JOURNEY.md` is the end-to-end MTL-architecture derivation from initial design through H3-alt + F49.
 
-AL + AZ + FL 5f × 50ep numbers landed under H3-alt (2026-04-25/26). Five paper-reshaping findings landed since 2026-04-22: **F2** (PCGrad × hard-prior × FL gradient starvation), **F21c** (matched-head STL > MTL-B3 by 12-14 pp on reg, AL+AZ), **F27** (cat-head `next_mtl → next_gru`), **F48-H3-alt** (per-head LR closes/exceeds the F21c gap), **F40 + F48-H2** (negative controls bracketing H3-alt as unique).
+AL + AZ + FL 5f × 50ep numbers landed under H3-alt (2026-04-25/26). F49 λ=0 3-way decomposition landed (2026-04-27): AL+AZ+FL all at 5-fold paper-grade. Phase-1 substrate validation landed (2026-04-27): 5-leg study at AL+AZ confirms strong claim. **Seven paper-reshaping findings since 2026-04-22:** **F2** (PCGrad × hard-prior × FL gradient starvation), **F21c** (matched-head STL > MTL-B3 by 12-14 pp on reg, AL+AZ), **F27** (cat-head `next_mtl → next_gru`), **F48-H3-alt** (per-head LR closes/exceeds the F21c gap), **F40 + F48-H2** (negative controls bracketing H3-alt as unique), **F49** (3-way decomposition: AL reg lift is architectural; cat-supervision transfer is small ≤|0.75| pp on all 3 states; refutes legacy +14.2 pp transfer claim by ≥9σ on FL n=5 alone), **Phase-1 substrate validation** (CH16 head-invariant at AL+AZ across 8 head-state probes; CH15 reframed as head-coupled; CH18 MTL B3 substrate-specific — HGI substitution breaks reg by 30 pp; CH19 per-visit-context mechanism = ~72% of cat substrate gap).
+
+**Joint top-line paper claim (CH21, 2026-04-27):** MTL B3's lift is **interactional architecture × substrate**, not transfer. Substrate (CH18+CH19) is necessary; architecture (CH20) is necessary; the conventional "MTL transfers signal" framing is empirically refuted.
 
 ## Thesis (post-H3-alt resolution, 2026-04-26)
 
@@ -33,17 +35,21 @@ CH18 promoted Tier B → A. The paper's MTL contribution is no longer "joint dep
 | File | Purpose |
 |------|---------|
 | `docs/studies/check2hgi/README.md` | Entry point + scope statement |
-| `docs/studies/check2hgi/MTL_ARCHITECTURE_JOURNEY.md` | ⭐ End-to-end derivation from initial design through H3-alt (read first) |
-| `docs/studies/check2hgi/SESSION_HANDOFF_2026-04-26.md` | One-minute summary of current state (most recent) |
-| `docs/studies/check2hgi/SESSION_HANDOFF_2026-04-24.md` | One-minute summary of predecessor B3 period |
-| `docs/studies/check2hgi/NORTH_STAR.md` | Champion candidate (H3-alt) + predecessor B3 + F27 scale-dependence flag |
+| `docs/studies/check2hgi/SESSION_HANDOFF_2026-04-27.md` | ⭐ Most recent — F49 λ=0 3-way decomposition + reproduction-gate fix + FL 5f in flight |
+| `docs/studies/check2hgi/research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md` | ⭐ F49 3-state decomposition: AL architectural / AZ classical / FL fragile-pending-F49c. Paper-grade vs fragile sub-claim split. |
+| `docs/studies/check2hgi/research/F49_LAMBDA0_DECOMPOSITION_GAP.md` | F49 planning note — gradient-flow analysis, design rationale, B-side contamination acknowledged, mandatory AdamW filter |
+| `docs/studies/check2hgi/MTL_ARCHITECTURE_JOURNEY.md` | End-to-end derivation from initial design through H3-alt; F49 paragraph addition pending |
+| `docs/studies/check2hgi/SESSION_HANDOFF_2026-04-26.md` | H3-alt-discovery session (predecessor) |
+| `docs/studies/check2hgi/SESSION_HANDOFF_2026-04-24.md` | B3 predecessor period |
+| `docs/studies/check2hgi/NORTH_STAR.md` | Champion candidate (H3-alt) + predecessor B3 + F27 scale-dependence flag — unchanged by F49 |
 | `docs/studies/check2hgi/PAPER_STRUCTURE.md` | Paper scope, baselines, STL-matching policy |
-| `docs/studies/check2hgi/FOLLOWUPS_TRACKER.md` | Live work queue (F33/F34/F35 Colab etc.) |
-| `docs/studies/check2hgi/OBJECTIVES_STATUS_TABLE.md` | One-page scorecard |
-| `docs/studies/check2hgi/CLAIMS_AND_HYPOTHESES.md` | Authoritative claim catalog (CH01..CH18) |
-| `docs/studies/check2hgi/CONCERNS.md` | Acknowledged risks + resolutions (C01..C15) |
+| `docs/studies/check2hgi/PAPER_PREP_TRACKER.md` | ⭐ NEW (2026-04-27) — paper-deliverable tracker: claims committable now, headline-blockers, doc-rewrites, risk register, submission checklist |
+| `docs/studies/check2hgi/FOLLOWUPS_TRACKER.md` | Live work queue (F37, F33/F34/F35 Colab etc.; F49/F49b/F49c done) |
+| `docs/studies/check2hgi/OBJECTIVES_STATUS_TABLE.md` | One-page scorecard (v5 post-F49) |
+| `docs/studies/check2hgi/CLAIMS_AND_HYPOTHESES.md` | Authoritative claim catalog (CH01..CH19; CH19 is the F49 finding) |
+| `docs/studies/check2hgi/CONCERNS.md` | Acknowledged risks + resolutions (C01..C15; C12 resolved by F49) |
 | `docs/studies/check2hgi/results/RESULTS_TABLE.md` | Per-state × per-method canonical table |
-| `docs/studies/check2hgi/research/*` | Paper-substantive research notes (F21C, F27, B5_*, etc.) |
+| `docs/studies/check2hgi/research/*` | Paper-substantive research notes (F21C, F27, F48_*, F49_*, B5_*, etc.) |
 
 **Archived (historical reference only):**
 
@@ -53,7 +59,7 @@ CH18 promoted Tier B → A. The paper's MTL contribution is no longer "joint dep
 | `archive/phases_original/` — P0..P7 phase plans | B3 + F* follow-up items in FOLLOWUPS_TRACKER |
 | `archive/research_pre_b3/` — pre-B3 research notes | post-B3 research/ directory |
 
-Before any scientific work, read `SESSION_HANDOFF_2026-04-24.md`, `NORTH_STAR.md`, and `PAPER_STRUCTURE.md`.
+Before any scientific work, read `SESSION_HANDOFF_2026-04-27.md`, `research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md`, `NORTH_STAR.md`, and `PAPER_STRUCTURE.md`.
 
 ---
 

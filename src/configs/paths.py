@@ -35,6 +35,7 @@ class EmbeddingEngine(Enum):
     SPACE2VEC = "space2vec"
     SPHERE2VEC = "sphere2vec"
     CHECK2HGI = "check2hgi"
+    CHECK2HGI_POOLED = "check2hgi_pooled"  # POI-mean-pooled C4 counterfactual
     POI2HGI = "poi2hgi"
     FUSION = "fusion"  # Multi-embedding fusion
 
@@ -386,17 +387,23 @@ class IoPaths:
     def get_next_region(cls, state: str, embedd_engine: EmbeddingEngine) -> Path:
         """Next-region input path.
 
-        The next-region label space is derived from the check2HGI
-        preprocessing graph artifact (``poi_to_region`` tensor); this
-        path helper only covers the CHECK2HGI engine because other
-        engines don't produce a region assignment. If the caller needs
-        next-region labels on a different engine, port the region-
-        definition pipeline first.
+        The next-region *label space* is derived from the check2HGI
+        preprocessing graph artifact (``poi_to_region`` tensor) — that
+        labelling is substrate-independent. Each engine that wants to
+        run a region task must publish its own ``input/next_region.parquet``
+        with substrate-specific embedding columns (built by
+        ``scripts/probe/build_hgi_next_region.py`` and friends).
+
+        Currently supported: CHECK2HGI (canonical), HGI (built for the
+        Phase-1 MTL counterfactual; see SUBSTRATE_COMPARISON_PLAN §5).
+        Other engines: port the builder + pre-stage the parquet first.
         """
-        if embedd_engine != EmbeddingEngine.CHECK2HGI:
+        supported = (EmbeddingEngine.CHECK2HGI, EmbeddingEngine.HGI)
+        if embedd_engine not in supported:
             raise ValueError(
-                f"next_region labels are only defined on CHECK2HGI (got "
-                f"{embedd_engine}). See docs/plans/CHECK2HGI_MTL_OVERVIEW.md §4."
+                f"next_region not yet built for {embedd_engine}. Supported: "
+                f"{[e.name for e in supported]}. Build with "
+                f"scripts/probe/build_hgi_next_region.py (or analogous)."
             )
         return cls.get_input_dir(state, embedd_engine) / "next_region.parquet"
 

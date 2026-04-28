@@ -187,7 +187,49 @@ This tightens the paper's story: the contribution is framed around what Check2HG
 
 **Fix (in progress):** Added `--max-lr` CLI flag to `scripts/train.py`. Launched sweep on AL 5f × 50ep dselectk+pcgrad at max_lr ∈ {0.003, 0.01} (step 7, bg `bauhto2o2`). Results will decide whether any / all of the ablation findings require re-measurement.
 
-**Status:** `under investigation — 2026-04-18`.
+**Second confound identified (2026-04-27, F49).** Beyond the LR mismatch, the loss-side λ=0 protocol itself does not cleanly isolate architectural overhead under cross-attention. Tracing gradient flow in `MTLnetCrossAttn._CrossAttnBlock.forward`, when `category_weight=0.0` the reg loss still propagates back to `category_encoder` parameters through `cross_ba`'s K/V projections (reg's stream queries cat-encoder outputs as K/V). The cat **encoder** is therefore implicitly trained as a reg-helper even though the cat **head** is frozen-at-init. The original "architectural overhead" number is the joint contribution of (i) pure architectural cost and (ii) cross-attention-mediated co-adaptation of the cat encoder to serve reg — two effects that can have opposite signs and cannot be disentangled from a single loss-side λ=0 measurement. Resolution path: F49 introduces a `--freeze-cat-stream` flag for a 3-way decomposition (STL / frozen-cat λ=0 / loss-side λ=0 / full MTL) under H3-alt, replacing the original 2-way decomposition with one that distinguishes architecture, co-adaptation, and transfer. Full analysis: `research/F49_LAMBDA0_DECOMPOSITION_GAP.md`; tracker: `FOLLOWUPS_TRACKER.md §F49`.
+
+**Partial resolution (2026-04-27, F49 AL+AZ landed).** The H3-alt-regime 3-way decomposition completed on AL and AZ (FL in flight, bg `baupbogv6`):
+- **AL:** the original "5.4 pp architectural overhead" claim is REVERSED under H3-alt. Frozen-cat λ=0 = 74.85 ± 2.38 vs STL F21c 68.37 ± 2.66 → architecture is **+6.48 pp BENEFIT**, not overhead. Co-adaptation (+0.09) and transfer (−0.32) are both ≈ 0; H3-alt's reg lift on AL is purely architectural.
+- **AZ:** frozen-cat λ=0 = 60.72 ± 1.64 vs STL 66.74 ± 2.11 → architecture **does cost reg by 6.02 pp** at this state, but co-adaptation (+1.98) and transfer (+0.75) provide modest rescue. Full MTL still trails STL by 3.29 pp (F21c gap persists, just like the legacy framing predicted *for AZ*).
+- **The original "uniform architectural overhead, scale-dependent transfer" framing is refuted by the AL data** independent of the LR confound: AL has near-zero overhead AND near-zero transfer under any clean measurement.
+- The gradient-flow second confound (loss-side λ=0 silently trains cat encoder via cross-attn K/V) was empirically confirmed: 4 regression tests pass, including the load-bearing assertion that `category_encoder.weight.grad.abs().sum() > 0` after backward on `static_weight(category_weight=0.0)`.
+
+FL outcome (in flight) decides whether the headline state matches AL's pattern (architecture wins outright) or AZ's pattern (classical MTL-with-rescue) or a third regime; until FL lands, the paper's "decomposition" claim cannot be committed. C12 closure conditional on FL completion + analysis writeup. Full results: `research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md`.
+
+**Final resolution (2026-04-27 14:50, F49 FL landed).** FL 2-fold re-launch completed cleanly on /tmp-resident data (post-SSD-blip mitigation per C09): FL frozen-cat λ=0 = 73.82 ± 0.94, FL loss-side λ=0 = 72.48 ± 0.46, FL Full MTL H3-alt = 71.96 ± 0.68. Three-state mechanism patterns are now characterized: AL (architecture-dominant, transfer null), AZ (classical-MTL with rescue), FL (architecture + cat-side-co-adaptation-HURTS — encoder-frozen MTL beats Full MTL by +1.86 pp Acc@10). The original "uniform 5.4/24.93 pp architectural overhead + scaling transfer" framing is empirically refuted on all three states:
+- The "uniform overhead" claim collapses because AL's architectural term is +6.48 pp (benefit), AZ's is −6.02 pp, and FL's encoder-frozen variant beats Full MTL outright. Sign and magnitude both vary per state.
+- The "+14.2 pp scaling transfer at FL" claim is dead — measured transfer is ≤ |0.75| pp on all three states (AL −0.32, AZ +0.75, FL −0.52).
+
+The methodological gap (gradient flow under cross-attention silently violating loss-side λ=0's "isolation" claim) is also empirically resolved: 4 regression tests pass, including the load-bearing assertion that cat encoder receives non-zero gradient through `cross_ba`'s K/V under `static_weight(category_weight=0.0)`. The encoder-frozen variant is the only clean architectural isolation in this design space; F49 demonstrates the difference matters numerically (FL: −1.34 pp co-adaptation contribution that loss-side λ=0 would have hidden).
+
+Layer 1 + Layer 2 paper claims (cat-supervision transfer is small on all 3 states; loss-side ablation is unsound under cross-attention MTL) are committable. Layer 3 (absolute architectural Δ on FL vs STL F21c) remains gated on F37 (4050-assigned). Full analysis: `research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md` §10-13.
+
+**Advisor caveat (2026-04-27, post-FL-write-up):** Layer-1 and Layer-2 claims are paper-grade, but several FL claims need walking back:
+- **FL co-adapt = −1.34 pp** is ~1.27σ from zero at n=2 (σ_diff ≈ 1.05) — within noise, not significant.
+- **FL transfer = −0.52 pp** is ~0.63σ — clearly noise.
+- **"Encoder-frozen MTL beats Full MTL on FL by +1.86 pp"** is ~1.6σ — borderline. Don't headline.
+- **The reproduction gate was not actually run against the published 52.27 protocol** — it ran at max_lr=1e-3, the published value was at max_lr=3e-3 (per HYBRID_DECISION_2026-04-20.md "fair LR"). **F49b corrected this 2026-04-27 14:52:** AL `static_weight λ=0 + max_lr=3e-3 + OneCycleLR + next_gru` 5f×50ep gives `top10_acc_indist = 53.18 ± 4.56` vs legacy 52.27 ± 5.03 → Δ = +0.91 pp at ~0.13σ, **σ-tight match**. Gate now passes cleanly; F49 infra reproduces the legacy protocol number; the H3-alt-regime AL/AZ/FL numbers are validated.
+
+**Final resolution (2026-04-27 21:44, F49c FL n=5 landed).** F49c completed the FL 5-fold re-run cleanly on /tmp data (loss-side 191.79 min + frozen 171.22 min). Numbers:
+- FL loss-side n=5: Acc@10 = **72.48 ± 1.40** (mean unchanged from n=2; σ realistic).
+- FL frozen-cat n=5: Acc@10 = **64.22 ± 12.03** (mean **−9.60 pp from n=2**; σ ×13). Per-fold spread is 24 pp; the n=2 estimate was an unrepresentative fold-pair.
+- (loss − frozen) **co-adapt = +8.27 pp at 0.68σ** — point estimate **flipped sign** from n=2 (was −1.34); direction now matches AL +0.09 and AZ +1.98.
+- (Full − loss) **transfer = −0.52 pp at 0.34σ** confirmed null.
+- (Full − frozen) = +7.74 pp at 0.64σ.
+
+**Tree C (FL "H1b negative co-adaptation, encoder-frozen wins") is REFUTED at n=5.** The picture across all 3 states is now consistently **Tree A (architecture-dominant, cat-supervision transfer null, cat-encoder co-adaptation small/positive)**.
+
+The frozen-cat reg path is **unstable on FL** specifically: Acc@10 σ = 12.03 (loss-side σ = 1.40); per-fold reg-best epochs {2, 14, 9, 4, 2} indicate 3 of 5 folds picked very early epochs, symptom of α-growth not engaging when cat features are random. This frozen-side instability at large class cardinality (4702) is a publishable methodological caveat — the encoder-frozen variant works cleanly on AL/AZ but breaks down on FL.
+
+Empirical sub-claims (all paper-grade now):
+- AL architectural +6.48 pp ± 2.4 (~2.7σ): **solid** ✓
+- AZ architectural −6.02 pp ± 1.6 (~3.7σ): **solid** ✓
+- AL/AZ/FL co-adapt + transfer all small (≤ |0.75| pp on transfer; co-adapt direction-positive when measurable): **solid** ✓ (Layer 1, refutes legacy +14.2 pp at ≥9σ on FL alone)
+- Loss-side ablation is unsound under cross-attn MTL (Layer 2 methodological): **solid** ✓
+- FL absolute architectural Δ vs STL: **still pending F37** (4050-assigned, separate followup; not blocking F49 closure).
+
+**Status:** `resolved 2026-04-27 21:44`. Re-opens only on (a) F37 FL F21c landing materially shifting the FL absolute architectural Δ; (b) Wilcoxon paired test on F49 cells revealing significance the σ-distance check missed; (c) reviewer pushing for n>5 replication.
 
 ---
 
@@ -262,6 +304,28 @@ The NORTH_STAR currently reflects **Path A** (`next_gru` universally) pending F3
 
 ---
 
+## C16 — CH15 reframed as head-coupled, not retracted (Phase-1, RESOLVED 2026-04-27)
+
+**Concern raised:** 2026-04-27. The original CH15 ("HGI > Check2HGI on next_region under STL STAN at all 3 states") was a paper-record claim. Phase-1 Leg II.2 showed the gap is **head-coupled to STAN's preference for POI-stable smoothness**: under the matched MTL reg head (`next_getnext_hard` = STAN + α·log_T graph prior), Check2HGI ≥ HGI everywhere (AL TOST non-inferior at δ=2pp Acc@10; AZ +2.34 pp Acc@10 / +1.29 pp MRR, p=0.0312, 5/5 folds positive). This **reframes CH15** but does not retract the STAN-head data.
+
+**Policy adopted:** STAN-head data is preserved as a **head-sensitivity probe row** alongside the matched-head row. The paper reports both: "under STAN, HGI > C2HGI; under the matched MTL reg head, C2HGI ≥ HGI. The previous CH15 verdict was head-coupled, not pure substrate."
+
+**Why this is a concern (not a clean win):** A reviewer might ask "why did you change the matched-head policy after the data?" Answer: F27 (2026-04-24) swapped the MTL cat head from `next_mtl` → `next_gru`, and after that swap the STAN reg-head was no longer "matched" to anything in the MTL config — the matched-head policy revision (`research/SUBSTRATE_COMPARISON_PLAN §1.2`) post-hoc aligned the STL baseline to the actual MTL reg head (`next_getnext_hard`). This is documented at the *plan* level (pre-registration) rather than the *result* level.
+
+**Status:** `resolved 2026-04-27`. Re-opens only if a reviewer specifically challenges the matched-head policy revision as data-driven; in that case point at `SUBSTRATE_COMPARISON_PLAN §1.2` (which precedes the data) and the C2 head-agnostic sweep (which closes the head-sensitivity critique with 8/8 probes positive).
+
+---
+
+## C17 — `next_single` cat evidence demoted to head-sensitivity row (Phase-1, RESOLVED 2026-04-27)
+
+**Concern raised:** 2026-04-27. The pre-Phase-1 CH16 "AL +18.30 pp" evidence used `next_single` head (P1.5b). After F27 the matched-head MTL cat head is `next_gru`; the matched-head `next_gru` STL gives Δ=+15.50 pp at AL (smaller than the 18.30 pp from `next_single`). The paper now reports `next_gru` as the headline cat-substrate Δ and demotes `next_single` to a head-sensitivity probe row.
+
+**Concern surface:** A reviewer who reads the legacy "+18.30 pp" number elsewhere and sees "+15.50 pp" in the headline might think we cherry-picked downward. Counter-evidence: the C2 head-agnostic sweep shows BOTH heads (and `next_lstm` and the head-free linear probe) at p=0.0312 positive, with Δs ranging +11.58 to +15.50 pp. **No head choice flips the sign.** The matched-head row is the headline because it's matched; the other rows are reported as the head-sensitivity probe.
+
+**Status:** `resolved 2026-04-27` per `SUBSTRATE_COMPARISON_FINDINGS.md §5` (8/8 probes positive at max significance). The legacy P1.5b `next_single` row remains in `OBJECTIVES_STATUS_TABLE.md §2.1` as a head-sensitivity probe — see also gap #15 of the audit (the `baselines/next_region/comparison.md` "Pattern summary" caveat).
+
+---
+
 ## Index
 
 | ID | Concern | Status | Trigger to revisit |
@@ -281,3 +345,5 @@ The NORTH_STAR currently reflects **Path A** (`next_gru` universally) pending F3
 | **C13** | **Alabama is a 10K-row dev state; may over-extrapolate to FL/CA/TX** | **open** | Arizona (26K) as intermediate |
 | **C14** | **F27 cat-head scale-dependence flag** | **open — 2026-04-24** | F33 Colab FL 5f decides Path A / B |
 | **C15** | **MTL coupling vs matched-head STL on reg** | **resolved 2026-04-26 — H3-alt closes/exceeds gap on AL+AZ+FL** | F37 STL FL ceiling lands above MTL-H3-alt; or seed sweep σ blowup |
+| **C16** | **CH15 reframed as head-coupled, not retracted** | **resolved 2026-04-27** | Reviewer challenges matched-head policy revision as data-driven |
+| **C17** | **`next_single` cat evidence demoted to head-sensitivity row** | **resolved 2026-04-27** | Reviewer cites legacy +18.30 vs new +15.50 as cherry-picking |

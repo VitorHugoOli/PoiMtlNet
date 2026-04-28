@@ -84,9 +84,9 @@ def setup_optimizer(
     Returns:
         Configured AdamW optimizer.
     """
-    parameters = list(model.parameters())
+    parameters = [p for p in model.parameters() if p.requires_grad]
     if extra_parameters is not None:
-        parameters.extend(list(extra_parameters))
+        parameters.extend(p for p in extra_parameters if p.requires_grad)
 
     return AdamW(
         parameters,
@@ -129,11 +129,17 @@ def setup_per_head_optimizer(
                 f"{type(model).__name__} does not expose it. "
                 f"Currently supported: MTLnetCrossAttn."
             )
-    cat_params = list(model.cat_specific_parameters())
-    reg_params = list(model.reg_specific_parameters())
-    shared_params = list(model.shared_parameters())
+    # Filter out frozen params before constructing AdamW. Without this,
+    # AdamW applies `weight_decay * theta` to params with grad=None on
+    # every step, silently shrinking frozen weights toward zero across
+    # training (catches the F49 encoder-frozen variant and any future
+    # freeze-based ablation). Reg-side `extra_parameters` are typically
+    # learnable scalars; we still filter them for consistency.
+    cat_params = [p for p in model.cat_specific_parameters() if p.requires_grad]
+    reg_params = [p for p in model.reg_specific_parameters() if p.requires_grad]
+    shared_params = [p for p in model.shared_parameters() if p.requires_grad]
     if extra_parameters is not None:
-        reg_params.extend(list(extra_parameters))
+        reg_params.extend(p for p in extra_parameters if p.requires_grad)
     return AdamW(
         [
             {"name": "cat",    "params": cat_params,    "lr": cat_lr},

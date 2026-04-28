@@ -260,7 +260,7 @@ The H3-alt recipe is paper-ready, but several open directions could strengthen o
 
 ## 10 · The shape of the journey
 
-Looking back, the trajectory has three phases:
+Looking back, the trajectory has four phases:
 
 **Architecture search (B-M → B3):** which backbone, which loss, which heads. Roughly Phase B5 plus B3 emergence. Outcome: `mtlnet_crossattn + static_weight(0.75) + next_gru + next_getnext_hard`. Static, well-trodden ML choices.
 
@@ -268,17 +268,21 @@ Looking back, the trajectory has three phases:
 
 **Mechanism + recovery (F38–F48):** systematic refutation of plausible factors (checkpoint, weights, encoder, epochs, OneCycleLR magnitude) → identification of α growth as the load-bearing reg lift mechanism (F45) → identification of cat-vs-shared-cross-attn destabilisation as the cat collapse mechanism (F48-H3) → per-head LR recipe (F48-H3-alt) → bracketing controls (F40, F48-H2) confirming uniqueness.
 
-The lesson is **negative controls are paper material**. The H3-alt recipe alone is "we found a thing that works." H3-alt + F40 + F48-H2 + F48-H3 is "we found the unique thing in this design space and the others are publishable refutations of the obvious alternatives." That is a stronger paper.
+**Attribution + paper-claim discipline (F49):** the final phase took the H3-alt recipe and asked, *"why does it work?"* The conventional MTL framing would say "cat training transfers signal that helps reg." F49's 3-way decomposition (encoder-frozen λ=0 / loss-side λ=0 / Full MTL) refuted that: cat-supervision transfer is null on all 3 states (≤|0.75| pp). The H3-alt reg lift on AL is **architecture-dominant** (+6.48 pp from architecture alone, with frozen-random cat features). F49 also produced a methodological side-finding — loss-side `task_weight=0` ablation is unsound under cross-attention because the silenced encoder co-adapts via attention K/V; encoder-frozen isolation is the only clean architectural decomposition. This applies beyond our study to MulT, InvPT, and any cross-task interaction MTL with `task_weight=0` ablations in the literature.
 
-The work is not done — the open directions above continue the line — but the central CH18 claim has flipped from a methodological limitation to a paper-grade MTL-over-STL contribution with a clean mechanism. That's the inflection point this document records.
+The lesson is **negative controls are paper material AND attribution discipline is paper material**. The H3-alt recipe alone is "we found a thing that works." H3-alt + F40 + F48-H2 + F48-H3 + F49 is "we found the unique thing in this design space, refuted the obvious alternatives, AND identified that the *cause* of the lift is architectural (not cat-supervision transfer as the conventional framing would suggest)." That is a much stronger paper.
+
+The work is not done — the open directions above continue the line — but the central CH18/CH19 picture has gone from a methodological limitation (the F21c gap) to a paper-grade MTL-over-STL contribution with a clean mechanism *and* a methodological contribution about how to ablate cross-attn MTL correctly. That's the inflection point this document records.
 
 ---
 
 ## Cross-references
 
 - `NORTH_STAR.md` — current committed config (predecessor B3 + champion candidate H3-alt)
-- `CLAIMS_AND_HYPOTHESES.md §CH18` — formal claim, now Tier A
-- `FOLLOWUPS_TRACKER.md §F37–F48` — per-experiment status and acceptance criteria
+- `CLAIMS_AND_HYPOTHESES.md §CH18` — formal claim, now Tier A; `§CH19` — F49 attribution + methodological contribution.
+- `FOLLOWUPS_TRACKER.md §F37–F49c` — per-experiment status and acceptance criteria
+- `research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md` — 3-state decomposition + paper-grade vs fragile sub-claim split (the attribution chain's terminus)
+- `research/F49_LAMBDA0_DECOMPOSITION_GAP.md` — F49 planning note (gradient-flow analysis under cross-attention; design rationale)
 - `research/F44_F48_LR_REGIME_FINDINGS.md` — the LR regime sweep
 - `research/F48_H3_PER_HEAD_LR_FINDINGS.md` — H3 + H3-alt + FL scale
 - `research/F40_SCHEDULED_HANDOVER_FINDINGS.md` — loss-side negative control

@@ -1,6 +1,18 @@
 # North-Star MTL Configuration
 
-**Status (2026-04-26):** **F48-H3-alt per-head LR recipe is the new champion candidate.** Validated 5-fold on AL/AZ/FL: cat preserved within ~2 pp of B3, reg Acc@10 lifts by 6.7-15 pp over B3 — **AL exceeds STL F21c ceiling by +6.25 pp; AZ closes 75% of the F21c gap; FL closes the small B3-vs-STL gap and is the most stable (σ=0.68)**. Three orthogonal negative controls (F40 loss-side, F48-H1 gentle constant LR, F48-H2 warmup-then-plateau) confirm H3-alt is the unique design satisfying joint cat+reg. CH18 reframes Tier B → Tier A. Predecessor B3 (50ep + OneCycleLR) preserved in §History.
+**Status (2026-04-27):** Two complementary tracks now confirm the MTL story from different angles. **The recipe below (F48-H3-alt per-head LR) is the committed champion**; substrate validation and architecture attribution both back it.
+
+**Architecture-side (F48-H3-alt + F49, 2026-04-26 → 04-27):** Per-head LR recipe validated 5-fold on AL/AZ/FL — cat preserved within ~2 pp of B3, reg Acc@10 lifts by 6.7-15 pp over B3. AL **exceeds** STL F21c ceiling by +6.25 pp; AZ closes 75%; FL is most stable (σ=0.68). Three orthogonal negative controls (F40, F48-H1, F48-H2) bracket H3-alt as the unique design. **F49 attribution (2026-04-27):** the H3-alt reg lift on AL is *purely architectural* (+6.48 pp from architecture alone, F49c 5f × 50ep); cat-supervision transfer is null on all 3 states (≤|0.75| pp), refuting the legacy "+14.2 pp transfer" claim by ≥9σ on FL n=5. CH18 Tier A; CH19 Tier A. See `research/F48_H3_PER_HEAD_LR_FINDINGS.md` + `research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md`.
+
+**Substrate-side (Phase 1 substrate validation, 2026-04-27):** Five-leg study on AL+AZ confirms the substrate side of the MTL claim:
+
+1. **CH16 confirmed under matched-head, head-invariant** at AL+AZ (8/8 head-state probes positive, p=0.0312 each; ranges +11.58 to +15.50 pp).
+2. **CH15 reframed** — under the matched MTL reg head (`next_getnext_hard`), C2HGI ≥ HGI (was "HGI > C2HGI" under STAN). The previous CH15 was head-coupled.
+3. **CH18 — MTL B3 is substrate-specific.** Substituting HGI breaks the joint signal (cat −17 pp, reg −30 pp Acc@10_indist at both states; MTL+HGI is *worse than STL+HGI* on reg by ~37 pp).
+
+These findings **do not** change the committed config — they explain *why* it works. See `research/SUBSTRATE_COMPARISON_FINDINGS.md` for the full Phase 1 verdict + `PHASE2_TRACKER.md` for FL/CA/TX replication queue.
+
+**Status (2026-04-24):** Cat head refined via F27 from `NextHeadMTL` (Transformer) → `next_gru` (GRU). Paper-reshaping F21c finding noted in §§Caveats. See §Committed config below.
 
 ## Champion candidate — F48-H3-alt (2026-04-26)
 
@@ -33,6 +45,8 @@ LR per param group   : cat_lr=1e-3, reg_lr=3e-3, shared_lr=1e-3   # ← new
 
 **Mechanism (single sentence):** α (graph-prior weight in `next_getnext_hard.head`) needs sustained 3e-3 to grow → reg lift; `shared_lr=1e-3` keeps cross-attn gentle so the cat path stays stable; `cat_lr=1e-3` keeps the cat encoder/head from diverging. The earlier monolithic-LR family (F44-F48-H2) couldn't satisfy both simultaneously because it forced α and the cat path to share an LR.
 
+**Attribution refinement (F49, 2026-04-27):** the H3-alt mechanism above is the *operational* story — it explains why the optimizer recipe works. F49's 3-way decomposition asked the *causal* question — "what does the resulting MTL model do that STL `next_getnext_hard` doesn't?" — and showed the answer is **architecture, not cat-supervision transfer**. On AL the architecture alone (encoder-frozen λ=0, frozen-random cat features) lifts reg by +6.48 pp over STL F21c; cat-supervision via L_cat adds ≈ 0; cross-attn-mediated cat-encoder co-adaptation also adds ≈ 0. AZ shows the classical "architectural overhead, multi-task wrap rescues" pattern. FL's frozen variant is unstable (separate caveat). Operationally H3-alt is unchanged; the *paper claim* is sharpened from "joint MTL transfers cat→reg signal" to "the cross-attention architecture under the per-head LR regime extracts more reg signal from the same input than STL can." See `research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md` and `CLAIMS_AND_HYPOTHESES.md §CH19`.
+
 **Cross-checks landed:**
 - F40 (loss-side cat_weight ramp 0.75→0.25) — cat OK, reg only +1 pp → loss balance is not the lever
 - F48-H1 (constant 1e-3 everywhere) — cat OK, reg flat → α needs LR ≥ 2e-3 to grow
@@ -40,6 +54,8 @@ LR per param group   : cat_lr=1e-3, reg_lr=3e-3, shared_lr=1e-3   # ← new
 - F48-H3 (per-head with `shared_lr=3e-3`) — cat collapsed → shared cross-attn at 3e-3 destabilises cat path
 
 H3-alt is the unique configuration in this design space. See `research/F48_H3_PER_HEAD_LR_FINDINGS.md` for the full derivation, `research/F48_H2_WARMUP_CONSTANT_FINDINGS.md` and `research/F40_SCHEDULED_HANDOVER_FINDINGS.md` for the negative controls, and `MTL_ARCHITECTURE_JOURNEY.md` for the end-to-end narrative from initial design to the current recipe.
+
+**Note on `experiments/check2hgi_up/run_mtl_b3.py` and `docs/COLAB_GUIDE.md`:** both use the **predecessor B3 recipe** (`--max-lr 0.003`, no per-head LR), not H3-alt. This is deliberate for the check2hgi-up embedding-variant study (B3 is the established fair-comparison harness for downstream MTL, so embedding-variant-vs-baseline deltas are interpretable). For new MTL claims against STL, use the H3-alt recipe above. To extend `experiments/check2hgi_up` to H3-alt, append `--scheduler constant --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3` to the `run_mtl_b3.py` command and rename the script accordingly. Tracked in `PAPER_PREP_TRACKER.md §2.3` as a camera-ready follow-up.
 
 ## Predecessor — B3 50ep (2026-04-24, kept for reference)
 
@@ -80,6 +96,19 @@ Per-fold, all 5 cat folds positive on both cat F1 and cat Acc@1. See `research/F
 **vs STL Check2HGI cat (matched-class):** cat F1 0.4208 ± 0.0089 → **Δ = +3.73 pp** (much stronger than the pre-F27 +1.65 pp).
 **vs STL STAN (reg ceiling):** reg Acc@10 0.5224 ± 0.0238 → Δ = +1.58 pp (tied within σ).
 **vs STL GETNext-hard (F21c matched-head reg baseline):** reg Acc@10 0.6674 ± 0.0211 → Δ = **−12.92 pp** (MTL still trails on reg — F21c finding persists).
+
+## Caveats — Phase-1 substrate-specific addendum (2026-04-27)
+
+**MTL B3 only works with Check2HGI substrate.** Phase-1 Leg III (MTL counterfactual with HGI substituted, 5f × 50ep, seed 42 each at AL+AZ):
+
+| State | MTL+C2HGI cat F1 | MTL+HGI cat F1 | MTL+C2HGI reg Acc@10_indist | MTL+HGI reg Acc@10_indist |
+|---|---:|---:|---:|---:|
+| AL | **42.71** | 25.96 | **59.60** | 29.95 |
+| AZ | **45.81** | 28.70 | **53.82** | 22.10 |
+
+The MTL configuration was tuned around Check2HGI's per-visit context. Substituting POI-stable HGI embeddings into the same B3 setup actively **breaks the reg head** (MTL+HGI Acc@10 = 29.95 < STL+HGI gethard Acc@10 = 67.52 at AL — a 37 pp regression vs the standalone HGI baseline). Paper framing implication: the MTL win is **interactional** with the substrate; F49's architectural attribution further qualifies it as **architecture interacts with substrate** (not "transfer happens").
+
+Source: `results/hgi/{alabama,arizona}/mtlnet_lr1.0e-04_bs2048_ep50_20260427_*`. Full table in `CLAIMS_AND_HYPOTHESES.md §CH18`, `OBJECTIVES_STATUS_TABLE.md §2.4`, and the Phase-1 verdict at `research/SUBSTRATE_COMPARISON_FINDINGS.md`.
 
 ## Caveats — the F21c finding (RESOLVED by H3-alt 2026-04-26)
 

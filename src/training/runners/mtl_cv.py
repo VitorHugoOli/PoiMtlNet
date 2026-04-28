@@ -689,6 +689,22 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
         if config.use_torch_compile and DEVICE.type == 'cuda':
             model = torch.compile(model)
 
+        # F49 encoder-frozen λ=0 isolation: freeze the cat encoder + cat
+        # head so the cat **encoder** cannot co-adapt as a reg-helper via
+        # cross-attention K/V. Block-internal cat-side processing
+        # (`_CrossAttnBlock.ffn_a / ln_a*`) is intentionally NOT frozen —
+        # those live in `shared_parameters()` and the reg stream consumes
+        # their outputs as K/V via residuals; freezing them would corrupt
+        # the reg pipeline. The optimizer (setup_per_head_optimizer /
+        # setup_optimizer) filters `requires_grad=False` from every group,
+        # so AdamW weight_decay does NOT decay the frozen weights.
+        if getattr(config, "freeze_cat_stream", False):
+            for p in model.category_encoder.parameters():
+                p.requires_grad_(False)
+            for p in model.category_poi.parameters():
+                p.requires_grad_(False)
+            model.category_encoder.eval()  # disables dropout in the cat encoder
+
         # Cache parameter group lists once per fold (item #2 — avoids
         # walking named_parameters() on every NashMTL backward call).
         cached_shared_params = list(model.shared_parameters())
@@ -747,11 +763,32 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             pct_start=getattr(config, "pct_start", None),
         )
         # Smoke print for F48-H3: verify per-group LRs survived scheduler
-        # init. Only on the first fold to keep logs clean.
+        # init. Only on the first fold to keep logs clean. Also prints
+        # trainable-param count per group — under F49 --freeze-cat-stream
+        # the cat group must report 0 trainable params; any other count
+        # means the freeze didn't take.
         if _per_head and getattr(history, "curr_i_fold", 0) == 0:
-            _groups = [(pg.get("name", "?"), float(pg["lr"]))
-                       for pg in optimizer.param_groups]
-            print(f"[per-head-LR] optimizer groups after scheduler init: {_groups}")
+            _groups = [
+                (pg.get("name", "?"),
+                 float(pg["lr"]),
+                 sum(p.numel() for p in pg["params"] if p.requires_grad))
+                for pg in optimizer.param_groups
+            ]
+            print(f"[per-head-LR] optimizer groups (name, lr, trainable_params): {_groups}")
+            if getattr(config, "freeze_cat_stream", False):
+                cat_group = next(
+                    (pg for pg in optimizer.param_groups if pg.get("name") == "cat"),
+                    None,
+                )
+                if cat_group is None or any(
+                    p.requires_grad for p in cat_group["params"]
+                ):
+                    raise RuntimeError(
+                        "freeze_cat_stream=True but optimizer's 'cat' group "
+                        "still contains trainable params; the freeze did not "
+                        "propagate. Check setup_per_head_optimizer's "
+                        "requires_grad filter."
+                    )
 
         # Per-task class weights. Legacy behaviour (unchanged): weights
         # computed but not passed to CE — kept as a diagnostic. When

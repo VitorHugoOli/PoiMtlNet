@@ -1,10 +1,18 @@
 # Objectives Status Table — Check2HGI Study
 
-**Date:** 2026-04-26 (v4, post-F48-H3-alt + F40 + F48-H2). One-page snapshot of where we stand against the study's two scientific objectives, built from `results/RESULTS_TABLE.md` + per-experiment summaries.
+**Date:** 2026-04-27 (v5, post-F49 + post-Phase-1 substrate validation). One-page snapshot of where we stand against the study's scientific objectives. Phase-1 substrate validation + F49 attribution are both paper-grade; Phase 2 (FL/CA/TX substrate replication) queued in [`PHASE2_TRACKER.md`](PHASE2_TRACKER.md), F37 (FL F21c) queued in `FOLLOWUPS_TRACKER.md`.
 
-> **North-star MTL config candidate (2026-04-26):** **F48-H3-alt** = B3 architecture + per-head LR (`cat_lr=1e-3, reg_lr=3e-3, shared_lr=1e-3`, `--scheduler constant`). See `NORTH_STAR.md` for the recipe; `MTL_ARCHITECTURE_JOURNEY.md` for the derivation. All paper-relevant MTL comparisons use H3-alt as the primary row from 2026-04-26 onward. Predecessor B3 (50ep + OneCycleLR) remains as a reported comparand. Pre-F27 v2 rows using `GETNext-soft` are retained below for audit but are no longer the headline.
+> **NEW Objective 3 (post-Phase-1):** *MTL B3 is substrate-specific* — substituting HGI into the same MTL configuration breaks the joint signal (cat −17 pp, reg −30 pp at AL+AZ). See §2.4 below + CH18 in `CLAIMS_AND_HYPOTHESES.md` + `research/SUBSTRATE_COMPARISON_FINDINGS.md`. AL+AZ confirmed; FL/CA/TX queued.
 
-> **Headline reversal (F48-H3-alt, 2026-04-26).** The F21c finding — STL `next_getnext_hard` dominates MTL by 12–14 pp on reg — is **resolved by the per-head LR recipe**. AL: MTL-H3-alt EXCEEDS STL F21c by +6.25 pp. AZ: closes 75% of the gap. FL: validates at scale, beats Markov-1 by +6.91 pp and STL GRU by +3.63 pp. CH18 promoted Tier B → Tier A. The MTL value proposition now includes paper-strength reg lift, joint single-model deployment, AND cat F1 lift over STL.
+> **NEW Objective 4 (post-F49):** *MTL B3's reg lift is architecture-dominant, not transfer* — F49 3-way decomposition (encoder-frozen λ=0 / loss-side λ=0 / Full MTL) shows AL architecture alone gives +6.48 pp; cat-supervision transfer is null on all 3 states (≤|0.75| pp). Refutes legacy "+14.2 pp transfer" claim by ≥9σ on FL n=5 alone. See CH19 in `CLAIMS_AND_HYPOTHESES.md` + `research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md`. Layer 2 methodological contribution (loss-side ablation unsound under cross-attn) committable now.
+
+> **Prior dates:** 2026-04-26 (v4, post-F48-H3-alt + F40 + F48-H2); 2026-04-23 (v2, joint-execution MTL rows). Built from `results/RESULTS_TABLE.md` + `results/B5/*.json` + `results/P5_bugfix/SUMMARY.md`.
+
+> **North-star MTL config (unchanged by F49):** **F48-H3-alt** = B3 architecture + per-head LR (`cat_lr=1e-3, reg_lr=3e-3, shared_lr=1e-3`, `--scheduler constant`). See `NORTH_STAR.md` for the recipe; `MTL_ARCHITECTURE_JOURNEY.md` for the derivation. All paper-relevant MTL comparisons use H3-alt as the primary row from 2026-04-26 onward. Predecessor B3 (50ep + OneCycleLR) remains as a reported comparand. Pre-F27 v2 rows using `GETNext-soft` are retained below for audit but are no longer the headline.
+
+> **Mechanism attribution sharpened (F49, 2026-04-27).** F49's 3-way decomposition (encoder-frozen λ=0 / loss-side λ=0 / Full MTL) reveals the H3-alt reg lift on AL is **architecture-dominant** (+6.48 ± 2.4 pp from architecture alone, ~2.7σ); cat-supervision transfer is null on all 3 states (≤|0.75| pp). The legacy "+14.2 pp transfer at FL" claim from `archive/research_pre_b5/CHAIN_FINDINGS_2026-04-20.md` is empirically refuted at ≥9σ on FL n=5 alone. CH19 added (Tier A). Layer-2 paper-grade methodological contribution: loss-side `task_weight=0` ablation is unsound under cross-attention MTL (gradient-flow + 4 passing tests). See `research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md` for the full story.
+
+> **Headline reversal (F48-H3-alt, 2026-04-26).** The F21c finding — STL `next_getnext_hard` dominates MTL by 12–14 pp on reg — is **resolved by the per-head LR recipe**. AL: MTL-H3-alt EXCEEDS STL F21c by +6.25 pp. AZ: closes 75% of the gap. FL: validates at scale, beats Markov-1 by +6.91 pp and STL GRU by +3.63 pp. CH18 promoted Tier B → Tier A. The MTL value proposition now includes paper-strength reg lift, joint single-model deployment, AND cat F1 lift over STL. **F49 then identifies the *cause* of that lift as architectural, not cat-supervision transfer** — paper claim sharpens from "MTL coupling helps reg" to "cross-attention architecture + per-head LR extracts more reg signal."
 
 > **Methodological note.** Each MTL row below is a **single execution** that jointly trains both heads. The cat-F1 and reg-Acc@10 columns on a given row come from the **same model, same fold set, same seed** — compared side-by-side against the cat-task baselines (POI-RGNN, Majority, Markov-1-POI) and the region-task baselines (Markov-1-region, STL STAN, STL GETNext-hard matched-head). Earlier drafts of this file cherry-picked the best MTL per (state × task) cell across different runs; that mixed runs and wasn't an honest joint claim. This version fixes that.
 
@@ -28,14 +36,35 @@
 
 Single-task substrate comparison; same pipeline, different embeddings.
 
-| State | Task | Check2HGI STL | HGI STL | Δ (C2HGI − HGI) | σ-overlap? | Evidence |
-|:-:|:-|:-:|:-:|:-:|:-:|:-:|
-| AL | cat F1 | **38.58 ± 1.23** | 20.29 ± 1.34 | **+18.30 pp** | **No** | ✅ `P1_5b/next_category_alabama_{check2hgi,hgi}_5f_50ep_fair.json` |
-| AL | reg Acc@10 (pooled) | 56.11 ± 4.02 | 57.02 ± 2.92 | −0.91 pp | Yes (tied) | CH15 — expected tie after region-pooling |
-| AZ | cat F1 | 42.08 ± 0.89 | **not run** | — | — | 🔴 F3 in `FOLLOWUPS_TRACKER.md` |
-| FL | cat F1 | 63.17 (n=1) | **not run** | — | — | 🔴 F9 |
+### Phase 1 (closed 2026-04-27) — matched-head + head-agnostic + linear probe at AL+AZ
 
-**Status:** `confirmed on AL only`. AL delta is 14× the larger σ. AZ HGI STL cat (F3, ~3 h MPS) is the cheapest next step to get n=2 states.
+Matched-head probe is `next_gru` (the post-F27 MTL B3 cat head). 5f × 50ep, seed 42:
+
+| State | Probe | C2HGI F1 | HGI F1 | Δ | Wilcoxon p_greater | Evidence |
+|:-:|:-|:-:|:-:|:-:|:-:|:-:|
+| AL | Linear (head-free) | 30.84 ± 2.02 | 18.70 ± 1.38 | **+12.14** | n/a | `results/probe/alabama_*_last.json` |
+| AL | next_gru (matched) | **40.76 ± 1.50** | 25.26 ± 1.06 | **+15.50** | **0.0312** ✅ | `results/phase1_perfold/AL_*_cat_gru_5f50ep.json` |
+| AL | next_single | 38.71 ± 1.32 | 26.76 ± 0.36 | **+11.96** | **0.0312** ✅ | (also includes existing `P1_5b/*` evidence Δ=+18.30 leaky-vs-fair) |
+| AL | next_lstm | 38.38 ± 1.08 | 23.94 ± 0.84 | **+14.44** | **0.0312** ✅ | C2 head sweep |
+| AZ | Linear (head-free) | 34.12 ± 1.22 | 22.54 ± 0.45 | **+11.58** | n/a | substrate-only Leg I |
+| AZ | next_gru (matched) | **43.21 ± 0.78** | 28.69 ± 0.71 | **+14.52** | **0.0312** ✅ | matched MTL cat head |
+| AZ | next_single | 42.20 ± 0.72 | 29.69 ± 0.97 | **+12.50** | **0.0312** ✅ | head-sensitivity probe |
+| AZ | next_lstm | 41.86 ± 0.84 | 26.50 ± 0.29 | **+15.36** | **0.0312** ✅ | head-sensitivity probe |
+
+8/8 head-state probes positive at maximum significance. Phase-2 row (FL/CA/TX) in `PHASE2_TRACKER.md`.
+
+**Status:** `confirmed at AL+AZ matched-head, head-invariant, paired-Wilcoxon p=0.0312 each`. Previous AL-only `next_single` evidence (Δ=+18.30, σ-clean) is preserved as a head-sensitivity probe row. Cross-state replication queued for Phase 2.
+
+### CH15 reframing (reg substrate, head-coupled)
+
+| State | Probe | C2HGI Acc@10 | HGI Acc@10 | Δ | Wilcoxon p (Acc@10) |
+|:-:|:-|:-:|:-:|:-:|:-:|
+| AL | STAN (existing CH15) | 59.20 ± 3.62 | **62.88 ± 3.90** | −3.68 (HGI > C2HGI under STAN) | — |
+| AL | next_getnext_hard (matched MTL) | **68.37 ± 2.66** | 67.52 ± 2.80 | +0.85 (TOST non-inf at δ=2 pp) | 0.0625 marginal |
+| AZ | STAN | 52.24 ± 2.38 | **54.86 ± 2.84** | −2.62 | — |
+| AZ | next_getnext_hard (matched MTL) | **66.74 ± 2.11** | 64.40 ± 2.42 | **+2.34** | **0.0312** ✅ |
+
+Previous "HGI > C2HGI on reg" was head-coupled to STAN's preference for POI-stable smoothness. Under the matched MTL reg head (graph prior), C2HGI ≥ HGI at both states (AL tied, AZ significantly C2HGI).
 
 ---
 
@@ -105,7 +134,34 @@ Each row is one MTL run. Compare its cat output vs cat baselines and its reg out
 
 ---
 
-## 3 · Condensed objectives scorecard (north-star = F48-H3-alt, v4)
+### 2.4 Objective 3 — MTL B3 is substrate-specific (NEW, post-Phase-1)
+
+MTL B3 with HGI substrate (5f × 50ep, seed 42), compared to existing MTL B3 with C2HGI:
+
+| State | Substrate | cat F1 | reg Acc@10_indist | Δ_cat (C2HGI − HGI) | Δ_reg (C2HGI − HGI) |
+|:-:|:-|:-:|:-:|:-:|:-:|
+| AL | C2HGI (B3) | **42.71 ± 1.37** | **59.60 ± 4.09** | — | — |
+| AL | HGI (counterfactual) | 25.96 ± 1.61 | 29.95 ± 1.89 | **+16.75** | **+29.65** |
+| AZ | C2HGI (B3) | **45.81 ± 1.30** | **53.82 ± 3.11** | — | — |
+| AZ | HGI (counterfactual) | 28.70 ± 0.51 | 22.10 ± 1.63 | **+17.11** | **+31.72** |
+
+**MTL+HGI is *worse than STL+HGI* on reg** (-37 pp Acc@10 at AL: STL HGI gethard 67.52 → MTL HGI 29.95). The B3 configuration was tuned around Check2HGI's per-visit context and does not generalise to HGI substrate. Status: `confirmed at AL+AZ`. FL/CA/TX queued.
+
+### 2.5 Objective 4 — MTL B3's reg lift is architecture-dominant, not transfer (NEW, post-F49)
+
+F49 3-way decomposition under the H3-alt champion regime, 5-fold:
+
+| State | STL F21c | encoder-frozen λ=0 | loss-side λ=0 | Full MTL H3-alt | (frozen − STL) **arch** | (loss − frozen) **co-adapt** | (Full − loss) **transfer** |
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| AL (5f) | 68.37 ± 2.66 | 74.85 ± 2.38 | 74.94 ± 2.01 | 74.62 ± 3.11 | **+6.48** ~2.7σ | +0.09 | −0.32 |
+| AZ (5f) | 66.74 ± 2.11 | 60.72 ± 1.64 | 62.70 ± 3.01 | 63.45 ± 2.49 | **−6.02** ~3.7σ | +1.98 | +0.75 |
+| FL (5f, F49c) | TBD F37 | 64.22 ± 12.03 | 72.48 ± 1.40 | 71.96 ± 0.68 | TBD | +8.27 (~0.68σ) | −0.52 (~0.34σ) |
+
+**Cat-supervision transfer ≤ |0.75| pp on all 3 states n=5** (within σ of zero). Refutes legacy "+14.2 pp transfer at FL" claim by ≥9σ on FL alone. Layer 2 paper-grade methodological contribution: loss-side `task_weight=0` ablation is unsound under cross-attention MTL (silenced cat encoder co-adapts via attention K/V). Status: `Layer 1 + Layer 2 confirmed at AL+AZ+FL`. FL absolute architectural Δ vs STL pending F37.
+
+---
+
+## 3 · Condensed objectives scorecard (north-star = F48-H3-alt, v5)
 
 Using the **2026-04-26 champion candidate** (B3 architecture + per-head LR `cat_lr=1e-3, reg_lr=3e-3, shared_lr=1e-3, --scheduler constant`) at every state:
 

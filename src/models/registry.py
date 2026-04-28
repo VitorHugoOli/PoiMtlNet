@@ -42,14 +42,29 @@ def _ensure_registered():
 
 
 def create_model(name: str, **kwargs) -> nn.Module:
-    """Instantiate a registered model by name."""
+    """Instantiate a registered model by name.
+
+    Silently drops kwargs the target __init__ does not accept — this lets the
+    same shared `model_params` dict (set up for one head, e.g. next_single)
+    be reused when --model swaps in a head with a different signature
+    (e.g. next_gru, which has no num_heads/seq_length).
+    """
+    import inspect
+
     _ensure_registered()
     if name not in _MODEL_REGISTRY:
         raise KeyError(
             f"Model '{name}' not registered. "
             f"Available: {sorted(_MODEL_REGISTRY.keys())}"
         )
-    return _MODEL_REGISTRY[name](**kwargs)
+    cls = _MODEL_REGISTRY[name]
+    sig = inspect.signature(cls.__init__)
+    accepts_kwargs = any(p.kind == inspect.Parameter.VAR_KEYWORD
+                         for p in sig.parameters.values())
+    if not accepts_kwargs:
+        valid = {k for k in sig.parameters if k != "self"}
+        kwargs = {k: v for k, v in kwargs.items() if k in valid}
+    return cls(**kwargs)
 
 
 def list_models() -> list[str]:

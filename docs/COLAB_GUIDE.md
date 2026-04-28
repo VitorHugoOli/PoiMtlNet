@@ -76,10 +76,18 @@ contain the check2HGI CLI flags (`--task-set`, `--task-a-input-type`,
 
 ---
 
-## 4 · The north-star B3 training command
+## 4 · The B3 (predecessor) training command
 
-This is the single canonical config from `docs/studies/check2hgi/NORTH_STAR.md`
-(post-F27, committed 2026-04-24). All FL/AL/AZ comparison runs use it.
+> **⚠ Currency note (2026-04-27):** the recipe below is the **predecessor B3** config (OneCycleLR + single LR). The current study champion in `docs/studies/check2hgi/NORTH_STAR.md` is **F48-H3-alt**, which differs by adding per-head LR + constant scheduler:
+>
+> ```bash
+> # H3-alt extension — append these flags to the B3 command below to switch champion
+> --scheduler constant --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3
+> ```
+>
+> The B3 numbers in §10 ("Reference benchmarks") are still valid for the predecessor; **H3-alt produces different numbers** (AL Reg Acc@10 ≈ 0.75, AZ ≈ 0.63, FL ≈ 0.72 — see `NORTH_STAR.md` for the full H3-alt table). Use B3 only when your study question explicitly requires the predecessor (e.g. a fair-comparison harness for Check2HGI embedding variants — see `experiments/check2hgi_up/run_mtl_b3.py`). Use H3-alt for any new MTL claim against STL.
+
+This is the predecessor B3 config from `docs/studies/check2hgi/NORTH_STAR.md` (post-F27, committed 2026-04-24). It is preserved as a comparand against which H3-alt's contribution is measured. All B3 reference numbers in this guide are tagged with their config explicitly.
 
 ```bash
 python -u scripts/train.py \
@@ -281,14 +289,21 @@ After the perf pass, expected wall-clock on T4 for the north-star B3 config:
 | AZ | ~28 K | 1547 | ~10 min |
 | FL | ~159 K | 4702 | ~50 min |
 
-Reference quality (from NORTH_STAR.md cross-checks):
+Reference quality:
 
+**B3 predecessor** (the recipe in §4 above without the H3-alt flags):
 - AL Cat F1 ≈ 0.43, Reg Acc@10_indist ≈ 0.60
 - AZ Cat F1 ≈ 0.46, Reg Acc@10_indist ≈ 0.54
 - FL Cat F1 ≈ 0.67, Reg Acc@10_indist ≈ 0.58 (5f mean — n=1 was 0.65)
 
-If your run is **outside ±2 σ of these on the same seed**, something has changed
-semantically — investigate before reporting.
+**F48-H3-alt champion** (B3 + `--scheduler constant --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3`):
+- AL Cat F1 ≈ 0.42, Reg Acc@10_indist ≈ 0.75 (vs STL F21c 0.68 → +6.25 pp ✓)
+- AZ Cat F1 ≈ 0.45, Reg Acc@10_indist ≈ 0.63
+- FL Cat F1 ≈ 0.68, Reg Acc@10_indist ≈ 0.72
+
+**F49 attribution (2026-04-27):** the H3-alt reg lift on AL is *purely architectural* (frozen-cat λ=0 reg ≈ 0.75 — the cat encoder being frozen at random init still gives the lift); cat-supervision transfer is small (≤|0.75| pp) on all 3 states. See `docs/studies/check2hgi/research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md` for the 3-state decomposition.
+
+If your run is **outside ±2 σ of these on the same seed and config**, something has changed semantically — investigate before reporting. Use the B3 numbers if you ran the §4 command verbatim; use the H3-alt numbers if you appended the H3-alt flags.
 
 ---
 

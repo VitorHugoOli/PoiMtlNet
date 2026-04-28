@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "state": "florida",
+  "task": "next_region",
+  "n_rows": 159175,
+  "n_classes": 4703,
+  "protocol": {
+    "folds": 5,
+    "epochs": 50,
+    "seed": 42,
+    "stratification": "target_category",
+    "groups": "userid",
+    "splitter": "StratifiedGroupKFold(shuffle=True)"
+  },
+  "floors": {
+    "majority_class": {
+      "acc1_mean": 22.2453,
+      "acc1_std": 0.3201,
+      "acc5_mean": 22.2453,
+      "acc5_std": 0.3201,
+      "acc10_mean": 22.2453,
+      "acc10_std": 0.3201,
+      "mrr_mean": 22.2453,
+      "mrr_std": 0.3201,
+      "source_json": "docs/studies/check2hgi/results/P0/simple_baselines/florida/next_region.json"
+    },
+    "markov_1_region": {
+      "acc1_mean": 46.3571,
+      "acc1_std": 0.8852,
+      "acc5_mean": 60.3763,
+      "acc5_std": 0.9038,
+      "acc10_mean": 65.051,
+      "acc10_std": 0.928,
+      "mrr_mean": 52.3698,
+      "mrr_std": 0.8973,
+      "source_json": "docs/studies/check2hgi/results/P0/simple_baselines/florida/next_region.json"
+    }
+  },
+  "baselines": {
+    "stan": {
+      "faithful": {
+        "acc1_mean": 35.7003,
+        "acc1_std": 0.665,
+        "acc5_mean": 56.5937,
+        "acc5_std": 0.7476,
+        "acc10_mean": 65.3595,
+        "acc10_std": 0.6904,
+        "mrr_mean": 45.5716,
+        "mrr_std": 0.5653,
+        "macro_f1_mean": 4.551,
+        "macro_f1_std": 0.309,
+        "tag": "FAITHFUL_STAN_fl_5f50ep_v4",
+        "date": "2026-04-26",
+        "source_json": "docs/studies/check2hgi/results/baselines/faithful_stan_florida_5f_50ep_FAITHFUL_STAN_fl_5f50ep_v4.json"
+      },
+      "stl_check2hgi": {
+        "acc1_mean": 46.8158,
+        "acc1_std": 0.5253,
+        "acc5_mean": 65.641,
+        "acc5_std": 0.6212,
+        "acc10_mean": 72.6238,
+        "acc10_std": 0.5182,
+        "mrr_mean": 55.6543,
+        "mrr_std": 0.4278,
+        "macro_f1_mean": 9.702,
+        "macro_f1_std": 0.1134,
+        "tag": "STAN_CHECK2HGI_fl_5f50ep",
+        "date": "2026-04-26",
+        "source_json": "docs/studies/check2hgi/results/P1/region_head_florida_region_5f_50ep_STAN_CHECK2HGI_fl_5f50ep.json"
+      },
+      "stl_hgi": {
+        "acc1_mean": 47.3692,
+        "acc1_std": 0.5215,
+        "acc5_mean": 66.6411,
+        "acc5_std": 0.4315,
+        "acc10_mean": 73.5807,
+        "acc10_std": 0.4276,
+        "mrr_mean": 56.4044,
+        "mrr_std": 0.3984,
+        "macro_f1_mean": 10.8644,
+        "macro_f1_std": 0.2066,
+        "tag": "STAN_HGI_fl_5f50ep",
+        "date": "2026-04-26",
+        "source_json": "docs/studies/check2hgi/results/P1/region_head_florida_region_5f_50ep_STAN_HGI_fl_5f50ep.json"
+      }
+    }
+  }
+}

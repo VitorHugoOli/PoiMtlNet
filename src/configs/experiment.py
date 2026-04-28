@@ -67,6 +67,15 @@ class ExperimentConfig:
     reg_lr: Optional[float] = None
     shared_lr: Optional[float] = None
 
+    # F49 encoder-frozen λ=0 isolation. When True, freezes
+    # `category_encoder` + `category_poi` parameters (requires_grad=False)
+    # so the cat encoder cannot co-adapt as a reg-helper through cross-attn
+    # K/V. Used together with `mtl_loss=static_weight` and
+    # `mtl_loss_params={"category_weight": 0.0}` to measure pure
+    # architectural overhead (encoder-frozen). See
+    # `docs/studies/check2hgi/research/F49_LAMBDA0_DECOMPOSITION_GAP.md`.
+    freeze_cat_stream: bool = False
+
     # torch.compile: disabled by default.  On CUDA it uses the inductor
     # backend; MPS compatibility needs separate testing first.
     use_torch_compile: bool = False

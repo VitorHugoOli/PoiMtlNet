@@ -563,6 +563,20 @@ def _parse_args(argv=None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--freeze-cat-stream",
+        dest="freeze_cat_stream",
+        action="store_true",
+        default=False,
+        help=(
+            "F49 encoder-frozen λ=0 isolation: set requires_grad=False on "
+            "category_encoder + category_poi so the cat encoder cannot "
+            "co-adapt as a reg-helper via cross-attention K/V. Requires "
+            "--mtl-loss static_weight --category-weight 0.0 (the cat-loss "
+            "must be zero or the configuration is incoherent). See "
+            "docs/studies/check2hgi/research/F49_LAMBDA0_DECOMPOSITION_GAP.md."
+        ),
+    )
+    parser.add_argument(
         "--reg-head-param",
         action="append",
         default=[],
@@ -801,6 +815,24 @@ def _apply_cli_overrides(
         loss_params.update(loss_param_overrides)
         config = dataclasses.replace(config, mtl_loss_params=loss_params)
 
+    if getattr(args, "freeze_cat_stream", False):
+        if config.task_type != "mtl":
+            raise ValueError("--freeze-cat-stream requires --task mtl")
+        if config.mtl_loss != "static_weight":
+            raise ValueError(
+                "--freeze-cat-stream requires --mtl-loss static_weight "
+                "(the F49 encoder-frozen variant is defined for "
+                "category_weight=0.0 under static_weight)"
+            )
+        cat_w = config.mtl_loss_params.get("category_weight")
+        if cat_w is None or float(cat_w) != 0.0:
+            raise ValueError(
+                "--freeze-cat-stream requires --category-weight 0.0; "
+                "freezing the cat stream while still applying L_cat is "
+                f"incoherent (got category_weight={cat_w!r})"
+            )
+        config = dataclasses.replace(config, freeze_cat_stream=True)
+
     return config
 
 
@@ -972,9 +1004,15 @@ def main(argv=None) -> None:
         preset_name = args.task_set or LEGACY_CATEGORY_NEXT.name
         task_set = get_preset(preset_name)
         is_check2hgi_track = preset_name == CHECK2HGI_NEXT_REGION.name
-        if is_check2hgi_track and engine != EmbeddingEngine.CHECK2HGI:
+        # SUBSTRATE_COMPARISON_PLAN §5 — MTL counterfactual allows --engine hgi
+        # provided output/hgi/<state>/input/next_region.parquet exists (built
+        # by scripts/probe/build_hgi_next_region.py). Cat input also flips to
+        # HGI's input/next.parquet automatically via IoPaths.
+        _ALLOWED_ENGINES_FOR_C2HGI_PRESET = (EmbeddingEngine.CHECK2HGI, EmbeddingEngine.HGI)
+        if is_check2hgi_track and engine not in _ALLOWED_ENGINES_FOR_C2HGI_PRESET:
             print(
-                f"error: --task-set {preset_name} requires --engine check2hgi "
+                f"error: --task-set {preset_name} requires --engine in "
+                f"{[e.value for e in _ALLOWED_ENGINES_FOR_C2HGI_PRESET]} "
                 f"(got {engine.value}).",
                 file=sys.stderr,
             )
