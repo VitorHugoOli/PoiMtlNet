@@ -227,9 +227,11 @@ Empirical sub-claims (all paper-grade now):
 - AZ architectural −6.02 pp ± 1.6 (~3.7σ): **solid** ✓
 - AL/AZ/FL co-adapt + transfer all small (≤ |0.75| pp on transfer; co-adapt direction-positive when measurable): **solid** ✓ (Layer 1, refutes legacy +14.2 pp at ≥9σ on FL alone)
 - Loss-side ablation is unsound under cross-attn MTL (Layer 2 methodological): **solid** ✓
-- FL absolute architectural Δ vs STL: **still pending F37** (4050-assigned, separate followup; not blocking F49 closure).
+- FL absolute architectural Δ vs STL: **closed by F37 2026-04-28** — frozen-cat λ=0 vs STL F21c FL (5f paired) Wilcoxon **−16.16 pp p=0.0312, 5/5 folds negative**; full MTL H3-alt vs STL F21c FL **−8.78 pp p=0.0312, 5/5 folds negative**.
 
-**Status:** `resolved 2026-04-27 21:44`. Re-opens only on (a) F37 FL F21c landing materially shifting the FL absolute architectural Δ; (b) Wilcoxon paired test on F49 cells revealing significance the σ-distance check missed; (c) reviewer pushing for n>5 replication.
+**Final closure (2026-04-28, F37 FL landed).** F37 STL `next_getnext_hard` FL 5f × 50ep delivers **Acc@10 = 82.44 ± 0.38** (per-fold {0.8197, 0.8247, 0.8294, 0.8204, 0.8277}). Closes Layer 3 of the F49 attribution. The 3-state architectural-Δ pattern is now fully characterised: **{AL +6.48, AZ −6.02, FL −16.16} pp**. AL is the architecture-dominant outlier; AZ and FL pay an architectural cost (heavily on FL). Per-fold architectural deltas at FL are {−32.22, −31.05, −4.01, −5.42, −8.08} — folds 0+1 collapse with the FL frozen-cat instability we flagged earlier (per-fold reg-best epochs {2,14,9,4,2}); folds 2-4 are mild. The architectural cost magnitude has σ ~12 pp at FL but its sign is unambiguous (5/5 paired folds negative). Full analysis: `research/F37_FL_RESULTS.md` + `results/paired_tests/FL_layer3_after_f37.json`.
+
+**Status:** `resolved 2026-04-28 — Layer 3 closed with negative architectural Δ at FL`. C12 fully closed; the original "5.4 pp uniform overhead + 14.2 pp scaling transfer" claim is dead in both legs (transfer null at all 3 states; architecture sign and magnitude vary per state — and on FL the cost is heavier than the original framing predicted).
 
 ---
 
@@ -273,34 +275,39 @@ The NORTH_STAR currently reflects **Path A** (`next_gru` universally) pending F3
 
 ---
 
-## C15 — MTL coupling vs matched-head STL on reg (RESOLVED via F48-H3-alt 2026-04-26)
+## C15 — MTL coupling vs matched-head STL on reg (RE-OPENED 2026-04-28 — scale-conditional, FL flips)
 
 **Concern raised:** 2026-04-24. F21c found STL `next_getnext_hard` beat MTL-B3 by 12-14 pp on reg Acc@10 at AL+AZ.
 
-**Resolution (2026-04-26):** the gap was a single LR-schedule confound, not structural to MTL. F48-H3-alt (per-head LR: `cat_lr=1e-3, reg_lr=3e-3, shared_lr=1e-3, --scheduler constant`) closes/exceeds the gap on all states tested:
+**First-pass resolution (2026-04-26):** F48-H3-alt closed the gap on AL+AZ. Treated as resolved cross-state pending F37 FL.
 
-| State | F21c gap (B3 vs STL) | H3-alt vs STL | Resolution |
-|---|---:|---:|---|
-| AL | -12.04 pp | **+6.25 pp** | **MTL EXCEEDS STL** ✓ |
-| AZ | -13.98 pp | -3.29 pp | 75% of B3 gap closed |
-| FL | TBD | beats Markov +6.91 pp, STL GRU +3.63 pp; STL GETNext-hard pending F37 4050 | scale validation OK |
+**Re-open (2026-04-28, F37 FL landed):** the explicit re-open trigger fired. **F37 STL `next_getnext_hard` FL 5f Acc@10 = 82.44 ± 0.38**, far above MTL-H3-alt FL 73.65 ± 1.25 (per-task best, top10_acc_indist) / 71.96 ± 0.68 (joint best). Paired Wilcoxon **−8.78 pp p=0.0312, 5/5 folds negative**. The matched-head STL ceiling exceeds MTL at FL by a margin paired-test-significant at the n=5 ceiling.
 
-**Mechanism:** α (graph-prior weight in `next_getnext_hard.head`, in `reg_specific_parameters`) needs sustained 3e-3 to grow per the F45 attribution. Per-head LR isolates α's regime from cat-stability regime. Three orthogonal negative controls (F40 loss-side ramp, F48-H1 monolithic gentle constant, F48-H2 warmup-then-plateau) confirm H3-alt is the unique design that satisfies joint cat+reg objective.
+| State | F21c gap (B3 vs STL) | H3-alt vs STL | Wilcoxon | Resolution |
+|---|---:|---:|:-:|---|
+| AL | -12.04 pp | **+6.25 pp** | p=0.0312 (5/5 +) | **MTL EXCEEDS STL** ✓ |
+| AZ | -13.98 pp | -3.29 pp | n.s. | 75% of B3 gap closed |
+| FL | (was TBD) | **−8.78 pp** | **p=0.0312 (5/5 −)** | **STL EXCEEDS MTL** ✗ |
 
-**Impact on the thesis (REVERSED):**
+**Per-state architectural Δ (F49 frozen-cat vs STL F21c):** AL +6.48 pp; AZ −6.02 pp; **FL −16.16 pp** (5/5 paired Wilcoxon p=0.0312). The cross-attention architecture is **not** a universal lever for reg; it lifts AL but costs AZ and heavily costs FL.
 
-- **CH01 / CH02 reaffirmed:** under H3-alt, joint MTL lifts both heads over matched-head STL at AL (cat +3.64 pp over STL `next_mtl`, reg **+6.25 pp over STL `next_getnext_hard`**). The earlier F21c "MTL trails STL on reg" framing was per the predecessor B3 + OneCycleLR config; it does not survive H3-alt.
-- **CH18 promoted Tier B → A.** See `CLAIMS_AND_HYPOTHESES.md §CH18` for the updated statement.
-- **Paper framing:** the contribution is no longer "joint deployment accepting reg cost"; it is "joint single-model MTL with per-head LR exceeds matched-head STL on reg AND preserves cat F1, validated cross-state with a clean attribution chain."
+**Updated thesis impact (after F37):**
 
-**Documentation updated (2026-04-26):** `NORTH_STAR.md`, `PAPER_STRUCTURE.md`, `OBJECTIVES_STATUS_TABLE.md` (v4), `AGENT_CONTEXT.md`, `README.md`, `results/RESULTS_TABLE.md`, plus new `MTL_ARCHITECTURE_JOURNEY.md`.
+- **CH18** retained Tier A but reframed as **scale-conditional**: AL exceeds STL, AZ closes 75%, FL ceiling above MTL. The headline contribution at FL is **substrate-only** (cat-side MTL > STL +0.94 pp p=TBD; reg-side MTL < STL).
+- **CH21** (top-line claim) revised: "the MTL win is interactional architecture × substrate" holds on AL; at FL the substrate carries the cat advantage while the architecture costs reg. Paper framing must contrast AL (architecture-dominant lift) vs FL (substrate-only) explicitly.
+- **Paper recipe** for the H3-alt regime is unchanged (still the recommended joint config when MTL is desired); the *per-task ceiling* on FL reg is `next_getnext_hard` STL.
 
-**What would re-open:**
-- F37 STL FL ceiling lands above MTL-H3-alt FL (71.96) → AL/AZ-style asymmetry on FL → C15 re-opens with FL caveat.
-- Seed-sweep on H3-alt shows σ blowup that erases the AL surplus → C15 re-opens with stability concern.
-- Reviewer demands paired Wilcoxon for H3-alt vs STL F21c → run paired test (cheap, F37 dependency) and report.
+**Mitigation in paper:**
+- Headline tables report MTL H3-alt **and** STL F21c per state; let the per-state pattern speak.
+- Discussion section explicitly characterises the architectural-cost-grows-with-cardinality pattern (1.1K → 1.5K → 4.7K regions; architectural Δ +6.5 / −6.0 / −16.2 pp).
+- Limitations §6.1 already had a 2-state-dev-regime caveat; updated to flag scale-conditional architectural lift specifically.
 
-**Status:** `resolved 2026-04-26 — H3-alt closes/exceeds the matched-head gap on AL+AZ+FL`. Re-opens on any of the three triggers above.
+**What this does NOT change:**
+- Cat-side MTL > STL holds at all 3 states (+3.64 AL / +3.03 AZ / +0.94 FL).
+- Substrate findings (CH16 head-invariance, CH18-substrate counterfactual, CH19 per-visit mechanism) are state-replicating questions (CH16 confirmed AL+AZ; FL via F36 queued).
+- F49 Layer 1+2 (transfer null, methodological soundness) hold throughout.
+
+**Status:** `re-opened 2026-04-28 with FL caveat — scale-conditional`. Paper-grade resolution: report per-state results without papering over the FL flip; reframe CH21 accordingly. **Mitigation = honest characterisation, not retraction.**
 
 ---
 

@@ -110,11 +110,25 @@ The MTL configuration was tuned around Check2HGI's per-visit context. Substituti
 
 Source: `results/hgi/{alabama,arizona}/mtlnet_lr1.0e-04_bs2048_ep50_20260427_*`. Full table in `CLAIMS_AND_HYPOTHESES.md §CH18`, `OBJECTIVES_STATUS_TABLE.md §2.4`, and the Phase-1 verdict at `research/SUBSTRATE_COMPARISON_FINDINGS.md`.
 
-## Caveats — the F21c finding (RESOLVED by H3-alt 2026-04-26)
+## Caveats — the F21c finding (SCALE-CONDITIONAL, reframed 2026-04-28 after F37 FL)
 
 **F21c (2026-04-24):** STL-with-the-graph-prior (`next_getnext_hard` single-task) outperformed MTL-B3 on region by 12–14 pp Acc@10 at AL + AZ. Full analysis: `research/F21C_FINDINGS.md`.
 
-**Resolution (F48-H3-alt, 2026-04-26):** the gap was NOT structural to MTL — it was a single confound in the LR schedule. The graph-prior weight α needed sustained-high LR to grow; the OneCycleLR annealing prevented this. Per-head LR (cat=1e-3, reg=3e-3, shared=1e-3) decouples α's regime from the cat-stability regime and recovers/exceeds the STL ceiling on AL while closing 75% of the gap on AZ. CH18 reframes from Tier B (methodological limitation) to Tier A (gap closed). Full analysis: `research/F48_H3_PER_HEAD_LR_FINDINGS.md`.
+**First-pass resolution (F48-H3-alt, 2026-04-26):** the gap was NOT structural to MTL on AL+AZ — it was a single confound in the LR schedule. Per-head LR (cat=1e-3, reg=3e-3, shared=1e-3) closed/exceeded the STL ceiling on AL (+6.25 pp, paired Wilcoxon p=0.0312) and closed 75% of the gap on AZ. Full analysis: `research/F48_H3_PER_HEAD_LR_FINDINGS.md`.
+
+**FL closure (F37, 2026-04-28) — scale-conditional reframing:** F37 STL `next_getnext_hard` FL 5f Acc@10 = **82.44 ± 0.38**, far above MTL-H3-alt FL 73.65 (per-task best, top10_acc_indist) / 71.96 (joint best). Paired Wilcoxon **−8.78 pp p=0.0312, 5/5 folds negative**. The matched-head STL ceiling exceeds MTL-H3-alt at FL. The H3-alt recipe **does not lift reg above STL at FL scale** — at 4,702 regions, the cross-attention architecture pays an architectural cost (F49 Layer 3: architectural Δ vs STL = **−16.16 pp**) that the per-head LR cannot recover.
+
+**Per-state pattern (architectural Δ from F49 + MTL vs STL gap):**
+
+| State | Regions | Architectural Δ (frozen − STL) | MTL H3-alt vs STL F21c | Verdict |
+|-------|--------:|------------------------------:|----------------------:|---------|
+| AL | 1,109 | **+6.48 pp** (architecture wins) | **+6.25 pp** | MTL exceeds STL ✓ |
+| AZ | 1,547 | −6.02 pp | −3.29 pp (75% closed) | classical pattern |
+| FL | 4,702 | **−16.16 pp** (heavy cost) | **−8.78 pp p=0.0312** | STL ceiling above MTL ✗ |
+
+**Implication for paper framing.** CH18/CH21 are reframed as scale-conditional: AL is the architecture-dominant state where MTL H3-alt > STL on reg. FL's headline reg ceiling is STL `next_getnext_hard` (the matched-head single-task baseline). The H3-alt recipe is still the recommended joint-deployment config — and at FL the **substrate-side cat advantage** (CH16 + CH18-substrate) carries the contribution; the architecture-side reg lift is AL-only.
+
+Full analysis: `research/F37_FL_RESULTS.md`. Concern tracker: `CONCERNS.md §C15` (re-opened 2026-04-28 with FL caveat).
 
 The B3-vs-STL framing below is preserved for the predecessor recipe (still relevant when the per-head LR mode is not used):
 
@@ -132,7 +146,9 @@ The B3-vs-STL framing below is preserved for the predecessor recipe (still relev
 | AZ | **5f × 50ep (post-F27, next_gru)** ⭐ | **0.4581 ± 0.0130** | **0.5382 ± 0.0311** | ✅ **committed; Wilcoxon p=0.0312 on 3 metrics** |
 | FL | 1f × 50ep (pre-F27, F2 + F17 fold 1 ×2) | 0.6623 / 0.6706 | 0.6582 / 0.6655 | prior n=1 |
 | FL | **1f × 50ep (post-F27, next_gru)** | 0.6572 | 0.6526 | ⚠️ **F32 — cat F1 −0.93 vs pre-F27 mean**; within n=1 noise but direction flipped |
-| FL | 5f × 50ep | 🔴 pending | 🔴 pending | headline run pending; see §F27 scale-dependence note |
+| FL | **5f × 50ep H3-alt MTL** (F48-H3-alt, 2026-04-26) | **0.6792 ± 0.0072** | 0.7196 ± 0.0068 (top10_acc_indist) | ✅ MTL champion FL run |
+| FL | **5f × 50ep STL `next_gru` cat** (F37 P1, 2026-04-28) | **0.6698 ± 0.0061** | — | ✅ matched-head cat ceiling. MTL > STL by **+0.94 pp** at FL ✓ |
+| FL | **5f × 50ep STL `next_getnext_hard` reg** (F37 P2, 2026-04-28) | — | **0.8244 ± 0.0038** | ⚠️ matched-head reg ceiling **exceeds MTL-H3-alt by −8.78 pp p=0.0312, 5/5 folds**. CH18 reframes scale-conditional. |
 
 ## ⚠ F27 scale-dependence flag (2026-04-24)
 

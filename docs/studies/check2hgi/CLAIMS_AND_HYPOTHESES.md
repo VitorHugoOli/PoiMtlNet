@@ -344,17 +344,24 @@ The MTL architecture already has **two independent task-specific encoders** (`ca
 **Phase:** P3.
 **Status:** `pending`.
 
-### CH18 — Matched-head STL GETNext-hard dominated MTL-B3 on next-region at ≤1.5K-region scale (RESOLVED — Tier A as of 2026-04-26)
+### CH18 — Matched-head STL GETNext-hard dominated MTL-B3 on next-region (Tier A — scale-conditional, reframed 2026-04-28)
 
-**Status update (2026-04-26):** This claim is **RESOLVED** by F48-H3-alt. The 12–14 pp STL-MTL gap was not structural to MTL — it was a single LR-schedule confound. Per-head LR (cat=1e-3, reg=3e-3, shared=1e-3, all constant) recovers the gap completely on AL (MTL **+6.25 pp above STL ceiling**) and closes 75% on AZ (-3.29 pp residual within 1.5σ). FL also closes the smaller B3-vs-STL gap. The mechanism: α (the graph-prior weight in `next_getnext_hard.head`) needs sustained-high LR to grow; per-head LR decouples α's regime from the cat-stability regime. Three orthogonal negative controls (F40 loss-side ramp, F48-H1 monolithic gentle constant, F48-H2 warmup-then-plateau) confirm H3-alt is the unique design that satisfies the joint cat+reg objective. **Tier B → Tier A** (gap closed; recipe paper-ready). Full derivation: `research/F48_H3_PER_HEAD_LR_FINDINGS.md` + `MTL_ARCHITECTURE_JOURNEY.md`.
+**Status update (2026-04-28, after F37 FL):** The original "RESOLVED by H3-alt" framing held on AL+AZ but **flips at FL scale**. With F37 STL F21c FL now landed (5f × 50ep, paired Wilcoxon), the per-state pattern is:
+- **AL:** MTL H3-alt **+6.25 pp** above matched-head STL (architecture-dominant lift, F49 confirms).
+- **AZ:** MTL H3-alt closes 75% of B3 gap; STL ceiling still −3.29 pp above MTL (within 1.5σ).
+- **FL:** **Matched-head STL ceiling exceeds MTL H3-alt by −8.78 pp** (5/5 folds in negative direction, paired Wilcoxon p=0.0312, max-significance at n=5). The architectural Δ vs STL F21c (F49 Layer 3) is **−16.16 pp** at FL — heavy architectural cost when cat features are random-frozen.
+
+The CH18 claim therefore is **scale-conditional, not state-general**. Tier A status retained for the AL paper-strength result; FL is reported as the contrasting regime. See `research/F37_FL_RESULTS.md` for full details.
 
 **Updated headline numbers (5-fold × 50 epochs, seed 42, F48-H3-alt recipe):**
 
-| State | STL `next_getnext_hard` Acc@10 | MTL-H3-alt Acc@10 | Δ (MTL − STL) | Outcome |
-|:-:|---:|---:|---:|---|
-| AL | 68.37 ± 2.66 | **74.62 ± 3.11** | **+6.25** | **MTL exceeds STL** |
-| AZ | 66.74 ± 2.11 | 63.45 ± 2.49 | −3.29 | closes 75% of B3 gap |
-| FL† | TBD (F37 4050) | 71.96 ± 0.68 | — | FL B3-vs-STL gap was small at 1f; H3-alt at 5f is the new reference |
+| State | STL `next_getnext_hard` Acc@10 | MTL-H3-alt Acc@10 | Δ (MTL − STL) | Wilcoxon (5/5 paired) | Outcome |
+|:-:|---:|---:|---:|:-:|---|
+| AL | 68.37 ± 2.66 | **74.62 ± 3.11** | **+6.25** | p=0.0312 (5/5 +) | **MTL exceeds STL** |
+| AZ | 66.74 ± 2.11 | 63.45 ± 2.49 | −3.29 | n.s. (within 1.5σ) | closes 75% of B3 gap |
+| FL | **82.44 ± 0.38** | 73.65 ± 1.25 | **−8.78** | **p=0.0312 (5/5 −)** | **STL ceiling above MTL** |
+
+(FL MTL H3-alt is reported here at per-task best epoch on `top10_acc_indist`, matched to F49 conventions; STL F21c reports `top10_acc` over the full distribution. FL OOD share is ~0.6–1.1%; converting either metric to the other shifts the Δ by ≤0.7 pp — see `results/paired_tests/FL_layer3_after_f37.json`.)
 
 The earlier B3 (50ep + OneCycleLR) numbers below remain accurate for the predecessor recipe — preserved as a comparand to demonstrate the per-head LR contribution.
 
@@ -406,42 +413,43 @@ The earlier candidates (per-task weight clipping, prior-magnitude normalisation,
 
 - **AL (5f, ~2.7σ):** architecture +6.48 ± 2.4 pp over STL F21c; co-adapt +0.09 (null); transfer −0.32 (null). The H3-alt reg lift is **purely architectural** on AL.
 - **AZ (5f, ~3.7σ):** architecture −6.02 ± 1.6 pp (overhead); co-adapt +1.98 (modest positive); transfer +0.75 (null/small). Classical MTL pattern (architecture costs reg, multi-task wrap rescues part).
-- **FL (5f, F49c):** loss-side 72.48 ± 1.40, frozen 64.22 ± 12.03 (frozen-cat reg path is unstable on FL — per-fold Acc@10 spread 49–74), Full MTL 71.96 ± 0.68. Co-adapt = +8.27 (~0.68σ — direction matches AL/AZ); transfer = −0.52 (~0.34σ null). FL absolute architectural Δ vs STL pending F37.
+- **FL (5f, F49c + F37 closing Layer 3, 2026-04-28):** STL F21c 82.44 ± 0.38; loss-side λ=0 72.48 ± 1.40; frozen-cat λ=0 64.22 ± 12.03 (per-fold reg-best epochs {2,14,9,4,2} → α-growth fails when cat is random); Full MTL H3-alt 71.96 ± 0.68. **Architectural Δ (frozen − STL) = −16.16 pp** (5/5 folds negative, paired Wilcoxon p=0.0312); co-adapt = +8.27 (~0.68σ); transfer = −0.52 (~0.34σ null). **Architecture is a heavy cost at FL scale; co-adapt only partially recovers, full MTL still −8.78 pp below STL ceiling p=0.0312.**
 
 **Why this claim exists:** the 2026-04-20 chain-of-4 framing (`archive/research_pre_b5/CHAIN_FINDINGS_2026-04-20.md`) reported "+14.2 pp transfer at FL" + "uniform architectural overhead." Both were artefacts of (a) loss-side ablation under cross-attention not being a clean architectural isolation (the silenced cat encoder co-adapts via attention K/V — see Layer 2 below), and (b) `CONCERNS.md §C12` LR confound (MTL@1e-3 vs STL@3e-3). F49 fixes both via the encoder-frozen variant + H3-alt regime. The +14.2 pp transfer claim is now refuted at ≥9σ on FL n=5 alone, ≥18σ aggregate.
 
 **Why this is a paper-grade contribution:**
 
-- **Layer 1 (transfer claim):** "Cat-supervision transfer in cross-attention MTL on next_region is small at our scale; the H3-alt reg lift is architecture-dominant on AL and architectural-overhead-with-modest-rescue on AZ." Reframes the paper's MTL contribution from "we found a transfer mechanism" to "we found an architectural mechanism (the per-head LR + cross-attention pipeline) that lifts reg with cat training adding ≈ 0."
+- **Layer 1 (transfer claim):** "Cat-supervision transfer in cross-attention MTL on next_region is small at our scale (≤|0.75| pp on AL/AZ/FL n=5); the H3-alt reg lift is architecture-dominant on AL, architectural-overhead-with-modest-rescue on AZ, and **architectural-cost-at-scale on FL**." Reframes the paper's MTL contribution from "we found a transfer mechanism" to "we found an architectural mechanism that lifts reg on AL but **costs reg at FL scale**, with cat training adding ≈ 0 throughout."
 - **Layer 2 (methodological):** "Loss-side `task_weight=0` ablation is unsound under cross-attention MTL because the silenced task's encoder still co-adapts via attention K/V projections. Encoder-frozen isolation is the only clean architectural decomposition." Applies to MulT, InvPT, and any future cross-task interaction MTL with `task_weight=0` ablations.
-- **Layer 3 (per-state mechanism):** AL/AZ patterns committable; FL absolute architectural Δ vs STL gated on F37 (4050-assigned).
+- **Layer 3 (per-state mechanism, CLOSED 2026-04-28):** With F37 STL F21c FL landed, the 3-state architectural-Δ pattern is **{AL +6.48, AZ −6.02, FL −16.16} pp**. AL is the only state where the cross-attention architecture (with frozen-random cat features) lifts reg above the matched-head STL ceiling. AZ and FL pay an architectural cost; on FL the cost is heavy and dominates the full MTL outcome (MTL still −8.78 pp below STL even with full cat training). Per-state mechanism: AL = architecture-dominant; AZ = classical (architecture costs, transfer/co-adapt rescue partial); FL = architecture costs heavily, co-adapt rescues ~half, transfer null.
 
-**Source:** `research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md` (numbers, σ, Tree decision); `research/F49_LAMBDA0_DECOMPOSITION_GAP.md` (gradient-flow analysis, design rationale); 4 regression tests in `tests/test_regression/test_mtlnet_crossattn_lambda0_gradflow.py`.
-**Test:** F49 (planning), F49b (reproduction gate, PASSED), F49c (FL n=5).
+**Source:** `research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md` (numbers, σ, Tree decision); `research/F49_LAMBDA0_DECOMPOSITION_GAP.md` (gradient-flow analysis, design rationale); `research/F37_FL_RESULTS.md` (Layer 3 closure, 2026-04-28); 4 regression tests in `tests/test_regression/test_mtlnet_crossattn_lambda0_gradflow.py`; `results/paired_tests/FL_layer3_after_f37.json`.
+**Test:** F49 (planning), F49b (reproduction gate, PASSED), F49c (FL n=5), **F37 (FL STL F21c, 2026-04-28 — Layer 3 closing)**.
 **Phase:** F-series, post-H3-alt.
-**Status:** `confirmed (Tier A) — 2026-04-27`. Layer 1 + Layer 2 paper-grade. Layer 3 pending F37 for FL absolute Δ.
+**Status:** `confirmed (Tier A) — Layers 1+2+3 closed 2026-04-28`. Per-state architectural Δ pattern is {AL +6.48, AZ −6.02, FL −16.16} pp; AL is the architecture-dominant outlier among the 3 headline states.
 
 ---
 
-### CH21 — MTL B3's lift over STL is interactional architecture × substrate, not transfer (TOP-LINE PAPER CLAIM, Tier A as of 2026-04-27)
+### CH21 — On AL, the MTL lift is interactional architecture × substrate; at scale (FL), the substrate carries the cat win while the architecture costs reg (TOP-LINE PAPER CLAIM, Tier A — reframed 2026-04-28 after F37)
 
-**Statement:** The MTL B3 lift over single-task baselines on `next_region` and `next_category` is the joint outcome of two necessary mechanisms, neither sufficient alone:
+**Statement (revised after F37 FL closing):** The MTL B3 result over single-task baselines is **scale-conditional**, with two state-dependent mechanisms:
 
-1. **Substrate (CH18 + CH19):** Check2HGI's per-visit contextual variation is required. Substituting HGI into the same B3 configuration breaks the joint signal (cat −17 pp, reg Acc@10_indist −30 pp at AL+AZ; MTL+HGI is *worse than STL+HGI* on reg by ~37 pp at AL). Per-visit context accounts for ~72% of the cat substrate gap; the residual ~28% is Check2HGI's training signal.
-2. **Architecture (CH20):** The cross-attention architecture under per-head LR (H3-alt) is what extracts the reg lift. Cat-supervision transfer is null on all 3 states n=5 (≤|0.75| pp); the H3-alt reg lift on AL is architecture-dominant (+6.48 pp from architecture alone vs STL F21c).
+1. **Substrate (CH18-substrate + CH19) — generalises across states:** Check2HGI's per-visit contextual variation is required for the cat win and prevents collapse. Substituting HGI into the same B3 configuration breaks the joint signal (cat −17 pp, reg Acc@10_indist −30 pp at AL+AZ; MTL+HGI is *worse than STL+HGI* on reg by ~37 pp at AL). Per-visit context accounts for ~72% of the cat substrate gap; the residual ~28% is Check2HGI's training signal. **CH16 (cat substrate advantage) is head-invariant at AL+AZ; FL replication queued via F36.**
+2. **Architecture (CH20) — state-dependent:** The cross-attention architecture under per-head LR (H3-alt) is the *load-bearing* lever for reg, and its sign **depends on state**. AL: architecture lifts reg by +6.48 pp from cross-attn alone (frozen-random cat features). AZ: architecture costs reg by −6.02 pp; classical multi-task wrap rescues partially. **FL: architecture costs reg by −16.16 pp** (paired Wilcoxon p=0.0312, 5/5 folds negative); co-adaptation rescues ~half but full MTL still ends −8.78 pp below the matched-head STL ceiling. Cat-supervision transfer is null at all three states (≤|0.75| pp).
 
-**The conventional MTL framing — "joint training transfers signal from cat to reg" — is empirically refuted at our scale** (≥9σ on FL n=5 alone vs the legacy +14.2 pp claim). The H3-alt reg lift comes from the cross-attention architecture extracting more reg signal from Check2HGI's per-visit-contextual substrate than STL can. Neither the substrate nor the architecture alone is the "cause" — both are necessary, and the win is interactional.
+**The conventional MTL framing — "joint training transfers signal from cat to reg" — is empirically refuted at our scale (cat-transfer null at all 3 states; ≥9σ on FL alone vs the legacy +14.2 pp claim).** The architectural lift on AL is real and paper-grade, but **does not generalise to FL scale**. The cat-side MTL > STL relation does generalise (+0.94 pp at FL, +3-4 pp at AL/AZ), driven by the substrate.
 
-**Implications for paper framing:**
+**Implications for paper framing (revised):**
 
-- **Headline claim** (Methods + Results): "We propose MTL B3 (`mtlnet_crossattn + static_weight + per-head LR + Check2HGI substrate`) which jointly delivers a paper-strength reg lift (+6.25 pp over matched-head STL on AL) and preserves cat F1 within ~2 pp of STL. We attribute the lift to **two necessary, complementary mechanisms** — substrate and architecture — and refute the conventional "MTL transfer" framing through a clean 3-way decomposition."
-- **Mechanism story** (Discussion): "The substrate (Check2HGI) carries per-visit contextual variation that POI-level alternatives (HGI) cannot supply (CH16 + CH19); the architecture (cross-attention + per-head LR) extracts more reg signal from any input than STL can (CH20). Neither alone explains the lift — substituting HGI into the architecture breaks reg by 30 pp; the architecture alone with frozen-random cat features already extracts +6.48 pp on AL. The interaction is the win."
+- **Headline claim** (Methods + Results): "We propose MTL H3-alt (`mtlnet_crossattn + static_weight + per-head LR + Check2HGI substrate`) and characterise its scale-dependent behaviour across three US states. **At Alabama (10K check-ins, 1,109 regions) the joint MTL exceeds matched-head single-task on both heads** (+0.94 to +6.25 pp). At Florida (127K check-ins, 4,702 regions) the substrate alone (Check2HGI per-visit contextual encoding) preserves the cat-side advantage, but the cross-attention architecture costs reg, so STL `next_getnext_hard` is the per-task ceiling. We attribute the AL win to a clean architectural mechanism via a 3-way decomposition, and refute the conventional MTL-transfer framing — cat-supervision contributes ≈0 to reg at all three states."
+- **Mechanism story** (Discussion): "The substrate (Check2HGI) carries per-visit contextual variation that POI-level alternatives (HGI) cannot supply (CH16 + CH19); the architecture (cross-attention + per-head LR) extracts more reg signal from any input than STL can *at small region cardinality*, but the architectural cost grows steeply with cardinality (1.1K → 1.5K → 4.7K → architectural Δ +6.5 / −6.0 / −16.2 pp). The substrate-side and architecture-side mechanisms are **decoupled**: AL benefits from both; AZ and FL benefit only from substrate. The architecture is **not** a universal lever."
 - **Methodological note** (CH20 Layer 2): loss-side `task_weight=0` ablation is unsound under cross-attention MTL because the silenced encoder co-adapts via attention K/V — encoder-frozen isolation is the only clean decomposition. Applies beyond our study.
+- **Limitations note:** FL frozen-cat reg is unstable (per-fold Acc@10 spread {49.8, 51.4, 78.9, 76.6, 74.7}); architectural-Δ at FL has σ ~12 pp. The headline architectural cost at FL is robust (5/5 folds negative for the full MTL vs STL comparison; p=0.0312 max-significance) but the magnitude is uncertain pending multi-seed.
 
-**Source:** Combined evidence from CH18 (Phase-1 Leg III MTL substrate-counterfactual) + CH19 (Phase-1 C4 per-visit mechanism) + CH20 (F49 3-way decomposition). Synthesised in `SESSION_HANDOFF_2026-04-27.md §0.3` and `README.md` headline. The two studies were independent (Phase-1 substrate-side vs F49 architecture-side); they converge on this joint claim.
-**Test:** Already done — both component findings are paper-grade. The joint claim itself doesn't require new experiments; it's the synthesis.
-**Phase:** post-Phase-1 + post-F49.
-**Status:** `confirmed (Tier A) — 2026-04-27`. Headline-paper-grade. **Most important claim entry in the catalog.**
+**Source:** Combined evidence from CH18 (Phase-1 Leg III MTL substrate-counterfactual + F37 FL flip), CH19 (Phase-1 C4 per-visit mechanism), CH20 (F49 3-way decomposition + F37 Layer 3 closing). Synthesised in `research/F37_FL_RESULTS.md` (2026-04-28). The two studies were independent (Phase-1 substrate-side vs F49 architecture-side); they now converge on a *scale-conditional* joint claim.
+**Test:** All experiments done — both substrate (CH16 + CH18-substrate at AL+AZ; FL replication queued in F36) and architecture (CH20 Layers 1+2+3 at AL+AZ+FL) are paper-grade. Joint claim is the synthesis.
+**Phase:** post-Phase-1 + post-F49 + post-F37.
+**Status:** `confirmed (Tier A) — reframed 2026-04-28`. Headline-paper-grade. **Most important claim entry in the catalog.**
 
 ---
 

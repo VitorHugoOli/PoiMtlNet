@@ -147,17 +147,23 @@ MTL B3 with HGI substrate (5f × 50ep, seed 42), compared to existing MTL B3 wit
 
 **MTL+HGI is *worse than STL+HGI* on reg** (-37 pp Acc@10 at AL: STL HGI gethard 67.52 → MTL HGI 29.95). The B3 configuration was tuned around Check2HGI's per-visit context and does not generalise to HGI substrate. Status: `confirmed at AL+AZ`. FL/CA/TX queued.
 
-### 2.5 Objective 4 — MTL B3's reg lift is architecture-dominant, not transfer (NEW, post-F49)
+### 2.5 Objective 4 — MTL B3's reg lift is architecture-dominant on AL only; architecture costs reg on AZ+FL (NEW, post-F49 + F37 closing 2026-04-28)
 
-F49 3-way decomposition under the H3-alt champion regime, 5-fold:
+F49 3-way decomposition under the H3-alt champion regime, 5-fold paired Wilcoxon (n=5, exact):
 
-| State | STL F21c | encoder-frozen λ=0 | loss-side λ=0 | Full MTL H3-alt | (frozen − STL) **arch** | (loss − frozen) **co-adapt** | (Full − loss) **transfer** |
-|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| AL (5f) | 68.37 ± 2.66 | 74.85 ± 2.38 | 74.94 ± 2.01 | 74.62 ± 3.11 | **+6.48** ~2.7σ | +0.09 | −0.32 |
-| AZ (5f) | 66.74 ± 2.11 | 60.72 ± 1.64 | 62.70 ± 3.01 | 63.45 ± 2.49 | **−6.02** ~3.7σ | +1.98 | +0.75 |
-| FL (5f, F49c) | TBD F37 | 64.22 ± 12.03 | 72.48 ± 1.40 | 71.96 ± 0.68 | TBD | +8.27 (~0.68σ) | −0.52 (~0.34σ) |
+| State | STL F21c | encoder-frozen λ=0 | loss-side λ=0 | Full MTL H3-alt | (frozen − STL) **arch** | (loss − frozen) **co-adapt** | (Full − loss) **transfer** | (Full − STL) MTL vs ceiling |
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| AL (5f) | 68.37 ± 2.66 | 74.85 ± 2.38 | 74.94 ± 2.01 | 74.62 ± 3.11 | **+6.48** ~2.7σ | +0.09 | −0.32 | **+6.25 pp p=0.0312** ✓ |
+| AZ (5f) | 66.74 ± 2.11 | 60.72 ± 1.64 | 62.70 ± 3.01 | 63.45 ± 2.49 | **−6.02** ~3.7σ | +1.98 | +0.75 | −3.29 pp (n.s.) |
+| **FL (5f, F37+F49c, 2026-04-28)** | **82.44 ± 0.38** | 64.22 ± 12.03 | 72.48 ± 1.40 | 71.96 ± 0.68 | **−16.16 pp p=0.0312** | +8.27 (~0.68σ) | −0.52 (~0.34σ) | **−8.78 pp p=0.0312** ✗ |
 
-**Cat-supervision transfer ≤ |0.75| pp on all 3 states n=5** (within σ of zero). Refutes legacy "+14.2 pp transfer at FL" claim by ≥9σ on FL alone. Layer 2 paper-grade methodological contribution: loss-side `task_weight=0` ablation is unsound under cross-attention MTL (silenced cat encoder co-adapts via attention K/V). Status: `Layer 1 + Layer 2 confirmed at AL+AZ+FL`. FL absolute architectural Δ vs STL pending F37.
+**Per-state mechanism (closed across all 3 headline states):**
+
+- **AL — architecture-dominant lift.** Cross-attention with frozen-random cat features extracts +6.48 pp from STL ceiling (paired Wilcoxon p=0.0312, 5/5 folds). Cat-supervision transfer null. Full MTL exceeds STL by +6.25 pp.
+- **AZ — classical MTL pattern.** Architecture costs −6.02 pp (3.7σ); co-adaptation rescues +1.98 pp; transfer negligible. Full MTL closes 75% of B3 gap but still trails STL by 3.29 pp (within 1.5σ, n.s.).
+- **FL — heavy architectural cost; STL ceiling above MTL.** Architecture −16.16 pp (5/5 paired folds negative, p=0.0312); co-adapt +8.27 partially recovers; full MTL still −8.78 pp below STL ceiling (5/5 folds, p=0.0312). The architectural cost grows steeply with region cardinality (1.1K → 1.5K → 4.7K → +6.5 / −6.0 / −16.2 pp).
+
+**Cat-supervision transfer ≤ |0.75| pp on all 3 states n=5** — refutes legacy "+14.2 pp transfer at FL" by ≥9σ on FL alone. Layer 2 paper-grade methodological contribution: loss-side `task_weight=0` ablation is unsound under cross-attention MTL (silenced cat encoder co-adapts via attention K/V). Status: `Layers 1 + 2 + 3 closed across AL+AZ+FL n=5`. Sources: `research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md`, `research/F37_FL_RESULTS.md`, `results/paired_tests/FL_layer3_after_f37.json`.
 
 ---
 
@@ -169,15 +175,17 @@ Using the **2026-04-26 champion candidate** (B3 architecture + per-head LR `cat_
 |:-:|:-|:-|:-|:-:|
 | AL 5f | F48-H3-alt | cat F1 **42.22 ± 1.00** : ≈ B3 post-F27 (-0.49) · **+8 pp > POI-RGNN** · **+3.64 pp > STL `next_mtl` (38.58)** | reg Acc@10 **74.62 ± 3.11** : **+27.61 pp > Markov-1 (47.01)** · **+15.42 pp > STL STAN (59.20)** · ✅ **+6.25 pp > STL GETNext-hard (68.37)** CH18 RESOLVED | ✅ joint cat + reg above all STL ceilings |
 | AZ 5f | F48-H3-alt | cat F1 **45.11 ± 0.32** : ≈ B3 post-F27 (-0.70) · **+3.03 pp > STL `next_mtl` (42.08)** | reg Acc@10 **63.45 ± 2.49** : **+20.49 pp > Markov-1 (42.96)** · **+11.21 pp > STL STAN (52.24)** · 🟡 **−3.29 pp vs STL GETNext-hard (66.74)** — 75% of B3-vs-STL gap closed | ✅ cat strict-gain; ✅ reg crosses STAN; 🟡 75% of CH18 closed |
-| FL 5f | F48-H3-alt | cat F1 **67.92 ± 0.72** : **+33.4 pp > POI-RGNN (34.49)** · +2.20 pp over predecessor B3 1f (65.72) | reg Acc@10 **71.96 ± 0.68** : **+6.91 pp > Markov-1 (65.05)** · **+3.63 pp > STL GRU (68.33)** · 🔴 STL STAN pending (F6) · 🔴 STL GETNext-hard pending (F37 4050) | ✅ joint cat + reg above Markov + STL GRU; matched-head STL ceiling pending |
+| FL 5f | F48-H3-alt | cat F1 **67.92 ± 0.72** : **+33.4 pp > POI-RGNN (34.49)** · **+0.94 pp > STL `next_gru` (66.98 ± 0.61, F37 P1 2026-04-28)** | reg Acc@10 **71.96 ± 0.68** : **+6.91 pp > Markov-1 (65.05)** · **+3.63 pp > STL GRU (68.33)** · 🔴 STL STAN pending (F6) · ⚠️ **−8.78 pp vs STL GETNext-hard (82.44 ± 0.38, F37 P2 2026-04-28) p=0.0312** | 🟡 cat-side ✓ (substrate-driven); reg-side STL ceiling above MTL — CH18 scale-conditional |
 
-**Objective 2 overall under H3-alt:**
-- **MTL > per-task baselines:** ✅ clean on cat at every state (+8 to +33 pp over POI-RGNN). ✅ All three states beat Markov-1-region by +6.91 to +27.61 pp. FL Markov-saturation issue is RESOLVED by H3-alt (+6.91 pp over Markov, vs predecessor B3 which tied Markov at n=1).
-- **MTL > STL cat (matched `next_mtl`):** ✅ AL **+3.64 pp** · ✅ AZ **+3.03 pp** · ✅ FL **+4.75 pp** vs STL (63.17 n=1).
-- **MTL > STL STAN reg:** ✅ AL **+15.42 pp** · ✅ AZ **+11.21 pp** · 🔴 FL pending.
-- **MTL > matched-head STL GETNext-hard reg (CH18):** ✅ AL EXCEEDS by **+6.25 pp** · 🟡 AZ closes 75% of B3 gap (-3.29 pp residual) · 🔴 FL pending (F37).
+**Objective 2 overall under H3-alt (post-F37 2026-04-28):**
+- **MTL > per-task baselines:** ✅ clean on cat at every state (+8 to +33 pp over POI-RGNN). ✅ All three states beat Markov-1-region by +6.91 to +27.61 pp.
+- **MTL > STL cat (matched-head `next_gru` post-F27):** ✅ AL **+3.64 pp** · ✅ AZ **+3.03 pp** · ✅ FL **+0.94 pp** (post-F37 P1: STL `next_gru` 66.98 ± 0.61, MTL H3-alt 67.92 ± 0.72). Cat-side MTL > STL holds at all 3 states.
+- **MTL > STL STAN reg:** ✅ AL **+15.42 pp** · ✅ AZ **+11.21 pp** · 🔴 FL pending (F6).
+- **MTL > matched-head STL GETNext-hard reg (CH18, scale-conditional):** ✅ AL EXCEEDS by **+6.25 pp p=0.0312** · 🟡 AZ closes 75% of B3 gap (−3.29 pp residual, n.s.) · ⚠️ **FL: STL ceiling above MTL by −8.78 pp p=0.0312, 5/5 folds negative** (F37 P2 2026-04-28). The architectural lift on AL **does not generalise to FL scale**. CH18 reframed scale-conditional in `CLAIMS_AND_HYPOTHESES.md §CH18`.
 
-**What changed vs v3 (B3 post-F27 scorecard):** H3-alt's per-head LR recipe lifted reg Acc@10 by +14.02 pp at AL, +9.63 pp at AZ, and +6.70 pp at FL (vs predecessor B3 numbers), while keeping cat F1 within ~2 pp of B3 baseline. The CH18 "MTL trails STL" gap is closed at AL (with surplus), 75% closed at AZ, and the FL B3-vs-Markov saturation issue is resolved. The paper's MTL contribution now reads: **joint single-model deployment with strict cat AND reg gains over matched STL baselines (where pending baselines land), with a clean attribution chain of negative controls (F40, F48-H1, F48-H2) bracketing H3-alt as the unique design.**
+**What changed vs v3 (B3 post-F27 scorecard):** H3-alt's per-head LR recipe lifted reg Acc@10 by +14.02 pp at AL, +9.63 pp at AZ, and +6.70 pp at FL (vs predecessor B3 numbers), while keeping cat F1 within ~2 pp of B3 baseline.
+
+**What changed vs v5 (post-F37 2026-04-28):** Layer 3 of the F49 attribution closed with the FL STL F21c run. The 3-state architectural-Δ pattern is **{AL +6.48, AZ −6.02, FL −16.16} pp** (paired Wilcoxon p=0.0312 at AL and FL). MTL H3-alt FL reg Acc@10 (71.96) is **−8.78 pp below** matched-head STL ceiling (82.44, p=0.0312). The CH18 "MTL exceeds STL on reg" claim is **scale-conditional: AL only**. The cat-side MTL > STL holds at all 3 states (+0.94 to +3.64 pp). Paper framing reads: **MTL H3-alt is the recommended joint-deployment recipe; AL is the architecture-dominant state where it exceeds matched-head STL on reg; FL's headline reg ceiling is STL `next_getnext_hard`. The architectural cost grows steeply with region cardinality** — this is a paper-grade per-state characterisation, not a retraction.
 
 ### Archived v3 scorecard (north-star = B3 post-F27 + OneCycleLR) — retained for audit
 

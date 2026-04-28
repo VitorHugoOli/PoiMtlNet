@@ -4,6 +4,8 @@
 
 For the per-experiment scientific work, see `FOLLOWUPS_TRACKER.md`. For the F49-specific status, see `research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md` §13-14.
 
+> **2026-04-28** — Committed title and abstract live in [`PAPER_DRAFT.md`](PAPER_DRAFT.md). Section-by-section drafting targets, target phrases, and open decisions on the abstract are captured there. BRACIS abstract-style rules (LNCS 70–150 word cap, no math, plain prose) and title patterns from 13 sampled accepted abstracts: see [`../../BRACIS_GUIDE.md`](../../BRACIS_GUIDE.md) §10.
+
 ---
 
 ## 1 · Paper-grade claims — committable now
@@ -30,16 +32,16 @@ These are paper-grade and can be written into Methods + Results + Discussion imm
 
 | # | Item | Why it blocks the paper | Cost | Owner |
 |---|---|---|---|---|
-| **P1** | **F37 STL `next_gru` cat 5f per state** | Required for the cat-side matched-head STL baseline post-F27. Without it, the cat-side MTL-over-STL claim has an asterisk. | ~3h on 4050 | 4050 (user-assigned) |
-| **P2** | **F37 STL `next_getnext_hard` reg 5f on FL** | Required for the FL absolute architectural Δ vs STL ceiling (CH19 Layer 3). AL+AZ already have this; FL pending. Without it the FL architectural row of the F49 decomposition table reads "TBD". | ~2h on 4050 (separate from cat F37) | 4050 |
-| **P3** | **CA + TX upstream pipelines + 5f H3-alt** | Headline paper covers FL+CA+TX. CA/TX have no Check2HGI embeddings yet (F22/F23 retired into F34/F35). | F34/F35 1f ~12h on Colab T4; F24/F25 5f ~25h | Colab |
+| ~~**P1**~~ | ~~F37 STL `next_gru` cat 5f per state~~ | **DONE 2026-04-28**: AL+AZ already in `phase1_perfold/`; FL via `scripts/run_f37_fl_p1_p2.sh` on M4 Pro (24.5 min). FL STL cat = **66.98 ± 0.61**; MTL > STL by **+0.94 pp** at FL ✓ (cat-side claim survives at FL scale). | — | done |
+| ~~**P2**~~ | ~~F37 STL `next_getnext_hard` reg 5f on FL~~ | **DONE 2026-04-28** (M4 Pro 29 min): FL STL reg = **82.44 ± 0.38**. Versus MTL H3-alt FL 71.96 (top10_acc_indist) → **MTL < STL by −8.78 pp paired Wilcoxon p=0.0312, 5/5 folds negative**. Closes F49 Layer 3 with architectural Δ FL = **−16.16 pp p=0.0312**. **Triggers CH18 reframing → scale-conditional**. Source: `research/F37_FL_RESULTS.md` + `results/paired_tests/FL_layer3_after_f37.json`. | — | done |
+| **P3** | **CA + TX upstream pipelines + 5f H3-alt** | Headline paper covers FL+CA+TX. CA/TX have no Check2HGI embeddings yet (F22/F23 retired into F34/F35). **Upgraded importance after F37**: tests whether the FL architectural-cost-at-scale pattern (architectural Δ −16.16 pp; full MTL −8.78 pp below STL) replicates at CA+TX (similar size) or is FL-idiosyncratic. CH21 paper framing depends on this — single-state outlier (FL) vs scale-curve (FL+CA+TX). | F34/F35 1f ~12h on Colab T4; F24/F25 5f ~25h | Colab |
 
 ### 2.2 — Sharpens claims (nice-to-have for v1, may slip to camera-ready)
 
 | # | Item | Why | Cost | Owner |
 |---|---|---|---|---|
-| **P4** | **Paired Wilcoxon p-values on F49 cells per fold** | Tightens the AL/AZ "transfer ≈ 0" + "co-adapt ≈ 0" claims with formal p-values. Same-fold-split assumption holds (`--no-folds-cache`, seed 42). | ~30 min on existing JSONs | m4_pro / any |
-| **P5** | **Paired Wilcoxon: H3-alt vs predecessor B3 across folds (AL+AZ)** | Formal stat strength for "H3-alt > B3 on reg" — already-tracked open item from `MTL_ARCHITECTURE_JOURNEY.md §9`. | ~30 min | m4_pro / any |
+| ~~**P4**~~ | ~~Paired Wilcoxon p-values on F49 cells per fold~~ | **DONE 2026-04-28**: `results/paired_tests/F49_decomposition_wilcoxon.json` (AL+AZ+FL) + `FL_layer3_after_f37.json` (FL Layer 3 vs STL F21c). FL Layer 3 architectural Δ = −16.16 pp **p=0.0312 5/5 folds**; AL/AZ co-adapt + transfer all confirmed null. | — | done |
+| ~~**P5**~~ | ~~Paired Wilcoxon: H3-alt vs predecessor B3 across folds (AL+AZ)~~ | **DONE 2026-04-28**: `results/paired_tests/H3alt_vs_B3_wilcoxon.json`. AL reg **+15.36 pp p=0.0312, 5/5 folds, paired t p=0.0003**; AZ reg **+10.22 pp p=0.0312, 5/5 folds, t p=0.0014**; AL cat **−0.88 pp p=0.0312** (small but detectable regression in negative direction). | — | done |
 | **P6** | **Seed sweep H3-alt on AL+AZ {0, 7, 100}** | Cross-seed σ for the architectural claim. Already in `FOLLOWUPS_TRACKER` post-H3-alt list. | ~3h MPS | m4_pro |
 | **P7** | **`MTL_ARCHITECTURE_JOURNEY.md` post-F49 narrative pass** | Adds the F49 attribution paragraph + clarifies that the F45 α-growth mechanism is *operational* while F49's architecture-dominant finding is *causal*. (Already added §10/§11 prose; could expand §11 if reviewers ask.) | ~30 min | this branch |
 
