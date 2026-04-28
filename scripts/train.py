@@ -673,6 +673,27 @@ def _parse_args(argv=None) -> argparse.Namespace:
         default=False,
         help="Skip saving model checkpoints. Saves disk for disposable runs (screen, promote).",
     )
+    parser.add_argument(
+        "--tf32",
+        action="store_true",
+        default=False,
+        help=(
+            "CUDA: enable TF32 for fp32 matmul + cudnn (no-op on MPS/CPU). "
+            "Trades small numeric drift on non-autocast paths for ~5-10%% "
+            "throughput. Off by default to keep parity with NORTH_STAR."
+        ),
+    )
+    parser.add_argument(
+        "--compile",
+        dest="compile_model",
+        action="store_true",
+        default=False,
+        help=(
+            "Wrap the model in torch.compile (CUDA only). First fold "
+            "incurs compilation overhead; steady-state speedup ~1.2-1.5x. "
+            "May introduce numeric drift vs NORTH_STAR — exploratory."
+        ),
+    )
     return parser.parse_args(argv)
 
 
@@ -991,6 +1012,31 @@ def main(argv=None) -> None:
         config = dataclasses.replace(config, k_folds=n_splits)
 
     seed_everything(config.seed)
+
+    # Optional CUDA perf knobs — both default-off so paper runs match
+    # NORTH_STAR exactly. They live here (post-seed) because the seed
+    # path also touches torch globals.
+    if args.tf32:
+        import torch
+        if torch.cuda.is_available():
+            torch.set_float32_matmul_precision("high")
+            torch.backends.cuda.matmul.allow_tf32 = True
+            torch.backends.cudnn.allow_tf32 = True
+            logger.info("TF32 enabled (matmul_precision=high, cudnn.allow_tf32=True)")
+        else:
+            logger.info("--tf32 requested but CUDA unavailable; ignored")
+    if args.compile_model:
+        config = dataclasses.replace(config, use_torch_compile=True)
+        # The MTL runner calls torch.autograd.grad(retain_graph=True) for the
+        # gradient-cosine diagnostic (mtl_cv._compute_gradient_cosine). Inductor's
+        # default donated-buffer optimization is incompatible — must be disabled
+        # before any compiled fn is built.
+        import torch._functorch.config as _ft_config
+        _ft_config.donated_buffer = False
+        logger.info(
+            "torch.compile enabled (use_torch_compile=True, "
+            "donated_buffer=False for retain_graph=True compatibility)"
+        )
 
     engine = EmbeddingEngine(config.embedding_engine)
     task_key = config.task_type if config.task_type in _RUNNERS else "mtl"

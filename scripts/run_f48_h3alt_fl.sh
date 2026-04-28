@@ -12,6 +12,14 @@
 #
 # Cost estimate: FL has ~3x AZ rows + ~3x AZ regions, so ~10-15 min/fold
 # × 5 folds = 50-75 min on MPS.
+#
+# Batch size:
+#   - CUDA (default 2048): matches NORTH_STAR.md and reproduces the
+#     published cat F1 67.92 ± 0.72. Verified on RTX 4090 (RunPod), 5f×50ep,
+#     19 min wall time, see docs/studies/check2hgi/results/perf_compare/.
+#   - MPS (recommended 1024): the 24 GB unified-memory M4 Pro starts to
+#     swap above ~1500 effective batch on this model; run with
+#     `BATCH_SIZE=1024 bash scripts/run_f48_h3alt_fl.sh` on Mac.
 
 set -u
 WORKTREE="${WORKTREE:-$(pwd)}"
@@ -43,7 +51,7 @@ run() {
         --reg-head-param "transition_path=${OUTPUT_DIR}/check2hgi/${state}/region_transition_log.pt" \
         --task-a-input-type checkin --task-b-input-type region \
         --folds 5 --epochs 50 --seed 42 \
-        --batch-size 1024 \
+        --batch-size "${BATCH_SIZE:-2048}" \
         --scheduler constant \
         --cat-lr "${cat_lr}" --reg-lr "${reg_lr}" --shared-lr "${shared_lr}" \
         --gradient-accumulation-steps 1 \
