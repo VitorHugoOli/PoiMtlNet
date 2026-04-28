@@ -13,6 +13,11 @@ DEVICE = torch.device(
 
 # DEVICE = torch.device("cpu")
 
+# cuDNN autotune kernels for the actual input shapes we'll see. Helps when
+# batch + seq length are stable (our case: bs=2048, seq=9). No-op off CUDA.
+if DEVICE.type == 'cuda':
+    torch.backends.cudnn.benchmark = True
+
 CATEGORIES_MAP: dict[int, str] = {
     0: 'Community',
     1: 'Entertainment',

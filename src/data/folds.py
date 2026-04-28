@@ -180,13 +180,14 @@ class POIDatasetWithAux(Dataset):
 # UTILITIES
 # ============================================================
 def _get_num_workers() -> int:
-    # MPS + in-memory tensor datasets: num_workers=0 is fastest.
+    # In-memory tensor datasets: num_workers=0 is fastest on every device.
     # Each worker is a forked Python process that pickles the tensor over
     # IPC per epoch — pure overhead when the dataset is already a torch
-    # tensor in RAM. See PyTorch Lightning MPS docs.
-    if DEVICE.type == 'mps':
-        return 0
-    return min(8, os.cpu_count() or 1)
+    # tensor in RAM. On CUDA (Colab T4), 8 workers each forked a 9.8 GB
+    # copy of the FL dataset and OOM-killed the cgroup; on MPS the IPC
+    # cost showed up as visible per-epoch warm-up time. See PyTorch
+    # Lightning MPS docs + 2026-04-27 FL-on-T4 OOM postmortem.
+    return 0
 
 
 def _worker_init_fn(worker_id: int) -> None:
