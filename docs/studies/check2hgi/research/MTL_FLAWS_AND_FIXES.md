@@ -159,6 +159,35 @@ Cat-side advantage is uniform across states (Δ_cat F1 in [+0.7%, +7.0%] across 
 
 At AZ, PRIMARY (MRR-based) Δm is significantly positive (+3.19%, p=0.0312); SECONDARY (top5-based) is null (−0.38%, p=0.500). MTL produces **better-ranked predictions** than STL even when raw top-K is similar. Mechanism distinction worth a paragraph in `paper/results.md`.
 
+### 2.8 Cross-attn shared backbone is "absorbed" by cat encoder at FL (F50 H1.5 P1 — 2026-04-29)
+
+P1 (`--disable-cross-attn`) at FL 5f×50ep produces a model statistically indistinguishable from H3-alt:
+- Per-fold paired Pearson r on **cat F1 = 0.985** (98.5% correlation, fold-init noise dominates)
+- Per-fold paired Pearson r on **reg top10 = 0.336** (cross-attn changes reg outputs unsystematically — noise, not signal)
+- Paired Wilcoxon two-sided cannot reject equality on either task (cat p=0.6250, reg p=0.8125)
+- Mean Δreg = −0.21 ± 0.86 pp (within fold variance of CUDA H3-alt baseline 73.61 ± 0.83)
+
+**The mechanism, from `diagnostics/fold1_diagnostics.csv` gradient traces:**
+
+| epoch | g_cosine_shared | ‖g_reg‖_shared | ‖g_cat‖_shared | reg/cat |
+|---:|---:|---:|---:|---:|
+| 5 | +0.002 | 0.005 | 0.157 | **0.029** |
+| 10 | −0.018 | 0.005 | 0.148 | **0.036** |
+| 40 | −0.040 | 0.005 | 0.120 | **0.042** |
+| 50 | +0.152 | 0.012 | 0.213 | 0.057 |
+
+- Cat dominates shared-backbone gradient by **10–30×** most of training
+- g_cosine ≈ 0 → cat/reg gradients on shared params are statistically independent (no task agreement to share)
+- Reg gradient saturates at 0.005 by epoch 5 — reg head's α·log_T graph prior reaches its ceiling without help from shared backbone
+
+**Connection to F49 λ=0 isolation:** F49 measured FL architectural Δ = **−16.16 pp** under `--freeze-cat-stream` (cat encoder frozen, no absorption). Live training's cat encoder absorbs the architectural cost by silently co-adapting as a reg-helper via cross_ba K/V (F49 Layer 2 leakage; verified by P2 detach-K/V collapsing reg-MRR σ from 8.52 → 1.09). **Net contribution to reg ≈ 0** in live training because cat-encoder compensation cancels the architectural cost.
+
+**Implication:** the entire H1 + H1.5 negative-result pattern (FAMO/Aligned-MTL/HSM/P1/P2/P3 all FAIL +3 pp acceptance) is explained by a single mechanism — cat-encoder absorption masks any change to the shared backbone. Tier 2 (PLE/Cross-Stitch with task-specific isolation) is the only remaining test that can bypass the absorption channel.
+
+Full analysis: `research/F50_T1_5_CROSSATTN_ABSORPTION.md`.
+
+---
+
 ### 2.7 Hierarchical inductive bias on the reg head doesn't help (F50 T1.2 — full n=5)
 
 T1.2 implemented an additive hierarchical bias (`parent_logit + child_logit + α·log_T`) on the reg head. STL HSM matched flat STL at FL (+0.21 pp p=0.0312) — architecture preserved at the head level. **MTL HSM at full n=5 (CUDA 2026-04-29):** reg top10_acc_indist = 70.60 ± 10.78 vs CUDA H3-alt 73.61 ± 0.83 → **Δ = −3.01 pp** (paired W+=10, p_greater=0.3125; even dropping the fold-2 collapse outlier the mean ≈ +1.66 pp, still below +3 pp acceptance). **Confirms n=3 directional refutation at paper grade.**
