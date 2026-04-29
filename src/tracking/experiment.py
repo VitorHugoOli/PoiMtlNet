@@ -70,6 +70,7 @@ class MLHistory:
         verbose: bool = False,
         display_report: bool = False,
         task_monitors: Optional[Dict[str, str]] = None,
+        min_epoch: int = 0,
     ):
         self.model_name = model_name
         self.model_type = model_type
@@ -84,6 +85,8 @@ class MLHistory:
         self.task_monitors: Optional[Dict[str, str]] = (
             dict(task_monitors) if task_monitors else None
         )
+        # F50 B1 — selector min-epoch gate (skip init artifacts).
+        self.min_epoch: int = int(min_epoch)
 
         self.tasks: Set[str] = {tasks} if isinstance(tasks, str) else tasks
         self.folds: List[FoldHistory] = [
@@ -92,6 +95,7 @@ class MLHistory:
                 monitor=monitor,
                 mode=mode,
                 task_monitors=self.task_monitors,
+                min_epoch=self.min_epoch,
             )
             for i in range(num_folds)
         ]

@@ -20,10 +20,10 @@ class TaskHistory:
         th.report = classification_report_dict
     """
 
-    def __init__(self, monitor: str = 'f1', mode: str = 'max'):
+    def __init__(self, monitor: str = 'f1', mode: str = 'max', min_epoch: int = 0):
         self.train = MetricStore()
         self.val = MetricStore()
-        self.best = BestModelTracker(monitor=monitor, mode=mode)
+        self.best = BestModelTracker(monitor=monitor, mode=mode, min_epoch=min_epoch)
         self.report: dict = {}
 
     def log_train(self, **kwargs: float) -> None:
@@ -77,6 +77,7 @@ class FoldHistory:
         monitor: str = 'f1',
         mode: str = 'max',
         task_monitors: Optional[Mapping[str, str]] = None,
+        min_epoch: int = 0,
     ):
         """
         Parameters
@@ -89,12 +90,20 @@ class FoldHistory:
             in the map fall back to ``monitor``. The trainer derives this
             from ``TaskConfig.primary_metric``; default ``None`` preserves
             the legacy single-metric (F1) behaviour.
+        min_epoch:
+            F50 B1 — earliest epoch eligible to be selected as best by
+            any of this fold's BestModelTracker instances. Defends
+            against init-artifact peaks (e.g. GETNext α_init=2.0 epoch
+            1 is the prior alone, not learned signal — ``min_epoch=2``
+            forces the selector past it).
         """
         self.fold_number = fold_number
         self.timer = TimeHistory()
         per_task = dict(task_monitors or {})
         self.tasks: dict[str, TaskHistory] = {
-            task: TaskHistory(monitor=per_task.get(task, monitor), mode=mode)
+            task: TaskHistory(
+                monitor=per_task.get(task, monitor), mode=mode, min_epoch=min_epoch,
+            )
             for task in tasks
         }
         self.diagnostics = MetricStore()

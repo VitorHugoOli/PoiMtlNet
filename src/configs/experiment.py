@@ -115,6 +115,13 @@ class ExperimentConfig:
     # full-data behaviour (which leaks val rows; see C4).
     per_fold_transition_dir: Optional[str] = None
 
+    # F50 B1 — earliest epoch (0-indexed) eligible to be selected as
+    # best by the per-task BestModelTracker. Defends against
+    # init-artifact peaks: with GETNext α_init=2.0, val top10 at ep 1
+    # is the prior alone (not learned signal). Set ``min_best_epoch=2``
+    # to force the selector past the init window. Default 0 = legacy.
+    min_best_epoch: int = 0
+
     # torch.compile: disabled by default.  On CUDA it uses the inductor
     # backend; MPS compatibility needs separate testing first.
     use_torch_compile: bool = False

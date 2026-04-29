@@ -410,6 +410,35 @@ class TestFoldHistory:
             assert fold.task('next_category').best.monitor == 'f1'
             assert fold.task('next_region').best.monitor == 'accuracy'
 
+    def test_b1_min_epoch_skips_init_artifact(self):
+        """F50 B1: a higher ep>=min_epoch peak must beat the ep<min_epoch peak.
+
+        Mirrors the GETNext alpha_init=2.0 case: ep 1 has top10=80 (init
+        prior), ep 3 has top10=70 (post-training trough). Without
+        min_epoch, selector picks ep 1; with min_epoch=2, it picks ep 3.
+        """
+        fold = FoldHistory(0, {'r'}, monitor='top10', mode='max', min_epoch=2)
+        # ep 0 — init artifact, would otherwise win
+        fold.log_val('r', top10=0.80, model_state={'w': 1})
+        assert fold.task('r').best.best_epoch == -1, "ep 0 < min_epoch=2; reject"
+
+        fold.log_val('r', top10=0.65, model_state={'w': 2})  # ep 1
+        assert fold.task('r').best.best_epoch == -1, "ep 1 < min_epoch=2; reject"
+
+        fold.log_val('r', top10=0.70, model_state={'w': 3})  # ep 2
+        assert fold.task('r').best.best_epoch == 2, "ep 2 eligible"
+        assert fold.task('r').best.best_value == 0.70
+
+        fold.log_val('r', top10=0.75, model_state={'w': 4})  # ep 3
+        assert fold.task('r').best.best_epoch == 3
+        assert fold.task('r').best.best_value == 0.75
+
+    def test_b1_min_epoch_default_zero_legacy_behaviour(self):
+        fold = FoldHistory(0, {'r'}, monitor='top10', mode='max')  # no min_epoch
+        fold.log_val('r', top10=0.80, model_state={'w': 1})
+        assert fold.task('r').best.best_epoch == 0
+        assert fold.task('r').best.best_value == 0.80
+
 
 # ── Group D: MLHistory ────────────────────────────────────────────────
 

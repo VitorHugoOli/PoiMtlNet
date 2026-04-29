@@ -146,6 +146,7 @@ def _run_mtl(config: ExperimentConfig, results_path: Path, fold_results: dict) -
         save_path=results_path,
         verbose=True,
         task_monitors=task_monitors,
+        min_epoch=int(getattr(config, "min_best_epoch", 0) or 0),
     )
 
     if _NO_CHECKPOINTS:
@@ -217,6 +218,7 @@ def _run_mtl_check2hgi(
         save_path=results_path,
         verbose=True,
         task_monitors=task_monitors,
+        min_epoch=int(getattr(config, "min_best_epoch", 0) or 0),
     )
 
     if _NO_CHECKPOINTS:
@@ -672,9 +674,23 @@ def _parse_args(argv=None) -> argparse.Namespace:
             "AUDIT-C4 fix: directory containing per-fold transition matrices "
             "(``region_transition_log_fold{1..k}.pt``). When set, the trainer "
             "swaps the static ``transition_path`` in next-head params for the "
-            "fold-specific file each fold, eliminating val→train leakage in "
+            "fold-specific file each fold, eliminating val->train leakage in "
             "the GETNext graph prior. Build with: "
             "python scripts/compute_region_transition.py --state STATE --per-fold"
+        ),
+    )
+    parser.add_argument(
+        "--min-best-epoch",
+        dest="min_best_epoch",
+        type=int,
+        default=0,
+        metavar="N",
+        help=(
+            "F50 B1: earliest epoch (0-indexed) eligible to be selected as "
+            "best by the per-task BestModelTracker. Defends against "
+            "init-artifact peaks (e.g. GETNext alpha_init=2.0 makes ep 1 "
+            "the prior alone, not learned signal). Set to 2 or 3 to skip "
+            "the init window. Default 0 = legacy behaviour."
         ),
     )
     parser.add_argument(
@@ -1004,6 +1020,11 @@ def _apply_cli_overrides(
             raise ValueError("--per-fold-transition-dir requires --task mtl")
         config = dataclasses.replace(
             config, per_fold_transition_dir=str(args.per_fold_transition_dir)
+        )
+
+    if getattr(args, "min_best_epoch", 0):
+        config = dataclasses.replace(
+            config, min_best_epoch=int(args.min_best_epoch)
         )
 
     return config
