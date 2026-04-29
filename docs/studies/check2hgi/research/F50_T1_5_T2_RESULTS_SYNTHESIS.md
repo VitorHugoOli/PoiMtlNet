@@ -17,20 +17,21 @@
 
 ## 1 · Master scoreboard
 
-All 10 alternatives at FL 5f×50ep CUDA (RTX 4090) bs=2048, paired vs **CUDA H3-alt baseline** (substrate-matched re-run `_0153`: cat F1 68.36 ± 0.74, reg top10_acc_indist 73.61 ± 0.83). Acceptance threshold: Δreg ≥ +3 pp (close ≥3 of the 8.78 pp gap to STL ceiling 82.44).
+All 10 alternatives at FL 5f×50ep CUDA (RTX 4090) bs=2048, paired vs **CUDA H3-alt baseline** (substrate-matched re-run `_0153`: cat F1 68.36 ± 0.74, reg top10_acc_indist 73.61 ± 0.83). Acceptance threshold: Δreg ≥ +3 pp (close ≥3 of the 8.78 pp gap to STL ceiling 82.44). All cat F1 values are macro-F1 (torchmetrics multiclass default; minority-class-sensitive on the 7-class POI category task).
 
-| # | variant | family | Δcat F1 | Δreg top10 | reg σ | n+/n− | p_greater | acceptance |
-|:-:|---|---|---:|---:|---:|:-:|:-:|:-:|
-| 1 | **PLE-lite** | Tier-2: task-specific experts | **−3.61 ± 0.66** | **+1.11 ± 1.14** | 1.02 | 4/1 | 0.0625 | ❌ FAIL +3pp |
-| 2 | **P4 alternating-SGD** | H1.5: per-batch alternation | −0.16 ± 0.31 | **+0.96 ± 0.79** | 1.04 | 4/1 | 0.0938 | ❌ FAIL +3pp |
-| 3 | T1.3 FAMO | Tier-1: magnitude balancer | −0.18 | +0.62 ± 1.50 | 0.81 | 3/2 | 0.2188 | ❌ FAIL |
-| 4 | Cross-Stitch (default) | Tier-2: parallel backbones | −0.15 ± 0.35 | +0.12 ± 1.18 | 0.87 | 2/3 | 0.5000 | ❌ FAIL (tied) |
-| 5 | T1.4 Aligned-MTL | Tier-1: direction aligner | −0.90 ± 0.62 | −0.11 ± 0.62 | 0.41 | 1/4 | 0.8438 | ❌ FAIL |
-| 6 | P2 detach-K/V | H1.5: F49 leakage closure | −0.39 ± 0.45 | −0.05 ± 1.20 | 1.20 | 2/3 | 0.6875 | ❌ FAIL (MRR σ↓) |
-| 7 | P1 no_crossattn | H1.5: cross-attn ablation | −0.04 ± 0.13 | −0.21 ± 0.86 | 0.85 | 2/3 | 0.6875 | ❌ FAIL (≈ H3-alt) |
-| 8 | P3 cat_freeze@10 | H1.5: warmup-then-freeze | −0.40 ± 0.40 | −0.30 ± 1.20 | 1.20 | 1/3 | 0.7812 | ❌ FAIL |
-| 9 | T1.2 HSM | Tier-1: head capacity | −0.49 ± 1.04 | −3.01 ± 9.95 | 10.78 | 4/1 | 0.3125 | ❌ FAIL (fold-2 collapse) |
-| 10 | Cross-Stitch (detach) | Tier-2: F49-clean parallel | +0.08 ± 0.61 | −4.05 ± 9.89 | 9.90 | 2/3 | 0.6875 | ❌ FAIL (fold-4 collapse) |
+| # | variant | family | cat F1 | Δcat | reg top10 | Δreg | reg σ | n+/n− | p_> | acceptance |
+|:-:|---|---|---:|---:|---:|---:|---:|:-:|:-:|:-:|
+| — | **H3-alt CUDA (REF)** | baseline | **68.36 ± 0.74** | — | **73.61 ± 0.83** | — | 0.83 | — | — | reference |
+| 1 | **PLE-lite** | Tier-2: task-specific experts | 64.75 ± 0.85 | **−3.61 ± 0.66** | 74.72 ± 1.02 | **+1.11 ± 1.14** | 1.02 | 4/1 | 0.0625 | ❌ FAIL +3pp |
+| 2 | **P4 alternating-SGD** | H1.5: per-batch alternation | 68.20 ± 0.69 | −0.16 ± 0.31 | 74.57 ± 1.04 | **+0.96 ± 0.79** | 1.04 | 4/1 | 0.0938 | ❌ FAIL +3pp |
+| 3 | T1.3 FAMO | Tier-1: magnitude balancer | 68.18 ± 0.61 | −0.18 | 74.23 ± 0.81 | +0.62 ± 1.50 | 0.81 | 3/2 | 0.2188 | ❌ FAIL |
+| 4 | Cross-Stitch (default) | Tier-2: parallel backbones | 68.21 ± 0.87 | −0.15 ± 0.35 | 73.73 ± 0.87 | +0.12 ± 1.18 | 0.87 | 2/3 | 0.5000 | ❌ FAIL (tied) |
+| 5 | T1.4 Aligned-MTL | Tier-1: direction aligner | 67.46 ± 0.81 | −0.90 ± 0.62 | 73.50 ± 0.41 | −0.11 ± 0.62 | 0.41 | 1/4 | 0.8438 | ❌ FAIL |
+| 6 | P2 detach-K/V | H1.5: F49 leakage closure | 67.97 ± 0.69 | −0.39 ± 0.45 | 73.55 ± 1.20 | −0.05 ± 1.20 | 1.20 | 2/3 | 0.6875 | ❌ FAIL (MRR σ↓) |
+| 7 | P1 no_crossattn | H1.5: cross-attn ablation | 68.32 ± 0.67 | −0.04 ± 0.13 | 73.40 ± 0.85 | −0.21 ± 0.86 | 0.85 | 2/3 | 0.6875 | ❌ FAIL (≈ H3-alt) |
+| 8 | P3 cat_freeze@10 | H1.5: warmup-then-freeze | 67.96 ± 0.80 | −0.40 ± 0.40 | 73.31 ± 1.20 | −0.30 ± 1.20 | 1.20 | 1/3 | 0.7812 | ❌ FAIL |
+| 9 | T1.2 HSM | Tier-1: head capacity | 67.87 ± 1.04 | −0.49 ± 1.04 | 70.60 ± 10.78 | −3.01 ± 9.95 | 10.78 | 4/1 | 0.3125 | ❌ FAIL (fold-2 collapse) |
+| 10 | Cross-Stitch (detach) | Tier-2: F49-clean parallel | 68.44 ± 1.18 | +0.08 ± 0.61 | 69.56 ± 9.90 | −4.05 ± 9.89 | 9.90 | 2/3 | 0.6875 | ❌ FAIL (fold-4 collapse) |
 
 **No alternative reaches +3 pp Δreg.** **No alternative reaches p<0.05.** Only PLE-lite + P4 alternating-SGD reach n+ = 4/5 on reg (the closest to a positive paired result).
 
@@ -59,6 +60,38 @@ Substrate-matched per-fold CUDA H3-alt reference: {72.81, 73.08, 73.45, 73.77, 7
 - CS detach 4/5 folds: mean 73.93 — would be Δ ≈ +0.32 pp (CS-default-like)
 
 The paired Wilcoxon at n=5 *can* reject equality at p=0.0312 if 5/5 folds positive. None of our alternatives clears that bar. Best n+/n− is 4/1 (PLE, P4, T1.2 HSM).
+
+---
+
+## 2.5 · Per-fold cat F1 (macro) (master matrix)
+
+Substrate-matched per-fold CUDA H3-alt cat F1 reference: {69.37, 67.35, 68.17, 68.67, 68.24}. Cat F1 (macro) is sensitive to minority-class POI categories on the 7-class task (~3 pp gap to f1_weighted reflects class imbalance, consistent across all alternatives).
+
+| variant | f1 | f2 | f3 | f4 | f5 | mean ± σ |
+|---|:-:|:-:|:-:|:-:|:-:|---:|
+| **H3-alt CUDA (ref)** | 69.37 | 67.35 | 68.17 | 68.67 | 68.24 | 68.36 ± 0.74 |
+| CS detach | 69.57 | 66.60 | 68.03 | 68.82 | 69.18 | **68.44 ± 1.18** ⚠ noisy |
+| P1 no_crossattn | 69.32 | 67.50 | 68.03 | 68.47 | 68.28 | 68.32 ± 0.67 |
+| CS default | 69.01 | 66.73 | 68.38 | 68.53 | 68.40 | 68.21 ± 0.87 |
+| P4 alt-SGD | 69.23 | 67.38 | 67.91 | 68.01 | 68.48 | 68.20 ± 0.69 |
+| T1.3 FAMO | 68.80 | 67.19 | 68.21 | 68.53 | 68.16 | 68.18 ± 0.61 |
+| P2 detach-K/V | 68.93 | 66.98 | 67.87 | 68.13 | 67.94 | 67.97 ± 0.69 |
+| P3 cat_freeze@10 | 69.01 | 66.82 | 67.68 | 68.27 | 68.02 | 67.96 ± 0.80 |
+| T1.2 HSM | 68.79 | 66.25 | 67.43 | 68.40 | 68.50 | 67.87 ± 1.04 |
+| T1.4 Aligned-MTL | 68.22 | 66.25 | 67.03 | 68.00 | 67.81 | 67.46 ± 0.81 |
+| **PLE-lite** | **65.95** | **64.00** | **65.20** | **63.94** | **64.68** | **64.75 ± 0.85** ⚠ uniform regression |
+
+**Three observations on the cat side:**
+
+1. **8 of 10 alternatives keep cat F1 within ±1 pp of H3-alt** — cat is robust across the architecture/balancer space. Per-fold trajectories largely track H3-alt's fold-init noise (e.g., P1 vs H3-alt cat F1 Pearson r=0.985).
+
+2. **Only PLE-lite shows a uniform cat regression** (−3.61 pp, 0/5 folds positive). The regression is flat across folds (range 63.94 to 65.95, σ=0.85), pointing to a structural issue with PLE-lite's per-task-input shared-experts adaptation rather than fold-specific noise. Canonical-PLE (single shared input) might preserve cat — see F54 follow-up.
+
+3. **T1.4 Aligned-MTL has a small but consistent cat regression** (−0.90 pp, 1/5 folds positive). Direction-alignment with vanishing-magnitude reg gradient costs cat F1 via the alignment overhead.
+
+Other notable patterns:
+- **CS detach has the highest cat σ** (1.18, vs ~0.7 for others). Detaching the off-diagonal alpha removed the regularising effect on cat too (mirrors the reg fold-4 collapse).
+- **Best cat preservation:** P1 no_crossattn (Δcat = −0.04). Removing the entire shared backbone barely changes cat — strongest evidence that the cat encoder absorbs the shared-backbone capacity self-sufficiently.
 
 ---
 
