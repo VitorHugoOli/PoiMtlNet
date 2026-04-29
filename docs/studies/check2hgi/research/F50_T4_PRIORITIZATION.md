@@ -1,0 +1,144 @@
+# F50 T4 — Prioritization & Execution Tracker
+
+**Status (live, updated 2026-04-29 17:50 UTC):** Champion = P4+Cosine+delayed-min @ ≥ep10 (FL: reg 76.07, cat 68.51, paired Wilcoxon p=0.0312, 5/5 positive on reg, cat preserved within σ). Remaining gap to STL ceiling = 6.37 pp. Eight audit fixes shipped. This file tracks what's left and the order of execution.
+
+**Living document — DO NOT close as completed.** Keep updated as tasks land. When all P0+P1 are done, fold the synthesis into `F50_T3_TRAINING_DYNAMICS_DIAGNOSTICS.md §6.5` and archive this file.
+
+---
+
+## Current state recap
+
+| state | reg top10 @≥ep10 | cat F1 | gap to STL (82.44) | source |
+|---|---:|---:|---:|---|
+| H3-alt CUDA REF | 71.44 ± 0.76 | 68.36 ± 0.74 | −10.99 | predecessor |
+| P4 alone | 75.48 ± 0.75 | 68.20 ± 0.69 | −6.96 | first paper-grade |
+| **P4 + Cosine** ⭐ | **76.07 ± 0.62** | **68.51 ± 0.88** | **−6.37** | **committed champion** |
+| P4 + OneCycle | 77.52 ± 0.53 | 66.52 ± 2.29 ⚠ | −4.92 | reg-only-optimal (Pareto-trade) |
+| STL ceiling (F37) | 82.44 ± 0.38 | n/a | 0 | upper bound |
+
+**The 6.37 pp residual is the next target.**
+
+---
+
+## Priority tiers
+
+### P0 — Paper-critical (blocks the headline claim)
+
+| # | task | type | effort | status | when | parallel? |
+|---|---|---|---|---|---|---|
+| **#62** P0-A | C4 verification: FL champion with `--per-fold-transition-dir` | GPU | 25 min | pending | NOW | yes (CPU-side: B9/B2 dev can run alongside) |
+| **#63** P0-B | Cross-state validation: P4+Cosine at AL (1109 regions) | GPU | 19 min | pending | after #62 | sequential on GPU |
+| **#64** P0-C | Cross-state validation: P4+Cosine at AZ | GPU | 19 min | pending | after #63 | sequential on GPU |
+
+**Why P0:**
+- **#62 C4 verification** — every `next_getnext_hard*` number in the study (ALL P4 variants, H3-alt, A1-A6) carries 0.5-2 pp val→train leakage in the GETNext graph prior. If actual Δ > σ when we re-run with per-fold log_T, we need a footnote on every figure.
+- **#63/#64 cross-state** — the champion was found at FL only. Without AL+AZ, the paper can only claim "fix works at FL". With both, it's "the recipe is portable across region cardinalities".
+
+**Total wall-time on GPU: ~60 min sequential.** Code dev for P1-A (#65) and P1-B (#66) can happen in parallel (CPU-bound).
+
+---
+
+### P1 — Close the remaining 6.37 pp gap (tier-B from brainstorm, ROI-ordered)
+
+| # | task | type | effort | expected lift | status | dependencies |
+|---|---|---|---|---|---|---|
+| **#65** P1-A | B9: weight_decay exempt α | code+GPU | 30 min dev + 19 min run | +1-3 pp | pending | independent |
+| **#66** P1-B | B2 (renames F64): warmup-decay LambdaLR on reg_head only | code+GPU | 1h dev + 19 min run | +3-6 pp | pending | independent (stacks on champion) |
+| **#67** P1-C | B10: `--batch-size 1024` (2× α steps per epoch) | GPU CLI | 19 min | +1-3 pp | pending | independent |
+| **#68** P1-D | B4: alpha freeze warmup-then-unfreeze | code+GPU | 1h dev + 19 min run | +2-4 pp | pending | independent |
+
+**Strategy:** B9, B10 are quick CLI/cheap dev — do first. B2 is the highest expected lift but takes 1h dev. B4 has freeze_alpha plumbing already from F50 D1; just needs the epoch-boundary hook.
+
+**All four are independent of each other and of P0 results** — can be developed in parallel with P0 GPU runs.
+
+---
+
+### P2 — Mechanism narrative (paper figures)
+
+| # | task | type | effort | status | dependencies |
+|---|---|---|---|---|---|
+| **#69** P2-A | F63 α trajectory plot (the smoking-gun figure) | analysis | 30 min | pending | needs P0+P1 data to plot |
+| **#39** D5 | Reg encoder weight-trajectory diagnostic | code+GPU | 80 min | pending | independent diagnostic |
+
+**Strategy:** Hold P2-A until P0 + P1 land — that's when we have all the trajectories worth plotting. D5 is a diagnostic and can run anytime.
+
+---
+
+### P3 — Hygiene + remaining audit
+
+| # | task | type | effort | status | rationale |
+|---|---|---|---|---|---|
+| **#70** P3-A | C7 finalization: stamp aggregation_basis | code | 30 min | pending | finishes the audit |
+
+---
+
+### P4 — Deferred / closed
+
+| # | task | status | reason |
+|---|---|---|---|
+| #33 AL+AZ P1 cross-state | deleted | superseded by #63/#64 (champion cross-state, not P1 cross-state) |
+| #35 P5 identity cross-attn | deleted | subsumed by F50 T3 (gap is temporal, not architectural mixing) |
+| #48 F64 warmup-decay reg_head_lr | deleted | superseded by P1-B (#66) which stacks on champion instead of replacing |
+| #52 Re-evaluate ALL F50 findings | completed | done via posthoc tool + F50_CORRECTED_SCOREBOARD.md |
+
+---
+
+## Parallelization plan
+
+**The constraint:** one GPU. Code dev and analysis are CPU-bound and can run in parallel with GPU jobs.
+
+```
+Wall-clock timeline (assuming GPU starts when this file is committed):
+
+t=0      ┌──────────────────────────────────────────────────────────┐
+         │ GPU                                                       │
+         │   [#62 C4 verify: FL ~25 min]                             │
+         │     [#63 AL champion: ~19 min]                            │
+         │       [#64 AZ champion: ~19 min]                          │
+         │                                                           │
+         │ CPU (parallel)                                            │
+         │   [#65 P1-A B9 weight-decay-α dev: ~30 min]               │
+         │   [#66 P1-B B2 warmup-decay-reg-head dev: ~1h]            │
+         │   [#68 P1-D B4 alpha-freeze-warmup dev: ~1h]              │
+t=60     └──────────────────────────────────────────────────────────┘
+
+t=60     ┌──────────────────────────────────────────────────────────┐
+         │ GPU (P0 done, queue P1 runs)                              │
+         │   [#65 B9 run: ~19 min]                                   │
+         │     [#67 B10 bs1024 run: ~19 min]                         │
+         │       [#66 B2 run: ~19 min]                               │
+         │         [#68 B4 run: ~19 min]                             │
+         │                                                           │
+         │ CPU (parallel)                                            │
+         │   [#69 F63 α trajectory plot: ~30 min]                    │
+         │   [#70 C7 aggregation_basis: ~30 min]                     │
+t=140    └──────────────────────────────────────────────────────────┘
+
+t=140    [synthesis: update F50_T3 §6.5 with P0+P1 numbers,
+          decide if a new champion emerges, push, archive this file]
+```
+
+**Estimated total wall-time: 2h 20min** if everything goes smoothly. Realistic: 3-4h with debug/iteration.
+
+---
+
+## Decision rules (post-execution)
+
+After P0+P1 lands:
+
+| outcome | action |
+|---|---|
+| C4 re-run drops champion ≥ σ (~0.5 pp) | Add footnote to all P4 numbers. Re-rank if drop > Δ to predecessor. |
+| AL champion ≥ +3 pp paired Wilcoxon vs AL H3-alt | Cross-state portability claim ✅ |
+| AZ champion ≥ +3 pp paired Wilcoxon vs AZ H3-alt | Cross-state portability claim ✅ |
+| Either AL or AZ misses +3 pp | Paper claim becomes "FL-strong, cross-state directional but not paper-grade" |
+| ANY P1 stacks ≥ +1 pp on top of P4+Cosine while preserving cat | Update champion |
+| All P1 wash out | Lock champion + ship paper as-is |
+
+---
+
+## Update log
+
+| date | event |
+|---|---|
+| 2026-04-29 17:50 | File created with P0-P3 plan; closed obsolete tasks #33/#35/#48/#52 |
