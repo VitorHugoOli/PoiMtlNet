@@ -46,11 +46,12 @@
 - **Strongest non-obvious finding in the audit.**
 - **Fix**: rebuild log_T per fold from train rows only. Test: re-run FL H3-alt with per-fold log_T; expect 0.5-2 pp drop on val top10.
 
-### C5 — Macro-F1 averaging differs by class cardinality
+### C5 — Macro-F1 averaging differs by class cardinality  ✅ FIXED 2026-04-29
 - **File**: `src/tracking/metrics.py:64-92` (hand-rolled, num_classes>256) vs `:243-245` (torchmetrics, ≤256)
-- **Mechanism**: hand-rolled path averages F1 over **present** classes only (`f1_per_class[support>0].mean()`); torchmetrics averages over **all** num_classes. On `next_region`(4702), only ~1000-1500 classes have val support → averaging differs by 3×.
-- **Impact**: `region.f1` reported as ~3× higher than canonical sklearn macro-F1. Cross-state region.f1 comparisons (FL=4702 vs AL=1109) inconsistent within the high-card branch (n_present scales with dataset).
-- **Fix**: pick one convention. Recommendation: divide by num_classes (matches torchmetrics).
+- **Mechanism (refined via empirical replication)**: torchmetrics with `zero_division=0` does NOT divide by `num_classes` as the original audit claimed; it divides by the count of classes with EITHER support OR predictions. Hand-rolled used `support > 0` only — so FP-only classes (predicted but never seen as targets) were silently dropped from the average. On `next_region` (4702 classes; model often predicts ~2000 distinct classes; only ~1000-1500 with val support), this inflated macro-F1 by 1.5-3×.
+- **Impact**: `region.f1` was ~1.5-3× higher than torchmetrics-equivalent. acc_macro had the same flavor of bias.
+- **Fix landed**: `_handrolled_cls_metrics` now uses `relevant = (support > 0) | (predicted > 0)` for both `acc_macro` and `f1_macro` denominators. Verified equivalence with torchmetrics on FP-only edge case + high-cardinality random predictions; 2 new regression tests pin the contract; 498 + 36 integration tests pass.
+- **Forward semantics**: future MTL/STL `region.f1` will be 1.5-3× lower than past reports. Cross-run comparison must use newly aggregated runs.
 
 ### C6 — σ convention mismatch (sample n-1 vs population n)  ✅ FIXED 2026-04-29
 - **File**: `src/tracking/storage.py:138` (`statistics.stdev`, n-1) vs `scripts/p1_region_head_ablation.py:560,621` (`np.std`, n)

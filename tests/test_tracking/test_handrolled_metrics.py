@@ -83,6 +83,46 @@ def test_empty_inputs_return_zero():
     assert hr == (0.0, 0.0, 0.0, 0.0)
 
 
+def test_c5_fp_only_class_included_in_macro():
+    """AUDIT-C5 regression: a class with predictions but NO targets
+    (FP-only) must contribute F1=0 to the macro mean — matching
+    torchmetrics. Pre-fix, handrolled silently dropped it because
+    ``support > 0`` was False, inflating macro-F1 vs torchmetrics.
+
+    Synthetic case: class 2 has 2 false-positive predictions but 0
+    targets. Torchmetrics sees 3 contributing classes; handrolled
+    pre-fix saw only 2.
+    """
+    preds = torch.tensor([0, 2, 1, 2, 1])
+    targets = torch.tensor([0, 1, 1, 0, 1])
+    hr_f1 = _handrolled_cls_metrics(preds, targets, num_classes=3)[2]
+    ref_f1 = multiclass_f1_score(
+        preds, targets, num_classes=3, average="macro", zero_division=0,
+    ).item()
+    _assert_close("f1_macro fp-only", hr_f1, ref_f1)
+    # And explicitly: with FP-only class included, macro shrinks toward 0.
+    assert hr_f1 < 0.6, f"FP-only class should pull macro-F1 down, got {hr_f1}"
+
+
+def test_c5_high_cardinality_with_fp_only_classes():
+    """AUDIT-C5 at the cardinality the bug actually mattered for.
+
+    When num_classes is in the high-cardinality (handrolled) regime
+    AND the model emits predictions for never-seen classes, handrolled
+    used to produce 1.5-3× larger macro-F1 than torchmetrics. Now they
+    must agree to within tol.
+    """
+    torch.manual_seed(7)
+    # 500 classes, but val targets only cover classes 0-99; preds cover
+    # 0-299 → 200 FP-only classes that pre-fix were silently dropped.
+    targets = torch.randint(0, 100, (1000,))
+    preds = torch.randint(0, 300, (1000,))
+    hr = _handrolled_cls_metrics(preds, targets, num_classes=500)
+    ref = _torchmetrics_reference(preds, targets, num_classes=500)
+    for name, a, b in zip(("acc_micro", "acc_macro", "f1_macro", "f1_weighted"), hr, ref):
+        _assert_close(name, a, b)
+
+
 def test_high_cardinality_runs_without_oom():
     """The reason this file exists — the torchmetrics path would allocate
     ~num_classes**2 bytes and OOM on the next_region head. Running here

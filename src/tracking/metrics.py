@@ -69,9 +69,6 @@ def _handrolled_cls_metrics(
     recall_per_class = torch.where(
         support > 0, tp / support.clamp_min(1.0), torch.zeros_like(tp),
     )
-    n_present = int((support > 0).sum().item())
-    acc_macro = float(recall_per_class.sum().item() / max(n_present, 1))
-
     precision_per_class = torch.where(
         predicted > 0, tp / predicted.clamp_min(1.0), torch.zeros_like(tp),
     )
@@ -82,9 +79,19 @@ def _handrolled_cls_metrics(
         2 * precision_per_class * recall_per_class / denom.clamp_min(1e-12),
         torch.zeros_like(denom),
     )
-    # macro F1 over *present* classes (matches torchmetrics' zero_division=0
-    # behaviour for absent classes — they're excluded, not averaged as 0).
-    f1_macro = float(f1_per_class[support > 0].mean().item()) if n_present > 0 else 0.0
+    # AUDIT-C5 fix — both macro metrics (acc_macro = mean recall,
+    # f1_macro) divide by the count of "relevant" classes: those with
+    # support OR predictions. Pre-fix used ``support > 0`` only, which
+    # silently dropped FP-only classes (predicted but never targeted)
+    # from the average. torchmetrics' macro path INCLUDES them (with
+    # contribution 0), so on high-cardinality region (4702 classes;
+    # model often predicts >> 1500 distinct classes) handrolled
+    # produced 1.5-3× larger macro values than torchmetrics. Now they
+    # agree to within float tolerance.
+    relevant = (support > 0) | (predicted > 0)
+    n_relevant = int(relevant.sum().item())
+    acc_macro = float(recall_per_class.sum().item() / max(n_relevant, 1))
+    f1_macro = float(f1_per_class[relevant].mean().item()) if n_relevant > 0 else 0.0
     # Weighted F1 — weights = support / total support.
     total_support = support.sum().clamp_min(1.0)
     f1_weighted = float((f1_per_class * (support / total_support)).sum().item())
