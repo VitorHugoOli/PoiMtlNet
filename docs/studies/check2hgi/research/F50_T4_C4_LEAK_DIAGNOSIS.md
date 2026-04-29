@@ -118,7 +118,51 @@ When all 4 leak-free runs (H3-alt, F62, P4-alone, P4+OneCycle) land:
 
 ---
 
-## 6 · References
+## 5.5 · LEAK-FREE H3-alt LANDED → +Δ vs H3-alt SURVIVES (2026-04-29 19:40)
+
+H3-alt clean (run `_1921`) finished. Paired Wilcoxon vs B9 (the new champion):
+
+| run | reg ≥ep5 | cat F1 |
+|---|---:|---:|
+| **B9 alpha-no-WD** (clean champion) | **63.47 ± 0.75** | **68.59 ± 0.79** |
+| P0-A (P4+Cosine clean) | 63.23 ± 0.64 | 68.51 ± 0.84 |
+| **H3-alt clean** | **60.12 ± 1.15** | 68.34 ± 0.66 |
+
+**B9 vs H3-alt clean (paired Wilcoxon ≥ep5, one-sided):**
+- reg: per-fold deltas `[+2.47, +4.37, +1.96, +4.13, +3.79]`, mean **+3.34 pp**, **5/5 positive, p=0.0312** ✅
+- cat: per-fold deltas `[+0.28, −0.27, −0.27, +0.45, +1.02]`, mean +0.24 pp, 3/5 positive, p=0.16 (n.s.)
+
+**P0-A vs H3-alt clean:**
+- reg: mean +3.11 pp, 5/5 positive, p=0.0312 ✅
+
+**Implication:** the C4 leak was uniform across recipes (~16 pp drop on H3-alt and on champion alike). The paper-grade +3 pp Δreg threshold survives. The new clean numbers are:
+
+| recipe | reg @≥ep5 | Δ vs H3-alt | p | folds |
+|---|---:|---:|---:|---:|
+| H3-alt | 60.12 | — | — | — |
+| P0-A (P4+Cosine) | 63.23 | +3.11 | **0.0312** ✅ | 5/5 |
+| **B9 (P4+Cosine + alpha-no-WD)** | **63.47** | **+3.34** | **0.0312** ✅ | 5/5 |
+
+**Cat preserved within σ** (Δcat n.s. at p=0.16) — Pareto-dominant claim still holds.
+
+The H3-alt clean reg ≥ep10 has σ=10.67 (vs σ=1.15 at ≥ep5) — late-training collapse on some folds. ≥ep5 is the right selector window for clean conditions.
+
+## 6 · STL ceiling is ALSO leaky (2026-04-29 19:42)
+
+Confirmed: `docs/studies/check2hgi/results/B3_baselines/stl_getnext_hard_fl_5f50ep.json` shows F37 used `transition_path=/tmp/.../region_transition_log.pt` — the SAME full-data log_T file MTL used. The 82.44 STL ceiling is similarly inflated.
+
+**Implication:** the 8.83 pp gap between STL (82.44) and pre-C4 MTL (73.61) was both numbers leaky. Under leak-free conditions, both should drop ~16 pp uniformly:
+- STL true ceiling: ~66 (estimated)
+- MTL leak-free champion: 63.47 (B9, measured)
+- True gap: ~3 pp (much smaller than the leaky 8.83 pp)
+
+This re-frames the entire F50 T3 narrative: the "8.83 pp temporal gap" was largely the leak. Under leak-free conditions:
+- The gap is small (~3 pp) and almost entirely closed by the B9 recipe
+- The "STL needs 17-20 epochs to grow α and reach 82.44" claim is partly an artifact of α growing to amplify a leaky prior — STL still has α growth dynamics, but the absolute value is overestimated
+
+**Action:** STL leak-free run queued (`tmux stl_clean`, fires after pred_queue closes). `scripts/p1_region_head_ablation.py` now supports `--per-fold-transition-dir`. Once STL clean lands, we'll have the true gap number.
+
+## 7 · References
 
 - Advisor agent transcript: `/tmp/claude-0/-workspace-PoiMtlNet/.../abbf88cf1cbc5d178.output`
 - C4 audit finding: `F50_T3_AUDIT_FINDINGS.md` §C4

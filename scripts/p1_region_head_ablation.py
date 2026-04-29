@@ -541,7 +541,8 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
                  mtl_preencoder: bool = False,
                  preenc_hidden: int = 256,
                  preenc_layers: int = 2,
-                 preenc_dropout: float = 0.1):
+                 preenc_dropout: float = 0.1,
+                 per_fold_transition_dir: str | None = None):
     logger.info("Loading data for %s (input_type=%s, region_emb=%s)...", state, input_type, region_emb_source)
     x_tensor, y_region, y_cat, userids, emb_dim, n_regions, last_region_tensor = _load_data(
         state, input_type, region_emb_source,
@@ -609,11 +610,27 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
         for fold_idx, (train_idx, val_idx) in enumerate(splits):
             if fold_idx < completed:
                 continue
+            # AUDIT-C4 — when per_fold_transition_dir is set, override the
+            # head's transition_path with the leak-free fold-specific file.
+            # The fold split here uses the same StratifiedGroupKFold(seed=42)
+            # as compute_region_transition.py --per-fold, so fold N here
+            # matches region_transition_log_fold{N+1}.pt by construction.
+            fold_overrides = dict(overrides)
+            if per_fold_transition_dir is not None:
+                pf_path = Path(per_fold_transition_dir) / f"region_transition_log_fold{fold_idx + 1}.pt"
+                if not pf_path.exists():
+                    raise FileNotFoundError(
+                        f"per_fold_transition_dir set but {pf_path} missing. "
+                        f"Build with: python scripts/compute_region_transition.py "
+                        f"--state {state} --per-fold"
+                    )
+                fold_overrides["transition_path"] = str(pf_path)
+                logger.info("[C4 STL] fold %d using per-fold log_T %s", fold_idx, pf_path)
             t0 = time.time()
             metrics = _train_single_task(
                 head_name, x_tensor, y_region, train_idx, val_idx,
                 emb_dim, n_regions, epochs, batch_size, seed + fold_idx,
-                overrides, head_max_lr, label_smoothing, input_ln,
+                fold_overrides, head_max_lr, label_smoothing, input_ln,
                 aux_tensor=last_region_tensor,
                 mtl_preencoder=mtl_preencoder,
                 preenc_hidden=preenc_hidden,
@@ -773,6 +790,21 @@ def main():
                         help="Hidden / output dim of --mtl-preencoder (default 256, matches MTL shared_layer_size).")
     parser.add_argument("--preenc-layers", type=int, default=2,
                         help="Number of Linear blocks in --mtl-preencoder (default 2, matches MTL num_encoder_layers).")
+    parser.add_argument(
+        "--per-fold-transition-dir",
+        dest="per_fold_transition_dir",
+        type=str,
+        default=None,
+        metavar="DIR",
+        help=(
+            "AUDIT-C4 fix: directory containing per-fold transition matrices "
+            "(``region_transition_log_fold{1..k}.pt``). When set, the trainer "
+            "overrides ``transition_path`` per fold to the matching file, "
+            "eliminating val→train leakage in the GETNext graph prior. "
+            "Build with: python scripts/compute_region_transition.py "
+            "--state STATE --per-fold"
+        ),
+    )
     parser.add_argument("--preenc-dropout", type=float, default=0.1,
                         help="Dropout in --mtl-preencoder (default 0.1, matches MTL encoder_dropout).")
     args = parser.parse_args()
@@ -787,6 +819,7 @@ def main():
         preenc_hidden=args.preenc_hidden,
         preenc_layers=args.preenc_layers,
         preenc_dropout=args.preenc_dropout,
+        per_fold_transition_dir=args.per_fold_transition_dir,
     )
 
 
