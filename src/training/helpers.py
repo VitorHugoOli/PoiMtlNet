@@ -106,6 +106,7 @@ def setup_per_head_optimizer(
     extra_parameters: Iterable[torch.nn.Parameter] | None = None,
     reg_encoder_lr: float | None = None,
     reg_head_lr: float | None = None,
+    alpha_no_weight_decay: bool = False,
 ) -> AdamW:
     """Build an AdamW with three param groups (F48-H3 per-head LR).
 
@@ -143,6 +144,21 @@ def setup_per_head_optimizer(
     if extra_parameters is not None:
         reg_params.extend(p for p in extra_parameters if p.requires_grad)
 
+    # F50 B9 — when ``alpha_no_weight_decay``, peel α (a single scalar
+    # learnable in ``next_getnext_hard*`` heads) out of the reg group
+    # and put it in its own zero-WD group. AdamW WD=0.05 applies a
+    # constant pull-toward-zero to every parameter every step; for the
+    # single α scalar that fights the gradient-driven growth needed for
+    # the late-window α reach (STL at ep 17-20 hits α ~ 2.0). This is
+    # the B9 hypothesis test from F50_T3_HYPERPARAM_BRAINSTORM.md.
+    alpha_params: list[torch.nn.Parameter] = []
+    if alpha_no_weight_decay and hasattr(model, "next_poi"):
+        alpha = getattr(model.next_poi, "alpha", None)
+        if isinstance(alpha, torch.nn.Parameter) and alpha.requires_grad:
+            alpha_params = [alpha]
+            alpha_id = id(alpha)
+            reg_params = [p for p in reg_params if id(p) != alpha_id]
+
     # F50 D3/D6 — split reg_params into encoder vs head when EITHER
     # reg_encoder_lr or reg_head_lr is set.
     #   D3 (reg_encoder_lr): tests mechanism α via reg encoder under-training.
@@ -156,25 +172,29 @@ def setup_per_head_optimizer(
         encoder_param_ids = {id(p) for p in model.next_encoder.parameters()}
         reg_encoder_params = [p for p in reg_params if id(p) in encoder_param_ids]
         reg_head_params = [p for p in reg_params if id(p) not in encoder_param_ids]
-        return AdamW(
-            [
-                {"name": "cat",         "params": cat_params,         "lr": cat_lr},
-                {"name": "reg_encoder", "params": reg_encoder_params, "lr": _enc_lr},
-                {"name": "reg_head",    "params": reg_head_params,    "lr": _head_lr},
-                {"name": "shared",      "params": shared_params,      "lr": shared_lr},
-            ],
-            weight_decay=weight_decay,
-            eps=eps,
-        )
-    return AdamW(
-        [
-            {"name": "cat",    "params": cat_params,    "lr": cat_lr},
-            {"name": "reg",    "params": reg_params,    "lr": reg_lr},
-            {"name": "shared", "params": shared_params, "lr": shared_lr},
-        ],
-        weight_decay=weight_decay,
-        eps=eps,
-    )
+        groups = [
+            {"name": "cat",         "params": cat_params,         "lr": cat_lr},
+            {"name": "reg_encoder", "params": reg_encoder_params, "lr": _enc_lr},
+            {"name": "reg_head",    "params": reg_head_params,    "lr": _head_lr},
+            {"name": "shared",      "params": shared_params,      "lr": shared_lr},
+        ]
+        if alpha_params:
+            groups.append({
+                "name": "alpha_no_wd", "params": alpha_params,
+                "lr": _head_lr, "weight_decay": 0.0,
+            })
+        return AdamW(groups, weight_decay=weight_decay, eps=eps)
+    groups = [
+        {"name": "cat",    "params": cat_params,    "lr": cat_lr},
+        {"name": "reg",    "params": reg_params,    "lr": reg_lr},
+        {"name": "shared", "params": shared_params, "lr": shared_lr},
+    ]
+    if alpha_params:
+        groups.append({
+            "name": "alpha_no_wd", "params": alpha_params,
+            "lr": reg_lr, "weight_decay": 0.0,
+        })
+    return AdamW(groups, weight_decay=weight_decay, eps=eps)
 
 
 def setup_scheduler(

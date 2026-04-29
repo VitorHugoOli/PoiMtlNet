@@ -694,6 +694,19 @@ def _parse_args(argv=None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--alpha-no-weight-decay",
+        dest="alpha_no_weight_decay",
+        action="store_true",
+        help=(
+            "F50 B9: exempt the learnable alpha scalar (next_getnext_hard* "
+            "head's graph-prior weight) from AdamW weight decay. WD=0.05 "
+            "applies a constant pull-toward-zero every step, fighting the "
+            "gradient-driven alpha growth needed to reach STL's ep 17-20 "
+            "regime (alpha ~ 2.0). Requires per-head LR mode "
+            "(--cat-lr/--reg-lr/--shared-lr)."
+        ),
+    )
+    parser.add_argument(
         "--reg-head",
         type=str,
         default=None,
@@ -1026,6 +1039,16 @@ def _apply_cli_overrides(
         config = dataclasses.replace(
             config, min_best_epoch=int(args.min_best_epoch)
         )
+
+    if getattr(args, "alpha_no_weight_decay", False):
+        if config.task_type != "mtl":
+            raise ValueError("--alpha-no-weight-decay requires --task mtl")
+        if not all(getattr(config, k, None) is not None for k in ("cat_lr", "reg_lr", "shared_lr")):
+            raise ValueError(
+                "--alpha-no-weight-decay requires per-head LR mode "
+                "(--cat-lr, --reg-lr, --shared-lr all set)."
+            )
+        config = dataclasses.replace(config, alpha_no_weight_decay=True)
 
     return config
 

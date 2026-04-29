@@ -82,3 +82,101 @@ class TestComputeClassWeightsTensorInputs:
         # Note: .long() drops requires_grad anyway, so this is mostly a
         # smoke check that the .detach() in the helper is harmless.
         compute_class_weights(targets, num_classes=3, device=CPU)
+
+
+# ---------------------------------------------------------------------------
+# B9 — alpha exempt from weight decay
+# ---------------------------------------------------------------------------
+
+class _MTLnetWithAlpha(torch.nn.Module):
+    """Minimal MTL stub exposing the API setup_per_head_optimizer needs.
+
+    cat_specific / reg_specific / shared_parameters() + a `next_poi.alpha`
+    Parameter — mirrors the real mtlnet_crossattn surface that B9 reads.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.cat_part = torch.nn.Linear(4, 4)
+        self.next_encoder = torch.nn.Linear(4, 4)
+        self.shared_part = torch.nn.Linear(4, 4)
+
+        # next_poi has an alpha Parameter (mirrors next_getnext_hard)
+        self.next_poi = torch.nn.Linear(4, 4)
+        self.next_poi.alpha = torch.nn.Parameter(torch.tensor(0.5))
+
+    def cat_specific_parameters(self):
+        return list(self.cat_part.parameters())
+
+    def reg_specific_parameters(self):
+        return list(self.next_encoder.parameters()) + list(self.next_poi.parameters())
+
+    def shared_parameters(self):
+        return list(self.shared_part.parameters())
+
+
+class TestB9AlphaNoWeightDecay:
+    """B9 hypothesis test: AdamW WD applied to single-scalar alpha shrinks
+    it toward 0 every step and fights gradient-driven growth. Putting alpha
+    in its own zero-WD group should preserve growth."""
+
+    def test_alpha_kept_in_reg_group_when_flag_off(self):
+        """Default (legacy): alpha is in the reg group with WD applied."""
+        from training.helpers import setup_per_head_optimizer
+
+        model = _MTLnetWithAlpha()
+        opt = setup_per_head_optimizer(
+            model, cat_lr=1e-3, reg_lr=3e-3, shared_lr=1e-3,
+            weight_decay=0.05, alpha_no_weight_decay=False,
+        )
+        names = [g.get("name") for g in opt.param_groups]
+        assert "alpha_no_wd" not in names
+        # alpha should be in the reg group (no split, no _head/_encoder split)
+        reg_group = next(g for g in opt.param_groups if g.get("name") == "reg")
+        alpha_id = id(model.next_poi.alpha)
+        assert alpha_id in {id(p) for p in reg_group["params"]}
+
+    def test_alpha_isolated_with_zero_wd_when_flag_on(self):
+        from training.helpers import setup_per_head_optimizer
+
+        model = _MTLnetWithAlpha()
+        opt = setup_per_head_optimizer(
+            model, cat_lr=1e-3, reg_lr=3e-3, shared_lr=1e-3,
+            weight_decay=0.05, alpha_no_weight_decay=True,
+        )
+        names = [g.get("name") for g in opt.param_groups]
+        assert "alpha_no_wd" in names
+
+        alpha_group = next(g for g in opt.param_groups if g.get("name") == "alpha_no_wd")
+        assert alpha_group["weight_decay"] == 0.0
+        # alpha is exactly the only thing in this group
+        assert len(alpha_group["params"]) == 1
+        assert id(alpha_group["params"][0]) == id(model.next_poi.alpha)
+
+        # And it is NOT in the reg group anymore
+        reg_group = next(g for g in opt.param_groups if g.get("name") == "reg")
+        assert id(model.next_poi.alpha) not in {id(p) for p in reg_group["params"]}
+
+    def test_alpha_isolated_under_per_encoder_lr_split(self):
+        """B9 should compose with D6 (reg_head_lr split) — alpha still
+        peels out, even when reg is split into reg_encoder + reg_head."""
+        from training.helpers import setup_per_head_optimizer
+
+        model = _MTLnetWithAlpha()
+        opt = setup_per_head_optimizer(
+            model, cat_lr=1e-3, reg_lr=3e-3, shared_lr=1e-3,
+            weight_decay=0.05,
+            reg_head_lr=3e-2,  # triggers the split path
+            alpha_no_weight_decay=True,
+        )
+        names = [g.get("name") for g in opt.param_groups]
+        assert names == ["cat", "reg_encoder", "reg_head", "shared", "alpha_no_wd"]
+
+        alpha_group = next(g for g in opt.param_groups if g.get("name") == "alpha_no_wd")
+        assert alpha_group["weight_decay"] == 0.0
+        # Alpha gets reg_head_lr (3e-2) since it lives in next_poi
+        assert alpha_group["lr"] == pytest.approx(3e-2)
+        assert id(alpha_group["params"][0]) == id(model.next_poi.alpha)
+
+        reg_head_group = next(g for g in opt.param_groups if g.get("name") == "reg_head")
+        assert id(model.next_poi.alpha) not in {id(p) for p in reg_head_group["params"]}

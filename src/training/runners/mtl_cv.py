@@ -847,6 +847,7 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                 extra_parameters=_criterion_parameters(mtl_criterion),
                 reg_encoder_lr=float(_reg_encoder_lr) if _reg_encoder_lr is not None else None,
                 reg_head_lr=float(_reg_head_lr) if _reg_head_lr is not None else None,
+                alpha_no_weight_decay=bool(getattr(config, "alpha_no_weight_decay", False)),
             )
         else:
             optimizer = setup_optimizer(

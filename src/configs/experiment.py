@@ -122,6 +122,14 @@ class ExperimentConfig:
     # to force the selector past the init window. Default 0 = legacy.
     min_best_epoch: int = 0
 
+    # F50 B9 — exempt the learnable α scalar (in next_getnext_hard*
+    # heads) from AdamW weight decay. WD=0.05 applies a constant pull-
+    # toward-zero force every step, fighting the gradient-driven α
+    # growth needed for the STL ep 17-20 reach (α ~ 2.0). When True, α
+    # gets its own param group with weight_decay=0.0. Default False
+    # = legacy behaviour. Only takes effect with per-head LR mode.
+    alpha_no_weight_decay: bool = False
+
     # torch.compile: disabled by default.  On CUDA it uses the inductor
     # backend; MPS compatibility needs separate testing first.
     use_torch_compile: bool = False
