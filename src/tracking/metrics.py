@@ -116,6 +116,15 @@ def _rank_of_target(logits: torch.Tensor, targets: torch.Tensor) -> torch.Tensor
 
     Returns an int64 tensor of shape ``(N,)``.
     """
+    # On MPS, the chunked comparison's MPSGraph backing op fails with
+    # "MPSGaph does not support tensor dims larger than INT_MAX" when
+    # N × C > 2^31 (e.g. CA train fold: 286K × 8497 ≈ 2.4B). Fall back
+    # to CPU for the rank computation; downstream reductions (mrr, ndcg)
+    # work on the resulting (N,) int64 tensor on either device.
+    orig_device = logits.device
+    if orig_device.type == 'mps':
+        logits = logits.cpu()
+        targets = targets.cpu()
     # (N, 1) gather — score of the true class per row
     target_scores = logits.gather(dim=-1, index=targets.unsqueeze(-1))
     # Chunked computation: the naive (logits > target_scores) materialises
