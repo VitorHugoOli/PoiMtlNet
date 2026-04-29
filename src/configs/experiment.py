@@ -130,6 +130,16 @@ class ExperimentConfig:
     # = legacy behaviour. Only takes effect with per-head LR mode.
     alpha_no_weight_decay: bool = False
 
+    # F50 B4 — freeze α at its init value for the first N epochs, then
+    # unfreeze. Lets cat stabilise at the un-α-amplified prior magnitude
+    # before α starts growing. Set 0 (default) = legacy (α trainable
+    # from epoch 0). Mirrors P3 (freeze_cat_after_epoch) but inverted:
+    # P3 freezes part of cat AFTER warmup; B4 freezes α UNTIL warmup.
+    # Implemented via toggling alpha.requires_grad at epoch boundary
+    # (α stays a Parameter throughout — different from D1 freeze_alpha
+    # which makes α a buffer permanently).
+    alpha_frozen_until_epoch: Optional[int] = None
+
     # torch.compile: disabled by default.  On CUDA it uses the inductor
     # backend; MPS compatibility needs separate testing first.
     use_torch_compile: bool = False

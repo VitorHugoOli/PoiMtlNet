@@ -206,6 +206,7 @@ def train_model(model: torch.nn.Module,
                 task_set: TaskSet = LEGACY_CATEGORY_NEXT,
                 freeze_cat_after_epoch: Optional[int] = None,
                 alternating_optimizer_step: bool = False,
+                alpha_frozen_until_epoch: Optional[int] = None,
                 cat_specific_parameters: Optional[list] = None,
                 reg_specific_parameters: Optional[list] = None,
                 ):
@@ -297,10 +298,38 @@ def train_model(model: torch.nn.Module,
 
     # F50 P3 — track whether warmup-then-freeze has fired (idempotent).
     _cat_frozen_post_warmup = False
+    # F50 B4 — α-freeze warmup. If alpha_frozen_until_epoch is set, lock
+    # α at its init value for ep 0..N-1, then unfreeze. Pre-freeze the
+    # parameter HERE (before training) so the first epoch already sees
+    # frozen α; the unfreeze happens at epoch N inside the loop below.
+    _alpha_unfrozen = False
+    if alpha_frozen_until_epoch is not None and int(alpha_frozen_until_epoch) > 0:
+        next_head = getattr(model, "next_poi", None)
+        head_alpha = getattr(next_head, "alpha", None)
+        if isinstance(head_alpha, torch.nn.Parameter):
+            head_alpha.requires_grad_(False)
+            print(
+                f"[B4 alpha-frozen-until-epoch] α frozen at "
+                f"{float(head_alpha):.4f} until epoch {alpha_frozen_until_epoch}"
+            )
 
     # Main training loop
     for epoch_idx in progress:
         model.train()
+        # F50 B4 — at the boundary epoch, unfreeze α so it can grow.
+        if (alpha_frozen_until_epoch is not None
+                and not _alpha_unfrozen
+                and epoch_idx >= int(alpha_frozen_until_epoch)):
+            next_head = getattr(model, "next_poi", None)
+            head_alpha = getattr(next_head, "alpha", None)
+            if isinstance(head_alpha, torch.nn.Parameter):
+                head_alpha.requires_grad_(True)
+                _alpha_unfrozen = True
+                print(
+                    f"[B4 alpha-frozen-until-epoch] α unfrozen at epoch "
+                    f"{epoch_idx} (target N={alpha_frozen_until_epoch}); "
+                    f"current α = {float(head_alpha):.4f}"
+                )
         # F50 P3 — at the boundary epoch, freeze category_encoder + category_poi.
         # Reg + shared keep training. Tests whether continued cat-encoder
         # co-adaptation as reg-helper (F49 Layer 2) hurts reg at scale. The
@@ -974,6 +1003,7 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             task_set=task_set,
             freeze_cat_after_epoch=getattr(config, "freeze_cat_after_epoch", None),
             alternating_optimizer_step=getattr(config, "alternating_optimizer_step", False),
+            alpha_frozen_until_epoch=getattr(config, "alpha_frozen_until_epoch", None),
             cat_specific_parameters=(
                 list(model.cat_specific_parameters())
                 if hasattr(model, "cat_specific_parameters") else None

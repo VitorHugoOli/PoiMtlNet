@@ -186,6 +186,89 @@ def test_f63_logs_head_alpha_when_present():
     DEVICE.type == "mps",
     reason="MPS corrupts tiny integer tensors in unit-test-sized batches",
 )
+def test_b4_alpha_frozen_until_epoch_toggles_requires_grad():
+    """B4 — α should be requires_grad=False until epoch N, then True."""
+    torch.manual_seed(0)
+    batch_size = 2
+    num_samples = 10
+    num_classes = 3
+
+    category_x = torch.randn(num_samples, 1, 4)
+    next_x = torch.randn(num_samples, 3, 4)
+    targets = torch.arange(num_samples) % num_classes
+
+    category_data = _task_data(category_x, targets, batch_size)
+    next_data = _task_data(next_x, targets, batch_size)
+
+    model = _TinyMTLWithAlpha(num_classes=num_classes, alpha_init=0.5).to(DEVICE)
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
+    scheduler = _CountingScheduler()
+    fold_history = FoldHistory.standalone({"next", "category"})
+    criterion = nn.CrossEntropyLoss()
+    mtl_criterion = create_loss("equal_weight", n_tasks=2, device=DEVICE)
+
+    # Train 3 epochs with alpha_frozen_until_epoch=2
+    train_model(
+        model=model,
+        optimizer=optimizer,
+        scheduler=scheduler,
+        dataloader_next=next_data,
+        dataloader_category=category_data,
+        next_criterion=criterion,
+        category_criterion=criterion,
+        mtl_criterion=mtl_criterion,
+        num_epochs=3,
+        num_classes=num_classes,
+        fold_history=fold_history,
+        gradient_accumulation_steps=2,
+        alpha_frozen_until_epoch=2,
+    )
+
+    # By the end of training, α should be unfrozen (requires_grad=True).
+    # The unfreeze fires AT epoch 2 (the 3rd epoch, 0-indexed).
+    assert model.next_poi.alpha.requires_grad is True
+
+
+@pytest.mark.skipif(
+    DEVICE.type == "mps",
+    reason="MPS corrupts tiny integer tensors in unit-test-sized batches",
+)
+def test_b4_alpha_stays_frozen_during_warmup():
+    """When alpha_frozen_until_epoch > num_epochs, α never unfreezes."""
+    torch.manual_seed(0)
+    category_x = torch.randn(10, 1, 4)
+    next_x = torch.randn(10, 3, 4)
+    targets = torch.arange(10) % 3
+    category_data = _task_data(category_x, targets, 2)
+    next_data = _task_data(next_x, targets, 2)
+    model = _TinyMTLWithAlpha(num_classes=3, alpha_init=0.5).to(DEVICE)
+    optimizer = torch.optim.SGD(model.parameters(), lr=1.0)  # high LR
+    scheduler = _CountingScheduler()
+    fold_history = FoldHistory.standalone({"next", "category"})
+    criterion = nn.CrossEntropyLoss()
+    mtl_criterion = create_loss("equal_weight", n_tasks=2, device=DEVICE)
+
+    initial_alpha = float(model.next_poi.alpha)
+    train_model(
+        model=model, optimizer=optimizer, scheduler=scheduler,
+        dataloader_next=next_data, dataloader_category=category_data,
+        next_criterion=criterion, category_criterion=criterion,
+        mtl_criterion=mtl_criterion, num_epochs=3, num_classes=3,
+        fold_history=fold_history, gradient_accumulation_steps=2,
+        alpha_frozen_until_epoch=10,  # never unfreezes within 3 epochs
+    )
+
+    # α frozen → requires_grad False, value unchanged
+    assert model.next_poi.alpha.requires_grad is False
+    assert abs(float(model.next_poi.alpha) - initial_alpha) < 1e-6, (
+        f"α should be unchanged; got {float(model.next_poi.alpha)} vs {initial_alpha}"
+    )
+
+
+@pytest.mark.skipif(
+    DEVICE.type == "mps",
+    reason="MPS corrupts tiny integer tensors in unit-test-sized batches",
+)
 def test_f63_silent_when_no_alpha():
     """F63 hook must not error or pollute diagnostics on heads without α."""
     torch.manual_seed(0)

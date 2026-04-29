@@ -707,6 +707,20 @@ def _parse_args(argv=None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--alpha-frozen-until-epoch",
+        dest="alpha_frozen_until_epoch",
+        type=int,
+        default=None,
+        metavar="N",
+        help=(
+            "F50 B4: freeze the learnable alpha scalar at its init value "
+            "for the first N epochs, then unfreeze. Lets the cat task "
+            "stabilise at the un-amplified prior magnitude before alpha "
+            "starts growing and disturbing the shared backbone. Default "
+            "(unset/0) = alpha trainable from epoch 0 (legacy)."
+        ),
+    )
+    parser.add_argument(
         "--reg-head",
         type=str,
         default=None,
@@ -1049,6 +1063,14 @@ def _apply_cli_overrides(
                 "(--cat-lr, --reg-lr, --shared-lr all set)."
             )
         config = dataclasses.replace(config, alpha_no_weight_decay=True)
+
+    if getattr(args, "alpha_frozen_until_epoch", None) is not None:
+        if config.task_type != "mtl":
+            raise ValueError("--alpha-frozen-until-epoch requires --task mtl")
+        n = int(args.alpha_frozen_until_epoch)
+        if n < 0:
+            raise ValueError(f"--alpha-frozen-until-epoch must be >= 0, got {n}")
+        config = dataclasses.replace(config, alpha_frozen_until_epoch=n if n > 0 else None)
 
     return config
 
