@@ -535,7 +535,8 @@ def _parse_args(argv=None) -> argparse.Namespace:
     parser.add_argument(
         "--scheduler",
         type=str,
-        choices=("onecycle", "constant", "cosine", "warmup_constant"),
+        choices=("onecycle", "constant", "cosine", "warmup_constant",
+                 "reg_head_warmup_decay"),
         default=None,
         help=(
             "LR scheduler type. 'onecycle' (default) preserves legacy "
@@ -543,7 +544,53 @@ def _parse_args(argv=None) -> argparse.Namespace:
             "'more epochs' from 'stretched OneCycleLR schedule', F45). "
             "'cosine' decays from --max-lr to 0 without warmup. "
             "'warmup_constant' (F48-H2) linearly warms LR over "
-            "--pct-start of total steps, then holds --max-lr forever."
+            "--pct-start of total steps, then holds --max-lr forever. "
+            "'reg_head_warmup_decay' (F50 F64/B2) applies a ramp-hold-decay "
+            "multiplier ONLY to reg_head + alpha_no_wd groups (others stay "
+            "at base LR); requires per-head optimizer."
+        ),
+    )
+    parser.add_argument(
+        "--reg-head-warmup-decay-peak-mult",
+        dest="reg_head_warmup_decay_peak_mult",
+        type=float,
+        default=10.0,
+        help=(
+            "F64/B2 — peak LR multiplier for reg_head during warmup-decay "
+            "schedule (default 10.0 → reg_head LR peaks at 10× its base)."
+        ),
+    )
+    parser.add_argument(
+        "--reg-head-warmup-decay-warmup-epochs",
+        dest="reg_head_warmup_decay_warmup_epochs",
+        type=int,
+        default=5,
+        help=(
+            "F64/B2 — epochs of linear ramp-up for reg_head LR (default 5)."
+        ),
+    )
+    parser.add_argument(
+        "--reg-head-warmup-decay-plateau-epochs",
+        dest="reg_head_warmup_decay_plateau_epochs",
+        type=int,
+        default=15,
+        help=(
+            "F64/B2 — last epoch of the peak-LR plateau (default 15). "
+            "Linear decay from this epoch to total --epochs back to base."
+        ),
+    )
+    parser.add_argument(
+        "--joint-loader-strategy",
+        dest="joint_loader_strategy",
+        type=str,
+        choices=("max_size_cycle", "min_size_truncate"),
+        default=None,
+        help=(
+            "F65 — joint-dataloader cycling strategy. 'max_size_cycle' "
+            "(legacy default) cycles the shorter loader to match longer. "
+            "'min_size_truncate' stops at the shortest loader's end with no "
+            "cycling — tests whether the F50 D5 reg-saturation observation "
+            "is driven by the cycle pattern."
         ),
     )
     parser.add_argument(
@@ -881,6 +928,18 @@ def _apply_cli_overrides(
         if not (0 < args.pct_start < 1):
             raise ValueError("--pct-start must be in (0, 1)")
         config = dataclasses.replace(config, pct_start=args.pct_start)
+    # F64/B2 — reg_head warmup-decay schedule params (only consumed when
+    # scheduler_type == "reg_head_warmup_decay"). Always stamp on config so
+    # the runner reads via getattr without needing presence checks.
+    config = dataclasses.replace(
+        config,
+        reg_head_warmup_decay_peak_mult=float(args.reg_head_warmup_decay_peak_mult),
+        reg_head_warmup_decay_warmup_epochs=int(args.reg_head_warmup_decay_warmup_epochs),
+        reg_head_warmup_decay_plateau_epochs=int(args.reg_head_warmup_decay_plateau_epochs),
+    )
+    if args.joint_loader_strategy is not None:
+        config = dataclasses.replace(
+            config, joint_loader_strategy=args.joint_loader_strategy)
     # Per-head LR (F48-H3). Validate as a triple — partial sets are an
     # error since the runner only switches to per-head mode when all
     # three are present.

@@ -209,6 +209,7 @@ def train_model(model: torch.nn.Module,
                 alpha_frozen_until_epoch: Optional[int] = None,
                 cat_specific_parameters: Optional[list] = None,
                 reg_specific_parameters: Optional[list] = None,
+                joint_loader_strategy: str = "max_size_cycle",
                 ):
     """
     Train the model with multi-task learning.
@@ -261,6 +262,7 @@ def train_model(model: torch.nn.Module,
         num_epochs,
         [dataloader_next.train.dataloader,
          dataloader_category.train.dataloader],
+        joint_loader_strategy=joint_loader_strategy,
     )
 
     cb = CallbackList(callbacks)
@@ -290,10 +292,16 @@ def train_model(model: torch.nn.Module,
         fold_history.model_task = TaskHistory()
 
     gradient_accumulation_steps = max(1, int(gradient_accumulation_steps))
-    batches_per_epoch = max(
-        len(dataloader_next.train.dataloader),
-        len(dataloader_category.train.dataloader),
-    )
+    if joint_loader_strategy == "min_size_truncate":
+        batches_per_epoch = min(
+            len(dataloader_next.train.dataloader),
+            len(dataloader_category.train.dataloader),
+        )
+    else:
+        batches_per_epoch = max(
+            len(dataloader_next.train.dataloader),
+            len(dataloader_category.train.dataloader),
+        )
     pareto_points: list[tuple[float, float]] = []
 
     # F50 D5 — encoder weight-trajectory diagnostic. Snapshot the initial
@@ -948,6 +956,12 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             steps_per_epoch,
             scheduler_type=getattr(config, "scheduler_type", "onecycle"),
             pct_start=getattr(config, "pct_start", None),
+            reg_head_warmup_decay_peak_mult=getattr(
+                config, "reg_head_warmup_decay_peak_mult", 10.0),
+            reg_head_warmup_decay_warmup_epochs=getattr(
+                config, "reg_head_warmup_decay_warmup_epochs", 5),
+            reg_head_warmup_decay_plateau_epochs=getattr(
+                config, "reg_head_warmup_decay_plateau_epochs", 15),
         )
         # Smoke print for F48-H3: verify per-group LRs survived scheduler
         # init. Only on the first fold to keep logs clean. Also prints
@@ -1061,6 +1075,8 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                 list(model.reg_specific_parameters())
                 if hasattr(model, "reg_specific_parameters") else None
             ),
+            joint_loader_strategy=getattr(
+                config, "joint_loader_strategy", "max_size_cycle"),
         )
 
         # Run final validation

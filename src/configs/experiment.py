@@ -106,6 +106,23 @@ class ExperimentConfig:
     # reg_head (next_poi, this LR). Can combine with reg_encoder_lr.
     reg_head_lr: Optional[float] = None
 
+    # F50 F64/B2 — warmup-decay LambdaLR multiplier on reg_head + alpha_no_wd
+    # groups. Only consumed when scheduler_type == "reg_head_warmup_decay".
+    # Defaults reproduce the F50 T3 spec (warmup ep 0-5, plateau 5-15, decay
+    # 15-50, peak 10× base). Tests whether late-window α growth can be unlocked
+    # without the sustained instability of D6 (constant high reg_head_lr).
+    reg_head_warmup_decay_peak_mult: float = 10.0
+    reg_head_warmup_decay_warmup_epochs: int = 5
+    reg_head_warmup_decay_plateau_epochs: int = 15
+
+    # F50 F65 — joint-dataloader cycling strategy. ``max_size_cycle``
+    # (legacy default) cycles the shorter loader to match the longer; the
+    # shorter loader's data is re-fed within an epoch. ``min_size_truncate``
+    # stops at the shortest loader's end with no cycling. Tests if the
+    # repeated re-feeding pattern is contributing to the F50 D5
+    # reg-saturation observation.
+    joint_loader_strategy: str = "max_size_cycle"
+
     # AUDIT-C4 fix — directory holding per-fold transition matrices
     # ``region_transition_log_fold{1..k_folds}.pt``. When set, the MTL
     # trainer overrides the static ``transition_path`` in next-head

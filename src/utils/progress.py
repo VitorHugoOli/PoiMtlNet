@@ -9,10 +9,23 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 
-def zip_longest_cycle(*dataloaders: DataLoader) -> Iterator:
-    """Zip dataloaders, cycling shorter ones to match the longest.
+def zip_longest_cycle(
+    *dataloaders: DataLoader,
+    strategy: str = "max_size_cycle",
+) -> Iterator:
+    """Zip dataloaders by joint-loader strategy.
 
-    This is the 'max_size_cycle' strategy used in PyTorch Lightning.
+    Strategies (F50 F65 — joint-dataloader cycling ablation):
+      * ``max_size_cycle`` (default, legacy): cycle shorter loaders to match
+        the longest. Number of joint batches = max(lengths). Synthetic
+        re-passes happen on the shorter loader within the same epoch.
+      * ``min_size_truncate``: stop at the shortest loader's end. No
+        cycling at all. Number of joint batches = min(lengths). Tests
+        whether the F50 D5/F50 T3 reg-saturation artifact is driven by
+        joint-loader cycling repeatedly re-feeding reg samples.
+
+    The legacy strategy is retained as default so all pre-F65 callers
+    keep their semantics bit-exactly.
     """
     if not dataloaders:
         return iter([])
@@ -20,21 +33,40 @@ def zip_longest_cycle(*dataloaders: DataLoader) -> Iterator:
     if len(dataloaders) == 1:
         return iter(dataloaders[0])
 
-    max_len = max(len(dl) for dl in dataloaders)
-    iterators = [
-        cycle(dl) if len(dl) < max_len else iter(dl)
-        for dl in dataloaders
-    ]
-    return zip(*iterators)
+    if strategy == "max_size_cycle":
+        max_len = max(len(dl) for dl in dataloaders)
+        iterators = [
+            cycle(dl) if len(dl) < max_len else iter(dl)
+            for dl in dataloaders
+        ]
+        return zip(*iterators)
+    if strategy == "min_size_truncate":
+        # No cycling; iterate naturally and stop when the shortest loader
+        # is exhausted. Equivalent to plain ``zip(*loaders)``.
+        return zip(*[iter(dl) for dl in dataloaders])
+    raise ValueError(
+        f"Unknown joint-loader strategy '{strategy}'; "
+        f"expected one of {{'max_size_cycle', 'min_size_truncate'}}"
+    )
 
 
 class TrainingProgressBar(tqdm):
     """Extended tqdm progress bar for training loops."""
 
-    def __init__(self, num_epochs: int, dataloaders: List[DataLoader], **kwargs):
+    def __init__(
+        self,
+        num_epochs: int,
+        dataloaders: List[DataLoader],
+        joint_loader_strategy: str = "max_size_cycle",
+        **kwargs,
+    ):
         self.num_epochs = num_epochs
         self.dataloaders = dataloaders
-        self.batches_per_epoch = max(len(dl) for dl in dataloaders)
+        self.joint_loader_strategy = str(joint_loader_strategy)
+        if self.joint_loader_strategy == "min_size_truncate":
+            self.batches_per_epoch = min(len(dl) for dl in dataloaders)
+        else:
+            self.batches_per_epoch = max(len(dl) for dl in dataloaders)
 
         self.epoch_start_time = None
         self.current_epoch = 0
@@ -57,8 +89,10 @@ class TrainingProgressBar(tqdm):
             self.write("")
 
     def iter_epoch(self) -> Iterator:
-        """Iterate over batches in current epoch (max_size_cycle strategy)."""
-        for data in zip_longest_cycle(*self.dataloaders):
+        """Iterate over batches in current epoch using configured strategy."""
+        for data in zip_longest_cycle(
+            *self.dataloaders, strategy=self.joint_loader_strategy,
+        ):
             yield data
             self.update(1)
 

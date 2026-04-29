@@ -62,9 +62,17 @@ class _CrossAttnBlock(nn.Module):
         ffn_dim: int,
         dropout: float,
         detach_kv: bool = False,
+        identity_attn: bool = False,
     ):
         super().__init__()
         self.detach_kv = bool(detach_kv)
+        # F52 P5 — when ``identity_attn`` is set, the cross-attention output
+        # is replaced with zero so the residual `a + a_upd` reduces to `a`.
+        # Per-task FFNs and LayerNorms still run. Decomposes "is the
+        # productive part of the cross-attn block the K/V mixing or just
+        # the FFN+LN structure?" If P5 ≈ H3-alt, mixing is dead. If
+        # P5 ≈ P1 (no_crossattn), even the FFN+LN doesn't add value.
+        self.identity_attn = bool(identity_attn)
         self.cross_ab = nn.MultiheadAttention(
             dim, num_heads, dropout=dropout, batch_first=True
         )
@@ -101,18 +109,24 @@ class _CrossAttnBlock(nn.Module):
         # L_reg do NOT flow back through cross_ba into category_encoder (and
         # symmetrically L_cat does not flow into next_encoder). Direct test of
         # the F49 Layer 2 silent-gradient mechanism under full-MTL training.
-        kv_b = b.detach() if self.detach_kv else b
-        a_upd, _ = self.cross_ab(
-            query=a, key=kv_b, value=kv_b, key_padding_mask=b_pad_mask
-        )
-        a = self.ln_a1(a + a_upd)
-        # b queries a (uses updated a as K/V so the two streams converge
-        # symmetrically; this is MulT's "late" bidirectional pattern)
-        kv_a = a.detach() if self.detach_kv else a
-        b_upd, _ = self.cross_ba(
-            query=b, key=kv_a, value=kv_a, key_padding_mask=a_pad_mask
-        )
-        b = self.ln_b1(b + b_upd)
+        if self.identity_attn:
+            # F52 P5 — short-circuit cross-attention output to zero. Streams
+            # pass through ln_a1/ln_b1 + per-task FFN+ln_a2/ln_b2 only.
+            a = self.ln_a1(a)
+            b = self.ln_b1(b)
+        else:
+            kv_b = b.detach() if self.detach_kv else b
+            a_upd, _ = self.cross_ab(
+                query=a, key=kv_b, value=kv_b, key_padding_mask=b_pad_mask
+            )
+            a = self.ln_a1(a + a_upd)
+            # b queries a (uses updated a as K/V so the two streams converge
+            # symmetrically; this is MulT's "late" bidirectional pattern)
+            kv_a = a.detach() if self.detach_kv else a
+            b_upd, _ = self.cross_ba(
+                query=b, key=kv_a, value=kv_a, key_padding_mask=a_pad_mask
+            )
+            b = self.ln_b1(b + b_upd)
         # Per-stream FFN
         a = self.ln_a2(a + self.ffn_a(a))
         b = self.ln_b2(b + self.ffn_b(b))
@@ -147,6 +161,7 @@ class MTLnetCrossAttn(MTLnet):
         crossattn_ffn_dim: Optional[int] = None,
         detach_crossattn_kv: bool = False,
         disable_cross_attn: bool = False,
+        identity_cross_attn: bool = False,
         category_head: Optional[str] = None,
         next_head: Optional[str] = None,
         category_head_params: Optional[dict[str, Any]] = None,
@@ -160,6 +175,11 @@ class MTLnetCrossAttn(MTLnet):
         )
         self._detach_crossattn_kv = bool(detach_crossattn_kv)
         self._disable_cross_attn = bool(disable_cross_attn)
+        self._identity_cross_attn = bool(identity_cross_attn)
+        if self._disable_cross_attn and self._identity_cross_attn:
+            raise ValueError(
+                "disable_cross_attn and identity_cross_attn are mutually exclusive"
+            )
         super().__init__(
             feature_size=feature_size,
             shared_layer_size=shared_layer_size,
@@ -196,6 +216,7 @@ class MTLnetCrossAttn(MTLnet):
                     ffn_dim=self._crossattn_ffn_dim,
                     dropout=shared_dropout,
                     detach_kv=self._detach_crossattn_kv,
+                    identity_attn=self._identity_cross_attn,
                 )
                 for _ in range(self._num_crossattn_blocks)
             ]

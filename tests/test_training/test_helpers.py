@@ -180,3 +180,110 @@ class TestB9AlphaNoWeightDecay:
 
         reg_head_group = next(g for g in opt.param_groups if g.get("name") == "reg_head")
         assert id(model.next_poi.alpha) not in {id(p) for p in reg_head_group["params"]}
+
+
+# ---------------------------------------------------------------------------
+# F64/B2 — warmup-decay LambdaLR on reg_head only
+# ---------------------------------------------------------------------------
+
+class TestF64RegHeadWarmupDecay:
+    """F64/B2 hypothesis test: ramp reg_head LR up early (10× base) to seed α
+    growth, then decay back so the head doesn't destabilise the joint loss
+    in late epochs. Other groups stay at their per-head base LR.
+
+    The lambda shape is verified independently of the optimizer (deterministic
+    closure of step → multiplier), and integration through `setup_scheduler`
+    confirms LambdaLR maps the correct lambda to the correct param group.
+    """
+
+    def test_lambda_shape_warmup_plateau_decay(self):
+        from training.helpers import _build_reg_head_warmup_decay_lambda
+        # 5 ep warmup, plateau through ep 15, decay through ep 50; bs that
+        # gives 10 steps per epoch → warmup=50 steps, plateau_end=150 steps,
+        # total=500 steps. Peak multiplier = 10×.
+        fn = _build_reg_head_warmup_decay_lambda(
+            warmup_end_step=50, plateau_end_step=150, total_steps=500,
+            peak_mult=10.0,
+        )
+        assert fn(0) == pytest.approx(1.0)
+        # Mid-warmup: linear → 1.0 + 9.0 * 0.5 = 5.5
+        assert fn(25) == pytest.approx(5.5)
+        # End of warmup ≈ peak.
+        assert fn(50) == pytest.approx(10.0)
+        # Plateau hold.
+        assert fn(100) == pytest.approx(10.0)
+        # Mid decay: at step 325 → progress 0.5 → 10 - 9*0.5 = 5.5
+        assert fn(325) == pytest.approx(5.5)
+        # Final step → back to base.
+        assert fn(500) == pytest.approx(1.0)
+
+    def test_lambda_invalid_shape_raises(self):
+        from training.helpers import _build_reg_head_warmup_decay_lambda
+        with pytest.raises(ValueError):
+            _build_reg_head_warmup_decay_lambda(
+                warmup_end_step=50, plateau_end_step=20,  # plateau < warmup
+                total_steps=500, peak_mult=10.0,
+            )
+
+    def test_setup_scheduler_lambda_lr_per_group(self):
+        """The reg_head_warmup_decay scheduler must apply the warmup-decay
+        lambda only to reg_head + alpha_no_wd; cat / reg_encoder / shared
+        stay at their per-head base LR."""
+        from training.helpers import setup_per_head_optimizer, setup_scheduler
+
+        model = _MTLnetWithAlpha()
+        opt = setup_per_head_optimizer(
+            model, cat_lr=1e-3, reg_lr=3e-3, shared_lr=1e-3,
+            weight_decay=0.05,
+            reg_head_lr=3e-3,  # base reg_head LR
+            alpha_no_weight_decay=True,
+        )
+        names = [g.get("name") for g in opt.param_groups]
+        assert names == ["cat", "reg_encoder", "reg_head", "shared", "alpha_no_wd"]
+
+        # Use 10 steps per epoch, 50 epochs.
+        sched = setup_scheduler(
+            opt, max_lr=3e-3, epochs=50, steps_per_epoch=10,
+            scheduler_type="reg_head_warmup_decay",
+            reg_head_warmup_decay_peak_mult=10.0,
+            reg_head_warmup_decay_warmup_epochs=5,
+            reg_head_warmup_decay_plateau_epochs=15,
+        )
+
+        # Step 0 — all groups at their base LR.
+        cat_g = next(g for g in opt.param_groups if g["name"] == "cat")
+        rh_g = next(g for g in opt.param_groups if g["name"] == "reg_head")
+        re_g = next(g for g in opt.param_groups if g["name"] == "reg_encoder")
+        sh_g = next(g for g in opt.param_groups if g["name"] == "shared")
+        a_g = next(g for g in opt.param_groups if g["name"] == "alpha_no_wd")
+        assert cat_g["lr"] == pytest.approx(1e-3)
+        assert rh_g["lr"] == pytest.approx(3e-3)
+        assert a_g["lr"] == pytest.approx(3e-3)
+
+        # Advance to peak (step ~50): reg_head + alpha_no_wd jump 10×.
+        for _ in range(50):
+            sched.step()
+        assert rh_g["lr"] == pytest.approx(3e-2)
+        assert a_g["lr"] == pytest.approx(3e-2)
+        # Other groups untouched.
+        assert cat_g["lr"] == pytest.approx(1e-3)
+        assert re_g["lr"] == pytest.approx(3e-3)
+        assert sh_g["lr"] == pytest.approx(1e-3)
+
+        # Advance into decay tail (step 500): reg_head back at base.
+        for _ in range(450):
+            sched.step()
+        assert rh_g["lr"] == pytest.approx(3e-3)
+        assert a_g["lr"] == pytest.approx(3e-3)
+
+    def test_setup_scheduler_rejects_single_group_optimizer(self):
+        """reg_head_warmup_decay requires per-head optimizer (multi-group)."""
+        from torch.optim import AdamW
+        from training.helpers import setup_scheduler
+
+        opt = AdamW([torch.nn.Parameter(torch.randn(3))], lr=1e-3)
+        with pytest.raises(ValueError, match="reg_head_warmup_decay requires"):
+            setup_scheduler(
+                opt, max_lr=1e-3, epochs=10, steps_per_epoch=5,
+                scheduler_type="reg_head_warmup_decay",
+            )

@@ -13,6 +13,7 @@ from torch.optim import AdamW
 from torch.optim.lr_scheduler import (
     ConstantLR,
     CosineAnnealingLR,
+    LambdaLR,
     LinearLR,
     OneCycleLR,
     SequentialLR,
@@ -197,6 +198,43 @@ def setup_per_head_optimizer(
     return AdamW(groups, weight_decay=weight_decay, eps=eps)
 
 
+def _build_reg_head_warmup_decay_lambda(
+    warmup_end_step: int,
+    plateau_end_step: int,
+    total_steps: int,
+    peak_mult: float,
+):
+    """F50 F64/B2 — warmup-decay multiplier shape on reg_head LR.
+
+    Returns a closure step → multiplier in [1.0, peak_mult]:
+      0..warmup_end:     linear ramp 1.0 → peak_mult
+      warmup_end..peak:  hold peak_mult
+      peak..total:       linear decay peak_mult → 1.0
+
+    Applied as a per-group factor on top of AdamW's base LR for the
+    reg_head (and α-no-WD if peeled out) groups; other groups keep
+    multiplier ≡ 1.0.
+    """
+    if not (0 < warmup_end_step <= plateau_end_step <= total_steps):
+        raise ValueError(
+            f"reg_head_warmup_decay shape invalid: warmup={warmup_end_step} "
+            f"plateau_end={plateau_end_step} total={total_steps}"
+        )
+    peak = max(1.0, float(peak_mult))
+
+    def _fn(step: int) -> float:
+        if step < warmup_end_step:
+            return 1.0 + (peak - 1.0) * (step / warmup_end_step)
+        if step < plateau_end_step:
+            return peak
+        # decay phase
+        decay_span = max(1, total_steps - plateau_end_step)
+        progress = min(1.0, (step - plateau_end_step) / decay_span)
+        return peak - (peak - 1.0) * progress
+
+    return _fn
+
+
 def setup_scheduler(
     optimizer: AdamW,
     max_lr: float,
@@ -204,6 +242,9 @@ def setup_scheduler(
     steps_per_epoch: int,
     scheduler_type: str = "onecycle",
     pct_start: Optional[float] = None,
+    reg_head_warmup_decay_peak_mult: float = 10.0,
+    reg_head_warmup_decay_warmup_epochs: int = 5,
+    reg_head_warmup_decay_plateau_epochs: int = 15,
 ):
     """Create an LR scheduler matching the project's conventions.
 
@@ -289,7 +330,41 @@ def setup_scheduler(
             schedulers=[warmup, plateau],
             milestones=[warmup_steps],
         )
+    if scheduler_type == "reg_head_warmup_decay":
+        # F64/B2 — only the reg_head (and alpha_no_wd, if present) param
+        # group sees the warmup-decay shape; all other groups stay at
+        # base LR. Requires the per-head optimizer (multi-group). The
+        # reg-side LR ramps base→peak in `warmup_epochs`, holds at peak
+        # through `plateau_epochs`, then decays linearly back to base by
+        # the final epoch. Tests whether late-window α growth is unlocked
+        # without sustained instability (D6's failure mode).
+        if not multi_group_per_head:
+            raise ValueError(
+                "reg_head_warmup_decay requires per-head optimizer "
+                "(--cat-lr/--reg-lr/--shared-lr); single-group mode unsupported"
+            )
+        total_steps = int(epochs * steps_per_epoch)
+        warmup_end_step = int(reg_head_warmup_decay_warmup_epochs * steps_per_epoch)
+        plateau_end_step = int(reg_head_warmup_decay_plateau_epochs * steps_per_epoch)
+        warmup_decay_fn = _build_reg_head_warmup_decay_lambda(
+            warmup_end_step=max(1, warmup_end_step),
+            plateau_end_step=max(warmup_end_step + 1, plateau_end_step),
+            total_steps=max(plateau_end_step + 1, total_steps),
+            peak_mult=reg_head_warmup_decay_peak_mult,
+        )
+        identity_fn = lambda _: 1.0
+        # Map each param group by name → its lambda. Reg-head + α-no-WD
+        # ride the warmup-decay; cat / reg_encoder / shared / reg stay at 1.0.
+        lambdas = []
+        for pg in optimizer.param_groups:
+            name = pg.get("name", "")
+            if name in ("reg_head", "alpha_no_wd"):
+                lambdas.append(warmup_decay_fn)
+            else:
+                lambdas.append(identity_fn)
+        return LambdaLR(optimizer, lr_lambda=lambdas)
     raise ValueError(
         f"Unknown scheduler_type '{scheduler_type}'; "
-        f"expected one of {{'onecycle', 'constant', 'cosine', 'warmup_constant'}}."
+        f"expected one of {{'onecycle', 'constant', 'cosine', "
+        f"'warmup_constant', 'reg_head_warmup_decay'}}."
     )
