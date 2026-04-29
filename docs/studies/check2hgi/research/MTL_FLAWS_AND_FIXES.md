@@ -159,6 +159,47 @@ Cat-side advantage is uniform across states (Δ_cat F1 in [+0.7%, +7.0%] across 
 
 At AZ, PRIMARY (MRR-based) Δm is significantly positive (+3.19%, p=0.0312); SECONDARY (top5-based) is null (−0.38%, p=0.500). MTL produces **better-ranked predictions** than STL even when raw top-K is similar. Mechanism distinction worth a paragraph in `paper/results.md`.
 
+### 2.12 C4 LEAKAGE — was 16 pp not 2 pp; propagates to 5 heads (F50 T4 — 2026-04-29)
+
+⭐⭐ **Largest single finding in the study.** The audit's C4 estimate (0.5-2 pp inflation from val→train leakage in `α · log_T` graph prior) was off by ~10×. Direct measurement on FL fold 1:
+
+- **Prior-only val top10:** full log_T = **90.23%** vs per-fold log_T = **80.04%** → **10.19 pp gap from log_T alone**.
+- **α grows from 0.1 (init) → 1.77-1.81 (converged)** — 18× amplification (F63 logging confirmed).
+- Trained-model gap = 10.2 pp prior-only × α-amplification = **~16 pp** at convergence (matches measured P0-A drop 76.07 → 60.36).
+
+**Audit was wrong because** it assumed α stays near its 0.1 init. With α≈1.8 at convergence, the prior contributes ~9.5 logit-units to ranking — it dominates. Training amplifies the leak because the supervised loss endorses the val-aware prior.
+
+**Operational lesson:** trainable val-aware priors are worse than static leaks because the model learns to *amplify* them. Future leak estimates must use the steady-state coefficient, not the init.
+
+#### Affected heads
+
+The C4 mechanism applies to **every head that loads `transition_path`**:
+
+| head | trainable amplifier |
+|---|---|
+| `next_getnext_hard` | α scalar (diagnosed) |
+| `next_getnext` (soft probe) | α + soft-probe MLP |
+| `next_getnext_hard_hsm` | α + parent/child classifier |
+| `next_tgstan` ⚠ | **α AND per-sample gate `sigmoid(MLP(last_emb))`** |
+| `next_stahyper` | α + alpha_cluster |
+
+**`next_tgstan` is potentially WORSE than C4** because its per-sample gate can route the leak selectively to val rows. Untested with per-fold log_T.
+
+#### Validity impact on prior F50 study
+
+Under leak-free re-runs (FL ≥ep5):
+- H3-alt drops 77.16 → **60.12** (−17 pp)
+- P4+Cosine champion drops 76.07 → **63.23** (−13 pp)
+- B9 (new champion) lands at **63.47**
+
+**Relative ordering preserved** — Δ B9 vs H3-alt clean = +3.34 pp paired Wilcoxon p=0.0312, 5/5 positive. **The +Δ vs H3-alt paper claim survives.** Cat F1 ~unaffected (cat doesn't read log_T).
+
+**Absolute numbers in every prior F50 reg-task report are inflated by ~13-17 pp.**
+
+7 tasks created (#71-#76) for the re-runs needed before paper. See `F50_T4_C4_LEAK_DIAGNOSIS.md` and `F50_T4_BROADER_LEAKAGE_AUDIT.md` for full diagnosis.
+
+---
+
 ### 2.11 CRITICAL-REVIEW AUDIT — 8 additional bugs found (F50 T3 — 2026-04-29)
 
 ⭐ Independent agent audit (commissioned after §2.10 finding) identified 8 critical issues + 12 lesser items. Recorded in full at `research/F50_T3_AUDIT_FINDINGS.md`. Highlights:
