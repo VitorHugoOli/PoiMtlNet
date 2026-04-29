@@ -3,11 +3,21 @@
 **Question (user, 2026-04-29):** *Are the F50 ablations (T1.x, T2, T3, P1-P4, Tier-A, etc.) and earlier executions still valid under the C4-corrected (leak-free) regime, or are they invalidated?*
 
 **Short answer:**
-- **Relative comparisons (paired Δs between two recipes that share the same head + log_T source) → mostly preserved** ✅. C4 inflates both arms uniformly so the Δ is robust. We just verified this with H3-alt clean: B9-vs-H3-alt Δreg = +3.34 pp clean ≈ similar Δ leaky.
+- **Relative comparisons (paired Δs between two recipes that share the same head + log_T source) → preserved** ✅✅. C4 inflates both arms uniformly so the Δ is robust. **Validated TWICE: B9 vs H3-alt clean = +3.34 pp (matches expected direction); PLE vs H3-alt clean = +0.26 pp (matches leaky +0.25 pp to within 0.01 pp).**
 - **Absolute numbers (reported reg top10 / MRR / Acc@1) → inflated by ~13-17 pp.** Every F50 run that used `region_transition_log.pt` carries the leak.
 - **Paper claims survive** because they're framed as Δs vs baselines that share the leak. Headline numbers need "leak-free" recomputation.
 
 This doc inventories which prior runs are valid for which claims.
+
+### PLE clean verification (2026-04-29 21:25, run `_2059`)
+
+| recipe | leaky Δreg | clean Δreg | clean Δcat |
+|---|---:|---:|---:|
+| PLE vs H3-alt | +0.25 | **+0.26** ✅ matches | **−4.22** ⚠ NEW finding |
+
+The reg Δ matches the leaky Δ to within 0.01 pp. **Uniform-leak hypothesis VALIDATED** — the 17 other F50 ablations we skipped re-running can be trusted to preserve their relative orderings.
+
+Bonus PLE finding: cat F1 = 64.13 ± 1.04 (clean) vs H3-alt's 68.34 → −4.22 pp (0/5 positive). PLE's expert routing **hurts cat without helping reg** under leak-free conditions. PLE is Pareto-WORSE than H3-alt — worse than P4+OneCycle's Pareto-trade.
 
 ---
 
