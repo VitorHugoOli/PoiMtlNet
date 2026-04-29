@@ -76,6 +76,14 @@ class ExperimentConfig:
     # `docs/studies/check2hgi/research/F49_LAMBDA0_DECOMPOSITION_GAP.md`.
     freeze_cat_stream: bool = False
 
+    # F50 P3 — warmup-then-freeze: train cat side normally for the first
+    # N epochs, then freeze ``category_encoder`` + ``category_poi`` from
+    # epoch N onward (continued reg + shared training). Tests whether the
+    # cat encoder's continued co-adaptation as reg-helper (F49 Layer 2
+    # mechanism) is hurting reg at FL scale. None disables. See
+    # `docs/studies/check2hgi/research/MTL_FLAWS_AND_FIXES.md` §3 H1.5.
+    freeze_cat_after_epoch: Optional[int] = None
+
     # torch.compile: disabled by default.  On CUDA it uses the inductor
     # backend; MPS compatibility needs separate testing first.
     use_torch_compile: bool = False

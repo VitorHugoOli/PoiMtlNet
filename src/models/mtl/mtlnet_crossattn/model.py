@@ -55,8 +55,16 @@ class _CrossAttnBlock(nn.Module):
     so attention skips those positions.
     """
 
-    def __init__(self, dim: int, num_heads: int, ffn_dim: int, dropout: float):
+    def __init__(
+        self,
+        dim: int,
+        num_heads: int,
+        ffn_dim: int,
+        dropout: float,
+        detach_kv: bool = False,
+    ):
         super().__init__()
+        self.detach_kv = bool(detach_kv)
         self.cross_ab = nn.MultiheadAttention(
             dim, num_heads, dropout=dropout, batch_first=True
         )
@@ -89,15 +97,20 @@ class _CrossAttnBlock(nn.Module):
         a_pad_mask: Optional[torch.Tensor] = None,
         b_pad_mask: Optional[torch.Tensor] = None,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        # a queries b
+        # F50 P2 — when ``detach_kv`` is set, .detach() K/V so gradients from
+        # L_reg do NOT flow back through cross_ba into category_encoder (and
+        # symmetrically L_cat does not flow into next_encoder). Direct test of
+        # the F49 Layer 2 silent-gradient mechanism under full-MTL training.
+        kv_b = b.detach() if self.detach_kv else b
         a_upd, _ = self.cross_ab(
-            query=a, key=b, value=b, key_padding_mask=b_pad_mask
+            query=a, key=kv_b, value=kv_b, key_padding_mask=b_pad_mask
         )
         a = self.ln_a1(a + a_upd)
         # b queries a (uses updated a as K/V so the two streams converge
         # symmetrically; this is MulT's "late" bidirectional pattern)
+        kv_a = a.detach() if self.detach_kv else a
         b_upd, _ = self.cross_ba(
-            query=b, key=a, value=a, key_padding_mask=a_pad_mask
+            query=b, key=kv_a, value=kv_a, key_padding_mask=a_pad_mask
         )
         b = self.ln_b1(b + b_upd)
         # Per-stream FFN
@@ -132,6 +145,8 @@ class MTLnetCrossAttn(MTLnet):
         num_crossattn_blocks: int = 2,
         num_crossattn_heads: int = 4,
         crossattn_ffn_dim: Optional[int] = None,
+        detach_crossattn_kv: bool = False,
+        disable_cross_attn: bool = False,
         category_head: Optional[str] = None,
         next_head: Optional[str] = None,
         category_head_params: Optional[dict[str, Any]] = None,
@@ -143,6 +158,8 @@ class MTLnetCrossAttn(MTLnet):
         self._crossattn_ffn_dim = (
             int(crossattn_ffn_dim) if crossattn_ffn_dim is not None else int(shared_layer_size)
         )
+        self._detach_crossattn_kv = bool(detach_crossattn_kv)
+        self._disable_cross_attn = bool(disable_cross_attn)
         super().__init__(
             feature_size=feature_size,
             shared_layer_size=shared_layer_size,
@@ -178,6 +195,7 @@ class MTLnetCrossAttn(MTLnet):
                     num_heads=self._num_crossattn_heads,
                     ffn_dim=self._crossattn_ffn_dim,
                     dropout=shared_dropout,
+                    detach_kv=self._detach_crossattn_kv,
                 )
                 for _ in range(self._num_crossattn_blocks)
             ]
@@ -206,14 +224,19 @@ class MTLnetCrossAttn(MTLnet):
 
         # Run cross-attention stack. mask_a / mask are True at padding
         # positions, which is what MultiheadAttention's key_padding_mask
-        # expects.
+        # expects. F50 P1: when ``disable_cross_attn`` is set, skip the
+        # entire cross-attn stack (incl. per-task FFNs that live inside
+        # each block) — pure parallel encoders → final LN → heads. Tests
+        # whether the cross-attn shared layer is contributing at FL or
+        # is null/hurting.
         a, b = enc_cat, enc_next
-        for block in self.crossattn_blocks:
-            a, b = block(
-                a, b,
-                a_pad_mask=mask_a if self._task_a_is_sequential else None,
-                b_pad_mask=mask,
-            )
+        if not self._disable_cross_attn:
+            for block in self.crossattn_blocks:
+                a, b = block(
+                    a, b,
+                    a_pad_mask=mask_a if self._task_a_is_sequential else None,
+                    b_pad_mask=mask,
+                )
 
         shared_cat = self.cat_final_ln(a)
         shared_next = self.next_final_ln(b)
@@ -275,11 +298,12 @@ class MTLnetCrossAttn(MTLnet):
             enc_cat = enc_cat.unsqueeze(1)
 
         a, b = enc_cat, enc_next
-        for block in self.crossattn_blocks:
-            # No b_pad_mask — the zero values of B already zero the A ← B
-            # attention output, and a fully-True pad mask would NaN the
-            # B ← A softmax for the B stream.
-            a, b = block(a, b, a_pad_mask=mask_a, b_pad_mask=None)
+        if not self._disable_cross_attn:
+            for block in self.crossattn_blocks:
+                # No b_pad_mask — the zero values of B already zero the A ← B
+                # attention output, and a fully-True pad mask would NaN the
+                # B ← A softmax for the B stream.
+                a, b = block(a, b, a_pad_mask=mask_a, b_pad_mask=None)
         shared_cat = self.cat_final_ln(a)
 
         if self._task_set is not LEGACY_CATEGORY_NEXT and mask_a is not None:
@@ -311,8 +335,9 @@ class MTLnetCrossAttn(MTLnet):
         )
 
         a, b = enc_cat, enc_next
-        for block in self.crossattn_blocks:
-            a, b = block(a, b, a_pad_mask=None, b_pad_mask=mask)
+        if not self._disable_cross_attn:
+            for block in self.crossattn_blocks:
+                a, b = block(a, b, a_pad_mask=None, b_pad_mask=mask)
         shared_next = self.next_final_ln(b)
 
         if self._task_set is not LEGACY_CATEGORY_NEXT:

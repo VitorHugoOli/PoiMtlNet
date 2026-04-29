@@ -161,5 +161,38 @@ class MTLnetMMoE(MTLnet):
             )
         )
 
+    def cat_specific_parameters(self) -> Iterator[nn.Parameter]:
+        """Cat-only params: cat encoder + cat head + cat gate. MMoE has no
+        task-specific experts (all experts are shared), so the cat-only set
+        is just the encoder, head, and gate. Used by per-head LR optimizer."""
+        return (
+            p
+            for name, p in self.named_parameters()
+            if any(
+                key in name
+                for key in (
+                    "category_encoder",
+                    "category_poi",
+                    "mmoe.category_gate",
+                )
+            )
+        )
+
+    def reg_specific_parameters(self) -> Iterator[nn.Parameter]:
+        """Reg-only params: next encoder + next head + next gate. Symmetric to
+        ``cat_specific_parameters``."""
+        return (
+            p
+            for name, p in self.named_parameters()
+            if any(
+                key in name
+                for key in (
+                    "next_encoder",
+                    "next_poi",
+                    "mmoe.next_gate",
+                )
+            )
+        )
+
 
 __all__ = ["MTLnetMMoE"]

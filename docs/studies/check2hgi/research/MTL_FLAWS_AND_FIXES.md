@@ -175,7 +175,7 @@ The remaining hypothesis space, after T1.2 + H1 closure (2026-04-29):
 |---|---|---|---|---|
 | H1 | **Loss-side balancing** — newer gradient surgery (FAMO 2023, Aligned-MTL 2023) handles negative-transfer better than `static_weight(0.75)`. | T1.3 FAMO + T1.4 Aligned-MTL | ~19 min each on RTX 4090 | ✅ **CLOSED — FAIL** (2026-04-29). FAMO Δreg = +0.62 pp (W+=11, p=0.2188); Aligned-MTL Δreg = −0.11 pp (W+=4, p=0.8438). Neither reaches +3 pp acceptance or paired Wilcoxon significance. See `F50_T1_RESULTS_SYNTHESIS.md`. |
 | **H1.5** | **Cross-attn mechanism probes** — direct ablations of the `MTLnetCrossAttn` mechanism that F49 Layer 2 attributed: P1 `--no-cross-attn` (bypass cross-attn blocks), P2 `--detach-crossattn-kv` (no cat↔reg gradient leakage), P3 `--freeze-cat-encoder-after-epoch N` (prevent continued co-adaptation), P4 `--separate-optimizers` (per-task AdamW, no shared group). | 4 × FL 5f×50ep | ~80 min train + ~6h dev total | 🔵 **IN FLIGHT** (Stage 1.5, 2026-04-29). Cheap minimal-edit probes BEFORE committing dev time to PLE / Cross-Stitch. |
-| H2 | **Backbone-side decoupling** — explicit task-specific experts (PLE/CGC) prevent cat encoder from being conscripted as reg-helper. | T2.1 PLE; codebase has `mtlnet_dselectk` (PLE-adjacent) but never tested at FL with H3-alt-style per-head LR | ~20h dev + ~30 min train (4090) | 🔵 **IN PROGRESS** (Stage 2 dev, parallel to H1.5 runs). Gated on H1.5 verdict for go/no-go on full 5f×50ep run. |
+| H2 | **Backbone-side decoupling** — explicit task-specific experts (PLE/CGC) prevent cat encoder from being conscripted as reg-helper. | T2.1 PLE (`mtlnet_ple`, `_components.py::PLELiteLayer`) — already implemented; per-head LR partition added 2026-04-29 | ~30 min train (4090) — DEV ALREADY DONE | 🔵 **READY TO RUN** (smoke ✓ on Georgia). Gated on H1.5 verdict for FL launch. **Caveat:** the codebase variant is a PLE-*lite* (per-task-input shared-experts adaptation), not canonical Tang RecSys 2020 — see §4.1 "Audit findings" below. |
 | H3 | **Forced-vs-learned sharing** — Cross-Stitch / MTI-Net let the model learn how much to share per layer. | T2.2 Cross-Stitch | ~10-12h dev + ~30 min train (4090) | 🔵 **IN PROGRESS** (Stage 2 dev, parallel to H1.5 runs). |
 | H4 | **Reg ceiling itself** — maybe `next_getnext_hard` isn't the right reg head and a stronger STL (e.g. ROTAN KDD 2024) shifts the ceiling. | T2.3 ROTAN STL | ~20h dev + ~5h train | DEFERRED — orthogonal to MTL question; out of current scope. |
 | H5 | **Long-tail prototypes** — Bi-Level GSL-style cluster prototypes for the 4.7K-class softmax. | T3.1 | ~30h | last-resort |
@@ -184,6 +184,27 @@ The remaining hypothesis space, after T1.2 + H1 closure (2026-04-29):
 **Note on H1.5 (new tier between H1 and H2):** F49 Layer 2 *attributed* the silent gradient flow through `cross_ba`'s K/V projections; nothing has been *done* about it under full-MTL conditions. The four probes are minimal-edit ablations that test the F49 mechanism directly. Each probe gives a falsifiable verdict in ~19 min train. If P1 (no-cross-attn) ≈ H3-alt at FL, the cross-attn shared layer is null/hurting and PLE is overkill. If P2 (detach-K/V) recovers FL Δm, the leakage is the FL flaw and we have a paper-headline minimal-edit fix. If P3 (cat-freeze post-warmup) recovers FL, "warm-then-freeze" is the recipe. If P4 differs from H3-alt's per-head LR, optimizer-level decoupling matters.
 
 If H1+H1.5+H2+H3 all fail, the conclusion is: **"the FL architectural cost is robust to head + balancer + cross-attn-mechanism + backbone changes; cross-attention MTL is fundamentally cardinality-limited at this scale."** This is paper-grade ammunition for the scale-conditional CH21 framing.
+
+---
+
+## 3.1 · Audit findings on the existing MTL variants (2026-04-29)
+
+The codebase already has `mtlnet_ple`, `mtlnet_cgc`, `mtlnet_mmoe`, `mtlnet_dselectk` registered (see `src/models/mtl/_components.py`). A critical review of each before staking F50 Tier-2 runs on them:
+
+| Variant | Status vs published reference | Caveat for paper |
+|---|---|---|
+| **PLE-lite** (Tang RecSys 2020) | "Lite" — each shared expert is evaluated *per task input separately*. Shared experts have shared **parameters** but not shared **outputs**. | Defensible for our heterogeneous-input (cat=checkin emb, reg=region emb) setting, but diverges from canonical PLE. If PLE-lite recovers FL Δm, paper says "we adapt PLE for per-task-input MTL"; if not, we cannot conclude canonical PLE would also fail. |
+| **CGC-lite** (Tang RecSys 2020) | Same per-task-input adaptation as PLE-lite (PLE = stack of CGC). | Same. |
+| **MMoE-lite** (Ma KDD 2018) | Same per-task-input adaptation; all-shared experts; per-task gates. | Same. |
+| **"DSelect-K"** (intended: Hazimeh NeurIPS 2021) | **Misnamed** — implementation is a dense convex combination via multi-softmax (`num_selectors` parallel softmaxes mixed by another softmax), NOT the Gumbel top-k sparse routing of the original. | **Do not claim "we tested DSelect-K".** Closer to multi-head MMoE with extra mixture step. Honestly disclosed in the docstring; needs paper-disclosure if reported. |
+
+**F49 Layer 2 leakage check:** PLE/CGC/MMoE-style architectures do **NOT** exhibit the cross-attn K/V leakage F49 found. Per-batch gradient flow is task-specific (cat_gate sees cat_input only, etc.). Parameter-level coupling via `shared_experts` is the intended sharing mechanism, not a silent bug. **This is the exact reason PLE is the strongest H2 candidate** — the structural fix to F49's mechanism.
+
+**Per-head LR support:** added to MTLnetPLE 2026-04-29 (`cat_specific_parameters` / `reg_specific_parameters`); CGC/MMoE/DSelectK do NOT have per-head LR partition yet (would error under `--cat-lr/--reg-lr/--shared-lr`; not on F50 critical path).
+
+**Cross-Stitch (Misra CVPR 2016):** genuinely not implemented. New `mtlnet_crossstitch` to be added in F50 Stage 2.
+
+**`MTLnetPLE.next_forward` shape consistency:** verified harmless 2026-04-29. The 2D `dummy_cat = zeros(B, D)` vs 3D `enc_next = [B, T, D]` is silently broadcasted; cat-side output is computed-then-discarded; only the next-side output (correctly shaped) is returned.
 
 ---
 

@@ -577,6 +577,22 @@ def _parse_args(argv=None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--freeze-cat-after-epoch",
+        dest="freeze_cat_after_epoch",
+        type=int,
+        default=None,
+        metavar="N",
+        help=(
+            "F50 P3 (warmup-then-freeze): train cat side normally for the "
+            "first N epochs, then freeze category_encoder + category_poi "
+            "from epoch N onward. Reg + shared keep training. Tests whether "
+            "continued cat-encoder co-adaptation (per F49 Layer 2) is "
+            "hurting reg at FL. Unlike --freeze-cat-stream this does NOT "
+            "require --category-weight 0.0; cat is trained for the warmup "
+            "window then frozen. See `MTL_FLAWS_AND_FIXES.md` §3 H1.5."
+        ),
+    )
+    parser.add_argument(
         "--reg-head-param",
         action="append",
         default=[],
@@ -853,6 +869,22 @@ def _apply_cli_overrides(
                 f"incoherent (got category_weight={cat_w!r})"
             )
         config = dataclasses.replace(config, freeze_cat_stream=True)
+
+    if getattr(args, "freeze_cat_after_epoch", None) is not None:
+        n = int(args.freeze_cat_after_epoch)
+        if config.task_type != "mtl":
+            raise ValueError("--freeze-cat-after-epoch requires --task mtl")
+        if n < 1 or n >= int(config.epochs):
+            raise ValueError(
+                f"--freeze-cat-after-epoch={n} must be in [1, epochs-1] "
+                f"(epochs={config.epochs})"
+            )
+        if getattr(config, "freeze_cat_stream", False):
+            raise ValueError(
+                "--freeze-cat-after-epoch and --freeze-cat-stream are mutually "
+                "exclusive (the latter freezes from epoch 0)."
+            )
+        config = dataclasses.replace(config, freeze_cat_after_epoch=n)
 
     return config
 

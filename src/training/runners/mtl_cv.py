@@ -204,6 +204,7 @@ def train_model(model: torch.nn.Module,
                 category_target_cutoff: Optional[float] = None,
                 callbacks: Optional[list] = None,
                 task_set: TaskSet = LEGACY_CATEGORY_NEXT,
+                freeze_cat_after_epoch: Optional[int] = None,
                 ):
     """
     Train the model with multi-task learning.
@@ -291,9 +292,31 @@ def train_model(model: torch.nn.Module,
     )
     pareto_points: list[tuple[float, float]] = []
 
+    # F50 P3 — track whether warmup-then-freeze has fired (idempotent).
+    _cat_frozen_post_warmup = False
+
     # Main training loop
     for epoch_idx in progress:
         model.train()
+        # F50 P3 — at the boundary epoch, freeze category_encoder + category_poi.
+        # Reg + shared keep training. Tests whether continued cat-encoder
+        # co-adaptation as reg-helper (F49 Layer 2) hurts reg at scale. The
+        # optimizer naturally skips params with grad=None, so no optimizer
+        # rebuild is needed. category_encoder.eval() also disables its dropout.
+        if (freeze_cat_after_epoch is not None
+                and not _cat_frozen_post_warmup
+                and epoch_idx >= int(freeze_cat_after_epoch)):
+            for p in model.category_encoder.parameters():
+                p.requires_grad_(False)
+            for p in model.category_poi.parameters():
+                p.requires_grad_(False)
+            model.category_encoder.eval()
+            _cat_frozen_post_warmup = True
+            print(
+                f"[P3 freeze-cat-after-epoch] cat_encoder + category_poi frozen "
+                f"at epoch {epoch_idx} (target N={freeze_cat_after_epoch})"
+            )
+
         # F40 — scheduled-loss epoch hook. Losses without `set_epoch`
         # (i.e. all current ones except `scheduled_static`) are silently
         # skipped via getattr default.
@@ -863,6 +886,7 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             category_target_cutoff=config.target_cutoff,
             callbacks=callbacks,
             task_set=task_set,
+            freeze_cat_after_epoch=getattr(config, "freeze_cat_after_epoch", None),
         )
 
         # Run final validation
