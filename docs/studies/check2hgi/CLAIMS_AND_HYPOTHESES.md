@@ -453,6 +453,33 @@ The earlier candidates (per-task weight clipping, prior-magnitude normalisation,
 
 ---
 
+### CH22 — Joint Δm is Pareto-positive at AL+AZ and Pareto-negative at FL (Tier A, 2026-04-28)
+
+**Statement:** Under the MTL-survey-standard joint Δm (Maninis CVPR 2019 / Vandenhende TPAMI 2021), MTL H3-alt is Pareto-positive vs matched-head STL at small region cardinality (AL/AZ) and Pareto-negative at large cardinality (FL). The directional pattern is monotone in n_regions.
+
+**Why this claim exists:** the per-state architectural-Δ pattern from F49 (AL +6.48 / AZ −6.02 / FL −16.16 pp) and the per-task gap pattern (AL +6.25 / AZ −3.29 / FL −8.78 pp on reg Acc@10) needed a *joint* metric to commit the scale-conditional reading rather than relying on per-task readings. Δm with paired Wilcoxon at n=5 max-significance closes that gap.
+
+**Result (F50 Tier 0, 2026-04-28; PRIMARY metric = cat F1 + reg MRR, both clean across MTL/STL JSONs):**
+
+| State | n_regions | Δm primary | n+/n− | Wilcoxon p_greater | Verdict |
+|:-:|:-:|:-:|:-:|:-:|:-:|
+| AL | 1,109 | **+8.70% ± 2.04** | 5/0 | **0.0312** ✓ | MTL Pareto-wins (n=5 ceiling) |
+| AZ | 1,547 | **+3.19% ± 1.50** | 5/0 | **0.0312** ✓ | MTL wins on MRR (n=5 ceiling); marginal on top5/top10 |
+| FL | 4,702 | **−1.63% ± 0.64** | 0/5 | 1.0 (p_two_sided=**0.0625**) | MTL Pareto-loses (n=5 ceiling on two-sided) |
+
+n=5 minimum achievable p is 0.0312 (one-sided) / 0.0625 (two-sided). All three states cleanly hit their ceiling; the verdicts are at maximum-possible significance for n=5.
+
+**Bonus finding (AZ MRR vs top-K asymmetry):** at AZ the MRR-based Δm is significantly positive (+3.19%, p=0.0312) while top5-based is null (−0.38%, p=0.500). MTL's reg head produces *better-ranked* predictions than STL even when raw top-K is similar — paper-worthy mechanism for the AZ-specific advantage.
+
+**Implication for paper framing:** CH21's "scale-conditional" reading is now backed by a joint metric, not just per-task readings. The cat-side advantage (Δ_cat F1 in [+0.7%, +7.0%] across all 15 folds) is uniformly positive; the reg-side flip from AL win → AZ tie/marginal → FL loss tracks region cardinality monotonically.
+
+**Source:** `research/F50_DELTA_M_FINDINGS.md` + `results/paired_tests/F50_T0_delta_m.json` + driver `scripts/analysis/f50_delta_m.py`.
+**Test:** F50 Tier 0 — DONE 2026-04-28 (analysis-only, no compute).
+**Phase:** F50.
+**Status:** `confirmed (Tier A) 2026-04-28`. Backs CH21 with formal joint metric.
+
+---
+
 ## Tier C — Input-modality mechanism
 
 ### CH08 — Per-task modality gain is state-dependent

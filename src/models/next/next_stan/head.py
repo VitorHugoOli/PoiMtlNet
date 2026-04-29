@@ -208,7 +208,13 @@ class NextHeadSTAN(nn.Module):
             nn.Linear(d_model, num_classes),
         )
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward_features(self, x: torch.Tensor) -> torch.Tensor:
+        """Run STAN's encoder up to the matching-attention output (pre-classifier).
+
+        Returns the pooled `[B, d_model]` representation that the classifier
+        consumes — exposed for downstream heads (e.g. ``next_getnext_hard_hsm``)
+        that need the same pooled features but a different output structure.
+        """
         padding_mask = (x.abs().sum(dim=-1) == 0)
         all_padded = padding_mask.all(dim=1)
         if all_padded.any():
@@ -223,7 +229,10 @@ class NextHeadSTAN(nn.Module):
 
         h_norm = self.matching_norm(h)
         last = self.matching_attn(h_norm, padding_mask=padding_mask, last_query_only=True)
+        return last
 
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        last = self.forward_features(x)
         return self.classifier(last)
 
 

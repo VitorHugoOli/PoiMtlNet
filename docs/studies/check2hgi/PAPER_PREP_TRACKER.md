@@ -25,6 +25,8 @@ These are paper-grade and can be written into Methods + Results + Discussion imm
 | **AL architectural = +6.48 ± 2.4 pp at ~2.7σ** | F49 5f | `research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md` §10 |
 | **AZ architectural = −6.02 ± 1.6 pp at ~3.7σ** | F49 5f | same |
 | **F49b reproduction gate PASSED** | AL static_weight λ=0 + max_lr=3e-3 OneCycleLR + next_gru, 53.18 ± 4.56 vs 52.27 ± 5.03 (~0.13σ) | `research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md` §5 |
+| **CH22 — MTL Pareto-Δm scale-conditional (F50 T0, 2026-04-28)** | Joint Δm + paired Wilcoxon n=5: AL **+8.70% p=0.0312** (5/5 folds positive); AZ **+3.19% p=0.0312** on PRIMARY MRR-based (5/5 folds positive; marginal on top5/top10); FL **−1.63% p_two_sided=0.0625** (0/5 folds positive — MTL Pareto-loses on all 3 reg metrics). Backs the scale-conditional CH21 framing with formal Δm. Bonus finding: AZ MRR-Δm > AZ top5-Δm — MTL produces better-ranked predictions than STL even when raw top-K is similar. | `research/F50_DELTA_M_FINDINGS.md` + `results/paired_tests/F50_T0_delta_m.json` + `scripts/analysis/f50_delta_m.py` |
+| **F33 Path A confirmed (F50 T1.1, 2026-04-28)** | FL 5f cat F1 = 68.21 ± 0.42, all 5 folds above pre-F27 envelope. Universal `next_gru` cat head; closes C14. | `research/F50_T1_1_CAT_HEAD_PATH_DECISION.md` |
 
 ## 2 · Open paper-relevant work — ranked by paper-block importance
 

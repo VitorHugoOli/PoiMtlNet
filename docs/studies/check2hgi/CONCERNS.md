@@ -271,7 +271,7 @@ The NORTH_STAR currently reflects **Path A** (`next_gru` universally) pending F3
 
 **Paper implication:** if Path B is chosen, the headline table has a footnote "task_a head is scale-dependent (next_gru for AL+AZ ablations, next_mtl for FL+CA+TX headline)". Methodologically honest; aesthetically fragmented.
 
-**Status:** `open — 2026-04-24`. Re-opens to Path B if F33 FL 5f cat F1 falls below the pre-F27 mean envelope minus σ.
+**Status:** `resolved 2026-04-28 — Path A confirmed via F50 T1.1`. F33 verification (existing H3-alt FL 5f run, no new compute) gave per-fold cat F1 = [67.65, 68.55, 68.04, 68.14, 68.69], mean = **68.21 ± 0.42**, every fold above the pre-F27 envelope [65.72, 67.06] by ≥ 0.6 pp. F32's n=1 −0.93 pp flip was fold-1 noise. Universal `next_gru` cat head committed; CA+TX P3 inherits without footnote. See `research/F50_T1_1_CAT_HEAD_PATH_DECISION.md`. Re-opens only if a future state flips below envelope.
 
 ---
 
@@ -350,7 +350,7 @@ The NORTH_STAR currently reflects **Path A** (`next_gru` universally) pending F3
 | **C11** | **User-leakage in STL next-task folds** | **resolved 2026-04-17** | — |
 | **C12** | **Hyperparameter mismatch across STL vs MTL baselines** | **under investigation 2026-04-18** | Ablation step 7 max_lr sweep |
 | **C13** | **Alabama is a 10K-row dev state; may over-extrapolate to FL/CA/TX** | **open** | Arizona (26K) as intermediate |
-| **C14** | **F27 cat-head scale-dependence flag** | **open — 2026-04-24** | F33 Colab FL 5f decides Path A / B |
+| **C14** | **F27 cat-head scale-dependence flag** | **resolved 2026-04-28 — Path A** | Re-opens only if a future state flips below pre-F27 envelope |
 | **C15** | **MTL coupling vs matched-head STL on reg** | **resolved 2026-04-26 — H3-alt closes/exceeds gap on AL+AZ+FL** | F37 STL FL ceiling lands above MTL-H3-alt; or seed sweep σ blowup |
 | **C16** | **CH15 reframed as head-coupled, not retracted** | **resolved 2026-04-27** | Reviewer challenges matched-head policy revision as data-driven |
 | **C17** | **`next_single` cat evidence demoted to head-sensitivity row** | **resolved 2026-04-27** | Reviewer cites legacy +18.30 vs new +15.50 as cherry-picking |

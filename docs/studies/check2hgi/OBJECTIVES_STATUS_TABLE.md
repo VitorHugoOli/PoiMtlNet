@@ -187,6 +187,20 @@ Using the **2026-04-26 champion candidate** (B3 architecture + per-head LR `cat_
 
 **What changed vs v5 (post-F37 2026-04-28):** Layer 3 of the F49 attribution closed with the FL STL F21c run. The 3-state architectural-Δ pattern is **{AL +6.48, AZ −6.02, FL −16.16} pp** (paired Wilcoxon p=0.0312 at AL and FL). MTL H3-alt FL reg Acc@10 (71.96) is **−8.78 pp below** matched-head STL ceiling (82.44, p=0.0312). The CH18 "MTL exceeds STL on reg" claim is **scale-conditional: AL only**. The cat-side MTL > STL holds at all 3 states (+0.94 to +3.64 pp). Paper framing reads: **MTL H3-alt is the recommended joint-deployment recipe; AL is the architecture-dominant state where it exceeds matched-head STL on reg; FL's headline reg ceiling is STL `next_getnext_hard`. The architectural cost grows steeply with region cardinality** — this is a paper-grade per-state characterisation, not a retraction.
 
+### v6 — Joint Δm scorecard (F50 T0, 2026-04-28)
+
+Δm follows Maninis CVPR 2019 / Vandenhende TPAMI 2021 standard. Pairing: --no-folds-cache + seed=42 + StratifiedGroupKFold (paired across all cells). PRIMARY = cat F1 + reg MRR (clean comparison; both metrics reported with same definition in MTL/STL JSONs). SECONDARY = cat F1 + reg top5_acc (clean). TERTIARY = cat F1 + reg top10 (METRIC MISMATCH: MTL=top10_acc_indist vs STL=top10_acc full-dist; ~0.7-1 pp drift).
+
+| State | n_regions | Δm primary (MRR) | n+/n− | Wilcoxon p_greater | Verdict |
+|:-:|:-:|:-:|:-:|:-:|:-:|
+| AL | 1,109 | **+8.70% ± 2.04** | 5/0 | **0.0312** | ✅ MTL Pareto-wins (n=5 ceiling) |
+| AZ | 1,547 | **+3.19% ± 1.50** | 5/0 | **0.0312** | ✅ MTL wins on MRR (n=5 ceiling); marginal on top5/top10 |
+| FL | 4,702 | **−1.63% ± 0.64** | 0/5 | 1.0 (p_two_sided=**0.0625**) | ❌ MTL Pareto-loses (n=5 two-sided ceiling) |
+
+**Verdict:** the joint Δm metric formally backs the CH21 scale-conditional reading. MTL is Pareto-positive at AL+AZ at maximum n=5 significance; Pareto-negative at FL at n=5 ceiling significance. The cat-side advantage is uniformly positive (Δ_cat F1 in [+0.7%, +7.0%] across all 15 folds); the reg-side flip is monotone in region cardinality.
+
+**Bonus finding (paper-relevant):** at AZ the MRR-based Δm is significantly positive (+3.19%) while top5-based is null (−0.38%). MTL produces *better-ranked* predictions than STL even when raw top-K is similar — paper-worthy mechanism distinction. See `research/F50_DELTA_M_FINDINGS.md §3.3`.
+
 ### Archived v3 scorecard (north-star = B3 post-F27 + OneCycleLR) — retained for audit
 
 The v3 scorecard is preserved below with the original "trails matched-head STL by 12-14 pp" framing — kept to demonstrate the contribution of the per-head LR recipe between v3 and v4.

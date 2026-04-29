@@ -2,6 +2,8 @@
 
 **Created:** 2026-04-23. **Updated 2026-04-27** with two complementary tracks: Phase-1 substrate-validation findings (substrate-side: CH16 head-invariant + CH15 reframed + CH18 MTL-substrate-specific) AND F49 architectural attribution (architecture-side: CH19 transfer-null + Layer 2 methodological). **Owner:** this file defines the paper's table layout, baseline set, STL matching policy, and scope decisions. All other docs reference this.
 
+> **2026-04-28** — Title and abstract committed. See [`PAPER_DRAFT.md`](PAPER_DRAFT.md) for the committed title (*Beyond Cross-Task Transfer: Per-Head Learning Rates and Check-In-Level Embeddings for Multi-Task POI Prediction*), 130-word abstract, section-by-section drafting targets, and target phrases ready to drop into prose. BRACIS abstract-style rules and title patterns (verified from 13 sampled accepted abstracts) live in [`../../BRACIS_GUIDE.md`](../../BRACIS_GUIDE.md) §10.
+
 > **2026-04-27 STL-baseline matching policy revision.** Matched-head STL = `next_gru` (cat) / `next_getnext_hard` (reg) — these are the post-F27 MTL B3 task heads. The pre-Phase-1 matched-head policy (which used `next_single` for cat, STAN for reg) is retained as a **head-sensitivity probe row** (still valid as evidence; closes C2 critique). See `research/SUBSTRATE_COMPARISON_PLAN.md` §1.2 + `research/SUBSTRATE_COMPARISON_FINDINGS.md` §5.
 
 > **F49 paper-claim layering (2026-04-27).** The H3-alt champion is unchanged. F49 sharpens *why* it works:

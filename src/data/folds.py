@@ -883,21 +883,26 @@ class FoldCreator:
             )
         y_region = region_df["region_idx"].to_numpy(dtype=np.int64)
 
-        # B5 hard-index path: when task_b head is ``next_getnext_hard``,
-        # also pull ``last_region_idx`` from the parquet. Missing column
-        # -> fail loud asking to regenerate the parquet (see
+        # B5 hard-index path: when task_b head is ``next_getnext_hard`` (or any
+        # variant that consumes ``last_region_idx`` via aux_side_channel — e.g.
+        # F50's ``next_getnext_hard_hsm``), pull ``last_region_idx`` from the
+        # parquet and wrap the loader in ``AuxPublishingLoader``.
+        # Missing column -> fail loud asking to regenerate the parquet (see
         # ``scripts/regenerate_next_region.py``).
         task_b_head = (
             getattr(getattr(self.task_set, "task_b", None), "head_factory", None)
             if self.task_set is not None else None
         )
-        use_aux = task_b_head == "next_getnext_hard"
+        # Heads that read ``last_region_idx`` via aux_side_channel during forward.
+        # Keep in sync with ``_HEADS_REQUIRING_AUX`` in ``scripts/p1_region_head_ablation.py``.
+        _HEADS_REQUIRING_AUX_MTL = {"next_getnext_hard", "next_getnext_hard_hsm"}
+        use_aux = task_b_head in _HEADS_REQUIRING_AUX_MTL
         if use_aux:
             if "last_region_idx" not in region_df.columns:
                 raise ValueError(
                     f"next_region.parquet for {state} is missing the "
                     f"'last_region_idx' column required by head "
-                    f"'next_getnext_hard'. Regenerate via "
+                    f"{task_b_head!r}. Regenerate via "
                     f"`python scripts/regenerate_next_region.py --state {state}`."
                 )
             y_last_region = region_df["last_region_idx"].to_numpy(dtype=np.int64)

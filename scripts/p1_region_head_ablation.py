@@ -75,7 +75,7 @@ logger = logging.getLogger(__name__)
 
 ALL_HEADS = [
     "next_mtl", "next_gru", "next_lstm", "next_tcn_residual", "next_temporal_cnn",
-    "next_stan", "next_getnext", "next_getnext_hard",
+    "next_stan", "next_getnext", "next_getnext_hard", "next_getnext_hard_hsm",
 ]
 # Per-head default max_lr for OneCycleLR. Transformer converges at much
 # lower LRs; RNN/CNN heads tolerate 3e-3. Override via --max-lr.
@@ -88,12 +88,13 @@ _HEAD_MAX_LR = {
     "next_stan": 3e-3,
     "next_getnext": 3e-3,
     "next_getnext_hard": 3e-3,
+    "next_getnext_hard_hsm": 3e-3,
 }
 
 # Heads that require ``last_region_idx`` delivered via aux_side_channel.
 # For single-task ablation we wire POIDatasetWithAux + AuxPublishingLoader
 # around train/val DataLoaders when the head is in this set.
-_HEADS_REQUIRING_AUX = {"next_getnext_hard"}
+_HEADS_REQUIRING_AUX = {"next_getnext_hard", "next_getnext_hard_hsm"}
 
 
 def _load_region_embeddings(state: str, source: str = "check2hgi") -> tuple[np.ndarray, int]:

@@ -7,6 +7,7 @@ from .next_lstm.head import NextHeadLSTM
 from .next_mtl.head import NextHeadMTL
 from .next_getnext.head import NextHeadGETNext
 from .next_getnext_hard.head import NextHeadGETNextHard
+from .next_getnext_hard_hsm.head import NextHeadGETNextHardHSM
 from .next_single.head import NextHeadSingle
 from .next_stahyper.head import NextHeadSTAHyper
 from .next_stan.head import NextHeadSTAN
@@ -24,6 +25,7 @@ __all__ = [
     "NextHeadSTAN",
     "NextHeadGETNext",
     "NextHeadGETNextHard",
+    "NextHeadGETNextHardHSM",
     "NextHeadTGSTAN",
     "NextHeadSTAHyper",
     "NextHeadTemporalCNN",
