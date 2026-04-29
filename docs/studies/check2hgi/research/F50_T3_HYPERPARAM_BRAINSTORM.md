@@ -88,7 +88,51 @@ For Tier-B entries that require dev work, we'll smoke-test on FL 1f×25ep before
 
 ## Run log
 
-| date | config | run dir | reg top10 | reg-best ep | Δ vs H3-alt | verdict |
-|---|---|---|---|---|---|---|
-| 2026-04-29 | H3-alt CUDA REF | `_0153` | 73.61 ± 0.83 | {4-6} | — | reference |
-| (running...) | A1 `onecycle50` | TBD | TBD | TBD | TBD | TBD |
+**Reference correction (2026-04-29):** `73.61 ± 0.83` was the F1-best-epoch top10 (the buggy selector — F50 T3 §5.5). Under the corrected `top10-best ≥ ep3` selector the H3-alt CUDA REF is **`77.16 ± 0.36`** at ep 3 — that is the bar all entries below are compared against.
+
+| date | config | run dir (`_HHMM`) | reg top10 (ep≥3) | reg-best ep | Δ vs 77.16 | mrr (ep≥3) | cat f1 | verdict |
+|---|---|---|---|---|---|---|---|---|
+| 2026-04-29 | **H3-alt CUDA REF** | `_0153` | **77.16 ± 0.36** | {3,3,3,3,3} | — | 59.32 ± 0.54 | 68.36 ± 0.74 | reference |
+| 2026-04-29 14:13 | A1 `onecycle50` | `_1413` | 68.16 ± 0.70 | {15,19,32,15,6} | **−9.00 pp ❌** | 48.21 ± 1.20 | 67.21 ± 0.87 | OneCycle alone hurts; trains-late but worse |
+| 2026-04-29 14:33 | A3 `alpha_init=2.0` | `_1433` | 71.57 ± 0.40 | {3,3,3,3,3} | **−5.59 pp ❌** | 55.93 ± 0.85 | 68.18 ± 0.78 | α-magnitude alone hurts in joint training |
+| 2026-04-29 14:53 | A5 `onecycle+α=2.0` | `_1453` | 75.61 ± 0.47 | {3,3,3,3,3} | **−1.55 pp ⚠** | 58.64 ± 0.60 | 67.95 ± 1.21 | Stacked still loses — confirms training erodes the prior |
+| 2026-04-29 15:15 | A2 `cosine50` | _1515 (running) | TBD | TBD | TBD | TBD | TBD | TBD |
+| (queued) | A6 `cw0.25_onecycle` | — | — | — | — | — | — | — |
+| (queued) | A4 `epochs100_constant` | — | — | — | — | — | — | — |
+
+### ⚠ Init-artifact caveat (CRITICAL — not in original decision rule)
+
+The legacy `posthoc_best_epoch.py --min-epoch 1` numbers for A3 / A5 looked like wins:
+
+- A3 unconstrained: top10 = 74.50 ± 1.95 at best_ep = {1,1,1,1,1} → would have read as `+0.89 pp`.
+- A5 unconstrained: top10 = 80.67 ± 0.42 at best_ep = {1,1,1,1,1} → would have read as `+7.06 pp`.
+
+But every fold's best-ep is **1**. Reading the per-epoch trajectory (`metrics/fold1_next_region_val.csv`):
+
+```
+A5 fold1:  ep1=80.91  ep2=78.96  ep3=75.85  ep4=72.91  ep5=71.14  ...  ep50=48.07
+A3 fold1:  ep1=73.49  ep3=71.65  ep5=71.25  ep15=70.42  ...  ep50=50.15
+```
+
+**The peak at ep 1 is the GETNext prior at initialisation (`stan_logits + α · log_T`), not learned signal.** With α_init=2.0, the prior alone gives ~73-81 top10 — close to the STL ceiling (82.44). MTL training then *erodes* the prior over the first 5-10 epochs and converges 5-9 pp below H3-alt by ep 3.
+
+Constraining to `--min-epoch 3` (skip the init artifact) gives the table above — **all three configs underperform H3-alt under the corrected selector**.
+
+### Decision-rule outcome
+
+Per `Decision rule after Tier A` § (above) — top-3 verdict:
+
+- ❌ A1 alone +3 pp → **−9.00 pp**: OneCycleLR alone hurts.
+- ❌ A3 alone +3 pp → **−5.59 pp**: α-magnitude alone hurts in joint training.
+- ❌ A5 +5 pp → **−1.55 pp**: stacked still loses.
+- ✅ Decision-rule's fallback: **None of A1/A3/A5 hits +3 pp → run B1 (selector) + B3 (two-phase)**.
+
+### Mechanism implication (new — not in original brainstorm)
+
+The init-artifact effect is itself the strongest mechanism evidence we've seen: the GETNext prior with α=2.0 *already gets ~80% top10* at FL before any joint training touches it. This means:
+
+1. The 9 pp STL-vs-MTL gap is mostly the prior, not the encoder.
+2. MTL joint training **actively erodes** the prior over the first 5 epochs, then stabilises ~5-9 pp below the prior alone.
+3. **F62 (B3) two-phase becomes the obvious next experiment** — STL pretrain to lock in the prior, then MTL fine-tune with α frozen could preserve the +7 pp lift.
+
+This also explains F50 T3's earlier finding that "STL reg-best at ep 16-20 vs MTL pinned at ep 4-5" — STL reaches the prior+backbone synergy in late epochs, but MTL has already collapsed back to the no-prior regime by then.
