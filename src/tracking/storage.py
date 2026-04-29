@@ -367,6 +367,36 @@ class HistoryStorage:
                 'f1': metrics_at_best.get('f1'),
             }
 
+            # F50 T3 fix (2026-04-29) — track best epoch PER metric, not just per
+            # F1 (the BestModelTracker's monitor). Without this, top10/MRR/accuracy
+            # were reported at the F1-best epoch — which differs by ~1-4 pp on MTL
+            # FL runs (F1-best epoch ≠ top10-best epoch). See
+            # research/F50_T3_TRAINING_DYNAMICS_DIAGNOSTICS.md §5.5 and
+            # MTL_FLAWS_AND_FIXES.md §2.10. Backward-compatible: existing keys
+            # preserved; this is purely additive (`per_metric_best` sub-dict).
+            CANONICAL_BEST_METRICS = (
+                'top10_acc_indist', 'top5_acc_indist', 'top3_acc_indist',
+                'mrr_indist',
+                'top10_acc', 'top5_acc', 'top3_acc', 'mrr',
+                'accuracy', 'accuracy_macro', 'f1_weighted',
+            )
+            per_metric_best: Dict[str, Any] = {}
+            for metric_name in CANONICAL_BEST_METRICS:
+                values = list(th.val.get(metric_name, []))
+                if not values:
+                    continue
+                best_ep = max(range(len(values)), key=lambda i: values[i])
+                metrics_at_this_best: Dict[str, Any] = {}
+                for m_name, m_values in th.val.items():
+                    if best_ep < len(m_values):
+                        metrics_at_this_best[m_name] = m_values[best_ep]
+                per_metric_best[metric_name] = {
+                    'epoch': best_ep,
+                    'best_value': values[best_ep],
+                    'metrics': metrics_at_this_best,
+                }
+            fold_info['diagnostic_best_epochs'][task]['per_metric_best'] = per_metric_best
+
             primary_epoch = joint_epoch if joint_epoch >= 0 else be
             if joint_epoch < 0 and fold_info['primary_checkpoint']['epoch'] is None:
                 fold_info['primary_checkpoint']['epoch'] = be if be >= 0 else None
@@ -500,6 +530,35 @@ class HistoryStorage:
                     'accuracy': metrics_at_best.get('accuracy'),
                     'f1': metrics_at_best.get('f1'),
                 }
+
+                # F50 T3 fix (2026-04-29) — see same patch in the earlier _save_*
+                # method ~line 360. Track best epoch PER metric to avoid the
+                # F1-vs-other-metric epoch mismatch (~1-4 pp under-reporting on
+                # MTL FL runs). Backward-compatible additive `per_metric_best`
+                # sub-dict; downstream readers who don't know about it get the
+                # legacy F1-best behaviour.
+                CANONICAL_BEST_METRICS = (
+                    'top10_acc_indist', 'top5_acc_indist', 'top3_acc_indist',
+                    'mrr_indist',
+                    'top10_acc', 'top5_acc', 'top3_acc', 'mrr',
+                    'accuracy', 'accuracy_macro', 'f1_weighted',
+                )
+                per_metric_best: Dict[str, Any] = {}
+                for metric_name in CANONICAL_BEST_METRICS:
+                    values = list(th.val.get(metric_name, []))
+                    if not values:
+                        continue
+                    best_ep = max(range(len(values)), key=lambda i: values[i])
+                    metrics_at_this_best: Dict[str, Any] = {}
+                    for m_name, m_values in th.val.items():
+                        if best_ep < len(m_values):
+                            metrics_at_this_best[m_name] = m_values[best_ep]
+                    per_metric_best[metric_name] = {
+                        'epoch': best_ep,
+                        'best_value': values[best_ep],
+                        'metrics': metrics_at_this_best,
+                    }
+                fold_info['diagnostic_best_epochs'][task]['per_metric_best'] = per_metric_best
 
                 primary_epoch = joint_epoch if joint_epoch >= 0 else be
                 if joint_epoch < 0 and fold_info['primary_checkpoint']['epoch'] is None:
