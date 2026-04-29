@@ -1055,7 +1055,9 @@ class FoldCreator:
         return save_folds(serializable, save_dir)
 
     def save_split_manifests(self, output_dir: Path) -> List[Path]:
-        """Emit split_manifest_fold*.json for each fold.
+        """Emit split_manifest_fold*.json for each fold + a top-level
+        fold_set_digest.json (AUDIT-C8) so paired statistical tests can
+        verify they're comparing the same partition.
 
         Only available after _create_mtl_folds() has been called.
         Returns list of paths written.
@@ -1064,17 +1066,38 @@ class FoldCreator:
             logger.warning("No fold manifests to save (not an MTL split or create_folds not called)")
             return []
 
+        from data.fold_digest import compute_fold_set_digest
+
         output_dir = Path(output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
         paths = []
 
+        digest = compute_fold_set_digest(self._fold_manifests)
+
         for manifest in self._fold_manifests:
             fold_idx = manifest['fold_idx']
             path = output_dir / f"split_manifest_fold{fold_idx}.json"
+            # Embed the run-level digest in each per-fold manifest so a
+            # single fold file is self-describing for paired-test code
+            # that may not have access to the sibling digest.json.
+            stamped = dict(manifest)
+            stamped['fold_set_digest'] = digest
             with open(path, 'w') as f:
-                json.dump(manifest, f, indent=2, default=_json_default)
+                json.dump(stamped, f, indent=2, default=_json_default)
             paths.append(path)
             logger.info(f"Split manifest written: {path}")
+
+        digest_path = output_dir / "fold_set_digest.json"
+        with open(digest_path, 'w') as f:
+            json.dump({
+                'fold_set_digest': digest,
+                'n_folds': len(self._fold_manifests),
+                'seed': self.seed,
+                'state': getattr(self, 'state', None),
+                'engine': getattr(self, '_engine_value', None),
+            }, f, indent=2, default=_json_default)
+        paths.append(digest_path)
+        logger.info(f"Fold-set digest written: {digest_path} ({digest[:12]}...)")
 
         return paths
 

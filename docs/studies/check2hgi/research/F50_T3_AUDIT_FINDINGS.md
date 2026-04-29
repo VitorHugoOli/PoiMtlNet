@@ -65,11 +65,15 @@
 - **Live observation** (`_0045/`): primary_checkpoint epoch=47 has next_region.accuracy=0.478 while diagnostic_best_epochs has accuracy=0.507 (epoch 6). 3-17 pp gap presented as same model+fold.
 - **Fix**: stamp `aggregation_basis: "joint_best" | "per_task_f1_best" | "per_metric_best"` next to every aggregate. (Partially addressed by 2026-04-29 fix in `storage.py` adding `per_metric_best` sub-dict.)
 
-### C8 — Fold determinism not verified across substrates
+### C8 — Fold determinism not verified across substrates  ✅ FIXED 2026-04-29
 - **File**: `src/data/folds.py:717-723, 400-429`
 - **Mechanism**: `StratifiedGroupKFold(shuffle=True, random_state=42)` is deterministic *given input row order*. Parquet row order is preserved if file is written deterministically — but if regenerated between runs, can differ. `--no-folds-cache` (default in every runpod script) skips the freeze.
 - **Impact**: paired tests with mis-aligned folds are silently invalid (treats non-paired as paired → larger Wilcoxon p-values, hides effects rather than inflates).
-- **Fix**: hash input parquet (or userids tuple); write digest into fold_info.json; refuse paired tests across mismatched digests. Infrastructure exists (`scripts/study/freeze_folds.py`).
+- **Fix landed**:
+  - `src/data/fold_digest.py`: pure helpers `compute_fold_set_digest(manifests)` (SHA-256 over normalised train/val userid sets) and `digest_compatible(a, b)`.
+  - `FoldCreator.save_split_manifests` now also emits `fold_set_digest.json` (top-level) and stamps the digest into every per-fold manifest.
+  - 8 unit tests in `tests/test_data/test_fold_digest.py` pin the contract: identical partitions → equal digest; swap/seed/userid changes → different digest; auxiliary fields don't leak.
+- **Usage by future paired-test code**: load both runs' `fold_set_digest.json`; refuse to compute Wilcoxon if `digest_compatible(a, b)` is False.
 
 ---
 
