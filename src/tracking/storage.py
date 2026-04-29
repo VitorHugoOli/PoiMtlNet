@@ -81,27 +81,46 @@ class SummaryGenerator:
         out = ensure_dir(out_dir)
         perf = self._collect_performance()
         diagnostic_perf = self._collect_task_best_performance()
+        per_metric_perf = self._collect_per_metric_best_performance()
         cat_metrics = self._collect_category_metrics()
 
-        # Overall summary
+        # C7 fix: stamp every aggregate with its aggregation_basis so downstream
+        # readers know which best-epoch convention produced each block. Three
+        # bases coexist in this file:
+        #   joint_best        — model-level joint score selection (MTL)
+        #   per_task_f1_best  — each task's own F1-best epoch
+        #   per_metric_best   — each (task, metric) at its own best epoch
+        primary_basis = 'joint_best' if self._has_joint_selection() else 'per_task_f1_best'
         stats: Dict[str, Any] = {
             task: {
-                metric: self._stats(vals)
-                for metric, vals in metrics.items()
+                'aggregation_basis': primary_basis,
+                **{metric: self._stats(vals) for metric, vals in metrics.items()},
             }
             for task, metrics in perf.items()
         }
         if diagnostic_perf:
             stats['_selection'] = {
                 'primary': 'joint_score' if self._has_joint_selection() else 'task_best',
+                'primary_basis': primary_basis,
                 'diagnostic_task_best': 'per-task best validation f1',
+                'diagnostic_basis': 'per_task_f1_best',
+                'per_metric_best': 'each (task,metric) aggregated at its own best epoch',
+                'per_metric_basis': 'per_metric_best',
             }
             stats['diagnostic_task_best'] = {
                 task: {
-                    metric: self._stats(vals)
-                    for metric, vals in metrics.items()
+                    'aggregation_basis': 'per_task_f1_best',
+                    **{metric: self._stats(vals) for metric, vals in metrics.items()},
                 }
                 for task, metrics in diagnostic_perf.items()
+            }
+        if per_metric_perf:
+            stats['per_metric_best'] = {
+                task: {
+                    'aggregation_basis': 'per_metric_best',
+                    **{metric: self._stats(vals) for metric, vals in metrics.items()},
+                }
+                for task, metrics in per_metric_perf.items()
             }
         save_json(stats, out / 'full_summary.json')
 
@@ -192,6 +211,28 @@ class SummaryGenerator:
                 for metric_name, values in th.val.items():
                     if best_epoch < len(values):
                         task_perf.setdefault(metric_name, []).append(values[best_epoch])
+        return perf
+
+    def _collect_per_metric_best_performance(self) -> Dict[str, Dict[str, List[float]]]:
+        """Collect each (task, metric) at its OWN best epoch across folds.
+
+        Companion to the per-fold ``per_metric_best`` block written into
+        ``fold_info.json``. Aggregates the per-metric-best value series so
+        ``full_summary.json`` carries a third aggregate basis next to
+        ``joint_best`` and ``per_task_f1_best``. C7 closure.
+        """
+        perf: Dict[str, Dict[str, List[float]]] = {}
+        for fold in self.history.folds:
+            for task in self.history.tasks:
+                th = fold.tasks.get(task)
+                if not th:
+                    continue
+                task_perf = perf.setdefault(task, {})
+                for metric_name, values in th.val.items():
+                    if not values:
+                        continue
+                    best_value = max(values)
+                    task_perf.setdefault(metric_name, []).append(best_value)
         return perf
 
     def _has_joint_selection(self) -> bool:

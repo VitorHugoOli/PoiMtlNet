@@ -1,150 +1,104 @@
 # F50 T4 — Prioritization & Execution Tracker
 
-**Status (live, updated 2026-04-29 19:20 UTC):** **Champion changed under C4-correction.**
+**Status (live, updated 2026-04-29 22:00 UTC):** **Paper story locked. All paper-blocking runs done.**
 
-Previous (leaky log_T): P4+Cosine = 76.07 reg / 68.51 cat. **DEPRECATED — inflated by ~16 pp.**
+Final consolidated synthesis: **`F50_T4_FINAL_SYNTHESIS.md`** ← read this first.
 
-New (leak-free per-fold log_T):
-- **B9 (P4+Cosine + alpha-no-WD)** = **63.47 ± 0.75 reg / 68.59 ± 0.79 cat** @ ≥ep5
-- Paper-grade Pareto-dominant over P0-A (P4+Cosine without B9): +0.24 pp reg AND +0.08 pp cat, paired Wilcoxon p=0.0312 5/5 positive on BOTH tasks ✅
-- Awaiting H3-alt + per-fold log_T to know whether champion-vs-H3-alt Δ survives
+Headline (clean, FL):
+- **B9 champion** = 63.47 ± 0.75 reg / 68.59 ± 0.79 cat @ ≥ep5
+- **+3.34 pp Δreg vs H3-alt clean**, paired Wilcoxon p=0.0312, 5/5 positive on BOTH tasks ✅
+- **STL F37 ceiling** = 71.12 ± 0.59 (clean) → STL→MTL gap ~7.7 pp, closed by ~3.3 pp
+- **PLE Pareto-WORSE** under leak-free (cat −4.22 pp, NEW finding)
+- **F62 two-phase REJECTED**
 
 This file tracks what's left and the order of execution.
 
-**Living document — DO NOT close as completed.** Keep updated as tasks land. When all P0+P1 are done, fold the synthesis into `F50_T3_TRAINING_DYNAMICS_DIAGNOSTICS.md §6.5` and archive this file.
+**Living document — DO NOT close as completed.** Keep updated as remaining hygiene tasks land. The synthesis file is the canonical handoff.
 
 ---
 
-## Current state recap
+## Current state recap (CLEAN — leak-free per-fold log_T, FL, ≥ep5)
 
-| state | reg top10 @≥ep10 | cat F1 | gap to STL (82.44) | source |
+| recipe | reg top10 | cat F1 | gap to STL (71.12) | source |
 |---|---:|---:|---:|---|
-| H3-alt CUDA REF | 71.44 ± 0.76 | 68.36 ± 0.74 | −10.99 | predecessor |
-| P4 alone | 75.48 ± 0.75 | 68.20 ± 0.69 | −6.96 | first paper-grade |
-| **P4 + Cosine** ⭐ | **76.07 ± 0.62** | **68.51 ± 0.88** | **−6.37** | **committed champion** |
-| P4 + OneCycle | 77.52 ± 0.53 | 66.52 ± 2.29 ⚠ | −4.92 | reg-only-optimal (Pareto-trade) |
-| STL ceiling (F37) | 82.44 ± 0.38 | n/a | 0 | upper bound |
+| **STL F37 ceiling** (clean) | **71.12 ± 0.59** | n/a | 0 | upper bound |
+| **B9 (P4+Cosine + α-no-WD)** ⭐ | **63.47 ± 0.75** | **68.59 ± 0.79** | **−7.65** | **CHAMPION** (Pareto-dominant) |
+| P4-alone (constant) | 63.41 ± 0.77 | 67.82 | −7.71 | minimal-paper-grade |
+| P0-A (P4+Cosine, no α-no-WD) | 63.23 ± 0.64 | 68.51 | −7.89 | predecessor |
+| F62 two-phase | 60.25 ± 1.26 | n/a | −10.87 | REJECTED |
+| PLE-lite (clean full 5×50) | 60.38 ± 0.79 | 64.13 ± 1.04 | −10.74 | Pareto-WORSE |
+| H3-alt (clean baseline) | 60.12 ± 1.14 | 68.34 | −11.00 | anchor |
 
-**The 6.37 pp residual is the next target.**
+**Paper-grade lift: +3.34 pp Δreg (B9 vs H3-alt), p=0.0312, 5/5 positive.** The simplification: **P4 alone (alternating optimizer step) is the intervention** — Cosine and α-no-WD give marginal lift (within 0.25 pp).
 
----
-
-## Priority tiers
-
-### P0 — Paper-critical (blocks the headline claim)
-
-| # | task | type | effort | status | when | parallel? |
-|---|---|---|---|---|---|---|
-| **#62** P0-A | C4 verification: FL champion with `--per-fold-transition-dir` | GPU | 25 min | **🟡 in flight** (tmux p0a) | NOW | — |
-| **#63** P0-B | Cross-state validation: P4+Cosine at AL (1109 regions) | GPU | 19 min | **🟢 unblocked** — AL data + per-fold log_T ready | after #62 (in queue) | sequential on GPU |
-| **#64** P0-C | Cross-state validation: P4+Cosine at AZ (1547 regions) | GPU | 19 min | **🟢 unblocked** — AZ data + per-fold log_T ready | after #63 (in queue) | sequential on GPU |
-| (bonus) | Cross-state validation: P4+Cosine at Georgia (2283 regions) | GPU | 19 min | pending | after #62 (in queue) | sequential on GPU |
-
-**Why P0:**
-- **#62 C4 verification** — every `next_getnext_hard*` number in the study (ALL P4 variants, H3-alt, A1-A6) carries 0.5-2 pp val→train leakage in the GETNext graph prior. If actual Δ > σ when we re-run with per-fold log_T, we need a footnote on every figure.
-- **#63/#64 cross-state** — the champion was found at FL only. Without AL+AZ, the paper can only claim "fix works at FL". With both, it's "the recipe is portable across region cardinalities".
-
-**Total wall-time on GPU: ~60 min sequential.** Code dev for P1-A (#65) and P1-B (#66) can happen in parallel (CPU-bound).
+**Headline numbers are locked.** Remaining work below is hygiene + paper-figure diagnostic.
 
 ---
 
-### P1 — Close the remaining 6.37 pp gap (tier-B from brainstorm, ROI-ordered)
+## Priority tiers (post-consolidation)
 
-| # | task | type | effort | expected lift | status | dependencies |
-|---|---|---|---|---|---|---|
-| **#65** P1-A | B9: weight_decay exempt α | code+GPU | 30 min dev + 19 min run | +1-3 pp | ✅ committed `60107eb`, run queued | independent |
-| **#66** P1-B | B2 (was F64): warmup-decay LambdaLR on reg_head only | code+GPU | 1h dev + 19 min run | +3-6 pp | pending | independent |
-| **#67** P1-C | B10: `--batch-size 1024` (2× α steps per epoch) | GPU CLI | 19 min | +1-3 pp | run queued | independent |
-| **#68** P1-D | B4: alpha freeze warmup-then-unfreeze | code+GPU | 1h dev + 19 min run | +2-4 pp | pending | independent |
-| **#71** P1-E | F62 two-phase step-schedule (orthogonal mechanism vs P4) | GPU CLI | 19 min | +0-5 pp | run queued | independent (code shipped `5550789`) |
+### P0 — Paper-blocking ✅ ALL DONE
 
-**Strategy:** B9, B10 are quick CLI/cheap dev — do first. B2 is the highest expected lift but takes 1h dev. B4 has freeze_alpha plumbing already from F50 D1; just needs the epoch-boundary hook.
+All TIER 0 leak-free runs landed. The headline is locked. Receipts in `F50_T4_FINAL_SYNTHESIS.md §1`.
 
-**All four are independent of each other and of P0 results** — can be developed in parallel with P0 GPU runs.
+| # | task | status |
+|---|---|---|
+| #62 P0-A | C4 verification: FL champion clean | ✅ done (63.23) |
+| #63 P0-B | Cross-state AL clean | ✅ done (49.44 reg @≥ep10) |
+| #64 P0-C | Cross-state AZ clean | ✅ done (40.61 reg @≥ep10) |
+| (bonus) GA | Cross-state GA clean | ✅ done (46.57 reg @≥ep10) |
+| #65 P1-A | B9 alpha-no-WD clean | ✅ done — **CHAMPION** |
+| #67 P1-C | B10 bs1024 clean | ✅ done (loses by −2.54 pp) |
+| #71 P1-E | F62 two-phase clean | ✅ done (REJECTED) |
+| #72 P0-D | TGSTAN smoke clean | ✅ done (uniform leak confirmed) |
+| #73 P0-E | PLE clean full 5×50 | ✅ done (Pareto-WORSE — NEW finding) |
+| (anchor) | H3-alt clean | ✅ done (60.12 anchor) |
+| (anchor) | P4-alone clean | ✅ done (63.41) |
+| (anchor) | STL F37 clean | ✅ done (71.12) |
 
 ---
 
-### P2 — Mechanism narrative (paper figures)
+### P1 — Remaining hygiene + diagnostic (re-prioritized)
 
-| # | task | type | effort | status | dependencies |
+| order | # | task | type | effort | rationale |
 |---|---|---|---|---|---|
-| **#69** P2-A | F63 α trajectory plot (the smoking-gun figure) | analysis | 30 min | pending | needs P0+P1 data to plot |
-| **#39** D5 | Reg encoder weight-trajectory diagnostic | code+GPU | 80 min | pending | independent diagnostic |
-
-**Strategy:** Hold P2-A until P0 + P1 land — that's when we have all the trajectories worth plotting. D5 is a diagnostic and can run anytime.
+| **NOW** | **#70 P3-A** | C7 — stamp `aggregation_basis` in `full_summary.json` | code | ~30 min | Finishes audit C-series cleanly. Per-fold JSON already has `per_metric_best`; aggregates need basis stamp. |
+| NEXT | **#39 D5** | Reg encoder weight-trajectory diagnostic | code+GPU | ~80 min | Paper-figure diagnostic for the temporal-dynamics narrative. Generates a NEW figure showing reg encoder weight drift across epochs. |
 
 ---
 
-### P3 — Hygiene + remaining audit
-
-| # | task | type | effort | status | rationale |
-|---|---|---|---|---|---|
-| **#70** P3-A | C7 finalization: stamp aggregation_basis | code | 30 min | pending | finishes the audit |
-
----
-
-### P4 — Deferred / closed
+### P2 — Deferred (do NOT execute unless reviewer asks)
 
 | # | task | status | reason |
 |---|---|---|---|
-| #33 AL+AZ P1 cross-state | deleted | superseded by #63/#64 (champion cross-state, not P1 cross-state) |
-| #35 P5 identity cross-attn | deleted | subsumed by F50 T3 (gap is temporal, not architectural mixing) |
-| #48 F64 warmup-decay reg_head_lr | deleted | superseded by P1-B (#66) which stacks on champion instead of replacing |
-| #52 Re-evaluate ALL F50 findings | completed | done via posthoc tool + F50_CORRECTED_SCOREBOARD.md |
+| #66 P1-B | B2 warmup-decay reg_head_lr | **deferred** | B9 ≈ P4-alone within 0.06 pp → lift ceiling ≤ 0.25 pp; not paper-grade for the marginal cost (1h dev + 19 min run). Re-open if reviewer pushes. |
+| #49 F65 | Joint-dataloader cycling ablation | **deferred** | D8 (cw=0) already refuted the cat-loss-dominance hypothesis. |
+| #68 P1-D | B4 alpha freeze warmup-unfreeze | ✅ already completed | — |
+| #69 P2-A | F63 α trajectory plot | ✅ already completed | figure landed at `figs/f63_alpha_trajectory.png` |
 
 ---
 
-## Parallelization plan
+### P3 — Closed
 
-**The constraint:** one GPU. Code dev and analysis are CPU-bound and can run in parallel with GPU jobs.
-
-```
-Wall-clock timeline (assuming GPU starts when this file is committed):
-
-t=0      ┌──────────────────────────────────────────────────────────┐
-         │ GPU                                                       │
-         │   [#62 C4 verify: FL ~25 min]                             │
-         │     [#63 AL champion: ~19 min]                            │
-         │       [#64 AZ champion: ~19 min]                          │
-         │                                                           │
-         │ CPU (parallel)                                            │
-         │   [#65 P1-A B9 weight-decay-α dev: ~30 min]               │
-         │   [#66 P1-B B2 warmup-decay-reg-head dev: ~1h]            │
-         │   [#68 P1-D B4 alpha-freeze-warmup dev: ~1h]              │
-t=60     └──────────────────────────────────────────────────────────┘
-
-t=60     ┌──────────────────────────────────────────────────────────┐
-         │ GPU (P0 done, queue P1 runs)                              │
-         │   [#65 B9 run: ~19 min]                                   │
-         │     [#67 B10 bs1024 run: ~19 min]                         │
-         │       [#66 B2 run: ~19 min]                               │
-         │         [#68 B4 run: ~19 min]                             │
-         │                                                           │
-         │ CPU (parallel)                                            │
-         │   [#69 F63 α trajectory plot: ~30 min]                    │
-         │   [#70 C7 aggregation_basis: ~30 min]                     │
-t=140    └──────────────────────────────────────────────────────────┘
-
-t=140    [synthesis: update F50_T3 §6.5 with P0+P1 numbers,
-          decide if a new champion emerges, push, archive this file]
-```
-
-**Estimated total wall-time: 2h 20min** if everything goes smoothly. Realistic: 3-4h with debug/iteration.
+| # | task | status | reason |
+|---|---|---|---|
+| #33 AL+AZ P1 cross-state | deleted | superseded by #63/#64 |
+| #35 P5 identity cross-attn | deleted | subsumed by F50 T3 (gap is temporal) |
+| #48 F64 warmup-decay reg_head_lr | deleted | superseded by #66 (deferred above) |
+| #52 Re-evaluate ALL F50 findings | completed | F50_T4_PRIOR_RUNS_VALIDITY.md |
 
 ---
 
-## Decision rules (post-execution)
+## Decision rules — APPLIED (final state)
 
-After P0+P1 lands:
-
-| outcome | action |
+| outcome | resolution |
 |---|---|
-| C4 re-run drops champion ≥ σ (~0.5 pp) | Add footnote to all P4 numbers. Re-rank if drop > Δ to predecessor. |
-| AL champion ≥ +3 pp paired Wilcoxon vs AL H3-alt | Cross-state portability claim ✅ |
-| AZ champion ≥ +3 pp paired Wilcoxon vs AZ H3-alt | Cross-state portability claim ✅ |
-| Either AL or AZ misses +3 pp | Paper claim becomes "FL-strong, cross-state directional but not paper-grade" |
-| ANY P1 stacks ≥ +1 pp on top of P4+Cosine while preserving cat | Update champion |
-| All P1 wash out | Lock champion + ship paper as-is |
+| C4 re-run drops champion ≥ σ (~0.5 pp) | **YES** — drop was 13–17 pp (uniform). Footnote added to PRIOR_RUNS_VALIDITY.md. New champion = B9 clean (63.47 reg). |
+| AL champion ≥ +3 pp vs AL H3-alt | **NO** — AL clean = 49.44 (predecessor stack with leak); cross-state directional only. |
+| AZ champion ≥ +3 pp vs AZ H3-alt | **NO** — AZ clean = 40.61. Same. |
+| Cross-state — paper claim | "FL-strong; AL/AZ/GA directional but not paper-grade." |
+| ANY P1 stacks ≥ +1 pp on B9 while preserving cat | **NO** — B9 ≈ P4-alone within 0.06 pp; the simplification is the headline. |
+| All P1 wash out | **YES** — locked. Ship paper as-is. |
 
 ---
 
@@ -172,3 +126,6 @@ After P0+P1 lands:
 | 2026-04-29 19:50 | **🔬 Broader leakage audit (independent agent):** C4 propagates to ALL 5 log_T-loading heads (`next_getnext_hard`, `next_getnext`, `next_getnext_hard_hsm`, `next_tgstan`, `next_stahyper`). **`next_tgstan` flagged as potentially WORSE** — has TWO trainable amplifiers (α + per-sample gate). Class weights, samplers, baselines all clean ✅. Embeddings have structural full-data training but no learnable amplifier (low severity). Full report: `F50_T4_BROADER_LEAKAGE_AUDIT.md`. |
 | 2026-04-29 19:55 | **F50 prior-runs validity matrix written.** Most F50 ablations valid for relative Δ claims (uniform leak); absolute numbers across the study inflated by ~13-17 pp. F50 D1 STL α=0 = NO LEAK (α=0 ⇒ no log_T contribution; 72.61 encoder-only ceiling is REAL). 8/9 paper claims survive; 2 absolute headlines (STL 82.44, champion 76.07) need restatement. Full matrix: `F50_T4_PRIOR_RUNS_VALIDITY.md`. |
 | 2026-04-29 19:59 | **P4-alone clean landed:** 63.41 ± 0.77 reg @ ≥ep5, +3.28 pp Δ vs H3-alt clean, p=0.0312, 5/5 positive ✅. **Even the minimal recipe (just `--alternating-optimizer-step`) hits paper-grade.** Leak drop on P4-alone = 15 pp at ≥ep10, similar to H3-alt's 17 pp → uniform-leak hypothesis confirmed. New clean ranking: B9 63.47 ≈ P4-alone 63.41 ≈ P0-A 63.23 (all within ~0.25 pp of each other; cosine/alpha-no-WD give marginal lift). Paper story simplifies: **P4 alone is the intervention.** |
+| 2026-04-29 20:55 | **F62 two-phase clean landed:** 60.25 ± 1.26 reg @ ≥ep5 — sub-anchor; **F62 mode=step REJECTED**. Coarse-grained two-phase scheduling does NOT replicate P4's per-batch alternating granularity. Clean paper finding: P4's per-step granularity is mechanistically essential. |
+| 2026-04-29 21:25 | **PLE clean full 5×50 landed:** 60.38 ± 0.79 reg / 64.13 ± 1.04 cat. Δreg vs H3-alt = +0.26 (matches leaky +0.25 ✅, **uniform-leak hypothesis VALIDATED a second time**). Δcat = **−4.22 pp, 0/5 folds positive** — NEW finding: **PLE Pareto-WORSE under leak-free**. PLE's expert routing hurts cat without helping reg under clean conditions. Strictly dominated by P4-alone, B9, and P0-A. |
+| 2026-04-29 22:00 | **Consolidation:** `F50_T4_FINAL_SYNTHESIS.md` written. All TIER 0 paper-blocking runs done. Headline locked. Remaining work re-prioritized: P0=#70 (C7 aggregation_basis stamp, ~30 min hygiene); P1=#39 (D5 reg encoder weight-trajectory, paper figure); P2=defer #66 B2 and #49 F65. |

@@ -59,11 +59,11 @@
 - **Impact**: any "within 1σ" or "MTL ± σ overlaps STL ± σ" claim is biased. AZ/AL paired-test narrative slightly wrong.
 - **Fix landed**: both p1_region_head_ablation.py call sites now use `np.std(vals, ddof=1)` to match MTL-side `statistics.stdev`. n=1 edge case returns 0.0 (np.std with ddof=1 returns NaN). Future P1 STL aggregates will be ~12% larger than past reports — STL/MTL paired comparisons should use newly aggregated runs.
 
-### C7 — Three "best" definitions in same `full_summary.json`
-- **File**: `src/tracking/storage.py:143-201, 447-532`
+### C7 — Three "best" definitions in same `full_summary.json`  ✅ FIXED 2026-04-29
+- **File**: `src/tracking/storage.py:73-128, 197-235`
 - **Mechanism**: `_collect_performance` aggregates at **joint-best** epoch; `_collect_task_best_performance` separately aggregates at **per-task F1-best** epoch as `diagnostic_task_best`; `fold_info.json` writes `primary_checkpoint.task_metrics[task].accuracy/f1` at joint-best AND `diagnostic_best_epochs[task].metrics` with everything at F1-best.
 - **Live observation** (`_0045/`): primary_checkpoint epoch=47 has next_region.accuracy=0.478 while diagnostic_best_epochs has accuracy=0.507 (epoch 6). 3-17 pp gap presented as same model+fold.
-- **Fix**: stamp `aggregation_basis: "joint_best" | "per_task_f1_best" | "per_metric_best"` next to every aggregate. (Partially addressed by 2026-04-29 fix in `storage.py` adding `per_metric_best` sub-dict.)
+- **Fix landed**: every aggregate block in `full_summary.json` now stamps `aggregation_basis ∈ {"joint_best", "per_task_f1_best", "per_metric_best"}`. Added `_collect_per_metric_best_performance` to aggregate the new third basis (each metric at its own argmax epoch). `_selection` block carries `primary_basis`, `diagnostic_basis`, `per_metric_basis` for explicit disambiguation. Backward-compatible (existing keys preserved). Test pinned in `tests/test_tracking/test_ml_history.py::test_mtl_summary_uses_joint_checkpoint_and_labels_diagnostics`.
 
 ### C8 — Fold determinism not verified across substrates  ✅ FIXED 2026-04-29
 - **File**: `src/data/folds.py:717-723, 400-429`

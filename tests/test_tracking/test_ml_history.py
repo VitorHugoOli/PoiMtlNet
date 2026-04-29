@@ -807,6 +807,18 @@ class TestIntegrationStorage:
         assert summary['next']['f1']['mean'] == pytest.approx(0.60)
         assert summary['diagnostic_task_best']['next']['f1']['mean'] == pytest.approx(0.90)
 
+        # C7 closure: every aggregate block stamps its aggregation_basis so a
+        # downstream reader can disambiguate joint_best vs per_task_f1_best vs
+        # per_metric_best without inferring it from the section name.
+        assert summary['next']['aggregation_basis'] == 'joint_best'
+        assert summary['diagnostic_task_best']['next']['aggregation_basis'] == 'per_task_f1_best'
+        assert summary['per_metric_best']['next']['aggregation_basis'] == 'per_metric_best'
+        # next.f1 best across the [0.20, 0.60, 0.90] series is 0.90.
+        assert summary['per_metric_best']['next']['f1']['mean'] == pytest.approx(0.90)
+        assert summary['_selection']['primary_basis'] == 'joint_best'
+        assert summary['_selection']['diagnostic_basis'] == 'per_task_f1_best'
+        assert summary['_selection']['per_metric_basis'] == 'per_metric_best'
+
 
 class TestIntegrationNewMetrics:
     """End-to-end checks that the new metric keys (f1_weighted, top3_acc,
