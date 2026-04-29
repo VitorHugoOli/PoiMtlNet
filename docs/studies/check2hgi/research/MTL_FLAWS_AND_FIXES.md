@@ -159,6 +159,27 @@ Cat-side advantage is uniform across states (Δ_cat F1 in [+0.7%, +7.0%] across 
 
 At AZ, PRIMARY (MRR-based) Δm is significantly positive (+3.19%, p=0.0312); SECONDARY (top5-based) is null (−0.38%, p=0.500). MTL produces **better-ranked predictions** than STL even when raw top-K is similar. Mechanism distinction worth a paragraph in `paper/results.md`.
 
+### 2.9 The 8.83 pp FL gap is **TEMPORAL**, not architectural (F50 T3 — 2026-04-29)
+
+⭐ **Load-bearing finding** — supersedes the cat-encoder-absorption interpretation as the *proximate* mechanism for the FL reg gap (absorption still holds for cat F1 robustness, but is not the FL reg bottleneck).
+
+**Observation:** STL reg-best epoch is at **{16, 17, 18, 20, 20}** (top10 = 82.44). Across every MTL configuration we have tested — H3-alt, T1.2 HSM, T1.3 FAMO, T1.4 Aligned-MTL, P1/P2/P3/P4, PLE-lite, Cross-Stitch (default + detach), cat_weight ∈ {0, 0.25, 0.50, 0.75}, reg_encoder_lr ∈ {3e-2, 1e-2}, reg_head_lr ∈ {3e-2, 1e-1} — the MTL **reg-best epoch is structurally pinned at ep 4-6** and **reg top10 = 73-75 pp**.
+
+**Decisive test (D8):** with `category_weight = 0.0` (no cat loss whatsoever), MTL reg = 74.06 ± 0.71 with reg-best = {4, 5, 5, 5, 5}. **Cat dominance is REFUTED as the cause.**
+
+**Confirmation (D6):** reg_head_lr=3e-2 fold 1 reaches reg-best = ep 0, top10 = 77.93 (close to STL ceiling). α growth IS mechanistically achievable in MTL — but the joint training pipeline destabilises it within a few batches.
+
+**The 8.83 pp gap = the value of α growth that STL gets via 17 epochs of training but MTL is structurally prevented from reaching.**
+
+**Likely proximate mechanisms (untested):**
+- Constant scheduler vs OneCycleLR — H3-alt uses `--scheduler constant`; STL F37 used OneCycleLR (where peak-LR phase coincides with α-growth window in STL ep 15-20).
+- Per-task-best epoch selection greedy bias — picks first local minimum at ep 5.
+- Joint dataloader cycling artifacts at the 4.7K-region scale.
+
+Full details: `research/F50_T3_TRAINING_DYNAMICS_DIAGNOSTICS.md`.
+
+---
+
 ### 2.8 Cross-attn shared backbone is "absorbed" by cat encoder at FL (F50 H1.5 P1 — 2026-04-29)
 
 P1 (`--disable-cross-attn`) at FL 5f×50ep produces a model statistically indistinguishable from H3-alt:
