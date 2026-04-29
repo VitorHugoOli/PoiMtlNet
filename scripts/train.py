@@ -116,6 +116,14 @@ def _default_checkpoint_callbacks(run_dir: Path, monitor: str) -> list:
 def _run_mtl(config: ExperimentConfig, results_path: Path, fold_results: dict) -> dict:
     from training.runners.mtl_cv import train_with_cross_validation
 
+    # AUDIT-C2: legacy preset both default to F1, so this is a no-op
+    # today — but the explicit dict keeps intent readable and prevents
+    # silent drift if one slot's primary_metric ever changes.
+    from tasks.presets import LEGACY_CATEGORY_NEXT
+    task_monitors = {
+        LEGACY_CATEGORY_NEXT.task_a.name: LEGACY_CATEGORY_NEXT.task_a.primary_metric.value,
+        LEGACY_CATEGORY_NEXT.task_b.name: LEGACY_CATEGORY_NEXT.task_b.primary_metric.value,
+    }
     history = MLHistory(
         model_name="MTLNet",
         tasks={"next", "category"},
@@ -137,6 +145,7 @@ def _run_mtl(config: ExperimentConfig, results_path: Path, fold_results: dict) -
         label_map=CATEGORIES_MAP,
         save_path=results_path,
         verbose=True,
+        task_monitors=task_monitors,
     )
 
     if _NO_CHECKPOINTS:
@@ -178,6 +187,16 @@ def _run_mtl_check2hgi(
     from training.runners.mtl_cv import train_with_cross_validation
 
     engine = EmbeddingEngine(config.embedding_engine)
+    # AUDIT-C2 fix — wire each task's primary_metric (declared in the
+    # preset) into MLHistory so the per-task BestModelTracker monitors
+    # the intended metric. Default ``monitor='f1'`` previously drowned
+    # this out: e.g. CHECK2HGI_NEXT_REGION declares Acc@1 for
+    # next_region but the tracker selected by F1, mismatching reported
+    # top10/MRR by ~3.5 pp on FL MTL runs.
+    task_monitors = {
+        task_set.task_a.name: task_set.task_a.primary_metric.value,
+        task_set.task_b.name: task_set.task_b.primary_metric.value,
+    }
     history = MLHistory(
         model_name="MTLNet",
         tasks={task_set.task_a.name, task_set.task_b.name},
@@ -197,6 +216,7 @@ def _run_mtl_check2hgi(
         label_map=CATEGORIES_MAP,
         save_path=results_path,
         verbose=True,
+        task_monitors=task_monitors,
     )
 
     if _NO_CHECKPOINTS:

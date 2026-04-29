@@ -16,11 +16,17 @@
 - **Impact**: every MTL-vs-STL paired comparison is ~3-4 pp biased AGAINST MTL because (a) MTL's reported top10 was at F1-best epoch, (b) STL's reported F1 is at top10-best epoch. Compounds the metric-definition mismatch.
 - **Fix**: same as MTL — track per-metric best in STL ablation, OR posthoc-aggregate from per-epoch traces.
 
-### C2 — `TaskConfig.primary_metric = ACCURACY` is dead code
+### C2 — `TaskConfig.primary_metric = ACCURACY` is dead code  ✅ FIXED 2026-04-29
 - **File**: `src/tasks/presets.py:100`, `src/tracking/experiment.py:79-86`, `scripts/train.py:119-140 + 181-200`
 - **Mechanism**: `TaskConfig.primary_metric` declared per-task (e.g. `next_region: ACCURACY`) but **never read**. `MLHistory` constructed without `monitor=` kwarg → every `BestModelTracker` defaults to F1.
 - **Impact**: design intent was for region task to use Acc@1-best. F1 macro on 1109/4702-class is noisy; F1-best drifts to ep 7-13 while Acc@1-best/Acc@10-best/MRR-best ≈ ep 3-6. **This is the root cause of the F1-vs-top10 mismatch.**
-- **Fix**: thread `task_config.primary_metric.value` into `MLHistory(monitor=...)` per task.
+- **Fix landed (commit pending)**:
+  - `src/tracking/fold.py`: `FoldHistory.__init__` accepts `task_monitors: Mapping[str, str]` per-task override.
+  - `src/tracking/experiment.py`: `MLHistory.__init__` accepts `task_monitors` and propagates to every fold.
+  - `scripts/train.py`: both `_run_mtl` (legacy) and `_run_mtl_check2hgi` build `task_monitors` from `task_set.task_*.primary_metric.value` and pass to `MLHistory`.
+  - `src/training/runners/mtl_cv.py:643-644`: `task_*_improved` checks now read each task's monitor key (was hardcoded F1; mismatched the tracker post-C2).
+  - Tests: 3 new in `tests/test_tracking/test_ml_history.py` pin the contract; 162 tracking+training + 36 integration tests pass.
+- **Forward semantics**: future MTL runs on CHECK2HGI_NEXT_REGION will track Acc@1-best for `next_region`. Past runs reported top10 at F1-best; future runs report top10 at Acc@1-best. **Not directly comparable.** Use the `per_metric_best` dict in `diagnostic_best_epochs[task]` (added 2026-04-29) for cross-run comparison on a fixed metric.
 
 ### C3 — Cross-fold callback state leak
 - **File**: `src/training/callbacks.py:96-208`, `src/training/runners/mtl_cv.py:905-930`

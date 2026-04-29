@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Mapping, Optional
 
 from tracking.best_tracker import BestModelTracker
 from tracking.metric_store import MetricStore
@@ -76,11 +76,26 @@ class FoldHistory:
         tasks: set[str],
         monitor: str = 'f1',
         mode: str = 'max',
+        task_monitors: Optional[Mapping[str, str]] = None,
     ):
+        """
+        Parameters
+        ----------
+        monitor:
+            Default monitor metric for tasks not listed in ``task_monitors``.
+        task_monitors:
+            AUDIT-C2 fix — per-task monitor override. Maps task name to
+            metric key (e.g. ``{"next_region": "accuracy"}``). Tasks not
+            in the map fall back to ``monitor``. The trainer derives this
+            from ``TaskConfig.primary_metric``; default ``None`` preserves
+            the legacy single-metric (F1) behaviour.
+        """
         self.fold_number = fold_number
         self.timer = TimeHistory()
+        per_task = dict(task_monitors or {})
         self.tasks: dict[str, TaskHistory] = {
-            task: TaskHistory(monitor=monitor, mode=mode) for task in tasks
+            task: TaskHistory(monitor=per_task.get(task, monitor), mode=mode)
+            for task in tasks
         }
         self.diagnostics = MetricStore()
         self.artifacts: dict[str, Any] = {}

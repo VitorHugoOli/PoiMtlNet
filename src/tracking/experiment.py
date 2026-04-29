@@ -69,6 +69,7 @@ class MLHistory:
         save_path: Optional[Union[str, Path]] = None,
         verbose: bool = False,
         display_report: bool = False,
+        task_monitors: Optional[Dict[str, str]] = None,
     ):
         self.model_name = model_name
         self.model_type = model_type
@@ -78,10 +79,20 @@ class MLHistory:
         self.datasets: Optional[Set[DatasetHistory]] = datasets
         self.monitor = monitor
         self.mode = mode
+        # AUDIT-C2 — per-task monitor overrides; see fold.FoldHistory.
+        # Default None preserves legacy single-metric (F1) behaviour.
+        self.task_monitors: Optional[Dict[str, str]] = (
+            dict(task_monitors) if task_monitors else None
+        )
 
         self.tasks: Set[str] = {tasks} if isinstance(tasks, str) else tasks
         self.folds: List[FoldHistory] = [
-            FoldHistory(i, self.tasks, monitor=monitor, mode=mode)
+            FoldHistory(
+                i, self.tasks,
+                monitor=monitor,
+                mode=mode,
+                task_monitors=self.task_monitors,
+            )
             for i in range(num_folds)
         ]
         self.flops: Optional[FlopsMetrics] = None

@@ -640,8 +640,18 @@ def train_model(model: torch.nn.Module,
             )
 
             # Only create state_dict when at least one task improves.
-            task_b_improved = f1_val_task_b > fold_history.task(task_b_name).best.best_value
-            task_a_improved = f1_val_task_a > fold_history.task(task_a_name).best.best_value
+            # AUDIT-C2: read the per-task monitor key so the improvement
+            # check matches whichever metric the BestModelTracker is
+            # actually watching (F1, accuracy, mrr, ...). Pre-C2 this
+            # hardcoded F1 even when the tracker watched accuracy →
+            # state_dict was occasionally not produced when it should
+            # have been. Falls back to F1 for legacy paths.
+            _mon_b = fold_history.task(task_b_name).best.monitor
+            _mon_a = fold_history.task(task_a_name).best.monitor
+            _val_b_mon = val_metrics_task_b.get(_mon_b, f1_val_task_b)
+            _val_a_mon = val_metrics_task_a.get(_mon_a, f1_val_task_a)
+            task_b_improved = _val_b_mon > fold_history.task(task_b_name).best.best_value
+            task_a_improved = _val_a_mon > fold_history.task(task_a_name).best.best_value
             prev_joint_best = fold_history.model_task.best.best_value if fold_history.model_task.best.best_epoch >= 0 else -1.0
             joint_improved = joint_score > prev_joint_best
             state = model.state_dict() if (joint_improved or task_b_improved or task_a_improved) else None

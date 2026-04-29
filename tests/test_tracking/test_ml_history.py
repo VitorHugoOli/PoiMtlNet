@@ -378,6 +378,38 @@ class TestFoldHistory:
         fold.model_task.log_train(loss=0.5)
         assert fold.model_task.train['loss'] == [0.5]
 
+    def test_per_task_monitor_overrides(self):
+        """AUDIT-C2: ``task_monitors`` propagates per-task monitor key.
+
+        Default (``monitor='f1'``) should apply to tasks not in the map;
+        overridden tasks should track their own metric. This is the fix
+        for the F1-vs-Acc@1 mismatch that under-reported FL MTL by ~3.5pp.
+        """
+        fold = FoldHistory(
+            0, {'next_category', 'next_region'},
+            monitor='f1', mode='max',
+            task_monitors={'next_region': 'accuracy'},
+        )
+        assert fold.task('next_category').best.monitor == 'f1'
+        assert fold.task('next_region').best.monitor == 'accuracy'
+
+    def test_per_task_monitor_default_when_unset(self):
+        fold = FoldHistory(0, {'a', 'b'}, monitor='f1', mode='max')
+        assert fold.task('a').best.monitor == 'f1'
+        assert fold.task('b').best.monitor == 'f1'
+
+    def test_mlhistory_propagates_task_monitors(self):
+        """AUDIT-C2: MLHistory threads ``task_monitors`` into every fold."""
+        h = MLHistory(
+            model_name='test',
+            tasks={'next_category', 'next_region'},
+            num_folds=3,
+            task_monitors={'next_region': 'accuracy'},
+        )
+        for fold in h.folds:
+            assert fold.task('next_category').best.monitor == 'f1'
+            assert fold.task('next_region').best.monitor == 'accuracy'
+
 
 # ── Group D: MLHistory ────────────────────────────────────────────────
 
