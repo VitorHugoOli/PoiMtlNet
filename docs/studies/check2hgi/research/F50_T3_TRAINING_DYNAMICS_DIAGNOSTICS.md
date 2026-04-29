@@ -199,9 +199,35 @@ This is a **stronger and more specific** mechanism finding than the original "ca
 - **`paper/limitations.md`**: NEW caveat — "the MTL training pipeline at FL scale exhibits a temporal training defect (reg-best epoch ≈ 5 vs STL's 17-20). Future work would test (a) OneCycleLR vs constant scheduler in MTL, (b) per-task-best epoch selectors that search beyond local minima, (c) two-phase training schemes."
 - **`paper/methods.md`**: small note about per-task-best epoch selection — disclose the greedy local-minimum bias.
 
-### 6.3 Champion config: still H3-alt
+### 6.3 Champion config: P4 + delayed-min (≥ep10)
 
-`NORTH_STAR.md` is unchanged. H3-alt is the best available MTL recipe under the current pipeline. The training-dynamics defect is structural to the pipeline, not the recipe.
+`NORTH_STAR.md` updated 2026-04-29 — committed champion is now **P4 alternating-SGD + delayed-min selector at min_epoch=10**:
+
+| selector | H3-alt | P4 alt-SGD | Δ | folds | Wilcoxon |
+|---|---:|---:|---:|---:|---:|
+| greedy (any epoch) | 77.16 | 78.55 | +1.38 | 5/5 | p=0.0312 |
+| delayed ≥ep5 | 74.72 | **78.55** | **+3.83** | **5/5** | **p=0.0312** ✅ |
+| **delayed ≥ep10** | 71.44 | **75.48** | **+4.04** | **5/5** | **p=0.0312** ✅ |
+
+H3-alt is the *predecessor* — it remains the best static-loss recipe but P4 wins by paper-grade margin under any post-init selector window.
+
+### 6.4 Tier-A hyperparameter sweep — verdict
+
+The 2026-04-29 Tier-A sweep (top-3 priority configs from `F50_T3_HYPERPARAM_BRAINSTORM.md`) tested whether scheduler / α-magnitude alternatives could match or beat P4 under the delayed-min selector. **None beat P4 at any window.**
+
+| config | greedy | ≥ep3 | ≥ep5 | **≥ep10** | Δ vs P4@≥ep10 | verdict |
+|---|---:|---:|---:|---:|---:|---|
+| H3-alt CUDA REF | 77.16 | 77.16 | 74.72 | 71.44 | −4.04 | predecessor |
+| **P4 alt-SGD** | **78.55** | **78.55** | **78.55** | **75.48** | — | **champion** |
+| A1 onecycle50 | 68.16 | 68.16 | 68.16 | 68.09 | −7.39 | OneCycle alone hurts |
+| A3 alpha_init=2.0 | 74.50 | 71.57 | 71.18 | 71.01 | −4.47 | α-magnitude alone hurts |
+| A5 onecycle+α=2.0 | 80.67* | 75.61 | 71.49 | 71.38 | −4.10 | * peaked at init artifact (ep 1 = prior alone) |
+
+A5's headline 80.67 (greedy) is the **GETNext prior at initialisation** (best_ep=1 across all folds), not a learned signal — see brainstorm doc §"Init-artifact caveat". Under delayed selectors that filter the init window, A5 collapses below H3-alt.
+
+**Mechanism implication, refined:** P4 alternating-SGD prevents the post-ep-5 reg degradation by alternating per-batch task updates instead of joint loss; OneCycle / α-magnitude / their combination cannot achieve the same effect because they all train cat + reg jointly under shared-backbone gradient interference.
+
+The combined champion-candidate (`P4 + OneCycle`) is queued in `tmux f50_champ`; if that lands above 75.48@ep≥10 with paired Wilcoxon p=0.0312, it would replace P4-alone. Until then, P4-alone is the committed champion.
 
 ---
 

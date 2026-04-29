@@ -1,6 +1,8 @@
 # North-Star MTL Configuration
 
-**Status (2026-04-27):** Two complementary tracks now confirm the MTL story from different angles. **The recipe below (F48-H3-alt per-head LR) is the committed champion**; substrate validation and architecture attribution both back it.
+**Status (2026-04-29):** Champion replaced. **P4 alternating-SGD + delayed-min selector (`min_epoch=10`)** is the new committed champion at FL. H3-alt is the predecessor (best static-loss recipe; cat-side anchor still). The Tier-A hyperparameter sweep (A1 OneCycleLR, A3 alpha_init=2.0, A5 stacked) tested on 2026-04-29 — none beat P4 at any selector window. See §"Champion candidate — F50 P4" below and `research/F50_T3_TRAINING_DYNAMICS_DIAGNOSTICS.md §6.3-§6.4`.
+
+**Status (2026-04-27):** Two complementary tracks now confirm the MTL story from different angles. **The previous recipe (F48-H3-alt per-head LR) is the committed champion**; substrate validation and architecture attribution both back it.
 
 **Architecture-side (F48-H3-alt + F49, 2026-04-26 → 04-27):** Per-head LR recipe validated 5-fold on AL/AZ/FL — cat preserved within ~2 pp of B3, reg Acc@10 lifts by 6.7-15 pp over B3. AL **exceeds** STL F21c ceiling by +6.25 pp; AZ closes 75%; FL is most stable (σ=0.68). Three orthogonal negative controls (F40, F48-H1, F48-H2) bracket H3-alt as the unique design. **F49 attribution (2026-04-27):** the H3-alt reg lift on AL is *purely architectural* (+6.48 pp from architecture alone, F49c 5f × 50ep); cat-supervision transfer is null on all 3 states (≤|0.75| pp), refuting the legacy "+14.2 pp transfer" claim by ≥9σ on FL n=5. CH18 Tier A; CH19 Tier A. See `research/F48_H3_PER_HEAD_LR_FINDINGS.md` + `research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md`.
 
@@ -14,7 +16,56 @@ These findings **do not** change the committed config — they explain *why* it 
 
 **Status (2026-04-24):** Cat head refined via F27 from `NextHeadMTL` (Transformer) → `next_gru` (GRU). Paper-reshaping F21c finding noted in §§Caveats. See §Committed config below.
 
-## Champion candidate — F48-H3-alt (2026-04-26)
+## Champion — F50 P4 + delayed-min selector (2026-04-29)
+
+```
+architecture         : mtlnet_crossattn
+mtl_loss             : static_weight(category_weight = 0.75)
+task_a head (cat)    : next_gru
+task_b head (reg)    : next_getnext_hard                # STAN + α · log_T[last_region_idx]
+task_a input         : check-in embeddings (9-step window)
+task_b input         : region embeddings (9-step window)
+hparams              : d_model=256, 8 heads, batch=2048, 50 epochs, seed 42
+LR scheduler         : constant
+LR per param group   : cat_lr=1e-3, reg_lr=3e-3, shared_lr=1e-3
+optimizer step       : ALTERNATING per-batch (P4) — cat batch then reg batch, separate optimizer.step()
+selector             : delayed-min top10_acc_indist with min_epoch=10  # ← new
+```
+
+**Single-line additive recipe vs H3-alt:**
+```bash
+--alternating-optimizer-step --min-best-epoch 10
+```
+
+**Headline numbers (FL 5f × 50ep, seed 42):**
+
+| selector | H3-alt | **P4 alt-SGD** | Δ | folds | paired Wilcoxon |
+|---|---:|---:|---:|---:|---:|
+| greedy (any epoch) | 77.16 | 78.55 | +1.38 | 5/5 | p=0.0312 |
+| delayed ≥ep5 | 74.72 | **78.55** | **+3.83** | **5/5** | **p=0.0312** ✅ |
+| **delayed ≥ep10** | 71.44 | **75.48** | **+4.04** | **5/5** | **p=0.0312** ✅ |
+
+**Mechanism:** alternating per-batch task updates prevent the post-ep-5 reg degradation that joint-loss training inflicts via cat dominance of the shared backbone. STL reg-best naturally lands at ep 17-20 (where α grows); under joint-loss MTL the reg-best is structurally pinned at ep 4-5 because cat saturates the cross-attn capacity past then. P4 alternating-SGD breaks the symmetry by giving reg its own optimizer step on its own batch, so its α can keep growing past ep 5.
+
+**Why the F1-based greedy selector hid this:** F1 macro on the 4702-class region is noisy; F1-best landed at ep 7-13 while top10/MRR/Acc@1-best lived at ep 3-6 → the trainer reported top10 at the F1-best epoch (~3.5 pp under-report). With C2 (`primary_metric` → BestModelTracker) + B1 (`--min-best-epoch`) shipped, future runs select honestly.
+
+**Tier-A negative controls (2026-04-29) — none beat P4 at any window:**
+
+| config | greedy | ≥ep10 | Δ vs P4 | run dir |
+|---|---:|---:|---:|---|
+| A1 onecycle50 | 68.16 | 68.09 | −7.39 | `_1413` |
+| A3 alpha_init=2.0 | 74.50* | 71.01 | −4.47 | `_1433` |
+| A5 onecycle+α=2.0 | 80.67* | 71.38 | −4.10 | `_1453` |
+
+\*Init artifact: best_ep=1 across all folds = GETNext prior alone. Filtered by `--min-best-epoch ≥ 2`.
+
+See `research/F50_T3_TRAINING_DYNAMICS_DIAGNOSTICS.md §6.3-§6.4` and `research/F50_T3_HYPERPARAM_BRAINSTORM.md` for the full Tier-A run log.
+
+**Open candidate (queued, not landed):** `P4 + OneCycleLR` is queued in `tmux f50_champ`. If it lands ≥ 75.48@ep≥10 with paired Wilcoxon p=0.0312, it would replace P4-alone. Until then, P4-alone is the committed champion.
+
+---
+
+## Predecessor — F48-H3-alt (2026-04-26)
 
 ```
 architecture         : mtlnet_crossattn
