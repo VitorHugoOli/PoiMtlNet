@@ -85,7 +85,18 @@ The B9 claim of "Pareto-dominant on BOTH tasks" still holds (cat +0.08 pp), but 
 
 → Two-phase coarse-grained scheduling does NOT replicate P4's per-batch alternating granularity. **Rejected as champion candidate.** P4's per-step granularity is essential to the mechanism.
 
-### 3.4 Cross-state portability (clean from start)
+### 3.4 D5 — reg encoder saturates 26–32 epochs before cat encoder (NEW)
+
+Per-epoch Frobenius drift logging on FL fold 1 (H3-alt baseline + B9 champion, leak-free):
+
+| run | reg sat ep | cat sat ep | gap | reg-best ep | encoder sat aligns? |
+|---|---:|---:|---:|---:|---|
+| H3-alt | 24 | 50 (never) | 26 | 3 | reg encoder wastes ~21 ep after val plateau |
+| B9 | **6** | 38 | 32 | **6** | **encoder saturation = reg-best epoch (tight)** |
+
+→ **Mechanistic receipt #2** for the temporal-dynamics narrative: the reg encoder physically stops updating in the same window where reg val plateaus. P4 doesn't fix the saturation timing — it instead lets head/α keep growing AFTER the encoder is done (see F63 α-trajectory). Full doc: `F50_D5_ENCODER_TRAJECTORY.md`. Plot: `figs/f50_d5_encoder_trajectory.png`.
+
+### 3.5 Cross-state portability (clean from start)
 
 | state | regions | reg @≥ep10 (per-fold log_T) | gap to FL |
 |---|---:|---:|---:|

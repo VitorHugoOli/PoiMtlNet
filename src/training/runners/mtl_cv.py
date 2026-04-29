@@ -296,6 +296,26 @@ def train_model(model: torch.nn.Module,
     )
     pareto_points: list[tuple[float, float]] = []
 
+    # F50 D5 — encoder weight-trajectory diagnostic. Snapshot the initial
+    # `next_encoder` and `category_encoder` parameter vectors so per-epoch
+    # Frobenius drift can be logged below. The hypothesis (F50 T3 §5.5):
+    # MTL's reg-best epoch is structurally pinned at ~ep 5 because the
+    # `next_encoder` stops updating early under joint loss while
+    # `category_encoder` keeps drifting. Per-epoch L2 norm and drift-from-init
+    # log directly tests this. Silent no-op if encoders are absent.
+    def _flatten_encoder(encoder):
+        if encoder is None:
+            return None
+        params = [p.detach().reshape(-1) for p in encoder.parameters() if p.requires_grad]
+        if not params:
+            return None
+        return torch.cat(params).clone()
+
+    next_enc_init = _flatten_encoder(getattr(model, "next_encoder", None))
+    cat_enc_init = _flatten_encoder(getattr(model, "category_encoder", None))
+    next_enc_prev = next_enc_init.clone() if next_enc_init is not None else None
+    cat_enc_prev = cat_enc_init.clone() if cat_enc_init is not None else None
+
     # F50 P3 — track whether warmup-then-freeze has fired (idempotent).
     _cat_frozen_post_warmup = False
     # F50 B4 — α-freeze warmup. If alpha_frozen_until_epoch is set, lock
@@ -577,6 +597,35 @@ def train_model(model: torch.nn.Module,
         head_alpha = getattr(next_head, "alpha", None)
         if isinstance(head_alpha, torch.Tensor) and head_alpha.numel() == 1:
             diagnostic_payload["head_alpha"] = float(head_alpha.detach().cpu())
+
+        # F50 D5 — encoder trajectory diagnostic. Frobenius norm of current
+        # encoder weights, drift from epoch-0 init, and step drift from the
+        # previous epoch. Cheap (one cat + two diffs of an O(64×256×L) flat
+        # vector). The smoking-gun comparison is reg-side drift saturating
+        # earlier than cat-side under joint training.
+        next_enc_now = _flatten_encoder(getattr(model, "next_encoder", None))
+        if next_enc_now is not None and next_enc_init is not None:
+            diagnostic_payload["reg_encoder_l2norm"] = float(next_enc_now.norm().cpu())
+            diagnostic_payload["reg_encoder_drift_from_init"] = float(
+                (next_enc_now - next_enc_init).norm().cpu()
+            )
+            if next_enc_prev is not None:
+                diagnostic_payload["reg_encoder_step_drift"] = float(
+                    (next_enc_now - next_enc_prev).norm().cpu()
+                )
+            next_enc_prev = next_enc_now
+        cat_enc_now = _flatten_encoder(getattr(model, "category_encoder", None))
+        if cat_enc_now is not None and cat_enc_init is not None:
+            diagnostic_payload["cat_encoder_l2norm"] = float(cat_enc_now.norm().cpu())
+            diagnostic_payload["cat_encoder_drift_from_init"] = float(
+                (cat_enc_now - cat_enc_init).norm().cpu()
+            )
+            if cat_enc_prev is not None:
+                diagnostic_payload["cat_encoder_step_drift"] = float(
+                    (cat_enc_now - cat_enc_prev).norm().cpu()
+                )
+            cat_enc_prev = cat_enc_now
+
         fold_history.log_diagnostic(**diagnostic_payload)
 
         # Validation phase with progress tracking

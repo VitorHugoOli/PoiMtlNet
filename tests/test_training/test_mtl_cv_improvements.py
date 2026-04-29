@@ -132,6 +132,137 @@ class _TinyMTLWithAlpha(nn.Module):
         )
 
 
+class _TinyMTLWithEncoders(nn.Module):
+    """TinyMTL variant exposing `next_encoder` + `category_encoder` for D5."""
+
+    def __init__(self, feature_size: int = 4, hidden_size: int = 6, num_classes: int = 3):
+        super().__init__()
+        self.next_encoder = nn.Linear(feature_size, hidden_size)
+        self.category_encoder = nn.Linear(feature_size, hidden_size)
+        self.shared = nn.Linear(hidden_size, hidden_size)
+        self.cat_head = nn.Linear(hidden_size, num_classes)
+        self.next_head = nn.Linear(hidden_size, num_classes)
+
+    def forward(self, inputs):
+        category_input, next_input = inputs
+        category_rep = self.shared(self.category_encoder(category_input.squeeze(1)))
+        next_rep = self.shared(self.next_encoder(next_input.mean(dim=1)))
+        return self.cat_head(category_rep), self.next_head(next_rep)
+
+    def shared_parameters(self):
+        return self.shared.parameters()
+
+    def task_specific_parameters(self):
+        return (
+            list(self.cat_head.parameters())
+            + list(self.next_head.parameters())
+            + list(self.next_encoder.parameters())
+            + list(self.category_encoder.parameters())
+        )
+
+
+@pytest.mark.skipif(
+    DEVICE.type == "mps",
+    reason="MPS corrupts tiny integer tensors in unit-test-sized batches",
+)
+def test_d5_logs_encoder_trajectory_when_encoders_present():
+    """D5 — Frobenius norm + drift logged per epoch when both encoders exist."""
+    torch.manual_seed(0)
+    batch_size = 2
+    num_samples = 10
+    num_classes = 3
+
+    category_x = torch.randn(num_samples, 1, 4)
+    next_x = torch.randn(num_samples, 3, 4)
+    targets = torch.arange(num_samples) % num_classes
+
+    category_data = _task_data(category_x, targets, batch_size)
+    next_data = _task_data(next_x, targets, batch_size)
+
+    model = _TinyMTLWithEncoders(num_classes=num_classes).to(DEVICE)
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.05)
+    scheduler = _CountingScheduler()
+    fold_history = FoldHistory.standalone({"next", "category"})
+    criterion = nn.CrossEntropyLoss()
+    mtl_criterion = create_loss("equal_weight", n_tasks=2, device=DEVICE)
+
+    train_model(
+        model=model,
+        optimizer=optimizer,
+        scheduler=scheduler,
+        dataloader_next=next_data,
+        dataloader_category=category_data,
+        next_criterion=criterion,
+        category_criterion=criterion,
+        mtl_criterion=mtl_criterion,
+        num_epochs=3,
+        num_classes=num_classes,
+        fold_history=fold_history,
+        gradient_accumulation_steps=1,
+    )
+
+    diags = fold_history.diagnostics
+    for key in (
+        "reg_encoder_l2norm", "reg_encoder_drift_from_init", "reg_encoder_step_drift",
+        "cat_encoder_l2norm", "cat_encoder_drift_from_init", "cat_encoder_step_drift",
+    ):
+        assert key in diags, f"D5 should log {key}"
+        assert len(list(diags[key])) == 3, f"{key}: expected 3 entries (one per epoch)"
+
+    # Drift-from-init must be monotonically non-decreasing (encoder is moving
+    # away from its starting point under SGD with lr>0).
+    drift = list(diags["reg_encoder_drift_from_init"])
+    assert drift[0] <= drift[1] <= drift[2], drift
+    # Step drift is non-zero (encoder is actually updating).
+    step_drift = list(diags["reg_encoder_step_drift"])
+    assert all(d > 0 for d in step_drift), step_drift
+
+
+@pytest.mark.skipif(
+    DEVICE.type == "mps",
+    reason="MPS corrupts tiny integer tensors in unit-test-sized batches",
+)
+def test_d5_silent_no_op_when_encoders_absent():
+    """D5 logger must not crash on models without next_encoder/category_encoder."""
+    torch.manual_seed(0)
+    batch_size = 2
+    num_samples = 10
+    num_classes = 3
+
+    category_x = torch.randn(num_samples, 1, 4)
+    next_x = torch.randn(num_samples, 3, 4)
+    targets = torch.arange(num_samples) % num_classes
+
+    category_data = _task_data(category_x, targets, batch_size)
+    next_data = _task_data(next_x, targets, batch_size)
+
+    model = _TinyMTL(num_classes=num_classes).to(DEVICE)
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
+    scheduler = _CountingScheduler()
+    fold_history = FoldHistory.standalone({"next", "category"})
+    criterion = nn.CrossEntropyLoss()
+    mtl_criterion = create_loss("equal_weight", n_tasks=2, device=DEVICE)
+
+    train_model(
+        model=model,
+        optimizer=optimizer,
+        scheduler=scheduler,
+        dataloader_next=next_data,
+        dataloader_category=category_data,
+        next_criterion=criterion,
+        category_criterion=criterion,
+        mtl_criterion=mtl_criterion,
+        num_epochs=1,
+        num_classes=num_classes,
+        fold_history=fold_history,
+        gradient_accumulation_steps=1,
+    )
+
+    # No encoder keys logged when the model has no encoders.
+    for key in ("reg_encoder_l2norm", "cat_encoder_l2norm"):
+        assert key not in fold_history.diagnostics
+
+
 @pytest.mark.skipif(
     DEVICE.type == "mps",
     reason="MPS corrupts tiny integer tensors in unit-test-sized batches",
