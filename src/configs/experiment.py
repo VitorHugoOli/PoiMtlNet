@@ -106,6 +106,15 @@ class ExperimentConfig:
     # reg_head (next_poi, this LR). Can combine with reg_encoder_lr.
     reg_head_lr: Optional[float] = None
 
+    # AUDIT-C4 fix — directory holding per-fold transition matrices
+    # ``region_transition_log_fold{1..k_folds}.pt``. When set, the MTL
+    # trainer overrides the static ``transition_path`` in next-head
+    # params with the per-fold file before constructing the model each
+    # fold. Build with ``python scripts/compute_region_transition.py
+    # --state STATE --per-fold``. Default None preserves legacy
+    # full-data behaviour (which leaks val rows; see C4).
+    per_fold_transition_dir: Optional[str] = None
+
     # torch.compile: disabled by default.  On CUDA it uses the inductor
     # backend; MPS compatibility needs separate testing first.
     use_torch_compile: bool = False

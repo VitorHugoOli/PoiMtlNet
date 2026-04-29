@@ -643,6 +643,21 @@ def _parse_args(argv=None) -> argparse.Namespace:
         help="Override region head hyperparameter (task_b_head_params) in the MTL task_set. Repeatable. E.g. --reg-head-param hidden_dim=512 --reg-head-param num_layers=3",
     )
     parser.add_argument(
+        "--per-fold-transition-dir",
+        dest="per_fold_transition_dir",
+        type=str,
+        default=None,
+        metavar="DIR",
+        help=(
+            "AUDIT-C4 fix: directory containing per-fold transition matrices "
+            "(``region_transition_log_fold{1..k}.pt``). When set, the trainer "
+            "swaps the static ``transition_path`` in next-head params for the "
+            "fold-specific file each fold, eliminating val→train leakage in "
+            "the GETNext graph prior. Build with: "
+            "python scripts/compute_region_transition.py --state STATE --per-fold"
+        ),
+    )
+    parser.add_argument(
         "--reg-head",
         type=str,
         default=None,
@@ -963,6 +978,13 @@ def _apply_cli_overrides(
                 "(--cat-lr, --reg-lr, --shared-lr all set)."
             )
         config = dataclasses.replace(config, reg_head_lr=float(args.reg_head_lr))
+
+    if getattr(args, "per_fold_transition_dir", None) is not None:
+        if config.task_type != "mtl":
+            raise ValueError("--per-fold-transition-dir requires --task mtl")
+        config = dataclasses.replace(
+            config, per_fold_transition_dir=str(args.per_fold_transition_dir)
+        )
 
     return config
 

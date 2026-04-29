@@ -537,6 +537,17 @@ def train_model(model: torch.nn.Module,
                 diagnostic_payload["gate_entropy_next"] = float(
                     gate_stats["next_entropy"].detach().cpu()
                 )
+        # F50 F63 — α trajectory logging. The next_getnext{,_hard} heads
+        # carry a learnable scalar `alpha` that scales the graph prior
+        # (`stan_logits + α · log_T[last_region]`). T3 hypothesised α
+        # growth is the temporal mechanism behind STL's late reg-best
+        # epoch (16-20). Logging it per-epoch lets us correlate growth
+        # rate vs reg metric trajectory directly. Silent no-op for heads
+        # without an `alpha` attribute.
+        next_head = getattr(model, "next_poi", None)
+        head_alpha = getattr(next_head, "alpha", None)
+        if isinstance(head_alpha, torch.Tensor) and head_alpha.numel() == 1:
+            diagnostic_payload["head_alpha"] = float(head_alpha.detach().cpu())
         fold_history.log_diagnostic(**diagnostic_payload)
 
         # Validation phase with progress tracking
@@ -734,8 +745,41 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
     for fold_idx, (i_fold, dataloader) in enumerate(dataloaders.items()):
         clear_mps_cache()
 
+        # AUDIT-C4 fix — per-fold transition prior. When
+        # ``config.per_fold_transition_dir`` is set, swap the static
+        # ``transition_path`` in task_b.head_params for the fold-specific
+        # file ``region_transition_log_fold{N}.pt``. The N is 1-indexed
+        # because that's what ``compute_region_transition.py --per-fold``
+        # writes. ``i_fold`` here is 0-indexed (FoldCreator dict keys).
+        # Default None preserves the legacy single-prior behaviour, so
+        # this is a no-op for the running tier-A queue.
+        per_fold_dir = getattr(config, "per_fold_transition_dir", None)
+        per_fold_model_params = config.model_params
+        if per_fold_dir is not None:
+            import dataclasses as _dataclasses
+            from pathlib import Path as _Path
+            ts = config.model_params.get("task_set")
+            if ts is not None and getattr(ts, "task_b", None) is not None:
+                pf_path = _Path(per_fold_dir) / f"region_transition_log_fold{i_fold + 1}.pt"
+                if not pf_path.exists():
+                    raise FileNotFoundError(
+                        f"per_fold_transition_dir set but {pf_path} missing. "
+                        f"Build with: python scripts/compute_region_transition.py "
+                        f"--state {config.state} --per-fold"
+                    )
+                tb_head_params = dict(ts.task_b.head_params or {})
+                tb_head_params["transition_path"] = str(pf_path)
+                new_task_b = _dataclasses.replace(ts.task_b, head_params=tb_head_params)
+                new_task_set = _dataclasses.replace(ts, task_b=new_task_b)
+                per_fold_model_params = dict(config.model_params)
+                per_fold_model_params["task_set"] = new_task_set
+                logger.info(
+                    "[C4 per-fold log_T] fold %d using %s",
+                    i_fold + 1, pf_path,
+                )
+
         # Initialize model via registry
-        model = create_model(config.model_name, **config.model_params).to(DEVICE)
+        model = create_model(config.model_name, **per_fold_model_params).to(DEVICE)
         if config.use_torch_compile and DEVICE.type == 'cuda':
             model = torch.compile(model)
 
