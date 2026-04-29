@@ -782,6 +782,7 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                      and _shared_lr is not None)
         if _per_head:
             _reg_encoder_lr = getattr(config, "reg_encoder_lr", None)
+            _reg_head_lr = getattr(config, "reg_head_lr", None)
             optimizer = setup_per_head_optimizer(
                 model,
                 cat_lr=float(_cat_lr),
@@ -791,6 +792,7 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                 eps=config.optimizer_eps,
                 extra_parameters=_criterion_parameters(mtl_criterion),
                 reg_encoder_lr=float(_reg_encoder_lr) if _reg_encoder_lr is not None else None,
+                reg_head_lr=float(_reg_head_lr) if _reg_head_lr is not None else None,
             )
         else:
             optimizer = setup_optimizer(

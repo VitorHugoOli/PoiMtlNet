@@ -99,6 +99,13 @@ class ExperimentConfig:
     # (next_poi params, reg_lr). Default None reuses reg_lr for both.
     reg_encoder_lr: Optional[float] = None
 
+    # F50 D6 — separate LR for next_poi (the reg head, where α scalar lives in
+    # next_getnext_hard). Tests if α growth is the bottleneck rather than the
+    # encoder. Setting reg_head_lr higher than reg_lr accelerates α's growth.
+    # When set, reg group splits into reg_encoder (next_encoder, reg_lr) +
+    # reg_head (next_poi, this LR). Can combine with reg_encoder_lr.
+    reg_head_lr: Optional[float] = None
+
     # torch.compile: disabled by default.  On CUDA it uses the inductor
     # backend; MPS compatibility needs separate testing first.
     use_torch_compile: bool = False

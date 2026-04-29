@@ -105,6 +105,7 @@ def setup_per_head_optimizer(
     eps: float = 1e-8,
     extra_parameters: Iterable[torch.nn.Parameter] | None = None,
     reg_encoder_lr: float | None = None,
+    reg_head_lr: float | None = None,
 ) -> AdamW:
     """Build an AdamW with three param groups (F48-H3 per-head LR).
 
@@ -142,18 +143,24 @@ def setup_per_head_optimizer(
     if extra_parameters is not None:
         reg_params.extend(p for p in extra_parameters if p.requires_grad)
 
-    # F50 D3 — split reg_params into encoder vs head when reg_encoder_lr is
-    # set. Tests mechanism α (reg encoder under-trained because loss-side
-    # cat_weight=0.75 scaling shrinks effective reg gradient by 4x).
-    if reg_encoder_lr is not None and hasattr(model, "next_encoder"):
+    # F50 D3/D6 — split reg_params into encoder vs head when EITHER
+    # reg_encoder_lr or reg_head_lr is set.
+    #   D3 (reg_encoder_lr): tests mechanism α via reg encoder under-training.
+    #   D6 (reg_head_lr): tests mechanism α via α scalar's effective LR
+    #     (next_poi contains α in next_getnext_hard; under cat_weight=0.75
+    #     scaling, α's gradient is shrunk 4x → α never grows enough).
+    # If only one is set, the other defaults to reg_lr.
+    if (reg_encoder_lr is not None or reg_head_lr is not None) and hasattr(model, "next_encoder"):
+        _enc_lr = float(reg_encoder_lr) if reg_encoder_lr is not None else float(reg_lr)
+        _head_lr = float(reg_head_lr) if reg_head_lr is not None else float(reg_lr)
         encoder_param_ids = {id(p) for p in model.next_encoder.parameters()}
         reg_encoder_params = [p for p in reg_params if id(p) in encoder_param_ids]
         reg_head_params = [p for p in reg_params if id(p) not in encoder_param_ids]
         return AdamW(
             [
                 {"name": "cat",         "params": cat_params,         "lr": cat_lr},
-                {"name": "reg_encoder", "params": reg_encoder_params, "lr": reg_encoder_lr},
-                {"name": "reg_head",    "params": reg_head_params,    "lr": reg_lr},
+                {"name": "reg_encoder", "params": reg_encoder_params, "lr": _enc_lr},
+                {"name": "reg_head",    "params": reg_head_params,    "lr": _head_lr},
                 {"name": "shared",      "params": shared_params,      "lr": shared_lr},
             ],
             weight_decay=weight_decay,

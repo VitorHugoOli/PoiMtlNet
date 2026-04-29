@@ -622,6 +622,20 @@ def _parse_args(argv=None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--reg-head-lr",
+        dest="reg_head_lr",
+        type=float,
+        default=None,
+        metavar="LR",
+        help=(
+            "F50 D6 (reg head LR split): separate LR for next_poi (where α "
+            "scalar lives in next_getnext_hard). Tests whether α growth is "
+            "the bottleneck (D1 + cat_weight sweep show STL α=0 ≈ MTL ≈ 73 pp; "
+            "STL α-trainable = 82.44 pp; the prior is functionally disabled "
+            "in MTL). Suggested: 3e-2 (10x reg_lr) to wake up α."
+        ),
+    )
+    parser.add_argument(
         "--reg-head-param",
         action="append",
         default=[],
@@ -939,6 +953,16 @@ def _apply_cli_overrides(
                 "(--cat-lr, --reg-lr, --shared-lr all set)."
             )
         config = dataclasses.replace(config, reg_encoder_lr=float(args.reg_encoder_lr))
+
+    if getattr(args, "reg_head_lr", None) is not None:
+        if config.task_type != "mtl":
+            raise ValueError("--reg-head-lr requires --task mtl")
+        if not all(getattr(config, k, None) is not None for k in ("cat_lr", "reg_lr", "shared_lr")):
+            raise ValueError(
+                "--reg-head-lr requires per-head LR mode "
+                "(--cat-lr, --reg-lr, --shared-lr all set)."
+            )
+        config = dataclasses.replace(config, reg_head_lr=float(args.reg_head_lr))
 
     return config
 
