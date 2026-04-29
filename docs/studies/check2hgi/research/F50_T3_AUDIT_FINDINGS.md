@@ -10,11 +10,16 @@
 
 ## Critical issues (CHANGE PAPER NUMBERS)
 
-### C1 — STL ablation has the SAME selector bug (mirrored)
+### C1 — STL ablation has the SAME selector bug (mirrored)  ✅ FIXED 2026-04-29 (forward-only)
 - **File**: `scripts/p1_region_head_ablation.py:427-460`
 - **Mechanism**: `_train_single_task` selects by **top10_acc** then writes F1/MRR/Acc@1 at THAT epoch. Mirror of the MTL F1-bug, opposite direction.
 - **Impact**: every MTL-vs-STL paired comparison is ~3-4 pp biased AGAINST MTL because (a) MTL's reported top10 was at F1-best epoch, (b) STL's reported F1 is at top10-best epoch. Compounds the metric-definition mismatch.
-- **Fix**: same as MTL — track per-metric best in STL ablation, OR posthoc-aggregate from per-epoch traces.
+- **Fix landed**:
+  - `_new_per_metric_tracker` / `_update_per_metric_best` track each canonical metric's best epoch independently.
+  - `_train_single_task` now emits `per_metric_best` alongside the legacy top10-best snapshot (backward-compatible primary fields).
+  - Aggregator emits `aggregate_per_metric_best` with `<reported>_at_<selector>_best_{mean,std}` for every metric pair (all 25 combos).
+  - 5 new synthetic tests pin the contract (`test_p1_per_metric_tracker.py`).
+- **Posthoc note**: per-epoch metrics aren't logged to disk in the STL pipeline (only kept in memory), so OLD STL runs cannot be retroactively rescored. Future STL P1 invocations will produce `per_metric_best` automatically.
 
 ### C2 — `TaskConfig.primary_metric = ACCURACY` is dead code  ✅ FIXED 2026-04-29
 - **File**: `src/tasks/presets.py:100`, `src/tracking/experiment.py:79-86`, `scripts/train.py:119-140 + 181-200`

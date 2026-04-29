@@ -361,6 +361,34 @@ class _MTLPreencoder(torch.nn.Module):
         return self.head(x_enc)
 
 
+CANONICAL_METRICS: tuple[str, ...] = (
+    "accuracy", "top5_acc", "top10_acc", "mrr", "f1",
+)
+"""Metrics tracked by ``_new_per_metric_tracker``. Same set used in MTL
+``storage.py`` ``CANONICAL_BEST_METRICS`` for parity."""
+
+
+def _new_per_metric_tracker() -> dict:
+    """Empty per-metric best tracker for ``_update_per_metric_best``."""
+    return {m: {"value": -1.0, "snapshot": {}} for m in CANONICAL_METRICS}
+
+
+def _update_per_metric_best(tracker: dict, metrics: dict, epoch: int) -> None:
+    """Update each metric's best snapshot if this epoch's value is higher.
+
+    AUDIT-C1: emits a per-metric snapshot so the STL output JSON has
+    ``per_metric_best.f1.f1`` (the metric *at its own best epoch*) instead
+    of the legacy single-snapshot scheme that reported every metric at
+    top10's best epoch.
+    """
+    for m in CANONICAL_METRICS:
+        v = float(metrics.get(m, 0.0))
+        if v > tracker[m]["value"]:
+            tracker[m]["value"] = v
+            tracker[m]["snapshot"] = dict(metrics)
+            tracker[m]["snapshot"]["best_epoch"] = int(epoch)
+
+
 def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
                        emb_dim, n_classes, epochs, batch_size, seed,
                        overrides, max_lr, label_smoothing, input_ln,
@@ -424,8 +452,13 @@ def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
     )
     criterion = CrossEntropyLoss(label_smoothing=label_smoothing)
 
-    best_acc10 = -1.0
-    best_metrics = {}
+    # AUDIT-C1 fix: track per-metric best across all epochs, not just
+    # top10. The legacy code picked top10-best then reported F1/MRR/Acc@1
+    # at THAT epoch — mirroring (in opposite direction) the MTL F1-vs-
+    # top10 mismatch. With per_metric_best we emit a separate
+    # snapshot at each canonical metric's best epoch so downstream
+    # comparisons can be apples-to-apples.
+    per_metric_best: dict = _new_per_metric_tracker()
 
     for epoch in range(epochs):
         model.train()
@@ -451,12 +484,15 @@ def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
         targets = torch.cat(all_targets)
         metrics = compute_classification_metrics(logits, targets, num_classes=n_classes, top_k=(5, 10))
 
-        acc10 = metrics.get("top10_acc", 0.0)
-        if acc10 > best_acc10:
-            best_acc10 = acc10
-            best_metrics = dict(metrics)
-            best_metrics["best_epoch"] = epoch + 1
+        _update_per_metric_best(per_metric_best, metrics, epoch + 1)
 
+    # Backward-compatible primary return: top10-best snapshot (same as
+    # before). Downstream callers can read per_metric_best for clean
+    # cross-metric reporting.
+    best_metrics = dict(per_metric_best["top10_acc"]["snapshot"])
+    best_metrics["per_metric_best"] = {
+        m: per_metric_best[m]["snapshot"] for m in CANONICAL_METRICS
+    }
     return best_metrics
 
 
@@ -625,9 +661,27 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
             # AUDIT-C6: ddof=1 to match MTL-side ``statistics.stdev``
             agg[f"{key}_std"] = float(np.std(vals, ddof=1)) if len(vals) > 1 else 0.0
 
+        # AUDIT-C1: per-metric aggregate. For each canonical metric, take
+        # its value at ITS OWN best epoch in every fold and aggregate.
+        # Pre-fix the only aggregate was at top10-best epoch — biased.
+        agg_per_metric: dict = {}
+        for selector in CANONICAL_METRICS:
+            for reported in CANONICAL_METRICS:
+                vals = [
+                    m.get("per_metric_best", {}).get(selector, {}).get(reported, 0.0)
+                    for m in fold_metrics
+                ]
+                agg_per_metric[f"{reported}_at_{selector}_best_mean"] = (
+                    float(np.mean(vals)) if vals else 0.0
+                )
+                agg_per_metric[f"{reported}_at_{selector}_best_std"] = (
+                    float(np.std(vals, ddof=1)) if len(vals) > 1 else 0.0
+                )
+
         results[head_name] = {
             "per_fold": fold_metrics,
             "aggregate": agg,
+            "aggregate_per_metric_best": agg_per_metric,
             "config": {
                 "max_lr": head_max_lr,
                 "label_smoothing": label_smoothing,
