@@ -1,0 +1,97 @@
+# F50 T3 — Critical-Review Audit Findings (2026-04-29)
+
+**Source:** independent research-engineering agent commissioned to find OTHER bugs similar in nature to the F1-vs-metric selector mismatch (`F50_T3_TRAINING_DYNAMICS_DIAGNOSTICS.md` §5.5 / `MTL_FLAWS_AND_FIXES.md` §2.10).
+
+**Agent prompt:** "Hunt for bugs of the form 'report metric X at the epoch chosen by metric Y', per-fold aggregation glitches, cross-substrate inconsistencies, leakage in fold-derived artefacts, and selector-mismatch siblings."
+
+**Output:** 8 critical issues (≥±1 pp impact), 7 subtle issues, 5 style issues.
+
+---
+
+## Critical issues (CHANGE PAPER NUMBERS)
+
+### C1 — STL ablation has the SAME selector bug (mirrored)
+- **File**: `scripts/p1_region_head_ablation.py:427-460`
+- **Mechanism**: `_train_single_task` selects by **top10_acc** then writes F1/MRR/Acc@1 at THAT epoch. Mirror of the MTL F1-bug, opposite direction.
+- **Impact**: every MTL-vs-STL paired comparison is ~3-4 pp biased AGAINST MTL because (a) MTL's reported top10 was at F1-best epoch, (b) STL's reported F1 is at top10-best epoch. Compounds the metric-definition mismatch.
+- **Fix**: same as MTL — track per-metric best in STL ablation, OR posthoc-aggregate from per-epoch traces.
+
+### C2 — `TaskConfig.primary_metric = ACCURACY` is dead code
+- **File**: `src/tasks/presets.py:100`, `src/tracking/experiment.py:79-86`, `scripts/train.py:119-140 + 181-200`
+- **Mechanism**: `TaskConfig.primary_metric` declared per-task (e.g. `next_region: ACCURACY`) but **never read**. `MLHistory` constructed without `monitor=` kwarg → every `BestModelTracker` defaults to F1.
+- **Impact**: design intent was for region task to use Acc@1-best. F1 macro on 1109/4702-class is noisy; F1-best drifts to ep 7-13 while Acc@1-best/Acc@10-best/MRR-best ≈ ep 3-6. **This is the root cause of the F1-vs-top10 mismatch.**
+- **Fix**: thread `task_config.primary_metric.value` into `MLHistory(monitor=...)` per task.
+
+### C3 — Cross-fold callback state leak
+- **File**: `src/training/callbacks.py:96-208`, `src/training/runners/mtl_cv.py:905-930`
+- **Mechanism**: `EarlyStopping.stop_training` and `ModelCheckpoint.best` persist across folds (no `on_train_begin` reset). If EarlyStopping fires in fold 1, folds 2-5 stop at ep 1 immediately.
+- **Impact**: silently destroys folds 2-5 if EarlyStopping is used. **Currently DORMANT** in our runs (EarlyStopping not used; `--no-checkpoints` set) but landmine for future.
+- **Fix**: implement `on_train_begin` resets in both callbacks.
+
+### C4 ⭐ — `α · log_T` graph prior built from FULL dataset → val→train leakage
+- **File**: `scripts/compute_region_transition.py:61-117`, consumed in all `next_getnext_hard*` heads
+- **Mechanism**: `build_transition_matrix(state)` reads ALL rows of `sequences_next.parquet`, counts every `(last_region, target_region)` pair, normalises and saves once. Every fold's reg head loads the **same** log_T — including transition counts derived from THAT FOLD'S VAL DATA.
+- **Impact**: small per-row inflation, compounds. May explain a fraction of the F50 D6 fold-1 spike to top10=77.93. Affects **every** `next_getnext_hard` / `next_getnext_hard_hsm` / `next_tgstan` / `next_stahyper` / `next_getnext` result. Conservative estimate: 0.5-2 pp inflation on val top10 / MRR.
+- **Strongest non-obvious finding in the audit.**
+- **Fix**: rebuild log_T per fold from train rows only. Test: re-run FL H3-alt with per-fold log_T; expect 0.5-2 pp drop on val top10.
+
+### C5 — Macro-F1 averaging differs by class cardinality
+- **File**: `src/tracking/metrics.py:64-92` (hand-rolled, num_classes>256) vs `:243-245` (torchmetrics, ≤256)
+- **Mechanism**: hand-rolled path averages F1 over **present** classes only (`f1_per_class[support>0].mean()`); torchmetrics averages over **all** num_classes. On `next_region`(4702), only ~1000-1500 classes have val support → averaging differs by 3×.
+- **Impact**: `region.f1` reported as ~3× higher than canonical sklearn macro-F1. Cross-state region.f1 comparisons (FL=4702 vs AL=1109) inconsistent within the high-card branch (n_present scales with dataset).
+- **Fix**: pick one convention. Recommendation: divide by num_classes (matches torchmetrics).
+
+### C6 — σ convention mismatch (sample n-1 vs population n)
+- **File**: `src/tracking/storage.py:138` (`statistics.stdev`, n-1) vs `scripts/p1_region_head_ablation.py:560,621` (`np.std`, n)
+- **Mechanism**: MTL aggregates use sample std (n-1). STL ablation uses population std (n). Ratio for n=5: √(5/4) ≈ 1.118 → STL stds ~12% smaller.
+- **Impact**: any "within 1σ" or "MTL ± σ overlaps STL ± σ" claim is biased. AZ/AL paired-test narrative slightly wrong.
+- **Fix**: pick one (sample / ddof=1 standard for n=5 reporting).
+
+### C7 — Three "best" definitions in same `full_summary.json`
+- **File**: `src/tracking/storage.py:143-201, 447-532`
+- **Mechanism**: `_collect_performance` aggregates at **joint-best** epoch; `_collect_task_best_performance` separately aggregates at **per-task F1-best** epoch as `diagnostic_task_best`; `fold_info.json` writes `primary_checkpoint.task_metrics[task].accuracy/f1` at joint-best AND `diagnostic_best_epochs[task].metrics` with everything at F1-best.
+- **Live observation** (`_0045/`): primary_checkpoint epoch=47 has next_region.accuracy=0.478 while diagnostic_best_epochs has accuracy=0.507 (epoch 6). 3-17 pp gap presented as same model+fold.
+- **Fix**: stamp `aggregation_basis: "joint_best" | "per_task_f1_best" | "per_metric_best"` next to every aggregate. (Partially addressed by 2026-04-29 fix in `storage.py` adding `per_metric_best` sub-dict.)
+
+### C8 — Fold determinism not verified across substrates
+- **File**: `src/data/folds.py:717-723, 400-429`
+- **Mechanism**: `StratifiedGroupKFold(shuffle=True, random_state=42)` is deterministic *given input row order*. Parquet row order is preserved if file is written deterministically — but if regenerated between runs, can differ. `--no-folds-cache` (default in every runpod script) skips the freeze.
+- **Impact**: paired tests with mis-aligned folds are silently invalid (treats non-paired as paired → larger Wilcoxon p-values, hides effects rather than inflates).
+- **Fix**: hash input parquet (or userids tuple); write digest into fold_info.json; refuse paired tests across mismatched digests. Infrastructure exists (`scripts/study/freeze_folds.py`).
+
+---
+
+## Subtle issues (≤1 pp impact)
+
+- **S1**: `top_k_accuracy` vs `_rank_of_target` tie handling differs (~0.1-0.5 pp under fp16 autocast)
+- **S2**: 256-class boundary for hand-rolled F1 is hard cutoff (will silently jump conventions if any task moves above 256)
+- **S3**: `setup_per_head_optimizer` puts NashMTL learnable weights in reg group; `setup_optimizer` uses model-LR default — different effective NashMTL update rates
+- **S4**: `compute_class_weights` defaults absent classes to weight=1.0 (dormant unless `--use-class-weights` set)
+- **S5**: `_save_reports` partial-save and full-save logic duplicated (correctness-equivalent today; drift risk)
+- **S6**: posthoc tool returns `value_at_epoch=NaN` silently dropping folds; aggregator doesn't filter NaN
+- **S7**: `_compute_gradient_cosine` runs on `batch_idx==0` only — diagnostic CSV under-reports cosine variability
+
+## Style issues
+
+- **Sty1**: `f50_delta_m.py:250` dead code (`wmrr` computed but never used, suspicious 2× factor)
+- **Sty2**: `posthoc_best_epoch.py` — `f1_at_metric_best` computed but not in summary JSON
+- **Sty3**: hardcoded `/Volumes/Vitor's SSD/...` paths in 2 analysis scripts
+- **Sty4**: posthoc tool returns std=0 for n=1 instead of NaN
+- **Sty5**: `extract_alpha.py` assumes `save_best_only=True` checkpoint convention; warns aren't emitted
+
+---
+
+## Recommended fix priority
+
+| # | Issue | Effort | Impact | Recommendation |
+|---|---|---|---|---|
+| **C4** | Graph prior val leakage | ~1h dev + verification re-run | 0.5-2 pp on every `next_getnext*` result | **DO NOW** |
+| **C2** | `primary_metric` dead code | ~1h dev | Root cause of selector bug; prevents recurrence | DO BEFORE NEXT RUN |
+| **C1** | STL selector mirror bug | ~30 min posthoc tool extension | 3-4 pp bias on every MTL-vs-STL comparison | DO POSTHOC |
+| **C5** | macro-F1 cardinality | ~30 min dev + re-aggregation | 5-15 pp on region.f1 cross-state | DO BEFORE PAPER |
+| **C7** | Multiple best-definitions | ~30 min dev | Documentation / `aggregation_basis` stamp | DO ALONG WITH C2 |
+| **C3** | Callback state leak | ~30 min dev | Dormant; landmine for future | DO BEFORE ANYONE USES EarlyStopping |
+| **C6** | σ convention | ~10 min dev (one decision) | 12% scale on σ | DO BEFORE PAPER |
+| **C8** | Fold determinism | ~1h dev | Silent paired-test invalidity | DO BEFORE FUTURE CROSS-RUN PAIRED TESTS |
+| S1-S7, Sty1-5 | Various | varies | low | clean up opportunistically |
+

@@ -159,6 +159,27 @@ Cat-side advantage is uniform across states (Δ_cat F1 in [+0.7%, +7.0%] across 
 
 At AZ, PRIMARY (MRR-based) Δm is significantly positive (+3.19%, p=0.0312); SECONDARY (top5-based) is null (−0.38%, p=0.500). MTL produces **better-ranked predictions** than STL even when raw top-K is similar. Mechanism distinction worth a paragraph in `paper/results.md`.
 
+### 2.11 CRITICAL-REVIEW AUDIT — 8 additional bugs found (F50 T3 — 2026-04-29)
+
+⭐ Independent agent audit (commissioned after §2.10 finding) identified 8 critical issues + 12 lesser items. Recorded in full at `research/F50_T3_AUDIT_FINDINGS.md`. Highlights:
+
+| # | issue | impact | fix priority |
+|---|---|---|:-:|
+| **C4** | `α·log_T` graph prior built from FULL dataset → val→train leakage on EVERY `next_getnext_hard*` result | 0.5-2 pp inflation on every reg top10 | **DO NOW** |
+| **C2** | `TaskConfig.primary_metric` dead code; tracker defaults to F1 (root cause of §2.10 bug) | recurrence prevention | DO BEFORE NEXT RUN |
+| **C1** | STL ablation has SAME bug, mirrored (selects top10, writes F1 at that epoch) → MTL-vs-STL bias | 3-4 pp bias against MTL | DO POSTHOC |
+| **C5** | macro-F1 averaging differs by class cardinality (>256 averages over present, ≤256 over all) | 5-15 pp on region.f1 | DO BEFORE PAPER |
+| **C7** | Three "best" definitions in same JSON (joint-best / F1-best / per-metric-best) | up to 17 pp gap visible | partially fixed (per_metric_best added 2026-04-29) |
+| **C3** | Callback state leak across folds (EarlyStopping/ModelCheckpoint) | dormant landmine | DO BEFORE EarlyStopping use |
+| **C6** | σ convention mismatch (MTL=n-1, STL=n) → 12% scale | minor on σ overlap claims | DO BEFORE PAPER |
+| **C8** | Fold determinism not verified across substrates | silent paired-test invalidity | DO BEFORE FUTURE CROSS-RUN |
+
+**C4 is the biggest non-obvious finding** — explains why F50 D6 fold-1 ep0 spike (top10=77.93) was achievable; the val leakage means α-driven boosts may be partially artifactual. Worth verifying.
+
+7 tasks created (#53-#59) for the audit fixes.
+
+---
+
 ### 2.10 SELECTOR ARTIFACT — F1-best ≠ top10-best by ~1-4 pp (F50 T3 — 2026-04-29)
 
 ⭐ **Methodological finding** that affects every MTL F-experiment.
