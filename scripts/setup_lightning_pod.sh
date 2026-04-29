@@ -70,13 +70,29 @@ print('all imports OK')
 # ── 3. Download upstream data via gdown (skip if present) ───────────────
 echo ""
 echo "=== Downloading upstream parquets ==="
+echo ""
+echo "Known gdrive folder IDs (CA + TX). For Scope D you ALSO need AL+AZ+FL data."
+echo "Provide the AL/AZ/FL gdrive IDs via env vars:"
+echo "  AL_C2HGI_GDID=<id> AL_HGI_GDID=<id>"
+echo "  AZ_C2HGI_GDID=<id> AZ_HGI_GDID=<id>"
+echo "  FL_C2HGI_GDID=<id> FL_HGI_GDID=<id>"
+echo ""
 
 declare -A FOLDERS=(
-    ["check2hgi/california"]="1ZLL8FHPeO7I-3DEfVBogW1C1eFE76ttv"
-    ["check2hgi/texas"]="1bLfFDEOM1BJ2ELoQUnd_qMXFpxGsZ7UF"
-    ["hgi/california"]="1nMNaFgEEc1RwoH_o8_wasL9ENOkOCdKJ"
-    ["hgi/texas"]="1g43xNSlJZBXStt3YGruOvCZTI-_WW4OQ"
+    ["check2hgi/california"]="${CA_C2HGI_GDID:-1ZLL8FHPeO7I-3DEfVBogW1C1eFE76ttv}"
+    ["check2hgi/texas"]="${TX_C2HGI_GDID:-1bLfFDEOM1BJ2ELoQUnd_qMXFpxGsZ7UF}"
+    ["hgi/california"]="${CA_HGI_GDID:-1nMNaFgEEc1RwoH_o8_wasL9ENOkOCdKJ}"
+    ["hgi/texas"]="${TX_HGI_GDID:-1g43xNSlJZBXStt3YGruOvCZTI-_WW4OQ}"
 )
+
+# Add AL/AZ/FL only if user provided IDs (otherwise skip — can be run later
+# via STATES="alabama arizona florida" with the corresponding env vars).
+[ -n "${AL_C2HGI_GDID:-}" ] && FOLDERS["check2hgi/alabama"]="$AL_C2HGI_GDID"
+[ -n "${AL_HGI_GDID:-}"   ] && FOLDERS["hgi/alabama"]="$AL_HGI_GDID"
+[ -n "${AZ_C2HGI_GDID:-}" ] && FOLDERS["check2hgi/arizona"]="$AZ_C2HGI_GDID"
+[ -n "${AZ_HGI_GDID:-}"   ] && FOLDERS["hgi/arizona"]="$AZ_HGI_GDID"
+[ -n "${FL_C2HGI_GDID:-}" ] && FOLDERS["check2hgi/florida"]="$FL_C2HGI_GDID"
+[ -n "${FL_HGI_GDID:-}"   ] && FOLDERS["hgi/florida"]="$FL_HGI_GDID"
 
 for path in "${!FOLDERS[@]}"; do
     target="output/$path"
@@ -93,9 +109,15 @@ done
 # ── 4. Pre-flight verification ──────────────────────────────────────────
 echo ""
 echo "=== Pre-flight verification ==="
+STATES_TO_CHECK="${STATES:-california texas}"
+echo "Verifying STATES: $STATES_TO_CHECK"
 ALL_OK=true
-for state in california texas; do
+for state in $STATES_TO_CHECK; do
     for engine in check2hgi hgi; do
+        if [ ! -d "output/$engine/$state" ]; then
+            printf "  ⊘ %-50s skipped (engine/state not requested)\n" "$engine/$state"
+            continue
+        fi
         for f in embeddings.parquet region_embeddings.parquet input/next.parquet input/next_region.parquet; do
             p="output/$engine/$state/$f"
             if [ -f "$p" ]; then
@@ -120,13 +142,29 @@ mkdir -p logs/phase3
 if [ "$ALL_OK" = "true" ]; then
     echo ""
     echo "===================================================================="
-    echo "Bootstrap complete. Ready to launch:"
-    echo "  bash scripts/run_phase3_mtl_parallel.sh   # 4× GPU parallel"
-    echo "  bash scripts/run_phase3_mtl_grid.sh       # single-GPU sequential"
+    echo "Bootstrap complete. Phase 3 Scope D (leakage-free re-run) workflow:"
+    echo ""
+    echo "  # Step 1: per-fold transitions (CPU, ~5 min/state)"
+    echo "  bash scripts/build_phase3_per_fold_transitions.sh"
+    echo ""
+    echo "  # Step 2: full grid (reg STL ×N + MTL ×N)"
+    echo "  bash scripts/run_phase3_parallel.sh    # auto-detect GPUs, parallel"
+    echo "  # OR"
+    echo "  bash scripts/run_phase3_grid.sh        # sequential"
+    echo ""
+    echo "  # Step 3: extract + paired tests + status board"
+    echo "  python3 scripts/finalize_phase3.py"
+    echo ""
+    echo "Override scope via STATES env var, e.g.:"
+    echo "  STATES=\"california texas\" bash scripts/run_phase3_parallel.sh"
     echo "===================================================================="
 else
     echo ""
     echo "[error] Some files missing. Re-run gdown for the failed folders:"
     echo "  gdown --folder 'https://drive.google.com/drive/folders/<ID>' -O output/<engine>/<state>"
+    echo ""
+    echo "For AL/AZ/FL (Scope D full-state grid), provide their gdrive IDs as env vars"
+    echo "and re-run setup, e.g.:"
+    echo "  AL_C2HGI_GDID=<id> AL_HGI_GDID=<id> bash scripts/setup_lightning_pod.sh"
     exit 1
 fi

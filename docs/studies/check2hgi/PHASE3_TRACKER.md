@@ -1,196 +1,225 @@
-# Phase 3 Tracker — MTL CH18 closure on CA + TX
+# Phase 3 Tracker — Scope D: leakage-free reg STL + MTL CH18 across all 5 states
 
-**Created 2026-04-29** after Phase 2 STL closed at all 5 states. Phase 2 MTL CH18 is confirmed at **AL+AZ+FL** (3 states); CA+TX deferred because Lightning T4 (15 GB VRAM) cannot fit the cross-attn MTLnet at canonical hparams for those state sizes (8497 / 6553 regions).
+**Created 2026-04-29.** Phase 2 closed STL (cat) at 5/5 states with CH16 + CH15 reframed. Phase 2's reg STL and MTL data carry the **F44 transition-matrix leakage** (full-dataset transition prior includes val edges; AUDIT-C4 finding). This phase **re-runs all reg STL + MTL cells with per-fold transitions** so the entire reg/MTL evidence chain becomes leakage-free, in one consistent protocol across all 5 states.
 
-This tracker is the live work queue for **Phase 3 — MTL CH18 cross-state closure on CA + TX, on Lightning A100**. Numbers from this phase land in the paper's MTL substrate-specificity table.
+> **Why Scope D and not "just CA+TX MTL"**: a leakage-free CA+TX would not be comparable with leaky AL+AZ+FL. To preserve a clean cross-state paired protocol, all reg STL + MTL cells must use the same transition-matrix construction. Scope D fixes everything in one pass.
 
-> **Phase 3 launch authorisation:** ✅ implicit — gated only on bigger GPU. Phase 2 STL closure already confirms CH16 + reframes CH15; CH18 is the only remaining cross-state pillar.
-
-> **🔒 Protocol parity with Phase 2 — DO NOT CHANGE.** Phase 3 deliberately uses the **same full-dataset transition matrix** as Phase 2 (`output/check2hgi/<state>/region_transition_log.pt`), including its known F44 leakage. This is *required* so CA + TX MTL numbers are directly comparable to AL + AZ + FL MTL numbers. Any change to the transition-matrix construction (per-fold rebuild, leakage-safe variant, etc.) breaks the cross-state CH18 paired comparison and would have to be a separate Phase 4 that re-runs **all 5 states × all task types** for protocol parity.
->
-> **Pinned hparams (do not deviate):** lr=1e-4, bs=2048, NashMTL static_weight α_cat=0.75, model=mtlnet_crossattn, cat_head=next_gru, reg_head=next_getnext_hard with `d_model=256 num_heads=8`, transition matrix = full-dataset c2hgi, 5-fold StratifiedGroupKFold on userids, seed=42, 50 epochs. Same as Phase 2.
+> **What does NOT need re-running**: cat STL `next_gru` (no transition matrix → no F44 leakage) and the substrate linear probe (head-free, CPU-only). Phase 2 evidence for those stands.
 
 ---
 
 ## Status board
 
-🟢 = 5-fold complete · 🟡 = 1-fold or partial · 🔴 = pending · ⚫ = blocked.
+🟢 = 5-fold complete (leakage-free, `_pf` suffix) · 🟡 = partial · 🔴 = pending.
 
-### MTL B3 counterfactual grid (2 states × 2 substrates = 4 cells)
+### Reg STL `next_getnext_hard` (5 states × 2 engines = 10 cells)
 
-| Test | C2HGI | HGI | Combined paired test |
+| State | C2HGI | HGI | Combined paired |
 |---|:-:|:-:|:-:|
-| **CA × C2HGI** (B3 north_star) | 🔴 pending | n/a | — |
-| **CA × HGI** (counterfactual) | n/a | 🔴 pending | 🔴 paired test pending |
-| **TX × C2HGI** (B3 north_star) | 🔴 pending | n/a | — |
-| **TX × HGI** (counterfactual) | n/a | 🔴 pending | 🔴 paired test pending |
+| AL | 🔴 | 🔴 | 🔴 |
+| AZ | 🔴 | 🔴 | 🔴 |
+| FL | 🔴 | 🔴 | 🔴 |
+| CA | 🔴 | 🔴 | 🔴 |
+| TX | 🔴 | 🔴 | 🔴 |
 
-### Reference rows (already closed in Phase 1 / Phase 2)
+### MTL B3 cross-attn (5 states × 2 engines = 10 cells)
 
-| State | C2HGI cat F1 | HGI cat F1 | C2HGI reg Acc@10 | HGI reg Acc@10 |
-|---|---:|---:|---:|---:|
-| AL | 42.71 ± 1.37 | 25.96 ± 1.61 | 59.60 ± 4.09 | 29.95 ± 1.89 |
-| AZ | 45.81 ± 1.30 | 28.70 ± 0.51 | 53.82 ± 3.11 | 22.10 ± 1.63 |
-| FL | (1f reference, ~67%) | 34.74 ± 0.76 | — | 58.27 ± 3.37 |
-| **CA** | **pending** | **pending** | **pending** | **pending** |
-| **TX** | **pending** | **pending** | **pending** | **pending** |
+| State | C2HGI | HGI | Combined paired (cat F1 + reg Acc@10) |
+|---|:-:|:-:|:-:|
+| AL | 🔴 | 🔴 | 🔴 |
+| AZ | 🔴 | 🔴 | 🔴 |
+| FL | 🔴 | 🔴 | 🔴 |
+| CA | 🔴 | 🔴 | 🔴 |
+| TX | 🔴 | 🔴 | 🔴 |
+
+### Reference rows (Phase 2 leaky data — preserved as historical, NOT to be overwritten)
+
+Phase 2 reg STL + MTL data lives at `phase1_perfold/<STATE>_<engine>_{reg_gethard,mtl_{cat,reg}}_5f50ep.json` (no `_pf` suffix). Phase 3 outputs land alongside with `_pf` suffix.
 
 ---
 
-## 1 · Acceptance criteria (when does Phase 3 close?)
+## 1 · Acceptance criteria
 
-Per state, both MTL B3 cells (C2HGI substrate + HGI counterfactual) must land all 5 folds. Then aggregate paired tests:
+Per state, both reg STL cells (C2HGI + HGI) and both MTL cells (C2HGI + HGI) must land all 5 folds with per-fold transitions. Then aggregate paired tests:
 
-- **CH18 cross-state confirmation** — MTL+C2HGI > MTL+HGI on cat F1 at p < 0.05 AND on reg Acc@10_indist at p < 0.05, **per state**.
-- Pass acceptance: ≥ 2 of {AL, AZ, FL, CA, TX} significant. AL+AZ+FL already pass; CA+TX would push to **5/5 states** for the paper's strongest CH18 claim.
+- **CH18 leakage-free cross-state confirmation** — MTL+C2HGI > MTL+HGI on cat F1 at p<0.05 AND on reg Acc@10_indist at p<0.05, **per state**, at ≥ 2 of {AL, AZ, FL, CA, TX}.
+- **CH15 reframing leakage-free** — TOST δ=2pp non-inferiority on reg STL Acc@10 + MRR per state at ≥ 4 of 5 states.
+- **Comparison with leaky Phase 2 data** — quantify the absolute Acc@10/MRR shift from removing the F44 leakage; expected to be small (< ~2 pp) and substrate-symmetric (Δ̄ unchanged).
 
-When CA + TX both close: paper's MTL substrate-specificity table fills with full cross-state data; finalize `PAPER_DRAFT.md` MTL section.
+When CA + TX both close: paper's CH18 + CH15 reframing tables fill with leakage-free numbers across all 5 states; Phase 2 leaky tables become the "F44-leaky reference" appendix.
 
 ---
 
 ## 2 · GPU requirements + parallel strategy
 
-### Why T4 (15 GB) was not enough
+### Per-cell VRAM (canonical hparams, T4-measured + A100-extrapolated)
 
-CA's reg head has 8497 regions, TX's has 6553. The `next_getnext_hard` head computes `stan_logits + α·transition_prior` where:
-- `transition_prior` is `[num_regions, num_regions]` float32 = **274 MB for CA, 164 MB for TX**
-- `stan_logits` is `[batch, num_regions]` float32 = **66 MB at bs=2048 for CA**
-- Backprop intermediates roughly double the activation footprint
-
-Combined with the cross-attn MTLnet body + AdamW optimizer state + STAN attention buffers, the working set hits ~14.4 GB on T4. We OOM'd at bs={2048, 1024, 512} all reaching ~14.3 GB peak.
-
-### Recommended GPU
-
-**A100 (40 GB)** — 25 GB headroom over the T4 ceiling. Canonical bs=2048 fits with ~10-12 GB margin. ~3× faster than T4. ~$1.10-1.30/hr on Lightning.
-
-A100 (80 GB) and H100 (80 GB) both work but are over-provisioned for this workload (memory-bandwidth bound, not compute-bound). H100's tensor-core advantage doesn't translate proportionally here. **A100 40 GB is the cost-effective sweet spot.**
-
-### Parallel execution + cell packing
-
-The 4 cells are independent — no shared state, no shared dataloaders.
-
-**Per-cell VRAM (canonical hparams, measured on T4 + estimated for A100):**
-
-| Cell type | VRAM @ bs=2048 | Cells per 40 GB A100 | Cells per 80 GB A100 |
+| Cell type | VRAM (~bs=2048) | Cells per 40 GB A100 | Cells per 80 GB A100 |
 |---|---|---|---|
-| MTL B3 cross-attn | ~22-25 GB | **1 (safe)** / 2 (tight, ~35 GB) | 3 (comfortable) |
-| Cat STL `next_gru` (Phase 2 only — done) | ~6 GB | 5-6 | 11-12 |
-| Reg STL `next_getnext_hard` (Phase 2 only — done) | ~10 GB | 3-4 | 7-8 |
+| Reg STL `next_getnext_hard` | ~10 GB | **2-3 in parallel** | 6-7 |
+| MTL B3 cross-attn | ~22-25 GB | **1 (safe)** | 3 (comfortable) |
 
-For Phase 3 (MTL only):
+T4 (15 GB) is **not enough** — proven during Phase 2 closure attempt (CA MTL OOM at bs={2048,1024,512}).
 
-| Layout | Wall-clock | Total cost (rough) | Setup |
-|---|---|---|---|
-| 1× A100 40 GB sequential | ~3-5 h | ~$5 | minimal |
-| **1 pod × 4 A100 (40 GB) — 1 cell/GPU** ⭐ | **~50 min** | **~$5-6** | minimal |
-| 1 pod × 2 A100 (40 GB) — 2 waves | ~2 h | ~$5 | minimal |
-| 1 pod × 1 A100 (80 GB) — pack 2 cells/GPU, 2 waves | ~1.5 h | ~$3-4 | minimal |
-| 1 pod × 2 A100 (80 GB) — pack 2 cells/GPU, 1 wave | ~50 min | ~$3-4 | minimal |
+### Parallel layout — wall-clock estimates
 
-**Recommended: `1 pod × 4 A100 (40 GB)` if available** — same total compute cost as sequential, ~4-5× faster wall-clock, single bootstrap. The orchestrator `scripts/run_phase3_mtl_parallel.sh` auto-detects GPU count and dispatches accordingly.
+20 GPU cells (10 reg STL + 10 MTL) on 4× A100 40 GB:
 
-If only 1-2 GPUs available, the orchestrator falls back gracefully (2-wave on 2 GPUs, or sequential on 1).
+| Layout | Reg STL phase | MTL phase | **Total wall-clock** | Cost (~$1.20/A100·hr) |
+|---|---|---|---|---|
+| 1× A100 40 GB sequential | ~225 min | ~350 min | **~9.5 h** | ~$11 |
+| 2× A100 40 GB | ~110 min (3 waves) | ~175 min (5 waves) | ~4.7 h | ~$11 |
+| **4× A100 40 GB** ⭐ | **~50 min (2 waves)** | **~110 min (3 waves)** | **~2.7 h** | **~$13** |
+| 4× A100 80 GB (pack reg 2/GPU, MTL 2/GPU) | ~25 min | ~90 min | ~2.0 h | ~$18 |
 
-**Cell packing on 80 GB A100:** 2 MTL cells per GPU is feasible but the 4-cell parallel layout on 4× 40 GB is cleaner (no risk of cross-process contention on the same CUDA stream). Only consider packing if 80 GB hardware is what's available.
+**Recommended: 4× A100 (40 GB).** Best speed-vs-cost. Orchestrator `scripts/run_phase3_parallel.sh` auto-detects GPU count and dispatches accordingly.
+
+### Smart scheduling option
+
+Run reg STL on GPUs 0+1 simultaneously with MTL on GPUs 2+3. Bottleneck becomes MTL (~110 min) since reg STL finishes early. Net: ~2 h end-to-end on 4× A100. Implementation TBD (current orchestrator does step 2 → step 3 sequentially, which is simpler and only ~50 min slower).
 
 ---
 
 ## 3 · Pre-flight checklist
 
-Before launching, confirm in the new pod:
+Before launching, in the new pod:
 
 ```bash
-# Repo
+# 1. Repo on the right branch
 cd /teamspace/studios/this_studio
 git clone https://github.com/VitorHugoOli/PoiMtlNet.git
 cd PoiMtlNet
 git checkout worktree-check2hgi-mtl
 
-# GPU + driver
-nvidia-smi  # expect 4× A100 with ≥40 GB each, CUDA 12.x
+# 2. GPU
+nvidia-smi   # expect ≥1× A100 with ≥40 GB
 
-# Deps (see scripts/setup_lightning_pod.sh — automates this)
-bash scripts/setup_lightning_pod.sh
+# 3. Bootstrap (deps + gdown all 5 states)
+#    Default downloads CA+TX. For full Scope D, also pass AL/AZ/FL gdrive IDs:
+STATES="alabama arizona florida california texas" \
+  AL_C2HGI_GDID=<id> AL_HGI_GDID=<id> \
+  AZ_C2HGI_GDID=<id> AZ_HGI_GDID=<id> \
+  FL_C2HGI_GDID=<id> FL_HGI_GDID=<id> \
+  bash scripts/setup_lightning_pod.sh
 ```
 
-After bootstrap, verify upstream data is on disk (the bootstrap downloads it via gdown):
+Bootstrap is idempotent — re-running skips already-installed deps and already-downloaded data.
 
-```bash
-for state in california texas; do
-  for engine in check2hgi hgi; do
-    ls output/$engine/$state/embeddings.parquet \
-       output/$engine/$state/region_embeddings.parquet \
-       output/$engine/$state/input/next.parquet \
-       output/$engine/$state/input/next_region.parquet \
-       2>/dev/null && echo "  ✓ $engine/$state" || echo "  ✗ $engine/$state INCOMPLETE"
-  done
-  ls output/check2hgi/$state/region_transition_log.pt 2>/dev/null \
-     && echo "  ✓ transition $state" || echo "  ✗ transition $state MISSING"
-done
-```
-
-Need 5 files per (engine, state) = 8 cells, plus 2 transition matrices. ~12 GB total on disk.
+After bootstrap, the script verifies all 10 upstream parquets + 5 transition matrices are on disk and prints the next-step CLI.
 
 ---
 
 ## 4 · Launch templates
 
-### 4.1 · Parallel (4× A100 in one pod)
+### 4.1 · Step 1 — per-fold transitions (CPU, ~5 min per state)
 
 ```bash
-bash scripts/run_phase3_mtl_parallel.sh
-# Launches 4 cells, one per GPU, via CUDA_VISIBLE_DEVICES.
-# Logs land in logs/phase3/MTL_B3_{CALIFORNIA,TEXAS}_{check2hgi,hgi}_5f50ep.log
+bash scripts/build_phase3_per_fold_transitions.sh
+# Or just a subset:
+STATES="california texas" bash scripts/build_phase3_per_fold_transitions.sh
 ```
 
-### 4.2 · Sequential (1× A100)
+Builds `output/check2hgi/<state>/region_transition_log_fold{1..5}.pt` from `StratifiedGroupKFold(seed=42)` train-only edges. Idempotent.
+
+### 4.2 · Step 2 — parallel grid (auto-dispatch)
 
 ```bash
-bash scripts/run_phase3_mtl_grid.sh
-# Runs CA c2hgi → CA hgi → TX c2hgi → TX hgi sequentially.
-# ~5-6 h wall-clock total on a single A100.
+nohup bash scripts/run_phase3_parallel.sh > logs/phase3/orchestrator.log 2>&1 &
+echo $! > logs/phase3/orchestrator.pid
 ```
 
-### 4.3 · Single-cell (manual, e.g. for testing)
+Auto-detects GPU count:
+- ≥2 GPUs: dispatches reg STL waves first, then MTL waves
+- 1 GPU: falls back to `scripts/run_phase3_grid.sh` (sequential)
+
+### 4.3 · Step 2 alternative — sequential grid (1 GPU)
 
 ```bash
-bash scripts/run_phase3_mtl_cell.sh california check2hgi 0
-#                                     ^state       ^engine    ^GPU id (CUDA_VISIBLE_DEVICES)
+nohup bash scripts/run_phase3_grid.sh > logs/phase3/orchestrator.log 2>&1 &
 ```
 
-All scripts use canonical `bs=2048` (override via `MTL_BATCH_SIZE` env var if needed).
+Runs all 20 cells sequentially: reg STL (10) then MTL (10). ~9-10 h on A100.
 
----
-
-## 5 · Post-run extraction + paired tests
+### 4.4 · Step 3 — finalize
 
 ```bash
 python3 scripts/finalize_phase3.py
 ```
 
-Extracts per-fold metrics from `results/<engine>/<state>/mtlnet_*/folds/foldN_info.json`, writes to:
+Extracts per-fold metrics, runs paired tests with `_pf` suffix (preserves leaky Phase 2 data), prints cross-state CH15 + CH18 status board.
 
-- `docs/studies/check2hgi/results/phase1_perfold/{CA,TX}_{check2hgi,hgi}_mtl_{cat,reg}.json`
+### 4.5 · Single-cell (manual, e.g. for testing)
 
-Then runs paired tests:
+```bash
+# scripts/run_phase3_reg_stl_cell.sh STATE ENGINE GPU_ID
+bash scripts/run_phase3_reg_stl_cell.sh california check2hgi 0
 
-- `docs/studies/check2hgi/results/paired_tests/{california,texas}_mtl_{cat_f1,reg_acc10,reg_mrr}.json`
+# scripts/run_phase3_mtl_cell.sh STATE ENGINE GPU_ID
+bash scripts/run_phase3_mtl_cell.sh california check2hgi 0
+```
 
-Acceptance criteria evaluation:
-- Per state: cat F1 paired Wilcoxon p < 0.05 AND reg Acc@10 paired Wilcoxon p < 0.05.
+---
+
+## 5 · Output naming convention
+
+Phase 3 outputs use a **`_pf` suffix** to clearly distinguish from leaky Phase 2 data. Both coexist in the repo so reviewers can compare:
+
+| Leaky Phase 2 | Leakage-free Phase 3 |
+|---|---|
+| `phase1_perfold/<STATE>_<engine>_reg_gethard_5f50ep.json` | `phase1_perfold/<STATE>_<engine>_reg_gethard_pf_5f50ep.json` |
+| `phase1_perfold/<STATE>_<engine>_mtl_cat.json` | `phase1_perfold/<STATE>_<engine>_mtl_cat_pf.json` |
+| `phase1_perfold/<STATE>_<engine>_mtl_reg.json` | `phase1_perfold/<STATE>_<engine>_mtl_reg_pf.json` |
+| `paired_tests/<state>_reg_acc10.json` | `paired_tests/<state>_reg_acc10_pf.json` |
+| `paired_tests/<state>_mtl_cat_f1.json` | `paired_tests/<state>_mtl_cat_f1_pf.json` |
+| `P1/region_head_<state>_*_STL_<STATE>_<engine>_reg_gethard_5f50ep.json` | `P1/region_head_<state>_*_STL_<STATE>_<engine>_reg_gethard_pf_5f50ep.json` |
+
+Run dir names also include `_pf` in the tag (e.g. `STL_TEXAS_check2hgi_reg_gethard_pf_5f50ep` and `MTL_B3_TEXAS_check2hgi_pf_5f50ep`).
 
 ---
 
 ## 6 · Don't
 
+- **Don't change canonical hparams** (lr=1e-4, bs=2048, NashMTL static_weight α_cat=0.75, model=mtlnet_crossattn, cat_head=next_gru, reg_head=next_getnext_hard with d_model=256 num_heads=8, 5-fold StratifiedGroupKFold(userids, seed=42), 50 epochs). Same as Phase 2 — only the transition matrix changes.
+- **Don't overwrite Phase 2 leaky data.** Use `_pf` suffix; both must coexist.
+- **Don't run on T4** — proven OOM at any batch size for CA-scale MTL.
 - **Don't push to `main`.** Stay on `worktree-check2hgi-mtl`.
-- **Don't change canonical hparams** (lr=1e-4, bs=2048, NashMTL static_weight cat=0.75, d_model=256, num_heads=8). These are pinned by `NORTH_STAR.md` and Phase 2 evidence — different settings would invalidate cross-state CH18 comparison.
-- **Don't run on T4 again** — proven insufficient. Even bs=512 OOMs at CA scale.
-- **Don't skip the gdown step** — the upstream `output/` data is gitignored, must be re-downloaded into each fresh pod.
+- **Don't re-run cat STL or probe** — they don't use a transition matrix and are already leakage-free per the F44 audit.
 
-## 7 · Cross-references
+## 7 · Drive backup after closure
 
-- [`PHASE2_TRACKER.md`](PHASE2_TRACKER.md) — Phase 2 state + STL closure summary.
-- [`research/SUBSTRATE_COMPARISON_FINDINGS.md`](research/SUBSTRATE_COMPARISON_FINDINGS.md) — Phase 2 cross-state CH16/CH15 verdicts; Phase 3 will append the CH18 closure.
-- [`PHASE3_LIGHTNING_HANDOFF.md`](PHASE3_LIGHTNING_HANDOFF.md) — concrete pod-setup step-by-step for the next agent.
+After Phase 3 completes, bundle gitignored artefacts (run dirs + logs) for Drive:
+
+```bash
+BUNDLE=/teamspace/studios/this_studio/phase3_drive_bundle_$(date +%Y-%m-%d)
+mkdir -p $BUNDLE/{results,logs,output_per_fold_transitions}
+# Run dirs
+cp -r results/{check2hgi,hgi}/{alabama,arizona,florida,california,texas}/{mtlnet_*_pf*,$(echo {alabama,arizona,florida,california,texas} | xargs -n1 -I{} echo "next_*")} $BUNDLE/results/ 2>/dev/null
+# Logs
+cp -r logs/phase3 $BUNDLE/logs/
+# Per-fold transition matrices (gitignored under output/)
+for state in alabama arizona florida california texas; do
+    [ -f "output/check2hgi/$state/region_transition_log_fold1.pt" ] || continue
+    mkdir -p $BUNDLE/output_per_fold_transitions/$state
+    cp output/check2hgi/$state/region_transition_log_fold*.pt $BUNDLE/output_per_fold_transitions/$state/
+done
+cd /teamspace/studios/this_studio
+tar czf phase3_drive_bundle_$(date +%Y-%m-%d).tar.gz $(basename $BUNDLE)/
+```
+
+Then upload that single tarball to Drive `mestrado_data/PoiMtlNet/phase3_archives/`.
+
+Per-fold and paired-test JSONs are git-tracked (no Drive needed):
+```bash
+git add docs/studies/check2hgi/results/{phase1_perfold/*_pf*,paired_tests/*_pf.json,P1/*_pf*} \
+        docs/studies/check2hgi/{PHASE3_TRACKER.md,research/SUBSTRATE_COMPARISON_FINDINGS.md}
+git commit -m "study(check2hgi): Phase 3 Scope D — leakage-free reg STL + MTL CH18 closed"
+git push origin worktree-check2hgi-mtl
+```
+
+## 8 · Cross-references
+
+- [`PHASE2_TRACKER.md`](PHASE2_TRACKER.md) — Phase 2 STL closure (cat + probe, leakage-free already).
+- [`research/SUBSTRATE_COMPARISON_FINDINGS.md`](research/SUBSTRATE_COMPARISON_FINDINGS.md) — Phase 2 cross-state CH16/CH15 verdicts; Phase 3 will append the leakage-free CH15+CH18 closure section.
+- [`PHASE3_LIGHTNING_HANDOFF.md`](PHASE3_LIGHTNING_HANDOFF.md) — concrete pod-setup step-by-step.
 - [`NORTH_STAR.md`](NORTH_STAR.md) — pinned MTL B3 hparams (do NOT change).
+- F44 in `FOLLOWUPS_TRACKER.md` — the audit finding this phase resolves.

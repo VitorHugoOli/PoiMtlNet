@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Phase 3 Scope D — single MTL B3 cell with leakage-free per-fold transitions.
+# Phase 3 Scope D — single reg STL cell with leakage-free per-fold transitions.
 # Pins the cell to a specific GPU via CUDA_VISIBLE_DEVICES.
 #
 # Usage:
-#   bash scripts/run_phase3_mtl_cell.sh STATE ENGINE GPU_ID
+#   bash scripts/run_phase3_reg_stl_cell.sh STATE ENGINE GPU_ID
 #
 # Example:
-#   bash scripts/run_phase3_mtl_cell.sh california check2hgi 0
-#   bash scripts/run_phase3_mtl_cell.sh texas      hgi       3
+#   bash scripts/run_phase3_reg_stl_cell.sh california check2hgi 0
+#   bash scripts/run_phase3_reg_stl_cell.sh texas      hgi       3
 set -u
 cd "$(dirname "$0")/.."
 
@@ -28,13 +28,9 @@ export OUTPUT_DIR=$(pwd)/output
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 export CUDA_VISIBLE_DEVICES="$GPU_ID"
 
-# Canonical batch size. Override via MTL_BATCH_SIZE env var if needed.
-MTL_BS="${MTL_BATCH_SIZE:-2048}"
-
-# Per-fold transition dir — built by build_phase3_per_fold_transitions.sh.
-# The c2hgi-side dir holds the matrices; both MTL+c2hgi and MTL+hgi runs use
-# the same matrices because the user-disjoint fold splits + raw checkin
-# trajectories are engine-independent.
+# Per-fold transition dir (built by build_phase3_per_fold_transitions.sh).
+# Same file lives under check2hgi/<state>/ regardless of engine — both engines
+# share the same userid-based fold split and same raw transition trajectories.
 PER_FOLD_DIR="${OUTPUT_DIR}/check2hgi/${STATE}"
 
 # Verify per-fold matrices exist
@@ -48,28 +44,25 @@ for fold in 1 2 3 4 5; do
 done
 
 UPSTATE=$(echo "$STATE" | tr '[:lower:]' '[:upper:]')
-TAG="MTL_B3_${UPSTATE}_${ENGINE}_pf_5f50ep"
+TAG="STL_${UPSTATE}_${ENGINE}_reg_gethard_pf_5f50ep"
 LOG="logs/phase3/${TAG}.log"
 mkdir -p logs/phase3
 
 echo "================================================================"
 echo "[${TAG}] start $(date)"
-echo "  STATE=$STATE  ENGINE=$ENGINE  GPU_ID=$GPU_ID  bs=$MTL_BS"
+echo "  STATE=$STATE  ENGINE=$ENGINE  GPU_ID=$GPU_ID"
 echo "  per-fold-transition-dir=${PER_FOLD_DIR}"
 echo "  log=$LOG"
 echo "================================================================"
 
-python3 -u scripts/train.py \
-    --task mtl --state "$STATE" --engine "$ENGINE" \
-    --task-set check2hgi_next_region \
-    --model mtlnet_crossattn \
-    --mtl-loss static_weight --category-weight 0.75 \
-    --reg-head next_getnext_hard --cat-head next_gru \
-    --reg-head-param d_model=256 --reg-head-param num_heads=8 \
-    --reg-head-param "transition_path=${PER_FOLD_DIR}/region_transition_log.pt" \
+python3 -u scripts/p1_region_head_ablation.py \
+    --state "$STATE" --heads next_getnext_hard \
+    --folds 5 --epochs 50 --seed 42 --input-type region \
+    --region-emb-source "$ENGINE" \
+    --override-hparams d_model=256 num_heads=8 \
+        "transition_path=${PER_FOLD_DIR}/region_transition_log.pt" \
     --per-fold-transition-dir "${PER_FOLD_DIR}" \
-    --batch-size "$MTL_BS" \
-    --folds 5 --epochs 50 --seed 42 --no-checkpoints \
+    --tag "$TAG" \
     > "$LOG" 2>&1
 rc=$?
 
