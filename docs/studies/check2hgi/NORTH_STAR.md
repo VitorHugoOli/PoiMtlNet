@@ -60,7 +60,7 @@ Best epochs across folds: **{20, 19, 20, 19, 19}** — P4+OneCycle hits its peak
 
 See `research/F50_T3_TRAINING_DYNAMICS_DIAGNOSTICS.md §6.3-§6.4` and `research/F50_T3_HYPERPARAM_BRAINSTORM.md` for full Tier-A run log.
 
-**Open: P4 + Cosine variant** (run `_1653`) is in flight at extraction time — isolates "decay-from-peak" vs OneCycle's warmup ramp. Decision pending the run's completion.
+**Closed: P4 + Cosine variant** (run `_1653`, 2026-04-29 17:11) — beats P4-alone by +0.58 pp at ≥ep10 (5/5 positive, mean 76.07 ± 0.62) but **loses to P4+OneCycle by −1.45 pp uniformly** (0/5 positive). This pins the mechanism: OneCycle's warmup ramp is what places peak LR at ep ~20, where α growth needs it; cosine's decay-from-peak gives the early boost away too soon. The warmup is **mechanistically necessary**, not an arbitrary scheduler shape choice.
 
 ---
 

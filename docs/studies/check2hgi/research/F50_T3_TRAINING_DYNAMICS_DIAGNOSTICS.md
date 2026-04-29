@@ -240,7 +240,19 @@ A5's greedy headline 80.67 is the GETNext prior at init (best_ep=1) and collapse
 
 A2 cosine peaks at ep 3 across all folds (77.83 — slightly above H3-alt) but **catastrophically collapses to 67.59 ± 8.99 at ≥ep10** with high inter-fold variance (some folds hit run-time forgetting). Cosine alone is *brittle*; not a viable ingredient.
 
-**Bonus candidate in flight:** `P4 + Cosine` (run `_1653`, fold 1 ep 45/50 at extraction time) — isolates "decay-from-peak" vs OneCycle's "warmup ramp". If P4+Cosine ≥ 77.52 with paired Wilcoxon p=0.0312, the warmup ramp wasn't the cause and we'd ship the cosine variant. If <77.52, the warmup is mechanistically necessary.
+**Bonus candidate landed:** `P4 + Cosine` (run `_1653`, completed 17:11) — **OneCycle's warmup ramp is mechanistically necessary**:
+
+| selector | P4 alone | P4 + Cosine | P4 + OneCycle ⭐ |
+|---|---:|---:|---:|
+| ≥ep5 | 78.55 | 78.68 | 77.52 |
+| **≥ep10** | 75.48 | 76.07 | **77.52** |
+
+Per-fold @ ≥ep10:
+- P4+Cosine: `[75.88, 75.10, 76.18, 76.60, 76.59]` mean 76.07, best_eps `[10,10,10,10,11]`
+- vs P4-alone: deltas `[+0.99, +0.53, +0.16, +0.24, +1.00]` (5/5 positive, mean +0.58 — passes ≥75.48 floor but minimal lift)
+- vs P4+OneCycle: deltas `[−1.45, −1.61, −1.44, −1.32, −1.45]` (0/5 positive, mean −1.45 — OneCycle decisively wins at long window)
+
+**Mechanism interpretation:** Cosine peaks at ep 4-6 (decay from max), giving P4 an early boost that fades by ep 10. OneCycle's pct_start=0.4 places peak LR at ep 20 — the warmup ramp builds up to α-growth-friendly LR exactly when reg most needs it. The warmup is what shifts the late-window strength from cosine's collapse to OneCycle's sustain. **P4 + OneCycle remains the committed champion**; cosine is a weaker alternative that beats P4-alone but loses to P4+OneCycle by 1.45 pp uniformly across folds.
 
 ---
 
