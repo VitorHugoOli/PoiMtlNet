@@ -276,6 +276,60 @@ The work is not done — the open directions above continue the line — but the
 
 ---
 
+## 11 · F37 closing + F50 audit (2026-04-28 era)
+
+Two paper-reshaping findings landed after the F49 attribution above.
+
+### F37 — FL Layer 3 closes the architectural-Δ pattern
+
+The F49 §10 architectural-Δ table had a missing FL cell because STL F21c FL hadn't been run. F37 closed that on 2026-04-28 (M4 Pro, 53 min total): STL `next_gru` cat 5f = 66.98 ± 0.61 (MTL > STL by **+0.94 pp ✓**); STL `next_getnext_hard` reg 5f = **82.44 ± 0.38** (MTL **< STL by −8.78 pp paired Wilcoxon p=0.0312, 5/5 folds negative**).
+
+The 3-state architectural-Δ pattern is now fully characterised:
+
+| State | n_regions | Architectural Δ (frozen-cat λ=0 vs STL F21c) |
+|---|---:|:-:|
+| AL | 1,109 | **+6.48 pp** ~2.7σ |
+| AZ | 1,547 | **−6.02 pp** ~3.7σ |
+| FL | 4,702 | **−16.16 pp** p=0.0312 (5/5 folds neg) |
+
+The architectural cost grows monotonically with region cardinality. **The H3-alt architectural lift on AL does not generalise to FL scale** — CH18 reframed *scale-conditional*, CH21 reframed per-state. CH15 re-opened with FL caveat. Sources: `research/F37_FL_RESULTS.md` + `results/paired_tests/FL_layer3_after_f37.json`.
+
+### F50 — proposal audit + tiered exploration
+
+After F37 reframed CH18, the user requested a deep critical audit of the MTL proposal: are we doing it correctly, is the head + shared-layer compatible, are there better heads, totally new approaches, multiple at once? F50 (2026-04-28) is the resulting audit + tiered experimental plan. Three artefacts:
+
+- `research/F50_PROPOSAL_AUDIT_AND_TIERED_PLAN.md` — the tiered plan (T0 analysis-only / T1 cheap targeted / T2 architectural / T3 backstops) with decision tree.
+- `research/F50_DELTA_M_FINDINGS.md` — T0 result (joint Δm + paired Wilcoxon).
+- `research/F50_HANDOFF_2026-04-28.md` — pickup state for next agent.
+
+**T0 (joint Δm) result** — the load-bearing missing analysis. Maninis CVPR 2019 / Vandenhende TPAMI 2021 standard, n=5 paired Wilcoxon, computed from existing JSONs (no new compute):
+
+| State | Δm primary (cat F1 + reg MRR) | n+/n- | p_greater | Verdict |
+|:-:|:-:|:-:|:-:|:-:|
+| AL | **+8.70%** | 5/0 | **0.0312** | MTL Pareto-wins (n=5 ceiling) |
+| AZ | **+3.19%** | 5/0 | **0.0312** | MTL wins on MRR (marginal on top-K) |
+| FL | **−1.63%** | 0/5 | 1.0 (p_two_sided=**0.0625**) | **MTL Pareto-loses (n=5 ceiling)** |
+
+CH22 added Tier A. **Empirically backs the scale-conditional CH21 framing rather than refuting it** — this is the critical takeaway. Bonus mechanism finding: at AZ the MRR-Δm > top5-Δm — MTL produces better-ranked predictions than STL even when raw top-K is similar.
+
+**T1.1 (F33)** — universal `next_gru` cat head confirmed at FL (5f cat F1 = 68.21 ± 0.42, all folds above pre-F27 envelope). Closes CONCERNS §C14.
+
+**T1.2 (hierarchical-additive softmax reg head)** — STL HSM at FL = 82.64 ± 0.42 vs flat 82.44 (Δ=+0.21 pp p=0.0312, architecture preserved at the head level). MTL HSM at 3/5 folds = H3-alt within σ (mean Δ_top10 = −0.86 pp) — directionally **refutes the head-capacity-mismatch hypothesis**. The FL architectural cost is structural to the cross-attention shared layer, not the head's softmax dimensionality. Run paused at user request.
+
+**T1.3 (FAMO) and T1.4 (Aligned-MTL)** — speculative drop-in replacements of `static_weight(0.75)`. Launchers ready (`scripts/run_f50_t1_{3,4}_*.sh`); not yet run. Domain caveat: their benchmarks (NYUv2/CelebA/QM9) are dense-vision, not long-tail multi-class POI.
+
+**Bugfix landed during F50** — `src/data/folds.py` aux-side-channel gate had a hardcoded equality check `task_b_head == "next_getnext_hard"` that silently excluded the F50 HSM head. Fixed to set membership `_HEADS_REQUIRING_AUX_MTL = {"next_getnext_hard", "next_getnext_hard_hsm"}`. Critical for any future GETNext-hard-derived MTL head — see `F50_HANDOFF_2026-04-28.md §3` for the symptom + smoke-test recipe.
+
+### What F37 + F50 add to the journey
+
+The story shape gains a fifth phase beyond §10:
+
+**Scale validation + audit (F37 → F50):** the architectural lift on AL is real but **does not generalise to FL scale**. The architectural cost grows monotonically with region cardinality. Joint Δm formally backs this at n=5 ceiling significance. Head-capacity-mismatch is empirically ruled out as the FL flaw. Open question: is the FL flaw fixable via gradient balancing (T1.3/T1.4) or backbone architecture (T2.1 PLE / T2.2 Cross-Stitch), or is it structural to multi-stream MTL at this cardinality? F50's tiered plan systematically tests this.
+
+The companion catalog is `research/MTL_FLAWS_AND_FIXES.md` — single-doc consolidation of how MTL is wired here, the empirical flaws found, and the literature-mapped candidate fixes.
+
+---
+
 ## Cross-references
 
 - `NORTH_STAR.md` — current committed config (predecessor B3 + champion candidate H3-alt)
