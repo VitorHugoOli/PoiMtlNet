@@ -6,6 +6,7 @@
 #   bash scripts/runpod_fetch_data.sh florida
 #   bash scripts/runpod_fetch_data.sh california
 #   bash scripts/runpod_fetch_data.sh texas
+#   bash scripts/runpod_fetch_data.sh georgia    # small state for hyperparam / smoke tests
 #
 # Layout (after fetch):
 #   output/check2hgi/<state>/embeddings.parquet
@@ -19,7 +20,7 @@ set -euo pipefail
 
 STATE="${1:-}"
 if [[ -z "$STATE" ]]; then
-    echo "Usage: $0 <florida|california|texas>"
+    echo "Usage: $0 <florida|california|texas|georgia>"
     exit 1
 fi
 STATE="${STATE,,}"   # lowercase
@@ -28,8 +29,9 @@ case "$STATE" in
     florida)    FOLDER_ID="1_4RxYvteg1rvN2WRB2AywKctQ1_t-ZhI" ;;
     california) FOLDER_ID="1ZLL8FHPeO7I-3DEfVBogW1C1eFE76ttv" ;;
     texas)      FOLDER_ID="1bLfFDEOM1BJ2ELoQUnd_qMXFpxGsZ7UF" ;;
+    georgia)    FOLDER_ID="1v5xiJRzIQfMT8yk-J11sax5uf7Mct5vo" ;;  # small state — for fast smoke / hyperparam tests
     *)
-        echo "Unknown state '$STATE'. Valid: florida | california | texas"
+        echo "Unknown state '$STATE'. Valid: florida | california | texas | georgia"
         exit 1
         ;;
 esac

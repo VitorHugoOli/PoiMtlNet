@@ -8,6 +8,10 @@
 # DOMAIN-GAP CAVEAT (same as T1.3): Aligned-MTL's reported wins are on
 # NYUv2/CityScapes/Pascal-Context dense vision benchmarks. Domain transfer
 # to long-tail multi-class POI is speculative.
+#
+# Batch size:
+#   - CUDA (default 2048): matches NORTH_STAR.md / H3-alt champion.
+#   - MPS (M4 Pro): `BATCH_SIZE=1024 bash scripts/run_f50_t1_4_aligned_mtl_fl.sh`.
 
 set -u
 WORKTREE="${WORKTREE:-$(pwd)}"
@@ -39,7 +43,7 @@ run() {
         --reg-head-param "transition_path=${OUTPUT_DIR}/check2hgi/${state}/region_transition_log.pt" \
         --task-a-input-type checkin --task-b-input-type region \
         --folds 5 --epochs 50 --seed 42 \
-        --batch-size 1024 \
+        --batch-size "${BATCH_SIZE:-2048}" \
         --scheduler constant \
         --cat-lr "${cat_lr}" --reg-lr "${reg_lr}" --shared-lr "${shared_lr}" \
         --gradient-accumulation-steps 1 \

@@ -12,6 +12,10 @@
 #
 # Config matches H3-alt verbatim except --reg-head next_getnext_hard_hsm
 # and --reg-head-param hierarchy_path=...
+#
+# Batch size:
+#   - CUDA (default 2048): matches NORTH_STAR.md / H3-alt champion.
+#   - MPS (M4 Pro): `BATCH_SIZE=1024 bash scripts/run_f50_t1_2_mtl_hsm_fl.sh`.
 
 set -u
 WORKTREE="${WORKTREE:-$(pwd)}"
@@ -45,7 +49,7 @@ run() {
         --reg-head-param "hierarchy_path=${OUTPUT_DIR}/check2hgi/${state}/region_hierarchy.pt" \
         --task-a-input-type checkin --task-b-input-type region \
         --folds 5 --epochs 50 --seed 42 \
-        --batch-size 1024 \
+        --batch-size "${BATCH_SIZE:-2048}" \
         --scheduler constant \
         --cat-lr "${cat_lr}" --reg-lr "${reg_lr}" --shared-lr "${shared_lr}" \
         --gradient-accumulation-steps 1 \

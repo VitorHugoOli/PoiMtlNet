@@ -309,6 +309,8 @@ The NORTH_STAR currently reflects **Path A** (`next_gru` universally) pending F3
 
 **Status:** `re-opened 2026-04-28 with FL caveat — scale-conditional`. Paper-grade resolution: report per-state results without papering over the FL flip; reframe CH21 accordingly. **Mitigation = honest characterisation, not retraction.**
 
+**2026-04-29 update:** F50 Tier 1 closed all three drop-in alternatives (T1.2 HSM head; T1.3 FAMO; T1.4 Aligned-MTL) — **none reaches +3 pp acceptance against the substrate-matched CUDA H3-alt baseline** (paired Wilcoxon p_greater ∈ {0.2188, 0.3125, 0.8438}). CH22b sub-claim added. The FL architectural cost is **robust to head + balancer changes**, strengthening the scale-conditional reading. Tier 1.5 (cross-attn mechanism probes) and Tier 2 (PLE / Cross-Stitch) further test the structural-incompatibility reading. See `research/F50_T1_RESULTS_SYNTHESIS.md`.
+
 ---
 
 ## C16 — CH15 reframed as head-coupled, not retracted (Phase-1, RESOLVED 2026-04-27)

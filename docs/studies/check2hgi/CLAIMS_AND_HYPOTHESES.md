@@ -478,6 +478,29 @@ n=5 minimum achievable p is 0.0312 (one-sided) / 0.0625 (two-sided). All three s
 **Phase:** F50.
 **Status:** `confirmed (Tier A) 2026-04-28`. Backs CH21 with formal joint metric.
 
+### CH22b — FL architectural cost is robust to head + balancer changes (Tier A sub-claim, 2026-04-29)
+
+**Statement:** The negative-Δm at FL (CH22) is *not* an artefact of the H3-alt recipe; it survives three independent classes of architectural / optimisation drop-in alternatives at paper-grade n=5 paired Wilcoxon.
+
+**Why this sub-claim exists:** without ruling out cheap drop-in alternatives (head capacity, magnitude balancing, direction alignment), CH22's "scale-conditional" reading could be argued to reflect a tunable parameter we haven't tuned. F50 Tier 1 closes that loop.
+
+**Result (F50 Tier 1, 2026-04-29; per-task-best reg `top10_acc_indist` paired vs CUDA H3-alt 73.61 ± 0.83):**
+
+| Test | Class of fix | mean Δreg | W+ (n=5) | Wilcoxon p_greater | Verdict |
+|---|---|:-:|:-:|:-:|:-:|
+| **T1.2-MTL HSM** | Head capacity (hierarchical-additive softmax) | **−3.01 pp** ± 9.95 | 10 | 0.3125 | ❌ FAIL +3 pp |
+| **T1.3 FAMO** | Magnitude balancing (NeurIPS 2023) | **+0.62 pp** ± 1.50 | 11 | 0.2188 | ❌ FAIL +3 pp |
+| **T1.4 Aligned-MTL** | Direction alignment (CVPR 2023) | **−0.11 pp** ± 0.62 | 4 | 0.8438 | ❌ FAIL +3 pp |
+
+**No alternative reaches paired Wilcoxon significance at any conventional threshold.** Cross-substrate validation: cat F1 + reg `top10_acc_indist` per-task-best transfer between MPS bs=1024 (published) and CUDA bs=1024/2048 within 0.5σ, so verdicts are substrate-robust. Reg MRR is bs-confounded (MPS within 0.42σ of CUDA bs=1024) — not a substrate effect.
+
+**Implication for paper framing:** CH22 + CH22b together make the strongest scale-conditional claim. The paper can defensibly state: *"we ruled out FAMO (NeurIPS 2023), Aligned-MTL (CVPR 2023), and hierarchical-softmax-on-the-reg-head as drop-in alternatives that recover FL Δm; the architectural cost at large region cardinality is robust to head and balancer changes."* Tier 1.5 (cross-attn mechanism probes) and Tier 2 (PLE / Cross-Stitch backbone) further test the structural-incompatibility reading.
+
+**Source:** `research/F50_T1_RESULTS_SYNTHESIS.md` + run dirs `results/check2hgi/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260429_{0019,0045,0128,0153}/`.
+**Test:** F50 Tier 1 — DONE 2026-04-29 on RTX 4090.
+**Phase:** F50.
+**Status:** `confirmed (Tier A sub-claim of CH22) 2026-04-29`. Strengthens CH22.
+
 ---
 
 ## Tier C — Input-modality mechanism

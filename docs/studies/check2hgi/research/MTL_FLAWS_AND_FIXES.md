@@ -159,28 +159,31 @@ Cat-side advantage is uniform across states (Δ_cat F1 in [+0.7%, +7.0%] across 
 
 At AZ, PRIMARY (MRR-based) Δm is significantly positive (+3.19%, p=0.0312); SECONDARY (top5-based) is null (−0.38%, p=0.500). MTL produces **better-ranked predictions** than STL even when raw top-K is similar. Mechanism distinction worth a paragraph in `paper/results.md`.
 
-### 2.7 Hierarchical inductive bias on the reg head doesn't help (F50 T1.2 partial)
+### 2.7 Hierarchical inductive bias on the reg head doesn't help (F50 T1.2 — full n=5)
 
-T1.2 implemented an additive hierarchical bias (`parent_logit + child_logit + α·log_T`) on the reg head. STL HSM matched flat STL at FL (+0.21 pp p=0.0312) — architecture preserved at the head level. **MTL HSM at folds 1-3 = H3-alt within σ** (mean Δ_top10 = −0.86 pp). The head-capacity-mismatch hypothesis is directionally refuted at n=3.
+T1.2 implemented an additive hierarchical bias (`parent_logit + child_logit + α·log_T`) on the reg head. STL HSM matched flat STL at FL (+0.21 pp p=0.0312) — architecture preserved at the head level. **MTL HSM at full n=5 (CUDA 2026-04-29):** reg top10_acc_indist = 70.60 ± 10.78 vs CUDA H3-alt 73.61 ± 0.83 → **Δ = −3.01 pp** (paired W+=10, p_greater=0.3125; even dropping the fold-2 collapse outlier the mean ≈ +1.66 pp, still below +3 pp acceptance). **Confirms n=3 directional refutation at paper grade.**
 
-This **rules out an entire class of head-side fixes** — the FL architectural cost is structural to the cross-attention shared layer, not the head's softmax dimensionality.
+This **rules out an entire class of head-side fixes** — the FL architectural cost is structural to the cross-attention shared layer, not the head's softmax dimensionality. See `research/F50_T1_RESULTS_SYNTHESIS.md` §1-§2.
 
 ---
 
 ## 3 · Hypothesis space for "what fixes FL"
 
-The remaining hypothesis space, after T1.2's null result rules out head-capacity:
+The remaining hypothesis space, after T1.2 + H1 closure (2026-04-29):
 
 | # | Hypothesis | Test | Cost | Status |
 |---|---|---|---|---|
-| H1 | **Loss-side balancing** — newer gradient surgery (FAMO 2023, Aligned-MTL 2023) handles negative-transfer better than `static_weight(0.75)`. | T1.3 / T1.4 launchers ready | ~3.5h MPS each | **NOT STARTED** (next-up) |
-| H2 | **Backbone-side decoupling** — explicit task-specific experts (PLE/CGC) prevent cat encoder from being conscripted as reg-helper. | T2.1 PLE; codebase has `mtlnet_dselectk` (PLE-adjacent) but never tested at FL with H3-alt-style per-head LR | ~25h | gated on H1 outcome |
-| H3 | **Forced-vs-learned sharing** — Cross-Stitch / MTI-Net let the model learn how much to share per layer. | T2.2 Cross-Stitch | ~15h | gated on H1 outcome |
-| H4 | **Reg ceiling itself** — maybe `next_getnext_hard` isn't the right reg head and a stronger STL (e.g. ROTAN KDD 2024) shifts the ceiling. | T2.3 ROTAN STL | ~20h | gated on H1 outcome |
+| H1 | **Loss-side balancing** — newer gradient surgery (FAMO 2023, Aligned-MTL 2023) handles negative-transfer better than `static_weight(0.75)`. | T1.3 FAMO + T1.4 Aligned-MTL | ~19 min each on RTX 4090 | ✅ **CLOSED — FAIL** (2026-04-29). FAMO Δreg = +0.62 pp (W+=11, p=0.2188); Aligned-MTL Δreg = −0.11 pp (W+=4, p=0.8438). Neither reaches +3 pp acceptance or paired Wilcoxon significance. See `F50_T1_RESULTS_SYNTHESIS.md`. |
+| **H1.5** | **Cross-attn mechanism probes** — direct ablations of the `MTLnetCrossAttn` mechanism that F49 Layer 2 attributed: P1 `--no-cross-attn` (bypass cross-attn blocks), P2 `--detach-crossattn-kv` (no cat↔reg gradient leakage), P3 `--freeze-cat-encoder-after-epoch N` (prevent continued co-adaptation), P4 `--separate-optimizers` (per-task AdamW, no shared group). | 4 × FL 5f×50ep | ~80 min train + ~6h dev total | 🔵 **IN FLIGHT** (Stage 1.5, 2026-04-29). Cheap minimal-edit probes BEFORE committing dev time to PLE / Cross-Stitch. |
+| H2 | **Backbone-side decoupling** — explicit task-specific experts (PLE/CGC) prevent cat encoder from being conscripted as reg-helper. | T2.1 PLE; codebase has `mtlnet_dselectk` (PLE-adjacent) but never tested at FL with H3-alt-style per-head LR | ~20h dev + ~30 min train (4090) | 🔵 **IN PROGRESS** (Stage 2 dev, parallel to H1.5 runs). Gated on H1.5 verdict for go/no-go on full 5f×50ep run. |
+| H3 | **Forced-vs-learned sharing** — Cross-Stitch / MTI-Net let the model learn how much to share per layer. | T2.2 Cross-Stitch | ~10-12h dev + ~30 min train (4090) | 🔵 **IN PROGRESS** (Stage 2 dev, parallel to H1.5 runs). |
+| H4 | **Reg ceiling itself** — maybe `next_getnext_hard` isn't the right reg head and a stronger STL (e.g. ROTAN KDD 2024) shifts the ceiling. | T2.3 ROTAN STL | ~20h dev + ~5h train | DEFERRED — orthogonal to MTL question; out of current scope. |
 | H5 | **Long-tail prototypes** — Bi-Level GSL-style cluster prototypes for the 4.7K-class softmax. | T3.1 | ~30h | last-resort |
 | H6 | **Distillation** — STL teachers → MTL student. Captures STL ceiling but provides single-model deployment. | T3.2 | ~30h | last-resort |
 
-If H1+H2+H3+H4 all fail, the conclusion is: **"the FL architectural cost is robust to head + balancer + backbone changes; cross-attention MTL is fundamentally cardinality-limited at this scale."** This is paper-grade ammunition for the scale-conditional CH21 framing — the alternative space has been ruled out empirically.
+**Note on H1.5 (new tier between H1 and H2):** F49 Layer 2 *attributed* the silent gradient flow through `cross_ba`'s K/V projections; nothing has been *done* about it under full-MTL conditions. The four probes are minimal-edit ablations that test the F49 mechanism directly. Each probe gives a falsifiable verdict in ~19 min train. If P1 (no-cross-attn) ≈ H3-alt at FL, the cross-attn shared layer is null/hurting and PLE is overkill. If P2 (detach-K/V) recovers FL Δm, the leakage is the FL flaw and we have a paper-headline minimal-edit fix. If P3 (cat-freeze post-warmup) recovers FL, "warm-then-freeze" is the recipe. If P4 differs from H3-alt's per-head LR, optimizer-level decoupling matters.
+
+If H1+H1.5+H2+H3 all fail, the conclusion is: **"the FL architectural cost is robust to head + balancer + cross-attn-mechanism + backbone changes; cross-attention MTL is fundamentally cardinality-limited at this scale."** This is paper-grade ammunition for the scale-conditional CH21 framing.
 
 ---
 
@@ -256,14 +259,16 @@ If a Tier 1 alternative changes the FL champion, P3 must re-run under the new co
 
 These are the genuinely unanswered questions the F50 audit surfaced:
 
-1. **Does FAMO recover FL?** Speculative; T1.3 will tell.
-2. **Does Aligned-MTL recover FL?** Speculative; T1.4 will tell.
-3. **If gradient-balancing fails, does PLE recover FL?** Backbone-side test.
-4. **Is the architectural cost monotonicity 4-state or just 3-state?** CA+TX P3 extends to 5 points.
-5. **What's the joint-deployment "deployment Δm"** (joint-best epoch for MTL) vs the per-task-best "potential Δm" reported in T0? Could differ by ~0.3-0.5 pp on means.
-6. **Does ROTAN beat GETNext-hard at single-task?** Tests whether reg ceiling itself is higher than 82.44 at FL.
-7. **What is the cross-attention K/V mechanism doing differently at FL vs AL?** No clean ablation yet — possible future Tier 2 study.
+1. ~~**Does FAMO recover FL?**~~ ✅ **NO** — T1.3 closed 2026-04-29 (Δreg = +0.62 pp, fails +3 pp acceptance).
+2. ~~**Does Aligned-MTL recover FL?**~~ ✅ **NO** — T1.4 closed 2026-04-29 (Δreg = −0.11 pp).
+3. **If gradient-balancing fails, does PLE recover FL?** Backbone-side test — Stage 2 dev in flight.
+4. **Is the architectural cost monotonicity 4-state or just 3-state?** CA+TX P3 extends to 5 points (handled on Colab; out of current pod scope).
+5. **What's the joint-deployment "deployment Δm"** (joint-best epoch for MTL) vs the per-task-best "potential Δm" reported in T0? Could differ by ~0.3-0.5 pp on means. Note: joint-best on CUDA shows σ ≈ 12 pp (substrate-fragile under fp16-autocast — `RUNPOD_GUIDE` §9).
+6. **Does ROTAN beat GETNext-hard at single-task?** Tests whether reg ceiling itself is higher than 82.44 at FL. **DEFERRED** — orthogonal to MTL question.
+7. ~~**What is the cross-attention K/V mechanism doing differently at FL vs AL?**~~ 🔵 **IN FLIGHT** — H1.5 probes (P1-P4) directly test this 2026-04-29.
 8. **Does the AZ MRR-vs-top-K asymmetry replicate at AL?** Bonus mechanism finding worth investigating.
+9. **(NEW) Does removing F49 Layer 2 leakage recover FL Δm?** P2 `--detach-crossattn-kv` test — see H1.5.
+10. **(NEW) Is the cross-attn shared layer load-bearing at FL or null?** P1 `--no-cross-attn` test — see H1.5.
 
 ---
 

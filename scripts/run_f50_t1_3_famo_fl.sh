@@ -12,8 +12,14 @@
 # — none are long-tail multi-class with 4.7K-class softmax. Treat T1.3
 # outcome as exploratory.
 #
-# All other config matches H3-alt (per-head LR, batch=1024 for FL,
-# scheduler=constant, 50 epochs, seed=42, 5 folds).
+# All other config matches H3-alt (per-head LR, scheduler=constant,
+# 50 epochs, seed=42, 5 folds).
+#
+# Batch size:
+#   - CUDA (default 2048): matches NORTH_STAR.md / H3-alt champion. ~19 min
+#     per 5f×50ep on RTX 4090 (RunPod). The original 1024 here was an
+#     MPS-only carryover from F48-FL legacy; same fix as run_f48_h3alt_fl.sh.
+#   - MPS (M4 Pro): `BATCH_SIZE=1024 bash scripts/run_f50_t1_3_famo_fl.sh`.
 
 set -u
 WORKTREE="${WORKTREE:-$(pwd)}"
@@ -45,7 +51,7 @@ run() {
         --reg-head-param "transition_path=${OUTPUT_DIR}/check2hgi/${state}/region_transition_log.pt" \
         --task-a-input-type checkin --task-b-input-type region \
         --folds 5 --epochs 50 --seed 42 \
-        --batch-size 1024 \
+        --batch-size "${BATCH_SIZE:-2048}" \
         --scheduler constant \
         --cat-lr "${cat_lr}" --reg-lr "${reg_lr}" --shared-lr "${shared_lr}" \
         --gradient-accumulation-steps 1 \
