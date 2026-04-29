@@ -49,6 +49,7 @@ class ScheduledStaticWeightLoss(EqualWeightLoss):
         cat_weight_end: float = 0.25,
         total_epochs: int = 50,
         warmup_epochs: int = 0,
+        mode: str = "linear",
     ):
         if n_tasks != 2:
             raise ValueError(
@@ -65,11 +66,16 @@ class ScheduledStaticWeightLoss(EqualWeightLoss):
                 f"warmup_epochs must be in [0, total_epochs), "
                 f"got warmup={warmup_epochs}, total={total_epochs}"
             )
+        if mode not in ("linear", "step"):
+            raise ValueError(
+                f"mode must be 'linear' or 'step', got {mode!r}"
+            )
         super().__init__(n_tasks=n_tasks, device=device)
         self.cat_weight_start = float(cat_weight_start)
         self.cat_weight_end = float(cat_weight_end)
         self.total_epochs = int(total_epochs)
         self.warmup_epochs = int(warmup_epochs)
+        self.mode = mode
         self._current_epoch = 0
 
     def set_epoch(self, epoch: int) -> None:
@@ -80,6 +86,15 @@ class ScheduledStaticWeightLoss(EqualWeightLoss):
         e = self._current_epoch
         if e < self.warmup_epochs:
             return self.cat_weight_start
+        # F50 B3 (F62) — step mode: hard transition at warmup_epochs.
+        # ``cat_weight_start`` runs through the entire warmup window,
+        # then jumps to ``cat_weight_end`` for the rest of training.
+        # Combined with ``cat_weight_start=0.0``, this is the canonical
+        # two-phase recipe: phase 1 = reg-only training (cat ignored
+        # via zero loss weight; encoder still receives gradient via the
+        # shared backbone), phase 2 = joint MTL fine-tune.
+        if self.mode == "step":
+            return self.cat_weight_end
         denom = max(1, self.total_epochs - 1 - self.warmup_epochs)
         frac = min(max((e - self.warmup_epochs) / denom, 0.0), 1.0)
         return self.cat_weight_start + frac * (self.cat_weight_end - self.cat_weight_start)
