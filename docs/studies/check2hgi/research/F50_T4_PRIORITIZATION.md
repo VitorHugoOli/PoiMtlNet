@@ -26,10 +26,10 @@
 
 | # | task | type | effort | status | when | parallel? |
 |---|---|---|---|---|---|---|
-| **#62** P0-A | C4 verification: FL champion with `--per-fold-transition-dir` | GPU | 25 min | **🟡 in flight** (tmux p0a, fold 2 ep 22) | NOW | yes (CPU-side: B9/B2 dev can run alongside) |
-| **#63** P0-B | Cross-state validation: P4+Cosine at AL (1109 regions) | GPU | 19 min | **⏸ blocked** — AL Drive folder ID not in fetch script | needs user IDs | sequential on GPU |
-| **#64** P0-C | Cross-state validation: P4+Cosine at AZ | GPU | 19 min | **⏸ blocked** — AZ Drive folder ID not in fetch script | needs user IDs | sequential on GPU |
-| (substitute) | Cross-state validation: P4+Cosine at **Georgia** (2283 regions) | GPU | 19 min | pending | after #62 (in queue script) | sequential on GPU |
+| **#62** P0-A | C4 verification: FL champion with `--per-fold-transition-dir` | GPU | 25 min | **🟡 in flight** (tmux p0a) | NOW | — |
+| **#63** P0-B | Cross-state validation: P4+Cosine at AL (1109 regions) | GPU | 19 min | **🟢 unblocked** — AL data + per-fold log_T ready | after #62 (in queue) | sequential on GPU |
+| **#64** P0-C | Cross-state validation: P4+Cosine at AZ (1547 regions) | GPU | 19 min | **🟢 unblocked** — AZ data + per-fold log_T ready | after #63 (in queue) | sequential on GPU |
+| (bonus) | Cross-state validation: P4+Cosine at Georgia (2283 regions) | GPU | 19 min | pending | after #62 (in queue) | sequential on GPU |
 
 **Why P0:**
 - **#62 C4 verification** — every `next_getnext_hard*` number in the study (ALL P4 variants, H3-alt, A1-A6) carries 0.5-2 pp val→train leakage in the GETNext graph prior. If actual Δ > σ when we re-run with per-fold log_T, we need a footnote on every figure.
@@ -148,4 +148,5 @@ After P0+P1 lands:
 | 2026-04-29 17:59 | B9 (#65) implemented + 6/6 helpers tests pass — committed `60107eb` |
 | 2026-04-29 18:00 | GA data fetched (539 MB); per-fold log_T built (5 × ~5 MB) |
 | 2026-04-29 18:00 | Queue script `scripts/run_p1_b9_b10_ga_fl.sh` written — runs B9 → B10 → GA-cross after P0-A |
-| 2026-04-29 18:00 | **AL/AZ Drive folder IDs not in fetch script** — substituting GA (2283 regions) as cross-state portability test (different scale than FL 4703). User can supply AL/AZ IDs separately for true 1109-region replication. |
+| 2026-04-29 18:00 | AL/AZ Drive folder IDs not in fetch script — GA initially substituted |
+| 2026-04-29 18:05 | **User supplied AL+AZ Drive folder IDs.** Added to `runpod_fetch_data.sh`; both fetched in parallel with P0-A run (AL 202 MB, AZ 309 MB). Per-fold log_T built (AL 1109 regions, AZ 1547 regions, FL 4703 regions, GA 2283 regions — full cardinality sweep). Queue script now chains B9 → B10 → GA → AL → AZ. |

@@ -30,8 +30,10 @@ case "$STATE" in
     california) FOLDER_ID="1ZLL8FHPeO7I-3DEfVBogW1C1eFE76ttv" ;;
     texas)      FOLDER_ID="1bLfFDEOM1BJ2ELoQUnd_qMXFpxGsZ7UF" ;;
     georgia)    FOLDER_ID="1v5xiJRzIQfMT8yk-J11sax5uf7Mct5vo" ;;  # small state — for fast smoke / hyperparam tests
+    alabama)    FOLDER_ID="1xz9fJ3qbr0Msjt53Vdbnlg-hk16g2uj8" ;;  # F50 T4 cross-state validation (1109 regions)
+    arizona)    FOLDER_ID="1L0kYmiH-K9l8wIy8Gyye0A-i5-8nu-DX" ;;  # F50 T4 cross-state validation
     *)
-        echo "Unknown state '$STATE'. Valid: florida | california | texas | georgia"
+        echo "Unknown state '$STATE'. Valid: florida | california | texas | georgia | alabama | arizona"
         exit 1
         ;;
 esac
