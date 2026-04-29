@@ -28,11 +28,11 @@
   - Tests: 3 new in `tests/test_tracking/test_ml_history.py` pin the contract; 162 tracking+training + 36 integration tests pass.
 - **Forward semantics**: future MTL runs on CHECK2HGI_NEXT_REGION will track Acc@1-best for `next_region`. Past runs reported top10 at F1-best; future runs report top10 at Acc@1-best. **Not directly comparable.** Use the `per_metric_best` dict in `diagnostic_best_epochs[task]` (added 2026-04-29) for cross-run comparison on a fixed metric.
 
-### C3 — Cross-fold callback state leak
-- **File**: `src/training/callbacks.py:96-208`, `src/training/runners/mtl_cv.py:905-930`
+### C3 — Cross-fold callback state leak  ✅ FIXED 2026-04-29
+- **File**: `src/training/callbacks.py:96-208`, `src/training/runners/mtl_cv.py:272`
 - **Mechanism**: `EarlyStopping.stop_training` and `ModelCheckpoint.best` persist across folds (no `on_train_begin` reset). If EarlyStopping fires in fold 1, folds 2-5 stop at ep 1 immediately.
 - **Impact**: silently destroys folds 2-5 if EarlyStopping is used. **Currently DORMANT** in our runs (EarlyStopping not used; `--no-checkpoints` set) but landmine for future.
-- **Fix**: implement `on_train_begin` resets in both callbacks.
+- **Fix landed**: `EarlyStopping.on_train_begin` resets `stop_training/wait/best/best_epoch`; `ModelCheckpoint.on_train_begin` resets `self.best`. Runners already invoke `cb.on_train_begin` per fold (`mtl_cv.py:272`). Tests: 2 new in `test_callbacks.py`; 24/24 pass.
 
 ### C4 ⭐ — `α · log_T` graph prior built from FULL dataset → val→train leakage
 - **File**: `scripts/compute_region_transition.py:61-117`, consumed in all `next_getnext_hard*` heads
@@ -47,11 +47,11 @@
 - **Impact**: `region.f1` reported as ~3× higher than canonical sklearn macro-F1. Cross-state region.f1 comparisons (FL=4702 vs AL=1109) inconsistent within the high-card branch (n_present scales with dataset).
 - **Fix**: pick one convention. Recommendation: divide by num_classes (matches torchmetrics).
 
-### C6 — σ convention mismatch (sample n-1 vs population n)
+### C6 — σ convention mismatch (sample n-1 vs population n)  ✅ FIXED 2026-04-29
 - **File**: `src/tracking/storage.py:138` (`statistics.stdev`, n-1) vs `scripts/p1_region_head_ablation.py:560,621` (`np.std`, n)
 - **Mechanism**: MTL aggregates use sample std (n-1). STL ablation uses population std (n). Ratio for n=5: √(5/4) ≈ 1.118 → STL stds ~12% smaller.
 - **Impact**: any "within 1σ" or "MTL ± σ overlaps STL ± σ" claim is biased. AZ/AL paired-test narrative slightly wrong.
-- **Fix**: pick one (sample / ddof=1 standard for n=5 reporting).
+- **Fix landed**: both p1_region_head_ablation.py call sites now use `np.std(vals, ddof=1)` to match MTL-side `statistics.stdev`. n=1 edge case returns 0.0 (np.std with ddof=1 returns NaN). Future P1 STL aggregates will be ~12% larger than past reports — STL/MTL paired comparisons should use newly aggregated runs.
 
 ### C7 — Three "best" definitions in same `full_summary.json`
 - **File**: `src/tracking/storage.py:143-201, 447-532`

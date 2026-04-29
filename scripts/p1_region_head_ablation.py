@@ -557,7 +557,11 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
                 for key in ["accuracy", "top5_acc", "top10_acc", "mrr", "f1"]:
                     vals = [m.get(key, 0.0) for m in fold_metrics]
                     agg[f"{key}_mean"] = float(np.mean(vals))
-                    agg[f"{key}_std"] = float(np.std(vals))
+                    # AUDIT-C6: ddof=1 (sample std) matches MTL-side
+                    # ``statistics.stdev`` so cross-pipeline σ comparisons
+                    # use the same convention. For n=5 this is ~12% larger
+                    # than population std (np.std default).
+                    agg[f"{key}_std"] = float(np.std(vals, ddof=1)) if len(vals) > 1 else 0.0
                 results[head_name] = {**head_state, "per_fold": fold_metrics, "aggregate": agg}
             continue
         if completed > 0:
@@ -618,7 +622,8 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
         for key in ["accuracy", "top5_acc", "top10_acc", "mrr", "f1"]:
             vals = [m.get(key, 0.0) for m in fold_metrics]
             agg[f"{key}_mean"] = float(np.mean(vals))
-            agg[f"{key}_std"] = float(np.std(vals))
+            # AUDIT-C6: ddof=1 to match MTL-side ``statistics.stdev``
+            agg[f"{key}_std"] = float(np.std(vals, ddof=1)) if len(vals) > 1 else 0.0
 
         results[head_name] = {
             "per_fold": fold_metrics,
