@@ -159,6 +159,35 @@ Cat-side advantage is uniform across states (Δ_cat F1 in [+0.7%, +7.0%] across 
 
 At AZ, PRIMARY (MRR-based) Δm is significantly positive (+3.19%, p=0.0312); SECONDARY (top5-based) is null (−0.38%, p=0.500). MTL produces **better-ranked predictions** than STL even when raw top-K is similar. Mechanism distinction worth a paragraph in `paper/results.md`.
 
+### 2.10 SELECTOR ARTIFACT — F1-best ≠ top10-best by ~1-4 pp (F50 T3 — 2026-04-29)
+
+⭐ **Methodological finding** that affects every MTL F-experiment.
+
+The trainer's per-task-best selector (`mtl_cv.py` BestTracker) picks the best **F1** epoch and reports **all other metrics** (top10, MRR, top5, accuracy) at THAT epoch. F1-best epoch ≠ metric-best epoch on MTL FL runs:
+
+| config | F1-best epoch | top10-best epoch (any) | reported top10 (F1-sel) | corrected top10 (top10-sel) | Δ |
+|---|:-:|:-:|---:|---:|---:|
+| H3-alt CUDA REF | {7,5,6,6,5} | {3} (mostly) | 73.61 | 77.16 | **+3.56** |
+| **P4 alt-SGD** | **{12,12,12,10,13}** | **{6,5,6,6,5}** | 74.57 | 78.55 | **+3.98** |
+| All others | similar pattern | similar pattern | ~73.5 | ~77 | ~+3.5 uniformly |
+
+**Why this matters:** every MTL F-experiment (F37 MTL side, F49 architectural Δ, all of F50 Tier-1/T1.5/T2/T3) reported metrics under the F1-selector. The F1-selector was correct for what it tracked (F1) but other metrics were reported at the WRONG epoch.
+
+**Quantitative impact**:
+- The "8.83 pp FL gap to STL" framing → corrected gap is **~5.3 pp** (82.44 STL − 77.16 corrected MTL ceiling)
+- The Tier-1/2 verdicts mostly hold (P4 still passes +3 pp; HSM still fails). But narrative details shift:
+  - PLE's "directional positive +1.11" was selector artifact → corrected: +0.25 (essentially tied)
+  - Cross-Stitch detach's "fold-4 catastrophic collapse" was selector artifact → corrected: tied with H3-alt
+  - **P4's F1-best epoch is at 10-13** (alt-SGD keeps improving cat F1) **but top10-best at 5-6** — the gap masked P4's true reg performance
+
+**Tool**: `scripts/analysis/posthoc_best_epoch.py` — re-aggregates any run dir with chosen metric + epoch window. Use this for canonical reporting on existing MTL runs until the trainer-side fix lands.
+
+**Code fix pending** (`mtl_cv.py` to track multiple per-task best epochs in `diagnostic_best_epochs`).
+
+Full details: `research/F50_T3_TRAINING_DYNAMICS_DIAGNOSTICS.md` §5.5.
+
+---
+
 ### 2.9 The 8.83 pp FL gap is **TEMPORAL**, not architectural (F50 T3 — 2026-04-29)
 
 ⭐ **Load-bearing finding** — supersedes the cat-encoder-absorption interpretation as the *proximate* mechanism for the FL reg gap (absorption still holds for cat F1 robustness, but is not the FL reg bottleneck).
