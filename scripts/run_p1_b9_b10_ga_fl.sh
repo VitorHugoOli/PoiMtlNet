@@ -100,6 +100,25 @@ if [ -f "${OUTPUT_DIR}/check2hgi/arizona/region_transition_log_fold5.pt" ]; then
         $(champion_flags arizona) --batch-size 2048
 fi
 
+# ---------------------------------------------------------------------------
+# F62 — two-phase via step-schedule (orthogonal mechanism vs P4)
+# ---------------------------------------------------------------------------
+# Tests temporal separation: reg-only for first 25 epochs (cw=0), then
+# joint MTL for last 25 (cw=0.75). Different mechanism from P4 which
+# does per-batch alternating. If F62 wins → mechanism is "reg gets
+# pure training time"; if it ties P4 → either intervention sufficient;
+# if it loses → P4's per-batch granularity is essential.
+# Builds on the champion (cosine + alt-SGD + delayed-min).
+run "f50_f62_two_phase_step_fl" \
+    $(champion_flags florida | grep -v 'mtl-loss\|category-weight') \
+    --batch-size 2048 \
+    --mtl-loss scheduled_static \
+    --mtl-loss-param mode=step \
+    --mtl-loss-param cat_weight_start=0.0 \
+    --mtl-loss-param cat_weight_end=0.75 \
+    --mtl-loss-param warmup_epochs=20 \
+    --mtl-loss-param total_epochs=50
+
 echo ""
 echo "================================================================"
 echo "=== Post-P0A queue COMPLETE $(date) ==="

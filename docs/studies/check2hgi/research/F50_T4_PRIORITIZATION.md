@@ -43,10 +43,11 @@
 
 | # | task | type | effort | expected lift | status | dependencies |
 |---|---|---|---|---|---|---|
-| **#65** P1-A | B9: weight_decay exempt α | code+GPU | 30 min dev + 19 min run | +1-3 pp | pending | independent |
-| **#66** P1-B | B2 (renames F64): warmup-decay LambdaLR on reg_head only | code+GPU | 1h dev + 19 min run | +3-6 pp | pending | independent (stacks on champion) |
-| **#67** P1-C | B10: `--batch-size 1024` (2× α steps per epoch) | GPU CLI | 19 min | +1-3 pp | pending | independent |
+| **#65** P1-A | B9: weight_decay exempt α | code+GPU | 30 min dev + 19 min run | +1-3 pp | ✅ committed `60107eb`, run queued | independent |
+| **#66** P1-B | B2 (was F64): warmup-decay LambdaLR on reg_head only | code+GPU | 1h dev + 19 min run | +3-6 pp | pending | independent |
+| **#67** P1-C | B10: `--batch-size 1024` (2× α steps per epoch) | GPU CLI | 19 min | +1-3 pp | run queued | independent |
 | **#68** P1-D | B4: alpha freeze warmup-then-unfreeze | code+GPU | 1h dev + 19 min run | +2-4 pp | pending | independent |
+| **#71** P1-E | F62 two-phase step-schedule (orthogonal mechanism vs P4) | GPU CLI | 19 min | +0-5 pp | run queued | independent (code shipped `5550789`) |
 
 **Strategy:** B9, B10 are quick CLI/cheap dev — do first. B2 is the highest expected lift but takes 1h dev. B4 has freeze_alpha plumbing already from F50 D1; just needs the epoch-boundary hook.
 
@@ -150,3 +151,4 @@ After P0+P1 lands:
 | 2026-04-29 18:00 | Queue script `scripts/run_p1_b9_b10_ga_fl.sh` written — runs B9 → B10 → GA-cross after P0-A |
 | 2026-04-29 18:00 | AL/AZ Drive folder IDs not in fetch script — GA initially substituted |
 | 2026-04-29 18:05 | **User supplied AL+AZ Drive folder IDs.** Added to `runpod_fetch_data.sh`; both fetched in parallel with P0-A run (AL 202 MB, AZ 309 MB). Per-fold log_T built (AL 1109 regions, AZ 1547 regions, FL 4703 regions, GA 2283 regions — full cardinality sweep). Queue script now chains B9 → B10 → GA → AL → AZ. |
+| 2026-04-29 18:10 | F60-F65 audit: F60/F61/F63 done, F62/F64 actionable. **F62 two-phase added to queue** (#71) — shipped in `5550789` but never run; tests temporal-separation mechanism orthogonal to P4's per-batch alternation. F65 deferred (D8 cw=0 already refutes its load-bearing hypothesis). |
