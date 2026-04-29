@@ -205,6 +205,9 @@ def train_model(model: torch.nn.Module,
                 callbacks: Optional[list] = None,
                 task_set: TaskSet = LEGACY_CATEGORY_NEXT,
                 freeze_cat_after_epoch: Optional[int] = None,
+                alternating_optimizer_step: bool = False,
+                cat_specific_parameters: Optional[list] = None,
+                reg_specific_parameters: Optional[list] = None,
                 ):
     """
     Train the model with multi-task learning.
@@ -388,13 +391,29 @@ def train_model(model: torch.nn.Module,
                     epoch_task_a_grad_norm,
                 ) = _compute_gradient_cosine(losses, shared_parameters)
 
-            loss, extra_outputs, already_backpropagated = _get_weighted_loss(
-                mtl_criterion,
-                losses,
-                shared_parameters=shared_parameters,
-                task_specific_parameters=task_specific_parameters,
-                epoch=epoch_idx,
-            )
+            # F50 P4 — per-batch alternating-SGD. Even batches use L_cat only,
+            # odd batches use L_reg only. Shared params receive one task's
+            # gradient signal per batch (alternating). Inactive task's
+            # task-specific params will have their grads zeroed before
+            # optimizer.step() (see ``should_step`` block below).
+            _alt_inactive_params = None
+            if alternating_optimizer_step:
+                if batch_idx % 2 == 0:
+                    loss = task_a_loss  # cat-only batch
+                    _alt_inactive_params = reg_specific_parameters
+                else:
+                    loss = task_b_loss  # reg-only batch
+                    _alt_inactive_params = cat_specific_parameters
+                extra_outputs: dict = {}
+                already_backpropagated = False
+            else:
+                loss, extra_outputs, already_backpropagated = _get_weighted_loss(
+                    mtl_criterion,
+                    losses,
+                    shared_parameters=shared_parameters,
+                    task_specific_parameters=task_specific_parameters,
+                    epoch=epoch_idx,
+                )
             if already_backpropagated and gradient_accumulation_steps > 1:
                 raise TypeError(
                     f"{mtl_criterion.__class__.__name__} is not compatible with "
@@ -429,6 +448,14 @@ def train_model(model: torch.nn.Module,
                     for p in model.parameters():
                         if p.grad is not None:
                             p.grad.mul_(scale)
+                # F50 P4 — zero gradients of the inactive task's task-specific
+                # params so the optimizer step only updates {active task,
+                # shared}. Shared params keep their gradient from the active
+                # loss; inactive task params do nothing this batch.
+                if _alt_inactive_params is not None:
+                    for p in _alt_inactive_params:
+                        if p.grad is not None:
+                            p.grad.zero_()
                 if max_grad_norm and max_grad_norm > 0:
                     torch.nn.utils.clip_grad_norm_(
                         list(model.parameters()) + _criterion_parameters(mtl_criterion),
@@ -887,6 +914,15 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             callbacks=callbacks,
             task_set=task_set,
             freeze_cat_after_epoch=getattr(config, "freeze_cat_after_epoch", None),
+            alternating_optimizer_step=getattr(config, "alternating_optimizer_step", False),
+            cat_specific_parameters=(
+                list(model.cat_specific_parameters())
+                if hasattr(model, "cat_specific_parameters") else None
+            ),
+            reg_specific_parameters=(
+                list(model.reg_specific_parameters())
+                if hasattr(model, "reg_specific_parameters") else None
+            ),
         )
 
         # Run final validation

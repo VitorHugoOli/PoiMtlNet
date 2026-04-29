@@ -593,6 +593,20 @@ def _parse_args(argv=None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--alternating-optimizer-step",
+        dest="alternating_optimizer_step",
+        action="store_true",
+        default=False,
+        help=(
+            "F50 P4 (per-batch alternating-SGD): even batches update cat-side "
+            "params from L_cat only; odd batches update reg-side params from "
+            "L_reg only. Shared params see one task's gradient signal per "
+            "batch (alternating). Tests 'does fine-grained alternation prevent "
+            "shared backbone hijacking?'. Requires --mtl-loss static_weight "
+            "and --gradient-accumulation-steps 1. See MTL_FLAWS_AND_FIXES.md §3 H1.5."
+        ),
+    )
+    parser.add_argument(
         "--reg-head-param",
         action="append",
         default=[],
@@ -885,6 +899,21 @@ def _apply_cli_overrides(
                 "exclusive (the latter freezes from epoch 0)."
             )
         config = dataclasses.replace(config, freeze_cat_after_epoch=n)
+
+    if getattr(args, "alternating_optimizer_step", False):
+        if config.task_type != "mtl":
+            raise ValueError("--alternating-optimizer-step requires --task mtl")
+        if config.mtl_loss != "static_weight":
+            raise ValueError(
+                "--alternating-optimizer-step requires --mtl-loss static_weight "
+                "(per-batch task selection bypasses the MTL weighter)."
+            )
+        if int(config.gradient_accumulation_steps) != 1:
+            raise ValueError(
+                "--alternating-optimizer-step requires --gradient-accumulation-steps 1 "
+                f"(got {config.gradient_accumulation_steps}); alternation is by batch-idx."
+            )
+        config = dataclasses.replace(config, alternating_optimizer_step=True)
 
     return config
 

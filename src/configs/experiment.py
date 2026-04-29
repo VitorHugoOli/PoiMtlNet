@@ -84,6 +84,14 @@ class ExperimentConfig:
     # `docs/studies/check2hgi/research/MTL_FLAWS_AND_FIXES.md` §3 H1.5.
     freeze_cat_after_epoch: Optional[int] = None
 
+    # F50 P4 — per-batch alternating-SGD. Even batches update cat-side params
+    # from L_cat only; odd batches update reg-side params from L_reg only.
+    # Shared params see only one task's gradient signal per batch (alternating).
+    # Tests "does fine-grained per-task alternation prevent the shared backbone
+    # from being hijacked by either loss?" Requires --mtl-loss static_weight
+    # and --gradient-accumulation-steps 1 (alternation is by batch-idx).
+    alternating_optimizer_step: bool = False
+
     # torch.compile: disabled by default.  On CUDA it uses the inductor
     # backend; MPS compatibility needs separate testing first.
     use_torch_compile: bool = False
