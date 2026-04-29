@@ -66,6 +66,7 @@ class NextHeadGETNextHard(nn.Module):
         bias_init: str = "alibi",
         transition_path: Optional[str] = None,
         alpha_init: float = 0.1,
+        freeze_alpha: bool = False,
     ):
         super().__init__()
         self.stan = NextHeadSTAN(
@@ -77,7 +78,16 @@ class NextHeadGETNextHard(nn.Module):
             dropout=dropout,
             bias_init=bias_init,
         )
-        self.alpha = nn.Parameter(torch.tensor(float(alpha_init)))
+        # F50 D1 — when ``freeze_alpha=True``, register alpha as a buffer
+        # (not a Parameter) so gradient descent cannot move it from its
+        # initial value. Combined with ``alpha_init=0.0``, this disables
+        # the α·log_T graph prior entirely — output = stan_logits alone.
+        # Tests how much of the 82.44 STL ceiling comes from the prior vs
+        # the encoder.
+        if bool(freeze_alpha):
+            self.register_buffer("alpha", torch.tensor(float(alpha_init)))
+        else:
+            self.alpha = nn.Parameter(torch.tensor(float(alpha_init)))
         self._num_classes = int(num_classes)
 
         if transition_path is not None:

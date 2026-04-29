@@ -607,6 +607,21 @@ def _parse_args(argv=None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--reg-encoder-lr",
+        dest="reg_encoder_lr",
+        type=float,
+        default=None,
+        metavar="LR",
+        help=(
+            "F50 D3 (per-encoder LR split): separate LR for next_encoder, "
+            "splitting it out of the reg group. Default reuses --reg-lr. Tests "
+            "mechanism α — the reg encoder is under-trained at FL because "
+            "loss-side cat_weight=0.75 scaling effectively shrinks reg "
+            "gradient by 4x. Suggested: 1e-2 or 3e-2 (10x reg_lr) to "
+            "compensate for the loss-side scaling."
+        ),
+    )
+    parser.add_argument(
         "--reg-head-param",
         action="append",
         default=[],
@@ -914,6 +929,16 @@ def _apply_cli_overrides(
                 f"(got {config.gradient_accumulation_steps}); alternation is by batch-idx."
             )
         config = dataclasses.replace(config, alternating_optimizer_step=True)
+
+    if getattr(args, "reg_encoder_lr", None) is not None:
+        if config.task_type != "mtl":
+            raise ValueError("--reg-encoder-lr requires --task mtl")
+        if not all(getattr(config, k, None) is not None for k in ("cat_lr", "reg_lr", "shared_lr")):
+            raise ValueError(
+                "--reg-encoder-lr requires per-head LR mode "
+                "(--cat-lr, --reg-lr, --shared-lr all set)."
+            )
+        config = dataclasses.replace(config, reg_encoder_lr=float(args.reg_encoder_lr))
 
     return config
 

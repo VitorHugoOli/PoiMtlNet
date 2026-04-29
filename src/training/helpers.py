@@ -104,6 +104,7 @@ def setup_per_head_optimizer(
     weight_decay: float,
     eps: float = 1e-8,
     extra_parameters: Iterable[torch.nn.Parameter] | None = None,
+    reg_encoder_lr: float | None = None,
 ) -> AdamW:
     """Build an AdamW with three param groups (F48-H3 per-head LR).
 
@@ -140,6 +141,24 @@ def setup_per_head_optimizer(
     shared_params = [p for p in model.shared_parameters() if p.requires_grad]
     if extra_parameters is not None:
         reg_params.extend(p for p in extra_parameters if p.requires_grad)
+
+    # F50 D3 — split reg_params into encoder vs head when reg_encoder_lr is
+    # set. Tests mechanism α (reg encoder under-trained because loss-side
+    # cat_weight=0.75 scaling shrinks effective reg gradient by 4x).
+    if reg_encoder_lr is not None and hasattr(model, "next_encoder"):
+        encoder_param_ids = {id(p) for p in model.next_encoder.parameters()}
+        reg_encoder_params = [p for p in reg_params if id(p) in encoder_param_ids]
+        reg_head_params = [p for p in reg_params if id(p) not in encoder_param_ids]
+        return AdamW(
+            [
+                {"name": "cat",         "params": cat_params,         "lr": cat_lr},
+                {"name": "reg_encoder", "params": reg_encoder_params, "lr": reg_encoder_lr},
+                {"name": "reg_head",    "params": reg_head_params,    "lr": reg_lr},
+                {"name": "shared",      "params": shared_params,      "lr": shared_lr},
+            ],
+            weight_decay=weight_decay,
+            eps=eps,
+        )
     return AdamW(
         [
             {"name": "cat",    "params": cat_params,    "lr": cat_lr},

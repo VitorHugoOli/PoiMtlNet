@@ -92,6 +92,13 @@ class ExperimentConfig:
     # and --gradient-accumulation-steps 1 (alternation is by batch-idx).
     alternating_optimizer_step: bool = False
 
+    # F50 D3 — separate LR for next_encoder (split out of reg_lr group). Tests
+    # mechanism α (reg encoder is under-trained because loss-side cat_weight=0.75
+    # scaling shrinks effective reg gradient by 4x). When set, the reg group
+    # splits into reg_encoder (next_encoder params, this LR) + reg_head
+    # (next_poi params, reg_lr). Default None reuses reg_lr for both.
+    reg_encoder_lr: Optional[float] = None
+
     # torch.compile: disabled by default.  On CUDA it uses the inductor
     # backend; MPS compatibility needs separate testing first.
     use_torch_compile: bool = False
