@@ -1,6 +1,15 @@
 # F50 T4 — Prioritization & Execution Tracker
 
-**Status (live, updated 2026-04-29 17:50 UTC):** Champion = P4+Cosine+delayed-min @ ≥ep10 (FL: reg 76.07, cat 68.51, paired Wilcoxon p=0.0312, 5/5 positive on reg, cat preserved within σ). Remaining gap to STL ceiling = 6.37 pp. Eight audit fixes shipped. This file tracks what's left and the order of execution.
+**Status (live, updated 2026-04-29 19:20 UTC):** **Champion changed under C4-correction.**
+
+Previous (leaky log_T): P4+Cosine = 76.07 reg / 68.51 cat. **DEPRECATED — inflated by ~16 pp.**
+
+New (leak-free per-fold log_T):
+- **B9 (P4+Cosine + alpha-no-WD)** = **63.47 ± 0.75 reg / 68.59 ± 0.79 cat** @ ≥ep5
+- Paper-grade Pareto-dominant over P0-A (P4+Cosine without B9): +0.24 pp reg AND +0.08 pp cat, paired Wilcoxon p=0.0312 5/5 positive on BOTH tasks ✅
+- Awaiting H3-alt + per-fold log_T to know whether champion-vs-H3-alt Δ survives
+
+This file tracks what's left and the order of execution.
 
 **Living document — DO NOT close as completed.** Keep updated as tasks land. When all P0+P1 are done, fold the synthesis into `F50_T3_TRAINING_DYNAMICS_DIAGNOSTICS.md §6.5` and archive this file.
 
@@ -149,6 +158,11 @@ After P0+P1 lands:
 | 2026-04-29 17:59 | B9 (#65) implemented + 6/6 helpers tests pass — committed `60107eb` |
 | 2026-04-29 18:00 | GA data fetched (539 MB); per-fold log_T built (5 × ~5 MB) |
 | 2026-04-29 18:00 | Queue script `scripts/run_p1_b9_b10_ga_fl.sh` written — runs B9 → B10 → GA-cross after P0-A |
-| 2026-04-29 18:00 | AL/AZ Drive folder IDs not in fetch script — GA initially substituted |
 | 2026-04-29 18:05 | **User supplied AL+AZ Drive folder IDs.** Added to `runpod_fetch_data.sh`; both fetched in parallel with P0-A run (AL 202 MB, AZ 309 MB). Per-fold log_T built (AL 1109 regions, AZ 1547 regions, FL 4703 regions, GA 2283 regions — full cardinality sweep). Queue script now chains B9 → B10 → GA → AL → AZ. |
-| 2026-04-29 18:10 | F60-F65 audit: F60/F61/F63 done, F62/F64 actionable. **F62 two-phase added to queue** (#71) — shipped in `5550789` but never run; tests temporal-separation mechanism orthogonal to P4's per-batch alternation. F65 deferred (D8 cw=0 already refutes its load-bearing hypothesis). |
+| 2026-04-29 18:10 | F60-F65 audit: F60/F61/F63 done, F62/F64 actionable. **F62 two-phase added to queue** (#71) — but watchdog had already launched the queue at 18:13 (commit 6d394bc), so F62 missed the train. |
+| 2026-04-29 19:12 | **All 6 queue runs completed** (P0-A, B9, B10, GA, AL, AZ). Extracted metrics. |
+| 2026-04-29 19:15 | **🚨 MAJOR: C4 leakage was 15.7 pp, not 0.5-2 pp.** Champion drops 76.07 → 60.36 reg @ ≥ep10 with per-fold log_T. ALL prior `next_getnext_hard*` numbers in the study were inflated by ~16 pp. The +4.63 pp Δ vs H3-alt may still hold (waiting on H3-alt + per-fold log_T re-run); absolute values are paper-shaking. |
+| 2026-04-29 19:15 | **🏆 B9 BEATS champion under leak-free conditions: +0.24 pp Δreg AND +0.08 pp Δcat at ≥ep5, paired Wilcoxon p=0.0312 5/5 positive on BOTH tasks.** First Pareto-dominant 5/5-on-both-tasks result in the study. |
+| 2026-04-29 19:15 | B10 (bs=1024) loses by −2.54 pp Δreg 0/5 — smaller batches don't help under per-fold log_T. |
+| 2026-04-29 19:18 | Cross-state numbers (per-fold log_T): GA 46.57 / AL 49.44 / AZ 40.61 reg @≥ep10. Lower than FL's 60.36 — recipe doesn't transfer cleanly to small states. Best-epoch distribution differs (AL {45,38,44,31,35} suggests instability), needs further investigation. |
+| 2026-04-29 19:20 | **Catch-up queue launched** in tmux `catchup`: H3-alt + per-fold log_T (anchor leak-free baseline, ~19 min) + F62 two-phase (~19 min). Total ~38 min. |
