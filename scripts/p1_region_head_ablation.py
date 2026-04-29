@@ -94,7 +94,15 @@ _HEAD_MAX_LR = {
 # Heads that require ``last_region_idx`` delivered via aux_side_channel.
 # For single-task ablation we wire POIDatasetWithAux + AuxPublishingLoader
 # around train/val DataLoaders when the head is in this set.
-_HEADS_REQUIRING_AUX = {"next_getnext_hard", "next_getnext_hard_hsm"}
+# F50 T4: broader-leakage audit added 3 more heads that consume
+# log_T[last_region] via aux. See `F50_T4_BROADER_LEAKAGE_AUDIT.md`.
+_HEADS_REQUIRING_AUX = {
+    "next_getnext_hard",
+    "next_getnext_hard_hsm",
+    "next_tgstan",
+    "next_stahyper",
+    "next_getnext",
+}
 
 
 def _load_region_embeddings(state: str, source: str = "check2hgi") -> tuple[np.ndarray, int]:
