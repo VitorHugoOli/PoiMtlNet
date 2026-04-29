@@ -223,6 +223,60 @@ Per `PHASE2_TRACKER §0`, T2 (CA full grid) and T3 (TX full grid) are now ready 
 
 ---
 
+## Phase 2 — CA closed 2026-04-29 (6/7; F38d MTL CF OOM-killed)
+
+| Leg | Probe / STL / MTL | C2HGI | HGI | Δ | Paired test |
+|---|---|---:|---:|---:|---|
+| I | linear probe (head-free) | 37.45 ± 0.26 | 21.32 ± 0.14 | **+16.13 pp** F1 | — |
+| II.1 | cat STL `next_gru` matched-head | **59.94 ± 0.52** | 31.13 ± 0.93 | **+28.81 pp** F1 | Wilcoxon p=**0.0312** (5/5 folds positive) |
+| II.2 | reg STL `next_getnext_hard` matched-head | Acc@10 70.63 ± 0.57 | Acc@10 71.29 ± 0.58 | **−0.65 pp** (HGI nominal best) | TOST δ=2pp **non-inferior** (Acc@10 p=0.0000 / MRR p=0.0000) |
+| III | MTL B3 counterfactual (HGI substrate) | n/a | 🔴 OOM-killed (rc=137) at fold prep on T4 | — | deferred — needs higher-RAM instance |
+
+### CH16 confirmed at CA — scale-amplifying pattern saturates between FL and CA
+
+| State | n_rows | Linear probe Δ F1 | Matched-head STL Δ F1 |
+|---|---:|---:|---:|
+| AL (12 K) | 12 K | +12.14 | +15.50 |
+| AZ (26 K) | 26 K | +11.58 | +14.52 |
+| FL (159 K) | 159 K | +15.03 | **+29.02** |
+| **CA (358 K)** | **358 K** | **+16.13** | **+28.81** |
+
+Probe Δ continues growing with scale (AL +12 → CA +16). Matched-head STL Δ saturates around +29 pp from FL (159 K) to CA (358 K) — both at ~2× the AL/AZ effect. The cat-STL substrate gap **plateaus at large scale**, suggesting the head-amplification factor is bounded.
+
+### CH15 reframing replicates at CA — but with sign reversal at large scale
+
+This is the **first state where HGI numerically beats C2HGI on reg** under the matched MTL head (Acc@10 +0.65 pp, MRR +0.22 pp in HGI's favour). However, both gaps pass TOST δ=2pp non-inferiority at maximum significance (p=0.0000), so practically the substrate is interchangeable on reg at CA scale. Pattern across states:
+
+| State | Δ Acc@10 (C2HGI − HGI) | Δ MRR | TOST δ=2pp |
+|---|---:|---:|:-:|
+| AL | +0.85 | +0.42 | non-inferior |
+| AZ | +2.34 | +1.29 | non-inferior |
+| FL | +0.27 | +0.13 | non-inferior |
+| **CA** | **−0.65** | **−0.22** | **non-inferior** |
+
+The "C2HGI ≥ HGI on reg" claim from CH15 reframing weakens at CA: the substrates are statistically equivalent (TOST passes everywhere), but the directional sign is no longer always positive. **Refined CH15 claim**: under the matched MTL reg head, C2HGI and HGI are **substrate-equivalent on reg at large scale** (within ±2 pp Acc@10 across all 4 states). The reg task does not benefit from the per-visit context that drives the cat-task substrate gap.
+
+### CH18 deferred at CA — F38d MTL CF OOM-killed
+
+The MTL counterfactual (HGI substrate) was killed (SIGKILL rc=137) at fold-data prep on Colab T4. Cause: 5 folds × 286 K rows × 9 windows × 64 dims × 4 B (float32) ≈ 4 GB resident in CPU RAM, exceeding Colab's cgroup limit when combined with the live model + GPU memory map. Workarounds queued for camera-ready:
+- Run on Colab Pro (high-RAM 50 GB) or A100 instance
+- Stream folds from disk instead of holding all in memory simultaneously
+- Reduce fold-creation footprint (current: dense in-memory, could be index-only)
+
+CH18 (MTL B3 substrate-specific) is supported by AL+AZ+FL evidence — at all 3 states MTL+HGI fails to gain over STL+HGI on cat (or fails entirely on reg in AL/AZ). CA confirmation deferred to camera-ready follow-up.
+
+### Paired-test outputs
+
+- `results/paired_tests/california_cat_f1.json` — Δ̄=+0.2881, Wilcoxon p_greater=0.0312, paired-t p=0.0000.
+- `results/paired_tests/california_reg_acc10.json` — Δ̄=−0.0065 (HGI numerical lead), Wilcoxon p_greater=1.0 (n.s.), TOST p_lower=0.0000 ⇒ non-inferior.
+- `results/paired_tests/california_reg_mrr.json` — Δ̄=−0.0022, TOST p_lower=0.0000 ⇒ non-inferior.
+
+### TX queued
+
+T3 (TX full grid) is the last Phase-2 state. With 6/7 CA done and T1 FL fully closed, Phase-2 closure depends only on running TX cat-STL × 2 + reg-STL × 2 + MTL CF (skip MTL CF if same OOM pattern repeats on TX's even larger scale). Per PHASE2_TRACKER §5 acceptance: ≥ 2 of {FL, CA, TX} significant on cat already passes (FL p=0.0312, CA p=0.0312); TX adds confirmation but is not strictly required for the cross-state CH16 claim.
+
+---
+
 ## Appendix — data sources index
 
 For every per-fold JSON used in this analysis, the canonical original location (full result dir with checkpoints + classification reports + train/val curves) and reproduction tag.

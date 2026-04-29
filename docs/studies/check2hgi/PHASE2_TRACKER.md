@@ -23,12 +23,14 @@ This tracker is the live work queue for **Phase 2 of `SUBSTRATE_COMPARISON_PLAN.
 
 > **FL headline:** cat substrate Δ = **+29 pp** at FL — almost **2× the AL/AZ effect** (+15.5 / +14.5). Substrate gap on cat **grows monotonically with scale**. Reg gap nearly neutralised at FL scale (TOST non-inf at δ=2pp). MTL+HGI on FL is essentially identical to STL+HGI on cat (Δ_MTL = +0.33 pp), confirming CH18: the B3 MTL configuration only buys a gain on the C2HGI substrate. See `research/SUBSTRATE_COMPARISON_FINDINGS.md §FL` for cross-state synthesis.
 
-### CA (California) — upstream ready on Drive, grid pending
+### CA (California) — 🟢 closed 2026-04-29 (6/7; F38d MTL CF OOM)
 
 | Test | C2HGI | HGI | Combined paired test |
 |---|:-:|:-:|:-:|
-| Upstream pipeline (embeddings + inputs + transition matrix) | ✅ on Drive | ✅ on Drive | — |
-| All Phase-2 tests | 🔴 | 🔴 | 🔴 |
+| Substrate-only linear probe | ✅ 37.45 ± 0.26 | ✅ 21.32 ± 0.14 (Δ=+16.13) | n/a (head-free) |
+| Cat STL matched-head (`next_gru`) | ✅ **59.94 ± 0.52** | ✅ 31.13 ± 0.93 (**Δ=+28.81 pp**) | ✅ Wilcoxon **p=0.0312** (5/5 folds positive) |
+| Reg STL matched-head (`next_getnext_hard`) | ✅ Acc@10 70.63 ± 0.57 | ✅ Acc@10 71.29 ± 0.58 (Δ=-0.65 pp, HGI nominal best) | ✅ TOST δ=2pp **non-inferior** (Acc@10 p=0.0000 / MRR p=0.0000) |
+| MTL B3 counterfactual (HGI substrate) | (no 5f reference) | 🔴 OOM-killed at fold prep (rc=137 on T4 — CA's 5×660 MB tensors exceed cgroup RAM) | 🟡 deferred to higher-RAM instance |
 
 ### TX (Texas) — upstream ready on Drive, grid pending
 
@@ -46,7 +48,7 @@ Three named tasks track Phase-2 closure end-to-end. They are also surfaced in th
 | Task | State | Status | Blocking |
 |---|:-:|:-:|:-:|
 | **T1** Close FL grid: F36c reg HGI fold 5 + F36d MTL counterfactual | FL | 🟢 **closed 2026-04-28** | — |
-| **T2** Run CA Phase-2 grid (7 experiments) | CA | 🔴 pending | — |
+| **T2** Run CA Phase-2 grid (7 experiments) | CA | 🟢 **closed 2026-04-29** (6/7; F38d MTL CF OOM-killed on T4) | — |
 | **T3** Run TX Phase-2 grid (7 experiments) | TX | 🔴 pending | T2 |
 
 After T3 completes, run paired-tests for FL+CA+TX, update SUBSTRATE_COMPARISON_FINDINGS, finalise CH16/CH15/CH18 with cross-state evidence, mark Phase 2 closed.
