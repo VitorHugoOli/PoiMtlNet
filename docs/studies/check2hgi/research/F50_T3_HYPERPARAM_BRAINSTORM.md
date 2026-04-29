@@ -96,9 +96,11 @@ For Tier-B entries that require dev work, we'll smoke-test on FL 1f×25ep before
 | 2026-04-29 14:13 | A1 `onecycle50` | `_1413` | 68.16 ± 0.70 | {15,19,32,15,6} | **−9.00 pp ❌** | 48.21 ± 1.20 | 67.21 ± 0.87 | OneCycle alone hurts; trains-late but worse |
 | 2026-04-29 14:33 | A3 `alpha_init=2.0` | `_1433` | 71.57 ± 0.40 | {3,3,3,3,3} | **−5.59 pp ❌** | 55.93 ± 0.85 | 68.18 ± 0.78 | α-magnitude alone hurts in joint training |
 | 2026-04-29 14:53 | A5 `onecycle+α=2.0` | `_1453` | 75.61 ± 0.47 | {3,3,3,3,3} | **−1.55 pp ⚠** | 58.64 ± 0.60 | 67.95 ± 1.21 | Stacked still loses — confirms training erodes the prior |
-| 2026-04-29 15:15 | A2 `cosine50` | _1515 (running) | TBD | TBD | TBD | TBD | TBD | TBD |
-| (queued) | A6 `cw0.25_onecycle` | — | — | — | — | — | — | — |
-| (queued) | A4 `epochs100_constant` | — | — | — | — | — | — | — |
+| 2026-04-29 15:15 | A2 `cosine50` | `_1515` | 77.83 ± 0.45 (greedy) | {3,3,3,3,3} | +0.67 (greedy) **−9.93** (≥ep10) ❌ | TBD | TBD | greedy beats H3-alt; ≥ep10 collapses to 67.59 ± 8.99 (catastrophic forgetting) |
+| 2026-04-29 15:37 | A6 `cw0.25_onecycle` | `_1537` | 68.64 ± 0.96 | {21,22,18,6,7} | **−8.52 pp ❌** | TBD | TBD | OneCycle DOES shift best_ep later (21-22), but absolute < H3-alt |
+| 2026-04-29 15:56 | A4 `epochs100_constant` | `_1556` | 78.01 ± 1.53 (greedy) | {3,3,2,3,3} (≥ep1) {83,12,15,12,38} (≥ep10) | +0.85 (greedy) −5.76 (≥ep10) ❌ | TBD | TBD | doubling epoch count doesn't help; some folds reach late peaks but mean stays at H3-alt level |
+| **2026-04-29 16:36** | **🏆 P4 + OneCycle** | **`_1636`** | **77.52 ± 0.53** | **{20,19,20,19,19}** | **+0.36 (greedy) +6.08 (≥ep10) ✅** | TBD | TBD | **NEW CHAMPION — beats P4-alone by +2.04 pp at ≥ep10 (paired Wilcoxon p=0.0312, 5/5)** |
+| 2026-04-29 16:53 | P4 + Cosine | `_1653` (running) | TBD | TBD | TBD | TBD | TBD | isolates warmup ramp vs decay-only — bonus candidate |
 
 ### ⚠ Init-artifact caveat (CRITICAL — not in original decision rule)
 

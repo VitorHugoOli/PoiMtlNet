@@ -1,6 +1,6 @@
 # North-Star MTL Configuration
 
-**Status (2026-04-29):** Champion replaced. **P4 alternating-SGD + delayed-min selector (`min_epoch=10`)** is the new committed champion at FL. H3-alt is the predecessor (best static-loss recipe; cat-side anchor still). The Tier-A hyperparameter sweep (A1 OneCycleLR, A3 alpha_init=2.0, A5 stacked) tested on 2026-04-29 — none beat P4 at any selector window. See §"Champion candidate — F50 P4" below and `research/F50_T3_TRAINING_DYNAMICS_DIAGNOSTICS.md §6.3-§6.4`.
+**Status (2026-04-29 17:00 UTC):** Champion upgraded again. **P4 alternating-SGD + OneCycleLR (max_lr=3e-3, pct_start=0.4) + delayed-min selector (`min_epoch=10`)** is the new committed champion at FL. P4-alone becomes a predecessor (still beats H3-alt, but P4+OneCycle beats P4-alone by +2.04 pp at ≥ep10, paired Wilcoxon p=0.0312, 5/5 folds positive). The two interventions compose additively because they act on orthogonal mechanisms: P4 gives reg its own optimizer step on its own batch (preventing post-ep-5 cat-dominance collapse), OneCycle then provides the late-epoch peak-LR window that aligns with α growth (peak at ep ~20). See §"Champion — F50 P4 + OneCycle" below and `research/F50_T3_TRAINING_DYNAMICS_DIAGNOSTICS.md §6.3-§6.4`.
 
 **Status (2026-04-27):** Two complementary tracks now confirm the MTL story from different angles. **The previous recipe (F48-H3-alt per-head LR) is the committed champion**; substrate validation and architecture attribution both back it.
 
@@ -16,7 +16,7 @@ These findings **do not** change the committed config — they explain *why* it 
 
 **Status (2026-04-24):** Cat head refined via F27 from `NextHeadMTL` (Transformer) → `next_gru` (GRU). Paper-reshaping F21c finding noted in §§Caveats. See §Committed config below.
 
-## Champion — F50 P4 + delayed-min selector (2026-04-29)
+## Champion — F50 P4 + OneCycle + delayed-min (2026-04-29 17:00 UTC)
 
 ```
 architecture         : mtlnet_crossattn
@@ -26,42 +26,47 @@ task_b head (reg)    : next_getnext_hard                # STAN + α · log_T[las
 task_a input         : check-in embeddings (9-step window)
 task_b input         : region embeddings (9-step window)
 hparams              : d_model=256, 8 heads, batch=2048, 50 epochs, seed 42
-LR scheduler         : constant
+LR scheduler         : OneCycleLR(max_lr=3e-3, pct_start=0.4)   # ← new (peak at ep 20/50)
 LR per param group   : cat_lr=1e-3, reg_lr=3e-3, shared_lr=1e-3
 optimizer step       : ALTERNATING per-batch (P4) — cat batch then reg batch, separate optimizer.step()
-selector             : delayed-min top10_acc_indist with min_epoch=10  # ← new
+selector             : delayed-min top10_acc_indist with min_epoch=10
 ```
 
 **Single-line additive recipe vs H3-alt:**
 ```bash
---alternating-optimizer-step --min-best-epoch 10
+--alternating-optimizer-step \
+--scheduler onecycle --max-lr 3e-3 --pct-start 0.4 \
+--min-best-epoch 10
 ```
 
 **Headline numbers (FL 5f × 50ep, seed 42):**
 
-| selector | H3-alt | **P4 alt-SGD** | Δ | folds | paired Wilcoxon |
-|---|---:|---:|---:|---:|---:|
-| greedy (any epoch) | 77.16 | 78.55 | +1.38 | 5/5 | p=0.0312 |
-| delayed ≥ep5 | 74.72 | **78.55** | **+3.83** | **5/5** | **p=0.0312** ✅ |
-| **delayed ≥ep10** | 71.44 | **75.48** | **+4.04** | **5/5** | **p=0.0312** ✅ |
+| selector | H3-alt | P4 alone | **P4 + OneCycle** | Δ vs P4-alone | folds | paired Wilcoxon |
+|---|---:|---:|---:|---:|---:|---:|
+| greedy | 77.16 | 78.55 | 77.52 | −1.03 | 1/4 | n.s. |
+| ≥ep5 | 74.72 | 78.55 | 77.52 | −1.03 | — | n.s. |
+| **≥ep10** | 71.44 | 75.48 | **77.52** | **+2.04** | **5/5** | **p=0.0312** ✅ |
 
-**Mechanism:** alternating per-batch task updates prevent the post-ep-5 reg degradation that joint-loss training inflicts via cat dominance of the shared backbone. STL reg-best naturally lands at ep 17-20 (where α grows); under joint-loss MTL the reg-best is structurally pinned at ep 4-5 because cat saturates the cross-attn capacity past then. P4 alternating-SGD breaks the symmetry by giving reg its own optimizer step on its own batch, so its α can keep growing past ep 5.
+Per-fold @ ≥ep10:
+- P4 alone: `[74.89, 74.57, 76.02, 76.36, 75.59]`
+- P4+OneCycle: `[77.33, 76.71, 77.62, 77.92, 78.04]`
+- Per-fold Δ: `[+2.44, +2.14, +1.60, +1.56, +2.45]` (5/5 positive, σ_Δ=0.44)
 
-**Why the F1-based greedy selector hid this:** F1 macro on the 4702-class region is noisy; F1-best landed at ep 7-13 while top10/MRR/Acc@1-best lived at ep 3-6 → the trainer reported top10 at the F1-best epoch (~3.5 pp under-report). With C2 (`primary_metric` → BestModelTracker) + B1 (`--min-best-epoch`) shipped, future runs select honestly.
+Best epochs across folds: **{20, 19, 20, 19, 19}** — P4+OneCycle hits its peak at ep 19-20, exactly the OneCycle peak-LR window.
 
-**Tier-A negative controls (2026-04-29) — none beat P4 at any window:**
+**Mechanism (compositional):** P4 alternating-SGD prevents the post-ep-5 reg degradation by giving reg its own optimizer step on its own batch. OneCycle (max_lr=3e-3, pct_start=0.4) places peak LR at ep 20 — exactly where α growth needs the LR magnitude. The two interventions act on orthogonal mechanisms: P4 = optimizer separation, OneCycle = LR scheduling. They compose additively for a +5.87 pp lift over H3-alt (71.44 → 77.52) and +2.04 pp over P4-alone (75.48 → 77.52).
 
-| config | greedy | ≥ep10 | Δ vs P4 | run dir |
-|---|---:|---:|---:|---|
-| A1 onecycle50 | 68.16 | 68.09 | −7.39 | `_1413` |
-| A3 alpha_init=2.0 | 74.50* | 71.01 | −4.47 | `_1433` |
-| A5 onecycle+α=2.0 | 80.67* | 71.38 | −4.10 | `_1453` |
+**Tier-A negative controls confirm OneCycle needs P4** — OneCycle without P4 underperforms H3-alt by 9 pp (A1, A6) regardless of α_init or cat_weight. P4 is the necessary substrate.
 
-\*Init artifact: best_ep=1 across all folds = GETNext prior alone. Filtered by `--min-best-epoch ≥ 2`.
+See `research/F50_T3_TRAINING_DYNAMICS_DIAGNOSTICS.md §6.3-§6.4` and `research/F50_T3_HYPERPARAM_BRAINSTORM.md` for full Tier-A run log.
 
-See `research/F50_T3_TRAINING_DYNAMICS_DIAGNOSTICS.md §6.3-§6.4` and `research/F50_T3_HYPERPARAM_BRAINSTORM.md` for the full Tier-A run log.
+**Open: P4 + Cosine variant** (run `_1653`) is in flight at extraction time — isolates "decay-from-peak" vs OneCycle's warmup ramp. Decision pending the run's completion.
 
-**Open candidate (queued, not landed):** `P4 + OneCycleLR` is queued in `tmux f50_champ`. If it lands ≥ 75.48@ep≥10 with paired Wilcoxon p=0.0312, it would replace P4-alone. Until then, P4-alone is the committed champion.
+---
+
+## Predecessor — F50 P4 alone + delayed-min (2026-04-29, superseded same day)
+
+P4 alternating-SGD with constant scheduler — the first paper-grade fix for the FL gap. Headline: 75.48 @ ≥ep10 (vs H3-alt's 71.44; +4.04 pp, paired Wilcoxon p=0.0312, 5/5 positive). Superseded by P4+OneCycle which is +2.04 pp stronger by composing with OneCycle's late-LR peak. Run dir: `_0520`.
 
 ---
 

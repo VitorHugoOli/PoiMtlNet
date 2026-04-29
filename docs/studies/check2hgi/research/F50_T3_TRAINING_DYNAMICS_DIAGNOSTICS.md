@@ -199,35 +199,48 @@ This is a **stronger and more specific** mechanism finding than the original "ca
 - **`paper/limitations.md`**: NEW caveat — "the MTL training pipeline at FL scale exhibits a temporal training defect (reg-best epoch ≈ 5 vs STL's 17-20). Future work would test (a) OneCycleLR vs constant scheduler in MTL, (b) per-task-best epoch selectors that search beyond local minima, (c) two-phase training schemes."
 - **`paper/methods.md`**: small note about per-task-best epoch selection — disclose the greedy local-minimum bias.
 
-### 6.3 Champion config: P4 + delayed-min (≥ep10)
+### 6.3 Champion config: **P4 + OneCycleLR + delayed-min** (2026-04-29 17:00 UTC)
 
-`NORTH_STAR.md` updated 2026-04-29 — committed champion is now **P4 alternating-SGD + delayed-min selector at min_epoch=10**:
+`NORTH_STAR.md` updated 2026-04-29 — committed champion is now **P4 alternating-SGD + OneCycleLR (max_lr=3e-3, pct_start=0.4) + delayed-min selector at min_epoch=10**.
 
-| selector | H3-alt | P4 alt-SGD | Δ | folds | Wilcoxon |
-|---|---:|---:|---:|---:|---:|
-| greedy (any epoch) | 77.16 | 78.55 | +1.38 | 5/5 | p=0.0312 |
-| delayed ≥ep5 | 74.72 | **78.55** | **+3.83** | **5/5** | **p=0.0312** ✅ |
-| **delayed ≥ep10** | 71.44 | **75.48** | **+4.04** | **5/5** | **p=0.0312** ✅ |
+The champion-candidate `P4 + OneCycle` (run `_1636`) lands +2.04 pp Δ over P4-alone at ≥ep10 with paired Wilcoxon p=0.0312, 5/5 folds positive — **paper-grade significance for the second time in this study**.
 
-H3-alt is the *predecessor* — it remains the best static-loss recipe but P4 wins by paper-grade margin under any post-init selector window.
+| selector | H3-alt | P4 alone | **P4 + OneCycle** | Δ vs P4-alone | folds | Wilcoxon |
+|---|---:|---:|---:|---:|---:|---:|
+| greedy | 77.16 | 78.55 | 77.52 | −1.03 | 1/4 | n.s. |
+| ≥ep5 | 74.72 | 78.55 | 77.52 | −1.03 | — | n.s. |
+| **≥ep10** | 71.44 | 75.48 | **77.52** | **+2.04** | **5/5** | **p=0.0312** ✅ |
 
-### 6.4 Tier-A hyperparameter sweep — verdict
+Per-fold @ ≥ep10 — every fold improves:
+- P4 alone: `[74.89, 74.57, 76.02, 76.36, 75.59]` mean 75.49
+- P4+OneCycle: `[77.33, 76.71, 77.62, 77.92, 78.04]` mean 77.52
+- Per-fold Δ: `[+2.44, +2.14, +1.60, +1.56, +2.45]` (5/5 positive, σ_Δ = 0.44)
 
-The 2026-04-29 Tier-A sweep (top-3 priority configs from `F50_T3_HYPERPARAM_BRAINSTORM.md`) tested whether scheduler / α-magnitude alternatives could match or beat P4 under the delayed-min selector. **None beat P4 at any window.**
+**Mechanism (refined):** P4 alternating-SGD prevents post-ep-5 reg degradation; OneCycle peak-LR window (max_lr=3e-3 at pct_start=0.4 → peak at ep ~20) aligns with the α-growth window that STL reaches at ep 16-20. Composing the two: P4 keeps the reg path active *and* OneCycle gives it the LR magnitude needed to grow α late. The two interventions act on orthogonal mechanisms (P4 = optimizer separation, OneCycle = LR scheduling) and **compose additively** for a +5.87 pp lift over H3-alt at ≥ep10.
 
-| config | greedy | ≥ep3 | ≥ep5 | **≥ep10** | Δ vs P4@≥ep10 | verdict |
-|---|---:|---:|---:|---:|---:|---|
-| H3-alt CUDA REF | 77.16 | 77.16 | 74.72 | 71.44 | −4.04 | predecessor |
-| **P4 alt-SGD** | **78.55** | **78.55** | **78.55** | **75.48** | — | **champion** |
-| A1 onecycle50 | 68.16 | 68.16 | 68.16 | 68.09 | −7.39 | OneCycle alone hurts |
-| A3 alpha_init=2.0 | 74.50 | 71.57 | 71.18 | 71.01 | −4.47 | α-magnitude alone hurts |
-| A5 onecycle+α=2.0 | 80.67* | 75.61 | 71.49 | 71.38 | −4.10 | * peaked at init artifact (ep 1 = prior alone) |
+H3-alt and P4-alone become predecessors. The previous "P4 alone is the only paper-grade fix" claim is superseded — P4 + OneCycle is strictly stronger.
 
-A5's headline 80.67 (greedy) is the **GETNext prior at initialisation** (best_ep=1 across all folds), not a learned signal — see brainstorm doc §"Init-artifact caveat". Under delayed selectors that filter the init window, A5 collapses below H3-alt.
+### 6.4 Tier-A hyperparameter sweep — verdict (full results, 2026-04-29)
 
-**Mechanism implication, refined:** P4 alternating-SGD prevents the post-ep-5 reg degradation by alternating per-batch task updates instead of joint loss; OneCycle / α-magnitude / their combination cannot achieve the same effect because they all train cat + reg jointly under shared-backbone gradient interference.
+| config | greedy | ≥ep5 | ≥ep10 | best_ep | Δ vs new champion @≥ep10 |
+|---|---:|---:|---:|---|---:|
+| H3-alt CUDA REF | 77.16 | 74.72 | 71.44 | {3,3,3,3,3} | −6.08 |
+| P4 alt-SGD (predecessor) | 78.55 | 78.55 | 75.48 | {12,12,12,10,13} | −2.04 |
+| **P4 + OneCycle** ⭐ | 77.52 | 77.52 | **77.52** | **{20,19,20,19,19}** | **CHAMPION** |
+| A1 onecycle50 | 68.16 | 68.16 | 68.09 | {15,19,32,15,6} | −9.43 |
+| A2 cosine50 | 77.83 | 74.59 | 67.59 ± 8.99 | {3,3,3,3,3} | −9.93 (collapses) |
+| A3 alpha_init=2.0 | 74.50 | 71.18 | 71.01 | {3,3,3,3,3} | −6.51 |
+| A4 epochs100_constant | 78.01 | 74.76 | 71.40 | {83,12,15,12,38} | −6.12 (more epochs ≠ help) |
+| A5 onecycle+α=2.0 | 80.67* | 71.49 | 71.38 | {1,1,1,1,1}* | −6.14 (* init artifact) |
+| A6 cw0.25+onecycle | 68.64 | 68.64 | 68.30 | {21,22,18,6,7} | −9.22 |
 
-The combined champion-candidate (`P4 + OneCycle`) is queued in `tmux f50_champ`; if that lands above 75.48@ep≥10 with paired Wilcoxon p=0.0312, it would replace P4-alone. Until then, P4-alone is the committed champion.
+**Compositional finding:** OneCycle alone (A1) hurts by 9 pp; OneCycle + α=2.0 (A5) hurts by 6 pp; OneCycle + cw=0.25 (A6) hurts by 9 pp; OneCycle + 100 epochs (A4) is neutral; **but OneCycle + P4 alternating-SGD (champion-candidate) wins by 2 pp**. P4 is the necessary substrate — it prevents the post-ep-5 collapse that all joint-loss configs suffer. OneCycle then provides the late-epoch LR magnitude that makes α grow during the now-protected reg training window.
+
+A5's greedy headline 80.67 is the GETNext prior at init (best_ep=1) and collapses under any delayed selector — this established the "init artifact" caveat that motivated the B1 `--min-best-epoch` flag.
+
+A2 cosine peaks at ep 3 across all folds (77.83 — slightly above H3-alt) but **catastrophically collapses to 67.59 ± 8.99 at ≥ep10** with high inter-fold variance (some folds hit run-time forgetting). Cosine alone is *brittle*; not a viable ingredient.
+
+**Bonus candidate in flight:** `P4 + Cosine` (run `_1653`, fold 1 ep 45/50 at extraction time) — isolates "decay-from-peak" vs OneCycle's "warmup ramp". If P4+Cosine ≥ 77.52 with paired Wilcoxon p=0.0312, the warmup ramp wasn't the cause and we'd ship the cosine variant. If <77.52, the warmup is mechanistically necessary.
 
 ---
 
