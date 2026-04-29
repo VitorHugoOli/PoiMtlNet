@@ -895,20 +895,15 @@ class FoldCreator:
         )
         # Heads that read ``last_region_idx`` via aux_side_channel during forward.
         # Keep in sync with ``_HEADS_REQUIRING_AUX`` in ``scripts/p1_region_head_ablation.py``.
-        # F50 T4 broader-leakage audit (`F50_T4_BROADER_LEAKAGE_AUDIT.md`)
-        # found that ``next_tgstan``, ``next_stahyper``, and ``next_getnext``
-        # ALSO consume ``log_T[last_region]`` and need the aux side channel.
-        # Without it the head silently runs the ``aux is None`` fallback
-        # (returns stan_logits + α·0 → no graph prior) which makes the
-        # leakage smoke meaningless. Discovered when 2026-04-29 TGSTAN
-        # smoke returned 0.14% top10 (worse than random).
-        _HEADS_REQUIRING_AUX_MTL = {
-            "next_getnext_hard",
-            "next_getnext_hard_hsm",
-            "next_tgstan",
-            "next_stahyper",
-            "next_getnext",
-        }
+        #
+        # ONLY ``next_getnext_hard*`` use aux. The other log_T-loading heads
+        # (next_getnext / next_tgstan / next_stahyper) compute their last-step
+        # representation INTERNALLY via ``last_emb = x[batch_idx, last_idx]``
+        # — they don't need the aux side channel even though they consume the
+        # transition prior. (Earlier broader-leakage audit was right that
+        # those heads carry the C4 leak via log_T, but they don't read
+        # last_region_idx.)
+        _HEADS_REQUIRING_AUX_MTL = {"next_getnext_hard", "next_getnext_hard_hsm"}
         use_aux = task_b_head in _HEADS_REQUIRING_AUX_MTL
         if use_aux:
             if "last_region_idx" not in region_df.columns:
