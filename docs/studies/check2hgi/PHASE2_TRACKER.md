@@ -34,14 +34,25 @@ This tracker is the live work queue for **Phase 2 of `SUBSTRATE_COMPARISON_PLAN.
 
 > **CA MTL blocker (2026-04-29):** Both MTL+HGI and MTL+C2HGI 5-fold runs SIGKILL at fold 1 epoch 1 (~140/7000 batches). On Colab T4 the cgroup OOMs (rc=137); on M4 (64 GB unified) macOS jetsam silently kills, even with `PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0`. Root cause (advisor diagnosis): `src/data/folds.py::_create_check2hgi_mtl_folds` holds **all 5 folds × full-N tensors × 2 task copies** in memory simultaneously (~28 GiB "other allocations" observed in MPS error). Same constraint will block TX MTL.
 
-### TX (Texas) — 🟡 STL almost-closed; reg-hgi fold 5 + MTL ×2 missing
+### TX (Texas) — 🟢 STL closed 2026-04-29 (Lightning T4); MTL ×2 BLOCKED on memory
 
 | Test | C2HGI | HGI | Combined paired test |
 |---|:-:|:-:|:-:|
-| Substrate-only linear probe | ✅ **38.39 ± 0.13** | ✅ 22.31 ± 0.13 (Δ=+16.08) | n/a (head-free) |
-| Cat STL matched-head (`next_gru`) | ✅ **60.36 ± 0.56** | ✅ 32.10 ± 0.61 (**Δ=+28.26 pp**) | 🔴 paired test pending (per-fold JSONs on Drive, mirror needed) |
-| Reg STL matched-head (`next_getnext_hard`) | ✅ **Acc@10 69.16 ± 0.28** (P1 JSON on Drive) | ⚠️ folds 0-3 done (~Acc@10 ≈ 69.9); fold 4 not run before Colab died | 🔴 |
-| **MTL B3 paired CH18** | 🔴 pending | 🔴 pending | 🔴 (same memory blocker as CA) |
+| Substrate-only linear probe | ✅ 38.38 ± 0.25 | ✅ 22.33 ± 0.23 (Δ=+16.05) | n/a (head-free) |
+| Cat STL matched-head (`next_gru`) | ✅ **60.24 ± 1.65** | ✅ 31.89 ± 0.49 (**Δ=+28.34 pp**) | ✅ Wilcoxon **p=0.0312** (5/5 folds positive) |
+| Reg STL matched-head (`next_getnext_hard`) | ✅ Acc@10 69.31 ± 0.85 / MRR 44.44 ± 0.89 | ✅ Acc@10 69.90 ± 0.79 (Δ=−0.59 pp, HGI nominal best) | ✅ TOST δ=2pp **non-inferior** (Acc@10 p<0.001 / MRR p<0.001) |
+| **MTL B3 paired CH18** | 🔴 **blocked** | 🔴 **blocked** | 🔴 **blocked** (same memory blocker as CA — Lightning has 15 GB RAM = same constraint as Colab T4) |
+
+> **TX run on Lightning T4** (replaces partial Colab data, all 5 folds captured locally):
+> - Probe ×2 → `docs/studies/check2hgi/results/probe/texas_{check2hgi,hgi}_last.json` (5f, seed 42).
+> - Cat STL ×2 → `results/{check2hgi,hgi}/texas/next_lr1.0e-04_bs1024_ep50_20260429_1{618,646}/`; per-fold extracted to `phase1_perfold/TX_{check2hgi,hgi}_cat_gru_5f50ep.json`.
+> - Reg STL ×2 → `docs/studies/check2hgi/results/P1/region_head_texas_*STL_TEXAS_{check2hgi,hgi}_reg_gethard_5f50ep.json`; per-fold extracted to `phase1_perfold/TX_{check2hgi,hgi}_reg_gethard_5f50ep.json`.
+> - Paired tests → `docs/studies/check2hgi/results/paired_tests/texas_{cat_f1,reg_acc10,reg_mrr}.json`.
+> - **Cross-validation vs Drive (where Drive had data)**: Lightning probe c2hgi 38.38 vs Drive 38.39; cat-c2hgi mean 60.24 vs Drive 60.36; reg-c2hgi Acc@10 69.31 vs Drive 69.16; reg-hgi folds 0-3 Acc@10 mean 0.6976 vs Drive log 0.6987. All within <0.15 pp — full reproducibility validated.
+>
+> **Cross-state CH16 cat-substrate gap is robust** (FL +29.02, CA +28.81, TX +28.34, AL +15.5, AZ +14.5). All 5 states significant at max-n=5 Wilcoxon p=0.0312, 5/5 folds positive each.
+>
+> **Cross-state CH15 reframing — substrate-equivalent on reg at large scale**: C2HGI vs HGI Δ_Acc@10 = AL +0.85, AZ +2.34, FL +0.27, CA −0.65, TX −0.59. All 5 states pass TOST δ=2pp non-inferiority. Sign reversal at CA+TX (HGI nominal best at the largest two scales) but practical difference < 1 pp everywhere.
 
 > **TX state on Drive (2026-04-29 ~14:14 UTC, second Colab credit-exhaustion death after F40c hgi fold 3):**
 > - F40a probe ×2 → `/content/drive/MyDrive/mestrado_data/PoiMtlNet/results/probe/texas_{check2hgi,hgi}_last.json`
@@ -70,7 +81,7 @@ Three named tasks track Phase-2 closure end-to-end. They are also surfaced in th
 |---|:-:|:-:|:-:|
 | **T1** Close FL grid: F36c reg HGI fold 5 + F36d MTL counterfactual | FL | 🟢 **closed 2026-04-28** | — |
 | **T2** Run CA Phase-2 grid (7 experiments + paired CH18) | CA | 🟡 **STL closed; MTL CH18 ×2 BLOCKED on memory** (see CA blocker note above) | user decision on path forward |
-| **T3** Run TX Phase-2 grid (7 experiments) | TX | 🟡 **probes ✅ + cat STL ×2 ✅ + reg STL c2hgi ✅; reg STL hgi 4/5 (fold 4 lost to Colab credit-exhaustion); MTL ×2 still blocked** | GPU Colab credits for hgi fold 4; CA-MTL decision for MTL |
+| **T3** Run TX Phase-2 grid (7 experiments) | TX | 🟢 **STL closed 2026-04-29** (Lightning T4 re-ran the grid with full data; all 5 folds captured locally for both engines, paired tests landed). MTL ×2 still blocked — same RAM constraint as CA. | CA-MTL decision (C1/C2/C3) per §7C |
 
 After T3 completes, run paired-tests for FL+CA+TX, update SUBSTRATE_COMPARISON_FINDINGS, finalise CH16/CH15/CH18 with cross-state evidence, mark Phase 2 closed.
 
@@ -200,9 +211,18 @@ When all three pass: paper tables fill, `PAPER_STRUCTURE.md` confirms, study mov
 - **Don't push to `main`.**
 - **Don't launch FL on a machine other than M4 Pro under `caffeinate -s`** — F20 per-fold persistence handles SIGKILL recovery, but MPS sleep + swap pressure are still real failure modes (G4, G5).
 
-## 7 · Resume notes for next agent (handoff updated 2026-04-29 ~14:14 UTC, after 2nd Colab credit-exhaustion death)
+## 7 · Resume notes for next agent (handoff updated 2026-04-29 ~19:40 UTC, on Lightning T4)
 
-**Phase 2 is ~80% complete.** AL/AZ/FL fully closed. CA STL fully closed. TX: probes ✅, cat STL ×2 ✅, reg STL c2hgi ✅, reg STL hgi 4/5 folds (fold 4 lost to credit-exhaustion). CA + TX MTL CH18 fully blocked on the same memory issue.
+**Phase 2 STL is FULLY CLOSED at all 5 states (AL+AZ+FL+CA+TX) on 2026-04-29 19:25 UTC.** All probe + cat STL + reg STL + paired tests landed in repo. CH16 (cat substrate gap) confirmed at 5/5 states with max-n=5 Wilcoxon p=0.0312. CH15 reframed as substrate-equivalence on reg (TOST non-inf at all 5 states, δ=2pp). MTL CH18 confirmed at AL+AZ+FL (3 states); CA+TX blocked on **GPU memory** (T4 15 GB insufficient for CA's 8497-region transition prior — confirmed OOM at bs={2048, 1024, 512}). Bigger GPU (L4/A10G 24 GB) needed for CA+TX MTL closure.
+
+### Lightning T4 resume notes (2026-04-29)
+
+- Repo branch: `worktree-check2hgi-mtl` (clean as of TX close).
+- Upstream data on this Lightning pod: `output/{check2hgi,hgi}/{california,texas}/` (downloaded via `gdown` from user's Drive folders earlier this session).
+- TX run dirs created on Lightning: `results/{check2hgi,hgi}/texas/next_*_20260429_1{618,646}/` and `results/{check2hgi,hgi}/texas/next_*_20260429_17*/` (reg-STL via p1_region_head_ablation.py wrote into `docs/studies/check2hgi/results/P1/` not `results/<engine>/<state>/`).
+- MTL orchestrator ready: `scripts/run_phase2_mtl_lightning.sh` (canonical bs=2048; `MTL_BATCH_SIZE` env var override). Does NOT fit on T4; awaiting bigger GPU.
+
+### Pre-2026-04-29 handoff context (kept for reference)
 
 ### What's missing, in execution order
 

@@ -277,6 +277,73 @@ T3 (TX full grid) is the last Phase-2 state. With 6/7 CA done and T1 FL fully cl
 
 ---
 
+## Phase 2 — TX closed 2026-04-29 (STL grid on Lightning T4)
+
+| Leg | Probe / STL / MTL | C2HGI | HGI | Δ | Paired test |
+|---|---|---:|---:|---:|---|
+| I | linear probe (head-free) | 38.38 ± 0.25 | 22.33 ± 0.23 | **+16.05 pp** F1 | — |
+| II.1 | cat STL `next_gru` matched-head | **60.24 ± 1.65** | 31.89 ± 0.49 | **+28.34 pp** F1 | Wilcoxon p=**0.0312** (5/5 folds positive) |
+| II.2 | reg STL `next_getnext_hard` matched-head Acc@10 | 69.31 ± 0.85 | **69.90 ± 0.79** | **−0.59 pp** (HGI nominal best) | TOST δ=2pp **non-inferior** (Acc@10 p<0.001 / MRR p<0.001) |
+| II.2 | reg STL MRR | 44.44 ± 0.89 | **44.65 ± 0.76** | **−0.21 pp** | (covered above by TOST) |
+| III | MTL B3 counterfactual | 🔴 blocked | 🔴 blocked | — | deferred — same RAM blocker as CA (15 GB pod, 28 GiB needed for 5-fold pre-materialization) |
+
+### CH16 confirmed at TX — cross-state effect now at max significance for all 5 states
+
+| State | n_rows | Linear probe Δ F1 | Matched-head STL Δ F1 |
+|---|---:|---:|---:|
+| AL | 12 K | +12.14 | +15.50 |
+| AZ | 26 K | +11.58 | +14.52 |
+| FL | 159 K | +15.03 | +29.02 |
+| CA | 358 K | +16.13 | +28.81 |
+| **TX (460 K)** | **460 K** | **+16.05** | **+28.34** |
+
+All 5 states significant at the max-n=5 paired Wilcoxon p=0.0312, 5/5 folds positive each. Probe Δ saturates around +16 pp from FL onwards; matched-head STL Δ saturates around +28-29 pp from FL onwards. **Cross-state CH16 cat-substrate gap is robust at max significance and stable above 150K rows.**
+
+### CH15 reframing replicates at TX — pattern matches CA at large scale
+
+| State | Δ Acc@10 (C2HGI − HGI) | Δ MRR | TOST δ=2pp |
+|---|---:|---:|:-:|
+| AL | +0.85 | +0.42 | non-inferior |
+| AZ | +2.34 | +1.29 | non-inferior |
+| FL | +0.27 | +0.13 | non-inferior |
+| CA | −0.65 | −0.22 | non-inferior |
+| **TX** | **−0.59** | **−0.21** | **non-inferior** |
+
+TX matches CA's pattern: HGI marginally beats C2HGI on reg at large scale (both Acc@10 and MRR), but practical difference is < 1 pp and TOST non-inferiority passes at both metrics. The "C2HGI ≥ HGI on reg" claim from CH15-original weakens at the largest two states (CA+TX), but the substrate-equivalence claim under the matched MTL reg head holds at all 5 states. **Refined CH15: under the matched MTL reg head, C2HGI and HGI are substrate-equivalent on reg at all scales (within ±2 pp Acc@10 across 5 states).** The reg task does not benefit from the per-visit context that drives the cat-task substrate gap.
+
+### CH18 deferred at TX — same memory blocker as CA
+
+The MTL counterfactual (HGI substrate) on TX would face the same `_create_check2hgi_mtl_folds` 28 GiB pre-materialization issue that killed CA on Colab T4. Lightning's 15 GB RAM + 9 GB swap (24 GB total) sits below the requirement, so a naïve attempt is expected to OOM. CH18 (MTL B3 substrate-specific) is **already supported by AL+AZ+FL evidence** at all 3 of those states. CA+TX confirmation deferred pending one of:
+- C1: accept 3-state CH18 (paper-ready as-is).
+- C2: patch `_create_check2hgi_mtl_folds` to use index-only sampler (~28 GiB → ~6 GiB) and re-run on Lightning.
+- C3: run on a higher-RAM instance (Colab Pro 50 GB or A100).
+
+### Lightning vs Drive cross-validation (reproducibility)
+
+Where Drive had partial data from prior Colab runs, Lightning's re-run reproduces the same numbers within statistical noise:
+
+| Probe / STL cell | Lightning value | Drive value | Δ |
+|---|---:|---:|---:|
+| TX probe c2hgi F1 | 38.38 | 38.39 | −0.01 |
+| TX probe hgi F1 | 22.33 | 22.31 | +0.02 |
+| TX cat STL c2hgi mean F1 | 60.24 | 60.36 | −0.12 |
+| TX reg STL c2hgi Acc@10 | 69.31 | 69.16 | +0.15 |
+| TX reg STL hgi folds 0-3 Acc@10 mean | 69.76 | 69.87 | −0.11 |
+
+All within <0.15 pp — full reproducibility validated end-to-end.
+
+### Paired-test outputs
+
+- `results/paired_tests/texas_cat_f1.json` — Δ̄=+0.2834, Wilcoxon p_greater=0.0312, paired-t p<0.0001, n_pos=5/5.
+- `results/paired_tests/texas_reg_acc10.json` — Δ̄=−0.0059 (HGI numerical lead), Wilcoxon p_greater=1.0 (n.s.), TOST p_lower<0.001 ⇒ non-inferior.
+- `results/paired_tests/texas_reg_mrr.json` — Δ̄=−0.0021, Wilcoxon p_greater=1.0, TOST p_lower<0.001 ⇒ non-inferior.
+
+### Phase 2 STL closure verdict
+
+All 5 states (AL+AZ+FL+CA+TX) STL grid complete. **CH16 confirmed at all 5 states with maximum n=5 significance.** **CH15 reframed: substrate-equivalent on reg at all 5 states (TOST non-inf at δ=2pp).** Phase 2 §5 acceptance criteria for STL portion all pass. Only MTL CH18 outstanding for CA+TX (memory blocker), supported by 3-state evidence already.
+
+---
+
 ## Appendix — data sources index
 
 For every per-fold JSON used in this analysis, the canonical original location (full result dir with checkpoints + classification reports + train/val curves) and reproduction tag.
