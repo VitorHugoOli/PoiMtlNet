@@ -34,21 +34,29 @@ This tracker is the live work queue for **Phase 2 of `SUBSTRATE_COMPARISON_PLAN.
 
 > **CA MTL blocker (2026-04-29):** Both MTL+HGI and MTL+C2HGI 5-fold runs SIGKILL at fold 1 epoch 1 (~140/7000 batches). On Colab T4 the cgroup OOMs (rc=137); on M4 (64 GB unified) macOS jetsam silently kills, even with `PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0`. Root cause (advisor diagnosis): `src/data/folds.py::_create_check2hgi_mtl_folds` holds **all 5 folds × full-N tensors × 2 task copies** in memory simultaneously (~28 GiB "other allocations" observed in MPS error). Same constraint will block TX MTL.
 
-### TX (Texas) — 🟡 STL partial; reg STL ×2 + MTL ×2 missing
+### TX (Texas) — 🟡 STL almost-closed; reg-hgi fold 5 + MTL ×2 missing
 
 | Test | C2HGI | HGI | Combined paired test |
 |---|:-:|:-:|:-:|
 | Substrate-only linear probe | ✅ **38.39 ± 0.13** | ✅ 22.31 ± 0.13 (Δ=+16.08) | n/a (head-free) |
-| Cat STL matched-head (`next_gru`) | ✅ **60.36 ± 0.56** | ✅ 32.10 ± 0.61 (**Δ=+28.26 pp**) | 🔴 paired test pending (per-fold JSONs to mirror from Drive) |
-| Reg STL matched-head (`next_getnext_hard`) | ⚠️ fold 0 only (Acc@10 0.6915, MRR 0.4385) | 🔴 never started | 🔴 |
+| Cat STL matched-head (`next_gru`) | ✅ **60.36 ± 0.56** | ✅ 32.10 ± 0.61 (**Δ=+28.26 pp**) | 🔴 paired test pending (per-fold JSONs on Drive, mirror needed) |
+| Reg STL matched-head (`next_getnext_hard`) | ✅ **Acc@10 69.16 ± 0.28** (P1 JSON on Drive) | ⚠️ folds 0-3 done (~Acc@10 ≈ 69.9); fold 4 not run before Colab died | 🔴 |
 | **MTL B3 paired CH18** | 🔴 pending | 🔴 pending | 🔴 (same memory blocker as CA) |
 
-> **TX state on Drive (2026-04-29 ~10:49 UTC, before Colab runtime reset):**
-> - F40a probe ×2 → `/content/drive/MyDrive/mestrado/PoiMtlNet/results/probe/texas_{check2hgi,hgi}_last.json`
+> **TX state on Drive (2026-04-29 ~14:14 UTC, second Colab credit-exhaustion death after F40c hgi fold 3):**
+> - F40a probe ×2 → `/content/drive/MyDrive/mestrado_data/PoiMtlNet/results/probe/texas_{check2hgi,hgi}_last.json`
 > - F40b cat STL c2hgi → run dir `results/check2hgi/texas/next_lr1.0e-04_bs1024_ep50_20260429_0458/` (all 5 folds, summary present)
 > - F40b cat STL hgi → run dir `results/hgi/texas/next_lr1.0e-04_bs1024_ep50_20260429_0528/` (all 5 folds, summary present)
-> - F40c reg STL c2hgi → only fold 0 in log `phase2_logs/texas_F40c_reg_stl_check2hgi_TEXAS.log`; no P1 JSON written (P1 file is end-of-run only)
-> - F40c reg STL hgi → never started
+> - F40c reg STL c2hgi → ✅ P1 JSON `results/P1/region_head_texas_region_5f_50ep_STL_TEXAS_check2hgi_reg_gethard_5f50ep.json` (Acc@10 = 0.6916 ± 0.0028, MRR = 0.4434 ± 0.0038, F1 = 0.1638 ± 0.0041)
+> - F40c reg STL hgi → 4/5 folds in `phase2_logs/texas_F40c_reg_stl_hgi_TEXAS_resume.log` (fold 0–3 metrics captured; fold 4 + aggregate JSON not written before Colab died)
+>
+> **Per-fold reg-hgi values captured from log (for partial paired-test if fold 5 isn't recovered):**
+> - fold 0: Acc@1=0.3156 Acc@5=0.5822 Acc@10=0.6975 MRR=0.4413 F1=0.1659
+> - fold 1: Acc@1=0.3241 Acc@5=0.5881 Acc@10=0.6970 MRR=0.4487 F1=0.1642
+> - fold 2: Acc@1=0.3261 Acc@5=0.5924 Acc@10=0.7033 MRR=0.4513 F1=0.1672
+> - fold 3: Acc@1=0.3180 Acc@5=0.5857 Acc@10=0.6968 MRR=0.4436 F1=0.1578
+>
+> **Drive paths used by this Colab account** (vho2009@hotmail.com → shared drive id `1GKIA8c…`): everything is under `mestrado_data/PoiMtlNet/`, NOT `mestrado/PoiMtlNet/` (the latter is a different empty folder on the same drive).
 >
 > **Cross-state CH16 cat-substrate gap is robust** (FL +29.02, CA +28.81, TX +28.26, AL +15.5, AZ +14.5) — paper headline can be drafted from current data; what's missing is paired-test formalisation at TX and the MTL CH18 confirmation at CA+TX.
 
@@ -62,7 +70,7 @@ Three named tasks track Phase-2 closure end-to-end. They are also surfaced in th
 |---|:-:|:-:|:-:|
 | **T1** Close FL grid: F36c reg HGI fold 5 + F36d MTL counterfactual | FL | 🟢 **closed 2026-04-28** | — |
 | **T2** Run CA Phase-2 grid (7 experiments + paired CH18) | CA | 🟡 **STL closed; MTL CH18 ×2 BLOCKED on memory** (see CA blocker note above) | user decision on path forward |
-| **T3** Run TX Phase-2 grid (7 experiments) | TX | 🟡 **probes ✅ + cat STL ×2 ✅; reg STL ×2 + MTL ×2 missing** (Colab runtime reset mid-grid) | GPU Colab reconnect for reg STL; CA-MTL decision for MTL |
+| **T3** Run TX Phase-2 grid (7 experiments) | TX | 🟡 **probes ✅ + cat STL ×2 ✅ + reg STL c2hgi ✅; reg STL hgi 4/5 (fold 4 lost to Colab credit-exhaustion); MTL ×2 still blocked** | GPU Colab credits for hgi fold 4; CA-MTL decision for MTL |
 
 After T3 completes, run paired-tests for FL+CA+TX, update SUBSTRATE_COMPARISON_FINDINGS, finalise CH16/CH15/CH18 with cross-state evidence, mark Phase 2 closed.
 
@@ -192,27 +200,30 @@ When all three pass: paper tables fill, `PAPER_STRUCTURE.md` confirms, study mov
 - **Don't push to `main`.**
 - **Don't launch FL on a machine other than M4 Pro under `caffeinate -s`** — F20 per-fold persistence handles SIGKILL recovery, but MPS sleep + swap pressure are still real failure modes (G4, G5).
 
-## 7 · Resume notes for next agent (handoff 2026-04-29)
+## 7 · Resume notes for next agent (handoff updated 2026-04-29 ~14:14 UTC, after 2nd Colab credit-exhaustion death)
 
-**Phase 2 is ~70% complete.** AL/AZ/FL fully closed (Phase 1 + T1). CA STL fully closed. TX STL 4/6. CA + TX MTL CH18 fully blocked on the same memory issue.
+**Phase 2 is ~80% complete.** AL/AZ/FL fully closed. CA STL fully closed. TX: probes ✅, cat STL ×2 ✅, reg STL c2hgi ✅, reg STL hgi 4/5 folds (fold 4 lost to credit-exhaustion). CA + TX MTL CH18 fully blocked on the same memory issue.
 
 ### What's missing, in execution order
 
-**A. TX reg STL ×2 (resume on GPU Colab, ~1.7 h on T4)**
+**A. TX reg STL hgi fold 4 only (resume on GPU Colab, ~15 min on T4)** — c2hgi already closed; hgi has folds 0-3 captured in log
 
-The notebook `notebooks/colab_check2hgi_mtl.ipynb` already has the resume cell pattern (search for `T3_TX_resume` or copy the template from cell `XXyf4I5q6pKe` if it survived). Required steps when GPU Colab reconnects:
+The repo's `p1_region_head_ablation.py` has a checkpoint mechanism (it writes `region_head_texas_region_5f_50ep_STL_TEXAS_hgi_reg_gethard_5f50ep.checkpoint.json` after each fold). When GPU Colab reconnects with credits:
 
-1. Mount Drive, clone repo on `worktree-check2hgi-mtl`, install deps + PyG wheels.
-2. Copy TX parquets from Drive to `/content/output` (~7.4 GB; both engines, both `embeddings.parquet` + `region_*` + `input/{next,next_region}.parquet` + `temp/`).
-3. Detached-daemon launch (`nohup setsid bash …`) of two `scripts/p1_region_head_ablation.py` invocations:
+1. Mount Drive (`/content/drive/MyDrive/mestrado_data/PoiMtlNet`), clone repo on `worktree-check2hgi-mtl`, install deps + PyG wheels.
+2. Copy TX parquets from Drive to `/content/output` (~7.4 GB; both engines).
+3. Restore the checkpoint file from Drive to `docs/studies/check2hgi/results/P1/` in the repo if it survived the rsync (it should — orchestrator runs `sync_drive` after each fold). The script will auto-resume from fold 4. If checkpoint is gone, simply re-run from fold 0 — only 75 min on T4.
+4. CLI:
    ```
-   --state texas --heads next_getnext_hard --folds 5 --epochs 50 --seed 42 \
-     --input-type region --region-emb-source {check2hgi,hgi} \
+   python3 -u scripts/p1_region_head_ablation.py --state texas --heads next_getnext_hard \
+     --folds 5 --epochs 50 --seed 42 --input-type region --region-emb-source hgi \
      --override-hparams d_model=256 num_heads=8 \
        transition_path=/content/output/check2hgi/texas/region_transition_log.pt \
-     --tag STL_TEXAS_{check2hgi,hgi}_reg_gethard_5f50ep
+     --tag STL_TEXAS_hgi_reg_gethard_5f50ep
    ```
-4. Outputs land at `results/P1/region_head_texas_*STL_TEXAS_*reg_gethard_5f50ep.json` and rsync to Drive.
+5. Output: `results/P1/region_head_texas_region_5f_50ep_STL_TEXAS_hgi_reg_gethard_5f50ep.json`. rsync to Drive when done.
+
+If credit-exhaustion is permanent on this account, the **partial 4-fold reg-hgi data is in the tracker §TX block above** (per-fold metrics captured from log) and is sufficient for a directional CH15 reframing comparison even without the formal paired test — TOST non-inf was already passing FL & CA at much tighter δ.
 
 **B. Mirror TX results from Drive to repo + paired tests (CPU only, ~5 min)**
 
