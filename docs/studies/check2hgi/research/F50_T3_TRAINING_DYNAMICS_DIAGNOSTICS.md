@@ -199,40 +199,77 @@ This is a **stronger and more specific** mechanism finding than the original "ca
 - **`paper/limitations.md`**: NEW caveat — "the MTL training pipeline at FL scale exhibits a temporal training defect (reg-best epoch ≈ 5 vs STL's 17-20). Future work would test (a) OneCycleLR vs constant scheduler in MTL, (b) per-task-best epoch selectors that search beyond local minima, (c) two-phase training schemes."
 - **`paper/methods.md`**: small note about per-task-best epoch selection — disclose the greedy local-minimum bias.
 
-### 6.3 Champion config: **P4 + OneCycleLR + delayed-min** (2026-04-29 17:00 UTC)
+### 6.3 Champion config: **P4 + Cosine + delayed-min** (2026-04-29 17:30 UTC, Pareto-corrected)
 
-`NORTH_STAR.md` updated 2026-04-29 — committed champion is now **P4 alternating-SGD + OneCycleLR (max_lr=3e-3, pct_start=0.4) + delayed-min selector at min_epoch=10**.
+**Pareto picture** at FL 5f × 50ep, paired Wilcoxon vs H3-alt:
 
-The champion-candidate `P4 + OneCycle` (run `_1636`) lands +2.04 pp Δ over P4-alone at ≥ep10 with paired Wilcoxon p=0.0312, 5/5 folds positive — **paper-grade significance for the second time in this study**.
+| config | Δreg @≥ep10 | p(reg) | Δcat F1 | p(cat) | verdict |
+|---|---:|---:|---:|---:|---|
+| P4 alone | +4.04 | **0.0312** ✅ | −0.16 (tied) | 0.84 | **Pareto-dominant** ✅ |
+| P4 + OneCycle | +6.08 | **0.0312** ✅ | **−1.84** | 1.00 | **Pareto-TRADE** ⚠ (reg++ / cat−−) |
+| **P4 + Cosine** ⭐ | +4.63 | **0.0312** ✅ | +0.15 (tied) | 0.16 | **Pareto-dominant** 🏆 |
 
-| selector | H3-alt | P4 alone | **P4 + OneCycle** | Δ vs P4-alone | folds | Wilcoxon |
-|---|---:|---:|---:|---:|---:|---:|
-| greedy | 77.16 | 78.55 | 77.52 | −1.03 | 1/4 | n.s. |
-| ≥ep5 | 74.72 | 78.55 | 77.52 | −1.03 | — | n.s. |
-| **≥ep10** | 71.44 | 75.48 | **77.52** | **+2.04** | **5/5** | **p=0.0312** ✅ |
+**P4+OneCycle is NOT the right champion.** Although it scores the highest reg top10 (77.52, +6.08 pp vs H3-alt), its cat F1 drops 1.84 pp uniformly and σ jumps from 0.74 → 2.29 because of a single-fold catastrophic collapse:
 
-Per-fold @ ≥ep10 — every fold improves:
-- P4 alone: `[74.89, 74.57, 76.02, 76.36, 75.59]` mean 75.49
-- P4+OneCycle: `[77.33, 76.71, 77.62, 77.92, 78.04]` mean 77.52
-- Per-fold Δ: `[+2.44, +2.14, +1.60, +1.56, +2.45]` (5/5 positive, σ_Δ = 0.44)
+- P4+OneCycle per-fold cat F1: `[68.60, 66.38, 67.35, 62.68, 67.60]` — fold 4 collapses ~5 pp below the others.
+- P4+Cosine per-fold cat F1: `[69.58, 67.23, 68.11, 68.84, 68.80]` — stable, no outlier.
 
-**Mechanism (refined):** P4 alternating-SGD prevents post-ep-5 reg degradation; OneCycle peak-LR window (max_lr=3e-3 at pct_start=0.4 → peak at ep ~20) aligns with the α-growth window that STL reaches at ep 16-20. Composing the two: P4 keeps the reg path active *and* OneCycle gives it the LR magnitude needed to grow α late. The two interventions act on orthogonal mechanisms (P4 = optimizer separation, OneCycle = LR scheduling) and **compose additively** for a +5.87 pp lift over H3-alt at ≥ep10.
+OneCycle's late peak-LR (ep 19-20) destabilises cat training in some folds; cosine's decay-from-peak protects cat throughout.
 
-H3-alt and P4-alone become predecessors. The previous "P4 alone is the only paper-grade fix" claim is superseded — P4 + OneCycle is strictly stronger.
+**P4 + Cosine is the Pareto-dominant champion**: reg gain paper-grade, cat preserved with no instability.
 
-### 6.4 Tier-A hyperparameter sweep — verdict (full results, 2026-04-29)
+**Champion recipe:**
+```bash
+--alternating-optimizer-step \
+--scheduler cosine --max-lr 3e-3 \
+--min-best-epoch 10
+```
 
-| config | greedy | ≥ep5 | ≥ep10 | best_ep | Δ vs new champion @≥ep10 |
-|---|---:|---:|---:|---|---:|
-| H3-alt CUDA REF | 77.16 | 74.72 | 71.44 | {3,3,3,3,3} | −6.08 |
-| P4 alt-SGD (predecessor) | 78.55 | 78.55 | 75.48 | {12,12,12,10,13} | −2.04 |
-| **P4 + OneCycle** ⭐ | 77.52 | 77.52 | **77.52** | **{20,19,20,19,19}** | **CHAMPION** |
-| A1 onecycle50 | 68.16 | 68.16 | 68.09 | {15,19,32,15,6} | −9.43 |
-| A2 cosine50 | 77.83 | 74.59 | 67.59 ± 8.99 | {3,3,3,3,3} | −9.93 (collapses) |
-| A3 alpha_init=2.0 | 74.50 | 71.18 | 71.01 | {3,3,3,3,3} | −6.51 |
-| A4 epochs100_constant | 78.01 | 74.76 | 71.40 | {83,12,15,12,38} | −6.12 (more epochs ≠ help) |
-| A5 onecycle+α=2.0 | 80.67* | 71.49 | 71.38 | {1,1,1,1,1}* | −6.14 (* init artifact) |
-| A6 cw0.25+onecycle | 68.64 | 68.64 | 68.30 | {21,22,18,6,7} | −9.22 |
+| selector | H3-alt | P4 alone | P4 + OneCycle | **P4 + Cosine** ⭐ |
+|---|---:|---:|---:|---:|
+| greedy | 77.16 | 78.55 | 77.52 | **78.71** |
+| ≥ep5 | 74.72 | 78.55 | 77.52 | **78.68** |
+| **≥ep10** | 71.44 | 75.48 | 77.52 | **76.07** |
+
+Per-fold reg @ ≥ep10:
+- P4+Cosine: `[75.88, 75.10, 76.18, 76.60, 76.59]` mean 76.07 ± 0.62, best_eps `{10,10,10,10,11}`
+- vs H3-alt: deltas `[+5.02, +4.43, +4.98, +4.17, +4.54]` (5/5 positive, mean +4.63, p=0.0312)
+
+**Mechanism (Pareto-aware):** P4 alternating-SGD provides the necessary substrate — it prevents post-ep-5 reg degradation by separating cat and reg optimizer steps. The scheduler choice then trades reg strength against cat stability:
+- **Cosine** decays from peak — early α boost (ep 4-6) preserved by P4's separation, then graceful decay protects cat throughout. Net: +4.63 reg, +0.15 cat → Pareto-dominant.
+- **OneCycle** with pct_start=0.4 — late peak (ep 19-20) gives reg a second growth window, but the high LR at ep 19-20 destabilises cat in some folds. Net: +6.08 reg, −1.84 cat → Pareto-trade.
+
+**Reg-only alternative**: if cat preservation isn't a constraint (rare for an MTL paper, but possible for an ablation study), `P4 + OneCycle` is +1.45 pp stronger on reg (77.52 vs 76.07). Documented as `_1636`; superseded as champion by Pareto criterion.
+
+H3-alt and P4-alone become predecessors. The 2026-04-29 16:36 P4+OneCycle promotion was reg-only and is hereby corrected to the Pareto-aware verdict.
+
+### 6.4 Full sweep verdict — both tasks, paired Wilcoxon (2026-04-29 17:30)
+
+**Pareto table (FL 5f × 50ep, paired Wilcoxon vs H3-alt):**
+
+| config | reg ≥ep10 | Δreg | p(reg) | cat F1 | Δcat | p(cat) | verdict |
+|---|---:|---:|---:|---:|---:|---:|---|
+| H3-alt CUDA REF | 71.44 ± 0.76 | — | — | 68.36 ± 0.74 | — | — | predecessor |
+| P4 alt-SGD | 75.48 ± 0.75 | +4.04 | **0.0312** ✅ | 68.20 ± 0.69 | −0.16 | 0.84 | **Pareto-dominant** |
+| **P4 + Cosine** ⭐ | 76.07 ± 0.62 | **+4.63** | **0.0312** ✅ | 68.51 ± 0.88 | +0.15 | 0.16 | **🏆 Pareto-dominant** |
+| P4 + OneCycle | 77.52 ± 0.53 | +6.08 | **0.0312** ✅ | **66.52 ± 2.29** | **−1.84** | 1.00 | **Pareto-TRADE** ⚠ |
+| A1 onecycle50 | 68.09 ± 0.56 | −3.35 | 1.00 | 67.21 ± 0.87 | −1.15 | 0.97 | both worse |
+| A2 cosine50 | 67.59 ± 8.99 | −3.85 | 0.78 | 68.42 ± 0.77 | +0.06 | 0.41 | reg collapses, cat tied |
+| A3 alpha_init=2.0 | 71.01 ± 0.42 | −0.43 | 1.00 | 68.18 ± 0.78 | −0.18 | 0.69 | tied |
+| A4 epochs100_constant | 71.40 ± 0.36 | −0.05 | 0.50 | 68.25 ± 0.72 | −0.11 | 0.59 | tied |
+| A5 stacked | 71.38 ± 0.51 | −0.06 | 0.41 | 67.95 ± 1.21 | −0.41 | 0.84 | tied |
+| A6 cw0.25+onecycle | 68.30 ± 0.93 | −3.14 | 1.00 | 66.08 ± 0.78 | −2.28 | 1.00 | both worse |
+
+**Three configs achieve paper-grade reg significance (p=0.0312, 5/5 positive):** P4-alone, P4+Cosine, P4+OneCycle. **P4 is the necessary substrate** — every config without P4 either trades cat or fails reg.
+
+Among the three P4 variants, only **P4+Cosine and P4-alone are Pareto-dominant** (reg paper-grade AND cat preserved within σ). **P4+OneCycle trades cat for reg** — its single-fold cat collapse (62.68 vs others' 67-68) blows σ from 0.74 → 2.29.
+
+**OneCycle's warmup-then-peak (peak at ep 19-20) is what destabilises cat** — the high LR right when cat is already fine-tuned drives a small fraction of folds off the cat optimum. Cosine's monotonic decay never imposes that late-training perturbation, so cat stability is preserved.
+
+**Best-epoch distribution insight:**
+- A2 cosine50, A3 α=2.0, A4 const-100ep, A5 stacked all peak at ep 3 (∀fold) → these run normal reg trajectory; reg-best is the canonical pinned-at-ep-3 MTL signature.
+- A1 onecycle50, A6 cw0.25+onecycle peak at ep 15-22 → OneCycle DOES shift reg-best later, but the absolute reg level is below H3-alt → OneCycle alone fails the gradient-coordination problem that P4 solves.
+- P4-alone, P4+Cosine, P4+OneCycle all peak at ep 10-20 → P4's optimizer separation lets the late-LR window actually sustain reg.
 
 **Compositional finding:** OneCycle alone (A1) hurts by 9 pp; OneCycle + α=2.0 (A5) hurts by 6 pp; OneCycle + cw=0.25 (A6) hurts by 9 pp; OneCycle + 100 epochs (A4) is neutral; **but OneCycle + P4 alternating-SGD (champion-candidate) wins by 2 pp**. P4 is the necessary substrate — it prevents the post-ep-5 collapse that all joint-loss configs suffer. OneCycle then provides the late-epoch LR magnitude that makes α grow during the now-protected reg training window.
 
