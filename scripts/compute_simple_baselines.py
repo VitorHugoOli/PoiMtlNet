@@ -47,6 +47,7 @@ if _src not in sys.path:
 
 from configs.paths import EmbeddingEngine, IoPaths
 from configs.model import InputsConfig
+from sklearn.metrics import f1_score
 from sklearn.model_selection import StratifiedGroupKFold
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -368,6 +369,22 @@ def compute_baselines_for_task(state: str, task: str) -> Dict:
         fold["user_history"] = baseline_user_history(
             uid_train, y_train, uid_val, y_val,
         )
+        # Macro-F1 for the two category floors (not derivable from acc alone)
+        if task == "next_category":
+            _maj_cls = Counter(y_train).most_common(1)[0][0]
+            fold["majority"]["macro_f1"] = float(f1_score(
+                y_val, np.full(len(y_val), _maj_cls), average="macro", zero_division=0))
+            _trans: dict = defaultdict(Counter)
+            for _lp, _lbl in zip(lp_train, y_train):
+                if _lp >= 0:
+                    _trans[int(_lp)][int(_lbl)] += 1
+            _global_top1 = Counter(y_train).most_common(1)[0][0]
+            _m1_top1 = np.array([
+                _trans[int(_lp)].most_common(1)[0][0] if int(_lp) in _trans else _global_top1
+                for _lp in lp_val
+            ])
+            fold["markov_1step"]["macro_f1"] = float(f1_score(
+                y_val, _m1_top1, average="macro", zero_division=0))
         # Region-level N-step Markov with backoff. Only for next_region —
         # next_category uses 7 classes, where Markov-K is trivially bounded
         # by the majority baseline anyway.
@@ -409,6 +426,12 @@ def compute_baselines_for_task(state: str, task: str) -> Dict:
             agg[f"{m}_std"] = float(np.std(vals))
         aggregate[bl] = agg
 
+    if task == "next_category":
+        for _bl in ("majority", "markov_1step"):
+            _f1_vals = [f[_bl]["macro_f1"] * 100 for f in fold_results]
+            aggregate[_bl]["macro_f1_mean"] = float(np.mean(_f1_vals))
+            aggregate[_bl]["macro_f1_std"] = float(np.std(_f1_vals))
+
     # Best simple baseline (max acc10 mean across all baselines)
     best_bl = max(baseline_names, key=lambda bl: aggregate[bl]["acc10_mean"])
     best_acc10 = aggregate[best_bl]["acc10_mean"]
@@ -449,6 +472,19 @@ def main():
             out_dir.mkdir(parents=True, exist_ok=True)
             out_path = out_dir / f"{task}.json"
             out_path.write_text(json.dumps(result, indent=2))
+            if task == "next_category":
+                agg = result["aggregate"]
+                f1_summary = {
+                    "majority_f1_mean": agg["majority"]["macro_f1_mean"],
+                    "majority_f1_std": agg["majority"]["macro_f1_std"],
+                    "top_k_popular_top1_f1_mean": agg["majority"]["macro_f1_mean"],
+                    "top_k_popular_top1_f1_std": agg["majority"]["macro_f1_std"],
+                    "markov_1step_f1_mean": agg["markov_1step"]["macro_f1_mean"],
+                    "markov_1step_f1_std": agg["markov_1step"]["macro_f1_std"],
+                }
+                f1_path = out_dir / "next_category_f1.json"
+                f1_path.write_text(json.dumps(f1_summary, indent=2))
+                logger.info("Saved F1 summary: %s", f1_path)
             logger.info(
                 "Saved: %s | best_baseline=%s acc10=%.4f | majority_fraction=%.4f",
                 out_path, result["best_simple_baseline"],

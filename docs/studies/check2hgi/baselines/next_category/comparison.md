@@ -6,25 +6,25 @@ Generated from `results/<state>.json`. To refresh, regenerate the JSONs (see `..
 
 | Baseline | Variant | AL | AZ | FL | CA | TX |
 |---|---|---:|---:|---:|---:|---:|
-| Majority class (floor) | — | 7.28 ± 0.00 | 7.25 ± 0.00 | 5.66 ± 0.00 | 🔴 | 🔴 |
-| Markov-1-POI (floor) | last POI | 16.81 ± 1.06 | 19.48 ± 0.63 | 27.60 ± 0.32 | 🔴 | 🔴 |
-| Markov-9-cat (floor) | 9-cat seq, backoff | best K=5: **20.50 ± 0.67** | best K=5: **23.92 ± 2.26** | best K=3: **29.74 ± 1.19** | 🔴 | 🔴 |
-| **MHA+PE** (Zeng 2019) | `faithful` (8-step window) | 18.95 ± 0.71 | 24.99 ± 0.85 | 32.06 ± 0.23 | 🔴 | 🔴 |
-| **POI-RGNN** | `faithful` (9-step window) | **23.80 ± 1.12** | **27.64 ± 2.34** | **33.35 ± 1.14** | 🔴 | 🔴 |
+| Majority class (floor) | — | 7.28 ± 0.00 | 7.25 ± 0.00 | 5.66 ± 0.00 | 7.04 ± 0.00 | 6.76 ± 0.00 |
+| Markov-1-POI (floor) | last POI | 16.81 ± 1.06 | 19.48 ± 0.63 | 27.60 ± 0.32 | 24.95 ± 1.18 | 25.85 ± 0.55 |
+| Markov-9-cat (floor) | 9-cat seq, backoff | best K=5: **20.50 ± 0.67** | best K=5: **23.92 ± 2.26** | best K=3: **29.74 ± 1.19** | best K=5: **27.59 ± 0.61** | best K=5: **28.67 ± 0.66** |
+| **MHA+PE** (Zeng 2019) | `faithful` (8-step window) | 18.95 ± 0.71 | 24.99 ± 0.85 | 32.06 ± 0.23 | 29.13 ± 0.71 | 29.91 ± 0.43 |
+| **POI-RGNN** | `faithful` (9-step window) | **23.80 ± 1.12** | **27.64 ± 2.34** | **33.35 ± 1.14** | 🔴 (running) | 🔴 (running) |
 
 The Markov-1-POI line conditions on the last POI ID only (paper-style 1-step floor). **Markov-K-cat is the apples-to-apples sequence floor for POI-RGNN**: both methods see the same 9-step category window, the Markov side conditioning on the last K categories with stupid backoff (K → K-1 → … → 1 → unigram). See `scripts/compute_markov_kstep_cat.py` and `next_category_markov_kstep.json` per state.
 
-(🔴 = pending; 🟡 = partial / 1-fold; ✅ = 5-fold complete.)
+(🔴 = pending; 🟡 = partial / 1-fold; ✅ = 5-fold complete. CA + TX MHA+PE faithful + Markov-K-cat closed locally on H100 2026-04-30; POI-RGNN faithful still running.)
 
 ## Cross-baseline summary — Acc@1 (mean ± σ)
 
-| Baseline | Variant | AL | AZ | FL |
-|---|---|---:|---:|---:|
-| Majority class (floor) | — | 34.19 | 34.01 | 24.69 |
-| Markov-1-POI (floor) | — | 31.69 ± 0.45 | 32.58 ± 0.32 | 36.88 ± 0.44 |
-| best Markov-K-cat (k=3) | — | 36.72 ± 1.22 | 39.26 ± 1.37 | 42.03 ± 0.64 |
-| **MHA+PE** | `faithful` | 39.35 ± 1.10 | 41.23 ± 1.23 | 43.83 ± 0.17 |
-| **POI-RGNN** | `faithful` | **39.21 ± 1.97** | **41.04 ± 1.79** | **44.07 ± 0.76** |
+| Baseline | Variant | AL | AZ | FL | CA | TX |
+|---|---|---:|---:|---:|---:|---:|
+| Majority class (floor) | — | 34.19 | 34.01 | 24.69 | 32.72 | 30.98 |
+| Markov-1-POI (floor) | — | 31.69 ± 0.45 | 32.58 ± 0.32 | 36.88 ± 0.44 | 34.20 ± 0.20 | 33.12 ± 0.14 |
+| best Markov-K-cat | — | k=3: 36.72 ± 1.22 | k=3: 39.26 ± 1.37 | k=3: 42.03 ± 0.64 | k=3: 39.44 ± 0.47 | k=3: 37.99 ± 0.23 |
+| **MHA+PE** | `faithful` | 39.35 ± 1.10 | 41.23 ± 1.23 | 43.83 ± 0.17 | 40.40 ± 0.40 | 39.43 ± 0.28 |
+| **POI-RGNN** | `faithful` | **39.21 ± 1.97** | **41.04 ± 1.79** | **44.07 ± 0.76** | 🔴 (running) | 🔴 (running) |
 
 POI-RGNN beats every floor on Acc@1 across all three states. The macro-F1 lift over the majority floor is ≥24 pp at every state — POI-RGNN learns to discriminate the minority categories that the majority floor ignores entirely.
 
@@ -39,6 +39,8 @@ POI-RGNN beats every floor on Acc@1 across all three states. The macro-F1 lift o
 | AL | 39.35 ± 1.10 | 79.93 ± 0.39 | 92.53 ± 0.70 | 61.27 ± 0.70 | 18.95 ± 0.71 | 33.84 ± 0.66 | 12,175 |
 | AZ | 41.23 ± 1.23 | 81.26 ± 0.61 | 93.07 ± 0.36 | 62.86 ± 0.76 | 24.99 ± 0.85 | 37.17 ± 1.03 | 25,394 |
 | FL | 43.83 ± 0.17 | 78.91 ± 0.26 | 92.92 ± 0.14 | 63.53 ± 0.18 | 32.06 ± 0.23 | 40.85 ± 0.17 | 161,086 |
+| CA | 40.40 ± 0.40 | 78.09 ± 0.17 | 92.10 ± 0.12 | 61.52 ± 0.26 | 29.13 ± 0.71 | 37.18 ± 0.51 | 367,523 |
+| TX | 39.43 ± 0.28 | 78.43 ± 0.24 | 92.78 ± 0.08 | 60.97 ± 0.20 | 29.91 ± 0.43 | 36.88 ± 0.35 | 477,039 |
 
 ## Per-baseline detail — POI-RGNN
 
@@ -63,6 +65,8 @@ K-step Markov over the last K categories of the 9-step input window, stupid-back
 | AL | 10.01 ± 2.02 | 20.19 ± 1.01 | **20.50 ± 0.67** | 19.73 ± 0.74 | 19.27 ± 0.59 |
 | AZ | 12.61 ± 0.19 | 23.79 ± 2.03 | **23.92 ± 2.26** | 22.45 ± 2.10 | 22.01 ± 2.03 |
 | FL | 23.98 ± 1.22 | **29.74 ± 1.19** | 29.55 ± 1.10 | 27.63 ± 0.73 | 26.65 ± 0.66 |
+| CA | 19.97 ± 1.77 | 27.06 ± 0.60 | **27.58 ± 0.61** | 25.47 ± 0.43 | 24.18 ± 0.37 |
+| TX | 18.17 ± 1.38 | 27.94 ± 0.60 | **28.67 ± 0.66** | 26.26 ± 0.56 | 24.62 ± 0.43 |
 
 ### Acc@1 (mean ± σ)
 
@@ -71,6 +75,8 @@ K-step Markov over the last K categories of the 9-step input window, stupid-back
 | AL | 35.45 ± 0.80 | **36.72 ± 1.22** | 33.90 ± 0.63 | 31.95 ± 0.82 | 30.78 ± 0.52 |
 | AZ | 37.25 ± 0.48 | **39.26 ± 1.37** | 35.99 ± 1.38 | 32.83 ± 1.52 | 31.86 ± 1.45 |
 | FL | 37.99 ± 0.48 | **42.03 ± 0.64** | 39.90 ± 0.71 | 36.40 ± 0.56 | 34.60 ± 0.53 |
+| CA | 36.44 ± 0.22 | **39.44 ± 0.47** | 38.00 ± 0.46 | 33.85 ± 0.37 | 31.48 ± 0.31 |
+| TX | 34.08 ± 0.27 | **37.99 ± 0.23** | 37.15 ± 0.41 | 33.47 ± 0.40 | 30.89 ± 0.34 |
 
 K=3–5 is the sweet spot — beyond that, key sparsity (7^K vs ~10K–150K windows) eats the gain even with backoff.
 
@@ -81,6 +87,8 @@ K=3–5 is the sweet spot — beyond that, key sparsity (7^K vs ~10K–150K wind
 | AL | **23.80** | 18.95 | +3.30 | **−1.55** |
 | AZ | **27.64** | 24.99 | +3.72 | +1.07 |
 | FL | **33.35** | 32.06 | +3.61 | +2.32 |
+| CA | 🔴 (running) | 29.13 | 🔴 | (POI-RGNN − Markov-K-cat) +1.54 |
+| TX | 🔴 (running) | 29.91 | 🔴 | +1.24 |
 
 - **POI-RGNN beats MHA+PE on macro-F1 across all 3 states** by +2.65 (AZ) to +4.85 (AL) pp. The RNN+GNN combo's category-transition graph buys real F1 over the RNN+self-attention combo at this scale.
 - **MHA+PE underperforms the count-based Markov-K-cat at AL** (−1.55 pp) and only marginally beats it at AZ (+1.07 pp). The transformer architecture without a graph signal struggles to extract minority-class structure beyond what stupid-backoff N-grams already capture.

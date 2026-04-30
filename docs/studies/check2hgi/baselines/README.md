@@ -158,10 +158,10 @@ Top-level summary table:
 
 | Baseline | AL | AZ | FL | CA | TX |
 |---|---|---|---|---|---|
-| Markov-1-region (floor)  | ✅ | ✅ | ✅ | 🔴 | 🔴 |
-| **STAN — faithful**      | ✅ | ✅ | ✅ | 🔴 | 🔴 |
-| **STAN — stl_check2hgi** | ✅ | ✅ | ✅ | 🔴 | 🔴 |
-| **STAN — stl_hgi**       | ✅ | ✅ | ✅ | 🔴 | 🔴 |
+| Markov-1-region (floor)  | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **STAN — faithful**      | ✅ | ✅ | ✅ | 🟡 (running) | 🟡 (running) |
+| **STAN — stl_check2hgi** | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **STAN — stl_hgi**       | ✅ | ✅ | ✅ | ✅ | ✅ |
 | **ReHDM — faithful**     | ✅ | ✅ | 🔴 | 🔴 | 🔴 |
 | **ReHDM — stl_check2hgi** | ✅ | 🔴 | 🔴 | 🔴 | 🔴 |
 | **ReHDM — stl_hgi**      | ✅ | ✅ | 🔴 | 🔴 | 🔴 |
@@ -178,11 +178,11 @@ Top-level summary table:
 
 | Baseline | AL | AZ | FL | CA | TX |
 |---|---|---|---|---|---|
-| Majority class (floor) | ✅ | ✅ | ✅ | 🔴 | 🔴 |
-| Markov-1-POI (floor) | ✅ | ✅ | ✅ | 🔴 | 🔴 |
-| Markov-K-cat (k=1..9) (floor) | ✅ | ✅ | ✅ | 🔴 | 🔴 |
-| POI-RGNN — faithful | ✅ | ✅ | ✅ | 🔴 | 🔴 |
-| MHA+PE — faithful | ✅ | ✅ | ✅ | 🔴 | 🔴 |
+| Majority class (floor) | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Markov-1-POI (floor) | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Markov-K-cat (k=1..9) (floor) | ✅ | ✅ | ✅ | ✅ | ✅ |
+| POI-RGNN — faithful | ✅ | ✅ | ✅ | 🟡 (running) | 🟡 (running) |
+| MHA+PE — faithful | ✅ | ✅ | ✅ | ✅ | ✅ |
 | **C2HGI cat — matched-head `next_gru` (Phase-1)** | ✅ **40.76 ± 1.50** | ✅ **43.21 ± 0.78** | 🔴 (F36b) | 🔴 | 🔴 |
 | **HGI cat — matched-head `next_gru` (Phase-1)** | ✅ **25.26 ± 1.06** | ✅ **28.69 ± 0.71** | 🔴 (F36b) | 🔴 | 🔴 |
 | **Δ matched-head (paired Wilcoxon p_greater)** | **+15.50 (p=0.0312)** | **+14.52 (p=0.0312)** | 🔴 | 🔴 | 🔴 |
@@ -191,7 +191,7 @@ Top-level summary table:
 | C2HGI cat — `next_single` (legacy P1_5b) | ✅ 38.58 ± 1.23 | ✅ 42.08 ± 0.89 | 🟡 (1f) | 🔴 | 🔴 |
 | HGI cat — `next_single` (legacy P1_5b) | ✅ 20.29 ± 1.34 | ✅ 29.69 ± 0.97 (Phase-1) | 🔴 | 🔴 | 🔴 |
 
-(Updated when a new run lands. Mirror in `PAPER_STRUCTURE.md §7` if the cell affects the headline objective.)
+(Updated when a new run lands. Mirror in `PAPER_STRUCTURE.md §7` if the cell affects the headline objective. † CA/TX faithful baselines + Markov-K-cat require raw Gowalla checkins; pending RunPod run per `docs/studies/check2hgi/GAP_A_RUNPOD_HANDOFF_PROMPT.md`.)
 
 ---
 

@@ -6,15 +6,15 @@ Generated from `results/<state>.json`. To refresh, regenerate the JSONs (see `..
 
 | Baseline | Variant | AL | AZ | FL | CA | TX |
 |---|---|---:|---:|---:|---:|---:|
-| Markov-1-region (floor) | — | 47.01 ± 3.55 | 42.96 ± 2.05 | 65.05 ± 0.93 | 🔴 | 🔴 |
-| **STAN** | `faithful` | 34.46 ± 3.88 | 38.96 ± 3.41 | 65.36 ± 0.69 | 🔴 | 🔴 |
-| **STAN** | `stl_check2hgi` | 59.20 ± 3.62 | 52.24 ± 2.38 | 72.62 ± 0.52 | 🔴 | 🔴 |
-| **STAN** | `stl_hgi` | **62.88 ± 3.90** | **54.86 ± 2.84** | **73.58 ± 0.43** | 🔴 | 🔴 |
+| Markov-1-region (floor) | — | 47.01 ± 3.55 | 42.96 ± 2.05 | 65.05 ± 0.93 | 52.09 ± 0.80 | 54.94 ± 0.46 |
+| **STAN** | `faithful` | 34.46 ± 3.88 | 38.96 ± 3.41 | 65.36 ± 0.69 | 🔴† | 🔴† |
+| **STAN** | `stl_check2hgi` | 59.20 ± 3.62 | 52.24 ± 2.38 | 72.62 ± 0.52 | 58.82 ± 1.04 | 61.35 ± 0.36 |
+| **STAN** | `stl_hgi` | **62.88 ± 3.90** | **54.86 ± 2.84** | **73.58 ± 0.43** | **60.45 ± 0.97** | **62.70 ± 0.37** |
 | **ReHDM** † | `faithful` | **66.06 ± 0.98** | **54.65 ± 0.77** | 🔴 (~30 h) | 🔴 | 🔴 |
 | **ReHDM** ‡ | `stl_check2hgi` | 26.22 ± 1.58 | 🔴 | 🔴 | 🔴 | 🔴 |
 | **ReHDM** ‡ | `stl_hgi` | 42.78 ± 2.82 | 34.00 ± 3.02 | 🔴 | 🔴 | 🔴 |
 
-Bold = best variant per state-baseline. (🔴 = pending; 🟡 = partial / 1-fold; ✅ = 5-fold complete.)
+Bold = best variant per state-baseline. (🔴 = pending; 🟡 = partial / 1-fold; ✅ = 5-fold complete. † CA/TX STAN `faithful` requires raw Gowalla checkins + TIGER tract shapefiles; pending RunPod run per `GAP_A_RUNPOD_HANDOFF_PROMPT.md`.)
 
 † **ReHDM `faithful` uses the paper's protocol** (chronological 80/10/10 + 24h sessions + 5 seeds, not 5 StratifiedGroupKFold folds). σ is inter-seed; cell-for-cell σ comparison with STAN rows is not valid. The qualitative ordering vs Markov-1 floor still holds.
 
@@ -31,6 +31,8 @@ Bold = best variant per state-baseline. (🔴 = pending; 🟡 = partial / 1-fold
 | AL | 7.86 ± 1.11 | 23.27 ± 2.09 | 34.46 ± 3.88 | 16.45 ± 1.47 | 0.92 ± 0.32 |
 | AZ | 13.43 ± 2.57 | 30.49 ± 3.63 | 38.96 ± 3.41 | 21.95 ± 2.83 | 2.08 ± 0.88 |
 | FL | 35.70 ± 0.67 | 56.59 ± 0.75 | 65.36 ± 0.69 | 45.57 ± 0.57 | 4.55 ± 0.31 |
+| CA | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 |
+| TX | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 |
 
 ### `stl_check2hgi` — STAN architecture, Check2HGI substrate input
 
@@ -39,6 +41,8 @@ Bold = best variant per state-baseline. (🔴 = pending; 🟡 = partial / 1-fold
 | AL | 24.64 ± 1.38 | 48.19 ± 2.74 | 59.20 ± 3.62 | 36.10 ± 1.96 | 6.34 ± 0.41 |
 | AZ | 24.48 ± 2.29 | 43.07 ± 2.40 | 52.24 ± 2.38 | 33.70 ± 2.36 | 5.42 ± 0.46 |
 | FL | 46.82 ± 0.53 | 65.64 ± 0.62 | 72.62 ± 0.52 | 55.65 ± 0.43 | 9.70 ± 0.11 |
+| CA | 31.27 ± 0.88 | 50.71 ± 1.08 | 58.82 ± 1.04 | 40.62 ± 0.91 | 8.06 ± 0.21 |
+| TX | 29.04 ± 0.44 | 52.01 ± 0.53 | 61.35 ± 0.36 | 39.96 ± 0.45 | 9.29 ± 0.16 |
 
 ### `stl_hgi` — STAN architecture, HGI substrate input
 
@@ -47,6 +51,8 @@ Bold = best variant per state-baseline. (🔴 = pending; 🟡 = partial / 1-fold
 | AL | 27.40 ± 2.14 | 51.87 ± 3.96 | 62.88 ± 3.90 | 39.02 ± 2.66 | 8.77 ± 0.94 |
 | AZ | 26.26 ± 2.38 | 45.76 ± 2.79 | 54.86 ± 2.84 | 35.87 ± 2.47 | 7.76 ± 0.85 |
 | FL | 47.37 ± 0.52 | 66.64 ± 0.43 | 73.58 ± 0.43 | 56.40 ± 0.40 | 10.86 ± 0.21 |
+| CA | 31.90 ± 0.91 | 52.20 ± 1.03 | 60.45 ± 0.97 | 41.59 ± 0.93 | 8.89 ± 0.30 |
+| TX | 29.55 ± 0.43 | 53.16 ± 0.48 | 62.70 ± 0.37 | 40.75 ± 0.42 | 10.25 ± 0.21 |
 
 ### `faithful` — paper-architecture from raw inputs (ReHDM)
 

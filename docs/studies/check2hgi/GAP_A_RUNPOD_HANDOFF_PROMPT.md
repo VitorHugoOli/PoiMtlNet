@@ -2,6 +2,20 @@
 
 **Paste the section below into the RunPod Sonnet agent.** Self-contained brief; agent should NOT need to ask anything except for the gdrive folder IDs in §2.4. Branch is `worktree-check2hgi-mtl`. Don't push to `main`.
 
+> **2026-04-30 closure on Lightning H100 (no RunPod needed; raw Gowalla parquets + TIGER 2022 tract shapefiles fetched into `data/checkins/` and `data/miscellaneous/` directly).**
+>
+> **Closed:**
+> - All `next_category` floors (majority, top_k_popular, Markov-1-POI, Markov-K-cat) for CA + TX.
+> - All `next_region` floors (majority, Markov-1-region) for CA + TX.
+> - `next_region` STAN STL variants (`stl_check2hgi`, `stl_hgi`) for CA + TX.
+> - `next_category` MHA+PE faithful for CA + TX.
+>
+> **Still running on Lightning H100 (5f×35ep / 5f×50ep, ~6-way GPU contention slows wall-clock):**
+> - §4.2 POI-RGNN faithful (CA + TX)
+> - §4.4 STAN faithful (CA + TX)
+>
+> This file is now historical. The whole RunPod path was rendered unnecessary because pyogrio + the TIGER URL pattern (`https://www2.census.gov/geo/tiger/TIGER2022/TRACT/tl_2022_<FIPS>_tract.zip`) made local execution feasible. Keep this file for the next reproduction; ignore the §3.4 ask-the-user step (it's no longer blocking).
+
 ---
 
 ## You are picking up the Check2HGI study to close Gap A
@@ -184,7 +198,7 @@ done
 # next_category Markov-K-cat floor
 for STATE in california texas; do
   TAG="MARKOV_KCAT_${STATE^^}_5f_k1to9"
-  python3 scripts/compute_markov_kstep_cat.py --state "$STATE" --max-k 9 \
+  python3 scripts/compute_markov_kstep_cat.py --state "$STATE" \
     2>&1 | tee "logs/gap_a/${TAG}.log"
 done
 ```
@@ -272,7 +286,7 @@ done
 
 If STAN OOMs on TX (~9.9K regions × 2048 batch on a 24 GB GPU), drop to `--batch-size 1024`. Wall-clock unchanged (samples/sec roughly constant). Don't drop further than 1024.
 
-If `p1_region_head_ablation.py` OOMs at the STAN inner attention, you can also try `--region-batch-size 256` (head-internal chunking flag); read `--help` to confirm.
+If `p1_region_head_ablation.py` OOMs, drop `--batch-size` further (e.g. `--batch-size 512`), though below 1024 the throughput penalty starts to matter. Read `--help` to confirm available flags.
 
 ---
 
@@ -320,7 +334,7 @@ git add docs/studies/check2hgi/baselines/next_category/results/{california,texas
         docs/studies/check2hgi/baselines/next_category/comparison.md \
         docs/studies/check2hgi/baselines/next_region/comparison.md \
         docs/studies/check2hgi/baselines/README.md \
-        docs/studies/check2hgi/results/baselines/*_${STAG_LOWER}_*.json \
+        docs/studies/check2hgi/results/baselines/*_{california,texas}_*.json \
         docs/studies/check2hgi/results/P0/simple_baselines/{california,texas}/ \
         docs/studies/check2hgi/results/P1/region_head_{california,texas}_*.json
 

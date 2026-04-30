@@ -1,8 +1,8 @@
 {
-  "majority_f1_mean": 7.250889443493226,
-  "majority_f1_std": 0.001685765147858706,
-  "top_k_popular_top1_f1_mean": 7.250889443493226,
-  "top_k_popular_top1_f1_std": 0.001685765147858706,
-  "markov_1step_f1_mean": 19.476363989695074,
-  "markov_1step_f1_std": 0.6319326304823136
+  "majority_f1_mean": 7.250889443493224,
+  "majority_f1_std": 0.0016857651478590506,
+  "top_k_popular_top1_f1_mean": 7.250889443493224,
+  "top_k_popular_top1_f1_std": 0.0016857651478590506,
+  "markov_1step_f1_mean": 19.47636398969508,
+  "markov_1step_f1_std": 0.6319326304823145
 }
