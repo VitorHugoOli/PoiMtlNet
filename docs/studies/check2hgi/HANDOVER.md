@@ -145,7 +145,13 @@ P4-alone (minimal paper-grade): drop `--scheduler cosine`, `--alpha-no-weight-de
 
 ## Data + results not in git
 
-The `results/` and `output/` directories are gitignored (sizes: results 1.2 GB, output ~20 GB across all states). For the CURRENT paper run dirs, see `handover_results.zip` at the repo root (created at this handover).
+The `results/` and `output/` directories are gitignored (sizes: results 1.2 GB, output ~20 GB across all states). For the CURRENT paper run dirs, see `handover_results.tar.gz` at the repo root (71 MB, gitignored). It contains ONLY the gitignored data:
+
+- `results_florida_clean/` — 14 paper-grade FL 5f×50ep run dirs (B9 champion + H3-alt anchor + F53 cw sweep + B2/F52/F65 follow-ups + D5 trajectory pair + PLE clean)
+- `results_cross_state/` — most-recent 3 MTL runs each for AL/AZ/GA
+- `README.md` — run-dir mapping + re-extraction commands
+
+Everything else (synthesis docs, figs, scripts, analyzer JSONs) is in the git repo — the bundle's README points there. Extract with `tar xzf handover_results.tar.gz` and place alongside the cloned repo to re-run the analyzer.
 
 ## Common pitfalls for the next agent
 
