@@ -207,6 +207,8 @@ def evaluate(model, store, ids, batch_size, device, max_intra=4, max_inter=4):
     model.eval()
     loader = DataLoader(
         ReHDMDataset(store, ids), batch_size=batch_size, shuffle=False,
+        num_workers=2, persistent_workers=True,
+        pin_memory=torch.cuda.is_available(),
         collate_fn=make_collate(store, max_intra, max_inter, training=True),
     )
     n = 0
@@ -218,7 +220,9 @@ def evaluate(model, store, ids, batch_size, device, max_intra=4, max_inter=4):
         if c_ids is not None:
             c_ids = _move(c_ids, device); c_mask = c_mask.to(device)
             adj = adj.to(device); et = et.to(device)
-        logits = model(t_ids, t_mask, c_ids, c_mask, adj, et)
+        with torch.autocast(device_type="cuda", dtype=torch.bfloat16, enabled=torch.cuda.is_available()):
+            logits = model(t_ids, t_mask, c_ids, c_mask, adj, et)
+        logits = logits.float()
         ranks = (-logits).argsort(dim=-1)
         pos = (ranks == y.unsqueeze(1)).nonzero()[:, 1] + 1
         correct1 += (pos <= 1).sum().item()
@@ -263,9 +267,15 @@ def train_one_run(
     model = ReHDM(cfg).to(device)
     print(f"[train] params={sum(p.numel() for p in model.parameters())/1e6:.2f}M")
 
+    if torch.cuda.is_available():
+        torch.backends.cuda.matmul.allow_tf32 = True
+        torch.backends.cudnn.allow_tf32 = True
+        torch.set_float32_matmul_precision("high")
     train_loader = DataLoader(
         ReHDMDataset(store, store.train_ids), batch_size=batch_size, shuffle=True,
         collate_fn=make_collate(store, max_intra, max_inter, training=True),
+        num_workers=12, persistent_workers=True, prefetch_factor=4,
+        pin_memory=torch.cuda.is_available(),
     )
     optim = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=0.01)
     steps = max(1, len(train_loader)) * epochs
@@ -285,8 +295,9 @@ def train_one_run(
                 adj = adj.to(device); et = et.to(device)
             y = y.to(device)
             optim.zero_grad()
-            logits = model(t_ids, t_mask, c_ids, c_mask, adj, et)
-            loss = F.cross_entropy(logits, y)
+            with torch.autocast(device_type="cuda", dtype=torch.bfloat16, enabled=torch.cuda.is_available()):
+                logits = model(t_ids, t_mask, c_ids, c_mask, adj, et)
+                loss = F.cross_entropy(logits, y)
             if not torch.isfinite(loss):
                 print(f"[train] non-finite loss at ep={ep+1}; skipping batch")
                 continue

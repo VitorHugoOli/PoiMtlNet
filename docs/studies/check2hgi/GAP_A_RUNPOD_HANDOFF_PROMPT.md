@@ -1,5 +1,15 @@
 # Gap A — RunPod Handoff Prompt (CA + TX external baselines)
 
+> ## ✅ SUPERSEDED — Gap A closed 2026-04-30 on Lightning H100
+>
+> **Final state:** see [`GAP_A_CLOSURE_20260430.md`](GAP_A_CLOSURE_20260430.md) for the consolidated closure.
+>
+> **Outcome.** RunPod was never needed. Raw Gowalla parquets + TIGER 2022 tract shapefiles were fetched directly onto Lightning H100. The 5-state next-region campaign was scoped down to AL/AZ/FL after CA/TX faithful (STAN + REHDM) proved compute-infeasible at H100-budget; the substrate axis remains 5-state via STAN-STL.
+>
+> This handoff doc is preserved as historical context (the diagnosis and command-list were broadly correct) but should not be used as a launch script.
+
+---
+
 **Paste the section below into the RunPod Sonnet agent.** Self-contained brief; agent should NOT need to ask anything except for the gdrive folder IDs in §2.4. Branch is `worktree-check2hgi-mtl`. Don't push to `main`.
 
 > **2026-04-30 closure on Lightning H100 (no RunPod needed; raw Gowalla parquets + TIGER 2022 tract shapefiles fetched into `data/checkins/` and `data/miscellaneous/` directly).**

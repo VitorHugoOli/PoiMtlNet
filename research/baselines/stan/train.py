@@ -32,7 +32,6 @@ import pandas as pd
 import torch
 import torch.nn as nn
 from sklearn.model_selection import StratifiedGroupKFold
-from torch.utils.data import DataLoader, TensorDataset
 
 _root = Path(__file__).resolve().parents[3]
 _src = str(_root / "src")
@@ -85,17 +84,33 @@ def load_tensors(state: str):
     )
 
 
-def _make_loader(idx, poi, hour, lat, lon, tmin, y, batch_size, shuffle):
-    ds = TensorDataset(poi[idx], hour[idx], lat[idx], lon[idx], tmin[idx], y[idx])
-    return DataLoader(ds, batch_size=batch_size, shuffle=shuffle, num_workers=0)
-
-
 def train_one_fold(poi, hour, lat, lon, tmin, y, centroids, train_idx, val_idx,
                    n_pois, n_regions, *, epochs, batch_size, seed,
                    d_model, dropout, max_lr) -> dict:
     seed_everything(seed)
-    train_dl = _make_loader(train_idx, poi, hour, lat, lon, tmin, y, batch_size, True)
-    val_dl = _make_loader(val_idx, poi, hour, lat, lon, tmin, y, batch_size, False)
+    # Determinism off here (warn_only=True earlier just emitted spam without
+    # actual determinism since CuBLAS isn't deterministic by default).
+    torch.use_deterministic_algorithms(False)
+
+    # Pre-move all fold tensors to GPU once. Eliminates DataLoader IPC, fork
+    # pickling, and per-batch H2D copies — the dominant overhead on small
+    # datasets (AL: 12K rows). For CA/TX (~360–460K rows × 9 windows) the
+    # tensor footprint is ~150 MB total, trivially fitting on the 80 GB H100.
+    train_idx_t = torch.as_tensor(train_idx, dtype=torch.long)
+    val_idx_t = torch.as_tensor(val_idx, dtype=torch.long)
+
+    def _gather(t, idx):
+        return t.index_select(0, idx).to(DEVICE, non_blocking=torch.cuda.is_available())
+
+    poi_tr = _gather(poi, train_idx_t); hour_tr = _gather(hour, train_idx_t)
+    lat_tr = _gather(lat, train_idx_t); lon_tr = _gather(lon, train_idx_t)
+    tmin_tr = _gather(tmin, train_idx_t); y_tr = _gather(y, train_idx_t)
+    poi_va = _gather(poi, val_idx_t); hour_va = _gather(hour, val_idx_t)
+    lat_va = _gather(lat, val_idx_t); lon_va = _gather(lon, val_idx_t)
+    tmin_va = _gather(tmin, val_idx_t); y_va = _gather(y, val_idx_t)
+
+    n_train = poi_tr.shape[0]
+    steps_per_epoch = max(1, (n_train + batch_size - 1) // batch_size)
 
     model = FaithfulSTAN(
         n_pois=n_pois, n_regions=n_regions,
@@ -105,50 +120,68 @@ def train_one_fold(poi, hour, lat, lon, tmin, y, centroids, train_idx, val_idx,
 
     optim = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=0.01)
     sched = torch.optim.lr_scheduler.OneCycleLR(
-        optim, max_lr=max_lr, epochs=epochs, steps_per_epoch=len(train_dl)
+        optim, max_lr=max_lr, epochs=epochs, steps_per_epoch=steps_per_epoch
     )
     crit = nn.CrossEntropyLoss()
 
+    use_amp = torch.cuda.is_available()
+    amp_dtype = torch.bfloat16
+    g = torch.Generator(device=DEVICE if torch.cuda.is_available() else "cpu")
+    g.manual_seed(seed)
+
     best_acc10 = -1.0
-    best = {}
+    best_epoch = -1
+    best_logits = None
     for epoch in range(epochs):
         model.train()
-        for poi_b, hour_b, lat_b, lon_b, t_b, y_b in train_dl:
-            poi_b, hour_b, lat_b, lon_b, t_b, y_b = (
-                poi_b.to(DEVICE), hour_b.to(DEVICE),
-                lat_b.to(DEVICE), lon_b.to(DEVICE),
-                t_b.to(DEVICE), y_b.to(DEVICE),
-            )
+        perm = torch.randperm(n_train, generator=g, device=poi_tr.device)
+        for s in range(0, n_train, batch_size):
+            idx = perm[s:s + batch_size]
+            poi_b = poi_tr[idx]; hour_b = hour_tr[idx]
+            lat_b = lat_tr[idx]; lon_b = lon_tr[idx]
+            t_b = tmin_tr[idx]; y_b = y_tr[idx]
             optim.zero_grad(set_to_none=True)
-            out = model(poi_b, hour_b, lat_b, lon_b, t_b, centroids_dev)
-            loss = crit(out, y_b)
+            with torch.autocast(device_type="cuda", dtype=amp_dtype, enabled=use_amp):
+                out = model(poi_b, hour_b, lat_b, lon_b, t_b, centroids_dev)
+                loss = crit(out, y_b)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             optim.step()
             sched.step()
 
+        # Cheap epoch validation: only Acc@10 (no sklearn F1) for selection.
         model.eval()
-        logits, targets = [], []
+        n_val = poi_va.shape[0]
+        top10_correct = 0
+        val_logits_chunks = []
         with torch.no_grad():
-            for poi_b, hour_b, lat_b, lon_b, t_b, y_b in val_dl:
-                poi_b, hour_b, lat_b, lon_b, t_b = (
-                    poi_b.to(DEVICE), hour_b.to(DEVICE),
-                    lat_b.to(DEVICE), lon_b.to(DEVICE), t_b.to(DEVICE),
-                )
-                logits.append(model(poi_b, hour_b, lat_b, lon_b, t_b, centroids_dev).cpu())
-                targets.append(y_b)
-        logits = torch.cat(logits)
-        targets = torch.cat(targets)
-        m = compute_classification_metrics(logits, targets, num_classes=n_regions, top_k=(5, 10))
-        if m.get("top10_acc", 0) > best_acc10:
-            best_acc10 = m["top10_acc"]
-            best = dict(m, best_epoch=epoch + 1)
-    return best
+            for s in range(0, n_val, batch_size):
+                e = s + batch_size
+                with torch.autocast(device_type="cuda", dtype=amp_dtype, enabled=use_amp):
+                    out = model(poi_va[s:e], hour_va[s:e], lat_va[s:e],
+                                lon_va[s:e], tmin_va[s:e], centroids_dev).float()
+                top10 = out.topk(min(10, out.shape[-1]), dim=-1).indices  # [b, 10]
+                top10_correct += (top10 == y_va[s:e].unsqueeze(1)).any(-1).sum().item()
+                val_logits_chunks.append(out)
+        acc10 = top10_correct / n_val
+        if acc10 > best_acc10:
+            best_acc10 = acc10
+            best_epoch = epoch + 1
+            best_logits = torch.cat(val_logits_chunks, dim=0).cpu()
+
+    # Full metrics ONCE at the best epoch's logits.
+    m = compute_classification_metrics(best_logits, y_va.cpu(),
+                                       num_classes=n_regions, top_k=(5, 10))
+    return dict(m, best_epoch=best_epoch)
 
 
 def run(state: str, folds: int, epochs: int, batch_size: int, seed: int,
         d_model: int, dropout: float, max_lr: float,
         tag: str | None) -> None:
+    if torch.cuda.is_available():
+        torch.backends.cuda.matmul.allow_tf32 = True
+        torch.backends.cudnn.allow_tf32 = True
+        torch.set_float32_matmul_precision("high")
     poi, hour, lat, lon, tmin, y, centroids, cat, uid, n_pois, n_regions = load_tensors(state)
     logger.info("Loaded %s: rows=%d  n_pois=%d  n_regions=%d  centroids=%s",
                 state, poi.shape[0], n_pois, n_regions, tuple(centroids.shape))

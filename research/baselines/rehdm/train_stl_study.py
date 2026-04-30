@@ -198,6 +198,8 @@ def evaluate(model, store, ids, batch_size, device, max_intra=3, max_inter=3):
     model.eval()
     loader = DataLoader(
         StudySTLDataset(store, ids), batch_size=batch_size, shuffle=False,
+        num_workers=2, persistent_workers=True,
+        pin_memory=torch.cuda.is_available(),
         collate_fn=make_collate_study(store, max_intra, max_inter, training=False),
     )
     n = c1 = c5 = c10 = 0; mrr = 0.0
@@ -206,7 +208,9 @@ def evaluate(model, store, ids, batch_size, device, max_intra=3, max_inter=3):
         tf = tf.to(device); tm = tm.to(device); y = y.to(device)
         if cf is not None:
             cf = cf.to(device); cm = cm.to(device); adj = adj.to(device); et = et.to(device)
-        logits = model(tf, tm, cf, cm, adj, et)
+        with torch.autocast(device_type="cuda", dtype=torch.bfloat16, enabled=torch.cuda.is_available()):
+            logits = model(tf, tm, cf, cm, adj, et)
+        logits = logits.float()
         ranks = (-logits).argsort(-1)
         pos = (ranks == y.unsqueeze(1)).nonzero()[:, 1] + 1
         c1 += (pos <= 1).sum().item(); c5 += (pos <= 5).sum().item(); c10 += (pos <= 10).sum().item()
@@ -227,9 +231,15 @@ def train_one_fold(engine, state, fold_idx, train_idx, val_idx, x, y, userids, p
     print(f"[stl-study] params={sum(p.numel() for p in model.parameters())/1e6:.2f}M "
           f"train={len(store.train_idx)} val={len(store.val_idx)}")
 
+    if torch.cuda.is_available():
+        torch.backends.cuda.matmul.allow_tf32 = True
+        torch.backends.cudnn.allow_tf32 = True
+        torch.set_float32_matmul_precision("high")
     train_loader = DataLoader(
         StudySTLDataset(store, store.train_idx), batch_size=batch_size, shuffle=True,
         collate_fn=make_collate_study(store, max_intra, max_inter, training=True),
+        num_workers=4, persistent_workers=True,
+        pin_memory=torch.cuda.is_available(),
     )
     optim = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=0.01)
     sched = torch.optim.lr_scheduler.OneCycleLR(
@@ -244,8 +254,9 @@ def train_one_fold(engine, state, fold_idx, train_idx, val_idx, x, y, userids, p
             if cf is not None:
                 cf = cf.to(device); cm = cm.to(device); adj = adj.to(device); et = et.to(device)
             optim.zero_grad()
-            logits = model(tf, tm, cf, cm, adj, et)
-            loss = F.cross_entropy(logits, yb)
+            with torch.autocast(device_type="cuda", dtype=torch.bfloat16, enabled=torch.cuda.is_available()):
+                logits = model(tf, tm, cf, cm, adj, et)
+                loss = F.cross_entropy(logits, yb)
             if not torch.isfinite(loss):
                 continue
             loss.backward()

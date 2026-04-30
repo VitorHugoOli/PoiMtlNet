@@ -109,14 +109,17 @@ $ENV "$PY" -u -m research.baselines.rehdm.train_stl_study \
 |---|---|---|
 | `faithful` | AL | `docs/studies/check2hgi/results/baselines/REHDM_al_v2_5seeds_50ep_run{0..4}.json` |
 | `faithful` | AZ | `docs/studies/check2hgi/results/baselines/REHDM_az_v2_5seeds_50ep_run{0..4}.json` |
-| `faithful` | FL | pending (~30h ETA) |
+| `faithful` | FL § | `docs/studies/check2hgi/results/baselines/REHDM_BS128_fl_5seeds_50ep_run{0..4}.json` |
+| `faithful` | CA/TX | ⚪ out of scope (see `GAP_A_CLOSURE_20260430.md`) |
 | `stl_check2hgi` | AL | `docs/studies/check2hgi/results/baselines/REHDM_STL_STUDY_v3_al_check2hgi_5f50ep_fold{0..4}.json` |
-| `stl_check2hgi` | AZ | pending |
-| `stl_check2hgi` | FL | pending |
+| `stl_check2hgi` | AZ | `docs/studies/check2hgi/results/baselines/REHDM_STL_STUDY_v3_az_check2hgi_5f50ep_fold{0..4}.json` |
+| `stl_check2hgi` | FL | `docs/studies/check2hgi/results/baselines/REHDM_STL_STUDY_v3_fl_check2hgi_5f50ep_fold{0..4}.json` |
 | `stl_hgi` | AL | `docs/studies/check2hgi/results/baselines/REHDM_STL_STUDY_v3_al_hgi_5f50ep_fold{0..4}.json` |
 | `stl_hgi` | AZ | `docs/studies/check2hgi/results/baselines/REHDM_STL_STUDY_v3_az_hgi_5f50ep_fold{0..4}.json` |
-| `stl_hgi` | FL | pending |
+| `stl_hgi` | FL | `docs/studies/check2hgi/results/baselines/REHDM_STL_STUDY_v3_fl_hgi_5f50ep_fold{0..4}.json` |
 | `stl_*` paper-protocol replicates | AL/AZ | `docs/studies/check2hgi/results/baselines/REHDM_STL_*_5x50_run{0..4}.json` (archived; not used in comparison) |
+
+§ FL `faithful` uses `batch_size=128 + lr/max_lr scaled 4×` (linear scaling rule from paper b=32). Validated on AL (Acc@10=65.85±1.53 vs ref 66.06±0.98) and AZ (Acc@10=54.94±0.12 vs ref 54.65±0.77), both within 1σ. Reduced FL ETA from ~4.5h (b=32 paper-faithful) to ~92 min on H100. Full provenance: `GAP_A_CLOSURE_20260430.md`.
 
 Aggregated summaries at `docs/studies/check2hgi/results/baselines/REHDM_*_summary.json`.
 

@@ -1,5 +1,10 @@
 # Gap A — audit snapshot (2026-04-30T15:10Z)
 
+> ## ✅ SUPERSEDED — see [`GAP_A_CLOSURE_20260430.md`](GAP_A_CLOSURE_20260430.md)
+>
+> This snapshot was taken mid-flight while STAN faithful CA+TX were still running. Those runs were ultimately killed (compute-infeasible at R≈8500) and the campaign was rescoped to AL/AZ/FL with REHDM-faithful + REHDM-STL completing the picture. Final closure document holds the authoritative numbers and rationale.
+
+
 Mid-flight checkpoint of Gap A (CA + TX baselines closure on Lightning H100). Captured because STAN faithful CA + TX are still mid-run and the machine has had restarts; this file freezes what is reproducibly closed so far so future audits can reconstruct provenance even if the running cells are interrupted again.
 
 ## Status board (snapshot)
