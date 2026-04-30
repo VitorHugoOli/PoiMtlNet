@@ -181,7 +181,7 @@ Top-level summary table:
 | Majority class (floor) | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Markov-1-POI (floor) | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Markov-K-cat (k=1..9) (floor) | ✅ | ✅ | ✅ | ✅ | ✅ |
-| POI-RGNN — faithful | ✅ | ✅ | ✅ | ✅ | 🟡 (running) |
+| POI-RGNN — faithful | ✅ | ✅ | ✅ | ✅ | ✅ |
 | MHA+PE — faithful | ✅ | ✅ | ✅ | ✅ | ✅ |
 | **C2HGI cat — matched-head `next_gru` (Phase-1)** | ✅ **40.76 ± 1.50** | ✅ **43.21 ± 0.78** | 🔴 (F36b) | 🔴 | 🔴 |
 | **HGI cat — matched-head `next_gru` (Phase-1)** | ✅ **25.26 ± 1.06** | ✅ **28.69 ± 0.71** | 🔴 (F36b) | 🔴 | 🔴 |

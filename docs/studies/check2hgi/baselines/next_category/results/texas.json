@@ -87,7 +87,22 @@
   },
   "baselines": {
     "poi_rgnn": {
-      "_pending": "POI-RGNN faithful train still running."
+      "faithful": {
+        "n_rows": 0,
+        "acc1_mean": 40.5863,
+        "acc1_std": 0.5043,
+        "acc3_mean": 79.1065,
+        "acc3_std": 0.1552,
+        "acc5_mean": 93.1759,
+        "acc5_std": 0.0806,
+        "mrr_mean": 61.7946,
+        "mrr_std": 0.3168,
+        "macro_f1_mean": 32.0839,
+        "macro_f1_std": 0.704,
+        "tag": "FAITHFUL_POIRGNN_texas_5f35ep",
+        "date": "2026-04-30",
+        "source_json": "docs/studies/check2hgi/results/baselines/faithful_poi_rgnn_texas_5f_35ep_FAITHFUL_POIRGNN_texas_5f35ep.json"
+      }
     },
     "mha_pe": {
       "faithful": {
