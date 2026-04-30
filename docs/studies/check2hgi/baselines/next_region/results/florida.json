@@ -110,6 +110,20 @@
         "tag": "REHDM_STL_STUDY_v3_fl_hgi_5f50ep",
         "date": "2026-04-30",
         "source_json": "docs/studies/check2hgi/results/baselines/REHDM_STL_STUDY_v3_fl_hgi_5f50ep_fold{0..4}.json"
+      },
+      "faithful": {
+        "acc1_mean": 33.95,
+        "acc1_std": 0.4,
+        "acc5_mean": 56.06,
+        "acc5_std": 0.36,
+        "acc10_mean": 65.68,
+        "acc10_std": 0.26,
+        "mrr_mean": 44.58,
+        "mrr_std": 0.33,
+        "tag": "REHDM_BS128_fl_5seeds_50ep",
+        "date": "2026-04-30",
+        "source_json": "docs/studies/check2hgi/results/baselines/REHDM_BS128_fl_5seeds_50ep_run{0..4}.json",
+        "_note": "batch_size=128 + lr/max_lr scaled 4\u00d7 (linear scaling rule from paper's b=32). Validated on AL/AZ within 1\u03c3 of paper-protocol references before launching FL."
       }
     }
   }

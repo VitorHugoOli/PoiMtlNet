@@ -10,7 +10,7 @@ Generated from `results/<state>.json`. To refresh, regenerate the JSONs (see `..
 | **STAN** | `faithful` | 34.46 ± 3.88 | 38.96 ± 3.41 | 65.36 ± 0.69 | 🔴† | 🔴† |
 | **STAN** | `stl_check2hgi` | 59.20 ± 3.62 | 52.24 ± 2.38 | 72.62 ± 0.52 | 58.82 ± 1.04 | 61.35 ± 0.36 |
 | **STAN** | `stl_hgi` | **62.88 ± 3.90** | **54.86 ± 2.84** | **73.58 ± 0.43** | **60.45 ± 0.97** | **62.70 ± 0.37** |
-| **ReHDM** † | `faithful` | **66.06 ± 0.98** | **54.65 ± 0.77** | 🔴 (~30 h) | 🔴 | 🔴 |
+| **ReHDM** † | `faithful` | **66.06 ± 0.98** | **54.65 ± 0.77** | 65.68 ± 0.26 | ⚪ | ⚪ |
 | **ReHDM** ‡ | `stl_check2hgi` | 26.22 ± 1.58 | 23.24 ± 1.27 | 38.74 ± 0.49 | 🔴 | 🔴 |
 | **ReHDM** ‡ | `stl_hgi` | 42.78 ± 2.82 | 34.00 ± 3.02 | **54.49 ± 0.32** | 🔴 | 🔴 |
 
@@ -58,11 +58,13 @@ Bold = best variant per state-baseline. (🔴 = pending; 🟡 = partial / 1-fold
 
 ReHDM `faithful` ingests 6 paper-defined IDs (user, POI, category, hour, day-of-week, quadkey-L10) and runs the dual-level hypergraph machinery; classifier output adapted to `n_regions`. Protocol = chronological 80/10/10 + 24h sessions + 5 seeds (paper §5.1).
 
+§ FL run uses `batch_size=128 + lr/max_lr scaled 4×` (linear scaling rule from paper's batch=32, lr=5e-5, max_lr=5e-4). Validated on AL (Acc@10=65.85±1.53 vs ref 66.06±0.98, within 1σ) and AZ (54.94±0.12 vs ref 54.65±0.77, within 1σ) before launching FL — quality preserved, training ~3× faster. Reduced FL ETA from ~4.5h (b=32 paper-faithful) to ~92 min.
+
 | State | Acc@1 | Acc@5 | Acc@10 | MRR |
 |---|---:|---:|---:|---:|
 | AL | 23.73 ± 1.38 | 53.70 ± 1.31 | 66.06 ± 0.98 | 37.83 ± 1.17 |
 | AZ | 19.81 ± 0.54 | 42.63 ± 0.37 | 54.65 ± 0.77 | 30.96 ± 0.36 |
-| FL | 🔴 (~30 h ETA) | 🔴 | 🔴 | 🔴 |
+| FL § | 33.95 ± 0.40 | 56.06 ± 0.36 | 65.68 ± 0.26 | 44.58 ± 0.33 |
 
 ### `stl_check2hgi` — ReHDM (full hypergraph), Check2HGI substrate input
 

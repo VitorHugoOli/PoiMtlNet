@@ -162,7 +162,7 @@ Top-level summary table:
 | **STAN — faithful**      | ✅ | ✅ | ✅ | ⚪ (skip — see Gap A audit) | ⚪ (skip — see Gap A audit) |
 | **STAN — stl_check2hgi** | ✅ | ✅ | ✅ | ✅ | ✅ |
 | **STAN — stl_hgi**       | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **ReHDM — faithful**     | ✅ | ✅ | 🟡 (running) | ⚪ (skip) | ⚪ (skip) |
+| **ReHDM — faithful**     | ✅ | ✅ | ✅ | ⚪ (skip) | ⚪ (skip) |
 | **ReHDM — stl_check2hgi** | ✅ | ✅ | ✅ | ⚪ (skip) | ⚪ (skip) |
 | **ReHDM — stl_hgi**      | ✅ | ✅ | ✅ | ⚪ (skip) | ⚪ (skip) |
 | GETNext-hard — stl_check2hgi (matched-head, F21c) | ✅ **68.37 ± 2.66** | ✅ **66.74 ± 2.11** | 🔴 (F36c) | 🔴 | 🔴 |
