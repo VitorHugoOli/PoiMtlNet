@@ -20,14 +20,23 @@ The F50/F60 series + the original MTL improvements study (architecture / optimiz
 
 ## Headline numbers (FL, leak-free, 5f×50ep, ≥ep5)
 
-| recipe | reg top10 | cat F1 | Δreg vs H3-alt | paired Wilcoxon | verdict |
+**Multi-seed validated (F51, 2026-04-30) — see `research/F51_MULTI_SEED_FINDINGS.md`:**
+
+| seeds | B9 reg | H3-alt reg | Δreg | paired Wilcoxon | verdict |
+|---|---:|---:|---:|---|---|
+| {42, 0, 1, 7, 100} mean | **63.34 ± 0.11** | 59.86 ± 0.22 | **+3.48 ± 0.12** | **5/5 seeds at p=0.0312 each** | ✅ **DECISIVELY ROBUST** |
+| pooled 5×5=25 fold-pairs | — | — | **+3.48** | **p_reg=2.98×10⁻⁸ (25/25); p_cat=1.33×10⁻⁵ (19/25)** | paper-grade on **both tasks** |
+
+Single-seed table (kept for cross-references):
+
+| recipe (seed=42) | reg top10 | cat F1 | Δreg vs H3-alt | paired Wilcoxon | verdict |
 |---|---:|---:|---:|---|---|
 | **STL F37 ceiling** (clean) | **71.12 ± 0.59** | n/a | — | — | upper bound |
 | **B9 (P4 + Cosine + α-no-WD)** ⭐ | **63.47 ± 0.75** | **68.59 ± 0.79** | **+3.34** | **p=0.0312, 5/5 on BOTH tasks** | **CHAMPION** (Pareto-dominant) |
 | P4-alone (constant) | 63.41 ± 0.77 | 67.82 | +3.28 | p=0.0312, 5/5 | minimal-paper-grade |
 | H3-alt (clean baseline) | 60.12 ± 1.14 | 68.34 | 0 | — | anchor |
 
-**Story:** P4 alternating-optimizer-step closes ~3.3 pp of the 7.7 pp STL→MTL gap. Mechanism is per-step temporal gradient separation, not architectural. Cross-attention mixing is structurally dead (3-way confirmed via P1, F52 P5, F53 cw sweep). Reg encoder physically saturates at ep 5–6 while cat encoder keeps drifting through ep 38 — the temporal-dynamics bottleneck is real and substrate-agnostic.
+**Story:** P4 alternating-optimizer-step closes ~3.5 pp of the 7.7 pp STL→MTL gap. Mechanism is per-step temporal gradient separation, not architectural. Cross-attention mixing is structurally dead (3-way confirmed via P1, F52 P5, F53 cw sweep). Reg encoder physically saturates at ep 5–6 while cat encoder keeps drifting through ep 38 — the temporal-dynamics bottleneck is real and substrate-agnostic. **F51 multi-seed validation:** the recipe is essentially deterministic in the partition-difficulty axis (B9 absolute reg σ_across_seeds = 0.11 pp); the +3.48 pp lift is the cross-seed mean.
 
 For all numbers: `research/F50_RESULTS_TABLE.md`.
 
@@ -156,12 +165,14 @@ Everything else (synthesis docs, figs, scripts, analyzer JSONs) is in the git re
 ## Common pitfalls for the next agent
 
 1. **Always use `--per-fold-transition-dir`** for any `next_getnext_hard*` run. Without it you re-introduce C4 leakage and inflate by 13–17 pp.
-2. **Always use `--min-best-epoch 5`** for paper-grade selection. Without it the GETNext α init artifact at ep 0–2 captures the "best" epoch.
-3. **Per-head LR mode** (`--cat-lr/--reg-lr/--shared-lr`) requires `mtlnet_crossattn` model. Other models will reject it.
-4. **B9 requires per-head LR mode** (it relies on the alpha_no_wd group being peeled out from `reg`).
-5. **`--alternating-optimizer-step` requires `--mtl-loss static_weight`** (mutual exclusion with `scheduled_static` etc.).
-6. **High-cardinality reg heads OOM on 24 GB GPU** at the per-epoch train-side logit catting (`mtl_cv.py:541`). For CA (8501 regions) and TX (9870+ regions), use A100 or implement streaming train metrics.
-7. **CLAUDE.md branch context:** `CLAUDE.local.md` at repo root points to `docs/studies/check2hgi/AGENT_CONTEXT.md` for active study scope.
+2. **The per-fold log_T must match `--seed`** (F51 finding, 2026-04-30). Files are seed-tagged: `region_transition_log_seed{S}_fold{N}.pt`. Build with `python scripts/compute_region_transition.py --state STATE --per-fold --seed S` for each seed you plan to train at. Trainer hard-fails if the seed-tagged file is missing or if a legacy unseeded `region_transition_log_fold{N}.pt` is present (the old filename leaks ~80% of val transitions when used at any seed != the seed it was built at).
+3. **`--folds 1` triggers `n_splits = max(2, 1) = 2`**, which produces a 2-fold split that does NOT match the 5-fold-keyed per-fold log_T. For smokes that need a quick signal, prefer `--folds 5 --epochs 30` over `--folds 1 --epochs 50`.
+4. **Always use `--min-best-epoch 5`** for paper-grade selection. Without it the GETNext α init artifact at ep 0–2 captures the "best" epoch.
+5. **Per-head LR mode** (`--cat-lr/--reg-lr/--shared-lr`) requires `mtlnet_crossattn` model. Other models will reject it.
+6. **B9 requires per-head LR mode** (it relies on the alpha_no_wd group being peeled out from `reg`).
+7. **`--alternating-optimizer-step` requires `--mtl-loss static_weight`** (mutual exclusion with `scheduled_static` etc.).
+8. **High-cardinality reg heads OOM on 24 GB GPU** at the per-epoch train-side logit catting (`mtl_cv.py:541`). For CA (8501 regions) and TX (9870+ regions), use A100 or implement streaming train metrics.
+9. **CLAUDE.md branch context:** `CLAUDE.local.md` at repo root points to `docs/studies/check2hgi/AGENT_CONTEXT.md` for active study scope.
 
 ## Contact / authority
 

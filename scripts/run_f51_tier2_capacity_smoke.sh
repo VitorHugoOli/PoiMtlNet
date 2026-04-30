@@ -1,16 +1,24 @@
 #!/usr/bin/env bash
-# F51 Tier 2 — encoder/backbone capacity smoke (1 fold × 50 ep × bs=2048).
+# F51 Tier 2 — encoder/backbone capacity smoke.
 #
 # Mission (from F50_NORTH_STAR_DEEP_EXPLORATION_PROMPT.md §3 Tier 2):
 # "Reg-side encoder saturation (D5 finding) is partly a capacity bottleneck.
 #  Larger reg encoder might delay saturation."
 #
-# Smoke pass first; promote to 5-fold paper-grade only if smoke shifts the
-# reg-best epoch past ep 5–6 OR raises the reg plateau by >0.5 pp vs B9
-# seed=42 fold-1 reference (reg top10 ~63.53, reg-best ep 6).
+# IMPORTANT: smoke uses 5 folds × 30 ep, NOT 1 fold × 50 ep.
+# Reason: --folds 1 triggers n_splits=max(2, 1)=2 in the trainer, which
+# uses a different fold split than the 5-fold per-fold log_T we built
+# (region_transition_log_seed42_fold{N}.pt is 5-fold-keyed). Running smokes
+# at --folds 1 would silently re-introduce a partial C4 leak (the same
+# class of bug F51 just fixed). Smokes therefore use 5 folds × 30 ep
+# (~10 min/smoke) so the per-fold log_T matches the trainer's fold split.
 #
-# Sweep: 7 capacity knobs × ~3 levels each = ~21 smokes × ~3.3 min ≈ 70 min.
-# Stays bound by Tier 1 GPU availability — run AFTER Tier 1 multi-seed completes.
+# Promote to 5-fold × 50 ep paper-grade only if a knob shifts reg-best
+# epoch past ep 5–6 OR raises reg @≥ep5 by >0.5 pp vs B9 seed=42 ref
+# (reg 63.47 ± 0.75 over 5 folds at 50 ep).
+#
+# Sweep: 7 capacity knobs × ~3 levels each = ~21 smokes × ~10 min ≈ 3.5 h.
+# Run when GPU is free.
 
 set -u
 WORKTREE="${WORKTREE:-$(pwd)}"
@@ -21,7 +29,12 @@ PY="${PY:-/opt/poimtlnet-venv/bin/python}"
 cd "${WORKTREE}"
 mkdir -p logs
 
-# Base B9 recipe at FL, 1 fold, seed=42 (the reference seed).
+# Base B9 recipe at FL, 5 folds × 30 ep, seed=42 (the reference seed).
+# 5 folds is required so the per-fold log_T (5-fold-keyed) matches the
+# trainer's fold split. 30 ep captures the reg-best window (typically
+# ep 5–10 under B9) without paying the full 50-ep cost; cat continues
+# improving past 30 but cat is locked at 68.6 across seeds anyway and
+# isn't the smoke decision metric.
 base_b9_smoke=(
     --task mtl --task-set check2hgi_next_region
     --state florida --engine check2hgi
@@ -30,7 +43,7 @@ base_b9_smoke=(
     --reg-head-param d_model=256 --reg-head-param num_heads=8
     --reg-head-param "transition_path=${OUTPUT_DIR}/check2hgi/florida/region_transition_log.pt"
     --task-a-input-type checkin --task-b-input-type region
-    --folds 1 --epochs 50 --seed 42
+    --folds 5 --epochs 30 --seed 42
     --batch-size 2048
     --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3
     --gradient-accumulation-steps 1

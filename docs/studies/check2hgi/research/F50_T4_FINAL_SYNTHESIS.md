@@ -1,12 +1,13 @@
-# F50 T4 — Final Synthesis (2026-04-30 02:00 UTC)
+# F50 T4 — Final Synthesis (2026-04-30 — multi-seed strengthened)
 
-**Status:** Paper story locked. F50 study complete except CA/TX A100-deferred.
+**Status:** Paper story locked. F50 study complete except CA/TX A100-deferred. **F51 multi-seed validation (2026-04-30) strengthens the headline from single-seed +3.34 pp p=0.0312 to multi-seed +3.48 ± 0.12 pp pooled p < 10⁻⁷.**
 
 **This doc is the canonical entry point.** Read this first; everything else is supporting.
 
 Quick navigation:
 - **Chronological history of how we got here:** `F50_HISTORY.md`
 - **All headline numbers in one place:** `F50_RESULTS_TABLE.md`
+- **F51 multi-seed validation:** `F51_MULTI_SEED_FINDINGS.md` ← **strengthens paper claim**
 - **C4 leak root cause (load-bearing receipt):** `F50_T4_C4_LEAK_DIAGNOSIS.md`
 - **Broader leakage audit:** `F50_T4_BROADER_LEAKAGE_AUDIT.md`
 - **Validity of prior F50 ablations under C4:** `F50_T4_PRIOR_RUNS_VALIDITY.md`
@@ -21,17 +22,38 @@ Quick navigation:
 
 ## 1 · Headline (paper-grade, leak-free, FL)
 
+### 1.1 Multi-seed champion (F51, 2026-04-30) — **STRENGTHENED PAPER CLAIM**
+
+B9 (P4 + Cosine + α-no-WD) vs H3-alt anchor across seeds {42, 0, 1, 7, 100}, FL 5f×50ep with **seed-correct per-fold log_T** (`region_transition_log_seed{S}_fold{N}.pt`):
+
+| seed | B9 reg | H3-alt reg | Δreg | p_reg | n+/n | Δcat | p_cat | n+/n |
+|---:|---:|---:|---:|:---:|:---:|---:|:---:|:---:|
+| 42 | 63.47 ± 0.75 | 60.12 ± 1.15 | +3.34 | 0.0312 | 5/5 | +0.24 | 0.156 | 3/5 |
+| 0 | 63.24 ± 0.89 | 59.58 ± 0.95 | +3.65 | 0.0312 | 5/5 | +0.61 | 0.062 | 4/5 |
+| 1 | 63.41 ± 1.16 | 60.02 ± 1.03 | +3.39 | 0.0312 | 5/5 | +0.68 | 0.0312 | 5/5 |
+| 7 | 63.21 ± 0.50 | 59.72 ± 0.54 | +3.49 | 0.0312 | 5/5 | +0.35 | 0.062 | 4/5 |
+| 100 | 63.38 ± 0.93 | 59.87 ± 1.17 | +3.51 | 0.0312 | 5/5 | +0.22 | 0.156 | 3/5 |
+| **mean ± σ across seeds** | **63.34 ± 0.11** | 59.86 ± 0.22 | **+3.48 ± 0.12** | — | — | **+0.42 ± 0.21** | — | — |
+
+**Pooled paired Wilcoxon (5 seeds × 5 folds = 25 fold-pairs):**
+- **Δreg = +3.48 pp, p = 2.98 × 10⁻⁸, 25/25 positive folds** ✅
+- **Δcat = +0.42 pp, p = 1.33 × 10⁻⁵, 19/25 positive folds** ✅
+
+**Headline claim (revised):** Across MTL POI prediction on FL with the check2HGI substrate, **alternating-optimizer-step (P4) yields a paper-grade reg lift of +3.48 ± 0.12 pp without sacrificing cat (5/5 seeds at p=0.0312 each; pooled paired Wilcoxon p=2.98×10⁻⁸ on 25 fold-pairs)**. Cat reaches paper-grade significance once seeds pool (+0.42 pp, p=1.33×10⁻⁵). The recipe is essentially deterministic in the partition-difficulty axis (B9 abs reg σ_across_seeds = 0.11 pp). STL→MTL gap is ~7.7 pp; closed by ~3.5 pp by the recipe.
+
+### 1.2 Single-seed table (kept for cross-references) — seed=42 only
+
 | recipe | reg top10 (≥ep5) | cat F1 (≥ep5) | Δreg vs H3-alt | paired Wilcoxon | verdict |
 |---|---:|---:|---:|---|---|
 | **STL F37 ceiling** (clean) | **71.12 ± 0.59** | n/a | — | — | upper bound |
-| **B9 (P4+Cosine + α-no-WD)** ⭐ | **63.47 ± 0.75** | **68.59 ± 0.79** | **+3.34** | p=0.0312, 5/5 ✅ | **CHAMPION** (Pareto-dominant) |
+| **B9 (P4+Cosine + α-no-WD)** ⭐ | **63.47 ± 0.75** | **68.59 ± 0.79** | **+3.34** | p=0.0312, 5/5 ✅ | **CHAMPION** (Pareto-dominant; multi-seed validated) |
 | P4-alone (constant) | 63.41 ± 0.77 | 67.82 | +3.28 | p=0.0312, 5/5 ✅ | minimal-paper-grade |
 | P0-A (P4+Cosine, no α-no-WD) | 63.23 ± 0.64 | 68.51 | +3.11 | p=0.0312, 5/5 ✅ | predecessor |
 | F62 two-phase (cw=0→0.75) | 60.25 ± 1.26 | n/a | +0.13 | n.s. | **REJECTED** |
 | PLE-lite (clean full 5×50) | 60.38 ± 0.79 | 64.13 ± 1.04 ⚠ | +0.26 | n.s. (cat **−4.22**) | Pareto-WORSE |
 | H3-alt (clean baseline) | 60.12 ± 1.14 | 68.34 | 0 | — | anchor |
 
-**Headline claim:** Across MTL POI prediction on FL with the check2HGI substrate, **alternating-optimizer-step (P4) yields a paper-grade reg lift of +3.3 pp without sacrificing cat (paired Wilcoxon p=0.0312, 5/5 positive on both tasks under the B9 stack).** STL→MTL gap is ~7.7 pp; closed by ~3.3 pp by the recipe.
+The seed=42 single-seed table above is unchanged from 2026-04-29; F51 multi-seed (§1.1) supersedes it as the paper-grade headline. P4-alone, P0-A, F62, PLE-lite, and H3-alt have NOT been multi-seed-validated; if a reviewer asks for cross-seed on those, F51's runner pattern (seed-correct per-fold log_T per seed) applies directly.
 
 ---
 
@@ -173,4 +195,4 @@ After consolidation, four pending tasks remain. Re-prioritized given the paper s
 
 ## 7 · One-paragraph summary
 
-The C4 leakage (full-data graph prior leaking val transitions into a learnable α-amplified head) inflated every `next_getnext_hard*` number in the F50 study by 13–17 pp at convergence. The fix (per-fold log_T) drops the champion 76.07 → 63.47. **The paper headline survives**: B9 (P4 + Cosine + α-no-WD) Pareto-dominates H3-alt with +3.34 pp Δreg / +0.08 pp Δcat under paired Wilcoxon p=0.0312, 5/5 positive on BOTH tasks. The paper recipe simplifies to: H3-alt baseline + `--alternating-optimizer-step`. PLE-lite is Pareto-WORSE under clean conditions (cat −4.22 pp) — added as a NEW paper finding. F62 two-phase REJECTED. Cross-state portability is FL-strong, AL/AZ/GA directional. All TIER 0 leak-free runs done; no more paper-blocking runs needed.
+The C4 leakage (full-data graph prior leaking val transitions into a learnable α-amplified head) inflated every `next_getnext_hard*` number in the F50 study by 13–17 pp at convergence. The fix (per-fold log_T) drops the champion 76.07 → 63.47. **The paper headline survives and STRENGTHENS under F51 multi-seed validation (2026-04-30)**: B9 (P4 + Cosine + α-no-WD) Pareto-dominates H3-alt with **Δreg = +3.48 ± 0.12 pp across 5 seeds** (5/5 seeds at p=0.0312 each; pooled paired Wilcoxon **p=2.98×10⁻⁸ on 25 fold-pairs, 25/25 positive**). Cat reaches paper-grade significance once seeds pool (Δcat=+0.42 pp, p=1.33×10⁻⁵). F51 also caught and fixed a follow-on per-seed log_T leak (the original C4 fix wasn't seed-keyed in the filename, so trainers at non-default seeds silently leaked ~80% of val transitions back into the prior). Updated invariant: per-fold log_T filename is now `region_transition_log_seed{S}_fold{N}.pt`, trainer hard-fails if missing or if a legacy unseeded file is present. The paper recipe simplifies to: H3-alt baseline + `--alternating-optimizer-step`. PLE-lite is Pareto-WORSE under clean conditions (cat −4.22 pp) — added as a NEW paper finding. F62 two-phase REJECTED. Cross-state portability is FL-strong, AL/AZ/GA directional. All TIER 0 leak-free runs done; no more paper-blocking runs needed.

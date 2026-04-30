@@ -1,6 +1,10 @@
 # North-Star MTL Configuration
 
-> ⚠ **C4 LEAKAGE CAVEAT (added 2026-04-29 19:50, F50 T4):** All absolute `next_region` numbers below were measured under the legacy full-data `region_transition_log.pt` graph prior, which leaked val transitions into training. Direct measurement: ~13-17 pp inflation at convergence, propagating through 5 heads (`next_getnext_hard*`, `next_getnext`, `next_tgstan`, `next_stahyper`, `next_getnext_hard_hsm`). **Use `--per-fold-transition-dir` for any future run.** Under leak-free conditions, the new committed champion is **B9 (P4 + Cosine + alpha-no-WD) = 63.47 ± 0.75 reg @ ≥ep5**, with paper-grade Δ vs leak-free H3-alt = **+3.34 pp paired Wilcoxon p=0.0312, 5/5 positive ✅**. See `research/F50_T4_C4_LEAK_DIAGNOSIS.md` and `research/F50_T4_BROADER_LEAKAGE_AUDIT.md`. The numbers below are KEPT for historical comparison and method derivation; the absolute targets (e.g. "73.61", "76.07") need a "−15 pp footnote" mental model when read.
+> 🎉 **F51 MULTI-SEED (2026-04-30):** B9 vs H3-alt validated across 5 seeds {42, 0, 1, 7, 100}. **Δreg = +3.48 ± 0.12 pp across seeds; pooled paired Wilcoxon (5 × 5 = 25 fold-pairs): p_reg = 2.98×10⁻⁸ (25/25 positive); p_cat = 1.33×10⁻⁵ (19/25 positive).** Cat reaches paper-grade once seeds pool. Absolute B9 reg σ_across_seeds = 0.11 pp — recipe is essentially deterministic in the partition-difficulty axis. The seed=42 +3.34 pp number was the worst-case seed; cross-seed mean is slightly larger. Full doc: `research/F51_MULTI_SEED_FINDINGS.md`.
+>
+> ⚠ **PER-SEED log_T LEAK (caught + fixed 2026-04-30 mid-F51-sweep):** the original C4 fix wrote per-fold log_T as `region_transition_log_fold{N}.pt` with no seed in the filename, but the trainer loaded that file regardless of its own `--seed`. At any seed != 42, ~80% of val users live in seed=42's fold-N TRAIN set → ~80% of val transitions leaked back into the prior, inflating absolute reg by ~9 pp. Fix: filename is now `region_transition_log_seed{S}_fold{N}.pt`; trainer hard-fails if missing or if a legacy unseeded file is present. Paired Δs from earlier runs survive (uniform-leak property — both arms read the same wrong prior on the same val set), but absolute numbers from the v1 multi-seed sweep are wrong; v2 (clean) is in `F51_MULTI_SEED_FINDINGS.md`.
+>
+> ⚠ **C4 LEAKAGE CAVEAT (added 2026-04-29 19:50, F50 T4):** All absolute `next_region` numbers below were measured under the legacy full-data `region_transition_log.pt` graph prior, which leaked val transitions into training. Direct measurement: ~13-17 pp inflation at convergence, propagating through 5 heads (`next_getnext_hard*`, `next_getnext`, `next_tgstan`, `next_stahyper`, `next_getnext_hard_hsm`). **Use `--per-fold-transition-dir` for any future run.** Under leak-free conditions, the committed champion is **B9 (P4 + Cosine + alpha-no-WD)**, headline numbers in the F51 banner above. See `research/F50_T4_C4_LEAK_DIAGNOSIS.md` and `research/F50_T4_BROADER_LEAKAGE_AUDIT.md`. The numbers below are KEPT for historical comparison and method derivation; the absolute targets (e.g. "73.61", "76.07") need a "−15 pp footnote" mental model when read.
 
 **Status (2026-04-29 17:30 UTC, Pareto-corrected):** Champion is **P4 alternating-SGD + Cosine (max_lr=3e-3) + delayed-min selector (`min_epoch=10`)**. Earlier today P4+OneCycle was promoted as champion based on reg-only metrics; closer inspection of the cat-side data shows OneCycle DEGRADES cat F1 by −1.84 pp with one fold collapsing to 62.68 (vs 67-68 in others). **P4+Cosine is the Pareto-dominant variant**: reg +4.63 pp paper-grade (paired Wilcoxon p=0.0312, 5/5 positive), cat tied/slightly improved (+0.15 pp, no fold collapse). P4-alone is also Pareto-dominant (+4.04 reg, cat tied) but P4+Cosine is +0.59 pp stronger on reg.
 
@@ -20,7 +24,7 @@ These findings **do not** change the committed config — they explain *why* it 
 
 **Status (2026-04-24):** Cat head refined via F27 from `NextHeadMTL` (Transformer) → `next_gru` (GRU). Paper-reshaping F21c finding noted in §§Caveats. See §Committed config below.
 
-## Champion — F50 P4 + Cosine + delayed-min (2026-04-29 17:30 UTC, Pareto-corrected)
+## Champion — F50 B9 (P4 + Cosine + α-no-WD) — multi-seed validated (2026-04-30 F51)
 
 ```
 architecture         : mtlnet_crossattn
@@ -29,21 +33,44 @@ task_a head (cat)    : next_gru
 task_b head (reg)    : next_getnext_hard                # STAN + α · log_T[last_region_idx]
 task_a input         : check-in embeddings (9-step window)
 task_b input         : region embeddings (9-step window)
-hparams              : d_model=256, 8 heads, batch=2048, 50 epochs, seed 42
+hparams              : d_model=256, 8 heads, batch=2048, 50 epochs
+                       seeds {42, 0, 1, 7, 100} all paper-grade ✅
 LR scheduler         : Cosine(max_lr=3e-3)              # decay from peak
 LR per param group   : cat_lr=1e-3, reg_lr=3e-3, shared_lr=1e-3
 optimizer step       : ALTERNATING per-batch (P4) — cat batch then reg batch, separate optimizer.step()
-selector             : delayed-min top10_acc_indist with min_epoch=10
+selector             : per-fold-best top10_acc_indist with --min-best-epoch 5
+α-no-WD              : alpha scalar peeled out of AdamW weight_decay group (B9 refinement)
+per-fold log_T       : MUST be seed-tagged: region_transition_log_seed{S}_fold{N}.pt
+                       built via: scripts/compute_region_transition.py --state STATE --per-fold --seed S
 ```
 
 **Single-line additive recipe vs H3-alt:**
 ```bash
 --alternating-optimizer-step \
 --scheduler cosine --max-lr 3e-3 \
---min-best-epoch 10
+--alpha-no-weight-decay \
+--min-best-epoch 5 \
+--per-fold-transition-dir output/check2hgi/STATE
 ```
 
-**Pareto picture — paired Wilcoxon vs H3-alt (FL 5f × 50ep, seed 42):**
+**Multi-seed headline (FL 5f×50ep, leak-free per-seed log_T, ≥ep5):**
+
+| seed | B9 reg ± σ | H3-alt reg ± σ | Δreg | p_reg | n+/n |
+|---:|---:|---:|---:|:---:|:---:|
+| 42 | 63.47 ± 0.75 | 60.12 ± 1.15 | **+3.34** | 0.0312 | 5/5 |
+| 0 | 63.24 ± 0.89 | 59.58 ± 0.95 | **+3.65** | 0.0312 | 5/5 |
+| 1 | 63.41 ± 1.16 | 60.02 ± 1.03 | **+3.39** | 0.0312 | 5/5 |
+| 7 | 63.21 ± 0.50 | 59.72 ± 0.54 | **+3.49** | 0.0312 | 5/5 |
+| 100 | 63.38 ± 0.93 | 59.87 ± 1.17 | **+3.51** | 0.0312 | 5/5 |
+| **mean** | **63.34 ± 0.11** (across seeds) | 59.86 ± 0.22 | **+3.48 ± 0.12** | — | — |
+
+**Pooled paired Wilcoxon (25 fold-pairs):** Δreg = +3.48 pp, **p = 2.98×10⁻⁸**, 25/25 positive. Δcat = +0.42 pp, **p = 1.33×10⁻⁵**, 19/25 positive.
+
+Full doc: `research/F51_MULTI_SEED_FINDINGS.md`.
+
+**⚠ Historical numbers below — kept for method derivation. The Pareto picture below was measured under the LEAKY full-data log_T at seed=42 only.** Under leak-free per-fold log_T (the current C4 fix) the absolute reg drops by ~13 pp uniformly; under multi-seed averaging the +3.48 pp Δ is stronger evidence than the single-seed +4.63 pp shown below. See the F51 multi-seed table above for the current paper-grade numbers.
+
+**Pareto picture — paired Wilcoxon vs H3-alt (FL 5f × 50ep, seed 42, LEAKY):**
 
 | metric | H3-alt | P4 alone | **P4 + Cosine** ⭐ | P4 + OneCycle |
 |---|---:|---:|---:|---:|
