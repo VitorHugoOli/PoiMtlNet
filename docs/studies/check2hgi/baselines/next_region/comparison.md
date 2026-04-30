@@ -11,8 +11,8 @@ Generated from `results/<state>.json`. To refresh, regenerate the JSONs (see `..
 | **STAN** | `stl_check2hgi` | 59.20 ± 3.62 | 52.24 ± 2.38 | 72.62 ± 0.52 | 58.82 ± 1.04 | 61.35 ± 0.36 |
 | **STAN** | `stl_hgi` | **62.88 ± 3.90** | **54.86 ± 2.84** | **73.58 ± 0.43** | **60.45 ± 0.97** | **62.70 ± 0.37** |
 | **ReHDM** † | `faithful` | **66.06 ± 0.98** | **54.65 ± 0.77** | 🔴 (~30 h) | 🔴 | 🔴 |
-| **ReHDM** ‡ | `stl_check2hgi` | 26.22 ± 1.58 | 🔴 | 🔴 | 🔴 | 🔴 |
-| **ReHDM** ‡ | `stl_hgi` | 42.78 ± 2.82 | 34.00 ± 3.02 | 🔴 | 🔴 | 🔴 |
+| **ReHDM** ‡ | `stl_check2hgi` | 26.22 ± 1.58 | 23.24 ± 1.27 | 38.74 ± 0.49 | 🔴 | 🔴 |
+| **ReHDM** ‡ | `stl_hgi` | 42.78 ± 2.82 | 34.00 ± 3.02 | **54.49 ± 0.32** | 🔴 | 🔴 |
 
 Bold = best variant per state-baseline. (🔴 = pending; 🟡 = partial / 1-fold; ✅ = 5-fold complete. † CA/TX STAN `faithful` requires raw Gowalla checkins + TIGER tract shapefiles; pending RunPod run per `GAP_A_RUNPOD_HANDOFF_PROMPT.md`.)
 
@@ -71,6 +71,8 @@ ReHDM `faithful` ingests 6 paper-defined IDs (user, POI, category, hour, day-of-
 | State | Acc@1 | Acc@5 | Acc@10 | MRR |
 |---|---:|---:|---:|---:|
 | AL | 5.77 ± 1.01 | 17.92 ± 1.53 | 26.22 ± 1.58 | 12.53 ± 1.12 |
+| AZ | 8.66 ± 0.78 | 17.11 ± 1.24 | 23.24 ± 1.27 | 13.58 ± 0.89 |
+| FL | 24.07 ± 0.51 | 34.42 ± 0.45 | 38.74 ± 0.49 | 29.31 ± 0.50 |
 
 ### `stl_hgi` — ReHDM (full hypergraph), HGI substrate input
 
@@ -78,6 +80,7 @@ ReHDM `faithful` ingests 6 paper-defined IDs (user, POI, category, hour, day-of-
 |---|---:|---:|---:|---:|
 | AL | 13.17 ± 1.03 | 32.44 ± 2.55 | 42.78 ± 2.82 | 22.83 ± 1.38 |
 | AZ | 12.09 ± 1.71 | 26.42 ± 3.08 | 34.00 ± 3.02 | 19.53 ± 2.15 |
+| FL | 32.64 ± 0.48 | 48.06 ± 0.36 | 54.49 ± 0.32 | 40.08 ± 0.28 |
 
 ### Within-baseline pattern (ReHDM, AL Acc@10)
 

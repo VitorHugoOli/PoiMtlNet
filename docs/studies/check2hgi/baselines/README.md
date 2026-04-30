@@ -159,12 +159,12 @@ Top-level summary table:
 | Baseline | AL | AZ | FL | CA | TX |
 |---|---|---|---|---|---|
 | Markov-1-region (floor)  | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **STAN — faithful**      | ✅ | ✅ | ✅ | 🟡 (running) | 🟡 (running) |
+| **STAN — faithful**      | ✅ | ✅ | ✅ | ⚪ (skip — see Gap A audit) | ⚪ (skip — see Gap A audit) |
 | **STAN — stl_check2hgi** | ✅ | ✅ | ✅ | ✅ | ✅ |
 | **STAN — stl_hgi**       | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **ReHDM — faithful**     | ✅ | ✅ | 🔴 | 🔴 | 🔴 |
-| **ReHDM — stl_check2hgi** | ✅ | 🔴 | 🔴 | 🔴 | 🔴 |
-| **ReHDM — stl_hgi**      | ✅ | ✅ | 🔴 | 🔴 | 🔴 |
+| **ReHDM — faithful**     | ✅ | ✅ | 🟡 (running) | ⚪ (skip) | ⚪ (skip) |
+| **ReHDM — stl_check2hgi** | ✅ | ✅ | ✅ | ⚪ (skip) | ⚪ (skip) |
+| **ReHDM — stl_hgi**      | ✅ | ✅ | ✅ | ⚪ (skip) | ⚪ (skip) |
 | GETNext-hard — stl_check2hgi (matched-head, F21c) | ✅ **68.37 ± 2.66** | ✅ **66.74 ± 2.11** | 🔴 (F36c) | 🔴 | 🔴 |
 | **GETNext-hard — stl_hgi (matched-head, Phase-1)** | ✅ **67.52 ± 2.80** | ✅ **64.40 ± 2.42** | 🔴 (F36c) | 🔴 | 🔴 |
 | **Δ matched-head (paired Wilcoxon, Acc@10)** | +0.85 (p=0.0625 marg, TOST non-inf) | **+2.34 (p=0.0312)** | 🔴 | 🔴 | 🔴 |

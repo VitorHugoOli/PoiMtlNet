@@ -85,7 +85,7 @@
       }
     },
     "rehdm": {
-      "_faithful_protocol_note": "`faithful` uses paper protocol — chronological 80/10/10 + 24h sessions + 5 seeds. `stl_*` use study protocol — 5-fold StratifiedGroupKFold matching all other STL rows in this table.",
+      "_faithful_protocol_note": "`faithful` uses paper protocol \u2014 chronological 80/10/10 + 24h sessions + 5 seeds. `stl_*` use study protocol \u2014 5-fold StratifiedGroupKFold matching all other STL rows in this table.",
       "_stl_architecture_note": "STL variants run FULL ReHDM hypergraph (intra-user same-userid + inter-user shared-POI from sequences_next.parquet). Time-precedence dropped (StratifiedGroupKFold is non-temporal). See Alabama JSON for full reasoning.",
       "faithful": {
         "acc1_mean": 19.81,
@@ -105,7 +105,7 @@
         "acc1_std": 1.71,
         "acc5_mean": 26.42,
         "acc5_std": 3.08,
-        "acc10_mean": 34.00,
+        "acc10_mean": 34.0,
         "acc10_std": 3.02,
         "mrr_mean": 19.53,
         "mrr_std": 2.15,
@@ -115,7 +115,24 @@
       },
       "_paper_protocol_stl_archive": {
         "_note": "Paper-protocol replicate (chronological 80/10/10 + 24h sessions). NOT comparable to study StratifiedGroupKFold rows.",
-        "stl_hgi": {"acc10_mean": 47.25, "acc10_std": 1.26, "tag": "REHDM_STL_az_hgi_5x50"}
+        "stl_hgi": {
+          "acc10_mean": 47.25,
+          "acc10_std": 1.26,
+          "tag": "REHDM_STL_az_hgi_5x50"
+        }
+      },
+      "stl_check2hgi": {
+        "acc1_mean": 8.66,
+        "acc1_std": 0.78,
+        "acc5_mean": 17.11,
+        "acc5_std": 1.24,
+        "acc10_mean": 23.24,
+        "acc10_std": 1.27,
+        "mrr_mean": 13.58,
+        "mrr_std": 0.89,
+        "tag": "REHDM_STL_STUDY_v3_az_check2hgi_5f50ep",
+        "date": "2026-04-30",
+        "source_json": "docs/studies/check2hgi/results/baselines/REHDM_STL_STUDY_v3_az_check2hgi_5f50ep_fold{0..4}.json"
       }
     }
   }
