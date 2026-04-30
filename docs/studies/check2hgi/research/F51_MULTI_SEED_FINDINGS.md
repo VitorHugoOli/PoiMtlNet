@@ -125,3 +125,24 @@ The recipe is seed-robust on **absolute** scale, not just on Δ. Both arms' σ_a
 3. **Update `NORTH_STAR.md`** Champion section to cite "+3.48 ± 0.12 pp Δreg across 5 seeds" instead of the seed=42 +3.34 pp.
 4. **Update paper draft** — the abstract and §results headline now have a stronger statement (5-seed average + 25-fold pooled p < 10⁻⁷).
 5. **Spot-check other F50 paper-grade comparisons** (PLE Pareto-WORSE, F62 REJECTED, F65 TIED) for the same per-seed-log_T issue. They were all run at seed=42 with the seed=42 log_T, so they're internally clean — but if any reviewer asks for cross-seed, those would need re-running with the fix in place.
+
+---
+
+## 6 · Tier 2 capacity-smoke side-finding — cat instability at wider shared backbone
+
+While running Tier 2 capacity smokes (5f×30ep, B9 recipe, varying one knob at a time), two failures emerged that belong to the F51 narrative:
+
+| knob | reg ± σ | cat ± σ | failure mode |
+|---|---:|---:|---|
+| `shared_layer_size=384` | 63.26 ± 0.73 | **58.52 ± 19.54** | fold 2 collapses to F1=23.6 (vs ~67 in others); other 4 folds fine |
+| `shared_layer_size=512` | 63.12 ± 0.65 | **8.46 ± 0.18** | **5/5 folds fail to learn cat**; loss frozen at ~1.94 from ep 1, F1 ~8% (worse than random 14% baseline) |
+
+**Reg is unaffected in both cases** (62.07–63.66, on B9's 63.47 plateau). The wider shared backbone breaks the cat path under B9's per-head LR (cat 1e-3 / reg 3e-3 / shared 1e-3) + cosine scheduler; reg's higher LR + P4 alternating-SGD shielding lets it escape the chaos.
+
+**Mechanism interpretation (consistent with F50 D5 + F52 P5):** B9's 256-dim shared backbone is at the **upper bound** of stable shared capacity for cat training. F52 P5 already showed cross-attn mixing is dead-weight at FL; this finding adds that even the FFN+LN within the shared backbone has a tight capacity budget for cat. Widening hurts cat without helping reg — a separate Pareto-worse axis from PLE's expert-routing failure.
+
+**Paper implication:** include in §architecture as evidence that B9's 256-dim shared backbone is locally optimal on the capacity axis (not just historical default). Adds a third Pareto-worse direction (alongside PLE expert routing and F62 two-phase scheduling).
+
+Run dirs:
+- `shared_layer_size=384`: `mtlnet_lr1.0e-04_bs2048_ep30_20260430_1426`
+- `shared_layer_size=512`: `mtlnet_lr1.0e-04_bs2048_ep30_20260430_1438`
