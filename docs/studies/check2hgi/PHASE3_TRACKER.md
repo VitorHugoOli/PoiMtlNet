@@ -12,25 +12,27 @@
 
 🟢 = 5-fold complete (leakage-free, `_pf` suffix) · 🟡 = partial · 🔴 = pending.
 
+**Closed 2026-04-30.** Full grid landed on Lightning H100 80 GB. MTL recipe was **upgraded mid-flight from predecessor B3 to B9** (P4 alternating-SGD + Cosine max_lr=3e-3 + per-head LR cat=1e-3/reg=3e-3/shared=1e-3 + alpha-no-WD + min_best_epoch=5) per NORTH_STAR.md C4 leakage caveat — B9 is the leak-free champion. Run-dir tag: `MTL_B9_*` (not `MTL_B3_*`).
+
 ### Reg STL `next_getnext_hard` (5 states × 2 engines = 10 cells)
 
 | State | C2HGI | HGI | Combined paired |
 |---|:-:|:-:|:-:|
-| AL | 🔴 | 🔴 | 🔴 |
-| AZ | 🔴 | 🔴 | 🔴 |
-| FL | 🔴 | 🔴 | 🔴 |
-| CA | 🔴 | 🔴 | 🔴 |
-| TX | 🔴 | 🔴 | 🔴 |
+| AL | 🟢 | 🟢 | 🟢 |
+| AZ | 🟢 | 🟢 | 🟢 |
+| FL | 🟢 | 🟢 | 🟢 |
+| CA | 🟢 | 🟢 | 🟢 |
+| TX | 🟢 | 🟢 | 🟢 |
 
-### MTL B3 cross-attn (5 states × 2 engines = 10 cells)
+### MTL B9 cross-attn (5 states × 2 engines = 10 cells)
 
 | State | C2HGI | HGI | Combined paired (cat F1 + reg Acc@10) |
 |---|:-:|:-:|:-:|
-| AL | 🔴 | 🔴 | 🔴 |
-| AZ | 🔴 | 🔴 | 🔴 |
-| FL | 🔴 | 🔴 | 🔴 |
-| CA | 🔴 | 🔴 | 🔴 |
-| TX | 🔴 | 🔴 | 🔴 |
+| AL | 🟢 | 🟢 | 🟢 |
+| AZ | 🟢 | 🟢 | 🟢 |
+| FL | 🟢 | 🟢 | 🟢 |
+| CA | 🟢 | 🟢 | 🟢 |
+| TX | 🟢 | 🟢 | 🟢 |
 
 ### Reference rows (Phase 2 leaky data — preserved as historical, NOT to be overwritten)
 
@@ -219,7 +221,49 @@ git push origin worktree-check2hgi-mtl
 ## 8 · Cross-references
 
 - [`PHASE2_TRACKER.md`](PHASE2_TRACKER.md) — Phase 2 STL closure (cat + probe, leakage-free already).
-- [`research/SUBSTRATE_COMPARISON_FINDINGS.md`](research/SUBSTRATE_COMPARISON_FINDINGS.md) — Phase 2 cross-state CH16/CH15 verdicts; Phase 3 will append the leakage-free CH15+CH18 closure section.
+- [`research/SUBSTRATE_COMPARISON_FINDINGS.md`](research/SUBSTRATE_COMPARISON_FINDINGS.md) — Phase 2 cross-state CH16/CH15 verdicts; Phase 3 closure section appended at the bottom (2026-04-30).
 - [`PHASE3_LIGHTNING_HANDOFF.md`](PHASE3_LIGHTNING_HANDOFF.md) — concrete pod-setup step-by-step.
-- [`NORTH_STAR.md`](NORTH_STAR.md) — pinned MTL B3 hparams (do NOT change).
-- F44 in `FOLLOWUPS_TRACKER.md` — the audit finding this phase resolves.
+- [`NORTH_STAR.md`](NORTH_STAR.md) — MTL B9 / B3 hparam definitions.
+- F44 in `FOLLOWUPS_TRACKER.md` — closed 2026-04-30 by this phase.
+
+---
+
+## 9 · Phase 3 closure verdict (2026-04-30)
+
+Full grid landed on H100 80 GB. ~1.7 h wall-clock for 20 cells (reg STL × 10 + MTL B9 × 10), 2-way packed pairs except TX which OOMed at 2-way packing (TX hgi alone with full GPU after TX c2hgi finished — see `tx_hgi_recovery.sh`).
+
+### Headline
+
+| Acceptance bar | Result | Verdict |
+|---|---|---|
+| **CH15 reframing TOST δ=2pp non-inf at ≥ 4/5 states** (reg STL Acc@10) | 2/5 (CA, TX only) | ❌ **FAILS** |
+| **CH18 cat-side: MTL+C2HGI > MTL+HGI on cat F1, p<0.05, ≥ 2/5** | 5/5 with p=0.0312, all folds positive | ✅ **PASSES with margin** |
+| **CH18 reg-side: MTL+C2HGI > MTL+HGI on reg Acc@10, p<0.05, ≥ 2/5** | 0/5 (sign reversed at every state) | ❌ **FAILS — sign reversed** |
+| **Leak shift: < 2 pp absolute, substrate-symmetric** | 5–9 pp absolute drop (asymmetric: c2hgi −9, hgi −6 avg) | ❌ **FAILS expected magnitude** |
+
+### Implications
+
+1. **CH16 / CH18-cat strengthened.** The substrate advantage on next-category prediction is real, large, and scales with state size (+15 pp at small AL/AZ → +33 pp at FL/CA/TX). Strongest possible n=5 paired-Wilcoxon (p=0.0312, all folds positive) at all 5 states under leak-free protocol.
+2. **CH18 reg-side does not survive leak-free.** Phase 2 leaky data showed c2hgi ≥ hgi on reg; Phase 3 leak-free shows the gap was an artifact of the F44 transition-matrix prior. Under per-fold transitions, hgi reg ≥ c2hgi reg by 0.1 to 7.8 pp at every state.
+3. **CH15 "tied / non-inf" reframing does not hold at scale.** Three of five states (AL/AZ/FL) show c2hgi reg STL is *worse* than hgi reg STL by more than 2 pp (TOST fails). Only at CA and TX is the gap within the non-inf margin.
+4. **The leak was substrate-asymmetric** (~3 pp differential), contradicting the "uniform leak hypothesis" in commit `803e0ca`. C2HGI benefited more from the leaky transition prior than HGI did.
+
+### Suggested paper reframing
+
+The substrate-comparison narrative should pivot from *"c2hgi wins joint cat+reg under MTL B-recipe"* to **"per-visit context (c2hgi) is the load-bearing substrate for category prediction; for region prediction, POI-level (hgi) is at parity or marginally ahead."** Mechanism: the cat task benefits from the per-visit variance c2hgi adds (CH19); the reg task is a coarser POI-level label that POI-level embeddings serve adequately.
+
+This is consistent with the existing CH19 attribution (per-visit context = ~72% of CH16 cat gap) and the F37 FL scale-conditional finding (matched-head STL > MTL on reg at large cardinality).
+
+### Artifacts
+
+- Per-fold JSONs: `docs/studies/check2hgi/results/phase1_perfold/{AL,AZ,FL,CA,TX}_{check2hgi,hgi}_{reg_gethard_pf_5f50ep,mtl_cat_pf,mtl_reg_pf}.json`
+- Paired-test JSONs: `docs/studies/check2hgi/results/paired_tests/{<state>_reg_acc10_pf, <state>_reg_mrr_pf, <state>_mtl_cat_f1_pf, <state>_mtl_reg_acc10_pf, <state>_mtl_reg_mrr_pf}.json`
+- P1 source JSONs: `docs/studies/check2hgi/results/P1/region_head_<state>_region_5f_50ep_STL_<STATE>_<engine>_reg_gethard_pf_5f50ep.json`
+- Run dirs (gitignored, archived to Drive): `results/{check2hgi,hgi}/<state>/mtlnet_lr1.0e-04_bs2048_ep50_20260430_*` and `results/{check2hgi,hgi}/<state>/next_lr1.0e-04_bs2048_ep50_20260430_*`
+- Per-fold transition matrices (gitignored): `output/check2hgi/<state>/region_transition_log_fold{1..5}.pt`
+
+### Follow-ups opened by this phase
+
+- **Re-run B9 ablation on `next_getnext_hard` STL with per-state α-init values** — current STL hgi sometimes beats c2hgi by enough that "matched-head" interpretation looks underrated for hgi. Verify by sweep.
+- **F52 P5 / `identity_cross_attn` ablation on the leak-free protocol** — NORTH_STAR.md says P5 ties B9 on FL leaky; haven't tested under leak-free.
+- **Document the "uniform leak" refutation** — commit `803e0ca` claimed substrate-symmetric leak; full 5-state grid contradicts it. Open a short audit note in `research/`.

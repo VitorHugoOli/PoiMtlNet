@@ -91,7 +91,7 @@
 | # | Item | Cost | When to revisit |
 |---|---|:-:|---|
 | **F8** | **Multi-seed n=3 on champion configs** | **~20 h MPS total, parallelisable** | **Deferred by user 2026-04-23.** Held until headline (FL/CA/TX) completes + B3 is frozen. Seeds {42, 123, 2024} × 5 folds × headline configs. |
-| F12 | Per-fold transition matrix (leakage-safe GETNext) | ~4 h impl + 2 h reruns | Camera-ready, if reviewer asks for per-fold protocol. |
+| **F12** | **done 2026-04-30 — Phase 3 Scope D** | Per-fold transition matrix (leakage-safe GETNext) closed at 5/5 states. Reg STL `next_getnext_hard` + MTL B9 re-run with per-fold log_T (`scripts/build_phase3_per_fold_transitions.sh` + `scripts/run_phase3_{reg_stl,mtl}_cell.sh`). Outputs in `docs/studies/check2hgi/results/phase1_perfold/*_pf*.json` + `paired_tests/*_pf.json`. Findings: CH16/CH18-cat strengthened to 5/5 (p=0.0312 each); CH15 reframing fails (3/5 states reject TOST); CH18-reg sign-reversed at 5/5 (leakage was substrate-asymmetric ~3 pp). See `research/SUBSTRATE_COMPARISON_FINDINGS.md` Phase 3 section. |
 | F13 | GETNext with true flow-map Φ = (Φ₁1ᵀ + 1Φ₂ᵀ) ⊙ (L̃ + J) | ~30 min impl + rerun | Follow-up paper. |
 | F14 | PIF-style user-specific region frequency prior | ~3–4 h | Follow-up paper. |
 | F15 | TGSTAN + STA-Hyper full reproductions | ~2–3 weeks | Follow-up paper. |

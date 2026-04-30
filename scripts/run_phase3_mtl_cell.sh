@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
-# Phase 3 Scope D — single MTL B3 cell with leakage-free per-fold transitions.
+# Phase 3 Scope D — single MTL B9 cell with leakage-free per-fold transitions.
+#
+# B9 = F50 P4 (alternating-SGD) + Cosine(max_lr=3e-3) + per-head LR
+#      (cat=1e-3, reg=3e-3, shared=1e-3) + alpha-no-weight-decay
+#      + delayed-min selector (min_epoch=5).
+#
+# Per NORTH_STAR.md (2026-04-29 19:50 UTC C4 caveat): under leakage-free
+# conditions, B9 is the committed champion (+3.34 pp paired Wilcoxon p=0.0312
+# vs leak-free H3-alt). Phase 3 substrate comparison adopts B9 so the
+# leakage-free comparison is at the post-leak frontier, not the predecessor B3.
+#
 # Pins the cell to a specific GPU via CUDA_VISIBLE_DEVICES.
 #
 # Usage:
@@ -48,13 +58,14 @@ for fold in 1 2 3 4 5; do
 done
 
 UPSTATE=$(echo "$STATE" | tr '[:lower:]' '[:upper:]')
-TAG="MTL_B3_${UPSTATE}_${ENGINE}_pf_5f50ep"
+TAG="MTL_B9_${UPSTATE}_${ENGINE}_pf_5f50ep"
 LOG="logs/phase3/${TAG}.log"
 mkdir -p logs/phase3
 
 echo "================================================================"
 echo "[${TAG}] start $(date)"
 echo "  STATE=$STATE  ENGINE=$ENGINE  GPU_ID=$GPU_ID  bs=$MTL_BS"
+echo "  recipe=B9 (P4 alternating-SGD + Cosine max_lr=3e-3 + per-head LR + alpha-no-WD + min_ep=5)"
 echo "  per-fold-transition-dir=${PER_FOLD_DIR}"
 echo "  log=$LOG"
 echo "================================================================"
@@ -68,6 +79,12 @@ python3 -u scripts/train.py \
     --reg-head-param d_model=256 --reg-head-param num_heads=8 \
     --reg-head-param "transition_path=${PER_FOLD_DIR}/region_transition_log.pt" \
     --per-fold-transition-dir "${PER_FOLD_DIR}" \
+    --scheduler cosine --max-lr 3e-3 \
+    --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3 \
+    --alternating-optimizer-step \
+    --alpha-no-weight-decay \
+    --min-best-epoch 5 \
+    --gradient-accumulation-steps 1 \
     --batch-size "$MTL_BS" \
     --folds 5 --epochs 50 --seed 42 --no-checkpoints \
     > "$LOG" 2>&1

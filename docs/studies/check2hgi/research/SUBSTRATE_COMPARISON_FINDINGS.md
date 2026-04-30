@@ -455,3 +455,132 @@ Example: "Where does the +14.52 pp AZ matched-head cat F1 lift come from?"
 2. Per-fold deltas: `results/paired_tests/arizona_cat_f1.json::deltas`.
 3. Source per-fold metrics: `results/phase1_perfold/AZ_{check2hgi,hgi}_cat_gru_5f50ep.json`.
 4. Training curves + classification reports: `results/check2hgi/arizona/next_lr1.0e-04_bs1024_ep50_20260427_1718/` (C2HGI), `results/hgi/arizona/next_lr1.0e-04_bs1024_ep50_20260427_1724/` (HGI).
+
+---
+
+# Phase 3 — Scope D leakage-free CH15 + CH18 closure (2026-04-30)
+
+**Generated 2026-04-30 (Lightning H100 80 GB, ~1.7 h wall-clock).** Closes the F44 transition-matrix leakage at all 5 states by re-running both reg STL `next_getnext_hard` and the MTL re-recipe (upgraded mid-flight to **B9** = F50 P4 alternating-SGD + Cosine max_lr=3e-3 + per-head LR cat=1e-3/reg=3e-3/shared=1e-3 + alpha-no-WD + min_best_epoch=5 — the leak-free champion per `NORTH_STAR.md` C4 caveat).
+
+Run-dir tags use `MTL_B9_*` and `STL_*_pf_*` to coexist with the legacy Phase 2 leaky data preserved as historical reference.
+
+## Phase 3 §1 — Reg STL `next_getnext_hard` (CH15 reframing under leak-free)
+
+5f × 50ep, seed 42, per-fold `region_transition_log_fold{1..5}.pt` (StratifiedGroupKFold(userid, seed=42) train-only edges).
+
+| State | C2HGI Acc@10 | HGI Acc@10 | Δ (C2HGI − HGI) | Wilcoxon p_greater | TOST δ=2pp |
+|---|---:|---:|---:|---:|---|
+| AL | 59.15 ± 3.11 | 61.86 ± 2.94 | **−2.71** | 1.0000 | ❌ FAIL |
+| AZ | 50.24 ± 2.25 | 53.37 ± 2.28 | **−3.13** | 1.0000 | ❌ FAIL |
+| FL | 69.22 ± 0.47 | 71.34 ± 0.58 | **−2.12** | 1.0000 | ❌ FAIL |
+| CA | 55.92 ± 1.08 | 57.77 ± 1.00 | **−1.85** | 1.0000 | ✓ non-inf |
+| TX | 58.89 ± 1.14 | 60.47 ± 1.12 | **−1.59** | 1.0000 | ✓ non-inf |
+
+| State | C2HGI MRR | HGI MRR | Δ MRR | TOST δ=2pp |
+|---|---:|---:|---:|---|
+| AL | 36.30 ± 2.61 | 37.96 ± 2.89 | −1.67 | ❌ FAIL |
+| AZ | 32.65 ± 1.69 | 34.33 ± 2.05 | −1.68 | ❌ FAIL |
+| FL | 54.34 ± 0.70 | 55.17 ± 0.71 | −0.83 | ✓ non-inf |
+| CA | 39.95 ± 0.83 | 40.63 ± 0.94 | −0.68 | ✓ non-inf |
+| TX | 41.82 ± 1.04 | 42.29 ± 1.04 | −0.47 | ✓ non-inf |
+
+**Verdict:** CH15 reframing as "non-inferior C2HGI ≈ HGI on reg" **DOES NOT hold under leak-free protocol at the small/mid states**. AL, AZ, FL all fail TOST δ=2pp because the |Δ| exceeds the margin. Only CA and TX pass.
+
+The Phase 2 leaky data showed AL Δ=+0.85 (c2hgi marginally above) and AZ Δ=+2.34 (c2hgi significantly above with p=0.0312). Under leak-free, **all 5 states flip sign** — HGI is at or above C2HGI on reg STL at every state.
+
+**Leak shift magnitude:** C2HGI dropped on average ~9.3 pp (AL 68.37→59.15, AZ 66.74→50.24); HGI dropped on average ~5.7 pp (AL 67.52→61.86, AZ 64.40→53.37). **The leak was substrate-asymmetric** (~3 pp differential), contradicting commit `803e0ca`'s "uniform leak hypothesis". The c2hgi side was benefiting more from the leaky full-dataset transition prior than the hgi side was.
+
+## Phase 3 §2 — MTL B9 cat F1 (CH18 cat-side under leak-free)
+
+5f × 50ep, seed 42, per-fold transitions, B9 recipe.
+
+| State | C2HGI cat F1 | HGI cat F1 | Δ cat | Wilcoxon p_greater | Pos/Neg folds |
+|---|---:|---:|---:|---:|:-:|
+| AL | **40.47 ± 1.30** | 25.41 ± 0.94 | **+15.06** | **0.0312** ✅ | 5 / 0 |
+| AZ | **44.84 ± 1.38** | 29.25 ± 0.55 | **+15.59** | **0.0312** ✅ | 5 / 0 |
+| FL | **68.42 ± 1.49** | 34.76 ± 0.27 | **+33.66** | **0.0312** ✅ | 5 / 0 |
+| CA | **64.21 ± 1.23** | 31.67 ± 0.95 | **+32.54** | **0.0312** ✅ | 5 / 0 |
+| TX | **65.17 ± 1.26** | 32.40 ± 0.33 | **+32.77** | **0.0312** ✅ | 5 / 0 |
+
+**Verdict (paper-grade leak-free):** **CH16 and CH18-cat are STRENGTHENED.** All 5 states pass with the strongest possible n=5 paired Wilcoxon (p=0.0312) and 5/5 folds positive. Δ cat scales monotonically with state size: ~15 pp at small AL/AZ → ~33 pp at large FL/CA/TX. C2HGI's per-visit context is the load-bearing substrate for next-category prediction.
+
+## Phase 3 §3 — MTL B9 reg Acc@10 (CH18 reg-side under leak-free)
+
+| State | C2HGI reg Acc@10 | HGI reg Acc@10 | Δ reg | Wilcoxon p_greater |
+|---|---:|---:|---:|---:|
+| AL | 32.79 ± 9.04 | 40.58 ± 3.88 | **−7.79** | 0.9375 |
+| AZ | 33.54 ± 3.48 | 37.00 ± 1.69 | **−3.46** | 0.9375 |
+| FL | 60.77 ± 1.40 | 61.77 ± 0.69 | **−1.00** | 0.9375 |
+| CA | 44.24 ± 1.36 | 45.32 ± 1.08 | **−1.09** | 0.9688 |
+| TX | 40.40 ± 1.81 | 40.53 ± 1.68 | **−0.13** | 0.5938 |
+
+| State | C2HGI MRR | HGI MRR | Δ MRR | Wilcoxon p_greater |
+|---|---:|---:|---:|---:|
+| AL | 26.32 ± 6.21 | 30.84 ± 2.36 | −4.51 | 0.9375 |
+| AZ | 26.27 ± 2.05 | 27.38 ± 1.04 | −1.11 | 0.6875 |
+| FL | 46.36 ± 1.21 | 46.66 ± 0.69 | −0.30 | 0.9375 |
+| CA | 32.13 ± 1.13 | 32.86 ± 0.85 | −0.73 | 0.8438 |
+| TX | 30.23 ± 1.36 | 30.31 ± 1.21 | −0.07 | 0.6875 |
+
+**Verdict:** **CH18-reg FAILS under leak-free protocol — sign reversed at all 5 states.** Magnitude is small at large states (FL/CA/TX: ≤−1.1 pp Acc@10, basically tied within σ) but substantial at small states (AL/AZ: −3 to −8 pp). The Phase 2 leaky finding "c2hgi reg ≥ hgi reg under MTL" was an artifact of the F44 transition-matrix leakage, which c2hgi benefited from disproportionately. Under per-fold transitions, MTL+HGI reg ≥ MTL+C2HGI reg at every state.
+
+C2HGI's high σ at AL (9.04) is also notable — single-fold instability that hgi (3.88) does not exhibit.
+
+## Phase 3 §4 — Cross-state synthesis
+
+**Paper-grade leak-free claims:**
+1. **CH16 (cat substrate) — CONFIRMED at 5/5 states** (paper-grade, p=0.0312 each, all folds positive, Δ scales with state size).
+2. **CH18-cat (MTL substrate-specific cat win) — CONFIRMED at 5/5 states** (same statistics; strengthened by leak-free).
+3. **CH15 reframing (substrate-equivalent on reg) — REJECTED at 3/5 states (AL, AZ, FL)**, accepted at 2/5 (CA, TX). Sign-flipped at all 5 vs leaky reference.
+4. **CH18-reg (MTL substrate-specific reg win) — REJECTED at 5/5 states** (sign-reversed). Phase 2 leaky finding was leakage-driven.
+5. **F44 leak — substrate-asymmetric** (~3 pp), refuting `803e0ca`'s uniform-leak hypothesis.
+
+### Suggested paper reframing
+
+The substrate-comparison narrative should be revised from "MTL B-recipe + C2HGI wins joint cat+reg" to:
+
+> **Per-visit context (Check2HGI) is the load-bearing substrate for next-category prediction; for next-region prediction, POI-level embeddings (HGI) are at parity (large states) or marginally ahead (small states).**
+
+Mechanism (consistent with CH19 + F37 FL):
+- **Cat task** benefits from the per-visit variance C2HGI adds (CH19: ~72% of cat gap is per-visit context).
+- **Reg task** is a POI-level coarser label; POI-level HGI embeddings aggregate cleanly across the 9-window without needing per-visit signal.
+- The previously claimed CH18-reg lift was an F44-leakage artifact — the c2hgi reg head used the leaky log_T more aggressively (its α grew to ~2 by ep 17–20, mining val edges) than the hgi reg head did under the same recipe, producing a spurious +0.85 to +2.34 pp gap at AL/AZ that fully flips under leak-free.
+
+### Phase 2 leaky vs Phase 3 leak-free reference (preserved)
+
+| Cell | Phase 2 (leaky log_T full-data) | Phase 3 (per-fold log_T) | Δ leak shift |
+|---|---|---|---|
+| AL c2hgi reg STL Acc@10 | 68.37 ± 2.66 | 59.15 ± 3.11 | **−9.22 pp** |
+| AL hgi   reg STL Acc@10 | 67.52 ± 2.80 | 61.86 ± 2.94 | **−5.66 pp** |
+| AZ c2hgi reg STL Acc@10 | 66.74 ± 2.11 | 50.24 ± 2.25 | **−16.50 pp** |
+| AZ hgi   reg STL Acc@10 | 64.40 ± 2.42 | 53.37 ± 2.28 | **−11.03 pp** |
+
+Asymmetry is largest at AZ (5.5 pp differential). This is the smoking gun for substrate-asymmetric leakage.
+
+### Artifacts
+
+- **Per-fold JSONs**: `docs/studies/check2hgi/results/phase1_perfold/{AL,AZ,FL,CA,TX}_{check2hgi,hgi}_{reg_gethard_pf_5f50ep,mtl_cat_pf,mtl_reg_pf}.json`
+- **Paired-test JSONs**: `docs/studies/check2hgi/results/paired_tests/{<state>_reg_acc10_pf, <state>_reg_mrr_pf, <state>_mtl_cat_f1_pf, <state>_mtl_reg_acc10_pf, <state>_mtl_reg_mrr_pf}.json`
+- **P1 source JSONs**: `docs/studies/check2hgi/results/P1/region_head_<state>_region_5f_50ep_STL_<STATE>_<engine>_reg_gethard_pf_5f50ep.json`
+- **Run dirs (gitignored, Drive bundle)**: `results/{check2hgi,hgi}/<state>/mtlnet_lr1.0e-04_bs2048_ep50_20260430_*`, `results/{check2hgi,hgi}/<state>/next_lr1.0e-04_bs2048_ep50_20260430_*`
+- **Per-fold transition matrices (gitignored, Drive bundle)**: `output/check2hgi/<state>/region_transition_log_fold{1..5}.pt`
+- **Logs (gitignored, Drive bundle)**: `logs/phase3/`
+- Drive bundle: `phase3_drive_bundle_2026-04-30.tar.gz`
+
+### CLI snippets used (canonical recipe pinned in scripts)
+
+```bash
+# Reg STL leak-free (per-fold log_T)
+bash scripts/run_phase3_reg_stl_cell.sh <state> <engine> 0
+
+# MTL B9 leak-free (per-fold log_T + B9 hparams)
+bash scripts/run_phase3_mtl_cell.sh <state> <engine> 0
+# Internally:
+#   --scheduler cosine --max-lr 3e-3
+#   --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3
+#   --alternating-optimizer-step --alpha-no-weight-decay
+#   --min-best-epoch 5 --gradient-accumulation-steps 1
+
+# Finalize (extract + paired tests + status board)
+python3 scripts/finalize_phase3.py
+```

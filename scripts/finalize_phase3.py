@@ -126,27 +126,48 @@ def extract_mtl_pf(state: str, engine: str) -> dict | None:
 def run_paired(c2_path: Path, hgi_path: Path, metric: str, task: str,
                state: str, tost: float | None = None,
                out_suffix: str = "_pf") -> Path:
-    """Run paired test; outputs to paired_tests/<state>_<task>_<metric>_pf.json."""
-    out_dir = PAIRED  # use canonical out_dir; we'll rename after
-    cmd = [
-        sys.executable, str(REPO / "scripts/analysis/substrate_paired_test.py"),
-        "--check2hgi", str(c2_path),
-        "--hgi", str(hgi_path),
-        "--metric", metric,
-        "--task", task,
-        "--state", state,
-        "--out-dir", str(out_dir),
-    ]
-    if tost is not None:
-        cmd += ["--tost-margin", str(tost)]
-    print(f"\n  [paired] state={state} task={task} metric={metric}")
-    subprocess.run(cmd, check=True)
-    # The script wrote <state>_<task>_<metric>.json; append _pf.
-    base = out_dir / f"{state}_{task}_{metric}.json"
-    pf = out_dir / f"{state}_{task}_{metric}{out_suffix}.json"
-    if base.exists():
-        base.rename(pf)
-    return pf
+    """Run paired test; outputs to paired_tests/<state>_<task>_<metric>_pf.json.
+
+    ``task`` here is the *output label* (e.g. ``mtl_cat``, ``reg``); the
+    underlying ``substrate_paired_test.py`` only accepts the bare
+    ``{cat,reg}`` choices, so we strip a leading ``mtl_`` prefix before
+    passing it on the CLI.
+
+    We route the script's output through a per-call temp dir so the bare
+    ``<state>_<cli_task>_<metric>.json`` filename never collides with
+    Phase 2 leaky paired-test JSONs of the same shape that already live
+    in ``paired_tests/`` (those are git-tracked historical references
+    and MUST NOT be overwritten — see Phase 3 closure 2026-04-30).
+    """
+    import tempfile, shutil
+    cli_task = task[4:] if task.startswith("mtl_") else task
+    out_dir = PAIRED
+    out_dir.mkdir(parents=True, exist_ok=True)
+    final_path = out_dir / f"{state}_{task}_{metric}{out_suffix}.json"
+
+    with tempfile.TemporaryDirectory(prefix=f"phase3_paired_{state}_{task}_{metric}_") as td:
+        td_path = Path(td)
+        cmd = [
+            sys.executable, str(REPO / "scripts/analysis/substrate_paired_test.py"),
+            "--check2hgi", str(c2_path),
+            "--hgi", str(hgi_path),
+            "--metric", metric,
+            "--task", cli_task,
+            "--state", state,
+            "--out-dir", str(td_path),
+        ]
+        if tost is not None:
+            cmd += ["--tost-margin", str(tost)]
+        print(f"\n  [paired] state={state} task={task} metric={metric}")
+        subprocess.run(cmd, check=True)
+        produced = td_path / f"{state}_{cli_task}_{metric}.json"
+        if not produced.exists():
+            raise FileNotFoundError(
+                f"substrate_paired_test.py did not produce {produced.name} "
+                f"in {td_path}; check the script's --out-dir handling."
+            )
+        shutil.move(str(produced), str(final_path))
+    return final_path
 
 
 # ───────────────────────────────────────────────────────────────────────
