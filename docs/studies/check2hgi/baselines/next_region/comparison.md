@@ -7,14 +7,14 @@ Generated from `results/<state>.json`. To refresh, regenerate the JSONs (see `..
 | Baseline | Variant | AL | AZ | FL | CA | TX |
 |---|---|---:|---:|---:|---:|---:|
 | Markov-1-region (floor) | — | 47.01 ± 3.55 | 42.96 ± 2.05 | 65.05 ± 0.93 | 52.09 ± 0.80 | 54.94 ± 0.46 |
-| **STAN** | `faithful` | 34.46 ± 3.88 | 38.96 ± 3.41 | 65.36 ± 0.69 | 🔴† | 🔴† |
+| **STAN** | `faithful` | 34.46 ± 3.88 | 38.96 ± 3.41 | 65.36 ± 0.69 | ⚪† | ⚪† |
 | **STAN** | `stl_check2hgi` | 59.20 ± 3.62 | 52.24 ± 2.38 | 72.62 ± 0.52 | 58.82 ± 1.04 | 61.35 ± 0.36 |
 | **STAN** | `stl_hgi` | **62.88 ± 3.90** | **54.86 ± 2.84** | **73.58 ± 0.43** | **60.45 ± 0.97** | **62.70 ± 0.37** |
 | **ReHDM** † | `faithful` | **66.06 ± 0.98** | **54.65 ± 0.77** | 65.68 ± 0.26 | ⚪ | ⚪ |
-| **ReHDM** ‡ | `stl_check2hgi` | 26.22 ± 1.58 | 23.24 ± 1.27 | 38.74 ± 0.49 | 🔴 | 🔴 |
-| **ReHDM** ‡ | `stl_hgi` | 42.78 ± 2.82 | 34.00 ± 3.02 | **54.49 ± 0.32** | 🔴 | 🔴 |
+| **ReHDM** ‡ | `stl_check2hgi` | 26.22 ± 1.58 | 23.24 ± 1.27 | 38.74 ± 0.49 | ⚪ | ⚪ |
+| **ReHDM** ‡ | `stl_hgi` | 42.78 ± 2.82 | 34.00 ± 3.02 | **54.49 ± 0.32** | ⚪ | ⚪ |
 
-Bold = best variant per state-baseline. (🔴 = pending; 🟡 = partial / 1-fold; ✅ = 5-fold complete. † CA/TX STAN `faithful` requires raw Gowalla checkins + TIGER tract shapefiles; pending RunPod run per `GAP_A_RUNPOD_HANDOFF_PROMPT.md`.)
+Bold = best variant per state-baseline. ⚪ = intentionally out of scope (STAN/REHDM faithful CA/TX shown infeasible at scale; substrate-axis covered at 5 states via STAN-STL — see `GAP_A_CLOSURE_20260430.md`). 🟡 = partial; ✅ = 5-fold/seed complete.
 
 † **ReHDM `faithful` uses the paper's protocol** (chronological 80/10/10 + 24h sessions + 5 seeds, not 5 StratifiedGroupKFold folds). σ is inter-seed; cell-for-cell σ comparison with STAN rows is not valid. The qualitative ordering vs Markov-1 floor still holds.
 
