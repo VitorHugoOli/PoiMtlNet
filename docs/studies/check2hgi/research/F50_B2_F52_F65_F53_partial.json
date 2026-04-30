@@ -1,0 +1,154 @@
+[
+  {
+    "label": "B2/F64 \u2014 warmup-decay reg_head LR",
+    "run_dir": "results/check2hgi/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260430_0057",
+    "reg.top10_acc_indist": {
+      "valid": true,
+      "n": 5,
+      "mean_arm": 0.5827629446983338,
+      "std_arm": 0.015696223639737123,
+      "mean_ref": 0.6346565008163452,
+      "std_ref": 0.007492754848316276,
+      "delta_pp": -5.189355611801139,
+      "n_positive": 0,
+      "n_negative": 5,
+      "p_value": 0.0625
+    },
+    "reg.mrr_indist": {
+      "valid": true,
+      "n": 5,
+      "mean_arm": 0.4508449852466582,
+      "std_arm": 0.07087025606175193,
+      "mean_ref": 0.5308163404464722,
+      "std_ref": 0.005430254444392134,
+      "delta_pp": -7.997135519981397,
+      "n_positive": 0,
+      "n_negative": 5,
+      "p_value": 0.0625
+    },
+    "reg.f1": {
+      "valid": true,
+      "n": 5,
+      "mean_arm": 0.10554281622171399,
+      "std_arm": 0.011250900137005889,
+      "mean_ref": 0.12206206023693081,
+      "std_ref": 0.007635954970145211,
+      "delta_pp": -1.6519244015216816,
+      "n_positive": 0,
+      "n_negative": 5,
+      "p_value": 0.0625
+    },
+    "cat.f1": {
+      "valid": true,
+      "n": 5,
+      "mean_arm": 0.6800881862640381,
+      "std_arm": 0.008999892938975377,
+      "mean_ref": 0.6858513832092286,
+      "std_ref": 0.007948110724392447,
+      "delta_pp": -0.5763196945190452,
+      "n_positive": 0,
+      "n_negative": 5,
+      "p_value": 0.0625
+    },
+    "cat.accuracy": {
+      "valid": true,
+      "n": 5,
+      "mean_arm": 0.7087608098983764,
+      "std_arm": 0.007153696415948147,
+      "mean_ref": 0.7142892956733704,
+      "std_ref": 0.007253770834250142,
+      "delta_pp": -0.5528485774993985,
+      "n_positive": 0,
+      "n_negative": 5,
+      "p_value": 0.0625
+    },
+    "cat.f1_weighted": {
+      "valid": true,
+      "n": 5,
+      "mean_arm": 0.7122577428817749,
+      "std_arm": 0.00667026195785223,
+      "mean_ref": 0.7187248110771179,
+      "std_ref": 0.007211349647040612,
+      "delta_pp": -0.646706819534304,
+      "n_positive": 0,
+      "n_negative": 5,
+      "p_value": 0.0625
+    }
+  },
+  {
+    "label": "F52 \u2014 identity-crossattn (P5)",
+    "run_dir": "results/check2hgi/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260430_0115",
+    "reg.top10_acc_indist": {
+      "valid": true,
+      "n": 5,
+      "mean_arm": 0.6376981019973755,
+      "std_arm": 0.011247958528799507,
+      "mean_ref": 0.6346565008163452,
+      "std_ref": 0.007492754848316276,
+      "delta_pp": 0.3041601181030362,
+      "n_positive": 3,
+      "n_negative": 2,
+      "p_value": 0.8125
+    },
+    "reg.mrr_indist": {
+      "valid": true,
+      "n": 5,
+      "mean_arm": 0.5312792897224426,
+      "std_arm": 0.005255570243514171,
+      "mean_ref": 0.5308163404464722,
+      "std_ref": 0.005430254444392134,
+      "delta_pp": 0.0462949275970459,
+      "n_positive": 3,
+      "n_negative": 2,
+      "p_value": 0.625
+    },
+    "reg.f1": {
+      "valid": true,
+      "n": 5,
+      "mean_arm": 0.12206109613180156,
+      "std_arm": 0.007876705280167096,
+      "mean_ref": 0.12206206023693081,
+      "std_ref": 0.007635954970145211,
+      "delta_pp": -9.641051292447189e-05,
+      "n_positive": 2,
+      "n_negative": 3,
+      "p_value": 0.8125
+    },
+    "cat.f1": {
+      "valid": true,
+      "n": 5,
+      "mean_arm": 0.6863919138908386,
+      "std_arm": 0.009085488946252001,
+      "mean_ref": 0.6858513832092286,
+      "std_ref": 0.007948110724392447,
+      "delta_pp": 0.05405306816100852,
+      "n_positive": 4,
+      "n_negative": 1,
+      "p_value": 0.4375
+    },
+    "cat.accuracy": {
+      "valid": true,
+      "n": 5,
+      "mean_arm": 0.7160546541213989,
+      "std_arm": 0.008689983426926564,
+      "mean_ref": 0.7142892956733704,
+      "std_ref": 0.007253770834250142,
+      "delta_pp": 0.17653584480284978,
+      "n_positive": 4,
+      "n_negative": 1,
+      "p_value": 0.125
+    },
+    "cat.f1_weighted": {
+      "valid": true,
+      "n": 5,
+      "mean_arm": 0.7203509330749511,
+      "std_arm": 0.00904822774763953,
+      "mean_ref": 0.7187248110771179,
+      "std_ref": 0.007211349647040612,
+      "delta_pp": 0.16261219978331853,
+      "n_positive": 4,
+      "n_negative": 1,
+      "p_value": 0.1875
+    }
+  }
+]

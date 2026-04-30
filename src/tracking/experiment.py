@@ -69,6 +69,8 @@ class MLHistory:
         save_path: Optional[Union[str, Path]] = None,
         verbose: bool = False,
         display_report: bool = False,
+        task_monitors: Optional[Dict[str, str]] = None,
+        min_epoch: int = 0,
     ):
         self.model_name = model_name
         self.model_type = model_type
@@ -78,10 +80,23 @@ class MLHistory:
         self.datasets: Optional[Set[DatasetHistory]] = datasets
         self.monitor = monitor
         self.mode = mode
+        # AUDIT-C2 — per-task monitor overrides; see fold.FoldHistory.
+        # Default None preserves legacy single-metric (F1) behaviour.
+        self.task_monitors: Optional[Dict[str, str]] = (
+            dict(task_monitors) if task_monitors else None
+        )
+        # F50 B1 — selector min-epoch gate (skip init artifacts).
+        self.min_epoch: int = int(min_epoch)
 
         self.tasks: Set[str] = {tasks} if isinstance(tasks, str) else tasks
         self.folds: List[FoldHistory] = [
-            FoldHistory(i, self.tasks, monitor=monitor, mode=mode)
+            FoldHistory(
+                i, self.tasks,
+                monitor=monitor,
+                mode=mode,
+                task_monitors=self.task_monitors,
+                min_epoch=self.min_epoch,
+            )
             for i in range(num_folds)
         ]
         self.flops: Optional[FlopsMetrics] = None
@@ -166,6 +181,23 @@ class MLHistory:
                 fold_metrics[f"{task_name}_best_f1"] = best_f1
                 fold_metrics[f"{task_name}_best_epoch"] = best_ep
             self._adapter.on_fold_end(self.curr_i_fold, fold_metrics)
+        # Persist this fold's artefacts now so a later-fold crash (OOM SIGKILL,
+        # SSD SIGBUS on long MPS runs) doesn't wipe the work we already did.
+        # Best-effort: the storage method itself swallows exceptions so the
+        # per-fold partial save never aborts training.
+        if self._save_path is not None:
+            try:
+                self.storage.save_fold_partial(
+                    fold_idx=self.curr_i_fold,
+                    path=self._save_path,
+                    label_map=self._label_map,
+                )
+            except Exception as exc:  # defensive; should not propagate
+                import logging
+                logging.getLogger(__name__).warning(
+                    "per-fold partial save failed for fold %d: %s",
+                    self.curr_i_fold, exc,
+                )
         if self.curr_i_fold >= self.num_folds - 1:
             self.end()
             return

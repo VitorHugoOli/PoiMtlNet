@@ -37,13 +37,19 @@ class NextHeadGRU(nn.Module):
         seq_lengths = (~padding_mask).sum(dim=1)
         output, _ = self.gru(x)
 
+        # Vectorised last-valid-timestep extraction. The previous version
+        # had a Python for loop over batch_size (~2048 iterations/forward);
+        # on FL (127k rows) this added ~6M Python iterations per 50-epoch
+        # run and slowed MPS training from ~35min (Transformer head) to
+        # ~2h. This advanced-index fetch runs entirely on-device.
+        # Clamp handles the pathological all-padded row (seq_lengths=0 →
+        # idx=-1 wraps; clamp to 0 for safety — those rows get zeroed in
+        # the MTL forward pre-head anyway, so the 0-index read is a no-op
+        # downstream).
         batch_size = x.size(0)
-        last_outputs = []
-        for i in range(batch_size):
-            last_idx = seq_lengths[i] - 1
-            last_outputs.append(output[i, last_idx])
-
-        last_output = torch.stack(last_outputs)
+        last_idx = (seq_lengths - 1).clamp(min=0)
+        batch_idx = torch.arange(batch_size, device=output.device)
+        last_output = output[batch_idx, last_idx]
         return self.classifier(last_output)
 
 

@@ -6,6 +6,9 @@ __pycache__/
 /temp/
 /output/*
 .venv*
+/logs/
+/.uv-cache/
+/.tmp/
 
 # Python cache
 __pycache__/
@@ -55,3 +58,12 @@ desktop.ini
 # Large regeneratable artefacts inside the leakage-ablation results tree.
 # Reproduce via `python experiments/hgi_leakage_ablation.py --state <State> --arms <arm>`.
 docs/studies/fusion/results/P0/leakage_ablation/*/*/embeddings.parquet
+
+# check2hgi-up: per-variant embedding parquets (~900 MB).
+# Reproduce via `python experiments/check2hgi_up/run_all.py`.
+# Commit JSONs, aggregate, anchors, and STL logs only.
+docs/studies/check2hgi/results/UP1/*_emb.parquet
+
+# Handover bundles (large data zips for off-repo download)
+handover_results.tar.gz
+handover_results.zip

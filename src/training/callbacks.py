@@ -115,6 +115,18 @@ class EarlyStopping(Callback):
             return current > best + self.min_delta
         return current < best - self.min_delta
 
+    def on_train_begin(self, ctx: CallbackContext) -> None:
+        # AUDIT-C3 — reset per-fold state. Without this, stop_training /
+        # wait / best persist across folds: if EarlyStopping fires in
+        # fold 1, every later fold stops at epoch 1 immediately.
+        # Currently dormant (no MTL recipe enables EarlyStopping) but a
+        # silent landmine that silently destroyed runs the moment anyone
+        # added it.
+        self.stop_training = False
+        self.wait = 0
+        self.best = None
+        self.best_epoch = -1
+
     def on_epoch_end(self, ctx: CallbackContext) -> None:
         current = ctx.metrics.get(self.monitor)
         if current is None:
@@ -183,6 +195,14 @@ class ModelCheckpoint(Callback):
         if self.mode == "max":
             return current > best
         return current < best
+
+    def on_train_begin(self, ctx: CallbackContext) -> None:
+        # AUDIT-C3 — reset per-fold checkpoint baseline. Without this,
+        # ``self.best`` persists across folds: fold 2 effectively
+        # "competes" against fold 1's best and the saved checkpoint
+        # files for fold 2+ are silently inconsistent with the best
+        # captured in tracking.fold's BestModelTracker.
+        self.best = None
 
     def on_epoch_end(self, ctx: CallbackContext) -> None:
         if self._model is None:

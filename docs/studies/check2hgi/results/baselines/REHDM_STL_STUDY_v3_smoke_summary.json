@@ -1,0 +1,15 @@
+{
+  "tag": "REHDM_STL_STUDY_v3_smoke",
+  "state": "alabama",
+  "engine": "hgi",
+  "protocol": "5-fold StratifiedGroupKFold (study protocol)",
+  "n_folds": 5,
+  "acc@1_mean": 0.07058060552803419,
+  "acc@1_std": 0.023456134661591754,
+  "acc@5_mean": 0.22912765655058767,
+  "acc@5_std": 0.04534043460857971,
+  "acc@10_mean": 0.32527942219666706,
+  "acc@10_std": 0.05612623575541178,
+  "mrr_mean": 0.15506098264336962,
+  "mrr_std": 0.03272707131024945
+}

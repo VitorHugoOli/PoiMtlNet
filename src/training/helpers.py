@@ -4,13 +4,20 @@ Deduplicates compute_class_weights / setup_optimizer / setup_fold patterns
 that were copy-pasted across category, next, and MTL cross-validation files.
 """
 
-from typing import Union
+from typing import Optional, Union
 
 import numpy as np
 import torch
 from sklearn.utils import compute_class_weight
 from torch.optim import AdamW
-from torch.optim.lr_scheduler import OneCycleLR
+from torch.optim.lr_scheduler import (
+    ConstantLR,
+    CosineAnnealingLR,
+    LambdaLR,
+    LinearLR,
+    OneCycleLR,
+    SequentialLR,
+)
 from torch.utils.data import DataLoader
 from typing import Iterable
 
@@ -43,9 +50,19 @@ def compute_class_weights(
     """
     if isinstance(targets, torch.Tensor):
         targets = targets.detach().cpu().numpy()
-    cls = np.arange(num_classes)
-    weights = compute_class_weight('balanced', classes=cls, y=targets)
-    return torch.tensor(weights, dtype=torch.float32, device=device)
+    # sklearn's ``compute_class_weight`` requires every class in ``classes``
+    # to appear in ``y``. That's fine for 7-class category labels but fails
+    # for high-cardinality heads (e.g. next_region with ~10^3 classes, many
+    # of which are absent from any given train fold). Fill weights only
+    # for observed classes and default to 1.0 for absent classes — the
+    # head will never predict an absent class as positive, so its weight
+    # is inert; keeping it at 1.0 preserves CE normalisation.
+    present = np.unique(targets)
+    weights_full = np.ones(num_classes, dtype=np.float32)
+    if present.size > 0:
+        weights_present = compute_class_weight('balanced', classes=present, y=targets)
+        weights_full[present] = weights_present
+    return torch.tensor(weights_full, dtype=torch.float32, device=device)
 
 
 def setup_optimizer(
@@ -68,9 +85,9 @@ def setup_optimizer(
     Returns:
         Configured AdamW optimizer.
     """
-    parameters = list(model.parameters())
+    parameters = [p for p in model.parameters() if p.requires_grad]
     if extra_parameters is not None:
-        parameters.extend(list(extra_parameters))
+        parameters.extend(p for p in extra_parameters if p.requires_grad)
 
     return AdamW(
         parameters,
@@ -80,26 +97,274 @@ def setup_optimizer(
     )
 
 
+def setup_per_head_optimizer(
+    model: torch.nn.Module,
+    cat_lr: float,
+    reg_lr: float,
+    shared_lr: float,
+    weight_decay: float,
+    eps: float = 1e-8,
+    extra_parameters: Iterable[torch.nn.Parameter] | None = None,
+    reg_encoder_lr: float | None = None,
+    reg_head_lr: float | None = None,
+    alpha_no_weight_decay: bool = False,
+) -> AdamW:
+    """Build an AdamW with three param groups (F48-H3 per-head LR).
+
+    Requires the model to expose ``cat_specific_parameters``,
+    ``reg_specific_parameters`` and ``shared_parameters``. Currently
+    implemented by ``MTLnetCrossAttn`` only — F48-H3 is scoped to the
+    cross-attention MTL backbone.
+
+    Group layout:
+      * ``cat``    — cat encoder + cat head  → ``cat_lr``
+      * ``reg``    — next encoder + next head → ``reg_lr``
+      * ``shared`` — cross-attn blocks + cat/next final_ln → ``shared_lr``
+
+    ``extra_parameters`` (e.g. learnable MTL loss weights) ride along
+    with the ``reg`` group since they are typically tied to reg-loss
+    backward dynamics.
+    """
+    for required in ("cat_specific_parameters", "reg_specific_parameters",
+                     "shared_parameters"):
+        if not hasattr(model, required):
+            raise ValueError(
+                f"Per-head LR optimizer requires model.{required}(); "
+                f"{type(model).__name__} does not expose it. "
+                f"Currently supported: MTLnetCrossAttn."
+            )
+    # Filter out frozen params before constructing AdamW. Without this,
+    # AdamW applies `weight_decay * theta` to params with grad=None on
+    # every step, silently shrinking frozen weights toward zero across
+    # training (catches the F49 encoder-frozen variant and any future
+    # freeze-based ablation). Reg-side `extra_parameters` are typically
+    # learnable scalars; we still filter them for consistency.
+    cat_params = [p for p in model.cat_specific_parameters() if p.requires_grad]
+    reg_params = [p for p in model.reg_specific_parameters() if p.requires_grad]
+    shared_params = [p for p in model.shared_parameters() if p.requires_grad]
+    if extra_parameters is not None:
+        reg_params.extend(p for p in extra_parameters if p.requires_grad)
+
+    # F50 B9 — when ``alpha_no_weight_decay``, peel α (a single scalar
+    # learnable in ``next_getnext_hard*`` heads) out of the reg group
+    # and put it in its own zero-WD group. AdamW WD=0.05 applies a
+    # constant pull-toward-zero to every parameter every step; for the
+    # single α scalar that fights the gradient-driven growth needed for
+    # the late-window α reach (STL at ep 17-20 hits α ~ 2.0). This is
+    # the B9 hypothesis test from F50_T3_HYPERPARAM_BRAINSTORM.md.
+    alpha_params: list[torch.nn.Parameter] = []
+    if alpha_no_weight_decay and hasattr(model, "next_poi"):
+        alpha = getattr(model.next_poi, "alpha", None)
+        if isinstance(alpha, torch.nn.Parameter) and alpha.requires_grad:
+            alpha_params = [alpha]
+            alpha_id = id(alpha)
+            reg_params = [p for p in reg_params if id(p) != alpha_id]
+
+    # F50 D3/D6 — split reg_params into encoder vs head when EITHER
+    # reg_encoder_lr or reg_head_lr is set.
+    #   D3 (reg_encoder_lr): tests mechanism α via reg encoder under-training.
+    #   D6 (reg_head_lr): tests mechanism α via α scalar's effective LR
+    #     (next_poi contains α in next_getnext_hard; under cat_weight=0.75
+    #     scaling, α's gradient is shrunk 4x → α never grows enough).
+    # If only one is set, the other defaults to reg_lr.
+    if (reg_encoder_lr is not None or reg_head_lr is not None) and hasattr(model, "next_encoder"):
+        _enc_lr = float(reg_encoder_lr) if reg_encoder_lr is not None else float(reg_lr)
+        _head_lr = float(reg_head_lr) if reg_head_lr is not None else float(reg_lr)
+        encoder_param_ids = {id(p) for p in model.next_encoder.parameters()}
+        reg_encoder_params = [p for p in reg_params if id(p) in encoder_param_ids]
+        reg_head_params = [p for p in reg_params if id(p) not in encoder_param_ids]
+        groups = [
+            {"name": "cat",         "params": cat_params,         "lr": cat_lr},
+            {"name": "reg_encoder", "params": reg_encoder_params, "lr": _enc_lr},
+            {"name": "reg_head",    "params": reg_head_params,    "lr": _head_lr},
+            {"name": "shared",      "params": shared_params,      "lr": shared_lr},
+        ]
+        if alpha_params:
+            groups.append({
+                "name": "alpha_no_wd", "params": alpha_params,
+                "lr": _head_lr, "weight_decay": 0.0,
+            })
+        return AdamW(groups, weight_decay=weight_decay, eps=eps)
+    groups = [
+        {"name": "cat",    "params": cat_params,    "lr": cat_lr},
+        {"name": "reg",    "params": reg_params,    "lr": reg_lr},
+        {"name": "shared", "params": shared_params, "lr": shared_lr},
+    ]
+    if alpha_params:
+        groups.append({
+            "name": "alpha_no_wd", "params": alpha_params,
+            "lr": reg_lr, "weight_decay": 0.0,
+        })
+    return AdamW(groups, weight_decay=weight_decay, eps=eps)
+
+
+def _build_reg_head_warmup_decay_lambda(
+    warmup_end_step: int,
+    plateau_end_step: int,
+    total_steps: int,
+    peak_mult: float,
+):
+    """F50 F64/B2 — warmup-decay multiplier shape on reg_head LR.
+
+    Returns a closure step → multiplier in [1.0, peak_mult]:
+      0..warmup_end:     linear ramp 1.0 → peak_mult
+      warmup_end..peak:  hold peak_mult
+      peak..total:       linear decay peak_mult → 1.0
+
+    Applied as a per-group factor on top of AdamW's base LR for the
+    reg_head (and α-no-WD if peeled out) groups; other groups keep
+    multiplier ≡ 1.0.
+    """
+    if not (0 < warmup_end_step <= plateau_end_step <= total_steps):
+        raise ValueError(
+            f"reg_head_warmup_decay shape invalid: warmup={warmup_end_step} "
+            f"plateau_end={plateau_end_step} total={total_steps}"
+        )
+    peak = max(1.0, float(peak_mult))
+
+    def _fn(step: int) -> float:
+        if step < warmup_end_step:
+            return 1.0 + (peak - 1.0) * (step / warmup_end_step)
+        if step < plateau_end_step:
+            return peak
+        # decay phase
+        decay_span = max(1, total_steps - plateau_end_step)
+        progress = min(1.0, (step - plateau_end_step) / decay_span)
+        return peak - (peak - 1.0) * progress
+
+    return _fn
+
+
 def setup_scheduler(
     optimizer: AdamW,
     max_lr: float,
     epochs: int,
     steps_per_epoch: int,
-) -> OneCycleLR:
-    """Create a OneCycleLR scheduler matching the project's conventions.
+    scheduler_type: str = "onecycle",
+    pct_start: Optional[float] = None,
+    reg_head_warmup_decay_peak_mult: float = 10.0,
+    reg_head_warmup_decay_warmup_epochs: int = 5,
+    reg_head_warmup_decay_plateau_epochs: int = 15,
+):
+    """Create an LR scheduler matching the project's conventions.
 
     Args:
         optimizer: The optimizer to schedule.
-        max_lr: Peak learning rate for OneCycleLR.
+        max_lr: Peak learning rate. For ``onecycle`` this is the peak;
+            for ``constant`` / ``cosine`` this is the initial/reference LR.
         epochs: Total training epochs.
         steps_per_epoch: Number of optimizer steps per epoch.
+        scheduler_type: One of ``{"onecycle", "constant", "cosine"}``.
+            Default ``onecycle`` preserves legacy behaviour bit-exactly.
+        pct_start: For ``onecycle``, fraction of training spent on warmup.
+            ``None`` → PyTorch default (0.3). Smaller values push peak LR
+            earlier and leave more epochs in the annealing phase.
 
     Returns:
-        Configured OneCycleLR scheduler.
+        Configured scheduler (OneCycleLR / ConstantLR / CosineAnnealingLR).
     """
-    return OneCycleLR(
-        optimizer=optimizer,
-        max_lr=max_lr,
-        epochs=epochs,
-        steps_per_epoch=steps_per_epoch,
+    if scheduler_type == "onecycle":
+        kwargs = dict(
+            optimizer=optimizer,
+            max_lr=max_lr,
+            epochs=epochs,
+            steps_per_epoch=steps_per_epoch,
+        )
+        if pct_start is not None:
+            kwargs["pct_start"] = float(pct_start)
+        return OneCycleLR(**kwargs)
+    # Per-head LR mode (F48-H3) builds an optimizer with multiple param
+    # groups already at their target LRs. Detect and skip the single-LR
+    # overwrite below — otherwise `setup_per_head_optimizer`'s per-group
+    # LRs would be silently flattened to `max_lr` here.
+    multi_group_per_head = len(optimizer.param_groups) > 1
+    if scheduler_type == "constant":
+        # Hold LR fixed at `max_lr` for the entire run (no warmup, no
+        # annealing). Isolates "more epochs" from "stretched OneCycleLR
+        # schedule" when paired with a higher --epochs value.
+        # The optimizer's base `lr` must be overwritten to `max_lr`
+        # before ConstantLR(factor=1.0) locks it — but only in single-
+        # group (legacy) mode. Per-head mode preserves its own LRs.
+        if not multi_group_per_head:
+            for pg in optimizer.param_groups:
+                pg["lr"] = max_lr
+        return ConstantLR(optimizer=optimizer, factor=1.0, total_iters=1)
+    if scheduler_type == "cosine":
+        # Warmup-free cosine decay from `max_lr` → 0 over total steps.
+        # First set the optimizer's base lr to max_lr so CosineAnnealingLR
+        # starts at max_lr (not at AdamW's lr=1e-4 default).
+        if not multi_group_per_head:
+            for pg in optimizer.param_groups:
+                pg["lr"] = max_lr
+        return CosineAnnealingLR(
+            optimizer=optimizer,
+            T_max=int(epochs * steps_per_epoch),
+        )
+    if scheduler_type == "warmup_constant":
+        # F48-H2: linear warmup over `pct_start * total_steps` from a low
+        # base, then hold constant at max_lr forever. Designed to give
+        # cat a stable warmup phase (avoiding the F45 cat-collapse from
+        # day-1 sustained 3e-3) and reg a long high-LR plateau (where
+        # `α` in next_getnext_hard can grow, per F45 mechanism).
+        # `pct_start` doubles as the warmup fraction (default 1/3 ≈
+        # 50ep warmup of the 150ep design from FINDINGS doc).
+        if not multi_group_per_head:
+            for pg in optimizer.param_groups:
+                pg["lr"] = max_lr
+        warmup_frac = float(pct_start) if pct_start is not None else (1.0 / 3.0)
+        if not (0 < warmup_frac < 1):
+            raise ValueError(f"warmup_constant pct_start must be in (0,1), got {warmup_frac}")
+        total_steps = int(epochs * steps_per_epoch)
+        warmup_steps = max(1, int(warmup_frac * total_steps))
+        # start at ~3% of target LR — gentle enough that 7-class cat head
+        # doesn't diverge in epoch 1, while keeping a single knob.
+        warmup = LinearLR(
+            optimizer,
+            start_factor=0.033,
+            end_factor=1.0,
+            total_iters=warmup_steps,
+        )
+        plateau = ConstantLR(optimizer, factor=1.0, total_iters=1)
+        return SequentialLR(
+            optimizer,
+            schedulers=[warmup, plateau],
+            milestones=[warmup_steps],
+        )
+    if scheduler_type == "reg_head_warmup_decay":
+        # F64/B2 — only the reg_head (and alpha_no_wd, if present) param
+        # group sees the warmup-decay shape; all other groups stay at
+        # base LR. Requires the per-head optimizer (multi-group). The
+        # reg-side LR ramps base→peak in `warmup_epochs`, holds at peak
+        # through `plateau_epochs`, then decays linearly back to base by
+        # the final epoch. Tests whether late-window α growth is unlocked
+        # without sustained instability (D6's failure mode).
+        if not multi_group_per_head:
+            raise ValueError(
+                "reg_head_warmup_decay requires per-head optimizer "
+                "(--cat-lr/--reg-lr/--shared-lr); single-group mode unsupported"
+            )
+        total_steps = int(epochs * steps_per_epoch)
+        warmup_end_step = int(reg_head_warmup_decay_warmup_epochs * steps_per_epoch)
+        plateau_end_step = int(reg_head_warmup_decay_plateau_epochs * steps_per_epoch)
+        warmup_decay_fn = _build_reg_head_warmup_decay_lambda(
+            warmup_end_step=max(1, warmup_end_step),
+            plateau_end_step=max(warmup_end_step + 1, plateau_end_step),
+            total_steps=max(plateau_end_step + 1, total_steps),
+            peak_mult=reg_head_warmup_decay_peak_mult,
+        )
+        identity_fn = lambda _: 1.0
+        # Map each param group by name → its lambda. Reg-head + α-no-WD
+        # ride the warmup-decay; cat / reg_encoder / shared / reg stay at 1.0.
+        lambdas = []
+        for pg in optimizer.param_groups:
+            name = pg.get("name", "")
+            if name in ("reg_head", "alpha_no_wd"):
+                lambdas.append(warmup_decay_fn)
+            else:
+                lambdas.append(identity_fn)
+        return LambdaLR(optimizer, lr_lambda=lambdas)
+    raise ValueError(
+        f"Unknown scheduler_type '{scheduler_type}'; "
+        f"expected one of {{'onecycle', 'constant', 'cosine', "
+        f"'warmup_constant', 'reg_head_warmup_decay'}}."
     )
