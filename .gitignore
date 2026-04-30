@@ -63,3 +63,7 @@ docs/studies/fusion/results/P0/leakage_ablation/*/*/embeddings.parquet
 # Reproduce via `python experiments/check2hgi_up/run_all.py`.
 # Commit JSONs, aggregate, anchors, and STL logs only.
 docs/studies/check2hgi/results/UP1/*_emb.parquet
+
+# Handover bundles (large data zips for off-repo download)
+handover_results.tar.gz
+handover_results.zip

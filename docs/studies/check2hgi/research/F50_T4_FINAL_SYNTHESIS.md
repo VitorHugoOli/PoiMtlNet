@@ -1,13 +1,21 @@
-# F50 T4 — Final Synthesis (2026-04-29 22:00 UTC)
+# F50 T4 — Final Synthesis (2026-04-30 02:00 UTC)
 
-**Status:** Paper story locked. All paper-critical leak-free runs landed. Headlines below.
+**Status:** Paper story locked. F50 study complete except CA/TX A100-deferred.
 
-This doc consolidates F50 T4. Cross-refs:
-- C4 root cause: `F50_T4_C4_LEAK_DIAGNOSIS.md`
-- Broader audit: `F50_T4_BROADER_LEAKAGE_AUDIT.md`
-- Validity matrix: `F50_T4_PRIOR_RUNS_VALIDITY.md`
-- Re-run decision: `F50_T4_RERUN_DECISION.md`
-- Live tracker: `F50_T4_PRIORITIZATION.md`
+**This doc is the canonical entry point.** Read this first; everything else is supporting.
+
+Quick navigation:
+- **Chronological history of how we got here:** `F50_HISTORY.md`
+- **All headline numbers in one place:** `F50_RESULTS_TABLE.md`
+- **C4 leak root cause (load-bearing receipt):** `F50_T4_C4_LEAK_DIAGNOSIS.md`
+- **Broader leakage audit:** `F50_T4_BROADER_LEAKAGE_AUDIT.md`
+- **Validity of prior F50 ablations under C4:** `F50_T4_PRIOR_RUNS_VALIDITY.md`
+- **Mechanism narrative (temporal dynamics):** `F50_T3_TRAINING_DYNAMICS_DIAGNOSTICS.md`
+- **Mechanism receipts (encoder + α trajectories):** `F50_D5_ENCODER_TRAJECTORY.md` + `figs/f63_alpha_trajectory.png`
+- **Latest follow-ups (B2/F52/F65/F53):** `F50_B2_F52_F65_F53_FINDINGS.md`
+- **CA/TX P3 fallback plan:** `C05_P3_NULL_RESULT_FALLBACK.md`
+- **Live tracker (rich update log):** `F50_T4_PRIORITIZATION.md`
+- **Archived sub-experiment docs (T1.1, T1.5, T2/T3 sub-results):** `archive/F50/`
 
 ---
 
