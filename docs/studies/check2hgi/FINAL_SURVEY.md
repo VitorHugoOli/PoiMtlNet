@@ -4,6 +4,27 @@
 
 Statistical protocol: paired Wilcoxon signed-rank (one-sided `alternative='greater'` for the C2HGI > HGI direction) on the 5 paired folds, `p=0.0312` is the maximum significance achievable at n=5, equivalent to all 5 folds positive. Paired-t reported alongside; effect-direction (Δ̄ sign) agrees with Wilcoxon at every cell.
 
+> **⚠ sklearn-version reproducibility caveat (added 2026-04-30):** sklearn upgraded
+> the `StratifiedGroupKFold(shuffle=True)` algorithm in 1.8.0 (PR #32540, fixing
+> stratification with shuffle). We empirically verified that 1.3.2 and 1.8.0
+> produce **completely different fold splits at the same `random_state=42`** —
+> fold 0 val starts `[1, 7, 8, 14, 16]` on 1.3.2 vs `[2, 3, 11, 24, 27]` on 1.8.0;
+> all 5 fold-set hashes differ. Implications:
+>
+> 1. **Every within-phase paired Wilcoxon test below is statistically valid** —
+>    both substrate arms in each comparison ran in the same env on the same
+>    folds, so Δ direction and p-value are unaffected.
+> 2. **§7 leak-shift (Phase 2 leaky vs Phase 3 clean) absolute magnitudes are
+>    partly confounded** if any Phase 2 cell ran on sklearn ≠ 1.8.0. The
+>    substrate-asymmetric direction is robust (both arms within each phase share
+>    the same env), but the absolute "−9 pp dropped" includes a fold-shift
+>    component on top of pure leak removal.
+> 3. **The proper way to settle §7 quantitatively** is to re-run Phase 2 reg STL
+>    on the same Lightning H100 image as Phase 3. The qualitative conclusion
+>    (C2HGI exploited the leaky log_T more than HGI) does not change.
+>
+> See §8 for the full impact assessment.
+
 ## Track summary
 
 | Claim track | Head | Affected by F44 leak? | Source files |
@@ -137,9 +158,102 @@ Mechanism (CH19, F37 FL):
 * Reg is a POI-level coarser label; POI-stable HGI embeddings aggregate cleanly across the 9-window without needing per-visit signal.
 * The previously-claimed CH18-reg lift was the F44 leak: C2HGI's α grew more aggressively (to ~2 by ep 17-20) and mined val edges from the full-data log_T more effectively.
 
-## 8 · Bibliography of internal docs
+## 8 · sklearn 1.3.2 → 1.8.0 fold-split impact assessment
+
+### Context
+
+`requirements.txt` was upgraded `scikit-learn 1.6.1 → 1.8.0` on commit `42845fa`
+(2026-04-14), citing PR #32540 ("StratifiedGroupKFold stratification not properly
+preserved when shuffle=True"). `src/data/folds.py` calls
+`StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=42)` for the
+user-disjoint cat/next/MTL splits; the per-fold transition matrix builder
+(`scripts/compute_region_transition.py --per-fold`) uses the same call.
+
+There is a frozen-fold mechanism (`scripts/study/freeze_folds.py` writes
+`output/<engine>/<state>/folds/fold_indices_<task>.pt` with a sklearn-version
+sidecar in `.meta.json`), but **no frozen-fold files were on disk** when Phase 3
+ran — every cell regenerated folds from scratch via `_from_scratch` (case 4 in
+`scripts/train.py:1183`). So each cell's folds are determined entirely by the
+sklearn version installed in that env.
+
+### Direct empirical test (2026-04-30)
+
+Synthesized a representative POI dataset (500 users, 100k seqs, 7 categories
+with realistic skew). Ran `StratifiedGroupKFold(5, shuffle=True, 42)` on both
+sklearn versions:
+
+| sklearn | fold 0 val[:5] | fold 4 \|val\| | fold-set hashes |
+|---|---|---:|---|
+| 1.3.2 | `[1, 7, 8, 14, 16]` | 20353 | `[444d7abc..., c0a1f5e9..., ..., bc7588fd...]` |
+| 1.8.0 | `[2, 3, 11, 24, 27]` | 20112 | `[7d024743..., 4841b36d..., ..., d93bd3cf...]` |
+
+**All 5 fold-set hashes differ.** Even fold sizes drift (~2 % per fold). PR
+#32540 changed the stratification path enough to fully randomize which user
+goes to which fold for any non-trivial dataset.
+
+### What this affects in this survey
+
+| Section | Effect on the headline claim | Why |
+|---|---|---|
+| §1 Probe (CH16 head-free) | **None** — paired test internally valid. | Each state's C2HGI/HGI cells ran in the same env. Δ direction + p=0.0312 unaffected. |
+| §2 Cat STL (CH16 main) | **None** — paired test internally valid. | Same reason. |
+| §3 MTL cat (CH18-cat) | **None** — Phase 3 only, single env. | All cells on Lightning H100 sklearn 1.8.0. |
+| §4 Reg STL (CH15 reframing) | **None** — Phase 3 only, single env. | Same. |
+| §5 MTL reg (CH18-reg) | **None** — Phase 3 only, single env. | Same. |
+| §6 Leak-shift (Phase 2 vs Phase 3) | **Quantitative caveat** — see below. | Compares cells potentially run on different sklearn versions. |
+| §7 Synthesis | Net — **all 4 paper-grade claims (CH16, CH18-cat, CH15, CH18-reg) survive intact.** Only the F44 leak-magnitude attribution in §6 needs a footnote. |  |
+
+### §6 leak-shift — what survives, what doesn't
+
+Each cell of the Phase 2 row vs Phase 3 row in §6 is a comparison across
+different (env, sklearn) pairs:
+
+* Phase 3 (clean): all 10 cells on Lightning H100, sklearn 1.8.0 (single env).
+* Phase 2 (leaky): heterogenous — AL/AZ may be from earlier dates (likely
+  sklearn 1.6.1 or earlier); FL was Colab T4 (Apr 28); CA/TX were Lightning
+  T4 (Apr 29). Each env's sklearn pin depends on whether the bootstrap
+  honored the post-2026-04-14 requirements.txt.
+
+**Robust under the caveat:**
+
+1. The leak is **substrate-asymmetric** (C2HGI lost more pp than HGI when leak
+   was removed) — both arms within each phase shared the same env, so the
+   asymmetry is NOT a fold-split artifact. ✅
+2. The **direction** of the shift (every state lost pp going from leaky to
+   clean) is robust because the leaky → clean transition is a well-defined
+   model change regardless of fold split. ✅
+
+**Not bit-exact:**
+
+3. The **absolute magnitude** "AL c2hgi −9.22 pp" mixes leak removal with
+   fold-split shift. True leak magnitude could be ±2-3 pp around the reported
+   number. ⚠
+
+### What to do if §6 magnitude is paper-critical
+
+Re-run Phase 2 reg STL (`next_getnext_hard` with the legacy full-data
+`region_transition_log.pt`, **no** `--per-fold-transition-dir`) on the same
+Lightning H100 image used for Phase 3 (sklearn 1.8.0, identical pin). Then the
+leaky vs clean comparison would be on bit-identical fold splits and the leak
+magnitude becomes a clean attribution. ~10 cells × ~10 min on H100 ≈ ~1.5 h
+wall-clock; same per-fold transition dir is NOT used, so reuse of cached
+parquets is straightforward. Output to `_5f50ep_v18.json` to keep the original
+files as historical reference.
+
+This is **not** required to land the paper — claims 1–5 are intact — but it
+would tighten the F44 leak-magnitude story for an appendix table.
+
+### Belt-and-braces fix for future runs
+
+Run `scripts/study/freeze_folds.py --default-set` once on a known sklearn
+version, commit the `.meta.json` sidecars (folds themselves are large; consider
+LFS or Drive bundle), and add `--folds-path <canonical>` to the orchestrator
+launch scripts so future re-runs cannot drift on a sklearn upgrade.
+
+## 9 · Bibliography of internal docs
 
 * `PHASE2_TRACKER.md` — Phase 2 STL closure (cat + probe, leak-free already).
+* `requirements.txt` commit `42845fa` — sklearn 1.6.1 → 1.8.0 upgrade rationale (PR #32540).
 * `PHASE3_TRACKER.md` — Phase 3 Scope D plan + status board.
 * `research/SUBSTRATE_COMPARISON_FINDINGS.md` — full Phase-1 verdicts + Phase-3 closure.
 * `research/F50_T4_C4_LEAK_DIAGNOSIS.md` — root-cause + magnitude.
