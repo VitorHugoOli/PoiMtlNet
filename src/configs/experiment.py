@@ -123,14 +123,6 @@ class ExperimentConfig:
     # reg-saturation observation.
     joint_loader_strategy: str = "max_size_cycle"
 
-    # P3 CA unblock — when True, skip per-epoch train-side metric
-    # aggregation (which catting all-batches logits = O(num_classes ×
-    # epoch_rows) GPU memory). At CA's 8501 regions × ~280K rows × fp32
-    # this is ~9 GB and OOMs the 24 GB 4090. Train F1 is a diagnostic
-    # only; val metrics still computed normally. Default False preserves
-    # legacy behavior for FL/AL/AZ/GA where the issue doesn't appear.
-    skip_train_metrics: bool = False
-
     # AUDIT-C4 fix — directory holding per-fold transition matrices
     # ``region_transition_log_fold{1..k_folds}.pt``. When set, the MTL
     # trainer overrides the static ``transition_path`` in next-head

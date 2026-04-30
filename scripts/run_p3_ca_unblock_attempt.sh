@@ -39,9 +39,9 @@ run() {
     echo "[${tag}] exit ${PIPESTATUS[0]} at $(date)"
 }
 
-# B9 champion at CA. First attempt with --skip-train-metrics (avoids the
-# 9 GB train-side logit catting on 8501-region head). If still OOMs we'll
-# drop bs=2048 → bs=1024.
+# B9 champion at CA. Targeted for A100 (40-80 GB) where the train-side
+# logit catting at line mtl_cv.py:541 (CA 8501 regions × ~280K rows × fp32
+# = ~9 GB on top of model state) fits comfortably.
 run "p3_ca_b9_champion" \
     --task mtl --task-set check2hgi_next_region \
     --state california --engine check2hgi \
@@ -60,7 +60,6 @@ run "p3_ca_b9_champion" \
     --mtl-loss static_weight --category-weight 0.75 \
     --alternating-optimizer-step \
     --scheduler cosine --max-lr 3e-3 \
-    --alpha-no-weight-decay \
-    --skip-train-metrics
+    --alpha-no-weight-decay
 
 echo "P3 CA done — extract from results/check2hgi/california/"

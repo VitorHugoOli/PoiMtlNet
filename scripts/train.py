@@ -594,18 +594,6 @@ def _parse_args(argv=None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
-        "--skip-train-metrics",
-        dest="skip_train_metrics",
-        action="store_true",
-        default=False,
-        help=(
-            "P3 CA unblock: skip per-epoch train-side metric aggregation. "
-            "At high-cardinality reg heads (CA 8501 regions × ~280K rows × "
-            "fp32 = ~9 GB) the all-batch logit catting OOMs a 24 GB GPU. "
-            "Train F1 becomes 0.0 placeholder; val metrics unchanged."
-        ),
-    )
-    parser.add_argument(
         "--pct-start",
         type=float,
         default=None,
@@ -952,8 +940,6 @@ def _apply_cli_overrides(
     if args.joint_loader_strategy is not None:
         config = dataclasses.replace(
             config, joint_loader_strategy=args.joint_loader_strategy)
-    if args.skip_train_metrics:
-        config = dataclasses.replace(config, skip_train_metrics=True)
     # Per-head LR (F48-H3). Validate as a triple — partial sets are an
     # error since the runner only switches to per-head mode when all
     # three are present.
