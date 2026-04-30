@@ -27,7 +27,7 @@ fi
 if [[ ! -f "${CA_DIR}/region_transition_log_fold1.pt" ]]; then
     echo "[per-fold log_T] building for CA…"
     "$PY" scripts/compute_region_transition.py \
-        --state california --engine check2hgi --per-fold \
+        --state california --per-fold \
         2>&1 | tee logs/ca_per_fold_logT.log
 fi
 
