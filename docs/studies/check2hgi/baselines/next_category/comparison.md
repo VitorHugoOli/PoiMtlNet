@@ -10,7 +10,7 @@ Generated from `results/<state>.json`. To refresh, regenerate the JSONs (see `..
 | Markov-1-POI (floor) | last POI | 16.81 ± 1.06 | 19.48 ± 0.63 | 27.60 ± 0.32 | 24.95 ± 1.18 | 25.85 ± 0.55 |
 | Markov-9-cat (floor) | 9-cat seq, backoff | best K=5: **20.50 ± 0.67** | best K=5: **23.92 ± 2.26** | best K=3: **29.74 ± 1.19** | best K=5: **27.59 ± 0.61** | best K=5: **28.67 ± 0.66** |
 | **MHA+PE** (Zeng 2019) | `faithful` (8-step window) | 18.95 ± 0.71 | 24.99 ± 0.85 | 32.06 ± 0.23 | 29.13 ± 0.71 | 29.91 ± 0.43 |
-| **POI-RGNN** | `faithful` (9-step window) | **23.80 ± 1.12** | **27.64 ± 2.34** | **33.35 ± 1.14** | 🔴 (running) | 🔴 (running) |
+| **POI-RGNN** | `faithful` (9-step window) | **23.80 ± 1.12** | **27.64 ± 2.34** | **33.35 ± 1.14** | **30.71 ± 0.82** | 🔴 (running) |
 
 The Markov-1-POI line conditions on the last POI ID only (paper-style 1-step floor). **Markov-K-cat is the apples-to-apples sequence floor for POI-RGNN**: both methods see the same 9-step category window, the Markov side conditioning on the last K categories with stupid backoff (K → K-1 → … → 1 → unigram). See `scripts/compute_markov_kstep_cat.py` and `next_category_markov_kstep.json` per state.
 
@@ -24,7 +24,7 @@ The Markov-1-POI line conditions on the last POI ID only (paper-style 1-step flo
 | Markov-1-POI (floor) | — | 31.69 ± 0.45 | 32.58 ± 0.32 | 36.88 ± 0.44 | 34.20 ± 0.20 | 33.12 ± 0.14 |
 | best Markov-K-cat | — | k=3: 36.72 ± 1.22 | k=3: 39.26 ± 1.37 | k=3: 42.03 ± 0.64 | k=3: 39.44 ± 0.47 | k=3: 37.99 ± 0.23 |
 | **MHA+PE** | `faithful` | 39.35 ± 1.10 | 41.23 ± 1.23 | 43.83 ± 0.17 | 40.40 ± 0.40 | 39.43 ± 0.28 |
-| **POI-RGNN** | `faithful` | **39.21 ± 1.97** | **41.04 ± 1.79** | **44.07 ± 0.76** | 🔴 (running) | 🔴 (running) |
+| **POI-RGNN** | `faithful` | **39.21 ± 1.97** | **41.04 ± 1.79** | **44.07 ± 0.76** | **41.32 ± 0.52** | 🔴 (running) |
 
 POI-RGNN beats every floor on Acc@1 across all three states. The macro-F1 lift over the majority floor is ≥24 pp at every state — POI-RGNN learns to discriminate the minority categories that the majority floor ignores entirely.
 
@@ -53,6 +53,8 @@ POI-RGNN beats every floor on Acc@1 across all three states. The macro-F1 lift o
 | AL | 39.21 ± 1.97 | 80.40 ± 0.93 | 93.36 ± 0.43 | 61.43 ± 1.38 | 23.80 ± 1.12 | 36.56 ± 1.74 | 10,749 |
 | AZ | 41.04 ± 1.79 | 81.84 ± 1.30 | 93.41 ± 0.59 | 62.86 ± 1.31 | 27.64 ± 2.34 | 38.09 ± 2.09 | 22,396 |
 | FL | 44.07 ± 0.76 | 79.05 ± 0.68 | 93.07 ± 0.33 | 63.72 ± 0.62 | 33.35 ± 1.14 | 41.54 ± 0.93 | 142,381 |
+| CA | 41.32 ± 0.52 | 78.65 ± 0.28 | 92.49 ± 0.16 | 62.21 ± 0.34 | 30.71 ± 0.82 | 38.45 ± 0.63 | 325,119 |
+| TX | 🔴 (running) | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 | — |
 
 ## Markov-K-cat detail (apples-to-apples sequence floor)
 
@@ -87,7 +89,7 @@ K=3–5 is the sweet spot — beyond that, key sparsity (7^K vs ~10K–150K wind
 | AL | **23.80** | 18.95 | +3.30 | **−1.55** |
 | AZ | **27.64** | 24.99 | +3.72 | +1.07 |
 | FL | **33.35** | 32.06 | +3.61 | +2.32 |
-| CA | 🔴 (running) | 29.13 | 🔴 | (POI-RGNN − Markov-K-cat) +1.54 |
+| CA | **30.71** | 29.13 | +3.13 | +1.54 |
 | TX | 🔴 (running) | 29.91 | 🔴 | +1.24 |
 
 - **POI-RGNN beats MHA+PE on macro-F1 across all 3 states** by +2.65 (AZ) to +4.85 (AL) pp. The RNN+GNN combo's category-transition graph buys real F1 over the RNN+self-attention combo at this scale.

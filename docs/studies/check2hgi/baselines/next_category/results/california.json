@@ -87,7 +87,22 @@
   },
   "baselines": {
     "poi_rgnn": {
-      "_pending": "POI-RGNN faithful train still running."
+      "faithful": {
+        "n_rows": 0,
+        "acc1_mean": 41.3209,
+        "acc1_std": 0.5238,
+        "acc3_mean": 78.6481,
+        "acc3_std": 0.2773,
+        "acc5_mean": 92.4892,
+        "acc5_std": 0.1632,
+        "mrr_mean": 62.2061,
+        "mrr_std": 0.337,
+        "macro_f1_mean": 30.711,
+        "macro_f1_std": 0.8234,
+        "tag": "FAITHFUL_POIRGNN_california_5f35ep",
+        "date": "2026-04-30",
+        "source_json": "docs/studies/check2hgi/results/baselines/faithful_poi_rgnn_california_5f_35ep_FAITHFUL_POIRGNN_california_5f35ep.json"
+      }
     },
     "mha_pe": {
       "faithful": {
