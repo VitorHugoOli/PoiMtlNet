@@ -844,8 +844,14 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
         # AUDIT-C4 fix — per-fold transition prior. When
         # ``config.per_fold_transition_dir`` is set, swap the static
         # ``transition_path`` in task_b.head_params for the fold-specific
-        # file ``region_transition_log_fold{N}.pt``. The N is 1-indexed
-        # because that's what ``compute_region_transition.py --per-fold``
+        # file ``region_transition_log_seed{S}_fold{N}.pt``. The seed
+        # MUST match the trainer's ``--seed S`` because the per-fold
+        # log_T is built from train rows under the same fold split;
+        # using a file built at a different seed silently leaks
+        # ~80% of val transitions into the prior at every other seed
+        # (caught 2026-04-30 — F51 multi-seed sweep with seed=42
+        # log_T applied at seeds 0/1/7/100). N is 1-indexed because
+        # that's what ``compute_region_transition.py --per-fold``
         # writes. ``i_fold`` here is 0-indexed (FoldCreator dict keys).
         # Default None preserves the legacy single-prior behaviour, so
         # this is a no-op for the running tier-A queue.
@@ -856,12 +862,32 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             from pathlib import Path as _Path
             ts = config.model_params.get("task_set")
             if ts is not None and getattr(ts, "task_b", None) is not None:
-                pf_path = _Path(per_fold_dir) / f"region_transition_log_fold{i_fold + 1}.pt"
+                seed = int(getattr(config, "seed", 42))
+                pf_path = (
+                    _Path(per_fold_dir)
+                    / f"region_transition_log_seed{seed}_fold{i_fold + 1}.pt"
+                )
                 if not pf_path.exists():
+                    legacy_path = (
+                        _Path(per_fold_dir)
+                        / f"region_transition_log_fold{i_fold + 1}.pt"
+                    )
+                    if legacy_path.exists():
+                        raise FileNotFoundError(
+                            f"per-fold log_T at expected seed-tagged path "
+                            f"{pf_path} missing. A legacy unseeded file at "
+                            f"{legacy_path} was found, but using it would "
+                            f"leak val transitions if its build seed != "
+                            f"current --seed {seed}. Migrate by either "
+                            f"renaming the legacy file (if you know the seed "
+                            f"it was built at) or rebuilding: python "
+                            f"scripts/compute_region_transition.py --state "
+                            f"{config.state} --per-fold --seed {seed}"
+                        )
                     raise FileNotFoundError(
                         f"per_fold_transition_dir set but {pf_path} missing. "
                         f"Build with: python scripts/compute_region_transition.py "
-                        f"--state {config.state} --per-fold"
+                        f"--state {config.state} --per-fold --seed {seed}"
                     )
                 tb_head_params = dict(ts.task_b.head_params or {})
                 tb_head_params["transition_path"] = str(pf_path)
@@ -870,8 +896,8 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                 per_fold_model_params = dict(config.model_params)
                 per_fold_model_params["task_set"] = new_task_set
                 logger.info(
-                    "[C4 per-fold log_T] fold %d using %s",
-                    i_fold + 1, pf_path,
+                    "[C4 per-fold log_T] fold %d seed %d using %s",
+                    i_fold + 1, seed, pf_path,
                 )
 
         # Initialize model via registry

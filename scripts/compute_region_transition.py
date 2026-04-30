@@ -247,9 +247,14 @@ def _build_per_fold(state: str, smoothing_eps: float, n_splits: int, seed: int):
             smoothing_eps=smoothing_eps,
             seq_df=seq_df,
         )
+        # Filename encodes seed so a trainer running at --seed N cannot
+        # silently load a per-fold log_T built for a different seed.
+        # Pre-2026-04-30 builds wrote the unseeded
+        # ``region_transition_log_fold{N}.pt`` form; those files were
+        # always seed=42 and have been migrated to the seeded form.
         out = save(
             state, log_probs, smoothing_eps,
-            filename=f"region_transition_log_fold{fold_idx + 1}.pt",
+            filename=f"region_transition_log_seed{seed}_fold{fold_idx + 1}.pt",
         )
         paths.append(out)
     return paths
