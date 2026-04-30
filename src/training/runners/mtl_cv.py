@@ -210,6 +210,7 @@ def train_model(model: torch.nn.Module,
                 cat_specific_parameters: Optional[list] = None,
                 reg_specific_parameters: Optional[list] = None,
                 joint_loader_strategy: str = "max_size_cycle",
+                skip_train_metrics: bool = False,
                 ):
     """
     Train the model with multi-task learning.
@@ -530,27 +531,41 @@ def train_model(model: torch.nn.Module,
 
             # Collect logits on-device for epoch-level metrics. We keep the
             # full logit tensor (not argmax) so ranking metrics are free.
-            with torch.no_grad():
-                all_task_b_logits.append(pred_task_b.detach())
-                all_task_b_targets.append(truth_task_b)
-                all_task_a_logits.append(pred_task_a.detach())
-                all_task_a_targets.append(truth_task_a)
+            # F50 P3 — `skip_train_metrics` bypasses this catting; the per-
+            # epoch train logits across all batches blow GPU memory at
+            # high-cardinality heads (CA's 8501 regions × ~280K rows × fp32
+            # = 9 GB). Train F1 is a diagnostic only — not load-bearing for
+            # model selection.
+            if not skip_train_metrics:
+                with torch.no_grad():
+                    all_task_b_logits.append(pred_task_b.detach())
+                    all_task_b_targets.append(truth_task_b)
+                    all_task_a_logits.append(pred_task_a.detach())
+                    all_task_a_targets.append(truth_task_a)
 
             steps += 1
 
-        epoch_task_b_logits = torch.cat(all_task_b_logits)
-        epoch_task_b_targets = torch.cat(all_task_b_targets)
-        epoch_task_a_logits = torch.cat(all_task_a_logits)
-        epoch_task_a_targets = torch.cat(all_task_a_targets)
+        if skip_train_metrics:
+            # Use placeholder train metrics — keep the schema stable so
+            # downstream history/CSV writers don't see column drift.
+            train_metrics_task_b = {'accuracy': 0.0, 'f1': 0.0}
+            train_metrics_task_a = {'accuracy': 0.0, 'f1': 0.0}
+            f1_task_b = 0.0
+            f1_task_a = 0.0
+        else:
+            epoch_task_b_logits = torch.cat(all_task_b_logits)
+            epoch_task_b_targets = torch.cat(all_task_b_targets)
+            epoch_task_a_logits = torch.cat(all_task_a_logits)
+            epoch_task_a_targets = torch.cat(all_task_a_targets)
 
-        train_metrics_task_b = compute_classification_metrics(
-            epoch_task_b_logits, epoch_task_b_targets, num_classes=task_b_num_classes,
-        )
-        train_metrics_task_a = compute_classification_metrics(
-            epoch_task_a_logits, epoch_task_a_targets, num_classes=task_a_num_classes,
-        )
-        f1_task_b = train_metrics_task_b['f1']
-        f1_task_a = train_metrics_task_a['f1']
+            train_metrics_task_b = compute_classification_metrics(
+                epoch_task_b_logits, epoch_task_b_targets, num_classes=task_b_num_classes,
+            )
+            train_metrics_task_a = compute_classification_metrics(
+                epoch_task_a_logits, epoch_task_a_targets, num_classes=task_a_num_classes,
+            )
+            f1_task_b = train_metrics_task_b['f1']
+            f1_task_a = train_metrics_task_a['f1']
 
         # Calculate epoch metrics (single sync for losses)
         epoch_loss = running_loss.item() / steps
@@ -1077,6 +1092,7 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             ),
             joint_loader_strategy=getattr(
                 config, "joint_loader_strategy", "max_size_cycle"),
+            skip_train_metrics=getattr(config, "skip_train_metrics", False),
         )
 
         # Run final validation

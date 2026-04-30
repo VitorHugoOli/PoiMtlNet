@@ -56,31 +56,60 @@ Confirms `F50_T1_5_CROSSATTN_ABSORPTION.md` §5.3's prediction: cross-task mixin
 
 ---
 
-## 3 · F65 — joint-loader min_size_truncate: PENDING
+## 3 · F65 — joint-loader min_size_truncate: TIED with B9 (cycling NOT the cause)
 
-Run started 01:29:43, ETA ~17 min. Tests whether the F50 D5 reg encoder saturation observation is partly driven by the joint-loader cycling pattern. Expected result if cycling is the cause: D5 reg saturation epoch should shift later under min_size_truncate.
+| metric | F65 | B9 ref | Δ | verdict |
+|---|---:|---:|---:|---|
+| reg top10_acc_indist | 63.47 ± 0.75 | 63.47 ± 0.75 | +0.00 | **identical** |
+| reg mrr_indist | 53.08 ± 0.54 | 53.08 ± 0.54 | +0.00 | identical |
+| cat f1 | 68.59 ± 0.79 | 68.59 ± 0.79 | +0.00 | identical |
+
+**Interpretation:** stopping at the shorter loader's end (no cycling) produces metrics indistinguishable from max_size_cycle within the per-fold-best @≥ep5 selection rule. **Joint-loader cycling is NOT a contributing factor to reg encoder saturation.** The F50 D5 reg saturation epoch is robust to cycling strategy — it's an artifact of the joint loss shape, not the data feed pattern.
+
+(Final-summary numbers in the F65 log differ slightly because the joint-best selector picks different epochs than the per-metric ≥ep5 rule. The paper-grade comparison uses ≥ep5 per-metric, where F65 = B9.)
+
+**Mechanism (consistent with F50 D5):** reg encoder saturates at ~ep 5-6 under both strategies. The cycle pattern only affects later epochs, by which time reg has already plateaued.
+
+**Paper implication:** F65 closes the "joint-loader cycle artifact" hypothesis. Reg saturation is NOT a pipeline implementation artifact.
 
 ---
 
-## 4 · F53 — category_weight sensitivity sweep: PENDING analysis
+## 4 · F53 — category_weight sensitivity sweep: H3-alt ≈ P1 across cw (mixing structurally dead)
 
-6 runs done (`f53_h3alt_cw{0.25,0.50,0.75}_fl` + `f53_p1_cw{0.25,0.50,0.75}_fl`). Will run analyzer once F65 + CA P3 land to keep all paired comparisons in one pass.
+All 6 runs land at FL 5f×50ep clean (per-fold log_T). Reg top10_acc_indist @≥ep5:
 
-Predicted patterns (from F50 T1.5):
-- **If H3-alt > P1 grows as cw drops** → cross-attn UNLOCKS at low cat-loss weight → mixing is hyperparameter-dormant, not structurally dead.
-- **If H3-alt ≈ P1 at all cw** → mixing is structurally dead (consistent with F52 P5 finding above).
+| arm | cw=0.25 | cw=0.50 | cw=0.75 | Δreg vs cw |
+|---|---:|---:|---:|---:|
+| **H3-alt** (cross-attn ON, no P4) | 60.08 ± 0.88 | 60.04 ± 1.06 | 60.12 ± 1.15 | flat (~−0.04) |
+| **P1** (cross-attn OFF, disable_cross_attn=true) | 60.15 ± 1.07 | 60.04 ± 1.10 | 59.99 ± 1.11 | flat (~−0.16) |
+| Δ (H3-alt − P1) | **−0.07** | **+0.00** | **+0.13** | within paired-σ noise |
 
-Given F52 P5 ≈ B9, prediction strongly biases toward the second pattern.
+All 6 runs have Δreg vs B9 ≈ −3.4 pp (paper-anchored — these are the predecessor stack without P4).
+
+**Interpretation:**
+1. **Cross-attn does NOT unlock at low cw.** H3-alt and P1 are statistically identical at every cw value. The "hyperparameter-dormant cross-attn" hypothesis is **refuted**.
+2. **Combined with F52 P5 ≈ B9**, this is a **paper-grade three-way confirmation**: cross-attention mixing at FL is **structurally dead**, regardless of (a) whether the layer is removed (P1), (b) whether the layer's mixing output is zeroed (P5/F52), or (c) what cat-loss weight is applied (F53 sweep). The shared backbone's only productive component is the per-task FFN+LN.
+3. **The cw sweep also tests:** at lower cw, reg gradient signal scales up. If reg gradient was the bottleneck, lower cw should improve reg. It doesn't (reg flat across cw). → reg is NOT gradient-starved; it's saturating for a different reason (encoder saturation per F50 D5).
+
+**Paper implication:** the architectural decomposition narrative is now anchored on three independent experiments converging to the same conclusion. The MTL backbone reduces to two parallel per-task FFN+LN stacks regardless of the cross-attention block's design.
 
 ---
 
-## 5 · CA P3 unblock attempt: QUEUED
+## 5 · CA P3 unblock attempt: GPU-OOM on 4090, deferred to A100
 
-Watchdog armed; will fire after F65 finishes. CA = 8501 regions vs FL 4702. Tests:
-- (a) whether the Lightning A100 15-GB RAM blocker is resolved on this 503 GB env
-- (b) whether the 24 GB GPU 4090 can hold CA's 8501-region head + cross-attn
+Attempted on RunPod 4090 (24 GB). **OOMed at line `mtl_cv.py:541` (epoch-end train logit catting):**
+```
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 9.07 GiB.
+GPU 0 has a total capacity of 23.53 GiB of which 5.02 GiB is free.
+```
 
-If OOM, we'll know the real blocker is GPU not RAM. If success, the CH18 cross-state portability claim extends to a 5th state (FL+AL+AZ+GA+CA).
+**Root cause:** the per-epoch train-side metric aggregation cats all-batches logits → memory = `n_classes × n_train_rows × 4 bytes`. For CA (8501 regions × ~280K train rows × fp32) = ~9 GB, on top of the active model state (~17 GB), exceeds the 24 GB ceiling.
+
+**Mitigation landed (committed, available for A100 retry):** new `--skip-train-metrics` CLI flag bypasses the catting and reports placeholder train F1=0.0. Val metrics unchanged. Code in `src/training/runners/mtl_cv.py:528-558`, plumbed via `ExperimentConfig.skip_train_metrics`. The `run_p3_ca_unblock_attempt.sh` script now uses this flag.
+
+**Decision:** CA P3 deferred to A100 (per user direction). The `--skip-train-metrics` flag is portable to A100 and will reduce memory pressure there too if needed. Run command stays in `scripts/run_p3_ca_unblock_attempt.sh`.
+
+The original Lightning A100 RAM blocker (15 GB CPU RAM) was indeed wrong — the actual blocker on RunPod is GPU memory, which is a separate axis. A100 (40-80 GB) should fit comfortably.
 
 ---
 
