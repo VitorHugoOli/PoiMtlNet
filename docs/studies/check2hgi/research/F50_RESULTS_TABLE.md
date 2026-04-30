@@ -1,16 +1,37 @@
 # F50 — Results Compilation (paper-grade headline numbers)
 
-**Single source of truth for paper headline numbers.** All numbers under leak-free per-fold log_T (`--per-fold-transition-dir`); pre-2026-04-29 numbers in the codebase used full-data log_T inflated by ~13–17 pp (see C4 in supplementary).
+**Single source of truth for paper headline numbers.** All numbers under leak-free per-fold log_T (`--per-fold-transition-dir`); pre-2026-04-29 numbers in the codebase used full-data log_T inflated by ~13–17 pp (see C4 in supplementary). **F51 (2026-04-30): per-fold log_T must be seed-tagged** as `region_transition_log_seed{S}_fold{N}.pt` — see §C4 follow-up in supplementary.
 
-Selection rule: per-fold-best @≥ep5 (to defeat the GETNext α init artifact at ep 0–2). Paired Wilcoxon signed-rank, n=5 → minimum p-value at 5/5 directional = 0.0312.
+Selection rule: per-fold-best @≥ep5 (to defeat the GETNext α init artifact at ep 0–2). Paired Wilcoxon signed-rank, n=5 → minimum p-value at 5/5 directional = 0.0312. **F51 multi-seed**: 5 seeds × 5 folds = 25 fold-pairs pooled.
 
 ---
 
-## 1 · FL champion ranking (clean, 5f × 50ep, bs=2048)
+## 1 · FL champion — multi-seed validated (F51, 2026-04-30) ⭐
+
+**Paper-grade headline (5-seed mean, FL 5f × 50ep, bs=2048):**
+
+| metric | B9 mean ± σ_across_seeds | H3-alt mean ± σ_across_seeds | Δ | pooled paired Wilcoxon |
+|---|---:|---:|---:|---|
+| reg top10 (≥ep5) | **63.34 ± 0.11** | 59.86 ± 0.22 | **+3.48 ± 0.12** | **p=2.98×10⁻⁸, 25/25 positive** |
+| cat F1 (≥ep5) | 68.59 (range [68.45, 68.69]) | 68.16 (range [67.86, 68.34]) | **+0.42 ± 0.21** | **p=1.33×10⁻⁵, 19/25 positive** |
+
+Per-seed (Δreg / p_reg / n+/n / Δcat / p_cat / n+/n):
+
+| seed | Δreg | p_reg | n+ | Δcat | p_cat | n+ |
+|---:|---:|:---:|:---:|---:|:---:|:---:|
+| 42 | +3.34 | 0.0312 | 5/5 | +0.24 | 0.156 | 3/5 |
+| 0 | +3.65 | 0.0312 | 5/5 | +0.61 | 0.062 | 4/5 |
+| 1 | +3.39 | 0.0312 | 5/5 | +0.68 | **0.0312** | 5/5 |
+| 7 | +3.49 | 0.0312 | 5/5 | +0.35 | 0.062 | 4/5 |
+| 100 | +3.51 | 0.0312 | 5/5 | +0.22 | 0.156 | 3/5 |
+
+→ Recipe is essentially deterministic in the partition-difficulty axis (B9 abs reg σ_across_seeds = 0.11 pp). Full doc: `F51_MULTI_SEED_FINDINGS.md`.
+
+## 2 · FL single-seed table (seed=42, kept for cross-references)
 
 | recipe | reg top10 (≥ep5) | cat F1 (≥ep5) | Δreg vs H3-alt | paired Wilcoxon | run dir |
 |---|---:|---:|---:|---|---|
-| **STL F37 ceiling** (clean) | **71.12 ± 0.59** | n/a | — | — | `next_lr1.0e-04_bs2048_ep50_*` (clean rerun queued) |
+| **STL F37 ceiling** (clean) | **71.12 ± 0.59** | n/a | — | — | `next_lr1.0e-04_bs2048_ep50_*` |
 | **B9 (P4 + Cosine + α-no-WD)** ⭐ | **63.47 ± 0.75** | **68.59 ± 0.79** | **+3.34** | **p=0.0312, 5/5 on BOTH tasks** | `mtlnet_lr1.0e-04_bs2048_ep50_20260429_1813` |
 | F52 P5 identity-crossattn | 63.77 ± 1.12 | 68.64 ± 0.91 | (vs B9: +0.30 p=0.81) | tied with B9 | `mtlnet_lr1.0e-04_bs2048_ep50_20260430_0115` |
 | P4-alone (constant scheduler) | 63.41 ± 0.77 | 67.82 | +3.28 | p=0.0312, 5/5 | `mtlnet_lr1.0e-04_bs2048_ep50_*` (predecessor stack) |
@@ -21,7 +42,7 @@ Selection rule: per-fold-best @≥ep5 (to defeat the GETNext α init artifact at
 | H3-alt (clean baseline) | 60.12 ± 1.14 | 68.34 | 0 | anchor | `mtlnet_lr1.0e-04_bs2048_ep50_20260429_1921` |
 | B2/F64 warmup-decay reg_head LR | 58.28 ± 1.57 | 68.01 ± 0.90 | (vs B9: −5.19) | p=0.0625, 0/5+ 5/5− ❌ | `mtlnet_lr1.0e-04_bs2048_ep50_20260430_0057` |
 
-**Headline:** B9 closes 3.3 pp of the ~7.7 pp STL→MTL gap on FL. The minimal recipe is `--alternating-optimizer-step` (P4); Cosine and α-no-WD give marginal lift.
+**Headline:** B9 closes 3.5 pp of the ~7.7 pp STL→MTL gap on FL (multi-seed mean). The minimal recipe is `--alternating-optimizer-step` (P4); Cosine and α-no-WD give marginal lift.
 
 ## 2 · F53 — category_weight sensitivity sweep (FL clean, 5f × 50ep)
 
@@ -95,6 +116,22 @@ Plot: `figs/f50_d5_encoder_trajectory.png`. Doc: `F50_D5_ENCODER_TRAJECTORY.md`.
 | F49 architectural decomposition (AL/AZ/FL gaps) | ✅ relatively (uniform leak); absolutes inflated |
 
 **8/9 paper claims survive.** Only the absolute headline numbers (champion 76.07, STL ceiling 82.44, gap 8.83) change. The mechanism narrative — temporal training dynamics, P4 per-step alternation, FiLM/cross-attn architecture — is preserved.
+
+## 6.5 · F51 Tier 2 — capacity-knob sweep (5f × 30ep, FL, B9 base)
+
+21 capacity smokes across 7 dimensions (Δ vs B9 seed=42 ref capped @≤ep30: reg 63.47 ± 0.75, cat 68.06 ± 0.94, reg-best ep {6,6,5,5,5}). Full doc: `F51_TIER2_CAPACITY_FINDINGS.md`.
+
+| dimension | levels (B9 default in **bold**) | reg outcome | cat outcome | verdict |
+|---|---|---|---|---|
+| `encoder_layer_size` | 128, **256**, 384, 512 | tied (Δreg ∈ [-0.41, +0.0]) | tied | encoder is over-spec'd; B9 default OK |
+| `num_encoder_layers` | 1, **2**, 3, 4 | tied at {1,3}; **−0.60 pp at 4** | tied at {1,3}; **−2.07 pp at 4** | depth=4 is regression |
+| `encoder_dropout` | 0.05, **0.1**, 0.2, 0.3 | tied | monotonically degrades with dropout | B9 dropout=0.1 optimal |
+| `shared_layer_size` | **256** + 128/384/512 | tied | **128 OK; 384 collapses fold 2; 512 collapses 5/5 folds** | cat width-stability cliff |
+| `num_crossattn_blocks` | 1, **2**, 3, 4 | 1 tied; **3 = +0.75 pp ⚠ Pareto-trade**; 4 unstable | 3 = -2.62 pp; 4 collapses cat | refines F52 to depth-conditional |
+| `num_crossattn_heads` | 2, **4**, 8, 16 | tied across all (Δreg ∈ [-0.28, -0.13]) | tied | 4-head over-spec'd |
+| `crossattn_ffn_dim` | 128, **256**, 512, 1024 | tied at {128,512}; **−0.62 pp at 1024** | tied at {128,512}; **collapse at 1024** | FFN width past 256 is harmful |
+
+**Verdict:** B9 is locally optimal in **5/7 dimensions**. The architecture has no paper-grade capacity-scaling lift. Two NEW negative findings: (a) cat width-stability cliff (P4 shields reg, cat unshielded at LR=1e-3); (b) F52's "mixing is dead at FL" is depth-conditional (alive at depth=3, breaks cat at depth=4).
 
 ## 7 · Pareto landscape (FL clean, ≥ep5)
 

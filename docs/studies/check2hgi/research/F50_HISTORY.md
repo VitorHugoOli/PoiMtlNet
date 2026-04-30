@@ -122,7 +122,7 @@ Three architectural follow-ups + one cw sweep + one CA attempt:
 
 ## Phase 8 — Consolidation (2026-04-30 ~02:00)
 
-Where you are now. F50 declared functionally complete:
+F50 declared functionally complete:
 - Mechanism story locked (temporal dynamics + reg encoder saturation + α growth gating).
 - Champion locked (B9 / P4-alone / P0-A within 0.25 pp; recipe = P4 alone).
 - Architectural decomposition locked (mixing dead via 3 independent receipts).
@@ -133,6 +133,32 @@ Where you are now. F50 declared functionally complete:
 - CA + TX P3 5f×50ep — A100-targeted (`scripts/run_p3_ca_unblock_attempt.sh` ready).
 - Multi-seed variance — only if reviewer asks.
 
+## Phase 9 — F51 deep exploration (2026-04-30 ~02:30 → 16:33)
+
+Triggered by `F50_NORTH_STAR_DEEP_EXPLORATION_PROMPT.md` (committed `130f2ee`). F51 ran two tiers:
+
+### Tier 1: multi-seed validation (~3 h on 4090)
+
+5 seeds × 2 arms × 5f×50ep at FL with seed-correct per-fold log_T. **Result: paper claim DECISIVELY ROBUST** (Δreg = +3.48 ± 0.12 pp across seeds, pooled p=2.98×10⁻⁸ on 25 fold-pairs, 25/25 positive folds; cat also paper-grade once pooled at p=1.33×10⁻⁵).
+
+**Bug found and fixed mid-sweep (2026-04-30 05:25):** the original C4 fix wrote per-fold log_T as `region_transition_log_fold{N}.pt` with no seed in the filename — the script's CLI default was `--seed 42` and was never overridden. The trainer loaded this file unconditionally regardless of its own `--seed N`. At any seed != 42, ~80% of val users live in seed=42's fold-N TRAIN set → ~80% of val transitions leaked back into the prior. Empirical magnitude: B9 absolute reg inflated from clean ~63 to leaky ~72.5 at seeds {0, 1, 7, 100}. Caught by an env-B 1f×10ep verification smoke that didn't reproduce the seed=42 5f×50ep reference, then a 5f×50ep seed=42 rerun reproduced the handover ref bit-exactly — exposing the fold-split mismatch. Fix landed in `scripts/compute_region_transition.py` (filename now includes seed), `src/training/runners/mtl_cv.py` (reads seed-tagged file, hard-fails on legacy/missing), `scripts/run_f51_multiseed_fl.sh` (idempotent per-seed builds). Paired Δs survive (uniform-leak), absolute v1 numbers are wrong; v2 numbers are clean.
+
+**Full doc:** `F51_MULTI_SEED_FINDINGS.md`.
+
+### Tier 2: capacity-knob sweep (~4 h on 4090)
+
+21 capacity smokes (5f×30ep, B9 base, FL) across 7 architecture dimensions: encoder_layer_size, num_encoder_layers, encoder_dropout, shared_layer_size, num_crossattn_blocks, num_crossattn_heads, crossattn_ffn_dim.
+
+**Result: B9 is locally optimal in 5/7 dimensions; no paper-grade promotion candidate.** Single Pareto-trade (`num_crossattn_blocks=3`: Δreg +0.75 pp / Δcat -2.62 pp) refines F52's "mixing is dead at FL" claim to depth-conditional (alive at depth=3, breaks cat at depth=4). Three width-knobs catastrophically break cat without affecting reg (`shared_layer_size=384`: fold 2 collapse; `shared_layer_size=512`: 5/5 folds fail; `num_crossattn_blocks=4`: multi-fold; `crossattn_ffn_dim=1024`: multi-fold) — adds a NEW "cat width-stability cliff" mechanism: P4 alternating-SGD + higher per-head reg LR (3e-3) shields reg; cat at LR=1e-3 has no shield.
+
+**Full doc:** `F51_TIER2_CAPACITY_FINDINGS.md`.
+
+### Net F51 outcome
+- Paper claim **strengthened** from single-seed +3.34 pp to multi-seed +3.48 ± 0.12 pp pooled p<10⁻⁷.
+- Architecture-via-capacity-scaling track **closed** (no lift available).
+- Two NEW mechanism receipts: (a) cat width-stability cliff, (b) cross-attn mixing depth-conditional.
+- One critical bug (per-seed log_T leak) caught and fixed; trainer now hard-fails on legacy/missing files.
+
 ---
 
 ## Cross-references
@@ -140,11 +166,13 @@ Where you are now. F50 declared functionally complete:
 - Current synthesis: `F50_T4_FINAL_SYNTHESIS.md`
 - Headline numbers compiled: `F50_RESULTS_TABLE.md`
 - Live tracker (rich log entries source): `F50_T4_PRIORITIZATION.md`
+- **F51 multi-seed validation:** `F51_MULTI_SEED_FINDINGS.md`
+- **F51 Tier 2 capacity sweep:** `F51_TIER2_CAPACITY_FINDINGS.md`
 - C4 leak diagnosis (load-bearing receipt): `F50_T4_C4_LEAK_DIAGNOSIS.md`
 - Broader leakage audit: `F50_T4_BROADER_LEAKAGE_AUDIT.md`
 - Validity matrix (which prior runs survive C4): `F50_T4_PRIOR_RUNS_VALIDITY.md`
 - Mechanism narrative source: `F50_T3_TRAINING_DYNAMICS_DIAGNOSTICS.md`
-- Latest follow-ups: `F50_B2_F52_F65_F53_FINDINGS.md`
+- Latest F50 follow-ups: `F50_B2_F52_F65_F53_FINDINGS.md`
 - D5 encoder receipt: `F50_D5_ENCODER_TRAJECTORY.md`
 - Phase-3 fallback plan: `C05_P3_NULL_RESULT_FALLBACK.md`
 - Archived sub-experiment docs: `archive/F50/` (T1.1, T1.5, T2/T3 sub-results, brainstorms, original plan)

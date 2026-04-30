@@ -36,7 +36,9 @@ Single-seed table (kept for cross-references):
 | P4-alone (constant) | 63.41 ± 0.77 | 67.82 | +3.28 | p=0.0312, 5/5 | minimal-paper-grade |
 | H3-alt (clean baseline) | 60.12 ± 1.14 | 68.34 | 0 | — | anchor |
 
-**Story:** P4 alternating-optimizer-step closes ~3.5 pp of the 7.7 pp STL→MTL gap. Mechanism is per-step temporal gradient separation, not architectural. Cross-attention mixing is structurally dead (3-way confirmed via P1, F52 P5, F53 cw sweep). Reg encoder physically saturates at ep 5–6 while cat encoder keeps drifting through ep 38 — the temporal-dynamics bottleneck is real and substrate-agnostic. **F51 multi-seed validation:** the recipe is essentially deterministic in the partition-difficulty axis (B9 absolute reg σ_across_seeds = 0.11 pp); the +3.48 pp lift is the cross-seed mean.
+**Story:** P4 alternating-optimizer-step closes ~3.5 pp of the 7.7 pp STL→MTL gap. Mechanism is per-step temporal gradient separation, not architectural. Cross-attention mixing is dead at B9's depth=2 (3-way confirmed via P1, F52 P5, F53 cw sweep) — refined by F51 Tier 2 to **depth-conditional**: alive at depth=3 (Pareto-trade), breaks cat at depth=4. Reg encoder physically saturates at ep 5–6 while cat encoder keeps drifting through ep 38 — the temporal-dynamics bottleneck is real and substrate-agnostic.
+
+**F51 multi-seed validation (Tier 1, 2026-04-30):** the recipe is essentially deterministic in the partition-difficulty axis (B9 absolute reg σ_across_seeds = 0.11 pp); the +3.48 pp lift is the cross-seed mean. **F51 Tier 2 (capacity sweep, 2026-04-30):** B9 is locally optimal in 5/7 capacity dimensions; no paper-grade lift available via capacity scaling. NEW finding: cat width-stability cliff — wider shared backbone breaks cat without affecting reg (P4 shields reg, cat unshielded at LR=1e-3). NEW per-seed log_T leak found and fixed mid-sweep (legacy unseeded `region_transition_log_fold{N}.pt` filename → `region_transition_log_seed{S}_fold{N}.pt`; trainer hard-fails on legacy/missing).
 
 For all numbers: `research/F50_RESULTS_TABLE.md`.
 
@@ -49,9 +51,11 @@ For all numbers: `research/F50_RESULTS_TABLE.md`.
 4. **`HANDOVER.md`** (this file) — for new agents
 
 ### Tier 2 — deep dives by topic
+- **F51 multi-seed validation (paper-grade headline):** `research/F51_MULTI_SEED_FINDINGS.md` (Δreg = +3.48 ± 0.12 pp across 5 seeds, pooled p < 10⁻⁷)
+- **F51 Tier 2 capacity sweep:** `research/F51_TIER2_CAPACITY_FINDINGS.md` (B9 locally optimal; no capacity-scaling paper-grade lift; cat width-stability cliff finding)
 - **C4 graph-prior leakage:** `research/F50_T4_C4_LEAK_DIAGNOSIS.md` (root cause), `research/F50_T4_BROADER_LEAKAGE_AUDIT.md` (which heads affected), `research/F50_T4_PRIOR_RUNS_VALIDITY.md` (which prior runs survive)
 - **Mechanism narrative:** `research/F50_T3_TRAINING_DYNAMICS_DIAGNOSTICS.md` (temporal-dynamics breakthrough), `research/F50_D5_ENCODER_TRAJECTORY.md` (encoder saturation receipt), `research/figs/f63_alpha_trajectory.png` (α growth figure)
-- **Latest follow-ups:** `research/F50_B2_F52_F65_F53_FINDINGS.md` (B2 rejected, F52 P5 paper-grade, F65 cycling NOT cause, F53 cw sweep)
+- **Latest F50 follow-ups:** `research/F50_B2_F52_F65_F53_FINDINGS.md` (B2 rejected, F52 P5 paper-grade, F65 cycling NOT cause, F53 cw sweep)
 - **Audit C-series fixes:** `research/F50_T3_AUDIT_FINDINGS.md`
 - **Phase-3 CA/TX fallback decision tree:** `research/C05_P3_NULL_RESULT_FALLBACK.md`
 - **Live tracker (richest update log):** `research/F50_T4_PRIORITIZATION.md`
@@ -81,11 +85,13 @@ For all numbers: `research/F50_RESULTS_TABLE.md`.
 
 ### Deferred (intentional, not "missing")
 
-1. **CA + TX P3 5f×50ep MTL CH18** — 8501 / 9870+ regions. OOMed on RunPod 4090 (24 GB) at the per-epoch train-side logit catting. Targeted for **A100 (40-80 GB)** where it fits comfortably. Run command in `scripts/run_p3_ca_unblock_attempt.sh`. Per-fold log_T already built for CA at `output/check2hgi/california/region_transition_log_fold{1..5}.pt`. CA fetch script: `scripts/runpod_fetch_data.sh california`.
+1. **CA + TX P3 5f×50ep MTL CH18** — 8501 / 9870+ regions. OOMed on RunPod 4090 (24 GB) at the per-epoch train-side logit catting. Targeted for **A100 (40-80 GB)** where it fits comfortably. Run command in `scripts/run_p3_ca_unblock_attempt.sh`. **Per-fold log_T must be rebuilt at the trainer's seed** (F51 finding 2026-04-30 — see Common Pitfalls #2): `python scripts/compute_region_transition.py --state california --per-fold --seed 42` (and any other seeds you sweep). The CA per-fold log_T files in `output/check2hgi/california/` were deleted during F51 disk cleanup; rebuild from scratch on the A100 box. CA fetch script: `scripts/runpod_fetch_data.sh california`.
 
 2. **STL F37 clean rerun** for FL — current 71.12 number is from a single 5f×50ep run; cross-state STL ceilings still pending if reviewers ask.
 
-3. **Multi-seed variance (P6)** — only if reviewer asks for cross-seed robustness.
+3. **Multi-seed variance (P6)** — ✅ **DONE 2026-04-30 via F51.** 5/5 seeds {42, 0, 1, 7, 100} give Δreg = +3.48 ± 0.12 pp; pooled paired Wilcoxon p=2.98×10⁻⁸. See `research/F51_MULTI_SEED_FINDINGS.md`.
+
+4. **F51 Tier 3 (optimizer/scheduler hparam sweep)** — design ready in `F50_NORTH_STAR_DEEP_EXPLORATION_PROMPT.md` §3 Tier 3. Not paper-blocking; only run if reviewer asks for additional architecture-via-optimizer probes. ETA ~4 h on 4090.
 
 ### Cancelled / dropped (mechanism-refuted)
 

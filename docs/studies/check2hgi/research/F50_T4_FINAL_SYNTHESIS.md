@@ -8,6 +8,7 @@ Quick navigation:
 - **Chronological history of how we got here:** `F50_HISTORY.md`
 - **All headline numbers in one place:** `F50_RESULTS_TABLE.md`
 - **F51 multi-seed validation:** `F51_MULTI_SEED_FINDINGS.md` ← **strengthens paper claim**
+- **F51 Tier 2 capacity sweep:** `F51_TIER2_CAPACITY_FINDINGS.md` ← **closes architecture-via-capacity-scaling track**
 - **C4 leak root cause (load-bearing receipt):** `F50_T4_C4_LEAK_DIAGNOSIS.md`
 - **Broader leakage audit:** `F50_T4_BROADER_LEAKAGE_AUDIT.md`
 - **Validity of prior F50 ablations under C4:** `F50_T4_PRIOR_RUNS_VALIDITY.md`
@@ -137,6 +138,43 @@ Per-epoch Frobenius drift logging on FL fold 1 (H3-alt baseline + B9 champion, l
 
 Recipe doesn't transfer cleanly to small states. Best-epoch distributions differ (AL fold-best epochs {45,38,44,31,35} suggest instability). **Paper claim becomes "FL-strong; cross-state directional but not paper-grade."**
 
+### 3.6 F51 Tier 2 — capacity sweep closes the architecture-via-scaling track (2026-04-30, NEW)
+
+21 capacity smokes (5f×30ep, B9 base, FL) across 7 capacity dimensions:
+
+| dimension | levels | result |
+|---|---|---|
+| `encoder_layer_size` | {128, 256(B9), 384, 512} | tied (Δreg ∈ [-0.41, +0.0] pp) |
+| `num_encoder_layers` | {1, 2(B9), 3, 4} | tied at {1,3}, **regression at 4** (-0.60 reg) |
+| `encoder_dropout` | {0.05, 0.1(B9), 0.2, 0.3} | tied on reg; cat degrades monotonically with dropout |
+| `shared_layer_size` | {128, 256(B9), 384, 512} | 128 tied; **384/512 catastrophically break cat** without affecting reg |
+| `num_crossattn_blocks` | {1, 2(B9), 3, 4} | 1 tied; **3 = Pareto-trade** (+0.75 reg / -2.62 cat); **4 collapses cat** |
+| `num_crossattn_heads` | {2, 4(B9), 8, 16} | tied across all (Δreg ∈ [-0.28, -0.13]) |
+| `crossattn_ffn_dim` | {128, 256(B9), 512, 1024} | {128, 512} tied; **1024 regresses + collapses cat** |
+
+**Three NEW findings:**
+
+1. **B9 is locally optimal in 5/7 capacity dimensions** — no architectural lift available via capacity scaling. Closes the architecture-axis exploration started in F50 T1.5.
+
+2. **F52's "mixing is dead at FL" is depth-conditional.** F52 P5 (identity-mixing at 2 blocks) tied B9; this Tier 2 result shows 3 blocks with mixing on yields Δreg = +0.75 pp (but cat -2.62 pp). Cross-attn mixing has a real, small contribution that B9's 2-block default deliberately suppresses for cat stability. Refined paper claim: "cross-attn mixing has a sharp Pareto cliff at B9's 2-block depth."
+
+3. **NEW mechanism — cat width-stability cliff.** Three width-knobs (`shared_layer_size=384` and 512, `num_crossattn_blocks=4`, `crossattn_ffn_dim=1024`) catastrophically break cat training without affecting reg. P4 alternating-SGD + higher per-head reg LR (3e-3) shields reg; cat at LR=1e-3 has no shield and falls off the optimum when the shared backbone widens. Adds a third Pareto-worse direction (alongside PLE expert routing and F62 two-phase) anchored on a different mechanism (capacity stability vs. expert routing vs. temporal scheduling).
+
+**No paper-grade promotion** from Tier 2. The single PROMOTE candidate (`num_crossattn_blocks=3`) is Pareto-trade (cat -2.62 pp), same disposition as P4+OneCycle.
+
+Full doc: `F51_TIER2_CAPACITY_FINDINGS.md`. Structured JSON: `F51_tier2_results.json`. Sweep runner: `scripts/run_f51_tier2_capacity_smoke.sh`. Analyzer: `scripts/analysis/f51_tier2_analysis.py`.
+
+### 3.7 F51 — per-seed log_T leak found and fixed mid-sweep (2026-04-30)
+
+The original C4 fix (`scripts/compute_region_transition.py --per-fold`) wrote per-fold log_T as `region_transition_log_fold{N}.pt` with NO seed in the filename — the script's CLI default was `--seed 42` and was never overridden. The trainer (`src/training/runners/mtl_cv.py`) loaded this file unconditionally regardless of its own `--seed N` argument. At any seed != 42, ~80% of val users live in seed=42's fold-N TRAIN set → ~80% of val transitions leaked back into the prior. Empirical magnitude: B9 absolute reg inflated from clean ~63 to leaky ~72.5 at seeds {0, 1, 7, 100}.
+
+**Fix landed (3 files):**
+- `scripts/compute_region_transition.py` writes `region_transition_log_seed{S}_fold{N}.pt`.
+- `src/training/runners/mtl_cv.py` reads the seed-tagged file using the trainer's own `--seed` and **hard-fails** with explanatory `FileNotFoundError` if the seed-tagged file is missing OR if a legacy unseeded file is present (preventing silent reuse).
+- `scripts/run_f51_multiseed_fl.sh` builds per-seed log_T idempotently before each seed's runs.
+
+**Paired-Δ findings survive** (uniform-leak property: both arms read the same wrong prior on the same val set, so paired difference cancels most of the leak — clean and leaky Δs match within 0.10 pp at every seed). But absolute numbers from the v1 multi-seed sweep were wrong; v2 (clean) numbers are in `F51_MULTI_SEED_FINDINGS.md`.
+
 ---
 
 ## 4 · Re-run priority for paper
@@ -155,8 +193,10 @@ All TIER 0 paper-blocking runs are **DONE**. Tier 1/2 confirmations done too.
 | ✅ | Cross-state AL/AZ/GA (clean from start) | see §3.4 |
 | ✅ | TGSTAN clean smoke | confirms uniform leak |
 | ✅ | PLE-lite clean full | 60.38 ± 0.79 (Pareto-worse) |
+| ✅ | **F51 multi-seed (5 seeds)** | **Δreg = +3.48 ± 0.12 pp; pooled p=2.98×10⁻⁸** |
+| ✅ | **F51 Tier 2 capacity sweep** | B9 locally optimal; no paper-grade lift |
 
-→ **No more paper-blocking runs needed.** All headline numbers measured.
+→ **No more paper-blocking runs needed.** All headline numbers measured. F51 strengthens the headline; Tier 2 closes the architecture-via-scaling track.
 
 ---
 
@@ -164,17 +204,20 @@ All TIER 0 paper-blocking runs are **DONE**. Tier 1/2 confirmations done too.
 
 | claim | leak-corrected status |
 |---|---|
-| "STL→MTL gap closed by paper-grade Δ" | ✅ +3.34 pp B9 vs H3-alt, p=0.0312, 5/5 |
-| "MTL reg-best is structurally pinned at ep 4–5" | ✅ epoch trajectory preserved (F63 confirms) |
+| "STL→MTL gap closed by paper-grade Δ" | ✅ +3.34 pp B9 vs H3-alt seed=42; **strengthened by F51 to +3.48 ± 0.12 pp across 5 seeds, pooled p=2.98×10⁻⁸** |
+| "MTL reg-best is structurally pinned at ep 4–5" | ✅ epoch trajectory preserved (F63 confirms; F51 Tier 2 confirms across 21 capacity perturbations) |
 | "10 architectural alternatives all give reg ≈ baseline" | ✅ relative observation; absolutes ~13 pp lower |
+| "Architecture has no capacity-scaling lift" | ✅ NEW (F51 Tier 2): B9 locally optimal in 5/7 dimensions |
 | "D8 cw=0 → reg-best ep 5 across all folds" | ✅ trajectory preserved |
-| "P4 alternating-SGD wins by paired Wilcoxon p=0.0312" | ✅ both arms leaky → uniform leak preserves Δ |
-| "B9 alpha-no-WD is Pareto-dominant +0.24/+0.08" | ✅ measured leak-free; both arms clean |
-| "P4+Cosine champion = 76.07 reg" | ❌ → 63.47 (B9) |
-| "STL ceiling = 82.44 reg" | ❌ → 71.12 (F37 clean) |
+| "P4 alternating-SGD wins by paired Wilcoxon p=0.0312" | ✅ both arms leaky → uniform leak preserves Δ; F51 multi-seed: 5/5 seeds at p=0.0312 |
+| "B9 alpha-no-WD is Pareto-dominant +0.24/+0.08" | ✅ measured leak-free; cat reaches paper-grade once seeds pool (F51: +0.42 pp, p=1.33×10⁻⁵) |
+| "Cross-attn mixing is structurally dead at FL" | ⚠ **refined by F51 Tier 2 to depth-conditional**: dead at depth=2 (B9), small contribution at depth=3 (Pareto-trade), breaks cat at depth=4 |
+| "Cat width-stability cliff" | ✅ NEW (F51 Tier 2): wider shared backbone breaks cat without affecting reg (4 cases: shared 384/512, blocks=4, ffn=1024) |
+| "P4+Cosine champion = 76.07 reg" | ❌ → 63.47 (B9 seed=42) → 63.34 ± 0.11 (5-seed mean) |
+| "STL ceiling = 82.44 reg" | ❌ → 71.12 (F37 clean seed=42) |
 | F49 architectural decomposition (AL/AZ/FL gaps) | ✅ relatively (uniform leak); absolutes inflated |
 
-**8/9 paper claims survive.** Only the absolute headline numbers (champion 76.07, STL ceiling 82.44) change. The mechanism narrative — temporal training dynamics, P4 per-step alternation, FiLM/cross-attn architecture — is preserved.
+**11/13 paper claims survive (post-F51), 2 refined, 2 absolute headlines restated.** The mechanism narrative — temporal training dynamics, P4 per-step alternation, FiLM/cross-attn architecture — is preserved and strengthened by F51.
 
 ---
 
