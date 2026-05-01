@@ -48,25 +48,25 @@ The paper makes paired-test claims at three different power regimes. State them 
 
 ## 2 · C2-cat (MTL ≥ STL on next-category) — VERDICT: paper-grade for AZ/FL, ≈ tied at AL, directional for CA/TX
 
-> **v7 update (post-Codex audit):** `RESULTS_TABLE.md §0.1` (v7, 2026-05-01 PM) refreshed STL `next_gru` cat F1 from multi-seed runs {0, 1, 7, 100} and updated the Δ_cat column. The per-state pattern shifted: AL went from −0.19 (against single-seed STL) to **−0.78** (against multi-seed STL); AZ from +1.89 to **+1.20**; FL from +1.61 to **+1.43**. CA / TX unchanged (single-seed both arms). The v7 caveat: *"Δ_cat p-values for AL/AZ require re-running Wilcoxon against updated multi-seed MTL cat values (pending Gap 1 completion)."*
+> **v8 update (2026-05-01):** `RESULTS_TABLE.md §0.1` (v8) refreshed FL MTL B9 cat F1 from 68.59 → **68.51 ± 0.51** (multi-seed pooled), updating FL Δ_cat from +1.43 → **+1.52** (paired Δ). v8 also ran the AL/AZ/FL cat-Δ Wilcoxon against the multi-seed STL ceiling (`gap_fill_wilcoxon.py` + `GAP_FILL_WILCOXON.json`): **AL p = 0.036** (small-significantly negative, 14/20 fold-pairs negative, n = 20); **AZ p < 1e-04** (significantly positive, 18/20 fold-pairs positive, n = 20); **FL p = 0.0625** (sign-consistent positive at n = 5 ceiling, 5/5 folds positive). The "pending re-run" framing from v7 is now resolved.
 
-### 2.1 Statistical backing (v7 numbers)
+### 2.1 Statistical backing (v8 numbers)
 
 | State | n_pairs | Δ_cat pp | p_cat (paired Wilcoxon) | Verdict |
 |---|---:|---:|---:|---|
-| AL | 20 (4 seeds × 5 folds) | **−0.78** (≈ tied within multi-seed STL σ = 0.17 pp) | pending re-run | **≈ TIED** (small negative, magnitude < 1 pp on a ~41% F1 scale) |
-| AZ | 20 | **+1.20** | pending re-run (was 1.9e-06 against single-seed STL) | ✅ paper-grade positive |
-| FL | 25 (5 seeds × 5 folds) | **+1.43** (B9 row) | pending re-run (was 1.3e-05 against single-seed STL) | ✅ paper-grade positive |
-| CA | 5 (single-seed) | +1.94 | 0.125 (4/5 folds positive, n = 5 ceiling) | ⚠️ directional, underpowered |
-| TX | 5 (single-seed) | +2.02 | 0.125 (4/5 folds positive) | ⚠️ directional, underpowered |
+| AL | 20 (4 seeds × 5 folds) | **−0.78** | **0.036** (two-sided; 14/20 fold-pairs negative) | ⚠️ **small-significantly negative** — formally significant but magnitude small (< 2 % relative on a 41 % F1 scale) |
+| AZ | 20 | **+1.20** | **< 1e-04** (18/20 fold-pairs positive) | ✅ paper-grade positive |
+| FL | 5 (single-seed; STL multi-seed mean used for the table cell, paired Δ at seed = 42 only) | **+1.52** (paired Δ) | 0.0625 (n = 5 ceiling, 5/5 fold-pairs positive) | ⚠️ sign-consistent positive at single-seed ceiling |
+| CA | 5 (single-seed; recipe axis is multi-seed, see §0.4) | +1.94 | 0.125 (4/5 fold-pairs positive, n = 5 ceiling) | ⚠️ directional, underpowered (MTL-vs-STL axis) |
+| TX | 5 (single-seed) | +2.02 | 0.125 (4/5 fold-pairs positive) | ⚠️ directional, underpowered |
 
-### 2.2 The AL cat issue (v7 update — must surface honestly)
+### 2.2 The AL cat issue (v8 — Wilcoxon landed; honest framing)
 
-The pre-Codex wording said *"MTL gains +0 to +2 pp on next-category at every state"* / *"sign-consistent (≥ 0) at every state"*. **This is misleading at AL under v7 numbers** — Δ_cat = **−0.78 pp** (was −0.19 against single-seed STL). The cross-seed mean is *negative*; absolute magnitude (~0.78 pp on a 41% F1 scale, < 5 × the multi-seed STL σ of 0.17 pp) makes it ≈ tied within seed noise, but writing *"MTL gains at every state"* is no longer defensible.
+**v8 update:** AL Δ_cat Wilcoxon now landed at p = 0.036 (n = 20 multi-seed; 14/20 fold-pairs negative, two-sided). Statistically, AL is **small-significantly below STL on cat** — not "tied" in the strict statistical sense. But the magnitude is small (~0.78 pp on a 41 % F1 scale, ~1.9 % relative; < 5 × the multi-seed STL σ of 0.17 pp), so the *practical* claim of "≈ tied" is defensible if framed by magnitude rather than significance. Best practice: surface both.
 
-**DO NOT WRITE:** *"MTL gains on cat at every state"* / *"sign-consistent ≥ 0 across five states"* / *"+0 to +2 pp at every state"*.
-**DO WRITE:** *"With Check2HGI fixed as substrate, joint MTL over a cross-attention backbone gains 0 to +2 pp on next-category at four of the five states (AZ +1.20 pp, FL +1.43 pp, CA +1.94 pp, TX +2.02 pp). At AL the joint cat F1 is ≈ tied with single-task within multi-seed STL noise (Δ = −0.78 pp, multi-seed STL σ = 0.17 pp; paired Wilcoxon p pending re-run against the updated multi-seed STL ceiling)."*
-- This is **stronger** than the over-claim because (i) it's defensible, (ii) it shows we know the difference between paper-grade significance and directional evidence, and (iii) the AL tie is itself the smallest-state edge case — consistent with the cleaner substrate-task-asymmetry story (substrate carries cat at every state; MTL coupling adds little at the smallest state where data is thinnest).
+**DO NOT WRITE:** *"MTL gains on cat at every state"* / *"sign-consistent ≥ 0 across five states"* / *"+0 to +2 pp at every state"* / *"AL ≈ tied within multi-seed STL noise"* (the last bullet is no longer fully defensible — Wilcoxon at n = 20 reaches p = 0.036 in the negative direction).
+**DO WRITE:** *"With Check2HGI fixed as substrate, joint MTL over a cross-attention backbone lifts next-category at four of the five states (AZ +1.20 pp, p < 1e-04 across n = 20 multi-seed fold-pairs; FL +1.52 pp, p = 0.0625 at the n = 5 ceiling; CA +1.94 pp; TX +2.02 pp; CA/TX directional at the single-seed n = 5 ceiling). At AL the joint cat F1 is small-significantly below single-task (Δ = −0.78 pp, paired Wilcoxon p = 0.036 across n = 20 multi-seed fold-pairs; magnitude small at < 2 % relative on a 41 % F1 scale, ~5 × the multi-seed STL σ)."*
+- This is **stronger** than either the "≈ tied" understatement or the "MTL gains at every state" overclaim because (i) it's defensible on both axes, (ii) it shows we know the difference between paper-grade significance, n = 5 ceiling, and small-magnitude significance, and (iii) the AL small-negative result is itself the smallest-state edge case — consistent with the cleaner substrate-task-asymmetry story (substrate carries cat at every state; MTL coupling helps at most states but not at the smallest one where data is thinnest).
 
 ### 2.3 CA/TX underpowered — disclose (with in-flight multi-seed)
 

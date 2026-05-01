@@ -8,23 +8,29 @@
 
 ## §1 · Canonical numerical anchors (what every cited number must match)
 
-Source: `docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v7, 2026-05-01 PM).
+Source: `docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v8, 2026-05-01 PM — AL/AZ/FL cat-Δ Wilcoxon landed, FL MTL B9 cat refined, CA recipe-selection upgraded to multi-seed).
 
-### §0.1 Five-state architectural-Δ (MTL B9 vs matched-head STL)
+### §0.1 Five-state architectural-Δ (MTL B9 vs matched-head STL) — v8
 
 | State | n_pairs | MTL B9 reg Acc@10 | STL `next_stan_flow` Acc@10 | Δ_reg pp | p_reg | MTL B9 cat F1 | STL `next_gru` cat F1 | Δ_cat pp | p_cat |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| AL | 20 | 50.17 ± 0.24 | 61.21 ± 0.18 | **−11.04** | **1.9e-06** | 40.57 ± 0.24 | 41.35 ± 0.17 (n=4 seeds) | **−0.78** (≈ tied) | — |
-| AZ | 20 | 40.78 ± 0.07 | 53.06 ± 0.15 | **−12.27** | **1.9e-06** | 45.10 ± 0.19 | 43.90 ± 0.17 (n=4 seeds) | **+1.20** | — |
-| FL | 5 | 63.34 ± 0.11 | 70.62 ± 0.09 | **−7.99** | 0.0625 | 68.59 (F51, n=5) | 67.16 ± 0.13 (n=4 seeds) | **+1.43** | 0.0625 |
+| AL | 20 | 50.17 ± 0.24 | 61.21 ± 0.18 | **−11.04** | **1.9e-06** | 40.57 ± 0.24 | 41.35 ± 0.17 (n=4 seeds) | **−0.78** | **0.036** (small-significant negative) |
+| AZ | 20 | 40.78 ± 0.07 | 53.06 ± 0.15 | **−12.27** | **1.9e-06** | 45.10 ± 0.19 | 43.90 ± 0.17 (n=4 seeds) | **+1.20** | **<1e-04** |
+| FL | 5 | 63.34 ± 0.11 | 70.62 ± 0.09 | **−7.99** | 0.0625 | **68.51 ± 0.51** (F51, n=5) | 67.16 ± 0.13 (n=4 seeds) | **+1.52** | 0.0625 |
 | CA | 5 | 47.93 (n=1) | 56.86 (n=1) | **−8.92** | 0.0625 | 64.23 (n=1) | 62.29 ± 0.31 (n=1) | **+1.94** | 0.0625 |
 | TX | 5 | 42.63 (n=1) | 59.32 (n=1) | **−16.69** | 0.0625 | 65.04 (n=1) | 63.02 ± 0.28 (n=1) | **+2.02** | 0.0625 |
 
-**Rules.**
-- AL is statistically tied within multi-seed STL σ = 0.17 pp.
+**v8 changes vs v7:**
+- AL p_cat: was "—" pending; now **0.036** (n=20 multi-seed; 14/20 fold-pairs negative; small-significantly negative).
+- AZ p_cat: was "—" pending; now **<1e-04** (n=20; 18/20 fold-pairs positive; significantly positive).
+- FL MTL B9 cat F1: refined from 68.59 → **68.51 ± 0.51** (multi-seed pooled). Δ_cat: refined from +1.43 → **+1.52** (paired Δ from `GAP_FILL_WILCOXON.json`).
+- FL p_cat: was 0.0625; still 0.0625 (n=5 ceiling); 5/5 fold-pairs positive at seed=42.
+
+**Rules (v8).**
+- AL is **small-significantly negative** (p=0.036, n=20). Honest framing: report the significance AND the small magnitude (0.78 pp ~ 1.9% relative on 41% F1 scale).
 - AL/AZ p_reg = 1.9e-06 (multi-seed n = 20 pooled).
-- FL/CA/TX p = 0.0625 = n=5 ceiling (single-seed at submission for CA/TX).
-- AL/AZ p_cat reportedly "pending re-Wilcoxon against multi-seed STL ceiling" per v7 caveat; this is what RESULTS_TABLE shows.
+- FL/CA/TX p = 0.0625 = n=5 ceiling (single-seed at submission for CA/TX MTL-vs-STL §0.1).
+- CA recipe-selection axis (B9 vs H3-alt) is multi-seed n=20 in v8 §0.4 — paper-grade significant on both tasks.
 
 ### §0.2 Δm joint score (CH22 leak-free)
 
@@ -194,7 +200,8 @@ All other numbers (n=17 cells) round-trip correctly.
 
 **Surface to user (cannot fix unilaterally):**
 - **D6 anonymous code link** snapshot — needs user to set up Anonymous GitHub or equivalent. This is a real BRACIS-fit risk if not done before submission.
-- **AL/AZ/FL cat-Δ Wilcoxon re-run** against v7 multi-seed STL ceiling — compute task; the underlying paired Δ values exist in `results/check2hgi/<state>/` per-fold JSONs, but a Wilcoxon recomputation against the new STL ceiling has not been run. The directional reading is unchanged.
+- ~~AL/AZ/FL cat-Δ Wilcoxon re-run~~ **RESOLVED v8 (2026-05-01)** via `gap_fill_wilcoxon.py` + `GAP_FILL_WILCOXON.json`. AL p=0.036 (small-significantly negative); AZ p<1e-04 (significantly positive); FL p=0.0625 (n=5 ceiling, sign-consistent positive). The directional reading is unchanged.
+- **NEW (camera-ready audit items):** TX MTL multi-seed at {0,1,7,100}; CA MTL-vs-STL §0.1 axis multi-seed (the recipe-selection axis at CA went multi-seed in v8, but the MTL-vs-STL §0.1 axis at CA remains single-seed).
 
 **Macro BRACIS-fit verdict (post-consolidation):**
 - Story spine: ✅ coherent across all five article-side files.

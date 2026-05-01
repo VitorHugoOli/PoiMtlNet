@@ -147,35 +147,42 @@ This panel is the **substrate-vs-architecture decoupling story** — without it 
 ### T3 — MTL vs STL on both tasks, v7 numbers (§5.2, 0.4 pp)
 
 ```
-                  Cat F1 (vs STL next_gru)        Reg Acc@10 (vs STL next_stan_flow)
-                ─────────────────────────────  ──────────────────────────────────
-State  Recipe   STL          MTL          Δ_cat    STL          MTL          Δ_reg
-──────────────────────────────────────────────────────────────────────────────────
+                  Cat F1 (vs STL next_gru)            Reg Acc@10 (vs STL next_stan_flow)
+                ─────────────────────────────────  ──────────────────────────────────
+State  Recipe   STL           MTL           Δ_cat   p_cat       STL          MTL          Δ_reg
+─────────────────────────────────────────────────────────────────────────────────────────
 HEADLINE
-FL     B9       67.16±0.13   68.59 (n=5)  +1.43    70.62±0.09   63.34±0.11   −7.99
-CA     B9       62.29±0.31   64.23 (n=1)  +1.94    56.86        47.93        −8.92
-TX     B9       63.02±0.28   65.04 (n=1)  +2.02    59.32        42.63       −16.69
-──────────────────────────────────────────────────────────────────────────────────
+FL     B9       67.16±0.13    68.51±0.51    +1.52   0.0625      70.62±0.09   63.34±0.11   −7.99
+                (n=4 seeds)   (n=5 seeds)            (n=5)
+CA     B9       62.29±0.31    64.23 (n=1)   +1.94   0.0625      56.86        47.93        −8.92
+TX     B9       63.02±0.28    65.04 (n=1)   +2.02   0.0625      59.32        42.63       −16.69
+─────────────────────────────────────────────────────────────────────────────────────────
 SMALLER-SCALE ANCHORS
-AL     H3-alt   41.35±0.17   40.57±0.24   −0.78    61.21±0.18   50.17±0.24  −11.04‡
-AZ     H3-alt   43.90±0.17   45.10±0.19   +1.20    53.06±0.15   40.78±0.07  −12.27‡
-──────────────────────────────────────────────────────────────────────────────────
+AL     H3-alt   41.35±0.17    40.57±0.24    −0.78   **0.036**‡  61.21±0.18   50.17±0.24  −11.04‡
+                (n=4 seeds)   (n=4 seeds)            (n=20)
+AZ     H3-alt   43.90±0.17    45.10±0.19    +1.20   **<1e-04**‡ 53.06±0.15   40.78±0.07  −12.27‡
+                (n=4 seeds)   (n=4 seeds)            (n=20)
+─────────────────────────────────────────────────────────────────────────────────────────
 
-n_pairs: AL/AZ = 20 (4 seeds × 5 folds);
-FL = 25 (5 seeds × 5 folds, reg only — cat side n = 5 because STL multi-seed
-landed but Wilcoxon pending re-run); CA/TX = 5 (seed = 42 single-seed at
-submission; {0,1,7,100} multi-seed extension is a camera-ready audit item).
+n_pairs: AL/AZ = 20 (4 seeds × 5 folds, paired Wilcoxon multi-seed v8);
+FL = 25 (5 seeds × 5 folds for reg; cat-side Wilcoxon at n = 5 ceiling because
+the STL multi-seed at FL was at single-fold-set);
+CA = 5 (MTL-vs-STL §0.1 axis still single-seed; CA recipe-selection axis is
+n = 20 multi-seed in v8 — see §6.2);
+TX = 5 (single-seed at submission; multi-seed extension is a camera-ready
+audit item).
 
-Source: docs/studies/check2hgi/results/RESULTS_TABLE.md §0.1 (v7,
-2026-05-01 PM). MTL B9 cat numbers unchanged from v6; STL `next_gru` cat
-refreshed from multi-seed runs {0,1,7,100} → seed σ replaces fold σ.
-Δ_cat p-values for AL/AZ pending re-Wilcoxon against the v7 multi-seed
-STL ceiling.
+Source: docs/studies/check2hgi/results/RESULTS_TABLE.md §0.1 (v8,
+2026-05-01 PM). MTL B9 cat for FL refreshed from v7 (68.59) to v8 (68.51 ± 0.51,
+multi-seed pooled). Δ_cat p-values for AL/AZ landed in v8 (paired Wilcoxon
+multi-seed): AL p = 0.036 (small-significantly negative); AZ p < 1e-04
+(significantly positive); FL p = 0.0625 (n = 5 ceiling, sign-consistent
+positive). Wilcoxon JSON: GAP_FILL_WILCOXON.json.
 ```
 
-Caption sentence: *"With Check2HGI fixed as substrate, MTL vs matched-head STL ceilings on both tasks. Headline (FL/CA/TX) reports the B9 recipe (cosine + alternating-SGD + α-no-WD); smaller-scale anchors (AL/AZ) report H3-alt (per-head LR, constant). Δ_reg is sign-consistent at every state, with the magnitude varying non-monotonically (FL has the smallest cost at −7.99 pp; TX the largest at −16.69 pp). On the cat side, MTL is positive at four of five states (AZ +1.20, FL +1.43, CA +1.94, TX +2.02 pp; directional at CA/TX with 4/5 folds positive, single-seed n = 5 ceiling) and ≈ tied at AL within the multi-seed STL noise (Δ = −0.78 pp, multi-seed STL σ = 0.17 pp). Paired Wilcoxon p-values for AL/AZ/FL cat-Δ pending re-run against the v7 multi-seed STL ceiling and reported as 'pending' in the table; the directional and magnitude reading is unchanged across the v6→v7 STL refresh."*
+Caption sentence: *"With Check2HGI fixed as substrate, MTL vs matched-head STL ceilings on both tasks. Headline (FL/CA/TX) reports the B9 recipe (cosine + alternating-SGD + α-no-WD); smaller-scale anchors (AL/AZ) report H3-alt (per-head LR, constant). Δ_reg is sign-consistent at every state, with the magnitude varying non-monotonically (FL smallest at −7.99 pp; TX largest at −16.69 pp). On the cat side, MTL is paper-grade positive at AZ (+1.20 pp, p < 1e-04 across n = 20 multi-seed fold-pairs); FL is sign-consistent positive at the n = 5 ceiling (+1.52 pp, p = 0.0625); CA / TX are directional positive at the single-seed n = 5 ceiling (+1.94 / +2.02 pp); AL is small-significantly negative (Δ = −0.78 pp, p = 0.036 across n = 20 multi-seed fold-pairs; magnitude small at < 2 % relative on a 41 % F1 scale)."*
 
-**Voice cue:** the caption commits to *directional* not *paper-grade* on the cat side until the Wilcoxon re-runs land. Sub-agent A5 must not upgrade the wording without the rerun.
+**Voice cue:** the caption distinguishes *paper-grade*, *n = 5 ceiling*, *directional*, and *small-significantly negative* — sub-agent A5 must preserve all four registers and not collapse them.
 
 ### T4 — Δm joint score, FL multi-seed bolded (§5.2, 0.4 pp)
 
@@ -215,7 +222,7 @@ STL STAN (Luo 2021)        —         XX            XX
 *STL next_stan_flow*        —        70.62         55.04
 *STL next_gru (matched)*  67.16      —             —
 ReHDM                      —         XX            —
-**MTL B9 (ours)**         68.59     63.34         52.86
+**MTL B9 (ours)**         68.51     63.34         52.86
 
 === California ===
 ... (same layout)
@@ -262,11 +269,12 @@ Standard methods-paper schematic — boxes for {check-in encoder, region encoder
 
 ## 6 · Coverage state at submission (paper-side limitations, not workflow)
 
-Three coverage items become paper-side limitations rather than workflow notes:
+Two coverage items become paper-side limitations rather than workflow notes (one item resolved in v8):
 
-1. **CA/TX MTL multi-seed.** Seed = 42 single-seed at submission; multi-seed extension at {0, 1, 7, 100} is a **camera-ready audit item**. T3/T4 CA/TX cells therefore sit at the n = 5 paired-Wilcoxon ceiling (p_min = 0.0625 two-sided). Disclosed in §7 Limitations.
-2. **AL/AZ/FL cat-Δ Wilcoxon.** v7 RESULTS_TABLE.md refreshed STL `next_gru` cat F1 to multi-seed means {0, 1, 7, 100}; Wilcoxon p-values for cat-Δ vs the v7 multi-seed STL ceiling have not yet been re-computed. T3 reports the Δ values and labels p as "pending re-run". This does not change the directional reading.
-3. **POI-RGNN / MHA+PE absolute baseline numbers.** Faithful POI-RGNN reproduction values from `RESULTS_TABLE §0.6`: FL 34.49, CA 31.78, TX 33.03 (cat F1). MHA+PE values from `baselines/next_category/results/<state>.json`. The POI-RGNN reproduction caveat (non-user-disjoint folds in the published evaluation; published reports a 31.8–34.5 pp state-level range) is disclosed in T5 caption and §7 Limitations.
+1. **TX MTL multi-seed (CA MTL-vs-STL §0.1 axis also).** TX is seed = 42 single-seed at submission; multi-seed extension at {0, 1, 7, 100} is a **camera-ready audit item**. T3/T4 TX cells sit at the n = 5 paired-Wilcoxon ceiling (p_min = 0.0625 two-sided). The CA recipe-selection axis went multi-seed in v8 (paper-grade significant on both tasks), but the CA MTL-vs-STL §0.1 axis remains single-seed and is also a camera-ready audit item. Disclosed in §7 Limitations.
+2. **POI-RGNN / MHA+PE absolute baseline numbers.** Faithful POI-RGNN reproduction values from `RESULTS_TABLE §0.6`: FL 34.49, CA 31.78, TX 33.03 (cat F1). MHA+PE values from `baselines/next_category/results/<state>.json`. The POI-RGNN reproduction caveat (non-user-disjoint folds in the published evaluation; published reports a 31.8–34.5 pp state-level range) is disclosed in T5 caption and §7 Limitations.
+
+**Resolved in v8 (2026-05-01):** AL/AZ/FL cat-Δ Wilcoxon against the multi-seed STL ceiling — landed via `gap_fill_wilcoxon.py` and committed to `RESULTS_TABLE §0.1` v8: AL p = 0.036 (small-significantly negative, n = 20 multi-seed); AZ p < 1e-04 (significantly positive, n = 20); FL p = 0.0625 (sign-consistent positive at n = 5 ceiling). CA recipe-selection upgraded to n = 20 multi-seed paper-grade significant on both tasks.
 
 ---
 
