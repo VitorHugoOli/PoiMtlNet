@@ -140,29 +140,28 @@ family that lets each task gate its own expert combination. All paired
 with `next_stan` reg head + PCGrad + OneCycleLR(max-lr=3e-3) +
 bias_init=gaussian + d_model=256, num_heads=8.
 
-| Tag | Model | Folds | Reg top10 | Cat f1_w | Δreg vs A | Δcat vs A | Status |
+| Tag | Model | Folds | Reg top10 | Cat f1_w | Δreg vs A | Δcat vs A | Verdict |
 |---|---|---|---|---|---|---|---|
-| A baseline | mtlnet_crossattn | 5/5 | 41.52 ± 2.78 | 49.09 ± 0.93 | — | — | reference |
-| **M_a (1st done)** | (TBD) | 5/5 | **43.36 ± 3.28** | 49.32 ± 0.60 | **+1.84** | +0.23 | first Pareto-improving arch |
-| M_b (in flight) | (TBD) | 3/5 | 40.13 ± 2.98 | 49.62 ± 0.01 | −1.39 | +0.53 | running |
-| M_c (in flight) | (TBD) | 3/5 | 40.03 ± 3.13 | 49.75 ± 0.63 | −1.49 | +0.66 | running |
-| **M_d PLE** | mtlnet_ple | 2/5 | **10.27 ± 1.92** ⚠ | 46.66 ± 0.32 | **−31.25** | −2.43 | **collapse — Pareto-worse, replicates F50 historical finding** |
+| **A baseline** | mtlnet_crossattn | 5/5 | 41.52 ± 2.78 | 49.09 ± 0.93 | — | — | reference |
+| **M4 CrossStitch** | mtlnet_crossstitch | 5/5 | **43.36 ± 3.28** | **49.32 ± 0.60** | **+1.84** | +0.23 | **best — Pareto-improves both (within σ)** |
+| **M3 CGC** | mtlnet_cgc | 5/5 | 38.80 ± 3.65 | 49.53 ± 0.57 | −2.72 | +0.44 | LOSS on reg |
+| **M1 MMoE** | mtlnet_mmoe | 5/5 | 38.73 ± 3.21 | 49.34 ± 0.68 | −2.79 | +0.25 | LOSS on reg |
+| **M2 PLE** | mtlnet_ple | 5/5 | **14.02 ± 3.86** ⚠ | 46.78 ± 0.59 | **−27.50** | −2.31 | **COLLAPSE — replicates F50 Pareto-worse history** |
 
-**Provisional reading (Round 3 partial):**
-- The first finished arch run delivers **the first reg lift that survives
-  the head swap** (+1.84 pp over crossattn baseline, no cat penalty).
-  Direction-of-effect agrees with the "soft sharing helps" hypothesis.
-- PLE replicates its historical Pareto-worse signature even with the new
-  head/recipe. PLE is structurally not a fit for this dataset/scale.
-- The other two in-flight runs are tracking near-baseline reg (~40) with a
-  marginal cat lift (~+0.5-0.7) — within σ but consistent direction.
+**Final reading (Round 3 complete):**
+- **CrossStitch** is the only Pareto-improvement (+1.84 reg, +0.23 cat) but
+  inside σ. Direction-of-effect agrees with "softer sharing helps" but
+  magnitude is small.
+- **MMoE/CGC** drop ~2.7 pp reg with marginal cat lift (~+0.3-0.4) —
+  expert-gating costs reg signal at this scale.
+- **PLE collapses** on reg even with the new head/recipe (14.02 vs baseline
+  41.52). Replicates F50 historical "PLE Pareto-worse" finding under a
+  completely different head + recipe → robust property of PLE on this
+  task, not head/recipe-coupled.
 
-Mapping of `M_a/b/c` → {MMoE, CGC, CrossStitch} pending; will be pinned
-once all complete via launch-order PID matching.
-
-**Caveat:** Round 3 numbers are AZ-only and partial. Even the +1.84 pp on
-reg is well below STL's 52.24 ceiling — the architectural gap to STL is
-narrowed, not closed. None of these results are paper-ready: the cat-lift
+**Caveat:** Round 3 numbers are AZ-only. CrossStitch +1.84 pp reg is well
+below STL's 52.24 ceiling — the architectural gap is narrowed by ~18% of
+the gap, not closed. None of these results are paper-ready: the cat-lift
 finding (§3) is the only camera-ready takeaway from this whole study, and
 it does not depend on the Round-3 architecture sweep.
 
