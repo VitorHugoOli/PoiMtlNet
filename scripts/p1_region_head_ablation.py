@@ -76,6 +76,8 @@ logger = logging.getLogger(__name__)
 ALL_HEADS = [
     "next_mtl", "next_gru", "next_lstm", "next_tcn_residual", "next_temporal_cnn",
     "next_stan", "next_getnext", "next_getnext_hard", "next_getnext_hard_hsm",
+    # Paper-facing alias for next_getnext_hard (STAN backbone + α·log_T flow prior).
+    "next_stan_flow",
 ]
 # Per-head default max_lr for OneCycleLR. Transformer converges at much
 # lower LRs; RNN/CNN heads tolerate 3e-3. Override via --max-lr.
@@ -89,6 +91,7 @@ _HEAD_MAX_LR = {
     "next_getnext": 3e-3,
     "next_getnext_hard": 3e-3,
     "next_getnext_hard_hsm": 3e-3,
+    "next_stan_flow": 3e-3,  # alias of next_getnext_hard
 }
 
 # Heads that require ``last_region_idx`` delivered via aux_side_channel.
@@ -97,7 +100,7 @@ _HEAD_MAX_LR = {
 # Note: next_getnext/next_tgstan/next_stahyper also consume log_T but
 # read last-step embedding from x[..., last_idx] internally — they
 # don't need the aux side channel.
-_HEADS_REQUIRING_AUX = {"next_getnext_hard", "next_getnext_hard_hsm"}
+_HEADS_REQUIRING_AUX = {"next_getnext_hard", "next_getnext_hard_hsm", "next_stan_flow"}
 
 
 def _load_region_embeddings(state: str, source: str = "check2hgi") -> tuple[np.ndarray, int]:

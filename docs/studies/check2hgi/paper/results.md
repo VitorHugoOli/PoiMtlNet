@@ -10,7 +10,7 @@
 
 ### 4.1 Headline: scale-conditional MTL behaviour across three US states
 
-Table 1 reports the joint MTL champion (F48-H3-alt — see §3.4) against matched-head single-task baselines, classical Markov-1-region, and external published baselines (POI-RGNN for cat; STAN ceiling for reg). The pattern is **state-dependent**: at AL the joint MTL exceeds matched-head STL on both heads; at FL the substrate carries the cat-side advantage but the matched-head STL `next_getnext_hard` exceeds MTL on reg by 8.78 pp.
+Table 1 reports the joint MTL champion (F48-H3-alt — see §3.4) against matched-head single-task baselines, classical Markov-1-region, and external published baselines (POI-RGNN for cat; STAN ceiling for reg). The pattern is **state-dependent**: at AL the joint MTL exceeds matched-head STL on both heads; at FL the substrate carries the cat-side advantage but the matched-head STL STAN-Flow exceeds MTL on reg by 8.78 pp.
 
 **Table 1 — Headline cross-state results (5-fold × 50ep, seed 42).**
 
@@ -20,17 +20,17 @@ Table 1 reports the joint MTL champion (F48-H3-alt — see §3.4) against matche
 |        | POI-RGNN (external)    | 0.341                 | —                  | — |
 |        | STAN (external)        | —                     | 0.592 ± —          | — |
 |        | STL `next_gru` cat     | 0.4076 ± 0.020        | —                  | — |
-|        | STL `next_getnext_hard` reg | —                | 0.6837 ± 0.0266    | (ref.) |
+|        | STL STAN-Flow reg | —                | 0.6837 ± 0.0266    | (ref.) |
 |        | **MTL H3-alt (ours)**  | **0.4222 ± 0.0100**   | **0.7462 ± 0.0311**| **+6.25 pp** *(p=0.0312)* |
 | **AZ** | Markov-1-region        | —                     | 0.378 ± —          | — |
 |        | STAN (external)        | —                     | 0.523 ± —          | — |
 |        | STL `next_gru` cat     | 0.4234 ± 0.013        | —                  | — |
-|        | STL `next_getnext_hard` reg | —                | 0.6674 ± 0.0211    | (ref.) |
+|        | STL STAN-Flow reg | —                | 0.6674 ± 0.0211    | (ref.) |
 |        | **MTL H3-alt (ours)**  | **0.4511 ± 0.0032**   | **0.6345 ± 0.0249**| −3.29 pp (closes 75% of B3 gap; n.s.) |
 | **FL** | Markov-1-region        | —                     | 0.6505 ± —         | — |
 |        | POI-RGNN (external)    | 0.318                 | —                  | — |
 |        | **STL `next_gru` cat (F37 P1, 2026-04-28)**     | **0.6698 ± 0.0061** | — | — |
-|        | **STL `next_getnext_hard` reg (F37 P2, 2026-04-28)** | — | **0.8244 ± 0.0038** | (ref.) |
+|        | **STL STAN-Flow reg (F37 P2, 2026-04-28)** | — | **0.8244 ± 0.0038** | (ref.) |
 |        | **MTL H3-alt (ours)**  | **0.6792 ± 0.0072**   | 0.7196 ± 0.0068    | **−8.78 pp** *(p=0.0312, 5/5 folds negative)* |
 | **CA** | (pending P3 upstream + 5f H3-alt) | TBD          | TBD              | TBD |
 | **TX** | (pending P3 upstream + 5f H3-alt) | TBD          | TBD              | TBD |
@@ -96,7 +96,7 @@ Paired Wilcoxon (one-sided greater, n=5, exact) on the decomposition components:
 - **AZ** — Architecture *costs* reg by 6.02 pp (frozen-cat falls below STL); co-adaptation rescues +1.98 pp; transfer rescues +0.75 pp. Net Full MTL trails STL by 3.29 pp (within 1.5σ, n.s.). This is the **classical "MTL pipeline costs the strong head"** pattern.
 - **FL — heavy architectural cost; STL ceiling above MTL.** Architecture −16.16 pp (5/5 paired folds negative, p=0.0312, σ ~12 pp driven by per-fold instability when cat is random). Co-adaptation rescues +8.27 pp; transfer null. Net **full MTL still −8.78 pp below STL ceiling** (5/5 folds, p=0.0312). Per-fold reg-best epochs {2, 14, 9, 4, 2} indicate α-growth fails to engage when cat features are random at the 4,702-region scale; this frozen-cat instability is a separate paper-worthy methodological caveat (Limitations §6.2). The headline interpretation is robust to the FL-frozen instability: the **full MTL with cat training also loses to STL by 8.78 pp**.
 
-**Cardinality-conditional architectural cost:** the architectural Δ across states (1,109 → 1,547 → 4,702 regions) is **+6.48 → −6.02 → −16.16 pp**. The cross-attention mechanism that lifts reg at small region cardinality pays an increasing cost as cardinality grows. At our largest scale (FL), the matched-head STL `next_getnext_hard` (with α·log_T graph prior) is the per-task ceiling, and joint MTL pays a coupling cost the per-head LR cannot recover.
+**Cardinality-conditional architectural cost:** the architectural Δ across states (1,109 → 1,547 → 4,702 regions) is **+6.48 → −6.02 → −16.16 pp**. The cross-attention mechanism that lifts reg at small region cardinality pays an increasing cost as cardinality grows. At our largest scale (FL), the matched-head STL STAN-Flow (with α·log_T graph prior) is the per-task ceiling, and joint MTL pays a coupling cost the per-head LR cannot recover.
 
 ### 4.4 Methodological note — loss-side λ=0 is unsound under cross-attention MTL
 
@@ -126,7 +126,7 @@ MTL+HGI is **worse than STL+HGI** on `next_region` by ~37 pp at AL. The MTL win 
 > Across three US states (AL: 10K check-ins, 1,109 regions; AZ: 26K, 1,547; FL: 127K, 4,702), the joint MTL on `(next_category, next_region)` displays a **scale-conditional pattern with two decoupled mechanisms**:
 >
 > 1. **Substrate (Check2HGI per-visit context) — generalises across scale.** CH16 confirms +11–15 pp head-invariant cat F1 advantage at AL+AZ (FL replication queued); CH18-substrate confirms substituting HGI breaks the joint signal at AL+AZ (cat −17 pp, reg −30 pp). The cat-side MTL > STL relation holds at all 3 states (+0.94 to +3.64 pp). The substrate is the **paper-grade contribution that scales**.
-> 2. **Architecture (cross-attention + per-head LR) — state-dependent.** The cross-attention pipeline lifts reg by +6.48 pp on AL (paired Wilcoxon p=0.0312, 5/5 folds; F49 Layer 3) but costs reg by −6.02 pp on AZ and **−16.16 pp on FL** (both p=0.0312 at n=5 paired). At FL the matched-head STL `next_getnext_hard` exceeds full MTL by **−8.78 pp** (p=0.0312, 5/5 folds negative). The architectural mechanism is the **AL contribution**, not state-general.
+> 2. **Architecture (cross-attention + per-head LR) — state-dependent.** The cross-attention pipeline lifts reg by +6.48 pp on AL (paired Wilcoxon p=0.0312, 5/5 folds; F49 Layer 3) but costs reg by −6.02 pp on AZ and **−16.16 pp on FL** (both p=0.0312 at n=5 paired). At FL the matched-head STL STAN-Flow exceeds full MTL by **−8.78 pp** (p=0.0312, 5/5 folds negative). The architectural mechanism is the **AL contribution**, not state-general.
 >
 > Cat-supervision transfer is null at all 3 states (≤|0.75| pp), refuting the conventional "MTL transfers signal" framing by ≥9σ on FL alone. The methodological contribution (CH20 Layer 2: loss-side `task_weight=0` ablation is unsound under cross-attention MTL) holds throughout. The paper reports a per-state pattern: **AL (architecture-dominant joint lift) → AZ (classical, architecture costs partially recovered) → FL (substrate-only joint lift, STL is the per-task reg ceiling).** This characterisation, not retraction, is the contribution.
 

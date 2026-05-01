@@ -23,7 +23,7 @@ smokes but not the canonical 5-fold-mean.
 
 ---
 
-## 2 · Phase 1+2 — STL reg ceilings (`next_getnext_hard`, leak-free)
+## 2 · Phase 1+2 — STL reg ceilings (STAN-Flow (`next_stan_flow`), leak-free)
 
 5f×50ep, multi-seed where applicable. Top10_acc reported (no `_indist` suffix
 because STL evaluates on the full validation set).
@@ -104,7 +104,7 @@ STL = 61.21 (AL) and 53.06 (AZ) — drops of 7 pp and 13 pp respectively, more
 in line with the NORTH_STAR estimate.
 
 **The architectural-Δ leak-free picture (paper-headline claim):** Under
-symmetric leak-free comparison, **MTL B9 underperforms STL `next_getnext_hard`
+symmetric leak-free comparison, **MTL B9 underperforms STL STAN-Flow (`next_stan_flow`)
 ceiling at every state**. The "AL favors MTL +6.48 pp" headline from F49 was
 a leak artifact (asymmetric leak inflation favored MTL more than STL at AL).
 
@@ -143,7 +143,7 @@ FL's reg saturation pattern (D5 finding: reg encoder saturates at ep 5-6 while
 cat keeps drifting). At AL/AZ where regions are 3-4× fewer, the reg saturation
 problem is less severe AND alt-SGD's per-step temporal gradient separation
 costs cat-side signal that small states can't afford to lose. The α-no-WD
-ingredient targets `next_getnext_hard`'s α growth specifically, which is
+ingredient targets STAN-Flow (`next_stan_flow`)'s α growth specifically, which is
 similarly less load-bearing at small scale.
 
 **Paper implication:** the recipe-selection claim must reframe from "B9 is the
@@ -173,7 +173,7 @@ changes the headline substantially. Both metrics use F51's canonical extraction
 
 **This is the classic MTL tradeoff, not a flat loss.**
 
-- **Reg (next_region):** MTL B9 < STL `next_getnext_hard` at every state by 7-17 pp.
+- **Reg (next_region):** MTL B9 < STL STAN-Flow (`next_stan_flow`) at every state by 7-17 pp.
   Architectural cost: the cross-attention overhead doesn't pay back on the harder
   ~1k-9k-class region task that already has its own graph prior to learn from.
 - **Cat (next_category):** MTL B9 ≥ STL `next_gru` at every state. AL ≈ tied

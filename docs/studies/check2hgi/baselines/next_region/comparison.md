@@ -116,7 +116,7 @@ Two honest takeaways at AL:
 
 ## Pattern summary (Acc@10)
 
-> ⚠ **Read the §"Substrate-head matched STL — Phase 1" section below first.** The "HGI − Check2HGI" column in this STAN-row table is **head-coupled to STAN** (which prefers POI-stable smoothness) and is **NOT the post-2026-04-27 reading** of the substrate-on-reg comparison. Under the matched MTL reg head (`next_getnext_hard` = STAN + α·log_T graph prior), Check2HGI ≥ HGI everywhere (AL TOST non-inferior at δ=2pp Acc@10; AZ +2.34 pp Acc@10 / +1.29 pp MRR, p=0.0312, 5/5 folds). CH15 has been **reframed as head-coupled** in `CLAIMS_AND_HYPOTHESES.md §CH15` and `CONCERNS.md §C16`. The STAN-row data below is preserved as the **head-sensitivity probe row** for the paper, not the headline substrate finding.
+> ⚠ **Read the §"Substrate-head matched STL — Phase 1" section below first.** The "HGI − Check2HGI" column in this STAN-row table is **head-coupled to STAN** (which prefers POI-stable smoothness) and is **NOT the post-2026-04-27 reading** of the substrate-on-reg comparison. Under the matched MTL reg head **STAN-Flow** (registry `next_stan_flow`, alias of `next_getnext_hard`; STAN attention backbone + α·log_T region trajectory-flow prior), Check2HGI ≥ HGI everywhere (AL TOST non-inferior at δ=2pp Acc@10; AZ +2.34 pp Acc@10 / +1.29 pp MRR, p=0.0312, 5/5 folds). CH15 has been **reframed as head-coupled** in `CLAIMS_AND_HYPOTHESES.md §CH15` and `CONCERNS.md §C16`. The STAN-row data below is preserved as the **head-sensitivity probe row** for the paper, not the headline substrate finding.
 
 | State | Faithful − Markov | HGI − Check2HGI (STAN, head-coupled) | HGI − Faithful (substrate gap) |
 |---|---:|---:|---:|
@@ -132,12 +132,12 @@ Full deep-dive interpretation: `../../research/STAN_THREE_WAY_COMPARISON.md`.
 
 ## Substrate-head matched STL — leak-free (Phase 3, `_pf` per-fold transitions)
 
-> **2026-04-30 update — supersedes the leaky Phase 1 numbers.** The Phase 1 GETNext-hard matched-head numbers (originally tabulated here) used a full-data `region_transition_log.pt` graph prior that leaked val transitions into the `α·log_T` term. Phase 3 re-ran every cell with `--per-fold-transition-dir` (StratifiedGroupKFold train-only edges per fold). Numbers below are leak-free. See [`../../FINAL_SURVEY.md §4 + §6`](../../FINAL_SURVEY.md) for the full statistical write-up; per-fold JSONs at `../../results/phase1_perfold/<S>_<engine>_reg_gethard_pf_5f50ep.json`.
+> **2026-04-30 update — supersedes the leaky Phase 1 numbers.** The Phase 1 STAN-Flow matched-head numbers (originally tabulated here under the legacy registry name `next_getnext_hard`) used a full-data `region_transition_log.pt` graph prior that leaked val transitions into the `α·log_T` term. Phase 3 re-ran every cell with `--per-fold-transition-dir` (StratifiedGroupKFold train-only edges per fold). Numbers below are leak-free. See [`../../FINAL_SURVEY.md §4 + §6`](../../FINAL_SURVEY.md) for the full statistical write-up; per-fold JSONs at `../../results/phase1_perfold/<S>_<engine>_reg_gethard_pf_5f50ep.json` (path retains the legacy `gethard` segment for back-compat; head class is `NextHeadGETNextHard`, registered under both `next_getnext_hard` and `next_stan_flow`).
 
 | Substrate | Variant | AL Acc@10 | AZ Acc@10 | FL Acc@10 | CA Acc@10 | TX Acc@10 |
 |---|---|---:|---:|---:|---:|---:|
-| Check2HGI | matched-head `next_getnext_hard_pf` STL | 59.15 ± 3.48 | 50.24 ± 2.51 | 69.22 ± 0.52 | 55.92 ± 1.20 | 58.89 ± 1.28 |
-| HGI       | matched-head `next_getnext_hard_pf` STL | **61.86 ± 3.29** | **53.37 ± 2.55** | **71.34 ± 0.64** | **57.77 ± 1.12** | **60.47 ± 1.26** |
+| Check2HGI | STAN-Flow (`_pf` leak-free) STL | 59.15 ± 3.48 | 50.24 ± 2.51 | 69.22 ± 0.52 | 55.92 ± 1.20 | 58.89 ± 1.28 |
+| HGI       | STAN-Flow (`_pf` leak-free) STL | **61.86 ± 3.29** | **53.37 ± 2.55** | **71.34 ± 0.64** | **57.77 ± 1.12** | **60.47 ± 1.26** |
 | **Δ (C2HGI − HGI)** | Wilcoxon p_greater + TOST δ=2pp | **−2.71** (p=1.0; TOST FAIL) | **−3.13** (p=1.0; TOST FAIL) | **−2.12** (TOST FAIL δ=2pp; ✓ δ=3pp) | **−1.85** (TOST ✓ non-inf δ=2pp) | **−1.59** (TOST ✓ non-inf δ=2pp) |
 
 **CH15 verdict (leak-free):** rejected at AL/AZ/FL (HGI nominally above by 2.1-3.1 pp); tied at CA/TX (Δ < 2 pp, TOST non-inferior at δ=2pp). The Phase 1 finding "C2HGI ≥ HGI under matched head" sign-flipped at every state once the `α·log_T` leak was removed — C2HGI had been exploiting the leaky transition prior more than HGI (substrate-asymmetric leakage, AZ peak ~5.5 pp differential). The post-fix reading is **substrate-equivalent on reg with a slight HGI tilt**, not C2HGI advantage.
@@ -148,8 +148,8 @@ Full deep-dive interpretation: `../../research/STAN_THREE_WAY_COMPARISON.md`.
 
 | Substrate | AL Acc@10 (leaky) | AZ (leaky) | FL (leaky) | CA (leaky) | TX (leaky) |
 |---|---:|---:|---:|---:|---:|
-| Check2HGI `next_getnext_hard` (leaky) | 68.37 ± 2.66 | 66.74 ± 2.11 | 82.54 | 70.63 | 69.31 |
-| HGI `next_getnext_hard` (leaky)       | 67.52 ± 2.80 | 64.40 ± 2.42 | 82.25 | 71.29 | 69.90 |
+| Check2HGI STAN-Flow (leaky)           | 68.37 ± 2.66 | 66.74 ± 2.11 | 82.54 | 70.63 | 69.31 |
+| HGI STAN-Flow (leaky)                 | 67.52 ± 2.80 | 64.40 ± 2.42 | 82.25 | 71.29 | 69.90 |
 | Δ (leaky)                             | +0.85 | +2.34 | +0.29 | −0.66 | −0.59 |
 
 The leak inflated absolute Acc@10 by 9-16 pp across all states and was substrate-asymmetric (C2HGI lost more pp than HGI when the leak was removed — AL Δ_C2HGI=−9.22 vs Δ_HGI=−5.66, AZ Δ_C2HGI=−16.51 vs Δ_HGI=−11.03). See [`../../FINAL_SURVEY.md §6`](../../FINAL_SURVEY.md) for the substrate-asymmetric F44 leak diagnosis.

@@ -9,7 +9,7 @@
 
 ### 6.1 Scale-conditional architectural lift on `next_region` (AL-only)
 
-While the H3-alt recipe achieves an architecturally-dominant reg lift on Alabama (+6.48 pp from cross-attention with frozen-random cat features, paired Wilcoxon p=0.0312, 5/5 folds; full MTL +6.25 pp above STL `next_getnext_hard`), this advantage **does not generalise to FL scale**. Matched-head STL `next_getnext_hard` exceeds MTL H3-alt at Florida by 8.78 pp (5-fold paired Wilcoxon p=0.0312, 5/5 folds negative). The F49 architectural decomposition reveals that frozen-cat performance on FL collapses to 16.16 pp below STL (paired p=0.0312), with per-fold variance σ ≈ 12 pp consistent with α-growth failing when cat features are random at 4,702-region scale.
+While the H3-alt recipe achieves an architecturally-dominant reg lift on Alabama (+6.48 pp from cross-attention with frozen-random cat features, paired Wilcoxon p=0.0312, 5/5 folds; full MTL +6.25 pp above STL STAN-Flow), this advantage **does not generalise to FL scale**. Matched-head STL STAN-Flow exceeds MTL H3-alt at Florida by 8.78 pp (5-fold paired Wilcoxon p=0.0312, 5/5 folds negative). The F49 architectural decomposition reveals that frozen-cat performance on FL collapses to 16.16 pp below STL (paired p=0.0312), with per-fold variance σ ≈ 12 pp consistent with α-growth failing when cat features are random at 4,702-region scale.
 
 **Cardinality-conditional pattern across our 3 states:** the architectural Δ from `(frozen-cat λ=0 − STL F21c)` is **+6.48 (AL, 1,109 regions) → −6.02 (AZ, 1,547) → −16.16 pp (FL, 4,702)** — a monotonic decrease as region cardinality grows. We do not yet have a CA or TX measurement (P3 in PAPER_PREP_TRACKER, gated on upstream pipelines), so we cannot distinguish whether (i) FL is a single outlier or (ii) the architectural cost is a smooth function of cardinality. The headline contribution at FL is the **substrate-side cat advantage** (CH16 + CH18-substrate); the architecture-side reg lift is AL-only. The paper reports the per-state pattern explicitly rather than papering it over.
 
@@ -36,7 +36,7 @@ If the paper is submitted before P3 completes, we frame as "3-state US replicati
 
 ### 6.4 CH15 was head-coupled, not pure substrate
 
-Earlier framings reported CH15 ("HGI > Check2HGI on `next_region` under STL STAN") as a substrate finding. Phase-1 Leg II showed this was a STAN-head preference for POI-stable smoothness, not a pure substrate effect: under matched MTL reg head (`next_getnext_hard`), Check2HGI ≥ HGI everywhere (AL TOST non-inferior, AZ +2.34 pp p=0.0312). We preserve the STAN-head data as a head-sensitivity row (Table A.X) alongside the matched-head row.
+Earlier framings reported CH15 ("HGI > Check2HGI on `next_region` under STL STAN") as a substrate finding. Phase-1 Leg II showed this was a STAN-head preference for POI-stable smoothness, not a pure substrate effect: under matched MTL reg head (STAN-Flow), Check2HGI ≥ HGI everywhere (AL TOST non-inferior, AZ +2.34 pp p=0.0312). We preserve the STAN-head data as a head-sensitivity row (Table A.X) alongside the matched-head row.
 
 This reframe is documented (CH15-revised, see appendix `SCOPE_DECISIONS.md`) but introduces a residual asymmetry: "meaningful Check2HGI advantage is on the cat-input side" (CH16 +11–15 pp), not the reg-input side (∓1 pp under matched head, head-coupled under non-matched).
 
@@ -60,5 +60,5 @@ We deliberately do not report results at the POI-id ranking granularity (~tens o
 From the current evidence, we **cannot** claim:
 - Multi-seed σ stability (single-seed runs).
 - Cross-dataset generalisation outside US Foursquare (no Brightkite / Gowalla / Yelp replications; HMT-GRN/MGCL comparisons are concept-aligned, not on the same data).
-- That `next_getnext_hard` (graph-prior reg head) is uniquely Pareto-optimal — alternative reg heads (TGSTAN, STA-Hyper) are deferred to follow-up work.
+- That STAN-Flow (graph-prior reg head) is uniquely Pareto-optimal — alternative reg heads (TGSTAN, STA-Hyper) are deferred to follow-up work.
 - Generalisation beyond cross-attention MTL — our methodological note (§A) flags applicability to MulT/InvPT/etc., but we have not empirically replicated F49 attribution on those architectures.

@@ -37,6 +37,14 @@ from models.registry import register_model
 
 
 @register_model("next_getnext_hard")
+# Paper-facing alias (2026-05-01): "STAN-Flow" — STAN attention backbone +
+# GETNext-style α·log_T trajectory-flow prior on regions. NOT a faithful
+# reproduction of GETNext (Yang et al. 2022, which is a next-POI model with
+# friendship + check-in graph priors). The new alias is what we cite in the
+# paper; the legacy `next_getnext_hard` name is preserved for back-compat with
+# existing scripts and result-file paths. See PAPER_BASELINES_STRATEGY.md and
+# next_region/comparison.md "Substrate-head matched STL — leak-free" §.
+@register_model("next_stan_flow")
 class NextHeadGETNextHard(nn.Module):
     """STAN backbone + GETNext trajectory-flow prior using a **hard**
     ``last_region_idx`` gather in place of the soft probe.

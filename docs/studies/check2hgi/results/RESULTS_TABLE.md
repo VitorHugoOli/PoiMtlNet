@@ -41,7 +41,7 @@
 
 **Champion candidate (2026-04-26):** **F48-H3-alt** = B3 architecture + per-head LR (`cat_lr=1e-3, reg_lr=3e-3, shared_lr=1e-3`, `--scheduler constant`). Closes the F21c STL gap (CH18 Tier B → A): AL exceeds STL by +6.25 pp; AZ closes 75%; FL validates at 5-fold scale (cat preserved, reg +6.7 pp over predecessor B3). See [`../NORTH_STAR.md`](../NORTH_STAR.md), [`../MTL_ARCHITECTURE_JOURNEY.md`](../MTL_ARCHITECTURE_JOURNEY.md) for derivation, [`../research/F48_H3_PER_HEAD_LR_FINDINGS.md`](../research/F48_H3_PER_HEAD_LR_FINDINGS.md) for detail.
 
-**Predecessor (2026-04-24, kept as comparand):** **B3** = `mtlnet_crossattn + static_weight(cat=0.75) + next_gru (cat) + next_getnext_hard (reg)`, OneCycleLR max=0.003, 50ep.
+**Predecessor (2026-04-24, kept as comparand):** **B3** = `mtlnet_crossattn + static_weight(cat=0.75) + next_gru (cat) + next_stan_flow (reg, alias of legacy next_getnext_hard)`, OneCycleLR max=0.003, 50ep.
 
 **Common protocol** (unless noted per row): user-disjoint `StratifiedGroupKFold(groups=userid)`, 5 folds × 50 epochs, seed 42, AdamW (lr=1e-4 → OneCycleLR max_lr=0.003 for predecessor B3 / per-head constant for H3-alt), batch 2048 (1024 for FL H3-alt to avoid MPS OOM), `gradient_accumulation_steps=1`. Reg metrics are `*_indist` (restricted to regions seen in training set of the fold) where applicable.
 
@@ -89,7 +89,7 @@ These three blocks are the study's ablation evidence (`PAPER_STRUCTURE.md §2.1`
 | STL TCN-residual reg | — | 21.76 ± 2.35 | 56.11 ± 4.02 | — | 32.93 | — | P1 |
 | **STL STAN reg** (Luo WWW'21 adapt) | — | 24.64 ± 1.38 | **59.20 ± 3.62** | — | 36.10 ± 1.96 | 24.64 ± 1.38 | P1 SOTA |
 | STL HGI reg (substrate ablation) | — | ? | 57.02 ± 2.92 | — | 33.14 ± 1.87 | — | P1.5 (tied with Check2HGI reg) |
-| **STL GETNext-hard reg (matched-head)** — **F21c** ⭐ | — | 24.07 ± 1.94 | **68.37 ± 2.66** | 53.62 ± 3.02 | 41.17 ± 2.28 | 11.91 ± 0.86 | **F21c 2026-04-24 — STL ceiling for H3-alt comparison** |
+| **STL STAN-Flow reg (matched-head)** — **F21c** ⭐ | — | 24.07 ± 1.94 | **68.37 ± 2.66** | 53.62 ± 3.02 | 41.17 ± 2.28 | 11.91 ± 0.86 | **F21c 2026-04-24 — STL ceiling for H3-alt comparison** |
 
 **MTL — all variants**
 
@@ -137,7 +137,7 @@ These three blocks are the study's ablation evidence (`PAPER_STRUCTURE.md §2.1`
 | STL HGI cat (CH16 extension) | 🔴 F3 pending | — | — | — | — | — | — |
 | STL GRU reg | — | 23.63 ± 2.04 | 48.88 ± 2.48 | — | 32.13 ± 2.21 | — | P1 |
 | **STL STAN reg** | — | 24.48 ± 2.29 | 52.24 ± 2.38 | 40.41 ± ? | 33.70 ± 2.36 | 24.48 ± 2.29 | P1 SOTA |
-| **STL GETNext-hard reg (matched-head)** — **F21c** ⭐ | — | 25.13 ± 2.07 | **66.74 ± 2.11** | 52.18 ± 2.20 | 41.15 ± 2.13 | 12.28 ± 0.91 | **F21c 2026-04-24 — STL ceiling for H3-alt comparison** |
+| **STL STAN-Flow reg (matched-head)** — **F21c** ⭐ | — | 25.13 ± 2.07 | **66.74 ± 2.11** | 52.18 ± 2.20 | 41.15 ± 2.13 | 12.28 ± 0.91 | **F21c 2026-04-24 — STL ceiling for H3-alt comparison** |
 
 **MTL**
 
@@ -173,7 +173,7 @@ These three blocks are the study's ablation evidence (`PAPER_STRUCTURE.md §2.1`
 | Top-K popular | — | 22.25 | 33.82 | — | 25.65 | P0 |
 | STL GRU reg | — | 44.49 ± 0.51 | 68.33 ± 0.58 | — | 52.74 ± 0.45 | P1 |
 | STL STAN reg | 🔴 F6 pending | | | | | |
-| STL GETNext-hard reg (matched-head F37) | 🔴 F37 4050-assigned | | | | | pending — STL ceiling for FL H3-alt comparison |
+| STL STAN-Flow reg (matched-head F37) | 🔴 F37 4050-assigned | | | | | pending — STL ceiling for FL H3-alt comparison |
 | **MTL-H3-alt** ⭐ | **67.92 ± 0.72** | 50.27 ± 0.55 | ✅ **71.96 ± 0.68** | 63.62 ± 0.80 | 56.96 ± 0.55 | **F48-H3-alt FL 2026-04-26** — first 5f H3-alt FL run. σ excepcionalmente baixa (N=127k). cat +2.20 pp over F32 B3 1f (65.72); reg +6.70 pp over F32 B3 1f (65.26). Used `--batch-size 1024` to avoid MPS OOM at fold 2 (bs=2048 silent kill). |
 
 #### FL 1-fold (ablation evidence — k=2 CV first fold)
@@ -195,7 +195,7 @@ These three blocks are the study's ablation evidence (`PAPER_STRUCTURE.md §2.1`
 
 **Status as of 2026-04-26:** FL 5-fold landed for MTL-H3-alt (this session). CA + TX data pipelines not yet built (F22-F25).
 
-| State | cat POI-RGNN | cat STL | cat **MTL-H3-alt** | reg Markov-1 | reg STL STAN | reg STL GETNext-hard | reg STL GRU | reg **MTL-H3-alt** |
+| State | cat POI-RGNN | cat STL | cat **MTL-H3-alt** | reg Markov-1 | reg STL STAN | reg STL STAN-Flow | reg STL GRU | reg **MTL-H3-alt** |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | **FL** | 34.49 | 63.17 (n=1) | **67.92 ± 0.72** ✅ | 65.05 ± 0.93 | 🔴 F6 | 🔴 F37 4050 | 68.33 ± 0.58 | **71.96 ± 0.68** ✅ |
 | **CA** | 31.78 | 🔴 F24 | 🔴 F24 | 🔴 F24 | 🔴 F24 | 🔴 F21+F24 | 🔴 F24 | 🔴 F24 |
@@ -210,7 +210,7 @@ FL row now populated. Compared to predecessor B3 (1f): cat 65.72 → H3-alt 67.9
 | State | cat F1 best | Method | reg Acc@10 best | Method | Joint (H3-alt) |
 |---|---:|---|---:|---|---|
 | AL | **42.71 ± 1.37** (B3 post-F27) | next_gru cat | **74.62 ± 3.11** (MTL-H3-alt) ✅ | per-head LR (1e-3/3e-3/1e-3) | **cat 42.22 / reg 74.62** ⭐ |
-| AZ | **45.81 ± 1.30** (B3 post-F27) | next_gru cat | 66.74 ± 2.11 (STL F21c) | STL GETNext-hard matched | **cat 45.11 / reg 63.45** (75% gap closed) |
+| AZ | **45.81 ± 1.30** (B3 post-F27) | next_gru cat | 66.74 ± 2.11 (STL F21c) | STL STAN-Flow matched | **cat 45.11 / reg 63.45** (75% gap closed) |
 | FL | **67.92 ± 0.72** (MTL-H3-alt) ✅ | per-head LR | **71.96 ± 0.68** (MTL-H3-alt) ✅ | per-head LR | **cat 67.92 / reg 71.96** ⭐ |
 
 **Reading under the H3-alt champion constraint ("single MTL model for both tasks, joint cat+reg paper claim"):**
@@ -246,9 +246,9 @@ Kept in source of truth for audit but not referenced in the paper:
 | **F48-H2 warmup_constant (AL + AZ 5f, 150ep)** | `results/check2hgi/{alabama,arizona}/mtlnet_lr1.0e-04_bs2048_ep150_20260426_09*/summary/full_summary.json` |
 | **F45 / F48-H1 / F48-H3 control runs** | per-state under `results/check2hgi/<state>/mtlnet_*_20260425_*/summary/full_summary.json` (see `research/F44_F48_LR_REGIME_FINDINGS.md` for matrix) |
 | F31 B3 post-F27 (AL + AZ 5f) | superseded older B3_validation by post-F27 — see `results/F27_validation/al_5f50ep_b3_cathead_gru.json` and AZ counterpart |
-| F21c STL GETNext-hard (AL + AZ 5f) | `results/B3_baselines/stl_getnext_hard_{al,az}_5f50ep.json` |
+| F21c STL STAN-Flow (AL + AZ 5f) | `results/B3_baselines/stl_getnext_hard_{al,az}_5f50ep.json` |
 | B3 validation (pre-F27, AL + AZ 5f) | `results/B3_validation/{al,az}_5f50ep_b3.json` |
-| B5 hard-index (AL + AZ 5f + FL 1f) | `results/B5/{al_5f50ep,az_5f50ep,fl_1f50ep}_next_getnext_hard.json` |
+| B5 hard-index (AL + AZ 5f + FL 1f) | `results/B5/{al_5f50ep,az_5f50ep,fl_1f50ep}_next_getnext_hard.json (legacy filename; head is STAN-Flow)` |
 | F2 diagnostic (4 × FL 1f) | `results/F2_fl_diagnostic/fl_1f50ep_hard_{pcgrad_ckpt,static_cat0.25,static_cat0.50,static_cat0.75}.json` |
 | F17 partial (FL fold 1 only) | `results/check2hgi/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260423_0630/folds/fold1_info.json` |
 | MTLoRA post-fix suite | `results/P5_bugfix/*.json` |
@@ -278,7 +278,7 @@ Source: `research/SUBSTRATE_COMPARISON_FINDINGS.md` (full verdict). Per-fold JSO
 | next_single (head-sensitivity) | 38.71 ± 1.32 | 26.76 ± 0.36 | **+11.96** | 42.20 ± 0.72 | 29.69 ± 0.97 | **+12.50** |
 | next_lstm (head-sensitivity) | 38.38 ± 1.08 | 23.94 ± 0.84 | **+14.44** | 41.86 ± 0.84 | 26.50 ± 0.29 | **+15.36** |
 
-### Reg STL matched-head (`next_getnext_hard`) — CH15 reframed
+### Reg STL matched-head (STAN-Flow (`next_stan_flow`)) — CH15 reframed
 
 | State | C2HGI Acc@10 | HGI Acc@10 | Δ Acc@10 | Wilcoxon p | TOST δ=2pp |
 |---|---:|---:|---:|---:|---|

@@ -31,9 +31,9 @@ Statistical protocol: paired Wilcoxon signed-rank (one-sided `alternative='great
 |---|---|:-:|---|
 | **Substrate linear probe** (Leg I) | head-free LR on emb | no | `results/probe/<state>_<engine>_last.json` |
 | **Cat STL `next_gru`** (Leg II.1, CH16) | next_gru — no log_T | no | `phase1_perfold/<S>_<engine>_cat_gru_5f50ep.json` |
-| **Reg STL `next_getnext_hard`** (Leg II.2, CH15) | α·log_T graph prior | YES — re-run leak-free | `phase1_perfold/<S>_<engine>_reg_gethard_pf_5f50ep.json` |
+| **Reg STL STAN-Flow** (Leg II.2, CH15) | STAN-attn + α·log_T trajectory-flow prior (`next_stan_flow`, alias of `next_getnext_hard`) | YES — re-run leak-free | `phase1_perfold/<S>_<engine>_reg_gethard_pf_5f50ep.json` |
 | **MTL B9 cat F1** (CH18 cat-side) | next_gru | no log_T on cat side, but co-trained — re-run leak-free for joint protocol | `phase1_perfold/<S>_<engine>_mtl_cat_pf.json` |
-| **MTL B9 reg Acc@10/MRR** (CH18 reg-side) | next_getnext_hard | YES — re-run leak-free | `phase1_perfold/<S>_<engine>_mtl_reg_pf.json` |
+| **MTL B9 reg Acc@10/MRR** (CH18 reg-side) | STAN-Flow co-trained | YES — re-run leak-free | `phase1_perfold/<S>_<engine>_mtl_reg_pf.json` |
 
 ## Headline figures
 
@@ -81,7 +81,9 @@ Statistical protocol: paired Wilcoxon signed-rank (one-sided `alternative='great
 
 **Verdict:** CH18-cat confirmed and **strengthened** by leak-free protocol — Δ grows to ~33 pp at FL/CA/TX (vs ~15 pp at AL/AZ). MTL inherits the C2HGI cat advantage. 
 
-## 4 · Reg STL `next_getnext_hard` (CH15 reframing) — leak-free (Phase 3)
+## 4 · Reg STL **STAN-Flow** (CH15 reframing) — leak-free (Phase 3)
+
+> Head: STAN attention backbone + α·log_T region-trajectory-flow prior. Registry name `next_stan_flow` (paper-facing); legacy alias `next_getnext_hard` retained for back-compat. Inspired by GETNext's graph-prior pattern (Yang et al. 2022) but **not** a faithful reproduction of GETNext (which is a next-POI method with friendship + check-in graph priors).
 
 | State | C2HGI Acc@10 | HGI Acc@10 | Δ Acc@10 | Wilcoxon p_greater | TOST δ=2pp | TOST δ=3pp |
 |---|---:|---:|---:|---:|:-:|:-:|
@@ -231,7 +233,7 @@ different (env, sklearn) pairs:
 
 ### What to do if §6 magnitude is paper-critical
 
-Re-run Phase 2 reg STL (`next_getnext_hard` with the legacy full-data
+Re-run Phase 2 reg STL (STAN-Flow with the legacy full-data
 `region_transition_log.pt`, **no** `--per-fold-transition-dir`) on the same
 Lightning H100 image used for Phase 3 (sklearn 1.8.0, identical pin). Then the
 leaky vs clean comparison would be on bit-identical fold splits and the leak

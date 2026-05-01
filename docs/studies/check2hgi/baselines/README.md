@@ -184,9 +184,9 @@ CA/TX faithful axis (STAN-faithful, ReHDM-faithful) was scoped out per [`../GAP_
 |---|---|:-:|:-:|:-:|:-:|:-:|:-:|
 | **Substrate linear probe** (Leg I, head-free, leak-free by design) | LR on emb | ✅ | ✅ | ✅ | ✅ | ✅ | ⚪ |
 | **Cat STL CH16** (Leg II.1) | `next_gru` | ✅ | ✅ | ✅ | ✅ | ✅ | ⚪ |
-| **Reg STL CH15 — leak-free Phase 3** (`_pf` per-fold transitions) | `next_getnext_hard_pf` | ✅ | ✅ | ✅ | ✅ | ✅ | ⚪ |
+| **Reg STL CH15 — leak-free Phase 3** (`_pf` per-fold transitions) | `next_stan_flow` (`_pf`) | ✅ | ✅ | ✅ | ✅ | ✅ | ⚪ |
 | **MTL B9 cat-side CH18-cat** (leak-free) | `next_gru` co-trained | ✅ | ✅ | ✅ | ✅ | ✅ | ⚪ |
-| **MTL B9 reg-side CH18-reg** (leak-free) | `next_getnext_hard_pf` co-trained | ✅ | ✅ | ✅ | ✅ | ✅ | ⚪ |
+| **MTL B9 reg-side CH18-reg** (leak-free) | `next_stan_flow` (`_pf`) co-trained | ✅ | ✅ | ✅ | ✅ | ✅ | ⚪ |
 
 ⚪ GA is scoped to external-baseline coverage only; the Phase 1-3 substrate-comparison axis was closed at AL/AZ/FL/CA/TX (5 states with paper-grade Wilcoxon p=0.0312 = max-n=5). Adding GA to the substrate axis is not necessary for paper claims.
 
@@ -194,8 +194,8 @@ CA/TX faithful axis (STAN-faithful, ReHDM-faithful) was scoped out per [`../GAP_
 
 | Track (leaky) | AL Acc@10 | AZ Acc@10 | FL Acc@10 | CA Acc@10 | TX Acc@10 |
 |---|---:|---:|---:|---:|---:|
-| Check2HGI `next_getnext_hard` (leaky) | 68.37 | 66.74 | 82.54 | 70.63 | 69.31 |
-| HGI `next_getnext_hard` (leaky)       | 67.52 | 64.40 | 82.25 | 71.29 | 69.90 |
+| Check2HGI STAN-Flow (leaky)           | 68.37 | 66.74 | 82.54 | 70.63 | 69.31 |
+| HGI STAN-Flow (leaky)                 | 67.52 | 64.40 | 82.25 | 71.29 | 69.90 |
 
 Sign-flips at all 5 states once the `α·log_T` leak is removed (substrate-asymmetric). See [`next_region/comparison.md §"Substrate-head matched STL — leak-free"`](next_region/comparison.md) for the corrected Phase 3 numbers.
 
@@ -210,8 +210,8 @@ Sign-flips at all 5 states once the `α·log_T` leak is removed (substrate-asymm
 | **ReHDM — `faithful` (paper-proto)** § | **★ 66.06 ± 0.98** | **★ 54.65 ± 0.77** | 65.68 ± 0.26 | ⚪ skip | ⚪ skip | 55.82 ± 0.76 |
 | ReHDM — `stl_check2hgi` ‡          | 26.22 ± 1.58 | 23.24 ± 1.27 | 38.74 ± 0.49 | ⚪ skip | ⚪ skip | 22.31 ± 1.31 |
 | ReHDM — `stl_hgi` ‡                | 42.78 ± 2.82 | 34.00 ± 3.02 | 54.49 ± 0.32 | ⚪ skip | ⚪ skip | 35.07 ± 1.98 |
-| GETNext-hard `_pf` — `stl_check2hgi` (leak-free) | 59.15 ± 3.48 | 50.24 ± 2.51 | 69.22 ± 0.52 | 55.92 ± 1.20 | 58.89 ± 1.28 | 54.07 ± 2.44 |
-| GETNext-hard `_pf` — `stl_hgi` (leak-free)       | 61.86 ± 3.29 | 53.37 ± 2.55 | 71.34 ± 0.64 | 57.77 ± 1.12 | 60.47 ± 1.26 | 57.09 ± 2.08 |
+| **STAN-Flow** `_pf` — `stl_check2hgi` (leak-free) | 59.15 ± 3.48 | 50.24 ± 2.51 | 69.22 ± 0.52 | 55.92 ± 1.20 | 58.89 ± 1.28 | 54.07 ± 2.44 |
+| **STAN-Flow** `_pf` — `stl_hgi` (leak-free)       | 61.86 ± 3.29 | 53.37 ± 2.55 | 71.34 ± 0.64 | 57.77 ± 1.12 | 60.47 ± 1.26 | 57.09 ± 2.08 |
 
 > § ReHDM `faithful` uses the paper's protocol (chronological 80/10/10 + 24h sessions, 5 seeds). σ is inter-seed; not cell-for-cell σ-comparable to StratifiedGroupKFold rows. AL/AZ at paper b=64; FL+GA at b=128 + 4× lr scaling (validated within 1σ on AL/AZ — see `rehdm.md`).
 > ‡ ReHDM `stl_*`: a target_mask bug (hardcoded all-ones over padded positions) was patched 2026-05-01 in `train_stl_study.py`. Definitive 5f×50ep mask-fix re-run on GA c2hgi: Acc@10 = 21.22 ± 1.27 vs broken 22.31 ± 1.31 (Δ = −1.09 pp, within fold σ). Mask was a real latent bug but not the cause of underperformance — the architectural mismatch (theta-query pooling on 9-step frozen substrate) dominates. Cross-state re-run not warranted; published numbers stand. See `REHDM_STL_MASKFIX_GA_check2hgi_5f50ep_summary.json`.

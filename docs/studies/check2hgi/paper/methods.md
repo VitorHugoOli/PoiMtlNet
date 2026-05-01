@@ -22,7 +22,7 @@ We deliberately retire the POI-granularity `next_poi` task that earlier framings
 We embed each check-in (i.e. each individual visit, not each unique POI) into a 256-dim vector using **Check2HGI** [cite], a check-in-level variant of Hierarchical Graph Infomax that augments the graph with per-visit context tokens. Two key properties distinguish Check2HGI from POI-stable embeddings such as HGI:
 
 1. **Per-visit context.** A POI visited at different times (e.g. a Starbucks during commute vs. weekend leisure) receives different vectors. HGI assigns the same vector to all visits of the same POI.
-2. **Region-aware aggregation.** Region embeddings (`region_embeddings.parquet`, also 256-dim) are produced jointly with check-in embeddings under the same hierarchical graph; this enables the auxiliary `next_region` task to use a learned region prior (the `next_getnext_hard` reg head — see §3.4).
+2. **Region-aware aggregation.** Region embeddings (`region_embeddings.parquet`, also 256-dim) are produced jointly with check-in embeddings under the same hierarchical graph; this enables the auxiliary `next_region` task to use a learned region prior (the **STAN-Flow** (`next_stan_flow`) reg head — see §3.4).
 
 **Substrate validation.** Phase-1 (§4.2) confirms that Check2HGI carries a head-invariant +11.58 to +15.50 pp macro-F1 advantage over HGI on `next_category` across two states (AL, AZ; n=5 paired Wilcoxon p=0.0312 each). A POI-pooled counterfactual (replacing per-visit Check2HGI with the per-POI mean) recovers ~28% of the gap; ~72% comes from per-visit context — the dominant mechanism (Phase-1 C4).
 
@@ -32,7 +32,7 @@ We adopt **MTLnet** [cite framework paper] as the joint backbone, specialised he
 
 1. **Per-task input modality.** The cat stream consumes check-in embeddings (256-d) over the 9-step window; the reg stream consumes region embeddings (256-d) over the same window. Streams are not concatenated; they enter the backbone as parallel inputs.
 2. **Bidirectional cross-attention block.** Stack of N=4 cross-attention blocks. Each block exchanges queries between streams: `cross_ab` (cat queries → reg keys/values) and `cross_ba` (reg queries → cat keys/values). Internal block-FFN (`ffn_a`, `ffn_b`) and LayerNorms (`ln_a*`, `ln_b*`) live in `shared_parameters()` and are trained jointly under MTL loss.
-3. **Task-specific heads.** Cat head: `next_gru` (1-layer GRU + classifier; selected over `NextHeadMTL` Transformer default after the F27 ablation showed +2.69 pp macro-F1 on AZ at n=5 paired p=0.0312). Reg head: `next_getnext_hard` — a STAN-style attention block with a learned graph prior `α · log_T[r_last]` that scales the region transition matrix `T` (computed from training data via `pipelines/region_transition.py`). The graph-prior weight `α` is a learnable scalar in `next_specific_parameters()`.
+3. **Task-specific heads.** Cat head: `next_gru` (1-layer GRU + classifier; selected over `NextHeadMTL` Transformer default after the F27 ablation showed +2.69 pp macro-F1 on AZ at n=5 paired p=0.0312). Reg head: **STAN-Flow** (registry `next_stan_flow`; legacy alias `next_getnext_hard`) — a STAN-style attention block with a learned graph prior `α · log_T[r_last]` that scales the region transition matrix `T` (computed from training data via `pipelines/region_transition.py`). The graph-prior weight `α` is a learnable scalar in `next_specific_parameters()`. The pattern is inspired by GETNext (Yang et al. 2022); STAN-Flow is **not** a faithful reproduction (GETNext is a next-POI model with friendship + check-in graph priors).
 
 Hidden width d_model=256, 8 attention heads, dropout 0.1.
 
@@ -73,7 +73,7 @@ AL+AZ are **dev/ablation** states (used for Phase-1 substrate validation, F27 ca
 To enable matched-head MTL-vs-STL comparison, we report:
 
 - **STL `next_gru` cat 5f** — exact same cat head as MTL champion; F37 (4050 task in flight). Available: AL, AZ. Pending: FL, CA, TX.
-- **STL `next_getnext_hard` reg 5f** — exact same reg head as MTL champion (with graph-prior α). Available: AL = 68.37 ± 2.66 Acc@10; AZ = 66.74 ± 2.11. Pending FL (F37 P2 4050).
+- **STL **STAN-Flow** (`next_stan_flow`) reg 5f** — exact same reg head as MTL champion (with graph-prior α). Available: AL = 68.37 ± 2.66 Acc@10; AZ = 66.74 ± 2.11. Pending FL (F37 P2 4050).
 - Auxiliary head-sensitivity rows (under STAN, `next_lstm`, `next_single`, head-free linear probe) reported in appendix table for substrate-claim head-invariance.
 
 External baselines (faithful re-implementations in `baselines/{next_category,next_region}/`):

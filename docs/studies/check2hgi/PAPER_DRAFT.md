@@ -116,7 +116,7 @@ Sub-sections in narrative order:
 - **3.3.2 Substrate.** HGI vs. Check2HGI — per-place vs. per-visit. One paragraph on why per-visit context matters at the cat task (mechanism finding).
 - **3.3.3 MTL backbone.** Cross-attention architecture, per-task input modality (check-in stream → cat head, region stream → reg head), head registry choices.
 - **3.3.4 Optimiser regime.** Per-head learning rates with no annealing — derivation from F44–F48 chain (in supplementary; main text gives the *what*, not the *F-number trail*).
-- **3.3.5 Head choices.** `next_gru` (cat) and `next_getnext_hard` (reg, STAN + α·log_T graph prior), motivated as matched-head pairs.
+- **3.3.5 Head choices.** `next_gru` (cat) and STAN-Flow (`next_stan_flow`) (reg, STAN + α·log_T graph prior), motivated as matched-head pairs.
 
 **Don't write in main text:** the F-number experiment trail. Belongs in supplementary materials or appendix as an attribution narrative.
 
