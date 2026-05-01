@@ -988,6 +988,7 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                 config, "reg_head_warmup_decay_warmup_epochs", 5),
             reg_head_warmup_decay_plateau_epochs=getattr(
                 config, "reg_head_warmup_decay_plateau_epochs", 15),
+            eta_min=float(getattr(config, "eta_min", 0.0)),
         )
         # Smoke print for F48-H3: verify per-group LRs survived scheduler
         # init. Only on the first fold to keep logs clean. Also prints

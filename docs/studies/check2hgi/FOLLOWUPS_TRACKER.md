@@ -1,6 +1,12 @@
 # Check2HGI Follow-ups Tracker
 
-**Created:** 2026-04-23. **Updated 2026-04-27** — post-F49 (architecture attribution done) + post-Phase-1 (substrate validation closed). Phase-2 (FL+CA+TX substrate replication) follow-ups live in [`PHASE2_TRACKER.md`](PHASE2_TRACKER.md). F49 / F49b / F49c done. Paper-deliverable items live in [`PAPER_PREP_TRACKER.md`](PAPER_PREP_TRACKER.md).
+> ✅ **Paper closure landed 2026-05-01** — see [`PAPER_CLOSURE_RESULTS_2026-05-01.md`](PAPER_CLOSURE_RESULTS_2026-05-01.md), [`PAPER_CLOSURE_PHASES.md`](PAPER_CLOSURE_PHASES.md), [`research/PAPER_CLOSURE_WILCOXON.json`](research/PAPER_CLOSURE_WILCOXON.json), [`research/PAPER_CLOSURE_RECIPE_WILCOXON.json`](research/PAPER_CLOSURE_RECIPE_WILCOXON.json). Closes: cross-state P3 (CA + TX), STL ceilings at all 5 states, AL/AZ/FL multi-seed, F51 Tier 3 sweep, AL/AZ H3-alt multi-seed gap-fill.
+>
+> **Two reframes landed:**
+> 1. **F49 Layer 3 absolute claims** ("AL +6.48 pp MTL>STL on reg") were leak artifacts. Under leak-free symmetric comparison, MTL < STL on reg at every state by 7-17 pp. F49 Layer 1+2 mechanism findings (cat-supervision transfer null; loss-side λ=0 unsound) survive intact.
+> 2. **B9 champion claim is FL-scale-specific.** AL/AZ multi-seed shows H3-alt > B9 on cat (paper-grade significance, p<10⁻³); reg is tied. FL F51 confirmed (B9 > H3-alt). CA/TX directional B9 win. Recipe-selection narrative reframes to "scale-conditional optimal recipe." See `PAPER_CLOSURE_RESULTS_2026-05-01.md §4a-bis`.
+
+**Created:** 2026-04-23. **Updated 2026-05-01** — post paper-closure run matrix. Prior: 2026-04-27 (post-F49 + post-Phase-1). Phase-2 (FL+CA+TX substrate replication) follow-ups live in [`PHASE2_TRACKER.md`](PHASE2_TRACKER.md). F49 / F49b / F49c done. Paper-deliverable items live in [`PAPER_PREP_TRACKER.md`](PAPER_PREP_TRACKER.md).
 
 > **Phase 1 closed 2026-04-27** (substrate validation, AL+AZ): F3, F9, F26 superseded by Phase-2 tracker which replicates the full 3-leg grid (substrate probe + matched-head STL + MTL counterfactual) at FL/CA/TX. See `research/SUBSTRATE_COMPARISON_FINDINGS.md` for outcome.
 

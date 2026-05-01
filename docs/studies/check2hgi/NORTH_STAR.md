@@ -1,5 +1,61 @@
 # North-Star MTL Configuration
 
+> ⚠ **2026-05-01 SCALE-CONDITIONAL CHAMPION FINDING — B9 is FL-tuned, not universal.**
+> Cross-state B9 vs H3-alt comparison (28 paper-closure runs + 8 AL/AZ H3-alt
+> gap-fill = 36 total) reveals B9's recipe lift is FL-scale-specific:
+>
+> | State | n_pairs | Δ_reg pp | p_reg | Δ_cat pp | p_cat | Verdict |
+> |---|---:|---:|---:|---:|---:|---|
+> | AL | 20 | **−0.35** | **1.9e-03** | **−2.22** | **1.9e-06** | **H3-alt > B9 on cat** |
+> | AZ | 20 | −0.09 | 0.23 (n.s.) | **−0.96** | **7.1e-04** | **H3-alt > B9 on cat** |
+> | FL | 25 | **+3.48** | **3.0e-08** | +0.42 | 1.3e-05 | B9 > H3-alt (F51) |
+> | CA | 5  | +4.74 | 0.062 (5/5) | +0.72 | 0.125 (4/5) | B9 directional |
+> | TX | 5  | +1.76 | 0.125 (4/5) | +0.64 | 0.125 (4/5) | B9 directional |
+>
+> **B9's three additions over H3-alt (alt-SGD + cosine + α-no-WD) help on FL but
+> hurt cat at small states (AL/AZ).** Mechanism hypothesis: the additions target
+> FL's reg-saturation problem (D5 finding); at smaller transition graphs the
+> reg saturation is less severe AND alt-SGD's per-step temporal gradient separation
+> costs cat-side signal that small states can't afford to lose. The recipe-selection
+> claim reframes from "B9 is the universal champion" to **"B9 is FL-scale champion;
+> H3-alt is the universal recipe at small scale; the optimal MTL recipe is
+> scale-conditional"**. Full doc: `PAPER_CLOSURE_RESULTS_2026-05-01.md §4a-bis`.
+> Wilcoxon JSON: `research/PAPER_CLOSURE_RECIPE_WILCOXON.json`.
+
+> 🎯 **PAPER CLOSURE — 2026-05-01 (28 paper-grade runs, both tasks, leak-free).**
+> Cross-state P3 (CA + TX), STL ceilings at all 5 states with multi-seed at AL/AZ/FL,
+> AL/AZ MTL B9 multi-seed, FL STL reg multi-seed extension. The architectural-Δ
+> picture is now multi-seed at AL+AZ, multi-seed STL + single-seed B9 at FL,
+> single-seed at CA+TX (P1 multi-seed extension deferred to camera-ready).
+> Full results: `PAPER_CLOSURE_RESULTS_2026-05-01.md`. Wilcoxon JSON:
+> `research/PAPER_CLOSURE_WILCOXON.json`. Phase plan: `PAPER_CLOSURE_PHASES.md`.
+>
+> **Headline (the classic MTL tradeoff, sign-consistent across 5 states):**
+> | State | Δ_reg pp (MTL−STL) | p_reg | Δ_cat pp (MTL−STL) | p_cat |
+> |---|---:|---:|---:|---:|
+> | AL (n=20) | **−11.04** | **1.9e-06** | −0.19 | 0.76 (n.s., ≈tied) |
+> | AZ (n=20) | **−12.27** | **1.9e-06** | **+1.90** | **1.9e-06** |
+> | FL (n=5)  | −7.99 | 0.0625 | (n/a — F37 STL cat lacks per-fold) | — |
+> | CA (n=5)  | −8.92 | 0.0625 | +1.94 | 0.0625 |
+> | TX (n=5)  | −16.69 | 0.0625 | +2.02 | 0.0625 |
+>
+> n=20 = 4 seeds × 5 folds (pooled multi-seed). n=5 = single seed paired.
+> p=0.0625 is the minimum for n=5 paired Wilcoxon — single-seed numbers are
+> signed-consistent (5/5 in the claimed direction) but not formally significant.
+> Reg metric: per-fold max `top10_acc_indist` for epoch ≥ 5 (F51 canonical).
+> Cat metric: per-fold max unweighted `f1` for epoch ≥ 5.
+>
+> **Reg:** MTL B9 < STL `next_getnext_hard` at every state by 7-17 pp.
+> **Cat:** MTL ≥ STL `next_gru` at every state. AL is the only state where the
+> cat gain is ≈0 (sign-consistent in cross-seed mean but not significantly nonzero).
+>
+> **Reframe vs F49:** F49's "AL +6.48 pp MTL>STL on reg" was a leak artifact of
+> pre-F50 measurements (full-data `region_transition_log.pt`, leaks ~13-27 pp).
+> Under leak-free symmetric comparison, AL's reg pattern matches every other state.
+> The headline "scale-conditional architecture-dominant state" framing in F49 is
+> superseded; the leak-free framing is **classic MTL tradeoff: hard task pays,
+> easy task gains**.
+>
 > 🎉 **F51 MULTI-SEED (2026-04-30):** B9 vs H3-alt validated across 5 seeds {42, 0, 1, 7, 100}. **Δreg = +3.48 ± 0.12 pp across seeds; pooled paired Wilcoxon (5 × 5 = 25 fold-pairs): p_reg = 2.98×10⁻⁸ (25/25 positive); p_cat = 1.33×10⁻⁵ (19/25 positive).** Cat reaches paper-grade once seeds pool. Absolute B9 reg σ_across_seeds = 0.11 pp — recipe is essentially deterministic in the partition-difficulty axis. The seed=42 +3.34 pp number was the worst-case seed; cross-seed mean is slightly larger. Full doc: `research/F51_MULTI_SEED_FINDINGS.md`.
 >
 > 📊 **F51 TIER 2 CAPACITY SWEEP (2026-04-30):** 21 capacity smokes across 7 dimensions (5f×30ep) confirm **B9 is locally optimal in 5/7 capacity dimensions**. No paper-grade lift available via capacity scaling. Two NEW negative findings: (a) **cat width-stability cliff** — wider shared backbone (`shared_layer_size` 384/512, `num_crossattn_blocks=4`, `crossattn_ffn_dim=1024`) breaks cat without affecting reg; (b) **F52's "mixing is dead at FL" is depth-conditional** — alive at `num_crossattn_blocks=3` (Pareto-trade: +0.75 reg / -2.62 cat), breaks cat at depth=4. Full doc: `research/F51_TIER2_CAPACITY_FINDINGS.md`.

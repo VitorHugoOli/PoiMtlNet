@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import time
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Union
@@ -232,7 +233,10 @@ class MLHistory:
     def start(self):
         self._ended = False
         self.timer.start()
-        self.start_date = time.strftime("%Y%m%d_%H%M")
+        # Seconds + PID for collision-free parallel runs (multiple
+        # smokes launched within the same minute previously overwrote
+        # each other's results dirs).
+        self.start_date = f"{time.strftime('%Y%m%d_%H%M%S')}_{os.getpid()}"
         self.get_curr_fold().start()
         if self._verbose:
             self.display.start_fold()

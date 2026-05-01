@@ -245,6 +245,7 @@ def setup_scheduler(
     reg_head_warmup_decay_peak_mult: float = 10.0,
     reg_head_warmup_decay_warmup_epochs: int = 5,
     reg_head_warmup_decay_plateau_epochs: int = 15,
+    eta_min: float = 0.0,
 ):
     """Create an LR scheduler matching the project's conventions.
 
@@ -299,6 +300,7 @@ def setup_scheduler(
         return CosineAnnealingLR(
             optimizer=optimizer,
             T_max=int(epochs * steps_per_epoch),
+            eta_min=float(eta_min),
         )
     if scheduler_type == "warmup_constant":
         # F48-H2: linear warmup over `pct_start * total_steps` from a low

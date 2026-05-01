@@ -1,5 +1,20 @@
 # Objectives Status Table — Check2HGI Study
 
+> ⚠ **2026-05-01 PAPER CLOSURE REFRAME — see `PAPER_CLOSURE_RESULTS_2026-05-01.md`.**
+> Cross-state P3 (CA + TX) + multi-seed at AL/AZ/FL landed leak-free 2026-05-01.
+> The "Headline reversal (F48-H3-alt, 2026-04-26)" note below — that AL MTL-H3-alt
+> EXCEEDS STL F21c by +6.25 pp — was measured under the legacy leaky log_T and
+> is **refuted under symmetric leak-free comparison**. The leak-free picture is
+> a classic MTL tradeoff: MTL B9 < STL `next_getnext_hard` at every state on
+> reg (7-17 pp), MTL B9 ≥ STL `next_gru` at every state on cat (0 to +2 pp).
+> AL no longer "exceeds" STL on reg — the AL pattern matches every other state.
+> Objective 4 ("MTL B3's reg lift is architecture-dominant") survives in spirit
+> as a *mechanism* claim (the architecture doesn't transfer cat→reg signal — F49
+> Layer 1 still holds), but the absolute "AL +6.48 pp" effect size is reframed:
+> the lift was leak-driven; the architecture-vs-co-adaptation-vs-transfer
+> *decomposition* still stands as a methodological contribution.
+> v6 to follow once paper-side decisions land.
+
 **Date:** 2026-04-27 (v5, post-F49 + post-Phase-1 substrate validation). One-page snapshot of where we stand against the study's scientific objectives. Phase-1 substrate validation + F49 attribution are both paper-grade; Phase 2 (FL/CA/TX substrate replication) queued in [`PHASE2_TRACKER.md`](PHASE2_TRACKER.md), F37 (FL F21c) queued in `FOLLOWUPS_TRACKER.md`.
 
 > **NEW Objective 3 (post-Phase-1):** *MTL B3 is substrate-specific* — substituting HGI into the same MTL configuration breaks the joint signal (cat −17 pp, reg −30 pp at AL+AZ). See §2.4 below + CH18 in `CLAIMS_AND_HYPOTHESES.md` + `research/SUBSTRATE_COMPARISON_FINDINGS.md`. AL+AZ confirmed; FL/CA/TX queued.

@@ -47,6 +47,10 @@ class ExperimentConfig:
     gradient_accumulation_steps: int = 2
     max_grad_norm: float = 1.0
     optimizer_eps: float = 1e-8
+    # F51 Tier 3 — cosine scheduler floor LR; 0.0 preserves legacy behaviour
+    # (CosineAnnealingLR decays to 0). Non-zero values keep a small LR in the
+    # late-cosine tail, which can stabilize α growth in next_getnext_hard.
+    eta_min: float = 0.0
 
     # --- LR scheduler ---
     # "onecycle" preserves legacy behaviour bit-exactly. "constant" and

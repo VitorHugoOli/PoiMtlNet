@@ -1,5 +1,32 @@
 # Paper Prep Tracker — Check2HGI Study
 
+> ⚠ **2026-05-01 SECOND REFRAME — B9 champion claim is FL-scale-specific.**
+> AL+AZ multi-seed B9 vs H3-alt comparison (added late session after audit prompt
+> "have we made executions on H3-alt?") shows: at AL/AZ, **H3-alt is significantly
+> better than B9 on cat** (Δ_cat = −2.22 pp p<10⁻⁶ AL; −0.96 pp p<10⁻³ AZ across
+> 20 fold-pairs each); reg is tied. F51's B9 > H3-alt finding holds at FL only.
+> CA/TX show B9 directionally wins (single-seed n=5).
+> **Paper recipe-selection narrative needs reframing:** "B9 is the FL-scale
+> champion; H3-alt remains the universal recipe; the optimal MTL recipe is
+> scale-conditional." Full evidence: `PAPER_CLOSURE_RESULTS_2026-05-01.md §4a-bis`,
+> `research/PAPER_CLOSURE_RECIPE_WILCOXON.json`.
+
+> ⚠ **2026-05-01 PAPER CLOSURE REFRAME — supersedes some F49 absolute claims below.**
+> Cross-state P3 (CA + TX) + multi-seed at AL/AZ/FL landed under leak-free
+> per-fold log_T. Several F49 absolute reg numbers (notably "AL +6.48 pp
+> MTL>STL on reg" and the +6.25 pp F21c claim) **were leak artifacts** — pre-F50
+> they used the legacy full-data `region_transition_log.pt` which inflated
+> absolute reg by 13-27 pp asymmetrically (more for MTL than for STL at AL).
+> Under leak-free symmetric comparison MTL B9 < STL on reg at every state by
+> 7-17 pp; MTL ≥ STL on cat at every state by 0 to +2.0 pp (AL ≈ tied, others +1.6-2.0).
+> Headline reframes from "scale-conditional architecture-dominant at AL" to
+> **classic MTL tradeoff: hard task pays, easy task gains**, sign-consistent across
+> all 5 states. Full evidence: `PAPER_CLOSURE_RESULTS_2026-05-01.md` +
+> `research/PAPER_CLOSURE_WILCOXON.json`. CH22 Δm scoreboard also needs a
+> leak-free recalculation (Phase 3 zero-compute item).
+> Claims §1 below are kept for historical traceability — when writing the paper,
+> cross-reference the closure doc and use the leak-free numbers.
+
 **Created:** 2026-04-27 (post-F49). **Owner:** consolidates remaining work *to paper submission*. Distinct from `FOLLOWUPS_TRACKER.md` (per-experiment status) — this file is **paper-deliverable** focused: what claims need to land, what experiments still need to run, what doc rewrites are needed, and what the camera-ready timeline looks like.
 
 For the per-experiment scientific work, see `FOLLOWUPS_TRACKER.md`. For the F49-specific status, see `research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md` §13-14.

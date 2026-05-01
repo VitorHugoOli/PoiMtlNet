@@ -620,12 +620,30 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
             # matches region_transition_log_fold{N+1}.pt by construction.
             fold_overrides = dict(overrides)
             if per_fold_transition_dir is not None:
-                pf_path = Path(per_fold_transition_dir) / f"region_transition_log_fold{fold_idx + 1}.pt"
-                if not pf_path.exists():
+                # F51 seeded naming: region_transition_log_seed{S}_fold{N}.pt.
+                # Trainer hard-fails on legacy unseeded files; STL is now
+                # consistent. Falls back to legacy only if seeded missing
+                # AND legacy present (loud warning) — for backwards compat
+                # with old experiments still on the legacy path.
+                pf_seeded = Path(per_fold_transition_dir) / f"region_transition_log_seed{seed}_fold{fold_idx + 1}.pt"
+                pf_legacy = Path(per_fold_transition_dir) / f"region_transition_log_fold{fold_idx + 1}.pt"
+                if pf_seeded.exists():
+                    pf_path = pf_seeded
+                elif pf_legacy.exists():
+                    logger.warning(
+                        "[C4 STL] using LEGACY unseeded log_T at %s — only valid "
+                        "for seed=42; non-42 seeds leak val transitions. Build "
+                        "seeded version with: python scripts/compute_region_transition.py "
+                        "--state %s --per-fold --seed %d",
+                        pf_legacy, state, seed,
+                    )
+                    pf_path = pf_legacy
+                else:
                     raise FileNotFoundError(
-                        f"per_fold_transition_dir set but {pf_path} missing. "
-                        f"Build with: python scripts/compute_region_transition.py "
-                        f"--state {state} --per-fold"
+                        f"per_fold_transition_dir set but neither {pf_seeded} "
+                        f"nor legacy {pf_legacy} exists. Build seeded with: "
+                        f"python scripts/compute_region_transition.py "
+                        f"--state {state} --per-fold --seed {seed}"
                     )
                 fold_overrides["transition_path"] = str(pf_path)
                 logger.info("[C4 STL] fold %d using per-fold log_T %s", fold_idx, pf_path)

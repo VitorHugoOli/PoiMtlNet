@@ -1,6 +1,43 @@
 # Results Table — Check2HGI MTL Study
 
-**Last updated:** 2026-04-27 (Phase-1 substrate-comparison cells + F49 3-way decomposition cells appended; pre-2026-04-26 rows preserved verbatim above the new sections at the end of this file).
+> ⚠ **2026-05-01 PAPER CLOSURE — leak-free numbers.**
+> Cross-state P3 (CA + TX) + multi-seed at AL/AZ/FL landed leak-free per-fold log_T.
+> Numbers in pre-2026-05-01 rows used the legacy unseeded log_T and are
+> **leak-inflated by 13-27 pp** (state-dependent). The leak-free architectural-Δ
+> picture is in [`../PAPER_CLOSURE_RESULTS_2026-05-01.md`](../PAPER_CLOSURE_RESULTS_2026-05-01.md);
+> paired Wilcoxon JSON: [`../research/PAPER_CLOSURE_WILCOXON.json`](../research/PAPER_CLOSURE_WILCOXON.json).
+>
+> **Headline (leak-free, F51 canonical extraction, both tasks):**
+>
+> | State | n | Δ_reg pp | p_reg | Δ_cat pp | p_cat |
+> |---|---:|---:|---:|---:|---:|
+> | AL | 20 | **−11.04** | **1.9e-06** | −0.19 | 0.76 (≈tied) |
+> | AZ | 20 | **−12.27** | **1.9e-06** | **+1.90** | **1.9e-06** |
+> | FL | 5  | −7.99 | 0.0625 | (n/a F37) | — |
+> | CA | 5  | −8.92 | 0.0625 | +1.94 | 0.0625 |
+> | TX | 5  | −16.69 | 0.0625 | +2.02 | 0.0625 |
+>
+> Δ = MTL B9 − STL ceiling. Reg metric: per-fold max `top10_acc_indist` for ep ≥ 5.
+> Cat metric: per-fold max unweighted `f1` for ep ≥ 5.
+>
+> **Recipe selection (B9 vs H3-alt) — added 2026-05-01 after audit:**
+>
+> | State | n | Δ_reg pp | p_reg | Δ_cat pp | p_cat |
+> |---|---:|---:|---:|---:|---:|
+> | AL | 20 | −0.35 | **1.9e-03** | **−2.22** | **1.9e-06** |
+> | AZ | 20 | −0.09 | 0.23 (n.s.) | **−0.96** | **7.1e-04** |
+> | FL | 25 | **+3.48** | **3.0e-08** | +0.42 | 1.3e-05 |
+> | CA | 5  | +4.74 | 0.062 | +0.72 | 0.125 |
+> | TX | 5  | +1.76 | 0.125 | +0.64 | 0.125 |
+>
+> **B9 is FL-scale-specific.** At AL/AZ H3-alt is paper-grade better on cat;
+> reg tied. CA/TX B9 directional. Recipe-selection narrative reframes to
+> "scale-conditional optimal recipe". Full doc: [`../PAPER_CLOSURE_RESULTS_2026-05-01.md §4a-bis`](../PAPER_CLOSURE_RESULTS_2026-05-01.md).
+> Wilcoxon JSON: [`../research/PAPER_CLOSURE_RECIPE_WILCOXON.json`](../research/PAPER_CLOSURE_RECIPE_WILCOXON.json).
+>
+> v6 (full leak-free body) to follow.
+
+**Last updated:** 2026-05-01 (paper-closure header added). Prior: 2026-04-27 (Phase-1 substrate-comparison cells + F49 3-way decomposition cells appended; pre-2026-04-26 rows preserved verbatim above the new sections at the end of this file).
 
 **Champion candidate (2026-04-26):** **F48-H3-alt** = B3 architecture + per-head LR (`cat_lr=1e-3, reg_lr=3e-3, shared_lr=1e-3`, `--scheduler constant`). Closes the F21c STL gap (CH18 Tier B → A): AL exceeds STL by +6.25 pp; AZ closes 75%; FL validates at 5-fold scale (cat preserved, reg +6.7 pp over predecessor B3). See [`../NORTH_STAR.md`](../NORTH_STAR.md), [`../MTL_ARCHITECTURE_JOURNEY.md`](../MTL_ARCHITECTURE_JOURNEY.md) for derivation, [`../research/F48_H3_PER_HEAD_LR_FINDINGS.md`](../research/F48_H3_PER_HEAD_LR_FINDINGS.md) for detail.
 

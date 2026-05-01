@@ -868,6 +868,34 @@ def _parse_args(argv=None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--weight-decay",
+        dest="weight_decay",
+        type=float,
+        default=None,
+        help="AdamW weight_decay override (F51 Tier 3).",
+    )
+    parser.add_argument(
+        "--adam-eps",
+        dest="adam_eps",
+        type=float,
+        default=None,
+        help="AdamW eps override — config field optimizer_eps (F51 Tier 3).",
+    )
+    parser.add_argument(
+        "--max-grad-norm",
+        dest="max_grad_norm",
+        type=float,
+        default=None,
+        help="Gradient clipping max norm. Set to 0 (or negative) to disable (F51 Tier 3).",
+    )
+    parser.add_argument(
+        "--eta-min",
+        dest="eta_min",
+        type=float,
+        default=None,
+        help="CosineAnnealingLR eta_min floor LR (F51 Tier 3).",
+    )
+    parser.add_argument(
         "--compile",
         dest="compile_model",
         action="store_true",
@@ -975,6 +1003,22 @@ def _apply_cli_overrides(
         )
     if args.use_class_weights is not None:
         config = dataclasses.replace(config, use_class_weights=args.use_class_weights)
+    # F51 Tier 3 overrides
+    if getattr(args, "weight_decay", None) is not None:
+        if args.weight_decay < 0:
+            raise ValueError("--weight-decay must be >= 0")
+        config = dataclasses.replace(config, weight_decay=float(args.weight_decay))
+    if getattr(args, "adam_eps", None) is not None:
+        if args.adam_eps <= 0:
+            raise ValueError("--adam-eps must be > 0")
+        config = dataclasses.replace(config, optimizer_eps=float(args.adam_eps))
+    if getattr(args, "max_grad_norm", None) is not None:
+        # Allow 0 / negative as "disable clipping" — runner already guards.
+        config = dataclasses.replace(config, max_grad_norm=float(args.max_grad_norm))
+    if getattr(args, "eta_min", None) is not None:
+        if args.eta_min < 0:
+            raise ValueError("--eta-min must be >= 0")
+        config = dataclasses.replace(config, eta_min=float(args.eta_min))
 
     if args.candidate is not None:
         if config.task_type != "mtl":
