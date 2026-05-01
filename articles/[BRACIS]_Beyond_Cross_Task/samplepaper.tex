@@ -19,14 +19,16 @@
 \begin{document}
 
 % ----------------------------------------------------------------------------
-% Title — locked default 2026-05-01 (per PAPER_DRAFT.md §0 D0).
-% "Scale-Sensitive" replaces "Classic" so the title carries the scale-progression
-% finding (gap shrinks with data on the small-to-medium regime).
+% Title — locked default 2026-05-01 v3 (per PAPER_DRAFT.md §0 D0).
+% Reframed after Codex audit: lead with substrate task-asymmetry, not
+% scale-sensitivity. "Substrate Carries, Architecture Pays" captures the
+% post-leak-free finding precisely (cat: substrate +14-29 pp; reg: HGI ≥
+% Check2HGI under matched-head STL; MTL pays the textbook tradeoff on top).
 % ----------------------------------------------------------------------------
-\title{Beyond Cross-Task Transfer: Check-In-Level Embeddings and the
-Scale-Sensitive Multi-Task Tradeoff in POI Prediction}
+\title{Substrate Carries, Architecture Pays: Check-In-Level Embeddings for
+Multi-Task POI Prediction}
 
-\titlerunning{Check-In-Level Embeddings and the Scale-Sensitive MTL Tradeoff in POI Prediction}
+\titlerunning{Substrate Carries, Architecture Pays: Multi-Task POI Prediction}
 
 % ----------------------------------------------------------------------------
 % Authors — ANONYMISED for double-blind review.
@@ -40,10 +42,12 @@ Scale-Sensitive Multi-Task Tradeoff in POI Prediction}
 \maketitle
 
 % ----------------------------------------------------------------------------
-% Abstract — locked default 2026-05-01 (per PAPER_DRAFT.md §0 D1).
+% Abstract — locked default 2026-05-01 v3 (per PAPER_DRAFT.md §0 D1).
 % Target 130 words (LNCS rule: 70--150 words).
-% No footnotes, no equations, no citations, no undefined acronyms.
-% Refine before submission once §0 D6 (anonymous code link) is generated.
+% Reframed after Codex audit: lead with substrate task-asymmetry; corrected
+% the "+33 pp" conflation (that was the MTL counterfactual, not substrate
+% STL); dropped "scale-sensitive" framing; demoted C3 (cross-attn ablation
+% pitfall) from abstract to body §6.3.
 % ----------------------------------------------------------------------------
 \begin{abstract}
 Multi-task learning for point-of-interest prediction typically pairs joint
@@ -51,15 +55,16 @@ next-category and next-region heads over a shared point-of-interest graph
 embedding, with the implicit assumption that joint training transfers signal
 between tasks. We replace the per-place substrate with a check-in-level
 contextual graph embedding that emits one vector per visit and run a
-controlled cross-state ablation on Gowalla under user-disjoint cross-validation
-with leak-free per-fold transition priors. The substrate alone lifts
-single-task next-category macro-F1 by 15 percentage points at smaller states
-and 29 to 33 points at the headline scale, head-invariant. With the substrate
-fixed, joint multi-task training over a cross-attention backbone gains a small
-additional category lift at every state and pays a sign-consistent
-next-region cost---but the cost shrinks as data scales, evidence that
-multi-task learning begins to generalise on the harder task with more data.
-Drop-in balancers and head-capacity fixes do not recover the gap.
+controlled five-state ablation on Gowalla under user-disjoint cross-validation
+with leak-free per-fold transition priors. The substrate is task-asymmetric:
+per-visit context lifts single-task next-category macro-F1 by 14 to 29
+percentage points at every state, paired Wilcoxon p equal to 0.0312 each,
+while on the harder next-region task per-place embeddings tie or marginally
+exceed the per-visit substrate under matched-head single-task ceilings. With
+the substrate fixed, joint multi-task learning over a cross-attention backbone
+gains a small additional category lift and pays a sign-consistent next-region
+cost---the textbook multi-task tradeoff. A pooled-vs-canonical counterfactual
+attributes about 72 percent of the substrate gain to per-visit context.
 
 \keywords{Multi-Task Learning \and Point-of-Interest Prediction \and Graph
 Embeddings.}

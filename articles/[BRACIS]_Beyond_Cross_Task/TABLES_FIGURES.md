@@ -54,11 +54,11 @@ This block is cited verbatim in T1 caption and elided in subsequent captions ("s
 
 **Total tables: ≈ 2.5 pp.**
 
-### 2.2 Required figure
+### 2.2 Required figure (post-Codex audit)
 
 | ID | Caption (working) | Page | Source |
 |---|---|:-:|---|
-| **F2** | Scale-progression scatter — Δ_reg pp (y-axis) vs n_regions or log(check-ins) (x-axis), one labelled dot per state, dashed trend line through AL→AZ→FL→CA, **TX annotated as outlier**. **This figure carries the title's "Scale-Sensitive" claim visually**; without it, the title has nowhere to land. | 0.4 | `PAPER_CLOSURE_RESULTS_2026-05-01.md` §4b |
+| **F1** | **Per-visit mechanism bar — REQUIRED** (post-Codex audit promotion). At AL, three-bar grouped chart of cat F1 for {Check2HGI canonical, Check2HGI POI-pooled, HGI} under matched-head STL `next_gru` and linear probe; ~72 % per-visit / ~28 % training-signal split. Explains *why* the substrate is task-asymmetric (per-visit variance is what cat needs; pooling smooths it away for reg). Without F1 the substrate task-asymmetry has no visual mechanism anchor. | 0.4 | `CLAIMS_AND_HYPOTHESES.md §CH19` |
 
 **Total figures: ≈ 0.4 pp.**
 
@@ -70,16 +70,22 @@ The drop-in MTL ablation (FAMO, Aligned-MTL, HSM) reads stronger as a single dis
 
 Saves 0.2 pp; reads better.
 
-### 2.4 Optional — cut order if pages tight
+### 2.4 Required figure (post-Codex audit promotion)
+
+| ID | Caption (working) | Page | Source |
+|---|---|:-:|---|
+| **F1** | **Per-visit mechanism bar — REQUIRED.** At AL, cat F1 for {Check2HGI canonical, Check2HGI POI-pooled, HGI} under matched-head STL `next_gru` and linear probe; ~72 % per-visit / ~28 % training-signal split. **F1 explains *why* the substrate is task-asymmetric** — pooling kills the per-visit variance that cat needs but reg cannot use. Without F1 the substrate task-asymmetry has no visual mechanism anchor. Promoted to required after Codex audit. | 0.4 | `CLAIMS_AND_HYPOTHESES.md §CH19` (single-state evidence; AL only — wording must say "at AL") |
+
+### 2.5 Optional — cut order if pages tight
 
 | ID | Caption (working) | Page | Cut order | Source |
 |---|---|:-:|:-:|---|
-| **F1** | Per-visit mechanism bar — at AL, cat F1 for {Check2HGI canonical, Check2HGI POI-pooled, HGI} under matched-head STL `next_gru` and linear probe; ~72 % per-visit / ~28 % training-signal split. | 0.5 | **cut 1st** — three numbers read fine as prose | `CLAIMS_AND_HYPOTHESES.md §CH19` |
+| **F2** | Scale-progression scatter — Δ_reg pp vs n_regions or log(check-ins), 5 dots labelled by state, dashed trend AL→AZ→FL with TX annotated as non-monotone outlier. After the title was reframed away from "Scale-Sensitive", F2 lost its title-anchoring role; demoted from required to optional. | 0.4 | **cut 1st** — descriptive observation, can be reduced to a sentence in §5.2 / §7 | `PAPER_CLOSURE_RESULTS_2026-05-01.md` §4b |
 | **F-arch** | Architecture schematic of MTLnetCrossAttn — two task-specific encoders (cat ← check-in seq, reg ← region seq), 8-head bidirectional cross-attention block, residual shared backbone, GRU cat head + STAN-Flow reg head. | 0.5 | **cut 2nd** — standard for BRACIS methods papers but not load-bearing | new figure |
 
 ---
 
-## 3 · Page budget arithmetic
+## 3 · Page budget arithmetic (post-Codex)
 
 | Section | Prose | Tables | Figures | Total |
 |---|---:|---:|---:|---:|
@@ -87,14 +93,14 @@ Saves 0.2 pp; reads better.
 | §2 Related | 1.5 | — | — | 1.5 |
 | §3 Method | 2.5 | — | (F-arch optional 0.5) | 2.5–3.0 |
 | §4 Setup | 1.1 | T1 (0.4) | — | 1.5 |
-| §5 Results | 2.5 | T2+T3+T4+T5 (2.1) | F2 (0.4) | 5.0 |
-| §6 Mechanism | 1.3 | (T6 cut) | (F1 optional 0.5) | 1.3–1.8 |
+| §5 Results | 2.5 | T2+T3+T4+T5 (2.1) | (F2 optional 0.4) | 5.0–5.4 |
+| §6 Mechanism | 1.4 | (T6 cut) | **F1 required (0.4)** | 1.8 |
 | §7 Discussion | 1.0 | — | — | 1.0 |
 | §8 Conclusion | 0.5 | — | — | 0.5 |
 | §9 References | 0.75 | — | — | 0.75 |
-| **Total** | **12.65** | **2.5** | **0.4–1.4** | **15.55–16.55** |
+| **Total** | **12.75** | **2.5** | **0.4–1.3** | **15.65–16.55** |
 
-**Status: tight at the lower bound (15.55 pp), over at the upper.** Cut F1 first → 15.05 pp. Cut F-arch second if needed → 14.55 pp. **F2 is non-negotiable** (carries the title); cut F1 + F-arch before touching it.
+**Status: tight at the lower bound (15.65 pp), over at the upper.** Cut F2 first → 15.25 pp; cut F-arch second → 14.75 pp. **F1 is non-negotiable** (carries the substrate task-asymmetry mechanism, which is the headline reading post-Codex audit) — cut F2 + F-arch before touching it.
 
 ---
 
@@ -144,29 +150,38 @@ Caption sentence: *"The substrate is task-asymmetric: Check2HGI's per-visit cont
 
 This panel is the **substrate-vs-architecture decoupling story** — without it a reviewer will assume we cherry-picked the cat side. With it, the substrate's role is precisely scoped.
 
-### T3 — MTL vs STL on both tasks, scale-progression-readable (§5.2, 0.4 pp)
+### T3 — MTL vs STL on both tasks, v7 numbers (§5.2, 0.4 pp)
 
 ```
                   Cat F1 (vs STL next_gru)        Reg Acc@10 (vs STL next_stan_flow)
                 ─────────────────────────────  ──────────────────────────────────
-State  Recipe   STL          MTL       Δ_cat   STL          MTL          Δ_reg
-─────────────────────────────────────────────────────────────────────────────────
+State  Recipe   STL          MTL          Δ_cat    STL          MTL          Δ_reg
+──────────────────────────────────────────────────────────────────────────────────
 HEADLINE
-FL     B9       67.16±0.13  68.59      +1.61‡  70.62±0.09   63.34±0.11   −7.28‡
-CA     B9       62.29±0.31  64.23      +1.94   56.86        47.93        −8.93
-TX     B9       63.02±0.28  65.04      +2.02   59.32        42.63       −16.69
-─────────────────────────────────────────────────────────────────────────────────
-SMALLER-SCALE ANCHORS (scale-progression)
-AL     H3-alt   41.35±0.17  40.57±0.24  −0.19   61.21±0.18  50.17±0.24  −11.04‡
-AZ     H3-alt   43.90±0.17  45.10±0.19  +1.89‡  53.06±0.15  40.78±0.07  −12.28‡
-─────────────────────────────────────────────────────────────────────────────────
+FL     B9       67.16±0.13   68.59 (n=5)  +1.43    70.62±0.09   63.34±0.11   −7.99
+CA     B9       62.29±0.31   64.23 (n=1)  +1.94    56.86        47.93        −8.92
+TX     B9       63.02±0.28   65.04 (n=1)  +2.02    59.32        42.63       −16.69
+──────────────────────────────────────────────────────────────────────────────────
+SMALLER-SCALE ANCHORS
+AL     H3-alt   41.35±0.17   40.57±0.24   −0.78    61.21±0.18   50.17±0.24  −11.04‡
+AZ     H3-alt   43.90±0.17   45.10±0.19   +1.20    53.06±0.15   40.78±0.07  −12.27‡
+──────────────────────────────────────────────────────────────────────────────────
 
-n_pairs: AL/AZ = 20 (4 seeds × 5 folds); FL = 25 (5 seeds × 5 folds); CA/TX = 5 (seed=42 single-seed).
+n_pairs (post-multi-seed extension): AL/AZ = 20 (4 seeds × 5 folds);
+FL = 25 (5 seeds × 5 folds, reg only — cat side n = 5 because STL multi-seed
+landed but Wilcoxon pending re-run); CA/TX = 5 (seed=42 single-seed at
+submission; {0,1,7,100} multi-seed in flight on H100, ETA ~1 h at write time).
+
+Source: docs/studies/check2hgi/results/RESULTS_TABLE.md §0.1 (v7,
+2026-05-01 PM, post-Codex audit). MTL B9 cat numbers unchanged from v6;
+STL `next_gru` cat refreshed from multi-seed runs {0,1,7,100} → seed σ
+replaces fold σ. Δ_cat p-values for AL/AZ pending re-Wilcoxon against the
+v7 multi-seed STL ceiling.
 ```
 
-Caption sentence: *"With Check2HGI fixed as substrate, MTL vs matched-head STL ceilings on both tasks. Headline (FL/CA/TX) reports the B9 recipe (cosine + alternating-SGD + α-no-WD); smaller-scale anchors (AL/AZ) report H3-alt (per-head LR, constant). Δ_reg is sign-consistent at every state and trends downward on the small-to-medium regime (AL/AZ −11/−12 pp → FL −7 pp). At AL the cat-side Δ is statistically tied (p = 0.76); at AZ/FL it is paper-grade positive (p ≤ 1 × 10⁻⁵, multi-seed). CA/TX cat directions (4/5 folds positive each) are sign-consistent but underpowered at the n = 5 ceiling."*
+Caption sentence: *"With Check2HGI fixed as substrate, MTL vs matched-head STL ceilings on both tasks. Headline (FL/CA/TX) reports the B9 recipe (cosine + alternating-SGD + α-no-WD); smaller-scale anchors (AL/AZ) report H3-alt (per-head LR, constant). Δ_reg is sign-consistent at every state, with the magnitude varying non-monotonically across states (FL has the smallest cost; TX the largest). On the cat side, MTL is paper-grade positive at AZ/FL, directional at CA/TX (4/5 folds positive each at the n = 5 ceiling), and ≈ tied at AL within the multi-seed STL noise (Δ = −0.78 pp, multi-seed STL σ = 0.17 pp; paired Wilcoxon pending re-run against the v7 multi-seed STL ceiling)."*
 
-**Voice cue:** the caption is the only sentence that disambiguates the AL cat tie — A5 must keep it intact.
+**Voice cue:** the caption disambiguates both the AL cat tie and the non-monotone reg-cost pattern — A5 must keep it intact.
 
 ### T4 — Δm joint score, FL multi-seed bolded (§5.2, 0.4 pp)
 
@@ -223,29 +238,27 @@ Caption: *"External-baseline comparison at the headline scale. STL `next_gru` Ch
 
 ## 5 · Per-figure specifications
 
-### F2 — Scale-progression scatter (§5.2 or §7, 0.4 pp)
+### F1 — Per-visit mechanism (§6.1, REQUIRED, 0.4 pp)
 
-Layout — **must commit to**:
+**Promoted to required after Codex audit** — explains *why* the substrate is task-asymmetric. Without it, the substrate-asymmetry headline has prose only and no visual mechanism anchor.
 
-- **x-axis:** `n_checkins` (log scale) OR `n_regions` (linear). Pick whichever gives the cleaner trend visually; per the closure data `n_checkins` (10K, 26K, 127K, 187K, 230K) is more predictive than `n_regions`.
-- **y-axis:** `Δ_reg` pp, range [−20, 0], grid at every 2 pp.
-- **5 dots, labelled** with state code (AL, AZ, FL, CA, TX).
-- **Headline scale (FL/CA/TX)** = filled circles. **Anchors (AL/AZ)** = open circles. Distinguishes role visually.
-- **Dashed trend line** through AL→AZ→FL (the "shrinking gap" trajectory).
-- **TX annotated** with arrow + label "non-monotone outlier" or similar; do not put TX on the trend line.
-- **Optional secondary y-axis:** Δ_cat pp, with light-grey dots — shows the cat side stays roughly flat while reg trends.
-- **Caption:** *"Architectural reg cost (Δ_reg = MTL − STL Acc@10, pp) versus dataset size across the five U.S.-state Gowalla splits. The cost trends downward on the AL → AZ → FL trajectory (~5 pp recovery from anchors to the smallest headline state), CA preserves the regime, and TX is non-monotone. The cat-side Δ is roughly flat across states (light grey, secondary axis), so the scale-progression is a property of the harder task."*
-
-This is the figure that earns the *Scale-Sensitive* in the title.
-
-### F1 — Per-visit mechanism (§6.1, optional, 0.5 pp)
-
-If kept: 3-bar grouped chart at AL.
-- **Group 1 (linear probe):** Check2HGI canonical (30.84), POI-pooled (23.20), HGI (18.70).
-- **Group 2 (matched-head STL):** Check2HGI canonical (40.76), POI-pooled (29.57), HGI (25.26).
+3-bar grouped chart at AL:
+- **Group 1 (linear probe, head-free):** Check2HGI canonical (30.84), POI-pooled (23.20), HGI (18.70). Per-visit Δ = +7.64 pp; training-signal Δ = +4.50 pp.
+- **Group 2 (matched-head STL `next_gru`):** Check2HGI canonical (40.76), POI-pooled (29.57), HGI (25.26). Per-visit Δ = +11.19 pp (~72 %); training-signal Δ = +4.31 pp (~28 %).
 - **Annotations:** *"per-visit context"* arrow between canonical and POI-pooled; *"training signal"* arrow between POI-pooled and HGI; percent-of-gap labels.
 
-Cut first if pages bind; the prose carries the same content.
+Caption: *"Per-visit context is the dominant mechanism behind the substrate's cat advantage. At AL, decomposing the matched-head STL substrate gap (Check2HGI − HGI = +15.5 pp) into a per-visit-context component (canonical − POI-pooled = +11.2 pp, ~72 %) and a training-signal component (POI-pooled − HGI = +4.3 pp, ~28 %) shows that the bulk of the gap comes from per-visit variance — exactly the property POI-stable embeddings cannot supply, and exactly the property that pooling to region cardinality smooths away (explaining why the substrate ties on next-region)."*
+
+### F2 — Scale-progression scatter (§5.2 or §7, OPTIONAL, 0.4 pp; cut first)
+
+**Demoted to optional after Codex audit** — TX (−16.69 pp) breaks the scale-shrinks-with-data pattern, so F2 lost its title-anchoring role when "Scale-Sensitive" was demoted from the title. Keep only if pages allow; one descriptive sentence in §5.2 covers the same content.
+
+If kept:
+- **x-axis:** `n_checkins` (log scale) OR `n_regions` (linear). `n_checkins` (10K, 26K, 127K, 187K, 230K) reads cleaner.
+- **y-axis:** `Δ_reg` pp, range [−20, 0], grid at every 2 pp.
+- **5 dots, labelled** AL, AZ, FL, CA, TX. Headline (FL/CA/TX) = filled; anchors (AL/AZ) = open.
+- **Dashed trend line** through AL→AZ→FL (the broadly downward trajectory). **TX annotated as non-monotone outlier** with arrow.
+- **Caption:** *"Architectural reg cost (Δ_reg = MTL − STL Acc@10, pp) varies non-monotonically across the five U.S.-state Gowalla splits. The cost is broadly downward on the AL → AZ → FL trajectory (~5 pp recovery), CA preserves the regime, and TX breaks monotonicity (state-specific factors beyond raw class count). We report this descriptively rather than as an inferential scaling claim."*
 
 ### F-arch — Architecture schematic (§3.3, optional, 0.5 pp)
 
