@@ -210,11 +210,11 @@ Sign-flips at all 5 states once the `α·log_T` leak is removed (substrate-asymm
 | **ReHDM — `faithful` (paper-proto)** § | **★ 66.06 ± 0.98** | **★ 54.65 ± 0.77** | 65.68 ± 0.26 | ⚪ skip | ⚪ skip | 55.82 ± 0.76 |
 | ReHDM — `stl_check2hgi` ‡          | 26.22 ± 1.58 | 23.24 ± 1.27 | 38.74 ± 0.49 | ⚪ skip | ⚪ skip | 22.31 ± 1.31 |
 | ReHDM — `stl_hgi` ‡                | 42.78 ± 2.82 | 34.00 ± 3.02 | 54.49 ± 0.32 | ⚪ skip | ⚪ skip | 35.07 ± 1.98 |
-| GETNext-hard `_pf` — `stl_check2hgi` (leak-free) | 59.15 ± 3.48 | 50.24 ± 2.51 | 69.22 ± 0.52 | 55.92 ± 1.20 | 58.89 ± 1.28 | 🔴 pending |
-| GETNext-hard `_pf` — `stl_hgi` (leak-free)       | 61.86 ± 3.29 | 53.37 ± 2.55 | 71.34 ± 0.64 | 57.77 ± 1.12 | 60.47 ± 1.26 | 🔴 pending |
+| GETNext-hard `_pf` — `stl_check2hgi` (leak-free) | 59.15 ± 3.48 | 50.24 ± 2.51 | 69.22 ± 0.52 | 55.92 ± 1.20 | 58.89 ± 1.28 | 54.07 ± 2.44 |
+| GETNext-hard `_pf` — `stl_hgi` (leak-free)       | 61.86 ± 3.29 | 53.37 ± 2.55 | 71.34 ± 0.64 | 57.77 ± 1.12 | 60.47 ± 1.26 | 57.09 ± 2.08 |
 
 > § ReHDM `faithful` uses the paper's protocol (chronological 80/10/10 + 24h sessions, 5 seeds). σ is inter-seed; not cell-for-cell σ-comparable to StratifiedGroupKFold rows. AL/AZ at paper b=64; FL+GA at b=128 + 4× lr scaling (validated within 1σ on AL/AZ — see `rehdm.md`).
-> ‡ ReHDM `stl_*` may have a known mask-handling bug (target_mask all-ones over padded positions). Patch in flight 2026-05-01; numbers above are pre-patch. Re-run will land separately.
+> ‡ ReHDM `stl_*`: a target_mask bug (hardcoded all-ones over padded positions) was patched 2026-05-01 in `train_stl_study.py`. Definitive 5f×50ep mask-fix re-run on GA c2hgi: Acc@10 = 21.22 ± 1.27 vs broken 22.31 ± 1.31 (Δ = −1.09 pp, within fold σ). Mask was a real latent bug but not the cause of underperformance — the architectural mismatch (theta-query pooling on 9-step frozen substrate) dominates. Cross-state re-run not warranted; published numbers stand. See `REHDM_STL_MASKFIX_GA_check2hgi_5f50ep_summary.json`.
 
 ### `next_category/` — macro-F1 (mean ± σ); ★ = best per state
 
@@ -225,12 +225,12 @@ Sign-flips at all 5 states once the `α·log_T` leak is removed (substrate-asymm
 | best Markov-K-cat (floor)          | 20.50 ± 0.67 (k=5) | 23.92 ± 2.26 (k=5) | 29.74 ± 1.19 (k=3) | 27.59 ± 0.61 (k=5) | 28.67 ± 0.66 (k=5) | 27.01 ± 1.10 (k=3) |
 | MHA+PE — `faithful`                | 18.95 ± 0.71 | 24.99 ± 0.85 | 32.06 ± 0.23 | 29.13 ± 0.71 | 29.91 ± 0.43 | 27.62 ± 0.97 |
 | **POI-RGNN — `faithful`**          | **★ 23.80 ± 1.12** | **★ 27.64 ± 2.34** | **★ 33.35 ± 1.14** | **★ 30.71 ± 0.82** | **★ 32.08 ± 0.70** | **★ 30.24 ± 0.87** |
-| C2HGI cat — matched-head `next_gru` (substrate axis) | 40.76 ± 1.68 | 43.21 ± 0.87 | 63.43 ± 0.98 | 59.94 ± 0.59 | 60.24 ± 1.84 | 🔴 pending |
-| HGI cat — matched-head `next_gru` (substrate axis)   | 25.26 ± 1.18 | 28.69 ± 0.79 | 34.41 ± 1.05 | 31.13 ± 1.04 | 31.89 ± 0.55 | 🔴 pending |
-| Δ matched-head (Wilcoxon p_greater)                  | +15.50 (p=0.0312) | +14.52 (p=0.0312) | +29.02 (p=0.0312) | +28.81 (p=0.0312) | +28.34 (p=0.0312) | 🔴 pending |
-| Substrate linear probe — C2HGI F1                    | 30.84 ± 2.26 | 34.12 ± 1.36 | 40.77 ± 1.24 | 37.45 ± 0.29 | 38.38 ± 0.28 | 🔴 pending |
-| Substrate linear probe — HGI F1                      | 18.70 ± 1.54 | 22.54 ± 0.50 | 25.74 ± 0.29 | 21.32 ± 0.16 | 22.33 ± 0.25 | 🔴 pending |
-| Substrate linear probe — Δ (C2HGI − HGI)             | +12.14 | +11.58 | +15.03 | +16.13 | +16.06 | 🔴 pending |
+| C2HGI cat — matched-head `next_gru` (substrate axis) | 40.76 ± 1.68 | 43.21 ± 0.87 | 63.43 ± 0.98 | 59.94 ± 0.59 | 60.24 ± 1.84 | 50.96 ± 0.38 |
+| HGI cat — matched-head `next_gru` (substrate axis)   | 25.26 ± 1.18 | 28.69 ± 0.79 | 34.41 ± 1.05 | 31.13 ± 1.04 | 31.89 ± 0.55 | 29.54 ± 0.77 |
+| Δ matched-head (Wilcoxon p_greater)                  | +15.50 (p=0.0312) | +14.52 (p=0.0312) | +29.02 (p=0.0312) | +28.81 (p=0.0312) | +28.34 (p=0.0312) | **+21.42** |
+| Substrate linear probe — C2HGI F1                    | 30.84 ± 2.26 | 34.12 ± 1.36 | 40.77 ± 1.24 | 37.45 ± 0.29 | 38.38 ± 0.28 | 36.86 ± 0.88 |
+| Substrate linear probe — HGI F1                      | 18.70 ± 1.54 | 22.54 ± 0.50 | 25.74 ± 0.29 | 21.32 ± 0.16 | 22.33 ± 0.25 | 23.81 ± 0.58 |
+| Substrate linear probe — Δ (C2HGI − HGI)             | +12.14 | +11.58 | +15.03 | +16.13 | +16.06 | **+13.05** |
 
 (★ marks the best non-floor numeric value per state. Substrate-axis and Markov-K-cat-floor rows below the dividing line are **secondary** to the headline external-baseline rows above; ★ is restricted to the headline rows so the table reflects the published-architecture ranking. Substrate-axis cells for GA are pending — substrate-comparison runs were originally scoped out for GA and are being launched 2026-05-01 to close the matrix.)
 

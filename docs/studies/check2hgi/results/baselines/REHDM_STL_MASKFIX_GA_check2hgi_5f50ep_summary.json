@@ -1,0 +1,15 @@
+{
+  "tag": "REHDM_STL_MASKFIX_GA_check2hgi_5f50ep",
+  "state": "georgia",
+  "engine": "check2hgi",
+  "protocol": "5-fold StratifiedGroupKFold (study protocol)",
+  "n_folds": 5,
+  "acc@1_mean": 0.08795389019787932,
+  "acc@1_std": 0.008194553029102387,
+  "acc@5_mean": 0.15998898899171046,
+  "acc@5_std": 0.01100851372034129,
+  "acc@10_mean": 0.21221449048690905,
+  "acc@10_std": 0.012654464680264307,
+  "mrr_mean": 0.13140062916918974,
+  "mrr_std": 0.00920151994981239
+}
