@@ -453,7 +453,44 @@ The earlier candidates (per-task weight clipping, prior-magnitude normalisation,
 
 ---
 
-### CH22 — Joint Δm is Pareto-positive at AL+AZ and Pareto-negative at FL (Tier A, 2026-04-28)
+### CH22 — Joint Δm is Pareto-negative at 4/5 states; FL is the lone Pareto-positive cell on the MRR axis (Tier A, REFRAMED 2026-05-01 leak-free)
+
+> ⚠ **2026-05-01 LEAK-FREE REFRAME — supersedes the original 2026-04-28 statement below.**
+> The original CH22 result was extracted from pre-F44/F50 leaky log_T runs. Leak-free
+> re-extraction on the Phase-3 / paper-closure pool (5 states, seed=42, per-fold paired Wilcoxon)
+> **inverts the per-state Δm pattern:** AL/AZ flip from Pareto-positive → Pareto-negative;
+> FL flips from Pareto-negative → Pareto-positive on MRR. CA + TX (new) both Pareto-negative.
+>
+> **Leak-free Δm scoreboard (cat F1 + reg MRR PRIMARY, cat F1 + reg Acc@10 SECONDARY):**
+>
+> | State | n_pairs | Δm-MRR (%) | n+/n− | p_greater | p_two | Δm-Acc@10 (%) | n+/n− | p_two |
+> |---|--:|---:|:-:|---:|---:|---:|:-:|---:|
+> | AL | 5  | **−24.84** | 0/5 | 1.0000 | **0.0625** | **−22.41** | 0/5 | **0.0625** |
+> | AZ | 5  | **−12.79** | 1/4 | 0.9688 | 0.1250 | **−14.53** | 0/5 | **0.0625** |
+> | **FL (multi-seed)** | **25** | **+2.33** | **25/0** | **2.98e-08** | **5.96e-08** | **−1.12** | 4/21 | **3.20e-05** |
+> | CA | 5  | −1.61 | 1/4 | 0.9375 | 0.1875 | −6.85 | 0/5 | **0.0625** |
+> | TX | 5  | −4.63 | 0/5 | 1.0000 | **0.0625** | **−11.60** | 0/5 | **0.0625** |
+>
+> FL is multi-seed (5 seeds × 5 folds = 25 paired Δs) using F51 paper-grade B9 dirs
+> + paper_close + c4_clean STL reg multi-seed; AL/AZ/CA/TX are single-seed. The FL
+> multi-seed extension lifts the FL Δm-MRR p-value from the n=5 ceiling (p=0.0312)
+> to **p_greater = 2.98×10⁻⁸ across 25 fold-pairs**, sign-consistent at 25/25.
+>
+> **Verdict:** the joint Δm metric ratifies the classic MTL tradeoff finding from
+> `PAPER_CLOSURE_RESULTS_2026-05-01.md` — at every state the MTL B9 architecture
+> costs reg substantially while gaining ≤2 pp on cat; the joint metric reflects this.
+> **The single MTL-positive cell is FL on MRR**, now at paper-grade significance
+> (p ≈ 3×10⁻⁸). The MRR-vs-Acc@10 split at FL is paper-grade in both directions
+> (Δm-MRR positive p < 1e-7; Δm-Acc@10 negative p ≈ 3e-5) — paper-worthy mechanism
+> note: MTL produces better-ranked region predictions than STL on FL even where
+> raw top-10 is worse.
+>
+> **Source:** `research/F50_DELTA_M_FINDINGS_LEAKFREE.md §3.5` (multi-seed) + `results/paired_tests/F50_T0_delta_m_FL_multiseed.json` + `results/paired_tests/F50_T0_delta_m_leakfree.json` (single-seed) + drivers `scripts/analysis/f50_delta_m_fl_multiseed.py` + `scripts/analysis/f50_delta_m_leakfree.py`.
+> **Status:** `confirmed (Tier A) leak-free 2026-05-01 — reframed`. The original 2026-04-28 statement below is preserved for audit.
+
+---
+
+**Original statement (2026-04-28, leaky — kept for historical traceability):**
 
 **Statement:** Under the MTL-survey-standard joint Δm (Maninis CVPR 2019 / Vandenhende TPAMI 2021), MTL H3-alt is Pareto-positive vs matched-head STL at small region cardinality (AL/AZ) and Pareto-negative at large cardinality (FL). The directional pattern is monotone in n_regions.
 

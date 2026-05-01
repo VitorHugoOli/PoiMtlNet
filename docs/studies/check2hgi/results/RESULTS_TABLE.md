@@ -35,9 +35,134 @@
 > "scale-conditional optimal recipe". Full doc: [`../PAPER_CLOSURE_RESULTS_2026-05-01.md §4a-bis`](../PAPER_CLOSURE_RESULTS_2026-05-01.md).
 > Wilcoxon JSON: [`../research/PAPER_CLOSURE_RECIPE_WILCOXON.json`](../research/PAPER_CLOSURE_RECIPE_WILCOXON.json).
 >
-> v6 (full leak-free body) to follow.
+> v6 body (§0 below) landed 2026-05-01. The legacy §1–§5 + Phase-1 / F49 cells are
+> preserved unchanged underneath as audit; **the §0 tables are paper-canonical**.
 
-**Last updated:** 2026-05-01 (paper-closure header added). Prior: 2026-04-27 (Phase-1 substrate-comparison cells + F49 3-way decomposition cells appended; pre-2026-04-26 rows preserved verbatim above the new sections at the end of this file).
+**Last updated:** 2026-05-01 (v6 body §0 added — leak-free 5-state headline + leak-free CH22 Δm + recipe-selection table). Prior: 2026-04-27 (Phase-1 substrate-comparison cells + F49 3-way decomposition cells appended; pre-2026-04-26 rows preserved verbatim above the new sections at the end of this file).
+
+---
+
+## 0 · Paper-headline tables (v6, leak-free, 2026-05-01)
+
+These tables supersede §1–§5 below for paper drafting. All numbers are seed=42 leak-free under per-fold log_T (`region_transition_log_seed42_fold{N}.pt`) on `StratifiedGroupKFold(groups=userid, seed=42)` under sklearn 1.8.0; 5 folds × 50 epochs. Cat metric: per-fold max F1 for ep ≥ 5. Reg metric: per-fold max `top10_acc_indist` (MTL) or `top10_acc` (STL) for ep ≥ 5 — the F51 canonical extraction. Multi-seed aggregations are pooled across paired (seed, fold) tuples.
+
+**MTL recipe:** B9 = `mtlnet_crossattn + static_weight(cat=0.75) + next_gru (cat) + next_stan_flow (reg) + per-head LR (cat=1e-3 / reg=3e-3 / shared=1e-3) + cosine + alt-SGD + α-no-WD + per-fold log_T`. H3-alt = B9 minus alt-SGD, cosine, α-no-WD; replace with `--scheduler constant`. **Recipe is scale-conditional** — see §0.4.
+
+### 0.1 · Five-state architectural-Δ (MTL B9 vs matched-head STL ceiling)
+
+| State | n_regions | MTL B9 reg Acc@10 | STL `next_stan_flow` Acc@10 | **Δ_reg pp** | p_reg | MTL B9 cat F1 | STL `next_gru` F1 | **Δ_cat pp** | p_cat |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| **AL** (n=20) | 1,109 | 50.17 ± 0.24 | 61.21 ± 0.18 | **−11.04** | **1.9e-06** | 40.57 ± 0.24 | 40.76 ± 1.68 | −0.19 (≈tied) | 0.76 |
+| **AZ** (n=20) | 1,547 | 40.78 ± 0.07 | 53.06 ± 0.15 | **−12.27** | **1.9e-06** | 45.10 ± 0.19 | 43.21 ± 0.87 | **+1.90** | **1.9e-06** |
+| **FL** (n=5)  | 4,703 | 63.34 ± 0.11 | 70.62 ± 0.09 | **−7.99** | 0.0625 | 68.59 (F51, n=5) | 66.98 ± 0.61 (F37, n=1) | **+1.61** | 0.0625 |
+| **CA** (n=5)  | 8,501 | 47.93 (n=1) | 56.86 (n=1) | **−8.92** | 0.0625 | 64.23 (n=1) | 62.29 ± 0.31 (n=1) | **+1.94** | 0.0625 |
+| **TX** (n=5)  | 6,553 | 42.63 (n=1) | 59.32 (n=1) | **−16.69** | 0.0625 | 65.04 (n=1) | 63.02 ± 0.28 (n=1) | **+2.02** | 0.0625 |
+
+n = paired Wilcoxon sample size: AL/AZ = 4 seeds × 5 folds; FL/CA/TX = 1 seed × 5 folds. p=0.0625 is the n=5 paired-Wilcoxon two-sided ceiling — sign-consistent at 5/5 but not formally significant at α=0.05 two-sided. AL/AZ pooled across seeds {0, 1, 7, 100}.
+
+**Headline (the classic MTL tradeoff, sign-consistent across all 5 states):**
+- **Reg side:** MTL B9 < STL by 7–17 pp at every state.
+- **Cat side:** MTL B9 ≥ STL by 0 to +2 pp at every state. AL ≈ tied, others +1.6 to +2.0 pp.
+- The cross-attention architecture's expressiveness gets spent on cat-helps-cat (joint training transfers signal to the easier 7-class task) at the cost of the harder ~1k–9k-class region task that already has its own `α·log_T` graph prior to learn from in `next_stan_flow`.
+
+Source: [`../PAPER_CLOSURE_RESULTS_2026-05-01.md §4a`](../PAPER_CLOSURE_RESULTS_2026-05-01.md). Wilcoxon JSON: [`../research/PAPER_CLOSURE_WILCOXON.json`](../research/PAPER_CLOSURE_WILCOXON.json).
+
+### 0.2 · Joint Δm scoreboard (CH22, leak-free 2026-05-01)
+
+`PRIMARY = cat F1 + reg MRR`; `SECONDARY = cat F1 + reg Acc@10`. Per-fold paired Wilcoxon at seed=42.
+
+| State | n_pairs | Δm-MRR (%) | n+/n− | p_greater | p_two | Δm-Acc@10 (%) | n+/n− | p_two |
+|---|--:|---:|:-:|---:|---:|---:|:-:|---:|
+| AL | 5  | **−24.84** | 0/5 | 1.0000 | **0.0625** | **−22.41** | 0/5 | **0.0625** |
+| AZ | 5  | **−12.79** | 1/4 | 0.9688 | 0.1250 | **−14.53** | 0/5 | **0.0625** |
+| **FL** | **25** | **+2.33** | **25/0** | **2.98e-08** | **5.96e-08** | **−1.12** | 4/21 | **3.20e-05** |
+| CA | 5  | −1.61 | 1/4 | 0.9375 | 0.1875 | −6.85 | 0/5 | **0.0625** |
+| TX | 5  | −4.63 | 0/5 | 1.0000 | **0.0625** | **−11.60** | 0/5 | **0.0625** |
+
+FL multi-seed = 5 seeds {42, 0, 1, 7, 100} × 5 folds; AL/AZ/CA/TX = single seed (=42), n=5 ceiling. FL multi-seed numerical artefact: [`paired_tests/F50_T0_delta_m_FL_multiseed.json`](paired_tests/F50_T0_delta_m_FL_multiseed.json). FL per-seed Δm-MRR = {+2.17, +2.46, +2.27, +2.33, +2.43}% (range 0.29 pp, 25/25 fold-pairs positive). FL per-seed Δm-Acc@10 = {−1.31, −1.00, −1.09, −1.17, −1.04}% (4/25 fold-pairs positive).
+
+**Verdict:** MTL is Pareto-negative on Δm at 4/5 states; **FL on the MRR axis is the lone Pareto-positive cell, now at p ≈ 3×10⁻⁸** (was n=5 ceiling 0.0312 before multi-seed extension). The MRR-vs-Acc@10 split at FL is paper-grade significant in both directions — Δm-MRR positive at p < 1e-7, Δm-Acc@10 negative at p ≈ 3e-5. Reframes the prior 2026-04-28 leaky scoreboard which had inverted signs at AL/AZ/FL. Source: [`../research/F50_DELTA_M_FINDINGS_LEAKFREE.md`](../research/F50_DELTA_M_FINDINGS_LEAKFREE.md). Numerical artefact: [`paired_tests/F50_T0_delta_m_leakfree.json`](paired_tests/F50_T0_delta_m_leakfree.json).
+
+### 0.3 · Substrate axis (CH16 + CH18-cat) — leak-free 5-state survey
+
+Cat STL `next_gru` matched-head, 5f × 50ep, seed=42. Source: [`../FINAL_SURVEY.md §2`](../FINAL_SURVEY.md).
+
+| State | C2HGI cat F1 | HGI cat F1 | **Δ pp** | Wilcoxon p_greater | Pos/Neg |
+|---|---:|---:|---:|---:|:-:|
+| AL | **40.76 ± 1.68** | 25.26 ± 1.18 | **+15.50** | **0.0312** | 5/0 |
+| AZ | **43.21 ± 0.87** | 28.69 ± 0.79 | **+14.52** | **0.0312** | 5/0 |
+| FL | **63.43 ± 0.98** | 34.41 ± 1.05 | **+29.02** | **0.0312** | 5/0 |
+| CA | **59.94 ± 0.59** | 31.13 ± 1.04 | **+28.81** | **0.0312** | 5/0 |
+| TX | **60.24 ± 1.84** | 31.89 ± 0.55 | **+28.34** | **0.0312** | 5/0 |
+
+**CH16 confirmed at 5/5 states with paper-grade significance; Δ scales monotonically with state size (~15 pp at AL/AZ → ~29 pp at FL/CA/TX).**
+
+Reg STL `next_stan_flow` matched-head, leak-free per-fold log_T, 5f × 50ep, seed=42:
+
+| State | C2HGI Acc@10 | HGI Acc@10 | Δ Acc@10 | Wilcoxon p_greater | TOST δ=2pp | TOST δ=3pp |
+|---|---:|---:|---:|---:|:-:|:-:|
+| AL | 59.15 ± 3.48 | **61.86 ± 3.29** | −2.71 | 1.0000 | ✗ | ✗ |
+| AZ | 50.24 ± 2.51 | **53.37 ± 2.55** | −3.13 | 1.0000 | ✗ | ✗ |
+| FL | 69.22 ± 0.52 | **71.34 ± 0.64** | −2.12 | 1.0000 | ✗ | ✓ |
+| CA | 55.92 ± 1.20 | **57.77 ± 1.12** | −1.85 | 1.0000 | ✓ | ✓ |
+| TX | 58.89 ± 1.28 | **60.47 ± 1.26** | −1.59 | 1.0000 | ✓ | ✓ |
+
+**CH15 reframing rejected at AL/AZ/FL** (HGI nominally above C2HGI by 1.6–3.1 pp under TOST δ=2pp); tied at CA/TX. **Sign-flipped vs Phase-2 leaky reference at every state** — the leaky CH15 sign came from substrate-asymmetric F44 leak (FINAL_SURVEY §6). Per-visit context (Check2HGI) is the load-bearing substrate for **next_category**; for **next_region**, POI-stable HGI is at parity (CA/TX) or marginally ahead (AL/AZ/FL).
+
+### 0.4 · Recipe selection (B9 vs H3-alt) — scale-conditional
+
+| State | n_pairs | Δ_reg pp | p_reg | Δ_cat pp | p_cat | Verdict |
+|---|--:|---:|---:|---:|---:|---|
+| AL | 20 | −0.35 | **1.9e-03** | **−2.22** | **1.9e-06** | **H3-alt > B9 on cat; reg tied** |
+| AZ | 20 | −0.09 | 0.23 (n.s.) | **−0.96** | **7.1e-04** | **H3-alt > B9 on cat; reg tied** |
+| FL | 25 | **+3.48** | **3.0e-08** | +0.42 | 1.3e-05 | **B9 > H3-alt on both** (F51) |
+| CA | 5  | +4.74 | 0.062 (5/5) | +0.72 | 0.125 (4/5) | B9 directional |
+| TX | 5  | +1.76 | 0.125 (4/5) | +0.64 | 0.125 (4/5) | B9 directional |
+
+**B9 is FL-scale-tuned, NOT universal.** B9's three additions over H3-alt (alt-SGD + cosine + α-no-WD) hurt cat at AL/AZ. Mechanism: B9 targets FL's reg-saturation problem (D5); at smaller transition graphs the saturation is less severe AND alt-SGD's per-step temporal gradient separation costs cat-side signal small states can't afford to lose. **Paper recipe-selection narrative:** *"B9 is the FL-scale champion; H3-alt remains the universal recipe at small scale; the optimal MTL recipe is scale-conditional."* Source: [`../PAPER_CLOSURE_RESULTS_2026-05-01.md §4a-bis`](../PAPER_CLOSURE_RESULTS_2026-05-01.md). Wilcoxon JSON: [`../research/PAPER_CLOSURE_RECIPE_WILCOXON.json`](../research/PAPER_CLOSURE_RECIPE_WILCOXON.json).
+
+### 0.5 · External literature baselines — `next_region` (Acc@10)
+
+Source: [`../GAP_A_CLOSURE_20260430.md`](../GAP_A_CLOSURE_20260430.md). Faithful axis closed at AL/AZ/FL; CA/TX faithful runs scoped out per H100 budget (~5–7 h/fold STAN at CA, ~75–120 h/state REHDM).
+
+| Baseline | Variant | AL | AZ | FL | CA | TX |
+|---|---|---:|---:|---:|---:|---:|
+| Markov-1-region (floor) | — | 47.01 ± 3.55 | 42.96 ± 2.05 | 65.05 ± 0.93 | 52.09 ± 0.80 | 54.94 ± 0.46 |
+| **STAN** | `faithful` | 34.46 ± 3.88 | 38.96 ± 3.41 | 65.36 ± 0.69 | ⚪ | ⚪ |
+| **STAN** | `stl_check2hgi` | 59.20 ± 3.62 | 52.24 ± 2.38 | 72.62 ± 0.52 | 58.82 ± 1.04 | 61.35 ± 0.36 |
+| **STAN** | `stl_hgi` | **62.88 ± 3.90** | **54.86 ± 2.84** | **73.58 ± 0.43** | **60.45 ± 0.97** | **62.70 ± 0.37** |
+| **ReHDM** ‡ | `faithful` | **66.06 ± 0.98** | 54.65 ± 0.77 | 65.68 ± 0.26 | ⚪ | ⚪ |
+| ReHDM | `stl_check2hgi` | 26.22 ± 1.58 | 23.24 ± 1.27 | 38.74 ± 0.49 | ⚪ | ⚪ |
+| ReHDM | `stl_hgi` | 42.78 ± 2.82 | 34.00 ± 3.02 | 54.49 ± 0.32 | ⚪ | ⚪ |
+
+⚪ = scoped out (see GAP_A_CLOSURE). ‡ ReHDM faithful uses paper protocol (chronological 80/10/10 + 24h sessions + 5 seeds, b=128 + 4× LR scaling validated against b=32 paper baseline within 1σ). Substrate-axis covers 5 states (controlled architecture); faithful axis covers 3 states (sufficient for trend confirmation).
+
+### 0.6 · External literature baselines — `next_category` (macro-F1)
+
+Source: [`../baselines/next_category/comparison.md`](../baselines/next_category/comparison.md) + GAP_A_CLOSURE.
+
+| Baseline | AL | AZ | FL | CA | TX |
+|---|---:|---:|---:|---:|---:|
+| Majority class (floor) | 34.20 | — | — | — | — |
+| Markov-1-POI (floor) | ≈31.7 | — | ≈37.2 | — | — |
+| **POI-RGNN** faithful | 31.78–34.5 (state-level range) | — | 34.49 | 31.78 | 33.03 |
+| **MHA+PE** faithful | (closed all 5 states) | (closed) | (closed) | (closed) | (closed) |
+| Substrate linear probe — C2HGI / HGI / Δ | 30.84 / 18.70 / **+12.14** | 34.12 / 22.54 / **+11.58** | 40.77 / 25.74 / **+15.03** | 37.45 / 21.32 / **+16.13** | 38.38 / 22.33 / **+16.06** |
+| C2HGI cat — `next_gru` STL (matched-head) | 40.76 ± 1.68 | 43.21 ± 0.87 | 63.43 ± 0.98 | 59.94 ± 0.59 | 60.24 ± 1.84 |
+
+C2HGI lifts cat F1 by **+28–33 pp over POI-RGNN** at FL/CA/TX (the headline external comparison). MHA+PE faithful per-state JSONs at `baselines/next_category/results/<state>.json`.
+
+---
+
+> ⚠ **Sections §1–§5 below preserved verbatim from 2026-04-26..27 as historical audit.**
+> Several `next_region` numbers in §1–§3 used the legacy unseeded `region_transition_log.pt`
+> and are leak-inflated by 13–27 pp (state-dependent; substrate-asymmetric, hurting
+> reproducibility of CH15/CH18-reg). **Use §0 above for paper drafting.**
+> The cat-side numbers in §1–§5 are mostly leak-free by construction (cat heads
+> don't read log_T); the F49 3-way decomposition cells in the late-file section
+> have been refuted by F37 + paper-closure findings (see [`../OBJECTIVES_STATUS_TABLE.md §2.5`](../OBJECTIVES_STATUS_TABLE.md) for the leak-free `architectural Δ` reading).
+
+---
 
 **Champion candidate (2026-04-26):** **F48-H3-alt** = B3 architecture + per-head LR (`cat_lr=1e-3, reg_lr=3e-3, shared_lr=1e-3`, `--scheduler constant`). Closes the F21c STL gap (CH18 Tier B → A): AL exceeds STL by +6.25 pp; AZ closes 75%; FL validates at 5-fold scale (cat preserved, reg +6.7 pp over predecessor B3). See [`../NORTH_STAR.md`](../NORTH_STAR.md), [`../MTL_ARCHITECTURE_JOURNEY.md`](../MTL_ARCHITECTURE_JOURNEY.md) for derivation, [`../research/F48_H3_PER_HEAD_LR_FINDINGS.md`](../research/F48_H3_PER_HEAD_LR_FINDINGS.md) for detail.
 
