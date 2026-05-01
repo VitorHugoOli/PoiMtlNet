@@ -47,10 +47,10 @@ This block is cited verbatim in T1 caption and elided in subsequent captions ("s
 | ID | Caption (working) | Rows × cols | Page | Source artefact |
 |---|---|---|:-:|---|
 | **T1** | Dataset statistics (FL/CA/TX headline + AL/AZ smaller-scale anchors) | 5 × 7 | 0.4 | `data/checkins/<state>.parquet`, `output/check2hgi/<state>/regions.parquet` |
-| **T2** | Substrate ablation: **Check2HGI vs HGI on both tasks**, 5 states. Two-panel: (a) cat F1 STL `next_gru` (Δ +15 to +33 pp); (b) reg Acc@10 STL `next_stan_flow` (HGI ≥ Check2HGI 1–3 pp at AL/AZ/FL, tied CA/TX TOST δ=2pp). | 5 × 5 (×2 panels) | 0.6 | `FINAL_SURVEY.md` §1, §2, §4 |
-| **T3** | MTL vs STL on both tasks, 5 states, **single merged table** with `\midrule` separating headline (FL/CA/TX) and smaller-scale anchors (AL/AZ) — scale-progression reads off the Δ_reg column top-to-bottom | 5 × 7 | 0.4 | `PAPER_CLOSURE_RESULTS_2026-05-01.md` §4a |
-| **T4** | Δm joint score (cat F1 + reg MRR primary; cat F1 + reg Acc@10 secondary), 5 states. **FL multi-seed (n=25) bolded as the strongest number in the paper.** | 5 × 5 | 0.4 | `CLAIMS_AND_HYPOTHESES.md §CH22` (2026-05-01 leak-free) |
-| **T5** | External baselines per state — per-state block layout (CoUrb's `tabela_comparativa` pattern). cat: Majority, Markov-1-POI, POI-RGNN, MHA+PE, our STL ceiling, our MTL row. reg: Majority, Markov-1-region, STL GRU, STL STAN, STL STAN-Flow, ReHDM, our MTL row. Headline (FL/CA/TX) only; AL/AZ in T5-supp if pages allow. | 3 blocks × ~7 rows | 0.7 | `baselines/next_*/results/<state>.json` |
+| **T2** | Substrate ablation: **Check2HGI vs HGI on both tasks**, 5 states. Two-panel: (a) cat F1 STL `next_gru` (Δ +14.5 to +29.0 pp; paired Wilcoxon p = 0.0312 each, head-invariant at AL/AZ); (b) reg Acc@10 STL `next_stan_flow` (HGI ≥ Check2HGI 1.6–3.1 pp at AL/AZ/FL; TOST δ=2pp passes at CA/TX, δ=3pp passes at FL). | 5 × 5 (×2 panels) | 0.6 | **`RESULTS_TABLE.md §0.3` (v7)** + `FINAL_SURVEY.md §2, §4` |
+| **T3** | MTL vs STL on both tasks, 5 states, **single merged table** with `\midrule` separating headline (FL/CA/TX) and smaller-scale anchors (AL/AZ). | 5 × 7 | 0.4 | **`RESULTS_TABLE.md §0.1` (v7, multi-seed STL ceiling, paired Δs)** |
+| **T4** | Δm joint score (cat F1 + reg MRR primary; cat F1 + reg Acc@10 secondary), 5 states. **FL multi-seed (n=25) bolded as the strongest number in the paper.** | 5 × 5 | 0.4 | **`RESULTS_TABLE.md §0.2` (v7, leak-free CH22 2026-05-01)** |
+| **T5** | External baselines per state — per-state block layout (CoUrb's `tabela_comparativa` pattern). cat: Majority, Markov-1-POI, POI-RGNN, MHA+PE, our STL ceiling, our MTL row. reg: Majority, Markov-1-region, STL GRU, STL STAN, STL STAN-Flow, ReHDM (AL/AZ/FL only — CA/TX deferred, see §7), our MTL row. Headline (FL/CA/TX) only; AL/AZ in T5-supp if pages allow. | 3 blocks × ~7 rows | 0.7 | **`RESULTS_TABLE.md §0.5–0.6` (v7)** + `baselines/next_*/results/<state>.json` |
 
 **Total tables: ≈ 2.5 pp.**
 
@@ -58,9 +58,9 @@ This block is cited verbatim in T1 caption and elided in subsequent captions ("s
 
 | ID | Caption (working) | Page | Source |
 |---|---|:-:|---|
-| **F1** | **Per-visit mechanism bar — REQUIRED** (post-Codex audit promotion). At AL, three-bar grouped chart of cat F1 for {Check2HGI canonical, Check2HGI POI-pooled, HGI} under matched-head STL `next_gru` and linear probe; ~72 % per-visit / ~28 % training-signal split. Explains *why* the substrate is task-asymmetric (per-visit variance is what cat needs; pooling smooths it away for reg). Without F1 the substrate task-asymmetry has no visual mechanism anchor. | 0.4 | `CLAIMS_AND_HYPOTHESES.md §CH19` |
+| **F1** | **Per-visit mechanism bar — REQUIRED** (post-Codex audit promotion). At Alabama (single-state mechanism evidence), three-bar grouped chart of cat F1 for {Check2HGI canonical, Check2HGI POI-pooled, HGI} under matched-head STL `next_gru` and linear probe; ~72 % per-visit / ~28 % training-signal split (matched-head). Explains *why* the substrate is task-asymmetric — per-visit variance is what cat needs; pooling smooths it away for reg. **F1 is the only visual mechanism anchor for the substrate task-asymmetry; cannot be cut.** | 0.4 | `CLAIMS_AND_HYPOTHESES.md §CH19` (whitelisted; AL only — wording must say "at Alabama") |
 
-**Total figures: ≈ 0.4 pp.**
+**Total figures (required): ≈ 0.4 pp.**
 
 ### 2.3 Cut to prose (was T6)
 
@@ -70,17 +70,11 @@ The drop-in MTL ablation (FAMO, Aligned-MTL, HSM) reads stronger as a single dis
 
 Saves 0.2 pp; reads better.
 
-### 2.4 Required figure (post-Codex audit promotion)
-
-| ID | Caption (working) | Page | Source |
-|---|---|:-:|---|
-| **F1** | **Per-visit mechanism bar — REQUIRED.** At AL, cat F1 for {Check2HGI canonical, Check2HGI POI-pooled, HGI} under matched-head STL `next_gru` and linear probe; ~72 % per-visit / ~28 % training-signal split. **F1 explains *why* the substrate is task-asymmetric** — pooling kills the per-visit variance that cat needs but reg cannot use. Without F1 the substrate task-asymmetry has no visual mechanism anchor. Promoted to required after Codex audit. | 0.4 | `CLAIMS_AND_HYPOTHESES.md §CH19` (single-state evidence; AL only — wording must say "at AL") |
-
-### 2.5 Optional — cut order if pages tight
+### 2.4 Optional — cut order if pages tight
 
 | ID | Caption (working) | Page | Cut order | Source |
 |---|---|:-:|:-:|---|
-| **F2** | Scale-progression scatter — Δ_reg pp vs n_regions or log(check-ins), 5 dots labelled by state, dashed trend AL→AZ→FL with TX annotated as non-monotone outlier. After the title was reframed away from "Scale-Sensitive", F2 lost its title-anchoring role; demoted from required to optional. | 0.4 | **cut 1st** — descriptive observation, can be reduced to a sentence in §5.2 / §7 | `PAPER_CLOSURE_RESULTS_2026-05-01.md` §4b |
+| **F2** | Scale-progression scatter — Δ_reg pp vs n_regions or log(check-ins), 5 dots labelled by state, dashed trend AL→AZ→FL with TX annotated as non-monotone outlier. Demoted from required to optional after the title was reframed away from "Scale-Sensitive". | 0.4 | **cut 1st** — descriptive observation; one sentence in §5.2 / §7 carries the same content | `RESULTS_TABLE.md §0.1` (v7) reg col |
 | **F-arch** | Architecture schematic of MTLnetCrossAttn — two task-specific encoders (cat ← check-in seq, reg ← region seq), 8-head bidirectional cross-attention block, residual shared backbone, GRU cat head + STAN-Flow reg head. | 0.5 | **cut 2nd** — standard for BRACIS methods papers but not load-bearing | new figure |
 
 ---
@@ -121,7 +115,7 @@ Mean traj len  XX.X      XX.X      XX.X      XX.X        XX.X
 Cat balance  see Fig    see Fig   see Fig   see Fig    see Fig
 ```
 
-Caption sentence: *"Five Gowalla user-disjoint state splits. Headline analysis (B9 recipe) at FL/CA/TX; smaller-scale anchors (H3-alt recipe) at AL/AZ surface the scale-progression mechanism."*
+Caption sentence: *"Five Gowalla user-disjoint state splits. Headline analysis (B9 recipe) at FL/CA/TX; smaller-scale anchors (H3-alt recipe) at AL/AZ included for completeness across the cardinality range."*
 
 **Sub-agent A4 must compute the missing X cells from `data/<state>/` and `output/check2hgi/<state>/` — do not copy stale numbers.**
 
@@ -167,21 +161,21 @@ AL     H3-alt   41.35±0.17   40.57±0.24   −0.78    61.21±0.18   50.17±0.24
 AZ     H3-alt   43.90±0.17   45.10±0.19   +1.20    53.06±0.15   40.78±0.07  −12.27‡
 ──────────────────────────────────────────────────────────────────────────────────
 
-n_pairs (post-multi-seed extension): AL/AZ = 20 (4 seeds × 5 folds);
+n_pairs: AL/AZ = 20 (4 seeds × 5 folds);
 FL = 25 (5 seeds × 5 folds, reg only — cat side n = 5 because STL multi-seed
-landed but Wilcoxon pending re-run); CA/TX = 5 (seed=42 single-seed at
-submission; {0,1,7,100} multi-seed in flight on H100, ETA ~1 h at write time).
+landed but Wilcoxon pending re-run); CA/TX = 5 (seed = 42 single-seed at
+submission; {0,1,7,100} multi-seed extension is a camera-ready audit item).
 
 Source: docs/studies/check2hgi/results/RESULTS_TABLE.md §0.1 (v7,
-2026-05-01 PM, post-Codex audit). MTL B9 cat numbers unchanged from v6;
-STL `next_gru` cat refreshed from multi-seed runs {0,1,7,100} → seed σ
-replaces fold σ. Δ_cat p-values for AL/AZ pending re-Wilcoxon against the
-v7 multi-seed STL ceiling.
+2026-05-01 PM). MTL B9 cat numbers unchanged from v6; STL `next_gru` cat
+refreshed from multi-seed runs {0,1,7,100} → seed σ replaces fold σ.
+Δ_cat p-values for AL/AZ pending re-Wilcoxon against the v7 multi-seed
+STL ceiling.
 ```
 
-Caption sentence: *"With Check2HGI fixed as substrate, MTL vs matched-head STL ceilings on both tasks. Headline (FL/CA/TX) reports the B9 recipe (cosine + alternating-SGD + α-no-WD); smaller-scale anchors (AL/AZ) report H3-alt (per-head LR, constant). Δ_reg is sign-consistent at every state, with the magnitude varying non-monotonically across states (FL has the smallest cost; TX the largest). On the cat side, MTL is paper-grade positive at AZ/FL, directional at CA/TX (4/5 folds positive each at the n = 5 ceiling), and ≈ tied at AL within the multi-seed STL noise (Δ = −0.78 pp, multi-seed STL σ = 0.17 pp; paired Wilcoxon pending re-run against the v7 multi-seed STL ceiling)."*
+Caption sentence: *"With Check2HGI fixed as substrate, MTL vs matched-head STL ceilings on both tasks. Headline (FL/CA/TX) reports the B9 recipe (cosine + alternating-SGD + α-no-WD); smaller-scale anchors (AL/AZ) report H3-alt (per-head LR, constant). Δ_reg is sign-consistent at every state, with the magnitude varying non-monotonically (FL has the smallest cost at −7.99 pp; TX the largest at −16.69 pp). On the cat side, MTL is positive at four of five states (AZ +1.20, FL +1.43, CA +1.94, TX +2.02 pp; directional at CA/TX with 4/5 folds positive, single-seed n = 5 ceiling) and ≈ tied at AL within the multi-seed STL noise (Δ = −0.78 pp, multi-seed STL σ = 0.17 pp). Paired Wilcoxon p-values for AL/AZ/FL cat-Δ pending re-run against the v7 multi-seed STL ceiling and reported as 'pending' in the table; the directional and magnitude reading is unchanged across the v6→v7 STL refresh."*
 
-**Voice cue:** the caption disambiguates both the AL cat tie and the non-monotone reg-cost pattern — A5 must keep it intact.
+**Voice cue:** the caption commits to *directional* not *paper-grade* on the cat side until the Wilcoxon re-runs land. Sub-agent A5 must not upgrade the wording without the rerun.
 
 ### T4 — Δm joint score, FL multi-seed bolded (§5.2, 0.4 pp)
 
@@ -266,15 +260,13 @@ Standard methods-paper schematic — boxes for {check-in encoder, region encoder
 
 ---
 
-## 6 · Pre-submission audit items (table-blocking)
+## 6 · Coverage state at submission (paper-side limitations, not workflow)
 
-Before T3 is finalised, sub-agent A5 must verify three items:
+Three coverage items become paper-side limitations rather than workflow notes:
 
-1. **CA/TX MTL multi-seed extension — IN FLIGHT (2026-05-01 PM).** Multi-seed at {0, 1, 7, 100} on H100 has ~1 h ETA. Acceptance gate: direction-consistent with the seed = 42 anchor (Δ_cat ∈ [+1.6, +2.0] pp; Δ_reg ∈ [−9, −17] pp). **If direction-consistent**, T3 / T4 cells upgrade from n = 5 single-seed to n = 20 pooled paired Δs across all four headline-and-anchor states (AL, AZ, CA, TX) with sub-1e-4 p-values reachable; FL keeps its n = 25 multi-seed. **If direction flips at any state**, surface as a finding in §6.2 — a paper-strengthening signal of state-specific factors, not a weakness. Sub-agent A5 must check before T3 commits.
-2. **FL MTL-vs-STL on `next_region` — common-seed pooling opportunity.** `PAPER_CLOSURE_RESULTS §2-§3` shows FL STL `next_stan_flow` at seeds {0, 1, 7, 100} (n = 4) and FL MTL B9 at {0, 1, 7, 42, 100} (n = 5). **Common seeds {0, 1, 7, 100}** — pooling 4 × 5 = 20 paired Δs would lift FL MTL-vs-STL on reg from p = 0.0625 (n = 5 ceiling) to sub-1e-4 (multi-seed). Verify the per-fold log_T file matches across MTL and STL runs at each seed (should be `region_transition_log_seed{S}_fold{N}.pt` — F51 protocol). If yes, T3 reports FL Δ_reg with p ≤ 1e-4 ‡.
-3. **Verify published POI-RGNN / MHA+PE absolute numbers** from primary sources before T5 commits. Working values: POI-RGNN FL ~31.8 / CA ~34.5 (cat F1); MHA+PE values not yet sourced.
-
-All three audits are described in `STATISTICAL_AUDIT.md` §7.1 (POI-RGNN reproduction caveat) and §3.3 (FL Δm strength). Items 1 and 3 are pre-submission table-blockers; item 2 is paper-strengthening but optional.
+1. **CA/TX MTL multi-seed.** Seed = 42 single-seed at submission; multi-seed extension at {0, 1, 7, 100} is a **camera-ready audit item**. T3/T4 CA/TX cells therefore sit at the n = 5 paired-Wilcoxon ceiling (p_min = 0.0625 two-sided). Disclosed in §7 Limitations.
+2. **AL/AZ/FL cat-Δ Wilcoxon.** v7 RESULTS_TABLE.md refreshed STL `next_gru` cat F1 to multi-seed means {0, 1, 7, 100}; Wilcoxon p-values for cat-Δ vs the v7 multi-seed STL ceiling have not yet been re-computed. T3 reports the Δ values and labels p as "pending re-run". This does not change the directional reading.
+3. **POI-RGNN / MHA+PE absolute baseline numbers.** Working values: POI-RGNN FL ~31.8 / CA ~34.5 (cat F1); MHA+PE values from `baselines/next_category/results/<state>.json`. The POI-RGNN reproduction caveat (non-user-disjoint folds in the published evaluation) is disclosed in T5 caption and §7 Limitations.
 
 ---
 
@@ -289,9 +281,14 @@ Before A5 / A6 commit a table:
 5. Booktabs only; no vertical rules; `\footnotesize` if > 6 cols.
 6. Captions use the encoding convention from §4.3 — do not redefine symbols inline.
 
-Before A5 / A6 commits F2:
+Before A6 commits F1 (required):
+
+1. The "at Alabama" qualifier is in both caption and any in-text reference — single-state mechanism evidence.
+2. Bars are labelled clearly (linear-probe vs matched-head; canonical / POI-pooled / HGI).
+3. The per-visit-context arrow and training-signal arrow are unambiguous; percent-of-gap labels are above the bars.
+
+Before A5 / A6 commits F2 (optional, only if pages allow):
 
 1. The state labels are visible (no overlap with axis tick labels).
 2. The TX outlier annotation is unambiguous (arrow + text label).
-3. Both MTL trend (filled circles + dashed line) and the cat-side reference (light grey, secondary axis) are present unless cut for clarity.
-4. Caption explicitly says "non-monotone" for TX and "broadly downward" for the AL→AZ→FL trajectory — matches the prose framing in `STATISTICAL_AUDIT.md §4.3`.
+3. Caption explicitly says "non-monotone" for TX and "broadly downward" for the AL→AZ→FL trajectory — matches the prose framing in `STATISTICAL_AUDIT.md §4.3`. **Do not write "scales monotonically" or "shrinks with data" anywhere.**

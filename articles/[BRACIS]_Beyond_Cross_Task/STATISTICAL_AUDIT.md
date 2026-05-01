@@ -2,7 +2,7 @@
 
 > **Purpose.** Be brutal about which claims have proper statistical backing, which are weakly supported but defensible if framed honestly, and which are descriptive narrative dressed up as inference. BRACIS reviewers in the empirical track care about this; over-claims invite desk-rejection or deep cuts. This file is the rigour contract that sub-agents inherit before drafting Results / Discussion.
 >
-> **Sources.** All numbers below come from `docs/studies/check2hgi/PAPER_CLOSURE_RESULTS_2026-05-01.md`, `FINAL_SURVEY.md`, `CLAIMS_AND_HYPOTHESES.md` (CH16, CH18-cat, CH18-reg, CH19, CH22, CH22b leak-free reframes), and `research/F50_T1_RESULTS_SYNTHESIS.md`. **No new compute.** Any claim that does not reduce to a number in those files is flagged.
+> **Sources.** Canonical numerical source for all paper tables: **`docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v7, 2026-05-01 PM, multi-seed STL ceiling)**. Background provenance: `PAPER_CLOSURE_RESULTS_2026-05-01.md`, `FINAL_SURVEY.md`, `CLAIMS_AND_HYPOTHESES.md` (whitelisted: CH16, CH18-cat, CH15 reframing, CH19, CH22 — others contain superseded leak-era content), `research/F50_T1_RESULTS_SYNTHESIS.md`. **No new compute.** Any claim that does not reduce to a number in RESULTS_TABLE v7 (or to the documented mechanism artefacts in CH19) is flagged.
 
 ---
 
@@ -70,12 +70,9 @@ The pre-Codex wording said *"MTL gains +0 to +2 pp on next-category at every sta
 
 ### 2.3 CA/TX underpowered — disclose (with in-flight multi-seed)
 
-CA and TX are seed = 42 single-seed at submission. **Late-session update 2026-05-01 PM:** the {0, 1, 7, 100} multi-seed extension is in flight on H100 with ~1 h ETA at the time of writing; if direction-consistent with the seed = 42 anchor, T3 / T4 cells upgrade from n = 5 single-seed to n = 20 pooled paired Δs (sub-1e-4 p-values reachable), at which point every headline state has paired-test power above the n = 5 ceiling.
+CA and TX are seed = 42 single-seed at submission; the {0, 1, 7, 100} multi-seed extension is a **camera-ready audit item**. The CA/TX paired-Wilcoxon p-values therefore sit at the n = 5 ceiling (p_min = 0.0625 two-sided); the cat F1 directional verdicts (4/5 folds positive each) are sign-consistent with AZ/FL but not formally significant at the single-seed budget.
 
-Wording strategy depending on landing time:
-- **If the multi-seed lands before submission and is direction-consistent:** *"All headline states have multi-seed paired tests with n_pairs ≥ 20; the FL row pools n = 25 (5 seeds × 5 folds), AL/AZ/CA/TX pool n = 20 (4 seeds × 5 folds)."*
-- **If the multi-seed does not land in time:** *"CA/TX are seed = 42 single-seed at submission; multi-seed extension {0, 1, 7, 100} is queued for camera-ready (see `PAPER_CLOSURE_RESULTS_2026-05-01.md §8`). At n = 5 paired Wilcoxon the minimum p is 0.0625 two-sided; CA/TX cat F1 directional verdicts (4/5 folds positive each) are sign-consistent with AZ/FL but not formally significant."*
-- **If the multi-seed direction flips at any state:** surface that as a finding in §6.2 — it would be a paper-strengthening evidence of state-specific factors. Do not silently take the seed = 42 anchor as the truth.
+Reporting wording: *"CA/TX are seed = 42 single-seed at submission; multi-seed extension {0, 1, 7, 100} is a camera-ready audit item. At n = 5 paired Wilcoxon the minimum p is 0.0625 two-sided; CA/TX cat F1 directional verdicts (4/5 folds positive each) are sign-consistent with AZ/FL but not formally significant."*
 
 ---
 
@@ -87,7 +84,7 @@ Wording strategy depending on landing time:
 |---|---:|---:|---:|---|
 | AL | 20 (4 seeds × 5 folds) | **−11.04** | **1.9e-06** | ✅ paper-grade |
 | AZ | 20 | **−12.28** | 1.9e-06 | ✅ paper-grade |
-| FL | 5 (single-seed; B9 multi-seed numbers tracked separately) | −7.99 (paper-closure) / −7.28 (mean from F51 method) | 0.0625 (n = 5 ceiling) | ⚠️ at single-seed ceiling — but FL B9 vs H3-alt multi-seed is paper-grade; the **MTL-vs-STL** at FL needs the multi-seed STL multi-pair test to lift above the n = 5 ceiling |
+| FL | 5 (single-seed; B9 multi-seed numbers tracked separately) | **−7.99** (paired Δ from `RESULTS_TABLE §0.1`; the simple mean-difference 70.62−63.34 = −7.28 reported in `PAPER_CLOSURE_RESULTS §4a` is superseded — paired Δ is what the Wilcoxon tests) | 0.0625 (n = 5 ceiling) | ⚠️ at single-seed ceiling — but FL B9 vs H3-alt multi-seed is paper-grade; the **MTL-vs-STL** at FL needs the multi-seed STL multi-pair test to lift above the n = 5 ceiling |
 | CA | 5 (seed = 42) | −8.93 | 0.0625 | ⚠️ at single-seed ceiling |
 | TX | 5 (seed = 42) | **−16.69** | 0.0625 | ⚠️ at single-seed ceiling |
 
@@ -116,7 +113,7 @@ The Δ_reg pattern is:
 |---|---:|---:|---:|
 | AL | 1,109 | 10K | −11.04 |
 | AZ | 1,547 | 26K | −12.28 |
-| **FL** | **4,703** | **127K** | **−7.28** |
+| **FL** | **4,703** | **127K** | **−7.99** |
 | CA | 8,501 | 230K | −8.93 |
 | TX | 6,553 | 187K | −16.69 |
 
@@ -132,7 +129,7 @@ On the AL → AZ → FL trajectory the cost shrinks by ~5 pp. CA at the largest 
 
 - **DO NOT WRITE:** *"the cost decreases monotonically with data scale"* (false — TX breaks monotonicity).
 - **DO NOT WRITE:** *"MTL generalises better with more data"* as a general claim (the data point is one trajectory, single-seed at the largest states).
-- **DO WRITE:** *"On the AL → AZ → FL trajectory the architectural reg cost shrinks by approximately 5 pp (−11.04 → −12.28 → −7.28), broadly trending downward as data scale grows on the small-to-medium regime; CA preserves the regime (−8.93 at the largest cardinality), while TX is non-monotone (−16.69), pointing at state-specific factors beyond raw class count. Quantifying the scale curve formally would require a within-state density ablation, which we leave for follow-up."*
+- **DO WRITE:** *"On the AL → AZ → FL trajectory the architectural reg cost varies from −11.04 → −12.27 → −7.99 pp (broadly downward by ~3 pp going from AL to FL on the small-to-medium regime); CA preserves the regime (−8.92 at the largest cardinality), while TX is non-monotone (−16.69), pointing at state-specific factors beyond raw class count. We report this descriptively; quantifying a scale curve formally would require a within-state density ablation, which we leave for follow-up."*
 - **Optional Spearman footnote:** ρ(n_regions, Δ_reg) across the 5 states is +0.41 (TX as outlier drives this away from a stronger negative correlation). Include only if reviewers ask; do not lead with it.
 
 ---
