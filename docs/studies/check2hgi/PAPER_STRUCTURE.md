@@ -1,6 +1,14 @@
 # Paper Structure — Single Source of Truth
 
-**Created:** 2026-04-23. **Updated 2026-04-27** with two complementary tracks: Phase-1 substrate-validation findings (substrate-side: CH16 head-invariant + CH15 reframed + CH18 MTL-substrate-specific) AND F49 architectural attribution (architecture-side: CH19 transfer-null + Layer 2 methodological). **Owner:** this file defines the paper's table layout, baseline set, STL matching policy, and scope decisions. All other docs reference this.
+> ⚠ **DEPRECATED 2026-05-01 — superseded by `articles/[BRACIS]_Beyond_Cross_Task/PAPER_STRUCTURE.md`.**
+>
+> The BRACIS 2026 section structure, page budget, and table inventory now live in the article folder. The paper-closure leak-free reframe (CH22 2026-05-01, classic MTL tradeoff sign-consistent across states) has changed the headline scope: the article uses **three-state headline (FL/CA/TX) + AL/AZ as scale-progression supplement**, not the "FL+CA+TX headline / AL+AZ+FL ablation" split this file commits to. The CH18-reg MTL-substrate-specific claim was rejected leak-free, the CH15 reframing was sign-flipped, and CH19/CH20 attribution changed.
+>
+> **What this file is now.** Audit / historical record of the pre-leak-free scope, baseline-matching policy decisions, F-trail context, and the `RESULTS_TABLE.md` pointer. Useful for: tracing the baseline audit (`baselines/next_category/`, `baselines/next_region/`); reconstructing the pre-leak-free claim layering; sourcing the audit-hub paths still referenced by sub-agents. **Do not edit for the BRACIS submission** — edit `articles/[BRACIS]_Beyond_Cross_Task/PAPER_STRUCTURE.md` instead.
+
+---
+
+**Created:** 2026-04-23. **Updated 2026-04-27** with two complementary tracks: Phase-1 substrate-validation findings (substrate-side: CH16 head-invariant + CH15 reframed + CH18 MTL-substrate-specific) AND F49 architectural attribution (architecture-side: CH19 transfer-null + Layer 2 methodological). **Deprecated 2026-05-01** — see banner above. **Owner (historic):** this file defined the paper's table layout, baseline set, STL matching policy, and scope decisions for the pre-leak-free study.
 
 > **2026-04-28** — Title and abstract committed. See [`PAPER_DRAFT.md`](PAPER_DRAFT.md) for the committed title (*Beyond Cross-Task Transfer: Per-Head Learning Rates and Check-In-Level Embeddings for Multi-Task POI Prediction*), 130-word abstract, section-by-section drafting targets, and target phrases ready to drop into prose. BRACIS abstract-style rules and title patterns (verified from 13 sampled accepted abstracts) live in [`../../BRACIS_GUIDE.md`](../../BRACIS_GUIDE.md) §10.
 

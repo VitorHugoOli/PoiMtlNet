@@ -1,6 +1,18 @@
 # Paper Draft — Title, Abstract, and Writing Targets
 
-**Created:** 2026-04-28. **Owner:** This file holds the committed title and abstract for the BRACIS 2026 submission, plus per-section drafting targets, decision flags, and target phrases distilled from study findings. It is the working artefact for prose drafting; live results and table cells live elsewhere.
+> ⚠ **DEPRECATED 2026-05-01 — superseded by `articles/[BRACIS]_Beyond_Cross_Task/PAPER_DRAFT.md`.**
+>
+> The BRACIS 2026 submission scratch now lives in the article folder, with the leak-free closure (`PAPER_CLOSURE_RESULTS_2026-05-01.md` + `FINAL_SURVEY.md` + `CLAIMS_AND_HYPOTHESES.md §CH22 reframe`) absorbed into the story.
+>
+> **Headline reframe.** The committed title and 130-word abstract below are anchored to the F48-H3-alt "Per-Head LR" finding and the F49 "+6.48 pp MTL > STL on AL" attribution. Both are now stale: F49's AL win was a leak artefact (asymmetric C4 leak inflated MTL more than STL — see `PAPER_CLOSURE_RESULTS_2026-05-01.md §3, §4a`). Under leak-free measurement, MTL trails STL on `next_region` at every state by 7–17 pp; the honest story is the **scale-sensitive classic MTL tradeoff** (substrate carries cat, architecture costs reg, cost shrinks with data scale on the small-to-medium regime).
+>
+> **Article-side working title (locked-default 2026-05-01):** *Beyond Cross-Task Transfer: Check-In-Level Embeddings and the Scale-Sensitive Multi-Task Tradeoff in POI Prediction*. See `articles/[BRACIS]_Beyond_Cross_Task/PAPER_DRAFT.md §0` for the live decision register and `articles/[BRACIS]_Beyond_Cross_Task/AGENT.md` for sub-agent guidance.
+>
+> **What this file is now.** Audit / historical record of the pre-leak-free framing, the F-trail derivation, and the `BRACIS_GUIDE.md §10` title/abstract style references. Useful for: tracing how the title evolved; auditing the F49 → F50 reframe; sourcing the target-phrase library in §4 (most still apply, modulo the legacy "transfer null" framing). **Do not edit for the BRACIS submission** — edit the article-side file instead.
+
+---
+
+**Created:** 2026-04-28. **Owner:** This file held the committed title and abstract for the BRACIS 2026 submission, plus per-section drafting targets, decision flags, and target phrases distilled from study findings. **Deprecated 2026-05-01** — see banner above.
 
 **Read alongside:**
 - [`PAPER_STRUCTURE.md`](PAPER_STRUCTURE.md) — table layout, baseline policy, scope decisions
