@@ -4,15 +4,15 @@ Generated from `results/<state>.json`. To refresh, regenerate the JSONs (see `..
 
 ## Cross-baseline summary — Acc@10 (mean ± σ)
 
-| Baseline | Variant | AL | AZ | FL | CA | TX |
-|---|---|---:|---:|---:|---:|---:|
-| Markov-1-region (floor) | — | 47.01 ± 3.55 | 42.96 ± 2.05 | 65.05 ± 0.93 | 52.09 ± 0.80 | 54.94 ± 0.46 |
-| **STAN** | `faithful` | 34.46 ± 3.88 | 38.96 ± 3.41 | 65.36 ± 0.69 | ⚪† | ⚪† |
-| **STAN** | `stl_check2hgi` | 59.20 ± 3.62 | 52.24 ± 2.38 | 72.62 ± 0.52 | 58.82 ± 1.04 | 61.35 ± 0.36 |
-| **STAN** | `stl_hgi` | **62.88 ± 3.90** | **54.86 ± 2.84** | **73.58 ± 0.43** | **60.45 ± 0.97** | **62.70 ± 0.37** |
-| **ReHDM** † | `faithful` | **66.06 ± 0.98** | **54.65 ± 0.77** | 65.68 ± 0.26 | ⚪ | ⚪ |
-| **ReHDM** ‡ | `stl_check2hgi` | 26.22 ± 1.58 | 23.24 ± 1.27 | 38.74 ± 0.49 | ⚪ | ⚪ |
-| **ReHDM** ‡ | `stl_hgi` | 42.78 ± 2.82 | 34.00 ± 3.02 | **54.49 ± 0.32** | ⚪ | ⚪ |
+| Baseline | Variant | AL | AZ | FL | CA | TX | GA |
+|---|---|---:|---:|---:|---:|---:|---:|
+| Markov-1-region (floor) | — | 47.01 ± 3.55 | 42.96 ± 2.05 | 65.05 ± 0.93 | 52.09 ± 0.80 | 54.94 ± 0.46 | 48.19 ± 2.18 |
+| **STAN** | `faithful` | 34.46 ± 3.88 | 38.96 ± 3.41 | 65.36 ± 0.69 | ⚪† | ⚪† | 40.68 ± 1.10 |
+| **STAN** | `stl_check2hgi` | 59.20 ± 3.62 | 52.24 ± 2.38 | 72.62 ± 0.52 | 58.82 ± 1.04 | 61.35 ± 0.36 | 56.35 ± 2.40 |
+| **STAN** | `stl_hgi` | **62.88 ± 3.90** | **54.86 ± 2.84** | **73.58 ± 0.43** | **60.45 ± 0.97** | **62.70 ± 0.37** | **58.58 ± 1.86** |
+| **ReHDM** † | `faithful` | **66.06 ± 0.98** | **54.65 ± 0.77** | 65.68 ± 0.26 | ⚪ | ⚪ | 55.82 ± 0.76 |
+| **ReHDM** ‡ | `stl_check2hgi` | 26.22 ± 1.58 | 23.24 ± 1.27 | 38.74 ± 0.49 | ⚪ | ⚪ | 22.31 ± 1.31 |
+| **ReHDM** ‡ | `stl_hgi` | 42.78 ± 2.82 | 34.00 ± 3.02 | **54.49 ± 0.32** | ⚪ | ⚪ | 35.07 ± 1.98 |
 
 Bold = best variant per state-baseline. ⚪ = intentionally out of scope (STAN/REHDM faithful CA/TX shown infeasible at scale; substrate-axis covered at 5 states via STAN-STL — see `GAP_A_CLOSURE_20260430.md`). 🟡 = partial; ✅ = 5-fold/seed complete.
 
@@ -33,6 +33,7 @@ Bold = best variant per state-baseline. ⚪ = intentionally out of scope (STAN/R
 | FL | 35.70 ± 0.67 | 56.59 ± 0.75 | 65.36 ± 0.69 | 45.57 ± 0.57 | 4.55 ± 0.31 |
 | CA | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 |
 | TX | 🔴 | 🔴 | 🔴 | 🔴 | 🔴 |
+| GA | 15.19 ± 0.67 | 31.41 ± 0.92 | 40.68 ± 1.10 | 23.58 ± 0.69 | 2.45 ± 0.45 |
 
 ### `stl_check2hgi` — STAN architecture, Check2HGI substrate input
 
@@ -43,6 +44,7 @@ Bold = best variant per state-baseline. ⚪ = intentionally out of scope (STAN/R
 | FL | 46.82 ± 0.53 | 65.64 ± 0.62 | 72.62 ± 0.52 | 55.65 ± 0.43 | 9.70 ± 0.11 |
 | CA | 31.27 ± 0.88 | 50.71 ± 1.08 | 58.82 ± 1.04 | 40.62 ± 0.91 | 8.06 ± 0.21 |
 | TX | 29.04 ± 0.44 | 52.01 ± 0.53 | 61.35 ± 0.36 | 39.96 ± 0.45 | 9.29 ± 0.16 |
+| GA | 27.08 ± 1.33 | 47.03 ± 2.17 | 56.35 ± 2.40 | 36.77 ± 1.66 | 5.73 ± 0.55 |
 
 ### `stl_hgi` — STAN architecture, HGI substrate input
 
@@ -53,6 +55,7 @@ Bold = best variant per state-baseline. ⚪ = intentionally out of scope (STAN/R
 | FL | 47.37 ± 0.52 | 66.64 ± 0.43 | 73.58 ± 0.43 | 56.40 ± 0.40 | 10.86 ± 0.21 |
 | CA | 31.90 ± 0.91 | 52.20 ± 1.03 | 60.45 ± 0.97 | 41.59 ± 0.93 | 8.89 ± 0.30 |
 | TX | 29.55 ± 0.43 | 53.16 ± 0.48 | 62.70 ± 0.37 | 40.75 ± 0.42 | 10.25 ± 0.21 |
+| GA | 28.56 ± 1.07 | 49.34 ± 1.82 | 58.58 ± 1.86 | 38.58 ± 1.34 | 7.84 ± 0.59 |
 
 ### `faithful` — paper-architecture from raw inputs (ReHDM)
 
@@ -65,6 +68,7 @@ ReHDM `faithful` ingests 6 paper-defined IDs (user, POI, category, hour, day-of-
 | AL | 23.73 ± 1.38 | 53.70 ± 1.31 | 66.06 ± 0.98 | 37.83 ± 1.17 |
 | AZ | 19.81 ± 0.54 | 42.63 ± 0.37 | 54.65 ± 0.77 | 30.96 ± 0.36 |
 | FL § | 33.95 ± 0.40 | 56.06 ± 0.36 | 65.68 ± 0.26 | 44.58 ± 0.33 |
+| GA § | — | — | 55.82 ± 0.76 | 34.18 ± 0.45 |
 
 ### `stl_check2hgi` — ReHDM (full hypergraph), Check2HGI substrate input
 
@@ -75,6 +79,7 @@ ReHDM `faithful` ingests 6 paper-defined IDs (user, POI, category, hour, day-of-
 | AL | 5.77 ± 1.01 | 17.92 ± 1.53 | 26.22 ± 1.58 | 12.53 ± 1.12 |
 | AZ | 8.66 ± 0.78 | 17.11 ± 1.24 | 23.24 ± 1.27 | 13.58 ± 0.89 |
 | FL | 24.07 ± 0.51 | 34.42 ± 0.45 | 38.74 ± 0.49 | 29.31 ± 0.50 |
+| GA | 9.26 ± 0.84 | 16.66 ± 1.35 | 22.31 ± 1.31 | 13.79 ± 1.00 |
 
 ### `stl_hgi` — ReHDM (full hypergraph), HGI substrate input
 
@@ -83,6 +88,7 @@ ReHDM `faithful` ingests 6 paper-defined IDs (user, POI, category, hour, day-of-
 | AL | 13.17 ± 1.03 | 32.44 ± 2.55 | 42.78 ± 2.82 | 22.83 ± 1.38 |
 | AZ | 12.09 ± 1.71 | 26.42 ± 3.08 | 34.00 ± 3.02 | 19.53 ± 2.15 |
 | FL | 32.64 ± 0.48 | 48.06 ± 0.36 | 54.49 ± 0.32 | 40.08 ± 0.28 |
+| GA | 13.90 ± 1.09 | 27.27 ± 1.89 | 35.07 ± 1.98 | 21.00 ± 1.33 |
 
 ### Within-baseline pattern (ReHDM, AL Acc@10)
 
@@ -124,17 +130,29 @@ Two honest takeaways at AL:
 
 Full deep-dive interpretation: `../../research/STAN_THREE_WAY_COMPARISON.md`.
 
-## Substrate-head matched STL — Phase 1 (next_getnext_hard, MTL B3 reg head)
+## Substrate-head matched STL — leak-free (Phase 3, `_pf` per-fold transitions)
 
-Quick reference for the substrate-comparison Phase-1 matched-head reg results. Authoritative source: [`../../research/SUBSTRATE_COMPARISON_FINDINGS.md`](../../research/SUBSTRATE_COMPARISON_FINDINGS.md). Per-fold JSONs: `../../results/phase1_perfold/{AL,AZ}_{check2hgi,hgi}_reg_gethard_5f50ep.json`. Paired tests + TOST: `../../results/paired_tests/{alabama,arizona}_acc10_reg_acc10.json`.
+> **2026-04-30 update — supersedes the leaky Phase 1 numbers.** The Phase 1 GETNext-hard matched-head numbers (originally tabulated here) used a full-data `region_transition_log.pt` graph prior that leaked val transitions into the `α·log_T` term. Phase 3 re-ran every cell with `--per-fold-transition-dir` (StratifiedGroupKFold train-only edges per fold). Numbers below are leak-free. See [`../../FINAL_SURVEY.md §4 + §6`](../../FINAL_SURVEY.md) for the full statistical write-up; per-fold JSONs at `../../results/phase1_perfold/<S>_<engine>_reg_gethard_pf_5f50ep.json`.
 
-| Substrate | Variant | AL Acc@10 | AZ Acc@10 | FL | CA | TX |
+| Substrate | Variant | AL Acc@10 | AZ Acc@10 | FL Acc@10 | CA Acc@10 | TX Acc@10 |
 |---|---|---:|---:|---:|---:|---:|
-| Check2HGI | matched-head `next_getnext_hard` STL | **68.37 ± 2.66** | **66.74 ± 2.11** | 🔴 (F36c) | 🔴 | 🔴 |
-| HGI | matched-head `next_getnext_hard` STL | 67.52 ± 2.80 | 64.40 ± 2.42 | 🔴 (F36c) | 🔴 | 🔴 |
-| **Δ (C2HGI − HGI)** | Wilcoxon (Acc@10) + TOST δ=2pp | +0.85 (p=0.0625 marg, **TOST non-inf**) | **+2.34 (p=0.0312)** | 🔴 | 🔴 | 🔴 |
+| Check2HGI | matched-head `next_getnext_hard_pf` STL | 59.15 ± 3.48 | 50.24 ± 2.51 | 69.22 ± 0.52 | 55.92 ± 1.20 | 58.89 ± 1.28 |
+| HGI       | matched-head `next_getnext_hard_pf` STL | **61.86 ± 3.29** | **53.37 ± 2.55** | **71.34 ± 0.64** | **57.77 ± 1.12** | **60.47 ± 1.26** |
+| **Δ (C2HGI − HGI)** | Wilcoxon p_greater + TOST δ=2pp | **−2.71** (p=1.0; TOST FAIL) | **−3.13** (p=1.0; TOST FAIL) | **−2.12** (TOST FAIL δ=2pp; ✓ δ=3pp) | **−1.85** (TOST ✓ non-inf δ=2pp) | **−1.59** (TOST ✓ non-inf δ=2pp) |
 
-Under the matched MTL reg head (graph prior), C2HGI ≥ HGI everywhere: AL tied within σ + non-inferior at δ=2 pp; AZ significantly C2HGI. The earlier "HGI > C2HGI on reg under STAN" pattern in the table above was **head-coupled** — STAN prefers HGI's POI-stable smoothness; gethard's graph prior combines productively with C2HGI's per-visit context. See FINDINGS §2.2 for the reframing.
+**CH15 verdict (leak-free):** rejected at AL/AZ/FL (HGI nominally above by 2.1-3.1 pp); tied at CA/TX (Δ < 2 pp, TOST non-inferior at δ=2pp). The Phase 1 finding "C2HGI ≥ HGI under matched head" sign-flipped at every state once the `α·log_T` leak was removed — C2HGI had been exploiting the leaky transition prior more than HGI (substrate-asymmetric leakage, AZ peak ~5.5 pp differential). The post-fix reading is **substrate-equivalent on reg with a slight HGI tilt**, not C2HGI advantage.
+
+> ⚪ GA was scoped to external-baseline coverage (STAN/MHA+PE/POI-RGNN/ReHDM); the Phase-1 matched-head substrate axis was not run for GA. Existing 5-state coverage is sufficient for the substrate claim.
+
+### Phase 1 leaky reference (kept for the F44 leak shift analysis only — do NOT cite as substrate finding)
+
+| Substrate | AL Acc@10 (leaky) | AZ (leaky) | FL (leaky) | CA (leaky) | TX (leaky) |
+|---|---:|---:|---:|---:|---:|
+| Check2HGI `next_getnext_hard` (leaky) | 68.37 ± 2.66 | 66.74 ± 2.11 | 82.54 | 70.63 | 69.31 |
+| HGI `next_getnext_hard` (leaky)       | 67.52 ± 2.80 | 64.40 ± 2.42 | 82.25 | 71.29 | 69.90 |
+| Δ (leaky)                             | +0.85 | +2.34 | +0.29 | −0.66 | −0.59 |
+
+The leak inflated absolute Acc@10 by 9-16 pp across all states and was substrate-asymmetric (C2HGI lost more pp than HGI when the leak was removed — AL Δ_C2HGI=−9.22 vs Δ_HGI=−5.66, AZ Δ_C2HGI=−16.51 vs Δ_HGI=−11.03). See [`../../FINAL_SURVEY.md §6`](../../FINAL_SURVEY.md) for the substrate-asymmetric F44 leak diagnosis.
 
 ## MTL B3 substrate-counterfactual — Phase 1 (CH18)
 

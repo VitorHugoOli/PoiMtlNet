@@ -154,44 +154,85 @@ Top-level summary table:
 
 ## Status board (live)
 
-### `next_region/`
+> Legend: ✅ 5-fold/seed complete · 🟡 partial · 🔴 pending · ⚪ intentionally out of scope (see `GAP_A_CLOSURE_20260430.md`).
 
-| Baseline | AL | AZ | FL | CA | TX |
-|---|---|---|---|---|---|
-| Markov-1-region (floor)  | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **STAN — faithful**      | ✅ | ✅ | ✅ | ⚪ (skip — see Gap A audit) | ⚪ (skip — see Gap A audit) |
-| **STAN — stl_check2hgi** | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **STAN — stl_hgi**       | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **ReHDM — faithful**     | ✅ | ✅ | ✅ | ⚪ (skip) | ⚪ (skip) |
-| **ReHDM — stl_check2hgi** | ✅ | ✅ | ✅ | ⚪ (skip) | ⚪ (skip) |
-| **ReHDM — stl_hgi**      | ✅ | ✅ | ✅ | ⚪ (skip) | ⚪ (skip) |
-| GETNext-hard — stl_check2hgi (matched-head, F21c) | ✅ **68.37 ± 2.66** | ✅ **66.74 ± 2.11** | 🔴 (F36c) | 🔴 | 🔴 |
-| **GETNext-hard — stl_hgi (matched-head, Phase-1)** | ✅ **67.52 ± 2.80** | ✅ **64.40 ± 2.42** | 🔴 (F36c) | 🔴 | 🔴 |
-| **Δ matched-head (paired Wilcoxon, Acc@10)** | +0.85 (p=0.0625 marg, TOST non-inf) | **+2.34 (p=0.0312)** | 🔴 | 🔴 | 🔴 |
-| **MTL B3 — substrate-specific (CH18)** | C2HGI 59.60 vs HGI **29.95** | C2HGI 53.82 vs HGI **22.10** | 🔴 (F36d) | 🔴 | 🔴 |
-| GRU — stl_check2hgi      | ✅ | ✅ | ✅ | 🔴 | 🔴 |
-| GRU — stl_hgi            | ✅ | ✅ | 🔴 | 🔴 | 🔴 |
+### Coverage matrix — all states × all baselines
 
-> ⚠️ **ReHDM uses the paper's protocol** (chronological 80/10/10 + 24h sessions, 5 seeds). The std column for ReHDM rows is inter-seed, not inter-fold; absolute σ values are not directly comparable to the StratifiedGroupKFold-based baselines above. See `next_region/rehdm.md` §"Protocol divergence".
+**External baselines (leak-free by construction; reported in headline tables).**
 
-### `next_category/`
+| Baseline / variant | task | AL | AZ | FL | CA | TX | GA |
+|---|---|:-:|:-:|:-:|:-:|:-:|:-:|
+| Majority + Markov-1-POI floors | next_category | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Markov-K-cat floors (k=1..9) | next_category | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| MHA+PE — `faithful` (5f×11ep) | next_category | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| POI-RGNN — `faithful` (5f×35ep) | next_category | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Markov-1-region floor | next_region | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| STAN — `faithful` (5f×50ep) | next_region | ✅ | ✅ | ✅ | ⚪ | ⚪ | ✅ |
+| STAN — `stl_check2hgi` (5f×50ep) | next_region | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| STAN — `stl_hgi` (5f×50ep) | next_region | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| ReHDM — `faithful` (5 seeds × 50ep, paper proto) | next_region | ✅ | ✅ | ✅ § | ⚪ | ⚪ | ✅ § |
+| ReHDM — `stl_check2hgi` (5f×50ep, study proto) | next_region | ✅ | ✅ | ✅ | ⚪ | ⚪ | ✅ |
+| ReHDM — `stl_hgi` (5f×50ep, study proto) | next_region | ✅ | ✅ | ✅ | ⚪ | ⚪ | ✅ |
 
-| Baseline | AL | AZ | FL | CA | TX |
-|---|---|---|---|---|---|
-| Majority class (floor) | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Markov-1-POI (floor) | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Markov-K-cat (k=1..9) (floor) | ✅ | ✅ | ✅ | ✅ | ✅ |
-| POI-RGNN — faithful | ✅ | ✅ | ✅ | ✅ | ✅ |
-| MHA+PE — faithful | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **C2HGI cat — matched-head `next_gru` (Phase-1)** | ✅ **40.76 ± 1.50** | ✅ **43.21 ± 0.78** | 🔴 (F36b) | 🔴 | 🔴 |
-| **HGI cat — matched-head `next_gru` (Phase-1)** | ✅ **25.26 ± 1.06** | ✅ **28.69 ± 0.71** | 🔴 (F36b) | 🔴 | 🔴 |
-| **Δ matched-head (paired Wilcoxon p_greater)** | **+15.50 (p=0.0312)** | **+14.52 (p=0.0312)** | 🔴 | 🔴 | 🔴 |
-| Substrate linear probe (head-free, Leg I) — C2HGI / HGI / Δ | 30.84 / 18.70 / **+12.14** | 34.12 / 22.54 / **+11.58** | 🔴 (F36a) | 🔴 | 🔴 |
-| C2 head-sensitivity probe (next_single, next_lstm) | ✅ all positive | ✅ all positive | 🔴 (not Phase-2 priority) | 🔴 | 🔴 |
-| C2HGI cat — `next_single` (legacy P1_5b) | ✅ 38.58 ± 1.23 | ✅ 42.08 ± 0.89 | 🟡 (1f) | 🔴 | 🔴 |
-| HGI cat — `next_single` (legacy P1_5b) | ✅ 20.29 ± 1.34 | ✅ 29.69 ± 0.97 (Phase-1) | 🔴 | 🔴 | 🔴 |
+§ ReHDM faithful at FL + GA uses `batch_size=128 + lr/max_lr scaled 4×` (linear scaling rule from paper b=32). Validated on AL/AZ within 1σ of paper-batch references. Inter-seed σ (5 seeds), not inter-fold — see [`next_region/rehdm.md §"Protocol & architecture choices per variant"`](next_region/rehdm.md).
 
-(Updated when a new run lands. Mirror in `PAPER_STRUCTURE.md §7` if the cell affects the headline objective. † CA/TX faithful baselines + Markov-K-cat require raw Gowalla checkins; pending RunPod run per `docs/studies/check2hgi/GAP_A_RUNPOD_HANDOFF_PROMPT.md`.)
+CA/TX faithful axis (STAN-faithful, ReHDM-faithful) was scoped out per [`../GAP_A_CLOSURE_20260430.md`](../GAP_A_CLOSURE_20260430.md): substrate axis already 5-state via STAN-STL, faithful-axis ETA at CA/TX scale (~75-120 h/state ReHDM, ~5-7 h/fold STAN) was not justified given coverage. ReHDM at CA/TX therefore ⚪.
+
+**Substrate-comparison tracks (Phase 1+2+3 — the paper's primary contribution; reported in [`../FINAL_SURVEY.md`](../FINAL_SURVEY.md)).**
+
+| Track | Head | AL | AZ | FL | CA | TX | GA |
+|---|---|:-:|:-:|:-:|:-:|:-:|:-:|
+| **Substrate linear probe** (Leg I, head-free, leak-free by design) | LR on emb | ✅ | ✅ | ✅ | ✅ | ✅ | ⚪ |
+| **Cat STL CH16** (Leg II.1) | `next_gru` | ✅ | ✅ | ✅ | ✅ | ✅ | ⚪ |
+| **Reg STL CH15 — leak-free Phase 3** (`_pf` per-fold transitions) | `next_getnext_hard_pf` | ✅ | ✅ | ✅ | ✅ | ✅ | ⚪ |
+| **MTL B9 cat-side CH18-cat** (leak-free) | `next_gru` co-trained | ✅ | ✅ | ✅ | ✅ | ✅ | ⚪ |
+| **MTL B9 reg-side CH18-reg** (leak-free) | `next_getnext_hard_pf` co-trained | ✅ | ✅ | ✅ | ✅ | ✅ | ⚪ |
+
+⚪ GA is scoped to external-baseline coverage only; the Phase 1-3 substrate-comparison axis was closed at AL/AZ/FL/CA/TX (5 states with paper-grade Wilcoxon p=0.0312 = max-n=5). Adding GA to the substrate axis is not necessary for paper claims.
+
+**Phase 1 leaky panel — preserved for the F44 leak-shift analysis in [`../FINAL_SURVEY.md §6`](../FINAL_SURVEY.md), do NOT cite as headline substrate finding.**
+
+| Track (leaky) | AL Acc@10 | AZ Acc@10 | FL Acc@10 | CA Acc@10 | TX Acc@10 |
+|---|---:|---:|---:|---:|---:|
+| Check2HGI `next_getnext_hard` (leaky) | 68.37 | 66.74 | 82.54 | 70.63 | 69.31 |
+| HGI `next_getnext_hard` (leaky)       | 67.52 | 64.40 | 82.25 | 71.29 | 69.90 |
+
+Sign-flips at all 5 states once the `α·log_T` leak is removed (substrate-asymmetric). See [`next_region/comparison.md §"Substrate-head matched STL — leak-free"`](next_region/comparison.md) for the corrected Phase 3 numbers.
+
+### `next_region/` — Acc@10 (mean ± σ); ★ = best per state
+
+| Baseline | AL | AZ | FL | CA | TX | GA |
+|---|---:|---:|---:|---:|---:|---:|
+| Markov-1-region (floor)            | 47.01 ± 3.55 | 42.96 ± 2.05 | 65.05 ± 0.93 | 52.09 ± 0.80 | 54.94 ± 0.46 | 48.19 ± 2.18 |
+| STAN — `faithful`                  | 34.46 ± 3.88 | 38.96 ± 3.41 | 65.36 ± 0.69 | ⚪ skip | ⚪ skip | 40.68 ± 1.10 |
+| STAN — `stl_check2hgi`             | 59.20 ± 3.62 | 52.24 ± 2.38 | 72.62 ± 0.52 | 58.82 ± 1.04 | 61.35 ± 0.36 | 56.35 ± 2.40 |
+| **STAN — `stl_hgi`**               | 62.88 ± 3.90 | 54.86 ± 2.84 | **★ 73.58 ± 0.43** | **★ 60.45 ± 0.97** | **★ 62.70 ± 0.37** | **★ 58.58 ± 1.86** |
+| **ReHDM — `faithful` (paper-proto)** § | **★ 66.06 ± 0.98** | **★ 54.65 ± 0.77** | 65.68 ± 0.26 | ⚪ skip | ⚪ skip | 55.82 ± 0.76 |
+| ReHDM — `stl_check2hgi` ‡          | 26.22 ± 1.58 | 23.24 ± 1.27 | 38.74 ± 0.49 | ⚪ skip | ⚪ skip | 22.31 ± 1.31 |
+| ReHDM — `stl_hgi` ‡                | 42.78 ± 2.82 | 34.00 ± 3.02 | 54.49 ± 0.32 | ⚪ skip | ⚪ skip | 35.07 ± 1.98 |
+| GETNext-hard `_pf` — `stl_check2hgi` (leak-free) | 59.15 ± 3.48 | 50.24 ± 2.51 | 69.22 ± 0.52 | 55.92 ± 1.20 | 58.89 ± 1.28 | 🔴 pending |
+| GETNext-hard `_pf` — `stl_hgi` (leak-free)       | 61.86 ± 3.29 | 53.37 ± 2.55 | 71.34 ± 0.64 | 57.77 ± 1.12 | 60.47 ± 1.26 | 🔴 pending |
+
+> § ReHDM `faithful` uses the paper's protocol (chronological 80/10/10 + 24h sessions, 5 seeds). σ is inter-seed; not cell-for-cell σ-comparable to StratifiedGroupKFold rows. AL/AZ at paper b=64; FL+GA at b=128 + 4× lr scaling (validated within 1σ on AL/AZ — see `rehdm.md`).
+> ‡ ReHDM `stl_*` may have a known mask-handling bug (target_mask all-ones over padded positions). Patch in flight 2026-05-01; numbers above are pre-patch. Re-run will land separately.
+
+### `next_category/` — macro-F1 (mean ± σ); ★ = best per state
+
+| Baseline | AL | AZ | FL | CA | TX | GA |
+|---|---:|---:|---:|---:|---:|---:|
+| Majority class (floor)             |  7.28 ± 0.00 |  7.25 ± 0.00 |  5.66 ± 0.00 |  7.04 ± 0.00 |  6.76 ± 0.00 |  6.69 ± 0.00 |
+| Markov-1-POI (floor)               | 16.81 ± 1.06 | 19.48 ± 0.63 | 27.60 ± 0.32 | 24.95 ± 1.18 | 25.85 ± 0.55 | 21.36 ± 0.36 |
+| best Markov-K-cat (floor)          | 20.50 ± 0.67 (k=5) | 23.92 ± 2.26 (k=5) | 29.74 ± 1.19 (k=3) | 27.59 ± 0.61 (k=5) | 28.67 ± 0.66 (k=5) | 27.01 ± 1.10 (k=3) |
+| MHA+PE — `faithful`                | 18.95 ± 0.71 | 24.99 ± 0.85 | 32.06 ± 0.23 | 29.13 ± 0.71 | 29.91 ± 0.43 | 27.62 ± 0.97 |
+| **POI-RGNN — `faithful`**          | **★ 23.80 ± 1.12** | **★ 27.64 ± 2.34** | **★ 33.35 ± 1.14** | **★ 30.71 ± 0.82** | **★ 32.08 ± 0.70** | **★ 30.24 ± 0.87** |
+| C2HGI cat — matched-head `next_gru` (substrate axis) | 40.76 ± 1.68 | 43.21 ± 0.87 | 63.43 ± 0.98 | 59.94 ± 0.59 | 60.24 ± 1.84 | 🔴 pending |
+| HGI cat — matched-head `next_gru` (substrate axis)   | 25.26 ± 1.18 | 28.69 ± 0.79 | 34.41 ± 1.05 | 31.13 ± 1.04 | 31.89 ± 0.55 | 🔴 pending |
+| Δ matched-head (Wilcoxon p_greater)                  | +15.50 (p=0.0312) | +14.52 (p=0.0312) | +29.02 (p=0.0312) | +28.81 (p=0.0312) | +28.34 (p=0.0312) | 🔴 pending |
+| Substrate linear probe — C2HGI F1                    | 30.84 ± 2.26 | 34.12 ± 1.36 | 40.77 ± 1.24 | 37.45 ± 0.29 | 38.38 ± 0.28 | 🔴 pending |
+| Substrate linear probe — HGI F1                      | 18.70 ± 1.54 | 22.54 ± 0.50 | 25.74 ± 0.29 | 21.32 ± 0.16 | 22.33 ± 0.25 | 🔴 pending |
+| Substrate linear probe — Δ (C2HGI − HGI)             | +12.14 | +11.58 | +15.03 | +16.13 | +16.06 | 🔴 pending |
+
+(★ marks the best non-floor numeric value per state. Substrate-axis and Markov-K-cat-floor rows below the dividing line are **secondary** to the headline external-baseline rows above; ★ is restricted to the headline rows so the table reflects the published-architecture ranking. Substrate-axis cells for GA are pending — substrate-comparison runs were originally scoped out for GA and are being launched 2026-05-01 to close the matrix.)
 
 ---
 

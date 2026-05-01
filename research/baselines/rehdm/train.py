@@ -205,10 +205,13 @@ def _move(ids: dict, device):
 def evaluate(model, store, ids, batch_size, device, max_intra=4, max_inter=4):
     """Evaluate with the same sub-hypergraph protocol as training (paper §4.2)."""
     model.eval()
+    # macOS spawn can't pickle the closure returned by make_collate; use fork there.
+    _mp_ctx = "fork" if not torch.cuda.is_available() else None
     loader = DataLoader(
         ReHDMDataset(store, ids), batch_size=batch_size, shuffle=False,
         num_workers=2, persistent_workers=True,
         pin_memory=torch.cuda.is_available(),
+        multiprocessing_context=_mp_ctx,
         collate_fn=make_collate(store, max_intra, max_inter, training=True),
     )
     n = 0
@@ -271,11 +274,16 @@ def train_one_run(
         torch.backends.cuda.matmul.allow_tf32 = True
         torch.backends.cudnn.allow_tf32 = True
         torch.set_float32_matmul_precision("high")
+    # On non-CUDA (macOS MPS/CPU), spawn can't pickle make_collate's closure → use fork
+    # and reduce worker count (CUDA path keeps the validated 12-worker recipe).
+    _mp_ctx = "fork" if not torch.cuda.is_available() else None
+    _nw = 12 if torch.cuda.is_available() else 4
     train_loader = DataLoader(
         ReHDMDataset(store, store.train_ids), batch_size=batch_size, shuffle=True,
         collate_fn=make_collate(store, max_intra, max_inter, training=True),
-        num_workers=12, persistent_workers=True, prefetch_factor=4,
+        num_workers=_nw, persistent_workers=True, prefetch_factor=4,
         pin_memory=torch.cuda.is_available(),
+        multiprocessing_context=_mp_ctx,
     )
     optim = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=0.01)
     steps = max(1, len(train_loader)) * epochs

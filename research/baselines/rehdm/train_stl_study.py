@@ -158,13 +158,21 @@ class StudySTLDataset(Dataset):
         return int(self.ids[i])
 
 
+def _row_mask(store: "StudySTLStore", ids):
+    # Derive a real attention mask from poi_seq: positions with poi_idx >= 0 are valid
+    # check-ins, padded positions are 0. Avoids the theta-query pooling and
+    # POI-level transformer attending to zero-embedding pad cells.
+    psq = store.poi_seq[ids]
+    return torch.from_numpy((psq >= 0).astype(np.float32))
+
+
 def make_collate_study(store: StudySTLStore, max_intra: int, max_inter: int, training: bool):
     rng = None if training else random.Random(0)
 
     def collate(batch_ids):
         b = len(batch_ids)
         target_feats = torch.stack([store.x[i] for i in batch_ids])
-        target_mask = torch.ones(b, store.T, dtype=torch.float32)
+        target_mask = _row_mask(store, np.asarray(batch_ids, dtype=np.int64))
         targets = torch.stack([store.y[i] for i in batch_ids])
 
         if (max_intra + max_inter) == 0:
@@ -184,7 +192,7 @@ def make_collate_study(store: StudySTLStore, max_intra: int, max_inter: int, tra
         if not all_collab:
             return target_feats, target_mask, None, None, None, None, targets
         c_feats = torch.stack([store.x[c] for c in all_collab])
-        c_mask = torch.ones(len(all_collab), store.T, dtype=torch.float32)
+        c_mask = _row_mask(store, np.asarray(all_collab, dtype=np.int64))
         adj = torch.zeros(b, len(all_collab))
         et = torch.zeros(b, len(all_collab), dtype=torch.long)
         for ti, ci, rt in edges:
@@ -196,10 +204,12 @@ def make_collate_study(store: StudySTLStore, max_intra: int, max_inter: int, tra
 @torch.no_grad()
 def evaluate(model, store, ids, batch_size, device, max_intra=3, max_inter=3):
     model.eval()
+    _mp_ctx = "fork" if not torch.cuda.is_available() else None
     loader = DataLoader(
         StudySTLDataset(store, ids), batch_size=batch_size, shuffle=False,
         num_workers=2, persistent_workers=True,
         pin_memory=torch.cuda.is_available(),
+        multiprocessing_context=_mp_ctx,
         collate_fn=make_collate_study(store, max_intra, max_inter, training=False),
     )
     n = c1 = c5 = c10 = 0; mrr = 0.0
@@ -235,11 +245,13 @@ def train_one_fold(engine, state, fold_idx, train_idx, val_idx, x, y, userids, p
         torch.backends.cuda.matmul.allow_tf32 = True
         torch.backends.cudnn.allow_tf32 = True
         torch.set_float32_matmul_precision("high")
+    _mp_ctx = "fork" if not torch.cuda.is_available() else None
     train_loader = DataLoader(
         StudySTLDataset(store, store.train_idx), batch_size=batch_size, shuffle=True,
         collate_fn=make_collate_study(store, max_intra, max_inter, training=True),
         num_workers=4, persistent_workers=True,
         pin_memory=torch.cuda.is_available(),
+        multiprocessing_context=_mp_ctx,
     )
     optim = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=0.01)
     sched = torch.optim.lr_scheduler.OneCycleLR(
