@@ -172,6 +172,32 @@ class HGTransformerLayer(nn.Module):
         out = torch.einsum("bht,bthd->bhd", attn, v).reshape(B, d)
         return self.o(out)
 
+    def attn_local_perbatch(
+        self,
+        query: torch.Tensor,            # [B, d] — per-batch query (e.g. last-pos vertex)
+        vertex_reps: torch.Tensor,      # [B, T, d]
+        vertex_mask: torch.Tensor,      # [B, T]
+        edge_types: torch.Tensor,       # [B, T] long
+    ) -> torch.Tensor:
+        """Per-batch attention: each batch row gets its own query.
+
+        Used by ReHDMSTL with last-position-as-query pooling (the next-step
+        prediction inductive bias). Same projections / scoring as `attn_local`
+        but the query is broadcast per-batch rather than shared globally.
+        """
+        B, T, d = vertex_reps.shape
+        msg = vertex_reps + self.edge_type(edge_types)
+        q = self.q(query).view(B, self.n_heads, self.d_head)
+        k = self.k(msg).view(B, T, self.n_heads, self.d_head)
+        v = self.v(msg).view(B, T, self.n_heads, self.d_head)
+        scores = torch.einsum("bhd,bthd->bht", q, k) / (self.d_head ** 0.5)
+        mask = vertex_mask.unsqueeze(1) == 0
+        scores = scores.masked_fill(mask, -1e9)
+        attn = F.softmax(scores, dim=-1).masked_fill(mask, 0.0)
+        attn = self.drop(attn)
+        out = torch.einsum("bht,bthd->bhd", attn, v).reshape(B, d)
+        return self.o(out)
+
 
 class ReHDM(nn.Module):
     """End-to-end ReHDM with a region-classifier head."""
