@@ -34,7 +34,7 @@ The paper makes paired-test claims at three different power regimes. State them 
 - **DO NOT WRITE:** *"head-invariant across all five states"* (over-claim — head sweep was AL+AZ only).
 - **DO WRITE:** *"head-invariant at the AL+AZ ablation scale (8/8 head-state probes positive at p = 0.0312); replicated under the matched-head MTL ceiling at FL/CA/TX."*
 - **DO NOT WRITE:** *"the substrate Δ scales monotonically with data"* without numbers (this *is* monotone, but state it numerically).
-- **DO WRITE:** *"the substrate Δ scales with data: +14.5 pp at AL, +15.5 at AZ, +29.0 at FL, +28.8 at CA, +28.3 at TX."* (Note CA is +28.8, slightly less than FL +29.0 — directional but not strictly state-size-monotone. Fine to call "broadly monotone" or "scales with data" but do not say "strictly monotone".)
+- **DO WRITE:** *"the substrate Δ scales broadly with data: +15.5 pp at AL, +14.5 at AZ, +29.0 at FL, +28.8 at CA, +28.3 at TX."* (AL is +15.5, AZ is +14.5 — not the other way around. CA is +28.8, slightly less than FL +29.0 — directional but not strictly state-size-monotone. Fine to call "broadly scales with data" but do not say "strictly monotone".)
 
 ### 1.3 Mechanism (~72 % per-visit) — single-state weakness
 
@@ -187,7 +187,7 @@ This is a **paper-strengthening** disclosure (per `BRACIS_GUIDE.md §10.2.7` hon
 
 ### 7.2 Wording fix
 
-- **DO WRITE:** *"Our STL `next_gru` Check2HGI cat F1 exceeds POI-RGNN's published Gowalla state-level numbers (Capanema et al., ~31.8 % FL, ~34.5 % CA) by ≥ 28 pp at every matched state. The comparison is a conservative lower bound: POI-RGNN's published evaluation used non-user-disjoint folds, which tends to inflate absolute scores; our reproduction under matched user-disjoint folds is reported in the supplementary baseline audit."*
+- **DO WRITE:** *"Our STL `next_gru` Check2HGI cat F1 (60–67 % at FL/CA/TX) exceeds our faithful POI-RGNN reproduction (Capanema et al. 2022; FL 34.49, CA 31.78, TX 33.03 per `RESULTS_TABLE §0.6`) by ≥ 28 pp at every matched state. POI-RGNN's published evaluation reported a 31.8–34.5 pp range across states under non-user-disjoint folds; our reproduction at user-disjoint folds is the comparison we report, and the gap remains a conservative lower bound vs. the published configuration."*
 
 ### 7.3 Markov-1-region floor at FL — disclose
 

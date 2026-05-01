@@ -51,21 +51,20 @@ Multi-Task POI Prediction}
 % ----------------------------------------------------------------------------
 \begin{abstract}
 Multi-task learning for point-of-interest prediction typically pairs joint
-next-category and next-region heads over a shared point-of-interest graph
-embedding, with the implicit assumption that joint training transfers signal
-between tasks. We replace the per-place substrate with a check-in-level
-contextual graph embedding that emits one vector per visit and run a
-controlled five-state ablation on Gowalla under user-disjoint cross-validation
-with leak-free per-fold transition priors. The substrate is task-asymmetric:
-per-visit context lifts single-task next-category macro-F1 by 14 to 29
-percentage points at every state, paired Wilcoxon p equal to 0.0312 each,
-while on the harder next-region task per-place embeddings tie or marginally
-exceed the per-visit substrate under matched-head single-task ceilings. With
-the substrate fixed, joint multi-task learning over a cross-attention backbone
-gains a small additional category lift and pays a sign-consistent next-region
-cost---the textbook multi-task tradeoff. A pooled-vs-canonical counterfactual at
-Alabama attributes about 72 percent of the substrate gain to per-visit
-context.
+next-category and next-region heads over a shared graph embedding, assuming
+joint training transfers signal between tasks. We replace the per-place
+substrate with a check-in-level contextual graph embedding that emits one
+vector per visit and run a five-state ablation on Gowalla under user-disjoint
+folds with leak-free per-fold transition priors. The substrate is
+task-asymmetric: per-visit context lifts single-task next-category macro-F1
+by 14 to 29 percentage points at every state (paired Wilcoxon p of 0.0312,
+the maximum at five folds), while per-place embeddings tie or marginally
+exceed it under matched-head ceilings on the harder next-region task. With
+the substrate fixed, joint multi-task training over a cross-attention
+backbone adds a small category lift and pays a sign-consistent 8 to 17
+percentage point cost on next-region top-10 accuracy---the textbook
+tradeoff. A pooled-vs-canonical counterfactual at Alabama attributes about
+72 percent of the substrate gain to per-visit context.
 
 \keywords{Multi-Task Learning \and Point-of-Interest Prediction \and Graph
 Embeddings.}

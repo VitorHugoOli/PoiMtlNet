@@ -208,7 +208,7 @@ CoUrb's `tabela_comparativa` pattern: per-state block, baselines stacked vertica
 Majority                    —        22.25         —
 Markov-1-POI               XX        —             —
 Markov-1-region            —         65.05         —
-POI-RGNN (Capanema 2019)  ~31.8      —             —
+POI-RGNN (Capanema 2022, faithful)  34.49    —             —
 MHA+PE (Zeng 2019)        XX         —             —
 STL GRU                    —         68.33         —
 STL STAN (Luo 2021)        —         XX            XX
@@ -266,7 +266,7 @@ Three coverage items become paper-side limitations rather than workflow notes:
 
 1. **CA/TX MTL multi-seed.** Seed = 42 single-seed at submission; multi-seed extension at {0, 1, 7, 100} is a **camera-ready audit item**. T3/T4 CA/TX cells therefore sit at the n = 5 paired-Wilcoxon ceiling (p_min = 0.0625 two-sided). Disclosed in §7 Limitations.
 2. **AL/AZ/FL cat-Δ Wilcoxon.** v7 RESULTS_TABLE.md refreshed STL `next_gru` cat F1 to multi-seed means {0, 1, 7, 100}; Wilcoxon p-values for cat-Δ vs the v7 multi-seed STL ceiling have not yet been re-computed. T3 reports the Δ values and labels p as "pending re-run". This does not change the directional reading.
-3. **POI-RGNN / MHA+PE absolute baseline numbers.** Working values: POI-RGNN FL ~31.8 / CA ~34.5 (cat F1); MHA+PE values from `baselines/next_category/results/<state>.json`. The POI-RGNN reproduction caveat (non-user-disjoint folds in the published evaluation) is disclosed in T5 caption and §7 Limitations.
+3. **POI-RGNN / MHA+PE absolute baseline numbers.** Faithful POI-RGNN reproduction values from `RESULTS_TABLE §0.6`: FL 34.49, CA 31.78, TX 33.03 (cat F1). MHA+PE values from `baselines/next_category/results/<state>.json`. The POI-RGNN reproduction caveat (non-user-disjoint folds in the published evaluation; published reports a 31.8–34.5 pp state-level range) is disclosed in T5 caption and §7 Limitations.
 
 ---
 
