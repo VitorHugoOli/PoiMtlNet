@@ -165,18 +165,64 @@ the gap, not closed. None of these results are paper-ready: the cat-lift
 finding (§3) is the only camera-ready takeaway from this whole study, and
 it does not depend on the Round-3 architecture sweep.
 
-### 6.4 Conclusions for the exploration
+### 6.4 Gap decomposition — MTL arch is **not** the full story
 
-1. The MTL→STL reg gap (~10 pp at AZ) is **structural, not a
-   hyperparameter / loss / thin-skip issue**. Rounds 1 and 2 close none of
-   it.
-2. The MTL backbone choice **does** move reg by ±2 pp without breaking
-   cat — soft-sharing architectures (MMoE/CGC/Cross-Stitch family) appear
-   modestly favorable, hard-sharing PLE collapses. Confirms the F50
-   PLE-Pareto-worse history under a new head.
-3. The **publishable story remains §3**: under matched recipe,
-   `next_stan` ties B9 on reg and lifts cat by +3-4 pp. The architectural
-   gap to STL is documented, not erased.
+Quantitative breakdown of the AZ MTL→STL reg gap with `next_stan`:
+
+| Component | Δ reg | % of gap | Source |
+|---|---|---|---|
+| **Total MTL→STL gap** | 10.72 pp | 100 % | STL 52.24 − A 41.52 |
+| Recovered by softest MTL sharing (CrossStitch) | +1.84 pp | **17.2 %** | M4 vs A |
+| Recovered by recipe (Round 1 CLI) | ≤ +0.7 pp | ≤ 7 % | B alibi vs A (within σ) |
+| Recovered by residual skip (Round 2) | −0.6 pp | 0 % | F vs A — clean negative |
+| **Remaining unexplained** | ≈ **8.0 pp** | **≈ 75 %** | not closed by any sweep |
+
+**Reading.** Even the softest MTL sharing architecture closes only ~17 %
+of the gap. The remaining ~75-80 % is contributed by something the three
+rounds did NOT vary. Likely candidates for the structural residual:
+
+- **Task encoder upstream of the shared layer.** STL `next_stan` feeds the
+  raw `[B, 9, 64]` region-embedding sequence directly into its STAN
+  backbone — STAN's `input_proj` does the only 64→d_model projection. In
+  MTL the per-task `next_encoder` (a 2-layer MLP) projects 64 → 256
+  *before* the shared layer or the head ever sees the input. That early
+  projection is shared across all MTL variants tested here and is a
+  prime suspect for the lost reg signal.
+- **PCGrad gradient surgery.** Projecting reg-gradients orthogonal to cat
+  during the shared-layer backward pass adds variance and may cap the
+  reg path's effective LR.
+- **Joint loss interference under soft sharing.** Even CrossStitch's 2×2
+  mix routes some reg gradient through cat-flavoured features.
+- **Sequence-vs-pooled feature handoff.** All variants give the head
+  `[B, 9, d_shared]` from the cross-attn / expert layer. STL's STAN
+  refines its own 9-step trajectory representation; the MTL head receives
+  one already shaped by joint training.
+
+### 6.5 Conclusions for the exploration
+
+1. The MTL→STL reg gap is **NOT primarily an MTL-arch problem.** ~17 %
+   architecture, ~0 % skip, ~7 % recipe — the remaining ~75 % is
+   structural and lives outside the levers tested in Rounds 1-3.
+2. **CrossStitch is saved as the partial winner.** +1.84 pp reg / +0.23
+   pp cat over cross-attn at AZ, both within σ. Pareto-improving direction
+   on both tasks. Worth re-testing if a future round closes the encoder /
+   gradient-surgery / loss components and we want a complete arch story.
+3. **PLE robustly collapses** across head + recipe + dataset variants.
+   Likely a structural mismatch with this task, not a head-coupled
+   artifact.
+4. The **publishable story remains §3** (cat lift +3-4 pp under matched
+   recipe) and is independent of Round 1-3.
+
+### 6.6 Where to look next (if the gap is reopened)
+
+- Replace `next_encoder` with identity (or `nn.Linear(64, 256)` only) and
+  let STAN do its own projection from raw 64-dim. Tests the
+  encoder-upstream-loss hypothesis.
+- Try **static_weight cw=0.5** with MMoE / CrossStitch — switch off
+  PCGrad's surgery to measure how much it costs.
+- Run STL `next_stan` *with the MTL `next_encoder` prepended* (single
+  task, identical pre-processing). If reg drops from 52.24 toward 41,
+  the encoder is the dominant culprit.
 
 ## 5 · Run dirs
 
