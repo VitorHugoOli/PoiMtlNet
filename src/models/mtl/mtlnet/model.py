@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import inspect
 from typing import Any, Iterator, Optional, Tuple
 
 import torch
@@ -11,7 +12,27 @@ from configs.model import InputsConfig
 from models.category import CategoryHeadTransformer
 from models.mtl._components import FiLMLayer, ResidualBlock
 from models.next import NextHeadMTL
-from models.registry import create_model, register_model
+from models.registry import _MODEL_REGISTRY, create_model, register_model
+from tasks import LEGACY_CATEGORY_NEXT, TaskSet
+
+
+def _filter_kwargs(target_cls: type, kwargs: dict[str, Any]) -> dict[str, Any]:
+    """Drop kwargs that ``target_cls.__init__`` wouldn't accept.
+
+    Heads in this codebase have divergent constructor signatures:
+    ``NextHeadMTL`` wants ``num_heads`` / ``seq_length`` / ``num_layers``;
+    ``NextLSTM`` wants ``hidden_dim`` and not ``num_heads``. The MTLnet
+    builder injects every plausible context arg as a default; this helper
+    then filters down to the subset that ``target_cls`` actually accepts
+    before the registry call — avoiding ``TypeError: got an unexpected
+    keyword argument`` on heads with narrower signatures.
+    """
+    sig = inspect.signature(target_cls.__init__)
+    accepts = {
+        p.name for p in sig.parameters.values()
+        if p.kind in (p.POSITIONAL_OR_KEYWORD, p.KEYWORD_ONLY)
+    }
+    return {k: v for k, v in kwargs.items() if k in accepts}
 
 
 @register_model("mtlnet")
@@ -23,6 +44,13 @@ class MTLnet(nn.Module):
     (kwargs forwarded to the head constructor). The defaults reproduce the
     historical `CategoryHeadTransformer` + `NextHeadMTL` configuration
     bit-exactly so existing regression floors stay valid.
+
+    ``task_set`` opts in to alternate 2-task topologies (e.g. the
+    check2HGI ``{next_category, next_region}`` pair where both slots are
+    sequential ``next_mtl`` heads with different ``num_classes``). When
+    ``task_set is None`` the legacy ``{category, next}`` pair is used and
+    every code path hits the pre-parameterisation branches — the
+    regression floors in ``tests/test_regression`` stay pinned.
     """
 
     def __init__(
@@ -42,9 +70,44 @@ class MTLnet(nn.Module):
         next_head: Optional[str] = None,
         category_head_params: Optional[dict[str, Any]] = None,
         next_head_params: Optional[dict[str, Any]] = None,
+        task_set: Optional[TaskSet] = None,
+        use_adashare: bool = False,
+        adashare_init_logit: float = 2.0,
+        adashare_temperature: float = 0.5,
     ):
         super().__init__()
-        self.num_classes = num_classes
+        self._task_set = task_set if task_set is not None else LEGACY_CATEGORY_NEXT
+        # AdaShare per-task binary routing through shared residual blocks.
+        # use_adashare=False preserves legacy bit-exact. When True,
+        # each of the (num_shared_layers - 1) ResidualBlocks becomes
+        # gateable per task via a learnable logit; gate=1 → block applied,
+        # gate=0 → skip connection only. The first preproc block
+        # (Linear+LeakyReLU+LayerNorm+Dropout) is always applied because
+        # it sets up the 256-dim representation space.
+        self._use_adashare = bool(use_adashare)
+        self._adashare_temperature = float(adashare_temperature)
+
+        # Attribute names keep the legacy ``category_*`` / ``next_*``
+        # vocabulary. The ``_task_set`` above is the source of truth for
+        # task-level metadata (label space, primary metric, input rank);
+        # the attribute names are a stable interface for the runner and
+        # tests and do not imply semantics beyond "slot A" / "slot B".
+        task_a, task_b = self._task_set.task_a, self._task_set.task_b
+
+        # When ``task_set is None`` (legacy), resolve num_classes from
+        # the constructor arg exactly as before — this preserves the
+        # bit-exact contract with pre-parameterisation checkpoints.
+        self.num_classes_task_a = (
+            num_classes if task_set is None else task_a.num_classes
+        )
+        self.num_classes_task_b = (
+            num_classes if task_set is None else task_b.num_classes
+        )
+        # Back-compat alias — some external code reads ``self.num_classes``.
+        self.num_classes = self.num_classes_task_a
+
+        self._task_a_is_sequential = task_a.is_sequential
+        self._task_b_is_sequential = task_b.is_sequential
 
         self.category_encoder = self._build_encoder(
             in_size=feature_size,
@@ -67,22 +130,50 @@ class MTLnet(nn.Module):
             shared_dropout=shared_dropout,
         )
 
-        self.category_poi = self._build_category_head(
-            name=category_head,
-            shared_layer_size=shared_layer_size,
-            num_classes=num_classes,
-            num_heads=num_heads,
-            num_layers=num_layers,
-            overrides=category_head_params,
-        )
+        # Resolve head factories. ``task_set is None`` → legacy path
+        # where ``category_head`` / ``next_head`` + ``*_head_params``
+        # args drive construction (``None`` → hardcoded historical
+        # default inside the private builders). ``task_set`` provided →
+        # read names and params from the preset.
+        if task_set is None:
+            task_a_head_name, task_a_head_params = category_head, category_head_params
+            task_b_head_name, task_b_head_params = next_head, next_head_params
+        else:
+            task_a_head_name, task_a_head_params = task_a.head_factory, task_a.head_params
+            task_b_head_name, task_b_head_params = task_b.head_factory, task_b.head_params
+
+        # Task-A head: branch on is_sequential. Legacy category slot is
+        # flat → ``_build_category_head`` path (hits the historical
+        # default when ``name is None``). Non-legacy sequential-A slots
+        # (e.g. CHECK2HGI_NEXT_REGION's ``next_category``) use the
+        # next-head factory so the head's forward receives [B, T, D].
+        if self._task_a_is_sequential:
+            self.category_poi = self._build_next_head(
+                name=task_a_head_name,
+                shared_layer_size=shared_layer_size,
+                num_classes=self.num_classes_task_a,
+                num_heads=num_heads,
+                num_layers=num_layers,
+                seq_length=seq_length,
+                overrides=task_a_head_params,
+            )
+        else:
+            self.category_poi = self._build_category_head(
+                name=task_a_head_name,
+                shared_layer_size=shared_layer_size,
+                num_classes=self.num_classes_task_a,
+                num_heads=num_heads,
+                num_layers=num_layers,
+                overrides=task_a_head_params,
+            )
         self.next_poi = self._build_next_head(
-            name=next_head,
+            name=task_b_head_name,
             shared_layer_size=shared_layer_size,
-            num_classes=num_classes,
+            num_classes=self.num_classes_task_b,
             num_heads=num_heads,
             num_layers=num_layers,
             seq_length=seq_length,
-            overrides=next_head_params,
+            overrides=task_b_head_params,
         )
 
     def _build_shared_backbone(
@@ -108,6 +199,24 @@ class MTLnet(nn.Module):
             num_blocks=num_shared_layers,
             dropout=shared_dropout,
         )
+        # AdaShare gates: per-task logits over the (num_shared_layers - 1)
+        # ResidualBlocks in self.shared_layers. The first 4 modules in the
+        # Sequential (Linear + LeakyReLU + LayerNorm + Dropout) form a
+        # preprocessing block that is always applied (it defines the
+        # 256-dim representation). The subsequent ResidualBlocks are
+        # gate-able.
+        if self._use_adashare:
+            num_residual_blocks = max(0, num_shared_layers - 1)
+            # Shape: [2 tasks, num_residual_blocks]. Initialised positive
+            # so at step 0 sigmoid(logit) ≈ 0.88 ("mostly open" — the
+            # block is likely used), giving the optimizer room to close
+            # gates if that helps a given task.
+            self.adashare_logits = nn.Parameter(
+                torch.full((2, num_residual_blocks), 2.0)
+            )
+            self._adashare_num_residual_blocks = num_residual_blocks
+        else:
+            self._adashare_num_residual_blocks = 0
 
     @staticmethod
     def _build_category_head(
@@ -136,12 +245,26 @@ class MTLnet(nn.Module):
                 dropout=0.1,
                 num_classes=num_classes,
             )
-        params: dict[str, Any] = {
+        # Inject every plausible default from MTLnet's init context;
+        # filter down to what this head's __init__ actually accepts so
+        # heads with narrower signatures don't get unexpected kwargs.
+        # Overrides win over defaults.
+        defaults: dict[str, Any] = {
             "input_dim": shared_layer_size,
+            "embed_dim": shared_layer_size,
             "num_classes": num_classes,
+            "num_heads": num_heads,
+            "num_layers": num_layers,
+            "num_tokens": 2,
+            "token_dim": shared_layer_size // 2,
+            "dropout": 0.1,
         }
-        params.update(overrides or {})
-        return create_model(name, **params)
+        defaults.update(overrides or {})
+        target_cls = _MODEL_REGISTRY.get(name)
+        if target_cls is None:
+            # Lazily populate via create_model's registration side-effect.
+            return create_model(name, **defaults)
+        return create_model(name, **_filter_kwargs(target_cls, defaults))
 
     @staticmethod
     def _build_next_head(
@@ -153,15 +276,7 @@ class MTLnet(nn.Module):
         seq_length: int,
         overrides: Optional[dict[str, Any]],
     ) -> nn.Module:
-        """Instantiate the next-POI head (see ``_build_category_head``).
-
-        Only the universal ``embed_dim`` + ``num_classes`` pair is
-        injected for non-default heads. The caller must supply the
-        remaining kwargs (``num_heads``, ``seq_length``, ``hidden_dim``…)
-        in ``overrides`` — heads in this codebase have divergent
-        constructor signatures so there is no one-shot default that
-        works across GRU, LSTM, transformer and CNN heads.
-        """
+        """Instantiate the next-POI head (see ``_build_category_head``)."""
         if name is None:
             return NextHeadMTL(
                 shared_layer_size,
@@ -171,12 +286,23 @@ class MTLnet(nn.Module):
                 num_layers,
                 dropout=0.1,
             )
-        params: dict[str, Any] = {
+        # Same "inject + filter" pattern as _build_category_head so
+        # heads like next_lstm (which don't accept num_heads) don't
+        # error on unexpected kwargs.
+        defaults: dict[str, Any] = {
             "embed_dim": shared_layer_size,
+            "input_dim": shared_layer_size,
             "num_classes": num_classes,
+            "num_heads": num_heads,
+            "num_layers": num_layers,
+            "seq_length": seq_length,
+            "dropout": 0.1,
         }
-        params.update(overrides or {})
-        return create_model(name, **params)
+        defaults.update(overrides or {})
+        target_cls = _MODEL_REGISTRY.get(name)
+        if target_cls is None:
+            return create_model(name, **defaults)
+        return create_model(name, **_filter_kwargs(target_cls, defaults))
 
     def _build_encoder(
         self,
@@ -222,6 +348,62 @@ class MTLnet(nn.Module):
             layers.append(ResidualBlock(layer_size, dropout))
         return nn.Sequential(*layers)
 
+    @staticmethod
+    def _gumbel_sigmoid(
+        logits: torch.Tensor,
+        temperature: float,
+        training: bool,
+    ) -> torch.Tensor:
+        """Binary gate via Gumbel-sigmoid with straight-through estimator.
+
+        Train: sample via Gumbel noise + sigmoid, then hard-threshold
+        with straight-through (forward binary, backward soft).
+        Eval: deterministic sigmoid threshold at 0.5.
+        """
+        if training:
+            # Sample two Gumbel noises (u1 for gate=1, u2 for gate=0)
+            # via the standard Gumbel-trick formula: g = -log(-log(U))
+            # with U ~ Uniform(0, 1). Safe-guarded against log(0).
+            u = torch.rand_like(logits)
+            u = u.clamp(min=1e-8, max=1.0 - 1e-8)
+            g1 = -torch.log(-torch.log(u))
+            u2 = torch.rand_like(logits)
+            u2 = u2.clamp(min=1e-8, max=1.0 - 1e-8)
+            g0 = -torch.log(-torch.log(u2))
+            # Binary concrete: logit for "gate=1" vs "gate=0".
+            y_soft = torch.sigmoid((logits + g1 - g0) / temperature)
+            y_hard = (y_soft > 0.5).to(y_soft.dtype)
+            # Straight-through: forward uses y_hard, backward uses y_soft.
+            return y_hard + (y_soft - y_soft.detach())
+        else:
+            return (torch.sigmoid(logits) > 0.5).to(logits.dtype)
+
+    def _adashare_forward(self, x: torch.Tensor, task_id: int) -> torch.Tensor:
+        """Route through shared_layers with per-task binary block gates.
+
+        The first 4 modules of shared_layers (Linear, LeakyReLU,
+        LayerNorm, Dropout) form an always-applied preprocessing block.
+        The subsequent ResidualBlocks are gated: gate=1 means apply the
+        block, gate=0 means skip (use the identity). Gates are sampled
+        per forward pass via Gumbel-sigmoid (train) or thresholded
+        sigmoid (eval).
+        """
+        # Preprocessing block (always applied).
+        for i in range(4):
+            x = self.shared_layers[i](x)
+        # Gated ResidualBlocks.
+        gates = self._gumbel_sigmoid(
+            self.adashare_logits[task_id],
+            self._adashare_temperature,
+            self.training,
+        )
+        for i in range(self._adashare_num_residual_blocks):
+            block = self.shared_layers[4 + i]
+            block_out = block(x)
+            gate = gates[i]
+            x = gate * block_out + (1 - gate) * x
+        return x
+
     def forward(
         self,
         inputs: Tuple[torch.Tensor, torch.Tensor],
@@ -239,6 +421,13 @@ class MTLnet(nn.Module):
         mask = (next_input.abs().sum(dim=-1) == pad_value)
         next_input = next_input.masked_fill(mask.unsqueeze(-1), 0)
 
+        # Sequential task_a (non-legacy task sets, e.g. check2HGI) needs
+        # the same pad-masking treatment as task_b. Guarded by the flag
+        # so the legacy flat-category path is bit-exact preserved.
+        if self._task_a_is_sequential:
+            mask_a = (category_input.abs().sum(dim=-1) == pad_value)
+            category_input = category_input.masked_fill(mask_a.unsqueeze(-1), 0)
+
         enc_cat = self.category_encoder(category_input)
         enc_next = self.next_encoder(next_input)
 
@@ -253,10 +442,37 @@ class MTLnet(nn.Module):
         mod_cat = self.film(enc_cat, emb_cat)
         mod_next = self.film(enc_next, emb_next)
 
-        shared_cat = self.shared_layers(mod_cat)
-        shared_next = self.shared_layers(mod_next)
+        if self._use_adashare:
+            shared_cat = self._adashare_forward(mod_cat, task_id=0)
+            shared_next = self._adashare_forward(mod_next, task_id=1)
+        else:
+            shared_cat = self.shared_layers(mod_cat)
+            shared_next = self.shared_layers(mod_next)
 
-        out_cat = self.category_poi(shared_cat.squeeze(1)).view(-1, self.num_classes)
+        # Re-zero shared_{cat,next} at the ORIGINAL pad positions before
+        # the heads. After {category,next}_encoder + FiLM + shared_layers,
+        # originally-zero pad steps become non-zero (bias/gamma/beta
+        # additions), so heads that detect padding via ``x.abs().sum(-1)
+        # == 0`` (GRU, LSTM, TCN, Transformer) see a fully-dense sequence
+        # and treat pad as real data. Sequential GRU/LSTM are particularly
+        # sensitive because their "take last valid timestep" rule then
+        # points into noise. Guarded on the non-legacy path so
+        # LEGACY_CATEGORY_NEXT regression tests stay bit-exact.
+        if self._task_set is not LEGACY_CATEGORY_NEXT:
+            shared_next = shared_next.masked_fill(mask.unsqueeze(-1), 0)
+            if self._task_a_is_sequential:
+                shared_cat = shared_cat.masked_fill(mask_a.unsqueeze(-1), 0)
+
+        # Sequence-head task_a (e.g. next_mtl for next_category) consumes
+        # [B, T, D] directly and returns [B, num_classes]. Flat-head
+        # task_a (legacy CategoryHeadTransformer) needs the squeeze+view
+        # contract — preserved to keep pinned checkpoints valid.
+        if self._task_a_is_sequential:
+            out_cat = self.category_poi(shared_cat)
+        else:
+            out_cat = self.category_poi(shared_cat.squeeze(1)).view(
+                -1, self.num_classes_task_a
+            )
         out_next = self.next_poi(shared_next)
         return out_cat, out_next
 
@@ -270,12 +486,19 @@ class MTLnet(nn.Module):
         for the pinned contract. In train mode it will differ because
         Dropout samples a different RNG subsequence; use only for eval.
         """
+        if self._task_a_is_sequential:
+            pad_value = InputsConfig.PAD_VALUE
+            mask = (category_input.abs().sum(dim=-1) == pad_value)
+            category_input = category_input.masked_fill(mask.unsqueeze(-1), 0)
+
         enc = self.category_encoder(category_input)
         task_id = torch.zeros(enc.size(0), dtype=torch.long, device=enc.device)
         task_emb = self.task_embedding(task_id)
         modulated = self.film(enc, task_emb)
         shared = self.shared_layers(modulated)
-        return self.category_poi(shared.squeeze(1)).view(-1, self.num_classes)
+        if self._task_a_is_sequential:
+            return self.category_poi(shared)
+        return self.category_poi(shared.squeeze(1)).view(-1, self.num_classes_task_a)
 
     def next_forward(self, next_input: torch.Tensor) -> torch.Tensor:
         """Run only the next-POI subgraph (see ``cat_forward``)."""
@@ -300,6 +523,12 @@ class MTLnet(nn.Module):
         )
 
     def task_specific_parameters(self) -> Iterator[nn.Parameter]:
+        # AdaShare gates are per-task (shape [2, num_blocks]) and control
+        # whether each shared block fires for each task, so they belong in
+        # the task-specific bucket. They must be enumerated here otherwise
+        # gradient-surgery losses (PCGrad / CAGrad / AlignedMTL) leave
+        # p.grad is None for every step — see
+        # docs/studies/check2hgi/issues/MTL_PARAM_PARTITION_BUG.md.
         return (
             p
             for name, p in self.named_parameters()
@@ -310,6 +539,7 @@ class MTLnet(nn.Module):
                     "next_encoder",
                     "category_poi",
                     "next_poi",
+                    "adashare_logits",
                 )
             )
         )

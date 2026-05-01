@@ -1,0 +1,15 @@
+{
+  "tag": "REHDM_STL_STUDY_v3_az_check2hgi_5f50ep",
+  "state": "arizona",
+  "engine": "check2hgi",
+  "protocol": "5-fold StratifiedGroupKFold (study protocol)",
+  "n_folds": 5,
+  "acc@1_mean": 0.08664183270477076,
+  "acc@1_std": 0.007835130441560872,
+  "acc@5_mean": 0.1710868176938929,
+  "acc@5_std": 0.012387016334318577,
+  "acc@10_mean": 0.23238375180101833,
+  "acc@10_std": 0.012662941949330932,
+  "mrr_mean": 0.13580648092928174,
+  "mrr_std": 0.008908933647706846
+}

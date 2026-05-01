@@ -1,0 +1,41 @@
+{
+  "tag": "REHDM_smoke6",
+  "state": "alabama",
+  "run": 0,
+  "seed": 42,
+  "config": {
+    "n_users": 815,
+    "n_pois": 2739,
+    "n_categories": 7,
+    "n_quadkeys": 76,
+    "n_regions": 498,
+    "n_hours": 24,
+    "n_days": 7,
+    "d_id": 32,
+    "n_heads": 4,
+    "d_ff": 256,
+    "n_hg_layers": 2,
+    "dropout": 0.2,
+    "beta": 0.5
+  },
+  "best_val_acc@10": 0.6181665264928511,
+  "test": {
+    "acc@1": 0.18547595682041218,
+    "acc@5": 0.4474975466143278,
+    "acc@10": 0.5593719332679097,
+    "mrr": 0.3101007833097119,
+    "n": 1019
+  },
+  "vocab": {
+    "n_users": 815,
+    "n_pois": 2739,
+    "n_categories": 7,
+    "n_hours": 24,
+    "n_days": 7,
+    "n_quadkeys": 76,
+    "n_regions": 498,
+    "quadkey_level": 10,
+    "session_hours": 24,
+    "min_checkins": 10
+  }
+}

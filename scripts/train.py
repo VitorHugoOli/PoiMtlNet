@@ -23,6 +23,7 @@ import logging
 import sys
 from datetime import datetime
 from pathlib import Path
+from typing import Dict, Optional
 
 # Ensure repo root and src/ are on sys.path when invoked directly.
 _root = str(Path(__file__).resolve().parent.parent)
@@ -36,6 +37,14 @@ from configs.experiment import DatasetSignature, ExperimentConfig
 from configs.globals import CATEGORIES_MAP
 from configs.paths import EmbeddingEngine, IoPaths
 from data.folds import FoldCreator, TaskType, load_folds, rebuild_dataloaders
+from tasks import (
+    CHECK2HGI_NEXT_REGION,
+    LEGACY_CATEGORY_NEXT,
+    TaskSet,
+    get_preset,
+    resolve_task_set,
+)
+from tasks.presets import list_presets
 from training.callbacks import ModelCheckpoint
 from utils.seed import seed_everything
 from tracking import DatasetHistory, MLHistory
@@ -107,6 +116,14 @@ def _default_checkpoint_callbacks(run_dir: Path, monitor: str) -> list:
 def _run_mtl(config: ExperimentConfig, results_path: Path, fold_results: dict) -> dict:
     from training.runners.mtl_cv import train_with_cross_validation
 
+    # AUDIT-C2: legacy preset both default to F1, so this is a no-op
+    # today — but the explicit dict keeps intent readable and prevents
+    # silent drift if one slot's primary_metric ever changes.
+    from tasks.presets import LEGACY_CATEGORY_NEXT
+    task_monitors = {
+        LEGACY_CATEGORY_NEXT.task_a.name: LEGACY_CATEGORY_NEXT.task_a.primary_metric.value,
+        LEGACY_CATEGORY_NEXT.task_b.name: LEGACY_CATEGORY_NEXT.task_b.primary_metric.value,
+    }
     history = MLHistory(
         model_name="MTLNet",
         tasks={"next", "category"},
@@ -128,6 +145,8 @@ def _run_mtl(config: ExperimentConfig, results_path: Path, fold_results: dict) -
         label_map=CATEGORIES_MAP,
         save_path=results_path,
         verbose=True,
+        task_monitors=task_monitors,
+        min_epoch=int(getattr(config, "min_best_epoch", 0) or 0),
     )
 
     if _NO_CHECKPOINTS:
@@ -142,6 +161,80 @@ def _run_mtl(config: ExperimentConfig, results_path: Path, fold_results: dict) -
             config=config,
             results_path=results_path,
             callbacks=cbs,
+        )
+
+    return results
+
+
+def _run_mtl_check2hgi(
+    config: ExperimentConfig,
+    results_path: Path,
+    fold_results: dict,
+    task_set: TaskSet,
+) -> dict:
+    """Dispatch MTL runs on the check2HGI preset (or any non-legacy task_set).
+
+    Differs from ``_run_mtl`` on four axes:
+
+    * ``MLHistory.tasks`` uses the preset's slot names
+      (``next_category`` / ``next_region`` instead of ``category`` / ``next``).
+    * ``DatasetHistory`` points at ``next.parquet`` + ``next_region.parquet``
+      (there is no separate category.parquet on this track).
+    * ``ModelCheckpoint`` watches ``val_joint_acc1`` — the metric emitted
+      by ``mtl_cv.py`` alongside ``val_joint_score`` specifically for
+      high-cardinality-head setups where macro-F1 is a weak summary.
+    * ``train_with_cross_validation`` receives the resolved ``task_set``.
+    """
+    from training.runners.mtl_cv import train_with_cross_validation
+
+    engine = EmbeddingEngine(config.embedding_engine)
+    # AUDIT-C2 fix — wire each task's primary_metric (declared in the
+    # preset) into MLHistory so the per-task BestModelTracker monitors
+    # the intended metric. Default ``monitor='f1'`` previously drowned
+    # this out: e.g. CHECK2HGI_NEXT_REGION declares Acc@1 for
+    # next_region but the tracker selected by F1, mismatching reported
+    # top10/MRR by ~3.5 pp on FL MTL runs.
+    task_monitors = {
+        task_set.task_a.name: task_set.task_a.primary_metric.value,
+        task_set.task_b.name: task_set.task_b.primary_metric.value,
+    }
+    history = MLHistory(
+        model_name="MTLNet",
+        tasks={task_set.task_a.name, task_set.task_b.name},
+        num_folds=len(fold_results),
+        datasets={
+            DatasetHistory(
+                raw_data=IoPaths.get_next(config.state, engine),
+                folds_signature=None,
+                description="next_category input (shared X)",
+            ),
+            DatasetHistory(
+                raw_data=IoPaths.get_next_region(config.state, engine),
+                folds_signature=None,
+                description="next_region input (shared X, region labels)",
+            ),
+        },
+        label_map=CATEGORIES_MAP,
+        save_path=results_path,
+        verbose=True,
+        task_monitors=task_monitors,
+        min_epoch=int(getattr(config, "min_best_epoch", 0) or 0),
+    )
+
+    if _NO_CHECKPOINTS:
+        cbs = []
+    else:
+        run_dir = _make_run_dir(results_path, task=f"mtl__{task_set.name}", config=config)
+        # val_joint_geom_lift = sqrt((acc1_a/maj_a) * (acc1_b/maj_b))
+        cbs = _default_checkpoint_callbacks(run_dir, monitor="val_joint_geom_lift")
+    with history:
+        results = train_with_cross_validation(
+            dataloaders=fold_results,
+            history=history,
+            config=config,
+            results_path=results_path,
+            callbacks=cbs,
+            task_set=task_set,
         )
 
     return results
@@ -243,6 +336,7 @@ _RUNNERS = {
 
 _TASK_TYPES = {
     "mtl": TaskType.MTL,
+    "mtl_check2hgi": TaskType.MTL_CHECK2HGI,
     "category": TaskType.CATEGORY,
     "next": TaskType.NEXT,
 }
@@ -282,6 +376,18 @@ def _parse_args(argv=None) -> argparse.Namespace:
         default=None,
         choices=_VALID_TASKS,
         help="Task type to train (mtl / category / next). Defaults to mtl.",
+    )
+    parser.add_argument(
+        "--task-set",
+        type=str,
+        default=None,
+        choices=list_presets(),
+        help=(
+            "MTL task-set preset. Only used with --task mtl. Defaults to "
+            "legacy_category_next (bit-exact with the pre-parameterisation "
+            "runner). check2hgi_next_region activates the 2-task "
+            "{next_category, next_region} pair on check2HGI embeddings."
+        ),
     )
     parser.add_argument(
         "--model",
@@ -352,6 +458,50 @@ def _parse_args(argv=None) -> argparse.Namespace:
         help="Override gradient accumulation steps.",
     )
     parser.add_argument(
+        "--use-class-weights",
+        dest="use_class_weights",
+        action="store_true",
+        default=None,
+        help=(
+            "Pass class-balanced weights to per-head CrossEntropyLoss. "
+            "Recommended for the check2HGI next_region head on Florida "
+            "(22% majority-class region would otherwise dominate the "
+            "loss and starve the next_category gradient under NashMTL). "
+            "Absent classes get weight 1.0 (see src/training/helpers.py)."
+        ),
+    )
+    parser.add_argument(
+        "--no-class-weights",
+        dest="use_class_weights",
+        action="store_false",
+        default=None,
+        help="Force-disable class-balanced CE weighting even if the config default is on.",
+    )
+    parser.add_argument(
+        "--task-a-input-type",
+        type=str,
+        choices=("checkin", "region", "concat"),
+        default="checkin",
+        help=(
+            "Check2HGI MTL only: input modality for task-a slot (next_category). "
+            "'checkin' (default, bit-exact-legacy) = 9-window of check-in emb; "
+            "'region' = 9-window of region emb via placeid→region lookup; "
+            "'concat' = [checkin ⊕ region] stacked on feature axis. Used by the "
+            "P4 per-task-modality ablation (CH03)."
+        ),
+    )
+    parser.add_argument(
+        "--task-b-input-type",
+        type=str,
+        choices=("checkin", "region", "concat"),
+        default="checkin",
+        help=(
+            "Check2HGI MTL only: input modality for task-b slot (next_region). "
+            "See --task-a-input-type. P1 showed region-emb input is the right "
+            "modality for the region head (53% Acc@10 vs 20% on check-in)."
+        ),
+    )
+    parser.add_argument(
         "--next-target",
         type=str,
         choices=("next_category", "next_poi"),
@@ -375,6 +525,274 @@ def _parse_args(argv=None) -> argparse.Namespace:
         type=int,
         default=None,
         help="Training batch size. Overrides config value.",
+    )
+    parser.add_argument(
+        "--max-lr",
+        type=float,
+        default=None,
+        help="OneCycleLR max_lr. Overrides config value. STL next uses 0.01, STL region GRU 0.003, MTL default 0.001.",
+    )
+    parser.add_argument(
+        "--scheduler",
+        type=str,
+        choices=("onecycle", "constant", "cosine", "warmup_constant",
+                 "reg_head_warmup_decay"),
+        default=None,
+        help=(
+            "LR scheduler type. 'onecycle' (default) preserves legacy "
+            "behaviour. 'constant' holds --max-lr fixed (disentangles "
+            "'more epochs' from 'stretched OneCycleLR schedule', F45). "
+            "'cosine' decays from --max-lr to 0 without warmup. "
+            "'warmup_constant' (F48-H2) linearly warms LR over "
+            "--pct-start of total steps, then holds --max-lr forever. "
+            "'reg_head_warmup_decay' (F50 F64/B2) applies a ramp-hold-decay "
+            "multiplier ONLY to reg_head + alpha_no_wd groups (others stay "
+            "at base LR); requires per-head optimizer."
+        ),
+    )
+    parser.add_argument(
+        "--reg-head-warmup-decay-peak-mult",
+        dest="reg_head_warmup_decay_peak_mult",
+        type=float,
+        default=10.0,
+        help=(
+            "F64/B2 — peak LR multiplier for reg_head during warmup-decay "
+            "schedule (default 10.0 → reg_head LR peaks at 10× its base)."
+        ),
+    )
+    parser.add_argument(
+        "--reg-head-warmup-decay-warmup-epochs",
+        dest="reg_head_warmup_decay_warmup_epochs",
+        type=int,
+        default=5,
+        help=(
+            "F64/B2 — epochs of linear ramp-up for reg_head LR (default 5)."
+        ),
+    )
+    parser.add_argument(
+        "--reg-head-warmup-decay-plateau-epochs",
+        dest="reg_head_warmup_decay_plateau_epochs",
+        type=int,
+        default=15,
+        help=(
+            "F64/B2 — last epoch of the peak-LR plateau (default 15). "
+            "Linear decay from this epoch to total --epochs back to base."
+        ),
+    )
+    parser.add_argument(
+        "--joint-loader-strategy",
+        dest="joint_loader_strategy",
+        type=str,
+        choices=("max_size_cycle", "min_size_truncate"),
+        default=None,
+        help=(
+            "F65 — joint-dataloader cycling strategy. 'max_size_cycle' "
+            "(legacy default) cycles the shorter loader to match longer. "
+            "'min_size_truncate' stops at the shortest loader's end with no "
+            "cycling — tests whether the F50 D5 reg-saturation observation "
+            "is driven by the cycle pattern."
+        ),
+    )
+    parser.add_argument(
+        "--pct-start",
+        type=float,
+        default=None,
+        help=(
+            "OneCycleLR pct_start (warmup fraction). PyTorch default 0.3. "
+            "Smaller values push peak LR earlier and leave more epochs in "
+            "annealing. Used by F46."
+        ),
+    )
+    parser.add_argument(
+        "--cat-lr",
+        type=float,
+        default=None,
+        help=(
+            "Per-head LR (F48-H3) — LR for the cat encoder + cat head "
+            "param group. When --cat-lr, --reg-lr and --shared-lr are "
+            "ALL set, the optimizer is built with three distinct param "
+            "groups and --max-lr is ignored. Pair with --scheduler "
+            "constant so the per-group LRs survive."
+        ),
+    )
+    parser.add_argument(
+        "--reg-lr",
+        type=float,
+        default=None,
+        help="Per-head LR — LR for the next encoder + next head group (F48-H3).",
+    )
+    parser.add_argument(
+        "--shared-lr",
+        type=float,
+        default=None,
+        help=(
+            "Per-head LR — LR for the cross-attn + final_ln group (F48-H3). "
+            "Default recommendation: shared_lr = reg_lr (cross-attn is in "
+            "the reg gradient path; throttling it reproduces F44 not H3)."
+        ),
+    )
+    parser.add_argument(
+        "--freeze-cat-stream",
+        dest="freeze_cat_stream",
+        action="store_true",
+        default=False,
+        help=(
+            "F49 encoder-frozen λ=0 isolation: set requires_grad=False on "
+            "category_encoder + category_poi so the cat encoder cannot "
+            "co-adapt as a reg-helper via cross-attention K/V. Requires "
+            "--mtl-loss static_weight --category-weight 0.0 (the cat-loss "
+            "must be zero or the configuration is incoherent). See "
+            "docs/studies/check2hgi/research/F49_LAMBDA0_DECOMPOSITION_GAP.md."
+        ),
+    )
+    parser.add_argument(
+        "--freeze-cat-after-epoch",
+        dest="freeze_cat_after_epoch",
+        type=int,
+        default=None,
+        metavar="N",
+        help=(
+            "F50 P3 (warmup-then-freeze): train cat side normally for the "
+            "first N epochs, then freeze category_encoder + category_poi "
+            "from epoch N onward. Reg + shared keep training. Tests whether "
+            "continued cat-encoder co-adaptation (per F49 Layer 2) is "
+            "hurting reg at FL. Unlike --freeze-cat-stream this does NOT "
+            "require --category-weight 0.0; cat is trained for the warmup "
+            "window then frozen. See `MTL_FLAWS_AND_FIXES.md` §3 H1.5."
+        ),
+    )
+    parser.add_argument(
+        "--alternating-optimizer-step",
+        dest="alternating_optimizer_step",
+        action="store_true",
+        default=False,
+        help=(
+            "F50 P4 (per-batch alternating-SGD): even batches update cat-side "
+            "params from L_cat only; odd batches update reg-side params from "
+            "L_reg only. Shared params see one task's gradient signal per "
+            "batch (alternating). Tests 'does fine-grained alternation prevent "
+            "shared backbone hijacking?'. Requires --mtl-loss static_weight "
+            "and --gradient-accumulation-steps 1. See MTL_FLAWS_AND_FIXES.md §3 H1.5."
+        ),
+    )
+    parser.add_argument(
+        "--reg-encoder-lr",
+        dest="reg_encoder_lr",
+        type=float,
+        default=None,
+        metavar="LR",
+        help=(
+            "F50 D3 (per-encoder LR split): separate LR for next_encoder, "
+            "splitting it out of the reg group. Default reuses --reg-lr. Tests "
+            "mechanism α — the reg encoder is under-trained at FL because "
+            "loss-side cat_weight=0.75 scaling effectively shrinks reg "
+            "gradient by 4x. Suggested: 1e-2 or 3e-2 (10x reg_lr) to "
+            "compensate for the loss-side scaling."
+        ),
+    )
+    parser.add_argument(
+        "--reg-head-lr",
+        dest="reg_head_lr",
+        type=float,
+        default=None,
+        metavar="LR",
+        help=(
+            "F50 D6 (reg head LR split): separate LR for next_poi (where α "
+            "scalar lives in next_getnext_hard). Tests whether α growth is "
+            "the bottleneck (D1 + cat_weight sweep show STL α=0 ≈ MTL ≈ 73 pp; "
+            "STL α-trainable = 82.44 pp; the prior is functionally disabled "
+            "in MTL). Suggested: 3e-2 (10x reg_lr) to wake up α."
+        ),
+    )
+    parser.add_argument(
+        "--reg-head-param",
+        action="append",
+        default=[],
+        metavar="KEY=VALUE",
+        help="Override region head hyperparameter (task_b_head_params) in the MTL task_set. Repeatable. E.g. --reg-head-param hidden_dim=512 --reg-head-param num_layers=3",
+    )
+    parser.add_argument(
+        "--per-fold-transition-dir",
+        dest="per_fold_transition_dir",
+        type=str,
+        default=None,
+        metavar="DIR",
+        help=(
+            "AUDIT-C4 fix: directory containing per-fold transition matrices "
+            "(``region_transition_log_fold{1..k}.pt``). When set, the trainer "
+            "swaps the static ``transition_path`` in next-head params for the "
+            "fold-specific file each fold, eliminating val->train leakage in "
+            "the GETNext graph prior. Build with: "
+            "python scripts/compute_region_transition.py --state STATE --per-fold"
+        ),
+    )
+    parser.add_argument(
+        "--min-best-epoch",
+        dest="min_best_epoch",
+        type=int,
+        default=0,
+        metavar="N",
+        help=(
+            "F50 B1: earliest epoch (0-indexed) eligible to be selected as "
+            "best by the per-task BestModelTracker. Defends against "
+            "init-artifact peaks (e.g. GETNext alpha_init=2.0 makes ep 1 "
+            "the prior alone, not learned signal). Set to 2 or 3 to skip "
+            "the init window. Default 0 = legacy behaviour."
+        ),
+    )
+    parser.add_argument(
+        "--alpha-no-weight-decay",
+        dest="alpha_no_weight_decay",
+        action="store_true",
+        help=(
+            "F50 B9: exempt the learnable alpha scalar (next_getnext_hard* "
+            "head's graph-prior weight) from AdamW weight decay. WD=0.05 "
+            "applies a constant pull-toward-zero every step, fighting the "
+            "gradient-driven alpha growth needed to reach STL's ep 17-20 "
+            "regime (alpha ~ 2.0). Requires per-head LR mode "
+            "(--cat-lr/--reg-lr/--shared-lr)."
+        ),
+    )
+    parser.add_argument(
+        "--alpha-frozen-until-epoch",
+        dest="alpha_frozen_until_epoch",
+        type=int,
+        default=None,
+        metavar="N",
+        help=(
+            "F50 B4: freeze the learnable alpha scalar at its init value "
+            "for the first N epochs, then unfreeze. Lets the cat task "
+            "stabilise at the un-amplified prior magnitude before alpha "
+            "starts growing and disturbing the shared backbone. Default "
+            "(unset/0) = alpha trainable from epoch 0 (legacy)."
+        ),
+    )
+    parser.add_argument(
+        "--reg-head",
+        type=str,
+        default=None,
+        help=(
+            "Override the region-task head factory (task_b.head_factory) in the MTL task_set. "
+            "Default preserves the preset's choice (next_gru for CHECK2HGI_NEXT_REGION). "
+            "Use e.g. --reg-head next_stan to swap in the STAN head."
+        ),
+    )
+    parser.add_argument(
+        "--cat-head-param",
+        action="append",
+        default=[],
+        metavar="KEY=VALUE",
+        help="Override category head hyperparameter (task_a_head_params) in the MTL task_set. Repeatable. Symmetric to --reg-head-param.",
+    )
+    parser.add_argument(
+        "--cat-head",
+        type=str,
+        default=None,
+        help=(
+            "Override the category-task head factory (task_a.head_factory) in the MTL task_set. "
+            "Default preserves the preset's choice (None → MTLnet's CategoryHeadTransformer default). "
+            "Use e.g. --cat-head next_gru or --cat-head category_ensemble for the F27 cat-head ablation."
+        ),
     )
     parser.add_argument(
         "--folds",
@@ -439,6 +857,27 @@ def _parse_args(argv=None) -> argparse.Namespace:
         default=False,
         help="Skip saving model checkpoints. Saves disk for disposable runs (screen, promote).",
     )
+    parser.add_argument(
+        "--tf32",
+        action="store_true",
+        default=False,
+        help=(
+            "CUDA: enable TF32 for fp32 matmul + cudnn (no-op on MPS/CPU). "
+            "Trades small numeric drift on non-autocast paths for ~5-10%% "
+            "throughput. Off by default to keep parity with NORTH_STAR."
+        ),
+    )
+    parser.add_argument(
+        "--compile",
+        dest="compile_model",
+        action="store_true",
+        default=False,
+        help=(
+            "Wrap the model in torch.compile (CUDA only). First fold "
+            "incurs compilation overhead; steady-state speedup ~1.2-1.5x. "
+            "May introduce numeric drift vs NORTH_STAR — exploratory."
+        ),
+    )
     return parser.parse_args(argv)
 
 
@@ -479,6 +918,50 @@ def _apply_cli_overrides(
         if args.batch_size <= 0:
             raise ValueError("--batch-size must be > 0")
         config = dataclasses.replace(config, batch_size=args.batch_size)
+    if args.max_lr is not None:
+        if args.max_lr <= 0:
+            raise ValueError("--max-lr must be > 0")
+        config = dataclasses.replace(config, max_lr=args.max_lr)
+    if args.scheduler is not None:
+        config = dataclasses.replace(config, scheduler_type=args.scheduler)
+    if args.pct_start is not None:
+        if not (0 < args.pct_start < 1):
+            raise ValueError("--pct-start must be in (0, 1)")
+        config = dataclasses.replace(config, pct_start=args.pct_start)
+    # F64/B2 — reg_head warmup-decay schedule params (only consumed when
+    # scheduler_type == "reg_head_warmup_decay"). Always stamp on config so
+    # the runner reads via getattr without needing presence checks.
+    config = dataclasses.replace(
+        config,
+        reg_head_warmup_decay_peak_mult=float(args.reg_head_warmup_decay_peak_mult),
+        reg_head_warmup_decay_warmup_epochs=int(args.reg_head_warmup_decay_warmup_epochs),
+        reg_head_warmup_decay_plateau_epochs=int(args.reg_head_warmup_decay_plateau_epochs),
+    )
+    if args.joint_loader_strategy is not None:
+        config = dataclasses.replace(
+            config, joint_loader_strategy=args.joint_loader_strategy)
+    # Per-head LR (F48-H3). Validate as a triple — partial sets are an
+    # error since the runner only switches to per-head mode when all
+    # three are present.
+    _per_head_set = {
+        "cat_lr": args.cat_lr,
+        "reg_lr": args.reg_lr,
+        "shared_lr": args.shared_lr,
+    }
+    _set_keys = [k for k, v in _per_head_set.items() if v is not None]
+    if _set_keys and len(_set_keys) != 3:
+        raise ValueError(
+            f"--cat-lr / --reg-lr / --shared-lr must all be set together, "
+            f"got only {_set_keys}. Per-head LR is an all-or-nothing mode."
+        )
+    if len(_set_keys) == 3:
+        for k, v in _per_head_set.items():
+            if v <= 0:
+                raise ValueError(f"--{k.replace('_', '-')} must be > 0")
+        config = dataclasses.replace(
+            config,
+            cat_lr=args.cat_lr, reg_lr=args.reg_lr, shared_lr=args.shared_lr,
+        )
     if args.next_target is not None:
         config = dataclasses.replace(config, next_target=args.next_target)
     if args.seed is not None:
@@ -490,6 +973,8 @@ def _apply_cli_overrides(
             config,
             gradient_accumulation_steps=args.gradient_accumulation_steps,
         )
+    if args.use_class_weights is not None:
+        config = dataclasses.replace(config, use_class_weights=args.use_class_weights)
 
     if args.candidate is not None:
         if config.task_type != "mtl":
@@ -547,6 +1032,105 @@ def _apply_cli_overrides(
         loss_params.update(loss_param_overrides)
         config = dataclasses.replace(config, mtl_loss_params=loss_params)
 
+    if getattr(args, "freeze_cat_stream", False):
+        if config.task_type != "mtl":
+            raise ValueError("--freeze-cat-stream requires --task mtl")
+        if config.mtl_loss != "static_weight":
+            raise ValueError(
+                "--freeze-cat-stream requires --mtl-loss static_weight "
+                "(the F49 encoder-frozen variant is defined for "
+                "category_weight=0.0 under static_weight)"
+            )
+        cat_w = config.mtl_loss_params.get("category_weight")
+        if cat_w is None or float(cat_w) != 0.0:
+            raise ValueError(
+                "--freeze-cat-stream requires --category-weight 0.0; "
+                "freezing the cat stream while still applying L_cat is "
+                f"incoherent (got category_weight={cat_w!r})"
+            )
+        config = dataclasses.replace(config, freeze_cat_stream=True)
+
+    if getattr(args, "freeze_cat_after_epoch", None) is not None:
+        n = int(args.freeze_cat_after_epoch)
+        if config.task_type != "mtl":
+            raise ValueError("--freeze-cat-after-epoch requires --task mtl")
+        if n < 1 or n >= int(config.epochs):
+            raise ValueError(
+                f"--freeze-cat-after-epoch={n} must be in [1, epochs-1] "
+                f"(epochs={config.epochs})"
+            )
+        if getattr(config, "freeze_cat_stream", False):
+            raise ValueError(
+                "--freeze-cat-after-epoch and --freeze-cat-stream are mutually "
+                "exclusive (the latter freezes from epoch 0)."
+            )
+        config = dataclasses.replace(config, freeze_cat_after_epoch=n)
+
+    if getattr(args, "alternating_optimizer_step", False):
+        if config.task_type != "mtl":
+            raise ValueError("--alternating-optimizer-step requires --task mtl")
+        if config.mtl_loss != "static_weight":
+            raise ValueError(
+                "--alternating-optimizer-step requires --mtl-loss static_weight "
+                "(per-batch task selection bypasses the MTL weighter)."
+            )
+        if int(config.gradient_accumulation_steps) != 1:
+            raise ValueError(
+                "--alternating-optimizer-step requires --gradient-accumulation-steps 1 "
+                f"(got {config.gradient_accumulation_steps}); alternation is by batch-idx."
+            )
+        config = dataclasses.replace(config, alternating_optimizer_step=True)
+
+    if getattr(args, "reg_encoder_lr", None) is not None:
+        if config.task_type != "mtl":
+            raise ValueError("--reg-encoder-lr requires --task mtl")
+        if not all(getattr(config, k, None) is not None for k in ("cat_lr", "reg_lr", "shared_lr")):
+            raise ValueError(
+                "--reg-encoder-lr requires per-head LR mode "
+                "(--cat-lr, --reg-lr, --shared-lr all set)."
+            )
+        config = dataclasses.replace(config, reg_encoder_lr=float(args.reg_encoder_lr))
+
+    if getattr(args, "reg_head_lr", None) is not None:
+        if config.task_type != "mtl":
+            raise ValueError("--reg-head-lr requires --task mtl")
+        if not all(getattr(config, k, None) is not None for k in ("cat_lr", "reg_lr", "shared_lr")):
+            raise ValueError(
+                "--reg-head-lr requires per-head LR mode "
+                "(--cat-lr, --reg-lr, --shared-lr all set)."
+            )
+        config = dataclasses.replace(config, reg_head_lr=float(args.reg_head_lr))
+
+    if getattr(args, "per_fold_transition_dir", None) is not None:
+        if config.task_type != "mtl":
+            raise ValueError("--per-fold-transition-dir requires --task mtl")
+        config = dataclasses.replace(
+            config, per_fold_transition_dir=str(args.per_fold_transition_dir)
+        )
+
+    if getattr(args, "min_best_epoch", 0):
+        config = dataclasses.replace(
+            config, min_best_epoch=int(args.min_best_epoch)
+        )
+
+    if getattr(args, "alpha_no_weight_decay", False):
+        if config.task_type != "mtl":
+            raise ValueError("--alpha-no-weight-decay requires --task mtl")
+        if not all(getattr(config, k, None) is not None for k in ("cat_lr", "reg_lr", "shared_lr")):
+            raise ValueError(
+                "--alpha-no-weight-decay requires per-head LR mode "
+                "(--cat-lr, --reg-lr, --shared-lr all set)."
+            )
+        config = dataclasses.replace(config, alpha_no_weight_decay=True)
+
+    if getattr(args, "alpha_frozen_until_epoch", None) is not None:
+        if config.task_type != "mtl":
+            raise ValueError("--alpha-frozen-until-epoch requires --task mtl")
+        n = int(args.alpha_frozen_until_epoch)
+        if n < 0:
+            raise ValueError(f"--alpha-frozen-until-epoch must be >= 0, got {n}")
+        config = dataclasses.replace(config, alpha_frozen_until_epoch=n if n > 0 else None)
+
     return config
 
 
@@ -582,6 +1166,7 @@ def _resolve_folds(
     config: ExperimentConfig,
     engine: EmbeddingEngine,
     task_key: str,
+    task_set: Optional[TaskSet] = None,
 ) -> dict:
     """Return the fold_results dict — either loaded from a frozen cache or
     generated on the fly.
@@ -608,6 +1193,9 @@ def _resolve_folds(
             batch_size=config.batch_size,
             seed=config.seed,
             use_weighted_sampling=False,
+            task_set=task_set,
+            task_a_input_type=getattr(args, "task_a_input_type", "checkin"),
+            task_b_input_type=getattr(args, "task_b_input_type", "checkin"),
         )
         return creator.create_folds(config.state, engine)
 
@@ -702,15 +1290,143 @@ def main(argv=None) -> None:
 
     seed_everything(config.seed)
 
+    # Optional CUDA perf knobs — both default-off so paper runs match
+    # NORTH_STAR exactly. They live here (post-seed) because the seed
+    # path also touches torch globals.
+    if args.tf32:
+        import torch
+        if torch.cuda.is_available():
+            torch.set_float32_matmul_precision("high")
+            torch.backends.cuda.matmul.allow_tf32 = True
+            torch.backends.cudnn.allow_tf32 = True
+            logger.info("TF32 enabled (matmul_precision=high, cudnn.allow_tf32=True)")
+        else:
+            logger.info("--tf32 requested but CUDA unavailable; ignored")
+    if args.compile_model:
+        config = dataclasses.replace(config, use_torch_compile=True)
+        # The MTL runner calls torch.autograd.grad(retain_graph=True) for the
+        # gradient-cosine diagnostic (mtl_cv._compute_gradient_cosine). Inductor's
+        # default donated-buffer optimization is incompatible — must be disabled
+        # before any compiled fn is built.
+        import torch._functorch.config as _ft_config
+        _ft_config.donated_buffer = False
+        logger.info(
+            "torch.compile enabled (use_torch_compile=True, "
+            "donated_buffer=False for retain_graph=True compatibility)"
+        )
+
     engine = EmbeddingEngine(config.embedding_engine)
     task_key = config.task_type if config.task_type in _RUNNERS else "mtl"
+
+    # Resolve task_set for MTL runs. Default preset keeps legacy
+    # {category, next} behaviour bit-exact; non-legacy preset activates
+    # the check2HGI task pair and switches fold-creation to MTL_CHECK2HGI.
+    task_set: Optional[TaskSet] = None
+    is_check2hgi_track = False
+    if task_key == "mtl":
+        preset_name = args.task_set or LEGACY_CATEGORY_NEXT.name
+        task_set = get_preset(preset_name)
+        is_check2hgi_track = preset_name == CHECK2HGI_NEXT_REGION.name
+        # SUBSTRATE_COMPARISON_PLAN §5 — MTL counterfactual allows --engine hgi
+        # provided output/hgi/<state>/input/next_region.parquet exists (built
+        # by scripts/probe/build_hgi_next_region.py). Cat input also flips to
+        # HGI's input/next.parquet automatically via IoPaths.
+        _ALLOWED_ENGINES_FOR_C2HGI_PRESET = (EmbeddingEngine.CHECK2HGI, EmbeddingEngine.HGI)
+        if is_check2hgi_track and engine not in _ALLOWED_ENGINES_FOR_C2HGI_PRESET:
+            print(
+                f"error: --task-set {preset_name} requires --engine in "
+                f"{[e.value for e in _ALLOWED_ENGINES_FOR_C2HGI_PRESET]} "
+                f"(got {engine.value}).",
+                file=sys.stderr,
+            )
+            sys.exit(2)
+        # Apply --reg-head / --reg-head-param / --cat-head / --cat-head-param
+        # overrides BEFORE fold creation so FoldCreator sees the final
+        # ``task_b.head_factory`` when deciding which dataloader path to use
+        # (e.g. aux-publishing for the B5 head ``next_getnext_hard``). Cat
+        # overrides don't currently affect fold creation but are applied here
+        # symmetrically so the early task_set is the authoritative source
+        # of head choice. The later ``resolve_task_set`` call after fold
+        # creation additionally sets ``task_b_num_classes``, which can only
+        # be known once labels are loaded — that pass is kept.
+        if is_check2hgi_track and (
+            args.reg_head or args.reg_head_param
+            or args.cat_head or args.cat_head_param
+        ):
+            _early_reg_head_params = _parse_key_value_overrides(
+                args.reg_head_param or [], "--reg-head-param"
+            )
+            _early_cat_head_params = _parse_key_value_overrides(
+                args.cat_head_param or [], "--cat-head-param"
+            )
+            task_set = resolve_task_set(
+                task_set,
+                task_a_head_factory=args.cat_head,
+                task_a_head_params=_early_cat_head_params or None,
+                task_b_head_factory=args.reg_head,
+                task_b_head_params=_early_reg_head_params or None,
+            )
 
     # Resolve folds: prefer the frozen cache under
     # output/{engine}/{state}/folds/fold_indices_{task}.pt (see
     # scripts/study/freeze_folds.py). Falls back to on-the-fly generation
     # with a warning — required for paired statistical tests across
     # ablation runs.
-    fold_results = _resolve_folds(args, config, engine, task_key)
+    fold_resolve_key = "mtl_check2hgi" if is_check2hgi_track else task_key
+    fold_results = _resolve_folds(
+        args, config, engine, fold_resolve_key,
+        task_set=task_set if is_check2hgi_track else None,
+    )
+
+    # For the check2HGI track: resolve task_b.num_classes from the
+    # full next_region label space (the preset stores 0 as a
+    # placeholder) and inject the resolved ``task_set`` into model_params.
+    #
+    # Computing ``n_regions`` from a single fold's train labels is a
+    # subtle bug: val folds can contain regions absent from any given
+    # train fold (cross-fold user partition doesn't preserve region
+    # support). If the model is sized for a too-small n_regions and
+    # val/other-fold labels exceed that range, bincount-based metrics
+    # fail at runtime. Using the max across EVERY fold's (train ∪ val)
+    # labels yields the true label-space size.
+    if is_check2hgi_track:
+        assert task_set is not None
+        # Resolve task_b (region) num_classes from the union of train
+        # and val labels across every fold. Cross-fold user partition
+        # doesn't preserve region support, so a single fold's train
+        # labels can miss classes present in val or other folds; a
+        # too-small n_regions breaks bincount-based metrics at runtime.
+        # task_a (next_category) is always 7 — no runtime resolution needed.
+        max_b = -1
+        for fr in fold_results.values():
+            max_b = max(
+                max_b,
+                int(fr.next.train.y.max().item()),
+                int(fr.next.val.y.max().item()),
+            )
+        n_regions = max_b + 1
+        reg_head_params = _parse_key_value_overrides(
+            args.reg_head_param or [], "--reg-head-param"
+        )
+        cat_head_params = _parse_key_value_overrides(
+            args.cat_head_param or [], "--cat-head-param"
+        )
+        task_set = resolve_task_set(
+            task_set,
+            task_a_head_factory=args.cat_head,
+            task_a_head_params=cat_head_params if cat_head_params else None,
+            task_b_num_classes=n_regions,
+            task_b_head_params=reg_head_params if reg_head_params else None,
+            task_b_head_factory=args.reg_head,
+        )
+        logger.info(
+            "check2HGI task_set resolved: task_a=%s/%d, task_b=%s/%d",
+            task_set.task_a.name, task_set.task_a.num_classes,
+            task_set.task_b.name, task_set.task_b.num_classes,
+        )
+        updated_params = dict(config.model_params)
+        updated_params["task_set"] = task_set
+        config = dataclasses.replace(config, model_params=updated_params)
 
     # Apply max_folds limit (run only first N folds).
     # config.k_folds stays as the split structure count (>= 2);
@@ -761,8 +1477,12 @@ def main(argv=None) -> None:
     global _NO_CHECKPOINTS
     _NO_CHECKPOINTS = getattr(args, "no_checkpoints", False)
 
-    runner = _RUNNERS[task_key]
-    runner(config, results_path, fold_results)
+    if is_check2hgi_track:
+        assert task_set is not None
+        _run_mtl_check2hgi(config, results_path, fold_results, task_set)
+    else:
+        runner = _RUNNERS[task_key]
+        runner(config, results_path, fold_results)
 
     logger.info("Done. Results written to: %s", results_path)
 

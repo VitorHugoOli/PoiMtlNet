@@ -32,6 +32,73 @@ from torchmetrics.functional.classification import (
 )
 
 
+def _handrolled_cls_metrics(
+    preds: torch.Tensor,
+    targets: torch.Tensor,
+    num_classes: int,
+) -> tuple[float, float, float, float]:
+    """Memory-O(N + num_classes) Acc / macro-F1 for high-cardinality heads.
+
+    torchmetrics' ``multiclass_accuracy`` / ``multiclass_f1_score``
+    build an internal confusion matrix of size ``num_classes**2``
+    via ``bincount(minlength=num_classes**2)``. That allocation is
+    ~30GB for 1K classes × 6K batch and OOMs on any device.
+
+    This implementation uses per-class TP / FP / FN counts via
+    ``torch.bincount`` on the 1-D predicted and target class streams —
+    no ``num_classes**2`` tensor anywhere. Matches torchmetrics output
+    for micro-accuracy, macro-accuracy (balanced) and macro/weighted F1
+    on single-label multi-class data.
+    """
+    n = preds.numel()
+    if n == 0:
+        return 0.0, 0.0, 0.0, 0.0
+
+    correct = (preds == targets).to(torch.float32)
+    acc_micro = correct.mean().item()
+
+    # Per-class TP / (TP + FN) = recall; we also need precision via FP.
+    # ``bincount(targets, weights=correct)`` → per-class TP counts.
+    # ``bincount(targets)``                 → per-class support (TP + FN).
+    # ``bincount(preds)``                   → per-class predicted (TP + FP).
+    tp = torch.bincount(targets, weights=correct, minlength=num_classes)
+    support = torch.bincount(targets, minlength=num_classes).to(torch.float32)
+    predicted = torch.bincount(preds, minlength=num_classes).to(torch.float32)
+
+    # macro-accuracy = mean over per-class recall on classes with support.
+    recall_per_class = torch.where(
+        support > 0, tp / support.clamp_min(1.0), torch.zeros_like(tp),
+    )
+    precision_per_class = torch.where(
+        predicted > 0, tp / predicted.clamp_min(1.0), torch.zeros_like(tp),
+    )
+    # F1 = 2PR/(P+R), 0 when P+R==0.
+    denom = precision_per_class + recall_per_class
+    f1_per_class = torch.where(
+        denom > 0,
+        2 * precision_per_class * recall_per_class / denom.clamp_min(1e-12),
+        torch.zeros_like(denom),
+    )
+    # AUDIT-C5 fix — both macro metrics (acc_macro = mean recall,
+    # f1_macro) divide by the count of "relevant" classes: those with
+    # support OR predictions. Pre-fix used ``support > 0`` only, which
+    # silently dropped FP-only classes (predicted but never targeted)
+    # from the average. torchmetrics' macro path INCLUDES them (with
+    # contribution 0), so on high-cardinality region (4702 classes;
+    # model often predicts >> 1500 distinct classes) handrolled
+    # produced 1.5-3× larger macro values than torchmetrics. Now they
+    # agree to within float tolerance.
+    relevant = (support > 0) | (predicted > 0)
+    n_relevant = int(relevant.sum().item())
+    acc_macro = float(recall_per_class.sum().item() / max(n_relevant, 1))
+    f1_macro = float(f1_per_class[relevant].mean().item()) if n_relevant > 0 else 0.0
+    # Weighted F1 — weights = support / total support.
+    total_support = support.sum().clamp_min(1.0)
+    f1_weighted = float((f1_per_class * (support / total_support)).sum().item())
+
+    return acc_micro, acc_macro, f1_macro, f1_weighted
+
+
 def _top_k_accuracy(logits: torch.Tensor, targets: torch.Tensor, k: int) -> float:
     """Fraction of samples whose true class is in the top-k predictions.
 
@@ -56,25 +123,36 @@ def _rank_of_target(logits: torch.Tensor, targets: torch.Tensor) -> torch.Tensor
 
     Returns an int64 tensor of shape ``(N,)``.
     """
+    # On MPS, the chunked comparison's MPSGraph backing op fails with
+    # "MPSGaph does not support tensor dims larger than INT_MAX" when
+    # N × C > 2^31 (e.g. CA train fold: 286K × 8497 ≈ 2.4B). Fall back
+    # to CPU for the rank computation; downstream reductions (mrr, ndcg)
+    # work on the resulting (N,) int64 tensor on either device.
+    orig_device = logits.device
+    if orig_device.type == 'mps':
+        logits = logits.cpu()
+        targets = targets.cpu()
     # (N, 1) gather — score of the true class per row
     target_scores = logits.gather(dim=-1, index=targets.unsqueeze(-1))
-    # Count strictly higher-scoring classes; add 1 for the target itself.
-    higher = (logits > target_scores).sum(dim=-1)
+    # Chunked computation: the naive (logits > target_scores) materialises
+    # an [N × C] boolean tensor that, on FL (127K samples × 4702 regions
+    # × 1 byte ≈ 600 MB *expanded to 4.46 GB during the .sum reduction*),
+    # OOM-killed the T4 mid-validation. Process in row-chunks so peak
+    # allocation is bounded by chunk × C ≈ 80 MB on FL.
+    n = logits.size(0)
+    chunk = 4096
+    higher = torch.empty(n, dtype=torch.long, device=logits.device)
+    for i in range(0, n, chunk):
+        higher[i:i + chunk] = (logits[i:i + chunk] > target_scores[i:i + chunk]).sum(dim=-1)
     return higher + 1
 
 
-def _mean_reciprocal_rank(logits: torch.Tensor, targets: torch.Tensor) -> float:
-    rank = _rank_of_target(logits, targets).float()
-    return (1.0 / rank).mean().item()
+def _mrr_from_rank(rank: torch.Tensor) -> float:
+    return (1.0 / rank.float()).mean().item()
 
 
-def _ndcg_at_k(logits: torch.Tensor, targets: torch.Tensor, k: int) -> float:
-    """NDCG@K with single-relevant-item binary relevance.
-
-    IDCG is 1 (one relevant item, perfectly ranked). DCG is
-    ``1 / log2(rank + 1)`` if the true class falls in the top-k, else 0.
-    """
-    rank = _rank_of_target(logits, targets)                  # (N,)
+def _ndcg_from_rank(rank: torch.Tensor, k: int) -> float:
+    """NDCG@K with single-relevant-item binary relevance, given precomputed rank."""
     hit = rank <= k
     # Use float math; add 1 so rank=1 -> log2(2) = 1 -> DCG=1.
     dcg = torch.where(
@@ -83,6 +161,19 @@ def _ndcg_at_k(logits: torch.Tensor, targets: torch.Tensor, k: int) -> float:
         torch.zeros_like(rank, dtype=torch.float32),
     )
     return dcg.mean().item()
+
+
+def _mean_reciprocal_rank(logits: torch.Tensor, targets: torch.Tensor) -> float:
+    return _mrr_from_rank(_rank_of_target(logits, targets))
+
+
+def _ndcg_at_k(logits: torch.Tensor, targets: torch.Tensor, k: int) -> float:
+    """NDCG@K with single-relevant-item binary relevance.
+
+    IDCG is 1 (one relevant item, perfectly ranked). DCG is
+    ``1 / log2(rank + 1)`` if the true class falls in the top-k, else 0.
+    """
+    return _ndcg_from_rank(_rank_of_target(logits, targets), k)
 
 
 def compute_classification_metrics(
@@ -145,32 +236,52 @@ def compute_classification_metrics(
     # torchmetrics expects integer predictions for the top-1 path.
     preds = logits.argmax(dim=-1)
 
-    acc_micro = multiclass_accuracy(
-        preds, targets, num_classes=num_classes, average="micro"
-    ).item()
-    acc_macro = multiclass_accuracy(
-        preds, targets, num_classes=num_classes, average="macro"
-    ).item()
-    f1_macro = multiclass_f1_score(
-        preds, targets, num_classes=num_classes, average="macro", zero_division=0
-    ).item()
-    f1_weighted = multiclass_f1_score(
-        preds, targets, num_classes=num_classes, average="weighted", zero_division=0
-    ).item()
+    # High-cardinality heads (e.g. next_region with ~10^3 classes) blow up
+    # **any** device in torchmetrics' confusion-matrix path — bincount
+    # allocates ``num_classes**2 * batch_size`` floats internally. For
+    # 1K classes × 6K batch that's ~30GB regardless of CPU/MPS/CUDA.
+    # Above the threshold, use hand-rolled per-class accumulation via
+    # ``torch.bincount`` on 1-D inputs, which stays O(N + num_classes)
+    # memory and is numerically equivalent to torchmetrics for the
+    # micro/macro-averaged accuracy and F1 we report.
+    _CARDINALITY_HAND_ROLLED_THRESHOLD = 256
+    if num_classes > _CARDINALITY_HAND_ROLLED_THRESHOLD:
+        acc_micro, acc_macro, f1_macro, f1_weighted = _handrolled_cls_metrics(
+            preds, targets, num_classes,
+        )
+    else:
+        acc_micro = multiclass_accuracy(
+            preds, targets, num_classes=num_classes, average="micro"
+        ).item()
+        acc_macro = multiclass_accuracy(
+            preds, targets, num_classes=num_classes, average="macro"
+        ).item()
+        f1_macro = multiclass_f1_score(
+            preds, targets, num_classes=num_classes, average="macro", zero_division=0
+        ).item()
+        f1_weighted = multiclass_f1_score(
+            preds, targets, num_classes=num_classes, average="weighted", zero_division=0
+        ).item()
 
+    # Compute rank-of-target once and reuse for MRR + NDCG@k. The chunked
+    # `[N × C]` comparison inside `_rank_of_target` is the dominant cost on
+    # high-cardinality heads (FL: 31 chunks × ~80 MB each per validation
+    # pass) — without caching, MRR + NDCG@3 + NDCG@5 each rebuild it,
+    # tripling the work.
+    rank = _rank_of_target(logits, targets)
     metrics: Dict[str, float] = {
         _key("accuracy"): acc_micro,
         _key("accuracy_macro"): acc_macro,
         _key("f1"): f1_macro,
         _key("f1_weighted"): f1_weighted,
-        _key("mrr"): _mean_reciprocal_rank(logits, targets),
+        _key("mrr"): _mrr_from_rank(rank),
     }
 
     for k in top_k:
         if k <= 1:
             continue
         metrics[_key(f"top{k}_acc")] = _top_k_accuracy(logits, targets, k)
-        metrics[_key(f"ndcg_{k}")] = _ndcg_at_k(logits, targets, k)
+        metrics[_key(f"ndcg_{k}")] = _ndcg_from_rank(rank, k)
 
     return metrics
 

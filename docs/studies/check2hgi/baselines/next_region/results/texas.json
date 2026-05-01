@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "state": "texas",
+  "task": "next_region",
+  "n_rows": 460976,
+  "n_classes": 6553,
+  "protocol": {
+    "folds": 5,
+    "epochs": 50,
+    "seed": 42,
+    "stratification": "target_category",
+    "groups": "userid",
+    "splitter": "StratifiedGroupKFold(shuffle=True)"
+  },
+  "floors": {
+    "majority_class": {
+      "acc1_mean": 3.472,
+      "acc1_std": 0.1577,
+      "acc5_mean": 3.472,
+      "acc5_std": 0.1577,
+      "acc10_mean": 3.472,
+      "acc10_std": 0.1577,
+      "mrr_mean": 3.472,
+      "mrr_std": 0.1577,
+      "source_json": "docs/studies/check2hgi/results/P0/simple_baselines/texas/next_region.json"
+    },
+    "markov_1_region": {
+      "acc1_mean": 29.8853,
+      "acc1_std": 0.2759,
+      "acc5_mean": 47.7148,
+      "acc5_std": 0.2672,
+      "acc10_mean": 54.9352,
+      "acc10_std": 0.3363,
+      "mrr_mean": 37.4969,
+      "mrr_std": 0.2491,
+      "source_json": "docs/studies/check2hgi/results/P0/simple_baselines/texas/next_region.json"
+    }
+  },
+  "baselines": {
+    "stan": {
+      "_pending_faithful": "STAN faithful train still running.",
+      "stl_check2hgi": {
+        "acc1_mean": 29.0353,
+        "acc1_std": 0.443,
+        "acc5_mean": 52.0051,
+        "acc5_std": 0.5316,
+        "acc10_mean": 61.3466,
+        "acc10_std": 0.3633,
+        "mrr_mean": 39.9595,
+        "mrr_std": 0.4545,
+        "macro_f1_mean": 9.2929,
+        "macro_f1_std": 0.1645,
+        "tag": "STL_TX_check2hgi_stan_5f50ep",
+        "date": "2026-04-30",
+        "source_json": "docs/studies/check2hgi/results/P1/region_head_texas_region_5f_50ep_STL_TX_check2hgi_stan_5f50ep.json"
+      },
+      "stl_hgi": {
+        "acc1_mean": 29.5473,
+        "acc1_std": 0.4275,
+        "acc5_mean": 53.1624,
+        "acc5_std": 0.4828,
+        "acc10_mean": 62.7024,
+        "acc10_std": 0.3744,
+        "mrr_mean": 40.7509,
+        "mrr_std": 0.4245,
+        "macro_f1_mean": 10.2451,
+        "macro_f1_std": 0.2078,
+        "tag": "STL_TX_hgi_stan_5f50ep",
+        "date": "2026-04-30",
+        "source_json": "docs/studies/check2hgi/results/P1/region_head_texas_region_5f_50ep_STL_TX_hgi_stan_5f50ep.json"
+      }
+    }
+  }
+}

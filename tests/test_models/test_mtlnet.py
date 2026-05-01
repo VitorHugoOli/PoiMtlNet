@@ -220,3 +220,95 @@ class TestParameterSeparation:
         assert shared_ids | task_ids == all_ids, (
             "Union of shared and task-specific parameters does not cover all model parameters"
         )
+
+
+# ---------------------------------------------------------------------------
+# Sequential task_a branch (non-legacy task_set, e.g. CHECK2HGI_NEXT_REGION).
+# Legacy tests above exclusively hit the flat-category path; these new tests
+# exercise the ``if self._task_a_is_sequential`` branches in ``__init__``,
+# ``forward``, and ``cat_forward``.
+# ---------------------------------------------------------------------------
+
+
+class TestSequentialTaskABranch:
+    """MTLnet with a TaskSet where both heads consume sequential input."""
+
+    def test_forward_with_check2hgi_preset_returns_per_head_num_classes(self):
+        import torch
+        from models.mtl import MTLnet
+        from tasks import CHECK2HGI_NEXT_REGION, resolve_task_set
+
+        torch.manual_seed(42)
+        task_set = resolve_task_set(CHECK2HGI_NEXT_REGION, task_b_num_classes=137)
+        model = MTLnet(
+            feature_size=64, shared_layer_size=128, num_classes=7,
+            num_heads=4, num_layers=2, seq_length=9, num_shared_layers=2,
+            task_set=task_set,
+        )
+        # Both inputs [B, 9, D] on the check2HGI path.
+        x_cat = torch.randn(3, 9, 64)
+        x_next = torch.randn(3, 9, 64)
+        out_cat, out_next = model((x_cat, x_next))
+        assert out_cat.shape == (3, 7), "task_a (next_category) head must output 7 classes"
+        assert out_next.shape == (3, 137), "task_b (next_region) head must output resolved num_classes"
+        assert model._task_a_is_sequential is True
+        assert model._task_b_is_sequential is True
+
+    def test_cat_forward_handles_sequential_input_without_squeeze(self):
+        """cat_forward on the legacy path does ``.squeeze(1)`` on a 2-D
+        tensor (no-op). On the sequential-task_a path, that squeeze would
+        drop the window dim and corrupt the head's input. Confirm the
+        sequential branch is active and returns the right shape."""
+        import torch
+        from models.mtl import MTLnet
+        from tasks import CHECK2HGI_NEXT_REGION, resolve_task_set
+
+        torch.manual_seed(0)
+        task_set = resolve_task_set(CHECK2HGI_NEXT_REGION, task_b_num_classes=50)
+        model = MTLnet(
+            feature_size=64, shared_layer_size=128, num_classes=7,
+            num_heads=4, num_layers=2, seq_length=9, num_shared_layers=2,
+            task_set=task_set,
+        )
+        model.eval()
+        x_cat_seq = torch.randn(2, 9, 64)
+        out = model.cat_forward(x_cat_seq)
+        assert out.shape == (2, 7)
+
+    def test_forward_equal_to_cat_and_next_forward_in_eval_mode(self):
+        """Pins the same contract as the legacy test but on the sequential
+        task_a path — ``forward((x_cat, x_next))[0]`` should equal
+        ``cat_forward(x_cat)`` bit-exactly in eval mode (no dropout RNG)."""
+        import torch
+        from models.mtl import MTLnet
+        from tasks import CHECK2HGI_NEXT_REGION, resolve_task_set
+
+        torch.manual_seed(1)
+        task_set = resolve_task_set(CHECK2HGI_NEXT_REGION, task_b_num_classes=40)
+        model = MTLnet(
+            feature_size=64, shared_layer_size=128, num_classes=7,
+            num_heads=4, num_layers=2, seq_length=9, num_shared_layers=2,
+            task_set=task_set,
+        )
+        model.eval()
+        x_cat = torch.randn(2, 9, 64)
+        x_next = torch.randn(2, 9, 64)
+        full_cat, full_next = model((x_cat, x_next))
+        isolated_cat = model.cat_forward(x_cat)
+        isolated_next = model.next_forward(x_next)
+        assert torch.equal(full_cat, isolated_cat), "cat path must match in eval mode"
+        assert torch.equal(full_next, isolated_next), "next path must match in eval mode"
+
+    def test_task_embedding_size_stays_two_slots_for_sequential_preset(self):
+        """Two-slot topology — task_embedding still has 2 rows."""
+        import torch
+        from models.mtl import MTLnet
+        from tasks import CHECK2HGI_NEXT_REGION, resolve_task_set
+
+        task_set = resolve_task_set(CHECK2HGI_NEXT_REGION, task_b_num_classes=30)
+        model = MTLnet(
+            feature_size=64, shared_layer_size=128, num_classes=7,
+            num_heads=4, num_layers=2, seq_length=9, num_shared_layers=2,
+            task_set=task_set,
+        )
+        assert tuple(model.task_embedding.weight.shape) == (2, 128)

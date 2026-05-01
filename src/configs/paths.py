@@ -35,6 +35,7 @@ class EmbeddingEngine(Enum):
     SPACE2VEC = "space2vec"
     SPHERE2VEC = "sphere2vec"
     CHECK2HGI = "check2hgi"
+    CHECK2HGI_POOLED = "check2hgi_pooled"  # POI-mean-pooled C4 counterfactual
     POI2HGI = "poi2hgi"
     FUSION = "fusion"  # Multi-embedding fusion
 
@@ -381,6 +382,35 @@ class IoPaths:
         if embedd_engine == EmbeddingEngine.FUSION:
             return cls.get_fusion_next(state)
         return cls.get_input_dir(state, embedd_engine) / "next.parquet"
+
+    @classmethod
+    def get_next_region(cls, state: str, embedd_engine: EmbeddingEngine) -> Path:
+        """Next-region input path.
+
+        The next-region *label space* is derived from the check2HGI
+        preprocessing graph artifact (``poi_to_region`` tensor) — that
+        labelling is substrate-independent. Each engine that wants to
+        run a region task must publish its own ``input/next_region.parquet``
+        with substrate-specific embedding columns (built by
+        ``scripts/probe/build_hgi_next_region.py`` and friends).
+
+        Currently supported: CHECK2HGI (canonical), HGI (built for the
+        Phase-1 MTL counterfactual; see SUBSTRATE_COMPARISON_PLAN §5).
+        Other engines: port the builder + pre-stage the parquet first.
+        """
+        supported = (EmbeddingEngine.CHECK2HGI, EmbeddingEngine.HGI)
+        if embedd_engine not in supported:
+            raise ValueError(
+                f"next_region not yet built for {embedd_engine}. Supported: "
+                f"{[e.name for e in supported]}. Build with "
+                f"scripts/probe/build_hgi_next_region.py (or analogous)."
+            )
+        return cls.get_input_dir(state, embedd_engine) / "next_region.parquet"
+
+    @classmethod
+    def load_next_region(cls, state: str, embedd_engine: EmbeddingEngine) -> DataFrame:
+        """Load next-region input data for a state (CHECK2HGI only)."""
+        return pd.read_parquet(cls.get_next_region(state, embedd_engine))
 
     @classmethod
     def load_next(cls, state: str, embedd_engine: EmbeddingEngine) -> DataFrame:

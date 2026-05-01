@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "state": "arizona",
+  "task": "next_category",
+  "n_classes": 7,
+  "protocol": {
+    "folds": 5,
+    "epochs": 35,
+    "seed": 42,
+    "stratification": "target_category",
+    "groups": "userid",
+    "splitter": "StratifiedGroupKFold(shuffle=True)"
+  },
+  "floors": {
+    "majority_class": {
+      "acc1_mean": 34.009, "acc1_std": 0.011,
+      "acc5_mean": 34.009, "acc5_std": 0.011,
+      "macro_f1_mean": 7.25, "macro_f1_std": 0.00,
+      "source_json": "docs/studies/check2hgi/results/P0/simple_baselines/arizona/next_category.json",
+      "f1_source_json": "docs/studies/check2hgi/results/P0/simple_baselines/arizona/next_category_f1.json"
+    },
+    "top_k_popular": {
+      "acc1_mean": 34.009, "acc1_std": 0.011,
+      "acc5_mean": 89.809, "acc5_std": 0.011,
+      "mrr_mean": 56.854, "mrr_std": 0.008,
+      "source_json": "docs/studies/check2hgi/results/P0/simple_baselines/arizona/next_category.json"
+    },
+    "markov_1_poi": {
+      "acc1_mean": 32.581, "acc1_std": 0.321,
+      "acc5_mean": 71.136, "acc5_std": 0.6,
+      "mrr_mean": 48.476, "mrr_std": 0.364,
+      "macro_f1_mean": 19.48, "macro_f1_std": 0.63,
+      "source_json": "docs/studies/check2hgi/results/P0/simple_baselines/arizona/next_category.json",
+      "f1_source_json": "docs/studies/check2hgi/results/P0/simple_baselines/arizona/next_category_f1.json"
+    }
+  },
+  "baselines": {
+    "mha_pe": {
+      "faithful": {
+        "n_rows": 25394,
+        "acc1_mean": 41.23, "acc1_std": 1.23,
+        "acc3_mean": 81.26, "acc3_std": 0.61,
+        "acc5_mean": 93.07, "acc5_std": 0.36,
+        "mrr_mean": 62.86, "mrr_std": 0.76,
+        "macro_f1_mean": 24.99, "macro_f1_std": 0.85,
+        "weighted_f1_mean": 37.17, "weighted_f1_std": 1.03,
+        "accuracy_macro_mean": 24.30, "accuracy_macro_std": 0.80,
+        "tag": "FAITHFUL_MHAPE_az_5f11ep",
+        "date": "2026-04-27",
+        "source_json": "docs/studies/check2hgi/results/baselines/faithful_mha_pe_arizona_5f_11ep_FAITHFUL_MHAPE_az_5f11ep.json"
+      }
+    },
+    "poi_rgnn": {
+      "faithful": {
+        "n_rows": 22396,
+        "acc1_mean": 41.04, "acc1_std": 1.79,
+        "acc3_mean": 81.84, "acc3_std": 1.30,
+        "acc5_mean": 93.41, "acc5_std": 0.59,
+        "mrr_mean": 62.86, "mrr_std": 1.31,
+        "macro_f1_mean": 27.64, "macro_f1_std": 2.34,
+        "weighted_f1_mean": 38.09, "weighted_f1_std": 2.09,
+        "accuracy_macro_mean": 26.49, "accuracy_macro_std": 1.66,
+        "tag": "FAITHFUL_POIRGNN_az_5f35ep",
+        "date": "2026-04-27",
+        "source_json": "docs/studies/check2hgi/results/baselines/faithful_poi_rgnn_arizona_5f_35ep_FAITHFUL_POIRGNN_az_5f35ep.json"
+      }
+    }
+  },
+  "notes": [
+    "POI-RGNN drops consecutive-duplicate POIs; n_rows (22,396) lower than the in-house pipeline's row count for AZ (~26.4K)."
+  ]
+}

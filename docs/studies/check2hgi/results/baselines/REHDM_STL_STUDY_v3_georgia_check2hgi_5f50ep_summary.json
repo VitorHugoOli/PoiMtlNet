@@ -1,0 +1,15 @@
+{
+  "tag": "REHDM_STL_STUDY_v3_georgia_check2hgi_5f50ep",
+  "state": "georgia",
+  "engine": "check2hgi",
+  "protocol": "5-fold StratifiedGroupKFold (study protocol)",
+  "n_folds": 5,
+  "acc@1_mean": 0.09257837774110463,
+  "acc@1_std": 0.008381695153937085,
+  "acc@5_mean": 0.1666365929790054,
+  "acc@5_std": 0.013493545101535583,
+  "acc@10_mean": 0.22313092521387431,
+  "acc@10_std": 0.013096827687154486,
+  "mrr_mean": 0.13785745524323828,
+  "mrr_std": 0.009969565332503962
+}

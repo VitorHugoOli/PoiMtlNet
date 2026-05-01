@@ -1,0 +1,80 @@
+{
+  "state": "alabama",
+  "folds": 1,
+  "epochs": 30,
+  "seed": 42,
+  "input_type": "region",
+  "n_regions": 1109,
+  "heads": {
+    "next_gru": {
+      "per_fold": [
+        {
+          "accuracy": 0.2099134474992752,
+          "accuracy_macro": 0.04628714477907855,
+          "f1": 0.03295743465423584,
+          "f1_weighted": 0.15354198217391968,
+          "mrr": 0.31546539068222046,
+          "top5_acc": 0.4324154257774353,
+          "ndcg_5": 0.32508841156959534,
+          "top10_acc": 0.5332809090614319,
+          "ndcg_10": 0.35766837000846863,
+          "best_epoch": 27
+        }
+      ],
+      "aggregate": {
+        "accuracy_mean": 0.2099134474992752,
+        "accuracy_std": 0.0,
+        "top5_acc_mean": 0.4324154257774353,
+        "top5_acc_std": 0.0,
+        "top10_acc_mean": 0.5332809090614319,
+        "top10_acc_std": 0.0,
+        "mrr_mean": 0.31546539068222046,
+        "mrr_std": 0.0,
+        "f1_mean": 0.03295743465423584,
+        "f1_std": 0.0
+      },
+      "config": {
+        "max_lr": 0.003,
+        "label_smoothing": 0.0,
+        "input_layernorm": false,
+        "overrides": {},
+        "input_type": "region"
+      }
+    },
+    "next_temporal_cnn": {
+      "per_fold": [
+        {
+          "accuracy": 0.17749802768230438,
+          "accuracy_macro": 0.03497112193496566,
+          "f1": 0.023007269948720932,
+          "f1_weighted": 0.11849956214427948,
+          "mrr": 0.2890687584877014,
+          "top5_acc": 0.4056648313999176,
+          "ndcg_5": 0.2966369688510895,
+          "top10_acc": 0.5183320045471191,
+          "ndcg_10": 0.3330881893634796,
+          "best_epoch": 29
+        }
+      ],
+      "aggregate": {
+        "accuracy_mean": 0.17749802768230438,
+        "accuracy_std": 0.0,
+        "top5_acc_mean": 0.4056648313999176,
+        "top5_acc_std": 0.0,
+        "top10_acc_mean": 0.5183320045471191,
+        "top10_acc_std": 0.0,
+        "mrr_mean": 0.2890687584877014,
+        "mrr_std": 0.0,
+        "f1_mean": 0.023007269948720932,
+        "f1_std": 0.0
+      },
+      "config": {
+        "max_lr": 0.003,
+        "label_smoothing": 0.0,
+        "input_layernorm": false,
+        "overrides": {},
+        "input_type": "region"
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+name: next_tgstan
+domain: next
+status: implemented
+evidence_status: implemented
+registry_key: next_tgstan
+runtime_class: models.next.next_tgstan.head.NextHeadTGSTAN
+runtime_file: src/models/next/next_tgstan/head.py
+source_doc: docs/studies/check2hgi/research/GETNEXT_FINDINGS.md
