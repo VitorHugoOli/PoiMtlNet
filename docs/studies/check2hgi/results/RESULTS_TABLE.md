@@ -38,7 +38,7 @@
 > v6 body (§0 below) landed 2026-05-01. The legacy §1–§5 + Phase-1 / F49 cells are
 > preserved unchanged underneath as audit; **the §0 tables are paper-canonical**.
 
-**Last updated:** 2026-05-01 PM (v7 — §0.1 STL cat F1 updated to multi-seed means {0,1,7,100} for AL/AZ/FL; seed σ replaces fold σ). Prior: 2026-05-01 (v6 body §0 added — leak-free 5-state headline + leak-free CH22 Δm + recipe-selection table).
+**Last updated:** 2026-05-01 PM (v8 — §0.1 Δ_cat p-values added for AL/AZ/FL from multi-seed Wilcoxon; §0.4 CA row upgraded to n=20 multi-seed, now paper-grade significant on both axes; GAP_FILL_WILCOXON.json added). Prior: v7 (STL cat multi-seed means). v6 (§0 initial).
 
 ---
 
@@ -52,15 +52,15 @@ These tables supersede §1–§5 below for paper drafting. All numbers are seed=
 
 | State | n_regions | MTL B9 reg Acc@10 | STL `next_stan_flow` Acc@10 | **Δ_reg pp** | p_reg | MTL B9 cat F1 | STL `next_gru` F1 | **Δ_cat pp** | p_cat |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| **AL** (n=20) | 1,109 | 50.17 ± 0.24 | 61.21 ± 0.18 | **−11.04** | **1.9e-06** | 40.57 ± 0.24 | 41.35 ± 0.17 (n=4 seeds) | −0.78 (≈tied) | — |
-| **AZ** (n=20) | 1,547 | 40.78 ± 0.07 | 53.06 ± 0.15 | **−12.27** | **1.9e-06** | 45.10 ± 0.19 | 43.90 ± 0.17 (n=4 seeds) | **+1.20** | — |
-| **FL** (n=5)  | 4,703 | 63.34 ± 0.11 | 70.62 ± 0.09 | **−7.99** | 0.0625 | 68.59 (F51, n=5) | 67.16 ± 0.13 (n=4 seeds) | **+1.43** | 0.0625 |
+| **AL** (n=20) | 1,109 | 50.17 ± 0.24 | 61.21 ± 0.18 | **−11.04** | **1.9e-06** | 40.57 ± 0.24 | 41.35 ± 0.17 (n=4 seeds) | −0.78 (≈tied) | **0.036** |
+| **AZ** (n=20) | 1,547 | 40.78 ± 0.07 | 53.06 ± 0.15 | **−12.27** | **1.9e-06** | 45.10 ± 0.19 | 43.90 ± 0.17 (n=4 seeds) | **+1.20** | **<1e-04** |
+| **FL** (n=5)  | 4,703 | 63.34 ± 0.11 | 70.62 ± 0.09 | **−7.99** | 0.0625 | 68.51 ± 0.51 (F51, n=5) | 67.16 ± 0.13 (n=4 seeds) | **+1.52** | 0.0625 |
 | **CA** (n=5)  | 8,501 | 47.93 (n=1) | 56.86 (n=1) | **−8.92** | 0.0625 | 64.23 (n=1) | 62.29 ± 0.31 (n=1) | **+1.94** | 0.0625 |
 | **TX** (n=5)  | 6,553 | 42.63 (n=1) | 59.32 (n=1) | **−16.69** | 0.0625 | 65.04 (n=1) | 63.02 ± 0.28 (n=1) | **+2.02** | 0.0625 |
 
 n = paired Wilcoxon sample size: AL/AZ = 4 seeds × 5 folds; FL/CA/TX = 1 seed × 5 folds. p=0.0625 is the n=5 paired-Wilcoxon two-sided ceiling — sign-consistent at 5/5 but not formally significant at α=0.05 two-sided. AL/AZ pooled across seeds {0, 1, 7, 100}.
 
-**v7 update (2026-05-01 PM):** STL `next_gru` cat F1 for AL/AZ/FL refreshed from multi-seed runs {0,1,7,100} completed on H100 (Gap 2 of camera-ready gap-fill). Seed σ replaces fold σ — seed stability is very high (<0.2 pp across all three states). Δ_cat column adjusted accordingly; sign and headline unchanged. Δ_cat p-values for AL/AZ require re-running Wilcoxon against updated multi-seed MTL cat values (pending Gap 1 completion).
+**v7 update (2026-05-01 PM):** STL `next_gru` cat F1 for AL/AZ/FL refreshed from multi-seed runs {0,1,7,100}. Δ_cat p-values now computed from paired Wilcoxon MTL B9 cat vs multi-seed STL cat (n=20 pairs each for AL/AZ): AL p=0.036 (−0.78 pp, ≈tied), AZ p<1e-04 (+1.20 pp, significant), FL p=0.0625 (+1.52 pp, n=5 ceiling). CA multi-seed (n=20) also computed — see §0.4. Wilcoxon JSON: [`../research/GAP_FILL_WILCOXON.json`](../research/GAP_FILL_WILCOXON.json).
 
 **Headline (the classic MTL tradeoff, sign-consistent across all 5 states):**
 - **Reg side:** MTL B9 < STL by 7–17 pp at every state.
@@ -119,8 +119,10 @@ Reg STL `next_stan_flow` matched-head, leak-free per-fold log_T, 5f × 50ep, see
 | AL | 20 | −0.35 | **1.9e-03** | **−2.22** | **1.9e-06** | **H3-alt > B9 on cat; reg tied** |
 | AZ | 20 | −0.09 | 0.23 (n.s.) | **−0.96** | **7.1e-04** | **H3-alt > B9 on cat; reg tied** |
 | FL | 25 | **+3.48** | **3.0e-08** | +0.42 | 1.3e-05 | **B9 > H3-alt on both** (F51) |
-| CA | 5  | +4.74 | 0.062 (5/5) | +0.72 | 0.125 (4/5) | B9 directional |
-| TX | 5  | +1.76 | 0.125 (4/5) | +0.64 | 0.125 (4/5) | B9 directional |
+| CA | **20** | **+4.18** | **<1e-04** | **+0.51** | **<1e-04** | **B9 > H3-alt, both tasks significant** |
+| TX | 5  | +1.76 | 0.125 (4/5) | +0.64 | 0.125 (4/5) | B9 directional (pending multi-seed) |
+
+**v7 update (2026-05-01 PM):** CA row updated from n=5 (seed=42) to n=20 (seeds {0,1,7,100}) — B9 vs H3-alt now paper-grade significant at CA on both tasks (reg +4.18 pp p<1e-04, cat +0.51 pp p<1e-04). TX pending multi-seed (runs in progress). Wilcoxon JSON: [`../research/GAP_FILL_WILCOXON.json`](../research/GAP_FILL_WILCOXON.json).
 
 **B9 is FL-scale-tuned, NOT universal.** B9's three additions over H3-alt (alt-SGD + cosine + α-no-WD) hurt cat at AL/AZ. Mechanism: B9 targets FL's reg-saturation problem (D5); at smaller transition graphs the saturation is less severe AND alt-SGD's per-step temporal gradient separation costs cat-side signal small states can't afford to lose. **Paper recipe-selection narrative:** *"B9 is the FL-scale champion; H3-alt remains the universal recipe at small scale; the optimal MTL recipe is scale-conditional."* Source: [`../PAPER_CLOSURE_RESULTS_2026-05-01.md §4a-bis`](../PAPER_CLOSURE_RESULTS_2026-05-01.md). Wilcoxon JSON: [`../research/PAPER_CLOSURE_RECIPE_WILCOXON.json`](../research/PAPER_CLOSURE_RECIPE_WILCOXON.json).
 
