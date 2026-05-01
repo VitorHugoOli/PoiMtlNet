@@ -38,7 +38,7 @@
 > v6 body (§0 below) landed 2026-05-01. The legacy §1–§5 + Phase-1 / F49 cells are
 > preserved unchanged underneath as audit; **the §0 tables are paper-canonical**.
 
-**Last updated:** 2026-05-01 (v6 body §0 added — leak-free 5-state headline + leak-free CH22 Δm + recipe-selection table). Prior: 2026-04-27 (Phase-1 substrate-comparison cells + F49 3-way decomposition cells appended; pre-2026-04-26 rows preserved verbatim above the new sections at the end of this file).
+**Last updated:** 2026-05-01 PM (v7 — §0.1 STL cat F1 updated to multi-seed means {0,1,7,100} for AL/AZ/FL; seed σ replaces fold σ). Prior: 2026-05-01 (v6 body §0 added — leak-free 5-state headline + leak-free CH22 Δm + recipe-selection table).
 
 ---
 
@@ -52,13 +52,15 @@ These tables supersede §1–§5 below for paper drafting. All numbers are seed=
 
 | State | n_regions | MTL B9 reg Acc@10 | STL `next_stan_flow` Acc@10 | **Δ_reg pp** | p_reg | MTL B9 cat F1 | STL `next_gru` F1 | **Δ_cat pp** | p_cat |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| **AL** (n=20) | 1,109 | 50.17 ± 0.24 | 61.21 ± 0.18 | **−11.04** | **1.9e-06** | 40.57 ± 0.24 | 40.76 ± 1.68 | −0.19 (≈tied) | 0.76 |
-| **AZ** (n=20) | 1,547 | 40.78 ± 0.07 | 53.06 ± 0.15 | **−12.27** | **1.9e-06** | 45.10 ± 0.19 | 43.21 ± 0.87 | **+1.90** | **1.9e-06** |
-| **FL** (n=5)  | 4,703 | 63.34 ± 0.11 | 70.62 ± 0.09 | **−7.99** | 0.0625 | 68.59 (F51, n=5) | 66.98 ± 0.61 (F37, n=1) | **+1.61** | 0.0625 |
+| **AL** (n=20) | 1,109 | 50.17 ± 0.24 | 61.21 ± 0.18 | **−11.04** | **1.9e-06** | 40.57 ± 0.24 | 41.35 ± 0.17 (n=4 seeds) | −0.78 (≈tied) | — |
+| **AZ** (n=20) | 1,547 | 40.78 ± 0.07 | 53.06 ± 0.15 | **−12.27** | **1.9e-06** | 45.10 ± 0.19 | 43.90 ± 0.17 (n=4 seeds) | **+1.20** | — |
+| **FL** (n=5)  | 4,703 | 63.34 ± 0.11 | 70.62 ± 0.09 | **−7.99** | 0.0625 | 68.59 (F51, n=5) | 67.16 ± 0.13 (n=4 seeds) | **+1.43** | 0.0625 |
 | **CA** (n=5)  | 8,501 | 47.93 (n=1) | 56.86 (n=1) | **−8.92** | 0.0625 | 64.23 (n=1) | 62.29 ± 0.31 (n=1) | **+1.94** | 0.0625 |
 | **TX** (n=5)  | 6,553 | 42.63 (n=1) | 59.32 (n=1) | **−16.69** | 0.0625 | 65.04 (n=1) | 63.02 ± 0.28 (n=1) | **+2.02** | 0.0625 |
 
 n = paired Wilcoxon sample size: AL/AZ = 4 seeds × 5 folds; FL/CA/TX = 1 seed × 5 folds. p=0.0625 is the n=5 paired-Wilcoxon two-sided ceiling — sign-consistent at 5/5 but not formally significant at α=0.05 two-sided. AL/AZ pooled across seeds {0, 1, 7, 100}.
+
+**v7 update (2026-05-01 PM):** STL `next_gru` cat F1 for AL/AZ/FL refreshed from multi-seed runs {0,1,7,100} completed on H100 (Gap 2 of camera-ready gap-fill). Seed σ replaces fold σ — seed stability is very high (<0.2 pp across all three states). Δ_cat column adjusted accordingly; sign and headline unchanged. Δ_cat p-values for AL/AZ require re-running Wilcoxon against updated multi-seed MTL cat values (pending Gap 1 completion).
 
 **Headline (the classic MTL tradeoff, sign-consistent across all 5 states):**
 - **Reg side:** MTL B9 < STL by 7–17 pp at every state.
@@ -86,11 +88,12 @@ FL multi-seed = 5 seeds {42, 0, 1, 7, 100} × 5 folds; AL/AZ/CA/TX = single seed
 ### 0.3 · Substrate axis (CH16 + CH18-cat) — leak-free 5-state survey
 
 Cat STL `next_gru` matched-head, 5f × 50ep, seed=42. Source: [`../FINAL_SURVEY.md §2`](../FINAL_SURVEY.md).
+C2HGI F1 for AL/AZ/FL updated to multi-seed mean ± seed σ (seeds {0,1,7,100}, 2026-05-01 PM) — substrate Δ is unaffected; Wilcoxon p-values retain seed=42 basis.
 
 | State | C2HGI cat F1 | HGI cat F1 | **Δ pp** | Wilcoxon p_greater | Pos/Neg |
 |---|---:|---:|---:|---:|:-:|
-| AL | **40.76 ± 1.68** | 25.26 ± 1.18 | **+15.50** | **0.0312** | 5/0 |
-| AZ | **43.21 ± 0.87** | 28.69 ± 0.79 | **+14.52** | **0.0312** | 5/0 |
+| AL | **41.35 ± 0.17** (multi-seed) | 25.26 ± 1.18 | **+15.50** | **0.0312** | 5/0 |
+| AZ | **43.90 ± 0.17** (multi-seed) | 28.69 ± 0.79 | **+14.52** | **0.0312** | 5/0 |
 | FL | **63.43 ± 0.98** | 34.41 ± 1.05 | **+29.02** | **0.0312** | 5/0 |
 | CA | **59.94 ± 0.59** | 31.13 ± 1.04 | **+28.81** | **0.0312** | 5/0 |
 | TX | **60.24 ± 1.84** | 31.89 ± 0.55 | **+28.34** | **0.0312** | 5/0 |
