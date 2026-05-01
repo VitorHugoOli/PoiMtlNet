@@ -276,7 +276,16 @@ class MTLnetCrossAttn(MTLnet):
             out_cat = self.category_poi(shared_cat.squeeze(1)).view(
                 -1, self.num_classes_task_a
             )
-        out_next = self.next_poi(shared_next)
+        # Residual skip: if the reg head has been built with
+        # `enable_residual_skip=True`, hand it the raw next_input alongside
+        # the shared backbone output. Lets the head reach back to the
+        # un-mixed region-identity signal that the cross-attn backbone
+        # strips. See `docs/studies/check2hgi/research/B9_STL_STAN_SWAP_AZ_FL.md`
+        # Round 2 — the MTL→STL gap on reg is largely architectural.
+        if getattr(self.next_poi, "_uses_residual", False):
+            out_next = self.next_poi(shared_next, residual_input=next_input)
+        else:
+            out_next = self.next_poi(shared_next)
         return out_cat, out_next
 
     def cat_forward(self, category_input: torch.Tensor) -> torch.Tensor:

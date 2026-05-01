@@ -181,6 +181,8 @@ class NextHeadSTAN(nn.Module):
         num_heads: int = 4,
         dropout: float = 0.3,
         bias_init: str = "alibi",
+        enable_residual_skip: bool = False,
+        raw_embed_dim: int | None = None,
     ):
         # Default changed from "gaussian" to "alibi" on 2026-04-22 per
         # docs/studies/check2hgi/issues/MODEL_DESIGN_REVIEW_2026-04-22.md
@@ -208,6 +210,23 @@ class NextHeadSTAN(nn.Module):
             nn.Linear(d_model, num_classes),
         )
 
+        # Optional residual skip: project the raw last-step embedding directly
+        # to logits and add to the classifier output. Lets the head retain
+        # access to the un-mixed input pathway when it sits behind a heavy
+        # shared backbone (MTL cross-attn) that may strip region-identity
+        # signal. STL `next_stan` operates on raw embeddings directly; the
+        # residual skip restores that pathway under MTL.
+        self._uses_residual = bool(enable_residual_skip)
+        if self._uses_residual:
+            if raw_embed_dim is None:
+                raise ValueError("enable_residual_skip=True requires raw_embed_dim")
+            self.residual_proj = nn.Sequential(
+                nn.LayerNorm(int(raw_embed_dim)),
+                nn.Linear(int(raw_embed_dim), num_classes),
+            )
+        else:
+            self.residual_proj = None
+
     def forward_features(self, x: torch.Tensor) -> torch.Tensor:
         """Run STAN's encoder up to the matching-attention output (pre-classifier).
 
@@ -231,9 +250,20 @@ class NextHeadSTAN(nn.Module):
         last = self.matching_attn(h_norm, padding_mask=padding_mask, last_query_only=True)
         return last
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(
+        self,
+        x: torch.Tensor,
+        residual_input: torch.Tensor | None = None,
+    ) -> torch.Tensor:
         last = self.forward_features(x)
-        return self.classifier(last)
+        logits = self.classifier(last)
+        if self.residual_proj is not None and residual_input is not None:
+            # Pick the last non-pad step from the raw sequence.
+            pad = (residual_input.abs().sum(dim=-1) == 0)
+            last_idx = (~pad).long().cumsum(dim=1).argmax(dim=1)
+            raw_last = residual_input[torch.arange(residual_input.size(0)), last_idx]
+            logits = logits + self.residual_proj(raw_last)
+        return logits
 
 
 __all__ = ["NextHeadSTAN"]
