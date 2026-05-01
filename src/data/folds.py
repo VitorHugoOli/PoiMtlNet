@@ -903,7 +903,13 @@ class FoldCreator:
         # transition prior. (Earlier broader-leakage audit was right that
         # those heads carry the C4 leak via log_T, but they don't read
         # last_region_idx.)
-        _HEADS_REQUIRING_AUX_MTL = {"next_getnext_hard", "next_getnext_hard_hsm"}
+        # Both legacy and renamed (2026-05-01 → STAN-Flow) registry IDs are listed
+        # so the aux gate fires whether the user passes `next_getnext_hard` or
+        # `next_stan_flow` via the head factory.
+        _HEADS_REQUIRING_AUX_MTL = {
+            "next_getnext_hard", "next_getnext_hard_hsm",       # legacy aliases
+            "next_stan_flow", "next_stan_flow_hsm",             # paper-facing names
+        }
         use_aux = task_b_head in _HEADS_REQUIRING_AUX_MTL
         if use_aux:
             if "last_region_idx" not in region_df.columns:
