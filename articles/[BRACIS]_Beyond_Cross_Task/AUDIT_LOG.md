@@ -8,7 +8,7 @@
 
 ## §1 · Canonical numerical anchors (what every cited number must match)
 
-Source: `docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v8, 2026-05-01 PM — AL/AZ/FL cat-Δ Wilcoxon landed, FL MTL B9 cat refined, CA recipe-selection upgraded to multi-seed).
+Source: `docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v9, 2026-05-02 — TX recipe-selection upgraded to n=20 multi-seed, B9 paper-grade at FL/CA/TX; v8: AL/AZ/FL cat-Δ Wilcoxon, CA recipe multi-seed).
 
 ### §0.1 Five-state architectural-Δ (MTL B9 vs matched-head STL) — v8
 
@@ -201,7 +201,8 @@ All other numbers (n=17 cells) round-trip correctly.
 **Surface to user (cannot fix unilaterally):**
 - **D6 anonymous code link** snapshot — needs user to set up Anonymous GitHub or equivalent. This is a real BRACIS-fit risk if not done before submission.
 - ~~AL/AZ/FL cat-Δ Wilcoxon re-run~~ **RESOLVED v8 (2026-05-01)** via `gap_fill_wilcoxon.py` + `GAP_FILL_WILCOXON.json`. AL p=0.036 (small-significantly negative); AZ p<1e-04 (significantly positive); FL p=0.0625 (n=5 ceiling, sign-consistent positive). The directional reading is unchanged.
-- **NEW (camera-ready audit items):** TX MTL multi-seed at {0,1,7,100}; CA MTL-vs-STL §0.1 axis multi-seed (the recipe-selection axis at CA went multi-seed in v8, but the MTL-vs-STL §0.1 axis at CA remains single-seed).
+- ~~**NEW (camera-ready audit items):** TX MTL multi-seed at {0,1,7,100}~~ **RESOLVED v9 (2026-05-02)** via `gap_fill_wilcoxon.py` Analysis C. TX B9 vs H3-alt n=20: reg +1.87 pp p=7e-04, cat +0.52 pp p=2e-04 — paper-grade on both axes. B9 confirmed paper-grade at FL/CA/TX; H3-alt at AL/AZ. Scale-conditional narrative fully closed.
+- **Remaining open (will not close before submission):** CA MTL-vs-STL §0.1 axis multi-seed (the recipe-selection axis at CA went multi-seed in v8, but the MTL-vs-STL §0.1 axis at CA remains single-seed n=5 — not a gap given that n=5 ceiling p=0.0625 is honest and disclosed).
 
 **Macro BRACIS-fit verdict (post-consolidation):**
 - Story spine: ✅ coherent across all five article-side files.
