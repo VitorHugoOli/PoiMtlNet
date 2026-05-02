@@ -8,9 +8,9 @@
 
 ## §1 · Canonical numerical anchors (what every cited number must match)
 
-Source: `docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v10, 2026-05-02 — CA+TX arch-Δ §0.1 upgraded to n=20, p=2e-06 on all four axes; v9 added TX recipe-selection multi-seed §0.4; v8 added AL/AZ/FL cat-Δ Wilcoxon + CA recipe multi-seed).
+Source: `docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v11, 2026-05-02 — FL §0.1 arch-Δ upgraded to n=20, last headline asymmetry closed; all five states now multi-seed paper-grade on §0.1. v10: CA+TX arch-Δ §0.1 upgraded to n=20; v9: TX recipe-selection multi-seed §0.4; v8: AL/AZ/FL cat-Δ Wilcoxon + CA recipe multi-seed).
 
-### §0.1 Five-state architectural-Δ (MTL B9 vs matched-head STL) — v10
+### §0.1 Five-state architectural-Δ (MTL B9 vs matched-head STL) — v11
 
 | State | n_pairs | MTL B9 reg Acc@10 | STL `next_stan_flow` Acc@10 | Δ_reg pp | p_reg | MTL B9 cat F1 | STL `next_gru` cat F1 | Δ_cat pp | p_cat |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -29,10 +29,10 @@ Source: `docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v10, 2026-05-02 �
 - AZ p_cat: was "—" pending; now **<1e-04** (n=20; 18/20 fold-pairs positive; significantly positive).
 - FL MTL B9 cat F1: refined from 68.59 → **68.51 ± 0.51** (multi-seed pooled). Δ_cat: refined from +1.43 → **+1.52** (paired Δ from `GAP_FILL_WILCOXON.json`).
 
-**Rules (v10).**
+**Rules (v11).**
 - AL is **small-significantly negative** (p=0.036, n=20). Honest framing: report the significance AND the small magnitude (0.78 pp ~ 1.9% relative on 41% F1 scale).
-- AL/AZ/CA/TX p_reg = 1.9–2e-06 (multi-seed n=20 pooled). FL p=0.0625 (n=5 ceiling).
-- CA/TX both axes now paper-grade at n=20. FL remains n=5 ceiling (sign-consistent, not formally significant at α=0.05).
+- All five states (AL/AZ/FL/CA/TX) p_reg = 1.9–2e-06 at n=20 multi-seed pooled. **FL §0.1 closed at n=20 in v11** (Δ_reg = −7.34 pp p=1.9e-06; Δ_cat = +1.40 pp p=2e-06).
+- All five states are now paper-grade on §0.1 — last headline asymmetry closed; no state remains at the n=5 single-seed ceiling on §0.1.
 - CA recipe-selection axis (B9 vs H3-alt) is multi-seed n=20 in v8 §0.4 — paper-grade significant on both tasks.
 
 ### §0.2 Δm joint score (CH22 leak-free)
