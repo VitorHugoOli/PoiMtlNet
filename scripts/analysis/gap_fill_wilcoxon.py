@@ -128,6 +128,19 @@ AL_AZ_MTL_B9_DIRS = {
 # FL MTL B9 seed=42 (single seed, from prior session)
 FL_MTL_B9_SEED42_DIR = "results/check2hgi/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260501_052359_421824"
 
+# TX MTL dirs — seeds {0,1,7,100} × {b9, h3alt}; timestamp-aligned from master log
+# Old seed=42 dirs (_20260501_023224_413998 and _20260501_031509_414897) excluded.
+TX_MTL_DIRS = {
+    ("b9",    0):   "results/check2hgi/texas/mtlnet_lr1.0e-04_bs2048_ep50_20260501_224154_395464",
+    ("h3alt", 0):   "results/check2hgi/texas/mtlnet_lr1.0e-04_bs2048_ep50_20260501_232445_397950",
+    ("b9",    1):   "results/check2hgi/texas/mtlnet_lr1.0e-04_bs2048_ep50_20260502_001027_400101",
+    ("h3alt", 1):   "results/check2hgi/texas/mtlnet_lr1.0e-04_bs2048_ep50_20260502_005342_401803",
+    ("b9",    7):   "results/check2hgi/texas/mtlnet_lr1.0e-04_bs2048_ep50_20260502_013938_403692",
+    ("h3alt", 7):   "results/check2hgi/texas/mtlnet_lr1.0e-04_bs2048_ep50_20260502_022233_405231",
+    ("b9",    100): "results/check2hgi/texas/mtlnet_lr1.0e-04_bs2048_ep50_20260502_030814_406999",
+    ("h3alt", 100): "results/check2hgi/texas/mtlnet_lr1.0e-04_bs2048_ep50_20260502_035106_408627",
+}
+
 # ── Analysis A: Gap 2 — MTL B9 cat vs new multi-seed STL cat ─────────────────
 
 print("=" * 60)
@@ -224,12 +237,54 @@ if b9_cat and h3_cat:
     results_b["california"]["cat"] = w_cat
     print(f"CA cat Δ = B9 − H3-alt = {w_cat['delta_pp']:+.2f} pp  p_two={w_cat['p_two_sided']:.4f}  n={w_cat['n_pairs']}")
 
+# ── Analysis C: TX — B9 vs H3-alt, seeds {0,1,7,100} ─────────────────────────
+
+print("\n" + "=" * 60)
+print("C) Gap 1 TX — B9 vs H3-alt, seeds {0,1,7,100}")
+print("=" * 60)
+
+tx_b9_reg, tx_h3_reg, tx_b9_cat, tx_h3_cat = [], [], [], []
+
+for seed in [0, 1, 7, 100]:
+    for recipe, store_reg, store_cat in [("b9", tx_b9_reg, tx_b9_cat), ("h3alt", tx_h3_reg, tx_h3_cat)]:
+        d = ROOT / TX_MTL_DIRS[(recipe, seed)]
+        reg = per_fold_best_from_dir(d, "next_region", "top10_acc_indist")
+        if not reg:
+            reg = per_fold_best_from_dir(d, "region", "top10_acc_indist")
+        cat = per_fold_best_from_dir(d, "next_category", "f1")
+        if not cat:
+            cat = per_fold_best_from_dir(d, "category", "f1")
+        if reg:
+            store_reg.append(reg)
+            print(f"  TX {recipe} seed={seed} reg: {[round(v*100,2) for v in reg]} mean={mean(reg)*100:.2f}%")
+        else:
+            print(f"  TX {recipe} seed={seed} reg: NO DATA")
+        if cat:
+            store_cat.append(cat)
+            print(f"  TX {recipe} seed={seed} cat: {[round(v*100,2) for v in cat]} mean={mean(cat)*100:.2f}%")
+
+results_c = {"texas": {}}
+if tx_b9_reg and tx_h3_reg:
+    n_seeds = min(len(tx_b9_reg), len(tx_h3_reg))
+    w_reg = run_wilcoxon(pool_seeds(tx_b9_reg[:n_seeds]), pool_seeds(tx_h3_reg[:n_seeds]))
+    w_reg["note"] = f"TX B9 vs H3-alt reg Acc@10, {n_seeds} seeds × 5 folds"
+    results_c["texas"]["reg"] = w_reg
+    print(f"\nTX reg Δ = B9 − H3-alt = {w_reg['delta_pp']:+.2f} pp  p_two={w_reg['p_two_sided']:.4f}  n={w_reg['n_pairs']}")
+
+if tx_b9_cat and tx_h3_cat:
+    n_seeds = min(len(tx_b9_cat), len(tx_h3_cat))
+    w_cat = run_wilcoxon(pool_seeds(tx_b9_cat[:n_seeds]), pool_seeds(tx_h3_cat[:n_seeds]))
+    w_cat["note"] = f"TX B9 vs H3-alt cat F1, {n_seeds} seeds × 5 folds"
+    results_c["texas"]["cat"] = w_cat
+    print(f"TX cat Δ = B9 − H3-alt = {w_cat['delta_pp']:+.2f} pp  p_two={w_cat['p_two_sided']:.4f}  n={w_cat['n_pairs']}")
+
 # ── Save ──────────────────────────────────────────────────────────────────────
 out = {
-    "generated": "2026-05-01T23:xx:xxZ",
-    "description": "Gap-fill Wilcoxon: (A) MTL B9 cat vs multi-seed STL next_gru for AL/AZ/FL; (B) CA B9 vs H3-alt multi-seed",
+    "generated": "2026-05-02T05:xx:xxZ",
+    "description": "Gap-fill Wilcoxon: (A) MTL B9 cat vs multi-seed STL next_gru for AL/AZ/FL; (B) CA B9 vs H3-alt multi-seed; (C) TX B9 vs H3-alt multi-seed",
     "gap2_mtl_b9_vs_stl_cat": results_a,
     "gap1_ca_b9_vs_h3alt": results_b,
+    "gap1_tx_b9_vs_h3alt": results_c,
 }
 OUT.write_text(json.dumps(out, indent=2))
 print(f"\nSaved → {OUT}")
