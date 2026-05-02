@@ -2,8 +2,8 @@ import pandas as pd
 import geopandas as gp
 import logging
 
-from config import IoPaths, Resources
-from etl.pre_processing.utils import utils
+from src.configs.paths import IoPaths, Resources
+from src.etl.gowalla.utils import utils
 
 # Configure logging
 logging.basicConfig(

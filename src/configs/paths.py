@@ -45,6 +45,7 @@ class Resources:
     Static paths for resource files.
     """
     _miscellaneous_dir = DATA_ROOT / "miscellaneous"
+    _gowalla_dir = DATA_ROOT / "gowalla"
     # US Census TIGER tract shapefiles (Gowalla states)
     TL_AL: Path = _miscellaneous_dir / "tl_2022_01_tract_AL" / "tl_2022_01_tract.shp"
     TL_AZ: Path = _miscellaneous_dir / "tl_2022_04_tract_AZ" / "tl_2022_04_tract.shp"
@@ -58,6 +59,23 @@ class Resources:
     # Sentinel for grid-based synthetic boroughs (international cities: Tokyo, etc.)
     # When set to None in the HGI pipeline, grid_boroughs.create_grid_boroughs() is used.
     GRID: None = None
+
+    # ── Gowalla raw inputs (consumed by src/etl/gowalla/) ──────────────────
+    # See pipelines/etl/gowalla.pipe.py for a turnkey wrapper.
+    CHECKINS_PARQUET: Path = _gowalla_dir / "gowalla_checkins.parquet"
+    CHECKINS: Path = _gowalla_dir / "gowalla_checkins.csv"
+    SPOTS: Path = _gowalla_dir / "gowalla_spots_subset1.csv"
+    SPOTS_2: Path = _gowalla_dir / "gowalla_spots_subset2.csv"
+    CATEGORIES_STRUCTURE: Path = _gowalla_dir / "gowalla_category_structure.json"
+    CATEGORIES_CALLBACK: Path = _gowalla_dir / "callback_categories.json"
+    EXTRA_CATEGORIES_CALLBACK: Path = _gowalla_dir / "extra_categories.json"
+    # US states shapefile — download from Census TIGER:
+    # https://www2.census.gov/geo/tiger/TIGER2022/STATE/tl_2022_us_state.zip
+    STATES_US: Path = _miscellaneous_dir / "tl_2022_us_state" / "tl_2022_us_state.shp"
+    # Timezone polygons — used by stage 2 to compute local_datetime per checkin.
+    # Download from https://github.com/evansiroky/timezone-boundary-builder/releases
+    # (combined-shapefile-with-oceans variant).
+    TIMEZONES: Path = _miscellaneous_dir / "combined-shapefile-with-oceans" / "combined-shapefile-with-oceans.shp"
 
 
 
@@ -314,6 +332,15 @@ class IoPaths:
     Static paths for I/O operations.
     """
     EMBEDDINGS_FILE: str = "embeddings.parquet"
+
+    # ── Gowalla ETL artefacts (raw → labelled → localised → per-state) ─────
+    _gowalla_etl_dir: Path = DATA_ROOT / "temp" / "gowalla"
+    CHECKINS_ETL_STEP_1: Path = _gowalla_etl_dir / "stage1_categorised.parquet"
+    CHECKINS_ETL_STEP_2: Path = _gowalla_etl_dir / "stage2_localised.parquet"
+    CHECKINS_ETL_STEP_3: Path = _gowalla_etl_dir / "stage3_states.parquet"
+    CHECKINS_ETL_STEP_3_CSV: Path = _gowalla_etl_dir / "stage3_states.csv"
+    CHECKINS_ETL_STATES: Path = DATA_ROOT / "checkins"
+    CHECKINS_ETL_STATES_PARQUET: Path = DATA_ROOT / "checkins_parquet"
 
     @classmethod
     def validate(cls) -> None:
