@@ -155,7 +155,7 @@ Source: [`../baselines/next_category/comparison.md`](../baselines/next_category/
 | Substrate linear probe — C2HGI / HGI / Δ | 30.84 / 18.70 / **+12.14** | 34.12 / 22.54 / **+11.58** | 40.77 / 25.74 / **+15.03** | 37.45 / 21.32 / **+16.13** | 38.38 / 22.33 / **+16.06** |
 | C2HGI cat — `next_gru` STL (matched-head) | 40.76 ± 1.68 | 43.21 ± 0.87 | 63.43 ± 0.98 | 59.94 ± 0.59 | 60.24 ± 1.84 |
 
-C2HGI lifts cat F1 by **+28–33 pp over POI-RGNN** at FL/CA/TX (the headline external comparison). MHA+PE faithful per-state JSONs at `baselines/next_category/results/<state>.json`.
+C2HGI **matched-head STL** lifts cat F1 by **+27–29 pp over our faithful POI-RGNN reproduction** at FL/CA/TX; the **MTL** row widens this external gap to roughly **+32–34 pp**. MHA+PE faithful per-state JSONs at `baselines/next_category/results/<state>.json`.
 
 ---
 
