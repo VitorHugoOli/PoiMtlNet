@@ -1,0 +1,69 @@
+{
+  "description": "FL \u00a70.1 cat-\u0394 Wilcoxon: MTL B9 (mtlnet_crossattn) vs STL next_gru, seeds {0,1,7,100}, n=20",
+  "mtl_dirs": {
+    "0": "results/check2hgi/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260502_162244_127432",
+    "1": "results/check2hgi/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260502_162244_127433",
+    "7": "results/check2hgi/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260502_162244_127434",
+    "100": "results/check2hgi/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260502_162244_127435"
+  },
+  "stl_dirs": {
+    "0": "results/check2hgi/florida/next_lr1.0e-04_bs2048_ep50_20260501_175852_48444",
+    "1": "results/check2hgi/florida/next_lr1.0e-04_bs2048_ep50_20260501_175852_48455",
+    "7": "results/check2hgi/florida/next_lr1.0e-04_bs2048_ep50_20260501_175852_48469",
+    "100": "results/check2hgi/florida/next_lr1.0e-04_bs2048_ep50_20260501_175853_48438"
+  },
+  "cat_wilcoxon_mtl_vs_stl": {
+    "n_pairs": 20,
+    "mean_a": 68.5629,
+    "mean_b": 67.1618,
+    "delta_pp": 1.4011,
+    "p_two_sided": 2e-06,
+    "p_greater": 1e-06,
+    "n_positive": 20,
+    "n_negative": 0,
+    "values_a": [
+      68.9281,
+      67.0537,
+      68.7325,
+      68.9943,
+      69.0255,
+      69.7483,
+      67.8584,
+      67.3129,
+      69.5968,
+      68.1829,
+      68.9381,
+      68.6843,
+      68.5784,
+      68.7037,
+      68.2759,
+      69.4399,
+      67.7735,
+      67.8571,
+      68.2408,
+      69.3338
+    ],
+    "values_b": [
+      68.2489,
+      66.4137,
+      65.3997,
+      68.0376,
+      66.8086,
+      67.7306,
+      67.5111,
+      66.1991,
+      67.5447,
+      67.0169,
+      68.2413,
+      66.9504,
+      66.1774,
+      66.5032,
+      67.9635,
+      68.0795,
+      65.7704,
+      66.9797,
+      67.9297,
+      67.7307
+    ]
+  }
+}

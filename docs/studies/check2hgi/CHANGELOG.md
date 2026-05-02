@@ -14,7 +14,7 @@
 
 | What | Where | Last updated |
 |---|---|---|
-| Five-state architectural-Δ + cat-Δ Wilcoxon | `results/RESULTS_TABLE.md §0.1` | **v10, 2026-05-02** (CA+TX upgraded to n=20; all four axes p=2e-06) |
+| Five-state architectural-Δ + cat-Δ Wilcoxon | `results/RESULTS_TABLE.md §0.1` | **v11, 2026-05-02** (FL upgraded to n=20; all five states paper-grade on §0.1) |
 | Δm joint score (CH22 leak-free) | `results/RESULTS_TABLE.md §0.2` | v6 (leak-free) — unchanged in v7/v8/v9/v10 |
 | Substrate axis (CH16 cat + CH15 reg reframing) | `results/RESULTS_TABLE.md §0.3` + `FINAL_SURVEY.md §2-§4` | v6 — unchanged in v7/v8/v9/v10 |
 | Recipe selection (B9 vs H3-alt) | `results/RESULTS_TABLE.md §0.4` | **v9, 2026-05-02** (TX upgraded to n=20 multi-seed) |
@@ -28,6 +28,19 @@
 ---
 
 ## Timeline of findings (most recent first)
+
+### 2026-05-02 — RESULTS_TABLE v11 (FL §0.1 arch-Δ upgraded to n=20 — all five states paper-grade)
+
+**FL §0.1 architectural-Δ row upgraded from n=5 (single seed=42) to n=20 (seeds {0,1,7,100} × 5 folds).**
+- Δ_reg = −7.34 pp, p = 1.9e-06, 0/20 fold-pairs positive (sign-consistent negative).
+- Δ_cat = +1.40 pp, p = 2e-06, 20/20 fold-pairs positive.
+- MTL B9 cat F1 = 68.56 ± 0.79 % (matches seed=42 reference 68.51 %); reg Acc@10 = 63.27 ± 0.10 %.
+- **The last remaining headline asymmetry is closed.** All five states (AL/AZ/CA/TX/FL) are now n=20 multi-seed on §0.1 with paper-grade significance on the cat axis (AL small-significantly negative; AZ/CA/TX/FL paper-grade positive) and all five paper-grade significant on reg.
+- Recipe used the canonical B9 invocation (matches `scripts/run_f51_multiseed_fl.sh` and CA/TX `run_h100_camera_ready_gaps.sh`): `--cat-head next_gru --reg-head next_getnext_hard --task-a-input-type checkin --task-b-input-type region --category-weight 0.75 --alternating-optimizer-step --scheduler cosine --max-lr 3e-3 --alpha-no-weight-decay`.
+
+**Artefacts.** `research/FL_CAT_DELTA_WILCOXON.json` (new); `scripts/analysis/fl_cat_delta_wilcoxon.py`; `scripts/run_h100_fl_mtl_b9_multiseed.sh` (4-way H100 launcher with canonical recipe).
+
+---
 
 ### 2026-05-02 — RESULTS_TABLE v10 (CA+TX §0.1 arch-Δ upgraded to n=20)
 

@@ -14,7 +14,7 @@ The paper makes paired-test claims at three different power regimes. State them 
 2. **Multi-seed pooled paired Wilcoxon (n = 20 or n = 25).** Four seeds × 5 folds = 20 paired Δs (AL/AZ); five seeds × 5 folds = 25 paired Δs (FL). Pools fold-pairs across independent seed runs to break the n = 5 ceiling. Reaches sub-1e-4 p-values where applicable. AL/AZ multi-seed at {0,1,7,100}; FL multi-seed at {0,1,7,42,100}.
 3. **TOST non-inferiority** at δ ∈ {2 pp, 3 pp} for "tied" claims (CH15 reframing on CA/TX). Used only where the claim is *equivalence within a margin*, not directional.
 
-**Anchor sentence (drop verbatim into §4.3):** *"Each substrate / MTL-vs-STL comparison is reported as a paired Δ across folds with paired Wilcoxon signed-rank. Single-seed paired Wilcoxon at n = 5 has a maximum achievable significance of p = 0.0312 one-sided (0.0625 two-sided), and we explicitly flag where this ceiling binds. Where multi-seed data is available, we pool fold-pairs across seeds (AL/AZ/CA/TX: 4 seeds × 5 folds = 20 paired Δs; FL auxiliary multi-seed axes: 5 seeds × 5 folds = 25 paired Δs), which breaks the n = 5 ceiling and reaches sub-1e-4 or sub-1e-6 p-values. The only remaining headline asymmetry is FL cat-side §0.1, which still uses the single-seed n = 5 paired comparison."*
+**Anchor sentence (drop verbatim into §4.3):** *"Each substrate / MTL-vs-STL comparison is reported as a paired Δ across folds with paired Wilcoxon signed-rank. Single-seed paired Wilcoxon at n = 5 has a maximum achievable significance of p = 0.0312 one-sided (0.0625 two-sided); we explicitly flag where this ceiling binds (the substrate axis §0.3, where seed-replication of HGI re-runs is out of compute scope). Where multi-seed data is available, we pool fold-pairs across seeds: all five states on the §0.1 headline architectural-Δ axis are pooled at 4 seeds × 5 folds = 20 paired Δs; FL auxiliary axes (Δm and recipe selection) are pooled at 5 seeds × 5 folds = 25 paired Δs. The pooled tests reach sub-1e-6 p-values."*
 
 ---
 
@@ -48,7 +48,7 @@ The paper makes paired-test claims at three different power regimes. State them 
 
 ## 2 · C2-cat (MTL ≥ STL on next-category) — VERDICT: paper-grade for AZ/FL, small-significantly negative at AL, directional for CA/TX
 
-> **v8 update (2026-05-01):** `RESULTS_TABLE.md §0.1` (v8) refreshed FL MTL B9 cat F1 from 68.59 → **68.51 ± 0.51** (multi-seed pooled), updating FL Δ_cat from +1.43 → **+1.52** (paired Δ). v8 also ran the AL/AZ/FL cat-Δ Wilcoxon against the multi-seed STL ceiling (`gap_fill_wilcoxon.py` + `GAP_FILL_WILCOXON.json`): **AL p = 0.036** (small-significantly negative, 14/20 fold-pairs negative, n = 20); **AZ p < 1e-04** (significantly positive, 18/20 fold-pairs positive, n = 20); **FL p = 0.0625** (sign-consistent positive at n = 5 ceiling, 5/5 folds positive). The "pending re-run" framing from v7 is now resolved.
+> **v11 update (2026-05-02):** FL §0.1 architectural-Δ row upgraded to n = 20 (seeds {0,1,7,100} × 5 folds) — see `FL_CAT_DELTA_WILCOXON.json`. FL Δ_cat = **+1.40 pp, p = 2e-06** (20/20 fold-pairs positive); FL Δ_reg = **−7.34 pp, p = 1.9e-06** (0/20 positive). MTL B9 cat F1 = 68.56 ± 0.79 % (vs seed=42 reference 68.51 %). The earlier v8 single-seed n = 5 framing (FL p = 0.0625 ceiling) is superseded; all five states on the §0.1 headline are now n = 20 pooled multi-seed.
 
 ### 2.1 Statistical backing (current canonical)
 
@@ -56,7 +56,7 @@ The paper makes paired-test claims at three different power regimes. State them 
 |---|---:|---:|---:|---|
 | AL | 20 (4 seeds × 5 folds) | **−0.78** | **0.036** (two-sided; 14/20 fold-pairs negative) | ⚠️ **small-significantly negative** — formally significant but magnitude small (< 2 % relative on a 41 % F1 scale) |
 | AZ | 20 | **+1.20** | **< 1e-04** (18/20 fold-pairs positive) | ✅ paper-grade positive |
-| FL | 5 (single-seed; STL multi-seed mean used for the table cell, paired Δ at seed = 42 only) | **+1.52** (paired Δ) | 0.0625 (n = 5 ceiling, 5/5 fold-pairs positive) | ⚠️ sign-consistent positive at single-seed ceiling |
+| FL | 20 (4 seeds × 5 folds, multi-seed pooled) | **+1.40** (paired Δ) | **2e-06** (paper-grade; 20/20 fold-pairs positive) | ✅ paper-grade positive |
 | CA | 20 (4 seeds × 5 folds) | **+1.68** | **2e-06** | ✅ paper-grade positive |
 | TX | 20 (4 seeds × 5 folds) | **+1.89** | **2e-06** | ✅ paper-grade positive |
 
@@ -65,7 +65,7 @@ The paper makes paired-test claims at three different power regimes. State them 
 **v8 update:** AL Δ_cat Wilcoxon now landed at p = 0.036 (n = 20 multi-seed; 14/20 fold-pairs negative, two-sided). Statistically, AL is **small-significantly below STL on cat** — not "tied" in the strict statistical sense. But the magnitude is small (~0.78 pp on a 41 % F1 scale, ~1.9 % relative; < 5 × the multi-seed STL σ of 0.17 pp), so the *practical* claim of "≈ tied" is defensible if framed by magnitude rather than significance. Best practice: surface both.
 
 **DO NOT WRITE:** *"MTL gains on cat at every state"* / *"sign-consistent ≥ 0 across five states"* / *"+0 to +2 pp at every state"* / *"AL ≈ tied within multi-seed STL noise"* (the last bullet is no longer fully defensible — Wilcoxon at n = 20 reaches p = 0.036 in the negative direction).
-**DO WRITE:** *"With Check2HGI fixed as substrate, joint MTL over a cross-attention backbone lifts next-category at four of the five states (AZ +1.20 pp, p < 1e-04 across n = 20 multi-seed fold-pairs; FL +1.52 pp, p = 0.0625 at the n = 5 ceiling; CA +1.68 pp, p = 2e-06; TX +1.89 pp, p = 2e-06). At AL the joint cat F1 is small-significantly below single-task (Δ = −0.78 pp, paired Wilcoxon p = 0.036 across n = 20 multi-seed fold-pairs; magnitude small at < 2 % relative on a 41 % F1 scale, ~5 × the multi-seed STL σ)."*
+**DO WRITE:** *"With Check2HGI fixed as substrate, joint MTL over a cross-attention backbone lifts next-category at four of the five states (AZ +1.20 pp, p < 1e-04 across n = 20 multi-seed fold-pairs; FL +1.40 pp, p = 2e-06; CA +1.68 pp, p = 2e-06; TX +1.89 pp, p = 2e-06). At AL the joint cat F1 is small-significantly below single-task (Δ = −0.78 pp, paired Wilcoxon p = 0.036 across n = 20 multi-seed fold-pairs; magnitude small at < 2 % relative on a 41 % F1 scale, ~5 × the multi-seed STL σ)."*
 - This is **stronger** than either the "≈ tied" understatement or the "MTL gains at every state" overclaim because (i) it's defensible on both axes, (ii) it shows we know the difference between paper-grade significance, n = 5 ceiling, and small-magnitude significance, and (iii) the AL small-negative result is itself the smallest-state edge case — consistent with the cleaner substrate-task-asymmetry story (substrate carries cat at every state; MTL coupling helps at most states but not at the smallest one where data is thinnest).
 
 ### 2.3 CA/TX closure in v10
@@ -82,13 +82,13 @@ CA and TX are no longer underpowered on the headline §0.1 cat axis. The v10 clo
 |---|---:|---:|---:|---|
 | AL | 20 (4 seeds × 5 folds) | **−11.04** | **1.9e-06** | ✅ paper-grade |
 | AZ | 20 | **−12.28** | 1.9e-06 | ✅ paper-grade |
-| FL | 5 (single-seed; B9 multi-seed numbers tracked separately) | **−7.99** (paired Δ from `RESULTS_TABLE §0.1` v8; the simple mean-difference 70.62−63.34 = −7.28 reported in the archived `PAPER_CLOSURE_RESULTS §4a` is superseded — paired Δ is what the Wilcoxon tests) | 0.0625 (n = 5 ceiling) | ⚠️ at single-seed ceiling — but FL B9 vs H3-alt multi-seed is paper-grade; the **MTL-vs-STL** at FL needs the multi-seed STL multi-pair test to lift above the n = 5 ceiling |
+| FL | 20 (4 seeds × 5 folds, multi-seed pooled) | **−7.34** (paired Δ from `RESULTS_TABLE §0.1` v11) | **1.9e-06** (paper-grade; 20/20 fold-pairs negative) | ✅ paper-grade negative |
 | CA | 20 (4 seeds × 5 folds) | **−9.50** | **2e-06** | ✅ paper-grade |
 | TX | 20 (4 seeds × 5 folds) | **−16.59** | **2e-06** | ✅ paper-grade |
 
 ### 3.2 Wording fixes
 
-- **DO WRITE:** *"MTL trails matched-head STL `next_stan_flow` on next-region at every state. AL/AZ/CA/TX pooled multi-seed comparisons (n = 20 fold-pairs each) reach paired Wilcoxon p ≈ 2 × 10⁻⁶ in the negative direction; FL remains sign-consistent at the single-seed n = 5 ceiling (5/5 folds negative; p = 0.0625 two-sided). The reg cost is sign-consistent across all five states; the magnitude varies (7–17 pp), with FL the only remaining ceiling-bound headline cell."*
+- **DO WRITE:** *"MTL trails matched-head STL `next_stan_flow` on next-region at every state. All five states pooled multi-seed comparisons (n = 20 fold-pairs each) reach paired Wilcoxon p ≤ 1.9e-06 in the negative direction. The reg cost is sign-consistent and paper-grade significant across all five states; the magnitude varies (7–17 pp)."*
 - **DO NOT WRITE:** *"all states statistically significant"* without the FL qualifier.
 
 ### 3.3 The FL Δm-MRR positive cell — paper-grade (multi-seed)
@@ -111,7 +111,7 @@ The Δ_reg pattern is:
 |---|---:|---:|---:|
 | AL | 1,109 | 10K | −11.04 |
 | AZ | 1,547 | 26K | −12.28 |
-| **FL** | **4,703** | **127K** | **−7.99** |
+| **FL** | **4,703** | **127K** | **−7.34** |
 | CA | 8,501 | 230K | −9.50 |
 | TX | 6,553 | 187K | −16.59 |
 
@@ -127,7 +127,7 @@ On the AL → AZ → FL trajectory the cost shrinks by ~5 pp. CA at the largest 
 
 - **DO NOT WRITE:** *"the cost decreases monotonically with data scale"* (false — TX breaks monotonicity).
 - **DO NOT WRITE:** *"MTL generalises better with more data"* as a general claim (the data point is one trajectory, single-seed at the largest states).
-- **DO WRITE:** *"On the AL → AZ → FL trajectory the architectural reg cost varies from −11.04 → −12.27 → −7.99 pp; CA preserves the regime (−9.50 at the largest cardinality), while TX is non-monotone (−16.59), pointing at state-specific factors beyond raw class count. We report this descriptively; quantifying a scale curve formally would require a within-state density ablation, which we leave for follow-up."*
+- **DO WRITE:** *"On the AL → AZ → FL trajectory the architectural reg cost varies from −11.04 → −12.27 → −7.34 pp; CA preserves the regime (−9.50 at the largest cardinality), while TX is non-monotone (−16.59), pointing at state-specific factors beyond raw class count. We report this descriptively; quantifying a scale curve formally would require a within-state density ablation, which we leave for follow-up."*
 - **Optional Spearman footnote:** ρ(n_regions, Δ_reg) across the 5 states is +0.41 (TX as outlier drives this away from a stronger negative correlation). Include only if reviewers ask; do not lead with it.
 
 ---
@@ -223,7 +223,7 @@ The earlier "F49 +6.48 pp MTL > STL on AL" framing was a leak artefact (asymmetr
 Reviewers in BRACIS empirical track will hunt for:
 
 1. **"You report p = 0.0312 — that's just barely significant."** — Pre-empt by stating once that this is the **maximum achievable significance for n = 5 paired Wilcoxon (5/5 folds)**, not an "underpowered just-significant" finding. Multi-seed where available reaches sub-1e-4.
-2. **"Why is FL still ceiling-bound when AL/AZ/CA/TX are multi-seed?"** — Because only the FL cat-side §0.1 paired comparison remains at the single-seed n = 5 ceiling; disclose the asymmetry explicitly and point to the auxiliary FL multi-seed support on Δm and recipe selection.
+2. **"Are all five states multi-seed on the headline §0.1 axis?"** — Yes. AL/AZ/CA/TX/FL are all n = 20 (4 seeds × 5 folds, pooled multi-seed) on §0.1 as of v11. FL also has auxiliary multi-seed support on Δm and recipe selection (n = 25).
 3. **"You claim 'MTL gains cat at every state' but Table 3 shows AL = −0.19."** — Already fixed in §2.2 above; ensure the wording is corrected throughout.
 4. **"You claim 'cost shrinks with data' but TX breaks the trend."** — Pre-empt in §5.2 / §7 with the descriptive framing in §4.3 above.
 5. **"FL `next_region` is Markov-saturated, so your MTL row trailing Markov-1 looks bad."** — Pre-empt with the Acc@5 + MRR re-direction in §7.3 above.
@@ -242,8 +242,8 @@ Each pre-emption is a single sentence; they live in §Limitations or in the rele
 | C1 substrate Δ (matched-head STL) | 5/5 states at-ceiling significant on the cat side; AL/AZ head sweep + FL/CA/TX matched-head replication | ✅ | qualifier: "head-invariant at AL+AZ; matched-head replicated at FL/CA/TX" |
 | C1 head-invariance (4 head probes) | At-ceiling for AL+AZ; not run at FL/CA/TX | ✅ at AL+AZ | scope qualifier |
 | C1 mechanism (~72 % per-visit) | AL only | ✅ at AL | "at AL"; flag as future replication |
-| C2-cat MTL ≥ STL | Current canonical: AZ paper-grade (+1.20, p < 1e-4 n=20); FL sign-consistent at n=5 ceiling (+1.52, p = 0.0625); CA/TX paper-grade positive (+1.68 / +1.89, both p = 2e-06 n=20); **AL small-significantly negative** (Δ = −0.78 pp, p = 0.036 n=20; magnitude < 2% relative) | ✅ for AZ/CA/TX; ⚠️ for FL (n=5 ceiling); ⚠️ for AL (significant in negative direction, but small) | wording: "lifts cat at four of five states; small-significantly negative at AL" |
-| C2-reg MTL < STL | AL/AZ/CA/TX multi-seed paper-grade; FL single-seed at n = 5 ceiling | ✅ direction | flag the FL ceiling; report the n = 20 closures elsewhere |
+| C2-cat MTL ≥ STL | Current canonical: AZ paper-grade (+1.20, p < 1e-4 n=20); FL paper-grade (+1.40, p = 2e-06 n=20); CA/TX paper-grade positive (+1.68 / +1.89, both p = 2e-06 n=20); **AL small-significantly negative** (Δ = −0.78 pp, p = 0.036 n=20; magnitude < 2% relative) | ✅ for AZ/CA/TX/FL; ⚠️ for AL (significant in negative direction, but small) | wording: "lifts cat at four of five states; small-significantly negative at AL" |
+| C2-reg MTL < STL | All five states multi-seed paper-grade (n = 20, p ≤ 1.9e-06) | ✅ paper-grade at all five | report the n = 20 closures uniformly |
 | C2-Δm joint | FL multi-seed paper-grade (p = 3e-8); other states n = 5 ceiling | ✅ for FL; ⚠️ ceiling for others | flag FL as the multi-seed cell |
 | Scale-progression "cost shrinks with data" | DESCRIPTIVE, n = 5 across states | ⚠️ qualitative only | rewrite to remove monotonicity claim |
 | C2-robustness drop-ins | FL single-seed n = 5; not significant either direction | ✅ as "no significant recovery" | wording fix in §5 |

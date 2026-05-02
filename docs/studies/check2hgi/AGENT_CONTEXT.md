@@ -8,16 +8,16 @@ Read this before any scientific work on the `worktree-check2hgi-mtl` branch. It 
 
 This study runs **alongside** the fusion study — they coexist under `docs/studies/`. Fusion investigates POI-category classification on fused POI-level embeddings; this study investigates **joint next_category + next_region prediction on check-in-level contextual embeddings** (Check2HGI). Do not cross-reference or mix artefacts between the two studies.
 
-**Post-paper-closure + cat-Δ Wilcoxon + TX recipe multi-seed + CA/TX arch-Δ n=20 era (2026-05-02 v10).** Paper closure complete; the headline narrative is **substrate task-asymmetry first, classic MTL tradeoff second**. The article-side BRACIS submission lives in `articles/[BRACIS]_Beyond_Cross_Task/`. **Single canonical numerical source: `results/RESULTS_TABLE.md §0` (v10).** All other numbers in this folder reference it; numbers that contradict v10 are either stale (mark, fix, or archive) or audit-historical.
+**Post-paper-closure + cat-Δ Wilcoxon + TX recipe multi-seed + CA/TX arch-Δ n=20 era (2026-05-02 v11).** Paper closure complete; the headline narrative is **substrate task-asymmetry first, classic MTL tradeoff second**. The article-side BRACIS submission lives in `articles/[BRACIS]_Beyond_Cross_Task/`. **Single canonical numerical source: `results/RESULTS_TABLE.md §0` (v11).** All other numbers in this folder reference it; numbers that contradict v11 are either stale (mark, fix, or archive) or audit-historical.
 
 **Before doing scientific work, read in this order:**
 1. `CHANGELOG.md` — chronological timeline of findings + lessons (the single source for "what was found when, why").
-2. `results/RESULTS_TABLE.md §0` — canonical paper numbers (v10, 2026-05-02).
+2. `results/RESULTS_TABLE.md §0` — canonical paper numbers (v11, 2026-05-02).
 3. `articles/[BRACIS]_Beyond_Cross_Task/AGENT.md` — article-side operational rules + voice + statistics + page budget.
-4. `CLAIMS_AND_HYPOTHESES.md` (with whitelist banner) — paper-facing safe entries are CH16 / CH18-cat / CH15 reframing / CH19 / CH22; everything else needs cross-checking against v10.
+4. `CLAIMS_AND_HYPOTHESES.md` (with whitelist banner) — paper-facing safe entries are CH16 / CH18-cat / CH15 reframing / CH19 / CH22; everything else needs cross-checking against v11.
 
 **Headline (the classic MTL tradeoff, sign-consistent across 5 states):**
-- Cat: MTL ≥ STL at four of five states (AZ +1.20 p < 1e-4 / FL +1.52 p = 0.0625 n=5 / CA +1.68 p = 2e-06 / TX +1.89 p = 2e-06); AL is small-significantly negative (Δ = −0.78 pp, p = 0.036, n = 20 multi-seed; magnitude ~1.9% relative).
+- Cat: MTL ≥ STL at four of five states (AZ +1.20 p < 1e-4 / FL +1.40 p = 2e-06 / CA +1.68 p = 2e-06 / TX +1.89 p = 2e-06); AL is small-significantly negative (Δ = −0.78 pp, p = 0.036, n = 20 multi-seed; magnitude ~1.9% relative). **All five states (AL/AZ/CA/TX/FL) are now pooled multi-seed (n = 20) on the headline §0.1 axis — the last remaining single-seed asymmetry (FL) closed in v11.**
 - Reg: MTL < STL at every state by 7–17 pp (sign-consistent).
 - Substrate (matched-head STL): cat Δ = +14.5 to +29 pp at every state (paired Wilcoxon p = 0.0312 each); reg HGI nominally ahead by 1.6–3.1 pp (TOST tied at CA/TX).
 - Mechanism (CH19, AL-only): per-visit context = ~72% of cat substrate gap.
@@ -45,16 +45,17 @@ Why "MTL lifts both heads" doesn't survive: the bidirectional thesis was a pre-l
 |------|---------|
 | `docs/studies/check2hgi/README.md` | Entry point + canonical-source-aware navigation |
 | `docs/studies/check2hgi/CHANGELOG.md` ⭐ | Chronological timeline of findings + lessons learned (single source for "what was found when") |
-| `docs/studies/check2hgi/results/RESULTS_TABLE.md §0` ⭐ | **Canonical numerical source** for all paper tables (v10, 2026-05-02) |
+| `docs/studies/check2hgi/results/RESULTS_TABLE.md §0` ⭐ | **Canonical numerical source** for all paper tables (v11, 2026-05-02) |
 | `articles/[BRACIS]_Beyond_Cross_Task/` ⭐ | Article-side BRACIS submission folder (AGENT.md / PAPER_DRAFT.md / PAPER_STRUCTURE.md / STATISTICAL_AUDIT.md / TABLES_FIGURES.md / samplepaper.tex / references.bib / AUDIT_LOG.md) |
-| `docs/studies/check2hgi/CLAIMS_AND_HYPOTHESES.md` | Claim catalogue with **paper-facing whitelist banner** (CH16 / CH18-cat / CH15 reframing / CH19 / CH22 are safe; others need cross-checking against v10) |
-| `docs/studies/check2hgi/NORTH_STAR.md` | Committed champion config (B9 + H3-alt scale-conditional; v10-aligned) |
+| `docs/studies/check2hgi/CLAIMS_AND_HYPOTHESES.md` | Claim catalogue with **paper-facing whitelist banner** (CH16 / CH18-cat / CH15 reframing / CH19 / CH22 are safe; others need cross-checking against v11) |
+| `docs/studies/check2hgi/NORTH_STAR.md` | Committed champion config (B9 + H3-alt scale-conditional; v11-aligned) |
 | `docs/studies/check2hgi/FINAL_SURVEY.md` | Substrate-axis 5-state matrix (cat + reg panels) |
 | `docs/studies/check2hgi/CONCERNS.md` | Acknowledged-risks audit log |
 | `docs/studies/check2hgi/MTL_ARCHITECTURE_JOURNEY.md` | Supplementary material narrative (F-trail through B3 → F21c → F45 → F48-H3-alt → F49 → paper closure). **Do not narrate the F-trail in main paper text.** |
 | `docs/studies/check2hgi/PAPER_BASELINES_STRATEGY.md` | Which baselines appear in which paper table; what is deliberately scoped out |
 | `docs/studies/check2hgi/research/GAP_FILL_WILCOXON.json` | v9 Wilcoxon JSON (cat-Δ AL/AZ/FL + CA/TX recipe n=20 multi-seed) |
 | `docs/studies/check2hgi/research/ARCH_DELTA_WILCOXON.json` | v10 Wilcoxon JSON (CA+TX §0.1 arch-Δ n=20; all four axes p=2e-06) |
+| `docs/studies/check2hgi/research/FL_CAT_DELTA_WILCOXON.json` | v11 Wilcoxon JSON (FL §0.1 arch-Δ n=20; cat p=2e-06, reg p=1.9e-06) |
 | `docs/studies/check2hgi/research/PAPER_CLOSURE_WILCOXON.json` | Paper-closure Wilcoxon artefact |
 | `docs/studies/check2hgi/research/PAPER_CLOSURE_RECIPE_WILCOXON.json` | Recipe-selection Wilcoxon artefact |
 | `docs/studies/check2hgi/research/F49_LAMBDA0_DECOMPOSITION_GAP.md` | Cross-attn `task_weight=0` methodology contribution (the survival of F49) |
@@ -77,7 +78,7 @@ Why "MTL lifts both heads" doesn't survive: the bidirectional thesis was a pre-l
 | `archive/2026-04-20_status_reports/` | Early status reports. | CHANGELOG.md |
 | `archive/v1_wip_mixed_scope/` | Pre-scope-split WIP. | — |
 
-Before any scientific work, read `CHANGELOG.md`, `results/RESULTS_TABLE.md §0` (v10), and `articles/[BRACIS]_Beyond_Cross_Task/AGENT.md`.
+Before any scientific work, read `CHANGELOG.md`, `results/RESULTS_TABLE.md §0` (v11), and `articles/[BRACIS]_Beyond_Cross_Task/AGENT.md`.
 
 ---
 

@@ -152,8 +152,8 @@ This panel is the **substrate-vs-architecture decoupling story** — without it 
 State  Recipe   STL           MTL           Δ_cat   p_cat       STL          MTL          Δ_reg
 ─────────────────────────────────────────────────────────────────────────────────────────
 HEADLINE
-FL     B9       67.16±0.13    68.51±0.51    +1.52   0.0625      70.62±0.09   63.34±0.11   −7.99
-                (n=4 seeds)   (n=5 seeds)            (n=5)
+FL     B9       67.16±0.13    68.56±0.79    +1.40   **2e-06**‡  70.62±0.09   63.27±0.10   −7.34‡
+                (n=4 seeds)   (n=4 seeds)            (n=20)
 CA     B9       62.39±0.13    64.07±0.14    +1.68   **2e-06**‡  56.85±0.09   47.35±0.11   −9.50‡
 TX     B9       63.11±0.13    65.00±0.11    +1.89   **2e-06**‡  59.44±0.09   42.84±0.14  −16.59‡
 ─────────────────────────────────────────────────────────────────────────────────────────
@@ -164,21 +164,21 @@ AZ     H3-alt   43.90±0.17    45.10±0.19    +1.20   **<1e-04**‡ 53.06±0.15 
                 (n=4 seeds)   (n=4 seeds)            (n=20)
 ─────────────────────────────────────────────────────────────────────────────────────────
 
-n_pairs: AL/AZ/CA/TX = 20 (4 seeds × 5 folds, pooled multi-seed on the headline §0.1 axis);
-FL = 25 (5 seeds × 5 folds for reg-side auxiliary support; cat-side Wilcoxon at n = 5 ceiling because
-the paired §0.1 cat comparison is still the seed=42 fold set).
+n_pairs: all five states = 20 (4 seeds × 5 folds, pooled multi-seed on the headline §0.1 axis).
+FL also has auxiliary multi-seed support on Δm (n = 25) and recipe selection (n = 25).
 
-Source: `docs/studies/check2hgi/results/RESULTS_TABLE.md §0.1` (v10,
-2026-05-02). FL MTL B9 cat for FL was refreshed in v8 (68.51 ± 0.51,
-multi-seed pooled). CA/TX §0.1 rows were upgraded in v10 via pooled
-multi-seed Wilcoxon (`ARCH_DELTA_WILCOXON.json`): CA Δ_cat = +1.68, Δ_reg =
-−9.50, both p = 2e-06; TX Δ_cat = +1.89, Δ_reg = −16.59, both p = 2e-06.
-Wilcoxon JSONs: `GAP_FILL_WILCOXON.json`, `ARCH_DELTA_WILCOXON.json`.
+Source: `docs/studies/check2hgi/results/RESULTS_TABLE.md §0.1` (v11,
+2026-05-02). FL §0.1 row was upgraded in v11 to n=20 via pooled multi-seed
+Wilcoxon (`FL_CAT_DELTA_WILCOXON.json`): FL Δ_cat = +1.40, p = 2e-06;
+FL Δ_reg = −7.34, p = 1.9e-06. CA/TX §0.1 rows were upgraded in v10
+(`ARCH_DELTA_WILCOXON.json`): CA Δ_cat = +1.68, Δ_reg = −9.50; TX Δ_cat = +1.89,
+Δ_reg = −16.59 — all p = 2e-06.
+Wilcoxon JSONs: `GAP_FILL_WILCOXON.json`, `ARCH_DELTA_WILCOXON.json`, `FL_CAT_DELTA_WILCOXON.json`.
 ```
 
-Caption sentence: *"With Check2HGI fixed as substrate, MTL vs matched-head STL ceilings on both tasks. Headline (FL/CA/TX) reports the B9 recipe (cosine + alternating-SGD + α-no-WD); smaller-scale anchors (AL/AZ) report H3-alt (per-head LR, constant). Δ_reg is sign-consistent at every state, with the magnitude varying non-monotonically (FL smallest at −7.99 pp; TX largest at −16.59 pp). On the cat side, MTL is paper-grade positive at AZ (+1.20 pp, p < 1e-04 across n = 20 multi-seed fold-pairs), CA (+1.68 pp, p = 2e-06), and TX (+1.89 pp, p = 2e-06); FL is sign-consistent positive at the n = 5 ceiling (+1.52 pp, p = 0.0625); AL is small-significantly negative (Δ = −0.78 pp, p = 0.036 across n = 20 multi-seed fold-pairs; magnitude small at < 2 % relative on a 41 % F1 scale)."*
+Caption sentence: *"With Check2HGI fixed as substrate, MTL vs matched-head STL ceilings on both tasks. Headline (FL/CA/TX) reports the B9 recipe (cosine + alternating-SGD + α-no-WD); smaller-scale anchors (AL/AZ) report H3-alt (per-head LR, constant). Δ_reg is sign-consistent at every state and paper-grade significant at all five (p ≤ 1.9e-06 across n = 20 multi-seed fold-pairs), with the magnitude varying non-monotonically (FL smallest at −7.34 pp; TX largest at −16.59 pp). On the cat side, MTL is paper-grade positive at AZ (+1.20 pp, p < 1e-04), FL (+1.40 pp, p = 2e-06), CA (+1.68 pp, p = 2e-06), and TX (+1.89 pp, p = 2e-06) — all across n = 20 multi-seed fold-pairs. AL is small-significantly negative (Δ = −0.78 pp, p = 0.036, n = 20; magnitude small at < 2 % relative on a 41 % F1 scale)."*
 
-**Voice cue:** the caption distinguishes *paper-grade*, *n = 5 ceiling*, *directional*, and *small-significantly negative* — sub-agent A5 must preserve all four registers and not collapse them.
+**Voice cue:** the caption distinguishes *paper-grade*, *directional*, and *small-significantly negative* — sub-agent A5 must preserve all three registers and not collapse them.
 
 ### T4 — Δm joint score, FL multi-seed bolded (§5.2, 0.4 pp)
 
@@ -265,12 +265,11 @@ Standard methods-paper schematic — boxes for {check-in encoder, region encoder
 
 ## 6 · Coverage state at submission (paper-side limitations, not workflow)
 
-Two coverage items become paper-side limitations rather than workflow notes:
+One coverage item remains a paper-side limitation rather than a workflow note:
 
-1. **FL headline asymmetry.** AL/AZ/CA/TX headline §0.1 rows are now pooled multi-seed (n = 20) after the v10 closure. The only remaining asymmetry is FL cat-side §0.1 at the n = 5 paired ceiling, even though FL has auxiliary multi-seed support on Δm and recipe selection. Disclosed in §7 Limitations.
-2. **POI-RGNN / MHA+PE absolute baseline numbers.** Faithful POI-RGNN reproduction values from `RESULTS_TABLE §0.6`: FL 34.49, CA 31.78, TX 33.03 (cat F1). MHA+PE values from `baselines/next_category/results/<state>.json`. The POI-RGNN reproduction caveat (non-user-disjoint folds in the published evaluation; published reports a 31.8–34.5 pp state-level range) is disclosed in T5 caption and §7 Limitations.
+1. **POI-RGNN / MHA+PE absolute baseline numbers.** Faithful POI-RGNN reproduction values from `RESULTS_TABLE §0.6`: FL 34.49, CA 31.78, TX 33.03 (cat F1). MHA+PE values from `baselines/next_category/results/<state>.json`. The POI-RGNN reproduction caveat (non-user-disjoint folds in the published evaluation; published reports a 31.8–34.5 pp state-level range) is disclosed in T5 caption and §7 Limitations.
 
-**Resolved in v8/v9/v10:** AL/AZ/FL cat-Δ Wilcoxon landed in v8; TX recipe multi-seed landed in v9; CA/TX §0.1 architectural-Δ upgraded to n = 20 in v10. The only headline asymmetry still worth disclosing is FL cat-side §0.1 at the n = 5 paired ceiling.
+**Resolved in v8/v9/v10/v11:** AL/AZ/FL cat-Δ Wilcoxon landed in v8; TX recipe multi-seed landed in v9; CA/TX §0.1 architectural-Δ upgraded to n = 20 in v10; **FL §0.1 architectural-Δ upgraded to n = 20 in v11 (last headline asymmetry closed; all five states are now n = 20 multi-seed on §0.1)**.
 
 ---
 
