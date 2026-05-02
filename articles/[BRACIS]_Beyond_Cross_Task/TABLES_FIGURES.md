@@ -47,10 +47,10 @@ This block is cited verbatim in T1 caption and elided in subsequent captions ("s
 | ID | Caption (working) | Rows × cols | Page | Source artefact |
 |---|---|---|:-:|---|
 | **T1** | Dataset statistics (FL/CA/TX headline + AL/AZ smaller-scale anchors) | 5 × 7 | 0.4 | `data/checkins/<state>.parquet`, `output/check2hgi/<state>/regions.parquet` |
-| **T2** | Substrate ablation: **Check2HGI vs HGI on both tasks**, 5 states. Two-panel: (a) cat F1 STL `next_gru` (Δ +14.5 to +29.0 pp; paired Wilcoxon p = 0.0312 each, head-invariant at AL/AZ); (b) reg Acc@10 STL `next_stan_flow` (HGI ≥ Check2HGI 1.6–3.1 pp at AL/AZ/FL; TOST δ=2pp passes at CA/TX, δ=3pp passes at FL). | 5 × 5 (×2 panels) | 0.6 | **`RESULTS_TABLE.md §0.3` (v8)** + `FINAL_SURVEY.md §2, §4` |
-| **T3** | MTL vs STL on both tasks, 5 states, **single merged table** with `\midrule` separating headline (FL/CA/TX) and smaller-scale anchors (AL/AZ). | 5 × 7 | 0.4 | **`RESULTS_TABLE.md §0.1` (v8, multi-seed STL ceiling, paired Δs)** |
-| **T4** | Δm joint score (cat F1 + reg MRR primary; cat F1 + reg Acc@10 secondary), 5 states. **FL multi-seed (n=25) bolded as the strongest number in the paper.** | 5 × 5 | 0.4 | **`RESULTS_TABLE.md §0.2` (v8, leak-free CH22 2026-05-01)** |
-| **T5** | External baselines per state — per-state block layout (CoUrb's `tabela_comparativa` pattern). cat: Majority, Markov-1-POI, POI-RGNN, MHA+PE, our STL ceiling, our MTL row. reg: Majority, Markov-1-region, STL GRU, STL STAN, STL STAN-Flow, ReHDM (AL/AZ/FL only — CA/TX deferred, see §7), our MTL row. Headline (FL/CA/TX) only; AL/AZ in T5-supp if pages allow. | 3 blocks × ~7 rows | 0.7 | **`RESULTS_TABLE.md §0.5–0.6` (v8)** + `baselines/next_*/results/<state>.json` |
+| **T2** | Substrate ablation: **Check2HGI vs HGI on both tasks**, 5 states. Two-panel: (a) cat F1 STL `next_gru` (Δ +14.5 to +29.0 pp; paired Wilcoxon p = 0.0312 each, head-invariant at AL/AZ); (b) reg Acc@10 STL `next_stan_flow` (HGI ≥ Check2HGI 1.6–3.1 pp at AL/AZ/FL; TOST δ=2pp passes at CA/TX, δ=3pp passes at FL). | 5 × 5 (×2 panels) | 0.6 | **`RESULTS_TABLE.md §0.3` (v10)** + `FINAL_SURVEY.md §2, §4` |
+| **T3** | MTL vs STL on both tasks, 5 states, **single merged table** with `\midrule` separating headline (FL/CA/TX) and smaller-scale anchors (AL/AZ). | 5 × 7 | 0.4 | **`RESULTS_TABLE.md §0.1` (v10, paired Δs + CA/TX n=20 closure)** |
+| **T4** | Δm joint score (cat F1 + reg MRR primary; cat F1 + reg Acc@10 secondary), 5 states. **FL multi-seed (n=25) bolded as the strongest number in the paper.** | 5 × 5 | 0.4 | **`RESULTS_TABLE.md §0.2` (v10, leak-free CH22 2026-05-01)** |
+| **T5** | External baselines per state — per-state block layout (CoUrb's `tabela_comparativa` pattern). cat: Majority, Markov-1-POI, POI-RGNN, MHA+PE, our STL ceiling, our MTL row. reg: Majority, Markov-1-region, STL GRU, STL STAN, STL STAN-Flow, ReHDM (AL/AZ/FL only — CA/TX deferred, see §7), our MTL row. Headline (FL/CA/TX) only; AL/AZ in T5-supp if pages allow. | 3 blocks × ~7 rows | 0.7 | **`RESULTS_TABLE.md §0.5–0.6` (v10)** + `baselines/next_*/results/<state>.json` |
 
 **Total tables: ≈ 2.5 pp.**
 
@@ -74,7 +74,7 @@ Saves 0.2 pp; reads better.
 
 | ID | Caption (working) | Page | Cut order | Source |
 |---|---|:-:|:-:|---|
-| **F2** | Scale-progression scatter — Δ_reg pp vs n_regions or log(check-ins), 5 dots labelled by state, dashed trend AL→AZ→FL with TX annotated as non-monotone outlier. Demoted from required to optional after the title was reframed away from "Scale-Sensitive". | 0.4 | **cut 1st** — descriptive observation; one sentence in §5.2 / §7 carries the same content | `RESULTS_TABLE.md §0.1` (v8) reg col |
+| **F2** | Scale-progression scatter — Δ_reg pp vs n_regions or log(check-ins), 5 dots labelled by state, dashed trend AL→AZ→FL with TX annotated as non-monotone outlier. Demoted from required to optional after the title was reframed away from "Scale-Sensitive". | 0.4 | **cut 1st** — descriptive observation; one sentence in §5.2 / §7 carries the same content | `RESULTS_TABLE.md §0.1` (v10) reg col |
 | **F-arch** | Architecture schematic of MTLnetCrossAttn — two task-specific encoders (cat ← check-in seq, reg ← region seq), 8-head bidirectional cross-attention block, residual shared backbone, GRU cat head + STAN-Flow reg head. | 0.5 | **cut 2nd** — standard for BRACIS methods papers but not load-bearing | new figure |
 
 ---
@@ -144,7 +144,7 @@ Caption sentence: *"The substrate is task-asymmetric: Check2HGI's per-visit cont
 
 This panel is the **substrate-vs-architecture decoupling story** — without it a reviewer will assume we cherry-picked the cat side. With it, the substrate's role is precisely scoped.
 
-### T3 — MTL vs STL on both tasks, v8 numbers (§5.2, 0.4 pp)
+### T3 — MTL vs STL on both tasks, current canonical numbers (§5.2, 0.4 pp)
 
 ```
                   Cat F1 (vs STL next_gru)            Reg Acc@10 (vs STL next_stan_flow)
@@ -154,8 +154,8 @@ State  Recipe   STL           MTL           Δ_cat   p_cat       STL          MT
 HEADLINE
 FL     B9       67.16±0.13    68.51±0.51    +1.52   0.0625      70.62±0.09   63.34±0.11   −7.99
                 (n=4 seeds)   (n=5 seeds)            (n=5)
-CA     B9       62.29±0.31    64.23 (n=1)   +1.94   0.0625      56.86        47.93        −8.92
-TX     B9       63.02±0.28    65.04 (n=1)   +2.02   0.0625      59.32        42.63       −16.69
+CA     B9       62.39±0.13    64.07±0.14    +1.68   **2e-06**‡  56.85±0.09   47.35±0.11   −9.50‡
+TX     B9       63.11±0.13    65.00±0.11    +1.89   **2e-06**‡  59.44±0.09   42.84±0.14  −16.59‡
 ─────────────────────────────────────────────────────────────────────────────────────────
 SMALLER-SCALE ANCHORS
 AL     H3-alt   41.35±0.17    40.57±0.24    −0.78   **0.036**‡  61.21±0.18   50.17±0.24  −11.04‡
@@ -164,23 +164,19 @@ AZ     H3-alt   43.90±0.17    45.10±0.19    +1.20   **<1e-04**‡ 53.06±0.15 
                 (n=4 seeds)   (n=4 seeds)            (n=20)
 ─────────────────────────────────────────────────────────────────────────────────────────
 
-n_pairs: AL/AZ = 20 (4 seeds × 5 folds, paired Wilcoxon multi-seed v8);
-FL = 25 (5 seeds × 5 folds for reg; cat-side Wilcoxon at n = 5 ceiling because
-the STL multi-seed at FL was at single-fold-set);
-CA = 5 (MTL-vs-STL §0.1 axis still single-seed; CA recipe-selection axis is
-n = 20 multi-seed in v8 — see §6.2);
-TX = 5 (single-seed at submission; multi-seed extension is a camera-ready
-audit item).
+n_pairs: AL/AZ/CA/TX = 20 (4 seeds × 5 folds, pooled multi-seed on the headline §0.1 axis);
+FL = 25 (5 seeds × 5 folds for reg-side auxiliary support; cat-side Wilcoxon at n = 5 ceiling because
+the paired §0.1 cat comparison is still the seed=42 fold set).
 
-Source: docs/studies/check2hgi/results/RESULTS_TABLE.md §0.1 (v8,
-2026-05-01 PM). MTL B9 cat for FL refreshed from v7 (68.59) to v8 (68.51 ± 0.51,
-multi-seed pooled). Δ_cat p-values for AL/AZ landed in v8 (paired Wilcoxon
-multi-seed): AL p = 0.036 (small-significantly negative); AZ p < 1e-04
-(significantly positive); FL p = 0.0625 (n = 5 ceiling, sign-consistent
-positive). Wilcoxon JSON: GAP_FILL_WILCOXON.json.
+Source: `docs/studies/check2hgi/results/RESULTS_TABLE.md §0.1` (v10,
+2026-05-02). FL MTL B9 cat for FL was refreshed in v8 (68.51 ± 0.51,
+multi-seed pooled). CA/TX §0.1 rows were upgraded in v10 via pooled
+multi-seed Wilcoxon (`ARCH_DELTA_WILCOXON.json`): CA Δ_cat = +1.68, Δ_reg =
+−9.50, both p = 2e-06; TX Δ_cat = +1.89, Δ_reg = −16.59, both p = 2e-06.
+Wilcoxon JSONs: `GAP_FILL_WILCOXON.json`, `ARCH_DELTA_WILCOXON.json`.
 ```
 
-Caption sentence: *"With Check2HGI fixed as substrate, MTL vs matched-head STL ceilings on both tasks. Headline (FL/CA/TX) reports the B9 recipe (cosine + alternating-SGD + α-no-WD); smaller-scale anchors (AL/AZ) report H3-alt (per-head LR, constant). Δ_reg is sign-consistent at every state, with the magnitude varying non-monotonically (FL smallest at −7.99 pp; TX largest at −16.69 pp). On the cat side, MTL is paper-grade positive at AZ (+1.20 pp, p < 1e-04 across n = 20 multi-seed fold-pairs); FL is sign-consistent positive at the n = 5 ceiling (+1.52 pp, p = 0.0625); CA / TX are directional positive at the single-seed n = 5 ceiling (+1.94 / +2.02 pp); AL is small-significantly negative (Δ = −0.78 pp, p = 0.036 across n = 20 multi-seed fold-pairs; magnitude small at < 2 % relative on a 41 % F1 scale)."*
+Caption sentence: *"With Check2HGI fixed as substrate, MTL vs matched-head STL ceilings on both tasks. Headline (FL/CA/TX) reports the B9 recipe (cosine + alternating-SGD + α-no-WD); smaller-scale anchors (AL/AZ) report H3-alt (per-head LR, constant). Δ_reg is sign-consistent at every state, with the magnitude varying non-monotonically (FL smallest at −7.99 pp; TX largest at −16.59 pp). On the cat side, MTL is paper-grade positive at AZ (+1.20 pp, p < 1e-04 across n = 20 multi-seed fold-pairs), CA (+1.68 pp, p = 2e-06), and TX (+1.89 pp, p = 2e-06); FL is sign-consistent positive at the n = 5 ceiling (+1.52 pp, p = 0.0625); AL is small-significantly negative (Δ = −0.78 pp, p = 0.036 across n = 20 multi-seed fold-pairs; magnitude small at < 2 % relative on a 41 % F1 scale)."*
 
 **Voice cue:** the caption distinguishes *paper-grade*, *n = 5 ceiling*, *directional*, and *small-significantly negative* — sub-agent A5 must preserve all four registers and not collapse them.
 
@@ -233,7 +229,7 @@ ReHDM                      —         XX            —
 
 Caption: *"External-baseline comparison at the headline scale. STL `next_gru` Check2HGI (italics) is the matched-head cat ceiling; STL `next_stan_flow` (italics) is the matched-head reg ceiling. The MTL B9 row (bold) reports the proposed model. Published POI-RGNN numbers (Capanema 2019) are reported under the original non-user-disjoint folds; our reproduction at user-disjoint folds is reported in the supplementary baseline audit, where the gap is wider."*
 
-**Baseline-numbers verification status.** Faithful POI-RGNN reproduction values (FL 34.49, CA 31.78, TX 33.03 per `RESULTS_TABLE.md §0.6` v8) come from our user-disjoint reproduction; the published-paper range (31.8–34.5 across states) is from Capanema 2022 (`references.bib` entry `capanema2022poirgnn`, verified 2026-05-01 via WebSearch). MHA+PE faithful values from `baselines/next_category/results/<state>.json`. **For BRACIS submission**: cite our reproduction as the comparison axis (with the non-user-disjoint caveat in §7 Limitations). **For camera-ready** (audit item): pull exact per-state published Capanema 2022 numbers from the PMC paper to populate a side-by-side "published vs. our reproduction" footnote in T5.
+**Baseline-numbers verification status.** Faithful POI-RGNN reproduction values (FL 34.49, CA 31.78, TX 33.03 per `RESULTS_TABLE.md §0.6` v10) come from our user-disjoint reproduction; the published-paper range (31.8–34.5 across states) is from Capanema 2022 (`references.bib` entry `capanema2022poirgnn`, verified 2026-05-01 via WebSearch). MHA+PE faithful values from `baselines/next_category/results/<state>.json`. **For BRACIS submission**: cite our reproduction as the comparison axis (with the non-user-disjoint caveat in §7 Limitations). **For camera-ready** (audit item): pull exact per-state published Capanema 2022 numbers from the PMC paper to populate a side-by-side "published vs. our reproduction" footnote in T5.
 
 ---
 
@@ -252,7 +248,7 @@ Caption: *"Per-visit context is the dominant mechanism behind the substrate's ca
 
 ### F2 — Scale-progression scatter (§5.2 or §7, OPTIONAL, 0.4 pp; cut first)
 
-**Demoted to optional after Codex audit** — TX (−16.69 pp) breaks the scale-shrinks-with-data pattern, so F2 lost its title-anchoring role when "Scale-Sensitive" was demoted from the title. Keep only if pages allow; one descriptive sentence in §5.2 covers the same content.
+**Demoted to optional after Codex audit** — TX (−16.59 pp) breaks the scale-shrinks-with-data pattern, so F2 lost its title-anchoring role when "Scale-Sensitive" was demoted from the title. Keep only if pages allow; one descriptive sentence in §5.2 covers the same content.
 
 If kept:
 - **x-axis:** `n_checkins` (log scale) OR `n_regions` (linear). `n_checkins` (10K, 26K, 127K, 187K, 230K) reads cleaner.
@@ -269,12 +265,12 @@ Standard methods-paper schematic — boxes for {check-in encoder, region encoder
 
 ## 6 · Coverage state at submission (paper-side limitations, not workflow)
 
-Two coverage items become paper-side limitations rather than workflow notes (one item resolved in v8):
+Two coverage items become paper-side limitations rather than workflow notes:
 
-1. **TX MTL multi-seed (CA MTL-vs-STL §0.1 axis also).** TX is seed = 42 single-seed at submission; multi-seed extension at {0, 1, 7, 100} is a **camera-ready audit item**. T3/T4 TX cells sit at the n = 5 paired-Wilcoxon ceiling (p_min = 0.0625 two-sided). The CA recipe-selection axis went multi-seed in v8 (paper-grade significant on both tasks), but the CA MTL-vs-STL §0.1 axis remains single-seed and is also a camera-ready audit item. Disclosed in §7 Limitations.
+1. **FL headline asymmetry.** AL/AZ/CA/TX headline §0.1 rows are now pooled multi-seed (n = 20) after the v10 closure. The only remaining asymmetry is FL cat-side §0.1 at the n = 5 paired ceiling, even though FL has auxiliary multi-seed support on Δm and recipe selection. Disclosed in §7 Limitations.
 2. **POI-RGNN / MHA+PE absolute baseline numbers.** Faithful POI-RGNN reproduction values from `RESULTS_TABLE §0.6`: FL 34.49, CA 31.78, TX 33.03 (cat F1). MHA+PE values from `baselines/next_category/results/<state>.json`. The POI-RGNN reproduction caveat (non-user-disjoint folds in the published evaluation; published reports a 31.8–34.5 pp state-level range) is disclosed in T5 caption and §7 Limitations.
 
-**Resolved in v8 (2026-05-01):** AL/AZ/FL cat-Δ Wilcoxon against the multi-seed STL ceiling — landed via `gap_fill_wilcoxon.py` and committed to `RESULTS_TABLE §0.1` v8: AL p = 0.036 (small-significantly negative, n = 20 multi-seed); AZ p < 1e-04 (significantly positive, n = 20); FL p = 0.0625 (sign-consistent positive at n = 5 ceiling). CA recipe-selection upgraded to n = 20 multi-seed paper-grade significant on both tasks.
+**Resolved in v8/v9/v10:** AL/AZ/FL cat-Δ Wilcoxon landed in v8; TX recipe multi-seed landed in v9; CA/TX §0.1 architectural-Δ upgraded to n = 20 in v10. The only headline asymmetry still worth disclosing is FL cat-side §0.1 at the n = 5 paired ceiling.
 
 ---
 

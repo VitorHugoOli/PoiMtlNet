@@ -14,10 +14,10 @@ This study runs **alongside** the fusion study — they coexist under `docs/stud
 1. `CHANGELOG.md` — chronological timeline of findings + lessons (the single source for "what was found when, why").
 2. `results/RESULTS_TABLE.md §0` — canonical paper numbers (v10, 2026-05-02).
 3. `articles/[BRACIS]_Beyond_Cross_Task/AGENT.md` — article-side operational rules + voice + statistics + page budget.
-4. `CLAIMS_AND_HYPOTHESES.md` (with whitelist banner) — paper-facing safe entries are CH16 / CH18-cat / CH15 reframing / CH19 / CH22; everything else needs cross-checking against v9.
+4. `CLAIMS_AND_HYPOTHESES.md` (with whitelist banner) — paper-facing safe entries are CH16 / CH18-cat / CH15 reframing / CH19 / CH22; everything else needs cross-checking against v10.
 
 **Headline (the classic MTL tradeoff, sign-consistent across 5 states):**
-- Cat: MTL ≥ STL at four of five states (AZ +1.20 p < 1e-4 / FL +1.52 p = 0.0625 n=5 / CA +1.94 / TX +2.02 pp); AL is small-significantly negative (Δ = −0.78 pp, p = 0.036, n = 20 multi-seed; magnitude ~1.9% relative).
+- Cat: MTL ≥ STL at four of five states (AZ +1.20 p < 1e-4 / FL +1.52 p = 0.0625 n=5 / CA +1.68 p = 2e-06 / TX +1.89 p = 2e-06); AL is small-significantly negative (Δ = −0.78 pp, p = 0.036, n = 20 multi-seed; magnitude ~1.9% relative).
 - Reg: MTL < STL at every state by 7–17 pp (sign-consistent).
 - Substrate (matched-head STL): cat Δ = +14.5 to +29 pp at every state (paired Wilcoxon p = 0.0312 each); reg HGI nominally ahead by 1.6–3.1 pp (TOST tied at CA/TX).
 - Mechanism (CH19, AL-only): per-visit context = ~72% of cat substrate gap.

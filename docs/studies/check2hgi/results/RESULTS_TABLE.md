@@ -4,7 +4,7 @@
 > Cross-state P3 (CA + TX) + multi-seed at AL/AZ/FL/CA landed leak-free per-fold log_T.
 > Numbers in pre-2026-05-01 rows used the legacy unseeded log_T and are
 > **leak-inflated by 13-27 pp** (state-dependent). The leak-free architectural-Δ
-> picture is in [`../archive/post_paper_closure_2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md`](../archive/post_paper_closure_2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md) (background provenance only — superseded by v8 §0 below);
+> picture is in [`../archive/post_paper_closure_2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md`](../archive/post_paper_closure_2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md) (background provenance only — superseded by the current §0 below);
 > paired Wilcoxon JSONs: [`../research/PAPER_CLOSURE_WILCOXON.json`](../research/PAPER_CLOSURE_WILCOXON.json) + [`../research/GAP_FILL_WILCOXON.json`](../research/GAP_FILL_WILCOXON.json) (cat-Δ multi-seed v8) + [`../research/ARCH_DELTA_WILCOXON.json`](../research/ARCH_DELTA_WILCOXON.json) (CA/TX arch-Δ n=20 v10).
 >
 > **Headline (v10, leak-free, F51 canonical extraction, both tasks):**
@@ -20,7 +20,7 @@
 > Δ = MTL B9 − STL ceiling (paired Δ from per-fold values). Reg metric: per-fold max `top10_acc_indist` for ep ≥ 5.
 > Cat metric: per-fold max unweighted `f1` for ep ≥ 5. **AL: significant in the negative direction at p = 0.036 (n=20 multi-seed); magnitude small, ~1.9 % relative.**
 >
-> **Recipe selection (B9 vs H3-alt) — v8 (CA upgraded to n=20 multi-seed):**
+> **Recipe selection (B9 vs H3-alt) — current canonical (CA n=20 in v8; TX n=20 in v9):**
 >
 > | State | n_pairs | Δ_reg pp | p_reg | Δ_cat pp | p_cat |
 > |---|---:|---:|---:|---:|---:|
@@ -41,7 +41,7 @@
 
 ---
 
-## 0 · Paper-headline tables (v8, leak-free, 2026-05-01 PM)
+## 0 · Paper-headline tables (v10, leak-free canon with 2026-05-02 upgrades)
 
 These tables supersede §1–§5 below for paper drafting. All numbers are seed=42 leak-free under per-fold log_T (`region_transition_log_seed42_fold{N}.pt`) on `StratifiedGroupKFold(groups=userid, seed=42)` under sklearn 1.8.0; 5 folds × 50 epochs. Cat metric: per-fold max F1 for ep ≥ 5. Reg metric: per-fold max `top10_acc_indist` (MTL) or `top10_acc` (STL) for ep ≥ 5 — the F51 canonical extraction. Multi-seed aggregations are pooled across paired (seed, fold) tuples.
 
@@ -171,9 +171,9 @@ C2HGI **matched-head STL** lifts cat F1 by **+27–29 pp over our faithful POI-R
 
 ---
 
-> ⚠ **The "F48-H3-alt champion" framing below was SUPERSEDED by the leak-free 2026-05-01 paper closure.** Under leak-free measurement, the AL "+6.25 pp MTL > STL" claim is a leak artefact and MTL trails STL on `next_region` at every state by 7–17 pp (see §0.1 for the v8 canonical). The H3-alt vs B9 comparison is a *recipe-selection finding*, not a champion-vs-predecessor relation; B9 is paper-grade at FL/CA (§0.4); H3-alt is the small-state recipe. **Read §0 above for the current paper-canonical view.**
+> ⚠ **The "F48-H3-alt champion" framing below was SUPERSEDED by the leak-free 2026-05-01 paper closure.** Under leak-free measurement, the AL "+6.25 pp MTL > STL" claim is a leak artefact and MTL trails STL on `next_region` at every state by 7–17 pp (see §0.1 for the current canonical view). The H3-alt vs B9 comparison is a *recipe-selection finding*, not a champion-vs-predecessor relation; B9 is paper-grade at FL/CA/TX (§0.4); H3-alt is the small-state recipe. **Read §0 above for the current paper-canonical view.**
 
-**Champion candidate (2026-04-26, SUPERSEDED — see banner above):** **F48-H3-alt** = B3 architecture + per-head LR (`cat_lr=1e-3, reg_lr=3e-3, shared_lr=1e-3`, `--scheduler constant`). The original 2026-04-26 framing claimed F48-H3-alt closed the F21c STL gap (CH18 Tier B → A): AL exceeded STL by +6.25 pp; AZ closed 75%; FL validated at 5-fold. **All these "MTL > STL on reg" claims are leak artefacts** under leak-free measurement (see §0 v8 above). Audit / derivation pointers (also superseded): [`../NORTH_STAR.md`](../NORTH_STAR.md), [`../MTL_ARCHITECTURE_JOURNEY.md`](../MTL_ARCHITECTURE_JOURNEY.md), [`../research/F48_H3_PER_HEAD_LR_FINDINGS.md`](../research/F48_H3_PER_HEAD_LR_FINDINGS.md).
+**Champion candidate (2026-04-26, SUPERSEDED — see banner above):** **F48-H3-alt** = B3 architecture + per-head LR (`cat_lr=1e-3, reg_lr=3e-3, shared_lr=1e-3`, `--scheduler constant`). The original 2026-04-26 framing claimed F48-H3-alt closed the F21c STL gap (CH18 Tier B → A): AL exceeded STL by +6.25 pp; AZ closed 75%; FL validated at 5-fold. **All these "MTL > STL on reg" claims are leak artefacts** under leak-free measurement (see current §0 above). Audit / derivation pointers (also superseded): [`../NORTH_STAR.md`](../NORTH_STAR.md), [`../MTL_ARCHITECTURE_JOURNEY.md`](../MTL_ARCHITECTURE_JOURNEY.md), [`../research/F48_H3_PER_HEAD_LR_FINDINGS.md`](../research/F48_H3_PER_HEAD_LR_FINDINGS.md).
 
 **Predecessor (2026-04-24, SUPERSEDED — kept as historical comparand):** **B3** = `mtlnet_crossattn + static_weight(cat=0.75) + next_gru (cat) + next_stan_flow (reg, alias of legacy next_getnext_hard)`, OneCycleLR max=0.003, 50ep.
 

@@ -21,9 +21,9 @@
 | External baselines | `results/RESULTS_TABLE.md §0.5–§0.6` | unchanged |
 | Champion config + recipe | `NORTH_STAR.md` | v8 (mirrors RESULTS_TABLE) |
 | Claim catalogue | `CLAIMS_AND_HYPOTHESES.md` (whitelist banner) | CH16 / CH18-cat / CH15 reframing / CH19 / CH22 are paper-facing safe |
-| Article-side paper docs | `articles/[BRACIS]_Beyond_Cross_Task/` | v8-aligned 2026-05-01 (BRACIS submission) |
+| Article-side paper docs | `articles/[BRACIS]_Beyond_Cross_Task/` | v10-aligned 2026-05-02 (BRACIS submission) |
 
-**Rule of single-source.** Paper tables are sourced from `RESULTS_TABLE.md §0` and only that. `PAPER_CLOSURE_RESULTS_2026-05-01.md` is background provenance — it has been moved to `archive/post_paper_closure_2026-05-01/` because numerous numbers there were superseded by RESULTS_TABLE v7/v8 (e.g., FL Δ_reg simple mean-diff −7.28 vs paired Δ −7.99; AL/AZ STL cat means refreshed from single-seed to multi-seed).
+**Rule of single-source.** Paper tables are sourced from `RESULTS_TABLE.md §0` and only that. `PAPER_CLOSURE_RESULTS_2026-05-01.md` is background provenance — it has been moved to `archive/post_paper_closure_2026-05-01/` because numerous numbers there were superseded by later `RESULTS_TABLE` updates (e.g., FL Δ_reg simple mean-diff −7.28 vs paired Δ −7.99; AL/AZ STL cat means refreshed from single-seed to multi-seed; CA/TX §0.1 upgraded to n=20 in v10).
 
 ---
 
@@ -254,18 +254,18 @@ These are the rules that came out of this study. Apply them to the **next** stud
 docs/studies/check2hgi/
 ├── README.md                              ← navigation hub (canonical-source-aware)
 ├── CHANGELOG.md                           ← THIS FILE (timeline + lessons)
-├── AGENT_CONTEXT.md                       ← study briefing (post-v8)
-├── NORTH_STAR.md                          ← champion config (post-v8)
+├── AGENT_CONTEXT.md                       ← study briefing (post-v10)
+├── NORTH_STAR.md                          ← champion config (post-v10)
 ├── CLAIMS_AND_HYPOTHESES.md               ← claim catalogue with whitelist banner
 ├── FINAL_SURVEY.md                        ← substrate panel (canonical)
 ├── CONCERNS.md                            ← acknowledged risks audit log
 ├── MTL_ARCHITECTURE_JOURNEY.md            ← supplementary material narrative (F-trail)
 ├── PAPER_BASELINES_STRATEGY.md            ← which baselines in which paper table
 ├── results/
-│   ├── RESULTS_TABLE.md §0                ← THE canonical numerical source (v8)
+│   ├── RESULTS_TABLE.md §0                ← THE canonical numerical source (v10)
 │   ├── paired_tests/, P0/, P1/, ...       ← raw JSON artefacts
 ├── research/
-│   ├── GAP_FILL_WILCOXON.json             ← v8 Wilcoxon JSON (cat-Δ landed)
+│   ├── GAP_FILL_WILCOXON.json             ← v9 Wilcoxon JSON (cat-Δ + TX recipe landed)
 │   ├── PAPER_CLOSURE_WILCOXON.json
 │   ├── PAPER_CLOSURE_RECIPE_WILCOXON.json
 │   ├── F49_LAMBDA0_DECOMPOSITION_GAP.md   ← cross-attn methodology contribution
