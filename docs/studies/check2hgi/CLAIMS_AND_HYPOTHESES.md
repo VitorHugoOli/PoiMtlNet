@@ -1,6 +1,6 @@
 # Claims and Hypotheses Catalog — Check2HGI Study
 
-> ⚠ **PAPER-FACING WHITELIST (post-v8, 2026-05-01).** Only the entries below are safe to cite as paper canon. The rest of this document contains pre-leak-free framing, superseded H3-alt narratives, and historic claim attributions that are **not paper-current**. When in doubt, cross-check against `results/RESULTS_TABLE.md §0` (v8) and the `CHANGELOG.md` timeline.
+> ⚠ **PAPER-FACING WHITELIST (current canon: v10, 2026-05-02).** Only the entries below are safe to cite as paper canon. The rest of this document contains pre-leak-free framing, superseded H3-alt narratives, and historic claim attributions that are **not paper-current**. When in doubt, cross-check against `results/RESULTS_TABLE.md §0` (v10) and the `CHANGELOG.md` timeline.
 >
 > **Whitelisted entries (paper-facing safe):**
 > - **CH16** — Cat substrate advantage (Check2HGI > HGI on next-category, head-invariant at AL+AZ; matched-head replicated at FL/CA/TX). Numbers are leak-free and 5-state.
@@ -21,7 +21,7 @@ Task pair: `{next_category (7 classes), next_region (~1K classes)}` on Check2HGI
 
 ## Historical early-study framing (pre-leak-free, not paper-current)
 
-The three bullets below are preserved for claim archaeology from the early study phase. They are **not** the current paper canon; the live paper-facing interpretation is the whitelist banner above plus `results/RESULTS_TABLE.md §0` (v8).
+The three bullets below are preserved for claim archaeology from the early study phase. They are **not** the current paper canon; the live paper-facing interpretation is the whitelist banner above plus `results/RESULTS_TABLE.md §0` (v10).
 
 1. **Check2HGI (check-in-level contextual) improves next-category prediction over POI-level alternatives (HGI) and over published next-category baselines (POI-RGNN).** The check-in-level granularity — same POI visited twice yields different vectors — captures the user's *immediate* intent shifts that POI-level embeddings cannot. This is Check2HGI's design target and the paper's primary substrate claim. **CH16.**
 2. **Per-task input modality** (check-in to the category head, region to the region head) is the Pareto-bidirectional MTL design; shared-modality or concat variants each collapse one head. Check2HGI uniquely enables this because it supplies both granularities simultaneously; HGI cannot produce per-visit variation. **CH03.**

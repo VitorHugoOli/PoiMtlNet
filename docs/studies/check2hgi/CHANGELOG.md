@@ -19,7 +19,7 @@
 | Substrate axis (CH16 cat + CH15 reg reframing) | `results/RESULTS_TABLE.md §0.3` + `FINAL_SURVEY.md §2-§4` | v6 — unchanged in v7/v8/v9/v10 |
 | Recipe selection (B9 vs H3-alt) | `results/RESULTS_TABLE.md §0.4` | **v9, 2026-05-02** (TX upgraded to n=20 multi-seed) |
 | External baselines | `results/RESULTS_TABLE.md §0.5–§0.6` | unchanged |
-| Champion config + recipe | `NORTH_STAR.md` | v8 (mirrors RESULTS_TABLE) |
+| Champion config + recipe | `NORTH_STAR.md` | v10-aligned entry banner; historical derivation preserved below |
 | Claim catalogue | `CLAIMS_AND_HYPOTHESES.md` (whitelist banner) | CH16 / CH18-cat / CH15 reframing / CH19 / CH22 are paper-facing safe |
 | Article-side paper docs | `articles/[BRACIS]_Beyond_Cross_Task/` | v10-aligned 2026-05-02 (BRACIS submission) |
 
@@ -219,7 +219,7 @@ These are the rules that came out of this study. Apply them to the **next** stud
 ### Single-source-of-truth discipline
 
 1. **One canonical numerical source per paper.** For check2hgi this is `results/RESULTS_TABLE.md §0`. Every other doc references it; numbers in other docs that diverge are either stale (mark, fix, or archive) or audit-historical (clearly framed as such).
-2. **Date-stamp the canonical source.** RESULTS_TABLE has v6 → v7 → v8 stamps. Article-side cites the version explicitly. When the canonical updates, downstream docs must update in the same commit.
+2. **Date-stamp the canonical source.** RESULTS_TABLE now has v6 → v7 → v8 → v9 → v10 stamps. Article-side cites the version explicitly. When the canonical updates, downstream docs must update in the same commit.
 3. **Background provenance vs. canon.** Files like PAPER_CLOSURE_RESULTS that record the lab-trail of how a number was computed are valuable as audit but **not** as paper canon. Move them to `archive/` with a deprecation banner once the number lands in the canonical source.
 4. **Use a CHANGELOG (this file).** Timeline-organised, dated, with what changed and why. Future readers (including yourself in 6 months) will not remember the F-trail; they will read this CHANGELOG.
 

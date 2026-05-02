@@ -209,7 +209,7 @@ All other numbers (n=17 cells) round-trip correctly.
 
 **Macro BRACIS-fit verdict (post-consolidation):**
 - Story spine: ✅ coherent across all five article-side files.
-- Numerical claims: ✅ round-trip to RESULTS_TABLE v8.
+- Numerical claims: ✅ round-trip to RESULTS_TABLE v10.
 - Statistical rigour: ✅ borderline-strong; soft spots honestly disclosed in §7.
 - External baselines: ✅ adequate; ReHDM CA/TX deferral honest.
 - Honest framing: ✅ matches BRACIS 2023 best-paper pattern.

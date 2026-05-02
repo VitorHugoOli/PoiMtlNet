@@ -1,6 +1,37 @@
 # North-Star MTL Configuration
 
-> ⚠ **2026-05-01 SCALE-CONDITIONAL CHAMPION FINDING — B9 is FL-tuned, not universal.**
+> ⚠ **2026-05-02 v10 CURRENT NORTH STAR — use `results/RESULTS_TABLE.md §0` as the only paper-canonical numerical source.**
+> B9 is paper-grade at **FL/CA/TX**; H3-alt remains the small-state recipe at **AL/AZ**.
+> The paper story is **substrate task-asymmetry first, classic MTL tradeoff second**.
+> Historical derivation remains below; when a lower section disagrees with the current tables here, trust `RESULTS_TABLE.md §0`.
+>
+> **Current recipe-selection headline (v9/v10 canonical):**
+>
+> | State | n_pairs | Δ_reg pp | p_reg | Δ_cat pp | p_cat | Verdict |
+> |---|---:|---:|---:|---:|---:|---|
+> | AL | 20 | **−0.35** | **1.9e-03** | **−2.22** | **1.9e-06** | **H3-alt > B9 on cat; reg tied** |
+> | AZ | 20 | −0.09 | 0.23 (n.s.) | **−0.96** | **7.1e-04** | **H3-alt > B9 on cat; reg tied** |
+> | FL | 25 | **+3.48** | **3.0e-08** | +0.42 | 1.3e-05 | **B9 > H3-alt on both** |
+> | CA | 20 | **+4.18** | **<1e-04** | **+0.51** | **<1e-04** | **B9 > H3-alt on both** |
+> | TX | 20 | **+1.87** | **7.0e-04** | **+0.52** | **2.0e-04** | **B9 > H3-alt on both** |
+>
+> **Current architectural-Δ headline (v10 canonical):**
+>
+> | State | Δ_reg pp (MTL−STL) | p_reg | Δ_cat pp (MTL−STL) | p_cat |
+> |---|---:|---:|---:|---:|
+> | AL (n=20) | **−11.04** | **1.9e-06** | **−0.78** (small-significantly negative) | **0.036** |
+> | AZ (n=20) | **−12.27** | **1.9e-06** | **+1.20** | **<1e-04** |
+> | FL (n=5)  | **−7.99** | 0.0625 | **+1.52** | 0.0625 |
+> | CA (n=20) | **−9.50** | **2e-06** | **+1.68** | **2e-06** |
+> | TX (n=20) | **−16.59** | **2e-06** | **+1.89** | **2e-06** |
+>
+> **Current reading:** MTL is positive on cat at four of five states, small-significantly negative at AL, and sign-consistently negative on reg at all five states. Recipe selection is scale-conditional; architectural cost varies non-monotonically across states.
+>
+> Background provenance only: `archive/post_paper_closure_2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md`.
+>
+> ---
+>
+> ⚠ **2026-05-01 SCALE-CONDITIONAL CHAMPION FINDING — historical banner preserved below.**
 > Cross-state B9 vs H3-alt comparison (28 paper-closure runs + 8 AL/AZ H3-alt
 > gap-fill = 36 total) reveals B9's recipe lift is FL-scale-specific:
 >
@@ -9,8 +40,8 @@
 > | AL | 20 | **−0.35** | **1.9e-03** | **−2.22** | **1.9e-06** | **H3-alt > B9 on cat** |
 > | AZ | 20 | −0.09 | 0.23 (n.s.) | **−0.96** | **7.1e-04** | **H3-alt > B9 on cat** |
 > | FL | 25 | **+3.48** | **3.0e-08** | +0.42 | 1.3e-05 | B9 > H3-alt (F51) |
-> | CA | 5  | +4.74 | 0.062 (5/5) | +0.72 | 0.125 (4/5) | B9 directional |
-> | TX | 5  | +1.76 | 0.125 (4/5) | +0.64 | 0.125 (4/5) | B9 directional |
+> | CA | 20 | **+4.18** | **<1e-04** | **+0.51** | **<1e-04** | **B9 > H3-alt on both** |
+> | TX | 20 | **+1.87** | **7.0e-04** | **+0.52** | **2.0e-04** | **B9 > H3-alt on both** |
 >
 > **B9's three additions over H3-alt (alt-SGD + cosine + α-no-WD) help on FL but
 > hurt cat at small states (AL/AZ).** Mechanism hypothesis: the additions target
@@ -19,27 +50,27 @@
 > costs cat-side signal that small states can't afford to lose. The recipe-selection
 > claim reframes from "B9 is the universal champion" to **"B9 is FL-scale champion;
 > H3-alt is the universal recipe at small scale; the optimal MTL recipe is
-> scale-conditional"**. Full doc: `archive/post_paper_closure_2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md §4a-bis` (background provenance) or `results/RESULTS_TABLE.md §0.4` (v8 canonical).
+> scale-conditional"**. Full doc: `archive/post_paper_closure_2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md §4a-bis` (background provenance) or `results/RESULTS_TABLE.md §0.4` (v10 canonical).
 > Wilcoxon JSON: `research/PAPER_CLOSURE_RECIPE_WILCOXON.json`.
 
-> 🎯 **PAPER CLOSURE — 2026-05-01 (28 paper-grade runs, both tasks, leak-free).**
+> 🎯 **PAPER CLOSURE — historical 2026-05-01 banner; current canon is v10 above.**
 > Cross-state P3 (CA + TX), STL ceilings at all 5 states with multi-seed at AL/AZ/FL,
 > AL/AZ MTL B9 multi-seed, FL STL reg multi-seed extension. The architectural-Δ
 > picture is now multi-seed at AL+AZ, multi-seed STL + single-seed B9 at FL,
 > single-seed at CA+TX (P1 multi-seed extension deferred to camera-ready).
-> Full results: **`results/RESULTS_TABLE.md §0` (v8, canonical)**; background
+> Full results: **`results/RESULTS_TABLE.md §0` (v10, canonical)**; background
 > provenance in `archive/post_paper_closure_2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md`.
 > Wilcoxon JSONs: `research/PAPER_CLOSURE_WILCOXON.json`,
 > `research/GAP_FILL_WILCOXON.json` (v8 cat-Δ).
 >
-> **Headline (the classic MTL tradeoff, sign-consistent across 5 states; v8 update 2026-05-01):**
+> **Headline (historical banner, superseded where it disagrees with v10 current canon above):**
 > | State | Δ_reg pp (MTL−STL) | p_reg | Δ_cat pp (MTL−STL) | p_cat |
 > |---|---:|---:|---:|---:|
 > | AL (n=20) | **−11.04** | **1.9e-06** | **−0.78** (small-significantly negative) | **0.036** |
 > | AZ (n=20) | **−12.27** | **1.9e-06** | **+1.20** | **<1e-04** |
 > | FL (n=5)  | −7.99 | 0.0625 | **+1.52** | 0.0625 |
-> | CA (n=5)  | −8.92 | 0.0625 | +1.94 | 0.0625 |
-> | TX (n=5)  | −16.69 | 0.0625 | +2.02 | 0.0625 |
+> | CA (n=20) | **−9.50** | **2e-06** | **+1.68** | **2e-06** |
+> | TX (n=20) | **−16.59** | **2e-06** | **+1.89** | **2e-06** |
 >
 > **v8 update (2026-05-01):** cat-Δ Wilcoxon landed for AL/AZ/FL via `gap_fill_wilcoxon.py` →
 > `research/GAP_FILL_WILCOXON.json`. AL is now **small-significantly negative** at p=0.036
@@ -56,8 +87,8 @@
 > Cat metric: per-fold max unweighted `f1` for epoch ≥ 5.
 >
 > **Reg:** MTL B9 < STL `next_getnext_hard` at every state by 7-17 pp.
-> **Cat:** MTL ≥ STL `next_gru` at every state. AL is the only state where the
-> cat gain is ≈0 (sign-consistent in cross-seed mean but not significantly nonzero).
+> **Cat:** MTL > STL `next_gru` at four of five states. AL is the only state where
+> the cat delta is significantly negative, but small in magnitude.
 >
 > **Reframe vs F49:** F49's "AL +6.48 pp MTL>STL on reg" was a leak artifact of
 > pre-F50 measurements (full-data `region_transition_log.pt`, leaks ~13-27 pp).
