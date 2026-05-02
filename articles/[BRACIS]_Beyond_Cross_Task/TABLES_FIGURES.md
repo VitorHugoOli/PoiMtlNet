@@ -233,7 +233,7 @@ ReHDM                      —         XX            —
 
 Caption: *"External-baseline comparison at the headline scale. STL `next_gru` Check2HGI (italics) is the matched-head cat ceiling; STL `next_stan_flow` (italics) is the matched-head reg ceiling. The MTL B9 row (bold) reports the proposed model. Published POI-RGNN numbers (Capanema 2019) are reported under the original non-user-disjoint folds; our reproduction at user-disjoint folds is reported in the supplementary baseline audit, where the gap is wider."*
 
-**Sub-agent A4 / A5 must verify the published POI-RGNN / MHA+PE numbers from primary sources before T5 commits.**
+**Baseline-numbers verification status.** Faithful POI-RGNN reproduction values (FL 34.49, CA 31.78, TX 33.03 per `RESULTS_TABLE.md §0.6` v8) come from our user-disjoint reproduction; the published-paper range (31.8–34.5 across states) is from Capanema 2022 (`references.bib` entry `capanema2022poirgnn`, verified 2026-05-01 via WebSearch). MHA+PE faithful values from `baselines/next_category/results/<state>.json`. **For BRACIS submission**: cite our reproduction as the comparison axis (with the non-user-disjoint caveat in §7 Limitations). **For camera-ready** (audit item): pull exact per-state published Capanema 2022 numbers from the PMC paper to populate a side-by-side "published vs. our reproduction" footnote in T5.
 
 ---
 

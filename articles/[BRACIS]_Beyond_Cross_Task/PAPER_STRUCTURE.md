@@ -155,7 +155,7 @@ Land the sentence: *"Our work re-examines a default assumption in MTL-for-POI �
 
 ### §9 References (0.75 pp)
 
-25–30 BibTeX entries, splncs04 style. The current `references.bib` does not yet exist in this folder — sub-agents must port from `articles/CBIC___MTL/references.bib` and `articles/CoUrb_2026/references.bib`, deduplicating.
+25–30 BibTeX entries, splncs04 style. **`references.bib` exists in this folder** (28 verified entries, every entry carries a `% verified:` line per `AGENT.md §9`; ported from `articles/CBIC___MTL/references.bib` and `articles/CoUrb_2026/references.bib` with two corrections — POI-RGNN replaced from the wrong CBIC entry to Capanema 2022 PMC; HMRM authors corrected from CBIC's typos to Meng Chen et al.). Sub-agent A8 polishes for splncs04 compliance and ensures every `\cite{}` in main text resolves.
 
 ---
 

@@ -52,17 +52,17 @@ Multi-Task POI Prediction}
 \begin{abstract}
 Multi-task learning for point-of-interest prediction typically pairs joint
 next-category and next-region heads over a shared graph embedding, assuming
-joint training transfers signal between tasks. We replace the per-place
+joint training transfers signal across tasks. We replace the per-place
 substrate with a check-in-level contextual graph embedding that emits one
-vector per visit and run a five-state ablation on Gowalla under user-disjoint
+vector per visit and run a five-state Gowalla ablation under user-disjoint
 folds with leak-free per-fold transition priors. The substrate is
 task-asymmetric: per-visit context lifts single-task next-category macro-F1
 by 14 to 29 percentage points at every state (paired Wilcoxon p of 0.0312,
 the maximum at five folds), while per-place embeddings tie or marginally
-exceed it under matched-head ceilings on the harder next-region task. With
-the substrate fixed, joint multi-task training over a cross-attention
-backbone adds a small category lift and pays a sign-consistent 8 to 17
-percentage point cost on next-region top-10 accuracy---the textbook
+exceed it under matched-head ceilings on next-region. With the substrate
+fixed, joint multi-task training over a cross-attention backbone adds a
+small category lift at four of five states and pays a sign-consistent 8 to
+17 percentage point cost on next-region top-10 accuracy---the textbook
 tradeoff. A pooled-vs-canonical counterfactual at Alabama attributes about
 72 percent of the substrate gain to per-visit context.
 
@@ -80,7 +80,7 @@ Embeddings.}
 \input{sections/method}         % A3 — 2.5 pp
 \input{sections/setup}          % A4 — 1.5 pp
 \input{sections/results}        % A5 — 4 pp (T2, T3, T4, T5)
-\input{sections/mechanism}      % A6 — 1.5 pp (T6 optional, F1 optional)
+\input{sections/mechanism}      % A6 — 1.5 pp (F1 required, T6 inline-prose)
 \input{sections/discussion}     % A7a — 1 pp
 \input{sections/conclusion}     % A7b — 0.5 pp
 

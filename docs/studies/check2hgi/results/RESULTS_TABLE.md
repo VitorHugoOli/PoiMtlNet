@@ -42,7 +42,7 @@
 
 ---
 
-## 0 · Paper-headline tables (v6, leak-free, 2026-05-01)
+## 0 · Paper-headline tables (v8, leak-free, 2026-05-01 PM)
 
 These tables supersede §1–§5 below for paper drafting. All numbers are seed=42 leak-free under per-fold log_T (`region_transition_log_seed42_fold{N}.pt`) on `StratifiedGroupKFold(groups=userid, seed=42)` under sklearn 1.8.0; 5 folds × 50 epochs. Cat metric: per-fold max F1 for ep ≥ 5. Reg metric: per-fold max `top10_acc_indist` (MTL) or `top10_acc` (STL) for ep ≥ 5 — the F51 canonical extraction. Multi-seed aggregations are pooled across paired (seed, fold) tuples.
 
@@ -52,7 +52,7 @@ These tables supersede §1–§5 below for paper drafting. All numbers are seed=
 
 | State | n_regions | MTL B9 reg Acc@10 | STL `next_stan_flow` Acc@10 | **Δ_reg pp** | p_reg | MTL B9 cat F1 | STL `next_gru` F1 | **Δ_cat pp** | p_cat |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| **AL** (n=20) | 1,109 | 50.17 ± 0.24 | 61.21 ± 0.18 | **−11.04** | **1.9e-06** | 40.57 ± 0.24 | 41.35 ± 0.17 (n=4 seeds) | −0.78 (≈tied) | **0.036** |
+| **AL** (n=20) | 1,109 | 50.17 ± 0.24 | 61.21 ± 0.18 | **−11.04** | **1.9e-06** | 40.57 ± 0.24 | 41.35 ± 0.17 (n=4 seeds) | **−0.78** (small-significantly negative; magnitude ~1.9 % relative) | **0.036** |
 | **AZ** (n=20) | 1,547 | 40.78 ± 0.07 | 53.06 ± 0.15 | **−12.27** | **1.9e-06** | 45.10 ± 0.19 | 43.90 ± 0.17 (n=4 seeds) | **+1.20** | **<1e-04** |
 | **FL** (n=5)  | 4,703 | 63.34 ± 0.11 | 70.62 ± 0.09 | **−7.99** | 0.0625 | 68.51 ± 0.51 (F51, n=5) | 67.16 ± 0.13 (n=4 seeds) | **+1.52** | 0.0625 |
 | **CA** (n=5)  | 8,501 | 47.93 (n=1) | 56.86 (n=1) | **−8.92** | 0.0625 | 64.23 (n=1) | 62.29 ± 0.31 (n=1) | **+1.94** | 0.0625 |
@@ -122,7 +122,7 @@ Reg STL `next_stan_flow` matched-head, leak-free per-fold log_T, 5f × 50ep, see
 | CA | **20** | **+4.18** | **<1e-04** | **+0.51** | **<1e-04** | **B9 > H3-alt, both tasks significant** |
 | TX | 5  | +1.76 | 0.125 (4/5) | +0.64 | 0.125 (4/5) | B9 directional (pending multi-seed) |
 
-**v7 update (2026-05-01 PM):** CA row updated from n=5 (seed=42) to n=20 (seeds {0,1,7,100}) — B9 vs H3-alt now paper-grade significant at CA on both tasks (reg +4.18 pp p<1e-04, cat +0.51 pp p<1e-04). TX pending multi-seed (runs in progress). Wilcoxon JSON: [`../research/GAP_FILL_WILCOXON.json`](../research/GAP_FILL_WILCOXON.json).
+**v8 update (2026-05-01 PM):** CA row updated from n=5 (seed=42) to n=20 (seeds {0,1,7,100}) — B9 vs H3-alt now paper-grade significant at CA on both tasks (reg +4.18 pp p<1e-04, cat +0.51 pp p<1e-04). TX is camera-ready audit item (single-seed at submission). Wilcoxon JSON: [`../research/GAP_FILL_WILCOXON.json`](../research/GAP_FILL_WILCOXON.json).
 
 **B9 is FL/CA-scale paper-grade, NOT universal.** B9's three additions over H3-alt (alt-SGD + cosine + α-no-WD) hurt cat at AL/AZ. Mechanism: B9 targets FL's reg-saturation problem (D5); at smaller transition graphs the saturation is less severe AND alt-SGD's per-step temporal gradient separation costs cat-side signal small states can't afford to lose. **Paper recipe-selection narrative:** *"B9 is paper-grade at FL/CA; H3-alt remains the universal recipe at small scale; the optimal MTL recipe is scale-conditional."* Source: this file (canonical). Wilcoxon JSONs: [`../research/PAPER_CLOSURE_RECIPE_WILCOXON.json`](../research/PAPER_CLOSURE_RECIPE_WILCOXON.json) + [`../research/GAP_FILL_WILCOXON.json`](../research/GAP_FILL_WILCOXON.json) (CA n=20 v8). Background provenance (superseded): [`../archive/post_paper_closure_2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md §4a-bis`](../archive/post_paper_closure_2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md).
 
@@ -159,19 +159,22 @@ C2HGI lifts cat F1 by **+28–33 pp over POI-RGNN** at FL/CA/TX (the headline ex
 
 ---
 
-> ⚠ **Sections §1–§5 below preserved verbatim from 2026-04-26..27 as historical audit.**
+> ⚠ **HISTORICAL AUDIT — DO NOT CITE FOR PAPER DRAFTING.**
+> Sections §1–§5 below are **superseded by §0 above** and preserved verbatim from 2026-04-26..27 as audit-only.
 > Several `next_region` numbers in §1–§3 used the legacy unseeded `region_transition_log.pt`
 > and are leak-inflated by 13–27 pp (state-dependent; substrate-asymmetric, hurting
 > reproducibility of CH15/CH18-reg). **Use §0 above for paper drafting.**
 > The cat-side numbers in §1–§5 are mostly leak-free by construction (cat heads
 > don't read log_T); the F49 3-way decomposition cells in the late-file section
-> have been refuted by F37 + paper-closure findings (see [`../OBJECTIVES_STATUS_TABLE.md §2.5`](../OBJECTIVES_STATUS_TABLE.md) for the leak-free `architectural Δ` reading).
+> were refuted by F37 + paper-closure findings (the leak-free architectural-Δ reading is in `archive/post_paper_closure_2026-05-01/OBJECTIVES_STATUS_TABLE.md §2.5`, archived in the 2026-05-01 cleanup).
 
 ---
 
-**Champion candidate (2026-04-26):** **F48-H3-alt** = B3 architecture + per-head LR (`cat_lr=1e-3, reg_lr=3e-3, shared_lr=1e-3`, `--scheduler constant`). Closes the F21c STL gap (CH18 Tier B → A): AL exceeds STL by +6.25 pp; AZ closes 75%; FL validates at 5-fold scale (cat preserved, reg +6.7 pp over predecessor B3). See [`../NORTH_STAR.md`](../NORTH_STAR.md), [`../MTL_ARCHITECTURE_JOURNEY.md`](../MTL_ARCHITECTURE_JOURNEY.md) for derivation, [`../research/F48_H3_PER_HEAD_LR_FINDINGS.md`](../research/F48_H3_PER_HEAD_LR_FINDINGS.md) for detail.
+> ⚠ **The "F48-H3-alt champion" framing below was SUPERSEDED by the leak-free 2026-05-01 paper closure.** Under leak-free measurement, the AL "+6.25 pp MTL > STL" claim is a leak artefact and MTL trails STL on `next_region` at every state by 7–17 pp (see §0.1 for the v8 canonical). The H3-alt vs B9 comparison is a *recipe-selection finding*, not a champion-vs-predecessor relation; B9 is paper-grade at FL/CA (§0.4); H3-alt is the small-state recipe. **Read §0 above for the current paper-canonical view.**
 
-**Predecessor (2026-04-24, kept as comparand):** **B3** = `mtlnet_crossattn + static_weight(cat=0.75) + next_gru (cat) + next_stan_flow (reg, alias of legacy next_getnext_hard)`, OneCycleLR max=0.003, 50ep.
+**Champion candidate (2026-04-26, SUPERSEDED — see banner above):** **F48-H3-alt** = B3 architecture + per-head LR (`cat_lr=1e-3, reg_lr=3e-3, shared_lr=1e-3`, `--scheduler constant`). The original 2026-04-26 framing claimed F48-H3-alt closed the F21c STL gap (CH18 Tier B → A): AL exceeded STL by +6.25 pp; AZ closed 75%; FL validated at 5-fold. **All these "MTL > STL on reg" claims are leak artefacts** under leak-free measurement (see §0 v8 above). Audit / derivation pointers (also superseded): [`../NORTH_STAR.md`](../NORTH_STAR.md), [`../MTL_ARCHITECTURE_JOURNEY.md`](../MTL_ARCHITECTURE_JOURNEY.md), [`../research/F48_H3_PER_HEAD_LR_FINDINGS.md`](../research/F48_H3_PER_HEAD_LR_FINDINGS.md).
+
+**Predecessor (2026-04-24, SUPERSEDED — kept as historical comparand):** **B3** = `mtlnet_crossattn + static_weight(cat=0.75) + next_gru (cat) + next_stan_flow (reg, alias of legacy next_getnext_hard)`, OneCycleLR max=0.003, 50ep.
 
 **Common protocol** (unless noted per row): user-disjoint `StratifiedGroupKFold(groups=userid)`, 5 folds × 50 epochs, seed 42, AdamW (lr=1e-4 → OneCycleLR max_lr=0.003 for predecessor B3 / per-head constant for H3-alt), batch 2048 (1024 for FL H3-alt to avoid MPS OOM), `gradient_accumulation_steps=1`. Reg metrics are `*_indist` (restricted to regions seen in training set of the fold) where applicable.
 

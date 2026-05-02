@@ -17,9 +17,11 @@
 
 ### §0.1 Codex audit log (post-commit `7a60e1c`, accepted 2026-05-01 PM)
 
+> ⚠ **HISTORICAL — DO NOT CITE FOR DRAFTING.** This section is the dated audit-log narrative of what each Codex audit caught and what we fixed at the time. The numbers and source pointers below are correct *as of the dated audit*, not the current canonical. **The current canonical is `RESULTS_TABLE.md §0` (v8) and the §0 status block above.** If you need a number, read §0; if you need a source pointer, read §0; this §0.1 is for historical traceability only.
+
 External critic flagged six issues; all accepted with edits:
 
-1. **Stale cat-Δ numbers.** Article used PAPER_CLOSURE_RESULTS_2026-05-01 §4a (v6) values (AL −0.19, AZ +1.89, FL +1.61); canonical is `docs/studies/check2hgi/results/RESULTS_TABLE.md §0.1` (v7, 2026-05-01 PM, multi-seed STL): **AL −0.78, AZ +1.20, FL +1.43, CA +1.94, TX +2.02**. Math: STL `next_gru` was refreshed from multi-seed runs {0, 1, 7, 100}; MTL B9 cat unchanged. AL p-value pending re-Wilcoxon against the multi-seed STL ceiling (the v6 p = 0.76 was against single-seed STL).
+1. **Stale cat-Δ numbers.** Article used PAPER_CLOSURE_RESULTS_2026-05-01 §4a (v6) values (AL −0.19, AZ +1.89, FL +1.61); at the time of the audit canonical was `RESULTS_TABLE.md §0.1` (v7, multi-seed STL): AL −0.78, AZ +1.20, FL +1.43, CA +1.94, TX +2.02. **[Updated to v8 in §0 above: FL refined to +1.52 paired Δ; AL Wilcoxon landed at p = 0.036 (small-significantly negative); AZ Wilcoxon landed at p < 1e-04.]** Math: STL `next_gru` was refreshed from multi-seed runs {0, 1, 7, 100}; MTL B9 cat unchanged.
 2. **+33 pp substrate conflation.** Abstract said "29 to 33 pp at headline scale". Wrong: the **substrate-only matched-head STL** Δ is +28.3 to +29.0 pp (FINAL_SURVEY §2); the +33 pp belongs to the MTL counterfactual (FINAL_SURVEY §3, MTL Check2HGI − MTL HGI). These are different stories. Corrected to "+14 to +29 pp" everywhere.
 3. **Scale-sensitive title overclaim.** TX (−16.69 pp on reg) breaks the "cost shrinks with data" pattern; the latest data does not support scale-sensitivity as a title-bearing claim. Demoted to descriptive secondary in §5.2 / §7.
 4. **Substrate task-asymmetry is the cleanest story.** Cat: Check2HGI > HGI by +14.5 to +29 pp at every state, paired Wilcoxon p = 0.0312 each. Reg: HGI nominally ≥ Check2HGI by 1.6-3.1 pp, TOST δ=2pp passes at CA/TX. Promoted to lead.
