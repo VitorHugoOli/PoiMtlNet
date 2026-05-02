@@ -8,7 +8,7 @@
 
 ## §1 · Canonical numerical anchors (what every cited number must match)
 
-Source: `docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v9, 2026-05-02 — TX recipe-selection upgraded to n=20 multi-seed, B9 paper-grade at FL/CA/TX; v8: AL/AZ/FL cat-Δ Wilcoxon, CA recipe multi-seed).
+Source: `docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v10, 2026-05-02 — CA+TX arch-Δ §0.1 upgraded to n=20, p=2e-06 on all four axes; v9 added TX recipe-selection multi-seed §0.4; v8 added AL/AZ/FL cat-Δ Wilcoxon + CA recipe multi-seed).
 
 ### §0.1 Five-state architectural-Δ (MTL B9 vs matched-head STL) — v10
 
