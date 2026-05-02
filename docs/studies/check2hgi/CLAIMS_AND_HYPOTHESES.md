@@ -19,7 +19,9 @@
 
 Task pair: `{next_category (7 classes), next_region (~1K classes)}` on Check2HGI check-in-level embeddings.
 
-## Paper's contribution — three intertwined claims (revised 2026-04-16 evening)
+## Historical early-study framing (pre-leak-free, not paper-current)
+
+The three bullets below are preserved for claim archaeology from the early study phase. They are **not** the current paper canon; the live paper-facing interpretation is the whitelist banner above plus `results/RESULTS_TABLE.md §0` (v8).
 
 1. **Check2HGI (check-in-level contextual) improves next-category prediction over POI-level alternatives (HGI) and over published next-category baselines (POI-RGNN).** The check-in-level granularity — same POI visited twice yields different vectors — captures the user's *immediate* intent shifts that POI-level embeddings cannot. This is Check2HGI's design target and the paper's primary substrate claim. **CH16.**
 2. **Per-task input modality** (check-in to the category head, region to the region head) is the Pareto-bidirectional MTL design; shared-modality or concat variants each collapse one head. Check2HGI uniquely enables this because it supplies both granularities simultaneously; HGI cannot produce per-visit variation. **CH03.**
@@ -675,8 +677,8 @@ The paper's framing therefore shifts from "Check2HGI is a better embedding" to "
 
 | ID | Tier | Phase | Status | Decides |
 |----|------|-------|--------|---------|
-| **CH16** | **A** | **P1.5b → Phase 3** | **confirmed leakage-free at 5/5 states (AL+AZ+FL+CA+TX, 2026-04-30)** | **Check2HGI > HGI on next-category (PRIMARY SUBSTRATE).** Phase 3 MTL B9 leak-free: Δ cat F1 = +15.06 (AL), +15.59 (AZ), +33.66 (FL), +32.54 (CA), +32.77 (TX), all p=0.0312 (max possible n=5 paired Wilcoxon), 5/5 folds positive each. Δ scales monotonically with state size. |
-| **CH17** | **A** | **paper** | **pending (audit done 2026-04-23)** | **Check2HGI > POI-RGNN.** Reproduced POI-RGNN FL 34.49 / CA 31.78 / TX 33.03 vs ours FL 63.17 STL / 66.01 MTL = +28–32 pp. Protocol audit in `docs/baselines/POI_RGNN_AUDIT.md`. |
+| **CH16** | **A** | **P1.5b → Phase 3** | **confirmed leakage-free at 5/5 states (AL+AZ+FL+CA+TX, 2026-04-30)** | **Check2HGI > HGI on next-category (PRIMARY SUBSTRATE).** Canonical matched-head STL substrate Δ = +15.50 (AL), +14.52 (AZ), +29.02 (FL), +28.81 (CA), +28.34 (TX), all p=0.0312 (max possible n=5 paired Wilcoxon), 5/5 folds positive each. Δ follows a broad two-band pattern (~15 pp at AL/AZ; ~28-29 pp at FL/CA/TX), not a strict monotone scale law. |
+| **CH17** | **A** | **paper** | **pending (audit done 2026-04-23)** | **Check2HGI > POI-RGNN.** Reproduced POI-RGNN FL 34.49 / CA 31.78 / TX 33.03; matched-head STL Check2HGI at FL/CA/TX is 63.43 / 59.94 / 60.24 (+27 to +29 pp), while the MTL row widens the gap to roughly +32 to +34 pp. Protocol audit in `docs/baselines/POI_RGNN_AUDIT.md`. |
 | **CH01** | A | P3 / B5 | reframed → `OBJECTIVES_STATUS_TABLE.md §3` | "Bidirectional MTL lift" literal form no longer the headline. North-star (soft) gives ties/lifts on cat and region below STL; hard ablation delivers strict MTL-over-STL on AZ region (+1.01 pp, p=0.0312 F1). FL region below Markov under both variants. |
 | **CH02** | A | P3 / B5 | reframed → F1 Wilcoxon done | "No negative transfer" now tested via paired Wilcoxon on AZ hard-vs-soft: cat Δ p=0.44 two-sided (no regression), region all 4 metrics p=0.0312 one-sided (lift). See `research/B5_AZ_WILCOXON.md`. |
 | **CH03** | A | P4 | partial (AL dev only, 1f×20ep) | Per-task input modality > shared/concat, directional. Settled by design choice (north-star uses `task-a=checkin`, `task-b=region`); full P4 replication not executed and not paper-blocking — incorporated as configuration, not as a tested claim. |

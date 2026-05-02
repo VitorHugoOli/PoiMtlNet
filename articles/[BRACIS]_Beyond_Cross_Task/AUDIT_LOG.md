@@ -98,7 +98,7 @@ Source: `docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v8, 2026-05-01 PM
 ### §0.6 External literature baselines — `next_category` (macro-F1)
 
 - POI-RGNN faithful FL = 34.49; CA = 31.78; TX = 33.03.
-- C2HGI lifts cat by **+28-33 pp over POI-RGNN** at FL/CA/TX (uses MTL counterfactual numbers; OR +28-29 if matched-head STL `next_gru`). Wording in T5/§5.3 must be precise about which axis.
+- C2HGI lifts cat by **+27-29 pp over POI-RGNN under matched-head STL `next_gru`** at FL/CA/TX; the **MTL** row widens this external gap to roughly **+32-34 pp**. Wording in T5/§5.3 must be precise about which axis.
 
 ---
 
@@ -135,7 +135,7 @@ All other numbers (n=17 cells) round-trip correctly.
 **Story spine:** coheres consistently across all five article-side files post-Codex audit. C1/C2 framing is consistent end-to-end; voice/protocol guidance aligns with `BRACIS_GUIDE §10.2`. **One real spine wobble:** the "transfer empirically null on next-region" framing (PAPER_STRUCTURE §2 land-line) is sharper than "empirically vacuous on the harder task" (PAPER_DRAFT §7 Beat 1) and stronger than the abstract's "textbook tradeoff". Reviewer eyes will compare — pick one register.
 
 **Pre-fan-out blockers (medium-risk):**
-1. **AL/AZ/FL cat-Δ Wilcoxon "pending re-run"** against v7 multi-seed STL ceiling — surface this as a real BRACIS-rigour gap, not a TODO. Either run it before fan-out, or commit to "5/5 fold sign-pattern" framing.
+1. **Historical at audit time, later resolved in v8:** AL/AZ/FL cat-Δ Wilcoxon against the v7 multi-seed STL ceiling was still pending when this audit was written. It landed in `GAP_FILL_WILCOXON.json` and `RESULTS_TABLE.md §0.1` on 2026-05-01 PM.
 2. **D6 anonymous code link** is "pending" — reviewers click; 404 is desk-rejection-adjacent.
 3. **Abstract clarity edits (3):** (a) n = 5 ceiling p = 0.0312 lacks context for cold readers, (b) "head-invariant" is jargon, (c) "8 to 17 pp" needs "on next-region Acc@10" qualifier.
 
@@ -196,7 +196,7 @@ All other numbers (n=17 cells) round-trip correctly.
 - CoUrb arc tension: PAPER_DRAFT §1 Beat 3 now explicitly positions per-visit-vs-per-POI as an *orthogonal* axis to CoUrb's per-modality decomposition (granularity vs. what-features) — not as a continuous follow-up.
 - C2 cat-lift register: aligned across AGENT.md C2 + PAPER_DRAFT.md §1 Beat 5 + §5.2 Beat 1 + §7 Beat 1 + §8 conclusion to use "small additional cat lift" matching the abstract.
 - POI-RGNN reproduction caveat added to PAPER_DRAFT §7 Limitations as new item (iv).
-- §7 Limitations also expanded with AL/AZ/FL cat-Δ Wilcoxon "pending re-run" note (unchanged direction across v6→v7 STL refresh).
+- §7 Limitations also expanded at the time with an AL/AZ/FL cat-Δ Wilcoxon "pending re-run" note; this item was later resolved in v8.
 
 **Surface to user (cannot fix unilaterally):**
 - **D6 anonymous code link** snapshot — needs user to set up Anonymous GitHub or equivalent. This is a real BRACIS-fit risk if not done before submission.
@@ -205,7 +205,7 @@ All other numbers (n=17 cells) round-trip correctly.
 
 **Macro BRACIS-fit verdict (post-consolidation):**
 - Story spine: ✅ coherent across all five article-side files.
-- Numerical claims: ✅ round-trip to RESULTS_TABLE v7.
+- Numerical claims: ✅ round-trip to RESULTS_TABLE v8.
 - Statistical rigour: ✅ borderline-strong; soft spots honestly disclosed in §7.
 - External baselines: ✅ adequate; ReHDM CA/TX deferral honest.
 - Honest framing: ✅ matches BRACIS 2023 best-paper pattern.

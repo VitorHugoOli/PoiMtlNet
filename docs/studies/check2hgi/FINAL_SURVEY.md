@@ -67,7 +67,7 @@ Statistical protocol: paired Wilcoxon signed-rank (one-sided `alternative='great
 | CA | **59.94 ± 0.59** | 31.13 ± 1.04 | **+28.81** | 0.0312 | 6.77e-08 | 5 / 0 |
 | TX | **60.24 ± 1.84** | 31.89 ± 0.55 | **+28.34** | 0.0312 | 6.76e-07 | 5 / 0 |
 
-**Verdict:** CH16 confirmed at 5/5 states with paper-grade significance (Wilcoxon p=0.0312 = max-n=5, 5/5 folds positive each). Δ scales monotonically from ~15 pp at small AL/AZ to ~28-29 pp at large FL/CA/TX. **Per-visit context is the load-bearing substrate property for the cat task.**
+**Verdict:** CH16 confirmed at 5/5 states with paper-grade significance (Wilcoxon p=0.0312 = max-n=5, 5/5 folds positive each). Δ scales broadly in a two-band pattern: ~15 pp at small AL/AZ and ~28-29 pp at large FL/CA/TX; within the large-state band the ordering is directional, not strictly monotone. **Per-visit context is the load-bearing substrate property for the cat task.**
 
 ## 3 · MTL B9 cat F1 (CH18 cat-side) — Phase 3 leak-free, B9 recipe
 
@@ -145,7 +145,7 @@ Negative asymmetry → C2HGI lost more pp than HGI when the leak was removed →
 
 Five paper-grade claims after the 5-state, leak-free, Phase 1+2+3 closure:
 
-1. **CH16 — Cat substrate gap** ✅ at 5/5 states (Wilcoxon p=0.0312, 5/5 folds positive). Δ scales monotonically with state size.
+1. **CH16 — Cat substrate gap** ✅ at 5/5 states (Wilcoxon p=0.0312, 5/5 folds positive). Δ follows a broad two-band pattern with state size: ~15 pp at AL/AZ and ~28-29 pp at FL/CA/TX.
 2. **CH18-cat — MTL inherits the cat substrate gap** ✅ at 5/5 states (same statistics). Δ in MTL is similar magnitude to cat-STL (15 pp at small AL/AZ, ~33 pp at large FL/CA/TX).
 3. **CH15 reframing — substrate-equivalent reg under matched head** ❌ rejected at AL/AZ/FL (TOST δ=2pp fails). Tied at CA/TX (Δ < 2 pp). Sign-flipped at every state vs leaky reference.
 4. **CH18-reg — MTL substrate-specific reg lift** ❌ rejected at 5/5 states (sign-reversed). The Phase 2 leaky claim was an F44 artefact.
