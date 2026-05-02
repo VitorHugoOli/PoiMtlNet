@@ -1,5 +1,22 @@
 # Claims and Hypotheses Catalog — Check2HGI Study
 
+> ⚠ **PAPER-FACING WHITELIST (post-v8, 2026-05-01).** Only the entries below are safe to cite as paper canon. The rest of this document contains pre-leak-free framing, superseded H3-alt narratives, and historic claim attributions that are **not paper-current**. When in doubt, cross-check against `results/RESULTS_TABLE.md §0` (v8) and the `CHANGELOG.md` timeline.
+>
+> **Whitelisted entries (paper-facing safe):**
+> - **CH16** — Cat substrate advantage (Check2HGI > HGI on next-category, head-invariant at AL+AZ; matched-head replicated at FL/CA/TX). Numbers are leak-free and 5-state.
+> - **CH18-cat** — Cat substrate advantage under MTL B9 (also paper-grade significant). The reg-side of the original CH18 ("MTL substrate-specific on reg") was a leak artefact and is **not whitelisted**.
+> - **CH15 reframing** — Reg substrate parity / marginal HGI advantage under matched-head STL `next_stan_flow` (TOST tied at CA/TX, δ=2pp; FL δ=3pp). Sign-flipped from earlier framing under the F44 leak.
+> - **CH19** — Per-visit context mechanism (~72 % of cat substrate gap at Alabama, single-state evidence). Survives all leak-free re-measurements.
+> - **CH22** — Δm joint score (leak-free 2026-05-01 reframe). FL multi-seed Δm-MRR positive at p = 2.98e-8 (n = 25); other states at n = 5 ceiling.
+>
+> **Not whitelisted (pre-leak-free or superseded):**
+> - **CH01** / **CH02** / **CH03** — pre-Phase-1 framings; not paper-current.
+> - **CH18-reg** (pre-2026-04-30) — was a leak artefact; CH15 reframing supersedes it.
+> - **CH20** / **CH21** — F49 attribution narrative; the AL "+6.48 pp architecture-dominant" finding was a leak artefact; the Layer 2 methodological side-finding (cross-attn `task_weight=0` co-adaptation) survives independently and is referenced via `research/F49_LAMBDA0_DECOMPOSITION_GAP.md`.
+> - **CH22b** — pre-multi-seed FL framing; superseded by the leak-free CH22 v8 numbers in `RESULTS_TABLE §0.2`.
+>
+> Sub-agents writing paper prose: read `articles/[BRACIS]_Beyond_Cross_Task/AGENT.md §8` for the same whitelist with article-side cross-references.
+
 Task pair: `{next_category (7 classes), next_region (~1K classes)}` on Check2HGI check-in-level embeddings.
 
 ## Paper's contribution — three intertwined claims (revised 2026-04-16 evening)

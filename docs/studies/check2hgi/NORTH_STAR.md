@@ -19,7 +19,7 @@
 > costs cat-side signal that small states can't afford to lose. The recipe-selection
 > claim reframes from "B9 is the universal champion" to **"B9 is FL-scale champion;
 > H3-alt is the universal recipe at small scale; the optimal MTL recipe is
-> scale-conditional"**. Full doc: `PAPER_CLOSURE_RESULTS_2026-05-01.md §4a-bis`.
+> scale-conditional"**. Full doc: `archive/post_paper_closure_2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md §4a-bis` (background provenance) or `results/RESULTS_TABLE.md §0.4` (v8 canonical).
 > Wilcoxon JSON: `research/PAPER_CLOSURE_RECIPE_WILCOXON.json`.
 
 > 🎯 **PAPER CLOSURE — 2026-05-01 (28 paper-grade runs, both tasks, leak-free).**
@@ -27,17 +27,27 @@
 > AL/AZ MTL B9 multi-seed, FL STL reg multi-seed extension. The architectural-Δ
 > picture is now multi-seed at AL+AZ, multi-seed STL + single-seed B9 at FL,
 > single-seed at CA+TX (P1 multi-seed extension deferred to camera-ready).
-> Full results: `PAPER_CLOSURE_RESULTS_2026-05-01.md`. Wilcoxon JSON:
-> `research/PAPER_CLOSURE_WILCOXON.json`. Phase plan: `PAPER_CLOSURE_PHASES.md`.
+> Full results: **`results/RESULTS_TABLE.md §0` (v8, canonical)**; background
+> provenance in `archive/post_paper_closure_2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md`.
+> Wilcoxon JSONs: `research/PAPER_CLOSURE_WILCOXON.json`,
+> `research/GAP_FILL_WILCOXON.json` (v8 cat-Δ).
 >
-> **Headline (the classic MTL tradeoff, sign-consistent across 5 states):**
+> **Headline (the classic MTL tradeoff, sign-consistent across 5 states; v8 update 2026-05-01):**
 > | State | Δ_reg pp (MTL−STL) | p_reg | Δ_cat pp (MTL−STL) | p_cat |
 > |---|---:|---:|---:|---:|
-> | AL (n=20) | **−11.04** | **1.9e-06** | −0.19 | 0.76 (n.s., ≈tied) |
-> | AZ (n=20) | **−12.27** | **1.9e-06** | **+1.90** | **1.9e-06** |
-> | FL (n=5)  | −7.99 | 0.0625 | (n/a — F37 STL cat lacks per-fold) | — |
+> | AL (n=20) | **−11.04** | **1.9e-06** | **−0.78** (small-significantly negative) | **0.036** |
+> | AZ (n=20) | **−12.27** | **1.9e-06** | **+1.20** | **<1e-04** |
+> | FL (n=5)  | −7.99 | 0.0625 | **+1.52** | 0.0625 |
 > | CA (n=5)  | −8.92 | 0.0625 | +1.94 | 0.0625 |
 > | TX (n=5)  | −16.69 | 0.0625 | +2.02 | 0.0625 |
+>
+> **v8 update (2026-05-01):** cat-Δ Wilcoxon landed for AL/AZ/FL via `gap_fill_wilcoxon.py` →
+> `research/GAP_FILL_WILCOXON.json`. AL is now **small-significantly negative** at p=0.036
+> across n=20 multi-seed fold-pairs (14/20 fold-pairs negative; magnitude small at
+> ~1.9% relative on a 41% F1 scale). FL Δ_cat refined from +1.43 (mean-diff) to
+> **+1.52** (paired Δ); FL MTL B9 cat F1 refined from 68.59 → **68.51 ± 0.51**
+> (multi-seed pooled). CA recipe-selection upgraded to n=20 multi-seed, paper-grade
+> on both tasks (see §0.4 below).
 >
 > n=20 = 4 seeds × 5 folds (pooled multi-seed). n=5 = single seed paired.
 > p=0.0625 is the minimum for n=5 paired Wilcoxon — single-seed numbers are

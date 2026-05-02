@@ -8,58 +8,75 @@ Read this before any scientific work on the `worktree-check2hgi-mtl` branch. It 
 
 This study runs **alongside** the fusion study — they coexist under `docs/studies/`. Fusion investigates POI-category classification on fused POI-level embeddings; this study investigates **joint next_category + next_region prediction on check-in-level contextual embeddings** (Check2HGI). Do not cross-reference or mix artefacts between the two studies.
 
-**Post-H3-alt + F49 + Phase-1 substrate era (2026-04-27).** The original P0→P6 phase plan is archived (`archive/phases_original/`). Active work is tracked against the **F48-H3-alt champion candidate** (B3 architecture + per-head LR) in `NORTH_STAR.md`, with the predecessor B3 (50ep + OneCycleLR) preserved as a comparand. Follow-ups in `FOLLOWUPS_TRACKER.md` (per-experiment) and `PAPER_PREP_TRACKER.md` (paper-deliverable). Phase-2 substrate replication queue in `PHASE2_TRACKER.md`. Current operational frontier: F37 STL FL ceiling (4050-assigned, closes F49 Layer 3), Phase-2 FL/CA/TX substrate grid (`PHASE2_TRACKER.md`), paired Wilcoxon on F49 cells, seed sweep on H3-alt. **Before doing scientific work, read `SESSION_HANDOFF_2026-04-27.md` first** — it covers BOTH tracks (Phase-1 substrate-side §0.1 + F49 architecture-side §0.2 + joint claim §0.3). `research/SUBSTRATE_COMPARISON_FINDINGS.md` is the Phase-1 verdict; `research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md` is the F49 verdict. `MTL_ARCHITECTURE_JOURNEY.md` is the end-to-end MTL-architecture derivation from initial design through H3-alt + F49.
+**Post-paper-closure + cat-Δ Wilcoxon era (2026-05-01 v8).** Paper closure complete; the headline narrative is **substrate task-asymmetry first, classic MTL tradeoff second**. The article-side BRACIS submission lives in `articles/[BRACIS]_Beyond_Cross_Task/`. **Single canonical numerical source: `results/RESULTS_TABLE.md §0` (v8).** All other numbers in this folder reference it; numbers that contradict v8 are either stale (mark, fix, or archive) or audit-historical.
 
-AL + AZ + FL 5f × 50ep numbers landed under H3-alt (2026-04-25/26). F49 λ=0 3-way decomposition landed (2026-04-27): AL+AZ+FL all at 5-fold paper-grade. Phase-1 substrate validation landed (2026-04-27): 5-leg study at AL+AZ confirms strong claim. **Seven paper-reshaping findings since 2026-04-22:** **F2** (PCGrad × hard-prior × FL gradient starvation), **F21c** (matched-head STL > MTL-B3 by 12-14 pp on reg, AL+AZ), **F27** (cat-head `next_mtl → next_gru`), **F48-H3-alt** (per-head LR closes/exceeds the F21c gap), **F40 + F48-H2** (negative controls bracketing H3-alt as unique), **F49** (3-way decomposition: AL reg lift is architectural; cat-supervision transfer is small ≤|0.75| pp on all 3 states; refutes legacy +14.2 pp transfer claim by ≥9σ on FL n=5 alone), **Phase-1 substrate validation** (CH16 head-invariant at AL+AZ across 8 head-state probes; CH15 reframed as head-coupled; CH18 MTL B3 substrate-specific — HGI substitution breaks reg by 30 pp; CH19 per-visit-context mechanism = ~72% of cat substrate gap).
+**Before doing scientific work, read in this order:**
+1. `CHANGELOG.md` — chronological timeline of findings + lessons (the single source for "what was found when, why").
+2. `results/RESULTS_TABLE.md §0` — canonical paper numbers (v8, 2026-05-01 PM).
+3. `articles/[BRACIS]_Beyond_Cross_Task/AGENT.md` — article-side operational rules + voice + statistics + page budget.
+4. `CLAIMS_AND_HYPOTHESES.md` (with whitelist banner) — paper-facing safe entries are CH16 / CH18-cat / CH15 reframing / CH19 / CH22; everything else needs cross-checking against v8.
 
-**Joint top-line paper claim (CH21, 2026-04-27):** MTL B3's lift is **interactional architecture × substrate**, not transfer. Substrate (CH18+CH19) is necessary; architecture (CH20) is necessary; the conventional "MTL transfers signal" framing is empirically refuted.
+**Headline (the classic MTL tradeoff, sign-consistent across 5 states):**
+- Cat: MTL ≥ STL at four of five states (AZ +1.20 p < 1e-4 / FL +1.52 p = 0.0625 n=5 / CA +1.94 / TX +2.02 pp); AL is small-significantly negative (Δ = −0.78 pp, p = 0.036, n = 20 multi-seed; magnitude ~1.9% relative).
+- Reg: MTL < STL at every state by 7–17 pp (sign-consistent).
+- Substrate (matched-head STL): cat Δ = +14.5 to +29 pp at every state (paired Wilcoxon p = 0.0312 each); reg HGI nominally ahead by 1.6–3.1 pp (TOST tied at CA/TX).
+- Mechanism (CH19, AL-only): per-visit context = ~72% of cat substrate gap.
+- Methodological side-finding (CH3 / Layer 2): cross-attn `task_weight = 0` co-adapts via K/V — encoder-frozen isolation is required.
 
-## Thesis (post-H3-alt resolution, 2026-04-26)
+**The leak-free reframe.** Two of the most prominent earlier findings (F49 "AL +6.48 pp MTL > STL on reg architecture-dominant"; CH18-reg "MTL substrate-specific"`) were leak artefacts of pre-F50 measurements (full-data `region_transition_log.pt` leaks ~13–27 pp; substrate-asymmetric, hurting C2HGI more than HGI). Under leak-free measurement, MTL trails STL on reg at every state. **The leak-free narrative is the paper-facing one**; the leak-era narrative is preserved in `archive/post_paper_closure_2026-05-01/` for audit. See `CHANGELOG.md` 2026-04-29 to 2026-05-01 entries for the timeline of how the reframe happened.
 
-The bidirectional thesis ("MTL must lift both heads over STL") is **reaffirmed** with H3-alt resolving CH18:
+## Thesis (post-leak-free, 2026-05-01)
 
-1. **Check2HGI > HGI on cat F1** (CH16, primary substrate claim).
-2. **Strict MTL-over-STL on cat F1** at AL+AZ under predecessor B3 (F31 +4.13 pp AL, F27 +3.73 pp AZ Wilcoxon p=0.0312); under H3-alt cat is preserved within ~2 pp of B3.
-3. **MTL-over-matched-head-STL on reg** under H3-alt: AL exceeds STL GETNext-hard by **+6.25 pp**; AZ closes 75% of B3 gap; FL beats STL GRU by +3.63 pp (F37 STL GETNext-hard FL pending).
-4. **Joint single-model deployment** — both heads in one forward pass with per-head LR cost = 0 wall-clock vs B3.
-5. **Mechanism + attribution chain** — F45 unmasked α-growth as the reg-lift driver; H3-alt decouples α's LR regime from the cat-stability regime; F40 + F48-H1 + F48-H2 negative controls bracket H3-alt as the unique design satisfying joint cat+reg in this design space. Paper-worthy attribution chain (`MTL_ARCHITECTURE_JOURNEY.md`).
+The bidirectional thesis ("MTL must lift both heads over STL") is **not** what we land. The honest finding is:
 
-CH18 promoted Tier B → A. The paper's MTL contribution is no longer "joint deployment accepting a reg cost" — it's "MTL with per-head LR exceeds matched-head STL on reg AND preserves cat F1, validated cross-state with a clean mechanism." See `CLAIMS_AND_HYPOTHESES.md §CH18` for the full catalog update.
+1. **Substrate-task-asymmetry (C1).** Check-in-level Check2HGI lifts cat by +14.5 to +29 pp at every state; on reg it ties or marginally trails per-place HGI. Mechanism: per-visit variance is what cat needs; per-POI pooling smooths it away for reg.
+2. **Classic MTL tradeoff (C2).** With Check2HGI fixed, joint MTL adds a small cat lift at four of five states and pays a sign-consistent reg cost. Drop-in fixes (FAMO, Aligned-MTL, HSM) do not recover the reg gap.
+3. **Methodological note (C3).** Cross-attn `task_weight = 0` ablations are unsound; encoder-frozen isolation is required.
+
+Why "MTL lifts both heads" doesn't survive: the bidirectional thesis was a pre-leak-free framing. Under leak-free measurement, the paper-honest claim is that the substrate carries cat (paper-grade significant at every state) while the architecture pays reg (sign-consistent at every state) — the textbook tradeoff. This is documented and accepted.
 
 ---
 
-## Study navigation
+## Study navigation (post-cleanup 2026-05-01)
 
 **Active (read these first):**
 
 | File | Purpose |
 |------|---------|
-| `docs/studies/check2hgi/README.md` | Entry point + scope statement |
-| `docs/studies/check2hgi/SESSION_HANDOFF_2026-04-27.md` | ⭐ Most recent — F49 λ=0 3-way decomposition + reproduction-gate fix + FL 5f in flight |
-| `docs/studies/check2hgi/research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md` | ⭐ F49 3-state decomposition: AL architectural / AZ classical / FL fragile-pending-F49c. Paper-grade vs fragile sub-claim split. |
-| `docs/studies/check2hgi/research/F49_LAMBDA0_DECOMPOSITION_GAP.md` | F49 planning note — gradient-flow analysis, design rationale, B-side contamination acknowledged, mandatory AdamW filter |
-| `docs/studies/check2hgi/MTL_ARCHITECTURE_JOURNEY.md` | End-to-end derivation from initial design through H3-alt; F49 paragraph addition pending |
-| `docs/studies/check2hgi/SESSION_HANDOFF_2026-04-26.md` | H3-alt-discovery session (predecessor) |
-| `docs/studies/check2hgi/SESSION_HANDOFF_2026-04-24.md` | B3 predecessor period |
-| `docs/studies/check2hgi/NORTH_STAR.md` | Champion candidate (H3-alt) + predecessor B3 + F27 scale-dependence flag — unchanged by F49 |
-| `docs/studies/check2hgi/PAPER_STRUCTURE.md` | Paper scope, baselines, STL-matching policy |
-| `docs/studies/check2hgi/PAPER_PREP_TRACKER.md` | ⭐ NEW (2026-04-27) — paper-deliverable tracker: claims committable now, headline-blockers, doc-rewrites, risk register, submission checklist |
-| `docs/studies/check2hgi/FOLLOWUPS_TRACKER.md` | Live work queue (F37, F33/F34/F35 Colab etc.; F49/F49b/F49c done) |
-| `docs/studies/check2hgi/OBJECTIVES_STATUS_TABLE.md` | One-page scorecard (v5 post-F49) |
-| `docs/studies/check2hgi/CLAIMS_AND_HYPOTHESES.md` | Authoritative claim catalog (CH01..CH19; CH19 is the F49 finding) |
-| `docs/studies/check2hgi/CONCERNS.md` | Acknowledged risks + resolutions (C01..C15; C12 resolved by F49) |
-| `docs/studies/check2hgi/results/RESULTS_TABLE.md` | Per-state × per-method canonical table |
-| `docs/studies/check2hgi/research/*` | Paper-substantive research notes (F21C, F27, F48_*, F49_*, B5_*, etc.) |
+| `docs/studies/check2hgi/README.md` | Entry point + canonical-source-aware navigation |
+| `docs/studies/check2hgi/CHANGELOG.md` ⭐ | Chronological timeline of findings + lessons learned (single source for "what was found when") |
+| `docs/studies/check2hgi/results/RESULTS_TABLE.md §0` ⭐ | **Canonical numerical source** for all paper tables (v8, 2026-05-01 PM) |
+| `articles/[BRACIS]_Beyond_Cross_Task/` ⭐ | Article-side BRACIS submission folder (AGENT.md / PAPER_DRAFT.md / PAPER_STRUCTURE.md / STATISTICAL_AUDIT.md / TABLES_FIGURES.md / samplepaper.tex / references.bib / AUDIT_LOG.md) |
+| `docs/studies/check2hgi/CLAIMS_AND_HYPOTHESES.md` | Claim catalogue with **paper-facing whitelist banner** (CH16 / CH18-cat / CH15 reframing / CH19 / CH22 are safe; others need cross-checking against v8) |
+| `docs/studies/check2hgi/NORTH_STAR.md` | Committed champion config (B9 + H3-alt scale-conditional; v8-aligned) |
+| `docs/studies/check2hgi/FINAL_SURVEY.md` | Substrate-axis 5-state matrix (cat + reg panels) |
+| `docs/studies/check2hgi/CONCERNS.md` | Acknowledged-risks audit log |
+| `docs/studies/check2hgi/MTL_ARCHITECTURE_JOURNEY.md` | Supplementary material narrative (F-trail through B3 → F21c → F45 → F48-H3-alt → F49 → paper closure). **Do not narrate the F-trail in main paper text.** |
+| `docs/studies/check2hgi/PAPER_BASELINES_STRATEGY.md` | Which baselines appear in which paper table; what is deliberately scoped out |
+| `docs/studies/check2hgi/research/GAP_FILL_WILCOXON.json` | v8 Wilcoxon JSON (cat-Δ landed; n=20 multi-seed) |
+| `docs/studies/check2hgi/research/PAPER_CLOSURE_WILCOXON.json` | Paper-closure Wilcoxon artefact |
+| `docs/studies/check2hgi/research/PAPER_CLOSURE_RECIPE_WILCOXON.json` | Recipe-selection Wilcoxon artefact |
+| `docs/studies/check2hgi/research/F49_LAMBDA0_DECOMPOSITION_GAP.md` | Cross-attn `task_weight=0` methodology contribution (the survival of F49) |
+| `docs/studies/check2hgi/research/F50_DELTA_M_FINDINGS_LEAKFREE.md` | Δm leak-free reframe (CH22) |
+| `docs/studies/check2hgi/research/F50_T1_RESULTS_SYNTHESIS.md` | Drop-in MTL ablation (FAMO, Aligned-MTL, HSM) |
+| `docs/studies/check2hgi/research/F51_MULTI_SEED_FINDINGS.md` | Multi-seed B9 vs H3-alt validation |
+| `docs/studies/check2hgi/research/SUBSTRATE_COMPARISON_FINDINGS.md` | Phase-1 substrate-comparison verdict (cat side survives leak-free; reg side does not) |
+| `docs/studies/check2hgi/baselines/` | Faithful baseline ports (POI-RGNN, MHA+PE, STAN, ReHDM) + audits |
+| `docs/studies/check2hgi/paper/` | Paper-prep section drafts (methods.md, results.md, limitations.md) |
+| `docs/studies/check2hgi/review/` | Dated critical reviews |
 
 **Archived (historical reference only):**
 
-| Location | Superseded by |
-|----------|---------------|
-| `archive/pre_b3_framing/` — MASTER_PLAN, QUICK_REFERENCE, KNOWLEDGE_SNAPSHOT, old HANDOFF, COORDINATOR, state.json, coordinator/ | NORTH_STAR.md + PAPER_STRUCTURE.md + tracker/handoff |
-| `archive/phases_original/` — P0..P7 phase plans | B3 + F* follow-up items in FOLLOWUPS_TRACKER |
-| `archive/research_pre_b3/` — pre-B3 research notes | post-B3 research/ directory |
+| Location | What's there | See also |
+|---|---|---|
+| `archive/post_paper_closure_2026-05-01/` | Stale paper-prep docs moved during the 2026-05-01 cleanup: study-side `PAPER_DRAFT.md`, `PAPER_STRUCTURE.md` (now under `articles/`), `PAPER_CLOSURE_RESULTS_2026-05-01.md` (background provenance), `OBJECTIVES_STATUS_TABLE.md`, `PAPER_PREP_TRACKER.md`, `PAPER_CLOSURE_PHASES.md`, `FOLLOWUPS_TRACKER.md`, `HANDOVER.md`, all `GAP_A_*` / `H100_CAMERA_READY_GAPS_PROMPT` / `F50_NORTH_STAR_DEEP_EXPLORATION_PROMPT` / `PHASE2_*` / `PHASE3_*` / `SESSION_HANDOFF_*` files. | `archive/post_paper_closure_2026-05-01/README.md` for what's there + why |
+| `archive/pre_b3_framing/` | Pre-B3 framing docs (MASTER_PLAN, etc.). | NORTH_STAR.md |
+| `archive/phases_original/` | Original P0..P7 phase plans. | CHANGELOG.md |
+| `archive/research_pre_b3/`, `archive/research_pre_b5/` | Pre-B3 / pre-B5 research notes. | `research/` (post-B5) |
+| `archive/2026-04-20_status_reports/` | Early status reports. | CHANGELOG.md |
+| `archive/v1_wip_mixed_scope/` | Pre-scope-split WIP. | — |
 
-Before any scientific work, read `SESSION_HANDOFF_2026-04-27.md`, `research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md`, `NORTH_STAR.md`, and `PAPER_STRUCTURE.md`.
+Before any scientific work, read `CHANGELOG.md`, `results/RESULTS_TABLE.md §0` (v8), and `articles/[BRACIS]_Beyond_Cross_Task/AGENT.md`.
 
 ---
 
