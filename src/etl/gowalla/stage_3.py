@@ -4,9 +4,8 @@ import pandas as pd
 import geopandas as gp
 from tqdm import tqdm
 
-from common.custom_tqdm import mtqdm
-from config import IoPaths, Resources
-from etl.pre_processing.utils import utils
+from src.configs.paths import IoPaths, Resources
+from src.etl.gowalla.utils import utils
 
 # Configure logging
 logging.basicConfig(
@@ -93,7 +92,7 @@ def checking_states():
     IoPaths.CHECKINS_ETL_STATES_PARQUET.mkdir(parents=True, exist_ok=True)
 
     # create a parquet to each state
-    for state in mtqdm(final_checkins_us.state_name.unique(), desc="Saving check-ins by state"):
+    for state in tqdm(final_checkins_us.state_name.unique(), desc="Saving check-ins by state"):
         state_df = final_checkins_us[final_checkins_us.state_name == state]
         state_df.to_csv(IoPaths.CHECKINS_ETL_STATES / f"{state}.csv", index=False)
         # state_df.to_parquet(IoPaths.CHECKINS_ETL_STATES_PARQUET / f"{state}.parquet")
