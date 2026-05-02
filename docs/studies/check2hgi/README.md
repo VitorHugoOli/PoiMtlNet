@@ -1,25 +1,25 @@
 # Check2HGI Study — Entry Point
 
-**Status (2026-05-02 v10, post-v9/v10 closures):** all paper-headline numbers committed; article is at `articles/[BRACIS]_Beyond_Cross_Task/` for BRACIS 2026 submission. The story is **substrate task-asymmetry first, classic MTL tradeoff second**.
+**Status (2026-05-02 v11, post-v9/v10/v11 closures):** all paper-headline numbers committed; article is at `articles/[BRACIS]_Beyond_Cross_Task/` for BRACIS 2026 submission. The story is **substrate task-asymmetry first, classic MTL tradeoff second**.
 
-> ⚠ **Single source of truth.** All paper numerical claims must round-trip to **`results/RESULTS_TABLE.md §0` (v10)**. Numbers anywhere else in this folder that contradict v10 are either stale (mark, fix, or archive) or audit-historical (clearly framed as such). See `CHANGELOG.md` for the dated rationale.
+> ⚠ **Single source of truth.** All paper numerical claims must round-trip to **`results/RESULTS_TABLE.md §0` (v11)**. Numbers anywhere else in this folder that contradict v11 are either stale (mark, fix, or archive) or audit-historical (clearly framed as such). See `CHANGELOG.md` for the dated rationale.
 
 ---
 
 ## What the paper says (one-paragraph summary)
 
-Check-in-level Check2HGI provides a **task-asymmetric substrate** for joint POI prediction. Per-visit context lifts single-task next-category macro-F1 by **+15.5 pp at AL, +14.5 at AZ, +29.0 at FL, +28.8 at CA, +28.3 at TX** under matched-head STL (paired Wilcoxon p = 0.0312 at every state, head-invariant at the **AL/AZ ablation scale** and matched-head replicated at **FL/CA/TX**); on next-region, per-place embeddings (HGI) tie or marginally exceed Check2HGI under matched-head ceilings (TOST tied at CA/TX). With Check2HGI fixed, joint MTL over a cross-attention backbone adds a small cat lift at four of five states (AZ +1.20 p < 1e-4 / FL +1.52 p = 0.0625 n=5 / CA +1.68 p = 2e-06 / TX +1.89 p = 2e-06) while AL is small-significantly negative (Δ = −0.78 pp, p = 0.036, n = 20 multi-seed) and pays a sign-consistent **8 to 17 pp cost** on next-region Acc@10 at every state — the textbook MTL tradeoff. A pooled-vs-canonical counterfactual at Alabama attributes ~72 % of the cat substrate gap to per-visit context. **A methodological side-finding** (cross-attention `task_weight = 0` ablations co-adapt the silenced encoder via attention K/V; encoder-frozen isolation is required) generalises beyond our study.
+Check-in-level Check2HGI provides a **task-asymmetric substrate** for joint POI prediction. Per-visit context lifts single-task next-category macro-F1 by **+15.5 pp at AL, +14.5 at AZ, +29.0 at FL, +28.8 at CA, +28.3 at TX** under matched-head STL (paired Wilcoxon p = 0.0312 at every state, head-invariant at the **AL/AZ ablation scale** and matched-head replicated at **FL/CA/TX**); on next-region, per-place embeddings (HGI) tie or marginally exceed Check2HGI under matched-head ceilings (TOST tied at CA/TX). With Check2HGI fixed, joint MTL over a cross-attention backbone adds a small cat lift at four of five states (AZ +1.20 p < 1e-4 / FL +1.40 p = 2e-06 / CA +1.68 p = 2e-06 / TX +1.89 p = 2e-06, all n = 20) while AL is small-significantly negative (Δ = −0.78 pp, p = 0.036, n = 20 multi-seed) and pays a sign-consistent **7 to 17 pp cost** on next-region Acc@10 at every state — the textbook MTL tradeoff. A pooled-vs-canonical counterfactual at Alabama attributes ~72 % of the cat substrate gap to per-visit context. **A methodological side-finding** (cross-attention `task_weight = 0` ablations co-adapt the silenced encoder via attention K/V; encoder-frozen isolation is required) generalises beyond our study.
 
 ---
 
 ## Where to start (read in order)
 
 1. **`CHANGELOG.md`** ⭐ — chronological timeline of findings + lessons learned. The single timeline source-of-truth.
-2. **`results/RESULTS_TABLE.md §0`** ⭐ — the **canonical numerical source** for paper tables (v10). All other numbers in this folder reference this.
+2. **`results/RESULTS_TABLE.md §0`** ⭐ — the **canonical numerical source** for paper tables (v11). All other numbers in this folder reference this.
 3. **`articles/[BRACIS]_Beyond_Cross_Task/`** — the **article-side working folder** for the BRACIS 2026 submission. Read `AGENT.md` first if you are writing prose, then the section beats in `PAPER_DRAFT.md`.
 4. **`AGENT_CONTEXT.md`** — long-form study briefing (read once, refer back as needed).
 5. **`NORTH_STAR.md`** — committed champion config (B9 = MTL recipe; H3-alt small-state recipe).
-6. **`CLAIMS_AND_HYPOTHESES.md`** (with whitelist banner) — claim catalogue. **Whitelisted as paper-facing safe:** CH16 (substrate cat) / CH18-cat (substrate cat under MTL) / CH15 reframing (substrate reg) / CH19 (per-visit mechanism, AL only) / CH22 (Δm leak-free). Other entries contain superseded leak-era content; do not cite as paper canon without cross-checking RESULTS_TABLE v10.
+6. **`CLAIMS_AND_HYPOTHESES.md`** (with whitelist banner) — claim catalogue. **Whitelisted as paper-facing safe:** CH16 (substrate cat) / CH18-cat (substrate cat under MTL) / CH15 reframing (substrate reg) / CH19 (per-visit mechanism, AL only) / CH22 (Δm leak-free). Other entries contain superseded leak-era content; do not cite as paper canon without cross-checking RESULTS_TABLE v11.
 7. **`FINAL_SURVEY.md`** — substrate-axis 5-state matrix (cat + reg panels).
 8. **`MTL_ARCHITECTURE_JOURNEY.md`** — supplementary material narrative (F-trail through B3 → F21c → F45 → F48-H3-alt → F49 → paper closure). **Do not narrate the F-trail in main paper text** (per article-side AGENT.md).
 9. **`CONCERNS.md`** — acknowledged risks + resolutions audit log.
@@ -41,13 +41,14 @@ docs/studies/check2hgi/
 ├── MTL_ARCHITECTURE_JOURNEY.md            ← supplementary material narrative (F-trail)
 ├── PAPER_BASELINES_STRATEGY.md            ← which baselines in which paper table
 ├── results/
-│   ├── RESULTS_TABLE.md §0  ⭐            ← canonical numerical source (v10)
+│   ├── RESULTS_TABLE.md §0  ⭐            ← canonical numerical source (v11)
 │   ├── paired_tests/                      ← Wilcoxon JSONs
 │   ├── P0/, P1/, P1_5b/, ...              ← raw JSON artefacts by phase
 │   └── phase1_perfold/, probe/            ← Phase-1 substrate-comparison data
 ├── research/                              ← per-experiment findings + analysis
 │   ├── GAP_FILL_WILCOXON.json             ← v8/v9 Wilcoxon (cat-Δ + recipe gap fill)
 │   ├── ARCH_DELTA_WILCOXON.json           ← v10 CA/TX §0.1 arch-Δ n=20
+│   ├── FL_CAT_DELTA_WILCOXON.json         ← v11 FL §0.1 arch-Δ n=20
 │   ├── PAPER_CLOSURE_WILCOXON.json
 │   ├── PAPER_CLOSURE_RECIPE_WILCOXON.json
 │   ├── F49_LAMBDA0_DECOMPOSITION_GAP.md   ← cross-attn methodology contribution

@@ -178,7 +178,7 @@ Wilcoxon JSONs: `GAP_FILL_WILCOXON.json`, `ARCH_DELTA_WILCOXON.json`, `FL_CAT_DE
 
 Caption sentence: *"With Check2HGI fixed as substrate, MTL vs matched-head STL ceilings on both tasks. Headline (FL/CA/TX) reports the B9 recipe (cosine + alternating-SGD + α-no-WD); smaller-scale anchors (AL/AZ) report H3-alt (per-head LR, constant). Δ_reg is sign-consistent at every state and paper-grade significant at all five (p ≤ 1.9e-06 across n = 20 multi-seed fold-pairs), with the magnitude varying non-monotonically (FL smallest at −7.34 pp; TX largest at −16.59 pp). On the cat side, MTL is paper-grade positive at AZ (+1.20 pp, p < 1e-04), FL (+1.40 pp, p = 2e-06), CA (+1.68 pp, p = 2e-06), and TX (+1.89 pp, p = 2e-06) — all across n = 20 multi-seed fold-pairs. AL is small-significantly negative (Δ = −0.78 pp, p = 0.036, n = 20; magnitude small at < 2 % relative on a 41 % F1 scale)."*
 
-**Voice cue:** the caption distinguishes *paper-grade*, *directional*, and *small-significantly negative* — sub-agent A5 must preserve all three registers and not collapse them.
+**Voice cue:** the caption distinguishes *paper-grade* and *small-significantly negative* on the §0.1 axis; single-seed-ceiling language belongs to substrate / Δm notes, not to the v11 headline row.
 
 ### T4 — Δm joint score, FL multi-seed bolded (§5.2, 0.4 pp)
 

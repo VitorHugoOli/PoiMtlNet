@@ -2,7 +2,7 @@
 
 > **Purpose.** Be brutal about which claims have proper statistical backing, which are weakly supported but defensible if framed honestly, and which are descriptive narrative dressed up as inference. BRACIS reviewers in the empirical track care about this; over-claims invite desk-rejection or deep cuts. This file is the rigour contract that sub-agents inherit before drafting Results / Discussion.
 >
-> **Sources.** Canonical numerical source for all paper tables: **`docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v10, 2026-05-02 — CA/TX §0.1 arch-Δ upgraded to n=20)** + **`docs/studies/check2hgi/research/GAP_FILL_WILCOXON.json`** (cat-Δ + recipe multi-seed) + **`docs/studies/check2hgi/research/ARCH_DELTA_WILCOXON.json`** (CA/TX §0.1 arch-Δ n=20). Background provenance only (do not cite as primary): `archive/post_paper_closure_2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md` (moved to archive in the 2026-05-01 study cleanup), `FINAL_SURVEY.md`, `CLAIMS_AND_HYPOTHESES.md` (whitelisted: CH16, CH18-cat, CH15 reframing, CH19, CH22 — others contain superseded leak-era content), `research/F50_T1_RESULTS_SYNTHESIS.md`. **No new compute.** Any claim that does not reduce to a number in current `RESULTS_TABLE.md §0` (or to the documented mechanism artefacts in CH19) is flagged.
+> **Sources.** Canonical numerical source for all paper tables: **`docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v11, 2026-05-02 — FL §0.1 arch-Δ upgraded to n=20; all five states paper-grade on the headline axis)** + **`docs/studies/check2hgi/research/GAP_FILL_WILCOXON.json`** (cat-Δ + recipe multi-seed) + **`docs/studies/check2hgi/research/ARCH_DELTA_WILCOXON.json`** (CA/TX §0.1 arch-Δ n=20) + **`docs/studies/check2hgi/research/FL_CAT_DELTA_WILCOXON.json`** (FL §0.1 arch-Δ n=20). Background provenance only (do not cite as primary): `archive/post_paper_closure_2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md` (moved to archive in the 2026-05-01 study cleanup), `FINAL_SURVEY.md`, `CLAIMS_AND_HYPOTHESES.md` (whitelisted: CH16, CH18-cat, CH15 reframing, CH19, CH22 — others contain superseded leak-era content), `research/F50_T1_RESULTS_SYNTHESIS.md`. **No new compute.** Any claim that does not reduce to a number in current `RESULTS_TABLE.md §0` (or to the documented mechanism artefacts in CH19) is flagged.
 
 ---
 
@@ -46,7 +46,7 @@ The paper makes paired-test claims at three different power regimes. State them 
 
 ---
 
-## 2 · C2-cat (MTL ≥ STL on next-category) — VERDICT: paper-grade for AZ/FL, small-significantly negative at AL, directional for CA/TX
+## 2 · C2-cat (MTL ≥ STL on next-category) — VERDICT: paper-grade positive at AZ/FL/CA/TX, small-significantly negative at AL
 
 > **v11 update (2026-05-02):** FL §0.1 architectural-Δ row upgraded to n = 20 (seeds {0,1,7,100} × 5 folds) — see `FL_CAT_DELTA_WILCOXON.json`. FL Δ_cat = **+1.40 pp, p = 2e-06** (20/20 fold-pairs positive); FL Δ_reg = **−7.34 pp, p = 1.9e-06** (0/20 positive). MTL B9 cat F1 = 68.56 ± 0.79 % (vs seed=42 reference 68.51 %). The earlier v8 single-seed n = 5 framing (FL p = 0.0625 ceiling) is superseded; all five states on the §0.1 headline are now n = 20 pooled multi-seed.
 
@@ -68,9 +68,9 @@ The paper makes paired-test claims at three different power regimes. State them 
 **DO WRITE:** *"With Check2HGI fixed as substrate, joint MTL over a cross-attention backbone lifts next-category at four of the five states (AZ +1.20 pp, p < 1e-04 across n = 20 multi-seed fold-pairs; FL +1.40 pp, p = 2e-06; CA +1.68 pp, p = 2e-06; TX +1.89 pp, p = 2e-06). At AL the joint cat F1 is small-significantly below single-task (Δ = −0.78 pp, paired Wilcoxon p = 0.036 across n = 20 multi-seed fold-pairs; magnitude small at < 2 % relative on a 41 % F1 scale, ~5 × the multi-seed STL σ)."*
 - This is **stronger** than either the "≈ tied" understatement or the "MTL gains at every state" overclaim because (i) it's defensible on both axes, (ii) it shows we know the difference between paper-grade significance, n = 5 ceiling, and small-magnitude significance, and (iii) the AL small-negative result is itself the smallest-state edge case — consistent with the cleaner substrate-task-asymmetry story (substrate carries cat at every state; MTL coupling helps at most states but not at the smallest one where data is thinnest).
 
-### 2.3 CA/TX closure in v10
+### 2.3 Five-state closure on the headline axis
 
-CA and TX are no longer underpowered on the headline §0.1 cat axis. The v10 closure upgrades both to **n = 20 pooled multi-seed**, with **p = 2e-06** on the cat side for both states. The older "camera-ready audit item" wording should be removed everywhere active and retained only in historical audit notes.
+CA and TX were closed in v10; FL was closed in v11. The headline §0.1 cat axis is now fully pooled multi-seed across all five states: **AZ/FL/CA/TX are paper-grade positive**, while **AL is small-significantly negative**. The older "camera-ready audit item" and "FL n = 5 ceiling" wording should be removed everywhere active and retained only in historical audit notes.
 
 ---
 
@@ -89,7 +89,7 @@ CA and TX are no longer underpowered on the headline §0.1 cat axis. The v10 clo
 ### 3.2 Wording fixes
 
 - **DO WRITE:** *"MTL trails matched-head STL `next_stan_flow` on next-region at every state. All five states pooled multi-seed comparisons (n = 20 fold-pairs each) reach paired Wilcoxon p ≤ 1.9e-06 in the negative direction. The reg cost is sign-consistent and paper-grade significant across all five states; the magnitude varies (7–17 pp)."*
-- **DO NOT WRITE:** *"all states statistically significant"* without the FL qualifier.
+- **DO NOT WRITE:** *"all states statistically significant"* without also noting the pooled multi-seed footing (n = 20 on §0.1).
 
 ### 3.3 The FL Δm-MRR positive cell — paper-grade (multi-seed)
 

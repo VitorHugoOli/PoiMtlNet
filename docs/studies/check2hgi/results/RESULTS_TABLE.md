@@ -7,7 +7,7 @@
 > picture is in [`../archive/post_paper_closure_2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md`](../archive/post_paper_closure_2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md) (background provenance only — superseded by the current §0 below);
 > paired Wilcoxon JSONs: [`../research/PAPER_CLOSURE_WILCOXON.json`](../research/PAPER_CLOSURE_WILCOXON.json) + [`../research/GAP_FILL_WILCOXON.json`](../research/GAP_FILL_WILCOXON.json) (cat-Δ multi-seed v8) + [`../research/ARCH_DELTA_WILCOXON.json`](../research/ARCH_DELTA_WILCOXON.json) (CA/TX arch-Δ n=20 v10).
 >
-> **Headline (v10, leak-free, F51 canonical extraction, both tasks):**
+> **Headline (v11, leak-free, F51 canonical extraction, both tasks):**
 >
 > | State | n_pairs | Δ_reg pp | p_reg | Δ_cat pp | p_cat |
 > |---|---:|---:|---:|---:|---:|
@@ -41,7 +41,7 @@
 
 ---
 
-## 0 · Paper-headline tables (v10, leak-free canon with 2026-05-02 upgrades)
+## 0 · Paper-headline tables (v11, leak-free canon with 2026-05-02 upgrades)
 
 These tables supersede §1–§5 below for paper drafting. All numbers are seed=42 leak-free under per-fold log_T (`region_transition_log_seed42_fold{N}.pt`) on `StratifiedGroupKFold(groups=userid, seed=42)` under sklearn 1.8.0; 5 folds × 50 epochs. Cat metric: per-fold max F1 for ep ≥ 5. Reg metric: per-fold max `top10_acc_indist` (MTL) or `top10_acc` (STL) for ep ≥ 5 — the F51 canonical extraction. Multi-seed aggregations are pooled across paired (seed, fold) tuples.
 
