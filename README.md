@@ -47,10 +47,41 @@ Dependencies are pinned in `pyproject.toml`. The NashMTL solver chain requires
 
 ### Data
 
-This release contains code only. The paper uses **Gowalla check-ins per U.S. state**
-(public dataset; cite via the references in the paper). Place processed inputs at
-`data/checkins/<state>/` and `data/miscellaneous/`. The training pipeline expects
-this layout — see `src/configs/paths.py`.
+This release contains code only. The paper uses **Gowalla check-ins** (public dataset;
+cite via the references in the paper). The training pipeline expects per-state inputs at
+`data/checkins/<State>.csv`. Two routes:
+
+**Route A — run the included ETL** (`pipelines/etl/gowalla.pipe.py`).
+Place raw Gowalla files under `data/gowalla/` and the U.S. states shapefile under
+`data/miscellaneous/`, then:
+
+```bash
+python pipelines/etl/gowalla.pipe.py    # SKIP_LOCALISE=True by default
+```
+
+The pipe runs three stages:
+
+1. **Stage 1** — load `gowalla_checkins.parquet`, label POIs against the Gowalla
+   category structure JSONs.
+2. **Stage 2** *(optional)* — attach `local_datetime` via timezone polygons
+   (skip with `SKIP_LOCALISE = True` if you don't need wall-clock-local times).
+3. **Stage 3** — spatial-join check-ins with U.S. state polygons and emit one
+   CSV per state under `data/checkins/<State>.csv`.
+
+Required raw inputs (paths in `src/configs/paths.py → Resources`):
+
+| File | Source |
+|---|---|
+| `data/gowalla/gowalla_checkins.parquet` | SNAP Gowalla dump (https://snap.stanford.edu/data/loc-Gowalla.html) |
+| `data/gowalla/gowalla_spots_subset{1,2}.csv` | Gowalla auxiliary POI tables |
+| `data/gowalla/gowalla_category_structure.json` + `callback_categories.json` + `extra_categories.json` | Gowalla category dictionaries |
+| `data/miscellaneous/tl_2022_us_state/` | Census TIGER 2022 (https://www2.census.gov/geo/tiger/TIGER2022/STATE/) |
+| `data/miscellaneous/combined-shapefile-with-oceans/` *(optional)* | timezone-boundary-builder release (https://github.com/evansiroky/timezone-boundary-builder/releases) |
+
+**Route B — provide pre-processed CSVs.** If you already have per-state Gowalla
+CSVs, place them at `data/checkins/<State>.csv` and skip the ETL. The
+`src/etl/gowalla/main.py` docstring documents the schema the downstream
+embedding pipelines expect.
 
 ### Run the test suite
 
@@ -73,6 +104,9 @@ The canonical recipe (see `docs/studies/check2hgi/CLAIMS_AND_HYPOTHESES.md` and
 `articles/[BRACIS]_Beyond_Cross_Task/samplepaper.tex`) is:
 
 ```bash
+# 0. (one-time) raw Gowalla → per-state CSVs — see "Data" above
+python pipelines/etl/gowalla.pipe.py
+
 # 1. Train Check2HGI / HGI substrate embeddings (per state)
 python pipelines/embedding/check2hgi.pipe.py
 python pipelines/embedding/hgi.pipe.py
