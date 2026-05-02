@@ -47,10 +47,10 @@ This block is cited verbatim in T1 caption and elided in subsequent captions ("s
 | ID | Caption (working) | Rows × cols | Page | Source artefact |
 |---|---|---|:-:|---|
 | **T1** | Dataset statistics (FL/CA/TX headline + AL/AZ smaller-scale anchors) | 5 × 7 | 0.4 | `data/checkins/<state>.parquet`, `output/check2hgi/<state>/regions.parquet` |
-| **T2** | Substrate ablation: **Check2HGI vs HGI on both tasks**, 5 states. Two-panel: (a) cat F1 STL `next_gru` (Δ +14.5 to +29.0 pp; paired Wilcoxon p = 0.0312 each, head-invariant at AL/AZ); (b) reg Acc@10 STL `next_stan_flow` (HGI ≥ Check2HGI 1.6–3.1 pp at AL/AZ/FL; TOST δ=2pp passes at CA/TX, δ=3pp passes at FL). | 5 × 5 (×2 panels) | 0.6 | **`RESULTS_TABLE.md §0.3` (v7)** + `FINAL_SURVEY.md §2, §4` |
-| **T3** | MTL vs STL on both tasks, 5 states, **single merged table** with `\midrule` separating headline (FL/CA/TX) and smaller-scale anchors (AL/AZ). | 5 × 7 | 0.4 | **`RESULTS_TABLE.md §0.1` (v7, multi-seed STL ceiling, paired Δs)** |
-| **T4** | Δm joint score (cat F1 + reg MRR primary; cat F1 + reg Acc@10 secondary), 5 states. **FL multi-seed (n=25) bolded as the strongest number in the paper.** | 5 × 5 | 0.4 | **`RESULTS_TABLE.md §0.2` (v7, leak-free CH22 2026-05-01)** |
-| **T5** | External baselines per state — per-state block layout (CoUrb's `tabela_comparativa` pattern). cat: Majority, Markov-1-POI, POI-RGNN, MHA+PE, our STL ceiling, our MTL row. reg: Majority, Markov-1-region, STL GRU, STL STAN, STL STAN-Flow, ReHDM (AL/AZ/FL only — CA/TX deferred, see §7), our MTL row. Headline (FL/CA/TX) only; AL/AZ in T5-supp if pages allow. | 3 blocks × ~7 rows | 0.7 | **`RESULTS_TABLE.md §0.5–0.6` (v7)** + `baselines/next_*/results/<state>.json` |
+| **T2** | Substrate ablation: **Check2HGI vs HGI on both tasks**, 5 states. Two-panel: (a) cat F1 STL `next_gru` (Δ +14.5 to +29.0 pp; paired Wilcoxon p = 0.0312 each, head-invariant at AL/AZ); (b) reg Acc@10 STL `next_stan_flow` (HGI ≥ Check2HGI 1.6–3.1 pp at AL/AZ/FL; TOST δ=2pp passes at CA/TX, δ=3pp passes at FL). | 5 × 5 (×2 panels) | 0.6 | **`RESULTS_TABLE.md §0.3` (v8)** + `FINAL_SURVEY.md §2, §4` |
+| **T3** | MTL vs STL on both tasks, 5 states, **single merged table** with `\midrule` separating headline (FL/CA/TX) and smaller-scale anchors (AL/AZ). | 5 × 7 | 0.4 | **`RESULTS_TABLE.md §0.1` (v8, multi-seed STL ceiling, paired Δs)** |
+| **T4** | Δm joint score (cat F1 + reg MRR primary; cat F1 + reg Acc@10 secondary), 5 states. **FL multi-seed (n=25) bolded as the strongest number in the paper.** | 5 × 5 | 0.4 | **`RESULTS_TABLE.md §0.2` (v8, leak-free CH22 2026-05-01)** |
+| **T5** | External baselines per state — per-state block layout (CoUrb's `tabela_comparativa` pattern). cat: Majority, Markov-1-POI, POI-RGNN, MHA+PE, our STL ceiling, our MTL row. reg: Majority, Markov-1-region, STL GRU, STL STAN, STL STAN-Flow, ReHDM (AL/AZ/FL only — CA/TX deferred, see §7), our MTL row. Headline (FL/CA/TX) only; AL/AZ in T5-supp if pages allow. | 3 blocks × ~7 rows | 0.7 | **`RESULTS_TABLE.md §0.5–0.6` (v8)** + `baselines/next_*/results/<state>.json` |
 
 **Total tables: ≈ 2.5 pp.**
 
@@ -74,7 +74,7 @@ Saves 0.2 pp; reads better.
 
 | ID | Caption (working) | Page | Cut order | Source |
 |---|---|:-:|:-:|---|
-| **F2** | Scale-progression scatter — Δ_reg pp vs n_regions or log(check-ins), 5 dots labelled by state, dashed trend AL→AZ→FL with TX annotated as non-monotone outlier. Demoted from required to optional after the title was reframed away from "Scale-Sensitive". | 0.4 | **cut 1st** — descriptive observation; one sentence in §5.2 / §7 carries the same content | `RESULTS_TABLE.md §0.1` (v7) reg col |
+| **F2** | Scale-progression scatter — Δ_reg pp vs n_regions or log(check-ins), 5 dots labelled by state, dashed trend AL→AZ→FL with TX annotated as non-monotone outlier. Demoted from required to optional after the title was reframed away from "Scale-Sensitive". | 0.4 | **cut 1st** — descriptive observation; one sentence in §5.2 / §7 carries the same content | `RESULTS_TABLE.md §0.1` (v8) reg col |
 | **F-arch** | Architecture schematic of MTLnetCrossAttn — two task-specific encoders (cat ← check-in seq, reg ← region seq), 8-head bidirectional cross-attention block, residual shared backbone, GRU cat head + STAN-Flow reg head. | 0.5 | **cut 2nd** — standard for BRACIS methods papers but not load-bearing | new figure |
 
 ---

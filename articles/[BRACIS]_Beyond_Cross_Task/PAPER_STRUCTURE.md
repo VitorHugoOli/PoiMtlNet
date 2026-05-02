@@ -112,11 +112,11 @@ Land the sentence: *"Our work re-examines a default assumption in MTL-for-POI �
 
 #### 5.2 MTL trades cat gains for reg cost — C2 (1.5 pp)
 
-- T3 — five-state MTL vs STL ceilings on **both** tasks. **Source:** `RESULTS_TABLE.md §0.1` (v7, 2026-05-01 PM, multi-seed STL ceiling).
+- T3 — five-state MTL vs STL ceilings on **both** tasks. **Source:** `RESULTS_TABLE.md §0.1` (v8, 2026-05-01 PM — cat-Δ Wilcoxon landed) + `GAP_FILL_WILCOXON.json`.
   - cat: Δ ∈ [−0.78, +2.02] pp; positive at four of five states (AZ +1.20 p < 1e-4 / FL +1.52 p = 0.0625 n=5 / CA +1.94 / TX +2.02), **small-significantly negative at AL** (Δ = −0.78 pp, paired Wilcoxon p = 0.036 across n = 20 multi-seed fold-pairs; magnitude < 2 % relative). v8 Wilcoxon JSON: `GAP_FILL_WILCOXON.json`.
   - reg Acc@10: Δ ∈ [−7.99, −16.69] pp (FL **−7.99** from paired Δ; CA −8.92; TX −16.69; AL −11.04; AZ −12.27), sign-consistent across all five states (always negative).
 - One paragraph framing this **as the classic MTL tradeoff**: easier task gains, harder task pays. Cite Caruana 1997, Maninis 2019, Vandenhende 2022.
-- T4 — Δm joint score — primary Δm-MRR is positive at FL multi-seed (+2.33 %, p = 2.98e-8 across 25 fold-pairs) and negative at AL/AZ/CA/TX (single-seed ceiling p ∈ {0.0625, 0.1250}). Δm-Acc@10 is negative at all 5 states. The metric ratifies the per-task picture; the FL MRR-vs-Acc@10 split is itself a small mechanism finding (better-ranked but not-better-top-K). **Source:** `RESULTS_TABLE.md §0.2` (v7, leak-free CH22 2026-05-01).
+- T4 — Δm joint score — primary Δm-MRR is positive at FL multi-seed (+2.33 %, p = 2.98e-8 across 25 fold-pairs) and negative at AL/AZ/CA/TX (single-seed ceiling p ∈ {0.0625, 0.1250}). Δm-Acc@10 is negative at all 5 states. The metric ratifies the per-task picture; the FL MRR-vs-Acc@10 split is itself a small mechanism finding (better-ranked but not-better-top-K). **Source:** `RESULTS_TABLE.md §0.2` (v8, leak-free CH22 2026-05-01).
 - One paragraph: the MTL gain on cat is **bounded**; the substrate, not the architecture, is the load-bearing factor for cat. Likewise the architectural cost on reg is **structural**: see §6 for ablations refusing to recover.
 
 #### 5.3 Five-state cross-baseline summary (1 pp)
@@ -128,7 +128,7 @@ Land the sentence: *"Our work re-examines a default assumption in MTL-for-POI �
 
 #### 6.1 Per-visit-context counterfactual (0.75 pp)
 
-- Pooled-vs-canonical counterfactual at AL: POI-mean-pool the canonical Check2HGI vectors, train STL `next_gru` cat. Result: linear-probe ~63 %, matched-head ~72 % of the cat gap is per-visit context; ~28 % is Check2HGI's training signal. F1 (optional) bar chart. Source: `CLAIMS_AND_HYPOTHESES.md §CH19`.
+- Pooled-vs-canonical counterfactual at AL: POI-mean-pool the canonical Check2HGI vectors, train STL `next_gru` cat. Result: linear-probe ~63 %, matched-head ~72 % of the cat gap is per-visit context; ~28 % is Check2HGI's training signal. **F1 (required) bar chart** (post-Codex audit promotion — only visual mechanism anchor for the substrate task-asymmetry). Source: `CLAIMS_AND_HYPOTHESES.md §CH19`.
 
 #### 6.2 Drop-in MTL ablations — does anything close the reg gap? (0.5 pp)
 
@@ -166,11 +166,11 @@ Land the sentence: *"Our work re-examines a default assumption in MTL-for-POI �
 | ID | Caption (working) | Source artefact | Section |
 |---|---|---|---|
 | **T1** | Dataset statistics for the headline three (FL/CA/TX) and the smaller-scale anchors (AL/AZ). One block per state with users, check-ins, POIs, regions, mean trajectory length. | Computed from `data/checkins/<state>.parquet` + `output/check2hgi/<state>/regions.parquet` | §4.1 |
-| **T2** | Substrate ablation, two-panel: cat (Check2HGI vs HGI macro-F1, matched-head STL `next_gru`, four-head invariance grid for AL+AZ) and reg (matched-head STL `next_stan_flow` Acc@10 with TOST). All five states. Paired Wilcoxon p = 0.0312 each cat cell; substrate Δ on cat = +15.5 / +14.5 / +29.0 / +28.8 / +28.3 pp (AL/AZ/FL/CA/TX) — broadly scales with data but not strictly monotone (CA +28.81 < FL +29.02). | `RESULTS_TABLE.md §0.3` (v7); `FINAL_SURVEY.md §1, §2, §4` | §5.1 |
-| **T3** | **Headline.** MTL vs STL ceilings on both tasks across **FL/CA/TX**. cat F1 (vs STL `next_gru`), reg Acc@10 + MRR (vs STL `next_stan_flow`). | **`RESULTS_TABLE.md §0.1` (v7, 2026-05-01 PM, multi-seed STL ceiling)** | §5.2 |
-| **T3-supp** | **Smaller-scale anchors supplement.** Same metrics for **AL/AZ**, included to show the cost-magnitude pattern across the five states. Δreg = −11.04 / −12.27 pp at AL/AZ vs FL's −7.99, CA's −8.92, TX's −16.69 pp. **Reported descriptively; not an inferential scale claim** — TX breaks monotonicity. | **`RESULTS_TABLE.md §0.1` (v7)** | §5.2 |
-| **T4** | Δm joint score (cat F1 + reg MRR) and Δm-Acc@10, paired Wilcoxon. **FL multi-seed (n = 25 fold-pairs); AL/AZ/CA/TX single-seed at submission.** | **`RESULTS_TABLE.md §0.2` (v7, leak-free CH22 2026-05-01)** | §5.2 |
-| **T5** | External baselines: cat (POI-RGNN, MHA+PE) and reg (Markov-1-region, STL STAN, ReHDM) **per headline state (FL/CA/TX)**, with our STL ceiling and MTL row. ReHDM at AL/AZ/FL only (CA/TX deferred — limitation in §7). AL/AZ in T5-supp if pages allow. | **`RESULTS_TABLE.md §0.5–0.6` (v7)** + `baselines/next_*/results/<state>.json` | §5.3 |
+| **T2** | Substrate ablation, two-panel: cat (Check2HGI vs HGI macro-F1, matched-head STL `next_gru`, four-head invariance grid for AL+AZ) and reg (matched-head STL `next_stan_flow` Acc@10 with TOST). All five states. Paired Wilcoxon p = 0.0312 each cat cell; substrate Δ on cat = +15.5 / +14.5 / +29.0 / +28.8 / +28.3 pp (AL/AZ/FL/CA/TX) — broadly scales with data but not strictly monotone (CA +28.81 < FL +29.02). | `RESULTS_TABLE.md §0.3` (v8); `FINAL_SURVEY.md §1, §2, §4` | §5.1 |
+| **T3** | **Headline.** MTL vs STL ceilings on both tasks across **FL/CA/TX**. cat F1 (vs STL `next_gru`), reg Acc@10 + MRR (vs STL `next_stan_flow`). | **`RESULTS_TABLE.md §0.1` (v8, 2026-05-01 PM, multi-seed STL ceiling)** | §5.2 |
+| **T3-supp** | **Smaller-scale anchors supplement.** Same metrics for **AL/AZ**, included to show the cost-magnitude pattern across the five states. Δreg = −11.04 / −12.27 pp at AL/AZ vs FL's −7.99, CA's −8.92, TX's −16.69 pp. **Reported descriptively; not an inferential scale claim** — TX breaks monotonicity. | **`RESULTS_TABLE.md §0.1` (v8)** | §5.2 |
+| **T4** | Δm joint score (cat F1 + reg MRR) and Δm-Acc@10, paired Wilcoxon. **FL multi-seed (n = 25 fold-pairs); AL/AZ/CA/TX single-seed at submission.** | **`RESULTS_TABLE.md §0.2` (v8, leak-free CH22 2026-05-01)** | §5.2 |
+| **T5** | External baselines: cat (POI-RGNN, MHA+PE) and reg (Markov-1-region, STL STAN, ReHDM) **per headline state (FL/CA/TX)**, with our STL ceiling and MTL row. ReHDM at AL/AZ/FL only (CA/TX deferred — limitation in §7). AL/AZ in T5-supp if pages allow. | **`RESULTS_TABLE.md §0.5–0.6` (v8)** + `baselines/next_*/results/<state>.json` | §5.3 |
 
 ### Required figure (post-Codex audit)
 
@@ -194,12 +194,12 @@ Land the sentence: *"Our work re-examines a default assumption in MTL-for-POI �
 
 | Claim | Statement (1 line) | Evidence (study artefact + numbers) | Section |
 |---|---|---|---|
-| **C1-cat** | Check2HGI > HGI cat F1, matched-head STL, 5 states, paired Wilcoxon p = 0.0312 each. Head-invariant at AL/AZ. | **`RESULTS_TABLE.md §0.3`** (v7); cat STL `next_gru` Δ = +15.50 / +14.52 / +29.02 / +28.81 / +28.34 pp at AL/AZ/FL/CA/TX. | §5.1, T2 panel (a) |
+| **C1-cat** | Check2HGI > HGI cat F1, matched-head STL, 5 states, paired Wilcoxon p = 0.0312 each. Head-invariant at AL/AZ. | **`RESULTS_TABLE.md §0.3`** (v8); cat STL `next_gru` Δ = +15.50 / +14.52 / +29.02 / +28.81 / +28.34 pp at AL/AZ/FL/CA/TX. | §5.1, T2 panel (a) |
 | **C1-reg** | HGI ≥ Check2HGI under matched-head STL `next_stan_flow` reg by 1.6 to 3.1 pp; TOST δ=2pp passes at CA/TX (tied), δ=3pp passes at FL. | **`RESULTS_TABLE.md §0.3`** + `FINAL_SURVEY.md §4`. | §5.1, T2 panel (b) |
 | **C1-mechanism** | At AL, ~72 % of the matched-head cat substrate gap is per-visit context (POI-pooled counterfactual). Single-state evidence — qualifier required everywhere. | `CLAIMS_AND_HYPOTHESES.md §CH19` (whitelisted). | §6.1, F1 |
 | **C2-cat** | MTL vs STL on cat F1: positive at four of five states (AZ +1.20 p < 1e-4 n=20; FL +1.52 p = 0.0625 n=5 ceiling; CA +1.94 n=5; TX +2.02 n=5); AL **small-significantly negative** (Δ = −0.78 pp, paired Wilcoxon p = 0.036 across n=20 multi-seed fold-pairs; magnitude < 2 % relative). | **`RESULTS_TABLE.md §0.1` (v8, 2026-05-01)** + `GAP_FILL_WILCOXON.json`. | §5.2, T3 |
-| **C2-reg** | MTL < STL reg Acc@10, sign-consistent (≤ 0) at 5 states; AL −11.04, AZ −12.27, FL **−7.99**, CA −8.92, TX −16.69 pp. | **`RESULTS_TABLE.md §0.1`** (v7, paired Δs). | §5.2, T3 |
-| **C2-Δm** | Joint Δm-Acc@10 negative at 5 states; Δm-MRR positive at FL multi-seed only (+2.33 %, p = 2.98e-8 across 25 fold-pairs). | **`RESULTS_TABLE.md §0.2`** (v7, leak-free CH22). | §5.2, T4 |
+| **C2-reg** | MTL < STL reg Acc@10, sign-consistent (≤ 0) at 5 states; AL −11.04, AZ −12.27, FL **−7.99**, CA −8.92, TX −16.69 pp. | **`RESULTS_TABLE.md §0.1`** (v8, paired Δs). | §5.2, T3 |
+| **C2-Δm** | Joint Δm-Acc@10 negative at 5 states; Δm-MRR positive at FL multi-seed only (+2.33 %, p = 2.98e-8 across 25 fold-pairs). | **`RESULTS_TABLE.md §0.2`** (v8, leak-free CH22). | §5.2, T4 |
 | **C2-robustness** | At FL, drop-in MTL fixes (FAMO, Aligned-MTL, HSM) do not reach paired-Wilcoxon significance vs H3-alt. | `research/F50_T1_RESULTS_SYNTHESIS.md`. | §6.2 (inline prose) |
 | **C2-recipe** | B9 is FL-and-CA paper-grade; H3-alt is small-state universal (AL/AZ paper-grade). TX directional only (single-seed). Recipe-selection is scale-conditional. | **`RESULTS_TABLE.md §0.4` (v8, 2026-05-01)** + `GAP_FILL_WILCOXON.json` (CA n=20). | §6.2 footnote / appendix |
 | **Methodological note** | Cross-attn `task_weight = 0` co-adapts via K/V; encoder-frozen isolation is the only clean decomposition. | `research/F49_LAMBDA0_DECOMPOSITION_GAP.md`. | §6.3 (side note, NOT contribution-prominent) |
@@ -218,7 +218,7 @@ When the user fan-outs the writing across sub-agents, propose the following slic
 | A2 — Related Work | `sections/related.tex` | `PAPER_DRAFT.md §2`, CoUrb related-work section (style + four-axis structure) | 1.5 pp prose, 12–18 cites |
 | A3 — Method | `sections/method.tex` | `PAPER_DRAFT.md §3`, `MTL_ARCHITECTURE_JOURNEY.md` (for context only — do **not** narrate F-numbers in main text) | 2.5 pp prose, 1 optional architecture figure |
 | A4 — Experimental Setup | `sections/setup.tex` | `PAPER_DRAFT.md §4`, dataset stats from `data/` and `output/<engine>/<state>/` | 1.5 pp prose, T1 |
-| A5 — Results | `sections/results.tex` | `PAPER_DRAFT.md §5`, **`docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v7) — sole canonical numerical source**, `FINAL_SURVEY.md` (substrate panel context only) | 4 pp prose + T2 + T3 + T4 + T5 |
+| A5 — Results | `sections/results.tex` | `PAPER_DRAFT.md §5`, **`docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v8) — sole canonical numerical source**, `FINAL_SURVEY.md` (substrate panel context only) | 4 pp prose + T2 + T3 + T4 + T5 |
 | A6 — Mechanism & Ablations | `sections/mechanism.tex` | `PAPER_DRAFT.md §6`, `CLAIMS_AND_HYPOTHESES.md §CH19` (whitelisted), `research/F49_LAMBDA0_DECOMPOSITION_GAP.md` | 1.5 pp prose, **F1 required**, T6 inline prose |
 | A7 — Discussion & Conclusion | `sections/discussion.tex` + `sections/conclusion.tex` | `PAPER_DRAFT.md §7-§8` | 1 + 0.5 pp |
 | A8 — References | `references.bib` | Port + dedup from CBIC + CoUrb `.bib`, splncs04 style | ≤ 30 entries |
@@ -231,7 +231,7 @@ Each sub-agent's deliverable is a self-contained `.tex` file that compiles when 
 
 - Not the operational guide. See `AGENT.md`.
 - Not the paragraph-level scratch. See `PAPER_DRAFT.md`.
-- Not the live results table. **The sole canonical numerical source for paper tables is `docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v7).** `PAPER_CLOSURE_RESULTS_2026-05-01.md` is background provenance only; numbers there have been superseded by RESULTS_TABLE v7's multi-seed STL ceiling (cat side) and paired Δ extraction (FL reg = −7.99, not the simple mean-diff −7.28).
+- Not the live results table. **The sole canonical numerical source for paper tables is `docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v8).** The earlier `PAPER_CLOSURE_RESULTS_2026-05-01.md` was moved to `docs/studies/check2hgi/archive/post_paper_closure_2026-05-01/` in the 2026-05-01 study cleanup and is background provenance only; numbers there have been superseded by RESULTS_TABLE v8's multi-seed STL ceiling (cat side), v8 Wilcoxon (cat-Δ p-values), and paired Δ extraction (FL reg = −7.99, not the simple mean-diff −7.28).
 - Not the claim catalogue. See `docs/studies/check2hgi/CLAIMS_AND_HYPOTHESES.md`.
 
 This file commits *structure*; the cited files hold the *evidence*.

@@ -17,7 +17,7 @@ This file is operational, not encyclopedic. It exists so a sub-agent (or future 
 - **Working tagline:** *Per-visit context lifts next-category by +14 to +29 pp at every U.S.-state Gowalla split (paired Wilcoxon p = 0.0312 each, head-invariant); on next-region per-place embeddings tie or marginally exceed it (TOST tied at CA/TX). MTL on top of the substrate gains a small cat lift and pays a sign-consistent reg cost — the textbook tradeoff.*
 - **Headline scale (per `PAPER_DRAFT.md §0` D2):** three states **FL/CA/TX**; AL/AZ retained as smaller-scale anchors. T2 substrate-ablation reports all five states because the substrate task-asymmetry is paper-grade at every one.
 
-The full study lives under `docs/studies/check2hgi/`. The most recent paper-closure synthesis is `PAPER_CLOSURE_RESULTS_2026-05-01.md` and `FINAL_SURVEY.md`. **These supersede the older "+6.48 pp MTL > STL on AL" framing** that you may still see in `PAPER_DRAFT.md` (the old one), `MTL_ARCHITECTURE_JOURNEY.md`, and the F49 docs — those numbers were leak-artifacts (asymmetric C4 leak inflated MTL more than STL). The leak-free closure says: MTL trails STL on `next_region` by 7–17 pp at every one of the five states.
+The full study lives under `docs/studies/check2hgi/`. **The single canonical numerical source is `docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v8, 2026-05-01 PM).** Read `docs/studies/check2hgi/README.md` and `AGENT_CONTEXT.md` for the post-cleanup study navigation. The earlier paper-closure note `PAPER_CLOSURE_RESULTS_2026-05-01.md` was moved to `docs/studies/check2hgi/archive/post_paper_closure_2026-05-01/` as background provenance only; do not cite it as a primary source. **The leak-free closure says: MTL trails STL on `next_region` by 7–17 pp at every one of the five states**; the older "+6.48 pp MTL > STL on AL" framing in `MTL_ARCHITECTURE_JOURNEY.md` and the F49 docs was a leak artefact (asymmetric C4 leak inflated MTL more than STL).
 
 ---
 
@@ -43,7 +43,7 @@ C3 is short and lives in a methodological note / appendix sub-section. C1 + C2 a
 
 - "We propose Check2HGI" — Check2HGI is a derivative engine in our codebase; the paper *uses* it as the substrate, but the contribution is the empirical claim about per-visit context, not the engine recipe (which is described in the supplement and cited by anonymized self-reference if necessary).
 - "We propose per-head learning rates" — H3-alt was a detour. Under leak-free measurement, H3-alt is the universal small-state recipe and B9 the FL-tuned recipe; neither closes the MTL-vs-STL gap on `next_region`. The recipe-selection story belongs in the ablation/appendix band, not the headline.
-- "We refute MTL." We do not. MTL gains on cat at four of five states (AL ≈ tied) and is the deployment unit. We position the reg loss honestly as the cost paid for joint single-model deployment.
+- "We refute MTL." We do not. MTL gains on cat at four of five states (AZ p < 1e-4, FL p = 0.0625 n=5, CA, TX directional); AL is small-significantly negative (Δ = −0.78 pp, p = 0.036, magnitude small). MTL is the deployment unit — we position the reg loss honestly as the cost paid for joint single-model deployment.
 
 ---
 
@@ -116,14 +116,14 @@ The F-numbered experiment trail (F21c → F44 → F45 → F48-H3-alt → F49 →
 
 - **T1 — Dataset stats** (5 states × {users, check-ins, POIs, regions, train/val/test split sizes}).
 - **T2 — Substrate comparison (CH16, head-invariant).** Cat F1 STL across {Linear probe, `next_gru`, `next_single`, `next_lstm`} × {Check2HGI, HGI} × {AL, AZ, FL, CA, TX}. Source: `FINAL_SURVEY.md` §1-2.
-- **T3 — MTL vs STL headline (C2).** Cat F1 + reg Acc@10 + reg MRR for {STL `next_gru`, MTL B9 cat F1; STL STAN-Flow (`next_stan_flow`), MTL B9 reg} × 5 states. **Source: `RESULTS_TABLE.md §0.1` (v7) — sole canonical numerical source.**
-- **T4 — Δm joint score (CH22 leak-free).** Δm-MRR / Δm-Acc@10 × 5 states with paired Wilcoxon p. Multi-seed for FL (n = 25 pairs) where available. Source: `CLAIMS_AND_HYPOTHESES.md §CH22 (2026-05-01 reframe)`.
-- **T5 — External baselines.** POI-RGNN / MHA+PE for cat; Markov-1-region / STAN / ReHDM for reg; per state. Source: `baselines/next_category/results/<state>.json` and `baselines/next_region/results/<state>.json`.
-- **T6 — MTL drop-in ablation (CH22b).** FAMO, Aligned-MTL, HSM-reg-head at FL only — all fail to recover. Source: `research/F50_T1_RESULTS_SYNTHESIS.md`.
-- **F1 (optional) — Per-visit mechanism schematic.** AL pooled-vs-canonical bar chart (~72 % of cat gap is per-visit context).
-- **F2 (optional) — Architectural cost vs region cardinality.** Δreg pp vs n_regions across the 5 states. Visual evidence the cost is sign-consistent (always negative) but not strictly monotone.
+- **T3 — MTL vs STL headline (C2).** Cat F1 + reg Acc@10 + reg MRR for {STL `next_gru`, MTL B9 cat F1; STL STAN-Flow (`next_stan_flow`), MTL B9 reg} × 5 states. **Source: `RESULTS_TABLE.md §0.1` (v8) — sole canonical numerical source.**
+- **T4 — Δm joint score (CH22 leak-free).** Δm-MRR / Δm-Acc@10 × 5 states with paired Wilcoxon p. Multi-seed for FL (n = 25 pairs) where available. Source: `RESULTS_TABLE.md §0.2` (v8).
+- **T5 — External baselines.** POI-RGNN / MHA+PE for cat; Markov-1-region / STAN / ReHDM for reg; per state. Source: `RESULTS_TABLE.md §0.5–0.6` (v8) + `baselines/next_*/results/<state>.json`.
+- **T6 — MTL drop-in ablation (CH22b).** FAMO, Aligned-MTL, HSM-reg-head at FL only — none reaches paired-Wilcoxon significance. Cut to inline prose in §6.2. Source: `research/F50_T1_RESULTS_SYNTHESIS.md`.
+- **F1 (REQUIRED, post-Codex audit) — Per-visit mechanism bar at AL.** Three-bar grouped chart of cat F1 for {Check2HGI canonical, POI-pooled, HGI} under matched-head STL `next_gru` and linear probe; ~72 % per-visit / ~28 % training-signal split. **F1 is the only visual mechanism anchor for the substrate task-asymmetry; cannot be cut.** Single-state evidence — every appearance must say "at Alabama".
+- **F2 (optional, cut first) — Architectural cost vs region cardinality.** Δreg pp vs n_regions across the 5 states. Visual evidence the cost is sign-consistent (always negative) but non-monotone (TX outlier). Demoted to optional after the title was reframed away from "Scale-Sensitive".
 
-Tables T1–T4 are required; T5 strongly recommended; T6 optional (lives in appendix if cut). Figures are optional — only include F1 if pages allow.
+Tables T1–T5 are required (T5 may live in appendix if pages tight); T6 is inline prose. **F1 is required; F2 + F-arch are optional, cut F2 first.**
 
 ---
 
@@ -131,7 +131,7 @@ Tables T1–T4 are required; T5 strongly recommended; T6 optional (lives in appe
 
 | What | Where |
 |---|---|
-| Headline numbers + Δs across 5 states | **`docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v7, paper-canonical)** + `FINAL_SURVEY.md` (substrate panel) + `PAPER_CLOSURE_RESULTS_2026-05-01.md` (older v6 framing — superseded by RESULTS_TABLE v7 cat-Δ values; see CLAIMS_AND_HYPOTHESES whitelist below) |
+| Headline numbers + Δs across 5 states | **`docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v8, paper-canonical)** + `docs/studies/check2hgi/research/GAP_FILL_WILCOXON.json` (cat-Δ multi-seed v8) + `FINAL_SURVEY.md` (substrate panel context) + `archive/post_paper_closure_2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md` (background provenance only — superseded by v8 §0; see CLAIMS_AND_HYPOTHESES whitelist below) |
 | Claim catalogue (CH16, CH18, CH19, CH20, CH21, CH22, CH22b) | `CLAIMS_AND_HYPOTHESES.md` — **WHITELIST: only CH16 (substrate-cat), CH18-cat (substrate-cat under MTL), CH15 reframing (substrate-reg, in FINAL_SURVEY §4), CH19 (per-visit mechanism), and CH22 (leak-free Δm 2026-05-01) are paper-facing safe.** CH01 / CH02 / CH03 / CH18-reg-side pre-2026-04-30 / CH20 / CH21 / pre-2026-04-30 H3-alt narratives all contain superseded content from the leak-era. **Sub-agents must not cite CH01/CH02/CH03/CH20/CH21 as if current** — they pre-date the leak-free reframe. When in doubt, cross-check the number against `RESULTS_TABLE.md §0` v7. |
 | Champion recipe (B9 / H3-alt scale-conditional) | `NORTH_STAR.md` |
 | F-trail (architecture journey, supplementary) | `MTL_ARCHITECTURE_JOURNEY.md` |

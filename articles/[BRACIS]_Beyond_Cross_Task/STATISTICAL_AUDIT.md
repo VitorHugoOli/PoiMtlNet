@@ -2,7 +2,7 @@
 
 > **Purpose.** Be brutal about which claims have proper statistical backing, which are weakly supported but defensible if framed honestly, and which are descriptive narrative dressed up as inference. BRACIS reviewers in the empirical track care about this; over-claims invite desk-rejection or deep cuts. This file is the rigour contract that sub-agents inherit before drafting Results / Discussion.
 >
-> **Sources.** Canonical numerical source for all paper tables: **`docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v7, 2026-05-01 PM, multi-seed STL ceiling)**. Background provenance: `PAPER_CLOSURE_RESULTS_2026-05-01.md`, `FINAL_SURVEY.md`, `CLAIMS_AND_HYPOTHESES.md` (whitelisted: CH16, CH18-cat, CH15 reframing, CH19, CH22 — others contain superseded leak-era content), `research/F50_T1_RESULTS_SYNTHESIS.md`. **No new compute.** Any claim that does not reduce to a number in RESULTS_TABLE v7 (or to the documented mechanism artefacts in CH19) is flagged.
+> **Sources.** Canonical numerical source for all paper tables: **`docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v8, 2026-05-01 PM — cat-Δ Wilcoxon landed + CA recipe upgraded to multi-seed)** + **`docs/studies/check2hgi/research/GAP_FILL_WILCOXON.json`** (v8 Wilcoxon JSON). Background provenance only (do not cite as primary): `archive/post_paper_closure_2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md` (moved to archive in the 2026-05-01 study cleanup), `FINAL_SURVEY.md`, `CLAIMS_AND_HYPOTHESES.md` (whitelisted: CH16, CH18-cat, CH15 reframing, CH19, CH22 — others contain superseded leak-era content), `research/F50_T1_RESULTS_SYNTHESIS.md`. **No new compute.** Any claim that does not reduce to a number in RESULTS_TABLE v8 (or to the documented mechanism artefacts in CH19) is flagged.
 
 ---
 
@@ -84,7 +84,7 @@ Reporting wording: *"CA/TX are seed = 42 single-seed at submission; multi-seed e
 |---|---:|---:|---:|---|
 | AL | 20 (4 seeds × 5 folds) | **−11.04** | **1.9e-06** | ✅ paper-grade |
 | AZ | 20 | **−12.28** | 1.9e-06 | ✅ paper-grade |
-| FL | 5 (single-seed; B9 multi-seed numbers tracked separately) | **−7.99** (paired Δ from `RESULTS_TABLE §0.1`; the simple mean-difference 70.62−63.34 = −7.28 reported in `PAPER_CLOSURE_RESULTS §4a` is superseded — paired Δ is what the Wilcoxon tests) | 0.0625 (n = 5 ceiling) | ⚠️ at single-seed ceiling — but FL B9 vs H3-alt multi-seed is paper-grade; the **MTL-vs-STL** at FL needs the multi-seed STL multi-pair test to lift above the n = 5 ceiling |
+| FL | 5 (single-seed; B9 multi-seed numbers tracked separately) | **−7.99** (paired Δ from `RESULTS_TABLE §0.1` v8; the simple mean-difference 70.62−63.34 = −7.28 reported in the archived `PAPER_CLOSURE_RESULTS §4a` is superseded — paired Δ is what the Wilcoxon tests) | 0.0625 (n = 5 ceiling) | ⚠️ at single-seed ceiling — but FL B9 vs H3-alt multi-seed is paper-grade; the **MTL-vs-STL** at FL needs the multi-seed STL multi-pair test to lift above the n = 5 ceiling |
 | CA | 5 (seed = 42) | −8.93 | 0.0625 | ⚠️ at single-seed ceiling |
 | TX | 5 (seed = 42) | **−16.69** | 0.0625 | ⚠️ at single-seed ceiling |
 
@@ -214,7 +214,7 @@ This is mandatory disclosure — ignoring it would invite a reviewer to find the
 
 ## 9 · F49 leak attribution — VERDICT: do NOT mention in main text; if mentioned in supplement, disclose fully
 
-The earlier "F49 +6.48 pp MTL > STL on AL" framing was a leak artefact (asymmetric C4 leak inflated MTL more than STL — see `PAPER_CLOSURE_RESULTS_2026-05-01.md §3-§4a`). It does not appear in the article-side draft.
+The earlier "F49 +6.48 pp MTL > STL on AL" framing was a leak artefact (asymmetric C4 leak inflated MTL more than STL — see archived `archive/post_paper_closure_2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md §3-§4a`). It does not appear in the article-side draft.
 
 **Rule:** the F-trail (F21c → F44 → F45 → F48-H3-alt → F49 → F50 → F51 → paper-closure) belongs in supplementary materials *only*. If we cite F49 at all in supplement, we must disclose the leak attribution. The leak-free closure numbers in §5 supersede; reviewers do not need the journey unless they ask.
 
@@ -244,7 +244,7 @@ Each pre-emption is a single sentence; they live in §Limitations or in the rele
 | C1 substrate Δ (matched-head STL) | Multi-seed AL/AZ/FL paper-grade; CA/TX single-seed at n = 5 ceiling | ✅ | qualifier: "head-invariant at AL+AZ; matched-head replicated at FL/CA/TX" |
 | C1 head-invariance (4 head probes) | At-ceiling for AL+AZ; not run at FL/CA/TX | ✅ at AL+AZ | scope qualifier |
 | C1 mechanism (~72 % per-visit) | AL only | ✅ at AL | "at AL"; flag as future replication |
-| C2-cat MTL ≥ STL | AL TIED (p=0.76); AZ/FL paper-grade; CA/TX single-seed directional | ✅ for AZ/FL, ⚠️ for AL/CA/TX | rewrite to "+1.6 to +2.0 pp at four of five states; AL tied" |
+| C2-cat MTL ≥ STL | **v8 update:** AZ paper-grade (+1.20, p < 1e-4 n=20); FL sign-consistent at n=5 ceiling (+1.52, p = 0.0625); CA/TX single-seed directional positive (+1.94 / +2.02, p = 0.125 n=5); **AL small-significantly negative** (Δ = −0.78 pp, p = 0.036 n=20; magnitude < 2% relative) | ✅ for AZ/FL; ⚠️ for CA/TX (n=5 ceiling); ⚠️ for AL (significant in negative direction, but small) | wording: "lifts cat at four of five states; small-significantly negative at AL" |
 | C2-reg MTL < STL | AL/AZ multi-seed paper-grade; FL/CA/TX single-seed at n = 5 ceiling | ✅ direction; ⚠️ magnitude at FL/CA/TX | flag the n = 5 ceiling; report AL/AZ multi-seed alongside |
 | C2-Δm joint | FL multi-seed paper-grade (p = 3e-8); other states n = 5 ceiling | ✅ for FL; ⚠️ ceiling for others | flag FL as the multi-seed cell |
 | Scale-progression "cost shrinks with data" | DESCRIPTIVE, n = 5 across states | ⚠️ qualitative only | rewrite to remove monotonicity claim |
