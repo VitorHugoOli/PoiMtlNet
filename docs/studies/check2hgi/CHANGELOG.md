@@ -14,9 +14,9 @@
 
 | What | Where | Last updated |
 |---|---|---|
-| Five-state architectural-Δ + cat-Δ Wilcoxon | `results/RESULTS_TABLE.md §0.1` | v8, 2026-05-01 PM |
-| Δm joint score (CH22 leak-free) | `results/RESULTS_TABLE.md §0.2` | v6 (leak-free) — unchanged in v7/v8/v9 |
-| Substrate axis (CH16 cat + CH15 reg reframing) | `results/RESULTS_TABLE.md §0.3` + `FINAL_SURVEY.md §2-§4` | v6 — unchanged in v7/v8/v9 |
+| Five-state architectural-Δ + cat-Δ Wilcoxon | `results/RESULTS_TABLE.md §0.1` | **v10, 2026-05-02** (CA+TX upgraded to n=20; all four axes p=2e-06) |
+| Δm joint score (CH22 leak-free) | `results/RESULTS_TABLE.md §0.2` | v6 (leak-free) — unchanged in v7/v8/v9/v10 |
+| Substrate axis (CH16 cat + CH15 reg reframing) | `results/RESULTS_TABLE.md §0.3` + `FINAL_SURVEY.md §2-§4` | v6 — unchanged in v7/v8/v9/v10 |
 | Recipe selection (B9 vs H3-alt) | `results/RESULTS_TABLE.md §0.4` | **v9, 2026-05-02** (TX upgraded to n=20 multi-seed) |
 | External baselines | `results/RESULTS_TABLE.md §0.5–§0.6` | unchanged |
 | Champion config + recipe | `NORTH_STAR.md` | v8 (mirrors RESULTS_TABLE) |
@@ -28,6 +28,18 @@
 ---
 
 ## Timeline of findings (most recent first)
+
+### 2026-05-02 — RESULTS_TABLE v10 (CA+TX §0.1 arch-Δ upgraded to n=20)
+
+**CA and TX §0.1 architectural-Δ rows upgraded from n=5 (single seed=0) to n=20 (seeds {0,1,7,100} × 5 folds).**
+- CA: Δ_reg = −9.50 pp p=2e-06; Δ_cat = +1.68 pp p=2e-06. Both axes paper-grade significant.
+- TX: Δ_reg = −16.59 pp p=2e-06; Δ_cat = +1.89 pp p=2e-06. Both axes paper-grade significant.
+- **All five states now have at minimum n=20 arch-Δ evidence** (AL/AZ n=20, FL n=5 ceiling, CA/TX n=20).
+- Classic MTL tradeoff confirmed paper-grade at all large-scale states: reg trails STL by 7–17 pp; cat leads STL by 1.2–1.9 pp.
+
+**Artefacts.** `research/ARCH_DELTA_WILCOXON.json` (new); `scripts/analysis/arch_delta_wilcoxon.py` (new); `scripts/run_h100_arch_delta_stl_ca_tx.sh` (16-run launcher).
+
+---
 
 ### 2026-05-02 — RESULTS_TABLE v9 (TX recipe multi-seed landed; commit `928bdad`)
 
