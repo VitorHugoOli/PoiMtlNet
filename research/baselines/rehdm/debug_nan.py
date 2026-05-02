@@ -18,7 +18,7 @@ set_seed(42)
 device = torch.device("mps") if torch.backends.mps.is_available() else torch.device("cpu")
 print(f"device={device}")
 
-in_dir = Path("/Users/vitor/Desktop/mestrado/ingred/output/baselines/rehdm/alabama")
+in_dir = Path("<REPO_ROOT>/output/baselines/rehdm/alabama")
 df = pd.read_parquet(in_dir / "inputs.parquet")
 vocab = json.loads((in_dir / "vocab.json").read_text())
 

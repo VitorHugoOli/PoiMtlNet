@@ -33,7 +33,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-ALABAMA_DIR = Path("/Users/vitor/Desktop/mestrado/ingred/output/hgi/alabama")
+ALABAMA_DIR = Path("<REPO_ROOT>/output/hgi/alabama")
 ORIG_CSV = ALABAMA_DIR / "hgi.csv"
 # When the comparison is run against the canonical migration output, the
 # user backs the original up to embeddings_migration.parquet so they can

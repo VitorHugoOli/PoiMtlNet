@@ -6,7 +6,7 @@ DO NOT MODIFY. If the source notebook ever changes and the migrated module is
 updated to track it, the changes must be mirrored here in a new commit.
 
 Source notebook:
-    /Users/vitor/Desktop/mestrado/temp/tarik-new/Location Encoders/
+    /path/to/sphere2vec-reference/Location Encoders/
     A General-Purpose Location Representation Learning over a Spherical
     Surface for Large-Scale Geospatial Predictions (Sphere2Vec-sphereM).ipynb
 

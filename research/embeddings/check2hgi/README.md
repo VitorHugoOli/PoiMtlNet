@@ -59,7 +59,7 @@ Check2HGI extends HGI to learn **embeddings for individual check-in events**, no
 ## Quick Start
 
 ```bash
-cd /Users/vitor/Desktop/mestrado/ingred
+cd <REPO_ROOT>
 
 # Run full pipeline
 PYTHONPATH=src python -m embeddings.check2hgi.check2hgi \

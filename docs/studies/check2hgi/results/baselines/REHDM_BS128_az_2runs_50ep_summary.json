@@ -1,9 +1,0 @@
-{
-  "tag": "REHDM_BS128_az_2runs_50ep",
-  "state": "arizona",
-  "n_runs": 2,
-  "test_acc@10_mean": 0.5493775933609959,
-  "test_acc@10_std": 0.0011736212135876267,
-  "test_mrr_mean": 0.3172418384631145,
-  "test_mrr_std": 0.008398793405254798
-}

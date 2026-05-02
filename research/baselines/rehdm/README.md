@@ -45,9 +45,9 @@ docs/studies/check2hgi/results/baselines/<tag>_summary.json
 ## CLI
 
 ```bash
-PY=/Volumes/Vitor's\ SSD/ingred/.venv/bin/python
-DATA_ROOT=/Volumes/Vitor's\ SSD/ingred/data
-OUTPUT=/Volumes/Vitor's\ SSD/ingred/output
+PY=<REPO_ROOT>/.venv/bin/python
+DATA_ROOT=<REPO_ROOT>/data
+OUTPUT=<REPO_ROOT>/output
 
 PYTHONPATH=. DATA_ROOT="$DATA_ROOT" OUTPUT_DIR="$OUTPUT" \
   "$PY" -m research.baselines.rehdm.etl --state alabama

@@ -36,7 +36,7 @@ upstream of the classifier projection matches STAN's design.
 ## CLI
 
 ```bash
-PY=/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python
+PY=<REPO_ROOT>/.venv/bin/python
 PYTHONPATH=src DATA_ROOT=/path/to/data OUTPUT_DIR=/path/to/output \
   "$PY" -m research.baselines.stan.etl --state alabama
 PYTHONPATH=src DATA_ROOT=/path/to/data OUTPUT_DIR=/path/to/output \

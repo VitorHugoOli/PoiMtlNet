@@ -42,7 +42,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 STATE_PATH = REPO_ROOT / "docs" / "studies" / "state.json"
 
 COLAB_DEFAULT_DRIVE = Path("/content/drive/MyDrive/mestrado/PoiMtlNet")
-DEFAULT_REPO_URL = "https://github.com/VitorHugoOli/PoiMtlNet.git"
+DEFAULT_REPO_URL = "https://github.com/ANONYMIZED/PoiMtlNet.git"
 
 
 # ---------------------------------------------------------------------------

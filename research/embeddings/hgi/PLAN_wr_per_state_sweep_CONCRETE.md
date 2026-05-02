@@ -42,7 +42,7 @@ The `full_summary.json` contains `category.f1.mean` and `category.f1.std` — th
 ## 1. Environment setup (once)
 
 ```bash
-cd "/Volumes/Vitor's SSD/ingred"
+cd "<REPO_ROOT>"
 export PYTHONPATH="src:research"
 export HGI_NUM_THREADS=4    # for concurrent pair runs (AZ+TX, CA+FL)
 VENV=".venv/bin/python"
@@ -232,7 +232,7 @@ All four states: 3-point grid {0.4, 0.7, 1.0}. Each w_r takes:
 
 **Terminal A — Arizona:**
 ```bash
-cd "/Volumes/Vitor's SSD/ingred"
+cd "<REPO_ROOT>"
 export PYTHONPATH="src:research"
 export HGI_NUM_THREADS=4
 VENV=".venv/bin/python"
@@ -261,7 +261,7 @@ get_cat_f1 arizona   # record AZ_10
 
 **Terminal B — Texas:**
 ```bash
-cd "/Volumes/Vitor's SSD/ingred"
+cd "<REPO_ROOT>"
 export PYTHONPATH="src:research"
 export HGI_NUM_THREADS=4
 VENV=".venv/bin/python"

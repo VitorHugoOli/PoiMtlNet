@@ -18,7 +18,7 @@ import sys
 from pathlib import Path
 
 REFERENCE_REPO = Path(
-    "/Users/vitor/Desktop/mestrado/temp/tarik-new/"
+    "/path/to/sphere2vec-reference/"
     "region-embedding-benchmark-main/region-embedding-benchmark-main/"
     "region-embedding/baselines/HGI/model"
 )

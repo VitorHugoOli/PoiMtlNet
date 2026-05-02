@@ -348,7 +348,7 @@ Gram matrix that takes multiple iterations → bug triggered.
 device=losses.device)`. Handles both the if-branch (newly solved alpha)
 and the else-branch (warm-start prvs_alpha).
 
-**Further hardened in [PR #7](https://github.com/VitorHugoOli/.../pull/7)**:
+**Further hardened in [PR #7](https://github.com/ANONYMIZED/.../pull/7)**:
 the user added solver fallback (ECOS → SCS), explicit `cp.error.SolverError`
 catching with structured logging, and NaN-detection for degenerate Gram
 matrices. The original upstream code had a bare `except:` that silently

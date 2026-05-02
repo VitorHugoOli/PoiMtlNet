@@ -41,7 +41,7 @@ Reuses HGI's model components:
 
 ### Command Line
 ```bash
-cd /Users/vitor/Desktop/mestrado/ingred
+cd <REPO_ROOT>
 PYTHONPATH=src python -m embeddings.poi2hgi.poi2hgi --city Alabama --device mps
 ```
 

@@ -1,9 +1,0 @@
-{
-  "tag": "REHDM_BS128_fl_5seeds_50ep",
-  "state": "florida",
-  "n_runs": 5,
-  "test_acc@10_mean": 0.6568479262672812,
-  "test_acc@10_std": 0.0025998299400242335,
-  "test_mrr_mean": 0.4457701342182775,
-  "test_mrr_std": 0.003309674182356136
-}
