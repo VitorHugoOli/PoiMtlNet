@@ -1,0 +1,72 @@
+% F-arch: cross-attention multi-task backbone schematic.
+% Inputs (per-task stream) -> task encoders -> cross-attention bridge ->
+% shared residual backbone -> per-task heads (next_gru, next_stan_flow).
+%
+% This file is loaded directly via \input by mechanism.tex / method.tex.
+% Requires \usepackage{tikz} and \usetikzlibrary{positioning,arrows.meta,fit,calc}.
+
+\begin{tikzpicture}[
+    >={Stealth[length=2mm,width=1.6mm]},
+    node distance=4mm and 6mm,
+    box/.style={
+        draw, rounded corners=2pt, align=center,
+        font=\scriptsize, inner sep=2.5pt,
+        minimum height=6mm, minimum width=18mm,
+    },
+    enc/.style={box, fill=blue!8},
+    attn/.style={box, fill=orange!12, minimum width=24mm, minimum height=8mm},
+    shared/.style={box, fill=gray!12, minimum width=24mm, minimum height=7mm},
+    head/.style={box, fill=green!10},
+    inlabel/.style={font=\scriptsize\itshape},
+    arrow/.style={-{Stealth[length=2mm,width=1.5mm]}, thick},
+    qkv/.style={font=\tiny, inner sep=1pt},
+]
+
+% --- input row ---
+\node[inlabel] (xc) {$X^{c}\in\mathbb{R}^{9\times 64}$};
+\node[inlabel, right=22mm of xc] (xr) {$X^{r}\in\mathbb{R}^{9\times 64}$};
+
+% --- per-task encoders ---
+\node[enc, below=4mm of xc] (encc) {Cat encoder\\(2-layer MLP)};
+\node[enc, below=4mm of xr] (encr) {Reg encoder\\(2-layer MLP)};
+
+% --- cross-attention block ---
+\node[attn, below=6mm of encc] (attnc)
+    {Cross-attn $H^{c}\!\leftarrow\!H^{r}$\\$\widetilde{H}^{c}=H^{c}+\mathrm{MHA}(H^{c},H^{r},H^{r})$};
+\node[attn, below=6mm of encr] (attnr)
+    {Cross-attn $H^{r}\!\leftarrow\!H^{c}$\\$\widetilde{H}^{r}=H^{r}+\mathrm{MHA}(H^{r},H^{c},H^{c})$};
+
+% --- shared backbone ---
+\node[shared, below=7mm of attnc] (sharedc) {Shared residual\\(4 blocks)};
+\node[shared, below=7mm of attnr] (sharedr) {Shared residual\\(4 blocks)};
+
+% --- heads ---
+\node[head, below=4mm of sharedc] (gru) {next\_gru\\(7-class softmax)};
+\node[head, below=4mm of sharedr] (stan) {next\_stan\_flow\\($+\alpha\log T[r_{\text{last}}]$)};
+
+% --- arrows: input -> encoder ---
+\draw[arrow] (xc) -- (encc);
+\draw[arrow] (xr) -- (encr);
+
+% --- encoder -> cross-attn ---
+\draw[arrow] (encc) -- (attnc) node[midway, right, qkv] {$Q^{c}$};
+\draw[arrow] (encr) -- (attnr) node[midway, left,  qkv] {$Q^{r}$};
+
+% K/V cross-feeds
+\draw[arrow, dashed, gray] (encr.south) to[bend right=10]
+    node[pos=0.55, above, qkv, black] {$K^{r},V^{r}$} (attnc.east);
+\draw[arrow, dashed, gray] (encc.south) to[bend left=10]
+    node[pos=0.55, above, qkv, black] {$K^{c},V^{c}$} (attnr.west);
+
+% --- cross-attn -> shared ---
+\draw[arrow] (attnc) -- (sharedc);
+\draw[arrow] (attnr) -- (sharedr);
+
+% --- shared -> heads ---
+\draw[arrow] (sharedc) -- (gru);
+\draw[arrow] (sharedr) -- (stan);
+
+% --- side annotations ---
+\node[font=\tiny, gray, anchor=west] at ($(attnc.west)+(-9mm,0)$) {Eq.~\eqref{eq:crossattn}};
+
+\end{tikzpicture}

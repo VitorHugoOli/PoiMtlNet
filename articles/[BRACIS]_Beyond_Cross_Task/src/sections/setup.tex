@@ -1,0 +1,25 @@
+\section{Experimental Setup}
+\label{sec:setup}
+
+\subsection{Datasets and preprocessing}
+\label{subsec:setup-data}
+
+We evaluate on five U.S.-state splits of the public \emph{Gowalla} check-in dataset \cite{cho2011gowalla}: AL, AZ, FL, CA, TX. Each split is filtered to users with at least five check-ins, applied per state before fold creation so each state preserves its native cardinality. Per-state statistics are in Table~\ref{tab:datasets}; FL/CA/TX serve as the headline scale and AL/AZ as smaller-scale anchors. Region labels come from the per-state region partition used by the substrate engine.
+
+\input{tables/datasets.tex}
+
+For each user we form non-overlapping length-9 windows over the chronological sequence and predict the category and region of the tenth check-in (shorter sequences padded). Folds are \textbf{user-disjoint} via \texttt{StratifiedGroupKFold(groups=userid, shuffle=True, random\_state=42)} with five folds, so train/val/test never share a user. Splits are reused across substrates, heads, and recipes so paired tests are well defined. The next-region transition prior is rebuilt per fold from training-fold edges only and seed-tagged, so the leak-free protocol holds at every comparison.
+
+\subsection{Baselines and metrics}
+\label{subsec:setup-baselines}
+
+The headline contrast is the cross-attention MTL model vs.\ matched-head STL ceilings: \texttt{next\_gru} for category and \texttt{next\_stan\_flow} (STAN~\cite{luo2021stan} backbone with additive log-transition prior over training-fold-only edges) for region. Matching head classes isolates the architectural contribution of joint training from head capacity. External baselines are POI-RGNN, MHA+PE (category) and Markov-1-region, STL STAN, ReHDM (region); these are reported in \S\ref{sec:results}.
+
+Category metrics: macro-F1 (primary), Acc@1/Acc@3 (secondary), since the 7-way distribution is skewed. Region metrics: Acc@10 (primary), Acc@5, MRR (secondary). The joint score is $\Delta_m$~\cite{maninis2019attentive,vandenhende2022mtl} against the matched-head STL ceiling, reported as primary (macro-F1, MRR) and secondary (macro-F1, Acc@10).
+
+\subsection{Statistical protocol}
+\label{subsec:setup-stats}
+
+Paired contrasts use the \textbf{paired Wilcoxon signed-rank} test~\cite{wilcoxon1945ranking} with \texttt{alternative='greater'} for directional claims and the two-one-sided test (\textbf{TOST}) for non-inferiority at $\delta\in\{2,3\}$ pp. At the single-seed five-fold scale the max significance for $n=5$ is $p=0.0312$ (all folds agreeing).
+
+For the headline MTL-vs-STL contrast we pool across four extra seeds $\{0,1,7,100\}$ on top of seed-42, yielding $n=20$ multi-seed fold-pairs per state. The FL $\Delta_m$ axis additionally carries $n=25$ fold-pairs from a second sweep, used to mark the strongest paired result. Effect sizes are in pp for F1/Acc@K/MRR; $\Delta_m$ is in percent. Code, fold splits, seeds, and per-fold priors are in the anonymous snapshot referenced in \S\ref{sec:method}.

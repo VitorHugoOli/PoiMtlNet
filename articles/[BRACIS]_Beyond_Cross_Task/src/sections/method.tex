@@ -1,0 +1,50 @@
+\section{Method}
+\label{sec:method}
+
+We describe the substrate (adopted), the backbone (the object of study), and the training protocol. Notation: a check-in is $c=(p,r,t)$ with POI $p$, region $r$, timestamp $t$; trajectories split into non-overlapping length-nine windows predicting the category and region of the tenth check-in ($L=9$).
+
+\subsection{The Check2HGI substrate}
+\label{subsec:method-substrate}
+
+The substrate extends the hierarchical graph-infomax line at the check-in level. HGI~\cite{huang2023hgi}, building on Deep Graph Infomax~\cite{velickovic2019dgi}, contrasts local node embeddings against a global graph summary across POI, region, and city graphs and emits one vector per place. \emph{Check2HGI} ports the same hierarchical contrastive objective to the check-in graph: positive views are sampled per check-in, so temporal context and co-visit neighbours perturb the contrastive view. The same POI visited twice can yield two distinct 64-dimensional vectors; per-visit emission rate distinguishes the substrate from POI-stable alternatives like DGI and HGI.
+
+Trained once per state and frozen, the substrate emits 64-dimensional vectors as a length-nine sequence, drop-in compatible with HGI. Two products feed the backbone: a per-check-in vector $\mathbf{e}_{c}\in\mathbb{R}^{64}$ for the category stream, and a per-region vector $\mathbf{e}_{r}\in\mathbb{R}^{64}$ from the region-graph level for the region stream. Both share one training run. We treat \emph{Check2HGI} as a fixed input substrate, not a method contribution.
+
+\subsection{Cross-attention multi-task backbone}
+\label{subsec:method-backbone}
+
+The backbone keeps two parallel input streams (one per task) and bridges them with cross-attention before a shared backbone splits into per-task heads. Let $X^{c}, X^{r}\in\mathbb{R}^{L\times d}$ feed the category and region sides at $L=9$, $d=64$. Two task-specific encoders (two-layer MLPs with LayerNorm and dropout) project each stream to $\mathbb{R}^{L\times d_m}$ at $d_m=256$, yielding $H^{c}$ and $H^{r}$. Single-modality variants collapsed one head in development, so two streams are the default.
+
+A cross-attention block bridges the streams. With $\mathrm{MHA}(Q,K,V)$ scaled dot-product attention ($h=8$),
+\begin{equation}
+\widetilde{H}^{c} = H^{c} + \mathrm{MHA}(H^{c},\, H^{r},\, H^{r}),
+\qquad
+\widetilde{H}^{r} = H^{r} + \mathrm{MHA}(H^{r},\, H^{c},\, H^{c}),
+\label{eq:crossattn}
+\end{equation}
+so each stream queries the other. The cross-attended streams then pass through a shared backbone of four residual blocks (LayerNorm, linear, LeakyReLU, dropout) before splitting into per-task heads (Figure~\ref{fig:arch}). Eq.~\eqref{eq:crossattn} is the architectural object the result tables interrogate.
+
+\begin{figure}[t]
+\centering
+\resizebox{0.78\linewidth}{!}{\input{figs/architecture.tex}}
+\caption{Cross-attention multi-task backbone. Two task-specific encoders project per-task input streams $X^{c}, X^{r}$ into $H^{c}, H^{r}$. A symmetric cross-attention block (Eq.~\ref{eq:crossattn}) lets each stream query the other through key/value projections of the surviving stream; a four-block shared residual backbone then splits into the \texttt{next\_gru} category head and the \texttt{next\_stan\_flow} region head. Dashed arrows mark the K/V cross-feeds responsible for the encoder co-adaptation discussed in Section~\ref{subsec:mechanism-isolation}.}
+\label{fig:arch}
+\end{figure}
+
+The category head, \texttt{next\_gru}, is a two-layer GRU over the cross-attended check-in stream with attention pooling and seven-class softmax. The region head, \texttt{next\_stan\_flow}, is an additive-prior STAN~\cite{luo2021stan} variant: a STAN backbone over the cross-attended region stream, scored against learnable region embeddings, with an additive log-transition prior $\alpha\cdot\log T[r_{\text{last}}]$ (learnable $\alpha$, built per fold from training-fold edges only, so leak-free). The log-prior pattern follows GETNext, but our head omits friendship and check-in graph priors and is not a faithful reproduction. STL ceilings reuse these head classes, so MTL and STL rows differ only in the backbone.
+
+\subsection{Training protocol}
+\label{subsec:method-training}
+
+We aggregate the two task losses with a static weighting,
+\begin{equation}
+\mathcal{L} = \lambda_{\text{cat}}\,\mathcal{L}_{\text{cat}} + \lambda_{\text{reg}}\,\mathcal{L}_{\text{reg}},
+\qquad
+\lambda_{\text{cat}} = 0.75,\quad \lambda_{\text{reg}} = 0.25,
+\label{eq:loss}
+\end{equation}
+where $\mathcal{L}_{\text{cat}}, \mathcal{L}_{\text{reg}}$ are unweighted cross-entropy, fixed across all MTL rows. FAMO~\cite{liu2023famo} and Aligned-MTL~\cite{senushkin2023aligned} drop-in comparisons are in Section~\ref{sec:mechanism}.
+
+The optimiser is AdamW with three parameter groups (category, region, shared), OneCycleLR, batch size 2048 (1024 at the largest state), gradient accumulation of two. Training runs 50 epochs in FP32 with no autocast; per-task best checkpoints select on validation Acc@10 (region) and macro-F1 (category) for epochs at least five, since earlier checkpoints saturate the region head before the category head converges. Class weights are applied to neither head: weighted CE on category pushed gradient mass against region, so both use unweighted CE, matching the STL ceilings of Section~\ref{sec:setup}. Two parameter-group recipes are scale-conditional in our search; selection is in Section~\ref{sec:mechanism}.
+
+Folds, seeds, and multi-seed pooling follow the user-disjoint StratifiedGroupKFold setup of Section~\ref{sec:setup}; the same splits are reused across substrates, heads, and recipes so paired tests are well defined. A methodological caveat: under cross-attention, a loss-side ablation that zeros one task's weight does not isolate the silenced encoder, since it co-adapts through the attention key and value projections of the surviving stream. We use encoder-frozen isolation (random-init, frozen) for clean architectural decomposition; the protocol is in Section~\ref{sec:mechanism}. Code, fold splits, seeds, per-fold transition priors, and regression tests are released at \url{https://anonymous.4open.science/r/PoiMtlNet-FE6A/}.

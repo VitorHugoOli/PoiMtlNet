@@ -1,0 +1,22 @@
+\begin{table}[t]
+\centering
+\caption{Headline MTL-vs-STL contrast on the Check2HGI substrate, multi-seed pooled at $n = 20$ fold-pairs per state (seeds $\{0, 1, 7, 100\}$, five user-disjoint folds). The MTL row is the cross-attention multi-task backbone; the STL rows are matched-head single-task ceilings, \texttt{next\_gru} for category and \texttt{next\_stan\_flow} for region. Cells are mean $\pm$ pooled $\sigma$ over $n = 20$ fold-pairs. The $\Delta$ columns report MTL $-$ STL in percentage points; the Wilcoxon $p$-values are paired one-sided at $n = 20$ (alternative ``greater'' for category gains, ``less'' for region drops where the headline direction is negative). FL/CA/TX sit above the rule as the headline scale; AL/AZ sit below as small-scale anchors.}
+\label{tab:mtl-stl}
+\footnotesize
+\resizebox{\textwidth}{!}{
+\begin{tabular}{l r r r r r r}
+\toprule
+& \multicolumn{3}{c}{Next-category (macro-F1)} & \multicolumn{3}{c}{Next-region (Acc@10)} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7}
+State & STL & MTL & $\Delta$ (pp), $p$ & STL & MTL & $\Delta$ (pp), $p$ \\
+\midrule
+Florida (FL)    & 67.16 $\pm$ 0.13 & 68.56 $\pm$ 0.79 & $+1.40$, $2\mathrm{e}{-6}$ & 70.62 $\pm$ 0.09 & 63.27 $\pm$ 0.10 & $-7.34$, $1.9\mathrm{e}{-6}$ \\
+California (CA) & 62.39 $\pm$ 0.13 & 64.07 $\pm$ 0.14 & $+1.68$, $2\mathrm{e}{-6}$ & 56.85 $\pm$ 0.09 & 47.35 $\pm$ 0.11 & $-9.50$, $1.9\mathrm{e}{-6}$ \\
+Texas (TX)      & 63.11 $\pm$ 0.13 & 65.00 $\pm$ 0.11 & $+1.89$, $2\mathrm{e}{-6}$ & 59.44 $\pm$ 0.09 & 42.84 $\pm$ 0.14 & $-16.59$, $1.9\mathrm{e}{-6}$ \\
+\midrule
+Alabama (AL)    & 41.35 $\pm$ 0.17 & 40.57 $\pm$ 0.24 & $-0.78$, $0.036$ & 61.21 $\pm$ 0.18 & 50.17 $\pm$ 0.24 & $-11.04$, $1.9\mathrm{e}{-6}$ \\
+Arizona (AZ)    & 43.90 $\pm$ 0.17 & 45.10 $\pm$ 0.19 & $+1.20$, $<\!1\mathrm{e}{-4}$ & 53.06 $\pm$ 0.15 & 40.78 $\pm$ 0.07 & $-12.27$, $1.9\mathrm{e}{-6}$ \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
