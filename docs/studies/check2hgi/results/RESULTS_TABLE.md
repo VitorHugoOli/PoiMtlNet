@@ -1,6 +1,6 @@
 # Results Table — Check2HGI MTL Study
 
-> ⚠ **2026-05-01 v8 PAPER CLOSURE — leak-free numbers + cat-Δ Wilcoxon landed.**
+> ⚠ **2026-05-02 v9 PAPER CLOSURE — leak-free numbers + cat-Δ Wilcoxon + TX recipe multi-seed landed.**
 > Cross-state P3 (CA + TX) + multi-seed at AL/AZ/FL/CA landed leak-free per-fold log_T.
 > Numbers in pre-2026-05-01 rows used the legacy unseeded log_T and are
 > **leak-inflated by 13-27 pp** (state-dependent). The leak-free architectural-Δ
@@ -28,17 +28,16 @@
 > | AZ | 20 | −0.09 | 0.23 (n.s.) | **−0.96** | **7.1e-04** |
 > | FL | 25 | **+3.48** | **3.0e-08** | +0.42 | 1.3e-05 |
 > | **CA** | **20** | **+4.18** | **<1e-04** | **+0.51** | **<1e-04** |
-> | TX | 5  | +1.76 | 0.125 | +0.64 | 0.125 |
+> | **TX** | **20** | **+1.87** | **7.0e-04** | **+0.52** | **2.0e-04** |
 >
-> **B9 is FL/CA-scale paper-grade.** At AL/AZ H3-alt is paper-grade better on cat;
-> reg tied. TX directional only (single-seed; multi-seed extension is a camera-ready audit item).
-> Recipe-selection narrative: **"scale-conditional optimal recipe"**.
-> Wilcoxon JSONs: [`../research/PAPER_CLOSURE_RECIPE_WILCOXON.json`](../research/PAPER_CLOSURE_RECIPE_WILCOXON.json) + [`../research/GAP_FILL_WILCOXON.json`](../research/GAP_FILL_WILCOXON.json) (CA n=20 v8).
+> **B9 is FL/CA/TX-scale paper-grade (all large-scale states, n=20).** At AL/AZ H3-alt is paper-grade better on cat;
+> reg tied. Recipe-selection narrative: **"scale-conditional optimal recipe"**.
+> Wilcoxon JSONs: [`../research/PAPER_CLOSURE_RECIPE_WILCOXON.json`](../research/PAPER_CLOSURE_RECIPE_WILCOXON.json) + [`../research/GAP_FILL_WILCOXON.json`](../research/GAP_FILL_WILCOXON.json) (CA/TX n=20 v9).
 >
-> v6 body (§0 below) landed 2026-05-01; v7 added STL cat multi-seed; v8 landed cat-Δ Wilcoxon (AL/AZ/FL) + CA recipe multi-seed. The legacy §1–§5 + Phase-1 / F49 cells are
+> v6 body (§0 below) landed 2026-05-01; v7 added STL cat multi-seed; v8 landed cat-Δ Wilcoxon (AL/AZ/FL) + CA recipe multi-seed; v9 landed TX recipe multi-seed (n=20, both axes paper-grade). The legacy §1–§5 + Phase-1 / F49 cells are
 > preserved unchanged underneath as audit; **the §0 tables are paper-canonical**.
 
-**Last updated:** 2026-05-01 PM (v8 — §0.1 Δ_cat p-values added for AL/AZ/FL from multi-seed Wilcoxon; §0.4 CA row upgraded to n=20 multi-seed, now paper-grade significant on both axes; GAP_FILL_WILCOXON.json added). Prior: v7 (STL cat multi-seed means). v6 (§0 initial).
+**Last updated:** 2026-05-02 (v9 — §0.4 TX row upgraded to n=20 multi-seed, paper-grade significant on both axes; B9 now paper-grade at FL/CA/TX). Prior: v8 (CA n=20 + §0.1 Δ_cat p-values). v7 (STL cat multi-seed means). v6 (§0 initial).
 
 ---
 
@@ -120,11 +119,11 @@ Reg STL `next_stan_flow` matched-head, leak-free per-fold log_T, 5f × 50ep, see
 | AZ | 20 | −0.09 | 0.23 (n.s.) | **−0.96** | **7.1e-04** | **H3-alt > B9 on cat; reg tied** |
 | FL | 25 | **+3.48** | **3.0e-08** | +0.42 | 1.3e-05 | **B9 > H3-alt on both** (F51) |
 | CA | **20** | **+4.18** | **<1e-04** | **+0.51** | **<1e-04** | **B9 > H3-alt, both tasks significant** |
-| TX | 5  | +1.76 | 0.125 (4/5) | +0.64 | 0.125 (4/5) | B9 directional (pending multi-seed) |
+| **TX** | **20** | **+1.87** | **7.0e-04** | **+0.52** | **2.0e-04** | **B9 > H3-alt, both tasks significant** |
 
-**v8 update (2026-05-01 PM):** CA row updated from n=5 (seed=42) to n=20 (seeds {0,1,7,100}) — B9 vs H3-alt now paper-grade significant at CA on both tasks (reg +4.18 pp p<1e-04, cat +0.51 pp p<1e-04). TX is camera-ready audit item (single-seed at submission). Wilcoxon JSON: [`../research/GAP_FILL_WILCOXON.json`](../research/GAP_FILL_WILCOXON.json).
+**v9 update (2026-05-02):** TX row updated from n=5 (seed=42) to n=20 (seeds {0,1,7,100}) — B9 vs H3-alt now paper-grade significant at TX on both tasks (reg +1.87 pp p=7e-04, cat +0.52 pp p=2e-04). **B9 is now paper-grade at FL/CA/TX (large-scale states); H3-alt remains better at AL/AZ (small-scale).** Wilcoxon JSON: [`../research/GAP_FILL_WILCOXON.json`](../research/GAP_FILL_WILCOXON.json).
 
-**B9 is FL/CA-scale paper-grade, NOT universal.** B9's three additions over H3-alt (alt-SGD + cosine + α-no-WD) hurt cat at AL/AZ. Mechanism: B9 targets FL's reg-saturation problem (D5); at smaller transition graphs the saturation is less severe AND alt-SGD's per-step temporal gradient separation costs cat-side signal small states can't afford to lose. **Paper recipe-selection narrative:** *"B9 is paper-grade at FL/CA; H3-alt remains the universal recipe at small scale; the optimal MTL recipe is scale-conditional."* Source: this file (canonical). Wilcoxon JSONs: [`../research/PAPER_CLOSURE_RECIPE_WILCOXON.json`](../research/PAPER_CLOSURE_RECIPE_WILCOXON.json) + [`../research/GAP_FILL_WILCOXON.json`](../research/GAP_FILL_WILCOXON.json) (CA n=20 v8). Background provenance (superseded): [`../archive/post_paper_closure_2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md §4a-bis`](../archive/post_paper_closure_2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md).
+**B9 is FL/CA/TX-scale paper-grade, NOT universal.** B9's three additions over H3-alt (alt-SGD + cosine + α-no-WD) hurt cat at AL/AZ. Mechanism: B9 targets the reg-saturation problem at large transition graphs (D5); at smaller transition graphs the saturation is less severe AND alt-SGD's per-step temporal gradient separation costs cat-side signal small states can't afford to lose. **Paper recipe-selection narrative:** *"B9 is paper-grade at FL/CA/TX (all large-scale states, n=20 multi-seed); H3-alt remains the better recipe at small scale (AL/AZ); the optimal MTL recipe is scale-conditional."* Source: this file (canonical). Wilcoxon JSONs: [`../research/PAPER_CLOSURE_RECIPE_WILCOXON.json`](../research/PAPER_CLOSURE_RECIPE_WILCOXON.json) + [`../research/GAP_FILL_WILCOXON.json`](../research/GAP_FILL_WILCOXON.json) (CA/TX n=20 v9). Background provenance (superseded): [`../archive/post_paper_closure_2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md §4a-bis`](../archive/post_paper_closure_2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md).
 
 ### 0.5 · External literature baselines — `next_region` (Acc@10)
 
