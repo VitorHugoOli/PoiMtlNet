@@ -46,7 +46,7 @@ The paper makes paired-test claims at three different power regimes. State them 
 
 ---
 
-## 2 · C2-cat (MTL ≥ STL on next-category) — VERDICT: paper-grade for AZ/FL, ≈ tied at AL, directional for CA/TX
+## 2 · C2-cat (MTL ≥ STL on next-category) — VERDICT: paper-grade for AZ/FL, small-significantly negative at AL, directional for CA/TX
 
 > **v8 update (2026-05-01):** `RESULTS_TABLE.md §0.1` (v8) refreshed FL MTL B9 cat F1 from 68.59 → **68.51 ± 0.51** (multi-seed pooled), updating FL Δ_cat from +1.43 → **+1.52** (paired Δ). v8 also ran the AL/AZ/FL cat-Δ Wilcoxon against the multi-seed STL ceiling (`gap_fill_wilcoxon.py` + `GAP_FILL_WILCOXON.json`): **AL p = 0.036** (small-significantly negative, 14/20 fold-pairs negative, n = 20); **AZ p < 1e-04** (significantly positive, 18/20 fold-pairs positive, n = 20); **FL p = 0.0625** (sign-consistent positive at n = 5 ceiling, 5/5 folds positive). The "pending re-run" framing from v7 is now resolved.
 

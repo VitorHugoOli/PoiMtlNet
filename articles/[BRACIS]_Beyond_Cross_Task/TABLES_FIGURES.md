@@ -144,7 +144,7 @@ Caption sentence: *"The substrate is task-asymmetric: Check2HGI's per-visit cont
 
 This panel is the **substrate-vs-architecture decoupling story** — without it a reviewer will assume we cherry-picked the cat side. With it, the substrate's role is precisely scoped.
 
-### T3 — MTL vs STL on both tasks, v7 numbers (§5.2, 0.4 pp)
+### T3 — MTL vs STL on both tasks, v8 numbers (§5.2, 0.4 pp)
 
 ```
                   Cat F1 (vs STL next_gru)            Reg Acc@10 (vs STL next_stan_flow)
