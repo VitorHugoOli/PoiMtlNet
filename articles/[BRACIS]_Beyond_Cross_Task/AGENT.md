@@ -51,7 +51,7 @@ C3 is short and lives in a methodological note / appendix sub-section. C1 + C2 a
 
 - No author names, affiliations, e-mails, ORCIDs, funders.
 - **Cite prior CBIC/CoUrb papers in third person**, exactly as you would cite an external work — e.g. *"Silva et al. (2025) found that an MTL framework on DGI embeddings did not consistently improve over single-task baselines, attributing the gap to representation mismatch and task dissimilarity."* Do not write "our prior work" or "we previously showed" in the main text. Acknowledgments and the GitHub URL are removed for review and restored at camera-ready.
-- Code/data link: use **Anonymous GitHub** (`https://anonymous.4open.science/`) or **Anonymous Dropbox**. Do not paste real GitHub URLs.
+- Code/data link: **Anonymous GitHub at `https://anonymous.4open.science/r/PoiMtlNet-FE6A/` (locked 2026-05-02).** Cite this URL in §3.5 (Training protocol — anonymous code reference) and the §Reproducibility footer. Do not paste real GitHub URLs that would deanonymise the author.
 - Do not name the lab, the institution, the funder, or the city in the main text. The Gowalla state set (Alabama, Arizona, Florida, California, Texas) is fine — those are dataset partitions, not author origins.
 - LLM-usage acknowledgment goes in Acknowledgments at camera-ready (per BRACIS rules). Not in the review version.
 
@@ -85,7 +85,7 @@ The paper inherits the F50/F51/PAPER_CLOSURE protocol. Sub-agents do not negotia
 - **Hardware (mandatory in §Experimental Setup):** all headline-scale runs (FL/CA/TX) on a **single NVIDIA H100 80 GB** GPU; AL/AZ additionally validated on Apple-Silicon MPS for cross-platform reproducibility. Per-run wall time: AL/AZ ~10 min, FL ~30 min, CA/TX ~50 min on H100 (5-fold × 50-epoch). Anonymize the platform name (no "Lightning Studio" or any subscription tier — that outs lab funding).
 - **Asymmetric baseline coverage (mandatory in §7 Limitations + T5 footnote):** ReHDM (Li et al., IJCAI 2025) reported at AL/AZ/FL only; CA/TX deferred — the dual-level hypergraph's collaborator pool scales quadratically with region cardinality (8.5 K and 6.5 K regions exceeded our H100 per-cell compute budget). Frame as honest baseline-coverage limitation; `BRACIS_GUIDE.md §10.2.7` rewards this pattern.
 - **Paired test:** Wilcoxon signed-rank, `alternative='greater'` for the directional claim. p = 0.0312 is the **maximum achievable significance for n = 5 paired samples** (5/5 folds positive); state this once in §Experimental Setup so reviewers know the n = 5 ceiling. Pooled multi-seed (4 × 5 = 20 or 5 × 5 = 25 fold-pairs) gives sub-1e-5 p-values where available.
-- **Effect-size axis:** report Δ in percentage points (pp) for F1 / Acc@K / MRR. **Δm (Maninis 2019, Vandenhende 2021)** is the joint score; report leak-free Δm primary (cat F1 + reg MRR) and Δm secondary (cat F1 + reg Acc@10).
+- **Effect-size axis:** report Δ in percentage points (pp) for F1 / Acc@K / MRR. **Δm (Maninis 2019, Vandenhende 2022)** is the joint score; report leak-free Δm primary (cat F1 + reg MRR) and Δm secondary (cat F1 + reg Acc@10).
 - **TOST non-inferiority** at δ = 2 pp / δ = 3 pp where the claim is "tied at scale" (used for CH15 reframing on CA/TX).
 - **Sign-consistency framing:** when a Δ is sign-consistent across 5 states, say so explicitly — that is the strongest qualitative claim available at n = 5 single-seed.
 

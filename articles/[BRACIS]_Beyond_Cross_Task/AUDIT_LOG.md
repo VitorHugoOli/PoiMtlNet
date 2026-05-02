@@ -139,7 +139,7 @@ All other numbers (n=17 cells) round-trip correctly.
 
 **Pre-fan-out blockers (medium-risk):**
 1. **Historical at audit time, later resolved in v8:** AL/AZ/FL cat-Δ Wilcoxon against the v7 multi-seed STL ceiling was still pending when this audit was written. It landed in `GAP_FILL_WILCOXON.json` and `RESULTS_TABLE.md §0.1` on 2026-05-01 PM.
-2. **D6 anonymous code link** is "pending" — reviewers click; 404 is desk-rejection-adjacent.
+2. ~~**D6 anonymous code link** is "pending"~~ **RESOLVED 2026-05-02** — Anonymous GitHub snapshot at https://anonymous.4open.science/r/PoiMtlNet-FE6A/ . Cite in §3.5 + Reproducibility footer.
 3. **Abstract clarity edits (3):** (a) n = 5 ceiling p = 0.0312 lacks context for cold readers, (b) "head-invariant" is jargon, (c) "8 to 17 pp" needs "on next-region Acc@10" qualifier.
 
 **Other findings (medium):**

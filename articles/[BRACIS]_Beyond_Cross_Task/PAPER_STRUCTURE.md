@@ -90,7 +90,7 @@ Land the sentence: *"Our work re-examines a default assumption in MTL-for-POI â€
 
 #### 4.2 Baselines (0.5 pp)
 
-- **Cat:** Majority-class, Markov-1-POI, **POI-RGNN** (Capanema 2019, faithful port), **MHA+PE** (Zeng 2019). Internal: STL `next_gru` on Check2HGI (matched-head); STL `next_gru` on HGI (substrate ablation, CH16).
+- **Cat:** Majority-class, Markov-1-POI, **POI-RGNN** (Capanema et al. 2022, faithful port), **MHA+PE** (Zeng 2019). Internal: STL `next_gru` on Check2HGI (matched-head); STL `next_gru` on HGI (substrate ablation, CH16).
 - **Reg:** Majority, Top-K popular, **Markov-1-region** (Floor; binds at FL on Acc@10), STL GRU, **STL STAN** (Luo, WWW 2021 adapt), **STL STAN-Flow (`next_stan_flow`)** (matched-head MTL reg head ceiling), **REHDM** (faithful port).
 - Audit hub: `docs/studies/check2hgi/baselines/{next_category,next_region}/comparison.md`.
 
