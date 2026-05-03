@@ -55,17 +55,16 @@ Multi-task learning for point-of-interest prediction typically pairs joint
 next-category and next-region heads over a shared graph embedding,
 assuming joint training transfers signal across tasks. We swap the
 per-place substrate for a check-in-level contextual graph embedding (one
-vector per visit) and run a five-state Gowalla ablation under
-user-disjoint folds with leak-free per-fold transition priors. The
-substrate is task-asymmetric: per-visit context lifts single-task
-next-category macro-F1 by 14 to 29 percentage points at every state
-(paired Wilcoxon p of 0.0312, the maximum at five folds), while per-place
-embeddings tie or marginally exceed it under matched-head ceilings on
-next-region. Joint multi-task training over a cross-attention backbone
-then delivers a category lift at four of five states; the cost
-is a sign-consistent 7 to 17 percentage point drop on next-region top-10
-accuracy, the textbook tradeoff. A counterfactual at Alabama attributes
-about 72 percent of the substrate gain to per-visit context.
+vector per visit) and run a controlled five-state Gowalla ablation under
+user-disjoint folds. The substrate is task-asymmetric: per-visit context
+lifts single-task next-category macro-F1 by 14 to 29 percentage points at
+every state (paired Wilcoxon p of 0.0312), while per-place embeddings tie
+or marginally exceed it under matched-head ceilings on next-region. Joint
+multi-task training over a cross-attention backbone then delivers a
+category lift at four of five states; the cost is a sign-consistent 7 to
+17 percentage point drop on next-region top-10 accuracy, the textbook
+tradeoff. A per-visit counterfactual at Alabama attributes about 72
+percent of the substrate gain to per-visit context.
 
 \keywords{Multi-Task Learning \and Point-of-Interest Prediction \and Graph
 Embeddings.}

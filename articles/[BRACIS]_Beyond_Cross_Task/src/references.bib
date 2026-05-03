@@ -226,12 +226,49 @@
   doi       = {10.1145/3477495.3531989},
 }
 
+% UNVERIFIED: full given names of all authors not recovered from any local
+% source (CBIC/CoUrb bib + BRACIS source files contain only "Li et al."
+% references; surnames carried over from the prior bib draft as a placeholder).
+% The pages field "0343" is unverified — likely an IJCAI 2025 paper-ID
+% (IJCAI uses 4-digit paper IDs as the canonical identifier, not page ranges)
+% rather than a page range. Camera-ready pass: recover full author given names
+% from the IJCAI 2025 proceedings page and confirm the paper-ID/pages convention.
 @inproceedings{li2025rehdm,
   author    = {Li and Gu and Yao and Zhou and Zhu and Zhao and Du},
   title     = {Beyond Individual and Point: Next {POI} Recommendation via Region-aware Dynamic Hypergraph with Dual-level Modeling},
   booktitle = {Proceedings of the 34th International Joint Conference on Artificial Intelligence (IJCAI)},
   pages     = {0343},
   year      = {2025},
+}
+
+% verified: ported from articles/CBIC___MTL/main.tex (author block) +
+% articles/CoUrb_2026/references.bib (silva2025mtlnet entry). Author list
+% normalized to the splncs04 "Firstname Lastname" convention used throughout
+% this bib. The original CoUrb source carried `note = {Submetido}`; dropped
+% as the entry now refers to the published 2025 proceedings paper. Venue
+% expansion (CBIC = Congresso Brasileiro de Inteligência Computacional)
+% per the user's task brief; the CoUrb source bib's expansion to "Brazilian
+% Conference on Intelligent Systems" conflates CBIC with BRACIS and is not
+% used here.
+@inproceedings{silva2025mtlnet,
+  author    = {Vitor H. O. Silva and Ingred F. Almeida and Tarik S. Paiva and Germano B. Santos and Fabr{\'i}cio A. Silva and Felipe T. Sousa},
+  title     = {An Investigation into Multi-Task Learning for Point-of-Interest Category Classification and Next-{POI} Prediction},
+  booktitle = {Anais do Congresso Brasileiro de Intelig{\^e}ncia Computacional (CBIC)},
+  year      = {2025},
+}
+
+% verified: ported from articles/CoUrb_2026/main.tex (author + title) and
+% articles/CoUrb_2026/references.bib (style cross-check). Author list
+% normalized to the splncs04 "Firstname Lastname" convention. CoUrb is the
+% Workshop de Computa\c{c}\~ao Urbana, hosted at SBRC under the Sociedade
+% Brasileira de Computa\c{c}\~ao (SBC); proceedings publish via the SBC
+% Open Library (SOL). Title is in Portuguese in the original; preserved here.
+@inproceedings{paiva2026courb,
+  author    = {Tarik S. Paiva and Vitor H. O. Silva and Germano B. dos Santos and Fabr{\'i}cio A. Silva},
+  title     = {{ST-MTLNet}: Representa{\c{c}}{\~o}es Espa{\c{c}}o-Temporais de Pontos de Interesse para Aprendizado Multitarefa},
+  booktitle = {Anais do Workshop de Computa{\c{c}}{\~a}o Urbana (CoUrb)},
+  year      = {2026},
+  publisher = {Sociedade Brasileira de Computa{\c{c}}{\~a}o (SBC)},
 }
 
 % =====================================================================
@@ -269,10 +306,6 @@
 %
 % Entries present in CBIC and/or CoUrb but not carried into BRACIS:
 %
-% - silva2025mtlnet (CoUrb): self-cite. Cite as third-party "Silva et al. 2025"
-%   only if reviewers ask for an explicit reference; default is to omit and
-%   describe the prior framing in §1 Beat 2 without an author tag (per AGENT.md
-%   §3 double-blind anonymization).
 % - Halder2021 / Halder2022, Liao2018, Xia2020, Xu2023, Zhang2020, dos2024havana:
 %   POI-MTL related work that overlaps with our §2.3 framing but does not earn
 %   a cite slot at 25--30 ref budget; cite only if the reviewer pushes for
@@ -298,4 +331,7 @@
 % - capanema2019identificacao (CBIC): WRONG REFERENCE for POI-RGNN; replaced
 %   by capanema2022poirgnn above.
 %
-% Total entries in this bib: 28 (within 25-30 budget per BRACIS_GUIDE.md §7).
+% Total entries in this bib: 30 (at the 25-30 budget ceiling per BRACIS_GUIDE.md
+% §7; the two entries added on 2026-05-03 are silva2025mtlnet (CBIC 2025 prior
+% work) and paiva2026courb (CoUrb 2026 follow-up), now cited in §1 and §2.3 as
+% required by AGENT.md §3 double-blind third-person citation rule).
