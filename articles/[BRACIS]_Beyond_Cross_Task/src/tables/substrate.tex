@@ -1,6 +1,6 @@
 \begin{table}[t]
 \centering
-\caption{Substrate ablation under matched-head single-task ceilings, five-fold cross-validation. Top: next-category macro-F1, head \texttt{next\_gru}, $n = 5$ Wilcoxon ceiling (HGI single-seed; Check2HGI at AL/AZ/FL is multi-seed mean $\pm$ seed $\sigma$ over seeds $\{0, 1, 7, 100\}$); the asterisk marks 5/5 folds positive at $p = 0.0312$ one-sided. Bottom: next-region Acc@10, head \texttt{next\_stan\_flow} with the additive log-transition prior built per fold from training-fold edges only; negative $\Delta$ values indicate POI-stable HGI is nominally ahead. The TOST columns report two-one-sided non-inferiority verdicts at $\delta = 2$ and $\delta = 3$ pp: \checkmark{} indicates the gap stays inside the equivalence margin, $\times$ that it does not.}
+\caption{Substrate ablation under matched-head single-task ceilings, five-fold cross-validation. (a) Next-category macro-F1 with a GRU category head: HGI single-seed; Check2HGI at AL/AZ/FL is multi-seed mean $\pm$ seed $\sigma$ over seeds $\{0, 1, 7, 100\}$. The asterisk marks 5/5 folds positive at $p = 0.0312$ (one-sided Wilcoxon). (b) Next-region Acc@10 with a STAN-based region head and additive log-transition prior built per fold from training-fold edges only; negative $\Delta$ values indicate POI-stable HGI is nominally ahead. TOST columns report two-one-sided non-inferiority verdicts at $\delta = 2$ and $\delta = 3$ pp: \checkmark{} indicates the gap stays inside the equivalence margin, $\times$ that it does not.}
 \label{tab:substrate}
 \footnotesize
 

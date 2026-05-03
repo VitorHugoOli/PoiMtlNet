@@ -13,13 +13,13 @@ For each user we form non-overlapping length-9 windows over the chronological se
 \subsection{Baselines and metrics}
 \label{subsec:setup-baselines}
 
-The headline contrast is the cross-attention MTL model vs.\ matched-head STL ceilings: \texttt{next\_gru} for category and \texttt{next\_stan\_flow} (STAN~\cite{luo2021stan} backbone with additive log-transition prior over training-fold-only edges) for region. Matching head classes isolates the architectural contribution of joint training from head capacity. External baselines are POI-RGNN, MHA+PE (category) and Markov-1-region, STL STAN, ReHDM (region); these are reported in \S\ref{sec:results}.
+The headline contrast is the cross-attention multi-task model against matched-head single-task (STL) ceilings: a GRU category head and a STAN-based region head with an additive log-transition prior over training-fold-only edges~\cite{luo2021stan}. \textbf{The same head classes appear on both sides of the contrast, so any difference between the multi-task and single-task rows is attributable to the sharing architecture, not to head capacity.} External baselines are POI-RGNN and MHA+PE (category) and Markov-1-region, single-task STAN, and ReHDM (region); we report them in \S\ref{sec:results}.
 
-Category metrics: macro-F1 (primary), Acc@1/Acc@3 (secondary), since the 7-way distribution is skewed. Region metrics: Acc@10 (primary), Acc@5, MRR (secondary). The joint score is $\Delta_m$~\cite{maninis2019attentive,vandenhende2022mtl} against the matched-head STL ceiling, reported as primary (macro-F1, MRR) and secondary (macro-F1, Acc@10).
+Category metrics: macro-F1 (primary) and Acc@1/Acc@3 (top-$k$ accuracy, secondary, since the 7-way distribution is skewed). Region metrics: Acc@10 (primary), Acc@5 and MRR (mean reciprocal rank, secondary). The joint score is $\Delta_m$~\cite{maninis2019attentive,vandenhende2022mtl} against the matched-head STL ceiling, reported on a primary pair (macro-F1, MRR) and a secondary pair (macro-F1, Acc@10).
 
 \subsection{Statistical protocol}
 \label{subsec:setup-stats}
 
 Paired contrasts use the \textbf{paired Wilcoxon signed-rank} test~\cite{wilcoxon1945ranking} with \texttt{alternative='greater'} for directional claims and the two-one-sided test (\textbf{TOST}) for non-inferiority at $\delta\in\{2,3\}$ pp. At the single-seed five-fold scale the max significance for $n=5$ is $p=0.0312$ (all folds agreeing).
 
-For the headline MTL-vs-STL contrast we pool across four extra seeds $\{0,1,7,100\}$ on top of seed-42, yielding $n=20$ multi-seed fold-pairs per state. The FL $\Delta_m$ axis additionally carries $n=25$ fold-pairs from a second sweep, used to mark the strongest paired result. Effect sizes are in pp for F1/Acc@K/MRR; $\Delta_m$ is in percent. Code, fold splits, seeds, and per-fold priors are in the anonymous snapshot referenced in \S\ref{sec:method}.
+For the headline multi-task vs.\ STL contrast we pool across four extra seeds $\{0,1,7,100\}$ on top of seed-42, yielding $n=20$ multi-seed fold-pairs per state. The FL $\Delta_m$ axis additionally carries $n=25$ fold-pairs from a second sweep. Effect sizes are in pp for F1, Acc@$k$, and MRR; $\Delta_m$ is in percent. Code, fold splits, seeds, and per-fold priors are in the anonymous snapshot referenced in \S\ref{sec:method}.

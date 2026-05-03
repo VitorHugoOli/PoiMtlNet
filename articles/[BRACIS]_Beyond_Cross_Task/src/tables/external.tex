@@ -1,36 +1,35 @@
 \begin{table}[t]
 \centering
-\caption{External-baseline comparison at the headline scale (FL, CA, TX). The category block reports macro-F1; the region block reports Acc@10. Italicised STL rows are matched-head single-task ceilings on the Check2HGI substrate (\texttt{next\_gru} for category; \texttt{next\_stan\_flow} with the per-fold additive log-transition prior for region); the bold MTL row is our cross-attention multi-task model. POI-RGNN and MHA+PE numbers are our user-disjoint reproductions; the original POI-RGNN evaluation~\cite{capanema2022poirgnn} used non-user-disjoint folds, so the absolute values are not directly comparable. ReHDM and faithful STAN faithful runs are reported at AL/AZ/FL only; CA/TX cells are deferred to the camera-ready (the dual-level hypergraph in ReHDM scales quadratically with region cardinality, exceeding our compute budget at 8.5K and 6.5K regions respectively). Per-state cells are mean $\pm \sigma$ over the five user-disjoint folds.}
+\caption{External-baseline comparison at the headline scale (FL, CA, TX). Category block reports macro-F1; region block reports Acc@10. Italicised rows are matched-head single-task ceilings on the Check2HGI substrate; the proposed row is the cross-attention multi-task model. POI-RGNN and MHA+PE are our user-disjoint reproductions; the original POI-RGNN evaluation~\cite{capanema2022poirgnn} used non-user-disjoint folds, so absolute values are not directly comparable. ReHDM and the faithful STAN reproduction are reported at FL only above the headline scale (the ReHDM dual-level hypergraph scales quadratically in region cardinality, exceeding our compute budget at CA/TX).}
 \label{tab:external}
-\footnotesize
-\resizebox{\textwidth}{!}{
+\scriptsize
+\setlength{\tabcolsep}{2pt}
 \begin{tabular}{l r r r r r r}
 \toprule
-& \multicolumn{3}{c}{Next-category macro-F1} & \multicolumn{3}{c}{Next-region Acc@10} \\
+& \multicolumn{3}{c}{Category macro-F1} & \multicolumn{3}{c}{Region Acc@10} \\
 \cmidrule(lr){2-4} \cmidrule(lr){5-7}
 Method & FL & CA & TX & FL & CA & TX \\
 \midrule
 \multicolumn{7}{l}{\emph{External baselines (faithful reproductions)}} \\
 \midrule
-Markov-1 (floor)             & 23.98 $\pm$ 1.22 & 19.97 $\pm$ 1.77 & 18.17 $\pm$ 1.38 & 65.05 $\pm$ 0.93 & 52.09 $\pm$ 0.80 & 54.94 $\pm$ 0.46 \\
-POI-RGNN \cite{capanema2022poirgnn} & 34.49 $\pm$ 1.14 & 31.78 $\pm$ 0.82 & 33.03 $\pm$ 0.70 & --              & --              & --              \\
-MHA+PE \cite{zeng2019mhape}  & 32.06 $\pm$ 0.23 & 29.13 $\pm$ 0.71 & 29.91 $\pm$ 0.43 & --              & --              & --              \\
-STAN \cite{luo2021stan} (HGI) & --              & --              & --              & 73.58 $\pm$ 0.43 & 60.45 $\pm$ 0.97 & 62.70 $\pm$ 0.37 \\
-ReHDM \cite{li2025rehdm}     & --              & --              & --              & 65.68 $\pm$ 0.26 & --$^{\dagger}$  & --$^{\dagger}$  \\
+Markov-1 (floor)             & $23.98\!\!\pm\!\!1.22$ & $19.97\!\!\pm\!\!1.77$ & $18.17\!\!\pm\!\!1.38$ & $65.05\!\!\pm\!\!0.93$ & $52.09\!\!\pm\!\!0.80$ & $54.94\!\!\pm\!\!0.46$ \\
+POI-RGNN \cite{capanema2022poirgnn} & $34.49\!\!\pm\!\!1.14$ & $31.78\!\!\pm\!\!0.82$ & $33.03\!\!\pm\!\!0.70$ & --                 & --                 & --                 \\
+MHA+PE \cite{zeng2019mhape}  & $32.06\!\!\pm\!\!0.23$ & $29.13\!\!\pm\!\!0.71$ & $29.91\!\!\pm\!\!0.43$ & --                 & --                 & --                 \\
+STAN \cite{luo2021stan} (HGI) & --                & --                & --                & $\mathbf{73.58\!\!\pm\!\!0.43}$ & $\mathbf{60.45\!\!\pm\!\!0.97}$ & $\mathbf{62.70\!\!\pm\!\!0.37}$ \\
+ReHDM \cite{li2025rehdm}     & --                & --                & --                & $65.68\!\!\pm\!\!0.26$ & --$^{\dagger}$     & --$^{\dagger}$     \\
 \midrule
-\multicolumn{7}{l}{\emph{Our matched-head single-task ceilings (Check2HGI substrate)}} \\
+\multicolumn{7}{l}{\emph{Matched-head single-task ceilings (Check2HGI substrate)}} \\
 \midrule
-\emph{STL \texttt{next\_gru} (cat ceiling)}        & 67.16 $\pm$ 0.13 & 62.39 $\pm$ 0.13 & 63.11 $\pm$ 0.13 & --              & --              & --              \\
-\emph{STL \texttt{next\_stan\_flow} (reg ceiling)} & --              & --              & --              & 70.62 $\pm$ 0.09 & 56.85 $\pm$ 0.09 & 59.44 $\pm$ 0.09 \\
+\emph{STL category ceiling}  & $67.16\!\!\pm\!\!0.13$ & $62.39\!\!\pm\!\!0.13$ & $63.11\!\!\pm\!\!0.13$ & --                 & --                 & --                 \\
+\emph{STL region ceiling}    & --                 & --                 & --                 & $70.62\!\!\pm\!\!0.09$ & $56.85\!\!\pm\!\!0.09$ & $59.44\!\!\pm\!\!0.09$ \\
 \midrule
 \multicolumn{7}{l}{\emph{Proposed cross-attention multi-task model}} \\
 \midrule
-\textbf{MTL (ours)} & \textbf{68.56 $\pm$ 0.79} & \textbf{64.07 $\pm$ 0.14} & \textbf{65.00 $\pm$ 0.11} & 63.27 $\pm$ 0.10 & 47.35 $\pm$ 0.11 & 42.84 $\pm$ 0.14 \\
+\textbf{MTL (ours)} & $\mathbf{68.56\!\!\pm\!\!0.79}$ & $\mathbf{64.07\!\!\pm\!\!0.14}$ & $\mathbf{65.00\!\!\pm\!\!0.11}$ & $63.27\!\!\pm\!\!0.10$ & $47.35\!\!\pm\!\!0.11$ & $42.84\!\!\pm\!\!0.14$ \\
 \bottomrule
 \end{tabular}
-}
 
 \medskip
-\footnotesize $^{\dagger}$ ReHDM at CA/TX deferred (camera-ready, compute budget).
+\scriptsize \textbf{Bold cells}: best per column. The row label \textbf{MTL (ours)} marks the proposed model. $^{\dagger}$ ReHDM at CA/TX deferred (camera-ready, compute budget).
 
 \end{table}
