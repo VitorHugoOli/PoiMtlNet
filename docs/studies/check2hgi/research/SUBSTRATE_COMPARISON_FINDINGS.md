@@ -113,6 +113,29 @@ Decomposition of CH16's substrate gap (+12.14 pp = canonical − HGI):
 
 Linear-probe and STL agree on direction; matched-head STL gives an even stronger per-visit signal (~72% vs ~63% in linear probe). **C4 mechanism confirmed** — per-visit variation is the dominant contributor to CH16's cat substrate lift.
 
+### 4.3 AZ replication — matched-head STL (added 2026-05-03)
+
+✅ AZ Check2HGI POOLED with `next_gru` head, 5f × 50ep, seed 42 (H100, ~4 min total wall-clock):
+
+| Substrate | F1 macro |
+|---|---:|
+| Check2HGI (canonical, matched-head STL) | 43.17 ± 0.28 |
+| **Check2HGI POI-pooled** | **34.09 ± 0.63** |
+| HGI (matched-head STL) | 28.99 ± 0.51 |
+
+**Decomposition under matched-head STL** (substrate gap +14.18 pp):
+- **Per-visit context:** canonical − pooled = **+9.08 pp (~64%)**.
+- **Embedding training signal:** pooled − HGI = **+5.10 pp (~36%)**.
+
+**Verdict:** AZ replicates AL's two-component decomposition. Per-visit variation is again the dominant contributor; the training-signal residual is again non-trivial. C4 mechanism now **confirmed at AL+AZ** — single-state evidence upgraded to two-state replicated mechanism.
+
+| State | Per-visit Δ | Training-signal Δ | Per-visit share |
+|---|---:|---:|---:|
+| AL | +11.19 pp | +4.31 pp | ~72% |
+| AZ | +9.08 pp  | +5.10 pp | ~64% |
+
+**Source:** `results/check2hgi_pooled/arizona/next_lr1.0e-04_bs1024_ep50_20260503_201208_10976/` + sibling canonical/HGI runs (`20260503_201047_*`, `20260503_201327_*`). Per-fold JSONs: `docs/studies/check2hgi/results/phase1_perfold/AZ_{check2hgi,check2hgi_pooled,hgi}_cat_gru_5f50ep_20260503.json`. Launcher: `scripts/run_AZ_pervisit_counterfactual.sh`.
+
 ---
 
 ## 5 · C2 — Head-agnostic probe

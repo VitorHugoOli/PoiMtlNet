@@ -6,7 +6,7 @@
 > - **CH16** — Cat substrate advantage (Check2HGI > HGI on next-category, head-invariant at AL+AZ; matched-head replicated at FL/CA/TX). Numbers are leak-free and 5-state.
 > - **CH18-cat** — Cat substrate advantage under MTL B9 (also paper-grade significant). The reg-side of the original CH18 ("MTL substrate-specific on reg") was a leak artefact and is **not whitelisted**.
 > - **CH15 reframing** — Reg substrate parity / marginal HGI advantage under matched-head STL `next_stan_flow` (TOST tied at CA/TX, δ=2pp; FL δ=3pp). Sign-flipped from earlier framing under the F44 leak.
-> - **CH19** — Per-visit context mechanism (~72 % of cat substrate gap at Alabama, single-state evidence). Survives all leak-free re-measurements.
+> - **CH19** — Per-visit context mechanism (~72 % AL / ~64 % AZ of cat substrate gap; two-state replicated 2026-05-03). Survives all leak-free re-measurements.
 > - **CH22** — Δm joint score (leak-free 2026-05-01 reframe). FL multi-seed Δm-MRR positive at p = 2.98e-8 (n = 25); other states at n = 5 ceiling.
 >
 > **Not whitelisted (pre-leak-free or superseded):**
@@ -132,11 +132,24 @@ All metrics favor Check2HGI with non-overlapping std envelopes over 5 folds. The
 | Per-visit context (canonical − pooled) | +7.64 pp (~63%) | +11.19 pp (~72%) |
 | Training signal (pooled − HGI) | +4.50 pp (~37%) | +4.31 pp (~28%) |
 
-**Implication for paper:** the "per-visit variation" story is the dominant mechanism (matched-head STL gives even stronger per-visit signal than the head-free linear probe), but **not the whole story** — Check2HGI's training procedure produces per-POI vectors that outperform HGI's even before per-visit context enters the picture. Paper should acknowledge both contributions, not collapse them into one narrative.
+**AZ replication (added 2026-05-03, matched-head `next_gru` STL, 5f × 50ep, seed 42):**
 
-**Source:** `results/probe/alabama_check2hgi_pooled_last.json` (linear probe) + `results/check2hgi_pooled/alabama/next_lr1.0e-04_bs1024_ep50_20260427_*` (matched-head STL). Code: `scripts/probe/build_check2hgi_pooled.py`.
-**Test:** Phase 1 C4 — COMPLETE at AL.
-**Status:** `confirmed at AL` (mechanism partial — ~72% per-visit, ~28% training signal). Extension to FL is `optional/pending` per `SUBSTRATE_COMPARISON_PLAN §6` — AL alone settles the mechanism unless reviewer asks for state-replication.
+| Substrate | Matched-head STL F1 |
+|---|---:|
+| Check2HGI (canonical) | 43.17 ± 0.28 |
+| **Check2HGI POI-pooled** | **34.09 ± 0.63** |
+| HGI | 28.99 ± 0.51 |
+
+| State | Per-visit Δ | Training-signal Δ | Per-visit share |
+|---|---:|---:|---:|
+| AL | +11.19 pp | +4.31 pp | ~72% |
+| AZ | +9.08 pp  | +5.10 pp | ~64% |
+
+**Implication for paper:** the "per-visit variation" story is the dominant mechanism (matched-head STL gives even stronger per-visit signal than the head-free linear probe), but **not the whole story** — Check2HGI's training procedure produces per-POI vectors that outperform HGI's even before per-visit context enters the picture. Both components are positive at AL **and** AZ; §6.1 now carries a two-state replicated mechanism finding instead of single-state AL evidence.
+
+**Source:** `results/probe/alabama_check2hgi_pooled_last.json` (linear probe) + `results/check2hgi_pooled/alabama/next_lr1.0e-04_bs1024_ep50_20260427_*` (AL matched-head STL) + `results/{check2hgi,check2hgi_pooled,hgi}/arizona/next_lr1.0e-04_bs1024_ep50_20260503_*` (AZ matched-head STL). Per-fold JSONs in `docs/studies/check2hgi/results/phase1_perfold/AZ_*_cat_gru_5f50ep_20260503.json`. Code: `scripts/probe/build_check2hgi_pooled.py`, launcher `scripts/run_AZ_pervisit_counterfactual.sh`.
+**Test:** Phase 1 C4 — COMPLETE at AL+AZ.
+**Status:** `confirmed at AL+AZ` (mechanism partial — per-visit dominant ~64–72%, training-signal residual ~28–36%). Two-state replicated mechanism. Extension to FL is `optional/pending` per `SUBSTRATE_COMPARISON_PLAN §6`.
 
 ### CH17 — Check2HGI strongly surpasses published POI-RGNN next-category on Gowalla state-level
 

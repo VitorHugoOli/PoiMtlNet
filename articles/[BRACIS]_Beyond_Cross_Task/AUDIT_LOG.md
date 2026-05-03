@@ -76,6 +76,17 @@ Source: `docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v11, 2026-05-02 �
 - Cat substrate Δ = +14.52 to +29.02 pp; **NOT strictly monotone** (CA +28.81 < FL +29.02). Range is "+14.5 to +29 pp" or "+14 to +29 pp"; "+15 to +33" is wrong (33 was MTL counterfactual).
 - Reg substrate: HGI ≥ Check2HGI by 1.6 to 3.1 pp; TOST passes (tied) at CA/TX δ=2pp; FL δ=3pp; AL/AZ fail TOST.
 
+### §0.3b Per-visit counterfactual (CH19 mechanism, AL+AZ matched-head STL)
+
+Two-state replicated mechanism (added 2026-05-03, AZ runs `results/{check2hgi,check2hgi_pooled,hgi}/arizona/next_lr1.0e-04_bs1024_ep50_20260503_*`; per-fold `docs/studies/check2hgi/results/phase1_perfold/AZ_*_cat_gru_5f50ep_20260503.json`):
+
+| State | Canonical | POI-pooled | HGI | Per-visit Δ | Training-signal Δ | Per-visit share |
+|---|---:|---:|---:|---:|---:|---:|
+| AL | 40.76 ± 1.50 | 29.57 | 25.26 ± 1.06 | +11.19 pp | +4.31 pp | ~72% |
+| AZ | 43.17 ± 0.28 | 34.09 ± 0.63 | 28.99 ± 0.51 | +9.08 pp | +5.10 pp | ~64% |
+
+Both components positive at both states. §6.1 mechanism upgraded from single-state AL to two-state replicated. Launcher: `scripts/run_AZ_pervisit_counterfactual.sh` (~4 min H100). See `docs/studies/check2hgi/research/SUBSTRATE_COMPARISON_FINDINGS.md §4.3`.
+
 ### §0.4 Recipe selection (B9 vs H3-alt)
 
 | State | n_pairs | Δ_reg pp (B9 − H3-alt) | p_reg | Δ_cat pp | p_cat | Verdict |
