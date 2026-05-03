@@ -1,72 +1,87 @@
 % F-arch: cross-attention multi-task backbone schematic.
-% Inputs (per-task stream) -> task encoders -> cross-attention bridge ->
-% shared residual backbone -> per-task heads (next_gru, next_stan_flow).
+% Two task streams (category in warm tone, region in cool tone) bridged by a
+% symmetric cross-attention block; K/V cross-feeds are highlighted in black
+% because the §6.3 encoder co-adaptation finding rests on them.
 %
-% This file is loaded directly via \input by mechanism.tex / method.tex.
-% Requires \usepackage{tikz} and \usetikzlibrary{positioning,arrows.meta,fit,calc}.
+% Loaded via \input by method.tex. Requires tikz with positioning, arrows.meta,
+% fit, and calc libraries.
 
 \begin{tikzpicture}[
-    >={Stealth[length=2mm,width=1.6mm]},
-    node distance=4mm and 6mm,
+    >={Stealth[length=2.2mm,width=1.8mm]},
+    node distance=4mm and 9mm,
     box/.style={
-        draw, rounded corners=2pt, align=center,
-        font=\scriptsize, inner sep=2.5pt,
-        minimum height=6mm, minimum width=18mm,
+        draw, rounded corners=2.5pt, align=center,
+        font=\scriptsize, inner sep=3pt,
+        minimum height=7mm, minimum width=24mm,
     },
-    enc/.style={box, fill=blue!8},
-    attn/.style={box, fill=orange!12, minimum width=24mm, minimum height=8mm},
-    shared/.style={box, fill=gray!12, minimum width=24mm, minimum height=7mm},
-    head/.style={box, fill=green!10},
-    inlabel/.style={font=\scriptsize\itshape},
-    arrow/.style={-{Stealth[length=2mm,width=1.5mm]}, thick},
-    qkv/.style={font=\tiny, inner sep=1pt},
+    inputbox/.style={
+        box, fill=gray!8, draw=gray!60, font=\scriptsize\itshape,
+        minimum width=28mm, minimum height=6mm,
+    },
+    catbox/.style={box, fill=orange!12, draw=orange!60!black},
+    regbox/.style={box, fill=cyan!12, draw=cyan!60!black},
+    sharedbox/.style={box, fill=gray!15, draw=gray!50!black, minimum width=26mm},
+    catattn/.style={catbox, minimum width=30mm, minimum height=10mm},
+    regattn/.style={regbox, minimum width=30mm, minimum height=10mm},
+    cathead/.style={box, fill=orange!18, draw=orange!70!black, minimum height=8mm},
+    reghead/.style={box, fill=cyan!18, draw=cyan!70!black, minimum height=8mm},
+    flow/.style={-{Stealth[length=2.2mm,width=1.8mm]}, thick, gray!70!black},
+    kvflow/.style={
+        -{Stealth[length=2.5mm,width=2mm]}, line width=0.8pt, black,
+    },
+    qlabel/.style={font=\tiny\sffamily, inner sep=0.5pt},
+    kvlabel/.style={font=\tiny\sffamily\bfseries, inner sep=0.5pt, fill=white, inner xsep=2pt},
+    iolabel/.style={font=\tiny\sffamily, inner sep=1pt, text=gray!50!black},
 ]
 
 % --- input row ---
-\node[inlabel] (xc) {$X^{c}\in\mathbb{R}^{9\times 64}$};
-\node[inlabel, right=22mm of xc] (xr) {$X^{r}\in\mathbb{R}^{9\times 64}$};
+\node[inputbox] (xc) {$X^{c}\in\mathbb{R}^{9\times 64}$\\\smaller\textcolor{gray!50!black}{check-in window}};
+\node[inputbox, right=18mm of xc] (xr) {$X^{r}\in\mathbb{R}^{9\times 64}$\\\smaller\textcolor{gray!50!black}{region window}};
 
 % --- per-task encoders ---
-\node[enc, below=4mm of xc] (encc) {Cat encoder\\(2-layer MLP)};
-\node[enc, below=4mm of xr] (encr) {Reg encoder\\(2-layer MLP)};
+\node[catbox, below=4mm of xc] (encc) {Category encoder\\\smaller(2-layer MLP)};
+\node[regbox, below=4mm of xr] (encr) {Region encoder\\\smaller(2-layer MLP)};
 
 % --- cross-attention block ---
-\node[attn, below=6mm of encc] (attnc)
-    {Cross-attn $H^{c}\!\leftarrow\!H^{r}$\\$\widetilde{H}^{c}=H^{c}+\mathrm{MHA}(H^{c},H^{r},H^{r})$};
-\node[attn, below=6mm of encr] (attnr)
-    {Cross-attn $H^{r}\!\leftarrow\!H^{c}$\\$\widetilde{H}^{r}=H^{r}+\mathrm{MHA}(H^{r},H^{c},H^{c})$};
+\node[catattn, below=8mm of encc] (attnc)
+    {Cross-attn $\widetilde{H}^{c}$\\\smaller$H^{c} + \mathrm{MHA}(H^{c}, H^{r}, H^{r})$};
+\node[regattn, below=8mm of encr] (attnr)
+    {Cross-attn $\widetilde{H}^{r}$\\\smaller$H^{r} + \mathrm{MHA}(H^{r}, H^{c}, H^{c})$};
 
 % --- shared backbone ---
-\node[shared, below=7mm of attnc] (sharedc) {Shared residual\\(4 blocks)};
-\node[shared, below=7mm of attnr] (sharedr) {Shared residual\\(4 blocks)};
+\node[sharedbox, below=6mm of attnc] (sharedc) {Shared residual\\\smaller(4 blocks, $d_m{=}256$)};
+\node[sharedbox, below=6mm of attnr] (sharedr) {Shared residual\\\smaller(4 blocks, $d_m{=}256$)};
 
 % --- heads ---
-\node[head, below=4mm of sharedc] (gru) {next\_gru\\(7-class softmax)};
-\node[head, below=4mm of sharedr] (stan) {next\_stan\_flow\\($+\alpha\log T[r_{\text{last}}]$)};
+\node[cathead, below=4mm of sharedc] (gru) {GRU category head\\\smaller(7-way softmax)};
+\node[reghead, below=4mm of sharedr] (stan) {STAN region head\\\smaller$+\,\alpha\log T[r_{\text{last}}]$};
+
+% --- output annotations ---
+\node[iolabel, below=2mm of gru] (out_c) {$\to$ next-category};
+\node[iolabel, below=2mm of stan] (out_r) {$\to$ next-region};
 
 % --- arrows: input -> encoder ---
-\draw[arrow] (xc) -- (encc);
-\draw[arrow] (xr) -- (encr);
+\draw[flow] (xc) -- (encc);
+\draw[flow] (xr) -- (encr);
 
-% --- encoder -> cross-attn ---
-\draw[arrow] (encc) -- (attnc) node[midway, right, qkv] {$Q^{c}$};
-\draw[arrow] (encr) -- (attnr) node[midway, left,  qkv] {$Q^{r}$};
+% --- encoder -> cross-attn (Q on the same side) ---
+\draw[flow] (encc) -- (attnc) node[midway, right, qlabel, gray!50!black] {$Q^{c}$};
+\draw[flow] (encr) -- (attnr) node[midway, left, qlabel, gray!50!black] {$Q^{r}$};
 
-% K/V cross-feeds
-\draw[arrow, dashed, gray] (encr.south) to[bend right=10]
-    node[pos=0.55, above, qkv, black] {$K^{r},V^{r}$} (attnc.east);
-\draw[arrow, dashed, gray] (encc.south) to[bend left=10]
-    node[pos=0.55, above, qkv, black] {$K^{c},V^{c}$} (attnr.west);
+% --- K/V cross-feeds: load-bearing for §6.3, drawn in bold black ---
+\draw[kvflow] (encr.south) to[bend right=14]
+    node[pos=0.55, kvlabel] {$K^{r},V^{r}$} (attnc.east);
+\draw[kvflow] (encc.south) to[bend left=14]
+    node[pos=0.55, kvlabel] {$K^{c},V^{c}$} (attnr.west);
 
-% --- cross-attn -> shared ---
-\draw[arrow] (attnc) -- (sharedc);
-\draw[arrow] (attnr) -- (sharedr);
+% --- cross-attn -> shared -> heads ---
+\draw[flow] (attnc) -- (sharedc);
+\draw[flow] (attnr) -- (sharedr);
+\draw[flow] (sharedc) -- (gru);
+\draw[flow] (sharedr) -- (stan);
 
-% --- shared -> heads ---
-\draw[arrow] (sharedc) -- (gru);
-\draw[arrow] (sharedr) -- (stan);
-
-% --- side annotations ---
-\node[font=\tiny, gray, anchor=west] at ($(attnc.west)+(-9mm,0)$) {Eq.~\eqref{eq:crossattn}};
+% --- equation tag: minimal, no overlap ---
+\node[font=\tiny, text=gray!50!black, anchor=east]
+    at ($(attnc.west) + (-1mm, 0)$) {Eq.~\eqref{eq:crossattn}};
 
 \end{tikzpicture}

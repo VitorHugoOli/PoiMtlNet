@@ -3,7 +3,8 @@
 \caption{External-baseline comparison at the headline scale (FL, CA, TX). Category block reports macro-F1; region block reports Acc@10. Italicised rows are matched-head single-task ceilings on the Check2HGI substrate; the proposed row is the cross-attention multi-task model. POI-RGNN and MHA+PE are our user-disjoint reproductions; the original POI-RGNN evaluation~\cite{capanema2022poirgnn} used non-user-disjoint folds, so absolute values are not directly comparable. ReHDM and the faithful STAN reproduction are reported at FL only above the headline scale (the ReHDM dual-level hypergraph scales quadratically in region cardinality, exceeding our compute budget at CA/TX).}
 \label{tab:external}
 \scriptsize
-\setlength{\tabcolsep}{2pt}
+\setlength{\tabcolsep}{2.5pt}
+\renewcommand{\arraystretch}{1.1}
 \begin{tabular}{l r r r r r r}
 \toprule
 & \multicolumn{3}{c}{Category macro-F1} & \multicolumn{3}{c}{Region Acc@10} \\

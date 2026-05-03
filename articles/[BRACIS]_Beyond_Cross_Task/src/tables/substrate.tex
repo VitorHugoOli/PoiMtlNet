@@ -3,6 +3,7 @@
 \caption{Substrate ablation under matched-head single-task ceilings, five-fold cross-validation, seed-42 paired Wilcoxon at the $n=5$ ceiling ($p=0.0312$ when 5/5 folds agree). For Check2HGI at AL/AZ/FL the cell shows the mean over four extra seeds $\{0,1,7,100\}$ with seed-$\sigma$ for context; the paired test uses the seed-42 fold-pairs. (a) Next-category macro-F1 with a GRU category head; the asterisk marks 5/5 folds positive. (b) Next-region Acc@10 with a STAN-based region head and additive log-transition prior built per fold from training-fold edges; negative $\Delta$ values indicate POI-stable HGI is nominally ahead, and TOST verdicts at $\delta\in\{2,3\}$ pp report whether the gap stays inside the non-inferiority margin (\checkmark) or not ($\times$). The architectural axis (Tables~\ref{tab:mtl-stl} and~\ref{tab:external}) reports a different ceiling estimator: see \S\ref{subsec:setup-stats}.}
 \label{tab:substrate}
 \footnotesize
+\renewcommand{\arraystretch}{1.1}
 
 \textbf{(a) Next-category macro-F1.}
 \begin{tabular}{l r r r r}

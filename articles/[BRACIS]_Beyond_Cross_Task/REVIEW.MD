@@ -537,3 +537,224 @@ Authour considerations:
   shaped by per-visit` shouldnt we let it for the methodology section ? and be more focus on the problematic   
   in this begin of the introductionl, If you agree and belive that is areal problem take this same think and   
   expanded it for the rest of the article, analysing if we are not puting information out of place
+
+--------
+
+# Independent review (Codex — revised draft after the latest fixes)
+
+I reviewed the current rendered PDF dated 2026-05-03, the updated section files, the current tables,
+and the study-side audit material that backs the paper numbers. This pass is intentionally narrower
+than the previous ones: I am not repeating issues that are now fixed. The revised draft is materially
+better. The story is clearer, the ceiling-estimator confusion is mostly repaired, and the AZ mechanism
+replication is a real strengthening step.
+
+The remaining problems are now fewer, but they are more serious because they concern **methodological
+faithfulness and reviewer trust**, not only prose polish.
+
+## Findings
+
+- **High: the method section now describes one training recipe, but the paper's headline results still
+  come from two different MTL recipes depending on the state.** The current manuscript presents a
+  single protocol in `src/sections/method.tex:46` (`AdamW` + `OneCycleLR`) and then attributes the
+  MTL-vs-STL differences to the shared architecture in `src/sections/setup.tex:16` and
+  `src/sections/results.tex:20`. However, the study canon still records a scale-conditional split:
+  FL/CA/TX use the B9 recipe, while AL/AZ use H3-alt (`docs/studies/check2hgi/results/RESULTS_TABLE.md:48`,
+  `:122-126`; also `articles/[BRACIS]_Beyond_Cross_Task/TABLES_FIGURES.md:155-163`). That distinction
+  has disappeared from the paper. This is no longer just a storytelling issue; it makes the method
+  description factually incomplete and weakens the claim that the architectural delta is isolated cleanly.
+
+- **High: the paper strongly foregrounds user-disjoint evaluation, but it still does not disclose the
+  transductive status of the frozen substrates.** `src/sections/setup.tex:11` and `:25` repeatedly
+  emphasize user-disjoint folds and per-fold transition priors, while `src/sections/method.tex:9`
+  treats HGI / Check2HGI as frozen state-level substrates. The study-side notes indicate that these
+  substrates are pre-trained on the same state's check-in graph
+  (`docs/studies/check2hgi/research/FAITHFUL_STAN_FINDINGS.md:67`), and the forgotten-item audit says
+  the held-out-user-fold transductive audit was never executed
+  (`docs/studies/check2hgi/review/2026-04-27_study_overview_and_forgotten_items.md:181`). A careful
+  reviewer can reasonably read the current paper as stronger leakage isolation than the actual protocol
+  justifies. Even if you keep the design, this must be disclosed as a transductive substrate setup.
+
+- **Major: the ReHDM coverage statement is still inconsistent with what the paper itself shows.**
+  `src/sections/discussion.tex:8` says ReHDM is reported at Alabama, Arizona, and Florida only. But
+  the only external-baseline table in the main paper is `src/tables/external.tex`, which reports the
+  headline scale FL/CA/TX and shows ReHDM only at FL. If AL/AZ ReHDM lives only in a supplement or
+  audit file, the discussion needs to say that. As written, the manuscript claims evidence that the
+  reader cannot actually inspect in the paper.
+
+- **Major: the AZ mechanism replication is narrated more strongly than the evidence shown on the page.**
+  In `src/sections/mechanism.tex:13`, the paper says the AZ run turns the Alabama result into a
+  "two-state replicated mechanism." But the manuscript only shows means and standard deviations for
+  AZ; it does not show a paired test, foldwise sign pattern, or even a brief statement that all AZ
+  fold-level deltas stayed positive. The direction is plausible and the result is useful, but the
+  wording should stay descriptive unless the inferential support is also shown.
+
+- **Major: the draft still depends on a supplementary artifact that is not part of the current article
+  package.** `src/sections/related.tex:9` and `src/sections/method.tex:9` both defer core Check2HGI
+  details to "supplementary material." I do not see a supplement in the article folder. If one will be
+  submitted, fine; if not, those are dangling references and the paper is still outsourcing central
+  methodological detail to a document the reviewer will not have.
+
+- **Medium: the introduction is better, but I agree with the author's concern that it still leaks too
+  much method detail too early.** `src/sections/intro.tex:4-10` is improved, yet it still introduces
+  the exact task window, 64-dimensional substrate language, and head-class detail before fully landing
+  the problem/gap/application stakes. This is not a scientific flaw, but it is still below the cleaner
+  BRACIS style you were targeting. I would keep the problem and the asymmetry in the intro, and move
+  more of the exact protocol texture into Sections 3 and 4.
+
+- **Medium: one internal inconsistency from the old draft survives the AZ upgrade.**
+  `src/sections/results.tex:15` still says Section 6 attributes the asymmetry through a counterfactual
+  "at Alabama," while `src/sections/mechanism.tex:6-13` now makes that a two-state AL+AZ section.
+  Small issue, but it signals rushed patching rather than a fully closed paper pass.
+
+- **Medium: the ReHDM bibliography entry is still visibly unfinished in the rendered paper.**
+  The current bibliography still renders `li2025rehdm` as "Li, Gu, Yao, Zhou, Zhu, Zhao, Du" with
+  `p.~0343` rather than a complete proceedings citation
+  (`src/references.bib:230-243`; rendered in `out/samplepaper.bbl`). This remains below conference
+  standard.
+
+## Response to the author's concern about "information out of place"
+
+I mostly agree. The revised draft is no longer badly disorganised, but it still has a **placement**
+problem, not just a **wording** problem. The intro should primarily do four jobs: application problem,
+scientific gap, paper question, and contribution logic. Right now it still spends some of that budget
+on protocol texture that belongs later:
+
+- `src/sections/intro.tex:4` gives the task framing well, but the exact "semantic category / spatial
+  region" operational details begin to slide toward setup detail.
+- `src/sections/intro.tex:10` packs in the five-state split, user-disjoint folds, matched-head STL,
+  exact head classes, and the encoder-frozen note all at once. That paragraph still reads more like a
+  compact method preview than a clean research framing paragraph.
+- Similar compression appears elsewhere: the paper often tries to settle methodological objections at
+  the first point of mention instead of letting Method / Setup carry that burden.
+
+So yes: I would still do one more pass specifically for **information placement**. Accepted BRACIS
+papers usually feel simpler not because the science is simpler, but because each section is disciplined
+about what kind of information it is allowed to carry.
+
+## Overall judgment
+
+This is now closer to a submission-grade BRACIS paper than it was in the previous round. The major
+remaining risks are not that the story is weak; the story is now mostly right. The risks are:
+
+1. the paper is slightly over-cleaning the experimental narrative and in the process hiding recipe and
+   protocol distinctions that still matter for reproducibility;
+2. the user-disjoint framing is stronger than the paper's disclosure about the frozen substrates;
+3. several statements rely on evidence that is either only in the study docs or only implied, not
+   actually shown to the reviewer in the submission artifact.
+
+If those issues are fixed, the paper will read much more like a strong conference submission and much
+less like a polished summary built on top of unresolved experimental bookkeeping.
+
+--------
+
+# Deferred work for a future agent
+
+## Per-visit figure: AL+AZ two-panel upgrade (deferred 2026-05-03)
+
+**Status.** The current `src/figs/render_per_visit.py` and `src/figs/per-visit.png` show the
+single-state Alabama panel. After the AZ counterfactual replication landed in §6.1, mechanism.tex
+already documents both states (canonical $43.17$, POI-pooled $34.09$, HGI $28.99$) but the figure
+still visualises only Alabama.
+
+**Proposed change.** Render two side-by-side panels (AL and AZ), three bars each (HGI / POI-pooled
+Check2HGI / canonical Check2HGI), with per-visit and training-signal brackets and the share split.
+This shows the two-state replication visually rather than relying on §6.1 prose alone.
+
+**Why averaging across n=2 is the wrong move.** The author's instinct in earlier review notes was
+"average across the states" — that hides per-state shares (72% vs 64%) which *are* the mechanism
+evidence. The replication signal is "both positive, similar magnitude," not "the mean is X." The
+two-panel format preserves the per-state shares.
+
+**Proposed code (drop-in for `src/figs/render_per_visit.py`).** A two-panel version with shared
+y-axis, panels for `("Alabama (AL)", 25.26, 29.57, 40.76)` and `("Arizona (AZ)", 28.99, 34.09,
+43.17)`, was prototyped and rendered cleanly at `figsize=(8.5, 3.4)`. The figure caption in
+`src/sections/mechanism.tex:18` would need to be widened to describe both panels, and
+`\includegraphics[width=0.55\linewidth]` should grow to about `0.75\linewidth` for legibility.
+
+**Why deferred.** Author requested the focus stay on Codex's new methodological-faithfulness round
+first; the figure upgrade is presentational, not credibility-blocking, and has a known clean
+solution. It can be picked up post-Codex-fixes if the page budget allows.
+
+**Page-budget caveat.** The two-panel figure is wider (`figsize=(8.5, 3.4)` vs `(6.4, 3.6)`) and
+needs `width=0.75\linewidth` in mechanism.tex; a future agent should re-check the page count after
+the swap, since the paper sits at the 15-page hard cap.
+
+--------
+
+# Codex round-3 closure (2026-05-03)
+
+I (Claude) verified each new Codex point against the actual files and study docs, then made the
+edits below. Page count went 15→16 with disclosures, then back to 15 after structural cuts.
+
+## What was verified and fixed
+
+- **Recipe split (HIGH).** `TABLES_FIGURES.md:155-163` and `RESULTS_TABLE.md §0.4` confirm FL/CA/TX
+  use the B9 recipe (cosine + alt-SGD + α-no-WD); AL/AZ use H3-alt (per-head LR, constant). The paper
+  described one protocol. **Fix:** added a one-sentence scale-conditional disclosure in
+  `method.tex:46` plus a forward-pointer to the anonymous code release for exact settings.
+
+- **Transductive substrate (HIGH).** `FAITHFUL_STAN_FINDINGS.md:67` confirms HGI / Check2HGI are
+  pre-trained on each state's full check-in graph; `2026-04-27_study_overview_and_forgotten_items.md
+  P0.7` confirms the held-out-user-fold audit was never run. **Fix:** added a one-sentence
+  transductive-substrate disclosure in `setup.tex:11` (after the user-disjoint fold sentence) and a
+  matching limitation pointer in `discussion.tex:8`.
+
+- **ReHDM coverage (Major).** Verified discussion claimed AL/AZ/FL but external table only shows FL.
+  AL/AZ ReHDM data exists in study docs but is not in the article (article restricts external table
+  to FL/CA/TX headline scale). **Fix:** updated `discussion.tex:8` to "Florida only above the
+  headline scale" with the scaling reason, matching what `external.tex` actually shows.
+
+- **AZ replication wording (Major).** Verified "two-state replicated mechanism" was narrated more
+  strongly than the AZ evidence (means + stds only, no paired test, no foldwise sign pattern shown).
+  **Fix:** softened `mechanism.tex:13` to "consistent with the AL ordering, with both components
+  positive in matched-head means" and explicitly noted "we do not run a paired test across the AZ
+  folds and report the second state as descriptive replication, not inferential confirmation."
+
+- **Supplementary material references (Major).** Verified no supplement exists in the article
+  package. **Fix:** replaced both deferrals (`related.tex:9`, `method.tex:9`) with "anonymous code
+  release" pointers — matching the `\url{...}` already at `method.tex:48`.
+
+- **Intro method-detail leak (Medium).** Verified intro paragraph 4 packed 64-dim, head-class
+  details, and the encoder-frozen note all at once. **Fix:** trimmed `intro.tex:10` to keep the
+  controlled-ablation framing and matched-head construction sentence; deferred head-class details
+  and the encoder-frozen note to Sections 3-6.
+
+- **Abstract (Medium, knock-on from AL+AZ replication).** `samplepaper.tex:66` still said "at
+  Alabama, attributes about 72 percent." **Fix:** updated to "at Alabama and Arizona attributes
+  about 72 and 64 percent."
+
+- **`results.tex:15` "at Alabama" inconsistency (Medium).** Verified — already fixed in prior round
+  (now reads "replicated at Alabama and Arizona"). Codex was looking at a stale grep.
+
+- **ReHDM bib entry (Medium).** Verified entry remains incomplete (Li et al. surnames, p.~0343
+  placeholder). Per advisor: not a review blocker; the UNVERIFIED comment stays in `references.bib`,
+  defer the IJCAI 2025 lookup to the camera-ready pass.
+
+## What was cut for page budget
+
+The two HIGH disclosures pushed the PDF to 16 pages. To get back under the 15-page cap I:
+- Resized the architecture figure from `\resizebox{0.78\linewidth}` to `0.68\linewidth`.
+- Stripped "leak-free protocol" branding from `setup.tex:11` (kept the protocol fact, dropped the
+  marketing label).
+- Cut the §6 section-introduction roadmap sentence and the "exact split is not generalised"
+  sentence from `mechanism.tex:22`.
+- Tightened the §6.2 drop-in-ablation paragraph (one giant sentence collapsed; numbers preserved).
+- Cut the §7 roadmap sentence "We synthesise Sections 5 and 6 into three readings...".
+- Dropped the conclusion's PLE/Cross-Stitch named techniques (kept the "asymmetric routing" point
+  in plain prose) — saved two bib entries.
+- Dropped the `\cite{wilcoxon1945ranking}` (the paired Wilcoxon test is universally known) and
+  replaced the NashMTL example sentence in §2.2 with a direct lead-in to FAMO/Aligned-MTL — saved
+  two more bib entries.
+
+## Table spacing
+
+Applied `\renewcommand{\arraystretch}{1.1}` to all four tables (T1 datasets, T2 substrate, T3
+mtl_vs_stl, T4 external) for vertical breathing room between header and data rows. T4's
+`\tabcolsep` widened from 2pt to 2.5pt. Page count holds at 15.
+
+## What is NOT done in this pass
+
+- The two-panel per-visit figure (deferred above for a future agent).
+- ReHDM IJCAI 2025 author-name and pages verification (camera-ready pass).
+- The AZ paired-Wilcoxon test on the per-visit counterfactual folds (would convert "descriptive"
+  back to "inferential" replication; one-day pre-camera-ready run if reviewers ask).
