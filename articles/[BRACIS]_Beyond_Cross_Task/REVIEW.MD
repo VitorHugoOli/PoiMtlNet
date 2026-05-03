@@ -419,6 +419,71 @@ than ship it as a limitation.
    I would add one rule: any sentence with three numbers and two p-values should split into two
    sentences.
 
+--------
+
+# Independent review (Codex — final pass on the current PDF)
+
+I re-read the current section files, tables, bibliography, and the rendered `samplepaper.pdf` dated
+2026-05-03. Some earlier review items are now resolved in the manuscript itself. Most notably, the
+Florida Markov-floor issue is no longer hidden: it is now stated explicitly in `src/sections/results.tex:26`
+and carried into `src/sections/discussion.tex:10`. The points below are therefore limited to what I
+still think is blocking or fragile in the **current** version.
+
+## New high-priority issues still present
+
+- **High: the paper's core manipulated variable is still under-specified in the main text.** The title,
+  abstract, and headline claim all depend on Check2HGI, but `src/sections/related.tex:9` and
+  `src/sections/method.tex:9` only give a conceptual gloss and then defer "the recipe" to
+  supplementary material. For a paper built around a new embedding granularity, reviewers need enough
+  in the main manuscript to know exactly what changed from HGI: what graph/view is constructed at the
+  check-in level, what the positive/negative contrast is, how temporal context enters, and how the
+  per-region vectors used by the region head are derived. As written, the central independent variable
+  remains partly a black box.
+
+- **High: the paper uses the same phrase, "matched-head STL ceiling," for materially different
+  estimators across sections, and the prose does not warn the reader.** The substrate table reports the
+  single-seed five-fold substrate axis, while Tables 3 and 4 report multi-seed pooled ceilings for the
+  architectural contrast. This is visible immediately at Florida: category is `63.43` in
+  `src/tables/substrate.tex:14` but `67.16` in `src/tables/mtl_vs_stl.tex:13`; region is `69.22` in
+  `src/tables/substrate.tex:29` but `70.62` in `src/tables/mtl_vs_stl.tex:13`. The underlying science
+  may still be correct, but the presentation currently invites a reviewer to think the tables
+  contradict each other. Either unify the reported ceiling convention or explain very explicitly that
+  Section 5.1 and Section 5.2 are using different estimands for different purposes.
+
+- **High: the caption of `src/tables/substrate.tex` is internally inconsistent and should be treated as
+  a correctness issue, not a style issue.** It says "Check2HGI at AL/AZ/FL is multi-seed mean ± seed
+  sigma over seeds `{0, 1, 7, 100}`", but the Florida value shown in the table is `63.43`, which is
+  the single-seed matched-head STL figure used on the substrate axis, not the multi-seed ceiling used
+  elsewhere (`67.16`). At minimum the caption is wrong. A reviewer who notices this will start
+  distrusting the entire evidence table.
+
+## Major issues
+
+- **Major: the manuscript still contains "camera-ready" promise language inside the submission
+  artifact.** `src/tables/external.tex:33` says "ReHDM at CA/TX deferred (camera-ready, compute
+  budget)." That is bad submission rhetoric. Reviewers do not score future intentions; they score the
+  current paper. If CA/TX ReHDM is out of scope, state that once as a limitation and stop there. Do
+  not tell the reviewer that the comparison will be supplied later.
+
+- **Major: the paper is already exactly 15 pages, so the next fix must be structural, not additive.**
+  The current PDF is at the hard cap. Any attempt to address the missing Check2HGI specification or the
+  ceiling-reporting confusion by only adding prose will likely make the paper worse. The next pass
+  should cut low-yield protocol wording first and spend that space on self-contained method detail and
+  cleaner table logic.
+
+## Medium issues
+
+- **Medium: C3 still reads more like a methodological caution than a conference-level contribution.**
+  I agree with the earlier note that the encoder-frozen isolation point is real and useful, but in the
+  current paper it is argued briefly and without a substantial experimental panel of its own. If page
+  pressure forces prioritization, this is the first contribution I would demote from the intro bullet
+  list into supporting method/discussion prose.
+
+- **Medium: the bibliography still contains a visibly unfinished entry in the rendered PDF.**
+  `li2025rehdm` currently renders as "Li, Gu, Yao, Zhou, Zhu, Zhao, Du" with `p.~0343`, which looks
+  like placeholders rather than a finished IJCAI reference. This is not just a `.bib` hygiene issue;
+  it is visible in the paper the reviewer reads.
+
 ## What I would actually do, in order
 
 1. **Add the Markov-1-at-FL paragraph to §5.2 and §7.** This is the highest-priority fix and the
