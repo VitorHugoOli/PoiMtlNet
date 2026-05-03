@@ -11,7 +11,7 @@ We adopt Check2HGI (a check-in-level extension of the hierarchical graph-infomax
 
 The main contributions of this paper are as follows:
 \begin{itemize}
-    \item \textbf{C1. A controlled five-state matched-head ablation that separates substrate from head capacity.} Check-in-level Check2HGI lifts single-task category macro-F1 over per-place HGI by $+14.5$ to $+29$ percentage points (pp) at every state (paired Wilcoxon $p = 0.0312$ each, 5/5 folds positive); on next-region the same substrate ties or marginally trails per-place embeddings. A counterfactual at Alabama attributes about $72\,\%$ of the category gap to per-visit context.
+    \item \textbf{C1. A controlled five-state matched-head ablation that separates substrate from head capacity.} Check-in-level Check2HGI lifts single-task category macro-F1 over per-place HGI by $+14.5$ to $+29$ percentage points (pp) at every state (paired Wilcoxon $p = 0.0312$ each, 5/5 folds positive); on next-region the same substrate ties or marginally trails per-place embeddings. A pooled-vs-canonical counterfactual replicates at two states (Alabama and Arizona), attributing $\sim$72\,\% and $\sim$64\,\% of the category gap to per-visit context.
     \item \textbf{C2. A direct measurement of the multi-task tradeoff under the load-bearing substrate.} With the substrate fixed, joint cross-attention multi-task training adds a small category lift at four of five states and pays a sign-consistent $7$ to $17$ pp cost on next-region Acc@10 at every state. Drop-in adaptive balancers and a head-side fix do not close the gap, indicating the cost is structural to the cross-attention interaction rather than a loss-recipe artefact.
 \end{itemize}
 
