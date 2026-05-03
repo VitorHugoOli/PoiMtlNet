@@ -530,3 +530,10 @@ borderline-reject zone the acceptance rate makes harder than it has to be.
 
 I would not change the title. "Substrate Carries, Architecture Pays" already commits. The body should
 match the title's confidence.
+------
+Authour considerations:
+
+ We are dicussing in the intro about our methodology, like: `a length-9 window` and `7-way decision      
+  shaped by per-visit` shouldnt we let it for the methodology section ? and be more focus on the problematic   
+  in this begin of the introductionl, If you agree and belive that is areal problem take this same think and   
+  expanded it for the rest of the article, analysing if we are not puting information out of place

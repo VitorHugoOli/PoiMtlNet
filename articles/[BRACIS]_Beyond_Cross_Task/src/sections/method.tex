@@ -6,7 +6,7 @@ We describe the substrate (adopted), the backbone (the object of study), and the
 \subsection{The Check2HGI substrate}
 \label{subsec:method-substrate}
 
-Check2HGI extends the hierarchical graph-infomax line of HGI~\cite{huang2023hgi} (built on DGI~\cite{velickovic2019dgi}) at the check-in level: positive contrastive views are sampled per check-in, so temporal context and co-visit neighbours perturb the view, and the same POI visited twice can yield two distinct 64-dimensional vectors. Trained once per state and frozen, the substrate emits two products that feed the backbone, both 64-dimensional: a per-check-in vector $\mathbf{e}_{c}$ for the category stream and a per-region vector $\mathbf{e}_{r}$ from the region-graph level for the region stream. We treat \emph{Check2HGI} as a fixed input substrate; the recipe is described in supplementary material.
+Check2HGI extends the hierarchical graph-infomax line of HGI~\cite{huang2023hgi} (built on DGI~\cite{velickovic2019dgi}) by inserting a check-in level beneath the POI level: the hierarchy becomes Check-in $\to$ POI $\to$ Region $\to$ City. Bottom-level nodes are individual visits; edges follow each user's chronological visit sequence with a temporal-decay weighting, and node features carry the visit's category and timestamp. Embeddings propagate upward by attention pooling (check-ins to POIs), a region-graph convolution, and area-weighted aggregation (regions to city); mutual information is maximised across the three adjacent boundaries via bilinear discriminators against random-shuffle negatives. Two products feed our backbone after the encoder is frozen, both 64-dimensional: a per-check-in vector $\mathbf{e}_{c}$ from the bottom level for the category stream, and a per-region vector $\mathbf{e}_{r}$ from the third level for the region stream. We treat Check2HGI as a fixed input substrate; the full recipe is in supplementary material.
 
 \subsection{Cross-attention multi-task backbone}
 \label{subsec:method-backbone}
@@ -24,7 +24,7 @@ so each stream queries the other. The cross-attended streams then pass through a
 
 \begin{figure}[t]
 \centering
-\resizebox{0.62\linewidth}{!}{\input{figs/architecture.tex}}
+\resizebox{0.55\linewidth}{!}{\input{figs/architecture.tex}}
 \caption{Cross-attention multi-task backbone. Two task-specific encoders project per-task input streams $X^{c}, X^{r}$ into $H^{c}, H^{r}$. A symmetric cross-attention block (Eq.~\ref{eq:crossattn}) lets each stream query the other through key/value projections of the surviving stream; a four-block shared residual backbone then splits into the GRU category head and the STAN-based region head with additive log-transition prior. Dashed arrows mark the K/V cross-feeds responsible for the encoder co-adaptation discussed in Section~\ref{subsec:mechanism-isolation}.}
 \label{fig:arch}
 \end{figure}
