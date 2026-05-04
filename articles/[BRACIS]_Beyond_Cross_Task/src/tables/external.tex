@@ -1,6 +1,6 @@
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
-\caption{External-baseline comparison at FL/CA/TX. Italicised rows are matched-head STL ceilings on Check2HGI; the proposed row is our MTL model. POI-RGNN and MHA+PE are user-disjoint reproductions (published POI-RGNN~\cite{capanema2023poirgnn} used non-user-disjoint folds, so absolute values are not directly comparable). STAN is the STAN backbone~\cite{luo2021stan} on our HGI substrate with our training-fold-only log-prior. STAN/ReHDM are at FL only above the headline scale (ReHDM scales quadratically in region cardinality); a literature-faithful STAN reproduction is omitted on page-budget grounds (\S\ref{sec:discussion}).}
+\caption{External-baseline comparison at FL/CA/TX. Italicised rows are matched-head STL ceilings on Check2HGI; the proposed row is our MTL model. POI-RGNN and MHA+PE are user-disjoint reproductions; STAN is the STAN backbone~\cite{luo2021stan} on our HGI substrate with our training-fold-only log-prior. STAN/ReHDM run at FL only (ReHDM scales quadratically in region cardinality).}
 \label{tab:external}
 \scriptsize
 \setlength{\tabcolsep}{2.5pt}
@@ -31,6 +31,5 @@ ReHDM \cite{li2025rehdm}     & --                & --                & --       
 \end{tabular}
 
 \medskip
-\scriptsize \textbf{Bold cells}: best per column. The row label \textbf{MTL (ours)} marks the proposed model. $^{\dagger}$ ReHDM not reported at CA/TX: the dual-level hypergraph scales quadratically in region cardinality, exceeding our compute budget.
-
+\scriptsize \textbf{Bold cells}: best per column. $^{\dagger}$ ReHDM not reported at CA/TX (compute budget).
 \end{table}
