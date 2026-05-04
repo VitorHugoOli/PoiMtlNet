@@ -26,21 +26,13 @@ These items are not blocking submission; they are the natural polish path
 for the camera-ready cycle (or follow-up work) once the reviewer feedback
 arrives.
 
-## D1. Architecture figure: cross-attention label collision (cosmetic)
+## D1. Architecture figure: cross-attention label collision — **CLOSED Round 5g (2026-05-04)**
 
-`src/figs/architecture.tex` places both the box text *"Cross-attention
-(Eq.~\ref{eq:crossattn})"* and the bidirectional K/V cross-feed label
-*"$K^{c}/V^{c} \leftrightarrow K^{r}/V^{r}$"* at the box centre (`pos=0.5`
-on a draw through `cross.center`, `above=0.5pt` offset). The kvlabel has
-`fill=white` and overlays the box text where they intersect — readable, but
-visually busy. Three trivial one-line fixes (any one suffices):
-
-1. Drop `(Eq.~\ref{eq:crossattn})` from the box text — the figure caption
-   already references the equation.
-2. Increase the `crossbox` `minimum height` from `10mm` to `14mm` so both
-   labels have vertical room.
-3. Move the K/V arrow to `below=0.5pt` of the box bottom, separating it
-   from the box title.
+Resolved with option 1 (drop `(Eq.~\ref{eq:crossattn})` from the box title);
+the cross-ref to the equation is preserved in the figure caption. See
+"Round 5g — closure" at the bottom of this file for the evaluation that
+considered an alternative TikZ rewrite (`/Users/vitor/Downloads/architecture.tex`)
+and the reasoning for keeping Version A.
 
 ## D2. 5-state per-visit decomposition figure
 
@@ -188,3 +180,86 @@ the prior commits on this branch.
   fold splits, regression tests all referenced.
 
 **Recommendation: submit.**
+
+--------
+
+# Round 5g — closure (2026-05-04)
+
+Single item: **N4 (D1) architecture-figure label collision — CLOSED.**
+
+## Alternative TikZ evaluated and rejected
+
+The author surfaced a candidate replacement at
+`/Users/vitor/Downloads/architecture.tex` ("Version B"). I dispatched an
+expert-agent review comparing it against the in-repo "Version A"
+(`src/figs/architecture.tex`). Verdict: **keep A, apply one-line N4
+patch**. Key rationale (full review in agent transcript):
+
+- **Effective rendered font size after `\resizebox{0.60\linewidth}{!}{...}`
+  is the binding constraint, not the source-level font choice.** Version
+  B's natural TikZ width is ${\sim}118$ mm (driven by the wider 118 mm
+  cross-block); LNCS `\linewidth` is ${\sim}117$ mm so target after resize
+  is ${\sim}70$ mm. Scale factor: B = $70/118 \approx 0.595$, A =
+  $70/78 \approx 0.90$. Effective font: B's `\small` (9 pt) renders at
+  ${\sim}5.4$ pt; A's `\scriptsize` (7 pt) renders at ${\sim}6.3$ pt. **B
+  is below LNCS readability floor (typ. 6 pt) on a figure already squeezed
+  to fit the page cap.**
+- **Vertical footprint**: B adds ${\sim}2$ mm rendered height — won't
+  push to 16 pp on its own, but the font shrink is already disqualifying.
+- **N4 fix in B**: structurally cleaner (kvleft/kvright side-labels +
+  centred $\longleftrightarrow$ symbol below the title), genuinely
+  resolves the collision rather than relocating it.
+- **LNCS aesthetic**: B's `\small\bfseries` on every block title +
+  T-stem fork between backbone and heads reads as "tutorial slide";
+  A's understated style is more idiomatic Springer LNCS.
+
+## N4 patch applied (option 1)
+
+Of the three documented one-line fixes, the cheapest at our 0.60 cap:
+
+```diff
+% --- cross-attention (single block spanning both streams) ---
++% N4 fix (Round 5g): "(Eq.)" cross-ref dropped from box title to free
++% the box centre for the K/V cross-feed label (caption already cites Eq.~2).
+ \node[crossbox, below=8mm of $(xc)!0.5!(xr)$] (cross)
+-    {Cross-attention (Eq.~\ref{eq:crossattn})};
++    {Cross-attention};
+```
+
+Option 2 (bump `crossbox` `minimum height` 10 mm → 14 mm) was tried
+first per the original advisor recommendation; it overflowed the PDF to
+16 pages. Reverted and replaced with option 1, which has zero
+dimensional impact.
+
+## Verification
+
+- **PDF page count: 15** (unchanged from Round 5f).
+- **bibtex.log: clean** (no errors, no warnings).
+- **Visual**: page 6 architecture figure now shows the cross-attention
+  block with title "Cross-attention" alone; the bidirectional
+  $K^{c}/V^{c} \leftrightarrow K^{r}/V^{r}$ label sits cleanly above
+  the title with the white-fill not overlapping any descender of the
+  shorter title text. Caption unchanged at `method.tex:36` and still
+  references Eq.~\ref{eq:crossattn}.
+- **Equation cross-ref preserved**: caption (`method.tex:36`) and
+  body prose (`method.tex:23` "Eq.~\eqref{eq:crossattn} is the
+  architectural object the result tables interrogate") both still
+  cite Eq.~2; the only loss was the parenthetical inside the figure
+  box, which was redundant.
+
+## What is *not* changed
+
+- `src/figs/architecture.tex` font sizes (`\scriptsize`/`\tiny`)
+  retained; not bumped to `\small` despite the agent's note that 6.3 pt
+  is "small" — bumping would force figure shrink to keep page cap.
+- Resize ratio retained at `0.60\linewidth` (Round 5f locked).
+- Heads, backbone, K/V flow geometry untouched.
+- `/Users/vitor/Downloads/architecture.tex` left in place as a
+  reference / camera-ready candidate; not adopted.
+
+## Working tree state
+
+D1 marker in the "Deferred" section above flipped from open to **CLOSED
+Round 5g**. No commit made; staged in working tree for author commit.
+The submission is now in shape against every HIGH / MEDIUM / LOW item
+across Rounds 1–5g.

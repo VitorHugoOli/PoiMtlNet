@@ -49,8 +49,10 @@
 \node[inputbox, right=18mm of xc] (xr) {$X^{r}\in\mathbb{R}^{9\times 64}$ \, (region window)};
 
 % --- cross-attention (single block spanning both streams) ---
+% N4 fix (Round 5g): "(Eq.)" cross-ref dropped from box title to free
+% the box centre for the K/V cross-feed label (caption already cites Eq.~2).
 \node[crossbox, below=8mm of $(xc)!0.5!(xr)$] (cross)
-    {Cross-attention (Eq.~\ref{eq:crossattn})};
+    {Cross-attention};
 
 % --- shared residual backbone ---
 \node[sharedbox, below=5mm of cross] (shared) {Shared residual backbone};
