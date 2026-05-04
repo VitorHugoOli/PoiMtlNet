@@ -104,6 +104,10 @@ Embeddings.}
 % ----------------------------------------------------------------------------
 % Bibliography — splncs04 style. references.bib is owned by sub-agent A8.
 % ----------------------------------------------------------------------------
+% Allow the last text page to grow ~2 lines so the bibliography fits in 15
+% (LNCS hard cap). The footnote-on-§1 placement matches CBIC/CoUrb pattern
+% and reflows page boundaries enough that a small enlarge is needed.
+\enlargethispage*{2\baselineskip}
 \bibliographystyle{splncs04}
 \bibliography{references}
 
