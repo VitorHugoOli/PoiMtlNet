@@ -1,0 +1,340 @@
+"""Cross-attention MTLnet variant.
+
+Replaces the shared-backbone architecture (FiLM + residual stack) with
+two parallel task streams that exchange information via cross-attention.
+Each cross-attention block is bidirectional: task A queries task B's
+keys/values, task B queries task A's. No parameter sharing across
+tasks (each stream keeps its own FFN); information sharing is
+content-based via attention instead of parameter-based via shared
+layers.
+
+Rationale: the shared-backbone MTL architecture exhibits a
+capacity-ceiling property (see docs/studies/check2hgi/issues/
+BACKBONE_DILUTION.md + FINAL_ABLATION_SUMMARY.md). Our λ=0.0 isolation
+shows 5.4 pp of the 8 pp STL → MTL gap is architectural overhead from
+the shared backbone. Cross-attention removes the shared backbone
+entirely, keeping only per-task streams that cross-attend. Expected
+lift per research/SOTA_MTL_ALTERNATIVES_V2.md: +3–5 pp region Acc@10.
+
+Inductive bias: FiLM modulates a shared representation with a scalar
+conditioned on task identity; cross-attention modulates with *content*.
+For heterogeneous-input MTL (per-task modality = our P4 winner),
+cross-attention is the natural generalisation.
+
+References:
+- MulT (Tsai et al., ACL 2019, arXiv:1906.00295) — canonical
+  cross-modal transformer.
+- InvPT (Ye & Xu, ECCV 2022, arXiv:2203.07997) — MTL dense prediction
+  with task-interaction blocks.
+"""
+
+from __future__ import annotations
+
+from typing import Any, Iterator, Optional, Tuple
+
+import torch
+from torch import nn
+
+from configs.model import InputsConfig
+from models.mtl.mtlnet.model import MTLnet
+from models.registry import register_model
+from tasks import LEGACY_CATEGORY_NEXT, TaskSet
+
+
+class _CrossAttnBlock(nn.Module):
+    """One bidirectional cross-attention + FFN block.
+
+    Forward takes two streams `a` and `b` of shape [B, T, D]:
+      a ← LN( a + CrossAttn(Q=a, K=b, V=b) )
+      b ← LN( b + CrossAttn(Q=b, K=a, V=a) )
+      a ← LN( a + FFN(a) )
+      b ← LN( b + FFN(b) )
+
+    Separate FFNs per task, no parameter sharing. Pad masks
+    (`a_pad_mask`, `b_pad_mask`) are True where the step is padding
+    so attention skips those positions.
+    """
+
+    def __init__(self, dim: int, num_heads: int, ffn_dim: int, dropout: float):
+        super().__init__()
+        self.cross_ab = nn.MultiheadAttention(
+            dim, num_heads, dropout=dropout, batch_first=True
+        )
+        self.cross_ba = nn.MultiheadAttention(
+            dim, num_heads, dropout=dropout, batch_first=True
+        )
+        self.ln_a1 = nn.LayerNorm(dim)
+        self.ln_b1 = nn.LayerNorm(dim)
+        self.ln_a2 = nn.LayerNorm(dim)
+        self.ln_b2 = nn.LayerNorm(dim)
+        self.ffn_a = nn.Sequential(
+            nn.Linear(dim, ffn_dim),
+            nn.GELU(),
+            nn.Dropout(dropout),
+            nn.Linear(ffn_dim, dim),
+            nn.Dropout(dropout),
+        )
+        self.ffn_b = nn.Sequential(
+            nn.Linear(dim, ffn_dim),
+            nn.GELU(),
+            nn.Dropout(dropout),
+            nn.Linear(ffn_dim, dim),
+            nn.Dropout(dropout),
+        )
+
+    def forward(
+        self,
+        a: torch.Tensor,
+        b: torch.Tensor,
+        a_pad_mask: Optional[torch.Tensor] = None,
+        b_pad_mask: Optional[torch.Tensor] = None,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        # a queries b
+        a_upd, _ = self.cross_ab(
+            query=a, key=b, value=b, key_padding_mask=b_pad_mask
+        )
+        a = self.ln_a1(a + a_upd)
+        # b queries a (uses updated a as K/V so the two streams converge
+        # symmetrically; this is MulT's "late" bidirectional pattern)
+        b_upd, _ = self.cross_ba(
+            query=b, key=a, value=a, key_padding_mask=a_pad_mask
+        )
+        b = self.ln_b1(b + b_upd)
+        # Per-stream FFN
+        a = self.ln_a2(a + self.ffn_a(a))
+        b = self.ln_b2(b + self.ffn_b(b))
+        return a, b
+
+
+@register_model("mtlnet_crossattn")
+class MTLnetCrossAttn(MTLnet):
+    """MTLnet variant using cross-attention between task streams.
+
+    Construction mostly inherits from MTLnet (task encoders, heads,
+    register of task_set etc.). `_build_shared_backbone` is overridden
+    to register cross-attention blocks in place of FiLM + shared_layers.
+    `forward` is overridden to route through the cross-attention stack.
+    """
+
+    def __init__(
+        self,
+        feature_size: int,
+        shared_layer_size: int,
+        num_classes: int,
+        num_heads: int,
+        num_layers: int,
+        seq_length: int,
+        num_shared_layers: int,
+        encoder_layer_size: int = 256,
+        num_encoder_layers: int = 2,
+        encoder_dropout: float = 0.1,
+        shared_dropout: float = 0.15,
+        num_crossattn_blocks: int = 2,
+        num_crossattn_heads: int = 4,
+        crossattn_ffn_dim: Optional[int] = None,
+        category_head: Optional[str] = None,
+        next_head: Optional[str] = None,
+        category_head_params: Optional[dict[str, Any]] = None,
+        next_head_params: Optional[dict[str, Any]] = None,
+        task_set: Optional[TaskSet] = None,
+    ):
+        self._num_crossattn_blocks = int(num_crossattn_blocks)
+        self._num_crossattn_heads = int(num_crossattn_heads)
+        self._crossattn_ffn_dim = (
+            int(crossattn_ffn_dim) if crossattn_ffn_dim is not None else int(shared_layer_size)
+        )
+        super().__init__(
+            feature_size=feature_size,
+            shared_layer_size=shared_layer_size,
+            num_classes=num_classes,
+            num_heads=num_heads,
+            num_layers=num_layers,
+            seq_length=seq_length,
+            num_shared_layers=num_shared_layers,
+            encoder_layer_size=encoder_layer_size,
+            num_encoder_layers=num_encoder_layers,
+            encoder_dropout=encoder_dropout,
+            shared_dropout=shared_dropout,
+            category_head=category_head,
+            next_head=next_head,
+            category_head_params=category_head_params,
+            next_head_params=next_head_params,
+            task_set=task_set,
+        )
+
+    def _build_shared_backbone(
+        self,
+        shared_layer_size: int,
+        num_shared_layers: int,
+        shared_dropout: float,
+    ) -> None:
+        """Override MTLnet's FiLM + shared_layers with cross-attention blocks."""
+        # We don't use FiLM or a residual stack. Each task stream keeps
+        # its encoder output; cross-attention exchanges content.
+        self.crossattn_blocks = nn.ModuleList(
+            [
+                _CrossAttnBlock(
+                    dim=shared_layer_size,
+                    num_heads=self._num_crossattn_heads,
+                    ffn_dim=self._crossattn_ffn_dim,
+                    dropout=shared_dropout,
+                )
+                for _ in range(self._num_crossattn_blocks)
+            ]
+        )
+        # Final layer norms on each stream
+        self.cat_final_ln = nn.LayerNorm(shared_layer_size)
+        self.next_final_ln = nn.LayerNorm(shared_layer_size)
+
+    def forward(
+        self,
+        inputs: Tuple[torch.Tensor, torch.Tensor],
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        category_input, next_input = inputs
+
+        pad_value = InputsConfig.PAD_VALUE
+        mask = (next_input.abs().sum(dim=-1) == pad_value)
+        next_input = next_input.masked_fill(mask.unsqueeze(-1), 0)
+
+        mask_a = None
+        if self._task_a_is_sequential:
+            mask_a = (category_input.abs().sum(dim=-1) == pad_value)
+            category_input = category_input.masked_fill(mask_a.unsqueeze(-1), 0)
+
+        enc_cat = self.category_encoder(category_input)
+        enc_next = self.next_encoder(next_input)
+
+        # Run cross-attention stack. mask_a / mask are True at padding
+        # positions, which is what MultiheadAttention's key_padding_mask
+        # expects.
+        a, b = enc_cat, enc_next
+        for block in self.crossattn_blocks:
+            a, b = block(
+                a, b,
+                a_pad_mask=mask_a if self._task_a_is_sequential else None,
+                b_pad_mask=mask,
+            )
+
+        shared_cat = self.cat_final_ln(a)
+        shared_next = self.next_final_ln(b)
+
+        # Re-zero at original pad positions (same pattern as other MTL
+        # variants) so sequential heads (GRU, LSTM, TCN) that rely on
+        # x.abs().sum(-1) == 0 to identify padding still work correctly.
+        if self._task_set is not LEGACY_CATEGORY_NEXT:
+            shared_next = shared_next.masked_fill(mask.unsqueeze(-1), 0)
+            if self._task_a_is_sequential and mask_a is not None:
+                shared_cat = shared_cat.masked_fill(mask_a.unsqueeze(-1), 0)
+
+        if self._task_a_is_sequential:
+            out_cat = self.category_poi(shared_cat)
+        else:
+            out_cat = self.category_poi(shared_cat.squeeze(1)).view(
+                -1, self.num_classes_task_a
+            )
+        out_next = self.next_poi(shared_next)
+        return out_cat, out_next
+
+    def cat_forward(self, category_input: torch.Tensor) -> torch.Tensor:
+        """Run the category subgraph with a zero-B stream.
+
+        The inherited ``MTLnet.cat_forward`` references ``self.film`` /
+        ``self.shared_layers`` which do not exist on this subclass — see
+        ``docs/studies/check2hgi/issues/CROSSATTN_PARTIAL_FORWARD_CRASH.md``.
+        This override feeds a zero-valued, fully-padded B stream into the
+        cross-attention stack, which makes the B contribution to A's
+        representation an exact zero (the cross-attention block's
+        ``key_padding_mask`` masks the entire B side, so the attention
+        output over B is zero; the block's per-stream FFN still runs).
+
+        NOT bit-exact with ``forward((cat, real_b))[0]`` — cross-attention
+        genuinely mixes the two streams during joint training. This is a
+        deterministic "cat-only" approximation useful for isolating the A
+        head in evaluation; callers that need the joint output must call
+        ``forward((cat, next))[0]`` directly.
+        """
+        pad_value = InputsConfig.PAD_VALUE
+        mask_a = None
+        if self._task_a_is_sequential:
+            mask_a = (category_input.abs().sum(dim=-1) == pad_value)
+            category_input = category_input.masked_fill(mask_a.unsqueeze(-1), 0)
+
+        enc_cat = self.category_encoder(category_input)
+        # Synthetic zero B stream matching cross-attention's expected
+        # shape ``[B, T, D]`` for sequential task A (or ``[B, 1, D]``
+        # when A is flat). Using V = 0 drives attention's
+        # ``softmax(QKᵀ) @ V`` contribution from B to exactly zero
+        # without needing a fully-True key_padding_mask (which triggers
+        # softmax-over-all-masked → NaN in PyTorch's MHA).
+        t_b = enc_cat.size(1) if enc_cat.dim() == 3 else 1
+        enc_next = torch.zeros(
+            enc_cat.size(0), t_b, enc_cat.size(-1),
+            device=enc_cat.device, dtype=enc_cat.dtype,
+        )
+        if enc_cat.dim() == 2:
+            enc_cat = enc_cat.unsqueeze(1)
+
+        a, b = enc_cat, enc_next
+        for block in self.crossattn_blocks:
+            # No b_pad_mask — the zero values of B already zero the A ← B
+            # attention output, and a fully-True pad mask would NaN the
+            # B ← A softmax for the B stream.
+            a, b = block(a, b, a_pad_mask=mask_a, b_pad_mask=None)
+        shared_cat = self.cat_final_ln(a)
+
+        if self._task_set is not LEGACY_CATEGORY_NEXT and mask_a is not None:
+            shared_cat = shared_cat.masked_fill(mask_a.unsqueeze(-1), 0)
+
+        if self._task_a_is_sequential:
+            return self.category_poi(shared_cat)
+        return self.category_poi(shared_cat.squeeze(1)).view(
+            -1, self.num_classes_task_a
+        )
+
+    def next_forward(self, next_input: torch.Tensor) -> torch.Tensor:
+        """Run the next subgraph with a zero-A stream — see ``cat_forward``
+        for the partial-forward caveat."""
+        pad_value = InputsConfig.PAD_VALUE
+        mask = (next_input.abs().sum(dim=-1) == pad_value)
+        next_input = next_input.masked_fill(mask.unsqueeze(-1), 0)
+
+        enc_next = self.next_encoder(next_input)
+        # Synthetic zero A stream. When task-A is sequential we mirror
+        # its length; when flat we use a single timestep so the cross-
+        # attention shapes line up. V = 0 already zeroes B's cross-
+        # attention contribution from A; no ``a_pad_mask`` (see
+        # cat_forward docstring on the NaN-from-fully-masked softmax).
+        t_a = enc_next.size(1) if self._task_a_is_sequential else 1
+        enc_cat = torch.zeros(
+            enc_next.size(0), t_a, enc_next.size(-1),
+            device=enc_next.device, dtype=enc_next.dtype,
+        )
+
+        a, b = enc_cat, enc_next
+        for block in self.crossattn_blocks:
+            a, b = block(a, b, a_pad_mask=None, b_pad_mask=mask)
+        shared_next = self.next_final_ln(b)
+
+        if self._task_set is not LEGACY_CATEGORY_NEXT:
+            shared_next = shared_next.masked_fill(mask.unsqueeze(-1), 0)
+
+        return self.next_poi(shared_next)
+
+    def shared_parameters(self) -> Iterator[nn.Parameter]:
+        """Parameters of the cross-attention stack (shared by both tasks
+        conceptually via information exchange, even though each task has
+        its own FFN weights within a block)."""
+        for block in self.crossattn_blocks:
+            yield from block.parameters()
+        yield from self.cat_final_ln.parameters()
+        yield from self.next_final_ln.parameters()
+
+    def task_specific_parameters(self) -> Iterator[nn.Parameter]:
+        """Parameters of the two task encoders + both heads."""
+        yield from self.category_encoder.parameters()
+        yield from self.next_encoder.parameters()
+        yield from self.category_poi.parameters()
+        yield from self.next_poi.parameters()
+
+
+__all__ = ["MTLnetCrossAttn"]

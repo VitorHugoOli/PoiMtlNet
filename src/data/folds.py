@@ -51,6 +51,11 @@ class TaskType(Enum):
     CATEGORY = "category"
     NEXT = "next"
     MTL = "mtl"
+    # Check2HGI 2-task MTL: both heads sequential, shared X rows across
+    # next_category (labels from next.parquet) and next_region (labels
+    # from next_region.parquet). No POI-exclusivity protocol — user-level
+    # StratifiedGroupKFold only.
+    MTL_CHECK2HGI = "mtl_check2hgi"
 
 
 @dataclass
@@ -132,6 +137,43 @@ class POIDataset(Dataset):
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
         return self.features[idx], self.targets[idx]
+
+
+class POIDatasetWithAux(Dataset):
+    """POIDataset variant that yields 3-tuples ``(features, labels, aux)``.
+
+    Used by the B5 faithful-GETNext path (``next_getnext_hard``). The aux
+    tensor is an ``int64`` per-sample ``last_region_idx``. Wrapped by
+    ``AuxPublishingLoader`` so the training loop sees 2-tuples — see
+    ``src/data/aux_side_channel.py``.
+    """
+
+    def __init__(
+        self,
+        features: torch.Tensor,
+        targets: torch.Tensor,
+        aux: torch.Tensor,
+        device: Optional[torch.device] = None,
+    ):
+        if device is not None:
+            self.features = features.to(device) if features.device != device else features
+            self.targets = targets.to(device) if targets.device != device else targets
+            self.aux = aux.to(device) if aux.device != device else aux
+        else:
+            self.features = features if features.device.type == 'cpu' else features.cpu()
+            self.targets = targets if targets.device.type == 'cpu' else targets.cpu()
+            self.aux = aux if aux.device.type == 'cpu' else aux.cpu()
+        if not (len(self.features) == len(self.targets) == len(self.aux)):
+            raise ValueError(
+                f"length mismatch: features={len(self.features)} "
+                f"targets={len(self.targets)} aux={len(self.aux)}"
+            )
+
+    def __len__(self) -> int:
+        return len(self.features)
+
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        return self.features[idx], self.targets[idx], self.aux[idx]
 
 
 # ============================================================
@@ -272,6 +314,50 @@ def _create_dataloader(
         prefetch_factor=2 if num_workers > 0 else None,
         worker_init_fn=_worker_init_fn if num_workers > 0 else None,
     )
+
+
+def _create_aux_dataloader(
+        x: torch.Tensor,
+        y: torch.Tensor,
+        aux: torch.Tensor,
+        batch_size: int,
+        shuffle: bool,
+        use_weighted_sampling: bool,
+        seed: int,
+):
+    """Build a DataLoader over ``POIDatasetWithAux``, wrapped in
+    ``AuxPublishingLoader`` so the aux tensor is published to a
+    thread-local (read by the ``next_getnext_hard`` head) and the training
+    loop sees normal ``(x, y)`` 2-tuples.
+
+    Gated behind the ``next_getnext_hard`` head factory in
+    ``_create_check2hgi_mtl_folds``; other code paths continue to use
+    ``_create_dataloader``.
+    """
+    # Lazy import to avoid a circular import at module load time.
+    from data.aux_side_channel import AuxPublishingLoader
+
+    num_workers = _get_num_workers()
+    dataset_device = DEVICE if num_workers == 0 else None
+
+    sampler = None
+    if use_weighted_sampling:
+        y_np = y.numpy() if isinstance(y, torch.Tensor) else y
+        sampler = _create_weighted_sampler(y_np, seed)
+        shuffle = False
+
+    base = DataLoader(
+        POIDatasetWithAux(x, y, aux, device=dataset_device),
+        batch_size=batch_size,
+        shuffle=shuffle if sampler is None else False,
+        sampler=sampler,
+        num_workers=num_workers,
+        pin_memory=torch.cuda.is_available() and num_workers > 0,
+        persistent_workers=num_workers > 0,
+        prefetch_factor=2 if num_workers > 0 else None,
+        worker_init_fn=_worker_init_fn if num_workers > 0 else None,
+    )
+    return AuxPublishingLoader(base)
 
 
 # ============================================================
@@ -449,12 +535,41 @@ class FoldCreator:
             batch_size: int = 2048,
             seed: int = 42,
             use_weighted_sampling: bool = False,
+            task_set: Optional[object] = None,
+            task_a_input_type: str = "checkin",
+            task_b_input_type: str = "checkin",
     ):
         self.task_type = task_type
         self.n_splits = n_splits
         self.batch_size = batch_size
         self.seed = seed
         self.use_weighted_sampling = use_weighted_sampling
+        # Optional ``TaskSet`` (``src/tasks/presets.py``) used to select
+        # which label column loads into task_a slot on the MTL_CHECK2HGI
+        # path. ``Optional[object]`` keeps this module free of a
+        # cross-package import; the attribute is duck-typed inside
+        # ``_create_check2hgi_mtl_folds``. Default ``None`` preserves the
+        # legacy next_category-as-task_a behaviour.
+        self.task_set = task_set
+        # Per-task input modality — only consumed by ``_create_check2hgi_mtl_folds``.
+        # Valid values: ``"checkin"`` (9-window of check-in embeddings, the
+        # default and bit-exact-legacy), ``"region"`` (9-window of region
+        # embeddings, one per step via placeid→poi→region→emb lookup), or
+        # ``"concat"`` (the two stacked along the feature dim → 2D per step).
+        # Setting either task to anything other than ``"checkin"`` triggers the
+        # region-sequence builder and may extend the fold-generation time; the
+        # default preserves the pre-CH03 behaviour exactly.
+        valid_inputs = {"checkin", "region", "concat"}
+        if task_a_input_type not in valid_inputs:
+            raise ValueError(
+                f"task_a_input_type must be one of {valid_inputs}, got {task_a_input_type}"
+            )
+        if task_b_input_type not in valid_inputs:
+            raise ValueError(
+                f"task_b_input_type must be one of {valid_inputs}, got {task_b_input_type}"
+            )
+        self.task_a_input_type = task_a_input_type
+        self.task_b_input_type = task_b_input_type
 
         self._config = FoldConfig(
             n_splits=n_splits,
@@ -480,8 +595,9 @@ class FoldCreator:
 
         if self.task_type == TaskType.MTL:
             return self._create_mtl_folds(state, embedding_engine)
-        else:
-            return self._create_single_task_folds(state, embedding_engine)
+        if self.task_type == TaskType.MTL_CHECK2HGI:
+            return self._create_check2hgi_mtl_folds(state, embedding_engine)
+        return self._create_single_task_folds(state, embedding_engine)
 
     def _create_single_task_folds(
             self,
@@ -489,20 +605,35 @@ class FoldCreator:
             embedding_engine: EmbeddingEngine,
     ) -> Dict[int, FoldResult]:
         task = self.task_type
+        userids = None
 
         if task == TaskType.CATEGORY:
             X, y, _placeids, embedding_dim = load_category_data(state, embedding_engine)
         else:
-            X, y, _userids, embedding_dim = load_next_data(state, embedding_engine)
+            # For NEXT task we load userids alongside so we can enforce
+            # user-disjoint folds via StratifiedGroupKFold below. Without
+            # groups, the same user's check-ins can end up in both train
+            # and val, which is a leakage bug for sequence prediction —
+            # the model can effectively memorise a user's taste instead
+            # of generalising. See CONCERNS.md §C11.
+            X, y, userids, embedding_dim = load_next_data(state, embedding_engine)
 
         x_tensor, y_tensor = _convert_to_tensors(X, y, task, embedding_dim=embedding_dim)
         self._task_tensors[task] = TaskTensors(task, x_tensor, y_tensor)
         self._fold_indices[task] = []
 
-        skf = StratifiedKFold(n_splits=self.n_splits, shuffle=True, random_state=self.seed)
+        # NEXT: user-disjoint (StratifiedGroupKFold on userid). CATEGORY:
+        # stratified on category label (flat POI-level task; no user grouping).
+        if task == TaskType.NEXT and userids is not None:
+            skf = StratifiedGroupKFold(n_splits=self.n_splits, shuffle=True, random_state=self.seed)
+            split_iter = skf.split(X, y, groups=userids)
+            logger.info("NEXT single-task: user-disjoint folds via StratifiedGroupKFold.")
+        else:
+            skf = StratifiedKFold(n_splits=self.n_splits, shuffle=True, random_state=self.seed)
+            split_iter = skf.split(X, y)
         fold_results: Dict[int, FoldResult] = {}
 
-        for fold_idx, (train_idx, val_idx) in enumerate(skf.split(X, y)):
+        for fold_idx, (train_idx, val_idx) in enumerate(split_iter):
             self._fold_indices[task].append(FoldIndices(fold_idx, train_idx, val_idx))
             logger.info(f"Fold {fold_idx + 1}/{self.n_splits}: train={len(train_idx)}, val={len(val_idx)}")
 
@@ -708,6 +839,193 @@ class FoldCreator:
                         _create_dataloader(x_cat_tensor[val_cat_idx], y_cat_tensor[val_cat_idx],
                                            self.batch_size, False, False, self.seed),
                         x_cat_tensor[val_cat_idx], y_cat_tensor[val_cat_idx]
+                    ),
+                ),
+            )
+            gc.collect()
+
+        return fold_results
+
+    def _create_check2hgi_mtl_folds(
+            self,
+            state: str,
+            embedding_engine: EmbeddingEngine,
+    ) -> Dict[int, FoldResult]:
+        """Check2HGI 2-task MTL fold creation.
+
+        Both tasks (next_category + next_region) share the same X rows
+        from ``next.parquet`` — only the label column differs. A single
+        StratifiedGroupKFold on userids (stratified on next_category)
+        assigns the same fold indices to both tasks.
+
+        Returns a ``FoldResult`` where ``.category`` carries the
+        next_category task (task_a slot, 7 classes) and ``.next``
+        carries the next_region task (task_b slot, ~1K-5K classes).
+        """
+        if embedding_engine != EmbeddingEngine.CHECK2HGI:
+            raise ValueError(
+                f"MTL_CHECK2HGI requires engine=CHECK2HGI (got {embedding_engine})."
+            )
+
+        # Load X + next_category labels from next.parquet.
+        X, y_cat, userids, next_dim = load_next_data(state, embedding_engine)
+
+        # Load region labels (row-aligned with next.parquet).
+        region_df = IoPaths.load_next_region(state, embedding_engine)
+        if len(region_df) != len(X):
+            raise ValueError(
+                f"next_region.parquet rows ({len(region_df)}) disagree with "
+                f"next.parquet rows ({len(X)}) for {state}. Regenerate both."
+            )
+        y_region = region_df["region_idx"].to_numpy(dtype=np.int64)
+
+        # B5 hard-index path: when task_b head is ``next_getnext_hard``,
+        # also pull ``last_region_idx`` from the parquet. Missing column
+        # -> fail loud asking to regenerate the parquet (see
+        # ``scripts/regenerate_next_region.py``).
+        task_b_head = (
+            getattr(getattr(self.task_set, "task_b", None), "head_factory", None)
+            if self.task_set is not None else None
+        )
+        use_aux = task_b_head == "next_getnext_hard"
+        if use_aux:
+            if "last_region_idx" not in region_df.columns:
+                raise ValueError(
+                    f"next_region.parquet for {state} is missing the "
+                    f"'last_region_idx' column required by head "
+                    f"'next_getnext_hard'. Regenerate via "
+                    f"`python scripts/regenerate_next_region.py --state {state}`."
+                )
+            y_last_region = region_df["last_region_idx"].to_numpy(dtype=np.int64)
+
+        slide_window = InputsConfig.SLIDE_WINDOW
+        x_checkin, y_cat_tensor = _convert_to_tensors(
+            X, y_cat, TaskType.NEXT, embedding_dim=next_dim, slide_window=slide_window,
+        )
+        y_region_tensor = torch.from_numpy(np.ascontiguousarray(y_region, dtype=np.int64))
+        aux_tensor = (
+            torch.from_numpy(np.ascontiguousarray(y_last_region, dtype=np.int64))
+            if use_aux else None
+        )
+
+        # Per-task modality: task_a = next_category (CATEGORY slot),
+        # task_b = next_region (NEXT slot). Each slot picks its own X:
+        # check-in embedding, region embedding, or concat of the two.
+        # When both request "checkin" (the default), this code path is
+        # bit-equivalent to the pre-CH03 version — x_checkin is shared
+        # across both slots and no region-sequence build is triggered.
+        def _resolve_x(input_type: str) -> torch.Tensor:
+            if input_type == "checkin":
+                return x_checkin
+            # Lazy import so engines that can't produce a region-sequence
+            # (non-CHECK2HGI paths) don't pay the import cost.
+            from data.inputs.region_sequence import (
+                build_region_sequence_tensor,
+                build_concat_sequence_tensor,
+            )
+            if input_type == "region":
+                return build_region_sequence_tensor(state)
+            if input_type == "concat":
+                return build_concat_sequence_tensor(state, x_checkin)
+            raise ValueError(f"Unknown input_type: {input_type}")
+
+        x_task_a = _resolve_x(self.task_a_input_type)
+        x_task_b = _resolve_x(self.task_b_input_type)
+        logger.info(
+            "MTL_CHECK2HGI input modality: task_a=%s (%s), task_b=%s (%s)",
+            self.task_a_input_type, tuple(x_task_a.shape),
+            self.task_b_input_type, tuple(x_task_b.shape),
+        )
+
+        # Store under legacy TaskType keys: NEXT = region (task_b),
+        # CATEGORY = next_category (task_a). Each slot carries its own
+        # X tensor — they may be the same object if both are "checkin".
+        self._task_tensors[TaskType.NEXT] = TaskTensors(
+            TaskType.NEXT, x_task_b, y_region_tensor,
+        )
+        self._task_tensors[TaskType.CATEGORY] = TaskTensors(
+            TaskType.CATEGORY, x_task_a, y_cat_tensor,
+        )
+        self._fold_indices[TaskType.NEXT] = []
+        self._fold_indices[TaskType.CATEGORY] = []
+
+        sgkf = StratifiedGroupKFold(
+            n_splits=self.n_splits, shuffle=True, random_state=self.seed,
+        )
+        fold_results: Dict[int, FoldResult] = {}
+        self._fold_manifests: List[dict] = []
+
+        for fold_idx, (train_idx, val_idx) in enumerate(
+            sgkf.split(X, y_cat, groups=userids)
+        ):
+            logger.info(
+                f"Fold {fold_idx + 1}/{self.n_splits}: "
+                f"train={len(train_idx)} val={len(val_idx)} "
+                f"(users train={len(set(userids[train_idx]))} "
+                f"val={len(set(userids[val_idx]))})"
+            )
+            self._fold_indices[TaskType.NEXT].append(
+                FoldIndices(fold_idx, train_idx, val_idx)
+            )
+            self._fold_indices[TaskType.CATEGORY].append(
+                FoldIndices(fold_idx, train_idx, val_idx)
+            )
+
+            self._fold_manifests.append({
+                'fold_idx': fold_idx,
+                'train_count': int(len(train_idx)),
+                'val_count': int(len(val_idx)),
+                'split_mode': 'check2hgi_mtl_user_group',
+                'seed': self.seed,
+            })
+
+            # Task-b (region) dataloader: aux-aware if head needs last_region_idx.
+            if use_aux:
+                train_loader_b = _create_aux_dataloader(
+                    x_task_b[train_idx], y_region_tensor[train_idx],
+                    aux_tensor[train_idx],
+                    self.batch_size, True, self.use_weighted_sampling, self.seed,
+                )
+                val_loader_b = _create_aux_dataloader(
+                    x_task_b[val_idx], y_region_tensor[val_idx],
+                    aux_tensor[val_idx],
+                    self.batch_size, False, False, self.seed,
+                )
+            else:
+                train_loader_b = _create_dataloader(
+                    x_task_b[train_idx], y_region_tensor[train_idx],
+                    self.batch_size, True, self.use_weighted_sampling, self.seed,
+                )
+                val_loader_b = _create_dataloader(
+                    x_task_b[val_idx], y_region_tensor[val_idx],
+                    self.batch_size, False, False, self.seed,
+                )
+
+            fold_results[fold_idx] = FoldResult(
+                next=TaskFoldData(
+                    train=FoldData(
+                        train_loader_b,
+                        x_task_b[train_idx], y_region_tensor[train_idx],
+                    ),
+                    val=FoldData(
+                        val_loader_b,
+                        x_task_b[val_idx], y_region_tensor[val_idx],
+                    ),
+                ),
+                category=TaskFoldData(
+                    train=FoldData(
+                        _create_dataloader(
+                            x_task_a[train_idx], y_cat_tensor[train_idx],
+                            self.batch_size, True, self.use_weighted_sampling, self.seed,
+                        ),
+                        x_task_a[train_idx], y_cat_tensor[train_idx],
+                    ),
+                    val=FoldData(
+                        _create_dataloader(
+                            x_task_a[val_idx], y_cat_tensor[val_idx],
+                            self.batch_size, False, False, self.seed,
+                        ),
+                        x_task_a[val_idx], y_cat_tensor[val_idx],
                     ),
                 ),
             )

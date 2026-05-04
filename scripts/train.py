@@ -23,6 +23,7 @@ import logging
 import sys
 from datetime import datetime
 from pathlib import Path
+from typing import Dict, Optional
 
 # Ensure repo root and src/ are on sys.path when invoked directly.
 _root = str(Path(__file__).resolve().parent.parent)
@@ -36,6 +37,14 @@ from configs.experiment import DatasetSignature, ExperimentConfig
 from configs.globals import CATEGORIES_MAP
 from configs.paths import EmbeddingEngine, IoPaths
 from data.folds import FoldCreator, TaskType, load_folds, rebuild_dataloaders
+from tasks import (
+    CHECK2HGI_NEXT_REGION,
+    LEGACY_CATEGORY_NEXT,
+    TaskSet,
+    get_preset,
+    resolve_task_set,
+)
+from tasks.presets import list_presets
 from training.callbacks import ModelCheckpoint
 from utils.seed import seed_everything
 from tracking import DatasetHistory, MLHistory
@@ -147,6 +156,68 @@ def _run_mtl(config: ExperimentConfig, results_path: Path, fold_results: dict) -
     return results
 
 
+def _run_mtl_check2hgi(
+    config: ExperimentConfig,
+    results_path: Path,
+    fold_results: dict,
+    task_set: TaskSet,
+) -> dict:
+    """Dispatch MTL runs on the check2HGI preset (or any non-legacy task_set).
+
+    Differs from ``_run_mtl`` on four axes:
+
+    * ``MLHistory.tasks`` uses the preset's slot names
+      (``next_category`` / ``next_region`` instead of ``category`` / ``next``).
+    * ``DatasetHistory`` points at ``next.parquet`` + ``next_region.parquet``
+      (there is no separate category.parquet on this track).
+    * ``ModelCheckpoint`` watches ``val_joint_acc1`` — the metric emitted
+      by ``mtl_cv.py`` alongside ``val_joint_score`` specifically for
+      high-cardinality-head setups where macro-F1 is a weak summary.
+    * ``train_with_cross_validation`` receives the resolved ``task_set``.
+    """
+    from training.runners.mtl_cv import train_with_cross_validation
+
+    engine = EmbeddingEngine(config.embedding_engine)
+    history = MLHistory(
+        model_name="MTLNet",
+        tasks={task_set.task_a.name, task_set.task_b.name},
+        num_folds=len(fold_results),
+        datasets={
+            DatasetHistory(
+                raw_data=IoPaths.get_next(config.state, engine),
+                folds_signature=None,
+                description="next_category input (shared X)",
+            ),
+            DatasetHistory(
+                raw_data=IoPaths.get_next_region(config.state, engine),
+                folds_signature=None,
+                description="next_region input (shared X, region labels)",
+            ),
+        },
+        label_map=CATEGORIES_MAP,
+        save_path=results_path,
+        verbose=True,
+    )
+
+    if _NO_CHECKPOINTS:
+        cbs = []
+    else:
+        run_dir = _make_run_dir(results_path, task=f"mtl__{task_set.name}", config=config)
+        # val_joint_geom_lift = sqrt((acc1_a/maj_a) * (acc1_b/maj_b))
+        cbs = _default_checkpoint_callbacks(run_dir, monitor="val_joint_geom_lift")
+    with history:
+        results = train_with_cross_validation(
+            dataloaders=fold_results,
+            history=history,
+            config=config,
+            results_path=results_path,
+            callbacks=cbs,
+            task_set=task_set,
+        )
+
+    return results
+
+
 def _run_category(config: ExperimentConfig, results_path: Path, fold_results: dict) -> dict:
     from training.runners.category_cv import run_cv
 
@@ -243,6 +314,7 @@ _RUNNERS = {
 
 _TASK_TYPES = {
     "mtl": TaskType.MTL,
+    "mtl_check2hgi": TaskType.MTL_CHECK2HGI,
     "category": TaskType.CATEGORY,
     "next": TaskType.NEXT,
 }
@@ -282,6 +354,18 @@ def _parse_args(argv=None) -> argparse.Namespace:
         default=None,
         choices=_VALID_TASKS,
         help="Task type to train (mtl / category / next). Defaults to mtl.",
+    )
+    parser.add_argument(
+        "--task-set",
+        type=str,
+        default=None,
+        choices=list_presets(),
+        help=(
+            "MTL task-set preset. Only used with --task mtl. Defaults to "
+            "legacy_category_next (bit-exact with the pre-parameterisation "
+            "runner). check2hgi_next_region activates the 2-task "
+            "{next_category, next_region} pair on check2HGI embeddings."
+        ),
     )
     parser.add_argument(
         "--model",
@@ -352,6 +436,50 @@ def _parse_args(argv=None) -> argparse.Namespace:
         help="Override gradient accumulation steps.",
     )
     parser.add_argument(
+        "--use-class-weights",
+        dest="use_class_weights",
+        action="store_true",
+        default=None,
+        help=(
+            "Pass class-balanced weights to per-head CrossEntropyLoss. "
+            "Recommended for the check2HGI next_region head on Florida "
+            "(22% majority-class region would otherwise dominate the "
+            "loss and starve the next_category gradient under NashMTL). "
+            "Absent classes get weight 1.0 (see src/training/helpers.py)."
+        ),
+    )
+    parser.add_argument(
+        "--no-class-weights",
+        dest="use_class_weights",
+        action="store_false",
+        default=None,
+        help="Force-disable class-balanced CE weighting even if the config default is on.",
+    )
+    parser.add_argument(
+        "--task-a-input-type",
+        type=str,
+        choices=("checkin", "region", "concat"),
+        default="checkin",
+        help=(
+            "Check2HGI MTL only: input modality for task-a slot (next_category). "
+            "'checkin' (default, bit-exact-legacy) = 9-window of check-in emb; "
+            "'region' = 9-window of region emb via placeid→region lookup; "
+            "'concat' = [checkin ⊕ region] stacked on feature axis. Used by the "
+            "P4 per-task-modality ablation (CH03)."
+        ),
+    )
+    parser.add_argument(
+        "--task-b-input-type",
+        type=str,
+        choices=("checkin", "region", "concat"),
+        default="checkin",
+        help=(
+            "Check2HGI MTL only: input modality for task-b slot (next_region). "
+            "See --task-a-input-type. P1 showed region-emb input is the right "
+            "modality for the region head (53% Acc@10 vs 20% on check-in)."
+        ),
+    )
+    parser.add_argument(
         "--next-target",
         type=str,
         choices=("next_category", "next_poi"),
@@ -375,6 +503,46 @@ def _parse_args(argv=None) -> argparse.Namespace:
         type=int,
         default=None,
         help="Training batch size. Overrides config value.",
+    )
+    parser.add_argument(
+        "--max-lr",
+        type=float,
+        default=None,
+        help="OneCycleLR max_lr. Overrides config value. STL next uses 0.01, STL region GRU 0.003, MTL default 0.001.",
+    )
+    parser.add_argument(
+        "--reg-head-param",
+        action="append",
+        default=[],
+        metavar="KEY=VALUE",
+        help="Override region head hyperparameter (task_b_head_params) in the MTL task_set. Repeatable. E.g. --reg-head-param hidden_dim=512 --reg-head-param num_layers=3",
+    )
+    parser.add_argument(
+        "--reg-head",
+        type=str,
+        default=None,
+        help=(
+            "Override the region-task head factory (task_b.head_factory) in the MTL task_set. "
+            "Default preserves the preset's choice (next_gru for CHECK2HGI_NEXT_REGION). "
+            "Use e.g. --reg-head next_stan to swap in the STAN head."
+        ),
+    )
+    parser.add_argument(
+        "--cat-head-param",
+        action="append",
+        default=[],
+        metavar="KEY=VALUE",
+        help="Override category head hyperparameter (task_a_head_params) in the MTL task_set. Repeatable. Symmetric to --reg-head-param.",
+    )
+    parser.add_argument(
+        "--cat-head",
+        type=str,
+        default=None,
+        help=(
+            "Override the category-task head factory (task_a.head_factory) in the MTL task_set. "
+            "Default preserves the preset's choice (None → MTLnet's CategoryHeadTransformer default). "
+            "Use e.g. --cat-head next_gru or --cat-head category_ensemble for the F27 cat-head ablation."
+        ),
     )
     parser.add_argument(
         "--folds",
@@ -479,6 +647,10 @@ def _apply_cli_overrides(
         if args.batch_size <= 0:
             raise ValueError("--batch-size must be > 0")
         config = dataclasses.replace(config, batch_size=args.batch_size)
+    if args.max_lr is not None:
+        if args.max_lr <= 0:
+            raise ValueError("--max-lr must be > 0")
+        config = dataclasses.replace(config, max_lr=args.max_lr)
     if args.next_target is not None:
         config = dataclasses.replace(config, next_target=args.next_target)
     if args.seed is not None:
@@ -490,6 +662,8 @@ def _apply_cli_overrides(
             config,
             gradient_accumulation_steps=args.gradient_accumulation_steps,
         )
+    if args.use_class_weights is not None:
+        config = dataclasses.replace(config, use_class_weights=args.use_class_weights)
 
     if args.candidate is not None:
         if config.task_type != "mtl":
@@ -582,6 +756,7 @@ def _resolve_folds(
     config: ExperimentConfig,
     engine: EmbeddingEngine,
     task_key: str,
+    task_set: Optional[TaskSet] = None,
 ) -> dict:
     """Return the fold_results dict — either loaded from a frozen cache or
     generated on the fly.
@@ -608,6 +783,9 @@ def _resolve_folds(
             batch_size=config.batch_size,
             seed=config.seed,
             use_weighted_sampling=False,
+            task_set=task_set,
+            task_a_input_type=getattr(args, "task_a_input_type", "checkin"),
+            task_b_input_type=getattr(args, "task_b_input_type", "checkin"),
         )
         return creator.create_folds(config.state, engine)
 
@@ -705,12 +883,109 @@ def main(argv=None) -> None:
     engine = EmbeddingEngine(config.embedding_engine)
     task_key = config.task_type if config.task_type in _RUNNERS else "mtl"
 
+    # Resolve task_set for MTL runs. Default preset keeps legacy
+    # {category, next} behaviour bit-exact; non-legacy preset activates
+    # the check2HGI task pair and switches fold-creation to MTL_CHECK2HGI.
+    task_set: Optional[TaskSet] = None
+    is_check2hgi_track = False
+    if task_key == "mtl":
+        preset_name = args.task_set or LEGACY_CATEGORY_NEXT.name
+        task_set = get_preset(preset_name)
+        is_check2hgi_track = preset_name == CHECK2HGI_NEXT_REGION.name
+        if is_check2hgi_track and engine != EmbeddingEngine.CHECK2HGI:
+            print(
+                f"error: --task-set {preset_name} requires --engine check2hgi "
+                f"(got {engine.value}).",
+                file=sys.stderr,
+            )
+            sys.exit(2)
+        # Apply --reg-head / --reg-head-param / --cat-head / --cat-head-param
+        # overrides BEFORE fold creation so FoldCreator sees the final
+        # ``task_b.head_factory`` when deciding which dataloader path to use
+        # (e.g. aux-publishing for the B5 head ``next_getnext_hard``). Cat
+        # overrides don't currently affect fold creation but are applied here
+        # symmetrically so the early task_set is the authoritative source
+        # of head choice. The later ``resolve_task_set`` call after fold
+        # creation additionally sets ``task_b_num_classes``, which can only
+        # be known once labels are loaded — that pass is kept.
+        if is_check2hgi_track and (
+            args.reg_head or args.reg_head_param
+            or args.cat_head or args.cat_head_param
+        ):
+            _early_reg_head_params = _parse_key_value_overrides(
+                args.reg_head_param or [], "--reg-head-param"
+            )
+            _early_cat_head_params = _parse_key_value_overrides(
+                args.cat_head_param or [], "--cat-head-param"
+            )
+            task_set = resolve_task_set(
+                task_set,
+                task_a_head_factory=args.cat_head,
+                task_a_head_params=_early_cat_head_params or None,
+                task_b_head_factory=args.reg_head,
+                task_b_head_params=_early_reg_head_params or None,
+            )
+
     # Resolve folds: prefer the frozen cache under
     # output/{engine}/{state}/folds/fold_indices_{task}.pt (see
     # scripts/study/freeze_folds.py). Falls back to on-the-fly generation
     # with a warning — required for paired statistical tests across
     # ablation runs.
-    fold_results = _resolve_folds(args, config, engine, task_key)
+    fold_resolve_key = "mtl_check2hgi" if is_check2hgi_track else task_key
+    fold_results = _resolve_folds(
+        args, config, engine, fold_resolve_key,
+        task_set=task_set if is_check2hgi_track else None,
+    )
+
+    # For the check2HGI track: resolve task_b.num_classes from the
+    # full next_region label space (the preset stores 0 as a
+    # placeholder) and inject the resolved ``task_set`` into model_params.
+    #
+    # Computing ``n_regions`` from a single fold's train labels is a
+    # subtle bug: val folds can contain regions absent from any given
+    # train fold (cross-fold user partition doesn't preserve region
+    # support). If the model is sized for a too-small n_regions and
+    # val/other-fold labels exceed that range, bincount-based metrics
+    # fail at runtime. Using the max across EVERY fold's (train ∪ val)
+    # labels yields the true label-space size.
+    if is_check2hgi_track:
+        assert task_set is not None
+        # Resolve task_b (region) num_classes from the union of train
+        # and val labels across every fold. Cross-fold user partition
+        # doesn't preserve region support, so a single fold's train
+        # labels can miss classes present in val or other folds; a
+        # too-small n_regions breaks bincount-based metrics at runtime.
+        # task_a (next_category) is always 7 — no runtime resolution needed.
+        max_b = -1
+        for fr in fold_results.values():
+            max_b = max(
+                max_b,
+                int(fr.next.train.y.max().item()),
+                int(fr.next.val.y.max().item()),
+            )
+        n_regions = max_b + 1
+        reg_head_params = _parse_key_value_overrides(
+            args.reg_head_param or [], "--reg-head-param"
+        )
+        cat_head_params = _parse_key_value_overrides(
+            args.cat_head_param or [], "--cat-head-param"
+        )
+        task_set = resolve_task_set(
+            task_set,
+            task_a_head_factory=args.cat_head,
+            task_a_head_params=cat_head_params if cat_head_params else None,
+            task_b_num_classes=n_regions,
+            task_b_head_params=reg_head_params if reg_head_params else None,
+            task_b_head_factory=args.reg_head,
+        )
+        logger.info(
+            "check2HGI task_set resolved: task_a=%s/%d, task_b=%s/%d",
+            task_set.task_a.name, task_set.task_a.num_classes,
+            task_set.task_b.name, task_set.task_b.num_classes,
+        )
+        updated_params = dict(config.model_params)
+        updated_params["task_set"] = task_set
+        config = dataclasses.replace(config, model_params=updated_params)
 
     # Apply max_folds limit (run only first N folds).
     # config.k_folds stays as the split structure count (>= 2);
@@ -761,8 +1036,12 @@ def main(argv=None) -> None:
     global _NO_CHECKPOINTS
     _NO_CHECKPOINTS = getattr(args, "no_checkpoints", False)
 
-    runner = _RUNNERS[task_key]
-    runner(config, results_path, fold_results)
+    if is_check2hgi_track:
+        assert task_set is not None
+        _run_mtl_check2hgi(config, results_path, fold_results, task_set)
+    else:
+        runner = _RUNNERS[task_key]
+        runner(config, results_path, fold_results)
 
     logger.info("Done. Results written to: %s", results_path)
 

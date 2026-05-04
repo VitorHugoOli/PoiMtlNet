@@ -11,11 +11,15 @@ from configs.model import InputsConfig
 from models.mtl._components import MMoELiteLayer
 from models.mtl.mtlnet.model import MTLnet
 from models.registry import register_model
+from tasks import LEGACY_CATEGORY_NEXT, TaskSet
 
 
 @register_model("mtlnet_mmoe")
 class MTLnetMMoE(MTLnet):
-    """MTLnet variant that replaces FiLM hard sharing with MMoE experts."""
+    """MTLnet variant that replaces FiLM hard sharing with MMoE experts.
+
+    See :class:`MTLnet` for ``task_set`` semantics.
+    """
 
     def __init__(
         self,
@@ -35,6 +39,7 @@ class MTLnetMMoE(MTLnet):
         next_head: Optional[str] = None,
         category_head_params: Optional[dict[str, Any]] = None,
         next_head_params: Optional[dict[str, Any]] = None,
+        task_set: Optional[TaskSet] = None,
     ):
         self._num_experts = int(num_experts)
         super().__init__(
@@ -53,6 +58,7 @@ class MTLnetMMoE(MTLnet):
             next_head=next_head,
             category_head_params=category_head_params,
             next_head_params=next_head_params,
+            task_set=task_set,
         )
 
     def _build_shared_backbone(
@@ -82,21 +88,44 @@ class MTLnetMMoE(MTLnet):
         mask = (next_input.abs().sum(dim=-1) == pad_value)
         next_input = next_input.masked_fill(mask.unsqueeze(-1), 0)
 
+        if self._task_a_is_sequential:
+            mask_a = (category_input.abs().sum(dim=-1) == pad_value)
+            category_input = category_input.masked_fill(mask_a.unsqueeze(-1), 0)
+
         enc_cat = self.category_encoder(category_input)
         enc_next = self.next_encoder(next_input)
 
         shared_cat, shared_next = self.mmoe(enc_cat, enc_next)
 
-        out_cat = self.category_poi(shared_cat.squeeze(1)).view(-1, self.num_classes)
+        # Re-zero at original pad positions before the heads; see MTLnet
+        # base class forward() docstring. Non-legacy path only.
+        if self._task_set is not LEGACY_CATEGORY_NEXT:
+            shared_next = shared_next.masked_fill(mask.unsqueeze(-1), 0)
+            if self._task_a_is_sequential:
+                shared_cat = shared_cat.masked_fill(mask_a.unsqueeze(-1), 0)
+
+        if self._task_a_is_sequential:
+            out_cat = self.category_poi(shared_cat)
+        else:
+            out_cat = self.category_poi(shared_cat.squeeze(1)).view(
+                -1, self.num_classes_task_a
+            )
         out_next = self.next_poi(shared_next)
         return out_cat, out_next
 
     def cat_forward(self, category_input: torch.Tensor) -> torch.Tensor:
         """Run only the category subgraph through MMoE experts."""
+        if self._task_a_is_sequential:
+            pad_value = InputsConfig.PAD_VALUE
+            mask = (category_input.abs().sum(dim=-1) == pad_value)
+            category_input = category_input.masked_fill(mask.unsqueeze(-1), 0)
+
         enc_cat = self.category_encoder(category_input)
         dummy_next = torch.zeros_like(enc_cat)
         shared_cat, _ = self.mmoe(enc_cat, dummy_next)
-        return self.category_poi(shared_cat.squeeze(1)).view(-1, self.num_classes)
+        if self._task_a_is_sequential:
+            return self.category_poi(shared_cat)
+        return self.category_poi(shared_cat.squeeze(1)).view(-1, self.num_classes_task_a)
 
     def next_forward(self, next_input: torch.Tensor) -> torch.Tensor:
         """Run only the next-POI subgraph through MMoE experts."""

@@ -212,7 +212,19 @@ class MMoELiteLayer(nn.Module):
 
 
 class DSelectKLiteLayer(nn.Module):
-    """DSelect-k style sparse soft expert selection for category and next tasks."""
+    """K-selector multi-softmax expert mixer for category and next tasks.
+
+    Historical name retained — "DSelect-k" is misleading. The original
+    DSelect-k (Hazimeh et al., 2021) uses a Gumbel-top-k routing that
+    selects **exactly k** experts with a sparse posterior. This
+    implementation is a **dense convex combination** over all N experts:
+    each of ``num_selectors`` soft gates produces a softmax over all
+    experts, and ``selector_weights`` (another softmax) mixes the K
+    gates. The output is a full N-dim simplex, not a sparse top-k
+    selection. Behaviourally this is closer to multi-gate MMoE with an
+    extra learnable mixture step than to DSelect-k. See
+    docs/studies/check2hgi/issues/MODEL_DESIGN_REVIEW_2026-04-22.md §3.
+    """
 
     def __init__(
         self,
