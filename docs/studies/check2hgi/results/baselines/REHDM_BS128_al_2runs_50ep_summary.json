@@ -1,0 +1,9 @@
+{
+  "tag": "REHDM_BS128_al_2runs_50ep",
+  "state": "alabama",
+  "n_runs": 2,
+  "test_acc@10_mean": 0.6584887144259077,
+  "test_acc@10_std": 0.015266289682143342,
+  "test_mrr_mean": 0.37377897305624286,
+  "test_mrr_std": 0.007443207235029528
+}

@@ -19,7 +19,12 @@ from configs.globals import DEVICE
 from configs.experiment import ExperimentConfig
 from losses.registry import create_loss
 from models.registry import create_model
-from training.helpers import compute_class_weights, setup_optimizer, setup_scheduler
+from training.helpers import (
+    compute_class_weights,
+    setup_optimizer,
+    setup_per_head_optimizer,
+    setup_scheduler,
+)
 from training.callbacks import CallbackContext, CallbackList
 from data.folds import TaskFoldData, FoldResult
 from tracking import MLHistory, FlopsMetrics, NeuralParams
@@ -199,6 +204,12 @@ def train_model(model: torch.nn.Module,
                 category_target_cutoff: Optional[float] = None,
                 callbacks: Optional[list] = None,
                 task_set: TaskSet = LEGACY_CATEGORY_NEXT,
+                freeze_cat_after_epoch: Optional[int] = None,
+                alternating_optimizer_step: bool = False,
+                alpha_frozen_until_epoch: Optional[int] = None,
+                cat_specific_parameters: Optional[list] = None,
+                reg_specific_parameters: Optional[list] = None,
+                joint_loader_strategy: str = "max_size_cycle",
                 ):
     """
     Train the model with multi-task learning.
@@ -251,6 +262,7 @@ def train_model(model: torch.nn.Module,
         num_epochs,
         [dataloader_next.train.dataloader,
          dataloader_category.train.dataloader],
+        joint_loader_strategy=joint_loader_strategy,
     )
 
     cb = CallbackList(callbacks)
@@ -280,15 +292,97 @@ def train_model(model: torch.nn.Module,
         fold_history.model_task = TaskHistory()
 
     gradient_accumulation_steps = max(1, int(gradient_accumulation_steps))
-    batches_per_epoch = max(
-        len(dataloader_next.train.dataloader),
-        len(dataloader_category.train.dataloader),
-    )
+    if joint_loader_strategy == "min_size_truncate":
+        batches_per_epoch = min(
+            len(dataloader_next.train.dataloader),
+            len(dataloader_category.train.dataloader),
+        )
+    else:
+        batches_per_epoch = max(
+            len(dataloader_next.train.dataloader),
+            len(dataloader_category.train.dataloader),
+        )
     pareto_points: list[tuple[float, float]] = []
+
+    # F50 D5 — encoder weight-trajectory diagnostic. Snapshot the initial
+    # `next_encoder` and `category_encoder` parameter vectors so per-epoch
+    # Frobenius drift can be logged below. The hypothesis (F50 T3 §5.5):
+    # MTL's reg-best epoch is structurally pinned at ~ep 5 because the
+    # `next_encoder` stops updating early under joint loss while
+    # `category_encoder` keeps drifting. Per-epoch L2 norm and drift-from-init
+    # log directly tests this. Silent no-op if encoders are absent.
+    def _flatten_encoder(encoder):
+        if encoder is None:
+            return None
+        params = [p.detach().reshape(-1) for p in encoder.parameters() if p.requires_grad]
+        if not params:
+            return None
+        return torch.cat(params).clone()
+
+    next_enc_init = _flatten_encoder(getattr(model, "next_encoder", None))
+    cat_enc_init = _flatten_encoder(getattr(model, "category_encoder", None))
+    next_enc_prev = next_enc_init.clone() if next_enc_init is not None else None
+    cat_enc_prev = cat_enc_init.clone() if cat_enc_init is not None else None
+
+    # F50 P3 — track whether warmup-then-freeze has fired (idempotent).
+    _cat_frozen_post_warmup = False
+    # F50 B4 — α-freeze warmup. If alpha_frozen_until_epoch is set, lock
+    # α at its init value for ep 0..N-1, then unfreeze. Pre-freeze the
+    # parameter HERE (before training) so the first epoch already sees
+    # frozen α; the unfreeze happens at epoch N inside the loop below.
+    _alpha_unfrozen = False
+    if alpha_frozen_until_epoch is not None and int(alpha_frozen_until_epoch) > 0:
+        next_head = getattr(model, "next_poi", None)
+        head_alpha = getattr(next_head, "alpha", None)
+        if isinstance(head_alpha, torch.nn.Parameter):
+            head_alpha.requires_grad_(False)
+            print(
+                f"[B4 alpha-frozen-until-epoch] α frozen at "
+                f"{float(head_alpha):.4f} until epoch {alpha_frozen_until_epoch}"
+            )
 
     # Main training loop
     for epoch_idx in progress:
         model.train()
+        # F50 B4 — at the boundary epoch, unfreeze α so it can grow.
+        if (alpha_frozen_until_epoch is not None
+                and not _alpha_unfrozen
+                and epoch_idx >= int(alpha_frozen_until_epoch)):
+            next_head = getattr(model, "next_poi", None)
+            head_alpha = getattr(next_head, "alpha", None)
+            if isinstance(head_alpha, torch.nn.Parameter):
+                head_alpha.requires_grad_(True)
+                _alpha_unfrozen = True
+                print(
+                    f"[B4 alpha-frozen-until-epoch] α unfrozen at epoch "
+                    f"{epoch_idx} (target N={alpha_frozen_until_epoch}); "
+                    f"current α = {float(head_alpha):.4f}"
+                )
+        # F50 P3 — at the boundary epoch, freeze category_encoder + category_poi.
+        # Reg + shared keep training. Tests whether continued cat-encoder
+        # co-adaptation as reg-helper (F49 Layer 2) hurts reg at scale. The
+        # optimizer naturally skips params with grad=None, so no optimizer
+        # rebuild is needed. category_encoder.eval() also disables its dropout.
+        if (freeze_cat_after_epoch is not None
+                and not _cat_frozen_post_warmup
+                and epoch_idx >= int(freeze_cat_after_epoch)):
+            for p in model.category_encoder.parameters():
+                p.requires_grad_(False)
+            for p in model.category_poi.parameters():
+                p.requires_grad_(False)
+            model.category_encoder.eval()
+            _cat_frozen_post_warmup = True
+            print(
+                f"[P3 freeze-cat-after-epoch] cat_encoder + category_poi frozen "
+                f"at epoch {epoch_idx} (target N={freeze_cat_after_epoch})"
+            )
+
+        # F40 — scheduled-loss epoch hook. Losses without `set_epoch`
+        # (i.e. all current ones except `scheduled_static`) are silently
+        # skipped via getattr default.
+        _set_epoch = getattr(mtl_criterion, "set_epoch", None)
+        if callable(_set_epoch):
+            _set_epoch(epoch_idx)
 
         # Initialize on-device accumulators to avoid per-batch MPS syncs
         running_loss = torch.tensor(0.0, device=DEVICE)
@@ -354,13 +448,29 @@ def train_model(model: torch.nn.Module,
                     epoch_task_a_grad_norm,
                 ) = _compute_gradient_cosine(losses, shared_parameters)
 
-            loss, extra_outputs, already_backpropagated = _get_weighted_loss(
-                mtl_criterion,
-                losses,
-                shared_parameters=shared_parameters,
-                task_specific_parameters=task_specific_parameters,
-                epoch=epoch_idx,
-            )
+            # F50 P4 — per-batch alternating-SGD. Even batches use L_cat only,
+            # odd batches use L_reg only. Shared params receive one task's
+            # gradient signal per batch (alternating). Inactive task's
+            # task-specific params will have their grads zeroed before
+            # optimizer.step() (see ``should_step`` block below).
+            _alt_inactive_params = None
+            if alternating_optimizer_step:
+                if batch_idx % 2 == 0:
+                    loss = task_a_loss  # cat-only batch
+                    _alt_inactive_params = reg_specific_parameters
+                else:
+                    loss = task_b_loss  # reg-only batch
+                    _alt_inactive_params = cat_specific_parameters
+                extra_outputs: dict = {}
+                already_backpropagated = False
+            else:
+                loss, extra_outputs, already_backpropagated = _get_weighted_loss(
+                    mtl_criterion,
+                    losses,
+                    shared_parameters=shared_parameters,
+                    task_specific_parameters=task_specific_parameters,
+                    epoch=epoch_idx,
+                )
             if already_backpropagated and gradient_accumulation_steps > 1:
                 raise TypeError(
                     f"{mtl_criterion.__class__.__name__} is not compatible with "
@@ -395,6 +505,14 @@ def train_model(model: torch.nn.Module,
                     for p in model.parameters():
                         if p.grad is not None:
                             p.grad.mul_(scale)
+                # F50 P4 — zero gradients of the inactive task's task-specific
+                # params so the optimizer step only updates {active task,
+                # shared}. Shared params keep their gradient from the active
+                # loss; inactive task params do nothing this batch.
+                if _alt_inactive_params is not None:
+                    for p in _alt_inactive_params:
+                        if p.grad is not None:
+                            p.grad.zero_()
                 if max_grad_norm and max_grad_norm > 0:
                     torch.nn.utils.clip_grad_norm_(
                         list(model.parameters()) + _criterion_parameters(mtl_criterion),
@@ -476,6 +594,46 @@ def train_model(model: torch.nn.Module,
                 diagnostic_payload["gate_entropy_next"] = float(
                     gate_stats["next_entropy"].detach().cpu()
                 )
+        # F50 F63 — α trajectory logging. The next_getnext{,_hard} heads
+        # carry a learnable scalar `alpha` that scales the graph prior
+        # (`stan_logits + α · log_T[last_region]`). T3 hypothesised α
+        # growth is the temporal mechanism behind STL's late reg-best
+        # epoch (16-20). Logging it per-epoch lets us correlate growth
+        # rate vs reg metric trajectory directly. Silent no-op for heads
+        # without an `alpha` attribute.
+        next_head = getattr(model, "next_poi", None)
+        head_alpha = getattr(next_head, "alpha", None)
+        if isinstance(head_alpha, torch.Tensor) and head_alpha.numel() == 1:
+            diagnostic_payload["head_alpha"] = float(head_alpha.detach().cpu())
+
+        # F50 D5 — encoder trajectory diagnostic. Frobenius norm of current
+        # encoder weights, drift from epoch-0 init, and step drift from the
+        # previous epoch. Cheap (one cat + two diffs of an O(64×256×L) flat
+        # vector). The smoking-gun comparison is reg-side drift saturating
+        # earlier than cat-side under joint training.
+        next_enc_now = _flatten_encoder(getattr(model, "next_encoder", None))
+        if next_enc_now is not None and next_enc_init is not None:
+            diagnostic_payload["reg_encoder_l2norm"] = float(next_enc_now.norm().cpu())
+            diagnostic_payload["reg_encoder_drift_from_init"] = float(
+                (next_enc_now - next_enc_init).norm().cpu()
+            )
+            if next_enc_prev is not None:
+                diagnostic_payload["reg_encoder_step_drift"] = float(
+                    (next_enc_now - next_enc_prev).norm().cpu()
+                )
+            next_enc_prev = next_enc_now
+        cat_enc_now = _flatten_encoder(getattr(model, "category_encoder", None))
+        if cat_enc_now is not None and cat_enc_init is not None:
+            diagnostic_payload["cat_encoder_l2norm"] = float(cat_enc_now.norm().cpu())
+            diagnostic_payload["cat_encoder_drift_from_init"] = float(
+                (cat_enc_now - cat_enc_init).norm().cpu()
+            )
+            if cat_enc_prev is not None:
+                diagnostic_payload["cat_encoder_step_drift"] = float(
+                    (cat_enc_now - cat_enc_prev).norm().cpu()
+                )
+            cat_enc_prev = cat_enc_now
+
         fold_history.log_diagnostic(**diagnostic_payload)
 
         # Validation phase with progress tracking
@@ -568,8 +726,18 @@ def train_model(model: torch.nn.Module,
             )
 
             # Only create state_dict when at least one task improves.
-            task_b_improved = f1_val_task_b > fold_history.task(task_b_name).best.best_value
-            task_a_improved = f1_val_task_a > fold_history.task(task_a_name).best.best_value
+            # AUDIT-C2: read the per-task monitor key so the improvement
+            # check matches whichever metric the BestModelTracker is
+            # actually watching (F1, accuracy, mrr, ...). Pre-C2 this
+            # hardcoded F1 even when the tracker watched accuracy →
+            # state_dict was occasionally not produced when it should
+            # have been. Falls back to F1 for legacy paths.
+            _mon_b = fold_history.task(task_b_name).best.monitor
+            _mon_a = fold_history.task(task_a_name).best.monitor
+            _val_b_mon = val_metrics_task_b.get(_mon_b, f1_val_task_b)
+            _val_a_mon = val_metrics_task_a.get(_mon_a, f1_val_task_a)
+            task_b_improved = _val_b_mon > fold_history.task(task_b_name).best.best_value
+            task_a_improved = _val_a_mon > fold_history.task(task_a_name).best.best_value
             prev_joint_best = fold_history.model_task.best.best_value if fold_history.model_task.best.best_epoch >= 0 else -1.0
             joint_improved = joint_score > prev_joint_best
             state = model.state_dict() if (joint_improved or task_b_improved or task_a_improved) else None
@@ -673,10 +841,85 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
     for fold_idx, (i_fold, dataloader) in enumerate(dataloaders.items()):
         clear_mps_cache()
 
+        # AUDIT-C4 fix — per-fold transition prior. When
+        # ``config.per_fold_transition_dir`` is set, swap the static
+        # ``transition_path`` in task_b.head_params for the fold-specific
+        # file ``region_transition_log_seed{S}_fold{N}.pt``. The seed
+        # MUST match the trainer's ``--seed S`` because the per-fold
+        # log_T is built from train rows under the same fold split;
+        # using a file built at a different seed silently leaks
+        # ~80% of val transitions into the prior at every other seed
+        # (caught 2026-04-30 — F51 multi-seed sweep with seed=42
+        # log_T applied at seeds 0/1/7/100). N is 1-indexed because
+        # that's what ``compute_region_transition.py --per-fold``
+        # writes. ``i_fold`` here is 0-indexed (FoldCreator dict keys).
+        # Default None preserves the legacy single-prior behaviour, so
+        # this is a no-op for the running tier-A queue.
+        per_fold_dir = getattr(config, "per_fold_transition_dir", None)
+        per_fold_model_params = config.model_params
+        if per_fold_dir is not None:
+            import dataclasses as _dataclasses
+            from pathlib import Path as _Path
+            ts = config.model_params.get("task_set")
+            if ts is not None and getattr(ts, "task_b", None) is not None:
+                seed = int(getattr(config, "seed", 42))
+                pf_path = (
+                    _Path(per_fold_dir)
+                    / f"region_transition_log_seed{seed}_fold{i_fold + 1}.pt"
+                )
+                if not pf_path.exists():
+                    legacy_path = (
+                        _Path(per_fold_dir)
+                        / f"region_transition_log_fold{i_fold + 1}.pt"
+                    )
+                    if legacy_path.exists():
+                        raise FileNotFoundError(
+                            f"per-fold log_T at expected seed-tagged path "
+                            f"{pf_path} missing. A legacy unseeded file at "
+                            f"{legacy_path} was found, but using it would "
+                            f"leak val transitions if its build seed != "
+                            f"current --seed {seed}. Migrate by either "
+                            f"renaming the legacy file (if you know the seed "
+                            f"it was built at) or rebuilding: python "
+                            f"scripts/compute_region_transition.py --state "
+                            f"{config.state} --per-fold --seed {seed}"
+                        )
+                    raise FileNotFoundError(
+                        f"per_fold_transition_dir set but {pf_path} missing. "
+                        f"Build with: python scripts/compute_region_transition.py "
+                        f"--state {config.state} --per-fold --seed {seed}"
+                    )
+                tb_head_params = dict(ts.task_b.head_params or {})
+                tb_head_params["transition_path"] = str(pf_path)
+                new_task_b = _dataclasses.replace(ts.task_b, head_params=tb_head_params)
+                new_task_set = _dataclasses.replace(ts, task_b=new_task_b)
+                per_fold_model_params = dict(config.model_params)
+                per_fold_model_params["task_set"] = new_task_set
+                logger.info(
+                    "[C4 per-fold log_T] fold %d seed %d using %s",
+                    i_fold + 1, seed, pf_path,
+                )
+
         # Initialize model via registry
-        model = create_model(config.model_name, **config.model_params).to(DEVICE)
+        model = create_model(config.model_name, **per_fold_model_params).to(DEVICE)
         if config.use_torch_compile and DEVICE.type == 'cuda':
             model = torch.compile(model)
+
+        # F49 encoder-frozen λ=0 isolation: freeze the cat encoder + cat
+        # head so the cat **encoder** cannot co-adapt as a reg-helper via
+        # cross-attention K/V. Block-internal cat-side processing
+        # (`_CrossAttnBlock.ffn_a / ln_a*`) is intentionally NOT frozen —
+        # those live in `shared_parameters()` and the reg stream consumes
+        # their outputs as K/V via residuals; freezing them would corrupt
+        # the reg pipeline. The optimizer (setup_per_head_optimizer /
+        # setup_optimizer) filters `requires_grad=False` from every group,
+        # so AdamW weight_decay does NOT decay the frozen weights.
+        if getattr(config, "freeze_cat_stream", False):
+            for p in model.category_encoder.parameters():
+                p.requires_grad_(False)
+            for p in model.category_poi.parameters():
+                p.requires_grad_(False)
+            model.category_encoder.eval()  # disables dropout in the cat encoder
 
         # Cache parameter group lists once per fold (item #2 — avoids
         # walking named_parameters() on every NashMTL backward call).
@@ -687,15 +930,45 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
         dataloader_next: TaskFoldData = dataloader.next
         dataloader_category: TaskFoldData = dataloader.category
 
-        mtl_criterion = create_loss(config.mtl_loss, n_tasks=2, device=DEVICE, **config.mtl_loss_params)
+        # F40 — scheduled_static needs total_epochs at construction time;
+        # default from config.epochs unless the user already pinned it via
+        # --mtl-loss-param.
+        _loss_params = dict(config.mtl_loss_params)
+        if config.mtl_loss == "scheduled_static" and "total_epochs" not in _loss_params:
+            _loss_params["total_epochs"] = int(config.epochs)
+        mtl_criterion = create_loss(config.mtl_loss, n_tasks=2, device=DEVICE, **_loss_params)
 
-        optimizer = setup_optimizer(
-            model,
-            config.learning_rate,
-            config.weight_decay,
-            eps=config.optimizer_eps,
-            extra_parameters=_criterion_parameters(mtl_criterion),
-        )
+        # Per-head LR mode (F48-H3) — activated when all three of
+        # cat_lr/reg_lr/shared_lr are set in the config. Otherwise fall
+        # back to the legacy single-LR optimizer.
+        _cat_lr = getattr(config, "cat_lr", None)
+        _reg_lr = getattr(config, "reg_lr", None)
+        _shared_lr = getattr(config, "shared_lr", None)
+        _per_head = (_cat_lr is not None and _reg_lr is not None
+                     and _shared_lr is not None)
+        if _per_head:
+            _reg_encoder_lr = getattr(config, "reg_encoder_lr", None)
+            _reg_head_lr = getattr(config, "reg_head_lr", None)
+            optimizer = setup_per_head_optimizer(
+                model,
+                cat_lr=float(_cat_lr),
+                reg_lr=float(_reg_lr),
+                shared_lr=float(_shared_lr),
+                weight_decay=config.weight_decay,
+                eps=config.optimizer_eps,
+                extra_parameters=_criterion_parameters(mtl_criterion),
+                reg_encoder_lr=float(_reg_encoder_lr) if _reg_encoder_lr is not None else None,
+                reg_head_lr=float(_reg_head_lr) if _reg_head_lr is not None else None,
+                alpha_no_weight_decay=bool(getattr(config, "alpha_no_weight_decay", False)),
+            )
+        else:
+            optimizer = setup_optimizer(
+                model,
+                config.learning_rate,
+                config.weight_decay,
+                eps=config.optimizer_eps,
+                extra_parameters=_criterion_parameters(mtl_criterion),
+            )
         # steps_per_epoch must match zip_longest_cycle() — the longer loader
         batches_per_epoch = max(
             len(dataloader_next.train.dataloader),
@@ -707,7 +980,43 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
         scheduler = setup_scheduler(
             optimizer, config.max_lr, config.epochs,
             steps_per_epoch,
+            scheduler_type=getattr(config, "scheduler_type", "onecycle"),
+            pct_start=getattr(config, "pct_start", None),
+            reg_head_warmup_decay_peak_mult=getattr(
+                config, "reg_head_warmup_decay_peak_mult", 10.0),
+            reg_head_warmup_decay_warmup_epochs=getattr(
+                config, "reg_head_warmup_decay_warmup_epochs", 5),
+            reg_head_warmup_decay_plateau_epochs=getattr(
+                config, "reg_head_warmup_decay_plateau_epochs", 15),
+            eta_min=float(getattr(config, "eta_min", 0.0)),
         )
+        # Smoke print for F48-H3: verify per-group LRs survived scheduler
+        # init. Only on the first fold to keep logs clean. Also prints
+        # trainable-param count per group — under F49 --freeze-cat-stream
+        # the cat group must report 0 trainable params; any other count
+        # means the freeze didn't take.
+        if _per_head and getattr(history, "curr_i_fold", 0) == 0:
+            _groups = [
+                (pg.get("name", "?"),
+                 float(pg["lr"]),
+                 sum(p.numel() for p in pg["params"] if p.requires_grad))
+                for pg in optimizer.param_groups
+            ]
+            print(f"[per-head-LR] optimizer groups (name, lr, trainable_params): {_groups}")
+            if getattr(config, "freeze_cat_stream", False):
+                cat_group = next(
+                    (pg for pg in optimizer.param_groups if pg.get("name") == "cat"),
+                    None,
+                )
+                if cat_group is None or any(
+                    p.requires_grad for p in cat_group["params"]
+                ):
+                    raise RuntimeError(
+                        "freeze_cat_stream=True but optimizer's 'cat' group "
+                        "still contains trainable params; the freeze did not "
+                        "propagate. Check setup_per_head_optimizer's "
+                        "requires_grad filter."
+                    )
 
         # Per-task class weights. Legacy behaviour (unchanged): weights
         # computed but not passed to CE — kept as a diagnostic. When
@@ -782,6 +1091,19 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             category_target_cutoff=config.target_cutoff,
             callbacks=callbacks,
             task_set=task_set,
+            freeze_cat_after_epoch=getattr(config, "freeze_cat_after_epoch", None),
+            alternating_optimizer_step=getattr(config, "alternating_optimizer_step", False),
+            alpha_frozen_until_epoch=getattr(config, "alpha_frozen_until_epoch", None),
+            cat_specific_parameters=(
+                list(model.cat_specific_parameters())
+                if hasattr(model, "cat_specific_parameters") else None
+            ),
+            reg_specific_parameters=(
+                list(model.reg_specific_parameters())
+                if hasattr(model, "reg_specific_parameters") else None
+            ),
+            joint_loader_strategy=getattr(
+                config, "joint_loader_strategy", "max_size_cycle"),
         )
 
         # Run final validation

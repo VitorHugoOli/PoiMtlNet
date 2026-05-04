@@ -1,88 +1,107 @@
 # Check2HGI Study — Entry Point
 
-**Status (2026-04-23):** B3 identified as unified joint-task champion candidate via F2 diagnostic; validated 5-fold on AL + AZ + FL-1f (×2). Headline FL + CA + TX 5-fold pending. Doc cleanup complete.
+**Status (2026-05-02 v11, post-v9/v10/v11 closures):** all paper-headline numbers committed; article is at `articles/[BRACIS]_Beyond_Cross_Task/` for BRACIS 2026 submission. The story is **substrate task-asymmetry first, classic MTL tradeoff second**.
 
-**Scope:** Sibling to `docs/studies/fusion/`. Investigates whether check-in-level contextual embeddings (Check2HGI) with a next-region auxiliary task improve joint `{next_category, next_region}` prediction over HGI and over single-task training.
+> ⚠ **Single source of truth.** All paper numerical claims must round-trip to **`results/RESULTS_TABLE.md §0` (v11)**. Numbers anywhere else in this folder that contradict v11 are either stale (mark, fix, or archive) or audit-historical (clearly framed as such). See `CHANGELOG.md` for the dated rationale.
 
 ---
 
-## Where to start (new agents, read in order)
+## What the paper says (one-paragraph summary)
 
-1. **[`SESSION_HANDOFF_2026-04-24.md`](SESSION_HANDOFF_2026-04-24.md)** ⭐ **most recent** — one-minute summary + what happened in 2026-04-22 → 04-24 + how to pick up cold.
-2. **[`NORTH_STAR.md`](NORTH_STAR.md)** — committed champion MTL config + F27 scale-dependence flag.
-3. **[`PAPER_STRUCTURE.md`](PAPER_STRUCTURE.md)** — paper scope, baselines, STL-matching policy, FL region Markov caveat.
-4. **[`FOLLOWUPS_TRACKER.md`](FOLLOWUPS_TRACKER.md)** — live work queue (F33 FL 5f + F34 CA 1f + F35 TX 1f are the next things to land).
-5. **[`research/F21C_FINDINGS.md`](research/F21C_FINDINGS.md)** — paper-reshaping matched-head STL finding (STL > MTL on reg by 12–14 pp).
-6. **[`research/F27_CATHEAD_FINDINGS.md`](research/F27_CATHEAD_FINDINGS.md)** — cat-head ablation + FL scale-dependence flag.
-7. **[`review/2026-04-23_critical_review.md`](review/2026-04-23_critical_review.md)** — analytical state of the study as of 2026-04-23 (pre-F21c/F27).
-8. **[`OBJECTIVES_STATUS_TABLE.md`](OBJECTIVES_STATUS_TABLE.md)** — one-page scorecard.
-9. **[`results/RESULTS_TABLE.md`](results/RESULTS_TABLE.md)** — canonical per-state × per-method table.
-10. **[`AGENT_CONTEXT.md`](AGENT_CONTEXT.md)** — long-form study context.
-11. **[`SESSION_HANDOFF_2026-04-22.md`](SESSION_HANDOFF_2026-04-22.md)** — operational gotchas G1–G7 (MPS memory, caffeinate, num_workers=0, etc.). G8 in the newer handoff.
+Check-in-level Check2HGI provides a **task-asymmetric substrate** for joint POI prediction. Per-visit context lifts single-task next-category macro-F1 by **+15.5 pp at AL, +14.5 at AZ, +29.0 at FL, +28.8 at CA, +28.3 at TX** under matched-head STL (paired Wilcoxon p = 0.0312 at every state, head-invariant at the **AL/AZ ablation scale** and matched-head replicated at **FL/CA/TX**); on next-region, per-place embeddings (HGI) tie or marginally exceed Check2HGI under matched-head ceilings (TOST tied at CA/TX). With Check2HGI fixed, joint MTL over a cross-attention backbone adds a small cat lift at four of five states (AZ +1.20 p < 1e-4 / FL +1.40 p = 2e-06 / CA +1.68 p = 2e-06 / TX +1.89 p = 2e-06, all n = 20) while AL is small-significantly negative (Δ = −0.78 pp, p = 0.036, n = 20 multi-seed) and pays a sign-consistent **7 to 17 pp cost** on next-region Acc@10 at every state — the textbook MTL tradeoff. A pooled-vs-canonical counterfactual at Alabama attributes ~72 % of the cat substrate gap to per-visit context. **A methodological side-finding** (cross-attention `task_weight = 0` ablations co-adapt the silenced encoder via attention K/V; encoder-frozen isolation is required) generalises beyond our study.
 
-## What the paper claims (short)
+---
 
-- **CH16:** Check2HGI > HGI on next-category macro-F1. AL locked (+18.30 pp σ-clean). Cross-state replication pending.
-- **Champion (B3):** `mtlnet_crossattn + static_weight(category_weight=0.75) + next_getnext_hard d=256, 8h`. Beats baselines on cat F1 everywhere; beats Markov-1-region on AL+AZ (FL Markov-saturated — approach (a)). Strict MTL-over-STL on AZ cat F1 (+1.65 pp, p=0.0312).
-- **Mechanism:** FL-hard-under-PCGrad gradient starvation + late-stage-handover rescue under unbalanced static weighting (`research/B5_FL_TASKWEIGHT.md`).
+## Where to start (read in order)
 
-## Task pair
+1. **`CHANGELOG.md`** ⭐ — chronological timeline of findings + lessons learned. The single timeline source-of-truth.
+2. **`results/RESULTS_TABLE.md §0`** ⭐ — the **canonical numerical source** for paper tables (v11). All other numbers in this folder reference this.
+3. **`articles/[BRACIS]_Beyond_Cross_Task/`** — the **article-side working folder** for the BRACIS 2026 submission. Read `AGENT.md` first if you are writing prose, then the section beats in `PAPER_DRAFT.md`.
+4. **`AGENT_CONTEXT.md`** — long-form study briefing (read once, refer back as needed).
+5. **`NORTH_STAR.md`** — committed champion config (B9 = MTL recipe; H3-alt small-state recipe).
+6. **`CLAIMS_AND_HYPOTHESES.md`** (with whitelist banner) — claim catalogue. **Whitelisted as paper-facing safe:** CH16 (substrate cat) / CH18-cat (substrate cat under MTL) / CH15 reframing (substrate reg) / CH19 (per-visit mechanism, AL only) / CH22 (Δm leak-free). Other entries contain superseded leak-era content; do not cite as paper canon without cross-checking RESULTS_TABLE v11.
+7. **`FINAL_SURVEY.md`** — substrate-axis 5-state matrix (cat + reg panels).
+8. **`MTL_ARCHITECTURE_JOURNEY.md`** — supplementary material narrative (F-trail through B3 → F21c → F45 → F48-H3-alt → F49 → paper closure). **Do not narrate the F-trail in main paper text** (per article-side AGENT.md).
+9. **`CONCERNS.md`** — acknowledged risks + resolutions audit log.
+10. **`PAPER_BASELINES_STRATEGY.md`** — which baselines appear in which paper table; what is deliberately scoped out.
 
-| Slot | Task | Classes | Primary metric |
-|---|---|---|---|
-| **task_a** | `next_category` | 7 | macro-F1 |
-| **task_b** | `next_region` | 1,109 (AL) / 1,547 (AZ) / 4,702 (FL) / TBD (CA, TX) | Acc@10, MRR |
-
-**Preset:** `CHECK2HGI_NEXT_REGION`.
-
-## Baselines (see `PAPER_STRUCTURE.md §3` for detail)
-
-- **next-cat:** POI-RGNN (external published), Markov-1-POI / Majority (simple floors), STL Check2HGI cat (matched), STL HGI cat (substrate ablation CH16).
-- **next-reg:** Markov-1-region (simple floor), STL STAN (literature-aligned SOTA ceiling), STL GRU (secondary), STL GETNext-hard (matched-head — F21 pending). HMT-GRN / MGCL are concept-aligned references (different datasets, not directly comparable).
+---
 
 ## Navigation
 
 ```
 docs/studies/check2hgi/
 ├── README.md                              ← you are here
-├── NORTH_STAR.md                          ← champion config decision
-├── PAPER_STRUCTURE.md                     ← paper scope + baselines + tables
-├── OBJECTIVES_STATUS_TABLE.md             ← one-page scorecard
-├── FOLLOWUPS_TRACKER.md                   ← live work queue (owners, costs)
-├── CLAIMS_AND_HYPOTHESES.md               ← reconciled claim catalog
-├── CONCERNS.md                            ← acknowledged risks + resolutions
-├── AGENT_CONTEXT.md                       ← long-form study-scoped briefing
-├── SESSION_HANDOFF_2026-04-22.md          ← operational gotchas
-├── issues/                                ← bug / design audits (MTL_PARAM_PARTITION_BUG, etc.)
-├── research/                              ← paper-substantive notes (B3_*, B5_*, GETNEXT_*, STAN_*, POSITIONING_*, ATTRIBUTION_*, NASH_MTL_*, MTL_WITH_STAN_HEAD)
-├── results/                               ← archived JSONs + tables
-│   ├── RESULTS_TABLE.md                   ← per-state × per-method canonical table
-│   ├── BASELINES_AND_BEST_MTL.md          ← legacy paper-comparison table (pre-B3 — kept for audit)
-│   ├── B3_validation/                     ← B3 5f JSONs on AL, AZ
-│   ├── B5/                                ← B5 hard-index JSONs on AL, AZ, FL-1f
-│   ├── F2_fl_diagnostic/                  ← F2 4-phase JSONs on FL-1f
-│   ├── P0/                                ← simple baselines (Markov k=1..9, Majority, Top-K)
-│   ├── P1/                                ← STL region-head JSONs
-│   ├── P1_5b/                             ← STL cat JSONs + CH16 HGI comparison
-│   ├── P2/                                ← MTL arch × optim grid
-│   ├── P5_bugfix/                         ← MTLoRA post-partition-bug reruns
-│   └── P8_sota/                           ← MTL-STAN / TGSTAN / STA-Hyper / GETNext
+├── CHANGELOG.md                           ← timeline of findings + lessons (source of truth for chronology)
+├── AGENT_CONTEXT.md                       ← long-form study briefing
+├── NORTH_STAR.md                          ← committed champion config
+├── CLAIMS_AND_HYPOTHESES.md               ← claim catalogue (with whitelist banner)
+├── FINAL_SURVEY.md                        ← substrate-axis 5-state matrix
+├── CONCERNS.md                            ← acknowledged-risks audit log
+├── MTL_ARCHITECTURE_JOURNEY.md            ← supplementary material narrative (F-trail)
+├── PAPER_BASELINES_STRATEGY.md            ← which baselines in which paper table
+├── results/
+│   ├── RESULTS_TABLE.md §0  ⭐            ← canonical numerical source (v11)
+│   ├── paired_tests/                      ← Wilcoxon JSONs
+│   ├── P0/, P1/, P1_5b/, ...              ← raw JSON artefacts by phase
+│   └── phase1_perfold/, probe/            ← Phase-1 substrate-comparison data
+├── research/                              ← per-experiment findings + analysis
+│   ├── GAP_FILL_WILCOXON.json             ← v8/v9 Wilcoxon (cat-Δ + recipe gap fill)
+│   ├── ARCH_DELTA_WILCOXON.json           ← v10 CA/TX §0.1 arch-Δ n=20
+│   ├── FL_CAT_DELTA_WILCOXON.json         ← v11 FL §0.1 arch-Δ n=20
+│   ├── PAPER_CLOSURE_WILCOXON.json
+│   ├── PAPER_CLOSURE_RECIPE_WILCOXON.json
+│   ├── F49_LAMBDA0_DECOMPOSITION_GAP.md   ← cross-attn methodology contribution
+│   ├── F50_DELTA_M_FINDINGS_LEAKFREE.md
+│   ├── F50_T1_RESULTS_SYNTHESIS.md        ← drop-in MTL ablation (FAMO, Aligned-MTL, HSM)
+│   ├── F51_MULTI_SEED_FINDINGS.md
+│   ├── SUBSTRATE_COMPARISON_FINDINGS.md   ← Phase-1 substrate-comparison verdict
+│   └── ...                                ← per-F-number findings
+├── baselines/                             ← faithful baseline ports + audits
+│   ├── README.md
+│   ├── next_category/{poi_rgnn,mha_pe,comparison}.md + results/<state>.json
+│   └── next_region/{stan,rehdm,comparison}.md + results/<state>.json
+├── paper/                                 ← paper-prep section drafts
+│   ├── methods.md, results.md, limitations.md, appendix_methodology.md
 ├── review/                                ← dated critical reviews
-└── archive/                               ← superseded docs (safe to ignore)
-    ├── pre_b3_framing/                    ← MASTER_PLAN, KNOWLEDGE_SNAPSHOT, QUICK_REFERENCE, old HANDOFF, COORDINATOR, state.json, coordinator/
-    ├── phases_original/                   ← original P0–P7 phase plans
-    ├── research_pre_b3/                   ← pre-B3 research notes (MTL_ABLATION_PROTOCOL, SOTA_MTL_*, STRATEGIC_FRAMING, etc.)
-    ├── 2026-04-20_status_reports/         ← pre-B5 status reports
-    └── research_pre_b5/                   ← pre-B5 research notes (HYBRID_DECISION, EXECUTION_PLAN, CHAIN_FINDINGS)
+├── issues/, scope/, launch_plans/         ← audit / planning sub-dirs
+└── archive/
+    ├── post_paper_closure_2026-05-01/     ← stale paper-closure docs (2026-05-01 cleanup)
+    │   └── README.md                       ← what's archived and why
+    ├── 2026-04-20_status_reports/
+    ├── pre_b3_framing/
+    ├── research_pre_b3/
+    ├── research_pre_b5/
+    ├── phases_original/
+    └── v1_wip_mixed_scope/
 ```
 
-## Out of scope
+**Article-side (BRACIS submission, separate working folder):** `articles/[BRACIS]_Beyond_Cross_Task/` with `AGENT.md`, `PAPER_DRAFT.md`, `PAPER_STRUCTURE.md`, `STATISTICAL_AUDIT.md`, `TABLES_FIGURES.md`, `samplepaper.tex`, `references.bib`, `AUDIT_LOG.md`. The article folder is the source-of-truth for paper writing; this study folder is the source-of-truth for the science.
 
-- POI-category classification from POI features alone (fusion study).
-- HAVANA baseline (different task: semantic annotation, not sequential).
-- Exact next-POI-id prediction (~11K classes) — outside MTLnet classification paradigm.
-- Encoder enrichment (temporal/spatial/graph features) — deferred to follow-up paper.
+---
 
-## Sibling study
+## Task pair
 
-`docs/studies/fusion/` — POI-category classification on fused POI-level embeddings. Do not edit from this branch.
+| Slot | Task | Classes | Primary metric |
+|---|---|---|---|
+| **task_a** | `next_category` | 7 | macro-F1 |
+| **task_b** | `next_region` | 1,109 (AL) / 1,547 (AZ) / 4,702 (FL) / 8,501 (CA) / 6,553 (TX) | Acc@10, MRR |
+
+**Preset:** `CHECK2HGI_NEXT_REGION`.
+
+---
+
+## Baselines (see `PAPER_BASELINES_STRATEGY.md` for detail)
+
+- **next-cat:** POI-RGNN (Capanema 2022, faithful), MHA+PE (Zeng 2019, faithful), Markov-1-POI / Majority (simple floors), STL Check2HGI cat (matched-head ceiling), STL HGI cat (substrate ablation CH16).
+- **next-reg:** Markov-1-region (simple floor), STL STAN (Luo 2021, faithful — AL/AZ/FL only), STL `next_stan_flow` (matched-head reg ceiling), ReHDM (Li 2025, faithful — AL/AZ/FL only; CA/TX deferred for compute).
+
+---
+
+## Maintenance rules
+
+1. **One canonical source per number.** `results/RESULTS_TABLE.md §0` for paper tables; `CHANGELOG.md` for chronology.
+2. **Append to CHANGELOG, don't edit history.** New dated row at the top; never edit historic rows.
+3. **Stale artefacts go to `archive/`.** When a tracker / handoff / prompt's work has landed, move the artefact to `archive/post_paper_closure_*/` (or a new dated subfolder) and log the move in CHANGELOG.
+4. **Workflow language stays in working notes, not paper-prep docs.** No "in flight", "ETA", "must check before commit" in the article-side files (per article AGENT.md §5).
+5. **Article-side and study-side mirror, not duplicate.** When RESULTS_TABLE updates, update the article-side files in the same commit. The article folder is the paper deliverable; this folder is the science record.

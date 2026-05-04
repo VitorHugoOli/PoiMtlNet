@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import time
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Union
@@ -69,6 +70,8 @@ class MLHistory:
         save_path: Optional[Union[str, Path]] = None,
         verbose: bool = False,
         display_report: bool = False,
+        task_monitors: Optional[Dict[str, str]] = None,
+        min_epoch: int = 0,
     ):
         self.model_name = model_name
         self.model_type = model_type
@@ -78,10 +81,23 @@ class MLHistory:
         self.datasets: Optional[Set[DatasetHistory]] = datasets
         self.monitor = monitor
         self.mode = mode
+        # AUDIT-C2 — per-task monitor overrides; see fold.FoldHistory.
+        # Default None preserves legacy single-metric (F1) behaviour.
+        self.task_monitors: Optional[Dict[str, str]] = (
+            dict(task_monitors) if task_monitors else None
+        )
+        # F50 B1 — selector min-epoch gate (skip init artifacts).
+        self.min_epoch: int = int(min_epoch)
 
         self.tasks: Set[str] = {tasks} if isinstance(tasks, str) else tasks
         self.folds: List[FoldHistory] = [
-            FoldHistory(i, self.tasks, monitor=monitor, mode=mode)
+            FoldHistory(
+                i, self.tasks,
+                monitor=monitor,
+                mode=mode,
+                task_monitors=self.task_monitors,
+                min_epoch=self.min_epoch,
+            )
             for i in range(num_folds)
         ]
         self.flops: Optional[FlopsMetrics] = None
@@ -217,7 +233,10 @@ class MLHistory:
     def start(self):
         self._ended = False
         self.timer.start()
-        self.start_date = time.strftime("%Y%m%d_%H%M%S")
+        # Seconds + PID for collision-free parallel runs (multiple
+        # smokes launched within the same minute previously overwrote
+        # each other's results dirs).
+        self.start_date = f"{time.strftime('%Y%m%d_%H%M%S')}_{os.getpid()}"
         self.get_curr_fold().start()
         if self._verbose:
             self.display.start_fold()

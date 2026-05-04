@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "state": "california",
+  "task": "next_region",
+  "n_rows": 358302,
+  "n_classes": 8497,
+  "protocol": {
+    "folds": 5,
+    "epochs": 50,
+    "seed": 42,
+    "stratification": "target_category",
+    "groups": "userid",
+    "splitter": "StratifiedGroupKFold(shuffle=True)"
+  },
+  "floors": {
+    "majority_class": {
+      "acc1_mean": 5.3893,
+      "acc1_std": 0.3735,
+      "acc5_mean": 5.3893,
+      "acc5_std": 0.3735,
+      "acc10_mean": 5.3893,
+      "acc10_std": 0.3735,
+      "mrr_mean": 5.3893,
+      "mrr_std": 0.3735,
+      "source_json": "docs/studies/check2hgi/results/P0/simple_baselines/california/next_region.json"
+    },
+    "markov_1_region": {
+      "acc1_mean": 32.2672,
+      "acc1_std": 0.8566,
+      "acc5_mean": 47.1368,
+      "acc5_std": 0.8099,
+      "acc10_mean": 52.0896,
+      "acc10_std": 0.7957,
+      "mrr_mean": 38.6052,
+      "mrr_std": 0.8471,
+      "source_json": "docs/studies/check2hgi/results/P0/simple_baselines/california/next_region.json"
+    }
+  },
+  "baselines": {
+    "stan": {
+      "_pending_faithful": "STAN faithful train still running.",
+      "stl_check2hgi": {
+        "acc1_mean": 31.2655,
+        "acc1_std": 0.8816,
+        "acc5_mean": 50.7067,
+        "acc5_std": 1.0778,
+        "acc10_mean": 58.8155,
+        "acc10_std": 1.0367,
+        "mrr_mean": 40.6204,
+        "mrr_std": 0.914,
+        "macro_f1_mean": 8.0585,
+        "macro_f1_std": 0.212,
+        "tag": "STL_CA_check2hgi_stan_5f50ep",
+        "date": "2026-04-30",
+        "source_json": "docs/studies/check2hgi/results/P1/region_head_california_region_5f_50ep_STL_CA_check2hgi_stan_5f50ep.json"
+      },
+      "stl_hgi": {
+        "acc1_mean": 31.9027,
+        "acc1_std": 0.9128,
+        "acc5_mean": 52.2001,
+        "acc5_std": 1.0296,
+        "acc10_mean": 60.4487,
+        "acc10_std": 0.9707,
+        "mrr_mean": 41.5943,
+        "mrr_std": 0.9271,
+        "macro_f1_mean": 8.8871,
+        "macro_f1_std": 0.3048,
+        "tag": "STL_CA_hgi_stan_5f50ep",
+        "date": "2026-04-30",
+        "source_json": "docs/studies/check2hgi/results/P1/region_head_california_region_5f_50ep_STL_CA_hgi_stan_5f50ep.json"
+      }
+    }
+  }
+}

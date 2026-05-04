@@ -1,0 +1,35 @@
+\begin{table}[t]
+\centering
+\caption{Substrate ablation under matched-head single-task ceilings, five-fold cross-validation. Cells are seed-42 mean over folds $\pm$ fold-$\sigma$; $\Delta$ = Check2HGI cell $-$ HGI cell at every row. The paired Wilcoxon at the $n=5$ ceiling reaches $p=0.0312$ when 5/5 folds agree. (a) Next-category macro-F1 with a GRU category head; the asterisk marks 5/5 folds positive. (b) Next-region Acc@10 with a STAN-based region head and additive log-transition prior built per fold from training-fold edges; negative $\Delta$ values indicate POI-stable HGI is nominally ahead, and TOST verdicts at $\delta\in\{2,3\}$ pp report whether the gap stays inside the non-inferiority margin (\checkmark) or not ($\times$). The architectural axis (Tables~\ref{tab:mtl-stl} and~\ref{tab:external}) reports a multi-seed pooled ceiling for the architectural contrast: see \S\ref{subsec:setup-stats}.}
+\label{tab:substrate}
+\footnotesize
+\renewcommand{\arraystretch}{1.1}
+
+\textbf{(a) Next-category macro-F1.}
+\begin{tabular}{l r r r r}
+\toprule
+State & HGI cat F1 & Check2HGI cat F1 & $\Delta$ (pp) & Wilcoxon $p$ \\
+\midrule
+Alabama (AL)    & 25.26 $\pm$ 1.18 & 40.76 $\pm$ 1.50 & $+15.50$\textsuperscript{*} & 0.0312 \\
+Arizona (AZ)    & 28.99 $\pm$ 0.51 & 43.17 $\pm$ 0.28 & $+14.18$\textsuperscript{*} & 0.0312 \\
+Florida (FL)    & 34.41 $\pm$ 1.05 & 63.43 $\pm$ 0.98 & $+29.02$\textsuperscript{*} & 0.0312 \\
+California (CA) & 31.13 $\pm$ 1.04 & 59.94 $\pm$ 0.59 & $+28.81$\textsuperscript{*} & 0.0312 \\
+Texas (TX)      & 31.89 $\pm$ 0.55 & 60.24 $\pm$ 1.84 & $+28.34$\textsuperscript{*} & 0.0312 \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.6em}
+
+\textbf{(b) Next-region Acc@10.}
+\begin{tabular}{l r r r c c}
+\toprule
+State & HGI Acc@10 & Check2HGI Acc@10 & $\Delta$ (pp) & TOST $\delta = 2$ & TOST $\delta = 3$ \\
+\midrule
+Alabama (AL)    & 61.86 $\pm$ 3.29 & 59.15 $\pm$ 3.48 & $-2.71$ & $\times$ & $\times$ \\
+Arizona (AZ)    & 53.37 $\pm$ 2.55 & 50.24 $\pm$ 2.51 & $-3.13$ & $\times$ & $\times$ \\
+Florida (FL)    & 71.34 $\pm$ 0.64 & 69.22 $\pm$ 0.52 & $-2.12$ & $\times$ & \checkmark \\
+California (CA) & 57.77 $\pm$ 1.12 & 55.92 $\pm$ 1.20 & $-1.85$ & \checkmark & \checkmark \\
+Texas (TX)      & 60.47 $\pm$ 1.26 & 58.89 $\pm$ 1.28 & $-1.59$ & \checkmark & \checkmark \\
+\bottomrule
+\end{tabular}
+\end{table}

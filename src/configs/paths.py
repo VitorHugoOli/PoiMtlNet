@@ -35,6 +35,7 @@ class EmbeddingEngine(Enum):
     SPACE2VEC = "space2vec"
     SPHERE2VEC = "sphere2vec"
     CHECK2HGI = "check2hgi"
+    CHECK2HGI_POOLED = "check2hgi_pooled"  # POI-mean-pooled C4 counterfactual
     POI2HGI = "poi2hgi"
     FUSION = "fusion"  # Multi-embedding fusion
 
@@ -44,6 +45,7 @@ class Resources:
     Static paths for resource files.
     """
     _miscellaneous_dir = DATA_ROOT / "miscellaneous"
+    _gowalla_dir = DATA_ROOT / "gowalla"
     # US Census TIGER tract shapefiles (Gowalla states)
     TL_AL: Path = _miscellaneous_dir / "tl_2022_01_tract_AL" / "tl_2022_01_tract.shp"
     TL_AZ: Path = _miscellaneous_dir / "tl_2022_04_tract_AZ" / "tl_2022_04_tract.shp"
@@ -57,6 +59,23 @@ class Resources:
     # Sentinel for grid-based synthetic boroughs (international cities: Tokyo, etc.)
     # When set to None in the HGI pipeline, grid_boroughs.create_grid_boroughs() is used.
     GRID: None = None
+
+    # ── Gowalla raw inputs (consumed by src/etl/gowalla/) ──────────────────
+    # See pipelines/etl/gowalla.pipe.py for a turnkey wrapper.
+    CHECKINS_PARQUET: Path = _gowalla_dir / "gowalla_checkins.parquet"
+    CHECKINS: Path = _gowalla_dir / "gowalla_checkins.csv"
+    SPOTS: Path = _gowalla_dir / "gowalla_spots_subset1.csv"
+    SPOTS_2: Path = _gowalla_dir / "gowalla_spots_subset2.csv"
+    CATEGORIES_STRUCTURE: Path = _gowalla_dir / "gowalla_category_structure.json"
+    CATEGORIES_CALLBACK: Path = _gowalla_dir / "callback_categories.json"
+    EXTRA_CATEGORIES_CALLBACK: Path = _gowalla_dir / "extra_categories.json"
+    # US states shapefile — download from Census TIGER:
+    # https://www2.census.gov/geo/tiger/TIGER2022/STATE/tl_2022_us_state.zip
+    STATES_US: Path = _miscellaneous_dir / "tl_2022_us_state" / "tl_2022_us_state.shp"
+    # Timezone polygons — used by stage 2 to compute local_datetime per checkin.
+    # Download from https://github.com/evansiroky/timezone-boundary-builder/releases
+    # (combined-shapefile-with-oceans variant).
+    TIMEZONES: Path = _miscellaneous_dir / "combined-shapefile-with-oceans" / "combined-shapefile-with-oceans.shp"
 
 
 
@@ -314,6 +333,15 @@ class IoPaths:
     """
     EMBEDDINGS_FILE: str = "embeddings.parquet"
 
+    # ── Gowalla ETL artefacts (raw → labelled → localised → per-state) ─────
+    _gowalla_etl_dir: Path = DATA_ROOT / "temp" / "gowalla"
+    CHECKINS_ETL_STEP_1: Path = _gowalla_etl_dir / "stage1_categorised.parquet"
+    CHECKINS_ETL_STEP_2: Path = _gowalla_etl_dir / "stage2_localised.parquet"
+    CHECKINS_ETL_STEP_3: Path = _gowalla_etl_dir / "stage3_states.parquet"
+    CHECKINS_ETL_STEP_3_CSV: Path = _gowalla_etl_dir / "stage3_states.csv"
+    CHECKINS_ETL_STATES: Path = DATA_ROOT / "checkins"
+    CHECKINS_ETL_STATES_PARQUET: Path = DATA_ROOT / "checkins_parquet"
+
     @classmethod
     def validate(cls) -> None:
         """Check that required data directories exist and create output directories.
@@ -386,17 +414,23 @@ class IoPaths:
     def get_next_region(cls, state: str, embedd_engine: EmbeddingEngine) -> Path:
         """Next-region input path.
 
-        The next-region label space is derived from the check2HGI
-        preprocessing graph artifact (``poi_to_region`` tensor); this
-        path helper only covers the CHECK2HGI engine because other
-        engines don't produce a region assignment. If the caller needs
-        next-region labels on a different engine, port the region-
-        definition pipeline first.
+        The next-region *label space* is derived from the check2HGI
+        preprocessing graph artifact (``poi_to_region`` tensor) — that
+        labelling is substrate-independent. Each engine that wants to
+        run a region task must publish its own ``input/next_region.parquet``
+        with substrate-specific embedding columns (built by
+        ``scripts/probe/build_hgi_next_region.py`` and friends).
+
+        Currently supported: CHECK2HGI (canonical), HGI (built for the
+        Phase-1 MTL counterfactual; see SUBSTRATE_COMPARISON_PLAN §5).
+        Other engines: port the builder + pre-stage the parquet first.
         """
-        if embedd_engine != EmbeddingEngine.CHECK2HGI:
+        supported = (EmbeddingEngine.CHECK2HGI, EmbeddingEngine.HGI)
+        if embedd_engine not in supported:
             raise ValueError(
-                f"next_region labels are only defined on CHECK2HGI (got "
-                f"{embedd_engine}). See docs/plans/CHECK2HGI_MTL_OVERVIEW.md §4."
+                f"next_region not yet built for {embedd_engine}. Supported: "
+                f"{[e.name for e in supported]}. Build with "
+                f"scripts/probe/build_hgi_next_region.py (or analogous)."
             )
         return cls.get_input_dir(state, embedd_engine) / "next_region.parquet"
 

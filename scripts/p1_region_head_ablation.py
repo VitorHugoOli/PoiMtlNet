@@ -75,7 +75,9 @@ logger = logging.getLogger(__name__)
 
 ALL_HEADS = [
     "next_mtl", "next_gru", "next_lstm", "next_tcn_residual", "next_temporal_cnn",
-    "next_stan", "next_getnext", "next_getnext_hard",
+    "next_stan", "next_getnext", "next_getnext_hard", "next_getnext_hard_hsm",
+    # Paper-facing alias for next_getnext_hard (STAN backbone + α·log_T flow prior).
+    "next_stan_flow",
 ]
 # Per-head default max_lr for OneCycleLR. Transformer converges at much
 # lower LRs; RNN/CNN heads tolerate 3e-3. Override via --max-lr.
@@ -88,12 +90,17 @@ _HEAD_MAX_LR = {
     "next_stan": 3e-3,
     "next_getnext": 3e-3,
     "next_getnext_hard": 3e-3,
+    "next_getnext_hard_hsm": 3e-3,
+    "next_stan_flow": 3e-3,  # alias of next_getnext_hard
 }
 
 # Heads that require ``last_region_idx`` delivered via aux_side_channel.
 # For single-task ablation we wire POIDatasetWithAux + AuxPublishingLoader
 # around train/val DataLoaders when the head is in this set.
-_HEADS_REQUIRING_AUX = {"next_getnext_hard"}
+# Note: next_getnext/next_tgstan/next_stahyper also consume log_T but
+# read last-step embedding from x[..., last_idx] internally — they
+# don't need the aux side channel.
+_HEADS_REQUIRING_AUX = {"next_getnext_hard", "next_getnext_hard_hsm", "next_stan_flow"}
 
 
 def _load_region_embeddings(state: str, source: str = "check2hgi") -> tuple[np.ndarray, int]:
@@ -313,10 +320,87 @@ class _InputLN(torch.nn.Module):
         return self.head(x_out)
 
 
+class _MTLPreencoder(torch.nn.Module):
+    """Wrap a head with MTLnet's next_encoder stack as pre-processor.
+
+    Mirrors ``MTLnet._build_encoder`` (Linear+ReLU+LayerNorm+Dropout stack)
+    so single-task evaluation sees the same input distribution the MTL
+    head would see — minus the cross-attn / shared-backbone blocks.
+    Used by F41 (Exp D) to isolate the *upstream encoder* contribution of
+    the CH18 STL-vs-MTL gap.
+
+    Padding semantics are preserved: positions that were zero in the
+    input are re-zeroed after the encoder so the head's padding mask
+    (``x.abs().sum(-1) == 0``) still fires. In MTL this is enforced by
+    the downstream cross-attn `mask.unsqueeze(-1)` step; we replicate it
+    directly here.
+    """
+
+    def __init__(self, in_size, hidden_size, out_size, num_layers=2,
+                 dropout=0.1, head=None):
+        super().__init__()
+        layers = [
+            torch.nn.Linear(in_size, hidden_size),
+            torch.nn.ReLU(),
+            torch.nn.LayerNorm(hidden_size),
+            torch.nn.Dropout(dropout),
+        ]
+        for _ in range(num_layers - 1):
+            layers += [
+                torch.nn.Linear(hidden_size, hidden_size),
+                torch.nn.ReLU(),
+                torch.nn.LayerNorm(hidden_size),
+                torch.nn.Dropout(dropout),
+            ]
+        layers += [
+            torch.nn.Linear(hidden_size, out_size),
+            torch.nn.ReLU(),
+            torch.nn.LayerNorm(out_size),
+        ]
+        self.encoder = torch.nn.Sequential(*layers)
+        self.head = head
+
+    def forward(self, x):
+        pad_mask = (x.abs().sum(dim=-1, keepdim=True) == 0)  # [B, T, 1] bool
+        x_enc = self.encoder(x)
+        x_enc = x_enc.masked_fill(pad_mask, 0.0)
+        return self.head(x_enc)
+
+
+CANONICAL_METRICS: tuple[str, ...] = (
+    "accuracy", "top5_acc", "top10_acc", "mrr", "f1",
+)
+"""Metrics tracked by ``_new_per_metric_tracker``. Same set used in MTL
+``storage.py`` ``CANONICAL_BEST_METRICS`` for parity."""
+
+
+def _new_per_metric_tracker() -> dict:
+    """Empty per-metric best tracker for ``_update_per_metric_best``."""
+    return {m: {"value": -1.0, "snapshot": {}} for m in CANONICAL_METRICS}
+
+
+def _update_per_metric_best(tracker: dict, metrics: dict, epoch: int) -> None:
+    """Update each metric's best snapshot if this epoch's value is higher.
+
+    AUDIT-C1: emits a per-metric snapshot so the STL output JSON has
+    ``per_metric_best.f1.f1`` (the metric *at its own best epoch*) instead
+    of the legacy single-snapshot scheme that reported every metric at
+    top10's best epoch.
+    """
+    for m in CANONICAL_METRICS:
+        v = float(metrics.get(m, 0.0))
+        if v > tracker[m]["value"]:
+            tracker[m]["value"] = v
+            tracker[m]["snapshot"] = dict(metrics)
+            tracker[m]["snapshot"]["best_epoch"] = int(epoch)
+
+
 def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
                        emb_dim, n_classes, epochs, batch_size, seed,
                        overrides, max_lr, label_smoothing, input_ln,
-                       aux_tensor=None):
+                       aux_tensor=None, mtl_preencoder=False,
+                       preenc_hidden=256, preenc_layers=2,
+                       preenc_dropout=0.1):
     """Train a single-task model and return val metrics.
 
     ``aux_tensor`` — optional per-sample auxiliary int64 tensor (e.g.
@@ -348,10 +432,23 @@ def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
         val_dl = _dataloader(x_val, y_val, batch_size, False)
 
     seq_length = InputsConfig.SLIDE_WINDOW
-    head = _build_head(head_name, emb_dim, n_classes, seq_length, overrides)
+    # Under --mtl-preencoder, the head's `embed_dim` must match the
+    # preencoder's output dim (e.g. 256), not the raw input dim (64).
+    # This mirrors MTL where the head receives the next_encoder output.
+    head_embed_dim = preenc_hidden if mtl_preencoder else emb_dim
+    head = _build_head(head_name, head_embed_dim, n_classes, seq_length, overrides)
     model = head
     if input_ln:
-        model = _InputLN(head, emb_dim)
+        model = _InputLN(head, head_embed_dim)
+    if mtl_preencoder:
+        model = _MTLPreencoder(
+            in_size=emb_dim,
+            hidden_size=preenc_hidden,
+            out_size=preenc_hidden,
+            num_layers=preenc_layers,
+            dropout=preenc_dropout,
+            head=model,
+        )
     model = model.to(DEVICE)
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=0.01)
@@ -361,8 +458,13 @@ def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
     )
     criterion = CrossEntropyLoss(label_smoothing=label_smoothing)
 
-    best_acc10 = -1.0
-    best_metrics = {}
+    # AUDIT-C1 fix: track per-metric best across all epochs, not just
+    # top10. The legacy code picked top10-best then reported F1/MRR/Acc@1
+    # at THAT epoch — mirroring (in opposite direction) the MTL F1-vs-
+    # top10 mismatch. With per_metric_best we emit a separate
+    # snapshot at each canonical metric's best epoch so downstream
+    # comparisons can be apples-to-apples.
+    per_metric_best: dict = _new_per_metric_tracker()
 
     for epoch in range(epochs):
         model.train()
@@ -388,12 +490,15 @@ def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
         targets = torch.cat(all_targets)
         metrics = compute_classification_metrics(logits, targets, num_classes=n_classes, top_k=(5, 10))
 
-        acc10 = metrics.get("top10_acc", 0.0)
-        if acc10 > best_acc10:
-            best_acc10 = acc10
-            best_metrics = dict(metrics)
-            best_metrics["best_epoch"] = epoch + 1
+        _update_per_metric_best(per_metric_best, metrics, epoch + 1)
 
+    # Backward-compatible primary return: top10-best snapshot (same as
+    # before). Downstream callers can read per_metric_best for clean
+    # cross-metric reporting.
+    best_metrics = dict(per_metric_best["top10_acc"]["snapshot"])
+    best_metrics["per_metric_best"] = {
+        m: per_metric_best[m]["snapshot"] for m in CANONICAL_METRICS
+    }
     return best_metrics
 
 
@@ -438,7 +543,12 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
                  overrides: dict, max_lr: float | None,
                  label_smoothing: float, input_ln: bool,
                  tag: str | None, resume: bool = True,
-                 region_emb_source: str = "check2hgi"):
+                 region_emb_source: str = "check2hgi",
+                 mtl_preencoder: bool = False,
+                 preenc_hidden: int = 256,
+                 preenc_layers: int = 2,
+                 preenc_dropout: float = 0.1,
+                 per_fold_transition_dir: str | None = None):
     logger.info("Loading data for %s (input_type=%s, region_emb=%s)...", state, input_type, region_emb_source)
     x_tensor, y_region, y_cat, userids, emb_dim, n_regions, last_region_tensor = _load_data(
         state, input_type, region_emb_source,
@@ -490,7 +600,11 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
                 for key in ["accuracy", "top5_acc", "top10_acc", "mrr", "f1"]:
                     vals = [m.get(key, 0.0) for m in fold_metrics]
                     agg[f"{key}_mean"] = float(np.mean(vals))
-                    agg[f"{key}_std"] = float(np.std(vals))
+                    # AUDIT-C6: ddof=1 (sample std) matches MTL-side
+                    # ``statistics.stdev`` so cross-pipeline σ comparisons
+                    # use the same convention. For n=5 this is ~12% larger
+                    # than population std (np.std default).
+                    agg[f"{key}_std"] = float(np.std(vals, ddof=1)) if len(vals) > 1 else 0.0
                 results[head_name] = {**head_state, "per_fold": fold_metrics, "aggregate": agg}
             continue
         if completed > 0:
@@ -502,12 +616,50 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
         for fold_idx, (train_idx, val_idx) in enumerate(splits):
             if fold_idx < completed:
                 continue
+            # AUDIT-C4 — when per_fold_transition_dir is set, override the
+            # head's transition_path with the leak-free fold-specific file.
+            # The fold split here uses the same StratifiedGroupKFold(seed=42)
+            # as compute_region_transition.py --per-fold, so fold N here
+            # matches region_transition_log_fold{N+1}.pt by construction.
+            fold_overrides = dict(overrides)
+            if per_fold_transition_dir is not None:
+                # F51 seeded naming: region_transition_log_seed{S}_fold{N}.pt.
+                # Trainer hard-fails on legacy unseeded files; STL is now
+                # consistent. Falls back to legacy only if seeded missing
+                # AND legacy present (loud warning) — for backwards compat
+                # with old experiments still on the legacy path.
+                pf_seeded = Path(per_fold_transition_dir) / f"region_transition_log_seed{seed}_fold{fold_idx + 1}.pt"
+                pf_legacy = Path(per_fold_transition_dir) / f"region_transition_log_fold{fold_idx + 1}.pt"
+                if pf_seeded.exists():
+                    pf_path = pf_seeded
+                elif pf_legacy.exists():
+                    logger.warning(
+                        "[C4 STL] using LEGACY unseeded log_T at %s — only valid "
+                        "for seed=42; non-42 seeds leak val transitions. Build "
+                        "seeded version with: python scripts/compute_region_transition.py "
+                        "--state %s --per-fold --seed %d",
+                        pf_legacy, state, seed,
+                    )
+                    pf_path = pf_legacy
+                else:
+                    raise FileNotFoundError(
+                        f"per_fold_transition_dir set but neither {pf_seeded} "
+                        f"nor legacy {pf_legacy} exists. Build seeded with: "
+                        f"python scripts/compute_region_transition.py "
+                        f"--state {state} --per-fold --seed {seed}"
+                    )
+                fold_overrides["transition_path"] = str(pf_path)
+                logger.info("[C4 STL] fold %d using per-fold log_T %s", fold_idx, pf_path)
             t0 = time.time()
             metrics = _train_single_task(
                 head_name, x_tensor, y_region, train_idx, val_idx,
                 emb_dim, n_regions, epochs, batch_size, seed + fold_idx,
-                overrides, head_max_lr, label_smoothing, input_ln,
+                fold_overrides, head_max_lr, label_smoothing, input_ln,
                 aux_tensor=last_region_tensor,
+                mtl_preencoder=mtl_preencoder,
+                preenc_hidden=preenc_hidden,
+                preenc_layers=preenc_layers,
+                preenc_dropout=preenc_dropout,
             )
             elapsed = time.time() - t0
             fold_metrics.append(metrics)
@@ -547,11 +699,30 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
         for key in ["accuracy", "top5_acc", "top10_acc", "mrr", "f1"]:
             vals = [m.get(key, 0.0) for m in fold_metrics]
             agg[f"{key}_mean"] = float(np.mean(vals))
-            agg[f"{key}_std"] = float(np.std(vals))
+            # AUDIT-C6: ddof=1 to match MTL-side ``statistics.stdev``
+            agg[f"{key}_std"] = float(np.std(vals, ddof=1)) if len(vals) > 1 else 0.0
+
+        # AUDIT-C1: per-metric aggregate. For each canonical metric, take
+        # its value at ITS OWN best epoch in every fold and aggregate.
+        # Pre-fix the only aggregate was at top10-best epoch — biased.
+        agg_per_metric: dict = {}
+        for selector in CANONICAL_METRICS:
+            for reported in CANONICAL_METRICS:
+                vals = [
+                    m.get("per_metric_best", {}).get(selector, {}).get(reported, 0.0)
+                    for m in fold_metrics
+                ]
+                agg_per_metric[f"{reported}_at_{selector}_best_mean"] = (
+                    float(np.mean(vals)) if vals else 0.0
+                )
+                agg_per_metric[f"{reported}_at_{selector}_best_std"] = (
+                    float(np.std(vals, ddof=1)) if len(vals) > 1 else 0.0
+                )
 
         results[head_name] = {
             "per_fold": fold_metrics,
             "aggregate": agg,
+            "aggregate_per_metric_best": agg_per_metric,
             "config": {
                 "max_lr": head_max_lr,
                 "label_smoothing": label_smoothing,
@@ -633,6 +804,33 @@ def main():
                         help="Which engine's region_embeddings.parquet to use for region/concat input_type. "
                              "Labels + sequences always come from check2hgi — only the embedding lookup changes. "
                              "Used for P1.5 embedding-substrate comparison (CH15).")
+    parser.add_argument("--mtl-preencoder", action="store_true",
+                        help="Wrap the head with MTLnet's next_encoder stack (Linear+ReLU+LayerNorm+Dropout) "
+                             "as a pre-processor, mirroring the MTL pipeline's upstream encoder without the "
+                             "cross-attn / shared-backbone. Used by F41 (Exp D) to isolate the upstream "
+                             "encoder contribution to the CH18 STL-vs-MTL region gap. Forces the head's "
+                             "embed_dim to match --preenc-hidden.")
+    parser.add_argument("--preenc-hidden", type=int, default=256,
+                        help="Hidden / output dim of --mtl-preencoder (default 256, matches MTL shared_layer_size).")
+    parser.add_argument("--preenc-layers", type=int, default=2,
+                        help="Number of Linear blocks in --mtl-preencoder (default 2, matches MTL num_encoder_layers).")
+    parser.add_argument(
+        "--per-fold-transition-dir",
+        dest="per_fold_transition_dir",
+        type=str,
+        default=None,
+        metavar="DIR",
+        help=(
+            "AUDIT-C4 fix: directory containing per-fold transition matrices "
+            "(``region_transition_log_fold{1..k}.pt``). When set, the trainer "
+            "overrides ``transition_path`` per fold to the matching file, "
+            "eliminating val→train leakage in the GETNext graph prior. "
+            "Build with: python scripts/compute_region_transition.py "
+            "--state STATE --per-fold"
+        ),
+    )
+    parser.add_argument("--preenc-dropout", type=float, default=0.1,
+                        help="Dropout in --mtl-preencoder (default 0.1, matches MTL encoder_dropout).")
     args = parser.parse_args()
 
     overrides = _parse_overrides(args.override_hparams)
@@ -641,6 +839,11 @@ def main():
         args.input_type, overrides, args.max_lr, args.label_smoothing,
         args.input_layernorm, args.tag, resume=args.resume,
         region_emb_source=args.region_emb_source,
+        mtl_preencoder=args.mtl_preencoder,
+        preenc_hidden=args.preenc_hidden,
+        preenc_layers=args.preenc_layers,
+        preenc_dropout=args.preenc_dropout,
+        per_fold_transition_dir=args.per_fold_transition_dir,
     )
 
 

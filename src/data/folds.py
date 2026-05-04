@@ -180,13 +180,14 @@ class POIDatasetWithAux(Dataset):
 # UTILITIES
 # ============================================================
 def _get_num_workers() -> int:
-    # MPS + in-memory tensor datasets: num_workers=0 is fastest.
+    # In-memory tensor datasets: num_workers=0 is fastest on every device.
     # Each worker is a forked Python process that pickles the tensor over
     # IPC per epoch — pure overhead when the dataset is already a torch
-    # tensor in RAM. See PyTorch Lightning MPS docs.
-    if DEVICE.type == 'mps':
-        return 0
-    return min(8, os.cpu_count() or 1)
+    # tensor in RAM. On CUDA (Colab T4), 8 workers each forked a 9.8 GB
+    # copy of the FL dataset and OOM-killed the cgroup; on MPS the IPC
+    # cost showed up as visible per-epoch warm-up time. See PyTorch
+    # Lightning MPS docs + 2026-04-27 FL-on-T4 OOM postmortem.
+    return 0
 
 
 def _worker_init_fn(worker_id: int) -> None:
@@ -862,9 +863,12 @@ class FoldCreator:
         next_category task (task_a slot, 7 classes) and ``.next``
         carries the next_region task (task_b slot, ~1K-5K classes).
         """
-        if embedding_engine != EmbeddingEngine.CHECK2HGI:
+        # SUBSTRATE_COMPARISON_PLAN §5 — MTL counterfactual permits HGI
+        # provided next_region.parquet has been pre-built by
+        # scripts/probe/build_hgi_next_region.py.
+        if embedding_engine not in (EmbeddingEngine.CHECK2HGI, EmbeddingEngine.HGI):
             raise ValueError(
-                f"MTL_CHECK2HGI requires engine=CHECK2HGI (got {embedding_engine})."
+                f"MTL_CHECK2HGI requires engine in (CHECK2HGI, HGI); got {embedding_engine}."
             )
 
         # Load X + next_category labels from next.parquet.
@@ -879,21 +883,40 @@ class FoldCreator:
             )
         y_region = region_df["region_idx"].to_numpy(dtype=np.int64)
 
-        # B5 hard-index path: when task_b head is ``next_getnext_hard``,
-        # also pull ``last_region_idx`` from the parquet. Missing column
-        # -> fail loud asking to regenerate the parquet (see
+        # B5 hard-index path: when task_b head is ``next_getnext_hard`` (or any
+        # variant that consumes ``last_region_idx`` via aux_side_channel — e.g.
+        # F50's ``next_getnext_hard_hsm``), pull ``last_region_idx`` from the
+        # parquet and wrap the loader in ``AuxPublishingLoader``.
+        # Missing column -> fail loud asking to regenerate the parquet (see
         # ``scripts/regenerate_next_region.py``).
         task_b_head = (
             getattr(getattr(self.task_set, "task_b", None), "head_factory", None)
             if self.task_set is not None else None
         )
-        use_aux = task_b_head == "next_getnext_hard"
+        # Heads that read ``last_region_idx`` via aux_side_channel during forward.
+        # Keep in sync with ``_HEADS_REQUIRING_AUX`` in ``scripts/p1_region_head_ablation.py``.
+        #
+        # ONLY ``next_getnext_hard*`` use aux. The other log_T-loading heads
+        # (next_getnext / next_tgstan / next_stahyper) compute their last-step
+        # representation INTERNALLY via ``last_emb = x[batch_idx, last_idx]``
+        # — they don't need the aux side channel even though they consume the
+        # transition prior. (Earlier broader-leakage audit was right that
+        # those heads carry the C4 leak via log_T, but they don't read
+        # last_region_idx.)
+        # Both legacy and renamed (2026-05-01 → STAN-Flow) registry IDs are listed
+        # so the aux gate fires whether the user passes `next_getnext_hard` or
+        # `next_stan_flow` via the head factory.
+        _HEADS_REQUIRING_AUX_MTL = {
+            "next_getnext_hard", "next_getnext_hard_hsm",       # legacy aliases
+            "next_stan_flow", "next_stan_flow_hsm",             # paper-facing names
+        }
+        use_aux = task_b_head in _HEADS_REQUIRING_AUX_MTL
         if use_aux:
             if "last_region_idx" not in region_df.columns:
                 raise ValueError(
                     f"next_region.parquet for {state} is missing the "
                     f"'last_region_idx' column required by head "
-                    f"'next_getnext_hard'. Regenerate via "
+                    f"{task_b_head!r}. Regenerate via "
                     f"`python scripts/regenerate_next_region.py --state {state}`."
                 )
             y_last_region = region_df["last_region_idx"].to_numpy(dtype=np.int64)
@@ -1046,7 +1069,9 @@ class FoldCreator:
         return save_folds(serializable, save_dir)
 
     def save_split_manifests(self, output_dir: Path) -> List[Path]:
-        """Emit split_manifest_fold*.json for each fold.
+        """Emit split_manifest_fold*.json for each fold + a top-level
+        fold_set_digest.json (AUDIT-C8) so paired statistical tests can
+        verify they're comparing the same partition.
 
         Only available after _create_mtl_folds() has been called.
         Returns list of paths written.
@@ -1055,17 +1080,38 @@ class FoldCreator:
             logger.warning("No fold manifests to save (not an MTL split or create_folds not called)")
             return []
 
+        from data.fold_digest import compute_fold_set_digest
+
         output_dir = Path(output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
         paths = []
 
+        digest = compute_fold_set_digest(self._fold_manifests)
+
         for manifest in self._fold_manifests:
             fold_idx = manifest['fold_idx']
             path = output_dir / f"split_manifest_fold{fold_idx}.json"
+            # Embed the run-level digest in each per-fold manifest so a
+            # single fold file is self-describing for paired-test code
+            # that may not have access to the sibling digest.json.
+            stamped = dict(manifest)
+            stamped['fold_set_digest'] = digest
             with open(path, 'w') as f:
-                json.dump(manifest, f, indent=2, default=_json_default)
+                json.dump(stamped, f, indent=2, default=_json_default)
             paths.append(path)
             logger.info(f"Split manifest written: {path}")
+
+        digest_path = output_dir / "fold_set_digest.json"
+        with open(digest_path, 'w') as f:
+            json.dump({
+                'fold_set_digest': digest,
+                'n_folds': len(self._fold_manifests),
+                'seed': self.seed,
+                'state': getattr(self, 'state', None),
+                'engine': getattr(self, '_engine_value', None),
+            }, f, indent=2, default=_json_default)
+        paths.append(digest_path)
+        logger.info(f"Fold-set digest written: {digest_path} ({digest[:12]}...)")
 
         return paths
 

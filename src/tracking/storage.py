@@ -81,27 +81,46 @@ class SummaryGenerator:
         out = ensure_dir(out_dir)
         perf = self._collect_performance()
         diagnostic_perf = self._collect_task_best_performance()
+        per_metric_perf = self._collect_per_metric_best_performance()
         cat_metrics = self._collect_category_metrics()
 
-        # Overall summary
+        # C7 fix: stamp every aggregate with its aggregation_basis so downstream
+        # readers know which best-epoch convention produced each block. Three
+        # bases coexist in this file:
+        #   joint_best        — model-level joint score selection (MTL)
+        #   per_task_f1_best  — each task's own F1-best epoch
+        #   per_metric_best   — each (task, metric) at its own best epoch
+        primary_basis = 'joint_best' if self._has_joint_selection() else 'per_task_f1_best'
         stats: Dict[str, Any] = {
             task: {
-                metric: self._stats(vals)
-                for metric, vals in metrics.items()
+                'aggregation_basis': primary_basis,
+                **{metric: self._stats(vals) for metric, vals in metrics.items()},
             }
             for task, metrics in perf.items()
         }
         if diagnostic_perf:
             stats['_selection'] = {
                 'primary': 'joint_score' if self._has_joint_selection() else 'task_best',
+                'primary_basis': primary_basis,
                 'diagnostic_task_best': 'per-task best validation f1',
+                'diagnostic_basis': 'per_task_f1_best',
+                'per_metric_best': 'each (task,metric) aggregated at its own best epoch',
+                'per_metric_basis': 'per_metric_best',
             }
             stats['diagnostic_task_best'] = {
                 task: {
-                    metric: self._stats(vals)
-                    for metric, vals in metrics.items()
+                    'aggregation_basis': 'per_task_f1_best',
+                    **{metric: self._stats(vals) for metric, vals in metrics.items()},
                 }
                 for task, metrics in diagnostic_perf.items()
+            }
+        if per_metric_perf:
+            stats['per_metric_best'] = {
+                task: {
+                    'aggregation_basis': 'per_metric_best',
+                    **{metric: self._stats(vals) for metric, vals in metrics.items()},
+                }
+                for task, metrics in per_metric_perf.items()
             }
         save_json(stats, out / 'full_summary.json')
 
@@ -192,6 +211,28 @@ class SummaryGenerator:
                 for metric_name, values in th.val.items():
                     if best_epoch < len(values):
                         task_perf.setdefault(metric_name, []).append(values[best_epoch])
+        return perf
+
+    def _collect_per_metric_best_performance(self) -> Dict[str, Dict[str, List[float]]]:
+        """Collect each (task, metric) at its OWN best epoch across folds.
+
+        Companion to the per-fold ``per_metric_best`` block written into
+        ``fold_info.json``. Aggregates the per-metric-best value series so
+        ``full_summary.json`` carries a third aggregate basis next to
+        ``joint_best`` and ``per_task_f1_best``. C7 closure.
+        """
+        perf: Dict[str, Dict[str, List[float]]] = {}
+        for fold in self.history.folds:
+            for task in self.history.tasks:
+                th = fold.tasks.get(task)
+                if not th:
+                    continue
+                task_perf = perf.setdefault(task, {})
+                for metric_name, values in th.val.items():
+                    if not values:
+                        continue
+                    best_value = max(values)
+                    task_perf.setdefault(metric_name, []).append(best_value)
         return perf
 
     def _has_joint_selection(self) -> bool:
@@ -367,6 +408,36 @@ class HistoryStorage:
                 'f1': metrics_at_best.get('f1'),
             }
 
+            # F50 T3 fix (2026-04-29) — track best epoch PER metric, not just per
+            # F1 (the BestModelTracker's monitor). Without this, top10/MRR/accuracy
+            # were reported at the F1-best epoch — which differs by ~1-4 pp on MTL
+            # FL runs (F1-best epoch ≠ top10-best epoch). See
+            # research/F50_T3_TRAINING_DYNAMICS_DIAGNOSTICS.md §5.5 and
+            # MTL_FLAWS_AND_FIXES.md §2.10. Backward-compatible: existing keys
+            # preserved; this is purely additive (`per_metric_best` sub-dict).
+            CANONICAL_BEST_METRICS = (
+                'top10_acc_indist', 'top5_acc_indist', 'top3_acc_indist',
+                'mrr_indist',
+                'top10_acc', 'top5_acc', 'top3_acc', 'mrr',
+                'accuracy', 'accuracy_macro', 'f1_weighted',
+            )
+            per_metric_best: Dict[str, Any] = {}
+            for metric_name in CANONICAL_BEST_METRICS:
+                values = list(th.val.get(metric_name, []))
+                if not values:
+                    continue
+                best_ep = max(range(len(values)), key=lambda i: values[i])
+                metrics_at_this_best: Dict[str, Any] = {}
+                for m_name, m_values in th.val.items():
+                    if best_ep < len(m_values):
+                        metrics_at_this_best[m_name] = m_values[best_ep]
+                per_metric_best[metric_name] = {
+                    'epoch': best_ep,
+                    'best_value': values[best_ep],
+                    'metrics': metrics_at_this_best,
+                }
+            fold_info['diagnostic_best_epochs'][task]['per_metric_best'] = per_metric_best
+
             primary_epoch = joint_epoch if joint_epoch >= 0 else be
             if joint_epoch < 0 and fold_info['primary_checkpoint']['epoch'] is None:
                 fold_info['primary_checkpoint']['epoch'] = be if be >= 0 else None
@@ -500,6 +571,35 @@ class HistoryStorage:
                     'accuracy': metrics_at_best.get('accuracy'),
                     'f1': metrics_at_best.get('f1'),
                 }
+
+                # F50 T3 fix (2026-04-29) — see same patch in the earlier _save_*
+                # method ~line 360. Track best epoch PER metric to avoid the
+                # F1-vs-other-metric epoch mismatch (~1-4 pp under-reporting on
+                # MTL FL runs). Backward-compatible additive `per_metric_best`
+                # sub-dict; downstream readers who don't know about it get the
+                # legacy F1-best behaviour.
+                CANONICAL_BEST_METRICS = (
+                    'top10_acc_indist', 'top5_acc_indist', 'top3_acc_indist',
+                    'mrr_indist',
+                    'top10_acc', 'top5_acc', 'top3_acc', 'mrr',
+                    'accuracy', 'accuracy_macro', 'f1_weighted',
+                )
+                per_metric_best: Dict[str, Any] = {}
+                for metric_name in CANONICAL_BEST_METRICS:
+                    values = list(th.val.get(metric_name, []))
+                    if not values:
+                        continue
+                    best_ep = max(range(len(values)), key=lambda i: values[i])
+                    metrics_at_this_best: Dict[str, Any] = {}
+                    for m_name, m_values in th.val.items():
+                        if best_ep < len(m_values):
+                            metrics_at_this_best[m_name] = m_values[best_ep]
+                    per_metric_best[metric_name] = {
+                        'epoch': best_ep,
+                        'best_value': values[best_ep],
+                        'metrics': metrics_at_this_best,
+                    }
+                fold_info['diagnostic_best_epochs'][task]['per_metric_best'] = per_metric_best
 
                 primary_epoch = joint_epoch if joint_epoch >= 0 else be
                 if joint_epoch < 0 and fold_info['primary_checkpoint']['epoch'] is None:

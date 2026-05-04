@@ -23,17 +23,19 @@
 
 ---
 
-## 2. BRACIS 2026 Key Dates
+## 2. BRACIS 2026 Key Dates (verified 2026-04-28)
 
-| Milestone | Date |
-|-----------|------|
-| **Paper registration** | April 13, 2026 |
-| **Paper submission** | April 20, 2026 |
-| Author notification | June 1, 2026 |
+| Milestone | Window |
+|-----------|--------|
+| **Paper registration** | **April 13–27, 2026** (extended) |
+| **Paper submission** | **April 20 – May 4, 2026** (extended) |
+| Author notification | **June 1–8, 2026** |
 | Camera-ready | June 29, 2026 |
-| Conference | October 19–22, 2026, Cuiaba, MT, Brazil |
+| Conference | October 19–22, 2026, Cuiabá, MT, Brazil (Centro de Eventos do UniSENAI) |
 
 All deadlines: 23:59 UTC-12:00 (Anywhere on Earth).
+
+Source: `bracis.sbc.org.br/2026/bracis/`. The original CFP listed single dates (April 13 / April 20 / June 1) — these were extended in April 2026. Submission system: JEMS3 at `https://jems3.sbc.org.br/bracis2026`.
 
 ---
 
@@ -41,9 +43,10 @@ All deadlines: 23:59 UTC-12:00 (Anywhere on Earth).
 
 ### Format
 - **Max 15 pages** (including tables, figures, references, appendices — tight!)
+- **Abstract: 70–150 words** (LNCS template binding rule), single paragraph, no footnotes, no inline math, no citations, define every acronym
 - **English only**, PDF format
-- **Springer LNCS template** (LaTeX via Overleaf)
-- **Submission system:** JEMS3 (https://jems3.sbc.org.br/)
+- **Springer LNCS template** (LaTeX via Overleaf) — proceedings publish as **LNAI** (Lecture Notes in Artificial Intelligence)
+- **Submission system:** JEMS3 (https://jems3.sbc.org.br/bracis2026)
 
 ### Review Process
 - **Double-blind** — strict anonymization required
@@ -228,3 +231,101 @@ or
 - [ ] Compare against at least 2–3 external baselines (not just our own variants)
 - [ ] Acknowledge LLM usage if applicable
 - [ ] Proofread English carefully
+
+---
+
+## 10. Empirical Patterns from Recent BRACIS Abstracts (research 2026-04-28)
+
+This section consolidates findings from a sweep of 13 verbatim accepted-paper abstracts spanning BRACIS 2023–2024 plus the official Springer LNCS author-template rules. Source-of-truth for the title/abstract decisions in `studies/check2hgi/PAPER_DRAFT.md`.
+
+### 10.1 LNCS Abstract Rules (binding)
+
+From the LNCS author template (`dokie.li/lncs-splnproc`):
+
+> "The abstract is a mandatory element that should summarize the contents of the paper and should contain at least 70 and at most 150 words."
+>
+> "Please note that no footnotes may be included in the abstract."
+
+- **70–150 words.** Single paragraph.
+- **No footnotes.** No inline math (Greek symbols, equations) — abstracts appear stand-alone on SpringerLink.
+- **No citations.** Define every acronym used.
+- The JEMS3 plain-text abstract field is separate; it accepts a longer plain-prose summary (~1500–4000 chars) but strips formatting. Same content can be reused.
+
+### 10.2 Style Rules from 13 Sampled Accepted BRACIS Abstracts
+
+1. **Open with domain framing, not claim-first.** 12 of 13 sampled abstracts open with a context sentence (e.g., "Crime prediction is a critical research area…", "Trajectory anomaly detection is essential…"). Claim-first openings are off-style.
+
+2. **State a gap before "we propose".** Common patterns:
+   - Enumerated list: *"(i) lack of methods based on GNNs and (ii) lack of interpretable methods"* (OPENCAST)
+   - "However, X fails to…" (HAVANA)
+   - "Existing solutions fail to utilize…"
+
+3. **Use "we propose" once.** 12 of 13 abstracts use this verb. Variants ("we introduce", "this work proposes") also work; passive ("is proposed") is rare. Always third-person plural.
+
+4. **Headline result is specific.** Strong examples:
+   - HAVANA: *"up to 25.05% in F1-Score compared to three state-of-the-art models across three different datasets"*
+   - OPENCAST: *"outperforming seven other methods"*
+   - Heterogeneous-graph: *"F1-Score of 83.66% overcoming the 60.70%"*
+   - Semi-Periodic Activation: *"112 benchmark datasets… best average ranking in all comparative scenarios"*
+
+   Vague qualitative-only claims are below venue norm.
+
+5. **Mechanism is conceptual, not algorithmic.** No equations, no layer counts. HAVANA: *"spatial and spectral filter integrated with a self-attention mechanism"* — good. Don't list hyperparameters or architecture depths.
+
+6. **For GNN/applied papers, justify *why a graph* by listing data modalities fused.**
+   - Crime/GNN: *"integrates crime, street map graphs, and urban data"*
+   - COVID/GNN: *"captures movement patterns between Brazilian cities and integrate it with time series data"*
+   - Heterogeneous-graph: *"process different types of node features, such as text, images, and subgraphs"*
+
+7. **Honest framing is rewarded.** Best papers (BRACIS 2023) included candid framing:
+   - *Embracing Data Irregularities* led with **"low computational cost"**, not peak F1.
+   - *Community Detection for Multi-label Classification* ended noting the classifier still struggles.
+   - *COVID-19 forecasting with GNNs* reported being beaten by Prophet on RMSE, then pivoted to **stability**.
+
+   Secondary virtues (efficiency, interpretability, robustness) can headline if accuracy isn't the cleanest story.
+
+8. **Single paragraph, ~150–220 words for SBC SOL versions; ≤150 binding for the LNAI Springer version.** No paragraph breaks, no citations, no reproducibility note, no formalism.
+
+### 10.3 Title Patterns (from 13 sampled BRACIS papers)
+
+Three dominant shapes:
+
+**A — Method-acronym + colon (HAVANA-style):**
+- *"HAVANA: Hybrid Attentional Graph Convolutional Network…"*
+- *"MAT-Tree: A Tree-Based Method for Multiple Aspect Trajectory Clustering"*
+
+Use when method has a memorable name. Commits to acronym branding throughout the paper.
+
+**B — Concept-for-Task (most BRACIS-canonical):**
+- *"Semi-Periodic Activation for Time Series Classification"*
+- *"One-Class Learning for Data Stream Through Graph Neural Networks"*
+- *"Hierarchical Graph Convolutional Networks for Image Classification"*
+
+Direct, descriptive, no hook. Reviewer-friendly. Most common shape.
+
+**C — Verb-Object-Domain:**
+- *"Modeling and Predicting Crimes in the City of São Paulo Using Graph Neural Networks"*
+- *"Detecting Multiple Epidemic Sources in Network Epidemics Using Graph Neural Networks"*
+- *"Applying Transformers for Anomaly Detection in Bus Trajectories"*
+
+Action-oriented; common for applied papers.
+
+**D — Phenomenon-and-Method (best paper at BRACIS 2023):**
+- *"Embracing Data Irregularities in Multivariate Time Series with Recurrent and Graph Neural Networks"*
+
+Length norm: **6–15 words, most around 8–12.** Avoid math symbols, undefined acronyms, and polemical claims ("Not X" can read aggressive). Two of 13 used a colon-subtitle; the other eleven used a single descriptive clause.
+
+### 10.4 Sample Sources
+
+13 BRACIS 2023–2024 abstracts captured 2026-04-28:
+
+- BRACIS 2023 best papers: *Embracing Data Irregularities…* (GNN+RNN time series); *Community Detection for Multi-label Classification*
+- BRACIS 2024 highlights: HAVANA (POI annotation, GNN+attention); OPENCAST (one-class GNN); *Semi-Periodic Activation* (time series); *Contrastive Objective for Continuous GFlowNets* (theory); *Heterogeneous-graph embeddings*
+- BRACIS 2023 additional: *Hierarchical GCN for Image Classification*; *Detecting Epidemic Sources with GNNs*; *COVID-19 forecasting with GNN+Mobility*; *MAT-Tree*
+
+Source URLs:
+- `https://sol.sbc.org.br/index.php/bracis/issue/view/1247` — 2023 SOL proceedings
+- `https://sol.sbc.org.br/index.php/bracis/issue/view/1454` — 2024 SOL proceedings
+- `https://link.springer.com/conference/bracis` — LNAI proceedings index
+- `https://dblp.org/db/conf/bracis/` — paper listings
+- `https://dokie.li/lncs-splnproc` — LNCS template author-instructions mirror

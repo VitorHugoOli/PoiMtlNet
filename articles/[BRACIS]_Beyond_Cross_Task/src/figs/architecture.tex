@@ -1,0 +1,83 @@
+% F-arch: cross-attention multi-task backbone schematic (simplified for BRACIS).
+% Six boxes total: two inputs, one cross-attention block (bidirectional K/V),
+% one shared backbone, two heads. Encoder / backbone / head internals are in
+% method.tex prose. Bold black bidirectional K/V arrows are load-bearing for
+% §6.3 (encoder co-adaptation).
+%
+% Loaded via \input by method.tex. Requires tikz with positioning, arrows.meta,
+% calc libraries.
+
+\begin{tikzpicture}[
+    >={Stealth[length=2.2mm,width=1.8mm]},
+    node distance=4mm and 9mm,
+    box/.style={
+        draw, rounded corners=2.5pt, align=center,
+        font=\scriptsize, inner sep=3pt,
+        minimum height=8mm, minimum width=28mm,
+    },
+    inputbox/.style={
+        box, fill=gray!8, draw=gray!60, font=\scriptsize\itshape,
+        minimum width=30mm, minimum height=7mm,
+    },
+    catbox/.style={box, fill=orange!12, draw=orange!60!black},
+    regbox/.style={box, fill=cyan!12, draw=cyan!60!black},
+    crossbox/.style={
+        box, fill=gray!10, draw=gray!60!black,
+        minimum width=70mm, minimum height=10mm,
+        font=\scriptsize\bfseries,
+    },
+    sharedbox/.style={
+        box, fill=gray!15, draw=gray!50!black,
+        minimum width=70mm, minimum height=8mm,
+    },
+    cathead/.style={box, fill=orange!18, draw=orange!70!black, minimum height=8mm},
+    reghead/.style={box, fill=cyan!18, draw=cyan!70!black, minimum height=8mm},
+    flow/.style={-{Stealth[length=2.2mm,width=1.8mm]}, thick, gray!70!black},
+    kvflow/.style={
+        {Stealth[length=2.5mm,width=2mm]}-{Stealth[length=2.5mm,width=2mm]},
+        line width=0.9pt, black,
+    },
+    kvlabel/.style={
+        font=\tiny\sffamily\bfseries, inner sep=0.5pt,
+        fill=white, inner xsep=2pt,
+    },
+    iolabel/.style={font=\tiny\sffamily, inner sep=1pt, text=gray!50!black},
+]
+
+% --- input row ---
+\node[inputbox] (xc) {$X^{c}\in\mathbb{R}^{9\times 64}$ \, (check-in window)};
+\node[inputbox, right=18mm of xc] (xr) {$X^{r}\in\mathbb{R}^{9\times 64}$ \, (region window)};
+
+% --- cross-attention (single block spanning both streams) ---
+% N4 fix (Round 5g): "(Eq.)" cross-ref dropped from box title to free
+% the box centre for the K/V cross-feed label (caption already cites Eq.~2).
+\node[crossbox, below=8mm of $(xc)!0.5!(xr)$] (cross)
+    {Cross-attention};
+
+% --- shared residual backbone ---
+\node[sharedbox, below=5mm of cross] (shared) {Shared residual backbone};
+
+% --- per-task heads ---
+\node[cathead, below=6mm of shared.south, anchor=north east, xshift=-2mm] (gru)
+    {GRU category head};
+\node[reghead, below=6mm of shared.south, anchor=north west, xshift=2mm] (stan)
+    {STAN region head $+\,\alpha\log T[r_{\text{last}}]$};
+
+% --- output annotations ---
+\node[iolabel, below=2mm of gru] {$\to$ next-category};
+\node[iolabel, below=2mm of stan] {$\to$ next-region};
+
+% --- arrows: inputs -> cross-attention ---
+\draw[flow] (xc.south) -- (xc.south |- cross.north);
+\draw[flow] (xr.south) -- (xr.south |- cross.north);
+
+% --- bidirectional K/V cross-feed inside the cross-attention block ---
+\draw[kvflow] ([xshift=-22mm]cross.center) -- ([xshift=22mm]cross.center)
+    node[pos=0.5, kvlabel, above=0.5pt] {$K^{c}/V^{c} \;\;\leftrightarrow\;\; K^{r}/V^{r}$};
+
+% --- cross-attention -> shared -> heads ---
+\draw[flow] (cross.south) -- (shared.north);
+\draw[flow] (gru.north |- shared.south) -- (gru.north);
+\draw[flow] (stan.north |- shared.south) -- (stan.north);
+
+\end{tikzpicture}

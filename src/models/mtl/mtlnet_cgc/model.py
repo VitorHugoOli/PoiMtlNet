@@ -171,5 +171,39 @@ class MTLnetCGC(MTLnet):
             )
         )
 
+    def cat_specific_parameters(self) -> Iterator[nn.Parameter]:
+        """Cat-only params: cat encoder + cat head + cat-specific experts +
+        cat gate. Excludes shared_experts. Used by per-head LR optimizer (F48-H3)."""
+        return (
+            p
+            for name, p in self.named_parameters()
+            if any(
+                key in name
+                for key in (
+                    "category_encoder",
+                    "category_poi",
+                    "cgc.category_experts",
+                    "cgc.category_gate",
+                )
+            )
+        )
+
+    def reg_specific_parameters(self) -> Iterator[nn.Parameter]:
+        """Reg/next-only params: next encoder + next head + next-specific
+        experts + next gate. Symmetric to ``cat_specific_parameters``."""
+        return (
+            p
+            for name, p in self.named_parameters()
+            if any(
+                key in name
+                for key in (
+                    "next_encoder",
+                    "next_poi",
+                    "cgc.next_experts",
+                    "cgc.next_gate",
+                )
+            )
+        )
+
 
 __all__ = ["MTLnetCGC"]

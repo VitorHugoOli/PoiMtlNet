@@ -5,7 +5,7 @@ import numpy as np
 import json
 import re
 
-from config import Resources, IoPaths
+from src.configs.paths import Resources, IoPaths
 
 # Configure logging
 logging.basicConfig(

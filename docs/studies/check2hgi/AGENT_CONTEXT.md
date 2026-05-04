@@ -8,29 +8,77 @@ Read this before any scientific work on the `worktree-check2hgi-mtl` branch. It 
 
 This study runs **alongside** the fusion study — they coexist under `docs/studies/`. Fusion investigates POI-category classification on fused POI-level embeddings; this study investigates **joint next_category + next_region prediction on check-in-level contextual embeddings** (Check2HGI). Do not cross-reference or mix artefacts between the two studies.
 
-P0 complete, P1 in progress (2026-04-16). Embeddings + next_region labels exist for AL / FL / AZ; Markov floor corrected to region granularity; single-task baselines established; MTL variant code (CGC/MMoE/DSelectK/PLE) ported to the TaskSet preset system.
+**Post-paper-closure + cat-Δ Wilcoxon + TX recipe multi-seed + CA/TX arch-Δ n=20 era (2026-05-02 v11).** Paper closure complete; the headline narrative is **substrate task-asymmetry first, classic MTL tradeoff second**. The article-side BRACIS submission lives in `articles/[BRACIS]_Beyond_Cross_Task/`. **Single canonical numerical source: `results/RESULTS_TABLE.md §0` (v11).** All other numbers in this folder reference it; numbers that contradict v11 are either stale (mark, fix, or archive) or audit-historical.
 
-## Thesis (bidirectional, 2026-04-16)
+**Before doing scientific work, read in this order:**
+1. `CHANGELOG.md` — chronological timeline of findings + lessons (the single source for "what was found when, why").
+2. `results/RESULTS_TABLE.md §0` — canonical paper numbers (v11, 2026-05-02).
+3. `articles/[BRACIS]_Beyond_Cross_Task/AGENT.md` — article-side operational rules + voice + statistics + page budget.
+4. `CLAIMS_AND_HYPOTHESES.md` (with whitelist banner) — paper-facing safe entries are CH16 / CH18-cat / CH15 reframing / CH19 / CH22; everything else needs cross-checking against v11.
 
-MTL `{next_category, next_region}` must improve **both** heads over their respective single-task baselines on AL and FL. A one-sided lift fails the thesis. The architectural hypothesis for P3/P4 is **per-task input modality** (check-in emb → `category_encoder`, region emb → `next_encoder`) rather than shared or concatenated inputs. See CH01/CH02/CH03 in the claim catalog.
+**Headline (the classic MTL tradeoff, sign-consistent across 5 states):**
+- Cat: MTL ≥ STL at four of five states (AZ +1.20 p < 1e-4 / FL +1.40 p = 2e-06 / CA +1.68 p = 2e-06 / TX +1.89 p = 2e-06); AL is small-significantly negative (Δ = −0.78 pp, p = 0.036, n = 20 multi-seed; magnitude ~1.9% relative). **All five states (AL/AZ/CA/TX/FL) are now pooled multi-seed (n = 20) on the headline §0.1 axis — the last remaining single-seed asymmetry (FL) closed in v11.**
+- Reg: MTL < STL at every state by 7–17 pp (sign-consistent).
+- Substrate (matched-head STL): cat Δ = +14.5 to +29 pp at every state (paired Wilcoxon p = 0.0312 each); reg HGI nominally ahead by 1.6–3.1 pp (TOST tied at CA/TX).
+- Mechanism (CH19, AL-only): per-visit context = ~72% of cat substrate gap.
+- Methodological side-finding (CH3 / Layer 2): cross-attn `task_weight = 0` co-adapts via K/V — encoder-frozen isolation is required.
+
+**The leak-free reframe.** Two of the most prominent earlier findings (F49 "AL +6.48 pp MTL > STL on reg architecture-dominant"; CH18-reg "MTL substrate-specific"`) were leak artefacts of pre-F50 measurements (full-data `region_transition_log.pt` leaks ~13–27 pp; substrate-asymmetric, hurting C2HGI more than HGI). Under leak-free measurement, MTL trails STL on reg at every state. **The leak-free narrative is the paper-facing one**; the leak-era narrative is preserved in `archive/post_paper_closure_2026-05-01/` for audit. See `CHANGELOG.md` 2026-04-29 to 2026-05-01 entries for the timeline of how the reframe happened.
+
+## Thesis (post-leak-free, 2026-05-01)
+
+The bidirectional thesis ("MTL must lift both heads over STL") is **not** what we land. The honest finding is:
+
+1. **Substrate-task-asymmetry (C1).** Check-in-level Check2HGI lifts cat by +14.5 to +29 pp at every state; on reg it ties or marginally trails per-place HGI. Mechanism: per-visit variance is what cat needs; per-POI pooling smooths it away for reg.
+2. **Classic MTL tradeoff (C2).** With Check2HGI fixed, joint MTL adds a small cat lift at four of five states and pays a sign-consistent reg cost. Drop-in fixes (FAMO, Aligned-MTL, HSM) do not recover the reg gap.
+3. **Methodological note (C3).** Cross-attn `task_weight = 0` ablations are unsound; encoder-frozen isolation is required.
+
+Why "MTL lifts both heads" doesn't survive: the bidirectional thesis was a pre-leak-free framing. Under leak-free measurement, the paper-honest claim is that the substrate carries cat (paper-grade significant at every state) while the architecture pays reg (sign-consistent at every state) — the textbook tradeoff. This is documented and accepted.
 
 ---
 
-## Study navigation
+## Study navigation (post-cleanup 2026-05-01)
+
+**Active (read these first):**
 
 | File | Purpose |
 |------|---------|
-| `docs/studies/check2hgi/README.md` | Entry point + scope statement |
-| `docs/studies/check2hgi/QUICK_REFERENCE.md` | One-page overview |
-| `docs/studies/check2hgi/MASTER_PLAN.md` | 6-phase strategy (P0 prep → P1 single-task + input-modality ablation → P2 MTL arch×optim grid → P3 MTL headline bidirectional → P4 per-task input modality → P5 cross-attention (gated) → P6 encoder enrichment) |
-| `docs/studies/check2hgi/CLAIMS_AND_HYPOTHESES.md` | Authoritative claim catalog (CH01..CHnn) |
-| `docs/studies/check2hgi/COORDINATOR.md` | Orchestrator agent spec |
-| `docs/studies/check2hgi/phases/` | Per-phase execution plans |
-| `docs/studies/check2hgi/state.json` | Runtime state (current phase + test statuses) |
-| `docs/studies/check2hgi/KNOWLEDGE_SNAPSHOT.md` | Current baseline-knowledge snapshot |
-| `docs/studies/check2hgi/HANDOFF.md` | Session handoff notes |
+| `docs/studies/check2hgi/README.md` | Entry point + canonical-source-aware navigation |
+| `docs/studies/check2hgi/CHANGELOG.md` ⭐ | Chronological timeline of findings + lessons learned (single source for "what was found when") |
+| `docs/studies/check2hgi/results/RESULTS_TABLE.md §0` ⭐ | **Canonical numerical source** for all paper tables (v11, 2026-05-02) |
+| `articles/[BRACIS]_Beyond_Cross_Task/` ⭐ | Article-side BRACIS submission folder (AGENT.md / PAPER_DRAFT.md / PAPER_STRUCTURE.md / STATISTICAL_AUDIT.md / TABLES_FIGURES.md / samplepaper.tex / references.bib / AUDIT_LOG.md) |
+| `docs/studies/check2hgi/CLAIMS_AND_HYPOTHESES.md` | Claim catalogue with **paper-facing whitelist banner** (CH16 / CH18-cat / CH15 reframing / CH19 / CH22 are safe; others need cross-checking against v11) |
+| `docs/studies/check2hgi/NORTH_STAR.md` | Committed champion config (B9 + H3-alt scale-conditional; v11-aligned) |
+| `docs/studies/check2hgi/FINAL_SURVEY.md` | Substrate-axis 5-state matrix (cat + reg panels) |
+| `docs/studies/check2hgi/CONCERNS.md` | Acknowledged-risks audit log |
+| `docs/studies/check2hgi/MTL_ARCHITECTURE_JOURNEY.md` | Supplementary material narrative (F-trail through B3 → F21c → F45 → F48-H3-alt → F49 → paper closure). **Do not narrate the F-trail in main paper text.** |
+| `docs/studies/check2hgi/PAPER_BASELINES_STRATEGY.md` | Which baselines appear in which paper table; what is deliberately scoped out |
+| `docs/studies/check2hgi/research/GAP_FILL_WILCOXON.json` | v9 Wilcoxon JSON (cat-Δ AL/AZ/FL + CA/TX recipe n=20 multi-seed) |
+| `docs/studies/check2hgi/research/ARCH_DELTA_WILCOXON.json` | v10 Wilcoxon JSON (CA+TX §0.1 arch-Δ n=20; all four axes p=2e-06) |
+| `docs/studies/check2hgi/research/FL_CAT_DELTA_WILCOXON.json` | v11 Wilcoxon JSON (FL §0.1 arch-Δ n=20; cat p=2e-06, reg p=1.9e-06) |
+| `docs/studies/check2hgi/research/PAPER_CLOSURE_WILCOXON.json` | Paper-closure Wilcoxon artefact |
+| `docs/studies/check2hgi/research/PAPER_CLOSURE_RECIPE_WILCOXON.json` | Recipe-selection Wilcoxon artefact |
+| `docs/studies/check2hgi/research/F49_LAMBDA0_DECOMPOSITION_GAP.md` | Cross-attn `task_weight=0` methodology contribution (the survival of F49) |
+| `docs/studies/check2hgi/research/F50_DELTA_M_FINDINGS_LEAKFREE.md` | Δm leak-free reframe (CH22) |
+| `docs/studies/check2hgi/research/F50_T1_RESULTS_SYNTHESIS.md` | Drop-in MTL ablation (FAMO, Aligned-MTL, HSM) |
+| `docs/studies/check2hgi/research/F51_MULTI_SEED_FINDINGS.md` | Multi-seed B9 vs H3-alt validation |
+| `docs/studies/check2hgi/research/SUBSTRATE_COMPARISON_FINDINGS.md` | Phase-1 substrate-comparison verdict (cat side survives leak-free; reg side does not) |
+| `docs/studies/check2hgi/baselines/` | Faithful baseline ports (POI-RGNN, MHA+PE, STAN, ReHDM) + audits |
+| `docs/studies/check2hgi/paper/` | Paper-prep section drafts (methods.md, results.md, limitations.md) |
+| `docs/studies/check2hgi/review/` | Dated critical reviews |
 
-Before any scientific work, read `QUICK_REFERENCE.md` and `KNOWLEDGE_SNAPSHOT.md`.
+**Archived (historical reference only):**
+
+| Location | What's there | See also |
+|---|---|---|
+| `archive/post_paper_closure_2026-05-01/` | Stale paper-prep docs moved during the 2026-05-01 cleanup: study-side `PAPER_DRAFT.md`, `PAPER_STRUCTURE.md` (now under `articles/`), `PAPER_CLOSURE_RESULTS_2026-05-01.md` (background provenance), `OBJECTIVES_STATUS_TABLE.md`, `PAPER_PREP_TRACKER.md`, `PAPER_CLOSURE_PHASES.md`, `FOLLOWUPS_TRACKER.md`, `HANDOVER.md`, all `GAP_A_*` / `H100_CAMERA_READY_GAPS_PROMPT` / `F50_NORTH_STAR_DEEP_EXPLORATION_PROMPT` / `PHASE2_*` / `PHASE3_*` / `SESSION_HANDOFF_*` files. | `archive/post_paper_closure_2026-05-01/README.md` for what's there + why |
+| `archive/pre_b3_framing/` | Pre-B3 framing docs (MASTER_PLAN, etc.). | NORTH_STAR.md |
+| `archive/phases_original/` | Original P0..P7 phase plans. | CHANGELOG.md |
+| `archive/research_pre_b3/`, `archive/research_pre_b5/` | Pre-B3 / pre-B5 research notes. | `research/` (post-B5) |
+| `archive/2026-04-20_status_reports/` | Early status reports. | CHANGELOG.md |
+| `archive/v1_wip_mixed_scope/` | Pre-scope-split WIP. | — |
+
+Before any scientific work, read `CHANGELOG.md`, `results/RESULTS_TABLE.md §0` (v11), and `articles/[BRACIS]_Beyond_Cross_Task/AGENT.md`.
 
 ---
 
@@ -78,7 +126,7 @@ val_joint_geom_lift = sqrt(
 | POI-RGNN (Capanema et al.) | IJCNN '19 | Next-category on Gowalla FL/CA/TX: 31.8–34.5% macro-F1 |
 | MHA+PE (Zeng et al.) | 2019 | Next-category on Gowalla global: 26.9% F1 |
 
-Our single-task Check2HGI on AL: **38.67% F1** (already above POI-RGNN's 31.8–34.5% range).
+Our STL Check2HGI on AL (matched-head `next_mtl`, 5f × 50ep fair folds): **38.58% ± 1.23 F1** (already above POI-RGNN's 31.8–34.5% range). MTL-B3 post-F27 lifts to **42.71% ± 0.0137 F1** on AL (F31), **45.81% on AZ** (Wilcoxon p=0.0312 over STL).
 
 **For `next_region` (ranking, Acc@K/MRR) — concept-aligned, different datasets:**
 
@@ -88,7 +136,7 @@ Our single-task Check2HGI on AL: **38.67% F1** (already above POI-RGNN's 31.8–
 | MGCL (Zhu et al.) | Frontiers '24 | Multi-granularity contrastive with region + category auxiliary heads |
 | Bi-Level GSL | arXiv '24 | Explicit region-POI bi-level graph |
 
-Our single-task Check2HGI on AL (region-emb input, `next_gru` default, **5f × 50ep**): **56.94% ± 4.01 Acc@10**.
+Our STL Check2HGI on AL (region-emb input, `next_gru`, 5f × 50ep): **56.94% ± 4.01 Acc@10**. STL STAN (ceiling): **59.20% ± 3.62 Acc@10**. **STL `next_getnext_hard` matched-head (F21c)**: **68.37% ± 2.66 Acc@10** — the new reg ceiling at AL/AZ scale (CH18, 2026-04-24). MTL-B3 post-F27 on AL: **59.60 ± 4.09 Acc@10** (first MTL to cross STL STAN on AL; trails matched-head STL by −8.77 pp).
 
 **Simple-baseline floor (updated 2026-04-16):**
 - AL next_category: majority 34.2%, Markov 31.7%

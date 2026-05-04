@@ -1,0 +1,19 @@
+\begin{table}[t]
+\centering
+\caption{Dataset statistics for the five Gowalla \cite{cho2011gowalla} U.S.-state splits, after filtering to users with at least five check-ins. The headline three (FL/CA/TX) sit above the rule; the smaller-scale anchors (AL/AZ) sit below. Region cardinality is the prediction target on the next-region task.}
+\label{tab:datasets}
+\footnotesize
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{l r r r r r}
+\toprule
+State & Users & Check-ins & POIs & Regions & Mean traj.\ length \\
+\midrule
+Florida (FL)    & 13{,}935 & 1{,}392{,}262 &  76{,}266 & 4{,}703 &  99.9 \\
+California (CA) & 26{,}171 & 3{,}148{,}594 & 168{,}771 & 8{,}501 & 120.3 \\
+Texas (TX)      & 27{,}603 & 4{,}067{,}543 & 160{,}575 & 6{,}553 & 147.4 \\
+\midrule
+Alabama (AL)    &  1{,}622 &   109{,}695   &  11{,}666 & 1{,}109 &  67.6 \\
+Arizona (AZ)    &  3{,}331 &   227{,}956   &  20{,}469 & 1{,}547 &  68.4 \\
+\bottomrule
+\end{tabular}
+\end{table}

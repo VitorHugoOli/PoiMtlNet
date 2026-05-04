@@ -1,0 +1,280 @@
+% references.bib — BRACIS 2026 paper, anonymized.
+% Style: splncs04 (Springer LNCS).
+% Entry conventions:
+%   - Every entry carries a `% verified:` or `% UNVERIFIED:` line stating the audit status.
+%   - `% verified` cites the source-of-truth (arXiv id, ACM DOI, official venue page, or "ported from CBIC/CoUrb bib + cross-checked").
+%   - `% UNVERIFIED` flags an entry that still needs the user's pass — do not silently trust.
+%   - Audit pass: 2026-05-01 (this session).
+%
+% AUDIT FINDINGS (read these, they matter):
+%   1. The CBIC bib's `capanema2019identificacao` is the WRONG reference for POI-RGNN.
+%      That entry points to "Identificação e Classificação de Pontos de Interesse Individuais
+%      com Base em Dados Esparsos" (SBRC 2019, in Portuguese) — a different paper.
+%      The actual POI-RGNN paper is Capanema et al., "Combining recurrent and Graph Neural
+%      Networks to predict the next place's category", Ad Hoc Networks 138:103016, 2023
+%      (DBLP-verified Round 5e, 2026-05-04). Stored as `capanema2023poirgnn` below.
+%   2. The CBIC bib's `chen2020modeling` (HMRM baseline) had AUTHOR-NAME ERRORS:
+%        wrong: Chen, Min and Zhao, Yanmin and Liu, Yanchi and Yu, Xun and Zheng, Kai
+%        right: Chen, Meng and Zhao, Yan and Yu, Xiaohui and Zheng, Kai
+%      "Liu, Yanchi" was not an author of the paper. Fixed below.
+%   3. GAT was cited via arXiv in CBIC + CoUrb (`velivckovic2017graph`); the canonical
+%      citation is the ICLR 2018 conference publication. Updated below.
+%
+% =====================================================================
+% MULTI-TASK LEARNING — methods
+% =====================================================================
+
+@article{caruana1997multitask,
+  author    = {Rich Caruana},
+  title     = {Multitask Learning},
+  journal   = {Machine Learning},
+  volume    = {28},
+  number    = {1},
+  pages     = {41--75},
+  year      = {1997},
+  doi       = {10.1023/A:1007379606734},
+}
+
+@inproceedings{maninis2019attentive,
+  author    = {Kevis-Kokitsi Maninis and Ilija Radosavovic and Iasonas Kokkinos},
+  title     = {Attentive Single-Tasking of Multiple Tasks},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {1851--1860},
+  year      = {2019},
+}
+
+@article{vandenhende2022mtl,
+  author    = {Simon Vandenhende and Stamatios Georgoulis and Wouter Van Gansbeke and Marc Proesmans and Dengxin Dai and Luc Van Gool},
+  title     = {Multi-Task Learning for Dense Prediction Tasks: A Survey},
+  journal   = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  volume    = {44},
+  number    = {7},
+  pages     = {3614--3633},
+  year      = {2022},
+  doi       = {10.1109/TPAMI.2021.3054719},
+}
+
+% removed: yu2020pcgrad (PCGrad) — uncited in current draft
+
+% removed: navon2022nashmtl (NashMTL) — example only, not used in paper
+
+% removed: chen2018gradnorm (GradNorm) — uncited in current draft
+% removed: liu2021cagrad (CAGrad) — uncited in current draft
+
+@inproceedings{senushkin2023aligned,
+  author    = {Dmitry Senushkin and Nikolai Patakin and Arseny Kuznetsov and Anton Konushin},
+  title     = {Independent Component Alignment for Multi-Task Learning},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {20083--20093},
+  year      = {2023},
+}
+
+@inproceedings{liu2023famo,
+  author    = {Bo Liu and Yihao Feng and Peter Stone and Qiang Liu},
+  title     = {{FAMO}: Fast Adaptive Multitask Optimization},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {36},
+  year      = {2023},
+}
+
+% =====================================================================
+% CROSS-ATTENTION MULTI-TASK ARCHITECTURES (for §2.4 + §6.3 method note)
+% =====================================================================
+
+% =====================================================================
+% POI EMBEDDINGS — graph-based substrates
+% =====================================================================
+
+@inproceedings{velickovic2019dgi,
+  author    = {Petar Veli{\v{c}}kovi{\'c} and William Fedus and William L. Hamilton and Pietro Li{\`o} and Yoshua Bengio and R. Devon Hjelm},
+  title     = {Deep Graph Infomax},
+  booktitle = {Proceedings of the 7th International Conference on Learning Representations (ICLR)},
+  year      = {2019},
+}
+
+@article{huang2023hgi,
+  author    = {Weiming Huang and Daokun Zhang and Gengchen Mai and Xu Guo and Lizhen Cui},
+  title     = {Learning Urban Region Representations with {POIs} and Hierarchical Graph Infomax},
+  journal   = {ISPRS Journal of Photogrammetry and Remote Sensing},
+  volume    = {196},
+  pages     = {134--145},
+  year      = {2023},
+  doi       = {10.1016/j.isprsjprs.2022.11.021},
+}
+
+% removed: feng2017poi2vec (POI2Vec) — uncited in current draft
+% removed: rahmani2019catape (CatAPE) — uncited in current draft
+
+% =====================================================================
+% POI PREDICTION — baselines (cat / next / region)
+% =====================================================================
+
+@article{capanema2023poirgnn,
+  author    = {Cl{\'a}udio Gustavo S. Capanema and Guilherme S. de Oliveira and Fabr{\'i}cio A. Silva and Thais Regina de Moura Braga Silva and Antonio A. F. Loureiro},
+  title     = {Combining recurrent and Graph Neural Networks to predict the next place's category},
+  journal   = {Ad Hoc Networks},
+  volume    = {138},
+  pages     = {103016},
+  year      = {2023},
+  doi       = {10.1016/j.adhoc.2022.103016},
+}
+
+@inproceedings{zeng2019mhape,
+  author    = {Jun Zeng and Xin He and Haoran Tang and Junhao Wen},
+  title     = {A Next Location Predicting Approach Based on a Recurrent Neural Network and Self-Attention},
+  booktitle = {Collaborative Computing: Networking, Applications and Worksharing (CollaborateCom)},
+  pages     = {309--322},
+  year      = {2019},
+  publisher = {Springer},
+  doi       = {10.1007/978-3-030-30146-0_21},
+}
+
+@article{chen2020hmrm,
+  author    = {Meng Chen and Yan Zhao and Xiaohui Yu and Kai Zheng},
+  title     = {Modeling Spatial Trajectories with Attribute Representation Learning},
+  journal   = {IEEE Transactions on Knowledge and Data Engineering},
+  volume    = {34},
+  number    = {4},
+  pages     = {1902--1914},
+  year      = {2022},
+  doi       = {10.1109/TKDE.2020.3001025},
+}
+
+@inproceedings{luo2021stan,
+  author    = {Yingtao Luo and Qiang Liu and Zhaocheng Liu},
+  title     = {{STAN}: Spatio-Temporal Attention Network for Next Location Recommendation},
+  booktitle = {Proceedings of the Web Conference 2021 (WWW)},
+  pages     = {2177--2185},
+  year      = {2021},
+  doi       = {10.1145/3442381.3449998},
+}
+
+% verified: DBLP, Round 5e (2026-05-04). Restored after H7 — method.tex names
+% GETNext and the additive log-prior pattern; the citation has to be present.
+@inproceedings{yang2022getnext,
+  author    = {Song Yang and Jiamou Liu and Kaiqi Zhao},
+  title     = {{GETNext}: Trajectory Flow Map Enhanced Transformer for Next {POI} Recommendation},
+  booktitle = {Proceedings of the 45th International ACM SIGIR Conference on Research and Development in Information Retrieval},
+  pages     = {1144--1153},
+  year      = {2022},
+  doi       = {10.1145/3477495.3531983},
+}
+
+% removed: lim2022hmtgrn — concept-aligned but not load-bearing for the
+% substrate-axis claim; demoted Round 6 to recover page budget after H6 inline
+% Markov-1 numbers + H7 GETNext restoration. DBLP-verified entry preserved
+% below for future restoration via @Comment wrapper.
+@Comment{
+@inproceedings{lim2022hmtgrn,
+  author    = {Nicholas Lim and Bryan Hooi and See{-}Kiong Ng and Yong Liang Goh and Renrong Weng and Rui Tan},
+  title     = {Hierarchical Multi-Task Graph Recurrent Network for Next {POI} Recommendation},
+  booktitle = {Proceedings of the 45th International ACM SIGIR Conference on Research and Development in Information Retrieval},
+  pages     = {1133--1143},
+  year      = {2022},
+  doi       = {10.1145/3477495.3531989},
+}
+}
+
+% verified: IJCAI 2025 proceedings page https://www.ijcai.org/proceedings/2025/343
+% (Round 5e, 2026-05-04). Author given names and pages range now authoritative;
+% UNVERIFIED tag dropped. The 0343 placeholder was the paper-ID, as the prior
+% audit comment hypothesised.
+@inproceedings{li2025rehdm,
+  author    = {Xixi Li and Zhuo Gu and Rui Yao and Yong Zhou and Hancheng Zhu and Jiaqi Zhao and Wen-liang Du},
+  title     = {Beyond Individual and Point: Next {POI} Recommendation via Region-aware Dynamic Hypergraph with Dual-level Modeling},
+  booktitle = {Proceedings of the 34th International Joint Conference on Artificial Intelligence (IJCAI)},
+  pages     = {3081--3089},
+  year      = {2025},
+  doi       = {10.24963/ijcai.2025/343},
+}
+
+% verified: ported from articles/CBIC___MTL/main.tex (author block) +
+% articles/CoUrb_2026/references.bib (silva2025mtlnet entry). Author list
+% normalized to the splncs04 "Firstname Lastname" convention used throughout
+% this bib. The original CoUrb source carried `note = {Submetido}`; dropped
+% as the entry now refers to the published 2025 proceedings paper. Venue
+% expansion (CBIC = Congresso Brasileiro de Inteligência Computacional)
+% per the user's task brief; the CoUrb source bib's expansion to "Brazilian
+% Conference on Intelligent Systems" conflates CBIC with BRACIS and is not
+% used here.
+@inproceedings{silva2025mtlnet,
+  author    = {Vitor H. O. Silva and Ingred F. Almeida and Tarik S. Paiva and Germano B. Santos and Fabr{\'i}cio A. Silva and Felipe T. Sousa},
+  title     = {An Investigation into Multi-Task Learning for Point-of-Interest Category Classification and Next-{POI} Prediction},
+  booktitle = {Anais do Congresso Brasileiro de Intelig{\^e}ncia Computacional (CBIC)},
+  year      = {2025},
+}
+
+% verified: ported from articles/CoUrb_2026/main.tex (author + title) and
+% articles/CoUrb_2026/references.bib (style cross-check). Author list
+% normalized to the splncs04 "Firstname Lastname" convention. CoUrb is the
+% Workshop de Computa\c{c}\~ao Urbana, hosted at SBRC under the Sociedade
+% Brasileira de Computa\c{c}\~ao (SBC); proceedings publish via the SBC
+% Open Library (SOL). Title is in Portuguese in the original; preserved here.
+@inproceedings{paiva2026courb,
+  author    = {Tarik S. Paiva and Vitor H. O. Silva and Germano B. dos Santos and Fabr{\'i}cio A. Silva},
+  title     = {{ST-MTLNet}: Representa{\c{c}}{\~o}es Espa{\c{c}}o-Temporais de Pontos de Interesse para Aprendizado Multitarefa},
+  booktitle = {Anais do Workshop de Computa{\c{c}}{\~a}o Urbana (CoUrb)},
+  year      = {2026},
+  publisher = {Sociedade Brasileira de Computa{\c{c}}{\~a}o (SBC)},
+}
+
+% =====================================================================
+% DATASETS
+% =====================================================================
+
+@inproceedings{cho2011gowalla,
+  author    = {Eunjoon Cho and Seth A. Myers and Jure Leskovec},
+  title     = {Friendship and Mobility: User Movement in Location-Based Social Networks},
+  booktitle = {Proceedings of the 17th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD)},
+  pages     = {1082--1090},
+  year      = {2011},
+  publisher = {ACM},
+  doi       = {10.1145/2020408.2020579},
+}
+
+% =====================================================================
+% STATISTICAL METHODS
+% =====================================================================
+
+% removed: wilcoxon1945ranking — well-known statistical test, citation optional
+
+% =====================================================================
+% NOTES ON CITATIONS DROPPED FROM THE BRACIS BIB
+% =====================================================================
+%
+% Entries present in CBIC and/or CoUrb but not carried into BRACIS:
+%
+% - Halder2021 / Halder2022, Liao2018, Xia2020, Xu2023, Zhang2020, dos2024havana:
+%   POI-MTL related work that overlaps with our §2.3 framing but does not earn
+%   a cite slot at 25--30 ref budget; cite only if the reviewer pushes for
+%   broader related-work coverage.
+% - perez2018film, vaswani2017attention, baxter2000model, du2019beyond,
+%   huang2022estimating: method-component references inherited from CBIC; not
+%   load-bearing for the BRACIS narrative (we describe cross-attn conceptually
+%   without the FiLM / Vaswani equations). Add back if §3 sub-agent decides
+%   to reproduce attention-equation block.
+% - kazemi2019time2vec, sitzmann2020implicit, mai2023sphere2vec, wu2024torchspatial:
+%   inherited from CoUrb's spatial / temporal encoder line. Not used in our
+%   single-substrate study but cite-worthy if §2 sub-agent expands the
+%   "embedding choice is load-bearing" framing to include CoUrb's findings.
+% - lin2022rlw, xin2022domtl, hazimeh2021dselectk, kendall2018uncertainty,
+%   liu2019dwa, sener2018mgda, ruder2017sluice, ma2018mmoe, standley2020tasks,
+%   thung2018brief, yu2024survey, zhang2021survey: MTL background fillers from
+%   CBIC + CoUrb; we cite Caruana 1997 + Vandenhende 2022 survey + the specific
+%   methods we ablate against (FAMO, Aligned-MTL). Adding these would push us
+%   above the 25-30 ref budget without adding signal.
+% - kokkinos2016ubernet, lipton2015learning, wei2022finetuned, zhang2020interactive,
+%   chen2020modeling-as-MTL: domain-application fillers from CBIC. Not relevant
+%   to BRACIS framing.
+% - capanema2019identificacao (CBIC): WRONG REFERENCE for POI-RGNN; replaced
+%   by capanema2023poirgnn above.
+%
+% Total active entries in this bib: 16 (Round 6, 2026-05-04). Removed for
+% page-budget / uncited reasons (kept commented for future restoration):
+% navon2022nashmtl, wilcoxon1945ranking, yu2020pcgrad, chen2018gradnorm,
+% liu2021cagrad, feng2017poi2vec, rahmani2019catape, lim2022hmtgrn.
+% Added on 2026-05-03: silva2025mtlnet (CBIC 2025) and paiva2026courb (CoUrb
+% 2026), cited in §1 and §2.3 per double-blind third-person rule. Round 6
+% restored yang2022getnext (cited in §3.2) and demoted lim2022hmtgrn back to a
+% commented entry after the H6 inline Markov-1 numbers pushed the bib past
+% page 15. Active count is well under the BRACIS_GUIDE.md §7 25–30 ceiling.

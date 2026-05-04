@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "state": "alabama",
+  "task": "next_region",
+  "n_rows": 12709,
+  "n_classes": 1109,
+  "protocol": {
+    "folds": 5,
+    "epochs": 50,
+    "seed": 42,
+    "stratification": "target_category",
+    "groups": "userid",
+    "splitter": "StratifiedGroupKFold(shuffle=True)"
+  },
+  "floors": {
+    "majority_class": {
+      "acc1_mean": 1.9749,
+      "acc1_std": 0.5929,
+      "acc5_mean": 1.9749,
+      "acc5_std": 0.5929,
+      "acc10_mean": 1.9749,
+      "acc10_std": 0.5929,
+      "mrr_mean": 1.9749,
+      "mrr_std": 0.5929,
+      "source_json": "docs/studies/check2hgi/results/P0/simple_baselines/alabama/next_region.json"
+    },
+    "markov_1_region": {
+      "acc1_mean": 25.3991,
+      "acc1_std": 2.7293,
+      "acc5_mean": 40.7267,
+      "acc5_std": 3.2508,
+      "acc10_mean": 47.0056,
+      "acc10_std": 3.5485,
+      "mrr_mean": 32.1657,
+      "mrr_std": 2.9023,
+      "source_json": "docs/studies/check2hgi/results/P0/simple_baselines/alabama/next_region.json"
+    }
+  },
+  "baselines": {
+    "stan": {
+      "faithful": {
+        "acc1_mean": 7.8605,
+        "acc1_std": 1.1089,
+        "acc5_mean": 23.2747,
+        "acc5_std": 2.0863,
+        "acc10_mean": 34.4634,
+        "acc10_std": 3.8815,
+        "mrr_mean": 16.4459,
+        "mrr_std": 1.4704,
+        "macro_f1_mean": 0.9151,
+        "macro_f1_std": 0.3151,
+        "tag": "FAITHFUL_STAN_al_5f50ep_v4",
+        "date": "2026-04-26",
+        "source_json": "docs/studies/check2hgi/results/baselines/faithful_stan_alabama_5f_50ep_FAITHFUL_STAN_al_5f50ep_v4.json"
+      },
+      "stl_check2hgi": {
+        "acc1_mean": 24.6438,
+        "acc1_std": 1.3794,
+        "acc5_mean": 48.1859,
+        "acc5_std": 2.7395,
+        "acc10_mean": 59.2016,
+        "acc10_std": 3.6247,
+        "mrr_mean": 36.0968,
+        "mrr_std": 1.9569,
+        "macro_f1_mean": 6.3397,
+        "macro_f1_std": 0.4071,
+        "tag": "STAN_al_5f50ep",
+        "date": "2026-04-20",
+        "source_json": "docs/studies/check2hgi/results/P1/region_head_alabama_region_5f_50ep_STAN_al_5f50ep.json"
+      },
+      "stl_hgi": {
+        "acc1_mean": 27.3977,
+        "acc1_std": 2.1417,
+        "acc5_mean": 51.8683,
+        "acc5_std": 3.9555,
+        "acc10_mean": 62.8762,
+        "acc10_std": 3.8994,
+        "mrr_mean": 39.0168,
+        "mrr_std": 2.6584,
+        "macro_f1_mean": 8.771,
+        "macro_f1_std": 0.9378,
+        "tag": "STAN_HGI_al_5f50ep",
+        "date": "2026-04-25",
+        "source_json": "docs/studies/check2hgi/results/P1/region_head_alabama_region_5f_50ep_STAN_HGI_al_5f50ep.json"
+      }
+    },
+    "rehdm": {
+      "_faithful_protocol_note": "`faithful` uses paper protocol — chronological 80/10/10 + 24h sessions + 5 seeds. `stl_*` use study protocol — 5-fold StratifiedGroupKFold matching all other STL rows in this table.",
+      "_stl_architecture_note": "STL variants run the FULL ReHDM architecture including the dual-level hypergraph. Inter-user collaborator mining uses shared-POI (per-position POIs loaded from sequences_next.parquet); intra-user mining uses same userid in train fold (empty for cold-user val rows by construction — only inter-user contributes for those). Time-precedence is dropped (StratifiedGroupKFold is non-temporal by design). Only protocol-induced deviations remain.",
+      "faithful": {
+        "acc1_mean": 23.73,
+        "acc1_std": 1.38,
+        "acc5_mean": 53.70,
+        "acc5_std": 1.31,
+        "acc10_mean": 66.06,
+        "acc10_std": 0.98,
+        "mrr_mean": 37.83,
+        "mrr_std": 1.17,
+        "tag": "REHDM_al_v2_5seeds_50ep",
+        "date": "2026-04-26",
+        "source_json": "docs/studies/check2hgi/results/baselines/REHDM_al_v2_5seeds_50ep_run{0..4}.json"
+      },
+      "stl_check2hgi": {
+        "acc1_mean": 5.77,
+        "acc1_std": 1.01,
+        "acc5_mean": 17.92,
+        "acc5_std": 1.53,
+        "acc10_mean": 26.22,
+        "acc10_std": 1.58,
+        "mrr_mean": 12.53,
+        "mrr_std": 1.12,
+        "tag": "REHDM_STL_STUDY_v3_al_check2hgi_5f50ep",
+        "date": "2026-04-27",
+        "source_json": "docs/studies/check2hgi/results/baselines/REHDM_STL_STUDY_v3_al_check2hgi_5f50ep_fold{0..4}.json"
+      },
+      "stl_hgi": {
+        "acc1_mean": 13.17,
+        "acc1_std": 1.03,
+        "acc5_mean": 32.44,
+        "acc5_std": 2.55,
+        "acc10_mean": 42.78,
+        "acc10_std": 2.82,
+        "mrr_mean": 22.83,
+        "mrr_std": 1.38,
+        "tag": "REHDM_STL_STUDY_v3_al_hgi_5f50ep",
+        "date": "2026-04-27",
+        "source_json": "docs/studies/check2hgi/results/baselines/REHDM_STL_STUDY_v3_al_hgi_5f50ep_fold{0..4}.json"
+      },
+      "_paper_protocol_stl_archive": {
+        "_note": "Paper-protocol replicates of STL variants (chronological 80/10/10 + 24h sessions, 5 seeds). NOT comparable to study StratifiedGroupKFold rows; kept for completeness only.",
+        "stl_check2hgi": {"acc10_mean": 41.39, "acc10_std": 0.66, "tag": "REHDM_STL_al_check2hgi_5x50"},
+        "stl_hgi": {"acc10_mean": 60.73, "acc10_std": 1.67, "tag": "REHDM_STL_al_hgi_5x50"}
+      }
+    }
+  }
+}

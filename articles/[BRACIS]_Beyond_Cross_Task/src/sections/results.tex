@@ -1,0 +1,40 @@
+\section{Results}
+\label{sec:results}
+
+We report the empirical reattribution across five Gowalla state splits. Section~\ref{subsec:results-substrate} isolates the substrate axis (Check2HGI vs HGI under matched-head STL ceilings). Section~\ref{subsec:results-mtl-stl} compares the cross-attention MTL backbone against those ceilings, the headline contrast. Section~\ref{subsec:results-deltam} reports the joint $\Delta_m$ score. Section~\ref{subsec:results-external} situates the model against external baselines.
+
+\subsection{Substrate ablation: per-visit context is task-asymmetric}
+\label{subsec:results-substrate}
+
+Table~\ref{tab:substrate}(a) reports next-category macro-F1 under the matched-head GRU single-task ceiling, with substrate as the only changing factor. Check2HGI exceeds HGI by $+14.18$ to $+29.02$ percentage points (pp) at every state (smallest at AZ, largest at FL). The paired Wilcoxon signed-rank test reaches the $n=5$ ceiling everywhere ($p=0.0312$, 5/5 folds positive). Check2HGI macro-F1 is stable across four extra seeds $\{0, 1, 7, 100\}$ at AL/AZ/FL with seed-$\sigma\leq 0.17$ pp. Two robustness probes back this: the AL/AZ gap is head-invariant across linear, single-layer, GRU, and LSTM probes (probes in the anonymous code release), and the FL/CA/TX gap replicates under the matched-head ceiling. We read the lift as evidence that per-visit context, not POI-level attribute encoding, is what the next-category head exploits.
+
+Table~\ref{tab:substrate}(b) reports Acc@10 under the matched-head STAN-based single-task ceiling. POI-stable HGI is nominally above Check2HGI by 1.6 to 3.1 pp at every state; on FL/CA/TX the gap shrinks to 1.6 to 2.1 pp and TOST non-inferiority at $\delta=2$ pp passes at CA and TX. At FL the $\delta=3$ pp test passes. AL and AZ stay outside both margins. The short-horizon transition structure driving the region head is captured equally well, or fractionally better, by per-place embeddings whose category-level pooling smooths the per-visit variance that helps the category head.
+
+\input{tables/substrate.tex}
+
+The substrate's effect is task-asymmetric. The category head reads per-visit context and lifts by an order of magnitude more than its standard-deviation envelope; the region head reads transition structure preserved under per-place pooling, tying within $\pm 2$ pp. Section~\ref{sec:mechanism} attributes the asymmetry through a per-visit-context counterfactual replicated at Alabama and Arizona. Any multi-task system on this task pair operates on a substrate that already encodes the easier task more clearly than the harder one.
+
+\subsection{Multi-task vs single-task on the per-visit substrate}
+\label{subsec:results-mtl-stl}
+
+Table~\ref{tab:mtl-stl} reports the headline contrast: the cross-attention multi-task backbone against the matched-head GRU and STAN-based single-task ceilings, both on Check2HGI, multi-seed pooled at $n=20$ fold-pairs per state. Category is positive at four of five states: FL $+1.40$ pp ($p=2\mathrm{e}{-6}$), CA $+1.68$ pp ($p=2\mathrm{e}{-6}$), TX $+1.89$ pp ($p=2\mathrm{e}{-6}$), AZ $+1.20$ pp ($p<1\mathrm{e}{-4}$). At AL the contrast is small-significantly negative ($\Delta=-0.78$ pp, $p=0.036$, $n=20$), under 2\,\% relative on the 41\,\% F1 scale. The four positive states sit outside the seed and fold envelope; we report the AL negative as is rather than absorbing it.
+
+\input{tables/mtl_vs_stl.tex}
+
+Next-region follows the cost-versus-gain pattern reported in the dense-prediction MTL line~\cite{vandenhende2022mtl}. MTL pays $-7.34$ pp (FL) to $-16.59$ pp (TX) on Acc@10 at every state, all paper-grade significant ($p\leq 1.9\mathrm{e}{-6}$). The pattern is broadly downward on AL\,$\to$\,AZ\,$\to$\,FL, with CA preserving the FL regime and TX breaking the monotonic shrink. We read the TX non-monotonicity descriptively: state-specific factors beyond raw class count (geographic POI distribution, user-density skew, per-state log-transition prior coverage) plausibly contribute; we do not read the AL\,$\to$\,FL contraction as an inferential scaling claim.
+
+On Acc@10, the multi-task backbone trades the matched-head STAN-based single-task ceiling for a regime that sits below a one-step Markov-1-region floor at four of five states. Per-state Markov-1 / MTL Acc@10 (pp gap): AL $47.01$/$50.17$ ($+3.16$); AZ $42.96$/$40.78$ ($-2.18$); FL $65.05$/$63.27$ ($-1.78$); CA $52.09$/$47.35$ ($-4.74$); TX $54.94$/$42.84$ ($-12.10$). AL is the only state above the floor. The matched-head Check2HGI ceiling sits $+5$ to $+14$ pp above Markov-1 at every state, so the cross-attention region head is trading that ceiling for the joint regime: under joint training, it underperforms on the short-horizon transition structure that a one-step Markov chain already captures. The $\Delta_m$ MRR axis at FL ($+2.33\,\%$, $n=25$, paper-grade in Section~\ref{subsec:results-deltam}) characterises the joint tradeoff more cleanly than Acc@10 in this regime; we report both axes and read them jointly.
+
+With the substrate fixed at the per-visit granularity, the multi-task backbone delivers a small category lift at four of five states and pays a sign-consistent cost on the harder head at every state, the classic multi-task tradeoff. The cost is structural to the cross-attention shared-backbone interaction with the region head; Section~\ref{sec:mechanism} reports drop-in replacements (FAMO, Aligned-MTL, hierarchical-additive-softmax region head) that fail to close the next-region gap.
+
+\subsection{Joint $\Delta_m$ score: a Pareto-positive cell at Florida}
+\label{subsec:results-deltam}
+
+We compute $\Delta_m$~\cite{maninis2019attentive,vandenhende2022mtl} against the matched-head single-task ceiling. On the primary pair (category macro-F1, region MRR), FL carries an $n=25$ multi-seed sweep and reaches $\Delta_m\text{-MRR}=+2.33\,\%$ at $p=2.98\mathrm{e}{-8}$, 25/25 fold-pairs positive: a Pareto-positive cell on the primary axis. The secondary pair at FL is $\Delta_m\text{-Acc@10}=-1.12\,\%$ at $p=3.20\mathrm{e}{-5}$ (4/25); MRR rewards near-correct candidates that raw top-10 accuracy misses. That FL is exceptional on $\Delta_m$-MRR is consistent with the Acc@10-saturated regime described above being what MRR sees through. The other four states report at the $n=5$ Wilcoxon ceiling: $\Delta_m$ is negative on both axes (MRR from $-24.84\,\%$ to $-1.61\,\%$; Acc@10 from $-22.41\,\%$ to $-6.85\,\%$), at most $1/5$ fold-pairs positive. FL is the only Pareto-positive cell on the primary axis at multi-seed.
+
+\subsection{External baselines}
+\label{subsec:results-external}
+
+Table~\ref{tab:external} situates the model against external baselines. On next-category, our matched-head single-task ceiling on Check2HGI sits well above our user-disjoint POI-RGNN reproduction~\cite{capanema2023poirgnn}, but the gap should be read with care: the published POI-RGNN evaluation used non-user-disjoint folds, so absolute numbers are not directly comparable. The substrate-axis ablation of Section~\ref{subsec:results-substrate} attributes a substantial share of the lift to per-visit context, not to multi-task aggregation; the matched-head STL category ceiling on Check2HGI ($67.16$ at FL) roughly doubles the strongest user-disjoint POI-RGNN reproduction ($34.49$), and \S\ref{subsec:mechanism-pervisit} attributes ${\sim}72\%$ / ${\sim}64\%$ of the AL/AZ substrate gap specifically to per-visit context. On next-region, the matched-head STAN-based head with additive log-prior on the HGI substrate is the strongest external row at this scale; per-place HGI is a more natural fit for the region head, consistent with the substrate-axis reading. Our multi-task row trails this row by $-10$ to $-20$ pp on Acc@10, consistent with the substrate gap compounded by the cross-attention region cost.
+
+\input{tables/external.tex}

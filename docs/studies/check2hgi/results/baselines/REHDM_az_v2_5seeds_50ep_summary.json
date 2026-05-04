@@ -1,0 +1,9 @@
+{
+  "tag": "REHDM_az_v2_5seeds_50ep",
+  "state": "arizona",
+  "n_runs": 5,
+  "test_acc@10_mean": 0.5464730290456432,
+  "test_acc@10_std": 0.007746122283234238,
+  "test_mrr_mean": 0.3095533852260637,
+  "test_mrr_std": 0.0036152940013927824
+}

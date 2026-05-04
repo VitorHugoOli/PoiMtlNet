@@ -6,7 +6,14 @@ from .next_hybrid.head import NextHeadHybrid
 from .next_lstm.head import NextHeadLSTM
 from .next_mtl.head import NextHeadMTL
 from .next_getnext.head import NextHeadGETNext
-from .next_getnext_hard.head import NextHeadGETNextHard
+from .next_stan_flow.head import (
+    NextHeadStanFlow,
+    NextHeadGETNextHard,  # legacy alias (renamed 2026-05-01)
+)
+from .next_stan_flow_hsm.head import (
+    NextHeadStanFlowHSM,
+    NextHeadGETNextHardHSM,  # legacy alias (renamed 2026-05-01)
+)
 from .next_single.head import NextHeadSingle
 from .next_stahyper.head import NextHeadSTAHyper
 from .next_stan.head import NextHeadSTAN
@@ -23,7 +30,12 @@ __all__ = [
     "NextHeadGRU",
     "NextHeadSTAN",
     "NextHeadGETNext",
+    "NextHeadStanFlow",
+    "NextHeadStanFlowHSM",
+    # Legacy class-name aliases (renamed 2026-05-01 → STAN-Flow). Both names
+    # resolve to the same class object via the ``X = Y`` alias in head.py.
     "NextHeadGETNextHard",
+    "NextHeadGETNextHardHSM",
     "NextHeadTGSTAN",
     "NextHeadSTAHyper",
     "NextHeadTemporalCNN",

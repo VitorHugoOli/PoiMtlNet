@@ -1,0 +1,24 @@
+{
+  "tag": "REHDM_STL_STUDY_v3_az_check2hgi_5f50ep",
+  "state": "arizona",
+  "engine": "check2hgi",
+  "fold": 3,
+  "config": {
+    "n_regions": 1540,
+    "emb_dim": 64,
+    "d_model": 192,
+    "n_heads": 4,
+    "d_ff": 256,
+    "n_hg_layers": 2,
+    "dropout": 0.2,
+    "beta": 0.5
+  },
+  "best_val_acc@10": 0.2140556923659784,
+  "metrics": {
+    "acc@1": 0.07501420723621897,
+    "acc@5": 0.15286986171623412,
+    "acc@10": 0.2140556923659784,
+    "mrr": 0.12125919885449302,
+    "n": 5279
+  }
+}

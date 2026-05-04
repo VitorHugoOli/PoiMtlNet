@@ -1,0 +1,41 @@
+{
+  "tag": "REHDM_BS128_fl_5seeds_50ep",
+  "state": "florida",
+  "run": 0,
+  "seed": 42,
+  "config": {
+    "n_users": 9628,
+    "n_pois": 27525,
+    "n_categories": 7,
+    "n_quadkeys": 126,
+    "n_regions": 3172,
+    "n_hours": 24,
+    "n_days": 7,
+    "d_id": 32,
+    "n_heads": 4,
+    "d_ff": 256,
+    "n_hg_layers": 2,
+    "dropout": 0.2,
+    "beta": 0.5
+  },
+  "best_val_acc@10": 0.6650023404587299,
+  "test": {
+    "acc@1": 0.34276497695852537,
+    "acc@5": 0.5634101382488479,
+    "acc@10": 0.6589861751152074,
+    "mrr": 0.4491856401856594,
+    "n": 10850
+  },
+  "vocab": {
+    "n_users": 9628,
+    "n_pois": 27525,
+    "n_categories": 7,
+    "n_hours": 24,
+    "n_days": 7,
+    "n_quadkeys": 126,
+    "n_regions": 3172,
+    "quadkey_level": 10,
+    "session_hours": 24,
+    "min_checkins": 10
+  }
+}

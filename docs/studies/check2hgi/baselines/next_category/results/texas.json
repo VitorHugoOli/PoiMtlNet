@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "state": "texas",
+  "task": "next_category",
+  "n_rows": 460976,
+  "n_classes": 7,
+  "protocol": {
+    "folds": 5,
+    "epochs": 35,
+    "seed": 42,
+    "stratification": "target_category",
+    "groups": "userid",
+    "splitter": "StratifiedGroupKFold(shuffle=True)"
+  },
+  "floors": {
+    "majority_class": {
+      "acc1_mean": 30.9786,
+      "acc1_std": 0.0006,
+      "acc5_mean": 30.9786,
+      "acc5_std": 0.0006,
+      "macro_f1_mean": 6.758,
+      "macro_f1_std": 0.0,
+      "source_json": "docs/studies/check2hgi/results/P0/simple_baselines/texas/next_category.json",
+      "f1_source_json": "docs/studies/check2hgi/results/P0/simple_baselines/texas/next_category_f1.json"
+    },
+    "top_k_popular": {
+      "acc1_mean": 30.9786,
+      "acc1_std": 0.0006,
+      "acc5_mean": 87.5996,
+      "acc5_std": 0.0009,
+      "mrr_mean": 53.9621,
+      "mrr_std": 0.0005,
+      "source_json": "docs/studies/check2hgi/results/P0/simple_baselines/texas/next_category.json"
+    },
+    "markov_1_poi": {
+      "acc1_mean": 33.1147,
+      "acc1_std": 0.2846,
+      "acc5_mean": 74.7479,
+      "acc5_std": 0.2225,
+      "mrr_mean": 49.897,
+      "mrr_std": 0.256,
+      "macro_f1_mean": 25.852,
+      "macro_f1_std": 0.479,
+      "source_json": "docs/studies/check2hgi/results/P0/simple_baselines/texas/next_category.json",
+      "f1_source_json": "docs/studies/check2hgi/results/P0/simple_baselines/texas/next_category_f1.json"
+    },
+    "markov_k_cat": {
+      "best_k": 5,
+      "acc1_mean": 37.147,
+      "acc1_std": 0.413,
+      "macro_f1_mean": 28.672,
+      "macro_f1_std": 0.662,
+      "all_k": {
+        "k1": {
+          "acc1_mean": 34.08411980812948,
+          "acc1_std": 0.26743725588770223,
+          "macro_f1_mean": 18.167208435175265,
+          "macro_f1_std": 1.3807410554843949
+        },
+        "k3": {
+          "acc1_mean": 37.9907842591427,
+          "acc1_std": 0.2320972316408774,
+          "macro_f1_mean": 27.94309898924862,
+          "macro_f1_std": 0.5983758640860873
+        },
+        "k5": {
+          "acc1_mean": 37.14706475192423,
+          "acc1_std": 0.41281178416167225,
+          "macro_f1_mean": 28.67151677737139,
+          "macro_f1_std": 0.6621346373482675
+        },
+        "k7": {
+          "acc1_mean": 33.47043697185391,
+          "acc1_std": 0.400819693146867,
+          "macro_f1_mean": 26.25655006877806,
+          "macro_f1_std": 0.5582580611826599
+        },
+        "k9": {
+          "acc1_mean": 30.89455249133217,
+          "acc1_std": 0.3368582649636739,
+          "macro_f1_mean": 24.620757554055878,
+          "macro_f1_std": 0.42951219368183025
+        }
+      },
+      "source_json": "docs/studies/check2hgi/results/P0/simple_baselines/texas/next_category_markov_kstep.json"
+    }
+  },
+  "baselines": {
+    "poi_rgnn": {
+      "faithful": {
+        "n_rows": 0,
+        "acc1_mean": 40.5863,
+        "acc1_std": 0.5043,
+        "acc3_mean": 79.1065,
+        "acc3_std": 0.1552,
+        "acc5_mean": 93.1759,
+        "acc5_std": 0.0806,
+        "mrr_mean": 61.7946,
+        "mrr_std": 0.3168,
+        "macro_f1_mean": 32.0839,
+        "macro_f1_std": 0.704,
+        "tag": "FAITHFUL_POIRGNN_texas_5f35ep",
+        "date": "2026-04-30",
+        "source_json": "docs/studies/check2hgi/results/baselines/faithful_poi_rgnn_texas_5f_35ep_FAITHFUL_POIRGNN_texas_5f35ep.json"
+      }
+    },
+    "mha_pe": {
+      "faithful": {
+        "n_rows": 0,
+        "acc1_mean": 39.4257,
+        "acc1_std": 0.2817,
+        "acc3_mean": 78.4303,
+        "acc3_std": 0.2443,
+        "acc5_mean": 92.7784,
+        "acc5_std": 0.0842,
+        "mrr_mean": 60.968,
+        "mrr_std": 0.2015,
+        "macro_f1_mean": 29.9108,
+        "macro_f1_std": 0.4325,
+        "tag": "FAITHFUL_MHAPE_texas_5f11ep",
+        "date": "2026-04-30",
+        "source_json": "docs/studies/check2hgi/results/baselines/faithful_mha_pe_texas_5f_11ep_FAITHFUL_MHAPE_texas_5f11ep.json"
+      }
+    }
+  }
+}

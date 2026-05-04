@@ -88,3 +88,43 @@ class TestZipLongestCycle:
         short_vals = [item[1][0].tolist() for item in items]
         # The first two values should repeat in the second two
         assert short_vals[:2] == short_vals[2:]
+
+
+class TestF65MinSizeTruncate:
+    """F65 — joint-dataloader cycling ablation. The min_size_truncate
+    strategy stops at the shortest loader's end with no cycling."""
+
+    def test_min_size_truncate_returns_min_length(self):
+        dl_long = make_dl(5)
+        dl_short = make_dl(3)
+        items = list(
+            zip_longest_cycle(dl_long, dl_short, strategy="min_size_truncate"))
+        assert len(items) == 3
+
+    def test_min_size_truncate_no_cycling(self):
+        """No element from the longer loader past index 2 should appear,
+        and the shorter loader should not be re-fed."""
+        dl_long = make_dl(5)
+        dl_short = make_dl(3)
+        items = list(
+            zip_longest_cycle(dl_long, dl_short, strategy="min_size_truncate"))
+        long_vals = [item[0][0].item() for item in items]
+        short_vals = [item[1][0].item() for item in items]
+        assert long_vals == [0, 1, 2]
+        assert short_vals == [0, 1, 2]
+
+    def test_unknown_strategy_raises(self):
+        dl = make_dl(3)
+        with pytest.raises(ValueError, match="Unknown joint-loader strategy"):
+            list(zip_longest_cycle(dl, dl, strategy="bogus"))
+
+    def test_progress_bar_min_size_truncate_batches_per_epoch(self):
+        dl_long = make_dl(5)
+        dl_short = make_dl(3)
+        bar = TrainingProgressBar(
+            2, [dl_long, dl_short],
+            joint_loader_strategy="min_size_truncate",
+            file=io.StringIO(),
+        )
+        assert bar.batches_per_epoch == 3
+        bar.close()

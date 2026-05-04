@@ -1,0 +1,27 @@
+{
+  "tag": "REHDM_STL_POS_LASTPOS_SMOKE_ga_check2hgi_5f8ep",
+  "state": "georgia",
+  "engine": "check2hgi",
+  "fold": 0,
+  "config": {
+    "n_regions": 2282,
+    "emb_dim": 64,
+    "d_model": 192,
+    "n_heads": 4,
+    "d_ff": 256,
+    "n_hg_layers": 2,
+    "dropout": 0.2,
+    "beta": 0.5,
+    "max_seq_len": 9,
+    "use_positional": true,
+    "pool_last_pos": true
+  },
+  "best_val_acc@10": 0.20197865718096933,
+  "metrics": {
+    "acc@1": 0.09582036460649178,
+    "acc@5": 0.1527345486883059,
+    "acc@10": 0.20197865718096933,
+    "mrr": 0.13321070715606134,
+    "n": 8996
+  }
+}

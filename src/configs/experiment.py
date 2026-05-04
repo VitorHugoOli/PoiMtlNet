@@ -47,6 +47,119 @@ class ExperimentConfig:
     gradient_accumulation_steps: int = 2
     max_grad_norm: float = 1.0
     optimizer_eps: float = 1e-8
+    # F51 Tier 3 — cosine scheduler floor LR; 0.0 preserves legacy behaviour
+    # (CosineAnnealingLR decays to 0). Non-zero values keep a small LR in the
+    # late-cosine tail, which can stabilize α growth in next_getnext_hard.
+    eta_min: float = 0.0
+
+    # --- LR scheduler ---
+    # "onecycle" preserves legacy behaviour bit-exactly. "constant" and
+    # "cosine" are F44-F46 knobs for disentangling "more epochs" from
+    # "stretched schedule" in the CH18 attribution chain.
+    scheduler_type: str = "onecycle"
+    # pct_start only applies when scheduler_type == "onecycle". None →
+    # PyTorch default (0.3). Smaller values push peak LR earlier.
+    pct_start: Optional[float] = None
+
+    # Per-head LR (F48-H3). When ALL three are set, the optimizer is
+    # built with three param groups (cat / reg / shared) at distinct
+    # LRs. Currently only honored by mtlnet_crossattn. ``--max-lr`` is
+    # ignored in this mode. Recommended pairing: scheduler_type =
+    # "constant" so the per-group LRs survive (OneCycleLR would override
+    # them with its own max_lr peak).
+    cat_lr: Optional[float] = None
+    reg_lr: Optional[float] = None
+    shared_lr: Optional[float] = None
+
+    # F49 encoder-frozen λ=0 isolation. When True, freezes
+    # `category_encoder` + `category_poi` parameters (requires_grad=False)
+    # so the cat encoder cannot co-adapt as a reg-helper through cross-attn
+    # K/V. Used together with `mtl_loss=static_weight` and
+    # `mtl_loss_params={"category_weight": 0.0}` to measure pure
+    # architectural overhead (encoder-frozen). See
+    # `docs/studies/check2hgi/research/F49_LAMBDA0_DECOMPOSITION_GAP.md`.
+    freeze_cat_stream: bool = False
+
+    # F50 P3 — warmup-then-freeze: train cat side normally for the first
+    # N epochs, then freeze ``category_encoder`` + ``category_poi`` from
+    # epoch N onward (continued reg + shared training). Tests whether the
+    # cat encoder's continued co-adaptation as reg-helper (F49 Layer 2
+    # mechanism) is hurting reg at FL scale. None disables. See
+    # `docs/studies/check2hgi/research/MTL_FLAWS_AND_FIXES.md` §3 H1.5.
+    freeze_cat_after_epoch: Optional[int] = None
+
+    # F50 P4 — per-batch alternating-SGD. Even batches update cat-side params
+    # from L_cat only; odd batches update reg-side params from L_reg only.
+    # Shared params see only one task's gradient signal per batch (alternating).
+    # Tests "does fine-grained per-task alternation prevent the shared backbone
+    # from being hijacked by either loss?" Requires --mtl-loss static_weight
+    # and --gradient-accumulation-steps 1 (alternation is by batch-idx).
+    alternating_optimizer_step: bool = False
+
+    # F50 D3 — separate LR for next_encoder (split out of reg_lr group). Tests
+    # mechanism α (reg encoder is under-trained because loss-side cat_weight=0.75
+    # scaling shrinks effective reg gradient by 4x). When set, the reg group
+    # splits into reg_encoder (next_encoder params, this LR) + reg_head
+    # (next_poi params, reg_lr). Default None reuses reg_lr for both.
+    reg_encoder_lr: Optional[float] = None
+
+    # F50 D6 — separate LR for next_poi (the reg head, where α scalar lives in
+    # next_getnext_hard). Tests if α growth is the bottleneck rather than the
+    # encoder. Setting reg_head_lr higher than reg_lr accelerates α's growth.
+    # When set, reg group splits into reg_encoder (next_encoder, reg_lr) +
+    # reg_head (next_poi, this LR). Can combine with reg_encoder_lr.
+    reg_head_lr: Optional[float] = None
+
+    # F50 F64/B2 — warmup-decay LambdaLR multiplier on reg_head + alpha_no_wd
+    # groups. Only consumed when scheduler_type == "reg_head_warmup_decay".
+    # Defaults reproduce the F50 T3 spec (warmup ep 0-5, plateau 5-15, decay
+    # 15-50, peak 10× base). Tests whether late-window α growth can be unlocked
+    # without the sustained instability of D6 (constant high reg_head_lr).
+    reg_head_warmup_decay_peak_mult: float = 10.0
+    reg_head_warmup_decay_warmup_epochs: int = 5
+    reg_head_warmup_decay_plateau_epochs: int = 15
+
+    # F50 F65 — joint-dataloader cycling strategy. ``max_size_cycle``
+    # (legacy default) cycles the shorter loader to match the longer; the
+    # shorter loader's data is re-fed within an epoch. ``min_size_truncate``
+    # stops at the shortest loader's end with no cycling. Tests if the
+    # repeated re-feeding pattern is contributing to the F50 D5
+    # reg-saturation observation.
+    joint_loader_strategy: str = "max_size_cycle"
+
+    # AUDIT-C4 fix — directory holding per-fold transition matrices
+    # ``region_transition_log_fold{1..k_folds}.pt``. When set, the MTL
+    # trainer overrides the static ``transition_path`` in next-head
+    # params with the per-fold file before constructing the model each
+    # fold. Build with ``python scripts/compute_region_transition.py
+    # --state STATE --per-fold``. Default None preserves legacy
+    # full-data behaviour (which leaks val rows; see C4).
+    per_fold_transition_dir: Optional[str] = None
+
+    # F50 B1 — earliest epoch (0-indexed) eligible to be selected as
+    # best by the per-task BestModelTracker. Defends against
+    # init-artifact peaks: with GETNext α_init=2.0, val top10 at ep 1
+    # is the prior alone (not learned signal). Set ``min_best_epoch=2``
+    # to force the selector past the init window. Default 0 = legacy.
+    min_best_epoch: int = 0
+
+    # F50 B9 — exempt the learnable α scalar (in next_getnext_hard*
+    # heads) from AdamW weight decay. WD=0.05 applies a constant pull-
+    # toward-zero force every step, fighting the gradient-driven α
+    # growth needed for the STL ep 17-20 reach (α ~ 2.0). When True, α
+    # gets its own param group with weight_decay=0.0. Default False
+    # = legacy behaviour. Only takes effect with per-head LR mode.
+    alpha_no_weight_decay: bool = False
+
+    # F50 B4 — freeze α at its init value for the first N epochs, then
+    # unfreeze. Lets cat stabilise at the un-α-amplified prior magnitude
+    # before α starts growing. Set 0 (default) = legacy (α trainable
+    # from epoch 0). Mirrors P3 (freeze_cat_after_epoch) but inverted:
+    # P3 freezes part of cat AFTER warmup; B4 freezes α UNTIL warmup.
+    # Implemented via toggling alpha.requires_grad at epoch boundary
+    # (α stays a Parameter throughout — different from D1 freeze_alpha
+    # which makes α a buffer permanently).
+    alpha_frozen_until_epoch: Optional[int] = None
 
     # torch.compile: disabled by default.  On CUDA it uses the inductor
     # backend; MPS compatibility needs separate testing first.
