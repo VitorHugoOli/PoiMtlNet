@@ -11,52 +11,104 @@ edit must hold or reduce the count.
 
 # Pending — pre-submission
 
-Round 6h (critical external-style review, 2026-05-04) re-opened four items
-that are not line-edit polish; they are reviewer-trust issues. I would not
-leave them to camera-ready.
+Round 6h (Codex critical external-style review, 2026-05-04) surfaced four
+items that I (Round 6i, same date) re-audited against source files. **Two of
+the four (P1, P4) are valid but lower-severity than Codex assigns; one (P2)
+is misdiagnosed — the article is internally correct, the stale working
+memos are the actual problem; one (P3) is a strategic framing concern that
+matches my own prior critical verdict.** Severity and fix path corrected
+below; full Codex Round 6h review preserved at the bottom of this file as
+the original critique, and Round 6i (my critical audit of that critique)
+is appended after it.
 
-## P1. User-disjoint story vs transductive substrate exposure
+## P1. User-disjoint vs transductive substrate — VALID, MEDIUM
 
-The paper foregrounds "user-disjoint folds" in the abstract / intro, but
-`method.tex:19` and `setup.tex:11` disclose that Check2HGI and HGI are
-pre-trained on the **full state graph**, including held-out users. That is not
-just a small limitation footnote: it changes the generalisation claim from
-"new-user prediction" to a transductive substrate setting. Either:
+**Verified.** Abstract (`samplepaper.tex:59`) and intro (`intro.tex:10`)
+use "user-disjoint folds" without the transductive qualifier. **However**,
+the qualifier IS disclosed in three other sections: `setup.tex:11` (in the
+same paragraph as the user-disjoint statement, three sentences later),
+`method.tex:19`, and `discussion.tex:6` (limitations). So the disclosure is
+not hidden — Codex's "the paper wants the rhetorical benefit while burying
+the qualifier" framing is too strong.
 
-- run and report at least one held-out-user substrate retrain audit, or
-- rewrite the paper so the transductive assumption is surfaced early
-  (abstract + intro + discussion), not only in setup/limitations.
+**Fix (cheap):** add one parenthetical to the abstract — *"five-state
+Gowalla ablation under user-disjoint downstream folds (transductive at the
+substrate level; see \S\ref{subsec:setup-data})"* — and a similar
+phrase to the intro setup sentence. ${\sim}10$ extra characters total; no
+page-budget hit. Closes the issue without running new experiments.
 
-## P2. POI-RGNN external-baseline audit is internally inconsistent
+## P2. POI-RGNN inconsistency — MISDIAGNOSED; the article is correct
 
-The article-side files do not tell one coherent story about POI-RGNN:
+**Codex's three-source contradiction is real**, but the location of the fix
+is wrong. After re-reading the canonical sources:
 
-- `src/tables/external.tex` / `results.tex` call it a **user-disjoint
-  reproduction** with FL/CA/TX = **34.49 / 31.78 / 33.03**.
-- `docs/studies/check2hgi/baselines/next_category/comparison.md` reports
-  **33.35 / 30.71 / 32.08** for the same states from the baseline JSONs.
-- `STATISTICAL_AUDIT.md:184` still says the reproduction "*did not* use
-  user-disjoint folds".
+- `docs/studies/check2hgi/baselines/next_category/poi_rgnn.md` (canonical
+  baseline doc) explicitly states: *"We use `StratifiedGroupKFold(5,
+  seed=42)` on userid stratified by target_category... cold-user; train
+  and val users are disjoint."* — **the reproduction IS user-disjoint.**
+- `docs/studies/check2hgi/results/RESULTS_TABLE.md §0.6` lists the
+  canonical numbers as **34.49 / 31.78 / 33.03** for FL / CA / TX.
+- The article (`external.tex`, `results.tex`) inherits both: user-disjoint
+  protocol claim and the canonical numbers. **Article-side is consistent
+  with the canonical sources.**
+- `STATISTICAL_AUDIT.md:184` text *"did not use user-disjoint folds"* is
+  **stale** — file dated 2026-05-02, before the audit cycle closed. It
+  reflects an earlier protocol claim that was superseded.
+- `comparison.md` JSON values (33.35/30.71/32.08) are pre-bugfix per the
+  explicit `COORDINATOR_HANDOFF.md:355` note: *"JSON values diverge
+  (33.35/30.71/32.08) — JSONs may be pre-bugfix. Trusted §0.6."*
 
-Until the protocol and numbers are reconciled in one source of truth, the
-"roughly doubles POI-RGNN" claim is not stable enough for submission.
+**Fix (the right one):** mark `STATISTICAL_AUDIT.md` and `comparison.md`
+as superseded by `RESULTS_TABLE.md §0.6` (or rewrite/archive them).
+Article needs **zero changes**. The Codex recommendation to "until the
+protocol and numbers are reconciled, the doubling claim is not stable" is
+overstated — the article's claim IS stable; the stale internal memos are
+not. **HIGH severity for repo-hygiene if the anonymous code release
+exposes these working memos; LOW severity if it exposes only `src/`.**
 
-## P3. Contribution framing is still unstable on the architecture side
+## P3. Architecture as contribution vs failed add-on — VALID, STRATEGIC
 
-Scientifically, the current evidence is strongest for a **substrate paper with a
-negative/diagnostic MTL result**, not for a paper proposing a stronger joint
-model. The proposed MTL model is below STL on next-region at all five states
-and below Markov-1 on four of five; `external.tex` also leaves the strongest
-region row to STAN. The manuscript needs to answer, much more explicitly, why
-the architecture section is a contribution rather than a failed add-on.
+This matches my own prior critical verdict (see Round 6 — critical paper
+review at the end of this file). The proposed cross-attention MTL backbone
+is empirically dominated by single-task baselines and by a 1-step Markov
+chain at most states. The current paper has tension between "we propose
+this architecture" and "this architecture loses on every region task".
 
-## P4. Per-visit mechanism is over-emphasised relative to its evidence
+This is **not a pre-submission blocker** — the paper does honestly disclose
+the negative; the title "Architecture Pays" already telegraphs it; the
+conclusion's three open lines (asymmetric routing, encoder enrichment,
+region-side dynamic prior) all explicitly target the architecture's
+weakness. But the underlying tension is real and remains unresolved at the
+reframe level. Two strategic options (deferable to a resubmission cycle if
+this version is rejected):
 
-The 72\% / 64\% decomposition is prominent in the abstract, intro, conclusion,
-and figure, but the evidence remains narrow: `mechanism.tex:11` explicitly says
-AZ is descriptive only (no paired test), and there is no FL/CA/TX replication.
-This can stay in the paper, but it needs firmer scoping and less headline
-weight.
+1. Drop the MTL framing entirely; reframe as a substrate-axis paper with
+   matched-head STL ceilings as the headline.
+2. Lead with §6.3 encoder-isolation as the methodological contribution,
+   demote the MTL backbone to "the architecture our methodological note
+   was developed against".
+
+**For this submission cycle: accept the borderline status.** The paper is
+honest about the negative; reviewers who value rigor + honesty will accept,
+those who require positive algorithmic advance will reject. P3 is not
+fixable in two days.
+
+## P4. Per-visit mechanism over-emphasis — VALID, MEDIUM
+
+**Verified.** The 72/64 claim appears in abstract (line 68), intro C1
+(`intro.tex:15`), conclusion (`conclusion.tex:4`), and Fig. 2 caption. AZ
+is descriptive-only per `mechanism.tex:11` (no paired test). FL/CA/TX have
+no mechanism replication.
+
+**Cleanest fix is already documented as D3 (deferred camera-ready):** run
+the AZ paired Wilcoxon on the existing fold-level deltas. One-day run,
+zero new training compute, converts AZ from descriptive to inferential.
+Resolves the over-emphasis concern without rewording.
+
+**If D3 is not run pre-submission**, second-best fix: add the phrase
+*"(inferential at AL, descriptive replication at AZ)"* to the abstract's
+72/64 sentence. ${\sim}45$ extra characters; honest scoping; preserves the
+contribution.
 
 --------
 
@@ -483,3 +535,189 @@ first resolves the trust issues above:
 
 If those four are fixed, the paper becomes much more reviewer-proof without
 needing new large-scale experiments.
+
+--------
+
+# Round 6i — critical audit of the Codex Round 6h review (2026-05-04)
+
+The Codex review above is generally well-reasoned. I cross-checked each
+finding against source files; the per-item verdicts are summarised at the
+top under "Pending — pre-submission" (P1--P4). What follows audits the M-tier
+items that did not get propagated to the pending list, plus three additional
+considerations the Codex review did not surface.
+
+## Audit of Codex M-tier items
+
+### M1 (prose internal-memo voice) — DIMINISHING RETURNS
+
+Voice-trim has been done across Rounds 1, 5c, 5d. Current state:
+"load-bearing" $2\times$ (intro + related), "textbook tradeoff" $3\times$
+(abstract + intro + related). Each remaining instance is in a load-bearing
+position. The Codex push for further trim ("headline scale", "smaller-
+scale anchors", "carries/pays") is reasonable but the listed phrases
+mostly have no idiomatic LNCS replacement that preserves meaning:
+
+- "headline scale" $\leftrightarrow$ "the FL/CA/TX states" (loses the
+  hierarchical framing)
+- "smaller-scale anchors" $\leftrightarrow$ "the AL/AZ states" (loses the
+  comparative framing the §5.1 substrate analysis depends on)
+- "carries / pays" $\leftrightarrow$ "is the determining factor / incurs
+  a cost" (loses the title's rhetorical pair)
+
+**Verdict: KEEP CODEX RECOMMENDATION as cosmetic camera-ready polish.**
+Not a pre-submission blocker. The paper's voice is already two BRACIS-
+calibration rounds in; further trim risks losing the memorable framing
+that makes the paper stick in a reviewer's mind among 393 submissions.
+
+### M2 (Check2HGI under-specified vs C0 promotion) — DEFENSIBLE TRADE-OFF
+
+Codex's tension is real: under Option B (Check2HGI as C0 contribution),
+the method spec at `method.tex:9-18` gives the 4-level hierarchy and the
+3-boundary MI loss equation but defers graph construction, negative
+sampling, exact pretraining protocol to the anonymous code release.
+
+**My read**: this is a defensible LNCS pattern — the loss equation is the
+load-bearing architectural claim; graph construction details are
+implementation-grade and standard in the GCN literature. A reviewer who
+wants to reproduce can use the code release; a reviewer who wants to
+understand the method has the equation and the corruption-trick sentence.
+
+**However**, if a reviewer pushes on "where is the algorithmic
+contribution beyond the loss equation?", the answer is thin. This loops
+back to P3 (architecture as contribution) — the C0 promotion under
+Option B is itself a strategic risk. **No pre-submission action needed**;
+the trade-off is already chosen.
+
+### M3 (interpretive overreach) — VALID, ONE-LINE FIX
+
+Codex flags two specific lines:
+
+- `results.tex:26` *"what a one-step Markov chain captures is what the
+  cross-attention region head underfits"* — interpretive causal claim
+  beyond what the data shows.
+- `results.tex:33` *"the same FL state is exceptional on $\Delta_m$-MRR
+  precisely because the Acc@10-saturated regime described above is what
+  MRR sees through"* — same pattern: causal explanation of a metric-
+  divergence pattern that has only been observed.
+
+**Both are real overreaches.** One-line softening fixes:
+
+1. `results.tex:26` change *"what a one-step Markov chain captures is what
+   the cross-attention region head underfits"* $\to$ *"the cross-attention
+   region head underperforms on the short-horizon transition structure
+   that a one-step Markov chain already captures"* — same observation,
+   no causal claim about what the head "captures".
+2. `results.tex:33` change *"precisely because"* $\to$ *"is consistent
+   with"*. From causal to correlative.
+
+**Effort: ${\sim}1$ minute.** Recommend applying.
+
+## Additional considerations Codex did not surface
+
+### A1 (NEW). §6.3 encoder-isolation note is asserted without numerical evidence
+
+The §6.3 cross-attention $\lambda=0$ vs encoder-frozen finding is a
+methodological claim the paper relies on (it justifies the encoder-frozen
+ablation protocol throughout). But the body shows **zero numerical
+comparison** between the two protocols — the paper says "regression tests
+in the code release" and stops there.
+
+If a reviewer reads §6.3 and asks "show me the difference between
+$\lambda=0$ and encoder-frozen at one state, one head, one fold", there is
+nothing in the body to point at. This is a real reviewer attack surface,
+especially because the framing leans on §6.3 as the methodological
+contribution that anchors the cross-attention story.
+
+**Fix:** add one sentence with concrete numbers in §6.3, e.g., *"At AL,
+the loss-side $\lambda_{\text{cat}}=0$ ablation drops region Acc@10 by
+$X.X$ pp; the encoder-frozen isolation drops it by $Y.Y$ pp, confirming
+that the surviving stream's K/V projections continue to carry category
+gradient through the targeted encoder."* If the numbers do not exist
+yet, run a one-day comparison at one state.
+
+**Severity: MEDIUM.** The claim is correct and important; the absence of
+in-body evidence weakens the only methodological contribution that
+distinguishes this paper from a substrate-axis ablation.
+
+### A2 (NEW). The "doubling vs POI-RGNN" claim quotes external numbers, not multi-task numbers
+
+`results.tex:38` and `discussion.tex:4` say *"Check2HGI's matched-head
+category ceiling at FL ($67.16$) roughly doubles the strongest
+user-disjoint POI-RGNN reproduction ($34.49$)"*. The 67.16 is the
+**STL** category ceiling on Check2HGI — i.e., the doubling claim is for
+the substrate + matched-head GRU, not for the proposed cross-attention
+MTL model.
+
+This is not strictly dishonest — the paper says "matched-head category
+ceiling" — but a casual reviewer reading the abstract / discussion will
+hear "our model doubles POI-RGNN" and not parse the matched-head
+qualifier. The MTL row itself ($68.56$ at FL) is only marginally above
+the STL ceiling, and trails by $-7$ to $-17$ pp on region.
+
+**Fix:** rewrite *"Check2HGI's matched-head category ceiling at FL
+($67.16$)"* $\to$ *"the matched-head STL category ceiling on Check2HGI
+($67.16$ at FL, single-task)"* — making explicit that the doubling is a
+single-task substrate effect, not a multi-task model claim.
+
+This also helps mitigate P3 (architecture-as-contribution) by being clear
+that the dramatic external lift comes from substrate, not architecture.
+
+**Severity: MEDIUM.** Reviewer-trust issue if a reader misreads the
+qualifier; honest disclosure if read carefully.
+
+### A3 (NEW). The conclusion's "open lines" implicitly admit the architecture failed
+
+`conclusion.tex` lists three follow-up directions: *"asymmetric routing
+across the shared backbone to relax cross-attention interference, encoder
+enrichment fusing per-visit contrast with the explicit spatial-temporal
+sub-encoders of [CoUrb], and a region-side dynamic prior conditioned on
+the user's recent trajectory."*
+
+**All three target the architecture's weakness** — interference,
+encoder limitations, region-head failure. This is honest and
+reviewer-positive (the paper acknowledges the architecture needs work).
+**But it also implicitly confirms P3** (the architecture is a diagnostic
+result, not a deployment recommendation). A senior reviewer will read the
+three open lines and conclude "the authors agree the architecture
+doesn't work; future work is needed". That reading is correct — the
+question is whether it sinks the paper or strengthens the honesty signal.
+
+**No action needed**, but worth noting that the conclusion's framing
+already takes the strategic position P3 recommends. **The contradiction
+is between the conclusion's honest reframe and the C2 contribution
+bullet's confident "direct measurement of the multi-task tradeoff"
+framing in the intro.** Aligning these two would close the strategic gap
+without changing experiments.
+
+## Net verdict on the Codex Round 6h review
+
+Codex produced a substantive, well-targeted critique. **Two-thirds of the
+findings are valid and have one-line fixes.** The misdiagnosis on P2 is
+the most consequential issue with the Codex critique itself — pointing
+the fix at the article rather than at the stale working memos would have
+caused unnecessary article-side edits.
+
+**Combined pre-submission punch list (Round 6h Codex + Round 6i mine):**
+
+| # | Item | Effort | Severity |
+|---|------|------|------|
+| **P2-fix** | Mark `STATISTICAL_AUDIT.md` and `comparison.md` as superseded by `RESULTS_TABLE.md §0.6` (or archive them outside the anonymous-code-release scope) | $\sim 5$ min | HIGH if anon code release exposes them |
+| **P1-fix** | Add transductive parenthetical to abstract + intro setup sentence | $\sim 5$ min | MEDIUM |
+| **P4-fix (preferred)** | Run AZ paired Wilcoxon (D3) — converts AZ from descriptive to inferential | 1 day | MEDIUM |
+| **P4-fix (fallback)** | Add "(inferential at AL, descriptive at AZ)" to the abstract 72/64 sentence | $\sim 1$ min | MEDIUM |
+| **M3-fix** | Soften two interpretive causal sentences at `results.tex:26` and `:33` | $\sim 2$ min | LOW |
+| **A1-fix** | Add one numerical comparison sentence to §6.3 encoder-isolation note | 1 day if numbers must be generated; $\sim 5$ min if they exist | MEDIUM |
+| **A2-fix** | Rewrite doubling claim to make "matched-head STL" explicit | $\sim 2$ min | MEDIUM |
+| **A3-note** | Align C2 intro framing with conclusion's honest reframe | $\sim 5$ min | LOW |
+
+**Pre-submission core: ~15 minutes** if P4 takes the fallback wording
+fix and A1 numbers already exist in the code release. **Pre-submission
+expanded: ~1 day** if P4 runs AZ paired Wilcoxon and A1 generates the
+missing comparison numbers.
+
+P3 (architecture-as-failed-add-on) is the only finding without a sub-day
+fix path — and it is genuinely a strategic/structural concern that requires
+either a major reframe or accepting the borderline acceptance probability.
+**My recommendation matches the prior verdict: submit with the current
+framing this cycle; if rejected, reframe as substrate-axis paper for
+resubmission elsewhere.**
