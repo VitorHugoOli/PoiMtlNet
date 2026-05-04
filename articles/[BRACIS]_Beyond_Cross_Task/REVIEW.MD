@@ -11,12 +11,52 @@ edit must hold or reduce the count.
 
 # Pending — pre-submission
 
-*(none reviewer-blocking)*
+Round 6h (critical external-style review, 2026-05-04) re-opened four items
+that are not line-edit polish; they are reviewer-trust issues. I would not
+leave them to camera-ready.
 
-The six-round audit cycle (Rounds 1--5f) closed every HIGH and MEDIUM finding.
-The PDF builds to 15 pages with zero BibTeX errors, all 16 citations resolve,
-and Table 1(a) cell -- cell math reconciles for every state. The submission
-package is in shape.
+## P1. User-disjoint story vs transductive substrate exposure
+
+The paper foregrounds "user-disjoint folds" in the abstract / intro, but
+`method.tex:19` and `setup.tex:11` disclose that Check2HGI and HGI are
+pre-trained on the **full state graph**, including held-out users. That is not
+just a small limitation footnote: it changes the generalisation claim from
+"new-user prediction" to a transductive substrate setting. Either:
+
+- run and report at least one held-out-user substrate retrain audit, or
+- rewrite the paper so the transductive assumption is surfaced early
+  (abstract + intro + discussion), not only in setup/limitations.
+
+## P2. POI-RGNN external-baseline audit is internally inconsistent
+
+The article-side files do not tell one coherent story about POI-RGNN:
+
+- `src/tables/external.tex` / `results.tex` call it a **user-disjoint
+  reproduction** with FL/CA/TX = **34.49 / 31.78 / 33.03**.
+- `docs/studies/check2hgi/baselines/next_category/comparison.md` reports
+  **33.35 / 30.71 / 32.08** for the same states from the baseline JSONs.
+- `STATISTICAL_AUDIT.md:184` still says the reproduction "*did not* use
+  user-disjoint folds".
+
+Until the protocol and numbers are reconciled in one source of truth, the
+"roughly doubles POI-RGNN" claim is not stable enough for submission.
+
+## P3. Contribution framing is still unstable on the architecture side
+
+Scientifically, the current evidence is strongest for a **substrate paper with a
+negative/diagnostic MTL result**, not for a paper proposing a stronger joint
+model. The proposed MTL model is below STL on next-region at all five states
+and below Markov-1 on four of five; `external.tex` also leaves the strongest
+region row to STAN. The manuscript needs to answer, much more explicitly, why
+the architecture section is a contribution rather than a failed add-on.
+
+## P4. Per-visit mechanism is over-emphasised relative to its evidence
+
+The 72\% / 64\% decomposition is prominent in the abstract, intro, conclusion,
+and figure, but the evidence remains narrow: `mechanism.tex:11` explicitly says
+AZ is descriptive only (no paired test), and there is no FL/CA/TX replication.
+This can stay in the paper, but it needs firmer scoping and less headline
+weight.
 
 --------
 
@@ -263,3 +303,183 @@ D1 marker in the "Deferred" section above flipped from open to **CLOSED
 Round 5g**. No commit made; staged in working tree for author commit.
 The submission is now in shape against every HIGH / MEDIUM / LOW item
 across Rounds 1–5g.
+
+--------
+
+# Round 6h — critical paper review (2026-05-04)
+
+This round was done from the standpoint of a demanding BRACIS/LNCS reviewer,
+not an implementation auditor. I re-read the current paper source
+(`src/sections/*.tex`), the rendered `samplepaper.pdf`, the study-side claim
+files, and sampled BRACIS 2024/2025 proceedings pages for style calibration.
+Verdict: **the draft is promising, but not yet submission-safe**. The main
+remaining risk is not missing experiments; it is that several parts of the
+paper still read like an internal closure memo compressed into LNCS form.
+
+## Findings (ordered by severity)
+
+### H1. The evaluation story overstates "user-disjoint" generalisation when the substrate is transductive
+
+**Why this matters.** The abstract and intro lead a reviewer to expect a
+held-out-user evaluation. But `method.tex:19` and `setup.tex:11` reveal that
+both Check2HGI and HGI are pre-trained on each state's **full** check-in graph,
+so held-out users influence the substrate before downstream folds are created.
+That may be acceptable as a transductive protocol if argued explicitly, but it
+does **not** support the stronger reading that the paper is evaluating a clean
+new-user setting end to end.
+
+**Where it bites the draft now.**
+
+- `samplepaper.tex` abstract: "user-disjoint folds" is foregrounded without the
+  transductive qualifier.
+- `src/sections/intro.tex:10` uses "under user-disjoint folds" as part of the
+  paper's main setup sentence.
+- `src/sections/discussion.tex:6` demotes the issue to the fourth limitation,
+  which is too late relative to how central the evaluation claim is.
+
+**What I would change.** Either run one small held-out-user substrate retrain
+audit and report it honestly, or move the transductive qualifier into the
+abstract/intro and frame the paper as a controlled **relative substrate study**
+under a transductive embedding setup. Right now the paper wants the rhetorical
+benefit of "user-disjoint" while burying the strongest qualifier.
+
+### H2. The POI-RGNN comparison is not yet trustworthy enough to anchor the external story
+
+**Why this matters.** Reviewers do not need every baseline to be perfect, but
+they do need one stable story. The current paper-side material still contains
+multiple, conflicting POI-RGNN stories:
+
+- `src/tables/external.tex:3,17` says POI-RGNN is our **user-disjoint
+  reproduction** and gives FL/CA/TX = **34.49 / 31.78 / 33.03**.
+- `src/sections/results.tex:38` repeats the same framing and uses it for the
+  "roughly doubles" claim.
+- `docs/studies/check2hgi/baselines/next_category/comparison.md:13,56-58`
+  reports **33.35 / 30.71 / 32.08** from the baseline JSON path.
+- `articles/[BRACIS]_Beyond_Cross_Task/STATISTICAL_AUDIT.md:184` still says the
+  reproduction "*did not* use user-disjoint folds".
+- `COORDINATOR_HANDOFF.md:355` explicitly notes that the JSON values diverge
+  from the canonical article values.
+
+This is not a cosmetic mismatch. It means the article's external-comparison
+axis depends on numbers and protocol claims that are not yet internally
+reconciled.
+
+**What I would change.** Before submission, choose one auditable POI-RGNN
+source of truth and make every article-side file inherit from it. If the
+baseline is user-disjoint, say so everywhere and explain why the JSON summary
+differs. If it is not, stop calling it user-disjoint. Until that is fixed, I
+would remove or soften any sentence built on "Check2HGI roughly doubles
+POI-RGNN".
+
+### H3. The paper still has not decided whether it is proposing an MTL model or diagnosing why MTL is not the answer
+
+**Why this matters.** The substrate result is strong and clean. The architecture
+result is scientifically interesting, but mostly because it is a careful
+negative result: MTL helps category a bit at four states, hurts it at AL, and
+is bad on region everywhere. The manuscript partly knows this, but the story is
+not yet aligned around it.
+
+**Symptoms in the current draft.**
+
+- The title and C2 framing are already moving toward "architecture pays", but
+  the paper still spends a lot of energy presenting the MTL backbone as if it
+  were the natural deployment answer.
+- `src/sections/results.tex:24-28` and `discussion.tex:4-6` acknowledge the
+  region cost, yet the paper never cleanly states the practical takeaway:
+  **if you care about performance, use Check2HGI + STL; if you care about a
+  single joint model, you accept a region penalty.**
+- `src/tables/external.tex` leaves the best region row to STAN, and
+  `results.tex:26` admits MTL is below Markov-1 at four of five states.
+
+**What I would change.** Reframe the paper more explicitly as:
+
+- contribution A: Check2HGI exposes a task-asymmetric substrate effect;
+- contribution B: under that substrate, cross-attention MTL does **not**
+  recover bidirectional gains and reveals a structural tradeoff.
+
+That is a strong paper if owned directly. It is a weaker paper if written as a
+"new model paper" whose own best recommendation is not to use the new model.
+
+### H4. The per-visit mechanism is headline material with non-headline evidence
+
+**Why this matters.** The mechanism story is elegant, but the paper currently
+gives it more rhetorical weight than the evidence supports.
+
+**Current evidence.**
+
+- AL: inferential mechanism split, good.
+- AZ: descriptive replication only; `src/sections/mechanism.tex:11` explicitly
+  says no paired test is run.
+- FL/CA/TX: no mechanism replication.
+
+**Current emphasis.**
+
+- abstract ends with the 72/64 claim;
+- `intro.tex:15` makes it a contribution bullet;
+- `conclusion.tex:4` repeats it as one of the closing facts;
+- the figure is a major visual anchor.
+
+I would either demote it slightly or scope it much more aggressively
+("two-state mechanism probe, inferential at AL and descriptive at AZ"). Right
+now the reader sees a polished mechanistic result but gets narrow support when
+they inspect the section closely.
+
+### M1. The prose still sounds too much like an internal project memo
+
+Sampled BRACIS papers in the 2024/2025 proceedings are much plainer in tone.
+This draft is better than earlier versions, but expressions such as
+"load-bearing", "headline scale", "smaller-scale anchors", "textbook tradeoff",
+"honest reattribution", and repeated "carries/pays" phrasing still make the
+paper sound self-aware in a way LNCS reviewers may read as rhetorical pressure.
+The scientific content is strong enough that it does not need this vocabulary.
+
+Concrete pressure points:
+
+- `intro.tex:8,15-16`
+- `related.tex:9,19,21`
+- `results.tex:15,24-28,33,38`
+- `discussion.tex:4-6`
+
+Recommendation: simplify the voice another notch. Favor conventional claims
+("suggests", "indicates", "is consistent with") over interpretive slogans.
+
+### M2. Check2HGI is still under-specified relative to how central C0 is
+
+If Check2HGI remains a named contribution (`intro.tex:14`), the paper should
+be reproducible at the method level without forcing the reviewer into the code
+release. `method.tex:9-18` gives the hierarchy and loss weights, but the paper
+still outsources too much of the actual recipe: graph construction details,
+negative sampling/corruption choices, and the exact pretraining protocol are
+mostly gestured at. For a derivative engine this may be acceptable **only if**
+the contribution is framed as an empirical substrate study rather than as a new
+embedding method. Right now the paper tries to have both.
+
+### M3. A few interpretive sentences are stronger than the evidence on the page
+
+Examples:
+
+- `results.tex:26` moves from "MTL trails Markov-1 on Acc@10" to "what a
+  one-step Markov chain captures is what the cross-attention region head
+  underfits." Plausible, but not directly shown.
+- `results.tex:33` says MRR "sees through" the Acc@10 saturation regime. Again
+  plausible, but the paper has not established that mechanism, only the metric
+  divergence.
+
+These lines should be softened. They currently read as causal explanations for
+patterns that are still observational.
+
+## Bottom-line recommendation
+
+Do **not** treat the current article as "ready except cosmetic edits". The
+strong part of the paper is strong enough to submit, but only if the review-team
+first resolves the trust issues above:
+
+1. Make the transductive substrate assumption impossible to miss.
+2. Reconcile the POI-RGNN protocol and numbers everywhere.
+3. Decide, explicitly, that the architecture result is diagnostic/negative, and
+   write the story around that choice.
+4. Reduce the rhetorical weight on the AL/AZ mechanism split unless more
+   evidence is added.
+
+If those four are fixed, the paper becomes much more reviewer-proof without
+needing new large-scale experiments.
