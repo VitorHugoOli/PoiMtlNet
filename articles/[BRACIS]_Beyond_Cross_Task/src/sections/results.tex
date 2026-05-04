@@ -27,7 +27,7 @@ On Acc@10, the multi-task backbone trades the matched-head STAN-based single-tas
 
 With the substrate fixed at the per-visit granularity, the multi-task backbone delivers a small category lift at four of five states and pays a sign-consistent cost on the harder head at every state, the classic multi-task tradeoff. The cost is structural to the cross-attention shared-backbone interaction with the region head; Section~\ref{sec:mechanism} reports drop-in replacements (FAMO, Aligned-MTL, hierarchical-additive-softmax region head) that fail to close the next-region gap.
 
-\subsection{Joint $\Delta_m$ score: a Pareto-positive cell at Florida}
+\subsection{Joint $\Delta_m$: broadly negative; FL on MRR the exception}
 \label{subsec:results-deltam}
 
 We compute $\Delta_m$~\cite{maninis2019attentive,vandenhende2022mtl} against the matched-head single-task ceiling. On the primary pair (category macro-F1, region MRR), FL carries an $n=25$ multi-seed sweep and reaches $\Delta_m\text{-MRR}=+2.33\,\%$ at $p=2.98\mathrm{e}{-8}$, 25/25 fold-pairs positive: a Pareto-positive cell on the primary axis. The secondary pair at FL is $\Delta_m\text{-Acc@10}=-1.12\,\%$ at $p=3.20\mathrm{e}{-5}$ (4/25); MRR rewards near-correct candidates that raw top-10 accuracy misses. That FL is exceptional on $\Delta_m$-MRR is consistent with the Acc@10-saturated regime described above being what MRR sees through. The other four states report at the $n=5$ Wilcoxon ceiling: $\Delta_m$ is negative on both axes (MRR from $-24.84\,\%$ to $-1.61\,\%$; Acc@10 from $-22.41\,\%$ to $-6.85\,\%$), at most $1/5$ fold-pairs positive. FL is the only Pareto-positive cell on the primary axis at multi-seed.
