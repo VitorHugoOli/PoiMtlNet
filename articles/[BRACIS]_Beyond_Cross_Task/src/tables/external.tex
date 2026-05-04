@@ -1,6 +1,6 @@
 \begin{table}[t]
 \centering
-\caption{External-baseline comparison at the headline scale (FL, CA, TX). Category block reports macro-F1; region block reports Acc@10. Italicised rows are matched-head single-task ceilings on the Check2HGI substrate; the proposed row is the cross-attention multi-task model. POI-RGNN and MHA+PE are our user-disjoint reproductions; the original POI-RGNN evaluation~\cite{capanema2022poirgnn} used non-user-disjoint folds, so absolute values are not directly comparable. ReHDM and the faithful STAN reproduction are reported at FL only above the headline scale (the ReHDM dual-level hypergraph scales quadratically in region cardinality, exceeding our compute budget at CA/TX).}
+\caption{External-baseline comparison at the headline scale (FL, CA, TX). Category block reports macro-F1; region block reports Acc@10. Italicised rows are matched-head single-task ceilings on the Check2HGI substrate; the proposed row is the cross-attention multi-task model. POI-RGNN and MHA+PE are our user-disjoint reproductions; the original POI-RGNN evaluation~\cite{capanema2023poirgnn} used non-user-disjoint folds, so absolute values are not directly comparable. The STAN row reports the STAN architecture~\cite{luo2021stan} on our HGI substrate with our training-fold-only additive log-prior, and is reported at FL only above the headline scale; ReHDM is reported at FL only (the ReHDM dual-level hypergraph scales quadratically in region cardinality, exceeding our compute budget at CA/TX). A literature-faithful STAN reproduction (without our substrate or prior) is not included due to page constraints; see \S\ref{sec:discussion} for the limitation.}
 \label{tab:external}
 \scriptsize
 \setlength{\tabcolsep}{2.5pt}
@@ -14,7 +14,7 @@ Method & FL & CA & TX & FL & CA & TX \\
 \multicolumn{7}{l}{\emph{External baselines (faithful reproductions)}} \\
 \midrule
 Markov-1 (floor)             & $23.98\!\!\pm\!\!1.22$ & $19.97\!\!\pm\!\!1.77$ & $18.17\!\!\pm\!\!1.38$ & $65.05\!\!\pm\!\!0.93$ & $52.09\!\!\pm\!\!0.80$ & $54.94\!\!\pm\!\!0.46$ \\
-POI-RGNN \cite{capanema2022poirgnn} & $34.49\!\!\pm\!\!1.14$ & $31.78\!\!\pm\!\!0.82$ & $33.03\!\!\pm\!\!0.70$ & --                 & --                 & --                 \\
+POI-RGNN \cite{capanema2023poirgnn} & $34.49\!\!\pm\!\!1.14$ & $31.78\!\!\pm\!\!0.82$ & $33.03\!\!\pm\!\!0.70$ & --                 & --                 & --                 \\
 MHA+PE \cite{zeng2019mhape}  & $32.06\!\!\pm\!\!0.23$ & $29.13\!\!\pm\!\!0.71$ & $29.91\!\!\pm\!\!0.43$ & --                 & --                 & --                 \\
 STAN \cite{luo2021stan} (HGI) & --                & --                & --                & $\mathbf{73.58\!\!\pm\!\!0.43}$ & $\mathbf{60.45\!\!\pm\!\!0.97}$ & $\mathbf{62.70\!\!\pm\!\!0.37}$ \\
 ReHDM \cite{li2025rehdm}     & --                & --                & --                & $65.68\!\!\pm\!\!0.26$ & --$^{\dagger}$     & --$^{\dagger}$     \\

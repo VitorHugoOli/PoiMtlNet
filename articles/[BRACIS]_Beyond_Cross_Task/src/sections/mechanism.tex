@@ -6,25 +6,22 @@ This section turns the reattribution into a mechanism reading, stress-tests the 
 \subsection{Per-visit context counterfactual (AL + AZ)}
 \label{subsec:mechanism-pervisit}
 
-We isolate per-visit context through a pooled-vs-canonical counterfactual. POI-pooled \emph{Check2HGI} mean-pools canonical vectors per POI across all check-ins and applies the per-place result uniformly to every visit. This kills per-visit variation while preserving the training signal: canonical vs.\ pooled isolates per-visit context, pooled vs.\ HGI isolates the contrastive training signal.
+To isolate per-visit context, we compare canonical Check2HGI against POI-pooled Check2HGI (canonical vectors mean-pooled per POI and applied uniformly to every visit, killing per-visit variation while preserving the training signal). Canonical vs.\ pooled isolates per-visit context; pooled vs.\ HGI isolates the contrastive training signal.
 
-Under the matched-head GRU single-task ceiling at AL, canonical Check2HGI reaches $40.76$ macro-F1, POI-pooled reaches $29.57$, HGI reaches $25.26$ (Figure~\ref{fig:per-visit}). The per-visit component is $+11.19$ pp ($\sim$72\,\% of the substrate gap), the training-signal component $+4.31$ pp ($\sim$28\,\%). The split survives a head-free linear probe ($30.84$ vs.\ $23.20$ vs.\ $18.70$, per-visit share $\sim$63\,\%); the GRU head amplifies the per-visit share rather than creating it.
-
-We replicate the same three matched-head cells at AZ on identical user-disjoint folds and seed: canonical $43.17 \pm 0.28$, POI-pooled $34.09 \pm 0.63$, HGI $28.99 \pm 0.51$. The decomposition is consistent with the AL ordering, with both components positive in matched-head means: per-visit $+9.08$ pp ($\sim$64\,\%) and training-signal $+5.10$ pp ($\sim$36\,\%), so per-visit context dominates at both states. We do not run a paired test across the AZ folds and report the second state as descriptive replication, not inferential confirmation.
+Under the matched-head GRU single-task ceiling, the substrate gap (canonical $-$ HGI) splits cleanly at both states (Figure~\ref{fig:per-visit}): per-visit dominates at AL ($\sim$72\,\%, $+11.19$ pp of a $+15.50$ pp gap) and at AZ ($\sim$64\,\%, $+9.08$ of $+14.18$ pp). The training signal contributes the remainder ($+4.31$ at AL, $+5.10$ at AZ). The AL split survives a head-free linear probe ($30.84$ vs.\ $23.20$ vs.\ $18.70$, per-visit share $\sim$63\,\%); the GRU head amplifies the per-visit share rather than creating it. We do not run a paired test on the AZ folds and report the second state as descriptive replication, not inferential confirmation.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.55\linewidth]{figs/per-visit.png}
-\caption{Per-visit context decomposition at Alabama under the matched-head GRU single-task ceiling. The substrate gap (canonical Check2HGI $-$ HGI $= +15.50$ pp) splits into a per-visit-context component (canonical $-$ POI-pooled $= +11.19$ pp, $\sim$72\,\%) and a training-signal component (POI-pooled $-$ HGI $= +4.31$ pp, $\sim$28\,\%). The bulk of the gap comes from per-visit variance, the property per-place embeddings cannot supply and that pooling to region cardinality smooths away.}
+\includegraphics[width=0.72\linewidth]{figs/per-visit.png}
+\caption{Per-visit context decomposition at Alabama (left) and Arizona (right) under the matched-head GRU single-task ceiling. Each substrate gap (canonical Check2HGI $-$ HGI) splits into a per-visit-context component (canonical $-$ POI-pooled) and a training-signal component (POI-pooled $-$ HGI). At AL the split is $+11.19$ pp ($\sim$72\,\%) and $+4.31$ pp ($\sim$28\,\%); at AZ it is $+9.08$ pp ($\sim$64\,\%) and $+5.10$ pp ($\sim$36\,\%). Per-visit dominates at both states --- the property per-place embeddings cannot supply and that pooling to region cardinality smooths away.}
 \label{fig:per-visit}
 \end{figure}
 
-The mechanism explains \emph{why} the substrate carries the easier head and trails on the harder one: what it adds at AL/AZ is exactly what the region head does not need.
 
 \subsection{Drop-in MTL ablations do not recover the next-region cost}
 \label{subsec:mechanism-ablations}
 
-The next-region cost is sign-consistent across all five states ($7$ to $17$ pp on Acc@10). To probe whether the cost is structural or recipe-borne, we ran three drop-in replacements at FL against the same folds and seeds, with substrate, backbone, optimiser and schedule fixed at Section~\ref{sec:method}: a magnitude balancer (FAMO~\cite{liu2023famo}), a direction-aligning balancer (Aligned-MTL~\cite{senushkin2023aligned}) and a head-side fix (hierarchical-additive-softmax region head). None reaches a $+3$ pp Acc@10 recovery target at FL or paired-Wilcoxon $p_{\text{greater}}<0.10$ (FAMO $+0.62$ pp; Aligned-MTL $-0.11$ pp on next-region and $-0.90$ pp on next-category; hierarchical head $\approx +1.7$ pp after dropping one collapsed fold-init). The cost stays intact across the three replacements, suggesting it is structural to the cross-attention interaction with the region head rather than a loss-recipe artefact; we cite five-state sign-consistency as supporting context, not direct multi-state evidence.
+The next-region cost is sign-consistent across all five states ($7$ to $17$ pp on Acc@10). At FL we tried three drop-in replacements on the same folds and seeds with substrate, backbone, optimiser and schedule fixed at \S\ref{sec:method}: a magnitude balancer (FAMO~\cite{liu2023famo}), a direction-aligning balancer (Aligned-MTL~\cite{senushkin2023aligned}) and a hierarchical-additive-softmax region head. None reached a $+3$ pp Acc@10 recovery target or paired-Wilcoxon $p_{\text{greater}}<0.10$ (FAMO $+0.62$, Aligned-MTL $-0.11$ on reg and $-0.90$ on cat, hierarchical head $\approx +1.7$). The cost stays intact, suggesting it is structural to the cross-attention interaction with the region head rather than a loss-recipe artefact; five-state sign-consistency is supporting context, not direct multi-state evidence.
 
 \subsection{Cross-attention $\lambda = 0$ is not encoder isolation}
 \label{subsec:mechanism-isolation}

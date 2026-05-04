@@ -10,9 +10,9 @@
 %   1. The CBIC bib's `capanema2019identificacao` is the WRONG reference for POI-RGNN.
 %      That entry points to "Identificação e Classificação de Pontos de Interesse Individuais
 %      com Base em Dados Esparsos" (SBRC 2019, in Portuguese) — a different paper.
-%      The actual POI-RGNN paper is Capanema et al., "Combining Recurrent and Graph Neural
-%      Networks to Predict the Next Place's Category", Pervasive and Mobile Computing 2022.
-%      Replaced as `capanema2022poirgnn` below.
+%      The actual POI-RGNN paper is Capanema et al., "Combining recurrent and Graph Neural
+%      Networks to predict the next place's category", Ad Hoc Networks 138:103016, 2023
+%      (DBLP-verified Round 5e, 2026-05-04). Stored as `capanema2023poirgnn` below.
 %   2. The CBIC bib's `chen2020modeling` (HMRM baseline) had AUTHOR-NAME ERRORS:
 %        wrong: Chen, Min and Zhao, Yanmin and Liu, Yanchi and Yu, Xun and Zheng, Kai
 %        right: Chen, Meng and Zhao, Yan and Yu, Xiaohui and Zheng, Kai
@@ -54,32 +54,12 @@
   doi       = {10.1109/TPAMI.2021.3054719},
 }
 
-@inproceedings{yu2020pcgrad,
-  author    = {Tianhe Yu and Saurabh Kumar and Abhishek Gupta and Sergey Levine and Karol Hausman and Chelsea Finn},
-  title     = {Gradient Surgery for Multi-Task Learning},
-  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
-  volume    = {33},
-  pages     = {5824--5836},
-  year      = {2020},
-}
+% removed: yu2020pcgrad (PCGrad) — uncited in current draft
 
 % removed: navon2022nashmtl (NashMTL) — example only, not used in paper
 
-@inproceedings{chen2018gradnorm,
-  author    = {Zhao Chen and Vijay Badrinarayanan and Chen{-}Yu Lee and Andrew Rabinovich},
-  title     = {{GradNorm}: Gradient Normalization for Adaptive Loss Balancing in Deep Multitask Networks},
-  booktitle = {Proceedings of the 35th International Conference on Machine Learning (ICML)},
-  pages     = {794--803},
-  year      = {2018},
-}
-
-@inproceedings{liu2021cagrad,
-  author    = {Bo Liu and Xingchao Liu and Xiaojie Jin and Peter Stone and Qiang Liu},
-  title     = {Conflict-Averse Gradient Descent for Multi-Task Learning},
-  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
-  volume    = {34},
-  year      = {2021},
-}
+% removed: chen2018gradnorm (GradNorm) — uncited in current draft
+% removed: liu2021cagrad (CAGrad) — uncited in current draft
 
 @inproceedings{senushkin2023aligned,
   author    = {Dmitry Senushkin and Nikolai Patakin and Arseny Kuznetsov and Anton Konushin},
@@ -122,36 +102,21 @@
   doi       = {10.1016/j.isprsjprs.2022.11.021},
 }
 
-@inproceedings{feng2017poi2vec,
-  author    = {Shanshan Feng and Gao Cong and Bo An and Yeow Meng Chee},
-  title     = {{POI2Vec}: Geographical Latent Representation for Predicting Future Visitors},
-  booktitle = {Proceedings of the AAAI Conference on Artificial Intelligence},
-  volume    = {31},
-  number    = {1},
-  year      = {2017},
-}
-
-@inproceedings{rahmani2019catape,
-  author    = {Hossein A. Rahmani and Mohammad Aliannejadi and Rasoul Mirzaei Zadeh and Mitra Baratchi and Mohsen Afsharchi and Fabio Crestani},
-  title     = {Category-Aware Location Embedding for Point-of-Interest Recommendation},
-  booktitle = {Proceedings of the 2019 ACM SIGIR International Conference on Theory of Information Retrieval (ICTIR)},
-  pages     = {173--176},
-  year      = {2019},
-  doi       = {10.1145/3341981.3344240},
-}
+% removed: feng2017poi2vec (POI2Vec) — uncited in current draft
+% removed: rahmani2019catape (CatAPE) — uncited in current draft
 
 % =====================================================================
 % POI PREDICTION — baselines (cat / next / region)
 % =====================================================================
 
-@article{capanema2022poirgnn,
-  author    = {Cl{\'a}udio G. S. Capanema and Guilherme S. de Oliveira and Fabr{\'i}cio A. Silva and Thais R. M. B. Silva and Antonio A. F. Loureiro},
-  title     = {Combining Recurrent and Graph Neural Networks to Predict the Next Place's Category},
-  journal   = {Pervasive and Mobile Computing},
-  volume    = {86},
-  pages     = {101687},
-  year      = {2022},
-  doi       = {10.1016/j.pmcj.2022.101687},
+@article{capanema2023poirgnn,
+  author    = {Cl{\'a}udio Gustavo S. Capanema and Guilherme S. de Oliveira and Fabr{\'i}cio A. Silva and Thais Regina de Moura Braga Silva and Antonio A. F. Loureiro},
+  title     = {Combining recurrent and Graph Neural Networks to predict the next place's category},
+  journal   = {Ad Hoc Networks},
+  volume    = {138},
+  pages     = {103016},
+  year      = {2023},
+  doi       = {10.1016/j.adhoc.2022.103016},
 }
 
 @inproceedings{zeng2019mhape,
@@ -161,7 +126,7 @@
   pages     = {309--322},
   year      = {2019},
   publisher = {Springer},
-  doi       = {10.1007/978-3-030-30146-0_22},
+  doi       = {10.1007/978-3-030-30146-0_21},
 }
 
 @article{chen2020hmrm,
@@ -184,6 +149,8 @@
   doi       = {10.1145/3442381.3449998},
 }
 
+% verified: DBLP, Round 5e (2026-05-04). Restored after H7 — method.tex names
+% GETNext and the additive log-prior pattern; the citation has to be present.
 @inproceedings{yang2022getnext,
   author    = {Song Yang and Jiamou Liu and Kaiqi Zhao},
   title     = {{GETNext}: Trajectory Flow Map Enhanced Transformer for Next {POI} Recommendation},
@@ -193,6 +160,11 @@
   doi       = {10.1145/3477495.3531983},
 }
 
+% removed: lim2022hmtgrn — concept-aligned but not load-bearing for the
+% substrate-axis claim; demoted Round 6 to recover page budget after H6 inline
+% Markov-1 numbers + H7 GETNext restoration. DBLP-verified entry preserved
+% below for future restoration via @Comment wrapper.
+@Comment{
 @inproceedings{lim2022hmtgrn,
   author    = {Nicholas Lim and Bryan Hooi and See{-}Kiong Ng and Yong Liang Goh and Renrong Weng and Rui Tan},
   title     = {Hierarchical Multi-Task Graph Recurrent Network for Next {POI} Recommendation},
@@ -201,20 +173,19 @@
   year      = {2022},
   doi       = {10.1145/3477495.3531989},
 }
+}
 
-% UNVERIFIED: full given names of all authors not recovered from any local
-% source (CBIC/CoUrb bib + BRACIS source files contain only "Li et al."
-% references; surnames carried over from the prior bib draft as a placeholder).
-% The pages field "0343" is unverified — likely an IJCAI 2025 paper-ID
-% (IJCAI uses 4-digit paper IDs as the canonical identifier, not page ranges)
-% rather than a page range. Camera-ready pass: recover full author given names
-% from the IJCAI 2025 proceedings page and confirm the paper-ID/pages convention.
+% verified: IJCAI 2025 proceedings page https://www.ijcai.org/proceedings/2025/343
+% (Round 5e, 2026-05-04). Author given names and pages range now authoritative;
+% UNVERIFIED tag dropped. The 0343 placeholder was the paper-ID, as the prior
+% audit comment hypothesised.
 @inproceedings{li2025rehdm,
-  author    = {Li and Gu and Yao and Zhou and Zhu and Zhao and Du},
+  author    = {Xixi Li and Zhuo Gu and Rui Yao and Yong Zhou and Hancheng Zhu and Jiaqi Zhao and Wen-liang Du},
   title     = {Beyond Individual and Point: Next {POI} Recommendation via Region-aware Dynamic Hypergraph with Dual-level Modeling},
   booktitle = {Proceedings of the 34th International Joint Conference on Artificial Intelligence (IJCAI)},
-  pages     = {0343},
+  pages     = {3081--3089},
   year      = {2025},
+  doi       = {10.24963/ijcai.2025/343},
 }
 
 % verified: ported from articles/CBIC___MTL/main.tex (author block) +
@@ -266,16 +237,6 @@
 % =====================================================================
 
 % removed: wilcoxon1945ranking — well-known statistical test, citation optional
-% @article{wilcoxon1945ranking,
-%   author    = {Frank Wilcoxon},
-%   title     = {Individual Comparisons by Ranking Methods},
-%   journal   = {Biometrics Bulletin},
-%   volume    = {1},
-%   number    = {6},
-%   pages     = {80--83},
-%   year      = {1945},
-%   doi       = {10.2307/3001968},
-% }
 
 % =====================================================================
 % NOTES ON CITATIONS DROPPED FROM THE BRACIS BIB
@@ -306,9 +267,14 @@
 %   chen2020modeling-as-MTL: domain-application fillers from CBIC. Not relevant
 %   to BRACIS framing.
 % - capanema2019identificacao (CBIC): WRONG REFERENCE for POI-RGNN; replaced
-%   by capanema2022poirgnn above.
+%   by capanema2023poirgnn above.
 %
-% Total entries in this bib: 30 (at the 25-30 budget ceiling per BRACIS_GUIDE.md
-% §7; the two entries added on 2026-05-03 are silva2025mtlnet (CBIC 2025 prior
-% work) and paiva2026courb (CoUrb 2026 follow-up), now cited in §1 and §2.3 as
-% required by AGENT.md §3 double-blind third-person citation rule).
+% Total active entries in this bib: 16 (Round 6, 2026-05-04). Removed for
+% page-budget / uncited reasons (kept commented for future restoration):
+% navon2022nashmtl, wilcoxon1945ranking, yu2020pcgrad, chen2018gradnorm,
+% liu2021cagrad, feng2017poi2vec, rahmani2019catape, lim2022hmtgrn.
+% Added on 2026-05-03: silva2025mtlnet (CBIC 2025) and paiva2026courb (CoUrb
+% 2026), cited in §1 and §2.3 per double-blind third-person rule. Round 6
+% restored yang2022getnext (cited in §3.2) and demoted lim2022hmtgrn back to a
+% commented entry after the H6 inline Markov-1 numbers pushed the bib past
+% page 15. Active count is well under the BRACIS_GUIDE.md §7 25–30 ceiling.

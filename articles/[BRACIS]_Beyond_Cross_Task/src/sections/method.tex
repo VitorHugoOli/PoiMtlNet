@@ -6,30 +6,38 @@ We describe the substrate (adopted), the backbone (the object of study), and the
 \subsection{The Check2HGI substrate}
 \label{subsec:method-substrate}
 
-Check2HGI extends the hierarchical graph-infomax line of HGI~\cite{huang2023hgi} (built on DGI~\cite{velickovic2019dgi}) by inserting a check-in level beneath the POI level: the hierarchy becomes Check-in $\to$ POI $\to$ Region $\to$ City. Bottom-level nodes are individual visits; edges follow each user's chronological visit sequence with a temporal-decay weighting, and node features carry the visit's category and timestamp. Embeddings propagate upward by attention pooling (check-ins to POIs), a region-graph convolution, and area-weighted aggregation (regions to city); mutual information is maximised across the three adjacent boundaries via bilinear discriminators against random-shuffle negatives. Two products feed our backbone after the encoder is frozen, both 64-dimensional: a per-check-in vector $\mathbf{e}_{c}$ from the bottom level for the category stream, and a per-region vector $\mathbf{e}_{r}$ from the third level for the region stream. We treat Check2HGI as a fixed input substrate; the full recipe is in the anonymous code release referenced below.
+Check2HGI extends the hierarchical graph-infomax line of HGI~\cite{huang2023hgi} (built on DGI~\cite{velickovic2019dgi}) by inserting a fourth check-in level beneath the POI level: the hierarchy becomes Check-in $\to$ POI $\to$ Region $\to$ City, so the same place visited twice can yield two distinct vectors. Bottom-level nodes are individual visits, with features encoding the category and a sin/cos transform of the timestamp; edges follow each user's chronological sequence with exponential temporal decay. A two-layer GCN encodes check-ins; a multi-head attention pool (\emph{Checkin2POI}) aggregates check-ins per POI; an analogous pool plus a region-adjacency GCN produces region embeddings; an area-weighted sigmoid aggregation produces the city embedding.
+
+Training maximises mutual information across the three adjacent boundaries by bilinear discriminators against random-shuffle negatives, with a per-boundary loss decomposition
+\begin{equation}
+  \mathcal{L}_{\text{C2HGI}} = \alpha_{c2p}\,\mathcal{L}_{c2p} + \alpha_{p2r}\,\mathcal{L}_{p2r} + \alpha_{r2c}\,\mathcal{L}_{r2c},
+  \quad (\alpha_{c2p}, \alpha_{p2r}, \alpha_{r2c}) = (0.4, 0.3, 0.3),
+  \label{eq:c2hgi}
+\end{equation}
+where each $\mathcal{L}_b$ is a binary cross-entropy against random-shuffle negatives at boundary $b$. Negatives are sampled as a permutation of positive embeddings rather than a re-encode of feature-corrupted inputs, preserving the contrastive objective while halving encoder compute.
+
+Substrates are pre-trained per state on the full state-level check-in graph; the user-disjoint protocol applies to the downstream classifier and the per-fold transition prior, not to the substrate's exposure (\S\ref{subsec:setup-data}). Two products feed our backbone after the encoder is frozen, both 64-dimensional: a per-check-in vector $\mathbf{e}_{c}$ from the bottom level for the category stream, and a per-region vector $\mathbf{e}_{r}$ from the third level for the region stream.
 
 \subsection{Cross-attention multi-task backbone}
 \label{subsec:method-backbone}
 
-The backbone keeps two parallel input streams (one per task) and bridges them with cross-attention before a shared backbone splits into per-task heads. Let $X^{c}, X^{r}\in\mathbb{R}^{L\times d}$ feed the category and region sides at $L=9$, $d=64$. Two task-specific encoders (two-layer MLPs with LayerNorm and dropout) project each stream to $\mathbb{R}^{L\times d_m}$ at $d_m=256$, yielding $H^{c}$ and $H^{r}$.
-
-A cross-attention block bridges the streams. With $\mathrm{MHA}(Q,K,V)$ scaled dot-product attention ($h=8$),
+The backbone keeps two parallel input streams bridged by cross-attention. Per-task encoders (two-layer MLPs with LayerNorm and dropout) project the input streams $X^{c}, X^{r} \in \mathbb{R}^{L\times d}$ into $H^{c}, H^{r} \in \mathbb{R}^{L\times d_m}$ ($L=9$, $d=64$, $d_m=256$). With $\mathrm{MHA}(Q,K,V)$ scaled dot-product attention ($h=8$ heads),
 \begin{equation}
 \widetilde{H}^{c} = H^{c} + \mathrm{MHA}(H^{c},\, H^{r},\, H^{r}),
 \qquad
 \widetilde{H}^{r} = H^{r} + \mathrm{MHA}(H^{r},\, H^{c},\, H^{c}),
 \label{eq:crossattn}
 \end{equation}
-so each stream queries the other. The cross-attended streams then pass through a shared backbone of four residual blocks (LayerNorm, linear, LeakyReLU, dropout) before splitting into per-task heads (Figure~\ref{fig:arch}). Eq.~\eqref{eq:crossattn} is the architectural object the result tables interrogate.
+so each stream queries the other. The cross-attended streams pass through a four-block shared residual backbone (LayerNorm, linear, LeakyReLU, dropout) before splitting into per-task heads (Figure~\ref{fig:arch}).
 
 \begin{figure}[t]
 \centering
-\resizebox{0.68\linewidth}{!}{\input{figs/architecture.tex}}
-\caption{Cross-attention multi-task backbone. Two task-specific encoders project per-task input streams $X^{c}$ (warm, check-in window) and $X^{r}$ (cool, region window) into $H^{c}, H^{r}$. A symmetric cross-attention block (Eq.~\ref{eq:crossattn}) lets each stream query the other; the bold black K/V arrows are the cross-feeds responsible for the encoder co-adaptation in Section~\ref{subsec:mechanism-isolation}, where a $\lambda=0$ ablation does not isolate the targeted encoder. A four-block shared residual backbone then splits into the GRU category head (7-way softmax) and the STAN-based region head with additive log-transition prior.}
+\resizebox{0.60\linewidth}{!}{\input{figs/architecture.tex}}
+\caption{Cross-attention multi-task backbone. Two task-specific input streams ($X^{c}$, $X^{r}$) feed a symmetric cross-attention block (Eq.~\ref{eq:crossattn}); the bold black bidirectional K/V arrow is the cross-feed responsible for the encoder co-adaptation in Section~\ref{subsec:mechanism-isolation}, where a $\lambda=0$ ablation does not isolate the targeted encoder. A shared residual backbone then splits into the GRU category head and the STAN-based region head with additive log-transition prior.}
 \label{fig:arch}
 \end{figure}
 
-The category head is a two-layer GRU over the cross-attended check-in stream with attention pooling and a seven-class softmax. The region head is an additive-prior STAN~\cite{luo2021stan} variant: a STAN backbone over the cross-attended region stream, scored against learnable region embeddings, with an additive log-transition prior $\alpha\cdot\log T[r_{\text{last}}]$ (learnable $\alpha$, built per fold from training-fold edges only). The log-prior pattern follows GETNext, but our head omits friendship and check-in graph priors and is not a faithful reproduction. The single-task ceilings reuse these head classes, so multi-task and single-task rows differ only in the shared backbone above them.
+The category head is a two-layer GRU over the cross-attended check-in stream with attention pooling and a seven-class softmax. The region head is an additive-prior STAN~\cite{luo2021stan} variant: a STAN backbone over the cross-attended region stream, scored against learnable region embeddings, with an additive log-transition prior $\alpha\cdot\log T[r_{\text{last}}]$ (learnable $\alpha$, built per fold from training-fold edges only). The log-prior pattern follows GETNext~\cite{yang2022getnext}, but our head omits friendship and check-in graph priors and is not a faithful reproduction. The single-task ceilings reuse these head classes, so multi-task and single-task rows differ only in the shared backbone above them.
 
 \subsection{Training protocol}
 \label{subsec:method-training}
@@ -41,7 +49,7 @@ We aggregate the two task losses with a static weighting,
 \lambda_{\text{cat}} = 0.75,\quad \lambda_{\text{reg}} = 0.25,
 \label{eq:loss}
 \end{equation}
-where $\mathcal{L}_{\text{cat}}, \mathcal{L}_{\text{reg}}$ are unweighted cross-entropy, fixed across all MTL rows. FAMO~\cite{liu2023famo} and Aligned-MTL~\cite{senushkin2023aligned} drop-in comparisons are in Section~\ref{sec:mechanism}.
+where $\mathcal{L}_{\text{cat}}, \mathcal{L}_{\text{reg}}$ are unweighted cross-entropy, fixed across all MTL rows. The drop-in adaptive balancers in \S\ref{sec:mechanism} (FAMO~\cite{liu2023famo}, Aligned-MTL~\cite{senushkin2023aligned}) do not improve over this static choice, supporting the simpler weighting; a $\lambda_{\text{cat}}$ sensitivity sweep is in the anonymous code release.
 
 The optimiser is AdamW with three parameter groups (category, region, shared); the schedule is scale-conditional, with OneCycleLR plus per-task-group alternating updates at FL/CA/TX and a per-head constant learning rate at AL/AZ (the alternating step helps the region head out of its saturation regime at large transition graphs but costs category-side signal at smaller scales). Batch size is 2048 (1024 at the largest state) with gradient accumulation of two. Training runs 50 epochs in FP32; per-task best checkpoints select on validation Acc@10 (region) and macro-F1 (category) for epochs $\geq 5$, since the region head saturates before the category head converges. Both heads use unweighted cross-entropy, matching the single-task ceilings in Section~\ref{sec:setup}. Exact recipe settings per state are in the anonymous code release.
 

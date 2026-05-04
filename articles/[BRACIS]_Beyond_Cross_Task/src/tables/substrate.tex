@@ -1,6 +1,6 @@
 \begin{table}[t]
 \centering
-\caption{Substrate ablation under matched-head single-task ceilings, five-fold cross-validation, seed-42 paired Wilcoxon at the $n=5$ ceiling ($p=0.0312$ when 5/5 folds agree). For Check2HGI at AL/AZ/FL the cell shows the mean over four extra seeds $\{0,1,7,100\}$ with seed-$\sigma$ for context; the paired test uses the seed-42 fold-pairs. (a) Next-category macro-F1 with a GRU category head; the asterisk marks 5/5 folds positive. (b) Next-region Acc@10 with a STAN-based region head and additive log-transition prior built per fold from training-fold edges; negative $\Delta$ values indicate POI-stable HGI is nominally ahead, and TOST verdicts at $\delta\in\{2,3\}$ pp report whether the gap stays inside the non-inferiority margin (\checkmark) or not ($\times$). The architectural axis (Tables~\ref{tab:mtl-stl} and~\ref{tab:external}) reports a different ceiling estimator: see \S\ref{subsec:setup-stats}.}
+\caption{Substrate ablation under matched-head single-task ceilings, five-fold cross-validation. Cells are seed-42 mean over folds $\pm$ fold-$\sigma$; $\Delta$ = Check2HGI cell $-$ HGI cell at every row. The paired Wilcoxon at the $n=5$ ceiling reaches $p=0.0312$ when 5/5 folds agree. (a) Next-category macro-F1 with a GRU category head; the asterisk marks 5/5 folds positive. (b) Next-region Acc@10 with a STAN-based region head and additive log-transition prior built per fold from training-fold edges; negative $\Delta$ values indicate POI-stable HGI is nominally ahead, and TOST verdicts at $\delta\in\{2,3\}$ pp report whether the gap stays inside the non-inferiority margin (\checkmark) or not ($\times$). The architectural axis (Tables~\ref{tab:mtl-stl} and~\ref{tab:external}) reports a multi-seed pooled ceiling for the architectural contrast: see \S\ref{subsec:setup-stats}.}
 \label{tab:substrate}
 \footnotesize
 \renewcommand{\arraystretch}{1.1}
@@ -10,8 +10,8 @@
 \toprule
 State & HGI cat F1 & Check2HGI cat F1 & $\Delta$ (pp) & Wilcoxon $p$ \\
 \midrule
-Alabama (AL)    & 25.26 $\pm$ 1.18 & 41.35 $\pm$ 0.17 & $+15.50$\textsuperscript{*} & 0.0312 \\
-Arizona (AZ)    & 28.69 $\pm$ 0.79 & 43.90 $\pm$ 0.17 & $+14.52$\textsuperscript{*} & 0.0312 \\
+Alabama (AL)    & 25.26 $\pm$ 1.18 & 40.76 $\pm$ 1.50 & $+15.50$\textsuperscript{*} & 0.0312 \\
+Arizona (AZ)    & 28.99 $\pm$ 0.51 & 43.17 $\pm$ 0.28 & $+14.18$\textsuperscript{*} & 0.0312 \\
 Florida (FL)    & 34.41 $\pm$ 1.05 & 63.43 $\pm$ 0.98 & $+29.02$\textsuperscript{*} & 0.0312 \\
 California (CA) & 31.13 $\pm$ 1.04 & 59.94 $\pm$ 0.59 & $+28.81$\textsuperscript{*} & 0.0312 \\
 Texas (TX)      & 31.89 $\pm$ 0.55 & 60.24 $\pm$ 1.84 & $+28.34$\textsuperscript{*} & 0.0312 \\
