@@ -1,12 +1,12 @@
 \section{Method}
 \label{sec:method}
 
-We describe the substrate (the object of study), the backbone, and the training protocol. In this work, a check-in is defined as a tuple $c=(p,r,t)$ with POI $p$, region $r$, and timestamp $t$. Trajectories are split into non-overlapping length-nine windows predicting the category and region of the tenth check-in ($L=9$).
+We describe the two halves of our system, followed by the training protocol that joins them. The first half is the \textbf{substrate} \emph{Check2HGI}: a graph embedding that turns each user check-in into a contextual vector by extending HGI's place-level hierarchy with a finer level beneath POI. The second is the \textbf{backbone}: a multi-task model that consumes those vectors through two parallel input streams bridged by cross-attention before a shared residual block and per-task heads. In this work, a check-in is defined as a tuple $c=(p,r,t)$ with POI $p$, region $r$, and timestamp $t$; trajectories are split into non-overlapping length-nine windows predicting the category and region of the tenth check-in ($L=9$).
 
 \subsection{The Check2HGI substrate}
 \label{subsec:method-substrate}
 
-We propose \textbf{Check2HGI}, a check-in-level extension of HGI~\cite{huang2023hgi} that introduces a fourth emission level beneath POI: the hierarchy becomes Check-in $\to$ POI $\to$ Region $\to$ City, so the same place visited twice can yield two distinct vectors. Visit nodes carry category and sin/cos timestamp features; edges follow each user's chronological sequence under exponential temporal decay. A two-layer GCN encodes check-ins; multi-head attention pools (\emph{Checkin2POI}, then POI-to-region) plus a region-adjacency GCN propagate to region; an area-weighted sigmoid yields the city embedding.
+HGI~\cite{huang2023hgi} encodes urban geography at three levels (POI~$\to$~region~$\to$~city) and emits one vector per place, so revisits inherit the same representation. Check2HGI replaces this place-level base with a check-in-level base where each visit is a node carrying its category and a sin/cos timestamp, and adjacent visits in a user's chronological sequence are linked under exponential temporal decay; the hierarchy becomes Check-in $\to$ POI $\to$ Region $\to$ City. A two-layer graph convolutional network (GCN) encodes the visit nodes; multi-head attention pools (\emph{Checkin2POI}, then POI-to-region) plus a region-adjacency GCN propagate to the region level; an area-weighted sigmoid yields the city embedding.
 
 Training maximises mutual information across the three adjacent boundaries via a per-boundary loss decomposition
 \begin{equation}
@@ -21,7 +21,7 @@ Substrates are pre-trained per state on the full state-level check-in graph; the
 \subsection{Cross-attention multi-task backbone}
 \label{subsec:method-backbone}
 
-The backbone keeps two parallel input streams bridged by cross-attention. Per-task encoders (two-layer MLPs with LayerNorm and dropout) project the input streams $X^{c}, X^{r} \in \mathbb{R}^{L\times d}$ into $H^{c}, H^{r} \in \mathbb{R}^{L\times d_m}$ ($L=9$, $d=64$, $d_m=256$). With $\mathrm{MHA}(Q,K,V)$ scaled dot-product attention ($h=8$ heads),
+Feeding both tasks through one shared encoder forces an early compromise between two different feature distributions: per-check-in vectors drive next-category, while per-region vectors drive next-region. We instead keep two parallel input streams and let them exchange information through cross-attention before they meet a shared block. Per-task encoders (two-layer MLPs with LayerNorm and dropout) project the input streams $X^{c}, X^{r} \in \mathbb{R}^{L\times d}$ into $H^{c}, H^{r} \in \mathbb{R}^{L\times d_m}$ ($L=9$, $d=64$, $d_m=256$). With $\mathrm{MHA}(Q,K,V)$ scaled dot-product attention ($h=8$ heads),
 \begin{equation}
 \widetilde{H}^{c} = H^{c} + \mathrm{MHA}(H^{c},\, H^{r},\, H^{r}),
 \qquad
@@ -53,4 +53,4 @@ where $\mathcal{L}_{\text{cat}}, \mathcal{L}_{\text{reg}}$ are unweighted cross-
 
 We optimise the model with AdamW over three parameter groups (category, region, shared). The learning-rate schedule depends on state scale: OneCycleLR with per-task-group alternating updates at FL/CA/TX, and a per-head constant learning rate at AL/AZ. The alternating step rescues the region head from saturation at large transition graphs, but costs category-side signal at smaller scales. We use a batch size of 2048 (1024 at the largest state), gradient accumulation of 2, and 50 epochs in FP32; per-task best checkpoints are selected on validation Acc@10 and macro-F1 for epochs $\geq 5$. Exact per-state settings are in the anonymous code release.
 
-Folds, seeds, and multi-seed pooling follow the user-disjoint StratifiedGroupKFold setup of Section~\ref{sec:setup}; the same splits are reused across substrates, heads, and recipes so paired tests are well defined. \textbf{Methodological caveat:} under cross-attention, $\lambda=0$ ablation does not isolate the targeted encoder (it co-adapts through K/V); we use encoder-frozen isolation throughout (Section~\ref{subsec:mechanism-isolation}). Released artefacts (code, fold splits, seeds, per-fold transition priors, and regression tests) are listed in Section~\ref{sec:intro}.
+Folds, seeds, and multi-seed pooling follow the user-disjoint StratifiedGroupKFold setup of Section~\ref{sec:setup}; the same splits are reused across substrates, heads, and recipes so paired tests are well defined. Under cross-attention, $\lambda=0$ ablation does not isolate the targeted encoder (it co-adapts through K/V projections); we use encoder-frozen isolation throughout (Section~\ref{subsec:mechanism-isolation}).
