@@ -129,18 +129,14 @@ the cross-ref to the equation is preserved in the figure caption. See
 considered an alternative TikZ rewrite (`/Users/vitor/Downloads/architecture.tex`)
 and the reasoning for keeping Version A.
 
-## D2. 5-state per-visit decomposition figure
+## D2. 5-state per-visit decomposition figure — **CLOSED (2026-05-04)**
 
-The §6.1 figure is currently a two-panel AL + AZ render (commit shipped
-2026-05-04). The 5-state launcher and renderer are in place
-(`scripts/run_pervisit_counterfactual_FL_CA_TX.sh`,
-`src/figs/render_per_visit_5state.py` — auto-falls-back to AL + AZ if
-FL/CA/TX JSONs are missing). Running the launcher (3-6 H100-hours for the
-nine cells: 3 states × {canonical, pooled, HGI}) lifts the §6.1 mechanism
-from "AL paired-Wilcoxon + AZ descriptive replication" to a 5-state
-replicated panel, which converts the substrate-axis claim into 5-state
-inferential evidence. Strictly stronger than the AL+AZ two-panel; deferred
-on compute, not on intent.
+Compute landed on `h100/pervisit-fl-ca-tx-results` (commit `a858177`). Nine
+cells cherry-picked into `worktree-check2hgi-mtl`; 5-panel `per-visit.png`
+regenerated; `mechanism.tex §6.1` updated to cover all five states with the
+two-band pattern (~72/64% at AL/AZ, ~89–90% at FL/CA/TX). See
+`docs/studies/check2hgi/results/CH19_PERVISIT_5STATE_SUMMARY.md` for the
+full audit trail.
 
 ## D3. AZ paired-Wilcoxon on the per-visit counterfactual folds
 

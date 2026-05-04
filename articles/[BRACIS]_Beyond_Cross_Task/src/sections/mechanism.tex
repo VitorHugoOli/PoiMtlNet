@@ -3,17 +3,17 @@
 
 This section turns the reattribution into a mechanism reading, stress-tests the next-region cost against drop-in alternatives, and closes with a methodological note on cross-attention loss-side ablations.
 
-\subsection{Per-visit context counterfactual (AL + AZ)}
+\subsection{Per-visit context counterfactual (five states)}
 \label{subsec:mechanism-pervisit}
 
 To isolate per-visit context, we compare canonical Check2HGI against POI-pooled Check2HGI (canonical vectors mean-pooled per POI and applied uniformly to every visit, killing per-visit variation while preserving the training signal). Canonical vs.\ pooled isolates per-visit context; pooled vs.\ HGI isolates the contrastive training signal.
 
-Under the matched-head GRU single-task ceiling, the substrate gap (canonical $-$ HGI) splits cleanly at both states (Figure~\ref{fig:per-visit}): per-visit dominates at AL ($\sim$72\,\%, $+11.19$ pp of $+15.50$) and AZ ($\sim$64\,\%, $+9.08$ of $+14.18$); the training signal contributes the remainder. Both per-visit and training-signal deltas are paired-Wilcoxon positive at each state ($p=0.0312$, $5/5$ folds, $n=5$ ceiling), so AZ replicates AL inferentially rather than descriptively. A head-free linear probe at AL gives a comparable per-visit share ($\sim$63\,\%; the GRU head amplifies the share rather than creating it).
+Under the matched-head GRU single-task ceiling, the substrate gap (canonical $-$ HGI) splits consistently at all five states (Figure~\ref{fig:per-visit}): per-visit context dominates at every state, with both components positive at every state. Paired Wilcoxon signed-rank tests reach the $n=5$ ceiling at AL and AZ ($p=0.0312$, $5/5$ folds positive each); the FL/CA/TX pattern is consistent with the same monotone ordering at all five per-fold pairs. A two-band pattern emerges across state scale: at small states (AL ${\sim}72\,\%$, $+11.19$ pp of $+15.50$; AZ ${\sim}64\,\%$, $+9.08$ of $+14.18$) the training-signal residual is 28--36\,\%; at large states (FL ${\sim}90\,\%$, $+26.06$ pp of $+29.02$; CA ${\sim}89\,\%$, $+26.08$ of $+29.41$; TX ${\sim}90\,\%$, $+25.42$ of $+28.16$) the pooled embeddings collapse almost entirely to the HGI level, leaving ${\sim}10\,\%$ to the training signal. The pattern is consistent with large transition graphs (4.7k--8.5k regions) providing weaker per-POI contrastive signal, so Check2HGI's advantage at large states is almost entirely in the per-visit contextual variation it introduces. A head-free linear probe at AL gives a comparable per-visit share (${\sim}63\,\%$; the GRU head amplifies the share rather than creating it).
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.72\linewidth]{figs/per-visit.png}
-\caption{Per-visit context decomposition at Alabama (left) and Arizona (right) under the matched-head GRU single-task ceiling. The substrate gap (canonical Check2HGI $-$ HGI) splits into a per-visit component (canonical $-$ POI-pooled) and a training-signal component (POI-pooled $-$ HGI): at AL $+11.19$ / $+4.31$ pp (${\sim}72$ / ${\sim}28\,\%$); at AZ $+9.08$ / $+5.10$ pp (${\sim}64$ / ${\sim}36\,\%$). Per-visit context dominates at both states.}
+\includegraphics[width=\linewidth]{figs/per-visit.png}
+\caption{Per-visit context decomposition at all five states under the matched-head GRU single-task ceiling. The substrate gap (canonical Check2HGI $-$ HGI) splits into a per-visit component (canonical $-$ POI-pooled) and a training-signal component (POI-pooled $-$ HGI). At small states (AL, AZ) per-visit accounts for ${\sim}64$--$72\,\%$ of the gap; at large states (FL, CA, TX) it accounts for ${\sim}89$--$90\,\%$, reflecting reduced marginal value of graph-contrastive signal when the transition graph is sparse.}
 \label{fig:per-visit}
 \end{figure}
 

@@ -6,7 +6,7 @@
 > - **CH16** — Cat substrate advantage (Check2HGI > HGI on next-category, head-invariant at AL+AZ; matched-head replicated at FL/CA/TX). Numbers are leak-free and 5-state.
 > - **CH18-cat** — Cat substrate advantage under MTL B9 (also paper-grade significant). The reg-side of the original CH18 ("MTL substrate-specific on reg") was a leak artefact and is **not whitelisted**.
 > - **CH15 reframing** — Reg substrate parity / marginal HGI advantage under matched-head STL `next_stan_flow` (TOST tied at CA/TX, δ=2pp; FL δ=3pp). Sign-flipped from earlier framing under the F44 leak.
-> - **CH19** — Per-visit context mechanism (~72 % AL / ~64 % AZ of cat substrate gap; two-state replicated 2026-05-03). Survives all leak-free re-measurements.
+> - **CH19** — Per-visit context mechanism (~72 % AL / ~64 % AZ / ~90 % FL / ~89 % CA / ~90 % TX of cat substrate gap; **five-state confirmed 2026-05-04**). Survives all leak-free re-measurements; two-band pattern across state scale.
 > - **CH22** — Δm joint score (leak-free 2026-05-01 reframe). FL multi-seed Δm-MRR positive at p = 2.98e-8 (n = 25); other states at n = 5 ceiling.
 >
 > **Not whitelisted (pre-leak-free or superseded):**
