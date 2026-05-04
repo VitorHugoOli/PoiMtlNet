@@ -1,5 +1,14 @@
 # next_category — baseline comparison
 
+> ⚠ **SUPERSEDED 2026-05-04.** Canonical:
+> `docs/studies/check2hgi/results/RESULTS_TABLE.md §0.6`. The POI-RGNN
+> numbers (33.35 / 30.71 / 32.08) below are pre-bugfix (May-2 snapshot)
+> and diverge from the canonical 34.49 / 31.78 / 33.03 quoted in
+> `RESULTS_TABLE.md §0.6` and inherited by the article. The cross-validation
+> protocol below may also reflect an earlier protocol claim; the current
+> reproduction is user-disjoint per `poi_rgnn.md` "Adapted —
+> Cross-validation protocol". Trust the canonical sources, not this file.
+
 Generated from `results/<state>.json`. To refresh, regenerate the JSONs (see `../README.md` §"How to add a new baseline result").
 
 ## Cross-baseline summary — macro-F1 (mean ± σ)

@@ -37,7 +37,7 @@ substrate level; see \S\ref{subsec:setup-data})"* — and a similar
 phrase to the intro setup sentence. ${\sim}10$ extra characters total; no
 page-budget hit. Closes the issue without running new experiments.
 
-## P2. POI-RGNN inconsistency — MISDIAGNOSED; the article is correct
+## P2. POI-RGNN inconsistency — **CLOSED Round 6j Batch 1 (2026-05-04)**: working memos marked SUPERSEDED; article unchanged
 
 **Codex's three-source contradiction is real**, but the location of the fix
 is wrong. After re-reading the canonical sources:
