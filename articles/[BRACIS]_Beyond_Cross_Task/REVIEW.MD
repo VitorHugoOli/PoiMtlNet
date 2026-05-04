@@ -506,7 +506,7 @@ mostly gestured at. For a derivative engine this may be acceptable **only if**
 the contribution is framed as an empirical substrate study rather than as a new
 embedding method. Right now the paper tries to have both.
 
-### M3. A few interpretive sentences are stronger than the evidence on the page
+### M3. A few interpretive sentences are stronger than the evidence on the page — **CLOSED Round 6j Batch 2+3 (2026-05-04, commit 21677ff)**: results.tex:26 Markov-1 sentence rewritten; results.tex:33 Δm "precisely because" → "is consistent with"
 
 Examples:
 
@@ -614,7 +614,7 @@ Codex flags two specific lines:
 
 ## Additional considerations Codex did not surface
 
-### A1 (NEW). §6.3 encoder-isolation note is asserted without numerical evidence
+### A1 (NEW). §6.3 encoder-isolation note is asserted without numerical evidence — **CLOSED Round 6j Batch 4 (2026-05-04)**: AZ probe quoted in §6.3 (encoder-frozen 60.72 vs loss-side 62.70 Acc@10, +1.98 pp K/V co-adaptation gap) sourced from F49_LAMBDA0_DECOMPOSITION_RESULTS.md
 
 The §6.3 cross-attention $\lambda=0$ vs encoder-frozen finding is a
 methodological claim the paper relies on (it justifies the encoder-frozen
@@ -639,7 +639,7 @@ yet, run a one-day comparison at one state.
 in-body evidence weakens the only methodological contribution that
 distinguishes this paper from a substrate-axis ablation.
 
-### A2 (NEW). The "doubling vs POI-RGNN" claim quotes external numbers, not multi-task numbers
+### A2 (NEW). The "doubling vs POI-RGNN" claim quotes external numbers, not multi-task numbers — **CLOSED Round 6j Batch 2+3 (2026-05-04, commit 21677ff)**: results.tex:38 + discussion.tex:4 reframed as "matched-head STL category ceiling on Check2HGI ($67.16$ at FL)"
 
 `results.tex:38` and `discussion.tex:4` say *"Check2HGI's matched-head
 category ceiling at FL ($67.16$) roughly doubles the strongest
@@ -665,7 +665,7 @@ that the dramatic external lift comes from substrate, not architecture.
 **Severity: MEDIUM.** Reviewer-trust issue if a reader misreads the
 qualifier; honest disclosure if read carefully.
 
-### A3 (NEW). The conclusion's "open lines" implicitly admit the architecture failed
+### A3 (NEW). The conclusion's "open lines" implicitly admit the architecture failed — **CLOSED Round 6j Batch 5 (2026-05-04)**: intro.tex:16 C2 bullet softened to "direct characterisation of the multi-task tradeoff..." with explicit "structural cost of the cross-attention shared-backbone interaction with the region head" framing
 
 `conclusion.tex` lists three follow-up directions: *"asymmetric routing
 across the shared backbone to relax cross-attention interference, encoder
