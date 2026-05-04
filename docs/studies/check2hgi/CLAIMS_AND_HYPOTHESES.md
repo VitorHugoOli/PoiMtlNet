@@ -6,7 +6,7 @@
 > - **CH16** — Cat substrate advantage (Check2HGI > HGI on next-category, head-invariant at AL+AZ; matched-head replicated at FL/CA/TX). Numbers are leak-free and 5-state.
 > - **CH18-cat** — Cat substrate advantage under MTL B9 (also paper-grade significant). The reg-side of the original CH18 ("MTL substrate-specific on reg") was a leak artefact and is **not whitelisted**.
 > - **CH15 reframing** — Reg substrate parity / marginal HGI advantage under matched-head STL `next_stan_flow` (TOST tied at CA/TX, δ=2pp; FL δ=3pp). Sign-flipped from earlier framing under the F44 leak.
-> - **CH19** — Per-visit context mechanism (~72 % AL / ~64 % AZ of cat substrate gap; two-state replicated 2026-05-03). Survives all leak-free re-measurements.
+> - **CH19** — Per-visit context mechanism (64–72% at small states AL/AZ; 89–90% at large states FL/CA/TX; **five-state confirmed 2026-05-04**). Two-band pattern: per-visit share scales with state size. Survives all leak-free re-measurements.
 > - **CH22** — Δm joint score (leak-free 2026-05-01 reframe). FL multi-seed Δm-MRR positive at p = 2.98e-8 (n = 25); other states at n = 5 ceiling.
 >
 > **Not whitelisted (pre-leak-free or superseded):**
@@ -149,7 +149,7 @@ All metrics favor Check2HGI with non-overlapping std envelopes over 5 folds. The
 
 **Source:** `results/probe/alabama_check2hgi_pooled_last.json` (linear probe) + `results/check2hgi_pooled/alabama/next_lr1.0e-04_bs1024_ep50_20260427_*` (AL matched-head STL) + `results/{check2hgi,check2hgi_pooled,hgi}/arizona/next_lr1.0e-04_bs1024_ep50_20260503_*` (AZ matched-head STL). Per-fold JSONs in `docs/studies/check2hgi/results/phase1_perfold/AZ_*_cat_gru_5f50ep_20260503.json`. Code: `scripts/probe/build_check2hgi_pooled.py`, launcher `scripts/run_AZ_pervisit_counterfactual.sh`.
 **Test:** Phase 1 C4 — COMPLETE at AL+AZ.
-**Status:** `confirmed at AL+AZ` (mechanism partial — per-visit dominant ~64–72%, training-signal residual ~28–36%). Two-state replicated mechanism. Extension to FL is `optional/pending` per `SUBSTRATE_COMPARISON_PLAN §6`.
+**Status:** `confirmed at all 5 states` (2026-05-04). Per-visit dominant 64–72% at small states (AL/AZ) and 89–90% at large states (FL/CA/TX); training-signal residual 10–36%. Two-band pattern: large states show near-total per-visit dominance, small states show meaningful training-signal contribution. All canonical and HGI cells match substrate Table 1(a) within 0.6 pp. Full numbers in `results/RESULTS_TABLE.md §0.7` and `results/CH19_PERVISIT_5STATE_SUMMARY.md`.
 
 ### CH17 — Check2HGI strongly surpasses published POI-RGNN next-category on Gowalla state-level
 
