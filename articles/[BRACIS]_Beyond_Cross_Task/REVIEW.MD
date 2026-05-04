@@ -21,7 +21,8 @@ below; full Codex Round 6h review preserved at the bottom of this file as
 the original critique, and Round 6i (my critical audit of that critique)
 is appended after it.
 
-## P1. User-disjoint vs transductive substrate — **CLOSED Round 6j Batch 2+3 (2026-05-04)**: parenthetical added to abstract + intro
+## P1. User-disjoint vs transductive substrate — **CLOSED Round 6j Batch 2+3 (2026-05-04)
+**: parenthetical added to abstract + intro
 
 **Verified.** Abstract (`samplepaper.tex:59`) and intro (`intro.tex:10`)
 use "user-disjoint folds" without the transductive qualifier. **However**,
@@ -37,7 +38,8 @@ substrate level; see \S\ref{subsec:setup-data})"* — and a similar
 phrase to the intro setup sentence. ${\sim}10$ extra characters total; no
 page-budget hit. Closes the issue without running new experiments.
 
-## P2. POI-RGNN inconsistency — **CLOSED Round 6j Batch 1 (2026-05-04)**: working memos marked SUPERSEDED; article unchanged
+## P2. POI-RGNN inconsistency — **CLOSED Round 6j Batch 1 (2026-05-04)
+**: working memos marked SUPERSEDED; article unchanged
 
 **Codex's three-source contradiction is real**, but the location of the fix
 is wrong. After re-reading the canonical sources:
@@ -93,7 +95,8 @@ honest about the negative; reviewers who value rigor + honesty will accept,
 those who require positive algorithmic advance will reject. P3 is not
 fixable in two days.
 
-## P4. Per-visit mechanism over-emphasis — **CLOSED Round 6j Batch 2+3 (2026-05-04)**: AZ paired-Wilcoxon ran (p=0.0312 each at n=5, 5/5 positive); §6.1 upgraded from descriptive to inferential replication
+## P4. Per-visit mechanism over-emphasis — **CLOSED Round 6j Batch 2+3 (2026-05-04)
+**: AZ paired-Wilcoxon ran (p=0.0312 each at n=5, 5/5 positive); §6.1 upgraded from descriptive to inferential replication
 
 **Verified.** The 72/64 claim appears in abstract (line 68), intro C1
 (`intro.tex:15`), conclusion (`conclusion.tex:4`), and Fig. 2 caption. AZ
@@ -287,11 +290,11 @@ the prior commits on this branch.
 
 ## Round 6j commit pointers
 
-| Batch | Commit | Closes |
-|---|---|---|
-| 1 — SUPERSEDED banners | `badc362` | P2 |
+| Batch                                      | Commit    | Closes         |
+|--------------------------------------------|-----------|----------------|
+| 1 — SUPERSEDED banners                     | `badc362` | P2             |
 | 2+3 — disclosure + softening + AZ Wilcoxon | `21677ff` | P1, M3, A2, P4 |
-| 4+5 — §6.3 evidence + C2 softening | `074c831` | A1, A3 |
+| 4+5 — §6.3 evidence + C2 softening         | `074c831` | A1, A3         |
 
 ## Strategic item left open
 
@@ -536,7 +539,9 @@ mostly gestured at. For a derivative engine this may be acceptable **only if**
 the contribution is framed as an empirical substrate study rather than as a new
 embedding method. Right now the paper tries to have both.
 
-### M3. A few interpretive sentences are stronger than the evidence on the page — **CLOSED Round 6j Batch 2+3 (2026-05-04, commit 21677ff)**: results.tex:26 Markov-1 sentence rewritten; results.tex:33 Δm "precisely because" → "is consistent with"
+### M3. A few interpretive sentences are stronger than the evidence on the page — **CLOSED Round 6j Batch 2+3 (
+2026-05-04, commit 21677ff)
+**: results.tex:26 Markov-1 sentence rewritten; results.tex:33 Δm "precisely because" → "is consistent with"
 
 Examples:
 
@@ -644,7 +649,9 @@ Codex flags two specific lines:
 
 ## Additional considerations Codex did not surface
 
-### A1 (NEW). §6.3 encoder-isolation note is asserted without numerical evidence — **CLOSED Round 6j Batch 4 (2026-05-04)**: AZ probe quoted in §6.3 (encoder-frozen 60.72 vs loss-side 62.70 Acc@10, +1.98 pp K/V co-adaptation gap) sourced from F49_LAMBDA0_DECOMPOSITION_RESULTS.md
+### A1 (NEW). §6.3 encoder-isolation note is asserted without numerical evidence — **CLOSED Round 6j Batch 4 (
+2026-05-04)
+**: AZ probe quoted in §6.3 (encoder-frozen 60.72 vs loss-side 62.70 Acc@10, +1.98 pp K/V co-adaptation gap) sourced from F49_LAMBDA0_DECOMPOSITION_RESULTS.md
 
 The §6.3 cross-attention $\lambda=0$ vs encoder-frozen finding is a
 methodological claim the paper relies on (it justifies the encoder-frozen
@@ -669,7 +676,9 @@ yet, run a one-day comparison at one state.
 in-body evidence weakens the only methodological contribution that
 distinguishes this paper from a substrate-axis ablation.
 
-### A2 (NEW). The "doubling vs POI-RGNN" claim quotes external numbers, not multi-task numbers — **CLOSED Round 6j Batch 2+3 (2026-05-04, commit 21677ff)**: results.tex:38 + discussion.tex:4 reframed as "matched-head STL category ceiling on Check2HGI ($67.16$ at FL)"
+### A2 (NEW). The "doubling vs POI-RGNN" claim quotes external numbers, not multi-task numbers — **CLOSED Round 6j Batch
+2+3 (2026-05-04, commit 21677ff)
+**: results.tex:38 + discussion.tex:4 reframed as "matched-head STL category ceiling on Check2HGI ($67.16$ at FL)"
 
 `results.tex:38` and `discussion.tex:4` say *"Check2HGI's matched-head
 category ceiling at FL ($67.16$) roughly doubles the strongest
@@ -695,7 +704,9 @@ that the dramatic external lift comes from substrate, not architecture.
 **Severity: MEDIUM.** Reviewer-trust issue if a reader misreads the
 qualifier; honest disclosure if read carefully.
 
-### A3 (NEW). The conclusion's "open lines" implicitly admit the architecture failed — **CLOSED Round 6j Batch 5 (2026-05-04)**: intro.tex:16 C2 bullet softened to "direct characterisation of the multi-task tradeoff..." with explicit "structural cost of the cross-attention shared-backbone interaction with the region head" framing
+### A3 (NEW). The conclusion's "open lines" implicitly admit the architecture failed — **CLOSED Round 6j Batch 5 (
+2026-05-04)
+**: intro.tex:16 C2 bullet softened to "direct characterisation of the multi-task tradeoff..." with explicit "structural cost of the cross-attention shared-backbone interaction with the region head" framing
 
 `conclusion.tex` lists three follow-up directions: *"asymmetric routing
 across the shared backbone to relax cross-attention interference, encoder
@@ -729,16 +740,16 @@ caused unnecessary article-side edits.
 
 **Combined pre-submission punch list (Round 6h Codex + Round 6i mine):**
 
-| # | Item | Effort | Severity |
-|---|------|------|------|
-| **P2-fix** | Mark `STATISTICAL_AUDIT.md` and `comparison.md` as superseded by `RESULTS_TABLE.md §0.6` (or archive them outside the anonymous-code-release scope) | $\sim 5$ min | HIGH if anon code release exposes them |
-| **P1-fix** | Add transductive parenthetical to abstract + intro setup sentence | $\sim 5$ min | MEDIUM |
-| **P4-fix (preferred)** | Run AZ paired Wilcoxon (D3) — converts AZ from descriptive to inferential | 1 day | MEDIUM |
-| **P4-fix (fallback)** | Add "(inferential at AL, descriptive at AZ)" to the abstract 72/64 sentence | $\sim 1$ min | MEDIUM |
-| **M3-fix** | Soften two interpretive causal sentences at `results.tex:26` and `:33` | $\sim 2$ min | LOW |
-| **A1-fix** | Add one numerical comparison sentence to §6.3 encoder-isolation note | 1 day if numbers must be generated; $\sim 5$ min if they exist | MEDIUM |
-| **A2-fix** | Rewrite doubling claim to make "matched-head STL" explicit | $\sim 2$ min | MEDIUM |
-| **A3-note** | Align C2 intro framing with conclusion's honest reframe | $\sim 5$ min | LOW |
+| #                      | Item                                                                                                                                                | Effort                                                         | Severity                               |
+|------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------|----------------------------------------|
+| **P2-fix**             | Mark `STATISTICAL_AUDIT.md` and `comparison.md` as superseded by `RESULTS_TABLE.md §0.6` (or archive them outside the anonymous-code-release scope) | $\sim 5$ min                                                   | HIGH if anon code release exposes them |
+| **P1-fix**             | Add transductive parenthetical to abstract + intro setup sentence                                                                                   | $\sim 5$ min                                                   | MEDIUM                                 |
+| **P4-fix (preferred)** | Run AZ paired Wilcoxon (D3) — converts AZ from descriptive to inferential                                                                           | 1 day                                                          | MEDIUM                                 |
+| **P4-fix (fallback)**  | Add "(inferential at AL, descriptive at AZ)" to the abstract 72/64 sentence                                                                         | $\sim 1$ min                                                   | MEDIUM                                 |
+| **M3-fix**             | Soften two interpretive causal sentences at `results.tex:26` and `:33`                                                                              | $\sim 2$ min                                                   | LOW                                    |
+| **A1-fix**             | Add one numerical comparison sentence to §6.3 encoder-isolation note                                                                                | 1 day if numbers must be generated; $\sim 5$ min if they exist | MEDIUM                                 |
+| **A2-fix**             | Rewrite doubling claim to make "matched-head STL" explicit                                                                                          | $\sim 2$ min                                                   | MEDIUM                                 |
+| **A3-note**            | Align C2 intro framing with conclusion's honest reframe                                                                                             | $\sim 5$ min                                                   | LOW                                    |
 
 **Pre-submission core: ~15 minutes** if P4 takes the fallback wording
 fix and A1 numbers already exist in the code release. **Pre-submission
@@ -751,3 +762,6 @@ either a major reframe or accepting the borderline acceptance probability.
 **My recommendation matches the prior verdict: submit with the current
 framing this cycle; if rejected, reframe as substrate-axis paper for
 resubmission elsewhere.**
+
+Considerations: 2. The cross-attention MTL backbone contributes to a slighty improves on the next-cat , no ? 
+3. I agree partially agree, do you think we should do any change over it ? 4.Ok can we fix it ? or leve as it is ? 5. Check again the docs/studies/check2hgi I belive we have data to support 

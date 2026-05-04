@@ -32,7 +32,7 @@ so each stream queries the other. The cross-attended streams pass through a four
 
 \begin{figure}[t]
 \centering
-\resizebox{0.60\linewidth}{!}{\input{figs/architecture.tex}}
+\includegraphics[width=0.43\linewidth]{figs/arch.png}
 \caption{Cross-attention multi-task backbone. Two task-specific input streams ($X^{c}$, $X^{r}$) feed a symmetric cross-attention block (Eq.~\ref{eq:crossattn}); the bold black bidirectional K/V arrow is the cross-feed responsible for the encoder co-adaptation in Section~\ref{subsec:mechanism-isolation}, where a $\lambda=0$ ablation does not isolate the targeted encoder. A shared residual backbone then splits into the GRU category head and the STAN-based region head with additive log-transition prior.}
 \label{fig:arch}
 \end{figure}
