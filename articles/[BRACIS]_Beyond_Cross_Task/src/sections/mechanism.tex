@@ -8,12 +8,12 @@ This section turns the reattribution into a mechanism reading, stress-tests the 
 
 To isolate per-visit context, we compare canonical Check2HGI against POI-pooled Check2HGI (canonical vectors mean-pooled per POI and applied uniformly to every visit, killing per-visit variation while preserving the training signal). Canonical vs.\ pooled isolates per-visit context; pooled vs.\ HGI isolates the contrastive training signal.
 
-Under the matched-head GRU single-task ceiling, the substrate gap (canonical $-$ HGI) splits cleanly at both states (Figure~\ref{fig:per-visit}): per-visit dominates at AL ($\sim$72\,\%, $+11.19$ pp of a $+15.50$ pp gap) and at AZ ($\sim$64\,\%, $+9.08$ of $+14.18$ pp). The training signal contributes the remainder ($+4.31$ at AL, $+5.10$ at AZ). The AL split survives a head-free linear probe ($30.84$ vs.\ $23.20$ vs.\ $18.70$, per-visit share $\sim$63\,\%); the GRU head amplifies the per-visit share rather than creating it. We do not run a paired test on the AZ folds and report the second state as descriptive replication, not inferential confirmation.
+Under the matched-head GRU single-task ceiling, the substrate gap (canonical $-$ HGI) splits cleanly at both states (Figure~\ref{fig:per-visit}): per-visit dominates at AL ($\sim$72\,\%, $+11.19$ pp of $+15.50$) and AZ ($\sim$64\,\%, $+9.08$ of $+14.18$); the training signal contributes the remainder. Both per-visit and training-signal deltas are paired-Wilcoxon positive at each state ($p=0.0312$, $5/5$ folds, $n=5$ ceiling), so AZ replicates AL inferentially rather than descriptively. A head-free linear probe at AL gives a comparable per-visit share ($\sim$63\,\%; the GRU head amplifies the share rather than creating it).
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.72\linewidth]{figs/per-visit.png}
-\caption{Per-visit context decomposition at Alabama (left) and Arizona (right) under the matched-head GRU single-task ceiling. Each substrate gap (canonical Check2HGI $-$ HGI) splits into a per-visit-context component (canonical $-$ POI-pooled) and a training-signal component (POI-pooled $-$ HGI). At AL the split is $+11.19$ pp ($\sim$72\,\%) and $+4.31$ pp ($\sim$28\,\%); at AZ it is $+9.08$ pp ($\sim$64\,\%) and $+5.10$ pp ($\sim$36\,\%). Per-visit dominates at both states --- the property per-place embeddings cannot supply and that pooling to region cardinality smooths away.}
+\caption{Per-visit context decomposition at Alabama (left) and Arizona (right) under the matched-head GRU single-task ceiling. The substrate gap (canonical Check2HGI $-$ HGI) splits into a per-visit component (canonical $-$ POI-pooled) and a training-signal component (POI-pooled $-$ HGI): at AL $+11.19$ / $+4.31$ pp (${\sim}72$ / ${\sim}28\,\%$); at AZ $+9.08$ / $+5.10$ pp (${\sim}64$ / ${\sim}36\,\%$). Per-visit context dominates at both states.}
 \label{fig:per-visit}
 \end{figure}
 

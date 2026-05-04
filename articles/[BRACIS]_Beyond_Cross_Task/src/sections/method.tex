@@ -8,13 +8,13 @@ We describe the substrate (adopted), the backbone (the object of study), and the
 
 Check2HGI extends the hierarchical graph-infomax line of HGI~\cite{huang2023hgi} (built on DGI~\cite{velickovic2019dgi}) by inserting a fourth check-in level beneath the POI level: the hierarchy becomes Check-in $\to$ POI $\to$ Region $\to$ City, so the same place visited twice can yield two distinct vectors. Bottom-level nodes are individual visits, with features encoding the category and a sin/cos transform of the timestamp; edges follow each user's chronological sequence with exponential temporal decay. A two-layer GCN encodes check-ins; a multi-head attention pool (\emph{Checkin2POI}) aggregates check-ins per POI; an analogous pool plus a region-adjacency GCN produces region embeddings; an area-weighted sigmoid aggregation produces the city embedding.
 
-Training maximises mutual information across the three adjacent boundaries by bilinear discriminators against random-shuffle negatives, with a per-boundary loss decomposition
+Training maximises mutual information across the three adjacent boundaries via a per-boundary loss decomposition
 \begin{equation}
   \mathcal{L}_{\text{C2HGI}} = \alpha_{c2p}\,\mathcal{L}_{c2p} + \alpha_{p2r}\,\mathcal{L}_{p2r} + \alpha_{r2c}\,\mathcal{L}_{r2c},
   \quad (\alpha_{c2p}, \alpha_{p2r}, \alpha_{r2c}) = (0.4, 0.3, 0.3),
   \label{eq:c2hgi}
 \end{equation}
-where each $\mathcal{L}_b$ is a binary cross-entropy against random-shuffle negatives at boundary $b$. Negatives are sampled as a permutation of positive embeddings rather than a re-encode of feature-corrupted inputs, preserving the contrastive objective while halving encoder compute.
+where each $\mathcal{L}_b$ is a bilinear-discriminator binary cross-entropy against random-shuffle negatives at boundary $b$.
 
 Substrates are pre-trained per state on the full state-level check-in graph; the user-disjoint protocol applies to the downstream classifier and the per-fold transition prior, not to the substrate's exposure (\S\ref{subsec:setup-data}). Two products feed our backbone after the encoder is frozen, both 64-dimensional: a per-check-in vector $\mathbf{e}_{c}$ from the bottom level for the category stream, and a per-region vector $\mathbf{e}_{r}$ from the third level for the region stream.
 
@@ -37,7 +37,7 @@ so each stream queries the other. The cross-attended streams pass through a four
 \label{fig:arch}
 \end{figure}
 
-The category head is a two-layer GRU over the cross-attended check-in stream with attention pooling and a seven-class softmax. The region head is an additive-prior STAN~\cite{luo2021stan} variant: a STAN backbone over the cross-attended region stream, scored against learnable region embeddings, with an additive log-transition prior $\alpha\cdot\log T[r_{\text{last}}]$ (learnable $\alpha$, built per fold from training-fold edges only). The log-prior pattern follows GETNext~\cite{yang2022getnext}, but our head omits friendship and check-in graph priors and is not a faithful reproduction. The single-task ceilings reuse these head classes, so multi-task and single-task rows differ only in the shared backbone above them.
+The category head is a two-layer GRU over the cross-attended check-in stream with attention pooling and a seven-class softmax. The region head is an additive-prior STAN~\cite{luo2021stan} variant: a STAN backbone over the cross-attended region stream, scored against learnable region embeddings, with an additive log-transition prior $\alpha\cdot\log T[r_{\text{last}}]$ (learnable $\alpha$, built per fold from training-fold edges only). The log-prior pattern follows GETNext~\cite{yang2022getnext}, but our head omits friendship and check-in graph priors and is not a faithful reproduction.
 
 \subsection{Training protocol}
 \label{subsec:method-training}

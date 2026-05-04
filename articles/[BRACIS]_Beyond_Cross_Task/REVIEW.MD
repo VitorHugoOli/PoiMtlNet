@@ -21,7 +21,7 @@ below; full Codex Round 6h review preserved at the bottom of this file as
 the original critique, and Round 6i (my critical audit of that critique)
 is appended after it.
 
-## P1. User-disjoint vs transductive substrate — VALID, MEDIUM
+## P1. User-disjoint vs transductive substrate — **CLOSED Round 6j Batch 2+3 (2026-05-04)**: parenthetical added to abstract + intro
 
 **Verified.** Abstract (`samplepaper.tex:59`) and intro (`intro.tex:10`)
 use "user-disjoint folds" without the transductive qualifier. **However**,
@@ -93,7 +93,7 @@ honest about the negative; reviewers who value rigor + honesty will accept,
 those who require positive algorithmic advance will reject. P3 is not
 fixable in two days.
 
-## P4. Per-visit mechanism over-emphasis — VALID, MEDIUM
+## P4. Per-visit mechanism over-emphasis — **CLOSED Round 6j Batch 2+3 (2026-05-04)**: AZ paired-Wilcoxon ran (p=0.0312 each at n=5, 5/5 positive); §6.1 upgraded from descriptive to inferential replication
 
 **Verified.** The 72/64 claim appears in abstract (line 68), intro C1
 (`intro.tex:15`), conclusion (`conclusion.tex:4`), and Fig. 2 caption. AZ

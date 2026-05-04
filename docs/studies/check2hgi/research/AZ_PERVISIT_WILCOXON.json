@@ -1,0 +1,78 @@
+{
+  "run_id": "AZ_PERVISIT_WILCOXON_20260504",
+  "purpose": "AZ paired-Wilcoxon on per-fold deltas of the per-visit counterfactual; closes Round 6j Batch 3 (P4) of REVIEW.MD by upgrading AZ from descriptive to inferential replication.",
+  "source_jsons": {
+    "CANON": "docs/studies/check2hgi/results/phase1_perfold/AZ_check2hgi_cat_gru_5f50ep_20260503.json",
+    "POOLED": "docs/studies/check2hgi/results/phase1_perfold/AZ_check2hgi_pooled_cat_gru_5f50ep_20260503.json",
+    "HGI": "docs/studies/check2hgi/results/phase1_perfold/AZ_hgi_cat_gru_5f50ep_20260503.json"
+  },
+  "per_fold_f1_pp": {
+    "CANON": [
+      43.19054186344147,
+      42.95385479927063,
+      43.381330370903015,
+      42.83045828342438,
+      43.509647250175476
+    ],
+    "POOLED": [
+      34.273144602775574,
+      33.142608404159546,
+      34.78509783744812,
+      33.845266699790955,
+      34.40912663936615
+    ],
+    "HGI": [
+      28.679215908050537,
+      29.852592945098877,
+      28.677096962928772,
+      28.67981195449829,
+      29.046979546546936
+    ]
+  },
+  "per_fold_means_pp": {
+    "CANON": 43.1732,
+    "POOLED": 34.091,
+    "HGI": 28.9871
+  },
+  "deltas_pp": {
+    "per_visit_canonical_minus_pooled": [
+      8.917397,
+      9.811246,
+      8.596233,
+      8.985192,
+      9.100521
+    ],
+    "training_signal_pooled_minus_hgi": [
+      5.593929,
+      3.290015,
+      6.108001,
+      5.165455,
+      5.362147
+    ],
+    "total_gap_canonical_minus_hgi": [
+      14.511326,
+      13.101262,
+      14.704233,
+      14.150646,
+      14.462668
+    ]
+  },
+  "wilcoxon_one_sided_greater_n5": {
+    "per_visit": {
+      "stat": 15.0,
+      "p": 0.03125,
+      "n_pos": 5
+    },
+    "training_signal": {
+      "stat": 15.0,
+      "p": 0.03125,
+      "n_pos": 5
+    },
+    "total_gap": {
+      "stat": 15.0,
+      "p": 0.03125,
+      "n_pos": 5
+    }
+  },
+  "verdict": "All three components (per-visit, training-signal, total-gap) pass paired Wilcoxon at the n=5 ceiling (p=0.03125, 5/5 folds positive). AZ replicates AL inferentially, not just descriptively."
+}
