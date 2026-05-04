@@ -247,7 +247,7 @@ the prior commits on this branch.
 
 --------
 
-# Final state at submission
+# Final state at submission (Round 6j closure, 2026-05-04)
 
 - Page count: 15 (hard cap, no overflow).
 - BibTeX log: zero errors, zero warnings.
@@ -256,20 +256,50 @@ the prior commits on this branch.
 - Numerical consistency: substrate Table 1(a) cell − cell = Δ at all 5
   states; per-visit shares (72\%/64\%) match across mechanism / figure /
   contribution C1; range $+14$--$29$ pp consistent across abstract / intro
-  / discussion / conclusion.
-- Statistical rigour: paired Wilcoxon at $n=5$ ceiling and multi-seed
-  pooled at $n=20$; TOST non-inferiority at $\delta\in\{2,3\}$ pp;
-  $\Delta_m$ on two axes (MRR primary, Acc@10 secondary); FL Pareto-
-  positive cell at $n=25$.
+  / discussion / conclusion. Round 6j numerical adds verified vs §0.1
+  ($67.16$ FL STL category ceiling) and §0.6 ($34.49$ POI-RGNN faithful
+  FL).
+- Statistical rigour: paired Wilcoxon at $n=5$ ceiling (substrate, AL +
+  AZ per-visit, Round 6j Batch 3) and multi-seed pooled at $n=20$ (MTL
+  vs STL); TOST non-inferiority at $\delta\in\{2,3\}$ pp; $\Delta_m$ on
+  two axes (MRR primary, Acc@10 secondary); FL Pareto-positive cell at
+  $n=25$.
 - Honest framing: AL category negative reported as is; cross-state
   Markov-1 disclosure absorbed into the joint-cost story; literature-
-  faithful STAN omission stated explicitly in Table 4 caption + §7.
-- Architecture: Check2HGI claimed as C0 contribution with proper
-  3-boundary MI loss specification; cross-attention multi-task backbone
-  diagrammed; encoder-frozen isolation note in §6.3 carries the
-  methodological caution.
+  faithful STAN omission stated explicitly in Table 4 caption + §7;
+  user-disjoint vs transductive substrate disclosed in abstract + intro
+  parentheticals (Round 6j Batch 2).
+- Architecture: Check2HGI claimed as C0 contribution with the 3-boundary
+  MI loss specification; cross-attention multi-task backbone diagrammed
+  with the bidirectional K/V cross-feed highlighted; §6.3 encoder-frozen
+  isolation note now backed by the AZ targeted probe (encoder-frozen
+  Acc@10 $60.72$ vs loss-side $62.70$, $+1.98$ pp K/V co-adaptation
+  gap; Round 6j Batch 4).
+- C2 contribution framed as a *characterisation* of the multi-task
+  tradeoff with a structural cost of the cross-attention shared-backbone
+  interaction with the region head — not a loss-recipe artefact. Aligns
+  with the conclusion's three open lines (asymmetric routing, encoder
+  enrichment, region-side dynamic prior; Round 6j Batch 5).
 - Reproducibility: anonymous code release, per-fold transition priors,
-  fold splits, regression tests all referenced.
+  fold splits, regression tests all referenced; AZ Wilcoxon run artefact
+  saved at `docs/studies/check2hgi/research/AZ_PERVISIT_WILCOXON.json`
+  (Round 6j Batch 3).
+
+## Round 6j commit pointers
+
+| Batch | Commit | Closes |
+|---|---|---|
+| 1 — SUPERSEDED banners | `badc362` | P2 |
+| 2+3 — disclosure + softening + AZ Wilcoxon | `21677ff` | P1, M3, A2, P4 |
+| 4+5 — §6.3 evidence + C2 softening | `074c831` | A1, A3 |
+
+## Strategic item left open
+
+- **P3 (architecture-as-failed-add-on)**: not implementable without an
+  author-level reframe decision (drop the MTL framing entirely, or lead
+  with §6.3 as the methodological contribution). Not a pre-submission
+  blocker; the paper honestly discloses the negative across §5.2, §5.3
+  Δm-Acc@10, §7 limitations, and the conclusion's three open lines.
 
 **Recommendation: submit.**
 
