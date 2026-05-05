@@ -53,29 +53,28 @@ Multi-Task POI Prediction}
 \maketitle
 
 % ----------------------------------------------------------------------------
-% Abstract — rewritten 2026-05-04 per advisor feedback: be didactic, lead
-% with MTL context, problem→proposal→single numerical result, do not name
-% HGI, drop statistical-protocol details, "sell" the article. Lands both
-% title halves: "Substrate Carries" via the +14 to +29 pp lift; "Architecture
-% Pays" via the textbook category-vs-region tradeoff. ~148 words (LNCS
-% rule: 70--150).
+% Abstract — restructured 2026-05-05 per advisor feedback: lead with
+% Check2HGI as the innovation (sentence 1), use a concrete caf\'e example
+% to make per-visit-vs-per-place click for non-POI reviewers, anchor the
+% MTL POI puzzle (sentence 2), and close with five-state result + the
+% asymmetric tradeoff spelled out (sentence 3). Drops opaque jargon
+% ("emission rate", "MTL recipe", "Prior responses"). Lands both title
+% halves: "Substrate Carries" via the +14 to +29 pp lift; "Architecture
+% Pays" via the explicit "improves category at the cost of region".
 % ----------------------------------------------------------------------------
 \begin{abstract}
-Multi-task learning (MTL) is widely used for jointly training related
-prediction tasks, assuming a shared representation transfers signal
-between tasks and lifts both. In POI prediction over LBSNs,
-recent attempts to jointly train
-next-category and next-region prediction over a shared graph embedding
-show only modest joint gains, suggesting the embedding, not the MTL
-recipe, is the central factor. Prior responses kept the embedding's
-emission rate fixed (one vector per place) and varied which features were
-encoded. We instead change the emission rate, from per-place to per-visit,
-so that two visits to the same place at different times can produce
-different inputs. We propose Check2HGI, a check-in-level contextual graph
-embedding, and validate it on five Gowalla state splits: per-visit context
-lifts next-category macro-F1 by 14 to 29 percentage points at every state,
-while joint multi-task training then exhibits the textbook
-category-vs-region tradeoff.
+We introduce \emph{Check2HGI}, a graph embedding for Point-of-Interest
+(POI) prediction that produces one vector per user check-in instead of
+one fixed vector per place, so the same caf\'e visited in the morning
+and in the evening feeds the model with two different inputs. In
+Multi-Task Learning (MTL) over Location-Based Social Networks (LBSNs),
+recent work reports only modest joint gains when next-category and
+next-region prediction share a graph embedding, suggesting that the
+embedding, not the loss-balancing strategy, is the bottleneck. Across
+five state splits of the Gowalla dataset, per-visit context lifts
+category macro-F1 by 14--29 percentage points at every state, while
+joint multi-task training improves category accuracy at the cost of
+region accuracy, the classic multi-task tradeoff.
 
 \keywords{Multi-Task Learning \and Point-of-Interest Prediction \and Graph
 Embeddings.}
