@@ -17,7 +17,18 @@ from configs.model import InputsConfig
 
 # Engines that produce check-in-level embeddings (one per visit, not per POI).
 # Category task requires POI-level embeddings (one per POI).
-_CHECKIN_LEVEL_ENGINES = {EmbeddingEngine.CHECK2HGI, EmbeddingEngine.TIME2VEC}
+_CHECKIN_LEVEL_ENGINES = {
+    EmbeddingEngine.CHECK2HGI,
+    EmbeddingEngine.CHECK2HGI_POI2VEC,
+    EmbeddingEngine.CHECK2HGI_DESIGN_E,
+    EmbeddingEngine.CHECK2HGI_DESIGN_B,
+    EmbeddingEngine.CHECK2HGI_DESIGN_H,
+    EmbeddingEngine.CHECK2HGI_DESIGN_D,
+    EmbeddingEngine.CHECK2HGI_DESIGN_I,
+    EmbeddingEngine.CHECK2HGI_DESIGN_J,
+    EmbeddingEngine.CHECK2HGI_DESIGN_M,
+    EmbeddingEngine.TIME2VEC,
+}
 
 from .core import (
     generate_sequences,

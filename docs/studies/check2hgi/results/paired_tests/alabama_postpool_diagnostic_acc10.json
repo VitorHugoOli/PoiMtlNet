@@ -1,0 +1,35 @@
+{
+  "state": "alabama",
+  "metric": "acc10",
+  "comparison": "postpool vs canonical (c2hgi) and vs hgi",
+  "postpool_per_fold": [
+    0.6262785196304321,
+    0.5672698616981506,
+    0.610542893409729,
+    0.5629425644874573,
+    0.5194805264472961
+  ],
+  "canonical_per_fold": [
+    0.5890523195266724,
+    0.6000000238418579,
+    0.6439628601074219,
+    0.5746229887008667,
+    0.550000011920929
+  ],
+  "hgi_per_fold": [
+    0.6245915293693542,
+    0.625363826751709,
+    0.6664789915084839,
+    0.5954238176345825,
+    0.5810924172401428
+  ],
+  "delta_postpool_minus_canonical": -0.014224767684936523,
+  "wilcoxon_p_postpool_gt_canonical": 0.78125,
+  "delta_postpool_minus_hgi": -0.041287243366241455,
+  "wilcoxon_p_postpool_gt_hgi": 0.96875,
+  "tost_delta_2pp_p_lower": 0.925863020893853,
+  "gap_canonical_to_hgi_pp": 2.706247568130493,
+  "gap_postpool_to_hgi_pp": 4.1287243366241455,
+  "gap_closed_pp": -1.4224767684936523,
+  "gap_closed_pct": -52.5626991870635
+}

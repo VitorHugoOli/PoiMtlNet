@@ -36,6 +36,15 @@ class EmbeddingEngine(Enum):
     SPHERE2VEC = "sphere2vec"
     CHECK2HGI = "check2hgi"
     CHECK2HGI_POOLED = "check2hgi_pooled"  # POI-mean-pooled C4 counterfactual
+    CHECK2HGI_POI2VEC = "check2hgi_poi2vec"  # POI2Vec-augmented features (probe)
+    C2HGI_HGI_CONCAT = "c2hgi_hgi_concat"  # Design A: late concat fusion (probe)
+    CHECK2HGI_DESIGN_E = "check2hgi_design_e"  # Design E: POI2Vec input + stop-grad encoder (probe)
+    CHECK2HGI_DESIGN_B = "check2hgi_design_b"  # Design B: POI2Vec at POI-pool boundary, cat path canonical (probe)
+    CHECK2HGI_DESIGN_H = "check2hgi_design_h"  # Design H: learnable POI table at POI-pool boundary (probe)
+    CHECK2HGI_DESIGN_D = "check2hgi_design_d"  # Design D: heterograph encoder (probe)
+    CHECK2HGI_DESIGN_I = "check2hgi_design_i"  # Design I: LoRA-style low-rank correction (probe)
+    CHECK2HGI_DESIGN_J = "check2hgi_design_j"  # Design J: H + anchor regularization (probe)
+    CHECK2HGI_DESIGN_M = "check2hgi_design_m"  # Design M: B + POI-side distillation (probe)
     POI2HGI = "poi2hgi"
     FUSION = "fusion"  # Multi-embedding fusion
 
@@ -425,7 +434,19 @@ class IoPaths:
         Phase-1 MTL counterfactual; see SUBSTRATE_COMPARISON_PLAN §5).
         Other engines: port the builder + pre-stage the parquet first.
         """
-        supported = (EmbeddingEngine.CHECK2HGI, EmbeddingEngine.HGI)
+        supported = (
+            EmbeddingEngine.CHECK2HGI,
+            EmbeddingEngine.HGI,
+            EmbeddingEngine.CHECK2HGI_POI2VEC,
+            EmbeddingEngine.C2HGI_HGI_CONCAT,
+            EmbeddingEngine.CHECK2HGI_DESIGN_E,
+            EmbeddingEngine.CHECK2HGI_DESIGN_B,
+            EmbeddingEngine.CHECK2HGI_DESIGN_H,
+            EmbeddingEngine.CHECK2HGI_DESIGN_D,
+            EmbeddingEngine.CHECK2HGI_DESIGN_I,
+            EmbeddingEngine.CHECK2HGI_DESIGN_J,
+            EmbeddingEngine.CHECK2HGI_DESIGN_M,
+        )
         if embedd_engine not in supported:
             raise ValueError(
                 f"next_region not yet built for {embedd_engine}. Supported: "

@@ -115,8 +115,42 @@ def _load_region_embeddings(state: str, source: str = "check2hgi") -> tuple[np.n
         path = IoPaths.CHECK2HGI.get_state_dir(state) / "region_embeddings.parquet"
     elif source == "hgi":
         path = IoPaths.HGI.get_state_dir(state) / "region_embeddings.parquet"
+    elif source == "check2hgi_postpool":
+        # Diagnostic substrate: POI-mean → region-mean of canonical C2HGI
+        # check-in embeddings, built post-hoc by
+        # ``scripts/probe/build_check2hgi_postpool_region.py``.
+        path = IoPaths.CHECK2HGI.get_state_dir(state) / "region_embeddings_postpool.parquet"
+    elif source == "check2hgi_poi2vec":
+        # C2HGI variant trained with POI2Vec features appended to per-check-in
+        # input (canonical 11-dim cat+temporal + 64-dim POI2Vec = 75-dim).
+        # Built by ``scripts/probe/build_check2hgi_poi2vec.py``.
+        path = Path("output/check2hgi_poi2vec") / state.lower() / "region_embeddings.parquet"
+    elif source == "check2hgi_design_e":
+        path = Path("output/check2hgi_design_e") / state.lower() / "region_embeddings.parquet"
+    elif source == "check2hgi_design_b":
+        path = Path("output/check2hgi_design_b") / state.lower() / "region_embeddings.parquet"
+    elif source == "check2hgi_design_h":
+        path = Path("output/check2hgi_design_h") / state.lower() / "region_embeddings.parquet"
+    elif source == "check2hgi_design_d":
+        path = Path("output/check2hgi_design_d") / state.lower() / "region_embeddings.parquet"
+    elif source == "check2hgi_design_i":
+        path = Path("output/check2hgi_design_i") / state.lower() / "region_embeddings.parquet"
+    elif source == "check2hgi_design_j":
+        path = Path("output/check2hgi_design_j") / state.lower() / "region_embeddings.parquet"
+    elif source == "check2hgi_design_m":
+        path = Path("output/check2hgi_design_m") / state.lower() / "region_embeddings.parquet"
+    elif source == "c2hgi_hgi_concat":
+        # Design A — late-fusion concat. The reg input is per-step concat,
+        # but per_step is consumed via input/next_region.parquet directly,
+        # not by region-emb lookup. We never read this branch from the
+        # region-emb-source code path; included for API consistency.
+        # Use canonical c2hgi region embeddings as fallback.
+        path = IoPaths.CHECK2HGI.get_state_dir(state) / "region_embeddings.parquet"
     else:
-        raise ValueError(f"Unknown region-emb source: {source} (expected 'check2hgi' or 'hgi').")
+        raise ValueError(
+            f"Unknown region-emb source: {source} "
+            f"(expected 'check2hgi', 'hgi', 'check2hgi_postpool', 'check2hgi_poi2vec')."
+        )
     df = pd.read_parquet(path)
     emb_cols = [c for c in df.columns if c.startswith("reg_")]
     df = df.sort_values("region_id").reset_index(drop=True)
@@ -174,14 +208,18 @@ def _build_region_sequence_tensor(
     return torch.from_numpy(out)
 
 
-def _load_checkin_region_data(state: str):
+def _load_checkin_region_data(state: str, engine_override: EmbeddingEngine | None = None):
     """Load check-in embedding tensor + region labels + stratification info.
 
     Returns a 7-tuple adding ``last_region_tensor`` to the historical
     6-tuple. ``last_region_tensor`` is None when the parquet lacks the
     ``last_region_idx`` column (older schema, pre-commit ``6a2f808``).
+
+    ``engine_override`` lets probes (Design A concat fusion) point at a
+    non-canonical input directory while still using check2hgi-derived
+    region labels and graph maps.
     """
-    engine = EmbeddingEngine.CHECK2HGI
+    engine = engine_override or EmbeddingEngine.CHECK2HGI
     X, y_cat, userids, emb_dim = load_next_data(state, engine)
 
     region_df = IoPaths.load_next_region(state, engine)
@@ -203,7 +241,8 @@ def _load_checkin_region_data(state: str):
     return x_tensor, y_region_tensor, y_cat, userids, emb_dim, n_regions, last_region_tensor
 
 
-def _load_data(state: str, input_type: str, region_emb_source: str = "check2hgi"):
+def _load_data(state: str, input_type: str, region_emb_source: str = "check2hgi",
+               engine_override: EmbeddingEngine | None = None):
     """Route to the correct input loader. Returns a 7-tuple:
     ``(x_tensor, y_region_tensor, y_cat, userids, emb_dim, n_regions, last_region_tensor)``.
 
@@ -213,7 +252,7 @@ def _load_data(state: str, input_type: str, region_emb_source: str = "check2hgi"
     data-prep gap the user must resolve via ``scripts/regenerate_next_region.py``.
     """
     x_checkin, y_region_tensor, y_cat, userids, checkin_dim, n_regions, last_region_tensor = (
-        _load_checkin_region_data(state)
+        _load_checkin_region_data(state, engine_override=engine_override)
     )
 
     if input_type == "checkin":
@@ -548,10 +587,12 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
                  preenc_hidden: int = 256,
                  preenc_layers: int = 2,
                  preenc_dropout: float = 0.1,
-                 per_fold_transition_dir: str | None = None):
-    logger.info("Loading data for %s (input_type=%s, region_emb=%s)...", state, input_type, region_emb_source)
+                 per_fold_transition_dir: str | None = None,
+                 engine_override: EmbeddingEngine | None = None):
+    logger.info("Loading data for %s (input_type=%s, region_emb=%s, engine_override=%s)...",
+                state, input_type, region_emb_source, engine_override)
     x_tensor, y_region, y_cat, userids, emb_dim, n_regions, last_region_tensor = _load_data(
-        state, input_type, region_emb_source,
+        state, input_type, region_emb_source, engine_override=engine_override,
     )
     aux_hint = "present" if last_region_tensor is not None else "missing"
     logger.info("x=%s, emb_dim=%d, n_regions=%d, n_seqs=%d, last_region_idx=%s",
@@ -800,10 +841,17 @@ def main():
                         help="Resume from checkpoint if one exists (default: on).")
     parser.add_argument("--no-resume", dest="resume", action="store_false",
                         help="Ignore any existing checkpoint and start fresh.")
-    parser.add_argument("--region-emb-source", choices=["check2hgi", "hgi"], default="check2hgi",
+    parser.add_argument("--region-emb-source",
+                        choices=["check2hgi", "hgi", "check2hgi_postpool", "check2hgi_poi2vec",
+                                 "check2hgi_design_e", "check2hgi_design_b", "check2hgi_design_h",
+                                 "check2hgi_design_d", "check2hgi_design_i", "check2hgi_design_j",
+                                 "check2hgi_design_m"],
+                        default="check2hgi",
                         help="Which engine's region_embeddings.parquet to use for region/concat input_type. "
                              "Labels + sequences always come from check2hgi — only the embedding lookup changes. "
-                             "Used for P1.5 embedding-substrate comparison (CH15).")
+                             "Used for P1.5 embedding-substrate comparison (CH15). "
+                             "'check2hgi_postpool' loads region_embeddings_postpool.parquet "
+                             "(POI-mean → region-mean of canonical c2hgi check-in embeddings).")
     parser.add_argument("--mtl-preencoder", action="store_true",
                         help="Wrap the head with MTLnet's next_encoder stack (Linear+ReLU+LayerNorm+Dropout) "
                              "as a pre-processor, mirroring the MTL pipeline's upstream encoder without the "
@@ -831,9 +879,15 @@ def main():
     )
     parser.add_argument("--preenc-dropout", type=float, default=0.1,
                         help="Dropout in --mtl-preencoder (default 0.1, matches MTL encoder_dropout).")
+    parser.add_argument("--engine-override", type=str, default=None,
+                        choices=[None, "check2hgi", "check2hgi_poi2vec", "c2hgi_hgi_concat"],
+                        help="Override the engine used to load next.parquet/next_region.parquet. "
+                             "Region labels and graph maps still come from check2hgi. "
+                             "Used by Design A probe.")
     args = parser.parse_args()
 
     overrides = _parse_overrides(args.override_hparams)
+    eo = EmbeddingEngine(args.engine_override) if args.engine_override else None
     run_ablation(
         args.state, args.heads, args.folds, args.epochs, args.batch_size, args.seed,
         args.input_type, overrides, args.max_lr, args.label_smoothing,
@@ -844,6 +898,7 @@ def main():
         preenc_layers=args.preenc_layers,
         preenc_dropout=args.preenc_dropout,
         per_fold_transition_dir=args.per_fold_transition_dir,
+        engine_override=eo,
     )
 
 
