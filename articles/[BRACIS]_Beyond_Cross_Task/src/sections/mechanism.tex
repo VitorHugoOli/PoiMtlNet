@@ -21,7 +21,7 @@ Under the matched-head GRU single-task ceiling, the substrate gap (canonical $-$
 \subsection{Drop-in MTL ablations do not recover the next-region cost}
 \label{subsec:mechanism-ablations}
 
-The next-region cost is sign-consistent across all five states ($7$ to $17$ pp on Acc@10). At FL we tried three drop-in replacements (FAMO~\cite{liu2023famo}, a magnitude balancer; Aligned-MTL~\cite{senushkin2023aligned}, a direction-aligning balancer; and a hierarchical-additive-softmax region head) with substrate, backbone, optimiser and schedule fixed at \S\ref{sec:method}. None reached the $+3$ pp Acc@10 recovery target or paired-Wilcoxon $p_{\text{greater}}<0.10$; the strongest, the hierarchical head, reaches only ${\approx}+1.7$ pp. The cost stays intact, suggesting a structural cost of the cross-attention interaction with the region head rather than a loss-recipe artefact.
+The next-region cost is negative at every state ($7$ to $17$ pp on Acc@10). At FL we tried three drop-in replacements (FAMO~\cite{liu2023famo}, a magnitude balancer; Aligned-MTL~\cite{senushkin2023aligned}, a direction-aligning balancer; and a hierarchical-additive-softmax region head) with substrate, backbone, optimiser and schedule fixed at \S\ref{sec:method}. None reached the $+3$ pp Acc@10 recovery target or paired-Wilcoxon $p_{\text{greater}}<0.10$; the strongest, the hierarchical head, reaches only ${\approx}+1.7$ pp. The cost stays intact, suggesting a structural cost of the cross-attention interaction with the region head rather than a loss-recipe artefact.
 
 \subsection{Cross-attention $\lambda = 0$ is not encoder isolation}
 \label{subsec:mechanism-isolation}
