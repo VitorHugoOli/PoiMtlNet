@@ -15,7 +15,7 @@ For each user we form non-overlapping length-9 windows over the chronological se
 
 The headline contrast is the cross-attention multi-task model against matched-head single-task (STL) ceilings: a GRU category head and a STAN-based region head with an additive log-transition prior over training-fold-only edges~\cite{luo2021stan}. \textbf{The same head classes appear on both sides of the contrast, so any difference between the multi-task and single-task rows is attributable to the sharing architecture, not to head capacity.} External baselines are POI-RGNN and MHA+PE (category) and Markov-1-region, single-task STAN, and ReHDM (region); we report them in \S\ref{sec:results}.
 
-Category metrics: macro-F1 (primary) and Acc@1/Acc@3 (top-$k$ accuracy, secondary, since the 7-way distribution is skewed). Region metrics: Acc@10 (primary), Acc@5 and MRR (mean reciprocal rank, secondary). The joint score is $\Delta_m$~\cite{maninis2019attentive,vandenhende2022mtl} against the matched-head STL ceiling, reported on a primary pair (macro-F1, MRR) and a secondary pair (macro-F1, Acc@10).
+Category metrics: macro-F1 (primary) and Acc@1/Acc@3 (top-$k$ accuracy, secondary, since the 7-way distribution is skewed). Region metrics: Acc@10 (primary), Acc@5 and MRR (mean reciprocal rank, secondary). The joint score $\Delta_m$~\cite{maninis2019attentive,vandenhende2022mtl} averages the per-task relative improvement of MTL over the matched-head STL ceiling (positive $=$ MTL wins); we report it on a primary pair (macro-F1, MRR) and a secondary pair (macro-F1, Acc@10).
 
 \subsection{Statistical protocol}
 \label{subsec:setup-stats}

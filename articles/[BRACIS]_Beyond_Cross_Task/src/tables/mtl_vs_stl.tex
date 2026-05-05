@@ -1,6 +1,6 @@
 \begin{table}[t]
 \centering
-\caption{Cross-attention multi-task model vs.\ matched-head single-task ceilings on Check2HGI. Multi-seed pooled at $n = 20$ fold-pairs per state (seeds $\{0, 1, 7, 100\}$ + 42, five user-disjoint folds). Cells are mean $\pm$ pooled $\sigma$; $\Delta=$ MTL $-$ STL in pp; paired one-sided Wilcoxon $p$-values. FL/CA/TX (headline scale) above the rule, AL/AZ (smaller-scale anchors) below.}
+\caption{Cross-attention multi-task model vs.\ matched-head single-task ceilings on Check2HGI. Multi-seed pooled at $n = 20$ fold-pairs per state (seeds $\{0, 1, 7, 100\}$ + 42, five user-disjoint folds). Cells are mean $\pm$ pooled $\sigma$; $\Delta=$ MTL $-$ STL in pp; paired one-sided Wilcoxon $p$-values. States ordered by scale (AL smallest, TX largest).}
 \label{tab:mtl-stl}
 \scriptsize
 \setlength{\tabcolsep}{3pt}
@@ -11,12 +11,11 @@
 \cmidrule(lr){2-5} \cmidrule(lr){6-9}
 State & STL & MTL & $\Delta$ & $p$ & STL & MTL & $\Delta$ & $p$ \\
 \midrule
+AL & $41.35\!\pm\!0.17$ & $40.57\!\pm\!0.24$ & $-0.78$ & $0.036$              & $61.21\!\pm\!0.18$ & $50.17\!\pm\!0.24$ & $-11.04$ & $1.9\mathrm{e}{-6}$ \\
+AZ & $43.90\!\pm\!0.17$ & $45.10\!\pm\!0.19$ & $+1.20$ & $<\!1\mathrm{e}{-4}$ & $53.06\!\pm\!0.15$ & $40.78\!\pm\!0.07$ & $-12.27$ & $1.9\mathrm{e}{-6}$ \\
 FL & $67.16\!\pm\!0.13$ & $68.56\!\pm\!0.79$ & $+1.40$ & $2\mathrm{e}{-6}$    & $70.62\!\pm\!0.09$ & $63.27\!\pm\!0.10$ & $-7.34$  & $1.9\mathrm{e}{-6}$ \\
 CA & $62.39\!\pm\!0.13$ & $64.07\!\pm\!0.14$ & $+1.68$ & $2\mathrm{e}{-6}$    & $56.85\!\pm\!0.09$ & $47.35\!\pm\!0.11$ & $-9.50$  & $1.9\mathrm{e}{-6}$ \\
 TX & $63.11\!\pm\!0.13$ & $65.00\!\pm\!0.11$ & $+1.89$ & $2\mathrm{e}{-6}$    & $59.44\!\pm\!0.09$ & $42.84\!\pm\!0.14$ & $-16.59$ & $1.9\mathrm{e}{-6}$ \\
-\midrule
-AL & $41.35\!\pm\!0.17$ & $40.57\!\pm\!0.24$ & $-0.78$ & $0.036$              & $61.21\!\pm\!0.18$ & $50.17\!\pm\!0.24$ & $-11.04$ & $1.9\mathrm{e}{-6}$ \\
-AZ & $43.90\!\pm\!0.17$ & $45.10\!\pm\!0.19$ & $+1.20$ & $<\!1\mathrm{e}{-4}$ & $53.06\!\pm\!0.15$ & $40.78\!\pm\!0.07$ & $-12.27$ & $1.9\mathrm{e}{-6}$ \\
 \bottomrule
 \end{tabular}
 
