@@ -20,6 +20,7 @@ from configs.model import InputsConfig
 _CHECKIN_LEVEL_ENGINES = {
     EmbeddingEngine.CHECK2HGI,
     EmbeddingEngine.CHECK2HGI_POI2VEC,
+    EmbeddingEngine.C2HGI_HGI_CONCAT,  # Design A: 128-dim late concat (per-step, NOT POI-level)
     EmbeddingEngine.CHECK2HGI_DESIGN_E,
     EmbeddingEngine.CHECK2HGI_DESIGN_B,
     EmbeddingEngine.CHECK2HGI_DESIGN_H,
