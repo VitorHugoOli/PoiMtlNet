@@ -2,7 +2,7 @@
 
 **Date:** 2026-04-23. **Tracker item:** `FOLLOWUPS_TRACKER.md §F2` (north-star re-evaluation gate). **Launcher:** `scripts/run_f2_fl_hard_diagnostic.sh`. **Log:** `/tmp/check2hgi_logs/f2_fl_hard_diagnostic.log`. **Extractor:** `scripts/analysis/extract_alpha.py`.
 
-The four-phase diagnostic tests whether the FL-hard training failure documented in `B5_FL_SCALING.md` + `review/2026-04-23_critical_review.md §1.5` is rescuable by loss-weighting, and characterises the learned α over training to pin the mechanism.
+The four-phase diagnostic tests whether the FL-hard training failure documented in `B5_FL_SCALING.md` + `archive/check2hgi-reviews-2026-04/2026-04-23_critical_review.md §1.5` is rescuable by loss-weighting, and characterises the learned α over training to pin the mechanism.
 
 ## Protocol
 
@@ -69,7 +69,7 @@ This explains why hard's best-epoch arrives early (ep 7) and soft keeps improvin
 
 ### Gradient-starvation signature
 
-Combining Phase A's checkpoint evidence with the 2026-04-23 diagnostic in `review/2026-04-23_critical_review.md §1.5`:
+Combining Phase A's checkpoint evidence with the 2026-04-23 diagnostic in `archive/check2hgi-reviews-2026-04/2026-04-23_critical_review.md §1.5`:
 
 1. **cat best-val F1 ceiling** = 0.5543 across all 50 epochs (both `diagnostic_task_best` and `joint_score` agree on the same epoch).
 2. **Monitor `val_joint_acc1` peaks at epoch 7**, no new best through at least epoch 41.

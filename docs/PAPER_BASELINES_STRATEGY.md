@@ -60,9 +60,9 @@ Previously called `next_getnext_hard` in the registry and "GETNext-hard matched-
 - Result-file paths and shell scripts continue to use the legacy `gethard` segment to avoid breaking ~60 historical scripts and ~35 Python files. Paper text always uses **STAN-Flow**.
 
 **Where STAN-Flow appears in the paper:**
-- `paper/methods.md §3.3 Task-specific heads`
-- `paper/results.md` Table 1 reg STL row
-- `paper/limitations.md §6.1 + §6.4`
+- `articles/[BRACIS]_Beyond_Cross_Task/src/sections/method.tex (work landed; paper-drafts archived) §3.3 Task-specific heads`
+- `articles/[BRACIS]_Beyond_Cross_Task/src/sections/results.tex (work landed; paper-drafts archived to docs/archive/check2hgi-paper-drafts-pre-bracis/)` Table 1 reg STL row
+- `articles/[BRACIS]_Beyond_Cross_Task/src/sections/discussion.tex (work landed in discussion §Limitations; paper-drafts archived) §6.1 + §6.4`
 - `next_region/comparison.md "Substrate-head matched STL — leak-free"` panel
 - `FINAL_SURVEY.md §4` (Reg STL CH15 reframing)
 

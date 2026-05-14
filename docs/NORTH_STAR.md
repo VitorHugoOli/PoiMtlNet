@@ -390,7 +390,7 @@ If F2 follow-up passes and B3 replaces soft, the migration is a single-string sw
 | FL 1f | **60.62 / 66.01** | 58.88 / **55.43** | **soft** — hard's cat head fails to train |
 
 - **FL is the headline state** (per `CONCERNS.md §C01` — the paper's primary table is FL + CA + TX).
-- Hard has a **diagnosed training failure at FL scale** (see `research/B5_FL_SCALING.md` + the 2026-04-23 JSON comparison in `review/2026-04-23_critical_review.md`): cat head's best-val F1 over 50 epochs is 55.43 vs soft's 66.01 under the identical fold split. Not noise — gradient imbalance.
+- Hard has a **diagnosed training failure at FL scale** (see `research/B5_FL_SCALING.md` + the 2026-04-23 JSON comparison in `archive/check2hgi-reviews-2026-04/2026-04-23_critical_review.md`): cat head's best-val F1 over 50 epochs is 55.43 vs soft's 66.01 under the identical fold split. Not noise — gradient imbalance.
 - Soft scales uniformly across AL / AZ / FL. Cat F1 is within σ of the cross-attn + GRU champion at every state.
 
 ## What this choice costs us
@@ -418,5 +418,5 @@ Until one of those lands: **soft is the headline MTL config**.
 
 - Joint-execution comparison: `OBJECTIVES_STATUS_TABLE.md §2`
 - Cross-state deltas: `research/B5_MACRO_ANALYSIS.md`
-- FL failure-mode diagnosis: `research/B5_FL_SCALING.md` + `review/2026-04-23_critical_review.md §FL-hard training pathology`
+- FL failure-mode diagnosis: `research/B5_FL_SCALING.md` + `archive/check2hgi-reviews-2026-04/2026-04-23_critical_review.md §FL-hard training pathology`
 - Open follow-ups that can change this: `FOLLOWUPS_TRACKER.md` F2, F12

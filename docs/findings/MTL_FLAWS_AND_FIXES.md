@@ -7,7 +7,7 @@ This doc is the **single entry point** for any agent investigating MTL improveme
 - `MTL_ARCHITECTURE_JOURNEY.md` — narrative history (Phase B-M → F48-H3-alt → F49 → F37 → F50)
 - `research/F50_PROPOSAL_AUDIT_AND_TIERED_PLAN.md` — tiered experimental plan currently in flight
 - `research/F50_HANDOFF_2026-04-28.md` — pickup state per task
-- `review/2026-04-28_critical_analysis.md` — framing tension + recommendation chain
+- `archive/check2hgi-reviews-2026-04/2026-04-28_critical_analysis.md` — framing tension + recommendation chain
 
 ---
 
@@ -157,7 +157,7 @@ Cat-side advantage is uniform across states (Δ_cat F1 in [+0.7%, +7.0%] across 
 
 ### 2.6 Bonus: AZ MRR-Δm > top5-Δm asymmetry
 
-At AZ, PRIMARY (MRR-based) Δm is significantly positive (+3.19%, p=0.0312); SECONDARY (top5-based) is null (−0.38%, p=0.500). MTL produces **better-ranked predictions** than STL even when raw top-K is similar. Mechanism distinction worth a paragraph in `paper/results.md`.
+At AZ, PRIMARY (MRR-based) Δm is significantly positive (+3.19%, p=0.0312); SECONDARY (top5-based) is null (−0.38%, p=0.500). MTL produces **better-ranked predictions** than STL even when raw top-K is similar. Mechanism distinction worth a paragraph in `articles/[BRACIS]_Beyond_Cross_Task/src/sections/results.tex (work landed; paper-drafts archived to docs/archive/check2hgi-paper-drafts-pre-bracis/)`.
 
 ### 2.12 C4 LEAKAGE — was 16 pp not 2 pp; propagates to 5 heads (F50 T4 — 2026-04-29)
 
@@ -457,7 +457,7 @@ Treat this as a **catalog**, not a narrative. Narrative lives in `MTL_ARCHITECTU
 - `research/F50_DELTA_M_FINDINGS.md` — F50 T0 result (CH22)
 - `research/F50_T1_1_CAT_HEAD_PATH_DECISION.md` — F50 T1.1 (F33 PASS)
 - `research/F50_HANDOFF_2026-04-28.md` — F50 pickup state
-- `review/2026-04-28_critical_analysis.md` — opinion piece + framing recommendation
+- `archive/check2hgi-reviews-2026-04/2026-04-28_critical_analysis.md` — opinion piece + framing recommendation
 - `CLAIMS_AND_HYPOTHESES.md §CH18, §CH20, §CH21, §CH22` — all MTL-flaw claims
 - `CONCERNS.md §C12, §C15` — open MTL-related concerns
 - `NORTH_STAR.md` — current champion (F48-H3-alt, unchanged by F50 so far)

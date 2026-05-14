@@ -197,9 +197,9 @@ This is a **stronger and more specific** mechanism finding than the original "ca
 
 ### 6.2 What changes in the paper
 
-- **`paper/results.md` § FL discussion**: REPLACE the absorption-mechanism paragraph with the temporal-dynamics version. Reference STL ep 17-20 vs MTL ep 5.
-- **`paper/limitations.md`**: NEW caveat — "the MTL training pipeline at FL scale exhibits a temporal training defect (reg-best epoch ≈ 5 vs STL's 17-20). Future work would test (a) OneCycleLR vs constant scheduler in MTL, (b) per-task-best epoch selectors that search beyond local minima, (c) two-phase training schemes."
-- **`paper/methods.md`**: small note about per-task-best epoch selection — disclose the greedy local-minimum bias.
+- **`articles/[BRACIS]_Beyond_Cross_Task/src/sections/results.tex (work landed; paper-drafts archived to docs/archive/check2hgi-paper-drafts-pre-bracis/)` § FL discussion**: REPLACE the absorption-mechanism paragraph with the temporal-dynamics version. Reference STL ep 17-20 vs MTL ep 5.
+- **`articles/[BRACIS]_Beyond_Cross_Task/src/sections/discussion.tex (work landed in discussion §Limitations; paper-drafts archived)`**: NEW caveat — "the MTL training pipeline at FL scale exhibits a temporal training defect (reg-best epoch ≈ 5 vs STL's 17-20). Future work would test (a) OneCycleLR vs constant scheduler in MTL, (b) per-task-best epoch selectors that search beyond local minima, (c) two-phase training schemes."
+- **`articles/[BRACIS]_Beyond_Cross_Task/src/sections/method.tex (work landed; paper-drafts archived)`**: small note about per-task-best epoch selection — disclose the greedy local-minimum bias.
 
 ### 6.3 Champion config: **P4 + Cosine + delayed-min** (2026-04-29 17:30 UTC, Pareto-corrected)
 
