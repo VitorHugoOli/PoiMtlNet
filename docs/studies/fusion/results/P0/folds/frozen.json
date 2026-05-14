@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-04-15T20:20:36+00:00",
+  "updated_at": "2026-04-18T12:28:41+00:00",
   "sklearn_version": "1.8.0",
   "entries": [
     {
@@ -94,6 +94,63 @@
       }
     },
     {
+      "key": "alabama/fusion/category",
+      "status": "frozen",
+      "state": "alabama",
+      "engine": "fusion",
+      "task": "category",
+      "fold_file": "output/fusion/alabama/folds/fold_indices_category.pt",
+      "meta": {
+        "schema_version": 1,
+        "state": "alabama",
+        "engine": "fusion",
+        "task": "category",
+        "seed": 42,
+        "n_splits": 5,
+        "sklearn_version": "1.8.0",
+        "torch_version": "2.11.0",
+        "created_at": "2026-04-18T05:32:01+00:00",
+        "inputs_signatures": {
+          "category.parquet": {
+            "path": "output/fusion/alabama/input/category.parquet",
+            "sha256": "0c5113ad990f6736c9a4d80cdf5a345279deb10debec55c433a2f6db9693b16e",
+            "size_bytes": 8809055,
+            "mtime": "2026-04-14T15:38:56.045063+00:00"
+          }
+        },
+        "fold_sizes": {
+          "category": [
+            {
+              "fold_idx": 0,
+              "train": 9478,
+              "val": 2370
+            },
+            {
+              "fold_idx": 1,
+              "train": 9478,
+              "val": 2370
+            },
+            {
+              "fold_idx": 2,
+              "train": 9478,
+              "val": 2370
+            },
+            {
+              "fold_idx": 3,
+              "train": 9479,
+              "val": 2369
+            },
+            {
+              "fold_idx": 4,
+              "train": 9479,
+              "val": 2369
+            }
+          ]
+        },
+        "fold_file": "fold_indices_category.pt"
+      }
+    },
+    {
       "key": "alabama/fusion/mtl",
       "status": "frozen",
       "state": "alabama",
@@ -181,6 +238,63 @@
           ]
         },
         "fold_file": "fold_indices_mtl.pt"
+      }
+    },
+    {
+      "key": "alabama/fusion/next",
+      "status": "frozen",
+      "state": "alabama",
+      "engine": "fusion",
+      "task": "next",
+      "fold_file": "output/fusion/alabama/folds/fold_indices_next.pt",
+      "meta": {
+        "schema_version": 1,
+        "state": "alabama",
+        "engine": "fusion",
+        "task": "next",
+        "seed": 42,
+        "n_splits": 5,
+        "sklearn_version": "1.8.0",
+        "torch_version": "2.11.0",
+        "created_at": "2026-04-18T05:32:03+00:00",
+        "inputs_signatures": {
+          "next.parquet": {
+            "path": "output/fusion/alabama/input/next.parquet",
+            "sha256": "9e7684221e9b0752828d07a493f6d7552acec8667671f256666fda0f16497e3f",
+            "size_bytes": 49404043,
+            "mtime": "2026-04-14T15:39:04.328852+00:00"
+          }
+        },
+        "fold_sizes": {
+          "next": [
+            {
+              "fold_idx": 0,
+              "train": 10167,
+              "val": 2542
+            },
+            {
+              "fold_idx": 1,
+              "train": 10167,
+              "val": 2542
+            },
+            {
+              "fold_idx": 2,
+              "train": 10167,
+              "val": 2542
+            },
+            {
+              "fold_idx": 3,
+              "train": 10167,
+              "val": 2542
+            },
+            {
+              "fold_idx": 4,
+              "train": 10168,
+              "val": 2541
+            }
+          ]
+        },
+        "fold_file": "fold_indices_next.pt"
       }
     },
     {
@@ -364,6 +478,63 @@
       }
     },
     {
+      "key": "arizona/fusion/category",
+      "status": "frozen",
+      "state": "arizona",
+      "engine": "fusion",
+      "task": "category",
+      "fold_file": "output/fusion/arizona/folds/fold_indices_category.pt",
+      "meta": {
+        "schema_version": 1,
+        "state": "arizona",
+        "engine": "fusion",
+        "task": "category",
+        "seed": 42,
+        "n_splits": 5,
+        "sklearn_version": "1.8.0",
+        "torch_version": "2.11.0",
+        "created_at": "2026-04-18T12:28:38+00:00",
+        "inputs_signatures": {
+          "category.parquet": {
+            "path": "output/fusion/arizona/input/category.parquet",
+            "sha256": "e8381bf280f8e6dc391f126a216b7e4176e057046800c50f7501a77ff8726a7e",
+            "size_bytes": 15630441,
+            "mtime": "2026-04-14T15:37:01.473387+00:00"
+          }
+        },
+        "fold_sizes": {
+          "category": [
+            {
+              "fold_idx": 0,
+              "train": 16532,
+              "val": 4134
+            },
+            {
+              "fold_idx": 1,
+              "train": 16533,
+              "val": 4133
+            },
+            {
+              "fold_idx": 2,
+              "train": 16533,
+              "val": 4133
+            },
+            {
+              "fold_idx": 3,
+              "train": 16533,
+              "val": 4133
+            },
+            {
+              "fold_idx": 4,
+              "train": 16533,
+              "val": 4133
+            }
+          ]
+        },
+        "fold_file": "fold_indices_category.pt"
+      }
+    },
+    {
       "key": "arizona/fusion/mtl",
       "status": "frozen",
       "state": "arizona",
@@ -451,6 +622,63 @@
           ]
         },
         "fold_file": "fold_indices_mtl.pt"
+      }
+    },
+    {
+      "key": "arizona/fusion/next",
+      "status": "frozen",
+      "state": "arizona",
+      "engine": "fusion",
+      "task": "next",
+      "fold_file": "output/fusion/arizona/folds/fold_indices_next.pt",
+      "meta": {
+        "schema_version": 1,
+        "state": "arizona",
+        "engine": "fusion",
+        "task": "next",
+        "seed": 42,
+        "n_splits": 5,
+        "sklearn_version": "1.8.0",
+        "torch_version": "2.11.0",
+        "created_at": "2026-04-18T12:28:40+00:00",
+        "inputs_signatures": {
+          "next.parquet": {
+            "path": "output/fusion/arizona/input/next.parquet",
+            "sha256": "a9e8ec4ad90685d65d491d2d76aec8a6bbfe47789e6b59b599434dd64f7968ef",
+            "size_bytes": 90594911,
+            "mtime": "2026-04-14T15:37:19.485969+00:00"
+          }
+        },
+        "fold_sizes": {
+          "next": [
+            {
+              "fold_idx": 0,
+              "train": 21116,
+              "val": 5280
+            },
+            {
+              "fold_idx": 1,
+              "train": 21117,
+              "val": 5279
+            },
+            {
+              "fold_idx": 2,
+              "train": 21117,
+              "val": 5279
+            },
+            {
+              "fold_idx": 3,
+              "train": 21117,
+              "val": 5279
+            },
+            {
+              "fold_idx": 4,
+              "train": 21117,
+              "val": 5279
+            }
+          ]
+        },
+        "fold_file": "fold_indices_next.pt"
       }
     },
     {
