@@ -2,7 +2,7 @@
 
 > **Read order:** (1) `AGENT.md` for voice / statistics / anonymization, (2) `PAPER_STRUCTURE.md` for section-level structure, (3) **this file** for paragraph-level beats. This file is the working scratch from which sub-agents draft prose. **Lock §0 first** — those are the user-facing decisions that must precede sub-agent fan-out.
 >
-> **Provenance.** This draft is the BRACIS-2026 article-side reframe of the (now archived) study-side `PAPER_DRAFT.md`. **The sole canonical numerical source for paper tables is `docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v11, 2026-05-02 — FL §0.1 arch-Δ upgraded to n=20 after the v10 CA/TX closure; all five states now paper-grade on §0.1).** Background provenance only (do not cite as primary): `docs/studies/check2hgi/archive/post_paper_closure_2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md` (the file was moved to archive in the 2026-05-01 study cleanup) and `CLAIMS_AND_HYPOTHESES.md §CH22 2026-05-01 reframe`. This file supersedes the archived study-side draft for the BRACIS submission.
+> **Provenance.** This draft is the BRACIS-2026 article-side reframe of the (now archived) study-side `PAPER_DRAFT.md`. **The sole canonical numerical source for paper tables is `docs/results/RESULTS_TABLE.md §0` (v11, 2026-05-02 — FL §0.1 arch-Δ upgraded to n=20 after the v10 CA/TX closure; all five states now paper-grade on §0.1).** Background provenance only (do not cite as primary): `docs/archive/check2hgi-post-paper-closure-2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md` (the file was moved to archive in the 2026-05-01 study cleanup) and `CLAIMS_AND_HYPOTHESES.md §CH22 2026-05-01 reframe`. This file supersedes the archived study-side draft for the BRACIS submission.
 
 ---
 
@@ -126,9 +126,9 @@ One paragraph + table T1. Five Gowalla state splits (AL, AZ, FL, CA, TX), filter
 
 One paragraph **per task**.
 
-*Cat baselines:* Majority-class, Markov-1-POI, **POI-RGNN** (Capanema et al. 2022, faithful reproduction with Gowalla state-level partition and 7-category taxonomy), **MHA+PE** (Zeng 2019). Internal: STL `next_gru` on Check2HGI (matched-head MTL ceiling), STL `next_gru` on HGI (substrate ablation). Audit hub: `docs/studies/check2hgi/baselines/next_category/`.
+*Cat baselines:* Majority-class, Markov-1-POI, **POI-RGNN** (Capanema et al. 2022, faithful reproduction with Gowalla state-level partition and 7-category taxonomy), **MHA+PE** (Zeng 2019). Internal: STL `next_gru` on Check2HGI (matched-head MTL ceiling), STL `next_gru` on HGI (substrate ablation). Audit hub: `docs/baselines/next_category/`.
 
-*Reg baselines:* Majority, Top-K popular, **Markov-1-region** (the binding floor at FL because of dense-data short-horizon coverage), STL GRU (literature-aligned), **STL STAN** (Luo 2021 adapt), **STL STAN-Flow** (matched-head MTL ceiling — same head class as the MTL reg head), **REHDM** (faithful port). Audit hub: `docs/studies/check2hgi/baselines/next_region/`.
+*Reg baselines:* Majority, Top-K popular, **Markov-1-region** (the binding floor at FL because of dense-data short-horizon coverage), STL GRU (literature-aligned), **STL STAN** (Luo 2021 adapt), **STL STAN-Flow** (matched-head MTL ceiling — same head class as the MTL reg head), **REHDM** (faithful port). Audit hub: `docs/baselines/next_region/`.
 
 State explicitly: **GETNext is not a baseline.** STAN-Flow's `α · log_T` graph prior is part of our MTL reg head, not a comparison method. Justification one-liner.
 
@@ -168,7 +168,7 @@ Total: 1.5 pp.
 
 **Beat 1 — Per-state comparison block (table-driven, one paragraph).** T5 reports per-state {Markov-1-region floor, STL STAN, STL STAN-Flow, MTL B9} on the reg side and {Majority, Markov-1-POI, POI-RGNN, MHA+PE, STL `next_gru` Check2HGI, MTL B9} on the cat side. State the headline: cat-side, our method beats every external baseline at every state; reg-side, MTL trails STL STAN-Flow but exceeds Markov-1-region at AL/AZ/CA/TX (FL is Markov-saturated, see Beat 2).
 
-**Beat 2 — FL Markov-saturation, honest framing (one paragraph).** *"On dense-data state splits where Markov-1-region transitions cover ≥ 85 % of validation rows (Florida Gowalla, 127K check-ins), the classical 1-gram prior is near-optimal for Acc@10 on short horizons. Our neural models exceed Markov-1 on Acc@5 and MRR but not on Acc@10 at this scale."* Lifted near-verbatim from `docs/studies/check2hgi/PAPER_STRUCTURE.md §6` (the original study one) — the framing is honest and pre-vetted.
+**Beat 2 — FL Markov-saturation, honest framing (one paragraph).** *"On dense-data state splits where Markov-1-region transitions cover ≥ 85 % of validation rows (Florida Gowalla, 127K check-ins), the classical 1-gram prior is near-optimal for Acc@10 on short horizons. Our neural models exceed Markov-1 on Acc@5 and MRR but not on Acc@10 at this scale."* Lifted near-verbatim from `docs/archive/check2hgi-post-paper-closure-2026-05-01/PAPER_STRUCTURE.md §6` (the original study one) — the framing is honest and pre-vetted.
 
 **Beat 3 — One-paragraph closer.** Re-state the substrate dominance: cat win is large and external; reg cost is structural to joint training and is paid for the convenience of single-model deployment.
 
@@ -285,7 +285,7 @@ Port from `articles/CBIC___MTL/references.bib` and `articles/CoUrb_2026/referenc
 
 - **§0 (open decisions):** pending user lock.
 - **Section beats §1–§8:** committed (this file).
-- **Tables T1–T6:** specified; data-side numbers exist in `docs/studies/check2hgi/`; sub-agent A5 builds the LaTeX tables.
+- **Tables T1–T6:** specified; data-side numbers exist in `docs/results/`; sub-agent A5 builds the LaTeX tables.
 - **Figures F1–F2:** optional; lowest priority. Cut F2 first if pages tight; cut F1 next.
 - **References:** working canon listed; A8 ports + dedups.
-- **Title and abstract:** stale committed versions in `docs/studies/check2hgi/PAPER_DRAFT.md` superseded by §0 D0 + D1.
+- **Title and abstract:** stale committed versions in `docs/archive/check2hgi-post-paper-closure-2026-05-01/PAPER_DRAFT.md` superseded by §0 D0 + D1.

@@ -9,7 +9,7 @@ Per-fold values were extracted earlier from:
 - AL/AZ MTL runs: results/check2hgi/{state}/mtlnet_*/folds/fold{i}_info.json
                   → diagnostic_best_epochs.next_region.metrics.top10_acc_indist
 - FL F49 runs: /tmp/f49_data/.../folds + metrics
-- STL F21c: docs/studies/check2hgi/results/B3_baselines/stl_getnext_hard_{al,az}_5f50ep.json
+- STL F21c: docs/results/B3_baselines/stl_getnext_hard_{al,az}_5f50ep.json
 
 Pairing assumption: all runs use --no-folds-cache + seed=42 → identical
 StratifiedGroupKFold splits → fold-i-of-A is paired with fold-i-of-B.
@@ -68,7 +68,7 @@ PERFOLD_PENDING = {
 
 # ---------------------------------------------------------------------------
 # STL F21c per-fold reg Acc@10 — only AL fold1 was inspected this session.
-# Full file: docs/studies/check2hgi/results/B3_baselines/stl_getnext_hard_{al,az}_5f50ep.json
+# Full file: docs/results/B3_baselines/stl_getnext_hard_{al,az}_5f50ep.json
 # Format: heads.next_getnext_hard.per_fold[i].top10_acc
 # AL fold1 confirmed = 0.7077; need folds 2-5 + AZ all 5 → SSD read needed.
 # ---------------------------------------------------------------------------

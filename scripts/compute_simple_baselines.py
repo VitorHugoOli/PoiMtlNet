@@ -12,7 +12,7 @@ Usage::
     python scripts/compute_simple_baselines.py   # defaults: AL+FL × both tasks
 
 Outputs JSON per state per task under
-``docs/studies/check2hgi/results/P0/simple_baselines/<state>/<task>.json``
+``docs/results/P0/simple_baselines/<state>/<task>.json``
 
 Baselines computed:
 
@@ -459,7 +459,7 @@ def main():
     states = args.state or ["alabama", "florida"]
     tasks = args.task or ["next_category", "next_region"]
 
-    study_dir = Path("docs/studies/check2hgi/results/P0/simple_baselines")
+    study_dir = Path("docs/results/P0/simple_baselines")
 
     for state in states:
         for task in tasks:

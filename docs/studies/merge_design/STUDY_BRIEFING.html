@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Check2HGI &mdash; Full Picture, HGI Contrast &amp; Merge-Design Study</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #161a22;
+    --panel-2: #1c212c;
+    --text: #e6e9ef;
+    --muted: #9aa3b2;
+    --accent: #6ea8fe;
+    --accent-2: #5dd39e;
+    --warn: #ffb454;
+    --bad: #ef6a6a;
+    --good: #4ade80;
+    --border: #2a3140;
+    --code-bg: #0b0e13;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+    font-size: 15px;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: 100vh;
+  }
+  nav.toc {
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    padding: 24px 18px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  nav.toc h2 { color: var(--accent); font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 18px;}
+  nav.toc h2:first-child { margin-top: 0; }
+  nav.toc ul { list-style: none; padding-left: 0; margin: 6px 0 0 0; }
+  nav.toc li a { color: var(--muted); text-decoration: none; display: block; padding: 4px 8px; border-radius: 4px; font-size: 13.5px;}
+  nav.toc li a:hover { color: var(--text); background: var(--panel-2); }
+  main {
+    padding: 40px 56px;
+    max-width: 1100px;
+  }
+  h1 {
+    font-size: 28px;
+    margin: 0 0 4px 0;
+    color: #fff;
+  }
+  .subtitle { color: var(--muted); margin-bottom: 36px; font-size: 14px;}
+  h2 {
+    margin-top: 48px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+    font-size: 22px;
+    color: var(--accent);
+  }
+  h3 { margin-top: 28px; color: var(--accent-2); font-size: 17px; }
+  h4 { margin-top: 20px; color: var(--text); font-size: 15px; }
+  p, li { color: var(--text); }
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 13px;
+    color: #f5d28a;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+  }
+  pre {
+    background: var(--code-bg);
+    padding: 14px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    overflow-x: auto;
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+  pre code { background: none; padding: 0; color: #d6e2f0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    background: var(--panel);
+    border-radius: 6px;
+    overflow: hidden;
+    font-size: 13px;
+  }
+  th, td {
+    padding: 9px 11px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: var(--panel-2);
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tr:last-child td { border-bottom: none; }
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: var(--panel);
+    padding: 14px 18px;
+    margin: 18px 0;
+    border-radius: 0 6px 6px 0;
+  }
+  .callout.good { border-left-color: var(--good); }
+  .callout.warn { border-left-color: var(--warn); }
+  .callout.bad  { border-left-color: var(--bad); }
+  .callout h4 { margin: 0 0 6px 0; }
+  .pill {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-right: 4px;
+    letter-spacing: 0.02em;
+  }
+  .pill.good { background: rgba(74,222,128,0.15); color: var(--good); }
+  .pill.bad  { background: rgba(239,106,106,0.15); color: var(--bad); }
+  .pill.warn { background: rgba(255,180,84,0.15); color: var(--warn); }
+  .pill.info { background: rgba(110,168,254,0.15); color: var(--accent); }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 16px 18px;
+    border-radius: 6px;
+  }
+  .card h4 { margin-top: 0; color: var(--accent-2); }
+  .ascii-diagram {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 18px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12px;
+    color: #c8d3e2;
+    white-space: pre;
+    overflow-x: auto;
+    line-height: 1.35;
+  }
+  .delta-pos { color: var(--good); font-weight: 600; }
+  .delta-neg { color: var(--bad);  font-weight: 600; }
+  .delta-flat { color: var(--muted); }
+  hr.section { border: none; border-top: 1px dashed var(--border); margin: 36px 0; }
+  .footnote { font-size: 12px; color: var(--muted); margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ul>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#what-is-c2hgi">1. What Check2HGI is</a></li>
+    <li><a href="#architecture">2. Architecture &amp; data flow</a></li>
+    <li><a href="#training">3. Training objective</a></li>
+    <li><a href="#vs-hgi">4. Check2HGI vs HGI</a></li>
+    <li><a href="#problem">5. The problem this study attacks</a></li>
+    <li><a href="#designs">6. Merge designs A–M</a></li>
+    <li><a href="#findings">7. Empirical findings</a></li>
+    <li><a href="#levers">8. Levers explored</a></li>
+    <li><a href="#verdict">9. Verdict &amp; open questions</a></li>
+    <li><a href="#critique">10. Critical assessment</a></li>
+    <li><a href="#refs">References (files)</a></li>
+  </ul>
+</nav>
+
+<main>
+<h1>Check2HGI &mdash; Full Picture, HGI Contrast &amp; Merge-Design Study</h1>
+<p class="subtitle">
+  A meticulous briefing on what Check2HGI is, how it differs structurally from HGI,
+  and what the <code>docs/findings/merge_design</code> study attacked
+  in pursuit of an embedding that wins on <em>both</em> next-category and next-region. &mdash;
+  Synthesised from the merge_design folder (INDEX, STATE, SUMMARY, MERGE_DESIGN_NOTES,
+  AUDIT_HGI_GAP, DESIGN_*, LEVER_*) and the engine source under
+  <code>research/embeddings/{check2hgi,hgi}/</code>.
+</p>
+
+<!-- ====================================================================== -->
+<h2 id="tldr">TL;DR</h2>
+<div class="callout">
+  <p><strong>Check2HGI</strong> is a 4&#8209;level hierarchical contrastive embedding for
+  <em>check&#8209;in events</em> (Check-in &rarr; POI &rarr; Region &rarr; City). It dominates next-category by ~15&nbsp;pp F1
+  over HGI but trails it by 2&ndash;3&nbsp;pp Acc@10 on next-region, because its POI
+  representation has no spatial/semantic prior &mdash; only the trajectory aggregation provides it.</p>
+  <p><strong>The merge_design study</strong> ran 10+ design variants (A, B, D, E, H, I, J, K, M plus levers 4&ndash;6)
+  attempting to inject HGI&#39;s POI semantics (POI2Vec / Delaunay graph / hierarchical fclass prior)
+  into Check2HGI without breaking its cat&nbsp;F1. The shipping recommendation is a family
+  (<strong>B / H / I / J / M</strong>) that all inject POI2Vec at the <em>POI&#8209;pool boundary</em> with the cat path detached.
+  All five close ~80&ndash;100&nbsp;% of the AL/AZ reg gap; at FL the gain shrinks to ~+0.7&nbsp;pp and
+  no merge variant overtakes HGI. The residual ~1&nbsp;pp gap on AZ/FL was traced to the
+  <em>training recipe</em> (POI&#8593;POI contrastive boundary, hierarchical fclass L2),
+  but Lever&nbsp;6 (4th contrastive boundary) and K (Delaunay POI&#8209;POI GCN) were also <em>falsified</em>.</p>
+</div>
+
+<table>
+  <thead><tr><th>Axis</th><th>Canonical c2hgi</th><th>HGI</th><th>Merge family (B/H/I/J/M)</th></tr></thead>
+  <tbody>
+    <tr><td>AL cat F1 (%)</td><td class="num">40.76</td><td class="num">25.26</td><td class="num"><span class="delta-pos">40.97&ndash;41.81</span></td></tr>
+    <tr><td>AL reg Acc@10 (%)</td><td class="num">59.15</td><td class="num">61.86</td><td class="num"><span class="delta-pos">61.35&ndash;62.35</span></td></tr>
+    <tr><td>AZ cat F1 (%)</td><td class="num">43.21</td><td class="num">28.69</td><td class="num"><span class="delta-pos">43.67&ndash;44.14</span></td></tr>
+    <tr><td>AZ reg Acc@10 (%)</td><td class="num">50.24</td><td class="num">53.37</td><td class="num"><span class="delta-pos">52.16&ndash;52.59</span></td></tr>
+    <tr><td>FL reg Acc@10</td><td class="num">0.6922</td><td class="num">0.7134</td><td class="num">0.6993&ndash;0.7041</td></tr>
+    <tr><td>POI fclass linear probe</td><td class="num"><span class="delta-neg">~4&#8201;%</span></td><td class="num">98&#8201;%</td><td class="num"><span class="delta-pos">98&#8201;%</span></td></tr>
+  </tbody>
+</table>
+<p class="footnote">Leak&#8209;free per&#8209;fold transition logs (<code>region_transition_log_seed42_fold{1..5}.pt</code>).
+Sources: <code>paired_tests/design_audit_al_az.json</code>, <code>P1/region_head_florida_*_leakfree.json</code>.</p>
+
+<!-- ====================================================================== -->
+<h2 id="what-is-c2hgi">1. What Check2HGI is</h2>
+
+<p><strong>Check2HGI</strong> = "Check-in to Hierarchical Graph Infomax". It extends the
+Hierarchical Graph Infomax (HGI) framework one level <em>down</em> the spatial pyramid: instead of
+treating each POI as a node, it treats <strong>every individual check-in event</strong> as a node and
+learns a unique embedding per visit. POI / Region / City levels are produced by aggregation.</p>
+
+<p>The model is fully <strong>self-supervised</strong>: it never sees a downstream label.
+Supervision comes from <em>contrastive mutual&#8209;information</em> losses between adjacent levels
+of the hierarchy &mdash; each level must be discriminative of its parent, and the parent
+must be discriminative of its constituents.</p>
+
+<h3>Why per-visit?</h3>
+<p>Two visits to the same Starbucks &mdash; one at 8&#8239;am on Monday by user A, one at
+10&#8239;pm on Saturday by user B &mdash; encode different <em>behavioural</em> contexts.
+HGI would assign them identical vectors (same POI &rarr; same node). Check2HGI gives them
+distinct vectors that fold temporal and trajectory context in.</p>
+
+<div class="callout warn">
+<strong>Implication for downstream tasks.</strong> Per&#8209;visit embeddings are perfect for
+<em>next&#8209;category</em> (the immediate behavioural context is the dominant signal). They are
+weak for <em>next&#8209;region</em> when the regional pattern is dominated by stable POI semantics
+(what kind of POI is here, what neighbours it has), which HGI captures via its POI2Vec
+fclass prior + Delaunay spatial graph. This trade&#8209;off is the entire research problem
+this study attacks.
+</div>
+
+<!-- ====================================================================== -->
+<h2 id="architecture">2. Architecture &amp; data flow</h2>
+
+<h3>2.1 The 4&#8209;level hierarchy</h3>
+<div class="ascii-diagram">
+                      ┌──────────────┐
+                      │     CITY     │   area-weighted sigmoid pool
+                      └──────┬───────┘
+                             │  Region2City
+                      ┌──────┴───────┐
+                      │   REGIONS    │   PMA attention + Region GCN
+                      └──────┬───────┘     (reused verbatim from HGI)
+                             │  POI2Region
+                      ┌──────┴───────┐
+                      │     POIs     │   multi-head attention pool
+                      └──────┬───────┘     over check-ins of that POI
+                             │  Checkin2POI
+                      ┌──────┴───────┐
+                      │  CHECK-INS   │   2-layer GCN over user-sequence
+                      └──────────────┘     edges (temporal-decay weights)
+</div>
+
+<h3>2.2 Inputs &amp; graph topology</h3>
+<table>
+  <thead><tr><th>Component</th><th>Specification</th></tr></thead>
+  <tbody>
+    <tr><td>Nodes</td><td>One per check&#8209;in event (10<sup>5</sup>&ndash;10<sup>6</sup>/state).</td></tr>
+    <tr><td>Per&#8209;node features (11&#8209;dim)</td><td>category one&#8209;hot (7&#8209;dim) + temporal (4&#8209;dim: hour&nbsp;sin/cos, dow&nbsp;sin/cos). <strong>No POI identity</strong>, no coordinates.</td></tr>
+    <tr><td>Edges</td><td>User trajectory: <code>(c_t, c_{t+1})</code> for each user. Optional same-POI edges and "both".</td></tr>
+    <tr><td>Edge weight</td><td><code>exp(&minus;Δt / τ)</code>, τ default 3600&#8201;s. 10&#8201;min&#8198;&rarr;&#8198;0.85, 6&#8201;h&#8198;&rarr;&#8198;0.002.</td></tr>
+    <tr><td>Hierarchical maps</td><td><code>checkin_to_poi</code>, <code>poi_to_region</code>, <code>region_adjacency</code>, <code>region_area</code>.</td></tr>
+  </tbody>
+</table>
+
+<h3>2.3 Encoder stack (<code>research/embeddings/check2hgi/model/</code>)</h3>
+<table>
+<thead><tr><th>Module</th><th>What it does</th><th>Output</th></tr></thead>
+<tbody>
+<tr><td><code>CheckinEncoder.py</code></td><td>2&#8209;layer GCNConv with PReLU over the user&#8209;sequence graph.</td><td><code>checkin_emb [N_c, 64]</code></td></tr>
+<tr><td><code>Checkin2POI.py</code></td><td>Multi&#8209;head attention pool: a learned seed query attends over the check&#8209;ins of each POI.</td><td><code>poi_emb [N_p, 64]</code></td></tr>
+<tr><td><code>POI2Region</code> (from HGI <code>RegionEncoder.py</code>)</td><td>PMA pool over POIs of a region, then a Region&#8209;level GCN on the adjacency graph.</td><td><code>region_emb [N_r, 64]</code></td></tr>
+<tr><td><code>region2city</code></td><td><code>σ(Σ region_emb · area)</code>.</td><td><code>city_emb [64]</code></td></tr>
+</tbody>
+</table>
+
+<!-- ====================================================================== -->
+<h2 id="training">3. Training objective &mdash; 3 boundaries of mutual information</h2>
+
+<div class="ascii-diagram">
+Boundary 1  L_c2p   check-in vs its POI               (positive)
+                    check-in vs random POI            (negative)
+
+Boundary 2  L_p2r   POI vs its region                 (positive)
+                    POI vs random wrong region        (negative)
+
+Boundary 3  L_r2c   region vs city summary            (positive)
+                    corrupted region vs city          (negative)
+
+Total       L = α_c2p · L_c2p + α_p2r · L_p2r + α_r2c · L_r2c
+            defaults: 0.4 / 0.3 / 0.3
+</div>
+
+<p>All three losses use a bilinear discriminator <code>score = σ(z₁ᵀ W z₂)</code>.
+Negative sampling is <em>random</em> (Check2HGI dropped HGI's 25&#8201;% hard&#8209;negative mining for an
+O(1) vs O(R) speedup &mdash; see <code>Check2HGIModule.py:189-202</code>) and corruption is done at
+<em>embedding</em> level (a single encoder pass + row&#8209;permute) instead of HGI&#8217;s
+two&#8209;pass feature&#8209;level corruption.</p>
+
+<!-- ====================================================================== -->
+<h2 id="vs-hgi">4. Check2HGI vs HGI &mdash; the structural diff</h2>
+
+<div class="grid-2">
+  <div class="card">
+    <h4>Check2HGI</h4>
+    <ul>
+      <li><strong>Node:</strong> single check&#8209;in (event)</li>
+      <li><strong>Features:</strong> 11&#8209;dim: cat one&#8209;hot + 4 temporal</li>
+      <li><strong>Edges:</strong> user trajectory, temporal decay</li>
+      <li><strong>Hierarchy:</strong> 4&#8209;level (adds Check&#8209;in &rarr; POI)</li>
+      <li><strong>Boundaries:</strong> 3 (c2p, p2r, r2c)</li>
+      <li><strong>POI identity:</strong> only emergent from attention pool</li>
+      <li><strong>Spatial signal:</strong> none direct (only via region GCN)</li>
+      <li><strong>Best at:</strong> <span class="pill good">next-category</span></li>
+    </ul>
+  </div>
+  <div class="card">
+    <h4>HGI</h4>
+    <ul>
+      <li><strong>Node:</strong> single POI (place)</li>
+      <li><strong>Features:</strong> 64&#8209;dim <em>POI2Vec</em> (fclass&#8209;level Node2Vec + hierarchical category&nbsp;L2)</li>
+      <li><strong>Edges:</strong> Delaunay triangulation over coords, weighted by distance and a cross&#8209;region penalty <code>w_r</code></li>
+      <li><strong>Hierarchy:</strong> 3&#8209;level</li>
+      <li><strong>Boundaries:</strong> 2 explicit (p2r, r2c) at HGI&#8209;train time, but POI2Vec pretraining adds a 3rd boundary (skip&#8209;gram POI&#8593;POI on Node2Vec walks) and a 4th objective (hierarchical category&nbsp;L2 on fclass embeddings). AUDIT_HGI_GAP counts HGI as effectively 4&#8209;boundary; the bare contrastive loop is 2.</li>
+      <li><strong>POI identity:</strong> a static lookup (POIs with same fclass share embeddings)</li>
+      <li><strong>Spatial signal:</strong> first&#8209;class via Delaunay edges</li>
+      <li><strong>Best at:</strong> <span class="pill good">next-region</span>, POI similarity, fclass clustering</li>
+    </ul>
+  </div>
+</div>
+
+<h3>4.1 What HGI has that Check2HGI doesn&#39;t (read straight from <code>AUDIT_HGI_GAP.md</code>)</h3>
+<ol>
+  <li><strong>POI2Vec prior at the POI level.</strong> A pretrained fclass embedding trained
+  with skip&#8209;gram over Node2Vec walks <em>plus</em> a hierarchical L2 that pulls
+  fclasses toward their parent category (Food &supe; Coffee, Restaurant, Bar). All POIs
+  sharing an fclass share an identical vector. Check2HGI never sees an fclass label.</li>
+  <li><strong>Delaunay spatial POI&#8209;POI graph.</strong> HGI&#39;s GCN passes messages along
+  spatial neighbours weighted by <code>log((1+D¹·⁵)/(1+dist¹·⁵)) · w_r</code>. Check2HGI&#39;s graph
+  is <em>temporal</em>, not spatial &mdash; POI proximity is only encoded via co&#8209;visit edges.</li>
+  <li><strong>Hard negative mining</strong> (25&nbsp;% from the 0.6&ndash;0.8 similarity band) on the p2r boundary.
+  Check2HGI dropped this for speed.</li>
+  <li><strong>4th contrastive boundary (implicit)</strong> via POI2Vec&#39;s skip&#8209;gram &mdash; a POI&#8593;POI
+  positive pair is whatever sits within a random walk window. Check2HGI has 3 boundaries; no POI&#8593;POI.</li>
+</ol>
+
+<h3>4.2 What each gets wrong that the other gets right</h3>
+<table>
+  <thead><tr><th></th><th>Canonical c2hgi</th><th>HGI</th></tr></thead>
+  <tbody>
+    <tr><td>POI fclass linear probe (AL/AZ)</td><td class="num"><span class="delta-neg">4.26 / 4.31&nbsp;%</span></td><td class="num"><span class="delta-pos">98.34 / 97.92&nbsp;%</span></td></tr>
+    <tr><td>kNN&#8209;Jaccard@10 vs POI2Vec</td><td class="num">0.006 / 0.004</td><td class="num">1.000 (self)</td></tr>
+    <tr><td>Next-category F1</td><td class="num"><span class="delta-pos">40.76 / 43.21</span></td><td class="num"><span class="delta-neg">25.26 / 28.69</span></td></tr>
+    <tr><td>Next-region Acc@10</td><td class="num">59.15 / 50.24</td><td class="num"><span class="delta-pos">61.86 / 53.37</span></td></tr>
+  </tbody>
+</table>
+<p class="footnote">Striking finding from <code>MERGE_DESIGN_NOTES.md</code>: canonical c2hgi&#39;s
+POI vectors carry <em>essentially zero</em> fclass&#8209;discriminative signal even though its
+cat F1 is high. The check-ins are task&#8209;overfit; the POI level lacks semantic identity.</p>
+
+<!-- ====================================================================== -->
+<h2 id="problem">5. The problem this study attacks</h2>
+
+<p>Stated in <code>STATE.md</code>:</p>
+<div class="callout">
+  <em>Merge HGI&#39;s POI semantics into Check2HGI without breaking next-category, and overcome
+  HGI on next-region (and eventually next-POI). Produce a single embedding usable across other
+  tasks &mdash; not two disjoint engines.</em>
+</div>
+
+<p>The naive attempt (concatenate POI2Vec into the 11&#8209;dim check&#8209;in input &mdash; the
+"POI2Vec input probe") closes 66&ndash;82&nbsp;% of the reg gap but <strong>tanks cat by ~7&ndash;9&nbsp;pp</strong>
+in all 5 folds (Wilcoxon p=0.0312). The two engines have opposing inductive biases;
+shared&#8209;encoder optimisation collapses to a compromise that hurts both.</p>
+
+<p>The study therefore enumerates merge designs of escalating ambition and tests each on
+AL, AZ and FL using leak&#8209;free per&#8209;fold transition logs.</p>
+
+<!-- ====================================================================== -->
+<h2 id="designs">6. Merge designs A&ndash;M &mdash; the cost&#8209;ordered ladder</h2>
+
+<table>
+<thead>
+<tr><th>Design</th><th>Mechanism</th><th>AL cat F1</th><th>AL reg</th><th>AZ cat</th><th>AZ reg</th><th>Verdict</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>canonical</strong></td><td>baseline c2hgi (11&#8209;dim, 3 boundaries)</td><td class="num">40.76</td><td class="num">59.15</td><td class="num">43.21</td><td class="num">50.24</td><td>baseline</td></tr>
+<tr><td><strong>HGI</strong></td><td>baseline POI&#8209;level engine</td><td class="num">25.26</td><td class="num">61.86</td><td class="num">28.69</td><td class="num">53.37</td><td>reg ceiling</td></tr>
+<tr><td><strong>A</strong></td><td>Late-fusion: concat <code>[c2hgi(64) ‖ POI2Vec(64)]</code> per&#8209;step at the head input</td><td class="num"><span class="delta-neg">32.27</span></td><td class="num"><span class="delta-neg">40.43</span></td><td class="num"><span class="delta-neg">31.69</span></td><td class="num"><span class="delta-neg">41.08</span></td><td><span class="pill bad">FAIL both axes</span></td></tr>
+<tr><td><strong>E</strong></td><td>POI2Vec in input + stop&#8209;grad encoder &rarr; pool (projector&nbsp;heads)</td><td class="num"><span class="delta-neg">31.22</span></td><td class="num">61.24</td><td class="num"><span class="delta-neg">33.83</span></td><td class="num">52.62</td><td><span class="pill bad">FAIL cat (&minus;9&nbsp;pp)</span></td></tr>
+<tr><td><strong>B</strong></td><td>POI2Vec injected at POI&#8209;pool boundary (frozen, +γ·Linear), cat path detached</td><td class="num"><span class="delta-pos">41.51</span></td><td class="num"><span class="delta-pos">61.49</span></td><td class="num"><span class="delta-pos">43.91</span></td><td class="num"><span class="delta-pos">52.59</span></td><td><span class="pill good">DOMINANCE</span></td></tr>
+<tr><td><strong>H</strong></td><td>B but POI residual is a learnable <code>nn.Embedding(N_poi, 64)</code> warm&#8209;started from POI2Vec</td><td class="num">40.97</td><td class="num"><span class="delta-pos">62.35</span></td><td class="num"><span class="delta-pos">44.14</span></td><td class="num">52.30</td><td><span class="pill good">DOMINANCE</span></td></tr>
+<tr><td><strong>I</strong></td><td>B + LoRA r=8 low&#8209;rank correction <code>U[poi]·V</code> (~8&times; cheaper than H)</td><td class="num"><span class="delta-pos">41.62</span></td><td class="num">61.35</td><td class="num">43.71</td><td class="num">52.55</td><td><span class="pill good">DOMINANCE (param-efficient)</span></td></tr>
+<tr><td><strong>J</strong></td><td>H + L2 anchor toward POI2Vec, λ=0.1</td><td class="num"><span class="delta-pos">41.81</span></td><td class="num"><span class="delta-pos">61.95</span></td><td class="num">43.74</td><td class="num">52.16</td><td><span class="pill good">DOMINANCE; nominally beats HGI on AL reg (+0.10 pp)</span></td></tr>
+<tr><td><strong>M</strong></td><td>B + cosine&#8209;distillation loss to HGI POI2Vec on a projected POI head</td><td class="num">41.31</td><td class="num">61.56</td><td class="num">43.67</td><td class="num">52.45</td><td><span class="pill good">DOMINANCE; Wilcoxon-strict cat both states</span></td></tr>
+<tr><td><strong>D</strong></td><td>Heterograph: POIs + check&#8209;ins as first&#8209;class node types, 4 edge types (HeteroConv)</td><td class="num">72.88*</td><td class="num">62.23</td><td class="num">74.73*</td><td class="num">52.95</td><td><span class="pill warn">leak-flagged; +32 pp cat is reverse-edge leak</span></td></tr>
+<tr><td><strong>K</strong></td><td>J + Delaunay POI&#8209;POI GCN layer between Checkin2POI and POI2Region</td><td class="num">n/a</td><td class="num">61.93</td><td class="num">n/a</td><td class="num">52.09</td><td><span class="pill bad">FALSIFIED: K = J empirically</span></td></tr>
+</tbody>
+</table>
+<p class="footnote">*Design D&#39;s +32&nbsp;pp cat lift is a graph-leak artifact: reverse <em>visits</em> edges
++ 2-hop HeteroConv propagate the target POI&#39;s POI2Vec into the last check-in&#39;s embedding,
+which is fclass-discriminative and therefore category-discriminative. Confirmed via last-step
+linear probe: canonical 30.86 &rarr; D 51.16 (+20&nbsp;pp leak).</p>
+
+<h3>The unifying recipe that <em>works</em></h3>
+<div class="ascii-diagram">
+checkin_emb       = CheckinEncoder(canonical_11d_features, edge_index)
+poi_emb_canonical = Checkin2POI(checkin_emb, checkin_to_poi)     ← cat path
+
+poi_emb_for_reg   = poi_emb_canonical.detach()      ← stop gradient on cat
+                  + γ · Linear_64→64( POI2Vec[poi] )  ← B (frozen)
+                  + nn.Embedding(N_poi, 64)[poi]      ← H/J (learnable)
+                  + U[poi] · V                        ← I (LoRA r=8)
+                  + λ_d · cosine_distill(P(poi), POI2Vec)  ← M (loss only)
+
+region_emb        = POI2Region(poi_emb_for_reg)                  ← reg path
+
+L_c2p uses poi_emb_canonical    (cat supervision → encoder)
+L_p2r uses poi_emb_for_reg      (reg supervision → never encoder)
+L_r2c uses region_emb
+</div>
+<p>The load&#8209;bearing trick across <strong>B/H/I/J/M</strong>: the cat path is <em>byte&#8209;identical</em> to
+canonical c2hgi. POI2Vec only enters after the POI pool, never in the check&#8209;in features,
+and its gradient is gated off the encoder by <code>.detach()</code>. This is why none of these
+designs regresses cat. Designs <strong>A</strong> and <strong>E</strong> failed precisely because they put POI2Vec
+into the input or let it backprop through the encoder.</p>
+
+<div class="callout good">
+<h4>What the &quot;merge&quot; actually is, plainly</h4>
+<p>HGI&#39;s <code>POI2Vec</code> is a <strong>fclass lookup table</strong> &mdash; all POIs sharing a functional class share an <em>identical</em>
+64&#8209;dim vector (Phase&nbsp;3d of HGI&#39;s pipeline is literally <code>poi_emb[i] = fclass_embeddings[poi.fclass[i]]</code>).
+B/H/I/J/M all <strong>import that table</strong> at the POI&#8209;pool boundary, behind a stop&#8209;gradient on the cat path.
+That is why fclass linear probe jumps from 4&nbsp;% to 98&nbsp;% almost mechanically &mdash; <em>it is substitution, not learning</em>.
+By the same token, the merge inherits HGI&#39;s linear separability for fclass but <em>not</em> the
+POI&#8209;geometry that Node2Vec walks on the Delaunay graph induced &mdash; which is exactly what the
+kNN&#8209;Jaccard@10 = 0.07&ndash;0.12 vs HGI is telling us. The merge family is closer to
+&quot;c2hgi + HGI&#39;s fclass dictionary&quot; than to &quot;a true co&#8209;training of both engines&quot;.</p>
+</div>
+
+<!-- ====================================================================== -->
+<h2 id="findings">7. Empirical findings (the mechanism analysis)</h2>
+
+<ol>
+<li><strong>The reg gap is fclass&#8209;cluster signal at the POI level</strong>, <em>not</em> per-visit noise.
+The postpool diagnostic (POI-mean &rarr; region&#8209;mean post-hoc pool) gave zero lift, falsifying
+the "check-ins are too noisy" hypothesis. The POI2Vec input probe gave reg lift but tanked cat,
+confirming the signal source.</li>
+
+<li><strong>The cat&#8209;vs&#8209;reg trade&#8209;off is input&#8209;side, not gradient&#8209;side.</strong>
+Design E proved that stop&#8209;gradient projector heads do <em>not</em> recover cat once POI2Vec is in the
+input &mdash; the GCN propagates POI features regardless of which losses backprop. This rules out a whole
+family of optimisation patches (PCGrad, GradNorm, adapters) applied to POI2Vec&#8209;augmented input.</li>
+
+<li><strong>Cat path must be byte&#8209;identical to canonical to avoid regression.</strong>
+B and H succeed only because canonical 11&#8209;dim input is preserved end&#8209;to&#8209;end on the cat path.</li>
+
+<li><strong>fclass probe is a necessary generality gate.</strong> Canonical c2hgi: cat F1 40.76 BUT
+fclass probe 4&nbsp;%. The merge family recovers HGI&#8209;grade fclass (98&nbsp;%) at no cat cost.
+This is a <em>generality</em> benefit (transferable POI semantics), not necessarily a next&#8209;task benefit.</li>
+
+<li><strong>kNN&#8209;Jaccard@10 vs HGI is the harder generality test.</strong> B/H/I/J/M score 0.07&ndash;0.12 &mdash;
+they recover linear separability but not POI <em>geometry</em>. If a downstream task needs HGI&#8209;style
+POI similarity retrieval, the merged engine is not interchangeable.</li>
+
+<li><strong>Heterograph leaks under unsupervised pretraining.</strong> Adding POI nodes carrying POI2Vec
++ reverse <em>visits</em> edges creates a 2-hop path from target POI back to the last check-in.
+D&#39;s +32&nbsp;pp cat lift is mostly leak amplification, not generalisation.</li>
+
+<li><strong>Learnable POI table &gt; frozen residual is at best 0.5&nbsp;pp.</strong> H beats B by +0.86 pp on AL reg
+and +0.05 on AZ reg &mdash; both within 1σ. The dominant factor is the POI2Vec init, not the learnable update.</li>
+
+<li><strong>FL doesn&#39;t scale the win.</strong> All 6 merge variants converge within &plusmn;0.25&nbsp;pp on FL reg
+(82.2&ndash;82.45 against the original stale baseline; 0.69&ndash;0.70 leak&#8209;free).
+With more data, canonical&#39;s POI representations are <em>sufficient for reg</em>; POI2Vec adds nothing measurable.
+Only H and J cross strict&#8209;Wilcoxon over canonical at FL; none beats HGI.</li>
+</ol>
+
+<!-- ====================================================================== -->
+<h2 id="levers">8. Live levers explored (post&#8209;saturation)</h2>
+
+<p>After the advisor reframing (2026-05-06) flagged feature&#8209;side saturation
+&mdash; "six merge variants within &plusmn;0.1&nbsp;pp on FL reg is not residual, that&#39;s a saturated
+class of intervention" &mdash; the study shifted to diagnosing the <em>consumer</em> (POI2Region head)
+and the <em>training recipe</em> rather than the input.</p>
+
+<table>
+<thead><tr><th>Lever</th><th>Hypothesis</th><th>Cost</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>1. λ&#8209;anchor sweep on J</td><td>Larger λ would pull table toward POI2Vec more strongly.</td><td>~1&nbsp;h</td><td><span class="pill bad">INACTIVE.</span> J&#39;s table is warm&#8209;started to POI2Vec exactly &mdash; ‖E&minus;POI2Vec‖²≈0 throughout, λ multiplies zero.</td></tr>
+<tr><td>3. Delaunay POI&#8209;POI GCN (Design&nbsp;K)</td><td>Spatial topology was the residual.</td><td>~20&nbsp;h</td><td><span class="pill bad">FALSIFIED.</span> K = J empirically (AL Δ=&minus;0.02, AZ Δ=&minus;0.06 pp).</td></tr>
+<tr><td>4. POI2Vec at p2r boundary too</td><td>HGI conditions <em>region</em> nodes via POI2Vec mean&#8209;pool; merge designs only do POI.</td><td>~4&nbsp;h</td><td><span class="pill warn">DEPRIORITISED</span> after advisor: feature&#8209;side saturation.</td></tr>
+<tr><td>5. KL distill on top&#8209;k neighbour distribution (vs M&#39;s cosine)</td><td>HGI&#39;s contrast learns neighbour <em>ranking</em>, not point alignment.</td><td>~6&nbsp;h</td><td><span class="pill warn">DEPRIORITISED</span>.</td></tr>
+<tr><td>6. POI&#8593;POI contrastive boundary (4th boundary)</td><td>The structural difference from HGI&#39;s recipe.</td><td>~16&ndash;24&nbsp;h</td><td><span class="pill bad">FALSIFIED 2026&#8209;05&#8209;07.</span> α&#8209;sweep complete; no α overcomes HGI; L6 ≈ J empirically.</td></tr>
+</tbody>
+</table>
+
+<h3>Tests 1&ndash;3 (the "is the consumer undersized?" diagnostics)</h3>
+<table>
+<thead><tr><th>Test</th><th>What it ran</th><th>Result</th></tr></thead>
+<tbody>
+<tr><td>T1 next&#8209;POI probe</td><td>AL+AZ × {canonical, HGI, J} on next&#8209;POI</td><td><span class="pill bad">J closes 77&nbsp;% of canonical&rarr;HGI gap but does NOT overcome HGI</span></td></tr>
+<tr><td>T2 reg-head ablation (no <code>log_T</code>)</td><td>J FL with <code>next_gru</code> head</td><td><span class="pill bad">Gap <em>widens</em> to 1.64 pp Wilcoxon p=0.0312 &mdash; Markov-prior hypothesis falsified</span></td></tr>
+<tr><td>T2½ seed reroll</td><td>J at FL with seed 43</td><td><span class="pill bad">Δ=+0.10 pp &mdash; not seed&#8209;noise</span></td></tr>
+<tr><td>T3 POI2Region <code>num_heads</code> sweep</td><td>J at AL × {2, 8, 16}</td><td><span class="pill bad">More heads hurt, fewer don&#39;t lift &mdash; consumer is not undersized</span></td></tr>
+</tbody>
+</table>
+
+<h3>Phase 11 substrate audit (2026-05-07)</h3>
+<p>A final pass questioned <em>methodology</em> &mdash; the c2hgi training recipe itself. All four
+candidate fixes (S1: c2p hard&#8209;negatives, S4: DGI corrupted-feature c2p negatives,
+S3-a: auxiliary Checkin2Region 4th boundary, S3-b: Checkin2Region as primary region pathway
+including a V2-c variant with per&#8209;check&#8209;in POI2Vec anchor) <span class="pill bad">FALSIFIED</span>.
+Headlines:</p>
+<ul>
+<li>S1 and S4 regress.</li>
+<li>S3&#8209;a v1+v2 collapse to uniform attention (supervision redundant with the 3&#8209;boundary path).</li>
+<li>S3&#8209;b V1 lands at canonical levels &mdash; the pooler architecture buys ~0.1&nbsp;pp; the J&rarr;canonical gap is POI2Vec, not pooling.</li>
+<li>S3&#8209;b V2&#8209;c: catastrophic on AL (Δ=&minus;9.95&nbsp;pp), mild on AZ. State&#8209;asymmetric: anchor collapses small per-region pools.</li>
+<li><strong>PMA is structurally a learnable mean-pool</strong> (PR&#8209;norm=1.0 throughout) &mdash; the regional aggregator has less expressive freedom than its attention machinery suggests.</li>
+</ul>
+
+<!-- ====================================================================== -->
+<h2 id="verdict">9. Verdict &amp; open questions</h2>
+
+<div class="callout good">
+<h4>What the study delivers (the realised contribution)</h4>
+<ul>
+<li>A <strong>Pareto improvement over canonical c2hgi</strong> on cat + reg + POI semantic generality, via a single&#8209;engine merge.
+<strong>B/H/I/J/M are statistically indistinguishable</strong> under the user&#39;s strict Wilcoxon dual-axis gate at n=5; pick by axis priority:
+<table style="margin-top:8px;">
+  <thead><tr><th>Priority</th><th>Ship</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td>Cat F1</td><td><strong>M</strong></td><td>Only design Wilcoxon-strict on cat at <em>both</em> AL and AZ.</td></tr>
+    <tr><td>AL reg vs HGI</td><td><strong>J</strong></td><td>Strict reg AL win, +0.10&nbsp;pp vs HGI nominal. Does <em>not</em> generalise (AZ &minus;1.22).</td></tr>
+    <tr><td>Param cost / scale to FL/CA/TX</td><td><strong>I</strong></td><td>LoRA r=8 &mdash; ~8&times; fewer extra params than H. Functionally B with capacity.</td></tr>
+    <tr><td>Simplicity / production</td><td><strong>B</strong></td><td>Cleanest mechanism, smallest footprint, no hybrid outperforms it at the strict gate.</td></tr>
+  </tbody>
+</table>
+The headline paper claim should be <em>the recipe</em> (POI2Vec at POI&#8209;pool, cat detached) rather than any one variant.</li>
+<li><strong>POI2Vec at the POI&#8209;pool boundary, cat&#8209;path detached</strong> is the load&#8209;bearing pattern.
+All five (B/H/I/J/M) pass dominance at AL/AZ; at FL only H and J cross strict Wilcoxon over canonical.</li>
+<li><strong>fclass linear probe goes 4&nbsp;% &rarr; 98&nbsp;%</strong>: HGI&#8209;grade POI semantic recovery at no cat cost.</li>
+<li>Pre&#8209;registered <strong>generality probes (fclass linear, kNN&#8209;Jaccard, region category&#8209;mix regression)</strong>
+are now part of the eval contract &mdash; cat F1 alone over&#8209;fits.</li>
+</ul>
+</div>
+
+<div class="callout warn">
+<h4>What the study does <em>not</em> deliver</h4>
+<ul>
+<li><strong>No design overcomes HGI on next&#8209;region at AZ or FL.</strong> AL crosses nominally with J (+0.10 pp) but the win does not generalise.</li>
+<li><strong>Next&#8209;POI</strong> (the user&#39;s ultimate goal): J closes 77&nbsp;% of the gap on AL/AZ but does not overcome HGI; FL not measured. The "overcome HGI on next&#8209;POI" thesis claim is <em>unsupported</em>.</li>
+<li><strong>The residual ~1&nbsp;pp reg gap at AZ/FL has no structural explanation left.</strong>
+Features (POI2Vec) are injected, structure (Delaunay) is added (K), a 4th boundary is added (L6),
+the consumer (POI2Region) is at/past optimal, the methodology (Phase&nbsp;11) was audited. All <em>falsified</em>.
+"This gap is below the study&#39;s architectural resolution at n=5 folds."
+<br><br>
+<strong>The stronger implication.</strong> If K=J, L6=J, and the 5-step Phase&nbsp;11 substrate audit all returned null, then HGI&#39;s structural edge is <em>not</em>
+its Delaunay edges, its 4th boundary, or its set transformer &mdash; it is <em>encoded inside the frozen POI2Vec output itself</em>, and importing
+that output (which is exactly what B/H/I/J/M do) already extracts ≥99&nbsp;% of what c2hgi&#39;s downstream loss can absorb. The residual ~1&nbsp;pp on AZ/FL is then most plausibly
+HGI&#39;s reg head receiving a <em>stronger gradient pathway</em> on the same POI2Vec (HGI trains POI&rarr;Region&rarr;City directly, without c2hgi&#39;s 3-boundary distraction including the per-visit L_c2p),
+or alternatively that the POI2Vec geometry itself would shift if it were jointly retrained with c2hgi&#39;s losses (see §10 push&#8209;next #4 &mdash; this is the one merge mechanism the study never tested).
+</li>
+</ul>
+</div>
+
+<!-- ====================================================================== -->
+<h2 id="critique">10. Critical assessment</h2>
+
+<h3>Strengths</h3>
+<ol>
+  <li><strong>Mechanism-first design ladder.</strong> A &rarr; E &rarr; B &rarr; H/I/J/M follows ablation logic, not "throw architectures at the wall".
+  Each design either confirms the previous lesson or escalates one specific axis.</li>
+  <li><strong>Strong falsification discipline.</strong> When K, L6, T1, T2, T2½, T3, S1, S4, S3&#8209;a, S3&#8209;b were null, they were
+  written up as falsified hypotheses, not glossed over. The advisor&#8209;reframing pivot
+  (2026&#8209;05&#8209;06) is a healthy reaction to convergence&#8209;saturation.</li>
+  <li><strong>Leak hygiene.</strong> The April leaky <code>region_transition_log.pt</code> was caught and the entire FL design table re-run on per-fold leak-free logs &mdash;
+  this kind of post-hoc rebuild is rare and saved a misleading +13 pp headline from reaching the paper.</li>
+  <li><strong>Two generality probes (fclass linear, kNN-Jaccard) added before the comparisons.</strong>
+  Without them, canonical c2hgi&#39;s 4&nbsp;% fclass-probe disaster would have stayed invisible.</li>
+</ol>
+
+<h3>Weaknesses &amp; risks</h3>
+<ol>
+  <li><strong>n=5 folds is power&#8209;limited.</strong> The Wilcoxon strict floor at p=1/32 = 0.0312 means designs that
+  are <em>actually</em> different by 0.1&ndash;0.3 pp can be indistinguishable. The user&#39;s preferred
+  dual&#8209;axis gate fails on <em>every</em> design &mdash; an n=10 or multi&#8209;seed protocol is needed to
+  settle J vs B vs M.</li>
+  <li><strong>FL is a different regime, not a scaled-up AL.</strong> Reg gain shrinks from +2.3 pp &rarr; +0.7 pp; cat F1 at FL was never re-measured under
+  the leak-free protocol; the &quot;dominance prediction at FL is non-inferiority <em>pending verification</em>&quot; is not closed.</li>
+  <li><strong>The kNN&#8209;Jaccard 0.07&ndash;0.12 vs HGI</strong> means the merged POI vectors are <em>not</em> geometrically interchangeable with
+  HGI&#39;s &mdash; downstream tasks that depend on POI&#8209;similarity retrieval would not be unaffected. M&#39;s cosine distillation
+  was the obvious lever and it didn&#39;t move kNN&#8209;Jaccard (0.110/0.072 &asymp; B). M&#39;s win is not explained by its stated mechanism.</li>
+  <li><strong>POI&#8209;level metrics are largely absent.</strong> Per AUDIT_HGI_GAP.md &sect;3, the entire merge family is evaluated on next-region
+  and next-category; <em>next-POI</em> &mdash; the user&#39;s actual research goal &mdash; has no head wired into the pipeline. T1 ran a probe but
+  the production pipeline still has no next-POI evaluation path.</li>
+  <li><strong>Phase&nbsp;11 finding that PMA collapses to mean&#8209;pool</strong> (PR&#8209;norm=1.0) deserves more weight in the writeup &mdash;
+  if the &quot;set transformer&quot; isn&#39;t doing set-transformer work, the residual gap may be in choices upstream of POI2Region rather than inside it.</li>
+  <li><strong>Hard&#8209;negatives were dropped wholesale in Check2HGI for speed.</strong> Phase&nbsp;11 S1 tried adding them back at the c2p boundary and saw regression,
+  but a more measured re-introduction at p2r (matching HGI&#39;s 25&nbsp;% hard&#8209;neg rule on the actual region boundary) was not isolated.</li>
+  <li><strong>The "ship B" recommendation is correct but understated.</strong> If B is statistically indistinguishable from H/I/J/M at the user&#39;s gate,
+  the paper claim should be <em>the recipe</em> (POI2Vec at POI-pool, cat detached) rather than any specific variant.
+  Otherwise the paper risks litigating between equivalent designs.</li>
+</ol>
+
+<h3>Where to push next</h3>
+<ol>
+  <li><strong>Increase n.</strong> A 10&#8209;seed protocol on B/H/I/J/M at AL+AZ would resolve the dominance gate at p&lt;0.01 instead of p=0.0312.</li>
+  <li><strong>Build a next&#8209;POI head into the merge pipeline.</strong> Until that runs, every claim about "overcoming HGI on next-POI" is unverified.</li>
+  <li><strong>Re-introduce hard negatives at p2r only</strong> (not c2p where S1 failed) &mdash; this matches HGI&#39;s reg-side mechanism exactly without touching the cat path.</li>
+  <li><strong>Treat the residual 1 pp gap as evidence that HGI&#39;s POI2Vec already encodes everything c2hgi&#39;s reg path can reach.</strong>
+  The remaining structural difference is HGI&#39;s training distribution (Node2Vec walks on Delaunay), not its inference graph.
+  Re-training POI2Vec on a c2hgi-aware objective (rather than freezing HGI&#39;s pretrained output) is the one merge mechanism the study never tested.</li>
+</ol>
+
+<!-- ====================================================================== -->
+<h2 id="refs">References (files read for this briefing)</h2>
+<ul>
+<li><code>docs/studies/merge_design/INDEX.md</code></li>
+<li><code>docs/studies/merge_design/STATE.md</code></li>
+<li><code>docs/studies/merge_design/SUMMARY.md</code></li>
+<li><code>docs/studies/merge_design/MERGE_DESIGN_NOTES.md</code></li>
+<li><code>docs/studies/merge_design/AUDIT_HGI_GAP.md</code></li>
+<li><code>docs/studies/merge_design/DESIGN_{A,B,D,E,H,I,J,K,M}.md</code></li>
+<li><code>docs/studies/merge_design/LEVER_{4,5,6}_*.md</code></li>
+<li><code>research/embeddings/check2hgi/{README,CLAUDE}.md</code> + <code>model/</code></li>
+<li><code>research/embeddings/hgi/{README,CLAUDE}.md</code> + <code>model/</code></li>
+</ul>
+
+<p class="footnote" style="margin-top:48px;">
+Compiled 2026-05-11. Numbers cited are leak-free per-fold transition logs.
+The merge_design folder is reorganised under <code>research/merge_design/</code>;
+older narrative docs (<code>SUMMARY.md</code>, <code>MERGE_DESIGN_NOTES.md</code>) are archaeology &mdash;
+the current authoritative big-picture lives in <code>STATE.md</code>.
+</p>
+
+</main>
+</div>
+</body>
+</html>

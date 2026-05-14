@@ -2,7 +2,7 @@
 # F2 — FL-hard training-pathology diagnosis (north-star re-evaluation gate)
 #
 # See docs/studies/check2hgi/FOLLOWUPS_TRACKER.md §F2
-# See docs/studies/check2hgi/review/2026-04-23_critical_review.md §1.5
+# See docs/review/2026-04-23_critical_review.md §1.5
 #
 # Four sequential FL 1-fold × 50-epoch runs with `next_getnext_hard`:
 #   A  : PCGrad baseline + checkpoints (extract final α)
@@ -27,7 +27,7 @@ export PYTORCH_ENABLE_MPS_FALLBACK=1
 PY="${PY:-python3}"
 
 cd "${WORKTREE}"
-DEST="${WORKTREE}/docs/studies/check2hgi/results/F2_fl_diagnostic"
+DEST="${WORKTREE}/docs/results/F2_fl_diagnostic"
 mkdir -p "${DEST}"
 
 archive_latest_run() {

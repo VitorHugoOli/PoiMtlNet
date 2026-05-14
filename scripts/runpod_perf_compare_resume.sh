@@ -13,7 +13,7 @@ cd "${WORKTREE}"
 PY="${WORKTREE}/.venv/bin/python"
 RESULTS_DIR="${WORKTREE}/results/check2hgi/florida"
 LOG_DIR="${WORKTREE}/logs"
-COMPARE_DIR="${WORKTREE}/docs/studies/check2hgi/results/perf_compare"
+COMPARE_DIR="${WORKTREE}/docs/results/perf_compare"
 mkdir -p "${LOG_DIR}" "${COMPARE_DIR}"
 
 log() { echo "[$(date '+%H:%M:%S')] [perf-compare-resume] $*"; }

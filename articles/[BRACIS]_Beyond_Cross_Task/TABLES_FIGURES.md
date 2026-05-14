@@ -167,7 +167,7 @@ AZ     H3-alt   43.90±0.17    45.10±0.19    +1.20   **<1e-04**‡ 53.06±0.15 
 n_pairs: all five states = 20 (4 seeds × 5 folds, pooled multi-seed on the headline §0.1 axis).
 FL also has auxiliary multi-seed support on Δm (n = 25) and recipe selection (n = 25).
 
-Source: `docs/studies/check2hgi/results/RESULTS_TABLE.md §0.1` (v11,
+Source: `docs/results/RESULTS_TABLE.md §0.1` (v11,
 2026-05-02). FL §0.1 row was upgraded in v11 to n=20 via pooled multi-seed
 Wilcoxon (`FL_CAT_DELTA_WILCOXON.json`): FL Δ_cat = +1.40, p = 2e-06;
 FL Δ_reg = −7.34, p = 1.9e-06. CA/TX §0.1 rows were upgraded in v10

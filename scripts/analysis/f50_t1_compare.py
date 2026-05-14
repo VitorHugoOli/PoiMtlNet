@@ -29,9 +29,9 @@ REPO = Path(__file__).resolve().parents[2]
 
 
 # Path templates
-STL_FLAT_PATH = REPO / "docs/studies/check2hgi/results/B3_baselines/stl_getnext_hard_{state_short}_5f50ep.json"
+STL_FLAT_PATH = REPO / "docs/results/B3_baselines/stl_getnext_hard_{state_short}_5f50ep.json"
 
-STL_HSM_PATH = REPO / "docs/studies/check2hgi/results/P1/region_head_{state}_region_5f_50ep_F50_T1_2_HSM_{state_upper}_5f50ep.json"
+STL_HSM_PATH = REPO / "docs/results/P1/region_head_{state}_region_5f_50ep_F50_T1_2_HSM_{state_upper}_5f50ep.json"
 
 MTL_H3ALT_PATHS = {
     "florida": REPO / "results/check2hgi/florida/mtlnet_lr1.0e-04_bs1024_ep50_20260426_0045",
@@ -55,9 +55,9 @@ def load_stl_hsm(state: str, tag: str = None) -> dict:
     """STL HSM result JSON (output of p1_region_head_ablation.py)."""
     if tag is None:
         tag = f"F50_T1_2_HSM_{STATE_SHORT[state].upper()}_5f50ep"
-    candidates = list(REPO.glob(f"docs/studies/check2hgi/results/P1/region_head_{state}_region_5f_50ep_{tag}.json"))
+    candidates = list(REPO.glob(f"docs/results/P1/region_head_{state}_region_5f_50ep_{tag}.json"))
     if not candidates:
-        candidates = list(REPO.glob(f"docs/studies/check2hgi/results/P1/region_head_{state}_*HSM*.json"))
+        candidates = list(REPO.glob(f"docs/results/P1/region_head_{state}_*HSM*.json"))
     if not candidates:
         raise FileNotFoundError(f"No STL HSM result found for {state} with tag {tag}")
     with open(candidates[0]) as f:

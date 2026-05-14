@@ -1,10 +1,10 @@
 # STATISTICAL_AUDIT.md — Critical Pass on Claims and Evidence
 
 > ⚠ **SUPERSEDED 2026-05-04.** Canonical:
-> `docs/studies/check2hgi/results/RESULTS_TABLE.md §0.6`. The user-disjoint
+> `docs/results/RESULTS_TABLE.md §0.6`. The user-disjoint
 > claim and POI-RGNN numbers below are pre-bugfix (May-2 snapshot); the
 > POI-RGNN reproduction protocol is explicitly user-disjoint per
-> `docs/studies/check2hgi/baselines/next_category/poi_rgnn.md` "Adapted —
+> `docs/baselines/next_category/poi_rgnn.md` "Adapted —
 > Cross-validation protocol", and the canonical numbers are 34.49 / 31.78 /
 > 33.03 (FL / CA / TX) per `RESULTS_TABLE.md §0.6`. Article-side files
 > (`src/sections/results.tex`, `src/tables/external.tex`) inherit those
@@ -12,7 +12,7 @@
 
 > **Purpose.** Be brutal about which claims have proper statistical backing, which are weakly supported but defensible if framed honestly, and which are descriptive narrative dressed up as inference. BRACIS reviewers in the empirical track care about this; over-claims invite desk-rejection or deep cuts. This file is the rigour contract that sub-agents inherit before drafting Results / Discussion.
 >
-> **Sources.** Canonical numerical source for all paper tables: **`docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v11, 2026-05-02 — FL §0.1 arch-Δ upgraded to n=20; all five states paper-grade on the headline axis)** + **`docs/studies/check2hgi/research/GAP_FILL_WILCOXON.json`** (cat-Δ + recipe multi-seed) + **`docs/studies/check2hgi/research/ARCH_DELTA_WILCOXON.json`** (CA/TX §0.1 arch-Δ n=20) + **`docs/studies/check2hgi/research/FL_CAT_DELTA_WILCOXON.json`** (FL §0.1 arch-Δ n=20). Background provenance only (do not cite as primary): `archive/post_paper_closure_2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md` (moved to archive in the 2026-05-01 study cleanup), `FINAL_SURVEY.md`, `CLAIMS_AND_HYPOTHESES.md` (whitelisted: CH16, CH18-cat, CH15 reframing, CH19, CH22 — others contain superseded leak-era content), `research/F50_T1_RESULTS_SYNTHESIS.md`. **No new compute.** Any claim that does not reduce to a number in current `RESULTS_TABLE.md §0` (or to the documented mechanism artefacts in CH19) is flagged.
+> **Sources.** Canonical numerical source for all paper tables: **`docs/results/RESULTS_TABLE.md §0` (v11, 2026-05-02 — FL §0.1 arch-Δ upgraded to n=20; all five states paper-grade on the headline axis)** + **`docs/findings/GAP_FILL_WILCOXON.json`** (cat-Δ + recipe multi-seed) + **`docs/findings/ARCH_DELTA_WILCOXON.json`** (CA/TX §0.1 arch-Δ n=20) + **`docs/findings/FL_CAT_DELTA_WILCOXON.json`** (FL §0.1 arch-Δ n=20). Background provenance only (do not cite as primary): `archive/post_paper_closure_2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md` (moved to archive in the 2026-05-01 study cleanup), `FINAL_SURVEY.md`, `CLAIMS_AND_HYPOTHESES.md` (whitelisted: CH16, CH18-cat, CH15 reframing, CH19, CH22 — others contain superseded leak-era content), `research/F50_T1_RESULTS_SYNTHESIS.md`. **No new compute.** Any claim that does not reduce to a number in current `RESULTS_TABLE.md §0` (or to the documented mechanism artefacts in CH19) is flagged.
 
 ---
 
@@ -191,7 +191,7 @@ This is a **paper-strengthening** disclosure (per `BRACIS_GUIDE.md §10.2.7` hon
 
 ### 7.1 Reproduction caveat
 
-`docs/studies/check2hgi/baselines/next_category/poi_rgnn.md`: our POI-RGNN reproduction *did not* use user-disjoint folds — published numbers are reported for context, but our internal "Check2HGI > POI-RGNN by ~28–32 pp on FL" is a **conservative lower bound** (POI-RGNN's published cat F1 was measured under non-user-disjoint folds, which inflates absolute scores).
+`docs/baselines/next_category/poi_rgnn.md`: our POI-RGNN reproduction *did not* use user-disjoint folds — published numbers are reported for context, but our internal "Check2HGI > POI-RGNN by ~28–32 pp on FL" is a **conservative lower bound** (POI-RGNN's published cat F1 was measured under non-user-disjoint folds, which inflates absolute scores).
 
 ### 7.2 Wording fix
 
@@ -199,7 +199,7 @@ This is a **paper-strengthening** disclosure (per `BRACIS_GUIDE.md §10.2.7` hon
 
 ### 7.3 Markov-1-region floor at FL — disclose
 
-- FL Markov-1-region binds at ~65 % Acc@10 (`docs/studies/check2hgi/PAPER_STRUCTURE.md §6` original). Our STL STAN-Flow exceeds it; MTL trails on Acc@10 at FL but exceeds on Acc@5 + MRR.
+- FL Markov-1-region binds at ~65 % Acc@10 (`docs/archive/check2hgi-post-paper-closure-2026-05-01/PAPER_STRUCTURE.md §6` original). Our STL STAN-Flow exceeds it; MTL trails on Acc@10 at FL but exceeds on Acc@5 + MRR.
 - **Wording:** *"On dense-data state splits where Markov-1-region transitions cover ≥ 85 % of validation rows (FL Gowalla, 127K check-ins), the classical 1-gram prior is near-optimal for Acc@10 on short horizons. Our neural single-task model exceeds Markov-1 on Acc@5 and MRR at FL but the MTL row trails on Acc@10. We report Acc@5 + MRR alongside Acc@10 to characterise the saturation regime fairly."*
 
 ---

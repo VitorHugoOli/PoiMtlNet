@@ -6,7 +6,7 @@ panel format preserves per-state shares (72% vs 64%) which are the mechanism
 evidence — averaging across n=2 states would hide that.
 
 Numbers (verified Round 6, 2026-05-04 against per-fold JSONs in
-docs/studies/check2hgi/results/phase1_perfold/):
+docs/results/phase1_perfold/):
   AL: HGI 25.26, POI-pooled 29.57, canonical 40.76  → per-visit ~72%
   AZ: HGI 28.99, POI-pooled 34.09, canonical 43.17  → per-visit ~64%
 """

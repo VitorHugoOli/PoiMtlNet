@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """Final survey of the check2hgi-vs-hgi study.
 
-Aggregates per-fold metrics from `docs/studies/check2hgi/results/phase1_perfold/`
+Aggregates per-fold metrics from `docs/results/phase1_perfold/`
 (Phase 3 leak-free, `_pf` suffix) plus the substrate linear probe, recomputes
 paired Wilcoxon (and paired-t) tests for completeness, and emits:
 
-  * `docs/studies/check2hgi/FINAL_SURVEY.md` — paper-ready summary table set.
-  * `docs/studies/check2hgi/results/figs/final_survey/*.png` — box-plot panel
+  * `docs/FINAL_SURVEY.md` — paper-ready summary table set.
+  * `docs/results/figs/final_survey/*.png` — box-plot panel
     figures for every claim track (probe / cat STL / cat MTL / reg STL / reg MTL).
 
 Run from repo root:

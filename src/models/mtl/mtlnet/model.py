@@ -528,7 +528,7 @@ class MTLnet(nn.Module):
         # the task-specific bucket. They must be enumerated here otherwise
         # gradient-surgery losses (PCGrad / CAGrad / AlignedMTL) leave
         # p.grad is None for every step — see
-        # docs/studies/check2hgi/issues/MTL_PARAM_PARTITION_BUG.md.
+        # docs/issues/check2hgi/MTL_PARAM_PARTITION_BUG.md.
         return (
             p
             for name, p in self.named_parameters()

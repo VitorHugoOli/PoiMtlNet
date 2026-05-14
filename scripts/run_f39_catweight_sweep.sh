@@ -23,7 +23,7 @@ export PYTORCH_ENABLE_MPS_FALLBACK=1
 PY="${PY:-python3}"
 
 cd "${WORKTREE}"
-DEST="${WORKTREE}/docs/studies/check2hgi/results/F39_catweight"
+DEST="${WORKTREE}/docs/results/F39_catweight"
 mkdir -p "${DEST}"
 
 run() {

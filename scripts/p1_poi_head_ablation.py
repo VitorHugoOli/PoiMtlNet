@@ -222,7 +222,7 @@ def main():
     sgkf = StratifiedGroupKFold(n_splits=args.folds, shuffle=True, random_state=args.seed)
     splits = list(sgkf.split(np.zeros(len(y_poi)), y_bucket, groups=userids))
 
-    out_path = REPO / "docs/studies/check2hgi/results/P1" / f"poi_head_{args.state}_5f{args.epochs}ep_{args.tag}.json"
+    out_path = REPO / "docs/results/P1" / f"poi_head_{args.state}_5f{args.epochs}ep_{args.tag}.json"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     results = {"heads": {}}
 

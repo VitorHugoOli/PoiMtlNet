@@ -6,7 +6,7 @@
 # Runs sequentially on AL (cheap ≈1h) → AZ (≈1.5h) → FL (≈5-6h) so a broken
 # cheap run skips expensive downstream runs.
 #
-# See docs/studies/check2hgi/research/B5_FL_TASKWEIGHT.md for the F2 outcome
+# See docs/findings/B5_FL_TASKWEIGHT.md for the F2 outcome
 # that motivated this validation and NORTH_STAR.md §Re-evaluation triggers
 # for the pass criteria.
 
@@ -20,7 +20,7 @@ export PYTORCH_ENABLE_MPS_FALLBACK=1
 PY="${PY:-python3}"
 
 cd "${WORKTREE}"
-DEST="${WORKTREE}/docs/studies/check2hgi/results/B3_validation"
+DEST="${WORKTREE}/docs/results/B3_validation"
 mkdir -p "${DEST}"
 
 archive_latest() {

@@ -222,8 +222,8 @@ All pipelines are configured by editing variables at the top of each script (sta
 
 For long runs that would saturate the local M4 Pro (notably FL 5f×50ep — ~50 min on T4 vs ~5 h on MPS), use the **Colab template + guide**:
 
-- **Template notebook:** [`notebooks/colab_check2hgi_mtl.ipynb`](notebooks/colab_check2hgi_mtl.ipynb) — self-contained, mirrors the canonical `scripts/train.py` north-star B3 CLI from `docs/studies/check2hgi/NORTH_STAR.md`. Drop in, edit `STATE`, run cells in order.
-- **Operational guide:** [`docs/COLAB_GUIDE.md`](docs/COLAB_GUIDE.md) — covers Drive layout, branch hygiene, the **detached-subprocess** launch pattern (mandatory for runs > 5 min, since MCP/cell timeouts will SIGINT a foreground `!{cmd}`), memory pitfalls (DataLoader-worker fork OOM, MRR pairwise-comparison OOM on FL's 4702 regions, between-fold CUDA fragmentation), the `feat/colab-gpu-perf` perf-pass changelog, results inspection, and a verification recipe for confirming a `git pull → relaunch` actually loaded fresh code.
+- **Template notebook:** [`notebooks/colab_check2hgi_mtl.ipynb`](notebooks/colab_check2hgi_mtl.ipynb) — self-contained, mirrors the canonical `scripts/train.py` north-star B3 CLI from `docs/NORTH_STAR.md`. Drop in, edit `STATE`, run cells in order.
+- **Operational guide:** [`docs/infra/colab/README.md`](docs/infra/colab/README.md) — covers Drive layout, branch hygiene, the **detached-subprocess** launch pattern (mandatory for runs > 5 min, since MCP/cell timeouts will SIGINT a foreground `!{cmd}`), memory pitfalls (DataLoader-worker fork OOM, MRR pairwise-comparison OOM on FL's 4702 regions, between-fold CUDA fragmentation), the `feat/colab-gpu-perf` perf-pass changelog, results inspection, and a verification recipe for confirming a `git pull → relaunch` actually loaded fresh code.
 
 The Colab perf optimisations live on **`feat/colab-gpu-perf`** (branched off `worktree-check2hgi-mtl`). All changes are quality-neutral and MPS-safe — verified via 24/24 metric+eval unit tests + AZ 5f×50ep regression (within 1 σ of NORTH_STAR.md reference) + 1f×2ep MPS smoke test on the M4 Pro.
 

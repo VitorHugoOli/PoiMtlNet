@@ -6,7 +6,7 @@ reg Acc@10_indist, plus per-variant deltas vs the published
 NORTH_STAR FL H3-alt numbers.
 
 The published reference is fixed inline because it lives in
-`docs/studies/check2hgi/NORTH_STAR.md` as prose, not a parseable file:
+`docs/NORTH_STAR.md` as prose, not a parseable file:
     cat F1                 = 67.92 +/- 0.72
     reg Acc@10_indist      = 71.96 +/- 0.68
 """
@@ -107,7 +107,7 @@ def main() -> int:
         f"{NORTH_STAR_FL['cat_f1']['std']:.2f}, "
         f"reg Acc@10_indist {NORTH_STAR_FL['reg_top10_indist']['mean']:.2f} ± "
         f"{NORTH_STAR_FL['reg_top10_indist']['std']:.2f} "
-        "(from `docs/studies/check2hgi/NORTH_STAR.md`).",
+        "(from `docs/NORTH_STAR.md`).",
         "",
         "Equivalence marker: ✓ ≤ 1σ from NORTH_STAR mean | ~ ≤ 2σ | ✗ > 2σ.",
         "",

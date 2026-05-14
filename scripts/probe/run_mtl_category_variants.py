@@ -107,7 +107,7 @@ def main() -> None:
     ap.add_argument("--folds", type=int, default=5)
     ap.add_argument("--epochs", type=int, default=30)
     ap.add_argument("--out", type=str,
-                    default="docs/studies/check2hgi/research/hgi_category_injection/HGI_CATEGORY_MTL.json")
+                    default="docs/studies/hgi_category_injection/HGI_CATEGORY_MTL.json")
     args = ap.parse_args()
 
     all_results = {}

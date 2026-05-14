@@ -13,7 +13,7 @@ missing.
 Usage
 -----
     python3 articles/[BRACIS]_Beyond_Cross_Task/src/figs/render_per_visit_5state.py \\
-        [--perfold-dir docs/studies/check2hgi/results/phase1_perfold] \\
+        [--perfold-dir docs/results/phase1_perfold] \\
         [--out articles/[BRACIS]_Beyond_Cross_Task/src/figs/per-visit.png] \\
         [--shared-y]    # share y-axis across panels (cleaner if all states have similar magnitude)
         [--two-state]   # force AL+AZ only (skip FL/CA/TX)

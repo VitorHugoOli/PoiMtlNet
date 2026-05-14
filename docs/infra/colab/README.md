@@ -78,7 +78,7 @@ contain the check2HGI CLI flags (`--task-set`, `--task-a-input-type`,
 
 ## 4 · The B3 (predecessor) training command
 
-> **⚠ Currency note (2026-04-27):** the recipe below is the **predecessor B3** config (OneCycleLR + single LR). The current study champion in `docs/studies/check2hgi/NORTH_STAR.md` is **F48-H3-alt**, which differs by adding per-head LR + constant scheduler:
+> **⚠ Currency note (2026-04-27):** the recipe below is the **predecessor B3** config (OneCycleLR + single LR). The current study champion in `docs/NORTH_STAR.md` is **F48-H3-alt**, which differs by adding per-head LR + constant scheduler:
 >
 > ```bash
 > # H3-alt extension — append these flags to the B3 command below to switch champion
@@ -87,7 +87,7 @@ contain the check2HGI CLI flags (`--task-set`, `--task-a-input-type`,
 >
 > The B3 numbers in §10 ("Reference benchmarks") are still valid for the predecessor; **H3-alt produces different numbers** (AL Reg Acc@10 ≈ 0.75, AZ ≈ 0.63, FL ≈ 0.72 — see `NORTH_STAR.md` for the full H3-alt table). Use B3 only when your study question explicitly requires the predecessor (e.g. a fair-comparison harness for Check2HGI embedding variants — see `experiments/check2hgi_up/run_mtl_b3.py`). Use H3-alt for any new MTL claim against STL.
 
-This is the predecessor B3 config from `docs/studies/check2hgi/NORTH_STAR.md` (post-F27, committed 2026-04-24). It is preserved as a comparand against which H3-alt's contribution is measured. All B3 reference numbers in this guide are tagged with their config explicitly.
+This is the predecessor B3 config from `docs/NORTH_STAR.md` (post-F27, committed 2026-04-24). It is preserved as a comparand against which H3-alt's contribution is measured. All B3 reference numbers in this guide are tagged with their config explicitly.
 
 ```bash
 python -u scripts/train.py \
@@ -301,7 +301,7 @@ Reference quality:
 - AZ Cat F1 ≈ 0.45, Reg Acc@10_indist ≈ 0.63
 - FL Cat F1 ≈ 0.68, Reg Acc@10_indist ≈ 0.72
 
-**F49 attribution (2026-04-27):** the H3-alt reg lift on AL is *purely architectural* (frozen-cat λ=0 reg ≈ 0.75 — the cat encoder being frozen at random init still gives the lift); cat-supervision transfer is small (≤|0.75| pp) on all 3 states. See `docs/studies/check2hgi/research/F49_LAMBDA0_DECOMPOSITION_RESULTS.md` for the 3-state decomposition.
+**F49 attribution (2026-04-27):** the H3-alt reg lift on AL is *purely architectural* (frozen-cat λ=0 reg ≈ 0.75 — the cat encoder being frozen at random init still gives the lift); cat-supervision transfer is small (≤|0.75| pp) on all 3 states. See `docs/findings/F49_LAMBDA0_DECOMPOSITION_RESULTS.md` for the 3-state decomposition.
 
 If your run is **outside ±2 σ of these on the same seed and config**, something has changed semantically — investigate before reporting. Use the B3 numbers if you ran the §4 command verbatim; use the H3-alt numbers if you appended the H3-alt flags.
 
@@ -342,6 +342,6 @@ If your run is **outside ±2 σ of these on the same seed and config**, somethin
 ## 13 · See also
 
 - [`notebooks/colab_check2hgi_mtl.ipynb`](../notebooks/colab_check2hgi_mtl.ipynb) — the template this guide describes
-- [`docs/studies/check2hgi/NORTH_STAR.md`](studies/check2hgi/NORTH_STAR.md) — the canonical B3 config + reference numbers
+- [`docs/NORTH_STAR.md`](studies/check2hgi/NORTH_STAR.md) — the canonical B3 config + reference numbers
 - [`scripts/study/colab_runner.py`](../scripts/study/colab_runner.py) — alternative entry point for the study-driven workflow (consumes `state.json`-enrolled tests)
 - [`notebooks/colab_study_runner.ipynb`](../notebooks/colab_study_runner.ipynb) — companion notebook for the study runner

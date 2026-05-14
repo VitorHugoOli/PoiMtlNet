@@ -4,7 +4,7 @@ Self-contained: depends only on canonical Gowalla check-ins
 (``data/checkins/<State>.parquet``). Mirrors the pre-processing in
 ``nest_poi/tcc_pedro/src/utils/{sequences,to_int}.py`` for paper
 faithfulness, with the following adaptations (all documented in
-``docs/studies/check2hgi/baselines/next_category/mha_pe.md``):
+``docs/baselines/next_category/mha_pe.md``):
 
   * **Window strategy.** Non-overlapping windows of size 8 + 1-step
     target (matches the rest of our baselines). Reference uses

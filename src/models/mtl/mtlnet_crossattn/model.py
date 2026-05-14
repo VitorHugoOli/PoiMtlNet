@@ -9,7 +9,7 @@ content-based via attention instead of parameter-based via shared
 layers.
 
 Rationale: the shared-backbone MTL architecture exhibits a
-capacity-ceiling property (see docs/studies/check2hgi/issues/
+capacity-ceiling property (see docs/issues/check2hgi/
 BACKBONE_DILUTION.md + FINAL_ABLATION_SUMMARY.md). Our λ=0.0 isolation
 shows 5.4 pp of the 8 pp STL → MTL gap is architectural overhead from
 the shared backbone. Cross-attention removes the shared backbone
@@ -280,7 +280,7 @@ class MTLnetCrossAttn(MTLnet):
         # `enable_residual_skip=True`, hand it the raw next_input alongside
         # the shared backbone output. Lets the head reach back to the
         # un-mixed region-identity signal that the cross-attn backbone
-        # strips. See `docs/studies/check2hgi/research/B9_STL_STAN_SWAP_AZ_FL.md`
+        # strips. See `docs/findings/B9_STL_STAN_SWAP_AZ_FL.md`
         # Round 2 — the MTL→STL gap on reg is largely architectural.
         if getattr(self.next_poi, "_uses_residual", False):
             out_next = self.next_poi(shared_next, residual_input=next_input)
@@ -293,7 +293,7 @@ class MTLnetCrossAttn(MTLnet):
 
         The inherited ``MTLnet.cat_forward`` references ``self.film`` /
         ``self.shared_layers`` which do not exist on this subclass — see
-        ``docs/studies/check2hgi/issues/CROSSATTN_PARTIAL_FORWARD_CRASH.md``.
+        ``docs/issues/check2hgi/CROSSATTN_PARTIAL_FORWARD_CRASH.md``.
         This override feeds a zero-valued, fully-padded B stream into the
         cross-attention stack, which makes the B contribution to A's
         representation an exact zero (the cross-attention block's

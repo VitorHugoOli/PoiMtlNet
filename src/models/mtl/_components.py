@@ -223,7 +223,7 @@ class DSelectKLiteLayer(nn.Module):
     gates. The output is a full N-dim simplex, not a sparse top-k
     selection. Behaviourally this is closer to multi-gate MMoE with an
     extra learnable mixture step than to DSelect-k. See
-    docs/studies/check2hgi/issues/MODEL_DESIGN_REVIEW_2026-04-22.md §3.
+    docs/issues/check2hgi/MODEL_DESIGN_REVIEW_2026-04-22.md §3.
     """
 
     def __init__(

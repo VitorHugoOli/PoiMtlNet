@@ -1,11 +1,11 @@
 """Paired-tests for Design D (heterograph) vs canonical c2hgi.
 
-Reads per-fold JSON from docs/studies/check2hgi/results/phase1_perfold/.
-Writes docs/studies/check2hgi/results/paired_tests/design_d_diagnostic.json.
+Reads per-fold JSON from docs/results/phase1_perfold/.
+Writes docs/results/paired_tests/design_d_diagnostic.json.
 
 Note: D's apparent cat lift is contaminated by a POI2Vec→checkin leak via
 2-hop GCN through visit/seq edges. We still report the numbers but flag
-them as not-trustworthy in `docs/studies/check2hgi/research/merge_design/MERGE_DESIGN_NOTES.md`.
+them as not-trustworthy in `docs/studies/merge_design/MERGE_DESIGN_NOTES.md`.
 """
 from __future__ import annotations
 import json
@@ -14,8 +14,8 @@ import numpy as np
 from scipy import stats
 
 REPO = Path(__file__).resolve().parents[2]
-PERFOLD = REPO / "docs/studies/check2hgi/results/phase1_perfold"
-PAIRED = REPO / "docs/studies/check2hgi/results/paired_tests"
+PERFOLD = REPO / "docs/results/phase1_perfold"
+PAIRED = REPO / "docs/results/paired_tests"
 
 
 def per_fold(p: Path, key: str) -> list[float]:

@@ -10,8 +10,8 @@ P5: H3-alt vs B3 predecessor per fold (cat F1 + reg Acc@10)
 All runs share seed=42 + StratifiedGroupKFold; same fold split → paired Wilcoxon valid.
 
 Outputs:
-    docs/studies/check2hgi/results/paired_tests/F49_decomposition_wilcoxon.json
-    docs/studies/check2hgi/results/paired_tests/H3alt_vs_B3_wilcoxon.json
+    docs/results/paired_tests/F49_decomposition_wilcoxon.json
+    docs/results/paired_tests/H3alt_vs_B3_wilcoxon.json
 """
 from __future__ import annotations
 import json

@@ -14,7 +14,7 @@ export PYTORCH_ENABLE_MPS_FALLBACK=1
 PY="${PY:-python3}"
 
 cd "${WORKTREE}"
-DEST="${WORKTREE}/docs/studies/check2hgi/results/B3_validation"
+DEST="${WORKTREE}/docs/results/B3_validation"
 mkdir -p "${DEST}"
 
 archive_latest() {

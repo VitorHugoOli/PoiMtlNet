@@ -39,7 +39,7 @@ PY="${PY:-python3}"
 
 cd "${WORKTREE}"
 
-DEST="${WORKTREE}/docs/studies/check2hgi/results/P5_bugfix"
+DEST="${WORKTREE}/docs/results/P5_bugfix"
 mkdir -p "${DEST}"
 
 archive_summary() {

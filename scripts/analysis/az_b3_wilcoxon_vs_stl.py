@@ -20,7 +20,7 @@ from scipy.stats import wilcoxon  # type: ignore
 REPO = Path("/Volumes/Vitor's SSD/ingred/.claude/worktrees/check2hgi-mtl")
 B3_AZ = REPO / "results/check2hgi/arizona/mtlnet_lr1.0e-04_bs2048_ep50_20260423_0339"
 STL_CAT_AZ = REPO / "results/check2hgi/arizona/next_lr1.0e-04_bs1024_ep50_20260419_0302"
-STL_STAN_AZ_SUMMARY = REPO / "docs/studies/check2hgi/results/P1/region_head_arizona_region_5f_50ep_STAN_az_5f50ep.json"
+STL_STAN_AZ_SUMMARY = REPO / "docs/results/P1/region_head_arizona_region_5f_50ep_STAN_az_5f50ep.json"
 
 
 def load_mtl(run_dir: Path, fold: int, task: str, metric: str) -> float:

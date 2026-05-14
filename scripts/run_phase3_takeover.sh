@@ -39,7 +39,7 @@ rm -f logs/phase3/orchestrator.pid
 
 # ── Step 2 — launch TX hgi STL in parallel with the orphaned TX c2hgi ───
 # Skip if TX hgi STL already complete (idempotent).
-TX_HGI_OUT=docs/studies/check2hgi/results/P1/region_head_texas_region_5f_50ep_STL_TEXAS_hgi_reg_gethard_pf_5f50ep.json
+TX_HGI_OUT=docs/results/P1/region_head_texas_region_5f_50ep_STL_TEXAS_hgi_reg_gethard_pf_5f50ep.json
 if [ -f "$TX_HGI_OUT" ]; then
     echo "[takeover] TX hgi STL already complete — skipping"
 else
@@ -53,7 +53,7 @@ fi
 
 # ── Step 3 — wait for both TX reg STL cells to land ─────────────────────
 echo "[takeover] waiting for both TX reg STL cells to complete..."
-TX_C2HGI_OUT=docs/studies/check2hgi/results/P1/region_head_texas_region_5f_50ep_STL_TEXAS_check2hgi_reg_gethard_pf_5f50ep.json
+TX_C2HGI_OUT=docs/results/P1/region_head_texas_region_5f_50ep_STL_TEXAS_check2hgi_reg_gethard_pf_5f50ep.json
 while true; do
     have_c=$([ -f "$TX_C2HGI_OUT" ] && echo Y || echo N)
     have_h=$([ -f "$TX_HGI_OUT"   ] && echo Y || echo N)

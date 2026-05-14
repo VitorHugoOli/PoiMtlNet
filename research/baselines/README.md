@@ -15,4 +15,4 @@ research/baselines/
 ```
 
 Each baseline writes its inputs to `output/baselines/<name>/<state>/`
-and its result JSONs to `docs/studies/check2hgi/results/baselines/`.
+and its result JSONs to `docs/results/baselines/`.

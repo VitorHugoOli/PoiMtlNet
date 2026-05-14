@@ -16,7 +16,7 @@
 # Batch size:
 #   - CUDA (default 2048): matches NORTH_STAR.md and reproduces the
 #     published cat F1 67.92 ± 0.72. Verified on RTX 4090 (RunPod), 5f×50ep,
-#     19 min wall time, see docs/studies/check2hgi/results/perf_compare/.
+#     19 min wall time, see docs/results/perf_compare/.
 #   - MPS (recommended 1024): the 24 GB unified-memory M4 Pro starts to
 #     swap above ~1500 effective batch on this model; run with
 #     `BATCH_SIZE=1024 bash scripts/run_f48_h3alt_fl.sh` on Mac.

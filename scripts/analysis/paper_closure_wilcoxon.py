@@ -8,14 +8,14 @@ Usage:
     PYTHONPATH=src python scripts/analysis/paper_closure_wilcoxon.py
 
 Outputs:
-    docs/studies/check2hgi/research/PAPER_CLOSURE_WILCOXON.json
+    docs/findings/PAPER_CLOSURE_WILCOXON.json
 
 Reads:
     - MTL run dirs:   results/check2hgi/<state>/mtlnet_..._ep50_20260501_*
-    - STL reg JSONs:  docs/studies/check2hgi/results/P1/region_head_*paper_close*.json
+    - STL reg JSONs:  docs/results/P1/region_head_*paper_close*.json
                       + region_head_florida_region_5f_50ep_c4_clean.json (FL seed=42)
     - STL cat dirs:   results/check2hgi/<state>/next_..._ep50_20260501_*  (CA, TX paper-closure)
-                      + docs/studies/check2hgi/results/phase1_perfold/{AL,AZ}_check2hgi_cat_gru_5f50ep.json
+                      + docs/results/phase1_perfold/{AL,AZ}_check2hgi_cat_gru_5f50ep.json
 """
 import json, statistics
 from pathlib import Path
@@ -49,12 +49,12 @@ STL_CAT_DIRS_FROM_RUN = {
     "texas":      "results/check2hgi/texas/next_lr1.0e-04_bs2048_ep50_20260501_012451_409450",
 }
 STL_CAT_PHASE1 = {  # F37 / phase1 per-fold JSONs (assumed seed=42)
-    "alabama": "docs/studies/check2hgi/results/phase1_perfold/AL_check2hgi_cat_gru_5f50ep.json",
-    "arizona": "docs/studies/check2hgi/results/phase1_perfold/AZ_check2hgi_cat_gru_5f50ep.json",
+    "alabama": "docs/results/phase1_perfold/AL_check2hgi_cat_gru_5f50ep.json",
+    "arizona": "docs/results/phase1_perfold/AZ_check2hgi_cat_gru_5f50ep.json",
 }
 # FL STL reg seed=42 (c4_clean), used for FL paired Wilcoxon since F51 multi-seed
 # B9 per-fold not locally archived.
-STL_REG_FL_SEED42 = "docs/studies/check2hgi/results/P1/region_head_florida_region_5f_50ep_c4_clean.json"
+STL_REG_FL_SEED42 = "docs/results/P1/region_head_florida_region_5f_50ep_c4_clean.json"
 
 
 def per_fold_best(run_dir: Path, task_filename: str, metric: str, min_epoch: int = MIN_EPOCH):
@@ -73,7 +73,7 @@ def per_fold_best(run_dir: Path, task_filename: str, metric: str, min_epoch: int
 def collect_stl_reg():
     """Returns {(state, seed): [per-fold top10_acc]}."""
     out = {}
-    for jf in Path("docs/studies/check2hgi/results/P1").glob("region_head_*paper_close*.json"):
+    for jf in Path("docs/results/P1").glob("region_head_*paper_close*.json"):
         d = json.load(jf.open())
         state = d['state']; seed = d['seed']
         out[(state, seed)] = [x['top10_acc'] for x in d['heads']['next_getnext_hard']['per_fold']]
@@ -161,7 +161,7 @@ def main():
             print(f"  {state:<11} {task:>3}: n={int(arr.size):2d}  Δ={sign}{arr.mean()*100:+6.2f} pp  p={pp:.2e}  ({(arr>0).sum()}/{int(arr.size)} MTL>STL)")
         results[state] = out
 
-    out_path = Path("docs/studies/check2hgi/research/PAPER_CLOSURE_WILCOXON.json")
+    out_path = Path("docs/findings/PAPER_CLOSURE_WILCOXON.json")
     out_path.write_text(json.dumps(results, indent=2))
     print(f"\nSaved: {out_path}")
 

@@ -10,8 +10,8 @@ import numpy as np
 from scipy import stats
 
 REPO = Path(__file__).resolve().parents[2]
-PERFOLD = REPO / "docs/studies/check2hgi/results/phase1_perfold"
-PAIRED = REPO / "docs/studies/check2hgi/results/paired_tests"
+PERFOLD = REPO / "docs/results/phase1_perfold"
+PAIRED = REPO / "docs/results/paired_tests"
 
 
 def per_fold(p: Path, key: str) -> list[float]:

@@ -29,7 +29,7 @@ STAN's original paper computes the pairwise bias from raw time-interval `Δt_ij`
 | AL | 56.94 ± 4.01 | **59.20 ± 3.62** | +2.26 |
 | AZ | 48.88 ± 2.48 | **52.24 ± 2.38** | **+3.36** |
 
-See `docs/studies/check2hgi/research/SOTA_STAN_BASELINE.md` for the full comparison table and `docs/studies/check2hgi/research/POSITIONING_VS_HMT_GRN.md` for positioning against HMT-GRN (SIGIR'22), the canonical hierarchical-MTL next-POI baseline.
+See `docs/findings/SOTA_STAN_BASELINE.md` for the full comparison table and `docs/findings/POSITIONING_VS_HMT_GRN.md` for positioning against HMT-GRN (SIGIR'22), the canonical hierarchical-MTL next-POI baseline.
 
 ## Usage
 

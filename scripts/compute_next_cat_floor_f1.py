@@ -112,7 +112,7 @@ def main():
     p.add_argument("--state", required=True)
     args = p.parse_args()
     out = run(args.state)
-    out_path = Path("docs/studies/check2hgi/results/P0/simple_baselines") / args.state / "next_category_f1.json"
+    out_path = Path("docs/results/P0/simple_baselines") / args.state / "next_category_f1.json"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(out, indent=2))
     print(f"saved → {out_path}")

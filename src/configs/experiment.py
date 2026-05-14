@@ -77,7 +77,7 @@ class ExperimentConfig:
     # K/V. Used together with `mtl_loss=static_weight` and
     # `mtl_loss_params={"category_weight": 0.0}` to measure pure
     # architectural overhead (encoder-frozen). See
-    # `docs/studies/check2hgi/research/F49_LAMBDA0_DECOMPOSITION_GAP.md`.
+    # `docs/findings/F49_LAMBDA0_DECOMPOSITION_GAP.md`.
     freeze_cat_stream: bool = False
 
     # F50 P3 — warmup-then-freeze: train cat side normally for the first
@@ -85,7 +85,7 @@ class ExperimentConfig:
     # epoch N onward (continued reg + shared training). Tests whether the
     # cat encoder's continued co-adaptation as reg-helper (F49 Layer 2
     # mechanism) is hurting reg at FL scale. None disables. See
-    # `docs/studies/check2hgi/research/MTL_FLAWS_AND_FIXES.md` §3 H1.5.
+    # `docs/findings/MTL_FLAWS_AND_FIXES.md` §3 H1.5.
     freeze_cat_after_epoch: Optional[int] = None
 
     # F50 P4 — per-batch alternating-SGD. Even batches update cat-side params

@@ -1,6 +1,6 @@
 """Parameter-partition invariant for every MTL variant.
 
-Motivates: `docs/studies/check2hgi/issues/MTL_PARAM_PARTITION_BUG.md`.
+Motivates: `docs/issues/check2hgi/MTL_PARAM_PARTITION_BUG.md`.
 
 The gradient-surgery losses (`PCGrad`, `CAGrad`, `AlignedMTL`) assign
 ``p.grad`` only for parameters in
@@ -147,7 +147,7 @@ def test_param_partition_complete(name: str, builder):
     Enforced on every MTL variant — a new nn.Parameter introduced by a
     feature flag must be assigned to one bucket so PCGrad / CAGrad /
     AlignedMTL can route its gradient. See
-    docs/studies/check2hgi/issues/MTL_PARAM_PARTITION_BUG.md.
+    docs/issues/check2hgi/MTL_PARAM_PARTITION_BUG.md.
     """
     seed_everything()
     model = builder()

@@ -12,7 +12,7 @@ B) Gap 1 CA — MTL multi-seed B9 vs H3-alt (CA, seeds {0,1,7,100}):
    Updates §0.4 recipe-selection table CA row.
 
 Extraction methodology: per-fold max metric for epoch >= 5 (F51 canonical).
-Output: docs/studies/check2hgi/research/GAP_FILL_WILCOXON.json
+Output: docs/findings/GAP_FILL_WILCOXON.json
 """
 from __future__ import annotations
 import json
@@ -24,7 +24,7 @@ from statistics import mean, stdev
 
 MIN_EPOCH = 5
 ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / "docs/studies/check2hgi/research/GAP_FILL_WILCOXON.json"
+OUT = ROOT / "docs/findings/GAP_FILL_WILCOXON.json"
 
 # ── helpers ──────────────────────────────────────────────────────────────────
 

@@ -11,8 +11,8 @@
 # (iii) 1-fold is enough for a directional screen — if one head wins by
 # > 2 pp we'd follow up with 5-fold.
 #
-# See docs/studies/check2hgi/FOLLOWUPS_TRACKER.md §F27
-# and docs/studies/check2hgi/research/F21C_FINDINGS.md for context.
+# See docs/archive/check2hgi-post-paper-closure-2026-05-01/FOLLOWUPS_TRACKER.md §F27
+# and docs/findings/F21C_FINDINGS.md for context.
 
 set -u
 WORKTREE="${WORKTREE:-$(pwd)}"
@@ -24,7 +24,7 @@ export PYTORCH_ENABLE_MPS_FALLBACK=1
 PY="${PY:-python3}"
 
 cd "${WORKTREE}"
-DEST="${WORKTREE}/docs/studies/check2hgi/results/F27_cathead_sweep"
+DEST="${WORKTREE}/docs/results/F27_cathead_sweep"
 mkdir -p "${DEST}"
 
 archive_latest() {

@@ -1,6 +1,6 @@
 """Regression tests for F49 — λ=0.0 isolation gradient flow.
 
-The F49 study (`docs/studies/check2hgi/research/F49_LAMBDA0_DECOMPOSITION_GAP.md`)
+The F49 study (`docs/findings/F49_LAMBDA0_DECOMPOSITION_GAP.md`)
 relies on two load-bearing claims about ``MTLnetCrossAttn``:
 
 (4a) **Loss-side λ=0 is NOT a clean architectural isolation.** Under

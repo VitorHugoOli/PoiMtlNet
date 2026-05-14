@@ -6,13 +6,13 @@ side-by-side Frobenius drift-from-init for `next_encoder` (reg-side) and
 under joint training, the reg-side drift saturates earlier than cat-side,
 paralleling reg-best at ~ep 5 vs cat-best at ~ep 16.
 
-Output: docs/studies/check2hgi/research/figs/f50_d5_encoder_trajectory.png
+Output: docs/findings/figs/f50_d5_encoder_trajectory.png
 
 Usage:
     python scripts/analysis/f50_d5_encoder_traj_plot.py \\
         --h3alt-run results/check2hgi/florida/<h3alt_run_dir> \\
         --b9-run results/check2hgi/florida/<b9_run_dir> \\
-        --output docs/studies/check2hgi/research/figs/f50_d5_encoder_trajectory.png
+        --output docs/findings/figs/f50_d5_encoder_trajectory.png
 """
 from __future__ import annotations
 

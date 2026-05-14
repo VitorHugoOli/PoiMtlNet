@@ -25,7 +25,7 @@ WORKTREE="${WORKTREE:-/workspace/PoiMtlNet}"
 cd "${WORKTREE}"
 RESULTS_DIR="${WORKTREE}/results/check2hgi/florida"
 LOG_DIR="${WORKTREE}/logs"
-COMPARE_DIR="${WORKTREE}/docs/studies/check2hgi/results/perf_compare"
+COMPARE_DIR="${WORKTREE}/docs/results/perf_compare"
 mkdir -p "${LOG_DIR}" "${COMPARE_DIR}"
 
 VARIANTS="${VARIANTS:-tf32 compile}"

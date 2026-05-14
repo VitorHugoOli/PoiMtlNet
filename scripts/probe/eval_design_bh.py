@@ -6,7 +6,7 @@ Drives:
   3. Launch reg STL (next_getnext_hard) AL+AZ × {B, H}.
   4. Run generality probes incl. new substrates.
   5. Extract per-fold metrics, run paired tests.
-  6. Update results table in `docs/studies/check2hgi/research/merge_design/MERGE_DESIGN_NOTES.md`.
+  6. Update results table in `docs/studies/merge_design/MERGE_DESIGN_NOTES.md`.
 
 Designed to be invoked once training is complete:
     python scripts/probe/eval_design_bh.py --designs B H

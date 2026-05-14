@@ -194,7 +194,7 @@ class MTLnetDSelectK(MTLnet):
         # shared DSelect-K output; they must appear in this bucket so
         # gradient-surgery losses (PCGrad / CAGrad / AlignedMTL) actually
         # set their .grad. Missing them causes a silent freeze — see
-        # docs/studies/check2hgi/issues/MTL_PARAM_PARTITION_BUG.md.
+        # docs/issues/check2hgi/MTL_PARAM_PARTITION_BUG.md.
         #
         # The LoRA branch is **gated off** on the legacy ``task_set``
         # (see forward() line 139) — those parameters are not in the

@@ -38,8 +38,8 @@ Check2HGI embeddings (single-task region head for embedding-based runs).
 ```
 output/baselines/rehdm/<state>/inputs.parquet      # ETL output
 output/baselines/rehdm/<state>/vocab.json          # cardinalities + hypers
-docs/studies/check2hgi/results/baselines/<tag>_run{i}.json
-docs/studies/check2hgi/results/baselines/<tag>_summary.json
+docs/results/baselines/<tag>_run{i}.json
+docs/results/baselines/<tag>_summary.json
 ```
 
 ## CLI

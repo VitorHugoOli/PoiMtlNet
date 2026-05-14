@@ -12,8 +12,8 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 RESULTS = REPO / "results"
-P1 = REPO / "docs/studies/check2hgi/results/P1"
-PERFOLD = REPO / "docs/studies/check2hgi/results/phase1_perfold"
+P1 = REPO / "docs/results/P1"
+PERFOLD = REPO / "docs/results/phase1_perfold"
 
 import argparse
 

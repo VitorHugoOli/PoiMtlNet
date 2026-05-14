@@ -31,7 +31,7 @@ upstream of the classifier projection matches STAN's design.
 - `model.py` — `FaithfulSTAN` module: POI embedding + ΔT/ΔD pairwise-bias
   bi-layer self-attention + region classifier.
 - `train.py` — StratifiedGroupKFold(5, seed=42), 50 epochs, AdamW + OneCycleLR,
-  CrossEntropy. Writes JSON to `docs/studies/check2hgi/results/baselines/`.
+  CrossEntropy. Writes JSON to `docs/results/baselines/`.
 
 ## CLI
 

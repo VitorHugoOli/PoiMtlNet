@@ -60,7 +60,7 @@
 #
 # After this script
 #   1. Run scripts/probe/extract_pervisit_perfold.py to extract per-fold
-#      cat F1 macro to docs/studies/check2hgi/results/phase1_perfold/
+#      cat F1 macro to docs/results/phase1_perfold/
 #      mirroring AZ's naming (STATE_check2hgi_cat_gru_5f50ep_<TIMESTAMP>.json
 #      etc).
 #   2. Render the 5-state §6.1 figure with

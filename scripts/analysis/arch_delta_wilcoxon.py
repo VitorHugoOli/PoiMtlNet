@@ -6,7 +6,7 @@ Comparison:
 
 Seeds: {0,1,7,100}  Folds: 5  n=20 per state per metric.
 
-Output: docs/studies/check2hgi/research/ARCH_DELTA_WILCOXON.json
+Output: docs/findings/ARCH_DELTA_WILCOXON.json
 """
 from __future__ import annotations
 import json
@@ -17,7 +17,7 @@ from statistics import mean
 
 MIN_EPOCH = 5
 ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / "docs/studies/check2hgi/research/ARCH_DELTA_WILCOXON.json"
+OUT = ROOT / "docs/findings/ARCH_DELTA_WILCOXON.json"
 
 SEEDS = [0, 1, 7, 100]
 
@@ -50,7 +50,7 @@ TX_STL_CAT = {
 }
 
 # ── STL reg JSONs ─────────────────────────────────────────────────────────────
-P1_DIR = ROOT / "docs/studies/check2hgi/results/P1"
+P1_DIR = ROOT / "docs/results/P1"
 CA_STL_REG = {
     s: P1_DIR / f"region_head_california_region_5f_50ep_paper_close_california_stl_reg_seed{s}.json"
     for s in SEEDS

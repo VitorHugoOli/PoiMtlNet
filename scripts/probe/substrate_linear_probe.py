@@ -11,7 +11,7 @@ Usage::
     python scripts/probe/substrate_linear_probe.py \\
         --state alabama --engine check2hgi --window-pos last
 
-Output: docs/studies/check2hgi/results/probe/<state>_<engine>_<pos>.json
+Output: docs/results/probe/<state>_<engine>_<pos>.json
 """
 
 from __future__ import annotations
@@ -105,7 +105,7 @@ def main():
     ap.add_argument("--folds", type=int, default=5)
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--out-dir", default=None,
-                    help="default: docs/studies/check2hgi/results/probe/")
+                    help="default: docs/results/probe/")
     args = ap.parse_args()
 
     out_dir = Path(args.out_dir) if args.out_dir else (

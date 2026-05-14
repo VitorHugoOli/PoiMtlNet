@@ -16,13 +16,13 @@ export PYTORCH_ENABLE_MPS_FALLBACK=1
 PY="${PY:-python3}"
 
 cd "${WORKTREE}"
-DEST="${WORKTREE}/docs/studies/check2hgi/results/B3_baselines"
+DEST="${WORKTREE}/docs/results/B3_baselines"
 mkdir -p "${DEST}"
 
 archive_latest() {
     local state="$1" dest_name="$2"
-    # p1_region_head_ablation.py saves under docs/studies/check2hgi/results/P1/
-    local src="${WORKTREE}/docs/studies/check2hgi/results/P1/region_head_${state}_region_5f_50ep_stl_gethard.json"
+    # p1_region_head_ablation.py saves under docs/results/P1/
+    local src="${WORKTREE}/docs/results/P1/region_head_${state}_region_5f_50ep_stl_gethard.json"
     if [ -f "${src}" ]; then
         cp "${src}" "${DEST}/${dest_name}.json"
         echo "[F21c] saved → ${DEST}/${dest_name}.json"

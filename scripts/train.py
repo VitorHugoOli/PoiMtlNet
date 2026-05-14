@@ -642,7 +642,7 @@ def _parse_args(argv=None) -> argparse.Namespace:
             "co-adapt as a reg-helper via cross-attention K/V. Requires "
             "--mtl-loss static_weight --category-weight 0.0 (the cat-loss "
             "must be zero or the configuration is incoherent). See "
-            "docs/studies/check2hgi/research/F49_LAMBDA0_DECOMPOSITION_GAP.md."
+            "docs/findings/F49_LAMBDA0_DECOMPOSITION_GAP.md."
         ),
     )
     parser.add_argument(

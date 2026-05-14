@@ -19,7 +19,7 @@ Two deviations from `train_stl.py`'s paper-protocol path:
    ordering by design). Both deviations are documented in the baseline page.
 
 Output JSONs land at
-`docs/studies/check2hgi/results/baselines/<tag>_run{0..4}.json`
+`docs/results/baselines/<tag>_run{0..4}.json`
 + `<tag>_summary.json`.
 """
 from __future__ import annotations
@@ -305,7 +305,7 @@ def main():
     p.add_argument("--max-inter", type=int, default=3)
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--output-root", default=os.environ.get("OUTPUT_DIR", "output"))
-    p.add_argument("--results-dir", default="docs/studies/check2hgi/results/baselines")
+    p.add_argument("--results-dir", default="docs/results/baselines")
     p.add_argument("--tag", required=True)
     args = p.parse_args()
 

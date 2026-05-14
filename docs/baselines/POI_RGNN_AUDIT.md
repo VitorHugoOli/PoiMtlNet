@@ -1,6 +1,6 @@
 # POI-RGNN Protocol Audit
 
-**Date:** 2026-04-23. **Tracker item:** `docs/studies/check2hgi/FOLLOWUPS_TRACKER.md §F7`.
+**Date:** 2026-04-23. **Tracker item:** `docs/archive/check2hgi-post-paper-closure-2026-05-01/FOLLOWUPS_TRACKER.md §F7`.
 
 **Purpose.** Before the paper cites `F1(Check2HGI-MTL) − F1(POI-RGNN) = +28–32 pp` on Florida, verify the comparability of the protocols along every axis that could account for a large delta. `docs/baselines/BASELINE.md` is the authoritative source for the reproduced POI-RGNN numbers; this audit triangulates them against our pipeline.
 
@@ -74,6 +74,6 @@ If submission time permits, re-run POI-RGNN under `StratifiedGroupKFold(groups=u
 ## Cross-references
 
 - `docs/baselines/BASELINE.md` — primary POI-RGNN reference + per-state reproduced numbers (FL 34.49 / CA 31.78 / TX 33.03).
-- `docs/studies/check2hgi/issues/FOLD_LEAKAGE_AUDIT.md` — C11 fix for user-disjoint folds in our STL + MTL pipelines.
-- `docs/studies/check2hgi/CLAIMS_AND_HYPOTHESES.md §CH17` — the claim this audit supports.
-- `docs/studies/check2hgi/results/RESULTS_TABLE.md §External baseline anchors` — the paper-facing comparison table.
+- `docs/issues/check2hgi/FOLD_LEAKAGE_AUDIT.md` — C11 fix for user-disjoint folds in our STL + MTL pipelines.
+- `docs/CLAIMS_AND_HYPOTHESES.md §CH17` — the claim this audit supports.
+- `docs/results/RESULTS_TABLE.md §External baseline anchors` — the paper-facing comparison table.

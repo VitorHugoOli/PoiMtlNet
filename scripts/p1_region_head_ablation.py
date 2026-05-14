@@ -635,7 +635,7 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
     sgkf = StratifiedGroupKFold(n_splits=max(2, folds), shuffle=True, random_state=seed)
     splits = list(sgkf.split(np.zeros(len(y_cat)), y_cat, groups=userids))[:folds]
 
-    out_dir = Path("docs/studies/check2hgi/results/P1")
+    out_dir = Path("docs/results/P1")
     out_dir.mkdir(parents=True, exist_ok=True)
     ckpt_path = _checkpoint_path(out_dir, state, input_type, folds, epochs, tag)
     ckpt = _load_checkpoint(ckpt_path) if resume else {}
@@ -827,7 +827,7 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
 
     # Markov baseline reference (per-fold Markov on region sequences — same
     # for all input types since Markov uses the region-transition graph, not
-    # the embedding view). See docs/studies/check2hgi/results/P0/...
+    # the embedding view). See docs/results/P0/...
     print("-" * 80)
     markov = {"alabama": "~21.3%", "florida": "~45.9%"}.get(state, "?")
     print(f"{'Markov 1-step (floor)':<25} {'~12%':>8} {'—':>8} {markov:>8} {'—':>8} {'—':>8}")

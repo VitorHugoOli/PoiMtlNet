@@ -34,7 +34,7 @@ def main():
     ap.add_argument("--state", default="Alabama")
     ap.add_argument("--epochs", type=int, default=50)
     ap.add_argument("--folds", type=int, default=5)
-    ap.add_argument("--source_dir", default="docs/studies/check2hgi/results/UP1")
+    ap.add_argument("--source_dir", default="docs/results/UP1")
     ap.add_argument("--source_epochs", type=int, default=200)
     args = ap.parse_args()
 

@@ -42,7 +42,7 @@
 #
 # After this script
 #   1. Extract per-fold cat F1 macro from each run's folds/foldN_info.json
-#      and save to docs/studies/check2hgi/results/phase1_perfold/
+#      and save to docs/results/phase1_perfold/
 #      mirroring AL's naming: AZ_check2hgi_cat_gru_5f50ep.json,
 #      AZ_check2hgi_pooled_cat_gru_5f50ep.json, AZ_hgi_cat_gru_5f50ep.json.
 #   2. Compute per-visit component (canonical − pooled) and training-signal
@@ -55,8 +55,8 @@
 #     20260427_171{8,24}/), but we re-run all three cells fresh on the same
 #     run so per-fold comparisons share the same (StratifiedGroupKFold(42))
 #     splits and the same hardware. Pooled has never been generated for AZ.
-#   - See `docs/studies/check2hgi/CLAIMS_AND_HYPOTHESES.md §CH19` and
-#     `docs/studies/check2hgi/research/SUBSTRATE_COMPARISON_FINDINGS.md §4`
+#   - See `docs/CLAIMS_AND_HYPOTHESES.md §CH19` and
+#     `docs/findings/SUBSTRATE_COMPARISON_FINDINGS.md §4`
 #     for the AL canonical numbers and protocol this replicates.
 #   - The pooled engine is registered: `EmbeddingEngine.CHECK2HGI_POOLED`
 #     in `src/configs/paths.py`. train.py accepts `--engine check2hgi_pooled`.

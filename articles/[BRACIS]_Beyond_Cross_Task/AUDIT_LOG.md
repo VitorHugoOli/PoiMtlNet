@@ -8,7 +8,7 @@
 
 ## §1 · Canonical numerical anchors (what every cited number must match)
 
-Source: `docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v11, 2026-05-02 — FL §0.1 arch-Δ upgraded to n=20, last headline asymmetry closed; all five states now multi-seed paper-grade on §0.1. v10: CA+TX arch-Δ §0.1 upgraded to n=20; v9: TX recipe-selection multi-seed §0.4; v8: AL/AZ/FL cat-Δ Wilcoxon + CA recipe multi-seed).
+Source: `docs/results/RESULTS_TABLE.md §0` (v11, 2026-05-02 — FL §0.1 arch-Δ upgraded to n=20, last headline asymmetry closed; all five states now multi-seed paper-grade on §0.1. v10: CA+TX arch-Δ §0.1 upgraded to n=20; v9: TX recipe-selection multi-seed §0.4; v8: AL/AZ/FL cat-Δ Wilcoxon + CA recipe multi-seed).
 
 ### §0.1 Five-state architectural-Δ (MTL B9 vs matched-head STL) — v11
 
@@ -78,14 +78,14 @@ Source: `docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v11, 2026-05-02 �
 
 ### §0.3b Per-visit counterfactual (CH19 mechanism, AL+AZ matched-head STL)
 
-Two-state replicated mechanism (added 2026-05-03, AZ runs `results/{check2hgi,check2hgi_pooled,hgi}/arizona/next_lr1.0e-04_bs1024_ep50_20260503_*`; per-fold `docs/studies/check2hgi/results/phase1_perfold/AZ_*_cat_gru_5f50ep_20260503.json`):
+Two-state replicated mechanism (added 2026-05-03, AZ runs `results/{check2hgi,check2hgi_pooled,hgi}/arizona/next_lr1.0e-04_bs1024_ep50_20260503_*`; per-fold `docs/results/phase1_perfold/AZ_*_cat_gru_5f50ep_20260503.json`):
 
 | State | Canonical | POI-pooled | HGI | Per-visit Δ | Training-signal Δ | Per-visit share |
 |---|---:|---:|---:|---:|---:|---:|
 | AL | 40.76 ± 1.50 | 29.57 | 25.26 ± 1.06 | +11.19 pp | +4.31 pp | ~72% |
 | AZ | 43.17 ± 0.28 | 34.09 ± 0.63 | 28.99 ± 0.51 | +9.08 pp | +5.10 pp | ~64% |
 
-Both components positive at both states. §6.1 mechanism upgraded from single-state AL to two-state replicated. Launcher: `scripts/run_AZ_pervisit_counterfactual.sh` (~4 min H100). See `docs/studies/check2hgi/research/SUBSTRATE_COMPARISON_FINDINGS.md §4.3`.
+Both components positive at both states. §6.1 mechanism upgraded from single-state AL to two-state replicated. Launcher: `scripts/run_AZ_pervisit_counterfactual.sh` (~4 min H100). See `docs/findings/SUBSTRATE_COMPARISON_FINDINGS.md §4.3`.
 
 ### §0.4 Recipe selection (B9 vs H3-alt)
 
@@ -226,4 +226,4 @@ All other numbers (n=17 cells) round-trip correctly.
 - Honest framing: ✅ matches BRACIS 2023 best-paper pattern.
 - **Ready for sub-agent fan-out**, conditional on the two surfaced user-facing items above.
 
-**Lifetime of this file.** Keep as `AUDIT_LOG.md` for traceability through camera-ready; can be moved to `docs/studies/check2hgi/audit_history/` post-acceptance, or deleted from the article folder if it bloats the submission package.
+**Lifetime of this file.** Keep as `AUDIT_LOG.md` for traceability through camera-ready; can be moved to `docs/audit_history/` post-acceptance, or deleted from the article folder if it bloats the submission package.

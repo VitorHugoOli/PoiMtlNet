@@ -32,7 +32,7 @@ export PYTORCH_ENABLE_MPS_FALLBACK=1
 PY="${PY:-python3}"
 
 cd "${WORKTREE}"
-DEST="${WORKTREE}/docs/studies/check2hgi/results/F42_epoch_sweep"
+DEST="${WORKTREE}/docs/results/F42_epoch_sweep"
 mkdir -p "${DEST}"
 
 run() {

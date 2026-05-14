@@ -2,7 +2,7 @@
 # Partition-bug re-run launcher (alongside Aligned-MTL / CAGrad / DB-MTL probe)
 #
 # Reruns the 6 contaminated configs listed in
-# docs/studies/check2hgi/issues/MTL_PARAM_PARTITION_BUG.md §Re-run triage,
+# docs/issues/check2hgi/MTL_PARAM_PARTITION_BUG.md §Re-run triage,
 # plus a bounded optimizer probe on the A7 champion config
 # (dselectk + MTLoRA r=8, AL 5f×50ep) testing Aligned-MTL / CAGrad / DB-MTL
 # against the PCGrad baseline.
@@ -29,7 +29,7 @@ PY="${PY:-python3}"
 
 cd "${WORKTREE}"
 
-DEST="${WORKTREE}/docs/studies/check2hgi/results/P5_bugfix"
+DEST="${WORKTREE}/docs/results/P5_bugfix"
 mkdir -p "${DEST}"
 
 archive_summary() {

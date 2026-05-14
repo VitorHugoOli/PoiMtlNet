@@ -20,7 +20,7 @@ not a learned probe output. Compare to ``NextHeadGETNext`` (soft probe)
 which approximates this via ``softmax(probe(last_emb)) @ log_T``.
 
 Our inference-time ablation
-(``docs/studies/check2hgi/research/B5_HARD_VS_SOFT_INFERENCE.md``) showed
+(``docs/findings/B5_HARD_VS_SOFT_INFERENCE.md``) showed
 hard-index recovery of +3 to +9 pp Acc@10 at near-convergence over the
 soft-probe adaptation we currently ship. This head tests whether that
 gap widens, stays, or narrows when the STAN backbone is allowed to

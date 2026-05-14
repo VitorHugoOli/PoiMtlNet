@@ -7,7 +7,7 @@ folds/foldN_info.json and writes the simplified phase1_perfold/ JSON format
 that the §6.1 figure renderer consumes.
 
 Output naming mirrors the AZ counterfactual JSONs (commit 61b44c3):
-    docs/studies/check2hgi/results/phase1_perfold/
+    docs/results/phase1_perfold/
         FL_check2hgi_cat_gru_5f50ep_<DATE>.json
         FL_check2hgi_pooled_cat_gru_5f50ep_<DATE>.json
         FL_hgi_cat_gru_5f50ep_<DATE>.json
@@ -24,7 +24,7 @@ Usage
     python3 scripts/probe/extract_pervisit_perfold.py \\
         --states florida california texas \\
         [--engines check2hgi check2hgi_pooled hgi] \\
-        [--out docs/studies/check2hgi/results/phase1_perfold]
+        [--out docs/results/phase1_perfold]
 
 By default the script picks the *latest* run dir per (state, engine) tuple;
 pass --run-id <TIMESTAMP> to pin to a specific timestamp.
@@ -173,7 +173,7 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument(
         "--out", type=Path,
-        default=Path("docs/studies/check2hgi/results/phase1_perfold"),
+        default=Path("docs/results/phase1_perfold"),
         help="Destination directory for the simplified per-fold JSONs.",
     )
     p.add_argument(

@@ -14,7 +14,7 @@
 This session does **not** draft prose. It owns:
 
 1. **Cross-section consistency audit** between sub-agent returns (numerical canon, voice rules, page budget, LaTeX compile).
-2. **Numerical canon enforcement** — every cited number must round-trip to `docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v11). No exceptions.
+2. **Numerical canon enforcement** — every cited number must round-trip to `docs/results/RESULTS_TABLE.md §0` (v11). No exceptions.
 3. **Final assembly of `samplepaper.tex`** — only the coordinator edits the include skeleton; sub-agents only write their assigned `sections/<name>.tex`.
 4. **Pre-computation of T1 dataset cells** before A4 launches (real numbers from `data/<state>/`).
 5. **`references.bib` verification** — coordinator task, not A8 sub-agent. 27 entries already in file; check cite-key alignment with what each section ends up referencing.
@@ -359,7 +359,7 @@ A4 cites these as `Table~\ref{tab:datasets}` and writes the caption per AGENT.md
 **A6 (mechanism.tex, 1.5pp) — closed 2026-05-02 ✅**
 - 979 words (within 1.5pp budget). 3 subsections: `subsec:mechanism-pervisit` (CH19 counterfactual at AL), `subsec:mechanism-ablations` (FAMO/Aligned-MTL/HSM-reg drop-in panel at FL), `subsec:mechanism-isolation` ($\lambda=0$ pitfall + encoder-frozen protocol).
 - §6.1 single-state framing locked: "This is single-state mechanism evidence, run at Alabama only." + explicit note that the $\sim$72/$\sim$28 split is not generalised. Decomposition numbers verbatim from canon: 40.76 / 29.57 / 25.26 → +11.19 pp ($\sim$72\%) per-visit + +4.31 pp ($\sim$28\%) training signal.
-- §6.2 ablation numbers from `docs/studies/check2hgi/research/archive/F50/F50_T1_RESULTS_SYNTHESIS.md`: FAMO +0.62 pp; Aligned-MTL $-0.11$ reg / $-0.90$ cat; HSM-reg $-3.01$ pp (with single-fold-init caveat). Florida-only panel; "across all five states" phrases refer back to §5.2 sign-consistency, not generalising §6.1.
+- §6.2 ablation numbers from `docs/findings/archive/F50/F50_T1_RESULTS_SYNTHESIS.md`: FAMO +0.62 pp; Aligned-MTL $-0.11$ reg / $-0.90$ cat; HSM-reg $-3.01$ pp (with single-fold-init caveat). Florida-only panel; "across all five states" phrases refer back to §5.2 sign-consistency, not generalising §6.1.
 - §6.3 cross-attention $\lambda = 0$ note: encoder co-adapts via K/V projections; encoder-frozen isolation framed as the clean decomposition; regression tests pointed at via anonymous URL (`\ref{sec:method}`).
 - Figure F1 placeholder: `\includegraphics{figs/per-visit.pdf}` with `\label{fig:per-visit}` and TODO comment retained for camera-ready render.
 - Audit gate: 0 watermark hits (em-dash, "delve", "tapestry", "leverage", "robust", "comprehensive", etc.); both new cite keys (`liu2023famo`, `senushkin2023aligned`) already in `references.bib`; `eq:loss` cross-ref resolves to `method.tex:37`.

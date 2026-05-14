@@ -9,7 +9,7 @@ The merge_design study's load-bearing tasks are:
 For each variant {baseline, A, B, C}: run both heads with 5 folds × 30 epochs.
 Per-fold transition logs are reused from output/check2hgi/arizona/.
 
-Outputs land under docs/studies/check2hgi/results/P1/ (the canonical location
+Outputs land under docs/results/P1/ (the canonical location
 p1_region_head_ablation.py writes to), tagged with the variant name so they
 don't collide.
 

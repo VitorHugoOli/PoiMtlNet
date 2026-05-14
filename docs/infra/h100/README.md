@@ -90,7 +90,7 @@ Per-visit share ~89–90% at large states (FL/CA/TX) vs 64–72% at small states
 
 #### What integration did (now closed)
 
-1. Cherry-picked the 9 per-fold JSONs from `h100/pervisit-fl-ca-tx-results` into `docs/studies/check2hgi/results/phase1_perfold/` (now under `docs/results/phase1_perfold/` post-2026-05-14 reorg).
+1. Cherry-picked the 9 per-fold JSONs from `h100/pervisit-fl-ca-tx-results` into `docs/results/phase1_perfold/` (now under `docs/results/phase1_perfold/` post-2026-05-14 reorg).
 2. Re-rendered `articles/[BRACIS]_Beyond_Cross_Task/src/figs/per-visit.png` as a 5-panel figure via `articles/[BRACIS]_Beyond_Cross_Task/src/figs/render_per_visit_5state.py`.
 3. Updated `articles/[BRACIS]_Beyond_Cross_Task/src/sections/mechanism.tex §6.1` to cover all five states with the two-band pattern.
 4. Closed D2 in `articles/[BRACIS]_Beyond_Cross_Task/REVIEW.MD`.

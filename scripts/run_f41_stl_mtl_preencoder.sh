@@ -30,12 +30,12 @@ export PYTORCH_ENABLE_MPS_FALLBACK=1
 PY="${PY:-python3}"
 
 cd "${WORKTREE}"
-DEST="${WORKTREE}/docs/studies/check2hgi/results/F41_preencoder"
+DEST="${WORKTREE}/docs/results/F41_preencoder"
 mkdir -p "${DEST}"
 
 archive_latest() {
     local state="$1" dest_name="$2"
-    local src="${WORKTREE}/docs/studies/check2hgi/results/P1/region_head_${state}_region_5f_50ep_${dest_name}.json"
+    local src="${WORKTREE}/docs/results/P1/region_head_${state}_region_5f_50ep_${dest_name}.json"
     if [ -f "${src}" ]; then
         cp "${src}" "${DEST}/${dest_name}.json"
         echo "[F41] saved → ${DEST}/${dest_name}.json"

@@ -5,4 +5,4 @@ evidence_status: implemented
 registry_key: next_getnext
 runtime_class: models.next.next_getnext.head.NextHeadGETNext
 runtime_file: src/models/next/next_getnext/head.py
-source_doc: docs/studies/check2hgi/research/STAN_FOLLOWUPS_FINDINGS.md
+source_doc: docs/findings/STAN_FOLLOWUPS_FINDINGS.md

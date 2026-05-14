@@ -357,7 +357,7 @@ def main():
     ap.add_argument("--max_norm", type=float, default=0.9)
     ap.add_argument("--num_negatives", type=int, default=32)
     ap.add_argument("--temperature", type=float, default=0.2)
-    ap.add_argument("--out_dir", default="docs/studies/check2hgi/results/UP1")
+    ap.add_argument("--out_dir", default="docs/results/UP1")
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--log_every", type=int, default=50)
     ap.add_argument("--infonce_chunk_size", type=int, default=None,

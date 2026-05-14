@@ -1,6 +1,6 @@
 # AGENT.md — BRACIS 2026 Paper Working Guide
 
-> **Read order for any agent picking this up:** (1) this file, (2) `PAPER_STRUCTURE.md`, (3) `PAPER_DRAFT.md`, (4) the open decisions in §0 of `PAPER_DRAFT.md`, (5) the linked study artefacts in `docs/studies/check2hgi/`. Do not draft prose until §0 of `PAPER_DRAFT.md` is locked by the user.
+> **Read order for any agent picking this up:** (1) this file, (2) `PAPER_STRUCTURE.md`, (3) `PAPER_DRAFT.md`, (4) the open decisions in §0 of `PAPER_DRAFT.md`, (5) the linked study artefacts in `docs/`. Do not draft prose until §0 of `PAPER_DRAFT.md` is locked by the user.
 
 This file is operational, not encyclopedic. It exists so a sub-agent (or future Claude/Vitor) can pick up a single section and write it consistently with the rest of the paper without re-reading the whole study trail.
 
@@ -17,7 +17,7 @@ This file is operational, not encyclopedic. It exists so a sub-agent (or future 
 - **Working tagline:** *Per-visit context lifts next-category by +14 to +29 pp at every U.S.-state Gowalla split (paired Wilcoxon p = 0.0312 each, head-invariant at the AL/AZ ablation scale and matched-head replicated at FL/CA/TX); on next-region per-place embeddings tie or marginally exceed it (TOST tied at CA/TX). MTL on top of the substrate gains a small cat lift and pays a sign-consistent reg cost — the textbook tradeoff.*
 - **Headline scale (per `PAPER_DRAFT.md §0` D2):** three states **FL/CA/TX**; AL/AZ retained as smaller-scale anchors. T2 substrate-ablation reports all five states because the substrate task-asymmetry is paper-grade at every one.
 
-The full study lives under `docs/studies/check2hgi/`. **The single canonical numerical source is `docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v10, 2026-05-02).** Read `docs/studies/check2hgi/README.md` and `AGENT_CONTEXT.md` for the post-cleanup study navigation. The earlier paper-closure note `PAPER_CLOSURE_RESULTS_2026-05-01.md` was moved to `docs/studies/check2hgi/archive/post_paper_closure_2026-05-01/` as background provenance only; do not cite it as a primary source. **The leak-free closure says: MTL trails STL on `next_region` by 7–17 pp at every one of the five states**; the older "+6.48 pp MTL > STL on AL" framing in `MTL_ARCHITECTURE_JOURNEY.md` and the F49 docs was a leak artefact (asymmetric C4 leak inflated MTL more than STL).
+The full study lives under `docs/`. **The single canonical numerical source is `docs/results/RESULTS_TABLE.md §0` (v10, 2026-05-02).** Read `docs/README.md` and `AGENT_CONTEXT.md` for the post-cleanup study navigation. The earlier paper-closure note `PAPER_CLOSURE_RESULTS_2026-05-01.md` was moved to `docs/archive/check2hgi-post-paper-closure-2026-05-01/` as background provenance only; do not cite it as a primary source. **The leak-free closure says: MTL trails STL on `next_region` by 7–17 pp at every one of the five states**; the older "+6.48 pp MTL > STL on AL" framing in `MTL_ARCHITECTURE_JOURNEY.md` and the F49 docs was a leak artefact (asymmetric C4 leak inflated MTL more than STL).
 
 ---
 
@@ -127,11 +127,11 @@ Tables T1–T5 are required (T5 may live in appendix if pages tight); T6 is inli
 
 ---
 
-## 8 · Pointers to source-of-truth artefacts (under `docs/studies/check2hgi/`)
+## 8 · Pointers to source-of-truth artefacts (under `docs/`)
 
 | What | Where |
 |---|---|
-| Headline numbers + Δs across 5 states | **`docs/studies/check2hgi/results/RESULTS_TABLE.md §0` (v10, paper-canonical)** + `docs/studies/check2hgi/research/GAP_FILL_WILCOXON.json` (cat-Δ multi-seed + TX recipe) + `docs/studies/check2hgi/research/ARCH_DELTA_WILCOXON.json` (CA/TX §0.1 arch-Δ n=20 v10) + `FINAL_SURVEY.md` (substrate panel context) + `archive/post_paper_closure_2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md` (background provenance only — superseded by current §0; see CLAIMS_AND_HYPOTHESES whitelist below) |
+| Headline numbers + Δs across 5 states | **`docs/results/RESULTS_TABLE.md §0` (v10, paper-canonical)** + `docs/findings/GAP_FILL_WILCOXON.json` (cat-Δ multi-seed + TX recipe) + `docs/findings/ARCH_DELTA_WILCOXON.json` (CA/TX §0.1 arch-Δ n=20 v10) + `FINAL_SURVEY.md` (substrate panel context) + `archive/post_paper_closure_2026-05-01/PAPER_CLOSURE_RESULTS_2026-05-01.md` (background provenance only — superseded by current §0; see CLAIMS_AND_HYPOTHESES whitelist below) |
 | Claim catalogue (CH16, CH18, CH19, CH20, CH21, CH22, CH22b) | `CLAIMS_AND_HYPOTHESES.md` — **WHITELIST: only CH16 (substrate-cat), CH18-cat (substrate-cat under MTL), CH15 reframing (substrate-reg, in FINAL_SURVEY §4), CH19 (per-visit mechanism), and CH22 (leak-free Δm 2026-05-01) are paper-facing safe.** CH01 / CH02 / CH03 / CH18-reg-side pre-2026-04-30 / CH20 / CH21 / pre-2026-04-30 H3-alt narratives all contain superseded content from the leak-era. **Sub-agents must not cite CH01/CH02/CH03/CH20/CH21 as if current** — they pre-date the leak-free reframe. When in doubt, cross-check the number against `RESULTS_TABLE.md §0` v10. |
 | Champion recipe (B9 / H3-alt scale-conditional) | `NORTH_STAR.md` |
 | F-trail (architecture journey, supplementary) | `MTL_ARCHITECTURE_JOURNEY.md` |
@@ -139,7 +139,7 @@ Tables T1–T5 are required (T5 may live in appendix if pages tight); T6 is inli
 | Methodological note (cross-attn λ = 0 pitfall) | `research/F49_LAMBDA0_DECOMPOSITION_GAP.md` |
 | Per-visit mechanism counterfactual | `research/SUBSTRATE_COMPARISON_FINDINGS.md`, `CLAIMS_AND_HYPOTHESES.md §CH19` |
 | FAMO / Aligned-MTL / HSM ablations | `research/F50_T1_RESULTS_SYNTHESIS.md` |
-| Baselines audits | `docs/studies/check2hgi/baselines/{next_category,next_region}/comparison.md` |
+| Baselines audits | `docs/baselines/{next_category,next_region}/comparison.md` |
 | sklearn version reproducibility caveat | `FINAL_SURVEY.md` §8 |
 
 ---

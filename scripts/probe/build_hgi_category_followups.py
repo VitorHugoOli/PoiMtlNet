@@ -27,7 +27,7 @@ plumbs everything the north-star eval needs (data/checkins symlink,
 output/check2hgi/arizona_cat{variant} → arizona symlink, next_region.parquet
 symlink). After the build, north-star (next-CAT + next-REG, 5f × 30ep) is
 launched automatically — final results land in
-docs/studies/check2hgi/results/P1/.
+docs/results/P1/.
 """
 from __future__ import annotations
 

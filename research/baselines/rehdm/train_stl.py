@@ -250,7 +250,7 @@ def main():
     p.add_argument("--max-inter", type=int, default=3)
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--output-root", default=os.environ.get("OUTPUT_DIR", "output"))
-    p.add_argument("--results-dir", default="docs/studies/check2hgi/results/baselines")
+    p.add_argument("--results-dir", default="docs/results/baselines")
     p.add_argument("--tag", required=True)
     args = p.parse_args()
 

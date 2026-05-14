@@ -13,7 +13,7 @@
 #   full MTL − STL = (frozen_λ0 − STL) + (loss_λ0 − frozen_λ0) + (full − loss_λ0)
 #                       architectural    cat-encoder co-adapt    cat-supervision transfer
 #
-# Plan: `docs/studies/check2hgi/research/F49_LAMBDA0_DECOMPOSITION_GAP.md`.
+# Plan: `docs/findings/F49_LAMBDA0_DECOMPOSITION_GAP.md`.
 # Tracker: `docs/studies/check2hgi/FOLLOWUPS_TRACKER.md §F49`.
 #
 # Cost (MPS): AL ~30min × 2 + AZ ~60min × 2 = ~3h for the AL+AZ decision

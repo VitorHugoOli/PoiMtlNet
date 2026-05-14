@@ -10,7 +10,7 @@ keeping the figure compact saves ~30-40 % of figure-area at the same height.
 Usage
 -----
     python3 articles/[BRACIS]_Beyond_Cross_Task/src/figs/render_per_visit_grouped.py \\
-        [--perfold-dir docs/studies/check2hgi/results/phase1_perfold] \\
+        [--perfold-dir docs/results/phase1_perfold] \\
         [--out articles/[BRACIS]_Beyond_Cross_Task/src/figs/per-visit.png] \\
         [--states AL AZ FL CA TX] \\
         [--strict]

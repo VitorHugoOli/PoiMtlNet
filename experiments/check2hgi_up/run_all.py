@@ -27,7 +27,7 @@ def main():
     ap.add_argument("--epochs", type=int, default=200)
     ap.add_argument("--seeds", type=int, nargs="+", default=[42, 43, 44])
     ap.add_argument("--variants", nargs="+", default=VARIANTS, choices=VARIANTS)
-    ap.add_argument("--out_dir", default="docs/studies/check2hgi/results/UP1")
+    ap.add_argument("--out_dir", default="docs/results/UP1")
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--num_negatives", type=int, default=32)
     ap.add_argument("--temperature", type=float, default=0.2)

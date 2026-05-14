@@ -189,7 +189,7 @@ def run(state: str, folds: int, epochs: int, batch_size: int, seed: int,
     sgkf = StratifiedGroupKFold(n_splits=max(2, folds), shuffle=True, random_state=seed)
     splits = list(sgkf.split(np.zeros(len(cat)), cat, groups=uid))[:folds]
 
-    out_dir = Path("docs/studies/check2hgi/results/baselines")
+    out_dir = Path("docs/results/baselines")
     out_dir.mkdir(parents=True, exist_ok=True)
     tag_s = f"_{tag}" if tag else ""
     out_file = out_dir / f"faithful_stan_{state}_{folds}f_{epochs}ep{tag_s}.json"

@@ -11,7 +11,7 @@ STL cat next_gru dirs (Gap 2, already done):
 
 MTL B9 dirs: auto-discovered from results/check2hgi/florida/mtlnet_lr* (4 newest by seed).
 
-Output: docs/studies/check2hgi/research/FL_CAT_DELTA_WILCOXON.json
+Output: docs/findings/FL_CAT_DELTA_WILCOXON.json
 """
 from __future__ import annotations
 import json
@@ -23,7 +23,7 @@ from statistics import mean
 
 MIN_EPOCH = 5
 ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / "docs/studies/check2hgi/research/FL_CAT_DELTA_WILCOXON.json"
+OUT = ROOT / "docs/findings/FL_CAT_DELTA_WILCOXON.json"
 
 SEEDS = [0, 1, 7, 100]
 

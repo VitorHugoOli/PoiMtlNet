@@ -6,7 +6,7 @@ collaborators with at least one shared POI and end-time strictly before the
 target's start), trains the model with cross-entropy and OneCycleLR.
 
 Result JSON is written to
-`docs/studies/check2hgi/results/baselines/<tag>.json`.
+`docs/results/baselines/<tag>.json`.
 """
 from __future__ import annotations
 
@@ -360,7 +360,7 @@ def main():
     p.add_argument("--output-root", default=os.environ.get("OUTPUT_DIR", "output"))
     p.add_argument(
         "--results-dir",
-        default="docs/studies/check2hgi/results/baselines",
+        default="docs/results/baselines",
     )
     p.add_argument("--tag", required=True)
     args = p.parse_args()

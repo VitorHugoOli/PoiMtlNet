@@ -130,6 +130,6 @@ echo "================================================================"
 echo "=== All CA+TX STL runs done at $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 echo "=== STL cat logs: logs/arch_delta_*_stl_cat_*.log"
 echo "=== STL reg logs: logs/arch_delta_*_stl_reg_*.log"
-echo "=== STL reg JSONs: docs/studies/check2hgi/results/P1/region_head_*paper_close*stl_reg_seed*.json"
+echo "=== STL reg JSONs: docs/results/P1/region_head_*paper_close*stl_reg_seed*.json"
 nvidia-smi --query-gpu=memory.used,memory.free --format=csv
 echo "================================================================"

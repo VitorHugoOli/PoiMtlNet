@@ -10,7 +10,7 @@ has no attribute 'film'``, breaking every call site in
 After the fix, both methods are overridden on ``MTLnetCrossAttn`` with
 a deterministic zero-opposite-stream approximation. They return tensors
 of the correct shape without raising. See
-``docs/studies/check2hgi/issues/CROSSATTN_PARTIAL_FORWARD_CRASH.md``.
+``docs/issues/check2hgi/CROSSATTN_PARTIAL_FORWARD_CRASH.md``.
 """
 
 from __future__ import annotations

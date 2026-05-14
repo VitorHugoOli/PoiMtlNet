@@ -59,7 +59,7 @@ fi
 FOLDS="${FOLDS:-5}"
 EPOCHS="${EPOCHS:-50}"
 SEED="${SEED:-42}"
-# Default 2048 matches NORTH_STAR.md (`docs/studies/check2hgi/NORTH_STAR.md`).
+# Default 2048 matches NORTH_STAR.md (`docs/NORTH_STAR.md`).
 # On MPS, override with BATCH=1024 to avoid unified-memory pressure.
 BATCH="${BATCH:-2048}"
 TAG="${TAG:-baseline}"

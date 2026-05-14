@@ -7,7 +7,7 @@ no metrics.json exists — we recompute the linear probes + embedding stats on t
 
 Usage:
     PYTHONPATH=src:research python scripts/probe/summarize_hgi_category_variants.py \\
-        [--write-md docs/studies/check2hgi/research/hgi_category_injection/INDEX.md]
+        [--write-md docs/studies/hgi_category_injection/INDEX.md]
 """
 from __future__ import annotations
 import argparse

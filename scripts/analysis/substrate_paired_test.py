@@ -22,7 +22,7 @@ Usage::
       (a) a single summary JSON containing per-fold metrics, or
       (b) a directory of per-seed summary JSONs (script aggregates).
 
-Outputs JSON to docs/studies/check2hgi/results/paired_tests/<state>_<task>_<metric>.json
+Outputs JSON to docs/results/paired_tests/<state>_<task>_<metric>.json
 """
 
 from __future__ import annotations

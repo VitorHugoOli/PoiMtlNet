@@ -19,7 +19,7 @@ Therefore PRIMARY Δm uses cat F1 + reg MRR (clean, both files share the same
 non-_indist definition). SECONDARY uses top5_acc (also clean). top10 reported
 with explicit caveat as a sanity check against the F49 results doc.
 
-Output: docs/studies/check2hgi/results/paired_tests/F50_T0_delta_m.json + console.
+Output: docs/results/paired_tests/F50_T0_delta_m.json + console.
 """
 from __future__ import annotations
 
@@ -42,21 +42,21 @@ MTL_PATHS = {
 STL_CAT_PATHS = {
     # AL/AZ: phase1_perfold aggregated JSON (key fold_{0..4} -> {f1, accuracy, mrr})
     "AL": ("phase1_aggregated",
-           REPO / "docs/studies/check2hgi/results/phase1_perfold/AL_check2hgi_cat_gru_5f50ep.json"),
+           REPO / "docs/results/phase1_perfold/AL_check2hgi_cat_gru_5f50ep.json"),
     "AZ": ("phase1_aggregated",
-           REPO / "docs/studies/check2hgi/results/phase1_perfold/AZ_check2hgi_cat_gru_5f50ep.json"),
+           REPO / "docs/results/phase1_perfold/AZ_check2hgi_cat_gru_5f50ep.json"),
     # FL: F37 P1 (2026-04-28 09:31) — single-task run, fold_info per-fold dirs
     "FL": ("fold_info",
            REPO / "results/check2hgi/florida/next_lr1.0e-04_bs2048_ep50_20260428_0931/folds"),
 }
 
 STL_REG_PATHS = {
-    "AL": REPO / "docs/studies/check2hgi/results/B3_baselines/stl_getnext_hard_al_5f50ep.json",
-    "AZ": REPO / "docs/studies/check2hgi/results/B3_baselines/stl_getnext_hard_az_5f50ep.json",
-    "FL": REPO / "docs/studies/check2hgi/results/B3_baselines/stl_getnext_hard_fl_5f50ep.json",
+    "AL": REPO / "docs/results/B3_baselines/stl_getnext_hard_al_5f50ep.json",
+    "AZ": REPO / "docs/results/B3_baselines/stl_getnext_hard_az_5f50ep.json",
+    "FL": REPO / "docs/results/B3_baselines/stl_getnext_hard_fl_5f50ep.json",
 }
 
-OUT_JSON = REPO / "docs/studies/check2hgi/results/paired_tests/F50_T0_delta_m.json"
+OUT_JSON = REPO / "docs/results/paired_tests/F50_T0_delta_m.json"
 
 # ------------------------------------------------------------------------------
 # Per-fold extractors

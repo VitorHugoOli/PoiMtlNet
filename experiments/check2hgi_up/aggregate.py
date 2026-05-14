@@ -12,7 +12,7 @@ from pathlib import Path
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--results_dir", default="docs/studies/check2hgi/results/UP1")
+    ap.add_argument("--results_dir", default="docs/results/UP1")
     ap.add_argument("--state", default="alabama")
     ap.add_argument("--out", default=None)
     args = ap.parse_args()

@@ -10,7 +10,7 @@ Pools 5 seeds × 5 folds = 25 paired Δm samples at Florida using:
     on the partition-difficulty axis at FL).
 
 Driver outputs:
-  docs/studies/check2hgi/results/paired_tests/F50_T0_delta_m_FL_multiseed.json
+  docs/results/paired_tests/F50_T0_delta_m_FL_multiseed.json
 """
 from __future__ import annotations
 
@@ -23,9 +23,9 @@ import pandas as pd
 
 REPO = Path(__file__).resolve().parents[2]
 F51 = Path("/Volumes/Vitor's SSD/drive/results/f51_paper_grade_runs")
-P1  = REPO / "docs/studies/check2hgi/results/P1"
-PFD = REPO / "docs/studies/check2hgi/results/phase1_perfold"
-OUT = REPO / "docs/studies/check2hgi/results/paired_tests/F50_T0_delta_m_FL_multiseed.json"
+P1  = REPO / "docs/results/P1"
+PFD = REPO / "docs/results/phase1_perfold"
+OUT = REPO / "docs/results/paired_tests/F50_T0_delta_m_FL_multiseed.json"
 
 # Seed → MTL run dir (B9). Mapped by matching against F51_multi_seed_results.json.
 B9_DIRS = {

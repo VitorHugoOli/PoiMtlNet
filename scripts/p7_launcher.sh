@@ -23,7 +23,7 @@ PY="${PY:-python}"
 
 cd "${WORKTREE}"
 
-DEST="${WORKTREE}/docs/studies/check2hgi/results/P4"
+DEST="${WORKTREE}/docs/results/P4"
 mkdir -p "${DEST}"
 
 archive_summary() {

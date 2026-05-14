@@ -4,7 +4,7 @@ End-to-end recipe for spinning up a fresh RunPod pod, training the
 NORTH_STAR FL H3-alt config, and reproducing perf comparisons. Tested on
 RTX 4090 / driver 570 / CUDA 12.8 / Ubuntu 22.04 base image.
 
-The Colab guide (`docs/COLAB_GUIDE.md`) covers the Drive-mount + detached-
+The Colab guide (`docs/infra/colab/README.md`) covers the Drive-mount + detached-
 notebook workflow. This guide covers the SSH + `pip` workflow that RunPod
 expects.
 
@@ -81,7 +81,7 @@ FOLDS=1 EPOCHS=2 bash scripts/runpod_train_fl_h3alt.sh # smoke (~1 min)
 BATCH=1024 bash scripts/runpod_train_fl_h3alt.sh       # MPS-style batch (slower)
 ```
 
-Recipe (matches `docs/studies/check2hgi/NORTH_STAR.md`):
+Recipe (matches `docs/NORTH_STAR.md`):
 
 ```
 --scheduler constant --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3
@@ -127,7 +127,7 @@ this session). `logs/` is gitignored.
 
 - **California / Texas** — same recipe, change `--state florida` (or
   copy the script). FL is the Phase-2 lead per
-  `docs/studies/check2hgi/PHASE2_TRACKER.md`.
+  `docs/archive/check2hgi-post-paper-closure-2026-05-01/PHASE2_TRACKER.md`.
 - **B3 (predecessor recipe, `--max-lr 0.003` OneCycle)** — use
   `scripts/run_b3_fl_only.sh` after `export DATA_ROOT=$PWD/data
   OUTPUT_DIR=$PWD/output`.
@@ -214,7 +214,7 @@ The variant launchers and comparison driver are in `scripts/`:
 `runpod_perf_summarise.py`. Use them as a template if you want to A/B
 another knob (different seed, batch size, scheduler, etc.). The
 auto-generated comparison table writes to
-`docs/studies/check2hgi/results/perf_compare/`.
+`docs/results/perf_compare/`.
 
 ## 9. Open follow-ups
 
@@ -270,7 +270,7 @@ scripts/runpod_train_fl_h3alt_bs2048.sh    — perf variant (now default of base
 scripts/runpod_perf_compare.sh             — A/B/C driver
 scripts/runpod_perf_compare_resume.sh      — A/B/C driver (sequential, no tmux wait)
 scripts/runpod_perf_summarise.py           — comparison-table emitter
-docs/RUNPOD_GUIDE.md                       — this doc
+docs/infra/runpod/README.md                       — this doc
 ```
 
 Plus two small `scripts/train.py` additions (`--tf32`, `--compile`

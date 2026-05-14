@@ -185,7 +185,7 @@ class NextHeadSTAN(nn.Module):
         raw_embed_dim: int | None = None,
     ):
         # Default changed from "gaussian" to "alibi" on 2026-04-22 per
-        # docs/studies/check2hgi/issues/MODEL_DESIGN_REVIEW_2026-04-22.md
+        # docs/issues/check2hgi/MODEL_DESIGN_REVIEW_2026-04-22.md
         # §4: the unregularised Gaussian pair_bias (324 params/block) was
         # overfit-prone; AZ ALiBi runs (commit f1ea416) showed scale-
         # dependent σ reduction. Best STAN+GETNext paper numbers (B-M6d)

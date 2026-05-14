@@ -26,7 +26,7 @@ from run_variant import build_eval_pairs, linear_probe_cv  # noqa: E402
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--state", default="Alabama")
-    ap.add_argument("--out_dir", default="docs/studies/check2hgi/results/UP1")
+    ap.add_argument("--out_dir", default="docs/results/UP1")
     args = ap.parse_args()
 
     p = _root / "output" / "check2hgi" / args.state.lower() / "temp" / "checkin_graph.pt"

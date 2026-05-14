@@ -1,6 +1,6 @@
 """Run MTL-B3 (post-F27 champion config) on a state with a swapped Check2HGI substrate.
 
-B3 config (post-F27, per docs/studies/check2hgi/SESSION_HANDOFF_2026-04-24.md):
+B3 config (post-F27, per docs/archive/check2hgi-post-paper-closure-2026-05-01/SESSION_HANDOFF_2026-04-24.md):
     mtlnet_crossattn + static_weight(category_weight=0.75)
     + cat-head=next_gru (task_a)
     + reg-head=next_getnext_hard d=256, 8h (task_b)
@@ -37,7 +37,7 @@ def main():
     ap.add_argument("--state", required=True)
     ap.add_argument("--epochs", type=int, default=50)
     ap.add_argument("--folds", type=int, default=5)
-    ap.add_argument("--source_dir", default="docs/studies/check2hgi/results/UP1")
+    ap.add_argument("--source_dir", default="docs/results/UP1")
     ap.add_argument("--source_epochs", type=int, default=200)
     ap.add_argument("--cat_head", default="next_gru",
                     help="Post-F27 default. Use 'default' to skip the flag (pre-F27 B3).")

@@ -15,14 +15,14 @@ sklearn 1.8.0.
 PRIMARY:   cat F1 + reg MRR     (clean across MTL/STL)
 SECONDARY: cat F1 + reg Acc@10  (also clean — `acc10` in STL pf, `acc10` in MTL pf)
 
-Source files (all under `docs/studies/check2hgi/results/phase1_perfold/`):
+Source files (all under `docs/results/phase1_perfold/`):
   MTL B9 cat: <ST>_check2hgi_mtl_cat_pf.json   (fold_N.f1)
   MTL B9 reg: <ST>_check2hgi_mtl_reg_pf.json   (fold_N.{acc10, mrr})
   STL cat:    <ST>_check2hgi_cat_gru_5f50ep.json (fold_N.f1)
   STL reg:    <ST>_check2hgi_reg_gethard_pf_5f50ep.json (fold_N.{acc10, mrr})
 
 Outputs:
-  docs/studies/check2hgi/results/paired_tests/F50_T0_delta_m_leakfree.json
+  docs/results/paired_tests/F50_T0_delta_m_leakfree.json
 """
 from __future__ import annotations
 
@@ -33,8 +33,8 @@ from pathlib import Path
 from typing import Sequence
 
 REPO = Path(__file__).resolve().parents[2]
-PFD = REPO / "docs/studies/check2hgi/results/phase1_perfold"
-OUT = REPO / "docs/studies/check2hgi/results/paired_tests/F50_T0_delta_m_leakfree.json"
+PFD = REPO / "docs/results/phase1_perfold"
+OUT = REPO / "docs/results/paired_tests/F50_T0_delta_m_leakfree.json"
 
 STATES = ("AL", "AZ", "FL", "CA", "TX")
 

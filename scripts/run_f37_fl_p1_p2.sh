@@ -30,8 +30,8 @@ PY="${PY:-python3}"
 
 cd "${WORKTREE}"
 
-DEST_P1="${WORKTREE}/docs/studies/check2hgi/results/P1_5b_post_f27"
-DEST_P2="${WORKTREE}/docs/studies/check2hgi/results/B3_baselines"
+DEST_P1="${WORKTREE}/docs/results/P1_5b_post_f27"
+DEST_P2="${WORKTREE}/docs/results/B3_baselines"
 mkdir -p "${DEST_P1}" "${DEST_P2}"
 
 START_TIME=$(date +%s)
@@ -93,7 +93,7 @@ echo "[P2] exit ${P2_RC} at $(date)"
 
 # Archive P2 if successful
 if [ ${P2_RC} -eq 0 ]; then
-    P2_SRC="${WORKTREE}/docs/studies/check2hgi/results/P1/region_head_florida_region_5f_50ep_stl_gethard.json"
+    P2_SRC="${WORKTREE}/docs/results/P1/region_head_florida_region_5f_50ep_stl_gethard.json"
     if [ -f "${P2_SRC}" ]; then
         cp "${P2_SRC}" "${DEST_P2}/stl_getnext_hard_fl_5f50ep.json"
         echo "[P2] archived → ${DEST_P2}/stl_getnext_hard_fl_5f50ep.json"
