@@ -3,6 +3,25 @@
 Merged write-up of the four diagnostics that landed today. Together they
 characterise the residual HGI gap and falsify the easy explanations.
 
+> **2026-05-14 training-regime caveat (PR #20 Claude review).** The Test 1
+> JSONs were trained with two suboptimal settings in
+> `scripts/p1_poi_head_ablation.py` that were fixed in commit `e99e904`:
+> (a) the `OneCycleLR` scheduler was constructed but never wired in
+> (`None` passed to `_train_one_fold`), so training ran at a fixed LR of
+> `max_lr/25 = 1.2e-4` instead of the intended warmup + cosine decay;
+> (b) `CrossEntropyLoss()` was used without `label_smoothing`, despite the
+> sibling `p1_region_head_ablation.py` using `label_smoothing=0.1` (relevant
+> for 12 k–77 k POI classes under a Zipfian visit distribution — head-class bias).
+>
+> **Research impact:** *relative* ordering (HGI > J > canonical) is preserved
+> because all three substrates share the same training regime. The
+> *absolute* Acc@1/5/10 numbers below are pessimistic for all designs equally
+> and should not be quoted as paper-grade in this state. The qualitative
+> verdict ("J closes 77 % of the canonical→HGI gap but does not overcome
+> HGI") holds and is the load-bearing finding the rest of the study cites.
+> Re-running T1 under the fixed regime is queued; expect roughly proportional
+> absolute lifts at each substrate.
+
 ## Test 1 — Next-POI probe (AL, 5f×50ep, `next_gru`, 11 848 classes)
 
 | Substrate | Acc@10 | Δ vs canonical | Wilcoxon p_gt vs canonical |
