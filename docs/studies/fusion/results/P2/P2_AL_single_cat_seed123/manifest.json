@@ -1,0 +1,64 @@
+{
+  "config": {
+    "name": "category_alabama_fusion",
+    "state": "alabama",
+    "embedding_engine": "fusion",
+    "model_name": "category_ensemble",
+    "model_params": {
+      "input_dim": 128,
+      "hidden_dim": 64,
+      "num_classes": 7,
+      "dropout": 0.1
+    },
+    "task_type": "category",
+    "next_target": "next_category",
+    "epochs": 50,
+    "batch_size": 4096,
+    "learning_rate": 0.0001,
+    "max_lr": 0.01,
+    "weight_decay": 0.05,
+    "gradient_accumulation_steps": 1,
+    "max_grad_norm": 1.0,
+    "optimizer_eps": 1e-08,
+    "use_torch_compile": false,
+    "task_loss": "cross_entropy",
+    "mtl_loss": "",
+    "mtl_loss_params": {},
+    "use_class_weights": false,
+    "k_folds": 5,
+    "seed": 123,
+    "split_relaxation": false,
+    "min_category_val_fraction": 0.05,
+    "min_next_val_fraction": 0.05,
+    "min_class_count": 5,
+    "min_class_fraction": 0.03,
+    "timeout": null,
+    "target_cutoff": null,
+    "early_stopping_patience": -1,
+    "schema_version": 1
+  },
+  "git_commit": "a9df3edeeaeb77598d13e1317348be7337740ee3",
+  "seeds": {
+    "torch_manual_seed": 123,
+    "numpy_seed": 123,
+    "python_seed": 123
+  },
+  "pytorch_version": "2.11.0",
+  "device": "mps",
+  "deterministic_flags": {
+    "torch.backends.cudnn.deterministic": false,
+    "torch.backends.cudnn.benchmark": false
+  },
+  "timestamp": "2026-04-18T12:29:48.659567+00:00",
+  "dataset_signatures": {
+    "category_input": {
+      "path": "/Users/vitor/Desktop/mestrado/ingred/output/fusion/alabama/input/category.parquet",
+      "sha256": "0c5113ad990f6736c9a4d80cdf5a345279deb10debec55c433a2f6db9693b16e",
+      "size_bytes": 8809055,
+      "mtime": "2026-04-14T15:38:56.045063+00:00"
+    }
+  },
+  "split_signature": null,
+  "feasibility_report_signature": null,
+  "schema_version": 1
+}

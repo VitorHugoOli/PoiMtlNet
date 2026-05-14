@@ -1,0 +1,199 @@
+# Phase P1 — Final Coordinator Summary (2026-04-17)
+
+**Scope:** Architecture × Optimizer grid on multi-source fusion. Alabama (AL) and Arizona (AZ), matched effective batch (bs=4096, grad_accum=1, embedding_dim=128, seed 42, fusion engine).
+
+**Total runs:** 180 tests — 75 screen + 10 promote + 5 confirm per state. All archived, all verdicts `matches_hypothesis`, zero crashes, zero std/mean > 0.3.
+
+---
+
+## Runs per stage
+
+| Stage | Folds × epochs | AL | AZ |
+|-------|---------------|----|----|
+| P1a screen | 1f × 10ep | 75 (5 archs × 15 optims) | 75 |
+| P1b promote | 2f × 15ep | 10 (top-10 from AL P1a) | 10 (top-10 from AZ P1a) |
+| P1c confirm | 5f × 50ep | 5 (top-5 from AL P1b) | 5 (top-5 from AZ P1b) |
+
+## Top-5 at P1c (5f × 50ep)
+
+**Alabama (winner: `mmoe4 × gradnorm`, gradient):**
+
+| Arch | Optim | Joint | Cat (±std) | Next (±std) |
+|------|-------|-------|------------|-------------|
+| mmoe4 | gradnorm | **0.4082** | 0.8219 ±0.0118 | 0.2715 ±0.0111 |
+| cgc22 | excess_mtl | 0.4043 | 0.8313 ±0.0111 | 0.2671 ±0.0215 |
+| cgc22 | nash_mtl | 0.4034 | 0.8231 ±0.0086 | 0.2672 ±0.0201 |
+| cgc21 | bayesagg_mtl | 0.4034 | 0.8197 ±0.0095 | 0.2675 ±0.0173 |
+| cgc22 | equal_weight | 0.4031 | 0.8219 ±0.0203 | 0.2670 ±0.0057 |
+
+Top-5 spread = 0.0051. Winner − equal_weight = +0.0051 (marginal).
+
+**Arizona (winner: `cgc21 × uncertainty_weighting`, static):**
+
+| Arch | Optim | Joint | Cat (±std) | Next (±std) |
+|------|-------|-------|------------|-------------|
+| cgc21 | uncertainty_weighting | **0.4374** | 0.7319 ±0.0146 | 0.3119 ±0.0139 |
+| cgc21 | gradnorm | 0.4369 | 0.7380 ±0.0143 | 0.3103 ±0.0093 |
+| cgc21 | pcgrad | 0.4361 | 0.7282 ±0.0108 | 0.3113 ±0.0125 |
+| cgc21 | dwa | 0.4352 | 0.7346 ±0.0138 | 0.3091 ±0.0085 |
+| mmoe4 | nash_mtl | 0.4277 | 0.7294 ±0.0224 | 0.3025 ±0.0075 |
+
+Top-4 spread = 0.0022. Winner − best grad-surgery = −0.0005 (static tied with or narrowly beating gradient).
+
+---
+
+## Claim rollup
+
+| ID | Statement | P1c verdict | Notes |
+|----|-----------|------------|-------|
+| **C02** | grad-surgery > equal_weight on fusion | **`partial`** | AL Δ = **+0.0051**, AZ Δ = **−0.0005**. Within noise. Consistent with N02 (grad-surgery accelerates convergence but does not raise the ceiling). |
+| **C03** | equal_weight suffices on single-source | `pending` | Not tested in P1 (fusion only). Deferred to P3. |
+| **C04** | arch rankings are embedding-dependent | `pending` (early signal) | Fusion-only so main test is in P3. But cross-state signal is already here: AL favors mmoe4/cgc22, AZ favors cgc21. |
+| **C05** | expert-gating > FiLM base | **`confirmed`** | AL Δ ≈ +0.03–0.045, AZ Δ ≈ +0.005–0.017. Zero `base` cells survive top-10 in either state. |
+
+`CLAIMS_AND_HYPOTHESES.md` updated with P1c evidence for C02 (→ `partial`) and C05 (→ `confirmed`).
+
+---
+
+## C02 signature — grad-surgery vs equal_weight across stages
+
+| State | Stage | eq best | grad best | **Δ (grad − eq)** |
+|-------|-------|---------|-----------|-------------------|
+| AL | screen | 0.4037 | 0.4047 | **+0.0010** |
+| AL | promote | 0.4253 | 0.4242 | **−0.0011** |
+| AL | confirm | 0.4031 | 0.4082 | **+0.0051** |
+| AZ | screen | 0.4315 | 0.4376 | +0.0061 (vs best static 0.4403: **−0.0027**) |
+| AZ | confirm | — (not in AZ top-5) | 0.4369 | vs best static 0.4374 = **−0.0005** |
+
+**Direction flips at least once per state across stages.** Magnitude is always below 1 p.p. absolute. **→ gradient-surgery is a noise-level effect on fusion at matched batch.**
+
+---
+
+## Cross-stage joint trajectory (AL top-5)
+
+| Config | screen | promote | confirm | Δ(conf − screen) |
+|--------|--------|---------|---------|------------------|
+| mmoe4 × gradnorm | 0.4042 | 0.4242 | **0.4082** | **+0.0040** |
+| cgc22 × excess_mtl | 0.4054 | 0.4254 | 0.4043 | −0.0011 |
+| cgc22 × nash_mtl | 0.4045 | 0.4258 | 0.4034 | −0.0011 |
+| cgc21 × bayesagg_mtl | 0.4047 | 0.4245 | 0.4034 | −0.0013 |
+| cgc22 × equal_weight | 0.4037 | 0.4253 | 0.4031 | −0.0007 |
+
+**Honest framing.** `mmoe4 × gradnorm` is the only config whose joint improves from *screen* (1f × 10ep, noisy) to confirm, but **all 5 configs lose ~1.6–2.2 p.p. joint from promote to confirm** (cat gains ~1–4 p.p., next drops ~1.7–2.4 p.p.). The "winner" is the config that loses the *least* under the more-reliable protocol. Without multi-seed the ordering at confirm is within one fold-std and not distinguishable.
+
+Per-fold noise on joint at confirm is ~0.01. The AL winner margin over `equal_weight` is **+0.0051** → **Z ≈ 0.39** vs pooled fold-std of 0.0133. **Not significant at one seed.**
+
+---
+
+## F2 multi-seed reanalysis (added 2026-04-17 evening)
+
+After the initial single-seed P1 grid, 8 additional 5f × 50ep runs were executed at seeds {123, 2024} to measure inter-seed variance on the two AL candidates and two AZ candidates.
+
+**AL multi-seed:**
+
+| Config | seed 42 | seed 123 | seed 2024 | joint@J mean ± std | joint@T mean ± std |
+|--------|---------|----------|-----------|--------------------|--------------------|
+| mmoe4 × gradnorm | 0.4082 | 0.4088 | 0.4072 | **0.4080 ± 0.0008** | 0.4232 ± 0.0022 |
+| cgc22 × equal_weight | 0.4031 | 0.4109 | 0.4204 | **0.4115 ± 0.0087** | 0.4237 ± 0.0026 |
+
+**AZ multi-seed:**
+
+| Config | seed 42 | seed 123 | seed 2024 | joint@J mean ± std | joint@T mean ± std |
+|--------|---------|----------|-----------|--------------------|--------------------|
+| cgc21 × uncertainty_weighting | 0.4374 | 0.4281 | 0.4355 | 0.4337 ± 0.0049 | 0.4394 ± 0.0033 |
+| cgc21 × dwa | 0.4352 | 0.4297 | 0.4343 | 0.4330 ± 0.0029 | 0.4412 ± 0.0040 |
+
+**C02 verdict at multi-seed:**
+
+| State | Comparison | Δ (grad − eq) joint@J | Δ joint@T | Welch-like t |
+|-------|-----------|-----------------------|-----------|--------------|
+| AL | mmoe4×gradnorm − cgc22×equal_weight | **−0.0034** (eq wins) | **−0.0005** | −0.68, −0.25 |
+| AZ | cgc21×dwa − cgc21×uncertainty_weighting | −0.0006 | +0.0018 | +0.18, −0.58 |
+
+**All |t| < 0.7. C02 is null.** CLAIMS status upgraded from `partially_refuted` to `refuted`.
+
+**C18 (reproducibility) verdict at multi-seed:** all 4 candidates have joint@J std < 0.01, **C18 confirmed** (cgc22×eq borderline at 0.0087). joint@T std is uniformly smaller than joint@J std (another point for per-task-best as the reliability metric).
+
+**Champion for P2 (recommended):** `mmoe4 × gradnorm` on AL. Rationale:
+- Its mean joint is not the highest (cgc22×eq wins by a hair at joint@J mean) but its **seed variance is 10× smaller** (0.0008 vs 0.0087).
+- A champion we use across P2–P6 should be *reliable*, not *occasionally-best*.
+- At joint@T all 4 candidates tie within 0.003 — so picking on reliability costs nothing in ceiling performance.
+
+For AZ: either `cgc21 × uncertainty_weighting` (established) or `cgc21 × dwa` (higher joint@T by 0.0018). Not a load-bearing choice.
+
+---
+
+## ⚠️ Per-task-best reanalysis (C32 — added 2026-04-17)
+
+Reported `joint_f1` uses the **joint-peak** checkpoint (where `joint_score` was max during training). But `full_summary.json` also logs each task's F1 at its own per-task-best epoch via `diagnostic_task_best`. Recomputing `joint_f1` as HM(cat@best, next@best):
+
+**AL P1c — joint@J (reported) vs joint@T (per-task-best):**
+
+| Config | joint@J | joint@T | Δ |
+|--------|---------|---------|----|
+| cgc21 × bayesagg_mtl | 0.4034 | 0.4215 | +0.0181 |
+| cgc22 × equal_weight | 0.4031 | **0.4229** | +0.0198 |
+| cgc22 × excess_mtl | 0.4043 | 0.4215 | +0.0173 |
+| cgc22 × nash_mtl | 0.4034 | 0.4217 | +0.0183 |
+| mmoe4 × gradnorm | **0.4082** | 0.4220 | +0.0138 |
+
+Under per-task-best selection **all 5 AL configs collapse into a 0.4215–0.4229 range (spread 0.0014).** `equal_weight` leads by ~0.0009 over `gradnorm`. **The AL "winner" ordering is an artifact of joint-peak checkpoint selection**, not a property of the configurations.
+
+**AZ P1c — same analysis:**
+
+| Config | joint@J | joint@T | Δ |
+|--------|---------|---------|----|
+| cgc21 × dwa | 0.4352 | **0.4416** | +0.0064 |
+| cgc21 × gradnorm | 0.4369 | 0.4406 | +0.0037 |
+| cgc21 × pcgrad | 0.4361 | 0.4392 | +0.0031 |
+| cgc21 × uncertainty_weighting | **0.4374** | 0.4400 | +0.0026 |
+| mmoe4 × nash_mtl | 0.4277 | 0.4367 | +0.0090 |
+
+AZ winner flips: `cgc21 × uw` (joint@J) → `cgc21 × dwa` (joint@T). Top-4 cgc21 still within 0.0024.
+
+**Mechanism (from `fold*_info.json` per-task best epochs):** Category peaks at epochs 17–45 (uses full schedule). Next peaks at epochs 10–22 (first third). The joint-peak checkpoint sits *after* next's peak and *before* category's peak — a compromise epoch that under-reports next F1 by ~0.012–0.017 and under-reports category F1 by ~0.004–0.012.
+
+**Implications:**
+- **C02 refuted under per-task-best selection.** AL: grad − eq = −0.0009; AZ: grad − static = −0.0010.
+- **P2 C06 (MTL vs single-task) must report both joint@J and joint@T** — otherwise single-task-next will look artificially superior.
+- Logged as claim `C32` and flaw `F1` in `issues/P1_METHODOLOGY_FLAWS.md`.
+
+---
+
+## Decision gate for P2
+
+From `P1_arch_x_optimizer.md §Phase gate`:
+1. ✅ **P1c has a clear winner / tight tie** — AL winner mmoe4×gradnorm (0.4082); within-top-5 spread 0.0051 (~1 p.p.) — a reasonable near-tie.
+2. ✅ **Sensible profile** — AL winner cat=0.822, next=0.272 (both exceed thresholds). AZ winner cat=0.732, next=0.312 (ditto).
+3. ✅ **AL fully done** — AL P1a + P1b + P1c complete.
+
+Additionally:
+4. **`equal_weight` near-tie at AL P1c (0.4031 vs 0.4082 = 0.005 behind)** — the phase doc flagged this as the "pause and re-plan" condition. The winner is strictly gradnorm (not equal_weight), so we do not technically trigger the pause. But the proximity is itself a finding. **Paper narrative should lead with C05 (expert-gating) as the first-order lever, not C02.**
+
+**Gate: PASS** (on the phase-doc criteria) **but with important caveats** — see §Per-task-best reanalysis, `issues/P1_METHODOLOGY_FLAWS.md`. Reasonable to advance to P2 only if we commit to:
+- Reporting both joint@J and joint@T in P2 analyses.
+- Multi-seed replicating the P2 champion config.
+- Running the C31 fclass-on-fusion shuffle check as a P2 blocker.
+
+---
+
+## Surprises / open items
+
+1. **Cross-state winner disagreement.** AL → `mmoe4 × gradnorm`. AZ → `cgc21 × uncertainty_weighting`. Different arch AND different optim class. Flagged under C04 but warrants its own note: if winners don't transfer across states even under the same fusion engine, any "champion" chosen for downstream phases (P2: MTL vs single-task; P4: hyperparam robustness) has to carry a state-sensitivity caveat.
+2. **NextHead overfitting signature.** Next F1 degrades from promote (2f×15ep) to confirm (5f×50ep) on 4 of 5 AL cells (~2 p.p. drop). Only mmoe4 is immune. Worth checking whether this is a general pattern (next-POI head wants early stopping) or MTL-architecture specific.
+3. **`equal_weight` proximity.** `cgc22 × equal_weight` is within 0.005 of the AL winner at 5f × 50ep. On fusion, the MTL-balancing optimizer is a second-order choice.
+4. **Longer-than-expected P1c wall-clock.** Per run varied from 24 to 45 min (phase doc estimated ~22 min). Relevant for P2/P3 budgeting.
+
+---
+
+## P2 champion config recommendation
+
+For P2 (MTL vs single-task, C06/C07/C08/C28), we need a single champion. Options:
+
+| Option | Config | Rationale |
+|--------|--------|-----------|
+| **A** | `mmoe4 × gradnorm` | AL winner; only config to improve from screen to confirm; gradient-surgery mildly helps. |
+| **B** | `cgc21 × uncertainty_weighting` | AZ winner; static method; best balance on AZ. |
+| **C** | Run both AL and AZ winners through P2 | Safer, 2× compute. |
+
+Recommend **Option A** for P2, with a state-robustness note. If P2 MTL-vs-single comparison is tight, also run Option B on AL as a sensitivity check.

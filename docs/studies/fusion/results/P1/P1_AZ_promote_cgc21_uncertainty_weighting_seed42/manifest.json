@@ -1,0 +1,75 @@
+{
+  "config": {
+    "name": "mtl_arizona_fusion",
+    "state": "arizona",
+    "embedding_engine": "fusion",
+    "model_name": "mtlnet_cgc",
+    "model_params": {
+      "feature_size": 128,
+      "shared_layer_size": 256,
+      "num_classes": 7,
+      "num_heads": 8,
+      "num_layers": 4,
+      "seq_length": 9,
+      "num_shared_layers": 4,
+      "num_shared_experts": 2,
+      "num_task_experts": 1
+    },
+    "task_type": "mtl",
+    "next_target": "next_category",
+    "epochs": 15,
+    "batch_size": 4096,
+    "learning_rate": 0.0001,
+    "max_lr": 0.001,
+    "weight_decay": 0.05,
+    "gradient_accumulation_steps": 1,
+    "max_grad_norm": 1.0,
+    "optimizer_eps": 1e-08,
+    "use_torch_compile": false,
+    "task_loss": "cross_entropy",
+    "mtl_loss": "uncertainty_weighting",
+    "mtl_loss_params": {},
+    "use_class_weights": true,
+    "k_folds": 2,
+    "seed": 42,
+    "split_relaxation": false,
+    "min_category_val_fraction": 0.05,
+    "min_next_val_fraction": 0.05,
+    "min_class_count": 5,
+    "min_class_fraction": 0.03,
+    "timeout": null,
+    "target_cutoff": null,
+    "early_stopping_patience": -1,
+    "schema_version": 1
+  },
+  "git_commit": "97f7fdb4cdaa377a10355d679705e126d0dffdd1",
+  "seeds": {
+    "torch_manual_seed": 42,
+    "numpy_seed": 42,
+    "python_seed": 42
+  },
+  "pytorch_version": "2.11.0",
+  "device": "mps",
+  "deterministic_flags": {
+    "torch.backends.cudnn.deterministic": false,
+    "torch.backends.cudnn.benchmark": false
+  },
+  "timestamp": "2026-04-17T01:39:40.730025+00:00",
+  "dataset_signatures": {
+    "category_input": {
+      "path": "/Users/vitor/Desktop/mestrado/ingred/output/fusion/arizona/input/category.parquet",
+      "sha256": "e8381bf280f8e6dc391f126a216b7e4176e057046800c50f7501a77ff8726a7e",
+      "size_bytes": 15630441,
+      "mtime": "2026-04-14T15:37:01.473387+00:00"
+    },
+    "next_input": {
+      "path": "/Users/vitor/Desktop/mestrado/ingred/output/fusion/arizona/input/next.parquet",
+      "sha256": "a9e8ec4ad90685d65d491d2d76aec8a6bbfe47789e6b59b599434dd64f7968ef",
+      "size_bytes": 90594911,
+      "mtime": "2026-04-14T15:37:19.485969+00:00"
+    }
+  },
+  "split_signature": null,
+  "feasibility_report_signature": null,
+  "schema_version": 1
+}

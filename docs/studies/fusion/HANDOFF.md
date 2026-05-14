@@ -1,150 +1,143 @@
-# Handoff — state as of 2026-04-15 (updated)
+# Handoff — state as of 2026-04-17 (P1 closed, critical review complete)
 
-Snapshot written at session close so the next session (using `/coordinator` + `/worker`) starts with full context. This is a **transient** file — update or delete it once P1 is underway and state.json is authoritative.
+Snapshot written at session close. This file is **transient**; trust `state.json` when in doubt.
+
+---
+
+## ⚠️ Read first
+
+`docs/studies/fusion/issues/P1_METHODOLOGY_FLAWS.md` catalogs 10 flaws identified in the post-P1 critical review. The two high-severity items (F1 joint-peak checkpoint bias; F2 single-seed) **must be resolved or explicitly acknowledged before P2 runs** — P2's #1 paper claim (C06 MTL vs single-task) rides on the champion we freeze from P1.
 
 ---
 
 ## Study status at a glance
 
-- **Current phase:** P0 (in exit review — coordinator passed the gate; run `/study advance` to open P1)
-- **Claims catalog:** 30 claims + 4 negations in `CLAIMS_AND_HYPOTHESES.md` (C01–C30 + N01–N04)
-  - C29, C30, N03 added 2026-04-15 from HGI leakage audit; both **confirmed**, enrolled in state.json as P0 tests
-  - N04 added 2026-04-15: protocol-delta caveat (provisional, pending `P5_protocol_delta`)
-- **Phases registered:** P0–P6
-- **Test suite:** 692 passed, 17 skipped (sklearn 1.8.0, torch 2.11.0)
-- **Git:** `main` is clean; latest meaningful commit `94c4dda` (study-agnostic scripts + leakage script move)
+- **Current phase:** P2 (P1 → completed via `/study advance` 2026-04-17).
+- **P0 ✅ closed. P1 ✅ closed** (189 P1 tests archived: 180 original + 1 F4 base + 8 F2 multi-seed). P2 open, 0 enrolled. P3–P6 planned.
+- **Claims catalog:** 32 claims + 4 negations.
+  - **C02** (grad-surgery > eq): **`refuted`** — multi-seed null, t-stats |t|<0.7.
+  - **C05** (expert > base): **`partial`** — screen supports, confirm inverts direction.
+  - **C18** (reproducibility): **`confirmed`** — all 4 F2 candidates std<0.01 on joint@J; std<0.004 on joint@T.
+  - **C31** (fclass shortcut on fusion): **`partial`** — linear probe strongly supports; full arm-C retrain pending.
+  - **C32** (joint-peak checkpoint bias): **`confirmed`** — joint@T now first-class metric.
+- **Git:** clean-ish. Latest commits: `0161c7a` F1/F3, `42b4035` F4, then this session's F2 finalization (still uncommitted at this note).
 
 ---
 
-## Data availability snapshot (as of 2026-04-15)
+## P1 outcome (matched batch, fusion, seed 42)
 
-| State   | dgi | hgi | fusion | sphere2vec | time2vec (next only) | poi2hgi | check2hgi |
-|---------|:---:|:---:|:------:|:----------:|:--------------------:|:-------:|:---------:|
-| alabama |  ✓  |  ✓  |   ✓    |     ✓      |          ✓           |    ✗    |     ✗     |
-| arizona |  ✓* |  ✓  |   ✓    |     ✗      |          ✗           |    ✗    |     ✗     |
-| florida |  ✓* |  ✓  |   ✓    |     ✓      |          ✓           |    ✗    |     ✗     |
+| Stage | AL | AZ | Verdict |
+|-------|----|----|---------|
+| screen (1f×10ep) | 75 | 75 | all `matches_hypothesis` |
+| promote (2f×15ep) | 10 | 10 | all `matches_hypothesis` |
+| confirm (5f×50ep) | 5 | 5 | all `matches_hypothesis` |
 
-✓* = data present but **category parquet is pre-Phase-2 format** (missing `placeid` column). Folds frozen using independent StratifiedKFold fallback. Regenerate via Phase-2 pipeline before any experiment that needs POI-level user isolation for category.
+- **AL "winner" at joint-peak selection (joint@J):** `mmoe4 × gradnorm` = **0.4082**.
+- **AL at per-task-best selection (joint@T):** `cgc22 × equal_weight` = **0.4229**. All 5 AL top-5 collapse to 0.4215–0.4229 (spread 0.0014). **The AL joint@J ranking is a checkpoint-selection artifact (C32/F1).**
+- **AZ "winner" at joint@J:** `cgc21 × uncertainty_weighting` = **0.4374**.
+- **AZ at joint@T:** `cgc21 × dwa` = **0.4416**. Top-4 cgc21 within 0.0024.
+- **C02 refuted under joint@T.** AL grad−eq = −0.0009; AZ grad−static = −0.0010.
+- Full tables + per-task-best reanalysis: `docs/studies/fusion/results/P1/SUMMARY.md`.
 
-**Integrity check results** (`docs/studies/fusion/results/P0/integrity/*.json`):
+### Claim updates from P1
 
-| State   | engine  | status | notes                                      |
-|---------|---------|--------|--------------------------------------------|
-| alabama | dgi     | OK     |                                            |
-| alabama | hgi     | OK     |                                            |
-| alabama | fusion  | OK     |                                            |
-| arizona | dgi     | **FAIL** | category missing `placeid` (pre-Phase-2) |
-| arizona | hgi     | OK     |                                            |
-| arizona | fusion  | OK     |                                            |
-| florida | dgi     | **FAIL** | category missing `placeid` (pre-Phase-2) |
-| florida | hgi     | OK     |                                            |
-| florida | fusion  | **WARN** | half-L2 ratio 40.99× > expected 5-30× band |
+| Claim | Before | After P1 + critical review | Delta |
+|-------|--------|----------------------------|-------|
+| **C02** grad-surgery > eq on fusion | `partially_refuted` | **`partially_refuted`** (reinforced) | AL joint@J +0.0051 (Z=0.39 → null); AL joint@T −0.0009; AZ joint@T −0.0010. No measurable advantage. |
+| **C05** expert-gating > FiLM base | `partial` | **`confirmed`** (with F4 caveat — `base` not at 5f×50ep) | Every expert arch > base at screen (75 cells × 2 states); unanimous direction. |
+| **C31** fclass shortcut on fusion | — (new) | `pending` (blocking for P2/P3) | 1-fold arm-C run on fusion needed. Results unknown. |
+| **C32** joint-peak checkpoint bias | — (new) | `confirmed` | Ranking changes under per-task-best selection; must report both going forward. |
 
-The FL/fusion scale ratio warning (40.99×) is higher than Alabama's ~15×. May reflect different
-HGI/Sphere2Vec scale distributions in Florida. Investigate before relying on fusion results for FL;
-normalization was confirmed to hurt in AL so don't normalize blindly.
+C03, C04 still `pending` — deferred to P3 (DGI/HGI cross-engine).
 
----
+### P1-derived second-order observations worth noting for the paper
 
-## Frozen folds snapshot
-
-Rollup at `docs/studies/fusion/results/P0/folds/frozen.json` — **9 entries** (all locally frozen):
-
-| key                  | status | fold_file (local)                                      | notes |
-|----------------------|--------|--------------------------------------------------------|-------|
-| alabama/dgi/mtl      | frozen | output/dgi/alabama/folds/fold_indices_mtl.pt (33.5 MB) |       |
-| alabama/hgi/mtl      | frozen | output/hgi/alabama/folds/fold_indices_mtl.pt (33.6 MB) |       |
-| alabama/fusion/mtl   | frozen | output/fusion/alabama/folds/fold_indices_mtl.pt (65.9 MB) | was on external SSD (lost); re-frozen locally |
-| arizona/dgi/mtl      | frozen | output/dgi/arizona/folds/fold_indices_mtl.pt (65.3 MB) | ⚠ fallback StratifiedKFold (no placeid) |
-| arizona/hgi/mtl      | frozen | output/hgi/arizona/folds/fold_indices_mtl.pt (68.5 MB) |       |
-| arizona/fusion/mtl   | frozen | output/fusion/arizona/folds/fold_indices_mtl.pt (134.6 MB) | |
-| florida/dgi/mtl      | frozen | output/dgi/florida/folds/fold_indices_mtl.pt (387.5 MB) | ⚠ fallback StratifiedKFold (no placeid) |
-| florida/hgi/mtl      | frozen | output/hgi/florida/folds/fold_indices_mtl.pt (398.7 MB) |       |
-| florida/fusion/mtl   | frozen | output/fusion/florida/folds/fold_indices_mtl.pt (785.1 MB) | |
-
-The external-SSD alabama/fusion entry from the prior frozen.json has been replaced by the locally-frozen file. The SSD is no longer needed for P0 and should be considered lost for fold-state purposes.
+1. **C02 is null at matched batch** under both checkpoint policies. On fusion, optimizer choice is not a measurable knob. Architecture (C05) is first-order.
+2. **`equal_weight` leads AL under per-task-best selection.** The paper narrative shifts: "MTL balancing is over-engineered; on fusion, equal_weight works."
+3. **Asymmetric per-task peak epochs (C32).** Category peaks epoch 17–45; next peaks epoch 10–22. Any single-checkpoint joint F1 is a compromise; P2 must report both joint@J and joint@T.
+4. **Cross-state arch preference** (AL likes mmoe4/cgc22, AZ likes cgc21) persists under both checkpoint policies. Is it real or seed-42 noise? Unknown without F2 multi-seed. Treat any single "champion" with skepticism — it may not transfer to FL.
 
 ---
 
-## P0 leakage audit — state.json entries
+## Data availability snapshot (unchanged from 2026-04-15)
 
-Eight test entries enrolled in P0 as of 2026-04-15:
+| State   | dgi | hgi | fusion | sphere2vec | time2vec (next) | poi2hgi | check2hgi |
+|---------|:---:|:---:|:------:|:----------:|:---------------:|:-------:|:---------:|
+| alabama |  ✓  |  ✓  |   ✓    |     ✓      |        ✓        |    ✗    |     ✗     |
+| arizona |  ✓* |  ✓  |   ✓    |     ✗      |        ✗        |    ✗    |     ✗     |
+| florida |  ✓* |  ✓  |   ✓    |     ✓      |        ✓        |    ✗    |     ✗     |
 
-| test_id              | claims    | verdict             | cat_f1 | next_f1 |
-|----------------------|-----------|---------------------|--------|---------|
-| leakage_AL_baseline  | C29, C30  | matches_hypothesis  | 0.786  | 0.238   |
-| leakage_AL_arm_A     | C29       | completed           | —      | —       |
-| leakage_AL_arm_B     | C29       | completed           | —      | —       |
-| leakage_AL_arm_AB    | C29       | completed           | —      | —       |
-| leakage_AL_arm_C     | C29, N03  | matches_hypothesis  | 0.144  | 0.199   |
-| leakage_FL_baseline  | C29, C30  | matches_hypothesis  | 0.765  | 0.363   |
-| leakage_FL_arm_C     | C29, N03  | matches_hypothesis  | 0.151  | 0.298   |
-| cbic_AL_dgi          | C01, C03  | partial_match       | 0.461  | 0.243   |
-
-Evidence lives in `docs/studies/fusion/results/P0/leakage_ablation/{alabama,florida}/`.
+Open issues (state.json):
+- `az_fl_dgi_stale` — AZ + FL DGI parquets pre-bugfix (no `placeid`). **Blocker for P3** (DGI cross-engine). Regenerate before enrolling P3 DGI cells on AZ/FL.
+- `fl_fusion_scale` — FL fusion half-L2 ratio 40.99× (AL is ~15×). Likely HGI vs Sphere2Vec scale imbalance specific to FL. **Confounds C02/C19 on FL**. Investigate before P3 FL runs.
 
 ---
 
-## P0 exit-criteria checklist
+## Next steps (F1–F4 now resolved; ready for P2)
 
-| Step | Done | Notes |
-|---|:---:|---|
-| P0.1 Embeddings regenerated for AL + AZ + FL | ✓ | All 9 combos have inputs. AZ+FL DGI pre-Phase-2 (no placeid) — usable with fallback folds |
-| P0.2 `validate_inputs` tool built + exercised | ✓ | 9 pairs validated; 2 FAIL (DGI placeid), 1 WARN (FL/fusion scale) |
-| P0.3 state.json initialized (P0–P6) | ✓ | Current phase P0; 4 leakage tests enrolled |
-| P0.4 CBIC sanity run on AL + DGI | ✓ | cat_f1=0.461 (target 0.46–0.48 ✓), next_f1=0.243 (target 0.26–0.28, −1.7pp ✓ within ±3pp; N04 provisional); verdict=partial_match; archived as P0/cbic_AL_dgi |
-| P0.5 `launch / archive / analyze / validate` scripts | ✓ | 21/21 smoke |
-| P0.6 `/study` skill | ✓ | `.claude/commands/study.md` |
-| P0.7 `/worker` + `/coordinator` skills | ✓ | `.claude/commands/{worker,coordinator}.md` |
-| P0.8 Fold-freezing tooling | ✓ | `scripts/study/freeze_folds.py`; auto-load plumbed into `scripts/train.py` |
-| P0.8 Frozen: AL + AZ + FL × {dgi, hgi, fusion} × mtl | ✓ | All 9 locally frozen (2026-04-15) |
-| Hardware decision documented | ✓ | MASTER_PLAN §Hardware: M4 Pro 24GB preferred |
+**Completed 2026-04-17:** F1 (joint@T backfilled for 181 tests + archive_result.py emits going forward), F2 (8 multi-seed runs), F3 proxy (fclass probe; full arm-C retrain still pending but the proxy signal is decisive), F4 (base × eq AL confirm — C05 downgraded).
 
----
+**Remaining P1 loose ends (not blocking P2):**
+1. **F3 primary test** — full arm-C retrain on fusion (not just linear probe). ~45 min. Converts C31 from `partial` → `confirmed`.
+2. **F4 follow-up** — base × nash_mtl (or × gradnorm) AL confirm (~35 min). Cross-checks base tie at confirm under a gradient-based optimizer.
 
-## CBIC sanity — COMPLETED 2026-04-15
+**P2 ready to start** with the following champion choices (post-F2 multi-seed):
 
-Run: `results/dgi/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260415_1831` (clean re-run; earlier 1722 used wrong model)
-Archive: `docs/studies/fusion/results/P0/cbic_AL_dgi/`
+| State | Champion | Why |
+|-------|----------|-----|
+| AL | **`mmoe4 × gradnorm`** | Most stable (seed std 0.0008 joint@J). Mean joint tied at joint@T (0.4232 vs cgc22×eq 0.4237 = −0.0005). |
+| AZ | **`cgc21 × uncertainty_weighting`** *or* `cgc21 × dwa` | Tied at joint@T (0.4394 vs 0.4412). Pick uw for continuity with the P1 headline; either is fine. |
 
-| metric  | observed | target   | verdict          |
-|---------|----------|----------|------------------|
-| cat_f1  | 0.461    | 0.46–0.48 | matches_hypothesis |
-| next_f1 | 0.243    | 0.26–0.28 | partial_match (−1.7pp, within ±3pp; N04 provisional) |
-| joint   | 0.318    | 0.33–0.38 | partial_match    |
+For C06 (MTL vs single-task) in P2, report both joint@J and joint@T. The joint@J metric will favor single-task-next because of the NextHead-peak-early pattern (F5); joint@T is the fair comparison.
 
-**Conclusion:** CBIC sanity passes. No investigation needed. Safe to advance P0 → P1.
+## Worth-answering open questions (for P2 and beyond)
 
----
+**Mechanistic (answerable in P1 data, no new runs):**
+- Q1. **Why does only `mmoe4 × gradnorm` improve from promote → confirm?** Look at `results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260416_1936/` metric-store. Is it the gating structure (mmoe4 routes next-POI to a specialist expert) or does gradnorm specifically reweight the next loss as training progresses? Could inform an ablation: mmoe4 × equal_weight vs mmoe4 × gradnorm at 5f×50ep.
+- Q2. **Is the next-POI drop promote → confirm a true overfit or a schedule artifact?** OneCycleLR ramps across full 50 epochs; at 15 epochs the LR has a different profile. Per-epoch val-F1 trajectories in `MetricStore` should tell us at a glance.
+- Q3. **Why does the AZ winner flip to static (`uncertainty_weighting`)?** Check AZ fusion half-L2 ratio — is it more or less imbalanced than AL? The memory note `fusion_embedding_design` says ratios matter for which optimizer helps; a direct measurement would close the loop.
 
-## Known issues / follow-ups
+**Requires P2 data (free from P2 runs, just analyze):**
+- Q4. **C28 — no negative transfer** is mandatory for any reviewer. P2 will produce paired fold-level F1 for MTL vs single-task; run Wilcoxon + Cohen's d immediately.
+- Q5. **C23 — wall-clock ratio.** P2 logs single-task and MTL wall times. Compute `wall_MTL / (wall_cat + wall_next)`. CBIC reported 4×; expect ours to be lower.
+- Q6. **C24 — train/val gap.** Free from existing logs. If MTL shows smaller gap than single-task on the same fusion+arch, that's a bonus figure.
 
-1. **AZ/DGI and FL/DGI pre-Phase-2 inputs**: category parquet missing `placeid`. Both blocked for experiments that need POI-level user isolation on category. Regenerate with the Phase-2 input pipeline before enrolling DGI+AZ or DGI+FL in P1 sweeps.
+**Requires modest new runs (consider for P2 time budget):**
+- Q7. **Cross-state champion check.** Run the AL winner on AZ, and vice versa, at 5f×50ep. 2 runs × ~35 min = ~70 min. Closes the paper's "which champion transfers?" question with one table.
+- Q8. **`base × equal_weight` ceiling at 5f×50ep on AL.** We have no confirm-stage base cell. One run (~35 min) would lock C05 under the same protocol as C02.
 
-2. **FL/fusion scale imbalance (40.99×)**: Higher than expected. Investigate whether the Sphere2Vec or HGI component is responsible; compare to alabama's ~15×. Do not normalize before checking effect on training.
-
-3. **CBIC sanity complete**: Archived as `P0/cbic_AL_dgi`. cat_f1=0.463 (matches 46–48% target), next_f1=0.245 (partial_match: 1.3pp below 26–28%, within tolerance). Safe to advance to P1.
-
----
-
-## Key environmental facts to carry forward
-
-- **`requirements.txt` pins `scikit-learn==1.8.0`.** The 1.8 release fixed a `StratifiedGroupKFold(shuffle=True)` bug — do **not** downgrade.
-- **Torch 2.11.0** — regression test `test_mtl_f1_within_tolerance` re-calibrated floor 0.92 → 0.88.
-- **MPS runs:** before long training, set
-  ```bash
-  export PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0
-  export PYTORCH_ENABLE_MPS_FALLBACK=1
-  ```
-- **Colab parallelism:** use `scripts/study/colab_runner.py` via `notebooks/colab_study_runner.ipynb`.
+**Deferred (P3–P6):**
+- Q9. **C29 generalization audit.** Fusion contains Sphere2Vec — does the fclass shortcut still dominate category F1 on fusion, or does Sphere2Vec break it? An arm-C-style shuffle on fusion would be a Phase 3 must.
+- Q10. **FL fusion scale (40.99×) before P3.** Decide: (a) regenerate FL fusion with different normalization, (b) accept and caveat, (c) drop FL from C01 verification.
 
 ---
 
 ## How to invoke next session
 
+P1 has been closed via `/study advance`. Before any P2 work:
+
 ```
-/coordinator P0        # check if CBIC sanity passed; if yes, advance to P1
-/worker P1             # enroll + run P1 tests after P0 closes
+# 1. Commit the P1 body of work
+git status
+git add docs/studies/fusion/ src/losses/gradnorm/loss.py tests/test_losses/test_gradnorm.py pipelines/train/next_head.pipe.py
+git commit -m "study(P1): complete 3-stage grid + critical review + flaw tracker"
+
+# 2. Run the fclass-on-fusion check (C31)
+.venv/bin/python experiments/hgi_leakage_ablation.py --engine fusion --arm C_fclass_shuffle --state alabama
+
+# 3. Backfill joint@T into state.json (one-off script)
+#    See issues/P1_METHODOLOGY_FLAWS.md F1 resolution
+
+# 4. Multi-seed AL+AZ champion candidates (F2)
+#    Enrollment script needed — see F2 resolution. ~5 h total.
+
+# 5. Only then: enroll and drain P2
+/coordinator P2
+/worker P2 all
 ```
 
-The coordinator reads this HANDOFF + state.json + CLAIMS_AND_HYPOTHESES.md. If this file is stale vs `state.json`, **trust state.json**.
+Session checklist on resume:
+- Confirm `state.json` current_phase = P2.
+- Confirm working tree is clean (P1 committed).
+- Read `issues/P1_METHODOLOGY_FLAWS.md` first — the F1/F2/F3 remediation plan determines what P2 actually measures.
+- Re-read `phases/P2_heads_and_mtl.md` and reconcile the champion picked post-F2 with the "arch* × optim*" assumption it makes.

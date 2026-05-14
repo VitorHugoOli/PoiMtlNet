@@ -1,0 +1,81 @@
+{
+  "test_id": "P1_AL_screen_base_pcgrad_seed42",
+  "phase": "P1",
+  "claim_ids": [
+    "C02",
+    "C03",
+    "C04",
+    "C05"
+  ],
+  "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep10_20260415_205455",
+  "summary_sha256": "78711d40aa70c64d5a97469bba004e722e6eef4e5599ce5cfa87c100bd7f5fff",
+  "archived_at": "2026-04-16T11:33:37+00:00",
+  "observed": {
+    "cat_f1": 0.7087053060531616,
+    "cat_f1_std": 0.0,
+    "cat_accuracy": 0.8045822381973267,
+    "next_f1": 0.23257675766944885,
+    "next_f1_std": 0.0,
+    "next_accuracy": 0.3772619962692261,
+    "joint_f1": 0.35022101998440414
+  },
+  "git_commit": "97f7fdb4cdaa377a10355d679705e126d0dffdd1",
+  "config": {
+    "name": "mtl_alabama_fusion",
+    "state": "alabama",
+    "embedding_engine": "fusion",
+    "model_name": "mtlnet_dselectk",
+    "model_params": {
+      "feature_size": 128,
+      "shared_layer_size": 256,
+      "num_classes": 7,
+      "num_heads": 8,
+      "num_layers": 4,
+      "seq_length": 9,
+      "num_shared_layers": 4,
+      "num_experts": 4,
+      "num_selectors": 2,
+      "temperature": 0.5
+    },
+    "task_type": "mtl",
+    "next_target": "next_category",
+    "epochs": 10,
+    "batch_size": 4096,
+    "learning_rate": 0.0001,
+    "max_lr": 0.001,
+    "weight_decay": 0.05,
+    "gradient_accumulation_steps": 1,
+    "max_grad_norm": 1.0,
+    "optimizer_eps": 1e-08,
+    "use_torch_compile": false,
+    "task_loss": "cross_entropy",
+    "mtl_loss": "uncertainty_weighting",
+    "mtl_loss_params": {},
+    "use_class_weights": true,
+    "k_folds": 2,
+    "seed": 42,
+    "split_relaxation": false,
+    "min_category_val_fraction": 0.05,
+    "min_next_val_fraction": 0.05,
+    "min_class_count": 5,
+    "min_class_fraction": 0.03,
+    "timeout": null,
+    "target_cutoff": null,
+    "early_stopping_patience": -1,
+    "schema_version": 1
+  },
+  "dataset_signatures": {
+    "category_input": {
+      "path": "/Users/vitor/Desktop/mestrado/ingred/output/fusion/alabama/input/category.parquet",
+      "sha256": "0c5113ad990f6736c9a4d80cdf5a345279deb10debec55c433a2f6db9693b16e",
+      "size_bytes": 8809055,
+      "mtime": "2026-04-14T15:38:56.045063+00:00"
+    },
+    "next_input": {
+      "path": "/Users/vitor/Desktop/mestrado/ingred/output/fusion/alabama/input/next.parquet",
+      "sha256": "9e7684221e9b0752828d07a493f6d7552acec8667671f256666fda0f16497e3f",
+      "size_bytes": 49404043,
+      "mtime": "2026-04-14T15:39:04.328852+00:00"
+    }
+  }
+}

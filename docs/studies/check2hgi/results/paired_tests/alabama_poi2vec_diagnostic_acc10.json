@@ -1,0 +1,35 @@
+{
+  "state": "alabama",
+  "metric": "acc10",
+  "comparison": "poi2vec vs canonical (c2hgi) and vs hgi",
+  "poi2vec_per_fold": [
+    0.6514555215835571,
+    0.6191974878311157,
+    0.6510621309280396,
+    0.5948072671890259,
+    0.5525383949279785
+  ],
+  "canonical_per_fold": [
+    0.5890523195266724,
+    0.6000000238418579,
+    0.6439628601074219,
+    0.5746229887008667,
+    0.550000011920929
+  ],
+  "hgi_per_fold": [
+    0.6245915293693542,
+    0.625363826751709,
+    0.6664789915084839,
+    0.5954238176345825,
+    0.5810924172401428
+  ],
+  "delta_poi2vec_minus_canonical": 0.0222845196723938,
+  "wilcoxon_p_poi2vec_gt_canonical": 0.03125,
+  "delta_poi2vec_minus_hgi": -0.004777956008911133,
+  "wilcoxon_p_poi2vec_gt_hgi": 0.84375,
+  "tost_delta_2pp_p_lower": 0.08698276761124513,
+  "gap_canonical_to_hgi_pp": 2.706247568130493,
+  "gap_poi2vec_to_hgi_pp": 0.4777956008911177,
+  "gap_closed_pp": 2.2284519672393754,
+  "gap_closed_pct": 82.34471943669276
+}
