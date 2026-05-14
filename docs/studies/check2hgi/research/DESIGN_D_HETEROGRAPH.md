@@ -1,6 +1,6 @@
 # Design D — Heterogeneous check-in + POI graph
 
-**Generated 2026-05-04** as a follow-up to `MERGE_DESIGN_NOTES.md`. Captures the
+**Generated 2026-05-04** as a follow-up to `merge_design/MERGE_DESIGN_NOTES.md`. Captures the
 "can't we put POIs in the graph?" idea: instead of late-fusing two engines or
 swapping POI features in a shared encoder, **make POIs and check-ins both
 first-class nodes in one graph** and let typed message passing do the merging.

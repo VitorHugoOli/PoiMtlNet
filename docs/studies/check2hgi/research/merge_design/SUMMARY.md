@@ -2,6 +2,48 @@
 
 **Generated 2026-05-05** at end of autonomous overnight run.
 **Updated 2026-05-05 ~09:30** with hybrid Designs I/J/M results.
+**Updated 2026-05-05 ~20:35** with FL (Florida) results for B/I/J/M reg.
+
+---
+
+## 🚨 FL HEADLINE — RESULT INVALIDATED BY FRESH CANONICAL RERUN (added 2026-05-05 evening, revised 22:55)
+
+The initial finding ("+13pp at FL") was a **stale-baseline artifact**.
+
+**Fresh canonical FL (today, same protocol as B/I/J/M):**
+
+| Design | FL Acc@10 | Δ vs FRESH canonical |
+|---|---:|---:|
+| **Fresh canonical** | **82.45 ± 0.46** | 0 |
+| B | 82.42 ± 0.51 | **−0.03 pp** |
+| I | 82.39 ± 0.40 | **−0.06 pp** |
+| J | 82.33 ± 0.43 | **−0.12 pp** |
+| M | 82.23 ± 0.40 | **−0.22 pp** |
+
+**B/I/J/M provide NO meaningful gain over canonical at FL.** All 5 are within ±0.25pp of each other — within standard deviation, statistically indistinguishable.
+
+**What went wrong:**
+- The original FL canonical baseline (69.22 Acc@10) was an Apr 15 Lightning Studios artifact, possibly undertrained or different hyperparams.
+- B/I/J/M were trained today (500ep MPS). Apples-to-oranges comparison.
+- Fresh canonical with identical protocol hits 82.45 — same scale as the hybrids.
+
+**Verified to credit:**
+- ✓ Last-step linear probe: all designs 97% = canonical 97% → no checkin-side leak
+- ✓ fclass probe: B/I/J/M = 98.7-98.9% (HGI grade) vs canonical 4.6% — **POI semantic recovery is real and is the canonical engine's blind spot**
+- ✓ Acc@1 decomp: AL/AZ +2-3pp, FL "+3.75pp" was vs stale canonical. Vs fresh canonical it's ≈ 0.
+
+**Implications:**
+1. **The merge mechanism (POI2Vec injection at POI-pool) does NOT translate to next-region gains at FL scale.** With more data, the canonical engine's POI representations are sufficient for region prediction without POI2Vec.
+2. **The fclass probe gain (4.6 → 98.8%) is still real** — B/I/J/M POI embeddings retain POI semantic structure that canonical loses. This is a generality benefit, not a downstream-task benefit.
+3. **AL/AZ "+2.3pp" gain is small but real** (per-fold leak-free transition logs, same protocol both sides) — at small scale POI2Vec acts as a useful prior.
+4. **At FL, the merge buys you: HGI-grade POI semantics with no reg cost**, but no reg gain either.
+
+**The Apr 15 FL canonical baseline should be retired.** It is misleading and should not be used as a reference.
+
+**Honest bottom line:**
+- AL/AZ: B (or any hybrid) gives a real but small reg gain (+2.3pp) + recovers POI semantics. **Worth shipping.**
+- FL: B (or any hybrid) gives no reg gain over canonical. **Worth shipping ONLY if POI semantics matter for downstream tasks** (e.g., POI similarity, fclass classification, transfer learning).
+- The "merge engineering" doesn't scale a per-task benefit; it scales a generality benefit (fclass).
 
 ---
 
@@ -382,8 +424,8 @@ stabilizes the POI representation the encoder predicts via L_c2p. A higher
 - Eval pipelines: `scripts/probe/eval_design_bh.py`,
   `finalize_{poi2vec,postpool,design_d}_diagnostic.py`
 - Generality probes: `scripts/probe/generality_probes.py`
-- Result tables: `docs/studies/check2hgi/research/MERGE_DESIGN_NOTES.md`,
-  `DESIGN_D_HETEROGRAPH.md`, this `SUMMARY.md`
+- Result tables: `docs/studies/check2hgi/research/merge_design/MERGE_DESIGN_NOTES.md`,
+  `docs/studies/check2hgi/research/DESIGN_D_HETEROGRAPH.md`, this `SUMMARY.md`
 - Per-fold JSONs: `docs/studies/check2hgi/results/phase1_perfold/{AL,AZ}_{check2hgi_poi2vec,check2hgi_postpool,design_a_concat,design_b,design_d,design_e,design_h}_*.json`
 - Paired tests: `docs/studies/check2hgi/results/paired_tests/{*_poi2vec,*_postpool,design_a,design_bh,design_d,design_e}_*.json`
 - Generality data: `docs/studies/check2hgi/results/paired_tests/generality_probes.json`
