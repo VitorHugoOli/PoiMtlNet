@@ -4,6 +4,17 @@ Task heads are the final per-task decoder modules that receive the
 shared backbone's output and produce class logits. They are pluggable
 via the model registry.
 
+> **Naming convention.** Heads named `next_*` (e.g., `next_gru`, `next_stan_flow`,
+> `next_getnext_hard`) are *sequence-aware* heads — they consume a 9-step check-in
+> window (the standard `SLIDE_WINDOW=9` from `InputsConfig`). They can be assigned
+> to **either** the cat task or the reg task (they are *target-agnostic*). For
+> example, the champion B9 recipe uses `next_gru` for the **category** task and
+> `next_stan_flow` for the **region** task — both are sequential heads, neither is
+> task-locked. Heads named `category_*` are *flat-vector* heads (e.g.,
+> `category_transformer`, `CategoryHeadMTL`) that consume a single `[B, D]` vector
+> and only make sense for the category task. The `next_*` prefix denotes the input
+> shape (sequence), not the prediction target.
+
 ---
 
 ## Category Heads

@@ -234,3 +234,69 @@ The `bracis` branch (+92/+4 vs worktree-check2hgi-mtl) is kept active for the BR
 - **CLAUDE.md**: updated with project focus, new file architecture, ops pointer, branch-scoped study context, reorg appendix.
 
 The merge is reviewable as a single commit (`d922488`) with bisectable per-step history (`e0b3e80` → `040aed9`). Recovery is one `git reset --hard pre-reorg-2026-05-14` away if anything looks wrong.
+
+---
+
+## Round-2 follow-up (same day, 2026-05-14 PM)
+
+After the round-1 reorg landed, a second pass tightened the docs further. Three goals:
+
+1. **Trim stale folders** that the round-1 promotion left at `docs/` root.
+2. **Add `docs/index.html`** as a comprehensive single-page research-state summary.
+3. **Enrich `docs/context/`** so the project-wide reference library covers everything a new agent needs.
+
+### Round-2 changes
+
+| Action | Where | What |
+|---|---|---|
+| User-removed | `/Users/vitor/.../ingred/CLAUDE.local.md` | Per-checkout pointer to fusion (gitignored) — no longer needed since check2hgi is at `docs/` root |
+| Archive | `docs/launch_plans/` → `docs/archive/check2hgi-launch-plans-2026-04/` | 2 staging plans for completed F33/F36/CA+TX work |
+| Archive | `docs/plans/` → `docs/archive/check2hgi-fusion-era-ablation-plans/` | 2 fusion-era ablation plans (DSelectK + Aligned-MTL + Fusion language) superseded by canonical_improvement |
+| Archive | `docs/paper/` → `docs/archive/check2hgi-paper-drafts-pre-bracis/` | 4 pre-LaTeX section drafts; work landed in `articles/[BRACIS]_*/src/sections/` |
+| Archive | `docs/review/` → `docs/archive/check2hgi-reviews-2026-04/` | 7 dated critical-review snapshots |
+| Archive | `docs/scope/{ch14, ch15}/` → `docs/archive/check2hgi-scope-memos-2026-04/` | Decision memos absorbed into CLAIMS catalog |
+| Archive | `docs/issues/{8 generic files}` → `docs/archive/check2hgi-generic-issues-pre-promotion/` | Proposals executed / leakage diagnoses fully covered by newer audits / etc. |
+| New folder | `docs/future_works/` | Forward-looking memos for work-to-do-later (not yet a study). Initial inhabitant: `task_pivot_memo.md` (moved from `docs/scope/`) — needs eventual merge into NORTH_STAR but deferred. |
+| Move | `docs/check2hgi_overview.tex` → `docs/context/check2hgi_overview.tex` | TikZ architecture figure now lives with the project context library |
+| Consolidate | `docs/datasets/DATASETS.md` → `docs/context/DATASETS.md` (folder removed) | One fewer top-level folder; dataset reference becomes part of context |
+| New | `docs/context/METRICS.md` | F1/Acc@10/MRR/Δm + paired-Wilcoxon (n=20 paper-grade vs n=5 screening) + F51 canonical extraction (per-fold max ep≥5) |
+| New | `docs/context/DATA_SPLITS.md` | Current fold protocol (StratifiedGroupKFold, MTL fold pairing, per-fold log_T leak prevention) + pointer to `src/data/folds.py` |
+| Updated | `docs/context/README.md` | Index now includes 4 new files (DATASETS, DATA_SPLITS, METRICS, check2hgi_overview.tex) |
+| Updated | `docs/context/TASK_HEADS.md` | Added naming-convention banner explaining `next_*` heads are target-agnostic (sequence input shape, not prediction target) |
+| New | `docs/index.html` | Comprehensive research-state summary page: thesis, headline numbers (5-state architectural-Δ, per-visit decomposition, Δm scoreboard, recipe selection), mechanism findings, architecture recipe, paper pointers, active studies, future works, navigation by machine, archive index |
+
+### Round-2 ref-sweep updates
+
+To keep docs internally consistent after the moves:
+
+- `docs/NORTH_STAR.md`, `docs/CLAIMS_AND_HYPOTHESES.md`, `docs/findings/B5_FL_TASKWEIGHT.md`, `docs/findings/MTL_FLAWS_AND_FIXES.md` — `review/2026-04-2*` paths updated to `archive/check2hgi-reviews-2026-04/`
+- `docs/PAPER_BASELINES_STRATEGY.md` + 4 finding docs (F50_T3_TRAINING_DYNAMICS, F37_FL_RESULTS, F50_DELTA_M_FINDINGS_LEAKFREE, MTL_FLAWS_AND_FIXES) — cleaned stale "TBD update paper/X.md" pointers (work landed in `articles/[BRACIS]_*/`)
+- `docs/baselines/POI_RGNN_AUDIT.md`, `scripts/run_f27_cathead_sweep.sh`, `experiments/check2hgi_up/run_mtl_b3.py` — old `docs/studies/check2hgi/` paths updated to current locations
+- `docs/AGENT_CONTEXT.md`, `docs/README.md`, `CLAUDE.md` — file architecture reflects the new structure
+
+### Round-2 final state
+
+- **Branches/tags**: unchanged from round 1 (`main`, `worktree-check2hgi-mtl`, `bracis`; recovery anchor `pre-reorg-2026-05-14`).
+- **`docs/` top-level structure** (post round 2):
+  ```
+  docs/
+  ├── README.md, AGENT_CONTEXT.md, NORTH_STAR.md, CHANGELOG.md, CLAIMS_AND_HYPOTHESES.md,
+  │   CONCERNS.md, FINAL_SURVEY.md, MTL_ARCHITECTURE_JOURNEY.md, PAPER_BASELINES_STRATEGY.md
+  │   (9 study-defining root docs)
+  ├── BRACIS_GUIDE.md, PAPER_FINDINGS.md (legacy/guidance)
+  ├── index.html (comprehensive summary page)
+  ├── results/        — canonical numbers + raw artefacts
+  ├── findings/       — paper-supporting F-trail (66 entries)
+  ├── studies/        — 3 active follow-up studies (canonical_improvement, merge_design, hgi_category_injection)
+  ├── future_works/   — forward-looking memos (task_pivot_memo)
+  ├── infra/          — operational docs (6 environments)
+  ├── baselines/      — external baselines
+  ├── context/        — project-wide reference library (10 files including new METRICS, DATA_SPLITS, DATASETS, check2hgi_overview.tex)
+  ├── archive/        — closed studies, paper drafts, plans, reviews, scope memos, snapshots
+  ├── issues/check2hgi/ — bug-audit log (8 files)
+  ├── thesis/, reports/ — kept as-is
+  ```
+
+The structure is now genuinely navigable: a new agent landing on the repo can answer "where are we now / what are the canonical numbers / what's being worked on / what's deferred / where do I run things / where's the paper / where's the history" without spelunking — that was the round-2 goal.
+
+Round-2 commit: `69c9854 docs(reorg): round-2 cleanup — archive stale folders, enrich context/, add index.html` (cherry-picked to main as `97cd7fd`).

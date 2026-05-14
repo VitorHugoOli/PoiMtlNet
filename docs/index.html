@@ -107,7 +107,7 @@
 </tbody>
 </table>
 
-<p class="meta">Δ = MTL B9 − STL ceiling (paired Δ from per-fold values). Reg metric: per-fold max <code>top10_acc_indist</code> for ep ≥ 5. Cat metric: per-fold max F1 for ep ≥ 5. n = 20 = 4 seeds × 5 folds.</p>
+<p class="meta">Δ = MTL B9 − STL ceiling (paired Δ from per-fold values). <strong>Reg metric</strong>: <code>top10_acc_indist</code> (in-distribution Acc@10), per-fold max for ep ≥ 5. <strong>Cat metric</strong>: Macro-F1, per-fold max for ep ≥ 5. <strong>n = 20</strong> = 4 seeds × 5 folds, paired Wilcoxon. See <a href="context/METRICS.md">context/METRICS.md</a> for the full metric spec and paper-grade significance protocol.</p>
 
 <p><strong>The textbook MTL tradeoff at every state:</strong></p>
 <ul>
@@ -236,7 +236,17 @@
 <div>
 <h3>Background reading</h3>
 <ul>
-  <li><a href="context/">context/</a> — tasks / datasets / splits / metrics / embeddings / MTL archs / optimizers / heads (+ <code>check2hgi_overview.tex</code> figure asset)</li>
+  <li><a href="context/README.md">context/</a> — full project-context library:
+    <a href="context/TASKS.md">tasks</a> ·
+    <a href="context/DATASETS.md">datasets</a> ·
+    <a href="context/DATA_SPLITS.md">splits</a> ·
+    <a href="context/METRICS.md">metrics</a> ·
+    <a href="context/EMBEDDINGS.md">embeddings</a> ·
+    <a href="context/FUSION.md">fusion</a> ·
+    <a href="context/MTL_ARCHITECTURES.md">MTL archs</a> ·
+    <a href="context/MTL_OPTIMIZERS.md">optimizers</a> ·
+    <a href="context/TASK_HEADS.md">heads</a> ·
+    <a href="context/check2hgi_overview.tex">check2hgi_overview.tex</a></li>
   <li><a href="baselines/">baselines/</a> — external baselines (BASELINE.md + per-task audits)</li>
   <li><a href="thesis/">thesis/</a> — paper thesis options A / B</li>
   <li><a href="reports/">reports/</a> — status reports</li>
