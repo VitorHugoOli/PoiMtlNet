@@ -160,6 +160,24 @@ Source: [`../baselines/next_category/comparison.md`](../baselines/next_category/
 
 C2HGI **matched-head STL** lifts cat F1 by **+27–29 pp over our faithful POI-RGNN reproduction** at FL/CA/TX; the **MTL** row widens this external gap to roughly **+32–34 pp**. MHA+PE faithful per-state JSONs at `baselines/next_category/results/<state>.json`.
 
+### 0.7 · Per-visit counterfactual (CH19) — 5-state, seed=42
+
+Matched-head STL `next_gru`, 5f × 50ep, bs=1024, seed=42. Three cells per state: canonical Check2HGI / POI-pooled Check2HGI / HGI. Pooled = mean-pool canonical vectors per `placeid` (kills per-visit variation, keeps training signal). AL/AZ from prior runs; FL/CA/TX from 2026-05-04 H100 run (branch `h100/pervisit-fl-ca-tx-results`, commit `d714ce0`). Per-fold JSONs: `results/phase1_perfold/<S>_{check2hgi,check2hgi_pooled,hgi}_cat_gru_5f50ep_<DATE>.json`. Full summary: [`CH19_PERVISIT_5STATE_SUMMARY.md`](CH19_PERVISIT_5STATE_SUMMARY.md).
+
+| State | canonical C2HGI | POI-pooled C2HGI | HGI | total gap | per-visit pp | training-signal pp | **per-visit %** |
+|-------|----------------:|------------------:|----:|----------:|-------------:|-------------------:|----------------:|
+| AL    | 40.76 ± 1.50   | 29.57             | 25.26 ± 1.06 | +15.50 | +11.19 | +4.31 | **72%** |
+| AZ    | 43.17 ± 0.28   | 34.09 ± 0.63      | 28.99 ± 0.51 | +14.18 | +9.08  | +5.10 | **64%** |
+| FL    | 63.48 ± 1.04   | 37.42 ± 0.76      | 34.46 ± 0.97 | +29.02 | +26.06 | +2.96 | **90%** |
+| CA    | 60.55 ± 0.81   | 34.47 ± 0.44      | 31.14 ± 1.00 | +29.41 | +26.08 | +3.33 | **89%** |
+| TX    | 60.35 ± 0.30   | 34.93 ± 0.71      | 32.19 ± 0.61 | +28.16 | +25.42 | +2.74 | **90%** |
+
+per-visit % = (canonical − pooled) / (canonical − HGI). training-signal pp = pooled − HGI.
+
+**Two-band pattern:** per-visit share 64–72% at small states (AL/AZ, ~1k regions) vs **89–90% at large states (FL/CA/TX, 4.7k–8.5k regions)**. At large states, pooled C2HGI collapses almost fully to HGI-level performance — the substrate gap is essentially all per-visit context, with only ~3 pp residual from the graph-contrastive training signal itself. At small states, training signal contributes more meaningfully (~28–36%). **CH19 confirmed at all 5 states.** Pooled > HGI at every state (training signal component consistently positive, 2.7–5.1 pp).
+
+**v12 update (2026-05-04):** FL/CA/TX cells added. CH19 status upgraded from `confirmed at AL+AZ` to `confirmed at all 5 states`.
+
 ---
 
 > ⚠ **HISTORICAL AUDIT — DO NOT CITE FOR PAPER DRAFTING.**

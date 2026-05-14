@@ -1,6 +1,6 @@
 \begin{table}[t]
 \centering
-\caption{Substrate ablation under matched-head single-task ceilings, five-fold cross-validation. Cells are seed-42 mean over folds $\pm$ fold-$\sigma$; $\Delta$ = Check2HGI cell $-$ HGI cell at every row. The paired Wilcoxon at the $n=5$ ceiling reaches $p=0.0312$ when 5/5 folds agree. (a) Next-category macro-F1 with a GRU category head; the asterisk marks 5/5 folds positive. (b) Next-region Acc@10 with a STAN-based region head and additive log-transition prior built per fold from training-fold edges; negative $\Delta$ values indicate POI-stable HGI is nominally ahead, and TOST verdicts at $\delta\in\{2,3\}$ pp report whether the gap stays inside the non-inferiority margin (\checkmark) or not ($\times$). The architectural axis (Tables~\ref{tab:mtl-stl} and~\ref{tab:external}) reports a multi-seed pooled ceiling for the architectural contrast: see \S\ref{subsec:setup-stats}.}
+\caption{Substrate ablation under matched-head single-task ceilings (5-fold CV, seed-42). Cells are mean $\pm$ fold-$\sigma$; $\Delta=$ Check2HGI $-$ HGI; paired Wilcoxon reaches $p=0.0312$ when 5/5 folds agree. (a) Next-category macro-F1 with a GRU head; asterisk marks 5/5 folds positive. (b) Next-region Acc@10 with a STAN-based head + additive log-transition prior; TOST verdicts at $\delta\in\{2,3\}$ pp test non-inferiority (\checkmark) or not ($\times$).}
 \label{tab:substrate}
 \footnotesize
 \renewcommand{\arraystretch}{1.1}

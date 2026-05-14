@@ -50,7 +50,7 @@ STATE_PREFIX = {
 DEFAULT_ENGINES = ("check2hgi", "check2hgi_pooled", "hgi")
 DEFAULT_STATES = ("florida", "california", "texas")
 
-RUNDIR_RE = re.compile(r"^next_lr1\.0e-04_bs1024_ep50_(\d{8}_\d{6})$")
+RUNDIR_RE = re.compile(r"^next_lr1\.0e-04_bs1024_ep50_(\d{8}_\d{6})(?:_\d+)?$")
 
 
 def find_latest_rundir(results_root: Path, engine: str, state: str,
