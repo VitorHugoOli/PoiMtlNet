@@ -172,11 +172,28 @@ research/embeddings/hgi/
   model/HGIModule.py      # 25 % hard-neg recipe reference
 
 scripts/
-  p1_region_head_ablation.py        # downstream eval template
+  p1_region_head_ablation.py        # downstream eval template (region head)
+  p1_poi_head_ablation.py           # next-POI head (fixed regime: OneCycleLR
+                                    #   + label_smoothing as of e99e904; the
+                                    #   pre-fix T1 JSONs are pessimistic)
   probe/generality_probes.py        # fclass + kNN-Jaccard probes
-  probe/leak_sniff_ijm.py           # leak-audit template
+  probe/leak_sniff_ijm.py           # leak-audit template (T1.1 reference)
   probe/finalize_design_ijm.py      # paired-test JSON template
+  probe/calibrate_canonical_pr_norm.py  # diagnostic: confirms PMA collapse
+                                    #   to mean-pool (PR-norm=1.0)
+  probe/build_substrate_s1.py       # Phase-11 hard-negs at c2p (FALSIFIED)
+  probe/build_substrate_s3a.py      # Phase-11 4th boundary (FALSIFIED)
+  probe/build_substrate_s3b.py      # Phase-11 Checkin2Region replacement
+  probe/build_substrate_s3b_v2c.py  # Phase-11 per-check-in POI2Vec anchor
+                                    #   (FALSIFIED at AL: -9.95pp)
+  probe/build_substrate_s4.py       # Phase-11 corrupted negs at c2p
+                                    #   (FALSIFIED)
 ```
+
+The Phase-11 substrate-probe scripts above are the closest existing references
+for any canonical-improvement experiment that touches the c2p boundary — read
+them before implementing T2.* to mirror the patch pattern. Their FALSIFIED
+status is documented in `merge_design/STATE.md §Phase 11`.
 
 ---
 

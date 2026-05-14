@@ -454,7 +454,7 @@ sub-agents. Outcome per consideration, ordered by user&#39;s original numbering:
 
 <h3>New eval probes to wire up (currently missing)</h3>
 <ul>
-<li><strong>Next-POI top-k accuracy</strong> (Hit@1/5/10, MRR) &mdash; the axis flagged missing in <code>merge_design/AUDIT_HGI_GAP.md §3</code>. Requires cloning <code>scripts/p1_region_head_ablation.py</code> with target = <code>placeid_to_idx[poi_idx]</code>.</li>
+<li><strong>Next-POI top-k accuracy</strong> (Hit@1/5/10, MRR) &mdash; the axis flagged missing in <code>merge_design/AUDIT_HGI_GAP.md §3</code>. Use the existing <code>scripts/p1_poi_head_ablation.py</code> (fixed in commit <code>e99e904</code>: `OneCycleLR` now wired in + per-step `scheduler.step()` + `label_smoothing=0.1`). <strong>The existing T1 next-POI JSONs in <code>results/P1/poi_head_*_T1_*_5f50ep.json</code> were trained under the pre-fix suboptimal regime (fixed LR, no label smoothing) and are pessimistic absolute numbers</strong> &mdash; do NOT reuse them as canonical-improvement baselines. Re-run a fresh canonical Check2HGI + HGI baseline under the fixed script before any canonical-improvement next-POI comparison.</li>
 <li><strong>User-trajectory reconstruction</strong> &mdash; mask 15 % of a user&#39;s check-ins, decode via kNN over learned embeddings, measure recall@k.</li>
 </ul>
 
@@ -1365,8 +1365,9 @@ File created 2026-05-14. Audit + breadth-search synthesis by main agent &mdash; 
 read <code>../merge_design/STUDY_BRIEFING.html</code>, <code>../merge_design/STATE.md</code>, and
 <code>../merge_design/AUDIT_HGI_GAP.md</code> before starting any experiment. Critical engine sources:
 <code>research/embeddings/check2hgi/{check2hgi.py, preprocess.py, model/}</code>; canonical evaluation pipelines:
-<code>scripts/p1_region_head_ablation.py</code>, <code>scripts/probe/generality_probes.py</code>,
-<code>scripts/probe/leak_sniff_ijm.py</code>.
+<code>scripts/p1_region_head_ablation.py</code>, <code>scripts/p1_poi_head_ablation.py</code>,
+<code>scripts/probe/generality_probes.py</code>, <code>scripts/probe/leak_sniff_ijm.py</code>,
+<code>scripts/probe/calibrate_canonical_pr_norm.py</code>.
 </p>
 
 </main>
