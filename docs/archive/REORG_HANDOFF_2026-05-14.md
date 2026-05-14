@@ -300,3 +300,29 @@ To keep docs internally consistent after the moves:
 The structure is now genuinely navigable: a new agent landing on the repo can answer "where are we now / what are the canonical numbers / what's being worked on / what's deferred / where do I run things / where's the paper / where's the history" without spelunking — that was the round-2 goal.
 
 Round-2 commit: `69c9854 docs(reorg): round-2 cleanup — archive stale folders, enrich context/, add index.html` (cherry-picked to main as `97cd7fd`).
+
+### Round-2.5 final cleanup (same day, late PM)
+
+After round-2 landed, a third cleanup pass addressed `plans/` + `logs/` evaluation per user request, plus three advisor follow-ups.
+
+| Action | Where | What |
+|---|---|---|
+| Archive | `plans/` (repo root, 5 stale paper-prep docs from Apr 2026) → `docs/archive/repo-root-plans-pre-bracis/` | All 5 stale: `mtl_regression_floor_investigation.md`, `mtlnet_speed_optimization.md` (work landed via feat/colab-gpu-perf), `plan.md` (BRACIS master plan, paper submitted), `todo.md`, `todo_article.md` (all paper-closure items done). Empty `plans/` folder removed. |
+| Untrack | `logs/` (45 tracked training-stdout files, ~7 MB) | `git rm -r --cached logs/`. Local copies retained on disk. `/logs/` was already in `.gitignore` but files were tracked from before the entry; this honors the existing intent. |
+| Polish | `docs/index.html` §0.1 table caption | Added explicit metric spec ("Reg metric: top10_acc_indist; Cat metric: Macro-F1; n=20 = 4 seeds × 5 folds") |
+| Polish | `docs/index.html` background-reading list | Split context/ link into per-file sub-bullets (DATASETS / METRICS / DATA_SPLITS / etc. now 1-click reachable) |
+| Polish | `docs/context/TASK_HEADS.md` | Added naming-convention banner explaining `next_*` heads are *target-agnostic* (sequence input shape, not predicted target) — clarifies "why is the cat head called `next_gru`?" confusion |
+| Polish | `articles/[BRACIS]_Beyond_Cross_Task/AGENT.md` | Disambiguated `AGENT_CONTEXT.md` reference to `docs/AGENT_CONTEXT.md` (was bare path, ambiguous within the article folder) |
+
+Round-2.5 commit: `7b62b29 docs(reorg): round-2 final cleanup — archive repo-root plans/, untrack logs/` (cherry-picked to main as `1606a1e`).
+
+### Final state (post round 2.5)
+
+- **Branches/tags**: unchanged from round 1.
+- **Repo root**: `plans/` removed; `logs/` untracked (local copies retained).
+- **`docs/` top-level**: 9 study-defining root docs + `index.html` (NEW) + `BRACIS_GUIDE.md` + `PAPER_FINDINGS.md` + 12 subdirs (`results/`, `findings/`, `studies/`, `future_works/`, `infra/`, `baselines/`, `context/`, `archive/`, `issues/check2hgi/`, `thesis/`, `reports/`).
+- **No stale folder references**: ref-sweep grep returns 0 in active docs (excluding archive/ and findings/archive/ self-refs).
+- **All 3 advisor passes** (round-1 pre-merge, round-2 post-execution, round-2.5 final audit) addressed.
+
+The reorg is closed.
+
