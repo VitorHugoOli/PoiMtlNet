@@ -6,6 +6,25 @@
 - **Category prediction**: Classify a POI's category from its embedding
 - **Next-POI prediction**: Predict the next POI a user will visit given a sequence of past check-ins
 
+## Project focus
+
+The project's primary study is **check2hgi** — a check-in-level Check2HGI substrate for joint POI prediction (paper at BRACIS 2026).
+
+**Two source-of-truth folders:**
+- **Science**: [`docs/`](docs/) root — `README.md` (navigation landing), `AGENT_CONTEXT.md`, `NORTH_STAR.md`, `CHANGELOG.md`, `CLAIMS_AND_HYPOTHESES.md`, `CONCERNS.md`, `FINAL_SURVEY.md`, `MTL_ARCHITECTURE_JOURNEY.md`, `PAPER_BASELINES_STRATEGY.md`. Canonical numbers: [`docs/results/RESULTS_TABLE.md §0`](docs/results/RESULTS_TABLE.md). Per-experiment findings (F-trail): [`docs/findings/`](docs/findings/).
+- **Paper**: [`articles/[BRACIS]_Beyond_Cross_Task/`](articles/[BRACIS]_Beyond_Cross_Task/) — BRACIS 2026 submission working folder (`AGENT.md` first if writing prose, then `PAPER_DRAFT.md`, `PAPER_STRUCTURE.md`, `STATISTICAL_AUDIT.md`, `TABLES_FIGURES.md`, `samplepaper.tex`, `references.bib`, `AUDIT_LOG.md`).
+
+**Active follow-up studies** (layered on check2hgi) live under [`docs/studies/`](docs/studies/):
+- [`docs/studies/canonical_improvement/`](docs/studies/canonical_improvement/) — 18-experiment slate to improve canonical Check2HGI.
+- [`docs/studies/merge_design/`](docs/studies/merge_design/) — Designs A-M / Levers 1-6 / Phase 11.
+- [`docs/studies/hgi_category_injection/`](docs/studies/hgi_category_injection/) — CLOSED (AZ falsified 2026-05-04). Read `STATUS.md`.
+
+The earlier **fusion** study has been archived under [`docs/archive/fusion-study/`](docs/archive/fusion-study/) — concepts, results, claim catalog, leakage diagnoses, lab-notebook records all preserved intact.
+
+> **Important**: fusion remains a **first-class engine** in the codebase even though the fusion *study* is archived. `EmbeddingEngine.FUSION` in `src/configs/paths.py`, `src/data/inputs/fusion.py`, `experiments/full_fusion_ablation.py`, `pipelines/fusion.pipe.py` are intact and supported. "Archived" applies to the study, not the engine.
+
+**Operational documentation** (Colab, RunPod, Lightning, H100, local, Drive) lives at [`docs/infra/`](docs/infra/) — start with [`docs/infra/README.md`](docs/infra/README.md) for the by-machine decision tree.
+
 ## File Architecture
 
 ```
@@ -49,14 +68,35 @@
 │   ├── test_tracking/      # MLHistory, fold tracking
 │   ├── test_training/      # Training runners
 │   └── test_utils/         # FLOPs, training progress
-└── docs/               # Analysis documents, decisions log
-    ├── studies/            # Per-study namespaced subdirs (e.g. studies/fusion/)
-    ├── archive/            # Outdated (pre-bugfix) analyses — historical reference only
-    ├── baselines/          # External baseline references (HAVANA, POI-RGNN, PGC)
-    ├── context/            # Task / embedding / architecture background
-    ├── thesis/             # Paper thesis options A / B
-    ├── BRACIS_GUIDE.md     # Conference submission guide
-    └── PAPER_FINDINGS.md   # Legacy findings (revalidate, don't trust pre-bugfix)
+└── docs/               # Project documentation (post-2026-05-14 reorg)
+    ├── README.md           # ⭐ navigation landing — read this first
+    ├── AGENT_CONTEXT.md    # check2hgi study briefing
+    ├── NORTH_STAR.md       # committed champion config (B9 MTL recipe)
+    ├── CHANGELOG.md        # timeline of findings + lessons
+    ├── CLAIMS_AND_HYPOTHESES.md  # claim catalog (paper-facing whitelist banner inside)
+    ├── CONCERNS.md         # risk audit log
+    ├── FINAL_SURVEY.md     # substrate-axis 5-state matrix
+    ├── MTL_ARCHITECTURE_JOURNEY.md  # supplementary narrative (F-trail)
+    ├── PAPER_BASELINES_STRATEGY.md  # baseline-table mapping
+    ├── results/            # canonical numbers (RESULTS_TABLE.md §0) + raw artefacts by phase
+    ├── findings/           # paper-supporting per-experiment findings (F-trail) — read-only
+    ├── studies/            # ACTIVE follow-up studies layered on check2hgi
+    ├── infra/              # ⭐ operational docs (RunPod, Colab, Lightning, H100, local, Drive)
+    ├── baselines/          # external baselines (BASELINE.md overview + per-task audits)
+    ├── paper/              # section drafts (methods, results, limitations, appendix)
+    ├── archive/            # archived studies + snapshots (fusion-study/, check2hgi-* historical)
+    ├── context/            # task / embedding / architecture / optimizer / head background
+    ├── datasets/           # dataset reference
+    ├── thesis/             # paper thesis options A / B
+    ├── plans/              # non-archive ablation plans
+    ├── reports/            # status reports
+    ├── scope/              # scoping decisions
+    ├── review/             # dated critical reviews
+    ├── launch_plans/       # historical launch plans (durable ops recipes are in infra/)
+    ├── issues/             # generic project issues + check2hgi/ subdir
+    ├── BRACIS_GUIDE.md     # conference submission guide
+    ├── PAPER_FINDINGS.md   # legacy findings (revalidate, don't trust pre-bugfix)
+    └── check2hgi_overview.tex  # paper LaTeX figure asset
 ```
 
 ## MTLnet Model
@@ -218,22 +258,38 @@ python pipelines/create_inputs.pipe.py
 
 All pipelines are configured by editing variables at the top of each script (state, embedding engine, etc.).
 
-## Running on Google Colab (T4)
+## Running on remote/cloud machines
 
-For long runs that would saturate the local M4 Pro (notably FL 5f×50ep — ~50 min on T4 vs ~5 h on MPS), use the **Colab template + guide**:
+All operational documentation (Colab T4, RunPod 4090, Lightning A100/H100, H100 SSH, local M4 Pro, Drive download) lives under [`docs/infra/`](docs/infra/). Start at [`docs/infra/README.md`](docs/infra/README.md) — it has a decision tree by machine type.
 
-- **Template notebook:** [`notebooks/colab_check2hgi_mtl.ipynb`](notebooks/colab_check2hgi_mtl.ipynb) — self-contained, mirrors the canonical `scripts/train.py` north-star B3 CLI from `docs/NORTH_STAR.md`. Drop in, edit `STATE`, run cells in order.
-- **Operational guide:** [`docs/infra/colab/README.md`](docs/infra/colab/README.md) — covers Drive layout, branch hygiene, the **detached-subprocess** launch pattern (mandatory for runs > 5 min, since MCP/cell timeouts will SIGINT a foreground `!{cmd}`), memory pitfalls (DataLoader-worker fork OOM, MRR pairwise-comparison OOM on FL's 4702 regions, between-fold CUDA fragmentation), the `feat/colab-gpu-perf` perf-pass changelog, results inspection, and a verification recipe for confirming a `git pull → relaunch` actually loaded fresh code.
-
-The Colab perf optimisations live on **`feat/colab-gpu-perf`** (branched off `worktree-check2hgi-mtl`). All changes are quality-neutral and MPS-safe — verified via 24/24 metric+eval unit tests + AZ 5f×50ep regression (within 1 σ of NORTH_STAR.md reference) + 1f×2ep MPS smoke test on the M4 Pro.
-
-For the *study-driven* parallel-machine workflow (consumes `state.json`-enrolled tests, packages tarballs back), use `scripts/study/colab_runner.py` + `notebooks/colab_study_runner.ipynb` instead — that's the orchestration path documented in `docs/archive/fusion-study/AGENT_CONTEXT.md` for the fusion track.
+Quick pointers:
+- **Long Colab runs** — use [`notebooks/colab_check2hgi_mtl.ipynb`](notebooks/colab_check2hgi_mtl.ipynb) (self-contained template) per [`docs/infra/colab/README.md`](docs/infra/colab/README.md). Mandatory: detached-subprocess pattern for runs > 5 min.
+- **Study-driven parallel runs** (multi-test enrollment) — use `scripts/study/colab_runner.py` + `notebooks/colab_study_runner.ipynb` per [`docs/infra/colab/study_runner.md`](docs/infra/colab/study_runner.md). Default `STUDY_DIR` is `docs/archive/fusion-study/` (legacy); override to target the current study.
 
 ## Branch-scoped study context
 
-If a file `CLAUDE.local.md` exists at the repo root, read it — it points to
-the active study on this branch (e.g. `docs/studies/<study>/AGENT_CONTEXT.md`).
+The primary check2hgi study lives at [`docs/`](docs/) root and is loaded automatically on every branch.
 
-If `CLAUDE.local.md` does not exist, proceed without study context. Do NOT
-assume any particular study is active; branches may be working on unrelated
-experiments.
+Active follow-up studies live under [`docs/studies/`](docs/studies/) — currently `canonical_improvement/`, `merge_design/`, `hgi_category_injection/`. Each has its own onboarding doc (`AGENT_PROMPT.md`, `STATE.md`, or `INDEX.md`).
+
+When a branch is dedicated to one of those follow-up studies (or a new one), create a `CLAUDE.local.md` at the repo root pointing to the study's onboarding doc. The file is gitignored and branch-local. Example:
+
+```markdown
+# Branch-active study
+This branch is the **canonical_improvement** study. Read first:
+- `docs/studies/canonical_improvement/AGENT_PROMPT.md`
+- `docs/studies/canonical_improvement/log.md`
+```
+
+If `CLAUDE.local.md` does not exist, the primary check2hgi study at `docs/` root is the default context.
+
+## What changed (2026-05-14 reorg)
+
+- check2hgi promoted from `docs/studies/check2hgi/` to `docs/` root; navigation landing at `docs/README.md`.
+- F-trail (60+ per-experiment findings) moved to `docs/findings/`.
+- Three open research workstreams carved out as standalone studies under `docs/studies/`: `canonical_improvement/`, `merge_design/`, `hgi_category_injection/` (CLOSED, see `STATUS.md`).
+- Fusion study archived to `docs/archive/fusion-study/` (intact, with closure note). FUSION engine still first-class in code.
+- Ops/infra docs (RunPod, Colab, Lightning, H100, local, Drive) consolidated under `docs/infra/`.
+- Old `docs/RUNPOD_GUIDE.md`, `docs/COLAB_GUIDE.md`, `scripts/H100_FLCATX_PERVISIT_PROMPT.md` left as 1-line breadcrumbs.
+- Dead branches pruned; `bracis` (BRACIS review) and `worktree-check2hgi-mtl` retained.
+- Full record: [`docs/archive/MERGE_REORG_PLAN_2026-05-14.md`](docs/archive/MERGE_REORG_PLAN_2026-05-14.md).
