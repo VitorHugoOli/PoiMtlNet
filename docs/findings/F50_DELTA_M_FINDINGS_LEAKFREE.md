@@ -87,7 +87,7 @@ After the seed=42 run above, the seed=42 baseline was extended to 5 seeds × 5 f
 | 7   | 0.6866 | 0.6343 | +8.27 | 0.5314 | 0.5514 | −3.62 | 0.6321 | 0.7071 | −10.61 | +2.33 | −1.17 |
 | 100 | 0.6858 | 0.6343 | +8.13 | 0.5315 | 0.5494 | −3.26 | 0.6338 | 0.7058 | −10.21 | +2.43 | −1.04 |
 
-**Verdict:** the FL Pareto-positive-on-MRR claim moves from n=5 ceiling (p_greater=0.0312) to **paired Wilcoxon p_greater = 2.98×10⁻⁸ across 25 fold-pairs, sign-consistent at 25/25**. The MRR-vs-Acc@10 split is now paper-grade significant in both directions — Δm-MRR positive at p ≪ 1e-7 (cat lift dominates the small reg cost on MRR), Δm-Acc@10 negative at p ≈ 3e-5 (the reg-Acc@10 cost dominates the cat lift). **MTL produces better-ranked region predictions than STL at FL even where raw top-10 is worse** — paper-relevant mechanism note for `paper/results.md`.
+**Verdict:** the FL Pareto-positive-on-MRR claim moves from n=5 ceiling (p_greater=0.0312) to **paired Wilcoxon p_greater = 2.98×10⁻⁸ across 25 fold-pairs, sign-consistent at 25/25**. The MRR-vs-Acc@10 split is now paper-grade significant in both directions — Δm-MRR positive at p ≪ 1e-7 (cat lift dominates the small reg cost on MRR), Δm-Acc@10 negative at p ≈ 3e-5 (the reg-Acc@10 cost dominates the cat lift). **MTL produces better-ranked region predictions than STL at FL even where raw top-10 is worse** — paper-relevant mechanism note for `articles/[BRACIS]_Beyond_Cross_Task/src/sections/results.tex (work landed; paper-drafts archived to docs/archive/check2hgi-paper-drafts-pre-bracis/)`.
 
 The cat-side dominance is also paper-grade alone: rel cat F1 = +8.19% at 25/25 paired Δs, p < 1e-7 — confirms CH18-cat (MTL inherits the substrate-driven cat advantage) at multi-seed scale on the headline state.
 
@@ -113,7 +113,7 @@ The single state where Δm flips MTL-positive is **FL on the MRR axis** — whic
 
 **CH22 reframes from "scale-conditional, AL/AZ Pareto-positive" to "MTL is Pareto-negative on Δm at 4/5 states, FL-MRR is the lone Pareto-positive cell."** This is sign-consistent with PAPER_CLOSURE_RESULTS (classic MTL tradeoff) and FINAL_SURVEY (substrate carries cat advantage uniformly; reg-side MTL costs at every state). It strengthens the paper's "joint-deployment trade-off, not joint-performance lift" narrative.
 
-The MRR-vs-Acc@10 split at FL is paper-worthy as a mechanism note (paragraph in `paper/results.md`): MTL produces better-ranked predictions in the in-distribution set even when raw top-10 cardinality matches; this is the only place in the data where MTL is formally Pareto-positive at n=5 ceiling significance.
+The MRR-vs-Acc@10 split at FL is paper-worthy as a mechanism note (paragraph in `articles/[BRACIS]_Beyond_Cross_Task/src/sections/results.tex (work landed; paper-drafts archived to docs/archive/check2hgi-paper-drafts-pre-bracis/)`): MTL produces better-ranked predictions in the in-distribution set even when raw top-10 cardinality matches; this is the only place in the data where MTL is formally Pareto-positive at n=5 ceiling significance.
 
 ---
 

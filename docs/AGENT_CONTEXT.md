@@ -64,8 +64,9 @@ Why "MTL lifts both heads" doesn't survive: the bidirectional thesis was a pre-l
 | `docs/findings/F51_MULTI_SEED_FINDINGS.md` | Multi-seed B9 vs H3-alt validation |
 | `docs/findings/SUBSTRATE_COMPARISON_FINDINGS.md` | Phase-1 substrate-comparison verdict (cat side survives leak-free; reg side does not) |
 | `docs/baselines/` | Faithful baseline ports (POI-RGNN, MHA+PE, STAN, ReHDM) + audits |
-| `docs/paper/` | Paper-prep section drafts (methods.md, results.md, limitations.md) |
-| `docs/review/` | Dated critical reviews |
+| `docs/future_works/` | Forward-looking memos (deferred work) |
+| `docs/archive/check2hgi-paper-drafts-pre-bracis/` | Pre-BRACIS paper section drafts (methods.md, results.md, limitations.md, appendix_methodology.md) — work landed in `articles/[BRACIS]_*/src/sections/` |
+| `docs/archive/check2hgi-reviews-2026-04/` | Dated critical reviews (2026-04-22 → 2026-04-28) |
 
 **Archived (historical reference only):**
 

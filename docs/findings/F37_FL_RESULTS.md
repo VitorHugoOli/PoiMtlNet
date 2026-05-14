@@ -98,7 +98,7 @@ Updated picture for paper-blocking work (was: F37 closure → narrative locked):
 
 ## Next-step recommendations
 
-- **Update tables in `paper/results.md`** — replace "TBD pending F37" cells with the FL F21c numbers. Especially the F49 3-way decomposition row for FL.
+- **Update tables in `articles/[BRACIS]_Beyond_Cross_Task/src/sections/results.tex (work landed; paper-drafts archived to docs/archive/check2hgi-paper-drafts-pre-bracis/)`** — replace "TBD pending F37" cells with the FL F21c numbers. Especially the F49 3-way decomposition row for FL.
 - **Update Limitations §6.1** — add the scale-conditional clause above.
 - **Update C15 status** — re-open with FL evidence; mitigation = explicit per-state characterisation in paper.
 - **Optional:** Run a multi-seed sweep on FL frozen-cat to nail down whether the −16 pp is a frozen-cat instability artefact or a robust architectural cost.

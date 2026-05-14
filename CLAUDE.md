@@ -81,22 +81,17 @@ The earlier **fusion** study has been archived under [`docs/archive/fusion-study
     ├── results/            # canonical numbers (RESULTS_TABLE.md §0) + raw artefacts by phase
     ├── findings/           # paper-supporting per-experiment findings (F-trail) — read-only
     ├── studies/            # ACTIVE follow-up studies layered on check2hgi
+    ├── future_works/       # forward-looking memos (deferred work)
     ├── infra/              # ⭐ operational docs (RunPod, Colab, Lightning, H100, local, Drive)
     ├── baselines/          # external baselines (BASELINE.md overview + per-task audits)
-    ├── paper/              # section drafts (methods, results, limitations, appendix)
-    ├── archive/            # archived studies + snapshots (fusion-study/, check2hgi-* historical)
-    ├── context/            # task / embedding / architecture / optimizer / head background
-    ├── datasets/           # dataset reference
+    ├── archive/            # archived studies, paper drafts, plans, reviews, scope memos
+    ├── context/            # tasks, datasets, splits, metrics, embeddings, MTL archs, optimizers, heads + check2hgi_overview.tex
     ├── thesis/             # paper thesis options A / B
-    ├── plans/              # non-archive ablation plans
     ├── reports/            # status reports
-    ├── scope/              # scoping decisions
-    ├── review/             # dated critical reviews
-    ├── launch_plans/       # historical launch plans (durable ops recipes are in infra/)
-    ├── issues/             # generic project issues + check2hgi/ subdir
+    ├── issues/             # check2hgi/ bug-audit log (8 issue files, partial-open + fixed)
+    ├── index.html          # comprehensive research-state summary page
     ├── BRACIS_GUIDE.md     # conference submission guide
-    ├── PAPER_FINDINGS.md   # legacy findings (revalidate, don't trust pre-bugfix)
-    └── check2hgi_overview.tex  # paper LaTeX figure asset
+    └── PAPER_FINDINGS.md   # legacy findings (revalidate, don't trust pre-bugfix)
 ```
 
 ## MTLnet Model

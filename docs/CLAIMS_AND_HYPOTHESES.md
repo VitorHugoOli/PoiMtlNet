@@ -686,7 +686,7 @@ The paper's framing therefore shifts from "Check2HGI is a better embedding" to "
 
 ## Summary dashboard
 
-**Reconciled 2026-04-24** against `OBJECTIVES_STATUS_TABLE.md` v3 + `NORTH_STAR.md` (post-F27) + `review/2026-04-23_critical_review.md` + `research/F21C_FINDINGS.md` + `research/F27_CATHEAD_FINDINGS.md` + `research/B3_AZ_WILCOXON_VS_STL.md` + `research/B5_AZ_WILCOXON.md`.
+**Reconciled 2026-04-24** against `OBJECTIVES_STATUS_TABLE.md` v3 + `NORTH_STAR.md` (post-F27) + `archive/check2hgi-reviews-2026-04/2026-04-23_critical_review.md` + `research/F21C_FINDINGS.md` + `research/F27_CATHEAD_FINDINGS.md` + `research/B3_AZ_WILCOXON_VS_STL.md` + `research/B5_AZ_WILCOXON.md`.
 
 | ID | Tier | Phase | Status | Decides |
 |----|------|-------|--------|---------|
@@ -711,7 +711,7 @@ The paper's framing therefore shifts from "Check2HGI is a better embedding" to "
 | **CH20** | **A** | **F49** | **confirmed 2026-04-27** | **Cat-supervision transfer ≤ |0.75| pp on AL/AZ/FL n=5; H3-alt reg lift is architecture-dominant.** Refutes legacy +14.2 pp transfer claim at ≥9σ on FL alone. Methodological contribution: loss-side `task_weight=0` ablation is unsound under cross-attention MTL (silenced encoder co-adapts via K/V); encoder-frozen isolation gives the only clean architectural decomposition. Layer 1 + Layer 2 paper-grade now; FL absolute architectural Δ vs STL pending F37. |
 | **CH21** | **A** | **synthesis (Phase 3 reframed)** | **partially refuted 2026-04-30 — TOP-LINE PAPER CLAIM, NOW CAT-ONLY** | **MTL B-recipe's CAT lift is interactional architecture × substrate.** Substrate (CH16/CH18-cat + CH19) is necessary on cat: HGI substitution loses 15–34 pp of cat F1 (Phase 3 leak-free). Architecture (CH20) is necessary on cat. **Reg-side claim withdrawn (Phase 3, 2026-04-30):** the Phase 1 Leg III "−30 pp reg under HGI" was leakage-amplified; under leak-free MTL B9, MTL+HGI reg ≥ MTL+C2HGI reg at every state. The substrate-specific advantage is **cat-only**, not joint cat+reg. CH21 now reads: "C2HGI's per-visit context is the load-bearing substrate **for next-category prediction**; for next-region prediction the substrate is at parity with HGI." |
 
-### Post-B5 additions (not in the original CH01-CH17 numbering, captured in `OBJECTIVES_STATUS_TABLE.md` and `review/2026-04-23_critical_review.md`)
+### Post-B5 additions (not in the original CH01-CH17 numbering, captured in `OBJECTIVES_STATUS_TABLE.md` and `archive/check2hgi-reviews-2026-04/2026-04-23_critical_review.md`)
 
 | Ref | What | Status |
 |---|---|---|

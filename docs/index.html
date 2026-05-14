@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>MTLnet — Check2HGI study state</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: #fafafa;
+    --fg: #1a1a1a;
+    --muted: #555;
+    --accent: #0a5c8a;
+    --accent-soft: #e6f0f5;
+    --pos: #1a7a3a;
+    --neg: #aa2222;
+    --border: #d0d0d0;
+    --code-bg: #f0efeb;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    color: var(--fg);
+    background: var(--bg);
+    max-width: 940px;
+    margin: 1.4em auto 4em;
+    padding: 0 1.2em;
+  }
+  h1 { font-size: 1.55em; margin: 0 0 0.2em; color: var(--accent); }
+  h2 { font-size: 1.2em; margin: 1.6em 0 0.4em; padding-bottom: 0.2em; border-bottom: 1px solid var(--border); }
+  h3 { font-size: 1.02em; margin: 1.2em 0 0.3em; color: var(--accent); }
+  p { margin: 0.5em 0; }
+  ul { margin: 0.4em 0; padding-left: 1.4em; }
+  li { margin: 0.2em 0; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code { background: var(--code-bg); padding: 1px 5px; border-radius: 3px; font-size: 0.92em; }
+  table { border-collapse: collapse; margin: 0.6em 0 1em; font-size: 0.93em; }
+  th, td { border: 1px solid var(--border); padding: 4px 9px; text-align: left; }
+  th { background: var(--accent-soft); font-weight: 600; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .pos { color: var(--pos); font-weight: 600; }
+  .neg { color: var(--neg); font-weight: 600; }
+  .muted { color: var(--muted); }
+  .tag { display: inline-block; font-size: 0.78em; padding: 1px 6px; border-radius: 3px; background: var(--accent-soft); color: var(--accent); border: 1px solid var(--border); }
+  .tag-closed { background: #f4f0e6; color: #8a6510; }
+  .tag-active { background: #e6f5ea; color: var(--pos); }
+  .tag-archived { background: #f0eaea; color: var(--muted); }
+  blockquote { border-left: 3px solid var(--accent); padding: 0.4em 0.9em; margin: 0.6em 0; background: var(--accent-soft); }
+  blockquote p:first-child { margin-top: 0; }
+  blockquote p:last-child { margin-bottom: 0; }
+  .meta { font-size: 0.86em; color: var(--muted); }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2em; }
+  @media (max-width: 720px) { .grid-2 { grid-template-columns: 1fr; } }
+  hr { border: 0; border-top: 1px solid var(--border); margin: 1.6em 0; }
+  .toc { font-size: 0.92em; }
+  .toc a { display: inline-block; margin-right: 0.8em; }
+</style>
+</head>
+<body>
+
+<h1>MTLnet — Check2HGI study state</h1>
+<p class="meta">
+  Multi-task learning framework for POI prediction · BRACIS 2026 paper closed ·
+  <span class="tag tag-active">Primary study</span>
+  <span class="tag tag-archived">Predecessor: fusion (archived)</span> ·
+  Last updated 2026-05-14
+</p>
+
+<p class="toc">
+  <a href="#thesis">Thesis</a>
+  <a href="#headline">Headline numbers</a>
+  <a href="#mechanism">Mechanism</a>
+  <a href="#architecture">Architecture</a>
+  <a href="#paper">Paper</a>
+  <a href="#studies">Active studies</a>
+  <a href="#future">Future works</a>
+  <a href="#nav">Where to look</a>
+  <a href="#archive">Historical work</a>
+</p>
+
+<hr>
+
+<h2 id="thesis">Thesis</h2>
+
+<blockquote>
+  <p><strong>Substrate carries, architecture pays.</strong> Check-in-level Check2HGI provides a <em>task-asymmetric substrate</em> for joint POI prediction: per-visit context lifts single-task next-category macro-F1 by <strong>+14 to +29 pp</strong> at every U.S.-state Gowalla split. With Check2HGI fixed, joint MTL over a cross-attention backbone adds a small cat lift at four of five states (and small-significantly negative at AL) while paying a sign-consistent <strong>7 to 17 pp cost</strong> on next-region Acc@10 — the textbook MTL tradeoff.</p>
+</blockquote>
+
+<p>Working title (locked v3, 2026-05-01): <em>Substrate Carries, Architecture Pays: Check-In-Level Embeddings for Multi-Task POI Prediction</em>. See <a href="../articles/[BRACIS]_Beyond_Cross_Task/AGENT.md">articles/[BRACIS]_*/AGENT.md</a> for the paper-side source-of-truth and <a href="AGENT_CONTEXT.md">AGENT_CONTEXT.md</a> for the long-form briefing.</p>
+
+<h2 id="headline">Headline numbers</h2>
+
+<p>Canonical paper-facing source: <a href="results/RESULTS_TABLE.md"><code>results/RESULTS_TABLE.md §0</code></a> (v11, 2026-05-02). All numbers below are paper-grade leak-free under per-fold log_T, F51 canonical extraction (per-fold max for ep ≥ 5).</p>
+
+<h3>§0.1 — Architectural Δ: MTL B9 vs matched-head STL ceiling (5 states, n=20)</h3>
+
+<table>
+<thead>
+<tr><th>State</th><th class="num">n_regions</th><th class="num">Δ_reg pp</th><th class="num">p_reg</th><th class="num">Δ_cat pp</th><th class="num">p_cat</th></tr>
+</thead>
+<tbody>
+<tr><td>AL</td><td class="num">1,109</td><td class="num neg">−11.04</td><td class="num">1.9e-06</td><td class="num neg">−0.78</td><td class="num">0.036</td></tr>
+<tr><td>AZ</td><td class="num">1,547</td><td class="num neg">−12.27</td><td class="num">1.9e-06</td><td class="num pos">+1.20</td><td class="num">&lt;1e-04</td></tr>
+<tr><td>FL</td><td class="num">4,703</td><td class="num neg">−7.34</td><td class="num">1.9e-06</td><td class="num pos">+1.40</td><td class="num">2e-06</td></tr>
+<tr><td>CA</td><td class="num">8,501</td><td class="num neg">−9.50</td><td class="num">2e-06</td><td class="num pos">+1.68</td><td class="num">2e-06</td></tr>
+<tr><td>TX</td><td class="num">6,553</td><td class="num neg">−16.59</td><td class="num">2e-06</td><td class="num pos">+1.89</td><td class="num">2e-06</td></tr>
+</tbody>
+</table>
+
+<p class="meta">Δ = MTL B9 − STL ceiling (paired Δ from per-fold values). Reg metric: per-fold max <code>top10_acc_indist</code> for ep ≥ 5. Cat metric: per-fold max F1 for ep ≥ 5. n = 20 = 4 seeds × 5 folds.</p>
+
+<p><strong>The textbook MTL tradeoff at every state:</strong></p>
+<ul>
+  <li><strong>Reg:</strong> MTL B9 &lt; STL by 7–17 pp at every state, sign-consistent. Significant (p ≤ 1.9e-06) at all five.</li>
+  <li><strong>Cat:</strong> MTL B9 &gt; STL at four of five states (AZ/FL/CA/TX, p ≤ 2e-06). AL is small-significantly negative (Δ = −0.78 pp, p = 0.036; magnitude ~1.9 % relative on a 41 % F1 scale).</li>
+  <li>The cross-attention architecture's expressiveness gets spent on <em>cat helps cat</em> (joint training transfers signal to the easier 7-class task) at the cost of the harder ~1k–9k-class region task that already has <code>α·log_T</code> graph prior to learn from.</li>
+</ul>
+
+<h3>§0.2 — Per-visit context counterfactual (CH19, 5-state)</h3>
+
+<p>Decomposes the substrate gap into <em>per-visit context</em> (canonical − POI-pooled) and <em>training signal</em> (POI-pooled − HGI):</p>
+
+<table>
+<thead>
+<tr><th>State</th><th class="num">C2HGI cat F1</th><th class="num">total gap pp</th><th class="num">per-visit pp</th><th class="num">training-sig pp</th><th class="num">per-visit %</th></tr>
+</thead>
+<tbody>
+<tr><td>AL</td><td class="num">40.76 ± 1.50</td><td class="num pos">+15.50</td><td class="num">+11.19</td><td class="num">+4.31</td><td class="num"><strong>72%</strong></td></tr>
+<tr><td>AZ</td><td class="num">43.17 ± 0.28</td><td class="num pos">+14.18</td><td class="num">+9.08</td><td class="num">+5.10</td><td class="num"><strong>64%</strong></td></tr>
+<tr><td>FL</td><td class="num">63.48 ± 1.04</td><td class="num pos">+29.02</td><td class="num">+26.06</td><td class="num">+2.96</td><td class="num"><strong>90%</strong></td></tr>
+<tr><td>CA</td><td class="num">60.55 ± 0.81</td><td class="num pos">+29.41</td><td class="num">+26.08</td><td class="num">+3.33</td><td class="num"><strong>89%</strong></td></tr>
+<tr><td>TX</td><td class="num">60.35 ± 0.30</td><td class="num pos">+28.16</td><td class="num">+25.42</td><td class="num">+2.74</td><td class="num"><strong>90%</strong></td></tr>
+</tbody>
+</table>
+
+<p><strong>Two-band pattern:</strong> per-visit context accounts for ~64–72% of the substrate gap at small states (AL, AZ) and ~89–90% at large states (FL, CA, TX). Large transition graphs (4.7k–8.5k regions) provide weaker per-POI contrastive signal, so Check2HGI's advantage at large states is almost entirely in the per-visit contextual variation it introduces.</p>
+
+<p class="meta">Source: <a href="results/RESULTS_TABLE.md">results/RESULTS_TABLE.md §0.7</a> · per-fold JSONs in <a href="results/phase1_perfold/">results/phase1_perfold/</a>. Paired Wilcoxon p = 0.0312 at AL/AZ ($n=5$ ceiling).</p>
+
+<h3>§0.3 — Joint Δm scoreboard (FL is the lone Pareto-positive cell)</h3>
+
+<p>FL Δm-MRR multi-seed (n=25): <strong class="pos">+2.33% at p ≈ 3×10⁻⁸</strong> (25/25 fold-pairs positive). FL Δm-Acc@10: <strong class="neg">−1.12% at p ≈ 3×10⁻⁵</strong>. The MRR-vs-Acc@10 split at FL is paper-grade in both directions — MTL produces better-ranked region predictions than STL even where raw top-10 is worse. Other states (AL/AZ/CA/TX): single-seed n=5 ceiling, Δm Pareto-negative.</p>
+
+<p class="meta">See <a href="findings/F50_DELTA_M_FINDINGS_LEAKFREE.md">findings/F50_DELTA_M_FINDINGS_LEAKFREE.md</a> · <a href="results/paired_tests/">results/paired_tests/</a>.</p>
+
+<h3>§0.4 — Recipe selection (scale-conditional B9 vs H3-alt)</h3>
+
+<p><strong>B9</strong> is paper-grade better at all large-scale states (FL/CA/TX). <strong>H3-alt</strong> is paper-grade better on cat at small states (AL/AZ); reg tied. Narrative: <em>scale-conditional optimal recipe</em>. Full table in <a href="results/RESULTS_TABLE.md">RESULTS_TABLE.md §0.4</a>.</p>
+
+<h2 id="mechanism">Mechanism findings (selected)</h2>
+
+<ul>
+  <li><strong>Substrate task-asymmetry</strong> — per-visit context drives the cat lift; region pooling erases the per-visit variance. <a href="findings/SUBSTRATE_COMPARISON_FINDINGS.md">findings/SUBSTRATE_COMPARISON_FINDINGS.md</a>.</li>
+  <li><strong>F49 — λ=0 cross-attn methodology side-finding</strong>: loss-side <code>task_weight=0</code> ablation does NOT isolate the targeted encoder under cross-attention (silenced encoder co-adapts via attention K/V). Encoder-frozen isolation is required. Generalises beyond our study (MulT, InvPT, HMT-GRN). <a href="findings/F49_LAMBDA0_DECOMPOSITION_RESULTS.md">findings/F49_LAMBDA0_DECOMPOSITION_RESULTS.md</a>, <a href="findings/F49_LAMBDA0_DECOMPOSITION_GAP.md">F49_LAMBDA0_DECOMPOSITION_GAP.md</a>.</li>
+  <li><strong>FL Markov-1-region floor</strong> — at FL Gowalla, Markov-1-region transitions cover ≥ 85% of validation rows (Acc@10 floor ≈ 65%). Our STAN-Flow exceeds it; MTL trails on Acc@10 but exceeds on Acc@5 + MRR. Honest framing in <a href="../articles/[BRACIS]_Beyond_Cross_Task/STATISTICAL_AUDIT.md">articles/STATISTICAL_AUDIT.md §7.3</a>.</li>
+  <li><strong>HGI POI2Vec ≈ fclass lookup</strong> — diagnosed in the closed hgi_category_injection sub-study. <a href="studies/hgi_category_injection/STATUS.md">studies/hgi_category_injection/STATUS.md</a>.</li>
+  <li><strong>F-trail journey:</strong> the supplementary-material narrative is in <a href="MTL_ARCHITECTURE_JOURNEY.md">MTL_ARCHITECTURE_JOURNEY.md</a> (B3 → F45 → F48-H3-alt → F49 → paper closure). Per-experiment findings: <a href="findings/">findings/</a> (66 entries, with topic index in <a href="findings/README.md">findings/README.md</a>).</li>
+</ul>
+
+<h2 id="architecture">Architecture &amp; champion config</h2>
+
+<p><strong>MTLnet</strong> (<code>src/models/mtl/mtlnet/model.py</code>): task-specific encoders + FiLM modulation + shared 4-block residual backbone + task-specific heads. <strong>MTLnetCrossAttn</strong> variant adds bidirectional cross-attention between cat and reg streams.</p>
+
+<p><strong>Champion recipe (B9):</strong></p>
+<blockquote>
+  <p><code>mtlnet_crossattn + static_weight(cat=0.75) + next_gru (cat) + next_stan_flow (reg) + per-head LR (cat=1e-3 / reg=3e-3 / shared=1e-3) + cosine + alt-SGD + α-no-WD + per-fold log_T</code></p>
+  <p class="meta">Full spec in <a href="NORTH_STAR.md">NORTH_STAR.md</a>. Small-state alternative: H3-alt (B9 minus alt-SGD/cosine/α-no-WD; replaced with constant scheduler). Recipe is scale-conditional — see <a href="results/RESULTS_TABLE.md">RESULTS_TABLE.md §0.4</a>.</p>
+</blockquote>
+
+<p><strong>Substrate (Check2HGI):</strong> check-in-level hierarchical graph embeddings — same POI visited twice produces different vectors based on user/time/spatial context. Engine code: <code>research/embeddings/check2hgi/</code>. Paper-faithful HGI baseline at <code>research/embeddings/hgi/</code>.</p>
+
+<h2 id="paper">Paper deliverable</h2>
+
+<p>Paper-side source-of-truth: <a href="../articles/[BRACIS]_Beyond_Cross_Task/"><code>articles/[BRACIS]_Beyond_Cross_Task/</code></a></p>
+<ul>
+  <li><a href="../articles/[BRACIS]_Beyond_Cross_Task/AGENT.md">AGENT.md</a> — read first if writing prose</li>
+  <li><a href="../articles/[BRACIS]_Beyond_Cross_Task/PAPER_DRAFT.md">PAPER_DRAFT.md</a> — beat-by-beat draft</li>
+  <li><a href="../articles/[BRACIS]_Beyond_Cross_Task/PAPER_STRUCTURE.md">PAPER_STRUCTURE.md</a> — paper structure</li>
+  <li><a href="../articles/[BRACIS]_Beyond_Cross_Task/STATISTICAL_AUDIT.md">STATISTICAL_AUDIT.md</a> — paired-test audit</li>
+  <li><a href="../articles/[BRACIS]_Beyond_Cross_Task/TABLES_FIGURES.md">TABLES_FIGURES.md</a> — table/figure spec</li>
+  <li><a href="../articles/[BRACIS]_Beyond_Cross_Task/AUDIT_LOG.md">AUDIT_LOG.md</a> — round-by-round audit log</li>
+  <li>LaTeX: <a href="../articles/[BRACIS]_Beyond_Cross_Task/src/samplepaper.tex">src/samplepaper.tex</a> + <a href="../articles/[BRACIS]_Beyond_Cross_Task/src/sections/">src/sections/</a></li>
+</ul>
+
+<p class="meta">For the BRACIS submission anonymous-review release, see the <code>bracis</code> branch.</p>
+
+<h2 id="studies">Active follow-up studies</h2>
+
+<p>Layered on top of the primary check2hgi substrate. Index: <a href="studies/README.md">studies/README.md</a>.</p>
+
+<table>
+<thead>
+<tr><th>Study</th><th>Status</th><th>Read first</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td><a href="studies/canonical_improvement/"><code>canonical_improvement/</code></a></td>
+  <td><span class="tag tag-active">ACTIVE</span> — 18-experiment slate across 5 tiers</td>
+  <td><a href="studies/canonical_improvement/AGENT_PROMPT.md">AGENT_PROMPT.md</a></td>
+</tr>
+<tr>
+  <td><a href="studies/merge_design/"><code>merge_design/</code></a></td>
+  <td><span class="tag tag-active">ACTIVE-CLOSING</span> — Designs A-M, Levers 1-6, Phase 11 in flight</td>
+  <td><a href="studies/merge_design/STATE.md">STATE.md</a></td>
+</tr>
+<tr>
+  <td><a href="studies/hgi_category_injection/"><code>hgi_category_injection/</code></a></td>
+  <td><span class="tag tag-closed">CLOSED</span> — AZ falsified 2026-05-04; kept pending FL/CA/TX revisit</td>
+  <td><a href="studies/hgi_category_injection/STATUS.md">STATUS.md</a> + <a href="studies/hgi_category_injection/INDEX.md">INDEX.md</a></td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="future">Future works</h2>
+
+<p>Forward-looking memos for work-to-do-later (not yet a study, not closed). Index: <a href="future_works/README.md">future_works/README.md</a>.</p>
+
+<ul>
+  <li><a href="future_works/task_pivot_memo.md">task_pivot_memo.md</a> — merge the task-pair pivot rationale (<code>{next_poi, next_region}</code> → <code>{next_category, next_region}</code>) into <code>NORTH_STAR.md</code> Validation status section.</li>
+</ul>
+
+<h2 id="nav">Where to look</h2>
+
+<div class="grid-2">
+<div>
+<h3>Run / develop</h3>
+<ul>
+  <li><strong>Local (M4 Pro / MPS)</strong>: <a href="infra/local/README.md">infra/local/</a></li>
+  <li><strong>Colab T4</strong>: <a href="infra/colab/README.md">infra/colab/</a></li>
+  <li><strong>RunPod 4090</strong>: <a href="infra/runpod/README.md">infra/runpod/</a></li>
+  <li><strong>Lightning A100/H100</strong>: <a href="infra/lightning/README.md">infra/lightning/</a></li>
+  <li><strong>H100 SSH bare-metal</strong>: <a href="infra/h100/README.md">infra/h100/</a></li>
+  <li><strong>Drive download</strong>: <a href="infra/data/drive_download.md">infra/data/drive_download.md</a></li>
+</ul>
+</div>
+<div>
+<h3>Background reading</h3>
+<ul>
+  <li><a href="context/">context/</a> — tasks / datasets / splits / metrics / embeddings / MTL archs / optimizers / heads (+ <code>check2hgi_overview.tex</code> figure asset)</li>
+  <li><a href="baselines/">baselines/</a> — external baselines (BASELINE.md + per-task audits)</li>
+  <li><a href="thesis/">thesis/</a> — paper thesis options A / B</li>
+  <li><a href="reports/">reports/</a> — status reports</li>
+  <li><a href="BRACIS_GUIDE.md">BRACIS_GUIDE.md</a> — submission guide</li>
+</ul>
+</div>
+</div>
+
+<h3>Issues / known bugs</h3>
+<p><a href="issues/check2hgi/README.md">issues/check2hgi/README.md</a> — bug-audit log (8 issue files, partial-open + fixed). Includes the load-bearing FOLD_LEAKAGE_AUDIT (FIXED), MTL_PARAM_PARTITION_BUG (CODE FIXED — RERUNS PENDING), BACKBONE_DILUTION (CHARACTERISED), GRADNORM_EXPERT_GATING (WORKAROUND).</p>
+
+<h2 id="archive">Historical work (archive)</h2>
+
+<p>All preserved at <a href="archive/">docs/archive/</a> — moves preserve git history. Notable contents:</p>
+<ul>
+  <li><strong>Predecessor study</strong>: <a href="archive/fusion-study/">archive/fusion-study/</a> (closed 2026-05-14; concepts, claims, leakage diagnoses, lab-notebook records all intact). FUSION engine remains first-class in code.</li>
+  <li><strong>Pre-promotion check2hgi snapshots</strong>: <a href="archive/check2hgi-post-paper-closure-2026-05-01/">post-paper-closure-2026-05-01/</a>, <a href="archive/check2hgi-pre-b3-framing/">pre-b3-framing/</a>, <a href="archive/check2hgi-research-pre-b3/">research-pre-b3/</a>, <a href="archive/check2hgi-research-pre-b5/">research-pre-b5/</a>, <a href="archive/check2hgi-phases-original/">phases-original/</a>, <a href="archive/check2hgi-v1-wip-mixed-scope/">v1-wip-mixed-scope/</a>, <a href="archive/check2hgi-2026-04-20-status-reports/">2026-04-20-status-reports/</a>, <a href="archive/check2hgi-README-pre-promotion.md">README-pre-promotion</a></li>
+  <li><strong>Pre-BRACIS paper drafts</strong>: <a href="archive/check2hgi-paper-drafts-pre-bracis/">check2hgi-paper-drafts-pre-bracis/</a> (work landed in <code>articles/[BRACIS]_*/src/sections/</code>)</li>
+  <li><strong>Dated reviews 2026-04</strong>: <a href="archive/check2hgi-reviews-2026-04/">check2hgi-reviews-2026-04/</a> (7 critical-review snapshots)</li>
+  <li><strong>Scope memos 2026-04</strong>: <a href="archive/check2hgi-scope-memos-2026-04/">check2hgi-scope-memos-2026-04/</a> (CH14/CH10/P0.2 + CH15-rename)</li>
+  <li><strong>Launch plans 2026-04</strong>: <a href="archive/check2hgi-launch-plans-2026-04/">check2hgi-launch-plans-2026-04/</a></li>
+  <li><strong>Fusion-era ablation plans</strong>: <a href="archive/check2hgi-fusion-era-ablation-plans/">check2hgi-fusion-era-ablation-plans/</a></li>
+  <li><strong>Pre-promotion generic issues</strong>: <a href="archive/check2hgi-generic-issues-pre-promotion/">check2hgi-generic-issues-pre-promotion/</a></li>
+  <li><strong>Reorg records</strong>: <a href="archive/MERGE_REORG_PLAN_2026-05-14.md">MERGE_REORG_PLAN_2026-05-14.md</a>, <a href="archive/REORG_HANDOFF_2026-05-14.md">REORG_HANDOFF_2026-05-14.md</a>, <a href="archive/REORG_REFSWEEP_CATALOG_2026-05-14.md">REORG_REFSWEEP_CATALOG_2026-05-14.md</a></li>
+  <li><strong>Other</strong>: <a href="archive/HGI_HYPERPARAMETER_TUNING_2026-04-13.md">HGI_HYPERPARAMETER_TUNING</a>, <a href="archive/HGI_PERFORMANCE_IMPROVEMENT_PLAN.md">HGI_PERFORMANCE_IMPROVEMENT_PLAN</a>, <a href="archive/KNOWLEDGE_BASE_2026-04-13.md">KNOWLEDGE_BASE_2026-04-13</a></li>
+</ul>
+
+<hr>
+
+<p class="meta">
+  <strong>This page is a snapshot summary.</strong> The source-of-truth files (linked above) are authoritative — every numerical claim here is sourced from <a href="results/RESULTS_TABLE.md"><code>results/RESULTS_TABLE.md §0</code></a>. For navigation see <a href="README.md">README.md</a>; for project-wide guidance see <a href="../CLAUDE.md"><code>CLAUDE.md</code></a> at the repo root.
+</p>
+
+<p class="meta">
+  <strong>Note:</strong> GitHub does not render <code>.html</code> natively in the file tree — open via raw view or GitHub Pages, or read the linked Markdown files (<a href="README.md">README.md</a>, <a href="AGENT_CONTEXT.md">AGENT_CONTEXT.md</a>) for the same content in rendered form.
+</p>
+
+</body>
+</html>
