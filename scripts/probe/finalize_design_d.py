@@ -5,7 +5,7 @@ Writes docs/studies/check2hgi/results/paired_tests/design_d_diagnostic.json.
 
 Note: D's apparent cat lift is contaminated by a POI2Vec→checkin leak via
 2-hop GCN through visit/seq edges. We still report the numbers but flag
-them as not-trustworthy in MERGE_DESIGN_NOTES.md.
+them as not-trustworthy in `docs/studies/check2hgi/research/merge_design/MERGE_DESIGN_NOTES.md`.
 """
 from __future__ import annotations
 import json

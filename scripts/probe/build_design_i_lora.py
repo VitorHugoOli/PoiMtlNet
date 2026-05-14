@@ -169,23 +169,27 @@ def train(state: str, args):
           f"lora_extra={n_lora:,} (rank={args.lora_rank})")
 
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
-    scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
+    scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma) if args.gamma != 1.0 else None
 
     t = trange(1, args.epochs + 1, desc=f"Train Design I [{state_lc}]")
     lowest = math.inf; best_epoch = 0; best_state = None
+    POSTFIX_EVERY = 25
     for epoch in t:
         model.train(); optimizer.zero_grad()
         outputs = model(data)
         loss = model.loss(*outputs)
         loss.backward()
         clip_grad_norm_(model.parameters(), max_norm=args.max_norm)
-        optimizer.step(); scheduler.step()
+        optimizer.step()
+        if scheduler is not None:
+            scheduler.step()
         l = loss.item()
         if l < lowest:
             lowest = l; best_epoch = epoch
             best_state = {k: v.detach().clone() for k, v in model.state_dict().items()}
-        t.set_postfix(loss=f"{l:.4f}", best=f"{lowest:.4f}", best_ep=best_epoch,
-                      gamma=f"{model.gamma.item():.3f}")
+        if epoch % POSTFIX_EVERY == 0 or epoch == args.epochs:
+            t.set_postfix(loss=f"{l:.4f}", best_ep=best_epoch, refresh=False)
+            t.refresh()
 
     print(f"[{state_lc}] best_epoch={best_epoch} loss={lowest:.4f}")
     model.load_state_dict(best_state); model.eval()

@@ -6,7 +6,7 @@ Drives:
   3. Launch reg STL (next_getnext_hard) AL+AZ × {B, H}.
   4. Run generality probes incl. new substrates.
   5. Extract per-fold metrics, run paired tests.
-  6. Update results table in MERGE_DESIGN_NOTES.md.
+  6. Update results table in `docs/studies/check2hgi/research/merge_design/MERGE_DESIGN_NOTES.md`.
 
 Designed to be invoked once training is complete:
     python scripts/probe/eval_design_bh.py --designs B H
@@ -91,32 +91,18 @@ def launch_reg_runs(designs: list[str], states: list[str], log_dir: Path) -> lis
             upst = st.upper()
             tag = f"{st}_{d}_reg"
             log = log_dir / f"{tag}.log"
-            run_tag = f"STL_{upst}_design_{d.lower()}_reg_gethard_pf_5f50ep"
-            # FL uses single transition log (matches FL canonical baseline);
-            # AL/AZ use per-fold leak-free logs.
-            if st == "florida":
-                cmd = [
-                    "python3", "-u", "scripts/p1_region_head_ablation.py",
-                    "--state", st, "--heads", "next_getnext_hard",
-                    "--folds", "5", "--epochs", "50", "--seed", "42",
-                    "--input-type", "region",
-                    "--region-emb-source", engine_name,
-                    "--override-hparams", "d_model=256", "num_heads=8",
-                    f"transition_path=output/check2hgi/{st}/region_transition_log.pt",
-                    "--tag", run_tag,
-                ]
-            else:
-                cmd = [
-                    "python3", "-u", "scripts/p1_region_head_ablation.py",
-                    "--state", st, "--heads", "next_getnext_hard",
-                    "--folds", "5", "--epochs", "50", "--seed", "42",
-                    "--input-type", "region",
-                    "--region-emb-source", engine_name,
-                    "--override-hparams", "d_model=256", "num_heads=8",
-                    f"transition_path=output/check2hgi/{st}/region_transition_log_seed42_fold1.pt",
-                    "--per-fold-transition-dir", f"output/check2hgi/{st}",
-                    "--tag", run_tag,
-                ]
+            run_tag = f"STL_{upst}_design_{d.lower()}_reg_gethard_pf_5f50ep_leakfree"
+            cmd = [
+                "python3", "-u", "scripts/p1_region_head_ablation.py",
+                "--state", st, "--heads", "next_getnext_hard",
+                "--folds", "5", "--epochs", "50", "--seed", "42",
+                "--input-type", "region",
+                "--region-emb-source", engine_name,
+                "--override-hparams", "d_model=256", "num_heads=8",
+                f"transition_path=output/check2hgi/{st}/region_transition_log_seed42_fold1.pt",
+                "--per-fold-transition-dir", f"output/check2hgi/{st}",
+                "--tag", run_tag,
+            ]
             print(f"[reg] launching {tag} (run_tag={run_tag})")
             f = open(log, "w")
             p = subprocess.Popen(cmd, stdout=f, stderr=subprocess.STDOUT, env=env)
@@ -162,9 +148,10 @@ def main():
         print("\n  ⚠ reg failures:", bad_reg)
 
     print("\n" + "=" * 64); print("STAGE 3 — generality probes"); print("=" * 64)
-    subs = ["canonical", "hgi", "c2hgi_poi2vec", "design_e"] + [f"design_{d.lower()}" for d in args.designs]
+    subs = ["canonical", "hgi"] + [f"design_{d.lower()}" for d in args.designs]
     subprocess.run(
-        ["python3", "scripts/probe/generality_probes.py", "--substrates"] + subs,
+        ["python3", "scripts/probe/generality_probes.py",
+         "--states"] + args.states + ["--substrates"] + subs,
         env={**os.environ, "PYTHONPATH": "src"},
     )
 

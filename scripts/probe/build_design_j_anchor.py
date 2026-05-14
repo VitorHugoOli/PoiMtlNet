@@ -55,8 +55,8 @@ class Check2HGI_DesignJ(Check2HGI):
         pos_poi_emb_canonical = self.checkin2poi(pos_checkin_emb, data.checkin_to_poi, num_pois)
         neg_poi_emb_canonical = self.checkin2poi(neg_checkin_emb, data.checkin_to_poi, num_pois)
 
-        all_pois = torch.arange(num_pois, device=data.x.device)
-        poi_residual = self.poi_table(all_pois)
+        # speed: nn.Embedding(N).weight is identical to embedding(arange(N))
+        poi_residual = self.poi_table.weight
 
         pos_poi_emb_for_reg = pos_poi_emb_canonical.detach() + self.gamma * poi_residual
         neg_poi_emb_for_reg = neg_poi_emb_canonical.detach() + self.gamma * poi_residual
@@ -101,8 +101,14 @@ def load_poi2vec(state: str, num_pois: int, placeid_to_idx: dict) -> torch.Tenso
 
 
 def train(state: str, args):
+    seed = getattr(args, "seed", None)
+    if seed is not None:
+        torch.manual_seed(int(seed))
+        np.random.seed(int(seed))
     state_lc = state.lower()
-    out_dir = REPO / "output" / "check2hgi_design_j" / state_lc
+    suffix = getattr(args, "out_suffix", "") or ""
+    base = "check2hgi_design_j" + (f"_{suffix}" if suffix else "")
+    out_dir = REPO / "output" / base / state_lc
     out_dir.mkdir(parents=True, exist_ok=True)
 
     graph_path = REPO / "output" / "check2hgi" / state_lc / "temp" / "checkin_graph.pt"
@@ -146,10 +152,11 @@ def train(state: str, args):
     print(f"[{state_lc}] params={sum(p.numel() for p in model.parameters()):,}")
 
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
-    scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
+    scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma) if args.gamma != 1.0 else None
 
     t = trange(1, args.epochs + 1, desc=f"Train J[{state_lc}]")
     lowest = math.inf; best_epoch = 0; best_state = None
+    POSTFIX_EVERY = 25
     for epoch in t:
         model.train(); optimizer.zero_grad()
         outputs = model(data)
@@ -158,13 +165,16 @@ def train(state: str, args):
         loss = loss_main + args.anchor_lambda * loss_anchor
         loss.backward()
         clip_grad_norm_(model.parameters(), max_norm=args.max_norm)
-        optimizer.step(); scheduler.step()
+        optimizer.step()
+        if scheduler is not None:
+            scheduler.step()
         l = loss.item()
         if l < lowest:
             lowest = l; best_epoch = epoch
             best_state = {k: v.detach().clone() for k, v in model.state_dict().items()}
-        t.set_postfix(loss=f"{l:.4f}", main=f"{loss_main.item():.4f}",
-                      anc=f"{loss_anchor.item():.4f}", best_ep=best_epoch)
+        if epoch % POSTFIX_EVERY == 0 or epoch == args.epochs:
+            t.set_postfix(loss=f"{l:.4f}", best_ep=best_epoch, refresh=False)
+            t.refresh()
 
     print(f"[{state_lc}] best_epoch={best_epoch} loss={lowest:.4f}")
     model.load_state_dict(best_state); model.eval()
@@ -213,6 +223,10 @@ def main():
     ap.add_argument("--alpha-r2c", dest="alpha_r2c", type=float, default=0.3)
     ap.add_argument("--gamma-init", dest="gamma_init", type=float, default=1.0)
     ap.add_argument("--anchor-lambda", dest="anchor_lambda", type=float, default=0.1)
+    ap.add_argument("--out-suffix", dest="out_suffix", type=str, default="",
+                    help="Append suffix to output dir (e.g. 'l0_5' → output/check2hgi_design_j_l0_5/)")
+    ap.add_argument("--seed", type=int, default=None,
+                    help="Optional torch+numpy seed for reproducible / seed-reroll runs.")
     ap.add_argument("--lr", type=float, default=0.001)
     ap.add_argument("--gamma", type=float, default=1.0)
     ap.add_argument("--max-norm", dest="max_norm", type=float, default=0.9)

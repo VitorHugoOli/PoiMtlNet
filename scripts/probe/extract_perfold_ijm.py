@@ -21,9 +21,9 @@ DESIGNS = ["b", "i", "j", "m"]
 STATES = [("alabama", "AL"), ("arizona", "AZ"), ("florida", "FL")]
 
 
-def latest_run(state_dir: Path) -> Path:
+def latest_run(state_dir: Path) -> Path | None:
     runs = sorted([p for p in state_dir.iterdir() if p.is_dir()])
-    return runs[-1]
+    return runs[-1] if runs else None
 
 
 def extract_cat(design: str, state: str, code: str):
@@ -31,6 +31,8 @@ def extract_cat(design: str, state: str, code: str):
     if not state_dir.exists():
         print(f"  [{code}/{design}/cat] no run dir"); return None
     run = latest_run(state_dir)
+    if run is None:
+        print(f"  [{code}/{design}/cat] no run dir (cat skipped)"); return None
     out = {}
     for i in range(1, 6):
         rpt = run / "folds" / f"fold{i}_next_report.json"

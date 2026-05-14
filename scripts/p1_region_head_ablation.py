@@ -139,6 +139,29 @@ def _load_region_embeddings(state: str, source: str = "check2hgi") -> tuple[np.n
         path = Path("output/check2hgi_design_j") / state.lower() / "region_embeddings.parquet"
     elif source == "check2hgi_design_m":
         path = Path("output/check2hgi_design_m") / state.lower() / "region_embeddings.parquet"
+    elif source.startswith("check2hgi_design_j_"):
+        # J λ-sweep variants (e.g. check2hgi_design_j_l0_5 → λ=0.5)
+        path = Path("output") / source / state.lower() / "region_embeddings.parquet"
+    elif source.startswith("check2hgi_design_k"):
+        # K = J + Delaunay POI-POI edges (HGI's spatial sauce on c2hgi POI level)
+        path = Path("output") / source / state.lower() / "region_embeddings.parquet"
+    elif source.startswith("check2hgi_substrate_s1"):
+        # Phase 11 S1 — c2p hard-negative sampling on canonical c2hgi.
+        # Variants suffixed with hardneg prob, e.g. check2hgi_substrate_s1_p0_25
+        # Convention: ``check2hgi_substrate_s1`` (default 0.25) maps to the
+        # canonical substrate-s1 dir; suffixed variants point at sweep arms.
+        path = Path("output") / source / state.lower() / "region_embeddings.parquet"
+    elif source.startswith("check2hgi_substrate_s4"):
+        # Phase 11 S4 — DGI-style same-identity corrupted-feature c2p
+        # negatives on canonical c2hgi.
+        path = Path("output") / source / state.lower() / "region_embeddings.parquet"
+    elif source.startswith("check2hgi_substrate_s3b_v2c"):
+        # Phase 11 S3-b V2-c — S3-b + per-check-in POI2Vec anchor.
+        path = Path("output") / source / state.lower() / "region_embeddings.parquet"
+    elif source.startswith("check2hgi_substrate_s3b"):
+        # Phase 11 S3-b — Replace POI2Region with Checkin2Region as the
+        # primary region pathway. L_p2r → L_c2r (HGI-style foreign-region negs).
+        path = Path("output") / source / state.lower() / "region_embeddings.parquet"
     elif source == "c2hgi_hgi_concat":
         # Design A — late-fusion concat. The reg input is per-step concat,
         # but per_step is consumed via input/next_region.parquet directly,
@@ -588,15 +611,26 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
                  preenc_layers: int = 2,
                  preenc_dropout: float = 0.1,
                  per_fold_transition_dir: str | None = None,
-                 engine_override: EmbeddingEngine | None = None):
-    logger.info("Loading data for %s (input_type=%s, region_emb=%s, engine_override=%s)...",
-                state, input_type, region_emb_source, engine_override)
+                 engine_override: EmbeddingEngine | None = None,
+                 target: str = "region"):
+    logger.info("Loading data for %s (input_type=%s, region_emb=%s, target=%s, engine_override=%s)...",
+                state, input_type, region_emb_source, target, engine_override)
     x_tensor, y_region, y_cat, userids, emb_dim, n_regions, last_region_tensor = _load_data(
         state, input_type, region_emb_source, engine_override=engine_override,
     )
     aux_hint = "present" if last_region_tensor is not None else "missing"
-    logger.info("x=%s, emb_dim=%d, n_regions=%d, n_seqs=%d, last_region_idx=%s",
-                x_tensor.shape, emb_dim, n_regions, len(y_region), aux_hint)
+    if target == "category":
+        y_tensor = torch.from_numpy(np.ascontiguousarray(y_cat, dtype=np.int64))
+        n_classes = int(y_tensor.max().item()) + 1
+        logger.info("x=%s, emb_dim=%d, target=category(%d classes), n_seqs=%d, last_region_idx=%s",
+                    x_tensor.shape, emb_dim, n_classes, len(y_tensor), aux_hint)
+    elif target == "region":
+        y_tensor = y_region
+        n_classes = n_regions
+        logger.info("x=%s, emb_dim=%d, n_regions=%d, n_seqs=%d, last_region_idx=%s",
+                    x_tensor.shape, emb_dim, n_regions, len(y_region), aux_hint)
+    else:
+        raise ValueError(f"--target must be region|category (got {target!r})")
 
     sgkf = StratifiedGroupKFold(n_splits=max(2, folds), shuffle=True, random_state=seed)
     splits = list(sgkf.split(np.zeros(len(y_cat)), y_cat, groups=userids))[:folds]
@@ -693,8 +727,8 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
                 logger.info("[C4 STL] fold %d using per-fold log_T %s", fold_idx, pf_path)
             t0 = time.time()
             metrics = _train_single_task(
-                head_name, x_tensor, y_region, train_idx, val_idx,
-                emb_dim, n_regions, epochs, batch_size, seed + fold_idx,
+                head_name, x_tensor, y_tensor, train_idx, val_idx,
+                emb_dim, n_classes, epochs, batch_size, seed + fold_idx,
                 fold_overrides, head_max_lr, label_smoothing, input_ln,
                 aux_tensor=last_region_tensor,
                 mtl_preencoder=mtl_preencoder,
@@ -842,10 +876,6 @@ def main():
     parser.add_argument("--no-resume", dest="resume", action="store_false",
                         help="Ignore any existing checkpoint and start fresh.")
     parser.add_argument("--region-emb-source",
-                        choices=["check2hgi", "hgi", "check2hgi_postpool", "check2hgi_poi2vec",
-                                 "check2hgi_design_e", "check2hgi_design_b", "check2hgi_design_h",
-                                 "check2hgi_design_d", "check2hgi_design_i", "check2hgi_design_j",
-                                 "check2hgi_design_m"],
                         default="check2hgi",
                         help="Which engine's region_embeddings.parquet to use for region/concat input_type. "
                              "Labels + sequences always come from check2hgi — only the embedding lookup changes. "
@@ -880,10 +910,14 @@ def main():
     parser.add_argument("--preenc-dropout", type=float, default=0.1,
                         help="Dropout in --mtl-preencoder (default 0.1, matches MTL encoder_dropout).")
     parser.add_argument("--engine-override", type=str, default=None,
-                        choices=[None, "check2hgi", "check2hgi_poi2vec", "c2hgi_hgi_concat"],
+                        choices=[None, "check2hgi", "check2hgi_poi2vec", "c2hgi_hgi_concat", "hgi"],
                         help="Override the engine used to load next.parquet/next_region.parquet. "
                              "Region labels and graph maps still come from check2hgi. "
-                             "Used by Design A probe.")
+                             "Used by Design A probe and HGI-substrate category-injection probes.")
+    parser.add_argument("--target", choices=["region", "category"], default="region",
+                        help="Prediction target: 'region' (default, next-REGION) or 'category' "
+                             "(next-CATEGORY, 7-class macro-F1; used by the merge_design study's "
+                             "`cat = next_gru macro F1` protocol).")
     args = parser.parse_args()
 
     overrides = _parse_overrides(args.override_hparams)
@@ -899,6 +933,7 @@ def main():
         preenc_dropout=args.preenc_dropout,
         per_fold_transition_dir=args.per_fold_transition_dir,
         engine_override=eo,
+        target=args.target,
     )
 
 

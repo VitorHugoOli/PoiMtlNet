@@ -43,14 +43,20 @@ def block(code: str, design_tag: str) -> dict | None:
     d_reg = PERFOLD / f"{code}_{design_tag}_reg_gethard_pf_5f50ep.json"
     c_reg = PERFOLD / f"{code}_check2hgi_reg_gethard_pf_5f50ep.json"
     h_reg = PERFOLD / f"{code}_hgi_reg_gethard_pf_5f50ep.json"
-    if not all(p.exists() for p in [d_cat, c_cat, d_reg, c_reg, h_reg]):
-        missing = [p.name for p in [d_cat, c_cat, d_reg, c_reg, h_reg] if not p.exists()]
-        print(f"  [{code}/{design_tag}] missing: {missing}")
+
+    has_cat = d_cat.exists() and c_cat.exists()
+    if not all(p.exists() for p in [d_reg, c_reg, h_reg]):
+        missing = [p.name for p in [d_reg, c_reg, h_reg] if not p.exists()]
+        print(f"  [{code}/{design_tag}] missing reg: {missing}")
         return None
 
-    x = per_fold(d_cat, "f1"); y = per_fold(c_cat, "f1")
-    d_cat_mean, p_cat = wilcoxon_g(x, y)
-    tost_cat = tost_ni(x, y, 0.02)
+    if has_cat:
+        x = per_fold(d_cat, "f1"); y = per_fold(c_cat, "f1")
+        d_cat_mean, p_cat = wilcoxon_g(x, y)
+        tost_cat = tost_ni(x, y, 0.02)
+    else:
+        x = y = []
+        d_cat_mean = 0.0; p_cat = 1.0; tost_cat = 1.0
 
     a_d = per_fold(d_reg, "acc10")
     a_c = per_fold(c_reg, "acc10")
