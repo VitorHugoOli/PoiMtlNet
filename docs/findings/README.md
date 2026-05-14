@@ -43,7 +43,7 @@ findings/
 | **F37** (FL P1+P2) | `F37_FL_RESULTS.md` |
 | **F38** (checkpoint selection) | `F38_CHECKPOINT_SELECTION.md` |
 | **F40** (scheduled handover) | `F40_SCHEDULED_HANDOVER_FINDINGS.md`, `F40_F47_REPLICATION.md` |
-| **F41** (pre-encoder) | `F41_PREENCOLDER_FINDINGS.md` |
+| **F41** (pre-encoder) | `F41_PREENCODER_FINDINGS.md` |
 | **F44–F48** (LR regime, warmup, per-head LR, epoch budget, cat-zero) | `F44_F48_*`, `F48_H2_*`, `F48_H3_*` |
 | **F49** (lambda-0 decomposition) | `F49_LAMBDA0_DECOMPOSITION_GAP.md`, `F49_LAMBDA0_DECOMPOSITION_RESULTS.md` |
 | **F50 tier** (B2/F52/F65/F53, D5 encoder trajectory, T1 results synthesis, T3 audit/dynamics, T4 leakage audits, delta-m leak-free) | `F50_*` (~15 files in this folder + further-archived in `archive/F50/`) |
