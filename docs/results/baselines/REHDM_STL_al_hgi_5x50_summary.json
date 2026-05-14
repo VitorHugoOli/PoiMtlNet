@@ -1,0 +1,10 @@
+{
+  "tag": "REHDM_STL_al_hgi_5x50",
+  "state": "alabama",
+  "engine": "hgi",
+  "n_runs": 5,
+  "test_acc@10_mean": 0.6072620215897938,
+  "test_acc@10_std": 0.01673201833764414,
+  "test_mrr_mean": 0.3488403530888281,
+  "test_mrr_std": 0.005984513301543401
+}

@@ -1,0 +1,108 @@
+% BRACIS 2026 — Springer LNCS template (LNAI proceedings).
+% Title and abstract are pending §0 lock in PAPER_DRAFT.md (defaults below).
+% Author block is anonymised for double-blind review; restore at camera-ready.
+% Read AGENT.md and PAPER_STRUCTURE.md before editing.
+
+\documentclass[runningheads]{llncs}
+
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath,amssymb}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,fit,calc}
+
+% Springer LNCS hyperref recommendations.
+\usepackage[hidelinks]{hyperref}
+
+\begin{document}
+
+% ----------------------------------------------------------------------------
+% Title — locked default 2026-05-02 v4 (per PAPER_DRAFT.md §0 D0).
+% Reframed after audit: lead with substrate task-asymmetry, not
+% scale-sensitivity. The body carries an explicit scope concession:
+% "Substrate Carries" applies to next-category, while matched-head STL on
+% next-region leaves HGI tied or nominally ahead.
+% ----------------------------------------------------------------------------
+\title{Substrate Carries, Architecture Pays: Check-In-Level Embeddings for
+Multi-Task POI Prediction}
+
+\titlerunning{Substrate Carries, Architecture Pays: Multi-Task POI Prediction}
+
+% ----------------------------------------------------------------------------
+% Authors — ANONYMISED for double-blind BRACIS submission.
+% Camera-ready author block (ported from articles/CoUrb_2026/main.tex:32,
+% NESPeD-LAB / UFV) is preserved below in commented form. Restore at
+% camera-ready by swapping the active and commented blocks.
+% ----------------------------------------------------------------------------
+\author{Anonymous Author(s)}
+\authorrunning{Anonymous}
+\institute{Anonymous Institution\\
+\email{anonymous@example.org}}
+% Camera-ready (do not enable for submission):
+% \author{Tarik S. Paiva \and
+%         Vitor H. O. Silva \and
+%         Germano B. dos Santos \and
+%         Fabr{\'i}cio A. Silva}
+% \authorrunning{T. S. Paiva et al.}
+% \institute{Laborat\'orio de Intelig\^encia em Sistemas Pervasivos e Distribu\'idos (NESPeD-LAB), Universidade Federal de Vi\c{c}osa, Florestal, MG, Brazil \\
+% \email{\{tarik.paiva, vitor.oliveira, germano.santos, fabricio.asilva\}@ufv.br}}
+
+\maketitle
+
+% ----------------------------------------------------------------------------
+% Abstract — restructured 2026-05-05 per advisor feedback: lead with
+% Check2HGI as the innovation (sentence 1), use a concrete caf\'e example
+% to make per-visit-vs-per-place click for non-POI reviewers, anchor the
+% MTL POI puzzle (sentence 2), and close with five-state result + the
+% asymmetric tradeoff spelled out (sentence 3). Drops opaque jargon
+% ("emission rate", "MTL recipe", "Prior responses"). Lands both title
+% halves: "Substrate Carries" via the +14 to +29 pp lift; "Architecture
+% Pays" via the explicit "improves category at the cost of region".
+% ----------------------------------------------------------------------------
+\begin{abstract}
+We introduce \emph{Check2HGI}, a graph embedding for Point-of-Interest
+(POI) prediction that produces one vector per user check-in instead of
+one fixed vector per place, so the same caf\'e visited in the morning
+and in the evening feeds the model with two different inputs. In
+Multi-Task Learning (MTL) over Location-Based Social Networks (LBSNs),
+recent work reports only modest joint gains when next-category and
+next-region prediction share a graph embedding, suggesting that the
+embedding, not the loss-balancing strategy, is the bottleneck. Across
+five state splits of the Gowalla dataset, per-visit context lifts
+category macro-F1 by 14 to 29 percentage points at every state, while
+joint multi-task training improves category accuracy at the cost of
+region accuracy, the classic multi-task tradeoff.
+
+\keywords{Multi-Task Learning \and Point-of-Interest Prediction \and Graph
+Embeddings.}
+\end{abstract}
+
+% ----------------------------------------------------------------------------
+% Section includes — sub-agent fan-out plan in PAPER_STRUCTURE.md §5.
+% Each \input file is owned by one sub-agent; do not author them in this file.
+% ----------------------------------------------------------------------------
+
+\input{sections/intro}          % A1 — 1.5 pp
+\input{sections/related}        % A2 — 1.5 pp
+\input{sections/method}         % A3 — 2.5 pp
+\input{sections/setup}          % A4 — 1.5 pp
+\input{sections/results}        % A5 — 4 pp (T2, T3, T4, T5)
+\input{sections/mechanism}      % A6 — 1.5 pp (F1 required, T6 inline-prose)
+\input{sections/discussion}     % A7a — 1 pp
+\input{sections/conclusion}     % A7b — 0.5 pp
+
+% ----------------------------------------------------------------------------
+% Acknowledgments and disclosures — REMOVED for double-blind review.
+% Restore at camera-ready (BRACIS rule: LLM usage disclosure here).
+% ----------------------------------------------------------------------------
+
+% ----------------------------------------------------------------------------
+% Bibliography — splncs04 style. references.bib is owned by sub-agent A8.
+% ----------------------------------------------------------------------------
+\bibliographystyle{splncs04}
+\bibliography{references}
+
+\end{document}

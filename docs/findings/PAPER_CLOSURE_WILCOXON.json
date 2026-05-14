@@ -1,0 +1,480 @@
+{
+  "alabama": {
+    "state": "alabama",
+    "tasks": {
+      "reg": {
+        "n_seeds": 4,
+        "per_seed": [
+          {
+            "seed": 0,
+            "mtl_mean_pp": 50.084185004234314,
+            "stl_mean_pp": 61.287347078323364,
+            "delta_pp": -11.20316207408905,
+            "per_fold_diff_pp": [
+              -10.763,
+              -11.368,
+              -10.304,
+              -11.093,
+              -12.487
+            ],
+            "n_pos": 0,
+            "n_neg": 5,
+            "p_value_two_sided": 0.0625
+          },
+          {
+            "seed": 1,
+            "mtl_mean_pp": 50.49831449985505,
+            "stl_mean_pp": 61.389362812042236,
+            "delta_pp": -10.891048312187195,
+            "per_fold_diff_pp": [
+              -11.474,
+              -11.892,
+              -10.659,
+              -10.783,
+              -9.649
+            ],
+            "n_pos": 0,
+            "n_neg": 5,
+            "p_value_two_sided": 0.0625
+          },
+          {
+            "seed": 7,
+            "mtl_mean_pp": 50.16497313976288,
+            "stl_mean_pp": 61.200162172317505,
+            "delta_pp": -11.035189032554626,
+            "per_fold_diff_pp": [
+              -11.673,
+              -12.413,
+              -9.623,
+              -11.671,
+              -9.796
+            ],
+            "n_pos": 0,
+            "n_neg": 5,
+            "p_value_two_sided": 0.0625
+          },
+          {
+            "seed": 100,
+            "mtl_mean_pp": 49.92448270320892,
+            "stl_mean_pp": 60.9722661972046,
+            "delta_pp": -11.04778349399567,
+            "per_fold_diff_pp": [
+              -12.351,
+              -11.044,
+              -9.031,
+              -9.764,
+              -13.048
+            ],
+            "n_pos": 0,
+            "n_neg": 5,
+            "p_value_two_sided": 0.0625
+          }
+        ],
+        "pooled": {
+          "n_pairs": 20,
+          "delta_mean_pp": -11.044295728206635,
+          "delta_std_pp": 1.1130739131761962,
+          "n_pos": 0,
+          "n_neg": 20,
+          "p_value_two_sided": 1.9073486328125e-06
+        }
+      },
+      "cat": {
+        "n_seeds": 4,
+        "per_seed": [
+          {
+            "seed": 0,
+            "mtl_mean_pp": 40.50787925720215,
+            "stl_mean_pp": 40.75974404811859,
+            "delta_pp": -0.2518647909164451,
+            "per_fold_diff_pp": [
+              1.537,
+              2.834,
+              -2.566,
+              -2.284,
+              -0.781
+            ],
+            "n_pos": 2,
+            "n_neg": 3,
+            "p_value_two_sided": 1.0
+          },
+          {
+            "seed": 1,
+            "mtl_mean_pp": 40.638625621795654,
+            "stl_mean_pp": 40.75974404811859,
+            "delta_pp": -0.12111842632294034,
+            "per_fold_diff_pp": [
+              1.568,
+              -0.105,
+              0.615,
+              -3.493,
+              0.809
+            ],
+            "n_pos": 3,
+            "n_neg": 2,
+            "p_value_two_sided": 0.8125
+          },
+          {
+            "seed": 7,
+            "mtl_mean_pp": 40.853710770606995,
+            "stl_mean_pp": 40.75974404811859,
+            "delta_pp": 0.0939667224884011,
+            "per_fold_diff_pp": [
+              1.074,
+              2.044,
+              -1.753,
+              -2.249,
+              1.353
+            ],
+            "n_pos": 3,
+            "n_neg": 2,
+            "p_value_two_sided": 1.0
+          },
+          {
+            "seed": 100,
+            "mtl_mean_pp": 40.287495851516724,
+            "stl_mean_pp": 40.75974404811859,
+            "delta_pp": -0.472248196601871,
+            "per_fold_diff_pp": [
+              0.093,
+              1.149,
+              -0.997,
+              -3.032,
+              0.426
+            ],
+            "n_pos": 3,
+            "n_neg": 2,
+            "p_value_two_sided": 1.0
+          }
+        ],
+        "pooled": {
+          "n_pairs": 20,
+          "delta_mean_pp": -0.18781617283821384,
+          "delta_std_pp": 1.8466439939124975,
+          "n_pos": 11,
+          "n_neg": 9,
+          "p_value_two_sided": 0.7561664581298828
+        }
+      }
+    }
+  },
+  "arizona": {
+    "state": "arizona",
+    "tasks": {
+      "reg": {
+        "n_seeds": 4,
+        "per_seed": [
+          {
+            "seed": 0,
+            "mtl_mean_pp": 40.83883762359619,
+            "stl_mean_pp": 53.204991817474365,
+            "delta_pp": -12.366154193878174,
+            "per_fold_diff_pp": [
+              -13.97,
+              -13.327,
+              -12.567,
+              -10.633,
+              -11.333
+            ],
+            "n_pos": 0,
+            "n_neg": 5,
+            "p_value_two_sided": 0.0625
+          },
+          {
+            "seed": 1,
+            "mtl_mean_pp": 40.830252170562744,
+            "stl_mean_pp": 53.14430832862854,
+            "delta_pp": -12.3140561580658,
+            "per_fold_diff_pp": [
+              -13.666,
+              -11.79,
+              -12.546,
+              -11.868,
+              -11.7
+            ],
+            "n_pos": 0,
+            "n_neg": 5,
+            "p_value_two_sided": 0.0625
+          },
+          {
+            "seed": 7,
+            "mtl_mean_pp": 40.68116247653961,
+            "stl_mean_pp": 53.01559090614318,
+            "delta_pp": -12.334428429603577,
+            "per_fold_diff_pp": [
+              -13.176,
+              -11.864,
+              -12.15,
+              -11.786,
+              -12.697
+            ],
+            "n_pos": 0,
+            "n_neg": 5,
+            "p_value_two_sided": 0.0625
+          },
+          {
+            "seed": 100,
+            "mtl_mean_pp": 40.78333795070648,
+            "stl_mean_pp": 52.856428623199456,
+            "delta_pp": -12.073090672492985,
+            "per_fold_diff_pp": [
+              -13.247,
+              -12.693,
+              -11.156,
+              -10.889,
+              -12.381
+            ],
+            "n_pos": 0,
+            "n_neg": 5,
+            "p_value_two_sided": 0.0625
+          }
+        ],
+        "pooled": {
+          "n_pairs": 20,
+          "delta_mean_pp": -12.271932363510134,
+          "delta_std_pp": 0.9206539447700434,
+          "n_pos": 0,
+          "n_neg": 20,
+          "p_value_two_sided": 1.9073486328125e-06
+        }
+      },
+      "cat": {
+        "n_seeds": 4,
+        "per_seed": [
+          {
+            "seed": 0,
+            "mtl_mean_pp": 45.22561967372894,
+            "stl_mean_pp": 43.207294940948486,
+            "delta_pp": 2.018324732780453,
+            "per_fold_diff_pp": [
+              2.591,
+              2.246,
+              0.196,
+              2.957,
+              2.101
+            ],
+            "n_pos": 5,
+            "n_neg": 0,
+            "p_value_two_sided": 0.0625
+          },
+          {
+            "seed": 1,
+            "mtl_mean_pp": 44.86178457736969,
+            "stl_mean_pp": 43.207294940948486,
+            "delta_pp": 1.6544896364212025,
+            "per_fold_diff_pp": [
+              1.304,
+              2.377,
+              0.052,
+              3.169,
+              1.371
+            ],
+            "n_pos": 5,
+            "n_neg": 0,
+            "p_value_two_sided": 0.0625
+          },
+          {
+            "seed": 7,
+            "mtl_mean_pp": 45.27638554573059,
+            "stl_mean_pp": 43.207294940948486,
+            "delta_pp": 2.0690906047821023,
+            "per_fold_diff_pp": [
+              2.01,
+              3.686,
+              1.133,
+              2.361,
+              1.156
+            ],
+            "n_pos": 5,
+            "n_neg": 0,
+            "p_value_two_sided": 0.0625
+          },
+          {
+            "seed": 100,
+            "mtl_mean_pp": 45.05142867565155,
+            "stl_mean_pp": 43.207294940948486,
+            "delta_pp": 1.8441337347030617,
+            "per_fold_diff_pp": [
+              0.752,
+              2.34,
+              0.159,
+              2.718,
+              3.252
+            ],
+            "n_pos": 5,
+            "n_neg": 0,
+            "p_value_two_sided": 0.0625
+          }
+        ],
+        "pooled": {
+          "n_pairs": 20,
+          "delta_mean_pp": 1.896509677171705,
+          "delta_std_pp": 1.0795369005216442,
+          "n_pos": 20,
+          "n_neg": 0,
+          "p_value_two_sided": 1.9073486328125e-06
+        }
+      }
+    }
+  },
+  "florida": {
+    "state": "florida",
+    "tasks": {
+      "reg": {
+        "n_seeds": 1,
+        "per_seed": [
+          {
+            "seed": 42,
+            "mtl_mean_pp": 63.13661217689515,
+            "stl_mean_pp": 71.12361073493958,
+            "delta_pp": -7.986998558044434,
+            "per_fold_diff_pp": [
+              -7.138,
+              -6.37,
+              -7.623,
+              -9.626,
+              -9.178
+            ],
+            "n_pos": 0,
+            "n_neg": 5,
+            "p_value_two_sided": 0.0625
+          }
+        ],
+        "pooled": {
+          "n_pairs": 5,
+          "delta_mean_pp": -7.986998558044434,
+          "delta_std_pp": 1.376034725918597,
+          "n_pos": 0,
+          "n_neg": 5,
+          "p_value_two_sided": 0.0625
+        }
+      }
+    }
+  },
+  "california": {
+    "state": "california",
+    "tasks": {
+      "reg": {
+        "n_seeds": 1,
+        "per_seed": [
+          {
+            "seed": 42,
+            "mtl_mean_pp": 47.93448984622955,
+            "stl_mean_pp": 56.856513023376465,
+            "delta_pp": -8.922023177146913,
+            "per_fold_diff_pp": [
+              -8.982,
+              -8.502,
+              -9.161,
+              -9.259,
+              -8.705
+            ],
+            "n_pos": 0,
+            "n_neg": 5,
+            "p_value_two_sided": 0.0625
+          }
+        ],
+        "pooled": {
+          "n_pairs": 5,
+          "delta_mean_pp": -8.922023177146913,
+          "delta_std_pp": 0.31514687206414005,
+          "n_pos": 0,
+          "n_neg": 5,
+          "p_value_two_sided": 0.0625
+        }
+      },
+      "cat": {
+        "n_seeds": 1,
+        "per_seed": [
+          {
+            "seed": 42,
+            "mtl_mean_pp": 64.22886610031128,
+            "stl_mean_pp": 62.286193370819085,
+            "delta_pp": 1.9426727294921877,
+            "per_fold_diff_pp": [
+              1.877,
+              2.131,
+              1.893,
+              2.157,
+              1.655
+            ],
+            "n_pos": 5,
+            "n_neg": 0,
+            "p_value_two_sided": 0.0625
+          }
+        ],
+        "pooled": {
+          "n_pairs": 5,
+          "delta_mean_pp": 1.9426727294921877,
+          "delta_std_pp": 0.20677435204289948,
+          "n_pos": 5,
+          "n_neg": 0,
+          "p_value_two_sided": 0.0625
+        }
+      }
+    }
+  },
+  "texas": {
+    "state": "texas",
+    "tasks": {
+      "reg": {
+        "n_seeds": 1,
+        "per_seed": [
+          {
+            "seed": 42,
+            "mtl_mean_pp": 42.63098359107971,
+            "stl_mean_pp": 59.32021617889405,
+            "delta_pp": -16.68923258781433,
+            "per_fold_diff_pp": [
+              -17.178,
+              -16.416,
+              -17.66,
+              -14.762,
+              -17.431
+            ],
+            "n_pos": 0,
+            "n_neg": 5,
+            "p_value_two_sided": 0.0625
+          }
+        ],
+        "pooled": {
+          "n_pairs": 5,
+          "delta_mean_pp": -16.68923258781433,
+          "delta_std_pp": 1.1749711711502087,
+          "n_pos": 0,
+          "n_neg": 5,
+          "p_value_two_sided": 0.0625
+        }
+      },
+      "cat": {
+        "n_seeds": 1,
+        "per_seed": [
+          {
+            "seed": 42,
+            "mtl_mean_pp": 65.04406094551086,
+            "stl_mean_pp": 63.02100896835328,
+            "delta_pp": 2.0230519771575928,
+            "per_fold_diff_pp": [
+              1.845,
+              2.643,
+              2.056,
+              1.713,
+              1.858
+            ],
+            "n_pos": 5,
+            "n_neg": 0,
+            "p_value_two_sided": 0.0625
+          }
+        ],
+        "pooled": {
+          "n_pairs": 5,
+          "delta_mean_pp": 2.0230519771575928,
+          "delta_std_pp": 0.3673251439526016,
+          "n_pos": 5,
+          "n_neg": 0,
+          "p_value_two_sided": 0.0625
+        }
+      }
+    }
+  }
+}

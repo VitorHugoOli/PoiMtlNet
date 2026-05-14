@@ -1,0 +1,24 @@
+{
+  "tag": "REHDM_SMOKE_baseline_al_check2hgi_5f2ep",
+  "state": "alabama",
+  "engine": "check2hgi",
+  "fold": 1,
+  "config": {
+    "n_regions": 1109,
+    "emb_dim": 64,
+    "d_model": 192,
+    "n_heads": 4,
+    "d_ff": 256,
+    "n_hg_layers": 2,
+    "dropout": 0.2,
+    "beta": 0.5
+  },
+  "best_val_acc@10": 0.22029897718332023,
+  "metrics": {
+    "acc@1": 0.023996852871754525,
+    "acc@5": 0.12273800157356413,
+    "acc@10": 0.22029897718332023,
+    "mrr": 0.08697563714628422,
+    "n": 2542
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "state": "alabama",
+  "folds": 1,
+  "epochs": 3,
+  "seed": 42,
+  "n_regions": 1109,
+  "n_pois": 11848,
+  "config": {
+    "d_model": 128,
+    "dropout": 0.3,
+    "max_lr": 0.003,
+    "batch_size": 2048
+  },
+  "per_fold": [
+    {
+      "accuracy": 0.0034623858518898487,
+      "accuracy_macro": 0.0015105740181268882,
+      "f1": 1.0424286301713437e-05,
+      "f1_weighted": 2.389350083831232e-05,
+      "mrr": 1.0,
+      "top5_acc": 0.03210575878620148,
+      "ndcg_5": 1.0,
+      "top10_acc": 0.07019200176000595,
+      "ndcg_10": 1.0,
+      "best_epoch": 1
+    }
+  ],
+  "aggregate": {
+    "accuracy_mean": 0.0034623858518898487,
+    "accuracy_std": 0.0,
+    "top5_acc_mean": 0.03210575878620148,
+    "top5_acc_std": 0.0,
+    "top10_acc_mean": 0.07019200176000595,
+    "top10_acc_std": 0.0,
+    "mrr_mean": 1.0,
+    "mrr_std": 0.0,
+    "f1_mean": 1.0424286301713437e-05,
+    "f1_std": 0.0
+  }
+}

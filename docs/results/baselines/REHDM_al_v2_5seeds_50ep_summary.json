@@ -1,0 +1,9 @@
+{
+  "tag": "REHDM_al_v2_5seeds_50ep",
+  "state": "alabama",
+  "n_runs": 5,
+  "test_acc@10_mean": 0.6606476938174681,
+  "test_acc@10_std": 0.009798811318050361,
+  "test_mrr_mean": 0.37828673202694346,
+  "test_mrr_std": 0.011723735364744766
+}

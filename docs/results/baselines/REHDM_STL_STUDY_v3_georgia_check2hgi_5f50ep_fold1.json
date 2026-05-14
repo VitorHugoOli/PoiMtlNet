@@ -1,0 +1,24 @@
+{
+  "tag": "REHDM_STL_STUDY_v3_georgia_check2hgi_5f50ep",
+  "state": "georgia",
+  "engine": "check2hgi",
+  "fold": 1,
+  "config": {
+    "n_regions": 2282,
+    "emb_dim": 64,
+    "d_model": 192,
+    "n_heads": 4,
+    "d_ff": 256,
+    "n_hg_layers": 2,
+    "dropout": 0.2,
+    "beta": 0.5
+  },
+  "best_val_acc@10": 0.20255697609783213,
+  "metrics": {
+    "acc@1": 0.07982212340188993,
+    "acc@5": 0.14552529182879378,
+    "acc@10": 0.20255697609783213,
+    "mrr": 0.12177187732486608,
+    "n": 8995
+  }
+}

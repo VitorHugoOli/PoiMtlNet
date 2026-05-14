@@ -1,0 +1,34 @@
+{
+  "tag": "REHDM_STL_al_check2hgi_5x50",
+  "state": "alabama",
+  "engine": "check2hgi",
+  "run": 3,
+  "seed": 45,
+  "config": {
+    "n_regions": 498,
+    "emb_dim": 64,
+    "d_model": 192,
+    "n_heads": 4,
+    "d_ff": 256,
+    "n_hg_layers": 2,
+    "dropout": 0.2,
+    "beta": 0.5
+  },
+  "best_val_acc@10": 0.4634146341463415,
+  "test": {
+    "acc@1": 0.10893032384690873,
+    "acc@5": 0.30520117762512267,
+    "acc@10": 0.41315014720314036,
+    "mrr": 0.2095629221323779,
+    "n": 1019
+  },
+  "vocab": {
+    "n_users": 710,
+    "n_pois": 2688,
+    "n_regions": 498,
+    "emb_dim": 64,
+    "session_hours": 24,
+    "min_checkins": 10,
+    "engine": "check2hgi"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "tag": "REHDM_STL_STUDY_v3_smoke",
+  "state": "alabama",
+  "engine": "hgi",
+  "fold": 3,
+  "config": {
+    "n_regions": 1109,
+    "emb_dim": 64,
+    "d_model": 192,
+    "n_heads": 4,
+    "d_ff": 256,
+    "n_hg_layers": 2,
+    "dropout": 0.2,
+    "beta": 0.5
+  },
+  "best_val_acc@10": 0.3493312352478363,
+  "metrics": {
+    "acc@1": 0.07749803304484658,
+    "acc@5": 0.25098347757671124,
+    "acc@10": 0.3493312352478363,
+    "mrr": 0.16923525500353823,
+    "n": 2542
+  }
+}

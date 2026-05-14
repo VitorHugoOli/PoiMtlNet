@@ -1,0 +1,41 @@
+{
+  "tag": "REHDM_al_5seeds_50ep",
+  "state": "alabama",
+  "run": 2,
+  "seed": 44,
+  "config": {
+    "n_users": 815,
+    "n_pois": 2739,
+    "n_categories": 7,
+    "n_quadkeys": 76,
+    "n_regions": 498,
+    "n_hours": 24,
+    "n_days": 7,
+    "d_id": 32,
+    "n_heads": 4,
+    "d_ff": 256,
+    "n_hg_layers": 2,
+    "dropout": 0.2,
+    "beta": 0.5
+  },
+  "best_val_acc@10": 0.7098402018502944,
+  "test": {
+    "acc@1": 0.23061825318940138,
+    "acc@5": 0.5318940137389597,
+    "acc@10": 0.6633954857703631,
+    "mrr": 0.37236955659546256,
+    "n": 1019
+  },
+  "vocab": {
+    "n_users": 815,
+    "n_pois": 2739,
+    "n_categories": 7,
+    "n_hours": 24,
+    "n_days": 7,
+    "n_quadkeys": 76,
+    "n_regions": 498,
+    "quadkey_level": 10,
+    "session_hours": 24,
+    "min_checkins": 10
+  }
+}

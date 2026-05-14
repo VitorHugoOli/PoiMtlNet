@@ -1,0 +1,45 @@
+{
+  "state": "florida",
+  "folds": 1,
+  "epochs": 30,
+  "seed": 42,
+  "input_type": "region",
+  "n_regions": 4702,
+  "heads": {
+    "next_gru": {
+      "per_fold": [
+        {
+          "accuracy": 0.4367798864841461,
+          "accuracy_macro": 0.07198157415504339,
+          "f1": 0.06239868700504303,
+          "f1_weighted": 0.3992748260498047,
+          "mrr": 0.5146037340164185,
+          "top5_acc": 0.5985525250434875,
+          "ndcg_5": 0.5239518880844116,
+          "top10_acc": 0.6591402888298035,
+          "ndcg_10": 0.5435560941696167,
+          "best_epoch": 18
+        }
+      ],
+      "aggregate": {
+        "accuracy_mean": 0.4367798864841461,
+        "accuracy_std": 0.0,
+        "top5_acc_mean": 0.5985525250434875,
+        "top5_acc_std": 0.0,
+        "top10_acc_mean": 0.6591402888298035,
+        "top10_acc_std": 0.0,
+        "mrr_mean": 0.5146037340164185,
+        "mrr_std": 0.0,
+        "f1_mean": 0.06239868700504303,
+        "f1_std": 0.0
+      },
+      "config": {
+        "max_lr": 0.003,
+        "label_smoothing": 0.0,
+        "input_layernorm": false,
+        "overrides": {},
+        "input_type": "region"
+      }
+    }
+  }
+}

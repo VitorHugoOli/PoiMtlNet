@@ -1,0 +1,24 @@
+{
+  "tag": "REHDM_STL_STUDY_az_hgi_5f50ep",
+  "state": "arizona",
+  "engine": "hgi",
+  "fold": 1,
+  "config": {
+    "n_regions": 1540,
+    "emb_dim": 64,
+    "d_model": 192,
+    "n_heads": 4,
+    "d_ff": 256,
+    "n_hg_layers": 2,
+    "dropout": 0.2,
+    "beta": 0.5
+  },
+  "best_val_acc@10": 0.3496874408031824,
+  "metrics": {
+    "acc@1": 0.14927069520742564,
+    "acc@5": 0.28433415419587044,
+    "acc@10": 0.3496874408031824,
+    "mrr": 0.21813012144967087,
+    "n": 5279
+  }
+}

@@ -2,7 +2,7 @@
 into every archived test in state.json by re-parsing each test's
 full_summary.json. No new training needed.
 
-See docs/studies/fusion/issues/P1_METHODOLOGY_FLAWS.md F1 for context.
+See docs/archive/fusion-study/issues/P1_METHODOLOGY_FLAWS.md F1 for context.
 
 Usage:
     .venv/bin/python scripts/study/_backfill_joint_taskbest.py [--dry-run]

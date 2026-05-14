@@ -81,27 +81,46 @@ class SummaryGenerator:
         out = ensure_dir(out_dir)
         perf = self._collect_performance()
         diagnostic_perf = self._collect_task_best_performance()
+        per_metric_perf = self._collect_per_metric_best_performance()
         cat_metrics = self._collect_category_metrics()
 
-        # Overall summary
+        # C7 fix: stamp every aggregate with its aggregation_basis so downstream
+        # readers know which best-epoch convention produced each block. Three
+        # bases coexist in this file:
+        #   joint_best        — model-level joint score selection (MTL)
+        #   per_task_f1_best  — each task's own F1-best epoch
+        #   per_metric_best   — each (task, metric) at its own best epoch
+        primary_basis = 'joint_best' if self._has_joint_selection() else 'per_task_f1_best'
         stats: Dict[str, Any] = {
             task: {
-                metric: self._stats(vals)
-                for metric, vals in metrics.items()
+                'aggregation_basis': primary_basis,
+                **{metric: self._stats(vals) for metric, vals in metrics.items()},
             }
             for task, metrics in perf.items()
         }
         if diagnostic_perf:
             stats['_selection'] = {
                 'primary': 'joint_score' if self._has_joint_selection() else 'task_best',
+                'primary_basis': primary_basis,
                 'diagnostic_task_best': 'per-task best validation f1',
+                'diagnostic_basis': 'per_task_f1_best',
+                'per_metric_best': 'each (task,metric) aggregated at its own best epoch',
+                'per_metric_basis': 'per_metric_best',
             }
             stats['diagnostic_task_best'] = {
                 task: {
-                    metric: self._stats(vals)
-                    for metric, vals in metrics.items()
+                    'aggregation_basis': 'per_task_f1_best',
+                    **{metric: self._stats(vals) for metric, vals in metrics.items()},
                 }
                 for task, metrics in diagnostic_perf.items()
+            }
+        if per_metric_perf:
+            stats['per_metric_best'] = {
+                task: {
+                    'aggregation_basis': 'per_metric_best',
+                    **{metric: self._stats(vals) for metric, vals in metrics.items()},
+                }
+                for task, metrics in per_metric_perf.items()
             }
         save_json(stats, out / 'full_summary.json')
 
@@ -194,6 +213,28 @@ class SummaryGenerator:
                         task_perf.setdefault(metric_name, []).append(values[best_epoch])
         return perf
 
+    def _collect_per_metric_best_performance(self) -> Dict[str, Dict[str, List[float]]]:
+        """Collect each (task, metric) at its OWN best epoch across folds.
+
+        Companion to the per-fold ``per_metric_best`` block written into
+        ``fold_info.json``. Aggregates the per-metric-best value series so
+        ``full_summary.json`` carries a third aggregate basis next to
+        ``joint_best`` and ``per_task_f1_best``. C7 closure.
+        """
+        perf: Dict[str, Dict[str, List[float]]] = {}
+        for fold in self.history.folds:
+            for task in self.history.tasks:
+                th = fold.tasks.get(task)
+                if not th:
+                    continue
+                task_perf = perf.setdefault(task, {})
+                for metric_name, values in th.val.items():
+                    if not values:
+                        continue
+                    best_value = max(values)
+                    task_perf.setdefault(metric_name, []).append(best_value)
+        return perf
+
     def _has_joint_selection(self) -> bool:
         return any(
             fold.model_task is not None and fold.model_task.best.best_epoch >= 0
@@ -246,6 +287,182 @@ class HistoryStorage:
         self._save_diagnostics(dirs['diagnostics'])
 
         return base
+
+    def save_fold_partial(
+        self,
+        fold_idx: int,
+        path: Union[str, Path],
+        label_map: Optional[Dict[int, str]] = None,
+    ) -> Path:
+        """Persist *just* the completed fold's artefacts to disk.
+
+        Called from ``MLHistory.step()`` after each fold finishes so that a
+        mid-CV crash (e.g. OOM SIGKILL on long MPS runs) doesn't wipe every
+        completed fold. Writes ``fold{i}_info.json``, per-task report JSON +
+        CSV, and per-task train/val metrics CSV for fold ``fold_idx`` (0-based).
+
+        Idempotent: re-invoking on the same fold rewrites the files. The
+        end-of-CV ``save()`` runs the full pipeline (params, plots, summary,
+        diagnostics) and is the canonical artefact for downstream analysis;
+        this partial save only guarantees per-fold data survives a crash.
+
+        Args:
+            fold_idx: 0-based index of the fold that just completed.
+            path: Same ``path`` that would be passed to ``save()``.
+            label_map: Optional class-index → display-name mapping.
+
+        Returns:
+            The per-run directory path (same ``base`` the full ``save()`` would
+            return).
+        """
+        self._label_map = label_map or {}
+        base = ensure_dir(Path(path) / self._folder_name())
+        dirs = {k: ensure_dir(base / k) for k in ('folds', 'metrics')}
+
+        # Restrict the existing _save_metrics / _save_reports loops to just
+        # this fold by temporarily indexing into history.folds. The simplest
+        # way without touching those methods is to operate on a single-element
+        # proxy. Instead, inline the fold-level subset here for clarity.
+        try:
+            self._save_fold_metrics(dirs['metrics'], fold_idx)
+            self._save_fold_report(dirs['folds'], fold_idx)
+        except Exception as exc:
+            # Partial save is best-effort; never raise from a fold-end hook.
+            logger.warning("save_fold_partial(%d) failed: %s", fold_idx, exc)
+
+        return base
+
+    def _save_fold_metrics(self, path: Path, fold_idx: int) -> None:
+        """Save train/val metrics CSVs for a single fold only."""
+        fold = self.history.folds[fold_idx]
+        i = fold_idx + 1  # 1-based file naming, consistent with _save_metrics
+        for task in self.history.tasks:
+            th = fold.tasks.get(task)
+            if not th:
+                continue
+            if th.train.num_epochs() > 0:
+                save_csv(th.train.to_dataframe(), path / f'fold{i}_{task}_train.csv')
+            if th.val.num_epochs() > 0:
+                save_csv(th.val.to_dataframe(), path / f'fold{i}_{task}_val.csv')
+
+    def _save_fold_report(self, path: Path, fold_idx: int) -> None:
+        """Save the ``fold{i}_info.json`` + per-task reports for one fold.
+
+        Mirrors the per-fold body of ``_save_reports`` but operates on just
+        ``history.folds[fold_idx]``. Keeping the logic in one place would be
+        cleaner; for now the duplication is acceptable because ``_save_reports``
+        also runs at end-of-CV and must keep working for all completed folds
+        when partial persistence is disabled or skipped.
+        """
+        fold = self.history.folds[fold_idx]
+        i = fold_idx + 1
+
+        joint_epoch = -1
+        joint_score = None
+        joint_time = 0.0
+        joint_loss = None
+        if fold.model_task is not None and fold.model_task.best.best_epoch >= 0:
+            joint_epoch = fold.model_task.best.best_epoch
+            joint_score = fold.model_task.best.best_value
+            joint_time = fold.model_task.best.best_time
+            joint_loss_vals = fold.model_task.val.get('loss')
+            if joint_loss_vals and joint_epoch < len(joint_loss_vals):
+                joint_loss = joint_loss_vals[joint_epoch]
+
+        fold_info: Dict[str, Any] = {
+            'fold_number': i,
+            'duration': fold.timer.get_duration() if fold.timer.duration else 0,
+            'primary_checkpoint': {
+                'selection_metric': 'joint_score' if joint_epoch >= 0 else 'task_best_f1',
+                'epoch': joint_epoch if joint_epoch >= 0 else None,
+                'joint_score': joint_score,
+                'loss': joint_loss,
+                'time': joint_time,
+                'task_metrics': {},
+            },
+            'diagnostic_best_epochs': {},
+        }
+        for task in self.history.tasks:
+            th = fold.tasks.get(task)
+            if not th or not th.report:
+                continue
+            report = {
+                map_category(k, self._label_map): v
+                for k, v in th.report.items()
+                if isinstance(v, dict)
+            }
+            save_json(report, path / f'fold{i}_{task}_report.json')
+            df = pd.DataFrame([{'Category': k, **v} for k, v in report.items()])
+
+            be = th.best.best_epoch
+            metrics_at_best: Dict[str, Any] = {}
+            if be >= 0:
+                for metric_name, values in th.val.items():
+                    if be < len(values):
+                        metrics_at_best[metric_name] = values[be]
+            fold_info['diagnostic_best_epochs'][task] = {
+                'epoch': be,
+                'time': th.best.best_time,
+                'metrics': metrics_at_best,
+                'accuracy': metrics_at_best.get('accuracy'),
+                'f1': metrics_at_best.get('f1'),
+            }
+
+            # F50 T3 fix (2026-04-29) — track best epoch PER metric, not just per
+            # F1 (the BestModelTracker's monitor). Without this, top10/MRR/accuracy
+            # were reported at the F1-best epoch — which differs by ~1-4 pp on MTL
+            # FL runs (F1-best epoch ≠ top10-best epoch). See
+            # research/F50_T3_TRAINING_DYNAMICS_DIAGNOSTICS.md §5.5 and
+            # MTL_FLAWS_AND_FIXES.md §2.10. Backward-compatible: existing keys
+            # preserved; this is purely additive (`per_metric_best` sub-dict).
+            CANONICAL_BEST_METRICS = (
+                'top10_acc_indist', 'top5_acc_indist', 'top3_acc_indist',
+                'mrr_indist',
+                'top10_acc', 'top5_acc', 'top3_acc', 'mrr',
+                'accuracy', 'accuracy_macro', 'f1_weighted',
+            )
+            per_metric_best: Dict[str, Any] = {}
+            for metric_name in CANONICAL_BEST_METRICS:
+                values = list(th.val.get(metric_name, []))
+                if not values:
+                    continue
+                best_ep = max(range(len(values)), key=lambda i: values[i])
+                metrics_at_this_best: Dict[str, Any] = {}
+                for m_name, m_values in th.val.items():
+                    if best_ep < len(m_values):
+                        metrics_at_this_best[m_name] = m_values[best_ep]
+                per_metric_best[metric_name] = {
+                    'epoch': best_ep,
+                    'best_value': values[best_ep],
+                    'metrics': metrics_at_this_best,
+                }
+            fold_info['diagnostic_best_epochs'][task]['per_metric_best'] = per_metric_best
+
+            primary_epoch = joint_epoch if joint_epoch >= 0 else be
+            if joint_epoch < 0 and fold_info['primary_checkpoint']['epoch'] is None:
+                fold_info['primary_checkpoint']['epoch'] = be if be >= 0 else None
+                fold_info['primary_checkpoint']['time'] = th.best.best_time
+            acc_vals = list(th.val.get('accuracy', []))
+            f1_vals = list(th.val.get('f1', []))
+            primary_acc = (
+                acc_vals[primary_epoch]
+                if acc_vals and primary_epoch >= 0 and primary_epoch < len(acc_vals)
+                else None
+            )
+            primary_f1 = (
+                f1_vals[primary_epoch]
+                if f1_vals and primary_epoch >= 0 and primary_epoch < len(f1_vals)
+                else None
+            )
+            fold_info['primary_checkpoint']['task_metrics'][task] = {
+                'accuracy': primary_acc,
+                'f1': primary_f1,
+            }
+
+            save_csv(df, path / f'fold{i}_{task}_report.csv', float_format='%.4f')
+        if joint_epoch < 0:
+            fold_info['best_epochs'] = fold_info['diagnostic_best_epochs']
+        save_json(fold_info, path / f'fold{i}_info.json')
 
     def _folder_name(self) -> str:
         p = self.history.model_parms
@@ -354,6 +571,35 @@ class HistoryStorage:
                     'accuracy': metrics_at_best.get('accuracy'),
                     'f1': metrics_at_best.get('f1'),
                 }
+
+                # F50 T3 fix (2026-04-29) — see same patch in the earlier _save_*
+                # method ~line 360. Track best epoch PER metric to avoid the
+                # F1-vs-other-metric epoch mismatch (~1-4 pp under-reporting on
+                # MTL FL runs). Backward-compatible additive `per_metric_best`
+                # sub-dict; downstream readers who don't know about it get the
+                # legacy F1-best behaviour.
+                CANONICAL_BEST_METRICS = (
+                    'top10_acc_indist', 'top5_acc_indist', 'top3_acc_indist',
+                    'mrr_indist',
+                    'top10_acc', 'top5_acc', 'top3_acc', 'mrr',
+                    'accuracy', 'accuracy_macro', 'f1_weighted',
+                )
+                per_metric_best: Dict[str, Any] = {}
+                for metric_name in CANONICAL_BEST_METRICS:
+                    values = list(th.val.get(metric_name, []))
+                    if not values:
+                        continue
+                    best_ep = max(range(len(values)), key=lambda i: values[i])
+                    metrics_at_this_best: Dict[str, Any] = {}
+                    for m_name, m_values in th.val.items():
+                        if best_ep < len(m_values):
+                            metrics_at_this_best[m_name] = m_values[best_ep]
+                    per_metric_best[metric_name] = {
+                        'epoch': best_ep,
+                        'best_value': values[best_ep],
+                        'metrics': metrics_at_this_best,
+                    }
+                fold_info['diagnostic_best_epochs'][task]['per_metric_best'] = per_metric_best
 
                 primary_epoch = joint_epoch if joint_epoch >= 0 else be
                 if joint_epoch < 0 and fold_info['primary_checkpoint']['epoch'] is None:

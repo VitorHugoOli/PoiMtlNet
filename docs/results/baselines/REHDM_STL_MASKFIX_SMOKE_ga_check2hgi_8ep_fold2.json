@@ -1,0 +1,24 @@
+{
+  "tag": "REHDM_STL_MASKFIX_SMOKE_ga_check2hgi_8ep",
+  "state": "georgia",
+  "engine": "check2hgi",
+  "fold": 2,
+  "config": {
+    "n_regions": 2282,
+    "emb_dim": 64,
+    "d_model": 192,
+    "n_heads": 4,
+    "d_ff": 256,
+    "n_hg_layers": 2,
+    "dropout": 0.2,
+    "beta": 0.5
+  },
+  "best_val_acc@10": 0.2026456202756781,
+  "metrics": {
+    "acc@1": 0.08181413961760782,
+    "acc@5": 0.1429524232992441,
+    "acc@10": 0.2026456202756781,
+    "mrr": 0.12350255412597452,
+    "n": 8996
+  }
+}

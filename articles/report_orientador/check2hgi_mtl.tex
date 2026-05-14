@@ -1,0 +1,475 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{geometry}
+\geometry{margin=2.3cm}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{array}
+
+\hypersetup{colorlinks=true, linkcolor=blue!60!black, citecolor=blue!60!black, urlcolor=blue!60!black}
+
+\title{\textbf{Relatório: Check2HGI + MTL Conjunto\\ \{next\_category, next\_region\}}}
+\author{Vitor Hugo}
+\date{24 de abril de 2026}
+
+\begin{document}
+\maketitle
+
+% ===========================================================================
+\section{Resumo executivo}
+% ===========================================================================
+
+\begin{itemize}[leftmargin=*,noitemsep]
+\item \textbf{Substrato:} Check2HGI --- embeddings contextuais \emph{por check-in} (mesmo POI em visitas distintas gera vetores distintos). Já representa um avanço de estado-da-arte sobre HGI em next-category ($+18{,}30$ p.p.\ macro-F1 em AL, $\sigma$-clean).
+\item \textbf{Objetivo:} MTL conjunto $\{\text{next\_category}, \text{next\_region}\}$ com um único modelo, em um único \textit{forward}, batendo \textit{baselines} externas e empatando/superando STLs matched.
+\item \textbf{Champion atual (B3, pós-F27 em 2026-04-24):} \texttt{mtlnet\_crossattn + static\_weight(cat=0{,}75) + next\_gru (task\_a) + next\_getnext\_hard (task\_b)}.
+\item \textbf{Resultado headline:} MTL bate \textit{baselines} em ambas as tarefas; bate STL matched em cat (AZ Wilcoxon $p=0{,}0312$; AL $+4{,}13$ p.p.); empata STL STAN em reg; \emph{mas trilha STL \texttt{next\_getnext\_hard} matched-head em reg por $12$--$14$ p.p.\ em AL/AZ} --- achado metodológico F21c (2026-04-24).
+\item \textbf{Pendente:} FL (5-fold), CA e TX (\textit{pipeline} \textit{upstream} + treino) --- agendados em Colab.
+\end{itemize}
+
+% ===========================================================================
+\section{Escopo e tarefas}
+% ===========================================================================
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{llll}
+\toprule
+\textbf{Slot} & \textbf{Tarefa} & \textbf{Cardinalidade} & \textbf{Métrica primária} \\
+\midrule
+task\_a & \texttt{next\_category} (categoria do próximo POI) & 7 classes & macro-F1 \\
+task\_b & \texttt{next\_region} (região do próximo POI) & $\sim$1.1K (AL) / 1.5K (AZ) / 4.7K (FL) & Acc@10, MRR \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Preset:} \texttt{CHECK2HGI\_NEXT\_REGION}. \textbf{Protocolo:} \texttt{StratifiedGroupKFold(groups=userid)} \textit{user-disjoint}, 5-fold $\times$ 50 épocas, seed 42, AdamW+OneCycleLR max\_lr=0{,}003, batch 2048.
+
+\textbf{Estados:} AL (10K \textit{rows}, dev), AZ (26K, \textit{mid-scale}), FL (127K, \textit{headline-1}), CA e TX (\textit{headline-2/3}, \textit{pipeline upstream} pendente).
+
+% ===========================================================================
+\section{Metodologia Check2HGI (breve)}
+% ===========================================================================
+
+O Check2HGI estende o HGI (\textit{Hierarchical Graph Infomax}, Zhang et al.\ 2020) de 3 para 4 níveis hierárquicos, deslocando a granularidade do embedding: em vez de um vetor por POI, aprende um vetor \emph{por check-in}.
+
+\subsection*{Hierarquia de 4 níveis}
+
+\begin{center}
+\small
+\texttt{Check-in\ $\to$\ POI\ $\to$\ Região (\textit{census tract})\ $\to$\ Cidade}
+\end{center}
+
+Cada nível é obtido por agregação treinada do nível anterior, com perda contrastiva \textit{mutual-information-maximization} em três fronteiras simultâneas:
+$$
+\mathcal{L} = \alpha_{c2p}\,\mathcal{L}_{\text{Check-in}\leftrightarrow\text{POI}} + \alpha_{p2r}\,\mathcal{L}_{\text{POI}\leftrightarrow\text{Região}} + \alpha_{r2c}\,\mathcal{L}_{\text{Região}\leftrightarrow\text{Cidade}}
+$$
+com pesos padrão $\alpha = (0{,}4;\;0{,}3;\;0{,}3)$. Cada fronteira usa discriminação bilinear entre pares positivos (par verdadeiro na hierarquia) vs negativos (par aleatório incorreto).
+
+\subsection*{Input dos nós e uso de categoria, localização e tempo}
+
+Cada \textbf{nó é um evento de check-in}. Conectividade e \textit{features} são construídas como segue:
+
+\begin{table}[H]
+\centering
+\footnotesize
+\begin{tabular}{p{3.5cm}p{5cm}p{6cm}}
+\toprule
+\textbf{Sinal} & \textbf{Onde entra no grafo} & \textbf{Como é usado} \\
+\midrule
+\textbf{Categoria} (\textit{Restaurant, Coffee,} etc.) & \textit{Node feature} (\textit{one-hot} do rótulo do POI) & Alimenta diretamente o encoder GCN de check-ins; permite que check-ins em POIs da mesma categoria compartilhem padrões iniciais. \\
+\midrule
+\textbf{Localização} (\texttt{lat, lon}) & \emph{Não} é feature direta do nó; entra pela \textit{estrutura hierárquica} & (i) \textit{Spatial join} do POI com o \textit{shapefile} de \textit{census tracts} define a atribuição \texttt{POI $\to$ Região}; (ii) áreas das regiões entram na agregação \textit{Region$\to$City}; (iii) adjacência entre regiões vira aresta no GCN de regiões. A geografia é capturada \textit{implicitamente} pelas arestas e pelo \textit{pooling} hierárquico. \\
+\midrule
+\textbf{Tempo} (\texttt{datetime} do check-in) & \textit{Node feature} (4 dim) + \textit{peso de aresta} & (i) \textit{Features}: $\text{sin/cos}(2\pi \cdot \text{hora}/24)$ e $\text{sin/cos}(2\pi \cdot \text{dia-da-semana}/7)$ anexados ao \textit{one-hot} de categoria. (ii) \textbf{Arestas de sequência de usuário:} cada par de check-ins consecutivos do \emph{mesmo} usuário vira uma aresta com peso $\exp(-\Delta t / \tau)$, $\tau = 3600$s. Transições recentes pesam mais; janelas $>$ 6h praticamente desaparecem. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent\textbf{Dimensão final do \textit{feature} de nó:} $F = |\text{categorias}| + 4$ (temporais). \textbf{Encoder:} GCN multi-camada (2 camadas, PReLU) $\to$ embedding de dimensão $D = 64$ por check-in. \textbf{Agregações posteriores:} \textit{attention-pooling} (Checkin$\to$POI), PMA + GCN regional (POI$\to$Região), soma pesada por área + sigmoide (Região$\to$Cidade).
+
+\subsection*{Consequência para as tarefas \textit{downstream}}
+
+Os embeddings de check-in carregam simultaneamente: (i) a \emph{identidade categórica} do POI, (ii) o \emph{instante de visita}, e (iii) o \emph{padrão de mobilidade} do usuário (via arestas de sequência). Esses três eixos permitem que o mesmo POI, visitado em contextos diferentes, gere vetores distintos --- propriedade que o HGI (POI-level) não consegue produzir por construção.
+
+O Check2HGI \textit{por si só já representa um avanço de estado-da-arte em next-category} (evidência abaixo), e é passível de melhorias futuras em enriquecimento de \textit{features} (temporal fino via Time2Vec, espacial contínuo via Sphere2Vec, grafo mais denso) --- tratadas como \textit{follow-up paper} (§10).
+
+\noindent\textbf{Por que isso importa para next-category.} Intenção imediata varia por visita; HGI (POI-level) destrói essa informação por construção. Resultado empírico direto (CH16, AL 5f $\times$ 50ep, \textit{fair folds}):
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lccc}
+\toprule
+\textbf{Substrato} & \textbf{Acc@1} & \textbf{macro-F1} & \textbf{MRR} \\
+\midrule
+HGI (POI-level) & $24{,}10 \pm 1{,}54$ & $20{,}29 \pm 1{,}34$ & $50{,}29 \pm 1{,}32$ \\
+\textbf{Check2HGI (check-in-level)} & \textbf{$40{,}18 \pm 0{,}95$} & \textbf{$38{,}58 \pm 1{,}23$} & \textbf{$62{,}35 \pm 0{,}48$} \\
+$\Delta$ (C2HGI $-$ HGI) & \textbf{$+16{,}08$} & \textbf{$+18{,}30$} & \textbf{$+12{,}06$} \\
+$\sigma$-\textit{overlap} & Não & Não ($14\times$ a maior $\sigma$) & Não \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Em \emph{region} (após \textit{pooling} para a granularidade de região), Check2HGI $\approx$ HGI ($56{,}11$ vs $57{,}02$ Acc@10, empate $\sigma$ --- CH15). A vantagem do substrato vive na \emph{cat input side}.
+
+\noindent\textbf{Já supera a \textit{baseline} publicada:} contra POI-RGNN (Capanema et al., IJCNN 2019), a \textit{baseline} publicada mais forte para next-category em Gowalla \textit{state-level}, ganhamos $+28$ a $+32$ p.p.\ F1 em FL/CA/TX (ver §5 e §7).
+
+% ===========================================================================
+\section{Baselines usadas}
+% ===========================================================================
+
+\subsection{Para next-category}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lll}
+\toprule
+\textbf{Baseline} & \textbf{Tipo} & \textbf{Uso no paper} \\
+\midrule
+Majority-class & piso simples & linha-âncora \\
+Markov-1-POI & piso simples & linha-âncora \\
+\textbf{POI-RGNN} (Capanema et al., IJCNN 2019) & externa publicada & comparação externa principal (mesmo \textit{split} Gowalla) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent\textbf{POI-RGNN reproduzido} em FL/CA/TX: F1 $34{,}49$ / $31{,}78$ / $33{,}03$. Auditoria de protocolo em \texttt{docs/baselines/POI\_RGNN\_AUDIT.md}.
+
+\subsection{Para next-region}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lll}
+\toprule
+\textbf{Baseline} & \textbf{Tipo} & \textbf{Uso no paper} \\
+\midrule
+Majority / Top-K popular & pisos simples & linhas-âncora \\
+Markov-1-region & piso clássico forte & \textbf{piso principal} (satura em FL) \\
+Markov-$k$-region, $k=2,\dots,9$ & pisos adicionais & demonstra degradação monótona com $k$ \\
+\textbf{STAN} (Luo, WWW 2021, adaptado) & \textit{neural baseline} publicado & \textbf{teto neural \textit{pré}-F21c} (Spatial-Temporal Attention, adaptado ao \textit{target} de região) \\
+HMT-GRN, MGCL & concept-aligned & referências externas, \emph{datasets diferentes} (CH10) --- não comparáveis numericamente \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Nota sobre a saturação em FL:} Markov-1-region em FL atinge Acc@10 $= 65{,}05$. $\sim$85\% das linhas de validação têm a \textit{key} $(r_t)$ no mapa de transição de treino --- regime denso onde o prior 1-grama é quase ótimo para Acc@10. Deliberadamente assumido como limitação no paper.
+
+\textbf{Nossos números STAN adaptado (5f $\times$ 50ep):} AL Acc@10 $= 59{,}20 \pm 3{,}62$; AZ $= 52{,}24 \pm 2{,}38$; FL pendente (F6).
+
+% ===========================================================================
+\section{Cabeças escolhidas e resultados STL}
+% ===========================================================================
+
+\subsection{task\_a (next-category): \texttt{next\_gru} (MTL) / \texttt{next\_mtl} (STL \textit{baseline})}
+
+\noindent\textbf{Como funciona cada arquitetura (brevemente).}
+
+\begin{description}[leftmargin=1em,style=nextline,topsep=0pt,itemsep=2pt]
+\item[\texttt{next\_gru}.] Uma \textit{Gated Recurrent Unit} recorrente, 1 camada, sumariza a janela de 9 \textit{check-ins} passo-a-passo; o estado oculto do \emph{último} passo alimenta um classificador linear de 7 saídas. Viés indutivo: ``ler a sequência em ordem e lembrar do final'' --- compacto, estável, forte em janelas curtas.
+\item[\texttt{next\_mtl} (Transformer).] Um \textit{Transformer encoder} de 4 camadas com 8 cabeças de atenção, máscara causal e \textit{pooling} atencional sobre a janela de 9 \textit{check-ins} $\to$ classificador. Atenção \textit{all-to-all} permite capturar dependências não-sequenciais, mas sobre-parametriza um problema de 7 classes em 9 passos.
+\end{description}
+
+\noindent\textbf{Justificativa.} Pós-F27 (2026-04-24), o cat head do MTL-B3 foi trocado de \texttt{next\_mtl} $\to$ \texttt{next\_gru}. A ablação 7-config (AZ 1f $\times$ 50ep) elegeu GRU como vencedor; validação 5-fold em AZ confirmou (Wilcoxon $p=0{,}0312$ em 3 métricas, 5/5 \textit{folds} positivos). \textbf{Intuição:} para 7 classes em janela de 9 passos, o viés indutivo da GRU cabe melhor que a flexibilidade do Transformer.
+
+\noindent\textbf{STL \textit{baseline} atual usa \texttt{next\_mtl} (matched com a \emph{antiga} config de MTL)}. Um STL \texttt{next\_gru} 5-fold seria a comparação \emph{matched} ideal com o B3 pós-F27 e está listado como \textit{nice-to-have} --- não crítico para o \textit{headline} dado que a distância arquitetural é pequena (ambos são classificadores de 7 classes sobre um encoder sequencial).
+
+\begin{table}[H]
+\centering
+\small
+\caption{STL next\_mtl cat (\textit{fair folds}, 5f $\times$ 50ep). Nosso STL atual; \textit{baseline} interno.}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Estado} & \textbf{cat F1} & \textbf{cat Acc@1} & \textbf{fonte} \\
+\midrule
+AL & $38{,}58 \pm 1{,}23$ & $\sim 40{,}2$ & P1.5b fair \\
+AZ & $42{,}08 \pm 0{,}89$ & $42{,}97 \pm 0{,}75$ & P1.5b fair \\
+FL & $63{,}17$ (n=1) & $\sim 64$ & P1.5b fair \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{task\_b (next-region): \texttt{next\_getnext\_hard} (MTL e STL matched)}
+
+\noindent\textbf{Como funciona (brevemente).} Duas partes somadas ao final:
+
+\begin{description}[leftmargin=1em,style=nextline,topsep=0pt,itemsep=2pt]
+\item[\textbf{STAN} (Luo, WWW 2021, \textit{backbone neural}).] Um \textit{Spatial-Temporal Attention Network} bi-camada com \textit{self-attention} sobre a janela de 9 passos. A atenção é enviesada por \textit{biases} de distância temporal e espacial aprendidos --- dois pares de check-ins ``próximos no tempo e no espaço'' se atendem mais fortemente que pares distantes. Produz um \textit{logit} $\text{STAN}(x) \in \mathbb{R}^{|R|}$ sobre as regiões.
+\item[\textbf{\textit{Graph prior}} (GETNext, Yang et al.\ SIGIR 2022).] Uma matriz de log-probabilidades de transição entre regiões $\log T \in \mathbb{R}^{|R|\times|R|}$, pré-computada do \textit{corpus} de treino: $\log T[i,j] = \log P(\text{próxima região} = j \mid \text{última região} = i)$. Em \textit{inference}, pega-se a \textbf{linha} correspondente à região do último \textit{check-in} observado $r_\text{last}$, e soma-se como viés aditivo.
+\end{description}
+
+A saída final combina as duas:
+$$
+\text{logits}_\text{final} = \underbrace{\text{STAN}(x)}_{\text{parte neural}} \;+\; \alpha \cdot \underbrace{\log T[r_\text{last}]}_{\text{\textit{prior} de transição estatística}}
+$$
+com $\alpha$ escalar aprendível (init $0{,}1$). \textbf{Versão \texttt{hard}} (fiel ao paper original de GETNext) usa \textit{gather} direto em $\log T[r_\text{last}]$; versão \texttt{soft} (adaptação anterior) usa um \textit{probe} linear $\text{softmax}(\text{probe}(x_{-1})) @ \log T$ para \textit{inferir} a região passada --- mantida como ablação. Em $\le 1{,}5$K regiões, \texttt{hard} domina \texttt{soft} por $+5$ a $+6$ p.p.\ Acc@10 (Wilcoxon $p=0{,}0312$, 5/5 \textit{folds}). \textbf{Intuição:} o \textit{prior} carrega diretamente conhecimento de transições válidas que a \textit{self-attention} neural levaria muitas épocas para aprender; a soma dos dois combina aprendizado local (\textit{STAN}) com conhecimento global (\textit{$\log T$}).
+
+\begin{table}[H]
+\centering
+\small
+\caption{STL matched-head \texttt{next\_getnext\_hard} reg (F21c, 5f $\times$ 50ep). Nosso \textbf{novo teto de single-task reg} em ablation scale.}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Estado} & \textbf{Acc@10} & \textbf{Acc@5} & \textbf{MRR} \\
+\midrule
+AL & $\mathbf{68{,}37 \pm 2{,}66}$ & $52{,}19 \pm 2{,}44$ & $\mathbf{41{,}17 \pm 2{,}28}$ \\
+AZ & $\mathbf{66{,}74 \pm 2{,}11}$ & $50{,}95 \pm 2{,}11$ & $\mathbf{41{,}15 \pm 2{,}13}$ \\
+FL & \textit{pendente} (F21c-FL) & --- & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Contraste com o STAN (\textit{baseline} neural):} o \textit{graph prior sozinho, single-task}, supera a \textit{baseline} STAN por $+9$ (AL) e $+14$ (AZ) p.p.\ Acc@10. Isso muda o teto do que consideramos ``single-task SOTA'' em \textit{region} e dispara o reframing do paper (§8, CH18).
+
+% ===========================================================================
+\section{Arquitetura e otimizador MTL (B3 champion)}
+% ===========================================================================
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{ll}
+\toprule
+\textbf{Componente} & \textbf{Escolha (B3)} \\
+\midrule
+Arquitetura & \texttt{mtlnet\_crossattn} (2 blocos de cross-attention bidirecional, $d=256$, 8 cabeças) \\
+Otimizador MTL & \texttt{static\_weight(category\_weight = 0{,}75)} \\
+Cabeça task\_a & \texttt{next\_gru} ($\leftarrow$ F27 em 2026-04-24) \\
+Cabeça task\_b & \texttt{next\_getnext\_hard} ($d_\text{model}=256$, 8 cabeças, $\alpha_\text{init}=0{,}1$) \\
+Input task\_a & embedding \emph{check-in} (janela 9) \\
+Input task\_b & embedding \emph{region} (janela 9) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Como funcionam (brevemente)}
+
+\begin{description}[leftmargin=1em,style=nextline,topsep=0pt,itemsep=2pt]
+
+\item[\texttt{mtlnet\_crossattn} (arquitetura).] Dois \textit{streams} paralelos, um por tarefa, cada um com seu próprio encoder (MLP 2-camadas) e sua própria FFN. Em vez de um \textit{backbone} compartilhado monolítico (como FiLM, MMoE, CGC), os \textit{streams} trocam informação por meio de \textbf{blocos de \textit{cross-attention} bidirecional}: em cada bloco, o \textit{stream} A \emph{consulta} as chaves/valores do \textit{stream} B, e vice-versa. Resultado: cada cabeça recebe sua modalidade preferida \emph{e} é informada pelo contexto da outra tarefa \emph{por conteúdo} (não por parâmetros compartilhados). Inspiração: MulT (Tsai et al.\ ACL 2019) e InvPT (Ye \& Xu, ECCV 2022).
+
+\item[\texttt{static\_weight(cat=0{,}75)} (otimizador MTL).] Recipe simples: a perda final é $\mathcal{L} = 0{,}75 \cdot \mathcal{L}_\text{cat} + 0{,}25 \cdot \mathcal{L}_\text{reg}$, somada antes do \textit{backward}. Sem hiperparâmetros adaptativos, sem projeções de gradiente. Alternativas testadas: PCGrad (projeção ortogonal de gradientes em conflito), NashMTL (equilíbrio de Nash sobre gradientes), CAGrad, Aligned-MTL. No nosso regime (hard \textit{prior} de magnitude grande + escala FL), PCGrad \emph{mata} o cat head (\textit{gradient starvation}); \texttt{static\_weight} evita isso e ainda produz um \textit{late-stage handover} benéfico.
+
+\item[Per-task input modality.] \texttt{task\_a} consome a janela de embeddings de \emph{check-in} (ideal para intenção categórica); \texttt{task\_b} consome a janela de embeddings de \emph{region} (ideal para predizer a próxima região). Ambos são fornecidos ao cross-attention que os mistura por conteúdo.
+
+\end{description}
+
+\subsection*{Justificativas}
+
+\begin{description}[leftmargin=1em,style=nextline,topsep=0pt]
+
+\item[\texttt{mtlnet\_crossattn} vs FiLM/CGC/MMoE/DSelectK/PLE.] FiLM/experts sofrem \emph{backbone dilution} (ver \texttt{issues/BACKBONE\_DILUTION.md}) quando uma tarefa tem \textit{head} forte \textit{standalone} e a outra é fraca: o \textit{backbone} compartilhado vira gargalo. Cross-attention remove o \textit{backbone} compartilhado e permite troca por \emph{conteúdo} entre dois \textit{streams} independentes (MulT-style, Tsai et al.\ ACL 2019). Isolamento $\lambda=0$ em ablações mostrou que $\sim 5{,}4$ p.p.\ do \textit{gap} STL $\to$ MTL original era sobrecarga arquitetural --- que a cross-attn dissolve.
+
+\item[\texttt{static\_weight} (cat $= 0{,}75$) vs PCGrad.] PCGrad projeta o gradiente da tarefa fraca ortogonal à direção da tarefa dominante. No regime FL (4.7K regiões) com \textit{prior} \texttt{hard} magnificado ($\alpha \cdot \log T$), isso \emph{mata} o \textit{cat head}: F1 trava em $0{,}554$ ao longo de 50 épocas (\textit{gradient starvation} diagnosticada no F2). O \texttt{static\_weight} cat-heavy produz \textbf{\emph{late-stage handover}}: o cat converge cedo (época $\sim 42$), depois o \textit{backbone} compartilhado fica livre para o reg nas épocas restantes. Em FL n=1 Pareto-domina soft-probe: $+0{,}22$ cat F1, $+5{,}20$ Acc@10, $+3{,}87$ Acc@5, $+2{,}39$ MRR.
+
+\item[Per-task input modality (check-in $\to$ cat, region $\to$ reg).] Cada \textit{head} recebe sua modalidade preferida. Ablação (AL 1f $\times$ 20ep): \texttt{per\_task} é a \emph{única} variante \textit{Pareto}-ótima em ambos os \textit{heads} simultaneamente; \texttt{concat} é estritamente dominada; \texttt{shared\_checkin} colapsa reg a 2,3\% Acc@10; \texttt{shared\_region} colapsa cat a $20\%$ F1.
+
+\end{description}
+
+% ===========================================================================
+\section{Tabela-resumo: Baselines vs STL vs MTL-B3 (AL + AZ, 5-fold)}
+% ===========================================================================
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{Todas as linhas 5f $\times$ 50ep, seed 42, \textit{fair folds}. \textbf{Negrito} = melhor da coluna. $(^*)$ = Wilcoxon $p=0{,}0312$ (\textit{minimum achievable} em n=5).}
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{llcccc}
+\toprule
+\textbf{Estado} & \textbf{Método} & \textbf{cat F1} & \textbf{cat Acc@1} & \textbf{reg Acc@10} & \textbf{reg MRR} \\
+\midrule
+\multicolumn{6}{l}{\textbf{Alabama (AL --- 10K rows, 1.109 regiões)}} \\
+\midrule
+\multirow{4}{*}{\textit{Baselines}}
+    & Majority & --- & $34{,}20$ & $1{,}97$ & --- \\
+    & Markov-1-POI / Markov-1-region & $\sim 31{,}7$ & $\sim 32$ & $47{,}01 \pm 3{,}55$ & $32{,}17 \pm 2{,}90$ \\
+    & POI-RGNN (externa, \textit{state-level range}) & $31{,}8$--$34{,}5$ & --- & --- & --- \\
+    & STAN (Luo WWW 2021, adaptado) & --- & --- & $59{,}20 \pm 3{,}62$ & $36{,}10 \pm 1{,}96$ \\
+\midrule
+\multirow{2}{*}{\textit{STL}}
+    & STL \texttt{next\_mtl} (cat) & $38{,}58 \pm 1{,}23$ & $\sim 40{,}2$ & --- & --- \\
+    & \textbf{STL \texttt{next\_getnext\_hard}} (matched, F21c) & --- & --- & $\mathbf{68{,}37 \pm 2{,}66}$ & $\mathbf{41{,}17 \pm 2{,}28}$ \\
+\midrule
+\multirow{1}{*}{\textit{MTL}}
+    & \textbf{MTL-B3 (pós-F27, F31)} & $\mathbf{42{,}71 \pm 1{,}37}$ & $\mathbf{45{,}82 \pm 1{,}51}$ & $59{,}60 \pm 4{,}09$ & $30{,}74 \pm 2{,}87$ \\
+\midrule
+\multicolumn{6}{l}{\textbf{Arizona (AZ --- 26K rows, 1.547 regiões)}} \\
+\midrule
+\multirow{3}{*}{\textit{Baselines}}
+    & Majority / Markov-1-region & --- / --- & $7{,}43$ & $42{,}96 \pm 2{,}05$ & --- \\
+    & POI-RGNN (externa) & não reportado AZ & --- & --- & --- \\
+    & STAN (Luo WWW 2021, adaptado) & --- & --- & $52{,}24 \pm 2{,}38$ & $33{,}70 \pm 2{,}36$ \\
+\midrule
+\multirow{2}{*}{\textit{STL}}
+    & STL \texttt{next\_mtl} (cat) & $42{,}08 \pm 0{,}89$ & $42{,}97 \pm 0{,}75$ & --- & --- \\
+    & \textbf{STL \texttt{next\_getnext\_hard}} (matched, F21c) & --- & --- & $\mathbf{66{,}74 \pm 2{,}11}$ & $\mathbf{41{,}15 \pm 2{,}13}$ \\
+\midrule
+\multirow{1}{*}{\textit{MTL}}
+    & \textbf{MTL-B3 (pós-F27, F19-F27)} & $\mathbf{45{,}81 \pm 1{,}30^*}$ & $\mathbf{49{,}30 \pm 0{,}67^*}$ & $53{,}82 \pm 3{,}11$ & $27{,}66 \pm 2{,}41$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent\textbf{Leitura.}
+\begin{itemize}[leftmargin=*,noitemsep]
+\item \textbf{Cat:} MTL-B3 $>$ STL \emph{em ambos} os estados ($+4{,}13$ p.p.\ em AL; $+3{,}73$ p.p.\ em AZ com Wilcoxon $p=0{,}0312$ em cat F1, cat Acc@1 e reg MRR). Supera largamente POI-RGNN, Markov-1-POI, Majority.
+\item \textbf{Reg:} MTL-B3 \emph{bate Markov-1} em AL ($+12{,}59$) e AZ ($+10{,}86$). Cruza pela primeira vez a \textit{baseline} STAN em AL ($+0{,}40$); em AZ empata $\sigma$ ($+1{,}58$).
+\item \textbf{CH18 (limitação metodológica):} MTL-B3 perde para STL \texttt{next\_getnext\_hard} matched-head por $-8{,}77$ (AL) e $-12{,}92$ (AZ) p.p.\ Acc@10. O \textit{coupling} MTL não adiciona valor em reg além da escolha do \textit{head} nessa escala.
+\end{itemize}
+
+\subsubsection*{Florida (pré-\textit{headline}, 1-fold $\times$ 50ep, pré-5f)}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\begin{tabular}{llcccc}
+\toprule
+\textbf{Grupo} & \textbf{Método} & \textbf{cat F1} & \textbf{cat Acc@1} & \textbf{reg Acc@10} & \textbf{reg MRR} \\
+\midrule
+\multirow{3}{*}{\textit{Baselines}} & Markov-1-region & --- & --- & $\mathbf{65{,}05 \pm 0{,}93}$ & $52{,}37 \pm 0{,}90$ \\
+& POI-RGNN (reproduzido) & $34{,}49$ & --- & --- & --- \\
+& STAN (adaptado) & --- & --- & \textit{pendente} (F6) & \textit{pendente} \\
+\multirow{2}{*}{\textit{STL}} & STL cat \texttt{next\_mtl} (n=1) & $63{,}17$ & --- & --- & --- \\
+& STL GRU (reg, 5f) & --- & $44{,}49 \pm 0{,}51$ & $\mathbf{68{,}33 \pm 0{,}58}$ & $52{,}74 \pm 0{,}45$ \\
+\textit{MTL} & \textbf{MTL-B3 pós-F27 (F32, n=1)} & $65{,}72$ & $68{,}60$ & $65{,}26$ & $29{,}56$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{FL é o regime denso} --- Markov-1-region satura em $\sim 65$\%. MTL-B3 iguala Markov em Acc@10, supera em MRR/Acc@5. 5-fold pendente (F33 Colab).
+
+% ===========================================================================
+\section{Ablações (winning variant em cada uma)}
+% ===========================================================================
+
+\noindent Executadas e fechadas:
+
+\begin{table}[H]
+\centering
+\footnotesize
+\begin{tabular}{llll}
+\toprule
+\textbf{Ablação} & \textbf{O que testou} & \textbf{Winner} & \textbf{Evidência} \\
+\midrule
+P1 reg-head & 5 cabeças reg isoladas & \texttt{next\_gru} $>$ Transformer (que colapsa) & \texttt{research/GETNEXT\_FINDINGS.md} \\
+CH16 (substrato) & Check2HGI vs HGI em cat STL & Check2HGI $+18{,}30$ p.p.\ & AL, \textit{fair folds} \\
+CH15 (substrato) & Check2HGI vs HGI em reg STL & empate $\sigma$ & AL, TCN head \\
+P2 MTL arch $\times$ optim & 5$\times$5 grid & cross-attn + pcgrad $\gtrsim$ FiLM/experts & AL 5f \\
+F2 (FL task-weight) & 4 \textit{phases} em FL-hard & cat-heavy $0{,}75$ resgata cat & \texttt{research/B5\_FL\_TASKWEIGHT.md} \\
+F1 AZ Wilcoxon & hard vs soft (5f \textit{paired}) & hard domina reg (5/5 \textit{folds}, $p=0{,}0312$) & \texttt{research/B5\_AZ\_WILCOXON.md} \\
+F27 cat-head & 7 cabeças como task\_a de B3 & \texttt{next\_gru} $>$ \texttt{next\_mtl} default & \texttt{research/F27\_CATHEAD\_FINDINGS.md} \\
+F21c matched-head & STL \texttt{next\_getnext\_hard} standalone & STL $>$ MTL em reg (CH18) & AL/AZ 5f \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent \textbf{Em andamento:} F33 (FL 5f B3+gru em Colab, resolve \textit{flag} de escala cat-head), F34/F35 (CA/TX \textit{pipeline} + 1-fold).
+
+% ===========================================================================
+\section{Achados metodológicos críticos (histórico)}
+% ===========================================================================
+
+Correções que reformaram resultados --- documentados honestamente para o paper:
+
+\begin{enumerate}[leftmargin=*]
+
+\item \textbf{\textit{Leaky folds} em STL next-task (C11, resolvido 2026-04-17).} \texttt{FoldCreator.\_create\_single\_task\_folds} usava \texttt{StratifiedKFold} sem \textit{grouping} para a tarefa NEXT, enquanto MTL usava \texttt{StratifiedGroupKFold(groups=userid)}. Check-ins do mesmo usuário caíam em treino \emph{e} validação --- memorização \textit{user-taste}. \textbf{Efeito:} HGI STL caiu de F1 $23{,}48 \to 20{,}29$ ($-3{,}20$ p.p.); Check2HGI caiu de $39{,}16 \to 38{,}58$ ($-0{,}57$ p.p., robusto). \textbf{CH16 cresceu de $+15{,}67$ $\to$ $+18{,}30$ p.p.\ com \textit{fair folds}} --- a vantagem do substrato é \emph{maior} sob avaliação justa.
+
+\item \textbf{\textit{MTL param-partition bug} (HIGH, resolvido 2026-04-22).} PCGrad/CAGrad/Aligned-MTL só atribuíam \texttt{.grad} em \texttt{shared\_parameters $\cup$ task\_specific\_parameters}. Parâmetros fora dessa união (\texttt{adashare\_logits}, \texttt{lora\_A/B\_*}, \texttt{skip\_alpha\_*}) \emph{nunca treinavam}. Resultados MTLoRA/AdaShare contaminados $\to$ 6 \textit{reruns} em AL + AZ. Paper \textit{headline} (cross-attn) nunca esteve contaminado. Correção: extensão dos filtros de \textit{substring} + teste de invariante de partição para todas as variantes MTL.
+
+\item \textbf{\textit{Correção de Markov-1-region}} (substituiu Markov-1-POI degenerado, em que $\sim 50$\% das \textit{val rows} caíam em \textit{fallback top-K-popular}). Piso honesto e de alta cobertura; define o \textit{gate} de reg.
+
+\end{enumerate}
+
+% ===========================================================================
+\section{Próximos passos e melhorias possíveis}
+% ===========================================================================
+
+\subsection*{Imediato (\textit{paper-blocking})}
+
+\begin{enumerate}[leftmargin=*,noitemsep]
+\item \textbf{F33 (Colab, $\sim$6h T4):} FL 5-fold $\times$ 50ep B3+\texttt{next\_gru}. Resolve \textit{scale-dependence flag} do cat head. Se cat F1 ficar dentro de $\sigma$ da média pré-F27 $[0{,}6623;\;0{,}6706] \to$ Path~A (\texttt{next\_gru} universal). Se ficar abaixo $\to$ Path~B (cat head por escala).
+\item \textbf{F34/F35 (Colab):} \textit{pipeline upstream} em CA e TX (Check2HGI \textit{training} + \texttt{compute\_region\_transition} + \texttt{create\_inputs\_check2hgi}) + 1-fold MTL-B3+gru.
+\item \textbf{STL \texttt{next\_gru} cat 5-fold --- todos os estados (AL, AZ, FL) e posteriormente CA/TX.} Fornece o \textit{matched-head} STL para a comparação pós-F27 (hoje o STL cat ainda usa \texttt{next\_mtl}, \textit{matched} com a \emph{antiga} config). Fecha o \textit{claim} ``MTL-B3 $>$ STL \textit{matched}'' em cat sem \textit{asterisco} arquitetural. Custo $\sim$1-2h por estado.
+\item \textbf{F24/F25:} Após F34/F35 confirmarem, rodar 5-fold \textit{headline} em CA e TX (\textit{gated} neles).
+\end{enumerate}
+
+\subsection*{Curto prazo (se houver tempo antes do \textit{freeze})}
+
+\begin{itemize}[leftmargin=*,noitemsep]
+\item \textbf{F3:} AZ HGI STL cat 5f ($\sim$3h MPS) --- replica CH16 para $n=2$ estados, ataque mais barato para fortalecer o \textit{claim} de substrato.
+\item \textbf{F6:} FL STAN (\textit{baseline}) 5f --- fecha a \textit{baseline} neural em FL.
+\item \textbf{F21c em FL:} STL \texttt{next\_getnext\_hard} no regime $4{,}7$K-regiões. Testa se CH18 (\textit{matched-head STL domina MTL em reg}) sobrevive em \textit{scale} denso. Possivelmente inverte sob saturação Markov.
+\end{itemize}
+
+\subsection*{Melhorias possíveis para recuperar CH18 a Tier A (\textit{follow-up paper})}
+
+CH18 está aberto: o \textit{coupling} MTL ainda não adiciona valor em reg sobre STL matched. Caminhos candidatos:
+
+\begin{itemize}[leftmargin=*,noitemsep]
+\item \textbf{Per-task weight clipping} no \textit{prior}-magnificado --- impedir que o termo $\alpha \cdot \log T$ sature o gradiente compartilhado.
+\item \textbf{Prior-magnitude normalisation} --- normalizar $\log T$ por linha antes do termo aditivo.
+\item \textbf{Per-fold transition matrix} (\textit{leakage-safe} GETNext) --- recompor $\log T$ por \textit{fold} em vez de global (mild leakage atual).
+\item \textbf{PIF-style user-specific region frequency prior} em adição ao \textit{prior} global.
+\item \textbf{Regularização explícita} no \textit{shared backbone} contra a direção \textit{prior}-magnified.
+\end{itemize}
+
+Nenhum é \textit{in-paper} para a submissão atual; todos são território de \textit{follow-up paper}.
+
+\subsection*{Enriquecimento de features (P6, \textit{follow-up paper})}
+
+\begin{itemize}[leftmargin=*,noitemsep]
+\item \textbf{CH12 --- temporal:} substituir \textit{features} \texttt{sin/cos} fixas por \textit{Time2Vec}-like + \textit{time-gap} + \textit{recency decay}. Expectativa: $\ge 1$ p.p.\ em next-cat.
+\item \textbf{CH13 --- espacial:} adicionar Sphere2Vec (\texttt{lat, lon}) + distância ao POI anterior + distância ao centroide da região como \textit{node features} na hierarquia Check2HGI. Expectativa: $\ge 1$ p.p.\ em next-cat.
+\end{itemize}
+
+% ===========================================================================
+\section{Riscos abertos}
+% ===========================================================================
+
+\begin{table}[H]
+\centering
+\footnotesize
+\begin{tabular}{p{3cm}p{6cm}p{5cm}}
+\toprule
+\textbf{Risco} & \textbf{Descrição} & \textbf{Trigger de revisão} \\
+\midrule
+\textbf{C14 \textit{scale-dep} cat head} & GRU vence AL/AZ mas FL 1f inverteu sinal & F33 Colab (FL 5f) \\
+\textbf{C15 \textit{matched-head} STL domina MTL em reg} & CH18 (F21c), reframing do paper & MTL variant que feche $\ge 75\%$ do \textit{gap}; ou FL F21c inverter \\
+\textbf{C01 / C02 / C13} & $n=2$ ablação finos; FL satura Markov; AL $\to$ FL/CA/TX extrapolação arriscada & CA/TX \textit{headline} 5f \\
+\textbf{C07 / C10} & CH17 precisa referência HGI-\textit{next-category} específica & Usuário fornecer \textit{reference} \\
+\textbf{C12 HP mismatch STL vs MTL} & \texttt{max\_lr} diferente entre STL cat ($0{,}01$), STL reg GRU ($0{,}003$), MTL ($0{,}001$ default $\to$ $0{,}003$ usado agora) & \textit{Sweep} max\_lr em MTL (feito, locked a $0{,}003$) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===========================================================================
+\section{Posicionamento e \textit{next-steps} estratégicos}
+% ===========================================================================
+
+\begin{description}[leftmargin=1em,style=nextline,topsep=0pt]
+
+\item[Contribuição do paper, pós-F21c.] Quatro \textit{claims} sobreviventes:
+(1)~\textbf{CH16} Check2HGI $>$ HGI em next-cat (substrato, \emph{primário});
+(2)~\textbf{MTL-over-STL em cat F1} estrito em AZ ($p=0{,}0312$) e AL ($+4{,}13$), positivo em FL n=1;
+(3)~\textbf{\textit{Joint single-model deployment}} --- um modelo $\to$ duas tarefas, trocando $12$--$14$ p.p.\ reg Acc@10 vs STL matched por simplicidade de \textit{deployment} $+$ \textit{free} cat F1;
+(4)~\textbf{Mecanismo F2} --- \textit{gradient starvation} sob PCGrad+hard-\textit{prior} em FL-\textit{scale} + \textit{late-stage handover} rescue via \texttt{static\_weight} \textit{cat-heavy} (independentemente \textit{paper-worthy}).
+
+\item[Comparação com HMT-GRN (SIGIR 2022).] Não é \textit{head-to-head baseline}: eles operam em \textit{POI-level} com hierarquia puramente geográfica (geohashes + POI ID); nós em \textit{check-in-level} com hierarquia semântica+geográfica (categoria + região). Contribuições complementares, detalhado em \texttt{research/POSITIONING\_VS\_HMT\_GRN.md}.
+
+\item[Alvo do paper.] \textit{Venue} em avaliação (BRACIS 2026 \textit{main track}, ou extensão periódico). \textit{Scope} \textit{headline}: FL + CA + TX 5-fold; ablações em AL + AZ + FL-1f.
+
+\end{description}
+
+\end{document}

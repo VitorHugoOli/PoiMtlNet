@@ -1,0 +1,15 @@
+{
+  "tag": "REHDM_STL_STUDY_az_hgi_5f50ep",
+  "state": "arizona",
+  "engine": "hgi",
+  "protocol": "5-fold StratifiedGroupKFold (study protocol)",
+  "n_folds": 5,
+  "acc@1_mean": 0.14244709598351385,
+  "acc@1_std": 0.018896172660876592,
+  "acc@5_mean": 0.2667845723765405,
+  "acc@5_std": 0.026111716282142605,
+  "acc@10_mean": 0.33349940731428707,
+  "acc@10_std": 0.028588164931527667,
+  "mrr_mean": 0.20860353632404705,
+  "mrr_std": 0.02150213919462666
+}

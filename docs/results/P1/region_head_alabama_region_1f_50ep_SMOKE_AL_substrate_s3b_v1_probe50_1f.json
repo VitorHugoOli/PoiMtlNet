@@ -1,0 +1,163 @@
+{
+  "state": "alabama",
+  "folds": 1,
+  "epochs": 50,
+  "seed": 42,
+  "input_type": "region",
+  "n_regions": 1109,
+  "heads": {
+    "next_getnext_hard": {
+      "per_fold": [
+        {
+          "accuracy": 0.246262788772583,
+          "accuracy_macro": 0.0640467916216169,
+          "f1": 0.05361437797546387,
+          "f1_weighted": 0.19691170752048492,
+          "mrr": 0.3692561388015747,
+          "top5_acc": 0.5106215476989746,
+          "ndcg_5": 0.3850141167640686,
+          "top10_acc": 0.6239181756973267,
+          "ndcg_10": 0.42179495096206665,
+          "best_epoch": 49,
+          "per_metric_best": {
+            "accuracy": {
+              "accuracy": 0.2487804889678955,
+              "accuracy_macro": 0.06355861533449805,
+              "f1": 0.05427215248346329,
+              "f1_weighted": 0.19662098586559296,
+              "mrr": 0.36959657073020935,
+              "top5_acc": 0.5139260292053223,
+              "ndcg_5": 0.3864012062549591,
+              "top10_acc": 0.6231313943862915,
+              "ndcg_10": 0.4217599332332611,
+              "best_epoch": 45
+            },
+            "top5_acc": {
+              "accuracy": 0.2487804889678955,
+              "accuracy_macro": 0.06355861533449805,
+              "f1": 0.05427215248346329,
+              "f1_weighted": 0.19662098586559296,
+              "mrr": 0.36959657073020935,
+              "top5_acc": 0.5139260292053223,
+              "ndcg_5": 0.3864012062549591,
+              "top10_acc": 0.6231313943862915,
+              "ndcg_10": 0.4217599332332611,
+              "best_epoch": 45
+            },
+            "top10_acc": {
+              "accuracy": 0.246262788772583,
+              "accuracy_macro": 0.0640467916216169,
+              "f1": 0.05361437797546387,
+              "f1_weighted": 0.19691170752048492,
+              "mrr": 0.3692561388015747,
+              "top5_acc": 0.5106215476989746,
+              "ndcg_5": 0.3850141167640686,
+              "top10_acc": 0.6239181756973267,
+              "ndcg_10": 0.42179495096206665,
+              "best_epoch": 49
+            },
+            "mrr": {
+              "accuracy": 0.2487804889678955,
+              "accuracy_macro": 0.06355861533449805,
+              "f1": 0.05427215248346329,
+              "f1_weighted": 0.19662098586559296,
+              "mrr": 0.36959657073020935,
+              "top5_acc": 0.5139260292053223,
+              "ndcg_5": 0.3864012062549591,
+              "top10_acc": 0.6231313943862915,
+              "ndcg_10": 0.4217599332332611,
+              "best_epoch": 45
+            },
+            "f1": {
+              "accuracy": 0.2487804889678955,
+              "accuracy_macro": 0.06355861533449805,
+              "f1": 0.05427215248346329,
+              "f1_weighted": 0.19662098586559296,
+              "mrr": 0.36959657073020935,
+              "top5_acc": 0.5139260292053223,
+              "ndcg_5": 0.3864012062549591,
+              "top10_acc": 0.6231313943862915,
+              "ndcg_10": 0.4217599332332611,
+              "best_epoch": 45
+            }
+          }
+        }
+      ],
+      "aggregate": {
+        "accuracy_mean": 0.246262788772583,
+        "accuracy_std": 0.0,
+        "top5_acc_mean": 0.5106215476989746,
+        "top5_acc_std": 0.0,
+        "top10_acc_mean": 0.6239181756973267,
+        "top10_acc_std": 0.0,
+        "mrr_mean": 0.3692561388015747,
+        "mrr_std": 0.0,
+        "f1_mean": 0.05361437797546387,
+        "f1_std": 0.0
+      },
+      "aggregate_per_metric_best": {
+        "accuracy_at_accuracy_best_mean": 0.2487804889678955,
+        "accuracy_at_accuracy_best_std": 0.0,
+        "top5_acc_at_accuracy_best_mean": 0.5139260292053223,
+        "top5_acc_at_accuracy_best_std": 0.0,
+        "top10_acc_at_accuracy_best_mean": 0.6231313943862915,
+        "top10_acc_at_accuracy_best_std": 0.0,
+        "mrr_at_accuracy_best_mean": 0.36959657073020935,
+        "mrr_at_accuracy_best_std": 0.0,
+        "f1_at_accuracy_best_mean": 0.05427215248346329,
+        "f1_at_accuracy_best_std": 0.0,
+        "accuracy_at_top5_acc_best_mean": 0.2487804889678955,
+        "accuracy_at_top5_acc_best_std": 0.0,
+        "top5_acc_at_top5_acc_best_mean": 0.5139260292053223,
+        "top5_acc_at_top5_acc_best_std": 0.0,
+        "top10_acc_at_top5_acc_best_mean": 0.6231313943862915,
+        "top10_acc_at_top5_acc_best_std": 0.0,
+        "mrr_at_top5_acc_best_mean": 0.36959657073020935,
+        "mrr_at_top5_acc_best_std": 0.0,
+        "f1_at_top5_acc_best_mean": 0.05427215248346329,
+        "f1_at_top5_acc_best_std": 0.0,
+        "accuracy_at_top10_acc_best_mean": 0.246262788772583,
+        "accuracy_at_top10_acc_best_std": 0.0,
+        "top5_acc_at_top10_acc_best_mean": 0.5106215476989746,
+        "top5_acc_at_top10_acc_best_std": 0.0,
+        "top10_acc_at_top10_acc_best_mean": 0.6239181756973267,
+        "top10_acc_at_top10_acc_best_std": 0.0,
+        "mrr_at_top10_acc_best_mean": 0.3692561388015747,
+        "mrr_at_top10_acc_best_std": 0.0,
+        "f1_at_top10_acc_best_mean": 0.05361437797546387,
+        "f1_at_top10_acc_best_std": 0.0,
+        "accuracy_at_mrr_best_mean": 0.2487804889678955,
+        "accuracy_at_mrr_best_std": 0.0,
+        "top5_acc_at_mrr_best_mean": 0.5139260292053223,
+        "top5_acc_at_mrr_best_std": 0.0,
+        "top10_acc_at_mrr_best_mean": 0.6231313943862915,
+        "top10_acc_at_mrr_best_std": 0.0,
+        "mrr_at_mrr_best_mean": 0.36959657073020935,
+        "mrr_at_mrr_best_std": 0.0,
+        "f1_at_mrr_best_mean": 0.05427215248346329,
+        "f1_at_mrr_best_std": 0.0,
+        "accuracy_at_f1_best_mean": 0.2487804889678955,
+        "accuracy_at_f1_best_std": 0.0,
+        "top5_acc_at_f1_best_mean": 0.5139260292053223,
+        "top5_acc_at_f1_best_std": 0.0,
+        "top10_acc_at_f1_best_mean": 0.6231313943862915,
+        "top10_acc_at_f1_best_std": 0.0,
+        "mrr_at_f1_best_mean": 0.36959657073020935,
+        "mrr_at_f1_best_std": 0.0,
+        "f1_at_f1_best_mean": 0.05427215248346329,
+        "f1_at_f1_best_std": 0.0
+      },
+      "config": {
+        "max_lr": 0.003,
+        "label_smoothing": 0.0,
+        "input_layernorm": false,
+        "overrides": {
+          "d_model": 256,
+          "num_heads": 8,
+          "transition_path": "output/check2hgi/alabama/region_transition_log_seed42_fold1.pt"
+        },
+        "input_type": "region"
+      }
+    }
+  }
+}

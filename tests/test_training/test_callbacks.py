@@ -187,6 +187,24 @@ class TestEarlyStopping:
         assert es.best is None
         es.on_epoch_end(CallbackContext(epoch=0, metrics={"val_f1": 0.0}))
         assert es.best == 0.0
+
+    def test_on_train_begin_resets_per_fold(self):
+        """AUDIT-C3: state must reset between folds. Without the reset,
+        EarlyStopping firing in fold 1 would silently kill folds 2-5
+        at epoch 1. Runners call ``on_train_begin`` per-fold."""
+        es = EarlyStopping(monitor="val_f1", patience=2, mode="max")
+        # Fold 1: trigger early stop
+        es.on_epoch_end(CallbackContext(epoch=0, metrics={"val_f1": 0.8}))
+        for i in range(1, 3):
+            es.on_epoch_end(CallbackContext(epoch=i, metrics={"val_f1": 0.7}))
+        assert es.stop_training is True
+
+        # Fold 2 begins — must reset to fresh state
+        es.on_train_begin(CallbackContext(epoch=0))
+        assert es.stop_training is False
+        assert es.wait == 0
+        assert es.best is None
+        assert es.best_epoch == -1
         assert es.wait == 0
 
 
@@ -250,3 +268,27 @@ class TestModelCheckpoint:
         mock_model = MagicMock()
         mc.set_model(mock_model)
         assert mc._model is mock_model
+
+    def test_on_train_begin_resets_per_fold(self, tmp_path):
+        """AUDIT-C3: ``self.best`` must reset between folds, otherwise
+        fold 2 inherits fold 1's high-water mark and may save 0
+        checkpoints if its val curve is shifted lower."""
+        import torch
+
+        model = torch.nn.Linear(2, 2)
+        mc = ModelCheckpoint(save_dir=tmp_path / "ckpts", save_best_only=True)
+        mc.set_model(model)
+
+        # Fold 1: saves at epoch 0 (best), then no improvements
+        mc.on_epoch_end(CallbackContext(epoch=0, metrics={"val_f1": 0.9}))
+        assert mc.best == 0.9
+        mc.on_epoch_end(CallbackContext(epoch=1, metrics={"val_f1": 0.8}))
+        assert mc.best == 0.9  # unchanged
+
+        # Fold 2 begins — must reset
+        mc.on_train_begin(CallbackContext(epoch=0))
+        assert mc.best is None
+
+        # Fold 2's first epoch (val_f1=0.85) must register as the new best
+        mc.on_epoch_end(CallbackContext(epoch=0, metrics={"val_f1": 0.85}))
+        assert mc.best == 0.85

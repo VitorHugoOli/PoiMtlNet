@@ -1,0 +1,24 @@
+{
+  "tag": "REHDM_STL_STUDY_v3_fl_check2hgi_5f50ep",
+  "state": "florida",
+  "engine": "check2hgi",
+  "fold": 3,
+  "config": {
+    "n_regions": 4702,
+    "emb_dim": 64,
+    "d_model": 192,
+    "n_heads": 4,
+    "d_ff": 256,
+    "n_hg_layers": 2,
+    "dropout": 0.2,
+    "beta": 0.5
+  },
+  "best_val_acc@10": 0.3808386995445265,
+  "metrics": {
+    "acc@1": 0.23207161928694833,
+    "acc@5": 0.33745877179205275,
+    "acc@10": 0.3808386995445265,
+    "mrr": 0.2847711096383609,
+    "n": 31835
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "tag": "REHDM_STL_STUDY_v3_al_hgi_5f50ep",
+  "state": "alabama",
+  "engine": "hgi",
+  "protocol": "5-fold StratifiedGroupKFold (study protocol)",
+  "n_folds": 5,
+  "acc@1_mean": 0.1317167299715043,
+  "acc@1_std": 0.010287460814181174,
+  "acc@5_mean": 0.32441228990116766,
+  "acc@5_std": 0.025468963480407475,
+  "acc@10_mean": 0.42780310074495037,
+  "acc@10_std": 0.028176517536673783,
+  "mrr_mean": 0.2282959564574115,
+  "mrr_std": 0.01375992182196581
+}

@@ -1,0 +1,9 @@
+{
+  "tag": "REHDM_smoke",
+  "state": "alabama",
+  "n_runs": 1,
+  "test_acc@10_mean": 0.1717369970559372,
+  "test_acc@10_std": null,
+  "test_mrr_mean": 0.07848515536296122,
+  "test_mrr_std": null
+}

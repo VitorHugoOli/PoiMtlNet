@@ -1,0 +1,827 @@
+{
+  "folds": 5,
+  "epochs": 30,
+  "results": {
+    "baseline": {
+      "state": "arizona_catbaseline",
+      "files": [
+        "results/hgi/arizona_catbaseline/config.json",
+        "results/hgi/arizona_catbaseline/manifest.json",
+        "results/hgi/arizona_catbaseline/best_record.json",
+        "results/hgi/arizona_catbaseline/checkpoints/mtl_20260511_231914_59500/config.json",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/folds/fold5_category_report.json",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/folds/fold3_next_report.json",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/folds/fold2_next_report.json",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/folds/fold1_info.json",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/folds/fold4_category_report.json",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/folds/fold1_category_report.json",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/folds/fold2_category_report.json",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/folds/fold5_next_report.json",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/folds/fold4_info.json",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/folds/fold1_next_report.json",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/folds/fold2_info.json",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/folds/fold4_next_report.json",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/folds/fold3_category_report.json",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/folds/fold5_info.json",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/folds/fold3_info.json",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/model/model_params.json",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/diagnostics/fold2_pareto_front.json",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/diagnostics/fold3_pareto_front.json",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/diagnostics/fold5_pareto_front.json",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/diagnostics/fold1_pareto_front.json",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/diagnostics/fold4_pareto_front.json",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/summary/full_summary.json",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/metrics/fold3_category_train.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/metrics/fold3_category_val.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/metrics/fold5_next_val.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/metrics/fold2_next_val.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/metrics/fold2_category_val.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/metrics/fold3_next_val.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/metrics/fold5_category_train.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/metrics/fold4_next_val.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/metrics/fold5_category_val.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/metrics/fold3_next_train.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/metrics/fold4_category_train.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/metrics/fold4_next_train.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/metrics/fold1_next_val.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/metrics/fold5_next_train.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/metrics/fold1_category_val.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/metrics/fold2_next_train.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/metrics/fold4_category_val.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/metrics/fold1_category_train.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/metrics/fold2_category_train.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/metrics/fold1_next_train.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/folds/fold1_next_report.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/folds/fold3_category_report.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/folds/fold2_category_report.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/folds/fold1_category_report.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/folds/fold3_next_report.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/folds/fold4_next_report.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/folds/fold4_category_report.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/folds/fold5_category_report.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/folds/fold5_next_report.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/folds/fold2_next_report.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/diagnostics/fold1_diagnostics.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/diagnostics/fold4_diagnostics.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/diagnostics/fold3_diagnostics.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/diagnostics/fold2_diagnostics.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/diagnostics/fold5_diagnostics.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/summary/summary_category_metrics.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/summary/summary_next_metrics_formatted.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/summary/summary_next_metrics.csv",
+        "results/hgi/arizona_catbaseline/mtlnet_lr1.0e-04_bs2048_ep30_20260511_231914_59500/summary/summary_category_metrics_formatted.csv"
+      ],
+      "raw": {
+        "category": {
+          "aggregation_basis": "joint_best",
+          "accuracy": {
+            "mean": 0.755850875377655,
+            "std": 0.019949507108492165,
+            "min": 0.7247329354286194,
+            "max": 0.779036819934845
+          },
+          "accuracy_macro": {
+            "mean": 0.7728107333183288,
+            "std": 0.021201215198114617,
+            "min": 0.741197943687439,
+            "max": 0.7970502376556396
+          },
+          "f1": {
+            "mean": 0.7177874207496643,
+            "std": 0.01612790024122354,
+            "min": 0.6992311477661133,
+            "max": 0.7357566952705383
+          },
+          "f1_weighted": {
+            "mean": 0.7595131039619446,
+            "std": 0.01987358552171961,
+            "min": 0.728705644607544,
+            "max": 0.7826142907142639
+          },
+          "mrr": {
+            "mean": 0.8584144592285157,
+            "std": 0.013466628609695329,
+            "min": 0.8385804295539856,
+            "max": 0.8740411400794983
+          },
+          "top3_acc": {
+            "mean": 0.9627284526824951,
+            "std": 0.0077540670491307315,
+            "min": 0.9521016478538513,
+            "max": 0.9707270860671997
+          },
+          "ndcg_3": {
+            "mean": 0.8792583227157593,
+            "std": 0.012700089432893216,
+            "min": 0.8621966242790222,
+            "max": 0.8941690921783447
+          },
+          "top5_acc": {
+            "mean": 0.9928231239318848,
+            "std": 0.0032956452198667522,
+            "min": 0.9884963035583496,
+            "max": 0.9962228536605835
+          },
+          "ndcg_5": {
+            "mean": 0.8917962431907653,
+            "std": 0.011249816499856279,
+            "min": 0.8753560185432434,
+            "max": 0.9047769904136658
+          },
+          "loss": {
+            "mean": 0.8494126319885253,
+            "std": 0.13192887635647152,
+            "min": 0.7453431288401285,
+            "max": 1.0707863171895344
+          }
+        },
+        "next": {
+          "aggregation_basis": "joint_best",
+          "accuracy": {
+            "mean": 0.29993256330490115,
+            "std": 0.02742610280854698,
+            "min": 0.2801136374473572,
+            "max": 0.34627771377563477
+          },
+          "accuracy_macro": {
+            "mean": 0.3309578776359558,
+            "std": 0.00729187766135994,
+            "min": 0.3199150264263153,
+            "max": 0.3399019241333008
+          },
+          "f1": {
+            "mean": 0.27918338775634766,
+            "std": 0.0158763481909666,
+            "min": 0.2630763649940491,
+            "max": 0.3036976754665375
+          },
+          "f1_weighted": {
+            "mean": 0.30275610089302063,
+            "std": 0.02623878439412551,
+            "min": 0.28324177861213684,
+            "max": 0.3471454977989197
+          },
+          "mrr": {
+            "mean": 0.5430633425712585,
+            "std": 0.018562333708714414,
+            "min": 0.5288581848144531,
+            "max": 0.5752753019332886
+          },
+          "top3_acc": {
+            "mean": 0.7427644014358521,
+            "std": 0.011937257227295666,
+            "min": 0.7323356866836548,
+            "max": 0.7565826773643494
+          },
+          "ndcg_3": {
+            "mean": 0.5543884873390198,
+            "std": 0.017346186502495555,
+            "min": 0.5398933291435242,
+            "max": 0.5843672752380371
+          },
+          "top5_acc": {
+            "mean": 0.9188513159751892,
+            "std": 0.003487657191325177,
+            "min": 0.9145671725273132,
+            "max": 0.9240386486053467
+          },
+          "ndcg_5": {
+            "mean": 0.6273826599121094,
+            "std": 0.013830788712613272,
+            "min": 0.616971492767334,
+            "max": 0.6515375375747681
+          },
+          "loss": {
+            "mean": 2.030429395039876,
+            "std": 0.2116351210635855,
+            "min": 1.7967054049173992,
+            "max": 2.330376625061035
+          }
+        }
+      }
+    },
+    "A": {
+      "state": "arizona_catA",
+      "files": [
+        "results/hgi/arizona_catA/config.json",
+        "results/hgi/arizona_catA/manifest.json",
+        "results/hgi/arizona_catA/best_record.json",
+        "results/hgi/arizona_catA/checkpoints/mtl_20260511_231732_58598/config.json",
+        "results/hgi/arizona_catA/checkpoints/mtl_20260511_233556_66954/config.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/folds/fold5_category_report.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/folds/fold3_next_report.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/folds/fold2_next_report.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/folds/fold1_info.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/folds/fold4_category_report.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/folds/fold1_category_report.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/folds/fold2_category_report.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/folds/fold5_next_report.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/folds/fold4_info.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/folds/fold1_next_report.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/folds/fold2_info.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/folds/fold4_next_report.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/folds/fold3_category_report.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/folds/fold5_info.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/folds/fold3_info.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/model/model_params.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/diagnostics/fold2_pareto_front.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/diagnostics/fold3_pareto_front.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/diagnostics/fold5_pareto_front.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/diagnostics/fold1_pareto_front.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/diagnostics/fold4_pareto_front.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/summary/full_summary.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep5_20260511_231732_58598/folds/fold2_next_report.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep5_20260511_231732_58598/folds/fold1_info.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep5_20260511_231732_58598/folds/fold1_category_report.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep5_20260511_231732_58598/folds/fold2_category_report.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep5_20260511_231732_58598/folds/fold1_next_report.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep5_20260511_231732_58598/folds/fold2_info.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep5_20260511_231732_58598/model/model_params.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep5_20260511_231732_58598/diagnostics/fold2_pareto_front.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep5_20260511_231732_58598/diagnostics/fold1_pareto_front.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep5_20260511_231732_58598/summary/full_summary.json",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/metrics/fold3_category_train.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/metrics/fold3_category_val.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/metrics/fold5_next_val.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/metrics/fold2_next_val.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/metrics/fold2_category_val.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/metrics/fold3_next_val.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/metrics/fold5_category_train.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/metrics/fold4_next_val.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/metrics/fold5_category_val.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/metrics/fold3_next_train.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/metrics/fold4_category_train.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/metrics/fold4_next_train.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/metrics/fold1_next_val.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/metrics/fold5_next_train.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/metrics/fold1_category_val.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/metrics/fold2_next_train.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/metrics/fold4_category_val.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/metrics/fold1_category_train.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/metrics/fold2_category_train.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/metrics/fold1_next_train.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/folds/fold1_next_report.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/folds/fold3_category_report.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/folds/fold2_category_report.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/folds/fold1_category_report.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/folds/fold3_next_report.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/folds/fold4_next_report.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/folds/fold4_category_report.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/folds/fold5_category_report.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/folds/fold5_next_report.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/folds/fold2_next_report.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/diagnostics/fold1_diagnostics.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/diagnostics/fold4_diagnostics.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/diagnostics/fold3_diagnostics.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/diagnostics/fold2_diagnostics.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/diagnostics/fold5_diagnostics.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/summary/summary_category_metrics.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/summary/summary_next_metrics_formatted.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/summary/summary_next_metrics.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep30_20260511_233556_66954/summary/summary_category_metrics_formatted.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep5_20260511_231732_58598/metrics/fold2_next_val.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep5_20260511_231732_58598/metrics/fold2_category_val.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep5_20260511_231732_58598/metrics/fold1_next_val.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep5_20260511_231732_58598/metrics/fold1_category_val.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep5_20260511_231732_58598/metrics/fold2_next_train.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep5_20260511_231732_58598/metrics/fold1_category_train.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep5_20260511_231732_58598/metrics/fold2_category_train.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep5_20260511_231732_58598/metrics/fold1_next_train.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep5_20260511_231732_58598/folds/fold1_next_report.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep5_20260511_231732_58598/folds/fold2_category_report.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep5_20260511_231732_58598/folds/fold1_category_report.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep5_20260511_231732_58598/folds/fold2_next_report.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep5_20260511_231732_58598/diagnostics/fold1_diagnostics.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep5_20260511_231732_58598/diagnostics/fold2_diagnostics.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep5_20260511_231732_58598/summary/summary_category_metrics.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep5_20260511_231732_58598/summary/summary_next_metrics_formatted.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep5_20260511_231732_58598/summary/summary_next_metrics.csv",
+        "results/hgi/arizona_catA/mtlnet_lr1.0e-04_bs2048_ep5_20260511_231732_58598/summary/summary_category_metrics_formatted.csv"
+      ],
+      "raw": {
+        "category": {
+          "aggregation_basis": "joint_best",
+          "accuracy": {
+            "mean": 0.7462534427642822,
+            "std": 0.01882431389541593,
+            "min": 0.72144615650177,
+            "max": 0.7707736492156982
+          },
+          "accuracy_macro": {
+            "mean": 0.7726449012756348,
+            "std": 0.021427394893621877,
+            "min": 0.7356152534484863,
+            "max": 0.7910201549530029
+          },
+          "f1": {
+            "mean": 0.7018736481666565,
+            "std": 0.01782462206340091,
+            "min": 0.6897774934768677,
+            "max": 0.7332945466041565
+          },
+          "f1_weighted": {
+            "mean": 0.7514511585235596,
+            "std": 0.017554581511719156,
+            "min": 0.72661292552948,
+            "max": 0.773980438709259
+          },
+          "mrr": {
+            "mean": 0.8547357559204102,
+            "std": 0.011414793412588659,
+            "min": 0.8396154046058655,
+            "max": 0.8703438639640808
+          },
+          "top3_acc": {
+            "mean": 0.9627079367637634,
+            "std": 0.008819572748287006,
+            "min": 0.9539852142333984,
+            "max": 0.9745042324066162
+          },
+          "ndcg_3": {
+            "mean": 0.8766063809394836,
+            "std": 0.01127724568671533,
+            "min": 0.8619221448898315,
+            "max": 0.890988826751709
+          },
+          "top5_acc": {
+            "mean": 0.9932875037193298,
+            "std": 0.0035028124876664776,
+            "min": 0.9898045659065247,
+            "max": 0.9981114268302917
+          },
+          "ndcg_5": {
+            "mean": 0.8892815351486206,
+            "std": 0.009475265440375975,
+            "min": 0.8768088221549988,
+            "max": 0.9016765356063843
+          },
+          "loss": {
+            "mean": 0.8053491115570068,
+            "std": 0.14976877857810433,
+            "min": 0.6765995025634766,
+            "max": 1.0444726943969727
+          }
+        },
+        "next": {
+          "aggregation_basis": "joint_best",
+          "accuracy": {
+            "mean": 0.30637328028678895,
+            "std": 0.027591525683863072,
+            "min": 0.2772727310657501,
+            "max": 0.3394582271575928
+          },
+          "accuracy_macro": {
+            "mean": 0.3317011773586273,
+            "std": 0.011885685462739359,
+            "min": 0.31318503618240356,
+            "max": 0.3429214358329773
+          },
+          "f1": {
+            "mean": 0.28244251012802124,
+            "std": 0.017852831783508515,
+            "min": 0.26016318798065186,
+            "max": 0.303469717502594
+          },
+          "f1_weighted": {
+            "mean": 0.30809605717658994,
+            "std": 0.027276410617014753,
+            "min": 0.28089454770088196,
+            "max": 0.34550926089286804
+          },
+          "mrr": {
+            "mean": 0.5473259925842285,
+            "std": 0.020528629971894672,
+            "min": 0.5263600945472717,
+            "max": 0.5709401369094849
+          },
+          "top3_acc": {
+            "mean": 0.7457952260971069,
+            "std": 0.01201440780206991,
+            "min": 0.7336616516113281,
+            "max": 0.7590453028678894
+          },
+          "ndcg_3": {
+            "mean": 0.5586580157279968,
+            "std": 0.020614995198044533,
+            "min": 0.5385609269142151,
+            "max": 0.5824864506721497
+          },
+          "top5_acc": {
+            "mean": 0.9204426169395447,
+            "std": 0.005192077163761327,
+            "min": 0.9132411479949951,
+            "max": 0.9261223673820496
+          },
+          "ndcg_5": {
+            "mean": 0.6311716794967651,
+            "std": 0.015177783567095718,
+            "min": 0.6141765713691711,
+            "max": 0.6464626789093018
+          },
+          "loss": {
+            "mean": 1.9615498542785645,
+            "std": 0.16377550723638745,
+            "min": 1.7911492983500164,
+            "max": 2.1589508056640625
+          }
+        }
+      }
+    },
+    "B": {
+      "state": "arizona_catB",
+      "files": [
+        "results/hgi/arizona_catB/config.json",
+        "results/hgi/arizona_catB/manifest.json",
+        "results/hgi/arizona_catB/best_record.json",
+        "results/hgi/arizona_catB/checkpoints/mtl_20260511_235246_71137/config.json",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/folds/fold5_category_report.json",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/folds/fold3_next_report.json",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/folds/fold2_next_report.json",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/folds/fold1_info.json",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/folds/fold4_category_report.json",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/folds/fold1_category_report.json",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/folds/fold2_category_report.json",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/folds/fold5_next_report.json",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/folds/fold4_info.json",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/folds/fold1_next_report.json",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/folds/fold2_info.json",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/folds/fold4_next_report.json",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/folds/fold3_category_report.json",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/folds/fold5_info.json",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/folds/fold3_info.json",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/model/model_params.json",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/diagnostics/fold2_pareto_front.json",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/diagnostics/fold3_pareto_front.json",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/diagnostics/fold5_pareto_front.json",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/diagnostics/fold1_pareto_front.json",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/diagnostics/fold4_pareto_front.json",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/summary/full_summary.json",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/metrics/fold3_category_train.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/metrics/fold3_category_val.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/metrics/fold5_next_val.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/metrics/fold2_next_val.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/metrics/fold2_category_val.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/metrics/fold3_next_val.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/metrics/fold5_category_train.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/metrics/fold4_next_val.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/metrics/fold5_category_val.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/metrics/fold3_next_train.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/metrics/fold4_category_train.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/metrics/fold4_next_train.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/metrics/fold1_next_val.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/metrics/fold5_next_train.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/metrics/fold1_category_val.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/metrics/fold2_next_train.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/metrics/fold4_category_val.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/metrics/fold1_category_train.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/metrics/fold2_category_train.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/metrics/fold1_next_train.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/folds/fold1_next_report.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/folds/fold3_category_report.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/folds/fold2_category_report.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/folds/fold1_category_report.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/folds/fold3_next_report.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/folds/fold4_next_report.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/folds/fold4_category_report.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/folds/fold5_category_report.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/folds/fold5_next_report.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/folds/fold2_next_report.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/diagnostics/fold1_diagnostics.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/diagnostics/fold4_diagnostics.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/diagnostics/fold3_diagnostics.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/diagnostics/fold2_diagnostics.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/diagnostics/fold5_diagnostics.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/summary/summary_category_metrics.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/summary/summary_next_metrics_formatted.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/summary/summary_next_metrics.csv",
+        "results/hgi/arizona_catB/mtlnet_lr1.0e-04_bs2048_ep30_20260511_235246_71137/summary/summary_category_metrics_formatted.csv"
+      ],
+      "raw": {
+        "category": {
+          "aggregation_basis": "joint_best",
+          "accuracy": {
+            "mean": 0.7632417321205139,
+            "std": 0.02254403348478917,
+            "min": 0.742913007736206,
+            "max": 0.8003820180892944
+          },
+          "accuracy_macro": {
+            "mean": 0.7820635795593261,
+            "std": 0.022284236236402792,
+            "min": 0.7515013813972473,
+            "max": 0.8143646121025085
+          },
+          "f1": {
+            "mean": 0.7243045330047607,
+            "std": 0.02806571603518986,
+            "min": 0.6988813877105713,
+            "max": 0.7673560380935669
+          },
+          "f1_weighted": {
+            "mean": 0.7672123074531555,
+            "std": 0.0215085056728237,
+            "min": 0.7473432421684265,
+            "max": 0.8030064105987549
+          },
+          "mrr": {
+            "mean": 0.865065622329712,
+            "std": 0.013064798116971716,
+            "min": 0.8516570925712585,
+            "max": 0.8861508965492249
+          },
+          "top3_acc": {
+            "mean": 0.9702239274978638,
+            "std": 0.0032146689483048495,
+            "min": 0.9677419066429138,
+            "max": 0.9753611087799072
+          },
+          "ndcg_3": {
+            "mean": 0.8874274611473083,
+            "std": 0.010008264561489505,
+            "min": 0.8764451146125793,
+            "max": 0.9032467603683472
+          },
+          "top5_acc": {
+            "mean": 0.9944944620132447,
+            "std": 0.0026933349777217047,
+            "min": 0.9923534393310547,
+            "max": 0.9990448951721191
+          },
+          "ndcg_5": {
+            "mean": 0.8974951148033142,
+            "std": 0.01047848454281525,
+            "min": 0.8872979283332825,
+            "max": 0.9147989153862
+          },
+          "loss": {
+            "mean": 0.7687462329864502,
+            "std": 0.07516578023847086,
+            "min": 0.6725218296051025,
+            "max": 0.8496957619984945
+          }
+        },
+        "next": {
+          "aggregation_basis": "joint_best",
+          "accuracy": {
+            "mean": 0.3033033490180969,
+            "std": 0.019509654567345172,
+            "min": 0.2833870053291321,
+            "max": 0.33320704102516174
+          },
+          "accuracy_macro": {
+            "mean": 0.333835756778717,
+            "std": 0.009645742460392386,
+            "min": 0.32507216930389404,
+            "max": 0.3461730480194092
+          },
+          "f1": {
+            "mean": 0.28449017405509947,
+            "std": 0.015024249867974558,
+            "min": 0.27033722400665283,
+            "max": 0.3079846203327179
+          },
+          "f1_weighted": {
+            "mean": 0.3071958601474762,
+            "std": 0.018637867456799614,
+            "min": 0.28522488474845886,
+            "max": 0.33336764574050903
+          },
+          "mrr": {
+            "mean": 0.5441567420959472,
+            "std": 0.014375352577775643,
+            "min": 0.5301026701927185,
+            "max": 0.5680296421051025
+          },
+          "top3_acc": {
+            "mean": 0.7374605774879456,
+            "std": 0.015949682696486323,
+            "min": 0.7240007519721985,
+            "max": 0.7628338932991028
+          },
+          "ndcg_3": {
+            "mean": 0.5528862833976745,
+            "std": 0.016598827138108136,
+            "min": 0.5385231375694275,
+            "max": 0.5812303423881531
+          },
+          "top5_acc": {
+            "mean": 0.9194197177886962,
+            "std": 0.004461256938852484,
+            "min": 0.9147565960884094,
+            "max": 0.9263117909431458
+          },
+          "ndcg_5": {
+            "mean": 0.6282982707023621,
+            "std": 0.012046572314838277,
+            "min": 0.6181214451789856,
+            "max": 0.648971676826477
+          },
+          "loss": {
+            "mean": 2.0177995681762697,
+            "std": 0.21546014554651818,
+            "min": 1.8186200459798176,
+            "max": 2.2789645195007324
+          }
+        }
+      }
+    },
+    "C": {
+      "state": "arizona_catC",
+      "files": [
+        "results/hgi/arizona_catC/config.json",
+        "results/hgi/arizona_catC/manifest.json",
+        "results/hgi/arizona_catC/best_record.json",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/folds/fold5_category_report.json",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/folds/fold3_next_report.json",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/folds/fold2_next_report.json",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/folds/fold1_info.json",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/folds/fold4_category_report.json",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/folds/fold1_category_report.json",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/folds/fold2_category_report.json",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/folds/fold5_next_report.json",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/folds/fold4_info.json",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/folds/fold1_next_report.json",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/folds/fold2_info.json",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/folds/fold4_next_report.json",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/folds/fold3_category_report.json",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/folds/fold5_info.json",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/folds/fold3_info.json",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/model/model_params.json",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/diagnostics/fold2_pareto_front.json",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/diagnostics/fold3_pareto_front.json",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/diagnostics/fold5_pareto_front.json",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/diagnostics/fold1_pareto_front.json",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/diagnostics/fold4_pareto_front.json",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/summary/full_summary.json",
+        "results/hgi/arizona_catC/checkpoints/mtl_20260512_000917_77719/config.json",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/metrics/fold3_category_train.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/metrics/fold3_category_val.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/metrics/fold5_next_val.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/metrics/fold2_next_val.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/metrics/fold2_category_val.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/metrics/fold3_next_val.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/metrics/fold5_category_train.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/metrics/fold4_next_val.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/metrics/fold5_category_val.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/metrics/fold3_next_train.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/metrics/fold4_category_train.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/metrics/fold4_next_train.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/metrics/fold1_next_val.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/metrics/fold5_next_train.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/metrics/fold1_category_val.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/metrics/fold2_next_train.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/metrics/fold4_category_val.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/metrics/fold1_category_train.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/metrics/fold2_category_train.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/metrics/fold1_next_train.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/folds/fold1_next_report.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/folds/fold3_category_report.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/folds/fold2_category_report.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/folds/fold1_category_report.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/folds/fold3_next_report.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/folds/fold4_next_report.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/folds/fold4_category_report.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/folds/fold5_category_report.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/folds/fold5_next_report.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/folds/fold2_next_report.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/diagnostics/fold1_diagnostics.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/diagnostics/fold4_diagnostics.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/diagnostics/fold3_diagnostics.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/diagnostics/fold2_diagnostics.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/diagnostics/fold5_diagnostics.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/summary/summary_category_metrics.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/summary/summary_next_metrics_formatted.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/summary/summary_next_metrics.csv",
+        "results/hgi/arizona_catC/mtlnet_lr1.0e-04_bs2048_ep30_20260512_000917_77719/summary/summary_category_metrics_formatted.csv"
+      ],
+      "raw": {
+        "category": {
+          "aggregation_basis": "joint_best",
+          "accuracy": {
+            "mean": 0.7639907956123352,
+            "std": 0.006869978032477328,
+            "min": 0.7592067718505859,
+            "max": 0.7745940685272217
+          },
+          "accuracy_macro": {
+            "mean": 0.7814781665802002,
+            "std": 0.0185461694329195,
+            "min": 0.7529693841934204,
+            "max": 0.8017566204071045
+          },
+          "f1": {
+            "mean": 0.7267780780792237,
+            "std": 0.017296694861193947,
+            "min": 0.7091429233551025,
+            "max": 0.7544604539871216
+          },
+          "f1_weighted": {
+            "mean": 0.7675245881080628,
+            "std": 0.005455551786793068,
+            "min": 0.7631741762161255,
+            "max": 0.7763781547546387
+          },
+          "mrr": {
+            "mean": 0.8647510886192322,
+            "std": 0.004400507975056069,
+            "min": 0.8617247939109802,
+            "max": 0.8723995685577393
+          },
+          "top3_acc": {
+            "mean": 0.9652408599853516,
+            "std": 0.004518365060312013,
+            "min": 0.9605587720870972,
+            "max": 0.970391571521759
+          },
+          "ndcg_3": {
+            "mean": 0.8850122213363647,
+            "std": 0.004694856208689709,
+            "min": 0.8807727098464966,
+            "max": 0.8927513957023621
+          },
+          "top5_acc": {
+            "mean": 0.9929772138595581,
+            "std": 0.0031984610779940944,
+            "min": 0.9889549612998962,
+            "max": 0.9961795806884766
+          },
+          "ndcg_5": {
+            "mean": 0.8966602802276611,
+            "std": 0.004051124872504581,
+            "min": 0.8931945562362671,
+            "max": 0.9036064147949219
+          },
+          "loss": {
+            "mean": 0.8228982925415039,
+            "std": 0.0594582542466686,
+            "min": 0.7686850229899088,
+            "max": 0.9229068756103516
+          }
+        },
+        "next": {
+          "aggregation_basis": "joint_best",
+          "accuracy": {
+            "mean": 0.29220303893089294,
+            "std": 0.007438570276523816,
+            "min": 0.28092440962791443,
+            "max": 0.30075758695602417
+          },
+          "accuracy_macro": {
+            "mean": 0.3258169710636139,
+            "std": 0.017133024555826628,
+            "min": 0.2994118332862854,
+            "max": 0.34301403164863586
+          },
+          "f1": {
+            "mean": 0.27260684967041016,
+            "std": 0.009238924362796459,
+            "min": 0.25717341899871826,
+            "max": 0.2819291949272156
+          },
+          "f1_weighted": {
+            "mean": 0.29202061891555786,
+            "std": 0.009574448340027073,
+            "min": 0.2790011167526245,
+            "max": 0.30176976323127747
+          },
+          "mrr": {
+            "mean": 0.5370640873908996,
+            "std": 0.004492522691945322,
+            "min": 0.5323005318641663,
+            "max": 0.5419009923934937
+          },
+          "top3_acc": {
+            "mean": 0.7378015160560608,
+            "std": 0.007535337879708043,
+            "min": 0.7289772629737854,
+            "max": 0.745027482509613
+          },
+          "ndcg_3": {
+            "mean": 0.5476058721542358,
+            "std": 0.005683245783766846,
+            "min": 0.5410243272781372,
+            "max": 0.5542770624160767
+          },
+          "top5_acc": {
+            "mean": 0.9207833409309387,
+            "std": 0.003808826147601939,
+            "min": 0.9157037138938904,
+            "max": 0.9253646731376648
+          },
+          "ndcg_5": {
+            "mean": 0.6234981536865234,
+            "std": 0.0037608825700010916,
+            "min": 0.6194403767585754,
+            "max": 0.627750039100647
+          },
+          "loss": {
+            "mean": 2.1232827504475913,
+            "std": 0.16433174484955124,
+            "min": 1.9449211756388347,
+            "max": 2.296710650126139
+          }
+        }
+      }
+    }
+  }
+}

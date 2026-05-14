@@ -1,0 +1,35 @@
+{
+  "state": "arizona",
+  "metric": "acc10",
+  "comparison": "postpool vs canonical (c2hgi) and vs hgi",
+  "postpool_per_fold": [
+    0.49791666865348816,
+    0.49270695447921753,
+    0.5097556114196777,
+    0.44667550921440125,
+    0.5006629824638367
+  ],
+  "canonical_per_fold": [
+    0.47839218378067017,
+    0.4930530786514282,
+    0.5019399523735046,
+    0.49388349056243896,
+    0.5447247624397278
+  ],
+  "hgi_per_fold": [
+    0.5051115155220032,
+    0.532418966293335,
+    0.527057409286499,
+    0.5291217565536499,
+    0.5750327706336975
+  ],
+  "delta_postpool_minus_canonical": -0.012855148315429688,
+  "wilcoxon_p_postpool_gt_canonical": 0.78125,
+  "delta_postpool_minus_hgi": -0.04420493841171265,
+  "wilcoxon_p_postpool_gt_hgi": 1.0,
+  "tost_delta_2pp_p_lower": 0.9093190276872541,
+  "gap_canonical_to_hgi_pp": 3.1349790096282915,
+  "gap_postpool_to_hgi_pp": 4.420493841171264,
+  "gap_closed_pp": -1.285514831542972,
+  "gap_closed_pct": -41.00553233673463
+}

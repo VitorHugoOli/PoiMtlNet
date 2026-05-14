@@ -118,12 +118,22 @@ class GradNormLoss:
 
         # ── Step 5: SGD step + L1 renormalise (sum = n_tasks) ─────────
         with torch.no_grad():
+            # NOTE: this is a *weight-space* SGD step using the *scale-space*
+            # gradient (computed via the Jacobian J at the top of this block).
+            # It is not the textbook scale-SGD `scale_new = scale_old − lr·grad_scale`
+            # — but after the L1 renormalisation below it reaches the same
+            # fixed point because `n*softmax(log(updated)) == updated` when
+            # `sum(updated) == n_tasks`. The directional test in
+            # `tests/test_losses/test_gradnorm.py` confirms the GradNorm
+            # property (smaller-loss-ratio task → larger weight) empirically.
             updated = w_d - self.lr * grad_scale
             updated = updated.clamp(min=1e-8)
             # Renormalise so weights still sum to n_tasks
             updated = updated / updated.sum() * self.n_tasks
-            # Store back as logits: scale = log(w) (inverse of n_tasks*softmax ≈ log)
-            # Simpler: store updated weights directly and use them as-is next step
+            # Encode the new weights as logits for next forward pass:
+            # forward applies `n_tasks * softmax(loss_scale)`; storing log(w)
+            # makes the next forward read out `w` exactly (because the L1
+            # renormalisation above makes `softmax(log(w)) = w / n_tasks`).
             self.loss_scale = updated.clamp(min=1e-4).log().cpu()  # clamp prevents -inf silencing tasks
 
         # ── Step 6: model backward (detached weights, clean grads) ────

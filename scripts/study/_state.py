@@ -2,7 +2,7 @@
 
 The active study directory is resolved from the ``STUDY_DIR`` environment
 variable (absolute or repo-relative path).  If the variable is not set, it
-defaults to ``docs/studies/fusion`` so existing workflows keep working on the
+defaults to ``docs/archive/fusion-study`` so existing workflows keep working on the
 fusion branch without any change.
 
 Atomic read/modify/write + small query helpers. No training logic here —

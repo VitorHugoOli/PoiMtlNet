@@ -1,0 +1,8 @@
+name: scheduled_static
+domain: losses
+status: implemented
+evidence_status: implemented
+registry_key: scheduled_static
+runtime_class: losses.scheduled_static.loss.ScheduledStaticWeightLoss
+runtime_file: src/losses/scheduled_static/loss.py
+source_doc: docs/studies/check2hgi/FOLLOWUPS_TRACKER.md#F40

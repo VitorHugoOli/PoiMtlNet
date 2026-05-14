@@ -1,0 +1,41 @@
+{
+  "tag": "REHDM_az_v2_5seeds_50ep",
+  "state": "arizona",
+  "run": 4,
+  "seed": 46,
+  "config": {
+    "n_users": 1687,
+    "n_pois": 5363,
+    "n_categories": 7,
+    "n_quadkeys": 81,
+    "n_regions": 870,
+    "n_hours": 24,
+    "n_days": 7,
+    "d_id": 32,
+    "n_heads": 4,
+    "d_ff": 256,
+    "n_hg_layers": 2,
+    "dropout": 0.2,
+    "beta": 0.5
+  },
+  "best_val_acc@10": 0.5690668626010287,
+  "test": {
+    "acc@1": 0.1970954356846473,
+    "acc@5": 0.42531120331950206,
+    "acc@10": 0.5356846473029045,
+    "mrr": 0.3072092044897594,
+    "n": 2410
+  },
+  "vocab": {
+    "n_users": 1687,
+    "n_pois": 5363,
+    "n_categories": 7,
+    "n_hours": 24,
+    "n_days": 7,
+    "n_quadkeys": 81,
+    "n_regions": 870,
+    "quadkey_level": 10,
+    "session_hours": 24,
+    "min_checkins": 10
+  }
+}

@@ -24,7 +24,7 @@ def corruption(x):
     Returns:
         Corrupted features (randomly permuted)
     """
-    return x[torch.randperm(x.size(0))]
+    return x[torch.randperm(x.size(0), device=x.device)]
 
 
 class Check2HGI(nn.Module):
@@ -51,6 +51,8 @@ class Check2HGI(nn.Module):
         alpha_c2p=0.4,
         alpha_p2r=0.3,
         alpha_r2c=0.3,
+        c2p_hard_neg_prob=0.0,
+        c2p_corrupted_neg=False,
     ):
         """
         Initialize Check2HGI module.
@@ -79,6 +81,27 @@ class Check2HGI(nn.Module):
         self.alpha_c2p = alpha_c2p
         self.alpha_p2r = alpha_p2r
         self.alpha_r2c = alpha_r2c
+
+        # Phase-11 substrate audit: optional hard-negative mining at the
+        # check-in↔POI boundary. With probability `c2p_hard_neg_prob`, the
+        # negative POI for a check-in is drawn from the same region as the
+        # check-in's true POI (different POI) instead of from the global pool.
+        # Default 0.0 reproduces canonical c2hgi exactly.
+        self.c2p_hard_neg_prob = c2p_hard_neg_prob
+
+        # Phase-11 S4: when True, c2p negatives reuse the already-computed
+        # corrupted-feature POI embeddings (`neg_poi_emb`) at the SAME POI
+        # identity as the positive — DGI-style "is this the true encoding
+        # of POI X, or a corrupted-feature encoding?" The corruption
+        # forward pass is paid for unconditionally; this flag wires its
+        # output into the c2p loss instead of letting it only feed r2c.
+        # Mutually exclusive with c2p_hard_neg_prob > 0.
+        self.c2p_corrupted_neg = c2p_corrupted_neg
+        if c2p_corrupted_neg and c2p_hard_neg_prob > 0:
+            raise ValueError(
+                "c2p_corrupted_neg=True is mutually exclusive with "
+                "c2p_hard_neg_prob > 0 (both modify the same negative)."
+            )
 
         # Bilinear transformation weights for discrimination at each boundary
         self.weight_c2p = nn.Parameter(torch.Tensor(hidden_channels, hidden_channels))
@@ -152,10 +175,20 @@ class Check2HGI(nn.Module):
         pos_poi_expanded = pos_poi_emb[data.checkin_to_poi]
 
         # Generate negative POI assignments for check-ins
-        neg_poi_indices = self._sample_negative_indices(
-            data.checkin_to_poi, num_pois, data.x.device
-        )
-        neg_poi_expanded = pos_poi_emb[neg_poi_indices]
+        if self.c2p_corrupted_neg:
+            # S4: same POI identity, but encoded from corrupted features.
+            # neg_poi_emb is already computed (lines above); reuse it.
+            neg_poi_expanded = neg_poi_emb[data.checkin_to_poi]
+        else:
+            if self.c2p_hard_neg_prob > 0.0:
+                neg_poi_indices = self._sample_hard_negative_indices_c2p(
+                    data, num_pois
+                )
+            else:
+                neg_poi_indices = self._sample_negative_indices(
+                    data.checkin_to_poi, num_pois, data.x.device
+                )
+            neg_poi_expanded = pos_poi_emb[neg_poi_indices]
 
         # POI to Region: each POI vs its region
         pos_region_expanded = pos_region_emb[data.poi_to_region]
@@ -185,6 +218,98 @@ class Check2HGI(nn.Module):
         neg_indices = torch.where(neg_indices >= assignment, neg_indices + 1, neg_indices)
 
         return neg_indices
+
+    def _sample_hard_negative_indices_c2p(self, data, num_pois):
+        """Hard-negative sampling at the check-in↔POI boundary.
+
+        For each check-in: with probability ``self.c2p_hard_neg_prob``, return
+        a POI index drawn uniformly from the same region as the check-in's
+        true POI (excluding that true POI itself). Otherwise fall back to the
+        global random sampler.
+
+        Vectorised: per-region POI buckets are cached on ``data`` between
+        calls. Pure tensor ops on device.
+        """
+        device = data.x.device
+        checkin_to_poi = data.checkin_to_poi          # [N_checkins]
+        poi_to_region = data.poi_to_region            # [N_pois]
+        num_regions = int(data.num_regions)
+        N = checkin_to_poi.size(0)
+
+        # Build/reuse per-region POI bucket lookup tables on ``data``.
+        cache = getattr(data, "_c2hgi_c2p_hardneg_cache", None)
+        if cache is None or cache.get("num_pois") != int(num_pois):
+            poi_region_cpu = poi_to_region.detach().cpu()
+            sort_idx = torch.argsort(poi_region_cpu, stable=True)      # [N_pois]
+            sizes = torch.bincount(poi_region_cpu, minlength=num_regions)  # [R]
+            offsets = torch.zeros(num_regions + 1, dtype=torch.long)
+            offsets[1:] = sizes.cumsum(0)
+            cache = {
+                "num_pois": int(num_pois),
+                "sort_idx": sort_idx.to(device),
+                "sizes": sizes.to(device),
+                "offsets": offsets.to(device),
+            }
+            data._c2hgi_c2p_hardneg_cache = cache
+
+        sort_idx = cache["sort_idx"]
+        sizes = cache["sizes"]
+        offsets = cache["offsets"]
+
+        # 1. Default: uniform random over global POI pool, excluding the true POI.
+        rand_neg = torch.randint(0, num_pois - 1, (N,), device=device)
+        rand_neg = torch.where(rand_neg >= checkin_to_poi, rand_neg + 1, rand_neg)
+
+        # 2. Hard candidates: same-region different-POI for each check-in.
+        pos_poi = checkin_to_poi
+        pos_region = poi_to_region[pos_poi]                            # [N]
+        region_size = sizes[pos_region]                                # [N]
+
+        # Singleton-region check-ins (region has only their own POI) have no
+        # valid hard negative — fall back to random for those rows.
+        has_hard = region_size > 1                                     # [N]
+
+        # Sample a uniform offset in [0, region_size-1) for each check-in;
+        # the −1 reserves the slot we will skip past the positive POI.
+        # Clamp denominator to avoid division by zero where region_size==1.
+        denom = (region_size - 1).clamp(min=1)
+        local_off = (torch.rand(N, device=device) * denom.float()).long()
+        local_off = local_off.clamp(max=denom - 1)
+
+        # Resolve to a global POI id from the per-region bucket, skipping
+        # the positive POI's local position. We compute the positive POI's
+        # local rank within its region bucket once, then shift offsets ≥
+        # that rank by +1.
+        region_starts = offsets[pos_region]                            # [N]
+        # Find pos_poi's position inside its region bucket.
+        # sort_idx[region_starts[i] : region_starts[i]+region_size[i]] is the
+        # bucket. We need the index k s.t. sort_idx[region_starts[i]+k]==pos_poi.
+        # Compute it via a search on the (small) bucket. For full vectorisation
+        # we exploit that sort is stable on poi_to_region; within a bucket the
+        # POI ids appear in ascending POI-id order, so:
+        #   pos_local_rank = pos_poi - sort_idx[region_starts]   ← only valid
+        #     when bucket POIs are a contiguous range; not guaranteed.
+        # Safer: reverse-map. Build a per-POI local-rank tensor once.
+        if "poi_local_rank" not in cache:
+            local_rank = torch.empty(num_pois, dtype=torch.long, device=device)
+            arange_total = torch.arange(sort_idx.size(0), device=device)
+            within_bucket = arange_total - offsets[poi_to_region[sort_idx]]
+            local_rank[sort_idx] = within_bucket
+            cache["poi_local_rank"] = local_rank
+        pos_local_rank = cache["poi_local_rank"][pos_poi]              # [N]
+
+        # Skip past the positive's slot.
+        shifted = torch.where(local_off >= pos_local_rank, local_off + 1, local_off)
+        # Clamp to within-bucket range so singleton regions (region_size==1)
+        # do not index past their own bucket. The clamped value for singletons
+        # collides with pos_poi but ``has_hard`` masks them out below.
+        max_off_in_bucket = (region_size - 1).clamp(min=0)             # [N]
+        shifted = torch.minimum(shifted, max_off_in_bucket)
+        hard_neg = sort_idx[region_starts + shifted]                   # [N]
+
+        # 3. Mix: with prob c2p_hard_neg_prob choose hard, else random.
+        use_hard = (torch.rand(N, device=device) < self.c2p_hard_neg_prob) & has_hard
+        return torch.where(use_hard, hard_neg, rand_neg)
 
     def _sample_negative_indices_with_similarity(self, assignment, num_targets, similarity, device):
         """Sample negative indices using hard negative strategy - VECTORIZED."""

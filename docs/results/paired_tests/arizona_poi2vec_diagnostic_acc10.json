@@ -1,0 +1,35 @@
+{
+  "state": "arizona",
+  "metric": "acc10",
+  "comparison": "poi2vec vs canonical (c2hgi) and vs hgi",
+  "poi2vec_per_fold": [
+    0.5265151262283325,
+    0.5391172766685486,
+    0.5459367036819458,
+    0.4714908003807068,
+    0.5324872136116028
+  ],
+  "canonical_per_fold": [
+    0.47839218378067017,
+    0.4930530786514282,
+    0.5019399523735046,
+    0.49388349056243896,
+    0.5447247624397278
+  ],
+  "hgi_per_fold": [
+    0.5051115155220032,
+    0.532418966293335,
+    0.527057409286499,
+    0.5291217565536499,
+    0.5750327706336975
+  ],
+  "delta_poi2vec_minus_canonical": 0.02071073055267334,
+  "wilcoxon_p_poi2vec_gt_canonical": 0.15625,
+  "delta_poi2vec_minus_hgi": -0.010639059543609618,
+  "wilcoxon_p_poi2vec_gt_hgi": 0.6875,
+  "tost_delta_2pp_p_lower": 0.3000833699765937,
+  "gap_canonical_to_hgi_pp": 3.1349790096282915,
+  "gap_poi2vec_to_hgi_pp": 1.0639059543609553,
+  "gap_closed_pp": 2.071073055267336,
+  "gap_closed_pct": 66.06337869907777
+}

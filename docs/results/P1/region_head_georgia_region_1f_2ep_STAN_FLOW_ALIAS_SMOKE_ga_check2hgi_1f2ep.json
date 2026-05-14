@@ -1,0 +1,163 @@
+{
+  "state": "georgia",
+  "folds": 1,
+  "epochs": 2,
+  "seed": 42,
+  "input_type": "region",
+  "n_regions": 2282,
+  "heads": {
+    "next_stan_flow": {
+      "per_fold": [
+        {
+          "accuracy": 0.13077504932880402,
+          "accuracy_macro": 0.006501228516730264,
+          "f1": 0.003992277197539806,
+          "f1_weighted": 0.06445907801389694,
+          "mrr": 0.20608270168304443,
+          "top5_acc": 0.27222198247909546,
+          "ndcg_5": 0.20532329380512238,
+          "top10_acc": 0.34901508688926697,
+          "ndcg_10": 0.2301982194185257,
+          "best_epoch": 2,
+          "per_metric_best": {
+            "accuracy": {
+              "accuracy": 0.13935701549053192,
+              "accuracy_macro": 0.004569126072750297,
+              "f1": 0.0021396512165665627,
+              "f1_weighted": 0.07095776498317719,
+              "mrr": 0.1914840191602707,
+              "top5_acc": 0.2280670553445816,
+              "ndcg_5": 0.1850658506155014,
+              "top10_acc": 0.29209837317466736,
+              "ndcg_10": 0.20567533373832703,
+              "best_epoch": 1
+            },
+            "top5_acc": {
+              "accuracy": 0.13077504932880402,
+              "accuracy_macro": 0.006501228516730264,
+              "f1": 0.003992277197539806,
+              "f1_weighted": 0.06445907801389694,
+              "mrr": 0.20608270168304443,
+              "top5_acc": 0.27222198247909546,
+              "ndcg_5": 0.20532329380512238,
+              "top10_acc": 0.34901508688926697,
+              "ndcg_10": 0.2301982194185257,
+              "best_epoch": 2
+            },
+            "top10_acc": {
+              "accuracy": 0.13077504932880402,
+              "accuracy_macro": 0.006501228516730264,
+              "f1": 0.003992277197539806,
+              "f1_weighted": 0.06445907801389694,
+              "mrr": 0.20608270168304443,
+              "top5_acc": 0.27222198247909546,
+              "ndcg_5": 0.20532329380512238,
+              "top10_acc": 0.34901508688926697,
+              "ndcg_10": 0.2301982194185257,
+              "best_epoch": 2
+            },
+            "mrr": {
+              "accuracy": 0.13077504932880402,
+              "accuracy_macro": 0.006501228516730264,
+              "f1": 0.003992277197539806,
+              "f1_weighted": 0.06445907801389694,
+              "mrr": 0.20608270168304443,
+              "top5_acc": 0.27222198247909546,
+              "ndcg_5": 0.20532329380512238,
+              "top10_acc": 0.34901508688926697,
+              "ndcg_10": 0.2301982194185257,
+              "best_epoch": 2
+            },
+            "f1": {
+              "accuracy": 0.13077504932880402,
+              "accuracy_macro": 0.006501228516730264,
+              "f1": 0.003992277197539806,
+              "f1_weighted": 0.06445907801389694,
+              "mrr": 0.20608270168304443,
+              "top5_acc": 0.27222198247909546,
+              "ndcg_5": 0.20532329380512238,
+              "top10_acc": 0.34901508688926697,
+              "ndcg_10": 0.2301982194185257,
+              "best_epoch": 2
+            }
+          }
+        }
+      ],
+      "aggregate": {
+        "accuracy_mean": 0.13077504932880402,
+        "accuracy_std": 0.0,
+        "top5_acc_mean": 0.27222198247909546,
+        "top5_acc_std": 0.0,
+        "top10_acc_mean": 0.34901508688926697,
+        "top10_acc_std": 0.0,
+        "mrr_mean": 0.20608270168304443,
+        "mrr_std": 0.0,
+        "f1_mean": 0.003992277197539806,
+        "f1_std": 0.0
+      },
+      "aggregate_per_metric_best": {
+        "accuracy_at_accuracy_best_mean": 0.13935701549053192,
+        "accuracy_at_accuracy_best_std": 0.0,
+        "top5_acc_at_accuracy_best_mean": 0.2280670553445816,
+        "top5_acc_at_accuracy_best_std": 0.0,
+        "top10_acc_at_accuracy_best_mean": 0.29209837317466736,
+        "top10_acc_at_accuracy_best_std": 0.0,
+        "mrr_at_accuracy_best_mean": 0.1914840191602707,
+        "mrr_at_accuracy_best_std": 0.0,
+        "f1_at_accuracy_best_mean": 0.0021396512165665627,
+        "f1_at_accuracy_best_std": 0.0,
+        "accuracy_at_top5_acc_best_mean": 0.13077504932880402,
+        "accuracy_at_top5_acc_best_std": 0.0,
+        "top5_acc_at_top5_acc_best_mean": 0.27222198247909546,
+        "top5_acc_at_top5_acc_best_std": 0.0,
+        "top10_acc_at_top5_acc_best_mean": 0.34901508688926697,
+        "top10_acc_at_top5_acc_best_std": 0.0,
+        "mrr_at_top5_acc_best_mean": 0.20608270168304443,
+        "mrr_at_top5_acc_best_std": 0.0,
+        "f1_at_top5_acc_best_mean": 0.003992277197539806,
+        "f1_at_top5_acc_best_std": 0.0,
+        "accuracy_at_top10_acc_best_mean": 0.13077504932880402,
+        "accuracy_at_top10_acc_best_std": 0.0,
+        "top5_acc_at_top10_acc_best_mean": 0.27222198247909546,
+        "top5_acc_at_top10_acc_best_std": 0.0,
+        "top10_acc_at_top10_acc_best_mean": 0.34901508688926697,
+        "top10_acc_at_top10_acc_best_std": 0.0,
+        "mrr_at_top10_acc_best_mean": 0.20608270168304443,
+        "mrr_at_top10_acc_best_std": 0.0,
+        "f1_at_top10_acc_best_mean": 0.003992277197539806,
+        "f1_at_top10_acc_best_std": 0.0,
+        "accuracy_at_mrr_best_mean": 0.13077504932880402,
+        "accuracy_at_mrr_best_std": 0.0,
+        "top5_acc_at_mrr_best_mean": 0.27222198247909546,
+        "top5_acc_at_mrr_best_std": 0.0,
+        "top10_acc_at_mrr_best_mean": 0.34901508688926697,
+        "top10_acc_at_mrr_best_std": 0.0,
+        "mrr_at_mrr_best_mean": 0.20608270168304443,
+        "mrr_at_mrr_best_std": 0.0,
+        "f1_at_mrr_best_mean": 0.003992277197539806,
+        "f1_at_mrr_best_std": 0.0,
+        "accuracy_at_f1_best_mean": 0.13077504932880402,
+        "accuracy_at_f1_best_std": 0.0,
+        "top5_acc_at_f1_best_mean": 0.27222198247909546,
+        "top5_acc_at_f1_best_std": 0.0,
+        "top10_acc_at_f1_best_mean": 0.34901508688926697,
+        "top10_acc_at_f1_best_std": 0.0,
+        "mrr_at_f1_best_mean": 0.20608270168304443,
+        "mrr_at_f1_best_std": 0.0,
+        "f1_at_f1_best_mean": 0.003992277197539806,
+        "f1_at_f1_best_std": 0.0
+      },
+      "config": {
+        "max_lr": 0.003,
+        "label_smoothing": 0.0,
+        "input_layernorm": false,
+        "overrides": {
+          "d_model": 256,
+          "num_heads": 8,
+          "transition_path": "/Volumes/Vitor's SSD/ingred/.claude/worktrees/check2hgi-mtl/output/check2hgi/georgia/region_transition_log.pt"
+        },
+        "input_type": "region"
+      }
+    }
+  }
+}

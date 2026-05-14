@@ -1,0 +1,126 @@
+{
+  "analysis": "FL F21c arrival \u2014 close F49 Layer 3 + CH18 FL verification",
+  "date": "2026-04-28",
+  "metric_note": "STL F21c stores top10_acc (full); MTL F49 stores top10_acc_indist. FL OOD share is ~0.6-1.1% per fold. We compare both directly (comparison 1) and with reconstructed lower-bound (comparison 2).",
+  "FL_per_fold": {
+    "stl_f21c_top10_acc": [
+      0.8197,
+      0.8247,
+      0.8294,
+      0.8204,
+      0.8277
+    ],
+    "h3alt_top10_acc_indist": [
+      0.7400786280632019,
+      0.743811309337616,
+      0.7310817837715149,
+      0.7190719842910767,
+      0.7486182451248169
+    ],
+    "f49_frozen_top10_acc_indist": [
+      0.4975,
+      0.5142,
+      0.7893,
+      0.7662,
+      0.7469
+    ],
+    "f49_lossside_top10_acc_indist": [
+      0.7054,
+      0.5191,
+      0.7112,
+      0.7662,
+      0.7932
+    ],
+    "n_indist_per_fold": [
+      31548.0,
+      31590.0,
+      31623.0,
+      31638.0,
+      31482.0
+    ],
+    "n_ood_per_fold": [
+      288.0,
+      245.0,
+      212.0,
+      196.0,
+      353.0
+    ],
+    "stl_f21c_top10_acc_indist_lower_bound": [
+      0.8271829973373906,
+      0.8310960588793922,
+      0.8349602820731746,
+      0.8254824451608825,
+      0.8369807985515533
+    ]
+  },
+  "tests": {
+    "h3alt_vs_stl_f21c_top10": {
+      "label": "h3alt vs stl_f21c (top10_acc proxy)",
+      "n_pos": 0,
+      "n_neg": 5,
+      "delta_mean_pp": -8.784760988235474,
+      "W_plus": 0,
+      "p_greater": 1.0,
+      "p_less": 0.03125,
+      "p_two": 0.0625,
+      "deltas": [
+        -0.07962137193679808,
+        -0.08088869066238402,
+        -0.09831821622848513,
+        -0.10132801570892336,
+        -0.0790817548751831
+      ]
+    },
+    "h3alt_vs_stl_f21c_indist_lb": {
+      "label": "h3alt vs stl_f21c lower-bound indist",
+      "n_pos": 0,
+      "n_neg": 5,
+      "delta_mean_pp": -9.460812628283339,
+      "W_plus": 0,
+      "p_greater": 1.0,
+      "p_less": 0.03125,
+      "p_two": 0.0625,
+      "deltas": [
+        -0.08710436927418874,
+        -0.08728474954177623,
+        -0.10387849830165974,
+        -0.10641046086980588,
+        -0.08836255342673638
+      ]
+    },
+    "frozen_vs_stl_f21c_top10": {
+      "label": "frozen vs stl_f21c (architecture - STL)",
+      "n_pos": 0,
+      "n_neg": 5,
+      "delta_mean_pp": -16.156000000000002,
+      "W_plus": 0,
+      "p_greater": 1.0,
+      "p_less": 0.03125,
+      "p_two": 0.0625,
+      "deltas": [
+        -0.3222,
+        -0.3105,
+        -0.040100000000000025,
+        -0.054200000000000026,
+        -0.08079999999999998
+      ]
+    },
+    "lossside_vs_stl_f21c_top10": {
+      "label": "lossside vs stl_f21c",
+      "n_pos": 0,
+      "n_neg": 5,
+      "delta_mean_pp": -12.535999999999998,
+      "W_plus": 0,
+      "p_greater": 1.0,
+      "p_less": 0.03125,
+      "p_two": 0.0625,
+      "deltas": [
+        -0.11429999999999996,
+        -0.3056,
+        -0.11819999999999997,
+        -0.054200000000000026,
+        -0.034499999999999975
+      ]
+    }
+  }
+}
