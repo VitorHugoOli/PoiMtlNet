@@ -26,7 +26,7 @@ Examples:
 1. **Parse `$ARGUMENTS`.** Validate phase is one of P0..P5.
 2. **Collect state.** Run:
    - `python scripts/study/study.py status` — overall snapshot.
-   - Read `state.json` directly (path: `$STUDY_DIR/state.json`, default `docs/studies/fusion/state.json`) for full test details in the target phase.
+   - Read `state.json` directly (path: `$STUDY_DIR/state.json`, default `docs/archive/fusion-study/state.json`) for full test details in the target phase.
    - Read the corresponding `phases/<phase>_*.md` inside the study dir — it defines the phase gate and expected tests.
    - Read `CLAIMS_AND_HYPOTHESES.md` in the study dir — for claim definitions touched by the phase.
 3. **Per-test sanity sweep.** For each test in the phase:

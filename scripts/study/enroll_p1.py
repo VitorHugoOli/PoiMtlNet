@@ -3,7 +3,7 @@
 Generates test IDs matching: P1_<STATE>_<stage>_<arch>_<optim>_seed<N>
 Example:                      P1_AL_screen_dsk42_aligned_mtl_seed42
 
-Reads the grid from docs/studies/fusion/phases/P1_grid.yaml (or --grid-file).
+Reads the grid from docs/archive/fusion-study/phases/P1_grid.yaml (or --grid-file).
 Idempotent: running twice does not duplicate entries.
 
 Usage

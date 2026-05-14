@@ -68,7 +68,7 @@ def _joint_score_taskbest(summary: dict[str, Any]) -> tuple[float | None, float 
     Returns (joint_f1_taskbest, cat_f1_taskbest, next_f1_taskbest).
     Reveals ceiling performance when each task selects its own best epoch,
     vs. the single joint-peak checkpoint used for deployment.
-    See claim C32 and docs/studies/fusion/issues/P1_METHODOLOGY_FLAWS.md F1.
+    See claim C32 and docs/archive/fusion-study/issues/P1_METHODOLOGY_FLAWS.md F1.
     """
     try:
         db = summary["diagnostic_task_best"]

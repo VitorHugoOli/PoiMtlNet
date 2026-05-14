@@ -1,6 +1,12 @@
 # MTLnet Master Study — Entry Point
 
-**Status:** P0 active (2026-04-14)
+> ⚠ **ARCHIVED 2026-05-14.** This study is closed. It was superseded by the check2hgi study, which became the project's primary research line and produced the BRACIS 2026 paper. **Read [`ARCHIVE_NOTE.md`](ARCHIVE_NOTE.md) first** for the closure status, what survives in this archive, and how to reach back into the work. The text below is preserved as the original entry-point of the live study.
+>
+> **The FUSION engine remains first-class in the codebase** (see `src/configs/paths.py`, `src/data/inputs/fusion.py`, `experiments/full_fusion_ablation.py`, `pipelines/fusion.pipe.py`) — the *study* is archived, not the *engine*.
+
+---
+
+**Status:** P0 active (2026-04-14)  *(historical — at study-active time)*
 **Trigger:** label bug in previous dataset → embeddings being regenerated → all prior results are suspect and must be redone. This is our opportunity to design a comprehensive, claim-driven study.
 
 > **If you're starting a fresh session**, read [`HANDOFF.md`](HANDOFF.md) **first** for the current data-availability snapshot, the exact runbook when embeddings arrive, and what blocks P1 enrollment.

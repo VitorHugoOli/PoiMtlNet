@@ -8,7 +8,7 @@ argument-hint: "<subcommand> [args...]"
 Thin wrapper over `scripts/study/study.py`. Use this to orchestrate any
 claim-driven ablation study. The active study directory is controlled by the
 `$STUDY_DIR` environment variable; if unset, it defaults to
-`docs/studies/fusion`. On this branch read `CLAUDE.local.md` for context.
+`docs/archive/fusion-study`. On this branch read `CLAUDE.local.md` for context.
 
 ## What you (the assistant) must do when this command fires
 
@@ -73,9 +73,9 @@ python scripts/study/study.py $ARGUMENTS
 Run from the repo root and prefer the repo venv python:
 `.venv/bin/python scripts/study/study.py ...`.
 
-To target a study other than the default (`docs/studies/fusion`), prefix with
+To target a study other than the default (`docs/archive/fusion-study`), prefix with
 `STUDY_DIR=docs/studies/<name>`:
 
 ```bash
-STUDY_DIR=docs/studies/fusion .venv/bin/python scripts/study/study.py status
+STUDY_DIR=docs/archive/fusion-study .venv/bin/python scripts/study/study.py status
 ```
