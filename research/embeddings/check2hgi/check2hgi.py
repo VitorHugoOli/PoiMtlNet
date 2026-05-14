@@ -172,6 +172,8 @@ def train_check2hgi(city, args):
         alpha_c2p=args.alpha_c2p,
         alpha_p2r=args.alpha_p2r,
         alpha_r2c=args.alpha_r2c,
+        c2p_hard_neg_prob=getattr(args, 'c2p_hard_neg_prob', 0.0),
+        c2p_corrupted_neg=getattr(args, 'c2p_corrupted_neg', False),
     ).to(args.device)
 
     print(f"Parameters: {sum(p.numel() for p in model.parameters()):,}")
@@ -331,6 +333,10 @@ if __name__ == '__main__':
     parser.add_argument('--alpha_c2p', type=float, default=0.4)
     parser.add_argument('--alpha_p2r', type=float, default=0.3)
     parser.add_argument('--alpha_r2c', type=float, default=0.3)
+    parser.add_argument('--c2p_hard_neg_prob', type=float, default=0.0,
+                        help='Phase-11 S1: hard-negative probability at the '
+                             'check-in↔POI boundary (same-region different-POI). '
+                             'Default 0.0 reproduces canonical c2hgi.')
 
     # Training
     parser.add_argument('--lr', type=float, default=0.001)
