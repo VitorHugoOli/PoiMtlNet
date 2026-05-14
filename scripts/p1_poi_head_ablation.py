@@ -172,8 +172,8 @@ def _train_one_fold(model, train_dl, val_dl, optimizer, scheduler, criterion,
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-        if scheduler is not None:
-            scheduler.step()
+            if scheduler is not None:
+                scheduler.step()  # OneCycleLR is a per-step scheduler
         # eval
         model.eval()
         all_logits, all_targets = [], []
@@ -240,8 +240,10 @@ def main():
             scheduler = torch.optim.lr_scheduler.OneCycleLR(
                 optimizer, max_lr=args.max_lr,
                 total_steps=args.epochs * len(train_dl))
-            criterion = CrossEntropyLoss()
-            best = _train_one_fold(model, train_dl, val_dl, optimizer, None, criterion,
+            # label_smoothing matches p1_region_head_ablation.py; mitigates head-class
+            # bias under the Zipfian POI visit distribution (n_pois ~ 12k–77k).
+            criterion = CrossEntropyLoss(label_smoothing=0.1)
+            best = _train_one_fold(model, train_dl, val_dl, optimizer, scheduler, criterion,
                                     args.epochs, n_pois, head_name)
             logger.info(f"  fold {fold_i}: best={best['metrics']} @ ep={best['epoch']}")
             per_fold.append(best["metrics"])

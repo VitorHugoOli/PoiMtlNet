@@ -416,12 +416,11 @@ def setup_evaluation_symlinks(probe_state: str) -> None:
     """Ensure the variant has the symlinks p1_region_head_ablation needs."""
     # 1. data/checkins/Arizona_cat<X>.parquet → Arizona.parquet
     state_suffix = probe_state.split("arizona_cat", 1)[-1]  # e.g. "A_sum_lam0.001"
-    checkin_link = Path("/Users/vitor/Desktop/mestrado/ingred/data/checkins") / \
-                   f"Arizona_cat{state_suffix}.parquet"
+    checkin_link = REPO_ROOT / "data" / "checkins" / f"Arizona_cat{state_suffix}.parquet"
     if not checkin_link.exists():
         checkin_link.symlink_to("Arizona.parquet")
     # 2. output/check2hgi/arizona_cat<X> → arizona
-    c2hgi_link = Path("/Users/vitor/Desktop/mestrado/ingred/output/check2hgi") / probe_state
+    c2hgi_link = REPO_ROOT / "output" / "check2hgi" / probe_state
     if not c2hgi_link.exists():
         c2hgi_link.symlink_to("arizona")
     # 3. output/hgi/<state>/input/next_region.parquet → c2hgi canonical
@@ -430,7 +429,7 @@ def setup_evaluation_symlinks(probe_state: str) -> None:
     nr_link = hgi_input / "next_region.parquet"
     if not nr_link.exists():
         nr_link.symlink_to(
-            "/Users/vitor/Desktop/mestrado/ingred/output/check2hgi/arizona/input/next_region.parquet"
+            REPO_ROOT / "output" / "check2hgi" / "arizona" / "input" / "next_region.parquet"
         )
 
 

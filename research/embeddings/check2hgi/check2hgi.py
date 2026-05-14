@@ -337,6 +337,10 @@ if __name__ == '__main__':
                         help='Phase-11 S1: hard-negative probability at the '
                              'check-in↔POI boundary (same-region different-POI). '
                              'Default 0.0 reproduces canonical c2hgi.')
+    parser.add_argument('--c2p_corrupted_neg', action='store_true', default=False,
+                        help='Phase-11 S4: use corrupted-feature same-identity '
+                             'c2p negatives (DGI-style). Mutually exclusive with '
+                             'c2p_hard_neg_prob > 0. Default False reproduces canonical c2hgi.')
 
     # Training
     parser.add_argument('--lr', type=float, default=0.001)

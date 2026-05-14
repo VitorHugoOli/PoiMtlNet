@@ -131,9 +131,9 @@ def main():
     _link_or_copy_graph(args.city, canonical_root)
 
     print(
-        f"[substrate-s1] state={args.city}  c2p_hard_neg_prob={args.c2p_hard_neg_prob}  "
+        f"[substrate-s4] state={args.city}  c2p_corrupted_neg=True  "
         f"epoch={args.epoch}  device={args.device}\n"
-        f"[substrate-s1] writing to {SUBSTRATE_DIR / args.city.lower()}"
+        f"[substrate-s4] writing to {SUBSTRATE_DIR / args.city.lower()}"
     )
     train_check2hgi(args.city, args)
 
