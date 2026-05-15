@@ -50,14 +50,20 @@ bash docs/studies/mtl-exploration/run_ms_chain_v2.sh
 
 Set `DATA_ROOT` and `OUTPUT_DIR` env vars if running outside the canonical repo root.
 
-## What's still in-flight (will be committed when done)
+## Headline result (n=20 paired Wilcoxon, AL + AZ × 4 seeds × 5 folds × 25-ep)
 
-`run_ms_chain_v2.sh` is currently executing 16 runs (AL × {D, C, E} × 4 seeds + AZ × E × 4 seeds, 5-fold × 25-ep each). Per-fold log_T at AL is being built for seeds {0,1,7,100} as part of the chain. Expected wall-clock: ~2 h on MPS. Completion flag: `logs/_ms_v2_done.flag`.
+The encoder ablation is **scale-conditional**:
 
-When the chain completes:
-- Update `EXPERIMENT_NO_ENCODERS.md` with the n=20 AL paired Wilcoxon for cell C vs D.
-- Update the same doc with the cell E vs D paired Wilcoxon at AZ (and AL).
-- Decide whether the "encoder MLP is over-engineered" claim has cross-state support (AL+AZ) or remains AZ-scoped.
+| Axis | At AZ (1.5k regions) | At AL (1.1k regions) |
+|---|---|---|
+| reg `top10_acc_indist` | Cell E (`Linear + LayerNorm`) ≡ Cell D (baseline 2-MLP) within Δ = −0.12 pp (p=0.40, n=20) | Cell E ≡ Cell D within Δ = +0.14 pp (p=0.62, n=20) |
+| cat F1 | Cell E ≡ Cell D within Δ = −0.025 pp (p=0.81, n=20) | **Cell D dominates Cell E by −2.57 pp (p=0.0001, n=20)** |
+
+**Reading:** the 2-MLP encoder is over-engineered at AZ scale (Linear + LayerNorm matches it on both axes), but load-bearing for cat at AL scale. Simplification is scale-conditional, not universal.
+
+**v11 paper-canon validation:** my multi-seed AZ baseline reg = **40.89 ± 1.95** ≈ v11's **40.78 ± 0.07** ✓ — the leak-free protocol matches paper canon. (AL baseline reg = 47.66 is 2.5 pp below v11's 50.17 due to the 25-epoch budget cap, which is symmetric across arms.)
+
+Full result tables in [`EXPERIMENT_NO_ENCODERS.md §Step 3`](EXPERIMENT_NO_ENCODERS.md).
 
 ## Open question for the user
 
