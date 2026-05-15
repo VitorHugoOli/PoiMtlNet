@@ -889,6 +889,59 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                         f"Build with: python scripts/compute_region_transition.py "
                         f"--state {config.state} --per-fold --seed {seed}"
                     )
+                # 2026-05-15: hard-fail when the per-fold log_T's ``n_splits``
+                # does not match the trainer's ``config.k_folds``. The
+                # ``--folds N`` flag overrides ``config.k_folds`` to
+                # ``max(2, N)``, so a 1-fold smoke against a 5-fold-built
+                # log_T silently leaks ~30-40% of val transitions into the
+                # prior (the α scalar amplifies this through training,
+                # inflating reg ``top10_acc_indist`` by 13-23 pp). See
+                # ``docs/studies/mtl-exploration/LEAK_BLAST_RADIUS_AUDIT.md``
+                # for the discovery + per-state magnitudes, and
+                # ``docs/findings/MTL_FLAWS_AND_FIXES.md §2.13`` for the
+                # catalog entry. Files written by post-2026-05-15
+                # ``compute_region_transition.py`` stash ``n_splits`` in
+                # the payload; legacy files (pre-2026-05-15) lack the key
+                # and are accepted only at the canonical n_splits=5
+                # because that's the historical default they were built
+                # under.
+                trainer_n_splits = int(config.k_folds)
+                pf_payload = torch.load(pf_path, map_location="cpu", weights_only=False)
+                pf_n_splits = (
+                    pf_payload.get("n_splits") if isinstance(pf_payload, dict) else None
+                )
+                if pf_n_splits is None:
+                    if trainer_n_splits != 5:
+                        raise ValueError(
+                            f"Per-fold log_T at {pf_path} is a legacy file "
+                            f"(no 'n_splits' field in payload) and the trainer "
+                            f"is running at n_splits={trainer_n_splits} (not the "
+                            f"canonical 5). Legacy files were always built at "
+                            f"n_splits=5; running at a different n_splits "
+                            f"silently leaks ~30-80% of val transitions into "
+                            f"the prior (depending on overlap). Rebuild the "
+                            f"prior at the trainer's n_splits: python "
+                            f"scripts/compute_region_transition.py --state "
+                            f"{config.state} --per-fold --n-splits "
+                            f"{trainer_n_splits} --seed {seed}"
+                        )
+                    logger.warning(
+                        "[C4 per-fold log_T] legacy file %s has no n_splits "
+                        "field; trainer is at canonical n_splits=5 so "
+                        "accepting; rebuild to silence this warning.",
+                        pf_path,
+                    )
+                elif int(pf_n_splits) != trainer_n_splits:
+                    raise ValueError(
+                        f"Per-fold log_T at {pf_path} was built with "
+                        f"n_splits={pf_n_splits}, but the trainer is running "
+                        f"at n_splits={trainer_n_splits} (set via --folds; "
+                        f"max(2, N)). Mismatch silently leaks val transitions "
+                        f"into the prior. Rebuild for the trainer's n_splits: "
+                        f"python scripts/compute_region_transition.py --state "
+                        f"{config.state} --per-fold --n-splits "
+                        f"{trainer_n_splits} --seed {seed}"
+                    )
                 tb_head_params = dict(ts.task_b.head_params or {})
                 tb_head_params["transition_path"] = str(pf_path)
                 new_task_b = _dataclasses.replace(ts.task_b, head_params=tb_head_params)

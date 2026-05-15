@@ -1,0 +1,5 @@
+# Verbose training stdout — regeneratable via the run_*.sh scripts.
+# Structured per-fold metrics live in $OUTPUT_DIR/check2hgi/<state>/ and
+# $REPO/results/check2hgi/<state>/ (both gitignored at repo root).
+logs/
+results/

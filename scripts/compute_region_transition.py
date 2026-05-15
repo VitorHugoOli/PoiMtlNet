@@ -204,8 +204,24 @@ def build_transition_matrix_from_userids(
     return log_probs, n_regions
 
 
-def save(state: str, log_probs: np.ndarray, smoothing_eps: float,
-         filename: str = "region_transition_log.pt") -> Path:
+def save(
+    state: str,
+    log_probs: np.ndarray,
+    smoothing_eps: float,
+    filename: str = "region_transition_log.pt",
+    n_splits: Optional[int] = None,
+    seed: Optional[int] = None,
+) -> Path:
+    """Persist a transition-log-probabilities matrix as ``.pt``.
+
+    When ``n_splits`` is provided (per-fold builds), it is recorded in the
+    payload so the trainer can hard-fail if its own ``n_splits`` differs
+    from the prior's. Legacy callers that omit ``n_splits`` (the full-data
+    leak-era build, or older code) write a payload without that field, and
+    the trainer will only accept those at ``n_splits=5`` (the historical
+    default). See ``src/training/runners/mtl_cv.py`` for the load-side
+    guard. Tracking memo: ``docs/studies/mtl-exploration/LEAK_BLAST_RADIUS_AUDIT.md``.
+    """
     out_dir = IoPaths.CHECK2HGI.get_state_dir(state)
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / filename
@@ -215,8 +231,15 @@ def save(state: str, log_probs: np.ndarray, smoothing_eps: float,
         "smoothing_eps": smoothing_eps,
         "n_regions": tensor.shape[0],
     }
+    if n_splits is not None:
+        payload["n_splits"] = int(n_splits)
+    if seed is not None:
+        payload["seed"] = int(seed)
     torch.save(payload, out_path)
-    logger.info("[%s] Saved %s (shape=%s)", state, out_path, tuple(tensor.shape))
+    logger.info(
+        "[%s] Saved %s (shape=%s, n_splits=%s, seed=%s)",
+        state, out_path, tuple(tensor.shape), n_splits, seed,
+    )
     return out_path
 
 
@@ -255,6 +278,8 @@ def _build_per_fold(state: str, smoothing_eps: float, n_splits: int, seed: int):
         out = save(
             state, log_probs, smoothing_eps,
             filename=f"region_transition_log_seed{seed}_fold{fold_idx + 1}.pt",
+            n_splits=n_splits,
+            seed=seed,
         )
         paths.append(out)
     return paths

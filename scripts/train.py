@@ -801,7 +801,13 @@ def _parse_args(argv=None) -> argparse.Namespace:
         help=(
             "Number of CV folds to RUN (not the split count). "
             "Use 1 for a quick smoke test. "
-            "The split structure uses max(2, N) splits."
+            "The split structure uses max(2, N) splits. "
+            "⚠ When combined with --per-fold-transition-dir, N < 5 will be "
+            "rejected by mtl_cv.py's n_splits guard unless the per-fold log_T "
+            "was rebuilt at the matching n_splits. Rebuild via: "
+            "`python scripts/compute_region_transition.py --state <S> "
+            "--per-fold --n-splits max(2,N) --seed <seed>`. See "
+            "docs/studies/mtl-exploration/LEAK_BLAST_RADIUS_AUDIT.md."
         ),
     )
     parser.add_argument(

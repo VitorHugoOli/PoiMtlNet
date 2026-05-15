@@ -200,6 +200,53 @@ Under leak-free re-runs (FL ≥ep5):
 
 ---
 
+### 2.13 `--folds < 5` × per-fold log_T n_splits MISMATCH — silent re-leak (mtl-exploration — 2026-05-15)
+
+⭐ **Re-leak vector left open by the C4 fix.** §2.12 introduced per-fold seed-tagged log_T (`region_transition_log_seed{S}_fold{N}.pt`) built at `n_splits=5`. The trainer's `--folds N` flag overrides `config.k_folds` to `max(2, N)`, so any `--folds 1..4` smoke against the canonical 5-fold log_T runs the trainer at a *different fold split* than the prior was built from. Concretely, `--folds 1` triggers `n_splits=2`: the trainer's val ≈ 50 % of users; the log_T's "train" ≈ 80 % of users; their intersection (~30 % of val users) has their region transitions present in the prior → α-amplified leak inflates reg `top10_acc_indist` by **13–23 pp** (state-dependent).
+
+**Discovery fingerprint (paper-grade match across two independent runs, 16 days apart):**
+
+| Source | FL fold-1 seed=42 reg top10 |
+|---|---:|
+| Original `_1813` 5-fold reference (ep 6) | 63.53 |
+| F51 verify smoke `--folds 1` (ep 6) (2026-04-30) | **76.33** |
+| mtl-exploration `--folds 1 --epochs 25` (peak ep 8) (2026-05-15) | **76.51** |
+| v11 multi-seed pooled mean | 63.27 ± 0.10 |
+
+F51 caught the symptom and wrote warning headers into `run_f51_tier2_capacity_smoke.sh` + `run_f51_tier3_sweep.sh`, but the guard never made it into the trainer. The 2026-05-15 audit (`docs/studies/mtl-exploration/LEAK_BLAST_RADIUS_AUDIT.md`) re-discovered the bug in a fresh agent's smoke and promoted the warning from script-level lore to a trainer-level hard-fail (commit 2026-05-15).
+
+#### Blast radius (v11 SAFE — paper-canonical numbers unaffected)
+
+| Result class | Status |
+|---|---|
+| **v11 RESULTS_TABLE §0** (paper-canonical) | ❌ SAFE — all rows are 5-fold, n_splits=5 matches log_T |
+| F51 multi-seed (5 seeds × 5 folds) | ❌ SAFE |
+| F51 Tier 2 capacity (5f × 30ep) | ❌ SAFE |
+| canonical_improvement / merge_design / hgi_category_injection | ❌ SAFE (all use 5-fold) |
+| pre-F50 findings (F2, F17, F27, B-M, B5) | not this bug — they have the C4 leak (§2.12) which was the original motivation for the per-fold fix |
+| **F50 D5 Encoder Trajectory** | ⚠ PARTIAL — absolute val numbers (B9 reg = 76.35, H3-alt = 75.61) are leak-inflated; mechanism (reg encoder saturates earlier) survives because it's measured in weight space, not val metrics. Caveat added to `F50_D5_ENCODER_TRAJECTORY.md` head. |
+| F51 verify smoke (76.33) | the discovery fingerprint, documented as such |
+| mtl-exploration single-fold runs | ⚠ AFFECTED on absolutes, pairwise Δs preserved under F51-documented uniform-leak property |
+
+#### Fix (landed 2026-05-15)
+
+1. **Writer** (`scripts/compute_region_transition.py::save`): stash `n_splits` and `seed` in the `.pt` payload when per-fold mode is used.
+2. **Reader** (`src/training/runners/mtl_cv.py`): after loading the per-fold log_T file, check `payload["n_splits"] == config.k_folds`:
+   - Match → load and continue.
+   - Mismatch → hard-fail with explicit rebuild command.
+   - Legacy file (no `n_splits` key) → accept only at `config.k_folds == 5` (the historical canonical default); else hard-fail.
+3. **CLI docstring** (`scripts/train.py --folds`): flag the interaction explicitly.
+
+The fix is non-breaking for canonical 5-fold workflows (legacy files keep working under the n_splits=5 fallback) but forces explicit rebuild for any non-5 smoke. A future migration pass over existing per-fold log_T files (rebuild to embed `n_splits` in payload) would silence the fallback warning.
+
+#### Operational lesson
+
+The C4 fix introduced this hole — fixing one leak introduced a footgun on an adjacent axis. **Whenever a parameter (seed, n_splits, smoothing) enters a build/load contract, encode it in the persisted artefact AND verify on load.** F51's per-seed fix established the pattern for `seed`; this fix extends it to `n_splits`. Future work: the same pattern likely applies to `smoothing_eps`, `state`, and `embedding_engine` if those become variant axes.
+
+See `docs/studies/mtl-exploration/LEAK_BLAST_RADIUS_AUDIT.md` for the full audit.
+
+---
+
 ### 2.11 CRITICAL-REVIEW AUDIT — 8 additional bugs found (F50 T3 — 2026-04-29)
 
 ⭐ Independent agent audit (commissioned after §2.10 finding) identified 8 critical issues + 12 lesser items. Recorded in full at `research/F50_T3_AUDIT_FINDINGS.md`. Highlights:

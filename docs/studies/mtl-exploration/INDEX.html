@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>MTL Exploration &mdash; State of the Current MTL Model</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #161a22;
+    --panel-2: #1c212c;
+    --text: #e6e9ef;
+    --muted: #9aa3b2;
+    --accent: #6ea8fe;
+    --accent-2: #5dd39e;
+    --warn: #ffb454;
+    --bad: #ef6a6a;
+    --good: #4ade80;
+    --border: #2a3140;
+    --code-bg: #0b0e13;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+    font-size: 14.5px;
+  }
+  .layout { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+  nav.toc {
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    padding: 24px 18px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  nav.toc h2 { color: var(--accent); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 18px;}
+  nav.toc h2:first-child { margin-top: 0; }
+  nav.toc ul { list-style: none; padding-left: 0; margin: 6px 0 0 0; }
+  nav.toc li a { color: var(--muted); text-decoration: none; display: block; padding: 3px 8px; border-radius: 4px; font-size: 12.5px;}
+  nav.toc li a:hover { color: var(--text); background: var(--panel-2); }
+  main { padding: 32px 48px; max-width: 1150px; }
+  h1 { font-size: 26px; margin: 0 0 4px 0; color: #fff; }
+  .subtitle { color: var(--muted); margin-bottom: 28px; font-size: 13.5px;}
+  h2 {
+    margin-top: 44px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+    font-size: 20px;
+    color: var(--accent);
+  }
+  h3 { margin-top: 28px; font-size: 16px; color: var(--accent-2); }
+  h4 { margin-top: 18px; font-size: 14px; color: var(--text); }
+  p, li { color: var(--text); }
+  code { background: var(--code-bg); padding: 1px 6px; border-radius: 4px; font-size: 13px; color: #ffe7a3; }
+  pre {
+    background: var(--code-bg);
+    padding: 12px 16px;
+    border-radius: 6px;
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    font-size: 12.8px;
+    line-height: 1.45;
+  }
+  table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 13px; }
+  th, td { border: 1px solid var(--border); padding: 7px 10px; text-align: left; }
+  th { background: var(--panel-2); color: var(--accent); font-weight: 600; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: var(--panel);
+    padding: 12px 16px;
+    margin: 16px 0;
+    border-radius: 0 6px 6px 0;
+  }
+  .callout.warn { border-color: var(--warn); }
+  .callout.bad { border-color: var(--bad); }
+  .callout.good { border-color: var(--good); }
+  .pill {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .pill.good { background: rgba(74,222,128,0.15); color: var(--good); }
+  .pill.warn { background: rgba(255,180,84,0.15); color: var(--warn); }
+  .pill.bad { background: rgba(239,106,106,0.15); color: var(--bad); }
+  .pill.info { background: rgba(110,168,254,0.15); color: var(--accent); }
+  .footnote { color: var(--muted); font-size: 12.5px; }
+  ul.compact li { margin: 2px 0; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 14px 18px;
+    border-radius: 8px;
+  }
+  .card h4 { margin-top: 0; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav class="toc">
+  <h2>Sections</h2>
+  <ul>
+    <li><a href="#tldr">0. TL;DR + scope</a></li>
+    <li><a href="#current">1. Current MTL model</a></li>
+    <li><a href="#dataflow">2. Data flow</a></li>
+    <li><a href="#journey">3. Architecture journey</a></li>
+    <li><a href="#backbones">4. Backbones tried</a></li>
+    <li><a href="#optimizers">5. Loss / gradient balancing</a></li>
+    <li><a href="#schedules">6. LR / optimizer recipes</a></li>
+    <li><a href="#cathead">7. Category head</a></li>
+    <li><a href="#reghead">8. Region head</a></li>
+    <li><a href="#headswap">9. Head-backbone co-adaptation</a></li>
+    <li><a href="#ablations">10. Decisive ablations</a></li>
+    <li><a href="#paper">11. Paper-canonical state</a></li>
+    <li><a href="#leak">12. Leak history</a></li>
+    <li><a href="#gaps">13. Open work + gaps</a></li>
+    <li><a href="#datafit">14. Is the input the right fit?</a></li>
+    <li><a href="#sources">15. Sources</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<h1>MTL Exploration &mdash; State of the Current MTL Model</h1>
+<p class="subtitle">
+  A consolidated, source-traced report on every backbone, loss, optimizer, head,
+  schedule, and ablation we have run on the Check2HGI MTL pair
+  (<code>next_category</code> + <code>next_region</code>), and why the current
+  config settled where it did. <span class="pill info">As of 2026-05-14</span>
+  <span class="pill warn">paper-canonical numbers = RESULTS_TABLE.md §0 v11 (2026-05-02)</span>
+</p>
+
+<!-- ========================================================== -->
+<h2 id="tldr">0. TL;DR + scope</h2>
+
+<div class="callout warn">
+<strong>Numbers discipline.</strong> Three eras coexist across the F-trail; only one is paper-canonical.
+<ul class="compact">
+  <li><span class="pill bad">superseded</span> <strong>Pre-leak-fix era (≤ 2026-04-29).</strong> F48-H3-alt &ldquo;AL +6.25&nbsp;pp MTL&nbsp;&gt;&nbsp;STL on reg&rdquo;, F49 &ldquo;+6.48&nbsp;pp architecture-dominant&rdquo;, the &ldquo;MTL exceeds STL&rdquo; champion framing &mdash; all <em>leak artefacts</em> of the full-data <code>region_transition_log.pt</code> (~13&ndash;27&nbsp;pp inflation, substrate-asymmetric).</li>
+  <li><span class="pill warn">historical</span> <strong>Leak-free single-seed (2026-04-30, F51).</strong> B9 emerges; numbers single-seed only.</li>
+  <li><span class="pill good">paper-canonical</span> <strong>v11 (2026-05-02).</strong> <code>docs/results/RESULTS_TABLE.md §0</code> &mdash; multi-seed (n&nbsp;=&nbsp;20 across all 5 states on §0.1), leak-free, per-fold seed-tagged log_T.</li>
+</ul>
+Every &ldquo;current state&rdquo; number below traces to v11. Leak-era numbers appear only inside the journey narrative and are flagged.
+</div>
+
+<h3>The honest thesis (post leak-free)</h3>
+<p>The paper does <strong>not</strong> claim that joint MTL lifts both heads above their STL ceilings. The pre-leak-fix &ldquo;bidirectional&rdquo; thesis was abandoned in the 2026-05-01 closure. What survives is:</p>
+<ol>
+  <li><strong>C1 &mdash; substrate task-asymmetry.</strong> Check-in-level Check2HGI lifts <code>next_category</code> macro-F1 by <strong>+14.5 to +29 pp</strong> over POI-stable HGI at every state (paired Wilcoxon p&nbsp;=&nbsp;0.0312 each). Per-visit context = ~72&ndash;90% of that gap (CH19).</li>
+  <li><strong>C2 &mdash; classic MTL tradeoff.</strong> With substrate fixed, MTL nudges cat above the matched-head STL baseline at 4 of 5 states (Δ&nbsp;∈&nbsp;[+1.20, +1.89]&nbsp;pp, p&nbsp;≤&nbsp;2e-06) and pays a sign-consistent reg cost at every state (Δ&nbsp;∈&nbsp;[&minus;7.34, &minus;16.59]&nbsp;pp, p&nbsp;≤&nbsp;1.9e-06).</li>
+  <li><strong>C3 &mdash; methodological note (F49 Layer 2).</strong> Under cross-attention, loss-side <code>task_weight=0</code> is unsound because the silenced encoder co-adapts via K/V. Encoder-frozen isolation is the only clean architectural ablation. Applies beyond this study (MulT, InvPT, HMT-GRN).</li>
+</ol>
+
+<!-- ========================================================== -->
+<h2 id="current">1. Current MTL model (the &ldquo;B9&rdquo; recipe)</h2>
+
+<p>Champion config for FL/CA/TX (large-scale states, n&nbsp;=&nbsp;20 multi-seed paper-grade); H3-alt remains preferred at AL/AZ (small-scale). Source: <code>docs/NORTH_STAR.md</code> §&ldquo;Champion &mdash; F50 B9&rdquo; and <code>docs/results/RESULTS_TABLE.md §0.4</code>.</p>
+
+<pre>architecture         : mtlnet_crossattn        (src/models/mtl/mtlnet_crossattn/model.py)
+mtl_loss             : static_weight(category_weight = 0.75)   (reg_weight = 0.25)
+task_a head (cat)    : next_gru                 (src/models/next/next_gru/head.py)
+task_b head (reg)    : next_stan_flow           (src/models/next/next_stan_flow/head.py)
+                       legacy alias: next_getnext_hard         (STAN attn + α · log_T[last_region_idx])
+task_a input         : check-in embeddings, 9-step window
+task_b input         : region embeddings,    9-step window     (per-task input modality)
+hparams              : d_model = 256, 8 attention heads, batch = 2048, 50 epochs
+LR scheduler         : Cosine (max_lr = 3e-3, decay from peak)
+LR per param group   : cat_lr = 1e-3, reg_lr = 3e-3, shared_lr = 1e-3 (all constant in H3-alt; decayed under cosine in B9)
+optimizer step       : ALTERNATING per-batch (P4) — cat batch then reg batch, separate optimizer.step()
+α weight decay       : alpha scalar peeled out of AdamW weight_decay group (B9 refinement)
+graph prior          : per-fold log_T, seed-tagged
+                       region_transition_log_seed{S}_fold{N}.pt</pre>
+
+<p><strong>B9 = H3-alt + (alt-SGD, cosine, α-no-WD).</strong> The three B9 additions help at large states (FL/CA/TX) and slightly hurt cat at small states (AL/AZ) &mdash; the recipe is <em>scale-conditional</em>.</p>
+
+<table>
+<thead><tr><th>State</th><th>n_regions</th><th>n_pairs</th><th>Δ_reg pp (B9 &minus; H3-alt)</th><th>p_reg</th><th>Δ_cat pp</th><th>p_cat</th><th>Recipe</th></tr></thead>
+<tbody>
+<tr><td>AL</td><td class="num">1,109</td><td class="num">20</td><td class="num">&minus;0.35</td><td class="num">1.9e-03</td><td class="num">&minus;2.22</td><td class="num">1.9e-06</td><td><span class="pill good">H3-alt</span></td></tr>
+<tr><td>AZ</td><td class="num">1,547</td><td class="num">20</td><td class="num">&minus;0.09</td><td class="num">n.s.</td><td class="num">&minus;0.96</td><td class="num">7.1e-04</td><td><span class="pill good">H3-alt</span></td></tr>
+<tr><td>FL</td><td class="num">4,703</td><td class="num">25</td><td class="num">+3.48</td><td class="num">3.0e-08</td><td class="num">+0.42</td><td class="num">1.3e-05</td><td><span class="pill good">B9</span></td></tr>
+<tr><td>CA</td><td class="num">8,501</td><td class="num">20</td><td class="num">+4.18</td><td class="num">&lt;1e-04</td><td class="num">+0.51</td><td class="num">&lt;1e-04</td><td><span class="pill good">B9</span></td></tr>
+<tr><td>TX</td><td class="num">6,553</td><td class="num">20</td><td class="num">+1.87</td><td class="num">7.0e-04</td><td class="num">+0.52</td><td class="num">2.0e-04</td><td><span class="pill good">B9</span></td></tr>
+</tbody>
+</table>
+<p class="footnote">Source: <code>RESULTS_TABLE.md §0.4</code> v9. FL n_pairs = 25 because the F51 multi-seed sweep pooled 5 seeds × 5 folds at FL (seed 42 plus {0,1,7,100}); AL/AZ/CA/TX pool 4 seeds × 5 folds.</p>
+
+<!-- ========================================================== -->
+<h2 id="dataflow">2. Data flow &mdash; tensor by tensor</h2>
+
+<h3>2.1 Inputs</h3>
+<p>The two tasks consume <em>different input modalities</em> routed through the same MTL backbone (per-task encoder + cross-attention). Sequence generation lives in <code>src/data/inputs/core.py::generate_sequences</code> and the per-task routing in <code>src/tasks/presets.py::CHECK2HGI_NEXT_REGION</code>.</p>
+
+<table>
+<thead><tr><th>Slot</th><th>Task</th><th>Input source</th><th>Tensor shape</th><th>Window</th><th>Stride</th><th>Padding</th><th>Target</th></tr></thead>
+<tbody>
+<tr><td>task_a</td><td><code>next_category</code></td><td>check-in embeddings (Check2HGI, 64-dim, <em>per visit</em>)</td><td class="num">[B, 9, 64]</td><td class="num">9</td><td class="num">9 (non-overlap)</td><td class="num">PAD_VALUE = &minus;1</td><td>category of step 10, 7-class softmax</td></tr>
+<tr><td>task_b</td><td><code>next_region</code></td><td>region embeddings (mean-aggregated Check2HGI per region, 64-dim)</td><td class="num">[B, 9, 64]</td><td class="num">9</td><td class="num">9</td><td class="num">PAD_VALUE = &minus;1</td><td>region of step 10, 1k&ndash;9k-class softmax + α·log_T[last_region]</td></tr>
+</tbody>
+</table>
+
+<h3>2.2 Forward pass (B9 / H3-alt with <code>mtlnet_crossattn</code>)</h3>
+<pre>category_input [B,9,64]                next_input [B,9,64]
+      │                                      │
+      ▼                                      ▼
+ category_encoder (Linear→ReLU→LN→Dropout)  next_encoder (same)
+   in=64, hidden=256, out=256                  in=64, hidden=256, out=256
+      │                                      │
+      a [B,9,256]                            b [B,9,256]
+      │                                      │
+      └──────────── for each of N=2 crossattn_blocks ─────┐
+                                                          │
+            a_upd = MHA(Q=a, K=b, V=b, key_pad=b_mask)    │
+            a ← LN(a + a_upd)                              │
+            b_upd = MHA(Q=b, K=a, V=a, key_pad=a_mask)    │
+            b ← LN(b + b_upd)                              │
+            a ← LN(a + FFN_a(a))   # per-stream FFN       │
+            b ← LN(b + FFN_b(b))                           │
+      ┌───────────────────────────────────────────────────┘
+      ▼                                      ▼
+ cat_final_ln(a) → re-zero @ pad      next_final_ln(b) → re-zero @ pad
+      │                                      │
+      ▼                                      ▼
+   next_gru (cat head)               next_stan_flow (reg head)
+   2-layer GRU + LN + Linear→7       STAN attn + α · log_T[last_region_idx]
+      │                                      │
+      ▼                                      ▼
+   out_cat [B,7]                       out_next [B, n_regions]</pre>
+
+<h3>2.3 Key data-flow facts</h3>
+<ul class="compact">
+  <li><strong>Two encoders, no parameter sharing across tasks.</strong> Each task has its own MLP encoder (2 layers, 256→256), each cross-attn block has its own FFN per task. Information is shared only via the cross-attention K/V exchange.</li>
+  <li><strong>Re-zero padding before the heads.</strong> After encoder + cross-attn + LN, originally-zero pad steps become non-zero (bias additions). Sequential heads (GRU, LSTM, TCN, Transformer) detect padding via <code>x.abs().sum(-1)==0</code>. We re-mask with the original pad indicator (<code>MTLnetCrossAttn.forward</code> lines 268&ndash;272).</li>
+  <li><strong>Aux side-channel for <code>last_region_idx</code>.</strong> <code>src/data/aux_side_channel.py</code> publishes per-batch tensors that the reg head reads inside <code>forward</code> without changing the trainer signature. Gated by membership set <code>_HEADS_REQUIRING_AUX_MTL = {"next_getnext_hard", "next_getnext_hard_hsm"}</code> in <code>src/data/folds.py</code> (a hardcoded equality check here was the F50-era silent bug that broke HSM &mdash; add new heads here when applicable).</li>
+  <li><strong>Mixed-batch iteration.</strong> The two tasks have different dataset sizes (cat = POI-level, region = sequence-level). The trainer cycles the shorter loader to match the longer; under B9 alt-SGD each task gets its own optimizer step on its own batch.</li>
+  <li><strong>5-fold StratifiedGroupKFold, user-disjoint.</strong> <code>groups = userid</code> prevents user-level leakage; seed = 42 default, multi-seed pool over {0,1,7,100} for n=20.</li>
+</ul>
+
+<!-- ========================================================== -->
+<h2 id="journey">3. Architecture journey &mdash; how we got here</h2>
+
+<p>The trajectory has five phases. <span class="pill bad">Important</span> the &ldquo;F48-H3-alt champion&rdquo; framing in the middle phases is preserved here for the causal narrative but was demoted to recipe-selection in the leak-free reframe (§12).</p>
+
+<table>
+<thead><tr><th>Phase</th><th>Date</th><th>Outcome</th><th>What survived</th></tr></thead>
+<tbody>
+<tr><td>0. Architecture search</td><td>2026-04-13 → 2026-04-22</td><td>Tested <code>mtlnet</code> (FiLM), <code>mtlnet_cgc</code>, <code>mtlnet_mmoe</code>, <code>mtlnet_dselectk</code>, <code>mtlnet_ple</code>, <code>mtlnet_crossattn</code>. Cross-attn wins on joint metric.</td><td>Backbone choice: <code>mtlnet_crossattn</code></td></tr>
+<tr><td>1. B3 emergence</td><td>2026-04-23</td><td>cross-attn + <code>static_weight(0.75)</code> + cat head (initially <code>next_mtl</code>) + reg head <code>next_getnext_hard</code> (now <code>next_stan_flow</code>). Late-stage handover mechanism identified.</td><td>Loss + reg head</td></tr>
+<tr><td>2. F27 cat-head refinement</td><td>2026-04-24</td><td>Cat head <code>next_mtl</code> (Transformer) → <code>next_gru</code>. AZ paired Wilcoxon p&nbsp;=&nbsp;0.0312 on cat F1 + cat Acc@1 + reg MRR.</td><td>Cat head: <code>next_gru</code></td></tr>
+<tr><td>3. F21c gap discovery</td><td>2026-04-24</td><td>Matched-head STL <code>next_getnext_hard</code> beats MTL-B3 on reg by &minus;12 to &minus;14&nbsp;pp at AL/AZ. CH18 filed as Tier B methodological limitation.</td><td>The gap framing (still alive)</td></tr>
+<tr><td>4. F38&ndash;F48 attribution chain</td><td>2026-04-25 → 2026-04-26</td><td>Systematic refutation of checkpoint / loss weight / pre-encoder / epoch budget / OneCycleLR magnitude. F45 found <em>constant LR @ 3e-3</em> lifts reg by ~15&nbsp;pp but kills cat. F48-H3 (per-head LR with shared@3e-3) → cat still collapses; <strong>F48-H3-alt</strong> (cat=1e-3, reg=3e-3, <em>shared=1e-3</em>) preserves cat AND lifts reg.</td><td>Per-head LR optimizer (<code>cat_specific_parameters</code> / <code>reg_specific_parameters</code> / <code>shared_parameters</code>)</td></tr>
+<tr><td>5. F50 + F51 + paper closure</td><td>2026-04-28 → 2026-05-02</td><td>F50 audit identifies α / cross-attn / head-mismatch flaws. P4 alternating-SGD adds reg without trading cat. F50-T4 catches the C4 transition-prior <strong>leak</strong> (~13&ndash;27&nbsp;pp at convergence). Multi-seed F51 confirms B9 vs H3-alt across 5 seeds. v11 RESULTS_TABLE closes the headline.</td><td>B9 recipe + scale-conditional framing</td></tr>
+</tbody>
+</table>
+
+<p>Full F-trail narrative: <code>docs/MTL_ARCHITECTURE_JOURNEY.md</code>. Chronological lessons: <code>docs/CHANGELOG.md</code>. Per-experiment findings: <code>docs/findings/</code> (60+ F-numbered notes).</p>
+
+<!-- ========================================================== -->
+<h2 id="backbones">4. MTL backbones tried</h2>
+
+<table>
+<thead><tr><th>Registry key</th><th>Mechanism</th><th>Tested?</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td><code>mtlnet</code></td><td>FiLM modulation + shared residual stack. Hard parameter sharing.</td><td>Yes</td><td><span class="pill bad">retired</span> Cat-only signal; FiLM scalar gating couldn't separate two divergent objectives.</td></tr>
+<tr><td><code>mtlnet_cgc</code></td><td>CGC: shared experts + task-specific experts + softmax gate per task.</td><td>Yes</td><td><span class="pill bad">retired</span> Lost to cross-attn on joint metric in B-M sweep.</td></tr>
+<tr><td><code>mtlnet_mmoe</code></td><td>Multi-gate MoE: shared experts, per-task gates only.</td><td>Yes</td><td><span class="pill bad">retired</span> Same as CGC, weaker.</td></tr>
+<tr><td><code>mtlnet_dselectk</code></td><td>Sparse selector-based routing (k-of-n experts via temperature softmax).</td><td>Yes</td><td><span class="pill bad">retired</span> Strong on weak embeddings (DGI), no benefit on Check2HGI.</td></tr>
+<tr><td><code>mtlnet_ple</code></td><td>Progressive Layered Extraction: stacked CGC layers.</td><td>Yes (Phase 4)</td><td><span class="pill bad">retired</span> Tested with simultaneous head swaps, never isolated; superseded.</td></tr>
+<tr><td><code>mtlnet_crossattn</code></td><td>Bidirectional cross-attention between two per-task streams. Per-task FFNs, no shared params; sharing is content-based via K/V.</td><td>Yes</td><td><span class="pill good">CURRENT</span> Inductive bias matches per-task modalities (P4 winner).</td></tr>
+<tr><td><code>mtlnet_crossstitch</code></td><td>Cross-stitch unit (Misra et al. CVPR 2016) &mdash; soft parameter sharing via linear combination of two task activations.</td><td>Scaffolded</td><td><span class="pill warn">deferred</span> Folder exists; not yet a head-to-head with crossattn under leak-free conditions.</td></tr>
+</tbody>
+</table>
+
+<div class="callout warn">
+<strong>Cautionary note on legacy backbone numbers.</strong> The numerical ranking in <code>docs/context/MTL_ARCHITECTURES.md</code> (CGC&nbsp;0.430 / DSelectK&nbsp;0.422 / MMoE&nbsp;0.395 / MTLnet&nbsp;0.371) was measured on the legacy task pair (<code>category</code> + <code>next</code>, both 7-class) at <em>1 fold, 10 epochs</em> on the fusion-study harness. These should <strong>not</strong> be cited as discriminating evidence for the current check2hgi MTL pair (<code>next_category</code> + <code>next_region</code>, 7 + 1k&ndash;9k classes, 5 folds × 50 epochs, multi-seed).
+</div>
+
+<!-- ========================================================== -->
+<h2 id="optimizers">5. Loss / gradient balancing methods explored</h2>
+
+<p>20 canonical losses + 3 aliases in <code>src/losses/registry.py</code>. The winner has remained <em>static</em> across every honest sweep.</p>
+
+<table>
+<thead><tr><th>Registry key</th><th>Paper</th><th>Type</th><th>Verdict</th></tr></thead>
+<tbody>
+<tr><td><code>static_weight</code></td><td>—</td><td>Static</td><td><span class="pill good">CURRENT</span> Champion at <code>category_weight=0.75</code>. Late-stage handover mechanism: cat converges early under high cat weight, reg gets uncontested shared capacity in tail epochs.</td></tr>
+<tr><td><code>equal_weight</code></td><td>Xin et al. 2022</td><td>Static</td><td><span class="pill info">strong baseline</span> Best DGI optimizer (joint 0.301). No adaptive method significantly beats it on DGI A1F.</td></tr>
+<tr><td><code>nash_mtl</code></td><td>Navon et al. ICML 2022</td><td>Nash solver</td><td><span class="pill warn">retired</span> Solver was broken (returning [1,1]) until 2026-04-10 due to missing cvxpy ECOS dep hidden by a bare except. After fix: no significant lift over equal_weight; memory issues at FL scale.</td></tr>
+<tr><td><code>pcgrad</code></td><td>Yu et al. NeurIPS 2020</td><td>Gradient surgery</td><td><span class="pill bad">scale failure</span> Helped on AL/AZ; broke FL (cat head's best-val F1 collapsed to ~55 vs ~66). Diagnosed in <code>B5_FL_SCALING.md</code>: gradient imbalance under hard reg head.</td></tr>
+<tr><td><code>gradnorm</code></td><td>Chen et al. ICML 2018</td><td>Gradient norm balance</td><td><span class="pill warn">tested, not adopted</span></td></tr>
+<tr><td><code>cagrad</code></td><td>Liu et al. NeurIPS 2021</td><td>Conflict-averse</td><td><span class="pill warn">tested</span></td></tr>
+<tr><td><code>aligned_mtl</code></td><td>Senushkin et al. CVPR 2023</td><td>Component alignment</td><td><span class="pill warn">F50 T1.4 candidate</span> Launcher ready; not yet evaluated leak-free.</td></tr>
+<tr><td><code>famo</code></td><td>Liu et al. NeurIPS 2023</td><td>Fast adaptive</td><td><span class="pill warn">F50 T1.3 candidate</span> Underperformed (joint 0.270 vs equal 0.301) on DGI; not yet evaluated under check2hgi leak-free conditions.</td></tr>
+<tr><td><code>uncertainty_weighting</code> · <code>uw_so</code> · <code>dwa</code> · <code>random_weight (rlw)</code> · <code>db_mtl</code> · <code>go4align</code> · <code>fairgrad</code> · <code>excess_mtl</code> · <code>bayesagg_mtl</code> · <code>stch</code> · <code>naive</code></td><td>various</td><td>Loss / gradient adaptive</td><td><span class="pill warn">tested, no winner over equal/static</span> Full ranking on DGI A1F in <code>docs/context/MTL_OPTIMIZERS.md</code>. No method significantly outperforms equal weighting on this problem.</td></tr>
+<tr><td><code>scheduled_static</code></td><td>F40 in-house</td><td>Loss-side ramp</td><td><span class="pill bad">negative control</span> Cat weight 0.75 → 0.25 across epochs preserves cat but reg only +1&nbsp;pp. Loss balance alone cannot substitute for per-head LR (cf. §10).</td></tr>
+<tr><td><code>focal</code></td><td>Lin et al. ICCV 2017</td><td>Per-task</td><td><span class="pill info">not an MTL balancer</span> Used as base CE replacement for class imbalance; orthogonal lever.</td></tr>
+</tbody>
+</table>
+
+<p><strong>Take-away.</strong> The big lever is <em>not</em> the MTL loss but the LR regime (§6) and the head&nbsp;×&nbsp;backbone interaction (§9). Loss balancing is mostly orthogonal noise at this problem scale.</p>
+
+<!-- ========================================================== -->
+<h2 id="schedules">6. LR schedule / optimizer recipes (the actual lever)</h2>
+
+<p>The discriminating finding of the entire study: <strong>cat and reg have disjoint optimal LR regimes</strong> &mdash; cat needs ≤1e-3 sustained or warmup-then-anneal; reg needs ≥2e-3 sustained for 50+ epochs so α (the graph-prior weight in <code>next_stan_flow</code>) can grow. No monolithic schedule serves both.</p>
+
+<table>
+<thead><tr><th>Recipe</th><th>F-tag</th><th>cat F1 (AL)</th><th>reg Acc@10 (AL)</th><th>Verdict</th></tr></thead>
+<tbody>
+<tr><td>OneCycleLR(max=3e-3), 50ep, single LR</td><td>B3 base</td><td class="num">~42</td><td class="num">~60</td><td>Cat OK, reg flat &mdash; α can't grow.</td></tr>
+<tr><td>OneCycleLR(max=1e-3), 150ep</td><td>F44</td><td class="num">~42</td><td class="num">~59</td><td><span class="pill bad">refuted</span> Reg not lifted.</td></tr>
+<tr><td>Constant LR @ 3e-3, 150ep</td><td>F45</td><td class="num">10.4 💀</td><td class="num">74.20</td><td><span class="pill bad">cat collapse</span> Reg ceiling reachable, cat dies.</td></tr>
+<tr><td>Constant LR @ 1e-3, 150ep</td><td>F48-H1</td><td class="num">~42</td><td class="num">~59</td><td><span class="pill bad">refuted</span> Cat preserved, reg flat.</td></tr>
+<tr><td>Warmup→plateau @ 3e-3, single LR</td><td>F48-H2</td><td class="num">~41</td><td class="num">~58</td><td><span class="pill bad">refuted</span> Cat alive → competes for shared cross-attn → α blocked.</td></tr>
+<tr><td>Per-head: cat=1e-3, reg=3e-3, shared=3e-3</td><td>F48-H3</td><td class="num">11.5 💀</td><td class="num">74.24</td><td><span class="pill bad">cat collapse</span> Shared cross-attn at 3e-3 destabilises cat path upstream.</td></tr>
+<tr><td><strong>Per-head: cat=1e-3, reg=3e-3, shared=1e-3</strong></td><td><strong>F48-H3-alt</strong></td><td class="num">42.22</td><td class="num">74.62</td><td><span class="pill good">unique fit</span> Cat preserved, reg lifted in the same run.</td></tr>
+<tr><td>Loss-side cat-weight ramp (0.75 → 0.25)</td><td>F40</td><td class="num">42.63</td><td class="num">60.81</td><td><span class="pill bad">negative control</span> Loss-side lever ≠ per-head LR.</td></tr>
+<tr><td>H3-alt + Cosine + alternating SGD + α-no-WD</td><td>B9</td><td>(state-specific)</td><td>(state-specific)</td><td><span class="pill good">CURRENT @ FL/CA/TX</span> Cosine grants α an early growth window; alt-SGD prevents post-ep5 cat-dominance collapse.</td></tr>
+</tbody>
+</table>
+
+<p class="footnote">Cat F1 / reg Acc@10 figures in this table use <em>pre-leak-fix</em> measurements (AL 5f × 150ep). They are kept here because they motivated the design decisions; absolute numbers are leak-inflated by ~13&ndash;17&nbsp;pp on the reg side and should not be quoted as current. The relative ordering survives leak-free re-runs.</p>
+
+<h3>6.1 Per-head LR plumbing</h3>
+<p>The per-head LR optimizer lives in <code>src/training/helpers.py::setup_per_head_optimizer</code> with three AdamW param groups:</p>
+<table>
+<thead><tr><th>Group</th><th>Members</th><th>Source</th></tr></thead>
+<tbody>
+<tr><td><code>cat</code></td><td>category_encoder + category_poi (cat head)</td><td><code>MTLnetCrossAttn.cat_specific_parameters()</code></td></tr>
+<tr><td><code>reg</code></td><td>next_encoder + next_poi (reg head, incl. α)</td><td><code>MTLnetCrossAttn.reg_specific_parameters()</code></td></tr>
+<tr><td><code>shared</code></td><td>cross-attn blocks + cat_final_ln + next_final_ln</td><td><code>MTLnetCrossAttn.shared_parameters()</code></td></tr>
+</tbody>
+</table>
+
+<!-- ========================================================== -->
+<h2 id="cathead">7. Category head &mdash; what was tested and why <code>next_gru</code></h2>
+
+<p>9 standalone category heads are registered (<code>src/models/category/</code>). Standalone ranking (HGI, AL, 10ep) is in <code>docs/context/TASK_HEADS.md</code>. Critical caveat: <strong>standalone rankings invert in the MTL pipeline</strong> &mdash; the best standalone heads are not the best inside MTL.</p>
+
+<table>
+<thead><tr><th>Head</th><th>Standalone F1 (HGI/AL/10ep)</th><th>MTL role</th><th>Verdict</th></tr></thead>
+<tbody>
+<tr><td><code>category_dcn</code></td><td class="num">0.728</td><td>flat-input cat</td><td><span class="pill warn">strong standalone, not in current MTL</span> Best for fusion inputs (cross-features).</td></tr>
+<tr><td><code>category_residual</code></td><td class="num">0.690</td><td>flat-input cat</td><td><span class="pill warn">strong standalone</span></td></tr>
+<tr><td><code>category_gated</code></td><td class="num">0.679</td><td>flat-input cat (GLU)</td><td><span class="pill warn">strong standalone</span></td></tr>
+<tr><td><code>category_ensemble</code></td><td class="num">0.660</td><td>flat-input cat</td><td>multi-path MLP ensemble</td></tr>
+<tr><td><code>category_single</code> · <code>category_se</code> · <code>category_attention</code> · <code>category_linear</code></td><td class="num">0.545 – 0.626</td><td>flat-input cat</td><td>diagnostic / lighter variants</td></tr>
+<tr><td><code>category_transformer</code> (<code>CategoryHeadTransformer</code>)</td><td class="num">0.402</td><td>flat-input cat</td><td><span class="pill info">legacy MTL default</span> Worst standalone but well-adapted with the shared backbone in legacy MTLnet.</td></tr>
+</tbody>
+</table>
+
+<p>Under the <strong>check2hgi MTL pair</strong>, task_a is sequential (<code>next_category</code>) so the head must accept <code>[B, 9, D]</code>. Flat-input category_* heads are not eligible. The sequence heads tried for the cat slot:</p>
+<ul class="compact">
+  <li><code>next_mtl</code> (Transformer, MTLnet default) &mdash; original B3 cat head. Cat F1 lower than <code>next_gru</code> in F27.</li>
+  <li><code>next_gru</code> &mdash; the F27 winner. AZ 5-fold paired Wilcoxon p&nbsp;=&nbsp;0.0312 on cat F1 (+2.37&nbsp;pp), cat Acc@1 (+4.69&nbsp;pp), reg MRR (+1.50&nbsp;pp). FL 1-fold showed a &minus;0.93&nbsp;pp dip flagged as scale-dependence; the F33 5-fold FL closure (cat F1 = 68.21 ± 0.42) confirmed <code>next_gru</code> universally.</li>
+</ul>
+
+<!-- ========================================================== -->
+<h2 id="reghead">8. Region head &mdash; the load-bearing component</h2>
+
+<p>10+ next heads registered (<code>src/models/next/</code>). At ~1k&ndash;9k-region cardinality, plain sequence heads (GRU, LSTM, TCN, Transformer) hit a hard ceiling without a graph prior. The α·log_T mechanism is what closes the gap to STAN ceilings.</p>
+
+<table>
+<thead><tr><th>Head</th><th>Mechanism</th><th>Standalone reg Acc@10 (AL)</th><th>Verdict</th></tr></thead>
+<tbody>
+<tr><td><code>next_mtl</code> (Transformer)</td><td>Causal Transformer + attention pool</td><td class="num">~7%</td><td><span class="pill bad">collapses</span> Tuned for 7-class; cannot represent 1k+ outputs.</td></tr>
+<tr><td><code>next_lstm</code> · <code>next_gru</code> · <code>next_tcn_residual</code> · <code>next_temporal_cnn</code></td><td>Recurrent / convolutional</td><td class="num">~57&ndash;59%</td><td><span class="pill info">below STAN</span> Capable but no graph prior.</td></tr>
+<tr><td><code>next_stan</code></td><td>STAN attention (Yang WWW'21) &mdash; spatio-temporal bias</td><td class="num">~59%</td><td>The STAN backbone used inside <code>next_stan_flow</code>.</td></tr>
+<tr><td><code>next_getnext</code></td><td>STAN + soft graph prior (learned probe over log_T)</td><td>—</td><td><span class="pill warn">superseded by hard variant</span></td></tr>
+<tr><td><strong><code>next_stan_flow</code></strong> (alias <code>next_getnext_hard</code>)</td><td>STAN + <strong>hard</strong> graph prior: <code>final_logits = stan_logits + α · log_T[last_region_idx]</code></td><td class="num">68.37 (AL)</td><td><span class="pill good">CURRENT</span> STL ceiling head; load-bearing component.</td></tr>
+<tr><td><code>next_stan_flow_hsm</code></td><td>STAN + hard prior + hierarchical-additive softmax (parent/child classifier)</td><td>—</td><td><span class="pill bad">F50 T1.2 falsified</span> MTL HSM at FL within σ of MTL flat (mean Δ&nbsp;=&nbsp;&minus;0.86&nbsp;pp). Refutes head-capacity-mismatch hypothesis &mdash; the FL flaw is structural to the shared cross-attn layer, not the head's softmax dimensionality.</td></tr>
+<tr><td><code>next_tgstan</code> · <code>next_stahyper</code></td><td>STAN extensions</td><td>—</td><td><span class="pill warn">tested, no beat</span> <code>next_tgstan</code> flagged as potentially worse than the C4 leak (per-sample gate can route leak selectively).</td></tr>
+</tbody>
+</table>
+
+<h3>8.1 The α scalar &mdash; smallest parameter with biggest effect</h3>
+<pre>final_logits = stan_logits + α · log_T[last_region_idx]
+                              ↑
+α: nn.Parameter(0.1) at init, grows to ~1.77–1.81 at convergence (18× amplification).</pre>
+<p>α is the single learnable scalar that fuses the STAN sequence model with the (legacy POI-trajectory) graph prior. Its growth requires sustained LR ≥ 2e-3 &mdash; the entire F44&ndash;F48 disjoint-LR story is α-driven. In B9 we additionally peel α out of AdamW's weight_decay group (α-no-WD) because L2 shrinkage was clipping its growth.</p>
+
+<!-- ========================================================== -->
+<h2 id="headswap">9. Head &times; backbone co-adaptation</h2>
+
+<p>The standalone-vs-MTL inversion is itself a load-bearing study finding:</p>
+<ul class="compact">
+  <li><strong>Standalone winners do not survive MTL.</strong> <code>category_dcn</code> (F1=0.728 standalone) is unused in the current MTL; <code>next_tcn_residual</code> (F1=0.244 standalone, best on the legacy 7-class next pair) is not used as the reg head.</li>
+  <li><strong>Backbone shapes the head's job.</strong> Under cross-attn the cat head receives a <em>cross-task-modulated</em> sequence representation, not a static POI embedding. The optimal head class shifts.</li>
+  <li><strong>F49 silent gradient finding.</strong> Even when <code>category_weight=0</code> in the loss, the cat encoder still receives gradient through <code>cross_ba</code>'s K/V projections. The cat encoder is implicitly trained as a reg-helper. This means &ldquo;disable cat to ablate cat&rsquo;s effect&rdquo; is unsound under cross-attn &mdash; you must encoder-freeze. <span class="pill info">paper-grade methodological contribution</span></li>
+</ul>
+
+<!-- ========================================================== -->
+<h2 id="ablations">10. Decisive ablations that locked the recipe</h2>
+
+<p>Three orthogonal negative controls bracket H3-alt as the unique design in its lever space (F48-H3-alt era):</p>
+<table>
+<thead><tr><th>Lever</th><th>Cat</th><th>Reg</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td>F45 &mdash; single LR @ 3e-3 everywhere</td><td>💀 collapse</td><td>↑↑ ~74</td><td>uncontested reg gradient → α grows; cat path destabilised</td></tr>
+<tr><td>F40 &mdash; loss-side cat_weight ramp</td><td>OK ~43</td><td>≈ ~61</td><td>OneCycleLR confound &mdash; α can't grow regardless of gradient share</td></tr>
+<tr><td>F48-H2 &mdash; warmup-then-plateau, single LR</td><td>OK ~41</td><td>↓ ~58</td><td>cat alive at plateau → cat vs reg compete for shared cross-attn</td></tr>
+<tr><td><strong>F48-H3-alt &mdash; per-head LR (cat=1e-3, reg=3e-3, shared=1e-3)</strong></td><td><strong>OK ~42</strong></td><td><strong>↑↑ ~75</strong></td><td><strong>shared gentle for cat + α=3e-3 in head-only path</strong></td></tr>
+</tbody>
+</table>
+
+<p>Additional ablations at the post-F50 level:</p>
+<ul class="compact">
+  <li><strong>F50 P1 &mdash; disable cross-attn entirely.</strong> Pure parallel encoders + final LN + heads. Tests whether cross-attn is contributing or hurting at FL. (Plumbed via <code>disable_cross_attn</code> flag.)</li>
+  <li><strong>F52 P5 &mdash; identity cross-attn.</strong> Cross-attention output forced to zero; per-task FFNs + LNs still run. Decomposes &ldquo;mixing&rdquo; vs &ldquo;structure&rdquo; contributions of the cross-attn block. Result: mixing is depth-conditional at FL &mdash; alive at <code>num_crossattn_blocks=3</code> (Pareto-trade), breaks cat at depth 4.</li>
+  <li><strong>F50 P2 &mdash; detach cross-attn K/V.</strong> <code>.detach()</code> on K/V to block silent gradient (the F49 mechanism). Direct test of the cross-attn methodology contribution.</li>
+  <li><strong>F50 D1 &mdash; freeze α.</strong> <code>freeze_alpha=True, alpha_init=0.0</code> disables the graph prior. Tests how much of STL's 82.44 (FL) ceiling comes from the prior vs the STAN encoder. The α component dominates.</li>
+  <li><strong>F51 Tier 2 capacity sweep (21 smokes across 7 dims).</strong> B9 is locally optimal in 5/7 capacity dimensions. Cat width-stability cliff at <code>shared_layer_size 384/512</code> &mdash; wider shared backbone breaks cat without affecting reg.</li>
+  <li><strong>F50 T1.2 HSM (hierarchical softmax).</strong> Empirically falsified head-capacity-mismatch as the FL flaw &mdash; the structural cost lives in the shared layer, not the head's output cardinality.</li>
+  <li><strong>F50 T0 Δm decomposition.</strong> Maninis CVPR 2019 / Vandenhende TPAMI 2021 joint score; refuted &ldquo;cat-supervision transfer&rdquo; story at all 5 states.</li>
+</ul>
+
+<!-- ========================================================== -->
+<h2 id="paper">11. Paper-canonical state (v11, the only numbers to cite)</h2>
+
+<h3>11.1 Five-state architectural-Δ (MTL B9 vs matched-head STL)</h3>
+<table>
+<thead><tr><th>State</th><th>n_regions</th><th>MTL B9 reg Acc@10</th><th>STL <code>next_stan_flow</code></th><th>Δ_reg pp</th><th>p_reg</th><th>MTL B9 cat F1</th><th>STL <code>next_gru</code></th><th>Δ_cat pp</th><th>p_cat</th></tr></thead>
+<tbody>
+<tr><td>AL</td><td class="num">1,109</td><td class="num">50.17 ± 0.24</td><td class="num">61.21 ± 0.18</td><td class="num">&minus;11.04</td><td class="num">1.9e-06</td><td class="num">40.57 ± 0.24</td><td class="num">41.35 ± 0.17</td><td class="num">&minus;0.78</td><td class="num">0.036</td></tr>
+<tr><td>AZ</td><td class="num">1,547</td><td class="num">40.78 ± 0.07</td><td class="num">53.06 ± 0.15</td><td class="num">&minus;12.27</td><td class="num">1.9e-06</td><td class="num">45.10 ± 0.19</td><td class="num">43.90 ± 0.17</td><td class="num">+1.20</td><td class="num">&lt;1e-04</td></tr>
+<tr><td>FL</td><td class="num">4,703</td><td class="num">63.27 ± 0.10</td><td class="num">70.62 ± 0.09</td><td class="num">&minus;7.34</td><td class="num">1.9e-06</td><td class="num">68.56 ± 0.79</td><td class="num">67.16 ± 0.13</td><td class="num">+1.40</td><td class="num">2e-06</td></tr>
+<tr><td>CA</td><td class="num">8,501</td><td class="num">47.35 ± 0.11</td><td class="num">56.85 ± 0.09</td><td class="num">&minus;9.50</td><td class="num">2e-06</td><td class="num">64.07 ± 0.14</td><td class="num">62.39 ± 0.13</td><td class="num">+1.68</td><td class="num">2e-06</td></tr>
+<tr><td>TX</td><td class="num">6,553</td><td class="num">42.84 ± 0.14</td><td class="num">59.44 ± 0.09</td><td class="num">&minus;16.59</td><td class="num">2e-06</td><td class="num">65.00 ± 0.11</td><td class="num">63.11 ± 0.13</td><td class="num">+1.89</td><td class="num">2e-06</td></tr>
+</tbody>
+</table>
+<p class="footnote">All n = 4 seeds × 5 folds (n=20). Source: <code>docs/results/RESULTS_TABLE.md §0.1</code> v11. Δ = MTL B9 &minus; STL ceiling, per-fold paired Wilcoxon.</p>
+
+<h3>11.2 Substrate axis (CH16) &mdash; matched-head STL <code>next_gru</code> cat F1</h3>
+<table>
+<thead><tr><th>State</th><th>C2HGI</th><th>HGI</th><th>Δ pp</th><th>p_greater</th></tr></thead>
+<tbody>
+<tr><td>AL</td><td class="num">41.35 ± 0.17</td><td class="num">25.26 ± 1.18</td><td class="num">+15.50</td><td class="num">0.0312</td></tr>
+<tr><td>AZ</td><td class="num">43.90 ± 0.17</td><td class="num">28.69 ± 0.79</td><td class="num">+14.52</td><td class="num">0.0312</td></tr>
+<tr><td>FL</td><td class="num">63.43 ± 0.98</td><td class="num">34.41 ± 1.05</td><td class="num">+29.02</td><td class="num">0.0312</td></tr>
+<tr><td>CA</td><td class="num">59.94 ± 0.59</td><td class="num">31.13 ± 1.04</td><td class="num">+28.81</td><td class="num">0.0312</td></tr>
+<tr><td>TX</td><td class="num">60.24 ± 1.84</td><td class="num">31.89 ± 0.55</td><td class="num">+28.34</td><td class="num">0.0312</td></tr>
+</tbody>
+</table>
+<p>Two-band pattern: ~15&nbsp;pp at small states (AL/AZ), ~28&ndash;29&nbsp;pp at large states (FL/CA/TX). Per-visit context is ~72&ndash;90% of the substrate gap (CH19, see §14).</p>
+
+<h3>11.3 Joint Δm scoreboard (CH22 leak-free)</h3>
+<table>
+<thead><tr><th>State</th><th>n_pairs</th><th>Δm-MRR (%)</th><th>p_greater</th><th>Δm-Acc@10 (%)</th><th>Verdict</th></tr></thead>
+<tbody>
+<tr><td>AL</td><td class="num">5</td><td class="num">&minus;24.84</td><td class="num">1.0000</td><td class="num">&minus;22.41</td><td><span class="pill bad">MTL Pareto-negative</span></td></tr>
+<tr><td>AZ</td><td class="num">5</td><td class="num">&minus;12.79</td><td class="num">0.9688</td><td class="num">&minus;14.53</td><td><span class="pill bad">MTL Pareto-negative</span></td></tr>
+<tr><td>FL</td><td class="num">25</td><td class="num">+2.33</td><td class="num">2.98e-08</td><td class="num">&minus;1.12</td><td><span class="pill warn">MRR-Pareto positive; Acc@10 negative</span></td></tr>
+<tr><td>CA</td><td class="num">5</td><td class="num">&minus;1.61</td><td class="num">0.9375</td><td class="num">&minus;6.85</td><td><span class="pill bad">MTL Pareto-negative</span></td></tr>
+<tr><td>TX</td><td class="num">5</td><td class="num">&minus;4.63</td><td class="num">1.0000</td><td class="num">&minus;11.60</td><td><span class="pill bad">MTL Pareto-negative</span></td></tr>
+</tbody>
+</table>
+<p>The MTL recipe is Pareto-negative on Δm at 4/5 states under the standard joint metric. FL on the MRR axis is the lone Pareto-positive cell. Source: <code>docs/results/RESULTS_TABLE.md §0.2</code>.</p>
+
+<!-- ========================================================== -->
+<h2 id="leak">12. The transition-prior leak &mdash; reframe history</h2>
+
+<div class="callout bad">
+<strong>This is the single biggest finding in the study.</strong> The <code>α · log_T</code> transition-prior in <code>next_stan_flow</code> was originally built from <em>full-data</em> <code>region_transition_log.pt</code>. Direct measurement on FL fold 1 showed:
+<ul class="compact">
+  <li>Prior-only val top10 with full log_T = <strong>90.23%</strong> vs per-fold log_T = <strong>80.04%</strong> &mdash; <strong>10.19&nbsp;pp gap from log_T alone</strong>.</li>
+  <li>α grows from 0.1 (init) to ~1.77&ndash;1.81 (converged) &mdash; 18× amplification.</li>
+  <li>Trained-model gap at convergence ≈ <strong>~13&ndash;17&nbsp;pp inflation</strong> on reg numbers.</li>
+</ul>
+The audit's original estimate of 0.5&ndash;2&nbsp;pp was off by ~10× because it assumed α stays near its init. Trainable val-aware priors are worse than static leaks because the model <em>learns to amplify them</em>.
+</div>
+
+<p>Two paper-reshaping reframes followed:</p>
+<ol>
+  <li><strong>F49 &ldquo;AL +6.48&nbsp;pp architecture-dominant&rdquo; was a leak artefact.</strong> Under symmetric leak-free measurement AL's reg pattern matches every other state &mdash; sign-consistent negative.</li>
+  <li><strong>CH18-reg &ldquo;MTL is substrate-specific&rdquo; was a leak artefact.</strong> Substrate-asymmetric leakage (worse for C2HGI than HGI) inverted the substrate ordering on reg. Under leak-free measurement, HGI is at parity (CA/TX) or marginally ahead (AL/AZ/FL).</li>
+</ol>
+
+<p>Additional leak hardening: per-fold log_T files are now <code>region_transition_log_seed{S}_fold{N}.pt</code> with seed in the filename; trainer hard-fails on missing or legacy unseeded files. Without this hardening the F51 multi-seed sweep would have leaked ~9&nbsp;pp on every seed ≠ 42.</p>
+
+<!-- ========================================================== -->
+<h2 id="gaps">13. Open work + gaps</h2>
+
+<h3>13.1 Active follow-up studies (already chartered)</h3>
+<ul class="compact">
+  <li><strong><code>docs/studies/canonical_improvement/</code></strong> &mdash; 18-experiment slate across 5 tiers; targets <em>canonical Check2HGI</em> improvement. T1.1 leak audit → T1.3 α sweep → T1.5 optimizer hygiene → ... → T5 stretch goals. Stop-gate after Tier 1 if α sweep + optimizer hygiene closes the AZ reg gap to within 1&nbsp;pp of HGI.</li>
+  <li><strong><code>docs/studies/merge_design/</code></strong> &mdash; Designs A-M / Levers 1-6 / Phase 11. Targets merge-family substrate (concatenations of C2HGI with POI2Vec / HGI). Several formulations falsified (S1 hard negs, S3-a 4th boundary, S3-b V2-c per-check-in POI2Vec anchor, S4 corrupted negs).</li>
+  <li><strong><code>docs/studies/hgi_category_injection/</code></strong> &mdash; <span class="pill bad">CLOSED, falsified 2026-05-04</span> on AZ. Held pending FL/CA/TX revisit. Read <code>STATUS.md</code>.</li>
+</ul>
+
+<h3>13.2 Identified flaws not yet chartered as a study</h3>
+<ul class="compact">
+  <li><strong>Architectural cost monotone-ish in region cardinality.</strong> Δ_reg = &minus;11&nbsp;pp (AL) → &minus;12&nbsp;pp (AZ) → &minus;7&nbsp;pp (FL) → &minus;10&nbsp;pp (CA) → &minus;17&nbsp;pp (TX). The strongest cost is at TX. F51 Tier 2 confirmed capacity scaling cannot rescue it. The cross-attention shared layer pays a price that grows with reg head's output cardinality &mdash; no current variant closes it.</li>
+  <li><strong>No MTL &gt; STL on reg, anywhere, under leak-free.</strong> The classic tradeoff stands. There is no &ldquo;dual win&rdquo; recipe in the searched space (~50 ablations across heads, losses, schedules, capacity).</li>
+  <li><strong>Cat width-stability cliff.</strong> <code>shared_layer_size ∈ {384, 512}</code> with <code>num_crossattn_blocks=4</code>, <code>crossattn_ffn_dim=1024</code> breaks cat without affecting reg. Wider shared backbone is forbidden under current head choice.</li>
+  <li><strong>FAMO and Aligned-MTL untested leak-free.</strong> Launchers exist (F50 T1.3/T1.4); never run under per-fold seed-tagged log_T. Expected value modest (no MTL balancer beats equal_weight on this problem) but the closure would be honest.</li>
+  <li><strong>Crossstitch backbone never head-to-head.</strong> <code>src/models/mtl/mtlnet_crossstitch/</code> is scaffolded; no leak-free 5-fold run vs <code>mtlnet_crossattn</code>.</li>
+  <li><strong>Cheapest experiment in this doc &mdash; flat single-check-in cat ablation.</strong> Run STL <code>next_gru</code> on flat <code>[B, 1, 64]</code> Check2HGI input (no sequence) at the same fold protocol. Would isolate whether the +10 to +23&nbsp;pp lift over the linear probe is sequence-driven or capacity-driven. Detailed motivation in §14.2.</li>
+</ul>
+
+<h3>13.3 Methodological loose ends (paper-side)</h3>
+<ul class="compact">
+  <li>F49 Layer 2 (cross-attn <code>task_weight=0</code> unsoundness) applies to <strong>MulT, InvPT, HMT-GRN</strong> and any cross-task interaction MTL with task-weight ablations. Worth a follow-up methods note.</li>
+  <li>Per-fold seed-tagged log_T is now mandatory; the gate in <code>src/data/folds.py::_HEADS_REQUIRING_AUX_MTL</code> needs every new α·log_T-style head added explicitly. Easy to miss; recommend converting to a duck-typed check (e.g. <code>hasattr(head, 'log_T')</code>).</li>
+  <li>The <em>standalone-vs-MTL inversion</em> on heads is not yet a single consolidated paper claim. The ordering reversal (best standalone heads ≠ best MTL heads) is a publishable observation in its own right.</li>
+</ul>
+
+<h3>13.4 Documentation gaps observed during this audit</h3>
+<ul class="compact">
+  <li><code>docs/context/MTL_ARCHITECTURES.md</code> still quotes <em>fusion-study legacy</em> CGC/MMoE/DSelectK joint numbers (10ep / 1-fold on the legacy 7+7 pair). These can mislead a fresh reader into thinking those backbones are still competitive on the current check2hgi pair (they are not, but the comparison was never re-run on the current task). Add a leading caveat or move to an archive section.</li>
+  <li><code>docs/context/TASKS.md</code> describes the <em>legacy</em> task pair (<code>category</code> + <code>next-category</code>, both 7 classes), not the current check2hgi pair (<code>next_category</code> + <code>next_region</code>). The check2hgi task pair is described inside <code>AGENT_CONTEXT.md</code> §Task pair but not in the canonical <code>context/</code> folder. Worth a refresh.</li>
+  <li><code>docs/COLAB_GUIDE.md</code> and <code>experiments/check2hgi_up/run_mtl_b3.py</code> still bake in the predecessor B3 recipe (<code>--max-lr 0.003</code>, no per-head LR). Tracked as camera-ready follow-up but easy to forget.</li>
+</ul>
+
+<!-- ========================================================== -->
+<h2 id="datafit">14. Is the input data the right fit for the model?</h2>
+
+<p>Short answer: <strong>mostly yes, with one open question</strong>.</p>
+
+<h3>14.1 Where the input fits the model well</h3>
+<ul class="compact">
+  <li><strong>Reg task (<code>next_region</code>).</strong> Sequence input with a 9-step window over region embeddings + <code>last_region_idx</code> aux channel is exactly the input shape <code>next_stan_flow</code> needs: STAN expects a temporal sequence; the α·log_T prior only fires given the last observed region. The window=9 stride=9 non-overlap design is conservative but defensible &mdash; it avoids overlap-driven leakage. The per-fold seed-tagged log_T closes the val-train transition leak.</li>
+  <li><strong>Cross-attn match.</strong> Two streams with the <em>same</em> sequence shape <code>[B, 9, 64]</code> but different <em>modalities</em> (per-visit check-in vs per-region) is the natural input for bidirectional cross-attention. Per-task encoders + content-based mixing is exactly the inductive bias the architecture provides.</li>
+  <li><strong>Substrate carries cat.</strong> CH19 shows ~72&ndash;90% of the cat lift over HGI is per-visit context, which is what Check2HGI explicitly encodes. The cat task is being fed the signal it actually needs.</li>
+</ul>
+
+<h3>14.2 Where the input may be over-engineered for the cat task</h3>
+<div class="callout warn">
+<strong>The under-explored question.</strong> The cat task (<code>next_category</code>, 7-class macro-F1) is fed a <code>[B, 9, 64]</code> sequence and processed through a 2-layer GRU. But CH19 (<code>RESULTS_TABLE.md §0.7</code>) shows the per-visit Check2HGI substrate <em>alone</em> carries 64&ndash;90% of the cat lift. The substrate linear-probe numbers from <code>RESULTS_TABLE.md §0.6</code> hint at what a static cat predictor can already do:
+
+<table>
+<thead><tr><th>State</th><th>Substrate linear probe (C2HGI) F1</th><th>STL <code>next_gru</code> matched-head F1</th><th>Δ pp</th></tr></thead>
+<tbody>
+<tr><td>AL</td><td class="num">30.84</td><td class="num">41.35 ± 0.17</td><td class="num">+10.51</td></tr>
+<tr><td>AZ</td><td class="num">34.12</td><td class="num">43.90 ± 0.17</td><td class="num">+9.78</td></tr>
+<tr><td>FL</td><td class="num">40.77</td><td class="num">63.43 ± 0.98</td><td class="num">+22.66</td></tr>
+<tr><td>CA</td><td class="num">37.45</td><td class="num">59.94 ± 0.59</td><td class="num">+22.49</td></tr>
+<tr><td>TX</td><td class="num">38.38</td><td class="num">60.24 ± 1.84</td><td class="num">+21.86</td></tr>
+</tbody>
+</table>
+
+STL <code>next_gru</code> cat F1 cells use the §0.3 multi-seed values to stay consistent with §11.2 above; substrate linear probe cells are from §0.6. The +10 to +23&nbsp;pp gap from linear probe to sequence head <em>is</em> real and growing with state size &mdash; the sequence is contributing something at scale. <strong>But</strong> this comparison conflates (a) sequence information and (b) end-to-end fine-tuning of a richer head. A cleaner ablation would feed the cat head a <em>flat single check-in</em> from the same Check2HGI substrate at a comparably-tuned non-linear (MLP) head &mdash; that would isolate whether the 9-step sequence carries the lift or whether non-linearity alone is the lever. <em>That experiment has not been run.</em>
+</div>
+
+<h3>14.3 Where the input is a known mismatch for the reg task</h3>
+<ul class="compact">
+  <li><strong>Region embedding input.</strong> The reg head consumes a 9-step sequence of <em>region</em> embeddings (mean-aggregated over POIs in each region), not the underlying POI/check-in embeddings. This is the configuration committed in B9 (<code>--task-b-input-type region</code>) but the underlying check-in substrate carries more discriminative per-visit context (CH19). Whether this aggregation is the right tradeoff for the reg head is not separately ablated.</li>
+  <li><strong>Per-fold transition matrix granularity.</strong> log_T is built per fold from training rows only. At small states (AL, ~1k regions) some target regions have ≤10 transitions in training &mdash; the prior is noisy. Per-fold log_T smoothing has not been tested.</li>
+</ul>
+
+<h3>14.4 Bottom-line recommendation</h3>
+<ol>
+  <li>The current input pipeline <em>matches</em> the current model: the reg head needs the sequence + last_region channel; the cat head needs the per-visit substrate. Cross-attn is the right architecture for two same-shape different-modality inputs.</li>
+  <li><strong>Worth a cheap ablation</strong>: run STL <code>next_gru</code> on flat single-check-in <code>[B, 1, 64]</code> Check2HGI input (no sequence) at the same fold protocol. Compares against the existing 9-step STL <code>next_gru</code>. If the lift over linear probe is sequence-driven, the gap should shrink dramatically. If it's mostly capacity-driven, it should hold.</li>
+  <li>Region-input vs check-in-input for the reg head was the P4 winner, but tested under leaky log_T. A leak-free re-comparison would close the loop.</li>
+</ol>
+
+<!-- ========================================================== -->
+<h2 id="sources">15. Sources cited in this report</h2>
+
+<table>
+<thead><tr><th>Topic</th><th>Source</th></tr></thead>
+<tbody>
+<tr><td>Paper-canonical numbers (v11)</td><td><code>docs/results/RESULTS_TABLE.md §0</code></td></tr>
+<tr><td>Architecture journey (F-trail)</td><td><code>docs/MTL_ARCHITECTURE_JOURNEY.md</code></td></tr>
+<tr><td>Chronological changelog</td><td><code>docs/CHANGELOG.md</code></td></tr>
+<tr><td>Champion config &amp; recipe</td><td><code>docs/NORTH_STAR.md</code></td></tr>
+<tr><td>Claim catalogue</td><td><code>docs/CLAIMS_AND_HYPOTHESES.md</code></td></tr>
+<tr><td>Substrate axis</td><td><code>docs/FINAL_SURVEY.md</code>, <code>docs/results/CH19_PERVISIT_5STATE_SUMMARY.md</code></td></tr>
+<tr><td>MTL backbone catalog</td><td><code>docs/context/MTL_ARCHITECTURES.md</code> (with caveat)</td></tr>
+<tr><td>Loss / gradient balancing catalog</td><td><code>docs/context/MTL_OPTIMIZERS.md</code></td></tr>
+<tr><td>Task heads (standalone rankings)</td><td><code>docs/context/TASK_HEADS.md</code></td></tr>
+<tr><td>Embedding engines</td><td><code>docs/context/EMBEDDINGS.md</code></td></tr>
+<tr><td>F49 Layer 2 methodology contribution</td><td><code>docs/findings/F49_LAMBDA0_DECOMPOSITION_GAP.md</code></td></tr>
+<tr><td>F50 audit + tiered plan</td><td><code>docs/findings/F50_*</code> series</td></tr>
+<tr><td>Multi-seed F51</td><td><code>docs/findings/F51_MULTI_SEED_FINDINGS.md</code></td></tr>
+<tr><td>MTL flaws consolidated</td><td><code>docs/findings/MTL_FLAWS_AND_FIXES.md</code></td></tr>
+<tr><td>Active studies</td><td><code>docs/studies/canonical_improvement/</code>, <code>docs/studies/merge_design/</code>, <code>docs/studies/hgi_category_injection/</code></td></tr>
+<tr><td>Source code &mdash; cross-attn backbone</td><td><code>src/models/mtl/mtlnet_crossattn/model.py</code></td></tr>
+<tr><td>Source code &mdash; cat head</td><td><code>src/models/next/next_gru/head.py</code></td></tr>
+<tr><td>Source code &mdash; reg head</td><td><code>src/models/next/next_stan_flow/head.py</code></td></tr>
+<tr><td>Source code &mdash; per-head LR optimizer</td><td><code>src/training/helpers.py</code> (<code>setup_per_head_optimizer</code>)</td></tr>
+<tr><td>Source code &mdash; task presets</td><td><code>src/tasks/presets.py</code> (<code>CHECK2HGI_NEXT_REGION</code>)</td></tr>
+<tr><td>Source code &mdash; sequence generation</td><td><code>src/data/inputs/core.py</code> (<code>generate_sequences</code>)</td></tr>
+<tr><td>Source code &mdash; aux side channel for last_region_idx</td><td><code>src/data/aux_side_channel.py</code>, gate in <code>src/data/folds.py</code></td></tr>
+</tbody>
+</table>
+
+<hr/>
+<p class="footnote">
+  Compiled 2026-05-14 by an audit pass over <code>docs/</code> (60+ findings, 6 root briefings, 4 active/closed studies, 26 archive folders) plus source-code grounding in <code>src/models/</code>, <code>src/data/</code>, <code>src/tasks/</code>, <code>src/training/</code>. Numbers are canonical v11 (2026-05-02) unless explicitly flagged as journey-era; the leak-era narrative is preserved <em>only</em> inside §3, §6, and §10 for causal explanation, never as a current claim. Cross-checks performed against <code>RESULTS_TABLE.md §0.1</code>, <code>§0.2</code>, <code>§0.3</code>, <code>§0.4</code>, <code>§0.6</code>, <code>§0.7</code>; <code>NORTH_STAR.md</code> §Champion; <code>MTL_ARCHITECTURE_JOURNEY.md</code> §§1&ndash;11; <code>MTL_FLAWS_AND_FIXES.md</code> §§1&ndash;2; <code>CHANGELOG.md</code> 2026-04-16 → 2026-05-02 rows; and direct source reads of the files in §15.
+</p>
+
+</main>
+</div>
+</body>
+</html>

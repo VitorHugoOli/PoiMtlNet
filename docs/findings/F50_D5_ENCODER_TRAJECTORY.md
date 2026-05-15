@@ -1,5 +1,20 @@
 # F50 D5 — Reg Encoder Weight-Trajectory Diagnostic
 
+> ⚠ **2026-05-15 caveat — absolute val numbers in §2.3 are leak-inflated.**
+> The two paired runs were launched as `--folds 1` (smoke budget) with
+> `--per-fold-transition-dir`. The per-fold log_T file on disk was built at
+> `n_splits=5`; the trainer's `--folds 1` triggers `n_splits=max(2,1)=2`, so
+> ~30 % of val users have their region transitions present in the prior →
+> α-amplified leak inflates reg `top10_acc_indist` by ~13 pp. The blast-radius
+> audit (`docs/studies/mtl-exploration/LEAK_BLAST_RADIUS_AUDIT.md`) reproduced
+> the exact bug fingerprint (76.51 ≈ 76.33). **The mechanism finding survives**
+> because saturation is measured in weight-update space (Frobenius drift), not
+> val metrics — the trajectory shape "reg encoder saturates 26–32 epochs
+> earlier than cat encoder" holds. A loud guard now lives in
+> `src/training/runners/mtl_cv.py` (2026-05-15 commit) that hard-fails on
+> `n_splits` mismatch; future re-runs at `--folds 5 --epochs 50` will give
+> paper-grade absolute numbers if needed.
+
 **Status:** done 2026-04-29 22:21 UTC. **Hypothesis SUPPORTED.**
 
 **Question (F50 T3 §5.5 follow-up):** Under joint MTL training, does the `next_encoder` (reg-side) saturate its weight updates earlier than `category_encoder` (cat-side) — paralleling the empirically observed reg-best epoch ~5 vs cat-best epoch ~16?

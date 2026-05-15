@@ -162,6 +162,9 @@ class MTLnetCrossAttn(MTLnet):
         detach_crossattn_kv: bool = False,
         disable_cross_attn: bool = False,
         identity_cross_attn: bool = False,
+        no_task_encoders: bool = False,
+        linear_encoders: bool = False,
+        linear_ln_encoders: bool = False,
         category_head: Optional[str] = None,
         next_head: Optional[str] = None,
         category_head_params: Optional[dict[str, Any]] = None,
@@ -176,9 +179,23 @@ class MTLnetCrossAttn(MTLnet):
         self._detach_crossattn_kv = bool(detach_crossattn_kv)
         self._disable_cross_attn = bool(disable_cross_attn)
         self._identity_cross_attn = bool(identity_cross_attn)
+        self._no_task_encoders = bool(no_task_encoders)
+        self._linear_encoders = bool(linear_encoders)
+        self._linear_ln_encoders = bool(linear_ln_encoders)
         if self._disable_cross_attn and self._identity_cross_attn:
             raise ValueError(
                 "disable_cross_attn and identity_cross_attn are mutually exclusive"
+            )
+        _enc_modes = sum(int(x) for x in (self._no_task_encoders, self._linear_encoders, self._linear_ln_encoders))
+        if _enc_modes > 1:
+            raise ValueError(
+                "no_task_encoders, linear_encoders, linear_ln_encoders are mutually exclusive"
+            )
+        if self._no_task_encoders and feature_size != shared_layer_size:
+            raise ValueError(
+                f"no_task_encoders=True requires feature_size == shared_layer_size; "
+                f"got feature_size={feature_size}, shared_layer_size={shared_layer_size}. "
+                f"Pass --model-param shared_layer_size={feature_size} to align them."
             )
         super().__init__(
             feature_size=feature_size,
@@ -198,6 +215,39 @@ class MTLnetCrossAttn(MTLnet):
             next_head_params=next_head_params,
             task_set=task_set,
         )
+        if self._no_task_encoders:
+            # mtl-exploration smoke (2026-05-14): replace per-task MLP encoders
+            # with identity to feed raw 64-dim embeddings directly into the
+            # cross-attention stack. Requires feature_size == shared_layer_size
+            # (checked above). Heads receive embed_dim = feature_size and project
+            # internally (next_stan_flow: Linear(embed_dim, d_model);
+            # next_gru: GRU(input_size=embed_dim, hidden_size=hidden_dim)).
+            self.category_encoder = nn.Identity()
+            self.next_encoder = nn.Identity()
+        elif self._linear_encoders:
+            # mtl-exploration cells B+C (2026-05-15): replace per-task 2-layer
+            # MLP encoder with a single nn.Linear(feature_size, shared_layer_size).
+            # No ReLU / LayerNorm / Dropout — purely linear projection. Isolates
+            # whether the encoder's non-linearity/depth or its dim-lift is what
+            # the AZ/FL Δ depends on (paired with shared_layer_size choice).
+            self.category_encoder = nn.Linear(feature_size, shared_layer_size)
+            self.next_encoder = nn.Linear(feature_size, shared_layer_size)
+        elif self._linear_ln_encoders:
+            # mtl-exploration cell E (2026-05-15): Linear + LayerNorm, no
+            # non-linearity. Thin hybrid between cell C (Linear only) and the
+            # baseline 2-MLP. Tests whether the LayerNorm in the original
+            # encoder is what recovers the small (~0.2 pp) cat lift over
+            # cell C at AZ. If yes, the encoder MLP simplifies to
+            # ``Linear → LayerNorm`` (saves ~150K params per encoder vs
+            # baseline; ~0 extra params vs cell C plus a single LN).
+            self.category_encoder = nn.Sequential(
+                nn.Linear(feature_size, shared_layer_size),
+                nn.LayerNorm(shared_layer_size),
+            )
+            self.next_encoder = nn.Sequential(
+                nn.Linear(feature_size, shared_layer_size),
+                nn.LayerNorm(shared_layer_size),
+            )
 
     def _build_shared_backbone(
         self,
