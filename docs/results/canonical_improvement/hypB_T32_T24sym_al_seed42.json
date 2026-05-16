@@ -1,0 +1,29 @@
+{
+  "tag": "hypB_T32_T24sym_al_seed42",
+  "tagged_root": "/home/vitor.oliveira/PoiMtlNet/runs/hypB_T32_T24sym_al_seed42",
+  "al": {
+    "run_dir": "/home/vitor.oliveira/PoiMtlNet/runs/hypB_T32_T24sym_al_seed42/results/check2hgi/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260516_182854_3336116",
+    "cat_f1_per_fold": [
+      0.4193488359451294,
+      0.41600802540779114,
+      0.42978909611701965,
+      0.4125062823295593,
+      0.42713260650634766
+    ],
+    "reg_top10_per_fold": [
+      0.5379951596260071,
+      0.49879613518714905,
+      0.5343077778816223,
+      0.4907975494861603,
+      0.4294428527355194
+    ],
+    "cat_f1_mean_pct": 42.09569692611694,
+    "cat_f1_std_pct": 0.7325250982457833,
+    "reg_top10_mean_pct": 49.82678949832916,
+    "reg_top10_std_pct": 4.3789554277489655,
+    "leak_probe": {
+      "f1_mean_pct": 32.29373224004107,
+      "f1_std_pct": 0.8942836620060263
+    }
+  }
+}

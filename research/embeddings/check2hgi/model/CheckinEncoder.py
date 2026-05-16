@@ -39,7 +39,7 @@ class CheckinEncoder(nn.Module):
         self.act = nn.PReLU()
         self.dropout_layer = nn.Dropout(p=dropout) if dropout > 0 else nn.Identity()
 
-    def forward(self, x, edge_index, edge_weight=None):
+    def forward(self, x, edge_index, edge_weight=None, **kwargs):
         """
         Forward pass through check-in encoder.
 
@@ -47,6 +47,8 @@ class CheckinEncoder(nn.Module):
             x: Node features [num_checkins, in_channels]
             edge_index: Graph connectivity [2, num_edges]
             edge_weight: Optional edge weights [num_edges]
+            **kwargs: Ignored. Absorbs ``edge_type`` plumbed by Check2HGI for
+                R-GCN compatibility (T3.3); the canonical GCN does not use it.
 
         Returns:
             Check-in embeddings [num_checkins, hidden_channels]

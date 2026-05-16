@@ -12,7 +12,7 @@ import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch_geometric.nn import GCNConv, GATv2Conv
+from torch_geometric.nn import GCNConv, GATv2Conv, RGCNConv
 
 from embeddings.check2hgi.model.Check2HGIModule import Check2HGI, corruption, EPS
 
@@ -22,31 +22,53 @@ from embeddings.check2hgi.model.Check2HGIModule import Check2HGI, corruption, EP
 # ---------------------------------------------------------------------------
 
 class GATTimeEncoder(nn.Module):
-    """GATv2 encoder where attention is conditioned on the (1-d) temporal
-    edge weight from the user-sequence graph."""
+    """GATv2 encoder where attention is (optionally) conditioned on the (1-d)
+    temporal edge weight from the user-sequence graph.
 
-    def __init__(self, in_channels, hidden_channels, num_layers=2, heads=4, dropout=0.0):
+    Per the T3.1 advisor (2026-05-15): conditioning attention on the temporal
+    edge weight makes the encoder learn to copy the most-recent same-user
+    neighbour's category into the output, producing a +11 pp leak-probe
+    delta and 99% cat F1 at FL. The leak is structural to the
+    (attention × temporal-edge-attr × user-sequence) triangle. Setting
+    ``use_edge_attr=False`` breaks one corner of the triangle: attention is
+    learned purely from node features, with no temporal conditioning. The
+    rest of the architecture is unchanged. This is "fix 1" from the
+    T3.1 rehabilitation menu.
+    """
+
+    def __init__(self, in_channels, hidden_channels, num_layers=2, heads=4,
+                 dropout=0.0, use_edge_attr=True):
         super().__init__()
         self.in_channels = in_channels
         self.hidden_channels = hidden_channels
         self.num_layers = num_layers
+        self.use_edge_attr = bool(use_edge_attr)
 
         assert hidden_channels % heads == 0
         head_dim = hidden_channels // heads
 
+        # When use_edge_attr=False, the GATv2Conv is constructed without an
+        # edge_dim — it does NOT expect edge_attr at forward time. Attention
+        # is then learned purely from node features.
+        _edge_dim = 1 if self.use_edge_attr else None
+
         self.convs = nn.ModuleList()
         # First layer: in_channels -> hidden_channels
         self.convs.append(GATv2Conv(in_channels, head_dim, heads=heads,
-                                    edge_dim=1, concat=True, add_self_loops=True))
+                                    edge_dim=_edge_dim, concat=True, add_self_loops=True))
         for _ in range(num_layers - 1):
             self.convs.append(GATv2Conv(hidden_channels, head_dim, heads=heads,
-                                        edge_dim=1, concat=True, add_self_loops=True))
+                                        edge_dim=_edge_dim, concat=True, add_self_loops=True))
 
         self.act = nn.PReLU()
         self.dropout = nn.Dropout(dropout) if dropout > 0 else nn.Identity()
 
-    def forward(self, x, edge_index, edge_weight=None):
-        edge_attr = edge_weight.unsqueeze(-1) if edge_weight is not None else None
+    def forward(self, x, edge_index, edge_weight=None, **kwargs):
+        # **kwargs absorbs edge_type plumbed by Check2HGI for R-GCN compatibility.
+        if self.use_edge_attr and edge_weight is not None:
+            edge_attr = edge_weight.unsqueeze(-1)
+        else:
+            edge_attr = None
         for i, conv in enumerate(self.convs):
             x = conv(x, edge_index, edge_attr=edge_attr)
             if i < len(self.convs) - 1:
@@ -79,7 +101,8 @@ class ResidualLNEncoder(nn.Module):
         self.act = nn.PReLU()
         self.dropout = nn.Dropout(dropout) if dropout > 0 else nn.Identity()
 
-    def forward(self, x, edge_index, edge_weight=None):
+    def forward(self, x, edge_index, edge_weight=None, **kwargs):
+        # **kwargs absorbs edge_type plumbed by Check2HGI for R-GCN compatibility.
         # First layer (no residual since dim mismatch)
         x = self.convs[0](x, edge_index, edge_weight)
         x = self.norms[0](x)
@@ -94,6 +117,212 @@ class ResidualLNEncoder(nn.Module):
                 h = self.dropout(h)
             x = x + h
         return x
+
+
+# ---------------------------------------------------------------------------
+# V6: Time2Vec input-side temporal encoder (T3.4)
+# ---------------------------------------------------------------------------
+
+class _SineActivationT2V(nn.Module):
+    """Time2Vec sine activation (Kazemi et al. 2019). Replicates the canonical
+    formulation from ``research/embeddings/time2vec/model/activations.py``
+    without importing it, to avoid pulling in the contrastive Time2Vec module
+    (which carries DEVICE auto-detect side effects via `configs.globals`).
+
+    Warm-start option: ``warm_start=True`` initialises the first 4 periodic
+    channels to recover the canonical fixed-frequency (hour_sin, hour_cos,
+    dow_sin, dow_cos) features identically, so SGD can deviate only as
+    needed. Addresses the T3.4 cat-axis −0.56 pp regression (T3.4 advisor
+    2026-05-16 §3): random init blurs the 24-hour categorical periodicity.
+    """
+
+    def __init__(self, in_features: int, out_features: int,
+                 warm_start: bool = False):
+        super().__init__()
+        self.out_features = out_features
+        # One linear channel (Wx + b) + (out_features-1) periodic channels.
+        self.w0 = nn.Parameter(torch.randn(in_features, 1))
+        self.b0 = nn.Parameter(torch.randn(1))
+        self.w = nn.Parameter(torch.randn(in_features, out_features - 1))
+        self.b = nn.Parameter(torch.randn(out_features - 1))
+        if warm_start:
+            self._init_warm_start(in_features, out_features)
+
+    def _init_warm_start(self, in_features: int, out_features: int) -> None:
+        """Initialise the first 4 periodic channels so that f(x) returns the
+        canonical [hour_sin, hour_cos, dow_sin, dow_cos] features when the
+        input x is the same 4-d vector. Remaining channels stay random.
+
+        Recovery math: input ``x = [hs, hc, ds, dc]`` (already the canonical
+        sin/cos). Identity per-channel means ``sin(W x + b) = x_i`` for the
+        i-th channel. Achieved with W_i selecting the i-th input via a
+        large coefficient inside arcsin, but the simpler trick: set the
+        learned periodic output's first 4 channels to read x[:, i] directly
+        via a near-identity linear mix and zero bias, then SGD refines.
+        """
+        with torch.no_grad():
+            if self.w.shape[1] >= in_features:
+                # Linear-channel: small slope, zero bias.
+                self.w0.zero_()
+                self.b0.zero_()
+                # Periodic-channels: copy x verbatim through sin( x · π/2 ),
+                # since sin(π/2 · ±1) = ±1 and the canonical sin/cos values
+                # are bounded in [-1, 1]. The first 4 periodic channels recover
+                # x[:, 0..3] exactly when x is the canonical sin/cos vector
+                # (because |hs|, |hc|, |ds|, |dc| ≤ 1).
+                self.w.zero_()
+                self.b.zero_()
+                # Set w[i, j] = π/2 · δ_{ij} for j in 0..in_features-1.
+                pi_half = float(math.pi / 2.0)
+                for i in range(in_features):
+                    self.w[i, i] = pi_half
+                # Channels in_features..out_features-2 stay random (small).
+                if out_features - 1 > in_features:
+                    self.w[:, in_features:].normal_(mean=0.0, std=0.01)
+
+    def forward(self, tau: torch.Tensor) -> torch.Tensor:
+        v0 = tau @ self.w0 + self.b0                       # (N, 1)
+        vp = torch.sin(tau @ self.w + self.b)              # (N, out-1)
+        return torch.cat([v0, vp], dim=-1)                 # (N, out)
+
+
+class Time2VecCheckinEncoder(nn.Module):
+    """T3.4 — Time2Vec replaces the fixed (hour_sin, hour_cos, dow_sin, dow_cos)
+    temporal features with a learned periodic encoding before the canonical
+    2-layer GCN.
+
+    Input layout (matches preprocess.py:_build_node_features):
+        x[..., :num_categories]  category one-hot (preserved)
+        x[..., num_categories:]  4 fixed-frequency sin/cos cols → replaced
+
+    The Time2Vec layer projects the 4-d fixed temporal vector to a learned
+    d_t-d periodic representation. Category one-hot is untouched. No residual
+    or skip path preserves the one-hot verbatim downstream, so this swap does
+    NOT enlarge the leak surface (T3.4 advisor pre-launch audit, 2026-05-15).
+    """
+
+    def __init__(self, in_channels: int, hidden_channels: int,
+                 num_categories: int, num_layers: int = 2,
+                 time2vec_dim: int = 8, dropout: float = 0.0,
+                 warm_start: bool = False):
+        super().__init__()
+        if num_categories <= 0 or num_categories >= in_channels:
+            raise ValueError(
+                f"Time2VecCheckinEncoder: num_categories={num_categories} must "
+                f"be in (0, in_channels={in_channels}); last 4 cols of x are "
+                f"the temporal sin/cos features."
+            )
+        n_time_in = in_channels - num_categories
+        if n_time_in != 4:
+            raise ValueError(
+                f"Time2VecCheckinEncoder: expected exactly 4 temporal input "
+                f"features (hour_sin, hour_cos, dow_sin, dow_cos); got {n_time_in}."
+            )
+        self.in_channels = in_channels
+        self.hidden_channels = hidden_channels
+        self.num_categories = num_categories
+        self.time2vec_dim = time2vec_dim
+        self.num_layers = num_layers
+
+        self.t2v = _SineActivationT2V(in_features=n_time_in,
+                                      out_features=time2vec_dim,
+                                      warm_start=warm_start)
+
+        post_in = num_categories + time2vec_dim
+        self.convs = nn.ModuleList()
+        self.convs.append(GCNConv(post_in, hidden_channels, cached=False, bias=True))
+        for _ in range(num_layers - 1):
+            self.convs.append(GCNConv(hidden_channels, hidden_channels,
+                                      cached=False, bias=True))
+
+        self.act = nn.PReLU()
+        self.dropout = nn.Dropout(dropout) if dropout > 0 else nn.Identity()
+
+    def forward(self, x, edge_index, edge_weight=None, **kwargs):
+        # **kwargs absorbs edge_type plumbed by Check2HGI for R-GCN compatibility.
+        x_cat = x[..., :self.num_categories]
+        x_time = x[..., self.num_categories:]
+        t2v_emb = self.t2v(x_time)
+        h = torch.cat([x_cat, t2v_emb], dim=-1)
+        for i, conv in enumerate(self.convs):
+            h = conv(h, edge_index, edge_weight)
+            if i < len(self.convs) - 1:
+                h = self.act(h)
+                h = self.dropout(h)
+        return h
+
+
+# ---------------------------------------------------------------------------
+# V7: Relational GCN (R-GCN) over heterogeneous edge typing (T3.3 Option A)
+# ---------------------------------------------------------------------------
+
+class RGCNEncoder(nn.Module):
+    """T3.3 — Relational GCN that aggregates separately per edge relation,
+    with no attention and no edge_attr conditioning.
+
+    Requires the upstream graph to expose ``edge_type`` as a long tensor of
+    length E (relation index per edge). The companion preprocess change
+    (`edge_type='both'` augmented to store per-edge type) feeds this encoder
+    with K=2 relations: 0 = user_sequence, 1 = same_poi.
+
+    Design rationale (T3.3 advisor pre-launch audit, 2026-05-15):
+      * Sum aggregation per relation (no attention coefficient learning).
+      * No edge_attr at forward (so the temporal-decay continuous weights
+        cannot leak through attention as in the T3.1 GAT triangle).
+      * Optional basis decomposition (``num_bases``) to keep the param delta
+        vs canonical GCN under the F51 50 % guardrail at D=64.
+
+    `edge_weight` is accepted for API compatibility with the rest of the
+    dispatch but is IGNORED (R-GCN aggregation is over relation typing, not
+    continuous weight).
+    """
+
+    def __init__(self, in_channels: int, hidden_channels: int,
+                 num_relations: int = 2, num_layers: int = 2,
+                 num_bases: int | None = 2, dropout: float = 0.0,
+                 aggr: str = "sum"):
+        super().__init__()
+        if num_relations < 2:
+            raise ValueError(
+                f"RGCNEncoder requires num_relations >= 2; got {num_relations}. "
+                f"With 1 relation R-GCN degenerates to GCN."
+            )
+        if aggr not in ("sum", "mean"):
+            raise ValueError(f"RGCNEncoder aggr must be 'sum' or 'mean'; got {aggr}.")
+        self.in_channels = in_channels
+        self.hidden_channels = hidden_channels
+        self.num_relations = num_relations
+        self.num_layers = num_layers
+        self.num_bases = num_bases
+        self.aggr = aggr
+
+        self.convs = nn.ModuleList()
+        self.convs.append(RGCNConv(in_channels, hidden_channels,
+                                   num_relations=num_relations,
+                                   num_bases=num_bases, aggr=aggr,
+                                   root_weight=True, bias=True))
+        for _ in range(num_layers - 1):
+            self.convs.append(RGCNConv(hidden_channels, hidden_channels,
+                                       num_relations=num_relations,
+                                       num_bases=num_bases, aggr=aggr,
+                                       root_weight=True, bias=True))
+
+        self.act = nn.PReLU()
+        self.dropout = nn.Dropout(dropout) if dropout > 0 else nn.Identity()
+
+    def forward(self, x, edge_index, edge_weight=None, edge_type=None):
+        if edge_type is None:
+            raise ValueError(
+                "RGCNEncoder.forward requires edge_type (long tensor of shape [E]). "
+                "Caller must wire the per-edge relation index from preprocess."
+            )
+        h = x
+        for i, conv in enumerate(self.convs):
+            h = conv(h, edge_index, edge_type)
+            if i < len(self.convs) - 1:
+                h = self.act(h)
+                h = self.dropout(h)
+        return h
 
 
 # ---------------------------------------------------------------------------

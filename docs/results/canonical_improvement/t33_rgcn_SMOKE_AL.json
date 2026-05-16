@@ -1,0 +1,29 @@
+{
+  "tag": "t33_rgcn_SMOKE_AL",
+  "tagged_root": "/home/vitor.oliveira/PoiMtlNet/runs/t33_rgcn_SMOKE_AL",
+  "al": {
+    "run_dir": "/home/vitor.oliveira/PoiMtlNet/runs/t33_rgcn_SMOKE_AL/results/check2hgi/alabama/mtlnet_lr1.0e-04_bs2048_ep10_20260515_215749_2736679",
+    "cat_f1_per_fold": [
+      0.20760062336921692,
+      0.18882989883422852,
+      0.23100069165229797,
+      0.19072076678276062,
+      0.2217901200056076
+    ],
+    "reg_top10_per_fold": [
+      0.40997564792633057,
+      0.39114540815353394,
+      0.3871098756790161,
+      0.3956892788410187,
+      0.36152905225753784
+    ],
+    "cat_f1_mean_pct": 20.798842012882233,
+    "cat_f1_std_pct": 1.8610633632153313,
+    "reg_top10_mean_pct": 38.90898525714874,
+    "reg_top10_std_pct": 1.7660069407298296,
+    "leak_probe": {
+      "f1_mean_pct": 38.30796411363886,
+      "f1_std_pct": 0.4629445150161131
+    }
+  }
+}

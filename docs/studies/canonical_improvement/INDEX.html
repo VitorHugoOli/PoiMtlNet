@@ -245,8 +245,44 @@
 <p class="subtitle">
   A research track to improve canonical Check2HGI <em>without</em> using the merge-family approach
   (no importing HGI&#39;s pretrained POI2Vec at the POI&#8209;pool boundary). Findings here will be combined with
-  the merge-design findings later. Design last updated 2026-05-14; results blank pending execution.
+  the merge-design findings later. Design last updated 2026-05-14; <strong>study CLOSED 2026-05-16 at Tier-4
+  paper-closeout (see banner below)</strong>.
 </p>
+
+<div class="callout" style="border-left:4px solid var(--good); padding:14px;">
+<h3 style="margin-top:0;">📋 STUDY CLOSED 2026-05-16 — final shipping stack</h3>
+<p><strong>canonical Check2HGI + v3c (AdamW WD=5e-2) + T3.2 ResidualLN encoder</strong> &mdash; two paper-grade
+micro-improvements on disjoint axes (v3c &rarr; reg-FL, T3.2 &rarr; cat all three states), IJM-verified
+structurally honest.</p>
+
+<table>
+<tr><th>state</th><th>cat F1 lift</th><th>reg Acc@10 lift</th><th>leak drift</th><th>paired sign test (5 seeds)</th></tr>
+<tr><td>FL</td><td><strong>+0.86</strong></td><td><strong>+0.71</strong></td><td>+2.24 pp</td><td>both axes p=0.03125 ✅</td></tr>
+<tr><td>AL</td><td><strong>+1.48</strong></td><td>−0.29 (null)</td><td>+1.69 pp</td><td>cat p=0.03125 ✅</td></tr>
+<tr><td>AZ</td><td><strong>+1.70</strong></td><td>−0.15 (null)</td><td>+2.46 pp</td><td>cat p=0.03125 ✅</td></tr>
+</table>
+
+<p><strong>IJM-masked leak probe</strong> (user-held-out StratifiedGroupKFold; <code>scripts/canonical_improvement/ijm_leak_probe.py</code>):
+T3.2 leak claim is <strong>STRUCTURALLY HONEST</strong>. Canonical FL SK 40.85 / SGKF 40.75 (drift +0.10). T3.2
+ResLN FL SK 43.40 / SGKF 43.43 (drift &minus;0.02). Drift difference &minus;0.13 pp &laquo; ±1 pp threshold &rarr;
+the +2.24 pp leak drift is encoder-architectural, not user-level leakage.</p>
+
+<p><strong>Methodological asset — 9 protocol-falsified variants</strong>: the pre-flight leak-probe protocol caught
+nine architecturally distinct variants before publication, with inflation magnitudes from +0.5 pp (mild)
+to +30 pp (catastrophic). Tabulated in §05:30 of <code>log.md</code> and in the per-variant cells below.</p>
+
+<p><strong>Deliverables</strong>:</p>
+<ul>
+  <li><code>docs/results/canonical_improvement/STACKING_ABLATION.md</code> &mdash; FL/AL/AZ multi-seed table for the shipping stack</li>
+  <li><code>docs/results/canonical_improvement/ijm_leak_probe_{canonical,t32_resln}_FL.json</code> &mdash; structural-honesty audit</li>
+  <li><code>docs/studies/canonical_improvement/log.md §05:30</code> &mdash; final closeout entry</li>
+  <li>Hand-off to BRACIS paper writing: <code>articles/[BRACIS]_Beyond_Cross_Task/</code></li>
+</ul>
+
+<p><strong>What did NOT make it</strong>: T4.2 SwAV (skipped per Tier-4 wrap-up advisor &mdash; same axis as the
+already-saturated T4.1/T4.3/T4.4, ≤20 % prior on FL cat lift, not worth 3-4 hr deadline cost). Tier 5 deferred
+(highest-EV T5.1 POI ID embedding at ~25 % prior, separate leak-risk class).</p>
+</div>
 
 <!-- ============================================================== -->
 <h2 id="tldr">TL;DR &amp; scope</h2>
@@ -544,8 +580,18 @@ Establishes a reproducible canonical leak-probe number. The numerical value isn&
 
 <!-- T1.2 -->
 <div class="experiment" id="T1-2">
-<h3>T1.2 &mdash; Multi-seed canonical and key variants <span class="pill tier1">T1</span> <span class="pill cost-m">M-cost</span></h3>
+<h3>T1.2 &mdash; Multi-seed canonical and key variants <span class="pill tier1">T1</span> <span class="pill cost-m">M-cost</span> <span class="pill good">CLOSED &mdash; done in passing</span></h3>
 <div class="meta">Targets: statistical power; breaks n=5 Wilcoxon floor &middot; Mechanism: re-run canonical at seeds {42, 43, 44, 45, 46}</div>
+
+<div class="block">
+<div class="block-title">Closure rationale (2026-05-16, deferred-experiment triage)</div>
+Multi-seed coverage was achieved <em>en route</em> during the Tier-3 paper-grade gates. The v3c (5 seeds × FL),
+T3.2 ResLN (5 seeds × FL + 5 seeds × AL + 5 seeds × AZ), and canonical (n=20 at FL/AL/AZ in
+<code>RESULTS_TABLE.md §0.1</code>) collectively satisfy what the originally-scheduled T1.2 was meant to verify:
+breaking the n=5 Wilcoxon floor for the canonical and key-variant cells. The 5-seed × 3-state shipping-stack
+table is captured in <code>docs/results/canonical_improvement/STACKING_ABLATION.md §1-3</code>. No additional
+canonical re-run needed.
+</div>
 
 <div class="block">
 <div class="block-title">Hypothesis</div>
@@ -609,13 +655,43 @@ Run at AL+AZ with seed 42, 5 folds &times; 50 epochs. Refine the winning region 
 A weight triple that strictly dominates the default (0.4/0.3/0.3) on cat AND reg AND fclass probe at both AL+AZ.
 </div>
 
-<div class="results-placeholder">Results: <em>pending execution</em></div>
+<div class="block">
+<div class="block-title">Results (2026-05-15)</div>
+<table>
+<thead><tr><th>tag</th><th>&alpha; (c, p, r)</th><th>AL cat F1</th><th>AL reg Acc@10</th><th>AL leak</th><th>AZ cat F1</th><th>AZ reg Acc@10</th><th>AZ leak</th></tr></thead>
+<tbody>
+<tr><td>c04p03r03 (canonical)</td><td>(0.4, 0.3, 0.3)</td><td class="num">40.22 ± 0.43</td><td class="num">50.04 ± 3.49</td><td class="num">31.04</td><td class="num">45.80 ± 1.67</td><td class="num">40.98 ± 2.82</td><td class="num">34.57</td></tr>
+<tr><td>c02p02r06</td><td>(0.2, 0.2, 0.6)</td><td class="num">39.62 ± 1.02</td><td class="num">50.15 ± 3.51</td><td class="num">30.14</td><td class="num">45.19 ± 1.54</td><td class="num">41.02 ± 2.76</td><td class="num">33.85</td></tr>
+<tr><td>c02p04r04</td><td>(0.2, 0.4, 0.4)</td><td class="num">39.04 ± 1.70</td><td class="num">50.13 ± 3.62</td><td class="num">30.91</td><td class="num">45.49 ± 1.24</td><td class="num">40.98 ± 2.68</td><td class="num">33.97</td></tr>
+<tr><td>c02p06r02</td><td>(0.2, 0.6, 0.2)</td><td class="num">40.06 ± 1.05</td><td class="num">49.74 ± 3.85</td><td class="num">29.94</td><td class="num">45.51 ± 1.38</td><td class="num">40.88 ± 2.80</td><td class="num">33.97</td></tr>
+<tr><td>c04p02r04</td><td>(0.4, 0.2, 0.4)</td><td class="num">40.04 ± 0.88</td><td class="num">50.06 ± 3.58</td><td class="num">30.21</td><td class="num">45.38 ± 1.22</td><td class="num">40.89 ± 2.73</td><td class="num">34.21</td></tr>
+<tr><td>c04p04r02</td><td>(0.4, 0.4, 0.2)</td><td class="num">40.20 ± 0.99</td><td class="num">50.20 ± 3.72</td><td class="num">31.30</td><td class="num">45.57 ± 1.03</td><td class="num">40.95 ± 2.86</td><td class="num">34.02</td></tr>
+</tbody>
+</table>
+<p><strong>Verdict</strong>: <span class="pill bad">FALSIFIED</span> at n=4 grid points (advisor 2026-05-15) — max |&Delta;reg| across grids = 0.30 pp &laquo;&laquo; per-fold &sigma; (~3 pp at AL, ~2.7 pp at AZ); max |&Delta;cat| = 1.18 pp (all negative). No variant strictly dominates canonical on either head at either state. The &alpha; triple controls at most &plusmn;0.3 pp of reg movement &mdash; i.e. <strong>explains &lt; 3 %</strong> of the ~11 pp HGI gap at AL / ~12 pp at AZ. Hypothesis was miscalibrated by an order of magnitude. Grids 5 (c04p04r02) and 6 (c06p02r02) deferred to background sanity appendix.</p>
+<p class="footnote">Per-grid JSONs: <code>docs/results/canonical_improvement/T1-3_{tag}.json</code>. Summarizer: <code>scripts/canonical_improvement/T1-3_summarize.py</code>. Compute note: A40 GPU shared with a co-tenant during the sweep, per-grid wall 5&ndash;15 min variable; the shared fold-3 reg dip across all grids is data-driven (not &alpha;-driven), filed as a separate concern.</p>
+</div>
 </div>
 
 <!-- T1.4 -->
 <div class="experiment" id="T1-4">
-<h3>T1.4 &mdash; Best-epoch selection by fclass probe vs training loss <span class="pill tier1">T1</span> <span class="pill cost-s">S-cost</span></h3>
+<h3>T1.4 &mdash; Best-epoch selection by fclass probe vs training loss <span class="pill tier1">T1</span> <span class="pill cost-s">S-cost</span> <span class="pill bad">CLOSED &mdash; self-fulfilling-leak risk</span></h3>
 <div class="meta">Targets: selection-criterion alignment &middot; Mechanism: track fclass-probe every 10 epochs, pick max</div>
+
+<div class="block">
+<div class="block-title">Closure rationale (2026-05-16, deferred-experiment triage)</div>
+<strong>The fclass linear probe IS the diagnostic the paper claims as the leak-axis defence</strong>; selecting
+the SSL epoch that maximises it is, definitionally, optimising the encoder against the diagnostic &mdash; it
+inverts the entire pre-flight protocol's logic (the protocol's value is that the probe is an <em>unselected</em>
+measurement). The methodology stub specifies "train-fold POIs only" which controls user-level leakage but does
+NOT control "the metric you select on is the metric you report on" leak. Two failure modes if run anyway:
+(a) null/no signal &rarr; wasted; (b) inflates fclass probe by direct optimisation &rarr; the entire leak claim
+collapses, IJM probe needs re-run, paper-table withdrawal. A genuinely defensible variant (held-out probe over
+disjoint fclass subsets) costs another half-day for a +5-20 pp lift on a number that <em>isn't even on the
+shipping-stack claim path</em>. <strong>Decision</strong>: skip; turn the omission into a defensive feature
+in &sect;Methodology &mdash; "best-epoch selected on training loss precisely to avoid probe self-selection
+bias". Advisor: deferred-experiment triage (2026-05-16).
+</div>
 
 <div class="block">
 <div class="block-title">Hypothesis</div>
@@ -685,7 +761,32 @@ Then combinations: best-of-each stacked. Report cat F1, reg Acc@10, fclass probe
 A new optimizer recipe that beats default on at least one metric without regressing the other two; pins as new canonical baseline.
 </div>
 
-<div class="results-placeholder">Results: <em>pending execution</em></div>
+<div class="block">
+<div class="block-title">Results (2026-05-15)</div>
+<table>
+<thead><tr><th>variant</th><th>AL cat F1</th><th>AL reg Acc@10</th><th>AL leak</th><th>AZ cat F1</th><th>AZ reg Acc@10</th><th>AZ leak</th><th>&Delta; vs canonical (AL c/r &middot; AZ c/r)</th></tr></thead>
+<tbody>
+<tr><td>canonical (c04p03r03 Stage B)</td><td class="num">40.22 &plusmn; 0.43</td><td class="num">50.04 &plusmn; 3.49</td><td class="num">31.04</td><td class="num">45.80 &plusmn; 1.67</td><td class="num">40.98 &plusmn; 2.82</td><td class="num">34.57</td><td class="num">&mdash;</td></tr>
+<tr><td>v1_warmup5 (warmup 5 %)</td><td class="num">39.94 &plusmn; 0.60</td><td class="num">50.23 &plusmn; 3.61</td><td class="num">30.86</td><td class="num">45.20 &plusmn; 1.42</td><td class="num">40.93 &plusmn; 2.77</td><td class="num">34.11</td><td class="num">&minus;0.28 / +0.19 &middot; &minus;0.60 / &minus;0.05</td></tr>
+<tr><td>v2_cosine (1e-3 &rarr; 1e-5)</td><td class="num">40.15 &plusmn; 0.90</td><td class="num">50.30 &plusmn; 3.76</td><td class="num">30.97</td><td class="num">44.99 &plusmn; 1.18</td><td class="num">40.96 &plusmn; 2.83</td><td class="num">34.11</td><td class="num">&minus;0.07 / +0.26 &middot; &minus;0.81 / &minus;0.02</td></tr>
+<tr><td>v3a_wd1e3 (AdamW 1e-3)</td><td class="num">40.07 &plusmn; 1.08</td><td class="num">50.18 &plusmn; 3.73</td><td class="num">30.94</td><td class="num">45.51 &plusmn; 1.33</td><td class="num">40.91 &plusmn; 2.71</td><td class="num">34.14</td><td class="num">&minus;0.15 / +0.14 &middot; &minus;0.29 / &minus;0.07</td></tr>
+<tr><td>v3b_wd1e2 (AdamW 1e-2)</td><td class="num"><strong>40.60 &plusmn; 0.74</strong></td><td class="num">49.07 &plusmn; 3.84</td><td class="num">30.70</td><td class="num">45.41 &plusmn; 0.91</td><td class="num">40.98 &plusmn; 2.76</td><td class="num">34.45</td><td class="num">+0.38 / &minus;0.97 &middot; &minus;0.39 / +0.00</td></tr>
+<tr><td><strong>v3c_wd5e2 (AdamW 5e-2)</strong></td><td class="num"><strong>40.60 &plusmn; 1.00</strong></td><td class="num">50.13 &plusmn; 3.59</td><td class="num">31.23</td><td class="num">45.65 &plusmn; 1.22</td><td class="num">40.93 &plusmn; 2.71</td><td class="num">34.64</td><td class="num"><strong>+0.38 / +0.09 &middot; &minus;0.15 / &minus;0.05</strong></td></tr>
+</tbody>
+</table>
+<p><strong>Per-variant verdicts:</strong></p>
+<ul>
+<li>v1_warmup5: <span class="pill warn">non-inferior</span> &mdash; all &Delta;s within &sigma;, no signal.</li>
+<li>v2_cosine: <span class="pill warn">non-inferior</span> &mdash; AL reg +0.26 within &sigma;, AZ cat &minus;0.81 within &sigma;.</li>
+<li>v3a_wd1e3: <span class="pill warn">non-inferior</span> &mdash; WD too low to register.</li>
+<li>v3b_wd1e2: <span class="pill warn">non-inferior</span> &mdash; AL cat +0.38 paired with AL reg &minus;0.97 (variance-driven Pareto-trade, not mechanism).</li>
+<li><strong>v3c_wd5e2:</strong> <span class="pill good">non-inferior with small AL cat lift</span> &mdash; +0.38 AL cat / +0.09 AL reg consistent in sign with v3b; cat lift is monotone in WD (v3a 40.07 &rarr; v3b 40.60 &rarr; v3c 40.60). Carried forward as provisional canonical for Tier-2+ STL comparisons. Multi-seed deferred to T1.2.</li>
+</ul>
+<p><strong>Tier-1 decision gate:</strong> <span class="pill bad">NOT TRIGGERED</span> &mdash; AZ reg gap to HGI remains 12.13 pp (v3c moves AZ reg by &minus;0.05 pp). T1.3 &alpha;-sweep + T1.5 optimizer hygiene together explain &lt; 3 % of the gap. Tier 2/3/4 work is required.</p>
+<p><strong>Key empirical finding:</strong> <strong>AZ reg is optimizer-invariant</strong> (40.91&ndash;40.98 across all 5 variants). The AZ reg gap is NOT in the optimizer; it is architectural / data-structural. Localizes future search to Tier 3 (architecture), Tier 4 (semantic recovery), Tier 5 (new boundaries).</p>
+<p><strong>Caveat:</strong> AL fold-5 reg dip (&sim;43.9) is shared across all T1.3 grids and all T1.5 variants &rarr; confirmed fold-structural, not model-driven. Flagged for fold-creation audit before any AL "reg ceiling" claim.</p>
+<p class="footnote">JSON: <code>docs/results/canonical_improvement/T1-5_{v1_warmup5,v2_cosine,v3a_wd1e3,v3b_wd1e2,v3c_wd5e2}.json</code>. All variants share seed=42, 5f &times; 50ep MTL B9full recipe; only the embedding optimizer hygiene axis varies. Per-fold &sigma; on reg &sim;3 pp at AL / &sim;2.7 pp at AZ.</p>
+</div>
 </div>
 
 <!-- T1.6 -->
@@ -715,7 +816,33 @@ Pinpoint the epoch where cat F1, reg Acc@10, fclass probe all plateau within 0.5
 A new default epoch budget that saves &ge; 50 % wall-clock with &le; 0.5 pp metric loss.
 </div>
 
-<div class="results-placeholder">Results: <em>pending execution</em></div>
+<div class="block">
+<div class="block-title">Results (2026-05-15)</div>
+<p><strong>Outcome:</strong> Reg plateaus by ep50 at both states (every &Delta;reg within &plusmn;0.2 pp of ep500 &lt;&lt; &sigma;_fold ~3 pp).
+Cat plateaus later: AZ cat trajectory is monotone 41.83 &rarr; 44.69 &rarr; 44.63 &rarr; 45.19 &rarr; 45.80 (ep50 &rarr; ep500),
+converging to within &sigma;_fold by ep300. AL cat is noise-dominated above ep50.</p>
+<table>
+<thead><tr><th>variant</th><th>AL cat F1</th><th>AL reg Acc@10</th><th>AL leak</th><th>AZ cat F1</th><th>AZ reg Acc@10</th><th>AZ leak</th></tr></thead>
+<tbody>
+<tr><td>ep500 (canonical)</td><td class="num">40.22 &plusmn; 0.43</td><td class="num">50.04 &plusmn; 3.49</td><td class="num">31.04</td><td class="num">45.80 &plusmn; 1.67</td><td class="num">40.98 &plusmn; 2.82</td><td class="num">34.57</td></tr>
+<tr><td>ep50</td><td class="num">39.97</td><td class="num">50.21</td><td class="num">30.00</td><td class="num">41.83</td><td class="num">40.91</td><td class="num">34.01</td></tr>
+<tr><td>ep100</td><td class="num">38.98</td><td class="num">50.12</td><td class="num">29.58</td><td class="num">44.69</td><td class="num">41.01</td><td class="num">33.86</td></tr>
+<tr><td>ep200</td><td class="num">38.76</td><td class="num">50.13</td><td class="num">29.79</td><td class="num">44.63</td><td class="num">40.93</td><td class="num">33.86</td></tr>
+<tr><td><strong>ep300</strong></td><td class="num">39.74</td><td class="num">50.22</td><td class="num">30.51</td><td class="num">45.19</td><td class="num">41.00</td><td class="num">34.46</td></tr>
+</tbody>
+</table>
+<p><strong>Verdict:</strong> <span class="pill good">ep300 adopted as exploration default</span> (40 % wall savings vs ep500;
+all &Delta;s within &sigma;_fold). ep500 retained for T1.2 multi-seed + shipping numbers.</p>
+<p><strong>Asymmetric-budget strategy:</strong></p>
+<ul>
+<li>Tier-2 reg-axis (p2r negatives, loss shape): <strong>ep200</strong></li>
+<li>Tier-3 architecture: <strong>ep300</strong> default + ep500 verification on winners</li>
+<li>Tier-4 semantic recovery (cat-axis): <strong>ep500 mandatory</strong></li>
+<li>Tier-5 substrate changes: ep300 + ep500 verification</li>
+</ul>
+<p><strong>Tier-1 decision gate:</strong> <span class="pill bad">NOT CLOSED</span> &mdash; AZ reg gap to HGI ~12 pp; T1.3+T1.5+T1.6 jointly moved &lt; 0.1 pp. AZ reg confirmed <em>recipe-invariant</em>. Tier 2/3/4 mandatory.</p>
+<p class="footnote">JSON: <code>docs/results/canonical_improvement/t16_ep{50,100,200,300}.json</code>.</p>
+</div>
 </div>
 
 <!-- ============================================================== -->
@@ -760,13 +887,40 @@ Run AL+AZ &times; 5 folds &times; seed 42. Then sweep the hard-frac in {0.1, 0.2
 &Delta; reg &ge; +1 pp at both AL+AZ at Wilcoxon p&lt;0.05, no cat regression, no leak.
 </div>
 
-<div class="results-placeholder">Results: <em>pending execution</em></div>
+<div class="block">
+<div class="block-title">Results (2026-05-15)</div>
+<p>4-rate sweep {0.00, 0.25, 0.50, 0.75} at p2r, AL+AZ &times; 5f &times; 50ep, seed 42, sim-band [0.6, 0.8], ep200 + AdamW WD=5e-2 base.</p>
+<table>
+<thead><tr><th>variant</th><th>rate</th><th>AL cat F1</th><th>AL reg Acc@10</th><th>AL leak</th><th>AZ cat F1</th><th>AZ reg Acc@10</th><th>AZ leak</th></tr></thead>
+<tbody>
+<tr><td>t21_p2r00</td><td>0.00</td><td class="num">38.11 &plusmn; 1.89</td><td class="num">50.15 &plusmn; 3.78</td><td class="num">29.70</td><td class="num">44.92 &plusmn; 1.06</td><td class="num">40.92 &plusmn; 2.65</td><td class="num">33.63</td></tr>
+<tr><td>t21_p2r025</td><td>0.25</td><td class="num">36.51 &plusmn; 2.50</td><td class="num">50.20 &plusmn; 3.70</td><td class="num">29.72</td><td class="num">45.74 &plusmn; 1.26</td><td class="num">41.03 &plusmn; 2.66</td><td class="num">33.74</td></tr>
+<tr><td>t21_p2r050</td><td>0.50</td><td class="num">39.50 &plusmn; 1.10</td><td class="num">50.11 &plusmn; 3.68</td><td class="num">30.09</td><td class="num">45.20 &plusmn; 1.48</td><td class="num">41.01 &plusmn; 2.72</td><td class="num">33.92</td></tr>
+<tr><td>t21_p2r075</td><td>0.75</td><td class="num">38.07 &plusmn; 0.71</td><td class="num">50.17 &plusmn; 3.66</td><td class="num">29.99</td><td class="num">44.73 &plusmn; 1.66</td><td class="num">40.93 &plusmn; 2.70</td><td class="num">33.73</td></tr>
+</tbody>
+</table>
+<p><strong>Reg spread</strong>: AL 0.09 pp / AZ 0.11 pp &mdash; both &lt;&lt; &sigma;_fold (~3 / 2.7 pp). <strong>Cat</strong>: non-monotone, noise-dominated (AL 2.99 pp, AZ 1.01 pp); best rates disagree across states. <strong>Leak</strong>: invariant (&plusmn;0.4 pp).</p>
+<p><strong>Verdict:</strong> <span class="pill bad">FALSIFIED</span> &mdash; p2r hard-neg rate is null on reg (target axis) and noise on cat. Success criterion (&Delta;reg &ge; +1 pp both states, Wilcoxon p&lt;0.05) unreachable. <strong>Localization</strong>: HGI gap is not in p2r loss-shape &mdash; triangulates with T1.5 (recipe-invariant) and T1.6 (budget-invariant). Gap lives in encoder/substrate (Tier 3) or sequence head (Tier 4).</p>
+<p><strong>Follow-ups:</strong> None. T2.2 (InfoNCE @ p2r) + T2.3 (corruption @ p2r/r2c) <span class="pill warn">deferred</span> per advisor: same-boundary class, expected-info downgraded after T2.1 falsification. T2.4 (DropEdge on user-sequence edges) <span class="pill good">promoted</span> as structurally-distinct topology test.</p>
+<p class="footnote">JSON: <code>docs/results/canonical_improvement/t21_p2r{00,025,050,075}.json</code>.</p>
+</div>
 </div>
 
 <!-- T2.2 -->
 <div class="experiment" id="T2-2">
-<h3>T2.2 &mdash; InfoNCE at p2r <span class="pill tier2">T2</span> <span class="pill cost-s">S-cost</span> <span class="pill info">scaffolded</span></h3>
+<h3>T2.2 &mdash; InfoNCE at p2r <span class="pill tier2">T2</span> <span class="pill cost-s">S-cost</span> <span class="pill bad">CLOSED &mdash; zombie hypothesis post-T2.1</span></h3>
 <div class="meta">Targets: 1 pp HGI gap, 4 % fclass probe &middot; Mechanism: K-negative cross-entropy in place of sigmoid+JS</div>
+
+<div class="block">
+<div class="block-title">Closure rationale (2026-05-16, deferred-experiment triage)</div>
+T2.1 (hard negatives at p2r) closed FALSIFIED at the wrap-up with the verbatim conclusion: <em>"HGI gap is not
+in p2r loss-shape &mdash; triangulates with T1.5 (recipe-invariant) and T1.6 (budget-invariant). Gap lives in
+encoder/substrate (Tier 3) or sequence head (Tier 4)."</em> The Tier-3 + Tier-4 closeout subsequently confirmed
+this: cat-axis improvement is encoder-architectural (T3.2 paper-grade), and seven separate encoder-side attacks
+came down to "encoder is saturated or leaks". Re-attacking p2r loss-shape now has prior &lt; 0.05 and adds zero
+novel mechanism class to the 9-variant falsification corpus. The expected outcome is "10th protocol-falsified
+variant" &mdash; diminishing methodological return. <strong>Decision</strong>: close as deferred-closed.
+</div>
 
 <div class="block">
 <div class="block-title">Hypothesis</div>
@@ -800,8 +954,18 @@ Strict-positive &Delta; on fclass probe (&gt; +20 pp expected) without regressin
 
 <!-- T2.3 -->
 <div class="experiment" id="T2-3">
-<h3>T2.3 &mdash; Two-pass feature corruption at p2r / r2c <span class="pill tier2">T2</span> <span class="pill cost-s">S-cost</span></h3>
+<h3>T2.3 &mdash; Two-pass feature corruption at p2r / r2c <span class="pill tier2">T2</span> <span class="pill cost-s">S-cost</span> <span class="pill bad">CLOSED &mdash; zombie hypothesis (same axis as T2.2)</span></h3>
 <div class="meta">Targets: asymmetric falsification test &middot; Mechanism: enable existing c2p_corrupted_neg pathway but at p2r/r2c</div>
+
+<div class="block">
+<div class="block-title">Closure rationale (2026-05-16, deferred-experiment triage)</div>
+Same family / same prior collapse as T2.2 (zombie hypothesis). The original asymmetric-falsification framing
+("c2p was falsified at Phase 11 S4, but p2r/r2c might still benefit") has been overridden by the Tier-3+4
+encoder-saturation finding: <em>where</em> the corruption hits matters less than the fact that the SSL signal
+the encoder can extract from any boundary's negative-pair geometry has been maxed out. Cost-benefit:
+~2-3 hr wall to confirm the 11th falsification, no novel mechanism class added to the corpus.
+<strong>Decision</strong>: close as deferred-closed.
+</div>
 
 <div class="block">
 <div class="block-title">Hypothesis</div>
@@ -867,7 +1031,7 @@ Wider/deeper of the same architecture is already known to regress cat (F51 Tier 
 
 <!-- T3.1 -->
 <div class="experiment" id="T3-1">
-<h3>T3.1 &mdash; GATv2 encoder with temporal edge-weight conditioning <span class="pill tier3">T3</span> <span class="pill cost-s">S-cost</span> <span class="pill info">scaffolded</span></h3>
+<h3>T3.1 &mdash; GATv2 encoder with temporal edge-weight conditioning <span class="pill tier3">T3</span> <span class="pill cost-s">S-cost</span> <span class="pill bad">FALSIFIED &mdash; structural leak</span></h3>
 <div class="meta">Targets: trajectory-sensitive aggregation &middot; Mechanism: GATv2Conv with edge_dim=1 carrying exp-decay weight</div>
 
 <div class="block">
@@ -897,12 +1061,20 @@ Wire <code>GATTimeEncoder</code> from <code>variants.py</code> as the CheckinEnc
 Strict-positive &Delta; on cat or reg without regressing the other. Bonus: attention heads showing distinct entropy patterns.
 </div>
 
-<div class="results-placeholder">Results: <em>pending execution</em></div>
+<div class="block">
+<div class="block-title">Result (2026-05-15, FL, single seed)</div>
+FL cat F1 &asymp; <strong>99%</strong> &mdash; 30&times; &sigma; outlier vs canonical 68.56 &plusmn; 0.79. Catastrophic leak. Advisor
+diagnosed it as <strong>structural, not a wiring bug</strong>: attention &times; <code>edge_attr</code> (1-d temporal decay)
+&times; user-sequence edge typing forms a triangle that lets the attention mechanism reconstruct the next-category
+label from per-visit temporal weights. T3.2 ResidualLN (same wiring, no attention) lands at cat 69.5 &mdash;
+confirming the leak is GAT-specific. Follow-up <strong>T3.1b (use_edge_attr=False)</strong> testing whether dropping
+the temporal-decay conditioning closes the leak corner.
+</div>
 </div>
 
 <!-- T3.2 -->
 <div class="experiment" id="T3-2">
-<h3>T3.2 &mdash; ResidualLN encoder <span class="pill tier3">T3</span> <span class="pill cost-s">S-cost</span> <span class="pill info">scaffolded</span></h3>
+<h3>T3.2 &mdash; ResidualLN encoder <span class="pill tier3">T3</span> <span class="pill cost-s">S-cost</span> <span class="pill good">PAPER-GRADE CAT-AXIS WIN (FL, n=5)</span></h3>
 <div class="meta">Targets: gradient stability, deeper-stack viability &middot; Mechanism: GCN + pre-LayerNorm + skip</div>
 
 <div class="block">
@@ -926,11 +1098,46 @@ Five generality probes; convergence stability; per-fold &sigma;.
 3-layer ResidualLN strictly dominates 2-layer GCN at both AL+AZ.
 </div>
 
-<div class="results-placeholder">Results: <em>pending execution</em></div>
+<div class="block">
+<div class="block-title">Result (2026-05-15, FL, n=5 multi-seed, v3c base)</div>
+<table>
+<tr><th>metric</th><th>T3.2 ResLN (n=5)</th><th>v3c (n=5)</th><th>canonical</th><th>&Delta;cat / &Delta;reg paired vs v3c</th></tr>
+<tr><td>cat F1</td><td><strong>69.42 &plusmn; 0.25</strong></td><td>68.23</td><td>68.56 &plusmn; 0.79</td><td><strong>+1.19 &plusmn; 0.37</strong> (5/5 positive, sign p=0.03125 ✅ paper-grade)</td></tr>
+<tr><td>reg Acc@10</td><td>63.98 &plusmn; 0.09</td><td>63.90 &plusmn; 0.05</td><td>63.27 &plusmn; 0.10</td><td>+0.08 &plusmn; 0.10 (4/5, sign p=0.19 ❌ null)</td></tr>
+<tr><td>leak F1</td><td>43.09 &plusmn; 0.12</td><td>41.33</td><td>40.85</td><td>+2.24 pp vs canonical (well below +5 pp red flag, &sigma;_seed=0.12)</td></tr>
+</table>
+<strong>Verdict: paper-grade cat-axis micro-improvement.</strong> 5/5 seeds strictly above v3c on cat;
+reg delta washes to noise as predicted by the single-seed advisor. Advisor predicted this
+exact outcome from the residual-identity-pathway analysis. Also doubles as the
+<strong>falsification control for T3.1</strong> &mdash; same encoder dispatch, no attention &rarr; cat lands at
+69 not 99 (T3.1 GAT-structural leak confirmed). Accepted into the canonical stack:
+<strong>v3c + T3.2 = cat +0.86 / reg +0.71 vs canonical at FL n=5</strong>. AL/AZ replication still
+required before "paper headline" claim &mdash; both axes may have scale-conditional behaviour like v3c.
+</div>
 </div>
 
 <!-- T3.3 -->
 <div class="experiment" id="T3-3">
+<h3>T3.3 &mdash; Heterogeneous edge typing (R-GCN) <span class="pill tier3">T3</span> <span class="pill cost-m">M-cost</span> <span class="pill bad">FALSIFIED &mdash; structural leak (K=2) AND capability collapse (K=1)</span></h3>
+
+<div class="block">
+<div class="block-title">Result (2026-05-16, AL ep50)</div>
+<table>
+<tr><th>variant</th><th>cat F1</th><th>reg Acc@10</th><th>leak F1</th><th>Δleak vs baseline_both 20.37</th></tr>
+<tr><td>R-GCN num_bases=2 ep50</td><td><strong>47.65 ± 2.91</strong></td><td>47.17 ± 3.74</td><td><strong>48.22</strong></td><td><strong>+27.85 pp catastrophic</strong></td></tr>
+<tr><td>R-GCN num_bases=1 ep50 (fix)</td><td>29.64 ± 1.52</td><td>46.44 ± 4.43</td><td>22.53</td><td>+2.16 pp (leak OK)</td></tr>
+<tr><td>R-GCN cat-weight=0 isolation</td><td>45.18 ± 0.86</td><td>49.03 ± 4.63</td><td>48.95</td><td>+28.58 (encoder-internal leak)</td></tr>
+</table>
+Mechanism: per-relation <code>W_r</code> on label-aligned <code>same_poi</code> edges learns a near-identity
+category-copy operation. <code>num_bases=2</code> &rarr; catastrophic shortcut. <code>num_bases=1</code> shares
+weights across relations &rarr; leak fixed but capability collapse (cat &minus;10.93 pp, reg &minus;3.73 pp vs
+canonical). The per-relation weight matrices ARE both the leak channel AND the relation-typing benefit; on this
+substrate (where <code>same_poi ≡ same_category</code> by construction) they cannot be decoupled.
+</div>
+</div>
+
+<!-- T3.3-disabled-original -->
+<div class="experiment" style="display:none;" id="T3-3-orig">
 <h3>T3.3 &mdash; Heterogeneous edge typing (R-GCN) <span class="pill tier3">T3</span> <span class="pill cost-m">M-cost</span></h3>
 <div class="meta">Targets: distinct inductive bias per edge type &middot; Mechanism: separate conv params per edge type</div>
 
@@ -962,6 +1169,22 @@ Strict-positive &Delta; on at least one of (cat, reg, fclass probe) without regr
 
 <!-- T3.4 -->
 <div class="experiment" id="T3-4">
+<h3>T3.4 &mdash; Time2Vec drop-in for fixed sin/cos <span class="pill tier3">T3</span> <span class="pill cost-s">S-cost</span> <span class="pill warn">CLOSED &mdash; substitute-not-stack for v3c</span></h3>
+
+<div class="block">
+<div class="block-title">Result (2026-05-16, FL n=5)</div>
+<table>
+<tr><th>variant</th><th>cat F1</th><th>Δcat vs canonical</th><th>reg Acc@10</th><th>Δreg vs canonical</th><th>vs v3c (the base)</th></tr>
+<tr><td>T3.4 random init</td><td>68.00 ± 0.18</td><td>−0.56 (5/5 NEGATIVE, sign p=0.03125)</td><td>63.93 ± 0.22</td><td>+0.66 (5/5 positive)</td><td>+0.03 reg / &minus;0.23 cat (substitute)</td></tr>
+<tr><td>T3.4-warm (seed=42)</td><td>67.83 ± 1.12</td><td>−0.73 (regresses further)</td><td>63.72 ± 0.82</td><td>+0.45 (loses reg)</td><td>both axes worse</td></tr>
+</table>
+T3.4 reaches the SAME reg ceiling as v3c (63.93 vs 63.90) via a different mechanism (learned-frequency periodic features vs AdamW WD regularisation) but with a small cat cost. Substitute-not-stack &mdash; not paper-positive
+vs the v3c+T3.2 shipping stack. Warm-start init (canonical sin/cos recovery at init) regresses both axes:
+contrastive training wipes the warm-start.
+</div>
+</div>
+
+<div class="experiment" style="display:none;" id="T3-4-orig">
 <h3>T3.4 &mdash; Time2Vec drop-in for fixed sin/cos <span class="pill tier3">T3</span> <span class="pill cost-s">S-cost</span></h3>
 <div class="meta">Targets: learnable temporal frequencies + per-edge piecewise decay &middot; Mechanism: replace 4 sin/cos dims with learnable Time2Vec</div>
 
@@ -1001,6 +1224,23 @@ HGI artifact, no fclass label (which would be tautological).</p>
 
 <!-- T4.1 -->
 <div class="experiment" id="T4-1">
+<h3>T4.1 &mdash; GraphMAE-style masked feature reconstruction (aux head) <span class="pill tier4">T4</span> <span class="pill cost-m">M-cost</span> <span class="pill bad">FALSIFIED &mdash; no cat lift at any λ ∈ {0.1, 0.3, 0.5}</span></h3>
+
+<div class="block">
+<div class="block-title">Result (2026-05-16, AL ep50 λ sweep)</div>
+<table>
+<tr><th>λ</th><th>cat F1</th><th>Δcat vs canonical</th><th>reg Acc@10</th><th>leak F1</th></tr>
+<tr><td>0.1</td><td>40.35 ± 0.81</td><td>−0.22</td><td>50.07</td><td>31.12 (Δ=+0.08)</td></tr>
+<tr><td>0.3 (spec default)</td><td>39.42 ± 1.00</td><td>−1.15</td><td>50.19</td><td>30.41 (Δ=&minus;0.63)</td></tr>
+<tr><td>0.5</td><td>40.16 ± 0.60</td><td>−0.41</td><td>49.51</td><td>30.55 (Δ=&minus;0.49)</td></tr>
+</table>
+Masked-feature reconstruction (SCE loss, learned mask_token w/ normal-init, separate masked encoder pass)
+adds no SSL signal on top of the canonical 3-boundary contrastive on this substrate. Same saturation pattern as
+T3.4 random and T4.3: encoder already extracts the available cat signal; aux losses do not unlock more.
+</div>
+</div>
+
+<div class="experiment" style="display:none;" id="T4-1-orig">
 <h3>T4.1 &mdash; GraphMAE-style masked feature reconstruction (aux head) <span class="pill tier4">T4</span> <span class="pill cost-m">M-cost</span> <span class="pill info">literature top-pick</span></h3>
 <div class="meta">Targets: 4 % fclass probe &middot; Mechanism: mask 15 % of check-in features, reconstruct via decoder</div>
 
@@ -1038,6 +1278,19 @@ Decoder: 2-layer MLP (64 &rarr; 128 &rarr; 11). AL+AZ, 5 folds, seed 42.
 
 <!-- T4.2 -->
 <div class="experiment" id="T4-2">
+<h3>T4.2 &mdash; SwAV-style learned prototypes <span class="pill tier4">T4</span> <span class="pill cost-m">M-cost</span> <span class="pill warn">SKIPPED at Tier-4 wrap-up (paper closeout)</span></h3>
+
+<div class="block">
+<div class="block-title">Decision (2026-05-16, Tier-4 wrap-up advisor)</div>
+SwAV's mechanism (Sinkhorn-balanced prototype assignment with swap-loss) is structurally distinct from
+T4.1/T4.3/T4.4 but operates on the SAME encoder-side, cat-/fclass-axis where three back-to-back falsifications
+established the saturation pattern. Estimated prior on FL +0.5 pp cat gate: ≤20 %. Cost: 3-4 hr wall.
+Expected value if it falls: a 9th protocol-falsified variant &mdash; diminishing return on a corpus already at 8.
+<strong>Decision: skip. Lock paper scope at the canonical+v3c+T3.2 shipping stack.</strong>
+</div>
+</div>
+
+<div class="experiment" style="display:none;" id="T4-2-orig">
 <h3>T4.2 &mdash; SwAV-style learned prototypes <span class="pill tier4">T4</span> <span class="pill cost-m">M-cost</span></h3>
 <div class="meta">Targets: 4 % fclass probe &middot; Mechanism: K=64 unlabeled prototypes, swap loss</div>
 
@@ -1074,6 +1327,27 @@ AL+AZ, 5 folds.
 
 <!-- T4.3 -->
 <div class="experiment" id="T4-3">
+<h3>T4.3 &mdash; POI side-features (popularity, opening-hours, co-visit category-mix) <span class="pill tier4">T4</span> <span class="pill cost-m">M-cost</span> <span class="pill bad">FALSIFIED &mdash; AL lift doesn&#39;t replicate at FL</span></h3>
+
+<div class="block">
+<div class="block-title">Result (2026-05-16, AL ep50 per-feature ablation + FL gate)</div>
+<table>
+<tr><th>subset</th><th>AL cat</th><th>Δcat (AL)</th><th>AL leak</th><th>FL cat (best subset)</th><th>FL Δcat</th></tr>
+<tr><td>popular</td><td>40.70</td><td>+0.13</td><td>31.43</td><td>—</td><td>—</td></tr>
+<tr><td>hours</td><td>39.57</td><td>−1.00</td><td>30.47</td><td>—</td><td>—</td></tr>
+<tr><td>covisit (drop-last-pair)</td><td>40.49</td><td>−0.08</td><td>31.05</td><td>—</td><td>—</td></tr>
+<tr><td>no_covisit</td><td>40.91</td><td>+0.34</td><td>30.68</td><td>—</td><td>—</td></tr>
+<tr><td><strong>all (popular+hours+covisit)</strong></td><td>41.20</td><td><strong>+0.63</strong></td><td>31.20</td><td><strong>68.56</strong></td><td><strong>0.00 (FAIL)</strong></td></tr>
+</table>
+Post-pool injection (after Checkin2POI, before POI2Region), Linear(32→16) + concat + Linear(80→64) + LayerNorm,
+c2p path decoupled to avoid side-feature shortcut. AL "all" passes +0.5 cat gate but FL single-seed Δcat=0 &mdash;
+substrate-density-dependent signal that washes at the paper-grade state.
+Implementation+audit incl. Tier-3-wrap-up-advisor blockers: per-feature gating, drop-last-pair cv mitigation,
+PReLU+LayerNorm in post-pool, leak gates intact.
+</div>
+</div>
+
+<div class="experiment" style="display:none;" id="T4-3-orig">
 <h3>T4.3 &mdash; POI side-features (popularity, opening-hours, co-visit category-mix) <span class="pill tier4">T4</span> <span class="pill cost-m">M-cost</span></h3>
 <div class="meta">Targets: 4 % fclass probe &middot; Mechanism: derived POI features injected POST-pool</div>
 
@@ -1123,6 +1397,26 @@ completeness (expected weaker proxies).</li>
 
 <!-- T4.4 -->
 <div class="experiment" id="T4-4">
+<h3>T4.4 &mdash; Spatial-lifted Delaunay neighbour edges in check-in graph <span class="pill tier4">T4</span> <span class="pill cost-m">M-cost</span> <span class="pill bad">FALSIFIED &mdash; over-smoothing collapses cat (−11.30 pp at AL ep50)</span></h3>
+
+<div class="block">
+<div class="block-title">Result (2026-05-16, AL ep50)</div>
+<table>
+<tr><th>metric</th><th>T4.4 Delaunay</th><th>canonical AL</th><th>Δ vs canonical</th></tr>
+<tr><td>cat F1</td><td><strong>29.27 ± 1.59</strong></td><td>40.57 ± 0.24</td><td><strong>−11.30 catastrophic</strong></td></tr>
+<tr><td>reg Acc@10</td><td>47.95 ± 3.34</td><td>50.17 ± 0.24</td><td>−2.22</td></tr>
+<tr><td>leak F1</td><td>23.49</td><td>31.04 (vs both 20.37)</td><td>+3.12 vs both (marginal)</td></tr>
+</table>
+Mechanism: redesigned per Tier-3 wrap-up advisor to use uniform GCN (no R-GCN dependency &mdash; T3.3 closed
+FALSIFIED). scipy.spatial.Delaunay over POI lat/lon &rarr; 35K POI-POI pairs &rarr; lifted to check-in edges
+(k=5 representatives per neighbor, bidirectional). Total: 894K Delaunay edges + 220K user_seq = 1.1M total
+(≈5× canonical density). 2-layer GCN over-smooths in the deluge of geographically-neighbouring same-region
+check-ins (which span many categories). Same failure family as T3.3-K=1: excess aggregation destroys check-in
+distinctiveness.
+</div>
+</div>
+
+<div class="experiment" style="display:none;" id="T4-4-orig">
 <h3>T4.4 &mdash; Spatial-lifted Delaunay neighbour edges in check-in graph <span class="pill tier4">T4</span> <span class="pill cost-m">M-cost</span></h3>
 <div class="meta">Targets: HGI&#39;s spatial inductive bias &middot; Mechanism: lift POI Delaunay edges into check-in graph</div>
 

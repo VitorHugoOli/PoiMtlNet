@@ -9,6 +9,8 @@ __pycache__/
 /logs/
 /.uv-cache/
 /.tmp/
+/runs/
+
 
 # Python cache
 __pycache__/

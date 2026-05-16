@@ -143,7 +143,30 @@ per-fold log_T       : MUST be seed-tagged: region_transition_log_seed{S}_fold{N
                        built via: scripts/compute_region_transition.py --state STATE --per-fold --seed S
 ```
 
-**Single-line additive recipe vs H3-alt:**
+### ⚠ Full canonical CLI invocation (use this verbatim; do NOT rely on defaults)
+
+> Three `scripts/train.py` defaults are silently wrong for this recipe and each one alone drops the corresponding head by 10–30 pp on AL/AZ (verified 2026-05-14, A40):
+> - `--mtl-loss` defaults to `nash_mtl` → must override to `static_weight` (with `--category-weight 0.75`).
+> - `--cat-head` / `--reg-head` default to the preset values (`next_mtl`/`next_gru`) → must override to `next_gru`/`next_getnext_hard`.
+> - `--task-b-input-type` defaults to `checkin` → must override to `region` (the reg head consumes region-sequence input). Cat head correctly defaults to `checkin`.
+
+```bash
+python scripts/train.py --task mtl --task-set check2hgi_next_region \
+    --state {state} --engine check2hgi --seed 42 \
+    --epochs 50 --folds 5 --batch-size 2048 \
+    --model mtlnet_crossattn \
+    --mtl-loss static_weight --category-weight 0.75 \
+    --scheduler cosine --max-lr 3e-3 \
+    --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3 \
+    --alternating-optimizer-step --alpha-no-weight-decay --min-best-epoch 5 \
+    --cat-head next_gru --reg-head next_getnext_hard \
+    --task-a-input-type checkin --task-b-input-type region \
+    --per-fold-transition-dir output/check2hgi/{state}
+```
+
+A40 reproduces canonical §0.1 numbers within σ at AL (cat 40.57, reg 49.92) and AZ (cat 45.14, reg 40.69) with this exact invocation in ~3 min per state.
+
+**Single-line additive recipe vs H3-alt** (small-state recipe at AL/AZ — see §0.4 RESULTS_TABLE):
 ```bash
 --alternating-optimizer-step \
 --scheduler cosine --max-lr 3e-3 \
@@ -219,6 +242,20 @@ LR per param group   : cat_lr=1e-3, reg_lr=3e-3, shared_lr=1e-3   # ← new
 **Single-line additive recipe vs B3:**
 ```bash
 --scheduler constant --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3
+```
+
+**Full canonical CLI invocation for H3-alt** (heads + input modalities still apply — same caveats as B9 above):
+```bash
+python scripts/train.py --task mtl --task-set check2hgi_next_region \
+    --state {state} --engine check2hgi --seed 42 \
+    --epochs 50 --folds 5 --batch-size 2048 \
+    --model mtlnet_crossattn \
+    --mtl-loss static_weight --category-weight 0.75 \
+    --scheduler constant \
+    --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3 \
+    --cat-head next_gru --reg-head next_getnext_hard \
+    --task-a-input-type checkin --task-b-input-type region \
+    --per-fold-transition-dir output/check2hgi/{state}
 ```
 
 **Headline numbers (5-fold × 50ep, seed 42):**

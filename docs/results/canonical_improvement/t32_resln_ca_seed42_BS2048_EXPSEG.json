@@ -1,0 +1,7 @@
+{
+  "tag": "t32_resln_ca_seed42_BS2048_EXPSEG",
+  "tagged_root": "/home/vitor.oliveira/PoiMtlNet/runs/t32_resln_ca_seed42_BS2048_EXPSEG",
+  "ca": {
+    "error": "no RUN_DIR for california"
+  }
+}

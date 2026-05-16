@@ -181,7 +181,7 @@ PYTHONPATH=src DATA_ROOT=/path/to/data OUTPUT_DIR=/path/to/output \
 
 The `CHECK2HGI_NEXT_REGION` preset resolves `task_b.num_classes` (n_regions) from the actual next_region label tensor at runtime (see `src/tasks/presets.py::resolve_task_set`). `task_a` (`next_category`) has a fixed num_classes=7.
 
-For P4 (per-task input modality), new flags `--task-a-input-type` / `--task-b-input-type` with values `{checkin, region, concat}` are planned but not yet wired (require FoldCreator extension, ~80 LOC).
+Per-task input modality flags `--task-a-input-type` / `--task-b-input-type` (values `{checkin, region, concat}`) are wired in `scripts/train.py` and `src/data/folds.py`. **NORTH_STAR B9 requires `--task-a-input-type checkin --task-b-input-type region`.** The trainer default for both is `checkin` — running task_b on `checkin` instead of `region` is a silent failure mode (cat F1 stays correct, reg Acc@10 drops ~22 pp at AL). See `docs/NORTH_STAR.md §Champion` for the full canonical CLI.
 
 ---
 
