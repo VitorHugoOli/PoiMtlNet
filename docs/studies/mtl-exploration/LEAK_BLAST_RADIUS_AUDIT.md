@@ -145,12 +145,90 @@ The same hard-fail pattern already exists for the seed mismatch (F51 fix). Exten
 
 ---
 
-## What to do (recommendations, no action taken without user approval)
+## Status of the fix (all landed 2026-05-15)
 
-1. **No retraction needed on v11 paper numbers** — they're all `5f×50ep`, leak-free under both the C4 fix and this bug.
-2. **Add caveat to `F50_D5_ENCODER_TRAJECTORY.md`** noting absolute val numbers are inflated; saturation claim survives.
-3. **Implement n_splits guard** in `mtl_cv.py` (Option B or C). ~15 LOC + 1 test.
-4. **Update `MTL_FLAWS_AND_FIXES.md` §2.12** (which catalogs C4) with the new bug as §2.13.
-5. **Update `scripts/train.py` `--folds` docstring** to flag the interaction with `--per-fold-transition-dir`.
+1. **No retraction needed on v11 paper numbers** — they're all `5f×50ep`, leak-free under both the C4 fix and this bug. ✅
+2. **Caveat added to `F50_D5_ENCODER_TRAJECTORY.md`** noting absolute val numbers are inflated; saturation claim survives. ✅
+3. **n_splits guard implemented** in `src/training/runners/mtl_cv.py` (Option B — payload-based, with legacy fallback for canonical n_splits=5 only). 5-case smoke test passed. ✅
+4. **`MTL_FLAWS_AND_FIXES.md §2.13`** added alongside §2.12 (C4). ✅
+5. **`scripts/train.py --folds` docstring** updated to flag the interaction with `--per-fold-transition-dir`. ✅
+6. **`scripts/compute_region_transition.py::save()`** now stashes `n_splits` and `seed` in the persisted `.pt` payload. ✅
 
-This experiment's findings (mtl-exploration) hold: pairwise Δs are unaffected, and the AZ multi-seed run currently in flight will produce paper-comparable absolute numbers.
+---
+
+# Part 2 — Self-audit of this study's findings under the leak
+
+**Question this part answers:** Do any conclusions of *the mtl-exploration study itself* need to be retracted? Do we need to re-run anything?
+
+**Short answer:** No retractions; one cheap re-run already done (the AZ multi-seed). Every conclusion is built on within-state, within-budget *pairwise Δs* preserved under F51's uniform-leak property (clean and leaky Δs match within ~0.10 pp).
+
+## Inventory of every run in this study
+
+### Single-fold runs (`--folds 1` — leak-contaminated on absolute numbers, Δs preserved)
+
+| Run dir suffix | State | Budget | Variant | Used in conclusion |
+|---|---|---|---|---|
+| `ep50_20260515_124941_52410` | AL | 50ep | no_encoders (A) | yes — original ablation |
+| `ep50_20260515_125610_54851` | AZ | 50ep | no_encoders (A) | yes |
+| `ep50_20260515_130534_56454` | AL | 50ep | baseline (D) | yes |
+| `ep50_20260515_130734_56727` | AZ | 50ep | baseline (D) | yes |
+| `ep25_20260515_131410_57890` | FL | 25ep | no_encoders (A) | yes — original ablation |
+| `ep25_20260515_132529_59455` | FL | 25ep | baseline (D) | yes |
+| `ep25_20260515_134643_61554` | AL | 25ep | no_encoders (A) | matched-protocol table |
+| `ep25_20260515_134838_61640` | AL | 25ep | baseline (D) | yes |
+| `ep25_20260515_134725_61587` | AZ | 25ep | no_encoders (A) | discrimination |
+| `ep25_20260515_134940_61729` | AZ | 25ep | baseline (D) | yes |
+| `ep25_20260515_141109_64724` | AL | 25ep | linear+d=64 (B) | AL factorial |
+| `ep25_20260515_141155_64891` | AL | 25ep | linear+d=256 (C) | yes |
+| `ep25_20260515_142438_65853` | AZ | 25ep | linear+d=64 (B) | **load-bearing AZ discrimination** |
+| `ep25_20260515_142555_66027` | AZ | 25ep | linear+d=256 (C) | **load-bearing AZ discrimination** |
+
+### Multi-fold runs (`--folds 5` — leak-free by construction)
+
+- AZ baseline + linear at seeds {0, 1, 7, 100} × 5 folds (n=20 each, paper-grade) — done 2026-05-15 afternoon
+- AL baseline + linear + linear_ln at seeds {0, 1, 7, 100} × 5 folds (n=20 each) — done 2026-05-15 evening
+- AZ linear_ln at seeds {0, 1, 7, 100} × 5 folds — done 2026-05-15 evening
+
+All multi-fold runs use `--folds 5` → trainer's `n_splits=5` matches log_T's `n_splits=5` → **leak-free**.
+
+## Conclusion-by-conclusion impact analysis
+
+### Conclusion 1 (original ablation): "Removing task encoders hurts both heads at AZ/FL; AL is within n=1 noise at 25ep, baseline pulls ahead by 50ep."
+
+Built on within-state pairwise Δs (cell A `no_encoders` vs cell D `baseline`). Both arms hit the same leaky prior on the same val set → pairwise Δ preserved within ~0.10 pp. **Conclusion holds; absolute reg numbers in the writeup carry an inline caveat.**
+
+### Conclusion 2 (trajectory): "no_encoders saturates earlier than baseline at AL."
+
+Built on the per-epoch val trajectory at AL 25ep. The leak adds a roughly time-varying offset (α growth) but the relative trajectory shape — "this curve saturates while that one keeps climbing" — is preserved across arms. **Conclusion holds.**
+
+### Conclusion 3 (factorial: d_model is what carries the reg gap, not encoder MLP non-linearity)
+
+Built on within-state pairwise Δs across 4 cells at AZ 25ep: B≈A and C≈D on reg, A,B << C,D gap ≈ 8.1 pp. All 4 cells hit the same leaky prior → every pairwise Δ is preserved. **This is the load-bearing factorial conclusion. Confirmed leak-free at n=20 multi-seed:** Δ_reg(C−D) at AZ = −0.01 pp (p=0.66) on the morning's clean multi-seed sweep.
+
+### Conclusion 4 (AL factorial: at 25ep, all four cells indistinguishable)
+
+Built on within-state pairwise Δs at AL 25ep. Uniform leak across cells → Δs preserved. The conclusion "AL 25ep is too early in baseline's convergence to discriminate" is itself a Δ-based observation. **Conclusion holds.**
+
+### Conclusion 5 (cross-state ordering: AZ Δ_reg = −8.3, FL Δ_reg = −5.3 — non-monotone in region cardinality)
+
+Built on cross-state comparison of within-state Δs. Each state's pairwise Δ preserved individually; the cross-state COMPARISON is also preserved because both states have leak-symmetric Δs. The writeup correctly flags this as "non-monotone, n=1, needs multi-seed". **Conclusion holds at the existing caveat level.**
+
+### Conclusion 6 (final factorial, scale-conditional): "Cell E ≡ Cell D at AZ; Cell D dominates Cell E on cat at AL by −2.57 pp"
+
+Built on n=20 multi-seed leak-free protocol (`--folds 5`). **No leak impact. Paper-grade as stated.**
+
+## Absolute-number disposition
+
+The §Step 1 / §Step 2 (1-fold) tables in `EXPERIMENT_NO_ENCODERS.md` carry leak-inflated absolute reg values (AL 50ep baseline reg = 68.21, AZ 25ep baseline reg = 64.75, FL 25ep baseline reg = 76.51). These are correctly flagged in the doc's §⚠ Critical leak discovery section. The §Step 3 multi-seed values (AL baseline reg = 47.66, AZ baseline reg = 40.89) are leak-free and match v11 paper canon within fold-level noise.
+
+## Re-run decision matrix (final)
+
+| Candidate re-run | Cost | Decision | Notes |
+|---|---|---|---|
+| Re-run all single-fold runs at `--folds 5` | ~3 h MPS | ❌ **Skip** | pairwise Δs already preserved; no information gained |
+| AL multi-seed (cells C, D, E) | ~1 h MPS | ✅ **Done** (Step 3) | confirmed cross-state simplification verdict |
+| AZ multi-seed (cells D, C, E) | ~2 h MPS | ✅ **Done** (Steps 2 + 3) | paper-grade n=20 |
+| Re-run F50 D5 trajectory at `--folds 5 --epochs 50` | ~10 h MPS | ❌ **Skip** | mechanism (saturation in weight space) survives the leak; caveat added to F50 D5 doc |
+| FL multi-seed | ~10 h MPS | ⚠ Deferred to main study | scale-conditional simplification claim might want it eventually |
+
+**Bottom line: every conclusion in this study is either confirmed leak-free at n=20 (Steps 2 + 3) or stands on uniform-leak-preserved pairwise Δs (Step 1 + factorial smoke). No retractions.**

@@ -10,9 +10,8 @@
 |---|---|---|
 | **[`INDEX.html`](INDEX.html)** ⭐ | Comprehensive state-of-the-art audit: every MTL backbone, loss, optimizer, head, ablation we have run, plus paper-canonical v11 numbers and the "is the input the right fit" question. | Read first when joining the MTL track. |
 | **[`EXPERIMENT_NO_ENCODERS.md`](EXPERIMENT_NO_ENCODERS.md)** | Running diary of the *"what if we pass the 64-dim embeddings direct to cross-attn"* ablation. Includes the 2×2 factorial (cells A–D), advisor critique, cell-E thin hybrid, and the AZ multi-seed paper-grade confirmation. | Read second — the experimental detail. |
-| **[`LEAK_BLAST_RADIUS_AUDIT.md`](LEAK_BLAST_RADIUS_AUDIT.md)** | Technical audit of the `--folds < 5` × per-fold log_T `n_splits=5` mismatch bug — what triggers it, blast radius across all v11 / F-trail / active-study claims, the trainer-level fix that landed 2026-05-15. | Read third — the codebase impact. |
-| **[`STUDY_FINDINGS_LEAK_AUDIT.md`](STUDY_FINDINGS_LEAK_AUDIT.md)** | Self-audit of this study's own findings under the leak. Per-conclusion impact analysis + re-run decision matrix. | Skim — confirms why no re-runs needed. |
-| `run_chain.sh`, `run_*.sh` | Re-launchable invocation scripts for every experiment phase. | Reference for reproducing. |
+| **[`LEAK_BLAST_RADIUS_AUDIT.md`](LEAK_BLAST_RADIUS_AUDIT.md)** | Technical audit of the `--folds < 5` × per-fold log_T `n_splits=5` mismatch bug — Part 1: codebase blast radius + trainer-level fix that landed 2026-05-15; Part 2: self-audit of this study's findings under the leak (no retractions). | Read third — the codebase impact. |
+| `run_az_multiseed.sh`, `run_ms_chain_v2.sh` | Re-launchable invocation scripts for the canonical multi-seed reproducers. | Reference for reproducing. |
 | `logs/` | Training stdout (per-run logs + master/queue logs). | Reference for raw trajectories. |
 
 ## What this study contributed (≈ 1 day of work)
@@ -32,19 +31,19 @@
 
 ## Reproducing the experiments
 
-Every phase has a re-launchable script:
+The early single-fold smokes (`run_no_encoders.sh`, `run_chain.sh`,
+`run_linear_encoders.sh`) were deleted on 2026-05-16 — they produced
+LEAKY `--folds 1` runs that the n_splits guard now hard-fails on anyway,
+and the bug-discovery story is documented in §Part 1 of
+`LEAK_BLAST_RADIUS_AUDIT.md`. The two remaining scripts reproduce the
+clean leak-free multi-seed result:
 
 ```bash
-# Phase 1 — the original no_encoders ablation (--folds 1 LEAKY, kept for audit)
-bash docs/studies/mtl-exploration/run_chain.sh no_encoders alabama arizona florida
-
-# Phase 2 — the linear-encoders factorial (cells B + C, --folds 1 LEAKY, kept for audit)
-bash docs/studies/mtl-exploration/run_linear_encoders.sh arizona
-
-# Phase 3 — AZ multi-seed (--folds 5 leak-free; the paper-grade confirmation)
+# AZ × {baseline, linear} × 4 seeds × 5 folds × 25ep (paper-grade Step 2)
 bash docs/studies/mtl-exploration/run_az_multiseed.sh
 
-# Phase 4 — extension: AL multi-seed + cell E thin-hybrid (linear+LN)
+# AL × {baseline, linear, linear_ln} × 4 seeds + AZ × linear_ln × 4 seeds
+# (cross-state Step 3 + cell E)
 bash docs/studies/mtl-exploration/run_ms_chain_v2.sh
 ```
 
