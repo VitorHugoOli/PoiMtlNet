@@ -285,7 +285,32 @@ Per-fold, all 5 cat folds positive on both cat F1 and cat Acc@1. See `research/F
 **vs STL STAN (reg ceiling):** reg Acc@10 0.5224 ± 0.0238 → Δ = +1.58 pp (tied within σ).
 **vs STL GETNext-hard (F21c matched-head reg baseline):** reg Acc@10 0.6674 ± 0.0211 → Δ = **−12.92 pp** (MTL still trails on reg — F21c finding persists).
 
-## Caveats — Phase-1 substrate-specific addendum (2026-04-27)
+## Caveats — Phase-1 substrate-specific addendum (2026-04-27, ⚠ RETRACTED 2026-05-16)
+
+> ⚠ **2026-05-16 RETRACTION — the "MTL+HGI catastrophic 37 pp break" claim below is dominantly a leak artefact.** The 2026-04-27 measurements used the pre-F50-T4 legacy `region_transition_log.pt` (full-data, val transitions in the prior — C4 leak documented in `findings/MTL_FLAWS_AND_FIXES.md §2.12`). Under leak-free per-fold log_T at the SAME B3 recipe, the catastrophic break almost entirely disappears.
+>
+> **Leak-free B3+HGI re-run (mtl-exploration, 5f × 50ep × seed=42, AL+AZ+FL):**
+>
+> | State | Pre-leak B3+HGI reg (2026-04-27) | **Leak-free B3+HGI reg (2026-05-16)** | STL+HGI ceiling (v11 §0.3) | MTL Δ vs STL |
+> |---|---:|---:|---:|---:|
+> | AL | 29.95 | **57.38 ± 4.64** | 61.86 ± 3.29 | **−4.48 pp** |
+> | AZ | 22.10 | **46.95 ± 2.60** | 53.37 ± 2.55 | **−6.42 pp** |
+> | FL | (not measured pre-leak) | **70.47 ± 1.68** | 73.58 ± 0.43 | **−3.11 pp** |
+>
+> **Attribution decomposition (AL, full 31.91 pp gap from 29.95 to STL ceiling 61.86):**
+> - Leak-fix contribution: **+27.43 pp (86 %)** — *dominantly the leak*.
+> - Recipe upgrade B3 → B9: +4.10 pp (13 %).
+> - Residual to STL ceiling: +0.38 pp (1 %).
+>
+> AZ: leak fix +24.85 pp (79 %), recipe upgrade +6.93 pp (22 %).
+>
+> **Cat F1 under HGI substrate is essentially constant** across all four recipes (AL: B3 pre-leak 25.96 / B3 leak-free 25.95 / B9 leak-free 25.23 / STL 25.26). HGI substrate's cat capacity is structurally capped — recipe-invariant.
+>
+> **Refined framing**: under leak-free measurement, MTL+HGI does NOT catastrophically break the reg head. It trails the STL+HGI ceiling by a normal MTL-cost margin (3–6 pp on reg, ≤1 pp on cat). The "MTL is substrate-specific" original framing should be re-read in light of v11 §0.3 (which already shows reg substrate axis HGI > C2HGI by 1.6–3.1 pp at STL).
+>
+> Sources for the retraction: `docs/studies/mtl-exploration/EXPERIMENT_HGI_SUBSTRATE.md`, `docs/studies/mtl-exploration/run_b3_hgi.sh`, run dirs `results/hgi/{alabama,arizona,florida}/mtlnet_lr1.0e-04_bs{2048,2048,1024}_ep50_20260516_*`.
+
+**Historical pre-retraction text** preserved below (do not cite for paper without the retraction context):
 
 **MTL B3 only works with Check2HGI substrate.** Phase-1 Leg III (MTL counterfactual with HGI substituted, 5f × 50ep, seed 42 each at AL+AZ):
 
