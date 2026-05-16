@@ -10,6 +10,7 @@
 |---|---|---|
 | **[`INDEX.html`](INDEX.html)** ⭐ | Comprehensive state-of-the-art audit: every MTL backbone, loss, optimizer, head, ablation we have run, plus paper-canonical v11 numbers and the "is the input the right fit" question. | Read first when joining the MTL track. |
 | **[`EXPERIMENT_NO_ENCODERS.md`](EXPERIMENT_NO_ENCODERS.md)** | Running diary of the *"what if we pass the 64-dim embeddings direct to cross-attn"* ablation. Includes the 2×2 factorial (cells A–D), advisor critique, cell-E thin hybrid, and the AZ multi-seed paper-grade confirmation. | Read second — the experimental detail. |
+| **[`EXPERIMENT_HGI_SUBSTRATE.md`](EXPERIMENT_HGI_SUBSTRATE.md)** | Brief experiment: B9 with `--engine hgi` instead of `--engine check2hgi`. Result: MTL+HGI ≡ STL+HGI on both heads (cross-attn MTL is null under HGI substrate) — refutes the pre-leak-free CH18-substrate "−37 pp catastrophic break" claim. | Read fourth — the substrate × MTL interaction finding. |
 | **[`LEAK_BLAST_RADIUS_AUDIT.md`](LEAK_BLAST_RADIUS_AUDIT.md)** | Technical audit of the `--folds < 5` × per-fold log_T `n_splits=5` mismatch bug — Part 1: codebase blast radius + trainer-level fix that landed 2026-05-15; Part 2: self-audit of this study's findings under the leak (no retractions). | Read third — the codebase impact. |
 | `run_az_multiseed.sh`, `run_ms_chain_v2.sh` | Re-launchable invocation scripts for the canonical multi-seed reproducers. | Reference for reproducing. |
 | `logs/` | Training stdout (per-run logs + master/queue logs). | Reference for raw trajectories. |
