@@ -100,10 +100,42 @@ So the "37 pp regression" between then and now is the combined effect of **two c
 **Honest framing of what's been established:**
 
 - ✅ Under the current leak-free B9 protocol, MTL+HGI does NOT break either head — both match STL+HGI within ~0.5 pp.
-- ⚠ **What carries the disappearance of the 37 pp regression — the leak fix or the recipe change — has NOT been isolated.** Running B3+HGI under leak-free conditions would discriminate; not done here.
-- ⚠ The CH18-substrate "MTL is substrate-specific" framing should be re-examined, but a clean retraction requires the B3+HGI leak-free re-run (next-study scope).
+- ✅ **B3+HGI under leak-free conditions has now been measured** (see §B3+HGI discriminator below). The catastrophic break was ~80% leak-driven and ~15% recipe-driven.
 
-**What is robust regardless of leak-vs-recipe attribution:** under the current canonical B9 recipe, MTL+HGI does not break. The two task streams effectively decouple under HGI substrate (probably because per-POI-stable embeddings make cross-attention K/V near-constant across the 9-step window).
+### B3+HGI discriminator (added 2026-05-16, FL still pending)
+
+To isolate whether the CH18 catastrophe was the C4 leak or the B3 recipe instability, ran B3+HGI under leak-free per-fold log_T (5f × 50ep × seed=42, OneCycleLR max=0.003, single LR — no per-head, no cosine, no alt-SGD, no α-no-WD). Reproducer: [`run_b3_hgi.sh`](run_b3_hgi.sh).
+
+| State | reg top10_indist | cat F1 |
+|---|---:|---:|
+| AL | **57.38 ± 4.64** | 25.95 ± 0.98 |
+| AZ | **46.95 ± 2.60** | 29.83 ± 0.83 |
+| FL | pending (~5 h MPS in flight) | pending |
+
+**Decomposition of the original AL catastrophe (29.95 → 61.86):**
+
+| Step | reg | Δ from prior step | Cumulative recovery |
+|---|---:|---:|---|
+| Pre-leak-fix B3+HGI (CH18, 2026-04-27) | 29.95 | — | 0% (catastrophic baseline) |
+| **+ leak fix** (C4 → per-fold log_T) at B3 | **57.38** | **+27.43 pp** | **~84% of catastrophe** ⭐ |
+| + recipe upgrade B3 → B9 | 61.48 | +4.10 pp | ~13% additional |
+| STL+HGI ceiling | 61.86 | +0.38 pp | fold noise |
+
+**AZ decomposition (22.10 → 53.37):** leak fix +24.85 pp (~78%); recipe +6.93 pp (~22%).
+
+**The CH18-substrate "37 pp catastrophic break" was DOMINANTLY a leak artefact.** The B3 recipe itself, under leak-free conditions, trails the STL+HGI ceiling by only ~5 pp on reg — within normal MTL-cost range, not catastrophic.
+
+**Cat F1 under HGI substrate** is essentially constant across all four recipes (B3 pre-leak: 25.96 / B3 leak-free: 25.95 / B9 leak-free: 25.23 / STL: 25.26 at AL — all within 0.7 pp). HGI substrate's cat capacity is structurally capped at ~25 (AL) and ~29 (AZ) by the absence of per-visit context — recipe doesn't move it.
+
+### Refined story (replaces the earlier honest-uncertainty framing)
+
+Under leak-free B3+HGI conditions:
+
+- **MTL does NOT break under HGI substrate.** The previously-reported catastrophic reg break (29.95 at AL) was a leak artefact. Leak-free B3+HGI reg = 57.38 (only 4.5 pp below the STL+HGI ceiling of 61.86).
+- **Recipe contribution to the recovery is small (~12-22%).** Switching to B9 (per-head LR, cosine, alt-SGD) brings reg from 57.4 to 61.5 at AL — a tightening, not a rescue.
+- **The cross-attention MTL is essentially transparent under HGI** for both B3 and B9 recipes (within ~5 pp of STL+HGI). It does not extract joint-training signal from a POI-stable substrate.
+
+**Implication for `NORTH_STAR.md`:** the §Caveats Phase-1 paragraph stating "MTL B3 only works with Check2HGI substrate. ... MTL+HGI actively breaks the reg head (Acc@10 = 29.95 < STL+HGI Acc@10 = 67.52 at AL — a 37 pp regression)" is **largely refuted** by the leak-free measurement. The actual leak-free regression is 4.48 pp at AL and 6.42 pp at AZ — within normal MTL-cost range. Worth updating the doc to reflect the leak-free retraction once FL completes.
 
 The refined story: **the cross-attention MTL only does measurable joint-training work under per-visit-contextual substrates (C2HGI). Under POI-stable substrates (HGI), the two task streams effectively decouple — cross-attn passes through.** Mechanism speculation: with per-POI-stable embeddings, the same POI gets the same K/V across all 9 sequence steps, making cross-stream attention an averaging operation that contributes no signal.
 
