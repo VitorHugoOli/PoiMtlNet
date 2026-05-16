@@ -152,7 +152,7 @@ Key files: `src/training/runners/mtl_cv.py`, `scripts/train.py`
 
 **Running training**:
 ```bash
-# Canonical CLI entrypoint
+# Canonical CLI entrypoint (smoke run — no recipe overrides, will NOT match paper numbers)
 python scripts/train.py --task mtl --state florida --engine hgi
 
 # Or via pipeline wrappers (legacy)
@@ -160,6 +160,31 @@ python pipelines/train/mtl.pipe.py
 ```
 
 Configure `state` (florida, alabama, etc.) and engine. Outputs go to `results/{engine}/{state}/` including fold metrics (CSV), classification reports (JSON), plots (PNG), and summary statistics.
+
+> ⚠ **For Check2HGI MTL you MUST pass the full canonical recipe — defaults will NOT reproduce paper numbers.** Three classes of flag are silently wrong by default and each one alone drops a head by 10–30 pp:
+>
+> 1. **`--mtl-loss`** defaults to `nash_mtl` (with cvxpy/ECOS solver errors mid-training). The canonical recipe is `static_weight` with `--category-weight 0.75`.
+> 2. **`--cat-head` / `--reg-head`** default to the preset's choice (cat=`next_mtl` Transformer, reg=`next_gru`). NORTH_STAR B9 uses `next_gru` (cat) and `next_getnext_hard` (reg, alias for `next_stan_flow`).
+> 3. **`--task-b-input-type`** defaults to `checkin`. NORTH_STAR B9 specifies **`region` embeddings** for the reg task (`docs/NORTH_STAR.md` §Champion). Running with `checkin` for task_b drops AL reg Acc@10 from ~50 % to ~28 % (verified 2026-05-14 on A40).
+>
+> Canonical NORTH_STAR B9 invocation (paper-grade at FL/CA/TX; small-state recipe is H3-alt, see `docs/NORTH_STAR.md`):
+> ```bash
+> python scripts/train.py --task mtl --task-set check2hgi_next_region \
+>     --state {state} --engine check2hgi --seed 42 \
+>     --epochs 50 --folds 5 --batch-size 2048 \
+>     --model mtlnet_crossattn \
+>     --mtl-loss static_weight --category-weight 0.75 \
+>     --scheduler cosine --max-lr 3e-3 \
+>     --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3 \
+>     --alternating-optimizer-step --alpha-no-weight-decay --min-best-epoch 5 \
+>     --cat-head next_gru --reg-head next_getnext_hard \
+>     --task-a-input-type checkin --task-b-input-type region \
+>     --per-fold-transition-dir output/check2hgi/{state}
+> ```
+>
+> H3-alt (small-state recipe, AL/AZ): drop `--alternating-optimizer-step`, `--alpha-no-weight-decay`, `--min-best-epoch 5`; replace `--scheduler cosine --max-lr 3e-3` with `--scheduler constant`. Heads + input-modality flags are identical.
+>
+> The per-fold log_T at `--per-fold-transition-dir` MUST be the **seed-tagged** files `region_transition_log_seed{S}_fold{N}.pt`. Build them via `python scripts/compute_region_transition.py --state {state} --per-fold --seed {S}` for every seed you train at — otherwise transitions leak across the train/val split at any seed ≠ 42.
 
 ## Configurations
 

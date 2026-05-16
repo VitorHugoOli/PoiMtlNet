@@ -1,0 +1,29 @@
+{
+  "tag": "t43_sidefeat_hours_AL",
+  "tagged_root": "/home/vitor.oliveira/PoiMtlNet/runs/t43_sidefeat_hours_AL",
+  "al": {
+    "run_dir": "/home/vitor.oliveira/PoiMtlNet/runs/t43_sidefeat_hours_AL/results/check2hgi/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260516_032807_2904296",
+    "cat_f1_per_fold": [
+      0.38295498490333557,
+      0.4067232012748718,
+      0.4044015407562256,
+      0.40108487010002136,
+      0.3835607171058655
+    ],
+    "reg_top10_per_fold": [
+      0.5312246680259705,
+      0.4731925129890442,
+      0.5224969983100891,
+      0.5091500282287598,
+      0.4042293429374695
+    ],
+    "cat_f1_mean_pct": 39.5745062828064,
+    "cat_f1_std_pct": 1.1575967017687556,
+    "reg_top10_mean_pct": 48.80587100982666,
+    "reg_top10_std_pct": 5.182303043611138,
+    "leak_probe": {
+      "f1_mean_pct": 30.47122368957779,
+      "f1_std_pct": 1.1566296028981196
+    }
+  }
+}

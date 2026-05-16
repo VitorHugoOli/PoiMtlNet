@@ -1,0 +1,29 @@
+{
+  "tag": "t43_sidefeat_covisit_AL",
+  "tagged_root": "/home/vitor.oliveira/PoiMtlNet/runs/t43_sidefeat_covisit_AL",
+  "al": {
+    "run_dir": "/home/vitor.oliveira/PoiMtlNet/runs/t43_sidefeat_covisit_AL/results/check2hgi/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260516_032823_2905182",
+    "cat_f1_per_fold": [
+      0.3949357271194458,
+      0.40763986110687256,
+      0.40678536891937256,
+      0.41308504343032837,
+      0.4018598794937134
+    ],
+    "reg_top10_per_fold": [
+      0.53000807762146,
+      0.4833468794822693,
+      0.5204702019691467,
+      0.5058966875076294,
+      0.40951603651046753
+    ],
+    "cat_f1_mean_pct": 40.48611760139465,
+    "cat_f1_std_pct": 0.6829676438618404,
+    "reg_top10_mean_pct": 48.98475766181946,
+    "reg_top10_std_pct": 4.822758646224124,
+    "leak_probe": {
+      "f1_mean_pct": 31.04557086113629,
+      "f1_std_pct": 1.6588703060614491
+    }
+  }
+}

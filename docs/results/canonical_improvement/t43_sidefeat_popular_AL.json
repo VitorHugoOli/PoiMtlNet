@@ -1,0 +1,29 @@
+{
+  "tag": "t43_sidefeat_popular_AL",
+  "tagged_root": "/home/vitor.oliveira/PoiMtlNet/runs/t43_sidefeat_popular_AL",
+  "al": {
+    "run_dir": "/home/vitor.oliveira/PoiMtlNet/runs/t43_sidefeat_popular_AL/results/check2hgi/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260516_032606_2903010",
+    "cat_f1_per_fold": [
+      0.4001048803329468,
+      0.408047080039978,
+      0.4212367534637451,
+      0.40583372116088867,
+      0.3996868133544922
+    ],
+    "reg_top10_per_fold": [
+      0.5287915468215942,
+      0.4890333116054535,
+      0.5018240809440613,
+      0.49166327714920044,
+      0.43676289916038513
+    ],
+    "cat_f1_mean_pct": 40.698184967041016,
+    "cat_f1_std_pct": 0.8748792189365837,
+    "reg_top10_mean_pct": 48.96150231361389,
+    "reg_top10_std_pct": 3.3472906365408552,
+    "leak_probe": {
+      "f1_mean_pct": 31.42502011417802,
+      "f1_std_pct": 1.5426188776116436
+    }
+  }
+}

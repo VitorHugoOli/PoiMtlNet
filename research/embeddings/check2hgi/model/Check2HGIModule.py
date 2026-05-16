@@ -53,6 +53,22 @@ class Check2HGI(nn.Module):
         alpha_r2c=0.3,
         c2p_hard_neg_prob=0.0,
         c2p_corrupted_neg=False,
+        p2r_hard_neg_prob=None,
+        p2r_hard_neg_min_batch=50000,
+        p2r_hard_neg_sim_range=(0.6, 0.8),
+        # T4.3 — POI side-features (popularity / hours / co-visit).
+        # When ``side_feature_dim`` > 0, build a post-pool injection path
+        # that augments POI embeddings with derived per-POI features.
+        side_feature_dim: int = 0,
+        side_feature_hidden: int = 16,
+        # T4.1 — GraphMAE masked feature reconstruction.
+        # When ``mae_lambda`` > 0, run a separate masked-input encoder pass
+        # plus a decoder that reconstructs the masked node features. The
+        # SCE loss is added to the total with coefficient ``mae_lambda``.
+        mae_lambda: float = 0.0,
+        mae_mask_rate: float = 0.5,
+        mae_gamma: float = 3.0,
+        mae_in_channels: int | None = None,
     ):
         """
         Initialize Check2HGI module.
@@ -103,10 +119,86 @@ class Check2HGI(nn.Module):
                 "c2p_hard_neg_prob > 0 (both modify the same negative)."
             )
 
+        # T2.1 p2r hard-negative knobs (overrides the canonical 25% baked into
+        # `_sample_negative_indices_with_similarity`):
+        #   `p2r_hard_neg_prob=None` → canonical legacy behaviour (25% with
+        #     batch < `p2r_hard_neg_min_batch` guard).
+        #   `p2r_hard_neg_prob=<float>` → override the rate explicitly.
+        #     0.0 disables hard negs; >0 forces hard-neg sampling regardless
+        #     of batch size (i.e. enables it for FL too) when batch < min.
+        #   `p2r_hard_neg_min_batch` controls the batch-size gate.
+        #   `p2r_hard_neg_sim_range` controls the similarity window
+        #     (default (0.6, 0.8) — the canonical band).
+        self.p2r_hard_neg_prob = p2r_hard_neg_prob
+        self.p2r_hard_neg_min_batch = int(p2r_hard_neg_min_batch)
+        self.p2r_hard_neg_sim_range = tuple(p2r_hard_neg_sim_range)
+
         # Bilinear transformation weights for discrimination at each boundary
         self.weight_c2p = nn.Parameter(torch.Tensor(hidden_channels, hidden_channels))
         self.weight_p2r = nn.Parameter(torch.Tensor(hidden_channels, hidden_channels))
         self.weight_r2c = nn.Parameter(torch.Tensor(hidden_channels, hidden_channels))
+
+        # T4.3 — POI side-feature post-pool injector. Built only when enabled
+        # so the canonical (side_feature_dim=0) recipe is bit-identical.
+        # Injection point: AFTER ``checkin2poi`` attention pool, BEFORE
+        # ``poi2region``. Architecture: ``Linear(side_dim → side_hidden)`` →
+        # concat with poi_emb → ``Linear(D + side_hidden → D)``. The side
+        # features never enter the attention pool (avoids the S3-b V2-c
+        # failure mode flagged in the C7-CONCERNS register).
+        self.side_feature_dim = int(side_feature_dim)
+        if self.side_feature_dim > 0:
+            # Side projection: PReLU between proj & concat to break linearity
+            # and let the encoder learn non-trivial reweightings of the raw
+            # 32-d feature vector before concat (audit advisor recommendation 4).
+            self.side_proj = nn.Sequential(
+                nn.Linear(self.side_feature_dim, int(side_feature_hidden)),
+                nn.PReLU(),
+            )
+            # Post-pool projection: LayerNorm after the Linear to match the
+            # canonical p2r input distribution (otherwise the augmented norm
+            # is larger than the pre-aug one and the p2r sigmoid saturates).
+            self.pool_post_proj = nn.Sequential(
+                nn.Linear(hidden_channels + int(side_feature_hidden), hidden_channels),
+                nn.LayerNorm(hidden_channels),
+            )
+            self.side_feature_hidden = int(side_feature_hidden)
+        else:
+            self.side_proj = None
+            self.pool_post_proj = None
+            self.side_feature_hidden = 0
+
+        # T4.1 — GraphMAE masked feature reconstruction. Built only when
+        # enabled; the masked encoder pass is an extra forward over the
+        # check-in graph (so total cost is ~3 encoder forwards per step
+        # instead of the canonical 2). The decoder is a 2-layer MLP that
+        # reconstructs the original (unmasked) input features.
+        self.mae_lambda = float(mae_lambda)
+        self.mae_mask_rate = float(mae_mask_rate)
+        self.mae_gamma = float(mae_gamma)
+        if self.mae_lambda > 0.0:
+            if mae_in_channels is None:
+                raise ValueError(
+                    "mae_lambda > 0 requires mae_in_channels (input feature "
+                    "dim) so the decoder output shape can match data.x"
+                )
+            self.mae_in_channels = int(mae_in_channels)
+            # Mask token: small-random init (BERT/GraphMAE convention). Zero
+            # init collides with padding semantics and starves the encoder
+            # of useful gradient at epoch 1 (audit advisor recommendation 5).
+            _mask = torch.empty(self.mae_in_channels)
+            nn.init.normal_(_mask, mean=0.0, std=0.02)
+            self.mask_token = nn.Parameter(_mask)
+            self.mae_decoder = nn.Sequential(
+                nn.Linear(hidden_channels, hidden_channels),
+                nn.PReLU(),
+                nn.Linear(hidden_channels, self.mae_in_channels),
+            )
+        else:
+            self.mae_in_channels = 0
+            self.mask_token = None
+            self.mae_decoder = None
+        # Loss term computed inside ``forward``, consumed by ``loss``.
+        self._mae_loss = None
 
         # Store embeddings for extraction
         self.checkin_embedding = torch.tensor(0)
@@ -148,19 +240,85 @@ class Check2HGI(nn.Module):
         num_regions = data.num_regions
 
         # Level 1: Check-in encoding (positive samples)
-        pos_checkin_emb = self.checkin_encoder(data.x, data.edge_index, data.edge_weight)
+        # T3.3 plumbing: optionally pass edge_type (per-edge relation index)
+        # for R-GCN. Encoders that don't use it ignore the kwarg.
+        _edge_type = getattr(data, 'edge_type', None)
+        _enc_kwargs = {'edge_type': _edge_type} if _edge_type is not None else {}
+        pos_checkin_emb = self.checkin_encoder(
+            data.x, data.edge_index, data.edge_weight, **_enc_kwargs
+        )
 
         # Level 1: Check-in encoding (negative samples with corrupted features)
         cor_x = self.corruption(data.x)
-        neg_checkin_emb = self.checkin_encoder(cor_x, data.edge_index, data.edge_weight)
+        neg_checkin_emb = self.checkin_encoder(
+            cor_x, data.edge_index, data.edge_weight, **_enc_kwargs
+        )
 
         # Level 2: POI encoding (aggregate check-ins to POIs)
         pos_poi_emb = self.checkin2poi(pos_checkin_emb, data.checkin_to_poi, num_pois)
         neg_poi_emb = self.checkin2poi(neg_checkin_emb, data.checkin_to_poi, num_pois)
 
+        # T4.3 — POI side-feature post-pool injection. Restricted to the p2r
+        # pathway only — the c2p discriminator uses the PRE-augmentation
+        # POI embedding (pos_poi_emb_pure) so side-feature gradients do NOT
+        # flow back into the check-in encoder via the c2p path. Otherwise
+        # side-feature info would leak into checkin_emb and inflate the
+        # downstream leak probe (T4.3 audit advisor blocker 2, 2026-05-16).
+        side_features = getattr(data, "side_features", None)
+        pos_poi_emb_pure = pos_poi_emb     # for c2p
+        neg_poi_emb_pure = neg_poi_emb     # for c2p
+        if self.side_proj is not None and side_features is not None:
+            if side_features.shape[0] != num_pois:
+                raise ValueError(
+                    f"side_features.shape[0]={side_features.shape[0]} != "
+                    f"num_pois={num_pois}"
+                )
+            if side_features.shape[1] != self.side_feature_dim:
+                raise ValueError(
+                    f"side_features.shape[1]={side_features.shape[1]} != "
+                    f"side_feature_dim={self.side_feature_dim}"
+                )
+            side_h = self.side_proj(side_features)        # (P, side_hidden)
+            # Augmented versions ONLY for p2r downstream:
+            pos_poi_emb = self.pool_post_proj(
+                torch.cat([pos_poi_emb, side_h], dim=-1)
+            )
+            neg_poi_emb = self.pool_post_proj(
+                torch.cat([neg_poi_emb, side_h], dim=-1)
+            )
+
         # Level 3: Region encoding (aggregate POIs to regions)
+        # Uses the AUGMENTED poi_emb (the intended injection point).
         pos_region_emb = self.poi2region(pos_poi_emb, data.poi_to_region, data.region_adjacency)
         neg_region_emb = self.poi2region(neg_poi_emb, data.poi_to_region, data.region_adjacency)
+
+        # T4.1 — GraphMAE masked feature reconstruction.
+        # Separate forward over a masked input: replace mask_rate of nodes'
+        # features with the learned [MASK] token, run the encoder, decode
+        # back to feature space, compute SCE loss on the masked positions.
+        # The reconstruction is sequestered from the contrastive pipeline —
+        # it only contributes the auxiliary L_mae term added in loss().
+        self._mae_loss = None
+        if self.mae_lambda > 0.0 and self.mae_decoder is not None:
+            with torch.no_grad():
+                N = data.x.size(0)
+                mask = torch.rand(N, device=data.x.device) < self.mae_mask_rate
+            if mask.any():
+                x_masked = data.x.clone()
+                x_masked[mask] = self.mask_token
+                masked_emb = self.checkin_encoder(
+                    x_masked, data.edge_index, data.edge_weight, **_enc_kwargs
+                )
+                recon = self.mae_decoder(masked_emb)                       # (N, F)
+                # SCE (Scaled Cosine Error, GraphMAE Eq. 5):
+                #   L = ((1 − cos_sim(recon, x))^γ).mean()
+                # over masked positions only.
+                recon_m = recon[mask]
+                x_m = data.x[mask]
+                cos = torch.nn.functional.cosine_similarity(
+                    recon_m, x_m, dim=-1, eps=EPS
+                )
+                self._mae_loss = ((1.0 - cos).clamp(min=0.0) ** self.mae_gamma).mean()
 
         # Level 4: City encoding (aggregate regions)
         city_emb = self.region2city(pos_region_emb, data.region_area)
@@ -172,13 +330,15 @@ class Check2HGI(nn.Module):
 
         # Prepare outputs for loss computation
         # Check-in to POI: each check-in vs its POI
-        pos_poi_expanded = pos_poi_emb[data.checkin_to_poi]
+        # T4.3: use PURE (pre-augmentation) POI embedding to keep the c2p
+        # discriminator from learning side-feature shortcuts.
+        pos_poi_expanded = pos_poi_emb_pure[data.checkin_to_poi]
 
         # Generate negative POI assignments for check-ins
         if self.c2p_corrupted_neg:
             # S4: same POI identity, but encoded from corrupted features.
             # neg_poi_emb is already computed (lines above); reuse it.
-            neg_poi_expanded = neg_poi_emb[data.checkin_to_poi]
+            neg_poi_expanded = neg_poi_emb_pure[data.checkin_to_poi]
         else:
             if self.c2p_hard_neg_prob > 0.0:
                 neg_poi_indices = self._sample_hard_negative_indices_c2p(
@@ -188,7 +348,7 @@ class Check2HGI(nn.Module):
                 neg_poi_indices = self._sample_negative_indices(
                     data.checkin_to_poi, num_pois, data.x.device
                 )
-            neg_poi_expanded = pos_poi_emb[neg_poi_indices]
+            neg_poi_expanded = pos_poi_emb_pure[neg_poi_indices]
 
         # POI to Region: each POI vs its region
         pos_region_expanded = pos_region_emb[data.poi_to_region]
@@ -312,26 +472,35 @@ class Check2HGI(nn.Module):
         return torch.where(use_hard, hard_neg, rand_neg)
 
     def _sample_negative_indices_with_similarity(self, assignment, num_targets, similarity, device):
-        """Sample negative indices using hard negative strategy - VECTORIZED."""
+        """Sample negative indices using hard negative strategy - VECTORIZED.
+
+        T2.1 hooks: behaviour is controlled by three module-level attributes:
+          - ``p2r_hard_neg_prob``: ``None`` → legacy 25% hard-neg gated by
+            ``batch_size < p2r_hard_neg_min_batch``; ``float`` → override
+            the rate explicitly (0.0 disables; >0 always tries, with the
+            same batch-size gate).
+          - ``p2r_hard_neg_min_batch``: int, default 50000.
+          - ``p2r_hard_neg_sim_range``: (lo, hi) similarity band, default (0.6, 0.8).
+        """
         batch_size = assignment.size(0)
 
         # Default: random negative (different from positive)
         neg_indices = torch.randint(0, num_targets - 1, (batch_size,), device=device)
         neg_indices = torch.where(neg_indices >= assignment, neg_indices + 1, neg_indices)
 
-        # Hard negative sampling for a subset (25%)
-        # For simplicity and speed, we only apply hard negatives to POI-region level
-        # which has ~11K samples, not check-in level with 100K+ samples
-        if similarity is not None and batch_size < 50000:
-            hard_neg_prob = 0.25
-            hard_mask = torch.rand(batch_size, device=device) < hard_neg_prob
+        # Resolve effective rate. ``None`` reproduces legacy canonical (0.25).
+        effective_prob = 0.25 if self.p2r_hard_neg_prob is None else float(self.p2r_hard_neg_prob)
+        if (similarity is not None
+                and batch_size < self.p2r_hard_neg_min_batch
+                and effective_prob > 0.0):
+            sim_lo, sim_hi = self.p2r_hard_neg_sim_range
+            hard_mask = torch.rand(batch_size, device=device) < effective_prob
 
             if hard_mask.any():
-                # For samples selected for hard negatives
                 for i in hard_mask.nonzero(as_tuple=True)[0].tolist():
                     pos_idx = assignment[i].item()
                     sim = similarity[pos_idx]
-                    candidates = ((sim > 0.6) & (sim < 0.8)).nonzero(as_tuple=True)[0]
+                    candidates = ((sim > sim_lo) & (sim < sim_hi)).nonzero(as_tuple=True)[0]
                     candidates = candidates[candidates != pos_idx]
                     if len(candidates) > 0:
                         neg_indices[i] = candidates[torch.randint(len(candidates), (1,)).item()]
@@ -403,6 +572,10 @@ class Check2HGI(nn.Module):
             self.alpha_p2r * loss_p2r +
             self.alpha_r2c * loss_r2c
         )
+
+        # T4.1 — fold in masked-recon auxiliary if forward computed one.
+        if self.mae_lambda > 0.0 and self._mae_loss is not None:
+            total_loss = total_loss + self.mae_lambda * self._mae_loss
 
         return total_loss
 

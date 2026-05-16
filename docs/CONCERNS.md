@@ -356,3 +356,41 @@ The NORTH_STAR currently reflects **Path A** (`next_gru` universally) pending F3
 | **C15** | **MTL coupling vs matched-head STL on reg** | **resolved 2026-04-26 — H3-alt closes/exceeds gap on AL+AZ+FL** | F37 STL FL ceiling lands above MTL-H3-alt; or seed sweep σ blowup |
 | **C16** | **CH15 reframed as head-coupled, not retracted** | **resolved 2026-04-27** | Reviewer challenges matched-head policy revision as data-driven |
 | **C17** | **`next_single` cat evidence demoted to head-sensitivity row** | **resolved 2026-04-27** | Reviewer cites legacy +18.30 vs new +15.50 as cherry-picking |
+| **C18** | **Encoder-swap leak-probe directional drift (T3.2 ResLN: +2.13 pp leak F1 over canonical at FL)** | **monitored 2026-05-15** | Cumulative drift across T3.3/T3.4 approaches or exceeds the +5 pp red flag |
+| **C19** | **F51 `--folds 1` × 5-fold log_T leak bug — audit clears canonical_improvement** | **resolved 2026-05-15** | Any new code path that invokes `scripts/train.py --folds <5` without rebuilding log_T at the same n-splits |
+
+---
+
+## C19 — F51 `--folds 1` × 5-fold log_T leak bug audit (RESOLVED 2026-05-15)
+
+**Concern raised:** 2026-05-15. A sibling-branch study surfaced the F51 finding (`docs/findings/F51_MULTI_SEED_FINDINGS.md §0`): `scripts/train.py --folds 1` triggers `n_splits = max(2, 1) = 2` for the trainer's StratifiedGroupKFold, but `region_transition_log_seed{S}_fold{N}.pt` files on disk are built with `--n-splits 5` (default). The val users under n_splits=2 (~50 %) are NOT disjoint from the log_T's train users under n_splits=5 (~80 %) → ~30 % val users have their transitions leak into the prior → inflates reg top10_acc_indist by 13–23 pp.
+
+**Audit scope:** entire canonical_improvement study (T1.x → T3.x, v3c series, all multi-seed runs).
+
+**Audit findings (all clean):**
+1. `docs/infra/a40/parallel_sweep_runner.sh` passes the **same `$N_FOLDS=5`** to both `compute_region_transition.py --n-splits` (line 104) and `scripts/train.py --folds` (line 117). Same `$SEED` for both. Mismatch is structurally impossible.
+2. Grep across `logs/PSWEEP_*.log`, `scripts/`, `docs/infra/`: zero stray `--folds <5` invocations from canonical_improvement code paths. The only `--folds 1` site (`scripts/run_f51_seed42_verify.sh:38`) is an F51-era smoke test, never referenced from canonical_improvement.
+3. `src/training/runners/mtl_cv.py:866-884` enforces seed-tagged path `region_transition_log_seed{S}_fold{N}.pt` and **hard-fails** (`FileNotFoundError`) if missing or if only a legacy unseeded file is present. Any completed run proves the seed-correct log_T was found.
+4. Every recorded `docs/results/canonical_improvement/*.json` (v3c_FL_seed{0,1,7,100}, t32_resln_FL, t31_gat_FL, t31b_gat_noedge_FL, T1.5 v3c_wd5e2, T2.1, T2.4) has `len(cat_f1_per_fold) == 5` AND `len(reg_top10_per_fold) == 5`. No `--folds < 5` artefacts.
+5. F51 fix landed in commit `0bb8a06` (~2 weeks before canonical_improvement began).
+
+**Verdict:** all canonical_improvement results stand. v3c paper-grade gate (5/5 seeds, p=0.03125 reg) is clean. T3.2 single-seed and currently-running T3.2 multi-seed are clean. T3.1 catastrophic cat leak (99 % F1) is GAT-structural, not log_T-driven — every other variant ran with the SAME seed-42 log_T and none showed similar inflation.
+
+**Mitigation landed (defense-in-depth):** `docs/infra/a40/parallel_sweep_runner.sh` now hard-fails at startup if `N_FOLDS < 2`, with a message pointing here and to F51. Prevents the bug class from being re-introduced via a typo or future caller.
+
+**Status:** `resolved 2026-05-15`. Re-opens only if a new code path introduces a `--folds <N>` invocation that does not rebuild log_T at the same `n_splits`.
+
+---
+
+## C18 — Encoder-swap leak-probe directional drift (T3.2 ResLN at FL, MONITORED 2026-05-15)
+
+**Concern raised:** 2026-05-15. T3.2 ResidualLN at FL single seed: leak F1 probe = 42.98 ± 0.34 vs canonical 40.85 ± 0.39 → **Δ = +2.13 pp**. This is well below the established +5 pp red-flag gate (T1.1) and is dwarfed by T3.1 GAT's +11.34 pp catastrophic structural leak, but it is a **non-zero directional drift in the same direction**. Mechanism flagged by the T3.2 advisor (read-only audit, 2026-05-15 17:14): the ResidualLN encoder's layer-2 residual connection provides a near-identity pathway from pre-normalised GCN-1 features, which the leak probe can exploit modestly. Structural but bounded — not pathological — because reg-axis improvement is in lockstep with cat (a label-leak shortcut would lift cat alone, as T3.1 demonstrated).
+
+**Concern surface:** Future encoder variants (T3.3 R-GCN, T3.4 Time2Vec, any T4.x architecture swap that introduces residual identity pathways or attention) may incrementally erode the leak floor. Individually each variant could pass the +5 pp gate yet cumulatively cross it when stacked.
+
+**Mitigation policy adopted:**
+- Every T3.x and T4.x encoder swap result row must record leak F1 alongside cat/reg.
+- Stack-watch rule: if **Σ(leak Δ across stacked accepted variants) > +5 pp vs canonical**, halt stacking and triage which variant carries the leak signature.
+- The leak Δ alone is **not** disqualifying for stacking — it must be paired with the **reg-axis lift** check (label-disjoint axis). T3.1 was disqualified because cat lifted alone (+30 / reg ≈ 0); T3.2 lifts both axes in lockstep (cat +0.96 / reg +0.77) and is therefore not leak-driven at single seed. Multi-seed gate (paired sign test on v3c→ResLN reg AND canonical→ResLN cat) decides whether ResLN stacks.
+
+**Status:** `monitored 2026-05-15`. Revisit when (a) T3.3, T3.4, or any T4.x variant lands with leak Δ > +2 pp, (b) the cumulative accepted-variant leak budget approaches +5 pp, or (c) any future variant lifts cat alone with no reg motion.

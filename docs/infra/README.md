@@ -11,6 +11,7 @@ This is the home for everything you need to run MTLnet on a specific environment
 | **RunPod (CUDA, RTX 4090)** | [`runpod/README.md`](runpod/README.md) | SSH + pip workflow on a clean Linux pod; faster than Colab T4 for sustained workloads |
 | **Lightning.ai pods (A100 / H100)** | [`lightning/README.md`](lightning/README.md) | Multi-GPU heavy work (Phase-3 leak-free reruns, multi-state Wilcoxon at scale) |
 | **H100 SSH bare-metal** | [`h100/README.md`](h100/README.md) | When someone hands you a dedicated H100 box (e.g., paper-closure final runs) |
+| **A40 SSH bare-metal (`nespedgpu`)** | [`a40/README.md`](a40/README.md) | 46 GB VRAM persistent machine; sustained runs without per-hour billing |
 | **Anywhere — fetching data from Drive** | [`data/drive_download.md`](data/drive_download.md) | Bootstrap data on a fresh machine via gdown |
 
 ## What lives where

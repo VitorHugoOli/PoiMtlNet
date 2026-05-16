@@ -7,6 +7,15 @@ Usage:
     python scripts/train.py --state alabama --engine dgi --mtl-loss static_weight --category-weight 0.25
     python scripts/train.py --config experiments/configs/mtl_hgi_florida.py
 
+⚠  Check2HGI MTL — the bare CLI defaults DO NOT reproduce paper-canonical numbers.
+    Three flags must be overridden (each silent default drops one head by 10–30 pp):
+      * --mtl-loss            default nash_mtl  →  use static_weight + --category-weight 0.75
+      * --cat-head / --reg-head  default preset → use next_gru / next_getnext_hard
+      * --task-b-input-type   default checkin   →  use region (B9 spec, task_a stays checkin)
+    Full canonical invocation in docs/NORTH_STAR.md §Champion and CLAUDE.md.
+    The MTL preset CHECK2HGI_NEXT_REGION sets head_factory + num_classes only —
+    NOT the input modality, the loss, or the cat-head. Pass them explicitly.
+
 All imports use final Phase 5 canonical paths.
 Notes:
     --folds N: run only the first N folds.  The split structure uses
@@ -429,7 +438,10 @@ def _parse_args(argv=None) -> argparse.Namespace:
         help=(
             "Registered MTL loss to use, e.g. nash_mtl, equal_weight, "
             "static_weight, uncertainty_weighting, random_weight, rlw, famo, "
-            "fairgrad, bayesagg_mtl, go4align, excess_mtl, stch, or db_mtl."
+            "fairgrad, bayesagg_mtl, go4align, excess_mtl, stch, or db_mtl. "
+            "Unset → trainer default is nash_mtl, which throws ECOS cvxpy solver "
+            "errors mid-training and falls back to warm-start (degrades to fixed "
+            "weights). NORTH_STAR B9 USES '--mtl-loss static_weight --category-weight 0.75'."
         ),
     )
     parser.add_argument(
@@ -497,7 +509,11 @@ def _parse_args(argv=None) -> argparse.Namespace:
         default="checkin",
         help=(
             "Check2HGI MTL only: input modality for task-b slot (next_region). "
-            "See --task-a-input-type. P1 showed region-emb input is the right "
+            "NORTH_STAR B9 SPECIFIES 'region' (per docs/NORTH_STAR.md §Champion). "
+            "The default 'checkin' is a SMOKE-MODE convenience and produces ~28% "
+            "reg Acc@10 at AL (vs ~50% canonical). Always pass "
+            "'--task-b-input-type region' for any benchmark comparable to "
+            "RESULTS_TABLE.md §0.1. P1 showed region-emb input is the right "
             "modality for the region head (53% Acc@10 vs 20% on check-in)."
         ),
     )
@@ -774,7 +790,9 @@ def _parse_args(argv=None) -> argparse.Namespace:
         help=(
             "Override the region-task head factory (task_b.head_factory) in the MTL task_set. "
             "Default preserves the preset's choice (next_gru for CHECK2HGI_NEXT_REGION). "
-            "Use e.g. --reg-head next_stan to swap in the STAN head."
+            "NORTH_STAR B9 USES 'next_getnext_hard' (STAN-Flow with α·log_T prior). "
+            "The preset default 'next_gru' is the P1 region-head ablation winner but is "
+            "NOT the paper-canonical reg head. See docs/NORTH_STAR.md §Champion."
         ),
     )
     parser.add_argument(
@@ -790,7 +808,8 @@ def _parse_args(argv=None) -> argparse.Namespace:
         default=None,
         help=(
             "Override the category-task head factory (task_a.head_factory) in the MTL task_set. "
-            "Default preserves the preset's choice (None → MTLnet's CategoryHeadTransformer default). "
+            "Default preserves the preset's choice (None → MTLnet's CategoryHeadTransformer / next_mtl). "
+            "NORTH_STAR B9 USES 'next_gru' per F27 cat-head ablation. See docs/NORTH_STAR.md §Champion. "
             "Use e.g. --cat-head next_gru or --cat-head category_ensemble for the F27 cat-head ablation."
         ),
     )

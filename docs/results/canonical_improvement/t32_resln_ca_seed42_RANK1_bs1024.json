@@ -1,0 +1,29 @@
+{
+  "tag": "t32_resln_ca_seed42_RANK1_bs1024",
+  "tagged_root": "/home/vitor.oliveira/PoiMtlNet/runs/t32_resln_ca_seed42_RANK1_bs1024",
+  "ca": {
+    "run_dir": "/home/vitor.oliveira/PoiMtlNet/runs/t32_resln_ca_seed42_RANK1_bs1024/results/check2hgi/california/mtlnet_lr1.0e-04_bs1024_ep50_20260516_152308_3237684",
+    "cat_f1_per_fold": [
+      0.6479500532150269,
+      0.6472876071929932,
+      0.6430165767669678,
+      0.6390813589096069,
+      0.6528530120849609
+    ],
+    "reg_top10_per_fold": [
+      0.4980216324329376,
+      0.5003998875617981,
+      0.5024058222770691,
+      0.5028917789459229,
+      0.5199214816093445
+    ],
+    "cat_f1_mean_pct": 64.60377216339111,
+    "cat_f1_std_pct": 0.5224598275902468,
+    "reg_top10_mean_pct": 50.472812056541436,
+    "reg_top10_std_pct": 0.8707956472378952,
+    "leak_probe": {
+      "f1_mean_pct": 38.85892096406434,
+      "f1_std_pct": 0.2675462386859512
+    }
+  }
+}

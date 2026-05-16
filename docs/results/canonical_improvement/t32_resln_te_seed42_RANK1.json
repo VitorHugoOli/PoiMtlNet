@@ -1,0 +1,7 @@
+{
+  "tag": "t32_resln_te_seed42_RANK1",
+  "tagged_root": "/home/vitor.oliveira/PoiMtlNet/runs/t32_resln_te_seed42_RANK1",
+  "te": {
+    "error": "no RUN_DIR for texas"
+  }
+}

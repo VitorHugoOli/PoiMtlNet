@@ -1,0 +1,29 @@
+{
+  "tag": "t43all_T32_v3c_ar_seed42",
+  "tagged_root": "/home/vitor.oliveira/PoiMtlNet/runs/t43all_T32_v3c_ar_seed42",
+  "ar": {
+    "run_dir": "/home/vitor.oliveira/PoiMtlNet/runs/t43all_T32_v3c_ar_seed42/results/check2hgi/arizona/mtlnet_lr1.0e-04_bs2048_ep50_20260516_183812_3341000",
+    "cat_f1_per_fold": [
+      0.47868913412094116,
+      0.49591749906539917,
+      0.46038055419921875,
+      0.45096105337142944,
+      0.45601779222488403
+    ],
+    "reg_top10_per_fold": [
+      0.41234520077705383,
+      0.41411811113357544,
+      0.43823927640914917,
+      0.3651956021785736,
+      0.42195308208465576
+    ],
+    "cat_f1_mean_pct": 46.83932065963745,
+    "cat_f1_std_pct": 1.8606626809239486,
+    "reg_top10_mean_pct": 41.037025451660156,
+    "reg_top10_std_pct": 2.7246744445590827,
+    "leak_probe": {
+      "f1_mean_pct": 36.47954932899607,
+      "f1_std_pct": 0.7628899610120364
+    }
+  }
+}

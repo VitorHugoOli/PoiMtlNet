@@ -192,18 +192,118 @@ class Check2HGIPreprocess:
         print(f"Built {len(weights)} same-POI edges")
         return edge_index, edge_weight
 
+    def _build_delaunay_lifted_edges(self, k_per_neighbor: int = 5):
+        """T4.4 — Lift POI-level Delaunay edges to check-in level.
+
+        Build POI-POI edges from a Delaunay triangulation over POI lat/lon,
+        then expand to check-in pairs: for each Delaunay (poi_a, poi_b)
+        pair, connect up to ``k_per_neighbor`` representative check-ins at
+        poi_a to up to ``k_per_neighbor`` at poi_b (bidirectional).
+
+        Each check-in ends up with at most ~K × N_delaunay_neighbours (~5 × 7
+        = 35) spatial-edge neighbours — well under the 50-cap from spec.
+
+        Uniform edge weights (1.0) — no R-GCN dependency, no edge_attr leak
+        surface (T3.3 lesson). The spatial topology is the signal; the encoder
+        sees these as just-another-GCN-edge alongside user_sequence.
+        """
+        import scipy.spatial
+        from itertools import combinations as _combinations
+        print(f"Building Delaunay-lifted spatial edges (k_per_neighbor={k_per_neighbor})...")
+
+        # 1. POI lat/lon → Delaunay triangulation.
+        poi_coords = np.array(
+            self.pois.geometry.apply(lambda x: [x.x, x.y]).tolist(), dtype=np.float64
+        )
+        if len(poi_coords) < 3:
+            print("[T4.4] fewer than 3 POIs; no Delaunay possible")
+            return np.zeros((2, 0), dtype=np.int64), np.zeros(0, dtype=np.float32)
+        triangles = scipy.spatial.Delaunay(
+            poi_coords, qhull_options="QJ QbB Pp"
+        ).simplices
+
+        # 2. Dedup Delaunay POI-pairs.
+        poi_pairs = set()
+        for tri in triangles:
+            for a, b in _combinations(tri.tolist(), 2):
+                if a == b:
+                    continue
+                poi_pairs.add((a, b) if a < b else (b, a))
+        print(f"[T4.4]   {len(poi_pairs)} unique Delaunay POI-POI edges")
+
+        # 3. Index check-ins per POI.
+        # ``self.checkins`` rows have integer position == check-in idx (the
+        # preprocess output order; matches checkin_to_poi at the dict layer).
+        # We need poi_idx per row; the POI mapping is on self.checkins via
+        # the 'placeid'→placeid_to_idx remap done in _assign_regions.
+        placeid_to_idx = self.placeid_to_idx
+        from collections import defaultdict as _dd
+        poi_to_checkins = _dd(list)
+        for cidx, pid in enumerate(self.checkins['placeid'].values):
+            pidx = placeid_to_idx.get(pid)
+            if pidx is None:
+                continue
+            poi_to_checkins[pidx].append(cidx)
+
+        # 4. Lift POI-POI edges to check-in pairs (bidirectional).
+        rng = np.random.default_rng(seed=42)
+        src_list, dst_list = [], []
+        for poi_a, poi_b in poi_pairs:
+            ca = poi_to_checkins.get(poi_a, [])
+            cb = poi_to_checkins.get(poi_b, [])
+            if not ca or not cb:
+                continue
+            sa = ca if len(ca) <= k_per_neighbor else rng.choice(ca, k_per_neighbor, replace=False).tolist()
+            sb = cb if len(cb) <= k_per_neighbor else rng.choice(cb, k_per_neighbor, replace=False).tolist()
+            for u in sa:
+                for v in sb:
+                    src_list.append(u); dst_list.append(v)
+                    src_list.append(v); dst_list.append(u)
+
+        if not src_list:
+            return np.zeros((2, 0), dtype=np.int64), np.zeros(0, dtype=np.float32)
+
+        edge_index = np.array([src_list, dst_list], dtype=np.int64)
+        edge_weight = np.ones(len(src_list), dtype=np.float32)
+        print(f"[T4.4]   {len(src_list)} Delaunay-lifted check-in edges (bidirectional)")
+        return edge_index, edge_weight
+
     def _build_edges(self):
-        """Build edges based on edge_type."""
+        """Build edges based on edge_type.
+
+        Returns ``(edge_index, edge_weight, edge_type)`` where ``edge_type`` is
+        a per-edge int64 array of relation indices. For single-relation graphs
+        (``user_sequence`` or ``same_poi``) it is all-zeros. For ``both`` it
+        encodes 0 = user_sequence, 1 = same_poi — required by the T3.3 R-GCN
+        variant which aggregates separately per relation. For
+        ``user_seq_delaunay`` (T4.4) it stays all-zeros (uniform GCN, no
+        relation typing — the Delaunay leak corner only opens up under
+        per-relation parameterisation, which was T3.3's downfall).
+        """
         if self.edge_type == 'user_sequence':
-            return self._build_user_sequence_edges()
+            e, w = self._build_user_sequence_edges()
+            return e, w, np.zeros(w.shape[0], dtype=np.int64)
         elif self.edge_type == 'same_poi':
-            return self._build_same_poi_edges()
+            e, w = self._build_same_poi_edges()
+            return e, w, np.zeros(w.shape[0], dtype=np.int64)
         elif self.edge_type == 'both':
             e1, w1 = self._build_user_sequence_edges()
             e2, w2 = self._build_same_poi_edges()
             edge_index = np.concatenate([e1, e2], axis=1)
             edge_weight = np.concatenate([w1, w2])
-            return edge_index, edge_weight
+            edge_type = np.concatenate([
+                np.zeros(w1.shape[0], dtype=np.int64),
+                np.ones(w2.shape[0], dtype=np.int64),
+            ])
+            return edge_index, edge_weight, edge_type
+        elif self.edge_type == 'user_seq_delaunay':
+            # T4.4 — user_sequence + Delaunay-lifted spatial edges, uniform
+            # GCN aggregation (no R-GCN; edge_type all-zeros).
+            e1, w1 = self._build_user_sequence_edges()
+            e2, w2 = self._build_delaunay_lifted_edges()
+            edge_index = np.concatenate([e1, e2], axis=1)
+            edge_weight = np.concatenate([w1, w2])
+            return edge_index, edge_weight, np.zeros(edge_weight.shape[0], dtype=np.int64)
         else:
             raise ValueError(f"Unknown edge_type: {self.edge_type}")
 
@@ -305,8 +405,8 @@ class Check2HGIPreprocess:
         self._load_boroughs()
         self._assign_regions()
 
-        # Build edges
-        edge_index, edge_weight = self._build_edges()
+        # Build edges (T3.3 plumbing: per-edge relation index for R-GCN)
+        edge_index, edge_weight, edge_type = self._build_edges()
 
         # Normalize edge weights
         if len(edge_weight) > 0:
@@ -331,6 +431,7 @@ class Check2HGIPreprocess:
             'node_features': node_features,
             'edge_index': edge_index,
             'edge_weight': edge_weight.astype(np.float32),
+            'edge_type': edge_type.astype(np.int64),
             'checkin_to_poi': checkin_to_poi,
             'poi_to_region': poi_to_region,
             'region_adjacency': region_adjacency,

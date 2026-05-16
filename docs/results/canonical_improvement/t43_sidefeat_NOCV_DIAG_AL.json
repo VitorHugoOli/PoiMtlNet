@@ -1,0 +1,29 @@
+{
+  "tag": "t43_sidefeat_NOCV_DIAG_AL",
+  "tagged_root": "/home/vitor.oliveira/PoiMtlNet/runs/t43_sidefeat_NOCV_DIAG_AL",
+  "al": {
+    "run_dir": "/home/vitor.oliveira/PoiMtlNet/runs/t43_sidefeat_NOCV_DIAG_AL/results/check2hgi/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260516_023847_2878572",
+    "cat_f1_per_fold": [
+      0.41001397371292114,
+      0.4106965661048889,
+      0.41948163509368896,
+      0.4036372900009155,
+      0.40144723653793335
+    ],
+    "reg_top10_per_fold": [
+      0.5085157752037048,
+      0.4813160002231598,
+      0.5018240809440613,
+      0.5071166753768921,
+      0.41561609506607056
+    ],
+    "cat_f1_mean_pct": 40.90553402900696,
+    "cat_f1_std_pct": 0.7063262970923739,
+    "reg_top10_mean_pct": 48.28777253627777,
+    "reg_top10_std_pct": 3.9148328772846943,
+    "leak_probe": {
+      "f1_mean_pct": 30.677159518718117,
+      "f1_std_pct": 1.4022451011833914
+    }
+  }
+}

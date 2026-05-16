@@ -1,0 +1,29 @@
+{
+  "tag": "t34_t2v8_FL_seed7",
+  "tagged_root": "/home/vitor.oliveira/PoiMtlNet/runs/t34_t2v8_FL_seed7",
+  "fl": {
+    "run_dir": "/home/vitor.oliveira/PoiMtlNet/runs/t34_t2v8_FL_seed7/results/check2hgi/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260516_002640_2807462",
+    "cat_f1_per_fold": [
+      0.6837777495384216,
+      0.6768045425415039,
+      0.6699492931365967,
+      0.686042845249176,
+      0.6701738834381104
+    ],
+    "reg_top10_per_fold": [
+      0.6442082524299622,
+      0.6326252222061157,
+      0.6409687995910645,
+      0.6359986066818237,
+      0.6408832669258118
+    ],
+    "cat_f1_mean_pct": 67.73496627807617,
+    "cat_f1_std_pct": 0.74740577485242,
+    "reg_top10_mean_pct": 63.89368295669555,
+    "reg_top10_std_pct": 0.45873456587545514,
+    "leak_probe": {
+      "f1_mean_pct": 40.889424239112635,
+      "f1_std_pct": 0.2676788591857393
+    }
+  }
+}

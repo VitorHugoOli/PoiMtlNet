@@ -1,0 +1,47 @@
+{
+  "experiment": "T1.1",
+  "title": "Pre-flight canonical leak audit",
+  "date_utc": "2026-05-14",
+  "machine": "nespedgpu (A40, 46 GB, torch 2.11.0+cu128)",
+  "engine": "check2hgi (canonical)",
+  "protocol": {
+    "source": "output/check2hgi/{state}/input/next.parquet",
+    "feature_columns": "cols 512-575 (window slot 8 = last input check-in's per-visit embedding)",
+    "target_column": "next_category (7 classes, codes via pd.Categorical)",
+    "model": "sklearn LogisticRegression(C=1.0, max_iter=2000)",
+    "cv": "StratifiedKFold(n_splits=5, shuffle=True, random_state=42)"
+  },
+  "results": {
+    "alabama": {
+      "n_rows": 12709,
+      "cat_f1_mean_pct": 31.04,
+      "cat_f1_std_pct": 1.33,
+      "acc_mean_pct": 42.40,
+      "acc_std_pct": 0.95,
+      "historical_reference": {
+        "f1_mean_pct": 30.84,
+        "f1_std_pct": 2.02,
+        "source": "docs/results/probe/alabama_check2hgi_last.json"
+      }
+    },
+    "arizona": {
+      "n_rows": 26396,
+      "cat_f1_mean_pct": 34.57,
+      "cat_f1_std_pct": 0.78,
+      "acc_mean_pct": 43.94,
+      "acc_std_pct": 0.76
+    },
+    "florida": {
+      "n_rows": 159175,
+      "cat_f1_mean_pct": 40.85,
+      "cat_f1_std_pct": 0.39,
+      "acc_mean_pct": 48.56,
+      "acc_std_pct": 0.36
+    }
+  },
+  "verdict": "PASS — canonical leak-probe floor reproduces historical AL value within σ (31.04 vs 30.84 ± 2.02). FL/AZ first-time measurements pinned. Every later Tier-1+ experiment MUST report its leak-probe value; red-flag threshold = +5 pp vs canonical (per INDEX.html T1.1 success criteria).",
+  "notes": [
+    "The historical script scripts/probe/leak_sniff_ijm.py uses embeddings.parquet (per-check-in rows) — that protocol returns ~96% macro-F1 trivially because the check2hgi r2c boundary trains the embedding to encode its own POI category. The protocol that matches the historical 30.84% floor is the next.parquet last-window probe documented here.",
+    "Floor is the gate for sequence-edge leak. Any later c2hgi variant that lifts this number by >5 pp at any state has likely introduced an unexpected leak path and should be audited before being used in subsequent tiers."
+  ]
+}

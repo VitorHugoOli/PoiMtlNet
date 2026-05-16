@@ -1,0 +1,29 @@
+{
+  "tag": "t31b_gat_noedge_FL",
+  "tagged_root": "/home/vitor.oliveira/PoiMtlNet/runs/t31b_gat_noedge_FL",
+  "fl": {
+    "run_dir": "/home/vitor.oliveira/PoiMtlNet/runs/t31b_gat_noedge_FL/results/check2hgi/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260515_171956_2592029",
+    "cat_f1_per_fold": [
+      0.9896916151046753,
+      0.9913920164108276,
+      0.9827213287353516,
+      0.9918803572654724,
+      0.9945899844169617
+    ],
+    "reg_top10_per_fold": [
+      0.6488247513771057,
+      0.6275347471237183,
+      0.6462235450744629,
+      0.6401453018188477,
+      0.6404455304145813
+    ],
+    "cat_f1_mean_pct": 99.00550603866577,
+    "cat_f1_std_pct": 0.44609530504525635,
+    "reg_top10_mean_pct": 64.06347751617432,
+    "reg_top10_std_pct": 0.8218822784777295,
+    "leak_probe": {
+      "f1_mean_pct": 52.084069386123964,
+      "f1_std_pct": 0.3135751495844674
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "tag": "t44_delaunay_SMOKE_AL",
+  "tagged_root": "/home/vitor.oliveira/PoiMtlNet/runs/t44_delaunay_SMOKE_AL",
+  "al": {
+    "run_dir": "/home/vitor.oliveira/PoiMtlNet/runs/t44_delaunay_SMOKE_AL/results/check2hgi/alabama/mtlnet_lr1.0e-04_bs2048_ep5_20260516_041547_2930609",
+    "cat_f1_per_fold": [
+      0.10625037550926208,
+      0.18840953707695007,
+      0.08286689221858978,
+      0.10440725088119507,
+      0.0908580794930458
+    ],
+    "reg_top10_per_fold": [
+      0.2854825556278229,
+      0.307879775762558,
+      0.23591406643390656,
+      0.23830825090408325,
+      0.3176087737083435
+    ],
+    "cat_f1_mean_pct": 11.455842703580856,
+    "cat_f1_std_pct": 4.240317324363021,
+    "reg_top10_mean_pct": 27.70386844873428,
+    "reg_top10_std_pct": 3.8274288712761986,
+    "leak_probe": {
+      "f1_mean_pct": 22.962248048972985,
+      "f1_std_pct": 0.45892310957741056
+    }
+  }
+}

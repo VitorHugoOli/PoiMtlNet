@@ -198,3 +198,17 @@ status is documented in `merge_design/STATE.md §Phase 11`.
 ---
 
 **Final reminder:** the design is a strong starting point, not a cage. If T1 results suggest the entire problem is fixed by α sweep + optimizer hygiene, that's a legitimate finding — stop and report. If T3.1 GATv2 wins cat but breaks reg in a way that suggests a new direction, propose it. The user explicitly authorized deviation. Document everything in `log.md`.
+
+---
+
+## ⚠ Canonical CLI invocation — DO NOT skip these flags
+
+`scripts/train.py` defaults silently differ from the NORTH_STAR B9 spec on three axes. Each wrong default drops one head by 10–30 pp on AL/AZ (verified 2026-05-14):
+
+1. `--mtl-loss` default is `nash_mtl` (mid-training cvxpy solver errors) → override to `static_weight` with `--category-weight 0.75`.
+2. `--cat-head` / `--reg-head` defaults are the preset's `next_mtl` / `next_gru`. NORTH_STAR B9 is `next_gru` (cat) and `next_getnext_hard` (reg).
+3. `--task-b-input-type` defaults to `checkin`. NORTH_STAR B9 explicitly specifies **region embeddings** for task_b. Running task_b with `checkin` collapses AL reg Acc@10 from ~50 % to ~28 % while cat looks correct — the silent-failure mode.
+
+The full canonical invocation is in `docs/NORTH_STAR.md` §Champion. Mirror it exactly when you launch any experiment in this study. When a Tier-1+ variant tweaks one axis, change ONLY that axis; never delete a baseline flag without documenting it in `log.md`.
+
+If `scripts/train.py` finishes with a cat F1 in the expected range but a reg Acc@10 < 35 % at AL, your first hypothesis should be a missing or wrong `--task-b-input-type region` flag — verify the log line `MTL_CHECK2HGI input modality: task_a=checkin (...), task_b=region (...)` is present.

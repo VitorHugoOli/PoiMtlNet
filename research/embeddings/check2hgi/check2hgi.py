@@ -15,7 +15,7 @@ import pandas as pd
 import torch
 import os
 from torch.nn.utils import clip_grad_norm_
-from torch.optim.lr_scheduler import StepLR
+from torch.optim.lr_scheduler import StepLR, CosineAnnealingLR, LambdaLR
 from torch_geometric.data import Data
 from torch_geometric.loader import NeighborLoader
 from tqdm import trange, tqdm
@@ -23,6 +23,10 @@ from tqdm import trange, tqdm
 from configs.paths import IoPaths, EmbeddingEngine, Resources
 from embeddings.check2hgi.model.Check2HGIModule import Check2HGI, corruption
 from embeddings.check2hgi.model.CheckinEncoder import CheckinEncoder
+from embeddings.check2hgi.model.variants import (
+    GATTimeEncoder, ResidualLNEncoder,
+    Time2VecCheckinEncoder, RGCNEncoder,
+)
 from embeddings.check2hgi.model.Checkin2POI import Checkin2POI
 from embeddings.check2hgi.preprocess import preprocess_check2hgi
 
@@ -58,17 +62,60 @@ def train_epoch_full_batch(data, model, optimizer, scheduler, args, use_amp=Fals
     """Train Check2HGI model for one epoch (full batch mode).
 
     OPTIMIZED: Supports mixed precision training for faster execution.
+
+    T2.4 DropEdge: if args.drop_edge_rate > 0, a fresh random mask is applied
+    every epoch to the check-in edge_index / edge_weight before the forward
+    pass. The mask drops a fraction `drop_edge_rate` of edges uniformly.
+    Original `data` is left untouched (we wrap a temporary view).
     """
     model.train()
     optimizer.zero_grad()
 
+    drop_rate = float(getattr(args, 'drop_edge_rate', 0.0) or 0.0)
+    if drop_rate > 0.0 and hasattr(data, 'edge_index'):
+        num_edges = data.edge_index.size(1)
+        if bool(getattr(args, 'symmetric_drop_edge', False)):
+            # T2.4 audit fix (2026-05-16 §14:45): user-sequence edges are
+            # stored as paired (src→tgt, tgt→src) rows. The asymmetric
+            # per-row Bernoulli (legacy below) drops the two directions
+            # INDEPENDENTLY, leaving ~drop_rate × 2 (1 - drop_rate)
+            # unidirectional edges — NOT the textbook DropEdge (Rong et al.
+            # 2020) which drops unique undirected edges symmetrically.
+            # Canonicalize each edge to (min, max), generate ONE Bernoulli
+            # per unique undirected key, apply same decision to both rows.
+            src_idx = data.edge_index[0]
+            tgt_idx = data.edge_index[1]
+            edge_key_min = torch.minimum(src_idx, tgt_idx).to(torch.int64)
+            edge_key_max = torch.maximum(src_idx, tgt_idx).to(torch.int64)
+            # Hash unique undirected key: min * (N+1) + max. N is conservative.
+            N = int(max(src_idx.max().item(), tgt_idx.max().item())) + 1
+            edge_key = edge_key_min * N + edge_key_max
+            _, inverse = torch.unique(edge_key, return_inverse=True)
+            n_unique = int(inverse.max().item()) + 1
+            unique_keep = (
+                torch.rand(n_unique, device=data.edge_index.device) >= drop_rate
+            )
+            keep_mask = unique_keep[inverse]
+        else:
+            keep_mask = torch.rand(num_edges, device=data.edge_index.device) >= drop_rate
+        # Wrap data with masked edges. PyG Data objects accept attr access;
+        # use a shallow copy + override only edge_* attrs.
+        import copy as _copy
+        data_view = _copy.copy(data)
+        data_view.edge_index = data.edge_index[:, keep_mask]
+        if hasattr(data, 'edge_weight') and data.edge_weight is not None:
+            data_view.edge_weight = data.edge_weight[keep_mask]
+        active = data_view
+    else:
+        active = data
+
     if use_amp and device_type != 'cpu':
         # Mixed precision for CUDA/MPS
         with torch.autocast(device_type=device_type, dtype=torch.float16):
-            outputs = model(data)
+            outputs = model(active)
             loss = model.loss(*outputs)
     else:
-        outputs = model(data)
+        outputs = model(active)
         loss = model.loss(*outputs)
 
     loss.backward()
@@ -120,6 +167,23 @@ def train_check2hgi(city, args):
     - torch.compile for additional optimization
     - Embedding extraction only at end (reduced CPU transfers)
     """
+    # Bit-reproducibility (Tier-3 audit 2026-05-16, FINDING 1):
+    # Encoder construction (nn.Parameter(torch.randn(...)) at variants.py and
+    # CheckinEncoder) consumes from the global PRNG. Without an explicit seed
+    # here, the encoder init depends on the OS-level entropy at process
+    # start, making per-seed runs not bit-reproducible (the sign-test across
+    # seeds remains statistically valid — each seed's INDEPENDENT random
+    # init captures real init variance — but the headline number is not
+    # reproducible from a re-run). Honour ``args.seed`` (defaults to 42).
+    _ssl_seed = int(getattr(args, "seed", 42))
+    import random as _py_random
+    import numpy as _np
+    _py_random.seed(_ssl_seed)
+    _np.random.seed(_ssl_seed)
+    torch.manual_seed(_ssl_seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(_ssl_seed)
+
     output_folder = IoPaths.CHECK2HGI.get_state_dir(city)
     output_folder.mkdir(parents=True, exist_ok=True)
 
@@ -139,7 +203,7 @@ def train_check2hgi(city, args):
 
     # Create PyTorch Geometric Data object
     # Keep on CPU initially for DataLoader compatibility (especially MPS)
-    data = Data(
+    _data_kwargs = dict(
         x=torch.tensor(city_dict['node_features'], dtype=torch.float32),
         edge_index=torch.tensor(city_dict['edge_index'], dtype=torch.int64),
         edge_weight=torch.tensor(city_dict['edge_weight'], dtype=torch.float32),
@@ -151,16 +215,113 @@ def train_check2hgi(city, args):
         num_pois=num_pois,
         num_regions=num_regions,
     )
+    # T3.3 plumbing: expose per-edge relation index for R-GCN (only present
+    # on freshly-preprocessed graphs; legacy cached graphs omit it).
+    if 'edge_type' in city_dict:
+        _data_kwargs['edge_type'] = torch.tensor(city_dict['edge_type'], dtype=torch.int64)
+    data = Data(**_data_kwargs)
 
     metadata = city_dict['metadata']
 
     # Initialize model components
-    checkin_encoder = CheckinEncoder(in_channels, args.dim, num_layers=args.num_layers)
+    # T3 encoder swap. `args.encoder` defaults to "gcn" (canonical CheckinEncoder).
+    # Other choices:
+    #   "gat"     — GATTimeEncoder, attention with optional edge-weight conditioning (T3.1).
+    #   "resln"   — ResidualLNEncoder, GCN-family with residual + LayerNorm (T3.2).
+    #   "time2vec"— Time2VecCheckinEncoder, learned-frequency replacement for the
+    #               4 fixed sin/cos temporal cols (T3.4).
+    #   "rgcn"    — RGCNEncoder, relation-typed aggregation; requires K≥2 relations
+    #               i.e. a graph preprocessed with edge_type='both' (T3.3 Option A).
+    _encoder_name = getattr(args, 'encoder', 'gcn') or 'gcn'
+    if _encoder_name == 'gat':
+        _gat_heads = int(getattr(args, 'gat_heads', 4))
+        _gat_dropout = float(getattr(args, 'encoder_dropout', 0.0) or 0.0)
+        _gat_use_edge_attr = bool(getattr(args, 'gat_use_edge_attr', True))
+        checkin_encoder = GATTimeEncoder(in_channels, args.dim, num_layers=args.num_layers,
+                                          heads=_gat_heads, dropout=_gat_dropout,
+                                          use_edge_attr=_gat_use_edge_attr)
+        print(f"[encoder] GATTimeEncoder heads={_gat_heads} dropout={_gat_dropout} use_edge_attr={_gat_use_edge_attr}")
+    elif _encoder_name == 'resln':
+        _resln_dropout = float(getattr(args, 'encoder_dropout', 0.0) or 0.0)
+        checkin_encoder = ResidualLNEncoder(in_channels, args.dim, num_layers=args.num_layers,
+                                             dropout=_resln_dropout)
+        print(f"[encoder] ResidualLNEncoder dropout={_resln_dropout}")
+    elif _encoder_name == 'time2vec':
+        _t2v_dim = int(getattr(args, 'time2vec_dim', 8))
+        _t2v_dropout = float(getattr(args, 'encoder_dropout', 0.0) or 0.0)
+        _t2v_warm = bool(getattr(args, 'time2vec_warm_start', False))
+        # The preprocess output is [category_onehot (num_cat), temporal (4)].
+        # Number of categories = in_channels - 4.
+        _num_cat = in_channels - 4
+        checkin_encoder = Time2VecCheckinEncoder(
+            in_channels, args.dim, num_categories=_num_cat,
+            num_layers=args.num_layers, time2vec_dim=_t2v_dim,
+            dropout=_t2v_dropout, warm_start=_t2v_warm,
+        )
+        print(f"[encoder] Time2VecCheckinEncoder d_t={_t2v_dim} num_cat={_num_cat} dropout={_t2v_dropout} warm_start={_t2v_warm}")
+    elif _encoder_name == 'rgcn':
+        if not hasattr(data, 'edge_type'):
+            raise ValueError(
+                "encoder='rgcn' requires the preprocessed graph to expose "
+                "per-edge relation index. Re-preprocess with edge_type='both' "
+                "(force_preprocess=True) and try again."
+            )
+        _num_relations = int(getattr(args, 'rgcn_num_relations', 2))
+        _num_bases = getattr(args, 'rgcn_num_bases', 2)
+        if isinstance(_num_bases, str) and _num_bases.lower() == 'none':
+            _num_bases = None
+        if _num_bases is not None:
+            _num_bases = int(_num_bases)
+        _rgcn_aggr = str(getattr(args, 'rgcn_aggr', 'sum'))
+        _rgcn_dropout = float(getattr(args, 'encoder_dropout', 0.0) or 0.0)
+        checkin_encoder = RGCNEncoder(
+            in_channels, args.dim, num_relations=_num_relations,
+            num_layers=args.num_layers, num_bases=_num_bases,
+            dropout=_rgcn_dropout, aggr=_rgcn_aggr,
+        )
+        print(f"[encoder] RGCNEncoder K={_num_relations} bases={_num_bases} aggr={_rgcn_aggr} dropout={_rgcn_dropout}")
+    else:
+        checkin_encoder = CheckinEncoder(in_channels, args.dim, num_layers=args.num_layers)
+        print(f"[encoder] CheckinEncoder (canonical GCN)")
     checkin2poi = Checkin2POI(args.dim, args.attention_head)
     poi2region = POI2Region(args.dim, args.attention_head)
 
     def region2city(z, area):
         return torch.sigmoid((z.transpose(0, 1) * area).sum(dim=1))
+
+    # T4.3 — side-feature plumbing. If --use-side-features is set, load the
+    # precomputed (num_pois, side_feature_dim) tensor from disk and attach to
+    # the Data object so the forward pass can inject it post-pool.
+    _use_side_features = bool(getattr(args, 'use_side_features', False))
+    _side_feature_dim = 0
+    _side_feature_hidden = int(getattr(args, 'side_feature_hidden', 16))
+    if _use_side_features:
+        from pathlib import Path as _Path
+        _sf_path = _Path(IoPaths.CHECK2HGI.get_state_dir(city)) / "poi_side_features.pt"
+        if not _sf_path.exists():
+            raise FileNotFoundError(
+                f"--use-side-features requires precomputed {_sf_path}. Run "
+                f"`python scripts/compute_poi_side_features.py --state {city}` first."
+            )
+        _sf_payload = torch.load(_sf_path, weights_only=False)
+        _sf_tensor = _sf_payload["features"].to(dtype=torch.float32)
+        if _sf_tensor.shape[0] != int(num_pois):
+            raise ValueError(
+                f"side_features rows {_sf_tensor.shape[0]} != num_pois {num_pois}; "
+                f"recompute side features (preprocess cache changed)."
+            )
+        # Attach to data (moved to device with the rest below).
+        data.side_features = _sf_tensor
+        _side_feature_dim = int(_sf_tensor.shape[1])
+        print(f"[T4.3] side_features attached shape={tuple(_sf_tensor.shape)} "
+              f"hidden={_side_feature_hidden}")
+
+    # T4.1 — GraphMAE plumbing.
+    _mae_lambda = float(getattr(args, 'mae_lambda', 0.0) or 0.0)
+    _mae_mask_rate = float(getattr(args, 'mae_mask_rate', 0.5) or 0.5)
+    _mae_gamma = float(getattr(args, 'mae_gamma', 3.0) or 3.0)
+    if _mae_lambda > 0.0:
+        print(f"[T4.1] GraphMAE enabled λ={_mae_lambda} mask_rate={_mae_mask_rate} γ={_mae_gamma}")
 
     model = Check2HGI(
         hidden_channels=args.dim,
@@ -174,6 +335,15 @@ def train_check2hgi(city, args):
         alpha_r2c=args.alpha_r2c,
         c2p_hard_neg_prob=getattr(args, 'c2p_hard_neg_prob', 0.0),
         c2p_corrupted_neg=getattr(args, 'c2p_corrupted_neg', False),
+        p2r_hard_neg_prob=getattr(args, 'p2r_hard_neg_prob', None),
+        p2r_hard_neg_min_batch=getattr(args, 'p2r_hard_neg_min_batch', 50000),
+        p2r_hard_neg_sim_range=getattr(args, 'p2r_hard_neg_sim_range', (0.6, 0.8)),
+        side_feature_dim=_side_feature_dim,
+        side_feature_hidden=_side_feature_hidden,
+        mae_lambda=_mae_lambda,
+        mae_mask_rate=_mae_mask_rate,
+        mae_gamma=_mae_gamma,
+        mae_in_channels=in_channels if _mae_lambda > 0.0 else None,
     ).to(args.device)
 
     print(f"Parameters: {sum(p.numel() for p in model.parameters()):,}")
@@ -192,8 +362,47 @@ def train_check2hgi(city, args):
     else:
         print(f"Using full precision training (device: {device_type})")
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
-    scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
+    # T1.5 optimizer hygiene knobs (default = canonical Adam + constant LR; opt-in).
+    weight_decay = float(getattr(args, 'weight_decay', 0.0) or 0.0)
+    scheduler_type = getattr(args, 'scheduler', 'step') or 'step'
+    warmup_pct = float(getattr(args, 'warmup_pct', 0.0) or 0.0)
+    eta_min_ratio = float(getattr(args, 'eta_min_ratio', 0.01) or 0.01)
+    if weight_decay > 0:
+        optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=weight_decay)
+        print(f"[opt] AdamW lr={args.lr} wd={weight_decay}")
+    else:
+        optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+        print(f"[opt] Adam lr={args.lr} (no WD)")
+
+    total_steps = int(args.epoch)
+    if scheduler_type == 'cosine':
+        if warmup_pct > 0:
+            warmup_steps = max(1, int(warmup_pct * total_steps))
+
+            def _lr_lambda(step):
+                if step < warmup_steps:
+                    return float(step + 1) / float(warmup_steps)
+                progress = (step - warmup_steps) / max(1.0, float(total_steps - warmup_steps))
+                return 0.5 * (1.0 + math.cos(math.pi * progress))
+
+            scheduler = LambdaLR(optimizer, lr_lambda=_lr_lambda)
+            print(f"[sched] warmup-cosine warmup_pct={warmup_pct} eta_min_ratio={eta_min_ratio}")
+        else:
+            scheduler = CosineAnnealingLR(
+                optimizer, T_max=total_steps, eta_min=args.lr * eta_min_ratio
+            )
+            print(f"[sched] cosine T_max={total_steps} eta_min_ratio={eta_min_ratio}")
+    elif scheduler_type == 'warmup_constant':
+        warmup_steps = max(1, int(warmup_pct * total_steps))
+
+        def _lr_lambda_wc(step):
+            return min(1.0, float(step + 1) / float(warmup_steps))
+
+        scheduler = LambdaLR(optimizer, lr_lambda=_lr_lambda_wc)
+        print(f"[sched] warmup-constant warmup_pct={warmup_pct}")
+    else:
+        # Default — canonical StepLR (constant when gamma=1.0). Bit-equivalent.
+        scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma)
 
     # Choose training mode based on data size
     use_mini_batch = num_checkins > args.mini_batch_threshold
@@ -245,8 +454,11 @@ def train_check2hgi(city, args):
     model.load_state_dict(best_state)
 
     # Final forward pass to get embeddings
-    # Move data to device if needed (for mini-batch mode where data stayed on CPU)
-    if data.x.device != model.checkin_encoder.convs[0].lin.weight.device:
+    # Move data to device if needed (for mini-batch mode where data stayed on CPU).
+    # Use a generic parameter-iteration check (encoder-agnostic; GATv2Conv has
+    # `lin_l/lin_r` rather than `lin`).
+    _enc_param = next(model.checkin_encoder.parameters())
+    if data.x.device != _enc_param.device:
         data = data.to(args.device)
 
     model.eval()

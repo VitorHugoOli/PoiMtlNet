@@ -1,0 +1,29 @@
+{
+  "tag": "t44_delaunay_DIAG_AL",
+  "tagged_root": "/home/vitor.oliveira/PoiMtlNet/runs/t44_delaunay_DIAG_AL",
+  "al": {
+    "run_dir": "/home/vitor.oliveira/PoiMtlNet/runs/t44_delaunay_DIAG_AL/results/check2hgi/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260516_042050_2933568",
+    "cat_f1_per_fold": [
+      0.26421302556991577,
+      0.2992888391017914,
+      0.29897287487983704,
+      0.30144864320755005,
+      0.29935935139656067
+    ],
+    "reg_top10_per_fold": [
+      0.53000807762146,
+      0.4589764475822449,
+      0.4847993552684784,
+      0.48230987787246704,
+      0.4412362575531006
+    ],
+    "cat_f1_mean_pct": 29.265654683113095,
+    "cat_f1_std_pct": 1.5930675992045351,
+    "reg_top10_mean_pct": 47.94660031795502,
+    "reg_top10_std_pct": 3.3437886057222372,
+    "leak_probe": {
+      "f1_mean_pct": 23.489204669188883,
+      "f1_std_pct": 0.31547139706224053
+    }
+  }
+}

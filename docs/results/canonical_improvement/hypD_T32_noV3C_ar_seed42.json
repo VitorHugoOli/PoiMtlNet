@@ -1,0 +1,29 @@
+{
+  "tag": "hypD_T32_noV3C_ar_seed42",
+  "tagged_root": "/home/vitor.oliveira/PoiMtlNet/runs/hypD_T32_noV3C_ar_seed42",
+  "ar": {
+    "run_dir": "/home/vitor.oliveira/PoiMtlNet/runs/hypD_T32_noV3C_ar_seed42/results/check2hgi/arizona/mtlnet_lr1.0e-04_bs2048_ep50_20260516_183923_3341958",
+    "cat_f1_per_fold": [
+      0.45999014377593994,
+      0.4911257028579712,
+      0.46071434020996094,
+      0.45504218339920044,
+      0.46537744998931885
+    ],
+    "reg_top10_per_fold": [
+      0.4142801761627197,
+      0.4135410785675049,
+      0.4363001585006714,
+      0.36558103561401367,
+      0.42195308208465576
+    ],
+    "cat_f1_mean_pct": 46.64499640464783,
+    "cat_f1_std_pct": 1.4272407735854462,
+    "reg_top10_mean_pct": 41.03311061859131,
+    "reg_top10_std_pct": 2.6636112209178933,
+    "leak_probe": {
+      "f1_mean_pct": 36.4856668144249,
+      "f1_std_pct": 0.6867200707292372
+    }
+  }
+}
