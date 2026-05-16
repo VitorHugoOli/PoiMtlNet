@@ -2,6 +2,8 @@
 
 Dedicated A40 box (46 GB VRAM, SSH access, hostname `nespedgpu`). Used for sustained training runs where the A40's large VRAM and high bandwidth outperform Colab T4 / RunPod 4090.
 
+> **Scripts moved 2026-05-16**: the parallel sweep runner, regen helpers, and audit utilities used to live in this folder. They now live under [`scripts/canonical_improvement/`](../../../scripts/canonical_improvement/) (and the unit tests under [`tests/canonical_improvement/`](../../../tests/canonical_improvement/)). This README remains for A40-specific hardware notes and conventions.
+
 ## Hardware specs
 
 | Property | Value |

@@ -176,7 +176,7 @@ Files synced from the main repo into this worktree (`docs/studies/canonical_impr
 
 - Downloaded US Census TIGER 2022 tract shapefiles for AL (`tl_2022_01_tract`) and AZ (`tl_2022_04_tract`), extracted into `data/miscellaneous/tl_2022_0{1,4}_tract_{AL,AZ}/`.
 - Backed up existing AL+AZ check2hgi outputs to `output/check2hgi/{alabama,arizona}.bak_existingemb{,2}/`.
-- Regenerated check2hgi embeddings from raw state on CUDA via `docs/infra/a40/preflight_regen_emb.py` (force_preprocess=True, device=cuda, 500 epochs each — ~2 min/state at ~4 ep/s).
+- Regenerated check2hgi embeddings from raw state on CUDA via `scripts/canonical_improvement/preflight_regen_emb.py` (force_preprocess=True, device=cuda, 500 epochs each — ~2 min/state at ~4 ep/s).
 - Rebuilt `next_region.parquet` (with `last_region_idx` column) via `scripts/regenerate_next_region.py --state {al,az}`.
 - Rebuilt per-fold seeded log_T via `scripts/compute_region_transition.py --state {al,az} --per-fold --n-splits 5 --seed 42` — 5 files per state, shape (n_regions, n_regions).
 - Relaunched B9full MTL on AL+AZ in parallel (same canonical invocation as Stage A). Wall-clock ~3.5 min per state. Logs: `logs/preflight_B_{AL,AZ}_20260514_2305*.log`.
@@ -236,7 +236,7 @@ Artefact: `docs/results/canonical_improvement/T1-1_leak_audit_AL_AZ_FL.json`. Lo
 - c04p04r02: (0.4, 0.4, 0.2) ⏳ running (AZ regen slowed by another user's GPU job)
 - c06p02r02: (0.6, 0.2, 0.2) ⏳ queued
 
-**Method**: Per grid point, regen `output/check2hgi/{state}/` with custom α (force_preprocess=False, reuse existing checkin_graph), rebuild next_region.parquet + per-fold seeded log_T, then full B9full MTL on AL+AZ in parallel, 5f×50ep seed 42. Helper scripts under `docs/infra/a40/`: `regen_emb_alpha.py`, `T1-3_sweep.sh`, `T1-3_record.py`, `T1-3_summarize.py`. Per-grid artefacts at `docs/results/canonical_improvement/T1-3_{tag}.json`.
+**Method**: Per grid point, regen `output/check2hgi/{state}/` with custom α (force_preprocess=False, reuse existing checkin_graph), rebuild next_region.parquet + per-fold seeded log_T, then full B9full MTL on AL+AZ in parallel, 5f×50ep seed 42. Helper scripts under `scripts/canonical_improvement/`: `regen_emb_alpha.py`, `T1-3_sweep.sh`, `T1-3_record.py`, `T1-3_summarize.py`. Per-grid artefacts at `docs/results/canonical_improvement/T1-3_{tag}.json`.
 
 **Findings so far (4 grids, sorted by tag)**
 
@@ -275,7 +275,7 @@ Tier-1 decision gate (per AGENT_PROMPT.md): "If T1.3 α sweep or T1.5 optimizer 
 **Decisions taken**:
 - T1.3 marked FALSIFIED. Grids 5–6 allowed to finish in background; will be appended to `T1-3_summarize.py` output as appendix rows when JSON lands.
 - T1.4 deferred (per advisor): bumped to "revisit after T1.5".
-- T1.5 promoted to next position. Helpers staged at `docs/infra/a40/regen_emb_t15.py`, `docs/infra/a40/T1-5_sweep.sh`. Five variants queued: warmup_5%, cosine, AdamW wd∈{1e-3, 1e-2, 5e-2}.
+- T1.5 promoted to next position. Helpers staged at `scripts/canonical_improvement/regen_emb_t15.py`, `scripts/canonical_improvement/T1-5_sweep.sh`. Five variants queued: warmup_5%, cosine, AdamW wd∈{1e-3, 1e-2, 5e-2}.
 
 **Next** — launch T1.5 once GPU bandwidth permits (currently shared with a co-tenant; the T1.3 sweep grids 5–6 are completing in the background using shared GPU). After T1.5, advisor evaluation → Tier 1 wrap-up.
 
@@ -296,14 +296,14 @@ Tier-1 decision gate (per AGENT_PROMPT.md): "If T1.3 α sweep or T1.5 optimizer 
 
 Code changes (committed to worktree branch only):
 - `research/embeddings/check2hgi/check2hgi.py`: replaced single `StepLR + Adam` with switchable `{step, cosine, warmup_constant}` × `{Adam, AdamW}` optimizer-scheduler block driven by `args.scheduler / args.warmup_pct / args.weight_decay / args.eta_min_ratio`. Default `scheduler='step'` reproduces the canonical bit-equivalent path.
-- Helper: `docs/infra/a40/regen_emb_t15.py` (per-state, per-variant).
-- Sweep script: `docs/infra/a40/T1-5_sweep.sh`.
+- Helper: `scripts/canonical_improvement/regen_emb_t15.py` (per-state, per-variant).
+- Sweep script: `scripts/canonical_improvement/T1-5_sweep.sh`.
 
 Logs: `logs/T1-5_sweep_20260515_01*.log`. Per-variant per-state regen + MTL logs follow the `T1-5_REGEN_*` / `T1-5_MTL_*` pattern.
 
 ETA: 5 variants × ~7–15 min = ~35–75 min depending on co-tenant GPU contention. Each variant runs AL regen → AZ regen → log_T rebuild → AL+AZ MTL in parallel.
 
-**Side note (T2.1 preparation)** — While T1.3 was running, I noticed canonical `Check2HGIModule._sample_negative_indices_with_similarity` ALREADY applies a 25 % hard-neg rate at p2r whenever batch_size < 50K (i.e. always active for AL/AZ). The INDEX.html T2.1 framing ("untested on c2hgi") is partially inaccurate; reframe in T2.1 to a rate-sweep (vs. disabled) and a FL-enabling lift (remove batch-size guard). Added the necessary `p2r_hard_neg_prob / p2r_hard_neg_min_batch / p2r_hard_neg_sim_range` knobs to `Check2HGIModule.__init__` and `_sample_negative_indices_with_similarity`. Default `p2r_hard_neg_prob=None` preserves canonical behaviour. T2.1 helper: `docs/infra/a40/regen_emb_t21.py`.
+**Side note (T2.1 preparation)** — While T1.3 was running, I noticed canonical `Check2HGIModule._sample_negative_indices_with_similarity` ALREADY applies a 25 % hard-neg rate at p2r whenever batch_size < 50K (i.e. always active for AL/AZ). The INDEX.html T2.1 framing ("untested on c2hgi") is partially inaccurate; reframe in T2.1 to a rate-sweep (vs. disabled) and a FL-enabling lift (remove batch-size guard). Added the necessary `p2r_hard_neg_prob / p2r_hard_neg_min_batch / p2r_hard_neg_sim_range` knobs to `Check2HGIModule.__init__` and `_sample_negative_indices_with_similarity`. Default `p2r_hard_neg_prob=None` preserves canonical behaviour. T2.1 helper: `scripts/canonical_improvement/regen_emb_t21.py`.
 
 **Next** — wait for T1.5 sweep; run advisor; document.
 
@@ -311,7 +311,7 @@ ETA: 5 variants × ~7–15 min = ~35–75 min depending on co-tenant GPU content
 
 **Phase**: Tier 1 — infra build-out + T1.6 epoch budget sweep.
 
-**Built** — `docs/infra/a40/parallel_sweep_runner.sh` (orchestrator) + hardening fixes from advisor.
+**Built** — `scripts/canonical_improvement/parallel_sweep_runner.sh` (orchestrator) + hardening fixes from advisor.
 
 Pattern: each variant gets a tagged `runs/${TAG}/` tree containing isolated `output/` and `results/`. The trainer subprocess inherits `OUTPUT_DIR=$TAGGED_ROOT/output RESULTS_ROOT=$TAGGED_ROOT/results` env vars, which `IoPaths` (`src/configs/paths.py:23-24`) reads at import-time. Every file read+write resolves into the tagged tree, so N variants can run concurrently with zero on-disk collision.
 
@@ -916,8 +916,8 @@ User confirmed (19:14): "try the optional A and the follow options as need then 
 | `research/embeddings/check2hgi/model/Check2HGIModule.py` | `forward` plumbs `data.edge_type` to the encoder when present, via `**_enc_kwargs`. Encoders that don't use it (GCN/GAT/ResLN/Time2Vec) absorb via `**kwargs`. |
 | `research/embeddings/check2hgi/preprocess.py` | `_build_edges` now returns `(edge_index, edge_weight, edge_type)`; `edge_type='both'` populates 0/1 per-edge relation index (0=user_sequence, 1=same_poi); the output dict gains the `'edge_type'` key. |
 | `research/embeddings/check2hgi/check2hgi.py` | Encoder dispatch grows two new branches (`time2vec`, `rgcn`); `Data` ctor conditionally includes `edge_type` when present in city_dict (back-compat with legacy cached graphs); `rgcn` branch hard-fails if the graph lacks `edge_type` (with a clear "re-preprocess with edge_type='both'" message). |
-| `docs/infra/a40/regen_emb_t3.py` | New CLI args: `--encoder {gcn,gat,resln,time2vec,rgcn}`, `--time2vec-dim`, `--rgcn-num-relations`, `--rgcn-num-bases`, `--rgcn-aggr`, `--edge-type`. `--encoder rgcn` or `--edge-type != user_sequence` triggers `force_preprocess=True` automatically (since the cached canonical graph has no per-edge relation index). |
-| `docs/infra/a40/T3_unit_test_encoders.py` | Extended to cover Time2Vec + R-GCN. Forward + backward + param-delta guardrail still gating. Added a **3-seed random-init linear-probe diagnostic** (T3.1-advisor protocol; reports F1 and Δ_x vs raw input). **Init-probe is now DIAGNOSTIC ONLY** — the synthetic graph puts the category one-hot directly in `x`, so raw-x logreg trivially hits F1=1.0 and no encoder can have positive Δ_x (the discriminator's discriminative power collapses). The production leak gate stays the T1.1 protocol (`leak_probe.f1_mean_pct`, +5 pp red flag) recorded by the sweep runner. |
+| `scripts/canonical_improvement/regen_emb_t3.py` | New CLI args: `--encoder {gcn,gat,resln,time2vec,rgcn}`, `--time2vec-dim`, `--rgcn-num-relations`, `--rgcn-num-bases`, `--rgcn-aggr`, `--edge-type`. `--encoder rgcn` or `--edge-type != user_sequence` triggers `force_preprocess=True` automatically (since the cached canonical graph has no per-edge relation index). |
+| `tests/canonical_improvement/test_encoders.py` | Extended to cover Time2Vec + R-GCN. Forward + backward + param-delta guardrail still gating. Added a **3-seed random-init linear-probe diagnostic** (T3.1-advisor protocol; reports F1 and Δ_x vs raw input). **Init-probe is now DIAGNOSTIC ONLY** — the synthetic graph puts the category one-hot directly in `x`, so raw-x logreg trivially hits F1=1.0 and no encoder can have positive Δ_x (the discriminator's discriminative power collapses). The production leak gate stays the T1.1 protocol (`leak_probe.f1_mean_pct`, +5 pp red flag) recorded by the sweep runner. |
 
 **F51 unit test results (all pass)**:
 
@@ -961,7 +961,7 @@ At 19:35 I `cp`'d the modified `parallel_sweep_runner.sh` (with the F51 N_FOLDS 
 
 **Damage assessment**: regen had completed for all 10 (seed, state) pairs before the crash. The embeddings.parquet files survived in `runs/t32_resln_ALAZ_seed*/output/check2hgi/{alabama,arizona}/` (sizes 39–84 MB). Stages 3 (next_region + log_T), 4 (MTL), and 5 (record JSON) did NOT run.
 
-**Recovery**: wrote `docs/infra/a40/resume_stage3plus.sh` — a one-shot stage-3-onwards harness that takes `TAG`, `SEED`, `STATES` env vars, finds the existing sandbox, runs `regenerate_next_region.py` + `compute_region_transition.py --per-fold` + the B9 MTL + the inline-python recorder. Each AL+AZ small-state sweep takes ~15–20 min wall (vs ~40 min for a full re-launch).
+**Recovery**: wrote `scripts/canonical_improvement/resume_stage3plus.sh` — a one-shot stage-3-onwards harness that takes `TAG`, `SEED`, `STATES` env vars, finds the existing sandbox, runs `regenerate_next_region.py` + `compute_region_transition.py --per-fold` + the B9 MTL + the inline-python recorder. Each AL+AZ small-state sweep takes ~15–20 min wall (vs ~40 min for a full re-launch).
 
 Launched seed=42 as smoke at 20:58, then seeds {0, 1, 7, 100} at 20:58:46–20:59:01 (5-second stagger; resume is GPU-light, only MTL is GPU-heavy). All 5 landed cleanly by 21:35.
 
@@ -1359,7 +1359,7 @@ These would each take ~1-2 hr and add uncertainty. Per decision-tree-pre-commitm
 
 **2. AL+AZ multi-seed coverage**: verified 5/5 seeds present (`t32_resln_ALAZ_seed{0,1,7,42,100}.json`). No gap-fill needed.
 
-**3. IJM-masked leak probe**: implemented `scripts/ijm_leak_probe.py` (StratifiedKFold + StratifiedGroupKFold-by-userid). Ran on both canonical FL and a fresh T3.2 ResLN FL seed=42 regen.
+**3. IJM-masked leak probe**: implemented `scripts/canonical_improvement/ijm_leak_probe.py` (StratifiedKFold + StratifiedGroupKFold-by-userid). Ran on both canonical FL and a fresh T3.2 ResLN FL seed=42 regen.
 
 #### IJM probe results — T3.2 leak claim STRUCTURALLY HONEST
 
@@ -1406,7 +1406,7 @@ Nine architecturally distinct variants caught before publication by the pre-flig
 Hand-off:
 - **Paper writing track**: `/home/vitor.oliveira/PoiMtlNet/articles/[BRACIS]_Beyond_Cross_Task/` (see `AGENT.md` first per CLAUDE.md instructions).
 - **Canonical numbers**: `docs/results/canonical_improvement/STACKING_ABLATION.md` + `RESULTS_TABLE.md §0`.
-- **Leak-probe protocol** (paper section): `T1.1` protocol + `scripts/ijm_leak_probe.py` for IJM variant + the 9-variant falsified corpus tabulated above.
+- **Leak-probe protocol** (paper section): `T1.1` protocol + `scripts/canonical_improvement/ijm_leak_probe.py` for IJM variant + the 9-variant falsified corpus tabulated above.
 - **C18 leak-watch concern**: downgrade to resolved (IJM probe confirms structural honesty).
 
 The autonomous 30-min loop terminates here. No further ScheduleWakeup.
@@ -1487,7 +1487,7 @@ No T2 result needs invalidation. The single OPTIONAL re-run worth considering is
 
 **Two findings worth documenting**:
 
-1. **(MEDIUM) Missing `torch.manual_seed` in SSL encoder training**. `train_check2hgi` had NO explicit seed call — encoder init `nn.Parameter(torch.randn(...))` consumed from the process-default PRNG. Multi-seed runs got INDEPENDENT random inits (correct for sign-test variance capture — the 5/5 sign p=0.03125 result remains statistically valid), but no individual seed=42 number was bit-reproducible. **FIX LANDED** at `research/embeddings/check2hgi/check2hgi.py:138-160`: added `torch.manual_seed(_ssl_seed)` + Python/NumPy/CUDA seeds at top of `train_check2hgi`, with `_ssl_seed = int(getattr(args, "seed", 42))`. To plumb the runner's `$SEED` env var, `docs/infra/a40/regen_emb_t3.py:130` now reads `_ssl_seed = int(os.environ.get('SEED', '42'))` and sets `cfg.seed = _ssl_seed`. Future re-runs at the same seed will be bit-reproducible AND multi-seed runs preserve independent inits.
+1. **(MEDIUM) Missing `torch.manual_seed` in SSL encoder training**. `train_check2hgi` had NO explicit seed call — encoder init `nn.Parameter(torch.randn(...))` consumed from the process-default PRNG. Multi-seed runs got INDEPENDENT random inits (correct for sign-test variance capture — the 5/5 sign p=0.03125 result remains statistically valid), but no individual seed=42 number was bit-reproducible. **FIX LANDED** at `research/embeddings/check2hgi/check2hgi.py:138-160`: added `torch.manual_seed(_ssl_seed)` + Python/NumPy/CUDA seeds at top of `train_check2hgi`, with `_ssl_seed = int(getattr(args, "seed", 42))`. To plumb the runner's `$SEED` env var, `scripts/canonical_improvement/regen_emb_t3.py:130` now reads `_ssl_seed = int(os.environ.get('SEED', '42'))` and sets `cfg.seed = _ssl_seed`. Future re-runs at the same seed will be bit-reproducible AND multi-seed runs preserve independent inits.
 
 2. **(LOW) T3.4-warm math wrong**: warm-start docstring claims canonical sin/cos preserved exactly. Actually `sin((π/2)·x)` is identity ONLY at x ∈ {-1, 0, +1}. For canonical `hour_sin = sin(2π·h/24)`, most h-values produce values NOT in {-1,0,+1}, so warm-start distorts canonical values everywhere except 4 hours. T3.4-warm is CLOSED already; this is documentation-only correction. The "warm-start wiped by training" narrative is amended to "warm-start was already a non-identity at most inputs; training likely added further distortion".
 
@@ -1561,8 +1561,8 @@ All deltas within fold σ. **T2.4 symmetric DropEdge does NOT stack — same ver
 
 Two audit-recommended fixes landed and re-validated:
 1. `research/embeddings/check2hgi/check2hgi.py:138-160` — explicit seed plumbing in `train_check2hgi` (Python+NumPy+torch+CUDA seeds, reads from `args.seed`).
-2. `docs/infra/a40/regen_emb_t3.py` + `docs/infra/a40/regen_emb_t24.py` — both read `SEED` env var → `cfg.seed`.
-3. `docs/infra/a40/regen_emb_t24.py` — new `--symmetric-drop-edge` CLI flag.
+2. `scripts/canonical_improvement/regen_emb_t3.py` + `scripts/canonical_improvement/regen_emb_t24.py` — both read `SEED` env var → `cfg.seed`.
+3. `scripts/canonical_improvement/regen_emb_t24.py` — new `--symmetric-drop-edge` CLI flag.
 4. `research/embeddings/check2hgi/check2hgi.py:74-99` — symmetric-vs-asymmetric DropEdge branch in `train_epoch_full_batch`.
 
 The paper-grade shipping stack survives both fixes:
@@ -1579,8 +1579,8 @@ No further re-runs required. **The implementation audit cycle is complete; the p
 **Next**
 
 - Task #3: AL + AZ B9 launched at 2026-05-14 22:22 (PIDs 2011751, 2011959; logs `logs/preflight_A_B9_{AL,AZ}_20260514_2222*.log`). Both on GPU (~7 GB combined, 99 % util). ETA ~5–7 min each, in parallel.
-- Task #4: regenerate embeddings on the A40 (force_preprocess=True, device=cuda) once Stage A is done. Helper: `docs/infra/a40/preflight_regen_emb.py`.
-- Task #5: rerun B9 with regenerated embeddings, compare via `docs/infra/a40/preflight_compare.py`. Verdict feeds the gate.
+- Task #4: regenerate embeddings on the A40 (force_preprocess=True, device=cuda) once Stage A is done. Helper: `scripts/canonical_improvement/preflight_regen_emb.py`.
+- Task #5: rerun B9 with regenerated embeddings, compare via `scripts/canonical_improvement/preflight_compare.py`. Verdict feeds the gate.
 - Task #6: T1.1 leak audit on canonical only after the pre-flight gate is open.
 
 ---

@@ -262,7 +262,7 @@ structurally honest.</p>
 <tr><td>AZ</td><td><strong>+1.70</strong></td><td>−0.15 (null)</td><td>+2.46 pp</td><td>cat p=0.03125 ✅</td></tr>
 </table>
 
-<p><strong>IJM-masked leak probe</strong> (user-held-out StratifiedGroupKFold; <code>scripts/ijm_leak_probe.py</code>):
+<p><strong>IJM-masked leak probe</strong> (user-held-out StratifiedGroupKFold; <code>scripts/canonical_improvement/ijm_leak_probe.py</code>):
 T3.2 leak claim is <strong>STRUCTURALLY HONEST</strong>. Canonical FL SK 40.85 / SGKF 40.75 (drift +0.10). T3.2
 ResLN FL SK 43.40 / SGKF 43.43 (drift &minus;0.02). Drift difference &minus;0.13 pp &laquo; ±1 pp threshold &rarr;
 the +2.24 pp leak drift is encoder-architectural, not user-level leakage.</p>
@@ -669,7 +669,7 @@ A weight triple that strictly dominates the default (0.4/0.3/0.3) on cat AND reg
 </tbody>
 </table>
 <p><strong>Verdict</strong>: <span class="pill bad">FALSIFIED</span> at n=4 grid points (advisor 2026-05-15) — max |&Delta;reg| across grids = 0.30 pp &laquo;&laquo; per-fold &sigma; (~3 pp at AL, ~2.7 pp at AZ); max |&Delta;cat| = 1.18 pp (all negative). No variant strictly dominates canonical on either head at either state. The &alpha; triple controls at most &plusmn;0.3 pp of reg movement &mdash; i.e. <strong>explains &lt; 3 %</strong> of the ~11 pp HGI gap at AL / ~12 pp at AZ. Hypothesis was miscalibrated by an order of magnitude. Grids 5 (c04p04r02) and 6 (c06p02r02) deferred to background sanity appendix.</p>
-<p class="footnote">Per-grid JSONs: <code>docs/results/canonical_improvement/T1-3_{tag}.json</code>. Summarizer: <code>docs/infra/a40/T1-3_summarize.py</code>. Compute note: A40 GPU shared with a co-tenant during the sweep, per-grid wall 5&ndash;15 min variable; the shared fold-3 reg dip across all grids is data-driven (not &alpha;-driven), filed as a separate concern.</p>
+<p class="footnote">Per-grid JSONs: <code>docs/results/canonical_improvement/T1-3_{tag}.json</code>. Summarizer: <code>scripts/canonical_improvement/T1-3_summarize.py</code>. Compute note: A40 GPU shared with a co-tenant during the sweep, per-grid wall 5&ndash;15 min variable; the shared fold-3 reg dip across all grids is data-driven (not &alpha;-driven), filed as a separate concern.</p>
 </div>
 </div>
 
