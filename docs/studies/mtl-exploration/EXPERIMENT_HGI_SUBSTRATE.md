@@ -88,15 +88,22 @@ The CH18-substrate reframing in v11 (`docs/NORTH_STAR.md` §"Caveats — Phase-1
 
 > **MTL B3 only works with Check2HGI substrate.** Substituting POI-stable HGI embeddings into the same B3 setup actively breaks the reg head (MTL+HGI Acc@10 = 29.95 < STL+HGI Acc@10 = 67.52 at AL — a 37 pp regression).
 
-That was based on **pre-leak-free** measurement, where the leaky log_T was *additionally* asymmetric between substrates. Under leak-free measurement:
+That was measured on 2026-04-27, which is:
+1. **Pre-C4 fix** (leak fix landed 2026-04-29) — so the runs used the legacy full-data `region_transition_log.pt` which leaked val transitions into the `α · log_T` prior. Inflation at convergence is ~13–17 pp on reg (`MTL_FLAWS_AND_FIXES.md §2.12`).
+2. **Pre-B9 recipe** — the runs used the B3 recipe (single LR, OneCycleLR, no per-head LR, no cosine, no alt-SGD, no α-no-WD). B9 didn't exist yet.
 
-- MTL+HGI reg = 61.48 (AL) ≈ STL+HGI reg = 61.86 → **NO 37 pp regression**. The previously-reported catastrophic reg break was a *leak artifact*.
-- MTL+HGI cat = 25.23 (AL) ≈ STL+HGI cat = 25.26 → **NO MTL transfer lift on cat either**. The cat just doesn't move under HGI.
+So the "37 pp regression" between then and now is the combined effect of **two changes**, and I cannot strictly attribute it to the leak alone. Under leak-free *and B9*:
 
-**The CH18-substrate framing should be updated.** Under leak-free measurement:
-- MTL+HGI does NOT break either head. It's *null* — does nothing.
-- MTL+C2HGI pays a sign-consistent reg cost and gives a small cat lift (the v11 §0.1 finding).
-- The previous "MTL is substrate-specific because it breaks under HGI" claim was a leak artifact.
+- MTL+HGI reg = 61.48 (AL) ≈ STL+HGI reg = 61.86 → **the catastrophic regression vanishes** under leak-free B9 protocol.
+- MTL+HGI cat = 25.23 (AL) ≈ STL+HGI cat = 25.26 → **NO MTL transfer lift on cat either**.
+
+**Honest framing of what's been established:**
+
+- ✅ Under the current leak-free B9 protocol, MTL+HGI does NOT break either head — both match STL+HGI within ~0.5 pp.
+- ⚠ **What carries the disappearance of the 37 pp regression — the leak fix or the recipe change — has NOT been isolated.** Running B3+HGI under leak-free conditions would discriminate; not done here.
+- ⚠ The CH18-substrate "MTL is substrate-specific" framing should be re-examined, but a clean retraction requires the B3+HGI leak-free re-run (next-study scope).
+
+**What is robust regardless of leak-vs-recipe attribution:** under the current canonical B9 recipe, MTL+HGI does not break. The two task streams effectively decouple under HGI substrate (probably because per-POI-stable embeddings make cross-attention K/V near-constant across the 9-step window).
 
 The refined story: **the cross-attention MTL only does measurable joint-training work under per-visit-contextual substrates (C2HGI). Under POI-stable substrates (HGI), the two task streams effectively decouple — cross-attn passes through.** Mechanism speculation: with per-POI-stable embeddings, the same POI gets the same K/V across all 9 sequence steps, making cross-stream attention an averaging operation that contributes no signal.
 
