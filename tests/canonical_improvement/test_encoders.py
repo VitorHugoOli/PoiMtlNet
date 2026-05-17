@@ -1033,4 +1033,71 @@ def test_masked_poi_decoder():
 
 test_masked_poi_decoder()
 
-print("\n[T3 unit test] all assertions passed (forward + backward + leak-probe + T5.2b).")
+
+# ============================================================================
+# REGRESSION TEST: Check2HGI.attach_node2vec_head end-to-end
+# ----------------------------------------------------------------------------
+# The 2026-05-17 integration sprint rewrote attach_node2vec_head to use
+# nn.Module.add_module (audit cleanup #3 of T5.2a). Combined with the line
+# `self.n2v_head = None` sentinel in __init__, this raised
+# `KeyError: "attribute 'n2v_head' already exists"` on every call. No
+# pre-existing test covered the attach path (test_node2vec_poi_head exercised
+# the head in isolation), so the bug shipped in commit 0a5e4cb. Caught by
+# the post-fix T5.1 audit; this test is the guardrail.
+# ============================================================================
+
+def test_attach_node2vec_head_round_trip():
+    """Construct Check2HGI with n2v_lambda>0, attach a Node2VecPOIHead,
+    verify the head is registered as a submodule AND its parameters are
+    visible through model.parameters() (so the AdamW optimizer will see them).
+    """
+    print("[regression] attach_node2vec_head round-trip")
+    _re = _load("RegionEncoder", _root / "research/embeddings/hgi/model/RegionEncoder.py")
+    Check2HGI = _chmod.Check2HGI
+    POI2Region = _re.POI2Region
+
+    def corruption(x):
+        return x[torch.randperm(x.size(0))]
+
+    model = Check2HGI(
+        hidden_channels=64,
+        checkin_encoder=CheckinEncoder(11, 64, num_layers=2),
+        checkin2poi=Checkin2POI(64, num_heads=4),
+        poi2region=POI2Region(64, num_heads=4),
+        region2city=lambda emb, area: torch.sigmoid(emb.mean(dim=0)),
+        corruption=corruption,
+        n2v_lambda=0.3,
+        n2v_align_lambda=0.5,
+    )
+    # Pre-attach: sentinel is None (set in __init__).
+    assert model.n2v_head is None, f"sentinel not None: {model.n2v_head}"
+    head = Node2VecPOIHead(
+        num_pois=100, embedding_dim=64,
+        walk_length=5, walks_per_node=2, context_size=3, p=1.0, q=1.0,
+    )
+    # The original integration sprint version raised KeyError here.
+    model.attach_node2vec_head(head)
+    assert model.n2v_head is head, "head not attached"
+    assert "n2v_head" in dict(model.named_children()), \
+        "n2v_head not registered as submodule (won't show in optimizer)"
+    head_param_ids = {id(p) for p in head.parameters()}
+    model_param_ids = {id(p) for p in model.parameters()}
+    overlap = len(head_param_ids & model_param_ids)
+    assert overlap == len(head_param_ids), \
+        f"only {overlap}/{len(head_param_ids)} head params reachable via model.parameters()"
+    print(f"  attach OK  |  head.n_params={len(head_param_ids)}  reachable={overlap}/{len(head_param_ids)}")
+    # Re-attach (idempotent): rebuilding the head between epochs must not crash
+    head2 = Node2VecPOIHead(
+        num_pois=100, embedding_dim=64,
+        walk_length=5, walks_per_node=2, context_size=3, p=1.0, q=1.0,
+    )
+    model.attach_node2vec_head(head2)
+    assert model.n2v_head is head2, "re-attach did not replace head"
+    print(f"  re-attach OK  |  no KeyError on second attach")
+    print("[regression] attach_node2vec_head round-trip ✓")
+
+
+test_attach_node2vec_head_round_trip()
+
+
+print("\n[T3 unit test] all assertions passed (forward + backward + leak-probe + T5.2b + attach regression).")

@@ -336,12 +336,28 @@ class Check2HGI(nn.Module):
 
         Done as a separate step from __init__ because the head needs
         ``num_pois`` and the Delaunay edge index from the preprocessed
-        graph (only available after data is loaded). Uses ``add_module``
-        explicitly (audit cleanup #3) so the registration intent is
-        unambiguous; this is the SOLE registration site — do not also
-        call ``add_module`` from the caller.
+        graph (only available after data is loaded). This is the SOLE
+        registration site — do not also call ``add_module`` from the
+        caller.
+
+        NOTE: ``self.n2v_head = None`` was set in ``__init__`` (line 247) to
+        record the "not attached yet" state. ``nn.Module.add_module`` raises
+        ``KeyError`` if the attribute already exists, so we must clear the
+        sentinel first (a regression introduced and caught by the post-fix
+        T5.1 audit on 2026-05-17).
         """
-        self.add_module("n2v_head", head)
+        if "n2v_head" in self._modules:
+            del self._modules["n2v_head"]
+        # Plain attribute assignment of an ``nn.Module`` value also registers
+        # it as a submodule via ``nn.Module.__setattr__`` — equivalent to
+        # ``add_module`` but tolerant of a pre-existing ``None`` sentinel.
+        # Use ``object.__delattr__`` to clear the sentinel without recursing
+        # back through ``nn.Module.__setattr__``.
+        try:
+            object.__delattr__(self, "n2v_head")
+        except AttributeError:
+            pass
+        self.n2v_head = head
 
     def set_n2v_epoch(self, epoch_id: int) -> None:
         """Bump the cached-walks epoch id so the next ``loss()`` call
