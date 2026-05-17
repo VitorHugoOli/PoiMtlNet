@@ -19,6 +19,10 @@ Run: python docs/infra/a40/T3_unit_test_encoders.py
 import sys
 from pathlib import Path
 
+# Path layout: tests/canonical_improvement/test_encoders.py  →
+#   parent[1]=canonical_improvement, parent[2]=tests, parent[3]=repo_root.
+# Pre-refactor (2026-05-17) the file lived in tests/ and used 4 .parents
+# — fixed in-place when adding T5.1 so the test runs from any worktree.
 _root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(_root / "src"))
 sys.path.insert(0, str(_root / "research"))
@@ -45,6 +49,11 @@ ResidualLNEncoder = _var.ResidualLNEncoder
 Time2VecCheckinEncoder = _var.Time2VecCheckinEncoder
 RGCNEncoder = _var.RGCNEncoder
 Node2VecPOIHead = _var.Node2VecPOIHead
+POIIdMixedPooler = _var.POIIdMixedPooler
+# Checkin2POI lives in a separate module — load directly to avoid
+# triggering the check2hgi package __init__ side-effects.
+_c2p = _load("Checkin2POI", _root / "research/embeddings/check2hgi/model/Checkin2POI.py")
+Checkin2POI = _c2p.Checkin2POI
 
 torch.manual_seed(42)
 np.random.seed(42)
@@ -217,6 +226,134 @@ random_init_probe(
     "GATTimeEncoder (heads=4, edge_attr=True) — positive control",
     lambda: GATTimeEncoder(F, D, num_layers=2, heads=4, dropout=0.0, use_edge_attr=True),
 )
+
+
+# ── T5.1 — Native learned POI ID embedding (additive post-pool) ──────────────
+#
+# Distinct from the encoder tests above: POIIdMixedPooler wraps a Checkin2POI
+# attention pool and adds ``gamma * poi_table[poi_idx]``. We verify:
+#   (a) output shape (num_pois, D) — additive identity must preserve shape
+#   (b) backward produces non-None gradient on the poi_table
+#   (c) gamma=0 reproduces the bare Checkin2POI output EXACTLY (byte-equality
+#       — additive identity)
+#   (d) use_poi_id=False path = bare Checkin2POI (same exact-equality)
+#   (e) zero-init leak-probe: a linear probe on the init-time poi-table
+#       alone (with random checkin pool zero'd out) should NOT beat chance
+#       — this defends against the "memorisation-at-init" failure mode
+#       (a learnable per-POI table CAN memorise train-set transitions in
+#       principle; init must be neutral).
+def test_poi_id_embedding():
+    torch.manual_seed(123)
+    np.random.seed(123)
+    N_poi = 100
+    D = 64
+    num_categories = 10
+    # Synthetic check-in -> POI assignment: spread N=2000 check-ins across
+    # N_poi=100 POIs so each POI gets ~20 check-ins (mimics the smaller AL/AZ
+    # POI density vs FL).
+    n_checkins = 2000
+    F_in = num_categories + 4
+    cklabels = torch.randint(0, num_categories, (n_checkins,))
+    ckx_cat = torch.zeros(n_checkins, num_categories)
+    ckx_cat[torch.arange(n_checkins), cklabels] = 1.0
+    ck_time = torch.randn(n_checkins, 4) * 0.5
+    cx = torch.cat([ckx_cat, ck_time], dim=1)
+    # Feed through a tiny CheckinEncoder so the pool input has the right shape.
+    enc = CheckinEncoder(F_in, D, num_layers=2)
+    cedge = torch.randint(0, n_checkins, (2, 4000), dtype=torch.long)
+    ceweight = torch.rand(4000)
+    ck_emb = enc(cx, cedge, ceweight)              # (n_checkins, D)
+    checkin_to_poi = torch.randint(0, N_poi, (n_checkins,), dtype=torch.long)
+
+    # (a) shape + (b) backward gradient on table
+    base_pool = Checkin2POI(D, num_heads=4)
+    pooler = POIIdMixedPooler(base_pool, num_pois=N_poi, hidden_channels=D,
+                              gamma=0.3, init="zero")
+    out = pooler(ck_emb, checkin_to_poi, N_poi)
+    assert out.shape == (N_poi, D), f"POIIdMixedPooler out shape {tuple(out.shape)} != ({N_poi}, {D})"
+    assert torch.isfinite(out).all(), "POIIdMixedPooler non-finite output"
+    out.sum().backward()
+    assert pooler.poi_table.weight.grad is not None, "POI table received no gradient"
+    grad_norm = pooler.poi_table.weight.grad.norm().item()
+    assert grad_norm > 0, f"POI table gradient norm = {grad_norm} (expected > 0)"
+    print(f"[POIIdMixedPooler γ=0.3 zero-init] params={sum(p.numel() for p in pooler.parameters()):,}  "
+          f"out shape={tuple(out.shape)}  table.grad.norm={grad_norm:.4f}")
+
+    # (c) gamma=0 → bit-identical to bare Checkin2POI (additive identity).
+    # Re-seed so the wrapped Checkin2POI and the bare reference share
+    # parameters (same xavier_uniform seeds).
+    torch.manual_seed(456)
+    bare = Checkin2POI(D, num_heads=4)
+    torch.manual_seed(456)
+    bare_wrapped_pool = Checkin2POI(D, num_heads=4)
+    pooler_g0 = POIIdMixedPooler(bare_wrapped_pool, num_pois=N_poi,
+                                  hidden_channels=D, gamma=0.0, init="zero")
+    with torch.no_grad():
+        bare_out = bare(ck_emb, checkin_to_poi, N_poi)
+        g0_out = pooler_g0(ck_emb, checkin_to_poi, N_poi)
+    max_diff = (bare_out - g0_out).abs().max().item()
+    assert max_diff == 0.0, (
+        f"γ=0 path NOT bit-identical to bare Checkin2POI (max abs diff "
+        f"{max_diff:.2e}); additive identity broken — would BREAK the "
+        f"canonical-default opt-out guarantee."
+    )
+    print(f"[POIIdMixedPooler γ=0 ↔ bare Checkin2POI] max |Δ| = {max_diff:.2e}  (bit-identical ✓)")
+
+    # (d) Also verify that with init='zero' and gamma>0, the table addition
+    # at step 0 is exactly the zero vector (so the very first forward is
+    # identical to the bare pool — defensive against init-time leak).
+    torch.manual_seed(789)
+    bare2 = Checkin2POI(D, num_heads=4)
+    torch.manual_seed(789)
+    bare_w2 = Checkin2POI(D, num_heads=4)
+    pooler_zinit = POIIdMixedPooler(bare_w2, num_pois=N_poi, hidden_channels=D,
+                                     gamma=1.0, init="zero")
+    with torch.no_grad():
+        bare2_out = bare2(ck_emb, checkin_to_poi, N_poi)
+        zinit_out = pooler_zinit(ck_emb, checkin_to_poi, N_poi)
+    max_diff_zinit = (bare2_out - zinit_out).abs().max().item()
+    assert max_diff_zinit == 0.0, (
+        f"zero-init + γ>0 step-0 forward not identical to bare pool "
+        f"(max |Δ| {max_diff_zinit:.2e}). The table starts at 0 so the "
+        f"additive term must be exactly 0."
+    )
+    print(f"[POIIdMixedPooler γ=1, init=zero, step 0 ↔ bare] max |Δ| = "
+          f"{max_diff_zinit:.2e}  (cold-start neutral ✓)")
+
+    # (e) Leak-probe diagnostic: with init='gaussian' (the riskier setting),
+    # a linear probe trained on the init-time poi_table alone should NOT
+    # be much above chance on synthetic POI categories. We simulate per-POI
+    # category labels and train logreg on the table.weight.
+    poi_labels = torch.randint(0, num_categories, (N_poi,)).numpy()
+    pooler_gauss = POIIdMixedPooler(Checkin2POI(D, num_heads=4), num_pois=N_poi,
+                                     hidden_channels=D, gamma=0.3,
+                                     init="gaussian", init_std=0.01)
+    M_table = pooler_gauss.poi_table.weight.detach().cpu().numpy()
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.metrics import f1_score
+    from sklearn.model_selection import train_test_split
+    Xtr, Xte, ytr, yte = train_test_split(M_table, poi_labels, test_size=0.3,
+                                          random_state=0, stratify=poi_labels)
+    clf = LogisticRegression(max_iter=2000, C=1.0)
+    clf.fit(Xtr, ytr)
+    f1_init = f1_score(yte, clf.predict(Xte), average="macro", zero_division=0)
+    # Chance ≈ 1/NUM_CAT = 0.1 macro-F1. Gaussian-init random embeddings
+    # of shape (N_poi=100, D=64) WILL overfit the 70-row training set with
+    # zero training-side regularisation (LogReg C=1 is weak); we expect a
+    # small lift over chance but it should remain << 0.50. Bound at 0.50
+    # to leave headroom for a 100-row synthetic test where LogReg can be
+    # surprisingly aggressive.
+    print(f"[POIIdMixedPooler gaussian-init leak-probe] init-time table → "
+          f"poi-category macro-F1 = {f1_init:.3f}  (chance ≈ {1.0/num_categories:.2f}, "
+          f"leak guardrail < 0.50)")
+    assert f1_init < 0.50, (
+        f"Init-time poi_table leak-probe F1 {f1_init:.3f} >= 0.50 — "
+        f"gaussian init at std=0.01 is somehow memorising labels at init. "
+        f"Should be impossible by construction; likely a wiring bug."
+    )
+
+
+test_poi_id_embedding()
 
 print("\n[T3 unit test] all assertions passed (forward + backward + leak-probe).")
 

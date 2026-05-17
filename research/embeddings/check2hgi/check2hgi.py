@@ -365,7 +365,17 @@ def train_check2hgi(city, args):
               f"walk_length={getattr(args, 'n2v_walk_length', 10)} "
               f"num_walks={getattr(args, 'n2v_num_walks', 5)} "
               f"p={getattr(args, 'n2v_p', 1.0)} q={getattr(args, 'n2v_q', 1.0)} "
-              f"share_with_poi_id={bool(getattr(args, 'n2v_share_table_with_poi_id', False))}")
+              f"share_with_poi_id={bool(getattr(args, 'n2v_share_table_with_poi_id', False))} "
+              f"align_lambda={float(getattr(args, 'n2v_align_lambda', 0.0) or 0.0)}")
+
+    # T5.1 — Native learned POI ID embedding plumbing.
+    # Pull ``num_pois`` from the preprocessed graph (NEVER hard-coded).
+    _use_poi_id_embedding = bool(getattr(args, 'use_poi_id_embedding', False))
+    _poi_id_gamma = float(getattr(args, 'poi_id_gamma', 0.3) or 0.3)
+    _poi_id_init = str(getattr(args, 'poi_id_init', 'zero'))
+    if _use_poi_id_embedding:
+        print(f"[T5.1] POI ID embedding enabled γ={_poi_id_gamma} "
+              f"init={_poi_id_init} num_pois={num_pois}")
 
     model = Check2HGI(
         hidden_channels=args.dim,
@@ -389,6 +399,11 @@ def train_check2hgi(city, args):
         mae_gamma=_mae_gamma,
         mae_in_channels=in_channels if _mae_lambda > 0.0 else None,
         n2v_lambda=_n2v_lambda,
+        n2v_align_lambda=float(getattr(args, 'n2v_align_lambda', 0.0) or 0.0),
+        use_poi_id_embedding=_use_poi_id_embedding,
+        poi_id_gamma=_poi_id_gamma,
+        poi_id_init=_poi_id_init,
+        num_pois=int(num_pois) if _use_poi_id_embedding else None,
     ).to(args.device)
 
     # T5.2a — construct + attach Node2Vec head AFTER model is on device.
@@ -399,17 +414,19 @@ def train_check2hgi(city, args):
             city_dict['poi_delaunay_edge_index'], dtype=torch.long
         )
         # Optional T5.1 coupling: share_table_with_poi_id reuses the T5.1
-        # POI identity table when present. T5.1's hook is named
-        # ``poi_id_embedding`` (per other-agent contract). We look it up on
-        # the model but accept None — if T5.1 isn't enabled in the same run,
-        # we fall back to a separate table (the default).
+        # POI identity table when present. T5.1's hook on the Check2HGI
+        # model is named ``poi_id_table`` (per audit-corrected contract).
+        # If the user passes --n2v-share-table-with-poi-id but T5.1 is NOT
+        # enabled, treat that as a configuration error rather than a silent
+        # fallback (audit T5.2a blocker #2).
         _share = bool(getattr(args, 'n2v_share_table_with_poi_id', False))
-        _external = getattr(model, 'poi_id_embedding', None) if _share else None
+        _external = getattr(model, 'poi_id_table', None) if _share else None
         if _share and _external is None:
-            print("[T5.2a] WARNING: n2v_share_table_with_poi_id=True but no "
-                  "T5.1 ``poi_id_embedding`` found on model; falling back to "
-                  "separate Node2Vec POI table.")
-            _share = False
+            raise ValueError(
+                "--n2v-share-table-with-poi-id requires --use-poi-id-embedding "
+                "to be enabled in the same run (T5.1 hook ``poi_id_table`` not "
+                "found on the model)."
+            )
         n2v_head = Node2VecPOIHead(
             num_pois=num_pois,
             embedding_dim=args.dim,
@@ -423,8 +440,9 @@ def train_check2hgi(city, args):
             share_table=_share,
             external_table=_external,
         ).to(args.device)
-        # Register as a real submodule (parameters flow into optimizer below).
-        model.add_module("n2v_head", n2v_head)
+        # ``attach_node2vec_head`` registers via ``add_module`` so optimizer
+        # picks up the parameters; the redundant outer ``add_module`` was
+        # dropped per audit cleanup #3.
         model.attach_node2vec_head(n2v_head)
 
     # ------------------------------------------------------------------

@@ -30,6 +30,10 @@ import sys
 from argparse import Namespace
 from pathlib import Path
 
+# Path layout: scripts/canonical_improvement/regen_emb_t3.py  →
+#   parent[1]=canonical_improvement, parent[2]=scripts, parent[3]=repo_root.
+# Pre-refactor (2026-05-17) the file lived in scripts/ and used 4 .parents
+# — fixed in-place so the script runs from any worktree.
 _root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(_root / "src"))
 sys.path.insert(0, str(_root / "research"))
@@ -131,7 +135,23 @@ def main() -> None:
                          "also enabled, share the same POI embedding table "
                          "between T5.1 and the Node2Vec skip-gram head. Default "
                          "False keeps the tables fully separate (avoids coupling "
-                         "T5.2a's signal with T5.1's optimization).")
+                         "T5.2a's signal with T5.1's optimization). Requires "
+                         "--use-poi-id-embedding (else raises ValueError at "
+                         "model-build time per audit blocker #2).")
+    # T5.2a audit blocker #1 fix: alignment term between c2hgi pos_poi_emb
+    # and the n2v_head.poi_table.weight. Without this, the skip-gram only
+    # trains a private POI table that NEVER reaches the export path
+    # (Checkin2POI / CheckinEncoder), so the "T5.2a effect" on downstream
+    # MTL is identically zero by construction. Default 0.0 to preserve the
+    # T5.2a-as-shipped behaviour bit-for-bit; set to 0.5 (audit recommended
+    # baseline) to actually bridge skip-gram gradients into the encoder.
+    ap.add_argument("--n2v-align-lambda", type=float, default=0.0,
+                    help="T5.2a audit fix: cosine-alignment coefficient "
+                         "between c2hgi pos_poi_emb and n2v_head.poi_table.weight. "
+                         "Default 0.0 reproduces T5.2a as shipped (phantom-null "
+                         "risk). Recommended: 0.5 when --use-node2vec-poi is on "
+                         "and --use-poi-id-embedding is off. Ignored unless "
+                         "--use-node2vec-poi is set.")
     # T5.3 — Multi-view co-training (cross-view POI alignment)
     # Defaults: --use-multiview OFF → canonical behaviour preserved bit-equiv.
     ap.add_argument("--use-multiview", action="store_true",
@@ -162,6 +182,22 @@ def main() -> None:
                     help="T5.3: which view's embeddings to export to downstream "
                          "MTL. v1 = canonical/cat-friendly (default, per spec). "
                          "v2 = category-only (diagnostic). ensemble = mean of v1/v2.")
+    # T5.1 — Native learned POI ID embedding (additive post-pool).
+    # Default opt-out. Importing HGI's POI2Vec to warm-start the table
+    # is OUT OF SCOPE (merge-family) — init MUST be zero or small Gaussian.
+    ap.add_argument("--use-poi-id-embedding", action="store_true",
+                    help="T5.1: enable native learned per-POI identity slot "
+                         "added to the Checkin2POI pool. Trained only by "
+                         "c2hgi's 3 boundaries (NOT warm-started from POI2Vec). "
+                         "Default OFF reproduces canonical c2hgi.")
+    ap.add_argument("--poi-id-gamma", type=float, default=0.3,
+                    help="T5.1: scalar gamma on the additive table. "
+                         "Spec ablation: {0.1, 0.3, 1.0}. Default 0.3.")
+    ap.add_argument("--poi-id-init", default="zero", choices=("zero", "gaussian"),
+                    help="T5.1: init scheme for the per-POI table. "
+                         "'zero' (default) gives strict cold-start neutrality; "
+                         "'gaussian' uses N(0, 0.01) to give SGD a non-zero "
+                         "starting gradient. POI2Vec warm-start is OUT OF SCOPE.")
     ap.add_argument("--rgcn-num-relations", type=int, default=2,
                     help="T3.3: number of edge relation types for R-GCN.")
     ap.add_argument("--rgcn-num-bases", type=str, default="2",
@@ -230,6 +266,10 @@ def main() -> None:
         mae_lambda=args.mae_lambda,
         mae_mask_rate=args.mae_mask_rate,
         mae_gamma=args.mae_gamma,
+        # T5.1 — Native learned POI ID embedding plumbing.
+        use_poi_id_embedding=args.use_poi_id_embedding,
+        poi_id_gamma=args.poi_id_gamma,
+        poi_id_init=args.poi_id_init,
         # T2.4 + Hyp B plumbing
         drop_edge_rate=args.drop_edge_rate,
         symmetric_drop_edge=args.symmetric_drop_edge,
@@ -242,6 +282,7 @@ def main() -> None:
         n2v_q=args.n2v_q,
         n2v_num_negatives=args.n2v_num_negatives,
         n2v_share_table_with_poi_id=args.n2v_share_table_with_poi_id,
+        n2v_align_lambda=float(args.n2v_align_lambda) if args.use_node2vec_poi else 0.0,
         # T5.3 plumbing — default-opt-out (use_multiview=False preserves canonical)
         use_multiview=args.use_multiview,
         multiview_lambda=args.multiview_lambda,
@@ -281,11 +322,14 @@ def main() -> None:
           f"sched={args.scheduler} wd={args.weight_decay} epoch={args.epoch} "
           f"side_features={args.use_side_features} mae_lambda={args.mae_lambda} "
           f"n2v_lambda={_n2v_lambda_eff} "
-          f"(use_node2vec_poi={bool(args.use_node2vec_poi)}) "
+          f"(use_node2vec_poi={bool(args.use_node2vec_poi)} "
+          f"align_λ={float(getattr(args, 'n2v_align_lambda', 0.0) or 0.0)}) "
           f"multiview={bool(args.use_multiview)} "
           f"(λ_x={args.multiview_lambda} loss={args.multiview_loss} "
           f"share_enc={bool(args.multiview_share_encoder)} "
-          f"export={args.multiview_export_view})",
+          f"export={args.multiview_export_view}) "
+          f"poi_id={args.use_poi_id_embedding} γ={args.poi_id_gamma} "
+          f"init={args.poi_id_init}",
           flush=True)
 
     # T4.3: pre-compute POI side-features if needed and not yet on disk.

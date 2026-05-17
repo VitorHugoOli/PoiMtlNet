@@ -73,7 +73,28 @@ class Check2HGI(nn.Module):
         # When ``n2v_lambda`` > 0 and ``n2v_head`` is attached via
         # ``attach_node2vec_head``, the skip-gram loss is added to the
         # total: ``L_total += n2v_lambda * L_skipgram``.
+        # ``n2v_align_lambda`` (audit-fix blocker #1): when > 0, also add an
+        # alignment term ``λ_align · (1 − cos(pos_poi_emb, n2v_head.poi_table.weight))``
+        # averaged over batch POIs so skip-gram gradients reach the c2hgi
+        # encoder transitively (the export path). Default 0.0 preserves the
+        # T5.2a-as-shipped behavior; turn on by passing ``--n2v-align-lambda``.
         n2v_lambda: float = 0.0,
+        n2v_align_lambda: float = 0.0,
+        # T5.1 — Native learned POI ID embedding (additive post-pool).
+        # When ``use_poi_id_embedding`` is True, build an
+        # ``nn.Embedding(num_pois, D)`` and add ``poi_id_gamma * poi_table.weight``
+        # to the POI pool BEFORE the side-feature injection and BEFORE
+        # the p2r aggregation. ``num_pois`` MUST be supplied when enabling
+        # the table — it sizes the embedding once at construction and
+        # is NEVER hard-coded.
+        # CRITICAL — init MUST be 'zero' or 'gaussian' (small). Importing
+        # HGI's POI2Vec to warm-start is the merge-family path and is
+        # OUT OF SCOPE here.
+        use_poi_id_embedding: bool = False,
+        poi_id_gamma: float = 0.3,
+        poi_id_init: str = "zero",
+        poi_id_init_std: float = 0.01,
+        num_pois: int | None = None,
     ):
         """
         Initialize Check2HGI module.
@@ -209,8 +230,46 @@ class Check2HGI(nn.Module):
         # via ``attach_node2vec_head`` so the table size (num_pois) is known
         # only from the preprocessed data. Loss is fetched inside ``loss()``.
         self.n2v_lambda = float(n2v_lambda)
+        self.n2v_align_lambda = float(n2v_align_lambda)
         self.n2v_head = None      # set by attach_node2vec_head
         self._n2v_epoch_id = 0    # bumped externally by the training loop
+        # Set by forward() so loss() can access the POI ids appearing in the
+        # batch for the alignment term. Reset at the top of every forward().
+        self._n2v_batch_poi_ids = None
+
+        # T5.1 — Native learned POI ID embedding. Built lazily only when
+        # enabled, so the canonical recipe is bit-identical (no extra
+        # parameters, no extra forward op). The table is sized at
+        # construction by ``num_pois`` (read by the caller from the
+        # preprocessed graph's ``num_nodes_by_type['poi']`` equivalent
+        # = ``city_dict['num_pois']``) — never hard-coded.
+        self.use_poi_id_embedding = bool(use_poi_id_embedding)
+        self.poi_id_gamma = float(poi_id_gamma)
+        self.poi_id_init = str(poi_id_init)
+        self.poi_id_init_std = float(poi_id_init_std)
+        if self.use_poi_id_embedding:
+            if num_pois is None or int(num_pois) <= 0:
+                raise ValueError(
+                    "use_poi_id_embedding=True requires num_pois (positive int) "
+                    "from the preprocessed graph (city_dict['num_pois']). "
+                    "Do NOT hard-code; read it from the graph cache."
+                )
+            if self.poi_id_init not in ("zero", "gaussian"):
+                raise ValueError(
+                    f"poi_id_init must be 'zero' or 'gaussian'; got {self.poi_id_init!r}. "
+                    f"POI2Vec warm-start is explicitly out of scope for T5.1 "
+                    f"(merge-family — handled in a separate Tier)."
+                )
+            self.num_pois_at_build = int(num_pois)
+            self.poi_id_table = nn.Embedding(self.num_pois_at_build, int(hidden_channels))
+            with torch.no_grad():
+                if self.poi_id_init == "zero":
+                    self.poi_id_table.weight.zero_()
+                else:
+                    self.poi_id_table.weight.normal_(mean=0.0, std=self.poi_id_init_std)
+        else:
+            self.num_pois_at_build = 0
+            self.poi_id_table = None
 
         # Store embeddings for extraction
         self.checkin_embedding = torch.tensor(0)
@@ -233,11 +292,12 @@ class Check2HGI(nn.Module):
 
         Done as a separate step from __init__ because the head needs
         ``num_pois`` and the Delaunay edge index from the preprocessed
-        graph (only available after data is loaded). The head IS registered
-        as a real submodule so its parameters appear in
-        ``model.parameters()`` and are picked up by the optimizer.
+        graph (only available after data is loaded). Uses ``add_module``
+        explicitly (audit cleanup #3) so the registration intent is
+        unambiguous; this is the SOLE registration site — do not also
+        call ``add_module`` from the caller.
         """
-        self.n2v_head = head
+        self.add_module("n2v_head", head)
 
     def set_n2v_epoch(self, epoch_id: int) -> None:
         """Bump the cached-walks epoch id so the next ``loss()`` call
@@ -285,6 +345,37 @@ class Check2HGI(nn.Module):
         # Level 2: POI encoding (aggregate check-ins to POIs)
         pos_poi_emb = self.checkin2poi(pos_checkin_emb, data.checkin_to_poi, num_pois)
         neg_poi_emb = self.checkin2poi(neg_checkin_emb, data.checkin_to_poi, num_pois)
+
+        # T5.1 — Native learned POI ID embedding (additive post-pool).
+        # Add ``poi_id_gamma * poi_id_table.weight`` to the per-POI pool
+        # for BOTH pos and neg. The table is indexed by POI id (same as
+        # poi_emb rows), so the "+ table.weight" is a single broadcast
+        # add — no per-row indexing needed at training time. Negatives
+        # also get their corresponding table row added, so the c2p
+        # discriminator cannot reach zero loss using only the table:
+        # the pooled check-in signal stays in the gradient chain (the
+        # negative POI is a DIFFERENT POI whose pool is unrelated, even
+        # though both POIs have their own table slot added).
+        #
+        # Injection point: AFTER checkin2poi pool, BEFORE side-feature
+        # injection and BEFORE p2r aggregation. This way the table is
+        # trained by all 3 boundaries (c2p, p2r, r2c).
+        #
+        # Default opt-out: when use_poi_id_embedding=False, this whole
+        # block is skipped — behaviour byte-identical to canonical.
+        # When poi_id_gamma=0, defensive identity path returns the
+        # untouched pool (caller could set gamma=0 for an ablation).
+        if self.poi_id_table is not None and self.poi_id_gamma != 0.0:
+            if int(num_pois) != self.num_pois_at_build:
+                raise ValueError(
+                    f"Check2HGI.forward: num_pois={num_pois} != "
+                    f"self.num_pois_at_build={self.num_pois_at_build}. "
+                    f"T5.1 POI ID table was sized at construction; rebuild "
+                    f"the model if the POI inventory changed."
+                )
+            _poi_id_bump = self.poi_id_gamma * self.poi_id_table.weight
+            pos_poi_emb = pos_poi_emb + _poi_id_bump
+            neg_poi_emb = neg_poi_emb + _poi_id_bump
 
         # T4.3 — POI side-feature post-pool injection. Restricted to the p2r
         # pathway only — the c2p discriminator uses the PRE-augmentation
@@ -355,6 +446,13 @@ class Check2HGI(nn.Module):
         self.checkin_embedding = pos_checkin_emb
         self.poi_embedding = pos_poi_emb
         self.region_embedding = pos_region_emb
+
+        # T5.2a alignment (audit blocker #1): cache the POI embedding with
+        # gradient attached so loss() can pull skip-gram gradients back into
+        # the c2hgi encoder via the export path. Only relevant when an n2v
+        # head is attached AND --n2v-align-lambda > 0; otherwise this is a
+        # cheap reference assignment with no compute impact.
+        self._n2v_pos_poi_emb = pos_poi_emb
 
         # Prepare outputs for loss computation
         # Check-in to POI: each check-in vs its POI
@@ -620,6 +718,35 @@ class Check2HGI(nn.Module):
         if self.n2v_lambda > 0.0 and self.n2v_head is not None:
             l_skipgram = self.n2v_head.compute_loss(epoch_id=self._n2v_epoch_id)
             total_loss = total_loss + self.n2v_lambda * l_skipgram
+
+            # T5.2a alignment (audit blocker #1): bridge the private n2v POI
+            # table to the c2hgi encoder via the export path. Without this
+            # term, skip-gram trains ONLY n2v_head.poi_table and never
+            # touches checkin_encoder / Checkin2POI / POI2Region, so the
+            # exported pos_poi_emb is unaffected by T5.2a.
+            #
+            # Math: L_align = 1 − mean( cos(pos_poi_emb[i],
+            #                              n2v_head.poi_table.weight[i]) )
+            # across the POI dimension. Gradient flows BOTH ways (n2v
+            # table is also pulled toward pos_poi_emb), but Pytorch's autograd
+            # graph for ``pos_poi_emb`` runs back through Checkin2POI ⇒
+            # CheckinEncoder, which is the desired path.
+            if (
+                self.n2v_align_lambda > 0.0
+                and self._n2v_pos_poi_emb is not None
+                and hasattr(self.n2v_head, "poi_table")
+            ):
+                _poi_emb = self._n2v_pos_poi_emb
+                _n2v_table = self.n2v_head.poi_table.weight
+                # Sanity: the two tables must have the same first dim. If
+                # not (e.g. share_table is on so they ARE the same tensor),
+                # the alignment is identically zero and we skip it.
+                if _n2v_table.shape[0] == _poi_emb.shape[0] and _n2v_table.data_ptr() != _poi_emb.data_ptr():
+                    _cos = torch.nn.functional.cosine_similarity(
+                        _poi_emb, _n2v_table, dim=-1, eps=EPS
+                    )
+                    l_align = 1.0 - _cos.mean()
+                    total_loss = total_loss + self.n2v_align_lambda * l_align
 
         return total_loss
 

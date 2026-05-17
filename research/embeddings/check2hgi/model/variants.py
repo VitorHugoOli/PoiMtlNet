@@ -500,6 +500,107 @@ class RGCNEncoder(nn.Module):
 
 
 # ---------------------------------------------------------------------------
+# T5.1 — Native learned POI ID embedding (additive post-pool)
+# ---------------------------------------------------------------------------
+
+class POIIdMixedPooler(nn.Module):
+    """T5.1 — Native per-POI learned identity slot, added to the
+    Checkin2POI-pooled embedding.
+
+    Combine rule (additive, NOT concat):
+
+        pool_aug = checkin2poi(checkins) + gamma * poi_table.weight
+
+    Properties enforced by design:
+      * Zero or small-Gaussian init (NEVER POI2Vec) — this is the
+        "native" candidate in the Tier-5 carve-out; importing HGI's
+        POI2Vec is the merge-family path and is OUT OF SCOPE here.
+      * Trained only by check2hgi's 3 contrastive boundaries — there
+        is NO fclass supervision and no auxiliary head wired here.
+      * Default opt-out: when ``gamma == 0`` the output is byte-identical
+        to the upstream Checkin2POI module's output (additive identity).
+      * ``num_pois`` is taken at construction time and must match the
+        preprocessed graph; if a future fold changes the POI inventory
+        the table must be rebuilt. Caller is responsible for matching.
+
+    Cold-start risk: a POI with very few check-ins still receives a
+    full 64-d learnable slot. If the contrastive signal is too weak
+    at that POI the slot stays near init (zero or N(0, 0.01²)),
+    contributing negligible noise. Visit-count quantile diagnostics
+    should be reported at evaluation time (Phase B). This module
+    keeps the table separate so a per-POI hold-out probe can be
+    plugged in at audit time without touching the main pipeline.
+
+    Leak risk: a fully learnable per-POI table CAN memorise train-set
+    transitions if the c2p discriminator finds a degenerate solution
+    where the table row alone carries identity. The +gamma * table
+    formulation means the pooled checkin signal stays in the gradient
+    chain (the discriminator cannot reach zero loss using only the
+    table because the negative POI also contributes its own table row
+    plus a different checkin pool). Even so, the leak-probe (IJM /
+    F51 sweep gate) and a per-POI hold-out probe (deferred to Phase B)
+    are the production gates.
+    """
+
+    def __init__(self, checkin2poi: nn.Module, num_pois: int,
+                 hidden_channels: int, gamma: float = 0.3,
+                 init: str = "zero", init_std: float = 0.01):
+        super().__init__()
+        if num_pois <= 0:
+            raise ValueError(f"POIIdMixedPooler: num_pois must be > 0; got {num_pois}")
+        if init not in ("zero", "gaussian"):
+            raise ValueError(
+                f"POIIdMixedPooler: init must be 'zero' or 'gaussian'; got {init!r}"
+            )
+        if gamma < 0:
+            raise ValueError(f"POIIdMixedPooler: gamma must be >= 0; got {gamma}")
+        self.checkin2poi = checkin2poi
+        self.num_pois = int(num_pois)
+        self.hidden_channels = int(hidden_channels)
+        self.gamma = float(gamma)
+        self.init = init
+        self.init_std = float(init_std)
+        # Zero-init or small-Gaussian. EXPLICITLY NOT POI2Vec — the spec
+        # says "trained ONLY by c2hgi's 3 boundaries (NOT warm-started
+        # from POI2Vec — that would be merge-family)".
+        self.poi_table = nn.Embedding(self.num_pois, self.hidden_channels)
+        self._reset_table()
+
+    def _reset_table(self):
+        with torch.no_grad():
+            if self.init == "zero":
+                self.poi_table.weight.zero_()
+            else:
+                # Small Gaussian, std=0.01 by default. Keep the cold-start
+                # contribution small relative to the pooled checkin signal
+                # (which has unit-ish magnitude after PReLU + residual in
+                # Checkin2POI). Larger std risks dominating sparse POIs.
+                self.poi_table.weight.normal_(mean=0.0, std=self.init_std)
+
+    def forward(self, x, checkin_to_poi, num_pois):
+        """Pool check-ins to POIs, then add the per-POI identity slot.
+
+        Signature matches :class:`Checkin2POI.forward` so this pooler can
+        be dropped into Check2HGI as a substitute aggregator.
+        """
+        pooled = self.checkin2poi(x, checkin_to_poi, num_pois)
+        # The table is sized at construction time; if a downstream call
+        # passes a different num_pois (e.g. mini-batch sub-sampled POIs)
+        # we must error — the additive identity slot is only well-defined
+        # at the full POI inventory the table was built against.
+        if int(num_pois) != self.num_pois:
+            raise ValueError(
+                f"POIIdMixedPooler.forward: num_pois={num_pois} != "
+                f"self.num_pois={self.num_pois}. Rebuild the pooler."
+            )
+        if self.gamma == 0.0:
+            # Bit-identical pass-through when gamma=0 — defensive identity
+            # so an ablation at gamma=0 reproduces the canonical baseline.
+            return pooled
+        return pooled + self.gamma * self.poi_table.weight
+
+
+# ---------------------------------------------------------------------------
 # V1: Check2HGI with InfoNCE contrastive at C2P boundary
 # ---------------------------------------------------------------------------
 
@@ -766,11 +867,16 @@ class Node2VecPOIHead(nn.Module):
                     "Node2VecPOIHead(share_table=True) requires external_table "
                     "(typically the T5.1 POI ID embedding table)."
                 )
-            # Register as attribute but DO NOT add as submodule param (the
-            # T5.1 table is owned by the parent module — sharing means just
-            # using the same Parameter, not double-counting it in the optimizer).
-            object.__setattr__(self, "_external_table_ref", external_table)
-            self.poi_table = external_table  # exposed for forward; not registered
+            # Sharing semantics: do NOT register the external table as a
+            # child submodule (it is owned by the parent Check2HGI and
+            # already in the optimizer's param list). We bypass the
+            # ``nn.Module.__setattr__`` auto-registration via the standard
+            # ``object.__setattr__`` so optimizer-param-deduplication stays
+            # the responsibility of the parent module.
+            # Audit cleanup #3: removed the redundant ``_external_table_ref``
+            # attribute — it was never read elsewhere and just shadowed the
+            # real binding below.
+            object.__setattr__(self, "poi_table", external_table)
         else:
             self.poi_table = nn.Embedding(self.num_pois, self.embedding_dim)
             nn.init.xavier_uniform_(self.poi_table.weight)
