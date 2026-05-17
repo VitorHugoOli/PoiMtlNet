@@ -1,9 +1,45 @@
 # F61 — T5.2a Joint Node2Vec POI-POI skip-gram: Implementation Notes
 
-**Status**: Scaffolding complete, pending execution.
+**Status**: Scaffolding complete; audit-fix items applied 2026-05-17
+(integration branch `tier5-cohort-integration`); pending execution.
 **Date**: 2026-05-17
 **Spec**: `docs/studies/canonical_improvement/INDEX.html#T5-2a`
 **Sister F-trail entries**: F60 (T5.1 ID embedding, sister agent), F62 (T5.2b masked POI), F63 (T5.3 multi-view).
+
+> **Integration audit (2026-05-17, applied in integration branch):**
+> 1. **Gradient-isolation fix (audit blocker #1).** T5.2a as originally
+>    shipped uses a separate `nn.Embedding(num_pois, D)` table on the
+>    Node2Vec head. Skip-gram trains ONLY that private table; the c2hgi
+>    `checkin_encoder`, `Checkin2POI`, and `POI2Region` modules receive
+>    ZERO skip-gram gradient, and the exported `pos_poi_emb` (from
+>    `Checkin2POI`) is never touched by the skip-gram loss. As shipped,
+>    T5.2a's mechanism is **disconnected from the export path** — it
+>    would produce a phantom-null downstream effect.
+>
+>    **Fix:** new `--n2v-align-lambda` CLI flag (default 0.0 to preserve
+>    the T5.2a-as-shipped bit-for-bit). When `> 0` the c2hgi
+>    `Check2HGIModule.loss()` adds an alignment term:
+>    `L_align = 1 − mean( cos(pos_poi_emb[i], n2v_head.poi_table.weight[i]) )`
+>    averaged over POIs. Gradient flows BOTH ways: the n2v table is
+>    pulled toward `pos_poi_emb`, and `pos_poi_emb` is pulled toward
+>    the n2v table (via Checkin2POI back through CheckinEncoder). The
+>    desired side-effect is the latter: skip-gram gradients reach the
+>    c2hgi encoder transitively. Recommended baseline: `--n2v-align-lambda 0.5`
+>    when `--use-node2vec-poi` is on. Implementation:
+>    `research/embeddings/check2hgi/model/Check2HGIModule.py:810-825`.
+> 2. **`poi_id_table` attribute name fix (audit blocker #2).** Original
+>    T5.2a wiring at `check2hgi.py:407` did
+>    `getattr(model, 'poi_id_embedding', None)` but T5.1 actually creates
+>    `self.poi_id_table`. Result: `--n2v-share-table-with-poi-id` always
+>    silently fell back to separate-table mode. Fixed; also added a
+>    hard `ValueError` if `--n2v-share-table-with-poi-id` is requested
+>    without `--use-poi-id-embedding` enabled in the same run.
+> 3. **`object.__setattr__` cleanup (audit blocker #3).** Removed the
+>    redundant `_external_table_ref` attribute on `Node2VecPOIHead`
+>    (was never read elsewhere). Consolidated registration of the
+>    n2v head into `attach_node2vec_head` via explicit `add_module`;
+>    dropped the duplicate `add_module` call from the caller in
+>    `check2hgi.py`.
 
 ## What was built
 

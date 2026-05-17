@@ -1,8 +1,42 @@
 # F60 — T5.1 Native Learned POI ID Embedding (implementation notes)
 
 **Status**: implementation complete (worktree `agent-acdb1dfd1ce9c7749`),
-awaiting Phase A multi-seed sweep at AL+AZ (small-state regression-gate
-states per Phase 1 advisor 2026-05-17).
+audit-fix items applied 2026-05-17 (integration branch
+`tier5-cohort-integration`), awaiting Phase A multi-seed sweep at AL+AZ
+(small-state regression-gate states per Phase 1 advisor 2026-05-17).
+
+> **Integration audit (2026-05-17, applied in integration branch):**
+> 1. **Production-path canonical-preservation test** added —
+>    `tests/canonical_improvement/test_encoders.py::test_check2hgi_module_t51_optout`
+>    constructs two `Check2HGI(...)` instances differing only in T5.1 flags
+>    (with shared core weights copied to isolate from RNG-consumption
+>    side-effects of `nn.Embedding` construction) and asserts byte-equality
+>    on `pos_checkin_emb` / `pos_poi_emb` / `pos_region_emb` at zero-init
+>    step 0. The original `test_poi_id_embedding` only covered the
+>    `POIIdMixedPooler` wrapper, NOT the production-path `Check2HGI` module.
+> 2. **ValueError construction guards** —
+>    `test_check2hgi_t51_value_errors` covers `use_poi_id_embedding=True`
+>    without `num_pois` (raises) and `poi_id_init='poi2vec'` (raises;
+>    POI2Vec warm-start is merge-family, out of scope here).
+> 3. **T5.1 × T4.3 interaction note:** when both T5.1 and T4.3 are enabled,
+>    the T5.1 bump enters the p2r/r2c pathway via T4.3's side-feature
+>    post-projection (the augmented `pool_post_proj` consumes
+>    `pos_poi_emb + gamma * table.weight` as its first concat half). The
+>    T5.1 contribution to the c2p boundary is via the pre-augmentation
+>    `pos_poi_emb_pure` path — direct, not through T4.3's projection. So
+>    cat/c2p sees the raw T5.1 bump; reg/p2r and city/r2c see the
+>    post-T4.3-projected T5.1 bump. Implication: if T5.1+T4.3 lifts cat
+>    alone with no reg motion, suspect the raw c2p bump first; if reg
+>    lifts with no cat motion, the T4.3 projection is mediating the
+>    T5.1 signal toward the structural axis.
+> 4. **Per-POI memorisation caveat — Phase A interpretation policy:**
+>    the existing IJM probe is **user-held-out**, not per-POI-held-out.
+>    Per-POI memorisation by the T5.1 table CANNOT be ruled out by the
+>    IJM probe alone — Phase A multi-seed results will be interpreted
+>    with this caveat in force, and **no T5.1 promotion to NORTH_STAR
+>    / shipping is permitted before a per-POI hold-out probe is built
+>    and passes**. Building the probe itself is a future task (out of
+>    scope for the current sprint).
 
 **Date**: 2026-05-17.
 

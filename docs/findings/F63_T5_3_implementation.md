@@ -1,10 +1,35 @@
 # F63 — T5.3 Multi-view co-training: implementation notes
 
-Status: IMPLEMENTED (not yet sweep-validated)
+Status: IMPLEMENTED + audit-fix items applied 2026-05-17
+        (not yet sweep-validated)
 Authors: T5.3 implementation agent
 Date: 2026-05-17
-Branch: worktree-agent-af057aabc03289dba
+Branch: worktree-agent-af057aabc03289dba (integrated into
+        `tier5-cohort-integration` on 2026-05-17)
 Scope: scaffolding + unit test + AL smoke
+
+> **Honesty banner (integration audit, 2026-05-17):** the T5.3 commit
+> (`b18f84c`) ONLY contains the user-facing CLI flag wiring, unit test,
+> and this findings doc. The model-side substrate — `MultiViewWrapper`,
+> `build_view2_graph_dict` / `build_view2_graph_file`, the multi-view
+> branch in `check2hgi.py` — was bundled into the **T5.2a commit
+> (`34aa263`)** because of the parallel-harness serialization issue
+> documented in `docs/CONCERNS.md` C20. The four Tier-5 agents launched
+> in parallel worktrees but did not get truly isolated branches: by the
+> time T5.3 was authored its base was already T5.2a's tip, so the
+> multi-view scaffolding landed under T5.2a's commit title.
+>
+> **Audit-fix items applied at integration:**
+> 1. **InfoNCE temperature guard** —
+>    `research/embeddings/check2hgi/model/variants.py::_cross_view_loss`
+>    now raises `ValueError("InfoNCE temperature must be > 0; got <T>")`
+>    before the divide (was silent NaN / Inf risk).
+> 2. **Additional test assertions in `test_multiview_wrapper`** —
+>    (a) when `cross_lambda = 0`, `wrapper.total_loss(data_v1, data_v2)`
+>        is equal to `model_v1.loss(...) + model_v2.loss(...)` modulo
+>        RNG synchronisation (asserted at atol=1e-5);
+>    (b) `_cross_view_loss(..., loss_type="infonce", temperature=0.0)`
+>        raises `ValueError` (asserted via try/except).
 
 ## TL;DR
 

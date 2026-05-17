@@ -394,3 +394,25 @@ The NORTH_STAR currently reflects **Path A** (`next_gru` universally) pending F3
 - The leak Δ alone is **not** disqualifying for stacking — it must be paired with the **reg-axis lift** check (label-disjoint axis). T3.1 was disqualified because cat lifted alone (+30 / reg ≈ 0); T3.2 lifts both axes in lockstep (cat +0.96 / reg +0.77) and is therefore not leak-driven at single seed. Multi-seed gate (paired sign test on v3c→ResLN reg AND canonical→ResLN cat) decides whether ResLN stacks.
 
 **Status:** `monitored 2026-05-15`. Revisit when (a) T3.3, T3.4, or any T4.x variant lands with leak Δ > +2 pp, (b) the cumulative accepted-variant leak budget approaches +5 pp, or (c) any future variant lifts cat alone with no reg motion.
+
+---
+
+## C20 — Tier-5 cohort parallel-harness serialization (RESOLVED at integration, 2026-05-17)
+
+**Concern raised:** 2026-05-17 during integration of Tier-5 cohort (T5.1 / T5.2a / T5.2b / T5.3). The cohort was launched in four parallel agent worktrees off the same base commit `a4c757b`, with the intent that each candidate land as an isolated commit reviewable independently. In practice the four worktrees were **not truly isolated**: by the time the second agent committed, the first had already pushed to the shared `main` ref, so subsequent commits were stacked linearly on top of one another rather than parallel siblings. Specifically:
+
+- **T5.2a (`34aa263`)** was authored on the base `a4c757b` and committed first; subsequently became the new `main` tip.
+- **T5.3 (`b18f84c`)** was authored on `34aa263` (i.e., on top of T5.2a) and accordingly **bundles a substantial amount of T5.2a substrate** — the `MultiViewWrapper`, `build_view2_graph_*`, the multi-view branch in `check2hgi.py` — that the T5.3 commit message attributes to T5.2a.
+- T5.3's own commit (`b18f84c`) contains ONLY the user-facing CLI flag wiring, unit test, and findings doc — the substrate is in `34aa263` as a hidden dependency ("Trojan" in the audit terminology).
+- **T5.1 (`e6c56bb`)** and **T5.2b (`0252644`)** were authored on the same base `a4c757b` but landed via cherry-pick during integration; both encountered conflicts with the now-stacked T5.2a / T5.3 baseline.
+
+**Concrete consequence at integration time:** cherry-picking T5.1 and T5.2b onto the T5.3-tip worktree produced merge conflicts in `check2hgi.py`, `Check2HGIModule.py`, `variants.py`, `preprocess.py`, `regen_emb_t3.py`, `test_encoders.py`. Conflicts were resolved by keeping both sides (T5.x candidates are designed to be additively composable). The shared preprocess helper `_build_poi_delaunay_edges` and the `build_poi_delaunay` flag were de-duplicated (T5.2a and T5.2b had two near-equivalent implementations of the same logic in their respective branches).
+
+**Audit-derived risks already mitigated** (see audit-fix list in the integration commit):
+- T5.2a's `--n2v-share-table-with-poi-id` flag was reading `getattr(model, 'poi_id_embedding', None)` but T5.1 actually creates `self.poi_id_table` — so share-mode silently fell back to separate-table mode in every co-enabled run. Fixed; also added a hard `ValueError` if share is requested without T5.1 enabled.
+- T5.2a as shipped trains a separate `nn.Embedding(num_pois, D)` that NEVER reaches the export path (Checkin2POI / CheckinEncoder), so the downstream MTL effect would be identically zero. Added `--n2v-align-lambda` alignment term bridging skip-gram gradients into the c2hgi encoder via cosine-alignment between `pos_poi_emb` and the n2v table.
+- T5.3 `_cross_view_loss` divided by `float(temperature)` with no positivity guard. Added `ValueError` for `temperature <= 0`.
+- Audit also flagged T5.1 lacked production-path canonical-preservation tests (only the `POIIdMixedPooler` wrapper was unit-tested); added `test_check2hgi_module_t51_optout` and `test_check2hgi_t51_value_errors` in `tests/canonical_improvement/test_encoders.py`.
+- Added a cohort `test_all_t5_canonical_optout` asserting that Check2HGI with ZERO T5 flags allocates zero T5 parameters, produces finite forward outputs of canonical shapes, and yields a finite scalar loss.
+
+**Status:** `resolved 2026-05-17` at the level of the integration branch (`tier5-cohort-integration`). Forward mitigation policy: for any future parallel-agent cohort, agents must commit to dedicated branches off the base, with NO push to the shared ref before integration; integration consolidates via cherry-pick from those branches onto a clean integration branch. The four Tier-5 candidate branches plus this concern entry constitute the audit trail.

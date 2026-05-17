@@ -2,9 +2,20 @@
 
 **Status**: implementation landed; awaiting AL+AZ multi-seed run.
 **Date**: 2026-05-17
-**Branch**: `worktree-agent-a3bb7f7bb217a001f`
+**Branch**: `worktree-agent-a3bb7f7bb217a001f` (integrated into
+`tier5-cohort-integration` on 2026-05-17; see C20 in `docs/CONCERNS.md`).
 **Spec**: `docs/studies/canonical_improvement/INDEX.html` §T5.2b (lines ~1700-1730)
 **Pair**: T4.1 (falsified, AL+AZ 2026-05) — see "paired-falsification value" below
+
+> **Integration audit (2026-05-17):** T5.2b carries the **same per-POI
+> memorisation risk class** as T5.1 — the masked-POI decoder learns to
+> reconstruct per-POI feature aggregates (category-distribution and
+> log-visit count), and the reconstruction signal flows back into the
+> pooled POI embeddings via the GraphMAE auxiliary loss. The IJM probe
+> is user-held-out, not per-POI-held-out; per-POI memorisation cannot
+> be ruled out by the IJM probe alone. The same Phase A interpretation
+> policy as T5.1 applies: **no T5.2b promotion to NORTH_STAR / shipping
+> permitted before a per-POI hold-out probe is built and passes**.
 
 ---
 

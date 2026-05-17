@@ -59,6 +59,11 @@ def _cross_view_loss(poi_v1: torch.Tensor, poi_v2: torch.Tensor,
         v1_sg = poi_v1.detach()
         return 0.5 * (F.mse_loss(poi_v1, v2_sg) + F.mse_loss(poi_v2, v1_sg))
     if loss_type == "infonce":
+        # Audit T5.3 #1: guard against div-by-zero / negative temperature.
+        if float(temperature) <= 0.0:
+            raise ValueError(
+                f"InfoNCE temperature must be > 0; got {temperature}"
+            )
         n = poi_v1.shape[0]
         v1n = F.normalize(poi_v1, dim=-1)
         v2n = F.normalize(poi_v2, dim=-1)

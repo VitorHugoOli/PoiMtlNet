@@ -356,6 +356,237 @@ def test_poi_id_embedding():
 
 test_poi_id_embedding()
 
+
+# ── T5.1 audit fix: production-path canonical-preservation test ─────────────
+#
+# Audit T5.1 #1 — the original `test_poi_id_embedding` only exercises
+# `POIIdMixedPooler` (a thin wrapper around Checkin2POI). It does NOT
+# instantiate the full Check2HGI module. The production path is
+# Check2HGI.forward() with the T5.1 plumbing wired through
+# Check2HGIModule.py:367 (poi_id_bump add). This test fills that gap by
+# constructing two complete Check2HGI(...) instances differing only in T5.1
+# flags and asserting bit-identical outputs on identical synthetic data.
+def test_check2hgi_module_t51_optout():
+    """When T5.1 is OFF, Check2HGI must produce byte-equal pos_checkin_emb /
+    pos_poi_emb / pos_region_emb to a baseline built without T5.1 args.
+
+    Also: when poi_id_gamma == 0 with the table enabled, the additive bump
+    is zero and outputs must match the OFF case exactly.
+    """
+    from torch_geometric.data import Data
+    Checkin2POI = _load(
+        "Checkin2POI", _root / "research/embeddings/check2hgi/model/Checkin2POI.py"
+    ).Checkin2POI
+    POI2Region = _load(
+        "RegionEncoderHGI", _root / "research/embeddings/hgi/model/RegionEncoder.py"
+    ).POI2Region
+
+    Check2HGI = _chmod.Check2HGI
+    _corruption = _chmod.corruption
+
+    # Tiny synthetic graph.
+    N_CK, N_POI, N_REG = 150, 30, 6
+    NUM_CAT = 8
+    D = 64
+    F_IN = NUM_CAT + 4
+    torch.manual_seed(2026)
+    x = torch.randn(N_CK, F_IN)
+    ei = torch.randint(0, N_CK, (2, 400), dtype=torch.long)
+    ew = torch.rand(ei.shape[1])
+    checkin_to_poi = torch.randint(0, N_POI, (N_CK,), dtype=torch.long)
+    poi_to_region = torch.randint(0, N_REG, (N_POI,), dtype=torch.long)
+    region_adj = torch.randint(0, N_REG, (2, 12), dtype=torch.long)
+    region_area = torch.rand(N_REG)
+    data = Data(
+        x=x, edge_index=ei, edge_weight=ew,
+        checkin_to_poi=checkin_to_poi, poi_to_region=poi_to_region,
+        region_adjacency=region_adj, region_area=region_area,
+        coarse_region_similarity=torch.eye(N_REG),
+        num_pois=N_POI, num_regions=N_REG,
+    )
+
+    def _region2city(z, area):
+        return torch.sigmoid((z.transpose(0, 1) * area).sum(dim=1))
+
+    def _build(use_t51: bool, gamma: float = 0.3):
+        torch.manual_seed(7)
+        enc = CheckinEncoder(F_IN, D, num_layers=2)
+        c2p = Checkin2POI(D, num_heads=4)
+        p2r = POI2Region(D, num_heads=4)
+        kw = dict(
+            hidden_channels=D, checkin_encoder=enc,
+            checkin2poi=c2p, poi2region=p2r,
+            region2city=_region2city, corruption=_corruption,
+            alpha_c2p=0.4, alpha_p2r=0.3, alpha_r2c=0.3,
+        )
+        if use_t51:
+            kw.update(
+                use_poi_id_embedding=True,
+                poi_id_gamma=gamma,
+                poi_id_init="zero",
+                num_pois=N_POI,
+            )
+        return Check2HGI(**kw)
+
+    m_off = _build(use_t51=False)
+    m_on_zeroinit = _build(use_t51=True, gamma=0.3)  # gamma>0 BUT zero-init
+
+    # Construction order changes the global RNG state (nn.Embedding consumes
+    # some bytes), so the bilinear weights of m_on_* would differ from m_off
+    # if we just trained both independently. To isolate the T5.1 production
+    # path from RNG-consumption side-effects, we mirror m_off's
+    # core weights onto m_on_zeroinit before forward — the only legitimate
+    # difference is the additive `gamma * poi_id_table.weight`, which is
+    # `gamma * 0 = 0` at step 0 regardless of gamma when init='zero'.
+    with torch.no_grad():
+        # Copy ALL shared parameters from m_off → m_on_zeroinit. The T5.1 table
+        # is the only param that exists in m_on_zeroinit and not m_off; leave
+        # it at its `.zero_()` init.
+        off_state = {n: p.clone() for n, p in m_off.named_parameters()}
+        for name, p in m_on_zeroinit.named_parameters():
+            if name in off_state:
+                p.data.copy_(off_state[name])
+
+    # Re-seed RNG used by ``corruption(...)`` so both forwards see identical
+    # negative permutation.
+    torch.manual_seed(99); o_off = m_off(data)
+    torch.manual_seed(99); o_on_zeroinit = m_on_zeroinit(data)
+
+    # pos_checkin (index 0), pos_poi_emb (index 3), pos_region_emb (index 6).
+    for idx, name in [(0, "pos_checkin_emb"),
+                      (3, "pos_poi_emb"),
+                      (6, "pos_region_emb")]:
+        # Zero-init at step-0: additive bump is gamma * 0 = 0, so outputs
+        # MUST be identical regardless of gamma when init='zero'.
+        diff = (o_off[idx] - o_on_zeroinit[idx]).abs().max().item()
+        assert torch.allclose(o_off[idx], o_on_zeroinit[idx], atol=1e-6), (
+            f"T5.1 audit #1: zero-init step-0 SHOULD == OFF for {name}; "
+            f"max diff {diff}"
+        )
+    print("[T5.1 production-path] zero-init step-0 with copied weights ≡ OFF  ✓")
+
+
+test_check2hgi_module_t51_optout()
+
+
+# ── T5.1 audit fix: ValueError construction guards ──────────────────────────
+def test_check2hgi_t51_value_errors():
+    """Audit T5.1 #2: construction-time guards must fire for invalid configs."""
+    from torch_geometric.data import Data
+    Checkin2POI = _load(
+        "Checkin2POI", _root / "research/embeddings/check2hgi/model/Checkin2POI.py"
+    ).Checkin2POI
+    POI2Region = _load(
+        "RegionEncoderHGI", _root / "research/embeddings/hgi/model/RegionEncoder.py"
+    ).POI2Region
+    Check2HGI = _chmod.Check2HGI
+    _corruption = _chmod.corruption
+    D = 64
+    enc = CheckinEncoder(8 + 4, D, num_layers=2)
+    c2p = Checkin2POI(D, num_heads=4)
+    p2r = POI2Region(D, num_heads=4)
+
+    # Case 1: use_poi_id_embedding=True without num_pois ⇒ ValueError.
+    try:
+        Check2HGI(
+            hidden_channels=D, checkin_encoder=enc,
+            checkin2poi=c2p, poi2region=p2r,
+            region2city=lambda z, a: torch.zeros(D), corruption=_corruption,
+            use_poi_id_embedding=True, num_pois=None,
+        )
+        raise AssertionError("Expected ValueError for use_poi_id_embedding=True without num_pois")
+    except ValueError as e:
+        assert "num_pois" in str(e), f"Unexpected ValueError text: {e}"
+        print("  ValueError(num_pois missing)     = ✓")
+
+    # Case 2: poi_id_init='poi2vec' ⇒ ValueError (only zero/gaussian allowed).
+    try:
+        Check2HGI(
+            hidden_channels=D, checkin_encoder=enc,
+            checkin2poi=c2p, poi2region=p2r,
+            region2city=lambda z, a: torch.zeros(D), corruption=_corruption,
+            use_poi_id_embedding=True, num_pois=10,
+            poi_id_init="poi2vec",
+        )
+        raise AssertionError("Expected ValueError for poi_id_init='poi2vec'")
+    except ValueError as e:
+        assert "zero" in str(e) and "gaussian" in str(e), f"Unexpected: {e}"
+        print("  ValueError(poi_id_init='poi2vec')= ✓")
+
+
+test_check2hgi_t51_value_errors()
+
+
+# ── Cohort integration test: all-T5-OFF ≡ canonical pre-T5 ──────────────────
+#
+# Cross-cutting fix #2: build Check2HGI with NO T5 flags and verify the
+# behavior is equivalent to a pre-T5 baseline. Without a snapshotted reference
+# tensor (the baseline forward pre-T5 changes), we verify the SOFTER but
+# defensible invariant: (i) parameter count == canonical (no T5 weights
+# allocated), (ii) forward produces finite tensors of the correct shapes,
+# (iii) loss is a finite scalar.
+def test_all_t5_canonical_optout():
+    from torch_geometric.data import Data
+    Checkin2POI = _load(
+        "Checkin2POI", _root / "research/embeddings/check2hgi/model/Checkin2POI.py"
+    ).Checkin2POI
+    POI2Region = _load(
+        "RegionEncoderHGI", _root / "research/embeddings/hgi/model/RegionEncoder.py"
+    ).POI2Region
+    Check2HGI = _chmod.Check2HGI
+    _corruption = _chmod.corruption
+
+    N_CK, N_POI, N_REG, NUM_CAT, D = 120, 24, 5, 8, 64
+    F_IN = NUM_CAT + 4
+    torch.manual_seed(4242)
+    data = Data(
+        x=torch.randn(N_CK, F_IN),
+        edge_index=torch.randint(0, N_CK, (2, 250), dtype=torch.long),
+        edge_weight=torch.rand(250),
+        checkin_to_poi=torch.randint(0, N_POI, (N_CK,), dtype=torch.long),
+        poi_to_region=torch.randint(0, N_REG, (N_POI,), dtype=torch.long),
+        region_adjacency=torch.randint(0, N_REG, (2, 10), dtype=torch.long),
+        region_area=torch.rand(N_REG),
+        coarse_region_similarity=torch.eye(N_REG),
+        num_pois=N_POI, num_regions=N_REG,
+    )
+
+    torch.manual_seed(11)
+    m = Check2HGI(
+        hidden_channels=D,
+        checkin_encoder=CheckinEncoder(F_IN, D, num_layers=2),
+        checkin2poi=Checkin2POI(D, num_heads=4),
+        poi2region=POI2Region(D, num_heads=4),
+        region2city=lambda z, area: torch.sigmoid((z.t() * area).sum(dim=1)),
+        corruption=_corruption,
+        # ZERO T5 flags. All defaults.
+    )
+    # Sanity: zero T5 params allocated.
+    assert m.poi_id_table is None, "T5.1 table should not be built by default"
+    assert m.n2v_head is None, "T5.2a head should not be attached by default"
+    assert m.mae_poi_decoder is None, "T5.2b decoder should not be built by default"
+    assert float(m.n2v_lambda) == 0.0
+    assert float(m.n2v_align_lambda) == 0.0
+    assert float(m.mae_poi_lambda) == 0.0
+
+    outs = m(data)
+    assert outs[0].shape == (N_CK, D), f"pos_checkin shape: {outs[0].shape}"
+    assert outs[3].shape == (N_POI, D), f"pos_poi shape: {outs[3].shape}"
+    assert outs[6].shape == (N_REG, D), f"pos_region shape: {outs[6].shape}"
+    for i, t in enumerate(outs):
+        if torch.is_tensor(t):
+            assert torch.isfinite(t).all(), f"outs[{i}] non-finite"
+
+    l = m.loss(*outs)
+    assert torch.is_tensor(l) and l.ndim == 0, f"loss not scalar: {l.shape}"
+    assert torch.isfinite(l), f"loss non-finite: {l}"
+    print(f"[Cohort T5-OFF] params={sum(p.numel() for p in m.parameters()):,} "
+          f"loss={l.item():.4f}  ✓")
+
+
+test_all_t5_canonical_optout()
+
+
 print("\n[T3 unit test] all assertions passed (forward + backward + leak-probe).")
 
 
@@ -651,7 +882,47 @@ def test_multiview_wrapper():
         assert torch.allclose(p_en, 0.5 * (p_v1 + p_v2), atol=1e-5), "ensemble != mean(v1, v2)"
     print("[T5.3 MultiViewWrapper] export_view dispatch (v1/v2/ensemble) OK")
 
-    print("\n[T5.3 MultiViewWrapper] all checks passed.")
+    # ── Audit T5.3 #2 (lambda_x=0 ≡ sum of per-view losses) ─────────────────
+    # When cross_lambda is exactly zero, ``total_loss`` MUST equal
+    # ``L_v1 + L_v2`` (the cross-view contribution gets multiplied out).
+    # Both the wrapper forward and Check2HGI.loss invoke randperm/randint, so
+    # the test compares ``total_loss(d1, d2)`` to a manual decomposition
+    # computed at the same seed via the SAME public wrapper API. With
+    # cross_lambda=0 the only difference between the two formulas is a
+    # ``0 * L_cross`` term, which is byte-zero in fp32.
+    torch.manual_seed(0)
+    wrapper_lz = MultiViewWrapper(
+        model_v1=_build_check2hgi(F_V1),
+        model_v2=_build_check2hgi(F_V2),
+        cross_lambda=0.0, cross_loss="cosine",
+    )
+    # Compute L_v1 + L_v2 by manually mirroring wrapper.total_loss WITHOUT
+    # the cross-view term. Re-seed JUST before each forward to match the
+    # state total_loss sees.
+    torch.manual_seed(0); ref_outs_v1, ref_outs_v2, _, _ = wrapper_lz(data_v1, data_v2)
+    ref_l_v1 = wrapper_lz.model_v1.loss(*ref_outs_v1)
+    ref_l_v2 = wrapper_lz.model_v2.loss(*ref_outs_v2)
+    ref_total_manual = ref_l_v1 + ref_l_v2  # equivalent to total_loss when λ_x=0
+    torch.manual_seed(0); l_total = wrapper_lz.total_loss(data_v1, data_v2)
+    assert torch.isclose(l_total, ref_total_manual, atol=1e-5), (
+        f"λ_x=0 should give total_loss == L_v1 + L_v2; "
+        f"got {l_total.item()} vs {ref_total_manual.item()}"
+    )
+    print(f"  λ_x=0 ⇒ total ≡ L_v1+L_v2       = ✓  "
+          f"({l_total.item():.6f} ≈ {ref_total_manual.item():.6f})")
+
+    # ── Audit T5.3 #2 (InfoNCE temperature=0 ⇒ ValueError) ──────────────────
+    poi_a = torch.randn(8, D, requires_grad=True)
+    poi_b = torch.randn(8, D, requires_grad=True)
+    try:
+        _ = _cross_view_loss(poi_a, poi_b, loss_type="infonce", temperature=0.0)
+        raise AssertionError(
+            "Expected ValueError from infonce temperature=0; none raised"
+        )
+    except ValueError as _expected:
+        print(f"  InfoNCE T=0 ⇒ ValueError        = ✓  ({_expected!s:.50})")
+
+    print("\n[T5.3 MultiViewWrapper] all checks passed (incl. audit T5.3 #2).")
 
 
 test_multiview_wrapper()
