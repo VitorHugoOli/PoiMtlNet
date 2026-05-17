@@ -1,0 +1,29 @@
+{
+  "source": "/home/vitor.oliveira/PoiMtlNet/runs/hypD_T32_noV3C_FL_seed42_IJMSRC2/output/check2hgi/florida/input/next.parquet",
+  "n_rows": 159175,
+  "n_users": 13935,
+  "n_classes": 7,
+  "stratified_kfold": {
+    "f1_mean_pct": 43.073710647045615,
+    "f1_std_pct": 0.2621165044070403,
+    "f1_per_fold_pct": [
+      43.23280086366147,
+      42.77602169105931,
+      43.21286409840425,
+      43.339448327387295,
+      42.80741825471573
+    ]
+  },
+  "stratified_group_kfold": {
+    "f1_mean_pct": 43.058151181222364,
+    "f1_std_pct": 0.9953498123751968,
+    "f1_per_fold_pct": [
+      43.33793892620417,
+      42.416286676323,
+      43.43494783023298,
+      44.341242653587095,
+      41.76033981976457
+    ]
+  },
+  "user_leak_drift_pp": 0.015559465823251628
+}

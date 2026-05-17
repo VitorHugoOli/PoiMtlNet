@@ -284,6 +284,161 @@ already-saturated T4.1/T4.3/T4.4, ≤20 % prior on FL cat lift, not worth 3-4 hr
 (highest-EV T5.1 POI ID embedding at ~25 % prior, separate leak-risk class).</p>
 </div>
 
+<!-- ================================================================ -->
+<div class="callout" style="border-left:4px solid var(--warn); padding:14px; margin-top:14px;">
+<h3 style="margin-top:0;">🔬 2026-05-17 — Categorical sign-off plan (Path 2 pragmatic closure)</h3>
+
+<p>Advisor #1 post-closure audit flagged: <em>"Hyp D rejected" is not the same as "shipping affirmed."</em> The Tier-1-4
+shipping claim has <strong>4 residual evidence holes</strong> from the post-Tier-4 hypothesis sweep, plus an honest
+re-audit of Hyp A/B/C statistical coverage.</p>
+
+<table>
+  <tr><th>Hyp</th><th>Coverage</th><th>Δcat (single-seed=42)</th><th>Status</th></tr>
+  <tr><td>A (v3c+T3.2+T4.3)</td><td>FL+AL+AZ n=1</td><td>FL=−0.00, AL=−0.33, AZ=−0.26</td><td>single-seed heuristic kill (3 states)</td></tr>
+  <tr><td>B (T2.4-sym+T3.2 no v3c)</td><td>AL n=1 only</td><td>AL=−0.19</td><td>single-state single-seed kill</td></tr>
+  <tr><td>C (T3.2+T4.3 no v3c)</td><td>FL n=1 only</td><td>FL=−0.18</td><td>single-state single-seed kill</td></tr>
+  <tr><td>D (canonical+T3.2 no v3c)</td><td>FL n=5 + AL/AZ n=1</td><td>FL=+0.20 (p=0.062), AL=−0.36, AZ=−0.45</td><td>partial multi-seed; needs AL+AZ multi-seed</td></tr>
+</table>
+
+<p><strong>5/5 directional consistency</strong> across all single-seed candidate tests (Δcat negative at every state for
+every Hyp) &mdash; pattern is unambiguous but n=1 is not paper-grade falsification.</p>
+
+<p><strong>Path 2 closure plan</strong> (~6&ndash;8 GPU-h vs Path 1's ~25&ndash;30 GPU-h full multi-seed expansion):</p>
+<ul>
+  <li><strong>Phase 1</strong> (~5 hr parallel):
+    <ul>
+      <li>1a &mdash; Hyp D AL multi-seed (seeds 0/1/7/100) &mdash; categorical small-state regression test</li>
+      <li>1b &mdash; Hyp D AZ multi-seed (seeds 0/1/7/100) &mdash; categorical small-state regression test</li>
+      <li>1c &mdash; Hyp A FL multi-seed (seeds 0/1/7/100) &mdash; Hyp A FL was Δcat=−0.00 (closest to borderline)</li>
+      <li>1d &mdash; IJM leak probe on Hyp D FL seed=42 &mdash; protocol parity with shipping</li>
+    </ul>
+  </li>
+  <li><strong>Phase 2</strong> (~1 hr parallel): v3c-only multi-seed at AL+AZ (task #59) &mdash; v3c marginal contribution row</li>
+  <li><strong>Phase 3</strong> &mdash; deferred unless Phase 1 indecisive: Hyp D FL n=10 (5 more seeds) only if AL+AZ
+    produces |mean Δcat| ∈ (0, 0.10).</li>
+</ul>
+
+<p><strong>Hyp B + Hyp C explicit caveat</strong> &mdash; no further multi-seed:</p>
+<p>Documented as single-state single-seed heuristic kills. Rationale: 5/5 directional consistency + 0/8 Tier-4 + Hyp
+sweep promotion rate makes further multi-seed investment low-EV. A meticulous reviewer asking "did you multi-seed Hyp B/C?"
+gets answered by the directional-consistency argument + Hyp D AL/AZ multi-seed (which IS the strongest of the 4 candidates).</p>
+
+<p><strong>Decision tree (post Phase 1+2)</strong>:</p>
+<ul>
+  <li>Hyp D AL/AZ multi-seed 5/5 negative &rarr; categorical small-state kill &rarr; <strong>shipping AFFIRMED CATEGORICALLY</strong>.</li>
+  <li>Hyp D AL/AZ sign flip &rarr; controlling premise broken &rarr; escalate to Phase 3 + paper headline rewrite.</li>
+  <li>Hyp A FL Δcat ≥ +0.3 multi-seed &rarr; re-open Hyp A; AL/AZ multi-seed required.</li>
+  <li>Otherwise &rarr; close Tier 1-4 categorically; proceed to Tier 5.</li>
+</ul>
+
+<p><strong>Categorical statement target</strong> (post Phase 1+2):</p>
+<blockquote style="margin:8px 0; padding:8px 12px; border-left:3px solid var(--muted); background:#f8f8f8;">
+"Shipping (canonical+v3c+T3.2) is the best Tier 1-4 outcome: dominates Hyp D at AL multi-seed (n=5), dominates Hyp D
+at AZ multi-seed (n=5), equivalent at FL multi-seed (n=5, paired-t p=0.062 borderline-null), v3c standalone documented
+at all 3 multi-seed states, both stacks pass identical IJM leak audit. Hyp B/C single-state single-seed kills documented;
+5/5 directional consistency across all single-seed candidate tests supports the categorical claim."
+</blockquote>
+
+<p><em>Status</em>: runs NOT yet launched (user hold). Tier-5 re-scoping advisor running in parallel.</p>
+</div>
+
+<!-- ================================================================ -->
+<div class="callout" style="border-left:4px solid var(--ok); padding:14px; margin-top:14px;">
+<h3 style="margin-top:0;">🔁 2026-05-17 — Tier 5 RE-SCOPED: all 4 candidates UN-DEFERRED</h3>
+
+<p>User pushed back on previous "skip T5.2b + T5.3" advisor call. Framing correction: <em>"all this experiments is to
+stretch, try new improvements and changes on check2hgi; POI is the under-engaged substrate."</em></p>
+
+<p><strong>Re-scoping advisor verdict</strong> &mdash; previous deferral failed on three grounds:</p>
+
+<ol>
+  <li><strong>T4.1 ≠ T5.2b (graph-level conflation)</strong>: T4.1 GraphMAE was at <strong>check-in level</strong> (mask
+    11-dim raw input feature). T5.2b is at <strong>POI level</strong> (mask whole POI pool entry, reconstruct from
+    Delaunay POI-POI neighborhood). Different graph hierarchy, different bottleneck, different inductive bias.
+    T5.2b's prior is <strong>independent / weakly-related at 35&ndash;45 %</strong>, not dominated by T4.1.</li>
+  <li><strong>T5.3 cost was inflated ~2×</strong>: spec says "2× canonical" → AL+AZ first-gate = <strong>~6 GPU-h,
+    NOT 25</strong>. The 25-hr estimate assumed FL gate + full λ grid + multi-seed front-loaded sequentially.
+    Skip the grid; run the diagnostic.</li>
+  <li><strong>POI-substrate coverage gap</strong>: each T5 candidate exercises an orthogonal POI dimension &mdash;
+    dropping any = coverage hole under the user's "stretch the substrate" framing.</li>
+</ol>
+
+<table>
+  <tr><th>Candidate</th><th>POI dimension</th><th>Native mechanism</th><th>In canonical?</th></tr>
+  <tr><td>T5.1</td><td>per-POI <strong>identity slot</strong></td><td><code>nn.Embedding(N_poi, 64)</code></td><td>No</td></tr>
+  <tr><td>T5.2a</td><td>POI-POI <strong>structural co-occurrence</strong></td><td>Node2Vec walks + skip-gram</td><td>No</td></tr>
+  <tr><td>T5.2b</td><td>POI-level <strong>feature self-supervision</strong></td><td>GraphMAE at POI pool, Delaunay decode</td><td>No</td></tr>
+  <tr><td>T5.3</td><td>POI <strong>cross-view alignment</strong></td><td>Symmetric MSE/InfoNCE View1↔View2</td><td>No</td></tr>
+</table>
+
+<p><strong>New ranking</strong> (previous → re-evaluated):</p>
+<ul>
+  <li>T5.1: RANK 1 → <strong>RANK 2</strong> (after T5.2 calibrates leak floor)</li>
+  <li>T5.2a: RANK 2 conditional → <strong>RANK 1 parallel w/ T5.2b</strong> (shared Delaunay preprocess)</li>
+  <li>T5.2b: SKIP → <strong>RANK 1 parallel w/ T5.2a</strong> (~5&ndash;6 GPU-h; paired falsification value with T4.1)</li>
+  <li>T5.3: SKIP → <strong>RANK 3 first-gate only</strong> (~6 GPU-h; novel mechanism class)</li>
+</ul>
+
+<p><strong>Reframed success</strong> &mdash; each candidate is an <em>exploration probe</em>, NOT a shipping candidate:</p>
+<ul>
+  <li><strong>Paper-discussion-worthy</strong>: finding lands in §Discussion (e.g. T5.2a probe lift = mechanism attribution)</li>
+  <li><strong>Future-work-worthy</strong>: finding lands in §Future Work (e.g. T5.1 probe lift with reg regression)</li>
+  <li><strong>Paired-falsification value</strong>: T5.2b clean negative with T4.1 = §Discussion para "GraphMAE-family falsifies at BOTH levels"</li>
+  <li><strong>Kill = waste of GPU-h</strong>: any cat regression &gt;2pp at AL (Phase-11 S3-b V2-c collapse pattern)</li>
+</ul>
+
+<p><strong>Sequencing (~24&ndash;28 GPU-h total first-gate budget)</strong>:</p>
+<ol>
+  <li><strong>Phase 1 parallel</strong>: T5.2a + T5.2b @ AL+AZ × λ=0.3 × single-seed (shared Delaunay). ~12&ndash;14 GPU-h.</li>
+  <li><strong>Phase 2</strong>: T5.1 @ AL+AZ × γ-sweep × single-seed. ~6&ndash;8 GPU-h. After T5.2 calibrates C18 leak baseline.</li>
+  <li><strong>Phase 3 conditional</strong>: T5.3 first-gate @ AL+AZ × λ_x=0.3. ~6 GPU-h. Only if budget remains.</li>
+</ol>
+
+<p><strong>Mandatory cross-cutting gates (all 4 candidates)</strong>: unit-test gate, IJM-masked leak probe with C18 budget
+Σ(Δleak) ≤ +5pp, 5 generality probes, kNN-Jaccard vs HGI diagnostic, cat-path-byte-identical flag.</p>
+
+<p><strong>Drop-priority if deadline forces cuts</strong>: drop T5.3 before T5.2b (T5.2b's paired-falsification with T4.1
+is the cheaper paper asset).</p>
+
+<p><em>Status</em>: runs NOT yet launched. Recommended interleaving: launch Path 2 Phase 1 (Hyp D AL/AZ + Hyp A FL + IJM probe)
+FIRST, then start T5.2a + T5.2b as Path 2 lands.</p>
+</div>
+
+<!-- ================================================================ -->
+<div class="callout" style="border-left:4px solid var(--good); padding:14px; margin-top:14px;">
+<h3 style="margin-top:0;">✅ 2026-05-17 — Path 2 Phase 1+1.5 CLOSED — Shipping FINAL, Tier 5 green-lit</h3>
+
+<p>All Phase 1 (9 JSONs) + Phase 1.5 (4 JSONs) results landed. Final advisor delivered categorical close.</p>
+
+<table>
+  <tr><th>Hyp</th><th>FL Δcat (p₂)</th><th>AL Δcat (p₂)</th><th>AZ Δcat (p₂)</th><th>Reg axis</th><th>Verdict</th></tr>
+  <tr><td><strong>Hyp A</strong> (T4.3+)</td><td>+0.353 (0.041 ✓)</td><td>−0.05 (NULL)</td><td>+0.02 (NULL)</td><td><strong>Pooled −0.89 pp (p=0.024 ✓ NEGATIVE)</strong></td><td>🛑 DEAD for shipping</td></tr>
+  <tr><td><strong>Hyp D</strong> (drop v3c)</td><td>+0.20 (0.082 borderline)</td><td>−0.06 (NULL)</td><td>+0.15 (NULL)</td><td>Pooled +0.29 (p=0.082 borderline POS)</td><td>📋 KEEP-AS-DOCUMENTATION</td></tr>
+</table>
+
+<p><strong>SHIPPING STACK FINAL</strong>: <code>canonical Check2HGI + v3c (AdamW WD=5e-2) + T3.2 ResLN encoder</code>. No change from 2026-05-16. §5 paper headlines stand.</p>
+
+<p><strong>Key findings</strong>:</p>
+<ul>
+  <li><strong>Hyp A is substrate-asymmetric</strong>: T4.3 side features lift FL cat (+0.35 pp p=0.041) but destroy small-state reg by ~0.9 pp pooled (paired-t p=0.024 paper-grade NEGATIVE, 8/10 paired observations negative). Documented as §Discussion finding for the paper.</li>
+  <li><strong>v3c is dispensable at the mean</strong>: Hyp D shows statistical equivalence to shipping on 7 of 9 axis×state cells; trend-positive small-state reg restoration. v3c retained for protocol inertia + locked 5-state replication coverage, NOT for measured marginal lift.</li>
+  <li><strong>IJM leak parity confirmed</strong>: Hyp D drift +0.016 pp vs shipping −0.024 pp — both structurally honest. v3c does NOT reduce leak vs no-WD.</li>
+</ul>
+
+<p><strong>Lesson logged — explicit reg-axis kill criterion for Tier 5</strong>:</p>
+<ul>
+  <li>Reg-axis kill: Δreg ≤ −0.5 pp at any state OR pooled p₂ ≤ 0.05 with ≥6/10 paired negative → CLOSE as §Discussion regardless of cat-axis lift</li>
+  <li>Substrate-asymmetry rule: no FL-only positive ships without AL+AZ multi-seed replication</li>
+  <li>Multi-seed mandatory: no single-seed=42 result promotes to shipping (Phase 1 demonstrated 2/2 single-seed signals were noise — Hyp D AL/AZ "regression" and Hyp A AL/AZ "regression" both collapsed at multi-seed in opposite directions)</li>
+</ul>
+
+<p><strong>Paper §Discussion paragraphs drafted</strong> by advisor; to be added to <code>articles/[BRACIS]_Beyond_Cross_Task/PAPER_DRAFT.md</code> in a later step.</p>
+
+<p><strong>Tier 5 GREEN LIGHT</strong>. Sequence per re-scope plan: T5.2a + T5.2b in parallel (first-gate, shared Delaunay), then T5.1, then T5.3. Updated kill criteria injected.</p>
+
+<p><strong>Implementation gap before launch</strong>: T5.2a (Node2Vec POI-POI skip-gram joint training) and T5.2b (masked POI feature reconstruction via Delaunay decode) require encoder + CLI scaffolding that does not yet exist in <code>scripts/canonical_improvement/regen_emb_t3.py</code> or <code>research/embeddings/check2hgi/model/variants.py</code>. Scaffolding work needed before launch (similar to T3.x encoder scaffolding work in May 15-16).</p>
+</div>
+
 <!-- ============================================================== -->
 <h2 id="tldr">TL;DR &amp; scope</h2>
 
