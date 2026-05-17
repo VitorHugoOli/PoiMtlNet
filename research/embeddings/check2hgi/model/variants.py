@@ -18,6 +18,180 @@ from embeddings.check2hgi.model.Check2HGIModule import Check2HGI, corruption, EP
 
 
 # ---------------------------------------------------------------------------
+# T5.3 — Multi-view co-training wrapper (cross-view POI alignment)
+# ---------------------------------------------------------------------------
+
+
+def _cross_view_loss(poi_v1: torch.Tensor, poi_v2: torch.Tensor,
+                     loss_type: str = "cosine",
+                     temperature: float = 0.2) -> torch.Tensor:
+    """T5.3 — cross-view POI-level alignment loss.
+
+    Args:
+        poi_v1: View-1 POI embeddings [N_poi, D].
+        poi_v2: View-2 POI embeddings [N_poi, D].
+        loss_type: "cosine" | "mse" | "infonce".
+        temperature: InfoNCE temperature (ignored otherwise).
+
+    Returns:
+        Scalar tensor with gradient w.r.t. BOTH inputs.
+
+    Variants:
+      * cosine:  ``(1 - cos(v1, v2)).mean()`` — bounded, minimised at 0
+                 (per spec, default).
+      * mse:     symmetric stop-gradient MSE
+                 ``0.5 * (MSE(v1, sg(v2)) + MSE(v2, sg(v1)))`` — BYOL-style,
+                 prevents trivial joint collapse to zero.
+      * infonce: symmetric temperature-scaled cross-entropy with each
+                 (v1_i, v2_i) row pair as positives and all other (i, j)
+                 pairs as negatives. Averaged over both directions.
+    """
+    if poi_v1.shape != poi_v2.shape:
+        raise ValueError(
+            f"_cross_view_loss: shape mismatch v1={tuple(poi_v1.shape)} "
+            f"v2={tuple(poi_v2.shape)}"
+        )
+    if loss_type == "cosine":
+        cos = F.cosine_similarity(poi_v1, poi_v2, dim=-1, eps=EPS)
+        return (1.0 - cos).mean()
+    if loss_type == "mse":
+        v2_sg = poi_v2.detach()
+        v1_sg = poi_v1.detach()
+        return 0.5 * (F.mse_loss(poi_v1, v2_sg) + F.mse_loss(poi_v2, v1_sg))
+    if loss_type == "infonce":
+        n = poi_v1.shape[0]
+        v1n = F.normalize(poi_v1, dim=-1)
+        v2n = F.normalize(poi_v2, dim=-1)
+        logits = (v1n @ v2n.t()) / float(temperature)        # [N_poi, N_poi]
+        targets = torch.arange(n, device=logits.device)
+        return 0.5 * (
+            F.cross_entropy(logits, targets)
+            + F.cross_entropy(logits.t(), targets)
+        )
+    raise ValueError(
+        f"_cross_view_loss: unknown loss_type '{loss_type}'. "
+        f"Choose from cosine / mse / infonce."
+    )
+
+
+class MultiViewWrapper(nn.Module):
+    """T5.3 — Multi-view co-training wrapper.
+
+    Holds two ``Check2HGI`` instances:
+      * View 1 = canonical (user_sequence + temporal weights + category one-hot
+                 + temporal sin/cos).
+      * View 2 = same_poi-only edges + category-one-hot features (no temporal).
+
+    Forward runs BOTH encoders and the wrapper exposes a cross-view alignment
+    loss at the POI level. Total loss
+        ``L = L_c2hgi_v1 + L_c2hgi_v2 + λ_x · L_cross``
+    where ``L_c2hgi_v{1,2}`` are the canonical 3-boundary contrastive losses
+    on each view and ``L_cross`` is one of cosine / symmetric-MSE / symmetric-
+    InfoNCE on the per-POI embeddings.
+
+    Compute cost: ~2× canonical when ``share_encoder=False`` (default) —
+    both encoders run a full forward + backward pass per step. With
+    ``share_encoder=True`` the View-1 ``checkin_encoder`` is reused for
+    View 2 (only the c2p/p2r/r2c discriminators and pooling heads diverge),
+    cutting cost back to ~1.2-1.5× canonical at the price of the
+    distillation signal at the encoder layer.
+
+    Composability with other T5 mechanisms:
+      * Standalone T5.3: TESTED at unit level (test_multiview_wrapper) and
+        smoke-tested at AL epoch=3.
+      * T5.3 + T5.1 (--use-poi-id-embedding): UNTESTED. Should not error;
+        the View-1 encoder picks up the POI-id table. View 2 does not, by
+        design (separate encoder instance). Sensible results not verified.
+      * T5.3 + T5.2a (--use-node2vec-poi): UNTESTED. The Node2Vec POI-POI
+        auxiliary loss attaches to View 1 only (View 2 has no canonical
+        edges to walk on). Composition should not error.
+      * T5.3 + T5.2b (--use-mae-poi): UNTESTED. MAE is encoder-side; each
+        view can opt in independently. Default wires MAE to View 1 only.
+
+    Default: opt-out. Wrapping is gated by `--use-multiview` in the CLI.
+    """
+
+    SUPPORTED_LOSSES = ("cosine", "mse", "infonce")
+
+    def __init__(self, model_v1: Check2HGI, model_v2: Check2HGI,
+                 cross_lambda: float = 0.3,
+                 cross_loss: str = "cosine",
+                 cross_temperature: float = 0.2,
+                 share_encoder: bool = False):
+        super().__init__()
+        if cross_loss not in self.SUPPORTED_LOSSES:
+            raise ValueError(
+                f"MultiViewWrapper: cross_loss must be one of "
+                f"{self.SUPPORTED_LOSSES}; got {cross_loss}."
+            )
+        self.model_v1 = model_v1
+        self.model_v2 = model_v2
+        self.cross_lambda = float(cross_lambda)
+        self.cross_loss = str(cross_loss)
+        self.cross_temperature = float(cross_temperature)
+        self.share_encoder = bool(share_encoder)
+        if self.share_encoder:
+            # Share encoder weights only — heads and discriminators stay
+            # per-view. PyTorch handles gradient accumulation across both
+            # forward calls when the same nn.Module instance is reused.
+            self.model_v2.checkin_encoder = self.model_v1.checkin_encoder
+
+    def forward(self, data_v1, data_v2):
+        """Run both encoders.
+
+        Returns:
+            outs_v1, outs_v2, poi_v1, poi_v2
+            where outs_v{1,2} are the raw tuples emitted by
+            ``Check2HGI.forward`` (consumable by ``Check2HGI.loss(*outs)``)
+            and poi_v{1,2} are the per-POI embedding tensors [N_poi, D]
+            used by the cross-view alignment loss.
+        """
+        outs_v1 = self.model_v1(data_v1)
+        outs_v2 = self.model_v2(data_v2)
+        # poi embedding lives at tuple position 3 (pos_poi_emb).
+        poi_v1 = outs_v1[3]
+        poi_v2 = outs_v2[3]
+        return outs_v1, outs_v2, poi_v1, poi_v2
+
+    def cross_view_loss(self, poi_v1: torch.Tensor,
+                        poi_v2: torch.Tensor) -> torch.Tensor:
+        return _cross_view_loss(
+            poi_v1, poi_v2,
+            loss_type=self.cross_loss,
+            temperature=self.cross_temperature,
+        )
+
+    def total_loss(self, data_v1, data_v2) -> torch.Tensor:
+        """One-call forward + total loss = L_v1 + L_v2 + λ_x · L_cross."""
+        outs_v1, outs_v2, poi_v1, poi_v2 = self.forward(data_v1, data_v2)
+        l_v1 = self.model_v1.loss(*outs_v1)
+        l_v2 = self.model_v2.loss(*outs_v2)
+        l_cross = self.cross_view_loss(poi_v1, poi_v2)
+        return l_v1 + l_v2 + self.cross_lambda * l_cross
+
+    def get_embeddings(self, which: str = "v1"):
+        """Return (checkin_emb, poi_emb, region_emb) on CPU.
+
+        Args:
+            which: "v1" (canonical, cat-friendly; default per spec),
+                   "v2" (category-only diagnostic), or
+                   "ensemble" (mean of the two views' embeddings).
+        """
+        if which == "v1":
+            return self.model_v1.get_embeddings()
+        if which == "v2":
+            return self.model_v2.get_embeddings()
+        if which == "ensemble":
+            c1, p1, r1 = self.model_v1.get_embeddings()
+            c2, p2, r2 = self.model_v2.get_embeddings()
+            return (0.5 * (c1 + c2), 0.5 * (p1 + p2), 0.5 * (r1 + r2))
+        raise ValueError(
+            f"MultiViewWrapper.get_embeddings: which must be v1 / v2 / "
+            f"ensemble; got {which}."
+        )
+
+
+# ---------------------------------------------------------------------------
 # V2: Time-aware GAT encoder
 # ---------------------------------------------------------------------------
 
@@ -503,6 +677,237 @@ class Check2HGI_Uncertainty(Check2HGI):
             + 0.5 * prec_p2r * loss_p2r + 0.5 * lv_p2r
             + 0.5 * prec_r2c * loss_r2c + 0.5 * lv_r2c
         ).squeeze()
+
+
+# ---------------------------------------------------------------------------
+# T5.2a: Joint Node2Vec POI-POI skip-gram auxiliary head
+# ---------------------------------------------------------------------------
+
+
+class Node2VecPOIHead(nn.Module):
+    """T5.2a — Joint Node2Vec skip-gram over a Delaunay POI-POI graph.
+
+    Trains a POI-level embedding table jointly with c2hgi's 3 boundaries via
+    a 4th objective: Node2Vec random walks on the Delaunay graph + skip-gram
+    contrastive (positive = co-walk neighbours; negative = uniform random POIs).
+
+    Design decisions:
+        * **Separate learnable table by default** — keeps T5.2a composable with
+          T5.1 (per-POI ID embedding). With ``share_table`` False, the skip-gram
+          loss optimises an independent ``nn.Embedding(N_poi, D)``; the c2hgi
+          encoder is untouched by this auxiliary. With ``share_table=True``,
+          the caller passes the T5.1 table in via ``external_table`` and we
+          re-use it (skip-gram gradients flow back into the T5.1 identity
+          embeddings — a stronger coupling worth ablating).
+        * **Walks generated lazily once per training epoch** — see
+          ``generate_walks_once``. Walk sequences are cached on the module
+          and re-used across mini-batches within an epoch. This matches the
+          spec ("one batch of walks per epoch").
+        * **No fclass L2 regularizer** — spec gate: would be a tautological
+          leak path into the fclass probe. Pure structural skip-gram only.
+        * **Walks live on CPU until needed** — Node2Vec random walks are
+          memory-cheap (long tensors); only the embedding lookups go to GPU.
+
+    Args:
+        num_pois: total POI count (size of the embedding table)
+        embedding_dim: D (typically 64, matching c2hgi hidden_channels)
+        edge_index: (2, E) long tensor of POI-POI Delaunay edges (undirected
+            edge list; caller is responsible for symmetry or letting
+            torch_geometric.nn.Node2Vec handle it via add_self_loops). When
+            None, the head still constructs (so the model is loadable) but
+            ``compute_loss`` will return a zero tensor.
+        walk_length: steps per random walk (default 10 per spec)
+        context_size: skip-gram window size (default 5; centered window)
+        walks_per_node: walks generated per source POI (default 5 per spec)
+        p, q: Node2Vec p (return) and q (in-out) parameters (defaults 1.0).
+        num_negatives: random negative POIs per positive (default 5)
+        share_table: if True, ``external_table`` must be provided and is used
+            as the embedding table (T5.1 coupling mode). Default False keeps
+            the auxiliary head's POI table fully separate from any T5.1 table.
+        external_table: optional ``nn.Embedding(num_pois, embedding_dim)``
+            passed in when ``share_table=True``.
+
+    The skip-gram positive pairs follow torch_geometric.nn.Node2Vec convention
+    (center → window-context within each walk). The negative pairs are sampled
+    uniformly from [0, num_pois) excluding the positive (vectorised; matches
+    the c2hgi negative sampling pattern, not the hard-negative POI2Vec one
+    from research/embeddings/hgi/poi2vec.py — that one used non-co-occurring
+    fclass-level mining which is forbidden under the no-fclass-leak rule).
+    """
+
+    def __init__(
+        self,
+        num_pois: int,
+        embedding_dim: int,
+        edge_index: torch.Tensor | None = None,
+        walk_length: int = 10,
+        context_size: int = 5,
+        walks_per_node: int = 5,
+        p: float = 1.0,
+        q: float = 1.0,
+        num_negatives: int = 5,
+        share_table: bool = False,
+        external_table: nn.Embedding | None = None,
+    ):
+        super().__init__()
+        self.num_pois = int(num_pois)
+        self.embedding_dim = int(embedding_dim)
+        self.walk_length = int(walk_length)
+        self.context_size = int(context_size)
+        self.walks_per_node = int(walks_per_node)
+        self.p = float(p)
+        self.q = float(q)
+        self.num_negatives = int(num_negatives)
+        self.share_table = bool(share_table)
+
+        if self.share_table:
+            if external_table is None:
+                raise ValueError(
+                    "Node2VecPOIHead(share_table=True) requires external_table "
+                    "(typically the T5.1 POI ID embedding table)."
+                )
+            # Register as attribute but DO NOT add as submodule param (the
+            # T5.1 table is owned by the parent module — sharing means just
+            # using the same Parameter, not double-counting it in the optimizer).
+            object.__setattr__(self, "_external_table_ref", external_table)
+            self.poi_table = external_table  # exposed for forward; not registered
+        else:
+            self.poi_table = nn.Embedding(self.num_pois, self.embedding_dim)
+            nn.init.xavier_uniform_(self.poi_table.weight)
+
+        # Edge index: stored as a buffer so it moves with .to(device) but is
+        # not a learnable parameter. ``None`` is the no-graph fallback.
+        if edge_index is not None:
+            ei = edge_index if isinstance(edge_index, torch.Tensor) else torch.tensor(edge_index, dtype=torch.long)
+            ei = ei.long()
+            # Make symmetric: torch_geometric.nn.Node2Vec walks expect a
+            # directed adjacency, so add (b,a) for each (a,b).
+            if ei.numel() > 0:
+                ei = torch.cat([ei, ei.flip(0)], dim=1)
+            self.register_buffer("edge_index", ei, persistent=False)
+        else:
+            self.register_buffer("edge_index", torch.zeros((2, 0), dtype=torch.long), persistent=False)
+
+        # Lazy: built on first call to ``generate_walks_once`` (needs device).
+        self._n2v_module = None
+        self._walks_cache: torch.Tensor | None = None
+        self._last_epoch_id: int | None = None
+
+    # ------------------------------------------------------------------
+    # Walk generation
+    # ------------------------------------------------------------------
+    def _ensure_n2v(self):
+        """Construct the torch_geometric.nn.Node2Vec walker on first need."""
+        if self._n2v_module is not None:
+            return
+        if self.edge_index.numel() == 0:
+            return
+        try:
+            from torch_geometric.nn import Node2Vec as _N2V
+        except ImportError as e:
+            raise ImportError(
+                "T5.2a Node2VecPOIHead requires torch_geometric.nn.Node2Vec; "
+                "install pyg-lib / torch-cluster or implement a manual walker."
+            ) from e
+        # We don't use Node2Vec's embedding table — only its walk loader.
+        # Construct with embedding_dim=1 to minimise allocation.
+        self._n2v_module = _N2V(
+            edge_index=self.edge_index,
+            embedding_dim=1,
+            walk_length=self.walk_length,
+            context_size=self.context_size,
+            walks_per_node=self.walks_per_node,
+            p=self.p,
+            q=self.q,
+            num_nodes=self.num_pois,
+            sparse=False,
+        )
+
+    @torch.no_grad()
+    def generate_walks_once(self, epoch_id: int) -> torch.Tensor | None:
+        """Generate one batch of walks for the given epoch and cache.
+
+        Spec ("one batch of walks per epoch"): if called multiple times with
+        the same ``epoch_id`` the cached walks are returned; on a new epoch
+        the walker is re-sampled.
+
+        Returns ``(num_walks, walk_length)`` long tensor of POI indices, or
+        None if no graph is available.
+        """
+        if self.edge_index.numel() == 0:
+            return None
+        if self._last_epoch_id == epoch_id and self._walks_cache is not None:
+            return self._walks_cache
+        self._ensure_n2v()
+        if self._n2v_module is None:
+            return None
+        # Pull a single batch covering ~all nodes (the loader yields a
+        # (pos_rw, neg_rw) tuple; we ignore neg_rw and re-sample later).
+        # Batch size = num_pois → exactly walks_per_node walks per node.
+        batch_size = max(1, self.num_pois)
+        loader = self._n2v_module.loader(batch_size=batch_size, shuffle=False, num_workers=0)
+        all_walks = []
+        for pos_rw, _ in loader:
+            all_walks.append(pos_rw)
+        walks = torch.cat(all_walks, dim=0).long()
+        self._walks_cache = walks
+        self._last_epoch_id = epoch_id
+        return walks
+
+    # ------------------------------------------------------------------
+    # Skip-gram loss
+    # ------------------------------------------------------------------
+    def compute_loss(self, epoch_id: int = 0) -> torch.Tensor:
+        """Compute the skip-gram contrastive loss over cached walks.
+
+        Returns a scalar tensor. If no walks are available (no graph or
+        zero edges), returns ``torch.zeros(())`` on the same device as the
+        POI table, with ``requires_grad=False`` — this keeps the auxiliary
+        loss safely additive at λ=0 and as a no-op when the data is missing.
+        """
+        device = self.poi_table.weight.device
+        walks = self.generate_walks_once(epoch_id)
+        if walks is None or walks.numel() == 0:
+            return torch.zeros((), device=device)
+
+        walks = walks.to(device)
+        W, L = walks.shape
+        if L < 2:
+            return torch.zeros((), device=device)
+
+        # Build (anchor, positive) pairs from a window of size context_size.
+        # Standard skip-gram: for each position j in [0, L), every position
+        # k within window (excluding j) is a positive context. We use the
+        # torch_geometric convention of taking contiguous (anchor, context)
+        # pairs with offset 1..(context_size-1) — keeps memory linear.
+        ctx = min(self.context_size - 1, L - 1)
+        anchor_list, pos_list = [], []
+        for offset in range(1, ctx + 1):
+            anchor_list.append(walks[:, :L - offset].reshape(-1))
+            pos_list.append(walks[:, offset:].reshape(-1))
+        anchor_ids = torch.cat(anchor_list, dim=0)        # (P,)
+        pos_ids = torch.cat(pos_list, dim=0)              # (P,)
+        P = anchor_ids.size(0)
+        if P == 0:
+            return torch.zeros((), device=device)
+
+        # Negative sampling: uniform random POIs, skipping the positive index.
+        K = self.num_negatives
+        neg_ids = torch.randint(0, self.num_pois - 1, (P, K), device=device)
+        neg_ids = torch.where(neg_ids >= pos_ids.unsqueeze(-1), neg_ids + 1, neg_ids)
+
+        anc_emb = self.poi_table(anchor_ids)              # (P, D)
+        pos_emb = self.poi_table(pos_ids)                 # (P, D)
+        neg_emb = self.poi_table(neg_ids)                 # (P, K, D)
+
+        # Skip-gram log-sigmoid (Mikolov et al. 2013).
+        pos_score = (anc_emb * pos_emb).sum(-1)           # (P,)
+        log_pos = F.logsigmoid(pos_score)
+        neg_score = -torch.bmm(neg_emb, anc_emb.unsqueeze(-1)).squeeze(-1)  # (P, K)
+        log_neg = F.logsigmoid(neg_score).sum(-1)         # (P,)
+
+        loss = -(log_pos + log_neg).mean()
+        return loss
 
 
 # ---------------------------------------------------------------------------

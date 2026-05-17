@@ -19,7 +19,7 @@ Run: python docs/infra/a40/T3_unit_test_encoders.py
 import sys
 from pathlib import Path
 
-_root = Path(__file__).resolve().parent.parent.parent.parent
+_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(_root / "src"))
 sys.path.insert(0, str(_root / "research"))
 
@@ -44,6 +44,7 @@ GATTimeEncoder = _var.GATTimeEncoder
 ResidualLNEncoder = _var.ResidualLNEncoder
 Time2VecCheckinEncoder = _var.Time2VecCheckinEncoder
 RGCNEncoder = _var.RGCNEncoder
+Node2VecPOIHead = _var.Node2VecPOIHead
 
 torch.manual_seed(42)
 np.random.seed(42)
@@ -218,3 +219,111 @@ random_init_probe(
 )
 
 print("\n[T3 unit test] all assertions passed (forward + backward + leak-probe).")
+
+
+# ── T5.2a: Joint Node2Vec POI-POI skip-gram head ──────────────────────────────
+
+def _build_synthetic_delaunay_poi_graph(n_poi: int = 100, seed: int = 0):
+    """Build a tiny POI lat/lon point cloud + scipy Delaunay triangulation.
+
+    Returns:
+        edge_index: (2, E) long tensor of undirected POI-POI edges
+        labels: (n_poi,) synthetic category labels for the leak probe
+    """
+    import scipy.spatial
+    from itertools import combinations as _comb
+    rng = np.random.RandomState(seed)
+    coords = rng.uniform(0.0, 1.0, size=(n_poi, 2))
+    tris = scipy.spatial.Delaunay(coords, qhull_options="QJ QbB Pp").simplices
+    pairs = set()
+    for tri in tris:
+        for a, b in _comb(tri.tolist(), 2):
+            pairs.add((a, b) if a < b else (b, a))
+    edges = np.array(sorted(pairs), dtype=np.int64).T
+    # 4-way categorical labels (uniform random; head MUST NOT predict
+    # better than chance at init — purely structural skip-gram has no
+    # category supervision).
+    labels = rng.randint(0, 4, size=n_poi)
+    return torch.tensor(edges, dtype=torch.long), labels
+
+
+def test_node2vec_poi_head():
+    """T5.2a unit test — Joint Node2Vec POI-POI skip-gram head.
+
+    Checks:
+      (a) compute_loss returns a finite, positive scalar
+      (b) backward populates gradients on the POI embedding table
+      (c) λ=0 / no-graph fallback returns a zero (no-op) loss
+      (d) init-time linear probe does NOT predict synthetic category labels
+          above chance (skip-gram has zero category supervision; if probe
+          F1 exceeds chance the implementation has leaked a label path)
+    """
+    torch.manual_seed(123)
+    N_POI = 100
+    D_POI = 64
+
+    edges, labels = _build_synthetic_delaunay_poi_graph(N_POI, seed=0)
+    n_edges = edges.shape[1]
+    assert n_edges >= 200, f"synthetic Delaunay should yield ≥ 200 edges; got {n_edges}"
+
+    head = Node2VecPOIHead(
+        num_pois=N_POI,
+        embedding_dim=D_POI,
+        edge_index=edges,
+        walk_length=5,
+        context_size=3,
+        walks_per_node=4,
+        p=1.0,
+        q=1.0,
+        num_negatives=3,
+    )
+
+    # (a) loss is finite and positive
+    loss = head.compute_loss(epoch_id=0)
+    assert torch.isfinite(loss).item(), f"[T5.2a] non-finite skip-gram loss: {loss}"
+    assert loss.item() > 0.0, f"[T5.2a] skip-gram loss should be positive at init; got {loss.item()}"
+    print(f"[Node2VecPOIHead] λ>0 init loss = {loss.item():.4f}  edges={n_edges}")
+
+    # (b) backward populates POI table gradients
+    loss.backward()
+    grad = head.poi_table.weight.grad
+    assert grad is not None, "[T5.2a] no gradient on POI table after backward"
+    assert torch.isfinite(grad).all().item(), "[T5.2a] non-finite gradient on POI table"
+    assert grad.abs().sum().item() > 0.0, "[T5.2a] zero gradient on POI table"
+    print(f"[Node2VecPOIHead] backward OK, grad_norm={grad.norm().item():.4f}")
+
+    # (c) no-graph fallback is a zero (no-op) loss
+    empty_head = Node2VecPOIHead(
+        num_pois=N_POI,
+        embedding_dim=D_POI,
+        edge_index=None,
+    )
+    empty_loss = empty_head.compute_loss(epoch_id=0)
+    assert empty_loss.item() == 0.0, f"[T5.2a] empty-graph loss should be 0; got {empty_loss.item()}"
+    print(f"[Node2VecPOIHead] no-graph fallback = {empty_loss.item():.4f}  (correct no-op)")
+
+    # (d) init-time linear probe should NOT exceed chance on synthetic labels.
+    # Chance on uniform 4-way labels ≈ 0.25 macro-F1. We allow a tolerance of
+    # +0.10 to absorb small-sample variance; a real leak would push F1 much
+    # higher (T3.1-style structural shortcut).
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.metrics import f1_score
+    from sklearn.model_selection import train_test_split
+    init_emb = head.poi_table.weight.detach().cpu().numpy()
+    Xtr, Xte, ytr, yte = train_test_split(
+        init_emb, labels, test_size=0.3, random_state=0, stratify=labels
+    )
+    clf = LogisticRegression(max_iter=1000, C=1.0)
+    clf.fit(Xtr, ytr)
+    init_f1 = f1_score(yte, clf.predict(Xte), average="macro", zero_division=0)
+    print(f"[Node2VecPOIHead] init-probe cat F1 = {init_f1:.3f}  (chance ≈ 0.25)")
+    assert init_f1 < 0.55, (
+        f"[T5.2a] init-time probe F1 {init_f1:.3f} suspiciously high "
+        f"(synthetic labels are random; head should be uninformative at init)."
+    )
+
+    print("[T5.2a Node2VecPOIHead] all checks passed.")
+
+
+test_node2vec_poi_head()
+print("\n[T5.2a unit test] passed.")

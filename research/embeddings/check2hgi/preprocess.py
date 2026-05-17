@@ -17,7 +17,7 @@ class Check2HGIPreprocess:
     """Preprocessing pipeline for Check2HGI embeddings."""
 
     def __init__(self, checkins_file, boroughs_file, temp_path, edge_type='user_sequence',
-                 temporal_decay=3600.0):
+                 temporal_decay=3600.0, build_poi_delaunay: bool = False):
         """
         Initialize preprocessor.
 
@@ -27,12 +27,20 @@ class Check2HGIPreprocess:
             temp_path: Path to save intermediate files
             edge_type: Type of edges ('user_sequence', 'same_poi', 'both')
             temporal_decay: Decay parameter for temporal edge weights (seconds)
+            build_poi_delaunay: T5.2a — when True, also build a POI-level Delaunay
+                triangulation (lat/lon) and cache the deduplicated POI-POI edge
+                list under data dict key ``poi_delaunay_edge_index``. This is
+                graph CONSTRUCTION only (no pretrained POI2Vec import), required
+                for the Joint Node2Vec POI-POI skip-gram auxiliary loss
+                (T5.2a — INDEX.html). Default False → canonical preprocess
+                unchanged.
         """
         self.checkins_file = checkins_file
         self.boroughs_file = boroughs_file
         self.temp_path = Path(temp_path)
         self.edge_type = edge_type
         self.temporal_decay = temporal_decay
+        self.build_poi_delaunay = bool(build_poi_delaunay)
 
     def _load_checkins(self):
         """Load and prepare check-in data."""
@@ -268,6 +276,48 @@ class Check2HGIPreprocess:
         print(f"[T4.4]   {len(src_list)} Delaunay-lifted check-in edges (bidirectional)")
         return edge_index, edge_weight
 
+    def _build_poi_delaunay_edges(self):
+        """T5.2a — POI-level Delaunay triangulation edges.
+
+        Builds a POI-POI graph (NOT check-in level — see T4.4 closure note in
+        INDEX.html: check-in-level Delaunay over-smoothed). Output is a
+        deduplicated undirected edge list ready for Node2Vec random walks.
+
+        Returns:
+            np.ndarray of shape (2, E_poi) with int64 dtype, where each
+            column is an undirected POI pair (a, b) with a < b. Empty
+            (2, 0) array if fewer than 3 POIs.
+        """
+        import scipy.spatial
+        from itertools import combinations as _combinations
+        print("Building POI-level Delaunay edges (T5.2a)...")
+
+        poi_coords = np.array(
+            self.pois.geometry.apply(lambda x: [x.x, x.y]).tolist(),
+            dtype=np.float64,
+        )
+        if len(poi_coords) < 3:
+            print("[T5.2a] fewer than 3 POIs; no Delaunay possible")
+            return np.zeros((2, 0), dtype=np.int64)
+
+        triangles = scipy.spatial.Delaunay(
+            poi_coords, qhull_options="QJ QbB Pp"
+        ).simplices
+
+        poi_pairs = set()
+        for tri in triangles:
+            for a, b in _combinations(tri.tolist(), 2):
+                if a == b:
+                    continue
+                poi_pairs.add((a, b) if a < b else (b, a))
+
+        if not poi_pairs:
+            return np.zeros((2, 0), dtype=np.int64)
+
+        edges = np.array(sorted(poi_pairs), dtype=np.int64).T  # (2, E)
+        print(f"[T5.2a]   {edges.shape[1]} unique POI-POI Delaunay edges")
+        return edges
+
     def _build_edges(self):
         """Build edges based on edge_type.
 
@@ -427,7 +477,7 @@ class Check2HGIPreprocess:
         # Metadata for output
         metadata = self.checkins[['userid', 'placeid', 'datetime', 'category']].copy()
 
-        return {
+        out = {
             'node_features': node_features,
             'edge_index': edge_index,
             'edge_weight': edge_weight.astype(np.float32),
@@ -445,9 +495,118 @@ class Check2HGIPreprocess:
             'region_to_idx': self.region_to_idx,
         }
 
+        # T5.2a — optional POI-level Delaunay edge list (gated by build flag).
+        # Cached in the same pickle so subsequent c2hgi runs reuse it.
+        if self.build_poi_delaunay:
+            out['poi_delaunay_edge_index'] = self._build_poi_delaunay_edges()
+
+        return out
+
+
+def build_view2_graph_dict(canonical_dict):
+    """T5.3 — Build a View-2 graph dict derived from the canonical (View-1) dict.
+
+    View 2 is built explicitly around POI categorical structure:
+      * Edges: same_poi only (no user_sequence, no temporal edges).
+      * Node features: category one-hot only (drops the 4 temporal sin/cos
+        columns of canonical layout). The discarded columns are not zero-
+        padded — feature dim shrinks to ``num_categories``.
+      * Uniform edge weights (1.0) — temporal decay is the leak vector that
+        View 2 is engineered to avoid.
+      * Same checkin_to_poi / poi_to_region as View 1 so the two views
+        share POI identity (required for cross-view POI-level alignment).
+
+    No new leak channel: the View-2 features are a strict subset of the
+    View-1 input features (the category one-hot block). The novelty is
+    structural — View 2 carries no temporal or sequential edges.
+
+    Args:
+        canonical_dict: dict produced by ``Check2HGIPreprocess.get_data()``.
+
+    Returns:
+        dict with same schema as canonical, but with view-2 edges + features.
+    """
+    canonical_x = canonical_dict['node_features']
+    if canonical_x.shape[1] < 5:
+        raise ValueError(
+            f"build_view2_graph_dict: node_features shape {canonical_x.shape} "
+            f"too small for canonical layout (expected C+4 with C>=1)."
+        )
+    num_categories = canonical_x.shape[1] - 4
+    # Category one-hot only — first C columns of canonical.
+    view2_features = canonical_x[:, :num_categories].astype(np.float32)
+
+    # Build same-POI edges from checkin_to_poi (no need to re-load raw checkins).
+    checkin_to_poi = canonical_dict['checkin_to_poi']
+    max_edges_per_poi = 50
+    rng = np.random.default_rng(seed=42)
+    # Group check-in indices by POI via argsort + run-length encoding (faster
+    # than pandas groupby on multi-million-row arrays).
+    order = np.argsort(checkin_to_poi, kind='stable')
+    sorted_pois = checkin_to_poi[order]
+    sorted_cidx = order
+    # Boundaries between POI groups.
+    breaks = np.flatnonzero(np.diff(sorted_pois)) + 1
+    starts = np.concatenate([[0], breaks])
+    ends = np.concatenate([breaks, [len(sorted_pois)]])
+    src_list, tgt_list = [], []
+    for s, e in zip(starts.tolist(), ends.tolist()):
+        if e - s < 2:
+            continue
+        indices = sorted_cidx[s:e]
+        if len(indices) > max_edges_per_poi:
+            indices = rng.choice(indices, max_edges_per_poi, replace=False)
+        n = len(indices)
+        # All unordered pairs (i, j), append bidirectional.
+        for i in range(n):
+            for j in range(i + 1, n):
+                src_list.append(int(indices[i])); tgt_list.append(int(indices[j]))
+                src_list.append(int(indices[j])); tgt_list.append(int(indices[i]))
+    if src_list:
+        edge_index = np.array([src_list, tgt_list], dtype=np.int64)
+        edge_weight = np.ones(edge_index.shape[1], dtype=np.float32)
+    else:
+        edge_index = np.zeros((2, 0), dtype=np.int64)
+        edge_weight = np.zeros(0, dtype=np.float32)
+
+    out = dict(canonical_dict)  # shallow copy — keeps shared metadata refs
+    out['node_features'] = view2_features
+    out['edge_index'] = edge_index
+    out['edge_weight'] = edge_weight
+    out['edge_type'] = np.zeros(edge_weight.shape[0], dtype=np.int64)
+    return out
+
+
+def build_view2_graph_file(city: str):
+    """T5.3 — Build & cache the View-2 graph for ``city`` derived from the
+    canonical Check2HGI cache. Returns the output path.
+
+    The canonical (View-1) graph file must already exist at
+    ``IoPaths.CHECK2HGI.get_graph_data_file(city)``. The View-2 cache is
+    written sibling to it as ``view2_graph.pt``.
+    """
+    canonical_path = IoPaths.CHECK2HGI.get_graph_data_file(city)
+    if not canonical_path.exists():
+        raise FileNotFoundError(
+            f"Canonical Check2HGI graph not found at {canonical_path}; "
+            f"run preprocess_check2hgi first."
+        )
+    with open(canonical_path, 'rb') as f:
+        canonical_dict = pkl.load(f)
+    view2_dict = build_view2_graph_dict(canonical_dict)
+    view2_path = canonical_path.parent / "view2_graph.pt"
+    with open(view2_path, 'wb') as f:
+        pkl.dump(view2_dict, f)
+    print(f"[T5.3] Saved view2 graph: {view2_path}  "
+          f"features={view2_dict['node_features'].shape}  "
+          f"edges={view2_dict['edge_index'].shape[1]}")
+    return view2_path
+
 
 def preprocess_check2hgi(city, city_shapefile, edge_type='user_sequence',
-                          temporal_decay=3600.0, cta_file=None):
+                          temporal_decay=3600.0, cta_file=None,
+                          build_poi_delaunay: bool = False,
+                          build_view2: bool = False):
     """
     Main preprocessing function for Check2HGI.
 
@@ -457,6 +616,9 @@ def preprocess_check2hgi(city, city_shapefile, edge_type='user_sequence',
         edge_type: Type of edges ('user_sequence', 'same_poi', 'both')
         temporal_decay: Decay parameter for temporal edge weights
         cta_file: Optional path to pre-computed boroughs file
+        build_poi_delaunay: T5.2a — when True, also cache a POI-level
+            Delaunay triangulation edge list under ``poi_delaunay_edge_index``.
+            Default False reproduces canonical preprocess exactly.
     """
     temp_folder = IoPaths.CHECK2HGI.get_temp_dir(city)
     temp_folder.mkdir(parents=True, exist_ok=True)
@@ -479,6 +641,7 @@ def preprocess_check2hgi(city, city_shapefile, edge_type='user_sequence',
         temp_path=temp_folder,
         edge_type=edge_type,
         temporal_decay=temporal_decay,
+        build_poi_delaunay=build_poi_delaunay,
     )
 
     data = pre.get_data()
@@ -490,6 +653,17 @@ def preprocess_check2hgi(city, city_shapefile, edge_type='user_sequence',
     print(f"Saved: {output_path}")
     print(f"Check-ins: {data['num_checkins']}, POIs: {data['num_pois']}, "
           f"Regions: {data['num_regions']}, Edges: {len(data['edge_weight'])}")
+
+    # T5.3 — optionally also write the View-2 graph derived from canonical.
+    # Gated by build_view2 flag so canonical preprocess is unchanged when off.
+    if build_view2:
+        view2_dict = build_view2_graph_dict(data)
+        view2_path = output_path.parent / "view2_graph.pt"
+        with open(view2_path, 'wb') as f:
+            pkl.dump(view2_dict, f)
+        print(f"[T5.3] Saved view2 graph: {view2_path}  "
+              f"features={view2_dict['node_features'].shape}  "
+              f"edges={view2_dict['edge_index'].shape[1]}")
 
     return output_path
 

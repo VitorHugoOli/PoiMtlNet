@@ -30,7 +30,7 @@ import sys
 from argparse import Namespace
 from pathlib import Path
 
-_root = Path(__file__).resolve().parent.parent.parent.parent
+_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(_root / "src"))
 sys.path.insert(0, str(_root / "research"))
 
@@ -69,7 +69,7 @@ def main() -> None:
     ap.add_argument("--use-side-features", action="store_true",
                     help="T4.3: enable post-pool POI side-feature injection. "
                          "Requires output/check2hgi/{state}/poi_side_features.pt "
-                         "(produced by scripts/compute_poi_side_features.py). "
+                         "(produced by scripts/canonical_improvement/compute_poi_side_features.py). "
                          "Will auto-precompute if missing.")
     ap.add_argument("--side-features-subset", default="no_covisit",
                     choices=("all", "popular", "hours", "covisit", "no_covisit"),
@@ -101,6 +101,37 @@ def main() -> None:
     ap.add_argument("--mae-gamma", type=float, default=3.0,
                     help="T4.1: SCE exponent (GraphMAE paper recommends "
                          "1.0–4.0; default 3.0).")
+    # T5.2a — Joint Node2Vec POI-POI skip-gram (4th boundary, native).
+    # Defaults: --n2v-lambda 0.0 → head not built → canonical behavior preserved.
+    ap.add_argument("--use-node2vec-poi", action="store_true",
+                    help="T5.2a: enable joint Node2Vec POI-POI skip-gram "
+                         "auxiliary loss. Builds a POI-level Delaunay graph "
+                         "in preprocess (force_preprocess=True is added), runs "
+                         "random walks during c2hgi training, and adds "
+                         "λ_n2v · L_skipgram to the total loss. NO fclass L2 "
+                         "regularizer (would be tautological leak).")
+    ap.add_argument("--n2v-lambda", type=float, default=0.3,
+                    help="T5.2a: coefficient on the skip-gram auxiliary loss. "
+                         "Spec sweep range {0.1, 0.3, 1.0}; default 0.3 when "
+                         "enabled. Ignored unless --use-node2vec-poi is set.")
+    ap.add_argument("--n2v-walk-length", type=int, default=10,
+                    help="T5.2a: Node2Vec walk length (default 10).")
+    ap.add_argument("--n2v-num-walks", type=int, default=5,
+                    help="T5.2a: walks per node (default 5).")
+    ap.add_argument("--n2v-context-size", type=int, default=5,
+                    help="T5.2a: skip-gram window size (default 5).")
+    ap.add_argument("--n2v-p", type=float, default=1.0,
+                    help="T5.2a: Node2Vec return parameter (default 1.0).")
+    ap.add_argument("--n2v-q", type=float, default=1.0,
+                    help="T5.2a: Node2Vec in-out parameter (default 1.0).")
+    ap.add_argument("--n2v-num-negatives", type=int, default=5,
+                    help="T5.2a: negative samples per skip-gram positive (default 5).")
+    ap.add_argument("--n2v-share-table-with-poi-id", action="store_true",
+                    help="T5.2a: when set AND T5.1 (per-POI ID embedding) is "
+                         "also enabled, share the same POI embedding table "
+                         "between T5.1 and the Node2Vec skip-gram head. Default "
+                         "False keeps the tables fully separate (avoids coupling "
+                         "T5.2a's signal with T5.1's optimization).")
     ap.add_argument("--rgcn-num-relations", type=int, default=2,
                     help="T3.3: number of edge relation types for R-GCN.")
     ap.add_argument("--rgcn-num-bases", type=str, default="2",
@@ -124,7 +155,19 @@ def main() -> None:
     # R-GCN requires the multi-relation graph. The cached canonical graph
     # (edge_type='user_sequence') has no per-edge relation index, so we must
     # force a fresh preprocess for R-GCN. (T3.3 advisor pre-launch audit.)
-    _force_preprocess = (args.encoder == "rgcn") or (args.edge_type != "user_sequence")
+    # T5.2a also needs a fresh preprocess to add the POI Delaunay edge list
+    # if the cache doesn't already have it; check2hgi.create_embedding will
+    # additionally peek at the cache and re-preprocess on demand, so passing
+    # force_preprocess here is belt-and-braces.
+    _force_preprocess = (
+        (args.encoder == "rgcn")
+        or (args.edge_type != "user_sequence")
+        or bool(args.use_node2vec_poi)
+    )
+
+    # T5.2a — effective λ. When the flag is OFF, force λ=0 so default
+    # (no flag) behavior is bit-equivalent to canonical.
+    _n2v_lambda_eff = float(args.n2v_lambda) if args.use_node2vec_poi else 0.0
 
     name_camel, shapefile = STATE_TO_SHP[args.state]
     # NOTE (advisor 2026-05-15): num_layers is pinned to 2 here to match the
@@ -160,6 +203,15 @@ def main() -> None:
         # T2.4 + Hyp B plumbing
         drop_edge_rate=args.drop_edge_rate,
         symmetric_drop_edge=args.symmetric_drop_edge,
+        # T5.2a plumbing — default-opt-out (n2v_lambda=0 when flag off)
+        n2v_lambda=_n2v_lambda_eff,
+        n2v_walk_length=args.n2v_walk_length,
+        n2v_num_walks=args.n2v_num_walks,
+        n2v_context_size=args.n2v_context_size,
+        n2v_p=args.n2v_p,
+        n2v_q=args.n2v_q,
+        n2v_num_negatives=args.n2v_num_negatives,
+        n2v_share_table_with_poi_id=args.n2v_share_table_with_poi_id,
         attention_head=4,
         alpha_c2p=0.4,
         alpha_p2r=0.3,
@@ -190,7 +242,9 @@ def main() -> None:
     print(f"[T3-regen] state={args.state} encoder={args.encoder} "
           f"edge_type={args.edge_type} force_preprocess={_force_preprocess} "
           f"sched={args.scheduler} wd={args.weight_decay} epoch={args.epoch} "
-          f"side_features={args.use_side_features} mae_lambda={args.mae_lambda}",
+          f"side_features={args.use_side_features} mae_lambda={args.mae_lambda} "
+          f"n2v_lambda={_n2v_lambda_eff} "
+          f"(use_node2vec_poi={bool(args.use_node2vec_poi)})",
           flush=True)
 
     # T4.3: pre-compute POI side-features if needed and not yet on disk.
@@ -205,7 +259,7 @@ def main() -> None:
         print(f"[T4.3] (re)computing side features subset={args.side_features_subset} → {_sf_path}",
               flush=True)
         from subprocess import run as _run
-        cmd = [sys.executable, str(_root / "scripts" / "compute_poi_side_features.py"),
+        cmd = [sys.executable, str(_root / "scripts" / "canonical_improvement" / "compute_poi_side_features.py"),
                "--state", args.state,
                "--subset", args.side_features_subset]
         r = _run(cmd, check=False)

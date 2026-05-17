@@ -69,6 +69,11 @@ class Check2HGI(nn.Module):
         mae_mask_rate: float = 0.5,
         mae_gamma: float = 3.0,
         mae_in_channels: int | None = None,
+        # T5.2a — Joint Node2Vec POI-POI skip-gram auxiliary head.
+        # When ``n2v_lambda`` > 0 and ``n2v_head`` is attached via
+        # ``attach_node2vec_head``, the skip-gram loss is added to the
+        # total: ``L_total += n2v_lambda * L_skipgram``.
+        n2v_lambda: float = 0.0,
     ):
         """
         Initialize Check2HGI module.
@@ -200,6 +205,13 @@ class Check2HGI(nn.Module):
         # Loss term computed inside ``forward``, consumed by ``loss``.
         self._mae_loss = None
 
+        # T5.2a — Node2Vec POI head plumbing. Head is attached AFTER __init__
+        # via ``attach_node2vec_head`` so the table size (num_pois) is known
+        # only from the preprocessed data. Loss is fetched inside ``loss()``.
+        self.n2v_lambda = float(n2v_lambda)
+        self.n2v_head = None      # set by attach_node2vec_head
+        self._n2v_epoch_id = 0    # bumped externally by the training loop
+
         # Store embeddings for extraction
         self.checkin_embedding = torch.tensor(0)
         self.poi_embedding = torch.tensor(0)
@@ -215,6 +227,22 @@ class Check2HGI(nn.Module):
         uniform(self.hidden_channels, self.weight_c2p)
         uniform(self.hidden_channels, self.weight_p2r)
         uniform(self.hidden_channels, self.weight_r2c)
+
+    def attach_node2vec_head(self, head):
+        """T5.2a — register the Node2VecPOIHead as a submodule.
+
+        Done as a separate step from __init__ because the head needs
+        ``num_pois`` and the Delaunay edge index from the preprocessed
+        graph (only available after data is loaded). The head IS registered
+        as a real submodule so its parameters appear in
+        ``model.parameters()`` and are picked up by the optimizer.
+        """
+        self.n2v_head = head
+
+    def set_n2v_epoch(self, epoch_id: int) -> None:
+        """Bump the cached-walks epoch id so the next ``loss()`` call
+        triggers a fresh walk batch (T5.2a spec: one walk batch per epoch)."""
+        self._n2v_epoch_id = int(epoch_id)
 
     def forward(self, data):
         """
@@ -550,6 +578,14 @@ class Check2HGI(nn.Module):
         1. Check-in ↔ POI
         2. POI ↔ Region
         3. Region ↔ City
+
+        T5.3 — Multi-view co-training. The cross-view alignment term is
+        NOT added here; the wrapper ``MultiViewWrapper`` (in
+        ``variants.py``) holds TWO Check2HGI instances and combines their
+        per-view 3-boundary losses with a POI-level alignment:
+            ``L_total = L_v1 + L_v2 + λ_x · L_cross(poi_v1, poi_v2)``.
+        Keeping ``Check2HGI.loss`` strictly per-view makes the single-view
+        default path bit-equivalent to canonical (T5.3 default opt-out).
         """
         # Loss 1: Check-in to POI
         pos_c2p = self.discriminate(pos_checkin, pos_poi_exp, self.weight_c2p)
@@ -576,6 +612,14 @@ class Check2HGI(nn.Module):
         # T4.1 — fold in masked-recon auxiliary if forward computed one.
         if self.mae_lambda > 0.0 and self._mae_loss is not None:
             total_loss = total_loss + self.mae_lambda * self._mae_loss
+
+        # T5.2a — fold in joint Node2Vec POI-POI skip-gram auxiliary.
+        # The head computes loss on demand from a per-epoch cached walk
+        # batch (set_n2v_epoch is called by the trainer per epoch). At
+        # λ=0 or with no attached head the auxiliary is a no-op.
+        if self.n2v_lambda > 0.0 and self.n2v_head is not None:
+            l_skipgram = self.n2v_head.compute_loss(epoch_id=self._n2v_epoch_id)
+            total_loss = total_loss + self.n2v_lambda * l_skipgram
 
         return total_loss
 

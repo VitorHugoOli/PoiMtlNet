@@ -26,9 +26,13 @@ from embeddings.check2hgi.model.CheckinEncoder import CheckinEncoder
 from embeddings.check2hgi.model.variants import (
     GATTimeEncoder, ResidualLNEncoder,
     Time2VecCheckinEncoder, RGCNEncoder,
+    Node2VecPOIHead,
+    MultiViewWrapper,
 )
 from embeddings.check2hgi.model.Checkin2POI import Checkin2POI
-from embeddings.check2hgi.preprocess import preprocess_check2hgi
+from embeddings.check2hgi.preprocess import (
+    preprocess_check2hgi, build_view2_graph_dict, build_view2_graph_file,
+)
 
 # Reuse POI2Region from HGI
 from embeddings.hgi.model.RegionEncoder import POI2Region
@@ -56,6 +60,27 @@ def supports_mixed_precision(device):
     # MPS float16 can cause NaN issues with scatter/softmax operations
     # Disable by default for stability
     return False
+
+
+def _multiview_train_step(model_wrapper, data_v1, data_v2, optimizer,
+                          scheduler, args):
+    """T5.3 — single full-batch optimization step for the MultiViewWrapper.
+
+    Mirrors ``train_epoch_full_batch`` but routes through
+    ``MultiViewWrapper.total_loss(data_v1, data_v2)`` so both encoders'
+    contrastive losses + the λ_x · L_cross term are summed in one backward.
+    Note: AMP is intentionally skipped here — the cross-view alignment loss
+    benefits from fp32 numerics (cosine of two small embeddings) and the
+    encoders already dominate the cost.
+    """
+    model_wrapper.train()
+    optimizer.zero_grad()
+    loss = model_wrapper.total_loss(data_v1, data_v2)
+    loss.backward()
+    clip_grad_norm_(model_wrapper.parameters(), max_norm=args.max_norm)
+    optimizer.step()
+    scheduler.step()
+    return loss.item()
 
 
 def train_epoch_full_batch(data, model, optimizer, scheduler, args, use_amp=False, device_type='cpu'):
@@ -323,6 +348,25 @@ def train_check2hgi(city, args):
     if _mae_lambda > 0.0:
         print(f"[T4.1] GraphMAE enabled λ={_mae_lambda} mask_rate={_mae_mask_rate} γ={_mae_gamma}")
 
+    # T5.2a — Joint Node2Vec POI-POI skip-gram plumbing.
+    # Default λ=0.0 → head not constructed, no behavior change. When enabled,
+    # we require ``poi_delaunay_edge_index`` in the preprocessed graph
+    # (built when ``args.build_poi_delaunay=True`` was passed at preprocess).
+    _n2v_lambda = float(getattr(args, 'n2v_lambda', 0.0) or 0.0)
+    if _n2v_lambda > 0.0:
+        if 'poi_delaunay_edge_index' not in city_dict:
+            raise RuntimeError(
+                "T5.2a: --use-node2vec-poi requires the preprocessed graph to "
+                "include 'poi_delaunay_edge_index'. Re-run preprocess with "
+                "build_poi_delaunay=True (force_preprocess=True is set "
+                "automatically by regen_emb_t3.py when --use-node2vec-poi is on)."
+            )
+        print(f"[T5.2a] Node2Vec POI-POI skip-gram enabled λ={_n2v_lambda} "
+              f"walk_length={getattr(args, 'n2v_walk_length', 10)} "
+              f"num_walks={getattr(args, 'n2v_num_walks', 5)} "
+              f"p={getattr(args, 'n2v_p', 1.0)} q={getattr(args, 'n2v_q', 1.0)} "
+              f"share_with_poi_id={bool(getattr(args, 'n2v_share_table_with_poi_id', False))}")
+
     model = Check2HGI(
         hidden_channels=args.dim,
         checkin_encoder=checkin_encoder,
@@ -344,9 +388,139 @@ def train_check2hgi(city, args):
         mae_mask_rate=_mae_mask_rate,
         mae_gamma=_mae_gamma,
         mae_in_channels=in_channels if _mae_lambda > 0.0 else None,
+        n2v_lambda=_n2v_lambda,
     ).to(args.device)
 
+    # T5.2a — construct + attach Node2Vec head AFTER model is on device.
+    # The head's parameters (separate POI table by default) are then
+    # picked up by the optimizer constructed below.
+    if _n2v_lambda > 0.0:
+        _n2v_edge_index = torch.tensor(
+            city_dict['poi_delaunay_edge_index'], dtype=torch.long
+        )
+        # Optional T5.1 coupling: share_table_with_poi_id reuses the T5.1
+        # POI identity table when present. T5.1's hook is named
+        # ``poi_id_embedding`` (per other-agent contract). We look it up on
+        # the model but accept None — if T5.1 isn't enabled in the same run,
+        # we fall back to a separate table (the default).
+        _share = bool(getattr(args, 'n2v_share_table_with_poi_id', False))
+        _external = getattr(model, 'poi_id_embedding', None) if _share else None
+        if _share and _external is None:
+            print("[T5.2a] WARNING: n2v_share_table_with_poi_id=True but no "
+                  "T5.1 ``poi_id_embedding`` found on model; falling back to "
+                  "separate Node2Vec POI table.")
+            _share = False
+        n2v_head = Node2VecPOIHead(
+            num_pois=num_pois,
+            embedding_dim=args.dim,
+            edge_index=_n2v_edge_index,
+            walk_length=int(getattr(args, 'n2v_walk_length', 10)),
+            context_size=int(getattr(args, 'n2v_context_size', 5)),
+            walks_per_node=int(getattr(args, 'n2v_num_walks', 5)),
+            p=float(getattr(args, 'n2v_p', 1.0)),
+            q=float(getattr(args, 'n2v_q', 1.0)),
+            num_negatives=int(getattr(args, 'n2v_num_negatives', 5)),
+            share_table=_share,
+            external_table=_external,
+        ).to(args.device)
+        # Register as a real submodule (parameters flow into optimizer below).
+        model.add_module("n2v_head", n2v_head)
+        model.attach_node2vec_head(n2v_head)
+
+    # ------------------------------------------------------------------
+    # T5.3 — Multi-view co-training (cross-view POI alignment)
+    # ------------------------------------------------------------------
+    # Default opt-out: when ``use_multiview`` is False the pre-existing
+    # single-view ``model`` is left untouched and trained as canonical.
+    # When True, we build a second Check2HGI (View 2) over the same_poi-only
+    # / category-one-hot graph, wrap (V1, V2) in MultiViewWrapper, and
+    # route the full-batch training loop through wrapper.total_loss.
+    _use_multiview = bool(getattr(args, 'use_multiview', False))
+    multiview_wrapper = None
+    data_v2 = None
+    if _use_multiview:
+        _mv_lambda = float(getattr(args, 'multiview_lambda', 0.3) or 0.3)
+        _mv_loss = str(getattr(args, 'multiview_loss', 'cosine') or 'cosine')
+        _mv_share = bool(getattr(args, 'multiview_share_encoder', False))
+        _mv_export = str(getattr(args, 'multiview_export_view', 'v1') or 'v1')
+        _mv_temp = float(getattr(args, 'multiview_temperature', 0.2) or 0.2)
+
+        # 1. Ensure the View-2 cache exists; build from canonical if missing.
+        view2_path = data_path.parent / "view2_graph.pt"
+        if not view2_path.exists():
+            print(f"[T5.3] View-2 cache missing → building from canonical at {view2_path}")
+            build_view2_graph_file(city)
+
+        with open(view2_path, 'rb') as _f:
+            view2_dict = pkl.load(_f)
+        v2_in_channels = view2_dict['node_features'].shape[1]
+        print(f"[T5.3] View 2: features={view2_dict['node_features'].shape} "
+              f"edges={view2_dict['edge_index'].shape[1]} "
+              f"(category-one-hot only, same_poi-only edges)")
+
+        # 2. Construct the View-2 PyG Data object — identical schema to V1
+        # but with view-2 node features / edges. checkin_to_poi mappings are
+        # shared so the POI-level alignment is well-defined.
+        v2_data_kwargs = dict(
+            x=torch.tensor(view2_dict['node_features'], dtype=torch.float32),
+            edge_index=torch.tensor(view2_dict['edge_index'], dtype=torch.int64),
+            edge_weight=torch.tensor(view2_dict['edge_weight'], dtype=torch.float32),
+            checkin_to_poi=torch.tensor(view2_dict['checkin_to_poi'], dtype=torch.int64),
+            poi_to_region=torch.tensor(view2_dict['poi_to_region'], dtype=torch.int64),
+            region_adjacency=torch.tensor(view2_dict['region_adjacency'], dtype=torch.int64),
+            region_area=torch.tensor(view2_dict['region_area'], dtype=torch.float32),
+            coarse_region_similarity=torch.tensor(view2_dict['coarse_region_similarity'], dtype=torch.float32),
+            num_pois=num_pois,
+            num_regions=num_regions,
+        )
+        if 'edge_type' in view2_dict:
+            v2_data_kwargs['edge_type'] = torch.tensor(view2_dict['edge_type'], dtype=torch.int64)
+        data_v2 = Data(**v2_data_kwargs)
+
+        # 3. Build View-2 Check2HGI: same architecture as canonical, but with
+        # a fresh CheckinEncoder sized to view-2's feature dim, fresh
+        # Checkin2POI / POI2Region heads, and the same loss weights. We do
+        # NOT propagate T4.x/T5.x add-ons (side features, MAE, Node2Vec) to
+        # View 2 — keep it minimal so V2's signal is purely "POI category
+        # structure under same_poi-only edges". The default opt-out for
+        # other T5 features is honoured.
+        checkin_encoder_v2 = CheckinEncoder(
+            v2_in_channels, args.dim, num_layers=args.num_layers
+        )
+        checkin2poi_v2 = Checkin2POI(args.dim, args.attention_head)
+        poi2region_v2 = POI2Region(args.dim, args.attention_head)
+
+        model_v2 = Check2HGI(
+            hidden_channels=args.dim,
+            checkin_encoder=checkin_encoder_v2,
+            checkin2poi=checkin2poi_v2,
+            poi2region=poi2region_v2,
+            region2city=region2city,
+            corruption=corruption,
+            alpha_c2p=args.alpha_c2p,
+            alpha_p2r=args.alpha_p2r,
+            alpha_r2c=args.alpha_r2c,
+        ).to(args.device)
+
+        # 4. Wrap. View 1 is the existing ``model``; the wrapper takes over
+        # as the optimizer target so its parameters (V1 + V2 + shared
+        # discriminators) all get gradient updates.
+        multiview_wrapper = MultiViewWrapper(
+            model_v1=model,
+            model_v2=model_v2,
+            cross_lambda=_mv_lambda,
+            cross_loss=_mv_loss,
+            cross_temperature=_mv_temp,
+            share_encoder=_mv_share,
+        ).to(args.device)
+        print(f"[T5.3] MultiViewWrapper enabled λ_x={_mv_lambda} loss={_mv_loss} "
+              f"share_encoder={_mv_share} export_view={_mv_export} "
+              f"(2× compute when share_encoder=False)")
+
     print(f"Parameters: {sum(p.numel() for p in model.parameters()):,}")
+    if multiview_wrapper is not None:
+        print(f"Multi-view total parameters: "
+              f"{sum(p.numel() for p in multiview_wrapper.parameters()):,}")
 
     # Note: torch.compile is NOT compatible with PyTorch Geometric's dynamic
     # scatter operations used in this model (POI2Region uses pyg_softmax with
@@ -367,11 +541,14 @@ def train_check2hgi(city, args):
     scheduler_type = getattr(args, 'scheduler', 'step') or 'step'
     warmup_pct = float(getattr(args, 'warmup_pct', 0.0) or 0.0)
     eta_min_ratio = float(getattr(args, 'eta_min_ratio', 0.01) or 0.01)
+    # T5.3 — when multi-view is enabled, the optimizer target is the wrapper
+    # so View 2's parameters get gradient updates too.
+    _opt_target = multiview_wrapper if multiview_wrapper is not None else model
     if weight_decay > 0:
-        optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=weight_decay)
+        optimizer = torch.optim.AdamW(_opt_target.parameters(), lr=args.lr, weight_decay=weight_decay)
         print(f"[opt] AdamW lr={args.lr} wd={weight_decay}")
     else:
-        optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+        optimizer = torch.optim.Adam(_opt_target.parameters(), lr=args.lr)
         print(f"[opt] Adam lr={args.lr} (no WD)")
 
     total_steps = int(args.epoch)
@@ -428,15 +605,41 @@ def train_check2hgi(city, args):
         # Move entire dataset to device for full-batch mode
         data = data.to(args.device)
         loader = None
+        if data_v2 is not None:
+            data_v2 = data_v2.to(args.device)
+
+    # T5.3 — multi-view does not support mini-batch yet (NeighborLoader would
+    # need to be sharded per-view, and the cross-view POI alignment assumes
+    # the full POI set is materialised in each step). Fall back to a clear
+    # error so users don't silently get a single-view run.
+    if multiview_wrapper is not None and use_mini_batch:
+        raise NotImplementedError(
+            "T5.3: --use-multiview is only wired through full-batch training. "
+            "num_checkins exceeds mini_batch_threshold — bump --mini-batch-threshold "
+            "or run on a smaller state."
+        )
 
     # Training loop
     # OPTIMIZED: Track best epoch, only extract embeddings at the end
     t = trange(1, args.epoch + 1, desc="Training Check2HGI")
     lowest_loss = math.inf
     best_epoch = 0
+    # T5.3 — state tracking object is the wrapper when multiview is on so V2
+    # weights are restored along with V1 at the end of training.
+    _ckpt_target = multiview_wrapper if multiview_wrapper is not None else model
 
     for epoch in t:
-        if use_mini_batch:
+        # T5.2a — bump cached-walks epoch id so the Node2Vec head re-samples
+        # walks once at the start of each epoch (spec: "one batch of walks
+        # per epoch"). No-op when the head is not attached.
+        if hasattr(model, 'set_n2v_epoch'):
+            model.set_n2v_epoch(epoch)
+        if multiview_wrapper is not None:
+            # T5.3 full-batch step routes through wrapper.total_loss.
+            loss = _multiview_train_step(
+                multiview_wrapper, data, data_v2, optimizer, scheduler, args
+            )
+        elif use_mini_batch:
             loss = train_epoch_mini_batch(data, loader, model, optimizer, args, use_amp, device_type)
         else:
             loss = train_epoch_full_batch(data, model, optimizer, scheduler, args, use_amp, device_type)
@@ -445,13 +648,13 @@ def train_check2hgi(city, args):
             lowest_loss = loss
             best_epoch = epoch
             # Save model state instead of extracting embeddings every time
-            best_state = {k: v.clone() for k, v in model.state_dict().items()}
+            best_state = {k: v.clone() for k, v in _ckpt_target.state_dict().items()}
 
         t.set_postfix(loss=f'{loss:.4f}', best=f'{lowest_loss:.4f}', best_epoch=best_epoch)
 
     # Load best model and extract embeddings only once at the end
     print(f"Loading best model from epoch {best_epoch}")
-    model.load_state_dict(best_state)
+    _ckpt_target.load_state_dict(best_state)
 
     # Final forward pass to get embeddings
     # Move data to device if needed (for mini-batch mode where data stayed on CPU).
@@ -460,11 +663,25 @@ def train_check2hgi(city, args):
     _enc_param = next(model.checkin_encoder.parameters())
     if data.x.device != _enc_param.device:
         data = data.to(args.device)
+        if data_v2 is not None:
+            data_v2 = data_v2.to(args.device)
 
-    model.eval()
-    with torch.no_grad():
-        _ = model(data)
-        checkin_emb, poi_emb, region_emb = model.get_embeddings()
+    if multiview_wrapper is not None:
+        multiview_wrapper.eval()
+        _export_view = str(getattr(args, 'multiview_export_view', 'v1') or 'v1')
+        with torch.no_grad():
+            # Run both views so their internal embedding caches are populated.
+            multiview_wrapper(data, data_v2)
+            checkin_emb, poi_emb, region_emb = multiview_wrapper.get_embeddings(
+                which=_export_view
+            )
+        print(f"[T5.3] Exporting {_export_view} embeddings (per spec: V1 by default — "
+              f"cat-friendly view).")
+    else:
+        model.eval()
+        with torch.no_grad():
+            _ = model(data)
+            checkin_emb, poi_emb, region_emb = model.get_embeddings()
 
     # Save check-in embeddings
     output_path = IoPaths.get_embedd(city, EmbeddingEngine.CHECK2HGI)
@@ -507,15 +724,44 @@ def create_embedding(state: str, args):
     shapefile_path = args.shapefile
     graph_data_file = IoPaths.CHECK2HGI.get_graph_data_file(city)
 
-    if graph_data_file.exists() and not args.force_preprocess:
+    # T5.2a — when joint Node2Vec is enabled we MUST have the POI Delaunay
+    # edges in the cached graph. Force a re-preprocess when the cache is
+    # missing the new key (cheap one-time cost), even if the user didn't
+    # pass --force-preprocess. The flag is read off args.
+    _need_poi_delaunay = float(getattr(args, 'n2v_lambda', 0.0) or 0.0) > 0.0
+    _cache_missing_poi_delaunay = False
+    if _need_poi_delaunay and graph_data_file.exists() and not args.force_preprocess:
+        try:
+            with open(graph_data_file, 'rb') as _f:
+                _peek = pkl.load(_f)
+            _cache_missing_poi_delaunay = 'poi_delaunay_edge_index' not in _peek
+        except Exception:
+            _cache_missing_poi_delaunay = True
+
+    # T5.3 — multi-view also needs the View-2 graph cached. We build it from
+    # the canonical (View-1) cache after preprocess; we trigger the build here
+    # if either (a) the V1 cache exists but V2 is missing, or (b) preprocess
+    # is about to run anyway (in which case build_view2=True is forwarded).
+    _need_view2 = bool(getattr(args, 'use_multiview', False))
+
+    if graph_data_file.exists() and not args.force_preprocess and not _cache_missing_poi_delaunay:
         print(f"Using existing graph data: {graph_data_file}")
+        if _need_view2:
+            view2_path = graph_data_file.parent / "view2_graph.pt"
+            if not view2_path.exists():
+                print(f"[T5.3] building view2 graph from canonical cache → {view2_path}")
+                build_view2_graph_file(city)
     else:
+        if _cache_missing_poi_delaunay:
+            print("[T5.2a] cached graph lacks POI Delaunay edges — forcing preprocess")
         print("Preprocessing...")
         preprocess_check2hgi(
             city=city,
             city_shapefile=str(shapefile_path),
             edge_type=args.edge_type,
             temporal_decay=args.temporal_decay,
+            build_poi_delaunay=_need_poi_delaunay,
+            build_view2=_need_view2,
         )
 
     print("Training Check2HGI...")
