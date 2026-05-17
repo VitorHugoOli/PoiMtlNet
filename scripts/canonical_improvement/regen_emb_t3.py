@@ -132,6 +132,36 @@ def main() -> None:
                          "between T5.1 and the Node2Vec skip-gram head. Default "
                          "False keeps the tables fully separate (avoids coupling "
                          "T5.2a's signal with T5.1's optimization).")
+    # T5.3 — Multi-view co-training (cross-view POI alignment)
+    # Defaults: --use-multiview OFF → canonical behaviour preserved bit-equiv.
+    ap.add_argument("--use-multiview", action="store_true",
+                    help="T5.3: enable multi-view co-training. Builds a View-2 "
+                         "graph (same_poi-only edges, category-one-hot features) "
+                         "alongside the canonical View-1 graph, trains a second "
+                         "Check2HGI on it, and adds λ_x · L_cross(poi_v1, poi_v2) "
+                         "to the total loss. ~2× compute (two encoders forward + "
+                         "backward per step) unless --multiview-share-encoder is set.")
+    ap.add_argument("--multiview-lambda", type=float, default=0.3,
+                    help="T5.3: λ_x coefficient on the cross-view POI-level "
+                         "alignment loss. Spec sweep {0.1, 0.3, 1.0}; default 0.3.")
+    ap.add_argument("--multiview-loss", default="cosine",
+                    choices=("cosine", "mse", "infonce"),
+                    help="T5.3: cross-view loss form. cosine = (1 - cos(v1, v2)).mean() "
+                         "(default, per spec). mse = symmetric stop-gradient MSE. "
+                         "infonce = symmetric temperature-scaled cross-entropy.")
+    ap.add_argument("--multiview-temperature", type=float, default=0.2,
+                    help="T5.3: InfoNCE temperature (ignored for cosine / mse).")
+    ap.add_argument("--multiview-share-encoder", action="store_true",
+                    help="T5.3: share View 1's CheckinEncoder weights with "
+                         "View 2 (only c2p/p2r/r2c discriminators + pooling heads "
+                         "remain per-view). Halves encoder FLOPs but removes "
+                         "the distillation signal at the encoder layer. "
+                         "Default False (full 2× compute, full cross-view signal).")
+    ap.add_argument("--multiview-export-view", default="v1",
+                    choices=("v1", "v2", "ensemble"),
+                    help="T5.3: which view's embeddings to export to downstream "
+                         "MTL. v1 = canonical/cat-friendly (default, per spec). "
+                         "v2 = category-only (diagnostic). ensemble = mean of v1/v2.")
     ap.add_argument("--rgcn-num-relations", type=int, default=2,
                     help="T3.3: number of edge relation types for R-GCN.")
     ap.add_argument("--rgcn-num-bases", type=str, default="2",
@@ -212,6 +242,13 @@ def main() -> None:
         n2v_q=args.n2v_q,
         n2v_num_negatives=args.n2v_num_negatives,
         n2v_share_table_with_poi_id=args.n2v_share_table_with_poi_id,
+        # T5.3 plumbing — default-opt-out (use_multiview=False preserves canonical)
+        use_multiview=args.use_multiview,
+        multiview_lambda=args.multiview_lambda,
+        multiview_loss=args.multiview_loss,
+        multiview_temperature=args.multiview_temperature,
+        multiview_share_encoder=args.multiview_share_encoder,
+        multiview_export_view=args.multiview_export_view,
         attention_head=4,
         alpha_c2p=0.4,
         alpha_p2r=0.3,
@@ -244,7 +281,11 @@ def main() -> None:
           f"sched={args.scheduler} wd={args.weight_decay} epoch={args.epoch} "
           f"side_features={args.use_side_features} mae_lambda={args.mae_lambda} "
           f"n2v_lambda={_n2v_lambda_eff} "
-          f"(use_node2vec_poi={bool(args.use_node2vec_poi)})",
+          f"(use_node2vec_poi={bool(args.use_node2vec_poi)}) "
+          f"multiview={bool(args.use_multiview)} "
+          f"(λ_x={args.multiview_lambda} loss={args.multiview_loss} "
+          f"share_enc={bool(args.multiview_share_encoder)} "
+          f"export={args.multiview_export_view})",
           flush=True)
 
     # T4.3: pre-compute POI side-features if needed and not yet on disk.

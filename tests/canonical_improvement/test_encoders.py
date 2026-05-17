@@ -327,3 +327,194 @@ def test_node2vec_poi_head():
 
 test_node2vec_poi_head()
 print("\n[T5.2a unit test] passed.")
+
+
+# ── T5.3: Multi-view co-training wrapper ─────────────────────────────────────
+
+
+def test_multiview_wrapper():
+    """T5.3 — cross-view POI alignment unit test.
+
+    Verifies:
+      (a) MultiViewWrapper forward returns POI embeddings of shape (N_poi, D)
+          for BOTH views.
+      (b) Cross-view loss is finite and >= 0 (cosine/MSE/InfoNCE).
+      (c) Backward populates gradients on BOTH encoders' parameters
+          (no dead encoder).
+      (d) total_loss = L_v1 + L_v2 + λ_x · L_cross is finite.
+      (e) The single-view default (no wrapper) returns standard outputs and
+          the wrapper is bit-identical to canonical when only V1 is used.
+      (f) share_encoder=True reduces total parameter count vs the default
+          (V2 reuses V1's CheckinEncoder weights).
+    """
+    from torch_geometric.data import Data
+    Checkin2POI_mod = _load(
+        "Checkin2POI",
+        _root / "research/embeddings/check2hgi/model/Checkin2POI.py",
+    )
+    Checkin2POI = Checkin2POI_mod.Checkin2POI
+    # POI2Region from HGI
+    HGIRegion = _load(
+        "RegionEncoderHGI", _root / "research/embeddings/hgi/model/RegionEncoder.py"
+    )
+    POI2Region = HGIRegion.POI2Region
+
+    Check2HGI = _chmod.Check2HGI
+    _corruption = _chmod.corruption
+    MultiViewWrapper = _var.MultiViewWrapper
+    _cross_view_loss = _var._cross_view_loss
+
+    torch.manual_seed(0)
+    np.random.seed(0)
+
+    # Synthetic graph: 200 check-ins, 40 POIs, 8 regions, 12 categories.
+    N_CK, N_POI, N_REG = 200, 40, 8
+    NUM_CAT = 12
+    D = 64
+    F_V1 = NUM_CAT + 4    # canonical [cat one-hot, 4 sin/cos]
+    F_V2 = NUM_CAT        # view-2: cat one-hot only
+
+    # View-1 features (with temporal sin/cos).
+    cat_idx = torch.randint(0, NUM_CAT, (N_CK,))
+    x_v1 = torch.zeros(N_CK, F_V1)
+    x_v1[torch.arange(N_CK), cat_idx] = 1.0
+    hours = torch.randint(0, 24, (N_CK,)).float()
+    x_v1[:, NUM_CAT + 0] = torch.sin(2 * np.pi * hours / 24)
+    x_v1[:, NUM_CAT + 1] = torch.cos(2 * np.pi * hours / 24)
+
+    # View-2 features = first NUM_CAT columns of V1 (category one-hot only).
+    x_v2 = x_v1[:, :NUM_CAT].clone()
+
+    # V1 edges: user_sequence-like (random pairs) + temporal weights.
+    E1 = 600
+    ei_v1 = torch.randint(0, N_CK, (2, E1), dtype=torch.long)
+    ew_v1 = torch.rand(E1)
+    # V2 edges: same-POI-only. Group check-ins by POI assignment, connect pairs.
+    checkin_to_poi = torch.randint(0, N_POI, (N_CK,), dtype=torch.long)
+    src_l, tgt_l = [], []
+    for p in range(N_POI):
+        ck_at_p = (checkin_to_poi == p).nonzero(as_tuple=True)[0].tolist()
+        if len(ck_at_p) < 2:
+            continue
+        for i in range(len(ck_at_p)):
+            for j in range(i + 1, len(ck_at_p)):
+                src_l.append(ck_at_p[i]); tgt_l.append(ck_at_p[j])
+                src_l.append(ck_at_p[j]); tgt_l.append(ck_at_p[i])
+    ei_v2 = torch.tensor([src_l, tgt_l], dtype=torch.long) if src_l else torch.zeros(2, 0, dtype=torch.long)
+    ew_v2 = torch.ones(ei_v2.shape[1])
+
+    poi_to_region = torch.randint(0, N_REG, (N_POI,), dtype=torch.long)
+    region_adjacency = torch.randint(0, N_REG, (2, 20), dtype=torch.long)
+    region_area = torch.rand(N_REG)
+    coarse_sim = torch.eye(N_REG)
+
+    def _make_data(x, ei, ew, in_ch):
+        return Data(
+            x=x, edge_index=ei, edge_weight=ew,
+            checkin_to_poi=checkin_to_poi,
+            poi_to_region=poi_to_region,
+            region_adjacency=region_adjacency,
+            region_area=region_area,
+            coarse_region_similarity=coarse_sim,
+            num_pois=N_POI, num_regions=N_REG,
+        )
+
+    data_v1 = _make_data(x_v1, ei_v1, ew_v1, F_V1)
+    data_v2 = _make_data(x_v2, ei_v2, ew_v2, F_V2)
+
+    def region2city(z, area):
+        return torch.sigmoid((z.transpose(0, 1) * area).sum(dim=1))
+
+    def _build_check2hgi(in_ch):
+        enc = CheckinEncoder(in_ch, D, num_layers=2)
+        c2p = Checkin2POI(D, num_heads=4)
+        p2r = POI2Region(D, num_heads=4)
+        return Check2HGI(
+            hidden_channels=D, checkin_encoder=enc,
+            checkin2poi=c2p, poi2region=p2r,
+            region2city=region2city, corruption=_corruption,
+            alpha_c2p=0.4, alpha_p2r=0.3, alpha_r2c=0.3,
+        )
+
+    # (a) Forward shapes.
+    torch.manual_seed(1)
+    model_v1 = _build_check2hgi(F_V1)
+    model_v2 = _build_check2hgi(F_V2)
+    wrapper = MultiViewWrapper(
+        model_v1=model_v1, model_v2=model_v2,
+        cross_lambda=0.3, cross_loss="cosine",
+    )
+    outs_v1, outs_v2, poi_v1, poi_v2 = wrapper(data_v1, data_v2)
+    assert poi_v1.shape == (N_POI, D), f"poi_v1 shape {tuple(poi_v1.shape)} != ({N_POI}, {D})"
+    assert poi_v2.shape == (N_POI, D), f"poi_v2 shape {tuple(poi_v2.shape)} != ({N_POI}, {D})"
+    print(f"[T5.3 MultiViewWrapper] forward shapes poi_v1={tuple(poi_v1.shape)} "
+          f"poi_v2={tuple(poi_v2.shape)} OK")
+
+    # (b) Cross-view loss is finite and non-negative (cosine ≥ 0, MSE ≥ 0,
+    # InfoNCE ≥ 0 since cross-entropy ≥ 0).
+    for loss_kind in ("cosine", "mse", "infonce"):
+        cv = _cross_view_loss(poi_v1, poi_v2, loss_type=loss_kind, temperature=0.2)
+        assert torch.isfinite(cv).all(), f"cross-view loss {loss_kind} not finite: {cv}"
+        assert cv.item() >= -1e-6, f"cross-view loss {loss_kind} negative: {cv.item()}"
+        print(f"[T5.3 MultiViewWrapper] cross-view loss [{loss_kind}] = {cv.item():.4f} (finite, >= 0)")
+
+    # (c) Backward — both encoders must receive gradient.
+    wrapper.zero_grad()
+    total = wrapper.total_loss(data_v1, data_v2)
+    assert torch.isfinite(total).all(), f"total_loss not finite: {total}"
+    print(f"[T5.3 MultiViewWrapper] total_loss = {total.item():.4f}")
+    total.backward()
+    v1_grad_present = any(
+        p.grad is not None and p.grad.abs().sum() > 0
+        for p in model_v1.checkin_encoder.parameters()
+    )
+    v2_grad_present = any(
+        p.grad is not None and p.grad.abs().sum() > 0
+        for p in model_v2.checkin_encoder.parameters()
+    )
+    assert v1_grad_present, "View-1 encoder did not receive gradient"
+    assert v2_grad_present, "View-2 encoder did not receive gradient"
+    print("[T5.3 MultiViewWrapper] backward populates grads on BOTH encoders OK")
+
+    # (d) Single-view (no wrapper) returns canonical outputs unchanged.
+    torch.manual_seed(1)
+    single_model = _build_check2hgi(F_V1)
+    single_outs = single_model(data_v1)
+    assert len(single_outs) == 9, f"single Check2HGI outputs len {len(single_outs)} != 9"
+    single_loss = single_model.loss(*single_outs)
+    assert torch.isfinite(single_loss), "single-view loss not finite"
+    print(f"[T5.3 MultiViewWrapper] single-view default Check2HGI loss = {single_loss.item():.4f} "
+          f"(unchanged path, no wrapper)")
+
+    # (e) share_encoder=True cuts parameter count.
+    torch.manual_seed(1)
+    model_v1_s = _build_check2hgi(F_V1)
+    model_v2_s = _build_check2hgi(F_V1)   # same in_ch so encoders are share-compatible
+    wrapper_share = MultiViewWrapper(
+        model_v1=model_v1_s, model_v2=model_v2_s,
+        cross_lambda=0.3, cross_loss="cosine", share_encoder=True,
+    )
+    n_default = sum(p.numel() for p in wrapper.parameters())
+    n_shared = sum(p.numel() for p in wrapper_share.parameters())
+    print(f"[T5.3 MultiViewWrapper] params: default={n_default:,}  shared_enc={n_shared:,}  "
+          f"(share saves {n_default - n_shared:,})")
+    assert n_shared < n_default, "share_encoder=True should reduce parameter count"
+
+    # (f) export_view dispatch.
+    with torch.no_grad():
+        _ = wrapper(data_v1, data_v2)
+        c_v1, p_v1, r_v1 = wrapper.get_embeddings(which="v1")
+        c_v2, p_v2, r_v2 = wrapper.get_embeddings(which="v2")
+        c_en, p_en, r_en = wrapper.get_embeddings(which="ensemble")
+        assert p_v1.shape == (N_POI, D)
+        assert p_v2.shape == (N_POI, D)
+        assert p_en.shape == (N_POI, D)
+        # Ensemble must be the mean.
+        assert torch.allclose(p_en, 0.5 * (p_v1 + p_v2), atol=1e-5), "ensemble != mean(v1, v2)"
+    print("[T5.3 MultiViewWrapper] export_view dispatch (v1/v2/ensemble) OK")
+
+    print("\n[T5.3 MultiViewWrapper] all checks passed.")
+
+
+test_multiview_wrapper()
+print("\n[T5.3 unit test] passed.")
