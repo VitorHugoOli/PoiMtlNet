@@ -377,6 +377,67 @@ def train_check2hgi(city, args):
         print(f"[T5.1] POI ID embedding enabled γ={_poi_id_gamma} "
               f"init={_poi_id_init} num_pois={num_pois}")
 
+    # T5.2b — Masked POI feature-aggregate plumbing. Default opt-out
+    # (mae_poi_lambda=0 ⇒ canonical behaviour preserved bit-for-bit).
+    _mae_poi_lambda = float(getattr(args, 'mae_poi_lambda', 0.0) or 0.0)
+    _mae_poi_mask_rate = float(getattr(args, 'mae_poi_mask_rate', 0.15) or 0.15)
+    _mae_poi_gamma = float(getattr(args, 'mae_poi_gamma', 3.0) or 3.0)
+    _mae_poi_target_kind = str(getattr(args, 'mae_poi_target', 'category_aggregate'))
+    _mae_poi_aggr = str(getattr(args, 'mae_poi_aggr', 'mean'))
+    _mae_poi_loss_kind = str(getattr(args, 'mae_poi_loss_kind', 'sce'))
+    _mae_poi_target_dim = 0
+    if _mae_poi_lambda > 0.0:
+        # Required: POI Delaunay edges + per-POI reconstruction target.
+        # Both are produced by preprocess_check2hgi(build_poi_delaunay=True,
+        # build_poi_aggregates=True). If the cached graph predates T5.2b,
+        # rebuild it (set --force-preprocess at the regen script entry).
+        if 'poi_delaunay_edge_index' not in city_dict:
+            raise ValueError(
+                "[T5.2b] mae_poi_lambda > 0 but cached graph has no "
+                "'poi_delaunay_edge_index'. Re-run preprocess with "
+                "build_poi_delaunay=True (force_preprocess=True from regen_emb_t3)."
+            )
+        if 'poi_category_aggregate' not in city_dict:
+            raise ValueError(
+                "[T5.2b] mae_poi_lambda > 0 but cached graph has no "
+                "'poi_category_aggregate'. Re-run preprocess with "
+                "build_poi_aggregates=True (force_preprocess=True)."
+            )
+        # Build the target tensor according to mae_poi_target choice.
+        _cat_agg = torch.tensor(city_dict['poi_category_aggregate'], dtype=torch.float32)
+        _visit_log = torch.tensor(
+            city_dict['poi_visit_count_log'], dtype=torch.float32
+        ).unsqueeze(-1)  # (P, 1)
+        if _mae_poi_target_kind == 'category_aggregate':
+            recon_target = _cat_agg                                # (P, num_cat)
+        elif _mae_poi_target_kind == 'visit_count_log':
+            recon_target = _visit_log                              # (P, 1)
+        elif _mae_poi_target_kind == 'both':
+            recon_target = torch.cat([_cat_agg, _visit_log], dim=-1)  # (P, num_cat+1)
+        else:
+            raise ValueError(
+                f"[T5.2b] mae_poi_target must be 'category_aggregate', "
+                f"'visit_count_log', or 'both'; got {_mae_poi_target_kind!r}"
+            )
+        # MSE for visit_count_log (unbounded scalar); SCE for the others
+        # (cosine-on-distribution natural for category_aggregate).
+        if _mae_poi_target_kind == 'visit_count_log' and _mae_poi_loss_kind == 'sce':
+            print("[T5.2b] auto-switching loss_kind to 'mse' for visit_count_log target.")
+            _mae_poi_loss_kind = 'mse'
+
+        _mae_poi_target_dim = int(recon_target.shape[1])
+        _poi_edges_t = torch.tensor(
+            city_dict['poi_delaunay_edge_index'], dtype=torch.int64
+        )
+        # Attach to Data; moved to device with the rest below.
+        data.poi_delaunay_edge_index = _poi_edges_t
+        data.poi_recon_target = recon_target
+        print(f"[T5.2b] MaskedPOI decoder enabled λ={_mae_poi_lambda} "
+              f"mask_rate={_mae_poi_mask_rate} γ={_mae_poi_gamma} "
+              f"target={_mae_poi_target_kind} ({_mae_poi_target_dim}d) "
+              f"aggr={_mae_poi_aggr} loss={_mae_poi_loss_kind} "
+              f"edges={_poi_edges_t.shape[1]}")
+
     model = Check2HGI(
         hidden_channels=args.dim,
         checkin_encoder=checkin_encoder,
@@ -404,6 +465,13 @@ def train_check2hgi(city, args):
         poi_id_gamma=_poi_id_gamma,
         poi_id_init=_poi_id_init,
         num_pois=int(num_pois) if _use_poi_id_embedding else None,
+        mae_poi_lambda=_mae_poi_lambda,
+        mae_poi_mask_rate=_mae_poi_mask_rate,
+        mae_poi_gamma=_mae_poi_gamma,
+        mae_poi_target_dim=_mae_poi_target_dim,
+        mae_poi_aggr=_mae_poi_aggr,
+        mae_poi_target_kind=_mae_poi_target_kind,
+        mae_poi_loss_kind=_mae_poi_loss_kind,
     ).to(args.device)
 
     # T5.2a — construct + attach Node2Vec head AFTER model is on device.
@@ -742,27 +810,36 @@ def create_embedding(state: str, args):
     shapefile_path = args.shapefile
     graph_data_file = IoPaths.CHECK2HGI.get_graph_data_file(city)
 
-    # T5.2a — when joint Node2Vec is enabled we MUST have the POI Delaunay
-    # edges in the cached graph. Force a re-preprocess when the cache is
-    # missing the new key (cheap one-time cost), even if the user didn't
-    # pass --force-preprocess. The flag is read off args.
-    _need_poi_delaunay = float(getattr(args, 'n2v_lambda', 0.0) or 0.0) > 0.0
-    _cache_missing_poi_delaunay = False
-    if _need_poi_delaunay and graph_data_file.exists() and not args.force_preprocess:
+    # T5.2a / T5.2b / T5.3 — cache-miss diagnostics for the auxiliary
+    # artefacts. Any of:
+    #   * T5.2a (Node2Vec) needs poi_delaunay_edge_index;
+    #   * T5.2b (masked-POI decoder) needs poi_delaunay_edge_index AND
+    #     poi_category_aggregate;
+    #   * T5.3 (multi-view) needs a separate view2_graph.pt cache.
+    # If the canonical graph exists but lacks the artefacts we need, force
+    # a fresh preprocess (cheap one-time cost). The View-2 file is built
+    # from the canonical cache after preprocess completes.
+    _need_poi_delaunay_n2v = float(getattr(args, 'n2v_lambda', 0.0) or 0.0) > 0.0
+    _need_poi_delaunay_mae = float(getattr(args, 'mae_poi_lambda', 0.0) or 0.0) > 0.0
+    _need_poi_delaunay = _need_poi_delaunay_n2v or _need_poi_delaunay_mae
+    _need_poi_aggregates = _need_poi_delaunay_mae
+    _need_view2 = bool(getattr(args, 'use_multiview', False))
+
+    _cache_missing_poi_artefacts = False
+    if graph_data_file.exists() and _need_poi_delaunay and not args.force_preprocess:
         try:
             with open(graph_data_file, 'rb') as _f:
                 _peek = pkl.load(_f)
-            _cache_missing_poi_delaunay = 'poi_delaunay_edge_index' not in _peek
+            _missing_delaunay = 'poi_delaunay_edge_index' not in _peek
+            _missing_aggregates = (
+                _need_poi_aggregates and 'poi_category_aggregate' not in _peek
+            )
+            _cache_missing_poi_artefacts = _missing_delaunay or _missing_aggregates
+            del _peek
         except Exception:
-            _cache_missing_poi_delaunay = True
+            _cache_missing_poi_artefacts = True
 
-    # T5.3 — multi-view also needs the View-2 graph cached. We build it from
-    # the canonical (View-1) cache after preprocess; we trigger the build here
-    # if either (a) the V1 cache exists but V2 is missing, or (b) preprocess
-    # is about to run anyway (in which case build_view2=True is forwarded).
-    _need_view2 = bool(getattr(args, 'use_multiview', False))
-
-    if graph_data_file.exists() and not args.force_preprocess and not _cache_missing_poi_delaunay:
+    if graph_data_file.exists() and not args.force_preprocess and not _cache_missing_poi_artefacts:
         print(f"Using existing graph data: {graph_data_file}")
         if _need_view2:
             view2_path = graph_data_file.parent / "view2_graph.pt"
@@ -770,8 +847,9 @@ def create_embedding(state: str, args):
                 print(f"[T5.3] building view2 graph from canonical cache → {view2_path}")
                 build_view2_graph_file(city)
     else:
-        if _cache_missing_poi_delaunay:
-            print("[T5.2a] cached graph lacks POI Delaunay edges — forcing preprocess")
+        if _cache_missing_poi_artefacts:
+            print("[T5.2a/T5.2b] cached graph lacks POI-Delaunay / POI-aggregate "
+                  "artefacts; forcing fresh preprocess.")
         print("Preprocessing...")
         preprocess_check2hgi(
             city=city,
@@ -779,6 +857,7 @@ def create_embedding(state: str, args):
             edge_type=args.edge_type,
             temporal_decay=args.temporal_decay,
             build_poi_delaunay=_need_poi_delaunay,
+            build_poi_aggregates=_need_poi_aggregates,
             build_view2=_need_view2,
         )
 

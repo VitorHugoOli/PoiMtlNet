@@ -17,7 +17,8 @@ class Check2HGIPreprocess:
     """Preprocessing pipeline for Check2HGI embeddings."""
 
     def __init__(self, checkins_file, boroughs_file, temp_path, edge_type='user_sequence',
-                 temporal_decay=3600.0, build_poi_delaunay: bool = False):
+                 temporal_decay=3600.0, build_poi_delaunay: bool = False,
+                 build_poi_aggregates: bool = False):
         """
         Initialize preprocessor.
 
@@ -27,13 +28,26 @@ class Check2HGIPreprocess:
             temp_path: Path to save intermediate files
             edge_type: Type of edges ('user_sequence', 'same_poi', 'both')
             temporal_decay: Decay parameter for temporal edge weights (seconds)
-            build_poi_delaunay: T5.2a — when True, also build a POI-level Delaunay
-                triangulation (lat/lon) and cache the deduplicated POI-POI edge
-                list under data dict key ``poi_delaunay_edge_index``. This is
-                graph CONSTRUCTION only (no pretrained POI2Vec import), required
-                for the Joint Node2Vec POI-POI skip-gram auxiliary loss
-                (T5.2a — INDEX.html). Default False → canonical preprocess
-                unchanged.
+            build_poi_delaunay: T5.2a / T5.2b — when True, also build a
+                POI-level Delaunay triangulation and cache its undirected
+                edge list under data dict key ``poi_delaunay_edge_index``.
+                Shared between T5.2a (Node2Vec walks over POI graph) and
+                T5.2b (masked-POI decoder neighbour aggregation). Default
+                False reproduces canonical preprocess exactly.
+            build_poi_aggregates: T5.2b — when True, also compute per-POI
+                feature aggregates (mean category one-hot of constituent
+                check-ins + log visit count). Cached under
+                ``poi_category_aggregate`` (P, num_categories) and
+                ``poi_visit_count_log`` (P,). These are the reconstruction
+                targets for the masked-POI decoder.
+
+                Leak note: both aggregates are derivable from the encoder's
+                INPUT features (check-in category one-hot already lives in
+                ``data.x``). Reconstructing them adds STRUCTURE (the
+                decoder must predict from POI Delaunay neighbours) but no
+                NEW information. This is GraphMAE-spirit, leak-safe by
+                construction. The user-held-out IJM probe is the
+                empirical guardrail. Default False reproduces canonical.
         """
         self.checkins_file = checkins_file
         self.boroughs_file = boroughs_file
@@ -41,6 +55,7 @@ class Check2HGIPreprocess:
         self.edge_type = edge_type
         self.temporal_decay = temporal_decay
         self.build_poi_delaunay = bool(build_poi_delaunay)
+        self.build_poi_aggregates = bool(build_poi_aggregates)
 
     def _load_checkins(self):
         """Load and prepare check-in data."""
@@ -277,11 +292,13 @@ class Check2HGIPreprocess:
         return edge_index, edge_weight
 
     def _build_poi_delaunay_edges(self):
-        """T5.2a — POI-level Delaunay triangulation edges.
+        """T5.2a / T5.2b — POI-level Delaunay triangulation edges.
 
-        Builds a POI-POI graph (NOT check-in level — see T4.4 closure note in
-        INDEX.html: check-in-level Delaunay over-smoothed). Output is a
-        deduplicated undirected edge list ready for Node2Vec random walks.
+        Builds a POI-POI graph (NOT check-in level — T4.4 closure note in
+        INDEX.html flagged that check-in-level Delaunay over-smoothed).
+        Output is a deduplicated undirected edge list shared by T5.2a
+        (Node2Vec random walks) and T5.2b (masked-POI decoder neighbour
+        aggregation).
 
         Returns:
             np.ndarray of shape (2, E_poi) with int64 dtype, where each
@@ -290,14 +307,14 @@ class Check2HGIPreprocess:
         """
         import scipy.spatial
         from itertools import combinations as _combinations
-        print("Building POI-level Delaunay edges (T5.2a)...")
+        print("Building POI-level Delaunay edges (T5.2a/T5.2b shared)...")
 
         poi_coords = np.array(
             self.pois.geometry.apply(lambda x: [x.x, x.y]).tolist(),
             dtype=np.float64,
         )
         if len(poi_coords) < 3:
-            print("[T5.2a] fewer than 3 POIs; no Delaunay possible")
+            print("[poi-delaunay] fewer than 3 POIs; no Delaunay possible")
             return np.zeros((2, 0), dtype=np.int64)
 
         triangles = scipy.spatial.Delaunay(
@@ -315,8 +332,51 @@ class Check2HGIPreprocess:
             return np.zeros((2, 0), dtype=np.int64)
 
         edges = np.array(sorted(poi_pairs), dtype=np.int64).T  # (2, E)
-        print(f"[T5.2a]   {edges.shape[1]} unique POI-POI Delaunay edges")
+        print(f"[poi-delaunay]   {edges.shape[1]} unique POI-POI Delaunay edges")
         return edges
+
+    def _compute_poi_feature_aggregates(self):
+        """T5.2b — per-POI feature aggregates used as masked-recon targets.
+
+        For each POI, compute:
+          * mean category one-hot of constituent check-ins (P, num_cat),
+            i.e. the empirical category distribution over the visits to
+            that POI; and
+          * log(1 + visit_count) (P,), a calibration of how popular the
+            POI is.
+
+        Both quantities are functions of the INPUT to the encoder (check-in
+        category one-hot already lives in ``data.x``); reconstructing them
+        adds no NEW information about the held-out fclass label. The signal
+        the decoder is forced to learn is purely STRUCTURAL — predict a
+        POI's category distribution from its Delaunay neighbours' POI
+        embeddings, when the POI's own embedding has been masked out.
+
+        Returns:
+            poi_category_aggregate: np.ndarray[float32] (num_pois, num_cat)
+            poi_visit_count_log:    np.ndarray[float32] (num_pois,)
+        """
+        print("Computing per-POI feature aggregates (T5.2b targets)...")
+        num_pois = len(self.pois)
+        num_cat = len(self.le_category.classes_)
+
+        poi_idx = self.checkins['poi_idx'].values.astype(np.int64)
+        cat_idx = self.checkins['category_encoded'].values.astype(np.int64)
+
+        # Vectorised: scatter-add counts then normalise.
+        counts = np.zeros((num_pois, num_cat), dtype=np.float64)
+        np.add.at(counts, (poi_idx, cat_idx), 1.0)
+        totals = counts.sum(axis=1, keepdims=True)              # (P, 1)
+        # POIs with 0 visits would only arise via filter mismatch; guard.
+        safe = np.where(totals > 0, totals, 1.0)
+        poi_category_aggregate = (counts / safe).astype(np.float32)
+
+        visit_count = totals.squeeze(-1).astype(np.float64)
+        poi_visit_count_log = np.log1p(visit_count).astype(np.float32)
+        print(f"[poi-aggregates]   {num_pois} POIs × {num_cat} cats; "
+              f"log-visit range "
+              f"[{poi_visit_count_log.min():.2f}, {poi_visit_count_log.max():.2f}]")
+        return poi_category_aggregate, poi_visit_count_log
 
     def _build_edges(self):
         """Build edges based on edge_type.
@@ -495,10 +555,19 @@ class Check2HGIPreprocess:
             'region_to_idx': self.region_to_idx,
         }
 
-        # T5.2a — optional POI-level Delaunay edge list (gated by build flag).
-        # Cached in the same pickle so subsequent c2hgi runs reuse it.
+        # T5.2a / T5.2b — optional POI-level Delaunay edge list (gated by
+        # ``build_poi_delaunay``). Cached in the same pickle so subsequent
+        # runs reuse it; consumed by both T5.2a (Node2Vec walks) and T5.2b
+        # (masked-POI decoder neighbour aggregation).
         if self.build_poi_delaunay:
             out['poi_delaunay_edge_index'] = self._build_poi_delaunay_edges()
+
+        # T5.2b — optional per-POI reconstruction targets (gated by
+        # ``build_poi_aggregates``).
+        if self.build_poi_aggregates:
+            poi_cat_agg, poi_visit_log = self._compute_poi_feature_aggregates()
+            out['poi_category_aggregate'] = poi_cat_agg
+            out['poi_visit_count_log'] = poi_visit_log
 
         return out
 
@@ -606,6 +675,7 @@ def build_view2_graph_file(city: str):
 def preprocess_check2hgi(city, city_shapefile, edge_type='user_sequence',
                           temporal_decay=3600.0, cta_file=None,
                           build_poi_delaunay: bool = False,
+                          build_poi_aggregates: bool = False,
                           build_view2: bool = False):
     """
     Main preprocessing function for Check2HGI.
@@ -616,9 +686,13 @@ def preprocess_check2hgi(city, city_shapefile, edge_type='user_sequence',
         edge_type: Type of edges ('user_sequence', 'same_poi', 'both')
         temporal_decay: Decay parameter for temporal edge weights
         cta_file: Optional path to pre-computed boroughs file
-        build_poi_delaunay: T5.2a — when True, also cache a POI-level
-            Delaunay triangulation edge list under ``poi_delaunay_edge_index``.
-            Default False reproduces canonical preprocess exactly.
+        build_poi_delaunay: T5.2a / T5.2b — when True, cache a POI-level
+            Delaunay triangulation edge list under
+            ``poi_delaunay_edge_index``. Default False reproduces canonical.
+        build_poi_aggregates: T5.2b — when True, cache per-POI feature
+            aggregates (category mean one-hot + log visit count) under
+            ``poi_category_aggregate`` and ``poi_visit_count_log``. Default
+            False reproduces canonical.
     """
     temp_folder = IoPaths.CHECK2HGI.get_temp_dir(city)
     temp_folder.mkdir(parents=True, exist_ok=True)
@@ -642,6 +716,7 @@ def preprocess_check2hgi(city, city_shapefile, edge_type='user_sequence',
         edge_type=edge_type,
         temporal_decay=temporal_decay,
         build_poi_delaunay=build_poi_delaunay,
+        build_poi_aggregates=build_poi_aggregates,
     )
 
     data = pre.get_data()

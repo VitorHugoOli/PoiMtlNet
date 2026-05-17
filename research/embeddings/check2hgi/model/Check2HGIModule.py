@@ -95,6 +95,19 @@ class Check2HGI(nn.Module):
         poi_id_init: str = "zero",
         poi_id_init_std: float = 0.01,
         num_pois: int | None = None,
+        # T5.2b — Masked POI feature-aggregate reconstruction. When
+        # ``mae_poi_lambda`` > 0, attach a ``MaskedPOIDecoder`` that
+        # consumes the pooled POI embeddings + POI Delaunay edges + a
+        # per-POI feature aggregate target (mean category one-hot ∨ log
+        # visit count). The SCE/MSE loss is added with coefficient
+        # ``mae_poi_lambda``. Defaults reproduce canonical behaviour.
+        mae_poi_lambda: float = 0.0,
+        mae_poi_mask_rate: float = 0.15,
+        mae_poi_gamma: float = 3.0,
+        mae_poi_target_dim: int = 0,
+        mae_poi_aggr: str = "mean",
+        mae_poi_target_kind: str = "category_aggregate",
+        mae_poi_loss_kind: str = "sce",
     ):
         """
         Initialize Check2HGI module.
@@ -271,6 +284,37 @@ class Check2HGI(nn.Module):
             self.num_pois_at_build = 0
             self.poi_id_table = None
 
+        # T5.2b — Masked POI feature-aggregate decoder. Built only when
+        # enabled; the decoder is consumed in ``forward`` after Checkin2POI
+        # pool and BEFORE poi2region, on a SEPARATE clone of pos_poi_emb
+        # so the contrastive c2p/p2r pathways are unaffected. The target
+        # tensor is expected to live on ``data.poi_recon_target``
+        # (P, target_dim); the POI-POI Delaunay edge list on
+        # ``data.poi_delaunay_edge_index`` (2, E_poi). Both are wired by
+        # train_check2hgi() when ``mae_poi_lambda`` > 0.
+        self.mae_poi_lambda = float(mae_poi_lambda)
+        if self.mae_poi_lambda > 0.0:
+            if mae_poi_target_dim <= 0:
+                raise ValueError(
+                    "mae_poi_lambda > 0 requires mae_poi_target_dim > 0 "
+                    "(set by train_check2hgi from data.poi_recon_target.shape[1])."
+                )
+            # Local import to avoid a circular import at module load time:
+            # variants.py imports Check2HGI from this module.
+            from embeddings.check2hgi.model.variants import MaskedPOIDecoder
+            self.mae_poi_decoder = MaskedPOIDecoder(
+                hidden_channels=hidden_channels,
+                target_dim=int(mae_poi_target_dim),
+                mask_rate=float(mae_poi_mask_rate),
+                gamma=float(mae_poi_gamma),
+                aggr=str(mae_poi_aggr),
+                target_kind=str(mae_poi_target_kind),
+                loss_kind=str(mae_poi_loss_kind),
+            )
+        else:
+            self.mae_poi_decoder = None
+        self._mae_poi_loss = None
+
         # Store embeddings for extraction
         self.checkin_embedding = torch.tensor(0)
         self.poi_embedding = torch.tensor(0)
@@ -410,6 +454,37 @@ class Check2HGI(nn.Module):
         # Uses the AUGMENTED poi_emb (the intended injection point).
         pos_region_emb = self.poi2region(pos_poi_emb, data.poi_to_region, data.region_adjacency)
         neg_region_emb = self.poi2region(neg_poi_emb, data.poi_to_region, data.region_adjacency)
+
+        # T5.2b — Masked POI feature-aggregate reconstruction. Operates on
+        # the PRE-augmentation pooled POI emb (so side-feature gradients
+        # never reach the POI-level decoder), but AFTER the canonical
+        # Checkin2POI pool. The decoder takes a separate path that does
+        # NOT feed into the contrastive c2p/p2r/r2c losses; the loss is
+        # accumulated below and added in loss() with coefficient
+        # ``mae_poi_lambda``.
+        #
+        # Inputs read off ``data``:
+        #   * ``data.poi_delaunay_edge_index``: (2, E_poi) int64 — required.
+        #   * ``data.poi_recon_target``: (P, target_dim) float — required.
+        # If either is absent, raise loudly — silently dropping the auxiliary
+        # would defeat the purpose.
+        self._mae_poi_loss = None
+        if self.mae_poi_lambda > 0.0 and self.mae_poi_decoder is not None:
+            poi_edges = getattr(data, "poi_delaunay_edge_index", None)
+            recon_target = getattr(data, "poi_recon_target", None)
+            if poi_edges is None or recon_target is None:
+                raise ValueError(
+                    "mae_poi_lambda > 0 requires data.poi_delaunay_edge_index "
+                    "and data.poi_recon_target on the input Data object. "
+                    "Did you forget to call preprocess with "
+                    "build_poi_delaunay=True and build_poi_aggregates=True?"
+                )
+            # NB: pass the PRE-augmentation POI emb (pos_poi_emb_pure) so
+            # side features don't reach this decoder (mirrors the c2p
+            # isolation from T4.3).
+            self._mae_poi_loss = self.mae_poi_decoder(
+                pos_poi_emb_pure, poi_edges, recon_target,
+            )
 
         # T4.1 — GraphMAE masked feature reconstruction.
         # Separate forward over a masked input: replace mask_rate of nodes'
@@ -747,6 +822,12 @@ class Check2HGI(nn.Module):
                     )
                     l_align = 1.0 - _cos.mean()
                     total_loss = total_loss + self.n2v_align_lambda * l_align
+
+        # T5.2b — fold in masked-POI feature-aggregate auxiliary.
+        if (self.mae_poi_lambda > 0.0
+                and self._mae_poi_loss is not None
+                and torch.is_tensor(self._mae_poi_loss)):
+            total_loss = total_loss + self.mae_poi_lambda * self._mae_poi_loss
 
         return total_loss
 

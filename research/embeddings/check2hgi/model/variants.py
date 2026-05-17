@@ -192,6 +192,204 @@ class MultiViewWrapper(nn.Module):
 
 
 # ---------------------------------------------------------------------------
+# T5.2b: Masked POI feature reconstruction decoder
+# ---------------------------------------------------------------------------
+
+class MaskedPOIDecoder(nn.Module):
+    """T5.2b — Masked POI feature-aggregate decoder (GraphMAE-spirit, POI level).
+
+    Paired-falsification counterpart to T4.1 (GraphMAE at check-in level, which
+    falsified at AL+AZ in 2026-05 with no fclass-probe lift). T5.2b operates at
+    a DIFFERENT hierarchy and via a DIFFERENT mechanism:
+
+      * T4.1: mask 50 % of CHECK-IN input features (11-d category + temporal),
+        feed through the check-in GCN, decode at the check-in level.
+        Mechanism = node-feature reconstruction.
+      * T5.2b: mask 15 % of POIS post-pool (zero out their pooled embedding),
+        aggregate Delaunay POI-POI neighbour embeddings, decode the masked POI's
+        feature aggregate (mean category one-hot of check-ins ∨ log visit
+        count). Mechanism = neighbourhood feature-aggregate prediction.
+
+    Why this might lift where T4.1 did not: HGI's recipe lift derived (in the
+    HGI ablation, 2018) from masked POI reconstruction more than from
+    Node2Vec walks. Lifting THAT mechanism into Check2HGI tests whether the
+    POI-level masked-recon objective is what carries the spatial-structural
+    signal — not the walk-based pre-training and not the check-in-level
+    masking.
+
+    Leak class: the targets are functions of the encoder's INPUT (check-in
+    category one-hot already lives in ``data.x``), so reconstruction adds
+    STRUCTURE (decoder must predict from neighbours) without adding NEW
+    information about the held-out fclass label. The user-held-out IJM
+    probe is the empirical guardrail (see F62).
+
+    Args:
+        hidden_channels: dim D of pooled POI embeddings (typically 64).
+        target_dim:      output dim of the decoder = dim of reconstruction
+                         target (num_categories for "category_aggregate",
+                         1 for "visit_count_log", num_categories+1 for
+                         "both").
+        mask_rate:       fraction of POIs masked at each step (default 0.15
+                         per spec).
+        gamma:           SCE exponent (default 3.0; same family as T4.1).
+        aggr:            "mean" (default) or "gcn" — neighbour aggregation
+                         scheme. "mean" averages neighbour embeddings; "gcn"
+                         applies a 1-layer symmetric D^{-1/2} A D^{-1/2}
+                         normalisation.
+        target_kind:     informational only ("category_aggregate" |
+                         "visit_count_log" | "both"); used for repr/debug.
+        loss_kind:       "sce" (default; cosine on the recon vs target) or
+                         "mse" (raw L2 — recommended only for visit_count
+                         alone, where the target is an unbounded scalar).
+    """
+
+    def __init__(self, hidden_channels: int, target_dim: int,
+                 mask_rate: float = 0.15, gamma: float = 3.0,
+                 aggr: str = "mean", target_kind: str = "category_aggregate",
+                 loss_kind: str = "sce"):
+        super().__init__()
+        if hidden_channels <= 0:
+            raise ValueError(f"hidden_channels must be > 0; got {hidden_channels}")
+        if target_dim <= 0:
+            raise ValueError(f"target_dim must be > 0; got {target_dim}")
+        if not 0.0 <= mask_rate <= 1.0:
+            raise ValueError(f"mask_rate must be in [0, 1]; got {mask_rate}")
+        if aggr not in ("mean", "gcn"):
+            raise ValueError(f"aggr must be 'mean' or 'gcn'; got {aggr}")
+        if loss_kind not in ("sce", "mse"):
+            raise ValueError(f"loss_kind must be 'sce' or 'mse'; got {loss_kind}")
+        self.hidden_channels = int(hidden_channels)
+        self.target_dim = int(target_dim)
+        self.mask_rate = float(mask_rate)
+        self.gamma = float(gamma)
+        self.aggr = aggr
+        self.target_kind = target_kind
+        self.loss_kind = loss_kind
+
+        # Decoder: small 2-layer MLP, D → 2D → target_dim. Width chosen to
+        # mirror T4.1's mae_decoder (2-layer with hidden ≥ input).
+        self.decoder = nn.Sequential(
+            nn.Linear(self.hidden_channels, 2 * self.hidden_channels),
+            nn.PReLU(),
+            nn.Linear(2 * self.hidden_channels, self.target_dim),
+        )
+
+    def _aggregate_neighbours(self, poi_emb: torch.Tensor,
+                              poi_edge_index: torch.Tensor) -> torch.Tensor:
+        """Aggregate masked POI embeddings via POI-POI Delaunay edges.
+
+        ``poi_edge_index``: undirected edge list (2, E). We make it
+        bidirectional inside this method (cheaper than caching both
+        directions; the preprocess stores only (a, b) with a < b).
+
+        Returns: (P, D) per-POI neighbour aggregate. POIs with NO Delaunay
+        neighbour fall back to their (possibly zeroed) own embedding to
+        avoid degenerate all-zero decoder inputs.
+        """
+        P = poi_emb.size(0)
+        if poi_edge_index.numel() == 0:
+            # No graph → degenerate to identity (no neighbours to aggregate).
+            return poi_emb
+        # Make bidirectional.
+        ei = torch.cat([poi_edge_index, poi_edge_index.flip(0)], dim=1)
+        src, dst = ei[0], ei[1]
+
+        # Sum aggregation: out[dst] += poi_emb[src].
+        out = torch.zeros_like(poi_emb)
+        out.index_add_(0, dst, poi_emb[src])
+
+        deg = torch.zeros(P, device=poi_emb.device, dtype=poi_emb.dtype)
+        ones = torch.ones(src.size(0), device=poi_emb.device, dtype=poi_emb.dtype)
+        deg.index_add_(0, dst, ones)
+
+        if self.aggr == "mean":
+            denom = deg.clamp(min=1.0).unsqueeze(-1)
+            out = out / denom
+        else:  # gcn-style symmetric normalisation D^{-1/2} A D^{-1/2}
+            d_inv_sqrt = deg.clamp(min=1.0).pow(-0.5).unsqueeze(-1)
+            # Right-normalise dst, left-normalise via per-src factor.
+            # For Delaunay graphs (regular-ish degree) the difference vs the
+            # "mean" branch is small but the asymptotic GCN scaling is closer.
+            src_w = d_inv_sqrt[src]
+            weighted_src_emb = poi_emb[src] * src_w
+            out = torch.zeros_like(poi_emb)
+            out.index_add_(0, dst, weighted_src_emb)
+            out = out * d_inv_sqrt
+
+        # POIs with zero degree retain zeros above; fall back to own
+        # (masked = 0) embedding to keep the decoder input distribution
+        # well-defined. The SCE clamp(min=0) prevents any NaN.
+        isolated = (deg == 0).unsqueeze(-1)
+        out = torch.where(isolated, poi_emb, out)
+        return out
+
+    def forward(self, poi_emb: torch.Tensor,
+                poi_edge_index: torch.Tensor,
+                target: torch.Tensor,
+                generator: torch.Generator | None = None) -> torch.Tensor:
+        """Run masked POI reconstruction; return scalar SCE/MSE loss.
+
+        Args:
+            poi_emb:        (P, D) pooled POI embeddings (post-Checkin2POI,
+                            pre-POI2Region).
+            poi_edge_index: (2, E_poi) undirected POI-POI Delaunay edges.
+            target:         (P, target_dim) reconstruction target.
+            generator:      optional torch.Generator for reproducible masks
+                            (used by the unit test for seed-reproducibility).
+
+        Returns: scalar loss tensor. If mask_rate=0 or no POI is sampled,
+            returns a zero scalar (no autograd contribution).
+        """
+        if self.mask_rate <= 0.0:
+            return poi_emb.new_zeros((), requires_grad=False)
+
+        P, D = poi_emb.shape
+        if target.shape != (P, self.target_dim):
+            raise ValueError(
+                f"target shape {tuple(target.shape)} != ({P}, {self.target_dim})"
+            )
+
+        # Sample mask under no_grad — mask SELECTION must not flow gradient.
+        with torch.no_grad():
+            if generator is not None:
+                u = torch.rand(P, device=poi_emb.device, generator=generator)
+            else:
+                u = torch.rand(P, device=poi_emb.device)
+            mask = u < self.mask_rate
+
+        if not bool(mask.any()):
+            return poi_emb.new_zeros((), requires_grad=False)
+
+        # Zero out masked POIs (= 0 vector mask token). We deliberately do
+        # NOT learn a [MASK] parameter here, because the masked POI must be
+        # RECONSTRUCTED FROM NEIGHBOURS — if the decoder could read a
+        # learned token at the masked slot, it could short-circuit the
+        # neighbourhood-aggregation signal.
+        poi_emb_masked = poi_emb.clone()
+        poi_emb_masked[mask] = 0.0
+
+        # Aggregate neighbour embeddings.
+        neigh = self._aggregate_neighbours(poi_emb_masked, poi_edge_index)
+
+        # Decode for masked POIs only.
+        pred = self.decoder(neigh[mask])     # (M, target_dim)
+        tgt = target[mask]                   # (M, target_dim)
+
+        if self.loss_kind == "sce":
+            cos = F.cosine_similarity(pred, tgt, dim=-1, eps=EPS)
+            loss = ((1.0 - cos).clamp(min=0.0) ** self.gamma).mean()
+        else:  # mse
+            loss = F.mse_loss(pred, tgt)
+        return loss
+
+    def __repr__(self) -> str:
+        return (f"MaskedPOIDecoder(D={self.hidden_channels}, "
+                f"target_dim={self.target_dim}, mask_rate={self.mask_rate}, "
+                f"gamma={self.gamma}, aggr={self.aggr!r}, "
+                f"target_kind={self.target_kind!r}, loss_kind={self.loss_kind!r})")
+
+
+# ---------------------------------------------------------------------------
 # V2: Time-aware GAT encoder
 # ---------------------------------------------------------------------------
 

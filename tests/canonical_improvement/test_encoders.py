@@ -50,6 +50,7 @@ Time2VecCheckinEncoder = _var.Time2VecCheckinEncoder
 RGCNEncoder = _var.RGCNEncoder
 Node2VecPOIHead = _var.Node2VecPOIHead
 POIIdMixedPooler = _var.POIIdMixedPooler
+MaskedPOIDecoder = _var.MaskedPOIDecoder
 # Checkin2POI lives in a separate module — load directly to avoid
 # triggering the check2hgi package __init__ side-effects.
 _c2p = _load("Checkin2POI", _root / "research/embeddings/check2hgi/model/Checkin2POI.py")
@@ -655,3 +656,110 @@ def test_multiview_wrapper():
 
 test_multiview_wrapper()
 print("\n[T5.3 unit test] passed.")
+
+
+# ── T5.2b MaskedPOIDecoder ───────────────────────────────────────────────────
+
+def test_masked_poi_decoder():
+    """T5.2b unit test: MaskedPOIDecoder produces finite SCE loss, gradient
+    flows on the decoder MLP, mask_rate=0 returns zero loss / no-op, and the
+    mask is reproducible under a torch.Generator seed.
+
+    Synthetic POI graph: ~100 POIs with ~300 random Delaunay-style edges
+    (we just generate a random edge list — the decoder treats them
+    structurally the same regardless of geometry origin).
+    """
+    print("\n[T5.2b MaskedPOIDecoder] running unit test")
+    P_test = 100
+    D_test = 64
+    NUM_CAT_test = 11
+    # Synthetic POI graph (~300 undirected edges).
+    g = torch.Generator().manual_seed(7)
+    src = torch.randint(0, P_test, (300,), generator=g)
+    dst = torch.randint(0, P_test, (300,), generator=g)
+    mask_self = src != dst
+    src, dst = src[mask_self], dst[mask_self]
+    # Canonical undirected form (a, b) with a < b.
+    a = torch.minimum(src, dst); b = torch.maximum(src, dst)
+    poi_edge_index = torch.stack([a, b], dim=0).to(torch.int64)
+    # Random pooled POI embeddings + random per-POI category aggregate target.
+    poi_emb = torch.randn(P_test, D_test, requires_grad=True)
+    target = torch.softmax(torch.randn(P_test, NUM_CAT_test), dim=-1)
+
+    # (a) Default: SCE loss finite + positive on category_aggregate.
+    dec = MaskedPOIDecoder(
+        hidden_channels=D_test, target_dim=NUM_CAT_test,
+        mask_rate=0.15, gamma=3.0, aggr="mean",
+        target_kind="category_aggregate", loss_kind="sce",
+    )
+    gen1 = torch.Generator().manual_seed(42)
+    loss = dec(poi_emb, poi_edge_index, target, generator=gen1)
+    assert torch.isfinite(loss), f"SCE loss not finite: {loss}"
+    assert loss.item() > 0.0, f"SCE loss not positive: {loss.item()}"
+    print(f"  SCE loss (mask_rate=0.15)        = {loss.item():.6f}  ✓")
+
+    # (b) Backward produces gradients on the decoder MLP.
+    loss.backward()
+    bad = [n for n, p in dec.named_parameters() if p.requires_grad and p.grad is None]
+    assert not bad, f"MaskedPOIDecoder dead params after backward: {bad}"
+    # poi_emb also gets a gradient (it's part of the input chain through the
+    # neighbour aggregation).
+    assert poi_emb.grad is not None, "poi_emb has no gradient"
+    assert torch.isfinite(poi_emb.grad).all(), "poi_emb gradient non-finite"
+    print(f"  backward grad on decoder MLP    = ✓  (poi_emb.grad.norm={poi_emb.grad.norm().item():.4f})")
+
+    # (c) mask_rate=0 returns zero scalar loss (no behaviour change path).
+    dec_zero = MaskedPOIDecoder(
+        hidden_channels=D_test, target_dim=NUM_CAT_test,
+        mask_rate=0.0, gamma=3.0,
+    )
+    loss_zero = dec_zero(poi_emb.detach(), poi_edge_index, target)
+    assert loss_zero.item() == 0.0, f"mask_rate=0 should give 0 loss, got {loss_zero.item()}"
+    print(f"  mask_rate=0 ⇒ loss=0             = ✓  ({loss_zero.item()})")
+
+    # (d) Mask is reproducible under seed.
+    dec2 = MaskedPOIDecoder(
+        hidden_channels=D_test, target_dim=NUM_CAT_test,
+        mask_rate=0.15, gamma=3.0,
+    )
+    # Reuse SAME init by copying state dict from the first call's decoder.
+    dec2.load_state_dict(dec.state_dict())
+    gen2a = torch.Generator().manual_seed(123)
+    gen2b = torch.Generator().manual_seed(123)
+    p1 = poi_emb.detach().clone()
+    p2 = poi_emb.detach().clone()
+    l1 = dec2(p1, poi_edge_index, target, generator=gen2a)
+    l2 = dec2(p2, poi_edge_index, target, generator=gen2b)
+    assert torch.isclose(l1, l2, atol=1e-6), (
+        f"Mask not reproducible: {l1.item()} vs {l2.item()}"
+    )
+    print(f"  seed-reproducible mask          = ✓  ({l1.item():.6f} == {l2.item():.6f})")
+
+    # (e) MSE branch with visit_count_log target (1d).
+    dec_mse = MaskedPOIDecoder(
+        hidden_channels=D_test, target_dim=1,
+        mask_rate=0.5, gamma=3.0,
+        target_kind="visit_count_log", loss_kind="mse",
+    )
+    target_v = torch.log1p(torch.rand(P_test, 1) * 10.0)
+    loss_mse = dec_mse(poi_emb.detach(), poi_edge_index, target_v)
+    assert torch.isfinite(loss_mse), f"MSE loss not finite: {loss_mse}"
+    assert loss_mse.item() >= 0.0, f"MSE loss negative: {loss_mse.item()}"
+    print(f"  MSE branch (visit_count_log)    = ✓  (loss={loss_mse.item():.6f})")
+
+    # (f) Sanity: empty edge list ⇒ degenerate to identity (no neighbours);
+    # decoder still runs and SCE remains finite (masked POIs have zero emb).
+    empty_edges = torch.zeros((2, 0), dtype=torch.int64)
+    dec_e = MaskedPOIDecoder(
+        hidden_channels=D_test, target_dim=NUM_CAT_test, mask_rate=0.5,
+    )
+    loss_e = dec_e(poi_emb.detach(), empty_edges, target)
+    assert torch.isfinite(loss_e), f"empty-edge SCE non-finite: {loss_e}"
+    print(f"  empty-edges fallback            = ✓  (loss={loss_e.item():.6f})")
+
+    print("[T5.2b MaskedPOIDecoder] all 6 assertions passed.")
+
+
+test_masked_poi_decoder()
+
+print("\n[T3 unit test] all assertions passed (forward + backward + leak-probe + T5.2b).")

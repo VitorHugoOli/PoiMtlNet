@@ -198,6 +198,33 @@ def main() -> None:
                          "'zero' (default) gives strict cold-start neutrality; "
                          "'gaussian' uses N(0, 0.01) to give SGD a non-zero "
                          "starting gradient. POI2Vec warm-start is OUT OF SCOPE.")
+    # T5.2b — Masked POI feature-aggregate reconstruction. Paired-falsification
+    # counterpart to T4.1 (POI-level vs check-in-level). Defaults MUST preserve
+    # canonical: --use-mae-poi off ⇒ no change to outputs / no new artefacts
+    # built / no new path through Check2HGI.
+    ap.add_argument("--use-mae-poi", action="store_true", default=False,
+                    help="T5.2b: enable masked POI feature-aggregate "
+                         "reconstruction (POI-level analogue to T4.1 GraphMAE).")
+    ap.add_argument("--mae-poi-lambda", type=float, default=0.3,
+                    help="T5.2b: coefficient on the masked-POI auxiliary loss "
+                         "(spec sweep range {0.1, 0.3}; default 0.3 when "
+                         "enabled). Ignored unless --use-mae-poi is set.")
+    ap.add_argument("--mae-poi-mask-rate", type=float, default=0.15,
+                    help="T5.2b: fraction of POIs whose pooled embedding is "
+                         "zeroed-out at each step (default 0.15 per spec).")
+    ap.add_argument("--mae-poi-target",
+                    default="category_aggregate",
+                    choices=("category_aggregate", "visit_count_log", "both"),
+                    help="T5.2b: reconstruction target — per-POI mean category "
+                         "one-hot (default), log visit count, or both concatenated.")
+    ap.add_argument("--mae-poi-gamma", type=float, default=3.0,
+                    help="T5.2b: SCE exponent (only used when loss=sce; "
+                         "auto-switched to MSE for visit_count_log alone).")
+    ap.add_argument("--mae-poi-aggr", default="mean", choices=("mean", "gcn"),
+                    help="T5.2b: neighbour aggregation over POI Delaunay edges.")
+    ap.add_argument("--mae-poi-loss-kind", default="sce", choices=("sce", "mse"),
+                    help="T5.2b: reconstruction loss. SCE matches T4.1 family; "
+                         "MSE recommended for visit_count_log alone.")
     ap.add_argument("--rgcn-num-relations", type=int, default=2,
                     help="T3.3: number of edge relation types for R-GCN.")
     ap.add_argument("--rgcn-num-bases", type=str, default="2",
@@ -221,14 +248,15 @@ def main() -> None:
     # R-GCN requires the multi-relation graph. The cached canonical graph
     # (edge_type='user_sequence') has no per-edge relation index, so we must
     # force a fresh preprocess for R-GCN. (T3.3 advisor pre-launch audit.)
-    # T5.2a also needs a fresh preprocess to add the POI Delaunay edge list
-    # if the cache doesn't already have it; check2hgi.create_embedding will
-    # additionally peek at the cache and re-preprocess on demand, so passing
-    # force_preprocess here is belt-and-braces.
+    # T5.2a / T5.2b also need a fresh preprocess to add the POI Delaunay
+    # edge list and/or per-POI aggregate targets if the cache lacks them.
+    # ``create_embedding`` additionally peeks at the cache and rebuilds on
+    # demand, so passing force_preprocess here is belt-and-braces.
     _force_preprocess = (
         (args.encoder == "rgcn")
         or (args.edge_type != "user_sequence")
         or bool(args.use_node2vec_poi)
+        or bool(args.use_mae_poi)
     )
 
     # T5.2a — effective λ. When the flag is OFF, force λ=0 so default
@@ -270,6 +298,14 @@ def main() -> None:
         use_poi_id_embedding=args.use_poi_id_embedding,
         poi_id_gamma=args.poi_id_gamma,
         poi_id_init=args.poi_id_init,
+        # T5.2b plumbing — gated by --use-mae-poi. When OFF, mae_poi_lambda=0
+        # ⇒ Check2HGI takes the canonical path bit-identically.
+        mae_poi_lambda=(args.mae_poi_lambda if args.use_mae_poi else 0.0),
+        mae_poi_mask_rate=args.mae_poi_mask_rate,
+        mae_poi_gamma=args.mae_poi_gamma,
+        mae_poi_target=args.mae_poi_target,
+        mae_poi_aggr=args.mae_poi_aggr,
+        mae_poi_loss_kind=args.mae_poi_loss_kind,
         # T2.4 + Hyp B plumbing
         drop_edge_rate=args.drop_edge_rate,
         symmetric_drop_edge=args.symmetric_drop_edge,
@@ -329,7 +365,10 @@ def main() -> None:
           f"share_enc={bool(args.multiview_share_encoder)} "
           f"export={args.multiview_export_view}) "
           f"poi_id={args.use_poi_id_embedding} γ={args.poi_id_gamma} "
-          f"init={args.poi_id_init}",
+          f"init={args.poi_id_init} "
+          f"use_mae_poi={args.use_mae_poi} "
+          f"mae_poi_lambda={args.mae_poi_lambda if args.use_mae_poi else 0.0} "
+          f"mae_poi_target={args.mae_poi_target}",
           flush=True)
 
     # T4.3: pre-compute POI side-features if needed and not yet on disk.
