@@ -1,0 +1,29 @@
+{
+  "tag": "T5_1_poiId_alabama_seed42",
+  "tagged_root": "/home/vitor.oliveira/PoiMtlNet/runs/T5_1_poiId_alabama_seed42",
+  "al": {
+    "run_dir": "/home/vitor.oliveira/PoiMtlNet/runs/T5_1_poiId_alabama_seed42/results/check2hgi/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260518_004846_107952",
+    "cat_f1_per_fold": [
+      0.42031681537628174,
+      0.40699517726898193,
+      0.4220161736011505,
+      0.43295615911483765,
+      0.4047902822494507
+    ],
+    "reg_top10_per_fold": [
+      0.4432278871536255,
+      0.44800975918769836,
+      0.46534255146980286,
+      0.43310287594795227,
+      0.3627490699291229
+    ],
+    "cat_f1_mean_pct": 41.74149215221405,
+    "cat_f1_std_pct": 1.1608996098013091,
+    "reg_top10_mean_pct": 43.04864287376404,
+    "reg_top10_std_pct": 3.9621827125039193,
+    "leak_probe": {
+      "f1_mean_pct": 33.13317414362707,
+      "f1_std_pct": 1.8647816342806958
+    }
+  }
+}

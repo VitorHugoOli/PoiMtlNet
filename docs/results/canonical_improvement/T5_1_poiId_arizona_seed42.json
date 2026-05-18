@@ -1,0 +1,29 @@
+{
+  "tag": "T5_1_poiId_arizona_seed42",
+  "tagged_root": "/home/vitor.oliveira/PoiMtlNet/runs/T5_1_poiId_arizona_seed42",
+  "ar": {
+    "run_dir": "/home/vitor.oliveira/PoiMtlNet/runs/T5_1_poiId_arizona_seed42/results/check2hgi/arizona/mtlnet_lr1.0e-04_bs2048_ep50_20260518_005405_111248",
+    "cat_f1_per_fold": [
+      0.47876477241516113,
+      0.5055450797080994,
+      0.4694787859916687,
+      0.45555758476257324,
+      0.46690014004707336
+    ],
+    "reg_top10_per_fold": [
+      0.37577399611473083,
+      0.3685324192047119,
+      0.3911188542842865,
+      0.3174022138118744,
+      0.36255285143852234
+    ],
+    "cat_f1_mean_pct": 47.524927258491516,
+    "cat_f1_std_pct": 1.88478365287073,
+    "reg_top10_mean_pct": 36.30760669708252,
+    "reg_top10_std_pct": 2.7675719147975895,
+    "leak_probe": {
+      "f1_mean_pct": 36.636134994817645,
+      "f1_std_pct": 0.7562904357175856
+    }
+  }
+}

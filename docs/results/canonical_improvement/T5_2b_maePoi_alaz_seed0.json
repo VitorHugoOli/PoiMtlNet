@@ -1,0 +1,54 @@
+{
+  "tag": "T5_2b_maePoi_alaz_seed0",
+  "tagged_root": "/home/vitor.oliveira/PoiMtlNet/runs/T5_2b_maePoi_alaz_seed0",
+  "al": {
+    "run_dir": "/home/vitor.oliveira/PoiMtlNet/runs/T5_2b_maePoi_alaz_seed0/results/check2hgi/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260517_234114_74599",
+    "cat_f1_per_fold": [
+      0.4394707679748535,
+      0.4091995358467102,
+      0.4204374849796295,
+      0.41566693782806396,
+      0.4136478304862976
+    ],
+    "reg_top10_per_fold": [
+      0.5379644632339478,
+      0.49129199981689453,
+      0.5157464146614075,
+      0.5237901210784912,
+      0.39814066886901855
+    ],
+    "cat_f1_mean_pct": 41.968451142311096,
+    "cat_f1_std_pct": 1.1774761618292071,
+    "reg_top10_mean_pct": 49.33867335319519,
+    "reg_top10_std_pct": 5.587418017969676,
+    "leak_probe": {
+      "f1_mean_pct": 32.603464280184355,
+      "f1_std_pct": 2.138364623484447
+    }
+  },
+  "ar": {
+    "run_dir": "/home/vitor.oliveira/PoiMtlNet/runs/T5_2b_maePoi_alaz_seed0/results/check2hgi/arizona/mtlnet_lr1.0e-04_bs2048_ep50_20260517_234114_74600",
+    "cat_f1_per_fold": [
+      0.4819474518299103,
+      0.4662941098213196,
+      0.4783613681793213,
+      0.46063968539237976,
+      0.4509836435317993
+    ],
+    "reg_top10_per_fold": [
+      0.39782440662384033,
+      0.40673723816871643,
+      0.44916072487831116,
+      0.37398216128349304,
+      0.41080352663993835
+    ],
+    "cat_f1_mean_pct": 46.764525175094604,
+    "cat_f1_std_pct": 1.2726947899750225,
+    "reg_top10_mean_pct": 40.770161151885986,
+    "reg_top10_std_pct": 2.722117959715492,
+    "leak_probe": {
+      "f1_mean_pct": 36.96628223730706,
+      "f1_std_pct": 0.7866538523688639
+    }
+  }
+}
