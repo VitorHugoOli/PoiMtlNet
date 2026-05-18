@@ -38,7 +38,7 @@ REGEN_CMD=$2
 
 # ── Paths ─────────────────────────────────────────────────────────────────
 PROJECT_ROOT=/home/vitor.oliveira/PoiMtlNet
-WORKTREE=/home/vitor.oliveira/worktree-check2hgi-canonical-improve
+WORKTREE=/home/vitor.oliveira/PoiMtlNet
 TAGGED_ROOT=${PROJECT_ROOT}/runs/${TAG}            # all per-variant disk state lives here
 LOG_ROOT=${PROJECT_ROOT}/logs
 RESULTS_REGISTRY=${PROJECT_ROOT}/docs/results/canonical_improvement
