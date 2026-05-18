@@ -29,6 +29,20 @@
 
 ## Timeline of findings (most recent first)
 
+### 2026-05-18 follow-up — canonical_improvement Tier-5 Phase-3 closed (no shipping change)
+
+**Tier-5 Phase-3 closed; canonical+v3c+T3.2 remains the shipping stack.** After the 2026-05-18 first-pass Tier-5 close (`docs/results/canonical_improvement/STACKING_ABLATION.md §7.1-§7.5`), two further multi-seed cells landed in Phase 3:
+- **T5.2b multi-seed extended to FL** (5 seeds × FL; `T5_2b_maePoi_FL_seed{42,0,1,7,100}.json`). 4/5 paired-positive on FL cat (mean +0.234 pp); FL reg flat at −0.069 pp. Closes 3-state coverage. **3-state cross-state cat sign-test 13/15 paired-positive, p = 0.0074** — strongest single piece of Tier-5 evidence.
+- **T5.3 multi-seed ran** (AL+AZ × 5 seeds; `T5_3_multiview_{alabama,arizona}_seed42.json` + `T5_3_multiview_alaz_seed{0,1,7,100}.json`). §7.1 had T5.3 marked SKIPPED → §Future Work; Phase 3 un-skipped it. All four (AL+AZ × cat+reg) cells mean-positive; AZ reg Cohen d ≈ +0.85 (strongest Tier-5 effect size), p_one = 0.065 — sub-Bonferroni at m=28.
+
+**Multiple-testing posture (Phase-3 update):** family count tightens from m = 26 (§7.3) to **m = 28** (Tier 1–4 + Phase 1 Hyp A/B/C/D + Tier 5 T5.1/T5.2a + T5.2b 3-state + T5.3 AL+AZ multi-seed). Bonferroni α* = 0.05/28 ≈ 0.00179. **No Tier-5 cell clears it.** T5.2b pooled cat sign-test (p=0.0074) misses by ~4× — closest to threshold.
+
+**Shipping stack unchanged:** `canonical Check2HGI + v3c (AdamW WD=5e-2) + T3.2 ResLN encoder`. §5 paper headlines stand. Tier 5 closes as §Discussion-only in the BRACIS draft (Beats 5/6/7/8 in `PAPER_DRAFT.md §7`).
+
+**Artefacts.** `docs/results/canonical_improvement/STACKING_ABLATION.md §7.6` (Phase-3 closeout); `docs/studies/canonical_improvement/log.md` (2026-05-18 follow-up entry); `docs/studies/canonical_improvement/INDEX.html` (T5.x pills updated; Phase-3 callout); `docs/findings/F62_T5_2b_implementation.md` (FL multi-seed section); `docs/findings/F63_T5_3_implementation.md` (multi-seed results replace SKIPPED placeholder); `articles/[BRACIS]_Beyond_Cross_Task/PAPER_DRAFT.md §7` (Beats 5/6/7/8); `articles/[BRACIS]_Beyond_Cross_Task/AUDIT_LOG.md §7` (record of Beats 5/6/7 → 5/6/7/8 replacement).
+
+---
+
 ### 2026-05-02 — RESULTS_TABLE v11 (FL §0.1 arch-Δ upgraded to n=20 — all five states paper-grade)
 
 **FL §0.1 architectural-Δ row upgraded from n=5 (single seed=42) to n=20 (seeds {0,1,7,100} × 5 folds).**

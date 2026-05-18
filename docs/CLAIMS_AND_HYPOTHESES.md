@@ -9,6 +9,9 @@
 > - **CH19** — Per-visit context mechanism (~72 % AL / ~64 % AZ / ~90 % FL / ~89 % CA / ~90 % TX of cat substrate gap; **five-state confirmed 2026-05-04**). Survives all leak-free re-measurements; two-band pattern across state scale.
 > - **CH22** — Δm joint score (leak-free 2026-05-01 reframe). FL multi-seed Δm-MRR positive at p = 2.98e-8 (n = 25); other states at n = 5 ceiling.
 >
+> **Tier-5 §Discussion-only (2026-05-18 Phase-3 close; NOT shipping claims):**
+> - **Tier-5 masked-POI / multi-view priors are §Discussion-only.** T5.2b (masked-POI MAE) and T5.3 (multi-view co-training) produced directional positive cat-axis signals (T5.2b: 3-state × 5-seed sign-test 13/15+, p=0.0074; T5.3 AZ reg Cohen d ≈ +0.85, p_one=0.065) but **fail Bonferroni correction at the canonical_improvement family scale m = 28** (α* ≈ 0.00179). No shipping change. Reported as motivation for future work in `PAPER_DRAFT.md §7` Beats 6-8. Source-of-truth: `docs/results/canonical_improvement/STACKING_ABLATION.md §7.6`.
+>
 > **Not whitelisted (pre-leak-free or superseded):**
 > - **CH01** / **CH02** / **CH03** — pre-Phase-1 framings; not paper-current.
 > - **CH18-reg** (pre-2026-04-30) — was a leak artefact; CH15 reframing supersedes it.
