@@ -1900,6 +1900,184 @@ To be added to `articles/[BRACIS]_Beyond_Cross_Task/PAPER_DRAFT.md §Discussion`
 
 ---
 
+## 2026-05-18 — ✅ Tier 5 CLOSED — shipping stack unchanged, ~16 GPU-h banked
+
+**Phase**: Tier 5 four-candidate close + paper §Discussion drafting + documentation sweep
+
+**What happened**
+
+All four Tier-5 POI-side mechanism candidates closed against the shipping stack (`canonical + v3c + T3.2 ResLN`). Substrate fixed (Check2HGI); recipe locked. Each candidate exercises a different POI-substrate axis (identity slot / POI-POI structural co-occurrence / POI-feature self-supervision / cross-view alignment), evaluated as an exploration probe per the 2026-05-17 re-scope advisor — §Discussion-worthy or §Future-Work-worthy, **not** shipping candidates. Wrap-up advisor produced categorical verdicts + three paragraph-level paper §Discussion beats (Beats 5/6/7) for the BRACIS draft.
+
+### Tier 5 verdict summary
+
+| Candidate | Mechanism | n_seeds | Headline | Verdict |
+|---|---|---:|---|---|
+| **T5.1** (POI ID embedding) | `nn.Embedding(N_poi, 64)` zero-init, additive pre-aggregation | 1 (AL+AZ s42) | **AL Δreg = −6.37 pp, AZ Δreg = −4.63 pp** (9–12× kill threshold) | 🛑 **DEAD** — V2-c-class pool collapse; matches Phase 11 S3-b V2-c |
+| **T5.2a** (Node2Vec POI-POI + alignment) | Joint skip-gram on Delaunay + cos-alignment to pooled POI emb | 1 (AL+AZ s42) | **AL Δcat = −0.48, AZ Δcat = −0.45**; AL Δreg +0.72 only | 📋 **CLOSED §Discussion** — Hyp A signature (small-state cat regression) |
+| **T5.2b** (Masked POI feature recon) | 15 % POI mask, SCE-reconstruct via Delaunay neighbour pool, λ=0.3 | 5 (AL+AZ s42,0,1,7,100) | **AL Δcat 5/5+ mean +0.154**, sign-test p=0.03125, paired-t p=0.041; pooled AL+AZ cat **9/10+ p=0.011** | 📋 **CLOSED §Discussion + KEEP-AS-DOC** — sub-Bonferroni positive |
+| **T5.3** (Multi-view co-training) | Symmetric cos-alignment View1↔View2 (category-only View2) | 0 (not run) | — | ⏭ **SKIP → §Future Work** — slate-precedent: T5.1/T5.2a reg-collapsed; T5.3 same fragility class |
+
+### T5.2b multi-seed highlight (only directional positive in the slate)
+
+Per-seed deltas vs shipping (`t32_resln_ALAZ_seed{seed}.json`):
+
+| seed | AL Δcat | AL Δreg | AZ Δcat | AZ Δreg |
+|---:|---:|---:|---:|---:|
+| 42 | +0.04 | +0.64 | +0.30 | +0.00 |
+| 0 | +0.12 | −0.48 | +0.07 | −0.25 |
+| 1 | +0.12 | +0.48 | −0.57 | +0.24 |
+| 7 | +0.14 | −0.10 | +0.50 | +0.81 |
+| 100 | +0.35 | +0.10 | +0.14 | −0.11 |
+
+**AL cat 5/5+ at sign-test p = 0.03125** (= the n=5 ceiling, identical mechanic to the §4 shipping-stack sign tests). Pooled AL+AZ cat **9/10+ paired-positive** at sign-test p=0.011 — the strongest directional signal in the Tier-5 slate. No state×axis cell triggers the §6.5 reg-axis kill (Δreg ≥ −0.5 pp at both states; pooled Δreg paired-t p=0.33). **Does NOT survive Bonferroni at m=26**, α≈0.00192 → fails by ~18× on AL cat (sign-test), ~6× on pooled AL+AZ cat. Reported as sub-detection-threshold positive — only POI-side mechanism in the slate that produced a clean directional cat lift without firing §6.5.
+
+### T5.1 catastrophic Δreg (V2-c reproduction)
+
+Single-seed (s42) AL+AZ:
+
+| state | Δcat (vs shipping) | **Δreg** (vs shipping) | leak F1 drift |
+|---|---:|---:|---:|
+| AL | −0.31 | **−6.37 pp** (9× threshold) | +0.40 |
+| AZ | +0.60 | **−4.63 pp** (12× threshold) | +0.13 |
+
+Signature matches Phase 11 S3-b V2-c (per-POI free parameters → POI-table memorisation → pooled-region representation degeneracy). Multi-seed escalation skipped per §6.5 — kill criterion fired by ~10× at single seed; no realistic seed variance would close that gap. Sister F-trail entries `docs/findings/F60_T5_1_implementation.md` already carry the Phase A interpretation policy ("no per-POI hold-out probe yet → no T5.1 promotion regardless of cat lift"), reinforcing the close.
+
+### T5.3 skip rationale (slate-precedent)
+
+Skipped at first-gate per slate-precedent. Two of three single-seed-evaluated T5 candidates fired in the same fragility class (T5.1 V2-c reg collapse; T5.2a Hyp A small-state cat regression). T5.3 — cross-view alignment with a category-only second view — sits structurally between T5.1 (introduces per-POI free parameters via the second encoder's pooled POI table) and T5.2a (introduces a parallel objective competing for gradient with the c2hgi 3 boundaries). EV without per-POI hold-out diagnostic + view-2 stability instrumentation: **negative**. Banks ~6 GPU-h. If the per-POI hold-out probe is built per the F60/F62 caveats and T5.3's view-2 stability is independently characterised, T5.3 becomes runnable.
+
+### Shipping stack — unchanged
+
+**SHIPPING FINAL**: `canonical Check2HGI + v3c (AdamW WD=5e-2) + T3.2 ResLN encoder`. No change from 2026-05-17 close. §5 paper headlines stand.
+
+### Forward sequence — documentation sweep + paper insert
+
+No further GPU runs. Sequence:
+
+1. **STACKING_ABLATION.md §7** appended (per-candidate verdict + T5.2b multi-seed stats + multiple-testing posture + lesson-confirmed).
+2. **INDEX.html** T5.x `results-placeholder` cells filled with verdict pills + numbers; Tier-5 closure callout block added at top after the Path 2 closure callout.
+3. **F60/F61/F62/F63** status headers flipped to `CLOSED`; `## Results (2026-05-18)` section added to each.
+4. **CHANGELOG.md** dated Tier-5 close entry appended.
+5. **PAPER_DRAFT.md §7** Beats 5/6/7 inserted verbatim (advisor-drafted prose) + `AUDIT_LOG.md` insertion logged.
+
+### GPU-h budget — Phase 1 + 1.5 + Tier 5
+
+| line item | budget | spent | banked |
+|---|---:|---:|---:|
+| Path 2 Phase 1 (Hyp A FL + Hyp D AL+AZ + IJM probe) | ~25–30 (full multi-seed) | ~5 (pragmatic closure plan) | ~20–25 |
+| Path 2 Phase 1.5 (Hyp A AL+AZ multi-seed) | required | ~2 | 0 |
+| T5.2a single-seed AL+AZ | ~3 | ~3 | 0 |
+| T5.2b 5-seed AL+AZ | ~15 (FL gate + multi-seed) | ~12 | ~3 |
+| T5.1 single-seed AL+AZ | ~6–8 (γ-sweep) | ~2 | ~4–6 |
+| T5.3 (skipped) | ~6 | 0 | ~6 |
+| **Tier 5 subtotal banked** | | | **~16 GPU-h** |
+| **Phase 1+1.5 + Tier 5 cumulative banked** | | | **~36–41 GPU-h** |
+
+### Lesson confirmed: §6.5 reg-axis kill rule works forward-looking
+
+§6.5 was authored 2026-05-17 retroactively for Hyp A. Tier 5 is its first forward-looking test. **T5.1 killed unambiguously at single seed** (Δreg ~10× threshold) without requiring multi-seed escalation. **T5.2a's small-state cat regression** (Hyp A signature) also identified at single seed. Both terminated cleanly under §6.5 + slate-precedent rules; banked GPU-h went toward T5.2b multi-seed where the directional signal warranted full coverage. Net methodological gain: end-to-end validation of the kill rule.
+
+### Tasks updates
+
+- Tier-5 implementation tasks (#120 T5.1 / #121 T5.2a / #122 T5.2b / #123 T5.3) COMPLETED for T5.1/T5.2a/T5.2b; T5.3 CLOSED-AS-SKIPPED.
+- Wrap-up advisor pass COMPLETED.
+- Documentation sweep: in progress under this log entry.
+- No new GPU tasks.
+
+**Next**
+
+- After documentation sweep + paper insert: study formally closed. The canonical_improvement folder should be treated as read-only beyond this point.
+- Open follow-up parked in `docs/future_works/` (per-POI hold-out probe construction is the highest-EV open item; per F60/F62 it gates T5.1/T5.2b promotion AND opens the T5.3 runnability condition).
+
+---
+
+## 2026-05-18 follow-up — Tier-5 Phase 3 close
+
+**Phase**: Tier-5 Phase-3 closeout (T5.2b extended to FL multi-seed; T5.3 RAN at AL+AZ × 5 seeds; shipping stack unchanged; canonical_improvement formally complete for BRACIS 2026)
+
+**What happened**
+
+After the 2026-05-18 first-pass Tier-5 close, two further multi-seed cells landed before formally sealing the study:
+
+1. **T5.2b FL multi-seed extension** (5 seeds × FL). The first-pass §7 close had T5.2b at AL+AZ × 5 seeds only; FL was a deferred sanity-check. Phase 3 ran it; data now closes 3-state coverage.
+2. **T5.3 AL+AZ × 5-seed** (multi-view co-training). §7.1 first-pass marked T5.3 as SKIPPED → §Future Work per slate-precedent. Once GPU-h budget was confirmed available, T5.3 was un-skipped and ran the standard AL+AZ multi-seed cell.
+
+Outcome at end of Phase 3: **shipping stack remains FROZEN** at `canonical + v3c + T3.2 ResLN`. Neither T5.2b's 3-state cross-state cat-axis sign-test (13/15, p=0.0074) nor T5.3's largest-Tier-5-effect-size positive-trend AZ axis (Cohen d ≈ +0.85 reg) clears Bonferroni at the Phase-3 family scale of m = 28. Both are §Discussion-only.
+
+### T5.2b FL multi-seed (new Phase 3 result)
+
+JSONs: `T5_2b_maePoi_FL_seed{42,0,1,7,100}.json`.
+
+| seed | FL Δcat | FL Δreg |
+|---:|---:|---:|
+| 42  | +0.49 | −0.11 |
+|  0  | +0.82 | −0.05 |
+|  1  | +0.11 | −0.09 |
+|  7  | +0.27 | +0.07 |
+| 100 | −0.52 | −0.16 |
+
+- **FL cat: mean +0.234 pp, 4/5+ paired-positive**, sign-test p=0.375, paired-t p_one=0.178. Sub-Bonferroni but directionally consistent with AL+AZ.
+- **FL reg: mean −0.069 pp, 1/5+**, well within the §6.5 −0.5 pp kill threshold; reg axis is essentially flat across the 3 states.
+- **AL cat (re-stated from §7.2)**: **mean +0.152 pp, 5/5+, paired-t p_one = 0.021** (Cohen d ≈ +1.33) — still the strongest single cell.
+- **Pooled 3-state cat (n=15)**: **mean +0.158 pp, 13/15 paired-positive, sign-test p = 0.0074** (1-sided). Strongest single piece of evidence in the entire Tier-5 slate.
+
+### T5.3 AL+AZ × 5-seed (new Phase 3 result)
+
+JSONs: `T5_3_multiview_{alabama,arizona}_seed42.json` + `T5_3_multiview_alaz_seed{0,1,7,100}.json`.
+
+| seed | AL Δcat | AL Δreg | AZ Δcat | AZ Δreg |
+|---:|---:|---:|---:|---:|
+| 42  | −0.43 | +0.73 | −0.04 | +0.12 |
+|  0  | +0.18 | −0.61 | +0.31 | −0.02 |
+|  1  | −0.06 | +0.48 | −0.10 | +0.11 |
+|  7  | +0.08 | −0.14 | +0.97 | +0.87 |
+| 100 | +0.67 | +0.10 | +0.43 | +0.44 |
+
+- **All four cells mean-positive**: AL cat +0.086, AL reg +0.113, AZ cat +0.314, AZ reg +0.303.
+- **AZ reg is the largest Tier-5 effect size** (Cohen d ≈ +0.85, paired-t p_one = 0.065, 4/5+ paired-positive). AZ cat d ≈ +0.73 (p_one = 0.090).
+- **No reg-axis kill at either state** — §6.5 does not fire; T5.3 is the cleanest positive-but-not-shipping Tier-5 candidate.
+- AL cells have higher seed variance (sd 0.40-0.52 pp) and 3/5+ — directional but underpowered.
+
+### Multiple-testing posture (Phase-3 update: m = 28)
+
+Family count tightens by +2 cells (T5.2b-FL and T5.3 AL+AZ multi-seed) from §7.3's m = 26 to **m = 28**. Bonferroni α* = 0.05 / 28 ≈ **0.00179**. **Nothing clears it.**
+- T5.2b AL cat (p_one = 0.021) misses by ~12×.
+- T5.2b pooled 3-state cat sign-test (p = 0.0074) misses by ~4× — the closest to threshold.
+- T5.3 AZ reg (p_one = 0.065) misses by ~36×.
+
+Conservative reading unchanged from §7.3: Tier-5 evidence is sub-detection-threshold positive at the family scale. Reported as §Discussion, not promoted.
+
+### Shipping stack unchanged
+
+**SHIPPING FINAL (frozen)**: `canonical Check2HGI + v3c (AdamW WD=5e-2) + T3.2 ResLN encoder`. No change from 2026-05-16 lock. §5 paper headlines stand. T5.2b's 13/15 cross-state cat sign-test is the headline §Discussion piece of evidence for masked-POI pretraining as a future-work direction; T5.3's positive-trend AZ axes are the §Discussion piece of evidence for multi-view co-training.
+
+### Forward sequence (no further GPU runs)
+
+- **T5.2a multi-seed** — skipped per Hyp A precedent. Hyp-A-pattern single-seed signals have not survived a single multi-seed audit in this study; no expectation that AL/AZ Δcat = −0.48/−0.45 at seed=42 holds at n=5.
+- **T5.3 FL multi-seed** — skipped on cost-benefit. Multi-view 2× compute on FL × 5 seeds ≈ 25-30 GPU-h; would need to clear m=28 Bonferroni to change the shipping decision; unlikely given the AL+AZ p_one ≈ 0.065 floor. Flagged in §Future Work as the prime extension if a follow-on paper revisits Tier 5.
+
+### Documentation sweep applied (2026-05-18 follow-up)
+
+- `docs/results/canonical_improvement/STACKING_ABLATION.md §7.6` — Phase-3 closeout sub-section appended (per-candidate per-seed tables + Phase-3 statistical summary + Bonferroni at m=28 framing + pooled 3-state cat sign-test).
+- `docs/studies/canonical_improvement/INDEX.html` — T5.3 pill flipped from `SKIPPED → §Future Work` to `RAN — §Discussion only (positive trend, sub-Bonferroni)`; T5.2b pill widened to 3-state coverage; Phase-3 closure callout appended.
+- `docs/findings/F62_T5_2b_implementation.md` — Florida Multi-Seed Results section appended (per-seed table + cross-state pooled cat sign-test 13/15, p=0.0074).
+- `docs/findings/F63_T5_3_implementation.md` — SKIPPED Results section replaced with Phase-3 multi-seed results (AL+AZ × 5 seeds; AZ reg Cohen d=+0.85 as strongest effect; sub-Bonferroni at m=28).
+- `articles/[BRACIS]_Beyond_Cross_Task/PAPER_DRAFT.md §7` — Beats 5/6/7 replaced with Beats 5/6/7/8 (4-beat verbatim advisor prose); `AUDIT_LOG.md §7` records the change.
+- `docs/CHANGELOG.md` — 2026-05-18 follow-up entry appended ("Tier-5 Phase-3 closed; T5.2b multi-seed extended to FL; T5.3 multi-seed ran; shipping stack frozen").
+- `docs/CLAIMS_AND_HYPOTHESES.md` — whitelist banner gains a row: Tier-5 masked-POI/multi-view priors are §Discussion-only; no new shipping claims.
+
+### Tier 5 fully closed; canonical_improvement complete for BRACIS 2026
+
+The study is now closed. All Tier-5 evidence is §Discussion-only. The folder is treated as read-only beyond this entry. The only open follow-up — per-POI hold-out probe construction — is parked at `docs/future_works/` and gates any future T5.1/T5.2b/T5.3 promotion to shipping. No further GPU runs are planned under `canonical_improvement`.
+
+**Next**
+
+- Documentation sweep complete; study formally closed.
+- BRACIS 2026 paper submission proceeds with the Beats 5/6/7/8 §Discussion text in `PAPER_DRAFT.md §7`.
+- Future-work memos for masked-POI pretraining (T5.2b extension) and multi-view co-training FL extension (T5.3) parked under `docs/future_works/`.
+
+---
+
 ## (template — copy and date for next entry)
 
 ## YYYY-MM-DD — <Short title>
