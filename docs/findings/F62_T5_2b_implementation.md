@@ -1,7 +1,7 @@
 # F62 — T5.2b Masked POI feature reconstruction (implementation notes)
 
-**Status**: implementation landed; awaiting AL+AZ multi-seed run.
-**Date**: 2026-05-17
+**Status**: CLOSED 2026-05-18 — 3-state multi-seed §Discussion only (13/15 cat+, fails Bonferroni m=28).
+**Date**: 2026-05-17 (implementation); 2026-05-18 (Phase-3 close with FL multi-seed extension).
 **Branch**: `worktree-agent-a3bb7f7bb217a001f` (integrated into
 `tier5-cohort-integration` on 2026-05-17; see C20 in `docs/CONCERNS.md`).
 **Spec**: `docs/studies/canonical_improvement/INDEX.html` §T5.2b (lines ~1700-1730)
@@ -233,3 +233,67 @@ once the standalone T5.2b lands its result.
    left normalisation via per-src scaling. For dense Delaunay graphs
    (~6 neighbours / POI) the difference vs textbook D⁻¹ᐟ² A D⁻¹ᐟ² is small.
    Track if "gcn" is needed at all — the default "mean" may be enough.
+
+---
+
+## Florida Multi-Seed Results (2026-05-18)
+
+Phase-3 follow-up. The §7 first-pass close had T5.2b multi-seed at AL+AZ only;
+FL was a deferred sanity-check. Phase 3 ran FL × 5 seeds to close 3-state
+coverage. JSONs: `docs/results/canonical_improvement/T5_2b_maePoi_FL_seed{42,0,1,7,100}.json`.
+
+### Per-seed deltas vs shipping (FL only)
+
+| seed | FL Δcat | FL Δreg |
+|---:|---:|---:|
+| 42  | +0.49 | −0.11 |
+|  0  | +0.82 | −0.05 |
+|  1  | +0.11 | −0.09 |
+|  7  | +0.27 | +0.07 |
+| 100 | −0.52 | −0.16 |
+
+- **FL cat: mean +0.234 pp, 4/5+ paired-positive**, sign-test p=0.375 (1-sided),
+  paired-t p_one=0.178. Sub-Bonferroni but directionally consistent with AL+AZ
+  (5/5+ at AL and 4/5+ at AZ from §7.2).
+- **FL reg: mean −0.069 pp, 1/5+**, well within the §6.5 −0.5 pp kill threshold;
+  the regression-axis is essentially flat across the 3 states (pooled +0.07 pp).
+
+### 3-state × 5-seed statistical summary
+
+| Cell | n | mean Δ | sd | t one-sided p | Wilcoxon p | Sign p | pos |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| FL cat | 5 | +0.234 | 0.500 | 0.178 | 0.438 | 0.375 | 4/5 |
+| FL reg | 5 | −0.069 | 0.086 | 0.926 | 0.188 | 0.375 | 1/5 |
+| AL cat | 5 | **+0.152** | 0.115 | **0.021** | 0.063 | 0.063 | **5/5** |
+| AL reg | 5 | +0.128 | 0.448 | 0.279 | 0.625 | 1.000 | 3/5 |
+| AZ cat | 5 | +0.090 | 0.404 | 0.323 | 0.625 | 0.375 | 4/5 |
+| AZ reg | 5 | +0.140 | 0.415 | 0.247 | 0.813 | 1.000 | 3/5 |
+| **Pooled cat (3-state)** | **15** | **+0.158** | — | 0.053 | 0.064 | **0.0074** | **13/15** |
+
+### Cross-state pooled cat-axis sign-test
+
+**13/15 paired-positive across 3 states × 5 seeds, binomial sign-test p = 0.0074
+(1-sided).** This is the strongest single piece of evidence in the entire
+Tier-5 slate.
+
+- AL cat alone clears raw α=0.05 paired-t (p_one=0.021, Cohen d ≈ +1.33).
+- FL adds 4/5+ at mean +0.234 pp (highest mean of the three states).
+- AZ adds 4/5+ at +0.090 pp.
+
+### Bonferroni posture (m = 28)
+
+After Phase 3, family count is m = 26 + 2 = **28** (added cells: T5.2b-FL and
+T5.3 AL+AZ multi-seed). Bonferroni α* = 0.05/28 ≈ **0.00179**. The pooled
+cat sign-test p=0.0074 misses by ~4× — closest to threshold of any Tier-5
+cell. AL cat (p=0.021) misses by ~12×. **No T5.2b cell clears Bonferroni at
+the family scale.**
+
+### Verdict (final)
+
+**§Discussion-only.** T5.2b's cross-state cat-axis 13/15 sign-test is the
+strongest single piece of Tier-5 evidence and is recorded as motivation for
+future work on masked-POI pretraining; it is sub-detection-threshold at the
+m=28 family scale and does not change the shipping decision. The per-POI
+hold-out probe (parked at `docs/future_works/`) remains a hard gate before any
+T5.2b promotion to NORTH_STAR. Paper §7 Beat 6 lands the verdict in the
+BRACIS draft.

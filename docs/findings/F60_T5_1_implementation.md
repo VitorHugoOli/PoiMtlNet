@@ -1,9 +1,6 @@
 # F60 — T5.1 Native Learned POI ID Embedding (implementation notes)
 
-**Status**: implementation complete (worktree `agent-acdb1dfd1ce9c7749`),
-audit-fix items applied 2026-05-17 (integration branch
-`tier5-cohort-integration`), awaiting Phase A multi-seed sweep at AL+AZ
-(small-state regression-gate states per Phase 1 advisor 2026-05-17).
+**Status**: CLOSED 2026-05-18 — **DEAD** (V2-c-class pool collapse). Phase A single-seed=42 sweep at AL+AZ produced catastrophic Δreg collapse (−6.37 AL, −4.63 AZ — 9-12× the §6.5 explicit kill threshold). No multi-seed expansion warranted: magnitude is beyond any plausible seed-noise envelope (canonical seed-σ ≈ 0.4 pp; even ±3σ leaves Δreg below −3 pp). 10th protocol-falsified variant of the canonical_improvement study. JSONs: `T5_1_poiId_{alabama,arizona}_seed42.json`. See `STACKING_ABLATION.md §7.1` for Tier-5 closure context.
 
 > **Integration audit (2026-05-17, applied in integration branch):**
 > 1. **Production-path canonical-preservation test** added —
@@ -245,3 +242,31 @@ Gamma sweep is a sub-experiment: re-run with `--poi-id-gamma 0.1` and
 `--poi-id-gamma 1.0` if the γ=0.3 cell ships. Init sweep is conditional
 on γ=0.3 results (try `--poi-id-init gaussian` only if zero-init shows
 flat / regressing cold-start fclass).
+
+---
+
+## Results (2026-05-18) — DEAD verdict
+
+Phase A first-gate ran AL+AZ × single-seed=42 with the default γ=0.3 + zero-init recipe above. Result: **catastrophic regression-axis collapse at both small states**.
+
+| state | POI count | Δcat vs shipping | **Δreg vs shipping** | leak drift | verdict |
+|---|---:|---:|---:|---:|---|
+| AL | ~12k | −0.55 pp | **−6.37 pp** | (irrelevant) | KILL |
+| AZ | ~20k | +0.43 pp (1/2 +) | **−4.63 pp** | (irrelevant) | KILL |
+
+**Both states trip the §6.5 explicit reg-axis kill rule (Δreg ≤ −0.5 pp at any state)** by 9× (AZ) to 12× (AL) the threshold. This is the **Phase 11 S3-b V2-c collapse signature** — per-POI free parameters → POI-table memorisation → pooled-region representation degeneracy. No multi-seed expansion warranted: even an extreme ±3σ envelope (canonical seed-σ_reg ≈ 0.4 pp → ±1.2 pp) leaves Δreg below −3 pp at both states — still 6× the kill threshold.
+
+### Mechanistic reading
+
+T5.1 hypothesised that the canonical c2hgi pool lacks per-POI identity capacity (fclass probe = 4%), and a zero-init `nn.Embedding(N_poi, 64)` trained only by the 3 c2hgi boundaries would close the gap without merge-family POI2Vec import. The collapse falsifies this: when the per-POI table absorbs identity signal that the 3-boundary contrastive loss is supposed to discipline, the pool degenerates because (a) the POI table memorises per-POI transitions visible in the train set, (b) the pooled embedding loses its "general POI semantics" character and becomes a thin shell over the table, (c) the next-region head — which depends on the pooled signal having stable cross-POI generalisation — collapses correspondingly.
+
+### Paper outcome
+
+Paper §7 Beat 5 / Beat 7 (T5.1 paragraph in §Discussion) frames this as **paper-grade negative evidence**: the c2hgi 3-boundary discipline is doing load-bearing work on the POI representation, and bypassing it via per-POI free parameters costs the reg head ~10× the §6.5 kill threshold. Paired with T5.2a's Hyp A-class small-state cat regression, this triangulates the canonical-design constraint from both sides (T5.1: free-parameter mass kills reg; T5.2a: Node2Vec-style POI-POI prior kills cat) and explains why merge-family POI2Vec warm-start (out of scope here) is the only path with positive precedent for closing fclass parity at the HGI level.
+
+### What we did NOT do
+
+- **No multi-seed expansion** (cost-benefit negative: magnitude beyond seed-noise envelope by ~10×).
+- **No γ ∈ {0.1, 1.0} sweep** (γ=0.3 collapse is dispositive — smaller γ would only attenuate the table's effect; larger γ would worsen the collapse).
+- **No Gaussian-init variant** (init scheme is orthogonal to the collapse mechanism — the issue is that the table EXISTS and absorbs gradient, not how it was initialised).
+- **No per-POI hold-out probe** (the IJM probe gap noted in the §Integration audit; T5.1's collapse is severe enough that per-POI memorisation is the textbook explanation, but the formal probe would still be a useful methodological gap-closer if a future study revisits per-POI free parameters under a different recipe).

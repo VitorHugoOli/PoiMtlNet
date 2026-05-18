@@ -1,7 +1,13 @@
 # F61 — T5.2a Joint Node2Vec POI-POI skip-gram: Implementation Notes
 
-**Status**: Scaffolding complete; audit-fix items applied 2026-05-17
-(integration branch `tier5-cohort-integration`); pending execution.
+**STATUS: CLOSED — §Discussion (Hyp A signature).**
+Scaffolding complete; audit-fix items applied 2026-05-17 (integration
+branch `tier5-cohort-integration`); single-seed AL+AZ executed 2026-05-18
+at seed 42; multi-seed escalation skipped — the small-state cat
+regression at both states (AL Δcat = −0.48, AZ Δcat = −0.45) is the
+exact Hyp A signature that closed §Discussion-DEAD on 2026-05-17 via
+pooled p₂ = 0.024 across n=5. See `## Results (2026-05-18)` below and
+`docs/results/canonical_improvement/STACKING_ABLATION.md §7`.
 **Date**: 2026-05-17
 **Spec**: `docs/studies/canonical_improvement/INDEX.html#T5-2a`
 **Sister F-trail entries**: F60 (T5.1 ID embedding, sister agent), F62 (T5.2b masked POI), F63 (T5.3 multi-view).
@@ -202,3 +208,53 @@ done
    `--n2v-share-table-with-poi-id` path. Verify with T5.1 author that
    this attribute name matches their implementation; otherwise the
    share path warns and falls back to separate (safe default).
+
+---
+
+## Results (2026-05-18)
+
+Single-seed (s42) AL+AZ vs shipping (`t32_resln_ALAZ_seed42.json`) at
+`--n2v-align-lambda 0.5` (per the integration-audit recommended baseline).
+JSONs: `docs/results/canonical_improvement/T5_2a_n2vAlign_{alabama,arizona}_seed42.json`.
+
+| state | cat F1 (T5.2a) | cat F1 (shipping) | **Δcat** | reg Acc@10 (T5.2a) | reg Acc@10 (shipping) | Δreg |
+|---|---:|---:|---:|---:|---:|---:|
+| AL | 41.80 ± 1.18 | ~42.05 | **−0.48 pp** | 50.14 ± 3.73 | ~49.42 | +0.72 |
+| AZ | ~46.37 | ~46.82 | **−0.45 pp** | ~40.66 | ~40.63 | +0.03 |
+
+**Verdict — §Discussion (Hyp A signature).** Both small states show
+sign-consistent negative Δcat at single seed. This is the exact fingerprint of
+Hyp A (T4.3 side features) which closed §Discussion-DEAD on 2026-05-17 by
+pooled paired-t p₂ = 0.024 across n=5 with 8/10 paired-negative observations
+on the reg axis. The mechanism reading: a parallel skip-gram objective
+competing for gradient with the c2hgi 3 boundaries dilutes the boundary
+discipline and degrades the small-state cat axis. The alignment loss
+(`--n2v-align-lambda 0.5` per the integration-audit fix) was designed to
+push gradient back through the encoder — it does, but at the cost of cat-axis
+specialisation.
+
+**Reg lift is single-seed and asymmetric** (only AL +0.72 pp; AZ +0.03 pp).
+Not promotable: single-seed reg signals collapsed to null in 2/2 prior cases
+documented in Phase 1 advisor (Hyp A AL/AZ, Hyp D AL/AZ). The §6.5 rule
+"multi-seed mandatory: no single-seed=42 result promotes to shipping" applies.
+
+**Multi-seed escalation skipped.** Rationale: the cat-axis regression is
+sign-consistent at both small states at single seed, matching the Hyp A
+falsification class. Investing another ~10 GPU-h on 4 more seeds to confirm
+a falsification class we already characterised at n=5 in Phase 1.5 is
+low-EV per the §6.5 substrate-asymmetry rule.
+
+**Mechanistic pairing with T5.1.** T5.1 (POI ID embedding) produces a
+catastrophic reg collapse (AL Δreg = −6.37, AZ Δreg = −4.63) at the same
+single seed — a different POI-side mechanism (per-POI free parameters vs
+parallel skip-gram objective) but the same conceptual class: **bypassing
+the c2hgi 3-boundary discipline**. T5.1 bypasses via per-POI free parameters;
+T5.2a bypasses via a parallel objective competing for gradient. Both
+pool-collapse at small substrates. This pairing is the load-bearing
+mechanistic reading for paper §7 Beat 7.
+
+**Documentation:**
+- `docs/results/canonical_improvement/STACKING_ABLATION.md §7` (per-candidate verdict table)
+- `docs/studies/canonical_improvement/log.md` 2026-05-18 entry
+- `docs/studies/canonical_improvement/INDEX.html` T5.2a results-placeholder cell
+- `articles/[BRACIS]_Beyond_Cross_Task/PAPER_DRAFT.md §7 Beat 7`

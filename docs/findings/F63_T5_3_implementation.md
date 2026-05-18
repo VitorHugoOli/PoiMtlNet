@@ -1,12 +1,11 @@
 # F63 — T5.3 Multi-view co-training: implementation notes
 
-Status: IMPLEMENTED + audit-fix items applied 2026-05-17
-        (not yet sweep-validated)
+Status: CLOSED 2026-05-18 — Phase-3 multi-seed RAN at AL+AZ × 5 seeds. §Discussion-only (positive trend both axes, sub-Bonferroni at m=28). Cleanest positive-but-not-shipping Tier-5 candidate.
 Authors: T5.3 implementation agent
-Date: 2026-05-17
+Date: 2026-05-17 (implementation); 2026-05-18 (Phase-3 close — multi-seed un-skipped)
 Branch: worktree-agent-af057aabc03289dba (integrated into
         `tier5-cohort-integration` on 2026-05-17)
-Scope: scaffolding + unit test + AL smoke
+Scope: scaffolding + unit test + AL smoke + AL+AZ × 5-seed multi-seed (Phase 3)
 
 > **Honesty banner (integration audit, 2026-05-17):** the T5.3 commit
 > (`b18f84c`) ONLY contains the user-facing CLI flag wiring, unit test,
@@ -218,7 +217,8 @@ shipped multi-state from a FL-only test.
 | Unit test (`tests/canonical_improvement/test_encoders.py`) | PASSED |
 | Smoke regen `--state alabama --epoch 2 --use-multiview` | PASSED (loss decreases epoch-over-epoch from 3.00 → 2.94) |
 | Smoke regen `--state alabama --epoch 2` (no flag, canonical default) | PASSED (loss decreases 1.39 → 1.39, parameter count unchanged at 54 850) |
-| Multi-seed multi-state sweep | NOT RUN — defer to study-runner protocol |
+| Multi-seed AL+AZ sweep (Phase 3) | **COMPLETED 2026-05-18** — all four (AL+AZ × cat+reg) cells mean-positive; AZ reg Cohen d ≈ +0.85 (strongest Tier-5 effect size, p_one = 0.065); no §6.5 reg-axis kill |
+| Multi-seed FL extension | NOT RUN — skipped on cost-benefit (2× multi-view compute × 5 seeds ≈ 25-30 GPU-h; unlikely to clear m=28 Bonferroni given AL+AZ p_one ≈ 0.065 floor); flagged as §Future Work |
 | Production leak probe | NOT RUN |
 
 ## Suggested sweep CLI (multi-seed)
@@ -251,3 +251,84 @@ leak probe) on the exported embeddings.
 4. V2 export vs V1 export — should be roughly equal-or-worse for reg per
    the hypothesis; if V2 export is BETTER, that's a diagnostic flag that
    we may be over-encoding the category structure into V1.
+
+---
+
+## Florida Scaling Test (2026-05-18 follow-up, single-seed=42)
+
+User-requested test of the "scales with POI count" hypothesis observed in the AL→AZ multi-seed pattern (AL Δcat +0.09 → AZ Δcat +0.31). FL single-seed=42 vs `t32_resln_FL.json`:
+
+| state | POI count | T5.3 Δcat | T5.3 Δreg | leak drift |
+|---|---:|---:|---:|---:|
+| AL | ~12k | +0.09 (n=5 mean) | +0.11 (n=5 mean) | — |
+| AZ | ~20k | +0.31 (n=5 mean) | +0.30 (n=5 mean) | — |
+| **FL** | **~60k** | **+0.37 (n=1)** | **−0.08 (n=1)** | **−0.28** |
+
+3 of 3 states cat-positive with mild monotonic trend, directionally confirming the scaling hypothesis. FL is marginally above AZ rather than dramatically larger — consistent with seed variance bounds, not breakthrough scaling. **No multi-seed FL expansion** per advisor cost-benefit verdict: even at +0.5+ multi-seed, Bonferroni m=28 (α*=0.00179) unreachable at n=5 (required ≥10 seeds with current effect size + sd). Documented as §Future Work scaling observation.
+
+Result JSON: `T5_3_multiview_FL_seed42.json`.
+
+## Multi-Seed Results (2026-05-18)
+
+Phase-3 close. The §7 first-pass close (`STACKING_ABLATION.md §7.1`) had T5.3
+marked `SKIPPED → §Future Work` per slate-precedent (T5.1 V2-c reg collapse,
+T5.2a Hyp A small-state cat regression). Once GPU-h budget was confirmed
+available, T5.3 was un-skipped and ran the standard AL+AZ × 5-seed cell.
+JSONs: `docs/results/canonical_improvement/T5_3_multiview_{alabama,arizona}_seed42.json`
++ `T5_3_multiview_alaz_seed{0,1,7,100}.json`.
+
+### Per-seed deltas vs shipping (AL+AZ × 5 seeds)
+
+| seed | AL Δcat | AL Δreg | AZ Δcat | AZ Δreg |
+|---:|---:|---:|---:|---:|
+| 42  | −0.43 | +0.73 | −0.04 | +0.12 |
+|  0  | +0.18 | −0.61 | +0.31 | −0.02 |
+|  1  | −0.06 | +0.48 | −0.10 | +0.11 |
+|  7  | +0.08 | −0.14 | +0.97 | +0.87 |
+| 100 | +0.67 | +0.10 | +0.43 | +0.44 |
+
+### Statistical summary
+
+| Cell | n | mean Δ | sd | t one-sided p | Wilcoxon p | Sign p | pos | Cohen d |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| AL cat | 5 | +0.086 | 0.399 | 0.328 | 0.625 | 1.000 | 3/5 | +0.22 |
+| AL reg | 5 | +0.113 | 0.524 | 0.327 | 0.813 | 1.000 | 3/5 | +0.22 |
+| AZ cat | 5 | +0.314 | 0.432 | 0.090 | 0.313 | 1.000 | 3/5 | +0.73 |
+| **AZ reg** | 5 | **+0.303** | 0.357 | **0.065** | 0.125 | 0.375 | 4/5 | **+0.85** |
+
+### Key findings
+
+- **All four (state × axis) cells mean-positive.** No regression on either axis
+  at either state — §6.5 reg-axis kill rule does NOT fire (AL reg = +0.113 pp;
+  AZ reg = +0.303 pp; both well above the −0.5 pp threshold).
+- **AZ reg is the strongest Tier-5 effect size in the entire slate**
+  (Cohen d ≈ +0.85, paired-t p_one = 0.065). AZ cat d ≈ +0.73 (p_one = 0.090).
+- AL cells exhibit higher seed variance (sd 0.40–0.52 pp) and 3/5+ paired-positive
+  — directional but underpowered. The AZ axis carries the load-bearing
+  positive signal.
+
+### Bonferroni posture (m = 28)
+
+Family count after Phase 3 = **m = 28** (Tier 1–4 + Phase 1 Hyp A/B/C/D + Tier 5
+T5.1/T5.2a + T5.2b 3-state + T5.3 AL+AZ multi-seed). Bonferroni α* = 0.05/28 ≈
+**0.00179**. T5.3 AZ reg (p_one=0.065) misses by ~36×; AZ cat (p_one=0.090)
+misses by ~50×. **No T5.3 cell clears Bonferroni at the family scale.**
+
+### Cleanest positive-but-not-shipping Tier-5 candidate
+
+T5.3 is the only Tier-5 candidate to land all four (state × axis) cells
+mean-positive AND register the largest Tier-5 effect size on a regression-axis
+cell (AZ reg Cohen d=+0.85) — *and* avoid firing §6.5 entirely. T5.2b
+catches more cat-axis seed-state cells (13/15 vs T5.3's 12/20 weakly) but is
+flat on reg, while T5.3 is mean-positive on reg in both tested states. The
+two findings are complementary and read together in the §Discussion.
+
+### Verdict and future work
+
+**§Discussion-only.** Paper §7 Beat 7 lands the verdict. T5.3 is flagged as
+the **prime future-work multi-seed-on-FL extension** if a deeper subsequent
+paper revisits Tier 5. T5.3 FL multi-seed was *not* run in Phase 3 on
+cost-benefit (~25-30 GPU-h, unlikely to clear m=28 Bonferroni given the
+AL+AZ p_one ≈ 0.065 floor) and would also benefit from (a) the per-POI
+hold-out probe per F60/F62 caveats and (b) view-2 stability instrumentation
+before launch.
