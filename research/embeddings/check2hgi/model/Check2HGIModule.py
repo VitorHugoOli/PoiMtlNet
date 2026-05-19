@@ -122,6 +122,32 @@ class Check2HGI(nn.Module):
         p2r_use_infonce: bool = False,
         p2r_infonce_temperature: float = 0.1,
         two_pass_corruption: bool = False,
+        # T6.1 — POI↔POI co-visit InfoNCE 4th boundary (LOAD-BEARING for next-reg
+        # gap; tests the user's "POI-feature promotion" hypothesis without free
+        # parameters or external Node2Vec alignment).
+        # ``p2p_lambda``: coefficient on the 4th boundary loss. Default 0 ⇒
+        #   canonical bit-identical (no extra forward op, no extra parameters).
+        # ``p2p_temperature``: τ for the InfoNCE softmax (smaller = harder).
+        # ``p2p_batch_size``: number of (anchor, positive) co-visit pairs sampled
+        #   per training step. The OTHER positives in the batch act as in-batch
+        #   negatives (standard SimCLR/MoCo-style InfoNCE). Default 1024.
+        # ``p2p_hard_neg_only``: if True, only consider negatives from a DIFFERENT
+        #   region than the anchor (filters within-region positives out of the
+        #   negative set). Default False = standard in-batch negatives.
+        # ``p2p_share_pool``: True ⇒ z_p comes from the existing Checkin2POI
+        #   (single pool, two objectives — per user-aligned 2026-05-18 decision).
+        #   False is reserved for an ablation that uses a parallel POI-pool head;
+        #   not implemented in this default-off-only landing. Always True for now.
+        p2p_lambda: float = 0.0,
+        p2p_temperature: float = 0.1,
+        p2p_batch_size: int = 1024,
+        p2p_hard_neg_only: bool = False,
+        # T6.1 implementation-robustness option (advisor 2026-05-19): symmetric
+        # InfoNCE loss — average cross-entropy(anchor → positive) and
+        # cross-entropy(positive → anchor). Default False = the original
+        # asymmetric anchor-only version (matches the prior T6.1 sweep
+        # numerics). True follows the canonical SimCLR formulation.
+        p2p_symmetric: bool = False,
     ):
         """
         Initialize Check2HGI module.
@@ -339,6 +365,26 @@ class Check2HGI(nn.Module):
         # changing the return-tuple signature. Reset every forward call.
         self._t6_pos_region_full = None     # [N_regions, D]
         self._t6_poi_to_region = None       # [N_pois]   int64
+
+        # T6.1 — POI↔POI co-visit InfoNCE 4th boundary state.
+        # Zero new parameters at __init__ — the 4th boundary uses the existing
+        # Checkin2POI pool's output z_p (stashed by forward() as
+        # ``self._t6_pos_poi_emb``). Co-visit pair indices are expected on
+        # ``data.covisit_pairs`` (shape [N_pairs, 2], int64) — built by the
+        # preprocess (see ``preprocess.py::_build_covisit_pairs``). At λ=0
+        # this entire path is bypassed and the forward+loss are bit-identical
+        # to the canonical recipe.
+        self.p2p_lambda = float(p2p_lambda)
+        self.p2p_temperature = float(p2p_temperature)
+        if self.p2p_temperature <= 0.0:
+            raise ValueError("p2p_temperature must be > 0")
+        self.p2p_batch_size = int(p2p_batch_size)
+        if self.p2p_batch_size <= 1:
+            raise ValueError("p2p_batch_size must be > 1 (in-batch negatives need ≥ 1 other positive)")
+        self.p2p_hard_neg_only = bool(p2p_hard_neg_only)
+        self.p2p_symmetric = bool(p2p_symmetric)
+        self._t6_pos_poi_emb = None         # [N_pois, D]   — stashed by forward()
+        self._t6_covisit_pairs = None       # [N_pairs, 2]  — stashed by forward()
 
         # Store embeddings for extraction
         self.checkin_embedding = torch.tensor(0)
@@ -612,6 +658,22 @@ class Check2HGI(nn.Module):
         self._t6_pos_region_full = pos_region_emb
         self._t6_poi_to_region = data.poi_to_region
 
+        # T6.1 — stash the pooled POI emb matrix + co-visit pair list so
+        # loss() can compute the POI↔POI InfoNCE 4th boundary. Only used when
+        # ``self.p2p_lambda > 0``; otherwise no extra compute / memory.
+        #
+        # We use ``pos_poi_emb_pure`` here (NOT the T4.3-augmented
+        # ``pos_poi_emb``) so the 4th boundary operates on the Checkin2POI
+        # pool's direct output — consistent with the c2p boundary and the
+        # user's 2026-05-18 design ("single pool, two objectives"). T4.3
+        # side-feature gradients should not leak into the POI↔POI objective
+        # the same way they don't leak into c2p (T4.3 audit advisor blocker
+        # 2, 2026-05-16). At default-off T4.3, ``pos_poi_emb_pure`` and
+        # ``pos_poi_emb`` are the same tensor; at T4.3-on, this selection
+        # gates the side features out of T6.1's gradient path.
+        self._t6_pos_poi_emb = pos_poi_emb_pure
+        self._t6_covisit_pairs = getattr(data, 'covisit_pairs', None)
+
         # Prepare outputs for loss computation
         # Check-in to POI: each check-in vs its POI
         # T4.3: use PURE (pre-augmentation) POI embedding to keep the c2p
@@ -824,6 +886,95 @@ class Check2HGI(nn.Module):
         value = torch.matmul(emb, torch.matmul(weight, summary))
         return torch.sigmoid(value) if sigmoid else value
 
+    def _poi_covisit_infonce(self) -> torch.Tensor:
+        """T6.1 — POI↔POI co-visit InfoNCE 4th boundary.
+
+        Pulls together the pooled-POI embeddings of POIs that co-visit within
+        the same user-session window (computed at preprocess time, stored on
+        ``data.covisit_pairs``) and pushes apart in-batch POIs from other
+        co-visit pairs. Single deployable model — shares the Checkin2POI pool
+        parameters with the existing c2p / p2r boundaries (zero new parameters
+        introduced at __init__).
+
+        Implementation: in-batch InfoNCE (SimCLR-style).
+            anchors  = z_poi[a]      shape [B, D]
+            positives = z_poi[p]     shape [B, D]
+            scores   = anchors @ positives.T / τ     shape [B, B]
+            target   = arange(B)     each row's positive is on the diagonal
+            loss     = cross_entropy(scores, target)
+
+        For each anchor a, the negatives are the OTHER positives in the batch —
+        i.e. POIs that the same OR different user co-visited within their own
+        sessions. This is the standard in-batch-negatives contract; we get B−1
+        free negatives per anchor without an explicit negative-sampling step.
+
+        If ``p2p_hard_neg_only`` is True, the off-diagonal pairs whose anchor
+        and positive share the same region are masked out (so the loss only
+        penalises "fails to discriminate from a different-region POI"). This
+        is the harder variant and may regress on small states where many POIs
+        share regions; default False keeps the standard in-batch contract.
+
+        Returns the scalar mean InfoNCE loss; caller adds it with coefficient
+        ``self.p2p_lambda``. Gradients flow back through z_poi and therefore
+        through Checkin2POI and the check-in encoder.
+        """
+        z_poi = self._t6_pos_poi_emb                  # [N_pois, D]
+        pairs = self._t6_covisit_pairs                # [N_pairs, 2]
+        N_pairs = pairs.size(0)
+        if N_pairs == 0:
+            return torch.zeros((), device=z_poi.device)
+
+        # Sample B pairs per step. If fewer pairs than batch size are
+        # available, use them all (no replacement). Random sampling is the
+        # cheap unbiased estimator.
+        B = min(self.p2p_batch_size, N_pairs)
+        if N_pairs > B:
+            idx = torch.randperm(N_pairs, device=pairs.device)[:B]
+            pair_batch = pairs[idx]
+        else:
+            pair_batch = pairs
+
+        anchor_idx = pair_batch[:, 0]                  # [B]
+        pos_idx = pair_batch[:, 1]                     # [B]
+        anchors = z_poi[anchor_idx]                    # [B, D]
+        positives = z_poi[pos_idx]                     # [B, D]
+
+        # L2-normalise so the cosine-similarity scale is stable regardless of
+        # the pooled vector's norm (standard contrastive practice; without it
+        # the temperature interacts with the encoder's output magnitude).
+        anchors = torch.nn.functional.normalize(anchors, dim=-1, eps=EPS)
+        positives = torch.nn.functional.normalize(positives, dim=-1, eps=EPS)
+
+        # [B, B] similarity matrix. The (i, i) entry is the true positive pair;
+        # the (i, j ≠ i) entries are in-batch negatives.
+        scores = torch.matmul(anchors, positives.t()) / self.p2p_temperature
+
+        if self.p2p_hard_neg_only:
+            # Mask out off-diagonal entries where anchor and positive share a
+            # region. Without ``data.poi_to_region`` stashed on self, we can
+            # fall back gracefully by using the stashed _t6_poi_to_region
+            # (always present when p2r InfoNCE is on, but we don't require it).
+            poi_to_region = self._t6_poi_to_region
+            if poi_to_region is not None:
+                anchor_regions = poi_to_region[anchor_idx]    # [B]
+                pos_regions = poi_to_region[pos_idx]          # [B]
+                # mask[i, j] = True if anchor i and positive j are in the same
+                # region AND i ≠ j (don't mask the diagonal — it's the true pos).
+                same_region = anchor_regions.unsqueeze(1) == pos_regions.unsqueeze(0)
+                diag = torch.eye(B, dtype=torch.bool, device=scores.device)
+                mask_out = same_region & ~diag
+                scores = scores.masked_fill(mask_out, float('-inf'))
+
+        target = torch.arange(B, device=scores.device, dtype=torch.long)
+        ce_a = torch.nn.functional.cross_entropy(scores, target)
+        if self.p2p_symmetric:
+            # SimCLR-style: average of (anchor → positive) and (positive →
+            # anchor) directions so both columns of the similarity matrix
+            # contribute gradient. Doubles effective signal at fixed B.
+            ce_p = torch.nn.functional.cross_entropy(scores.t(), target)
+            return 0.5 * (ce_a + ce_p)
+        return ce_a
+
     def loss(self, pos_checkin, pos_poi_exp, neg_poi_exp,
              pos_poi, pos_region_exp, neg_region_exp,
              pos_region, neg_region, city):
@@ -888,6 +1039,13 @@ class Check2HGI(nn.Module):
         # T4.1 — fold in masked-recon auxiliary if forward computed one.
         if self.mae_lambda > 0.0 and self._mae_loss is not None:
             total_loss = total_loss + self.mae_lambda * self._mae_loss
+
+        # T6.1 — POI↔POI co-visit InfoNCE 4th boundary.
+        # Fired only when λ > 0 AND data.covisit_pairs was passed in. Otherwise
+        # the loss formulation is byte-identical to canonical.
+        if self.p2p_lambda > 0.0 and self._t6_pos_poi_emb is not None and \
+                self._t6_covisit_pairs is not None and self._t6_covisit_pairs.numel() > 0:
+            total_loss = total_loss + self.p2p_lambda * self._poi_covisit_infonce()
 
         # T5.2a — fold in joint Node2Vec POI-POI skip-gram auxiliary.
         # The head computes loss on demand from a per-epoch cached walk

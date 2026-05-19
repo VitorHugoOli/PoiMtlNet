@@ -251,6 +251,71 @@ def main() -> None:
                          "and use its outputs as the negatives for p2r and r2c "
                          "(decoupling them from the c2p negative chain). +1 "
                          "encoder pass per step.")
+    # T6.1 — POI↔POI co-visit InfoNCE 4th boundary. Default p2p-lambda=0 ⇒
+    # canonical bit-identical (no extra forward op, no extra parameters, no
+    # new preprocess output).
+    ap.add_argument("--p2p-lambda", type=float, default=0.0,
+                    help="T6.1: coefficient on the POI↔POI co-visit InfoNCE 4th "
+                         "boundary. >0 enables the new objective (zero new "
+                         "parameters; shares Checkin2POI pool with c2p/p2r). "
+                         "Spec sweep range {0.05, 0.1, 0.2, 0.3}.")
+    ap.add_argument("--p2p-temperature", type=float, default=0.1,
+                    help="T6.1: softmax temperature τ for the POI↔POI InfoNCE "
+                         "(default 0.1, matches T6.4 τ default).")
+    ap.add_argument("--p2p-batch-size", type=int, default=1024,
+                    help="T6.1: number of (anchor, positive) co-visit pairs "
+                         "sampled per training step (default 1024). In-batch "
+                         "negatives = batch_size - 1 per anchor.")
+    ap.add_argument("--p2p-covisit-k", type=int, default=3,
+                    help="T6.1: co-visit window size — for each check-in i, "
+                         "consider j ∈ [i+1, i+k-1] as co-visit candidates when "
+                         "same-user (default 3 = sequential pairs within 2 steps).")
+    ap.add_argument("--p2p-hard-neg-only", action="store_true",
+                    help="T6.1: harder variant — mask out in-batch negatives "
+                         "from the SAME region as the anchor. Default False "
+                         "(standard InfoNCE in-batch negatives). May regress "
+                         "at small states with many POIs per region.")
+    # T6.1 implementation-robustness options (advisor 2026-05-19). Defaults
+    # match the original T6.1 sweep — flipping them tests whether the
+    # original null was an implementation artefact (e.g., dedup throwing
+    # away popularity signal, asymmetric loss losing half the gradient).
+    ap.add_argument("--p2p-no-dedup", action="store_true",
+                    help="T6.1 robustness: emit co-visit pairs WITH "
+                         "multiplicity at preprocess time (one row per raw "
+                         "co-visit adjacency instead of one row per unique "
+                         "unordered pair). Uniform sampling of B pairs then "
+                         "becomes weighted-by-multiplicity in expectation. "
+                         "Forces force_preprocess=True since the cached pair "
+                         "list differs.")
+    ap.add_argument("--p2p-symmetric", action="store_true",
+                    help="T6.1 robustness: average cross-entropy over both "
+                         "directions of the similarity matrix (anchor→positive "
+                         "AND positive→anchor) following SimCLR. Default False "
+                         "matches the original asymmetric (anchor→positive "
+                         "only) formulation.")
+    # T6.2 — composite C3 edge weights. Default (1.0, 1.0) is canonical
+    # bit-identical (no-op). Any ≠ 1.0 triggers force_preprocess to rebuild
+    # the user_sequence edge weights with the composite scheme.
+    ap.add_argument("--c3-alpha-delaunay", type=float, default=1.0,
+                    help="T6.2: edge-weight multiplier for user_sequence edges "
+                         "whose endpoint POIs are Delaunay-adjacent. Spec "
+                         "sweep {1.5, 2.0}. Default 1.0 = no-op.")
+    ap.add_argument("--c3-w-r", type=float, default=1.0,
+                    help="T6.2: cross-region penalty — edge-weight multiplier "
+                         "for user_sequence edges whose endpoint POIs are in "
+                         "DIFFERENT regions. Spec sweep {0.3, 0.5}. Default "
+                         "1.0 = no-op.")
+    # T6.3 — low-rank per-POI bias at Checkin2POI attention-logit. Default off
+    # ⇒ canonical bit-identical (no extra parameters built at __init__).
+    ap.add_argument("--t63-enabled", action="store_true",
+                    help="T6.3: enable rank-r per-POI bias at the Checkin2POI "
+                         "attention LOGIT (not at input or pooled output). "
+                         "Zero-init v ⇒ step-0 forward bit-identical to "
+                         "canonical. Structural cousin of T5.1 (DEAD) — placed "
+                         "differently and capacity-restricted.")
+    ap.add_argument("--t63-rank", type=int, default=8,
+                    help="T6.3: rank r of the per-POI bias. Spec sweep "
+                         "{4, 8}. Default 8.")
     # T1.5 optimizer hygiene knobs (default = canonical Adam + StepLR γ=1; v3c base = AdamW WD=5e-2)
     ap.add_argument("--scheduler", default="step", choices=("step", "cosine", "warmup_constant"))
     ap.add_argument("--warmup-pct", type=float, default=0.0)
@@ -271,6 +336,15 @@ def main() -> None:
         or (args.edge_type != "user_sequence")
         or bool(args.use_node2vec_poi)
         or bool(args.use_mae_poi)
+        or float(args.p2p_lambda) > 0.0   # T6.1: needs covisit_pairs cached
+        # T6.1 robustness: dedup mode is encoded in the cached pair table,
+        # so a no-dedup run must rebuild the cache even if covisit_pairs
+        # is already present.
+        or bool(args.p2p_no_dedup)
+        # T6.2: composite C3 edge weights change the cached edge_weight
+        # array; force_preprocess so the new weights take effect.
+        or float(args.c3_alpha_delaunay) != 1.0
+        or float(args.c3_w_r) != 1.0
     )
 
     # T5.2a — effective λ. When the flag is OFF, force λ=0 so default
@@ -370,6 +444,21 @@ def main() -> None:
         p2r_use_infonce=args.p2r_use_infonce,
         p2r_infonce_temperature=args.p2r_infonce_temperature,
         two_pass_corruption=args.two_pass_corruption,
+        # T6.1 plumbing
+        p2p_lambda=float(args.p2p_lambda),
+        p2p_temperature=float(args.p2p_temperature),
+        p2p_batch_size=int(args.p2p_batch_size),
+        p2p_covisit_k=int(args.p2p_covisit_k),
+        p2p_hard_neg_only=bool(args.p2p_hard_neg_only),
+        # T6.1 robustness options (advisor 2026-05-19)
+        p2p_no_dedup=bool(args.p2p_no_dedup),
+        p2p_symmetric=bool(args.p2p_symmetric),
+        # T6.2 — composite C3 edge weights
+        c3_alpha_delaunay=float(args.c3_alpha_delaunay),
+        c3_w_r=float(args.c3_w_r),
+        # T6.3 — low-rank POI side-channel at Checkin2POI attention-logit
+        t63_enabled=bool(args.t63_enabled),
+        t63_rank=int(args.t63_rank),
     )
     print(f"[T3-regen] state={args.state} encoder={args.encoder} "
           f"edge_type={args.edge_type} force_preprocess={_force_preprocess} "
@@ -386,6 +475,12 @@ def main() -> None:
           f"init={args.poi_id_init} "
           f"p2r_infonce={args.p2r_use_infonce} τ={args.p2r_infonce_temperature} "
           f"two_pass={args.two_pass_corruption} "
+          f"p2p_lambda={args.p2p_lambda} τ_p2p={args.p2p_temperature} "
+          f"k={args.p2p_covisit_k} batch={args.p2p_batch_size} "
+          f"hard_neg_only={args.p2p_hard_neg_only} "
+          f"no_dedup={args.p2p_no_dedup} symmetric={args.p2p_symmetric} "
+          f"c3_alpha_delaunay={args.c3_alpha_delaunay} c3_w_r={args.c3_w_r} "
+          f"t63_enabled={args.t63_enabled} t63_rank={args.t63_rank} "
           f"use_mae_poi={args.use_mae_poi} "
           f"mae_poi_lambda={args.mae_poi_lambda if args.use_mae_poi else 0.0} "
           f"mae_poi_target={args.mae_poi_target}",

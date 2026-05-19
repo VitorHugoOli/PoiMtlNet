@@ -246,6 +246,13 @@ def train_check2hgi(city, args):
         _data_kwargs['edge_type'] = torch.tensor(city_dict['edge_type'], dtype=torch.int64)
     data = Data(**_data_kwargs)
 
+    # T6.1 — attach the co-visit POI-POI pair list when present in the cache.
+    # Consumed at training time by Check2HGIModule._poi_covisit_infonce()
+    # when p2p_lambda > 0. Stored on `data` so the trainer's `batch.to(device)`
+    # picks it up automatically.
+    if 'covisit_pairs' in city_dict:
+        data.covisit_pairs = torch.as_tensor(city_dict['covisit_pairs'], dtype=torch.int64)
+
     metadata = city_dict['metadata']
 
     # Initialize model components
@@ -308,7 +315,18 @@ def train_check2hgi(city, args):
     else:
         checkin_encoder = CheckinEncoder(in_channels, args.dim, num_layers=args.num_layers)
         print(f"[encoder] CheckinEncoder (canonical GCN)")
-    checkin2poi = Checkin2POI(args.dim, args.attention_head)
+    # T6.3 — low-rank per-POI bias at the Checkin2POI attention-logit. Gated
+    # by ``args.t63_enabled``; default off ⇒ canonical bit-identical.
+    _t63_enabled = bool(getattr(args, 't63_enabled', False))
+    _t63_rank = int(getattr(args, 't63_rank', 8))
+    if _t63_enabled:
+        print(f"[T6.3] Checkin2POI per-POI bias enabled rank={_t63_rank} num_pois={num_pois}")
+    checkin2poi = Checkin2POI(
+        args.dim, args.attention_head,
+        t63_enabled=_t63_enabled,
+        t63_num_pois=int(num_pois) if _t63_enabled else None,
+        t63_rank=_t63_rank,
+    )
     poi2region = POI2Region(args.dim, args.attention_head)
 
     def region2city(z, area):
@@ -476,7 +494,32 @@ def train_check2hgi(city, args):
         p2r_use_infonce=bool(getattr(args, 'p2r_use_infonce', False)),
         p2r_infonce_temperature=float(getattr(args, 'p2r_infonce_temperature', 0.1)),
         two_pass_corruption=bool(getattr(args, 'two_pass_corruption', False)),
+        # T6.1 — POI↔POI co-visit InfoNCE 4th boundary (default off ⇒ canonical).
+        p2p_lambda=float(getattr(args, 'p2p_lambda', 0.0) or 0.0),
+        p2p_temperature=float(getattr(args, 'p2p_temperature', 0.1) or 0.1),
+        p2p_batch_size=int(getattr(args, 'p2p_batch_size', 1024) or 1024),
+        p2p_hard_neg_only=bool(getattr(args, 'p2p_hard_neg_only', False)),
+        p2p_symmetric=bool(getattr(args, 'p2p_symmetric', False)),
     ).to(args.device)
+
+    # T6.1 — sanity: if p2p_lambda > 0, the preprocess must have populated
+    # ``data.covisit_pairs``. The cache-detection block above forces a fresh
+    # preprocess when the artefact is missing, so this is a belt-and-braces
+    # check that catches stale code paths or missing args.
+    if float(getattr(args, 'p2p_lambda', 0.0) or 0.0) > 0.0:
+        if getattr(data, 'covisit_pairs', None) is None:
+            raise ValueError(
+                "[T6.1] p2p_lambda > 0 but data.covisit_pairs is None. "
+                "Run preprocess with build_covisit_pairs=True (force_preprocess=True "
+                "is added automatically when --p2p-lambda > 0, but the cached "
+                "graph may need to be rebuilt explicitly the first time)."
+            )
+        _n_covisit = int(data.covisit_pairs.size(0))
+        print(f"[T6.1] POI-co-visit InfoNCE 4th boundary enabled "
+              f"lambda={float(args.p2p_lambda)} tau={float(getattr(args, 'p2p_temperature', 0.1))} "
+              f"batch={int(getattr(args, 'p2p_batch_size', 1024))} k={int(getattr(args, 'p2p_covisit_k', 3))} "
+              f"hard_neg_only={bool(getattr(args, 'p2p_hard_neg_only', False))} "
+              f"n_covisit_pairs={_n_covisit}")
 
     # T5.2a — construct + attach Node2Vec head AFTER model is on device.
     # The head's parameters (separate POI table by default) are then
@@ -828,17 +871,30 @@ def create_embedding(state: str, args):
     _need_poi_delaunay = _need_poi_delaunay_n2v or _need_poi_delaunay_mae
     _need_poi_aggregates = _need_poi_delaunay_mae
     _need_view2 = bool(getattr(args, 'use_multiview', False))
+    # T6.1 — POI↔POI co-visit pairs cache. Built when p2p_lambda > 0.
+    _need_covisit_pairs = float(getattr(args, 'p2p_lambda', 0.0) or 0.0) > 0.0
+    _covisit_k = int(getattr(args, 'p2p_covisit_k', 3) or 3)
+    # advisor 2026-05-19: dedup=True is the original T6.1 sweep behavior;
+    # False is the implementation-robustness option (multiplicity-weighted).
+    _covisit_dedup = not bool(getattr(args, 'p2p_no_dedup', False))
+    # T6.2 — composite C3 edge weights (HGI-style Delaunay multiplier +
+    # cross-region penalty). Defaults (1.0, 1.0) are no-ops; any ≠ 1.0
+    # triggers force_preprocess so the new weights take effect.
+    _c3_alpha_delaunay = float(getattr(args, 'c3_alpha_delaunay', 1.0) or 1.0)
+    _c3_w_r = float(getattr(args, 'c3_w_r', 1.0) or 1.0)
+    _c3_active = (_c3_alpha_delaunay != 1.0 or _c3_w_r != 1.0)
 
     _cache_missing_poi_artefacts = False
-    if graph_data_file.exists() and _need_poi_delaunay and not args.force_preprocess:
+    if graph_data_file.exists() and (_need_poi_delaunay or _need_covisit_pairs or _c3_active) and not args.force_preprocess:
         try:
             with open(graph_data_file, 'rb') as _f:
                 _peek = pkl.load(_f)
-            _missing_delaunay = 'poi_delaunay_edge_index' not in _peek
+            _missing_delaunay = _need_poi_delaunay and 'poi_delaunay_edge_index' not in _peek
             _missing_aggregates = (
                 _need_poi_aggregates and 'poi_category_aggregate' not in _peek
             )
-            _cache_missing_poi_artefacts = _missing_delaunay or _missing_aggregates
+            _missing_covisit = _need_covisit_pairs and 'covisit_pairs' not in _peek
+            _cache_missing_poi_artefacts = _missing_delaunay or _missing_aggregates or _missing_covisit
             del _peek
         except Exception:
             _cache_missing_poi_artefacts = True
@@ -852,8 +908,8 @@ def create_embedding(state: str, args):
                 build_view2_graph_file(city)
     else:
         if _cache_missing_poi_artefacts:
-            print("[T5.2a/T5.2b] cached graph lacks POI-Delaunay / POI-aggregate "
-                  "artefacts; forcing fresh preprocess.")
+            print("[T5.2a/T5.2b/T6.1] cached graph lacks required artefacts; "
+                  "forcing fresh preprocess.")
         print("Preprocessing...")
         preprocess_check2hgi(
             city=city,
@@ -862,6 +918,11 @@ def create_embedding(state: str, args):
             temporal_decay=args.temporal_decay,
             build_poi_delaunay=_need_poi_delaunay,
             build_poi_aggregates=_need_poi_aggregates,
+            build_covisit_pairs=_need_covisit_pairs,
+            covisit_k=_covisit_k,
+            covisit_dedup=_covisit_dedup,
+            c3_alpha_delaunay=_c3_alpha_delaunay,
+            c3_w_r=_c3_w_r,
             build_view2=_need_view2,
         )
 

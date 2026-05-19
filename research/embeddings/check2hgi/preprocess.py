@@ -18,7 +18,10 @@ class Check2HGIPreprocess:
 
     def __init__(self, checkins_file, boroughs_file, temp_path, edge_type='user_sequence',
                  temporal_decay=3600.0, build_poi_delaunay: bool = False,
-                 build_poi_aggregates: bool = False):
+                 build_poi_aggregates: bool = False,
+                 build_covisit_pairs: bool = False, covisit_k: int = 3,
+                 covisit_dedup: bool = True,
+                 c3_alpha_delaunay: float = 1.0, c3_w_r: float = 1.0):
         """
         Initialize preprocessor.
 
@@ -56,6 +59,35 @@ class Check2HGIPreprocess:
         self.temporal_decay = temporal_decay
         self.build_poi_delaunay = bool(build_poi_delaunay)
         self.build_poi_aggregates = bool(build_poi_aggregates)
+        # T6.1 — co-visit POI-POI pair index. When True, enumerate unique
+        # unordered (poi_a, poi_b) pairs that co-visit within ``covisit_k``
+        # consecutive check-ins by the same user (POI_a ≠ POI_b). Cached on
+        # the dict as ``covisit_pairs`` ([N_pairs, 2] int64). Cost is
+        # O(N_checkins × k) at preprocess time; trivial compared to graph
+        # build. Default False keeps canonical preprocess bit-identical.
+        self.build_covisit_pairs = bool(build_covisit_pairs)
+        self.covisit_k = int(covisit_k)
+        if self.covisit_k < 2:
+            raise ValueError(f"covisit_k must be >= 2 (got {self.covisit_k})")
+        # T6.1 implementation-robustness option (advisor 2026-05-19): keep
+        # multiplicity in the co-visit pair table. Default True (dedup) matches
+        # the original T6.1 sweep. False emits one row per raw co-visit
+        # adjacency — hub POIs naturally get over-sampled when the trainer
+        # samples B pairs uniformly each step (weighted-by-multiplicity).
+        self.covisit_dedup = bool(covisit_dedup)
+        # T6.2 — composite C3 edge-weight multipliers. Defaults (1.0, 1.0)
+        # are no-ops; the existing temporal-decay user_sequence edges are
+        # returned unchanged. When either is ≠ 1.0, the user-sequence
+        # edges are re-weighted:
+        #   edge_weight(A→B) *= α_delaunay if POI(A) and POI(B) are
+        #     Delaunay-adjacent (per the POI-level Delaunay graph from
+        #     ``_build_poi_delaunay_edges``); else *= 1.
+        #   edge_weight(A→B) *= w_r if region(A) ≠ region(B); else *= 1.
+        # Tests the user's C3 hypothesis (HGI-style spatial geometry as
+        # edge-weights on the check-in graph). Requires build_poi_delaunay
+        # to be True (auto-enabled in the caller when c3 multipliers ≠ 1).
+        self.c3_alpha_delaunay = float(c3_alpha_delaunay)
+        self.c3_w_r = float(c3_w_r)
 
     def _load_checkins(self):
         """Load and prepare check-in data."""
@@ -335,6 +367,93 @@ class Check2HGIPreprocess:
         print(f"[poi-delaunay]   {edges.shape[1]} unique POI-POI Delaunay edges")
         return edges
 
+    def _build_covisit_pairs(self):
+        """T6.1 — enumerate co-visit (poi_a, poi_b) pairs within
+        ``self.covisit_k`` consecutive check-ins by the same user.
+
+        Uses the already-sorted ``self.checkins`` (sorted by userid, datetime
+        per ``_load_checkins``). For each consecutive offset δ ∈ [1, k-1]:
+          * pair check-in i with check-in i+δ when userid matches AND
+            POI(i) ≠ POI(i+δ).
+          * record the unordered pair (min(poi_i, poi_j), max(poi_i, poi_j)).
+
+        Output behaviour depends on ``self.covisit_dedup``:
+          * True (default; original T6.1 design): deduplicate to unique pairs.
+            Each pair contributes once regardless of how often it co-visits.
+          * False (T6.1 implementation-robustness option; advisor 2026-05-19):
+            keep multiplicity — emit one row per raw co-visit adjacency. Hub
+            POIs get over-represented in the pair table; uniform sampling of
+            B pairs at training time becomes weighted-by-multiplicity in
+            expectation. Tests whether dedup was throwing away the popularity
+            signal that the load-bearing version of the hypothesis needs.
+
+        Output: int64 array shape [N_pairs, 2] saved under the dict key
+        ``covisit_pairs``. Consumed by ``Check2HGIModule._poi_covisit_infonce``
+        when ``p2p_lambda > 0``.
+
+        Complexity: O(N_checkins × k) regardless of dedup mode (set-based
+        dedup is O(N_pairs) extra; we skip that step when dedup=False).
+        """
+        dedup_label = "unique" if self.covisit_dedup else "with-multiplicity"
+        print(f"[t6.1] enumerating co-visit POI pairs (k={self.covisit_k}, "
+              f"{dedup_label})...")
+        c2p = self.checkins['poi_idx'].values.astype(np.int64)
+        uid = self.checkins['userid'].values
+        N = len(c2p)
+
+        # Collect per-offset pair lists. With dedup=True we coalesce via a
+        # Python set (tuples are hashable, ~5-10 s wall on FL scale). With
+        # dedup=False we just concatenate — no hashing, lower wall cost; the
+        # output is bigger but cheap to store (int64 pairs).
+        if self.covisit_dedup:
+            pairs = set()
+            for delta in range(1, self.covisit_k):
+                a = c2p[:-delta]
+                b = c2p[delta:]
+                same_user = uid[:-delta] == uid[delta:]
+                valid = same_user & (a != b)
+                ia = a[valid]
+                ib = b[valid]
+                lo = np.minimum(ia, ib)
+                hi = np.maximum(ia, ib)
+                for x, y in zip(lo.tolist(), hi.tolist()):
+                    pairs.add((x, y))
+            if not pairs:
+                print("[t6.1]   0 co-visit pairs (no eligible adjacencies)")
+                return np.zeros((0, 2), dtype=np.int64)
+            arr = np.array(sorted(pairs), dtype=np.int64)
+            print(f"[t6.1]   {arr.shape[0]} unique co-visit POI pairs")
+            return arr
+
+        # Multiplicity-preserving path.
+        lo_chunks = []
+        hi_chunks = []
+        for delta in range(1, self.covisit_k):
+            a = c2p[:-delta]
+            b = c2p[delta:]
+            same_user = uid[:-delta] == uid[delta:]
+            valid = same_user & (a != b)
+            ia = a[valid]
+            ib = b[valid]
+            lo_chunks.append(np.minimum(ia, ib))
+            hi_chunks.append(np.maximum(ia, ib))
+        if not lo_chunks:
+            print("[t6.1]   0 co-visit pairs (no eligible adjacencies)")
+            return np.zeros((0, 2), dtype=np.int64)
+        lo_all = np.concatenate(lo_chunks)
+        hi_all = np.concatenate(hi_chunks)
+        arr = np.stack([lo_all, hi_all], axis=1).astype(np.int64)
+        # Report dedup statistics so the user can see the multiplicity ratio.
+        n_raw = int(arr.shape[0])
+        # Cheap unique count via pair encoding (assumes max poi idx < 2^31).
+        max_poi = int(c2p.max()) + 1
+        encoded = lo_all.astype(np.int64) * max_poi + hi_all.astype(np.int64)
+        n_unique = int(np.unique(encoded).size)
+        ratio = n_raw / max(n_unique, 1)
+        print(f"[t6.1]   {n_raw} raw co-visit POI pairs ({n_unique} unique; "
+              f"multiplicity ratio {ratio:.2f}x)")
+        return arr
+
     def _compute_poi_feature_aggregates(self):
         """T5.2b — per-POI feature aggregates used as masked-recon targets.
 
@@ -377,6 +496,82 @@ class Check2HGIPreprocess:
               f"log-visit range "
               f"[{poi_visit_count_log.min():.2f}, {poi_visit_count_log.max():.2f}]")
         return poi_category_aggregate, poi_visit_count_log
+
+    def _apply_c3_composite_weights(self, edge_index, edge_weight):
+        """T6.2 — apply Delaunay-multiplier and cross-region-penalty to the
+        user-sequence edge weights.
+
+        For each edge (src, tgt) in ``edge_index``:
+          * delaunay_mult = ``c3_alpha_delaunay`` if (poi(src), poi(tgt)) is
+            in the POI-Delaunay adjacency set (built by
+            ``_build_poi_delaunay_edges`` and stored on ``self`` before this
+            call); else 1.0.
+          * crossregion_mult = ``c3_w_r`` if region(src) ≠ region(tgt);
+            else 1.0.
+          * edge_weight[e] *= delaunay_mult * crossregion_mult.
+
+        At default (α=1, w_r=1) this is a no-op. Vectorised — no Python loop
+        per edge. Requires ``self.poi_delaunay_edges`` (the Delaunay POI-POI
+        edge index) to be present.
+        """
+        if not hasattr(self, 'poi_delaunay_edges') or self.poi_delaunay_edges is None:
+            raise RuntimeError(
+                "[T6.2] _apply_c3_composite_weights requires "
+                "self.poi_delaunay_edges to be set first. Build the POI "
+                "Delaunay graph via build_poi_delaunay=True before applying "
+                "the C3 composite weights."
+            )
+        print(f"[t6.2] applying C3 composite weights: "
+              f"α_delaunay={self.c3_alpha_delaunay} w_r={self.c3_w_r}")
+
+        c2p = self.checkins['poi_idx'].values.astype(np.int64)
+        p2r = self.pois['region_idx'].values.astype(np.int64)
+        num_pois = int(c2p.max()) + 1
+
+        # Build Delaunay POI-POI adjacency hash. ``poi_delaunay_edges`` is
+        # (2, E_poi); for fast (poi_a, poi_b) ∈ adjacency lookup, encode
+        # each undirected pair as ``min*num_pois + max`` and store in a set.
+        pd_a = self.poi_delaunay_edges[0]
+        pd_b = self.poi_delaunay_edges[1]
+        pd_lo = np.minimum(pd_a, pd_b).astype(np.int64)
+        pd_hi = np.maximum(pd_a, pd_b).astype(np.int64)
+        delaunay_keys = set((pd_lo * num_pois + pd_hi).tolist())
+
+        # Per-edge POI and region lookups.
+        src = edge_index[0]
+        tgt = edge_index[1]
+        poi_src = c2p[src]
+        poi_tgt = c2p[tgt]
+        reg_src = p2r[poi_src]
+        reg_tgt = p2r[poi_tgt]
+
+        # Delaunay multiplier: vectorised set membership via encoded key.
+        e_lo = np.minimum(poi_src, poi_tgt).astype(np.int64)
+        e_hi = np.maximum(poi_src, poi_tgt).astype(np.int64)
+        e_keys = (e_lo * num_pois + e_hi).tolist()
+        is_delaunay = np.fromiter(
+            (k in delaunay_keys for k in e_keys),
+            dtype=bool, count=len(e_keys),
+        )
+        # Also mask out self-loops (poi_src == poi_tgt) — same-POI pairs are
+        # trivially NOT Delaunay (they're the same node, not an edge).
+        is_delaunay = is_delaunay & (poi_src != poi_tgt)
+
+        # Cross-region penalty: edge crosses regions when src/tgt POI region differ.
+        is_cross_region = reg_src != reg_tgt
+
+        delaunay_mult = np.where(is_delaunay, self.c3_alpha_delaunay, 1.0)
+        crossregion_mult = np.where(is_cross_region, self.c3_w_r, 1.0)
+        weight_mult = (delaunay_mult * crossregion_mult).astype(np.float32)
+        new_edge_weight = (edge_weight * weight_mult).astype(np.float32)
+
+        n_delaunay = int(is_delaunay.sum())
+        n_cross = int(is_cross_region.sum())
+        print(f"[t6.2]   {n_delaunay} / {len(e_keys)} edges Delaunay-adjacent "
+              f"({100*n_delaunay/len(e_keys):.1f}%); "
+              f"{n_cross} / {len(e_keys)} edges cross-region "
+              f"({100*n_cross/len(e_keys):.1f}%)")
+        return new_edge_weight
 
     def _build_edges(self):
         """Build edges based on edge_type.
@@ -518,6 +713,18 @@ class Check2HGIPreprocess:
         # Build edges (T3.3 plumbing: per-edge relation index for R-GCN)
         edge_index, edge_weight, edge_type = self._build_edges()
 
+        # T6.2 — composite C3 edge weights (HGI-style Delaunay multiplier +
+        # cross-region penalty applied to user_sequence temporal-decay weights).
+        # Requires the POI-Delaunay graph; build it eagerly here so that
+        # ``self.poi_delaunay_edges`` is set before the multiplier is applied.
+        # We auto-enable ``build_poi_delaunay`` so the same graph is included
+        # in the output dict (for any downstream use that needs it).
+        _c3_active = (self.c3_alpha_delaunay != 1.0 or self.c3_w_r != 1.0)
+        if _c3_active:
+            self.poi_delaunay_edges = self._build_poi_delaunay_edges()
+            self.build_poi_delaunay = True   # ensure it's emitted in the dict below
+            edge_weight = self._apply_c3_composite_weights(edge_index, edge_weight)
+
         # Normalize edge weights
         if len(edge_weight) > 0:
             mi, ma = edge_weight.min(), edge_weight.max()
@@ -559,8 +766,13 @@ class Check2HGIPreprocess:
         # ``build_poi_delaunay``). Cached in the same pickle so subsequent
         # runs reuse it; consumed by both T5.2a (Node2Vec walks) and T5.2b
         # (masked-POI decoder neighbour aggregation).
+        # If T6.2 already built the Delaunay graph above, reuse it (don't
+        # rebuild) — ``self.poi_delaunay_edges`` is set in that case.
         if self.build_poi_delaunay:
-            out['poi_delaunay_edge_index'] = self._build_poi_delaunay_edges()
+            if hasattr(self, 'poi_delaunay_edges') and self.poi_delaunay_edges is not None:
+                out['poi_delaunay_edge_index'] = self.poi_delaunay_edges
+            else:
+                out['poi_delaunay_edge_index'] = self._build_poi_delaunay_edges()
 
         # T5.2b — optional per-POI reconstruction targets (gated by
         # ``build_poi_aggregates``).
@@ -568,6 +780,12 @@ class Check2HGIPreprocess:
             poi_cat_agg, poi_visit_log = self._compute_poi_feature_aggregates()
             out['poi_category_aggregate'] = poi_cat_agg
             out['poi_visit_count_log'] = poi_visit_log
+
+        # T6.1 — optional co-visit POI-POI pair list (gated by
+        # ``build_covisit_pairs``). Consumed by Check2HGIModule's 4th boundary
+        # when ``p2p_lambda > 0``.
+        if self.build_covisit_pairs:
+            out['covisit_pairs'] = self._build_covisit_pairs()
 
         return out
 
@@ -676,6 +894,11 @@ def preprocess_check2hgi(city, city_shapefile, edge_type='user_sequence',
                           temporal_decay=3600.0, cta_file=None,
                           build_poi_delaunay: bool = False,
                           build_poi_aggregates: bool = False,
+                          build_covisit_pairs: bool = False,
+                          covisit_k: int = 3,
+                          covisit_dedup: bool = True,
+                          c3_alpha_delaunay: float = 1.0,
+                          c3_w_r: float = 1.0,
                           build_view2: bool = False):
     """
     Main preprocessing function for Check2HGI.
@@ -717,6 +940,11 @@ def preprocess_check2hgi(city, city_shapefile, edge_type='user_sequence',
         temporal_decay=temporal_decay,
         build_poi_delaunay=build_poi_delaunay,
         build_poi_aggregates=build_poi_aggregates,
+        build_covisit_pairs=build_covisit_pairs,
+        covisit_k=covisit_k,
+        covisit_dedup=covisit_dedup,
+        c3_alpha_delaunay=c3_alpha_delaunay,
+        c3_w_r=c3_w_r,
     )
 
     data = pre.get_data()
