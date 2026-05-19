@@ -14,7 +14,23 @@ This study runs **alongside** the fusion study — they coexist under `docs/stud
 1. `CHANGELOG.md` — chronological timeline of findings + lessons (the single source for "what was found when, why").
 2. `results/RESULTS_TABLE.md §0` — canonical paper numbers (v11, 2026-05-02).
 3. `articles/[BRACIS]_Beyond_Cross_Task/AGENT.md` — article-side operational rules + voice + statistics + page budget.
-4. `CLAIMS_AND_HYPOTHESES.md` (with whitelist banner) — paper-facing safe entries are CH16 / CH18-cat / CH15 reframing / CH19 / CH22; everything else needs cross-checking against v11.
+4. `CLAIMS_AND_HYPOTHESES.md` (with whitelist banner) — paper-facing safe entries are CH16 / CH18-cat / CH15 reframing / CH19 / CH22; CH23 (Tier-6 substrate-protocol mismatch) is §Discussion-only; everything else needs cross-checking against v11.
+
+> **⚠ MTL protocol blocker (2026-05-19, MANDATORY reading before any MTL or substrate work):** The production B9 joint selector (`mtl_cv.py:679`, `joint_score = 0.5 * (cat_macro_f1 + reg_macro_f1)`) is **structurally broken on the canonical shipping recipe itself** — not just on substrate variants. `reg_macro_f1` over ~4 700 sparse FL regions is dominated by rare-class noise and is blind to `reg_top10_acc_indist`'s peak-and-collapse trajectory.
+>
+> **Concrete fingerprint (canonical shipping FL ep=50 single-seed=42 n=5, NO substrate changes):**
+>
+> | Selector | cat F1 | reg top10 |
+> |---|---:|---:|
+> | Per-task disjoint best | 70.49 ± 0.86 | **76.12 ± 0.33** ← capacity |
+> | `joint_canonical_b9` (production) | 69.99 ± 1.13 | **65.38 ± 9.10** ← shipped |
+>
+> Production selector throws away **~10.7 pp of reg-top10 capacity** that the canonical Check2HGI substrate already produces. §0.1's published reg top10 = 63.27 ± 0.10 is consistent with the matched-protocol single-seed `joint_canonical_b9` value (65.38 ± 9.10) within single-seed variance.
+>
+> **Implications:**
+> - The canonical_improvement Tier-6 T6.4 substrate hypothesis (POI-level supervision lifts reg) is **falsified at matched protocol** — T6.4 variants add Δ_reg = +0.08-0.17 pp over shipping under per-task disjoint, well within σ. The "+13 pp" originally claimed was a cross-selector artefact, not a substrate effect. See `CLAIMS_AND_HYPOTHESES.md` CH23-A.
+> - The selector bug affects **every Check2HGI MTL run in the published canon**. Future substrate comparisons under the production selector are comparing checkpoints where reg has destabilised; substrate-axis orderings may flip once the selector is fixed.
+> - See `CONCERNS.md` C21 (full diagnosis) and the urgent follow-on study at `docs/studies/mtl-exploration/FUTUREWORK_substrate_aware_mtl_balancing.md` (F1/F2/F3). Re-evaluation of existing Tier-1..6 candidates AND of the shipping baseline under a substrate-aware selector is a **zero-retraining** job via `scripts/canonical_improvement/analyze_t64_selectors.py` (reads per-epoch val CSVs already on disk).
 
 **Headline (the classic MTL tradeoff, sign-consistent across 5 states):**
 - Cat: MTL ≥ STL at four of five states (AZ +1.20 p < 1e-4 / FL +1.40 p = 2e-06 / CA +1.68 p = 2e-06 / TX +1.89 p = 2e-06); AL is small-significantly negative (Δ = −0.78 pp, p = 0.036, n = 20 multi-seed; magnitude ~1.9% relative). **All five states (AL/AZ/CA/TX/FL) are now pooled multi-seed (n = 20) on the headline §0.1 axis — the last remaining single-seed asymmetry (FL) closed in v11.**

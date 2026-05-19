@@ -416,3 +416,37 @@ The NORTH_STAR currently reflects **Path A** (`next_gru` universally) pending F3
 - Added a cohort `test_all_t5_canonical_optout` asserting that Check2HGI with ZERO T5 flags allocates zero T5 parameters, produces finite forward outputs of canonical shapes, and yields a finite scalar loss.
 
 **Status:** `resolved 2026-05-17` at the level of the integration branch (`tier5-cohort-integration`). Forward mitigation policy: for any future parallel-agent cohort, agents must commit to dedicated branches off the base, with NO push to the shared ref before integration; integration consolidates via cherry-pick from those branches onto a clean integration branch. The four Tier-5 candidate branches plus this concern entry constitute the audit trail.
+
+---
+
+## C21 — `joint_canonical_b9` selector throws away ~+11 pp of reg capacity from the canonical Check2HGI substrate
+
+**Concern raised:** 2026-05-19 during canonical_improvement Tier-6 / T6.4 evaluation. Matched-protocol analysis (shipping FL ep=50 single-seed=42 n=5 + dual-selector re-evaluation) revealed that the production MTL selector (`joint_score = 0.5 * (cat_macro_f1 + reg_macro_f1)` at `src/training/runners/mtl_cv.py:679`) **destroys ~11 pp of reg-top10 capacity that the canonical Check2HGI substrate already produces**. This is a property of the **shipping recipe AS-IS**, not specific to any substrate variant.
+
+**Root cause:** `reg_macro_f1` over ~4 700 sparse FL regions is dominated by rare-class noise and stays ~16-18 % across the entire ep=1-50 trajectory. The selector cannot see `reg_top10_acc_indist`'s peak at ep ~4-5 (~76 %) and collapse by ep ~30 (~65 %). The mean-of-F1s formula is **scale-incoherent** when one head has 7 well-supported classes (cat_macro_f1 ≈ 0.70) and the other has 4 700 sparse classes (reg_macro_f1 ≈ 0.17). The production selector picks late epochs (ep ~29 ± 11) after reg has destabilised, and the resulting reg-top10 std balloons (σ ≈ 9 across folds, vs σ < 0.4 at the reg-best epoch).
+
+**Concrete fingerprint — canonical shipping FL ep=50 single-seed=42, n=5 folds (NO substrate changes):**
+
+| Selector | selected ep | cat F1 | reg top10 |
+|---|---:|---:|---:|
+| Per-task disjoint best | cat ~35, reg ~4 | 70.49 ± 0.86 | **76.12 ± 0.33** ← what the substrate produces |
+| joint_geom_simple (= `sqrt(cat_f1 * reg_top10_indist)`) | 14.0 ± 8.5 | 67.93 ± 1.74 | 72.38 ± 2.20 |
+| joint_canonical_b9 (production) | 29.2 ± 10.8 | 69.99 ± 1.13 | **65.38 ± 9.10** ← what the production selector ships |
+
+**Capacity gap on the shipping substrate: ~10.7 pp reg top10** (76.12 − 65.38) — invisible to anyone reading the §0.1 RESULTS_TABLE numbers, which report at joint_canonical_b9.
+
+**Cross-check against published §0.1 numbers:** shipping FL §0.1 multi-seed n=20 reports reg top10 = 63.27 ± 0.10 (= joint_canonical_b9 mean averaged across seeds). The single-seed matched value here (65.38 ± 9.10) is consistent within the single-seed variance. §0.1 reports joint-best, **not** reg-best — this is consistent across the published canon.
+
+**Cross-check against T6.4 substrate variants (canonical_improvement Tier 6):** Under matched protocol single-seed=42 n=5, T6.4 variants (`--two-pass-corruption`, `--p2r-use-infonce τ=0.5`) give Δ_reg = +0.08-0.17 pp at per-task disjoint best vs shipping — **no substrate improvement above noise**. The substrate variants do NOT add capacity above canonical+v3c+T3.2; they only redistribute the same Pareto frontier (with slightly different optimal epochs).
+
+**Why this matters for every study, not just Tier 6.** The protocol bug exists in the production B9 recipe **independently of any substrate change**. Canonical Check2HGI ALREADY produces +11 pp of reg-top10 capacity at FL that the production selector cannot extract. Any study comparing substrate variants under the production selector is comparing them at a checkpoint where reg has destabilised — the substrate-axis ordering may not generalise once the selector is fixed.
+
+**Resolution (provisional):** documented as the urgent next-study scope under [`docs/studies/mtl-exploration/FUTUREWORK_substrate_aware_mtl_balancing.md`](studies/mtl-exploration/FUTUREWORK_substrate_aware_mtl_balancing.md). Three workstreams:
+
+- **F1** — substrate-aware joint_score (use `reg_top10_acc_indist` instead of `reg_macro_f1`, or wire in the already-coded `joint_geom_lift` at `src/training/runners/mtl_cv.py:710`). One-line code change. **Re-evaluation of all canonical_improvement Tier 1-6 candidates AND the shipping baseline under the new selector requires zero retraining** — only re-scan of existing per-epoch val CSVs via `scripts/canonical_improvement/analyze_t64_selectors.py`.
+- **F2** — substrate-adaptive MTL balancing (NashMTL revival on FL where the cvxpy solver is well-conditioned; per-task LR decay after reg peak; gradient masking after reg plateau). Goal: prevent reg destabilisation past its early peak so a single checkpoint near ep ~10-15 captures both heads near peak.
+- **F3** — substrate × protocol 2×2 ablation as the proper paper headline: (shipping, T6.4 substrate variants) × (B9 selector, F1-fix selector). Shows the protocol-axis effect is **larger** than the substrate-axis effect on reg.
+
+**Status:** `open 2026-05-19`. Closure path: mtl-exploration F1 fix lands, and shipping FL/CA/TX numbers are re-reported under F1 (zero retraining). Re-opens if any new substrate intervention claims a paper-grade reg lift before the F1 fix has been applied to its baseline.
+
+**Numbers source-of-truth:** `docs/results/canonical_improvement/T6_4_dual_selector_final.{json,md}` (all 3 arms: shipping, two_pass, infonce τ=0.5; single-seed=42, n=5 folds, ep=50).

@@ -12,6 +12,27 @@
 > **Tier-5 §Discussion-only (2026-05-18 Phase-3 close; NOT shipping claims):**
 > - **Tier-5 masked-POI / multi-view priors are §Discussion-only.** T5.2b (masked-POI MAE) and T5.3 (multi-view co-training) produced directional positive cat-axis signals (T5.2b: 3-state × 5-seed sign-test 13/15+, p=0.0074; T5.3 AZ reg Cohen d ≈ +0.85, p_one=0.065) but **fail Bonferroni correction at the canonical_improvement family scale m = 28** (α* ≈ 0.00179). No shipping change. Reported as motivation for future work in `PAPER_DRAFT.md §7` Beats 6-8. Source-of-truth: `docs/results/canonical_improvement/STACKING_ABLATION.md §7.6`.
 >
+> **Tier-6 corrected verdict (2026-05-19, matched-protocol analysis):**
+> - **CH23-A (Tier-6 T6.4 substrate hypothesis — FALSIFIED).** Under matched protocol (FL, single-seed=42, n=5 folds, ep=50), T6.4 variants (`--two-pass-corruption`, `--p2r-use-infonce τ=0.5`) do **NOT** improve over canonical+v3c+T3.2 shipping. At per-task disjoint best, shipping reaches cat 70.49 / reg top10 76.12; the best T6.4 variant reaches cat 70.55 / reg top10 76.29 — Δ_reg = +0.08-0.17 pp, **well within fold σ** and not statistically meaningful at n=5. T6.4 contributes no additional substrate capacity above canonical+v3c+T3.2. **No T6.4 shipping promotion; no T6.4 paper headline.** The InfoNCE-and-two-pass code paths land as opt-in infrastructure (default-off, byte-identical), useful for future studies that pair them with other interventions, but the variants alone are §Discussion-only and the paper claim is "falsified at matched protocol."
+>
+> - **CH23-B (`joint_canonical_b9` selector bug — load-bearing finding for ALL Check2HGI MTL work).** Under matched protocol, the **canonical shipping substrate alone** has the following selector-dependent reg-top10:
+>
+>   | Selector | shipping FL ep=50 ss=42 | cat F1 | reg top10 |
+>   |---|---|---:|---:|
+>   | Per-task disjoint best | reg-best ep ~4 | 70.49 ± 0.86 | **76.12 ± 0.33** |
+>   | `joint_geom_simple` | ep ~14 | 67.93 ± 1.74 | 72.38 ± 2.20 |
+>   | `joint_canonical_b9` (production) | ep ~29 | 69.99 ± 1.13 | **65.38 ± 9.10** |
+>
+>   The production `joint_canonical_b9` selector throws away **~10.7 pp of reg-top10 capacity** (76.12 − 65.38) that the canonical Check2HGI substrate already produces. Cross-checks: §0.1 multi-seed n=20 reports shipping FL reg top10 = 63.27 ± 0.10 — consistent with the single-seed matched value of 65.38 within single-seed variance. **§0.1 numbers are joint-best, not reg-best.** Root cause: `reg_macro_f1` over ~4 700 sparse regions is dominated by rare-class noise (stays ~16-18 % across full ep=1-50 trajectory) and is blind to reg_top10's collapse from ~76 % at ep ~5 to ~65 % at ep ~30+.
+>
+> - **Allowed paper claim (CH23-B)**: "Under per-task disjoint best (or a `joint_geom_simple` selector that respects deployment-scale reg-top10), the canonical Check2HGI substrate reaches reg top10 ≈ 76 % at FL — ~+13 pp above the §0.1 joint-best number. The production B9 joint selector (`0.5 * (cat_macro_f1 + reg_macro_f1)`) is structurally broken on this MTL setup because `reg_macro_f1` over ~4 700 sparse regions is dominated by rare-class noise and is blind to the reg-top10 collapse that follows the reg head's early peak."
+> - **Disallowed paper claims**:
+>   - "T6.4 ships a substrate improvement." (FALSIFIED at matched protocol; Δ_reg = +0.08-0.17 pp within σ.)
+>   - "T6.4 enables cat +2 / reg +13." (Comparison was against §0.1 joint-best multi-seed numbers; the lift exists in **shipping itself** under per-task disjoint, not in T6.4 specifically.)
+> - **AL G3 gate violation persists** (T6.4 AL low-visit Δ = +1.05-1.41 pp vs +1 pp budget). The "proportional vs uniform lift" mechanism story is §Discussion-only and is now also moot because T6.4 has no shipping promotion path under any selector.
+> - **Multi-seed deferred** for both T6.4 (no signal to tighten) and shipping (matched-protocol single-seed adequately documents the selector bug). The shipping FL/CA/TX numbers should be **re-reported under the mtl-exploration F1 selector** once that lands — zero retraining required via `scripts/canonical_improvement/analyze_t64_selectors.py`.
+> - **Source-of-truth**: `docs/results/canonical_improvement/T6_4_dual_selector_final.{json,md}` (all 3 arms at matched single-seed=42 n=5 ep=50). Upstream framing: **`CONCERNS.md` C21**. Closure path: **`docs/studies/mtl-exploration/FUTUREWORK_substrate_aware_mtl_balancing.md`** F1/F2/F3.
+>
 > **Not whitelisted (pre-leak-free or superseded):**
 > - **CH01** / **CH02** / **CH03** — pre-Phase-1 framings; not paper-current.
 > - **CH18-reg** (pre-2026-04-30) — was a leak artefact; CH15 reframing supersedes it.

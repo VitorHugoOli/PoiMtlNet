@@ -29,6 +29,46 @@
 
 ## Timeline of findings (most recent first)
 
+### 2026-05-19 — canonical_improvement Tier-6 / T6.4 FALSIFIED at matched protocol; `joint_canonical_b9` selector bug surfaces as the real finding
+
+**Tier 6 was reopened 2026-05-18** to re-attempt the POI-level supervision hypothesis the user felt was under-explored in Tier 5. Built G3 (per-POI hold-out leak probe, calibrated against T5.1's known leak Δ_low = +3.82 pp), implemented **T6.4** (InfoNCE @ p2r + two-pass corruption) as opt-in default-off code paths in `Check2HGIModule.py`, swept the variants × {AL, AZ, FL} at ep=500, ran FL MTL under canonical B9 ep=50.
+
+An initial ep=15 protocol-cap attempt was attacked by advisor consult #1 as post-hoc val-leak; advisor consult #2 supported a full-ep=50 dual-selector framing instead. A shipping FL ep=50 single-seed=42 n=5 baseline was added for matched-protocol comparison. The matched-protocol comparison then **falsified the Tier-6 substrate hypothesis** and surfaced a separate, more important finding about the production B9 selector itself.
+
+**Matched-protocol dual-selector results (FL, single-seed=42, n=5 folds, ep=50):**
+
+| Selector | shipping | T6.4 two_pass | T6.4 infonce τ=0.5 | Δ T6.4 vs shipping |
+|---|---:|---:|---:|---|
+| Per-task disjoint best: cat F1 | 70.49 ± 0.86 | 70.55 ± 0.85 | 70.49 ± 0.95 | **+0.00 to +0.06** |
+| Per-task disjoint best: reg top10 | **76.12 ± 0.33** | 76.20 ± 0.27 | 76.29 ± 0.29 | **+0.08 to +0.17** |
+| `joint_geom_simple`: cat F1 | 67.93 ± 1.74 | 67.33 ± 2.06 | 67.12 ± 2.45 | −0.60 to −0.81 |
+| `joint_geom_simple`: reg top10 | 72.38 ± 2.20 | 73.33 ± 2.28 | 73.48 ± 2.48 | +0.95 to +1.10 |
+| `joint_canonical_b9` (production): cat F1 | 69.99 ± 1.13 | 70.13 ± 1.06 | 70.28 ± 0.82 | +0.14 to +0.29 |
+| `joint_canonical_b9` (production): reg top10 | 65.38 ± **9.10** | 61.19 ± **11.86** | 56.78 ± **11.79** | **−4.19 to −8.60** |
+
+Reference: shipping FL §0.1 multi-seed n=20 reports reg top10 = 63.27 ± 0.10 — matches the matched-protocol `joint_canonical_b9` single-seed value (65.38 ± 9.10) within single-seed variance. §0.1 reports joint-best, not reg-best.
+
+**Finding 1 — Tier-6 T6.4 substrate hypothesis FALSIFIED at matched protocol.** T6.4 variants add Δ_reg = +0.08-0.17 pp over shipping at per-task disjoint best — well within fold σ (~0.3) and not statistically meaningful at n=5. The InfoNCE-and-two-pass code paths land as opt-in infrastructure (default-off, byte-identical, useful for future studies that pair them with other interventions), but the variants alone are §Discussion-only and the paper claim for T6.4 is "falsified at matched protocol." The original "+11 pp reg lift" claim from 2026-05-19 was a cross-selector comparison artefact (T6.4 reg-best ep vs shipping §0.1 joint-best ep) — not a substrate effect. See `CLAIMS_AND_HYPOTHESES.md` CH23-A.
+
+**Finding 2 — `joint_canonical_b9` selector throws away ~+11 pp of reg-top10 capacity from the canonical Check2HGI substrate itself.** Per-task disjoint best on shipping reaches reg top10 = 76.12; production selector reaches 65.38. Gap = ~10.7 pp on the shipping substrate, with no substrate change. The bug is **not Tier-6-specific** — it exists in the production B9 recipe AS-IS. Root cause: `reg_macro_f1` over ~4 700 sparse FL regions is dominated by rare-class noise (stays ~16-18 % across full ep=1-50 trajectory) and is blind to reg_top10's collapse from ~76 % at ep ~5 to ~65 % at ep ~30. The mean-of-F1s formula is scale-incoherent when one head has 7 well-supported classes (cat_macro_f1 ≈ 0.70) and the other has 4 700 sparse classes (reg_macro_f1 ≈ 0.17). See `CLAIMS_AND_HYPOTHESES.md` CH23-B and `CONCERNS.md` C21.
+
+**Locked decisions (2026-05-19):**
+- T6.4 does not promote to multi-seed or to AL/AZ MTL evaluation. Falsified.
+- AL G3 gate violation (T6.4 low-visit Δ +1.05-1.41 pp vs +1 pp budget) is moot since T6.4 has no path to shipping under any selector.
+- §0.1 reg numbers are reported under a known-broken selector. Until the F1 fix (below) is applied to the shipping baseline, **reg-side conclusions drawn from §0.1 multi-seed numbers under-report the substrate's reg capacity by ~10 pp**. The current paper canon stands as-is (it's internally consistent) but any future MTL paper should pair the §0.1-style numbers with the F1-fix numbers.
+- All canonical_improvement Tier 1-6 candidate runs on disk can be re-analysed under any new selector **without retraining** via `scripts/canonical_improvement/analyze_t64_selectors.py` (reads per-epoch val CSVs).
+
+**mtl-exploration F1 fix is URGENT — for shipping itself, not just for substrate variants.** Workstreams (`docs/studies/mtl-exploration/FUTUREWORK_substrate_aware_mtl_balancing.md`):
+- **F1** — substrate-aware joint_score (`reg_top10_acc_indist` instead of `reg_macro_f1`, or wire in the already-coded `joint_geom_lift` at `mtl_cv.py:710`). One-line code change. Re-evaluate **shipping AND all Tier 1-6 candidates** under the new selector without retraining; expose the ~11 pp reg-top10 capacity that the production selector currently hides.
+- **F2** — substrate-adaptive MTL balancing (NashMTL revival on FL where the cvxpy solver is well-conditioned; per-task LR decay after reg peak; gradient masking after reg plateau). Goal: prevent reg destabilisation past its early peak so a single checkpoint near ep ~10-15 captures both heads near peak with low σ.
+- **F3** — substrate × protocol 2×2 ablation as paper headline: (shipping, T6.4 substrate) × (B9 selector, F1-fix selector). Likely outcome based on this study: the protocol-axis effect dominates the substrate-axis effect on reg.
+
+**Cross-references updated.** `CONCERNS.md` C21 (rewritten — not T6.4-specific; the bug is in shipping); `CLAIMS_AND_HYPOTHESES.md` CH23-A/CH23-B (locked claims with falsified-and-corrected framing); `AGENT_CONTEXT.md` blocker callout (rewritten); `NORTH_STAR.md` (B9 selector limitation warning rewritten to flag the bug as applying to the shipping recipe itself); `docs/studies/canonical_improvement/log.md` 2026-05-19 entry; `docs/studies/canonical_improvement/INDEX.html` T6.4 Results; `docs/studies/mtl-exploration/FUTUREWORK_substrate_aware_mtl_balancing.md` (rewritten with matched-protocol numbers); `docs/studies/mtl-exploration/README.md` URGENT banner (rewritten).
+
+**Artefacts.** `scripts/canonical_improvement/analyze_t64_selectors.py` (dual-selector tool, reads per-fold val CSVs); `docs/results/canonical_improvement/T6_4_dual_selector_final.{json,md}` (all 3 arms at matched single-seed=42 n=5 ep=50 — replaces the earlier `T6_4_dual_selector_preliminary.{json,md}` whose numbers were §0.1-vs-single-seed cross-selector comparisons).
+
+---
+
 ### 2026-05-18 follow-up — canonical_improvement Tier-5 Phase-3 closed (no shipping change)
 
 **Tier-5 Phase-3 closed; canonical+v3c+T3.2 remains the shipping stack.** After the 2026-05-18 first-pass Tier-5 close (`docs/results/canonical_improvement/STACKING_ABLATION.md §7.1-§7.5`), two further multi-seed cells landed in Phase 3:

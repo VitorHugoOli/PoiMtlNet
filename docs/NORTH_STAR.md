@@ -123,6 +123,19 @@ These findings **do not** change the committed config — they explain *why* it 
 
 **Status (2026-04-24):** Cat head refined via F27 from `NextHeadMTL` (Transformer) → `next_gru` (GRU). Paper-reshaping F21c finding noted in §§Caveats. See §Committed config below.
 
+> **⚠ B9 joint-selector bug (added 2026-05-19, applies to the canonical shipping recipe AS-IS).** The `selector` row below describes the per-task best tracker. The **primary checkpoint** is selected by `joint_score = 0.5 * (cat_macro_f1 + reg_macro_f1)` at `src/training/runners/mtl_cv.py:679`. This formula is **structurally broken on the canonical Check2HGI MTL setup itself** — `reg_macro_f1` over ~4 700 sparse FL regions is dominated by rare-class noise (stays ~16-18 % across full ep=1-50 trajectory) and is blind to `reg_top10_acc_indist`'s peak-and-collapse trajectory.
+>
+> Matched-protocol measurement on canonical shipping FL ep=50 single-seed=42 n=5 (NO substrate changes):
+>
+> | Selector | cat F1 | reg top10 |
+> |---|---:|---:|
+> | Per-task disjoint best | 70.49 ± 0.86 | **76.12 ± 0.33** |
+> | `joint_canonical_b9` (production — what §0.1 reports) | 69.99 ± 1.13 | **65.38 ± 9.10** |
+>
+> **Capacity gap: ~10.7 pp reg-top10 thrown away by the production selector**, on the shipping recipe itself, with no substrate change. §0.1 multi-seed reg = 63.27 ± 0.10 matches the matched-protocol `joint_canonical_b9` value within single-seed variance — confirming §0.1 reports joint-best, not the substrate's reg-best capacity.
+>
+> See `CONCERNS.md` C21 (diagnosis) and `docs/studies/mtl-exploration/FUTUREWORK_substrate_aware_mtl_balancing.md` (F1/F2/F3) for the closure path. Until F1 lands, **reg-side conclusions drawn from §0.1 numbers under-report the substrate's actual reg capacity at FL by ~10 pp**. Substrate-axis orderings under the production selector are unreliable — they reflect the selector's choice of destabilised epoch, not the substrate's reg potential.
+
 ## Champion — F50 B9 (P4 + Cosine + α-no-WD) — multi-seed validated (2026-04-30 F51)
 
 ```

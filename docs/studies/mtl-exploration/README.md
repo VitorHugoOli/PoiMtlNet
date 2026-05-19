@@ -4,6 +4,28 @@
 >
 > This folder gathers the artefacts from a one-day deep audit of the existing MTL state of the art + a follow-up ablation that surfaced (and helped fix) a real codebase bug. Its purpose is to give the next agent (and the user) a clean baseline before committing to the *real* MTL study.
 
+> ## ⚠ URGENT (2026-05-19) — `joint_canonical_b9` selector bug surfaced in the shipping recipe itself
+>
+> Matched-protocol analysis on canonical Check2HGI FL ep=50 single-seed=42 n=5 (NO substrate change) shows the production B9 joint selector (`0.5 * (cat_macro_f1 + reg_macro_f1)` at `src/training/runners/mtl_cv.py:679`) **throws away ~10.7 pp of reg-top10 capacity** that the canonical substrate already produces.
+>
+> | Selector | shipping cat F1 | shipping reg top10 |
+> |---|---:|---:|
+> | Per-task disjoint best | 70.49 ± 0.86 | **76.12 ± 0.33** ← what the substrate produces |
+> | `joint_geom_simple` | 67.93 ± 1.74 | 72.38 ± 2.20 |
+> | `joint_canonical_b9` (production) | 69.99 ± 1.13 | **65.38 ± 9.10** ← what production ships |
+>
+> Cross-check: shipping FL §0.1 multi-seed n=20 reports reg top10 = 63.27 ± 0.10 — matches `joint_canonical_b9` within single-seed variance. **§0.1 is reporting joint-best, not reg-best.** Root cause: `reg_macro_f1` over ~4 700 sparse FL regions is dominated by rare-class noise and is blind to `reg_top10_acc_indist`'s peak-and-collapse trajectory (~76 % at ep ~5, ~65 % by ep ~30).
+>
+> This is **not specific to any substrate variant.** The canonical_improvement Tier-6 T6.4 substrate hypothesis was **FALSIFIED** at matched protocol (T6.4 vs shipping: Δ_reg = +0.08-0.17 pp at per-task disjoint, within σ). The original "+11-13 pp reg lift" claim for T6.4 was a cross-selector comparison artefact (T6.4 reg-best vs shipping §0.1 joint-best). The actual finding is: **the canonical shipping recipe is already losing ~10 pp of reg-top10 to a structurally broken selector**.
+>
+> See **[`FUTUREWORK_substrate_aware_mtl_balancing.md`](FUTUREWORK_substrate_aware_mtl_balancing.md)** for the full memo. Three workstreams the next mtl-exploration study should pick up:
+>
+> 1. **F1 (cheap, one-line)** — replace `joint_score`'s `reg_macro_f1` with `reg_top10_acc_indist`, or wire in the already-coded `joint_geom_lift` at `mtl_cv.py:710`. **Re-evaluate the canonical shipping FL/CA/TX numbers AND every canonical_improvement Tier 1-6 candidate** under the new selector — zero retraining needed via `scripts/canonical_improvement/analyze_t64_selectors.py`. The expected outcome is that shipping's published §0.1 reg numbers rise by ~10 pp at FL once the selector is fixed.
+> 2. **F2 (medium, optimisation)** — revisit NashMTL on FL (well-conditioned, cvxpy solver stable), per-task LR decay after reg peak, gradient-masking after reg plateau. Goal: prevent reg destabilisation past its early peak so a single checkpoint near ep ~10-15 captures both heads near peak with low σ.
+> 3. **F3 (paper-headline)** — substrate × protocol 2×2 ablation: (shipping, T6.4 substrate variants) × (B9 selector, F1-fix selector). Likely outcome based on canonical_improvement Tier-6 evidence: **the protocol-axis effect dominates the substrate-axis effect on reg.** This is the proper paper headline.
+>
+> **Implication for the published paper canon.** Every Check2HGI MTL number in `RESULTS_TABLE.md §0` is reported at the `joint_canonical_b9` epoch. Internally consistent, but reg-side conclusions under-represent the substrate's reg capacity by ~10 pp at FL. The current BRACIS submission can stand as-is (the protocol is documented in NORTH_STAR.md); any future MTL paper should pair §0.1-style numbers with F1-fix numbers.
+
 ## What lives here
 
 | File | Purpose | When to read |
