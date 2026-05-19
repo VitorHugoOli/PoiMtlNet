@@ -1,0 +1,22 @@
+[
+    {
+        "epoch": 9,
+        "next_region_f1": 0.16195674240589142,
+        "next_category_f1": 0.6497749090194702
+    },
+    {
+        "epoch": 12,
+        "next_region_f1": 0.16063591837882996,
+        "next_category_f1": 0.66401606798172
+    },
+    {
+        "epoch": 13,
+        "next_region_f1": 0.1615598052740097,
+        "next_category_f1": 0.6627579927444458
+    },
+    {
+        "epoch": 14,
+        "next_region_f1": 0.1615208238363266,
+        "next_category_f1": 0.6628881692886353
+    }
+]
