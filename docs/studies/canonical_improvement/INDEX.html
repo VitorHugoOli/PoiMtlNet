@@ -1903,7 +1903,24 @@ After the §7 first-pass close had T5.3 marked SKIPPED → §Future Work, Phase 
 
 <!-- ============================================================== -->
 <h2 id="tier6">Tier 6 &mdash; POI-level supervision (closing the next-reg gap)
-<span class="pill warn">RE-OPENED 2026-05-18</span></h2>
+<span class="pill warn">RE-OPENED 2026-05-18</span> <span class="pill bad">CLOSED 2026-05-19 &mdash; hypothesis FALSIFIED across all four pre-registered mechanism families</span></h2>
+
+<div class="block" style="background:#fff3cd; border-left:4px solid #856404;">
+<div class="block-title">Tier 6 closure summary (2026-05-19)</div>
+<p>The Tier-6 hypothesis (<em>"direct, parameter-sharing, in-batch-derived POI-level supervision is the missing component for next-reg"</em>) is <strong>operationally falsified</strong> under matched protocol (FL, ep=50, single-seed=42, n=5 folds, dual-selector framing) across <strong>all four pre-registered mechanism families</strong>:</p>
+<table>
+<thead><tr><th>ID</th><th>Mechanism</th><th>Per-task disjoint Δ_reg</th><th>joint_geom_simple primary gate</th><th>Verdict</th></tr></thead>
+<tbody>
+<tr><td>T6.4 (×2)</td><td>Loss-shape reform (InfoNCE @ p2r, two-pass corruption)</td><td class="num">+0.08 to +0.17</td><td>FAIL (Δ_reg within fold σ)</td><td><span class="pill bad">FALSIFIED</span></td></tr>
+<tr><td>T6.1 (×4 orig + ×1 robust)</td><td>POI↔POI co-visit InfoNCE 4th boundary</td><td class="num">+0.05 to +0.20</td><td>FAIL (Δ_reg within fold σ; cat regresses on deployable)</td><td><span class="pill bad">FALSIFIED</span></td></tr>
+<tr><td>T6.2 (×4)</td><td>HGI-inspired composite edge weights (Delaunay multiplier + cross-region penalty)</td><td class="num">+0.23 to +0.76</td><td>FAIL (regresses on BOTH axes; cat -1.3 to -3.6 pp)</td><td><span class="pill warn">§Discussion (Pareto trade)</span></td></tr>
+<tr><td><strong>T6.3</strong></td><td>Low-rank per-POI bias at Checkin2POI attention-logit (rank-restricted T5.1 cousin)</td><td>halted (G3 gate)</td><td>N/A (aborted)</td><td><span class="pill bad">FALSIFIED at G3 gate</span></td></tr>
+</tbody>
+</table>
+<p><strong>Per-task disjoint reg-top10 ceiling at FL clusters at ~76.1-76.9 pp across 11 cells with σ ~0.3 pp.</strong> No Tier-6 intervention raises the substrate's reg-capacity bound by more than +0.76 pp at single-seed n=5, and the only cell that touches that magnitude (T6.2 α=2.0 w<sub>r</sub>=0.3) trades it for a -3.55 pp cat regression.</p>
+<p><strong>The load-bearing Tier-6 finding is CH23-B / CONCERNS C21</strong> &mdash; <em>not</em> any substrate result. The production <code>joint_canonical_b9</code> selector throws away ~10.7 pp of reg-top10 capacity that the canonical Check2HGI substrate already produces, with no substrate change involved. The substrate-axis effect (Tier 6) is bounded at ±0.8 pp; the protocol-axis effect is +10.7 pp. The natural next study is <a href="../mtl-exploration/FUTUREWORK_substrate_aware_mtl_balancing.md">mtl-exploration F1/F2/F3</a> (substrate-aware joint score + substrate-adaptive MTL balancing + substrate × protocol 2×2 ablation) <em>before</em> any further substrate intervention is attempted.</p>
+<p><strong>Closure narrative (locked 2026-05-19, advisor-approved):</strong> <em>"Tier 6 falsifies the POI-internal-supervision hypothesis under matched protocol at FL across all four pre-registered mechanism families (loss-shape reform, contrastive 4th boundary, geometric edge-weighting, capacity-restricted POI bias). No cell delivers a deployable single-checkpoint improvement under <code>joint_geom_simple</code>. Per-task-disjoint reg-capacity ceiling stays bounded at ~76.1 pp at FL under canonical static_weight MTL balancing. The load-bearing finding is the protocol-axis selector bug (CH23-B / C21), not any substrate result; the substrate-axis effect is an order of magnitude smaller than the protocol-axis effect."</em></p>
+</div>
 
 <p><strong>Origin.</strong> Post-closure user review (2026-05-18) identified that Tier 5 did not adequately test the user's core hypothesis: <em>"promote POI features inside check2hgi to close the next-reg gap over HGI, without copying HGI/POI2Vec and without concatenating their embeddings &mdash; train the POI representation inside the model."</em> Three Tier-5 candidates closed at n=1 single-seed; only T5.3 ran multi-seed (AZ &Delta;reg d=+0.85, p_one=0.065 &mdash; the strongest reg-relevant signal in the entire study) and got &sect;Discussion-only treatment because the Tier-4 wrap-up advisor had nearly killed Tier 5 wholesale. The per-POI hold-out probe (gap 3 from the audit) was never built &mdash; meaning no Tier-5 POI-side variant has an honest leak evaluation.</p>
 
@@ -1993,19 +2010,24 @@ Implementation: extend <code>research/embeddings/check2hgi/model/Check2HGIModule
 </div>
 
 <div class="block">
-<div class="block-title">Evaluation criteria</div>
+<div class="block-title">Evaluation criteria (dual-selector, updated 2026-05-19 post-T6.4 closure)</div>
+<p>The original T6.1 criterion (reg Acc@10 at FL under the canonical B9 selector) was implicitly under <code>joint_canonical_b9 = 0.5*(cat_macro_f1 + reg_macro_f1)</code>. After the T6.4 matched-protocol analysis demonstrated that this selector throws away ~10.7 pp of reg-top10 capacity from the canonical shipping substrate itself (see CONCERNS.md C21), T6.1's evaluation is now stated under the dual-selector framing: three selectors reported in parallel, with the primary gate locked to <code>joint_geom_simple</code> (the principled single-checkpoint selector).</p>
 <ul>
-<li><strong>Primary:</strong> reg Acc@10 at FL (canonical &sect;0.1 protocol, 5 seeds &times; 5 folds, sign-test at the seed level).</li>
-<li><strong>Secondary:</strong> cat F1 non-inferior at FL/AL/AZ (TOST or sign-test 5/5+).</li>
-<li><strong>Guardrails:</strong> G3 per-POI probe within +1 pp of shipping baseline; IJM sequence-edge leak within +1 pp; &sect;6.5 reg-axis kill threshold not tripped at small states.</li>
+<li><strong>Primary (shipping-grade) — under <code>joint_geom_simple = sqrt(cat_f1 * reg_top10_indist)</code>:</strong> reg top10 at FL &ge; +0.5 pp vs shipping ss=42 n=5 matched baseline, AND cat F1 non-inferior at FL/AL/AZ (sign-test 4/5+ or TOST &epsilon; = 0.2 pp). One deployable checkpoint, principled rule, no protocol divergence from §0.1 except the macro-F1-vs-top10 swap. <em>This is what gets multi-seed promotion.</em></li>
+<li><strong>Diagnostic (substrate-capacity) — under per-task disjoint best:</strong> report cat F1 at cat-best epoch and reg top10 at reg-best epoch. Two checkpoints; characterises substrate ceiling. <em>§Discussion-grade only — does not gate shipping.</em></li>
+<li><strong>Reference (production) — under <code>joint_canonical_b9</code>:</strong> reported for cross-comparison with the published §0.1 canon. Known broken; not gating.</li>
 <li><strong>Stacking:</strong> applied on top of canonical+v3c+T3.2 (the shipping stack), not bare canonical.</li>
+<li><strong>Guardrails:</strong> G3 per-POI probe within +1 pp of shipping baseline at low-visit quantile AND hi/lo ratio &ge; shipping ratio; IJM sequence-edge leak within +1 pp.</li>
+<li><strong>Comparison anchor:</strong> shipping FL ep=50 ss=42 n=5 matched baseline (already on disk: <code>docs/results/canonical_improvement/shipping_florida_mtl_ep50_seed42/</code>). Cat 70.49 ± 0.86 / reg top10 76.12 ± 0.33 at per-task disjoint; cat 67.93 ± 1.74 / reg top10 72.38 ± 2.20 at <code>joint_geom_simple</code>; cat 69.99 ± 1.13 / reg top10 65.38 ± 9.10 at <code>joint_canonical_b9</code>.</li>
 </ul>
 </div>
 
 <div class="block">
-<div class="block-title">Success</div>
-<strong>Strict:</strong> reg Acc@10 at FL &ge; +0.5 pp at sign-test 5/5+ across 5 seeds, with cat F1 non-inferior at all three states (sign-test 4/5+ or TOST &epsilon; = 0.2 pp). G3 probe &le; +1 pp drift. Then promote to a Bonferroni-corrected paired test at m = m_Tier6.<br>
-<strong>Loose (directional):</strong> reg lift at FL of +0.3 pp with no small-state reg-axis kill and no probe drift. Documented as &sect;Discussion candidate for follow-on.
+<div class="block-title">Success (locked 2026-05-19; pre-registered)</div>
+<strong>Strict (shipping-grade) under <code>joint_geom_simple</code> selector:</strong> reg top10 at FL &ge; <strong>+0.5 pp vs shipping</strong> (i.e., &ge; 72.88) at sign-test 5/5+ across 5 seeds, with cat F1 non-inferior at FL/AL/AZ (sign-test 4/5+ or TOST &epsilon; = 0.2 pp). G3 probe &le; +1 pp low-visit drift AND hi/lo ratio preserved. Then promote to a Bonferroni-corrected paired test at m = m_Tier6.<br><br>
+<strong>Loose (directional, §Discussion-only):</strong> reg lift at FL of +0.3 pp under <code>joint_geom_simple</code> with no small-state reg-axis kill and no probe drift. Documented as §Discussion candidate for follow-on; does NOT motivate shipping promotion.<br><br>
+<strong>Substrate-capacity-only (§Discussion-only):</strong> if T6.1 lifts only under per-task disjoint best (substrate has the capacity but not deliverable as a single checkpoint), report as substrate-capacity finding and forward to mtl-exploration F1/F2 future work. Same disposition as the T6.4 closure.<br><br>
+<strong>Falsified:</strong> if all three selectors show |&Delta;_reg| &le; fold σ vs shipping AND no per-task disjoint signal, T6.1 is falsified (same disposition as T6.4).
 </div>
 
 <div class="results-placeholder">Results: <em>pending execution</em></div>
@@ -2033,20 +2055,53 @@ Prior T4.4 tested Delaunay-POI-POI lifted to check-ins with <em>uniform weight</
 </div>
 
 <div class="block">
-<div class="block-title">Evaluation criteria</div>
+<div class="block-title">Evaluation criteria (dual-selector, updated 2026-05-19)</div>
+<p>Same dual-selector framing as T6.1 (see T6.1 evaluation criteria block for the rationale and the locked criteria). Three selectors reported in parallel; primary gate is <code>joint_geom_simple</code>.</p>
 <ul>
-<li>cat F1 + reg Acc@10 at FL/AL/AZ.</li>
+<li><strong>Primary (shipping-grade) under <code>joint_geom_simple</code>:</strong> reg top10 at FL &ge; +0.5 pp vs shipping matched baseline (&ge; 72.88) AND cat F1 non-inferior, at least one (&alpha;, w<sub>r</sub>) cell.</li>
+<li><strong>Diagnostic under per-task disjoint:</strong> reported alongside, &sect;Discussion-grade only.</li>
+<li><strong>Reference under <code>joint_canonical_b9</code>:</strong> reported for cross-comparison.</li>
 <li>fclass probe (held-out-fclass split per T4.3 protocol).</li>
-<li>G3 per-POI probe (gate).</li>
+<li>G3 per-POI probe (gate &mdash; same criteria as T6.1).</li>
+<li>Stacks on canonical+v3c+T3.2 (the shipping stack), orthogonal to T6.1 if both pass.</li>
 </ul>
 </div>
 
 <div class="block">
-<div class="block-title">Success</div>
-At least one (&alpha;, w<sub>r</sub>) cell with reg Acc@10 &ge; +0.3 pp at FL, cat non-inferior, no kill. Orthogonal to T6.1 &mdash; stacks if both pass.
+<div class="block-title">Success (locked 2026-05-19; pre-registered)</div>
+At least one (&alpha;<sub>delaunay</sub>, w<sub>r</sub>) cell with reg top10 at FL &ge; +0.5 pp under <code>joint_geom_simple</code>, cat non-inferior, no §6.5 kill, G3 probe within budget. Orthogonal to T6.1 — stacks if both pass.
 </div>
 
-<div class="results-placeholder">Results: <em>pending execution</em></div>
+<div class="block">
+<div class="block-title">Results (2026-05-19, matched-protocol)</div>
+<p><span class="pill bad">FALSIFIED at primary gate &mdash; §Discussion only</span> 4 cells (&alpha;<sub>delaunay</sub> &isin; {1.5, 2.0}, w<sub>r</sub> &isin; {0.3, 0.5}) × 3 states (AL/AZ/FL) at single-seed=42 n=5 folds ep=500 emb regen + G3 + FL MTL ep=50.</p>
+<p><strong>G3 probe outcomes (all 4 FL cells pass cleanly; AZ has cell-dependent ratio pass; AL all pass):</strong></p>
+<ul>
+<li><strong>FL:</strong> all 4 cells pass G3 gate. Low-visit Δ ≤ +0.18 pp; hi/lo ratio rises 5.01× &rarr; 5.23-5.42× (graph-derived signal scaling, not memorisation). Cleaner G3 than T6.4 and T6.1.</li>
+<li><strong>AZ:</strong> only &alpha;=1.5 w<sub>r</sub>=0.5 passes the hi/lo ratio sub-gate; other cells trigger mild ratio compression.</li>
+<li><strong>AL:</strong> all 4 cells pass.</li>
+</ul>
+<p><strong>FL MTL — matched-protocol dual-selector (single-seed=42 n=5 ep=50):</strong></p>
+<table>
+<thead><tr><th>Selector</th><th>Variant</th><th>cat F1</th><th>reg top10</th><th>Δ cat</th><th>Δ reg</th></tr></thead>
+<tbody>
+<tr><td rowspan="5"><strong>Per-task disjoint best</strong></td><td><strong>shipping</strong></td><td class="num">70.49 ± 0.86</td><td class="num">76.12 ± 0.33</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+<tr><td>&alpha;=1.5, w<sub>r</sub>=0.3</td><td class="num">67.82 ± 0.85</td><td class="num">76.49 ± 0.33</td><td class="num">−2.67</td><td class="num">+0.37</td></tr>
+<tr><td>&alpha;=1.5, w<sub>r</sub>=0.5</td><td class="num">69.21 ± 0.84</td><td class="num">76.35 ± 0.29</td><td class="num">−1.28</td><td class="num">+0.23</td></tr>
+<tr><td><strong>&alpha;=2.0, w<sub>r</sub>=0.3</strong></td><td class="num">66.94 ± 0.77</td><td class="num"><strong>76.88 ± 0.82</strong></td><td class="num"><strong>−3.55</strong></td><td class="num"><strong>+0.76</strong></td></tr>
+<tr><td>&alpha;=2.0, w<sub>r</sub>=0.5</td><td class="num">68.40 ± 0.74</td><td class="num">76.39 ± 0.23</td><td class="num">−2.09</td><td class="num">+0.27</td></tr>
+<tr><td rowspan="5"><code>joint_geom_simple</code></td><td><strong>shipping</strong></td><td class="num">67.93 ± 1.74</td><td class="num">72.38 ± 2.20</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+<tr><td>&alpha;=1.5, w<sub>r</sub>=0.3</td><td class="num">65.81 ± 2.33</td><td class="num">70.34 ± 1.64</td><td class="num">−2.12</td><td class="num">−2.04</td></tr>
+<tr><td>&alpha;=1.5, w<sub>r</sub>=0.5</td><td class="num">66.49 ± 2.00</td><td class="num">71.79 ± 1.91</td><td class="num">−1.44</td><td class="num">−0.59</td></tr>
+<tr><td>&alpha;=2.0, w<sub>r</sub>=0.3</td><td class="num">65.08 ± 1.51</td><td class="num">72.01 ± 3.76</td><td class="num">−2.85</td><td class="num">−0.37</td></tr>
+<tr><td>&alpha;=2.0, w<sub>r</sub>=0.5</td><td class="num">67.05 ± 1.10</td><td class="num">70.09 ± 1.14</td><td class="num">−0.88</td><td class="num">−2.29</td></tr>
+</tbody>
+</table>
+<p><strong>Verdict (advisor-locked 2026-05-19):</strong> the primary <code>joint_geom_simple</code> gate is <strong>FAILED at every cell</strong> &mdash; reg top10 regresses on the deployable selector. The diagnostic per-task-disjoint cell &alpha;=2.0, w<sub>r</sub>=0.3 shows a small substrate-capacity reg lift (+0.76 pp, separable from σ=0.82) but at an unambiguous cat cost (−3.55 pp at per-task disjoint). The cat regression makes the "first non-null Tier-6 substrate effect" framing dishonest; the cell traces the same cat-reg Pareto trade-off that T4.4 (uniform Delaunay-lifted weights) characterised at single-seed, just at a slightly more favourable point.</p>
+<p><strong>Allowed §Discussion claim:</strong> "T6.2 composite C3 edge-weighting (HGI-inspired Delaunay multiplier + cross-region penalty) reproduces the T4.4 cat-reg Pareto-trade shape at a more favourable point; no cell delivers a deployable single-checkpoint improvement, and the per-task-disjoint reg-capacity ceiling stays bounded by ~+0.76 pp at single-seed n=5 with a -3.55 pp cat cost. Bonferroni correction at m_Tier6=10 (T6.4×2 + T6.1×4 original + T6.1×1 robust + T6.2×4 cells minus one for shipping reference) sets α* ≈ 0.005; the strongest cell does not survive."</p>
+<p><strong>Disallowed:</strong> "T6.2 lifts reg." (Only at per-task disjoint, and the cat trade-off makes it not a substrate winner.)</p>
+<p class="footnote">Tool: <code>scripts/canonical_improvement/analyze_t64_selectors.py</code>. Source-of-truth: <code>docs/results/canonical_improvement/T6_2_dual_selector.{json,md}</code> (all 5 arms — shipping + 4 T6.2 cells). G3 JSONs: <code>G3_{state}_T6_2_a{1_5_0_3,1_5_0_5,2_0_0_3,2_0_0_5}.json</code>. Per-state per-cell logs at <code>logs/t62_sweep/T6_2_a*.log</code>. Upstream framing: <code>docs/CONCERNS.md</code> C21. Closure path: <code>docs/studies/mtl-exploration/FUTUREWORK_substrate_aware_mtl_balancing.md</code> F1/F2/F3.</p>
+</div>
 </div>
 
 <!-- ============================================================== -->
@@ -2072,21 +2127,46 @@ If T6.1 leaves reg uncovered, the failure mode of T5.1 (free per-POI table at in
 </div>
 
 <div class="block">
-<div class="block-title">Evaluation criteria</div>
+<div class="block-title">Evaluation criteria (dual-selector, updated 2026-05-19)</div>
+<p>Same dual-selector framing as T6.1 and T6.2. T6.3 is the highest-risk T6.* candidate for identity leakage (closest structural cousin of T5.1 DEAD), so the G3 gate is the load-bearing pre-promotion check.</p>
 <ul>
-<li>AL/AZ reg Acc@10 vs &sect;6.5 kill threshold (&minus;0.5 pp).</li>
+<li><strong>Primary (shipping-grade) under <code>joint_geom_simple</code>:</strong> reg top10 at FL &ge; +0.5 pp vs shipping matched baseline with cat non-inferior.</li>
+<li><strong>Diagnostic under per-task disjoint:</strong> reported alongside, &sect;Discussion-grade only.</li>
+<li><strong>Reference under <code>joint_canonical_b9</code>:</strong> reported for cross-comparison.</li>
+<li>AL/AZ reg Acc@10 vs &sect;6.5 kill threshold (&minus;0.5 pp) at single-seed before any FL promotion.</li>
 <li>cat F1 non-inferior at FL/AL/AZ.</li>
-<li>G3 per-POI probe (gate &mdash; this is the highest-risk T6.* candidate for identity leakage).</li>
+<li><strong>G3 per-POI probe (gate &mdash; highest-risk T6.* candidate)</strong>: low-visit &Delta;top1 &le; +1 pp AND hi/lo quantile ratio &ge; shipping ratio.</li>
 <li>kNN-Jaccard vs canonical baseline (sanity).</li>
 </ul>
 </div>
 
 <div class="block">
-<div class="block-title">Success</div>
-Reg Acc@10 lift &ge; +0.3 pp at FL multi-seed with cat non-inferior AND G3 probe &le; +1 pp. <strong>This experiment only runs if T6.1 fails to close the gap.</strong> Treated as a fallback hypothesis, not a primary.
+<div class="block-title">Success (locked 2026-05-19; pre-registered)</div>
+Reg top10 at FL &ge; +0.5 pp under <code>joint_geom_simple</code> at multi-seed with cat non-inferior AND G3 probe within budget AND no &sect;6.5 kill at AL/AZ single-seed. <strong>This experiment only runs if T6.1 fails to deliver under <code>joint_geom_simple</code>.</strong> Treated as fallback, not primary.
 </div>
 
-<div class="results-placeholder">Results: <em>pending &mdash; runs only if T6.1 misses reg target</em></div>
+<div class="block">
+<div class="block-title">Results (2026-05-19, AL/AZ-first kill-check ABORTED at G3 gate)</div>
+<p><span class="pill bad">FALSIFIED at G3 gate &mdash; halted before FL stage</span> Implemented as rank-r per-POI bias on the Checkin2POI attention-logit only (zero new parameters at input, never enters the pooled output directly). r &isin; {4, 8}; v ∈ R<sup>N_pois&times;r</sup> zero-init, U ∈ R<sup>r&times;D</sup> Xavier-init &rarr; step-0 forward bit-identical to canonical. Implementation in <code>research/embeddings/check2hgi/model/Checkin2POI.py</code>.</p>
+<p><strong>Pre-registered sweep order (advisor-locked 2026-05-19):</strong> AL/AZ at both ranks FIRST (kill-check), then FL only if every AL/AZ cell passes G3 (low-visit Δ ≤ +1 pp AND hi/lo ratio ≥ shipping ratio).</p>
+<p><strong>Stage 1 — AL/AZ G3 results:</strong></p>
+<table>
+<thead><tr><th>State</th><th>Variant</th><th>Overall top-1</th><th>Low q25</th><th>High q75</th><th>hi/lo</th><th>Gate</th></tr></thead>
+<tbody>
+<tr><td>AL</td><td>shipping</td><td class="num">7.64 ± 0.51</td><td class="num">3.30 ± 0.60</td><td class="num">12.64 ± 1.83</td><td class="num">3.82×</td><td>ref</td></tr>
+<tr><td>AL</td><td>T6.3 r=4</td><td class="num">7.35 ± 0.68</td><td class="num">2.91 ± 0.75</td><td class="num">12.42 ± 1.21</td><td class="num">4.27×</td><td><span class="pill good">✓</span></td></tr>
+<tr><td>AL</td><td>T6.3 r=8</td><td class="num">6.95 ± 0.42</td><td class="num">2.84 ± 1.04</td><td class="num">12.25 ± 1.25</td><td class="num">4.32×</td><td><span class="pill good">✓</span></td></tr>
+<tr><td>AZ</td><td>shipping</td><td class="num">6.33 ± 0.44</td><td class="num">3.21 ± 0.42</td><td class="num">11.49 ± 1.30</td><td class="num">3.58×</td><td>ref</td></tr>
+<tr><td>AZ</td><td>T6.3 r=4</td><td class="num">6.54 ± 0.29</td><td class="num">3.18 ± 0.43</td><td class="num">12.06 ± 0.99</td><td class="num">3.79×</td><td><span class="pill good">✓</span></td></tr>
+<tr><td><strong>AZ</strong></td><td><strong>T6.3 r=8</strong></td><td class="num">6.75 ± 0.29</td><td class="num">3.87 ± 0.19</td><td class="num">11.96 ± 1.06</td><td class="num"><strong>3.09×</strong></td><td><span class="pill bad">✗ ratio compression</span></td></tr>
+</tbody>
+</table>
+<p><strong>AZ r=8 trips the hi/lo ratio sub-gate</strong> (shipping 3.58× &rarr; T6.3 r=8 3.09× = ratio compression, the exact leak signature the advisor's 2026-05-19 review-of-T6.1 explicitly flagged as the highest-risk T6.* failure mode). Per the pre-registered locked criteria ("G3 probe must clear at all three states; one violation = falsified"), <strong>T6.3 is FALSIFIED at the AL/AZ kill-check before FL stage 2 launches.</strong> The script halted automatically and restored shipping outputs; FL embeddings were never regenerated for T6.3.</p>
+<p><strong>Observation (does NOT override the gate):</strong> 3 of 4 stage-1 cells pass cleanly. Only the higher-capacity r=8 variant trips, and only at AZ (the smaller state where the bias has enough rank to start memorising identity at lower statistics). r=4 cell passes both states. This is a clean validation of the advisor's prediction that T6.3 has higher leak risk at higher capacity at small states. <strong>The locked pre-registered criterion was "ALL states pass," NOT "majority of cells pass"</strong>; the gate-override would be exactly the kind of post-hoc move the 2026-05-19 advisor warned against. Closure stands as FALSIFIED.</p>
+<p><strong>Allowed §Discussion claim:</strong> "T6.3 (rank-r per-POI bias at Checkin2POI attention-logit) was pre-registered as the structural cousin of T5.1 (DEAD) with capacity-restricted placement. The AL/AZ pre-promotion G3 kill-check tripped at r=8 (AZ hi/lo ratio compression 3.58× → 3.09×); per pre-registration, the FL stage did not run. The r=4 cell passed both states' gates, suggesting the leak signature scales with bias capacity — consistent with the T5.1 V2-c collapse mechanism (more per-POI parameters → more identity memorisation)."</p>
+<p><strong>Disallowed:</strong> "T6.3 r=4 passes the gate." (Locked criterion was ALL state-rank cells pass; one violation falsifies the full experiment per pre-registration.)</p>
+<p class="footnote">G3 JSONs: <code>docs/results/canonical_improvement/G3_{alabama,arizona}_T6_3_r{4,8}.json</code>. Stashed emb: <code>docs/results/canonical_improvement/T6_3_r{4,8}/{alabama,arizona}/</code>. Per-cell logs: <code>logs/t63_sweep/T6_3_r{4,8}_{alabama,arizona}.log</code>. Gate-check log: <code>logs/t63_sweep/_gate_check.log</code>.</p>
+</div>
 </div>
 
 <!-- ============================================================== -->

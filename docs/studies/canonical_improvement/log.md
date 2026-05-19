@@ -2528,6 +2528,100 @@ The current §0.1 paper-canonical reg numbers (FL 63.27 ± 0.10) are reported at
 
 ---
 
+## 2026-05-19 — Tier 6 fully closed: T6.1 + T6.2 + T6.3 + T6.4 all FALSIFIED at matched protocol
+
+**Phase**: Tier 6 final closure.
+
+This entry is the canonical Tier-6 closure log. It supersedes the earlier same-day entries (CORRECTION + T6.1 + T6.2 entries) only in framing: all numerical results above remain authoritative. After this entry the canonical_improvement folder is treated as closed for substrate work; future agents should read this entry, CONCERNS.md C21, and CLAIMS_AND_HYPOTHESES.md CH23-A/B before re-opening any substrate intervention.
+
+### Final mechanism inventory (all single-seed=42, n=5 folds, ep=50 MTL where applicable)
+
+| Mechanism family | T6.* ID | Cells tested | Per-task disjoint Δ_reg | joint_geom_simple gate (Δ_reg ≥ +0.5 pp, cat non-inferior) | Verdict |
+|---|---|---|---:|---|---|
+| Loss-shape reform | T6.4 | 2 (two_pass, infonce τ=0.5) | +0.08 to +0.17 | FAIL — Δ_reg within fold σ | FALSIFIED |
+| Contrastive 4th boundary | T6.1 ORIGINAL | 4 (λ ∈ {0.05, 0.1, 0.2, 0.3}) | +0.05 to +0.20 | FAIL — Δ_reg within fold σ, cat regresses on deployable selector | FALSIFIED |
+| Same + SimCLR canonicalisation | T6.1 ROBUST | 1 (λ=0.2, B=4096, τ=0.3, multiplicity-weighted, symmetric) | +0.17 | FAIL — implementation was not the bottleneck | FALSIFIED |
+| Geometric edge-weighting | T6.2 | 4 (α_delaunay × w_r ∈ {1.5, 2.0} × {0.3, 0.5}) | +0.23 to +0.76 | FAIL — regresses on BOTH axes under joint_geom_simple; per-task disjoint trades reg up for cat down (max −3.55 pp at α=2.0 w_r=0.3) | §Discussion (Pareto trade) |
+| Low-rank POI side-channel | T6.3 | 2 of 4 stage-1 cells (AL/AZ r ∈ {4, 8}) | halted before FL stage 2 | N/A — AZ r=8 trips G3 hi/lo ratio compression (3.58× → 3.09×) at pre-registered kill-check | FALSIFIED at G3 gate |
+
+### T6.3 result detail
+
+Implementation: low-rank per-POI bias at Checkin2POI attention-logit only (zero new parameters at input layer, never enters pooled output directly). v ∈ R^{N_pois × r} zero-init, U ∈ R^{r × D} Xavier-init → step-0 forward bit-identical to canonical. Code in `research/embeddings/check2hgi/model/Checkin2POI.py`.
+
+Stage 1 G3 results (AL/AZ kill-check pre-registered by advisor 2026-05-19):
+
+| State | r | overall top-1 | low_q25 Δ vs ship | hi/lo (vs shipping) | Gate |
+|---|---|---:|---:|---:|---|
+| AL | 4 | 7.35 ± 0.68 | −0.40 | 4.27× (vs 3.82×) | ✓ |
+| AL | 8 | 6.95 ± 0.42 | −0.47 | 4.32× (vs 3.82×) | ✓ |
+| AZ | 4 | 6.54 ± 0.29 | −0.03 | 3.79× (vs 3.58×) | ✓ |
+| **AZ** | **8** | 6.75 ± 0.29 | **+0.66** | **3.09×** (vs 3.58×) | **✗ ratio compression** |
+
+3 of 4 cells pass cleanly. AZ r=8 trips on hi/lo ratio compression — the leak signature the advisor's 2026-05-19 review of T6.1 explicitly flagged as the highest-risk T6.* failure mode. Per the pre-registered locked criteria (advisor 2026-05-19: "G3 probe must clear at all three states; one violation = falsified"), T6.3 closes as **FALSIFIED at the AL/AZ kill-check** before any FL embeddings are regenerated. The script halted automatically and restored shipping AL/AZ outputs; no FL stage ran.
+
+**Observation (NOT a basis for overriding the gate):** only the higher-capacity r=8 variant trips, and only at the smaller state (AZ). r=4 cell passes both states. This is the predicted leak-vs-capacity tradeoff that motivates the advisor's recommendation to gate by ALL state-rank cells passing rather than majority. The mechanism reads as the T5.1 V2-c collapse pattern at a smaller scale — the rank-r bias has enough capacity to start memorising identity at small-state low-statistics regimes.
+
+### What this closes
+
+**The original Tier-6 hypothesis from `INDEX.html` (re-opened 2026-05-18 in response to user concern that Tier 5 under-tested the POI-internal-supervision idea):**
+
+> "Check2HGI's POI representation has no direct supervisory signal at the POI level — adding direct POI-level supervision inside the check2hgi forward+backward pass (no separate Node2Vec, no concat, no free input-layer table) should narrow the next-reg gap."
+
+Four orthogonal mechanism families were tested:
+1. **Direct InfoNCE supervision at the POI↔region boundary** (T6.4 — loss-shape reform): null at matched protocol.
+2. **Direct InfoNCE supervision at the POI↔POI 4th boundary** (T6.1 + ROBUST): null at matched protocol across 5 hyperparameter cells.
+3. **Graph-structural reweighting of existing supervision via HGI-inspired geometric edge weights** (T6.2): null on the deployable selector; one cell trades reg up by 0.76 against cat -3.55 at per-task disjoint, reproducing the T4.4 Pareto trade.
+4. **Capacity-restricted per-POI identity bias at the attention-logit** (T6.3 — structural cousin of T5.1 DEAD): falsified at the AL/AZ G3 kill-check before FL stage 2 could run.
+
+The hypothesis predicted a reg-side lift at the deployable selector. **No mechanism family delivers it.** The per-task-disjoint reg-top10 ceiling at FL stays bounded at ~76.1-76.9 pp across all 11 cells with σ ~0.3 pp. The hypothesis is **operationally falsified under canonical MTL balancing**.
+
+### The load-bearing finding from Tier 6 is NOT a substrate result
+
+It is **CONCERNS.md C21 / CLAIMS_AND_HYPOTHESES.md CH23-B**: the production `joint_canonical_b9` MTL selector at `src/training/runners/mtl_cv.py:679` is **structurally broken on the canonical Check2HGI shipping recipe itself** — it throws away ~10.7 pp of reg-top10 capacity (76.12 pp at per-task disjoint vs 65.38 pp at joint_canonical_b9, single-seed=42 matched protocol) that the canonical substrate already produces, with no substrate change involved.
+
+The substrate-axis effect (Tier 6 entire body of work) is bounded at ±0.8 pp. The protocol-axis effect is +10.7 pp. **Tier 6's most important contribution to the paper is having ruled out the substrate axis and surfaced the protocol bug.**
+
+### Tier 6 paper claims (locked)
+
+**Allowed (paper §Discussion):**
+- "Across four orthogonal mechanism families (loss-shape reform, contrastive 4th boundary, geometric edge-weighting, capacity-restricted POI bias), no Tier-6 substrate intervention raises the per-task-disjoint reg-top10 ceiling at FL by more than +0.76 pp at single-seed n=5, and that cell trades it for a -3.55 pp cat regression. The substrate ceiling under canonical static_weight w_cat=0.75 MTL balancing is ~76.1 pp; the gap to HGI is a protocol-side artefact, not a substrate-side artefact."
+- "T6.2 α=2.0 w_r=0.3 traces the same cat-reg Pareto trade-off as T4.4 (uniform Delaunay-lifted weights) at a more favourable point. Not a deployable single-checkpoint improvement."
+- "T6.3 was pre-registered as the structural cousin of T5.1 (DEAD) with capacity-restricted placement. The AL/AZ pre-promotion G3 kill-check tripped at r=8 (AZ hi/lo ratio compression 3.58× → 3.09×); per pre-registration, the FL stage did not run."
+
+**Disallowed:**
+- "T6.4 ships a substrate improvement." (FALSIFIED at matched protocol.)
+- "T6.1 improves reg via POI-internal supervision." (FALSIFIED at matched protocol AND under implementation-robust re-formulation.)
+- "T6.2 lifts reg." (Only at per-task disjoint, with unambiguous cat regression.)
+- "T6.3 r=4 passes the gate." (Locked criterion was ALL state-rank cells pass.)
+- Any reg-axis comparison drawn from §0.1 numbers as a statement about the substrate's reg capacity. §0.1 reports joint-best at the destabilised epoch; substrate's reg-best reaches ~76.1 % at FL.
+
+### Closure path
+
+**mtl-exploration F1/F2/F3 is now the urgent next study.** See `docs/studies/mtl-exploration/FUTUREWORK_substrate_aware_mtl_balancing.md` and `docs/studies/mtl-exploration/README.md`. Three workstreams:
+
+- **F1**: substrate-aware joint_score (`reg_top10_acc_indist` instead of `reg_macro_f1`, or wire in `joint_geom_lift` at `mtl_cv.py:710`). One-line code change. Re-evaluate shipping FL/CA/TX + every canonical_improvement Tier 1-6 candidate via `scripts/canonical_improvement/analyze_t64_selectors.py` (zero retraining).
+- **F2**: substrate-adaptive MTL balancing (NashMTL revival on FL where cvxpy is well-conditioned; per-task LR decay after reg peak; gradient masking after reg plateau).
+- **F3**: substrate × protocol 2×2 ablation as the proper paper headline: (shipping, T6.x substrate variants) × (B9 selector, F1-fix selector).
+
+Expected outcome based on Tier 6 evidence: F1 alone closes ~10 pp of the reg gap at FL with zero retraining; F2 may close more by stabilising reg past its early peak. F3 likely shows that the protocol-axis effect dominates the substrate-axis effect on reg by an order of magnitude.
+
+### Artefacts (this entry)
+
+- `docs/results/canonical_improvement/G3_{alabama,arizona}_T6_3_r{4,8}.json` — T6.3 stage-1 G3 probe results
+- `docs/results/canonical_improvement/T6_3_r{4,8}/{alabama,arizona}/` — stashed T6.3 embeddings
+- `logs/t63_sweep/T6_3_r{4,8}_{alabama,arizona}.log` — per-cell training logs
+- `logs/t63_sweep/_gate_check.log` — pre-registered gate-check output (the abort decision lives here)
+- `scripts/canonical_improvement/t63_sweep.sh` — sweep script with hard-coded AL/AZ-first gating + automatic abort if gate fails
+
+Code lives at:
+- `research/embeddings/check2hgi/model/Checkin2POI.py` — Checkin2POI extended with optional `t63_enabled` rank-r per-POI bias at attention-logit only (zero-init v ⇒ step-0 bit-identical to canonical)
+- `research/embeddings/check2hgi/check2hgi.py` — forwards args from cfg
+- `scripts/canonical_improvement/regen_emb_t3.py` — `--t63-enabled --t63-rank` CLI flags
+
+**Tier 6 is closed. Canonical_improvement is closed.** Future substrate work pre-routes through CONCERNS.md C21 reading first.
+
+---
+
 ## (template — copy and date for next entry)
 
 ## YYYY-MM-DD — <Short title>

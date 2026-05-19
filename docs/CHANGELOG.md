@@ -29,6 +29,39 @@
 
 ## Timeline of findings (most recent first)
 
+### 2026-05-19 (final) — canonical_improvement Tier 6 CLOSED — full hypothesis falsified across all four pre-registered mechanism families
+
+After the earlier 2026-05-19 entry below (T6.4 falsified + selector bug surfaced), the remaining Tier-6 candidates were run with locked pre-registered criteria. **Tier 6 closes operationally falsified across all four mechanism families.**
+
+| ID | Mechanism | Per-task disjoint Δ_reg | Verdict |
+|---|---|---:|---|
+| T6.4 ×2 | Loss-shape reform (InfoNCE @ p2r, two-pass corruption) | +0.08 to +0.17 | FALSIFIED |
+| T6.1 ×5 (4 orig + 1 robust) | POI↔POI co-visit InfoNCE 4th boundary | +0.05 to +0.20 | FALSIFIED |
+| T6.2 ×4 | HGI-inspired composite edge weights (Delaunay + cross-region penalty) | +0.23 to +0.76 | §Discussion (cat -1.3 to -3.6 pp Pareto trade) |
+| T6.3 ×2 (AL/AZ stage-1 only) | Low-rank per-POI bias at Checkin2POI attention-logit | halted | FALSIFIED at G3 hi/lo ratio gate (AZ r=8: 3.58× → 3.09×) |
+
+**Per-task-disjoint reg-top10 ceiling at FL clusters at ~76.1-76.9 pp across all 11 cells with σ ~0.3 pp.** No Tier-6 intervention delivers a deployable single-checkpoint improvement under `joint_geom_simple`. The cleanest paper-claim phrasing: *"Tier 6 falsifies the POI-internal-supervision hypothesis under matched protocol at FL across all four pre-registered mechanism families. No cell delivers a deployable single-checkpoint improvement; per-task-disjoint reg-capacity stays bounded at ~76.1 pp under canonical static_weight w_cat=0.75 MTL balancing."*
+
+**The load-bearing Tier-6 finding is NOT a substrate result.** It is `CONCERNS.md` C21 / `CLAIMS_AND_HYPOTHESES.md` CH23-B: the production `joint_canonical_b9` selector throws away ~10.7 pp of reg-top10 capacity from the canonical Check2HGI substrate itself. Substrate-axis effect: ±0.8 pp. Protocol-axis effect: +10.7 pp. The natural next study is the mtl-exploration F1/F2/F3 workstream.
+
+**Pre-registration discipline held.** Two advisor consults (2026-05-19, both general-purpose independent agents) locked criteria before the T6.1/T6.2/T6.3 sweeps; in all three cases the locked criteria fired correctly and the closure narrative did not drift post-hoc. Specifically: (1) the T6.1 "+11-13 pp reg lift" claim from the morning of 2026-05-19 was a cross-selector comparison artefact corrected after matched-protocol analysis; (2) the T6.2 +0.76 pp per-task-disjoint reg lift was kept as §Discussion-only per advisor warning ("don't let it grow into a substrate claim"); (3) the T6.3 AL/AZ-first kill-check fired automatically on AZ r=8 hi/lo ratio compression, halting before FL stage 2.
+
+**Artefacts**:
+- T6.1: `docs/results/canonical_improvement/T6_1_lambda{0_05,0_1,0_2,0_3}/florida_mtl/` + `T6_1_dual_selector.{json,md}` + `T6_1_robustness_lambda0_2/florida_mtl/` + `T6_1_robustness_dual_selector.{json,md}`
+- T6.2: `docs/results/canonical_improvement/T6_2_a{1_5_0_3,1_5_0_5,2_0_0_3,2_0_0_5}/florida_mtl/` + `T6_2_dual_selector.{json,md}`
+- T6.3: `docs/results/canonical_improvement/T6_3_r{4,8}/{alabama,arizona}/` + `G3_{alabama,arizona}_T6_3_r{4,8}.json` (no FL — gate aborted)
+- Code: `research/embeddings/check2hgi/model/Checkin2POI.py` (T6.3 attention-logit bias), `research/embeddings/check2hgi/model/Check2HGIModule.py` (T6.1/T6.4), `research/embeddings/check2hgi/preprocess.py` (T6.1 covisit_pairs, T6.2 composite C3), `scripts/canonical_improvement/t6{1,2,3}_sweep.sh` (per-mechanism sweep scripts)
+- Closure log: `docs/studies/canonical_improvement/log.md` 2026-05-19 final entry (the authoritative one — supersedes the earlier same-day entries in framing while keeping their numerical results)
+
+**Doc-correction sweep** (all updated 2026-05-19):
+- `docs/studies/canonical_improvement/INDEX.html` Tier 6 — closure callout box + T6.2/T6.3 results blocks (rewrite, not append)
+- `docs/CONCERNS.md` C21 — unchanged from earlier 2026-05-19 update (still load-bearing, scope confirmed)
+- `docs/CLAIMS_AND_HYPOTHESES.md` CH23-A/B — extended to include T6.1, T6.2, T6.3 falsifications
+
+**Closure path: mtl-exploration F1/F2/F3.** All canonical_improvement substrate work formally closed; future substrate interventions pre-route through C21 reading.
+
+---
+
 ### 2026-05-19 — canonical_improvement Tier-6 / T6.4 FALSIFIED at matched protocol; `joint_canonical_b9` selector bug surfaces as the real finding
 
 **Tier 6 was reopened 2026-05-18** to re-attempt the POI-level supervision hypothesis the user felt was under-explored in Tier 5. Built G3 (per-POI hold-out leak probe, calibrated against T5.1's known leak Δ_low = +3.82 pp), implemented **T6.4** (InfoNCE @ p2r + two-pass corruption) as opt-in default-off code paths in `Check2HGIModule.py`, swept the variants × {AL, AZ, FL} at ep=500, ran FL MTL under canonical B9 ep=50.
