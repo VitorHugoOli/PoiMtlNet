@@ -237,6 +237,20 @@ def main() -> None:
                          "and triggers force_preprocess=True (the cached canonical graph "
                          "lacks per-edge relation index). T4.4 uses "
                          "'user_seq_delaunay' for spatial-lifted GCN.")
+    # T6.4 — Tier-6 loss-shape options. Defaults preserve canonical bit-for-bit.
+    ap.add_argument("--p2r-use-infonce", action="store_true",
+                    help="T6.4 / T2.2: replace JSD-style p2r loss with InfoNCE "
+                         "over the full region pool (softmax cross-entropy with "
+                         "poi_to_region as target).")
+    ap.add_argument("--p2r-infonce-temperature", type=float, default=0.1,
+                    help="T6.4 / T2.2: softmax temperature τ for InfoNCE at p2r "
+                         "(smaller = harder; default 0.1).")
+    ap.add_argument("--two-pass-corruption", action="store_true",
+                    help="T6.4 / T2.3: perform an independent second feature-"
+                         "corruption pass + encoder + pool + region aggregation, "
+                         "and use its outputs as the negatives for p2r and r2c "
+                         "(decoupling them from the c2p negative chain). +1 "
+                         "encoder pass per step.")
     # T1.5 optimizer hygiene knobs (default = canonical Adam + StepLR γ=1; v3c base = AdamW WD=5e-2)
     ap.add_argument("--scheduler", default="step", choices=("step", "cosine", "warmup_constant"))
     ap.add_argument("--warmup-pct", type=float, default=0.0)
@@ -352,6 +366,10 @@ def main() -> None:
         warmup_pct=args.warmup_pct,
         weight_decay=args.weight_decay,
         eta_min_ratio=args.eta_min_ratio,
+        # T6.4 plumbing
+        p2r_use_infonce=args.p2r_use_infonce,
+        p2r_infonce_temperature=args.p2r_infonce_temperature,
+        two_pass_corruption=args.two_pass_corruption,
     )
     print(f"[T3-regen] state={args.state} encoder={args.encoder} "
           f"edge_type={args.edge_type} force_preprocess={_force_preprocess} "
@@ -366,6 +384,8 @@ def main() -> None:
           f"export={args.multiview_export_view}) "
           f"poi_id={args.use_poi_id_embedding} γ={args.poi_id_gamma} "
           f"init={args.poi_id_init} "
+          f"p2r_infonce={args.p2r_use_infonce} τ={args.p2r_infonce_temperature} "
+          f"two_pass={args.two_pass_corruption} "
           f"use_mae_poi={args.use_mae_poi} "
           f"mae_poi_lambda={args.mae_poi_lambda if args.use_mae_poi else 0.0} "
           f"mae_poi_target={args.mae_poi_target}",

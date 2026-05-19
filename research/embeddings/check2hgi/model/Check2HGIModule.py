@@ -108,6 +108,20 @@ class Check2HGI(nn.Module):
         mae_poi_aggr: str = "mean",
         mae_poi_target_kind: str = "category_aggregate",
         mae_poi_loss_kind: str = "sce",
+        # T6.4 — Tier-6 loss-shape options.
+        # ``p2r_use_infonce``: replace the JSD-style binary p2r loss with
+        #   InfoNCE over the full batch (each POI's positive region scored
+        #   against ALL regions in batch via softmax / cross-entropy).
+        #   Default False → byte-identical to canonical.
+        # ``p2r_infonce_temperature``: τ for the softmax (smaller = harder).
+        # ``two_pass_corruption``: when True, ``forward`` performs a SECOND
+        #   independent feature-corruption pass and uses its outputs as the
+        #   negatives for the p2r and r2c boundaries (decoupling them from
+        #   the c2p negative chain). The c2p negative is still drawn from
+        #   the first pass. Default False → byte-identical to canonical.
+        p2r_use_infonce: bool = False,
+        p2r_infonce_temperature: float = 0.1,
+        two_pass_corruption: bool = False,
     ):
         """
         Initialize Check2HGI module.
@@ -315,6 +329,17 @@ class Check2HGI(nn.Module):
             self.mae_poi_decoder = None
         self._mae_poi_loss = None
 
+        # T6.4 — Tier-6 loss-shape state.
+        self.p2r_use_infonce = bool(p2r_use_infonce)
+        self.p2r_infonce_temperature = float(p2r_infonce_temperature)
+        if self.p2r_infonce_temperature <= 0.0:
+            raise ValueError("p2r_infonce_temperature must be > 0")
+        self.two_pass_corruption = bool(two_pass_corruption)
+        # Stashed by forward() so loss() can use them for InfoNCE without
+        # changing the return-tuple signature. Reset every forward call.
+        self._t6_pos_region_full = None     # [N_regions, D]
+        self._t6_poi_to_region = None       # [N_pois]   int64
+
         # Store embeddings for extraction
         self.checkin_embedding = torch.tensor(0)
         self.poi_embedding = torch.tensor(0)
@@ -471,6 +496,40 @@ class Check2HGI(nn.Module):
         pos_region_emb = self.poi2region(pos_poi_emb, data.poi_to_region, data.region_adjacency)
         neg_region_emb = self.poi2region(neg_poi_emb, data.poi_to_region, data.region_adjacency)
 
+        # T6.4 / T2.3 — two-pass feature corruption. Independent second
+        # corruption draw + encoder pass + pool + region aggregation;
+        # its output replaces ``neg_region_emb`` so the p2r and r2c
+        # negatives are decoupled from the c2p negative chain. The c2p
+        # negative still uses the first-pass ``neg_poi_emb`` /
+        # ``neg_poi_emb_pure`` so c2p discrimination is unchanged.
+        # Cost: +1 encoder pass + 1 pool + 1 region aggregation per step.
+        if self.two_pass_corruption:
+            cor_x_2 = self.corruption(data.x)
+            neg_checkin_emb_2 = self.checkin_encoder(
+                cor_x_2, data.edge_index, data.edge_weight, **_enc_kwargs
+            )
+            neg_poi_emb_2 = self.checkin2poi(
+                neg_checkin_emb_2, data.checkin_to_poi, num_pois
+            )
+            # T5.1 bump consistency: apply the same broadcast add to the
+            # second-pass neg pool so it remains the same "stratum" as the
+            # first-pass pool (otherwise the discriminator can detect the
+            # missing T5.1 bias as a shortcut). When T5.1 is off this is
+            # a no-op.
+            if self.poi_id_table is not None and self.poi_id_gamma != 0.0:
+                neg_poi_emb_2 = neg_poi_emb_2 + (self.poi_id_gamma * self.poi_id_table.weight)
+            # Side-feature projection: mirror the augmented path used for
+            # the canonical p2r pathway above. When side features are off
+            # this is a no-op (side_proj is None).
+            if self.side_proj is not None and side_features is not None:
+                side_h_2 = self.side_proj(side_features)
+                neg_poi_emb_2 = self.pool_post_proj(
+                    torch.cat([neg_poi_emb_2, side_h_2], dim=-1)
+                )
+            neg_region_emb = self.poi2region(
+                neg_poi_emb_2, data.poi_to_region, data.region_adjacency
+            )
+
         # T5.2b — Masked POI feature-aggregate reconstruction. Operates on
         # the PRE-augmentation pooled POI emb (so side-feature gradients
         # never reach the POI-level decoder), but AFTER the canonical
@@ -544,6 +603,14 @@ class Check2HGI(nn.Module):
         # head is attached AND --n2v-align-lambda > 0; otherwise this is a
         # cheap reference assignment with no compute impact.
         self._n2v_pos_poi_emb = pos_poi_emb
+
+        # T6.4 / T2.2 — stash the FULL region-emb matrix and the POI→region
+        # assignment so loss() can compute InfoNCE over all regions without
+        # changing the return-tuple signature. Only used when
+        # ``self.p2r_use_infonce`` is True. Both references attach to the
+        # current computation graph so gradients flow correctly.
+        self._t6_pos_region_full = pos_region_emb
+        self._t6_poi_to_region = data.poi_to_region
 
         # Prepare outputs for loss computation
         # Check-in to POI: each check-in vs its POI
@@ -782,9 +849,29 @@ class Check2HGI(nn.Module):
         loss_c2p = -torch.log(pos_c2p + EPS).mean() - torch.log(1 - neg_c2p + EPS).mean()
 
         # Loss 2: POI to Region
-        pos_p2r = self.discriminate(pos_poi, pos_region_exp, self.weight_p2r)
-        neg_p2r = self.discriminate(pos_poi, neg_region_exp, self.weight_p2r)
-        loss_p2r = -torch.log(pos_p2r + EPS).mean() - torch.log(1 - neg_p2r + EPS).mean()
+        if self.p2r_use_infonce:
+            # T6.4 / T2.2 — InfoNCE over the full region pool. For each POI p,
+            # score(p, r) = pos_poi[p] @ W_p2r @ pos_region[r]. The target is
+            # poi_to_region[p]. Cross-entropy implements the InfoNCE bound.
+            # Uses the FULL region matrix as the negative pool — no separate
+            # neg-sampling step, so the T2.3 "two-pass corruption for p2r"
+            # path has no effect when this branch is active (no negative
+            # region tensor is consumed).
+            if self._t6_pos_region_full is None or self._t6_poi_to_region is None:
+                raise RuntimeError(
+                    "p2r_use_infonce requires forward() to have been called "
+                    "first (stashes pos_region matrix + poi_to_region)."
+                )
+            projected = torch.matmul(pos_poi, self.weight_p2r)            # [P, D]
+            scores = torch.matmul(projected, self._t6_pos_region_full.t())  # [P, R]
+            scores = scores / self.p2r_infonce_temperature
+            loss_p2r = torch.nn.functional.cross_entropy(
+                scores, self._t6_poi_to_region.to(scores.device)
+            )
+        else:
+            pos_p2r = self.discriminate(pos_poi, pos_region_exp, self.weight_p2r)
+            neg_p2r = self.discriminate(pos_poi, neg_region_exp, self.weight_p2r)
+            loss_p2r = -torch.log(pos_p2r + EPS).mean() - torch.log(1 - neg_p2r + EPS).mean()
 
         # Loss 3: Region to City
         pos_r2c = self.discriminate_global(pos_region, city, self.weight_r2c)

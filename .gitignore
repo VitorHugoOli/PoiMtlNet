@@ -72,3 +72,10 @@ handover_results.zip
 # Per-study/sweep handover bundles (e.g. f51_handover.tar.gz, f50_handover.tar.gz)
 *_handover.tar.gz
 *_handover.zip
+
+# Tier-6 stashed embeddings — large (~440MB checkin + 30MB poi per state), regen-able
+# from scripts/canonical_improvement/regen_emb_t3.py with the documented variant flags
+docs/results/canonical_improvement/T6_4_*/alabama/
+docs/results/canonical_improvement/T6_4_*/arizona/
+docs/results/canonical_improvement/T6_4_*/florida/!(florida_mtl*)/
+docs/results/canonical_improvement/T6_4_*/florida/*.parquet

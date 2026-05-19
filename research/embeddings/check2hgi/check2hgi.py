@@ -472,6 +472,10 @@ def train_check2hgi(city, args):
         mae_poi_aggr=_mae_poi_aggr,
         mae_poi_target_kind=_mae_poi_target_kind,
         mae_poi_loss_kind=_mae_poi_loss_kind,
+        # T6.4 — Tier-6 loss-shape options (default off ⇒ canonical).
+        p2r_use_infonce=bool(getattr(args, 'p2r_use_infonce', False)),
+        p2r_infonce_temperature=float(getattr(args, 'p2r_infonce_temperature', 0.1)),
+        two_pass_corruption=bool(getattr(args, 'two_pass_corruption', False)),
     ).to(args.device)
 
     # T5.2a — construct + attach Node2Vec head AFTER model is on device.
