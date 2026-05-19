@@ -73,9 +73,21 @@ handover_results.zip
 *_handover.tar.gz
 *_handover.zip
 
-# Tier-6 stashed embeddings — large (~440MB checkin + 30MB poi per state), regen-able
-# from scripts/canonical_improvement/regen_emb_t3.py with the documented variant flags
+# Tier-6 stashed embeddings — large (~440MB checkin + 30MB poi per state),
+# regen-able from scripts/canonical_improvement/regen_emb_t3.py with the
+# documented variant flags. Covers T6.1 (lambda*), T6.1 robustness, T6.2 (a*),
+# T6.3 (r*), T6.4 (* variants). Keeps florida_mtl* subdirs (MTL summaries +
+# fold metric CSVs, ~few MB each) since florida/ matches *.parquet only.
+docs/results/canonical_improvement/T6_1_lambda*/alabama/
+docs/results/canonical_improvement/T6_1_lambda*/arizona/
+docs/results/canonical_improvement/T6_1_lambda*/florida/*.parquet
+docs/results/canonical_improvement/T6_1_robustness_lambda*/florida/*.parquet
+docs/results/canonical_improvement/T6_2_a*/alabama/
+docs/results/canonical_improvement/T6_2_a*/arizona/
+docs/results/canonical_improvement/T6_2_a*/florida/*.parquet
+docs/results/canonical_improvement/T6_3_r*/alabama/
+docs/results/canonical_improvement/T6_3_r*/arizona/
+docs/results/canonical_improvement/T6_3_r*/florida/*.parquet
 docs/results/canonical_improvement/T6_4_*/alabama/
 docs/results/canonical_improvement/T6_4_*/arizona/
-docs/results/canonical_improvement/T6_4_*/florida/!(florida_mtl*)/
 docs/results/canonical_improvement/T6_4_*/florida/*.parquet
