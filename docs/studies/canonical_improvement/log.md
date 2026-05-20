@@ -2622,6 +2622,37 @@ Code lives at:
 
 ---
 
+## 2026-05-20 — Post-closure pivot: successor study `mtl-protocol-fix` launched
+
+**Phase**: Post-closure — study formally hands off to a new track.
+
+After a deep-dive review of the closed canonical_improvement (user-directed 2026-05-19/20), the verdict is unambiguous: **the substrate axis is exhausted on reg** (Tier 1-6 ceiling ±0.8 pp), and **the load-bearing finding is C21** (the production `joint_canonical_b9` selector throws away ~10.7 pp reg-top10 capacity at FL on the canonical shipping recipe alone). The next research track is the protocol axis, not another substrate axis.
+
+**New study launched 2026-05-20**: [`docs/studies/mtl-protocol-fix/`](../mtl-protocol-fix/) (branch `mtl-protocol-fix`).
+
+Scope of the new study (from the §3+§4 deep-dive memo of 2026-05-20):
+
+- **In scope** — Rank 1 (F1 selector fix, one-line code change at `mtl_cv.py:679` + AL/AZ/FL/CA/TX single-seed re-evaluation) + Rank 3 (Tier 5/6 candidate re-evaluation under F1) + three-frontier MTL evaluation protocol (best joint + best disjoint + STL ceiling).
+- **Future-work** — five memos created under `docs/future_works/`:
+  - [`paper_canon_reevaluation.md`](../../future_works/paper_canon_reevaluation.md) — §0.1 n=20 multi-seed re-evaluation under new selector + arch
+  - [`substrate_adaptive_mtl_balancing.md`](../../future_works/substrate_adaptive_mtl_balancing.md) — NashMTL / GradNorm / PCGrad / FAMO / Aligned-MTL / per-task LR decay
+  - [`mtl_architecture_revisit.md`](../../future_works/mtl_architecture_revisit.md) — faithful MMoE/CGC/DSelect-K/cross-stitch/hybrid implementations
+  - [`head_window_batch_audit.md`](../../future_works/head_window_batch_audit.md) — head re-design, window/mask audit, batch class-balance
+  - [`reg_head_architecture_sweep.md`](../../future_works/reg_head_architecture_sweep.md) — focused reg-head sweep (rolls into the head audit)
+
+**Doc updates landed 2026-05-20**:
+- `docs/CHANGELOG.md` — new top entry referencing this pivot
+- `docs/README.md` — `studies/mtl-protocol-fix/` added to active-studies list
+- `docs/CONCERNS.md` C21 — closure path now points to `mtl-protocol-fix`
+- `docs/NORTH_STAR.md` — selector-limitation banner updated to point to `mtl-protocol-fix`
+- `docs/AGENT_CONTEXT.md` — MTL protocol blocker callout updated
+- `docs/future_works/README.md` — 5 future-work rows added
+- `docs/studies/mtl-exploration/README.md` — urgent banner now points to `mtl-protocol-fix`
+
+**No further entries on this log.** The canonical_improvement folder is read-only beyond this entry. Any future agent re-opening substrate work should read this entry, then `CONCERNS.md` C21, then the `mtl-protocol-fix` log to confirm whether the F1 selector fix has changed the substrate-axis story.
+
+---
+
 ## (template — copy and date for next entry)
 
 ## YYYY-MM-DD — <Short title>

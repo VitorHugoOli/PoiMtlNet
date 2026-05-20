@@ -29,6 +29,32 @@
 
 ## Timeline of findings (most recent first)
 
+### 2026-05-20 — `mtl-protocol-fix` study launched; canonical_improvement post-closure pivot
+
+After full deep-dive review of the closed canonical_improvement study (Tier 1-6, 26 mechanism families, ~40 GPU-h), the user-directed pivot is to **shift the next research track from the substrate axis to the protocol axis**. The canonical_improvement substrate exhaustion + the C21 finding (production `joint_canonical_b9` selector throws away ~10.7 pp of reg-top10 capacity at FL on the canonical shipping recipe alone) together indicate the next-reg gap is **70%+ protocol-side, not substrate-side**.
+
+**New study launched**: [`docs/studies/mtl-protocol-fix/`](studies/mtl-protocol-fix/) (branch `mtl-protocol-fix`). Single-sentence goal: *"Fix the production `joint_canonical_b9` selector bug (C21), instrument the three-frontier MTL evaluation protocol (MTL @ best joint + MTL @ best disjoint + STL ceiling), and characterise the residual MTL-vs-STL reg gap that survives the protocol fix at all five states."*
+
+**Five future-work memos created** to document deferred work the study deliberately scoped OUT:
+
+- [`docs/future_works/paper_canon_reevaluation.md`](future_works/paper_canon_reevaluation.md) — §0.1 n=20 multi-seed re-evaluation under new selector + arch (sequenced AFTER `mtl_architecture_revisit.md`)
+- [`docs/future_works/substrate_adaptive_mtl_balancing.md`](future_works/substrate_adaptive_mtl_balancing.md) — NashMTL revival, GradNorm, PCGrad, FAMO, Aligned-MTL, per-task LR decay
+- [`docs/future_works/mtl_architecture_revisit.md`](future_works/mtl_architecture_revisit.md) — faithful MMoE / CGC / DSelect-K / cross-stitch / hybrid implementations, per-task evaluation
+- [`docs/future_works/head_window_batch_audit.md`](future_works/head_window_batch_audit.md) — head re-design + window/mask audit + batch class-balance experiment
+- [`docs/future_works/reg_head_architecture_sweep.md`](future_works/reg_head_architecture_sweep.md) — focused reg-head sweep (variant of head-audit §A)
+
+**User-flagged conceptual clarifications captured in the new study's considerations**:
+1. STL substrate-Δ on reg (HGI > c2hgi by 1.6-3.1 pp in §0.3) reflects HGI's POI-stable spatial inductive bias (Delaunay POI-POI graph) which c2hgi's per-visit context substrate does not encode. The cat substrate is c2hgi-load-bearing (per-visit context); the reg substrate is HGI-marginally-load-bearing (spatial adjacency). They are not contradictions but two different inductive biases.
+2. **Three-frontier MTL evaluation** (best joint + best disjoint + STL ceiling) is the new paper-grade reporting protocol; replaces the single-selector reporting that obscured C21.
+3. Coverage beyond substrate axis: protocol/selector (partially tested), MTL loss balancing (untested under leak-free), MTL architecture (very-simple-variants only), head architecture (grandfathered), window/mask discipline (never audited), batch class-balance (never tested).
+
+**Docs updated**:
+- `docs/future_works/README.md` — 5-row addition
+- `docs/CONCERNS.md` C21 — closure path now points to `mtl-protocol-fix`
+- `docs/NORTH_STAR.md` — selector-limitation banner updated
+- `docs/studies/canonical_improvement/log.md` — final post-closure entry references new study
+- `docs/studies/mtl-exploration/README.md` — urgent banner updated to point to new study
+
 ### 2026-05-19 (final) — canonical_improvement Tier 6 CLOSED — full hypothesis falsified across all four pre-registered mechanism families
 
 After the earlier 2026-05-19 entry below (T6.4 falsified + selector bug surfaced), the remaining Tier-6 candidates were run with locked pre-registered criteria. **Tier 6 closes operationally falsified across all four mechanism families.**

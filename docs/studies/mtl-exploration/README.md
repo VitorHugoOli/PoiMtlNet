@@ -1,8 +1,8 @@
-# mtl-exploration — support study
+# mtl-exploration — support study (superseded for protocol-fix scope)
 
-> **Status (2026-05-15):** support / scaffold study. Not the main MTL research track. The main study will be conducted separately.
+> **Status (2026-05-20):** support / scaffold study. **The F1/F2/F3 workstream described in [`FUTUREWORK_substrate_aware_mtl_balancing.md`](FUTUREWORK_substrate_aware_mtl_balancing.md) is now picked up by the dedicated [`docs/studies/mtl-protocol-fix/`](../mtl-protocol-fix/) study (launched 2026-05-20).** The memo here is kept as a historical predecessor — read `../mtl-protocol-fix/` for the active plan.
 >
-> This folder gathers the artefacts from a one-day deep audit of the existing MTL state of the art + a follow-up ablation that surfaced (and helped fix) a real codebase bug. Its purpose is to give the next agent (and the user) a clean baseline before committing to the *real* MTL study.
+> This folder gathers the artefacts from a one-day deep audit of the existing MTL state of the art + a follow-up ablation that surfaced (and helped fix) a real codebase bug. Its purpose was to give the next agent (and the user) a clean baseline before committing to the *real* MTL study — that real study is now `mtl-protocol-fix`.
 
 > ## ⚠ URGENT (2026-05-19) — `joint_canonical_b9` selector bug surfaced in the shipping recipe itself
 >

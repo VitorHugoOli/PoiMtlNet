@@ -134,7 +134,7 @@ These findings **do not** change the committed config — they explain *why* it 
 >
 > **Capacity gap: ~10.7 pp reg-top10 thrown away by the production selector**, on the shipping recipe itself, with no substrate change. §0.1 multi-seed reg = 63.27 ± 0.10 matches the matched-protocol `joint_canonical_b9` value within single-seed variance — confirming §0.1 reports joint-best, not the substrate's reg-best capacity.
 >
-> See `CONCERNS.md` C21 (diagnosis) and `docs/studies/mtl-exploration/FUTUREWORK_substrate_aware_mtl_balancing.md` (F1/F2/F3) for the closure path. Until F1 lands, **reg-side conclusions drawn from §0.1 numbers under-report the substrate's actual reg capacity at FL by ~10 pp**. Substrate-axis orderings under the production selector are unreliable — they reflect the selector's choice of destabilised epoch, not the substrate's reg potential.
+> See `CONCERNS.md` C21 (diagnosis) and the active **[`docs/studies/mtl-protocol-fix/`](studies/mtl-protocol-fix/)** study (Phase 1 = F1 selector fix + three-frontier evaluation across all 5 states) for the closure path. The predecessor memo at `docs/studies/mtl-exploration/FUTUREWORK_substrate_aware_mtl_balancing.md` is superseded by the active study. Until F1 lands, **reg-side conclusions drawn from §0.1 numbers under-report the substrate's actual reg capacity at FL by ~10 pp**. Substrate-axis orderings under the production selector are unreliable — they reflect the selector's choice of destabilised epoch, not the substrate's reg potential.
 
 ## Champion — F50 B9 (P4 + Cosine + α-no-WD) — multi-seed validated (2026-04-30 F51)
 

@@ -36,7 +36,9 @@
 ### "What active follow-up studies are running?"
 
 - [`studies/`](studies/) — active research tracks layered on check2hgi
-  - [`studies/canonical_improvement/`](studies/canonical_improvement/) — canonical Check2HGI improvement (18-experiment slate, 5 tiers)
+  - [`studies/mtl-protocol-fix/`](studies/mtl-protocol-fix/) ⭐ **ACTIVE** (2026-05-20) — protocol-axis: fix the `joint_canonical_b9` selector bug (C21), instrument the three-frontier MTL evaluation, characterise the residual MTL-vs-STL reg gap
+  - [`studies/canonical_improvement/`](studies/canonical_improvement/) — canonical Check2HGI improvement (CLOSED 2026-05-19; 6 tiers, 26 mechanism families, substrate axis exhausted; surfaced C21)
+  - [`studies/mtl-exploration/`](studies/mtl-exploration/) — support / scaffold study; F1/F2/F3 memo now superseded by `mtl-protocol-fix`
   - [`studies/merge_design/`](studies/merge_design/) — Designs A-M / Levers 1-6 / Phase 11 audit trail
   - [`studies/hgi_category_injection/`](studies/hgi_category_injection/) — HGI POI2Vec category-injection on AZ (CLOSED, falsified, kept pending FL/CA/TX revisit)
 
