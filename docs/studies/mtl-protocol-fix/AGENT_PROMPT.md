@@ -1,5 +1,11 @@
 # Agent Onboarding Prompt — mtl-protocol-fix study
 
+> ⚠ **STUDY CLOSED 2026-05-20 v6 final.** This document is preserved for historical record. If you arrive here looking for active work, redirect to the next-tier study: **[`docs/future_works/mtl_architecture_revisit.md`](../../future_works/mtl_architecture_revisit.md)** (highest-EV per P4 frozen-cat mechanism finding).
+>
+> Closure verdict: [`docs/results/mtl_protocol_fix/phase1_phase2_verdict_v6_final.md`](../../results/mtl_protocol_fix/phase1_phase2_verdict_v6_final.md). Read [`log.md`](log.md) end-to-end for the full execution trail (Phase 0 → 2 P5 stale log_T audit → Phase 3 residual-gap brief).
+
+---
+
 > **Paste this prompt (or its core block) at the start of every fresh Claude Code session that picks up this research track.** It onboards you with everything you need before touching code.
 
 ---
