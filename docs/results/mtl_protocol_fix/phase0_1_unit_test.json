@@ -1,0 +1,34 @@
+{
+  "phase": "0.1",
+  "title": "F1 selector fix — code change + unit test",
+  "date": "2026-05-20",
+  "status": "PASS",
+  "artifacts": {
+    "code_changes": [
+      "src/training/runners/mtl_cv.py:131 — new _compute_joint_geom_simple helper (sqrt(reg_top10_indist * cat_f1) with fallback to top10_acc and then to fallback_f1)",
+      "src/training/runners/mtl_cv.py:151 — new _select_joint_score helper (dispatch by 'b9' | 'geom_simple' | 'geom_lift')",
+      "src/training/runners/mtl_cv.py:212 — train_model new kwarg mtl_joint_selector: str = 'b9'",
+      "src/training/runners/mtl_cv.py:679-686 — compute joint_canonical_b9 + joint_geom_simple alongside legacy joint_score",
+      "src/training/runners/mtl_cv.py:715-721 — dispatch joint_score via _select_joint_score",
+      "src/training/runners/mtl_cv.py:786-793 — log all three selectors in metrics dict (val_joint_canonical_b9, val_joint_geom_simple, val_joint_geom_lift)",
+      "src/training/runners/mtl_cv.py:1158-1160 — pass config.mtl_joint_selector via getattr (back-compat for old configs)",
+      "src/configs/experiment.py:128 — mtl_joint_selector field added with default 'b9'",
+      "scripts/train.py:466-483 — --mtl-joint-selector CLI flag added with help text + choices",
+      "scripts/train.py:1014-1019 — args.mtl_joint_selector → dataclasses.replace(config, ...)"
+    ],
+    "new_tests": "tests/test_training/test_mtl_joint_selector.py (9 tests)",
+    "existing_tests_regression_check": "tests/test_training/test_mtl_cv_improvements.py + test_mtl_cv_check2hgi.py + test_mtl_eval.py — 13 passed, 0 failed"
+  },
+  "unit_tests": {
+    "test_joint_geom_simple_computes_sqrt_product": "PASS — F1 fix formula = sqrt(top10 * cat_f1)",
+    "test_joint_geom_simple_falls_back_when_top10_absent": "PASS — legacy 7-class slot B uses sqrt(f1 * f1) fallback",
+    "test_joint_geom_simple_zero_safe": "PASS — head collapse clamped at 1e-8 floor (no NaN/Inf)",
+    "test_selector_dispatch_b9_unchanged": "PASS — default 'b9' returns legacy mean-of-F1s bit-equivalent",
+    "test_selector_dispatch_geom_simple": "PASS — 'geom_simple' returns F1-fix score",
+    "test_selector_dispatch_geom_lift": "PASS — 'geom_lift' returns existing lift-based score",
+    "test_selector_rejects_unknown_name": "PASS — typos raise ValueError; no silent fallback",
+    "test_c21_fingerprint_selectors_diverge": "PASS — on synthetic C21 trajectory (cat monotone, top10 peak-and-collapse, reg_f1 flat), b9 picks ep 29 (late) with top10=0.65, geom_simple picks ep 7 with top10=0.73; Δtop10 = +0.08 captured by the F1 fix",
+    "test_train_model_signature_has_mtl_joint_selector_kwarg": "PASS — plumbing verified, default 'b9' confirms back-compat"
+  },
+  "verdict": "F1 selector fix lands as a back-compat-safe runtime feature. Default behaviour bit-equivalent to pre-2026-05-20 production. New runs can opt into substrate-aware checkpoint selection via --mtl-joint-selector geom_simple."
+}

@@ -2653,6 +2653,24 @@ Scope of the new study (from the §3+§4 deep-dive memo of 2026-05-20):
 
 ---
 
+## 2026-05-20 — RETROACTIVE CAVEAT (read-only addition): Tier 6 FL-MTL sweeps used STALE log_T
+
+**Discovered:** 2026-05-20 17:48 UTC during `mtl_protocol_fix` Phase 2 P2 audit. See [`docs/CONCERNS.md` C22](../../CONCERNS.md#c22) and [`docs/results/mtl_protocol_fix/phase1_verdict.md`](../../results/mtl_protocol_fix/phase1_verdict.md) for the full audit.
+
+**What was stale:** The FL `region_transition_log_seed42_fold*.pt` files had mtime 2026-05-06 (two weeks before the Tier 6 FL-MTL sweeps ran on 2026-05-19). `regen_emb_t3.py` rebuilds embeddings + `next_region.parquet` but does NOT rebuild `region_transition_log_*.pt`; `t61/t62/t64_fl_mtl_sweep.sh` also do not call `compute_region_transition.py`. The May-6 log_T silently survived across all Tier 6 FL-MTL training runs.
+
+**Impact (BOUNDED, not catastrophic):**
+- **Relative falsifications HOLD.** Both the shipping FL baseline AND every variant in the Tier 6 FL-MTL sweeps consumed the SAME stale log_T — so within-sweep relative deltas are not corrupted. Every Tier 6 FL-MTL conclusion ("variant X tied or lost to shipping") is unchanged.
+- **Absolute Acc@10 values biased by unknown sign-and-magnitude.** Independent advisor audit bounds the inflation at ≤ +8 pp (STL case, empirically measured); MTL inflation at FL seed=42 was measured at +12 pp at joint_geom_simple selector / +8 pp at joint_canonical_b9 selector. The reported Tier 6 FL-MTL absolute Acc@10 in `docs/results/canonical_improvement/T6_{1,2,4}_*/florida_mtl/` are therefore unreliable for absolute comparison; treat them as relative-only.
+- **No Tier 5/6 winner was missed.** The closest "almost-winner" was T6.2 a2.0_0.3 at +0.18 pp over shipping on stale log_T — a gap that cannot flip under any plausible re-correction (stale-log_T inflation moves baseline AND variant by similar magnitudes).
+- **Tier 5 (T5.1, T5.2a, T5.2b, T5.3) and Tier 6 AL/AZ are CLEAN** — they used the sandboxed `runs/T*/` pattern with `resume_stage3plus.sh` calling `compute_region_transition.py --per-fold --seed $SEED` per (seed, state), so each got a freshly-built log_T. Only Tier 6 FL-MTL was affected.
+
+**Citation guidance:** When reading any Tier 6 FL-MTL absolute number from this study, cross-reference [`docs/results/mtl_protocol_fix/phase1_verdict.md`](../../results/mtl_protocol_fix/phase1_verdict.md) and apply the stale-log_T caveat. Use §0.1 v11's multi-seed numbers (which use FRESH per-fold log_T) for any paper-grade claim.
+
+**Why this addition is retroactive:** The bug pre-existed in the canonical_improvement workflow but was not detected before closure. It surfaced only in `mtl_protocol_fix` because that study explicitly re-ran shipping FL at multiple seeds + verified seed-variance. **Read this note BEFORE acting on any Tier 6 FL-MTL absolute number.**
+
+---
+
 ## (template — copy and date for next entry)
 
 ## YYYY-MM-DD — <Short title>

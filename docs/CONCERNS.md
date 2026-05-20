@@ -450,3 +450,71 @@ The NORTH_STAR currently reflects **Path A** (`next_gru` universally) pending F3
 **Status:** `open 2026-05-19, in-flight 2026-05-20`. Closure path: **[`docs/studies/mtl-protocol-fix/`](studies/mtl-protocol-fix/) is the active study addressing this concern.** F1 fix lands the one-line code change at `mtl_cv.py:679`; AL/AZ/FL/CA/TX single-seed re-evaluation is part of the study's Phase 1. Full §0.1 n=20 multi-seed re-evaluation is deferred to [`docs/future_works/paper_canon_reevaluation.md`](future_works/paper_canon_reevaluation.md) (sequenced after `mtl_architecture_revisit.md`). Re-opens if any new substrate intervention claims a paper-grade reg lift before the F1 fix has been applied to its baseline.
 
 **Numbers source-of-truth:** `docs/results/canonical_improvement/T6_4_dual_selector_final.{json,md}` (all 3 arms: shipping, two_pass, infonce τ=0.5; single-seed=42, n=5 folds, ep=50).
+
+---
+
+## C22 — `regen_emb_t3.py` silently leaves stale per-fold `region_transition_log.pt`; `train.py` does not validate freshness (DISCOVERED 2026-05-20)
+
+**Concern raised:** 2026-05-20 17:48 UTC during `mtl_protocol_fix` Phase 2 P2 multi-seed FL audit.
+
+**Bug:** `scripts/canonical_improvement/regen_emb_t3.py` regenerates check-in embeddings + `next_region.parquet`, but **does NOT rebuild `region_transition_log_seed{S}_fold{N}.pt`**. `scripts/train.py --per-fold-transition-dir DIR` loads these files at fold init time but **does NOT validate that their content is current** (no mtime/hash check vs `next_region.parquet`).
+
+**Discovery fingerprint:** FL seed=42 `region_transition_log_seed42_fold*.pt` mtime was **2026-05-06 13:29** — two weeks old, never rebuilt across the canonical_improvement Tier 6 FL-MTL sweeps (which ran 2026-05-19) or the early `mtl_protocol_fix` Phase 1 v1-v4 (which ran 2026-05-20 03:00-13:13). Hash differs from a freshly-rebuilt file at the same seed.
+
+**Empirical impact (FL seed=42, fresh log_T vs stale May-6 log_T):**
+
+| Selector | STALE log_T | FRESH log_T | Δ (stale inflation) |
+|---|---:|---:|---:|
+| STL `next_stan_flow` Acc@10 | 78.91 ± 0.27 | **70.89 ± 0.52** | **+8.02 pp** |
+| MTL @ joint_geom_simple | 72.88 ± 1.49 | **61.14 ± 0.95** | **+11.74 pp** |
+| MTL @ joint_canonical_b9 | 61.47 ± 11.48 | 53.73 ± 9.22 | **+7.74 pp** |
+
+Fresh-log_T seed=42 values match multi-seed {0,1,7,100} mean within σ → development-seed bias is **zero at FL** once log_T is fresh (the apparent "seed=42 outlier" was 100% stale-log_T artifact).
+
+**Why the staleness survived:** Region-idx layout is STABLE across regens (`poi_to_region` map is cached in `temp/checkin_graph.pt` via `force_preprocess=False`), so the log_T row/col indices remain semantically valid. **Only the train-fold-partition entries of the matrix differ between OLD and NEW log_T at the same seed.** The mismatch leaks across train/val splits in a way that inflates Acc@10.
+
+**Blast radius across prior studies:**
+- **Tier 5 (T5.1, T5.2a/b, T5.3) — CLEAN.** All sandboxed in `runs/T*/` with per-(seed,state) log_T rebuilt via `resume_stage3plus.sh` (which calls `compute_region_transition.py --per-fold --seed $SEED`). Host-tree May-6 file never read.
+- **Tier 6 AL/AZ — CLEAN.** Same sandboxed pattern.
+- **Tier 6 FL-MTL sweeps (`t61/t62/t64_fl_mtl_sweep.sh`, FL block of `t63_sweep.sh`) — STALE.** These scripts swap embeddings + rebuild `next_region.parquet` but do NOT call `compute_region_transition.py`. They consumed the May-6 host-tree log_T verbatim. **Internally consistent (both shipping baseline AND every variant used SAME stale log_T) so RELATIVE falsifications HOLD; ABSOLUTE Acc@10 values biased by unknown sign-and-magnitude (~+0 to +12 pp likely).** No Tier 5/6 winner was missed: closest "almost-winner" T6.2 a2.0_0.3 was within +0.18 pp on stale log_T — cannot flip an 8+ pp gap.
+- **`mtl_protocol_fix` Phase 1 v1-v4 FL seed=42 — STALE.** Final Phase 1 v5 verdict supersedes v4 with FRESH-log_T multi-seed FL numbers that match §0.1 v11 within σ.
+
+**Resolution (provisional):**
+1. **`CLAUDE.md` updated 2026-05-20** with mandatory stale-log_T preflight check before any MTL/STL run that passes `--per-fold-transition-dir`.
+2. **Patch `regen_emb_t3.py`** to optionally trigger `compute_region_transition.py --per-fold --seed $SEED` after `next_region.parquet` regeneration. *(Open work item.)*
+3. **Patch `scripts/train.py`** to fail loudly if `--per-fold-transition-dir` per-fold file mtime predates `output/check2hgi/{state}/input/next_region.parquet` mtime. *(Open work item.)*
+4. **Patch all `t6*_fl_mtl*.sh` scripts** to call `compute_region_transition.py` immediately after `regen_emb_t3.py`. *(Open work item.)*
+5. **Cite the caveat** when reporting any Tier 6 FL-MTL absolute Acc@10. Cross-reference [`docs/results/mtl_protocol_fix/phase1_verdict.md`](results/mtl_protocol_fix/phase1_verdict.md) (the closure document for this concern).
+
+**Status:** `open 2026-05-20`. Closure path: items 2-4 land as separate small commits. Item 1 already landed.
+
+**Numbers source-of-truth:** `docs/results/mtl_protocol_fix/phase2p5_FL_stale_vs_fresh.{json,md}` (FL seed=42 stale vs fresh log_T side-by-side comparison; matched protocol single-seed n=5 folds ep=50).
+
+---
+
+## C23 — Development-seed (seed=42) contamination at large states; paper-grade canon uses seeds {0,1,7,100} (DOCUMENTED 2026-05-20)
+
+**Concern raised:** 2026-05-20 18:21 UTC during `mtl_protocol_fix` Phase 2 P6 CA/TX preliminary.
+
+**Observation:** Across the project, `seed=42` has been the **development seed** — all recipe choices (B9 vs H3-alt, BS=2048/1024/512, LR schedules, cat-weight, alpha-no-WD, alternating-step, min-best-epoch) were tuned by observing seed=42 validation. `RESULTS_TABLE.md §0.1 v11` paper-canonical numbers use seeds {0, 1, 7, 100} **explicitly excluding seed=42** to avoid development-seed contamination — standard ML practice (dev set ≠ test set).
+
+**Empirical fingerprint (seed=42 single-seed vs §0.1 v11 multi-seed n=20, fresh log_T):**
+
+| State | n_regions | seed=42 disjoint | §0.1 v11 (n=20) | Δ (dev-seed bias) |
+|---|---:|---:|---:|---:|
+| AL | 1,109 | 50.82 ± 3.21 | 50.17 ± 0.24 | +0.65 (within σ) |
+| AZ | 1,547 | 41.33 ± 2.73 | 40.78 ± 0.07 | +0.55 (within σ) |
+| FL | 4,703 | 63.91 ± 0.16 (multi-seed fresh) | 63.27 ± 0.10 | +0.64 (within σ) |
+| **CA** | **8,501** | **50.61 ± 1.23** | **47.35 ± 0.11** | **+3.26 (significant)** |
+| **TX** | **6,553** | **50.83 ± 1.89** | **42.84 ± 0.14** | **+7.99 (large)** |
+
+Small states (AL/AZ) and FL: seed=42 ≈ multi-seed → no development bias. Large states (CA/TX): seed=42 substantially overshoots multi-seed → real development-seed overfit, likely from recipe-tuning at FL+seed=42 not generalising to CA/TX class-counts.
+
+**Why this matters:** Any paper-grade comparison MUST use multi-seed {0,1,7,100} at minimum, not seed=42 alone. Single-seed=42 measurements at CA/TX overstate true generalisation by **+3 to +8 pp** on reg Acc@10.
+
+**Resolution:** This is a **convention**, not a bug. The convention is now documented in:
+- [`CLAUDE.md`](../CLAUDE.md) — paper-grade recipe block includes seeds {0,1,7,100} guidance + dev-seed warning.
+
+**Status:** `documented 2026-05-20`. Re-opens if any future study reports seed=42-only numbers as paper-grade without flagging the convention.
+
+**Numbers source-of-truth:** `docs/results/RESULTS_TABLE.md §0.1 v11` (paper canonical) + `docs/results/mtl_protocol_fix/phase1_verdict.md` (dev-seed bias empirical fingerprint).

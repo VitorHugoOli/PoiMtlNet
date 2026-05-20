@@ -34,7 +34,20 @@
 
 <h1>mtl-protocol-fix — Study Design + Index</h1>
 
-<p><strong>Branch:</strong> <code>mtl-protocol-fix</code> &middot; <strong>Created:</strong> 2026-05-20 &middot; <strong>Status:</strong> <span class="pill warn">Phase 0 pending</span> &middot; <strong>Predecessor:</strong> <a href="../canonical_improvement/INDEX.html"><code>canonical_improvement</code></a> (closed 2026-05-19)</p>
+<p><strong>Branch:</strong> <code>mtl-protocol-fix</code> &middot; <strong>Created:</strong> 2026-05-20 &middot; <strong>Status:</strong> <span class="pill ok">CLOSED 2026-05-20 (v6 final)</span> &middot; <strong>Predecessor:</strong> <a href="../canonical_improvement/INDEX.html"><code>canonical_improvement</code></a> (closed 2026-05-19) &middot; <strong>Successor (recommended):</strong> <a href="../../future_works/mtl_architecture_revisit.md"><code>mtl_architecture_revisit</code></a></p>
+
+<div style="background:#e6f4ea;border-left:4px solid #34a853;padding:10px 14px;margin:12px 0">
+<strong>📕 Study CLOSED 2026-05-20 v6 final.</strong> Closure verdict at <a href="../../results/mtl_protocol_fix/phase1_phase2_verdict_v6_final.md"><code>docs/results/mtl_protocol_fix/phase1_phase2_verdict_v6_final.md</code></a>.
+<br><br>
+<strong>Key findings:</strong>
+<ul>
+<li><strong>F1 fix confirmed at multi-seed FL</strong> — geom_simple > b9 by +5.6 pp at deployable selector. Recovers ~95% of substrate capacity. §0.1 v11 disjoint reproduced within σ (63.91 ± 0.16 vs 63.27 ± 0.10).</li>
+<li><strong>C22 stale log_T bug discovered + audited</strong> — FL seed=42 log_T was 2 weeks stale, inflating reg-Acc@10 by +8 to +12 pp. Tier 6 FL-MTL absolute Acc@10 in canonical_improvement carries this caveat (relative falsifications hold). Code patches landed: <code>regen_emb_t3.py</code> auto-rebuilds; <code>train.py</code> preflight guards.</li>
+<li><strong>C23 dev-seed convention documented</strong> — seed=42 is dev seed; §0.1 v11 uses {0,1,7,100}. Multi-seed must be used for paper-grade.</li>
+<li><strong>Phase 2 Tier 5/6 §Discussion re-eval: no winners under F1 selector.</strong> T6.2 a2.0_0.3 falsified, T5.3 multi-view sub-Bonferroni. Substrate axis exhausted.</li>
+<li><strong>Phase 2 P4 frozen-cat test FALSIFIES the cat-task-interference hypothesis</strong> — MTL reg STILL peaks at ep 2 + crashes with cat fully frozen. The MTL-vs-STL gap is architectural (shared backbone vs direct region-emb pathway). Redirects next-tier from loss-balancing → architecture revisit.</li>
+</ul>
+</div>
 
 <div class="block warn">
 <div class="block-title">Single-sentence goal</div>

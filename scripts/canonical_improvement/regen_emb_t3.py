@@ -512,6 +512,23 @@ def main() -> None:
     create_embedding(state=name_camel, args=cfg)
     print(f"[inputs] state={args.state} regenerating next-POI inputs", flush=True)
     generate_next_input_from_checkins(name_camel, EmbeddingEngine.CHECK2HGI)
+
+    # C22 fix (2026-05-20): rebuild per-fold log_T at seed=42 to prevent stale
+    # log_T silently surviving across regens. Tier 6 FL-MTL sweeps used May-6
+    # stale log_T that inflated reg-Acc@10 by ~12 pp at MTL disjoint / ~8 pp at
+    # STL. See docs/CONCERNS.md C22 and docs/results/mtl_protocol_fix/phase1_verdict.md.
+    # Multi-seed callers must additionally invoke compute_region_transition.py
+    # explicitly for each non-42 seed.
+    print(f"[log_T] rebuilding per-fold log_T at seed=42 (C22 guardrail)", flush=True)
+    from subprocess import run as _run
+    cmd_logt = [sys.executable, str(_root / "scripts" / "compute_region_transition.py"),
+                "--state", args.state, "--per-fold", "--seed", "42"]
+    r = _run(cmd_logt, check=False)
+    if r.returncode != 0:
+        print(f"[log_T] WARNING: rebuild failed (rc={r.returncode}). "
+              f"Per-fold log_T at output/check2hgi/{args.state}/region_transition_log_seed42_fold*.pt "
+              f"may be STALE. Run compute_region_transition.py manually before training.",
+              flush=True)
     print(f"[done] state={args.state}", flush=True)
 
 

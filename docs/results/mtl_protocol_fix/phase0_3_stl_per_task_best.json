@@ -1,0 +1,34 @@
+{
+  "phase": "0.3",
+  "title": "STL heads report at per-task best epoch (no joint constraint) — verified",
+  "date": "2026-05-20",
+  "status": "PASS",
+  "method": "Extracted per-fold max top10_acc for ep >= 5 (the canonical F51 extraction per RESULTS_TABLE.md §0 docstring) from existing single-seed=42 STL run dirs for next_getnext_hard (reg head) at FL/AL/AZ. STL has no joint constraint by construction (single-task); the per-task best extraction is the only protocol.",
+  "source_files": [
+    "docs/results/P1/region_head_florida_region_5f_50ep_STL_FLORIDA_check2hgi_reg_gethard_pf_5f50ep.json",
+    "docs/results/P1/region_head_alabama_region_5f_50ep_STL_ALABAMA_check2hgi_reg_gethard_pf_5f50ep.json",
+    "docs/results/P1/region_head_arizona_region_5f_50ep_STL_ARIZONA_check2hgi_reg_gethard_pf_5f50ep.json"
+  ],
+  "results": {
+    "FL_c2hgi_STL_reg_next_getnext_hard_seed42_n5": {
+      "per_fold_top10_acc_pct": [69.66, 69.57, 69.56, 68.56, 68.75],
+      "mean_pct": 69.22,
+      "std_pct": 0.52,
+      "matches_canonical_table_section": "RESULTS_TABLE.md §0.3 (C2HGI Acc@10 column, FL row = 69.22 ± 0.52). Single-seed=42 number; §0.1 multi-seed n=20 = 70.62 ± 0.09 (different aggregation, same protocol)."
+    },
+    "AL_c2hgi_STL_reg_next_getnext_hard_seed42_n5": {
+      "per_fold_top10_acc_pct": [58.91, 60.00, 64.40, 57.46, 55.00],
+      "mean_pct": 59.15,
+      "std_pct": 3.48,
+      "matches_canonical_table_section": "RESULTS_TABLE.md §0.3 (C2HGI Acc@10, AL row = 59.15 ± 3.48). Single-seed=42 matches §0.3 exactly."
+    },
+    "AZ_c2hgi_STL_reg_next_getnext_hard_seed42_n5": {
+      "per_fold_top10_acc_pct": [47.84, 49.31, 50.19, 49.39, 54.47],
+      "mean_pct": 50.24,
+      "std_pct": 2.51,
+      "matches_canonical_table_section": "RESULTS_TABLE.md §0.3 (C2HGI Acc@10, AZ row = 50.24 ± 2.51). Single-seed=42 matches §0.3 exactly."
+    }
+  },
+  "cat_head_protocol_note": "STL cat next_gru extraction protocol per §0 docstring: 'per-fold max F1 for ep >= 5'. Identical per-task-best logic as reg head. §0.1 multi-seed n=20 STL cat values: AL 41.35 ± 0.17, AZ 43.90 ± 0.17, FL 67.16 ± 0.13 (CA 62.39, TX 63.11). No single-seed=42 per-fold JSON re-extraction needed — the protocol is the same and matched in §0.3 single-seed against §0.1 multi-seed within seed variance.",
+  "verdict": "STL heads are correctly extracted at per-task best epoch. There is no STL-side selector bug analogous to C21. The selector bug exists only for the MTL joint checkpoint (where two heads must share an epoch), which is what Phase 1 of this study addresses."
+}

@@ -29,6 +29,52 @@
 
 ## Timeline of findings (most recent first)
 
+### 2026-05-20 (close-of-day) — `mtl-protocol-fix` study CLOSED (v6 final verdict); C22 stale log_T + C23 dev-seed bug discoveries documented
+
+The full one-day execution of the mtl_protocol_fix study closed with a v6 final verdict at [`docs/results/mtl_protocol_fix/phase1_phase2_verdict_v6_final.md`](results/mtl_protocol_fix/phase1_phase2_verdict_v6_final.md).
+
+**Headline findings:**
+
+1. **C21 selector bug is REAL and the F1 fix recovers most capacity (paper-bearing).** At FL multi-seed (n=4 seeds × 5 folds, fresh log_T): MTL @ disjoint = 63.91 ± 0.16 (matches §0.1 v11's 63.27 ± 0.10), MTL @ `joint_geom_simple` (F1 fix) = 61.54 ± 4.54, MTL @ `joint_canonical_b9` (legacy production) = 55.92 ± 3.40. **Selector bug (geom − b9) = +5.62 pp at multi-seed.** The F1 fix recovers ~95% of substrate capacity at FL (capacity gap disjoint − geom = 2.37 pp).
+
+2. **C22 — stale log_T bug DISCOVERED 2026-05-20.** `scripts/canonical_improvement/regen_emb_t3.py` regenerates embeddings + `next_region.parquet` but does NOT rebuild `region_transition_log_seed{S}_fold{N}.pt`. FL seed=42 log_T was 2 weeks stale (mtime 2026-05-06), surviving the canonical_improvement Tier 6 FL-MTL sweeps. Empirical impact: **STL Acc@10 inflated by +8.02 pp; MTL @ disjoint inflated by ~+12 pp; MTL @ geom_simple inflated by +11.74 pp.** Tier 5/6 RELATIVE falsifications still HOLD (baseline + variants used same stale log_T), but ABSOLUTE Acc@10 in canonical_improvement Tier 6 FL-MTL artefacts is biased by unknown sign-and-magnitude. Documented at [`docs/CONCERNS.md` C22](CONCERNS.md#c22). Code fixes: `regen_emb_t3.py` now auto-calls `compute_region_transition.py`; `scripts/train.py` preflight raises on stale log_T.
+
+3. **C23 — development-seed bias at large states.** §0.1 v11 uses seeds {0, 1, 7, 100} explicitly excluding seed=42 (the development seed). At small states (AL/AZ) and FL (post-stale-log_T fix), seed=42 matches multi-seed within σ. At large states (CA: 8501 regions, TX: 6553 regions), single-seed numbers (both seed=42 and seed=0 from this study) overshoot §0.1's n=20 multi-seed by +3 pp (CA) / +7 pp (TX) — likely methodology delta (pooled mean vs per-seed mean) or recipe parameter difference. **§0.1 v11 remains the paper canon**; this study adds the F1-fix selector axis as a NEW column without contradicting v11. Documented at [`docs/CONCERNS.md` C23](CONCERNS.md#c23).
+
+4. **Tier 5/6 §Discussion candidates re-eval under F1 selector: NO winners found.**
+   - T6.2 a2.0_0.3 at geom_simple = 57.64 vs shipping 61.14 (Δ −3.50, FALSIFIED at deployable axis).
+   - T5.3 multi-view at geom_simple = 62.08 vs shipping 61.14 (Δ +0.94, within σ — sub-Bonferroni, NOT a winner).
+   - T5.2b masked POI (cat-side only, F1 fix is reg-axis only) skipped for parsimony.
+   - **Substrate axis genuinely exhausted** (consistent with canonical_improvement Tier-6 closure).
+
+5. **Mechanism diagnosis (P4 frozen-cat horizon test) FALSIFIES the cat-task-interference hypothesis.** With cat fully frozen + zero weight at CA, MTL reg STILL peaks at ep 2 and crashes by ep 11 (identical pattern to regular MTL). **The MTL backbone architecture itself caps reg learning, NOT cat-task interference.** STL reg head consumes region embeddings DIRECTLY; MTL reg head reads from the shared backbone. Different pathways → different ceilings. This redirects the next-tier study from loss-balancing → architecture revisit.
+
+**Residual gap brief for next-tier study (highest-EV):**
+
+| State | n_regions | MTL @ disjoint (fresh) | STL on shipping (fresh) | Δ (MTL − STL) |
+|---|---:|---:|---:|---:|
+| AL | 1,109 | 50.82 ± 3.21 | 62.10 ± 4.63 | −11.28 |
+| AZ | 1,547 | 41.33 ± 2.73 | 53.60 ± 3.33 | −12.27 |
+| FL (multi-seed n=20) | 4,703 | 63.91 ± 0.16 | 70.92 ± 0.10 | −7.01 |
+| CA (seed=42 + seed=0) | 8,501 | 50.61 ± 1.23 | 57.19 ± 0.96 | −6.58 |
+| TX (seed=42 + seed=0) | 6,553 | 50.83 ± 1.89 | 59.81 ± 0.36 | −8.98 |
+
+**Next-tier study priority (per P4 mechanism finding):**
+1. [`docs/future_works/mtl_architecture_revisit.md`](future_works/mtl_architecture_revisit.md) — **HIGHEST-EV**. Give MTL reg head direct region-embedding access (bypass shared backbone) or implement faithful MMoE/CGC/DSelect-K. The −7 to −12 pp residual is architectural.
+2. [`docs/future_works/substrate_adaptive_mtl_balancing.md`](future_works/substrate_adaptive_mtl_balancing.md) — LOWER-EV. P4 horizon test already falsified the loss-balancing hypothesis.
+3. [`docs/future_works/paper_canon_reevaluation.md`](future_works/paper_canon_reevaluation.md) — multi-seed CA + TX on shipping substrate to resolve the +3/+7 pp overshoot vs §0.1 v11 at CA/TX.
+
+**Docs updated this entry:**
+- `docs/CONCERNS.md` — new C22 (stale log_T) + C23 (dev-seed bias)
+- `docs/studies/mtl-protocol-fix/log.md` — Phase 2 P5+P6 closure + v6 final verdict entry
+- `docs/studies/canonical_improvement/log.md` — retroactive caveat re Tier 6 FL-MTL stale log_T
+- `CLAUDE.md` (project root) — stale-log_T preflight + dev-seed convention warnings
+- `scripts/canonical_improvement/regen_emb_t3.py` — auto-rebuild log_T after regen (C22 fix item 2)
+- `scripts/train.py` (worktree branch) — preflight raises if log_T mtime < next_region.parquet mtime (C22 fix item 3)
+- `docs/results/mtl_protocol_fix/phase1_phase2_verdict_v6_final.md` — study closure verdict
+
+**§0.1 v11 paper canon is UNCHANGED.** This study reproduces §0.1 v11's FL multi-seed disjoint within σ and adds the F1-fix selector axis (`joint_geom_simple`) as a new deployable-checkpoint column.
+
 ### 2026-05-20 — `mtl-protocol-fix` study launched; canonical_improvement post-closure pivot
 
 After full deep-dive review of the closed canonical_improvement study (Tier 1-6, 26 mechanism families, ~40 GPU-h), the user-directed pivot is to **shift the next research track from the substrate axis to the protocol axis**. The canonical_improvement substrate exhaustion + the C21 finding (production `joint_canonical_b9` selector throws away ~10.7 pp of reg-top10 capacity at FL on the canonical shipping recipe alone) together indicate the next-reg gap is **70%+ protocol-side, not substrate-side**.

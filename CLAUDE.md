@@ -185,6 +185,21 @@ Configure `state` (florida, alabama, etc.) and engine. Outputs go to `results/{e
 > H3-alt (small-state recipe, AL/AZ): drop `--alternating-optimizer-step`, `--alpha-no-weight-decay`, `--min-best-epoch 5`; replace `--scheduler cosine --max-lr 3e-3` with `--scheduler constant`. Heads + input-modality flags are identical.
 >
 > The per-fold log_T at `--per-fold-transition-dir` MUST be the **seed-tagged** files `region_transition_log_seed{S}_fold{N}.pt`. Build them via `python scripts/compute_region_transition.py --state {state} --per-fold --seed {S}` for every seed you train at — otherwise transitions leak across the train/val split at any seed ≠ 42.
+>
+> ⚠ **STALE log_T preflight (2026-05-20 lesson — mtl_protocol_fix Phase 2 P5)**: `regen_emb_t3.py` does NOT rebuild the per-fold log_T files, and `scripts/train.py` does NOT validate their freshness. **An old log_T silently survives across regens** and can inflate reg-Acc@10 by **+8 pp at STL** / **+12 pp at MTL disjoint** (FL seed=42 stale May-6 log_T case). Before any MTL/STL run that uses `--per-fold-transition-dir`, MUST verify:
+>
+> ```bash
+> # mtime check (necessary but not sufficient)
+> stat -c '%y %n' output/check2hgi/{state}/region_transition_log_seed{S}_fold*.pt
+> stat -c '%y %n' output/check2hgi/{state}/input/next_region.parquet
+> # If log_T mtime < next_region.parquet mtime, rebuild log_T:
+> python scripts/compute_region_transition.py --state {state} --per-fold --seed {S}
+> # Optional content audit: hash compare before/after rebuild
+> ```
+>
+> Tier-6 FL-MTL sweep results at `docs/results/canonical_improvement/T6_{1,2,4}_*florida_mtl/` used stale May-6 log_T (caveat preserved by self-consistency: baseline + variants used SAME stale log_T → relative falsifications hold; ABSOLUTE Acc@10 is biased by unknown sign-and-magnitude). When citing those numbers, cross-reference [`docs/results/mtl_protocol_fix/phase1_verdict.md §Stale log_T audit`](docs/results/mtl_protocol_fix/phase1_verdict.md).
+>
+> ⚠ **Development-seed vs reporting-seed split**: `seed=42` is the **development seed**. All recipe choices (B9 vs H3-alt, BS, LR, scheduler) were tuned at seed=42 across canonical_improvement. **§0.1 v11 paper-canonical numbers use seeds {0, 1, 7, 100}** — NOT 42 — to avoid development-seed contamination. At small states (AL/AZ) seed=42 ≈ multi-seed; at large states seed=42 overshoots §0.1 by **+3 pp (CA) / +8 pp (TX)** of pure development-seed bias. **When reporting paper-grade numbers, always use {0,1,7,100} multi-seed, not seed=42 alone.**
 
 ## Configurations
 

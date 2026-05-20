@@ -1,0 +1,105 @@
+{
+  "frozen_at": "2026-05-20",
+  "files": {
+    "alabama/embeddings.parquet": {
+      "sha256_prefix16": "18a0a9bc70c02cbf",
+      "size_bytes": 39560061,
+      "mtime": 1779212256.549651
+    },
+    "alabama/region_transition_log_seed42_fold5.pt": {
+      "sha256_prefix16": "54d0912bc9e5de6e",
+      "size_bytes": 4921446,
+      "mtime": 1778829941.6122742
+    },
+    "alabama/region_transition_log_seed42_fold3.pt": {
+      "sha256_prefix16": "c1ea87b2d05be36d",
+      "size_bytes": 4921446,
+      "mtime": 1778829941.5672731
+    },
+    "alabama/region_transition_log_seed42_fold4.pt": {
+      "sha256_prefix16": "6e2fa4b97d2a843f",
+      "size_bytes": 4921446,
+      "mtime": 1778829941.5902736
+    },
+    "alabama/region_transition_log_seed42_fold1.pt": {
+      "sha256_prefix16": "2785a401a67aa854",
+      "size_bytes": 4921446,
+      "mtime": 1778829941.523272
+    },
+    "alabama/region_transition_log_seed42_fold2.pt": {
+      "sha256_prefix16": "63422c1856946867",
+      "size_bytes": 4921446,
+      "mtime": 1778829941.5452726
+    },
+    "arizona/embeddings.parquet": {
+      "sha256_prefix16": "8f8d8805b2582427",
+      "size_bytes": 84464188,
+      "mtime": 1779212627.630268
+    },
+    "arizona/region_transition_log_seed42_fold5.pt": {
+      "sha256_prefix16": "0da57dbd0ce33001",
+      "size_bytes": 9574758,
+      "mtime": 1778829943.5903187
+    },
+    "arizona/region_transition_log_seed42_fold3.pt": {
+      "sha256_prefix16": "7e9447e23c9a0c34",
+      "size_bytes": 9574758,
+      "mtime": 1778829943.5083168
+    },
+    "arizona/region_transition_log_seed42_fold4.pt": {
+      "sha256_prefix16": "ea30c773ba0825c6",
+      "size_bytes": 9574758,
+      "mtime": 1778829943.5503178
+    },
+    "arizona/region_transition_log_seed42_fold1.pt": {
+      "sha256_prefix16": "1fb1fb000b68c572",
+      "size_bytes": 9574758,
+      "mtime": 1778829943.4133146
+    },
+    "arizona/region_transition_log_seed42_fold2.pt": {
+      "sha256_prefix16": "1ee43ff5e8ca81c0",
+      "size_bytes": 9574758,
+      "mtime": 1778829943.4573157
+    },
+    "florida/embeddings.parquet": {
+      "sha256_prefix16": "7d882409eb68ebb7",
+      "size_bytes": 449795104,
+      "mtime": 1779205047.7696438
+    },
+    "florida/region_transition_log_seed42_fold5.pt": {
+      "sha256_prefix16": "bde1b7534abc0a69",
+      "size_bytes": 88474790,
+      "mtime": 1778074157.0
+    },
+    "florida/region_transition_log_seed42_fold3.pt": {
+      "sha256_prefix16": "540f6273fce7ece9",
+      "size_bytes": 88474790,
+      "mtime": 1778074159.0
+    },
+    "florida/region_transition_log_seed42_fold4.pt": {
+      "sha256_prefix16": "3665b79bf0b102d8",
+      "size_bytes": 88474790,
+      "mtime": 1778074158.0
+    },
+    "florida/region_transition_log_seed42_fold1.pt": {
+      "sha256_prefix16": "e851a6f9b253d02a",
+      "size_bytes": 88474790,
+      "mtime": 1778074157.0
+    },
+    "florida/region_transition_log_seed42_fold2.pt": {
+      "sha256_prefix16": "aeb02ed3ce131d91",
+      "size_bytes": 88474790,
+      "mtime": 1778074156.0
+    },
+    "california/embeddings.parquet": {
+      "sha256_prefix16": "7bc7b20c00cd0363",
+      "size_bytes": 957735958,
+      "mtime": 1778795437.9958339
+    },
+    "texas/embeddings.parquet": {
+      "sha256_prefix16": "dec4759826af8ead",
+      "size_bytes": 1233286414,
+      "mtime": 1778795501.312612
+    }
+  }
+}

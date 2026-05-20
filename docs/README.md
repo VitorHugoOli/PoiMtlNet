@@ -36,11 +36,11 @@
 ### "What active follow-up studies are running?"
 
 - [`studies/`](studies/) — active research tracks layered on check2hgi
-  - [`studies/mtl-protocol-fix/`](studies/mtl-protocol-fix/) ⭐ **ACTIVE** (2026-05-20) — protocol-axis: fix the `joint_canonical_b9` selector bug (C21), instrument the three-frontier MTL evaluation, characterise the residual MTL-vs-STL reg gap
-  - [`studies/canonical_improvement/`](studies/canonical_improvement/) — canonical Check2HGI improvement (CLOSED 2026-05-19; 6 tiers, 26 mechanism families, substrate axis exhausted; surfaced C21)
-  - [`studies/mtl-exploration/`](studies/mtl-exploration/) — support / scaffold study; F1/F2/F3 memo now superseded by `mtl-protocol-fix`
-  - [`studies/merge_design/`](studies/merge_design/) — Designs A-M / Levers 1-6 / Phase 11 audit trail
-  - [`studies/hgi_category_injection/`](studies/hgi_category_injection/) — HGI POI2Vec category-injection on AZ (CLOSED, falsified, kept pending FL/CA/TX revisit)
+  - [`studies/mtl-protocol-fix/`](studies/mtl-protocol-fix/) — protocol-axis study **CLOSED 2026-05-20** (v6 final verdict; C22 stale-log_T bug discovered + audited; F1 fix gain +5.6 pp at deployable selector confirmed at multi-seed; Tier 5/6 §Discussion candidates re-eval under F1 found no winners; substrate axis exhausted; mechanism is architectural per P4 frozen-cat test). Closure verdict: [`docs/results/mtl_protocol_fix/phase1_phase2_verdict_v6_final.md`](results/mtl_protocol_fix/phase1_phase2_verdict_v6_final.md). Next-tier highest-EV: [`future_works/mtl_architecture_revisit.md`](future_works/mtl_architecture_revisit.md).
+  - [`studies/canonical_improvement/`](studies/canonical_improvement/) — canonical Check2HGI improvement (CLOSED 2026-05-19; 6 tiers, 26 mechanism families, substrate axis exhausted; surfaced C21). ⚠ Tier 6 FL-MTL artefacts carry stale-log_T caveat — see [`CONCERNS.md` C22](CONCERNS.md#c22).
+  - [`studies/mtl-exploration/`](studies/mtl-exploration/) — support / scaffold study; F1/F2/F3 memo now superseded by `mtl-protocol-fix`.
+  - [`studies/merge_design/`](studies/merge_design/) — Designs A-M / Levers 1-6 / Phase 11 audit trail.
+  - [`studies/hgi_category_injection/`](studies/hgi_category_injection/) — HGI POI2Vec category-injection on AZ (CLOSED, falsified, kept pending FL/CA/TX revisit).
 
 ### "I'm running on machine X — where do I look?"
 
