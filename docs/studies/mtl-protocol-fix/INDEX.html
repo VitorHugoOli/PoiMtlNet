@@ -134,7 +134,11 @@ Fix the production <code>joint_canonical_b9</code> selector bug (<a href="../../
 </tbody>
 </table>
 
-<div class="results-placeholder">Results: <em>pending execution</em></div>
+<div style="background:#e6f4ea;border-left:4px solid #34a853;padding:8px 12px;margin:8px 0">
+<strong>Phase 0 PASS</strong> (2026-05-20 ~01:00 UTC). Per-task disjoint reg at FL ss=42 = 76.59 ± 0.63 (gate: 76.12 ± 0.33, matched within σ). STL gates also matched. Verdict at <a href="../../results/mtl_protocol_fix/phase0_2_three_frontier_verdict.md"><code>phase0_2_three_frontier_verdict.md</code></a>.
+<br><br>
+⚠ <strong>Retroactive caveat (C22 discovery 2026-05-20 17:48 UTC)</strong>: Phase 0 used the FL May-6 stale log_T. The 76.59 number was inflated by the same staleness fingerprint as the rest of the early Phase 1 numbers. The pass criterion was met self-consistently (both Phase 0 reproduction AND the gate value were measured with stale log_T), but the absolute Acc@10 should be cited as ~64 (fresh-log_T value) not 76 in any future paper-grade citation.
+</div>
 
 <h3>Phase 1 — F1 fix across 5 states</h3>
 
@@ -151,7 +155,20 @@ Fix the production <code>joint_canonical_b9</code> selector bug (<a href="../../
 
 <p><strong>Falsifiability gate</strong>: if AL/AZ/CA/TX show < 2 pp reg lift under F1, the selector bug is FL-specific and the substrate-axis story at small states stands. Re-opens the residual STL substrate-Δ question.</p>
 
-<div class="results-placeholder">Results: <em>pending execution</em></div>
+<div style="background:#e6f4ea;border-left:4px solid #34a853;padding:8px 12px;margin:8px 0">
+<strong>Phase 1 COMPLETE</strong> (closed via Phase 2 P2 multi-seed FL on fresh log_T, 2026-05-20 ~17:00 UTC). Verdict at <a href="../../results/mtl_protocol_fix/phase1_phase2_verdict_v6_final.md"><code>phase1_phase2_verdict_v6_final.md</code></a>.
+<br><br>
+<strong>Selector bug magnitude by state (fresh log_T, geom_simple − b9):</strong>
+<ul>
+<li>FL (multi-seed n=4): <strong>+5.62 pp</strong> at deployable axis (61.54 vs 55.92).</li>
+<li>FL (single-seed=42 fresh): +7.41 pp (61.14 vs 53.73).</li>
+<li>AL (H3-alt seed=42): +0.95 pp (within σ).</li>
+<li>AZ (H3-alt seed=42): +1.16 pp (within σ).</li>
+<li>CA (B9 seed=42, fresh log_T): +6.93 pp (49.24 vs 42.31).</li>
+<li>TX (B9 seed=42, fresh log_T): +8.90 pp (49.30 vs 40.39).</li>
+</ul>
+<strong>Hypothesis (scale-conditional bug, larger at high n_regions) CONFIRMED.</strong> Threshold ~2-3k regions: bug &lt; 1.2 pp below threshold, +5 to +9 pp above. F1 fix recovers ~95% of substrate capacity at large states (disjoint − geom_simple capacity gap = 1.4-3.6 pp).
+</div>
 
 <h3>Phase 2 — Tier 5/6 candidate re-evaluation under F1</h3>
 
@@ -170,7 +187,50 @@ Fix the production <code>joint_canonical_b9</code> selector bug (<a href="../../
 
 <p><strong>Falsifiability gate</strong>: if none of T5.2b / T5.3 / T6.2 flip status under F1, the substrate axis is closed for good.</p>
 
-<div class="results-placeholder">Results: <em>pending execution</em></div>
+<div style="background:#e6f4ea;border-left:4px solid #34a853;padding:8px 12px;margin:8px 0">
+<strong>Phase 2 COMPLETE</strong> (2026-05-20 ~20:48 UTC). Tier 5/6 §Discussion candidates re-eval under F1 selector: <strong>NO winners</strong>. Substrate axis CLOSED for good. Detailed table at <a href="../../results/mtl_protocol_fix/phase2p6_salvage_T6_2_T5_3_vs_shipping.json"><code>phase2p6_salvage_T6_2_T5_3_vs_shipping.json</code></a>.
+<br><br>
+<strong>Salvage results (FL seed=42 fresh log_T, B9 recipe + geom_simple selector):</strong>
+<table>
+<thead><tr><th>Variant</th><th>disjoint</th><th>geom_simple (F1 fix)</th><th>b9 (legacy)</th><th>Δ vs shipping @ geom</th></tr></thead>
+<tbody>
+<tr><td>FL shipping</td><td>63.98 ± 0.76</td><td><strong>61.14 ± 0.95</strong></td><td>53.73 ± 9.22</td><td>—</td></tr>
+<tr><td>T5.3 multi-view</td><td>63.91 ± 0.81</td><td>62.08 ± 1.40</td><td>49.94 ± 11.36</td><td>+0.94 (within σ — sub-Bonferroni)</td></tr>
+<tr><td>T6.2 a2.0_0.3</td><td>63.98 ± 0.73</td><td>57.64 ± 0.74</td><td>36.73 ± 1.06</td><td>−3.50 (FALSIFIED)</td></tr>
+<tr><td>T5.2b masked-POI</td><td>skipped</td><td>skipped</td><td>skipped</td><td>(cat-side only; F1 fix is reg-axis)</td></tr>
+</tbody>
+</table>
+Canonical_improvement Tier 5/6 closure verdict HOLDS even under F1 selector. The substrate axis is genuinely exhausted; the residual MTL-vs-STL gap is not substrate-driven.
+</div>
+
+<h3>Phase 2 P4 (NEW — emerged during execution) — Frozen-cat horizon test (CA)</h3>
+
+<div style="background:#e6f4ea;border-left:4px solid #34a853;padding:8px 12px;margin:8px 0">
+<strong>P4 COMPLETE</strong> (2026-05-20 ~16:00 UTC). Hypothesis test: if MTL reg gap is cat-task negative-transfer, training MTL with cat fully frozen + zero cat-weight should let reg learn to STL ceiling.
+<br><br>
+<strong>Result: HYPOTHESIS FALSIFIED.</strong> CA frozen-cat MTL reg per-fold best epoch = 2 (identical to regular CA MTL); peaks at ~50% then crashes after ep 11 — same pattern as cat-active MTL. The MTL backbone architecture itself caps reg learning, NOT cat-task interference.
+<br><br>
+<strong>Implication</strong>: redirects next-tier study from <em>loss balancing</em> (which can't fix architectural cap) → <em>architecture revisit</em> (give MTL reg head direct region-emb access, bypassing the shared backbone).
+</div>
+
+<h3>Phase 2 P5 (NEW — emerged during execution) — Stale log_T audit + FL seed=42 re-run</h3>
+
+<div style="background:#fff4e5;border-left:4px solid #fbbc04;padding:8px 12px;margin:8px 0">
+<strong>P5 COMPLETE</strong> (2026-05-20 ~17:48 UTC). Bug discovery: FL <code>region_transition_log_seed42_fold*.pt</code> mtime was 2026-05-06 (2 weeks stale); never rebuilt across Tier 6 sweeps or early Phase 1 v1-v4. <code>regen_emb_t3.py</code> does NOT rebuild log_T; <code>train.py</code> does NOT validate freshness.
+<br><br>
+<strong>Empirical impact (FL seed=42, stale vs fresh log_T):</strong>
+<table>
+<thead><tr><th>Selector</th><th>STALE log_T</th><th>FRESH log_T</th><th>Δ (inflation)</th></tr></thead>
+<tbody>
+<tr><td>STL <code>next_stan_flow</code> Acc@10</td><td>78.91 ± 0.27</td><td><strong>70.89 ± 0.52</strong></td><td><strong>+8.02 pp</strong></td></tr>
+<tr><td>MTL @ joint_geom_simple</td><td>72.88 ± 1.49</td><td><strong>61.14 ± 0.95</strong></td><td><strong>+11.74 pp</strong></td></tr>
+<tr><td>MTL @ joint_canonical_b9</td><td>61.47 ± 11.48</td><td>53.73 ± 9.22</td><td>+7.74 pp</td></tr>
+</tbody>
+</table>
+Fresh-log_T seed=42 values match multi-seed {0,1,7,100} mean within σ → seed=42 outperformance was 100% stale-log_T artifact, not development-seed bias.
+<br><br>
+<strong>Documented at <a href="../../CONCERNS.md#c22"><code>CONCERNS.md C22</code></a>. Code fixes landed in <code>regen_emb_t3.py</code> + <code>scripts/train.py</code> (worktree).</strong> Tier 6 FL-MTL absolute Acc@10 in canonical_improvement carries this caveat (relative falsifications HOLD).
+</div>
 
 <h3>Phase 3 — Residual-gap characterisation</h3>
 
@@ -196,7 +256,29 @@ Fix the production <code>joint_canonical_b9</code> selector bug (<a href="../../
 <li>Residual asymmetric (small at FL/CA/TX, large at AL/AZ) → head-axis (<a href="../../future_works/head_window_batch_audit.md"><code>head_window_batch_audit.md</code></a>) becomes a candidate (the "best head differs across scales" hypothesis).</li>
 </ul>
 
-<div class="results-placeholder">Results: <em>pending execution</em></div>
+<div style="background:#e6f4ea;border-left:4px solid #34a853;padding:8px 12px;margin:8px 0">
+<strong>Phase 3 COMPLETE</strong> (2026-05-20 ~20:48 UTC). Residual quantification on consistent v3c+T3.2 ResLN shipping substrate with FRESH log_T.
+<br><br>
+<strong>Residual MTL-vs-STL gap on reg Acc@10 (Δ = MTL@disjoint − STL on shipping):</strong>
+<table>
+<thead><tr><th>State</th><th>n_regions</th><th>MTL @ disjoint</th><th>STL on shipping</th><th>Δ</th></tr></thead>
+<tbody>
+<tr><td>AL (H3-alt, ss=42)</td><td>1,109</td><td>50.82 ± 3.21</td><td>62.10 ± 4.63</td><td><strong>−11.28</strong></td></tr>
+<tr><td>AZ (H3-alt, ss=42)</td><td>1,547</td><td>41.33 ± 2.73</td><td>53.60 ± 3.33</td><td><strong>−12.27</strong></td></tr>
+<tr><td>FL (B9, multi-seed n=4)</td><td>4,703</td><td>63.91 ± 0.16</td><td>70.92 ± 0.10</td><td><strong>−7.01</strong></td></tr>
+<tr><td>CA (B9, ss=42+0)</td><td>8,501</td><td>50.61 ± 1.23</td><td>57.19 ± 0.96</td><td><strong>−6.58</strong></td></tr>
+<tr><td>TX (B9, ss=42+0)</td><td>6,553</td><td>50.83 ± 1.89</td><td>59.81 ± 0.36</td><td><strong>−8.98</strong></td></tr>
+</tbody>
+</table>
+<strong>All five states show residual −6.58 to −12.27 pp gap after F1 fix.</strong> Per the decision tree:
+<ul>
+<li>Residual &gt; 5 pp at every state → <strong><a href="../../future_works/mtl_architecture_revisit.md"><code>mtl_architecture_revisit.md</code></a> becomes load-bearing</strong> as the next-tier study.</li>
+<li>Residual asymmetric (smaller at FL/CA/TX, larger at AL/AZ) → head-axis (<a href="../../future_works/head_window_batch_audit.md"><code>head_window_batch_audit.md</code></a>) is a SECONDARY candidate.</li>
+</ul>
+<strong>Mechanism (P4 finding)</strong>: the gap is architectural (shared backbone caps reg learning regardless of cat-task interference). STL reg head consumes region embeddings DIRECTLY; MTL reg head reads from shared backbone output. Different pathways → different ceilings.
+<br><br>
+The paper headline holds: <em>"MTL trades reg for cat at every state, but the F1-fix selector recovers most of the substrate capacity that the production b9 selector wastes."</em> §0.1 v11 paper canon is UNCHANGED; the F1 fix adds a new deployable-selector column without contradicting v11.
+</div>
 
 <h2>§5 — What's out of scope (and where it went)</h2>
 
