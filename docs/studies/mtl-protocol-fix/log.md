@@ -149,6 +149,23 @@ Findings reaffirmed:
 
 ---
 
+## 2026-05-21 — Post-closure deferred-work inventory landed
+
+**Phase**: Post-closure documentation.
+
+**What happened**
+
+- Audited the original §3 Open Gaps + §4 Other Approaches list from the 2026-05-20 planning memo ([`considerations.md`](considerations.md)) against what actually executed.
+- Found 4 items DONE/FALSIFIED/SKIPPED in this study (§3 Rank 1 F1 fix, §3 Rank 3 T6.2 + T5.3 + intentional-skip T5.2b), 7 items DEFERRED (§3 Rank 5 Levers 4/5/6 + §4.1, §4.2, §4.4-partial, §4.5, §4.6, §4.7, §4.8).
+- Created [`DEFERRED_WORK.md`](DEFERRED_WORK.md) as the single authoritative map. Each DEFERRED item maps to an existing `docs/future_works/` memo or flags a NEW memo to draft when picked up (`composite_two_substrate_engine.md`, `poi_decoder_hgi_distill.md`).
+- Cross-referenced from [`INDEX.html`](INDEX.html) §4 Phase 3 results block and [`docs/future_works/README.md`](../../future_works/README.md).
+
+**Decision** — All future agents picking up the mtl-protocol-fix research line MUST read `DEFERRED_WORK.md` first to avoid re-executing items already done or wasting time on items the P4 horizon test already falsified (e.g. naive curriculum/scheduling forms in §4.4).
+
+**Next** — none for this study (CLOSED). Next-tier successor is [`mtl_architecture_revisit.md`](../../future_works/mtl_architecture_revisit.md) per Phase 3 verdict; that study's AGENT_PROMPT should cite `DEFERRED_WORK.md` for the §4.1 + §4.2 sub-tracks it must absorb.
+
+---
+
 ## (template — copy and date for next entry)
 
 ## YYYY-MM-DD — <Short title>

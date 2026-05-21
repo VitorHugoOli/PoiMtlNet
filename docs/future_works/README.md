@@ -25,6 +25,10 @@ When a future-work item is picked up:
 | [`head_window_batch_audit.md`](head_window_batch_audit.md) | Per-task head re-design under leak-free protocol; sequence-window + causal-mask correctness audit; batch class-balance (weighted-CE vs class-balanced sampler vs focal-loss) at FL. | Diagnostic / variance-source audits; co-schedule with `mtl_architecture_revisit.md` because the architecture × head × batch axes interact. |
 | [`reg_head_architecture_sweep.md`](reg_head_architecture_sweep.md) | Focused reg-head sweep (`next_stan_flow` vs `next_getnext` vs `next_lstm` vs `next_transformer_pf` vs `next_stan_baseline` vs `next_gru`) under per-fold log_T. | Narrower variant of [`head_window_batch_audit.md`](head_window_batch_audit.md) §A; rolls into that broader audit if launched. |
 
+## Cross-reference — mtl-protocol-fix deferred work
+
+[`../studies/mtl-protocol-fix/DEFERRED_WORK.md`](../studies/mtl-protocol-fix/DEFERRED_WORK.md) is the authoritative deferred-work map for the mtl-protocol-fix research line. It catalogs the original §3 Rank 1-5 + §4.1-§4.8 considerations (11 items total) with each marked DONE / FALSIFIED / SKIPPED / DEFERRED, and maps every DEFERRED item to its landing in this folder or in `docs/studies/merge_design/`. **Future agents picking up architecture / loss-balancing / head-axis / composite-engine work must read it first** — it identifies which items each future_works memo above must absorb, plus two NEW memos to draft when triggered (`composite_two_substrate_engine.md` and `poi_decoder_hgi_distill.md`).
+
 ## Sibling folders
 
 - [`../studies/`](../studies/) — *active* research tracks (canonical_improvement, merge_design, hgi_category_injection)
