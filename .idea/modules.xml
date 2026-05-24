@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/ingred.iml" filepath="$PROJECT_DIR$/.idea/ingred.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/mtlnet.iml" filepath="$PROJECT_DIR$/.idea/mtlnet.iml" />
     </modules>
   </component>
 </project>

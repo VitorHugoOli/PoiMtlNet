@@ -26,7 +26,7 @@ Under the canonical B9 recipe with **`--engine hgi`** substituted for `--engine 
 - Recipe: B9 verbatim — `mtlnet_crossattn`, `static_weight(cat=0.75)`, `next_gru` cat head, `next_getnext_hard` reg head, per-head LR (cat 1e-3, reg 3e-3, shared 1e-3), cosine schedule (max_lr=3e-3), alternating SGD, α-no-WD.
 - Only change vs canonical: `--engine hgi` instead of `--engine check2hgi`. The `--task-a-input-type checkin --task-b-input-type region` flags still work but now load HGI's POI-level embeddings — same POI gets the same vector across all 9 sequence steps.
 - Protocol: `--folds 5 --epochs 25 --seed 42`. Leak-free per-fold log_T (engine-agnostic; reused from `output/check2hgi/<state>/`).
-- Reproducer: [`run_hgi_substrate.sh`](run_hgi_substrate.sh).
+- Reproducer: [`run_hgi_substrate.sh`](../../../scripts/mtl-exploration/run_hgi_substrate.sh).
 
 ## Results
 
@@ -104,7 +104,7 @@ So the "37 pp regression" between then and now is the combined effect of **two c
 
 ### B3+HGI discriminator (added 2026-05-16, FL still pending)
 
-To isolate whether the CH18 catastrophe was the C4 leak or the B3 recipe instability, ran B3+HGI under leak-free per-fold log_T (5f × 50ep × seed=42, OneCycleLR max=0.003, single LR — no per-head, no cosine, no alt-SGD, no α-no-WD). Reproducer: [`run_b3_hgi.sh`](run_b3_hgi.sh).
+To isolate whether the CH18 catastrophe was the C4 leak or the B3 recipe instability, ran B3+HGI under leak-free per-fold log_T (5f × 50ep × seed=42, OneCycleLR max=0.003, single LR — no per-head, no cosine, no alt-SGD, no α-no-WD). Reproducer: [`run_b3_hgi.sh`](../../../scripts/mtl-exploration/run_b3_hgi.sh).
 
 | State | reg top10_indist | cat F1 |
 |---|---:|---:|
@@ -155,6 +155,6 @@ The refined story: **the cross-attention MTL only does measurable joint-training
 
 ## Files
 
-- Run script: [`run_hgi_substrate.sh`](run_hgi_substrate.sh)
+- Run script: [`run_hgi_substrate.sh`](../../../scripts/mtl-exploration/run_hgi_substrate.sh)
 - Run dirs: `results/hgi/{alabama,arizona}/mtlnet_lr1.0e-04_bs2048_ep25_20260516_*`
 - Logs: `logs/hgi_b9_{alabama,arizona}_seed42_5f25ep.log`

@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>MTL Improvement Track &mdash; Experiment Design &amp; Index</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #161a22;
+    --panel-2: #1c212c;
+    --text: #e6e9ef;
+    --muted: #9aa3b2;
+    --accent: #6ea8fe;
+    --accent-2: #5dd39e;
+    --warn: #ffb454;
+    --bad: #ef6a6a;
+    --good: #4ade80;
+    --tier0: #9aa3b2;
+    --tier1: #5dd39e;
+    --tier2: #6ea8fe;
+    --tier3: #c792ea;
+    --tier4: #ffb454;
+    --tier5: #ff79c6;
+    --tier6: #61dafb;
+    --tier7: #ffd166;
+    --tier8: #ef6a6a;
+    --border: #2a3140;
+    --code-bg: #0b0e13;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+    font-size: 14.5px;
+  }
+  .layout { display: grid; grid-template-columns: 290px 1fr; min-height: 100vh; }
+  nav.toc {
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    padding: 24px 16px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  nav.toc h2 { color: var(--accent); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 18px;}
+  nav.toc h2:first-child { margin-top: 0; }
+  nav.toc ul { list-style: none; padding-left: 0; margin: 6px 0 0 0; }
+  nav.toc li a { color: var(--muted); text-decoration: none; display: block; padding: 3px 8px; border-radius: 4px; font-size: 12.5px;}
+  nav.toc li a:hover { color: var(--text); background: var(--panel-2); }
+  nav.toc li.tier-head { font-weight: 600; margin-top: 4px; }
+  main { padding: 30px 44px; max-width: 1120px; }
+  h1 { font-size: 26px; margin: 0 0 4px 0; color: #fff; }
+  .subtitle { color: var(--muted); margin-bottom: 28px; font-size: 13.5px;}
+  h2 {
+    margin-top: 44px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+    font-size: 20px;
+    color: var(--accent);
+  }
+  h3 { margin-top: 24px; color: var(--accent-2); font-size: 16px; }
+  h4 { margin-top: 16px; color: var(--text); font-size: 14.5px; }
+  p, li { color: var(--text); }
+  code {
+    background: var(--code-bg);
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 12.5px;
+    color: #f5d28a;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+  }
+  pre {
+    background: var(--code-bg);
+    padding: 12px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    overflow-x: auto;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  pre code { background: none; padding: 0; color: #d6e2f0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    background: var(--panel);
+    border-radius: 6px;
+    overflow: hidden;
+    font-size: 12.5px;
+  }
+  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: var(--panel-2); color: var(--accent); font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.04em; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tr:last-child td { border-bottom: none; }
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: var(--panel);
+    padding: 14px 18px;
+    margin: 18px 0;
+    border-radius: 0 6px 6px 0;
+  }
+  .callout.good { border-left-color: var(--good); }
+  .callout.warn { border-left-color: var(--warn); }
+  .callout.bad  { border-left-color: var(--bad); }
+  .callout h4 { margin: 0 0 6px 0; }
+  .pill {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 10px;
+    font-size: 10.5px;
+    font-weight: 600;
+    margin-right: 4px;
+    letter-spacing: 0.02em;
+  }
+  .pill.good { background: rgba(74,222,128,0.15); color: var(--good); }
+  .pill.bad  { background: rgba(239,106,106,0.15); color: var(--bad); }
+  .pill.warn { background: rgba(255,180,84,0.15); color: var(--warn); }
+  .pill.info { background: rgba(110,168,254,0.15); color: var(--accent); }
+  .pill.tier0 { background: rgba(154,163,178,0.15); color: var(--tier0); }
+  .pill.tier1 { background: rgba(93,211,158,0.15); color: var(--tier1); }
+  .pill.tier2 { background: rgba(110,168,254,0.15); color: var(--tier2); }
+  .pill.tier3 { background: rgba(199,146,234,0.15); color: var(--tier3); }
+  .pill.tier4 { background: rgba(255,180,84,0.15); color: var(--tier4); }
+  .pill.tier5 { background: rgba(255,121,198,0.15); color: var(--tier5); }
+  .pill.tier6 { background: rgba(97,218,251,0.15); color: var(--tier6); }
+  .pill.tier7 { background: rgba(255,209,102,0.15); color: var(--tier7); }
+  .pill.tier8 { background: rgba(239,106,106,0.15); color: var(--tier8); }
+  .pill.cost-s { background: rgba(74,222,128,0.12); color: var(--good); }
+  .pill.cost-m { background: rgba(255,180,84,0.12); color: var(--warn); }
+  .pill.cost-l { background: rgba(239,106,106,0.12); color: var(--bad); }
+  .experiment {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 14px 0;
+  }
+  .experiment > h3 {
+    margin-top: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .experiment .meta { font-size: 12px; color: var(--muted); margin: 4px 0 10px 0; }
+  .experiment .block { margin: 10px 0; }
+  .experiment .block-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+  .experiment .results-placeholder {
+    background: var(--code-bg);
+    border: 1px dashed var(--border);
+    padding: 10px 14px;
+    border-radius: 4px;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 12.5px;
+  }
+  .delta-pos { color: var(--good); font-weight: 600; }
+  .delta-neg { color: var(--bad);  font-weight: 600; }
+  .delta-flat { color: var(--muted); }
+  hr.section { border: none; border-top: 1px dashed var(--border); margin: 30px 0; }
+  .footnote { font-size: 11.5px; color: var(--muted); margin-top: 4px; }
+  .ascii-diagram {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 11.5px;
+    color: #c8d3e2;
+    white-space: pre;
+    overflow-x: auto;
+    line-height: 1.4;
+  }
+  .gate {
+    background: rgba(255,180,84,0.08);
+    border: 1px solid rgba(255,180,84,0.30);
+    border-radius: 5px;
+    padding: 10px 12px;
+    margin-top: 12px;
+    font-size: 12.5px;
+  }
+  .gate strong { color: var(--warn); }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav class="toc">
+  <h2>Track Map</h2>
+  <ul>
+    <li><a href="#tldr">TL;DR &amp; scope</a></li>
+    <li><a href="#exec">Execution guidelines</a></li>
+    <li><a href="#falsified">Falsified history</a></li>
+    <li><a href="#audit">Audit of considerations</a></li>
+    <li><a href="#chain">Chain &amp; sequencing</a></li>
+    <li><a href="#eval">Evaluation framework</a></li>
+    <li><a href="#baselines">Pinned baselines</a></li>
+    <li><a href="#breadth">Breadth catalog (sub-agents)</a></li>
+  </ul>
+  <h2>Tier 0 &mdash; Hygiene</h2>
+  <ul>
+    <li><a href="#T0-1">T0.1 Docs cleanup</a></li>
+    <li><a href="#T0-2">T0.2 Mask/pad pre-flight</a></li>
+    <li><a href="#T0-3">T0.3 F49 audit</a></li>
+    <li><a href="#T0-4">T0.4 Flat-checkin cat</a></li>
+    <li><a href="#T0-5">T0.5 Instrumentation wave</a></li>
+    <li><a href="#T0-6">T0.6 n_splits guard ext</a></li>
+    <li><a href="#T0-7">T0.7 Same-box B9 re-baseline</a></li>
+  </ul>
+  <h2>Tier 1 &mdash; STL ceilings</h2>
+  <ul>
+    <li><a href="#T1-1">T1.1 Cat-head STL sweep</a></li>
+    <li><a href="#T1-2">T1.2 Reg-head STL sweep</a></li>
+  </ul>
+  <h2>Tier 2a &mdash; Backbone cheap</h2>
+  <ul>
+    <li><a href="#T2a-1">T2a.1 Cross-stitch per-channel &alpha;</a></li>
+    <li><a href="#T2a-2">T2a.2 MulT-faithful</a></li>
+    <li><a href="#T2a-3">T2a.3 Depth/head sweep</a></li>
+    <li><a href="#T2a-4">T2a.4 Pre-norm + SwiGLU</a></li>
+  </ul>
+  <h2>Tier 2b &mdash; Backbone heavy</h2>
+  <ul>
+    <li><a href="#T2b-1">T2b.1 Sluice</a></li>
+    <li><a href="#T2b-2">T2b.2 AdaShare</a></li>
+    <li><a href="#T2b-3">T2b.3 TaskExpert</a></li>
+    <li><a href="#T2b-4">T2b.4 Q-task K/V-shared</a></li>
+  </ul>
+  <h2>Tier 3 &mdash; Loss</h2>
+  <ul>
+    <li><a href="#T3-1">T3.1 Static grid ext</a></li>
+    <li><a href="#T3-2">T3.2 Adaptive losses</a></li>
+    <li><a href="#T3-3">T3.3 Gradient surgery</a></li>
+    <li><a href="#T3-4">T3.4 STL distillation</a></li>
+    <li><a href="#T3-5">T3.5 Cat-only warmup</a></li>
+  </ul>
+  <h2>Tier 4 &mdash; Batch</h2>
+  <ul>
+    <li><a href="#T4-1">T4.1 1:1 interleave</a></li>
+    <li><a href="#T4-2"><s>T4.2 Class balance</s> (deferred)</a></li>
+    <li><a href="#T4-3">T4.3 Long-tail region sampling</a></li>
+    <li><a href="#T4-4"><s>T4.4 Geo hard negatives</s> (deferred)</a></li>
+  </ul>
+  <h2>Tier 5 &mdash; LR / optim</h2>
+  <ul>
+    <li><a href="#T5-1">T5.1 Optimizer sweep</a></li>
+    <li><a href="#T5-2">T5.2 Scheduler refinement</a></li>
+    <li><a href="#T5-3">T5.3 Alt-SGD + averaging</a></li>
+    <li><a href="#T5-4">T5.4 Per-head LR re-fit</a></li>
+  </ul>
+  <h2>Tier 6 &mdash; &alpha; formula</h2>
+  <ul>
+    <li><a href="#T6-1">T6.1 Per-class &alpha;</a></li>
+    <li><a href="#T6-2">T6.2 Alternative priors</a></li>
+    <li><a href="#T6-3">T6.3 &alpha; schedule</a></li>
+    <li><a href="#T6-4">T6.4 Gated &alpha;</a></li>
+  </ul>
+  <h2>Tier 7 &mdash; Final heads</h2>
+  <ul>
+    <li><a href="#T7-1">T7.1 Cat-head re-ablation</a></li>
+    <li><a href="#T7-2">T7.2 Reg-head re-ablation</a></li>
+    <li><a href="#T7-3">T7.3 Asymmetric capacity</a></li>
+  </ul>
+  <h2>Tier 8 &mdash; Ship</h2>
+  <ul>
+    <li><a href="#T8-1">T8.1 Multi-seed ship</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<h1>MTL Improvement Track &mdash; Experiment Design &amp; Index</h1>
+<p class="subtitle">
+  An 8-tier, ~32-experiment sequential chain to improve the current B9 MTL recipe on the Check2HGI substrate.
+  <span class="pill info">Design only as of 2026-05-16</span>
+  <span class="pill warn">Implementing agent: read &sect;Execution guidelines before writing any code</span>
+</p>
+
+<!-- ============================================================== -->
+<h2 id="tldr">TL;DR &amp; scope</h2>
+
+<div class="callout">
+<p><strong>Goal.</strong> Close the &minus;7 to &minus;17&nbsp;pp <code>next_region</code> gap that MTL currently pays vs matched-head STL across 5 states (paper-canonical v11 &sect;0.1) without losing the small cat lift, by sequentially refining (backbone &rarr; loss &rarr; batch &rarr; optimizer &rarr; &alpha; &rarr; heads) on top of the leak-free Check2HGI substrate.</p>
+
+<p><strong>Out of scope</strong> (these have separate tracks; do NOT duplicate):</p>
+<ul>
+  <li>Substrate redesign &mdash; <code>../canonical_improvement/</code> attacks canonical Check2HGI; <code>../merge_design/</code> attacks the merge family.</li>
+  <li>Substrate swap to HGI &mdash; <code>../mtl-exploration/EXPERIMENT_HGI_SUBSTRATE.md</code> established MTL+HGI &equiv; STL+HGI under cross-attn. HGI remains a <strong>per-arch sanity check</strong> here (run once per Tier-2 winner), not a substrate option.</li>
+  <li>Cat-task definition change (single-checkin vs sequence) &mdash; <code>14.4</code> diagnostic in T0.4 informs a possible follow-up paper; does NOT change the chain.</li>
+  <li>External SOTA baseline reproduction &mdash; lives in <code>docs/baselines/</code>.</li>
+</ul>
+
+<p><strong>What this track does</strong>: ~30 experiments across 8 tiers attacking the recipe in the order that minimizes re-execution risk. Each tier's winning recipe becomes the next tier's <em>fixed baseline</em>; within a tier, experiments are parallel.</p>
+<p><strong>Total compute envelope (revised post-advisor 2026-05-16):</strong> ~1700 GPU-h H100 across all tiers (T0 ~80 + T1 ~150 + T2a ~320 + T2b ~450 + T3 ~120 + T4 ~40 + T5 ~100 + T6 ~60 + T7 ~100 + T8 ~300) + ~5&ndash;7 weeks engineering. T2b is optional if T2a clears the gate; that path is ~1250 GPU-h.</p>
+</div>
+
+<h3>Scale-conditional or universal recipe?</h3>
+<div class="callout warn">
+<strong>Decision:</strong> the chain explicitly preserves the scale-conditional framing &mdash; the final ship recipe in T8 may be <em>B9-prime at large states (FL/CA/TX)</em> and <em>H3-alt-prime at small states (AL/AZ)</em>, where &ldquo;prime&rdquo; means &ldquo;after the chain&rdquo;. Hunting a single universal recipe is permitted as a stretch outcome but is NOT a win condition. This matches the v11 paper framing and prevents a chain that accidentally loses H3-alt's AL/AZ cat advantage chasing FL reg.
+</div>
+
+<h3>Headline framing the chain attacks</h3>
+<table>
+<thead><tr><th>State</th><th>n_regions</th><th>B9 reg Acc@10</th><th>STL reg ceiling</th><th>&Delta;_reg</th><th>B9 cat F1</th><th>STL cat ceiling</th><th>&Delta;_cat</th></tr></thead>
+<tbody>
+<tr><td>AL</td><td class="num">1,109</td><td class="num">50.17 &plusmn; 0.24</td><td class="num">61.21 &plusmn; 0.18</td><td class="num"><span class="delta-neg">&minus;11.04</span></td><td class="num">40.57 &plusmn; 0.24</td><td class="num">41.35 &plusmn; 0.17</td><td class="num"><span class="delta-neg">&minus;0.78</span></td></tr>
+<tr><td>AZ</td><td class="num">1,547</td><td class="num">40.78 &plusmn; 0.07</td><td class="num">53.06 &plusmn; 0.15</td><td class="num"><span class="delta-neg">&minus;12.27</span></td><td class="num">45.10 &plusmn; 0.19</td><td class="num">43.90 &plusmn; 0.17</td><td class="num"><span class="delta-pos">+1.20</span></td></tr>
+<tr><td>FL</td><td class="num">4,703</td><td class="num">63.27 &plusmn; 0.10</td><td class="num">70.62 &plusmn; 0.09</td><td class="num"><span class="delta-neg">&minus;7.34</span></td><td class="num">68.56 &plusmn; 0.79</td><td class="num">67.16 &plusmn; 0.13</td><td class="num"><span class="delta-pos">+1.40</span></td></tr>
+<tr><td>CA</td><td class="num">8,501</td><td class="num">47.35 &plusmn; 0.11</td><td class="num">56.85 &plusmn; 0.09</td><td class="num"><span class="delta-neg">&minus;9.50</span></td><td class="num">64.07 &plusmn; 0.14</td><td class="num">62.39 &plusmn; 0.13</td><td class="num"><span class="delta-pos">+1.68</span></td></tr>
+<tr><td>TX</td><td class="num">6,553</td><td class="num">42.84 &plusmn; 0.14</td><td class="num">59.44 &plusmn; 0.09</td><td class="num"><span class="delta-neg">&minus;16.59</span></td><td class="num">65.00 &plusmn; 0.11</td><td class="num">63.11 &plusmn; 0.13</td><td class="num"><span class="delta-pos">+1.89</span></td></tr>
+</tbody>
+</table>
+<p class="footnote">Source: <code>docs/results/RESULTS_TABLE.md &sect;0.1</code> v11 (2026-05-02), n=20 = 4 seeds &times; 5 folds pooled.</p>
+
+<!-- ============================================================== -->
+<h2 id="exec">Execution guidelines for the implementing agent</h2>
+
+<div class="callout good">
+<h4>Required workflow</h4>
+<ol>
+<li><strong>Read <code>AGENT_PROMPT.md</code> if present, plus this entire HTML top-to-bottom</strong> before touching any code.</li>
+<li><strong>Run in a dedicated git worktree on branch <code>mtl-improve</code></strong> branched from <code>main</code>. Do NOT contaminate <code>canonical_improvement</code> or <code>check2hgi-up</code> work.</li>
+<li><strong>Use Claude Code's task system (<code>TaskCreate</code> / <code>TaskUpdate</code>).</strong> Break down each experiment into <em>unit-test &rarr; validate &rarr; launch &rarr; import &rarr; analyze</em> sub-tasks. Mark <em>in_progress</em> before starting; <em>completed</em> only when results are in the experiment's Results placeholder AND a <code>log.md</code> entry is written.</li>
+<li><strong>Use the <code>/goal</code> slash command for autonomous experiment runs.</strong> Each experiment's <em>Methodology</em> block is a complete goal description. Queue tier-by-tier. When results come in, steer toward the next decision gate.</li>
+<li><strong>Respect the chain.</strong> Each tier's winning recipe becomes the next tier's baseline. <strong>If you ever want to break the chain</strong> (run an out-of-order experiment), <em>document the rationale in log.md before launching</em> and assess re-execution risk explicitly.</li>
+<li><strong>Mandatory unit-test gate before any new architecture or new head launches multi-fold.</strong> Add a test under <code>tests/test_models/test_mtl_improve_variants.py</code> confirming (a) forward+backward shape correctness on a synthetic 100-user batch, (b) loss-finite invariant, (c) parameter count within ~5 % of baseline at D=256, (d) <code>shared_parameters()</code> / <code>cat_specific_parameters()</code> / <code>reg_specific_parameters()</code> partition is bijective and exhaustive (no params orphaned, no params double-counted).</li>
+<li><strong>Update this HTML's Results placeholders inline.</strong> Per-experiment Results block template lives at the bottom of this section.</li>
+<li><strong>Keep <code>log.md</code> current.</strong> Append every decision, blocker, falsified hypothesis, direction change. Date every entry absolute (e.g. <code>2026-05-16</code>, never <em>today</em>).</li>
+<li><strong>Mandatory advisor call</strong> when (a) a tier completes (b) before declaring the track done. Capture advisor feedback in <code>log.md</code>.</li>
+<li><strong>Encouraged: deviate.</strong> If results suggest a new path worth exploring &mdash; e.g., T2a winner already closes the gap, T2b becomes optional &mdash; propose and pursue. Add a new experiment block here and document in <code>log.md</code>.</li>
+</ol>
+</div>
+
+<h3>Hard rules</h3>
+<ul>
+<li><strong>Substrate fixed to Check2HGI</strong> &mdash; do NOT swap to HGI as the substrate. HGI re-checks are per-T2-winner sanity probes only (<a href="#T2a-1">T2a.*</a>, <a href="#T2b-1">T2b.*</a>).</li>
+<li><strong>Cross-attn and any new task-mixing arch must comply with the existing <code>shared_parameters()</code> / <code>cat_specific_parameters()</code> / <code>reg_specific_parameters()</code> partition</strong> so per-head LR continues to work (<code>src/models/mtl/mtlnet_crossattn/model.py</code> lines 378&ndash;407 are the contract).</li>
+<li><strong>Per-fold log_T n_splits=5 contract is mandatory.</strong> <code>--folds 1</code> + per-fold log_T is forbidden (the 2026-05-15 trainer guard hard-fails). Any experiment that mutates fold composition, sequence-stride, or min-history triggers a <strong>log_T rebuild</strong> via <code>scripts/compute_region_transition.py --per-fold --seed S --n-splits 5</code> &mdash; document the rebuild in <code>log.md</code> as part of the experiment.</li>
+<li><strong>F51 capacity-widening is FALSIFIED</strong> &mdash; <code>shared_layer_size &gt; 256</code> breaks cat at FL. Stay at D=256 for the shared dimension. Capacity sweeps in T2a.3 are <em>depth/head-count</em> only.</li>
+<li><strong>No fclass-as-feature anywhere</strong>. fclass is the linear-probe label; any encoder/loss/head reading fclass is a tautological leak.</li>
+<li><strong>Statistical claims need n &ge; 10.</strong> At n=5 the Wilcoxon floor is p=0.0312. Any &ldquo;wins paper-canon&rdquo; claim requires multi-seed (4 seeds &times; 5 folds = n=20 pooled). For cheap iteration in T2-T7, single-seed n=5 paired tests are acceptable to gate-keep; final shipping (T8) requires multi-seed.</li>
+<li><strong>Re-run baselines at comparison time.</strong> Never quote pre-2026-05-15 numbers from a different machine. T0.7 establishes the same-box canonical baseline.</li>
+<li><strong>Falsified history (next section) is off-limits.</strong> If you believe you have a genuinely different formulation, document the distinction in <code>log.md</code> before launching.</li>
+</ul>
+
+<h3>Per-experiment Results-block template</h3>
+<p>Replace the <code>&lt;div class="results-placeholder"&gt;...&lt;/div&gt;</code> with:</p>
+<pre><code>&lt;div class="block"&gt;
+&lt;div class="block-title"&gt;Results (YYYY-MM-DD)&lt;/div&gt;
+&lt;table&gt;
+&lt;thead&gt;&lt;tr&gt;&lt;th&gt;State&lt;/th&gt;&lt;th&gt;cat F1&lt;/th&gt;&lt;th&gt;reg Acc@10&lt;/th&gt;&lt;th&gt;&Delta; vs baseline&lt;/th&gt;&lt;th&gt;Wilcoxon p&lt;/th&gt;&lt;th&gt;leak-probe&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;AL&lt;/td&gt;&lt;td class="num"&gt;X.XX &plusmn; X.XX&lt;/td&gt;&lt;td class="num"&gt;X.XX &plusmn; X.XX&lt;/td&gt;&lt;td class="num"&gt;+X.XX cat / +X.XX reg&lt;/td&gt;&lt;td class="num"&gt;cat p=X / reg p=X&lt;/td&gt;&lt;td class="num"&gt;XX.X %&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;strong&gt;Verdict:&lt;/strong&gt; &lt;span class="pill good"&gt;PROMOTE&lt;/span&gt; | &lt;span class="pill warn"&gt;non-inferior&lt;/span&gt; | &lt;span class="pill bad"&gt;FALSIFIED&lt;/span&gt; &mdash; one-sentence reason.&lt;/p&gt;
+&lt;p class="footnote"&gt;JSON: &lt;code&gt;docs/results/mtl_improvement/T?-?_..._5f50ep.json&lt;/code&gt; &middot; Wilcoxon: &lt;code&gt;docs/results/paired_tests/mtl_improvement/T?-?_paired.json&lt;/code&gt; &middot; log_T rebuild: yes/no &middot; compute: X GPU-h.&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+
+<h3>Result file conventions</h3>
+<ul>
+<li>Raw per-fold metrics &rarr; <code>docs/results/mtl_improvement/T{tier}-{id}_{state}_{seed}_{folds}f{epochs}ep.json</code></li>
+<li>Paired-test JSONs &rarr; <code>docs/results/paired_tests/mtl_improvement/T{tier}-{id}_paired.json</code></li>
+<li>Plots &rarr; <code>docs/studies/mtl_improvement/figs/T{tier}-{id}_*.png</code></li>
+<li>Trained model artifacts &rarr; <code>results/mtl_improvement_T{tier}-{id}/{state}/</code></li>
+<li>Diagnostic dumps (gradient cosine, &alpha; trajectory, F50-D5 saturation, confusion matrices, ECE) &rarr; sit alongside the run's results dir as <code>diagnostics/</code></li>
+</ul>
+
+<!-- ============================================================== -->
+<h2 id="falsified">Falsified history &mdash; do not retry</h2>
+
+<p>From the F-trail + mtl-exploration support study. Retrying these as-is is wasted budget. If you believe you have a genuinely different formulation, document the distinction in <code>log.md</code> before launching.</p>
+
+<table>
+<thead><tr><th>What was tried</th><th>Where</th><th>Result</th><th>Why it failed</th></tr></thead>
+<tbody>
+<tr><td>Capacity widening (<code>shared_layer_size</code> 256 &rarr; 384 / 512)</td><td>F51 Tier 2</td><td>cat collapse at FL; &sigma;=19.54 pp at 384, full collapse at 512</td><td>Cat's 1e-3 LR cannot adapt to wider shared distribution. <strong>F51 constraint:</strong> stay at D=256.</td></tr>
+<tr><td>Wider cross-attn FFN (256 &rarr; 1024)</td><td>F51 T2</td><td>&sigma;=25.87 pp, multi-fold collapse</td><td>Same mechanism.</td></tr>
+<tr><td>Deeper per-task encoder (2 &rarr; 4 layers)</td><td>F51 T2</td><td class="num"><span class="delta-neg">&minus;0.60 reg, &minus;2.07 cat</span></td><td>Over-regularisation regime.</td></tr>
+<tr><td>HSM (hierarchical-additive softmax) reg head</td><td>F50 T1.2</td><td>Within &sigma; of flat softmax at MTL (mean &Delta; = &minus;0.86 pp)</td><td>Head-capacity-mismatch is empirically NOT the FL flaw. The cost is structural to the cross-attn shared layer.</td></tr>
+<tr><td>F40 loss-side cat-weight ramp (0.75 &rarr; 0.25)</td><td>F40</td><td>cat OK, reg only +1 pp</td><td>OneCycleLR confound &mdash; &alpha; can't grow regardless of gradient share. Loss-side scheduling does NOT substitute for per-head LR.</td></tr>
+<tr><td>F48-H2 warmup-plateau single-LR</td><td>F48</td><td>cat OK, reg WORSE than B3 (&minus;1.76 at AL, &minus;4.91 at AZ)</td><td>Cat alive at plateau &rarr; cat-vs-reg compete for shared cross-attn capacity at plateau LR.</td></tr>
+<tr><td>F45 constant LR=3e-3 everywhere</td><td>F45</td><td>cat collapses to 10-12 %</td><td>Uncontested reg gradient through shared cross-attn destabilises cat path.</td></tr>
+<tr><td>HGI substrate under MTL B9</td><td><code>mtl-exploration/EXPERIMENT_HGI_SUBSTRATE.md</code></td><td>MTL+HGI &equiv; STL+HGI on both heads (within ~0.5 pp at AL+AZ)</td><td>Cross-attn MTL is <strong>null under HGI substrate</strong>. Worth re-checking per T2 winner but not per substrate decision.</td></tr>
+<tr><td>Encoder simplification (Linear+LN) at AL scale</td><td><code>mtl-exploration/EXPERIMENT_NO_ENCODERS.md</code> Step 3</td><td>&minus;2.57 pp cat at AL (p=0.0001 n=20); reg unaffected</td><td>2-MLP encoder is load-bearing for <strong>cat at small scale</strong>; can be simplified at AZ+ with caveat. Informs T2a/T2b that encoder asymmetry is scale-conditional.</td></tr>
+<tr><td>F49 (pre-leak-fix) &ldquo;AL +6.48 pp MTL &gt; STL on reg architecture-dominant&rdquo;</td><td>F49 leaky era</td><td>Leak artefact (~13&ndash;27 pp inflation from C4 leak)</td><td>Under leak-free, MTL trails STL on reg at every state. F49 audit (T0.3) re-validates the methodological claim, not the architectural one.</td></tr>
+<tr><td>NashMTL prior &ldquo;tied with PCGrad&rdquo; verdicts (pre-2026-04-10)</td><td>NASH_MTL_AZ_FINDINGS</td><td>cvxpy/ECOS missing; bare-except hid it; Nash silently returned [1,1] = NaiveLoss</td><td>All prior Nash conclusions are vs NaiveLoss-equivalent &mdash; T3.2 re-validates under working solver.</td></tr>
+<tr><td>Static-weight only swept {0.25, 0.50, 0.75}</td><td>F53</td><td>Grid never extended above 0.75</td><td>T3.1 extends to {0.85, 0.90, 0.95} &mdash; if 0.75 won via "late-stage cat-converged-handover", higher may extend the window.</td></tr>
+<tr><td>FAMO / Aligned-MTL under leak-free</td><td>F50 T1.3 / T1.4</td><td>Launchers never produced clean runs</td><td>T3.2 re-runs under per-fold seed-tagged log_T + new arch.</td></tr>
+</tbody>
+</table>
+
+<!-- ============================================================== -->
+<h2 id="audit">Audit of user considerations</h2>
+
+<p>Each consideration in <code>considerations.md</code> was checked along three dimensions: <strong>conceptual</strong> (does it make sense?), <strong>technical feasibility</strong> (can we run it?), <strong>metrics/baseline</strong> (will the result be measurable?).</p>
+
+<table>
+<thead><tr><th>C#</th><th>Consideration (summary)</th><th>Verdict</th><th>Where it lands</th><th>Why (3-dim)</th></tr></thead>
+<tbody>
+<tr>
+  <td>C1</td><td>Re-do STL head ablation for next-cat AND next-reg with new C2HGI; per-task variations</td>
+  <td><span class="pill good">ACCEPT (foundational)</span></td>
+  <td>T1.1, T1.2</td>
+  <td>Conceptual: sound &mdash; prior ablations were fusion-era / 1f10ep / legacy 7+7 pair. Feasibility: <code>p1_*_head_ablation.py</code> exists. Metrics: pins the comparand baseline for T2&ndash;T8.</td>
+</tr>
+<tr>
+  <td>C2</td><td>Windows/masking correctness audit</td>
+  <td><span class="pill warn">PRE-FLIGHT GATE</span></td>
+  <td>T0.2 (not an experiment &mdash; a unit-test gate that blocks Tier 1 launch)</td>
+  <td>Conceptual: high-value diagnostic; could expose a bug. Feasibility: unit-test land, zero compute. Metrics: if bug found, chain pauses for fix + T1 re-run. Right-sized: <em>pre-flight gate, not a tier-defining experiment</em>.</td>
+</tr>
+<tr>
+  <td>C3</td><td>Audit the F49 cross-attn <code>task_weight=0</code> finding</td>
+  <td><span class="pill good">ACCEPT (paper-side audit)</span></td>
+  <td>T0.3</td>
+  <td>Conceptual: paper's load-bearing methodological contribution; never re-run multi-state leak-free. Feasibility: <code>--freeze-cat-stream</code> flag exists; ~30 GPU-h H100 for full 5-state seed=42 + cross-arch check on one Tier-2 winner. Metrics: doesn't move the recipe; moves the paper claim.</td>
+</tr>
+<tr>
+  <td>C4</td><td>Batch / class balancing per task + per class</td>
+  <td><span class="pill warn">ACCEPT (right-sized)</span></td>
+  <td>T4.1&ndash;T4.4</td>
+  <td>Conceptual: sound; sub-agent 5 flagged the <strong><code>_create_check2hgi_mtl_folds</code> row-pairing constraint</strong> &mdash; task_a and task_b share row indices into the same X. Many per-task independent samplers break this contract OR force log_T rebuild. The realistic batch-side option set is narrower than C4 implies. Feasibility: <code>use_weighted_sampling</code> flag exists; per-task batch size ~30 LOC. Metrics: low-bandwidth effect expected (not the load-bearing lever).</td>
+</tr>
+<tr>
+  <td>C5</td><td>Faithful MTL arch ablation (cross-stitch / soft / hard / dynamic / hybrid; favor per-task-input-native)</td>
+  <td><span class="pill good">STRONG ACCEPT (structural)</span></td>
+  <td>T2a (cheap, 4 archs) + T2b (heavy, 4 archs)</td>
+  <td>Conceptual: strongly sound. Prior arch ablations were fusion-era + 1f/10ep + arch defaults. <code>mtlnet_crossstitch</code> is scaffolded but never head-to-head with cross-attn leak-free. Feasibility: heavy &mdash; 4&ndash;6 archs faithful re-impl (~80&ndash;250 LOC each); F49-equivalent leakage path must be characterized per arch. Metrics: gates everything downstream.</td>
+</tr>
+<tr>
+  <td>C6</td><td>Re-do MTL loss with critical eye on prior failures</td>
+  <td><span class="pill good">ACCEPT (post-arch)</span></td>
+  <td>T3.1&ndash;T3.5</td>
+  <td>Conceptual: NashMTL was broken pre-2026-04-10; FAMO/Aligned never ran leak-free; static_weight only swept {0.25, 0.50, 0.75}; UW init never tuned. Feasibility: all losses in registry; 5&ndash;7 worth re-sweep. Metrics: bar is high (static_weight(0.75) is rocky-simple).</td>
+</tr>
+<tr>
+  <td>C7</td><td>LR / optimizer recipe re-sweep after C5+C6</td>
+  <td><span class="pill good">ACCEPT (refinement)</span></td>
+  <td>T5.1&ndash;T5.4</td>
+  <td>Conceptual: per-head LR was tuned for cross-attn; new arch will likely have different optimal regime. Feasibility: plumbing exists; new optimizers (Lion, Prodigy, AdEMAMix) drop-in. Metrics: depends on T2+T3 &rarr; must come after.</td>
+</tr>
+<tr>
+  <td>C8</td><td>&alpha; scalar formula audit</td>
+  <td><span class="pill good">ACCEPT (split: T0 diagnostic + T6 experiments)</span></td>
+  <td>T0.5 (logging) + T6.1&ndash;T6.4 (experiments)</td>
+  <td>Conceptual: sound &mdash; &alpha; is load-bearing and was never seriously varied; sub-agent 1 surfaced 8 &alpha;-formula variants. Feasibility: 30&ndash;150 LOC per variant. Metrics: depends on LR (T5) &rarr; experiments come after T5; logging in T0.</td>
+</tr>
+<tr>
+  <td>C9</td><td>MTL heads &ne; STL heads &mdash; chicken/egg sequencing</td>
+  <td><span class="pill good">ACCEPT (terminal)</span></td>
+  <td>T7.1&ndash;T7.3</td>
+  <td>Conceptual: the right answer is your own &mdash; pick reasonable MTL heads first (already done; <code>next_gru</code> / <code>next_stan_flow</code> post-F27), use through T2&ndash;T6, re-ablate at the end. Feasibility: existing <code>p1_*_head_ablation.py</code>. Metrics: depends on consolidated recipe &rarr; must be LAST.</td>
+</tr>
+<tr>
+  <td>C10 (13.4)</td><td>Fix docs gaps first</td>
+  <td><span class="pill good">ACCEPT (hygiene)</span></td>
+  <td>T0.1</td>
+  <td>Non-experimental text edits; no chain impact.</td>
+</tr>
+<tr>
+  <td>C10 (14.4)</td><td>Flat-single-checkin cat ablation</td>
+  <td><span class="pill good">ACCEPT (diagnostic, not chain step)</span></td>
+  <td>T0.4</td>
+  <td>Sub-agent 6 flagged the cross-attn <code>T_a == T_b</code> constraint &mdash; needs <code>disable_cross_attn=True</code>. Quick test; if cat doesn't need a sequence, the implication is a follow-up paper, not a chain step.</td>
+</tr>
+<tr>
+  <td>C10 (13.2/13.3)</td><td>Other open items (FAMO untested, crossstitch unverified, cat width cliff, log_T duck-typed guard, standalone-vs-MTL inversion)</td>
+  <td><span class="pill info">FOLDED into chain</span></td>
+  <td>FAMO/Aligned &rarr; T3.2; crossstitch &rarr; T2a.1; cat width &rarr; out-of-scope per F51; log_T guard ext &rarr; T0.6; standalone-vs-MTL &rarr; T7.4</td>
+  <td>All addressed; no new track items needed.</td>
+</tr>
+</tbody>
+</table>
+
+<!-- ============================================================== -->
+<h2 id="chain">Chain &amp; sequencing</h2>
+
+<p>The chain rule: <strong>each tier's winning recipe becomes the next tier's fixed baseline.</strong> Within a tier, experiments are parallel (run against the same baseline). Diagnostic-only experiments (do not change the recipe) sit in Tier 0 and don't affect the chain.</p>
+
+<div class="ascii-diagram">                  ┌─────────────────────────────────────────────────────┐
+                  │ Tier 0 — Hygiene + diagnostics                      │
+                  │ (NO chain impact; parallel-safe; gates T1+ launch)  │
+                  └────────────────────┬────────────────────────────────┘
+                                       ↓
+                  ┌─────────────────────────────────────────────────────┐
+                  │ Tier 1 — STL ceilings refresh                       │
+                  │ (pins STL_v2 comparand for the entire chain)        │
+                  └────────────────────┬────────────────────────────────┘
+                                       ↓
+                  ┌─────────────────────────────────────────────────────┐
+                  │ Tier 2a — Backbone, cheap archs (≤60 LOC each)      │
+                  │ Stop gate: if a cheap arch beats B9 paper-grade,    │
+                  │  Tier 2b is OPTIONAL.                               │
+                  └────────────────────┬────────────────────────────────┘
+                                       ↓
+                  ┌─────────────────────────────────────────────────────┐
+                  │ Tier 2b — Backbone, heavy archs (80–250 LOC each)   │
+                  │ Skipped if 2a already won.                          │
+                  └────────────────────┬────────────────────────────────┘
+                                       ↓
+                  ┌─────────────────────────────────────────────────────┐
+                  │ Tier 3 — MTL loss balancing (new arch fixed)        │
+                  └────────────────────┬────────────────────────────────┘
+                                       ↓
+                  ┌─────────────────────────────────────────────────────┐
+                  │ Tier 4 — Batch / data sampling (arch+loss fixed)    │
+                  └────────────────────┬────────────────────────────────┘
+                                       ↓
+                  ┌─────────────────────────────────────────────────────┐
+                  │ Tier 5 — LR / optimizer refinement (full new stack) │
+                  │ NOTE: validates T3 winner under new optimizer too.  │
+                  │ If T3 winner falsified, narrow-scope T3 re-run.     │
+                  └────────────────────┬────────────────────────────────┘
+                                       ↓
+                  ┌─────────────────────────────────────────────────────┐
+                  │ Tier 6 — α formula deep-dive                        │
+                  └────────────────────┬────────────────────────────────┘
+                                       ↓
+                  ┌─────────────────────────────────────────────────────┐
+                  │ Tier 7 — Final MTL head re-ablation (chicken/egg)   │
+                  │ If new winner ≠ current head, narrow-scope T5 redo. │
+                  └────────────────────┬────────────────────────────────┘
+                                       ↓
+                  ┌─────────────────────────────────────────────────────┐
+                  │ Tier 8 — Multi-seed paper-grade ship (n=20)         │
+                  └─────────────────────────────────────────────────────┘
+</div>
+
+<h3>Why this order minimizes re-execution risk</h3>
+<ol>
+<li><strong>Tier 0 instrumentation enriches every subsequent experiment's telemetry.</strong> Invest once in per-step gradient cosine, &alpha; trajectory, F50-D5 saturation curves, MTL-rep generality probes, ECE; every later tier gets the diagnostics for free. Cost is fixed; payoff scales with chain length.</li>
+<li><strong>Tier 1 STL refresh pins the comparand.</strong> Current Table 2 row 1 in canonical_improvement uses <code>next_gru</code>/<code>next_stan_flow</code> ceilings; T1 produces an updated <code>STL_v2</code> per-state (multi-seed-light, 3 seeds). MTL deltas in T2&ndash;T8 are anchored to a stable, current baseline.</li>
+<li><strong>Tier 2 backbone is THE structural change.</strong> The F44&ndash;F48 disjoint-LR finding, F49 silent-gradient finding, static_weight(0.75) winner, per-head LR, &alpha;-no-WD recipe are all <em>cross-attn-conditional</em>. Changing the backbone changes the optimal LR regime, the loss balancer, the gradient interference pattern, and the &alpha; dynamics. Backbone goes first; everything downstream is conditioned on it. <strong>Critical anti-confound:</strong> each candidate gets a per-arch light LR mini-sweep (constant 1e-3 / B9 per-head / arch-suggested-default) so the winner isn't accidentally crowned under a recipe tuned for the loser. See <a href="#T2a-1">T2a.*</a> for the mini-sweep protocol.</li>
+<li><strong>Loss &rarr; batch &rarr; LR/optim order</strong> respects your C6&rarr;C4&rarr;C7 sequencing. Loss balance comes before batch composition because batch composition's effect partly substitutes for loss-weight effects (oversampling tail classes &asymp; class-weighted CE).</li>
+<li><strong>&alpha; formula and head re-ablation are last</strong> because both depend on the consolidated arch+loss+LR+batch recipe. &alpha; dynamics depend on shared-LR; head co-adaptation depends on the gradient pattern through the new backbone.</li>
+</ol>
+
+<h3>Chain-break risks (flagged explicitly)</h3>
+<table>
+<thead><tr><th>Risk</th><th>Probability</th><th>Mitigation</th></tr></thead>
+<tbody>
+<tr><td>T0.2 mask audit finds a real bug</td><td>low</td><td>T0.2 runs FIRST (unit-test land). Bug fix is days not weeks. T1 ceilings re-run is one weekend.</td></tr>
+<tr><td>T2 winner has different optimal LR regime</td><td>HIGH (expected)</td><td>Per-arch light LR mini-sweep inside T2a/T2b judges each arch fairly. T5 re-tunes LR on the consolidated stack.</td></tr>
+<tr><td>T5 changes the optimal loss balancer (would invalidate T3)</td><td>medium</td><td>T5 explicitly validates the T3 winner under new optimizer; if falsified, narrow-scope T3 re-run (top-2 losses only).</td></tr>
+<tr><td>T7 head re-ablation finds strictly better cat head (chicken/egg)</td><td>medium</td><td>T7 includes current <code>next_gru</code> as one candidate; if winner differs, only re-validate T5 (LR) under new heads, not the full chain. Document re-execution scope.</td></tr>
+<tr><td>T2 sub-experiment shows MTL &gt; STL on reg (would invalidate "classic tradeoff" paper framing)</td><td>low but POSSIBLE</td><td>This is a <em>win condition</em>, not a break. Treat as a research result; re-frame the paper claim. The track is designed to attack this gap.</td></tr>
+<tr><td>HGI substrate &times; new arch revives MTL non-null behaviour</td><td>low</td><td>Each T2 winner gets ONE cheap HGI re-check (single seed, AL+AZ, 5f &times; 25ep). If MTL+HGI is non-null under the new arch, raise to user for paper-side investigation.</td></tr>
+<tr><td>Compute budget overrun in T2 engineering</td><td>medium</td><td>T2a (cheap, ≤60 LOC) gates T2b. If a T2a winner beats B9 paper-grade on reg, T2b becomes OPTIONAL.</td></tr>
+<tr><td>T1 STL_v2 winner &ne; Table A head (would shift the comparand)</td><td>medium</td><td><strong>If STL_v2 head differs from Table A</strong>: chain compares to BOTH (Table A for v11-paper continuity, STL_v2 as upper bound for the chain's own framing). Document both deltas in every Tier-2&ndash;7 results block. This preserves cross-track comparability while honoring the new ceiling.</td></tr>
+<tr><td>T0.5 instrumentation overhead pushes fold wall &gt; 10%</td><td>medium</td><td>Add a perf-gate to T0.5 acceptance: B9 canonical 1-fold 5-epoch with instrumentation must complete within 10% of the same run without instrumentation. If overhead is excessive, demote per-step gradient cosine to per-N-step sampling.</td></tr>
+</tbody>
+</table>
+
+<h3>Experiments that don't fit the chain</h3>
+<ul>
+<li><strong>T0.3 (F49 audit)</strong>: paper-side methodological audit. Result reshapes paper framing but does not change recipe. Reported independently.</li>
+<li><strong>T0.4 (flat-single-checkin cat)</strong>: cat-task-definition probe. If cat doesn't need a sequence, implication is a follow-up paper. Chain ignores result.</li>
+<li><strong>T0.2 (mask audit)</strong>: bug-find probe. Either no bug (chain proceeds) or bug found (chain pauses for fix + T1 re-run).</li>
+</ul>
+
+<!-- ============================================================== -->
+<h2 id="eval">Evaluation framework</h2>
+
+<h3>Primary metrics</h3>
+<ul>
+<li><strong>Cat macro F1</strong> &mdash; on the cat task head, 7-class macro-averaged F1.</li>
+<li><strong>Reg Acc@10_indist</strong> &mdash; on the reg task head, in-distribution-restricted Top-10 accuracy. Reported alongside Acc@5 and MRR.</li>
+<li><strong>Joint &Delta;m</strong> (Maninis CVPR 2019 / Vandenhende TPAMI 2021): paired with per-fold STL baselines. Two flavours: <em>PRIMARY = cat F1 + reg MRR</em>, <em>SECONDARY = cat F1 + reg Acc@10</em>.</li>
+<li><strong>Pareto-front hypervolume</strong> across <code>category_weight</code> sweep (T0.5 wiring).</li>
+</ul>
+
+<h3>Generality probes (must report for every Tier-3+ winner)</h3>
+<ol>
+<li><strong>POI fclass linear probe</strong> on MTL pre-head shared representation (T0.5 wiring).</li>
+<li><strong>POI kNN-Jaccard@10 vs HGI</strong>.</li>
+<li><strong>Region category-mix R&sup2;</strong>.</li>
+</ol>
+
+<h3>Diagnostic probes (every Tier-1+ experiment)</h3>
+<ul>
+<li><strong>Per-step gradient cosine similarity</strong> on shared params (sub-agent 7 B1, extend current per-epoch batch-0-only logging).</li>
+<li><strong>&alpha; trajectory per epoch per fold</strong> (sub-agent 7 F1).</li>
+<li><strong>F50-D5 saturation curves</strong> per parameter group (cat-encoder, reg-encoder, shared, cat-head, reg-head, &alpha;): when does each component stop learning? (sub-agent 7 E1)</li>
+<li><strong>Confusion matrix per task per fold</strong> persisted as <code>confusion_matrix.npy</code> (sub-agent 7 H1).</li>
+<li><strong>Region-popularity binning of Acc@10</strong> (head/tail decomposition; sub-agent 7 H2).</li>
+<li><strong>ECE per task per fold</strong> (sub-agent 7 L1).</li>
+<li><strong>Leak-probe value</strong> (linear probe on last check-in's MTL pre-head representation, mirror canonical_improvement T1.1 mandatory pre-flight) &mdash; reported alongside main metrics for every experiment.</li>
+</ul>
+
+<h3>Statistical gates</h3>
+<ul>
+<li><strong>Wilcoxon one-sided strict</strong> p&lt;0.05 on the targeted-improvement axis vs the tier's current baseline.</li>
+<li><strong>TOST non-inferiority</strong>, &delta;=2 pp on the not-targeted axis.</li>
+<li><strong>Multi-seed n &ge; 20</strong> (4 seeds &times; 5 folds pooled) for any shipping-grade claim (T8).</li>
+<li><strong>Single-seed n=5 paired</strong> acceptable for Tier-2&ndash;7 gate-keeping (Wilcoxon floor p=0.0312).</li>
+</ul>
+
+<h3>Mandatory pre-flight</h3>
+<div class="callout warn">
+<strong>T0.2 (mask/pad propagation) must pass before any Tier-1 launch.</strong> Three unit tests under <code>tests/test_models/test_mask_propagation.py</code> assert: (a) pad embeddings stay zero through <code>next_encoder</code>; (b) attention weights to pad positions are zero in cross-attn; (c) heads ignore pad in pooling (or assert documented current behaviour if they don't). If any fails, chain pauses for fix + T1 ceiling re-run.
+</div>
+
+<h3>AL/AZ &rarr; FL/CA/TX promotion protocol</h3>
+<div class="callout warn">
+Most experiments specify AL+AZ as the first 5-fold run (faster, smaller). Promote to FL+CA+TX only if (a) cat F1 non-inferior at TOST p&lt;0.01 at AL+AZ <em>and</em> (b) the targeted-improvement axis is strictly positive at Wilcoxon p&lt;0.05 at AL+AZ. <strong>Always re-run a fresh same-machine canonical baseline at FL/CA/TX</strong> at promotion time &mdash; never quote pre-existing numbers. The merge_design FL +13 pp stale-baseline incident is the cautionary tale.
+</div>
+
+<!-- ============================================================== -->
+<h2 id="baselines">Pinned baselines</h2>
+
+<p>Pulled from <code>docs/results/RESULTS_TABLE.md &sect;0.1</code> v11 (2026-05-02) and <code>docs/results/BASELINES_AND_BEST_MTL.md</code>.</p>
+
+<h3>Table A &mdash; STL matched-head ceilings (the chain's primary comparand)</h3>
+<table>
+<thead><tr><th>State</th><th>STL cat F1 (<code>next_gru</code>)</th><th>STL reg Acc@10 (<code>next_stan_flow</code>)</th></tr></thead>
+<tbody>
+<tr><td>AL</td><td class="num">41.35 &plusmn; 0.17 (multi-seed)</td><td class="num">61.21 &plusmn; 0.18</td></tr>
+<tr><td>AZ</td><td class="num">43.90 &plusmn; 0.17 (multi-seed)</td><td class="num">53.06 &plusmn; 0.15</td></tr>
+<tr><td>FL</td><td class="num">67.16 &plusmn; 0.13</td><td class="num">70.62 &plusmn; 0.09</td></tr>
+<tr><td>CA</td><td class="num">62.39 &plusmn; 0.13</td><td class="num">56.85 &plusmn; 0.09</td></tr>
+<tr><td>TX</td><td class="num">63.11 &plusmn; 0.13</td><td class="num">59.44 &plusmn; 0.09</td></tr>
+</tbody>
+</table>
+
+<h3>Table B &mdash; MTL B9 paper-canonical (the tier-0 baseline; what we're improving)</h3>
+<table>
+<thead><tr><th>State</th><th>n_pairs</th><th>MTL B9 reg Acc@10</th><th>MTL B9 cat F1</th><th>&Delta;_reg vs STL</th><th>&Delta;_cat vs STL</th></tr></thead>
+<tbody>
+<tr><td>AL</td><td class="num">20</td><td class="num">50.17 &plusmn; 0.24</td><td class="num">40.57 &plusmn; 0.24</td><td class="num"><span class="delta-neg">&minus;11.04</span></td><td class="num"><span class="delta-neg">&minus;0.78</span></td></tr>
+<tr><td>AZ</td><td class="num">20</td><td class="num">40.78 &plusmn; 0.07</td><td class="num">45.10 &plusmn; 0.19</td><td class="num"><span class="delta-neg">&minus;12.27</span></td><td class="num"><span class="delta-pos">+1.20</span></td></tr>
+<tr><td>FL</td><td class="num">20</td><td class="num">63.27 &plusmn; 0.10</td><td class="num">68.56 &plusmn; 0.79</td><td class="num"><span class="delta-neg">&minus;7.34</span></td><td class="num"><span class="delta-pos">+1.40</span></td></tr>
+<tr><td>CA</td><td class="num">20</td><td class="num">47.35 &plusmn; 0.11</td><td class="num">64.07 &plusmn; 0.14</td><td class="num"><span class="delta-neg">&minus;9.50</span></td><td class="num"><span class="delta-pos">+1.68</span></td></tr>
+<tr><td>TX</td><td class="num">20</td><td class="num">42.84 &plusmn; 0.14</td><td class="num">65.00 &plusmn; 0.11</td><td class="num"><span class="delta-neg">&minus;16.59</span></td><td class="num"><span class="delta-pos">+1.89</span></td></tr>
+</tbody>
+</table>
+<p class="footnote">Both tables: <code>docs/results/RESULTS_TABLE.md &sect;0.1</code> v11. The MTL B9 recipe is: <code>mtlnet_crossattn + static_weight(cat=0.75) + next_gru (cat) + next_stan_flow (reg) + per-head LR (cat=1e-3 / reg=3e-3 / shared=1e-3) + cosine + alt-SGD + &alpha;-no-WD + per-fold log_T</code>.</p>
+
+<h3>What baseline each tier uses</h3>
+<ul>
+<li><strong>Tier 0:</strong> n/a (no model changes).</li>
+<li><strong>Tier 1 STL ablation:</strong> versus matched-head STL at seed=42 (gate-keep), promote winners to multi-seed (3 seeds, n=15) to pin <code>STL_v2</code>.</li>
+<li><strong>Tier 2&ndash;7:</strong> versus current chain baseline (after each tier's decision gate). Pre-T2 baseline is B9 at the same-box re-baseline (T0.7).</li>
+<li><strong>Tier 8 shipping:</strong> versus MTL B9 paper-canonical Table B + matched-head STL Table A, 4 seeds &times; 5 folds pooled n=20.</li>
+</ul>
+
+<!-- ============================================================== -->
+<h2 id="breadth">Breadth catalog (sub-agent output)</h2>
+
+<p>Seven parallel sub-agents surfaced ~288 candidate directions. The final experiment slate (Tiers 0&ndash;8 below) pulls the strongest options from this catalog and rejects the noise. Sub-agent outputs are <strong>not</strong> embedded here verbatim (too long); they live in the conversation log of the design session and are summarized into each tier's experiment cards.</p>
+
+<table>
+<thead><tr><th>Sub-agent</th><th>Angle</th><th># directions</th><th>Strongest pulls into the chain</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Task-specific heads</td><td>50</td><td>SASRec / Mamba / TCN-residual / Perceiver cat heads (T7.1); Markov-2 prior, hierarchical T, mixture-of-softmaxes, dual-logit-fusion, freeze-&alpha; baseline (T7.2); per-class &alpha;, gated &alpha;, time-decayed &alpha; schedule (T6).</td></tr>
+<tr><td>2</td><td>Backbone / task-mixing</td><td>40</td><td>Per-channel-&alpha; cross-stitch (T2a.1), MulT-faithful (T2a.2), Sluice (T2b.1), AdaShare (T2b.2), TaskExpert (T2b.3), Q-task K/V-shared (T2b.4), pre-norm + SwiGLU + depth/head sweep (T2a.3/4).</td></tr>
+<tr><td>3</td><td>Loss / task weighting</td><td>48</td><td>Static grid ext to {0.85, 0.90, 0.95} (T3.1); FAMO / Aligned-MTL / NashMTL-clean / CAGrad sweep (T3.2); STL-reg-teacher distillation (T3.4); cat-only warmup curriculum + orthogonality reg (T3.5).</td></tr>
+<tr><td>4</td><td>Optimization / LR</td><td>47</td><td>Lion / Prodigy / AdEMAMix (T5.1); per-head WSD / per-head OneCycle (T5.2); Lookahead + SWA / weight-EMA (T5.3); per-step grad-cosine logging (T0.5).</td></tr>
+<tr><td>5</td><td>Data sampling / curriculum</td><td>36</td><td>Forced 1:1 interleave (T4.1); log-frequency region sampling (T4.3); in-batch geo hard negatives (T4.4); per-task batch size (T4.2). Flagged the row-pairing constraint as binding.</td></tr>
+<tr><td>6</td><td>Input modality / encoder</td><td>35</td><td>9-cell task-input matrix re-validation (T2 prep); cat=thick MLP, reg=thin Linear+LN asymmetric encoder (T2a prep); extend <code>_uses_residual</code> hook to cat (T7.3 candidate); flat-checkin cat (T0.4).</td></tr>
+<tr><td>7</td><td>Diagnostic instrumentation</td><td>32</td><td>F49 leak-free 3-way decomp at 5 states (T0.3); silent-gradient magnitude probe (T0.5); MTL-rep generality probes (T0.5); n_splits guard duck-typed ext (T0.6).</td></tr>
+</tbody>
+</table>
+
+<!-- ============================================================== -->
+<h2 id="tier0">Tier 0 &mdash; Hygiene + diagnostics
+<span class="pill tier0">Tier 0</span></h2>
+
+<p>Tier 0 experiments do not change the model recipe. They (i) wire up instrumentation that every later tier benefits from, (ii) gate Tier 1 launch via the mask/pad audit, (iii) re-baseline B9 on the new machine, and (iv) discharge two paper-side audits (F49 + flat-checkin cat).</p>
+
+<p><strong>Per-tier compute estimate:</strong> ~80 GPU-h H100 + ~5 days engineering. Parallel-runnable.</p>
+
+<div class="experiment" id="T0-1">
+<h3>T0.1 &mdash; Docs cleanup (13.4) <span class="pill tier0">T0</span> <span class="pill cost-s">S-cost</span></h3>
+<div class="meta">Targets: docs gaps surfaced by mtl-exploration §13.4 &middot; Mechanism: text edits</div>
+<div class="block"><div class="block-title">Hypothesis</div>Three docs items can mislead a future agent: (a) <code>docs/context/MTL_ARCHITECTURES.md</code> quotes fusion-era 1f10ep CGC/MMoE/DSelectK numbers as if discriminating; (b) <code>docs/context/TASKS.md</code> still describes the legacy 7+7 task pair; (c) <code>docs/COLAB_GUIDE.md</code> + <code>experiments/check2hgi_up/run_mtl_b3.py</code> bake in the predecessor B3 recipe (max_lr 0.003, no per-head LR).</div>
+<div class="block"><div class="block-title">Methodology</div>Add leading caveat to MTL_ARCHITECTURES.md flagging the legacy provenance; refresh TASKS.md to describe <code>next_category</code> + <code>next_region</code> (the current pair); update COLAB_GUIDE.md to point to the canonical B9 invocation in NORTH_STAR.md.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>Reader test: a fresh agent reading the updated docs lands on the correct current state without ambiguity.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Pass</strong>: edits land; cite from NORTH_STAR.md + RESULTS_TABLE.md v11. <strong>Fail</strong>: not applicable (text edits).</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T0-2">
+<h3>T0.2 &mdash; Mask / pad propagation pre-flight (C2 audit) <span class="pill tier0">T0</span> <span class="pill cost-s">S-cost</span> <span class="pill warn">GATE: blocks Tier 1 launch</span></h3>
+<div class="meta">Targets: verify pad-mask correctness through encoder + cross-attn + head &middot; Risk: bug-find probe (could reshape chain) &middot; Mechanism: unit tests + diagnostic ablations</div>
+<div class="block"><div class="block-title">Hypothesis</div>The pad-mask + re-zero pattern in <code>MTLnetCrossAttn.forward</code> (lines 268&ndash;272) is correctly applied; padded positions do not leak content into the head's output. <em>Or it isn't, and we have a silent bug.</em></div>
+<div class="block"><div class="block-title">Methodology</div>Three unit tests under <code>tests/test_models/test_mask_propagation.py</code>:
+<ol>
+<li>Feed sequences with known pad positions; assert pad embeddings stay zero through <code>next_encoder</code> AND through cross-attn (attention weight to pad-key should be zero).</li>
+<li>Re-zero invariance: replace pad tokens with random noise after masking; outputs must be bit-identical.</li>
+<li>Pad-rate-vs-metric probe (post-hoc on canonical val): bin samples by # pad positions; assert Acc@10 monotone in pad rate. Non-monotone implies mask leakage.</li>
+</ol>
+Also add: assertion in <code>next_gru</code> + <code>next_stan_flow</code> that the last-valid-timestep extraction respects pad.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>All three tests pass. Pad-rate-vs-metric is monotone within fold &sigma;.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Pass</strong>: T1 launches. <strong>Fail</strong>: chain pauses for fix + T1 STL ceilings re-run. <strong>Early-stop</strong>: if a real bug is found, escalate to user via <code>AskUserQuestion</code> before proceeding (the fix may invalidate the v11 RESULTS_TABLE).</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T0-3">
+<h3>T0.3 &mdash; F49 leak-free 3-way decomposition (C3 audit) <span class="pill tier0">T0</span> <span class="pill cost-l">L-cost</span></h3>
+<div class="meta">Targets: validate the paper's methodological contribution &middot; Risk: result could narrow or broaden the claim &middot; Mechanism: encoder-frozen vs loss-side &lambda;=0 vs full MTL, leak-free, 5 states</div>
+<div class="block"><div class="block-title">Hypothesis</div>F49's "loss-side <code>task_weight=0</code> is unsound under cross-attn because silenced encoder co-adapts via K/V" finding (a) survives leak-free measurement at all 5 states (currently only AL+AZ in leaky era); (b) generalizes to at least one non-cross-attn arch (the T2 winner), or fails to &mdash; either result is paper-worthy.</div>
+<div class="block"><div class="block-title">Methodology</div>For each state in {AL, AZ, FL, CA, TX}, run 3 variants at 5f &times; 50ep &times; seed=42 leak-free per-fold log_T:
+<ol>
+<li><strong>STL_reg</strong>: matched-head reg baseline (re-use T1.2 output).</li>
+<li><strong>encoder-frozen &lambda;=0</strong>: <code>--freeze-cat-stream</code> flag freezes <code>category_encoder.requires_grad = False</code> AND <code>category_poi.requires_grad = False</code>.</li>
+<li><strong>loss-side &lambda;=0</strong>: <code>--category-weight 0.0</code> (cat loss zeroed but cat encoder still trainable via K/V silent path).</li>
+<li><strong>full MTL B9</strong>: re-use T0.7.</li>
+</ol>
+Decomposition: transfer = (full &minus; loss_&lambda;0); architecture = (loss_&lambda;0 &minus; encoder-frozen_&lambda;0); silent-grad = (loss_&lambda;0 &minus; encoder-frozen_&lambda;0). After T2 winner emerges, repeat the 3-variant comparison on the T2 winner backbone to test cross-arch generalization.<br/>
+<strong>Additionally</strong>: log silent-gradient magnitude probe (||&part;L_reg/&part;cat_encoder|| under all three variants) per batch.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>Sign + magnitude of (loss_&lambda;0 &minus; encoder-frozen_&lambda;0) at all 5 states; cross-arch consistency. Reporting: per-state Wilcoxon paired tests; effect size in pp.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Validates F49</strong>: sign is positive (loss_&lambda;0 &gt; encoder-frozen_&lambda;0) at &ge;3 of 5 states &mdash; methodological claim holds. <strong>Refutes F49</strong>: sign is null or reversed at majority &mdash; paper claim narrows to "AL only" or retracts. <strong>Either way</strong>: no chain impact; results feed paper-side update.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T0-4">
+<h3>T0.4 &mdash; Flat-single-checkin cat ablation (14.4) <span class="pill tier0">T0</span> <span class="pill cost-s">S-cost</span></h3>
+<div class="meta">Targets: does cat task need a 9-step sequence? &middot; Risk: result motivates a follow-up paper, not chain change &middot; Mechanism: STL <code>next_gru</code> over <code>[B, 1, 64]</code> via <code>disable_cross_attn=True</code></div>
+<div class="block"><div class="block-title">Hypothesis</div>Per CH19, 72&ndash;90% of cat substrate gap is per-visit context (the substrate, not the sequence). If true, a flat single-check-in cat probe should reach within ~3&ndash;5 pp of the 9-step STL <code>next_gru</code> at all 5 states.</div>
+<div class="block"><div class="block-title">Methodology</div>STL <code>next_gru</code> with sequence length 1 (last check-in only). Cross-attn requires <code>T_a == T_b</code>, so use <code>--disable-cross-attn</code> for this single experiment to avoid arch-shape conflicts. 5f &times; 50ep &times; seed=42 &times; AL+AZ (small states first). Compare to T1.1 9-step STL baseline.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>&Delta;_cat (1-step vs 9-step) at AL+AZ. Sign + magnitude.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>If &Delta; within ~3 pp</strong>: cat task is sequence-independent &rarr; document as follow-up paper item, do NOT change current task definition. <strong>If &Delta; larger</strong>: sequence carries cat lift &rarr; current task definition validated. <strong>Either way</strong>: no chain impact.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T0-5">
+<h3>T0.5 &mdash; Instrumentation wave <span class="pill tier0">T0</span> <span class="pill cost-m">M-cost</span></h3>
+<div class="meta">Targets: enrich every subsequent experiment's telemetry &middot; Mechanism: tracking hooks + post-hoc probes</div>
+<div class="block"><div class="block-title">Hypothesis</div>Per-experiment diagnostics surfaced by sub-agent 7 will let later tiers diagnose the mechanism of any win or loss, not just observe it.</div>
+<div class="block"><div class="block-title">Methodology</div>Land the following <strong>before</strong> Tier 1 launches:
+<ol>
+<li><strong>Per-step gradient cosine</strong> on shared params (extend existing per-epoch batch-0-only logging in <code>mtl_cv.py</code> to per-step; aggregate mean / median / p10 / p90 per epoch). Slot: <code>src/tracking/gradient_stats.py</code>.</li>
+<li><strong>Per-component gradient norms</strong>: ||g_cat||, ||g_reg|| over (cat_encoder, reg_encoder, shared_blocks, cat_head, reg_head, &alpha;).</li>
+<li><strong>&alpha; trajectory</strong>: log &alpha; scalar per epoch per fold for any head with <code>log_T</code>.</li>
+<li><strong>F50-D5 saturation curves promoted to default</strong>: Frobenius drift per parameter group per epoch.</li>
+<li><strong>MTL-rep generality probes</strong>: adapt <code>scripts/probe/generality_probes.py</code> to the shared-backbone pre-head representation per state per fold.</li>
+<li><strong>Confusion matrix dump</strong> per task per fold (<code>confusion_matrix.npy</code>).</li>
+<li><strong>ECE per task per fold</strong> (15-bin).</li>
+<li><strong>Region-popularity binning of Acc@10</strong> (head/tail decomposition).</li>
+<li><strong>Compute panel</strong>: wall, FLOPs/epoch, peak GPU mem, params, trainable params &mdash; persisted alongside every run.</li>
+<li><strong>Pareto-front sweep helper</strong>: <code>scripts/analysis/pareto_front.py</code> for category_weight sweep at fixed recipe.</li>
+</ol></div>
+<div class="block"><div class="block-title">Evaluation criteria</div>Smoke test: run B9 canonical 1-fold 5-epoch; all 10 instrumentation outputs land in the run dir. <strong>Perf gate (advisor 2026-05-16)</strong>: instrumented run must complete within 10% of an uninstrumented baseline of the same recipe. If overhead exceeds 10%, demote per-step gradient cosine to per-N-step sampling (N=5 or 10) and re-test.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Pass</strong>: every subsequent experiment auto-emits all 10 outputs <em>and</em> overhead &lt; 10%. <strong>Fail</strong>: chain proceeds without the over-budget instrumentation; document in <code>log.md</code> which probe is sampled-down.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T0-6">
+<h3>T0.6 &mdash; n_splits guard duck-typed extension <span class="pill tier0">T0</span> <span class="pill cost-s">S-cost</span></h3>
+<div class="meta">Targets: harden the leak guard for new heads &middot; Mechanism: codebase hygiene</div>
+<div class="block"><div class="block-title">Hypothesis</div>The current <code>_HEADS_REQUIRING_AUX_MTL</code> set in <code>src/data/folds.py</code> is a hardcoded membership list. New heads that consume <code>log_T</code> (T6 candidates) will silently break the gate. A duck-typed detect (<code>hasattr(head, 'log_T')</code>) catches all <code>log_T</code>-reading heads automatically.</div>
+<div class="block"><div class="block-title">Methodology</div>Replace the hardcoded set with a duck-typed walk. Add a regression test: instantiate every registered head; assert membership matches duck-type check. Also: refuse to load any <code>log_T</code> file whose payload <code>n_splits</code> != trainer's; this is the 2026-05-15 guard extended to all heads.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>Regression test passes for all 16 registered next-heads. T6 candidates (added later) auto-pass.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Pass</strong>: trainer hard-fails on any log_T-reading head whose data is missing or mismatched. <strong>Fail</strong>: not applicable (code change).</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T0-7">
+<h3>T0.7 &mdash; Same-machine B9 re-baseline <span class="pill tier0">T0</span> <span class="pill cost-m">M-cost</span></h3>
+<div class="meta">Targets: same-machine reproducibility check &middot; Mechanism: re-run canonical B9 on the new mtl-improve worktree's box</div>
+<div class="block"><div class="block-title">Hypothesis</div>v11 paper-canonical Table B numbers were measured on a specific machine. The new <code>mtl-improve</code> worktree may land on a different GPU box (per AGENT_CONTEXT environment-validation precedent). Re-running B9 at seed=42 &times; 5 folds &times; 50ep on the new box and verifying within fold-&sigma; agreement with v11 is mandatory before any Tier-1 launch &mdash; this is NOT redundant with v11; it is the canonical_improvement pre-flight pattern. If divergence &gt; &sigma;_fold, raise via <code>AskUserQuestion</code> before proceeding.</div>
+<div class="block"><div class="block-title">Methodology</div>Canonical B9 invocation (per NORTH_STAR.md §Champion) at AL+AZ+FL (skip CA+TX if compute-budget tight). Compare per-fold to v11 §0.1. If within fold-&sigma; (~0.5 pp reg, ~0.5 pp cat), pin as <code>B9_v11_repro</code> baseline.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>Per-fold match within &sigma;_fold at AL+AZ+FL. Compute panel from T0.5 establishes the per-fold wall-clock baseline.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Pass</strong>: pin <code>B9_v11_repro</code> as the Tier-1 baseline; numbers comparable to v11. <strong>Fail</strong>: raise to user; investigate env / driver / dependency divergence before proceeding.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<!-- ============================================================== -->
+<h2 id="tier1">Tier 1 &mdash; STL ceilings refresh
+<span class="pill tier1">Tier 1</span></h2>
+
+<p>Refreshes the matched-head STL baselines under the current leak-free protocol on the new box. Pins <code>STL_v2</code> per state for the rest of the chain. Multi-seed-light (3 seeds) for paired-Wilcoxon at n=15.</p>
+
+<p><strong>Per-tier compute estimate:</strong> ~150 GPU-h H100 + ~3 days engineering. Parallel-runnable across heads.</p>
+
+<div class="experiment" id="T1-1">
+<h3>T1.1 &mdash; STL cat-head ablation <span class="pill tier1">T1</span> <span class="pill cost-l">L-cost</span></h3>
+<div class="meta">Targets: pin STL cat ceiling per state &middot; Mechanism: 6 cat heads &times; 5 states &times; 3 seeds &times; 5 folds</div>
+<div class="block"><div class="block-title">Hypothesis</div>The current STL cat ceiling (Table A) uses <code>next_gru</code> (post-F27). Sub-agent 1 surfaced 5 alternative sequence-aware cat heads worth a fresh leak-free trial; the inversion theorem (standalone winner != MTL winner) makes this worth doing for the comparand baseline regardless.</div>
+<div class="block"><div class="block-title">Methodology</div>Candidates: <code>next_gru</code> (current baseline), <code>next_lstm</code>, <code>next_tcn_residual</code>, <code>next_sasrec_cat</code> (new, plumbing-only on SASRec), <code>next_alibi_transformer_cat</code> (= <code>next_transformer_relpos</code>, re-trial), <code>next_temporal_pooling_cat</code> (new: GRU with time-decayed attention pooling). 5f &times; 50ep &times; seed=42 &times; AL+AZ+FL (gate: cat F1 &gt;= 0.95 &times; current ceiling within &sigma;), then promote top-2 to seeds {0, 1, 7} for n=15 pooled. Skip CA+TX if AL+AZ+FL is conclusive.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>Per-state cat F1 mean &plusmn; &sigma;; paired Wilcoxon vs current <code>next_gru</code>. Generality probes (T0.5).</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Pin STL_v2 cat head per state</strong>: choose the head that strictly beats <code>next_gru</code> at p&lt;0.05 OR matches within &sigma; with lower compute. <strong>No winner</strong>: keep <code>next_gru</code> as STL_v2. <strong>Early stop</strong>: if every candidate is within fold-&sigma; of <code>next_gru</code> at AL+AZ, skip FL+CA+TX promotion and pin <code>next_gru</code>.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T1-2">
+<h3>T1.2 &mdash; STL reg-head ablation <span class="pill tier1">T1</span> <span class="pill cost-l">L-cost</span></h3>
+<div class="meta">Targets: pin STL reg ceiling per state &middot; Mechanism: 5 reg heads &times; 5 states &times; 3 seeds &times; 5 folds</div>
+<div class="block"><div class="block-title">Hypothesis</div>Current STL reg ceiling uses <code>next_stan_flow</code> (= <code>next_getnext_hard</code>). Sub-agent 1 surfaced 4 alternatives (Markov-2 prior, hierarchical T, dual-logit fusion, mixture-of-softmaxes) and the freeze-&alpha; baseline (a reviewer-required "% gain from the prior" diagnostic).</div>
+<div class="block"><div class="block-title">Methodology</div>Candidates: <code>next_stan_flow</code> (current baseline), <code>next_stan_flow + freeze_alpha=True (alpha_init=0.0)</code> (= STAN only, no prior &mdash; diagnostic), <code>next_markov2_prior</code> (new), <code>next_dual_logit_fusion</code> (new), <code>next_mixture_softmax_reg</code> (new, k=4 mixture components &mdash; tests softmax-bottleneck at K=9k). 5f &times; 50ep &times; seed=42 &times; AL+AZ+FL (gate: reg Acc@10 within &sigma; of current ceiling), then promote top-2 to seeds {0, 1, 7} for n=15 pooled. log_T-reading heads need T0.6 duck-typed guard.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>Per-state reg Acc@10 mean &plusmn; &sigma;; paired Wilcoxon vs <code>next_stan_flow</code>. freeze-&alpha; diagnostic: report &Delta;_reg (current &minus; frozen) per state to characterize "% from prior".</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Pin STL_v2 reg head per state</strong>: same rule as T1.1. <strong>freeze-&alpha; baseline is reported regardless</strong>. <strong>Early stop</strong>: if every candidate is within fold-&sigma; of <code>next_stan_flow</code>, skip FL+CA+TX promotion.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<!-- ============================================================== -->
+<h2 id="tier2a">Tier 2a &mdash; Backbone, cheap archs
+<span class="pill tier2">Tier 2a</span></h2>
+
+<p>4 cheap (&le;60 LOC) backbone candidates judged under <strong>per-arch light LR mini-sweep</strong> &mdash; this anti-confound prevents picking a winner under a recipe tuned for the loser.</p>
+
+<div class="callout warn">
+<h4>Mini-sweep protocol (mandatory, applies to every T2a/T2b candidate)</h4>
+<p>For each candidate arch, run 5 LR regimes &times; 5f &times; <strong>40ep</strong> &times; seed=42 &times; AL+AZ. Pick the per-arch winning LR regime, then promote to full-protocol 5f &times; 50ep &times; AL+AZ+FL.</p>
+<ol>
+<li><strong>R1 &mdash; constant 1e-3 everywhere</strong> (single global LR; arch-agnostic floor).</li>
+<li><strong>R2 &mdash; B9 per-head</strong> (cat=1e-3 / reg=3e-3 / shared=1e-3; incumbent; for fairness reference).</li>
+<li><strong>R3 &mdash; arch-suggested-default</strong> (paper's recommended LR for the candidate; e.g., Sluice paper uses 1e-4 for &alpha; matrices, AdaShare uses 5e-4 for Gumbel logits).</li>
+<li><strong>R4 &mdash; per-arch-group LR</strong> (NEW): any arch-specific new parameter group (cross-stitch per-channel &alpha;, task prompts, AdaShare gates, sluice &beta;-skip) gets its own group at reg_lr=3e-3 to ensure slow-growing arch params are not LR-starved.</li>
+<li><strong>R5 &mdash; B9 + warmup 5%</strong>: B9 per-head LR with 5% warmup. Tests if the candidate benefits from a warm start more than the incumbent.</li>
+</ol>
+<p>40 epochs (not 30) because F44&ndash;F48 established &alpha; growth needs sustained reg_lr; candidates whose mechanism is "slow growth of arch-specific param analogous to &alpha;" may not differentiate at 30ep.</p>
+<p><strong>Heavy archs only (T2b.2 AdaShare, T2b.3 TaskExpert)</strong>: add a single FL mini-sweep cell at the per-arch winning LR (5f &times; 30ep &times; seed=42). These archs' value proposition is "more capacity intelligently routed at large K"; AL+AZ-only mini-sweep risks archiving them prematurely.</p>
+</div>
+
+<p><strong>Per-tier compute estimate (T2a):</strong> ~320 GPU-h H100 + ~1 week engineering.</p>
+
+<div class="callout warn">
+<strong>STOP GATE between T2a and T2b:</strong> if any T2a candidate beats B9_v11_repro on reg by paper-grade significance (Wilcoxon p&lt;0.05, n&ge;10) at &ge;2 of {AL, AZ, FL} while maintaining cat non-inferiority (TOST &delta;=2 pp), <strong>T2b becomes OPTIONAL</strong>. Report the T2a winner to user via <code>AskUserQuestion</code>; user decides whether to skip T2b or run anyway for completeness.
+</div>
+
+<div class="experiment" id="T2a-1">
+<h3>T2a.1 &mdash; Faithful per-channel-&alpha; cross-stitch <span class="pill tier2">T2a</span> <span class="pill cost-m">M-cost</span></h3>
+<div class="meta">Targets: faithful cross-stitch (Misra CVPR 2016) head-to-head with cross-attn under leak-free &middot; Mechanism: scaffolded <code>mtlnet_crossstitch</code> upgraded to per-channel &alpha;</div>
+<div class="block"><div class="block-title">Hypothesis</div>The current <code>mtlnet_crossstitch</code> uses one global 2&times;2 &alpha; per block; faithful Misra uses per-channel &alpha; &isin; (C, 2, 2). The per-channel variant may close or beat the cross-attn reg gap without paying the F49 silent-gradient cost. Critical test: never head-to-head with cross-attn under leak-free.</div>
+<div class="block"><div class="block-title">Methodology</div>Upgrade <code>mtlnet_crossstitch</code> per-block &alpha; from <code>(2, 2)</code> to <code>(C, 2, 2)</code> (~30 LOC). Run 2 variants: <code>detach_cross_stream=False</code> (learned sharing, F49-equivalent leakage path exists) and <code>detach_cross_stream=True</code> (clean architectural ablation). LR mini-sweep first (3 regimes at AL+AZ); then 5f &times; 50ep &times; seed=42 &times; AL+AZ+FL at the winning regime. Unit test pinned before launch (T0.5 rule).</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>Per-state reg Acc@10 + cat F1 vs B9_v11_repro. Generality probes. F49 silent-gradient probe under detach=False.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: variant beats B9 on reg at p&lt;0.05 (n=5 at single seed; promote to n=15 multi-seed for verification). <strong>Non-inferior</strong>: report and continue T2a; revisit in T2 final decision. <strong>Falsified</strong>: archive; do not retry.</div></div>
+<div class="block"><div class="block-title">HGI sanity probe (per advisor)</div>If T2a.1 promotes: run <strong>2 seeds {42, 0}</strong> &times; AL+AZ &times; 5f &times; 30ep with <code>--engine hgi</code> to test MTL+HGI behaviour under this arch. <strong>Escalation threshold:</strong> if |MTL+HGI &minus; STL+HGI| &ge; 2 pp on either head at either state, escalate to user via <code>AskUserQuestion</code> &mdash; the null-MTL-under-HGI finding may not generalize and is paper-grade. Otherwise: informational, no escalation.</div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T2a-2">
+<h3>T2a.2 &mdash; MulT-faithful (intra-task self-attn + cross-attn) <span class="pill tier2">T2a</span> <span class="pill cost-s">S-cost</span></h3>
+<div class="meta">Targets: closest-to-current arch with explicit per-task self-attn &middot; Mechanism: ~50 LOC addition inside cross-attn block</div>
+<div class="block"><div class="block-title">Hypothesis</div>Current <code>mtlnet_crossattn</code> lacks per-task self-attention before cross-attention; MulT (Tsai ACL 2019) includes both. Adding intra-task self-attn may sharpen per-task representations before mixing, lifting reg without harming cat.</div>
+<div class="block"><div class="block-title">Methodology</div>Add intra-task MHA(Q=K=V=stream) before each cross-attn block. Per-arch LR mini-sweep then 5f &times; 50ep &times; AL+AZ+FL at winning regime. Unit test pinned.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>Per-state reg + cat vs B9_v11_repro. Param count (must stay within ~5% of B9 to control for capacity).</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote / non-inferior / falsified</strong>: same as T2a.1.</div></div>
+<div class="block"><div class="block-title">HGI sanity probe</div>If promoted: 2 seeds {42, 0} &times; AL+AZ &times; 5f &times; 30ep with <code>--engine hgi</code>; escalate if |MTL+HGI &minus; STL+HGI| &ge; 2 pp.</div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T2a-3">
+<h3>T2a.3 &mdash; Depth + head-count sweep on cross-attn <span class="pill tier2">T2a</span> <span class="pill cost-s">S-cost</span></h3>
+<div class="meta">Targets: matched-D capacity envelope &middot; Mechanism: CLI-only (existing kwargs)</div>
+<div class="block"><div class="block-title">Hypothesis</div>Capacity widening (D &gt; 256) is FALSIFIED by F51, but depth + head-count at D=256 was never swept under leak-free. Either may shift the reg/cat tradeoff.</div>
+<div class="block"><div class="block-title">Methodology</div>Grid: <code>num_crossattn_blocks &isin; {1, 2, 3, 4}</code> &times; <code>num_crossattn_heads &isin; {4, 8, 16}</code> (12 cells). At AL+AZ only, 5f &times; 30ep &times; seed=42 (gate first), then promote top-2 cells to AL+AZ+FL at 5f &times; 50ep. Skip if T2a.1 or T2a.2 already promoted with paper-grade margin.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>Per-cell (reg, cat) Pareto plot. Identify dominated cells; pin the Pareto-optimal.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: a non-default cell strictly Pareto-dominates default (2, 8). <strong>Non-inferior</strong>: keep (2, 8). <strong>Falsified</strong>: archive; F51 cat-cliff likely active above (2, 8).</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T2a-4">
+<h3>T2a.4 &mdash; Pre-norm + SwiGLU FFN <span class="pill tier2">T2a</span> <span class="pill cost-s">S-cost</span></h3>
+<div class="meta">Targets: modern transformer-default upgrades &middot; Mechanism: ~30 LOC swap inside cross-attn block</div>
+<div class="block"><div class="block-title">Hypothesis</div>Current cross-attn block is post-norm with <code>Linear &rarr; GELU &rarr; Linear</code> FFN. Pre-norm is more stable at depth (LLM default); SwiGLU/GeGLU is ~5% better fit at matched params. Either or both may stabilize the cat side or lift reg.</div>
+<div class="block"><div class="block-title">Methodology</div>3 variants &times; AL+AZ at 5f &times; 30ep: pre-norm only, SwiGLU only, both. Promote any winning combination to 5f &times; 50ep &times; AL+AZ+FL.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>Per-variant reg + cat vs B9_v11_repro. Param-matched check.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote / non-inferior / falsified</strong>: same as above.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<!-- ============================================================== -->
+<h2 id="tier2b">Tier 2b &mdash; Backbone, heavy archs
+<span class="pill tier2">Tier 2b</span></h2>
+
+<p>4 heavy (80&ndash;250 LOC) backbone candidates. Same per-arch LR mini-sweep protocol as T2a (5 regimes, 40ep, plus FL mini-sweep cell for T2b.2 + T2b.3). <strong>Optional</strong> if T2a winner already cleared the paper-grade gate.</p>
+
+<p><strong>Per-tier compute estimate (T2b):</strong> ~450 GPU-h H100 + ~3 weeks engineering. (Revised upward from the initial ~300 estimate &mdash; AdaShare 2-stage training and TaskExpert prompt-collapse mitigation runs push the realistic budget.)</p>
+
+<div class="experiment" id="T2b-1">
+<h3>T2b.1 &mdash; Sluice Networks (Ruder AAAI 2019) <span class="pill tier2">T2b</span> <span class="pill cost-l">L-cost</span></h3>
+<div class="meta">Targets: per-subspace &alpha; + &beta;-skip generalization of cross-stitch &middot; Mechanism: new module ~150 LOC</div>
+<div class="block"><div class="block-title">Hypothesis</div>Sluice generalizes cross-stitch by adding (a) per-subspace &alpha; (split D dims into k subspaces, mix per subspace), (b) &beta;-skip mixer (linearly combines outputs of all depths). Strongest faithful sharing scheme never tested in this codebase.</div>
+<div class="block"><div class="block-title">Methodology</div>Faithful implementation, unit-tested, LR mini-sweep, 5f &times; 50ep &times; AL+AZ+FL.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>Same as T2a.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote / non-inferior / falsified</strong>: same as T2a.</div></div>
+<div class="block"><div class="block-title">HGI sanity probe</div>If promoted: 2 seeds {42, 0} &times; AL+AZ &times; 5f &times; 30ep; escalate if |MTL+HGI &minus; STL+HGI| &ge; 2 pp.</div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T2b-2">
+<h3>T2b.2 &mdash; AdaShare (dynamic block-skip) <span class="pill tier2">T2b</span> <span class="pill cost-l">L-cost</span></h3>
+<div class="meta">Targets: learned per-(task, block) branching via Gumbel gates &middot; Mechanism: new module ~250 LOC + 2-stage training</div>
+<div class="block"><div class="block-title">Hypothesis</div>The branching point in MTL is hand-fixed (per-task encoder &rarr; shared cross-attn &rarr; per-task head). AdaShare learns per-task per-block whether to skip-or-share-or-task-specific via Gumbel-softmax gates. Best fit for "we don't know the right branching point" question.</div>
+<div class="block"><div class="block-title">Methodology</div>Faithful AdaShare-2-stage implementation. Unit-tested. LR mini-sweep. 5f &times; 50ep &times; AL+AZ+FL.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>Same as T2a + report learned gate values per (task, block) per fold (interpretability).</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate">Same as T2a. <strong>Bonus</strong>: gate-value analysis informs future arch design even if AdaShare isn't promoted.</div></div>
+<div class="block"><div class="block-title">HGI sanity probe</div>If promoted: 2 seeds {42, 0} &times; AL+AZ &times; 5f &times; 30ep; escalate if |MTL+HGI &minus; STL+HGI| &ge; 2 pp.</div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T2b-3">
+<h3>T2b.3 &mdash; TaskExpert (per-task expert decomposition, ICCV 2023) <span class="pill tier2">T2b</span> <span class="pill cost-l">L-cost</span></h3>
+<div class="meta">Targets: per-task-input native via task prompts &middot; Mechanism: new module ~150 LOC; strongest C5-fit</div>
+<div class="block"><div class="block-title">Hypothesis</div>TaskExpert decomposes shared features into K task-conditional experts via per-task queries. Q comes from a task-prompt embedding (not the input stream). Natively heterogeneous &mdash; satisfies C5 "favor archs that handle different inputs per task".</div>
+<div class="block"><div class="block-title">Methodology</div>Faithful TaskExpert (Ye et al. ICCV 2023) implementation. Unit-tested (esp. prompt-collapse guard). LR mini-sweep. 5f &times; 50ep &times; AL+AZ+FL.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>Same as T2a + monitor task-prompt vector cosine across training (collapse detection).</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote / non-inferior / falsified</strong>: same as T2a.</div></div>
+<div class="block"><div class="block-title">HGI sanity probe</div>If promoted: 2 seeds {42, 0} &times; AL+AZ &times; 5f &times; 30ep; escalate if |MTL+HGI &minus; STL+HGI| &ge; 2 pp.</div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T2b-4">
+<h3>T2b.4 &mdash; Q-task-specific, K/V-shared cross-attn <span class="pill tier2">T2b</span> <span class="pill cost-m">M-cost</span></h3>
+<div class="meta">Targets: per-task-input native (C5 alternative to T2b.3) &middot; Mechanism: new module ~100 LOC</div>
+<div class="block"><div class="block-title">Hypothesis</div>Each task has its own Q-projection; K/V are a shared projection of <code>concat([cat_input, reg_input])</code>. Task asymmetry lives in the query, not the streams. Direct alternative to TaskExpert.</div>
+<div class="block"><div class="block-title">Methodology</div>Faithful implementation with K/V detach flag for F49-style leakage characterization. Unit-tested. LR mini-sweep. 5f &times; 50ep &times; AL+AZ+FL.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>Same as T2a + F49 silent-grad probe under K/V detach=False vs True.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote / non-inferior / falsified</strong>: same as T2a.</div></div>
+<div class="block"><div class="block-title">HGI sanity probe</div>If promoted: 2 seeds {42, 0} &times; AL+AZ &times; 5f &times; 30ep; escalate if |MTL+HGI &minus; STL+HGI| &ge; 2 pp.</div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="callout">
+<h4>Tier 2 final decision (after T2a + optional T2b)</h4>
+Pin the Tier 2 winner under the per-arch winning LR regime. This becomes the fixed backbone for Tier 3&ndash;7. <strong>If multiple archs match within fold-&sigma;</strong>, prefer the cheaper (param count, LOC) one. <strong>If no arch beats B9_v11_repro</strong>, document the negative result (which is itself paper-grade: "we exhaustively tried 8 backbones and none beat cross-attn"), keep cross-attn as the fixed backbone, and proceed.
+</div>
+
+<!-- ============================================================== -->
+<h2 id="tier3">Tier 3 &mdash; MTL loss balancing
+<span class="pill tier3">Tier 3</span></h2>
+
+<p>Re-validate the loss balancers under the new Tier-2 backbone, leak-free, with the critical-eye hyperparameter sweep that the original tests missed.</p>
+
+<p><strong>Per-tier compute estimate:</strong> ~120 GPU-h H100 + ~1 week engineering.</p>
+
+<div class="experiment" id="T3-1">
+<h3>T3.1 &mdash; Static-weight grid extension <span class="pill tier3">T3</span> <span class="pill cost-s">S-cost</span></h3>
+<div class="meta">Targets: explore static_weight space above 0.75 &middot; Mechanism: CLI-only sweep</div>
+<div class="block"><div class="block-title">Hypothesis</div>F53 only swept {0.25, 0.50, 0.75}. The "late-stage cat-converged handover" mechanism that made 0.75 win may extend further; {0.85, 0.90, 0.95} unsmoked.</div>
+<div class="block"><div class="block-title">Methodology</div>Sweep <code>--category-weight &isin; {0.75 (baseline), 0.85, 0.90, 0.95}</code> &times; AL+AZ at 5f &times; 50ep &times; seed=42 on Tier-2 winner backbone.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>Per-weight (reg, cat) Pareto plot.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: a non-0.75 weight strictly Pareto-dominates. <strong>Non-inferior</strong>: keep 0.75. <strong>Falsified</strong>: archive (0.75 confirmed optimal).</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T3-2">
+<h3>T3.2 &mdash; Adaptive learnable losses (FAMO / Aligned-MTL / NashMTL-clean / UW / CAGrad) <span class="pill tier3">T3</span> <span class="pill cost-l">L-cost</span></h3>
+<div class="meta">Targets: re-validate adaptive losses with proper hparam sweep &middot; Mechanism: registry-based, single-loss-per-run with sweep</div>
+<div class="block"><div class="block-title">Hypothesis</div>FAMO, Aligned-MTL never ran leak-free. NashMTL pre-2026-04-10 was broken. UW init was never tuned. Static_weight(0.75) is a high bar but these losses deserve a clean shot under the new arch.</div>
+<div class="block"><div class="block-title">Methodology</div>5 losses &times; AL+AZ at 5f &times; 50ep &times; seed=42 on Tier-2 winner, each with a small hparam sweep:
+<ul>
+<li>FAMO: <code>gamma &isin; {0.001, 0.005, 0.01, 0.05}</code>, <code>w_lr &isin; {0.025, 0.1, 0.25}</code>.</li>
+<li>Aligned-MTL: <code>scale_mode &isin; {min, median}</code>.</li>
+<li>NashMTL-clean: verify cvxpy/ECOS available; sweep <code>update_weights_every &isin; {1, 4}</code>.</li>
+<li>UW: <code>init_log_var &isin; {-1.0, 0.0, 1.0}</code>.</li>
+<li>CAGrad: <code>c &isin; {0.2, 0.4, 0.6, 0.8}</code>.</li>
+</ul>
+Best variant per loss promoted to AL+AZ+FL.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>Per-loss best (reg, cat) vs T3.1 winner. Compute panel (some losses are expensive).</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: a loss strictly Pareto-dominates T3.1 winner at AL+AZ+FL. <strong>Non-inferior</strong>: keep T3.1 winner.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T3-3">
+<h3>T3.3 &mdash; Gradient surgery (PCGrad-on-encoder, Gradient Vaccine, MGDA-UB) <span class="pill tier3">T3</span> <span class="pill cost-m">M-cost</span></h3>
+<div class="meta">Targets: gradient-surgery alternatives never tried &middot; Mechanism: registry-based + small new impls</div>
+<div class="block"><div class="block-title">Hypothesis</div>PCGrad on encoder-only (heads always get unprojected grad) respects per-head LR. Gradient Vaccine smooths conflict signal. MGDA-UB is the principled Pareto-stationary baseline.</div>
+<div class="block"><div class="block-title">Methodology</div>3 variants &times; AL+AZ at 5f &times; 50ep on Tier-2 winner. PCGrad-on-encoder existing infra; Vaccine + MGDA-UB ~80 LOC each.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>Same as T3.2.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: &ge; 1 pp lift on targeted axis (n=5 single-seed), cat non-inferior at TOST &delta;=2 pp. Multi-state-promotion requires winning at &ge; 2 of {AL, AZ, FL}.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T3-4">
+<h3>T3.4 &mdash; STL-reg teacher distillation <span class="pill tier3">T3</span> <span class="pill cost-m">M-cost</span></h3>
+<div class="meta">Targets: explicit closure of MTL/STL reg gap via KL loss &middot; Mechanism: load STL-reg checkpoint as frozen teacher</div>
+<div class="block"><div class="block-title">Hypothesis</div>The 7&ndash;17 pp reg gap is a clean target for distillation. Add KL(MTL_reg_logits, STL_reg_logits) with weight &lambda; to MTL training loss. STL teacher = T1.2 winner.</div>
+<div class="block"><div class="block-title">Methodology</div>3 &lambda; values {0.1, 0.5, 1.0} &times; AL+AZ at 5f &times; 50ep on Tier-2 winner. Teacher = frozen STL_v2 reg head + encoder. Best &lambda; to AL+AZ+FL.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>Reg lift vs T3.1; cat preservation (TOST &delta;=2 pp).</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: reg lift &ge; 2 pp at AL+AZ+FL with cat non-inferior. <strong>Non-inferior</strong>: archive; distillation is a known-good lever but may not stack.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T3-5">
+<h3>T3.5 &mdash; Cat-only warmup curriculum + orthogonality reg <span class="pill tier3">T3</span> <span class="pill cost-s">S-cost</span></h3>
+<div class="meta">Targets: phased training + decorrelate task encoders &middot; Mechanism: trainer flag + loss term</div>
+<div class="block"><div class="block-title">Hypothesis</div>Cat-only first N epochs (5, 10) locks cat-friendly shared rep before reg perturbs it. Orthogonality reg on (E_cat, E_reg) outputs forces decorrelation, making cat-vs-reg encoder roles explicit.</div>
+<div class="block"><div class="block-title">Methodology</div>2 axes: warmup &isin; {0, 5, 10 epochs} &times; orthog-reg &isin; {0, 0.01, 0.1}. 6 cells. AL+AZ at 5f &times; 50ep. Best to AL+AZ+FL.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>Per-cell (reg, cat).</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: &ge; 1 pp lift on targeted axis (n=5), cat non-inferior at TOST &delta;=2 pp.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="callout">
+<h4>Tier 3 final decision</h4>
+Pin the winning loss + curriculum combination. If T3.1 wins (static-weight extension), no exotic loss is needed. If T3.4 wins (distillation), the recipe gains a teacher dependency &mdash; document the maintenance cost.
+</div>
+
+<!-- ============================================================== -->
+<h2 id="tier4">Tier 4 &mdash; Batch / data sampling
+<span class="pill tier4">Tier 4</span></h2>
+
+<p>Batch composition under the row-pairing constraint surfaced by sub-agent 5. Most levers here have low-bandwidth expected effect &mdash; this tier mostly closes the "did we leave anything on the table?" question. <strong>Trimmed (advisor 2026-05-16):</strong> 2 experiments, not 4 &mdash; T4.2 (cat class-balanced sampling) is approximately subsumed by weighted CE that the pipeline already supports; T4.4 (geo hard negatives) is too speculative for the cost and is deferred to a follow-up memo.</p>
+
+<p><strong>Per-tier compute estimate:</strong> ~40 GPU-h H100 + ~1 day engineering.</p>
+
+<div class="experiment" id="T4-1">
+<h3>T4.1 &mdash; Forced 1:1 task interleave <span class="pill tier4">T4</span> <span class="pill cost-s">S-cost</span></h3>
+<div class="meta">Targets: per-batch task balance &middot; Mechanism: trainer flag</div>
+<div class="block"><div class="block-title">Hypothesis</div>Current cycled-shorter-loader gives an implicit task ratio that depends on dataset sizes. Forced 1:1 interleave (alt-SGD-native) makes the ratio explicit and symmetric.</div>
+<div class="block"><div class="block-title">Methodology</div>1 variant vs T3 winner baseline. AL+AZ+FL at 5f &times; 50ep.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>(reg, cat) vs baseline.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: targeted axis lifts by &ge; 1 pp (single-seed n=5 floor) OR &ge; 0.5 pp (multi-seed n=15+) AND other axis non-inferior at TOST &delta;=2 pp. <strong>Non-inferior</strong>: targeted axis within fold-&sigma; of baseline; do not promote. <strong>Falsified</strong>: targeted axis regresses by &ge; 1 pp.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T4-2">
+<h3>T4.2 &mdash; (DEFERRED) Class-balanced cat + per-task batch size <span class="pill tier4">T4</span> <span class="pill bad">DEFERRED 2026-05-16</span></h3>
+<div class="block"><div class="block-title">Deferral rationale (advisor 2026-05-16)</div>Approximately subsumed by the existing weighted CE path (<code>use_class_weights=True</code>). Per-task batch size at 4096/1024 is ~30 LOC but expected joint-axis effect is sub-pp given T3 already balances per-task loss. <strong>Deferred to a post-T8 follow-up memo</strong> only if T8 reveals cat under-fitting that this would address. Listed here so future agents see the deliberate scope decision.</div>
+</div>
+
+<div class="experiment" id="T4-3">
+<h3>T4.3 &mdash; Long-tail region sampling (log-frequency weighting) <span class="pill tier4">T4</span> <span class="pill cost-s">S-cost</span></h3>
+<div class="meta">Targets: reg-side long-tail handling &middot; Mechanism: WeightedRandomSampler on reg with w &prop; 1/log(1+count)</div>
+<div class="block"><div class="block-title">Hypothesis</div>Reg has extreme long tail (tail regions ≤10 samples at CA). Log-frequency sampling (softer than 1/count) avoids oversampling 1-shot regions while giving the tail more exposure.</div>
+<div class="block"><div class="block-title">Methodology</div>1 variant vs T3 winner. AL+AZ+FL at 5f &times; 50ep. Reg metric broken out by region-popularity bins (T0.5 instrumentation).</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>Reg Acc@10 + tail-bin Acc@10. cat non-inferior.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: targeted axis lifts by &ge; 1 pp (single-seed n=5 floor) OR &ge; 0.5 pp (multi-seed n=15+) AND other axis non-inferior at TOST &delta;=2 pp. <strong>Non-inferior</strong>: targeted axis within fold-&sigma; of baseline; do not promote. <strong>Falsified</strong>: targeted axis regresses by &ge; 1 pp.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T4-4">
+<h3>T4.4 &mdash; (DEFERRED) In-batch geographic hard negatives (reg) <span class="pill tier4">T4</span> <span class="pill bad">DEFERRED 2026-05-16</span></h3>
+<div class="block"><div class="block-title">Deferral rationale (advisor 2026-05-16)</div>Speculative for the engineering cost (~80 LOC with region-centroid precompute); high-risk that hard negatives crowd out the &alpha;&middot;log_T graph prior signal. <strong>Deferred to a post-T8 follow-up memo</strong> if T8 shows the reg gap is bound by softmax-noise rather than capacity. Listed for traceability.</div>
+</div>
+
+<div class="callout">
+<h4>Tier 4 final decision</h4>
+Stack the cheap wins. Expected outcome: modest lifts; Tier 4 mostly closes the audit, not the gap.
+</div>
+
+<!-- ============================================================== -->
+<h2 id="tier5">Tier 5 &mdash; LR / optimizer refinement
+<span class="pill tier5">Tier 5</span></h2>
+
+<p>Re-sweep LR + optimizer on the consolidated (Tier-2 arch + Tier-3 loss + Tier-4 batch) stack. Also validates the T3 winner under new optimizer choices &mdash; if T3 winner is invalidated, narrow-scope T3 re-run.</p>
+
+<p><strong>Per-tier compute estimate:</strong> ~100 GPU-h H100 + ~3 days engineering.</p>
+
+<div class="experiment" id="T5-1">
+<h3>T5.1 &mdash; Optimizer sweep (Lion / Prodigy / AdEMAMix) <span class="pill tier5">T5</span> <span class="pill cost-m">M-cost</span></h3>
+<div class="meta">Targets: newer optimizers with mechanism-fit to disjoint LR &middot; Mechanism: drop-in replacement of AdamW</div>
+<div class="block"><div class="block-title">Hypothesis</div>Lion's sign-update decouples LR from grad magnitude (helps cat/reg disparity). Prodigy auto-discovers per-head LR. AdEMAMix preserves long-horizon &alpha; signal that fast-EMA Adam washes out.</div>
+<div class="block"><div class="block-title">Methodology</div>3 optimizers &times; AL+AZ at 5f &times; 50ep on consolidated stack. Each with a small LR sweep (Lion lr is typically 1/3-1/10 of AdamW).</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>(reg, cat) per optimizer. Compute panel.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: &ge; 1 pp lift on targeted axis (n=5), cat non-inferior at TOST &delta;=2 pp. <strong>If Lion wins</strong>: re-validate T3 winner under Lion (single-state AZ, 5f &times; 30ep) before pinning.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T5-2">
+<h3>T5.2 &mdash; Scheduler refinement (Per-head WSD / Per-head OneCycle) <span class="pill tier5">T5</span> <span class="pill cost-m">M-cost</span></h3>
+<div class="meta">Targets: scheduler that natively supports disjoint per-head LR shapes &middot; Mechanism: LambdaLR per group</div>
+<div class="block"><div class="block-title">Hypothesis</div>Current B9 is per-head constant + cosine (decay from peak). Per-head WSD (warmup-stable-decay) keeps reg at peak for &alpha; growth then cools down; per-head OneCycle gives different (max_lr, pct_start) per head.</div>
+<div class="block"><div class="block-title">Methodology</div>2 schedulers vs current cosine. AL+AZ at 5f &times; 50ep.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>(reg, cat).</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: targeted axis lifts by &ge; 1 pp (single-seed n=5 floor) OR &ge; 0.5 pp (multi-seed n=15+) AND other axis non-inferior at TOST &delta;=2 pp. <strong>Non-inferior</strong>: targeted axis within fold-&sigma; of baseline; do not promote. <strong>Falsified</strong>: targeted axis regresses by &ge; 1 pp.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T5-3">
+<h3>T5.3 &mdash; Alt-SGD variants + Lookahead + SWA <span class="pill tier5">T5</span> <span class="pill cost-s">S-cost</span></h3>
+<div class="meta">Targets: smooth the P4 alt-SGD oscillation &middot; Mechanism: optimizer wrapper or weight EMA</div>
+<div class="block"><div class="block-title">Hypothesis</div>P4 alt-SGD oscillates between cat-favored and reg-favored states. Lookahead (slow weights + fast weights, k inner steps) smooths it. SWA / weight-EMA averages the oscillation into a Pareto-better point.</div>
+<div class="block"><div class="block-title">Methodology</div>3 variants (Lookahead k=5, SWA last 10 epochs, weight EMA &beta;=0.999) &times; AL+AZ at 5f &times; 50ep.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>(reg, cat).</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: &ge; 0.5 pp lift on either head (these are smoothing operators; expected effect is small but free). <strong>Stack with T5.1/T5.2 winner</strong> if all three independently promote.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T5-4">
+<h3>T5.4 &mdash; Per-head LR re-fit on consolidated stack <span class="pill tier5">T5</span> <span class="pill cost-m">M-cost</span></h3>
+<div class="meta">Targets: refit per-head LR under new arch + loss + batch &middot; Mechanism: 3&times;3&times;3 grid</div>
+<div class="block"><div class="block-title">Hypothesis</div>Per-head LR (cat=1e-3 / reg=3e-3 / shared=1e-3) was tuned for cross-attn + static_weight(0.75) + cycled-loader. Under the new stack, optima may shift.</div>
+<div class="block"><div class="block-title">Methodology</div>cat_lr &isin; {3e-4, 1e-3, 3e-3} &times; reg_lr &isin; {1e-3, 3e-3, 1e-2} &times; shared_lr &isin; {3e-4, 1e-3, 3e-3} = 27 cells. AL+AZ at 5f &times; 30ep (gate first), top-3 cells promoted to 5f &times; 50ep at AL+AZ+FL.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>(reg, cat) per cell.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: a non-default cell strictly Pareto-dominates. <strong>Non-inferior</strong>: keep B9 defaults.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="callout">
+<h4>Tier 5 final decision + T3 re-validation</h4>
+Pin the recipe. If T5.1 winner shifts the gradient landscape enough that T3 winner is invalidated (e.g., a different loss balancer becomes Pareto-optimal under Lion), run a <strong>narrow-scope T3 re-validation</strong> (top-2 losses only, single-state AZ, 5f &times; 30ep). Otherwise proceed to T6.
+</div>
+
+<!-- ============================================================== -->
+<h2 id="tier6">Tier 6 &mdash; &alpha; formula deep-dive
+<span class="pill tier6">Tier 6</span></h2>
+
+<p>&alpha; is load-bearing and was never seriously varied. Under the consolidated recipe, test 4 &alpha; formulations.</p>
+
+<p><strong>Per-tier compute estimate:</strong> ~60 GPU-h H100 + ~3 days engineering.</p>
+
+<div class="experiment" id="T6-1">
+<h3>T6.1 &mdash; Per-class &alpha; <span class="pill tier6">T6</span> <span class="pill cost-s">S-cost</span></h3>
+<div class="meta">Targets: replace scalar &alpha; with per-destination-class &alpha;[c] &middot; Mechanism: ~30 LOC in <code>next_stan_flow.head.py</code></div>
+<div class="block"><div class="block-title">Hypothesis</div>Some regions have peakier transitions than others; per-destination &alpha; lets the model learn region-specific prior strength.</div>
+<div class="block"><div class="block-title">Methodology</div>Per-class &alpha; vector (length n_regions). AL+AZ at 5f &times; 50ep. Promote to FL if AL+AZ pass.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>Reg Acc@10 + tail-bin Acc@10 (does per-class &alpha; help the tail?).</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: targeted axis lifts by &ge; 1 pp (single-seed n=5 floor) OR &ge; 0.5 pp (multi-seed n=15+) AND other axis non-inferior at TOST &delta;=2 pp. <strong>Non-inferior</strong>: targeted axis within fold-&sigma; of baseline; do not promote. <strong>Falsified</strong>: targeted axis regresses by &ge; 1 pp.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T6-2">
+<h3>T6.2 &mdash; Alternative graph priors (Markov-2 / hierarchical / time-decayed) <span class="pill tier6">T6</span> <span class="pill cost-m">M-cost</span></h3>
+<div class="meta">Targets: better log_T structures &middot; Mechanism: new builders + per-fold rebuild flags</div>
+<div class="block"><div class="block-title">Hypothesis</div>Current log_T is 1st-order Markov from training transitions. 2nd-order may capture longer-range structure; hierarchical (county &rarr; tract) helps tails; time-decayed (exp(-&lambda;&Delta;t) on training transitions) captures recency.</div>
+<div class="block"><div class="block-title">Methodology</div>3 alternative log_T builders + corresponding head changes (Markov-2 is 2 &alpha;s, hierarchical is 2 &alpha;s, time-decayed is one &lambda; hparam). AL+AZ at 5f &times; 50ep. log_T rebuild required.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>Reg Acc@10 + freeze-&alpha; baseline for each prior (does the new prior alone help, or only with &alpha; growth?).</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: targeted axis lifts by &ge; 1 pp (single-seed n=5 floor) OR &ge; 0.5 pp (multi-seed n=15+) AND other axis non-inferior at TOST &delta;=2 pp. <strong>Non-inferior</strong>: targeted axis within fold-&sigma; of baseline; do not promote. <strong>Falsified</strong>: targeted axis regresses by &ge; 1 pp.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T6-3">
+<h3>T6.3 &mdash; &alpha; schedule (closed-form vs separate-LR learnable) <span class="pill tier6">T6</span> <span class="pill cost-s">S-cost</span></h3>
+<div class="meta">Targets: decouple &alpha; from per-head LR dynamics &middot; Mechanism: optional &alpha;(t) override</div>
+<div class="block"><div class="block-title">Hypothesis</div>Currently &alpha; grows via reg_lr=3e-3 sustained. Closed-form schedule (&alpha;(t) = &alpha;_init + (&alpha;_final - &alpha;_init) * t/T) decouples &alpha; from LR; tests whether the F44&ndash;F48 mechanism story is right.</div>
+<div class="block"><div class="block-title">Methodology</div>2 variants: closed-form (&alpha;_init=0.1, &alpha;_final=2.0, T=50ep), separate-LR learnable (&alpha; in its own param group with LR=1e-2). AL+AZ at 5f &times; 50ep.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>Reg Acc@10. &alpha; trajectory should match the diagnostic baseline.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: targeted axis lifts by &ge; 1 pp (single-seed n=5 floor) OR &ge; 0.5 pp (multi-seed n=15+) AND other axis non-inferior at TOST &delta;=2 pp. <strong>Non-inferior</strong>: targeted axis within fold-&sigma; of baseline; do not promote. <strong>Falsified</strong>: targeted axis regresses by &ge; 1 pp.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T6-4">
+<h3>T6.4 &mdash; Gated &alpha; (per-example input-conditional) <span class="pill tier6">T6</span> <span class="pill cost-s">S-cost</span></h3>
+<div class="meta">Targets: per-example prior weighting &middot; Mechanism: <code>&alpha;(x) = sigmoid(MLP(last_emb))</code></div>
+<div class="block"><div class="block-title">Hypothesis</div>Per-example &alpha; lets the model gate prior weight by sample (e.g., low &alpha; when STAN is confident, high when not).</div>
+<div class="block"><div class="block-title">Methodology</div>1 variant (small MLP head: 256 &rarr; 64 &rarr; 1, sigmoid output). Entropy regularization on the gate to prevent collapse. AL+AZ at 5f &times; 50ep.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>Reg Acc@10 + gate-value histogram (collapse detection).</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: targeted axis lifts by &ge; 1 pp (single-seed n=5 floor) OR &ge; 0.5 pp (multi-seed n=15+) AND other axis non-inferior at TOST &delta;=2 pp. <strong>Non-inferior</strong>: targeted axis within fold-&sigma; of baseline; do not promote. <strong>Falsified</strong>: targeted axis regresses by &ge; 1 pp.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<!-- ============================================================== -->
+<h2 id="tier7">Tier 7 &mdash; Final MTL head re-ablation
+<span class="pill tier7">Tier 7</span></h2>
+
+<p>The chicken/egg resolution: re-run head ablation under the fully consolidated recipe. If a new winner emerges that differs from current heads, narrow-scope T5 LR re-fit only.</p>
+
+<p><strong>Per-tier compute estimate:</strong> ~100 GPU-h H100 + ~3 days engineering.</p>
+
+<div class="experiment" id="T7-1">
+<h3>T7.1 &mdash; Cat head re-ablation under final MTL <span class="pill tier7">T7</span> <span class="pill cost-m">M-cost</span></h3>
+<div class="meta">Targets: re-confirm cat-head choice under consolidated recipe &middot; Mechanism: 5 cat heads &times; 5f &times; 50ep</div>
+<div class="block"><div class="block-title">Hypothesis</div>The standalone-vs-MTL inversion (best standalone heads != best MTL heads) was characterized under B9. Under the new recipe, the inversion may or may not hold.</div>
+<div class="block"><div class="block-title">Methodology</div>5 cat heads (current MTL winner + T1.1 top-2 + 2 from sub-agent 1's catalogue) &times; AL+AZ+FL at 5f &times; 50ep on Tier-6 winner recipe.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>Cat F1 + reg non-inferior + standalone-vs-MTL inversion analysis.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: strictly better cat head emerges. <strong>If winner != current</strong>: narrow-scope T5 LR re-fit on the new head (single-state AZ, 5f &times; 30ep).</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T7-2">
+<h3>T7.2 &mdash; Reg head re-ablation under final MTL <span class="pill tier7">T7</span> <span class="pill cost-m">M-cost</span></h3>
+<div class="meta">Targets: re-confirm reg-head choice &middot; Mechanism: 5 reg heads &times; 5f &times; 50ep</div>
+<div class="block"><div class="block-title">Hypothesis</div>Same as T7.1 but for reg.</div>
+<div class="block"><div class="block-title">Methodology</div>5 reg heads (current + T1.2 top-2 + 2 from sub-agent 1's catalogue including <code>next_dual_logit_fusion</code> and <code>next_mixture_softmax_reg</code>). AL+AZ+FL at 5f &times; 50ep on Tier-6 winner.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>Reg Acc@10 + cat non-inferior.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: &ge; 1 pp lift on targeted axis at &ge; 2 of {AL, AZ, FL}, cat non-inferior at TOST &delta;=2 pp. <strong>If winner != current</strong>: narrow-scope T5 LR re-fit on the new head (single-state AZ, 5f &times; 30ep).</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T7-3">
+<h3>T7.3 &mdash; Asymmetric head capacity + cat residual-skip <span class="pill tier7">T7</span> <span class="pill cost-s">S-cost</span></h3>
+<div class="meta">Targets: per-task head capacity &middot; Mechanism: shrink cat head, extend reg head</div>
+<div class="block"><div class="block-title">Hypothesis</div>Cat has K=7 classes; reg has K=1k&ndash;9k. Cat head can be much smaller. Also: extending <code>_uses_residual</code> hook to cat head (currently only on reg) may help cat where the raw input carries signal the cross-attn dilutes.</div>
+<div class="block"><div class="block-title">Methodology</div>2 variants: (a) shrink cat head to 1-layer GRU hidden=128; (b) add residual-skip hook to cat head. AL+AZ at 5f &times; 50ep on Tier-6 winner.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>(reg, cat) + param-count savings.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: targeted axis lifts by &ge; 1 pp (single-seed n=5 floor) OR &ge; 0.5 pp (multi-seed n=15+) AND other axis non-inferior at TOST &delta;=2 pp. <strong>Non-inferior</strong>: targeted axis within fold-&sigma; of baseline; do not promote. <strong>Falsified</strong>: targeted axis regresses by &ge; 1 pp.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<!-- ============================================================== -->
+<h2 id="tier8">Tier 8 &mdash; Multi-seed paper-grade ship
+<span class="pill tier8">Tier 8</span></h2>
+
+<p>Run the final recipe at 4 seeds &times; 5 folds &times; 5 states for n=20 pooled paper-grade comparison vs B9 paper-canonical Table B AND matched-head STL Table A.</p>
+
+<p><strong>Per-tier compute estimate:</strong> ~300 GPU-h H100 + ~3 days analysis. (Revised upward from ~200 per advisor 2026-05-16 &mdash; existing B9 multi-seed runs are ~250&ndash;300 GPU-h; the consolidated recipe is unlikely to be cheaper.)</p>
+
+<div class="experiment" id="T8-1">
+<h3>T8.1 &mdash; Multi-seed shipping run <span class="pill tier8">T8</span> <span class="pill cost-l">L-cost</span></h3>
+<div class="meta">Targets: paper-grade shipping numbers &middot; Mechanism: full 4-seed &times; 5-state &times; 5-fold &times; 50ep run</div>
+<div class="block"><div class="block-title">Hypothesis</div>The Tier-7 consolidated recipe beats B9 paper-canonical Table B on at least one axis at paper-grade significance.</div>
+<div class="block"><div class="block-title">Methodology</div>Final recipe at seeds {0, 1, 7, 100} &times; 5 folds &times; 50ep &times; all 5 states. Per-fold leak-free seed-tagged log_T. Pooled paired Wilcoxon at n=20 vs Table B AND Table A. Joint &Delta;m computed (Maninis/Vandenhende). Generality probes.</div>
+<div class="block"><div class="block-title">Evaluation criteria</div>Per-state (reg, cat) &Delta; vs B9 and vs STL. &Delta;m sign + significance.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Ship</strong>: paper-grade improvement on at least one axis at 4+/5 states. <strong>Mixed</strong>: scale-conditional ship recipe (e.g., new at FL/CA/TX, B9 at AL/AZ). <strong>No improvement</strong>: write up the negative-result memo &mdash; exhaustive search of arch + loss + batch + LR + &alpha; + heads under leak-free did not close the &minus;7 to &minus;17 pp reg gap. That itself is paper-grade.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<hr class="section"/>
+
+<h2>Final advisor pass + paper-update memo</h2>
+<p>After T8.1: spawn an advisor sub-agent to evaluate the entire chain (audit + breadth + per-tier results + sequencing rationale + statistical claims). Capture feedback in <code>log.md</code>. Write a paper-update memo in <code>docs/studies/mtl_improvement/PAPER_UPDATE.md</code> documenting which v11 RESULTS_TABLE rows change, which paper-claim banners require revision, and which findings remain unchanged.</p>
+
+</main>
+</div>
+</body>
+</html>
