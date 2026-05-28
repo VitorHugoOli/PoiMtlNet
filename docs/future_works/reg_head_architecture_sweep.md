@@ -1,6 +1,10 @@
 # Future Work — Reg-head architecture sweep (§4.3)
 
 **Date drafted:** 2026-05-20
+**Updated:** 2026-05-28 — partial status:
+- The **`log_T as supervisory signal (KD)`** sub-track from the table below was **PROMOTED** by `mtl-protocol-fix` Phase 3 Rank 1 ([`phase3_rank1_findings.md`](../results/mtl_protocol_fix/phase3_rank1_findings.md)): all 9 cells Wilcoxon-strict at p=0.0312, +2.40 / +5.06 / +2.32 pp on disjoint reg at AL/AZ/FL @ W=0.2. **Multi-seed n=20 promotion** moved to [`docs/studies/substrate-protocol-cleanup/`](../studies/substrate-protocol-cleanup/) Tier A as a paper-grade follow-up at small states.
+- The **other 5-6 head sweep candidates** (next_lstm, next_transformer_pf, next_getnext, next_stan_baseline, next_gru-as-reg) are absorbed into [`docs/studies/mtl_improvement/`](../studies/mtl_improvement/) T7 (head re-ablation under the new backbone). This memo is the narrower precursor; once T7 lands it can be archived.
+
 **Source:** [`docs/studies/canonical_improvement/`](../studies/canonical_improvement/) post-closure §4 alternatives (item §4.3)
 **Sequencing:** deferred; this is a narrower variant of [`head_window_batch_audit.md`](head_window_batch_audit.md) §A (head re-design). If the broader head audit is launched, this rolls into it and the file can be archived.
 

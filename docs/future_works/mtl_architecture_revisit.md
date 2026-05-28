@@ -1,8 +1,9 @@
 # Future Work — MTL architecture revisit (rigorous re-implementation)
 
 **Date drafted:** 2026-05-20
+**Updated:** 2026-05-28 — execution superseded by [`docs/studies/mtl_improvement/`](../studies/mtl_improvement/) (T0-T8 chain, active on branch `mtl-improve`). This memo retained as the *forward-looking design rationale*; §4.1 per-task best-epoch shipping was **moved out** of this scope into [`docs/studies/substrate-protocol-cleanup/`](../studies/substrate-protocol-cleanup/) (see Tier C there) because it is a protocol/serving concern, not an architectural one.
 **Source:** [`docs/studies/mtl-exploration/considerations.md`](../studies/mtl-exploration/considerations.md) + [`docs/studies/mtl-exploration/EXPERIMENT_NO_ENCODERS.md`](../studies/mtl-exploration/EXPERIMENT_NO_ENCODERS.md) findings + Tier 6 closure (2026-05-19)
-**Sequencing:** **next-tier successor to `mtl-protocol-fix`**. Once F1 has fixed the selector and characterised the residual MTL-vs-STL reg gap, this study takes over.
+**Sequencing:** **next-tier successor to `mtl-protocol-fix`**. Once F1 has fixed the selector and characterised the residual MTL-vs-STL reg gap, this study takes over. **The mechanism motivation is P4 frozen-cat horizon test (Phase 2 of `mtl-protocol-fix`)**: MTL reg peaks at ep 2 even with cat frozen and `cat_weight=0` from epoch 0 — meaning the residual is NOT cat-vs-reg interference but the shared backbone itself. The upper-bound benchmark for any architectural winner is the §4.2 composite (STL c2hgi cat + STL HGI reg) deploy ceiling: +7 to +12 pp vs MTL@disjoint at AL/AZ/FL/CA/TX (Phase 3 Rank 4, `phase3_rank4_composite_analysis.md`).
 
 ## What's deferred
 

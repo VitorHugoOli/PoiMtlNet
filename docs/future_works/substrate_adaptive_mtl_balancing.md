@@ -1,8 +1,9 @@
 # Future Work — Substrate-adaptive MTL loss balancing (F2)
 
 **Date drafted:** 2026-05-20
+**Updated:** 2026-05-28 — **priority lowered** after `mtl-protocol-fix` Phase 2 P4 frozen-cat horizon test FALSIFIED the cat-vs-reg interference hypothesis. MTL reg peaks at ep 2 even with cat fully frozen (`cat_weight=0` from epoch 0). Loss-balancing methods that target gradient/magnitude conflict between cat and reg are now **low-EV** unless coupled to an architectural change. This memo is **absorbed into [`docs/studies/mtl_improvement/`](../studies/mtl_improvement/) Tier 3** (loss balancers under the new backbone). One sub-track — §4.4 "freeze-reg-after-peak" (asymmetric reg-stop variant, untested) — moves to [`docs/studies/substrate-protocol-cleanup/`](../studies/substrate-protocol-cleanup/) as a cheap pilot.
 **Source study:** [`docs/studies/canonical_improvement/`](../studies/canonical_improvement/) Tier 6 CORRECTION (2026-05-19) + [`docs/studies/mtl-exploration/FUTUREWORK_substrate_aware_mtl_balancing.md`](../studies/mtl-exploration/FUTUREWORK_substrate_aware_mtl_balancing.md) §F2
-**Sequencing:** deferred until after `mtl-protocol-fix` lands; pre-requisite for `mtl_architecture_revisit.md`'s loss-balancing axis.
+**Sequencing:** deferred — execution lives inside `mtl_improvement` Tier 3 (co-designed with backbone). This memo retained as the design rationale.
 
 ## What's deferred
 
