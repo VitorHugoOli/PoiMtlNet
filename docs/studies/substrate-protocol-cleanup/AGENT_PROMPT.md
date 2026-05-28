@@ -56,11 +56,23 @@ When deciding whether to run something:
 
 ## GPU evaluation + parallel execution (mandatory before any launch)
 
-Before launching any GPU-bearing Tier item, evaluate the host:
+> ⚠ **2026-05-28 NVML broken on host** — `nvidia-smi` returns `Driver/library version mismatch (NVML 580.159)` because the host had a driver upgrade without reboot (uptime > 20d, kernel `-117` pending in `/var/run/reboot-required`). **CUDA compute is unaffected** (verified: A40 detected, ~47 GB free, matmul runs). Use the torch-based probe below until the host gets a maintenance window. Fix when possible: `sudo reboot` (preferred — also applies pending kernel upgrade) OR `sudo rmmod nvidia_uvm nvidia_drm nvidia_modeset nvidia && sudo modprobe nvidia` (surgical, requires no live GPU processes on the host).
+
+Before launching any GPU-bearing Tier item, evaluate the host. Prefer `nvidia-smi` when it works; fall back to the torch probe when NVML is broken:
 
 ```bash
+# Primary (works when NVML is healthy):
 nvidia-smi --query-gpu=index,name,memory.total,memory.used,memory.free,utilization.gpu --format=csv
 nvidia-smi --query-compute-apps=pid,gpu_uuid,used_memory --format=csv
+
+# Fallback (works regardless of NVML state):
+.venv/bin/python -c "
+import torch
+n = torch.cuda.device_count()
+for i in range(n):
+    free, total = torch.cuda.mem_get_info(i)
+    print(f'gpu{i}: {torch.cuda.get_device_name(i)} | free {free/1e9:.1f} GB / total {total/1e9:.1f} GB | cap {torch.cuda.get_device_capability(i)}')
+"
 ```
 
 Record the result in `log.md` under a `**GPU snapshot**:` line at the start of each session. Decide parallel slots from this:
