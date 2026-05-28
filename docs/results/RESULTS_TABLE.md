@@ -1,5 +1,21 @@
 # Results Table — Check2HGI MTL Study
 
+> 🔬 **2026-05-28 — ACTIVE STUDIES UPDATE (read before citing v11 numbers below).**
+>
+> Two studies launched after v11 closure produce numbers that may supersede §0:
+> - [`docs/studies/mtl_improvement/`](../studies/mtl_improvement/) (LAUNCHED 2026-05-16, branch `mtl-improve`) — full T0-T8 architectural chain (backbones, loss, batch, LR, α, heads, multi-seed champion).
+> - [`docs/studies/substrate-protocol-cleanup/`](../studies/substrate-protocol-cleanup/) (LAUNCHED 2026-05-28, main) — Tier A-D substrate + protocol cleanup.
+>
+> Both are **ACTIVE / OPEN**. When they land champions, the plan is to **re-run the full §0 pipeline from scratch** at all five states with the new selector + arch + heads + multi-seed. Until then, v11 below remains the paper-citable canon, with these caveats already known:
+>
+> - **F1 selector fix** (mtl-protocol-fix CLOSED 2026-05-24 v6 final): the deployable `joint_geom_simple` selector recovers +5.6 pp at FL multi-seed vs the legacy `joint_canonical_b9` reported in §0.1. C21 RESOLVED.
+> - **Composite ceiling** (Phase 3 §4.2 ESTABLISHED): STL c2hgi cat + STL HGI reg routed by task at deploy delivers **+7 to +12 pp vs MTL@disjoint at every state** — current project headline on the reg axis. Not yet in §0; tracked in [`mtl_protocol_fix/phase3_rank4_composite_analysis.md`](mtl_protocol_fix/phase3_rank4_composite_analysis.md).
+> - **log_T-KD** (Phase 3 §4.5 PROMOTED single-seed; multi-seed pending in substrate-protocol-cleanup Tier A): +2.4/+5.1/+2.3 pp disjoint reg at AL/AZ/FL @ W=0.2 (Wilcoxon-strict p=0.0312 in all 9 cells).
+> - **Class-balanced sampler** (Phase 3 §4.6 FALSIFIED): −18 to −30 pp; closes the long-tail-undersampling hypothesis.
+> - **P4 frozen-cat verdict**: residual MTL-vs-STL reg gap is **architectural** (NOT cat-interference, NOT long-tail, NOT substrate). Drives the `mtl_improvement` agenda.
+>
+> ---
+
 > ⚠ **2026-05-02 v11 PAPER CLOSURE — FL §0.1 upgraded to n=20 (both axes paper-grade); all five states now multi-seed on the headline architectural-Δ axis.**
 > Cross-state P3 (CA + TX) + multi-seed at AL/AZ/FL/CA landed leak-free per-fold log_T.
 > Numbers in pre-2026-05-01 rows used the legacy unseeded log_T and are

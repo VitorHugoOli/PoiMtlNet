@@ -1,5 +1,14 @@
 # Final Survey — Check2HGI vs HGI substrate study (Phase 1 + 2 + 3, leak-free)
 
+> 🔬 **2026-05-28 — Superseded framing notice.** The "substrate axis" framing of this survey has been overtaken by three closures (`canonical_improvement` 2026-05-19, `mtl-protocol-fix` 2026-05-24, Phase 3 2026-05-24) and two active studies (`mtl_improvement`, `substrate-protocol-cleanup`). Headlines that supersede the 5-state matrix below:
+> - **Substrate axis exhausted ±0.8 pp** per `canonical_improvement` Tier 1-6 closure (26 mechanism families).
+> - **Composite STL c2hgi-cat + STL HGI-reg** (Phase 3 §4.2) is the **current project headline on the reg axis** (+7-12 pp vs MTL@disjoint at every state), not any single substrate row below.
+> - **Residual MTL-vs-STL reg gap is architectural** (P4 frozen-cat); the next-tier `mtl_improvement` study targets the backbone.
+>
+> When `mtl_improvement` lands a champion, this survey will be **re-run from scratch** at the new arch + F1 selector. Until then the numbers below remain the leak-free 2026-04-30 snapshot, cited only where post-v11 work has not superseded them.
+
+---
+
 **Generated 2026-04-30.** Five US states (AL, AZ, FL, CA, TX) × two substrates (Check2HGI per-visit graph embeddings vs HGI POI-stable graph embeddings). Same fold protocol everywhere: `StratifiedGroupKFold(userid, seed=42)`, 5 folds × 50 epochs. All `next_region` numbers below come from the Phase 3 leak-free re-run (`--per-fold-transition-dir`); the Phase 2 leaky reg numbers are kept as a side panel for the F44 leakage analysis.
 
 Statistical protocol: paired Wilcoxon signed-rank (one-sided `alternative='greater'` for the C2HGI > HGI direction) on the 5 paired folds, `p=0.0312` is the maximum significance achievable at n=5, equivalent to all 5 folds positive. Paired-t reported alongside; effect-direction (Δ̄ sign) agrees with Wilcoxon at every cell.

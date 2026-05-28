@@ -1,5 +1,13 @@
 # Paper Baselines Strategy (2026-05-01)
 
+> 🔬 **2026-05-28 — Headline table missing post-v11 results.** Two items now belong in the headline next_region narrative but are not in the table below:
+> - **MTL @ F1 selector (`joint_geom_simple`)** — +5.6 pp at FL multi-seed vs the legacy `joint_canonical_b9` (C21 RESOLVED via `mtl-protocol-fix` v6 final 2026-05-24).
+> - **Composite STL c2hgi-cat + STL HGI-reg** — +7-12 pp vs MTL@disjoint at every state (Phase 3 §4.2, current project headline on reg).
+>
+> Both pending paper inclusion until `mtl_improvement` + `substrate-protocol-cleanup` land their champions, after which §0 + this baselines table will be **re-derived from scratch** with the new selector + arch + heads.
+
+---
+
 Single source of truth for *which baselines appear in which paper table*, the role each row plays, and what is **deliberately scoped out**. Supersedes earlier per-method scope notes scattered across `PAPER_STRUCTURE.md` and `next_region/comparison.md`.
 
 ## Headline next_region table — what readers see

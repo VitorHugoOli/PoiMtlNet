@@ -419,7 +419,11 @@ The NORTH_STAR currently reflects **Path A** (`next_gru` universally) pending F3
 
 ---
 
-## C21 — `joint_canonical_b9` selector throws away ~+11 pp of reg capacity from the canonical Check2HGI substrate
+## C21 — `joint_canonical_b9` selector throws away ~+11 pp of reg capacity from the canonical Check2HGI substrate (RESOLVED 2026-05-24)
+
+**Resolution summary (2026-05-24, `mtl-protocol-fix` v6 final):** The F1 selector fix (`joint_geom_simple`) landed and validated at FL multi-seed (n=4 seeds × 5 folds, fresh log_T): MTL @ `joint_geom_simple` = 61.54 ± 4.54 vs MTL @ `joint_canonical_b9` = 55.92 ± 3.40 → **+5.62 pp deployable lift at multi-seed**. Capacity gap (disjoint − geom_simple) = 2.37 pp, i.e. **F1 fix recovers ~95% of substrate capacity at FL**. Closure verdict at [`results/mtl_protocol_fix/phase1_phase2_verdict_v6_final.md`](results/mtl_protocol_fix/phase1_phase2_verdict_v6_final.md). Paper canon n=20 re-run is deferred to [`future_works/paper_canon_reevaluation.md`](future_works/paper_canon_reevaluation.md), sequenced after `mtl_improvement` lands a champion.
+
+---
 
 **Concern raised:** 2026-05-19 during canonical_improvement Tier-6 / T6.4 evaluation. Matched-protocol analysis (shipping FL ep=50 single-seed=42 n=5 + dual-selector re-evaluation) revealed that the production MTL selector (`joint_score = 0.5 * (cat_macro_f1 + reg_macro_f1)` at `src/training/runners/mtl_cv.py:679`) **destroys ~11 pp of reg-top10 capacity that the canonical Check2HGI substrate already produces**. This is a property of the **shipping recipe AS-IS**, not specific to any substrate variant.
 
@@ -447,7 +451,7 @@ The NORTH_STAR currently reflects **Path A** (`next_gru` universally) pending F3
 - **F2** — substrate-adaptive MTL balancing (NashMTL revival on FL where the cvxpy solver is well-conditioned; per-task LR decay after reg peak; gradient masking after reg plateau). Goal: prevent reg destabilisation past its early peak so a single checkpoint near ep ~10-15 captures both heads near peak.
 - **F3** — substrate × protocol 2×2 ablation as the proper paper headline: (shipping, T6.4 substrate variants) × (B9 selector, F1-fix selector). Shows the protocol-axis effect is **larger** than the substrate-axis effect on reg.
 
-**Status:** `open 2026-05-19, in-flight 2026-05-20`. Closure path: **[`docs/studies/mtl-protocol-fix/`](studies/mtl-protocol-fix/) is the active study addressing this concern.** F1 fix lands the one-line code change at `mtl_cv.py:679`; AL/AZ/FL/CA/TX single-seed re-evaluation is part of the study's Phase 1. Full §0.1 n=20 multi-seed re-evaluation is deferred to [`docs/future_works/paper_canon_reevaluation.md`](future_works/paper_canon_reevaluation.md) (sequenced after `mtl_architecture_revisit.md`). Re-opens if any new substrate intervention claims a paper-grade reg lift before the F1 fix has been applied to its baseline.
+**Status:** `RESOLVED 2026-05-24` via `mtl-protocol-fix` v6 final (see resolution summary at the top of this concern). F1 selector code change landed at `mtl_cv.py:679`; FL multi-seed validated +5.62 pp deployable. Full §0.1 n=20 paper-canon re-evaluation across all 5 states deferred to [`future_works/paper_canon_reevaluation.md`](future_works/paper_canon_reevaluation.md) (sequenced after `mtl_improvement` lands champion). Re-opens if any new substrate intervention claims a paper-grade reg lift WITHOUT the F1 fix applied to its baseline.
 
 **Numbers source-of-truth:** `docs/results/canonical_improvement/T6_4_dual_selector_final.{json,md}` (all 3 arms: shipping, two_pass, infonce τ=0.5; single-seed=42, n=5 folds, ep=50).
 
@@ -486,7 +490,7 @@ Fresh-log_T seed=42 values match multi-seed {0,1,7,100} mean within σ → devel
 4. **Patch all `t6*_fl_mtl*.sh` scripts** to call `compute_region_transition.py` immediately after `regen_emb_t3.py`. *(Open work item.)*
 5. **Cite the caveat** when reporting any Tier 6 FL-MTL absolute Acc@10. Cross-reference [`docs/results/mtl_protocol_fix/phase1_verdict.md`](results/mtl_protocol_fix/phase1_verdict.md) (the closure document for this concern).
 
-**Status:** `open 2026-05-20`. Closure path: items 2-4 land as separate small commits. Item 1 already landed.
+**Status:** `partially resolved 2026-05-20`. Items 1-3 landed (CLAUDE.md preflight rule, `regen_emb_t3.py` auto-calls `compute_region_transition.py`, `scripts/train.py` preflight raises on stale log_T). Item 4 (patch all `t6*_fl_mtl*.sh` scripts) deferred — those scripts belong to the closed `canonical_improvement` Tier 6 sweep and are unlikely to re-run; documented as known limitation. Item 5 cite-the-caveat is now standard practice in `mtl-protocol-fix` and `substrate-protocol-cleanup` AGENT_PROMPTs (C22 stale-log_T preflight gate at every run).
 
 **Numbers source-of-truth:** `docs/results/mtl_protocol_fix/phase2p5_FL_stale_vs_fresh.{json,md}` (FL seed=42 stale vs fresh log_T side-by-side comparison; matched protocol single-seed n=5 folds ep=50).
 

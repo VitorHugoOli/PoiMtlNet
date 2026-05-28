@@ -10,6 +10,16 @@ This study runs **alongside** the fusion study — they coexist under `docs/stud
 
 **Post-paper-closure + cat-Δ Wilcoxon + TX recipe multi-seed + CA/TX arch-Δ n=20 era (2026-05-02 v11).** Paper closure complete; the headline narrative is **substrate task-asymmetry first, classic MTL tradeoff second**. The article-side BRACIS submission lives in `articles/[BRACIS]_Beyond_Cross_Task/`. **Single canonical numerical source: `results/RESULTS_TABLE.md §0` (v11).** All other numbers in this folder reference it; numbers that contradict v11 are either stale (mark, fix, or archive) or audit-historical.
 
+> 🔬 **2026-05-28 — Post-v11 study progress (read this before citing v11).**
+> Three closures + two active studies have layered on top of v11:
+> - **`canonical_improvement` CLOSED 2026-05-19** — substrate axis exhausted ±0.8 pp (Tier 1-6, 26 mechanism families).
+> - **`mtl-protocol-fix` CLOSED 2026-05-24 v6 final** — F1 selector fix (`joint_geom_simple`) recovers +5.6 pp at FL multi-seed deployable axis. C21 RESOLVED. P4 frozen-cat identifies residual MTL-vs-STL reg gap as ARCHITECTURAL.
+> - **Phase 3 of `mtl-protocol-fix`** — §4.5 log_T-KD PROMOTED (+2.4/+5.1/+2.3 pp AL/AZ/FL Wilcoxon-strict); §4.6 class-balanced sampler FALSIFIED; §4.2 composite STL c2hgi-cat + STL HGI-reg ESTABLISHED as **current project headline on the reg axis (+7-12 pp vs MTL@disjoint at every state)**.
+> - **`mtl_improvement` ACTIVE since 2026-05-16** (branch `mtl-improve`) — T0-T8 chain: backbones, loss, batch, LR, α, heads, multi-seed champion.
+> - **`substrate-protocol-cleanup` ACTIVE since 2026-05-28** (main) — Tier A-D substrate + protocol cleanup; small states only.
+>
+> When both active studies land champions, the §0 pipeline will be **re-run from scratch** and this briefing refreshed. Until then, v11 below remains the paper-citable canon with the F1 / composite / log_T-KD caveats above. Cross-study outcomes log at [`studies/log.md`](studies/log.md).
+
 **Before doing scientific work, read in this order:**
 1. `CHANGELOG.md` — chronological timeline of findings + lessons (the single source for "what was found when, why").
 2. `results/RESULTS_TABLE.md §0` — canonical paper numbers (v11, 2026-05-02).

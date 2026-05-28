@@ -1,5 +1,11 @@
 # Claims and Hypotheses Catalog — Check2HGI Study
 
+> 🔬 **2026-05-28 — Post-v11 claims pending whitelist promotion.** Two studies are ACTIVE (`mtl_improvement`, `substrate-protocol-cleanup`) and the §0 pipeline will be re-run from scratch once they land champions. Until then, three NEW claims are paper-relevant but not yet on the v10 whitelist below — they live in this document's body and in the studies' finding docs:
+> - **CH24 (provisional, RESOLVED in code)** — F1 selector fix (`joint_geom_simple`) recovers +5.6 pp at FL multi-seed deployable vs legacy `joint_canonical_b9`. C21 RESOLVED. Source: `mtl-protocol-fix` v6 final + [`results/mtl_protocol_fix/phase1_phase2_verdict_v6_final.md`](results/mtl_protocol_fix/phase1_phase2_verdict_v6_final.md).
+> - **CH25 (provisional, ESTABLISHED)** — Composite STL c2hgi-cat + STL HGI-reg, routed by task at deploy = +7-12 pp vs MTL@disjoint at every state (current project headline on reg axis). Source: [`results/mtl_protocol_fix/phase3_rank4_composite_analysis.md`](results/mtl_protocol_fix/phase3_rank4_composite_analysis.md). Memo: [`future_works/composite_two_substrate_engine.md`](future_works/composite_two_substrate_engine.md).
+> - **CH26 (provisional, PROMOTED single-seed)** — log_T-KD supervisory signal at the reg head, +2.4/+5.1/+2.3 pp at AL/AZ/FL @ W=0.2 (Wilcoxon-strict p=0.0312 in all 9 cells). Multi-seed n=20 pending at `substrate-protocol-cleanup` Tier A. Source: [`results/mtl_protocol_fix/phase3_rank1_findings.md`](results/mtl_protocol_fix/phase3_rank1_findings.md).
+> - **CH27 (mechanism)** — P4 frozen-cat horizon test identifies the residual MTL-vs-STL reg gap as **architectural**: NOT cat-vs-reg interference, NOT long-tail (Phase 3 §4.6 sampler falsification), NOT substrate (canonical_improvement Tier 6 closure). Drives the `mtl_improvement` agenda.
+
 > ⚠ **PAPER-FACING WHITELIST (current canon: v10, 2026-05-02).** Only the entries below are safe to cite as paper canon. The rest of this document contains pre-leak-free framing, superseded H3-alt narratives, and historic claim attributions that are **not paper-current**. When in doubt, cross-check against `results/RESULTS_TABLE.md §0` (v10) and the `CHANGELOG.md` timeline.
 >
 > **Whitelisted entries (paper-facing safe):**

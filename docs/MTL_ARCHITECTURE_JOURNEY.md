@@ -1,5 +1,10 @@
 # MTL Architecture Journey — From Initial Design to F48-H3-alt
 
+> 🔬 **2026-05-28 — Narrative is two study-cycles behind. Read [`CHANGELOG.md`](CHANGELOG.md) entries 2026-04-30 → 2026-05-28 for what landed AFTER this document.**
+> Specifically not reflected here: F51 multi-seed validation; `canonical_improvement` Tier 1-6 closure (substrate axis exhausted ±0.8 pp, 2026-05-19); `mtl-protocol-fix` F1 selector fix + P4 frozen-cat architectural verdict (CLOSED v6 final 2026-05-24); Phase 3 outcomes (log_T-KD PROMOTED, sampler FALSIFIED, composite ESTABLISHED as project headline +7-12 pp on reg); `mtl_improvement` study (LAUNCHED 2026-05-16, T0-T8 chain) and `substrate-protocol-cleanup` (LAUNCHED 2026-05-28). When `mtl_improvement` lands a champion, this journey will get a new closing chapter and the architecture-axis re-run from scratch.
+
+---
+
 **Status:** living document, last updated 2026-04-26 after F48-H3-alt + F40 + F48-H2 closure. **Audience:** future agents picking up the branch, paper readers needing the back-story, and the author when revisiting why a particular design decision was made.
 
 This document tells the story of how the Check2HGI MTL configuration arrived at the current per-head LR recipe. It complements the per-experiment research notes (`research/F*_FINDINGS.md`) by stitching them into a single narrative — what we tried, what failed, what survived, and why each step led to the next.

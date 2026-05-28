@@ -1,5 +1,11 @@
 # North-Star MTL Configuration
 
+> 🔬 **2026-05-28 — Active studies caveat.** Two studies launched after the v10/v11 canon are expected to land a new champion: [`studies/mtl_improvement/`](studies/mtl_improvement/) (architectural axis, branch `mtl-improve`) and [`studies/substrate-protocol-cleanup/`](studies/substrate-protocol-cleanup/) (substrate + protocol axis, main). Both are **ACTIVE / OPEN**. When they land champions, the §0 pipeline will be **re-run from scratch** and this North Star refreshed. Until then the v10/v11 recipe below remains the committed champion, with these known follow-on results:
+> - **C21 RESOLVED** — F1 selector fix (`joint_geom_simple`) lands +5.6 pp deployable lift at FL multi-seed (`mtl-protocol-fix` v6 final 2026-05-24).
+> - **Composite ceiling on reg** (Phase 3 §4.2 ESTABLISHED) — STL c2hgi-cat + STL HGI-reg routed by task at deploy = +7 to +12 pp vs MTL@disjoint at every state. Current project headline on the reg axis. See [`future_works/composite_two_substrate_engine.md`](future_works/composite_two_substrate_engine.md).
+> - **log_T-KD** (Phase 3 §4.5 PROMOTED single-seed) — multi-seed n=20 pending at `substrate-protocol-cleanup` Tier A.
+> - **P4 verdict** — residual MTL-vs-STL reg gap is architectural (not cat-interference, not long-tail, not substrate). `mtl_improvement` T2 owns the fix.
+
 > ⚠ **2026-05-02 v10 CURRENT NORTH STAR — use `results/RESULTS_TABLE.md §0` as the only paper-canonical numerical source.**
 > B9 is paper-grade at **FL/CA/TX**; H3-alt remains the small-state recipe at **AL/AZ**.
 > The paper story is **substrate task-asymmetry first, classic MTL tradeoff second**.

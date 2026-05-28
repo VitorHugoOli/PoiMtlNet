@@ -6,6 +6,9 @@
 > **Single source of truth for paper numbers**: [`results/RESULTS_TABLE.md §0`](results/RESULTS_TABLE.md).
 > **Single source of truth for paper prose**: [`../articles/[BRACIS]_Beyond_Cross_Task/`](../articles/[BRACIS]_Beyond_Cross_Task/) — read `AGENT.md` first.
 > **Operational documentation** (Colab, RunPod, Lightning, H100, local, Drive): [`infra/`](infra/).
+> **Cross-study outcomes log**: [`studies/log.md`](studies/log.md) (one line per closure / direction shift).
+
+> 🔬 **2026-05-28 — Active studies caveat (read before citing v11 numbers).** Two studies launched after v11 paper closure are expected to produce better numbers: [`studies/mtl_improvement/`](studies/mtl_improvement/) (architectural axis, branch `mtl-improve`) and [`studies/substrate-protocol-cleanup/`](studies/substrate-protocol-cleanup/) (substrate + protocol axis, main). Both are **ACTIVE / OPEN**. When they land champions, the plan is to **re-run the full §0 pipeline from scratch** at all five states. Already-known caveats on v11: F1 selector fix recovers +5.6 pp FL multi-seed (C21 RESOLVED); composite STL c2hgi-cat + STL HGI-reg ceiling +7-12 pp vs MTL@disjoint (Phase 3 §4.2 ESTABLISHED). See [`results/RESULTS_TABLE.md`](results/RESULTS_TABLE.md) top banner for the full list.
 
 ---
 
@@ -35,12 +38,14 @@
 
 ### "What active follow-up studies are running?"
 
-- [`studies/`](studies/) — active research tracks layered on check2hgi
-  - [`studies/mtl-protocol-fix/`](studies/mtl-protocol-fix/) — protocol-axis study **CLOSED 2026-05-20** (v6 final verdict; C22 stale-log_T bug discovered + audited; F1 fix gain +5.6 pp at deployable selector confirmed at multi-seed; Tier 5/6 §Discussion candidates re-eval under F1 found no winners; substrate axis exhausted; mechanism is architectural per P4 frozen-cat test). Closure verdict: [`docs/results/mtl_protocol_fix/phase1_phase2_verdict_v6_final.md`](results/mtl_protocol_fix/phase1_phase2_verdict_v6_final.md). Next-tier highest-EV: [`future_works/mtl_architecture_revisit.md`](future_works/mtl_architecture_revisit.md).
-  - [`studies/canonical_improvement/`](studies/canonical_improvement/) — canonical Check2HGI improvement (CLOSED 2026-05-19; 6 tiers, 26 mechanism families, substrate axis exhausted; surfaced C21). ⚠ Tier 6 FL-MTL artefacts carry stale-log_T caveat — see [`CONCERNS.md` C22](CONCERNS.md#c22).
-  - [`studies/mtl-exploration/`](studies/mtl-exploration/) — support / scaffold study; F1/F2/F3 memo now superseded by `mtl-protocol-fix`.
-  - [`studies/merge_design/`](studies/merge_design/) — Designs A-M / Levers 1-6 / Phase 11 audit trail.
-  - [`studies/hgi_category_injection/`](studies/hgi_category_injection/) — HGI POI2Vec category-injection on AZ (CLOSED, falsified, kept pending FL/CA/TX revisit).
+- [`studies/`](studies/) — research tracks layered on check2hgi (active + closed). Cross-study outcomes log at [`studies/log.md`](studies/log.md).
+  - **ACTIVE** [`studies/mtl_improvement/`](studies/mtl_improvement/) — architectural axis (T0-T8 chain: backbones, loss, batch, LR, α, heads, multi-seed champion). LAUNCHED 2026-05-16, branch `mtl-improve`.
+  - **ACTIVE** [`studies/substrate-protocol-cleanup/`](studies/substrate-protocol-cleanup/) — substrate + protocol cleanup (log_T-KD multi-seed promotion, Designs B/J/Lever 4/Lever 5 MTL+F1 re-eval, §4.1 per-task 3-snapshot routing, §4.4 freeze-reg-after-peak, P4 K/V capacity-stealing pilot, window/mask audit). LAUNCHED 2026-05-28, main. Small states only.
+  - **CLOSED 2026-05-24 v6 final** [`studies/mtl-protocol-fix/`](studies/mtl-protocol-fix/) — F1 selector fix (+5.6 pp FL multi-seed deployable; C21 RESOLVED); P4 frozen-cat identifies residual MTL-vs-STL reg gap as architectural; Phase 3 outcomes: §4.5 log_T-KD PROMOTED, §4.6 sampler FALSIFIED, §4.2 composite ESTABLISHED (+7-12 pp project headline on reg). Closure verdict: [`results/mtl_protocol_fix/phase1_phase2_verdict_v6_final.md`](results/mtl_protocol_fix/phase1_phase2_verdict_v6_final.md). Deferred-work map: [`studies/mtl-protocol-fix/DEFERRED_WORK.md`](studies/mtl-protocol-fix/DEFERRED_WORK.md).
+  - **CLOSED 2026-05-19** [`studies/canonical_improvement/`](studies/canonical_improvement/) — 6 tiers, 26 mechanism families, substrate axis exhausted ±0.8 pp; surfaced C21. ⚠ Tier 6 FL-MTL artefacts carry stale-log_T caveat — see [`CONCERNS.md` C22](CONCERNS.md#c22).
+  - [`studies/mtl-exploration/`](studies/mtl-exploration/) — support / scaffold study; F1/F2/F3 memo superseded by `mtl-protocol-fix`.
+  - [`studies/merge_design/`](studies/merge_design/) — Designs A-M / Levers 1-6 / Phase 11 audit trail. Lever 5 orphan rescued by `substrate-protocol-cleanup` Tier B4.
+  - [`studies/hgi_category_injection/`](studies/hgi_category_injection/) — HGI POI2Vec category-injection on AZ (CLOSED 2026-05-04, falsified, kept pending FL/CA/TX revisit).
 
 ### "I'm running on machine X — where do I look?"
 

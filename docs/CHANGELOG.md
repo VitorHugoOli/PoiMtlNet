@@ -29,6 +29,38 @@
 
 ## Timeline of findings (most recent first)
 
+### 2026-05-28 — `substrate-protocol-cleanup` study LAUNCHED; future_works re-routed
+
+New study at [`studies/substrate-protocol-cleanup/`](studies/substrate-protocol-cleanup/) (main worktree) owns substrate + protocol items orthogonal to backbone, splitting cleanly from the parallel active `mtl_improvement` study (architectural axis on branch `mtl-improve`).
+
+**Scope (small states only — AL/AZ; FL/CA/TX only as 1-fold pilots):**
+- **Tier A:** §4.5 log_T-KD multi-seed n=20 promotion (Phase 3 Rank 1 already PROMOTED at single-seed).
+- **Tier B:** Designs B/J + Lever 4 + Lever 5 (orphan rescue) MTL re-eval under F1 selector.
+- **Tier C:** §4.1 per-task 3-snapshot routing (variant A, internally coherent); §4.4 freeze-reg-after-peak (last unfalsified curriculum variant); P4 K/V capacity-stealing pilot.
+- **Tier D:** window/causal-mask audit (no GPU; first-to-claim handoff with `mtl_improvement` T0.2).
+
+**Decisions captured:** §4.1 variant A (3 internally-consistent MTL snapshots routed by task at deploy) over variant C (mixed-epoch heads + backbone — incoherent). Cost budget ~40-45 GPU-h + ~4-5 days code at small states. Advisor pass closed 5 critical gaps before launch (Lever 5 absorption, D1↔T0.2 handoff, BestTracker rebase cadence, variant C-prime as deferred trigger, P4 K/V capacity-stealing pilot).
+
+**Future-works re-routing:** `mtl_architecture_revisit.md` execution moved into `mtl_improvement`; §4.1 moved into `substrate-protocol-cleanup` Tier C. `substrate_adaptive_mtl_balancing.md` priority lowered post-P4. `head_window_batch_audit.md` §A → `mtl_improvement` T7, §B → `substrate-protocol-cleanup` Tier D, §C sampler form FALSIFIED via Phase 3 Rank 2. `reg_head_architecture_sweep.md` log_T-KD PROMOTED banner. `composite_two_substrate_engine.md` AL/AZ DONE, FL/CA/TX held until champion lands. See [`future_works/README.md`](future_works/README.md) §"2026-05-28 re-routing" for the full table.
+
+**Outcomes-only cross-study log** introduced at [`studies/log.md`](studies/log.md).
+
+---
+
+### 2026-05-24 — `mtl-protocol-fix` Phase 3 post-closure execution
+
+Three deferred items from `DEFERRED_WORK.md` executed at single-seed=42 small states (FL where cheap):
+
+- **§4.5 log_T as supervisory KD signal → PROMOTED.** Wilcoxon-strict (p=0.0312) at all 9 cells: +2.40/+5.06/+2.32 pp disjoint reg at AL/AZ/FL @ W=0.2; cat untouched. The head already consumes `log_T` as additive prior; the KD term forces the output distribution to also match `log_T` — a second pressure that accelerates prior-alignment and stabilises the deployable selector. Multi-seed n=20 promotion deferred to `substrate-protocol-cleanup` Tier A. Source: [`results/mtl_protocol_fix/phase3_rank1_findings.md`](results/mtl_protocol_fix/phase3_rank1_findings.md).
+- **§4.6 class-balanced reg sampler → FALSIFIED.** `WeightedRandomSampler` regresses disjoint reg by −30.46/−18.49 pp at AL/AZ (p=1.0000); FL skipped. Closes the long-tail-undersampling hypothesis: the existing weighted-CE is enough; layering a sampler creates dual-prior conflict. Source: [`results/mtl_protocol_fix/phase3_rank2_findings.md`](results/mtl_protocol_fix/phase3_rank2_findings.md).
+- **§4.2 composite (STL c2hgi-cat + STL HGI-reg, routed by task at deploy) → ESTABLISHED.** Reg lift vs MTL@disjoint: AL +11.04 / AZ +12.04 / CA +7.16 / TX +9.64 / FL +7.43 pp. **Current project headline on the reg axis.** Cat untouched (same MTL c2hgi cat checkpoint). Pure inference-side recipe, zero retraining. Source: [`results/mtl_protocol_fix/phase3_rank4_composite_analysis.md`](results/mtl_protocol_fix/phase3_rank4_composite_analysis.md). Memo: [`future_works/composite_two_substrate_engine.md`](future_works/composite_two_substrate_engine.md).
+
+**Mechanism convergence (residual MTL-vs-STL reg gap is architectural):** three independent strands now converge — (1) Phase 2 P4 frozen-cat ⇒ cat is not the bottleneck; (2) Phase 3 Rank 2 sampler ⇒ long-tail is not the bottleneck; (3) canonical_improvement Tier 6 ⇒ substrate is not the bottleneck. By elimination, the residual is the **shared-backbone architecture itself**, motivating the parallel `mtl_improvement` study.
+
+**Caveats and follow-ups** captured in [`results/mtl_protocol_fix/phase3_summary.md`](results/mtl_protocol_fix/phase3_summary.md) + the post-closure deferred inventory at [`studies/mtl-protocol-fix/DEFERRED_WORK.md`](studies/mtl-protocol-fix/DEFERRED_WORK.md).
+
+---
+
 ### 2026-05-20 (close-of-day) — `mtl-protocol-fix` study CLOSED (v6 final verdict); C22 stale log_T + C23 dev-seed bug discoveries documented
 
 The full one-day execution of the mtl_protocol_fix study closed with a v6 final verdict at [`docs/results/mtl_protocol_fix/phase1_phase2_verdict_v6_final.md`](results/mtl_protocol_fix/phase1_phase2_verdict_v6_final.md).
