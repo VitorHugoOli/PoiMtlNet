@@ -1,0 +1,67 @@
+{
+  "state": "alabama",
+  "weights": {
+    "0.0": {
+      "disjoint_reg_top10_mean": 50.82150518894195,
+      "disjoint_reg_top10_std": 3.2148233550841536,
+      "geom_reg_top10_mean": 48.55617046356201,
+      "geom_reg_top10_std": 3.125464242413315,
+      "b9_reg_top10_mean": 47.60456442832947,
+      "b9_reg_top10_std": 4.140105638074005,
+      "disjoint_cat_f1_mean": 45.759687423706055,
+      "disjoint_cat_f1_std": 1.3417075620394703,
+      "geom_cat_f1_mean": 45.18096745014191,
+      "geom_cat_f1_std": 1.891572359124793,
+      "n_folds": 5,
+      "run_dir": "results/check2hgi/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260521_052421_2511259"
+    },
+    "0.05": {
+      "disjoint_reg_top10_mean": 52.34009325504303,
+      "disjoint_reg_top10_std": 3.1534788905947226,
+      "geom_reg_top10_mean": 49.944740533828735,
+      "geom_reg_top10_std": 3.3950575834769716,
+      "b9_reg_top10_mean": 48.55537176132202,
+      "b9_reg_top10_std": 2.9071736634612093,
+      "disjoint_cat_f1_mean": 45.68071126937866,
+      "disjoint_cat_f1_std": 1.7492253936424358,
+      "geom_cat_f1_mean": 44.79959428310394,
+      "geom_cat_f1_std": 1.695757238045406,
+      "n_folds": 5,
+      "run_dir": "results/check2hgi/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260521_052602_2512342",
+      "wilcoxon_disjoint_reg_p": 0.03125,
+      "mean_delta_pp": 1.5185880661010753
+    },
+    "0.1": {
+      "disjoint_reg_top10_mean": 52.91653633117676,
+      "disjoint_reg_top10_std": 3.477068573556566,
+      "geom_reg_top10_mean": 50.83839297294617,
+      "geom_reg_top10_std": 3.155675165498595,
+      "b9_reg_top10_mean": 48.99332940578461,
+      "b9_reg_top10_std": 3.811576750223368,
+      "disjoint_cat_f1_mean": 45.783663392066956,
+      "disjoint_cat_f1_std": 1.9037600589200665,
+      "geom_cat_f1_mean": 45.01742124557495,
+      "geom_cat_f1_std": 1.6357095977878953,
+      "n_folds": 5,
+      "run_dir": "results/check2hgi/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260521_052745_2513447",
+      "wilcoxon_disjoint_reg_p": 0.03125,
+      "mean_delta_pp": 2.0950311422348036
+    },
+    "0.2": {
+      "disjoint_reg_top10_mean": 53.21713507175445,
+      "disjoint_reg_top10_std": 3.301343916235104,
+      "geom_reg_top10_mean": 51.47971034049987,
+      "geom_reg_top10_std": 2.8911070672233192,
+      "b9_reg_top10_mean": 49.870904088020325,
+      "b9_reg_top10_std": 3.864657977303115,
+      "disjoint_cat_f1_mean": 45.73654294013977,
+      "disjoint_cat_f1_std": 1.4756859848995723,
+      "geom_cat_f1_mean": 45.14243185520172,
+      "geom_cat_f1_std": 2.5677083335385626,
+      "n_folds": 5,
+      "run_dir": "results/check2hgi/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260521_052928_2514543",
+      "wilcoxon_disjoint_reg_p": 0.03125,
+      "mean_delta_pp": 2.395629882812501
+    }
+  }
+}

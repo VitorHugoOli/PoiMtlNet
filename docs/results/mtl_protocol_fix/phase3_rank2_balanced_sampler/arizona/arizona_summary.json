@@ -1,0 +1,35 @@
+{
+  "state": "arizona",
+  "arms": {
+    "baseline": {
+      "disjoint_reg_top10_mean": 41.3266921043396,
+      "disjoint_reg_top10_std": 2.734828549365516,
+      "geom_reg_top10_mean": 39.59788680076599,
+      "geom_reg_top10_std": 3.105877823257457,
+      "b9_reg_top10_mean": 38.43333959579468,
+      "b9_reg_top10_std": 2.3127882100358192,
+      "disjoint_cat_f1_mean": 48.8696151971817,
+      "disjoint_cat_f1_std": 1.8022409312771246,
+      "geom_cat_f1_mean": 47.29672610759735,
+      "geom_cat_f1_std": 1.753345560855497,
+      "n_folds": 5,
+      "run_dir": "results/check2hgi/arizona/mtlnet_lr1.0e-04_bs2048_ep50_20260521_065605_2602663"
+    },
+    "balanced": {
+      "disjoint_reg_top10_mean": 22.83431231975555,
+      "disjoint_reg_top10_std": 9.718431399967649,
+      "geom_reg_top10_mean": 22.826622724533078,
+      "geom_reg_top10_std": 9.724734791481751,
+      "b9_reg_top10_mean": 15.606698095798489,
+      "b9_reg_top10_std": 2.131149567946767,
+      "disjoint_cat_f1_mean": 48.70814502239227,
+      "disjoint_cat_f1_std": 1.598863430546033,
+      "geom_cat_f1_mean": 47.581936717033386,
+      "geom_cat_f1_std": 2.0709160421177564,
+      "n_folds": 5,
+      "run_dir": "results/check2hgi/arizona/mtlnet_lr1.0e-04_bs2048_ep50_20260521_065907_2604370"
+    }
+  },
+  "wilcoxon_disjoint_reg_p": 1.0,
+  "mean_delta_pp": -18.492379784584053
+}

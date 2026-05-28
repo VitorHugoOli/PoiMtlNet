@@ -1,0 +1,35 @@
+{
+  "state": "alabama",
+  "arms": {
+    "baseline": {
+      "disjoint_reg_top10_mean": 50.82150518894195,
+      "disjoint_reg_top10_std": 3.2148233550841536,
+      "geom_reg_top10_mean": 48.55617046356201,
+      "geom_reg_top10_std": 3.125464242413315,
+      "b9_reg_top10_mean": 47.60456442832947,
+      "b9_reg_top10_std": 4.140105638074005,
+      "disjoint_cat_f1_mean": 45.759687423706055,
+      "disjoint_cat_f1_std": 1.3417075620394703,
+      "geom_cat_f1_mean": 45.18096745014191,
+      "geom_cat_f1_std": 1.891572359124793,
+      "n_folds": 5,
+      "run_dir": "results/check2hgi/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260521_065220_2600285"
+    },
+    "balanced": {
+      "disjoint_reg_top10_mean": 20.359198749065392,
+      "disjoint_reg_top10_std": 5.717330677437959,
+      "geom_reg_top10_mean": 20.326665341854095,
+      "geom_reg_top10_std": 5.781542290428419,
+      "b9_reg_top10_mean": 19.432666301727295,
+      "b9_reg_top10_std": 5.4288508293930375,
+      "disjoint_cat_f1_mean": 45.5401474237442,
+      "disjoint_cat_f1_std": 1.8460009439541667,
+      "geom_cat_f1_mean": 44.72622573375702,
+      "geom_cat_f1_std": 1.8695945495746074,
+      "n_folds": 5,
+      "run_dir": "results/check2hgi/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260521_065401_2601314"
+    }
+  },
+  "wilcoxon_disjoint_reg_p": 1.0,
+  "mean_delta_pp": -30.462306439876556
+}

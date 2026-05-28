@@ -1,0 +1,67 @@
+{
+  "state": "arizona",
+  "weights": {
+    "0.0": {
+      "disjoint_reg_top10_mean": 41.3266921043396,
+      "disjoint_reg_top10_std": 2.734828549365516,
+      "geom_reg_top10_mean": 39.59788680076599,
+      "geom_reg_top10_std": 3.105877823257457,
+      "b9_reg_top10_mean": 38.43333959579468,
+      "b9_reg_top10_std": 2.3127882100358192,
+      "disjoint_cat_f1_mean": 48.8696151971817,
+      "disjoint_cat_f1_std": 1.8022409312771246,
+      "geom_cat_f1_mean": 47.29672610759735,
+      "geom_cat_f1_std": 1.753345560855497,
+      "n_folds": 5,
+      "run_dir": "results/check2hgi/arizona/mtlnet_lr1.0e-04_bs2048_ep50_20260521_053813_2520393"
+    },
+    "0.05": {
+      "disjoint_reg_top10_mean": 45.20341694355011,
+      "disjoint_reg_top10_std": 2.8685467604149655,
+      "geom_reg_top10_mean": 42.8655344247818,
+      "geom_reg_top10_std": 2.9613098388461214,
+      "b9_reg_top10_mean": 39.3529349565506,
+      "b9_reg_top10_std": 2.5412180425984974,
+      "disjoint_cat_f1_mean": 48.61265242099762,
+      "disjoint_cat_f1_std": 1.8007118369513797,
+      "geom_cat_f1_mean": 45.34675896167755,
+      "geom_cat_f1_std": 1.2451166307207713,
+      "n_folds": 5,
+      "run_dir": "results/check2hgi/arizona/mtlnet_lr1.0e-04_bs2048_ep50_20260521_054114_2522137",
+      "wilcoxon_disjoint_reg_p": 0.03125,
+      "mean_delta_pp": 3.876724839210508
+    },
+    "0.1": {
+      "disjoint_reg_top10_mean": 46.18802785873413,
+      "disjoint_reg_top10_std": 3.093851083322709,
+      "geom_reg_top10_mean": 43.507601618766785,
+      "geom_reg_top10_std": 2.720987221426268,
+      "b9_reg_top10_mean": 40.27979612350464,
+      "b9_reg_top10_std": 2.381101391939138,
+      "disjoint_cat_f1_mean": 48.671831488609314,
+      "disjoint_cat_f1_std": 1.8499918801888444,
+      "geom_cat_f1_mean": 46.05321228504181,
+      "geom_cat_f1_std": 1.4995930258746708,
+      "n_folds": 5,
+      "run_dir": "results/check2hgi/arizona/mtlnet_lr1.0e-04_bs2048_ep50_20260521_054417_2523809",
+      "wilcoxon_disjoint_reg_p": 0.03125,
+      "mean_delta_pp": 4.86133575439453
+    },
+    "0.2": {
+      "disjoint_reg_top10_mean": 46.388179659843445,
+      "disjoint_reg_top10_std": 2.8329275032250165,
+      "geom_reg_top10_mean": 44.97006595134735,
+      "geom_reg_top10_std": 3.283150997999703,
+      "b9_reg_top10_mean": 39.83360707759857,
+      "b9_reg_top10_std": 3.1818740522622577,
+      "disjoint_cat_f1_mean": 48.86824607849121,
+      "disjoint_cat_f1_std": 1.3876362802307303,
+      "geom_cat_f1_mean": 45.864421129226685,
+      "geom_cat_f1_std": 1.1213508332429818,
+      "n_folds": 5,
+      "run_dir": "results/check2hgi/arizona/mtlnet_lr1.0e-04_bs2048_ep50_20260521_054721_2525515",
+      "wilcoxon_disjoint_reg_p": 0.03125,
+      "mean_delta_pp": 5.061487555503846
+    }
+  }
+}

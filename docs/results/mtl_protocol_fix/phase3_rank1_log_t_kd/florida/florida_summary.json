@@ -1,0 +1,67 @@
+{
+  "state": "florida",
+  "weights": {
+    "0.0": {
+      "disjoint_reg_top10_mean": 63.9767050743103,
+      "disjoint_reg_top10_std": 0.7580745540754747,
+      "geom_reg_top10_mean": 61.14491939544677,
+      "geom_reg_top10_std": 0.9501366402950265,
+      "b9_reg_top10_mean": 53.732789158821106,
+      "b9_reg_top10_std": 9.215256548044106,
+      "disjoint_cat_f1_mean": 70.49172043800354,
+      "disjoint_cat_f1_std": 0.9233842191239513,
+      "geom_cat_f1_mean": 66.98081493377686,
+      "geom_cat_f1_std": 0.7986307263273792,
+      "n_folds": 5,
+      "run_dir": "results/check2hgi/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260521_055053_2528001"
+    },
+    "0.05": {
+      "disjoint_reg_top10_mean": 66.17578268051147,
+      "disjoint_reg_top10_std": 0.7694961608356258,
+      "geom_reg_top10_mean": 64.26584005355835,
+      "geom_reg_top10_std": 1.1538222508518947,
+      "b9_reg_top10_mean": 57.96070456504822,
+      "b9_reg_top10_std": 1.0215561263012738,
+      "disjoint_cat_f1_mean": 70.39987564086914,
+      "disjoint_cat_f1_std": 0.8553810465090749,
+      "geom_cat_f1_mean": 66.36388182640076,
+      "geom_cat_f1_std": 1.1609246352848048,
+      "n_folds": 5,
+      "run_dir": "results/check2hgi/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260521_060512_2536086",
+      "wilcoxon_disjoint_reg_p": 0.03125,
+      "mean_delta_pp": 2.199077606201172
+    },
+    "0.1": {
+      "disjoint_reg_top10_mean": 66.21065497398376,
+      "disjoint_reg_top10_std": 0.6945759415034207,
+      "geom_reg_top10_mean": 64.7435462474823,
+      "geom_reg_top10_std": 1.3106910292856984,
+      "b9_reg_top10_mean": 58.7858009338379,
+      "b9_reg_top10_std": 1.2025963712962278,
+      "disjoint_cat_f1_mean": 70.50836324691772,
+      "disjoint_cat_f1_std": 0.7902762935772788,
+      "geom_cat_f1_mean": 66.85210227966309,
+      "geom_cat_f1_std": 1.3702597001814498,
+      "n_folds": 5,
+      "run_dir": "results/check2hgi/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260521_062000_2543760",
+      "wilcoxon_disjoint_reg_p": 0.03125,
+      "mean_delta_pp": 2.233949899673462
+    },
+    "0.2": {
+      "disjoint_reg_top10_mean": 66.29619479179382,
+      "disjoint_reg_top10_std": 0.796578584186777,
+      "geom_reg_top10_mean": 65.3544533252716,
+      "geom_reg_top10_std": 1.1471281813007554,
+      "b9_reg_top10_mean": 59.515289068222046,
+      "b9_reg_top10_std": 0.6994375881489354,
+      "disjoint_cat_f1_mean": 70.51655292510986,
+      "disjoint_cat_f1_std": 0.9928712123828756,
+      "geom_cat_f1_mean": 66.93127989768982,
+      "geom_cat_f1_std": 1.5574568832875566,
+      "n_folds": 5,
+      "run_dir": "results/check2hgi/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260521_063446_2551557",
+      "wilcoxon_disjoint_reg_p": 0.03125,
+      "mean_delta_pp": 2.3194897174835205
+    }
+  }
+}
