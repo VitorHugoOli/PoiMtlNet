@@ -161,6 +161,53 @@ class ExperimentConfig:
     # which makes α a buffer permanently).
     alpha_frozen_until_epoch: Optional[int] = None
 
+    # substrate-protocol-cleanup Tier C2 — freeze the reg-side stream
+    # (task_b_encoder.* and next_head.*) at the start of epoch N and zero
+    # the reg loss contribution from that epoch onward. Mirrors P3's
+    # ``freeze_cat_after_epoch`` but inverted: tests whether locking in
+    # the reg peak (epoch ~2-4) while continuing cat-only training
+    # improves the joint deploy outcome. None disables. See
+    # ``docs/studies/substrate-protocol-cleanup/INDEX.md`` §C2.
+    reg_freeze_at_epoch: Optional[int] = None
+
+    # substrate-protocol-cleanup Tier C1 — opt-in three-snapshot routing.
+    # When True, the MTL runner maintains a ``MultiTaskBestTracker`` (in
+    # addition to the existing single-best ``BestModelTracker``) and
+    # persists three full MTL checkpoints per fold:
+    # ``fold{N}_cat_best.pt`` / ``fold{N}_reg_best.pt`` / ``fold{N}_joint_best.pt``.
+    # The existing single-best path is untouched. See
+    # ``docs/studies/substrate-protocol-cleanup/INDEX.md`` §C1.
+    save_task_best_snapshots: bool = False
+
+    # substrate-protocol-cleanup Tier A1 / mtl-protocol-fix Phase 3 §4.5 —
+    # log_T as supervisory signal. Adds a distillation KL term to the reg
+    # loss (task_b_loss) of the form
+    #     L_reg += log_t_kd_weight · τ² · KL(student || teacher)
+    # where teacher = softmax(log_T[last_region_idx] / τ) (the per-sample
+    # Markov-1 transition row from the per-fold log_T) and student =
+    # softmax(reg_logits / τ). Padding rows (last_region_idx < 0 or
+    # >= num_classes) excluded. Default 0.0 is a strict no-op (KD branch
+    # entirely skipped). NORTH_STAR-grade promotion candidate per Phase 3
+    # Rank 1 single-seed=42 sweep at AL/AZ/FL (W=0.2 strongest). Tier A1
+    # multi-seed n=20 promotion test. See
+    # ``docs/results/mtl_protocol_fix/phase3_rank1_findings.md`` and
+    # ``docs/studies/substrate-protocol-cleanup/INDEX.md`` §A1.
+    log_t_kd_weight: float = 0.0
+    log_t_kd_tau: float = 1.0
+
+    # Per-task input modality (Check2HGI MTL only). These mirror the
+    # ``--task-a-input-type`` / ``--task-b-input-type`` CLI flags and the
+    # ``FoldCreator(task_a_input_type=..., task_b_input_type=...)`` parameters.
+    # Persisting them is REQUIRED so downstream scorers (e.g.
+    # ``scripts/route_task_best.py``) can rebuild the validation loaders with
+    # the SAME modality the run trained on. Defaults ``"checkin"`` preserve the
+    # legacy behaviour for any config that does not set them. NORTH_STAR B9
+    # uses task_b="region"; scoring a region-trained reg head on checkin-modality
+    # loaders silently produces garbage reg metrics (substrate-protocol-cleanup
+    # Tier C1 modality bug, fixed 2026-05-28).
+    task_a_input_type: str = "checkin"
+    task_b_input_type: str = "checkin"
+
     # torch.compile: disabled by default.  On CUDA it uses the inductor
     # backend; MPS compatibility needs separate testing first.
     use_torch_compile: bool = False

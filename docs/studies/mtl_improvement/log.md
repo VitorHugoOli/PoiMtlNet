@@ -89,6 +89,26 @@ Compute budget revisions per advisor: T2b 300 → 450 GPU-h; T8 200 → 300 GPU-
 
 ---
 
+## 2026-05-28 — T0.2 mask-audit shared artefact landed (do NOT re-audit)
+
+**What happened**
+
+- Per the D1 ↔ T0.2 handoff protocol in [`docs/studies/substrate-protocol-cleanup/INDEX.md`](../substrate-protocol-cleanup/INDEX.md#d1--t02-mask-audit-handoff-mandatory-before-launching-d1), the sister study `substrate-protocol-cleanup` executed the window / causal-mask audit on 2026-05-28 as Tier D1.
+- Shared artefact at [`docs/studies/substrate-protocol-cleanup/window_mask_audit.md`](../substrate-protocol-cleanup/window_mask_audit.md).
+- **Verdict: overall CLEAN — no leak found across all 5 scope items** (`generate_sequences`, `NextHeadMTL` causal mask, `last_region_idx`, per-fold log_T builder, modality discipline). CONCERNS C19 guard confirmed still holding at `src/training/runners/mtl_cv.py:858-954`.
+
+**Implication for this study**
+
+- **T0.2 is satisfied. Do NOT re-audit.** Cite the shared artefact path in any T0.2-dependent finding doc.
+- T1 launch is no longer gated on a leak verdict (it would have been if D1 found a leak).
+- Three informational caveats from the audit (not blockers): CLAUDE.md path drift, STAN bidirectionality dependency on §1/§3 guarantees, C22 stale-log_T being runbook-enforced not code-enforced.
+
+**Chain status**: T0.2 closed-by-handoff (audit performed in sister branch); chain preserved.
+
+**Next**: implementing agent on this branch may proceed with T0 perf gates and T1 launch when ready. No mask-related blocker remains.
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:

@@ -63,9 +63,17 @@ class _CrossAttnBlock(nn.Module):
         dropout: float,
         detach_kv: bool = False,
         identity_attn: bool = False,
+        zero_cat_kv: bool = False,
     ):
         super().__init__()
         self.detach_kv = bool(detach_kv)
+        # substrate-protocol-cleanup Tier C3 — runtime ablation that zeroes
+        # the cat-stream K/V tensors before they participate in
+        # ``cross_ab`` (Q from reg queries cat keys/values). Reg-side K/V
+        # (used by ``cross_ba``) stays intact. Forward-only ablation
+        # (reversible by flag); projection weights are NOT zeroed. See
+        # ``docs/studies/substrate-protocol-cleanup/INDEX.md`` §C3.
+        self.zero_cat_kv = bool(zero_cat_kv)
         # F52 P5 — when ``identity_attn`` is set, the cross-attention output
         # is replaced with zero so the residual `a + a_upd` reduces to `a`.
         # Per-task FFNs and LayerNorms still run. Decomposes "is the
@@ -123,6 +131,17 @@ class _CrossAttnBlock(nn.Module):
             # b queries a (uses updated a as K/V so the two streams converge
             # symmetrically; this is MulT's "late" bidirectional pattern)
             kv_a = a.detach() if self.detach_kv else a
+            # substrate-protocol-cleanup Tier C3 — zero the cat-stream K/V
+            # tensors going into ``cross_ba`` (where reg's Q queries cat's
+            # K/V). Forward-only ablation: weights of self.cross_ba.in_proj
+            # are untouched, only the K/V activations from cat are
+            # silenced. softmax(Q K^T) V then reduces to zero regardless
+            # of Q, so cat contributes nothing to reg's update via this
+            # path. The reciprocal cross_ab (Q=cat queries reg's K/V) is
+            # left intact — the test target is reg dynamics under a cat-
+            # silenced K/V channel, not a fully decoupled stream.
+            if self.zero_cat_kv:
+                kv_a = torch.zeros_like(kv_a)
             b_upd, _ = self.cross_ba(
                 query=b, key=kv_a, value=kv_a, key_padding_mask=a_pad_mask
             )
@@ -162,6 +181,7 @@ class MTLnetCrossAttn(MTLnet):
         detach_crossattn_kv: bool = False,
         disable_cross_attn: bool = False,
         identity_cross_attn: bool = False,
+        zero_cat_kv: bool = False,
         no_task_encoders: bool = False,
         linear_encoders: bool = False,
         linear_ln_encoders: bool = False,
@@ -179,6 +199,7 @@ class MTLnetCrossAttn(MTLnet):
         self._detach_crossattn_kv = bool(detach_crossattn_kv)
         self._disable_cross_attn = bool(disable_cross_attn)
         self._identity_cross_attn = bool(identity_cross_attn)
+        self._zero_cat_kv = bool(zero_cat_kv)
         self._no_task_encoders = bool(no_task_encoders)
         self._linear_encoders = bool(linear_encoders)
         self._linear_ln_encoders = bool(linear_ln_encoders)
@@ -267,6 +288,7 @@ class MTLnetCrossAttn(MTLnet):
                     dropout=shared_dropout,
                     detach_kv=self._detach_crossattn_kv,
                     identity_attn=self._identity_cross_attn,
+                    zero_cat_kv=self._zero_cat_kv,
                 )
                 for _ in range(self._num_crossattn_blocks)
             ]

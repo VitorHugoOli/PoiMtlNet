@@ -87,3 +87,71 @@ class BestModelTracker:
             self.best_state = self._snapshot_state(model_state)
             return True
         return False
+
+
+class MultiTaskBestTracker:
+    """Substrate-protocol-cleanup Tier C1 — three-snapshot routing.
+
+    Maintains three independent ``BestModelTracker`` slots, each watching a
+    distinct scalar:
+
+    * ``cat_best``    — best epoch by cat-task primary metric (e.g. val cat F1)
+    * ``reg_best``    — best epoch by reg-task primary metric (e.g. val reg Acc@10)
+    * ``joint_best``  — best epoch by joint selector (e.g. ``joint_geom_simple``)
+
+    Opt-in: callers construct it only when ``--save-task-best-snapshots``
+    is requested. The existing single-best ``BestModelTracker`` flow in
+    ``FoldHistory`` / ``TaskHistory`` is untouched; this class is a side-
+    channel snapshot store that the runner persists to disk at fold end.
+
+    The three best_states are guaranteed to come from the same training
+    run (one model, three different epoch checkpoints) — never mixed
+    across epochs. This is the "variant A" decision in
+    ``docs/studies/substrate-protocol-cleanup/considerations.md``.
+    """
+
+    def __init__(
+        self,
+        cat_monitor: str = 'f1',
+        reg_monitor: str = 'accuracy',
+        joint_monitor: str = 'joint_geom_simple',
+        mode: str = 'max',
+        min_epoch: int = 0,
+    ):
+        self.cat_best = BestModelTracker(monitor=cat_monitor, mode=mode, min_epoch=min_epoch)
+        self.reg_best = BestModelTracker(monitor=reg_monitor, mode=mode, min_epoch=min_epoch)
+        self.joint_best = BestModelTracker(monitor=joint_monitor, mode=mode, min_epoch=min_epoch)
+
+    def update(
+        self,
+        epoch: int,
+        model_state: dict,
+        cat_metric: float,
+        reg_metric: float,
+        joint_metric: float,
+        elapsed_time: float = 0.0,
+    ) -> dict[str, bool]:
+        """Update all three slots in lockstep.
+
+        Returns a dict ``{'cat': bool, 'reg': bool, 'joint': bool}`` flagging
+        which slots improved. Each slot independently snapshots the model
+        state when it improves; non-improving slots keep their prior snapshot.
+        """
+        return {
+            'cat': self.cat_best.update(epoch, cat_metric, model_state, elapsed_time),
+            'reg': self.reg_best.update(epoch, reg_metric, model_state, elapsed_time),
+            'joint': self.joint_best.update(epoch, joint_metric, model_state, elapsed_time),
+        }
+
+    def snapshots(self) -> dict[str, dict]:
+        """Return ``{slot_name: state_dict}`` for slots that have a snapshot.
+
+        Empty slots (never updated, e.g. because no epoch passed ``min_epoch``)
+        are omitted. The returned state_dicts are the CPU-clone copies held
+        by each ``BestModelTracker``.
+        """
+        out = {}
+        for name, tr in (('cat', self.cat_best), ('reg', self.reg_best), ('joint', self.joint_best)):
+            if tr.best_state:
+                out[name] = tr.best_state
+        return out

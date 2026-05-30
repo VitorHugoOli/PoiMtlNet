@@ -16,7 +16,7 @@ This study runs **alongside** the fusion study — they coexist under `docs/stud
 > - **`mtl-protocol-fix` CLOSED 2026-05-24 v6 final** — F1 selector fix (`joint_geom_simple`) recovers +5.6 pp at FL multi-seed deployable axis. C21 RESOLVED. P4 frozen-cat identifies residual MTL-vs-STL reg gap as ARCHITECTURAL.
 > - **Phase 3 of `mtl-protocol-fix`** — §4.5 log_T-KD PROMOTED (+2.4/+5.1/+2.3 pp AL/AZ/FL Wilcoxon-strict); §4.6 class-balanced sampler FALSIFIED; §4.2 composite STL c2hgi-cat + STL HGI-reg ESTABLISHED as **current project headline on the reg axis (+7-12 pp vs MTL@disjoint at every state)**.
 > - **`mtl_improvement` ACTIVE since 2026-05-16** (branch `mtl-improve`) — T0-T8 chain: backbones, loss, batch, LR, α, heads, multi-seed champion.
-> - **`substrate-protocol-cleanup` ACTIVE since 2026-05-28** (main) — Tier A-D substrate + protocol cleanup; small states only.
+> - **`substrate-protocol-cleanup` CLOSED 2026-05-29** (main) — Tier A-D substrate + protocol cleanup. log_T-KD PROMOTED (now **v12 default**); substrate axis NULL in MTL at AL/AZ/FL (regime-limited, even HGI ≈ canonical in MTL); ResLN encoder = STL-best (v12 default, no MTL benefit). Default flip v11→v12: see [`results/CANONICAL_VERSIONS.md`](results/CANONICAL_VERSIONS.md). BRACIS paper cites v11 (reproduce: `--log-t-kd-weight 0.0 --encoder gcn`).
 >
 > When both active studies land champions, the §0 pipeline will be **re-run from scratch** and this briefing refreshed. Until then, v11 below remains the paper-citable canon with the F1 / composite / log_T-KD caveats above. Cross-study outcomes log at [`studies/log.md`](studies/log.md).
 

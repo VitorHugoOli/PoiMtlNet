@@ -64,6 +64,7 @@ sys.path.insert(0, str(REPO / "research"))
 
 from embeddings.check2hgi.model.Check2HGIModule import Check2HGI, corruption
 from embeddings.check2hgi.model.CheckinEncoder import CheckinEncoder
+from embeddings.check2hgi.model.variants import ResidualLNEncoder
 from embeddings.check2hgi.model.Checkin2POI import Checkin2POI
 from embeddings.hgi.model.RegionEncoder import POI2Region
 
@@ -162,7 +163,11 @@ def load_poi2vec_table(state: str, num_pois: int, placeid_to_idx: dict) -> torch
 
 def train_design_b(state: str, args: argparse.Namespace) -> None:
     state_lc = state.lower()
-    out_dir = REPO / "output" / "check2hgi_design_b" / state_lc
+    # tier_resln: --encoder resln + --out-engine check2hgi_resln_design_b stacks
+    # the ResidualLNEncoder onto Design B's POI2Vec-at-pool injection. Default
+    # out-engine preserves canonical Design B behaviour byte-for-byte.
+    out_engine = getattr(args, "out_engine", None) or "check2hgi_design_b"
+    out_dir = REPO / "output" / out_engine / state_lc
     out_dir.mkdir(parents=True, exist_ok=True)
 
     # Use the CANONICAL c2hgi graph (11-dim features), NOT the POI2Vec-augmented one.
@@ -196,7 +201,20 @@ def train_design_b(state: str, args: argparse.Namespace) -> None:
 
     metadata = d["metadata"]
 
-    checkin_encoder = CheckinEncoder(in_channels, args.dim, num_layers=args.num_layers)
+    # tier_resln: encoder switch. Default 'gcn' = canonical CheckinEncoder
+    # (byte-identical to prior Design B). 'resln' = ResidualLNEncoder, whose
+    # forward(x, edge_index, edge_weight, **kwargs) signature matches
+    # CheckinEncoder exactly (verified variants.py:482) so the call site
+    # `self.checkin_encoder(data.x, data.edge_index, data.edge_weight)` in
+    # Check2HGI_DesignB.forward needs no adaptation. num_layers pinned to the
+    # CLI value (default 2) per the canonical_improvement T3.2 recipe pin.
+    _encoder = getattr(args, "encoder", "gcn") or "gcn"
+    if _encoder == "resln":
+        checkin_encoder = ResidualLNEncoder(in_channels, args.dim, num_layers=args.num_layers)
+        print(f"[{state_lc}] encoder=ResidualLNEncoder num_layers={args.num_layers}")
+    else:
+        checkin_encoder = CheckinEncoder(in_channels, args.dim, num_layers=args.num_layers)
+        print(f"[{state_lc}] encoder=CheckinEncoder (canonical GCN) num_layers={args.num_layers}")
     checkin2poi = Checkin2POI(args.dim, args.attention_head)
     poi2region = POI2Region(args.dim, args.attention_head)
 
@@ -299,6 +317,12 @@ def main():
     ap.add_argument("--gamma", type=float, default=1.0)
     ap.add_argument("--max-norm", dest="max_norm", type=float, default=0.9)
     ap.add_argument("--device", type=str, default="cpu")
+    ap.add_argument("--encoder", type=str, default="gcn", choices=["gcn", "resln"],
+                    help="Check-in encoder. 'gcn' (default) = canonical CheckinEncoder; "
+                         "'resln' = ResidualLNEncoder (tier_resln stack).")
+    ap.add_argument("--out-engine", dest="out_engine", type=str, default=None,
+                    help="Output engine dir under output/ (default check2hgi_design_b). "
+                         "tier_resln uses check2hgi_resln_design_b.")
     args = ap.parse_args()
     train_design_b(args.state, args)
 

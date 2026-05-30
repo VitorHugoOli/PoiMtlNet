@@ -256,15 +256,29 @@ def train_check2hgi(city, args):
     metadata = city_dict['metadata']
 
     # Initialize model components
-    # T3 encoder swap. `args.encoder` defaults to "gcn" (canonical CheckinEncoder).
+    # T3 encoder swap.
+    # **v12 DEFAULT FLIP (2026-05-30): `args.encoder` now defaults to "resln"
+    # (ResidualLNEncoder, T3.2) — the best STL cat encoder (cat F1 +0.86 FL /
+    # +1.48 AL / +1.70 AZ, 5/5 seeds, canonical_improvement T3.2). This affects
+    # FUTURE Check2HGI builds ONLY; the frozen v11 paper substrate on disk
+    # (output/check2hgi/<state>/) was built with GCN and must NOT be
+    # overwritten. Pass --encoder gcn to rebuild the v11 (GCN) substrate.
+    # NOTE: ResLN gives NO MTL benefit (the regime finding) — its value is
+    # STL/representation-quality, not MTL reg/cat. See
+    # docs/results/CANONICAL_VERSIONS.md (v11 GCN vs v12 ResLN).**
     # Other choices:
+    #   "gcn"     — CheckinEncoder, the canonical 2-layer GCN (v11 paper substrate).
     #   "gat"     — GATTimeEncoder, attention with optional edge-weight conditioning (T3.1).
-    #   "resln"   — ResidualLNEncoder, GCN-family with residual + LayerNorm (T3.2).
+    #   "resln"   — ResidualLNEncoder, GCN-family with residual + LayerNorm (T3.2, v12 default).
     #   "time2vec"— Time2VecCheckinEncoder, learned-frequency replacement for the
     #               4 fixed sin/cos temporal cols (T3.4).
     #   "rgcn"    — RGCNEncoder, relation-typed aggregation; requires K≥2 relations
     #               i.e. a graph preprocessed with edge_type='both' (T3.3 Option A).
-    _encoder_name = getattr(args, 'encoder', 'gcn') or 'gcn'
+    _encoder_name = getattr(args, 'encoder', 'resln') or 'resln'
+    if getattr(args, 'encoder', None) in (None, 'resln'):
+        print(
+            "[encoder] default ResLN (v12); pass --encoder gcn for v11"
+        )
     if _encoder_name == 'gat':
         _gat_heads = int(getattr(args, 'gat_heads', 4))
         _gat_dropout = float(getattr(args, 'encoder_dropout', 0.0) or 0.0)

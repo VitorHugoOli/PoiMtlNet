@@ -56,8 +56,12 @@ STATE_TO_SHP = {
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--state", required=True, choices=list(STATE_TO_SHP))
-    ap.add_argument("--encoder", default="gcn",
-                    choices=("gcn", "gat", "resln", "time2vec", "rgcn"))
+    ap.add_argument("--encoder", default="resln",
+                    choices=("gcn", "gat", "resln", "time2vec", "rgcn"),
+                    help="v12 default 'resln' (ResidualLNEncoder, T3.2 STL-best "
+                         "cat encoder; NO MTL benefit). Pass 'gcn' to rebuild "
+                         "the v11 paper substrate. See "
+                         "docs/results/CANONICAL_VERSIONS.md.")
     ap.add_argument("--gat-heads", type=int, default=4)
     ap.add_argument("--encoder-dropout", type=float, default=0.0)
     ap.add_argument("--gat-no-edge-attr", action="store_true",

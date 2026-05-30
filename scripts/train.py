@@ -770,6 +770,93 @@ def _parse_args(argv=None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--reg-freeze-at-epoch",
+        dest="reg_freeze_at_epoch",
+        type=int,
+        default=None,
+        metavar="N",
+        help=(
+            "substrate-protocol-cleanup Tier C2 — freeze the reg-side stream "
+            "(next_encoder + next_poi) at the start of epoch N and zero the "
+            "reg loss contribution from that epoch onward. Cat continues "
+            "training joint with the now-fixed reg representation. Tests "
+            "whether locking in the reg ep ~2-4 peak while letting cat "
+            "improve yields a better joint deploy outcome. Mirror of "
+            "--freeze-cat-after-epoch but inverted. Requires --task mtl. "
+            "See docs/studies/substrate-protocol-cleanup/INDEX.md §C2."
+        ),
+    )
+    parser.add_argument(
+        "--zero-cat-kv",
+        dest="zero_cat_kv",
+        action="store_true",
+        default=False,
+        help=(
+            "substrate-protocol-cleanup Tier C3 — forward-only ablation that "
+            "zeroes the cat-stream K/V tensors before cross-attention's "
+            "softmax(Q K^T) V step in mtlnet_crossattn._CrossAttnBlock. "
+            "The reg stream's Q still queries, but the cat-side K/V "
+            "contribute nothing to reg's update through the cross channel. "
+            "Tests P4's residual capacity-stealing hypothesis. Projection "
+            "weights are NOT zeroed (reversible by flag). Requires "
+            "--model mtlnet_crossattn. See INDEX.md §C3."
+        ),
+    )
+    parser.add_argument(
+        "--save-task-best-snapshots",
+        dest="save_task_best_snapshots",
+        action="store_true",
+        default=False,
+        help=(
+            "substrate-protocol-cleanup Tier C1 — save three full MTL "
+            "checkpoints per fold (one per per-task-best epoch + one per "
+            "joint-best epoch): "
+            "fold{N}_cat_best.pt, fold{N}_reg_best.pt, fold{N}_joint_best.pt "
+            "under <results>/task_best_snapshots/. Opt-in; the existing "
+            "single-best path is untouched. Use scripts/route_task_best.py "
+            "to score the three checkpoints on the held-out fold. Requires "
+            "--task mtl. See INDEX.md §C1."
+        ),
+    )
+    parser.add_argument(
+        "--log-t-kd-weight",
+        dest="log_t_kd_weight",
+        type=float,
+        default=None,
+        metavar="W",
+        help=(
+            "substrate-protocol-cleanup Tier A1 / mtl-protocol-fix Phase 3 "
+            "§4.5 — KL distillation weight from the per-fold log_T into the "
+            "reg head output. Adds L_reg += W · τ² · KL(softmax(reg_logits/τ) "
+            "|| softmax(log_T[last_region_idx]/τ)) to the reg loss before "
+            "the MTL combiner. **v12 DEFAULT (2026-05-30): 0.2 ON, scoped to "
+            "--task mtl --task-set check2hgi_next_region only.** Pass 0.0 for "
+            "the v11 paper-canon (no-KD) reproduction. Tier A1 PROMOTED "
+            "multi-seed n=20 at AL/AZ (W=0.2: +2.27/+4.91 pp disjoint reg, "
+            "p=9.54e-07, leak-clean); FL/CA/TX seed=42 pilot (+2.4/+1.4/+1.7 "
+            "pp). See docs/results/CANONICAL_VERSIONS.md. Requires "
+            "--reg-head with a log_T-aware head (next_getnext_hard, "
+            "next_stan_flow, next_getnext) AND --per-fold-transition-dir "
+            "so the head's buffered log_T is the train-only per-fold prior. "
+            "See docs/results/mtl_protocol_fix/phase3_rank1_findings.md."
+        ),
+    )
+    parser.add_argument(
+        "--log-t-kd-tau",
+        dest="log_t_kd_tau",
+        type=float,
+        default=None,
+        metavar="TAU",
+        help=(
+            "substrate-protocol-cleanup Tier A1 — temperature τ for the "
+            "log_T KD term. Standard distillation form with τ² scaling "
+            "preserves gradient magnitude. Default 1.0 (sharp teacher = "
+            "the raw log_T row already in log-prob space). Phase 3 used "
+            "τ=1.0 throughout; no τ sweep was performed. Higher τ softens "
+            "the prior, lower sharpens it."
+        ),
+    )
+    parser.add_argument(
         "--alpha-frozen-until-epoch",
         dest="alpha_frozen_until_epoch",
         type=int,
@@ -1200,6 +1287,120 @@ def _apply_cli_overrides(
             raise ValueError(f"--alpha-frozen-until-epoch must be >= 0, got {n}")
         config = dataclasses.replace(config, alpha_frozen_until_epoch=n if n > 0 else None)
 
+    # substrate-protocol-cleanup Tier C2 — --reg-freeze-at-epoch.
+    if getattr(args, "reg_freeze_at_epoch", None) is not None:
+        n = int(args.reg_freeze_at_epoch)
+        if config.task_type != "mtl":
+            raise ValueError("--reg-freeze-at-epoch requires --task mtl")
+        if n < 1 or n >= int(config.epochs):
+            raise ValueError(
+                f"--reg-freeze-at-epoch={n} must be in [1, epochs-1] "
+                f"(epochs={config.epochs})"
+            )
+        config = dataclasses.replace(config, reg_freeze_at_epoch=n)
+
+    # substrate-protocol-cleanup Tier C3 — --zero-cat-kv. Wired into
+    # model_params so MTLnetCrossAttn.__init__ receives the kwarg via
+    # create_model(name, **model_params). No-op for other model_names;
+    # validate that the user picked a compatible model.
+    if getattr(args, "zero_cat_kv", False):
+        if config.task_type != "mtl":
+            raise ValueError("--zero-cat-kv requires --task mtl")
+        if config.model_name != "mtlnet_crossattn":
+            raise ValueError(
+                f"--zero-cat-kv requires --model mtlnet_crossattn (got "
+                f"{config.model_name!r}); the K/V channel is defined only "
+                f"for the cross-attention model variant."
+            )
+        model_params = dict(config.model_params)
+        model_params["zero_cat_kv"] = True
+        config = dataclasses.replace(config, model_params=model_params)
+
+    # substrate-protocol-cleanup Tier A1 — --log-t-kd-weight / --log-t-kd-tau.
+    # Validates only basic sanity; the head-compat check (must be a
+    # log_T-aware reg head) happens at train_model() time so the override
+    # plumbing stays decoupled from the task_set registry import path.
+    #
+    # v12 DEFAULT FLIP (2026-05-30): log_T-KD is now ON by default (W=0.2,
+    # τ=1.0) but SCOPED to MTL `check2hgi_next_region` — the only task-set
+    # whose reg head consumes the per-fold log_T prior. The ExperimentConfig
+    # dataclass field default stays 0.0 (it is task-agnostic and shared by
+    # category/next runs); the v12 default is applied HERE, at the CLI layer,
+    # only when the run is MTL + check2hgi_next_region and the user did NOT
+    # pass an explicit --log-t-kd-weight. Category-only, non-region task-sets,
+    # and non-MTL tasks are untouched (weight stays 0.0). Pass
+    # --log-t-kd-weight 0.0 to recover the v11 paper-canon (no-KD) behaviour.
+    # See docs/results/CANONICAL_VERSIONS.md (v11 vs v12).
+    _V12_LOG_T_KD_DEFAULT_W = 0.2
+    _V12_LOG_T_KD_DEFAULT_TAU = 1.0
+    _task_set_name = getattr(args, "task_set", None) or LEGACY_CATEGORY_NEXT.name
+    _is_check2hgi_region_mtl = (
+        config.task_type == "mtl"
+        and _task_set_name == CHECK2HGI_NEXT_REGION.name
+    )
+    if getattr(args, "log_t_kd_weight", None) is not None:
+        # Explicit user override — honour it verbatim (incl. 0.0 for v11).
+        w = float(args.log_t_kd_weight)
+        if config.task_type != "mtl":
+            raise ValueError("--log-t-kd-weight requires --task mtl")
+        if w < 0.0:
+            raise ValueError(
+                f"--log-t-kd-weight={w} must be >= 0.0 (0.0 = off)"
+            )
+        config = dataclasses.replace(config, log_t_kd_weight=w)
+        if w > 0.0:
+            logger.info(
+                "log_T-KD ON (W=%.3g) via explicit --log-t-kd-weight "
+                "(v12 default is 0.2 for check2hgi_next_region MTL; pass "
+                "--log-t-kd-weight 0.0 for v11 paper-canon)",
+                w,
+            )
+        else:
+            logger.info(
+                "log_T-KD OFF (W=0.0) via explicit --log-t-kd-weight — "
+                "v11 paper-canon (no-KD) reproduction mode"
+            )
+    elif _is_check2hgi_region_mtl:
+        # v12 default ON, only for the task-set whose reg head reads log_T.
+        config = dataclasses.replace(
+            config, log_t_kd_weight=_V12_LOG_T_KD_DEFAULT_W
+        )
+        logger.info(
+            "log_T-KD default ON (W=%.3g) — v12 default; pass "
+            "--log-t-kd-weight 0.0 for v11 paper-canon",
+            _V12_LOG_T_KD_DEFAULT_W,
+        )
+    if getattr(args, "log_t_kd_tau", None) is not None:
+        tau = float(args.log_t_kd_tau)
+        if tau <= 0.0:
+            raise ValueError(
+                f"--log-t-kd-tau={tau} must be > 0.0"
+            )
+        config = dataclasses.replace(config, log_t_kd_tau=tau)
+    elif _is_check2hgi_region_mtl and config.log_t_kd_weight > 0.0:
+        # Pin the v12 default τ=1.0 alongside the v12 default weight so the
+        # KD term is fully specified without requiring --log-t-kd-tau.
+        config = dataclasses.replace(
+            config, log_t_kd_tau=_V12_LOG_T_KD_DEFAULT_TAU
+        )
+
+    # substrate-protocol-cleanup Tier C1 — --save-task-best-snapshots.
+    if getattr(args, "save_task_best_snapshots", False):
+        if config.task_type != "mtl":
+            raise ValueError("--save-task-best-snapshots requires --task mtl")
+        config = dataclasses.replace(config, save_task_best_snapshots=True)
+
+    # Persist the per-task input modality into the config so any downstream
+    # scorer (e.g. scripts/route_task_best.py) can rebuild the validation
+    # loaders with the SAME modality this run trained on. Mirrors the value
+    # passed to FoldCreator in _build_folds. (substrate-protocol-cleanup
+    # Tier C1 modality-bug fix, 2026-05-28.)
+    config = dataclasses.replace(
+        config,
+        task_a_input_type=getattr(args, "task_a_input_type", "checkin"),
+        task_b_input_type=getattr(args, "task_b_input_type", "checkin"),
+    )
+
     return config
 
 
@@ -1400,7 +1601,23 @@ def main(argv=None) -> None:
         # provided output/hgi/<state>/input/next_region.parquet exists (built
         # by scripts/probe/build_hgi_next_region.py). Cat input also flips to
         # HGI's input/next.parquet automatically via IoPaths.
-        _ALLOWED_ENGINES_FOR_C2HGI_PRESET = (EmbeddingEngine.CHECK2HGI, EmbeddingEngine.HGI)
+        # substrate-protocol-cleanup Tier B (2026-05-28): Designs B/J/L (Lever 5)
+        # and the Lever-4 stack reuse the canonical c2hgi graph + sequences
+        # verbatim (only the substrate embeddings differ), so the
+        # check2hgi_next_region task pair is valid for them. Per-fold log_T is
+        # cp'd from canonical (n_regions identical). Allow the design engines.
+        _ALLOWED_ENGINES_FOR_C2HGI_PRESET = (
+            EmbeddingEngine.CHECK2HGI,
+            EmbeddingEngine.HGI,
+            EmbeddingEngine.CHECK2HGI_DESIGN_B,
+            EmbeddingEngine.CHECK2HGI_DESIGN_J,
+            EmbeddingEngine.CHECK2HGI_DESIGN_L,
+            EmbeddingEngine.CHECK2HGI_LEVER4_CANONICAL,
+            EmbeddingEngine.CHECK2HGI_LEVER4_DESIGN_B,
+            EmbeddingEngine.CHECK2HGI_RESLN,
+            EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_B,
+            EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_J,
+        )
         if is_check2hgi_track and engine not in _ALLOWED_ENGINES_FOR_C2HGI_PRESET:
             print(
                 f"error: --task-set {preset_name} requires --engine in "
@@ -1558,3 +1775,4 @@ def main(argv=None) -> None:
 
 if __name__ == "__main__":
     main()
+   

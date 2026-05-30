@@ -45,6 +45,12 @@ class EmbeddingEngine(Enum):
     CHECK2HGI_DESIGN_I = "check2hgi_design_i"  # Design I: LoRA-style low-rank correction (probe)
     CHECK2HGI_DESIGN_J = "check2hgi_design_j"  # Design J: H + anchor regularization (probe)
     CHECK2HGI_DESIGN_M = "check2hgi_design_m"  # Design M: B + POI-side distillation (probe)
+    CHECK2HGI_DESIGN_L = "check2hgi_design_l"  # Design L (Lever 5): KL-distill on top-k neighbour softmax (probe)
+    CHECK2HGI_LEVER4_CANONICAL = "check2hgi_lever4_canonical"  # Lever 4: canonical + p2r region-prior (Tier B B3 control)
+    CHECK2HGI_LEVER4_DESIGN_B = "check2hgi_lever4_design_b"    # Lever 4: Design B + p2r region-prior (Tier B B3 winner-stack)
+    CHECK2HGI_RESLN = "check2hgi_resln"  # tier_resln: ResidualLNEncoder substrate (canonical_improvement T3.2)
+    CHECK2HGI_RESLN_DESIGN_B = "check2hgi_resln_design_b"  # tier_resln: ResLN encoder + Design B POI2Vec injection
+    CHECK2HGI_RESLN_DESIGN_J = "check2hgi_resln_design_j"  # tier_resln: ResLN encoder + Design J anchored learnable POI table
     POI2HGI = "poi2hgi"
     FUSION = "fusion"  # Multi-embedding fusion
 
@@ -446,6 +452,12 @@ class IoPaths:
             EmbeddingEngine.CHECK2HGI_DESIGN_I,
             EmbeddingEngine.CHECK2HGI_DESIGN_J,
             EmbeddingEngine.CHECK2HGI_DESIGN_M,
+            EmbeddingEngine.CHECK2HGI_DESIGN_L,
+            EmbeddingEngine.CHECK2HGI_LEVER4_CANONICAL,
+            EmbeddingEngine.CHECK2HGI_LEVER4_DESIGN_B,
+            EmbeddingEngine.CHECK2HGI_RESLN,
+            EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_B,
+            EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_J,
         )
         if embedd_engine not in supported:
             raise ValueError(

@@ -210,6 +210,11 @@ def train_model(model: torch.nn.Module,
                 cat_specific_parameters: Optional[list] = None,
                 reg_specific_parameters: Optional[list] = None,
                 joint_loader_strategy: str = "max_size_cycle",
+                reg_freeze_at_epoch: Optional[int] = None,
+                task_best_tracker=None,
+                task_best_save_dir: Optional[Path] = None,
+                log_t_kd_weight: float = 0.0,
+                log_t_kd_tau: float = 1.0,
                 ):
     """
     Train the model with multi-task learning.
@@ -326,6 +331,11 @@ def train_model(model: torch.nn.Module,
 
     # F50 P3 — track whether warmup-then-freeze has fired (idempotent).
     _cat_frozen_post_warmup = False
+    # substrate-protocol-cleanup Tier C2 — track whether reg-freeze has fired.
+    # Once True, task_b_loss is zeroed before forming the MTL loss tensor
+    # and next_encoder.* / next_poi.* params have requires_grad=False, so
+    # the optimizer step is naturally a no-op on them.
+    _reg_frozen_post_peak = False
     # F50 B4 — α-freeze warmup. If alpha_frozen_until_epoch is set, lock
     # α at its init value for ep 0..N-1, then unfreeze. Pre-freeze the
     # parameter HERE (before training) so the first epoch already sees
@@ -375,6 +385,36 @@ def train_model(model: torch.nn.Module,
             print(
                 f"[P3 freeze-cat-after-epoch] cat_encoder + category_poi frozen "
                 f"at epoch {epoch_idx} (target N={freeze_cat_after_epoch})"
+            )
+
+        # substrate-protocol-cleanup Tier C2 — at boundary epoch N, freeze
+        # reg-side params (next_encoder + next_poi a.k.a. task_b_encoder +
+        # next_head per the task_set slot mapping) and from this epoch
+        # onward zero ``task_b_loss`` before the MTL combiner sees it.
+        # Mirror of P3 but for the reg side. The optimizer's
+        # ``requires_grad`` filter at step time naturally skips frozen
+        # params — no optimizer rebuild needed. The runner's per-head
+        # optimizer (setup_per_head_optimizer) also pre-filters by
+        # requires_grad so the reg-encoder/reg-head groups get pruned.
+        if (reg_freeze_at_epoch is not None
+                and not _reg_frozen_post_peak
+                and epoch_idx >= int(reg_freeze_at_epoch)):
+            # Reg encoder & head naming convention in this codebase:
+            # ``next_encoder`` (slot B encoder) + ``next_poi`` (reg head).
+            # These map to the docstring's task_b_encoder.* / next_head.*.
+            for attr in ("next_encoder", "next_poi"):
+                sub = getattr(model, attr, None)
+                if sub is None:
+                    continue
+                for p in sub.parameters():
+                    p.requires_grad_(False)
+                if hasattr(sub, "eval"):
+                    sub.eval()
+            _reg_frozen_post_peak = True
+            print(
+                f"[C2 reg-freeze-at-epoch] next_encoder + next_poi frozen "
+                f"at epoch {epoch_idx} (target N={reg_freeze_at_epoch}); "
+                f"task_b_loss zeroed for remaining epochs"
             )
 
         # F40 — scheduled-loss epoch hook. Losses without `set_epoch`
@@ -433,6 +473,81 @@ def train_model(model: torch.nn.Module,
                 # Calculate losses (inside autocast so CE uses float16 logits)
                 task_b_loss = next_criterion(pred_task_b, truth_task_b)
                 task_a_loss = category_criterion(pred_task_a, truth_task_a)
+
+                # substrate-protocol-cleanup Tier A1 / mtl-protocol-fix Phase 3 §4.5 —
+                # log_T KL distillation supervisory signal. For each sample with
+                # a valid ``last_region_idx`` r, the teacher distribution is
+                # softmax(log_T[r] / τ) over n_regions; the student is
+                # softmax(reg_logits / τ). KD term = τ² · KL(student || teacher),
+                # added to task_b_loss with weight ``log_t_kd_weight``. Strict
+                # no-op fast path when weight == 0.0 (the W=0.0 baseline). Padding
+                # rows (last_region_idx < 0 or >= num_classes) are excluded so
+                # they don't contaminate the gradient. Requires a log_T-aware
+                # reg head (next_getnext_hard / next_stan_flow / next_getnext)
+                # whose forward registers a ``log_T`` buffer of shape
+                # [num_classes, num_classes]. See
+                # docs/results/mtl_protocol_fix/phase3_rank1_findings.md.
+                if log_t_kd_weight > 0.0:
+                    from data.aux_side_channel import get_current_aux
+                    _aux = get_current_aux()
+                    _reg_head = getattr(model, "next_poi", None)
+                    _log_T = getattr(_reg_head, "log_T", None) if _reg_head is not None else None
+                    if _aux is not None and _log_T is not None:
+                        _nc = pred_task_b.shape[-1]
+                        # log_T may have been built with num_regions > num_classes
+                        # of the current task slot; the head slices it down to
+                        # [num_classes, num_classes] at init. Defensive re-slice
+                        # here in case a head variant skips that step.
+                        if _log_T.shape[0] >= _nc and _log_T.shape[1] >= _nc:
+                            _log_T_use = _log_T[:_nc, :_nc]
+                        else:
+                            _log_T_use = None
+                        if _log_T_use is not None:
+                            if _aux.device != pred_task_b.device:
+                                _aux = _aux.to(pred_task_b.device)
+                            _pad = (_aux < 0) | (_aux >= _nc)
+                            _valid = ~_pad
+                            if _valid.any():
+                                _safe = _aux.clamp(min=0, max=_nc - 1)
+                                _tau = float(log_t_kd_tau)
+                                # Teacher: softmax of the per-sample log_T row at τ.
+                                # log_T is already in log-prob space; softmax
+                                # re-normalises (it may not be a strict prob
+                                # distribution numerically) — standard form.
+                                _teacher_logits = _log_T_use.index_select(0, _safe).float() / _tau
+                                _teacher = torch.softmax(_teacher_logits, dim=-1)
+                                # Student: log_softmax of reg logits at τ.
+                                _student_log = torch.log_softmax(
+                                    pred_task_b.float() / _tau, dim=-1
+                                )
+                                # KL(student || teacher) per-sample, with τ² scaling
+                                # (standard Hinton-distillation gradient preservation).
+                                # F.kl_div expects input=log-probs, target=probs and
+                                # computes sum_j target_j * (log(target_j) - input_j)
+                                # which is KL(target || input) = KL(teacher || student).
+                                # phase3_rank1_findings.md writes
+                                # ``KL(softmax(reg_logits/τ) ‖ exp(log_T[...]))`` i.e.
+                                # KL(student || teacher). Implement that direction
+                                # explicitly: sum_j student * (log_student - log_teacher).
+                                _log_teacher = torch.log(_teacher.clamp_min(1e-12))
+                                _student = _student_log.exp()
+                                _kld_per_sample = (
+                                    _student * (_student_log - _log_teacher)
+                                ).sum(dim=-1)
+                                _kld_per_sample = _kld_per_sample * _valid.float()
+                                _denom = _valid.sum().clamp_min(1).float()
+                                _kd_loss = (_kld_per_sample.sum() / _denom) * (_tau * _tau)
+                                task_b_loss = task_b_loss + log_t_kd_weight * _kd_loss
+
+            # substrate-protocol-cleanup Tier C2 — after the reg-freeze
+            # boundary, the reg loss is contributed at weight 0 so the MTL
+            # combiner (static_weight, NashMTL, etc.) sees a zero on the
+            # reg slot. Coupled with the frozen ``requires_grad=False`` on
+            # next_encoder/next_poi, this is a complete reg-side stop:
+            # no reg loss, no reg param update. The reg head still emits
+            # logits (we keep them for val metric tracking each epoch).
+            if _reg_frozen_post_peak:
+                task_b_loss = task_b_loss * 0.0
 
             # NashMTL backward stays outside autocast — gradients in float32
             losses = torch.stack([task_b_loss, task_a_loss])
@@ -766,6 +881,33 @@ def train_model(model: torch.nn.Module,
                 elapsed_time=fold_history.timer.timer(),
             )
 
+            # substrate-protocol-cleanup Tier C1 — three-snapshot routing.
+            # Update the side-channel ``MultiTaskBestTracker`` in lockstep
+            # with the existing single-best path. Uses the same per-epoch
+            # state_dict so each slot's snapshot is internally consistent
+            # (head + backbone come from the same epoch). The cat slot
+            # tracks task_a's monitored metric (F1 by default); reg slot
+            # tracks task_b's monitored metric (typically Acc@10 via
+            # ``accuracy`` key on check2HGI); joint slot tracks
+            # ``joint_geom_lift`` — the scale-coherent geometric-mean
+            # selector. Single-best ``model_task.best`` is left untouched.
+            if task_best_tracker is not None:
+                full_state = state if state is not None else model.state_dict()
+                cat_metric_val = val_metrics_task_a.get(
+                    task_best_tracker.cat_best.monitor, f1_val_task_a,
+                )
+                reg_metric_val = val_metrics_task_b.get(
+                    task_best_tracker.reg_best.monitor, f1_val_task_b,
+                )
+                task_best_tracker.update(
+                    epoch=fold_history.task(task_b_name).val.num_epochs() - 1,
+                    model_state=full_state,
+                    cat_metric=cat_metric_val,
+                    reg_metric=reg_metric_val,
+                    joint_metric=joint_geom_lift,
+                    elapsed_time=fold_history.timer.timer(),
+                )
+
         # Update compact F1-only metrics on progress bar.
         best_task_b = fold_history.task(task_b_name).best.best_value
         best_task_a = fold_history.task(task_a_name).best.best_value
@@ -889,6 +1031,24 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                         f"Build with: python scripts/compute_region_transition.py "
                         f"--state {config.state} --per-fold --seed {seed}"
                     )
+                # C22 stale-log_T guard (substrate-protocol-cleanup Tier C4,
+                # added 2026-05-28): refuse to start if log_T mtime predates
+                # the substrate parquet it was built from. Previously
+                # runbook-enforced only; silently survived regens and
+                # inflated reg Acc@10 by +8 to +12 pp (mtl_protocol_fix
+                # Phase 2 P5 FL seed=42 case).
+                parquet_path = _Path(per_fold_dir) / "input" / "next_region.parquet"
+                if parquet_path.exists():
+                    if pf_path.stat().st_mtime < parquet_path.stat().st_mtime:
+                        raise ValueError(
+                            f"Stale per-fold log_T detected: {pf_path} mtime "
+                            f"is older than {parquet_path} mtime. The substrate "
+                            f"parquet has been regenerated since this log_T was "
+                            f"built; running would silently leak ~+8 to +12 pp "
+                            f"into reg Acc@10. Rebuild: python "
+                            f"scripts/compute_region_transition.py --state "
+                            f"{config.state} --per-fold --seed {seed}"
+                        )
                 # 2026-05-15: hard-fail when the per-fold log_T's ``n_splits``
                 # does not match the trainer's ``config.k_folds``. The
                 # ``--folds N`` flag overrides ``config.k_folds`` to
@@ -1128,6 +1288,33 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                 # fvcore unavailable — set a sentinel so we don't retry every fold
                 history.set_flops(FlopsMetrics(flops=0, params=0))
 
+        # substrate-protocol-cleanup Tier C1 — opt-in three-snapshot
+        # routing. Per-fold MultiTaskBestTracker; cat slot watches the
+        # task_a monitor, reg slot watches task_b monitor (typically
+        # ``accuracy`` for high-cardinality region heads), joint slot
+        # watches the geometric-mean joint lift. The trainer updates all
+        # three slots in lockstep each epoch alongside the existing
+        # single-best path.
+        task_best_tracker = None
+        task_best_save_dir = None
+        if getattr(config, "save_task_best_snapshots", False):
+            from tracking.best_tracker import MultiTaskBestTracker
+            _curr_fold_hist = history.get_curr_fold()
+            _cat_mon = _curr_fold_hist.task(task_a_name).best.monitor
+            _reg_mon = _curr_fold_hist.task(task_b_name).best.monitor
+            task_best_tracker = MultiTaskBestTracker(
+                cat_monitor=_cat_mon,
+                reg_monitor=_reg_mon,
+                joint_monitor="joint_geom_lift",
+                mode="max",
+                min_epoch=int(getattr(config, "min_best_epoch", 0) or 0),
+            )
+            if results_path is not None:
+                task_best_save_dir = (
+                    Path(results_path) / "task_best_snapshots"
+                )
+                task_best_save_dir.mkdir(parents=True, exist_ok=True)
+
         # Train the model
         train_model(
             model, optimizer, scheduler,
@@ -1157,7 +1344,34 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             ),
             joint_loader_strategy=getattr(
                 config, "joint_loader_strategy", "max_size_cycle"),
+            reg_freeze_at_epoch=getattr(config, "reg_freeze_at_epoch", None),
+            task_best_tracker=task_best_tracker,
+            task_best_save_dir=task_best_save_dir,
+            log_t_kd_weight=float(getattr(config, "log_t_kd_weight", 0.0) or 0.0),
+            log_t_kd_tau=float(getattr(config, "log_t_kd_tau", 1.0) or 1.0),
         )
+
+        # substrate-protocol-cleanup Tier C1 — write the three best
+        # snapshots to disk at fold end. Slot names match the CLI flag
+        # documentation: ``fold{N}_cat_best.pt``, ``fold{N}_reg_best.pt``,
+        # ``fold{N}_joint_best.pt``. ``fold_idx`` is 0-indexed for the
+        # dict iteration but the on-disk name is 1-indexed for parity
+        # with the per-fold log_T filename convention
+        # (``region_transition_log_seed{S}_fold{N}.pt`` is also 1-indexed).
+        if task_best_tracker is not None and task_best_save_dir is not None:
+            snaps = task_best_tracker.snapshots()
+            for slot, state_dict in snaps.items():
+                snap_path = (
+                    task_best_save_dir / f"fold{fold_idx + 1}_{slot}_best.pt"
+                )
+                torch.save(state_dict, snap_path)
+                logger.info(
+                    "[C1 task-best snapshots] fold %d slot=%s saved to %s "
+                    "(best_value=%.4f at epoch %d)",
+                    fold_idx + 1, slot, snap_path,
+                    getattr(task_best_tracker, f"{slot}_best").best_value,
+                    getattr(task_best_tracker, f"{slot}_best").best_epoch,
+                )
 
         # Run final validation
         logger.info("Running final validation...")
