@@ -1,6 +1,6 @@
 # substrate-protocol-cleanup — Study Index
 
-**Status:** Design complete; no experiments executed yet.
+**Status:** Tier D CLEAN · Tier A1 PROMOTED (log_T-KD) · Tier B all-NULL · **Tier C: C1 §Discussion-FOOTNOTE (re-scored 2026-05-29 after a reg-modality scoring bug; AZ +2.54 pp p=0.03 passes, AL fails on one genuine degenerate fold), C2 closes §4.4, C3 closes P4**.
 **Drafted:** 2026-05-28
 **Predecessor:** [`docs/studies/mtl-protocol-fix/`](../mtl-protocol-fix/) (CLOSED 2026-05-24, v6 final)
 **Parallel (independent branch `mtl-improve`):** [`docs/studies/mtl_improvement/`](../mtl_improvement/)
@@ -83,13 +83,18 @@ Designs B and J have **STL** numbers published in `docs/studies/merge_design/` s
 
 ### B-summary table (to fill in as runs land)
 
-| Substrate variant | MTL reg @ disjoint | MTL reg @ geom_simple | Δ vs canonical | Δ cat F1 | Wilcoxon p | Verdict |
+Filled 2026-05-28 (Tier B Wave 1 + B3). Numbers are seed=42, 5-fold, H3-alt, disjoint reg `top10_acc_indist` / geom_simple reg, Δ vs `canonical_baseline` cell at same state, RAW-value Wilcoxon (one-sided design > canonical). AL row / AZ row per cell.
+
+| Substrate variant | MTL reg @ disjoint (AL / AZ) | MTL reg @ geom_simple (AL / AZ) | Δ vs canonical reg (AL / AZ) | Δ cat F1 (AL / AZ) | Wilcoxon p (AL / AZ) | Verdict |
 |---|---:|---:|---:|---:|---:|---|
-| canonical c2hgi (control) | — | — | — | — | — | — |
-| Design B | — | — | — | — | — | — |
-| Design J | — | — | — | — | — | — |
-| canonical + Lever 4 | — | — | — | — | — | — |
-| (winner) + Lever 4 | — | — | — | — | — | — |
+| canonical c2hgi (control) | 50.82 / 41.33 | 48.56 / 39.60 | — | — | — | BASELINE |
+| Design B (B1) | 50.44 / 41.35 | 48.68 / 39.11 | −0.38 / +0.03 | −2.17 / −2.41 | 0.91 / 0.44 | **NOT PROMOTED** (FALSIFIED AL / NULL AZ) |
+| Design J (B2) | 50.60 / 41.30 | 47.34 / 39.43 | −0.22 / −0.02 | −2.05 / −2.66 | 0.78 / 0.69 | **NOT PROMOTED** (FALSIFIED both) |
+| Lever 5 (B4) | 50.54 / 41.34 | 47.83 / 40.23 | −0.28 / +0.01 | −2.49 / −2.41 | 0.81 / 0.69 | **NOT PROMOTED** (FALSIFIED AL / NULL AZ) |
+| canonical + Lever 4 (B3) | 50.58 / 41.25 | 48.43 / 39.58 | −0.24 / −0.08 | −2.68 / −2.54 | 0.78 / 0.84 | **NOT PROMOTED** (FALSIFIED both) |
+| (winner) + Lever 4 (B3b) | n/a | n/a | n/a | n/a | n/a | SKIPPED (no Wave-1 winner) |
+
+Wave 1 verdict doc: [`../../results/substrate_protocol_cleanup/tier_b/phase_b1b2b4_verdict.md`](../../results/substrate_protocol_cleanup/tier_b/phase_b1b2b4_verdict.md). All three designs fail BOTH the disjoint-reg significance gate (every p ≥ 0.44) AND the Δcat ≥ −0.5 pp non-inferiority gate (uniform ~−2.4 pp cat regression). No leak signature (reg flat, cat regresses — opposite of a label-shortcut leak). B3 runs canonical+Lever4 control only.
 
 ---
 
@@ -106,6 +111,7 @@ Designs B and J have **STL** numbers published in `docs/studies/merge_design/` s
 - **Cost:** ~1-2 days code + unit test + 4 GPU-h scoring at AL/AZ (zero retraining once the flag is in for the next sweep; can also re-score Phase 3 Rank 1 W=0.2 runs if their per-epoch state was preserved — likely was not, so plan on a fresh single-seed=42 5-fold at AL/AZ).
 - **Decision gate:** Δreg @ task-best vs joint-best ≥ +2 pp at AL AND AZ → multi-seed promote (move to A-tier); ~+1 pp at one state only → §Discussion footnote; null → archive.
 - **Risk:** the routing overhead (loading two checkpoints at inference) is non-trivial for deploy; verdict must include a deploy-cost note.
+- **VERDICT (re-scored 2026-05-29): §DISCUSSION FOOTNOTE — one-state pass.** ⚠ The 2026-05-28 ARCHIVE was based on a **reg-modality scoring bug** (`route_task_best.py` rebuilt val loaders on `task_b=checkin` while the run trained `region`; `ExperimentConfig` did not persist the modality). Fixed (persist `task_*_input_type`; scorer reads it; 5 new unit tests) and re-run with fresh snapshots. **Corrected:** on the region modality the +2 pp gate clears at **AZ (Δreg +2.54 pp, 5/5 folds positive, Wilcoxon p=0.03125)** but fails at **AL (−7.89, p=0.31)**. The AL failure is ONE **genuine degenerate reg-best snapshot** (fold3: reg-best Acc@10=**0.12 %** even on the correct region modality — saved at val reg Acc@1=0.2801 @ ep14 but does not generalise; the same fold's joint-best scores a healthy 48 %). This is a real `MultiTaskBestTracker` Acc@1-selector pathology — **NOT the modality bug** (the modality bug was a separate confound that previously depressed the healthy folds and the AZ picture; the advisor's "0.0 is purely modality" hypothesis is falsified for AL fold3). AZ has **no** degenerate fold (the prior "fold2 collapse" was a modality artefact). One-state pass → footnote, not full PROMOTE (needs +2 pp at both) and not ARCHIVE (AZ is a real, significant gain). Healthy 4 AL folds avg +2.14 pp. Cat-best routing near-null (+0.87 AL p=0.06 / +0.12 AZ ns). Deploy cost (3× storage + 2-model load) + selector brittleness. **Conditional follow-up:** swap reg-best selector to Acc@10 + add a degenerate-snapshot guard, then multi-seed AL/AZ before any §0.x promotion. See `phase_c_verdict.md` §C1.
 
 ### C2 — §4.4 freeze-reg-after-peak (asymmetric reg-stop pilot)
 
@@ -117,6 +123,7 @@ Designs B and J have **STL** numbers published in `docs/studies/merge_design/` s
 - **Sweep:** `N ∈ {2, 4, 6}` × {AL, AZ} × seed=42 × 5 folds.
 - **Decision gate:** does Δcat improve at any N without Δreg regression > σ_fold? If yes → multi-seed promote. If no → archive as falsifying the last curriculum variant; closes §4.4 entirely.
 - **Code-adjacency to `mtl_improvement` T3.5 cat-only warmup:** both touch freezing logic in `runners/mtl_cv.py`. Coordinate via the rebase cadence in §"Branch-coordination protocol" below.
+- **VERDICT (2026-05-28): ARCHIVE — CLOSES §4.4 ENTIRELY.** No N improves cat without a reg regression > σ_fold at either state (seed=42 5-fold). Where cat lifts most (AL N=2/4: +0.37/+0.46 pp, p=0.16, never significant) reg collapses −7.69 / −4.18 pp (≫ σ_fold 3.21); where reg is preserved (N=6: AL −1.05 / AZ −0.07) cat is null (≤ +0.06 pp). The asymmetric freeze-reg-after-peak curriculum — the one form P4 had not falsified — is now falsified. See `phase_c_verdict.md` §C2.
 
 ### C3 — P4 residual hole: cross-attention K/V capacity-stealing test (near-zero compute)
 
@@ -126,6 +133,7 @@ Designs B and J have **STL** numbers published in `docs/studies/merge_design/` s
 - **Decision gate:** if reg peak shifts later or magnitude improves at any AL/AZ → file new finding (P4-residual-K/V), strengthens `mtl_improvement`'s arch-axis case. If no change → P4 conclusion fully closed.
 - **Risk:** silenced K/V may change cat F1 — report it as a side effect; the test target is reg dynamics, not cat performance.
 - **Sequencing:** run anytime; independent of A/B/C1/C2/D.
+- **VERDICT (2026-05-28): P4 FULLY CLOSED — no P4-residual-K/V finding filed.** Zeroing the cat→reg cross-attention K/V channel does NOT recover MTL reg or delay its peak: AL reg Δ−0.28 pp (ns), peak ep 12.8→9.4 (EARLIER, opposite of the hypothesis); AZ reg Δ+0.01 pp (ns), peak 6.2→6.6 (≈unchanged). Cat side-effect negligible (AL +0.37 ns, AZ −0.04 ns). Combined with P4 frozen-cat-params, both cat-parameter AND cat-activation pathways are exonerated — the residual MTL-vs-STL reg gap is NOT cat→backbone capacity-stealing. Narrows `mtl_improvement`'s arch-axis search by elimination. See `phase_c_verdict.md` §C3.
 
 ---
 

@@ -311,6 +311,18 @@ The NORTH_STAR currently reflects **Path A** (`next_gru` universally) pending F3
 
 **2026-04-29 update:** F50 Tier 1 closed all three drop-in alternatives (T1.2 HSM head; T1.3 FAMO; T1.4 Aligned-MTL) — **none reaches +3 pp acceptance against the substrate-matched CUDA H3-alt baseline** (paired Wilcoxon p_greater ∈ {0.2188, 0.3125, 0.8438}). CH22b sub-claim added. The FL architectural cost is **robust to head + balancer changes**, strengthening the scale-conditional reading. Tier 1.5 (cross-attn mechanism probes) and Tier 2 (PLE / Cross-Stitch) further test the structural-incompatibility reading. See `research/F50_T1_RESULTS_SYNTHESIS.md`.
 
+**2026-05-29 update (`substrate-protocol-cleanup` Tier B + Tier C evidence — tightens toward "architectural"; does NOT close):** Two new elimination strands narrow the MTL-vs-STL reg coupling toward an architectural (shared-backbone) cause rather than a substrate- or curriculum-side one:
+- **Tier B (substrate axis):** four mechanistically-distinct substrate variants (Designs B/J, Lever 4, Lever 5) that dominate canonical c2hgi on STL reg at AL/AZ do **NOT** transfer that advantage to MTL+F1 — disjoint reg flat (|Δ|≤0.38 pp, all p≥0.44) while cat regresses ~−2.4 pp. The shared backbone washes out the substrate reg advantage. Source: `results/substrate_protocol_cleanup/tier_b/phase_b1b2b4_verdict.md` + `phase_b3_verdict.md`.
+- **Tier C3 (cat→reg cross-attention K/V):** zeroing the cat-stream K/V into the reg-side cross-attention does NOT recover MTL reg or delay its peak (AL Δ−0.28 ns / AZ Δ+0.01 ns). Combined with P4's frozen-cat-params, both the cat-parameter AND cat-activation pathways to backbone capacity are exonerated. Source: `results/substrate_protocol_cleanup/tier_c/phase_c_verdict.md` §C3.
+
+Net: the residual reg gap is now **triply confirmed** non-cat-interference / non-substrate (P4 params + C3 activations + B substrate); by elimination it points at the shared-backbone architecture, which `mtl_improvement` T2 owns. **C15 is NOT closed here** — the scale-conditional FL-flip framing of the *coupling* itself is unchanged and its formal close awaits the `mtl_improvement` architectural verdict + the §0 paper-canon re-run. log_T-KD (Tier A1 PROMOTED) is an orthogonal supervisory lift that does not bear on the coupling mechanism.
+
+**2026-05-30 update (`substrate-protocol-cleanup` CLOSURE — regime bottleneck now confirmed architectural-and-LOCALIZED; still NOT closed):** Two further strands sharpen C15 from "by-elimination architectural" to a **localized, characterised** regime bottleneck:
+- **HGI ceiling (the missing control):** even **HGI** — the STL `next_region` ceiling (+2.12 pp STL reg over canonical at FL) — gives **NO MTL reg advantage** (FL disjoint 64.49 vs 63.98, Δ+0.51, **p=0.41 NS**); HGI's STL reg win VANISHES under B9 joint training. So the coupling is not "designs fail to carry a better substrate"; **there is no substrate (not even HGI) whose reg advantage survives the MTL regime.** Source: `results/substrate_protocol_cleanup/tier_b_fl/hgi_mtl_fl.md`.
+- **STL↔MTL isolation cell (apples-to-apples):** identical head/config/state/embeddings, STL `next_stan_flow` α=0 LEARNS region at **~73 % Acc@10** while the SAME config under MTL FLOORS at **~0.03 %** — pinning the loss of reg learning to the **joint-training regime**, not the head or substrate (caveat: α=0 is OOD → the claim is regime-and-config-scoped, B9/50ep, not "the encoder can never learn region under MTL"). Source: `results/substrate_protocol_cleanup/tier_b_fl/phase_b_fl_3way.md`.
+
+**Status:** `architectural-and-localized — NOT closed`. The coupling is now characterised (regime/shared-backbone-dominated; substrate-, prior-, curriculum-, and activation-pathways all eliminated incl. the HGI ceiling and the STL↔MTL isolation cell). It remains OPEN pending the `mtl_improvement` architectural fix + the §0 paper-canon re-run. The v12 default flip (log_T-KD on, ResLN encoder) does **not** bear on this coupling — log_T-KD is an orthogonal prior-pathway reg lift, and ResLN is STL-only with **no MTL benefit** (consistent with this concern). Cross-link: [`results/RESULTS_TABLE.md §0.9`](results/RESULTS_TABLE.md), [`findings/F_SUBSTRATE_PROTOCOL_CLEANUP_SYNTHESIS.md`](findings/F_SUBSTRATE_PROTOCOL_CLEANUP_SYNTHESIS.md), [`results/CANONICAL_VERSIONS.md`](results/CANONICAL_VERSIONS.md).
+
 ---
 
 ## C16 — CH15 reframed as head-coupled, not retracted (Phase-1, RESOLVED 2026-04-27)
@@ -522,3 +534,20 @@ Small states (AL/AZ) and FL: seed=42 ≈ multi-seed → no development bias. Lar
 **Status:** `documented 2026-05-20`. Re-opens if any future study reports seed=42-only numbers as paper-grade without flagging the convention.
 
 **Numbers source-of-truth:** `docs/results/RESULTS_TABLE.md §0.1 v11` (paper canonical) + `docs/results/mtl_protocol_fix/phase1_verdict.md` (dev-seed bias empirical fingerprint).
+
+---
+
+## C24 — STAN/`next_stan_flow` bidirectional safety depends on target staying outside the 9-window (WATCH-ITEM 2026-05-28)
+
+**Concern raised:** 2026-05-28 from `substrate-protocol-cleanup` Tier D1 window/mask audit advisor pass.
+
+**Observation:** The B9 reg head `next_stan_flow` (STAN) intentionally uses bidirectional self-attention across the 9-position input window — no causal mask. The Tier D1 audit confirmed this is currently safe because `generate_sequences` (`src/data/inputs/core.py:59-89`) keeps the target check-in strictly outside the 9-window via half-open slicing + tail-shift excision.
+
+**Risk:** Any future next-head variant that injects the target into the window — e.g. teacher-forcing-style training, target-aware positional bias, or a sliding-window shift that includes the target index — would silently leak via STAN's bidirectional attention. The B9 substrate + STAN combination is leak-safe only as long as the input-construction invariant holds.
+
+**Status:** `watch-item 2026-05-28`. Re-audit triggered if any of:
+- New head registered under `src/models/next/next_stan_*` or any bidirectional `next_*` variant.
+- Change to `generate_sequences` window construction.
+- New `task_b_input_type` introduced that re-interprets the 9-window.
+
+**Reference:** `docs/studies/substrate-protocol-cleanup/window_mask_audit.md` + log.md 2026-05-28 advisor entry.

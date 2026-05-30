@@ -102,8 +102,8 @@ Architecture in `src/models/mtlnet.py`:
 2. **FiLM modulation** (`FiLMLayer`): Learns gamma/beta from task embeddings, applies `gamma * x + beta` to condition shared layers on task identity
 3. **Shared backbone** (`ResidualBlock`): Stack of 4 residual blocks with LayerNorm + Linear + LeakyReLU + Dropout
 4. **Task heads**:
-   - `CategoryHeadMTL` (`src/models/heads/category.py`): Multi-path ensemble (3 parallel paths of variable depth 2-4), concatenated -> Linear -> LayerNorm -> GELU -> classifier
-   - `NextHeadMTL` (`src/models/heads/next.py`): Transformer encoder (4 layers, 8 heads, norm_first) with positional encoding, causal masking, and attention-based sequence pooling -> classifier
+   - `CategoryHeadEnsemble` (`src/models/category/category_ensemble/head.py`): Multi-path ensemble (3 parallel paths of variable depth 2-4), concatenated -> Linear -> LayerNorm -> GELU -> classifier. (Other category-head variants live alongside under `src/models/category/category_*/head.py`.)
+   - `NextHeadMTL` (`src/models/next/next_mtl/head.py`): Transformer encoder (4 layers, 8 heads, norm_first) with positional encoding, causal masking, and attention-based sequence pooling -> classifier. (Post-2026-05-14 head-registry restructure; previously at `src/models/heads/next.py`.)
 
 Key methods: `shared_parameters()` and `task_specific_parameters()` enable gradient manipulation for MTL optimizers.
 
@@ -161,13 +161,22 @@ python pipelines/train/mtl.pipe.py
 
 Configure `state` (florida, alabama, etc.) and engine. Outputs go to `results/{engine}/{state}/` including fold metrics (CSV), classification reports (JSON), plots (PNG), and summary statistics.
 
-> ⚠ **For Check2HGI MTL you MUST pass the full canonical recipe — defaults will NOT reproduce paper numbers.** Three classes of flag are silently wrong by default and each one alone drops a head by 10–30 pp:
+> ⚠ **CANONICAL VERSIONS (read `docs/results/CANONICAL_VERSIONS.md` first).** As of **2026-05-30** there are two pinned versions:
+> - **v11** = the BRACIS **paper canon** (FROZEN): B9/H3-alt recipe, **GCN substrate**, **log_T-KD OFF**. `docs/results/RESULTS_TABLE.md §0.1` IS v11. The on-disk `output/check2hgi/<state>/` IS the frozen v11 GCN substrate — do NOT overwrite it.
+> - **v12** = the **new code default**: v11 + **log_T-KD W=0.2 ON** (scoped to MTL `check2hgi_next_region`) + **ResLN encoder** (future builds). log_T-KD is paper-grade at AL/AZ + single-seed pilot at FL/CA/TX; ResLN is **STL-only, NO MTL benefit** (the regime finding).
+> - **To reproduce v11 paper numbers from v12-default code: pass `--log-t-kd-weight 0.0` and use the frozen GCN substrate.**
+>
+> ⚠ **For Check2HGI MTL you MUST pass the full canonical recipe — bare defaults will NOT reproduce paper numbers.** Three classes of flag are silently wrong by default and each one alone drops a head by 10–30 pp:
 >
 > 1. **`--mtl-loss`** defaults to `nash_mtl` (with cvxpy/ECOS solver errors mid-training). The canonical recipe is `static_weight` with `--category-weight 0.75`.
 > 2. **`--cat-head` / `--reg-head`** default to the preset's choice (cat=`next_mtl` Transformer, reg=`next_gru`). NORTH_STAR B9 uses `next_gru` (cat) and `next_getnext_hard` (reg, alias for `next_stan_flow`).
 > 3. **`--task-b-input-type`** defaults to `checkin`. NORTH_STAR B9 specifies **`region` embeddings** for the reg task (`docs/NORTH_STAR.md` §Champion). Running with `checkin` for task_b drops AL reg Acc@10 from ~50 % to ~28 % (verified 2026-05-14 on A40).
 >
-> Canonical NORTH_STAR B9 invocation (paper-grade at FL/CA/TX; small-state recipe is H3-alt, see `docs/NORTH_STAR.md`):
+> Two **v12 defaults flipped 2026-05-30** — these are the NEW intended default, but you MUST opt out for v11 paper reproduction:
+> 4. **`--log-t-kd-weight`** now defaults to **0.2** (τ=1.0) for MTL `check2hgi_next_region` (was None/off). **For the v11 paper §0.1 numbers, pass `--log-t-kd-weight 0.0`.** Category-only / non-region / non-MTL runs are unaffected (stays 0.0).
+> 5. **Check2HGI encoder** now defaults to **`resln`** for future embedding builds (`scripts/canonical_improvement/regen_emb_t3.py`). The on-disk substrate is still the frozen v11 GCN artifact (not rebuilt). For a v11 GCN rebuild, pass `--encoder gcn`. ResLN is STL-only — no MTL benefit.
+>
+> Canonical NORTH_STAR B9 invocation (paper-grade at FL/CA/TX; small-state recipe is H3-alt, see `docs/NORTH_STAR.md`). With v12 defaults this runs **v12** (canonical + log_T-KD); add `--log-t-kd-weight 0.0` for **v11** paper-canon:
 > ```bash
 > python scripts/train.py --task mtl --task-set check2hgi_next_region \
 >     --state {state} --engine check2hgi --seed 42 \
@@ -180,6 +189,7 @@ Configure `state` (florida, alabama, etc.) and engine. Outputs go to `results/{e
 >     --cat-head next_gru --reg-head next_getnext_hard \
 >     --task-a-input-type checkin --task-b-input-type region \
 >     --per-fold-transition-dir output/check2hgi/{state}
+> #   v12 default: log_T-KD W=0.2 ON. For v11 paper-canon add:  --log-t-kd-weight 0.0
 > ```
 >
 > H3-alt (small-state recipe, AL/AZ): drop `--alternating-optimizer-step`, `--alpha-no-weight-decay`, `--min-best-epoch 5`; replace `--scheduler cosine --max-lr 3e-3` with `--scheduler constant`. Heads + input-modality flags are identical.

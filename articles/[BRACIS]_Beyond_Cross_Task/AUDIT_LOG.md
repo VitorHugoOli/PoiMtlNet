@@ -1,5 +1,8 @@
 # AUDIT_LOG.md — Working notes for the meticulous-detail + macro-BRACIS audit
 
+> ⚠ **2026-05-30 — REPO DEFAULTS MOVED v11→v12; THE PAPER CITES v11.** `substrate-protocol-cleanup` (CLOSED 2026-05-29) flipped the repo defaults: a bare `scripts/train.py` run now produces **v12** = paper recipe + `--log-t-kd-weight 0.2` (deployable reg lift, paper-grade AL/AZ / pilot FL/CA/TX) + ResLN encoder (STL-only, no MTL benefit). **All paper §0 numbers are v11.** To reproduce the paper-canonical: add `--log-t-kd-weight 0.0 --encoder gcn` and use the frozen `output/check2hgi/<state>/` substrate (untouched). Full map: [`../../docs/results/CANONICAL_VERSIONS.md`](../../docs/results/CANONICAL_VERSIONS.md). Do NOT regenerate paper tables with bare defaults — you'd get v12 (+~2.4 pp reg) and mismatch §0.1.
+
+
 > **Purpose.** This is a running scratchpad for the third-pass audit (post commits 7a60e1c → ed90e8a → 6de13ca). Two parallel agents are running: a numerical audit and a macro-level BRACIS-fit audit. I record (i) the canonical-source table I'm cross-checking against, (ii) the commit-history timeline, (iii) the agent verdicts, and (iv) the synthesised fix list.
 >
 > **Lifetime.** This file is paper-side working memory. Delete before final commit if it bloats the repo, or keep as `audit_log_3.md` for traceability.

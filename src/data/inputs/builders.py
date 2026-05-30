@@ -28,6 +28,12 @@ _CHECKIN_LEVEL_ENGINES = {
     EmbeddingEngine.CHECK2HGI_DESIGN_I,
     EmbeddingEngine.CHECK2HGI_DESIGN_J,
     EmbeddingEngine.CHECK2HGI_DESIGN_M,
+    EmbeddingEngine.CHECK2HGI_DESIGN_L,
+    EmbeddingEngine.CHECK2HGI_LEVER4_CANONICAL,
+    EmbeddingEngine.CHECK2HGI_LEVER4_DESIGN_B,
+    EmbeddingEngine.CHECK2HGI_RESLN,
+    EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_B,
+    EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_J,
     EmbeddingEngine.TIME2VEC,
 }
 

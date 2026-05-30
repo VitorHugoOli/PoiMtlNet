@@ -139,6 +139,12 @@ def _load_region_embeddings(state: str, source: str = "check2hgi") -> tuple[np.n
         path = Path("output/check2hgi_design_j") / state.lower() / "region_embeddings.parquet"
     elif source == "check2hgi_design_m":
         path = Path("output/check2hgi_design_m") / state.lower() / "region_embeddings.parquet"
+    elif source == "check2hgi_resln":
+        path = Path("output/check2hgi_resln") / state.lower() / "region_embeddings.parquet"
+    elif source == "check2hgi_resln_design_b":
+        path = Path("output/check2hgi_resln_design_b") / state.lower() / "region_embeddings.parquet"
+    elif source == "check2hgi_resln_design_j":
+        path = Path("output/check2hgi_resln_design_j") / state.lower() / "region_embeddings.parquet"
     elif source.startswith("check2hgi_design_j_"):
         # J λ-sweep variants (e.g. check2hgi_design_j_l0_5 → λ=0.5)
         path = Path("output") / source / state.lower() / "region_embeddings.parquet"
@@ -910,7 +916,9 @@ def main():
     parser.add_argument("--preenc-dropout", type=float, default=0.1,
                         help="Dropout in --mtl-preencoder (default 0.1, matches MTL encoder_dropout).")
     parser.add_argument("--engine-override", type=str, default=None,
-                        choices=[None, "check2hgi", "check2hgi_poi2vec", "c2hgi_hgi_concat", "hgi"],
+                        choices=[None, "check2hgi", "check2hgi_poi2vec", "c2hgi_hgi_concat", "hgi",
+                                 "check2hgi_resln", "check2hgi_resln_design_b",
+                                 "check2hgi_resln_design_j"],
                         help="Override the engine used to load next.parquet/next_region.parquet. "
                              "Region labels and graph maps still come from check2hgi. "
                              "Used by Design A probe and HGI-substrate category-injection probes.")

@@ -1,0 +1,700 @@
+{
+  "baseline": {
+    "alabama": {
+      "disjoint_reg_mean": 50.821505188941956,
+      "disjoint_reg_std": 3.2148233550841545,
+      "disjoint_cat_mean": 45.759687423706055,
+      "disjoint_cat_std": 1.34170756203947,
+      "geom_reg_mean": 48.55617046356201,
+      "geom_cat_mean": 45.18096745014191,
+      "reg_peak_epochs": [
+        13,
+        12,
+        10,
+        14,
+        15
+      ],
+      "reg_peak_mean": 12.8,
+      "per_fold": [
+        {
+          "fold": 1,
+          "disjoint_cat_f1": 46.14877700805664,
+          "disjoint_reg_top10": 53.163015842437744,
+          "geom_cat_f1": 46.14877700805664,
+          "geom_reg_top10": 51.01378560066223,
+          "reg_peak_epoch": 13,
+          "reg_peak_top10": 53.163015842437744
+        },
+        {
+          "fold": 2,
+          "disjoint_cat_f1": 46.20434641838074,
+          "disjoint_reg_top10": 51.09667181968689,
+          "geom_cat_f1": 46.20434641838074,
+          "geom_reg_top10": 50.04061460494995,
+          "reg_peak_epoch": 12,
+          "reg_peak_top10": 51.09667181968689
+        },
+        {
+          "fold": 3,
+          "disjoint_cat_f1": 46.6547429561615,
+          "disjoint_reg_top10": 53.01986336708069,
+          "geom_cat_f1": 46.6547429561615,
+          "geom_reg_top10": 49.331173300743096,
+          "reg_peak_epoch": 10,
+          "reg_peak_top10": 53.01986336708069
+        },
+        {
+          "fold": 4,
+          "disjoint_cat_f1": 46.40460610389709,
+          "disjoint_reg_top10": 51.52500867843628,
+          "geom_cat_f1": 44.88953053951263,
+          "geom_reg_top10": 49.288326501846306,
+          "reg_peak_epoch": 14,
+          "reg_peak_top10": 51.52500867843628
+        },
+        {
+          "fold": 5,
+          "disjoint_cat_f1": 43.3859646320343,
+          "disjoint_reg_top10": 45.30296623706817,
+          "geom_cat_f1": 42.00744032859802,
+          "geom_reg_top10": 43.10695230960846,
+          "reg_peak_epoch": 15,
+          "reg_peak_top10": 45.30296623706817
+        }
+      ]
+    },
+    "arizona": {
+      "disjoint_reg_mean": 41.3266921043396,
+      "disjoint_reg_std": 2.7348285493655156,
+      "disjoint_cat_mean": 48.8696151971817,
+      "disjoint_cat_std": 1.8022409312771244,
+      "geom_reg_mean": 39.59788680076599,
+      "geom_cat_mean": 47.29672610759735,
+      "reg_peak_epochs": [
+        4,
+        7,
+        6,
+        9,
+        5
+      ],
+      "reg_peak_mean": 6.2,
+      "per_fold": [
+        {
+          "fold": 1,
+          "disjoint_cat_f1": 49.78446066379547,
+          "disjoint_reg_top10": 41.83436334133148,
+          "geom_cat_f1": 48.57422411441803,
+          "geom_reg_top10": 38.79643976688385,
+          "reg_peak_epoch": 4,
+          "reg_peak_top10": 41.83436334133148
+        },
+        {
+          "fold": 2,
+          "disjoint_cat_f1": 51.51914954185486,
+          "disjoint_reg_top10": 41.45027995109558,
+          "geom_cat_f1": 49.17275607585907,
+          "geom_reg_top10": 40.45008718967438,
+          "reg_peak_epoch": 7,
+          "reg_peak_top10": 41.45027995109558
+        },
+        {
+          "fold": 3,
+          "disjoint_cat_f1": 48.11211824417114,
+          "disjoint_reg_top10": 44.056621193885796,
+          "geom_cat_f1": 44.72314119338989,
+          "geom_reg_top10": 43.28097701072693,
+          "reg_peak_epoch": 6,
+          "reg_peak_top10": 44.056621193885796
+        },
+        {
+          "fold": 4,
+          "disjoint_cat_f1": 46.90840244293213,
+          "disjoint_reg_top10": 36.77009046077728,
+          "geom_cat_f1": 46.58610820770263,
+          "geom_reg_top10": 34.84293818473816,
+          "reg_peak_epoch": 9,
+          "reg_peak_top10": 36.77009046077728
+        },
+        {
+          "fold": 5,
+          "disjoint_cat_f1": 48.02394509315491,
+          "disjoint_reg_top10": 42.52210557460785,
+          "geom_cat_f1": 47.42740094661712,
+          "geom_reg_top10": 40.61899185180664,
+          "reg_peak_epoch": 5,
+          "reg_peak_top10": 42.52210557460785
+        }
+      ]
+    }
+  },
+  "cells": {
+    "C2_n2": {
+      "alabama": {
+        "disjoint_reg_mean": 43.130120635032654,
+        "disjoint_reg_std": 3.868887758239176,
+        "disjoint_cat_mean": 46.12573325634003,
+        "disjoint_cat_std": 1.8425490401943134,
+        "geom_reg_mean": 42.042219042778015,
+        "geom_cat_mean": 46.109163761138916,
+        "d_reg": -7.6913845539093035,
+        "p_reg_greater": 1.0,
+        "reg_folds_pos": 0,
+        "d_cat": 0.3660458326339736,
+        "p_cat_greater": 0.15625,
+        "cat_folds_pos": 3,
+        "reg_sigma_baseline": 3.2148233550841545,
+        "reg_peak_epochs": [
+          2,
+          2,
+          2,
+          2,
+          3
+        ],
+        "reg_peak_mean": 2.2,
+        "per_fold": [
+          {
+            "fold": 1,
+            "disjoint_cat_f1": 46.09317183494568,
+            "disjoint_reg_top10": 45.74209153652191,
+            "geom_cat_f1": 46.09317183494568,
+            "geom_reg_top10": 44.1200315952301,
+            "reg_peak_epoch": 2,
+            "reg_peak_top10": 45.74209153652191
+          },
+          {
+            "fold": 2,
+            "disjoint_cat_f1": 46.4284211397171,
+            "disjoint_reg_top10": 45.00406086444855,
+            "geom_cat_f1": 46.34727835655212,
+            "geom_reg_top10": 44.2729502916336,
+            "reg_peak_epoch": 2,
+            "reg_peak_top10": 45.00406086444855
+          },
+          {
+            "fold": 3,
+            "disjoint_cat_f1": 48.22764992713928,
+            "disjoint_reg_top10": 44.993922114372246,
+            "geom_cat_f1": 48.22764992713928,
+            "geom_reg_top10": 43.65626275539398,
+            "reg_peak_epoch": 2,
+            "reg_peak_top10": 44.993922114372246
+          },
+          {
+            "fold": 4,
+            "disjoint_cat_f1": 46.70831561088562,
+            "disjoint_reg_top10": 43.55428814888,
+            "geom_cat_f1": 46.70831561088562,
+            "geom_reg_top10": 41.88694357872009,
+            "reg_peak_epoch": 2,
+            "reg_peak_top10": 43.55428814888
+          },
+          {
+            "fold": 5,
+            "disjoint_cat_f1": 43.17110776901245,
+            "disjoint_reg_top10": 36.35624051094055,
+            "geom_cat_f1": 43.16940307617187,
+            "geom_reg_top10": 36.27490699291229,
+            "reg_peak_epoch": 3,
+            "reg_peak_top10": 36.35624051094055
+          }
+        ]
+      },
+      "arizona": {
+        "disjoint_reg_mean": 32.985804080963135,
+        "disjoint_reg_std": 5.915334768924535,
+        "disjoint_cat_mean": 48.80907595157623,
+        "disjoint_cat_std": 1.6218309009683958,
+        "geom_reg_mean": 32.850865423679345,
+        "geom_cat_mean": 48.80907595157623,
+        "d_reg": -8.340888023376468,
+        "p_reg_greater": 1.0,
+        "reg_folds_pos": 0,
+        "d_cat": -0.06053924560547017,
+        "p_cat_greater": 0.59375,
+        "cat_folds_pos": 2,
+        "reg_sigma_baseline": 2.7348285493655156,
+        "reg_peak_epochs": [
+          2,
+          49,
+          3,
+          2,
+          2
+        ],
+        "reg_peak_mean": 11.6,
+        "per_fold": [
+          {
+            "fold": 1,
+            "disjoint_cat_f1": 50.08631944656372,
+            "disjoint_reg_top10": 34.15247499942779,
+            "geom_cat_f1": 50.08631944656372,
+            "geom_reg_top10": 34.1331273317337,
+            "reg_peak_epoch": 2,
+            "reg_peak_top10": 34.15247499942779
+          },
+          {
+            "fold": 2,
+            "disjoint_cat_f1": 51.00269913673401,
+            "disjoint_reg_top10": 35.54529845714569,
+            "geom_cat_f1": 51.00269913673401,
+            "geom_reg_top10": 35.46836078166961,
+            "reg_peak_epoch": 49,
+            "reg_peak_top10": 35.54529845714569
+          },
+          {
+            "fold": 3,
+            "disjoint_cat_f1": 47.54078686237335,
+            "disjoint_reg_top10": 37.735116481781,
+            "geom_cat_f1": 47.54078686237335,
+            "geom_reg_top10": 37.67694234848022,
+            "reg_peak_epoch": 3,
+            "reg_peak_top10": 37.735116481781
+          },
+          {
+            "fold": 4,
+            "disjoint_cat_f1": 47.5598394870758,
+            "disjoint_reg_top10": 22.682598233222958,
+            "geom_cat_f1": 47.5598394870758,
+            "geom_reg_top10": 22.20080941915512,
+            "reg_peak_epoch": 2,
+            "reg_peak_top10": 22.682598233222958
+          },
+          {
+            "fold": 5,
+            "disjoint_cat_f1": 47.85573482513428,
+            "disjoint_reg_top10": 34.81353223323822,
+            "geom_cat_f1": 47.85573482513428,
+            "geom_reg_top10": 34.775087237358086,
+            "reg_peak_epoch": 2,
+            "reg_peak_top10": 34.81353223323822
+          }
+        ]
+      }
+    },
+    "C2_n4": {
+      "alabama": {
+        "disjoint_reg_mean": 46.637452840805054,
+        "disjoint_reg_std": 3.959060246685177,
+        "disjoint_cat_mean": 46.21545433998108,
+        "disjoint_cat_std": 1.2423784300530376,
+        "geom_reg_mean": 46.499491930007935,
+        "geom_cat_mean": 46.21545433998108,
+        "d_reg": -4.1840523481369045,
+        "p_reg_greater": 1.0,
+        "reg_folds_pos": 0,
+        "d_cat": 0.45576691627502297,
+        "p_cat_greater": 0.15625,
+        "cat_folds_pos": 3,
+        "reg_sigma_baseline": 3.2148233550841545,
+        "reg_peak_epochs": [
+          4,
+          4,
+          34,
+          21,
+          34
+        ],
+        "reg_peak_mean": 19.4,
+        "per_fold": [
+          {
+            "fold": 1,
+            "disjoint_cat_f1": 45.56107521057129,
+            "disjoint_reg_top10": 48.62124621868133,
+            "geom_cat_f1": 45.56107521057129,
+            "geom_reg_top10": 48.33738803863525,
+            "reg_peak_epoch": 4,
+            "reg_peak_top10": 48.62124621868133
+          },
+          {
+            "fold": 2,
+            "disjoint_cat_f1": 46.83615565299988,
+            "disjoint_reg_top10": 46.66937589645386,
+            "geom_cat_f1": 46.83615565299988,
+            "geom_reg_top10": 46.5069055557251,
+            "reg_peak_epoch": 4,
+            "reg_peak_top10": 46.66937589645386
+          },
+          {
+            "fold": 3,
+            "disjoint_cat_f1": 47.996950149536126,
+            "disjoint_reg_top10": 51.5200674533844,
+            "geom_cat_f1": 47.996950149536126,
+            "geom_reg_top10": 51.357924938201904,
+            "reg_peak_epoch": 34,
+            "reg_peak_top10": 51.5200674533844
+          },
+          {
+            "fold": 4,
+            "disjoint_cat_f1": 45.91572880744934,
+            "disjoint_reg_top10": 45.546969771385186,
+            "geom_cat_f1": 45.91572880744934,
+            "geom_reg_top10": 45.546969771385186,
+            "reg_peak_epoch": 21,
+            "reg_peak_top10": 45.546969771385186
+          },
+          {
+            "fold": 5,
+            "disjoint_cat_f1": 44.76736187934875,
+            "disjoint_reg_top10": 40.829604864120476,
+            "geom_cat_f1": 44.76736187934875,
+            "geom_reg_top10": 40.74827134609222,
+            "reg_peak_epoch": 34,
+            "reg_peak_top10": 40.829604864120476
+          }
+        ]
+      },
+      "arizona": {
+        "disjoint_reg_mean": 40.39717435836792,
+        "disjoint_reg_std": 2.8649359914492507,
+        "disjoint_cat_mean": 48.96391570568085,
+        "disjoint_cat_std": 1.2846129102182906,
+        "geom_reg_mean": 40.2504700422287,
+        "geom_cat_mean": 48.95544350147247,
+        "d_reg": -0.9295177459716811,
+        "p_reg_greater": 1.0,
+        "reg_folds_pos": 0,
+        "d_cat": 0.09430050849914266,
+        "p_cat_greater": 0.40625,
+        "cat_folds_pos": 3,
+        "reg_sigma_baseline": 2.7348285493655156,
+        "reg_peak_epochs": [
+          4,
+          6,
+          5,
+          3,
+          7
+        ],
+        "reg_peak_mean": 5.0,
+        "per_fold": [
+          {
+            "fold": 1,
+            "disjoint_cat_f1": 50.1905083656311,
+            "disjoint_reg_top10": 41.83436334133148,
+            "geom_cat_f1": 50.1905083656311,
+            "geom_reg_top10": 41.52476787567138,
+            "reg_peak_epoch": 4,
+            "reg_peak_top10": 41.83436334133148
+          },
+          {
+            "fold": 2,
+            "disjoint_cat_f1": 50.47802925109863,
+            "disjoint_reg_top10": 40.73860347270965,
+            "geom_cat_f1": 50.47802925109863,
+            "geom_reg_top10": 40.73860347270965,
+            "reg_peak_epoch": 6,
+            "reg_peak_top10": 40.73860347270965
+          },
+          {
+            "fold": 3,
+            "disjoint_cat_f1": 48.49758148193359,
+            "disjoint_reg_top10": 42.77680814266205,
+            "geom_cat_f1": 48.49758148193359,
+            "geom_reg_top10": 42.7380234003067,
+            "reg_peak_epoch": 5,
+            "reg_peak_top10": 42.77680814266205
+          },
+          {
+            "fold": 4,
+            "disjoint_cat_f1": 47.82629907131195,
+            "disjoint_reg_top10": 35.459625720977776,
+            "geom_cat_f1": 47.78393805027008,
+            "geom_reg_top10": 35.18982529640198,
+            "reg_peak_epoch": 3,
+            "reg_peak_top10": 35.459625720977776
+          },
+          {
+            "fold": 5,
+            "disjoint_cat_f1": 47.82716035842895,
+            "disjoint_reg_top10": 41.17647111415863,
+            "geom_cat_f1": 47.82716035842895,
+            "geom_reg_top10": 41.06113016605377,
+            "reg_peak_epoch": 7,
+            "reg_peak_top10": 41.17647111415863
+          }
+        ]
+      }
+    },
+    "C2_n6": {
+      "alabama": {
+        "disjoint_reg_mean": 49.77438569068909,
+        "disjoint_reg_std": 3.2332189015865573,
+        "disjoint_cat_mean": 45.82455277442932,
+        "disjoint_cat_std": 1.6438754793805268,
+        "geom_reg_mean": 49.50647056102753,
+        "geom_cat_mean": 45.82455277442932,
+        "d_reg": -1.0471194982528673,
+        "p_reg_greater": 0.96875,
+        "reg_folds_pos": 1,
+        "d_cat": 0.06486535072326519,
+        "p_cat_greater": 0.6875,
+        "cat_folds_pos": 2,
+        "reg_sigma_baseline": 3.2148233550841545,
+        "reg_peak_epochs": [
+          44,
+          5,
+          4,
+          6,
+          6
+        ],
+        "reg_peak_mean": 13.0,
+        "per_fold": [
+          {
+            "fold": 1,
+            "disjoint_cat_f1": 45.80335319042206,
+            "disjoint_reg_top10": 51.86536908149719,
+            "geom_cat_f1": 45.80335319042206,
+            "geom_reg_top10": 51.82481408119202,
+            "reg_peak_epoch": 44,
+            "reg_peak_top10": 51.86536908149719
+          },
+          {
+            "fold": 2,
+            "disjoint_cat_f1": 45.64188122749328,
+            "disjoint_reg_top10": 49.67506229877472,
+            "geom_cat_f1": 45.64188122749328,
+            "geom_reg_top10": 49.39073920249939,
+            "reg_peak_epoch": 5,
+            "reg_peak_top10": 49.67506229877472
+          },
+          {
+            "fold": 3,
+            "disjoint_cat_f1": 48.17170798778534,
+            "disjoint_reg_top10": 51.479530334472656,
+            "geom_cat_f1": 48.17170798778534,
+            "geom_reg_top10": 50.8715033531189,
+            "reg_peak_epoch": 4,
+            "reg_peak_top10": 51.479530334472656
+          },
+          {
+            "fold": 4,
+            "disjoint_cat_f1": 45.97141742706299,
+            "disjoint_reg_top10": 51.64700746536255,
+            "geom_cat_f1": 45.97141742706299,
+            "geom_reg_top10": 51.44367218017578,
+            "reg_peak_epoch": 6,
+            "reg_peak_top10": 51.64700746536255
+          },
+          {
+            "fold": 5,
+            "disjoint_cat_f1": 43.53440403938293,
+            "disjoint_reg_top10": 44.20495927333832,
+            "geom_cat_f1": 43.53440403938293,
+            "geom_reg_top10": 44.00162398815155,
+            "reg_peak_epoch": 6,
+            "reg_peak_top10": 44.20495927333832
+          }
+        ]
+      },
+      "arizona": {
+        "disjoint_reg_mean": 41.25314176082611,
+        "disjoint_reg_std": 2.808322126729618,
+        "disjoint_cat_mean": 48.84794235229492,
+        "disjoint_cat_std": 1.5520463727883043,
+        "geom_reg_mean": 40.955364108085625,
+        "geom_cat_mean": 48.84794235229492,
+        "d_reg": -0.07355034351349019,
+        "p_reg_greater": 0.8125,
+        "reg_folds_pos": 2,
+        "d_cat": -0.021672844886781208,
+        "p_cat_greater": 0.6875,
+        "cat_folds_pos": 3,
+        "reg_sigma_baseline": 2.7348285493655156,
+        "reg_peak_epochs": [
+          4,
+          6,
+          5,
+          5,
+          6
+        ],
+        "reg_peak_mean": 5.2,
+        "per_fold": [
+          {
+            "fold": 1,
+            "disjoint_cat_f1": 50.14280080795288,
+            "disjoint_reg_top10": 41.83436334133148,
+            "geom_cat_f1": 50.14280080795288,
+            "geom_reg_top10": 40.63467383384704,
+            "reg_peak_epoch": 4,
+            "reg_peak_top10": 41.83436334133148
+          },
+          {
+            "fold": 2,
+            "disjoint_cat_f1": 50.808048248291016,
+            "disjoint_reg_top10": 41.4695143699646,
+            "geom_cat_f1": 50.808048248291016,
+            "geom_reg_top10": 41.41181111335754,
+            "reg_peak_epoch": 6,
+            "reg_peak_top10": 41.4695143699646
+          },
+          {
+            "fold": 3,
+            "disjoint_cat_f1": 48.37926030158996,
+            "disjoint_reg_top10": 43.84331703186035,
+            "geom_cat_f1": 48.37926030158996,
+            "geom_reg_top10": 43.76575350761413,
+            "reg_peak_epoch": 5,
+            "reg_peak_top10": 43.84331703186035
+          },
+          {
+            "fold": 4,
+            "disjoint_cat_f1": 47.36713469028473,
+            "disjoint_reg_top10": 36.50029003620147,
+            "geom_cat_f1": 47.36713469028473,
+            "geom_reg_top10": 36.44247651100158,
+            "reg_peak_epoch": 5,
+            "reg_peak_top10": 36.50029003620147
+          },
+          {
+            "fold": 5,
+            "disjoint_cat_f1": 47.54246771335602,
+            "disjoint_reg_top10": 42.61822402477264,
+            "geom_cat_f1": 47.54246771335602,
+            "geom_reg_top10": 42.52210557460785,
+            "reg_peak_epoch": 6,
+            "reg_peak_top10": 42.61822402477264
+          }
+        ]
+      }
+    },
+    "C3_zerokv": {
+      "alabama": {
+        "disjoint_reg_mean": 50.545326471328735,
+        "disjoint_reg_std": 3.472022987885161,
+        "disjoint_cat_mean": 46.12559258937836,
+        "disjoint_cat_std": 1.92652785184699,
+        "geom_reg_mean": 48.01949620246887,
+        "geom_cat_mean": 45.57792246341705,
+        "d_reg": -0.2761787176132202,
+        "p_reg_greater": 0.9375,
+        "reg_folds_pos": 1,
+        "d_cat": 0.3659051656722994,
+        "p_cat_greater": 0.3125,
+        "cat_folds_pos": 3,
+        "reg_sigma_baseline": 3.2148233550841545,
+        "reg_peak_epochs": [
+          11,
+          10,
+          10,
+          11,
+          5
+        ],
+        "reg_peak_mean": 9.4,
+        "per_fold": [
+          {
+            "fold": 1,
+            "disjoint_cat_f1": 45.12970447540283,
+            "disjoint_reg_top10": 52.879154682159424,
+            "geom_cat_f1": 44.45670545101166,
+            "geom_reg_top10": 51.82481408119202,
+            "reg_peak_epoch": 11,
+            "reg_peak_top10": 52.879154682159424
+          },
+          {
+            "fold": 2,
+            "disjoint_cat_f1": 46.099749207496636,
+            "disjoint_reg_top10": 51.05605125427246,
+            "geom_cat_f1": 45.7959920167923,
+            "geom_reg_top10": 49.3501216173172,
+            "reg_peak_epoch": 10,
+            "reg_peak_top10": 51.05605125427246
+          },
+          {
+            "fold": 3,
+            "disjoint_cat_f1": 48.67780804634094,
+            "disjoint_reg_top10": 52.73612141609192,
+            "geom_cat_f1": 48.67780804634094,
+            "geom_reg_top10": 48.68261218070984,
+            "reg_peak_epoch": 10,
+            "reg_peak_top10": 52.73612141609192
+          },
+          {
+            "fold": 4,
+            "disjoint_cat_f1": 47.116565704345696,
+            "disjoint_reg_top10": 51.56567692756653,
+            "geom_cat_f1": 46.53811752796173,
+            "geom_reg_top10": 48.10898602008819,
+            "reg_peak_epoch": 11,
+            "reg_peak_top10": 51.56567692756653
+          },
+          {
+            "fold": 5,
+            "disjoint_cat_f1": 43.60413551330566,
+            "disjoint_reg_top10": 44.48962807655334,
+            "geom_cat_f1": 42.42098927497864,
+            "geom_reg_top10": 42.13094711303711,
+            "reg_peak_epoch": 5,
+            "reg_peak_top10": 44.48962807655334
+          }
+        ]
+      },
+      "arizona": {
+        "disjoint_reg_mean": 41.33404850959777,
+        "disjoint_reg_std": 2.822363055904499,
+        "disjoint_cat_mean": 48.828648924827576,
+        "disjoint_cat_std": 1.5688369918663259,
+        "geom_reg_mean": 38.809245228767395,
+        "geom_cat_mean": 48.06592643260956,
+        "d_reg": 0.007356405258173026,
+        "p_reg_greater": 0.6875,
+        "reg_folds_pos": 2,
+        "d_cat": -0.0409662723541274,
+        "p_cat_greater": 0.6875,
+        "cat_folds_pos": 3,
+        "reg_sigma_baseline": 2.7348285493655156,
+        "reg_peak_epochs": [
+          4,
+          6,
+          8,
+          6,
+          9
+        ],
+        "reg_peak_mean": 6.6,
+        "per_fold": [
+          {
+            "fold": 1,
+            "disjoint_cat_f1": 49.99231696128845,
+            "disjoint_reg_top10": 41.89241230487823,
+            "geom_cat_f1": 49.99231696128845,
+            "geom_reg_top10": 37.51934766769409,
+            "reg_peak_epoch": 4,
+            "reg_peak_top10": 41.89241230487823
+          },
+          {
+            "fold": 2,
+            "disjoint_cat_f1": 50.927555561065674,
+            "disjoint_reg_top10": 42.06578135490417,
+            "geom_cat_f1": 50.927555561065674,
+            "geom_reg_top10": 39.46912884712219,
+            "reg_peak_epoch": 6,
+            "reg_peak_top10": 42.06578135490417
+          },
+          {
+            "fold": 3,
+            "disjoint_cat_f1": 47.79910743236542,
+            "disjoint_reg_top10": 43.86270940303802,
+            "geom_cat_f1": 46.67072296142578,
+            "geom_reg_top10": 41.78785979747772,
+            "reg_peak_epoch": 8,
+            "reg_peak_top10": 43.86270940303802
+          },
+          {
+            "fold": 4,
+            "disjoint_cat_f1": 47.19623923301697,
+            "disjoint_reg_top10": 36.481019854545586,
+            "geom_cat_f1": 46.152573823928826,
+            "geom_reg_top10": 34.92002487182617,
+            "reg_peak_epoch": 6,
+            "reg_peak_top10": 36.481019854545586
+          },
+          {
+            "fold": 5,
+            "disjoint_cat_f1": 48.22802543640136,
+            "disjoint_reg_top10": 42.36831963062286,
+            "geom_cat_f1": 46.58646285533905,
+            "geom_reg_top10": 40.34986495971679,
+            "reg_peak_epoch": 9,
+            "reg_peak_top10": 42.36831963062286
+          }
+        ]
+      }
+    }
+  }
+}

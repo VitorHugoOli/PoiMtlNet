@@ -866,9 +866,26 @@ class FoldCreator:
         # SUBSTRATE_COMPARISON_PLAN §5 — MTL counterfactual permits HGI
         # provided next_region.parquet has been pre-built by
         # scripts/probe/build_hgi_next_region.py.
-        if embedding_engine not in (EmbeddingEngine.CHECK2HGI, EmbeddingEngine.HGI):
+        # substrate-protocol-cleanup Tier B (2026-05-28): Designs B/J/L (Lever 5)
+        # + Lever-4 stack reuse canonical c2hgi sequences/folds verbatim (only
+        # substrate embeddings differ); next.parquet + next_region.parquet are
+        # pre-built by scripts/substrate_protocol_cleanup/postbuild_design_substrate.sh.
+        _MTL_C2HGI_ALLOWED_ENGINES = (
+            EmbeddingEngine.CHECK2HGI,
+            EmbeddingEngine.HGI,
+            EmbeddingEngine.CHECK2HGI_DESIGN_B,
+            EmbeddingEngine.CHECK2HGI_DESIGN_J,
+            EmbeddingEngine.CHECK2HGI_DESIGN_L,
+            EmbeddingEngine.CHECK2HGI_LEVER4_CANONICAL,
+            EmbeddingEngine.CHECK2HGI_LEVER4_DESIGN_B,
+            EmbeddingEngine.CHECK2HGI_RESLN,
+            EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_B,
+            EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_J,
+        )
+        if embedding_engine not in _MTL_C2HGI_ALLOWED_ENGINES:
             raise ValueError(
-                f"MTL_CHECK2HGI requires engine in (CHECK2HGI, HGI); got {embedding_engine}."
+                f"MTL_CHECK2HGI requires engine in {_MTL_C2HGI_ALLOWED_ENGINES}; "
+                f"got {embedding_engine}."
             )
 
         # Load X + next_category labels from next.parquet.

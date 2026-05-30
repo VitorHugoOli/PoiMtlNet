@@ -28,6 +28,7 @@ sys.path.insert(0, str(REPO / "research"))
 
 from embeddings.check2hgi.model.Check2HGIModule import Check2HGI, corruption
 from embeddings.check2hgi.model.CheckinEncoder import CheckinEncoder
+from embeddings.check2hgi.model.variants import ResidualLNEncoder
 from embeddings.check2hgi.model.Checkin2POI import Checkin2POI
 from embeddings.hgi.model.RegionEncoder import POI2Region
 
@@ -106,9 +107,17 @@ def train(state: str, args):
         torch.manual_seed(int(seed))
         np.random.seed(int(seed))
     state_lc = state.lower()
-    suffix = getattr(args, "out_suffix", "") or ""
-    base = "check2hgi_design_j" + (f"_{suffix}" if suffix else "")
-    out_dir = REPO / "output" / base / state_lc
+    # tier_resln: --out-engine overrides the output dir so the ResLN+Design J
+    # stack lands under output/check2hgi_resln_design_j/. Default (None) keeps
+    # the canonical Design J path (optionally with --out-suffix for λ-sweeps),
+    # preserving prior Design J behaviour byte-for-byte.
+    out_engine = getattr(args, "out_engine", None) or None
+    if out_engine:
+        out_dir = REPO / "output" / out_engine / state_lc
+    else:
+        suffix = getattr(args, "out_suffix", "") or ""
+        base = "check2hgi_design_j" + (f"_{suffix}" if suffix else "")
+        out_dir = REPO / "output" / base / state_lc
     out_dir.mkdir(parents=True, exist_ok=True)
 
     graph_path = REPO / "output" / "check2hgi" / state_lc / "temp" / "checkin_graph.pt"
@@ -135,7 +144,18 @@ def train(state: str, args):
     ).to(device)
     metadata = d["metadata"]
 
-    checkin_encoder = CheckinEncoder(in_channels, args.dim, num_layers=args.num_layers)
+    # tier_resln: encoder switch. Default 'gcn' = canonical CheckinEncoder
+    # (byte-identical to prior Design J). 'resln' = ResidualLNEncoder, whose
+    # forward(x, edge_index, edge_weight=None, **kwargs) signature matches
+    # CheckinEncoder exactly (variants.py:481) so the call site in
+    # Check2HGI_DesignJ.forward needs no adaptation.
+    _encoder = getattr(args, "encoder", "gcn") or "gcn"
+    if _encoder == "resln":
+        checkin_encoder = ResidualLNEncoder(in_channels, args.dim, num_layers=args.num_layers)
+        print(f"[{state_lc}] encoder=ResidualLNEncoder num_layers={args.num_layers}")
+    else:
+        checkin_encoder = CheckinEncoder(in_channels, args.dim, num_layers=args.num_layers)
+        print(f"[{state_lc}] encoder=CheckinEncoder (canonical GCN) num_layers={args.num_layers}")
     checkin2poi = Checkin2POI(args.dim, args.attention_head)
     poi2region = POI2Region(args.dim, args.attention_head)
 
@@ -231,6 +251,12 @@ def main():
     ap.add_argument("--gamma", type=float, default=1.0)
     ap.add_argument("--max-norm", dest="max_norm", type=float, default=0.9)
     ap.add_argument("--device", type=str, default="cpu")
+    ap.add_argument("--encoder", type=str, default="gcn", choices=["gcn", "resln"],
+                    help="Check-in encoder. 'gcn' (default) = canonical CheckinEncoder; "
+                         "'resln' = ResidualLNEncoder (tier_resln stack).")
+    ap.add_argument("--out-engine", dest="out_engine", type=str, default=None,
+                    help="Output engine dir under output/ (default check2hgi_design_j). "
+                         "tier_resln uses check2hgi_resln_design_j.")
     args = ap.parse_args()
     train(args.state, args)
 

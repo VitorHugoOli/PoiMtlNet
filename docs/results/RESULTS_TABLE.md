@@ -63,7 +63,9 @@ These tables supersede §1–§5 below for paper drafting. All numbers are seed=
 
 **MTL recipe:** B9 = `mtlnet_crossattn + static_weight(cat=0.75) + next_gru (cat) + next_stan_flow (reg) + per-head LR (cat=1e-3 / reg=3e-3 / shared=1e-3) + cosine + alt-SGD + α-no-WD + per-fold log_T`. H3-alt = B9 minus alt-SGD, cosine, α-no-WD; replace with `--scheduler constant`. **Recipe is scale-conditional** — see §0.4.
 
-### 0.1 · Five-state architectural-Δ (MTL B9 vs matched-head STL ceiling)
+### 0.1 · Five-state architectural-Δ (MTL B9 vs matched-head STL ceiling) — **v11 PAPER CANON (no-KD / GCN substrate)**
+
+> **This table is v11 — the BRACIS paper canon.** Measured with **log_T-KD OFF** and the **GCN substrate** (`output/check2hgi/<state>/`, frozen). After the 2026-05-30 v12 default flip, reproduce these numbers by passing `--log-t-kd-weight 0.0` and using the frozen GCN substrate. Do NOT rebuild the substrate. Version map + reproduction: [`CANONICAL_VERSIONS.md`](CANONICAL_VERSIONS.md). The v12 log_T-KD reg lift is in §0.8 (additive, does not alter this table).
 
 | State | n_regions | MTL B9 reg Acc@10 | STL `next_stan_flow` Acc@10 | **Δ_reg pp** | p_reg | MTL B9 cat F1 | STL `next_gru` F1 | **Δ_cat pp** | p_cat |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -193,6 +195,52 @@ per-visit % = (canonical − pooled) / (canonical − HGI). training-signal pp =
 **Two-band pattern:** per-visit share 64–72% at small states (AL/AZ, ~1k regions) vs **89–90% at large states (FL/CA/TX, 4.7k–8.5k regions)**. At large states, pooled C2HGI collapses almost fully to HGI-level performance — the substrate gap is essentially all per-visit context, with only ~3 pp residual from the graph-contrastive training signal itself. At small states, training signal contributes more meaningfully (~28–36%). **CH19 confirmed at all 5 states.** Pooled > HGI at every state (training signal component consistently positive, 2.7–5.1 pp).
 
 **v12 update (2026-05-04):** FL/CA/TX cells added. CH19 status upgraded from `confirmed at AL+AZ` to `confirmed at all 5 states`.
+
+---
+
+### 0.8 · log_T-KD reg lift (CH26) — `substrate-protocol-cleanup` Tier A1 (W=0.2 vs W=0.0) — **v12 DEFAULT**
+
+> **v12 CODE DEFAULT (2026-05-30).** As of the v11→v12 default flip, `--log-t-kd-weight 0.2 --log-t-kd-tau 1.0` is **ON by default** for MTL `check2hgi_next_region` (the only task-set whose reg head consumes the per-fold log_T prior). These rows isolate the log_T-KD supervisory term added to the reg-task loss, holding the rest of the recipe fixed (H3-alt small-states / B9-ish large-states). W=0.0 = the same recipe with the KD term off (= **v11 paper-canon reproduction**, recovered via `--log-t-kd-weight 0.0`). Metric: disjoint reg `top10_acc_indist`. The W=0.2 column is orthogonal to (and stacks on top of) the §0.4 champion recipe; it does **not** replace it. **Grade: PAPER-GRADE at AL/AZ (n=20); single-seed PILOT at FL/CA/TX.** Leak-audited clean — [`../findings/F_TIER_A1_LEAK_AUDIT.md`](../findings/F_TIER_A1_LEAK_AUDIT.md). Finding: [`../findings/F_TIER_A1_PROMOTION.md`](../findings/F_TIER_A1_PROMOTION.md). Version map: [`CANONICAL_VERSIONS.md`](CANONICAL_VERSIONS.md).
+>
+> **Reproduction note:** §0.1 (the five-state architectural-Δ table) is the **v11 paper canon** — measured with **log_T-KD OFF, GCN substrate**. To reproduce §0.1 from v12-default code, pass `--log-t-kd-weight 0.0` and use the frozen GCN substrate at `output/check2hgi/<state>/`.
+
+**Small states — PAPER-GRADE (n=20, seeds {0,1,7,100}):**
+
+| State | n | W=0.0 disjoint reg | W=0.2 disjoint reg | **Δ_reg pp** | Wilcoxon p (1-sided) | folds + | cat F1 Δ (disjoint) |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| **AL** | 20 | 50.59 ± 3.53 | 52.85 ± 3.48 | **+2.27** | **9.54e-07** | 20/20 | −0.20 |
+| **AZ** | 20 | 41.30 ± 2.60 | 46.22 ± 2.75 | **+4.91** | **9.54e-07** | 20/20 | +0.08 |
+
+Multi-seed reproduces single-seed=42 (+2.40/+5.06) within 0.15 pp — no dev-seed (C23) bias at small states. Cat untouched at disjoint at both states.
+
+**Large states — seed=42 PILOT (sign-and-magnitude only, NOT paper-grade per C23):**
+
+| State | n | W=0.0 disjoint reg | W=0.2 disjoint reg | **Δ_reg pp** | cat F1 Δ | test |
+|---|---:|---:|---:|---:|---:|---|
+| FL | 5 | 63.98 | 66.38 | +2.40 | +0.01 | Wilcoxon p=0.031, 5/5 + |
+| CA | 1 | 50.06 | 51.48 | +1.42 | −0.10 | sign-and-magnitude |
+| TX | 1 | 50.38 | 52.09 | +1.71 | +0.05 | sign-and-magnitude |
+
+> ⚠ **§0.1-dev-seed caveat (large states):** the seed=42 W=0.0 baselines above overshoot the §0.1 multi-seed numbers exactly as C23 predicts (FL +0.7, CA +2.7, TX +7.5 pp of pure dev-seed bias). The **paired Δ** survives the bias (both arms share the seed=42 baseline), but the absolute W=0.0/W=0.2 values are NOT comparable to §0.1. Paper-grade large-state log_T-KD requires re-running W=0.0/W=0.2 at {0,1,7,100}. Treat these three rows as a transfer pilot only.
+
+**Reproducibility note:** scipy ≥ 1.16 dispatches `method='exact'` on raw per-fold values (no ties) → p=9.537e-07 (2⁻²⁰); on 2-dp rounded Δs ties force `method='approx'` → p≈4.42e-05. Always re-run on raw CSVs.
+
+Source: [`substrate_protocol_cleanup/tier_a1/phase_a1_verdict.md`](substrate_protocol_cleanup/tier_a1/phase_a1_verdict.md) + [`substrate_protocol_cleanup/tier_a1_largestate/phase_a1_largestate_addendum.md`](substrate_protocol_cleanup/tier_a1_largestate/phase_a1_largestate_addendum.md).
+
+---
+
+### 0.9 · Substrate-axis null in MTL + HGI ceiling + ResLN STL dual-axis (`substrate-protocol-cleanup` regime finding)
+
+> **The regime finding, in numbers.** Under the cross-attn MTL joint-training regime, encoder/substrate improvements wash out on BOTH axes; only the prior pathway (log_T-KD, §0.8) moves MTL reg. Full docs cross-linked per row. NONE of these are MTL improvements — they motivate the v12 ResLN encoder default (STL-only) and confirm the MTL reg bottleneck is architectural (→ `mtl_improvement`).
+
+| Line of evidence | Axis | Result | Grade | Source |
+|---|---|---|---|---|
+| **Substrate null (designs B/J/L/M)** in MTL | MTL reg | designs close **0 %** of any MTL gap (disjoint \|Δ\|≤0.16 pp FL, all NS; AL/AZ \|Δ\|≤1.22 pp, all p≥0.21) | seed=42 5-fold AL/AZ + FL | [`tier_b/phase_b_reaudit.md`](substrate_protocol_cleanup/tier_b/phase_b_reaudit.md), [`tier_b_fl/phase_b_fl_3way.md`](substrate_protocol_cleanup/tier_b_fl/phase_b_fl_3way.md) |
+| **HGI ceiling** (STL reg winner) in MTL | MTL reg | HGI does NOT beat canonical (64.49 vs 63.98, Δ+0.51, **p=0.41 NS**); HGI's +2.12 pp STL reg win VANISHES under B9 joint training; HGI cat collapses −35.6 pp | FL, ~0.36 GPU-h | [`tier_b_fl/hgi_mtl_fl.md`](substrate_protocol_cleanup/tier_b_fl/hgi_mtl_fl.md) |
+| **STL↔MTL isolation cell** (α=0) | STL vs MTL reg | identical head/config: STL α=0 LEARNS region ~73 % Acc@10; MTL α=0 FLOORS at ~0.03 % → **regime, not head/substrate, kills the MTL reg encoder** (α=0 is OOD; claim is regime-scoped) | FL | [`tier_b_fl/phase_b_fl_3way.md`](substrate_protocol_cleanup/tier_b_fl/phase_b_fl_3way.md) |
+| **ResLN STL dual-axis** (v12 encoder default) | STL cat / reg | cat F1 **+0.86 FL / +1.48 AL / +1.70 AZ** (5/5 seeds, p=0.03125); reg ≈0 small states / +0.71 FL. **STL-only — NO MTL benefit.** Dual-axis STL champions: **ResLN+design_b** (general) / **ResLN+design_j** (AL) — opt-in research variants | STL, paper-grade cat | [`tier_resln/phase_resln_verdict.md`](substrate_protocol_cleanup/tier_resln/phase_resln_verdict.md), `canonical_improvement` T3.2 |
+
+**Verdict:** three converging lines (substrate null + HGI ceiling + isolation cell) → the MTL reg bottleneck is the **joint-training regime / shared-backbone architecture**, not the substrate. ResLN is the v12 default for its STL/generality cat win, never for MTL. Full synthesis: [`../findings/F_SUBSTRATE_PROTOCOL_CLEANUP_SYNTHESIS.md`](../findings/F_SUBSTRATE_PROTOCOL_CLEANUP_SYNTHESIS.md).
 
 ---
 
