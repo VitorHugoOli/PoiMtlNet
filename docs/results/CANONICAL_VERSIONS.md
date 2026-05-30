@@ -167,17 +167,72 @@ To reproduce the v11 paper-canon numbers from v12-default code, pass:
 
 ---
 
+## v13 — recommended STL / forward-MTL base engine (BLESSED 2026-05-30, opt-in)
+
+**Not a code-default flip.** `--engine` is an explicit, required CLI argument — there is
+no silent engine default to change. v13 *blesses* a specific engine as the **recommended
+"best base substrate"** for STL/representation work and as the **forward base for future
+MTL improvement work** (per user decision 2026-05-30). The canonical `check2hgi` engine
+identity is **unchanged** — the BRACIS paper (v11/v12) is unaffected.
+
+- **Engine:** **`check2hgi_resln_design_b`** = **ResLN encoder** (v12 default) **+ Design B**
+  (POI2Vec injected at the POI-pool boundary, `poi_emb_for_reg = poi_emb.detach() + γ·Linear(POI2Vec)`,
+  cat path detached so cat stays canonical). It is the best all-around STL engine in the
+  investigation.
+- **Why it's the base:** STL dual-axis champion — **equalises HGI on reg at AL** (62.10 ≈ HGI
+  61.86), closes ~80 %/~30 % of the canonical→HGI gap at AZ/FL, **while keeping/widening
+  check2hgi's 2–3× cat lead** over HGI. (`tier_resln/phase_resln_verdict.md`.) ResLN+design_j
+  is a registered AL-specialist alternative.
+- **Grade — STL-only.** **NO MTL benefit.** Per the regime finding (substrate/encoder gains
+  wash out under cross-attn MTL — even HGI ≈ canonical in MTL), v13 does **not** improve
+  MTL reg or cat *today*. Its purpose is to be the **best representation/generality base**
+  so that when `mtl_improvement` fixes the joint-training regime, the substrate is already
+  the strongest available. Do **not** cite v13 as an MTL improvement.
+- **Build dependency (important):** requires the **POI2Vec teacher**
+  (`output/hgi/<state>/poi2vec_poi_embeddings_<State>.csv`) + the Design-B build. Currently
+  built at **AL / AZ / FL only** — **CA / TX are NOT built**. Build them before any v13 run
+  at those states (commands below). The canonical `check2hgi` engine remains the safe default
+  for any state without a v13 substrate.
+- **Reproduction safety:** v13 is additive/opt-in. v11 (paper) and v12 (default) are
+  untouched; nothing about `output/check2hgi/<state>/` changes.
+
+### Build a v13 substrate (per state)
+```bash
+# 1. POI2Vec teacher (if absent for the state)
+python scripts/substrate_protocol_cleanup/run_poi2vec.py --city {State} --epochs 100 --device cuda
+# 2. ResLN + Design-B substrate
+python scripts/probe/build_design_b_poi_pool.py --state {state} --encoder resln \
+    --out-engine check2hgi_resln_design_b --epochs 500 --device cuda
+# 3. postbuild inputs + log_T (next.parquet + next_region.parquet + cp canonical seed log_T)
+bash scripts/substrate_protocol_cleanup/postbuild_design_substrate.sh check2hgi_resln_design_b {state}
+```
+
+### v13 train invocation
+Same recipe as v12 (B9 / H3-alt + log_T-KD default ON) — only the engine + transition dir change:
+```bash
+python scripts/train.py --task mtl --task-set check2hgi_next_region \
+    --state {state} --engine check2hgi_resln_design_b --seed {seed} \
+    ... (B9/H3-alt recipe flags, identical to v12) ... \
+    --per-fold-transition-dir output/check2hgi_resln_design_b/{state}
+```
+For STL evaluation use the `scripts/p1_region_head_ablation.py` path with the same engine.
+
+---
+
 ## Quick reference — version × axis matrix
 
-| Axis | v11 (paper canon) | v12 (new default) |
-|---|---|---|
-| MTL recipe | B9 / H3-alt | B9 / H3-alt (unchanged) |
-| log_T-KD | OFF (0.0) | **ON (0.2, τ=1.0)** — MTL check2hgi_next_region only |
-| Encoder (future builds) | GCN | **ResLN** |
-| On-disk substrate `output/check2hgi/` | GCN (frozen) | GCN (frozen, unchanged) — full-v12 needs explicit ResLN rebuild |
-| Canonical numbers | `RESULTS_TABLE.md §0.1` | §0.1 (unchanged) + §0.8 log_T-KD lift |
-| Recover from current code | n/a | `--log-t-kd-weight 0.0` + GCN substrate |
-| Git commit (default snapshot) | `99f56e8` | (this flip's commit) |
+| Axis | v11 (paper canon) | v12 (new default) | v13 (recommended base, opt-in) |
+|---|---|---|---|
+| MTL recipe | B9 / H3-alt | B9 / H3-alt (unchanged) | B9 / H3-alt + log_T-KD (= v12) |
+| log_T-KD | OFF (0.0) | **ON (0.2, τ=1.0)** — MTL check2hgi_next_region only | ON (= v12) |
+| Engine | `check2hgi` | `check2hgi` | **`check2hgi_resln_design_b`** (ResLN + POI2Vec@pool) |
+| Encoder (future builds) | GCN | **ResLN** | ResLN |
+| Substrate dependency | none | none | **POI2Vec teacher** (built AL/AZ/FL; CA/TX TODO) |
+| MTL benefit | (baseline) | log_T-KD reg only | **none today** (STL/forward base; regime-limited) |
+| Status | FROZEN paper canon | code default | **blessed opt-in** (engine identity unchanged) |
+| Canonical numbers | `RESULTS_TABLE.md §0.1` | §0.1 + §0.8 log_T-KD lift | `tier_resln/phase_resln_verdict.md` (STL) |
+| Recover from current code | n/a | `--log-t-kd-weight 0.0` + GCN substrate | n/a (additive opt-in) |
+| Git commit (default snapshot) | `99f56e8` | `4414a82` (v12 flip) | (this commit) |
 
 ---
 
