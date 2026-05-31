@@ -189,10 +189,10 @@ identity is **unchanged** — the BRACIS paper (v11/v12) is unaffected.
   so that when `mtl_improvement` fixes the joint-training regime, the substrate is already
   the strongest available. Do **not** cite v13 as an MTL improvement.
 - **Build dependency (important):** requires the **POI2Vec teacher**
-  (`output/hgi/<state>/poi2vec_poi_embeddings_<State>.csv`) + the Design-B build. Currently
-  built at **AL / AZ / FL only** — **CA / TX are NOT built**. Build them before any v13 run
-  at those states (commands below). The canonical `check2hgi` engine remains the safe default
-  for any state without a v13 substrate.
+  (`output/hgi/<state>/poi2vec_poi_embeddings_<State>.csv`) + the Design-B build. Built at
+  **all five states (AL / AZ / FL / CA / TX)** as of 2026-05-30 (CA/TX added — see
+  `studies/substrate-protocol-cleanup/log.md`). The canonical `check2hgi` engine remains
+  the safe default for any state without a v13 substrate.
 - **Reproduction safety:** v13 is additive/opt-in. v11 (paper) and v12 (default) are
   untouched; nothing about `output/check2hgi/<state>/` changes.
 
@@ -227,7 +227,7 @@ For STL evaluation use the `scripts/p1_region_head_ablation.py` path with the sa
 | log_T-KD | OFF (0.0) | **ON (0.2, τ=1.0)** — MTL check2hgi_next_region only | ON (= v12) |
 | Engine | `check2hgi` | `check2hgi` | **`check2hgi_resln_design_b`** (ResLN + POI2Vec@pool) |
 | Encoder (future builds) | GCN | **ResLN** | ResLN |
-| Substrate dependency | none | none | **POI2Vec teacher** (built AL/AZ/FL; CA/TX TODO) |
+| Substrate dependency | none | none | **POI2Vec teacher** (built at all five states AL/AZ/FL/CA/TX) |
 | MTL benefit | (baseline) | log_T-KD reg only | **none today** (STL/forward base; regime-limited) |
 | Status | FROZEN paper canon | code default | **blessed opt-in** (engine identity unchanged) |
 | Canonical numbers | `RESULTS_TABLE.md §0.1` | §0.1 + §0.8 log_T-KD lift | `tier_resln/phase_resln_verdict.md` (STL) |
