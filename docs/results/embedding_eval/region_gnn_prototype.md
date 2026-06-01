@@ -30,4 +30,14 @@ Built GCN²-propagated region embeddings (`output/check2hgi_gprop/`) and ran the
 | **next_stan_flow + GCN²** | **0.7305±.007 (+0.56pp, ~0.8 SD — NOT significant)** |
 
 **Verdict: the adjacency lever is REDUNDANT with the log_T prior.** Graph propagation gives a real +3.0pp when the head has NO transition prior (next_gru), but **collapses to +0.56pp (within noise) once the head has log_T** (next_stan_flow). The log_T region-transition prior (learned from *observed* transitions) already captures the spatial structure that geographic-adjacency propagation provides. ⇒ On the deployed pipeline there is **no free region lift** from either route — a higher-adj_coh substrate (sidefeat, +0.30pp) OR an adjacency-aware head (GCN², +0.56pp) — both are subsumed by log_T. The "adj_coh potential" thread is real geometry but **already exploited** by the deployed head.
-- **Residual untested upside (smaller, honest):** regimes where log_T is weak — small states with sparse transition counts, cold-start regions, or MTL where cross-task gradients perturb the prior. Not pursued here; FL (dense log_T) shows full redundancy.
+- **Residual untested upside (smaller, honest):** regimes where log_T is weak — small states with sparse transition counts, cold-start regions, or MTL where cross-task gradients perturb the prior.
+
+## Residual-upside test at small states (AL/AZ, sparse log_T) — 2026-06-01
+Replicated the decisive test (next_stan_flow on gprop vs plain control region emb) at AL/AZ where log_T is sparser:
+| state | control plain | gprop | Δ | ~SD (n=5 folds) |
+|---|---|---|---|---|
+| FL | 0.7249 | 0.7305 | +0.56pp | ±0.007 (0.8 SD) |
+| AL | 0.5956 | 0.6091 | +1.35pp | ±0.042 (0.3 SD) |
+| AZ | 0.5241 | 0.5314 | +0.73pp | ±0.029 (0.26 SD) |
+
+**Verdict: residual upside NOT confirmed.** Even where log_T is sparse, graph propagation does not robustly beat the deployed head — every Δ is within ~1 SD, and the small states are too noisy (±0.03–0.04) to resolve a ~1pp effect. **The one honest nuance:** the sign is **positive at 3/3 states** (+0.56/+1.35/+0.73pp, mean ≈ +0.9pp) — weakly suggestive of a *tiny* consistent adjacency lift below the noise floor, but **nothing individually significant and nothing actionable**. A larger-N / paired-seed design could resolve whether the ~0.9pp sign-consistency is real, but the log_T prior dominates the spatial signal everywhere tested. **Region-upside thread closed:** no robust lift from substrate adj_coh or an adjacency-aware head, at any state.
