@@ -72,3 +72,15 @@ This replaces dev-seed-42 with reporting seeds, tests in the **MTL regime the la
 - **Reuse this ladder** as the Part-2 screening harness — but always confirm survivors in **MTL multi-seed**, never STL-only.
 
 **Bottom line (corrected).** The study **achieved its evaluation goal** (a rigorous, leak-aware, HGI-anchored ladder) and cleanly **falsified 5 of the proposed improvements + 2 leaks**. But the **next-reg HGI gap is OPEN** — *no* substrate (v13 included) closes it robustly under controlled evaluation; v13 is the best **category** engine and **region-neutral**, so it is the safe Part-2 base. The two real-geometry survivors (**sidefeat**, **adjacency-aware head**) were screened-out at STL but **never tested in MTL at power** — and since the whole study exists because STL≠MTL, that multi-seed MTL test is the mandatory first step before declaring the region gap a substrate dead-end.
+
+## Appendix — consolidated L0→L2 FL table (this study's controlled runs)
+| engine | cat L0 kNN | cat L1 probe | cat L2 F1 | reg L0 adj_coh | reg L1 probe@10 | reg L2 Acc@10 |
+|---|---|---|---|---|---|---|
+| check2hgi (canonical) | 0.982 | 0.985 | 0.676 | 0.274 | 0.685 | 0.726 |
+| **v13 (resln_design_b)** | **0.983** | **0.987** | 0.671 | **0.231** | 0.681 | ~0.728† |
+| **HGI** | 0.773 | 0.682 | 0.343 | **0.326** | 0.677 | **0.736** |
+| sidefeat (GCN) | 0.981 | 0.983 | 0.647 | 0.269 | 0.684 | 0.728 |
+| adjacency-head (gprop) | — | — | — | — | — | 0.731 (+0.56 NS) |
+
+† v13 L2-reg-STL not run directly in our p1 (resln encoder proxy 0.7275; MTL v13 re-run pending).
+**Reads:** cat — v13 best, HGI far behind. reg — **HGI leads every level**; notably **v13 has the LOWEST region adj_coh (0.231)** — the design_b POI2Vec injection *reduces* region spatial coherence, so v13 has **no controlled region advantage** here (the borrowed "v13 closes the gap" is not reproduced). The combined "v13+sidefeat+adjacency-head" is **not a built artifact** (needs the design_b-build extension + a head mod); the sidefeat(GCN) + gprop rows are its closest proxies, both region-neutral-to-marginal.
