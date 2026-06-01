@@ -89,6 +89,12 @@ Full numbers: `docs/results/embedding_eval/l2l3/summary.md`. Seed 42, FL/AL/AZ.
 - **Note:** run.py's old "reg" task (final embedding labelled by region) is retired from re-runs — next-reg is screened only via region_eval (region embeddings). The check-in-granularity demo (`fl_checkin/`) was not re-run (secondary caveat artifact).
 - **Pending:** v3c (WD 5e-2) re-screen needs a safe non-clobbering embedding rebuild (regen script writes to the frozen `output/check2hgi/`).
 
+### 2026-06-01 (later 2) — fold-isolation fix (user-caught confound)
+- **Confound:** run.py's per-engine StratifiedKFold split on each engine's own row order. check2hgi & HGI share the placeid SET but not row ORDER → the same POI landed in different folds per engine → next-cat L0/L1 was NOT comparing identical held-out sets (worst at small N). region_eval was already isolated (shared pairs + index-based KFold).
+- **Fix:** run.py now assigns each item's fold by its **placeid in canonical (sorted) order** → same POI → same fold for every engine (seed 42) → byte-identical held-out sets → isolates the substrate.
+- **Effect:** AL/AZ next-cat orderings became consistent with FL. **resln family (resln_design_j ≥ resln ≥ resln_design_b) now leads next-cat at all 3 states** (~+0.3 pp probe over canonical, tight ±SD); design_b/j/l and lever4 below canonical; HGI far below everywhere. The earlier AL "divergence" was the fold confound (now gone) + genuine small-N variance (SD ~0.003 AL/AZ vs ~0.0005 FL) + AL≠AZ being different cities.
+- Residual variance at AL/AZ is real (small N), not a protocol artifact.
+
 ### Next steps
 1. **L2/L3** for next-cat across all 5 engines (FL) — the legitimate cross-substrate cat verdict; and next-reg L2/L3 within the Check2HGI family (check-in-level) — the only valid reg verdict. Emit commands via `run.py --emit-l2l3`; pull metrics from `results/`.
 2. Report L0/L1 vs L3 as concordant/discordant *calls* (descriptive), NOT a pooled ρ.

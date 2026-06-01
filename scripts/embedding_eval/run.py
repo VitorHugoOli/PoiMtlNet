@@ -80,11 +80,26 @@ def _records_for(
     uniq, dense = np.unique(labels, return_inverse=True)
     num_classes = len(uniq)
     dense = dense.astype(np.int64)
+    placeids = tab.placeid[mask]
+    if max_items is not None and len(placeids) > max_items:
+        placeids = placeids[sel]  # keep placeids aligned with the subsample
 
     rows.append({**base, "level": "L0", "metric": "n_eval", "seed": -1, "value": float(len(dense))})
     rows.append({**base, "level": "L0", "metric": "label_coverage", "seed": -1, "value": float(mask.mean())})
 
-    for fi, (tr, te) in enumerate(make_folds(dense, n_folds, seed)):
+    # ISOLATION: assign each item to a fold by its PLACEID in canonical (sorted)
+    # order, so the fold of a POI is identical across engines regardless of each
+    # engine's row ordering. Same seed + same placeid set => byte-identical
+    # held-out sets per engine -> the comparison isolates the substrate, not the
+    # split. (Earlier per-engine StratifiedKFold gave different folds per engine.)
+    order = np.argsort(placeids, kind="stable")
+    fold_of = np.empty(len(dense), dtype=np.int64)
+    for _fi, (_, _te) in enumerate(make_folds(dense[order], n_folds, seed)):
+        fold_of[order[_te]] = _fi
+
+    for fi in range(n_folds):
+        te = np.where(fold_of == fi)[0]
+        tr = np.where(fold_of != fi)[0]
         # ---- L0 geometry on this fold (train-free) ----
         pred = knn_predict(emb[tr], dense[tr], emb[te], k=knn_k)
         rows.append({**base, "level": "L0", "metric": f"knn{knn_k}_acc", "seed": fi,
