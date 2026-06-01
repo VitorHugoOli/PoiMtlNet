@@ -44,6 +44,14 @@ FL next-cat L1: gcn_ctrl 0.9827 vs v3c 0.9826 (identical). FL next-reg adj_coh: 
 
 At FL the AL gains **collapse into the noise band** (sidefeat +0.30pp, rgcn +0.67pp Acc@10, both within ~1 SD; Acc@1 identical to control). The AL L2 appearance (+1.9/+3.4pp) was small-N variance. **So no re-screened candidate delivers a robust L2 region win at scale.** The L0 adjacency-coherence signal (sidefeat/rgcn) did not convert to sequence-task accuracy at high N — a clean repeat of "L0 structural metric over-promises; L2 at high-N is the ranking authority."
 
+## R-GCN leak audit (2026-06-01, dedicated auditor agent) — CONFIRMED leak
+R-GCN's FL next-cat probe 0.9986 **is a real structural leak**, not substrate quality:
+- **Mechanism:** `--edge-type both` adds a `same_poi` relation; R-GCN's per-relation `W_same_poi` learns a near-identity that copies the **verbatim category one-hot** (a node *input* feature; category is 100% POI-constant) across same-POI check-ins → a direct category-copy channel. Encoder-internal (reproduces with category-weight=0). Matches the documented T3.3 falsification (leak-discriminator F1 +27.85 at K=2; K=1 collapses cat −10.9 — line CLOSED).
+- **Evidence:** survives held-out-POI (0.994 on unseen POIs) and control-task is at chance (0.165) and no same-POI collapse → it's category-copy (label injected as input + propagated), not POI-identity memorization. Embeddings scale-amplified ~36× (std 13.9 vs 0.39), inter-category centroid dist 85 vs 2.7. The +11pp over control is leak amplification.
+- **Does it contaminate next-reg? NO.** Region embeddings are not scale-inflated (category-copy washed out by POI→Region pooling). Decisive held-out-region test (all test regions unseen): rgcn acc@10 0.5256 vs ctrl 0.4945 = **+3.1pp** (top-1 tied) — a genuine but small spatial-structure gain, not leak. (At the standard L2 next_stan_flow it was +0.67pp, within SD.)
+- **Verdict: DISQUALIFY R-GCN on next-cat** (leak); its region side is clean-but-small and would re-import the cat leak if shipped.
+- **Harness note (auditor):** the L1 next-cat probe's placeid-isolation makes folds *engine-identical* but does not hold out POIs at check-in granularity — add a GroupKFold-by-placeid probe variant to make any category-copying substrate's leak visible/penalized. (At POI-pooled granularity the leak is embedding-internal and shows regardless.)
+
 ## FINAL verdict (full ladder L0→L2, multi-state, controlled)
 **None of the 5 re-screened dropped candidates resurrects as a robust improvement.**
 - v3c (WD 5e-2): falsified — no gain vs control, 3 states, both axes.
