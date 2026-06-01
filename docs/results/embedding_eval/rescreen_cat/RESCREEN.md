@@ -83,6 +83,16 @@ A second independent auditor **upheld the leak** for BOTH gat and rgcn but corre
 
 **Reading:** next-cat L2 exposes BOTH leaks — gat 0.96 and rgcn 0.75 (predicting the *next* category that high is impossible without the category-copy channel; gat = documented T3.1 GATv2 leak, rgcn = T3.3, both now caught at L2). The 4 non-leaking candidates (v3c/dropedge/sidefeat/p2p) sit AT the control on cat L2 (0.642–0.647, no gain). On next-reg L2, every engine is within ±1 SD of the control (0.722–0.732); sidefeat +0.30pp and rgcn +0.67pp are the largest but not separated.
 
+## Leak-gate implementation (leak_sniff.py) + finding (2026-06-01)
+Implemented the advisor's gate: per-step next-cat probe (last window slot → next_category, GroupKFold-by-user), standardized AND raw, vs the clean control ceiling (~0.41). FL result:
+| engine | per-step std | per-step raw | gate |
+|---|---|---|---|
+| gcn_ctrl / v3c / dropedge / sidefeat / p2p | ~0.409 | ~0.407 | clean |
+| **gat** | **0.498** | **0.486** | **LEAK** (+0.085) |
+| rgcn | 0.333 | 0.414 | clean (per-step) |
+
+**Finding: the cheap per-step *linear* gate catches gat but MISSES rgcn.** rgcn's leak is nonlinear/multi-step (its per-step embedding does not linearly carry the next category even raw), surfacing only under the GRU at L2 (rgcn next-cat 0.754 ≫ control 0.646) and the POI-pooled own-category (0.9986, scale ~36×). ⇒ **The authoritative leak gate is L2-next-cat-F1 vs the same-protocol control** (catches BOTH: gat 0.96, rgcn 0.754 vs control 0.646); the per-step linear probe is a cheap pre-screen for scale-independent leaks only. Both gat and rgcn remain DISQUALIFIED on next-cat. Standing gates: (1) per-step probe vs control (cheap, catches linear/scale leaks), (2) L2-next-cat vs control (authoritative, catches nonlinear leaks).
+
 ## FINAL verdict (full ladder L0→L2, multi-state, controlled)
 **None of the 5 re-screened dropped candidates resurrects as a robust improvement.**
 - v3c (WD 5e-2): falsified — no gain vs control, 3 states, both axes.
