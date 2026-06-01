@@ -966,7 +966,7 @@ class FoldCreator:
                 build_concat_sequence_tensor,
             )
             if input_type == "region":
-                return build_region_sequence_tensor(state)
+                return build_region_sequence_tensor(state, region_engine=embedding_engine)
             if input_type == "concat":
                 return build_concat_sequence_tensor(state, x_checkin)
             raise ValueError(f"Unknown input_type: {input_type}")
