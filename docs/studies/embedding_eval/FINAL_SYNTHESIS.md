@@ -115,3 +115,20 @@ The "design_b is net-negative / v14 supersedes v13" claim above was **over-read 
 3. **I never L2-tested v13 (resln_design_b) region directly** — I used `resln` (no design_b) as a proxy (resln ≈ canonical). So "v13 region-neutral" was inferred from the *wrong engine*. The prior L2 gap-closure for v13 stands unrefuted by this study.
 
 **Honest status:** "canonical > v13 on adj_coh" is TRUE but **metric-specific** and does NOT establish design_b is bad for the region task. **Running now: a direct L2 `next_stan_flow` region test of v13 (resln_design_b) vs resln vs resln+sidefeat vs canonical vs HGI** — this settles whether design_b's L2 region benefit (prior claim) reproduces despite its lower adj_coh, and whether resln+sidefeat's high adj_coh translates. Until then, the v14-supersedes-v13 conclusion is **suspended**.
+
+## RESOLVED — direct L2 region test settles the v13/design_b question (2026-06-01)
+L2 `next_stan_flow` region Acc@10 (FL, 5-fold, seed42), DIRECT (each engine's own region emb):
+| engine | reg adj_coh (L0) | L2 reg Acc@10 | L2 Acc@1 |
+|---|---|---|---|
+| check2hgi (canonical) | 0.274 | 0.7274±.005 | 0.4687 |
+| check2hgi_resln | 0.282 | 0.7275±.005 | 0.4687 |
+| **v13 (resln_design_b)** | **0.231 (worst)** | **0.7309±.004 (best family)** | **0.4729 (best)** |
+| resln+sidefeat | **0.337 (best)** | 0.7307±.006 | 0.4696 |
+| HGI | 0.326 | **0.7362±.004** | 0.4740 |
+
+**Verdict — my adj_coh-based "design_b net-negative / v14 supersedes v13" is RETRACTED:**
+- **v13 has the worst adj_coh yet the BEST L2 region of the family** (+0.35pp Acc@10, best Acc@1). adj_coh measures *geographic adjacency* (which log_T already captures); design_b adds **POI fclass-similarity** which the L2 head exploits. So design_b **helps the region task** — the prior "v13 best dual-axis STL" verdict **STANDS**; my geometry read was metric-myopic.
+- **Two independent routes reach the same ~0.731:** design_b's fclass (v13, 0.7309) and sidefeat's adjacency (resln+sidefeat, 0.7307). Both ~0.35pp over canonical (marginal, ~0.7 SD at seed42), both **still ~0.5pp below HGI (0.7362)**.
+- **Promising untested combo:** since the two routes are *mechanistically distinct* (fclass vs adjacency), **v13 + sidefeat (resln + design_b + side-features)** might **stack** toward/past HGI — this is exactly the combo the user originally proposed, now **data-supported**. Needs the build_design_b_poi_pool side-feature extension. **This is the one promising substrate-side experiment left**; multi-seed needed (the +0.35pp routes are within ~0.7 SD at seed42).
+
+**Net:** v13 remains the best family substrate at the region TASK; no family substrate closes the HGI gap at seed42 (best ~0.731 vs 0.736); the live substrate lever is **stacking design_b ⊕ sidefeat (v13+sidefeat)**, multi-seed.
