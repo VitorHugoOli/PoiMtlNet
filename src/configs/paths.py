@@ -60,6 +60,11 @@ class EmbeddingEngine(Enum):
     CHECK2HGI_GAT = "check2hgi_gat"                   # T3.1: GATv2 encoder (leak-sniff)
     CHECK2HGI_RGCN = "check2hgi_rgcn"                 # T3.3: R-GCN relation-typed (leak-sniff)
     CHECK2HGI_T61_P2P = "check2hgi_t61_p2p"          # T6.1: POI-POI InfoNCE 4th boundary
+    # re-screen candidates stacked on the ResLN encoder base (v13 encoder)
+    CHECK2HGI_RESLN_V3C = "check2hgi_resln_v3c"
+    CHECK2HGI_RESLN_DROPEDGE = "check2hgi_resln_dropedge"
+    CHECK2HGI_RESLN_SIDEFEAT = "check2hgi_resln_sidefeat"
+    CHECK2HGI_RESLN_P2P = "check2hgi_resln_p2p"
     POI2HGI = "poi2hgi"
     FUSION = "fusion"  # Multi-embedding fusion
 
