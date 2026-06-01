@@ -93,6 +93,24 @@ Implemented the advisor's gate: per-step next-cat probe (last window slot → ne
 
 **Finding: the cheap per-step *linear* gate catches gat but MISSES rgcn.** rgcn's leak is nonlinear/multi-step (its per-step embedding does not linearly carry the next category even raw), surfacing only under the GRU at L2 (rgcn next-cat 0.754 ≫ control 0.646) and the POI-pooled own-category (0.9986, scale ~36×). ⇒ **The authoritative leak gate is L2-next-cat-F1 vs the same-protocol control** (catches BOTH: gat 0.96, rgcn 0.754 vs control 0.646); the per-step linear probe is a cheap pre-screen for scale-independent leaks only. Both gat and rgcn remain DISQUALIFIED on next-cat. Standing gates: (1) per-step probe vs control (cheap, catches linear/scale leaks), (2) L2-next-cat vs control (authoritative, catches nonlinear leaks).
 
+## next-reg L0 — full metric suite (completing the picture, 2026-06-01)
+The earlier "other L0 metrics" table was next-cat only. Region view, two artifacts:
+
+**(a) Region embeddings (the correct next-reg input):**
+| engine | adj_coh@10 | region-emb CKA vs ctrl |
+|---|---|---|
+| gcn_ctrl | 0.209 | 1.000 |
+| v3c | 0.207 | 0.994 (no-op) |
+| dropedge | 0.215 | 0.943 |
+| **sidefeat** | **0.269** | 0.751 (real change) |
+| p2p | 0.210 | 0.836 |
+| gat | 0.217 | 0.726 |
+| rgcn | 0.309 | 0.643 (anomalous) |
+
+**(b) Final embedding labelled by region (region-encoding view), 5-fold:** kNN10 ≈0.055, silhouette ≈−0.78, sep_ratio ≈1.27 — **all at floor for ALL engines** (region = 4703 tiny classes; class-label metrics are uninformative here). sidefeat does NOT stand out on the final embedding (knn 0.058, sep_ratio 1.235) — its region edge lives **only in the region embeddings** (adj_coh + CKA), not the per-POI final embedding. gat's slightly higher knn (0.067) is leak-tinged; rgcn's less-negative silhouette (−0.62) reflects its scale anomaly.
+
+**Takeaway:** for next-reg the meaningful L0 suite is **adj_coh + region-emb CKA** (the kNN/silhouette/sep_ratio class-label metrics floor out at 4703 classes and add nothing). adj_coh + CKA agree: sidefeat genuinely changes the region space with more spatial coherence; v3c is a no-op; rgcn is anomalous. Consistent with the next-cat read.
+
 ## Region capacity ladder — does L0 adj_coh point at unlockable structure? (user hypothesis, 2026-06-01)
 Tested whether sidefeat's L0 adjacency-coherence edge (which looked like it "collapsed" under next_stan_flow) is real structure that a *different head* can exploit. FL next-reg Acc@10, 5-fold:
 | head | gcn_ctrl | sidefeat (Δ) | rgcn (Δ, leak-disq.) |

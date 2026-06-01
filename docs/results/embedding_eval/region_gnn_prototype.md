@@ -18,4 +18,16 @@ Script: `scripts/embedding_eval/region_gnn_probe.py`.
 
 ## Implication
 - The promising direction for a future MTL region improvement is an **adjacency-aware head** (region-graph GNN / graph-propagated logits), which helps *any* substrate equally — NOT pursuing a higher-adj_coh substrate (sidefeat's edge is real but redundant under such a head).
-- **Caveat (must confirm next):** this is a 1-step transition proxy. The deployed head (`next_stan_flow` + **log_T region-transition prior**) already encodes *observed* transitions, which overlap heavily with geographic adjacency — so the +2.7pp may be partly redundant with log_T in the full pipeline. Next step: add graph propagation on top of `next_stan_flow` (or compare adjacency-GCN vs log_T) to see if the spatial lever survives alongside the transition prior, and whether it stacks in MTL.
+- **Caveat (must confirm next):** this is a 1-step transition proxy. The deployed head (`next_stan_flow` + **log_T region-transition prior**) already encodes *observed* transitions, which overlap heavily with geographic adjacency — so the +2.7pp may be partly redundant with log_T in the full pipeline.
+
+## DECISIVE TEST — does graph propagation survive on top of next_stan_flow (log_T)?
+Built GCN²-propagated region embeddings (`output/check2hgi_gprop/`) and ran the DEPLOYED head `next_stan_flow` (which has the log_T transition prior) on them, FL 5-fold:
+| setup | Acc@10 |
+|---|---|
+| next_gru (no prior), plain | 0.6822 |
+| next_gru + GCN² | 0.7126 (**+3.0pp**) |
+| next_stan_flow (+log_T), plain | 0.7249±.007 |
+| **next_stan_flow + GCN²** | **0.7305±.007 (+0.56pp, ~0.8 SD — NOT significant)** |
+
+**Verdict: the adjacency lever is REDUNDANT with the log_T prior.** Graph propagation gives a real +3.0pp when the head has NO transition prior (next_gru), but **collapses to +0.56pp (within noise) once the head has log_T** (next_stan_flow). The log_T region-transition prior (learned from *observed* transitions) already captures the spatial structure that geographic-adjacency propagation provides. ⇒ On the deployed pipeline there is **no free region lift** from either route — a higher-adj_coh substrate (sidefeat, +0.30pp) OR an adjacency-aware head (GCN², +0.56pp) — both are subsumed by log_T. The "adj_coh potential" thread is real geometry but **already exploited** by the deployed head.
+- **Residual untested upside (smaller, honest):** regimes where log_T is weak — small states with sparse transition counts, cold-start regions, or MTL where cross-task gradients perturb the prior. Not pursued here; FL (dense log_T) shows full redundancy.
