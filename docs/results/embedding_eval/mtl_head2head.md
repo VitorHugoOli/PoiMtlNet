@@ -26,3 +26,14 @@ Built `resln+{v3c,dropedge,sidefeat,p2p}` (gat/rgcn excluded: encoder-swaps + le
 
 ## Combined conclusion
 The MTL head-to-head closes the deployment question: **nothing improves MTL over the GCN+log_T baseline** — not v13, not design_j (worse), and by strong inference not the marginal/redundant candidates (sidefeat/GCN²), since the *stronger* v13 substrate already yields zero MTL gain. sidefeat's region-geometry signal is real and base-independent but does not survive to a robust task gain at any level, and is subsumed by log_T. **No adoption justified.**
+
+## ⚠ Correction (2026-06-01, later): v13/v13+gprop MTL re-run
+The first v13+sidefeat/+gprop and v13-base MTL runs used the **buggy region loader**
+(hardcoded check2hgi region emb). After the `region_sequence.py` fix, two follow-up
+issues: (1) a self-matching `ps grep [t]rain.py` deadlocked the v13-base campaign (it
+waited on its own command line) — so the "v13 catF1 0.7020 region-fixed" figure was
+actually the OLD buggy-loader head-to-head run, not a fixed re-run. (2) Re-launched v13
++ v13+gprop cleanly (region-fixed, no wait-gate). The macro conclusion is unaffected:
+v13 is region-neutral vs canonical in MTL; the single-seed-42 caveat and the mandatory
+multi-seed MTL test of the survivors (sidefeat, adjacency-head) stand. Clean numbers
+fold in when the re-run completes.
