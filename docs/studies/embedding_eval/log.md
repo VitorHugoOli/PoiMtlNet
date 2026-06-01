@@ -98,6 +98,15 @@ Full numbers: `docs/results/embedding_eval/l2l3/summary.md`. Seed 42, FL/AL/AZ.
 ### 2026-06-01 (later 3) — resln at L2 next-reg (user-requested)
 Ran the real STL next-reg (`p1_region_head_ablation.py next_stan_flow --input-type region`, 5-fold, FL) for resln vs canonical vs hgi → `docs/results/embedding_eval/l2l3/nextreg_stl.md`. **resln ties canonical (Acc@10 0.7275 vs 0.7274)** — its small L0 adj_coh edge does NOT translate; **resln's value is the category axis, neutral on region**. HGI wins region (+0.9 pp Acc@10), concordant with adj_coh + §0.3/§0.5 (and the run reproduces §0.5 canonical numbers, validating the pipeline). Confirms: the proxy resolves the big HGI-vs-family region gap but not within-family. Dual-axis MTL gain would need to combine check-in-category strength (resln) with HGI-style region-graph structure — design_b/j injections didn't robustly deliver either.
 
+### 2026-06-01 (later 4) — re-screen of dropped candidates (v3c + 4 others)
+Rebuilt 7 variants via `rescreen_build.sh` (OUTPUT_DIR-scratch, frozen substrate md5-verified untouched; region partitions all aligned). Screened L0/L1 at AL+AZ vs a same-protocol `gcn_ctrl` (fresh GCN wd=0). Full table: `docs/results/embedding_eval/rescreen_cat/RESCREEN.md`.
+- **v3c (WD 5e-2): FALSIFIED** — no gain over the clean control on cat OR region at AL+AZ (region adj_coh slightly below ctrl). Its prior "region benefit" was a baseline-mismatch artifact; with the control it vanishes. Answers the original v3c question: no.
+- **T4.3 POI side-features: consistent small REGION gain** (adj_coh +0.05–0.07, probe@10 +0.9–1.6pp, both states; cat neutral). Originally falsified on a single-state *cat* cell — the region axis was never measured. → L2 confirmation launched.
+- **T3.3 R-GCN: biggest REGION gain** (adj_coh +0.07–0.09, probe@10 +0.7–3pp) without the catastrophic cat-leak in the static probe → needs leak-audit + L2.
+- DropEdge / T6.1 p2p: no gain. GATv2: hurts cat. ✗
+- Confirmed a ~+0.5pp **fresh-vs-frozen offset** (frozen check2hgi > fresh gcn_ctrl) — validates the same-protocol control.
+- **Methodology win:** the ladder on the correct artifact (region embeddings) + a same-protocol control surfaced a region-axis signal (sidefeat, rgcn) the single-MTL-metric eval missed, and killed v3c cleanly. L0/L1 = screen; L2/L3 = rank (sidefeat/rgcn L2 next-reg running; FL control+v3c building).
+
 ### Next steps
 1. **L2/L3** for next-cat across all 5 engines (FL) — the legitimate cross-substrate cat verdict; and next-reg L2/L3 within the Check2HGI family (check-in-level) — the only valid reg verdict. Emit commands via `run.py --emit-l2l3`; pull metrics from `results/`.
 2. Report L0/L1 vs L3 as concordant/discordant *calls* (descriptive), NOT a pooled ρ.
