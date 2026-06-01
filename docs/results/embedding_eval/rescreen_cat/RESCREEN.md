@@ -93,6 +93,18 @@ Implemented the advisor's gate: per-step next-cat probe (last window slot → ne
 
 **Finding: the cheap per-step *linear* gate catches gat but MISSES rgcn.** rgcn's leak is nonlinear/multi-step (its per-step embedding does not linearly carry the next category even raw), surfacing only under the GRU at L2 (rgcn next-cat 0.754 ≫ control 0.646) and the POI-pooled own-category (0.9986, scale ~36×). ⇒ **The authoritative leak gate is L2-next-cat-F1 vs the same-protocol control** (catches BOTH: gat 0.96, rgcn 0.754 vs control 0.646); the per-step linear probe is a cheap pre-screen for scale-independent leaks only. Both gat and rgcn remain DISQUALIFIED on next-cat. Standing gates: (1) per-step probe vs control (cheap, catches linear/scale leaks), (2) L2-next-cat vs control (authoritative, catches nonlinear leaks).
 
+## Region capacity ladder — does L0 adj_coh point at unlockable structure? (user hypothesis, 2026-06-01)
+Tested whether sidefeat's L0 adjacency-coherence edge (which looked like it "collapsed" under next_stan_flow) is real structure that a *different head* can exploit. FL next-reg Acc@10, 5-fold:
+| head | gcn_ctrl | sidefeat (Δ) | rgcn (Δ, leak-disq.) |
+|---|---|---|---|
+| **next_gru** (no spatial prior) | 0.6822±.005 | 0.6885 (**+0.63pp**) | 0.6995 (+1.73pp) |
+| **next_stan_flow** (+log_T region-transition prior) | 0.7249±.005 | 0.7279 (+0.30pp) | 0.7316 (+0.67pp) |
+
+**Finding (partially vindicates the hypothesis):** sidefeat's region advantage is **~2× larger under the simpler `next_gru` (+0.63pp ≈1.3 SD) than under the prior-equipped `next_stan_flow` (+0.30pp ≈0.6 SD)**. So the adj_coh-detected structure is **real and exploitable — NOT pure noise** — but the strong deployed head's **log_T region-transition prior already captures most of that spatial structure**, making the embedding's extra contribution largely *redundant* in the deployed regime. So:
+- **Revise the adj_coh verdict:** it is not merely a "gross-difference detector"; it detects a **small, real, head-dependent** spatial signal. The earlier "collapses at L2" was specifically against the prior-equipped head that makes it redundant — the user's instinct (the probe/STL head may not capture it) was right in mechanism.
+- **But the magnitude stays small** (≤~0.6pp, ~1.3 SD) even under the head that benefits most, and shrinks to redundancy under the deployed log_T head. So it does not change the deployment ranking — but it does mean **a future MTL head that lacks/underuses the log_T prior could see a small real lift from a higher-adj_coh substrate**. (A head designed to exploit region adjacency directly — e.g. a region-graph GNN — is the untested upside; future work.)
+- sidefeat is the *clean* carrier of this (rgcn's larger ladder gains are confounded by its cat-leak).
+
 ## FINAL verdict (full ladder L0→L2, multi-state, controlled)
 **None of the 5 re-screened dropped candidates resurrects as a robust improvement.**
 - v3c (WD 5e-2): falsified — no gain vs control, 3 states, both axes.
