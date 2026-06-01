@@ -473,6 +473,8 @@ class IoPaths:
             EmbeddingEngine.CHECK2HGI_RESLN,
             EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_B,
             EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_J,
+            EmbeddingEngine.CHECK2HGI_T43_SIDEFEAT,  # embedding_eval MTL re-screen
+            EmbeddingEngine.CHECK2HGI_GPROP,         # GCN^2 region-emb proxy
         )
         if embedd_engine not in supported:
             raise ValueError(
