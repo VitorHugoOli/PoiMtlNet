@@ -66,6 +66,7 @@ class EmbeddingEngine(Enum):
     CHECK2HGI_RESLN_SIDEFEAT = "check2hgi_resln_sidefeat"
     CHECK2HGI_RESLN_P2P = "check2hgi_resln_p2p"
     CHECK2HGI_GPROP = "check2hgi_gprop"  # baseline check-in emb + GCN^2-propagated region emb (adjacency-aware head proxy)
+    CHECK2HGI_RESLN_DESIGN_B_GPROP = "check2hgi_resln_design_b_gprop"  # v13 + GCN^2 region emb
     POI2HGI = "poi2hgi"
     FUSION = "fusion"  # Multi-embedding fusion
 
@@ -475,6 +476,7 @@ class IoPaths:
             EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_J,
             EmbeddingEngine.CHECK2HGI_T43_SIDEFEAT,  # embedding_eval MTL re-screen
             EmbeddingEngine.CHECK2HGI_GPROP,         # GCN^2 region-emb proxy
+            EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_B_GPROP,  # v13 + GCN^2 region
         )
         if embedd_engine not in supported:
             raise ValueError(

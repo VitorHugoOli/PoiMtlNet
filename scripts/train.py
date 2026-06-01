@@ -1619,6 +1619,7 @@ def main(argv=None) -> None:
             EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_J,
             EmbeddingEngine.CHECK2HGI_T43_SIDEFEAT,  # embedding_eval MTL re-screen
             EmbeddingEngine.CHECK2HGI_GPROP,         # GCN^2 region-emb (adjacency-aware proxy)
+            EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_B_GPROP,  # v13 + GCN^2 region
         )
         if is_check2hgi_track and engine not in _ALLOWED_ENGINES_FOR_C2HGI_PRESET:
             print(
