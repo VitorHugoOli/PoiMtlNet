@@ -52,6 +52,32 @@ R-GCN's FL next-cat probe 0.9986 **is a real structural leak**, not substrate qu
 - **Verdict: DISQUALIFY R-GCN on next-cat** (leak); its region side is clean-but-small and would re-import the cat leak if shipped.
 - **Harness note (auditor):** the L1 next-cat probe's placeid-isolation makes folds *engine-identical* but does not hold out POIs at check-in granularity — add a GroupKFold-by-placeid probe variant to make any category-copying substrate's leak visible/penalized. (At POI-pooled granularity the leak is embedding-internal and shows regardless.)
 
+## COMPLETE FL tables — L0 → L2 (5-fold, vs gcn_ctrl)
+### next-cat
+| engine | L0 knn10 | L1 probe | L2 F1 (STL) |
+|---|---|---|---|
+| check2hgi (frozen ref) | 0.9817 | 0.9850 | — |
+| **gcn_ctrl** | 0.9796 | 0.9827 | 0.6461±.007 |
+| v3c_wd05 | 0.9796 | 0.9826 | 0.6424 |
+| t24_dropedge | 0.9797 | 0.9827 | 0.6435 |
+| t43_sidefeat | 0.9808 | 0.9832 | 0.6465 |
+| t61_p2p | 0.9788 | 0.9824 | 0.6440 |
+| gat | 0.9567 | 0.9709 | **0.9598** 🚩leak |
+| rgcn | 0.9915 | 0.9986 | **0.7539** 🚩leak |
+
+### next-reg (region embeddings)
+| engine | L0 adj_coh | L1 probe@10 | L2 Acc@10 (STL) |
+|---|---|---|---|
+| **gcn_ctrl** | 0.209 | 0.6806 | 0.7249±.007 |
+| v3c_wd05 | 0.207 | 0.6794 | 0.7256 |
+| t24_dropedge | 0.215 | 0.6806 | 0.7253 |
+| t43_sidefeat | 0.269 | 0.6838 | 0.7279 |
+| t61_p2p | 0.210 | 0.6790 | 0.7223 |
+| gat | 0.217 | 0.6828 | 0.7256 |
+| rgcn | 0.309 | 0.6927 | 0.7316 |
+
+**Reading:** next-cat L2 exposes BOTH leaks — gat 0.96 and rgcn 0.75 (predicting the *next* category that high is impossible without the category-copy channel; gat = documented T3.1 GATv2 leak, rgcn = T3.3, both now caught at L2). The 4 non-leaking candidates (v3c/dropedge/sidefeat/p2p) sit AT the control on cat L2 (0.642–0.647, no gain). On next-reg L2, every engine is within ±1 SD of the control (0.722–0.732); sidefeat +0.30pp and rgcn +0.67pp are the largest but not separated.
+
 ## FINAL verdict (full ladder L0→L2, multi-state, controlled)
 **None of the 5 re-screened dropped candidates resurrects as a robust improvement.**
 - v3c (WD 5e-2): falsified — no gain vs control, 3 states, both axes.
