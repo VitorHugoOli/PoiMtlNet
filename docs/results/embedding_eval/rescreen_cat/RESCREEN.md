@@ -35,7 +35,21 @@ why a same-protocol control was needed.
 ## v3c at Florida (L0/L1) — falsified at all 3 states
 FL next-cat L1: gcn_ctrl 0.9827 vs v3c 0.9826 (identical). FL next-reg adj_coh: ctrl 0.2093 vs v3c 0.2069 (v3c below); probe@10 0.6806 vs 0.6794. ⇒ **v3c shows no gain vs control on either axis at AL, AZ, AND FL.** Definitive.
 
-## Verdict (L0/L1 screen, AL+AZ vs control)
+## L2 next-reg at FLORIDA — CONCLUSIVE (tight SD, 159k pairs)
+| engine | Acc@1 | Acc@10 |
+|---|---|---|
+| gcn_ctrl | 0.4689 | 0.7249±0.007 |
+| sidefeat | 0.4689 | 0.7279±0.005 (+0.30pp) |
+| rgcn | 0.4692 | 0.7316±0.006 (+0.67pp) |
+
+At FL the AL gains **collapse into the noise band** (sidefeat +0.30pp, rgcn +0.67pp Acc@10, both within ~1 SD; Acc@1 identical to control). The AL L2 appearance (+1.9/+3.4pp) was small-N variance. **So no re-screened candidate delivers a robust L2 region win at scale.** The L0 adjacency-coherence signal (sidefeat/rgcn) did not convert to sequence-task accuracy at high N — a clean repeat of "L0 structural metric over-promises; L2 at high-N is the ranking authority."
+
+## FINAL verdict (full ladder L0→L2, multi-state, controlled)
+**None of the 5 re-screened dropped candidates resurrects as a robust improvement.**
+- v3c (WD 5e-2): falsified — no gain vs control, 3 states, both axes.
+- T4.3 sidefeat / T3.3 R-GCN: a real L0 adjacency-coherence difference + AL L2 blip, but **not separable from control at FL L2** (the high-N test). Region axis not robustly improved.
+- T2.4 DropEdge, T6.1 p2p, GATv2: no gain (GAT hurts cat).
+The systematic ladder confirms the original falsifications — now on the correct artifact (region embeddings), with a same-protocol control, isolated folds, and the high-N L2 check. Value: we now *know* (controlled, multi-level) rather than assume. No candidate justifies an MTL trial.
 - **v3c (WD 5e-2): FALSIFIED on the region axis.** No gain over the clean control on cat OR reg at either state (reg adj_coh slightly below ctrl). The "region benefit" was an artifact of comparing to a differently-built baseline. ✗
 - **T4.3 POI side-features: consistent small REGION gain** (adj_coh +0.05–0.07, probe@10 +0.9–1.6pp at both states; cat neutral). The original eval falsified it on a single-state *category* cell — but on the *region* axis it shows a real, two-state-consistent signal. → L2 confirmation warranted.
 - **T3.3 R-GCN: biggest REGION gain** (adj_coh +0.07–0.09, probe@10 +0.7–3pp), without the catastrophic cat-leak in this static probe (cat 0.96–0.98). The relation-typed graph plausibly encodes region structure — but needs a leak-check (relation edges could leak adjacency) + L2. → L2 + leak audit.

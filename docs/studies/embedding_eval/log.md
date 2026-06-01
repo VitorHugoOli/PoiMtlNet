@@ -107,6 +107,9 @@ Rebuilt 7 variants via `rescreen_build.sh` (OUTPUT_DIR-scratch, frozen substrate
 - Confirmed a ~+0.5pp **fresh-vs-frozen offset** (frozen check2hgi > fresh gcn_ctrl) — validates the same-protocol control.
 - **Methodology win:** the ladder on the correct artifact (region embeddings) + a same-protocol control surfaced a region-axis signal (sidefeat, rgcn) the single-MTL-metric eval missed, and killed v3c cleanly. L0/L1 = screen; L2/L3 = rank (sidefeat/rgcn L2 next-reg running; FL control+v3c building).
 
+### 2026-06-01 (later 5) — FL L2 conclusive: no candidate resurrects
+FL L2 next-reg (next_stan_flow, region, 5-fold, tight SD): gcn_ctrl 0.7249, sidefeat 0.7279 (+0.30pp), rgcn 0.7316 (+0.67pp) Acc@10 — both within ~1 SD, Acc@1 = control. The AL L2 gains (+1.9/+3.4pp) were small-N variance. **FINAL: none of the 5 re-screened candidates (v3c, dropedge, sidefeat, gat, rgcn, p2p) delivers a robust improvement** on the correct axis at scale; the L0 adj_coh signal for sidefeat/rgcn did not convert to L2 region accuracy at FL. Original falsifications upheld under the full controlled ladder. No candidate justifies an MTL trial. (Another instance: L0 structural over-promises; high-N L2 is the ranking authority.)
+
 ### Next steps
 1. **L2/L3** for next-cat across all 5 engines (FL) — the legitimate cross-substrate cat verdict; and next-reg L2/L3 within the Check2HGI family (check-in-level) — the only valid reg verdict. Emit commands via `run.py --emit-l2l3`; pull metrics from `results/`.
 2. Report L0/L1 vs L3 as concordant/discordant *calls* (descriptive), NOT a pooled ρ.
