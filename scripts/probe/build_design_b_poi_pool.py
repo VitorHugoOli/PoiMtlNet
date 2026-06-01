@@ -81,11 +81,34 @@ class Check2HGI_DesignB(Check2HGI):
     Linear projection of frozen POI2Vec features.
     """
 
-    def __init__(self, *args, poi2vec_table: torch.Tensor, gamma_init: float = 1.0, **kwargs):
+    def __init__(self, *args, poi2vec_table: torch.Tensor, gamma_init: float = 1.0,
+                 side_features: torch.Tensor | None = None,
+                 side_feature_hidden: int = 16, **kwargs):
         super().__init__(*args, **kwargs)
         self.poi2vec_proj = nn.Linear(POI2VEC_DIM, self.hidden_channels, bias=True)
         self.gamma = nn.Parameter(torch.tensor(float(gamma_init)))
         self.register_buffer("poi2vec_table", poi2vec_table.float())
+
+        # v13+sidefeat: T4.3 POI side-feature post-pool injector, REG PATH ONLY.
+        # Mirrors Check2HGIModule.py:228-243 exactly (Linear→PReLU, concat, then
+        # Linear(D+hidden→D)→LayerNorm). Applied to poi_emb_for_reg AFTER the
+        # POI2Vec residual, so the cat path (poi_emb_canonical) stays byte-identical.
+        # Stacks two distinct geometric axes: POI2Vec=fclass, side-feat=adjacency/usage.
+        if side_features is not None:
+            self.register_buffer("side_features", side_features.float())
+            side_dim = int(side_features.shape[1])
+            self.side_proj = nn.Sequential(
+                nn.Linear(side_dim, int(side_feature_hidden)),
+                nn.PReLU(),
+            )
+            self.pool_post_proj = nn.Sequential(
+                nn.Linear(self.hidden_channels + int(side_feature_hidden), self.hidden_channels),
+                nn.LayerNorm(self.hidden_channels),
+            )
+        else:
+            self.side_features = None
+            self.side_proj = None
+            self.pool_post_proj = None
 
     def forward(self, data):
         num_pois = data.num_pois
@@ -105,6 +128,14 @@ class Check2HGI_DesignB(Check2HGI):
         poi2vec_residual = self.poi2vec_proj(self.poi2vec_table)  # [N_pois, D]
         pos_poi_emb_for_reg = pos_poi_emb_canonical.detach() + self.gamma * poi2vec_residual
         neg_poi_emb_for_reg = neg_poi_emb_canonical.detach() + self.gamma * poi2vec_residual
+
+        # v13+sidefeat: post-pool side-feature concat-project (reg path only).
+        if self.side_proj is not None:
+            side_h = self.side_proj(self.side_features)  # [N_pois, side_hidden]
+            pos_poi_emb_for_reg = self.pool_post_proj(
+                torch.cat([pos_poi_emb_for_reg, side_h], dim=1))
+            neg_poi_emb_for_reg = self.pool_post_proj(
+                torch.cat([neg_poi_emb_for_reg, side_h], dim=1))
 
         # Region path
         pos_region_emb = self.poi2region(pos_poi_emb_for_reg, data.poi_to_region, data.region_adjacency)
@@ -186,6 +217,25 @@ def train_design_b(state: str, args: argparse.Namespace) -> None:
 
     poi2vec_table = load_poi2vec_table(state, num_pois, d["placeid_to_idx"])
 
+    # v13+sidefeat: optionally load the T4.3 32-d POI side-feature tensor.
+    side_features = None
+    if getattr(args, "use_side_features", False):
+        sf_path = REPO / "output" / "check2hgi" / state_lc / "poi_side_features.pt"
+        if not sf_path.exists():
+            print(f"[{state_lc}] computing POI side-features → {sf_path}")
+            import subprocess
+            r = subprocess.run(
+                [sys.executable, str(REPO / "scripts/canonical_improvement/compute_poi_side_features.py"),
+                 "--state", state],
+                cwd=str(REPO), env={**__import__("os").environ, "PYTHONPATH": f"{REPO}/src:{REPO}/research"})
+            if r.returncode != 0:
+                raise RuntimeError(f"compute_poi_side_features.py failed rc={r.returncode}")
+        sf = torch.load(sf_path)
+        side_features = sf["features"] if isinstance(sf, dict) else sf
+        if side_features.shape[0] != num_pois:
+            raise ValueError(f"side_features rows {side_features.shape[0]} != num_pois {num_pois}")
+        print(f"[{state_lc}] side_features attached shape={tuple(side_features.shape)}")
+
     data = Data(
         x=torch.tensor(d["node_features"], dtype=torch.float32),
         edge_index=torch.tensor(d["edge_index"], dtype=torch.int64),
@@ -233,6 +283,8 @@ def train_design_b(state: str, args: argparse.Namespace) -> None:
         alpha_r2c=args.alpha_r2c,
         poi2vec_table=poi2vec_table,
         gamma_init=args.gamma_init,
+        side_features=side_features,
+        side_feature_hidden=args.side_feature_hidden,
     ).to(device)
     print(f"[{state_lc}] params={sum(p.numel() for p in model.parameters()):,}")
 
@@ -320,6 +372,11 @@ def main():
     ap.add_argument("--encoder", type=str, default="gcn", choices=["gcn", "resln"],
                     help="Check-in encoder. 'gcn' (default) = canonical CheckinEncoder; "
                          "'resln' = ResidualLNEncoder (tier_resln stack).")
+    ap.add_argument("--use-side-features", dest="use_side_features", action="store_true",
+                    help="v13+sidefeat: stack T4.3 POI side-features (32d) onto the "
+                         "POI2Vec reg-path residual. Loads/computes poi_side_features.pt.")
+    ap.add_argument("--side-feature-hidden", dest="side_feature_hidden", type=int, default=16,
+                    help="Hidden dim of the side-feature projection (matches T4.3).")
     ap.add_argument("--out-engine", dest="out_engine", type=str, default=None,
                     help="Output engine dir under output/ (default check2hgi_design_b). "
                          "tier_resln uses check2hgi_resln_design_b.")

@@ -143,6 +143,10 @@ def _load_region_embeddings(state: str, source: str = "check2hgi") -> tuple[np.n
         path = Path("output/check2hgi_resln") / state.lower() / "region_embeddings.parquet"
     elif source == "check2hgi_resln_design_b":
         path = Path("output/check2hgi_resln_design_b") / state.lower() / "region_embeddings.parquet"
+    elif source == "check2hgi_resln_design_b_sidefeat":
+        # v13+sidefeat — resln encoder + design_b POI2Vec residual + T4.3 side-features
+        # stacked at the POI-pool boundary (reg path). Two distinct geometric axes.
+        path = Path("output/check2hgi_resln_design_b_sidefeat") / state.lower() / "region_embeddings.parquet"
     elif source == "check2hgi_resln_design_j":
         path = Path("output/check2hgi_resln_design_j") / state.lower() / "region_embeddings.parquet"
     elif source.startswith("check2hgi_design_j_"):
