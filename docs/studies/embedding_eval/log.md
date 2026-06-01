@@ -132,6 +132,11 @@ R-GCN FL next-cat 0.9986 = **confirmed structural leak**: `same_poi` relation + 
 ### 2026-06-01 (later 11) — residual-upside test at AL/AZ (sparse log_T): NOT confirmed
 Replicated the gprop-vs-plain next_stan_flow test at small states (where log_T is sparser). Δ Acc@10: FL +0.56pp, AL +1.35pp, AZ +0.73pp — **every Δ within ~1 SD** (small states ±0.03–0.04, too noisy to resolve ~1pp). Sign is positive at 3/3 states (mean ≈+0.9pp) → weakly suggestive of a tiny consistent adjacency lift below the noise floor, but **nothing individually significant or actionable**. log_T dominates the spatial signal everywhere. **Region-upside thread CLOSED:** no robust lift from substrate adj_coh or an adjacency-aware head at any state. (A larger-N/paired-seed design could resolve the ~0.9pp sign-consistency if ever worth it.)
 
+### 2026-06-01 (later 12) — MTL L3 head-to-head + candidates-on-ResLN L0
+- **MTL head-to-head (FL s42, B9):** baseline check2hgi catF1 0.7028 / reg-top10i 0.6025; **resln_design_b (v13) ties** (0.7020 / 0.5985 — NO MTL benefit, confirms STL-only); **design_j worse** on cat (0.6883). ⇒ **baseline GCN+log_T is the best; no substrate combination improves MTL.** "Best final combination" = the deployed baseline.
+- **Candidates on ResLN-encoder base (L0):** v3c/dropedge/p2p no-ops; **sidefeat reproduces region adj_coh +0.055 (base-independent, stacks on GCN & resln)** but probe@10 only +0.35pp (~1 SD), no leaks. Same verdict as GCN base. (Full resln+design_b stacking needs build_design_b_poi_pool extension; did the supported ResLN-encoder version.)
+- **Strong inference:** since the *stronger* v13 substrate yields zero MTL gain, the marginal/log_T-redundant levers (sidefeat, GCN²) almost certainly yield nothing in MTL too. Doc: `docs/results/embedding_eval/mtl_head2head.md`. (Pending if desired: explicit +sidefeat/+GCN² MTL runs to close opt 1 — expected null, non-trivial input-alignment setup.)
+
 ### Next steps
 1. **L2/L3** for next-cat across all 5 engines (FL) — the legitimate cross-substrate cat verdict; and next-reg L2/L3 within the Check2HGI family (check-in-level) — the only valid reg verdict. Emit commands via `run.py --emit-l2l3`; pull metrics from `results/`.
 2. Report L0/L1 vs L3 as concordant/discordant *calls* (descriptive), NOT a pooled ρ.
