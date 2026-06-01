@@ -132,3 +132,29 @@ L2 `next_stan_flow` region Acc@10 (FL, 5-fold, seed42), DIRECT (each engine's ow
 - **Promising untested combo:** since the two routes are *mechanistically distinct* (fclass vs adjacency), **v13 + sidefeat (resln + design_b + side-features)** might **stack** toward/past HGI — this is exactly the combo the user originally proposed, now **data-supported**. Needs the build_design_b_poi_pool side-feature extension. **This is the one promising substrate-side experiment left**; multi-seed needed (the +0.35pp routes are within ~0.7 SD at seed42).
 
 **Net:** v13 remains the best family substrate at the region TASK; no family substrate closes the HGI gap at seed42 (best ~0.731 vs 0.736); the live substrate lever is **stacking design_b ⊕ sidefeat (v13+sidefeat)**, multi-seed.
+
+## CLOSED — v13+sidefeat does NOT stack (2026-06-01)
+Built `check2hgi_resln_design_b_sidefeat` (resln + design_b POI2Vec + T4.3 side-features
+stacked at the POI-pool reg-path) and ran direct L2 (FL, 5-fold, seed42, next_stan_flow):
+| substrate | Acc@1 | Acc@10 |
+|---|---|---|
+| canonical | 0.4687 | 0.7274±.005 |
+| resln | 0.4687 | 0.7275±.005 |
+| **v13 (resln_design_b)** | 0.4729 | **0.7309±.004** |
+| resln+sidefeat | 0.4696 | 0.7307±.006 |
+| **v13+sidefeat** | 0.4718 | **0.7293±.004** |
+| **hgi** | 0.4740 | **0.7362±.004** |
+
+**v13+sidefeat (0.7293) is BELOW both components alone (v13 0.7309, sidefeat 0.7307)** —
+the two routes do NOT stack; they are redundant/interfering, both capped by the log_T
+ceiling (all within ~1 SD = statistical tie). This **confirms the region-silhouette L0
+prediction**: neither fclass (design_b) nor usage/popularity (sidefeat) is the *spatial-
+cohesion* axis where HGI wins, so stacking two non-spatial axes cannot approach HGI.
+
+**Final substrate verdict:**
+- **Carry v13 (resln_design_b) — best family substrate at L2-reg (0.7309), best cat.** Pure v13.
+- **v13+sidefeat: DO NOT adopt** — no gain over v13 (a hair below), adds complexity.
+- HGI still leads (0.7362, ~0.5pp gap), unclosed by any substrate.
+- **Only actionable HGI-gap lever (from L0):** POI-level spatial/Delaunay edges (T6.1 p2p /
+  design_k = J+Delaunay) — the axis region-silhouette concordantly localizes HGI's advantage.
+  fclass/sidefeat are exhausted. Defer to a dedicated spatial-substrate study / Part-2 MTL.
