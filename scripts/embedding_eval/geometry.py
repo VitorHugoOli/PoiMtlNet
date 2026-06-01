@@ -68,6 +68,35 @@ def knn_loo(
     }
 
 
+def knn_predict(
+    ref_emb: np.ndarray,
+    ref_labels: np.ndarray,
+    q_emb: np.ndarray,
+    k: int = 10,
+    chunk: int = 2048,
+) -> np.ndarray:
+    """Predict query labels by similarity-weighted cosine kNN against a SEPARATE
+    reference set (for proper train/test CV — no leave-one-out leakage). Returns
+    predicted labels in the original label space."""
+    uniq, ref_dense = np.unique(ref_labels, return_inverse=True)
+    num_classes = len(uniq)
+    dev = _device()
+    rx = torch.nn.functional.normalize(torch.from_numpy(ref_emb).to(dev, torch.float32), dim=1)
+    qx = torch.nn.functional.normalize(torch.from_numpy(q_emb).to(dev, torch.float32), dim=1)
+    ry = torch.from_numpy(ref_dense.astype(np.int64)).to(dev)
+    k_eff = min(k, rx.shape[0])
+    preds = torch.empty(qx.shape[0], dtype=torch.long, device=dev)
+    for s in range(0, qx.shape[0], chunk):
+        e = min(s + chunk, qx.shape[0])
+        sims = qx[s:e] @ rx.T
+        top = sims.topk(k_eff, dim=1)
+        w = (top.values + 1.0) / 2.0
+        votes = torch.zeros(e - s, num_classes, device=dev)
+        votes.scatter_add_(1, ry[top.indices], w)
+        preds[s:e] = votes.argmax(dim=1)
+    return uniq[preds.cpu().numpy()]
+
+
 def centroid_separability(emb: np.ndarray, labels: np.ndarray) -> Dict[str, float]:
     """Cohesion vs separation from class centroids (cosine geometry).
 

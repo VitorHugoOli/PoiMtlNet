@@ -35,25 +35,22 @@ def _stratifiable(y: np.ndarray) -> bool:
     return cnt.min() >= 2
 
 
-def _fit_one(
-    emb: np.ndarray,
-    labels: np.ndarray,
+def fit_probe(
+    xtr: np.ndarray,
+    ytr: np.ndarray,
+    xte: np.ndarray,
+    yte: np.ndarray,
     num_classes: int,
-    seed: int,
+    seed: int = 42,
     epochs: int = 300,
     lr: float = 1e-2,
     weight_decay: float = 0.0,
-    test_size: float = 0.2,
     batch_size: int = 8192,
     patience: int = 20,
 ) -> Dict[str, float]:
-    """One train/test split + linear probe fit to convergence. Returns val
-    metrics plus ``train_acc`` and ``test_class_coverage`` diagnostics."""
-    strat = labels if _stratifiable(labels) else None
-    xtr, xte, ytr, yte = train_test_split(
-        emb, labels, test_size=test_size, random_state=seed, stratify=strat
-    )
-    # carve an early-stopping slice out of train (never touches test)
+    """Linear probe on EXPLICIT train/test splits (for shared 5-fold CV). Carves
+    an early-stop slice out of train; standardizes on train only. Returns test
+    metrics + train_acc + test_class_coverage."""
     estrat = ytr if _stratifiable(ytr) else None
     xtr, xes, ytr, yes = train_test_split(
         xtr, ytr, test_size=0.15, random_state=seed, stratify=estrat
@@ -73,7 +70,7 @@ def _fit_one(
     yte_t = torch.from_numpy(yte).to(dev, torch.long)
 
     torch.manual_seed(seed)
-    clf = torch.nn.Linear(emb.shape[1], num_classes).to(dev)
+    clf = torch.nn.Linear(xtr_t.shape[1], num_classes).to(dev)
     opt = torch.optim.AdamW(clf.parameters(), lr=lr, weight_decay=weight_decay)
 
     n = xtr_t.shape[0]
@@ -112,27 +109,31 @@ def _fit_one(
     return res
 
 
-def linear_probe(
+def make_folds(labels: np.ndarray, n_folds: int = 5, seed: int = 42):
+    """5-fold split indices. Stratified when every class has >= n_folds members
+    (next-cat), else plain KFold (next-region's sparse/singleton classes)."""
+    from sklearn.model_selection import KFold, StratifiedKFold
+    _, cnt = np.unique(labels, return_counts=True)
+    if cnt.min() >= n_folds:
+        skf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
+        return list(skf.split(np.zeros(len(labels)), labels))
+    return list(KFold(n_splits=n_folds, shuffle=True, random_state=seed).split(labels))
+
+
+def cv_probe(
     emb: np.ndarray,
     labels: np.ndarray,
-    seeds: List[int] = (0, 1, 7, 100),
+    n_folds: int = 5,
+    seed: int = 42,
     **kwargs,
-) -> Dict[str, Dict[str, float]]:
-    """Multi-seed linear probe. Returns ``{metric: {mean, sd, n}}`` (sd = sample
-    SD, ddof=1; with n=4 seeds this is a spread estimate, NOT a 95% CI).
-
-    Labels are densified to ``[0, C)`` first so ``num_classes`` is exact even
-    when the raw label space is sparse (region indices).
-    """
+) -> List[Dict[str, float]]:
+    """5-fold CV linear probe. Returns the per-fold metric dicts (caller
+    aggregates mean±SD). Labels densified to [0,C) so num_classes is exact."""
     uniq, dense = np.unique(labels, return_inverse=True)
     num_classes = len(uniq)
     dense = dense.astype(np.int64)
-
-    runs = [_fit_one(emb, dense, num_classes, s, **kwargs) for s in seeds]
-    out: Dict[str, Dict[str, float]] = {}
-    for k in runs[0]:
-        vals = np.array([r[k] for r in runs], dtype=np.float64)
-        out[k] = {"mean": float(vals.mean()),
-                  "sd": float(vals.std(ddof=1)) if len(vals) > 1 else 0.0,
-                  "n": len(vals)}
+    out = []
+    for tr, te in make_folds(dense, n_folds, seed):
+        out.append(fit_probe(emb[tr], dense[tr], emb[te], dense[te],
+                             num_classes=num_classes, seed=seed, **kwargs))
     return out

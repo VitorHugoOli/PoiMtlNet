@@ -30,9 +30,13 @@ import pandas as pd
 
 from configs.paths import EmbeddingEngine
 
-from scripts.embedding_eval.geometry import l0_metrics, linear_cka
+from sklearn.metrics import accuracy_score, f1_score
+
+from scripts.embedding_eval.geometry import (
+    centroid_separability, knn_predict, linear_cka, silhouette,
+)
 from scripts.embedding_eval.labels import ItemTable, load_item_table
-from scripts.embedding_eval.linear_probe import _fit_one
+from scripts.embedding_eval.linear_probe import fit_probe, make_folds
 
 TASK_NAMES = {"cat": "next-cat", "reg": "next-reg", "poi": "next-poi"}
 
@@ -46,12 +50,17 @@ def _records_for(
     task: str,
     knn_k: int,
     sil_sample: int,
-    seeds: list[int],
+    seed: int,
     probe_epochs: int,
     probe_lr: float,
+    n_folds: int = 5,
     max_items: int | None = None,
 ) -> list[dict]:
-    """L0 + L1 rows for one (engine, state, granularity, task)."""
+    """L0 + L1 rows for one (engine, state, granularity, task), via SHARED
+    5-fold CV: the same StratifiedKFold split feeds both the train-free geometry
+    (kNN train->test, silhouette/separability on the held-out fold) and the
+    linear probe (train 4 folds, eval 1). Each metric => 5 per-fold values =>
+    mean±SD downstream. Matches L2's 5-fold protocol."""
     mask = tab.valid_mask(task)
     emb = tab.emb[mask]
     labels = tab.labels(task)[mask]
@@ -61,37 +70,36 @@ def _records_for(
     if len(np.unique(labels)) < 2:
         return rows  # degenerate (e.g. poi @ poi-granularity) — skip
 
-    # Subsample AFTER masking (m9) so realized N / class coverage are comparable
-    # across engines regardless of each engine's label-coverage on this task.
-    n_total = len(labels)
-    if max_items is not None and n_total > max_items:
-        rng = np.random.default_rng(seeds[0])
-        sel = rng.choice(n_total, size=max_items, replace=False)
+    # subsample AFTER masking (m9) for comparable realized N across engines
+    if max_items is not None and len(labels) > max_items:
+        rng = np.random.default_rng(seed)
+        sel = rng.choice(len(labels), size=max_items, replace=False)
         emb, labels = emb[sel], labels[sel]
 
-    # provenance: realized eval N and how many of THIS engine's items carry a
-    # valid label for this task (M6 — surfaces silent per-engine drop).
-    rows.append({**base, "level": "L0", "metric": "n_eval", "seed": -1, "value": float(len(labels))})
-    rows.append({**base, "level": "L0", "metric": "label_coverage", "seed": -1,
-                 "value": float(mask.mean())})
-
-    # L0 — deterministic geometry (seed only feeds the silhouette subsample)
-    for metric, value in l0_metrics(
-        emb, labels, k=knn_k, silhouette_sample=sil_sample, seed=seeds[0]
-    ).items():
-        rows.append({**base, "level": "L0", "metric": metric, "seed": -1, "value": value})
-
-    # L1 — multi-seed linear probe (densify labels to [0, C))
+    # densify labels to [0, C) so num_classes is exact and folds share a space
     uniq, dense = np.unique(labels, return_inverse=True)
     num_classes = len(uniq)
-    for s in seeds:
-        res = _fit_one(
-            emb, dense.astype(np.int64), num_classes,
-            seed=s, epochs=probe_epochs, lr=probe_lr,
-            weight_decay=0.0, test_size=0.2,
-        )
-        for metric, value in res.items():
-            rows.append({**base, "level": "L1", "metric": metric, "seed": s, "value": value})
+    dense = dense.astype(np.int64)
+
+    rows.append({**base, "level": "L0", "metric": "n_eval", "seed": -1, "value": float(len(dense))})
+    rows.append({**base, "level": "L0", "metric": "label_coverage", "seed": -1, "value": float(mask.mean())})
+
+    for fi, (tr, te) in enumerate(make_folds(dense, n_folds, seed)):
+        # ---- L0 geometry on this fold (train-free) ----
+        pred = knn_predict(emb[tr], dense[tr], emb[te], k=knn_k)
+        rows.append({**base, "level": "L0", "metric": f"knn{knn_k}_acc", "seed": fi,
+                     "value": float(accuracy_score(dense[te], pred))})
+        rows.append({**base, "level": "L0", "metric": f"knn{knn_k}_macro_f1", "seed": fi,
+                     "value": float(f1_score(dense[te], pred, average="macro", zero_division=0))})
+        rows.append({**base, "level": "L0", "metric": "silhouette", "seed": fi,
+                     "value": silhouette(emb[te], dense[te], sample=sil_sample, seed=seed)})
+        for m, v in centroid_separability(emb[te], dense[te]).items():
+            rows.append({**base, "level": "L0", "metric": m, "seed": fi, "value": v})
+        # ---- L1 linear probe on this fold ----
+        res = fit_probe(emb[tr], dense[tr], emb[te], dense[te], num_classes,
+                        seed=seed, epochs=probe_epochs, lr=probe_lr)
+        for m, v in res.items():
+            rows.append({**base, "level": "L1", "metric": m, "seed": fi, "value": v})
     return rows
 
 
@@ -141,32 +149,27 @@ def _md_table(piv: pd.DataFrame) -> str:
     return "\n".join([header, sep, *rows])
 
 
+def _agg_table(df: pd.DataFrame, level: str, task: str) -> pd.DataFrame:
+    """engine × metric pivot of 'mean±SD' over the 5 CV folds (seed>=0 rows)."""
+    sub = df[(df.level == level) & (df.task == task) & (df.seed >= 0)]
+    agg = sub.groupby(["engine", "metric"])["value"].agg(["mean", "std"]).reset_index()
+    agg["cell"] = agg.apply(lambda r: f"{r['mean']:.4f}±{r['std'] if not np.isnan(r['std']) else 0:.4f}", axis=1)
+    return agg.pivot_table(index="engine", columns="metric", values="cell", aggfunc="first")
+
+
 def _write_summary(df: pd.DataFrame, out: Path) -> None:
-    lines = ["# Embedding-eval ladder — summary\n"]
-    # L0 geometry table per task
-    for task in sorted(df[df.level == "L0"].task.unique()):
-        if task == "-":
-            continue
-        sub = df[(df.level == "L0") & (df.task == task)]
-        piv = sub.pivot_table(index="engine", columns="metric", values="value")
-        lines.append(f"\n## L0 geometry — {TASK_NAMES.get(task, task)}\n")
-        lines.append(_md_table(piv.round(4)))
-    # CKA table
+    lines = ["# Embedding-eval ladder — summary (5-fold CV, mean±SD over folds)\n"]
+    for level, name in (("L0", "L0 geometry"), ("L1", "L1 linear probe")):
+        for task in sorted(df[(df.level == level) & (df.seed >= 0)].task.unique()):
+            if task == "-":
+                continue
+            lines.append(f"\n## {name} — {TASK_NAMES.get(task, task)} (mean±SD, 5 folds)\n")
+            lines.append(_md_table(_agg_table(df, level, task)))
+    # CKA (full-data diagnostic, single value)
     cka = df[df.metric.str.startswith("cka_vs_")]
     if len(cka):
-        lines.append("\n## L0 — linear CKA vs reference\n")
+        lines.append("\n## L0 — linear CKA vs reference (full-data)\n")
         lines.append(_md_table(cka.pivot_table(index="engine", columns="metric", values="value").round(4)))
-    # L1 probe tables (mean ± std over seeds) per task
-    for task in sorted(df[df.level == "L1"].task.unique()):
-        sub = df[(df.level == "L1") & (df.task == task)]
-        agg = sub.groupby(["engine", "metric"])["value"].agg(["mean", "std"]).reset_index()
-        agg["cell"] = agg.apply(lambda r: f"{r['mean']:.4f}±{r['std']:.4f}", axis=1)
-        piv = agg.pivot_table(index="engine", columns="metric", values="cell", aggfunc="first")
-        lines.append(
-            f"\n## L1 linear probe — {TASK_NAMES.get(task, task)} "
-            f"(mean±SD over seeds; SD is a spread estimate, n=seeds, NOT a 95% CI)\n"
-        )
-        lines.append(_md_table(piv))
     out.write_text("\n".join(lines) + "\n")
 
 
@@ -203,7 +206,8 @@ def main() -> None:
                     help="subsample items (needed for checkin-granularity L0)")
     ap.add_argument("--knn-k", type=int, default=10)
     ap.add_argument("--silhouette-sample", type=int, default=10000)
-    ap.add_argument("--seeds", nargs="+", type=int, default=[0, 1, 7, 100])
+    ap.add_argument("--seed", type=int, default=42, help="shuffle seed for the 5-fold split")
+    ap.add_argument("--n-folds", type=int, default=5)
     ap.add_argument("--probe-epochs", type=int, default=300,
                     help="max epochs; early-stops on a train-val slice well before this")
     ap.add_argument("--probe-lr", type=float, default=1e-2)
@@ -222,14 +226,14 @@ def main() -> None:
         for state in args.states:
             print(f"[load] {name} / {state} ({args.granularity}) ...", flush=True)
             # load FULL table; subsample per-task AFTER masking (fairness, m9)
-            tab = load_item_table(state, eng, granularity=args.granularity, seed=args.seeds[0])
+            tab = load_item_table(state, eng, granularity=args.granularity, seed=args.seed)
             tables[(name, state)] = tab
             for task in args.tasks:
                 print(f"  [eval] task={task}", flush=True)
                 all_rows += _records_for(
                     tab, task, args.knn_k, args.silhouette_sample,
-                    args.seeds, args.probe_epochs, args.probe_lr,
-                    max_items=args.max_items,
+                    args.seed, args.probe_epochs, args.probe_lr,
+                    n_folds=args.n_folds, max_items=args.max_items,
                 )
 
     if args.granularity == "poi":
