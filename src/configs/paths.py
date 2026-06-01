@@ -51,6 +51,15 @@ class EmbeddingEngine(Enum):
     CHECK2HGI_RESLN = "check2hgi_resln"  # tier_resln: ResidualLNEncoder substrate (canonical_improvement T3.2)
     CHECK2HGI_RESLN_DESIGN_B = "check2hgi_resln_design_b"  # tier_resln: ResLN encoder + Design B POI2Vec injection
     CHECK2HGI_RESLN_DESIGN_J = "check2hgi_resln_design_j"  # tier_resln: ResLN encoder + Design J anchored learnable POI table
+    # embedding_eval re-screen variants (2026-06-01) — rebuilt via OUTPUT_DIR-scratch,
+    # harvested to output/<value>/; do NOT overwrite the frozen output/check2hgi/.
+    CHECK2HGI_GCN_CTRL = "check2hgi_gcn_ctrl"        # fresh GCN wd=0 control (same-protocol baseline for the re-screen)
+    CHECK2HGI_V3C_WD05 = "check2hgi_v3c_wd05"        # T1.5 v3c: AdamW weight-decay 5e-2 (GCN base)
+    CHECK2HGI_T24_DROPEDGE = "check2hgi_t24_dropedge"  # T2.4: symmetric DropEdge on user-seq edges
+    CHECK2HGI_T43_SIDEFEAT = "check2hgi_t43_sidefeat"  # T4.3: POI side-features (no_covisit subset)
+    CHECK2HGI_GAT = "check2hgi_gat"                   # T3.1: GATv2 encoder (leak-sniff)
+    CHECK2HGI_RGCN = "check2hgi_rgcn"                 # T3.3: R-GCN relation-typed (leak-sniff)
+    CHECK2HGI_T61_P2P = "check2hgi_t61_p2p"          # T6.1: POI-POI InfoNCE 4th boundary
     POI2HGI = "poi2hgi"
     FUSION = "fusion"  # Multi-embedding fusion
 
