@@ -65,6 +65,7 @@ class EmbeddingEngine(Enum):
     CHECK2HGI_RESLN_DROPEDGE = "check2hgi_resln_dropedge"
     CHECK2HGI_RESLN_SIDEFEAT = "check2hgi_resln_sidefeat"
     CHECK2HGI_RESLN_P2P = "check2hgi_resln_p2p"
+    CHECK2HGI_GPROP = "check2hgi_gprop"  # baseline check-in emb + GCN^2-propagated region emb (adjacency-aware head proxy)
     POI2HGI = "poi2hgi"
     FUSION = "fusion"  # Multi-embedding fusion
 
