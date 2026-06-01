@@ -1,0 +1,60 @@
+### MODE=full EPOCHS=50 FOLDS=5 SEED=42
+### preflight: log_T freshness (tlog must be newer than next_region.parquet)
+  all fresh
+>>> [l2_hgi_florida_gru] .venv/bin/python scripts/train.py --task next --state florida --engine hgi --seed 42 --epochs 50 --folds 5 --batch-size 2048 --model next_gru --max-lr 0.01 --no-checkpoints
+    OK   l2_hgi_florida_gru
+>>> [l2_check2hgi_florida_gru] .venv/bin/python scripts/train.py --task next --state florida --engine check2hgi --seed 42 --epochs 50 --folds 5 --batch-size 2048 --model next_gru --max-lr 0.01 --no-checkpoints
+    OK   l2_check2hgi_florida_gru
+>>> [l2_check2hgi_design_b_florida_gru] .venv/bin/python scripts/train.py --task next --state florida --engine check2hgi_design_b --seed 42 --epochs 50 --folds 5 --batch-size 2048 --model next_gru --max-lr 0.01 --no-checkpoints
+    OK   l2_check2hgi_design_b_florida_gru
+>>> [l2_check2hgi_resln_florida_gru] .venv/bin/python scripts/train.py --task next --state florida --engine check2hgi_resln --seed 42 --epochs 50 --folds 5 --batch-size 2048 --model next_gru --max-lr 0.01 --no-checkpoints
+    OK   l2_check2hgi_resln_florida_gru
+>>> [l2_check2hgi_resln_design_b_florida_gru] .venv/bin/python scripts/train.py --task next --state florida --engine check2hgi_resln_design_b --seed 42 --epochs 50 --folds 5 --batch-size 2048 --model next_gru --max-lr 0.01 --no-checkpoints
+    OK   l2_check2hgi_resln_design_b_florida_gru
+>>> [l2_check2hgi_florida_single] .venv/bin/python scripts/train.py --task next --state florida --engine check2hgi --seed 42 --epochs 50 --folds 5 --batch-size 2048 --model next_single --max-lr 0.01 --no-checkpoints
+    OK   l2_check2hgi_florida_single
+>>> [l2_check2hgi_alabama_gru] .venv/bin/python scripts/train.py --task next --state alabama --engine check2hgi --seed 42 --epochs 50 --folds 5 --batch-size 2048 --model next_gru --max-lr 0.01 --no-checkpoints
+    OK   l2_check2hgi_alabama_gru
+>>> [l2_check2hgi_design_b_alabama_gru] .venv/bin/python scripts/train.py --task next --state alabama --engine check2hgi_design_b --seed 42 --epochs 50 --folds 5 --batch-size 2048 --model next_gru --max-lr 0.01 --no-checkpoints
+    OK   l2_check2hgi_design_b_alabama_gru
+>>> [l2_check2hgi_resln_alabama_gru] .venv/bin/python scripts/train.py --task next --state alabama --engine check2hgi_resln --seed 42 --epochs 50 --folds 5 --batch-size 2048 --model next_gru --max-lr 0.01 --no-checkpoints
+    OK   l2_check2hgi_resln_alabama_gru
+>>> [l2_check2hgi_resln_design_b_alabama_gru] .venv/bin/python scripts/train.py --task next --state alabama --engine check2hgi_resln_design_b --seed 42 --epochs 50 --folds 5 --batch-size 2048 --model next_gru --max-lr 0.01 --no-checkpoints
+    OK   l2_check2hgi_resln_design_b_alabama_gru
+>>> [l2_check2hgi_alabama_single] .venv/bin/python scripts/train.py --task next --state alabama --engine check2hgi --seed 42 --epochs 50 --folds 5 --batch-size 2048 --model next_single --max-lr 0.01 --no-checkpoints
+    OK   l2_check2hgi_alabama_single
+>>> [l2_check2hgi_arizona_gru] .venv/bin/python scripts/train.py --task next --state arizona --engine check2hgi --seed 42 --epochs 50 --folds 5 --batch-size 2048 --model next_gru --max-lr 0.01 --no-checkpoints
+    OK   l2_check2hgi_arizona_gru
+>>> [l2_check2hgi_design_b_arizona_gru] .venv/bin/python scripts/train.py --task next --state arizona --engine check2hgi_design_b --seed 42 --epochs 50 --folds 5 --batch-size 2048 --model next_gru --max-lr 0.01 --no-checkpoints
+    OK   l2_check2hgi_design_b_arizona_gru
+>>> [l2_check2hgi_resln_arizona_gru] .venv/bin/python scripts/train.py --task next --state arizona --engine check2hgi_resln --seed 42 --epochs 50 --folds 5 --batch-size 2048 --model next_gru --max-lr 0.01 --no-checkpoints
+    OK   l2_check2hgi_resln_arizona_gru
+>>> [l2_check2hgi_resln_design_b_arizona_gru] .venv/bin/python scripts/train.py --task next --state arizona --engine check2hgi_resln_design_b --seed 42 --epochs 50 --folds 5 --batch-size 2048 --model next_gru --max-lr 0.01 --no-checkpoints
+    OK   l2_check2hgi_resln_design_b_arizona_gru
+>>> [l2_check2hgi_arizona_single] .venv/bin/python scripts/train.py --task next --state arizona --engine check2hgi --seed 42 --epochs 50 --folds 5 --batch-size 2048 --model next_single --max-lr 0.01 --no-checkpoints
+    OK   l2_check2hgi_arizona_single
+>>> [l3_check2hgi_florida_b9] .venv/bin/python scripts/train.py --task mtl --task-set check2hgi_next_region --state florida --engine check2hgi --seed 42 --epochs 50 --folds 5 --batch-size 2048 --model mtlnet_crossattn --mtl-loss static_weight --category-weight 0.75 --cat-head next_gru --reg-head next_getnext_hard --task-a-input-type checkin --task-b-input-type region --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3 --per-fold-transition-dir output/check2hgi/florida --no-checkpoints --scheduler cosine --max-lr 3e-3 --alternating-optimizer-step --alpha-no-weight-decay --min-best-epoch 5
+    OK   l3_check2hgi_florida_b9
+>>> [l3_check2hgi_design_b_florida_b9] .venv/bin/python scripts/train.py --task mtl --task-set check2hgi_next_region --state florida --engine check2hgi_design_b --seed 42 --epochs 50 --folds 5 --batch-size 2048 --model mtlnet_crossattn --mtl-loss static_weight --category-weight 0.75 --cat-head next_gru --reg-head next_getnext_hard --task-a-input-type checkin --task-b-input-type region --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3 --per-fold-transition-dir output/check2hgi_design_b/florida --no-checkpoints --scheduler cosine --max-lr 3e-3 --alternating-optimizer-step --alpha-no-weight-decay --min-best-epoch 5
+    OK   l3_check2hgi_design_b_florida_b9
+>>> [l3_check2hgi_resln_florida_b9] .venv/bin/python scripts/train.py --task mtl --task-set check2hgi_next_region --state florida --engine check2hgi_resln --seed 42 --epochs 50 --folds 5 --batch-size 2048 --model mtlnet_crossattn --mtl-loss static_weight --category-weight 0.75 --cat-head next_gru --reg-head next_getnext_hard --task-a-input-type checkin --task-b-input-type region --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3 --per-fold-transition-dir output/check2hgi_resln/florida --no-checkpoints --scheduler cosine --max-lr 3e-3 --alternating-optimizer-step --alpha-no-weight-decay --min-best-epoch 5
+    OK   l3_check2hgi_resln_florida_b9
+>>> [l3_check2hgi_resln_design_b_florida_b9] .venv/bin/python scripts/train.py --task mtl --task-set check2hgi_next_region --state florida --engine check2hgi_resln_design_b --seed 42 --epochs 50 --folds 5 --batch-size 2048 --model mtlnet_crossattn --mtl-loss static_weight --category-weight 0.75 --cat-head next_gru --reg-head next_getnext_hard --task-a-input-type checkin --task-b-input-type region --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3 --per-fold-transition-dir output/check2hgi_resln_design_b/florida --no-checkpoints --scheduler cosine --max-lr 3e-3 --alternating-optimizer-step --alpha-no-weight-decay --min-best-epoch 5
+    OK   l3_check2hgi_resln_design_b_florida_b9
+>>> [l3_check2hgi_alabama_h3alt] .venv/bin/python scripts/train.py --task mtl --task-set check2hgi_next_region --state alabama --engine check2hgi --seed 42 --epochs 50 --folds 5 --batch-size 2048 --model mtlnet_crossattn --mtl-loss static_weight --category-weight 0.75 --cat-head next_gru --reg-head next_getnext_hard --task-a-input-type checkin --task-b-input-type region --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3 --per-fold-transition-dir output/check2hgi/alabama --no-checkpoints --scheduler constant
+    OK   l3_check2hgi_alabama_h3alt
+>>> [l3_check2hgi_design_b_alabama_h3alt] .venv/bin/python scripts/train.py --task mtl --task-set check2hgi_next_region --state alabama --engine check2hgi_design_b --seed 42 --epochs 50 --folds 5 --batch-size 2048 --model mtlnet_crossattn --mtl-loss static_weight --category-weight 0.75 --cat-head next_gru --reg-head next_getnext_hard --task-a-input-type checkin --task-b-input-type region --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3 --per-fold-transition-dir output/check2hgi_design_b/alabama --no-checkpoints --scheduler constant
+    OK   l3_check2hgi_design_b_alabama_h3alt
+>>> [l3_check2hgi_resln_alabama_h3alt] .venv/bin/python scripts/train.py --task mtl --task-set check2hgi_next_region --state alabama --engine check2hgi_resln --seed 42 --epochs 50 --folds 5 --batch-size 2048 --model mtlnet_crossattn --mtl-loss static_weight --category-weight 0.75 --cat-head next_gru --reg-head next_getnext_hard --task-a-input-type checkin --task-b-input-type region --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3 --per-fold-transition-dir output/check2hgi_resln/alabama --no-checkpoints --scheduler constant
+    OK   l3_check2hgi_resln_alabama_h3alt
+>>> [l3_check2hgi_resln_design_b_alabama_h3alt] .venv/bin/python scripts/train.py --task mtl --task-set check2hgi_next_region --state alabama --engine check2hgi_resln_design_b --seed 42 --epochs 50 --folds 5 --batch-size 2048 --model mtlnet_crossattn --mtl-loss static_weight --category-weight 0.75 --cat-head next_gru --reg-head next_getnext_hard --task-a-input-type checkin --task-b-input-type region --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3 --per-fold-transition-dir output/check2hgi_resln_design_b/alabama --no-checkpoints --scheduler constant
+    OK   l3_check2hgi_resln_design_b_alabama_h3alt
+>>> [l3_check2hgi_arizona_h3alt] .venv/bin/python scripts/train.py --task mtl --task-set check2hgi_next_region --state arizona --engine check2hgi --seed 42 --epochs 50 --folds 5 --batch-size 2048 --model mtlnet_crossattn --mtl-loss static_weight --category-weight 0.75 --cat-head next_gru --reg-head next_getnext_hard --task-a-input-type checkin --task-b-input-type region --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3 --per-fold-transition-dir output/check2hgi/arizona --no-checkpoints --scheduler constant
+    OK   l3_check2hgi_arizona_h3alt
+>>> [l3_check2hgi_design_b_arizona_h3alt] .venv/bin/python scripts/train.py --task mtl --task-set check2hgi_next_region --state arizona --engine check2hgi_design_b --seed 42 --epochs 50 --folds 5 --batch-size 2048 --model mtlnet_crossattn --mtl-loss static_weight --category-weight 0.75 --cat-head next_gru --reg-head next_getnext_hard --task-a-input-type checkin --task-b-input-type region --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3 --per-fold-transition-dir output/check2hgi_design_b/arizona --no-checkpoints --scheduler constant
+    OK   l3_check2hgi_design_b_arizona_h3alt
+>>> [l3_check2hgi_resln_arizona_h3alt] .venv/bin/python scripts/train.py --task mtl --task-set check2hgi_next_region --state arizona --engine check2hgi_resln --seed 42 --epochs 50 --folds 5 --batch-size 2048 --model mtlnet_crossattn --mtl-loss static_weight --category-weight 0.75 --cat-head next_gru --reg-head next_getnext_hard --task-a-input-type checkin --task-b-input-type region --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3 --per-fold-transition-dir output/check2hgi_resln/arizona --no-checkpoints --scheduler constant
+    OK   l3_check2hgi_resln_arizona_h3alt
+>>> [l3_check2hgi_resln_design_b_arizona_h3alt] .venv/bin/python scripts/train.py --task mtl --task-set check2hgi_next_region --state arizona --engine check2hgi_resln_design_b --seed 42 --epochs 50 --folds 5 --batch-size 2048 --model mtlnet_crossattn --mtl-loss static_weight --category-weight 0.75 --cat-head next_gru --reg-head next_getnext_hard --task-a-input-type checkin --task-b-input-type region --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3 --per-fold-transition-dir output/check2hgi_resln_design_b/arizona --no-checkpoints --scheduler constant
+    OK   l3_check2hgi_resln_design_b_arizona_h3alt
+### ALL DONE (full)

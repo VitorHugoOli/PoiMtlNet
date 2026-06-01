@@ -1,0 +1,3 @@
+# Raw training stdout (tqdm-flooded / verbose) — keep summaries, plots, csv; not these.
+hgi_regen_logs/
+l2l3/logs/

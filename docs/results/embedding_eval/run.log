@@ -1,0 +1,64 @@
+=== [1/3] FL POI (all 5 engines, ref=hgi) ===
+[load] hgi / florida (poi) ...
+  [eval] task=cat
+  [eval] task=reg
+[load] check2hgi / florida (poi) ...
+  [eval] task=cat
+  [eval] task=reg
+[load] check2hgi_design_b / florida (poi) ...
+  [eval] task=cat
+  [eval] task=reg
+[load] check2hgi_resln / florida (poi) ...
+  [eval] task=cat
+  [eval] task=reg
+[load] check2hgi_resln_design_b / florida (poi) ...
+  [eval] task=cat
+  [eval] task=reg
+
+[done] 525 rows -> /home/vitor.oliveira/PoiMtlNet/docs/results/embedding_eval/fl_poi/metrics_long.csv
+[done] summary -> /home/vitor.oliveira/PoiMtlNet/docs/results/embedding_eval/fl_poi/summary.md
+=== [2/3] AL+AZ POI (4 check2hgi engines, ref=check2hgi) ===
+[load] check2hgi / alabama (poi) ...
+  [eval] task=cat
+  [eval] task=reg
+[load] check2hgi / arizona (poi) ...
+  [eval] task=cat
+  [eval] task=reg
+[load] check2hgi_design_b / alabama (poi) ...
+  [eval] task=cat
+  [eval] task=reg
+[load] check2hgi_design_b / arizona (poi) ...
+  [eval] task=cat
+  [eval] task=reg
+[load] check2hgi_resln / alabama (poi) ...
+  [eval] task=cat
+  [eval] task=reg
+[load] check2hgi_resln / arizona (poi) ...
+  [eval] task=cat
+  [eval] task=reg
+[load] check2hgi_resln_design_b / alabama (poi) ...
+  [eval] task=cat
+  [eval] task=reg
+[load] check2hgi_resln_design_b / arizona (poi) ...
+  [eval] task=cat
+  [eval] task=reg
+
+[done] 840 rows -> /home/vitor.oliveira/PoiMtlNet/docs/results/embedding_eval/smallstates_poi/metrics_long.csv
+[done] summary -> /home/vitor.oliveira/PoiMtlNet/docs/results/embedding_eval/smallstates_poi/summary.md
+=== [3/3] FL CHECK-IN (4 check2hgi engines, max-items 150k, ref=check2hgi) ===
+[load] check2hgi / florida (checkin) ...
+  [eval] task=cat
+  [eval] task=reg
+[load] check2hgi_design_b / florida (checkin) ...
+  [eval] task=cat
+  [eval] task=reg
+[load] check2hgi_resln / florida (checkin) ...
+  [eval] task=cat
+  [eval] task=reg
+[load] check2hgi_resln_design_b / florida (checkin) ...
+  [eval] task=cat
+  [eval] task=reg
+
+[done] 416 rows -> /home/vitor.oliveira/PoiMtlNet/docs/results/embedding_eval/fl_checkin/metrics_long.csv
+[done] summary -> /home/vitor.oliveira/PoiMtlNet/docs/results/embedding_eval/fl_checkin/summary.md
+=== ALL DONE ===
