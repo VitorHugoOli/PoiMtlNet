@@ -29,6 +29,12 @@ why a same-protocol control was needed.
 | check2hgi_gat | 0.2479±0.011 | 0.5582±0.007 | 0.2634±0.005 | 0.4866±0.004 |
 | **check2hgi_rgcn** | **0.3090±0.013** | **0.5770±0.008** | **0.3318±0.007** | **0.4929±0.005** |
 
+## L2 next-reg confirmation (STL next_stan_flow, region input, 5-fold)
+**Alabama Acc@10** (±SD over folds): gcn_ctrl 0.5956±0.041 · sidefeat **0.6146±0.043 (+1.9pp)** · rgcn **0.6299±0.040 (+3.4pp)**. Same ordering as L0/L1 (rgcn > sidefeat > ctrl) — direction concordant L0→L2. BUT AL fold-SD ≈4pp ⇒ gaps not yet statistically separated; FL (≈10× tighter SD) is the conclusive test (running).
+
+## v3c at Florida (L0/L1) — falsified at all 3 states
+FL next-cat L1: gcn_ctrl 0.9827 vs v3c 0.9826 (identical). FL next-reg adj_coh: ctrl 0.2093 vs v3c 0.2069 (v3c below); probe@10 0.6806 vs 0.6794. ⇒ **v3c shows no gain vs control on either axis at AL, AZ, AND FL.** Definitive.
+
 ## Verdict (L0/L1 screen, AL+AZ vs control)
 - **v3c (WD 5e-2): FALSIFIED on the region axis.** No gain over the clean control on cat OR reg at either state (reg adj_coh slightly below ctrl). The "region benefit" was an artifact of comparing to a differently-built baseline. ✗
 - **T4.3 POI side-features: consistent small REGION gain** (adj_coh +0.05–0.07, probe@10 +0.9–1.6pp at both states; cat neutral). The original eval falsified it on a single-state *category* cell — but on the *region* axis it shows a real, two-state-consistent signal. → L2 confirmation warranted.
