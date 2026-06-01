@@ -26,13 +26,12 @@ STL `next_gru` macro-F1 (RESULTS_TABLE §0.3) — Check2HGI 1.5–1.9× HGI at a
 | AZ | 43.9 | 28.7 | **52.5** |
 Our L0/L1 confirm: probe acc check2hgi-family ~0.98 vs HGI ~0.68; v13/resln top. **Category is a Check2HGI win; HGI is far behind.**
 
-### next-reg — HGI ahead; v13 best closes the gap; nothing we re-screened improves on v13
-STL `next_stan_flow` Acc@10 (RESULTS_TABLE §0.3 + tier_resln). HGI ahead by 1.6–3.1pp (canonical); **v13 closes most of it**:
-| state | v11/canonical (Check2HGI) | **v13 (resln+B)** | HGI | gap v13→HGI |
-|---|---|---|---|---|
-| AL | 59.15 | **61.99** | 61.86 | **+0.13 (TIES HGI)** |
-| AZ | 50.24 | 52.98 | 53.37 | −0.39 (80% closed) |
-| FL | 69.22 | 70.21 | 71.34 | −1.13 (30% closed) |
+### next-reg — HGI ahead; the gap is NOT closed at the substrate level (incl. v13)
+⚠ **Provenance correction (2nd advisor).** Two different number sources must not be conflated:
+- **Borrowed (prior tier_resln study, NOT re-verified here):** v13 STL `next_stan_flow` Acc@10 — AL 61.99 (ties HGI 61.86), AZ 52.98 (80% of gap), FL 70.21 (30%). Possibly stale-log_T-era / different protocol.
+- **This study's OWN controlled L2** (`nextreg_stl.md`, same-protocol, FL): check2hgi 0.7274, **resln 0.7275 (≈ canonical — TIES, does NOT close the gap)**, HGI **0.7362**. ⇒ under our controlled ladder, **v13/resln is region-NEUTRAL (HGI still ~0.9pp ahead at FL); the gap is NOT reproduced as closed.**
+
+So the honest position: **the next-reg HGI gap (≈1–3pp) remains OPEN; no substrate we tested — canonical, v13, or any re-screen candidate — closes it robustly under our controlled evaluation.** (The prior "v13 ties HGI at AL" is unverified here and may be small-state noise.)
 
 **Our re-screen (L0–L2, vs same-protocol control) — none improves on v13:**
 | candidate | next-cat | next-reg | verdict |
@@ -49,19 +48,27 @@ STL `next_stan_flow` Acc@10 (RESULTS_TABLE §0.3 + tier_resln). HGI ahead by 1.6
 
 ---
 
-## 3. Where we are
-- **Evaluation goal: ACHIEVED.** The ladder gives the rigorous, leak-aware, HGI-anchored comparison the study set out to build — and it self-corrected 3 real bugs.
-- **next-cat: solved in Check2HGI's favour.** v13 widens the already-decisive lead over HGI.
-- **next-reg gap vs HGI: best closed by v13** (ties at AL, 80% at AZ, 30% at FL) — established by tier_resln and **confirmed here as the frontier**: none of the 6 re-screened levers (v3c/dropedge/sidefeat/p2p/gat/rgcn/gprop) closes the **residual** FL gap (~1.1pp); two are leaks, the rest are no-ops or log_T-redundant.
-- **The residual next-reg gap is structural** (HGI's hierarchical region-graph) and **largely redundant with the log_T transition prior** at deploy — so it is not closeable by check-in-substrate tweaks.
+## 3. Where we are (corrected after 2nd advisor — honest status)
+- **Evaluation goal: ACHIEVED, with one standing limit.** The ladder is rigorous, leak-aware, HGI-anchored, self-corrected 3 bugs — a reusable harness. **Limit (the study's own founding worry): L0–L2 screen STL; they cannot certify an MTL-only effect.** v13 itself (STL-best, zero-MTL-benefit) is the proof. So "no candidate survives STL" ≠ "no candidate helps MTL."
+- **next-cat: solved in Check2HGI's favour** (1.5–1.9× HGI; v13 widens). Robust, multi-level.
+- **next-reg gap vs HGI: OPEN.** Under our controlled ladder, no substrate (canonical, v13, or any re-screen lever) closes it robustly. v13 is region-**neutral** (ties canonical), not gap-closing, in our runs.
+- **"Structural / not closeable" — DOWNGRADED to "no robust substrate-level lift detected."** The GCN²/adjacency lever is redundant-with-log_T at FL (+0.56pp NS) and within ~1 SD at AL/AZ — BUT the sign is **positive 3/3 (mean ≈+0.9pp)**, a sub-noise-floor effect that is **untested at adequate power**, not proven absent. Most of this study's MTL/L2 evidence is **single-seed (dev seed 42)** — the weakest link.
 
-**⇒ The substrate to carry to Part 2 is v13** (`check2hgi_resln_design_b`): best dual-axis STL engine, decisive on cat, closes most of the region gap. Our extensive re-screen says nothing beats it at the substrate level.
+**⇒ Carry v13 to Part 2 — but for the honest reason:** it is the **strongest category substrate and region-neutral** (does not hurt reg), so it is a safe base. It is **NOT** carried because "it closes the region gap" (unverified here) or "nothing beats it in MTL" (single-seed-42 only). Carrying v13 to MTL is a **bet** that its STL representational edge eventually pays off under a better joint regime — reasonable, but a bet.
 
 ---
 
-## 4. How to proceed (Part 2 = MTL)
-- **Carry v13 as the Part-2 substrate.** (Caveat from §0.9 / our L3 spot-checks: substrate/encoder gains are **regime-limited in MTL** — v13 ≈ canonical in MTL; the only lever that moved MTL-reg is the **log_T-KD prior (v12, +2–5pp small states)**. So Part 2's leverage is the **joint-training architecture + prior pathway**, not the substrate alone.)
-- **To close the residual next-reg gap vs HGI** (the part substrate tweaks can't reach): the eval points at **HGI-style region-graph structure**. Options for a future study: (a) a region-graph-aware reg head whose spatial signal is *orthogonal* to log_T (our GCN² proxy was redundant with log_T — needs a design that adds beyond it); (b) a **dual-substrate fusion** (Check2HGI final embedding for cat ⊕ HGI region embeddings for reg) — Check2HGI owns cat, HGI owns region; Design-A late-fusion failed in MTL, but a task-routed fusion is untested with this evaluation.
-- **Reuse this ladder** as the Part-2 screening harness (L0 leak gates + adj_coh + L2/L3), now hardened.
+## 4. How to proceed — the ONE thing before Part 2, then Part 2
+**Before committing to Part 2 — run the deferred paired multi-seed test** (the study's biggest gap): seeds {0,1,7,100}, paired per-fold, FL + one small state, of the **two surviving real-geometry levers** against the GCN+log_T baseline IN MTL:
+1. **+sidefeat substrate** (the only positive, base-independent, leak-free geometry signal: adj_coh +0.055 on GCN & ResLN, best silhouette, CKA 0.90 = real change). Its MTL behaviour on a multi-seed basis is genuinely unknown (single-seed-42 showed cat −1.6pp, but dev-seed-42 overshoots).
+2. **Adjacency-aware region head** (the strongest *positive* finding: +2.7–3.0pp under next_gru, ~7 SD). The lever is the **head, not the substrate** — but it must be designed **orthogonal to log_T** (GCN² re-derived log_T's observed-transition signal and collapsed; a head encoding what log_T can't — multi-hop reachability / hierarchy / cold-start regions — is the real lead).
 
-**Bottom line:** the study succeeded at its evaluation goal and identified **v13 as the strongest substrate** (decisive cat, best region-gap closure). No proposed improvement beats v13; the residual HGI region edge is structural and log_T-redundant, so closing it further is an architecture/fusion problem for Part 2, not a substrate-tweak problem.
+This replaces dev-seed-42 with reporting seeds, tests in the **MTL regime the ladder cannot certify**, and resolves the sign-consistent ~0.9pp sub-noise effect. If null at power → "carry v13, region gap is a substrate dead-end" is *earned*. If positive → Part 2 has its target.
+
+**Then Part 2 (MTL on v13):**
+- **Primary hypothesis: the adjacency-aware / region-graph reg head** (orthogonal to log_T) — the most actionable positive lead.
+- **Secondary: dual-substrate routing** (Check2HGI final emb for cat ⊕ HGI region emb for reg) — Check2HGI owns cat, HGI owns region. Lower priority (Design-A late-fusion failed in MTL; task-routed variant untested).
+- Prior-pathway work (log_T-KD already gives +2–5pp small-state MTL-reg) remains the only *confirmed* MTL-reg lever.
+- **Reuse this ladder** as the Part-2 screening harness — but always confirm survivors in **MTL multi-seed**, never STL-only.
+
+**Bottom line (corrected).** The study **achieved its evaluation goal** (a rigorous, leak-aware, HGI-anchored ladder) and cleanly **falsified 5 of the proposed improvements + 2 leaks**. But the **next-reg HGI gap is OPEN** — *no* substrate (v13 included) closes it robustly under controlled evaluation; v13 is the best **category** engine and **region-neutral**, so it is the safe Part-2 base. The two real-geometry survivors (**sidefeat**, **adjacency-aware head**) were screened-out at STL but **never tested in MTL at power** — and since the whole study exists because STL≠MTL, that multi-seed MTL test is the mandatory first step before declaring the region gap a substrate dead-end.
