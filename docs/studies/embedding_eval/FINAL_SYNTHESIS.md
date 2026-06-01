@@ -92,3 +92,18 @@ A strategy advisor reviewed the prior studies for any untried region lever on v1
 - **Both live levers are HEAD/FUSION architecture, not substrate** ⇒ they belong to Part 2 (MTL), not a substrate re-screen. Lever-4/Lever-5 (POI2Vec at p2r / ranking-distill) were never measured but are POI2Vec-family (strong negative prior); only worth a re-screen for a reviewer footnote.
 
 **Final recommendation: stop substrate-side. v13 is the safe Part-2 base (best cat, region-neutral). The next-reg HGI gap is a head/fusion problem whose one structurally-sound, log_T-orthogonal lever is dual-substrate task-routing — to be tested in Part-2 MTL.**
+
+## Appendix — design_b is net-negative on geometry; v14 (ResLN, no design_b) candidate (2026-06-01)
+Meticulous L0 (FL, 5-fold ±SD, statistically separated): **design_b (POI2Vec) HURTS region geometry and slightly hurts cat.**
+| engine | reg adj_coh | cat probe | cat silhouette |
+|---|---|---|---|
+| **resln+sidefeat** | **0.337±.003 (> HGI 0.326!)** | 0.985 | 0.554 |
+| HGI | 0.326 | 0.682 | 0.002 |
+| resln (no design_b) | 0.282±.006 | **0.9879** | **0.557** |
+| check2hgi canonical | 0.274±.006 | 0.985 | 0.505 |
+| **v13 (resln+design_b)** | **0.231 (lowest)** | 0.9873 | 0.546 |
+
+- **resln → v13 (adding design_b): adj_coh 0.282→0.231 (−0.05), cat probe 0.9879→0.9873.** The POI2Vec design_b — meant to *help* region — **reduces region spatial coherence** and doesn't help cat. ⇒ **v13 is NOT the best substrate; plain ResLN (no design_b) dominates it on both axes' geometry.**
+- **resln+sidefeat = best region geometry of ALL (0.337 > HGI 0.326)** — sidefeat's side-features on the clean ResLN base beat HGI's region adj_coh at L0.
+- **⇒ v14 candidate = ResLN (no design_b), optionally + sidefeat** — supersedes v13 on STL geometry.
+- **DECISIVE test running:** does resln+sidefeat's L0 adj_coh edge (>HGI) translate to **L2 next_stan_flow region Acc@10** (vs canonical/resln/HGI, FL), or does the log_T prior wash it out (as it did the GCN² adjacency lever)? This is the make-or-break for "we finally close the next-reg gap at the substrate level." (Result pending; the GCN-base multi-seed MTL was redirected to this — it was testing the wrong base.)
