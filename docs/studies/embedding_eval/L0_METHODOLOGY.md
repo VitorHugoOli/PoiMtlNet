@@ -89,3 +89,32 @@ embeddings (shared placeid→region map; FL):
 **Actionable lead:** HGI's next-reg edge = POI-level spatial cohesion (Delaunay). The lever
 to close the gap is **spatial/Delaunay POI-POI edges** (T6.1 p2p / design_k = J+Delaunay),
 NOT fclass/sidefeat — those raise different axes that don't lift region cohesion.
+
+## SETTLED — no better static L0 for next-reg exists among our approaches (2026-06-01)
+Agent tested 8 train-free **transition-aware** metrics on FL region embeddings vs the L2
+ground truth (Spearman; full-5 / family-4). NONE is concordant both cross-substrate AND
+within-family:
+| metric | full | family |
+|---|---|---|
+| trans-alignment AUC | −0.60 | −0.80 |
+| trans-corr(sim,T) | −0.20 | −0.80 |
+| trans-weighted purity@10 | −0.50 | −0.20 |
+| trans prob-mass@10 | +0.20 | −0.20 |
+| crs-align (coarse_region_similarity) | −0.10/−0.30 | **+0.40** |
+| emb-NN crs@10 | −0.80 | −0.60 |
+| log_T alignment | +0.10 | −0.40 |
+
+**Root cause, now EMPIRICAL:** `corr(cosine(region_i,region_j), T_ij) ≈ 0.05` for EVERY
+engine — the transition operator is **not pre-encoded in static region-vector cosines**.
+The signal genuinely lives in log_T. Metrics that do see transition/cohesion geometry
+(trans-AUC, emb-NN-crs, region-silhouette) anti-rank v13 for the SAME reason as adj_coh
+(design_b's fclass spreads same-function POIs across regions → lower cohesion, but helps
+the head). crs-align is the only +family metric (it literally measures the fclass axis
+design_b optimizes) but inverts cross-substrate (puts HGI last) → a mechanism diagnostic,
+not a ranker.
+
+**Final L0 protocol for next-reg:**
+- **No static L0 RANKS substrates.** Ranking starts at **L2** (`next_stan_flow`+log_T, 5-fold, multi-seed). Decisive.
+- **Two diagnostics, each flags ONE axis (not a ranker):** region-silhouette → spatial-cohesion axis (localizes HGI's cross-substrate win); crs-align → fclass axis (flags design_b's within-family gain). Use to *explain* a result, never to *crown* one.
+- The +0.35pp v13>canonical gain is below any static metric's resolution — pure head×log_T interaction.
+- **Only actionable HGI-gap lever:** POI-level spatial/Delaunay edges (the one axis a static diagnostic concordantly localizes HGI's advantage cross-substrate).
