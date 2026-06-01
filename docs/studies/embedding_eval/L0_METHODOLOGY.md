@@ -60,3 +60,32 @@ static-separability* metric — exactly right for next-cat, structurally wrong f
 
 **Unchanged / sound:** all next-cat L0 conclusions (Check2HGI family ≫ HGI; v13/resln top);
 GCN²-redundant-with-log_T; "HGI next-reg gap is OPEN, no substrate closes it under L2."
+
+## EMPIRICAL TEST — region-label separability (user proposal, 2026-06-01)
+Q: instead of clustering the 7 categories, cluster the k regions (use `poi_to_region`,
+the task's own label space). Computed kNN10 region-acc + region-silhouette on POI
+embeddings (shared placeid→region map; FL):
+| engine | kNN10 reg-Acc | region-silhouette | L2-reg Acc@10 |
+|---|---|---|---|
+| check2hgi (canonical) | 0.079 | −0.649 | 0.7274 |
+| check2hgi_resln | 0.080 | −0.641 | 0.7275 |
+| v13 (resln_design_b) | 0.059 | −0.665 | 0.7309 |
+| **hgi** | 0.078 | **−0.460** | **0.7362** |
+
+**Two-part verdict:**
+1. **For the cross-substrate / HGI-gap question this metric WORKS** where category-L0 and
+   adj_coh did not: HGI's region-silhouette (−0.46) is markedly above the whole Check2HGI
+   family (~−0.65), **concordant with HGI's next-reg win.** It localises HGI's advantage to
+   **POI-level spatial/region cohesion** (its Delaunay graph), the axis the user-sequence
+   Check2HGI graph lacks. → adopt region-silhouette as the **next-reg cross-substrate L0
+   diagnostic**.
+2. **Within the Check2HGI family it still anti-ranks v13** (Spearman −0.60: v13 lowest
+   reg-Acc/silhouette yet best L2). design_b's fclass similarity pulls same-function POIs
+   together across regions → lowers region cohesion but helps the transition head. So the
+   within-family micro-gain (+0.35pp) is NOT region-geometry — confirming the static-L0
+   ceiling: it captures the coarse self-stay/cohesion axis (where HGI wins) but not the
+   fine transition axis (where design_b wins).
+
+**Actionable lead:** HGI's next-reg edge = POI-level spatial cohesion (Delaunay). The lever
+to close the gap is **spatial/Delaunay POI-POI edges** (T6.1 p2p / design_k = J+Delaunay),
+NOT fclass/sidefeat — those raise different axes that don't lift region cohesion.
