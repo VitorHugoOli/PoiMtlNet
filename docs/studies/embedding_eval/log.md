@@ -95,6 +95,9 @@ Full numbers: `docs/results/embedding_eval/l2l3/summary.md`. Seed 42, FL/AL/AZ.
 - **Effect:** AL/AZ next-cat orderings became consistent with FL. **resln family (resln_design_j ≥ resln ≥ resln_design_b) now leads next-cat at all 3 states** (~+0.3 pp probe over canonical, tight ±SD); design_b/j/l and lever4 below canonical; HGI far below everywhere. The earlier AL "divergence" was the fold confound (now gone) + genuine small-N variance (SD ~0.003 AL/AZ vs ~0.0005 FL) + AL≠AZ being different cities.
 - Residual variance at AL/AZ is real (small N), not a protocol artifact.
 
+### 2026-06-01 (later 3) — resln at L2 next-reg (user-requested)
+Ran the real STL next-reg (`p1_region_head_ablation.py next_stan_flow --input-type region`, 5-fold, FL) for resln vs canonical vs hgi → `docs/results/embedding_eval/l2l3/nextreg_stl.md`. **resln ties canonical (Acc@10 0.7275 vs 0.7274)** — its small L0 adj_coh edge does NOT translate; **resln's value is the category axis, neutral on region**. HGI wins region (+0.9 pp Acc@10), concordant with adj_coh + §0.3/§0.5 (and the run reproduces §0.5 canonical numbers, validating the pipeline). Confirms: the proxy resolves the big HGI-vs-family region gap but not within-family. Dual-axis MTL gain would need to combine check-in-category strength (resln) with HGI-style region-graph structure — design_b/j injections didn't robustly deliver either.
+
 ### Next steps
 1. **L2/L3** for next-cat across all 5 engines (FL) — the legitimate cross-substrate cat verdict; and next-reg L2/L3 within the Check2HGI family (check-in-level) — the only valid reg verdict. Emit commands via `run.py --emit-l2l3`; pull metrics from `results/`.
 2. Report L0/L1 vs L3 as concordant/discordant *calls* (descriptive), NOT a pooled ρ.
