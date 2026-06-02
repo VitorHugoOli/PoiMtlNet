@@ -1,0 +1,13 @@
+
+==== alabama ====
+engine                            adj_coh@10   probe@10   reg_silh
+check2hgi                      0.2629±0.0149     0.5590    -0.5949
+check2hgi_design_j             0.3618±0.0126     0.5701    -0.5160
+check2hgi_design_k_l0_1        0.3886±0.0141     0.5717    -0.2021
+
+==== florida ====
+engine                            adj_coh@10   probe@10   reg_silh
+check2hgi                      0.2743±0.0056     0.6854    -0.6492
+check2hgi_design_j             0.2374±0.0056     0.6763    -0.6567
+check2hgi_design_k_l0_1        0.3793±0.0023     0.6881    -0.3939
+DONE

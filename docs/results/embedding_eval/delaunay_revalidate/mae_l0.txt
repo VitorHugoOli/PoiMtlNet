@@ -1,0 +1,1 @@
+check2hgi_mae cat L0: knn10=0.8587 F1=0.8428  (canonical 0.862/0.848, gcn_ctrl-fresh ~0.858)

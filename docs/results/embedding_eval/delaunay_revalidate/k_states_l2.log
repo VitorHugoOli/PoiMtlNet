@@ -1,0 +1,80 @@
+2026-06-02 05:00:13,260 - INFO - Loading data for arizona (input_type=region, region_emb=check2hgi_design_k_l0_1, target=region, engine_override=None)...
+2026-06-02 05:00:13,260 - INFO - Loading next-POI data: arizona/check2hgi
+2026-06-02 05:00:13,425 - INFO - Next-POI data: (26396, 576) (dim=64, window=9), distribution: {np.int64(0): np.int64(3295), np.int64(1): np.int64(1647), np.int64(2): np.int64(8977), np.int64(3): np.int64(1253), np.int64(4): np.int64(1411), np.int64(5): np.int64(6944), np.int64(6): np.int64(2869)}
+2026-06-02 05:00:13,938 - INFO - x=torch.Size([26396, 9, 64]), emb_dim=64, n_regions=1540, n_seqs=26396, last_region_idx=present
+2026-06-02 05:00:14,359 - INFO - No checkpoint — starting fresh. Will save to docs/results/P1/region_head_arizona_region_5f_50ep_dk_arizona_L2.checkpoint.json after each fold.
+2026-06-02 05:00:14,360 - INFO - ============================================================
+2026-06-02 05:00:14,360 - INFO - HEAD: next_stan_flow (5 folds x 50 epochs, max_lr=3e-03, ls=0.00, input_ln=False)
+2026-06-02 05:00:14,360 - INFO - ============================================================
+/home/vitor.oliveira/PoiMtlNet/src/tracking/metrics.py:64: UserWarning: _bincount_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /pytorch/aten/src/ATen/Context.cpp:160.)
+  tp = torch.bincount(targets, weights=correct, minlength=num_classes)
+2026-06-02 05:00:38,593 - INFO -   fold 0: Acc@1=0.2565 Acc@5=0.4726 Acc@10=0.5641 MRR=0.3591 F1=0.0669 (24.2s, best_ep=46)
+2026-06-02 05:01:00,785 - INFO -   fold 1: Acc@1=0.2692 Acc@5=0.4747 Acc@10=0.5713 MRR=0.3689 F1=0.0772 (22.2s, best_ep=38)
+2026-06-02 05:01:22,766 - INFO -   fold 2: Acc@1=0.2807 Acc@5=0.4669 Acc@10=0.5558 MRR=0.3722 F1=0.0762 (22.0s, best_ep=37)
+2026-06-02 05:01:47,418 - INFO -   fold 3: Acc@1=0.2186 Acc@5=0.4104 Acc@10=0.5019 MRR=0.3123 F1=0.0637 (24.7s, best_ep=34)
+2026-06-02 05:02:09,474 - INFO -   fold 4: Acc@1=0.2762 Acc@5=0.4686 Acc@10=0.5620 MRR=0.3719 F1=0.0662 (22.1s, best_ep=32)
+2026-06-02 05:02:09,475 - INFO -   AGGREGATE: Acc@1=0.2602+/-0.0250  Acc@10=0.5510+/-0.0280  MRR=0.3569+/-0.0255  F1=0.0701+/-0.0062
+2026-06-02 05:02:09,475 - INFO - Saved: docs/results/P1/region_head_arizona_region_5f_50ep_dk_arizona_L2.json
+2026-06-02 05:02:09,475 - INFO - Removed checkpoint docs/results/P1/region_head_arizona_region_5f_50ep_dk_arizona_L2.checkpoint.json (run complete).
+
+================================================================================
+P1 REGION-HEAD ABLATION - arizona - 5f x 50ep - input=region
+================================================================================
+Head                         Acc@1    Acc@5   Acc@10      MRR       F1
+--------------------------------------------------------------------------------
+next_stan_flow              26.02%   45.87%   55.10%   35.69%    7.01%
+--------------------------------------------------------------------------------
+Markov 1-step (floor)         ~12%        —        ?        —        —
+================================================================================
+[chain] arizona L2 done (5f)
+2026-06-02 06:38:20,075 - INFO - Loading data for california (input_type=region, region_emb=check2hgi_design_k_l0_1, target=region, engine_override=None)...
+2026-06-02 06:38:20,075 - INFO - Loading next-POI data: california/check2hgi
+2026-06-02 06:38:22,505 - INFO - Next-POI data: (358302, 576) (dim=64, window=9), distribution: {np.int64(0): np.int64(43216), np.int64(1): np.int64(27034), np.int64(2): np.int64(117246), np.int64(3): np.int64(17287), np.int64(4): np.int64(26421), np.int64(5): np.int64(82100), np.int64(6): np.int64(44998)}
+2026-06-02 06:38:27,190 - INFO - x=torch.Size([358302, 9, 64]), emb_dim=64, n_regions=8497, n_seqs=358302, last_region_idx=present
+2026-06-02 06:38:28,304 - INFO - No checkpoint — starting fresh. Will save to docs/results/P1/region_head_california_region_1f_50ep_dk_california_L2.checkpoint.json after each fold.
+2026-06-02 06:38:28,304 - INFO - ============================================================
+2026-06-02 06:38:28,304 - INFO - HEAD: next_stan_flow (1 folds x 50 epochs, max_lr=3e-03, ls=0.00, input_ln=False)
+2026-06-02 06:38:28,304 - INFO - ============================================================
+/home/vitor.oliveira/PoiMtlNet/src/tracking/metrics.py:64: UserWarning: _bincount_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /pytorch/aten/src/ATen/Context.cpp:160.)
+  tp = torch.bincount(targets, weights=correct, minlength=num_classes)
+2026-06-02 06:42:05,528 - INFO -   fold 0: Acc@1=0.3116 Acc@5=0.5059 Acc@10=0.5872 MRR=0.4047 F1=0.0728 (217.2s, best_ep=47)
+2026-06-02 06:42:05,530 - INFO -   AGGREGATE: Acc@1=0.3116+/-0.0000  Acc@10=0.5872+/-0.0000  MRR=0.4047+/-0.0000  F1=0.0728+/-0.0000
+2026-06-02 06:42:05,531 - INFO - Saved: docs/results/P1/region_head_california_region_1f_50ep_dk_california_L2.json
+2026-06-02 06:42:05,531 - INFO - Removed checkpoint docs/results/P1/region_head_california_region_1f_50ep_dk_california_L2.checkpoint.json (run complete).
+
+================================================================================
+P1 REGION-HEAD ABLATION - california - 1f x 50ep - input=region
+================================================================================
+Head                         Acc@1    Acc@5   Acc@10      MRR       F1
+--------------------------------------------------------------------------------
+next_stan_flow              31.16%   50.59%   58.72%   40.47%    7.28%
+--------------------------------------------------------------------------------
+Markov 1-step (floor)         ~12%        —        ?        —        —
+================================================================================
+[chain] california L2 done (1f)
+2026-06-02 06:56:13,673 - INFO - Loading data for texas (input_type=region, region_emb=check2hgi_design_k_l0_1, target=region, engine_override=None)...
+2026-06-02 06:56:13,673 - INFO - Loading next-POI data: texas/check2hgi
+2026-06-02 06:56:15,740 - INFO - Next-POI data: (460976, 576) (dim=64, window=9), distribution: {np.int64(0): np.int64(70084), np.int64(1): np.int64(50092), np.int64(2): np.int64(142804), np.int64(3): np.int64(29576), np.int64(4): np.int64(27587), np.int64(5): np.int64(110090), np.int64(6): np.int64(30743)}
+2026-06-02 06:56:19,026 - INFO - x=torch.Size([460976, 9, 64]), emb_dim=64, n_regions=6553, n_seqs=460976, last_region_idx=present
+2026-06-02 06:56:19,884 - INFO - No checkpoint — starting fresh. Will save to docs/results/P1/region_head_texas_region_1f_50ep_dk_texas_L2.checkpoint.json after each fold.
+2026-06-02 06:56:19,884 - INFO - ============================================================
+2026-06-02 06:56:19,884 - INFO - HEAD: next_stan_flow (1 folds x 50 epochs, max_lr=3e-03, ls=0.00, input_ln=False)
+2026-06-02 06:56:19,884 - INFO - ============================================================
+/home/vitor.oliveira/PoiMtlNet/src/tracking/metrics.py:64: UserWarning: _bincount_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /pytorch/aten/src/ATen/Context.cpp:160.)
+  tp = torch.bincount(targets, weights=correct, minlength=num_classes)
+2026-06-02 06:59:05,921 - INFO -   fold 0: Acc@1=0.2880 Acc@5=0.5215 Acc@10=0.6155 MRR=0.3987 F1=0.0845 (166.0s, best_ep=49)
+2026-06-02 06:59:05,922 - INFO -   AGGREGATE: Acc@1=0.2880+/-0.0000  Acc@10=0.6155+/-0.0000  MRR=0.3987+/-0.0000  F1=0.0845+/-0.0000
+2026-06-02 06:59:05,922 - INFO - Saved: docs/results/P1/region_head_texas_region_1f_50ep_dk_texas_L2.json
+2026-06-02 06:59:05,922 - INFO - Removed checkpoint docs/results/P1/region_head_texas_region_1f_50ep_dk_texas_L2.checkpoint.json (run complete).
+
+================================================================================
+P1 REGION-HEAD ABLATION - texas - 1f x 50ep - input=region
+================================================================================
+Head                         Acc@1    Acc@5   Acc@10      MRR       F1
+--------------------------------------------------------------------------------
+next_stan_flow              28.80%   52.15%   61.55%   39.87%    8.45%
+--------------------------------------------------------------------------------
+Markov 1-step (floor)         ~12%        —        ?        —        —
+================================================================================
+[chain] texas L2 done (1f)
+ALLDONE

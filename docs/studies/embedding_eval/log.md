@@ -1,0 +1,183 @@
+# Embedding-eval ladder — lab log
+
+## 2026-05-31 — Study created; L0+L1 built, advisor-reviewed, run
+
+### What was done
+- Formalized the 4-level ladder (`README.md`): L0 geometry (train-free), L1 linear probe, L2 capacity ladder (STL), L3 MTL (deployment). L0/L1 automated in `scripts/embedding_eval/`; L2/L3 reuse `scripts/train.py`.
+- Adversarial methodology+code review (advisor subagent). Applied fixes: standardize probe inputs on train split (scale fairness); minibatch+early-stop probe (convergence fairness across 7 vs 4703 classes); similarity-weighted kNN (removes tie bias); post-mask subsampling + `n_eval`/`label_coverage`/`test_class_coverage`/`train_acc` provenance; ddof=1 + "SD≠CI" labelling; tempered doc claims (pooling-bias + self-prediction caveats; ρ-gate "not yet satisfied").
+- Ran L0+L1 on `{hgi, check2hgi, check2hgi_design_b, check2hgi_resln, check2hgi_resln_design_b}`.
+  - FL POI-pooled (all 5; HGI only exists at FL) → `docs/results/embedding_eval/fl_poi/`
+  - FL check-in granularity, 150k items (4 check-in engines) → `fl_checkin/`
+  - AL+AZ POI-pooled (4 check-in engines, ref=check2hgi) → `smallstates_poi/`
+
+### Findings (L0/L1 — screening only; ρ-vs-L3 gate NOT yet measured)
+
+**F1 — Category is saturated across the Check2HGI family; HGI is far behind.**
+FL pooled probe acc: check2hgi 0.986, design_b 0.984, resln 0.988, resln_design_b 0.988, **HGI 0.681**. kNN agrees. Category differences *within* the family are ≤0.5 pp (noise). Check2HGI's contextual substrate encodes category near-perfectly; HGI does not.
+
+**F2 — Pooling bias is real and large (validates advisor BLOCKER B1).**
+check2hgi next-reg probe acc **0.051 (POI-pooled) → 0.232 (check-in)** — a 4.5× jump, top5 0.118→0.339. Pooling per-visit vectors to one POI-mean destroys exactly the contextual region signal Check2HGI is built to carry. **Corollary: the pooled "HGI (0.074) beats Check2HGI (0.051) on region" result is a pooling artifact and must NOT be read as a substrate verdict.** HGI has no check-in-level representation, so the two cannot be compared at the granularity where Check2HGI's region signal lives.
+
+**F3 — Pooling helps category, hurts region (mirror image).**
+check2hgi cat probe 0.986 (pooled) → 0.887 (check-in); reg 0.051 → 0.232. Category is a POI-constant property, so averaging check-ins denoises it; region depends on per-visit context, so averaging erases it. Granularity is not neutral — always declare it.
+
+**F4 — ResLN is the strongest substrate on the geometry/probe axis; small but consistent.**
+At FL pooled, FL check-in, and AL+AZ, `resln`/`resln_design_b` edge `check2hgi` on *both* cat (~+0.3 pp) and reg (~+0.2 pp), while barely changing the space (CKA(resln, canonical)=0.97). This is consistent with the documented v12/v13 "ResLN is STL-only, no MTL benefit" regime — the proxy sees a representational gain whose transfer to MTL is exactly the open ρ-gate question.
+
+**F5 — design_b slightly *hurts* static region geometry, despite being the v13 recommended STL base.**
+design_b is the worst family member on reg (FL pooled 0.044 vs 0.051 canonical) and perturbs the space most (CKA 0.85). Reading: design_b's STL win comes through the POI2Vec *teacher in the sequence head*, not through the static embedding geometry — so L0/L1 (which only see the frozen substrate) cannot see it. A clean illustration of why L0/L1 are screening-only.
+
+### Caveats locked in
+- L0/L1 measure *own-item* recoverability, not the *transition* task. No ranking authority until Spearman ρ(L0/L1, L3) is measured across engines×states. **Next step: run L2/L3 for these engines and compute ρ.**
+- HGI absent outside FL → 5-engine comparison is FL-only.
+- next-poi axis: meaningful only at check-in granularity (recoverability), not yet a forecasting metric.
+
+### 2026-05-31 (later) — second adversarial audit + plots
+- **Second audit verdict:** all 7 first-round fixes verified *correct* in code; zero blockers. Applied remaining items: kNN weight `(cos+1)/2` (kills the all-negative-row class-0 bias), canonical lru_cache key, documented per-metric normalization (README §8).
+- **next-reg granularity — decisive (answers a standing question):** POI-pooled is the WRONG granularity for next-reg. It is a per-visit-contextual, **Check2HGI-only** task; HGI has no check-in-level representation, so the pooled HGI(0.074) > Check2HGI(0.051) result is an artifact comparing a lossless POI vector to a lossy POI-mean for a task HGI cannot run. **Retired as a substrate verdict** (README §7). next-reg cross-substrate verdicts come from L2/L3 only; the pooled axis is kept for next-cat (where pooling denoises a POI-constant label).
+- **ρ-gate retired:** with ~5 engines (HGI@FL only) and a near-identical Check2HGI family, a Spearman ρ vs L3 has near-zero power + restricted range + state confound — it can never legitimately unlock "ranking." Reframed: **L3 is the sole ranking authority; L0/L1 are permanent screens/explainers** reporting concordant/discordant *calls* descriptively (README §6).
+- **Plots:** `scripts/embedding_eval/plot.py` → bar charts (kNN/silhouette/sep_ratio/probe-acc) + PCA-2D scatters, stored in `docs/results/embedding_eval/*/plots/`. Visual: Check2HGI shows separated category clusters; HGI a mushy blob — matches the 0.98 vs 0.77 kNN gap.
+
+### 2026-05-31 (later 2) — INPUT-ARTIFACT correction for next-reg (user-caught)
+**Two errors fixed:**
+1. **next-reg was probed on the wrong artifact.** next-cat consumes the final per-item embedding (correct in run.py); next-reg consumes the **region embedding** (`region_embeddings.parquet`, via `--task-b-input-type region`). The original run.py next-reg numbers labelled the *final* embedding by region — wrong input. Corrected in `scripts/embedding_eval/region_eval.py` (probes region embeddings; L0 adjacency-coherence + L1 1-step transition probe).
+2. **"next-reg is Check2HGI-only / HGI can't run it" was false.** Only the `next_region` *label* builder is Check2HGI-only. Both engines produce region embeddings and both run next-reg STL (`scripts/p1_region_head_ablation.py --region-emb-source {hgi,check2hgi}`). **Real STL has HGI winning next-reg at all 5 states** (RESULTS_TABLE §0.3, FL 71.3 vs 69.2 Acc@10). So my pooled "HGI > C2HGI region" pointed the RIGHT direction; I wrongly dismissed it as a pooling artifact. §7 rewritten.
+
+**Corrected region-embedding results (FL, region_eval.py):**
+| engine | adj_coh@10 (L0) | transition acc@1 | acc@10 |
+|---|---|---|---|
+| **hgi** | **0.326** | 0.482 | 0.676 |
+| check2hgi | 0.274 | 0.479 | 0.685 |
+| check2hgi_design_b | 0.240 | 0.483 | 0.681 |
+| check2hgi_resln | 0.282 | 0.480 | 0.687 |
+| check2hgi_resln_design_b | 0.231 | 0.482 | 0.680 |
+
+- **L0 adjacency-coherence reproduces HGI's region win** (0.326 vs 0.274) — HGI region embeddings are the most spatially coherent; design_b variants are the *least* (0.23–0.24), concordant with design_b's documented no-MTL-region-benefit. This is the cheap proxy correctly recovering the §0.3 ranking.
+- **The 1-step transition probe is a near-tie** (acc@10 ~0.68 all engines; self-transition rate 0.495). Too crude — no 9-window, no log_T prior — to resolve the real ~2 pp gap. ⇒ region's substrate ranking stays an **L2/L3 verdict**; among L0/L1, only the *structural* (adjacency) metric carries signal for region.
+- F2/F3 (run.py pooled/check-in region numbers) are **superseded** for next-reg — they measured the final embedding, not the region embedding. They remain valid only as a demonstration of pooling bias on the final embedding.
+
+### 2026-05-31 (later 3) — HGI AL/AZ regenerated; region_eval across FL+AL+AZ
+- **Regenerated HGI embeddings for AL+AZ** (`scripts/embedding_eval/regen_hgi.py`, canonical CONFIG lr 0.006/warmup 40/2000 ep/dim 64, CPU-only to avoid GPU-sweep contention). Both OK. Region partitions verified aligned with check2hgi (counts match AL 1109 / AZ 1547 / FL 4703; adj_coh ≫ random confirms positional indexing aligns). Resolves the AL/AZ HGI gap (only FL existed before; AL/AZ were also affected by the 2026-05-20 byte-identical bug).
+- **region_eval across all 3 states** → `docs/results/embedding_eval/region_eval/summary.md`. **L0 adjacency-coherence reproduces HGI's region win at ALL 3 states** (HGI tops adj_coh: FL 0.326 / AL 0.375 / AZ 0.393, clearly above the check2hgi family), concordant with real STL §0.3 (HGI wins next-reg Acc@10 everywhere). The 1-step transition probe does NOT track it (mixed/near-tie) — too crude (self-transition 0.30–0.50, no 9-window/log_T). **Concordance call: adj_coh is a valid cheap SCREEN for region embeddings (3/3 states); the transition probe is not.** HGI's region edge is spatial-structural (hierarchical region graph) — exactly what adj_coh measures.
+
+### 2026-05-31 (later 4) — L2/L3 sweep done (28/28 OK); concordance calls
+Full numbers: `docs/results/embedding_eval/l2l3/summary.md`. Seed 42, FL/AL/AZ.
+
+**L2 STL next-cat (next_gru, macro-F1):** HGI 0.343 (FL) ≪ Check2HGI family 0.65–0.67. Within family: design_b weakest (FL 0.646), resln/resln_design_b/canonical tied top (~0.67). Same ordering at AL/AZ.
+**L2 capacity ladder (check2hgi):** next_gru BEATS next_single at all 3 states (FL 0.673>0.656, AL 0.470>0.384, AZ 0.470>0.429) — a heavier transformer head does *not* help next-cat.
+**L3 MTL (family):** cat F1 check2hgi 0.703 ≥ resln/resln_design_b 0.701/0.702 > design_b 0.687; region top10(indist) all ~0.598–0.602 (within-family tie). HGI not in MTL (region label is check2hgi-only + needs check-in emb).
+
+**Concordance calls (descriptive — L0/L1 proxy vs L2/L3 ground truth; NOT a ρ):**
+- ✅✅ **HGI ≪ Check2HGI on next-cat** — proxy (kNN 0.77 vs 0.98; probe 0.68 vs 0.98) → L2 (0.34 vs 0.66). Strong.
+- ✅ **design_b is the weakest family member on cat** — proxy (lowest sep_ratio/probe) → L2 & L3 (lowest cat F1). 
+- ✅ **resln ≈ canonical on top for cat** — proxy → L2/L3. 
+- ✅✅ **HGI wins next-reg** — region_eval **adj_coh** (HGI top at FL/AL/AZ) → real STL §0.3 (HGI wins all 5). The corrected-artifact structural proxy is concordant.
+- ✅ **Category signal is "easy"/near-linear** — L1 linear-probe saturation (~0.98) → capacity ladder gru ≥ single (heavy head doesn't help). The ladder shape confirms the proxy's reading.
+- ❌ **1-step transition probe (L1 on region emb) does NOT predict region ranking** — near-tie, missed HGI's win; only the structural L0 (adj_coh) tracked it.
+- ❌ **Within-family region ordering is below proxy resolution** — adj_coh ranked design_b lowest, but MTL region top10 differs <0.5 pp (tie). Proxy can't rank near-identical substrates on region.
+
+**Bottom line for the original question ("is STL-head eval the best way?"):** No single number suffices. The graded ladder works *when each level uses the task's real input artifact*. For **next-cat** the cheap L0/L1 (final embedding) is strongly predictive of L2/L3 and even diagnoses *why* (linear-easy → heavy heads don't help). For **next-reg** the cheap proxy only works as the *structural* metric (adjacency-coherence on region embeddings); the probe and the sequence ranking need L2/L3. L0/L1 = screen + explain; L3 = rank. The HGI-vs-Check2HGI split (HGI better region-structure, Check2HGI better check-in-category) is robust across L0→L3.
+
+### 2026-06-01 — HGI AL/AZ L2 completed + re-screen candidates mined
+- **HGI next-cat STL run at AL/AZ** (now that HGI embeddings exist there): macro-F1 HGI AL 0.259 / AZ 0.282 — far below the Check2HGI family (~0.47), completing the L2 next-cat table at all 3 states. Confirms HGI ≪ Check2HGI on category everywhere (concordant with L0/L1). Table refreshed in `docs/results/embedding_eval/l2l3/summary.md`.
+- **Mined other studies for dropped improvements** → `CANDIDATES.md`. Headline: **v3c weight-decay 5e-2** (canonical_improvement T1.5) is an *embedding-trainer* WD that was absorbed by ResLN in the stack and **never isolated on the region-embedding axis** — top re-screen candidate. Others: T2.4 DropEdge, T4.3 POI side-features, T3.1/T3.3 encoder swaps (leak-sniff), T6.1 log_T-KD-λ, T3.4 Time2Vec. The point: several were judged on a single MTL metric / final-embedding only — the ladder can check whether a real signal on the *region axis* was missed before deciding they don't help a future MTL.
+
+### 2026-06-01 (later) — L0/L1 converted to 5-fold CV; on-disk variants re-screened
+- **Protocol fix (user-requested):** L0/L1 were multi-seed random splits (L1) / full-data point estimates (L0); now both use a **shared 5-fold StratifiedKFold** (KFold for sparse region labels), matching L2. kNN is now train→test (per-fold reference set, no LOO); silhouette/sep computed per held-out fold; probe trains 4 folds / evals 1. All metrics report **mean±SD over the 5 folds**. Code: `geometry.knn_predict`, `linear_probe.fit_probe`/`make_folds`/`cv_probe`, `run.py` shared-fold orchestration, `region_eval` (KFold transition probe + per-region-fold adj_coh). Plots get fold error bars; PCA scatters use full data (deterministic = "best execution").
+- **Re-screened all on-disk variants** (added design_j, design_l, resln_design_j, lever4_canonical) on next-cat (run.py) + next-reg (region_eval), FL/AL/AZ, 5-fold. Results: `fl_poi/`, `smallstates_poi/`, `region_eval/summary.md`.
+- **Verdict (5-fold, multi-variant):** next-cat — resln variants top, HGI ≪ family (unchanged, tighter SDs). next-reg — **HGI tops adj_coh at FL/AZ and is top-tier at AL**; design_j/resln_design_j approach HGI at AL only (state-specific, collapse at FL/AZ → not robust); **no dropped variant robustly beats HGI/canonical on region** — validates their falsification on the region axis with proper CV. lever4 weakest. Transition probe stays a near-tie.
+- **Note:** run.py's old "reg" task (final embedding labelled by region) is retired from re-runs — next-reg is screened only via region_eval (region embeddings). The check-in-granularity demo (`fl_checkin/`) was not re-run (secondary caveat artifact).
+- **Pending:** v3c (WD 5e-2) re-screen needs a safe non-clobbering embedding rebuild (regen script writes to the frozen `output/check2hgi/`).
+
+### 2026-06-01 (later 2) — fold-isolation fix (user-caught confound)
+- **Confound:** run.py's per-engine StratifiedKFold split on each engine's own row order. check2hgi & HGI share the placeid SET but not row ORDER → the same POI landed in different folds per engine → next-cat L0/L1 was NOT comparing identical held-out sets (worst at small N). region_eval was already isolated (shared pairs + index-based KFold).
+- **Fix:** run.py now assigns each item's fold by its **placeid in canonical (sorted) order** → same POI → same fold for every engine (seed 42) → byte-identical held-out sets → isolates the substrate.
+- **Effect:** AL/AZ next-cat orderings became consistent with FL. **resln family (resln_design_j ≥ resln ≥ resln_design_b) now leads next-cat at all 3 states** (~+0.3 pp probe over canonical, tight ±SD); design_b/j/l and lever4 below canonical; HGI far below everywhere. The earlier AL "divergence" was the fold confound (now gone) + genuine small-N variance (SD ~0.003 AL/AZ vs ~0.0005 FL) + AL≠AZ being different cities.
+- Residual variance at AL/AZ is real (small N), not a protocol artifact.
+
+### 2026-06-01 (later 3) — resln at L2 next-reg (user-requested)
+Ran the real STL next-reg (`p1_region_head_ablation.py next_stan_flow --input-type region`, 5-fold, FL) for resln vs canonical vs hgi → `docs/results/embedding_eval/l2l3/nextreg_stl.md`. **resln ties canonical (Acc@10 0.7275 vs 0.7274)** — its small L0 adj_coh edge does NOT translate; **resln's value is the category axis, neutral on region**. HGI wins region (+0.9 pp Acc@10), concordant with adj_coh + §0.3/§0.5 (and the run reproduces §0.5 canonical numbers, validating the pipeline). Confirms: the proxy resolves the big HGI-vs-family region gap but not within-family. Dual-axis MTL gain would need to combine check-in-category strength (resln) with HGI-style region-graph structure — design_b/j injections didn't robustly deliver either.
+
+### 2026-06-01 (later 4) — re-screen of dropped candidates (v3c + 4 others)
+Rebuilt 7 variants via `rescreen_build.sh` (OUTPUT_DIR-scratch, frozen substrate md5-verified untouched; region partitions all aligned). Screened L0/L1 at AL+AZ vs a same-protocol `gcn_ctrl` (fresh GCN wd=0). Full table: `docs/results/embedding_eval/rescreen_cat/RESCREEN.md`.
+- **v3c (WD 5e-2): FALSIFIED** — no gain over the clean control on cat OR region at AL+AZ (region adj_coh slightly below ctrl). Its prior "region benefit" was a baseline-mismatch artifact; with the control it vanishes. Answers the original v3c question: no.
+- **T4.3 POI side-features: consistent small REGION gain** (adj_coh +0.05–0.07, probe@10 +0.9–1.6pp, both states; cat neutral). Originally falsified on a single-state *cat* cell — the region axis was never measured. → L2 confirmation launched.
+- **T3.3 R-GCN: biggest REGION gain** (adj_coh +0.07–0.09, probe@10 +0.7–3pp) without the catastrophic cat-leak in the static probe → needs leak-audit + L2.
+- DropEdge / T6.1 p2p: no gain. GATv2: hurts cat. ✗
+- Confirmed a ~+0.5pp **fresh-vs-frozen offset** (frozen check2hgi > fresh gcn_ctrl) — validates the same-protocol control.
+- **Methodology win:** the ladder on the correct artifact (region embeddings) + a same-protocol control surfaced a region-axis signal (sidefeat, rgcn) the single-MTL-metric eval missed, and killed v3c cleanly. L0/L1 = screen; L2/L3 = rank (sidefeat/rgcn L2 next-reg running; FL control+v3c building).
+
+### 2026-06-01 (later 5) — FL L2 conclusive: no candidate resurrects
+FL L2 next-reg (next_stan_flow, region, 5-fold, tight SD): gcn_ctrl 0.7249, sidefeat 0.7279 (+0.30pp), rgcn 0.7316 (+0.67pp) Acc@10 — both within ~1 SD, Acc@1 = control. The AL L2 gains (+1.9/+3.4pp) were small-N variance. **FINAL: none of the 5 re-screened candidates (v3c, dropedge, sidefeat, gat, rgcn, p2p) delivers a robust improvement** on the correct axis at scale; the L0 adj_coh signal for sidefeat/rgcn did not convert to L2 region accuracy at FL. Original falsifications upheld under the full controlled ladder. No candidate justifies an MTL trial. (Another instance: L0 structural over-promises; high-N L2 is the ranking authority.)
+
+### 2026-06-01 (later 6) — R-GCN leak audit (dedicated auditor)
+R-GCN FL next-cat 0.9986 = **confirmed structural leak**: `same_poi` relation + per-relation `W` copies the verbatim category one-hot (POI-constant input feature) across same-POI check-ins (category-copy channel; encoder-internal, reproduces at cat-weight=0; matches T3.3 K=2 +27.85). Survives held-out-POI (0.994) and control-task at chance (0.165) → category-copy, not POI-identity memorization; embeddings scale-amplified ~36×. **next-reg side is NOT leaked** (pooling washes the category-copy out): held-out-region rgcn acc@10 0.526 vs ctrl 0.495 = +3.1pp (real but small; +0.67pp at standard L2, within SD). **DISQUALIFY R-GCN on next-cat.** Auditor recommends adding a GroupKFold-by-placeid next-cat probe variant to penalize category-copying substrates (filed as a harness improvement).
+
+### 2026-06-01 (later 7) — 2nd advisor: leak upheld (mechanism corrected) + methodology audited
+**Leak: CONFIRMED** for gat AND rgcn on next-cat, but mechanism corrected — it's a **forward-temporal neighbour-category bleed** (the next check-in is a user-sequence-edge neighbour; GAT self-loops/edge-attr + R-GCN root-weight let the future category one-hot bleed in), NOT the `same_poi` copy the 1st auditor described (gat has no same_poi yet leaks). **Decisive proof = autocorrelation ceiling:** next-cat-from-last-visited-category tops at ~0.45 F1 for all engines; gat/rgcn per-step probe 0.54/0.53 vs ctrl 0.44, full 0.80–0.96 ≫ 0.45 ⇒ embedding carries the FUTURE category. Off-by-one ruled out.
+**Methodology: on the right track.** Sound: probing the consumed artifact (caught the wrong-artifact bug), same-protocol gcn control (offset documented), L3-as-authority (ρ-gate retired). Fixes: (1) **demote adj_coh** to a gross-difference detector (it over-promised sidefeat/rgcn → collapsed within-1-SD at FL L2); (2) **keep stating the ladder screens STL only** — it cannot certify absence of an MTL-only effect (the study's core worry); current slate has no such candidate (all at control), so the "none resurrects" conclusion holds. Add the autocorrelation-ceiling leak-sniff + GroupKFold-by-placeid probe as standing gates. ±1SD call defensible but a paired per-fold test is more honest.
+
+### 2026-06-01 (later 8) — leak gates implemented + region capacity ladder (adj_coh re-eval)
+- **Leak gates (`leak_sniff.py`)**: per-step next-cat probe (std+raw) vs control ceiling. gat flagged LEAK (0.50 vs 0.41); rgcn per-step clean (linear can't see its nonlinear/scale leak) → **authoritative gate is L2-next-cat vs control** (catches both: gat 0.96, rgcn 0.754 vs ctrl 0.646). Both stay disqualified. (`next_single` head is broken in p1 — TypeError; not used.)
+- **Region capacity ladder (user's L0-potential hypothesis)**: sidefeat region Acc@10 advantage is ~2× larger under simple `next_gru` (+0.63pp) than under prior-equipped `next_stan_flow` (+0.30pp). ⇒ adj_coh detects **real, small, head-dependent** spatial structure (NOT pure noise) — the log_T prior in stan_flow makes it largely redundant in the deployed regime. **Revised adj_coh from "gross-difference detector" to "small real head-dependent signal."** User's instinct (probe/STL head may not capture it) is mechanistically right; magnitude stays small (≤~0.6pp, ~1.3 SD), doesn't change deployment ranking, but a future MTL head underusing log_T (or a region-graph GNN) could see a small real lift from a higher-adj_coh substrate. sidefeat is the clean carrier (rgcn confounded by cat-leak).
+
+### 2026-06-01 (later 9) — other L0 metrics analysis + adjacency-aware head prototype
+- **Other L0 metrics (kNN-LOO / silhouette / sep_ratio / CKA) corroborate + enrich:** sidefeat is the only POSITIVE train-free signal (silhouette 0.551 — best, above frozen; CKA 0.904 = real representational change) but on the saturated cat axis. v3c/dropedge CKA≈0.997 → no-ops (detectable train-free). gat/rgcn auto-flagged by geometry (low sep_ratio + low silhouette + anomalous CKA: rgcn 0.121) → L0 alone gives a cheap pre-leak-screen.
+- **Adjacency-aware head prototype** (`region_gnn_probe.py`, GCN^k over region graph before transition probe, FL): k=2 lifts next-region Acc@10 **+2.7pp** (0.685→0.713) for BOTH engines (~7 SD, real) — the adjacency-aware head concept works. BUT sidefeat's k=0 edge (+0.35pp) **washes out by k=2** (+0.04pp): the head injects adjacency from the graph, making the substrate's own adj_coh redundant. ⇒ **lever is the HEAD (region-graph), not the substrate's adj_coh.** Caveat: 1-step proxy; deployed next_stan_flow already has the log_T transition prior (overlaps geographic adjacency) → must confirm the +2.7pp survives on top of log_T / stacks in MTL. Doc: `docs/results/embedding_eval/region_gnn_prototype.md`.
+
+### 2026-06-01 (later 10) — next-reg L0 full suite + DECISIVE adjacency-head test
+- **next-reg L0 completed (was next-cat only):** region-emb artifact → adj_coh (sidefeat 0.269>ctrl 0.209) + region-emb CKA (v3c 0.994 no-op, sidefeat 0.751 real, rgcn 0.643 anomalous). Final-embedding-with-region-labels → kNN/silhouette/sep_ratio all at FLOOR (4703 tiny classes, uninformative); sidefeat does NOT stand out there (its edge is in the region embeddings only). ⇒ meaningful region L0 = adj_coh + region-emb CKA.
+- **DECISIVE adjacency-aware head test:** GCN²-propagated region emb under the DEPLOYED `next_stan_flow` (has log_T): Acc@10 0.7305±.007 vs control plain 0.7249 = +0.56pp (~0.8 SD, NS). Graph propagation gives +3.0pp under next_gru (no prior) but **collapses to noise under next_stan_flow** ⇒ **the adjacency lever is REDUNDANT with the log_T transition prior.** Neither route (higher-adj_coh substrate +0.30pp, nor adjacency-aware head +0.56pp) adds robustly on the deployed pipeline — log_T already captures the spatial structure. The adj_coh "potential" is real geometry but already exploited. Residual untested upside only in weak-log_T regimes (small states / cold-start / MTL). Closes the region-upside thread on FL.
+
+### 2026-06-01 (later 11) — residual-upside test at AL/AZ (sparse log_T): NOT confirmed
+Replicated the gprop-vs-plain next_stan_flow test at small states (where log_T is sparser). Δ Acc@10: FL +0.56pp, AL +1.35pp, AZ +0.73pp — **every Δ within ~1 SD** (small states ±0.03–0.04, too noisy to resolve ~1pp). Sign is positive at 3/3 states (mean ≈+0.9pp) → weakly suggestive of a tiny consistent adjacency lift below the noise floor, but **nothing individually significant or actionable**. log_T dominates the spatial signal everywhere. **Region-upside thread CLOSED:** no robust lift from substrate adj_coh or an adjacency-aware head at any state. (A larger-N/paired-seed design could resolve the ~0.9pp sign-consistency if ever worth it.)
+
+### 2026-06-01 (later 12) — MTL L3 head-to-head + candidates-on-ResLN L0
+> ⚠ **SUPERSEDED (substrate framing only) — see entries below (2026-06-02) + FINAL_SYNTHESIS verdict.**
+> The "baseline GCN+log_T is the best; no substrate improves MTL" / "carry v13" conclusion in this
+> entry was overturned: **design_k (Delaunay POI edges) DOES improve next-reg at STL** (re-validated at
+> FL, which the prior K≡J verdict never tested), and **v14 = design_k_resln+mae** supersedes v13 as the
+> dual-axis base. The MTL-null part still stands (no substrate improves the cross-attn MTL regime — but
+> that is now the *regime* finding, not "baseline is best substrate"). History kept below.
+- **MTL head-to-head (FL s42, B9):** baseline check2hgi catF1 0.7028 / reg-top10i 0.6025; **resln_design_b (v13) ties** (0.7020 / 0.5985 — NO MTL benefit, confirms STL-only); **design_j worse** on cat (0.6883). ⇒ ~~baseline GCN+log_T is the best; no substrate combination improves MTL.~~ (superseded: the STL substrate axis was NOT exhausted — design_k reopened it; see below.)
+- **Candidates on ResLN-encoder base (L0):** v3c/dropedge/p2p no-ops; **sidefeat reproduces region adj_coh +0.055 (base-independent, stacks on GCN & resln)** but probe@10 only +0.35pp (~1 SD), no leaks. Same verdict as GCN base. (Full resln+design_b stacking needs build_design_b_poi_pool extension; did the supported ResLN-encoder version.)
+- **Strong inference:** since the *stronger* v13 substrate yields zero MTL gain, the marginal/log_T-redundant levers (sidefeat, GCN²) almost certainly yield nothing in MTL too. Doc: `docs/results/embedding_eval/mtl_head2head.md`. (Pending if desired: explicit +sidefeat/+GCN² MTL runs to close opt 1 — expected null, non-trivial input-alignment setup.)
+
+### 2026-06-02 — design_k (Delaunay POI edges) REOPENS the substrate axis at FL
+- **User-requested re-validation OVERTURNED the prior "Delaunay falsified / K≡J" verdict** — that prior was **AL/AZ-only (small states); FL was never tested.** Rebuilt design_k (GCN base, λ=0.1) at FL, direct L2 (`next_stan_flow --input-type region`, 5-fold, seed42, **default-log_T**) + L0:
+  - design_k L2 reg **0.7341±.005** (+0.32pp over v13 0.7309, +0.67pp over canonical 0.7274) — **best Check2HGI-family substrate at L2-reg**, 0.21pp below HGI 0.7362 (~0.5 SD = stat-tie at seed42).
+  - design_k L0 is the ONLY substrate whose spatial cohesion EXCEEDS HGI: region-silhouette **−0.394** (> HGI −0.46) and adj_coh **0.379** (> HGI 0.326). The L0 spatial-cohesion diagnostic PREDICTED this and it TRANSLATED to L2 — at FL (4703 regions) the Delaunay POI edges add spatial structure NOT fully redundant with log_T (unlike at AL/AZ).
+- **Corrections:** "Spatial/Delaunay lever FALSIFIED" RETRACTED for large states (true AL/AZ, false FL). t61_p2p stays falsified (InfoNCE boundary, mechanistically different from design_k's Delaunay POI-GCN). region-silhouette is now PREDICTIVE for the spatial lever, not merely diagnostic.
+- **design_k variants (FL seed42):** base design_k 0.7341 > design_k+resln 0.7328 > design_k+sidefeat 0.7320 > +resln+sidefeat 0.7317 — **neither resln nor sidefeat stacks on the Delaunay reg lever** (all within ~1 SD). Carry plain design_k for reg.
+
+### 2026-06-02 — design_k state sweep (MATCHED harness) — beats canonical 5/5, ≈ HGI
+- ⚠ Old `_reg_gethard_pf` baselines diverged 2-3.5pp at FL (stale-log_T) — NOT comparable. Re-ran canonical+HGI in the SAME harness (next_stan_flow, seed42, shared fresh log_T):
+  - AL 0.6281 (canon 0.6074 / HGI 0.6358); AZ 0.5510 (0.5344 / 0.5487); CA-1f 0.5872 (0.5751); TX-1f 0.6155 (0.6066); FL 0.7341 (0.7274 / 0.7362).
+- **design_k robustly beats canonical at ALL 5 states** (+0.67 to +2.08pp). **vs HGI: design_k ≈ HGI** (within ~1 SD all states) — it CLOSES the gap, does NOT beat HGI. Earlier "design_k > HGI everywhere" was a stale-baseline artifact. Reconciles the prior K≡J: protocol-dependent; matched harness → design_k matches HGI at AL/AZ too. **MANDATORY: multi-seed (seed42 is the dev seed).**
+
+### 2026-06-02 — ⭐ AUTHORITATIVE leak-free multi-seed (default-log_T leaked ~+3pp)
+- **The seed42 single-run tables used p1's DEFAULT log_T** (no `--per-fold-transition-dir`), which **leaks val transitions and inflated ALL engines ~+3pp.** Re-ran multi-seed {0,1,7,100} with SEEDED per-fold log_T (verified the runs loaded `region_transition_log_seed{S}_fold{N}.pt`). Authoritative:
+  - AL: canon 0.6087 / design_k 0.6194 / HGI 0.6284 → dk +1.07pp over canon, −0.90pp HGI, **54% gap closed**.
+  - FL: canon 0.6943 / design_k 0.7034 / HGI 0.7060 → dk +0.91pp over canon, −0.26pp HGI, **78% gap closed** (SD ~0.001 ⇒ significant).
+- **Corrected:** design_k robustly beats canonical (+0.9–1.1pp); it does NOT fully close the gap — **HGI retains a small significant edge.** The seed42 "ties HGI within noise" was the leaky-default-log_T artifact — RETRACTED. sidefeat does NOT stack even wired pre-GCN (no-stack is REAL). **⚠ ALL prior seed42 region tables here used the leaky default log_T — treat absolute Acc@10 as ~+3pp inflated; cite THIS table.**
+
+### 2026-06-02 — next-cat dual-axis disentangle + fresh-vs-frozen resolution
+- **next-cat L2 (next_gru, FL 5-fold seed42, macro-F1):** canonical(frozen v11) 67.32, design_k 64.82, HGI 34.29. design_k looked −2.50pp cat vs frozen canon.
+- **RESOLVED — it is fresh-vs-frozen, NOT a real cat cost:** ran a FRESH canonical-protocol control `gcn_ctrl` → 64.61 ≈ design_k 64.82. The −2.5pp is entirely **fresh-vs-frozen build variance** (the frozen v11 substrate is a privileged draw). Against a matched fresh control, **design_k is marginally BETTER on cat (+0.21pp) — DUAL-AXIS SAFE.** Compare against FRESH canonical (gcn_ctrl), not frozen v11, for fair dual-axis claims.
+- **re-screen-on-design_k (FL):** #5 HGI-POI-decoder distill 0.7336 ≈ base (FLAT — HGI POI emb ≈ design_k's); T6.2 edge re-tune 0.7338 ≈ base (FLAT — spatial axis SATURATED); v3c (WD on design_k) 0.7169 (−1.72pp, DEAD — Adam WD hits the reg-path Delaunay GCN, not just the detached encoder). **#3 T5.2b mae: next-cat 67.63 (+3pp vs fresh-control, ≈ frozen-canon) — a REAL cat lever** (validates the AL/AZ-Bonferroni-buried signal at FL). Residual HGI reg gap NOT closeable at the substrate ⇒ Part-2 problem.
+
+### 2026-06-02 — ⭐ v14 = design_k_resln+mae — dual-axis champion (orthogonal stack)
+- **Disentangled the +3pp cat:** it is mostly the **resln encoder (+2.3pp)**, not mae (+0.7pp marginal). resln (cat lever, via encoder) and Delaunay (reg lever, via detached reg path) are **ORTHOGONAL and STACK**:
+  - design_k_resln: cat **66.95** / reg 0.7328 (default-logT) — +2.1pp cat over design_k at −0.13pp reg (within noise).
+  - **design_k_resln+mae (ported MaskedPOIDecoder onto the cat-side POI emb):** cat **67.36** (≈ frozen-canon 67.32, +2.54pp over design_k, ≫ HGI) / reg 0.7331 (mae barely touches reg). mae adds +0.41pp cat at zero reg cost — stacks all three orthogonal axes.
+- **Leak-free multi-seed FL {0,1,7,100}:** design_k_resln+mae cat **67.36** / reg **0.7024±.001** (vs canon 0.6943 / design_k 0.7034 / HGI 0.7060). v14 reg +0.81pp over canonical, **closes ~69% of the canon→HGI gap**, −0.36pp residual to HGI; cat ≈ frozen-canon ≫ HGI.
+- **⭐ FINAL substrate: `check2hgi_design_k_resln_mae_l0_1` = v14** — dual-axis champion (resln+mae cat lever ⊕ Delaunay reg lever). Supersedes v13 as the recommended STL / forward-MTL base (both opt-in; canonical `check2hgi` untouched). For a reg-only objective, plain design_k(gcn) reg 0.7034 (78%) is marginally better. See CANONICAL_VERSIONS §v14.
+
+### 2026-06-02 — MTL pilots: NO MTL benefit (regime is the wall) + graduation
+- **Option-b step 1 — v14 in MTL (B9, 2-fold seed42 FL pilot):** next_cat 69.04 / next_reg-Acc 47.18 vs canonical 69.25 / 47.15 — **v14 ≈ canonical on BOTH (ties within noise).** The strong STL dual-axis gains (cat +2.5pp, reg +0.8pp) do NOT survive MTL — reproduces the documented "v13 = STL-only, no MTL benefit." MTL cross-task transfer lifts cat to ~69 for both substrates.
+- **Option-b step 2 — dual-substrate ROUTING (HGI region tower → reg head, v14 for cat), MTL B9 2-fold seed42 FL:** routing reg-Acc 47.17 ≈ canonical/v14 (Top3 53.83 recovers to canon level). **Even feeding HGI's STL-winning region tower (0.7060) into the MTL reg head is washed out.** ⇒ **The MTL cross-attn joint-training regime is the binding constraint — NOT the substrate, NOT the region-embedding routing.** The "log_T-orthogonal routing lever" is pilot-falsified. (Caveat: 2-fold seed42 FL pilots — preliminary, consistent across 3 pilots all at reg-Acc 47.15-47.18.)
+- **Part-2 redirect:** remaining levers are the MTL REGIME itself (reg-head arch sweep + substrate-adaptive balancing), NOT substrate/routing.
+- **GRADUATION:** v13/v14 mechanisms are now graduated into the canonical `Check2HGIModule` (`reg_poi_mode` param) + `check2hgi.py`; the probe scripts (`build_design_k_delaunay.py` etc.) delegate to the canonical module. Canonical `check2hgi` engine identity is unchanged → paper-safe; v14 is opt-in via `--engine check2hgi_design_k_resln_mae_l0_1`.
+
+### Status — Part-1 (substrate) CLOSED
+The substrate axis is exhausted: **v14 = design_k_resln+mae is the dual-axis champion** (cat ≈ frozen-canon ≫ HGI; reg +0.81pp over canonical, closes ~69% of HGI gap; HGI keeps a −0.36pp edge). The residual HGI reg gap and all MTL gains are a **Part-2 (MTL regime: head/fusion/balancing)** problem, not substrate. Authority: [`FINAL_SYNTHESIS.md`](FINAL_SYNTHESIS.md) ⭐ banner + 2026-06-02 sections; [`docs/results/CANONICAL_VERSIONS.md §v14`](../../results/CANONICAL_VERSIONS.md).

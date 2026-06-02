@@ -1,0 +1,8 @@
+[florida] 159175 transition pairs, 4702 regions, self-transition rate=0.495  (5-fold CV, mean±SD)
+
+engine                               adj_coh@10        probe_acc            acc@5           acc@10
+check2hgi_resln                   0.2824±0.0063    0.4808±0.0041    0.6343±0.0039    0.6867±0.0027
+check2hgi_resln_v3c               0.2714±0.0046    0.4808±0.0045    0.6341±0.0038    0.6855±0.0035
+check2hgi_resln_dropedge          0.2781±0.0036    0.4806±0.0043    0.6344±0.0035    0.6858±0.0027
+check2hgi_resln_sidefeat          0.3369±0.0033    0.4817±0.0047    0.6377±0.0044    0.6902±0.0040
+check2hgi_resln_p2p               0.2719±0.0041    0.4808±0.0047    0.6347±0.0038    0.6879±0.0033

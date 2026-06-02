@@ -31,11 +31,13 @@ from configs.model import InputsConfig
 from configs.paths import EmbeddingEngine, IoPaths
 
 
-def _load_region_embeddings(state: str) -> np.ndarray:
+def _load_region_embeddings(state: str, engine: EmbeddingEngine = EmbeddingEngine.CHECK2HGI) -> np.ndarray:
     """Load region_embeddings.parquet as a [n_regions, D] float32 array,
-    sorted by region_id so row index == region_idx.
+    sorted by region_id so row index == region_idx. ``engine`` selects which
+    substrate's region embeddings to use (the region partition itself is the
+    shared CHECK2HGI geographic partition; only the embedding values differ).
     """
-    path = IoPaths.CHECK2HGI.get_state_dir(state) / "region_embeddings.parquet"
+    path = IoPaths.get_embedd(state, engine).parent / "region_embeddings.parquet"
     df = pd.read_parquet(path).sort_values("region_id").reset_index(drop=True)
     emb_cols = [c for c in df.columns if c.startswith("reg_")]
     return df[emb_cols].to_numpy(dtype=np.float32)
@@ -52,7 +54,7 @@ def _load_graph_maps(state: str) -> Tuple[dict, np.ndarray]:
     return placeid_to_idx, np.asarray(poi_to_region, dtype=np.int64)
 
 
-def build_region_sequence_tensor(state: str) -> torch.Tensor:
+def build_region_sequence_tensor(state: str, region_engine: EmbeddingEngine = EmbeddingEngine.CHECK2HGI) -> torch.Tensor:
     """Build the [N, 9, D] region-embedding sequence for Check2HGI MTL.
 
     Row i position k holds the region embedding of the region the user
@@ -75,7 +77,7 @@ def build_region_sequence_tensor(state: str) -> torch.Tensor:
     seq_df = pd.read_parquet(seq_path)
 
     placeid_to_idx, poi_to_region = _load_graph_maps(state)
-    region_emb = _load_region_embeddings(state)
+    region_emb = _load_region_embeddings(state, region_engine)
     emb_dim = region_emb.shape[1]
     slide_window = InputsConfig.SLIDE_WINDOW
 

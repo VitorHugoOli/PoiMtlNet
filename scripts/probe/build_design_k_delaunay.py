@@ -1,5 +1,12 @@
 """Design K — Design J + HGI's Delaunay POI-POI edges as a POI-level GCN.
 
+⭐ v14 DEFAULT (2026-06-02): a bare invocation now builds the v14 dual-axis champion
+``check2hgi_design_k_resln_mae_l0_1`` (encoder=resln, mae-poi-lambda=0.3, Delaunay reg
+GCN, anchor λ=0.1). To recover plain design_k (v11 encoder, no mae) pass
+``--encoder gcn --mae-poi-lambda 0 --out-suffix l0_1``. Canonical ``output/check2hgi`` is
+never touched. See docs/results/CANONICAL_VERSIONS.md §v14.
+
+
 Same anchor regularizer as J (λ pulls learnable table to POI2Vec). The new
 piece: between Checkin2POI and POI2Region, run a GCN over the POIs using
 HGI's Delaunay triangulation edges (edge weights from
@@ -38,95 +45,101 @@ sys.path.insert(0, str(REPO / "research"))
 
 from embeddings.check2hgi.model.Check2HGIModule import Check2HGI, corruption
 from embeddings.check2hgi.model.CheckinEncoder import CheckinEncoder
+from embeddings.check2hgi.model.variants import ResidualLNEncoder, MaskedPOIDecoder
 from embeddings.check2hgi.model.Checkin2POI import Checkin2POI
 from embeddings.hgi.model.RegionEncoder import POI2Region
+# v14 mechanism (Delaunay reg GCN + anchor + mae) now lives in the canonical
+# module (reg_poi_mode='delaunay_gcn'); loaders are shared via reg_poi_aug.
+from embeddings.check2hgi.reg_poi_aug import (
+    load_poi2vec_table as load_poi2vec,
+)
 
 POI2VEC_DIM = 64
 
 
 class Check2HGI_DesignK(Check2HGI):
-    """Design J + Delaunay POI-POI GCN before POI2Region."""
+    """v14 (delaunay_gcn) graduated into the canonical module, PLUS the
+    probe-only #5 HGI-POI-embedding distillation decoder (``--hgi-decoder-gamma``).
 
-    def __init__(self, *args, num_pois, poi2vec_anchor: torch.Tensor,
-                 gamma_init=1.0, **kwargs):
+    The reg-path Delaunay GCN, learnable poi_table, anchor regulariser, and
+    T5.2b masked-POI reconstruction are ALL handled by the canonical
+    ``Check2HGI`` (reg_poi_mode='delaunay_gcn' + mae_poi_lambda). This subclass
+    only adds the optional HGI-POI distillation head, which is off by default
+    (hgi_decoder_gamma=0) and not part of v14.
+    """
+
+    def __init__(self, *args, hgi_poi_target: torch.Tensor | None = None, **kwargs):
         super().__init__(*args, **kwargs)
-        self.poi_table = nn.Embedding(num_pois, self.hidden_channels)
-        with torch.no_grad():
-            self.poi_table.weight.copy_(poi2vec_anchor.float())
-        self.gamma = nn.Parameter(torch.tensor(float(gamma_init)))
-        self.register_buffer("poi2vec_anchor", poi2vec_anchor.float())
-        self.poi_gcn = GCNConv(self.hidden_channels, self.hidden_channels,
-                               cached=True, bias=True)
-        self.poi_gcn_act = nn.PReLU(self.hidden_channels)
+        # #5 HGI-POI-decoder distill (probe-only; off in v14). Reconstructs
+        # HGI's learned POI embedding from design_k's reg-path POI vector.
+        if hgi_poi_target is not None:
+            self.register_buffer("hgi_poi_target", hgi_poi_target.float())
+            self.register_buffer("hgi_poi_mask", (hgi_poi_target.abs().sum(1) > 0).float())
+            self.hgi_decoder = nn.Sequential(
+                nn.Linear(self.hidden_channels, 128), nn.PReLU(),
+                nn.Linear(128, int(hgi_poi_target.shape[1])))
+        else:
+            self.hgi_poi_target = None
+            self.hgi_decoder = None
 
-    def forward(self, data):
-        num_pois = data.num_pois
-        num_regions = data.num_regions
-
-        pos_checkin_emb = self.checkin_encoder(data.x, data.edge_index, data.edge_weight)
-        cor_x = self.corruption(data.x)
-        neg_checkin_emb = self.checkin_encoder(cor_x, data.edge_index, data.edge_weight)
-
-        pos_poi_emb_canonical = self.checkin2poi(pos_checkin_emb, data.checkin_to_poi, num_pois)
-        neg_poi_emb_canonical = self.checkin2poi(neg_checkin_emb, data.checkin_to_poi, num_pois)
-
-        # speed: nn.Embedding(N).weight is identical to embedding(arange(N))
-        poi_residual = self.poi_table.weight
-
-        # detach() severs cat-path encoder from reg-axis loss (matches J)
-        pos_pre_gcn = pos_poi_emb_canonical.detach() + self.gamma * poi_residual
-        neg_pre_gcn = neg_poi_emb_canonical.detach() + self.gamma * poi_residual
-
-        # Delaunay POI-POI GCN — HGI's spatial sauce
-        pos_poi_emb_for_reg = self.poi_gcn_act(
-            self.poi_gcn(pos_pre_gcn, data.delaunay_edge_index, data.delaunay_edge_weight))
-        neg_poi_emb_for_reg = self.poi_gcn_act(
-            self.poi_gcn(neg_pre_gcn, data.delaunay_edge_index, data.delaunay_edge_weight))
-
-        pos_region_emb = self.poi2region(pos_poi_emb_for_reg, data.poi_to_region, data.region_adjacency)
-        neg_region_emb = self.poi2region(neg_poi_emb_for_reg, data.poi_to_region, data.region_adjacency)
-        city_emb = self.region2city(pos_region_emb, data.region_area)
-
-        self.checkin_embedding = pos_checkin_emb
-        self.poi_embedding = pos_poi_emb_for_reg
-        self.region_embedding = pos_region_emb
-
-        pos_poi_expanded = pos_poi_emb_canonical[data.checkin_to_poi]
-        neg_poi_indices = self._sample_negative_indices(data.checkin_to_poi, num_pois, data.x.device)
-        neg_poi_expanded = pos_poi_emb_canonical[neg_poi_indices]
-        pos_region_expanded = pos_region_emb[data.poi_to_region]
-        neg_region_indices = self._sample_negative_indices_with_similarity(
-            data.poi_to_region, num_regions, data.coarse_region_similarity, data.x.device)
-        neg_region_expanded = pos_region_emb[neg_region_indices]
-
-        return (
-            pos_checkin_emb, pos_poi_expanded, neg_poi_expanded,
-            pos_poi_emb_for_reg, pos_region_expanded, neg_region_expanded,
-            pos_region_emb, neg_region_emb, city_emb,
-        )
-
-    def anchor_loss(self):
-        return ((self.poi_table.weight - self.poi2vec_anchor) ** 2).mean()
+    def decoder_loss(self):
+        if self.hgi_decoder is None:
+            return torch.tensor(0.0, device=self.reg_poi_table.weight.device)
+        # self.poi_embedding is the reg-path POI emb (set by canonical forward).
+        pred = self.hgi_decoder(self.poi_embedding)             # [N_pois, 256]
+        sq = ((pred - self.hgi_poi_target) ** 2).mean(1)        # per-POI
+        m = self.hgi_poi_mask
+        return (sq * m).sum() / m.sum().clamp(min=1)            # mean over mapped POIs
 
 
-def load_poi2vec(state: str, num_pois: int, placeid_to_idx: dict) -> torch.Tensor:
-    state_lc = state.lower(); state_cap = state.capitalize()
-    csv = REPO / f"output/hgi/{state_lc}/poi2vec_poi_embeddings_{state_cap}.csv"
-    df = pd.read_csv(csv)
-    emb_cols = [str(i) for i in range(POI2VEC_DIM)]
-    arr = np.zeros((num_pois, POI2VEC_DIM), dtype=np.float32)
-    for placeid, vec in zip(df["placeid"].astype(int).tolist(), df[emb_cols].to_numpy(np.float32)):
-        idx = placeid_to_idx.get(placeid)
+def _compute_poi_category_aggregate(d: dict, num_pois: int):
+    """Per-POI mean category one-hot (T5.2b recon target). Prefers the cached
+    'poi_category_aggregate'; else derives it from the check-in category one-hot
+    (node_features[:, :num_cat]) scatter-meaned over checkin_to_poi."""
+    if "poi_category_aggregate" in d:
+        return torch.tensor(np.asarray(d["poi_category_aggregate"]), dtype=torch.float32)
+    from configs.globals import CATEGORIES_MAP
+    n_cat = len(CATEGORIES_MAP)
+    x = np.asarray(d["node_features"], dtype=np.float32)[:, :n_cat]   # check-in category one-hot
+    c2p = np.asarray(d["checkin_to_poi"])
+    agg = np.zeros((num_pois, n_cat), dtype=np.float32)
+    cnt = np.zeros(num_pois, dtype=np.float32)
+    np.add.at(agg, c2p, x)
+    np.add.at(cnt, c2p, 1.0)
+    agg /= np.clip(cnt, 1.0, None)[:, None]
+    print(f"[T5.2b] computed poi_category_aggregate dim={n_cat} pois={num_pois}")
+    return torch.from_numpy(agg)
+
+
+def load_hgi_poi_target(state: str, num_pois: int, placeid_to_idx: dict):
+    """Load HGI's learned POI embedding (poi_embeddings.parquet) mapped to c2hgi idx.
+    Returns [num_pois, hgi_dim] with zero rows for unmapped POIs (#5 decoder target)."""
+    f = REPO / "output" / "hgi" / state.lower() / "poi_embeddings.parquet"
+    if not f.exists():
+        f = REPO / "output" / "hgi" / state.lower() / "embeddings.parquet"  # HGI POI-level emb
+    df = pd.read_parquet(f)
+    dim = [c for c in df.columns if c not in ("placeid", "category") and not c.startswith("reg_")]
+    arr = np.zeros((num_pois, len(dim)), dtype=np.float32)
+    for pid, vec in zip(df["placeid"].astype(int).tolist(), df[dim].to_numpy(np.float32)):
+        idx = placeid_to_idx.get(int(pid))
         if idx is not None:
             arr[idx] = vec
+    print(f"[#5 decoder] HGI POI target dim={len(dim)} mapped={int((arr.any(1)).sum())}/{num_pois}")
     return torch.from_numpy(arr)
 
 
-def load_delaunay_edges(state: str, placeid_to_idx: dict, num_pois: int):
+def load_delaunay_edges(state: str, placeid_to_idx: dict, num_pois: int,
+                        poi_to_region=None, cross_region_weight: float = 1.0,
+                        edge_power: float = 1.0):
     """Load HGI's Delaunay edges and remap to c2hgi's POI index space.
 
     HGI's edges.csv has (source, target, weight) where source/target are
     row indices into HGI's pois.csv. Map row → placeid → c2hgi POI idx.
+
+    T6.2 edge-weight re-tune (cross_region_weight<1 / edge_power>1): multiply
+    CROSS-region edge weights by ``cross_region_weight`` (focuses GCN smoothing
+    WITHIN regions → raises region cohesion) and sharpen via ``weight**edge_power``.
+    Defaults (1.0/1.0) reproduce the base design_k edge load byte-for-byte.
     """
     state_lc = state.lower()
     pois_path = REPO / "output" / "hgi" / state_lc / "temp" / "pois.csv"
@@ -152,9 +165,14 @@ def load_delaunay_edges(state: str, placeid_to_idx: dict, num_pois: int):
         if s_c is None or t_c is None:
             n_skip += 1
             continue
+        wv = float(weight) ** edge_power
+        # T6.2: down-weight cross-region edges
+        if poi_to_region is not None and cross_region_weight != 1.0:
+            if int(poi_to_region[s_c]) != int(poi_to_region[t_c]):
+                wv *= cross_region_weight
         # symmetrise
-        src.append(s_c); tgt.append(t_c); w.append(float(weight))
-        src.append(t_c); tgt.append(s_c); w.append(float(weight))
+        src.append(s_c); tgt.append(t_c); w.append(wv)
+        src.append(t_c); tgt.append(s_c); w.append(wv)
 
     edge_index = torch.tensor([src, tgt], dtype=torch.int64)
     edge_weight = torch.tensor(w, dtype=torch.float32)
@@ -165,6 +183,9 @@ def load_delaunay_edges(state: str, placeid_to_idx: dict, num_pois: int):
 
 def train(state: str, args):
     state_lc = state.lower()
+    # Reproducibility (unsupervised build is seed-dependent). Pinned by default.
+    seed = int(getattr(args, "seed", 42))
+    torch.manual_seed(seed); np.random.seed(seed)
     suffix = getattr(args, "out_suffix", "") or ""
     base = "check2hgi_design_k" + (f"_{suffix}" if suffix else "")
     out_dir = REPO / "output" / base / state_lc
@@ -181,7 +202,29 @@ def train(state: str, args):
 
     device = torch.device(args.device)
     poi2vec = load_poi2vec(state, num_pois, d["placeid_to_idx"])
-    del_ei, del_ew = load_delaunay_edges(state, d["placeid_to_idx"], num_pois)
+    del_ei, del_ew = load_delaunay_edges(
+        state, d["placeid_to_idx"], num_pois,
+        poi_to_region=np.asarray(d["poi_to_region"]),
+        cross_region_weight=getattr(args, "cross_region_weight", 1.0),
+        edge_power=getattr(args, "edge_power", 1.0))
+
+    # design_k+sidefeat: optionally load the T4.3 32-d POI side-feature tensor.
+    side_features = None
+    if getattr(args, "use_side_features", False):
+        sf_path = REPO / "output" / "check2hgi" / state_lc / "poi_side_features.pt"
+        if not sf_path.exists():
+            import subprocess, os as _os
+            r = subprocess.run(
+                [sys.executable, str(REPO / "scripts/canonical_improvement/compute_poi_side_features.py"),
+                 "--state", state], cwd=str(REPO),
+                env={**_os.environ, "PYTHONPATH": f"{REPO}/src:{REPO}/research"})
+            if r.returncode != 0:
+                raise RuntimeError(f"compute_poi_side_features.py failed rc={r.returncode}")
+        sf = torch.load(sf_path)
+        side_features = (sf["features"] if isinstance(sf, dict) else sf)
+        if side_features.shape[0] != num_pois:
+            raise ValueError(f"side_features rows {side_features.shape[0]} != num_pois {num_pois}")
+        print(f"[{state_lc}] side_features attached shape={tuple(side_features.shape)}")
 
     data = Data(
         x=torch.tensor(d["node_features"], dtype=torch.float32),
@@ -192,29 +235,61 @@ def train(state: str, args):
         region_adjacency=torch.tensor(d["region_adjacency"], dtype=torch.int64),
         region_area=torch.tensor(d["region_area"], dtype=torch.float32),
         coarse_region_similarity=torch.tensor(d["coarse_region_similarity"], dtype=torch.float32),
-        delaunay_edge_index=del_ei,
-        delaunay_edge_weight=del_ew,
         num_pois=num_pois, num_regions=num_regions,
-    ).to(device)
+    )
+    # v14: side-features and the T5.2b masked-POI recon target are consumed by
+    # the canonical module. side_features → data.side_features (pre-GCN add);
+    # mae uses data.poi_delaunay_edge_index + data.poi_recon_target.
+    if side_features is not None:
+        data.side_features = side_features.float()
+    _mae_lambda = float(getattr(args, "mae_poi_lambda", 0.0) or 0.0)
+    if _mae_lambda > 0.0:
+        data.poi_delaunay_edge_index = del_ei
+        data.poi_recon_target = _compute_poi_category_aggregate(d, num_pois)
+    data = data.to(device)
     metadata = d["metadata"]
 
-    checkin_encoder = CheckinEncoder(in_channels, args.dim, num_layers=args.num_layers)
+    _encoder = getattr(args, "encoder", "gcn") or "gcn"
+    if _encoder == "resln":
+        checkin_encoder = ResidualLNEncoder(in_channels, args.dim, num_layers=args.num_layers)
+        print(f"[{state_lc}] encoder=ResidualLNEncoder num_layers={args.num_layers}")
+    else:
+        checkin_encoder = CheckinEncoder(in_channels, args.dim, num_layers=args.num_layers)
+        print(f"[{state_lc}] encoder=CheckinEncoder (canonical GCN) num_layers={args.num_layers}")
     checkin2poi = Checkin2POI(args.dim, args.attention_head)
     poi2region = POI2Region(args.dim, args.attention_head)
 
     def region2city(z, area):
         return torch.sigmoid((z.transpose(0, 1) * area).sum(dim=1))
 
+    _mae_target_dim = (int(_compute_poi_category_aggregate(d, num_pois).shape[1])
+                       if _mae_lambda > 0.0 else 0)
     model = Check2HGI_DesignK(
         hidden_channels=args.dim, checkin_encoder=checkin_encoder,
         checkin2poi=checkin2poi, poi2region=poi2region,
         region2city=region2city, corruption=corruption,
         alpha_c2p=args.alpha_c2p, alpha_p2r=args.alpha_p2r, alpha_r2c=args.alpha_r2c,
-        num_pois=num_pois, poi2vec_anchor=poi2vec, gamma_init=args.gamma_init,
+        # v14 — graduated reg-path Delaunay GCN + anchor (was Check2HGI_DesignK).
+        reg_poi_mode="delaunay_gcn",
+        num_pois=num_pois, poi2vec_table=poi2vec, gamma_init=args.gamma_init,
+        anchor_lambda=args.anchor_lambda,
+        delaunay_edge_index=del_ei, delaunay_edge_weight=del_ew,
+        side_feature_dim=(int(side_features.shape[1]) if side_features is not None else 0),
+        side_feature_hidden=args.side_feature_hidden,
+        # T5.2b masked-POI recon (canonical path).
+        mae_poi_lambda=_mae_lambda,
+        mae_poi_mask_rate=0.15, mae_poi_gamma=3.0,
+        mae_poi_target_dim=_mae_target_dim,
+        mae_poi_aggr="mean", mae_poi_target_kind="category_aggregate",
+        mae_poi_loss_kind="sce",
+        # probe-only #5 HGI-POI distillation head (off in v14).
+        hgi_poi_target=(load_hgi_poi_target(state, num_pois, d["placeid_to_idx"])
+                        if getattr(args, "hgi_decoder_gamma", 0.0) > 0.0 else None),
     ).to(device)
     print(f"[{state_lc}] params={sum(p.numel() for p in model.parameters()):,}")
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr,
+                                 weight_decay=getattr(args, "weight_decay", 0.0))
     scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma) if args.gamma != 1.0 else None
 
     t = trange(1, args.epochs + 1, desc=f"Train K[{state_lc}]")
@@ -223,9 +298,13 @@ def train(state: str, args):
     for epoch in t:
         model.train(); optimizer.zero_grad()
         outputs = model(data)
-        loss_main = model.loss(*outputs)
-        loss_anchor = model.anchor_loss()
-        loss = loss_main + args.anchor_lambda * loss_anchor
+        # Canonical loss() now folds in BOTH the anchor regulariser
+        # (anchor_lambda·‖poi_table−POI2Vec‖²) and the T5.2b masked-POI recon
+        # (mae_poi_lambda·L_mae). Only the probe-only #5 distillation head is
+        # added here.
+        loss = model.loss(*outputs)
+        if getattr(args, "hgi_decoder_gamma", 0.0) > 0.0:
+            loss = loss + args.hgi_decoder_gamma * model.decoder_loss()
         loss.backward()
         clip_grad_norm_(model.parameters(), max_norm=args.max_norm)
         optimizer.step()
@@ -290,8 +369,31 @@ def main():
     ap.add_argument("--gamma", type=float, default=1.0)
     ap.add_argument("--max-norm", dest="max_norm", type=float, default=0.9)
     ap.add_argument("--device", type=str, default="cpu")
-    ap.add_argument("--out-suffix", dest="out_suffix", type=str, default="",
-                    help="Append suffix to output dir (e.g. 'l0_5' → output/check2hgi_design_k_l0_5/)")
+    ap.add_argument("--seed", type=int, default=42,
+                    help="Reproducibility seed (encoder init + negatives). Pinned by default.")
+    ap.add_argument("--encoder", type=str, default="resln", choices=["gcn", "resln"],
+                    help="Check-in encoder. v14 DEFAULT='resln' (ResidualLNEncoder); pass 'gcn' for "
+                         "the plain-design_k (v11-encoder) build.")
+    ap.add_argument("--use-side-features", dest="use_side_features", action="store_true",
+                    help="Stack T4.3 POI side-features (32d) after the Delaunay GCN (reg path).")
+    ap.add_argument("--side-feature-hidden", dest="side_feature_hidden", type=int, default=16)
+    ap.add_argument("--cross-region-weight", dest="cross_region_weight", type=float, default=1.0,
+                    help="T6.2: multiply cross-region Delaunay edge weights by this (<1 focuses "
+                         "intra-region smoothing, raises region cohesion). 1.0 = base design_k.")
+    ap.add_argument("--edge-power", dest="edge_power", type=float, default=1.0,
+                    help="T6.2: sharpen Delaunay edge weights via weight**power. 1.0 = base.")
+    ap.add_argument("--weight-decay", dest="weight_decay", type=float, default=0.0,
+                    help="v3c re-screen: AdamW-style weight decay on the build optimizer.")
+    ap.add_argument("--mae-poi-lambda", dest="mae_poi_lambda", type=float, default=0.3,
+                    help="T5.2b masked-POI category-aggregate recon (cat lever, shapes the encoder). "
+                         "v14 DEFAULT=0.3; pass 0.0 to disable (plain design_k).")
+    ap.add_argument("--hgi-decoder-gamma", dest="hgi_decoder_gamma", type=float, default=0.0,
+                    help="#5: coefficient on the HGI-POI-embedding distillation decoder loss "
+                         "(memo §4.8). 0.0 = off. Sweep {0.05,0.1,0.3}.")
+    ap.add_argument("--out-suffix", dest="out_suffix", type=str, default="resln_mae_l0_1",
+                    help="Output dir suffix → output/check2hgi_design_k_<suffix>/. v14 DEFAULT="
+                         "'resln_mae_l0_1' (matches the resln+mae default recipe). Use '' for the "
+                         "bare check2hgi_design_k dir (pair with --encoder gcn --mae-poi-lambda 0).")
     args = ap.parse_args()
     train(args.state, args)
 

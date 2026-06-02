@@ -143,6 +143,10 @@ def _load_region_embeddings(state: str, source: str = "check2hgi") -> tuple[np.n
         path = Path("output/check2hgi_resln") / state.lower() / "region_embeddings.parquet"
     elif source == "check2hgi_resln_design_b":
         path = Path("output/check2hgi_resln_design_b") / state.lower() / "region_embeddings.parquet"
+    elif source == "check2hgi_resln_design_b_sidefeat":
+        # v13+sidefeat — resln encoder + design_b POI2Vec residual + T4.3 side-features
+        # stacked at the POI-pool boundary (reg path). Two distinct geometric axes.
+        path = Path("output/check2hgi_resln_design_b_sidefeat") / state.lower() / "region_embeddings.parquet"
     elif source == "check2hgi_resln_design_j":
         path = Path("output/check2hgi_resln_design_j") / state.lower() / "region_embeddings.parquet"
     elif source.startswith("check2hgi_design_j_"):
@@ -175,6 +179,11 @@ def _load_region_embeddings(state: str, source: str = "check2hgi") -> tuple[np.n
         # region-emb-source code path; included for API consistency.
         # Use canonical c2hgi region embeddings as fallback.
         path = IoPaths.CHECK2HGI.get_state_dir(state) / "region_embeddings.parquet"
+    elif source.startswith("check2hgi"):
+        # generic fallback for any check2hgi_* variant dir (embedding_eval re-screen
+        # builds: gcn_ctrl, v3c_wd05, t43_sidefeat, rgcn, ...). Region labels still
+        # come from the canonical check2hgi partition (like-for-like task).
+        path = Path("output") / source / state.lower() / "region_embeddings.parquet"
     else:
         raise ValueError(
             f"Unknown region-emb source: {source} "

@@ -1,0 +1,2 @@
+check2hgi_design_k_dec01_l0_1: adj_coh=0.3832 reg_silh=-0.3956  (base dk: 0.379/-0.394)
+check2hgi_design_k_v3c_l0_1: adj_coh=0.1036 reg_silh=-0.4548  (base dk: 0.379/-0.394)

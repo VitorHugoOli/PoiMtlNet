@@ -1107,3 +1107,57 @@ v11 paper reproduction is GENUINELY PRESERVED — the highest-priority check pas
 5. (Housekeeping) `scripts/train.py` last line has a stray trailing-whitespace line with no newline-at-EOF; commit the v12 changes so CANONICAL_VERSIONS' v12 git-commit placeholder resolves.
 
 None of the above is reproduction- or correctness-critical.
+
+---
+
+## Final consistency advisor — v12 defaults + docs settle (2026-05-31)
+
+Independent read-only pass at HEAD `c88b043` (== `origin/main`). `.venv` dry-parse + code trace + full pytest. **Verdict: GO-WITH-NOTES** — code defaults genuinely ARE v12; docs are complete and mutually consistent on numbers/grades; one stale ACTIVE status row + two documented-deferred omissions remain.
+
+### A. CODE — v12 is the real default execution mode
+
+**A1 log_T-KD default — VERIFIED.** Real dry-parse via `_parse_args` + `_apply_cli_overrides` (ExperimentConfig factories), 4 cases:
+- bare `--task mtl --task-set check2hgi_next_region` → `log_t_kd_weight=0.2`, `log_t_kd_tau=1.0` ✓
+- `--task category` → `0.0`, no guard trip ✓
+- explicit `--log-t-kd-weight 0.0` → `0.0` (v11) ✓
+- non-region MTL (legacy task-set) → `0.0` ✓
+Branch logic `scripts/train.py:1334-1385` (`_V12_LOG_T_KD_DEFAULT_W=0.2`/`_TAU=1.0`, gated on `_is_check2hgi_region_mtl` = `task_type=="mtl"` AND `task_set==CHECK2HGI_NEXT_REGION.name`); explicit override honoured verbatim incl. 0.0; `requires --task mtl` guard (`:1345`) only fires on explicit flag, never on the auto-default. Tau pinned only when weight>0 (`:1380`).
+
+**A2 Encoder default — VERIFIED.** `research/embeddings/check2hgi/check2hgi.py:277` `getattr(args,'encoder','resln')` (default-arg comment `:260-277`); `scripts/canonical_improvement/regen_emb_t3.py:59` default `resln`. `--encoder gcn` recovers v11. Design builders default `gcn`: `build_design_b_poi_pool.py:320`, `build_design_j_anchor.py:254` ✓ (won't silently change).
+
+**A3 Engines registered & consistent — VERIFIED.** Enum (`src/configs/paths.py`) has all of `CHECK2HGI_DESIGN_{B,J,L}`, `CHECK2HGI_RESLN`, `CHECK2HGI_RESLN_DESIGN_{B,J}`, `CHECK2HGI_LEVER4_{CANONICAL,DESIGN_B}`. In all three lists: `folds.py:874-883` (`_MTL_C2HGI_ALLOWED_ENGINES`), `scripts/train.py:1609-1620` (`_ALLOWED_ENGINES_FOR_C2HGI_PRESET`), `builders.py:20-36` (`_CHECKIN_LEVEL_ENGINES`). v13 `check2hgi_resln_design_b` present in all three. (No `RESLN_DESIGN_L` exists — only B/J resln variants, matching task spec.)
+
+**A4 Tests — VERIFIED.** `pytest tests/ -q`: **6 failed, 1021 passed, 23 skipped**. All 6 pre-existing and UNRELATED to the flip: `test_paths::test_all_engines_defined` (stale hardcoded enum snapshot — "extra in left" lists design_b/design_l/lever4/resln_design_j, an old maintenance gap not the flip); `test_research_variants_metadata` ×2 (missing README/variant-folder metadata); `test_hgi` hard-neg constant; `test_sphere2vec` ×2 equivalence. NONE assert log_t_kd-off-by-default or encoder=gcn. `ast.parse` clean on all 8 edited files.
+
+**A5 v11 reproduction intact — VERIFIED.** All five `output/check2hgi/<state>/embeddings.parquet` mtimes are 2026-05-20 (pre-2026-05-30) — NOT rebuilt. `RESULTS_TABLE.md §0.1` carries the explicit "v11 PAPER CANON (no-KD / GCN substrate)" header (`:66-68`) — unchanged. No tracked-file modifications in working tree (`git diff HEAD` empty).
+
+### B. DOCS — carrying results + v12/v13 + no stale contradiction
+
+**B(registry/north-star/claude) — VERIFIED.** `CANONICAL_VERSIONS.md` full v11/v12/v13 + axis matrix (v13 row: POI2Vec teacher built all five states AL/AZ/FL/CA/TX `:194,:230`). `NORTH_STAR.md:6` log_T-KD = v12 default, hedged. `CLAUDE.md` recipe block consistent. `RESULTS_TABLE.md` §0.1=v11, §0.8=log_T-KD v12, §0.9=substrate-null/HGI/ResLN.
+
+**B(claims/concerns/changelog) — VERIFIED.** `CLAIMS_AND_HYPOTHESES.md` CH26 (paper-grade AL/AZ + pilot FL/CA/TX, v12 default, NOT whitelisted) + CH28 regime. `CONCERNS.md` C15 explicitly `architectural-and-localized — NOT closed` (`:324`); v12 flip noted as not bearing on the coupling. `CHANGELOG.md` regime finding + log_T-KD orthogonal framing (orthogonal-to-coupling, NOT "not default" — correct).
+
+**B(nav/study/findings/audit) — VERIFIED.** `README.md:11,43` + `AGENT_CONTEXT.md:19` flipped to CLOSED + v12. CLOSURE.md DEFAULT-FLIP section (`:122-140`) + log.md prior entries carry the settle. `F_SUBSTRATE_PROTOCOL_CLEANUP_SYNTHESIS.md` + `F_TIER_A1_{PROMOTION,LEAK_AUDIT}.md` present. BRACIS `AUDIT_LOG.md:3` carries the v11→v12 warning ("paper cites v11; bare defaults = v12").
+
+**B6 Contradiction grep — 1 DISCREPANCY + dated/historical.**
+- **DISCREPANCY (stale): `docs/studies/README.md:12`** still labels `substrate-protocol-cleanup` **ACTIVE** ("Tier A-D … this branch"). Study CLOSED 2026-05-29. log.md:1103 flagged README/AGENT_CONTEXT/NORTH_STAR for the flip but did NOT enumerate `studies/README.md`; CLOSURE.md:140 likewise omits it. STUDIES_IMPROVEMENTS_SUMMARY.md:54 correctly shows "ACTIVE → CLOSED". → **Fix: change `studies/README.md:12` status to CLOSED 2026-05-29 + 1-line CANONICAL_VERSIONS/v12 pointer.**
+- Dated/historical (not live contradictions): `canonical_improvement_coverage_audit.md:78,7,112` + `log.md:12` say `encoder='gcn'` default — but the doc is explicitly dated 2026-05-29 (pre-flip) with "verified in code" framing; a frozen audit snapshot, accurate as of its date. Low-priority: optionally add a post-2026-05-30 "encoder default now resln (v12)" footnote.
+
+**B7 Honesty — VERIFIED.** log_T-KD graded paper-grade AL/AZ + pilot FL/CA/TX everywhere (CANONICAL_VERSIONS, RESULTS_TABLE §0.8, NORTH_STAR, CLAIMS CH26, CLOSURE, synthesis, AGENT_CONTEXT, README, AUDIT_LOG). ResLN/v13 always STL-only / "NO MTL benefit" (CANONICAL_VERSIONS v12+v13 rows, NORTH_STAR regime line, CONCERNS, §0.9). C15 not closed.
+
+**B8 Cross-doc numbers — VERIFIED (all agree).** log_T-KD AL +2.27 / AZ +4.91 / FL +2.40 — identical across synthesis, CLOSURE, RESULTS_TABLE §0.8 (`:211-220`), NORTH_STAR, CANONICAL_VERSIONS, CLAIMS, STUDIES_SUMMARY. HGI MTL ceiling 64.49 vs 63.98 Δ+0.51 p=0.41 NS — identical across CONCERNS:321, synthesis:60, STUDIES_SUMMARY:28/94/226, CLAIMS CH28, CHANGELOG. Isolation STL ~73% vs MTL ~0.03% — consistent. ResLN+design_b STL dual-axis — consistent (v13 row + §0.9 + NORTH_STAR).
+
+**B9 Coverage gaps.**
+- `docs/index.html` — "Last updated 2026-05-14"; omits v12/v13/log_T-KD/regime entirely. **Documented-deferred** (CLOSURE.md:140: "left stale — regenerated artifact, non-reproduction, deferred"). Not a contradiction (omission, dated). → **needs update / deferred-OK.**
+- `docs/FINAL_SURVEY.md:3` — 2026-05-28 banner calls study "active." Historical snapshot banner; already superseded-framing. Minor; optional regime cross-link (already on its own deferred list, log.md:`(Optional)`).
+
+**B10 Git — VERIFIED clean.** `git status`: no tracked modifications; HEAD `c88b043` == `origin/main`. Untracked = result artifacts under `docs/results/substrate_protocol_cleanup/`, `scripts/substrate_protocol_cleanup/{build_v13_catx.sh,c1_rescore/}`, `docs/studies/fusion/` (none gitignored — `git check-ignore` exit 1). These are run-output/scratch, not reproduction- or doc-critical; flag only as housekeeping (commit-or-gitignore if they should be tracked).
+
+### VERDICT: **GO-WITH-NOTES**
+
+Code defaults genuinely ARE v12 (bare check2hgi MTL run → log_T-KD 0.2 + τ=1.0; encoder default resln; v11 substrate frozen + reproducible via `--log-t-kd-weight 0.0 --encoder gcn`). Docs complete + numerically/grade-consistent. Exact fixes:
+1. **(stale contradiction) `docs/studies/README.md:12`** — flip substrate-protocol-cleanup ACTIVE→CLOSED 2026-05-29 + v12 pointer. *(only hard fix)*
+2. (deferred-OK) `docs/index.html` regenerate for v12/v13 — already documented-deferred.
+3. (optional) footnote `canonical_improvement_coverage_audit.md` / FINAL_SURVEY with the 2026-05-30 encoder-default-now-resln note.
+4. (housekeeping) untracked result/script dirs — commit or gitignore.
+None of (2)-(4) is reproduction- or correctness-critical.

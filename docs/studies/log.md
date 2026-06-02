@@ -11,6 +11,8 @@ One line per study per closure or major direction shift. **Outcomes only.** Proc
 | 2026-05-24 | `mtl-protocol-fix` Phase 3 | **3 follow-ups** — log_T-KD §4.5 PROMOTED (+2-5 pp Wilcoxon-strict); class-balanced sampler §4.6 FALSIFIED (−18 to −30 pp); composite STL c2hgi+HGI §4.2 ESTABLISHED as current project headline (+7 to +12 pp). |
 | 2026-05-16 | `mtl_improvement` | **LAUNCHED** — T0-T8 chain on branch `mtl-improve` (backbones, loss, batch, LR, α, heads, multi-seed champion); execution pending. |
 | 2026-05-28 | `substrate-protocol-cleanup` | **LAUNCHED** — Tier A-D (log_T-KD multi-seed, Designs B/J/Lever 4/Lever 5 MTL+F1, 3-snapshot routing, freeze-reg-after-peak, K/V capacity-stealing pilot, window/mask audit); small-state only; ~40-45 GPU-h budget. |
+| 2026-05-31 | `embedding_eval` | **LAUNCHED** — 4-level (L0 geometry → L3 MTL) leak-aware substrate evaluation ladder; re-screen dropped improvements on the correct (region-emb) artifact. |
+| 2026-06-02 | `embedding_eval` | **CLOSED (Part-1 substrate)** — champion **v14 = `check2hgi_design_k_resln_mae_l0_1`** (resln+mae cat ⊕ Delaunay reg, orthogonal stack); design_k RE-OPENED + re-validated at FL (overturned prior AL/AZ-only K≡J); leak-free multi-seed: reg +0.9-1.1pp over canonical (closes 54-78% of HGI gap, HGI keeps small edge), cat ≈ frozen-canon ≫ HGI. NO MTL benefit (v14 or routing) → regime is the wall (Part-2). See CANONICAL_VERSIONS §v14. |
 
 ## How to append
 

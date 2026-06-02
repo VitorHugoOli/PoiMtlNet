@@ -219,6 +219,49 @@ For STL evaluation use the `scripts/p1_region_head_ablation.py` path with the sa
 
 ---
 
+## v14 — dual-axis champion base engine (BLESSED 2026-06-02, opt-in)
+
+**Not a code-default flip; same opt-in posture as v13.** v14 *blesses* a stronger dual-axis
+substrate. The canonical `check2hgi` engine identity is **unchanged** — BRACIS paper (v11/v12)
+unaffected; `output/check2hgi/<state>/` untouched.
+
+- **Engine:** **`check2hgi_design_k_resln_mae_l0_1`** = **ResLN encoder + HGI Delaunay POI-POI GCN
+  on the reg path (design_k, λ=0.1) + T5.2b masked-POI category-aggregate recon (mae λ=0.3)**.
+  Three orthogonal axes stacked: **resln+mae → next-cat** (encoder/cat path), **Delaunay →
+  next-reg** (detached reg path).
+- **Why it supersedes v13 as the base:** v13 (resln+design_b) raised the *fclass* axis (log_T-
+  redundant for reg) and only closed ~30 % of the FL reg gap. v14 adds the **spatial axis**
+  (Delaunay POI edges — imports HGI's own spatial graph), the ONE axis that translates to L2-reg.
+  **Leak-free multi-seed FL: cat 67.36 (≈ frozen-canon, ≫ HGI +33pp) + reg 0.7024 (closes ~69 % of
+  the canonical→HGI gap; −0.36pp residual).** Dual-axis safe (the −2.5pp cat vs frozen-v11 is
+  fresh-vs-frozen, not a cost — matched-fresh control gcn_ctrl 64.61 ≈ v14 cat-path).
+- **Grade — STL-only (same regime limit as v13).** The 2-fold seed42 MTL pilot shows v14 ≈
+  canonical in MTL (cat −0.21pp, reg-Acc +0.03pp) — the STL dual-axis gain does **not** survive
+  cross-attn MTL (reproduces the regime finding). Do **not** cite v14 as an MTL improvement; it is
+  the **strongest forward base** for the Part-2 MTL/routing study.
+- **Provenance caveat (paper):** v14 IMPORTS HGI's Delaunay POI graph (`output/hgi/<state>/temp/
+  edges.csv`) — credit the borrowed spatial structure; v14 learns orthogonal embeddings (cosine to
+  HGI ≈ −0.003), not a roundabout HGI clone.
+- **Build dependency:** POI2Vec teacher (anchor) + HGI Delaunay edges + HGI POI emb. Built at **FL**
+  as of 2026-06-02; **AL/AZ/CA/TX pending** (the Delaunay reg lever is state-dependent — confirmed
+  +reg at FL; smaller at small states).
+- **Reproduction safety:** additive/opt-in. v11/v12/v13 + all on-disk frozen substrates untouched.
+
+### Build a v14 substrate (per state)
+```bash
+# design_k + resln + mae (the new build-script DEFAULT: resln+mae ON; pass --encoder gcn
+# --mae-poi-lambda 0 to recover plain design_k).
+python scripts/probe/build_design_k_delaunay.py --state {state} \
+    --out-suffix resln_mae_l0_1 --epochs 500 --device cuda
+# postbuild inputs + log_T (next.parquet + next_region.parquet + seeded log_T)
+bash scripts/substrate_protocol_cleanup/postbuild_design_substrate.sh check2hgi_design_k_resln_mae_l0_1 {state}
+```
+For STL eval: `scripts/p1_region_head_ablation.py --region-emb-source check2hgi_design_k_resln_mae_l0_1`
+(reg) + `scripts/train.py --task next --engine check2hgi_design_k_resln_mae_l0_1` (cat).
+**Reg ranking MUST use `--per-fold-transition-dir` with seeded log_T** (default leaks ~+3pp).
+
+---
+
 ## Quick reference — version × axis matrix
 
 | Axis | v11 (paper canon) | v12 (new default) | v13 (recommended base, opt-in) |
@@ -233,6 +276,13 @@ For STL evaluation use the `scripts/p1_region_head_ablation.py` path with the sa
 | Canonical numbers | `RESULTS_TABLE.md §0.1` | §0.1 + §0.8 log_T-KD lift | `tier_resln/phase_resln_verdict.md` (STL) |
 | Recover from current code | n/a | `--log-t-kd-weight 0.0` + GCN substrate | n/a (additive opt-in) |
 | Git commit (default snapshot) | `99f56e8` | `4414a82` (v12 flip) | (this commit) |
+
+**v14 (dual-axis champion, opt-in, 2026-06-02):** engine `check2hgi_design_k_resln_mae_l0_1`
+(ResLN + Delaunay-POI-GCN/design_k + mae). Recipe = v12 (B9/H3-alt + log_T-KD). Adds the
+**spatial axis** v13 lacked → cat 67.36 (≫ HGI) + reg 0.7024 (closes ~69 % of HGI gap).
+**STL-only (no MTL benefit, regime-limited); strongest forward base for Part-2.** Engine identity
+unchanged → v11/v12/v13 untouched. Build default = resln+mae (opt out: `--encoder gcn --mae-poi-lambda 0`).
+Reg ranking requires seeded `--per-fold-transition-dir`. See the v14 section above + `studies/embedding_eval/FINAL_SYNTHESIS.md`.
 
 ---
 

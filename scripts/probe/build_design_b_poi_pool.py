@@ -67,102 +67,23 @@ from embeddings.check2hgi.model.CheckinEncoder import CheckinEncoder
 from embeddings.check2hgi.model.variants import ResidualLNEncoder
 from embeddings.check2hgi.model.Checkin2POI import Checkin2POI
 from embeddings.hgi.model.RegionEncoder import POI2Region
+# v13 mechanism now lives in the canonical module (reg_poi_mode='poi2vec_residual').
+# The loader is shared with check2hgi.py via reg_poi_aug.
+from embeddings.check2hgi.reg_poi_aug import load_poi2vec_table
 
 
 POI2VEC_DIM = 64
 
 
-class Check2HGI_DesignB(Check2HGI):
-    """Adds a POI2Vec residual at the POI-pool boundary for the reg path only.
-
-    The cat path (encoder + L_c2p) operates on the canonical poi_emb. The
-    reg path (POI2Region, L_p2r, L_r2c) operates on poi_emb_for_reg, which
-    is the canonical POI vector with `.detach()` applied + a learnable
-    Linear projection of frozen POI2Vec features.
-    """
-
-    def __init__(self, *args, poi2vec_table: torch.Tensor, gamma_init: float = 1.0, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.poi2vec_proj = nn.Linear(POI2VEC_DIM, self.hidden_channels, bias=True)
-        self.gamma = nn.Parameter(torch.tensor(float(gamma_init)))
-        self.register_buffer("poi2vec_table", poi2vec_table.float())
-
-    def forward(self, data):
-        num_pois = data.num_pois
-        num_regions = data.num_regions
-
-        # Active encoder pass (canonical)
-        pos_checkin_emb = self.checkin_encoder(data.x, data.edge_index, data.edge_weight)
-        cor_x = self.corruption(data.x)
-        neg_checkin_emb = self.checkin_encoder(cor_x, data.edge_index, data.edge_weight)
-
-        # Canonical POI pool (active grad — used by L_c2p)
-        pos_poi_emb_canonical = self.checkin2poi(pos_checkin_emb, data.checkin_to_poi, num_pois)
-        neg_poi_emb_canonical = self.checkin2poi(neg_checkin_emb, data.checkin_to_poi, num_pois)
-
-        # POI2Vec-enriched POI emb for reg path: detach the canonical pool
-        # output so gradients from L_p2r / L_r2c never reach the encoder.
-        poi2vec_residual = self.poi2vec_proj(self.poi2vec_table)  # [N_pois, D]
-        pos_poi_emb_for_reg = pos_poi_emb_canonical.detach() + self.gamma * poi2vec_residual
-        neg_poi_emb_for_reg = neg_poi_emb_canonical.detach() + self.gamma * poi2vec_residual
-
-        # Region path
-        pos_region_emb = self.poi2region(pos_poi_emb_for_reg, data.poi_to_region, data.region_adjacency)
-        neg_region_emb = self.poi2region(neg_poi_emb_for_reg, data.poi_to_region, data.region_adjacency)
-        city_emb = self.region2city(pos_region_emb, data.region_area)
-
-        # Stored embeddings:
-        #   checkin_embedding ← active encoder output (cat-grade)
-        #   poi_embedding     ← reg-side enriched POI vectors (fclass-aware)
-        #   region_embedding  ← reg-grade
-        self.checkin_embedding = pos_checkin_emb
-        self.poi_embedding = pos_poi_emb_for_reg
-        self.region_embedding = pos_region_emb
-
-        # ---- L_c2p inputs: canonical c2hgi (no POI2Vec contamination) ----
-        pos_poi_expanded = pos_poi_emb_canonical[data.checkin_to_poi]
-        neg_poi_indices = self._sample_negative_indices(
-            data.checkin_to_poi, num_pois, data.x.device
-        )
-        neg_poi_expanded = pos_poi_emb_canonical[neg_poi_indices]
-
-        # ---- L_p2r inputs: reg-side POI vectors ----
-        pos_region_expanded = pos_region_emb[data.poi_to_region]
-        neg_region_indices = self._sample_negative_indices_with_similarity(
-            data.poi_to_region, num_regions,
-            data.coarse_region_similarity, data.x.device
-        )
-        neg_region_expanded = pos_region_emb[neg_region_indices]
-
-        return (
-            pos_checkin_emb, pos_poi_expanded, neg_poi_expanded,
-            pos_poi_emb_for_reg, pos_region_expanded, neg_region_expanded,
-            pos_region_emb, neg_region_emb, city_emb,
-        )
-
-
-def load_poi2vec_table(state: str, num_pois: int, placeid_to_idx: dict) -> torch.Tensor:
-    state_lc = state.lower()
-    state_cap = state.capitalize()
-    csv = REPO / f"output/hgi/{state_lc}/poi2vec_poi_embeddings_{state_cap}.csv"
-    df = pd.read_csv(csv)
-    emb_cols = [str(i) for i in range(POI2VEC_DIM)]
-    arr = np.zeros((num_pois, POI2VEC_DIM), dtype=np.float32)
-    seen = np.zeros(num_pois, dtype=bool)
-    for placeid, vec in zip(df["placeid"].astype(int).tolist(), df[emb_cols].to_numpy(np.float32)):
-        idx = placeid_to_idx.get(placeid)
-        if idx is None:
-            continue
-        arr[idx] = vec
-        seen[idx] = True
-    n_unmapped = int((~seen).sum())
-    if n_unmapped > 0:
-        print(f"  WARN {n_unmapped} POIs missing from POI2Vec — left zero")
-    return torch.from_numpy(arr)
-
-
 def train_design_b(state: str, args: argparse.Namespace) -> None:
     state_lc = state.lower()
+    # Reproducibility: this is an unsupervised build with random encoder init +
+    # random negatives, so the run is seed-dependent. Pin it (paper-grade builds
+    # must be reproducible). Without this two runs give rotated/independent
+    # solutions (verified 2026-06-02).
+    seed = int(getattr(args, "seed", 42))
+    torch.manual_seed(seed)
+    np.random.seed(seed)
     # tier_resln: --encoder resln + --out-engine check2hgi_resln_design_b stacks
     # the ResidualLNEncoder onto Design B's POI2Vec-at-pool injection. Default
     # out-engine preserves canonical Design B behaviour byte-for-byte.
@@ -186,6 +107,25 @@ def train_design_b(state: str, args: argparse.Namespace) -> None:
 
     poi2vec_table = load_poi2vec_table(state, num_pois, d["placeid_to_idx"])
 
+    # v13+sidefeat: optionally load the T4.3 32-d POI side-feature tensor.
+    side_features = None
+    if getattr(args, "use_side_features", False):
+        sf_path = REPO / "output" / "check2hgi" / state_lc / "poi_side_features.pt"
+        if not sf_path.exists():
+            print(f"[{state_lc}] computing POI side-features → {sf_path}")
+            import subprocess
+            r = subprocess.run(
+                [sys.executable, str(REPO / "scripts/canonical_improvement/compute_poi_side_features.py"),
+                 "--state", state],
+                cwd=str(REPO), env={**__import__("os").environ, "PYTHONPATH": f"{REPO}/src:{REPO}/research"})
+            if r.returncode != 0:
+                raise RuntimeError(f"compute_poi_side_features.py failed rc={r.returncode}")
+        sf = torch.load(sf_path)
+        side_features = sf["features"] if isinstance(sf, dict) else sf
+        if side_features.shape[0] != num_pois:
+            raise ValueError(f"side_features rows {side_features.shape[0]} != num_pois {num_pois}")
+        print(f"[{state_lc}] side_features attached shape={tuple(side_features.shape)}")
+
     data = Data(
         x=torch.tensor(d["node_features"], dtype=torch.float32),
         edge_index=torch.tensor(d["edge_index"], dtype=torch.int64),
@@ -197,7 +137,12 @@ def train_design_b(state: str, args: argparse.Namespace) -> None:
         coarse_region_similarity=torch.tensor(d["coarse_region_similarity"], dtype=torch.float32),
         num_pois=num_pois,
         num_regions=num_regions,
-    ).to(device)
+    )
+    # v13+sidefeat: attach side features so the canonical T4.3 post-pool path
+    # (built when side_feature_dim > 0) operates on poi_emb_for_reg.
+    if side_features is not None:
+        data.side_features = side_features.float()
+    data = data.to(device)
 
     metadata = d["metadata"]
 
@@ -221,7 +166,7 @@ def train_design_b(state: str, args: argparse.Namespace) -> None:
     def region2city(z, area):
         return torch.sigmoid((z.transpose(0, 1) * area).sum(dim=1))
 
-    model = Check2HGI_DesignB(
+    model = Check2HGI(
         hidden_channels=args.dim,
         checkin_encoder=checkin_encoder,
         checkin2poi=checkin2poi,
@@ -231,8 +176,12 @@ def train_design_b(state: str, args: argparse.Namespace) -> None:
         alpha_c2p=args.alpha_c2p,
         alpha_p2r=args.alpha_p2r,
         alpha_r2c=args.alpha_r2c,
-        poi2vec_table=poi2vec_table,
+        # v13 — graduated reg-path POI2Vec residual (was Check2HGI_DesignB).
+        reg_poi_mode="poi2vec_residual",
         gamma_init=args.gamma_init,
+        poi2vec_table=poi2vec_table,
+        side_feature_dim=(int(side_features.shape[1]) if side_features is not None else 0),
+        side_feature_hidden=args.side_feature_hidden,
     ).to(device)
     print(f"[{state_lc}] params={sum(p.numel() for p in model.parameters()):,}")
 
@@ -263,7 +212,7 @@ def train_design_b(state: str, args: argparse.Namespace) -> None:
             t.set_postfix(loss=f"{l:.4f}", best_ep=best_epoch, refresh=False)
             t.refresh()
 
-    print(f"[{state_lc}] best_epoch={best_epoch} loss={lowest:.4f} gamma={model.gamma.item():.3f}")
+    print(f"[{state_lc}] best_epoch={best_epoch} loss={lowest:.4f} gamma={model.reg_gamma.item():.3f}")
     model.load_state_dict(best_state)
     model.eval()
     with torch.no_grad():
@@ -304,6 +253,8 @@ def train_design_b(state: str, args: argparse.Namespace) -> None:
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--state", required=True)
+    ap.add_argument("--seed", type=int, default=42,
+                    help="Reproducibility seed (encoder init + negatives). Pinned by default.")
     ap.add_argument("--epochs", type=int, default=500)
     ap.add_argument("--dim", type=int, default=64)
     ap.add_argument("--num-layers", dest="num_layers", type=int, default=2)
@@ -320,6 +271,11 @@ def main():
     ap.add_argument("--encoder", type=str, default="gcn", choices=["gcn", "resln"],
                     help="Check-in encoder. 'gcn' (default) = canonical CheckinEncoder; "
                          "'resln' = ResidualLNEncoder (tier_resln stack).")
+    ap.add_argument("--use-side-features", dest="use_side_features", action="store_true",
+                    help="v13+sidefeat: stack T4.3 POI side-features (32d) onto the "
+                         "POI2Vec reg-path residual. Loads/computes poi_side_features.pt.")
+    ap.add_argument("--side-feature-hidden", dest="side_feature_hidden", type=int, default=16,
+                    help="Hidden dim of the side-feature projection (matches T4.3).")
     ap.add_argument("--out-engine", dest="out_engine", type=str, default=None,
                     help="Output engine dir under output/ (default check2hgi_design_b). "
                          "tier_resln uses check2hgi_resln_design_b.")
