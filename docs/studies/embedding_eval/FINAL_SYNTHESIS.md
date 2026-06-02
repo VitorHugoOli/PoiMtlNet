@@ -359,3 +359,22 @@ base design_k (it already EXCEEDS HGI's region-silhouette −0.39 > −0.46), so
 HGI gap is NOT a spatial-cohesion deficit — it lives in something static geometry doesn't capture
 (consistent with the L0→L2 ceiling). Remaining substrate shot: #5 HGI-POI-decoder distill (a
 DIFFERENT axis). Otherwise the residual is a Part-2 (fusion/routing) problem.
+
+## Candidates #5 / #3 / re-screen-on-design_k results (2026-06-02)
+| candidate | metric | result | verdict |
+|---|---|---|---|
+| #5 HGI-POI-decoder distill (γ=0.1) | L2 reg | 0.7336 ≈ base 0.7341 (L0 silh −0.396≈base) | **FLAT** — HGI POI emb is 64-d ≈ design_k's; distilling adds nothing; design_k already matches HGI POI geometry. Residual reg gap NOT closeable this way. |
+| v3c (weight_decay=0.05 on design_k) | L2 reg | 0.7169 (−1.72pp); adj_coh crashes 0.379→0.104 | **DEAD (negative) + REFUTES the agent's "null-by-detach" claim** — Adam weight_decay hits ALL params (poi_table + Delaunay GCN on the reg path), not just the detached encoder, so it degrades reg. (Empirical test was right to run: the mechanism claim was wrong; outcome still "don't use v3c".) |
+| #3 T5.2b mae (masked-POI, resln+mae) | next-cat L2 F1 | **67.63%** vs fresh-control 64.61 (+3pp), ≈ frozen-canon 67.32 | **HELPS next-cat at FL** — reproduces/validates the AL/AZ-Bonferroni-buried cat signal at large state. Real cat lever (caveat: built on resln+mae; disentangle mae-vs-resln + multi-seed before adoption). |
+
+**Net:** the residual HGI next-reg gap (0.26pp FL) is NOT closeable at the substrate — T6.2 (edge
+re-tune), #5 (HGI-POI distill), v3c all fail; the spatial axis is saturated and design_k already
+matches HGI's POI geometry. **The residual is a Part-2 (fusion/routing/MTL) problem.** For the CAT
+axis, **T5.2b mae is a validated +3pp lever at FL** worth a follow-up (port to design_k cat path +
+multi-seed). re-screen-on-design_k reg: v3c negative, sidefeat no-stack, GATv2/RGCN leaky (not
+built), T6.1 no-op, dropedge null-by-detach (encoder-only, untested but mechanically dead for reg).
+
+**FINAL substrate verdict: carry design_k base** (dual-axis safe: reg +0.9-1.1pp / closes 54-78%
+of HGI gap; cat ≈ matched-fresh ≫ HGI). Substrate axis is now exhausted for next-reg. Open
+follow-ups: (1) T5.2b mae on design_k cat path (cat bonus); (2) Part-2 MTL fusion/routing for the
+residual reg gap.
