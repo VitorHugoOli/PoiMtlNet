@@ -970,7 +970,15 @@ class FoldCreator:
                 build_concat_sequence_tensor,
             )
             if input_type == "region":
-                return build_region_sequence_tensor(state, region_engine=embedding_engine)
+                # Part-2 dual-substrate routing PILOT hook: REGION_EMB_ENGINE env-var
+                # overrides which engine's region_embeddings the reg task consumes,
+                # while --engine still drives the cat (task_a) embedding. Lets us route
+                # e.g. HGI's region tower to the reg head while cat uses the v14 substrate.
+                # Unset → canonical behaviour (reg uses the same engine as cat).
+                import os as _os
+                _re = _os.environ.get("REGION_EMB_ENGINE")
+                _reg_eng = EmbeddingEngine(_re) if _re else embedding_engine
+                return build_region_sequence_tensor(state, region_engine=_reg_eng)
             if input_type == "concat":
                 return build_concat_sequence_tensor(state, x_checkin)
             raise ValueError(f"Unknown input_type: {input_type}")
