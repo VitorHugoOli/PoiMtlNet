@@ -1,5 +1,15 @@
 # Embedding Evaluation Ladder
 
+> **⭐ OUTCOME (2026-06-02): v14 = `check2hgi_design_k_resln_mae_l0_1`** (ResLN+mae cat lever ⊕
+> Delaunay-POI-GCN reg lever — orthogonal stack) is the dual-axis champion and supersedes v13 as the
+> recommended STL / forward-MTL base. Leak-free multi-seed FL: next-cat 67.36 (≈ frozen-canon, ≫ HGI)
+> + next-reg 0.7024 (closes ~69% of the canon→HGI gap; HGI 0.7060 keeps a −0.36pp edge). design_k
+> (Delaunay) was WRONGLY discarded by a prior AL/AZ-only study — FL re-validation overturned it; the
+> spatial axis is the one that moves L2-reg. STL-only: **no MTL benefit** from v14 or dual-substrate
+> routing (pilot) — the MTL cross-attn regime is the binding constraint (Part-2). See
+> [`FINAL_SYNTHESIS.md`](FINAL_SYNTHESIS.md) + [`CANONICAL_VERSIONS.md §v14`](../../results/CANONICAL_VERSIONS.md).
+> The methodology / ladder content below is the reusable harness and remains valid.
+
 **Goal.** Decide whether an embedding substrate (HGI, Check2HGI canonical, Check2HGI+ResLN+Design-B, …) is *good for the downstream POI tasks* — **next-cat** and **next-reg** today, **next-poi** in the future — using a graded battery instead of a single STL number.
 
 **Why this study exists.** We currently judge substrates by training a full STL head (`next_gru`, `next_getnext_hard`) on frozen embeddings. That conflates three things — embedding quality, head capacity, and the STL≠MTL regime — and we already have a counterexample where it misleads: **ResLN/Design-B is the best STL dual-axis engine but gives NO MTL benefit** (CANONICAL_VERSIONS §v13). A single powerful-head STL score can therefore *crown the wrong winner*. This ladder separates the confounds.
@@ -104,4 +114,5 @@ The two live tasks are **always reported jointly** — a substrate that helps ca
 L2/L3 are launched via `scripts/train.py` (the harness emits the exact commands); their metrics are pulled from the standard `results/<engine>/<state>/` tree.
 
 ## Status
+- **2026-06-02 — Part-1 (substrate) CLOSED.** Champion = **v14 = `check2hgi_design_k_resln_mae_l0_1`** (see OUTCOME banner at top). design_k (Delaunay) reopened and re-validated at FL (overturned the prior AL/AZ-only K≡J falsification); leak-free multi-seed confirms design_k +0.9–1.1pp reg over canonical (closes 54% AL / 78% FL of the HGI gap; v14 with resln+mae closes ~69% at +2.5pp cat); HGI keeps a small significant reg edge. **No MTL benefit** from v14 or dual-substrate routing (2-fold seed42 pilots) — the MTL cross-attn regime is the wall (Part-2). v13/v14 mechanisms graduated into `Check2HGIModule` (`reg_poi_mode`). Authority: [`FINAL_SYNTHESIS.md`](FINAL_SYNTHESIS.md) 2026-06-02 sections + [`CANONICAL_VERSIONS.md §v14`](../../results/CANONICAL_VERSIONS.md).
 - **2026-05-31** — Study created; L0+L1 harness built, advisor-reviewed, and run on `{hgi, check2hgi, check2hgi_design_b, check2hgi_resln, check2hgi_resln_design_b}` (FL pooled + FL check-in + AL/AZ pooled). Headline: category saturated across the Check2HGI family (HGI far behind); the pooled "HGI wins region" result is a **pooling artifact** (check2hgi region probe 0.05→0.23 at check-in granularity); ResLN is the strongest substrate on the proxy axis but its transfer to MTL is the open ρ-gate. **L0/L1 carry screening authority only — ρ-vs-L3 not yet measured.** Findings + caveats in `log.md`; numbers in `docs/results/embedding_eval/{fl_poi,fl_checkin,smallstates_poi}/`.

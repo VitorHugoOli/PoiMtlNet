@@ -13,6 +13,7 @@
 > - **log_T-KD** (Phase 3 §4.5 PROMOTED single-seed; multi-seed pending in substrate-protocol-cleanup Tier A): +2.4/+5.1/+2.3 pp disjoint reg at AL/AZ/FL @ W=0.2 (Wilcoxon-strict p=0.0312 in all 9 cells).
 > - **Class-balanced sampler** (Phase 3 §4.6 FALSIFIED): −18 to −30 pp; closes the long-tail-undersampling hypothesis.
 > - **P4 frozen-cat verdict**: residual MTL-vs-STL reg gap is **architectural** (NOT cat-interference, NOT long-tail, NOT substrate). Drives the `mtl_improvement` agenda.
+> - **embedding_eval Part-1 CLOSED 2026-06-02 — v14 dual-axis STL base (opt-in, does NOT change §0 paper canon):** champion `check2hgi_design_k_resln_mae_l0_1` (ResLN+mae cat ⊕ Delaunay-POI-GCN reg). Leak-free multi-seed FL STL: next-cat 67.36 (≈ frozen-canon ≫ HGI) + next-reg 0.7024 (closes ~69% of the canon→HGI gap; HGI keeps a −0.36pp edge). **STL-only — NO MTL benefit (pilot); §0 numbers unaffected.** See [`CANONICAL_VERSIONS.md §v14`](CANONICAL_VERSIONS.md) + [`../studies/embedding_eval/FINAL_SYNTHESIS.md`](../studies/embedding_eval/FINAL_SYNTHESIS.md).
 >
 > ---
 

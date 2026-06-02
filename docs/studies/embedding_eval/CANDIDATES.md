@@ -1,5 +1,18 @@
 # Dropped/falsified improvements to re-screen with the ladder
 
+> **⭐ FINAL VERDICTS (2026-06-02 — re-screen COMPLETE; full record in [`FINAL_SYNTHESIS.md`](FINAL_SYNTHESIS.md)):**
+> - **design_k (Delaunay POI edges) = the WINNER → v14.** Not in the original tier list (it was a
+>   `merge_design` "K≡J" falsification); re-validated at FL and now the dual-axis champion base
+>   `check2hgi_design_k_resln_mae_l0_1` (resln+mae cat ⊕ Delaunay reg). See CANONICAL_VERSIONS §v14.
+> - **The 5 Tier-A re-screen candidates are FALSIFIED/DEAD** at controlled L2 (FL): #1 v3c FALSIFIED
+>   (and DEAD on design_k, −1.72pp); #2 DropEdge null; #3 T4.3 sidefeat = small head-dependent region
+>   signal but **does NOT stack** (no L2 gain, no stack on design_k); #4 GATv2/R-GCN **leaky** (forward-
+>   temporal cat bleed, disqualified); #5 T6.1 p2p no-op (3 states).
+> - **mae (#3 T5.2b, separate from T4.3 sidefeat) = a real CAT lever** (+0.4pp on top of resln) →
+>   folded into v14. resln = the +2.3pp cat encoder lever (orthogonal to Delaunay).
+> - **No re-screened lever closes the residual HGI reg gap at the substrate** — that is a Part-2
+>   (MTL regime / fusion) problem.
+
 Candidates from other studies that were dropped/absorbed/falsified — often judged on a
 single MTL metric, single seed, or **only on the final embedding (never on the region-
 embedding axis)**. The ladder can now re-screen them cheaply (L0/L1 on the right artifact,

@@ -133,11 +133,51 @@ R-GCN FL next-cat 0.9986 = **confirmed structural leak**: `same_poi` relation + 
 Replicated the gprop-vs-plain next_stan_flow test at small states (where log_T is sparser). Δ Acc@10: FL +0.56pp, AL +1.35pp, AZ +0.73pp — **every Δ within ~1 SD** (small states ±0.03–0.04, too noisy to resolve ~1pp). Sign is positive at 3/3 states (mean ≈+0.9pp) → weakly suggestive of a tiny consistent adjacency lift below the noise floor, but **nothing individually significant or actionable**. log_T dominates the spatial signal everywhere. **Region-upside thread CLOSED:** no robust lift from substrate adj_coh or an adjacency-aware head at any state. (A larger-N/paired-seed design could resolve the ~0.9pp sign-consistency if ever worth it.)
 
 ### 2026-06-01 (later 12) — MTL L3 head-to-head + candidates-on-ResLN L0
-- **MTL head-to-head (FL s42, B9):** baseline check2hgi catF1 0.7028 / reg-top10i 0.6025; **resln_design_b (v13) ties** (0.7020 / 0.5985 — NO MTL benefit, confirms STL-only); **design_j worse** on cat (0.6883). ⇒ **baseline GCN+log_T is the best; no substrate combination improves MTL.** "Best final combination" = the deployed baseline.
+> ⚠ **SUPERSEDED (substrate framing only) — see entries below (2026-06-02) + FINAL_SYNTHESIS verdict.**
+> The "baseline GCN+log_T is the best; no substrate improves MTL" / "carry v13" conclusion in this
+> entry was overturned: **design_k (Delaunay POI edges) DOES improve next-reg at STL** (re-validated at
+> FL, which the prior K≡J verdict never tested), and **v14 = design_k_resln+mae** supersedes v13 as the
+> dual-axis base. The MTL-null part still stands (no substrate improves the cross-attn MTL regime — but
+> that is now the *regime* finding, not "baseline is best substrate"). History kept below.
+- **MTL head-to-head (FL s42, B9):** baseline check2hgi catF1 0.7028 / reg-top10i 0.6025; **resln_design_b (v13) ties** (0.7020 / 0.5985 — NO MTL benefit, confirms STL-only); **design_j worse** on cat (0.6883). ⇒ ~~baseline GCN+log_T is the best; no substrate combination improves MTL.~~ (superseded: the STL substrate axis was NOT exhausted — design_k reopened it; see below.)
 - **Candidates on ResLN-encoder base (L0):** v3c/dropedge/p2p no-ops; **sidefeat reproduces region adj_coh +0.055 (base-independent, stacks on GCN & resln)** but probe@10 only +0.35pp (~1 SD), no leaks. Same verdict as GCN base. (Full resln+design_b stacking needs build_design_b_poi_pool extension; did the supported ResLN-encoder version.)
 - **Strong inference:** since the *stronger* v13 substrate yields zero MTL gain, the marginal/log_T-redundant levers (sidefeat, GCN²) almost certainly yield nothing in MTL too. Doc: `docs/results/embedding_eval/mtl_head2head.md`. (Pending if desired: explicit +sidefeat/+GCN² MTL runs to close opt 1 — expected null, non-trivial input-alignment setup.)
 
-### Next steps
-1. **L2/L3** for next-cat across all 5 engines (FL) — the legitimate cross-substrate cat verdict; and next-reg L2/L3 within the Check2HGI family (check-in-level) — the only valid reg verdict. Emit commands via `run.py --emit-l2l3`; pull metrics from `results/`.
-2. Report L0/L1 vs L3 as concordant/discordant *calls* (descriptive), NOT a pooled ρ.
-3. Optional: a faithful check-in-vs-check-in cross-engine axis once a check-in-level HGI baseline exists.
+### 2026-06-02 — design_k (Delaunay POI edges) REOPENS the substrate axis at FL
+- **User-requested re-validation OVERTURNED the prior "Delaunay falsified / K≡J" verdict** — that prior was **AL/AZ-only (small states); FL was never tested.** Rebuilt design_k (GCN base, λ=0.1) at FL, direct L2 (`next_stan_flow --input-type region`, 5-fold, seed42, **default-log_T**) + L0:
+  - design_k L2 reg **0.7341±.005** (+0.32pp over v13 0.7309, +0.67pp over canonical 0.7274) — **best Check2HGI-family substrate at L2-reg**, 0.21pp below HGI 0.7362 (~0.5 SD = stat-tie at seed42).
+  - design_k L0 is the ONLY substrate whose spatial cohesion EXCEEDS HGI: region-silhouette **−0.394** (> HGI −0.46) and adj_coh **0.379** (> HGI 0.326). The L0 spatial-cohesion diagnostic PREDICTED this and it TRANSLATED to L2 — at FL (4703 regions) the Delaunay POI edges add spatial structure NOT fully redundant with log_T (unlike at AL/AZ).
+- **Corrections:** "Spatial/Delaunay lever FALSIFIED" RETRACTED for large states (true AL/AZ, false FL). t61_p2p stays falsified (InfoNCE boundary, mechanistically different from design_k's Delaunay POI-GCN). region-silhouette is now PREDICTIVE for the spatial lever, not merely diagnostic.
+- **design_k variants (FL seed42):** base design_k 0.7341 > design_k+resln 0.7328 > design_k+sidefeat 0.7320 > +resln+sidefeat 0.7317 — **neither resln nor sidefeat stacks on the Delaunay reg lever** (all within ~1 SD). Carry plain design_k for reg.
+
+### 2026-06-02 — design_k state sweep (MATCHED harness) — beats canonical 5/5, ≈ HGI
+- ⚠ Old `_reg_gethard_pf` baselines diverged 2-3.5pp at FL (stale-log_T) — NOT comparable. Re-ran canonical+HGI in the SAME harness (next_stan_flow, seed42, shared fresh log_T):
+  - AL 0.6281 (canon 0.6074 / HGI 0.6358); AZ 0.5510 (0.5344 / 0.5487); CA-1f 0.5872 (0.5751); TX-1f 0.6155 (0.6066); FL 0.7341 (0.7274 / 0.7362).
+- **design_k robustly beats canonical at ALL 5 states** (+0.67 to +2.08pp). **vs HGI: design_k ≈ HGI** (within ~1 SD all states) — it CLOSES the gap, does NOT beat HGI. Earlier "design_k > HGI everywhere" was a stale-baseline artifact. Reconciles the prior K≡J: protocol-dependent; matched harness → design_k matches HGI at AL/AZ too. **MANDATORY: multi-seed (seed42 is the dev seed).**
+
+### 2026-06-02 — ⭐ AUTHORITATIVE leak-free multi-seed (default-log_T leaked ~+3pp)
+- **The seed42 single-run tables used p1's DEFAULT log_T** (no `--per-fold-transition-dir`), which **leaks val transitions and inflated ALL engines ~+3pp.** Re-ran multi-seed {0,1,7,100} with SEEDED per-fold log_T (verified the runs loaded `region_transition_log_seed{S}_fold{N}.pt`). Authoritative:
+  - AL: canon 0.6087 / design_k 0.6194 / HGI 0.6284 → dk +1.07pp over canon, −0.90pp HGI, **54% gap closed**.
+  - FL: canon 0.6943 / design_k 0.7034 / HGI 0.7060 → dk +0.91pp over canon, −0.26pp HGI, **78% gap closed** (SD ~0.001 ⇒ significant).
+- **Corrected:** design_k robustly beats canonical (+0.9–1.1pp); it does NOT fully close the gap — **HGI retains a small significant edge.** The seed42 "ties HGI within noise" was the leaky-default-log_T artifact — RETRACTED. sidefeat does NOT stack even wired pre-GCN (no-stack is REAL). **⚠ ALL prior seed42 region tables here used the leaky default log_T — treat absolute Acc@10 as ~+3pp inflated; cite THIS table.**
+
+### 2026-06-02 — next-cat dual-axis disentangle + fresh-vs-frozen resolution
+- **next-cat L2 (next_gru, FL 5-fold seed42, macro-F1):** canonical(frozen v11) 67.32, design_k 64.82, HGI 34.29. design_k looked −2.50pp cat vs frozen canon.
+- **RESOLVED — it is fresh-vs-frozen, NOT a real cat cost:** ran a FRESH canonical-protocol control `gcn_ctrl` → 64.61 ≈ design_k 64.82. The −2.5pp is entirely **fresh-vs-frozen build variance** (the frozen v11 substrate is a privileged draw). Against a matched fresh control, **design_k is marginally BETTER on cat (+0.21pp) — DUAL-AXIS SAFE.** Compare against FRESH canonical (gcn_ctrl), not frozen v11, for fair dual-axis claims.
+- **re-screen-on-design_k (FL):** #5 HGI-POI-decoder distill 0.7336 ≈ base (FLAT — HGI POI emb ≈ design_k's); T6.2 edge re-tune 0.7338 ≈ base (FLAT — spatial axis SATURATED); v3c (WD on design_k) 0.7169 (−1.72pp, DEAD — Adam WD hits the reg-path Delaunay GCN, not just the detached encoder). **#3 T5.2b mae: next-cat 67.63 (+3pp vs fresh-control, ≈ frozen-canon) — a REAL cat lever** (validates the AL/AZ-Bonferroni-buried signal at FL). Residual HGI reg gap NOT closeable at the substrate ⇒ Part-2 problem.
+
+### 2026-06-02 — ⭐ v14 = design_k_resln+mae — dual-axis champion (orthogonal stack)
+- **Disentangled the +3pp cat:** it is mostly the **resln encoder (+2.3pp)**, not mae (+0.7pp marginal). resln (cat lever, via encoder) and Delaunay (reg lever, via detached reg path) are **ORTHOGONAL and STACK**:
+  - design_k_resln: cat **66.95** / reg 0.7328 (default-logT) — +2.1pp cat over design_k at −0.13pp reg (within noise).
+  - **design_k_resln+mae (ported MaskedPOIDecoder onto the cat-side POI emb):** cat **67.36** (≈ frozen-canon 67.32, +2.54pp over design_k, ≫ HGI) / reg 0.7331 (mae barely touches reg). mae adds +0.41pp cat at zero reg cost — stacks all three orthogonal axes.
+- **Leak-free multi-seed FL {0,1,7,100}:** design_k_resln+mae cat **67.36** / reg **0.7024±.001** (vs canon 0.6943 / design_k 0.7034 / HGI 0.7060). v14 reg +0.81pp over canonical, **closes ~69% of the canon→HGI gap**, −0.36pp residual to HGI; cat ≈ frozen-canon ≫ HGI.
+- **⭐ FINAL substrate: `check2hgi_design_k_resln_mae_l0_1` = v14** — dual-axis champion (resln+mae cat lever ⊕ Delaunay reg lever). Supersedes v13 as the recommended STL / forward-MTL base (both opt-in; canonical `check2hgi` untouched). For a reg-only objective, plain design_k(gcn) reg 0.7034 (78%) is marginally better. See CANONICAL_VERSIONS §v14.
+
+### 2026-06-02 — MTL pilots: NO MTL benefit (regime is the wall) + graduation
+- **Option-b step 1 — v14 in MTL (B9, 2-fold seed42 FL pilot):** next_cat 69.04 / next_reg-Acc 47.18 vs canonical 69.25 / 47.15 — **v14 ≈ canonical on BOTH (ties within noise).** The strong STL dual-axis gains (cat +2.5pp, reg +0.8pp) do NOT survive MTL — reproduces the documented "v13 = STL-only, no MTL benefit." MTL cross-task transfer lifts cat to ~69 for both substrates.
+- **Option-b step 2 — dual-substrate ROUTING (HGI region tower → reg head, v14 for cat), MTL B9 2-fold seed42 FL:** routing reg-Acc 47.17 ≈ canonical/v14 (Top3 53.83 recovers to canon level). **Even feeding HGI's STL-winning region tower (0.7060) into the MTL reg head is washed out.** ⇒ **The MTL cross-attn joint-training regime is the binding constraint — NOT the substrate, NOT the region-embedding routing.** The "log_T-orthogonal routing lever" is pilot-falsified. (Caveat: 2-fold seed42 FL pilots — preliminary, consistent across 3 pilots all at reg-Acc 47.15-47.18.)
+- **Part-2 redirect:** remaining levers are the MTL REGIME itself (reg-head arch sweep + substrate-adaptive balancing), NOT substrate/routing.
+- **GRADUATION:** v13/v14 mechanisms are now graduated into the canonical `Check2HGIModule` (`reg_poi_mode` param) + `check2hgi.py`; the probe scripts (`build_design_k_delaunay.py` etc.) delegate to the canonical module. Canonical `check2hgi` engine identity is unchanged → paper-safe; v14 is opt-in via `--engine check2hgi_design_k_resln_mae_l0_1`.
+
+### Status — Part-1 (substrate) CLOSED
+The substrate axis is exhausted: **v14 = design_k_resln+mae is the dual-axis champion** (cat ≈ frozen-canon ≫ HGI; reg +0.81pp over canonical, closes ~69% of HGI gap; HGI keeps a −0.36pp edge). The residual HGI reg gap and all MTL gains are a **Part-2 (MTL regime: head/fusion/balancing)** problem, not substrate. Authority: [`FINAL_SYNTHESIS.md`](FINAL_SYNTHESIS.md) ⭐ banner + 2026-06-02 sections; [`docs/results/CANONICAL_VERSIONS.md §v14`](../../results/CANONICAL_VERSIONS.md).

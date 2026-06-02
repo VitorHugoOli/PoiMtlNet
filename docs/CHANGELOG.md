@@ -14,7 +14,7 @@
 
 | What | Where | Last updated |
 |---|---|---|
-| **Canonical version registry (v11/v12 + reproduction map)** | **`results/CANONICAL_VERSIONS.md`** | **2026-05-30 (v12 default flip)** |
+| **Canonical version registry (v11/v12 + v13/v14 opt-in bases + reproduction map)** | **`results/CANONICAL_VERSIONS.md`** | **2026-06-02 (v14 blessed, opt-in)** |
 | Five-state architectural-Δ + cat-Δ Wilcoxon | `results/RESULTS_TABLE.md §0.1` (**v11 paper canon — no-KD/GCN**) | **v11, 2026-05-02** (FL upgraded to n=20; all five states paper-grade on §0.1) |
 | Δm joint score (CH22 leak-free) | `results/RESULTS_TABLE.md §0.2` | v6 (leak-free) — unchanged in v7/v8/v9/v10 |
 | Substrate axis (CH16 cat + CH15 reg reframing) | `results/RESULTS_TABLE.md §0.3` + `FINAL_SURVEY.md §2-§4` | v6 — unchanged in v7/v8/v9/v10 |
@@ -29,6 +29,14 @@
 ---
 
 ## Timeline of findings (most recent first)
+
+### 2026-06-02 — embedding_eval Part-1 CLOSED: v14 dual-axis champion base (opt-in)
+
+The `embedding_eval` study (leak-aware L0→L3 substrate ladder) closed Part-1 (substrate) and blessed **v14 = `check2hgi_design_k_resln_mae_l0_1`** — ResLN+mae cat lever ⊕ Delaunay-POI-GCN (design_k) reg lever, an orthogonal stack — as the recommended STL / forward-MTL base (supersedes v13). **Opt-in, same posture as v13; the canonical `check2hgi` engine + v11/v12 paper-canon are untouched.** Full record: [`studies/embedding_eval/FINAL_SYNTHESIS.md`](studies/embedding_eval/FINAL_SYNTHESIS.md); version registry: [`results/CANONICAL_VERSIONS.md §v14`](results/CANONICAL_VERSIONS.md).
+- **design_k (Delaunay) was wrongly discarded** by a prior AL/AZ-only study (K≡J); FL re-validation overturned it — the spatial axis is the one that moves L2-reg.
+- **Leak-free multi-seed FL** (seeded `--per-fold-transition-dir`; p1's default log_T leaks ~+3pp): design_k reg +0.9-1.1pp over canonical, closes 54% (AL) / 78% (FL) of the canon→HGI gap; **HGI keeps a small significant edge** (−0.26pp FL). v14 (resln+mae) reg 0.7024 closes ~69% at next-cat 67.36 (≈ frozen-canon, ≫ HGI). resln=cat lever, mae=+0.4pp cat, Delaunay=reg lever — orthogonal.
+- **STL-only — NO MTL benefit** from v14 OR dual-substrate routing (2-fold seed42 pilots) — reproduces the v13 regime finding; the MTL cross-attn regime is the binding constraint (Part-2 = regime work).
+- Methodology corrections: always seed log_T; compare to FRESH canonical (not frozen v11); L0 ranks cat only (diagnostic for reg; adj_coh demoted; region-silhouette is the spatial diagnostic). v13/v14 mechanisms graduated into `Check2HGIModule` (`reg_poi_mode`).
 
 ### 2026-05-30 — v11 → v12 default flip (log_T-KD ON + ResLN encoder) + version registry
 

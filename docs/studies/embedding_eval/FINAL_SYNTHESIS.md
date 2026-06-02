@@ -7,7 +7,9 @@
 > ║                                                                                ║
 > ║  • Substrate champion = **v14 = `check2hgi_design_k_resln_mae_l0_1`** (ResLN +  ║
 > ║    Delaunay-POI-GCN + mae), NOT v13. Dual-axis (leak-free multi-seed FL):        ║
-> ║    next-cat 67.36 (≫ HGI) + next-reg 0.7024 (closes ~78% of the canon→HGI gap).  ║
+> ║    next-cat 67.36 (≫ HGI) + next-reg 0.7024 (closes ~69% of the canon→HGI gap;   ║
+> ║    plain design_k(gcn) closes ~78% at 0.7034 but is −2.5pp cat — v14 is the      ║
+> ║    dual-axis pick). HGI reg 0.7060 retains a small significant edge (−0.36pp).    ║
 > ║  • design_k (Delaunay) was WRONGLY discarded by a prior AL/AZ-only study —       ║
 > ║    re-validation overturned it. The spatial axis is the one that moves L2-reg.   ║
 > ║  • STL-only: NO MTL benefit from v14, nor from dual-substrate routing (pilots) — ║
@@ -32,6 +34,10 @@ This is the study's primary product: a metric stack that the next phase can reus
 ---
 
 ## 2. Macro comparison — canonical (v11/v12) vs v13 vs our improvements vs HGI
+> ⚠ **§2–§4 are the PRE-design_k macro (early chronology).** Their conclusion "next-reg gap is
+> OPEN / carry v13" was **SUPERSEDED 2026-06-02**: design_k (Delaunay) closes most of the gap and
+> **v14 = design_k_resln+mae** is the champion. Read these sections as history; the authority is the
+> top banner + the dated 2026-06-02 sections at the END.
 
 ### next-cat — Check2HGI family DECISIVELY beats HGI (no gap to close)
 STL `next_gru` macro-F1 (RESULTS_TABLE §0.3) — Check2HGI 1.5–1.9× HGI at all 5 states:
