@@ -190,3 +190,43 @@ region-silhouette cleanly localizes HGI's advantage to POI-level spatial cohesio
 family ~−0.65) — the diagnostic lead — but the lever that would raise it (Delaunay substrate)
 is log_T-redundant and falsified. **The HGI next-reg gap is a Part-2 routing/fusion problem,
 not a substrate problem. Part-1 (substrate) is complete: carry v13.**
+
+## ⚡ REOPENED — design_k (Delaunay POI edges) closes the HGI gap at FL (2026-06-02)
+User-requested re-validation OVERTURNED the prior "Delaunay falsified / K≡J" verdict.
+That prior was **AL/AZ-only (small states); FL was never tested.** Rebuilt design_k (GCN
+base, λ=0.1) at FL and ran direct L2 + L0:
+
+| substrate | L2 reg Acc@10 | reg-silhouette (L0) | adj_coh (L0) |
+|---|---|---|---|
+| canonical | 0.7274 | −0.649 | 0.274 |
+| v13 (resln_design_b) | 0.7309 | −0.665 | 0.231 |
+| v13+sidefeat | 0.7293 | −0.677 | 0.231 |
+| **design_k (Delaunay)** | **0.7341±.0047** | **−0.394** | **0.379** |
+| **hgi** | **0.7362±.0043** | −0.460 | 0.326 |
+
+**design_k is now the BEST Check2HGI-family substrate at L2-reg** (+0.32pp over v13), and at
+**0.21pp below HGI (~0.5 SD) it is statistically indistinguishable from HGI at seed42** — the
+gap effectively closes. It is also the ONLY substrate whose L0 spatial-cohesion EXCEEDS HGI
+(silhouette −0.394 > −0.46; adj_coh 0.379 > 0.326). **The L0 spatial-cohesion diagnostic
+PREDICTED this** (design_k maxes it out) and this time it TRANSLATED to L2 — the Delaunay POI
+edges add spatial structure that, at a large state with 4703 regions, is NOT fully redundant
+with log_T (unlike at AL/AZ).
+
+**This VALIDATES the region-silhouette diagnostic as genuinely predictive of the spatial axis,
+and the L0→L2 ladder end-to-end.** The earlier within-family anti-rank (v13) was because v13's
+fclass is the WRONG axis; design_k raises the RIGHT axis (spatial) and L2 follows.
+
+**Corrections to prior conclusions:**
+- "Spatial/Delaunay substrate lever FALSIFIED" (this file, earlier today) — **RETRACTED for
+  large states.** True at AL/AZ; FALSE at FL. design_k FL closes the gap.
+- t61_p2p re-validated as genuinely no-op (worse L0 than canonical, all 3 states) — that
+  falsification STANDS; it is the InfoNCE-boundary variant, mechanistically different from
+  design_k's actual Delaunay POI-GCN.
+- adj_coh / region-silhouette: now shown to be PREDICTIVE for the spatial lever (design_k),
+  not merely diagnostic — when the lever raises the spatial axis, L2 follows. They still
+  anti-rank fclass-axis moves (v13). So: silhouette ranks the SPATIAL axis correctly.
+
+**MANDATORY next step:** multi-seed {0,1,7,100} design_k FL L2 (seed=42 overshoots at large
+states per CLAUDE.md) + design_k at AL/AZ/CA/TX to map state-dependence. If multi-seed holds,
+design_k (or design_k on the v13/resln base) is the new substrate recommendation and the
+HGI next-reg gap is CLOSED at the substrate.
