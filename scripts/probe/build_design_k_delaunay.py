@@ -1,5 +1,12 @@
 """Design K — Design J + HGI's Delaunay POI-POI edges as a POI-level GCN.
 
+⭐ v14 DEFAULT (2026-06-02): a bare invocation now builds the v14 dual-axis champion
+``check2hgi_design_k_resln_mae_l0_1`` (encoder=resln, mae-poi-lambda=0.3, Delaunay reg
+GCN, anchor λ=0.1). To recover plain design_k (v11 encoder, no mae) pass
+``--encoder gcn --mae-poi-lambda 0 --out-suffix l0_1``. Canonical ``output/check2hgi`` is
+never touched. See docs/results/CANONICAL_VERSIONS.md §v14.
+
+
 Same anchor regularizer as J (λ pulls learnable table to POI2Vec). The new
 piece: between Checkin2POI and POI2Region, run a GCN over the POIs using
 HGI's Delaunay triangulation edges (edge weights from
@@ -452,8 +459,9 @@ def main():
     ap.add_argument("--device", type=str, default="cpu")
     ap.add_argument("--seed", type=int, default=42,
                     help="Reproducibility seed (encoder init + negatives). Pinned by default.")
-    ap.add_argument("--encoder", type=str, default="gcn", choices=["gcn", "resln"],
-                    help="Check-in encoder. 'gcn' (canonical) or 'resln' (ResidualLNEncoder).")
+    ap.add_argument("--encoder", type=str, default="resln", choices=["gcn", "resln"],
+                    help="Check-in encoder. v14 DEFAULT='resln' (ResidualLNEncoder); pass 'gcn' for "
+                         "the plain-design_k (v11-encoder) build.")
     ap.add_argument("--use-side-features", dest="use_side_features", action="store_true",
                     help="Stack T4.3 POI side-features (32d) after the Delaunay GCN (reg path).")
     ap.add_argument("--side-feature-hidden", dest="side_feature_hidden", type=int, default=16)
@@ -464,14 +472,16 @@ def main():
                     help="T6.2: sharpen Delaunay edge weights via weight**power. 1.0 = base.")
     ap.add_argument("--weight-decay", dest="weight_decay", type=float, default=0.0,
                     help="v3c re-screen: AdamW-style weight decay on the build optimizer.")
-    ap.add_argument("--mae-poi-lambda", dest="mae_poi_lambda", type=float, default=0.0,
-                    help="T5.2b: coefficient on the masked-POI category-aggregate recon loss "
-                         "(cat lever, shapes the encoder). 0.0 = off. Default arm 0.3.")
+    ap.add_argument("--mae-poi-lambda", dest="mae_poi_lambda", type=float, default=0.3,
+                    help="T5.2b masked-POI category-aggregate recon (cat lever, shapes the encoder). "
+                         "v14 DEFAULT=0.3; pass 0.0 to disable (plain design_k).")
     ap.add_argument("--hgi-decoder-gamma", dest="hgi_decoder_gamma", type=float, default=0.0,
                     help="#5: coefficient on the HGI-POI-embedding distillation decoder loss "
                          "(memo §4.8). 0.0 = off. Sweep {0.05,0.1,0.3}.")
-    ap.add_argument("--out-suffix", dest="out_suffix", type=str, default="",
-                    help="Append suffix to output dir (e.g. 'l0_5' → output/check2hgi_design_k_l0_5/)")
+    ap.add_argument("--out-suffix", dest="out_suffix", type=str, default="resln_mae_l0_1",
+                    help="Output dir suffix → output/check2hgi_design_k_<suffix>/. v14 DEFAULT="
+                         "'resln_mae_l0_1' (matches the resln+mae default recipe). Use '' for the "
+                         "bare check2hgi_design_k dir (pair with --encoder gcn --mae-poi-lambda 0).")
     args = ap.parse_args()
     train(args.state, args)
 

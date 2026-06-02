@@ -1,4 +1,0 @@
-[04:45:48] START d1_design_b_a0 engine=check2hgi_design_b alpha=0
-[04:47:26] EXIT d1_design_b_a0 rc=0
-[04:47:26] START d1_canonical_a0 engine=check2hgi alpha=0
-[04:49:05] EXIT d1_canonical_a0 rc=0

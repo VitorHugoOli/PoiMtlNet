@@ -1,5 +1,0 @@
-[tx early-stop] W0.0 fold1 done; killing 3984495
-[tx cp] W0.0 mtlnet_lr1.0e-04_bs256_ep50_20260528_213140_3984495
-[tx early-stop] W0.2 fold1 done; killing 3992156
-[tx cp] W0.2 mtlnet_lr1.0e-04_bs256_ep50_20260528_214730_3992156
-### TX RETRY COMPLETE ###

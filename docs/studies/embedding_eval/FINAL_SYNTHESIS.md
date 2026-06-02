@@ -455,7 +455,10 @@ stacked: resln+mae (cat, encoder) ⊕ Delaunay (reg, detached path). Option (a) 
 
 Residual reg gap to HGI (−0.36pp) → Part-2 (option b: MTL + dual-substrate routing).
 
-## Option (b) step 1 — MTL: design_k_resln+mae gives NO MTL benefit (STL-only) (2026-06-02)
+## Option (b) step 1 — MTL: NO MTL benefit DETECTED in a 2-fold seed42 pilot (preliminary) (2026-06-02)
+> ⚠ This rests on a **2-fold, single-seed-42, FL-only pilot** — NOT a settled negative. Phrase as
+> "no MTL benefit detected in a pilot, consistent with the v13 regime finding." A full 5-fold
+> multi-seed (GPU) is needed to confirm. Do not cite as a proven negative.
 MTL B9 pilot (2-fold, FL seed42), F1 | Acc | Top3:
 | task | canonical | design_k_resln+mae |
 |---|---|---|

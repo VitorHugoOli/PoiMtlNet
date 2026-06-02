@@ -91,3 +91,7 @@ docs/results/canonical_improvement/T6_3_r*/florida/*.parquet
 docs/results/canonical_improvement/T6_4_*/alabama/
 docs/results/canonical_improvement/T6_4_*/arizona/
 docs/results/canonical_improvement/T6_4_*/florida/*.parquet
+
+# embedding_eval study hygiene
+output_scratch/
+*.checkpoint.json
