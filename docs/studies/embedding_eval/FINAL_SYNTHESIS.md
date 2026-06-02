@@ -230,3 +230,20 @@ fclass is the WRONG axis; design_k raises the RIGHT axis (spatial) and L2 follow
 states per CLAUDE.md) + design_k at AL/AZ/CA/TX to map state-dependence. If multi-seed holds,
 design_k (or design_k on the v13/resln base) is the new substrate recommendation and the
 HGI next-reg gap is CLOSED at the substrate.
+
+## design_k variants — base wins, no lever stacks (FL, 2026-06-02)
+One lever at a time + all together (5-fold, seed42), vs base design_k:
+| config | Acc@10 |
+|---|---|
+| **design_k base (GCN+Delaunay)** | **0.7341±.005** |
+| design_k+resln | 0.7328±.004 |
+| design_k+sidefeat | 0.7320±.005 |
+| design_k+resln+sidefeat | 0.7317±.004 |
+| hgi (ref) | 0.7362 |
+
+**Base design_k is best; neither resln nor sidefeat stacks on top of the Delaunay lever**
+(both slightly negative, all within ~1 SD = ties). Consistent with the documented "ResLN
+STL-only no benefit" and the v13+sidefeat no-stack finding. ⇒ **Carry plain design_k (GCN +
+Delaunay POI edges).** The Delaunay spatial lever is the load-bearing piece; encoder/side-
+feature axes are neutral-to-negative on top of it. Still ~0.2pp below HGI (within noise).
+Next: state sweep (AL/AZ full + CA/TX 1-fold) on base design_k; then multi-seed FL.
