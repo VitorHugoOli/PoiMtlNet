@@ -324,3 +324,27 @@ next-cat — if fresh-canonical also ~65% F1, the −2.5pp is fresh-vs-frozen (n
 design_k IS dual-axis safe); if fresh-canonical stays ~67%, design_k has a real cat cost and the
 recommendation becomes a documented trade. (next-reg comparisons are unaffected — all were fresh
 builds vs fresh design_k.)
+
+## RESOLVED — design_k next-cat cost is fresh-vs-frozen, NOT a real cost (2026-06-02)
+Ran next-cat L2 on `check2hgi_gcn_ctrl` (a FRESH canonical-protocol build) as the matched control:
+| engine | next-cat F1 |
+|---|---|
+| frozen canonical (v11, on-disk) | 67.32 |
+| gcn_ctrl (FRESH canonical) | **64.61** |
+| design_k (fresh) | **64.82** |
+| hgi | 34.29 |
+
+**gcn_ctrl-fresh (64.61) ≈ design_k (64.82)** — both ~2.6pp below the FROZEN v11. So the −2.5pp
+is entirely **fresh-vs-frozen build variance, NOT a design_k cat cost.** Against a matched fresh
+control design_k is marginally BETTER on cat (+0.21pp). **design_k is DUAL-AXIS SAFE: no cat
+regression vs matched-fresh AND a robust reg gain.** cat L0 already showed the three are
+geometrically equal (F1 ~0.848-0.850); the L2 gap was the frozen-v11 head advantage.
+
+**Paper-comparability note:** the frozen v11 substrate (output/check2hgi) is a privileged draw;
+compare design_k against a FRESH canonical (gcn_ctrl), not frozen v11, for fair dual-axis claims.
+(The next-reg multi-seed used frozen-canonical too — design_k's +0.9-1.1pp reg gain is therefore
+a LOWER bound vs fresh-canonical, given the known ~0.5pp fresh-vs-frozen reg offset.)
+
+**FINAL design_k verdict:** carry design_k — dual-axis safe (cat ≈ matched-fresh canonical ≫ HGI;
+reg +0.9-1.1pp over canonical, closes 54-78% of HGI gap). Residual HGI reg gap (0.26pp FL / 0.90pp
+AL) is the target for the live candidates (T6.2 edge-weight re-tune, HGI-POI-decoder distill).
