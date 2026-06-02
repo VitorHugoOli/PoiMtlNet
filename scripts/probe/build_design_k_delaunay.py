@@ -61,20 +61,20 @@ class Check2HGI_DesignK(Check2HGI):
                                cached=True, bias=True)
         self.poi_gcn_act = nn.PReLU(self.hidden_channels)
 
-        # design_k+sidefeat: T4.3 POI side-feature injector applied AFTER the
-        # Delaunay GCN (reg path only), mirroring Check2HGIModule.py:228-243. Stacks
-        # the spatial axis (Delaunay) with the usage/popularity axis (side-features).
+        # design_k+sidefeat (CORRECTED, pre-GCN): inject side-features as additional
+        # POI node features BEFORE the Delaunay GCN so they PROPAGATE through the
+        # spatial graph — mirroring how HGI consumes POI2Vec features (data.x →
+        # POIEncoder/Delaunay GCN, HGIModule.py:112). The earlier post-GCN concat+
+        # LayerNorm version washed the spatial structure and never diffused the
+        # features (falsified: FL 0.7320 < base 0.7341). side_proj now outputs
+        # hidden_channels for the additive pre-GCN injection; no post-GCN LayerNorm.
         if side_features is not None:
             self.register_buffer("side_features", side_features.float())
             self.side_proj = nn.Sequential(
-                nn.Linear(int(side_features.shape[1]), int(side_feature_hidden)), nn.PReLU())
-            self.pool_post_proj = nn.Sequential(
-                nn.Linear(self.hidden_channels + int(side_feature_hidden), self.hidden_channels),
-                nn.LayerNorm(self.hidden_channels))
+                nn.Linear(int(side_features.shape[1]), self.hidden_channels), nn.PReLU())
         else:
             self.side_features = None
             self.side_proj = None
-            self.pool_post_proj = None
 
     def forward(self, data):
         num_pois = data.num_pois
@@ -94,17 +94,18 @@ class Check2HGI_DesignK(Check2HGI):
         pos_pre_gcn = pos_poi_emb_canonical.detach() + self.gamma * poi_residual
         neg_pre_gcn = neg_poi_emb_canonical.detach() + self.gamma * poi_residual
 
+        # design_k+sidefeat (CORRECTED): add side-features as POI node features
+        # BEFORE the Delaunay GCN so they diffuse through the spatial graph.
+        if self.side_proj is not None:
+            side_h = self.side_proj(self.side_features)
+            pos_pre_gcn = pos_pre_gcn + side_h
+            neg_pre_gcn = neg_pre_gcn + side_h
+
         # Delaunay POI-POI GCN — HGI's spatial sauce
         pos_poi_emb_for_reg = self.poi_gcn_act(
             self.poi_gcn(pos_pre_gcn, data.delaunay_edge_index, data.delaunay_edge_weight))
         neg_poi_emb_for_reg = self.poi_gcn_act(
             self.poi_gcn(neg_pre_gcn, data.delaunay_edge_index, data.delaunay_edge_weight))
-
-        # design_k+sidefeat: post-GCN side-feature concat-project (reg path only).
-        if self.side_proj is not None:
-            side_h = self.side_proj(self.side_features)
-            pos_poi_emb_for_reg = self.pool_post_proj(torch.cat([pos_poi_emb_for_reg, side_h], dim=1))
-            neg_poi_emb_for_reg = self.pool_post_proj(torch.cat([neg_poi_emb_for_reg, side_h], dim=1))
 
         pos_region_emb = self.poi2region(pos_poi_emb_for_reg, data.poi_to_region, data.region_adjacency)
         neg_region_emb = self.poi2region(neg_poi_emb_for_reg, data.poi_to_region, data.region_adjacency)
