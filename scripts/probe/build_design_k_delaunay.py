@@ -38,7 +38,7 @@ sys.path.insert(0, str(REPO / "research"))
 
 from embeddings.check2hgi.model.Check2HGIModule import Check2HGI, corruption
 from embeddings.check2hgi.model.CheckinEncoder import CheckinEncoder
-from embeddings.check2hgi.model.variants import ResidualLNEncoder
+from embeddings.check2hgi.model.variants import ResidualLNEncoder, MaskedPOIDecoder
 from embeddings.check2hgi.model.Checkin2POI import Checkin2POI
 from embeddings.hgi.model.RegionEncoder import POI2Region
 
@@ -51,7 +51,8 @@ class Check2HGI_DesignK(Check2HGI):
     def __init__(self, *args, num_pois, poi2vec_anchor: torch.Tensor,
                  gamma_init=1.0, side_features: torch.Tensor | None = None,
                  side_feature_hidden: int = 16,
-                 hgi_poi_target: torch.Tensor | None = None, **kwargs):
+                 hgi_poi_target: torch.Tensor | None = None,
+                 mae_poi_target: torch.Tensor | None = None, **kwargs):
         super().__init__(*args, **kwargs)
         self.poi_table = nn.Embedding(num_pois, self.hidden_channels)
         with torch.no_grad():
@@ -91,6 +92,21 @@ class Check2HGI_DesignK(Check2HGI):
             self.hgi_poi_target = None
             self.hgi_decoder = None
         self._poi_for_reg_cache = None
+
+        # T5.2b mae: masked-POI category-aggregate reconstruction on the CAT-side
+        # POI emb (gradient reaches the encoder → boosts cat). Reuses the Delaunay
+        # edges design_k already loads. cat lever; orthogonal to the reg path.
+        if mae_poi_target is not None:
+            self.register_buffer("poi_recon_target", mae_poi_target.float())
+            self.mae_poi_decoder = MaskedPOIDecoder(
+                hidden_channels=self.hidden_channels,
+                target_dim=int(mae_poi_target.shape[1]),
+                mask_rate=0.15, gamma=3.0, aggr="mean",
+                target_kind="category_aggregate", loss_kind="sce")
+        else:
+            self.poi_recon_target = None
+            self.mae_poi_decoder = None
+        self._mae_poi_loss = None
 
     def forward(self, data):
         num_pois = data.num_pois
@@ -132,6 +148,12 @@ class Check2HGI_DesignK(Check2HGI):
         self.region_embedding = pos_region_emb
         self._poi_for_reg_cache = pos_poi_emb_for_reg
 
+        # T5.2b mae: cat-side masked-POI recon (uses canonical POI emb → encoder grad).
+        self._mae_poi_loss = None
+        if self.mae_poi_decoder is not None:
+            self._mae_poi_loss = self.mae_poi_decoder(
+                pos_poi_emb_canonical, data.delaunay_edge_index, self.poi_recon_target)
+
         pos_poi_expanded = pos_poi_emb_canonical[data.checkin_to_poi]
         neg_poi_indices = self._sample_negative_indices(data.checkin_to_poi, num_pois, data.x.device)
         neg_poi_expanded = pos_poi_emb_canonical[neg_poi_indices]
@@ -169,6 +191,25 @@ def load_poi2vec(state: str, num_pois: int, placeid_to_idx: dict) -> torch.Tenso
         if idx is not None:
             arr[idx] = vec
     return torch.from_numpy(arr)
+
+
+def _compute_poi_category_aggregate(d: dict, num_pois: int):
+    """Per-POI mean category one-hot (T5.2b recon target). Prefers the cached
+    'poi_category_aggregate'; else derives it from the check-in category one-hot
+    (node_features[:, :num_cat]) scatter-meaned over checkin_to_poi."""
+    if "poi_category_aggregate" in d:
+        return torch.tensor(np.asarray(d["poi_category_aggregate"]), dtype=torch.float32)
+    from configs.globals import CATEGORIES_MAP
+    n_cat = len(CATEGORIES_MAP)
+    x = np.asarray(d["node_features"], dtype=np.float32)[:, :n_cat]   # check-in category one-hot
+    c2p = np.asarray(d["checkin_to_poi"])
+    agg = np.zeros((num_pois, n_cat), dtype=np.float32)
+    cnt = np.zeros(num_pois, dtype=np.float32)
+    np.add.at(agg, c2p, x)
+    np.add.at(cnt, c2p, 1.0)
+    agg /= np.clip(cnt, 1.0, None)[:, None]
+    print(f"[T5.2b] computed poi_category_aggregate dim={n_cat} pois={num_pois}")
+    return torch.from_numpy(agg)
 
 
 def load_hgi_poi_target(state: str, num_pois: int, placeid_to_idx: dict):
@@ -323,6 +364,8 @@ def train(state: str, args):
         side_features=side_features, side_feature_hidden=args.side_feature_hidden,
         hgi_poi_target=(load_hgi_poi_target(state, num_pois, d["placeid_to_idx"])
                         if getattr(args, "hgi_decoder_gamma", 0.0) > 0.0 else None),
+        mae_poi_target=(_compute_poi_category_aggregate(d, num_pois)
+                        if getattr(args, "mae_poi_lambda", 0.0) > 0.0 else None),
     ).to(device)
     print(f"[{state_lc}] params={sum(p.numel() for p in model.parameters()):,}")
 
@@ -341,6 +384,8 @@ def train(state: str, args):
         loss = loss_main + args.anchor_lambda * loss_anchor
         if getattr(args, "hgi_decoder_gamma", 0.0) > 0.0:
             loss = loss + args.hgi_decoder_gamma * model.decoder_loss()
+        if getattr(args, "mae_poi_lambda", 0.0) > 0.0 and model._mae_poi_loss is not None:
+            loss = loss + args.mae_poi_lambda * model._mae_poi_loss
         loss.backward()
         clip_grad_norm_(model.parameters(), max_norm=args.max_norm)
         optimizer.step()
@@ -419,6 +464,9 @@ def main():
                     help="T6.2: sharpen Delaunay edge weights via weight**power. 1.0 = base.")
     ap.add_argument("--weight-decay", dest="weight_decay", type=float, default=0.0,
                     help="v3c re-screen: AdamW-style weight decay on the build optimizer.")
+    ap.add_argument("--mae-poi-lambda", dest="mae_poi_lambda", type=float, default=0.0,
+                    help="T5.2b: coefficient on the masked-POI category-aggregate recon loss "
+                         "(cat lever, shapes the encoder). 0.0 = off. Default arm 0.3.")
     ap.add_argument("--hgi-decoder-gamma", dest="hgi_decoder_gamma", type=float, default=0.0,
                     help="#5: coefficient on the HGI-POI-embedding distillation decoder loss "
                          "(memo §4.8). 0.0 = off. Sweep {0.05,0.1,0.3}.")
