@@ -438,3 +438,19 @@ reg via detached path): cat 67.36 (≈ frozen-canon, +2.54pp over design_k, ≫ 
 (≈ design_k_resln; mae barely touches reg, as expected). mae adds +0.41pp cat over design_k_resln
 at no reg cost. **This is the recommended dual-axis substrate** (cat is leak-free; reg confirmed
 leak-free multi-seed below).
+
+## ✅✅✅ OPTION-A FINAL — design_k_resln+mae confirmed leak-free multi-seed (2026-06-02)
+| engine | next-cat F1 (leak-free) | next-reg Acc@10 (leak-free multi-seed FL) |
+|---|---|---|
+| canonical | ~64.6 | 0.6943 |
+| design_k | 64.82 | 0.7034 |
+| design_k_resln | 66.95 | 0.7020 |
+| **design_k_resln+mae** | **67.36** | **0.7024±.001** |
+| hgi | 34.29 | 0.7060 |
+
+**FINAL substrate: `check2hgi_design_k_resln_mae_l0_1`** — dual-axis champion. cat 67.36 (≈
+frozen-canon, ≫ HGI +33pp); reg 0.7024 (+0.81pp over canonical, closes ~69% of the canon→HGI
+gap; −0.36pp residual to HGI). mae adds +0.41pp cat at zero reg cost. Three orthogonal axes
+stacked: resln+mae (cat, encoder) ⊕ Delaunay (reg, detached path). Option (a) closed.
+
+Residual reg gap to HGI (−0.36pp) → Part-2 (option b: MTL + dual-substrate routing).
