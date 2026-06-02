@@ -398,3 +398,27 @@ loses the Delaunay reg unless stacked (would need porting mae into the design_k 
 GCN). Dual-axis: cat ≈ frozen-canon (66.95 vs 67.32, ≫ HGI) + reg ≈ design_k (closes most of the
 HGI gap). Validate leak-free multi-seed (below). Optional further cat: design_k_resln+mae (+0.7pp,
 needs mae port). NOTE: cat numbers are leak-free already (next-cat doesn't use region log_T).
+
+## ✅ FINAL DUAL-AXIS VERDICT — carry design_k_resln (2026-06-02)
+Leak-free multi-seed (FL, seeds 0/1/7/100) closes option (a):
+| engine | next-cat F1 | next-reg Acc@10 (leak-free) |
+|---|---|---|
+| canonical | ~64.6 | 0.6943 |
+| design_k (gcn+Delaunay) | 64.82 | 0.7034 |
+| **design_k_resln (resln+Delaunay)** | **66.95** | 0.7020±.001 |
+| hgi | 34.29 | 0.7060 |
+
+**design_k_resln: +2.1pp cat over design_k at −0.14pp reg** (multi-seed, SD 0.001). The cat gain
+≫ the reg loss; both axes still close most of the HGI reg gap (dk_resln reg +0.77pp over canonical,
+−0.40pp HGI) and dominate cat (≫ HGI). **For the joint cat+reg project, design_k_resln is the
+recommended dual-axis substrate** (resln cat lever ⊕ Delaunay reg lever — orthogonal, stacked).
+For a reg-only objective, design_k (gcn) is marginally better (0.7034 vs 0.7020).
+- mae (+0.7pp marginal cat) deferred: needs porting masked-recon into the design_k build; design_k_resln
+  cat (66.95) is already ≈ frozen-canon. Optional follow-up: design_k_resln+mae.
+
+### Part-1 (substrate) CLOSED. Option (b) plan — Part-2 MTL/fusion on design_k_resln:
+1. Run the NORTH_STAR B9 / H3-alt MTL recipe with `--engine check2hgi_design_k_resln_l0_1`
+   (vs canonical baseline) — does the STL dual-axis gain survive into MTL deployment?
+2. Residual reg gap (HGI −0.4pp): test **dual-substrate task-routing** (route HGI region tower to
+   the reg head, design_k_resln for cat) — the one log_T-orthogonal unfalsified lever.
+3. Multi-seed {0,1,7,100} + AL/AZ + CA/TX(1f) for the chosen MTL config.
