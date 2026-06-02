@@ -54,6 +54,7 @@ class EmbeddingEngine(Enum):
     CHECK2HGI_DESIGN_K_L0_1 = "check2hgi_design_k_l0_1"  # design_k: c2hgi + HGI Delaunay POI-GCN (reg path), λ=0.1 — closes 54-78% of HGI next-reg gap
     CHECK2HGI_MAE = "check2hgi_mae"  # T5.2b masked-POI feature-aggregate reconstruction (cat-axis lever; re-test at FL)
     CHECK2HGI_DESIGN_K_RESLN_L0_1 = "check2hgi_design_k_resln_l0_1"  # design_k + resln encoder (cat disentangle)
+    CHECK2HGI_DESIGN_K_RESLN_MAE_L0_1 = "check2hgi_design_k_resln_mae_l0_1"  # design_k + resln + T5.2b mae (full dual-axis stack)
     CHECK2HGI_RESLN_DESIGN_J = "check2hgi_resln_design_j"  # tier_resln: ResLN encoder + Design J anchored learnable POI table
     # embedding_eval re-screen variants (2026-06-01) — rebuilt via OUTPUT_DIR-scratch,
     # harvested to output/<value>/; do NOT overwrite the frozen output/check2hgi/.
