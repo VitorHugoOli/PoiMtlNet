@@ -146,11 +146,18 @@ def load_poi2vec(state: str, num_pois: int, placeid_to_idx: dict) -> torch.Tenso
     return torch.from_numpy(arr)
 
 
-def load_delaunay_edges(state: str, placeid_to_idx: dict, num_pois: int):
+def load_delaunay_edges(state: str, placeid_to_idx: dict, num_pois: int,
+                        poi_to_region=None, cross_region_weight: float = 1.0,
+                        edge_power: float = 1.0):
     """Load HGI's Delaunay edges and remap to c2hgi's POI index space.
 
     HGI's edges.csv has (source, target, weight) where source/target are
     row indices into HGI's pois.csv. Map row → placeid → c2hgi POI idx.
+
+    T6.2 edge-weight re-tune (cross_region_weight<1 / edge_power>1): multiply
+    CROSS-region edge weights by ``cross_region_weight`` (focuses GCN smoothing
+    WITHIN regions → raises region cohesion) and sharpen via ``weight**edge_power``.
+    Defaults (1.0/1.0) reproduce the base design_k edge load byte-for-byte.
     """
     state_lc = state.lower()
     pois_path = REPO / "output" / "hgi" / state_lc / "temp" / "pois.csv"
@@ -176,9 +183,14 @@ def load_delaunay_edges(state: str, placeid_to_idx: dict, num_pois: int):
         if s_c is None or t_c is None:
             n_skip += 1
             continue
+        wv = float(weight) ** edge_power
+        # T6.2: down-weight cross-region edges
+        if poi_to_region is not None and cross_region_weight != 1.0:
+            if int(poi_to_region[s_c]) != int(poi_to_region[t_c]):
+                wv *= cross_region_weight
         # symmetrise
-        src.append(s_c); tgt.append(t_c); w.append(float(weight))
-        src.append(t_c); tgt.append(s_c); w.append(float(weight))
+        src.append(s_c); tgt.append(t_c); w.append(wv)
+        src.append(t_c); tgt.append(s_c); w.append(wv)
 
     edge_index = torch.tensor([src, tgt], dtype=torch.int64)
     edge_weight = torch.tensor(w, dtype=torch.float32)
@@ -208,7 +220,11 @@ def train(state: str, args):
 
     device = torch.device(args.device)
     poi2vec = load_poi2vec(state, num_pois, d["placeid_to_idx"])
-    del_ei, del_ew = load_delaunay_edges(state, d["placeid_to_idx"], num_pois)
+    del_ei, del_ew = load_delaunay_edges(
+        state, d["placeid_to_idx"], num_pois,
+        poi_to_region=np.asarray(d["poi_to_region"]),
+        cross_region_weight=getattr(args, "cross_region_weight", 1.0),
+        edge_power=getattr(args, "edge_power", 1.0))
 
     # design_k+sidefeat: optionally load the T4.3 32-d POI side-feature tensor.
     side_features = None
@@ -349,6 +365,11 @@ def main():
     ap.add_argument("--use-side-features", dest="use_side_features", action="store_true",
                     help="Stack T4.3 POI side-features (32d) after the Delaunay GCN (reg path).")
     ap.add_argument("--side-feature-hidden", dest="side_feature_hidden", type=int, default=16)
+    ap.add_argument("--cross-region-weight", dest="cross_region_weight", type=float, default=1.0,
+                    help="T6.2: multiply cross-region Delaunay edge weights by this (<1 focuses "
+                         "intra-region smoothing, raises region cohesion). 1.0 = base design_k.")
+    ap.add_argument("--edge-power", dest="edge_power", type=float, default=1.0,
+                    help="T6.2: sharpen Delaunay edge weights via weight**power. 1.0 = base.")
     ap.add_argument("--out-suffix", dest="out_suffix", type=str, default="",
                     help="Append suffix to output dir (e.g. 'l0_5' → output/check2hgi_design_k_l0_5/)")
     args = ap.parse_args()
