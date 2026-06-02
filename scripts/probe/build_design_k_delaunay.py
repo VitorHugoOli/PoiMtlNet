@@ -50,7 +50,8 @@ class Check2HGI_DesignK(Check2HGI):
 
     def __init__(self, *args, num_pois, poi2vec_anchor: torch.Tensor,
                  gamma_init=1.0, side_features: torch.Tensor | None = None,
-                 side_feature_hidden: int = 16, **kwargs):
+                 side_feature_hidden: int = 16,
+                 hgi_poi_target: torch.Tensor | None = None, **kwargs):
         super().__init__(*args, **kwargs)
         self.poi_table = nn.Embedding(num_pois, self.hidden_channels)
         with torch.no_grad():
@@ -75,6 +76,21 @@ class Check2HGI_DesignK(Check2HGI):
         else:
             self.side_features = None
             self.side_proj = None
+
+        # #5 HGI-POI-decoder distill: a small MLP reconstructs HGI's learned POI
+        # embedding (256-d) from design_k's reg-path POI vector. Loss adds
+        # γ·‖Dec(poi_for_reg) − hgi_poi.detach()‖² → transfers HGI's hierarchical
+        # geometry (a DIFFERENT axis than design_k's spatial). future_works memo §4.8.
+        if hgi_poi_target is not None:
+            self.register_buffer("hgi_poi_target", hgi_poi_target.float())
+            self.register_buffer("hgi_poi_mask", (hgi_poi_target.abs().sum(1) > 0).float())
+            self.hgi_decoder = nn.Sequential(
+                nn.Linear(self.hidden_channels, 128), nn.PReLU(),
+                nn.Linear(128, int(hgi_poi_target.shape[1])))
+        else:
+            self.hgi_poi_target = None
+            self.hgi_decoder = None
+        self._poi_for_reg_cache = None
 
     def forward(self, data):
         num_pois = data.num_pois
@@ -114,6 +130,7 @@ class Check2HGI_DesignK(Check2HGI):
         self.checkin_embedding = pos_checkin_emb
         self.poi_embedding = pos_poi_emb_for_reg
         self.region_embedding = pos_region_emb
+        self._poi_for_reg_cache = pos_poi_emb_for_reg
 
         pos_poi_expanded = pos_poi_emb_canonical[data.checkin_to_poi]
         neg_poi_indices = self._sample_negative_indices(data.checkin_to_poi, num_pois, data.x.device)
@@ -132,6 +149,14 @@ class Check2HGI_DesignK(Check2HGI):
     def anchor_loss(self):
         return ((self.poi_table.weight - self.poi2vec_anchor) ** 2).mean()
 
+    def decoder_loss(self):
+        if self.hgi_decoder is None:
+            return torch.tensor(0.0, device=self.poi_table.weight.device)
+        pred = self.hgi_decoder(self._poi_for_reg_cache)        # [N_pois, 256]
+        sq = ((pred - self.hgi_poi_target) ** 2).mean(1)        # per-POI
+        m = self.hgi_poi_mask
+        return (sq * m).sum() / m.sum().clamp(min=1)            # mean over mapped POIs
+
 
 def load_poi2vec(state: str, num_pois: int, placeid_to_idx: dict) -> torch.Tensor:
     state_lc = state.lower(); state_cap = state.capitalize()
@@ -143,6 +168,21 @@ def load_poi2vec(state: str, num_pois: int, placeid_to_idx: dict) -> torch.Tenso
         idx = placeid_to_idx.get(placeid)
         if idx is not None:
             arr[idx] = vec
+    return torch.from_numpy(arr)
+
+
+def load_hgi_poi_target(state: str, num_pois: int, placeid_to_idx: dict):
+    """Load HGI's learned POI embedding (poi_embeddings.parquet) mapped to c2hgi idx.
+    Returns [num_pois, hgi_dim] with zero rows for unmapped POIs (#5 decoder target)."""
+    f = REPO / "output" / "hgi" / state.lower() / "poi_embeddings.parquet"
+    df = pd.read_parquet(f)
+    dim = [c for c in df.columns if c not in ("placeid", "category") and not c.startswith("reg_")]
+    arr = np.zeros((num_pois, len(dim)), dtype=np.float32)
+    for pid, vec in zip(df["placeid"].astype(int).tolist(), df[dim].to_numpy(np.float32)):
+        idx = placeid_to_idx.get(int(pid))
+        if idx is not None:
+            arr[idx] = vec
+    print(f"[#5 decoder] HGI POI target dim={len(dim)} mapped={int((arr.any(1)).sum())}/{num_pois}")
     return torch.from_numpy(arr)
 
 
@@ -279,10 +319,13 @@ def train(state: str, args):
         alpha_c2p=args.alpha_c2p, alpha_p2r=args.alpha_p2r, alpha_r2c=args.alpha_r2c,
         num_pois=num_pois, poi2vec_anchor=poi2vec, gamma_init=args.gamma_init,
         side_features=side_features, side_feature_hidden=args.side_feature_hidden,
+        hgi_poi_target=(load_hgi_poi_target(state, num_pois, d["placeid_to_idx"])
+                        if getattr(args, "hgi_decoder_gamma", 0.0) > 0.0 else None),
     ).to(device)
     print(f"[{state_lc}] params={sum(p.numel() for p in model.parameters()):,}")
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr,
+                                 weight_decay=getattr(args, "weight_decay", 0.0))
     scheduler = StepLR(optimizer, step_size=1, gamma=args.gamma) if args.gamma != 1.0 else None
 
     t = trange(1, args.epochs + 1, desc=f"Train K[{state_lc}]")
@@ -294,6 +337,8 @@ def train(state: str, args):
         loss_main = model.loss(*outputs)
         loss_anchor = model.anchor_loss()
         loss = loss_main + args.anchor_lambda * loss_anchor
+        if getattr(args, "hgi_decoder_gamma", 0.0) > 0.0:
+            loss = loss + args.hgi_decoder_gamma * model.decoder_loss()
         loss.backward()
         clip_grad_norm_(model.parameters(), max_norm=args.max_norm)
         optimizer.step()
@@ -370,6 +415,11 @@ def main():
                          "intra-region smoothing, raises region cohesion). 1.0 = base design_k.")
     ap.add_argument("--edge-power", dest="edge_power", type=float, default=1.0,
                     help="T6.2: sharpen Delaunay edge weights via weight**power. 1.0 = base.")
+    ap.add_argument("--weight-decay", dest="weight_decay", type=float, default=0.0,
+                    help="v3c re-screen: AdamW-style weight decay on the build optimizer.")
+    ap.add_argument("--hgi-decoder-gamma", dest="hgi_decoder_gamma", type=float, default=0.0,
+                    help="#5: coefficient on the HGI-POI-embedding distillation decoder loss "
+                         "(memo §4.8). 0.0 = off. Sweep {0.05,0.1,0.3}.")
     ap.add_argument("--out-suffix", dest="out_suffix", type=str, default="",
                     help="Append suffix to output dir (e.g. 'l0_5' → output/check2hgi_design_k_l0_5/)")
     args = ap.parse_args()
