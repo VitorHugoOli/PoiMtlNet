@@ -1,0 +1,29 @@
+2026-06-02 11:50:21,363 - INFO - Loading data for florida (input_type=region, region_emb=check2hgi_design_k_sf2_l0_1, target=region, engine_override=None)...
+2026-06-02 11:50:21,363 - INFO - Loading next-POI data: florida/check2hgi
+2026-06-02 11:50:22,001 - INFO - Next-POI data: (159175, 576) (dim=64, window=9), distribution: {np.int64(0): np.int64(15723), np.int64(1): np.int64(13858), np.int64(2): np.int64(39296), np.int64(3): np.int64(7048), np.int64(4): np.int64(11081), np.int64(5): np.int64(33509), np.int64(6): np.int64(38660)}
+2026-06-02 11:50:23,103 - INFO - x=torch.Size([159175, 9, 64]), emb_dim=64, n_regions=4702, n_seqs=159175, last_region_idx=present
+2026-06-02 11:50:24,323 - INFO - No checkpoint — starting fresh. Will save to docs/results/P1/region_head_florida_region_5f_50ep_dk_sf2_L2.checkpoint.json after each fold.
+2026-06-02 11:50:24,324 - INFO - ============================================================
+2026-06-02 11:50:24,324 - INFO - HEAD: next_stan_flow (5 folds x 50 epochs, max_lr=3e-03, ls=0.00, input_ln=False)
+2026-06-02 11:50:24,324 - INFO - ============================================================
+/home/vitor.oliveira/PoiMtlNet/src/tracking/metrics.py:64: UserWarning: _bincount_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /pytorch/aten/src/ATen/Context.cpp:160.)
+  tp = torch.bincount(targets, weights=correct, minlength=num_classes)
+2026-06-02 11:53:51,242 - INFO -   fold 0: Acc@1=0.4770 Acc@5=0.6706 Acc@10=0.7407 MRR=0.5670 F1=0.1068 (206.9s, best_ep=42)
+2026-06-02 11:57:17,228 - INFO -   fold 1: Acc@1=0.4655 Acc@5=0.6559 Acc@10=0.7281 MRR=0.5552 F1=0.0855 (206.0s, best_ep=43)
+2026-06-02 12:00:42,780 - INFO -   fold 2: Acc@1=0.4800 Acc@5=0.6666 Acc@10=0.7346 MRR=0.5674 F1=0.0966 (205.6s, best_ep=49)
+2026-06-02 12:03:52,892 - INFO -   fold 3: Acc@1=0.4692 Acc@5=0.6627 Acc@10=0.7310 MRR=0.5604 F1=0.0957 (190.1s, best_ep=45)
+2026-06-02 12:07:19,144 - INFO -   fold 4: Acc@1=0.4689 Acc@5=0.6678 Acc@10=0.7364 MRR=0.5609 F1=0.0964 (206.3s, best_ep=47)
+2026-06-02 12:07:19,145 - INFO -   AGGREGATE: Acc@1=0.4721+/-0.0061  Acc@10=0.7342+/-0.0049  MRR=0.5622+/-0.0051  F1=0.0962+/-0.0075
+2026-06-02 12:07:19,146 - INFO - Saved: docs/results/P1/region_head_florida_region_5f_50ep_dk_sf2_L2.json
+2026-06-02 12:07:19,146 - INFO - Removed checkpoint docs/results/P1/region_head_florida_region_5f_50ep_dk_sf2_L2.checkpoint.json (run complete).
+
+================================================================================
+P1 REGION-HEAD ABLATION - florida - 5f x 50ep - input=region
+================================================================================
+Head                         Acc@1    Acc@5   Acc@10      MRR       F1
+--------------------------------------------------------------------------------
+next_stan_flow              47.21%   66.47%   73.42%   56.22%    9.62%
+--------------------------------------------------------------------------------
+Markov 1-step (floor)         ~12%        —   ~45.9%        —        —
+================================================================================
+SF2DONE

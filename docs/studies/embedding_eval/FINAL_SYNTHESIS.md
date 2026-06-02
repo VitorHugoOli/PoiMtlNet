@@ -274,3 +274,29 @@ Next: state sweep (AL/AZ full + CA/TX 1-fold) on base design_k; then multi-seed 
 **Claim for paper:** Delaunay POI edges close the Check2HGI→HGI next-reg gap (Check2HGI+design_k
 ≈ HGI, ≫ canonical) across 5 states, crediting HGI's imported spatial graph. **MANDATORY: multi-seed
 {0,1,7,100}** (seed42 is the dev seed; gaps are within 1 SD so seed variance is the live axis).
+
+## ⭐ AUTHORITATIVE — leak-free multi-seed (corrects the seed42 "ties HGI" claim) (2026-06-02)
+The seed42 single-run table (design_k 0.7341 ≈ HGI 0.7362) used p1's DEFAULT log_T (no
+`--per-fold-transition-dir`), which leaks val transitions and inflated ALL engines ~+3pp.
+Re-ran multi-seed {0,1,7,100} with the SEEDED per-fold log_T (leak-free, verified the runs
+loaded `region_transition_log_seed{S}_fold{N}.pt`). This is the authoritative result:
+
+| state | canonical | design_k | hgi | dk−canon | dk−hgi | % gap closed |
+|---|---|---|---|---|---|---|
+| AL | 0.6087±.001 | 0.6194±.001 | 0.6284±.003 | **+1.07pp** | −0.90pp | **54%** |
+| FL | 0.6943±.001 | 0.7034±.001 | 0.7060±.001 | **+0.91pp** | −0.26pp | **78%** |
+
+**Corrected verdict (leak-free, SD ~0.001 ⇒ gaps are significant):**
+- **design_k robustly beats canonical** (+0.9–1.1pp multi-seed) — a real next-reg substrate
+  gain from the Delaunay POI edges. **It closes 54% (AL) / 78% (FL) of the canonical→HGI gap.**
+- **It does NOT fully close the gap: HGI remains significantly ahead** (−0.26pp FL, −0.90pp AL).
+  The earlier "ties HGI within noise" was an artifact of the leaky default log_T — RETRACTED.
+- **sidefeat does NOT stack even when correctly wired pre-GCN** (FL design_k+sf2 0.7342 ≈ base
+  0.7341, default-log_T comparison) — the no-stack is REAL. Carry plain design_k.
+
+**Paper claim (honest):** Delaunay POI edges (importing HGI's spatial graph) give Check2HGI a
+robust +0.9–1.1pp next-reg gain and close most (54–78%) of the gap to HGI, but HGI's full
+hierarchical spatial substrate retains a small significant edge. design_k is the recommended
+Check2HGI substrate improvement; closing the residual gap is a Part-2 (fusion/MTL) problem.
+⚠ ALL prior seed42 region tables in this study used the leaky default log_T — treat their
+absolute Acc@10 as ~+3pp inflated; the RELATIVE rankings mostly hold but cite THIS table for numbers.
