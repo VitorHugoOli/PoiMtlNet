@@ -95,3 +95,7 @@ docs/results/canonical_improvement/T6_4_*/florida/*.parquet
 # embedding_eval study hygiene
 output_scratch/
 *.checkpoint.json
+
+# foreign study artifacts (own branch: substrate-protocol-cleanup-v12-settle) — never sweep into embedding_eval PR
+docs/results/substrate_protocol_cleanup/
+scripts/substrate_protocol_cleanup/

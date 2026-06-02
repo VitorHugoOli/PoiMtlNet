@@ -148,6 +148,37 @@ class Check2HGI(nn.Module):
         # asymmetric anchor-only version (matches the prior T6.1 sweep
         # numerics). True follows the canonical SimCLR formulation.
         p2p_symmetric: bool = False,
+        # ──────────────────────────────────────────────────────────────────
+        # v13 / v14 — Graduated reg-path POI augmentation (formerly the
+        # scripts/probe Design B / Design K subclasses). A POI2Vec / learnable
+        # POI table is injected into the REG path only (poi2region / p2r / r2c),
+        # while the CAT path (c2p, pos_poi_emb_pure) stays byte-identical to
+        # canonical. The reg-path canonical POI pool is DETACHED before the
+        # augmentation so reg-axis gradients never reach the check-in encoder.
+        #
+        # ``reg_poi_mode``:
+        #   "none"              — default; build NOTHING new, forward unchanged
+        #                         (bit-identical to canonical).
+        #   "poi2vec_residual"  — Design B / v13: poi_emb_for_reg =
+        #                         detach(pool) + γ·Linear(POI2Vec_frozen).
+        #   "delaunay_gcn"      — Design K / v14: pre_gcn = detach(pool) +
+        #                         γ·poi_table; poi_emb_for_reg =
+        #                         PReLU(GCNConv(pre_gcn, delaunay_edges));
+        #                         + anchor_lambda·‖poi_table − POI2Vec‖² loss.
+        #
+        # Supporting tensors (passed by train_check2hgi from the loaders that
+        # mirror the probe scripts):
+        #   ``poi2vec_table``      — (num_pois, 64) frozen POI2Vec (both modes).
+        #   ``delaunay_edge_index``/``delaunay_edge_weight`` — POI-POI Delaunay
+        #                            edges remapped to c2hgi POI idx (gcn mode).
+        #   ``num_pois``           — already accepted above (T5.1); sizes the
+        #                            learnable poi_table in delaunay_gcn mode.
+        reg_poi_mode: str = "none",
+        gamma_init: float = 1.0,
+        anchor_lambda: float = 0.0,
+        poi2vec_table: "torch.Tensor | None" = None,
+        delaunay_edge_index: "torch.Tensor | None" = None,
+        delaunay_edge_weight: "torch.Tensor | None" = None,
     ):
         """
         Initialize Check2HGI module.
@@ -386,6 +417,88 @@ class Check2HGI(nn.Module):
         self._t6_pos_poi_emb = None         # [N_pois, D]   — stashed by forward()
         self._t6_covisit_pairs = None       # [N_pairs, 2]  — stashed by forward()
 
+        # ──────────────────────────────────────────────────────────────────
+        # v13 / v14 — reg-path POI augmentation (graduated from the probe
+        # subclasses). Built ONLY when reg_poi_mode != "none" so the canonical
+        # path is bit-identical (no extra params, no extra forward op).
+        self.reg_poi_mode = str(reg_poi_mode)
+        self.anchor_lambda = float(anchor_lambda)
+        self._anchor_loss = None
+        if self.reg_poi_mode not in ("none", "poi2vec_residual", "delaunay_gcn"):
+            raise ValueError(
+                f"reg_poi_mode must be 'none', 'poi2vec_residual', or "
+                f"'delaunay_gcn'; got {self.reg_poi_mode!r}"
+            )
+        self.reg_side_proj = None
+        if self.reg_poi_mode == "none":
+            self.poi2vec_proj = None
+            self.reg_poi_table = None
+            self.poi_gcn = None
+            self.poi_gcn_act = None
+            self.reg_gamma = None
+        else:
+            self.reg_gamma = nn.Parameter(torch.tensor(float(gamma_init)))
+            if self.reg_poi_mode == "poi2vec_residual":
+                # Design B / v13 — detach(pool) + γ·Linear(POI2Vec_frozen).
+                if poi2vec_table is None:
+                    raise ValueError(
+                        "reg_poi_mode='poi2vec_residual' requires poi2vec_table "
+                        "(num_pois, 64) — load it in train_check2hgi."
+                    )
+                poi2vec_dim = int(poi2vec_table.shape[1])
+                self.poi2vec_proj = nn.Linear(poi2vec_dim, hidden_channels, bias=True)
+                self.register_buffer("reg_poi2vec_table", poi2vec_table.float())
+                self.reg_poi_table = None
+                self.poi_gcn = None
+                self.poi_gcn_act = None
+            else:  # delaunay_gcn — Design K / v14
+                if num_pois is None or int(num_pois) <= 0:
+                    raise ValueError(
+                        "reg_poi_mode='delaunay_gcn' requires num_pois "
+                        "(positive int) to size the learnable poi_table."
+                    )
+                if poi2vec_table is None:
+                    raise ValueError(
+                        "reg_poi_mode='delaunay_gcn' requires poi2vec_table "
+                        "(num_pois, D-or-64) to init/anchor the poi_table."
+                    )
+                if delaunay_edge_index is None or delaunay_edge_weight is None:
+                    raise ValueError(
+                        "reg_poi_mode='delaunay_gcn' requires delaunay_edge_index "
+                        "and delaunay_edge_weight."
+                    )
+                from torch_geometric.nn import GCNConv
+                self.reg_poi_table = nn.Embedding(int(num_pois), hidden_channels)
+                with torch.no_grad():
+                    self.reg_poi_table.weight.copy_(poi2vec_table.float())
+                self.register_buffer("reg_poi2vec_anchor", poi2vec_table.float())
+                self.register_buffer("reg_delaunay_edge_index", delaunay_edge_index.long())
+                self.register_buffer("reg_delaunay_edge_weight", delaunay_edge_weight.float())
+                self.poi_gcn = GCNConv(hidden_channels, hidden_channels,
+                                       cached=True, bias=True)
+                self.poi_gcn_act = nn.PReLU(hidden_channels)
+                self.poi2vec_proj = None
+                # design_k+sidefeat (CORRECTED, pre-GCN): when side features
+                # are enabled WITH delaunay_gcn, the probe injects them as an
+                # ADDITIVE pre-GCN POI feature (Linear(side_dim→D)→PReLU, added
+                # into pre_gcn) so they diffuse through the spatial graph —
+                # NOT the canonical post-pool concat+LayerNorm. To preserve
+                # forward-equivalence with Check2HGI_DesignK, the canonical
+                # T4.3 side path (self.side_proj/pool_post_proj) is BYPASSED
+                # for this mode (see forward()); we build the additive proj here.
+                if self.side_feature_dim > 0:
+                    self.reg_side_proj = nn.Sequential(
+                        nn.Linear(self.side_feature_dim, hidden_channels),
+                        nn.PReLU(),
+                    )
+                    # Disable the canonical concat-style side path so forward
+                    # doesn't double-inject (it would otherwise concat AFTER
+                    # the GCN). The additive pre-GCN proj fully replaces it.
+                    self.side_proj = None
+                    self.pool_post_proj = None
+                else:
+                    self.reg_side_proj = None
+
         # Store embeddings for extraction
         self.checkin_embedding = torch.tensor(0)
         self.poi_embedding = torch.tensor(0)
@@ -517,6 +630,40 @@ class Check2HGI(nn.Module):
         side_features = getattr(data, "side_features", None)
         pos_poi_emb_pure = pos_poi_emb     # for c2p
         neg_poi_emb_pure = neg_poi_emb     # for c2p
+
+        # ──────────────────────────────────────────────────────────────────
+        # v13 / v14 — reg-path POI augmentation (graduated from the probe
+        # Design B / Design K subclasses). Inserted AFTER pos_poi_emb_pure is
+        # captured (so the c2p / cat boundary keeps the canonical pool) and
+        # BEFORE the canonical side-feature concat (so the downstream side
+        # block + poi2region + p2r all operate on the augmented reg emb,
+        # exactly as the probe subclasses do). The canonical pool is DETACHED
+        # before augmentation so reg-axis gradients never reach the encoder.
+        # Default (reg_poi_mode="none") skips this block entirely → unchanged.
+        if self.reg_poi_mode == "poi2vec_residual":
+            # Design B / v13.
+            poi2vec_residual = self.poi2vec_proj(self.reg_poi2vec_table)  # [P, D]
+            pos_poi_emb = pos_poi_emb.detach() + self.reg_gamma * poi2vec_residual
+            neg_poi_emb = neg_poi_emb.detach() + self.reg_gamma * poi2vec_residual
+            # The downstream canonical side block (if side_proj is set) then
+            # concat+LN-projects these, matching Check2HGI_DesignB exactly.
+        elif self.reg_poi_mode == "delaunay_gcn":
+            # Design K / v14.
+            poi_residual = self.reg_poi_table.weight                      # [P, D]
+            pos_pre_gcn = pos_poi_emb.detach() + self.reg_gamma * poi_residual
+            neg_pre_gcn = neg_poi_emb.detach() + self.reg_gamma * poi_residual
+            # Side features (if any) inject PRE-GCN, additively (probe order).
+            if self.reg_side_proj is not None and side_features is not None:
+                side_h_pre = self.reg_side_proj(side_features)            # [P, D]
+                pos_pre_gcn = pos_pre_gcn + side_h_pre
+                neg_pre_gcn = neg_pre_gcn + side_h_pre
+            pos_poi_emb = self.poi_gcn_act(
+                self.poi_gcn(pos_pre_gcn, self.reg_delaunay_edge_index,
+                             self.reg_delaunay_edge_weight))
+            neg_poi_emb = self.poi_gcn_act(
+                self.poi_gcn(neg_pre_gcn, self.reg_delaunay_edge_index,
+                             self.reg_delaunay_edge_weight))
+
         if self.side_proj is not None and side_features is not None:
             if side_features.shape[0] != num_pois:
                 raise ValueError(
@@ -975,6 +1122,18 @@ class Check2HGI(nn.Module):
             return 0.5 * (ce_a + ce_p)
         return ce_a
 
+    def anchor_loss(self) -> torch.Tensor:
+        """v14 (delaunay_gcn) — POI2Vec anchor regulariser.
+
+        Pulls the learnable reg-path POI table toward the frozen POI2Vec
+        anchor: ``mean(‖poi_table − POI2Vec‖²)``. Mirrors
+        ``Check2HGI_DesignK.anchor_loss`` exactly. Returns a zero scalar when
+        the delaunay_gcn path is not active.
+        """
+        if self.reg_poi_mode != "delaunay_gcn" or self.reg_poi_table is None:
+            return torch.zeros(())
+        return ((self.reg_poi_table.weight - self.reg_poi2vec_anchor) ** 2).mean()
+
     def loss(self, pos_checkin, pos_poi_exp, neg_poi_exp,
              pos_poi, pos_region_exp, neg_region_exp,
              pos_region, neg_region, city):
@@ -1089,6 +1248,10 @@ class Check2HGI(nn.Module):
                 and self._mae_poi_loss is not None
                 and torch.is_tensor(self._mae_poi_loss)):
             total_loss = total_loss + self.mae_poi_lambda * self._mae_poi_loss
+
+        # v14 (delaunay_gcn) — fold in the POI2Vec anchor regulariser.
+        if self.reg_poi_mode == "delaunay_gcn" and self.anchor_lambda > 0.0:
+            total_loss = total_loss + self.anchor_lambda * self.anchor_loss()
 
         return total_loss
 

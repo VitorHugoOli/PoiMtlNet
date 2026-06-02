@@ -470,6 +470,33 @@ def train_check2hgi(city, args):
               f"aggr={_mae_poi_aggr} loss={_mae_poi_loss_kind} "
               f"edges={_poi_edges_t.shape[1]}")
 
+    # ──────────────────────────────────────────────────────────────────────
+    # v13 / v14 — reg-path POI augmentation (graduated from scripts/probe).
+    # Default reg_poi_mode='none' ⇒ NOTHING loaded, model bit-identical.
+    #   v13 = --reg-poi-mode poi2vec_residual --encoder resln
+    #   v14 = --reg-poi-mode delaunay_gcn --encoder resln --mae-poi-lambda 0.3
+    #         --anchor-lambda 0.1
+    _reg_poi_mode = str(getattr(args, 'reg_poi_mode', 'none') or 'none')
+    _reg_gamma_init = float(getattr(args, 'gamma_init', 1.0) or 1.0)
+    _reg_anchor_lambda = float(getattr(args, 'anchor_lambda', 0.0) or 0.0)
+    _poi2vec_table = None
+    _delaunay_ei = None
+    _delaunay_ew = None
+    if _reg_poi_mode != 'none':
+        from embeddings.check2hgi.reg_poi_aug import (
+            load_poi2vec_table as _load_poi2vec_table,
+            load_delaunay_edges as _load_delaunay_edges,
+        )
+        _placeid_to_idx = city_dict['placeid_to_idx']
+        _poi2vec_table = _load_poi2vec_table(city, int(num_pois), _placeid_to_idx)
+        print(f"[reg_poi] mode={_reg_poi_mode} γ_init={_reg_gamma_init} "
+              f"anchor_λ={_reg_anchor_lambda} poi2vec_table={tuple(_poi2vec_table.shape)}")
+        if _reg_poi_mode == 'delaunay_gcn':
+            _delaunay_ei, _delaunay_ew = _load_delaunay_edges(
+                city, _placeid_to_idx, int(num_pois),
+                poi_to_region=city_dict['poi_to_region'])
+            print(f"[reg_poi] delaunay edges={_delaunay_ei.shape[1]}")
+
     model = Check2HGI(
         hidden_channels=args.dim,
         checkin_encoder=checkin_encoder,
@@ -514,6 +541,13 @@ def train_check2hgi(city, args):
         p2p_batch_size=int(getattr(args, 'p2p_batch_size', 1024) or 1024),
         p2p_hard_neg_only=bool(getattr(args, 'p2p_hard_neg_only', False)),
         p2p_symmetric=bool(getattr(args, 'p2p_symmetric', False)),
+        # v13 / v14 — reg-path POI augmentation (default off ⇒ canonical).
+        reg_poi_mode=_reg_poi_mode,
+        gamma_init=_reg_gamma_init,
+        anchor_lambda=_reg_anchor_lambda,
+        poi2vec_table=_poi2vec_table,
+        delaunay_edge_index=_delaunay_ei,
+        delaunay_edge_weight=_delaunay_ew,
     ).to(args.device)
 
     # T6.1 — sanity: if p2p_lambda > 0, the preprocess must have populated
@@ -976,6 +1010,21 @@ if __name__ == '__main__':
                              'c2p negatives (DGI-style). Mutually exclusive with '
                              'c2p_hard_neg_prob > 0. Default False reproduces canonical c2hgi.')
 
+    # v13 / v14 — reg-path POI augmentation (graduated from scripts/probe).
+    parser.add_argument('--reg-poi-mode', dest='reg_poi_mode', type=str,
+                        default='none',
+                        choices=['none', 'poi2vec_residual', 'delaunay_gcn'],
+                        help="Reg-path POI augmentation. 'none' (default) = "
+                             "canonical bit-identical. 'poi2vec_residual' = v13 "
+                             "Design B (detach+γ·Linear(POI2Vec)). 'delaunay_gcn' "
+                             "= v14 Design K (PReLU(GCN(detach+γ·poi_table, "
+                             "Delaunay))) + anchor regulariser.")
+    parser.add_argument('--gamma-init', dest='gamma_init', type=float, default=1.0,
+                        help='Initial γ (reg-path POI residual scale). v13/v14.')
+    parser.add_argument('--anchor-lambda', dest='anchor_lambda', type=float,
+                        default=0.0,
+                        help='λ on ‖poi_table − POI2Vec‖² (delaunay_gcn/v14 only). '
+                             'v14 default recipe uses 0.1.')
     # Training
     parser.add_argument('--lr', type=float, default=0.001)
     parser.add_argument('--gamma', type=float, default=1.0)
