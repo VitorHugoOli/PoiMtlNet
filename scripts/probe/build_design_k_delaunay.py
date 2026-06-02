@@ -175,6 +175,8 @@ def load_hgi_poi_target(state: str, num_pois: int, placeid_to_idx: dict):
     """Load HGI's learned POI embedding (poi_embeddings.parquet) mapped to c2hgi idx.
     Returns [num_pois, hgi_dim] with zero rows for unmapped POIs (#5 decoder target)."""
     f = REPO / "output" / "hgi" / state.lower() / "poi_embeddings.parquet"
+    if not f.exists():
+        f = REPO / "output" / "hgi" / state.lower() / "embeddings.parquet"  # HGI POI-level emb
     df = pd.read_parquet(f)
     dim = [c for c in df.columns if c not in ("placeid", "category") and not c.startswith("reg_")]
     arr = np.zeros((num_pois, len(dim)), dtype=np.float32)
