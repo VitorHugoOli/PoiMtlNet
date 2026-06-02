@@ -378,3 +378,23 @@ built), T6.1 no-op, dropedge null-by-detach (encoder-only, untested but mechanic
 of HGI gap; cat ≈ matched-fresh ≫ HGI). Substrate axis is now exhausted for next-reg. Open
 follow-ups: (1) T5.2b mae on design_k cat path (cat bonus); (2) Part-2 MTL fusion/routing for the
 residual reg gap.
+
+## ⭐ DUAL-AXIS UPGRADE — design_k_resln (option-a payoff, 2026-06-02)
+Disentangled the T5.2b mae +3pp cat: it is mostly the **resln encoder (+2.3pp cat)**, not mae
+(+0.7pp marginal). Full FL seed42 dual-axis table:
+| engine | next-cat F1 | next-reg Acc@10 (default-log_T) |
+|---|---|---|
+| design_k (gcn + Delaunay) | 64.82 | 0.7341 |
+| **design_k_resln (resln + Delaunay)** | **66.95** | 0.7328 |
+| mae (resln + mae, NO Delaunay) | 67.63 | 0.7270 |
+| (refs) gcn_ctrl-fresh 64.61 / frozen-canon 67.32 | | resln 0.7275 |
+
+**Key: resln (cat lever, via encoder) and Delaunay (reg lever, via detached reg path) are
+ORTHOGONAL and STACK.** design_k_resln is the best dual-axis engine built: **+2.1pp cat over
+design_k at negligible reg cost** (−0.13pp, within noise). mae adds only +0.7pp marginal cat and
+loses the Delaunay reg unless stacked (would need porting mae into the design_k build).
+
+**UPGRADE the substrate recommendation: design_k → design_k_resln** (resln encoder + Delaunay POI
+GCN). Dual-axis: cat ≈ frozen-canon (66.95 vs 67.32, ≫ HGI) + reg ≈ design_k (closes most of the
+HGI gap). Validate leak-free multi-seed (below). Optional further cat: design_k_resln+mae (+0.7pp,
+needs mae port). NOTE: cat numbers are leak-free already (next-cat doesn't use region log_T).
