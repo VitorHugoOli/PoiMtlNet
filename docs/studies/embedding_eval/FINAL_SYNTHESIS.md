@@ -300,3 +300,27 @@ hierarchical spatial substrate retains a small significant edge. design_k is the
 Check2HGI substrate improvement; closing the residual gap is a Part-2 (fusion/MTL) problem.
 ⚠ ALL prior seed42 region tables in this study used the leaky default log_T — treat their
 absolute Acc@10 as ~+3pp inflated; the RELATIVE rankings mostly hold but cite THIS table for numbers.
+
+## next-cat: design_k has a COST (dual-axis trade, not a free win) (2026-06-02)
+next-cat L2 (train.py --task next, next_gru, FL 5-fold seed42, category macro-F1):
+| engine | F1 | Acc | Top3 |
+|---|---|---|---|
+| canonical | 67.32±0.73 | 70.39 | 89.74 |
+| design_k | 64.82±0.84 | 67.62 | 89.79 |
+| hgi | 34.29±0.91 | 39.81 | 73.38 |
+
+**design_k loses −2.50pp next-cat F1 vs canonical** (still ≫ HGI +30pp). cat L0 only showed
+−0.8pp (knn 0.854 vs 0.862) but L2 amplifies to −2.5pp. So design_k is a **reg-gain / cat-cost
+TRADE, NOT strictly-better-than-canonical.** ⚠ The "carry design_k" recommendation is now
+QUALIFIED pending disentangle:
+- **(a) fresh-vs-frozen:** on-disk canonical is the FROZEN v11 build; design_k is a FRESH build
+  (original build was unseeded). Fresh check2hgi builds vary run-to-run — the −2.5pp may be build
+  variance, not a Delaunay effect. The cat path is the detached canonical encoder (c2p loss only),
+  so intrinsically it SHOULD ≈ canonical.
+- **(b) intrinsic:** unlikely given the detach, but possible if the encoder converges differently.
+
+**Must disentangle before final recommendation:** rebuild canonical FRESH (seeded) and re-run
+next-cat — if fresh-canonical also ~65% F1, the −2.5pp is fresh-vs-frozen (no real cat cost,
+design_k IS dual-axis safe); if fresh-canonical stays ~67%, design_k has a real cat cost and the
+recommendation becomes a documented trade. (next-reg comparisons are unaffected — all were fresh
+builds vs fresh design_k.)
