@@ -64,3 +64,11 @@ threaded through `ExperimentConfig`.)
 Routing promoted only if MTL reg (Acc@10, leak-free seeded log_T, multi-seed) beats the v14-only
 and canonical MTL baselines by > 1 fold-σ at FL, with no cat regression > 0.5pp. Same dev-seed /
 leak-free / provenance discipline as Part-1.
+
+## UPDATE 2026-06-02 — routing pilot result: NO benefit (pilot-falsified)
+2-fold seed42 FL pilot (REGION_EMB_ENGINE=hgi + v14 cat): reg-Acc 47.17 ≈ v14-only 47.18 ≈
+canonical 47.15. Routing HGI's region tower into the MTL reg head is washed out by the cross-attn
+regime — same as the substrate gains. **The MTL regime, not the substrate/routing, is the wall.**
+Pivot Part-2 to the regime itself: [`reg_head_architecture_sweep.md`](reg_head_architecture_sweep.md)
++ [`substrate_adaptive_mtl_balancing.md`](substrate_adaptive_mtl_balancing.md). (Preliminary —
+confirm with 5-fold multi-seed on GPU before final closure.)

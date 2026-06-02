@@ -475,3 +475,20 @@ exhausted even for MTL; the live Part-2 lever is HEAD/FUSION/ROUTING, not the su
 **Part-2 redirect:** skip further substrate-in-MTL work. Next lever = **dual-substrate
 task-routing** (route HGI's region tower to the reg head; design_k_resln+mae for cat) — the one
 log_T-orthogonal unfalsified lever. That is a head/architecture experiment for the MTL study.
+
+## Option (b) step 2 — dual-substrate ROUTING also gives no MTL benefit (pilot) (2026-06-02)
+Routed HGI's region tower to the reg head (REGION_EMB_ENGINE=hgi) while cat uses v14, MTL B9
+2-fold seed42 FL:
+| MTL pilot | next-cat F1 | next-reg Acc | reg Top3 |
+|---|---|---|---|
+| canonical-only | 69.25 | 47.15 | 53.77 |
+| v14-only | 69.04 | 47.18 | 52.67 |
+| routing (v14 cat + HGI reg) | 69.06 | 47.17 | 53.83 |
+
+**Routing does NOT help MTL either** — reg-Acc 47.17 ≈ canonical/v14 (Top3 only recovers to
+canonical level). Even feeding HGI's STL-winning region tower (0.7060) into the MTL reg head is
+washed out. ⇒ **The MTL cross-attn joint-training regime is the binding constraint — NOT the
+substrate and NOT the region-embedding routing.** The "log_T-orthogonal routing lever" is
+pilot-falsified. (Caveat: 2-fold seed42 FL pilot — preliminary, consistent across 3 pilots all at
+reg-Acc 47.15-47.18.) Remaining Part-2 directions are the MTL REGIME itself: reg-head architecture
+sweep + substrate-adaptive MTL balancing (see future_works), NOT substrate/routing.
