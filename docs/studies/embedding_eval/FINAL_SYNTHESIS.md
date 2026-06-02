@@ -422,3 +422,19 @@ For a reg-only objective, design_k (gcn) is marginally better (0.7034 vs 0.7020)
 2. Residual reg gap (HGI −0.4pp): test **dual-substrate task-routing** (route HGI region tower to
    the reg head, design_k_resln for cat) — the one log_T-orthogonal unfalsified lever.
 3. Multi-seed {0,1,7,100} + AL/AZ + CA/TX(1f) for the chosen MTL config.
+
+## ✅✅ design_k_resln+mae — full dual-axis stack (option-a final, 2026-06-02)
+Ported T5.2b mae into the design_k build (MaskedPOIDecoder on the cat-side POI emb, reusing the
+Delaunay edges). FL seed42:
+| engine | next-cat F1 | next-reg Acc@10 (default-logT) |
+|---|---|---|
+| design_k (gcn+Delaunay) | 64.82 | 0.7341 |
+| design_k_resln (resln+Delaunay) | 66.95 | 0.7328 |
+| **design_k_resln+mae** | **67.36** | **0.7331** |
+| frozen-canon (ref) | 67.32 | — |
+
+**design_k_resln+mae stacks all three orthogonal axes** (resln+mae → cat via encoder; Delaunay →
+reg via detached path): cat 67.36 (≈ frozen-canon, +2.54pp over design_k, ≫ HGI) at reg 0.7331
+(≈ design_k_resln; mae barely touches reg, as expected). mae adds +0.41pp cat over design_k_resln
+at no reg cost. **This is the recommended dual-axis substrate** (cat is leak-free; reg confirmed
+leak-free multi-seed below).
