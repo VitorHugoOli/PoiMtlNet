@@ -1,0 +1,7 @@
+== alabama ==
+  REG  reg_best Acc@10 38.41 vs joint 46.30 Δ=-7.89 (4/5+, p_gt=0.3125) per-fold [2.8324, 1.2195, -48.033, 0.4327, 4.0929]
+  CAT  cat_best F1     45.14 vs joint 44.27 Δ=+0.87 (4/5+, p_gt=0.0625) per-fold [-0.008, 0.2095, 1.7819, 0.324, 2.0456]
+== arizona ==
+  REG  reg_best Acc@10 39.98 vs joint 37.44 Δ=+2.54 (5/5+, p_gt=0.03125) per-fold [3.8075, 2.652, 3.4287, 0.7576, 2.0458]
+  CAT  cat_best F1     48.49 vs joint 48.37 Δ=+0.12 (3/5+, p_gt=0.4062) per-fold [0.5458, 0.7114, 1.1641, -1.627, -0.1814]
+saved /home/vitor.oliveira/PoiMtlNet/docs/results/substrate_protocol_cleanup/tier_c/tier_c1_routing_analysis.json

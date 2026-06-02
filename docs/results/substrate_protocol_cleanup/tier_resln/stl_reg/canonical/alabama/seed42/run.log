@@ -1,0 +1,33 @@
+2026-05-29 23:30:50,029 - INFO - Loading data for alabama (input_type=region, region_emb=check2hgi, target=region, engine_override=None)...
+2026-05-29 23:30:50,029 - INFO - Loading next-POI data: alabama/check2hgi
+2026-05-29 23:30:50,110 - INFO - Next-POI data: (12709, 576) (dim=64, window=9), distribution: {np.int64(0): np.int64(2193), np.int64(1): np.int64(837), np.int64(2): np.int64(4345), np.int64(3): np.int64(453), np.int64(4): np.int64(712), np.int64(5): np.int64(3288), np.int64(6): np.int64(881)}
+2026-05-29 23:30:50,219 - INFO - x=torch.Size([12709, 9, 64]), emb_dim=64, n_regions=1109, n_seqs=12709, last_region_idx=present
+2026-05-29 23:30:50,349 - INFO - No checkpoint — starting fresh. Will save to docs/results/P1/region_head_alabama_region_5f_50ep_RESLN_STL_REG_canonical_alabama.checkpoint.json after each fold.
+2026-05-29 23:30:50,349 - INFO - ============================================================
+2026-05-29 23:30:50,349 - INFO - HEAD: next_getnext_hard (5 folds x 50 epochs, max_lr=3e-03, ls=0.00, input_ln=False)
+2026-05-29 23:30:50,349 - INFO - ============================================================
+2026-05-29 23:30:50,349 - INFO - [C4 STL] fold 0 using per-fold log_T output/check2hgi/alabama/region_transition_log_seed42_fold1.pt
+/home/vitor.oliveira/PoiMtlNet/src/tracking/metrics.py:64: UserWarning: _bincount_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True, warn_only=True)'. You can file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation. (Triggered internally at /pytorch/aten/src/ATen/Context.cpp:160.)
+  tp = torch.bincount(targets, weights=correct, minlength=num_classes)
+2026-05-29 23:30:58,138 - INFO -   fold 0: Acc@1=0.2852 Acc@5=0.5397 Acc@10=0.6448 MRR=0.4054 F1=0.0924 (7.8s, best_ep=29)
+2026-05-29 23:30:58,138 - INFO - [C4 STL] fold 1 using per-fold log_T output/check2hgi/alabama/region_transition_log_seed42_fold2.pt
+2026-05-29 23:31:05,585 - INFO -   fold 1: Acc@1=0.2486 Acc@5=0.5051 Acc@10=0.6200 MRR=0.3714 F1=0.0829 (7.4s, best_ep=22)
+2026-05-29 23:31:05,585 - INFO - [C4 STL] fold 2 using per-fold log_T output/check2hgi/alabama/region_transition_log_seed42_fold3.pt
+2026-05-29 23:31:12,979 - INFO -   fold 2: Acc@1=0.2455 Acc@5=0.4992 Acc@10=0.6326 MRR=0.3677 F1=0.0871 (7.4s, best_ep=32)
+2026-05-29 23:31:12,980 - INFO - [C4 STL] fold 3 using per-fold log_T output/check2hgi/alabama/region_transition_log_seed42_fold4.pt
+2026-05-29 23:31:20,377 - INFO -   fold 3: Acc@1=0.2707 Acc@5=0.5047 Acc@10=0.6141 MRR=0.3838 F1=0.0826 (7.4s, best_ep=27)
+2026-05-29 23:31:20,377 - INFO - [C4 STL] fold 4 using per-fold log_T output/check2hgi/alabama/region_transition_log_seed42_fold5.pt
+2026-05-29 23:31:27,826 - INFO -   fold 4: Acc@1=0.2220 Acc@5=0.4286 Acc@10=0.5396 MRR=0.3236 F1=0.0788 (7.4s, best_ep=48)
+2026-05-29 23:31:27,827 - INFO -   AGGREGATE: Acc@1=0.2544+/-0.0244  Acc@10=0.6102+/-0.0412  MRR=0.3704+/-0.0300  F1=0.0848+/-0.0052
+2026-05-29 23:31:27,828 - INFO - Saved: docs/results/P1/region_head_alabama_region_5f_50ep_RESLN_STL_REG_canonical_alabama.json
+2026-05-29 23:31:27,828 - INFO - Removed checkpoint docs/results/P1/region_head_alabama_region_5f_50ep_RESLN_STL_REG_canonical_alabama.checkpoint.json (run complete).
+
+================================================================================
+P1 REGION-HEAD ABLATION - alabama - 5f x 50ep - input=region
+================================================================================
+Head                         Acc@1    Acc@5   Acc@10      MRR       F1
+--------------------------------------------------------------------------------
+next_getnext_hard           25.44%   49.55%   61.02%   37.04%    8.48%
+--------------------------------------------------------------------------------
+Markov 1-step (floor)         ~12%        —   ~21.3%        —        —
+================================================================================

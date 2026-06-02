@@ -1,0 +1,27 @@
+[
+    {
+        "epoch": 23,
+        "next_region_f1": 0.11215923726558685,
+        "next_category_f1": 0.4224656820297241
+    },
+    {
+        "epoch": 25,
+        "next_region_f1": 0.11465282738208771,
+        "next_category_f1": 0.4131051003932953
+    },
+    {
+        "epoch": 27,
+        "next_region_f1": 0.11107061803340912,
+        "next_category_f1": 0.4295727610588074
+    },
+    {
+        "epoch": 37,
+        "next_region_f1": 0.10793187469244003,
+        "next_category_f1": 0.4513310492038727
+    },
+    {
+        "epoch": 44,
+        "next_region_f1": 0.10588388890028,
+        "next_category_f1": 0.4712805449962616
+    }
+]

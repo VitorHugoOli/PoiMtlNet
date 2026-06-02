@@ -1,0 +1,36 @@
+{
+  "fold": 5,
+  "state": "arizona",
+  "engine": "check2hgi",
+  "task_a_input_type": "checkin",
+  "task_b_input_type": "region",
+  "table": {
+    "cat": {
+      "cat_f1": 0.480060338973999,
+      "cat_accuracy": 0.5207425355911255,
+      "reg_f1": 0.0736301988363266,
+      "reg_accuracy": 0.2322409600019455,
+      "reg_top10_acc": 0.3712824285030365
+    },
+    "reg": {
+      "cat_f1": 0.4259487986564636,
+      "cat_accuracy": 0.43625685572624207,
+      "reg_f1": 0.09192156046628952,
+      "reg_accuracy": 0.2860390245914459,
+      "reg_top10_acc": 0.40613752603530884
+    },
+    "joint": {
+      "cat_f1": 0.4818739593029022,
+      "cat_accuracy": 0.5025572776794434,
+      "reg_f1": 0.08998071402311325,
+      "reg_accuracy": 0.27751466631889343,
+      "reg_top10_acc": 0.38567909598350525
+    }
+  },
+  "summary": {
+    "cat_routed_f1": 0.480060338973999,
+    "reg_routed_top10_acc": 0.40613752603530884,
+    "joint_cat_f1": 0.4818739593029022,
+    "joint_reg_top10_acc": 0.38567909598350525
+  }
+}

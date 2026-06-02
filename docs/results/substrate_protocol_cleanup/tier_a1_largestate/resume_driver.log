@@ -1,0 +1,39 @@
+[preflight] gpu 24828 MiB free, disk 2603 MiB free
+[gpu] 24828 MiB free — OK
+[gpu-snapshot] 2026-05-28T20:42:25Z florida W0.2: 24828 MiB free, disk 2603 MiB
+=== florida W0.2 (bs=2048, stop_after=0) -> docs/results/substrate_protocol_cleanup/tier_a1_largestate/florida/W0.2/seed42/run.log ===
+[cp] florida W0.2: metrics+summary from mtlnet_lr1.0e-04_bs2048_ep50_20260528_204231_3957029
+[done] florida W0.2 rc=0 (early-stop expected non-zero if killed)
+[preflight] gpu 39518 MiB free, disk 2591 MiB free
+[gpu] 39518 MiB free — OK
+[gpu-snapshot] 2026-05-28T21:06:17Z california W0.0: 39518 MiB free, disk 2591 MiB
+=== california W0.0 (bs=1024, stop_after=1) -> docs/results/substrate_protocol_cleanup/tier_a1_largestate/california/W0.0/seed42/run.log ===
+scripts/substrate_protocol_cleanup/run_a1_largestate_resume.sh: line 62: [: 0
+0: integer expression expected
+[cp] california W0.0: metrics+summary from mtlnet_lr1.0e-04_bs1024_ep50_20260520_183508_2120634
+[done] california W0.0 rc=1 (early-stop expected non-zero if killed)
+[preflight] gpu 39518 MiB free, disk 2589 MiB free
+[gpu] 39518 MiB free — OK
+[gpu-snapshot] 2026-05-28T21:06:32Z california W0.2: 39518 MiB free, disk 2589 MiB
+=== california W0.2 (bs=1024, stop_after=1) -> docs/results/substrate_protocol_cleanup/tier_a1_largestate/california/W0.2/seed42/run.log ===
+scripts/substrate_protocol_cleanup/run_a1_largestate_resume.sh: line 62: [: 0
+0: integer expression expected
+[cp] california W0.2: metrics+summary from mtlnet_lr1.0e-04_bs1024_ep50_20260520_183508_2120634
+[done] california W0.2 rc=1 (early-stop expected non-zero if killed)
+[preflight] gpu 39518 MiB free, disk 2588 MiB free
+[gpu] 39518 MiB free — OK
+[gpu-snapshot] 2026-05-28T21:06:47Z texas W0.0: 39518 MiB free, disk 2588 MiB
+=== texas W0.0 (bs=512, stop_after=1) -> docs/results/substrate_protocol_cleanup/tier_a1_largestate/texas/W0.0/seed42/run.log ===
+scripts/substrate_protocol_cleanup/run_a1_largestate_resume.sh: line 62: [: 0
+0: integer expression expected
+[cp] texas W0.0: metrics+summary from mtlnet_lr1.0e-04_bs512_ep50_20260520_191052_2142249
+[done] texas W0.0 rc=1 (early-stop expected non-zero if killed)
+[preflight] gpu 39518 MiB free, disk 2587 MiB free
+[gpu] 39518 MiB free — OK
+[gpu-snapshot] 2026-05-28T21:07:02Z texas W0.2: 39518 MiB free, disk 2587 MiB
+=== texas W0.2 (bs=512, stop_after=1) -> docs/results/substrate_protocol_cleanup/tier_a1_largestate/texas/W0.2/seed42/run.log ===
+scripts/substrate_protocol_cleanup/run_a1_largestate_resume.sh: line 62: [: 0
+0: integer expression expected
+[cp] texas W0.2: metrics+summary from mtlnet_lr1.0e-04_bs512_ep50_20260520_191052_2142249
+[done] texas W0.2 rc=1 (early-stop expected non-zero if killed)
+### RESUME DRIVER COMPLETE ###

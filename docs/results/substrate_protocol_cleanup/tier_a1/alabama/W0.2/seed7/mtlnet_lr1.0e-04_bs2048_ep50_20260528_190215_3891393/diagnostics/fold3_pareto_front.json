@@ -1,0 +1,32 @@
+[
+    {
+        "epoch": 29,
+        "next_region_f1": 0.11135844886302948,
+        "next_category_f1": 0.44778603315353394
+    },
+    {
+        "epoch": 34,
+        "next_region_f1": 0.11435157805681229,
+        "next_category_f1": 0.42635011672973633
+    },
+    {
+        "epoch": 43,
+        "next_region_f1": 0.1094464659690857,
+        "next_category_f1": 0.4513697624206543
+    },
+    {
+        "epoch": 45,
+        "next_region_f1": 0.1051487848162651,
+        "next_category_f1": 0.4648231863975525
+    },
+    {
+        "epoch": 48,
+        "next_region_f1": 0.10893912613391876,
+        "next_category_f1": 0.45808476209640503
+    },
+    {
+        "epoch": 49,
+        "next_region_f1": 0.1136922538280487,
+        "next_category_f1": 0.43951740860939026
+    }
+]

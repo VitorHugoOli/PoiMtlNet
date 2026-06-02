@@ -158,3 +158,35 @@ cohesion* axis where HGI wins, so stacking two non-spatial axes cannot approach 
 - **Only actionable HGI-gap lever (from L0):** POI-level spatial/Delaunay edges (T6.1 p2p /
   design_k = J+Delaunay) — the axis region-silhouette concordantly localizes HGI's advantage.
   fclass/sidefeat are exhausted. Defer to a dedicated spatial-substrate study / Part-2 MTL.
+
+## VALIDATED + SPATIAL LEVER FALSIFIED (2026-06-02)
+**v13+sidefeat implementation audited — CORRECT, no-stack result is REAL.** Independent
+code review: injector mirrors canonical T4.3 byte-for-byte; cat-path gradient isolation
+proven (encoder grads identical to 6e-8 with side-features on/off); side-features genuinely
+propagate into the reg embeddings (mean-abs-diff 0.39 vs v13). The 0.7293 < v13 0.7309 is a
+real finding, not a bug. (Build now also pins `--seed`, default 42, for reproducibility —
+it previously set no seed.)
+
+**Spatial/Delaunay substrate lever — FALSIFIED, do not run more substrate builds.** Two
+prior falsifications confirmed: Design K (Delaunay POI-GCN) ≡ Design J (AL Δ−0.02pp, AZ
+Δ−0.06pp); T6.1 p2p (InfoNCE POI-POI boundary) no-op at L0 (GCN+ResLN) and L2 (FL 0.7271).
+T5.2 check-in Delaunay hooks CLOSED (cat regression / Bonferroni). Empirical root: corr(
+region-cosine, T_ij)≈0.05 → the `next_stan_flow` α·log_T flow prior already supplies the
+spatial-cohesion axis a higher-cohesion substrate would add. The advisor verdict is explicit:
+the live levers are **head/fusion architecture (Part-2 MTL)**, NOT substrate — specifically
+**dual-substrate task-routing** (route HGI's region tower to the reg head), the one
+log_T-orthogonal unfalsified lever.
+
+**Full next-reg diagnostic table (FL, region_eval.py --region-silhouette):**
+| engine | adj_coh@10 | reg-silhouette | (L2 Acc@10) |
+|---|---|---|---|
+| check2hgi | 0.274 | −0.649 | 0.7274 |
+| check2hgi_resln | 0.282 | −0.641 | 0.7275 |
+| v13 (resln_design_b) | 0.231 | −0.665 | 0.7309 |
+| v13+sidefeat | 0.231 | −0.677 | 0.7293 |
+| **hgi** | 0.326 | **−0.460** | **0.7362** |
+
+region-silhouette cleanly localizes HGI's advantage to POI-level spatial cohesion (−0.46 vs
+family ~−0.65) — the diagnostic lead — but the lever that would raise it (Delaunay substrate)
+is log_T-redundant and falsified. **The HGI next-reg gap is a Part-2 routing/fusion problem,
+not a substrate problem. Part-1 (substrate) is complete: carry v13.**

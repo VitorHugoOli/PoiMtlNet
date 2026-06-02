@@ -1,0 +1,36 @@
+{
+  "fold": 3,
+  "state": "alabama",
+  "engine": "check2hgi",
+  "task_a_input_type": "checkin",
+  "task_b_input_type": "region",
+  "table": {
+    "cat": {
+      "cat_f1": 0.4677828550338745,
+      "cat_accuracy": 0.46892210841178894,
+      "reg_f1": 0.10057106614112854,
+      "reg_accuracy": 0.2627851963043213,
+      "reg_top10_acc": 0.47993704676628113
+    },
+    "reg": {
+      "cat_f1": 0.3900284767150879,
+      "cat_accuracy": 0.3941778242588043,
+      "reg_f1": 0.0,
+      "reg_accuracy": 0.0,
+      "reg_top10_acc": 0.0011801731307059526
+    },
+    "joint": {
+      "cat_f1": 0.44996389746665955,
+      "cat_accuracy": 0.46302124857902527,
+      "reg_f1": 0.10810605436563492,
+      "reg_accuracy": 0.271833211183548,
+      "reg_top10_acc": 0.48151060938835144
+    }
+  },
+  "summary": {
+    "cat_routed_f1": 0.4677828550338745,
+    "reg_routed_top10_acc": 0.0011801731307059526,
+    "joint_cat_f1": 0.44996389746665955,
+    "joint_reg_top10_acc": 0.48151060938835144
+  }
+}

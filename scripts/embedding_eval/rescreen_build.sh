@@ -24,6 +24,9 @@ rm -rf "$SCRATCH"; mkdir -p "$SCRATCH/check2hgi/${STATE}"
 # reuses it; a flag that forces preprocess (gat/rgcn/dropedge/p2p) just rebuilds.
 [ -d "$FROZEN/temp" ] && cp -r "$FROZEN/temp" "$SCRATCH/check2hgi/${STATE}/" || true
 
+# export PYTHONPATH so subprocesses regen spawns (e.g. compute_poi_side_features.py)
+# can import `configs` (the main script self-inserts src, but children don't).
+export PYTHONPATH="$(pwd)/src:$(pwd)/research${PYTHONPATH:+:$PYTHONPATH}"
 OUTPUT_DIR="$SCRATCH" .venv/bin/python scripts/canonical_improvement/regen_emb_t3.py \
   --state "$STATE" --epoch "$EPOCH" "$@"
 

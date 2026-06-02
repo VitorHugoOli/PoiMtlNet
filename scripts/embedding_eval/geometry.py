@@ -3,6 +3,24 @@
 All metrics operate on a frozen ``[N, D]`` embedding matrix with integer labels.
 Zero training, so zero head confound. GPU-accelerated (chunked) where the naive
 form would be O(N^2) in memory.
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║ L0 IS TASK-SPECIFIC — read docs/studies/embedding_eval/L0_METHODOLOGY.md       ║
+║                                                                                ║
+║ These metrics (kNN-LOO / silhouette / centroid-sep) measure OWN-LABEL static   ║
+║ separability. That is the right quantity ONLY for static-attribute tasks:      ║
+║                                                                                ║
+║  • next-cat (label = category): L0 is a VALID RANKER. Own-category lives in the ║
+║      geometry, so L0 tracks L2-cat. Use these metrics to compare substrates.    ║
+║  • next-reg (transition task): NO static L0 RANKS substrates. The signal lives  ║
+║      in the transition operator (log_T), not the region geometry (empirically:  ║
+║      corr(region-cosine, T_ij) ~= 0.05). Region metrics here are DIAGNOSTICS    ║
+║      ONLY (region-silhouette flags the spatial-cohesion axis; see region_eval). ║
+║      RANK next-reg substrates at L2 (next_stan_flow + log_T, 5-fold, multi-seed).║
+║                                                                                ║
+║ So: label by CATEGORY to rank next-cat; for next-reg use region_eval.py and     ║
+║ treat its output as a diagnostic, then defer the verdict to L2.                 ║
+╚══════════════════════════════════════════════════════════════════════════════╝
 """
 from __future__ import annotations
 

@@ -21,6 +21,26 @@
 > 1. **They measure *self*-prediction, not the *transition* task.** L0/L1 ask "can a POI's *own* category/region be recovered from its *own* static embedding?" — a different problem from "predict the *next* POI's category/region from a 9-step history." The sequence dynamics (and, at L2/L3, the `log_T` region-transition prior) are invisible to L0/L1. So L0/L1 are an **upper-bound proxy** for representational content, *not* a forecast of L2/L3 accuracy. Their ranking authority is **zero until the validity-chain ρ gate (below) is actually measured** — until then they may only flag "signal absent."
 > 2. **POI-pooling is biased against check-in-level engines.** Pooling Check2HGI's per-visit vectors to one mean-per-POI discards exactly the contextual spread that is its design purpose, while HGI's POI-level vector is lossless. So pooled L0/L1 **systematically undersell** contextual engines. Pooled cross-engine comparison is a **diagnostic, not a verdict**; for any check-in-level engine, the check-in-granularity axis (`--granularity checkin`) MUST be reported alongside before any comparison.
 
+---
+
+## ⭐ How to analyze each task (the decision guide — start here)
+
+This is the canonical, settled protocol (empirically validated 2026-06; full derivation in
+[`L0_METHODOLOGY.md`](L0_METHODOLOGY.md)). Follow it exactly when generating paper analyses.
+
+| task | nature | how to RANK substrates | what L0 is good for | command |
+|---|---|---|---|---|
+| **next-cat** | static attribute (own category lives in the geometry) | **L0 RANKS it** — kNN-LOO + silhouette + centroid-sep on `embeddings.parquet`, **label = category**. L0 tracks L2-cat; you may crown the cat axis at L0. Confirm at L2. | full ranker | `run.py --tasks cat` |
+| **next-reg** | transition/sequence (signal in `log_T`, NOT region geometry; corr(region-cosine, T_ij)≈0.05) | **NO static L0 ranks it.** RANK **only at L2** (`next_stan_flow` + log_T, 5-fold, multi-seed `{0,1,7,100}`). | **diagnostics only** (never crown): region-silhouette → spatial-cohesion axis (localizes HGI's cross-substrate win); adj_coh → geographic axis (log_T-redundant); crs-align → fclass axis. Use to *explain* an L2 result. | rank: `p1_region_head_ablation.py --heads next_stan_flow --input-type region --folds 5`; diagnose: `region_eval.py --region-silhouette` |
+| **next-poi** (future) | high-cardinality transition | as next-reg: rank at L2; L0 = check-in-granularity recoverability diagnostic only | diagnostic only | — |
+
+**Three rules that prevent the mistakes this study already made:**
+1. **Probe the task's real artifact.** next-cat → final `embeddings.parquet`; next-reg → `region_embeddings.parquet` (the `--task-b-input-type region` modality). Never label a final embedding "by region."
+2. **Match the metric's label to the task.** Clustering by the 7 categories validates next-cat, NOT next-reg — for region use the region label space (`poi_to_region`). (But see rule 3.)
+3. **A static metric can RANK only a static-attribute task.** For the transition tasks (reg, poi) every static-geometry metric is a single-axis *diagnostic* — it explains, it never crowns. The crown is L2. (We tested 8 transition-aware metrics; none ranks reg concordantly — `L0_METHODOLOGY.md §SETTLED`.)
+
+---
+
 ### L0 — Geometry (training-free)
 > ⚠ **L0 is TASK-SPECIFIC — see [`L0_METHODOLOGY.md`](L0_METHODOLOGY.md) (2026-06-01 audit).** L0 is a
 > legitimate **ranker for next-cat** (static-attribute task: own-category lives in the geometry) but

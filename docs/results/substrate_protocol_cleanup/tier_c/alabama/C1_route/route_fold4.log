@@ -1,0 +1,26 @@
+2026-05-29 00:04:30,314 - INFO - Rebuilding val loaders with task_a_input_type=checkin, task_b_input_type=region
+2026-05-29 00:04:30,315 - INFO - Creating 5-fold CV for mtl_check2hgi
+2026-05-29 00:04:30,315 - INFO - Loading next-POI data: alabama/check2hgi
+2026-05-29 00:04:30,386 - INFO - Next-POI data: (12709, 576) (dim=64, window=9), distribution: {np.int64(0): np.int64(2193), np.int64(1): np.int64(837), np.int64(2): np.int64(4345), np.int64(3): np.int64(453), np.int64(4): np.int64(712), np.int64(5): np.int64(3288), np.int64(6): np.int64(881)}
+2026-05-29 00:04:30,483 - INFO - MTL_CHECK2HGI input modality: task_a=checkin ((12709, 9, 64)), task_b=region ((12709, 9, 64))
+2026-05-29 00:04:30,606 - INFO - Fold 1/5: train=10167 val=2542 (users train=1302 val=320)
+2026-05-29 00:04:30,784 - INFO - Fold 2/5: train=10167 val=2542 (users train=1297 val=325)
+2026-05-29 00:04:30,870 - INFO - Fold 3/5: train=10167 val=2542 (users train=1291 val=331)
+2026-05-29 00:04:30,956 - INFO - Fold 4/5: train=10167 val=2542 (users train=1300 val=322)
+2026-05-29 00:04:31,043 - INFO - Fold 5/5: train=10168 val=2541 (users train=1298 val=324)
+2026-05-29 00:04:31,155 - INFO - Scoring slot=cat from /home/vitor.oliveira/PoiMtlNet/results/check2hgi/alabama/task_best_snapshots/fold4_cat_best.pt
+2026-05-29 00:04:31,350 - INFO - Scoring slot=reg from /home/vitor.oliveira/PoiMtlNet/results/check2hgi/alabama/task_best_snapshots/fold4_reg_best.pt
+2026-05-29 00:04:31,409 - INFO - Scoring slot=joint from /home/vitor.oliveira/PoiMtlNet/results/check2hgi/alabama/task_best_snapshots/fold4_joint_best.pt
+2026-05-29 00:04:31,468 - INFO - Wrote routing JSON to /home/vitor.oliveira/PoiMtlNet/docs/results/substrate_protocol_cleanup/tier_c/alabama/C1_route/route_fold4.json
+
+Routing table (fold 4, state=alabama, engine=check2hgi)
+--------------------------------------------------------------------------------
+slot             cat F1    cat Acc@1     reg F1    reg Acc@1   reg Acc@10
+--------------------------------------------------------------------------------
+cat_best         0.4521       0.4729     0.0922       0.2600       0.4622
+reg_best         0.4656       0.4709     0.0995       0.2860       0.4843
+joint_best       0.4488       0.4666     0.1034       0.2797       0.4799
+--------------------------------------------------------------------------------
+Per-task routing vs joint-best:
+  cat:  cat_best F1   0.4521  vs  joint_best F1     0.4488  (Δ=+0.0032)
+  reg:  reg_best Acc@10 0.4843  vs  joint_best Acc@10 0.4799  (Δ=+0.0043)

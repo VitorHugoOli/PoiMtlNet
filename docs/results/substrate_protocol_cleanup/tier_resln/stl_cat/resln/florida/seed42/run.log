@@ -1,0 +1,26 @@
+2026-05-29 23:45:34,664 - INFO - Loading data for florida (input_type=checkin, region_emb=check2hgi, target=category, engine_override=EmbeddingEngine.CHECK2HGI_RESLN)...
+2026-05-29 23:45:34,664 - INFO - Loading next-POI data: florida/check2hgi_resln
+2026-05-29 23:45:35,328 - INFO - Next-POI data: (159175, 576) (dim=64, window=9), distribution: {np.int64(0): np.int64(15723), np.int64(1): np.int64(13858), np.int64(2): np.int64(39296), np.int64(3): np.int64(7048), np.int64(4): np.int64(11081), np.int64(5): np.int64(33509), np.int64(6): np.int64(38660)}
+2026-05-29 23:45:35,773 - INFO - x=torch.Size([159175, 9, 64]), emb_dim=64, target=category(7 classes), n_seqs=159175, last_region_idx=present
+2026-05-29 23:45:36,870 - INFO - No checkpoint — starting fresh. Will save to docs/results/P1/region_head_florida_checkin_5f_50ep_RESLN_STL_CAT_resln_florida.checkpoint.json after each fold.
+2026-05-29 23:45:36,870 - INFO - ============================================================
+2026-05-29 23:45:36,870 - INFO - HEAD: next_gru (5 folds x 50 epochs, max_lr=3e-03, ls=0.00, input_ln=False)
+2026-05-29 23:45:36,870 - INFO - ============================================================
+2026-05-29 23:46:04,583 - INFO -   fold 0: Acc@1=0.4854 Acc@5=0.9540 Acc@10=1.0000 MRR=0.6731 F1=0.3946 (27.7s, best_ep=1)
+2026-05-29 23:46:33,934 - INFO -   fold 1: Acc@1=0.4867 Acc@5=0.9483 Acc@10=1.0000 MRR=0.6732 F1=0.3884 (29.4s, best_ep=1)
+2026-05-29 23:47:03,088 - INFO -   fold 2: Acc@1=0.4855 Acc@5=0.9553 Acc@10=1.0000 MRR=0.6739 F1=0.3972 (29.2s, best_ep=1)
+2026-05-29 23:47:32,395 - INFO -   fold 3: Acc@1=0.4858 Acc@5=0.9536 Acc@10=1.0000 MRR=0.6743 F1=0.3920 (29.3s, best_ep=1)
+2026-05-29 23:48:02,131 - INFO -   fold 4: Acc@1=0.4774 Acc@5=0.9533 Acc@10=1.0000 MRR=0.6679 F1=0.3862 (29.7s, best_ep=1)
+2026-05-29 23:48:02,132 - INFO -   AGGREGATE: Acc@1=0.4842+/-0.0038  Acc@10=1.0000+/-0.0000  MRR=0.6725+/-0.0026  F1=0.3917+/-0.0045
+2026-05-29 23:48:02,133 - INFO - Saved: docs/results/P1/region_head_florida_checkin_5f_50ep_RESLN_STL_CAT_resln_florida.json
+2026-05-29 23:48:02,133 - INFO - Removed checkpoint docs/results/P1/region_head_florida_checkin_5f_50ep_RESLN_STL_CAT_resln_florida.checkpoint.json (run complete).
+
+================================================================================
+P1 REGION-HEAD ABLATION - florida - 5f x 50ep - input=checkin
+================================================================================
+Head                         Acc@1    Acc@5   Acc@10      MRR       F1
+--------------------------------------------------------------------------------
+next_gru                    48.42%   95.29%  100.00%   67.25%   39.17%
+--------------------------------------------------------------------------------
+Markov 1-step (floor)         ~12%        —   ~45.9%        —        —
+================================================================================

@@ -11,14 +11,32 @@ Region ids are the SHARED census-tract partition (check2hgi poi_to_region); both
 HGI and Check2HGI region_embeddings.parquet are indexed by the same region_id,
 which is exactly how p1_region_head_ablation.py looks them up for either engine.
 
-L0 (train-free): adjacency coherence — fraction of each region's cosine-kNN that
-  are graph-adjacent (region_adjacency). A good region embedding places spatially
-  adjacent regions near each other. + linear CKA across engines.
-L1 (probe): 1-step transition probe — given the CURRENT region's embedding,
-  linearly predict the NEXT region (pairs = last_region_idx -> region_idx from
-  next_region.parquet). Acc@k mirrors the real next-reg Acc@10. This is a
-  1-step-Markov reduction of the 9-window+log_T task: a cheap proxy whose RANKING
-  (not absolute value) we check against the real STL §0.3.
+╔══════════════════════════════════════════════════════════════════════════════╗
+║ ⚠ next-reg L0/L1 ARE DIAGNOSTICS, NOT RANKERS — see L0_METHODOLOGY.md          ║
+║                                                                                ║
+║ next-reg is a TRANSITION task: the predictive signal lives in log_T, NOT in    ║
+║ the static region geometry (empirically corr(region-cosine, T_ij) ~= 0.05).    ║
+║ We validated 8 static metrics (adjacency, transition-alignment, crs-align, ...)║
+║ — NONE ranks substrates concordantly with L2. So:                              ║
+║   • DO NOT use any metric below to CROWN a region substrate.                   ║
+║   • RANK next-reg substrates at L2 only: p1_region_head_ablation.py            ║
+║       --heads next_stan_flow --input-type region --folds 5 (multi-seed).       ║
+║   • The metrics below are DIAGNOSTICS that flag ONE geometric axis each, used  ║
+║     to EXPLAIN an L2 result, never to decide it.                               ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Diagnostics computed here (all train-free):
+- adjacency coherence: fraction of each region's cosine-kNN that are graph-adjacent
+  (region_adjacency). Flags the GEOGRAPHIC-adjacency axis. NOTE: log_T-redundant and
+  anti-ranks design_b — diagnostic only.
+- region-silhouette (POI-level, label=poi_to_region; see ``region_silhouette``): flags
+  the SPATIAL-COHESION axis. The one diagnostic that concordantly localizes HGI's
+  cross-substrate next-reg advantage (HGI ~ -0.46 vs Check2HGI family ~ -0.65). Still
+  NOT a within-family ranker.
+- linear CKA across engines: "same space?" diagnostic only, never a quality signal.
+- 1-step transition probe (L1): given the CURRENT region embedding, linearly predict the
+  NEXT region. A 1-step-Markov reduction of the 9-window+log_T task — near-tie across
+  engines (self-transition ~0.49), too crude to resolve the gap. Diagnostic only.
 """
 from __future__ import annotations
 
@@ -97,6 +115,43 @@ def adjacency_coherence(emb: np.ndarray, state: str, k: int = 10,
     return float(np.mean(fold_means)), float(np.std(fold_means, ddof=1))
 
 
+def region_silhouette(state: str, engine_dir: str, sample: int = 10000, seed: int = 0):
+    """SPATIAL-COHESION diagnostic (the validated cross-substrate next-reg flag).
+
+    Clusters the POI-level embeddings by their REGION (label = poi_to_region, the
+    task's own label space — NOT the 7 categories), and reports region-silhouette +
+    region-kNN-accuracy. A higher (less negative) silhouette means POIs in the same
+    region sit together → the embedding carries POI-level spatial cohesion, which is
+    the axis HGI's Delaunay graph raises and where it leads next-reg (HGI ~ -0.46 vs
+    Check2HGI family ~ -0.65).
+
+    ⚠ DIAGNOSTIC, NOT A RANKER. It concordantly localizes HGI's CROSS-substrate
+    advantage, but it anti-ranks WITHIN the Check2HGI family (design_b's fclass lowers
+    cohesion yet helps the head). Use it to EXPLAIN the spatial axis, never to crown a
+    substrate — that is L2's job. See L0_METHODOLOGY.md.
+
+    ``engine_dir`` is the output/ subdir name (e.g. 'hgi', 'check2hgi_resln_design_b').
+    Reads poi_embeddings.parquet, or embeddings.parquet for POI-level HGI.
+    """
+    import pandas as pd
+    from scripts.embedding_eval.geometry import knn_loo, silhouette as _sil
+    base = _root / "output" / engine_dir / state.lower()
+    path = base / "poi_embeddings.parquet"
+    if not path.exists():
+        path = base / "embeddings.parquet"   # HGI stores POI-level emb here
+    df = pd.read_parquet(path)
+    dim_cols = [c for c in df.columns if c.isdigit()]
+    emb = df[dim_cols].to_numpy(np.float32)
+    g = pickle.load(open(IoPaths.CHECK2HGI.get_graph_data_file(state), "rb"))
+    p2i, p2r = g["placeid_to_idx"], np.asarray(g["poi_to_region"])
+    reg = np.array([p2r[p2i[int(p)]] if int(p) in p2i else -1 for p in df["placeid"]])
+    m = reg >= 0
+    emb, reg = emb[m], reg[m]
+    sil = _sil(emb, reg, sample=sample, seed=seed)
+    knn = knn_loo(emb, reg, k=10)
+    return {"region_silhouette": sil, "region_knn10_acc": knn["knn10_acc"]}
+
+
 def transition_probe(emb, last, nxt, n_folds=5, seed=42, epochs=300, lr=1e-2):
     """5-fold CV linear probe: region_emb[current] -> next region. Returns
     {metric:(mean,sd)} over the 5 folds (mirrors L2's 5-fold protocol)."""
@@ -160,12 +215,18 @@ def main():
     ap.add_argument("--state", default="florida")
     ap.add_argument("--seed", type=int, default=42, help="5-fold shuffle seed")
     ap.add_argument("--n-folds", type=int, default=5)
+    ap.add_argument("--region-silhouette", action="store_true",
+                    help="Also print the POI-level region-silhouette spatial-cohesion "
+                         "DIAGNOSTIC (cross-substrate HGI-gap flag; NOT a ranker).")
     args = ap.parse_args()
 
     last, nxt = load_pairs(args.state)
     print(f"[{args.state}] {len(last)} transition pairs, {int(nxt.max())+1} regions, "
-          f"self-transition rate={np.mean(last==nxt):.3f}  (5-fold CV, mean±SD)\n")
-    print(f"{'engine':30s} {'adj_coh@10':>16s} {'probe_acc':>16s} {'acc@5':>16s} {'acc@10':>16s}")
+          f"self-transition rate={np.mean(last==nxt):.3f}  (5-fold CV, mean±SD)")
+    print("⚠ DIAGNOSTICS ONLY — next-reg substrate RANKING is decided at L2, never here "
+          "(see L0_METHODOLOGY.md).\n")
+    sil_h = f" {'reg_silhouette':>16s}" if args.region_silhouette else ""
+    print(f"{'engine':30s} {'adj_coh@10':>16s} {'probe_acc':>16s} {'acc@5':>16s} {'acc@10':>16s}{sil_h}")
     for name in args.engines:
         emb, R = load_region_emb(args.state, EmbeddingEngine(name))
         if emb is None:
@@ -174,8 +235,15 @@ def main():
         am, asd = adjacency_coherence(emb, args.state, n_folds=args.n_folds, seed=args.seed)
         pr = transition_probe(emb, last, nxt, n_folds=args.n_folds, seed=args.seed)
         def cell(k): m, s = pr[k]; return f"{m:.4f}±{s:.4f}"
+        sil_c = ""
+        if args.region_silhouette:
+            try:
+                rs = region_silhouette(args.state, name)
+                sil_c = f" {rs['region_silhouette']:>16.4f}"
+            except Exception as e:
+                sil_c = f" {'n/a':>16s}"
         print(f"{name:30s} {f'{am:.4f}±{asd:.4f}':>16s} {cell('accuracy'):>16s} "
-              f"{cell('top5_acc'):>16s} {cell('top10_acc'):>16s}")
+              f"{cell('top5_acc'):>16s} {cell('top10_acc'):>16s}{sil_c}")
 
 
 if __name__ == "__main__":

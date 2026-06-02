@@ -1,0 +1,36 @@
+{
+  "fold": 1,
+  "state": "florida",
+  "engine": "check2hgi",
+  "task_a_input_type": "checkin",
+  "task_b_input_type": "region",
+  "table": {
+    "cat": {
+      "cat_f1": 0.7128557562828064,
+      "cat_accuracy": 0.7426103353500366,
+      "reg_f1": 0.10088592767715454,
+      "reg_accuracy": 0.15969844162464142,
+      "reg_top10_acc": 0.35040050745010376
+    },
+    "reg": {
+      "cat_f1": 0.6787358522415161,
+      "cat_accuracy": 0.7056070566177368,
+      "reg_f1": 0.13138175010681152,
+      "reg_accuracy": 0.4846552610397339,
+      "reg_top10_acc": 0.6126276254653931
+    },
+    "joint": {
+      "cat_f1": 0.6911327838897705,
+      "cat_accuracy": 0.7181090116500854,
+      "reg_f1": 0.131088525056839,
+      "reg_accuracy": 0.4828333556652069,
+      "reg_top10_acc": 0.5969530344009399
+    }
+  },
+  "summary": {
+    "cat_routed_f1": 0.7128557562828064,
+    "reg_routed_top10_acc": 0.6126276254653931,
+    "joint_cat_f1": 0.6911327838897705,
+    "joint_reg_top10_acc": 0.5969530344009399
+  }
+}

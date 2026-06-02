@@ -194,6 +194,13 @@ def load_poi2vec_table(state: str, num_pois: int, placeid_to_idx: dict) -> torch
 
 def train_design_b(state: str, args: argparse.Namespace) -> None:
     state_lc = state.lower()
+    # Reproducibility: this is an unsupervised build with random encoder init +
+    # random negatives, so the run is seed-dependent. Pin it (paper-grade builds
+    # must be reproducible). Without this two runs give rotated/independent
+    # solutions (verified 2026-06-02).
+    seed = int(getattr(args, "seed", 42))
+    torch.manual_seed(seed)
+    np.random.seed(seed)
     # tier_resln: --encoder resln + --out-engine check2hgi_resln_design_b stacks
     # the ResidualLNEncoder onto Design B's POI2Vec-at-pool injection. Default
     # out-engine preserves canonical Design B behaviour byte-for-byte.
@@ -356,6 +363,8 @@ def train_design_b(state: str, args: argparse.Namespace) -> None:
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--state", required=True)
+    ap.add_argument("--seed", type=int, default=42,
+                    help="Reproducibility seed (encoder init + negatives). Pinned by default.")
     ap.add_argument("--epochs", type=int, default=500)
     ap.add_argument("--dim", type=int, default=64)
     ap.add_argument("--num-layers", dest="num_layers", type=int, default=2)
