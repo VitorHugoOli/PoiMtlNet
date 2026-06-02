@@ -348,3 +348,14 @@ a LOWER bound vs fresh-canonical, given the known ~0.5pp fresh-vs-frozen reg off
 **FINAL design_k verdict:** carry design_k — dual-axis safe (cat ≈ matched-fresh canonical ≫ HGI;
 reg +0.9-1.1pp over canonical, closes 54-78% of HGI gap). Residual HGI reg gap (0.26pp FL / 0.90pp
 AL) is the target for the live candidates (T6.2 edge-weight re-tune, HGI-POI-decoder distill).
+
+## Candidate #1 T6.2 edge re-tune — FALSIFIED on design_k (2026-06-02)
+design_k + cross_region_weight=0.5 (down-weight cross-region Delaunay edges to focus intra-
+region smoothing): L0 adj_coh 0.362 (↓ from base 0.379), region-silhouette −0.409 (worse than
+base −0.394); L2 reg 0.7338 ≈ base 0.7341 (flat). **The edge re-tune does NOT sharpen the
+spatial axis** — HGI's distance weights (already loaded in design_k) are well-calibrated; messing
+with them slightly hurts cohesion. T6.2 exhausted on design_k. The spatial axis is SATURATED by
+base design_k (it already EXCEEDS HGI's region-silhouette −0.39 > −0.46), so the residual 0.26pp
+HGI gap is NOT a spatial-cohesion deficit — it lives in something static geometry doesn't capture
+(consistent with the L0→L2 ceiling). Remaining substrate shot: #5 HGI-POI-decoder distill (a
+DIFFERENT axis). Otherwise the residual is a Part-2 (fusion/routing) problem.

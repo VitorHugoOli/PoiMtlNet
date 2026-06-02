@@ -1,0 +1,1 @@
+T6.2(cr=0.5): adj_coh=0.3623 region_silhouette=-0.4087  (base design_k: 0.379 / -0.394)
