@@ -38,6 +38,7 @@ sys.path.insert(0, str(REPO / "research"))
 
 from embeddings.check2hgi.model.Check2HGIModule import Check2HGI, corruption
 from embeddings.check2hgi.model.CheckinEncoder import CheckinEncoder
+from embeddings.check2hgi.model.variants import ResidualLNEncoder
 from embeddings.check2hgi.model.Checkin2POI import Checkin2POI
 from embeddings.hgi.model.RegionEncoder import POI2Region
 
@@ -48,7 +49,8 @@ class Check2HGI_DesignK(Check2HGI):
     """Design J + Delaunay POI-POI GCN before POI2Region."""
 
     def __init__(self, *args, num_pois, poi2vec_anchor: torch.Tensor,
-                 gamma_init=1.0, **kwargs):
+                 gamma_init=1.0, side_features: torch.Tensor | None = None,
+                 side_feature_hidden: int = 16, **kwargs):
         super().__init__(*args, **kwargs)
         self.poi_table = nn.Embedding(num_pois, self.hidden_channels)
         with torch.no_grad():
@@ -58,6 +60,21 @@ class Check2HGI_DesignK(Check2HGI):
         self.poi_gcn = GCNConv(self.hidden_channels, self.hidden_channels,
                                cached=True, bias=True)
         self.poi_gcn_act = nn.PReLU(self.hidden_channels)
+
+        # design_k+sidefeat: T4.3 POI side-feature injector applied AFTER the
+        # Delaunay GCN (reg path only), mirroring Check2HGIModule.py:228-243. Stacks
+        # the spatial axis (Delaunay) with the usage/popularity axis (side-features).
+        if side_features is not None:
+            self.register_buffer("side_features", side_features.float())
+            self.side_proj = nn.Sequential(
+                nn.Linear(int(side_features.shape[1]), int(side_feature_hidden)), nn.PReLU())
+            self.pool_post_proj = nn.Sequential(
+                nn.Linear(self.hidden_channels + int(side_feature_hidden), self.hidden_channels),
+                nn.LayerNorm(self.hidden_channels))
+        else:
+            self.side_features = None
+            self.side_proj = None
+            self.pool_post_proj = None
 
     def forward(self, data):
         num_pois = data.num_pois
@@ -82,6 +99,12 @@ class Check2HGI_DesignK(Check2HGI):
             self.poi_gcn(pos_pre_gcn, data.delaunay_edge_index, data.delaunay_edge_weight))
         neg_poi_emb_for_reg = self.poi_gcn_act(
             self.poi_gcn(neg_pre_gcn, data.delaunay_edge_index, data.delaunay_edge_weight))
+
+        # design_k+sidefeat: post-GCN side-feature concat-project (reg path only).
+        if self.side_proj is not None:
+            side_h = self.side_proj(self.side_features)
+            pos_poi_emb_for_reg = self.pool_post_proj(torch.cat([pos_poi_emb_for_reg, side_h], dim=1))
+            neg_poi_emb_for_reg = self.pool_post_proj(torch.cat([neg_poi_emb_for_reg, side_h], dim=1))
 
         pos_region_emb = self.poi2region(pos_poi_emb_for_reg, data.poi_to_region, data.region_adjacency)
         neg_region_emb = self.poi2region(neg_poi_emb_for_reg, data.poi_to_region, data.region_adjacency)
@@ -165,6 +188,9 @@ def load_delaunay_edges(state: str, placeid_to_idx: dict, num_pois: int):
 
 def train(state: str, args):
     state_lc = state.lower()
+    # Reproducibility (unsupervised build is seed-dependent). Pinned by default.
+    seed = int(getattr(args, "seed", 42))
+    torch.manual_seed(seed); np.random.seed(seed)
     suffix = getattr(args, "out_suffix", "") or ""
     base = "check2hgi_design_k" + (f"_{suffix}" if suffix else "")
     out_dir = REPO / "output" / base / state_lc
@@ -183,6 +209,24 @@ def train(state: str, args):
     poi2vec = load_poi2vec(state, num_pois, d["placeid_to_idx"])
     del_ei, del_ew = load_delaunay_edges(state, d["placeid_to_idx"], num_pois)
 
+    # design_k+sidefeat: optionally load the T4.3 32-d POI side-feature tensor.
+    side_features = None
+    if getattr(args, "use_side_features", False):
+        sf_path = REPO / "output" / "check2hgi" / state_lc / "poi_side_features.pt"
+        if not sf_path.exists():
+            import subprocess, os as _os
+            r = subprocess.run(
+                [sys.executable, str(REPO / "scripts/canonical_improvement/compute_poi_side_features.py"),
+                 "--state", state], cwd=str(REPO),
+                env={**_os.environ, "PYTHONPATH": f"{REPO}/src:{REPO}/research"})
+            if r.returncode != 0:
+                raise RuntimeError(f"compute_poi_side_features.py failed rc={r.returncode}")
+        sf = torch.load(sf_path)
+        side_features = (sf["features"] if isinstance(sf, dict) else sf)
+        if side_features.shape[0] != num_pois:
+            raise ValueError(f"side_features rows {side_features.shape[0]} != num_pois {num_pois}")
+        print(f"[{state_lc}] side_features attached shape={tuple(side_features.shape)}")
+
     data = Data(
         x=torch.tensor(d["node_features"], dtype=torch.float32),
         edge_index=torch.tensor(d["edge_index"], dtype=torch.int64),
@@ -198,7 +242,13 @@ def train(state: str, args):
     ).to(device)
     metadata = d["metadata"]
 
-    checkin_encoder = CheckinEncoder(in_channels, args.dim, num_layers=args.num_layers)
+    _encoder = getattr(args, "encoder", "gcn") or "gcn"
+    if _encoder == "resln":
+        checkin_encoder = ResidualLNEncoder(in_channels, args.dim, num_layers=args.num_layers)
+        print(f"[{state_lc}] encoder=ResidualLNEncoder num_layers={args.num_layers}")
+    else:
+        checkin_encoder = CheckinEncoder(in_channels, args.dim, num_layers=args.num_layers)
+        print(f"[{state_lc}] encoder=CheckinEncoder (canonical GCN) num_layers={args.num_layers}")
     checkin2poi = Checkin2POI(args.dim, args.attention_head)
     poi2region = POI2Region(args.dim, args.attention_head)
 
@@ -211,6 +261,7 @@ def train(state: str, args):
         region2city=region2city, corruption=corruption,
         alpha_c2p=args.alpha_c2p, alpha_p2r=args.alpha_p2r, alpha_r2c=args.alpha_r2c,
         num_pois=num_pois, poi2vec_anchor=poi2vec, gamma_init=args.gamma_init,
+        side_features=side_features, side_feature_hidden=args.side_feature_hidden,
     ).to(device)
     print(f"[{state_lc}] params={sum(p.numel() for p in model.parameters()):,}")
 
@@ -290,6 +341,13 @@ def main():
     ap.add_argument("--gamma", type=float, default=1.0)
     ap.add_argument("--max-norm", dest="max_norm", type=float, default=0.9)
     ap.add_argument("--device", type=str, default="cpu")
+    ap.add_argument("--seed", type=int, default=42,
+                    help="Reproducibility seed (encoder init + negatives). Pinned by default.")
+    ap.add_argument("--encoder", type=str, default="gcn", choices=["gcn", "resln"],
+                    help="Check-in encoder. 'gcn' (canonical) or 'resln' (ResidualLNEncoder).")
+    ap.add_argument("--use-side-features", dest="use_side_features", action="store_true",
+                    help="Stack T4.3 POI side-features (32d) after the Delaunay GCN (reg path).")
+    ap.add_argument("--side-feature-hidden", dest="side_feature_hidden", type=int, default=16)
     ap.add_argument("--out-suffix", dest="out_suffix", type=str, default="",
                     help="Append suffix to output dir (e.g. 'l0_5' → output/check2hgi_design_k_l0_5/)")
     args = ap.parse_args()
