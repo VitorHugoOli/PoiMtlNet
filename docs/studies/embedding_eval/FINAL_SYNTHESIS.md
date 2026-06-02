@@ -454,3 +454,21 @@ gap; −0.36pp residual to HGI). mae adds +0.41pp cat at zero reg cost. Three or
 stacked: resln+mae (cat, encoder) ⊕ Delaunay (reg, detached path). Option (a) closed.
 
 Residual reg gap to HGI (−0.36pp) → Part-2 (option b: MTL + dual-substrate routing).
+
+## Option (b) step 1 — MTL: design_k_resln+mae gives NO MTL benefit (STL-only) (2026-06-02)
+MTL B9 pilot (2-fold, FL seed42), F1 | Acc | Top3:
+| task | canonical | design_k_resln+mae |
+|---|---|---|
+| next_category | 69.25 / 72.37 | 69.04 / 72.16 |
+| next_region | 9.88 / 47.15 / 53.77 | 10.23 / 47.18 / 52.67 |
+
+**design_k_resln+mae ≈ canonical on BOTH tasks in MTL** (cat −0.21pp, reg-Acc +0.03pp — ties
+within noise). **The strong STL dual-axis gains (cat +2.5pp, reg +0.8pp) do NOT survive MTL
+deployment** — reproduces the documented "v13 = STL-only, no MTL benefit". MTL itself lifts cat
+to ~69 for BOTH substrates (cross-task transfer equalizes them). ⇒ **The substrate axis is
+exhausted even for MTL; the live Part-2 lever is HEAD/FUSION/ROUTING, not the substrate.**
+(Caveat: 2-fold seed42 pilot; full 5-fold multi-seed = GPU. Signal is clear and matches v13.)
+
+**Part-2 redirect:** skip further substrate-in-MTL work. Next lever = **dual-substrate
+task-routing** (route HGI's region tower to the reg head; design_k_resln+mae for cat) — the one
+log_T-orthogonal unfalsified lever. That is a head/architecture experiment for the MTL study.

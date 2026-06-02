@@ -1,0 +1,29 @@
+2026-06-02 17:42:00,744 - INFO - log_T-KD OFF (W=0.0) via explicit --log-t-kd-weight — v11 paper-canon (no-KD) reproduction mode
+2026-06-02 17:42:01,161 - WARNING - Generating folds on the fly (no cache at /home/vitor.oliveira/PoiMtlNet/output/check2hgi_design_k_resln_mae_l0_1/florida/folds/fold_indices_mtl_check2hgi.pt). Run `python scripts/study/freeze_folds.py --state florida --engine check2hgi_design_k_resln_mae_l0_1 --task mtl_check2hgi` to freeze them; paired statistical tests require frozen splits.
+2026-06-02 17:42:01,161 - INFO - Creating 2-fold CV for mtl_check2hgi
+2026-06-02 17:42:01,161 - INFO - Loading next-POI data: florida/check2hgi_design_k_resln_mae_l0_1
+2026-06-02 17:42:01,828 - INFO - Next-POI data: (159175, 576) (dim=64, window=9), distribution: {np.int64(0): np.int64(15723), np.int64(1): np.int64(13858), np.int64(2): np.int64(39296), np.int64(3): np.int64(7048), np.int64(4): np.int64(11081), np.int64(5): np.int64(33509), np.int64(6): np.int64(38660)}
+2026-06-02 17:42:02,973 - INFO - MTL_CHECK2HGI input modality: task_a=checkin ((159175, 9, 64)), task_b=region ((159175, 9, 64))
+2026-06-02 17:42:03,420 - INFO - Fold 1/2: train=79588 val=79587 (users train=6971 val=6964)
+2026-06-02 17:42:03,888 - INFO - Fold 2/2: train=79587 val=79588 (users train=6964 val=6971)
+2026-06-02 17:42:04,268 - INFO - check2HGI task_set resolved: task_a=next_category/7, task_b=next_region/4702
+2026-06-02 17:42:04,268 - INFO - ========================================================================
+2026-06-02 17:42:04,268 - INFO - Training: state=florida  engine=check2hgi_design_k_resln_mae_l0_1  task=mtl  epochs=50  folds=1
+2026-06-02 17:42:04,268 - INFO - ========================================================================
+[36m[1m2026-06-02 17:42:04 - INFO  - ========================= FOLD 1/1 =========================[0m
+[36m[1m2026-06-02 17:42:04 - INFO  - ==================== Training Complete ====================[0m
+[36m[1m2026-06-02 17:42:04 - INFO  - ------------------------- Summary -------------------------[0m
+[36m[1m2026-06-02 17:42:04 - INFO  - Model: MTLNet | Folds: 1 | End at: 20260602_174204[0m
+[36m[1m2026-06-02 17:42:04 - INFO  - Total Time: 0.12s[0m
+[36m[1m2026-06-02 17:42:04 - INFO  - ===================== End of all folds =====================[0m
+Traceback (most recent call last):
+  File "/home/vitor.oliveira/PoiMtlNet/scripts/train.py", line 1783, in <module>
+    main()
+  File "/home/vitor.oliveira/PoiMtlNet/scripts/train.py", line 1774, in main
+    _run_mtl_check2hgi(config, results_path, fold_results, task_set)
+  File "/home/vitor.oliveira/PoiMtlNet/scripts/train.py", line 240, in _run_mtl_check2hgi
+    results = train_with_cross_validation(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/vitor.oliveira/PoiMtlNet/src/training/runners/mtl_cv.py", line 1095, in train_with_cross_validation
+    raise ValueError(
+ValueError: Per-fold log_T at output/check2hgi/florida/region_transition_log_seed42_fold1.pt was built with n_splits=5, but the trainer is running at n_splits=2 (set via --folds; max(2, N)). Mismatch silently leaks val transitions into the prior. Rebuild for the trainer's n_splits: python scripts/compute_region_transition.py --state florida --per-fold --n-splits 2 --seed 42
