@@ -884,6 +884,9 @@ class FoldCreator:
             EmbeddingEngine.CHECK2HGI_T43_SIDEFEAT,  # embedding_eval MTL re-screen
             EmbeddingEngine.CHECK2HGI_GPROP,         # GCN^2 region-emb proxy
             EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_B_GPROP,  # v13 + GCN^2 region
+            EmbeddingEngine.CHECK2HGI_DESIGN_K_L0_1,
+            EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_L0_1,
+            EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_MAE_L0_1,  # option-b dual-axis base
         )
         if embedding_engine not in _MTL_C2HGI_ALLOWED_ENGINES:
             raise ValueError(
