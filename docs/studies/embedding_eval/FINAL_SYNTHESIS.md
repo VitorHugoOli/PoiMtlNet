@@ -1,5 +1,21 @@
 # embedding_eval — Final Synthesis (macro)
 
+> ╔══════════════════════════════════════════════════════════════════════════════╗
+> ║ ⭐ CURRENT VERDICT (2026-06-02) — supersedes the v13-centric intro below.       ║
+> ║ This file is APPEND-ONLY: the sections below are chronological and include      ║
+> ║ retracted claims (each marked RETRACTED in place). The FINAL state is:          ║
+> ║                                                                                ║
+> ║  • Substrate champion = **v14 = `check2hgi_design_k_resln_mae_l0_1`** (ResLN +  ║
+> ║    Delaunay-POI-GCN + mae), NOT v13. Dual-axis (leak-free multi-seed FL):        ║
+> ║    next-cat 67.36 (≫ HGI) + next-reg 0.7024 (closes ~78% of the canon→HGI gap).  ║
+> ║  • design_k (Delaunay) was WRONGLY discarded by a prior AL/AZ-only study —       ║
+> ║    re-validation overturned it. The spatial axis is the one that moves L2-reg.   ║
+> ║  • STL-only: NO MTL benefit from v14, nor from dual-substrate routing (pilots) — ║
+> ║    the MTL cross-attn regime is the binding constraint (Part-2 = regime, not     ║
+> ║    substrate). See the dated sections at the END of this file for the authority. ║
+> ║  • Canonical numbers/versioning: docs/results/CANONICAL_VERSIONS.md §v14.        ║
+> ╚══════════════════════════════════════════════════════════════════════════════╝
+
 **Study goal (recap).** Build a better *evaluation* of the Check2HGI substrate so we can (a) compare proposed embedding improvements rigorously and (b) **measure them against HGI on next-reg**, with improvements layered on **v13** (`check2hgi_resln_design_b` = ResLN + Design-B POI2Vec). MTL is **Part 2** — the plan is to first strengthen the embeddings / close the next-reg HGI gap at STL, then a separate study works the MTL on top of the chosen substrate.
 
 ---
