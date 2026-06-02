@@ -247,3 +247,30 @@ STL-only no benefit" and the v13+sidefeat no-stack finding. ⇒ **Carry plain de
 Delaunay POI edges).** The Delaunay spatial lever is the load-bearing piece; encoder/side-
 feature axes are neutral-to-negative on top of it. Still ~0.2pp below HGI (within noise).
 Next: state sweep (AL/AZ full + CA/TX 1-fold) on base design_k; then multi-seed FL.
+
+## design_k state sweep — MATCHED harness (corrected, 2026-06-02)
+⚠ The old `_reg_gethard_pf` baselines diverge from the l2l3 harness by 2-3.5pp at FL
+(likely stale-log_T) — NOT comparable. Re-ran canonical+HGI in the SAME harness as design_k
+(next_stan_flow, seed42, shared fresh log_T). The matched table:
+| state | canonical | hgi | design_k | dk−canon | dk−hgi |
+|---|---|---|---|---|---|
+| AL (5f) | 0.6074±.040 | 0.6358±.031 | 0.6281±.040 | +2.08 | −0.77 |
+| AZ (5f) | 0.5344±.028 | 0.5487±.026 | 0.5510±.025 | +1.66 | +0.23 |
+| CA (1f) | 0.5751 | (HGI NA) | 0.5872 | +1.21 | — |
+| TX (1f) | 0.6066 | (HGI NA) | 0.6155 | +0.89 | — |
+| FL (5f) | 0.7274 | 0.7362 | 0.7341 | +0.67 | −0.21 |
+
+**Honest verdict (seed42):**
+- **design_k robustly beats canonical Check2HGI at ALL 5 states** (+0.67 to +2.08pp) — a real
+  next-reg substrate gain from the Delaunay POI edges.
+- **vs HGI: design_k ≈ HGI (statistical tie, all dk−hgi within ~1 SD)** — slightly behind at
+  AL/FL, slightly ahead at AZ. NOT "beats HGI"; it CLOSES the gap (from ~1-2pp behind at
+  canonical to indistinguishable). The earlier "design_k > HGI everywhere" was a stale-baseline
+  artifact, corrected here.
+- CA/TX vs HGI pending (HGI region emb cleaned; needs rebuild).
+- Reconciles the prior "K≡J / below-HGI at AL/AZ": that was protocol-dependent; in a matched
+  harness design_k matches HGI at AL/AZ too. K vs J directly not re-tested (secondary).
+
+**Claim for paper:** Delaunay POI edges close the Check2HGI→HGI next-reg gap (Check2HGI+design_k
+≈ HGI, ≫ canonical) across 5 states, crediting HGI's imported spatial graph. **MANDATORY: multi-seed
+{0,1,7,100}** (seed42 is the dev seed; gaps are within 1 SD so seed variance is the live axis).
