@@ -4,6 +4,7 @@ from .next_conv_attn.head import NextHeadConvAttn
 from .next_gru.head import NextHeadGRU
 from .next_hybrid.head import NextHeadHybrid
 from .next_lstm.head import NextHeadLSTM
+from .next_mamba.head import NextHeadMamba
 from .next_mtl.head import NextHeadMTL
 from .next_getnext.head import NextHeadGETNext
 from .next_stan_flow.head import (
@@ -27,6 +28,7 @@ __all__ = [
     "NextHeadSingle",
     "NextHeadMTL",
     "NextHeadLSTM",
+    "NextHeadMamba",
     "NextHeadGRU",
     "NextHeadSTAN",
     "NextHeadGETNext",
