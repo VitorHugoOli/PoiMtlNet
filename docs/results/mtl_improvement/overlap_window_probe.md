@@ -35,3 +35,20 @@ The frozen (c)/(d) ceilings, the MTL board, the per-fold log_T, and the v11 PAPE
 non-overlapping windows → the small-state ceilings (and the small↔large scale story) are capped by
 ~5-9.5pp. Adopting overlap is a major rebuild that changes the paper. Decision needed: adopt-as-canon
 (rebuild everything) vs document-as-headroom/future-work vs investigate-further (real-pipeline + MTL).
+
+## Real-pipeline confirmation (2026-06-03) — caveat resolved
+Built an isolated probe engine `check2hgi_dk_ovl` (v14 embeddings re-windowed stride=1; embeddings/
+region symlinked from v14; frozen substrate untouched) and ran the ACTUAL trainers at AL:
+| task | frozen (non-overlap) | overlap (REAL pipeline) | lift | isolated harness |
+|---|---|---|---|---|
+| cat | 49.97 | **59.74 ± 3.57** | **+9.77** | 60.23 |
+| reg | 62.88 | **68.01 ± 4.22** | **+5.13** | 68.96 |
+The real pipeline reproduces the isolated-harness lift exactly → the ~1pp harness-optimism caveat is
+RESOLVED. Overlapping windows genuinely lift the AL STL ceilings by ~+5 to +9.8pp in the real trainers.
+Build: `scripts/mtl_improvement/build_overlap_probe_engine.py`; engine-aware region seq (seq_engine).
+
+## STILL OPEN — the decisive question: does overlap help MTL too?
+If overlap lifts the MTL model as much as STL → "rising tide" (rebuild for higher numbers, regime
+finding unchanged). If it lifts STL MORE than MTL at small states → the STL→MTL gap WIDENS, which
+*strengthens* the dual-tower/regime story. Needs an MTL-with-overlap run (engine-aware MTL fold
+creator + log_T-KD-off control). NEXT.
