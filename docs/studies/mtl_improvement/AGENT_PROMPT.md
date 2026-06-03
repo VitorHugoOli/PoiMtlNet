@@ -95,11 +95,17 @@ You are the **implementing agent** for the MTL Improvement research track. A pri
 
 3. **Use the `/goal` slash command for autonomous experiment runs.** Each experiment's `Methodology` block in `INDEX.html` is a complete goal description. Queue tier-by-tier; steer when results come in.
 
-4. **After each tier completes, call advisor** with that tier's results. Capture advisor feedback in `log.md`. Apply revisions before moving to the next tier.
+4. **Per-tier review cadence — MANDATORY at every tier boundary (do all three, in order):**
+   1. **Advisor pass on the tier's results** — spawn an advisor / review sub-agent to evaluate the tier's outcomes (are the numbers sound? does the verdict follow? any leak/confound/over-read?). Capture the feedback in `log.md`. Apply revisions before proceeding.
+   2. **Write a tier SUMMARY** — a short dated block (in `log.md` + the tier's INDEX section): what ran, the per-state per-task 2×2 numbers vs the anchors, the verdict per experiment, what was promoted/falsified, and the proposed next step.
+   3. **STOP and surface the summary to the user for discussion** (`AskUserQuestion` or a plain checkpoint message). **Do not auto-roll into the next tier** — the user and the agent decide together how to proceed. The chain is sequential precisely so each tier is a deliberate decision point, not an autopilot step.
 
-5. **After the full track completes (or at any major redirect), spawn a mandatory advisor sub-agent** to evaluate the audit, the experiment results, the integration appendix, the documents. Capture feedback in `log.md`.
+5. **After the FULL track completes — mandatory implementation-correctness review.** Before declaring done, spawn an **advisor / code-review sub-agent specifically to verify the implementation is correct for THIS case** — not just that the numbers look good: are the new modules (dual-tower, loss-scale-norm, etc.) doing what the design intends? Are the param partitions / log_T / selector / frozen-fold guards all wired right? Is anything silently mis-measured (a repeat of the F49 leak / stale-log_T / wrong-selector class of bug)? Then a second advisor pass on the whole track (audit + results + sequencing + claims). Capture both in `log.md`; write `PAPER_UPDATE.md`.
 
-6. **Keep `log.md` current.** Append every decision, blocker, falsified hypothesis, redirection, finding. Date every entry (absolute, e.g. `2026-05-16`, never `today`).
+6. **Keep `log.md` AND `INDEX.html` current — continuously, not at the end.** This is load-bearing, not bookkeeping: the next agent (or you, in a month) reconstructs the entire state from these two files.
+   - **`log.md`** — append every decision, blocker, falsified hypothesis, redirection, finding, and tier summary. Date every entry absolute (e.g. `2026-06-03`, never `today`). Update it *as decisions are made*, not retroactively.
+   - **`INDEX.html`** — fill each experiment's `<div class="results-placeholder">` with the real Results block (per-state 2×2 + Δ vs anchors + verdict) the moment that experiment closes; record any design deviation (new experiment, dropped arm, re-scope) inline in the same session it happens.
+   - A task is **not** `completed` until BOTH the INDEX Results block and the `log.md` entry are written (see item 2).
 
 ## Execution order (v2 — 6 tiers)
 
@@ -121,7 +127,7 @@ You are the **implementing agent** for the MTL Improvement research track. A pri
 
 7. **Tier 6 — ship**: T6.1 multi-seed n=20 × 5 states (build v14 at CA/TX here), all 4 anchors, three-frontier, Δm. T6.2 paper-canon re-eval (§0.1 re-run + deployable-selector column + PAPER_UPDATE.md).
 
-8. **Advisor at every tier boundary + a final pass.** Capture in `log.md`.
+8. **Review cadence (see Required-workflow §4–§6):** at EVERY tier boundary — (a) advisor pass on the tier results, (b) write the tier summary, (c) **STOP and surface it to the user to decide how to proceed** (no autopilot into the next tier). At the END — a mandatory **implementation-correctness review** (is the code right for this case, not just the numbers?) + a final whole-track advisor pass. Update `log.md` + `INDEX.html` continuously throughout. Capture every review in `log.md`.
 
 ## What you compare against (the 4 anchors)
 

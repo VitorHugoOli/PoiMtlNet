@@ -141,6 +141,9 @@ Sections at the bottom of each entry:
 
 **Design status: DONE per advisor — next action is execution, not revision.** T0.2/T0.3 regime gate confirmed at FL+AL+AZ; remaining Tier-0 = GE onboarding (T0.1b) + GE board cells + T1.3 encoder probe + T4.0 (run early).
 
+### Review-cadence cautions added to AGENT_PROMPT (user-requested, 2026-06-03)
+Strengthened workflow §4–§6 + execution §8 with three disciplines: (1) **per-tier review cadence** — advisor pass on the tier results → write a tier summary → **STOP and surface it to the user to decide how to proceed** (no autopilot into the next tier); (2) **end-of-track implementation-correctness review** — a dedicated advisor/code-review sub-agent that verifies the code is right for THIS case (param partitions / log_T / selector / frozen-fold guards; not just that numbers look good — guards against the F49-leak / stale-log_T / wrong-selector bug class) + a final whole-track advisor pass; (3) **continuous `log.md` + `INDEX.html` updates** — fill Results blocks + log decisions as they happen, a task isn't `completed` until both are written.
+
 ---
 
 ## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
