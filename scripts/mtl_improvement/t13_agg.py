@@ -16,7 +16,7 @@ import json
 from pathlib import Path
 
 REPO = Path("/home/vitor.oliveira/PoiMtlNet")
-RES = REPO / "docs/results/embedding_eval"
+RES = REPO / "docs/results/P1"
 STATES = ["alabama", "arizona", "florida"]
 CFGS = [("cfg1_raw", "raw STAN (ceiling)"),
         ("cfg2_mtlenc", "+MTL next_encoder"),
