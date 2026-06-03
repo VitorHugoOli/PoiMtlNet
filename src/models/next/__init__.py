@@ -2,6 +2,7 @@
 
 from .next_conv_attn.head import NextHeadConvAttn
 from .next_gru.head import NextHeadGRU
+from .next_gru_simgcl.head import NextHeadGRUSimGCL
 from .next_hybrid.head import NextHeadHybrid
 from .next_lstm.head import NextHeadLSTM
 from .next_mamba.head import NextHeadMamba
@@ -30,6 +31,7 @@ __all__ = [
     "NextHeadLSTM",
     "NextHeadMamba",
     "NextHeadGRU",
+    "NextHeadGRUSimGCL",
     "NextHeadSTAN",
     "NextHeadGETNext",
     "NextHeadStanFlow",

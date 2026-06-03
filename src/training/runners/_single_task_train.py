@@ -87,6 +87,12 @@ def train_single_task(
             with _autocast_ctx:
                 logits = model(X_batch)
                 loss = criterion(logits, y_batch)
+                # Tier-S SimGCL: heads that compute an auxiliary (contrastive)
+                # loss expose it via ``model.aux_loss`` during training; add it
+                # to the task loss. None/absent for every other head (no-op).
+                aux = getattr(model, "aux_loss", None)
+                if aux is not None:
+                    loss = loss + aux
             loss.backward()
             grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), max_grad_norm)
             if compute_train_f1:
