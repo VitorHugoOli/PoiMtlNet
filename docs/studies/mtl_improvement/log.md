@@ -479,6 +479,27 @@ S.3 (compose) NOT triggered (nothing promoted). **Conclusion: the STL head is NO
 
 ---
 
+## 2026-06-03 — Critical advisor on the new heads + per-task tuning + the STAN concern (user-requested)
+
+**Phase**: meticulous re-evaluation (user: "the STAN baseline beats our head — we're missing something; eval the new heads, check we tune per-task, search lit / compose"). Advisor sub-agent + targeted re-runs.
+
+**Advisor verdict (grounded, read the code).**
+1. **New heads SOUND.** `next_mamba` selective-SSM math is faithful (correct ZOH discretisation, diagonal recurrence, selectivity, SiLU gate, D skip) — its −8.5pp cat loss is a FAIR result, not a bug. `next_gru_simgcl` SimGCL is faithful + the aux-loss trainer hook is leak-free (val path clean) — the +0.06 tie is real. **→ drop both** (sound but lose/tie).
+2. **Per-task tuning gap CONFIRMED (the user was right).** The Tier-S screens ran every challenger at REGISTRY DEFAULTS with one LR, never the per-arch LR mini-sweep that hard-rule 7 mandates. "No head beats the incumbent" was under-evidenced for the near-ties.
+3. **STAN concern — category confusion + a real gap.** Our reg ceiling (`next_stan_flow α=0`) *IS* the STAN head; "faithful STAN" on raw features scores ~28pp LOWER (not comparable). So no STAN beats our reg head on a matched embedding. BUT the advisor surfaced a genuine zero-cost untested opportunity: **the cat screen excluded the STAN family — our cat head is a plain attention-free GRU, while STAN-attention WINS reg.** STAN-for-cat was never tried.
+
+**Decisive re-run — STAN-for-cat, FAIR per-arch tune (the user's core hypothesis tested).** `next_stan` as cat head (the attention backbone), logit-adjust τ=0.5, AL 5f/50ep, LR×d_model sweep (the hard-rule-7 axes the screen skipped): best (d256, lr1e-2) = **42.60**, all 6 configs **38.6–42.6 — i.e. −7.4 to −11.3pp BELOW the GRU floor 49.97.** The per-task tune did NOT rescue it. **The user's hypothesis (STAN-attention helps cat) is FALSIFIED, decisively, even tuned.**
+
+**Mechanistic insight (the real answer).** For next-**category** (7-class, short window): **recurrence (GRU/LSTM ~50) ≫ attention (STAN/transformer/SSM ~41) ≫ CNN (~34).** For next-**region** (many-class): STAN-attention wins. The best architecture is **genuinely task-dependent** — GRU for cat, STAN for reg — which is exactly what the frozen ceilings already use. The intuition "STAN should help cat" is reasonable but empirically wrong here.
+
+**Composition #2 (GRU⊕STAN-attention) SKIPPED** — the advisor gated it on "STAN-attention being competitive for cat"; at −7.4pp it is not, so a fusion with the weak attention branch won't help. Reg GCN-term #3 deferred (low-EV, gated). `next_lstm` per-task tune (the one default-tie) run to close the hard-rule-7 gap on the only near-tie [result in next entry].
+
+**Chain status**: Tier 1 frozen+guarded; Tier S negative now HARDENED by a fair per-task tune of the top candidate. Chain preserved.
+
+**Next**: record the next_lstm tune result; the cat ceiling (next_gru τ=0.5) stands, now defended against the per-task-tuning critique. Then back to the Tier-2 decision.
+
+---
+
 ## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
 
 **Phase**: Design complete; no experiments run yet.
