@@ -254,6 +254,29 @@ T4.0 (loss-scale norm + RLW) NOT run (it is Tier 4; the user scoped this session
 
 ---
 
+## 2026-06-03 — Refinement: T1.4 expanded to the FULL tuned-incumbent ceiling (the "floor"); Tier S = new-archs only
+
+**Phase**: Design refinement of the same-day addition above (no experiments run).
+
+**Why.** User asked: where is the *sweep + hypertuning of the CURRENT heads* (per task), as a **floor** to compare Tier S against? The first cut had T1.4 as a *bounded* hardening (α + top losses + one probe) and the deep work in Tier S — which left the *fully-HP-tuned current head* as nobody's first-class job.
+
+**Advisor verdict (decisive — overruled my first proposal).** I floated "add a walled-off S.0 inside Tier S." The advisor pushed back: **expand T1.4 into the full tuned-incumbent ceiling instead.** The discriminating argument: T2's promotion gate is literally "fraction of the composite (d) recovered." If T1.4 freezes a bounded/under-tuned ceiling and the truly-tuned incumbent (found later) is higher, the gate is **sandbagged** — the dual-tower clears a soft target and T3/T4/T5 build on a go/no-go that evaporates once the real ceiling is known. Under-tuning the baseline you measure everything against is a *measurement error*, not "discipline." ("Bounded" was only ever about not letting the *new-arch search* balloon — never about under-tuning the ceiling.) I switched to the advisor's design; it fulfils the user's "floor" intent better.
+
+**Resulting clean split (de-dups a thing the first cut had wrong):**
+- **T1.4 = full per-task HP tune of the CURRENT heads = the floor.** Reg (`next_stan_flow`): α re-tune per-state (incl. α→0 at large, per T1.3 FL-drag) + tail-loss + ranked HP axes (depth/dim/dropout/LR/warmup). Cat (`next_gru`): loss calibration (logit-adj+focal+label-smoothing, train-only prior) + ranked HP axes (pooling/dropout/LR/warmup). **Cat loss work lives HERE** (was duplicated in T1.4 *and* S.2). Two-phase: search at FL+AL, validate at FL+AL+AZ 5f + GE confirm. The tuned best **SETS + FREEZES (c)/(d)**.
+- **Tier S = NEW archs only**, scored vs the frozen tuned floor. S.1 reg (SASRec/Mamba/contrastive/registry — the SASRec probe moved OUT of T1.4 to here, it's a new arch). S.2 cat NEW encoder only (attention-pooling/TCN). **S.3 (new) = no-run synthesis** = the user's "huge picture": per-task ladder default / tuned-current / best-new-arch, explicitly labelled a **promotion test (unequal HP budget), not an equal-budget tournament**, with a **lose-within-noise → second-round-tune safeguard** so the budget asymmetry can't bury a real winner.
+- **(d)-arm consistency** raised one level: if the reg tune raises STL-HGI reg, apply it to (d)'s HGI-reg arm too (or declare it un-tuned by design) — under-tuning it keeps T2's bar artificially low.
+
+**Also folded in the earlier final-advisor fixes** (same session): freeze-rule now distinguishes the immutable track-internal yardstick from the §0.1 paper baseline (refreshable at T6.2); T1.1/T1.2 marked provisional-until-T1.4.
+
+**Files touched.** `INDEX.html` (T1.4 rewritten; S.2 → encoder-only; new S.3 card; TOC/metric-map/chain/why-order/audit/future-works/Tier-1-callout all re-propagated). `AGENT_PROMPT.md` (exec order T1.4 + Tier S). `reg_head_architecture_sweep.md` (pointer). 2 commits on branch `mtl-improvement-stl-frontier`.
+
+**Chain status**: unchanged from the entry above — T1.4 is the remaining Tier-1 gate before T2; Tier S parallel. Chain preserved.
+
+**Next**: implementing agent runs the **full T1.4 tune** (sets+freezes (c)/(d)) before T2.1; launches Tier S (S.1/S.2 → S.3) under MPS alongside Tier 2. Advisor + summary + STOP-for-user at the boundary.
+
+---
+
 ## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
 
 **Phase**: Design complete; no experiments run yet.
