@@ -1,0 +1,85 @@
+#!/usr/bin/env python
+"""Build the isolated OVERLAP probe-engine dir (CHECK2HGI_DK_OVL) for the real-pipeline validation.
+
+v14 (design_k) embeddings, re-windowed at stride=1 (overlapping). embeddings/region/poi are symlinked
+from v14 (identical); ONLY the windowing differs. Frozen v14 substrate is untouched. The real trainers
+(train.py / p1 / MTL) then read this engine to confirm the overlap lift the isolated harness found
+(cat AL +9.50, reg AL +4.97) in the actual pipeline.
+
+Usage: PYTHONPATH=src .venv/bin/python scripts/mtl_improvement/build_overlap_probe_engine.py <state> [stride]
+"""
+import os
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+from configs.paths import EmbeddingEngine, IoPaths, OUTPUT_DIR
+from data.inputs.builders import generate_next_input_from_checkins
+
+V14 = EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_MAE_L0_1
+OVL = EmbeddingEngine.CHECK2HGI_DK_OVL
+
+
+def _symlink(src: Path, dst: Path):
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    if dst.exists() or dst.is_symlink():
+        dst.unlink()
+    if src.exists():
+        dst.symlink_to(src.resolve())
+        print(f"  symlink {dst.name} -> {src}")
+
+
+def build_next_region_for(state: str, engine: EmbeddingEngine):
+    """Engine-aware next_region build: replicate build_next_region_frame on THIS engine's
+    next.parquet + sequences (overlapping), using check2hgi graph maps for poi->region."""
+    from data.inputs.region_sequence import _load_graph_maps
+    next_df = IoPaths.load_next(state, engine)
+    seq_df = pd.read_parquet(IoPaths.get_seq_next(state, engine))
+    assert len(next_df) == len(seq_df), (len(next_df), len(seq_df))
+    placeid_to_idx, poi_to_region = _load_graph_maps(state)
+    n_regions = int(poi_to_region.max()) + 1
+    tgt = seq_df["target_poi"].astype(np.int64).to_numpy()
+    poi_idx = pd.Series(tgt).map(placeid_to_idx).to_numpy(dtype=np.int64)
+    region_idx = poi_to_region[poi_idx]
+    # last_region_idx from poi_{0..8}
+    poi_cols = [f"poi_{i}" for i in range(9)]
+    poi_mat = seq_df[poi_cols].astype(np.int64).to_numpy()
+    last_region = np.full(len(seq_df), -1, np.int64)
+    for r in range(len(seq_df)):
+        valid = np.where(poi_mat[r] >= 0)[0]
+        if len(valid):
+            pi = placeid_to_idx.get(int(poi_mat[r][valid[-1]]), None)
+            if pi is not None:
+                last_region[r] = poi_to_region[pi]
+    out = next_df.copy()
+    out["region_idx"] = region_idx
+    out["last_region_idx"] = last_region
+    dst = IoPaths.get_next_region(state, engine)
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    out.to_parquet(dst, index=False)
+    print(f"  next_region -> {dst}  (rows={len(out)}, n_regions={n_regions}, "
+          f"pad={(last_region<0).mean()*100:.1f}%)")
+
+
+def main():
+    state = sys.argv[1] if len(sys.argv) > 1 else "alabama"
+    stride = int(sys.argv[2]) if len(sys.argv) > 2 else 1
+    src_dir = OUTPUT_DIR / V14.value / state.lower()
+    dst_dir = OUTPUT_DIR / OVL.value / state.lower()
+    print(f"=== build overlap probe engine {OVL.value} for {state} (stride={stride}) ===")
+    # 1. symlink the shared (windowing-independent) artifacts from v14
+    for f in ("embeddings.parquet", "region_embeddings.parquet", "poi_embeddings.parquet"):
+        _symlink(src_dir / f, dst_dir / f)
+    # 2. build overlapping next.parquet + sequences_next.parquet into the probe dir
+    print("  building overlapping next.parquet + sequences (stride=%d)..." % stride)
+    generate_next_input_from_checkins(state, OVL, stride=stride)
+    # 3. build overlapping next_region.parquet
+    build_next_region_for(state, OVL)
+    n = len(IoPaths.load_next(state, OVL))
+    print(f"DONE: {OVL.value}/{state} next.parquet rows={n:,}")
+
+
+if __name__ == "__main__":
+    main()

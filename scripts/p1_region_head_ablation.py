@@ -212,6 +212,7 @@ def _build_region_sequence_tensor(
     state: str,
     region_emb_dim: int,
     region_emb_source: str = "check2hgi",
+    seq_engine: EmbeddingEngine = EmbeddingEngine.CHECK2HGI,
 ) -> torch.Tensor:
     """Build [N, 9, D] tensor where each step is the region embedding of
     the region the user was in at that check-in.
@@ -225,7 +226,10 @@ def _build_region_sequence_tensor(
     ``check2hgi`` preserves prior behaviour; ``hgi`` is used for the
     P1.5 substrate comparison (CH15).
     """
-    seq_path = IoPaths.CHECK2HGI.get_temp_dir(state) / "sequences_next.parquet"
+    # seq_engine selects the windowing the region sequence follows (default
+    # CHECK2HGI non-overlapping). The overlap probe passes its own engine so the
+    # region-emb sequence row-aligns with the overlapping next_region labels.
+    seq_path = IoPaths.get_seq_next(state, seq_engine)
     seq_df = pd.read_parquet(seq_path)
     placeid_to_idx, poi_to_region = _load_graph_maps(state)
     region_emb, _ = _load_region_embeddings(state, source=region_emb_source)
@@ -298,7 +302,11 @@ def _load_data(state: str, input_type: str, region_emb_source: str = "check2hgi"
         return x_checkin, y_region_tensor, y_cat, userids, checkin_dim, n_regions, last_region_tensor
 
     # Build region-emb sequence and align row-for-row with the check-in tensor.
-    x_region = _build_region_sequence_tensor(state, region_emb_dim=checkin_dim, region_emb_source=region_emb_source)
+    # When an engine_override is set (e.g. the overlap probe), follow ITS windowing
+    # so the region sequence row-aligns with the overridden next_region labels.
+    _seq_eng = engine_override or EmbeddingEngine.CHECK2HGI
+    x_region = _build_region_sequence_tensor(state, region_emb_dim=checkin_dim,
+                                             region_emb_source=region_emb_source, seq_engine=_seq_eng)
     # Row counts must match (sequences_next.parquet is authoritative upstream).
     if x_region.shape[0] != x_checkin.shape[0]:
         raise RuntimeError(
@@ -951,7 +959,7 @@ def main():
                                  # v14's ResLN+mae cat lever makes them distinct).
                                  "check2hgi_design_k_resln_mae_l0_1",
                                  "check2hgi_design_k_resln_l0_1",
-                                 "check2hgi_design_k_l0_1"],
+                                 "check2hgi_design_k_l0_1", "check2hgi_dk_ovl"],
                         help="Override the engine used to load next.parquet/next_region.parquet. "
                              "Region labels and graph maps still come from check2hgi. "
                              "Used by Design A probe and HGI-substrate category-injection probes.")

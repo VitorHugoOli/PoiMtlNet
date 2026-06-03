@@ -56,6 +56,7 @@ class EmbeddingEngine(Enum):
     CHECK2HGI_DESIGN_K_RESLN_L0_1 = "check2hgi_design_k_resln_l0_1"  # design_k + resln encoder (cat disentangle)
     CHECK2HGI_DESIGN_K_RESLN_MAE_L0_1 = "check2hgi_design_k_resln_mae_l0_1"  # design_k + resln + T5.2b mae (full dual-axis stack)
     CHECK2HGI_RESLN_DESIGN_J = "check2hgi_resln_design_j"  # tier_resln: ResLN encoder + Design J anchored learnable POI table
+    CHECK2HGI_DK_OVL = "check2hgi_dk_ovl"  # v14 (design_k) embeddings re-windowed at stride=1 (OVERLAPPING) — overlap-window real-pipeline probe; embeddings/region symlinked from v14, only the windowing differs
     # embedding_eval re-screen variants (2026-06-01) — rebuilt via OUTPUT_DIR-scratch,
     # harvested to output/<value>/; do NOT overwrite the frozen output/check2hgi/.
     CHECK2HGI_GCN_CTRL = "check2hgi_gcn_ctrl"        # fresh GCN wd=0 control (same-protocol baseline for the re-screen)
@@ -485,6 +486,7 @@ class IoPaths:
             EmbeddingEngine.CHECK2HGI_DESIGN_K_L0_1,          # design_k (Delaunay reg lever)
             EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_L0_1,    # design_k + resln
             EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_MAE_L0_1,  # dual-axis champion (option-b base)
+            EmbeddingEngine.CHECK2HGI_DK_OVL,  # overlap-window real-pipeline probe (v14 re-windowed stride=1)
         )
         if embedd_engine not in supported:
             raise ValueError(

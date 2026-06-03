@@ -54,7 +54,8 @@ def _load_graph_maps(state: str) -> Tuple[dict, np.ndarray]:
     return placeid_to_idx, np.asarray(poi_to_region, dtype=np.int64)
 
 
-def build_region_sequence_tensor(state: str, region_engine: EmbeddingEngine = EmbeddingEngine.CHECK2HGI) -> torch.Tensor:
+def build_region_sequence_tensor(state: str, region_engine: EmbeddingEngine = EmbeddingEngine.CHECK2HGI,
+                                 seq_engine: EmbeddingEngine = EmbeddingEngine.CHECK2HGI) -> torch.Tensor:
     """Build the [N, 9, D] region-embedding sequence for Check2HGI MTL.
 
     Row i position k holds the region embedding of the region the user
@@ -68,7 +69,11 @@ def build_region_sequence_tensor(state: str, region_engine: EmbeddingEngine = Em
     ``next_region.parquet`` because all three are produced from
     ``sequences_next.parquet`` in one pass.
     """
-    seq_path = IoPaths.CHECK2HGI.get_temp_dir(state) / "sequences_next.parquet"
+    # seq_engine selects which engine's windowing the region sequence follows
+    # (default CHECK2HGI = canonical non-overlapping). The overlap probe passes
+    # its own engine so the region-emb sequence row-aligns with the overlapping
+    # next_region labels (graph maps + region partition stay CHECK2HGI-shared).
+    seq_path = IoPaths.get_seq_next(state, seq_engine)
     if not seq_path.exists():
         raise FileNotFoundError(
             f"sequences_next.parquet missing at {seq_path}. "
