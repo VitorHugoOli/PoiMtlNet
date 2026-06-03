@@ -51,6 +51,7 @@
   .pill.tier2 { background: rgba(110,168,254,0.15); color: var(--tier2); } .pill.tier3 { background: rgba(199,146,234,0.15); color: var(--tier3); }
   .pill.tier4 { background: rgba(255,180,84,0.15); color: var(--tier4); } .pill.tier5 { background: rgba(255,121,198,0.15); color: var(--tier5); }
   .pill.tier6 { background: rgba(239,106,106,0.15); color: var(--tier6); }
+  .pill.tierS { background: rgba(125,211,252,0.15); color: #7dd3fc; }
   .pill.cost-s { background: rgba(74,222,128,0.12); color: var(--good); } .pill.cost-m { background: rgba(255,180,84,0.12); color: var(--warn); } .pill.cost-l { background: rgba(239,106,106,0.12); color: var(--bad); }
   .experiment { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 16px 20px; margin: 14px 0; }
   .experiment > h3 { margin-top: 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -102,6 +103,13 @@
     <li><a href="#T1-1">T1.1 STL ceilings on v14</a></li>
     <li><a href="#T1-2">T1.2 Composite deploy ceiling</a></li>
     <li><a href="#T1-3">T1.3 Encoder-isolation (gates T2.1)</a></li>
+    <li><a href="#T1-4">⭐ T1.4 Ceiling-hardening (freezes c/d)</a></li>
+  </ul>
+  <h2>Tier S — STL Frontier ⊥</h2>
+  <ul>
+    <li><a href="#tierS">Why a parallel STL branch</a></li>
+    <li><a href="#S-1">S.1 Reg encoder/arch deep search</a></li>
+    <li><a href="#S-2">S.2 Cat encoder/loss deep study</a></li>
   </ul>
   <h2>Tier 2 — Architecture ★</h2>
   <ul>
@@ -229,6 +237,8 @@ The reg gap and the selector bug are both <strong>scale-conditional</strong> (se
 <li><strong>No fclass-as-feature</strong> (tautological probe leak). <strong>No substrate re-builds for the reg gap</strong> (Part-1 closed; spatial axis saturated).</li>
 <li><strong>Statistical claims need n≥10.</strong> n=5 gate-keeps (Wilcoxon floor 0.0312); n=20 (4 seeds × 5 folds) ships. Minimum-effect floor: ≥1pp (n=5) / ≥0.5pp (n=20) on the targeted axis; TOST δ=2pp non-inferiority on the non-targeted axis.</li>
 <li><strong>Falsified history off-limits</strong> (next section) unless a genuinely-different formulation is documented in <code>log.md</code> first.</li>
+<li><strong>Frozen ceiling after T1.4.</strong> Once T1.4 closes, anchors (c) STL-ceiling and (d) composite-ceiling are <strong>immutable</strong> for the rest of the track. Tier S and T5 may produce better STL heads, but those become T5 candidates + future-work notes — they NEVER retroactively change (c)/(d) or re-score completed T2+ deltas (the moving-baseline trap). STL-improvement framing is <strong>ceiling/baseline integrity, not MTL transfer</strong> (the regime finding predicts STL gains wash out jointly).</li>
+<li><strong>No next-POI model imports.</strong> Do NOT plumb GETNext/STHGCN/Graph-Flashback/MobGT/Diff-POI in as heads — their contribution is the α·log_T prior we own, and they need raw GPS/time/category we lack. Only encoder cores (self-attention, Mamba block, attention pooling) are transplantable; SASRec is the named transformer baseline. (See Tier S de-scoping verdict.)</li>
 </ul>
 
 <h3>Per-experiment Results-block template</h3>
@@ -272,7 +282,7 @@ The reg gap and the selector bug are both <strong>scale-conditional</strong> (se
 <table>
 <thead><tr><th>C#</th><th>Consideration</th><th>Verdict (updated)</th><th>Lands</th></tr></thead>
 <tbody>
-<tr><td>C1</td><td>Re-do STL head ablation per task on new check2hgi</td><td><span class="pill good">ACCEPT</span> on v14</td><td>T1.1, T5.1/5.2</td></tr>
+<tr><td>C1</td><td>Re-do STL head ablation per task on new check2hgi</td><td><span class="pill good">ACCEPT — expanded 2026-06-03</span> on v14. Sharpened: no STL head sweep or HP-tune has ever run leak-free → bounded ceiling-hardening (<strong>T1.4</strong>) + deep arch search (<strong>Tier S</strong>), feeding T5.</td><td>T1.1, <strong>T1.4, Tier S</strong>, T5.1/5.2</td></tr>
 <tr><td>C2</td><td>Windows/masking correctness audit</td><td><span class="pill good">DONE</span> — <code>substrate-protocol-cleanup/window_mask_audit.md</code>. Cite, don't re-run.</td><td>T0.4 (cite)</td></tr>
 <tr><td>C3</td><td>Audit the F49 cross-attn <code>task_weight=0</code> finding</td><td><span class="pill warn">SUPERSEDED</span> — P4 frozen-cat is the stronger, leak-free version of the same question; the answer is "architectural, not interference."</td><td>T0.3 (cite P4)</td></tr>
 <tr><td>C4</td><td>Batch / class balancing</td><td><span class="pill bad">FALSIFIED</span> sampler form (−18 to −30pp). Focal-loss-only retained as a footnote.</td><td>T4 footnote</td></tr>
@@ -293,8 +303,8 @@ The reg gap and the selector bug are both <strong>scale-conditional</strong> (se
 <tbody>
 <tr><td><code>part2_mtl_dual_substrate_routing.md</code></td><td>Dual-tower / routing as a head/fusion architecture (routing-as-substrate-swap is pilot-falsified; the integrated dual-tower is the un-falsified form)</td><td><strong>T2.1</strong></td></tr>
 <tr><td><code>mtl_architecture_revisit.md</code></td><td>Faithful MMoE/CGC/DSelect-K/cross-stitch + hybrids, per-task evaluation (supersedes legacy 1f×10ep ablation). Mechanism motivation = P4 (shared backbone caps reg).</td><td>T2.2, T2.3, T2.4</td></tr>
-<tr><td><code>reg_head_architecture_sweep.md</code></td><td>Reg-head candidates + log_T-as-supervision axis (the KD sub-track already PROMOTED → v12 default)</td><td>T3.2, T5.1</td></tr>
-<tr><td><code>head_window_batch_audit.md</code></td><td>§A head re-design (here); §B window/mask audit (DONE in substrate-protocol-cleanup); §C batch class-balance (sampler FALSIFIED)</td><td>T5, T0.4</td></tr>
+<tr><td><code>reg_head_architecture_sweep.md</code></td><td>Reg-head candidates (run leak-free at last) + log_T-as-supervision axis (the KD sub-track already PROMOTED → v12 default). <strong>Its stale "absorbed into T7" pointer is corrected → the candidates land in Tier S / T5.1; α + tail-loss land in T1.4.</strong></td><td><strong>T1.4, S.1</strong>, T3.2, T5.1</td></tr>
+<tr><td><code>head_window_batch_audit.md</code></td><td>§A head re-design (cat losses → T1.4/S.2; heads → T5); §B window/mask audit (DONE in substrate-protocol-cleanup); §C batch class-balance (sampler FALSIFIED)</td><td><strong>T1.4, S.2</strong>, T5, T0.4</td></tr>
 <tr><td><code>substrate_adaptive_mtl_balancing.md</code></td><td>NashMTL-revive / GradNorm / PCGrad / FAMO / Aligned-MTL + per-task LR decay + freeze-reg-after-peak (low-EV per P4 — gated)</td><td>T4.1</td></tr>
 <tr><td><code>composite_two_substrate_engine.md</code></td><td>Composite deploy ceiling (STL c2hgi cat + STL HGI reg, +7-12pp reg). AL/AZ scored; FL/CA/TX held until a winner emerges.</td><td><strong>T1.2</strong> (ceiling) + T6 (deploy fallback)</td></tr>
 <tr><td><code>poi_decoder_hgi_distill.md</code></td><td>Speculative substrate-axis re-open — <span class="pill bad">standby</span>, runs only if composite is paper-rejected. Not in the chain.</td><td>(standby)</td></tr>
@@ -375,6 +385,8 @@ The reg gap and the selector bug are both <strong>scale-conditional</strong> (se
 <tr><td>T0.3</td><td>regime entry gate</td><td>reg Acc@10 (3 frontiers) + cat F1</td><td>v14-MTL vs canonical-fresh-MTL, multi-seed</td><td>characterize gap; confirm v14≈canonical (or reframe if v14 shows multi-seed edge)</td></tr>
 <tr><td>T1.1</td><td>STL ceilings</td><td>reg Acc@10, cat F1</td><td>v14 STL vs canonical-fresh STL vs HGI STL</td><td>pin (c) per state</td></tr>
 <tr><td>T1.2</td><td>composite ceiling</td><td>reg Acc@10</td><td>composite vs MTL@disjoint</td><td>pin (d): expect +7-12pp reg</td></tr>
+<tr><td><strong>T1.4</strong></td><td>STL ceiling hardening (cat F1 + reg Acc@10)</td><td>reg Acc@10, cat macro-F1 (STL-alone)</td><td>tuned STL vs the T1.1-pinned (c)</td><td>≥0.5pp (multi-seed) on a head → adopt; else freeze as reviewer-proof. <strong>Then (c)/(d) FROZEN.</strong></td></tr>
+<tr><td><strong>Tier S</strong></td><td>STL head/encoder search (per task)</td><td>reg Acc@10, cat macro-F1 (STL-alone)</td><td>candidates vs the T1.4-FROZEN (c) — never re-opens it</td><td>≥0.5pp multi-seed → enter T5 candidate set + future-work note</td></tr>
 <tr><td><strong>T2.1</strong></td><td><strong>next-reg (architectural)</strong></td><td>reg Acc@10 @ all 3 frontiers</td><td>vs v14-base-MTL (a) + toward composite (d); 2×2 regime test</td><td>recover &gt;⅓ of the MTL→composite reg gap, cat non-inferior (TOST δ=2)</td></tr>
 <tr><td>T2.2-2.4</td><td>next-reg + joint</td><td>reg Acc@10, cat F1, Δm</td><td>vs T2.1 winner</td><td>Pareto-improve or fold in</td></tr>
 <tr><td>T3.1-3.2</td><td>next-reg (prior pathway)</td><td>reg Acc@10 @ disjoint + deployable</td><td>vs Tier-2 winner (does log_T-KD stack with the arch fix?)</td><td>additive reg lift ≥0.5pp, cat non-inferior</td></tr>
@@ -389,10 +401,13 @@ The reg gap and the selector bug are both <strong>scale-conditional</strong> (se
 <div class="ascii-diagram">  T0 Foundations ── build v14 per state · fresh-vs-frozen · regime entry gate (multi-seed) · three-frontier + instrumentation
         │
         ▼
-  T1 Ceilings ──── STL-on-v14 (c) + composite (d) — pins the targets
+  T1 Ceilings ──── STL-on-v14 (c) + composite (d) · T1.4 bounded ceiling-HARDENING → FREEZES (c)/(d)
         │
+        ├──────────────▶ Tier S (STL frontier, deep arch search) ── STL-only, PARALLEL with T2-4,
+        │                  reads frozen (c)/(d), feeds T5 candidates + future-work; never re-opens (c)/(d)
         ▼
   T2 Architecture ★ ── reg-private backbone (dual-tower) [centerpiece] · CrossStitch · MoE (gated) · per-task-input mixers
+        │                scored against the T1.4-FROZEN (c)/(d)
         │              run the load-bearing T2.1 on BOTH v14 AND canonical-fresh (regime×substrate 2×2)
         ▼
   T3 Prior pathway ── log_T-KD re-sweep on the new stack · log_T-as-supervision variants
@@ -402,6 +417,8 @@ The reg gap and the selector bug are both <strong>scale-conditional</strong> (se
         │
         ▼
   T5 Final heads ── per-task reg/cat head re-ablation under the consolidated recipe (chicken/egg)
+        ▲              candidate set = current heads + Tier-S STL winners (best-STL ≠ best-STL-in-MTL)
+        └────────────── Tier S rejoins here
         │
         ▼
   T6 Ship ──── multi-seed n=20 · 4 anchors · 3 frontiers · paper-canon re-eval (paper_canon_reevaluation)</div>
@@ -409,7 +426,8 @@ The reg gap and the selector bug are both <strong>scale-conditional</strong> (se
 <h3>Why this order (re-execution-risk minimal)</h3>
 <ol>
 <li><strong>T0 builds v14 + the measurement frame once.</strong> v14 exists only at FL today; the Delaunay reg lever is state-dependent, so building + STL-validating per state is a real prerequisite with a fallback. The three-frontier + fresh-vs-frozen frame, set up once, makes every later tier interpretable.</li>
-<li><strong>T1 pins the ceilings (c)+(d)</strong> the whole track aims at — before any architecture work, so T2 deltas are anchored.</li>
+<li><strong>T1 pins the ceilings (c)+(d)</strong> the whole track aims at — before any architecture work, so T2 deltas are anchored. <strong>T1.4 then HARDENS those ceilings</strong> (α re-tune + imbalance losses on the never-leak-free-tuned STL heads) and FREEZES them, because anchors (c)/(d) sit on a pre-leak head choice — a soft ceiling silently mis-scales every downstream Δ. The <em>bounded</em> hardening blocks T2; the <em>deep</em> STL search (Tier S) is split off precisely so a late STL win cannot move the baseline T2 was already scored against (the moving-baseline trap).</li>
+<li><strong>Tier S runs parallel, not in the chain.</strong> It is STL-only (no MTL backbone dependency), so it neither gates nor is gated by T2-T4 — it branches off T1.4 and rejoins at T5 as a candidate-head supplier. It is placed in document order between T1 and T2 (where the user expects it) but executes concurrently with Tier 2-4 on the box. Framing is ceiling/baseline integrity, NOT MTL transfer (the regime finding predicts STL gains wash out) — so Tier S is positive-EV via a better/firmer ceiling and a reviewer-proof baseline, with any MTL transfer a weak bonus that T2 already chases.</li>
 <li><strong>T2 is the structural change</strong> (P4: the gap is the shared-backbone pathway). It conditions everything downstream — the prior pathway, loss, LR, and heads all behave differently under a dual-tower than under cross-attn. The load-bearing T2.1 runs on BOTH substrates to prove the regime×substrate interaction (advisor-mandated — you cannot show "fixing the regime makes the substrate matter" on v14 alone).</li>
 <li><strong>T3 prior pathway after arch</strong> — log_T-KD is confirmed (+2.4-5pp) and already default; the open question is whether it <em>stacks</em> with the dual-tower or is redundant.</li>
 <li><strong>T4 gated, T5 terminal</strong> — loss is low-EV (P4), so it only runs against a residual; head re-ablation is last because the best head depends on the consolidated backbone+prior.</li>
@@ -510,6 +528,7 @@ Every Tier-2 architecture is judged under its own best LR regime, not the incumb
 <li><strong>GPU — collocate small jobs via CUDA MPS, bounded by an aggregate-VRAM budget.</strong> Small-state MTL runs (AL/AZ/GE, ~2-3 min, light) <em>underutilize</em> the A40 — time-sliced they sit at ~20% util; under <strong>MPS</strong> their kernels overlap across SMs (~60% util, up to ~4× collocated throughput — <a href="#refs-par">refs</a>). Run the 4 seeds of a small/middle state <strong>concurrently under MPS</strong> (one-run wall instead of 4×). FL is heavier (closer to SM-saturating) → collocate only <strong>2</strong>. <strong>Concurrency cap = min( ⌊0.85 × 45GB / per-run-peak-VRAM⌋ , SM-sensible cap )</strong> — measure per-run peak VRAM once (one MTL run), then set the cap; reserve ~15% headroom (OOM + fragmentation). Builds saturate the GPU → <strong>one build at a time</strong>, never collocated.</li>
 <li><strong>CPU — parallelize prep + analysis on the 32 threads, overlapped with GPU work.</strong> Seeded per-fold log_T (<code>compute_region_transition.py</code>), postbuild, aggregation, and the analysis/probe scripts are CPU-bound — run them with <code>xargs -P</code>/GNU-parallel across seeds×folds×states <em>while the GPU is busy</em> with builds/MTL. Pin per-process threads (<code>OMP_NUM_THREADS = 32 / N_concurrent</code>) so collocated GPU processes don't thrash the CPU.</li>
 <li><strong>Pipeline the heavy spine.</strong> While state N's substrate builds on the GPU, run the (CPU) log_T builds + the (cheap, MPS) small-state MTL seeds for already-built states. The build queue is the critical path; everything else fills its gaps.</li>
+<li><strong>Tier S is the prime collocation filler.</strong> The deep STL search (<a href="#tierS">Tier S</a>) is STL-only and off the linear chain → run its seeds/states <em>concurrently under MPS with the Tier 2-4 MTL runs</em>. STL reg/cat single-task jobs are lighter than the joint MTL runs, so they slot into the GPU's spare SMs at near-zero added wall-clock. This is exactly why "full in-track deep tier" is affordable: Tier S overlaps the architecture tiers rather than extending the schedule.</li>
 <li><strong>Don't-hurt rules.</strong> (a) cap by the VRAM budget with headroom — never fill 45GB; (b) one GPU build at a time (builds are compute-saturating — collocating them gives ~zero speedup + OOM risk); (c) FL collocation ≤2 (compute-bound — more concurrency ≈ no wall reduction); (d) each concurrent process writes its OWN run dir + reads its OWN seeded log_T — the driver's <code>stage_logT</code> copy step must complete before concurrent reads (race risk); (e) seeds stay deterministic under collocation (each process its own seed); (f) if MPS is unavailable, fall back to a small fixed process pool (2-3) — still better than serial for small states.</li>
 </ol>
 </div>
@@ -625,7 +644,12 @@ Report each as the per-task 2×2 (cat/reg × disjoint/joint) + three reg frontie
 
 <!-- ============================================================== -->
 <h2 id="tier1">Tier 1 — Ceilings <span class="pill tier1">Tier 1</span></h2>
-<p>The STL-on-v14 ceiling (c) and composite ceiling (d) are <strong>produced by the T0.2 reference board</strong> — Tier 1 consolidates them (T1.1/T1.2 = confirm-and-pin from the board, not fresh runs) and adds the one genuinely new Tier-1 experiment: <strong>T1.3, the encoder-isolation probe that gates the expensive Tier 2</strong>. <strong>Compute:</strong> ~25 GPU-h (mostly T1.3) + ~2 days.</p>
+<p>The STL-on-v14 ceiling (c) and composite ceiling (d) are <strong>produced by the T0.2 reference board</strong> — Tier 1 consolidates them (T1.1/T1.2 = confirm-and-pin from the board, not fresh runs), adds the encoder-isolation probe that gates the expensive Tier 2 (<strong>T1.3</strong>), and adds the <strong>bounded STL ceiling-hardening pass (T1.4)</strong> that makes anchors (c)/(d) trustworthy before T2 is scored against them. <strong>Compute:</strong> ~25 GPU-h (T1.3) + ~30-40 GPU-h (T1.4) + ~3 days.</p>
+<div class="callout warn">
+<h4>⭐ Why Tier 1 (not later) owns ceiling-hardening — the moving-baseline trap (advisor 2026-06-03)</h4>
+<p>Anchors <strong>(c) STL-ceiling</strong> and <strong>(d) composite-ceiling</strong> are what <em>every</em> downstream MTL Δ is measured against — and they currently sit on a reg head (<code>next_stan_flow</code>) chosen in the pre-leak P1 ablation and <strong>never re-validated under the leak-free per-fold-log_T protocol</strong> (confirmed: <code>reg_head_architecture_sweep.md</code>; no dedicated STL head sweep or HP-tune has ever run). If a late STL win could lift (c)/(d) <em>after</em> T2 was already scored against the old ceiling, the whole three-frontier scoreboard would shift mid-track. <strong>Resolution:</strong> the <em>bounded</em> hardening pass (T1.4) runs here, blocks T2, and then <strong>FREEZES (c)/(d) for the rest of the track</strong>. The <em>deep</em> STL architecture search (<a href="#tierS">Tier S</a>) runs in parallel but feeds T5 + future-work <strong>only</strong> — it does NOT re-open the frozen ceiling. This split is load-bearing; do not collapse it.</p>
+<p><strong>Framing (do not mis-sell):</strong> this is <strong>ceiling/baseline integrity</strong>, NOT "improve STL → lift MTL." The regime finding predicts STL gains wash out in MTL (v14's +2.5pp cat / +0.8pp reg collapse to ~0 jointly) — selling an STL-improvement study as an MTL lever would argue against our own headline. The airtight justification is: a hardened ceiling makes every MTL Δ trustworthy, and a properly-tuned STL baseline is reviewer-proof. Any transfer-to-MTL hope is weak and overlaps T2 (the dual-tower IS the "give reg its own pathway" idea) — keep it a one-line watch-for, not a structural claim.</p>
+</div>
 
 <div class="experiment" id="T1-1">
 <h3>T1.1 — STL-on-v14 ceiling (confirm-and-pin from T0.2 board) <span class="pill tier1">T1</span> <span class="pill cost-s">S-cost</span></h3>
@@ -690,6 +714,63 @@ Report each as the per-task 2×2 (cat/reg × disjoint/joint) + three reg frontie
 <p>Re-ran cfg1/cfg2 with the α·log_T prior <strong>disabled</strong> (<code>freeze_alpha=True alpha_init=0.0</code>) so the metric reflects the <strong>embedding pathway alone</strong>. Encoder gap (cfg1−cfg2): <strong>AL −0.88 / AZ −0.30 / FL −0.66</strong> (cfg2 ≥ cfg1 everywhere; FL tight σ ±0.4–0.6). <strong>The encoder does NOT degrade the embeddings-only metric either</strong> → the prior was not masking encoder damage (P1 reason-1 refuted). <strong>Net:</strong> a standalone MTL-style encoder pre-processor is neutral-to-slightly-helpful on BOTH the with-prior and embeddings-only metrics → the encoder architecture/distribution is <em>not</em> the residual; the locus is the <strong>joint-training dynamics</strong> (cross-attn co-adaptation, PCGrad surgery, shared-backbone handoff) — exactly what the <strong>T2.1 dual-tower</strong> (private full reg backbone) targets. Remaining honest scope: this isolates a <em>standalone</em> encoder, not the <em>jointly-trained</em> encoder in situ; but since the architecture is neutral, the joint dynamics are the locus → dual-tower is the right lever (encoder-bypass would not help). <strong>Side-finding:</strong> at FL, embeddings-only cfg1 (73.31) <em>exceeds</em> with-prior (70.28) → the log_T prior is a net DRAG on FL STL reg with v14's strong embeddings (scale/substrate-dependent — flag for Tier 3 log_T-KD).</p>
 <p class="footnote">prior-off JSON: <code>docs/results/P1/region_head_{state}_region_5f_50ep_t13po_{cfg}_v14_s42.json</code> · driver <code>t13_prioroff.sh</code>.</p>
 <p class="footnote">JSON: <code>docs/results/P1/region_head_{state}_region_5f_50ep_t13_{cfg}_v14_s42.json</code> · driver <code>scripts/mtl_improvement/t13_encoder_probe.sh</code> · agg <code>t13_agg.py</code> · 5f×50ep seed42, v14 region-emb, seeded log_T, frozen-fold paired · graph regen determinism verified (region_idx exact-match).</p></div>
+</div>
+
+<div class="experiment" id="T1-4">
+<h3>T1.4 — Bounded STL ceiling-hardening (freezes anchors c/d · gates T2) <span class="pill tier1">T1</span> <span class="pill cost-m">M-cost</span> <span class="pill warn">BLOCKS T2 — then freezes (c)/(d)</span></h3>
+<div class="meta">Targets: a trustworthy, reviewer-proof STL ceiling · Mechanism: tuning-first levers (α re-tune + imbalance losses + one encoder probe) on the STL heads — NOT an arch search (that's <a href="#tierS">Tier S</a>)</div>
+<div class="block"><div class="block-title">Hypothesis</div>The STL reg head (<code>next_stan_flow</code> + α·log_T) and the cat head (<code>next_gru</code>) were picked in the pre-leak P1 ablation and <strong>never tuned under the leak-free per-fold-log_T protocol</strong>; no dedicated STL HP-tune has ever run (<code>reg_head_architecture_sweep.md</code>). Cheap tuning-first levers may raise (c)/(d). <strong>This pass is positive-EV regardless of outcome:</strong> a gain → a better, correct ceiling; a null → a reviewer-proof "we tuned it, the head is right" baseline. Either way T2's deltas become trustworthy.</div>
+<div class="block"><div class="block-title">Methodology</div>STL-alone on v14, the <strong>T0.0 frozen folds</strong>, seeded log_T, <strong>FL + AL + AZ at 5-fold multi-seed + GE confirm</strong> (user-chosen coverage; CA/TX only if a lever moves the ceiling materially). Three levers, tuning-first:
+<ol>
+<li><strong>α (log_T prior weight) re-tune per-state, leak-free</strong> — the single highest-impact scalar (lit scan) and <em>not</em> a head swap, so it lands here, not in the deep search. Grid around the current α + freeze-α diagnostic (% of reg from the prior). <strong>Heed the T1.3 side-finding:</strong> at FL the log_T prior is a net DRAG on STL reg with v14's strong embeddings (embeddings-only 73.31 &gt; with-prior 70.28) → α may want to <em>shrink</em> at large states. Re-tune per state, do not assume the small-state α.</li>
+<li><strong>Imbalance losses.</strong> Reg: MobGT-style long-tail loss on the STAN head (tail POIs at large states). Cat: <strong>loss-only</strong> — logit-adjustment (Menon ICLR'21, consistent for macro-F1) + focal + label-smoothing on <code>next_gru</code>; <em>no</em> cat encoder search here (cat isn't the MTL bottleneck; classifier-side &gt; encoder for macro-F1 — lit scan). Compute the cat class-prior per-fold on TRAIN only (leakage guard).</li>
+<li><strong>One encoder probe</strong> — SASRec / 1-2-layer self-attention reg encoder + α·log_T, as the gated <em>entry</em> to <a href="#tierS">Tier S</a>. Its signal informs Tier-S priority/scope; per the user decision Tier S runs regardless of this probe.</li>
+</ol>
+Per-state best-of-levers becomes the hardened STL ceiling.</div>
+<div class="block"><div class="block-title">Evaluation</div>STL cat macro-F1 + STL reg Acc@10 (seeded log_T) vs the currently-pinned (c) (T1.1 table) per state. Promotion floor: ≥1pp (n=5) / ≥0.5pp (multi-seed) on the targeted head, paired Wilcoxon p&lt;0.05, other head non-inferior (TOST δ=2pp). No three-frontier needed (STL-alone) — just the per-task STL ceiling.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Pass (gain)</strong>: adopt the lever into a new (c); recompute (d) (= STL-v14 cat ⊕ STL-HGI reg, both possibly hardened). <strong>Pass (null)</strong>: freeze the current heads as the validated reviewer-proof ceiling. <strong>EITHER WAY:</strong> once T1.4 closes, anchors <strong>(c)/(d) are FROZEN for the rest of the track</strong> — T2 is scored against them; <a href="#tierS">Tier S</a> may not re-open them. Update the T1.1/T1.2 tables + the §Pinned-baselines block + <code>log.md</code> with the frozen values.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<!-- ============================================================== -->
+<h2 id="tierS">Tier S — STL Frontier (deep architecture search, STL-alone) <span class="pill tierS">Tier S ⊥</span></h2>
+<p>An <strong>in-track</strong> deep STL head/encoder search (user decision 2026-06-03: "full in-track deep tier now"), but <strong>off the linear critical path</strong>: it branches off T1.4 and rejoins at <a href="#tier5">Tier 5</a>. Because it is <strong>STL-only it is cheap and embarrassingly parallel with the MTL work</strong> — collocate it under MPS (see §Execution) <em>while</em> Tier 2–4 run on the GPU. <strong>Mission:</strong> find the true best STL head per task — deeper than the bounded T1.4 — to (i) supply <a href="#tier5">T5</a> with leak-free-validated head candidates and (ii) produce a future-work + paper-baseline-hardening record. <strong>Compute:</strong> ~40-70 GPU-h, overlapped with Tier 2–4 (net ~0 added wall-clock if collocated).</p>
+<div class="callout warn">
+<h4>⊥ Moving-baseline guard (repeat — load-bearing)</h4>
+Tier S feeds <strong>T5 + future-work ONLY</strong>. It does <strong>NOT</strong> re-open the T1.4-frozen anchors (c)/(d). A Tier-S STL win becomes a T5 candidate head + a future-work / paper-baseline note — never a retroactive change to T2's scoreboard. This is the resolution to the moving-baseline trap; collapsing it would invalidate every T2 Δ already computed against the frozen ceiling.
+</div>
+<div class="callout bad">
+<h4>De-scoping verdict — do NOT import next-POI "models" as heads (lit scan + advisor, 2026-06-03)</h4>
+<p>GETNext (SIGIR'22) · STHGCN (SIGIR'23) · Graph-Flashback (KDD'22) · MobGT (SIGSPATIAL'23) · Diff-POI (TOIS'23) are <strong>full pipelines, not drop-in heads</strong>. Two reasons they are out of scope: (1) their headline contribution <strong>IS the transition prior we already own</strong> via α·log_T (GETNext's trajectory-flow map, Graph-Flashback's POI-transition graph) — near-zero marginal value; (2) they require <strong>raw GPS / timestamp / category / POI-level side-info</strong> our input (9 × Check2HGI check-in embeddings, D=256) does not carry. STHGCN is also too heavy (~60 min/epoch) for the sweep grid. <strong>What IS transplantable is only the sequence-encoder core</strong> (self-attention block, Mamba block, attention pooling). Name <strong>SASRec</strong> (Kang &amp; McAuley, ICDM'18) as the one transformer baseline a reviewer will expect. <strong>The 9k-class "blocker" is a phantom for an STL head</strong> (full softmax over 9k ≈ 2M params, trivial on the A40) — that O(k) concern was about MTL gradient-surgery optimizers, not STL heads; sampled softmax is optional, not required. If a future agent lists these models as "candidates" without this verdict attached, they burn a week plumbing GETNext into a 9-embedding sequence.</p>
+</div>
+
+<div class="experiment" id="S-1">
+<h3>S.1 — STL reg encoder/architecture deep search <span class="pill tierS">Tier S</span> <span class="pill cost-m">M-cost</span> <span class="pill good">PARALLEL with Tier 2-4</span></h3>
+<div class="meta">Targets: the true best STL reg head · Mechanism: encoder-core swaps + auxiliary losses on the STL reg path (NOT model imports — see verdict above)</div>
+<div class="block"><div class="block-title">Hypothesis</div>The STL reg ceiling may be raised by a better <em>sequence encoder backbone</em> than GRU/STAN, since the published next-POI gains are encoder-core + a transition prior we already have. Candidates worth a bounded sweep (lit scan shortlist):</div>
+<div class="block"><div class="block-title">Methodology</div>STL-alone on v14, frozen folds, seeded log_T, <strong>FL+AL+AZ 5f + GE confirm</strong>, per-arch LR mini-sweep (carry the Tier-2 rule — judge each arch under its own best LR). Candidates:
+<ul>
+<li><strong>(a) SASRec / 1-2-layer self-attention encoder + α·log_T</strong> — the gated entry from T1.4's encoder probe. <em>Risk:</em> may not beat GRU at L=9 (attention's long-range edge is small).</li>
+<li><strong>(b) Mamba / SSM block as a GRU drop-in</strong> — accuracy gamble ONLY (L=9 makes the linear-scaling pitch moot). <em>Risk:</em> extra dependency + CUDA/MPS-kernel friction.</li>
+<li><strong>(c) SimGCL-style contrastive auxiliary</strong> (head-agnostic regularizer on the 256-d embeddings) — bolt onto whichever encoder wins. <em>Risk:</em> over-aggressive perturbation hurts; tune augmentation strength.</li>
+<li><strong>(d) reg_head registry candidates</strong> under the leak-free protocol: <code>next_lstm</code>, <code>next_transformer_pf</code>, <code>next_getnext</code> (no hard-neg), <code>next_stan_baseline</code> (the <code>reg_head_architecture_sweep.md</code> shortlist, never run leak-free).</li>
+</ul>
+Top-2 → multi-seed.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Enter T5.1 candidate set</strong>: a head beats the T1.4-frozen (c)-reg ceiling by ≥0.5pp multi-seed (Wilcoxon p&lt;0.05) → it becomes a T5.1 candidate + a future-work note. <strong>Does NOT change (c)/(d).</strong> <strong>Negative</strong>: STAN+α·log_T is confirmed the STL reg ceiling → reviewer-proof, close the question.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="S-2">
+<h3>S.2 — STL cat encoder/loss deep study (loss-first) <span class="pill tierS">Tier S</span> <span class="pill cost-s">S-cost</span> <span class="pill good">PARALLEL with Tier 2-4</span></h3>
+<div class="meta">Targets: the true best STL cat head · Mechanism: classifier-side first (loss), then ONE encoder alternative</div>
+<div class="block"><div class="block-title">Hypothesis</div>For a 7-class imbalanced macro-F1 task on short sequences, the <strong>classifier-side change moves macro-F1 more than the encoder</strong> (lit scan). So this is loss-first, with one encoder probe to honour the "new arch for both tasks" ask — not a full encoder sweep.</div>
+<div class="block"><div class="block-title">Methodology</div>STL-alone on v14, frozen folds, <strong>FL+AL+AZ 5f + GE confirm</strong>.
+<ul>
+<li><strong>Primary (loss):</strong> confirm/extend T1.4 — logit-adjustment + focal + label-smoothing on <code>next_gru</code>, tuned jointly (interaction effects); per-fold TRAIN-only class prior.</li>
+<li><strong>Secondary (one encoder):</strong> a lightweight self-attention encoder + attention pooling (and optionally a TCN) vs the GRU. <em>Risk:</em> over-fits the small per-state 7-class data — strong dropout + label smoothing.</li>
+</ul></div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Enter T5.2 candidate set</strong>: beats the T1.4-frozen (c)-cat ceiling by ≥0.5pp macro-F1 multi-seed → T5.2 candidate + future-work note. <strong>Does NOT change (c)/(d).</strong> <strong>Negative</strong>: <code>next_gru</code> + tuned losses is the cat ceiling → reviewer-proof.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
 </div>
 
 <!-- ============================================================== -->
@@ -806,7 +887,7 @@ Pin the architecture (T2.1 winner ± composed CrossStitch/hybrid). If <em>no</em
 
 <!-- ============================================================== -->
 <h2 id="tier5">Tier 5 — Final per-task head re-ablation <span class="pill tier5">Tier 5</span></h2>
-<p>The chicken/egg resolution (C9): the best head depends on the consolidated backbone+prior. Re-ablate per task under the final recipe. <strong>Compute:</strong> ~80 GPU-h + ~3 days.</p>
+<p>The chicken/egg resolution (C9): the best head depends on the consolidated backbone+prior. Re-ablate per task under the final recipe. <strong>The candidate set = the head registry + any <a href="#tierS">Tier-S</a> STL winners</strong> — this is the join point where the parallel STL frontier rejoins the chain (best-STL ≠ best-STL-in-MTL, so a Tier-S winner is a <em>candidate</em> here, re-judged under MTL, not an automatic pick). <strong>Compute:</strong> ~80 GPU-h + ~3 days.</p>
 
 <div class="experiment" id="T5-1">
 <h3>T5.1 — Reg-head sweep under the consolidated recipe <span class="pill tier5">T5</span> <span class="pill cost-m">M-cost</span></h3>

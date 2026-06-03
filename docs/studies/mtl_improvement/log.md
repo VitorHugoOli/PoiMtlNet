@@ -229,6 +229,31 @@ T4.0 (loss-scale norm + RLW) NOT run (it is Tier 4; the user scoped this session
 
 ---
 
+## 2026-06-03 — Plan addition: STL ceiling-hardening (T1.4) + STL Frontier deep-dive (Tier S)
+
+**Phase**: Design addition (no new experiments run). Inserted into the v2 plan after T1.1/T1.2; precedes Tier 2.
+
+**Why.** User flagged a remembered-but-missing thread: the L0-L2 substrate-protocol-cleanup work shows STL heads leave potential behind, and (separately) the public baselines hint at STL headroom — so we should sweep + literature-search + try new STL archs and HP-tune for both tasks, before Tier 5, since Tier 5 is STL-*within*-MTL while this is STL-*alone* (and best-STL ≠ best-STL-in-MTL).
+
+**Grounding (2 parallel Explore agents + 1 web lit-scan agent).**
+1. **The genuine gap is narrower than "STL is under-built."** The L0-L2 "potential left behind" is mostly *encoder/substrate* (ResLN +9-10pp cat AL/AZ; design_k +0.9-1.1pp reg) — already captured by v14. The truly-untouched axis is the **STL head**: no dedicated head sweep or HP-tune has ever run, and the current reg head (`next_stan_flow`) was chosen in the *pre-leak* P1 ablation, never re-validated leak-free (confirmed: `reg_head_architecture_sweep.md`).
+2. **Lit scan (skeptical):** do NOT import next-POI *models* (GETNext/STHGCN/Graph-Flashback/MobGT/Diff-POI) — their headline is the transition prior we already own via α·log_T, and they need raw GPS/time/category/POI-level inputs our 9×D=256 check-in embeddings lack. Only encoder *cores* transplant (self-attention/SASRec, Mamba block, attention pooling). The 9k-class "blocker" is a phantom for an STL head. The honest lever = encoder-backbone swap + imbalance losses (logit-adj/focal for cat, tail-loss for reg) + re-tuned α.
+
+**Advisor pass (pre-write).** Confirmed the framing and caught the one must-resolve issue: the **moving-baseline trap** — if a late STL win lifts anchors (c)/(d) after T2 was already scored against the old ceiling, the whole three-frontier scoreboard shifts mid-track. Also: frame as **ceiling/baseline integrity, NOT "STL→MTL transfer"** (the regime finding predicts STL gains wash out jointly; selling it as an MTL lever argues against our own headline); cat = **loss-only** (cat isn't the MTL bottleneck); carry the de-scoping verdict verbatim.
+
+**Decision (user-aligned via AskUserQuestion).**
+- Split into two: **T1.4 (bounded ceiling-hardening)** runs in Tier 1, BLOCKS T2, and then **FREEZES (c)/(d)** for the rest of the track; the **deep search runs as a full in-track tier (Tier S)** [user choice] but feeds T5 + future-work **only** — it never re-opens the frozen ceiling (the moving-baseline resolution).
+- **T1.4 scope** (tuning-first): α re-tune per-state leak-free (highest-impact scalar; heed the T1.3 FL side-finding that the prior is a net drag at large states) + imbalance losses (reg tail-loss; cat loss-only logit-adj+focal+label-smoothing on `next_gru`) + ONE SASRec encoder probe (the gated entry to Tier S).
+- **Tier S scope**: S.1 reg encoder/arch deep search (SASRec, Mamba block, SimGCL aux, + the leak-free reg-head registry candidates); S.2 cat loss-first + one attention-pooling encoder. STL-alone, **FL+AL+AZ 5f + GE confirm** [user-chosen coverage]. Runs **parallel with Tier 2-4 via MPS** (STL-only → cheap → near-zero added wall-clock).
+
+**Files touched (this session).** `INDEX.html`: new T1.4 card + new Tier S section (S.1/S.2) + de-scoping callout; TOC + CSS pill; chain diagram (T1.4 freeze + Tier S branch rejoining at T5); metric map (T1.4 + Tier S rows); why-order + moving-baseline callout; audit C1, future-works pointers (reg_head_sweep/head_window_batch → T1.4/Tier S), Tier-5 candidate-set note, parallelization Tier-S filler, 2 new hard rules (frozen ceiling; no model imports). `reg_head_architecture_sweep.md`: corrected the stale "absorbed into T7" pointer.
+
+**Chain status**: Tier 0 + Tier 1 (T1.1/T1.2) COMPLETE; **T1.4 inserted as the remaining Tier-1 gate before Tier 2**; Tier S added as a parallel branch. Chain preserved (T1.4 is a Tier-1 prerequisite, not an out-of-order run).
+
+**Next**: implementing agent runs **T1.4** (bounded ceiling-hardening; freeze (c)/(d) on completion; update T1.1/T1.2 + §Pinned-baselines + log.md) BEFORE T2.1. Launch **Tier S** (S.1/S.2) concurrently under MPS alongside Tier 2. Per-tier advisor + summary + STOP-for-user at the T1.4/Tier-S boundary, per workflow §4.
+
+---
+
 ## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
 
 **Phase**: Design complete; no experiments run yet.
