@@ -133,6 +133,12 @@ macro-F1 ~16pp low). Phase-1 search AL+FL → winners validated AZ+GE. Drivers `
 - **reg = `next_stan_flow`, α=0 (log_T prior OFF), default HP, no tail-loss.**
 - **cat = `next_gru`, logit-adjustment τ=0.5 (Menon ICLR'21), no class-weighting / focal / ls.**
 
+**Caveats (advisor 2026-06-03):** (1) (c)-reg is the α=0 (prior-OFF) STL best, but the deployed v12 MTL
+reg runs log_T-KD ON — so (c)-reg and the MTL reg it is compared against differ in prior treatment. This
+is correct for a ceiling ("best achievable STL reg"), but the "fraction of (d) recovered" gate must NOT be
+misread as prior-matched. (2) The cat balanced baseline reproduces the T1.1 ceiling **within 0.26pp**
+(38.87 vs 39.13, within-σ non-determinism) — not bit-exact; the winner (41.86) is +2.7pp clear regardless.
+
 ### (c) STL-on-v14 ceiling — FROZEN (Δ vs pre-T1.4 T1.1 in parens)
 | state | (c) cat macro-F1 | (c) reg Acc@10 |
 |---|---|---|
@@ -153,7 +159,9 @@ reg arm = max(v14-α0, HGI-α0) per state; cat arm = (c)-cat-v14.
 ### Key reg sweep evidence (AL / FL, Acc@10)
 default-prior 62.32 / 70.28 · **α=0 62.88 / 73.31** · α0+LDAM(0.5) 61.11 / 72.92 · α0+CB 52.02 / — ·
 α0+d_model256 62.55 / 73.02 · α0+dropout0.1 61.76 / 72.01 · α0+lr1e-3 60.24 / — · prior+LDAM 53.96 / —.
-→ α=0 plain best at every state; all tail-loss/HP variants lose.
+→ α=0 plain best at every state; tail-loss/dropout/LR lose decisively (CB cratered to 52). **d_model=256
+is a statistical TIE, not a loss** (top AL arm 62.55±4.43 ≈ base 62.88, ~0.07σ; ~0.5σ behind at FL) —
+base retained on parsimony (advisor 2026-06-03). The frozen ceiling is unaffected.
 
 ### Key cat sweep evidence (AL / FL, macro-F1)
 balanced(=T1.1 ceiling) 38.87 / 65.79 · **logit-adjust τ0.5 41.86 / 69.99** · τ1.0 40.04 / 67.48 ·
@@ -168,9 +176,12 @@ with class-weighting or focal over-corrects and craters.
 | AZ | 55.11 | 54.87 | v14 +0.24 |
 | GE | 58.45 | 58.76 | HGI +0.31 |
 | FL | 73.31 | 73.62 | HGI +0.31 |
-**Finding:** once both substrates are α=0-hardened, HGI's STL-reg edge collapses to ≤0.70pp (within
-fold-σ); v14 ties at AZ. The two-substrate composite premise survives but is now marginal — HGI's
-reg-substrate advantage was largely an artifact of the (now-dropped) log_T prior. Paper-relevant.
+**Finding (advisor-sharpened 2026-06-03):** once both substrates are α=0-hardened, v14 and HGI STL-reg
+are **statistically indistinguishable** at all four states — every Δ ≤ 0.70pp and < 0.5σ pooled
+(AL/AZ/GE ~0.1σ; FL ~0.5σ); v14 even edges AZ. NOT a "marginal surviving edge" — a tie. HGI's apparent
+reg-substrate advantage was an **artifact of the (now-dropped) log_T prior**. (d) keeps the per-state max
+as a conservative ceiling, but the two-substrate composite is no longer reg-motivated — this *strengthens*
+the regime thesis (substrate axis exhausted; the gap is architectural). Paper-relevant.
 
 **(c)/(d) are FROZEN** as the immutable track-internal yardstick: T2-T5 Δ are measured against them;
 Tier S / T5 may not re-open them (the §0.1 paper baseline stays refreshable at T6.2). Loss code +

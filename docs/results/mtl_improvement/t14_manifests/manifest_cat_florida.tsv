@@ -1,0 +1,4 @@
+cat	c_balanced	results/check2hgi_design_k_resln_mae_l0_1/florida/next_lr1.0e-04_bs2048_ep50_20260603_161654_869632	ok
+cat	c_la10	results/check2hgi_design_k_resln_mae_l0_1/florida/next_lr1.0e-04_bs2048_ep50_20260603_162844_873810	ok
+cat	c_la05	results/check2hgi_design_k_resln_mae_l0_1/florida/next_lr1.0e-04_bs2048_ep50_20260603_163838_876126	ok
+cat	c_la10_ls05	results/check2hgi_design_k_resln_mae_l0_1/florida/next_lr1.0e-04_bs2048_ep50_20260603_164150_876737	ok

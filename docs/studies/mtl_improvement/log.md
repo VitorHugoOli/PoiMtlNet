@@ -352,6 +352,40 @@ T4.0 (loss-scale norm + RLW) NOT run (it is Tier 4; the user scoped this session
 
 ---
 
+## 2026-06-03 — T1.4 CLOSED → (c)/(d) FROZEN → TIER 1 COMPLETE (advisor pass + STOP for user)
+
+**Phase**: **Tier 1 COMPLETE.** T1.4 closed; the track-internal yardstick (c)/(d) is frozen.
+
+**Winners (scale-robust — a single config per task wins at all 4 states, no per-state branching):**
+- **reg = `next_stan_flow`, α=0 (log_T prior OFF)**, default HP, no tail-loss.
+- **cat = `next_gru`, logit-adjustment τ=0.5** (Menon), no class-weighting / focal / label-smoothing.
+
+**Frozen (c) STL-on-v14** (Δ vs pre-T1.4): cat AL 41.86(+2.73)/AZ 50.44(+7.28)/GE 59.57(+5.55)/FL 69.99(+4.11); reg AL 62.88(+0.56)/AZ 55.11(+2.24)/GE 58.45(+2.64)/FL 73.31(+3.03).
+**Frozen (d) composite** (reg arm = max(v14-α0,HGI-α0), both hardened): reg AL 63.58/AZ 55.11/GE 58.76/FL 73.62; gap over MTL-deploy **+12.4 to +17.3pp** (grew vs pre-T1.4 → T2's bar correctly RAISED, not sandbagged).
+
+**Findings.** (1) Dropping the log_T prior wins reg everywhere (the T1.3 FL side-finding generalises, grows with scale). Tail-loss (LDAM/CB), dropout, lower-LR all lose decisively (CB→52); d_model=256 a tie. (2) logit-adjust τ=0.5 lifts cat macro-F1 +2.7 to +7.3pp (biggest at the most-imbalanced AZ); logit-adjust ALONE wins — stacking with class-weighting (AL 30.15) or focal/combos (24.34) over-corrects and craters. (3) With BOTH substrates α=0-hardened, v14 and HGI STL-reg are statistically indistinguishable (every Δ < 0.5σ) → HGI's reg edge was a log_T-prior artifact → the two-substrate composite is no longer reg-motivated → **strengthens the regime thesis** (substrate axis exhausted; the gap is architectural).
+
+**New code (all committed, leak-guarded, unit-tested).** `src/losses/calibrated.py` (19 tests, train-only class stats) wired into TWO harnesses — reg via `p1` (loads v14 region-emb), cat via `next_cv.py` (`ExperimentConfig.loss_calibration`; the tool that made the T1.1 cat ceiling — p1's trainer lands cat ~16pp low). Drivers `t14_sweep.sh` / `t14_validate_azge.sh` / `t14_hgi_hardening.sh`; agg `t14_agg.py`. 19 reg JSONs committed; cat config→rundir manifests persisted to `docs/results/mtl_improvement/t14_manifests/`.
+
+**Advisor pass (sub-agent, 2026-06-03) — verdict: freeze fundamentally SOUND; 3 fixes applied.**
+- **A LEAK: SOUND** — logit-adjust offset applied train-time-only (`calibrated.py:121`), eval path has no offset (`shared_evaluate`); counts from train fold only (`next_cv.py:127` / p1 `y_train`). The +7.28 AZ jump is a legit Menon effect, not a leak.
+- **B ceiling legitimacy: SOUND** (α=0 is a buffer, can't drift; ceiling = STL-best is right) — caveat documented: (c)-reg is prior-OFF vs MTL's prior-ON, don't misread the gate as prior-matched.
+- **C cross-tool: SOUND** — balanced reproduced **within 0.26pp** (38.87 vs 39.13), relabeled (not "exact").
+- **D pruning: NEEDS-FIX (applied)** — d_model=256 was the TOP AL arm (62.55±4.43, ~0.07σ) and a tie at FL, not "lost"; relabeled "tied within σ; base retained on parsimony." Ceiling value unaffected.
+- **E substrate: OVER-READ (applied)** — "marginal surviving edge" oversold noise; reframed to "statistically indistinguishable (all Δ<0.5σ); HGI edge = log_T-prior artifact" everywhere (INDEX T1.2/T1.4 + TIER01). This is more correct AND better for the regime story.
+- **F config sanity: SOUND** — end-to-end wiring verified; craters are real over-corrections (not NaN/bug).
+Optional items applied: durable manifests; prior-mismatch + 0.26pp caveats in TIER01. (Deferred: dumping loss_calibration into each run dir — manifests cover provenance.)
+
+**Tier-S Prong-A** (concurrent, per user decision): 15/17 coded `next_*` heads pass the build+fwd+bwd unit screen (`tierS_unit_screen.py`) — no bit-rot; 2 `*_hsm` heads need a prebuilt hierarchy artifact (deferrable). Promotion HELD until now (floor frozen) → GPU screens can proceed against the frozen (c)/(d).
+
+**Chain status**: **Tier 1 COMPLETE; (c)/(d) FROZEN (immutable yardstick).** Chain preserved. T2 is now correctly gated against a tuned, advisor-audited ceiling.
+
+**STOP for user (mandatory tier-boundary cadence).** Surfacing the Tier-1 close for a go/no-go decision on what's next: (a) start **Tier 2** (T2.1 dual-tower, the centerpiece) against the frozen ceiling; (b) run the parallel **Tier S** GPU screens (coded-head sweep) first/concurrently; (c) run the ungated **T4.0** loss-scale/RLW litmus (cheap, flagged run-early). Do NOT auto-roll into Tier 2.
+
+**Next**: await user direction on (a)/(b)/(c). Whichever is chosen, scored against the FROZEN (c)/(d).
+
+---
+
 ## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
 
 **Phase**: Design complete; no experiments run yet.

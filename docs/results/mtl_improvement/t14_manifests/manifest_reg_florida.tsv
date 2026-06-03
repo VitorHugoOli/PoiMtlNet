@@ -1,0 +1,3 @@
+reg	r_a0_ldam5	docs/results/P1/region_head_florida_region_5f_50ep_r_a0_ldam5.json	ok
+reg	r_a0_dm256	docs/results/P1/region_head_florida_region_5f_50ep_r_a0_dm256.json	ok
+reg	r_a0_do1	docs/results/P1/region_head_florida_region_5f_50ep_r_a0_do1.json	ok
