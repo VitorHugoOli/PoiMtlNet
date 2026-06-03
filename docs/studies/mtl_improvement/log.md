@@ -170,6 +170,45 @@ Strengthened workflow §4–§6 + execution §8 with three disciplines: (1) **pe
 
 ---
 
+## 2026-06-03 — TIER 0 + TIER 1 SUMMARY (boundary review — STOP for user)
+
+**Phase**: Tier 0 done; Tier 1 substantially done (T1.3 the gating experiment closed; ceilings partially pinned). Per workflow §4: advisor pass run, summary written, **now surfacing to the user — no autopilot into Tier 2.**
+
+### What ran (all 2026-06-03, A40, branch `mtl-improve` in-checkout)
+- **T0.0 frozen-fold manifests** — AL/AZ/FL/GE × seeds {0,1,7,100,42} (20 files), provenance-matched to the trainer/log_T `StratifiedGroupKFold` split; `--check` drift-guard idempotent.
+- **T0.1b GE onboarding** — built from scratch (~16 min): downloaded the missing GA TIGER shapefile, then canonical check2hgi + HGI-preprocess + POI2Vec + v14 design_k + 25 seeded log_T. **n_regions = 2283 (middle band, between AZ 1547 & FL 4703).** HGI-train (composite/STL-HGI) deferred. Canonical GE `next_region.parquet` was missing for the MTL canon arm → built via the engine-agnostic `build()`.
+- **T0.2/T0.3 GE board** — MTL v14 vs matched canonical, H3-alt, KD-off, seeds {0,1,7,100}.
+- **T0.4** — selector/guard verification (geom_simple default, n_splits guard, 3-frontier trackers) — DONE by code inspection.
+- **T1.3 encoder-isolation probe** + **prior-OFF re-run** — the Tier-2 gate.
+- **Graph regen** — AL/AZ/FL `checkin_graph.pt` had been cleaned post-build; regenerated (user-authorized) and **determinism directly verified** (recomputed region_idx == stored, n_regions exact-match §0.1; cfg1 FL 70.28 ≈ landed 70.24).
+
+### Headline results
+**GE board (middle band):** deployable Δreg **−1.15** (v14 42.64 / canon 43.79), Δcat **+0.70**; diag Δreg −1.47. **Regime CONFIRMED at the middle band** — v14's STL gains don't survive MTL; small cat edge persists, reg slightly worse. Deployable-Δreg sign pattern **AL +2.14 / AZ −1.01 / GE −1.15 / FL −0.33** → v14 reg-survival is **AL-specific, NOT a scale gradient** (advisor P2: magnitudes confounded — GE canon is FRESH while AL/AZ/FL canon is FROZEN; FL=B9 vs GE=H3-alt; only the sign pattern is interpretable; each state's Δ is a valid paired comparison).
+
+**T1.3 (the gate):** prepending the MTL `next_encoder` to the STL reg backbone costs ~0pp at every state — with prior (AL −0.93/AZ −0.57/FL −0.13) AND prior-OFF/embeddings-only (AL −0.88/AZ −0.30/FL −0.66, cfg2 ≥ cfg1 everywhere, FL tight σ). **The encoder architecture is NOT the residual** (advisor P1 settled by the prior-off re-run — the prior was not masking encoder damage). The locus is the **joint-training dynamics** (cross-attn co-adaptation / PCGrad / shared-backbone handoff) → **T2.1 dual-tower is the right lever; the cheap encoder-bypass would not help.** Honest scope: tests a standalone encoder, not the jointly-trained one in situ — but since the architecture is neutral, joint dynamics are the locus. **Side-finding:** at FL embeddings-only (73.31) > with-prior (70.28) → the log_T prior is a net DRAG on FL STL reg with v14 embeddings (scale/substrate-dependent — flag for Tier 3).
+
+**Ceilings:** T1.1 v14 STL reg ceilings measured as a by-product of T1.3 cfg1 (with-prior): AL 62.32 / AZ 52.87 / FL 70.28 (≈ landed). T1.2 FL in-harness composite deploy ceiling +9.4pp reg pinned. GE STL-reg + AL/AZ/GE HGI-STL/composite still pending (GE HGI-train is the deferred tail).
+
+### Advisor pass (general-purpose sub-agent, adversarial) — 4 findings, all applied
+- **P1 (HIGH, FIXED):** T1.3 was over-read (α·log_T prior could mask the embedding path; `--mtl-preencoder` is a standalone re-impl). → ran the prior-OFF re-run (rescues the verdict on the embeddings-only metric) + downgraded scope to "standalone encoder not harmful → joint dynamics are the locus → dual-tower." 
+- **P2 (MED, FIXED):** cross-state gradient mixes GE-fresh vs AL/AZ/FL-frozen canon + B9 vs H3-alt → annotated as sign-pattern-only, not a scale curve; per-state Δ valid (paired).
+- **P3 (LOW, FIXED):** "conclusive at σ±0.5" was single-seed fold-SD → downgraded to "directionally clear."
+- **P4 (LOW, noted):** t13 driver/manifest record `embedding_eval/` but p1 saves to `docs/results/P1/` (numbers fine; aggregator + INDEX read the right path).
+- Cleared by advisor: log_T freshness (both arms fresh), composite arithmetic, freeze_folds provenance, STL replication.
+
+### Falsified / promoted this tier
+- **Falsified:** the encoder-bypass shortcut (T1.3 — encoder not the residual). The clean "substrate-survival scale gradient" (P2 — it's AL-specific sign, not a curve).
+- **Promoted/confirmed:** the regime finding at the GE middle band; the dual-tower (T2.1) as the Tier-2 lever (now positively motivated, not just by elimination).
+
+### Out-of-scope-but-flagged
+T4.0 (loss-scale norm + RLW) NOT run (it is Tier 4; the user scoped this session to Tier 0+1). T0.5 bespoke instrumentation (grad-cosine/α-trajectory) NOT built — existing trackers already emit per-task disjoint/joint + compute panel; defer until Tier-2 diagnostics need it. GE STL-reg + HGI-STL/composite at AL/AZ/GE pending (GE HGI-train tail).
+
+**Chain status**: Tier 0 complete; Tier 1 gate (T1.3) closed → dual-tower confirmed as the Tier-2 centerpiece. Chain preserved. **STOP — awaiting user decision on how to proceed into Tier 2.**
+
+**Next (proposed, for user to confirm)**: (a) optional: finish T1.1/T1.2 cleanly (GE STL-reg + AL/AZ/GE HGI-STL/composite — needs GE HGI-train, ~hours) and run T4.0 early; OR (b) proceed to Tier 2 — implement the T2.1 dual-tower (reg-private full STAN backbone, gated-fusion PRIMARY + PCGrad-off arm), unit-test the param-partition, per-arch LR mini-sweep, frozen-fold paired on AL/AZ/GE/FL. The advisor's standing caution: the dual-tower's private backbone is a NEW param group — wire it into `shared/cat_specific/reg_specific_parameters()` bijectively.
+
+---
+
 ## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
 
 **Phase**: Design complete; no experiments run yet.
