@@ -504,6 +504,22 @@ S.3 (compose) NOT triggered (nothing promoted). **Conclusion: the STL head is NO
 
 ---
 
+## 2026-06-03 — PIPELINE DEEP-DIVE AUDIT (user-requested) → found a HIGH systematic cap: non-overlapping windows
+
+**Phase**: two parallel auditor agents on the next-cat + next-reg pipelines (input formation, batching, loss, optimizer/scheduler, heads, metrics). User instinct: "maybe we are losing a piece in the big picture." Full report: [`PIPELINE_AUDIT_2026-06-03.md`](PIPELINE_AUDIT_2026-06-03.md).
+
+**⭐ HIGH FINDING — the user was RIGHT.** `generate_sequences` (`src/data/inputs/core.py:40,56,59`) defaults `stride = window_size = 9` → **NON-OVERLAPPING windows**, the single chokepoint for both heads. Measured AL: 113,846 check-ins → **only 12,709 sequences** (the "~12,709 samples" everywhere is WINDOWS, not check-ins). Overlapping (stride=1) → **~96k–108k, a 7.5–8.4× increase** in (history→next) supervision. Non-overlapping is NOT standard for next-POI/next-cat. This caps BOTH ceilings identically, **independent of head** — exactly the systematic piece. **Leak-safe to fix** (VERIFIED: StratifiedGroupKFold(userid) keeps a user's windows in one fold → overlap can't cross train/val).
+
+**Secondary (all cheap):** 58% of users dropped by MIN_SEQUENCE_LENGTH=5 (3.65% of check-ins; biases to heavy users); 13% "leftover-branch" rows are a different task (stride=1 fixes both for free); cat trainer runs fp16-autocast WITHOUT GradScaler + autocasts val (vs reg fp32); 50-ep OneCycle late-overfit (shorter ~25ep may lift both). **Everything else VERIFIED CLEAN** (padding, masking, label + region-label alignment, fold/class-weight leakage, loss double-application, pooling, α=0 path).
+
+**FOUNDATIONAL caveat.** The windowing fix would change the frozen (c)/(d) ceilings, the MTL board, the per-fold log_T, AND the v11 PAPER CANON — all built on non-overlapping windows. NOT a silent swap. Plan: validate in ISOLATION first (separate input dir at AL, frozen substrate untouched, re-measure both ceilings with stride=1), then a strategic/paper-level decision if it lifts.
+
+**Chain status**: Tier 1 frozen ceilings now have a known FOUNDATIONAL caveat (windowing); surfacing to user before any rebuild. Chain preserved (nothing changed on disk).
+
+**Next**: STOP for user decision — run the isolated AL overlapping-window probe (validate the lift, ~code + rebuild + 2 retrains) vs note-and-defer vs proceed to Tier 2 on the current canon. This is potentially the most impactful finding of the track (paper-wide).
+
+---
+
 ## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
 
 **Phase**: Design complete; no experiments run yet.
