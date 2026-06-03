@@ -559,6 +559,24 @@ S.3 (compose) NOT triggered (nothing promoted). **Conclusion: the STL head is NO
 
 ---
 
+## 2026-06-03 — Overlap study CLOSED (user decision): document as key finding + future-work; KEEP non-overlap canon
+
+**Phase**: closure. User: show MTL disjoint+joint; run overlap on HGI STL; document + keep consistency.
+
+**MTL disjoint + joint** (AL, KD off, same recipe): cat joint 46.30→55.21 (+8.92) / disjoint 46.52→55.90 (+9.39); reg joint 54.54→55.05 (+0.50) / disjoint 53.47→54.46 (+1.00). **The reg-gap-widens result holds on BOTH selectors** — even at its per-task-best epoch the MTL reg can't absorb the overlap data.
+
+**HGI-overlap STL reg** (overlapping seqs + HGI region emb): 63.58→**68.47 (+4.89)** ≈ v14's +5.13. With overlap, v14 (68.01) ≈ HGI (68.47) for STL reg — they stay tied (consistent with T1.4 v14≈HGI). The composite (d) reg arm rises uniformly too.
+
+**DECISION (user):** document as a **key finding + future-work**, **KEEP the non-overlapping canon** for whole-study consistency (frozen (c)/(d), MTL board, log_T, v11 paper canon all non-overlap; every within-study comparison stays valid). NOT adopted (would need a multi-state rebuild + re-paper). Memo: [`docs/future_works/overlapping_windows.md`](../../future_works/overlapping_windows.md). All probe code is isolated (engine `check2hgi_dk_ovl`); the canonical substrate is untouched.
+
+**Net result of the user's "are we losing a piece?" instinct:** found a real, validated, head-independent data-formation cap (~+5 to +9.8pp at small-state STL) that ALSO sharpens the central thesis (the MTL reg bottleneck can't use the extra data → gap widens). Recorded; canon unchanged.
+
+**Chain status**: Tier-1 frozen ceilings + canon UNCHANGED (consistency kept); overlap is a documented future-work that strengthens the regime story. Chain preserved.
+
+**Next**: back to the Tier-2 decision (T2.1 dual-tower) — now even better motivated (the reg-gap-widens-with-more-data result is fresh evidence for the architectural bottleneck). Cheap training levers (cat fp32, shorter schedule) + the overlap-at-AZ/GE/FL multi-seed confirm remain optional future items.
+
+---
+
 ## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
 
 **Phase**: Design complete; no experiments run yet.
