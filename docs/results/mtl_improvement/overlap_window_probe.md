@@ -52,3 +52,30 @@ If overlap lifts the MTL model as much as STL → "rising tide" (rebuild for hig
 finding unchanged). If it lifts STL MORE than MTL at small states → the STL→MTL gap WIDENS, which
 *strengthens* the dual-tower/regime story. Needs an MTL-with-overlap run (engine-aware MTL fold
 creator + log_T-KD-off control). NEXT.
+
+## MTL-with-overlap (2026-06-03) — THE DECISIVE RESULT: cat rising-tide, reg gap WIDENS
+Real MTL pipeline (cross-attn, next_gru cat + next_stan reg, static_weight cw=0.75, KD OFF, AL 5f/50ep,
+joint_best basis). Control = v14 non-overlap, overlap = check2hgi_dk_ovl — IDENTICAL recipe, only windowing differs.
+
+| task | MTL control (v14 n/o) | MTL overlap | MTL lift | STL lift (for ref) |
+|---|---|---|---|---|
+| cat F1 | 46.30 | **55.21** | **+8.92** | +9.77 |
+| reg Acc@10 | 54.54 | **55.05** | **+0.50** | +5.13 |
+
+**cat = RISING TIDE**: overlap lifts cat ~equally in STL (+9.8) and MTL (+8.9) — the cat MTL pathway
+exploits the extra data. **reg = GAP WIDENS**: overlap lifts STL reg (+5.1) but MTL reg barely moves
+(+0.5). The STL→MTL reg gap goes 62.88−54.54=**8.34** (non-overlap) → 68.01−55.05=**12.96** (overlap).
+The shared-backbone reg pathway (the architectural bottleneck) CANNOT use the extra data; STL reg does.
+
+**Interpretation:** overlap does NOT undermine the regime finding — it STRENGTHENS it. More data makes the
+reg architectural bottleneck MORE visible (bigger STL→MTL gap), which is direct evidence FOR the dual-tower
+motivation. Cat benefits across STL+MTL (a clean rising tide). Caveats: AL only, single seed, KD-off +
+prior-free reg recipe (control uses the SAME recipe so the windowing delta is valid; absolute≠board).
+
+## Strategic options
+1. ADOPT overlap as canon — rebuild substrate inputs + log_T + re-freeze ceilings + re-run the board at
+   all states. Lifts cat (STL+MTL) + STL reg; strengthens the reg regime story. Major rebuild, changes paper.
+2. DOCUMENT as a key finding + future-work — keep the consistent non-overlap canon (all within-study
+   comparisons valid), add overlap as a "data-formation headroom + it sharpens the regime finding" result.
+3. CONFIRM-FIRST — run the cat-rising-tide / reg-gap-widens pattern at AZ/GE/FL before deciding (the AL
+   result is single-state, single-seed).
