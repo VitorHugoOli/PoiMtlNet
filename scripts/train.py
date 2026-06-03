@@ -489,6 +489,21 @@ def _parse_args(argv=None) -> argparse.Namespace:
         default=None,
         help="Force-disable class-balanced CE weighting even if the config default is on.",
     )
+    # --- T1.4 STL loss calibration (next_cv.py cat tune; leak-free, train-only stats) ---
+    parser.add_argument("--focal-gamma", type=float, default=0.0,
+                        help="T1.4: focal focusing parameter (>0 enables focal). STL cat lever.")
+    parser.add_argument("--logit-adjust-tau", type=float, default=0.0,
+                        help="T1.4: Menon ICLR'21 logit-adjustment temperature (>0 adds "
+                             "tau*log P_train(y) to logits). Macro-F1-consistent; STL cat lever.")
+    parser.add_argument("--cat-label-smoothing", type=float, default=0.0,
+                        help="T1.4: label smoothing for the STL next-cat criterion.")
+    parser.add_argument("--tail-loss", choices=["none", "balanced", "cb", "ldam"], default="none",
+                        help="T1.4: imbalance handling for the STL criterion. 'balanced' = "
+                             "sklearn balanced weights (== the T1.1 cat ceiling), 'cb' = "
+                             "Class-Balanced, 'ldam' = LDAM margins.")
+    parser.add_argument("--cb-beta", type=float, default=0.999, help="T1.4: CB beta (with --tail-loss cb).")
+    parser.add_argument("--ldam-max-margin", type=float, default=0.5, help="T1.4: LDAM max margin.")
+    parser.add_argument("--ldam-scale", type=float, default=30.0, help="T1.4: LDAM logit scale.")
     parser.add_argument(
         "--task-a-input-type",
         type=str,
@@ -1133,6 +1148,22 @@ def _apply_cli_overrides(
         )
     if args.use_class_weights is not None:
         config = dataclasses.replace(config, use_class_weights=args.use_class_weights)
+    # T1.4 STL loss calibration (next_cv.py cat tune). Only assembles a non-empty
+    # dict when a calibration flag is set, so default runs keep the legacy path.
+    _lc = {}
+    if getattr(args, "focal_gamma", 0.0):
+        _lc["focal_gamma"] = float(args.focal_gamma)
+    if getattr(args, "logit_adjust_tau", 0.0):
+        _lc["logit_adjust_tau"] = float(args.logit_adjust_tau)
+    if getattr(args, "cat_label_smoothing", 0.0):
+        _lc["label_smoothing"] = float(args.cat_label_smoothing)
+    if getattr(args, "tail_loss", "none") not in (None, "none"):
+        _lc["tail_mode"] = args.tail_loss
+        _lc["cb_beta"] = float(getattr(args, "cb_beta", 0.999))
+        _lc["ldam_max_m"] = float(getattr(args, "ldam_max_margin", 0.5))
+        _lc["ldam_scale"] = float(getattr(args, "ldam_scale", 30.0))
+    if _lc:
+        config = dataclasses.replace(config, loss_calibration=_lc)
     # F51 Tier 3 overrides
     if getattr(args, "weight_decay", None) is not None:
         if args.weight_decay < 0:

@@ -945,7 +945,13 @@ def main():
     parser.add_argument("--engine-override", type=str, default=None,
                         choices=[None, "check2hgi", "check2hgi_poi2vec", "c2hgi_hgi_concat", "hgi",
                                  "check2hgi_resln", "check2hgi_resln_design_b",
-                                 "check2hgi_resln_design_j"],
+                                 "check2hgi_resln_design_j",
+                                 # T1.4: v14 substrate for the cat-arm STL ceiling
+                                 # (cat uses check-in embeddings via next.parquet;
+                                 # v14's ResLN+mae cat lever makes them distinct).
+                                 "check2hgi_design_k_resln_mae_l0_1",
+                                 "check2hgi_design_k_resln_l0_1",
+                                 "check2hgi_design_k_l0_1"],
                         help="Override the engine used to load next.parquet/next_region.parquet. "
                              "Region labels and graph maps still come from check2hgi. "
                              "Used by Design A probe and HGI-substrate category-injection probes.")
@@ -959,10 +965,11 @@ def main():
     parser.add_argument("--logit-adjust-tau", type=float, default=0.0,
                         help="Menon ICLR'21 logit-adjustment temperature (>0 adds "
                              "tau*log P_train(y) to logits). Macro-F1-consistent; cat-arm primary.")
-    parser.add_argument("--tail-loss", choices=["none", "cb", "ldam"], default="none",
-                        help="Long-tail reweighting for the many-class region target: "
+    parser.add_argument("--tail-loss", choices=["none", "balanced", "cb", "ldam"], default="none",
+                        help="Imbalance handling: 'balanced' = sklearn balanced weights "
+                             "(== compute_class_weights; reproduces the next_cv.py cat ceiling), "
                              "'cb' = Class-Balanced (Cui CVPR'19), 'ldam' = LDAM margins "
-                             "(Cao NeurIPS'19). Reg-arm lever.")
+                             "(Cao NeurIPS'19). Cat baseline = balanced; reg-arm tail = cb/ldam.")
     parser.add_argument("--cb-beta", type=float, default=0.999,
                         help="Class-Balanced beta (only with --tail-loss cb).")
     parser.add_argument("--ldam-max-margin", type=float, default=0.5,

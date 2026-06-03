@@ -233,6 +233,11 @@ class ExperimentConfig:
     mtl_loss: str = "nash_mtl"
     mtl_loss_params: dict = field(default_factory=dict)
     use_class_weights: bool = True
+    # T1.4 STL loss calibration (next_cv.py). Empty -> legacy CrossEntropyLoss
+    # path. Keys: focal_gamma, logit_adjust_tau, label_smoothing, tail_mode
+    # ('balanced'|'cb'|'ldam'), cb_beta, ldam_max_m, ldam_scale. All class
+    # statistics are derived from the TRAIN fold only (leak guard).
+    loss_calibration: dict = field(default_factory=dict)
 
     # --- Cross-validation and split protocol ---
     k_folds: int = 5

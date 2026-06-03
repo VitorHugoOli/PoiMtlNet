@@ -13,7 +13,9 @@ Knobs (all default to OFF → the criterion reduces to plain ``CrossEntropyLoss`
   (macro-F1 is the cat metric).
 - ``focal_gamma`` > 0 — Lin et al. focal down-weighting ``(1 - p_t)^gamma``.
 - ``label_smoothing`` — standard CE label smoothing (passed straight through).
-- ``tail_mode`` — long-tail reweighting for the many-class region target:
+- ``tail_mode`` — imbalance handling (class re-weighting / margins):
+    * ``'balanced'`` — sklearn-style balanced weights ``w_c = N / (C · n_c)``
+      (== ``compute_class_weights``; reproduces the next_cv.py cat ceiling).
     * ``'cb'``  — Class-Balanced weights (Cui et al. CVPR'19):
       ``w_c ∝ (1 - beta) / (1 - beta^{n_c})``, normalised to mean 1.
     * ``'ldam'`` — LDAM margins (Cao et al. NeurIPS'19): enforce a per-class
@@ -46,7 +48,7 @@ class CalibratedLoss(nn.Module):
         ``tail_mode`` is set; ignored otherwise. Must come from the training
         split only (the caller's leak guard).
     label_smoothing, focal_gamma, logit_adjust_tau : float
-    tail_mode : {'cb', 'ldam', None}
+    tail_mode : {'balanced', 'cb', 'ldam', None}
     cb_beta : float            # Class-Balanced re-weighting beta
     ldam_max_m, ldam_scale : float
     """
@@ -72,7 +74,7 @@ class CalibratedLoss(nn.Module):
         self.tail_mode = tail_mode
         self.ldam_scale = float(ldam_scale)
 
-        needs_counts = logit_adjust_tau > 0 or tail_mode in ("cb", "ldam")
+        needs_counts = logit_adjust_tau > 0 or tail_mode in ("balanced", "cb", "ldam")
         if needs_counts:
             if class_counts is None:
                 raise ValueError(
@@ -93,8 +95,13 @@ class CalibratedLoss(nn.Module):
         else:
             self.register_buffer("la_offset", None)
 
-        # --- class-balanced re-weighting -------------------------------------
-        if tail_mode == "cb":
+        # --- class re-weighting (balanced / class-balanced) ------------------
+        if tail_mode == "balanced":
+            # sklearn 'balanced': w_c = N / (C * n_c). Matches compute_class_weights
+            # so this reproduces the next_cv.py cat ceiling exactly.
+            w = counts.sum() / (self.num_classes * counts)
+            self.register_buffer("cb_weight", w)
+        elif tail_mode == "cb":
             eff_num = 1.0 - torch.pow(torch.as_tensor(cb_beta, dtype=counts.dtype), counts)
             w = (1.0 - cb_beta) / eff_num
             w = w / w.sum() * self.num_classes  # normalise to mean 1
@@ -160,12 +167,14 @@ def build_calibrated_loss(
     caller passing the training-split labels). Required when any class-statistic
     knob is active; may be ``None`` for the plain-CE configuration.
     """
-    needs_counts = logit_adjust_tau > 0 or tail_mode in ("cb", "ldam")
+    needs_counts = logit_adjust_tau > 0 or tail_mode in ("balanced", "cb", "ldam")
     counts = None
     if needs_counts:
         if y_train is None:
             raise ValueError("y_train required when logit-adjust / tail-loss is active")
-        counts = torch.bincount(y_train.detach().to(torch.long), minlength=num_classes)
+        # Coerce numpy / MPS / CUDA tensors to a CPU long tensor for bincount.
+        yt = torch.as_tensor(y_train)
+        counts = torch.bincount(yt.detach().cpu().to(torch.long).reshape(-1), minlength=num_classes)
     crit = CalibratedLoss(
         num_classes,
         class_counts=counts,

@@ -116,10 +116,29 @@ def run_cv(
             train_loader.dataset.targets, num_classes, DEVICE
         )
 
-        criterion = nn.CrossEntropyLoss(
-            reduction='mean',
-            weight=alpha if config.use_class_weights else None,
-        )
+        # T1.4: leak-free loss calibration. When config.loss_calibration is set
+        # (focal / logit-adjust / tail-loss / label-smoothing), build the
+        # CalibratedLoss from TRAIN-fold targets only; otherwise keep the
+        # historical class-weighted CrossEntropyLoss (the T1.1 cat ceiling).
+        lc = dict(getattr(config, "loss_calibration", None) or {})
+        if lc:
+            from losses.calibrated import build_calibrated_loss
+            criterion = build_calibrated_loss(
+                num_classes, train_loader.dataset.targets,
+                label_smoothing=lc.get("label_smoothing", 0.0),
+                focal_gamma=lc.get("focal_gamma", 0.0),
+                logit_adjust_tau=lc.get("logit_adjust_tau", 0.0),
+                tail_mode=lc.get("tail_mode", None),
+                cb_beta=lc.get("cb_beta", 0.999),
+                ldam_max_m=lc.get("ldam_max_m", 0.5),
+                ldam_scale=lc.get("ldam_scale", 30.0),
+                device=DEVICE,
+            )
+        else:
+            criterion = nn.CrossEntropyLoss(
+                reduction='mean',
+                weight=alpha if config.use_class_weights else None,
+            )
 
         optimizer = setup_optimizer(model, config.learning_rate, config.weight_decay)
         scheduler = setup_scheduler(optimizer, config.max_lr, config.epochs, len(train_loader))

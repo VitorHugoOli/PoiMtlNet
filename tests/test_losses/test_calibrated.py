@@ -80,6 +80,16 @@ class TestCalibratedLoss:
         crit_b = build_calibrated_loss(2, y_train[torch.randperm(1000)], logit_adjust_tau=1.0)
         assert torch.allclose(crit_a.la_offset, crit_b.la_offset, atol=1e-6)
 
+    def test_balanced_weight_matches_sklearn_formula(self):
+        # 'balanced' must equal N/(C*n_c) — the compute_class_weights formula
+        # that the next_cv.py cat ceiling uses.
+        y_train = torch.cat([torch.zeros(900, dtype=torch.long),
+                             torch.ones(100, dtype=torch.long)])
+        crit = build_calibrated_loss(2, y_train, tail_mode="balanced")
+        N, C = 1000, 2
+        expected = torch.tensor([N / (C * 900), N / (C * 100)])
+        assert torch.allclose(crit.cb_weight, expected, atol=1e-5), crit.cb_weight
+
     def test_cb_weight_upweights_rare_class(self):
         y_train = torch.cat([torch.zeros(900, dtype=torch.long),
                              torch.ones(100, dtype=torch.long)])
