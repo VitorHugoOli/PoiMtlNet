@@ -107,6 +107,12 @@ You are the **implementing agent** for the MTL Improvement research track. A pri
    - **`INDEX.html`** — fill each experiment's `<div class="results-placeholder">` with the real Results block (per-state 2×2 + Δ vs anchors + verdict) the moment that experiment closes; record any design deviation (new experiment, dropped arm, re-scope) inline in the same session it happens.
    - A task is **not** `completed` until BOTH the INDEX Results block and the `log.md` entry are written (see item 2).
 
+7. **Commit constantly — small, frequent, auditable commits.** Do NOT batch a whole tier into one commit. Commit at every natural unit: each experiment closing (code/results + its INDEX Results block + its `log.md` entry, together), each decision/redirection, each tier summary, each substrate build. Each commit should leave the repo in a coherent, reproducible state — so the history reads as the lab notebook and any point is recoverable.
+   - **Work on the dedicated branch / worktree** (`mtl-improve`); never commit experiment work straight to `main` — open a PR and merge deliberately.
+   - **Stage explicitly with a pathspec and check `git status` before every commit.** This repo frequently has unrelated pre-staged files (e.g. `articles/*`); a bare `git add -A` / `git commit` will sweep them in. Add only the files your change touches; verify `git show --stat HEAD` after.
+   - **Message convention:** `mtl_improvement: <what> — <one-line why/result>`; end with the `Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>` trailer.
+   - Push regularly so progress is durable off-box (the runs are on a remote A40 — don't let days of results live only in the working tree).
+
 ## Execution order (v2 — 6 tiers)
 
 1. **Tier 0 first (foundations).** Order: **T0.0 (freeze the fold partition + seeded log_T — the immutable shared artifact) FIRST**, then everything else reuses it.
