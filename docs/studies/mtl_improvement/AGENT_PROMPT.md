@@ -1,6 +1,15 @@
-# Agent Onboarding Prompt — MTL Improvement Track
+# Agent Onboarding Prompt — MTL Improvement Track (v2, v14-rebased)
 
 > **Paste this prompt (or its core block) at the start of every fresh Claude Code session that picks up this research track.** It onboards you with everything you need before touching code.
+
+> ⚠ **2026-06-02 — this track was REBASED.** The base substrate is now **v14** (`check2hgi_design_k_resln_mae_l0_1`), compared vs canonical paper **v11**. The binding constraint is **the regime finding** (the cross-attn MTL regime washes out substrate gains; the gap is architectural — P4). Read `INDEX.html` §"What changed (v1→v2)" + §"The regime finding" + §"Metrics & comparand framework" BEFORE anything. The 6-tier v2 chain supersedes the old 8-tier v1 chain.
+
+> ⚡ **2026-06-03 — execution started; read these first.** A `git pull` brought landed results + new defaults — read `INDEX.html` §"What already landed", §"State strategy", §"Execution & parallelization":
+> - **The regime gate is CONFIRMED** (`docs/results/v14_mtl_vs_canonical.md`): v14 ≈ matched canonical in MTL, 5f × {0,1,7,100} at FL+AL+AZ → T0.2/T0.3 largely DONE; the architectural lever (Tier 2) is the path. STL ceilings replicate exactly.
+> - **Selector default flipped (C21):** `geom_simple = sqrt(cat_F1·reg_Acc@10)` is now the default MTL joint selector. §0.1 is diagnostic-best (selector-independent); reproduce v11 joint-selected via `--checkpoint-selector joint_f1_mean`.
+> - **States:** AL/AZ/**GE**/FL at **5-fold** are the main evidence (GE = the middle-scale bridge, NOT yet built — Tier-0 prerequisite T0.1b); CA/TX at **1-fold** optional.
+> - **Hardware:** i9-14900K (32 threads) + A40 45GB. **Parallelize via CUDA MPS** (small-state runs underutilize the GPU); builds are the serial spine. See §Execution.
+> - **New loss lever:** loss-scale normalization (~4.7× CE magnitude gap) is now Tier-4 T4.0 (ungated, highest-EV); FAMO is the O(1) balancer (PCGrad/Nash O(k)-infeasible at 9k).
 
 ---
 
@@ -22,40 +31,48 @@ You are the **implementing agent** for the MTL Improvement research track. A pri
 
 | # | File | Purpose |
 |---|------|---------|
-| 1 | `docs/studies/mtl_improvement/log.md` | Most recent progress and decisions |
-| 2 | `docs/studies/mtl_improvement/INDEX.html` | Full 8-tier design. **Read §Execution guidelines + §Falsified history + §Audit + §Chain & sequencing + §Evaluation framework cover-to-cover before any experiment.** |
-| 3 | `docs/studies/mtl-exploration/INDEX.html` | State-of-the-art MTL audit; current state of B9 + every prior ablation. The grounding doc. |
-| 4 | `docs/studies/mtl-exploration/EXPERIMENT_NO_ENCODERS.md` | Encoder ablation findings (Linear+LN matches 2-MLP at AZ; load-bearing for cat at AL). |
-| 5 | `docs/studies/mtl-exploration/EXPERIMENT_HGI_SUBSTRATE.md` | HGI substrate finding (MTL+HGI ≡ STL+HGI under cross-attn). |
-| 6 | `docs/studies/mtl-exploration/LEAK_BLAST_RADIUS_AUDIT.md` | The n_splits guard history; per-fold log_T discipline. |
-| 7 | `docs/NORTH_STAR.md` | Canonical B9 invocation. |
-| 8 | `docs/results/RESULTS_TABLE.md §0` | Paper-canonical v11 numbers. The shipping target. |
-| 9 | `docs/findings/MTL_FLAWS_AND_FIXES.md` | MTL flaws catalogue; sections §1 (how MTL is wired) and §2 (empirical flaws). |
-| 10 | `docs/MTL_ARCHITECTURE_JOURNEY.md` | F-trail narrative. Helpful but not load-bearing — INDEX.html distills what matters. |
+| 1 | `docs/studies/mtl_improvement/log.md` | Most recent progress — read the **2026-06-02 reframe entry** first |
+| 2 | `docs/studies/mtl_improvement/INDEX.html` | Full v2 6-tier design. **Read §What changed + §The regime finding + §Metrics & comparand framework + §Execution guidelines + §Falsified history + §Chain cover-to-cover before any experiment.** |
+| 3 | `docs/results/CANONICAL_VERSIONS.md` §v11–v14 | What v14 IS, how to build it, the v11/v12/v13/v14 reproduction map. **Load-bearing.** |
+| 4 | `docs/studies/embedding_eval/FINAL_SYNTHESIS.md` | The v14 verdict + **the regime finding** (substrate washes out in MTL). |
+| 5 | `docs/results/mtl_protocol_fix/phase1_phase2_verdict_v6_final.md` | **P4** (gap is architectural, not interference) + three-frontier + selector axis + residual-gap table. |
+| 6 | `docs/findings/B9_STL_STAN_SWAP_AZ_FL.md` | The residual-skip FALSIFICATION (§6.2) + the §6.4 gap decomposition (~75% is the missing private backbone). The motivation for T2.1. |
+| 7 | `docs/future_works/` (part2_routing, mtl_architecture_revisit, composite_two_substrate, substrate_adaptive_balancing, reg_head_sweep, head_window_batch, paper_canon_reevaluation) | The folded-in memos; each maps to a tier (see INDEX §Future-works folded in). |
+| 8 | `docs/NORTH_STAR.md` + `docs/results/RESULTS_TABLE.md §0` | Canonical B9/v11 invocation + the paper anchor (b). |
+| 9 | `docs/studies/mtl-exploration/EXPERIMENT_NO_ENCODERS.md` | Encoder ablation (d_model=256 load-bearing, MLP depth flat) — closes the encoder question. |
+| 10 | `docs/findings/MTL_FLAWS_AND_FIXES.md` | How MTL is wired + empirical flaws catalogue. |
 
 ## Hard rules (do not break)
 
-1. **No substrate swap.** Substrate is fixed to Check2HGI. HGI re-checks are per-T2-winner sanity probes only (single seed, AL+AZ, 5f × 25ep). Do NOT use HGI as the primary substrate.
+1. **Base substrate = v14** (`check2hgi_design_k_resln_mae_l0_1`). Build it per state (T0.1) — it exists only at FL today. Canonical-fresh (`gcn_ctrl`) is the matched control. HGI is a per-T2-winner sanity probe only (2 seeds × AL+AZ × 5f × 30ep; escalate if |MTL+HGI − STL+HGI| ≥ 2pp). **No substrate re-builds for the reg gap** — Part-1 is closed.
 
-2. **No `--folds 1` with per-fold log_T.** The 2026-05-15 trainer guard hard-fails. Use `--folds 5` to match `n_splits=5` of the log_T. Anything that mutates fold composition, sequence-stride, or min-history triggers a **log_T rebuild** via `scripts/compute_region_transition.py --per-fold --seed S --n-splits 5` — document the rebuild in `log.md`.
+2. **Per-task disjoint + joint reporting is mandatory** for every MTL run — report BOTH tasks at TWO epochs: per-task disjoint (`cat@best-cat-epoch`, `reg@best-reg-epoch`) AND joint (`cat@joint`, `reg@joint` at the single `geom_simple` deployable checkpoint). Every MTL row is a 2×2 {cat,reg}×{disjoint,joint} + STL ceiling per task + composite reg ceiling. Never quote the b9 production selector alone (under-reports reg +7-11pp at large states). Disjoint is a capacity frontier (reporting-only — two-checkpoint deploy is OUT of scope, user-dropped).
 
-3. **Stay at `shared_layer_size = 256`.** F51 capacity-widening is FALSIFIED (cat collapse at FL above 256). Capacity sweeps are depth/head-count only at matched D=256.
+2b. **Frozen-fold paired design** for infra-isolation experiments (Tier 2 architecture, T1.3 encoder probe, T5 head swaps): all arms use the identical `StratifiedGroupKFold(groups=userid, seed=S)` partition + matching seeded log_T, compared fold-by-fold so fold-composition variance cancels in the Δ. Controls data-difficulty variance (the dominant small-state noise); does NOT control init/batch-order (vary seed but keep the split aligned per seed). Report Δ vs the frozen-fold baseline, not bare absolutes (F51 fold-1-easiness). Do NOT freeze for the T6 ship run or T0.3 regime gate (those vary folds for generalization).
 
-4. **No fclass-as-feature anywhere** — fclass is the linear-probe label; tautological leak.
+3. **Fresh-vs-frozen discipline.** Frozen v11 is a privileged draw (~2.6pp cat / ~0.5pp reg over fresh). For regime/substrate/architecture claims compare **v14-fresh vs canonical-fresh (gcn_ctrl)**. Frozen v11 §0.1 is for paper-continuity only, always labeled. Keep separate columns.
 
-5. **Per-arch light LR mini-sweep is mandatory** for every backbone candidate in T2a/T2b. Three regimes: constant 1e-3 everywhere / B9 per-head / arch-suggested-default. 5f × 30ep × seed=42 at AL+AZ for each regime. Then full-protocol run at the winning regime.
+4. **log_T-KD ON** (v12 default W=0.2 τ=1.0). Per-fold **seeded** log_T mandatory (`--per-fold-transition-dir` with `region_transition_log_seed{S}_fold{N}.pt`); default log_T leaks ~+3pp. `--folds 1` + per-fold log_T hard-fails (n_splits guard). Any fold/stride/min-history change → rebuild log_T via `scripts/compute_region_transition.py --per-fold --seed S --n-splits 5`.
 
-6. **Statistical claims need n ≥ 10.** At n=5 the Wilcoxon floor is p=0.0312. Any "wins paper-canon" claim requires multi-seed (4 seeds × 5 folds = n=20 pooled). For cheap iteration in T2-T7, single-seed n=5 paired is acceptable to gate-keep; final shipping (T8) requires multi-seed.
+5. **Stay at `shared_layer_size = 256`** — F51 capacity-widening FALSIFIED. Sweeps are depth/head-count only.
 
-7. **Pre-flight T0.2 (mask audit) must pass on canonical first** — blocks Tier 1 launch.
+6. **No fclass-as-feature** — tautological probe leak.
 
-8. **Pre-flight T0.7 (same-machine B9 re-baseline) must pass** — pins `B9_v11_repro` as the chain's tier-0 baseline.
+7. **Per-arch LR mini-sweep mandatory** for every Tier-2 architecture: 5 regimes (constant 1e-3 / B9 per-head / arch-default / **per-arch-group LR for new params** / B9+warmup-5%) × 5f × 40ep × seed=42 × AL+AZ, then full-protocol at the winning regime. The B9_STL_STAN_SWAP v1 collapse (B9 recipe + non-α head) is why.
 
-9. **Unit-test gate before any T2a/T2b/T7 multi-fold launch.** Every architectural variant requires a test under `tests/test_models/test_mtl_improve_variants.py` confirming: (a) forward+backward shape correctness on a synthetic 100-user batch, (b) one-step loss is finite (no NaN), (c) parameter count is within ~5% of B9 at D=256, (d) `shared_parameters()` / `cat_specific_parameters()` / `reg_specific_parameters()` partition is bijective + exhaustive.
+8. **Statistical claims need n ≥ 10.** n=5 gate-keeps (Wilcoxon floor 0.0312); n=20 ships. Minimum-effect floor ≥1pp (n=5) / ≥0.5pp (n=20) on the targeted axis; TOST δ=2pp non-inferiority on the non-targeted axis. Multi-state promotion = win at ≥2 of {AL,AZ,FL}.
 
-10. **Falsified history is off-limits.** See `INDEX.html §Falsified history`. If you believe you have a genuinely different formulation, document the structural distinction in `log.md` before launching.
+9. **Pre-flights gate Tier 1:** T0.1 (v14 built + STL-validated per state), T0.3 (regime entry gate at multi-seed). Window/mask audit is DONE (`substrate-protocol-cleanup/window_mask_audit.md`) — cite, don't re-run.
 
-11. **Respect the chain.** Each tier's winning recipe becomes the next tier's fixed baseline. If you ever want to break the chain (run an out-of-order experiment), document the rationale in `log.md` first AND assess re-execution risk explicitly.
+10. **Unit-test gate before any new arch/head multi-fold launch** — forward/backward shapes (synthetic 100-user batch), loss-finite, param count within ~5% of B9 at D=256, `shared/cat_specific/reg_specific_parameters()` partition bijective+exhaustive (the dual-tower's private backbone is a NEW param group — wire it into the partition).
+
+11. **Falsified history off-limits** (INDEX §Falsified history): thin residual-skip, encoder-MLP-depth, class-balanced sampler, loss-balancing-for-interference, substrate/routing-in-MTL, MMoE/CGC (lose reg), PLE (collapse). Genuinely-different formulation → document the distinction in `log.md` first.
+
+12. **Respect the chain.** Each tier's winner is the next tier's baseline. The load-bearing **T2.1 runs on BOTH v14 AND canonical-fresh** (regime×substrate 2×2). Out-of-order = document rationale + re-execution risk in `log.md` first.
+
+13. **State strategy: AL/AZ/GE/FL at 5-fold are the main evidence; CA/TX at 1-fold optional.** GE (Georgia, the small↔huge middle bridge, ~3-4k regions) is user-flagged essential and **not yet built** — onboard it in T0.1b (raw data → v14+canonical substrates → frozen folds → seeded log_T) before the Tier-2 generality claim. Generality promotions need the band: ≥2 of {AL,AZ} (small) AND GE (middle) AND FL (large). CA/TX 1-fold numbers are directional (no paired Wilcoxon) — flag as such; run only for a shipping candidate (T6) or a band-ambiguous result.
+
+14. **Parallelize smartly on the i9-14900K + A40 45GB.** Drivers (`scripts/_v14_run/`) are currently SERIAL — that's the headroom. (a) Collocate small-state MTL runs (AL/AZ/GE, light, ~2-3 min) via **CUDA MPS** — they underutilize the A40; cap concurrency at `min(⌊0.85×45GB / per-run-peak-VRAM⌋, ~4)`, measure per-run VRAM once. (b) FL (heavier, ~14 min) collocate ≤2. (c) ONE GPU build at a time (builds saturate). (d) CPU-parallel the prep (log_T, postbuild, aggregation) on the 32 threads, overlapped with GPU work; pin `OMP_NUM_THREADS = 32/N_concurrent`. (e) each process writes its own run dir + reads its own seeded log_T (race-safe); stage log_T BEFORE concurrent reads. Don't fill 45GB (OOM/fragmentation headroom).
 
 ## Required workflow
 
@@ -84,44 +101,38 @@ You are the **implementing agent** for the MTL Improvement research track. A pri
 
 6. **Keep `log.md` current.** Append every decision, blocker, falsified hypothesis, redirection, finding. Date every entry (absolute, e.g. `2026-05-16`, never `today`).
 
-## Execution order
+## Execution order (v2 — 6 tiers)
 
-1. **Tier 0 first.** Launch in parallel BUT respect the gates:
-   - **T0.2 (mask audit) gates T1.** Must pass before any T1 launch.
-   - **T0.7 (same-machine re-baseline) gates T1.** Must pass before any T1 launch.
-   - T0.1 (docs cleanup), T0.3 (F49 audit), T0.4 (flat-checkin cat), T0.5 (instrumentation wave), T0.6 (n_splits guard ext) run in parallel.
+1. **Tier 0 first (foundations).** Order: **T0.0 (freeze the fold partition + seeded log_T — the immutable shared artifact) FIRST**, then everything else reuses it.
+   - **T0.1 (build v14 + STL-validate per state, on the frozen folds) gates T1** — v14 exists only at FL; build AL+AZ, validate the dual-axis gain reproduces (state-dependent; has a fallback).
+   - **T0.2 (frozen-fold reference board + equivalence) is THE calibration gate** — run all anchors (MTL v11, MTL v14, MTL canonical-fresh, STL-on-v14, composite) on the frozen folds and **prove MTL v11 ≈ paper §0.1 + three-frontier ≈ mtl-protocol-fix + v14 STL ≈ embedding_eval BEFORE any improvement work**. Divergence beyond fold-σ + the known fresh-vs-frozen offset → STOP and diagnose. This catches a harness discrepancy at Tier 0, not Tier 6.
+   - **T0.3 (regime entry gate)** reads the board's v14-MTL vs canonical-fresh-MTL cells at n=20 — confirm v14≈canonical before committing to "substrate exhausted."
+   - T0.4 (three-frontier + selector; cite window/mask audit), T0.5 (instrumentation) run in parallel.
 
-2. **Tier 1 STL ceilings refresh** — pin `STL_v2` per state. Multi-seed-light (3 seeds) for n=15.
+2. **Tier 1 — consolidate ceilings + encoder probe**: T1.1/T1.2 = confirm-and-pin the STL-on-v14 (c) + composite (d) ceilings already produced by the T0.2 board (no fresh runs). **T1.3 encoder-isolation probe (≈5 GPU-h) is the real Tier-1 work — it gates the expensive Tier 2** (if the upstream encoder owns the residual, do the cheap encoder-bypass before the dual-tower).
 
-3. **Tier 2a (cheap backbones)** — 4 archs with per-arch LR mini-sweep. **STOP GATE**: if any T2a candidate beats B9 paper-grade on reg at ≥2 of {AL, AZ, FL} with cat non-inferior, T2b becomes OPTIONAL. Escalate to user via `AskUserQuestion` for skip-or-run decision.
+3. **Tier 2 — architecture (CENTERPIECE)**, frozen-fold paired design, spanning the full sharing spectrum: **T2.0 hard-share anchor** (FiLM-off `mtlnet` = Caruana shared trunk + task heads — baseline anchor, expected to lose; completes hard←→soft←→private). T2.1 **reg-private backbone / dual-tower** is load-bearing — gated-fusion (b) is PRIMARY, + PCGrad-off arm, run the regime×substrate 2×2 ({v14, canonical-fresh} × {B9, dual-tower}); **gated by T1.3** (if the encoder owns the residual, do the cheap encoder-bypass first). T2.2 faithful CrossStitch; T2.3 faithful MoE (GATED — §6.3 prior says they lose reg; confirmatory only, skip PLE); T2.4 per-task-input hybrids. Per-arch LR mini-sweep for each. HGI sanity probe per promoted arch. **Pin the architecture.** If nothing recovers a meaningful fraction of the composite gap → composite is the deploy fallback (paper-grade negative). <strong>Do NOT add AdaShare/Learning-to-Branch</strong> — at 2 tasks they collapse to branch-depth, which the dual-tower already spans.
 
-4. **Tier 2b (heavy backbones)** — 4 archs, same protocol. Skipped if T2a winner cleared the gate.
+4. **Tier 3 — prior pathway**: T3.1 log_T-KD re-sweep on the new stack (does it stack with the dual-tower?); T3.2 log_T-as-supervision variants.
 
-5. **Tier 2 final decision** — pin the backbone winner. HGI sanity probe (1 seed × AL+AZ × 5f × 25ep) per winning arch.
+5. **Tier 4 — loss/optim (GATED)**: run ONLY if Tier 2+3 leave >2pp residual to composite. T4.1 loss balancers (low-EV per P4; class-balanced sampler EXCLUDED — falsified). T4.2 optimizer + per-head LR re-fit (incl. the dual-tower's private-backbone group); validates T3 winner.
 
-6. **Tier 3 loss balancing** — under new arch. Includes T3 winner re-validation in T5 in case the optimizer change shifts the loss landscape.
+6. **Tier 5 — final per-task head re-ablation**: T5.1 reg-head sweep; T5.2 cat-head sweep under the consolidated recipe. If winner ≠ current → narrow-scope T4.2 LR re-fit on the new head.
 
-7. **Tier 4 batch / data sampling** — under arch+loss fixed. Modest expected effect; closes the audit.
+7. **Tier 6 — ship**: T6.1 multi-seed n=20 × 5 states (build v14 at CA/TX here), all 4 anchors, three-frontier, Δm. T6.2 paper-canon re-eval (§0.1 re-run + deployable-selector column + PAPER_UPDATE.md).
 
-8. **Tier 5 LR / optimizer refinement** — re-sweep on the consolidated stack. Validates T3 winner; narrow-scope T3 re-run if invalidated.
+8. **Advisor at every tier boundary + a final pass.** Capture in `log.md`.
 
-9. **Tier 6 α formula deep-dive** — under fully consolidated recipe.
+## What you compare against (the 4 anchors)
 
-10. **Tier 7 final MTL head re-ablation** — chicken/egg resolution. If new head winner emerges, narrow-scope T5 LR re-fit on the new head only.
+| Anchor | What | Fresh/frozen | Used for |
+|---|---|---|---|
+| (a) v14-base-MTL | the build-on baseline | fresh | what each tier improves over |
+| (b) canonical v11 §0.1 | paper continuity | **frozen (privileged-draw — label it)** | paper-facing Δ only |
+| (c) STL-on-v14 ceiling | substrate target | fresh | how close MTL gets to its substrate |
+| (d) composite ceiling (STL c2hgi cat + STL HGI reg) | deploy upper bound (+7-12pp reg) | fresh | fraction-recovered by the integrated winner |
 
-11. **Tier 8 multi-seed shipping run** — 4 seeds × 5 folds × 5 states; n=20 pooled paired Wilcoxon vs Table A (STL) AND Table B (B9 paper-canonical).
-
-12. **Final advisor pass.** Spawn an advisor sub-agent to evaluate the entire chain. Capture in `log.md`. Write `PAPER_UPDATE.md` documenting which v11 RESULTS_TABLE rows change.
-
-## What you compare against
-
-| Stage | Baseline | Protocol |
-|---|---|---|
-| Tier 0 | n/a (no model changes) | n/a |
-| Tier 1 STL | matched-head STL at seed=42 gate-keep → 3 seeds (n=15) ship | leak-free per-fold log_T |
-| Tier 2–7 iteration | current chain baseline (after each tier's decision gate) | seed=42 n=5 gate-keep |
-| Tier 8 shipping | MTL B9 Table B + STL Table A | 4 seeds × 5 folds pooled (n=20) |
-| HGI sanity probe per T2 winner | STL+HGI ceiling | single seed AL+AZ 5f × 25ep |
+**Fresh-vs-frozen:** regime/substrate/architecture claims compare **v14-fresh vs canonical-fresh (gcn_ctrl)**; (b) frozen v11 is paper-continuity only. **Protocol:** n=5 seed=42 gate-keep through Tiers 2-5; n=20 (4 seeds × 5 folds) ships at T6. HGI sanity probe per T2 winner = 2 seeds × AL+AZ × 5f × 30ep, escalate if |MTL+HGI − STL+HGI| ≥ 2pp.
 
 ## How to format a Results section update in INDEX.html
 
