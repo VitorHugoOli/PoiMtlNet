@@ -329,6 +329,29 @@ T4.0 (loss-scale norm + RLW) NOT run (it is Tier 4; the user scoped this session
 
 ---
 
+## 2026-06-03 — T1.4 harness built + sweeps launched; Tier-S Prong-A unit screen
+
+**Phase**: T1.4 in flight (closing Tier 1). User decisions this session: **(1) loss scope = full design as written** (implement logit-adjust + focal + tail-loss, leak-guarded + unit-tested); **(2) Tier S = concurrent** Prong-A screening under MPS, hold promotion until the floor freezes.
+
+**New code (committed, unit-tested).**
+- `src/losses/calibrated.py` (`CalibratedLoss` + `build_calibrated_loss`): Menon **logit-adjustment** (`tau·log P_train(y)`), **focal**, **label-smoothing**, and the imbalance axis `tail_mode ∈ {balanced, cb, ldam}` (sklearn-balanced / Class-Balanced / LDAM margins). **All class statistics come from the TRAIN split only** (factory takes `y_train`) — F49-class leak guard. At all-default knobs it is bit-identical to `CrossEntropyLoss`. 19 unit tests (default==CE, train-only prior, `balanced==compute_class_weights`, finite grad, 1.5k-class region scale).
+
+**Two integration points (one per arm) — discovered by a substrate sanity check.**
+- **reg → `p1_region_head_ablation.py`** (the tool T1.3 used; loads v14 region-emb via `--region-emb-source`). Calibrated loss wired into the per-fold criterion; new `--focal-gamma/--logit-adjust-tau/--tail-loss/...` flags. v14 added to `--engine-override` choices.
+- **cat → `train.py --task next` / `next_cv.py`** (the tool that produced the T1.1 cat ceiling). **Why not p1 for cat:** p1's trainer lands **macro-F1 ~16pp low** (14.88 plain / 23.29 balanced vs the 39.13 ceiling) — its AdamW LR/scheduler/wd diverge from `next_cv.py` (default_next `max_lr=1e-2`). So the cat tune MUST run in `next_cv.py` for an apples-to-apples baseline. Wired via a new `ExperimentConfig.loss_calibration` dict (empty → legacy path) built from TRAIN-fold targets. **Validated:** calibrated `balanced` reproduces the ceiling exactly — AL cat 5f/50ep **macro-F1 38.87±1.34 == T1.1 39.13**.
+
+**Sweeps launched** (`scripts/mtl_improvement/t14_sweep.sh <reg|cat> <state>`, seed=42, 5f×50ep, frozen folds, seeded log_T). Phase-1 search at **AL+FL** (4 background arms concurrent on the A40): reg = alpha=0 branch × {ldam0.5/0.3, cb, dropout0.1/0.5, d_model256, lr1e-3, combo} + one tail-with-prior sanity arm; cat = {balanced baseline, logit-adjust τ0.5/1.0, focal, label-smoothing, combos, LR/dropout points}. Winner validated at **AZ+GE** next. Agg: `t14_agg.py`.
+
+**Early AL signal (partial).** reg: R1 α=0 (62.88) ≥ R0 default-prior (62.32) > LDAM (61.11) — **tail-loss HURTS reg at AL so far**; consistent with the T1.3 side-finding that the strong v14 embeddings don't want extra imbalance machinery. cat: balanced baseline 38.87 pinned; calibration arms pending.
+
+**Tier-S Prong-A unit screen** (`tierS_unit_screen.py`, hard rule 16c "coded ≠ working"): **15/17** coded `next_*` heads build+forward+backward clean; the 2 `*_hsm` heads need a prebuilt `hierarchy_path` artifact (deferrable, not bit-rot). No bit-rot in the core candidate set → Prong-A GPU screens can proceed once the T1.4 AL arms free GPU capacity. Promotion/scoring HELD until (c)/(d) freeze.
+
+**Chain status**: Tier 1 closing (T1.4 in flight); chain preserved. Tier S branched off, screening concurrently, promotion gated on the frozen floor.
+
+**Next**: monitor the 4 sweep arms → `t14_agg.py` to pick per-task winners at AL+FL → validate winners at AZ+GE → T1.4d freeze (c)/(d) + update INDEX/TIER01_RESULTS → T1.4e advisor + Tier-1-close summary + STOP for user. Tier-S GPU screens after AL arms clear.
+
+---
+
 ## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
 
 **Phase**: Design complete; no experiments run yet.
