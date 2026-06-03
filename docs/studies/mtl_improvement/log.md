@@ -543,6 +543,22 @@ S.3 (compose) NOT triggered (nothing promoted). **Conclusion: the STL head is NO
 
 ---
 
+## 2026-06-03 — Overlap-window study COMPLETE: real-pipeline STL + MTL (user: real-pipeline then MTL then act)
+
+**Phase**: full validation done. Built an isolated probe engine `check2hgi_dk_ovl` (v14 re-windowed stride=1; embeddings symlinked; frozen substrate untouched) + engine-aware region-seq plumbing (p1/train.py STL + MTL fold creator). Results: [`overlap_window_probe.md`](../../results/mtl_improvement/overlap_window_probe.md).
+
+**REAL-PIPELINE STL (caveat resolved):** cat AL 49.97→59.74 (**+9.77**), reg AL 62.88→68.01 (**+5.13**) — matches the isolated harness (60.23/68.96).
+
+**MTL-with-overlap (the decisive question) — cat RISING-TIDE, reg GAP WIDENS:** real cross-attn MTL, KD-off, same recipe, only windowing differs. cat 46.30→55.21 (**+8.92** ≈ STL +9.77); reg 54.54→55.05 (**+0.50** vs STL +5.13). The STL→MTL reg gap goes **8.34 → 12.96** with overlap. **The shared-backbone reg pathway cannot exploit the extra data; STL reg fully does.** → overlap STRENGTHENS the regime/dual-tower finding (more data makes the architectural bottleneck MORE visible), while cat is a clean rising tide across STL+MTL.
+
+**Net.** The user's "are we losing a piece?" instinct found a real, validated, head-independent data-formation cap — AND running it through MTL converted it from "a threat to the ceilings" into EVIDENCE FOR the central thesis (the reg architectural bottleneck). Caveats: AL/single-seed/KD-off/prior-free-reg recipe (control uses the same recipe → windowing delta valid).
+
+**Chain status**: Tier-1 frozen ceilings have a validated foundational caveat (windowing); the regime finding is strengthened, not threatened. Nothing changed on disk in the canonical substrate. Chain preserved.
+
+**Next**: STRATEGIC DECISION — adopt-overlap-as-canon (rebuild) vs document-as-key-finding+future-work vs confirm-the-pattern-at-AZ/GE/FL first. Then back to Tier 2 (now even better motivated).
+
+---
+
 ## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
 
 **Phase**: Design complete; no experiments run yet.
