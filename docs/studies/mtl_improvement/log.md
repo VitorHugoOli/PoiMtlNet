@@ -426,6 +426,22 @@ Optional items applied: durable manifests; prior-mismatch + 0.26pp caveats in TI
 
 ---
 
+## 2026-06-03 — Tier-S Prong-A COMPLETE: multi-state confirm → NO head change (reviewer-proof negative)
+
+**Phase**: Tier-S Prong-A closed. User asked whether the Prong-A screen warrants a head change; ran the multi-state confirm to decide before Prong B.
+
+**cat — next_lstm confirmed (5f/50ep, logit-adjust τ=0.5) vs the next_gru floor:** AL 49.76 (Δ−0.21) / AZ 51.49 (Δ+0.48) / GE 58.63 (Δ+0.51) / FL 70.11 (Δ+0.14). Ties next_gru within fold-σ at every state; no ≥0.5pp multi-seed win, and ~5× slower. **next_single** (all-state from the re-pin, since the old mis-pinned ceiling WAS next_single): wins ONLY at GE (+1.45), loses −8 at AL → fails the multi-band gate.
+
+**reg — cross-check:** S.1 AL screen was a clean negative (no head beat the α=0 floor; next_stan==floor ≡ next_stan_flow α=0). Scale-check: next_tgstan tied at AL (62.84) but loses FL (72.20 vs 73.31, Δ−1.11).
+
+**Decision: NO head change for either task.** The tuned incumbents (`next_gru` cat, `next_stan_flow α=0` reg) are the STL ceiling across ALL coded heads, multi-state — a reviewer-proof Prong-A negative, consistent with the regime finding (the head is not the lever). next_lstm logged as a co-equal fallback only; no re-run needed (no candidate warranted a change). INDEX S.2 block + manifests updated.
+
+**Chain status**: Tier 1 frozen+guarded; Tier-S Prong-A complete (negative). Chain preserved.
+
+**Next** (user directive): proceed to **Prong B** — genuinely-new arch builds. SASRec is redundant (≈ next_transformer_relpos, already screened → loses for cat). Focus the build on the non-redundant candidates: a Mamba/SSM encoder + SimGCL auxiliary (bolt-on). Low-EV per Prong A + the regime finding, but in scope (user: keep exploring). Each clears the unit-test gate; scored vs the frozen floor; feeds T5 only.
+
+---
+
 ## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
 
 **Phase**: Design complete; no experiments run yet.
