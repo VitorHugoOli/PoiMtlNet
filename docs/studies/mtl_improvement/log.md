@@ -386,6 +386,28 @@ Optional items applied: durable manifests; prior-mismatch + 0.26pp caveats in TI
 
 ---
 
+## 2026-06-03 — Tier S started (user choice) → caught + fixed a CAT CEILING BUG; (c)/(d) re-pinned
+
+**Phase**: Tier S Prong-A screens (user chose "Tier S GPU screens first" at the Tier-1 boundary). The screen surfaced a bug in the just-frozen cat ceiling; fixed and re-pinned before any Tier-2 work.
+
+**THE BUG.** `train.py --cat-head X` is **silently ignored on `--task next`** — it only takes effect on the MTL `is_check2hgi_track` path (`scripts/train.py:1700`). For plain `--task next` the model is `config.model_name` (default `next_single`). So the **entire cat ceiling (T1.1 + the first T1.4 freeze) ran `next_single`, not `next_gru`**, despite `--cat-head next_gru`. **How it surfaced:** the S.2 cat-encoder screen ran 8 encoders via `--cat-head` and they ALL returned an identical 41.86 — an impossible tie; the arch dump showed `NextHeadSingle`. **Tell-tale that was sitting in the data the whole time (incl. through the advisor pass):** the mis-pinned AL cat "ceiling" 41.86 was BELOW the MTL deployable cat 46.50 — a real STL ceiling can't be under the MTL it bounds.
+
+**THE FIX.** `--cat-head`→`--model` in `t14_sweep.sh` + `tierS_screen.sh` (the flag honoured on `--task next`); new `t14_cat_repin.sh` re-ran the cat ceiling with the actual `next_gru` at all 4 states. **Loss winner (logit-adjust τ=0.5) holds on the corrected model** (la05 > la10 > balanced everywhere; combo craters). Reg is UNAFFECTED — p1 honours `--heads` (per-config reg numbers differ; verified).
+
+**RE-PINNED (c)-cat (real next_gru la05):** AL 49.97 / AZ 51.01 / GE 58.12 / FL 69.97 (was 41.86/50.44/59.57/69.99). Correction is **scale-dependent**: AL +8.11, AZ +0.57, GE −1.45, FL −0.02 — large at small states, ~0 at FL. Sanity restored: (c)-cat > MTL-cat at every state. (d)-cat arm updated to match; (d)-reg arm + (c)-reg unchanged. INDEX T1.1/T1.2/T1.4 + pinned callout + TIER01 all updated.
+
+**S.1 reg screen (Prong A) — clean NEGATIVE (reviewer-proof).** No coded reg head beats the frozen α=0 floor (AL 62.88): `next_stan` 62.88 (== floor) + `next_tgstan` 62.84 tie; everything else below. `next_stan` == floor confirms `next_stan_flow α=0 ≈ next_stan` (α=0 zeros the prior path). The tuned incumbent reg head IS the STL reg ceiling.
+
+**S.2 cat screen — INVALID first run (the bug), re-running with `--model`.** First run was all `next_single` (the bug). Re-launched corrected. Known points so far: `next_gru` 49.97 (floor), `next_single` 41.86 (AL) but BEATS next_gru at GE (59.57 vs 58.12) — a state-dependent S.2 candidate. Full corrected screen in flight.
+
+**Lesson (for the next agent).** Two silent-flag traps now confirmed in this codebase: (1) loss-calibration kwargs were fine (wired through config), but (2) `--cat-head`/`--reg-head` are MTL-track-only — for STL `--task next` use `--model`. Always verify the arch actually ran (`results/.../model/arch.txt`), and **sanity-check that any STL ceiling sits ABOVE the MTL it bounds.**
+
+**Chain status**: Tier 1 re-frozen (cat corrected); chain preserved. The frozen (c)/(d) now sit on the correct heads + pass the ceiling>MTL sanity check.
+
+**Next**: finish the corrected S.2 cat screen → rank vs the re-pinned floor → record S.2 verdict. Then await user direction on Tier 2 vs more Tier S vs T4.0. A re-advisor on the cat re-pin is warranted at the next boundary (the first advisor pass missed the ceiling<MTL tell-tale).
+
+---
+
 ## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
 
 **Phase**: Design complete; no experiments run yet.

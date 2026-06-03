@@ -139,22 +139,37 @@ is correct for a ceiling ("best achievable STL reg"), but the "fraction of (d) r
 misread as prior-matched. (2) The cat balanced baseline reproduces the T1.1 ceiling **within 0.26pp**
 (38.87 vs 39.13, within-σ non-determinism) — not bit-exact; the winner (41.86) is +2.7pp clear regardless.
 
-### (c) STL-on-v14 ceiling — FROZEN (Δ vs pre-T1.4 T1.1 in parens)
+### ⚠ CAT CEILING BUG + RE-PIN (2026-06-03) — read before trusting any cat number
+`train.py --cat-head X` is **silently ignored on `--task next`** (it only takes effect on the MTL
+`is_check2hgi_track` path). For plain `--task next` the model is `config.model_name`, default
+`next_single`. So the ENTIRE cat ceiling (T1.1 + the first T1.4 freeze) ran **next_single, not
+next_gru** despite the `--cat-head next_gru` flag. Caught by the Tier-S S.2 screen (all 8 encoders
+returned an identical 41.86 → arch dump showed `NextHeadSingle`). **Tell-tale that was visible all
+along:** the mis-pinned AL cat "ceiling" 41.86 was BELOW the MTL deployable cat 46.50 — impossible
+for a real STL ceiling. Fix: `--cat-head`→`--model` in the drivers; `t14_cat_repin.sh` re-ran the cat
+ceiling with the actual next_gru. Loss winner (logit-adjust τ=0.5) holds on the corrected model.
+Correction is scale-dependent: **AL +8.11 (49.97 vs 41.86), AZ +0.57, GE −1.45, FL −0.02.** Reg is
+UNAFFECTED (p1 honours `--heads`; per-config reg numbers differ). `next_single` beats next_gru at GE
+(59.57 vs 58.12) → an S.2 candidate (Tier S), not the (c) head.
+
+### (c) STL-on-v14 ceiling — FROZEN (cat = real next_gru; Δ_cat = logit-adjust lift over next_gru balanced)
 | state | (c) cat macro-F1 | (c) reg Acc@10 |
 |---|---|---|
-| AL | 41.86 (+2.73) | 62.88 (+0.56) |
-| AZ | 50.44 (+7.28) | 55.11 (+2.24) |
-| GE | 59.57 (+5.55) | 58.45 (+2.64) |
-| FL | 69.99 (+4.11) | 73.31 (+3.03) |
+| AL | 49.97 (+1.88) | 62.88 (+0.56) |
+| AZ | 51.01 (+2.79) | 55.11 (+2.24) |
+| GE | 58.12 (+4.01) | 58.45 (+2.64) |
+| FL | 69.97 (+2.69) | 73.31 (+3.03) |
+Sanity restored: (c)-cat > MTL deployable cat at every state (AL 49.97>46.50, AZ 51.01>48.52,
+GE 58.12>56.13, FL 69.97>66.73).
 
-### (d) composite deploy ceiling — FROZEN (both arms α=0-hardened)
+### (d) composite deploy ceiling — FROZEN (both arms α=0-hardened; cat = real next_gru)
 reg arm = max(v14-α0, HGI-α0) per state; cat arm = (c)-cat-v14.
 | state | (d) cat | (d) reg (source) | MTL deploy reg | gap over MTL |
 |---|---|---|---|---|
-| AL | 41.86 | 63.58 (HGI-α0) | 50.14 | +13.44 |
-| AZ | 50.44 | 55.11 (v14-α0) | 37.78 | +17.33 |
-| GE | 59.57 | 58.76 (HGI-α0) | 42.64 | +16.12 |
-| FL | 69.99 | 73.62 (HGI-α0) | 61.21 | +12.41 |
+| AL | 49.97 | 63.58 (HGI-α0) | 50.14 | +13.44 |
+| AZ | 51.01 | 55.11 (v14-α0) | 37.78 | +17.33 |
+| GE | 58.12 | 58.76 (HGI-α0) | 42.64 | +16.12 |
+| FL | 69.97 | 73.62 (HGI-α0) | 61.21 | +12.41 |
 
 ### Key reg sweep evidence (AL / FL, Acc@10)
 default-prior 62.32 / 70.28 · **α=0 62.88 / 73.31** · α0+LDAM(0.5) 61.11 / 72.92 · α0+CB 52.02 / — ·

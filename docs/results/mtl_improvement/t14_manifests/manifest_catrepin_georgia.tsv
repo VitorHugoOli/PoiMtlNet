@@ -1,0 +1,5 @@
+cat	g_balanced	results/check2hgi_design_k_resln_mae_l0_1/georgia/next_lr1.0e-04_bs2048_ep50_20260603_180724_901830	ok
+cat	g_la05	results/check2hgi_design_k_resln_mae_l0_1/georgia/next_lr1.0e-04_bs2048_ep50_20260603_180944_902724	ok
+cat	g_la10	results/check2hgi_design_k_resln_mae_l0_1/georgia/next_lr1.0e-04_bs2048_ep50_20260603_181210_903236	ok
+cat	g_la10_ls05	results/check2hgi_design_k_resln_mae_l0_1/georgia/next_lr1.0e-04_bs2048_ep50_20260603_181433_903976	ok
+cat	g_combo	results/check2hgi_design_k_resln_mae_l0_1/georgia/next_lr1.0e-04_bs2048_ep50_20260603_181653_904504	ok
