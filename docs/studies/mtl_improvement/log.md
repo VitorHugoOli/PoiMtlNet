@@ -408,6 +408,24 @@ Optional items applied: durable manifests; prior-mismatch + 0.26pp caveats in TI
 
 ---
 
+## 2026-06-03 — Re-advisor on the cat re-pin (user-requested) — re-pin SOUND; 1 LOW anomaly + standing guard added
+
+**Phase**: integrity re-audit of the cat re-pin (the first advisor missed the bug, so user chose a focused re-advisor before Tier 2).
+
+**Verdict: re-pin is SOUND (items 1-8).** Sub-advisor verified against the actual files: (1) all 4 `g_la05` rundirs have `model/arch.txt` = `NextHeadGRU` (not NextHeadSingle); (2) numbers reconcile to the JSONs (AL 49.97 / AZ 51.01 / GE 58.12 / FL 69.966); (3) (c)-cat > MTL-deploy-cat at every state; (4) la05 ≥ la10 ≥ balanced + combo craters (loss winner valid on next_gru); (5) the logit-adjust knob is live (train.py:1156→next_cv.py:126→calibrated.py; balanced≠la05 proves it); (6) leak guard intact (train-only prior); (7) reg unaffected (p1 honours --heads — distinct per-head numbers); (8) freezing (c)-cat on next_gru (not next_single, which only wins at GE) is the correct incumbent-ceiling choice → next_single relegated to S.2/T5.
+
+**One LOW anomaly found (sibling sanity hunt).** (c)-cat vs MTL **diagnostic-best** cat: +3.19/+2.26/+1.05 at AL/AZ/GE but **−0.29 at FL** (69.97 < 70.26). NOT a bug recurrence (arch=GRU); a seed/metric confound (seed42 single-seed + deployable basis vs multi-seed + oracle epoch), ~0.34σ — a tie. The written claim ("(c)-cat > MTL **deployable** cat") holds. → footnoted in TIER01 §(c); optional FL multi-seed (c)-cat re-run deferred.
+
+**Standing guard added (the re-advisor's MED fix — the cheap check that would have caught the original bug).** `scripts/mtl_improvement/t14_freeze_sanity.py`: (1) ARCH CHECK — reads `model/arch.txt` for each cat-ceiling rundir, asserts head == NextHeadGRU (catches the silent-flag class of bug instantly); (2) ORDERING CHECK — asserts (c)-cat ≥ MTL-deploy-cat, (c)-reg ≥ MTL-deploy-reg, (d)-reg ≥ (c)-reg at all states; (3) INFO — (c)-cat vs MTL-diag-best (flags the FL note). **Runs GREEN: all hard checks pass.** Adopt as a post-freeze gate.
+
+**Process lesson (meta).** The bug reached freeze + passed the first advisor because the cat ceiling and the MTL board come from DIFFERENT harnesses with different flag semantics (`--cat-head` is a no-op on `--task next`), and no one asserted the cross-harness invariant "STL ceiling ≥ the MTL it bounds" or verified the head that actually ran. Both halves are now encoded in `t14_freeze_sanity.py`.
+
+**Chain status**: Tier 1 FROZEN + re-audited + guarded; chain preserved. (c)/(d) trustworthy; T2 correctly gated.
+
+**Next**: await user direction — Tier 2 (T2.1 dual-tower) vs S.2 multi-state confirm (next_lstm/next_single) vs Prong B new-arch builds vs T4.0. Run `t14_freeze_sanity.py` after any future ceiling change.
+
+---
+
 ## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
 
 **Phase**: Design complete; no experiments run yet.

@@ -160,7 +160,15 @@ UNAFFECTED (p1 honours `--heads`; per-config reg numbers differ). `next_single` 
 | GE | 58.12 (+4.01) | 58.45 (+2.64) |
 | FL | 69.97 (+2.69) | 73.31 (+3.03) |
 Sanity restored: (c)-cat > MTL deployable cat at every state (AL 49.97>46.50, AZ 51.01>48.52,
-GE 58.12>56.13, FL 69.97>66.73).
+GE 58.12>56.13, FL 69.97>66.73). Verified by `t14_freeze_sanity.py` (arch=NextHeadGRU all states +
+ceiling≥bounded-MTL asserts).
+**Footnote (re-advisor 2026-06-03):** the ceiling bounds the *deployable* MTL cat (the claim above).
+Against the MTL **diagnostic-best** cat (oracle per-task epoch, multi-seed {0,1,7,100}), (c)-cat sits
++3.19/+2.26/+1.05 above at AL/AZ/GE but **−0.29 BELOW at FL** (69.97 vs 70.26). This is NOT a bug
+recurrence (arch confirmed NextHeadGRU); it is a seed/metric confound — (c) is seed42 single-seed +
+the deployable basis, MTL-diag is multi-seed + an oracle epoch — and the gap is ~0.34σ (within fold
+σ=0.86), a tie. Valid as a ceiling vs the *deployable* number; optionally re-run FL (c)-cat multi-seed
+to confirm the inversion is a single-seed artifact if FL cat headroom matters at later tiers.
 
 ### (d) composite deploy ceiling — FROZEN (both arms α=0-hardened; cat = real next_gru)
 reg arm = max(v14-α0, HGI-α0) per state; cat arm = (c)-cat-v14.
