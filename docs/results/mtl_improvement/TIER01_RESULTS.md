@@ -119,6 +119,79 @@ determinism verified (region_idx exact-match; cfg1 FL 70.28 ≈ landed 70.24).
 
 ---
 
+## T1.4 — Tuned-incumbent ceiling (FROZEN (c)/(d) · closes Tier 1)
+
+Full per-task HP tune of the incumbent heads; STL-alone on v14, frozen folds, seeded log_T,
+5f×50ep seed=42. New leak-free loss code `src/losses/calibrated.py` (logit-adjust + focal +
+label-smoothing + balanced/CB/LDAM; class stats from TRAIN split only; 19 unit tests). Two
+harnesses: **reg** via `p1_region_head_ablation.py` (loads v14 region-emb); **cat** via
+`train.py`/`next_cv.py` (the tool that produced the T1.1 cat ceiling — p1's trainer lands cat
+macro-F1 ~16pp low). Phase-1 search AL+FL → winners validated AZ+GE. Drivers `t14_sweep.sh`,
+`t14_validate_azge.sh`, `t14_hgi_hardening.sh`; agg `t14_agg.py`.
+
+### Winners (scale-robust, single config per task — no per-state branching)
+- **reg = `next_stan_flow`, α=0 (log_T prior OFF), default HP, no tail-loss.**
+- **cat = `next_gru`, logit-adjustment τ=0.5 (Menon ICLR'21), no class-weighting / focal / ls.**
+
+### (c) STL-on-v14 ceiling — FROZEN (Δ vs pre-T1.4 T1.1 in parens)
+| state | (c) cat macro-F1 | (c) reg Acc@10 |
+|---|---|---|
+| AL | 41.86 (+2.73) | 62.88 (+0.56) |
+| AZ | 50.44 (+7.28) | 55.11 (+2.24) |
+| GE | 59.57 (+5.55) | 58.45 (+2.64) |
+| FL | 69.99 (+4.11) | 73.31 (+3.03) |
+
+### (d) composite deploy ceiling — FROZEN (both arms α=0-hardened)
+reg arm = max(v14-α0, HGI-α0) per state; cat arm = (c)-cat-v14.
+| state | (d) cat | (d) reg (source) | MTL deploy reg | gap over MTL |
+|---|---|---|---|---|
+| AL | 41.86 | 63.58 (HGI-α0) | 50.14 | +13.44 |
+| AZ | 50.44 | 55.11 (v14-α0) | 37.78 | +17.33 |
+| GE | 59.57 | 58.76 (HGI-α0) | 42.64 | +16.12 |
+| FL | 69.99 | 73.62 (HGI-α0) | 61.21 | +12.41 |
+
+### Key reg sweep evidence (AL / FL, Acc@10)
+default-prior 62.32 / 70.28 · **α=0 62.88 / 73.31** · α0+LDAM(0.5) 61.11 / 72.92 · α0+CB 52.02 / — ·
+α0+d_model256 62.55 / 73.02 · α0+dropout0.1 61.76 / 72.01 · α0+lr1e-3 60.24 / — · prior+LDAM 53.96 / —.
+→ α=0 plain best at every state; all tail-loss/HP variants lose.
+
+### Key cat sweep evidence (AL / FL, macro-F1)
+balanced(=T1.1 ceiling) 38.87 / 65.79 · **logit-adjust τ0.5 41.86 / 69.99** · τ1.0 40.04 / 67.48 ·
+τ1.0+ls05 39.74 / 67.49 · τ1.0+balanced 30.15 / — · focal+τ+ls+bal(combo) 24.34 / — · bal+ls05 38.94 / —.
+→ logit-adjust τ=0.5 ALONE best at every state (AL 41.86 / AZ 50.44 / GE 59.57 / FL 69.99); stacking
+with class-weighting or focal over-corrects and craters.
+
+### HGI hardening (the (d)-arm consistency footnote) — STL-HGI-reg α=0, Acc@10
+| state | v14-α0 | HGI-α0 | winner (within σ) |
+|---|---|---|---|
+| AL | 62.88 | 63.58 | HGI +0.70 |
+| AZ | 55.11 | 54.87 | v14 +0.24 |
+| GE | 58.45 | 58.76 | HGI +0.31 |
+| FL | 73.31 | 73.62 | HGI +0.31 |
+**Finding:** once both substrates are α=0-hardened, HGI's STL-reg edge collapses to ≤0.70pp (within
+fold-σ); v14 ties at AZ. The two-substrate composite premise survives but is now marginal — HGI's
+reg-substrate advantage was largely an artifact of the (now-dropped) log_T prior. Paper-relevant.
+
+**(c)/(d) are FROZEN** as the immutable track-internal yardstick: T2-T5 Δ are measured against them;
+Tier S / T5 may not re-open them (the §0.1 paper baseline stays refreshable at T6.2). Loss code +
+all class stats are train-only (leak-guarded); cat ceiling moved a lot from one lever (logit-adjust) —
+a tuning win on the incumbent head, NOT a new architecture (that is Tier S).
+
+JSON pointers — reg α=0: `region_head_{AL,AZ,FL}_..._t13po_cfg1_raw_v14_s42.json` + `..._ge_r_a0.json`;
+HGI α=0: `..._{al,az,ge,fl}_stlreg_hgi_a0.json`; reg HP probes `..._r_a0_*.json`; cat la05 rundirs in
+`/tmp/t14/manifest_*` → `results/check2hgi_design_k_resln_mae_l0_1/{state}/next_*ep50*/summary/full_summary.json`.
+
+---
+
+## Tier S Prong-A — coded-head unit screen (concurrent; promotion HELD until floor frozen)
+`tierS_unit_screen.py` (hard rule 16c "coded ≠ working"): **15/17** registered `next_*` heads pass
+build+forward+backward on a synthetic batch. The 2 flagged (`next_getnext_hard_hsm`,
+`next_stan_flow_hsm`) need a prebuilt `hierarchy_path` artifact (`build_region_hierarchy.py`) —
+deferrable, NOT bit-rot. No bit-rot in the core candidate set → GPU screens may proceed; promotion
+scored against the now-frozen (c)/(d).
+
+---
+
 ## Advisor pass (2026-06-03) — 4 findings, all applied
 P1 (HIGH) T1.3 over-read → prior-off re-run + scope downgrade. P2 (MED) gradient mixes fresh/frozen
 + recipe → sign-pattern-only. P3 (LOW) "conclusive" → "directionally clear" (single-seed fold-SD).
@@ -127,4 +200,8 @@ P4 (LOW) driver manifest path says `embedding_eval/` but p1 writes `docs/results
 ## Scripts (all on branch `mtl-improve`)
 `scripts/mtl_improvement/`: `freeze_folds.py` (T0.0 + drift-guard), `ge_board.sh` + `ge_board_agg.py`
 (T0.2/T0.3), `t13_encoder_probe.sh` + `t13_prioroff.sh` + `t13_agg.py` (T1.3),
-`build_ge_hgi_train.sh` + `t1_ceilings.sh` (T1.1/T1.2). GE onboarding: `scripts/_v14_run/build_ge.sh`.
+`build_ge_hgi_train.sh` + `t1_ceilings.sh` (T1.1/T1.2), `t14_sweep.sh` + `t14_validate_azge.sh` +
+`t14_hgi_hardening.sh` + `t14_agg.py` (T1.4), `tierS_unit_screen.py` (Tier-S Prong-A). Loss code:
+`src/losses/calibrated.py` + `tests/test_losses/test_calibrated.py`; wiring in `next_cv.py` +
+`ExperimentConfig.loss_calibration` + `train.py`/`p1_region_head_ablation.py` flags. GE onboarding:
+`scripts/_v14_run/build_ge.sh`.
