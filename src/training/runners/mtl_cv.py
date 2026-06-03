@@ -215,6 +215,8 @@ def train_model(model: torch.nn.Module,
                 task_best_save_dir: Optional[Path] = None,
                 log_t_kd_weight: float = 0.0,
                 log_t_kd_tau: float = 1.0,
+                checkpoint_selector: str = "geom_simple",
+                joint_min_epoch: int = 0,
                 ):
     """
     Train the model with multi-task learning.
@@ -820,12 +822,34 @@ def train_model(model: torch.nn.Module,
             task_b_majority, task_a_majority = fold_history._joint_lift_majority
             task_b_lift = max(acc1_val_task_b / task_b_majority, 1e-8)
             task_a_lift = max(acc1_val_task_a / task_a_majority, 1e-8)
-            # Geometric mean of per-head lifts (scale-coherent; the checkpoint
-            # monitor for the check2HGI track).
+            # Geometric mean of per-head lifts (scale-coherent; the interim
+            # 2026-04-15 monitor — superseded as default by geom_simple below).
             joint_geom_lift = math.sqrt(task_b_lift * task_a_lift)
             # Arithmetic mean kept for back-compat + side-by-side reporting
             # (paper can show it as the "naive" number in appendix).
             joint_arith_lift = 0.5 * (task_b_lift + task_a_lift)
+            # C21 (mtl-protocol-fix, 2026-05-24) — the VALIDATED, headline-aligned
+            # joint selector and the code DEFAULT. Geometric mean of the metrics
+            # each head is actually REPORTED on: category macro-F1 (``f1``) and
+            # region Acc@10 (``top10_acc_indist``). Both are bounded [0,1] and on
+            # comparable scales, so NO majority normalization is applied (the lift
+            # form was an acc1-only workaround; reusing majority_fraction as an
+            # Acc@10 baseline would be cardinality-wrong). For non-region task_b
+            # (no top10 key, e.g. the {category,next} preset) reg falls back to its
+            # own ``f1`` → sqrt(cat_f1 * task_b_f1). Recovered +5.62pp deployable
+            # reg Acc@10 vs the v11 joint_score at FL multi-seed (docs/CONCERNS §C21).
+            reg_acc10_val = val_metrics_task_b.get('top10_acc_indist', f1_val_task_b)
+            joint_geom_simple = math.sqrt(
+                max(f1_val_task_a, 0.0) * max(reg_acc10_val, 0.0)
+            )
+            # Select the scalar that gates the single joint checkpoint
+            # (``model_task.best``). Default geom_simple; legacy/interim opt-in.
+            if checkpoint_selector == "joint_f1_mean":
+                joint_selector_value = joint_score          # v11 paper-canon LEGACY (broken)
+            elif checkpoint_selector == "geom_lift":
+                joint_selector_value = joint_geom_lift       # interim acc1-lift form
+            else:                                            # "geom_simple" (default, correct)
+                joint_selector_value = joint_geom_simple
             pareto_points.append((f1_val_task_b, f1_val_task_a))
             pareto_front = _pareto_front_indices(pareto_points)
             fold_history.add_artifact(
@@ -854,7 +878,11 @@ def train_model(model: torch.nn.Module,
             task_b_improved = _val_b_mon > fold_history.task(task_b_name).best.best_value
             task_a_improved = _val_a_mon > fold_history.task(task_a_name).best.best_value
             prev_joint_best = fold_history.model_task.best.best_value if fold_history.model_task.best.best_epoch >= 0 else -1.0
-            joint_improved = joint_score > prev_joint_best
+            # C21: gate the joint checkpoint on the configured selector
+            # (default geom_simple), respecting min_best_epoch (skip the
+            # init-artifact window, as the per-task trackers do).
+            joint_eligible = epoch_idx >= joint_min_epoch
+            joint_improved = joint_eligible and (joint_selector_value > prev_joint_best)
             state = model.state_dict() if (joint_improved or task_b_improved or task_a_improved) else None
 
             # Per-task val losses now come from evaluate_model() inside the
@@ -863,7 +891,7 @@ def train_model(model: torch.nn.Module,
             # placeholders stay as stable schema on the MTL summary store.
             fold_history.model_task.log_val(
                 loss=loss_val,
-                f1=joint_score,
+                f1=joint_selector_value,  # C21: the configured joint selector (default geom_simple)
                 accuracy=0,
                 model_state=state if joint_improved else None,
                 elapsed_time=fold_history.timer.timer(),
@@ -904,7 +932,7 @@ def train_model(model: torch.nn.Module,
                     model_state=full_state,
                     cat_metric=cat_metric_val,
                     reg_metric=reg_metric_val,
-                    joint_metric=joint_geom_lift,
+                    joint_metric=joint_selector_value,  # C21: matches the primary selector (default geom_simple)
                     elapsed_time=fold_history.timer.timer(),
                 )
 
@@ -928,9 +956,11 @@ def train_model(model: torch.nn.Module,
                 "val_joint_score": joint_score,         # = mean(val_f1_*) — legacy default
                 "val_joint_acc1": joint_acc1,           # = mean(val_accuracy_*) — reported, not the monitor
                 "val_joint_arith_lift": joint_arith_lift,  # = mean(acc1_*/majority_*) — reported, v1 formula
-                "val_joint_geom_lift": joint_geom_lift,    # = geometric mean — check2HGI monitor (fixed 2026-04-15)
-                # Aliases so existing `monitor="val_joint_lift"` doesn't silently no-op:
-                "val_joint_lift": joint_geom_lift,
+                "val_joint_geom_lift": joint_geom_lift,    # = geometric mean of acc1-lifts (interim 2026-04-15)
+                "val_joint_geom_simple": joint_geom_simple,  # = sqrt(cat_f1 * reg_top10) — C21 DEFAULT selector
+                # Alias points at the ACTIVE default selector (geom_simple) so a
+                # monitor="val_joint_lift" callback tracks the shipped selector:
+                "val_joint_lift": joint_geom_simple,
                 "val_loss": loss_val,
                 "train_loss": epoch_loss,
                 f"train_f1_{task_b_name}": f1_task_b,
@@ -1305,7 +1335,7 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             task_best_tracker = MultiTaskBestTracker(
                 cat_monitor=_cat_mon,
                 reg_monitor=_reg_mon,
-                joint_monitor="joint_geom_lift",
+                joint_monitor="joint_geom_simple",  # C21: matches the default primary selector
                 mode="max",
                 min_epoch=int(getattr(config, "min_best_epoch", 0) or 0),
             )
@@ -1349,6 +1379,8 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             task_best_save_dir=task_best_save_dir,
             log_t_kd_weight=float(getattr(config, "log_t_kd_weight", 0.0) or 0.0),
             log_t_kd_tau=float(getattr(config, "log_t_kd_tau", 1.0) or 1.0),
+            checkpoint_selector=str(getattr(config, "checkpoint_selector", "geom_simple")),
+            joint_min_epoch=int(getattr(config, "min_best_epoch", 0) or 0),
         )
 
         # substrate-protocol-cleanup Tier C1 — write the three best

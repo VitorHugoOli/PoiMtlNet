@@ -431,7 +431,27 @@ Net: the residual reg gap is now **triply confirmed** non-cat-interference / non
 
 ---
 
-## C21 — `joint_canonical_b9` selector throws away ~+11 pp of reg capacity from the canonical Check2HGI substrate (RESOLVED 2026-05-24)
+## C21 — `joint_canonical_b9` selector throws away ~+11 pp of reg capacity from the canonical Check2HGI substrate (RESOLVED 2026-05-24; selector PROMOTED TO CODE DEFAULT 2026-06-03)
+
+> **⭐ 2026-06-03 — the fix is now the CODE DEFAULT (closes the last gap).**
+> The 2026-05-24 resolution validated `joint_geom_simple` but in practice the live default
+> checkpoint selector was **still the broken v11 `joint_score = 0.5*(cat_f1+reg_f1)`** (the
+> geom_simple path was only reachable opt-in, and even the `--save-task-best-snapshots` tracker
+> used the interim `joint_geom_lift` acc1-form — NOT geom_simple). As of 2026-06-03 the **default**
+> primary-checkpoint selector is `joint_geom_simple = sqrt(cat_macroF1 · reg_Acc@10)` (cat key
+> `f1`, reg key `top10_acc_indist`), with **no majority normalization** (F1 and Acc@10 are already
+> comparable [0,1] scales; reusing the single-class `majority_fraction` as an Acc@10 baseline would
+> be cardinality-wrong). Controlled by `ExperimentConfig.checkpoint_selector` / CLI
+> `--checkpoint-selector {geom_simple,joint_f1_mean,geom_lift}`:
+> - **geom_simple** (default) — correct, validated (+5.62 pp deployable reg).
+> - **joint_f1_mean** — the v11 paper-canon LEGACY (broken) formula; pass this to reproduce v11.
+> - **geom_lift** — the interim 2026-04-15 acc1/majority-lift geometric mean (back-compat).
+>
+> Code sites updated (all now point at the same selected scalar): selection gate, `model_task.log_val`,
+> and the `MultiTaskBestTracker` joint slot in `src/training/runners/mtl_cv.py`; field default in
+> `src/configs/experiment.py`; flag in `scripts/train.py`. §0.1 (per-task diagnostic-best) is
+> unaffected; v11 reproduction = `--checkpoint-selector joint_f1_mean`. See
+> [`CANONICAL_VERSIONS.md`](results/CANONICAL_VERSIONS.md) §selector + the 2026-06-03 CHANGELOG entry.
 
 **Resolution summary (2026-05-24, `mtl-protocol-fix` v6 final):** The F1 selector fix (`joint_geom_simple`) landed and validated at FL multi-seed (n=4 seeds × 5 folds, fresh log_T): MTL @ `joint_geom_simple` = 61.54 ± 4.54 vs MTL @ `joint_canonical_b9` = 55.92 ± 3.40 → **+5.62 pp deployable lift at multi-seed**. Capacity gap (disjoint − geom_simple) = 2.37 pp, i.e. **F1 fix recovers ~95% of substrate capacity at FL**. Closure verdict at [`results/mtl_protocol_fix/phase1_phase2_verdict_v6_final.md`](results/mtl_protocol_fix/phase1_phase2_verdict_v6_final.md). Paper canon n=20 re-run is deferred to [`future_works/paper_canon_reevaluation.md`](future_works/paper_canon_reevaluation.md), sequenced after `mtl_improvement` lands a champion.
 

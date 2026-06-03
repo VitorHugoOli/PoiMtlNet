@@ -30,6 +30,42 @@
 
 ## Timeline of findings (most recent first)
 
+### 2026-06-03 — v14 MTL multi-seed confirms NO MTL benefit (upgrades the 2-fold pilot)
+
+Full paper-grade MTL eval of **v14** (`check2hgi_design_k_resln_mae_l0_1`) vs **matched canonical**
+(`check2hgi`, frozen v11 GCN), FL/AL/AZ, seeds {0,1,7,100}, 5-fold, leak-free, KD off, corrected
+geom_simple selector. **v14 ≈ matched canonical** (FL tie both tasks; AL/AZ mixed within noise) →
+the v14 STL dual-axis gains do **not** survive MTL. This **upgrades the prior 2-fold seed42 FL
+pilot** (`embedding_eval/FINAL_SYNTHESIS.md`) from "(pilot)" to **confirmed multi-seed** and is a
+**confirmation** of the documented STL-only / regime finding — not a contradiction. Full doc +
+3-basis tables + audit reconciliation: [`results/v14_mtl_vs_canonical.md`](results/v14_mtl_vs_canonical.md).
+- FL geom_simple: v14 reg 61.21 vs canon 61.54 (Δ−0.33); cat 66.73 vs 66.77 (Δ−0.04).
+- The v14 "closes ~69% of the HGI next-reg gap / cat ≫ HGI" headline is **STL**, a different regime;
+  not tested by this MTL run. A separate STL verification sweep (v11/v14/HGI, FL) replicates it.
+- Matched-canonical (this harness) is the valid Δ; frozen §0.1 differs by a documented harness offset.
+
+### 2026-06-03 — MTL joint-selector fix (C21) PROMOTED TO CODE DEFAULT
+
+The C21 selector fix (`joint_geom_simple`), validated 2026-05-24 but never actually wired as the
+live default, is now the **default checkpoint selector**. Default = `joint_geom_simple = sqrt(cat_macroF1 ·
+reg_Acc@10)` — geometric mean of each head's REPORTED headline metric (cat `f1`, reg `top10_acc_indist`),
+**no majority normalization** (F1 ~0.7 and Acc@10 ~0.6 are already comparable [0,1] scales; the old
+acc1-lift majority denominator would be cardinality-wrong for Acc@10).
+- **Why:** the live default had silently remained the broken v11 `joint_score = 0.5*(cat_f1+reg_f1)`
+  (the geom path was opt-in only, and `--save-task-best-snapshots` used the interim acc1-`geom_lift`).
+  The broken selector discarded ~10.7 pp of reg Acc@10 capacity at FL (CONCERNS §C21); geom_simple
+  recovers it (+5.62 pp deployable, ~95% of capacity).
+- **Code:** new `ExperimentConfig.checkpoint_selector` + CLI `--checkpoint-selector
+  {geom_simple,joint_f1_mean,geom_lift}` (default `geom_simple`). All three selection sites in
+  `src/training/runners/mtl_cv.py` (gate, `model_task.log_val`, `MultiTaskBestTracker` joint slot) now
+  use the selected scalar; min_best_epoch is honored. Files: `mtl_cv.py`, `configs/experiment.py`,
+  `scripts/train.py`.
+- **Reproducibility:** §0.1 (per-task diagnostic-best) is UNCHANGED. **v11 paper canon now requires
+  `--checkpoint-selector joint_f1_mean` explicitly** — see [`results/CANONICAL_VERSIONS.md`](results/CANONICAL_VERSIONS.md).
+- **Empirical (post-hoc, seeds {0,1,7,100}, KD off):** under geom_simple the v14 MTL JOINT reg jumps to
+  FL 61.2 / AL 50.1 / AZ 37.8 (≈ per-task diagnostic-best ceiling and ≈ matched canonical) — vs the broken
+  selector's noisy FL 56.0±2.3. Confirms the fix recovers the deployable single-checkpoint capacity.
+
 ### 2026-06-02 — embedding_eval Part-1 CLOSED: v14 dual-axis champion base (opt-in)
 
 The `embedding_eval` study (leak-aware L0→L3 substrate ladder) closed Part-1 (substrate) and blessed **v14 = `check2hgi_design_k_resln_mae_l0_1`** — ResLN+mae cat lever ⊕ Delaunay-POI-GCN (design_k) reg lever, an orthogonal stack — as the recommended STL / forward-MTL base (supersedes v13). **Opt-in, same posture as v13; the canonical `check2hgi` engine + v11/v12 paper-canon are untouched.** Full record: [`studies/embedding_eval/FINAL_SYNTHESIS.md`](studies/embedding_eval/FINAL_SYNTHESIS.md); version registry: [`results/CANONICAL_VERSIONS.md §v14`](results/CANONICAL_VERSIONS.md).

@@ -148,8 +148,19 @@ The two tasks are complementary:
 
 ### Evaluation Metric
 
-**Macro F1**, same as the category task. The joint score used for model
-selection is: `joint_score = 0.5 × next_macro_f1 + 0.5 × category_macro_f1`.
+**Macro F1**, same as the category task.
+
+The joint score used for MTL checkpoint selection (the single deployed model serving
+both tasks) is, as of **2026-06-03**, `joint_geom_simple = sqrt(category_macroF1 ×
+next_region_Acc@10)` — the geometric mean of each head's REPORTED headline metric
+(cat key `f1`, reg key `top10_acc_indist`), no majority normalization. Default;
+configurable via `--checkpoint-selector {geom_simple,joint_f1_mean,geom_lift}`.
+
+> ⚠ The old formula `joint_score = 0.5 × next_macro_f1 + 0.5 × category_macro_f1` was the
+> **v11 paper-canon selector and is BROKEN** for Check2HGI MTL — `next_region` macro-F1 over
+> ~1k–9k sparse classes (~0.10–0.17) is rare-class noise and blind to Acc@10's peak-and-collapse,
+> so it discarded ~10.7 pp of reg capacity (docs/CONCERNS.md §C21). It survives only as
+> `--checkpoint-selector joint_f1_mean` for exact v11 reproduction. Do NOT use it for new work.
 
 ---
 

@@ -133,6 +133,8 @@ def main() -> None:
             "check2hgi_design_b", "check2hgi_design_j", "check2hgi_design_l",
             "check2hgi_lever4_canonical", "check2hgi_lever4_design_b",
             "check2hgi_resln", "check2hgi_resln_design_b", "check2hgi_resln_design_j",
+            "check2hgi_design_k_l0_1", "check2hgi_design_k_resln_l0_1",
+            "check2hgi_design_k_resln_mae_l0_1",
         ],
     )
     args = parser.parse_args()

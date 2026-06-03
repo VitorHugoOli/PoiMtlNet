@@ -178,6 +178,9 @@ Configure `state` (florida, alabama, etc.) and engine. Outputs go to `results/{e
 > 4. **`--log-t-kd-weight`** now defaults to **0.2** (τ=1.0) for MTL `check2hgi_next_region` (was None/off). **For the v11 paper §0.1 numbers, pass `--log-t-kd-weight 0.0`.** Category-only / non-region / non-MTL runs are unaffected (stays 0.0).
 > 5. **Check2HGI encoder** now defaults to **`resln`** for future embedding builds (`scripts/canonical_improvement/regen_emb_t3.py`). The on-disk substrate is still the frozen v11 GCN artifact (not rebuilt). For a v11 GCN rebuild, pass `--encoder gcn`. ResLN is STL-only — no MTL benefit.
 >
+> A **third default flipped 2026-06-03** (C21 fix — see `docs/CONCERNS.md §C21`, `docs/results/CANONICAL_VERSIONS.md §selector`):
+> 6. **`--checkpoint-selector`** (which scalar picks the single joint MTL checkpoint) now defaults to **`geom_simple`** = `sqrt(cat_macroF1 · reg_Acc@10)` — the headline-aligned, validated selector (recovered +5.62 pp deployable reg vs the old one). The v11 paper-canon selector was the broken `0.5*(cat_f1+reg_f1)`; pass **`--checkpoint-selector joint_f1_mean`** to reproduce v11's JOINT/deployable numbers. **§0.1 itself is UNAFFECTED** — it reports per-task *diagnostic-best* epochs, which are selector-independent. MTL-only flag.
+>
 > Canonical NORTH_STAR B9 invocation (paper-grade at FL/CA/TX; small-state recipe is H3-alt, see `docs/NORTH_STAR.md`). With v12 defaults this runs **v12** (canonical + log_T-KD); add `--log-t-kd-weight 0.0` for **v11** paper-canon:
 > ```bash
 > python scripts/train.py --task mtl --task-set check2hgi_next_region \

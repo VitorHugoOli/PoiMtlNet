@@ -99,3 +99,7 @@ output_scratch/
 # foreign study artifacts (own branch: substrate-protocol-cleanup-v12-settle) — never sweep into embedding_eval PR
 docs/results/substrate_protocol_cleanup/
 scripts/substrate_protocol_cleanup/
+
+# v14 MTL/STL eval session — keep drivers/aggregators/manifests, drop bulky logs
+scripts/_v14_run/logs/
+scripts/_v14_run/*.out

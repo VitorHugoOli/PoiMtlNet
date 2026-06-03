@@ -1,6 +1,15 @@
 # Future Work — Substrate-aware MTL balancing for the canonical Check2HGI MTL recipe
 
-**Status: URGENT — direct successor study; the production B9 joint selector is structurally broken on the canonical shipping substrate itself.** Not vague future work — matched-protocol analysis (2026-05-19) demonstrated that the canonical Check2HGI shipping recipe loses ~10.7 pp of reg-top10 capacity to the production selector at FL, with no substrate change involved. Every Check2HGI MTL number in the published canon (`RESULTS_TABLE.md §0`) is reported at this destabilised joint-best epoch. The next study under `mtl-exploration` should pick this up as its primary track.
+> ✅ **PARTIALLY RESOLVED 2026-06-03 — the selector half of this memo is DONE.** The "structurally
+> broken production selector" described below was **fixed and made the code default**: the joint
+> checkpoint selector is now `joint_geom_simple = sqrt(cat_macroF1 · reg_Acc@10)`
+> (`--checkpoint-selector geom_simple`; v11 repro = `joint_f1_mean`). See `docs/CONCERNS.md §C21`,
+> `docs/results/CANONICAL_VERSIONS.md §selector`. The `mtl_cv.py:679/:710` line refs below are
+> HISTORICAL (code has moved). The **still-open** part is the *loss-balancing* study, now
+> consolidated with literature ranking in
+> [`../../future_works/joint_selection_and_loss_combination.md`](../../future_works/joint_selection_and_loss_combination.md) Part 2.
+
+**Status: ~~URGENT~~ (selector RESOLVED 2026-06-03; loss-balancing still open) — the production B9 joint selector is structurally broken on the canonical shipping substrate itself.** Not vague future work — matched-protocol analysis (2026-05-19) demonstrated that the canonical Check2HGI shipping recipe loses ~10.7 pp of reg-top10 capacity to the production selector at FL, with no substrate change involved. Every Check2HGI MTL number in the published canon (`RESULTS_TABLE.md §0`) is reported at this destabilised joint-best epoch. The next study under `mtl-exploration` should pick this up as its primary track.
 
 **Date:** 2026-05-19 (created); rewritten same day with matched-protocol findings after the initial substrate-focused interpretation was falsified.
 **Source study:** [`docs/studies/canonical_improvement/`](../canonical_improvement/) — Tier 6 / T6.4 closure log entry (2026-05-19 CORRECTION).

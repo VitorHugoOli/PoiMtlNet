@@ -32,7 +32,12 @@ This study runs **alongside** the fusion study — they coexist under `docs/stud
 > 2. **Paper-grade reporting uses seeds {0, 1, 7, 100}, NOT seed=42.** Seed=42 is the development seed (recipe was tuned on it). At small states (AL/AZ) and FL (post-stale-log_T fix), seed=42 matches multi-seed. At large states (CA/TX), seed=42 overshoots §0.1 v11 by +3 to +7 pp. See [`CONCERNS.md` C23](CONCERNS.md#c23).
 > 3. **scripts/train.py preflight raises on stale log_T** as of mtl-protocol-fix branch — heed the error message.
 >
-> **⚠ MTL protocol blocker (2026-05-19, also MANDATORY):** The production B9 joint selector (`mtl_cv.py:679`, `joint_score = 0.5 * (cat_macro_f1 + reg_macro_f1)`) is **structurally broken on the canonical shipping recipe itself** — not just on substrate variants. `reg_macro_f1` over ~4 700 sparse FL regions is dominated by rare-class noise and is blind to `reg_top10_acc_indist`'s peak-and-collapse trajectory.
+> **✅ MTL joint-selector FIXED AS DEFAULT (2026-06-03).** The default checkpoint selector is now
+> `joint_geom_simple = sqrt(cat_macroF1 · reg_Acc@10)` (`--checkpoint-selector geom_simple`, the default).
+> The historical blocker below is retained for context; **new MTL runs are correct out of the box.** To
+> reproduce the v11 paper canon you must now explicitly pass `--checkpoint-selector joint_f1_mean`.
+>
+> **⚠ MTL protocol blocker (2026-05-19, HISTORICAL — fixed as default 2026-06-03):** The production B9 joint selector (`joint_score = 0.5 * (cat_macro_f1 + reg_macro_f1)`) was **structurally broken on the canonical shipping recipe itself** — not just on substrate variants. `reg_macro_f1` over ~4 700 sparse FL regions is dominated by rare-class noise and is blind to `reg_top10_acc_indist`'s peak-and-collapse trajectory.
 >
 > **Concrete fingerprint (canonical shipping FL ep=50 single-seed=42 n=5, NO substrate changes):**
 >
