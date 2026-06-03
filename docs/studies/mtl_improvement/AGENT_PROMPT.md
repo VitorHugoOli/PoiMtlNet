@@ -31,6 +31,7 @@ You are the **implementing agent** for the MTL Improvement research track. A pri
 
 | # | File | Purpose |
 |---|------|---------|
+| 0 | `docs/studies/mtl_improvement/HANDOFF.md` | ⭐ **READ FIRST** — current-state snapshot (frozen ceilings, what's done, traps, the next step). Avoids reconstructing from the full log. |
 | 1 | `docs/studies/mtl_improvement/log.md` | Most recent progress — read the **2026-06-02 reframe entry** first |
 | 2 | `docs/studies/mtl_improvement/INDEX.html` | Full v2 6-tier design. **Read §What changed + §The regime finding + §Metrics & comparand framework + §Execution guidelines + §Falsified history + §Chain cover-to-cover before any experiment.** |
 | 3 | `docs/results/CANONICAL_VERSIONS.md` §v11–v14 | What v14 IS, how to build it, the v11/v12/v13/v14 reproduction map. **Load-bearing.** |

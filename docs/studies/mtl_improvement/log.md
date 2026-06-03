@@ -1,5 +1,8 @@
 # MTL Improvement Track — Progress Log
 
+> ⭐ **New agent? Read [`HANDOFF.md`](HANDOFF.md) FIRST** — a single current-state snapshot (frozen
+> ceilings, what's done, traps, the next step) that saves reconstructing from the entries below.
+
 Append-only chronological log. Every agent working on this track adds entries here.
 Dates are absolute (e.g. `2026-05-16`), never relative ("today", "yesterday").
 
