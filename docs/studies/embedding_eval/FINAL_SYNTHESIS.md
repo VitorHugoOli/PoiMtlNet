@@ -478,9 +478,13 @@ stacked: resln+mae (cat, encoder) ⊕ Delaunay (reg, detached path). Option (a) 
 Residual reg gap to HGI (−0.36pp) → Part-2 (option b: MTL + dual-substrate routing).
 
 ## Option (b) step 1 — MTL: NO MTL benefit DETECTED in a 2-fold seed42 pilot (preliminary) (2026-06-02)
-> ⚠ This rests on a **2-fold, single-seed-42, FL-only pilot** — NOT a settled negative. Phrase as
-> "no MTL benefit detected in a pilot, consistent with the v13 regime finding." A full 5-fold
-> multi-seed (GPU) is needed to confirm. Do not cite as a proven negative.
+> ✅ **CONFIRMED multi-seed 2026-06-03 — the pilot below is upgraded, not retracted.** A full
+> **5-fold × 4-seed {0,1,7,100}, FL/AL/AZ, leak-free** MTL run vs matched canonical lands the same
+> verdict: **v14 ≈ canonical in MTL** (FL tie both tasks: reg Δ−0.33, cat Δ−0.04 on the corrected
+> geom_simple selector; AL/AZ mixed within noise). The STL dual-axis gain does NOT survive cross-attn
+> MTL — now a confirmed negative, not just a pilot. Full tables + audit reconciliation:
+> [`../../results/v14_mtl_vs_canonical.md`](../../results/v14_mtl_vs_canonical.md).
+> (Original pilot caveat, retained for history: rested on a 2-fold, single-seed-42, FL-only pilot.)
 MTL B9 pilot (2-fold, FL seed42), F1 | Acc | Top3:
 | task | canonical | design_k_resln+mae |
 |---|---|---|

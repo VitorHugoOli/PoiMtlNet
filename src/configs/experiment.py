@@ -143,6 +143,22 @@ class ExperimentConfig:
     # to force the selector past the init window. Default 0 = legacy.
     min_best_epoch: int = 0
 
+    # C21 (mtl-protocol-fix) — which scalar gates the single joint MTL
+    # checkpoint (``model_task.best``) per epoch. The headline-aligned,
+    # validated default is ``geom_simple`` = sqrt(cat_macroF1 *
+    # reg_Acc@10) (cat key ``f1``, reg key ``top10_acc_indist``). It
+    # selects on the metrics each head is actually reported on, is
+    # scale-coherent without any majority normalization, and recovered
+    # +5.62 pp deployable reg Acc@10 vs the v11 selector at FL multi-seed
+    # (docs/CONCERNS.md §C21). Options:
+    #   "geom_simple"   — sqrt(cat_f1 * reg_top10_acc_indist)  [DEFAULT, correct]
+    #   "joint_f1_mean" — 0.5*(cat_f1 + reg_f1)  [v11 paper LEGACY/broken; reproduction only]
+    #   "geom_lift"     — sqrt((cat_acc1/maj)*(reg_acc1/maj))  [interim 2026-04-15 acc1-lift form]
+    # For non-region task_b (no ``top10_acc_indist`` key, e.g. the
+    # {category,next} preset) geom_simple falls back to that head's
+    # ``f1`` → sqrt(cat_f1 * task_b_f1), a sane scale-coherent default.
+    checkpoint_selector: str = "geom_simple"
+
     # F50 B9 — exempt the learnable α scalar (in next_getnext_hard*
     # heads) from AdamW weight decay. WD=0.05 applies a constant pull-
     # toward-zero force every step, fighting the gradient-driven α

@@ -757,6 +757,24 @@ def _parse_args(argv=None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--checkpoint-selector",
+        dest="checkpoint_selector",
+        type=str,
+        default="geom_simple",
+        choices=["geom_simple", "joint_f1_mean", "geom_lift"],
+        help=(
+            "C21 (mtl-protocol-fix): which scalar gates the single joint MTL "
+            "checkpoint per epoch. DEFAULT 'geom_simple' = sqrt(cat_macroF1 * "
+            "reg_Acc@10) — selects on the reported headline metrics (cat 'f1', "
+            "reg 'top10_acc_indist'), scale-coherent, no majority normalization; "
+            "recovered +5.62pp reg Acc@10 vs the v11 selector (docs/CONCERNS.md "
+            "§C21). 'joint_f1_mean' = 0.5*(cat_f1+reg_f1) reproduces the v11 "
+            "paper-canon LEGACY (broken) selector — use ONLY for v11 reproduction. "
+            "'geom_lift' = the interim acc1/majority-lift geometric mean. "
+            "MTL only; ignored for STL tasks."
+        ),
+    )
+    parser.add_argument(
         "--alpha-no-weight-decay",
         dest="alpha_no_weight_decay",
         action="store_true",
@@ -1268,6 +1286,13 @@ def _apply_cli_overrides(
         config = dataclasses.replace(
             config, min_best_epoch=int(args.min_best_epoch)
         )
+
+    # C21 — joint checkpoint selector (default geom_simple). MTL-only knob.
+    _sel = getattr(args, "checkpoint_selector", "geom_simple")
+    if _sel != getattr(config, "checkpoint_selector", "geom_simple"):
+        if config.task_type != "mtl":
+            raise ValueError("--checkpoint-selector requires --task mtl")
+        config = dataclasses.replace(config, checkpoint_selector=_sel)
 
     if getattr(args, "alpha_no_weight_decay", False):
         if config.task_type != "mtl":

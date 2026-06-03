@@ -67,6 +67,8 @@ These tables supersede §1–§5 below for paper drafting. All numbers are seed=
 ### 0.1 · Five-state architectural-Δ (MTL B9 vs matched-head STL ceiling) — **v11 PAPER CANON (no-KD / GCN substrate)**
 
 > **This table is v11 — the BRACIS paper canon.** Measured with **log_T-KD OFF** and the **GCN substrate** (`output/check2hgi/<state>/`, frozen). After the 2026-05-30 v12 default flip, reproduce these numbers by passing `--log-t-kd-weight 0.0` and using the frozen GCN substrate. Do NOT rebuild the substrate. Version map + reproduction: [`CANONICAL_VERSIONS.md`](CANONICAL_VERSIONS.md). The v12 log_T-KD reg lift is in §0.8 (additive, does not alter this table).
+>
+> **v14 MTL comparison (2026-06-03):** a matched-harness v14-vs-canonical MTL run (FL/AL/AZ, seeds {0,1,7,100}, leak-free) finds **v14 ≈ canonical** — no MTL benefit, confirming the STL-only regime finding. That table is reported on the **matched in-harness canonical** (not these frozen §0.1 numbers — a documented harness offset applies) and on the corrected geom_simple selector: see [`v14_mtl_vs_canonical.md`](v14_mtl_vs_canonical.md).
 
 | State | n_regions | MTL B9 reg Acc@10 | STL `next_stan_flow` Acc@10 | **Δ_reg pp** | p_reg | MTL B9 cat F1 | STL `next_gru` F1 | **Δ_cat pp** | p_cat |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|

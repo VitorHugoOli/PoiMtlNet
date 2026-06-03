@@ -92,6 +92,13 @@ explicitly:
 |---|---|---|
 | log_T-KD weight | 0.2 (on, scoped to MTL check2hgi_next_region) | `--log-t-kd-weight 0.0` |
 | Check2HGI encoder | `resln` (future builds) | rebuild substrate with `--encoder gcn` **OR** use the existing frozen `output/check2hgi/<state>/` GCN substrate (do not rebuild) |
+| **MTL joint checkpoint selector** (2026-06-03 default flip) | `geom_simple` = sqrt(cat_F1·reg_Acc@10) | **`--checkpoint-selector joint_f1_mean`** (the v11 `0.5*(cat_f1+reg_f1)`) |
+
+> ⚠ **2026-06-03 — joint-selector default flipped (C21).** The default checkpoint selector is now
+> `joint_geom_simple` (correct). The v11 paper-canon JOINT/deployable numbers were produced with the
+> broken `0.5*(cat_f1+reg_f1)` selector, so reproducing v11's **joint-selected** numbers requires
+> `--checkpoint-selector joint_f1_mean`. **§0.1 itself is UNAFFECTED** — it reports per-task
+> diagnostic-best epochs, which are selector-independent. See CONCERNS §C21 + CHANGELOG 2026-06-03.
 
 ---
 
@@ -235,10 +242,13 @@ unaffected; `output/check2hgi/<state>/` untouched.
   **Leak-free multi-seed FL: cat 67.36 (≈ frozen-canon, ≫ HGI +33pp) + reg 0.7024 (closes ~69 % of
   the canonical→HGI gap; −0.36pp residual).** Dual-axis safe (the −2.5pp cat vs frozen-v11 is
   fresh-vs-frozen, not a cost — matched-fresh control gcn_ctrl 64.61 ≈ v14 cat-path).
-- **Grade — STL-only (same regime limit as v13).** The 2-fold seed42 MTL pilot shows v14 ≈
-  canonical in MTL (cat −0.21pp, reg-Acc +0.03pp) — the STL dual-axis gain does **not** survive
-  cross-attn MTL (reproduces the regime finding). Do **not** cite v14 as an MTL improvement; it is
-  the **strongest forward base** for the Part-2 MTL/routing study.
+- **Grade — STL-only (same regime limit as v13). CONFIRMED multi-seed 2026-06-03.** The earlier
+  2-fold seed42 MTL pilot (cat −0.21pp, reg-Acc +0.03pp) is now superseded by a full **5-fold ×
+  4-seed {0,1,7,100}, FL/AL/AZ, leak-free** MTL run vs matched canonical: **v14 ≈ canonical** (FL
+  tie both tasks; AL/AZ mixed within noise) — the STL dual-axis gain does **not** survive cross-attn
+  MTL (the regime finding). Do **not** cite v14 as an MTL improvement; it is the **strongest forward
+  base** for the Part-2 MTL/routing study. Full tables + audit:
+  [`v14_mtl_vs_canonical.md`](v14_mtl_vs_canonical.md).
 - **Provenance caveat (paper):** v14 IMPORTS HGI's Delaunay POI graph (`output/hgi/<state>/temp/
   edges.csv`) — credit the borrowed spatial structure; v14 learns orthogonal embeddings (cosine to
   HGI ≈ −0.003), not a roundabout HGI clone.
