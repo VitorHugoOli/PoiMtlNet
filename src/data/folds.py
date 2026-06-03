@@ -887,6 +887,7 @@ class FoldCreator:
             EmbeddingEngine.CHECK2HGI_DESIGN_K_L0_1,
             EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_L0_1,
             EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_MAE_L0_1,  # option-b dual-axis base
+            EmbeddingEngine.CHECK2HGI_DK_OVL,  # overlap-window probe (v14 re-windowed stride=1)
         )
         if embedding_engine not in _MTL_C2HGI_ALLOWED_ENGINES:
             raise ValueError(
@@ -978,7 +979,11 @@ class FoldCreator:
                 import os as _os
                 _re = _os.environ.get("REGION_EMB_ENGINE")
                 _reg_eng = EmbeddingEngine(_re) if _re else embedding_engine
-                return build_region_sequence_tensor(state, region_engine=_reg_eng)
+                # seq_engine follows the cat (task_a) engine's windowing so the
+                # region-emb sequence row-aligns with next.parquet / next_region.parquet
+                # (matters for the overlap-window probe; no-op for canonical CHECK2HGI).
+                return build_region_sequence_tensor(state, region_engine=_reg_eng,
+                                                    seq_engine=embedding_engine)
             if input_type == "concat":
                 return build_concat_sequence_tensor(state, x_checkin)
             raise ValueError(f"Unknown input_type: {input_type}")

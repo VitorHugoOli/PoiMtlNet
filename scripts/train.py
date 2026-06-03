@@ -1679,6 +1679,7 @@ def main(argv=None) -> None:
             EmbeddingEngine.CHECK2HGI_DESIGN_K_L0_1,
             EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_L0_1,
             EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_MAE_L0_1,  # option-b dual-axis base
+            EmbeddingEngine.CHECK2HGI_DK_OVL,  # overlap-window probe (v14 re-windowed stride=1)
         )
         if is_check2hgi_track and engine not in _ALLOWED_ENGINES_FOR_C2HGI_PRESET:
             print(
