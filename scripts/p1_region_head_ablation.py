@@ -55,6 +55,7 @@ from sklearn.model_selection import StratifiedGroupKFold
 from torch.nn import CrossEntropyLoss
 from torch.utils.data import DataLoader
 
+from losses.calibrated import build_calibrated_loss
 from configs.globals import DEVICE
 from configs.model import InputsConfig
 from configs.paths import EmbeddingEngine, IoPaths, OUTPUT_DIR
@@ -477,7 +478,7 @@ def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
                        overrides, max_lr, label_smoothing, input_ln,
                        aux_tensor=None, mtl_preencoder=False,
                        preenc_hidden=256, preenc_layers=2,
-                       preenc_dropout=0.1):
+                       preenc_dropout=0.1, loss_cfg=None):
     """Train a single-task model and return val metrics.
 
     ``aux_tensor`` — optional per-sample auxiliary int64 tensor (e.g.
@@ -533,7 +534,21 @@ def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
     scheduler = torch.optim.lr_scheduler.OneCycleLR(
         optimizer, max_lr=max_lr, epochs=epochs, steps_per_epoch=steps_per_epoch,
     )
-    criterion = CrossEntropyLoss(label_smoothing=label_smoothing)
+    # T1.4 loss calibration (leak-free): all class statistics come from the
+    # TRAIN split only (``y_train`` here), never val. At all-default knobs the
+    # criterion is bit-identical to CrossEntropyLoss(label_smoothing=...).
+    lc = dict(loss_cfg or {})
+    criterion = build_calibrated_loss(
+        n_classes, y_train,
+        label_smoothing=label_smoothing,
+        focal_gamma=lc.get("focal_gamma", 0.0),
+        logit_adjust_tau=lc.get("logit_adjust_tau", 0.0),
+        tail_mode=lc.get("tail_mode", None),
+        cb_beta=lc.get("cb_beta", 0.999),
+        ldam_max_m=lc.get("ldam_max_m", 0.5),
+        ldam_scale=lc.get("ldam_scale", 30.0),
+        device=DEVICE,
+    )
 
     # AUDIT-C1 fix: track per-metric best across all epochs, not just
     # top10. The legacy code picked top10-best then reported F1/MRR/Acc@1
@@ -627,7 +642,8 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
                  preenc_dropout: float = 0.1,
                  per_fold_transition_dir: str | None = None,
                  engine_override: EmbeddingEngine | None = None,
-                 target: str = "region"):
+                 target: str = "region",
+                 loss_cfg: dict | None = None):
     logger.info("Loading data for %s (input_type=%s, region_emb=%s, target=%s, engine_override=%s)...",
                 state, input_type, region_emb_source, target, engine_override)
     x_tensor, y_region, y_cat, userids, emb_dim, n_regions, last_region_tensor = _load_data(
@@ -750,6 +766,7 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
                 preenc_hidden=preenc_hidden,
                 preenc_layers=preenc_layers,
                 preenc_dropout=preenc_dropout,
+                loss_cfg=loss_cfg,
             )
             elapsed = time.time() - t0
             fold_metrics.append(metrics)
@@ -776,6 +793,7 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
                     "input_layernorm": input_ln,
                     "overrides": overrides,
                     "input_type": input_type,
+                    "loss_cfg": loss_cfg,
                 },
             }
             _save_checkpoint(ckpt_path, {
@@ -935,10 +953,34 @@ def main():
                         help="Prediction target: 'region' (default, next-REGION) or 'category' "
                              "(next-CATEGORY, 7-class macro-F1; used by the merge_design study's "
                              "`cat = next_gru macro F1` protocol).")
+    # T1.4 loss-calibration knobs (leak-free; class stats from train split only).
+    parser.add_argument("--focal-gamma", type=float, default=0.0,
+                        help="Focal focusing parameter (>0 enables focal). Cat-arm lever.")
+    parser.add_argument("--logit-adjust-tau", type=float, default=0.0,
+                        help="Menon ICLR'21 logit-adjustment temperature (>0 adds "
+                             "tau*log P_train(y) to logits). Macro-F1-consistent; cat-arm primary.")
+    parser.add_argument("--tail-loss", choices=["none", "cb", "ldam"], default="none",
+                        help="Long-tail reweighting for the many-class region target: "
+                             "'cb' = Class-Balanced (Cui CVPR'19), 'ldam' = LDAM margins "
+                             "(Cao NeurIPS'19). Reg-arm lever.")
+    parser.add_argument("--cb-beta", type=float, default=0.999,
+                        help="Class-Balanced beta (only with --tail-loss cb).")
+    parser.add_argument("--ldam-max-margin", type=float, default=0.5,
+                        help="LDAM max per-class margin (only with --tail-loss ldam).")
+    parser.add_argument("--ldam-scale", type=float, default=30.0,
+                        help="LDAM logit scale (only with --tail-loss ldam).")
     args = parser.parse_args()
 
     overrides = _parse_overrides(args.override_hparams)
     eo = EmbeddingEngine(args.engine_override) if args.engine_override else None
+    loss_cfg = {
+        "focal_gamma": args.focal_gamma,
+        "logit_adjust_tau": args.logit_adjust_tau,
+        "tail_mode": None if args.tail_loss == "none" else args.tail_loss,
+        "cb_beta": args.cb_beta,
+        "ldam_max_m": args.ldam_max_margin,
+        "ldam_scale": args.ldam_scale,
+    }
     run_ablation(
         args.state, args.heads, args.folds, args.epochs, args.batch_size, args.seed,
         args.input_type, overrides, args.max_lr, args.label_smoothing,
@@ -951,6 +993,7 @@ def main():
         per_fold_transition_dir=args.per_fold_transition_dir,
         engine_override=eo,
         target=args.target,
+        loss_cfg=loss_cfg,
     )
 
 
