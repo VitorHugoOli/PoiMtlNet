@@ -323,7 +323,9 @@ T4.0 (loss-scale norm + RLW) NOT run (it is Tier 4; the user scoped this session
 
 **Chain status**: unchanged — T1.4 remaining Tier-1 gate; Tier S parallel. Chain preserved.
 
-**Next**: await the user's cumulative-scope decision (cap Tier S at S.1-S.4, or keep growing). Then implementing agent: T1.4 → Tier S (Prong A screen → Prong B → S.3 compose → S.4 picture).
+**Decision (user 2026-06-03):** cumulative-scope question answered → **"keep it open to grow."** Tier S is an explicit open exploration sandbox — executor may add S.5/S.6 cards as ideas surface, no re-scoping checkpoint, PROVIDED each clears the unit-test + promotion gates, obeys the moving-baseline guard + scope boundaries, and is logged. Recorded as a callout in INDEX Tier-S intro + AGENT_PROMPT. Caveat carried: Tier S runs parallel to Tier 2-4 and must not starve the regime work (the headline).
+
+**Next**: implementing agent: T1.4 (full tune → freeze (c)/(d)) → Tier S (Prong A screen → Prong B builds → S.3 analyze+compose → S.4 picture), parallel with Tier 2-4 under MPS. Advisor + summary + STOP-for-user at the boundary.
 
 ---
 
