@@ -11,7 +11,142 @@ Sections at the bottom of each entry:
 
 ---
 
-## 2026-05-16 — Track designed, awaiting execution
+## 2026-06-02 — MAJOR REFRAME: v2 plan, rebased on v14 + the regime finding
+
+**Phase**: Design re-centered; still no experiments run. **The v1 plan below (2026-05-16) is SUPERSEDED by INDEX.html v2** — read INDEX.html §"What changed (v1→v2)" first.
+
+**Why the reframe.** Four studies since the v1 design collapsed most of the v1 surface and produced a sharper target. User direction: rebase on the new **v14** substrate, compare vs canonical paper (v11), fold in fitting `future_works`, and sharpen per-phase metrics for next-reg/next-cat.
+
+**What I read (grounding).** `CANONICAL_VERSIONS.md §v11–v14`; `embedding_eval/FINAL_SYNTHESIS.md` (v14 verdict + the regime finding); all 9 `future_works/` memos + README routing; `mtl-protocol-fix/PRIORITY_IMPACT.md` + `phase1_phase2_verdict_v6_final.md` (P4 + three-frontier + selector); `B9_STL_STAN_SWAP_AZ_FL.md` (the residual-skip falsification + §6.4 gap decomposition); `composite_two_substrate_engine.md`; recent git log (embedding_eval → v14).
+
+**The five load-bearing facts that reshaped the plan:**
+1. **v14** (`check2hgi_design_k_resln_mae_l0_1`) is the STL dual-axis champion (cat 67.36 ≫ HGI; reg 0.7024 closes ~69% of canon→HGI gap). Built at FL only; AL/AZ/CA/TX pending. **STL-only.**
+2. **The regime finding**: substrate gains wash out under cross-attn MTL — v14 ≈ canonical in MTL (2-fold seed42 pilot); HGI-routing also washed out. The MTL regime, not the substrate, is the wall.
+3. **P4 frozen-cat**: reg peaks at ep 2 even with cat frozen → the gap is **architectural** (shared-backbone reg pathway), NOT cat-vs-reg interference → loss-balancing DEMOTED.
+4. **Residual-skip FALSIFIED** (B9_STL_STAN_SWAP §6.2, −0.59pp); encoder-MLP-depth flat; ~75% of the gap is the **missing full private backbone** (§6.4). → centerpiece sharpened to a **reg-private full backbone / dual-tower**, NOT a generic backbone bake-off and NOT a thin skip.
+5. **log_T-KD** is the one confirmed MTL-reg lever (+2.4/+5.06/+2.32pp, now v12 default); **composite** (STL c2hgi cat + STL HGI reg) is the deploy ceiling (+7-12pp reg).
+
+**Structural changes v1→v2:**
+- 8 tiers → 6; 32 experiments → ~16.
+- New base = v14 (was v11). New comparand = 4 anchors: (a) v14-base-MTL, (b) frozen v11 §0.1 [paper continuity, privileged-draw label], (c) STL-on-v14 ceiling, (d) composite ceiling. **Fresh-vs-frozen discipline** mandatory (compare v14-fresh vs canonical-fresh gcn_ctrl for regime claims).
+- **Three-frontier reporting** (STL / MTL@disjoint / MTL@geom_simple deployable) is now mandatory — the v1 plan missed the selector axis entirely.
+- Tier 2 (architecture) re-centered on the dual-tower; loss demoted to gated Tier 4; batch-sampling dropped (falsified).
+- The load-bearing T2.1 runs on BOTH v14 AND canonical-fresh (regime×substrate 2×2) — advisor-mandated: can't show "fixing the regime makes the substrate matter" on v14 alone.
+- Folded in: part2_routing → T2.1; mtl_architecture_revisit → T2.2-2.4; substrate_adaptive_balancing → T4.1 (gated); composite_two_substrate → T1.2 + T6 fallback; reg_head_sweep/head_window_batch → T3.2/T5; paper_canon_reevaluation → T6.2; poi_decoder_hgi_distill → standby (out of chain).
+
+**Advisor pre-write pass (model-level) — 4 items, all applied:**
+1. Verify the reg-head bypass wasn't already tried → it WAS (residual-skip falsified); centerpiece changed from "bypass" to "full private backbone (dual-tower)."
+2. 4-anchor comparand + fresh-vs-frozen as the metric frame (the user's "sharpen metrics" ask).
+3. Headline arch experiment must run on both substrates (regime×substrate interaction) — built into T2.1.
+4. Don't over-read the 2-fold pilot → T0.3 regime entry gate confirms v14≈canonical at multi-seed before committing; don't resurrect two-checkpoint disjoint-deploy (user-dropped) — disjoint is reporting-only.
+
+**Memory written:** `mtl_regime_finding.md` (the architectural-gap + falsified-levers + confirmed-lever facts).
+
+**Chain status**: v2 design complete; Tier 0 not launched.
+
+**Next**: a final advisor sub-agent pass on the v2 plan (the user asked for it), then implementing agent starts Tier 0 (build v14 per state → fresh-vs-frozen → regime entry gate → three-frontier). T0.1 (v14 build) + T0.3 (regime gate) are the prerequisites for everything.
+
+---
+
+## 2026-06-02 — Final advisor pass on v2; 5 fixes applied
+
+**Phase**: Design hardening (advisor sub-agent review of the v2 plan, per the user's ask). All 5 substantive items applied as edits.
+
+1. **Encoder-isolation diagnostic added as T1.3 (gates T2.1).** Advisor: §6.4 names FOUR co-equal suspects for the ~75% residual (upstream `next_encoder`, PCGrad surgery, joint-loss interference, sequence-vs-pooled handoff) — the plan over-attributed it all to "missing private backbone." §6.6's own recommended FIRST test (run STL `next_stan_flow` WITH the MTL `next_encoder` prepended, ≈5 GPU-h) is the cheapest probe. T1.3 runs it before the ~320 GPU-h Tier 2: if the encoder owns the residual, the cheap fix is encoder-bypass, not the dual-tower.
+2. **T2.1 re-prioritized: gated-fusion (b) is now the PRIMARY variant.** Advisor: variant (a) private-only is, by construction, the composite (anchor d) trained jointly — not a novel result if it wins. Only gated-fusion (b) tests the real thesis (shared backbone ADDS to the private tower). Added a **PCGrad-off / static_weight arm** inside T2.1 (PCGrad is suspect iii, baked into the recipe not gated).
+3. **Regime×substrate interaction demoted from headline to secondary.** Advisor: v14's STL reg edge over canonical-fresh is only ~+0.8pp at FL — below the n=5 ≥1pp floor — so the interaction may null even if the architecture works. The defensible headline is now "dual-tower recovers X% of the composite reg gap inside one model" (substrate-agnostic); the v14&gt;canonical interaction is a bonus secondary readout.
+4. **Metrics consistency fixed.** The per-task table named joint primary = Δm(cat F1 + reg MRR) but every gate used Acc@10. Now **reg Acc@10_indist is THE reg metric for every gate, table, and the Δm primary**; MRR is secondary-only. Consistency rule added to §Metrics.
+5. **v14 framing qualified as FL-conditional.** Subtitle no longer says "on the v14 substrate" universally — substrate-survival claims are FL-conditional (Delaunay reg lever is state-dependent); the regime/architecture work is substrate-agnostic and survives the T0.1 fallback.
+
+**Advisor's honesty verdict:** "excellent — v14 consistently framed STL-only/MTL-unproven; all T2.1 outcomes called paper-grade; composite fallback explicit; no over-claim." Metrics contract called "ship-ready." Centerpiece called "defensible after the two fixes (encoder probe + gated-fusion/PCGrad-off)."
+
+**Nothing high-EV was dropped** (advisor cross-checked all 9 future_works memos; `task_pivot_memo` is paper-prose, correctly unmapped). The only real gap was the missing §6.6 encoder probe — now T1.3.
+
+**Chain status**: v2 design hardened; Tier 0 not launched. **Ready for implementing-agent handoff.**
+
+**Next**: implementing agent — read AGENT_PROMPT.md (v2) → INDEX.html → build worktree on `mtl-improve` → Tier 0. The cheap T1.3 encoder probe should run early (it can re-scope the expensive Tier 2).
+
+---
+
+## 2026-06-02 — User points folded in (frozen folds, per-task disjoint+joint, hard-share arm)
+
+**Phase**: Design refinement (3 user points). All applied.
+
+1. **Frozen-fold paired design** (user: "freeze the folds so we don't face data interference and only see model infrastructure"). Added a §Metrics protocol: for infra-isolation experiments (Tier 2 architecture, T1.3 encoder probe, T5 head swaps), all arms use the identical `StratifiedGroupKFold(seed=S)` partition + matching seeded log_T, compared fold-by-fold so fold-composition variance cancels in the Δ. Documented what it controls (data-difficulty variance, the dominant small-state noise) vs not (init/batch-order — vary seed but keep the split aligned per seed). NOT applied to the T6 ship run / T0.3 regime gate (those vary folds for generalization). Tier 2 intro + AGENT_PROMPT rule 2b updated.
+
+2. **Per-task disjoint + joint for BOTH tasks** (user: "for MTL runs compare the disjoint results for each task AND the joint result"). The v2 metrics had three-frontier reg only + cat as a single number. Now every MTL run reports a **2×2: {cat, reg} × {disjoint, joint}** — each head at its own best epoch (disjoint capacity) AND both heads at the single deployable `geom_simple` checkpoint (joint). Added the mandatory subsection + example block + consistency footnote; AGENT_PROMPT rule 2 updated. The cat disjoint−joint and reg disjoint−joint gaps quantify the per-task cost of one shared checkpoint (the mtl-protocol-fix capacity-gap + selector-bug, now applied to cat too).
+
+3. **Hard-share backbone arm** (user: "we're only using soft-share, right? eval with a literature agent whether to add a hard-share backbone"). Spawned a literature+codebase agent. **Verdict: user is right** — every live Tier-2 candidate is soft-share (cross-stitch, MoE, cross-attn) or private (dual-tower); no clean hard-parameter-share arm. Added **T2.0 hard-share anchor** (FiLM-off `mtlnet` = textbook Caruana shared trunk + task heads), completing the sharing spectrum hard←→soft←→private. Expected to LOSE (P4 = task-starvation-by-sharing, so more sharing is wrong; "Rethinking Hard-Parameter Sharing" arXiv 2107.11359 recommends less). Value = the completed spectrum that frames the dual-tower win + pre-empts the reviewer "did you try plain hard sharing?". Agent verdict: do NOT add AdaShare/Learning-to-Branch — at 2 tasks they collapse to branch-depth, which the dual-tower already spans (cite as related work for T2.1). Sources: Vandenhende TPAMI'21, Crawshaw'20, Rethinking-HPS arXiv 2107.11359, AdaShare NeurIPS'20, Learning-to-Branch ICML'20, BMTAS BMVC'20. Tier 2 compute 320→340 GPU-h.
+
+**Chain status**: v2 design + 3 user points; ready for handoff. Tier 0 not launched.
+
+**Next**: unchanged — implementing agent starts Tier 0; T1.3 encoder probe early; Tier 2 spans the full spectrum under frozen folds with per-task disjoint+joint reporting.
+
+---
+
+## 2026-06-02 — Tier-0 frozen-fold reference board + advisor gap-fixes
+
+**Phase**: Tier-0 restructure (user point) + advisor eval. All applied.
+
+**User point:** "freeze folds should be prepared in Tier 0, and execute STL + MTL v11 & v14 on it, so we can eval if current results are equivalent to the paper and prior studies and future comparisons are clear."
+
+**Restructure applied:**
+- **T0.0 (NEW)** — freeze the fold partition + seeded log_T as an immutable, hash-checked artifact (manifest per state×seed); gates all of Tier 0+.
+- **T0.2 (REBUILT) — the frozen-fold reference board + equivalence gate.** Runs all anchors on the ONE frozen partition: MTL v11 (frozen substrate, paper-canon), MTL canonical-fresh (gcn_ctrl), MTL v14, STL-on-v14, STL canonical-fresh + STL HGI, composite. **Two equivalence checks: MTL v11 frozen-fold ≈ paper §0.1, and three-frontier ≈ mtl-protocol-fix + v14 STL ≈ embedding_eval.** This is the calibration gate — prove the harness reproduces the paper + prior studies BEFORE any improvement, so every later Δ is trustworthy. Divergence beyond tolerance → STOP at Tier 0, not Tier 6.
+- **T0.3** reframed to read the board's v14-MTL vs canonical-fresh-MTL cells as the n=20 regime test (no separate run).
+- **Tier 1 slimmed:** T1.1/T1.2 are now confirm-and-pin from the T0.2 board (no fresh runs); T1.3 (encoder probe) is the real Tier-1 work, marked PARALLEL-ELIGIBLE (runs as soon as T0.0 lands).
+
+**Advisor eval (model-level, full context) — affirmed the direction ("calibrate-before-improve is exactly right"), gave 5 fixes, all applied:**
+1. **Partition identity (BLOCKER).** The frozen partition must be bit-identical to the §0.1-generating `FoldCreator` path (same sklearn 1.8.0, group key, seeds) + hash-check vs surviving §0.1 artifact — else a board "divergence" can't isolate the harness. Added as a T0.0 precondition.
+2. **Pre-register tolerances (BLOCKER).** Equivalence cells use {0,1,7,100} NEVER seed42 (C23: seed42 overshoots §0.1 by +3/+7pp CA/TX by design); write accept-tolerances citing C22/C23 so the gate doesn't false-STOP on documented offsets; C23 is a CA/TX issue (board clean at AL/AZ/FL) → flag for T6.
+3. **Compute ~3× low (BLOCKER, planning).** Full {0,1,7,100} × 3 MTL substrates × 3 states ≈ 400-600 GPU-h. Scoped: full multi-seed equivalence at FL only; AL/AZ board cells at seed42, multi-seed deferred to T6. Tier 0 compute updated 150 → ~300-350 GPU-h.
+4. **Dual-tower success bar (STRATEGIC).** The composite ALREADY delivers +7-12pp reg at deploy (two models). So the integrated dual-tower wins over it only if reg-recovery is high enough that single-model economy + cat-survival justify not shipping two models — a ⅓-gap recovery that stays 5-8pp below composite is a SCIENTIFIC result, not a shippable win. Reframed T2.1's gate: the bar is the deployment trade vs the composite, not a raw gap-fraction.
+5. **v14 build-input check (BLOCKER).** Verify POI2Vec teacher + HGI Delaunay edges + HGI POI emb exist at AL/AZ before T0.1; fold build cost in if absent. Added to T0.0.
+- Process: T1.3 marked parallel-eligible (off the serial T0.0→T0.1→T0.2 critical path). Advisor's explicit note: "this is the 4th revision, the plan is in good shape — stop expanding scope after this." Agreed — no new machinery beyond these fixes.
+
+**Chain status**: v2 + frozen-fold reference board + 5 advisor fixes. Ready for handoff. Tier 0 not launched.
+
+**Next**: implementing agent — T0.0 (freeze partition, provenance-matched to §0.1) → T0.1 (build v14, check inputs first) + T1.3 (encoder probe, parallel) → T0.2 (reference board + equivalence gate — the calibration checkpoint). Do not proceed past T0.2 if v11 frozen-fold ≠ §0.1 beyond tolerance.
+
+---
+
+## 2026-06-03 — Git pull: execution started; state strategy + hardware/parallelization folded in
+
+**Phase**: Plan sync with the execution environment (user: git pull happened, eval impact; add GE middle state + 5f/1f strategy; AGENT_PROMPT update; parallelize on i9-14900K + A40 45GB).
+
+**Git pull (9e08b49f → 7a27e688) — what landed + impact:**
+- **`docs/results/v14_mtl_vs_canonical.md` — our T0.2/T0.3 already executed at FL+AL+AZ.** v14-MTL vs matched-canonical-MTL, 5f × {0,1,7,100}, leak-free. **Regime gate CONFIRMED**: v14 ≈ matched canonical in MTL (FL clean tie; AL +2.1 reg/+1.2 cat deployable; AZ within noise). STL ceilings replicate exactly (v11 69.43 / v14 70.24 / HGI 70.62). → marked T0.3 DONE-at-FL+AL+AZ; the architectural-lever framing is validated, not at-risk.
+- **Selector default flipped (C21, 2026-06-03):** `geom_simple = sqrt(cat_F1·reg_Acc@10)` is now the code default (was broken `0.5·(cat_f1+reg_f1)`). §0.1 is diagnostic-best (selector-independent). → updated T0.4 (selector is default, not a manual wire) + the metrics framing.
+- **Matched-in-harness baseline rule (empirically pinned):** same canonical yields 53.7-64.5 reg@10 in-harness vs §0.1's 63.27 — a harness offset. The valid Δ is vs matched in-harness baseline; §0.1 is reference-only. → refined the T0.2 equivalence gate (don't expect frozen-fold v11 = §0.1 to the decimal; expect the offset).
+- **New memo `joint_selection_and_loss_combination.md`:** geom_simple is literature-sound (GM, collapse-averse); the real loss lever is **scale-normalization** (~4.7× CE magnitude gap, 7-class ln7≈1.95 vs 9k-class ln9000≈9.1) — normalize CE by log(num_classes); **FAMO** is the O(1) balancer (PCGrad/Nash O(k)-infeasible at 9k). → re-ranked Tier 4: added **T4.0 (loss-scale norm + RLW litmus, ungated, highest-EV)**; T4.1 re-scoped to FAMO-led, O(k) methods deprioritized.
+- **`scripts/_v14_run/` drivers + manifest:** runs are SERIAL; A40 timing FL ≈14min/seed, AZ ≈3min, AL ≈1.6min (5f×50ep); builds (design_k 500ep) are the heavy spine. → the parallelization headroom.
+- CANONICAL_VERSIONS/CONCERNS/CHANGELOG/TASKS updated (C21 selector, v14 MTL eval) — consistent with the above; no contradiction to the plan.
+
+**Changes applied to the plan:**
+1. **§What already landed (new):** records the regime confirmation, selector default, matched-in-harness rule, new levers — so Tier 0 isn't re-run.
+2. **§State strategy (new):** AL/AZ (small, 5f) · **GE (middle, 5f — NEW, the small↔huge bridge, user-essential, not yet built)** · FL (large, 5f) · CA/TX (huge, 1f optional). Decision rule: 5f bands are main evidence; CA/TX 1f directional. Added **T0.1b — onboard GE** (raw data → substrates → frozen folds → log_T). GE threaded into T0.2 board + Tier-4 states.
+3. **§Execution & parallelization (new):** i9-14900K (32t) + A40 45GB. **CUDA MPS** collocation for small-state runs (they underutilize the A40 — 20%→60% util, up to 4× per MPS literature); VRAM-budget concurrency cap; FL ≤2 concurrent; ONE build at a time; CPU-parallel prep overlapped; don't-hurt rules. Searched + cited NVIDIA MPS docs + arXiv 2209.06018 + Databricks.
+4. **AGENT_PROMPT.md:** added the 2026-06-03 landed-results banner + hard rules 13 (states) + 14 (parallelization).
+
+**Chain status**: plan synced with execution; T0.2/T0.3 DONE at FL+AL+AZ (regime confirmed); remaining Tier-0 = GE onboarding + GE board cells + (cheap) T1.3 encoder probe. Ready to continue execution.
+
+**Next**: T0.1b (onboard GE — heaviest new build, schedule early) → GE board cells → T1.3 encoder probe (parallel, gates T2) → Tier 2. Use MPS collocation for the small/middle-state seed sweeps.
+
+**Advisor pass (2026-06-03) — 5 reconciliation fixes, all applied (advisor said: apply + hand off, no more revisions):**
+- **A (behavior):** the matched-in-harness rule wasn't propagated. Bannered the §Pinned-Baselines residual table as mtl-protocol-fix-harness/reference-only; made T2.1's "fraction of composite gap" bar reference the T0.2 IN-HARNESS composite (cross-harness subtraction = ~2.6pp meaningless error).
+- **B (check):** GE raw data CONFIRMED present (`data/checkins/Georgia.parquet`) → T0.1b is a build task, not data acquisition. Updated T0.1b + §State strategy.
+- **C (behavior):** corrected the inflated CPU-era compute estimates with measured A40 timing (FL 5f×50ep ≈14min/seed). Run-bound tiers are tens of GPU-h, not hundreds; builds are the only heavy item (measure from build logs on the box). Added a corrected-envelope callout to §Execution; flagged the compute-fear scope-downs (T0.2 FL-only, CA/TX 1-fold, Tier-4 gated) as possibly-unnecessary — relax once build time is known. (Note: build logs are on the remote A40 box, gitignored — not measurable from here.)
+- **D:** promoted T4.0 (loss-scale norm + RLW litmus) to RUN-EARLY alongside T1.3 (orthogonal to the architecture per P4; its RLW signal informs the expensive tiers).
+- **E (honesty):** AL is a selector-dependent CROSSOVER, not a clean tie (deployable v14 wins +2.14 reg; diagnostic-best v14 worse −2.23). Updated T0.3 to report both bases; reframed GE as mapping the **substrate-survival-vs-scale gradient** (AL partial-survival → GE middle → FL clean-tie), a sharper job than a generality check.
+
+**Design status: DONE per advisor — next action is execution, not revision.** T0.2/T0.3 regime gate confirmed at FL+AL+AZ; remaining Tier-0 = GE onboarding (T0.1b) + GE board cells + T1.3 encoder probe + T4.0 (run early).
+
+### Review-cadence cautions added to AGENT_PROMPT (user-requested, 2026-06-03)
+Strengthened workflow §4–§6 + execution §8 with three disciplines: (1) **per-tier review cadence** — advisor pass on the tier results → write a tier summary → **STOP and surface it to the user to decide how to proceed** (no autopilot into the next tier); (2) **end-of-track implementation-correctness review** — a dedicated advisor/code-review sub-agent that verifies the code is right for THIS case (param partitions / log_T / selector / frozen-fold guards; not just that numbers look good — guards against the F49-leak / stale-log_T / wrong-selector bug class) + a final whole-track advisor pass; (3) **continuous `log.md` + `INDEX.html` updates** — fill Results blocks + log decisions as they happen, a task isn't `completed` until both are written. **(4, added next) commit-cadence discipline** — workflow §7: small frequent commits (per experiment/decision/build), explicit pathspec + `git status` check (the repo pre-stages unrelated `articles/*`), dedicated branch + deliberate PR merge, push regularly so remote-A40 results are durable.
+
+---
+
+## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
 
 **Phase**: Design complete; no experiments run yet.
 
