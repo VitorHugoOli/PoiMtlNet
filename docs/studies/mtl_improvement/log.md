@@ -301,6 +301,32 @@ T4.0 (loss-scale norm + RLW) NOT run (it is Tier 4; the user scoped this session
 
 ---
 
+## 2026-06-03 — Tier S: add S.3 (analyze + compose) ; renumber synthesis → S.4
+
+**Phase**: Design addition (no experiments run).
+
+**Why.** User: worth adding a step in S.1/S.2 to (a) eval results via advising + agents and **compose/merge approaches** (does one head's mechanism help another?), and (b) have an agent **study the best approach per task**. Asked me to eval carefully.
+
+**My eval (with pushback).**
+- **Compose step — ACCEPT, but it's a forking-paths trap without guardrails.** Composition is how orthogonal gains stack (best encoder ⊕ best prior ⊕ SimGCL aux — the lit scan already had SimGCL as "bolt onto the winning encoder"). But "merge approaches" can balloon into an unbounded grid, and composing many compounds on the same val folds + reporting the max is selection bias (Cawley-Talbot, already cited in the selector memo); plus heavy non-additivity history here (PLE/MMoE). → add it gated.
+- **Per-task deep-study agent — ACCEPT NARROWED.** A broad upfront SOTA survey mostly re-confirms the lit scan's deflationary verdict, and the regime (not the STL head) is the wall. → fold it in as a *results-triggered analyst* (interpret WHY winners won on our substrate + propose orthogonal compositions), NOT a separate broad survey.
+
+**Advisor pass.** Affirmed both calls (esp. folding #2 into #1 as a results-triggered analyst). Two corrections, applied:
+1. **Keep S.3 LIGHT — don't over-build the guardrail.** My 4 mitigations partly duplicate the existing Tier-S gate (≥0.5pp multi-seed Wilcoxon + lose-within-noise→second-round). Reuse it; the ONLY new rule is "name 2-3 orthogonal compositions (encoder ⊕ aux ⊕ prior, never two encoders) BEFORE seeing the max." No parallel pre-registration/held-out ceremony.
+2. **Frame S.3 output as an STL candidate-generator for T5**, not a destination — the composition that matters for deploy is the MTL one; the STL compose is a cheap pre-filter, re-judged under MTL (consistent with the moving-baseline guard).
+
+**Cumulative-scope flag (advisor — taking to the user).** Tier S has grown bounded→full across this session (S.1/S.2 → +S.3 compose +S.4 synthesis → Prong A/B → analyst agent). Each addition is individually guarded, but Tier S is now the most intricate branch — and it's the off-critical-path STL branch the regime finding predicts washes out in MTL. Not a compute flag (it's cheap + MPS-parallel); an attention + new-code-risk flag (Prong-B builds + compose = fresh code on the least-headline branch). The "huge picture per task" is reviewer-useful + scientifically real + user-requested, so this can be the right call — but it should be ONE explicit user decision (keep growing vs cap here), not item-by-item accretion. **Surfacing it to the user now.**
+
+**Structure now:** S.1 reg search (coded+new) · S.2 cat search (coded+new) · **S.3 analyze + compose (gated, results-triggered analyst)** · **S.4 synthesis "huge picture" (5-rung ladder)**. Existing synthesis card renumbered S.3→S.4. The analyst agent is execution-time (results-triggered) — NOT spawned now (no data yet).
+
+**Files touched.** `INDEX.html` (new S.3 compose card; synthesis → S.4; intro, TOC, metric map, rungs). `AGENT_PROMPT.md` (Tier S card list). 1 commit on branch.
+
+**Chain status**: unchanged — T1.4 remaining Tier-1 gate; Tier S parallel. Chain preserved.
+
+**Next**: await the user's cumulative-scope decision (cap Tier S at S.1-S.4, or keep growing). Then implementing agent: T1.4 → Tier S (Prong A screen → Prong B → S.3 compose → S.4 picture).
+
+---
+
 ## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
 
 **Phase**: Design complete; no experiments run yet.
