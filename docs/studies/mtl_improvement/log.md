@@ -520,6 +520,29 @@ S.3 (compose) NOT triggered (nothing promoted). **Conclusion: the STL head is NO
 
 ---
 
+## 2026-06-03 — Overlap-window probe VALIDATED the audit finding: data-scarcity-dependent ceiling lift
+
+**Phase**: isolated validation (user chose AL+FL + both tasks + cheap levers). Threaded a backward-compatible `stride` param; built a self-contained probe (`scripts/mtl_improvement/overlap_probe.py`) that runs overlap vs non-overlap through ONE harness matching next_cv/p1. Results doc: [`docs/results/mtl_improvement/overlap_window_probe.md`](../../results/mtl_improvement/overlap_window_probe.md).
+
+**Result (control reproduces the frozen ceiling within ~1pp → faithful):**
+| task | state | control (s9) | overlap | LIFT |
+|---|---|---|---|---|
+| cat | AL | 50.73 | 60.23 (s1) | **+9.50** |
+| cat | FL | 71.10 | 72.40 (s2) | **+1.30** |
+| reg | AL | 63.99 | 68.96 (s1) | **+4.97** |
+
+**The lift is DATA-SCARCITY-DEPENDENT** — large at small states (AL cat +9.5 / reg +5.0), modest at large (FL cat +1.3). At FL (159k seqs) the model is near data-saturation; at AL (12.7k) 8.5× more (history→next) supervision helps a lot. Lifts are well beyond σ; leak-safe (user-grouped split keeps a user's overlapping windows in one fold). Overlapping windows are genuinely different prediction pairs, not duplicates.
+
+**The user's instinct + the audit were RIGHT**: a head-independent systematic cap (non-overlapping windowing) was hiding ~5-9.5pp of small-state ceiling — invisible to all the Tier-S head-swaps (which is exactly why none of them moved the needle).
+
+**FOUNDATIONAL / paper-touching.** The frozen (c)/(d), the MTL board, the per-fold log_T, and the v11 PAPER CANON are all non-overlapping. Open questions before any canon change: (1) real-pipeline re-validation (harness is ~+1pp optimistic); (2) **does overlap help MTL too, or only STL?** — if it lifts STL more than MTL at small states, the STL→MTL gap WIDENS (bears on the regime finding + the dual-tower story); (3) AZ/GE + FL-reg overlap not yet run.
+
+**Chain status**: Tier-1 frozen ceilings now have a VALIDATED foundational caveat (windowing); nothing changed on disk (probe is isolated). Chain preserved.
+
+**Next**: STRATEGIC DECISION for the user — adopt overlap as canon (major rebuild, changes paper, lifts small-state ceilings) vs document-as-headroom/future-work (keep consistent non-overlap canon) vs investigate-further (real-pipeline + MTL-with-overlap) before deciding. The cheap training levers (cat fp32, shorter schedule) remain un-run (minor vs this).
+
+---
+
 ## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
 
 **Phase**: Design complete; no experiments run yet.
