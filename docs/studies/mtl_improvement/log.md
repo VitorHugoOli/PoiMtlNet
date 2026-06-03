@@ -463,6 +463,22 @@ S.3 (compose) NOT triggered (nothing promoted). **Conclusion: the STL head is NO
 
 ---
 
+## 2026-06-03 — Tier-S Prong-B SimGCL aux (user-requested) → ties the floor → Tier S DEFINITIVELY complete
+
+**Phase**: built + screened the one orthogonal non-encoder mechanism (SimGCL aux). Tier S now fully closed.
+
+**Built `next_gru_simgcl`** — the incumbent GRU cat encoder + a **SimGCL auxiliary contrastive loss** (Yu SIGIR'22): norm-bounded sign-preserving noise → two views → InfoNCE consistency term, exposed via `model.aux_loss` and added by a guarded one-line trainer hook (`_single_task_train.py`; no-op for every other head). Unit-test gate PASS (aux in train, None in eval). Arch confirmed `NextHeadGRUSimGCL` with the contrastive projection (genuinely ran, not a silent fallback).
+
+**AL screen (with logit-adjust τ=0.5) — TIES the floor:** cl_weight=0.1 → 50.03 (Δ+0.06 vs next_gru 49.97); cl_weight=0.05 → 49.89 (Δ−0.08). The contrastive regularizer does NOT move the cat ceiling.
+
+**Tier S DEFINITIVELY complete — comprehensive reviewer-proof negative.** Prong A (all coded cat encoders + reg heads) + Prong B (new SSM `next_mamba` loses both; SimGCL aux ties) → **no head, encoder, OR auxiliary regularizer beats the tuned incumbent.** The per-task STL axis is exhausted across every mechanism class we have. The lever is the joint MTL architecture → Tier 2.
+
+**Chain status**: Tier 1 frozen+guarded; **Tier S COMPLETE (Prong A + B, all mechanisms) — reviewer-proof negative.** Chain preserved.
+
+**Next**: STOP for user — **Tier 2 (T2.1 dual-tower)** is the clear next (the architectural gap). T4.0 loss-scale litmus also open (cheap, ungated). New reusable assets from Tier S: `next_mamba`, `next_gru_simgcl`, the `model.aux_loss` trainer hook, `t14_freeze_sanity.py`.
+
+---
+
 ## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
 
 **Phase**: Design complete; no experiments run yet.
