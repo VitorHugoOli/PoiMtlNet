@@ -339,6 +339,7 @@ def convert_user_checkins_to_sequences(
     embedding_cols: List[str],
     window_size: int,
     embedding_dim: int,
+    stride: int = None,
 ) -> Tuple[List[np.ndarray], List[List[int]]]:
     """
     Convert a single user's check-in DataFrame to embedding sequences using position-based lookup.
@@ -386,7 +387,7 @@ def convert_user_checkins_to_sequences(
     # Generate POI sequences using shared function (with start indices for position safety)
     places = placeids.tolist()
     sequences_with_idx = generate_sequences(
-        places, window_size=window_size, return_start_indices=True
+        places, window_size=window_size, stride=stride, return_start_indices=True
     )
 
     if not sequences_with_idx:

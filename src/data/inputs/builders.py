@@ -141,7 +141,8 @@ def generate_next_input_from_poi(
 def generate_next_input_from_checkins(
     state: str,
     engine: EmbeddingEngine,
-    batch_size: int = DEFAULT_BATCH_SIZE
+    batch_size: int = DEFAULT_BATCH_SIZE,
+    stride: int = None,
 ) -> None:
     """
     Generate next-POI input from check-in-level embeddings.
@@ -177,7 +178,7 @@ def generate_next_input_from_checkins(
         user_df = user_df.reset_index(drop=True)
 
         results, sequences = convert_user_checkins_to_sequences(
-            user_df, emb_cols, window_size, embedding_dim
+            user_df, emb_cols, window_size, embedding_dim, stride=stride
         )
 
         all_results.extend(results)
