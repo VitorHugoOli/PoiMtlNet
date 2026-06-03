@@ -79,3 +79,25 @@ prior-free reg recipe (control uses the SAME recipe so the windowing delta is va
    comparisons valid), add overlap as a "data-formation headroom + it sharpens the regime finding" result.
 3. CONFIRM-FIRST — run the cat-rising-tide / reg-gap-widens pattern at AZ/GE/FL before deciding (the AL
    result is single-state, single-seed).
+
+## HGI-overlap STL reg (2026-06-03) — the composite substrate also benefits, stays tied
+Overlapping sequences + HGI region embeddings (--engine-override check2hgi_dk_ovl --region-emb-source hgi):
+HGI-overlap reg AL = **68.47 ± 4.12** vs non-overlap HGI-α0 63.58 = **+4.89** (≈ v14's +5.13). With overlap,
+v14 (68.01) ≈ HGI (68.47) for STL reg — they stay tied (consistent with T1.4 "v14≈HGI once α=0-hardened").
+So overlap is a uniform STL-reg lift across BOTH substrates; the composite (d) reg arm rises to ~68.5 too.
+
+## DECISION (user 2026-06-03): document as a key finding + future-work; KEEP the non-overlap canon
+Rationale: consistency of the whole study. The frozen (c)/(d), the MTL board, the per-fold log_T, and the
+v11 paper canon are all non-overlapping; every within-study comparison is internally valid on that canon.
+Overlap is recorded as (1) a validated data-formation headroom finding and (2) evidence that SHARPENS the
+regime conclusion (reg gap widens with more data). NOT adopted as canon (would require a full multi-state
+rebuild + re-paper). Future-work memo: docs/future_works/overlapping_windows.md.
+
+## Full AL picture (validated, real pipeline)
+| metric | non-overlap | overlap | lift |
+|---|---|---|---|
+| STL cat | 49.97 | 59.74 | +9.77 |
+| STL reg (v14) | 62.88 | 68.01 | +5.13 |
+| STL reg (HGI) | 63.58 | 68.47 | +4.89 |
+| MTL cat joint/disjoint | 46.30 / 46.52 | 55.21 / 55.90 | +8.92 / +9.39 |
+| MTL reg joint/disjoint | 54.54 / 53.47 | 55.05 / 54.46 | +0.50 / +1.00 |
