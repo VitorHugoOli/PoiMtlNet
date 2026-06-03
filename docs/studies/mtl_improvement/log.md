@@ -277,6 +277,30 @@ T4.0 (loss-scale norm + RLW) NOT run (it is Tier 4; the user scoped this session
 
 ---
 
+## 2026-06-03 — Callback: Tier S grounded in the REAL coded registry (test what we have) + new-arch prong kept
+
+**Phase**: Design correction of Tier S (no experiments run).
+
+**Why.** User: "we have heads already coded in src/* and we are not testing them — eval them, and eval if your changes are valid or you'd callback something." Correct instinct — a real callback.
+
+**Code inventory (Explore + grep, authoritative).** `src/models/registry.py` decorator registry holds **~17 `next_*` heads** and **9 `category_*` heads**. Canonical: only `next_gru` (cat) + `next_stan_flow`/`next_getnext_hard` (reg). **Coded but never run:** `next_lstm`, `next_hybrid`, `next_temporal_cnn`, `next_tcn_residual`, `next_conv_attn`, `next_single`, `next_transformer_optimized`, `next_transformer_relpos`, `next_stan` (no-prior), `next_getnext` (soft-probe), `next_tgstan`, `next_stahyper`, `next_stan_flow_hsm`. **The plan named FICTIONAL heads:** `next_stan_baseline` (→ real `next_stan`), `next_transformer_pf` (→ `next_transformer_relpos`), `next_sasrec` (→ already exists as `next_transformer_relpos`/`_optimized`/`next_single`), `next_mixture_softmax` (→ `next_stan_flow_hsm`), `next_mamba` (genuinely absent).
+
+**Callback applied.** Tier S was framed around "BUILD SASRec/Mamba" + a partly-fictional candidate list. Corrected to **Prong A = sweep the already-coded `next_*` heads** (real registry names, near-zero implementation cost — the user's point). Fixed the same fictional names in the pre-existing T5.1/T5.2 lists.
+
+**Advisor pass (this round).** Three corrections: (1) **BLOCKING — exclude the `category_*` family.** Verified in code: `category_*` take flat `[B,D]` (`category_ensemble(input_dim,…)`), but the cat task feeds a 9-step sequence (`next_gru` masks over `[B,9,D]`), AND `generate_category_input` **rejects check-in-level engines like Check2HGI** (`src/data/inputs/builders.py:60-75`). Wrong modality + substrate → out (would need an adapter = new code for a different task). (2) "coded ≠ free" — bit-rot + the registry silently drops unknown kwargs (a log_T-aware head can train while ignoring the prior) → **unit-test gate on every head** + a **screen-then-promote funnel** (AL×1-seed screen → top-2-3 to full FL+AL+AZ 5f + GE). (3) advisor wanted Mamba demoted to future-work.
+
+**User override (follow-up message).** "About the new archs you proposed, besides we have similar head, let's keep exploring them, don't callback." → **Prong B (faithful SASRec / Mamba / SimGCL) KEPT in Tier S** (overrides advisor #3), even where a similar coded head exists, so we can compare faithful-new vs coded-similar. Full-pipeline next-POI models (GETNext/STHGCN/…) stay OUT (need raw side-info). `category_*` stays OUT (hard constraint, not overridden).
+
+**Net Tier S = two prongs:** A (coded registry sweep) + B (new-arch builds), both per task, both through the unit-test gate + funnel; S.3 "huge picture" now a 4-rung ladder (default / tuned-current / best-coded / best-new). **My T1.4/Tier-S STRUCTURE is valid (advisor confirmed); the callback was the candidate LIST.**
+
+**Files touched.** `INDEX.html` (Tier S intro → two prongs; scope-boundaries callout rewritten; S.1/S.2/S.3 real names + funnel + category_* exclusion; T5.1/T5.2 real names; hard rule 16; TOC; chain; metric map). `AGENT_PROMPT.md` (Tier S exec order + hard rule 16). 1 commit on branch `mtl-improvement-stl-frontier`.
+
+**Chain status**: unchanged — T1.4 remaining Tier-1 gate; Tier S parallel. Chain preserved.
+
+**Next**: implementing agent — Prong A first (unit-test + screen the coded `next_*` heads), Prong B builds after; both feed T5. Advisor + summary + STOP-for-user at the boundary.
+
+---
+
 ## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
 
 **Phase**: Design complete; no experiments run yet.
