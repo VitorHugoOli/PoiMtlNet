@@ -41,7 +41,7 @@ reg_run(){ # tag  extra-args...
 cat_run(){ # tag  extra-args...
   local tag=$1; shift
   say "start $tag"
-  if $PY scripts/train.py --task next --state "$ST" --engine "$V14" --cat-head next_gru \
+  if $PY scripts/train.py --task next --state "$ST" --engine "$V14" --model next_gru \
       --seed 42 --epochs 50 --folds 5 --batch-size 2048 \
       "$@" --no-checkpoints > "$LOGDIR/${ARM}_${ST}_${tag}.log" 2>&1; then
     local rd; rd=$(ls -dt results/$V14/$ST/next_*ep50* 2>/dev/null | head -1)

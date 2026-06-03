@@ -36,7 +36,7 @@ elif [ "$ARM" = cat ]; then
   for enc in next_lstm next_temporal_cnn next_tcn_residual next_conv_attn \
              next_transformer_relpos next_transformer_optimized next_single next_hybrid; do
     say "start cat $enc (logit-adjust tau=0.5)"
-    if $PY scripts/train.py --task next --state "$ST" --engine "$V14" --cat-head "$enc" \
+    if $PY scripts/train.py --task next --state "$ST" --engine "$V14" --model "$enc" \
         --seed 42 --epochs 50 --folds 5 --batch-size 2048 --logit-adjust-tau 0.5 \
         --no-checkpoints > "$L/cat_${ST}_${enc}.log" 2>&1; then
       rd=$(ls -dt results/$V14/$ST/next_*ep50* 2>/dev/null | head -1)
