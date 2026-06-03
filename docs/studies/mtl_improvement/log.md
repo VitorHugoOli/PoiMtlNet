@@ -442,6 +442,27 @@ Optional items applied: durable manifests; prior-mismatch + 0.26pp caveats in TI
 
 ---
 
+## 2026-06-03 — Tier-S Prong-B: built Mamba-lite (next_mamba) → loses both tasks → Tier-S NEGATIVE complete
+
+**Phase**: Prong-B new-arch build. Tier S (Prong A + B) now concludes.
+
+**Built `next_mamba`** — a dependency-free pure-torch **selective state-space (Mamba-lite)** head (`src/models/next/next_mamba/head.py`): input-dependent Δ/B/C selectivity + SiLU gate + diagonal A + D skip; sequential scan (L=9, no kernel needed). Passed the unit-test gate (build+fwd+bwd finite, [B,nc] out, 325k/608k params). mamba-ssm not installed; SASRec skipped (redundant with next_transformer_relpos, already screened).
+
+**AL screen — Mamba LOSES both:** cat 41.44 vs next_gru 49.97 (**−8.53**, lands in the transformer cluster ~41-42); reg 61.66 vs next_stan_flow α=0 62.88 (**−1.22**, like the other generic encoders). The SSM behaves like the transformers, not the recurrent winners → fails the AL screen → no multi-state promotion.
+
+**Tier-S synthesis (the "huge picture", S.4) — reviewer-proof NEGATIVE.** Per task, the tuned T1.4 incumbent wins:
+- **cat:** recurrent (GRU≈LSTM ~50) ≫ transformer/SSM (~41-42) ≫ CNN (~33-37). No encoder beats tuned next_gru.
+- **reg:** STAN-family (next_stan_flow α=0 ≡ next_stan) is the ceiling; every generic encoder (LSTM/SSM) ~61-62 below.
+S.3 (compose) NOT triggered (nothing promoted). **Conclusion: the STL head is NOT the lever** — the gap is architectural, in the JOINT MTL dynamics (the regime finding), not the per-task head. The frozen (c)/(d) stand; T5 inherits next_lstm/next_single as co-equal fallbacks only.
+
+**Deferred (low-EV):** a SimGCL auxiliary-loss bolt-on — the one orthogonal mechanism not probed. The encoder axis is exhausted + the regime finding both argue against EV; not run autonomously — flagged for the user.
+
+**Chain status**: Tier 1 frozen+guarded; **Tier-S (Prong A + B) COMPLETE — reviewer-proof negative**. Chain preserved. The headline (the architecture gap) is Tier 2.
+
+**Next**: STOP for user — the natural next is **Tier 2 (T2.1 dual-tower)**, where the gap actually lives. Optional remaining Tier-S item: SimGCL aux (low-EV). T4.0 loss-scale litmus also still open.
+
+---
+
 ## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
 
 **Phase**: Design complete; no experiments run yet.
