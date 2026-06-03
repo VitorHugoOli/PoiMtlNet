@@ -630,8 +630,19 @@ Report each as the per-task 2×2 (cat/reg × disjoint/joint) + three reg frontie
 <div class="block"><div class="block-title">Hypothesis</div>STL-on-v14 is the ceiling the MTL should approach. cat ≈ frozen-canon ≫ HGI; reg ≈ 0.70 (FL), closing most of the HGI gap.</div>
 <div class="block"><div class="block-title">Methodology</div>STL <code>next_stan_flow</code> (reg) + <code>next_gru</code> (cat) on v14, 3 seeds × 5f × AL+AZ+FL, seeded log_T. Report vs canonical-fresh STL + HGI STL.</div>
 <div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Pin (c)</strong> per state per task. Confirms the substrate target.</div></div>
-<div class="block"><div class="block-title">Results (2026-06-03) — (c) pinned at FL in-harness; AL/AZ from anchors; GE pending</div>
-<span class="pill good">FL pinned</span> STL-on-v14 ceiling, FL multi-seed {0,1,7,100} in-harness (landed <code>stl_manifest.tsv</code> / <code>v14_mtl_vs_canonical.md</code>): <strong>reg Acc@10 v14 70.24±.10</strong> (canon-fresh 69.43±.05, HGI 70.62±.12 — v14 closes ~68% of canon→HGI, HGI keeps −0.38pp); <strong>cat F1 v14 65.88±.14</strong> ≈ v11 65.79 ≫ HGI 33.74. AL/AZ STL ceiling (anchor, §0.1 / mtl-protocol-fix): reg 61.21/62.10 (AL), 53.06/53.60 (AZ) — in-harness GE+small-state STL to be confirmed in the GE board. <strong>Verdict:</strong> <span class="pill good">substrate target confirmed</span> — MTL must approach reg≈70.2 (FL); the −7pp MTL@disjoint gap is the Tier-2 target.</div>
+<div class="block"><div class="block-title">Results (2026-06-03) — (c) STL-on-v14 pinned in-harness at ALL 4 main states</div>
+<span class="pill good">PINNED</span> seed42 5f in-harness (reg = next_stan_flow Acc@10 w/ seeded log_T; cat = next_gru macro-F1):
+<table>
+<thead><tr><th>state</th><th>cat F1 (v14 / canon / Δ)</th><th>reg Acc@10 (v14 / canon / HGI)</th><th>v14 closes of canon→HGI reg</th></tr></thead>
+<tbody>
+<tr><td>AL</td><td class="num">39.13 / 38.35 / <span class="delta-pos">+0.78</span></td><td class="num">62.32 / (61.21§) / 63.05</td><td class="num">—</td></tr>
+<tr><td>AZ</td><td class="num">43.16 / 42.92 / <span class="delta-pos">+0.25</span></td><td class="num">52.87 / (53.06§) / 53.50</td><td class="num">—</td></tr>
+<tr><td><strong>GE</strong></td><td class="num">54.02 / 53.42 / <span class="delta-pos">+0.60</span></td><td class="num">55.81 / 54.36 / 56.50</td><td class="num"><strong>~68%</strong> (HGI keeps +0.69)</td></tr>
+<tr><td>FL</td><td class="num">65.88 / 64.61 / <span class="delta-pos">+1.27</span></td><td class="num">70.28 / 69.43 / 70.62</td><td class="num">~68% (HGI keeps +0.34)</td></tr>
+</tbody>
+</table>
+<p><strong>Verdict:</strong> <span class="pill good">(c) pinned; v14 STL dual-axis gain holds at every band incl. GE</strong></span> — v14 STL cat ≥ canon at all 4 states (+0.25 to +1.27); v14 STL reg > canon at GE/FL, <strong>closing ~68% of the canon→HGI reg gap at GE exactly as at FL</strong> (the Delaunay reg lever reproduces at the middle band), HGI keeping the edge. <strong>(§ = §0.1 frozen ref for AL/AZ canon STL-reg, not re-run in-harness.)</strong> The substrate gain is real at STL and washes out only in MTL (the regime finding) — sharpens the case that the lever is architectural.</p>
+<p class="footnote">JSON: <code>docs/results/P1/region_head_{state}_region_5f_50ep_{t13_cfg1_raw_v14,ge_stlreg_*,*_stlreg_hgi}_s42.json</code> · cat <code>results/{eng}/{state}/next_*ep50*/summary/full_summary.json</code> · driver <code>t1_ceilings.sh</code> + GE HGI <code>build_ge_hgi_train.sh</code>.</p></div>
 </div>
 
 <div class="experiment" id="T1-2">
@@ -640,8 +651,19 @@ Report each as the per-task 2×2 (cat/reg × disjoint/joint) + three reg frontie
 <div class="block"><div class="block-title">Hypothesis</div>The composite (route cat→v14 checkpoint, reg→HGI checkpoint) is the deploy upper bound: +7-12pp reg vs MTL@disjoint at zero cat cost (AL/AZ already scored in mtl-protocol-fix Rank 4).</div>
 <div class="block"><div class="block-title">Methodology</div>Composite scorer (load both STL checkpoints, score on shared folds). AL/AZ from existing artefacts; FL needs HGI substrate (~3-5 GPU-h). Three-frontier-plus table (composite as 4th column).</div>
 <div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Pin (d)</strong>. This is the upper bound; T2's job is to recover a meaningful fraction of (d) inside one integrated model. <strong>Note:</strong> composite is the deploy fallback if T2 washes out — a paper-grade "MTL-as-tool" framing.</div></div>
-<div class="block"><div class="block-title">Results (2026-06-03) — (d) FL in-harness derivation; AL/AZ from anchors; GE pending HGI-train</div>
-<span class="pill warn">FL derivable in-harness</span> Composite routes cat→STL-v14 checkpoint, reg→STL-HGI checkpoint. <strong>FL in-harness composite (from landed STL cells): reg Acc@10 = STL-HGI 70.62±.12, cat F1 = STL-v14 65.88±.14</strong>. vs FL MTL@deployable reg 61.21 ⇒ composite is <strong>+9.4pp reg</strong> at deploy (two models, zero cat cost). AL/AZ composite (anchor, mtl-protocol-fix Rank-4, CROSS-HARNESS — do not subtract from in-harness MTL): AL 61.86 (+11.0 vs MTL), AZ 53.37 (+12.0). <strong>The T2.1 "fraction-of-gap-recovered" bar uses the FL in-harness composite reg (70.62) − FL MTL deployable (61.21) = 9.41pp.</strong> GE composite pending its HGI-train tail. <strong>Verdict:</strong> <span class="pill good">deploy upper bound pinned at FL</span> — the +9.4pp two-model reg lift is what an integrated dual-tower must justify replacing.</div>
+<div class="block"><div class="block-title">Results (2026-06-03) — (d) composite deploy ceiling pinned in-harness at ALL 4 main states</div>
+<span class="pill good">PINNED in-harness</span> Composite routes cat→STL-v14 checkpoint, reg→STL-HGI checkpoint (= the STL ceilings above). vs the in-harness MTL deployable reg (v14, geom_simple):
+<table>
+<thead><tr><th>state</th><th>composite cat (=STL-v14)</th><th>composite reg (=STL-HGI)</th><th>MTL deployable reg (v14)</th><th>composite gap over MTL</th></tr></thead>
+<tbody>
+<tr><td>AL</td><td class="num">39.13</td><td class="num">63.05</td><td class="num">50.14</td><td class="num"><strong>+12.91</strong></td></tr>
+<tr><td>AZ</td><td class="num">43.16</td><td class="num">53.50</td><td class="num">37.78</td><td class="num"><strong>+15.72</strong></td></tr>
+<tr><td><strong>GE</strong></td><td class="num">54.02</td><td class="num">56.50</td><td class="num">42.64</td><td class="num"><strong>+13.86</strong></td></tr>
+<tr><td>FL</td><td class="num">65.88</td><td class="num">70.62</td><td class="num">61.21</td><td class="num"><strong>+9.41</strong></td></tr>
+</tbody>
+</table>
+<p><strong>Verdict:</strong> <span class="pill good">(d) pinned in-harness at every state</strong></span> — the two-model composite delivers <strong>+9.4 to +15.7pp reg over the single MTL model at deploy</strong>, at zero cat cost (composite cat = STL-v14 cat ≥ MTL cat). The gap is LARGER at the small/middle states (AZ +15.7, GE +13.9, AL +12.9) than at FL (+9.4). <strong>This is the upper bound the T2.1 dual-tower must approach inside one model</strong> — the bar for shipping an integrated model over the composite is recovering enough of this that single-model economy + joint cat-lift justify not deploying two. <strong>(Now uses in-harness composite at every state — supersedes the cross-harness mtl-protocol-fix AL/AZ figures.)</strong></p>
+<p class="footnote">composite reg = STL-HGI JSONs above; MTL deployable from the GE board + landed <code>v14_mtl_vs_canonical.md</code> (FL 61.21 / AL 50.14 / AZ 37.78 / GE 42.64).</p></div>
 </div>
 
 <div class="experiment" id="T1-3">

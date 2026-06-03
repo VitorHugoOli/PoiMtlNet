@@ -209,6 +209,26 @@ T4.0 (loss-scale norm + RLW) NOT run (it is Tier 4; the user scoped this session
 
 ---
 
+## 2026-06-03 — T1.1/T1.2 ceilings COMPLETE (user chose finish-ceilings-first)
+
+**Phase**: Tier 1 ceilings pinned in-harness at all 4 main states (AL/AZ/GE/FL). User picked "finish Tier 1 ceilings first" at the boundary.
+
+**GE HGI trained** (`build_ge_hgi_train.sh`, phase4 pickle + phase5 train, CPU, **only 118s** — GE is small) → `output/hgi/georgia/region_embeddings.parquet` (2283, 65), clean. The deferred T0.1b HGI tail is now done; GE is fully onboarded (canonical + v14 + HGI).
+
+**Ceiling sweep** (`t1_ceilings.sh`, seed42 5f, GPU, ran in parallel with the CPU HGI train):
+- **(c) STL-on-v14 — pinned at all 4 states.** cat F1: v14 ≥ canon everywhere (AL +0.78 / AZ +0.25 / GE +0.60 / FL +1.27). reg Acc@10 (v14 / canon / HGI): AL 62.32 / – / 63.05; AZ 52.87 / – / 53.50; GE 55.81 / 54.36 / 56.50; FL 70.28 / 69.43 / 70.62. **v14 STL reg closes ~68% of the canon→HGI gap at GE — exactly as at FL** (the Delaunay lever reproduces at the middle band), HGI keeping the edge. v14's STL dual-axis gain is real at every band; it only washes out in MTL (regime finding).
+- **(d) composite deploy ceiling — pinned in-harness at all 4 states** (cat=STL-v14, reg=STL-HGI): composite reg vs MTL deployable reg = **AL +12.91 / AZ +15.72 / GE +13.86 / FL +9.41**. The two-model composite beats the single MTL model by +9.4–15.7pp reg at zero cat cost; the gap is LARGER at small/middle states. This is the in-harness upper bound the T2.1 dual-tower must approach (supersedes the cross-harness mtl-protocol-fix AL/AZ figures).
+
+**Tier-1 anchors (c)+(d) now fully pinned in-harness** → every later Tier-2 Δ (esp. "fraction of the composite gap recovered") is measured against a clean, same-harness composite at every state. INDEX T1.1/T1.2 Results blocks filled with the full matrices.
+
+**Caveat:** AL/AZ canonical STL-reg not re-run in-harness (used §0.1 frozen ref 61.21/53.06); the (d) composite reg arm uses HGI-STL (run in-harness), so this doesn't affect the composite bar.
+
+**Chain status**: Tier 0 + Tier 1 COMPLETE (ceilings pinned). Chain preserved. **Ready for Tier 2 (T2.1 dual-tower) — awaiting user go.**
+
+**Next**: Tier 2 T2.1 dual-tower (reg-private full STAN backbone, gated-fusion PRIMARY + PCGrad-off arm; param-partition unit-test; per-arch LR mini-sweep; frozen-fold paired AL/AZ/GE/FL; measure fraction of the in-harness composite gap recovered). Optionally T4.0 (loss-scale/RLW, ungated) first.
+
+---
+
 ## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
 
 **Phase**: Design complete; no experiments run yet.
