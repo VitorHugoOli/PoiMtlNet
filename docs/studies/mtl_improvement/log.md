@@ -146,6 +146,30 @@ Strengthened workflow §4–§6 + execution §8 with three disciplines: (1) **pe
 
 ---
 
+## 2026-06-03 — EXECUTION START (implementing agent): T0.0 frozen folds + T0.1b GE onboarding launched
+
+**Phase**: Tier 0 in flight. New implementing-agent session. User scope this session: **finish Tier 0 + Tier 1, then stop at the boundary for review.** User decisions: (a) work on branch **`mtl-improve` in this checkout** (no worktree — single box, drivers hardcode the main repo path); (b) **start the GE build in background early**.
+
+**Ground-truth audit before any action** (verified on the box, not from docs):
+- A40 idle; venv `.venv/bin/python` (3.12, sklearn 1.8.0); MPS control present; no jobs running.
+- v14 substrate (`check2hgi_design_k_resln_mae_l0_1`) built at **FL, AL, AZ only**. Canonical + HGI at AL/AZ/CA/FL/TX. **GE built nowhere.**
+- T0.2/T0.3 regime gate confirmed at FL+AL+AZ landed in `docs/results/v14_mtl_vs_canonical.md` (imported, not re-run). Drivers in `scripts/_v14_run/`.
+- Seeded per-fold log_T present for AL/AZ/FL at seeds {0,1,7,100,42}.
+
+**T0.0 — frozen-fold manifest DONE for AL/AZ/FL** (`scripts/mtl_improvement/freeze_folds.py`; manifests at `docs/results/mtl_improvement/frozen_folds/{state}_seed{S}.json`, 15 files for seeds {0,1,7,100,42}). Provenance-matched (advisor #1): reuses the EXACT split from `compute_region_transition.py::_build_per_fold` == `FoldCreator._create_mtl_folds_with_isolation` (`StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=seed).split(load_next_data(state, CHECK2HGI), y=next_category, groups=userid)`) — the same split the on-disk seeded log_T was built from, so it IS the operative partition. Records per-fold train/val userid lists + per-fold + partition hashes + sklearn version. `--check` mode is the preflight drift-guard (verified idempotent: live == frozen, all OK). GE manifests pending its canonical build.
+
+**T0.1b — GE onboarding launched (background, detached).** `scripts/_v14_run/build_ge.sh` (modeled on the tested `build_v13_catx.sh`; disk-guarded, fail-fast, idempotent skips, stage markers in `/tmp/ge_build/`). Stages: A canonical check2hgi (preprocess+500ep GCN train + sequences — the canonical-fresh comparand AND the graph/sequences v14 consumes) → B HGI **preprocess** (Delaunay edges.csv, v14 prereq) → C POI2Vec teacher (100ep) → D v14 design_k (500ep) → E seeded log_T {0,1,7,100,42} + postbuild + copy to v14. HGI **training** (region embeddings, for STL-HGI/composite ceilings) is the **deferrable tail** (separate script) — v14 only needs HGI preprocess.
+
+**BLOCKER found + resolved: GE shapefile was MISSING.** The plan/AGENT_PROMPT asserted GE was "build, not data-acquisition" based on `data/checkins/Georgia.parquet` alone — but check2hgi + HGI preprocess BOTH require the TIGER census-tract shapefile (`Resources.TL_GA` → `data/miscellaneous/tl_2022_13_tract_GA/`), which was **absent**. Downloaded the public US Census TIGER 2022 GA tract file (`tl_2022_13_tract.zip`, FIPS 13) → unzipped to the expected dir (matches the FL layout: .shp/.dbf/.prj/.shx/.cpg). Keeps GE methodologically identical to the other 5 states (census-tract boundaries, not a synthetic grid). `Georgia.parquet` = 402,581 check-ins. **Lesson: a state's onboarding needs BOTH the checkins parquet AND its TIGER shapefile — verify the shapefile, not just the checkins.**
+
+**Decision**: HGI training for GE deferred (composite/STL-HGI is "held until a winner emerges" per plan); GE essentials (canonical + v14 + folds + log_T) cover the T0.2 board MTL cells + T0.3 regime cell + STL v14/canonical ceilings, which is the in-scope Tier-0/1 need.
+
+**Chain status**: Tier 0 in flight (T0.0 done AL/AZ/FL; T0.1b GE build running). Chain preserved.
+
+**Next**: monitor GE build → write GE frozen-fold manifest → import landed FL/AL/AZ board cells + add GE board/regime cells (T0.2/T0.3) → cheap GPU diagnostics T1.3 (encoder probe, gates T2) + T4.0 (loss-scale/RLW) once GPU frees → T1.1/T1.2 ceilings → Tier-0/1 boundary advisor pass + STOP for user.
+
+---
+
 ## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
 
 **Phase**: Design complete; no experiments run yet.
