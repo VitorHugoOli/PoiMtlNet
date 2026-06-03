@@ -496,7 +496,11 @@ S.3 (compose) NOT triggered (nothing promoted). **Conclusion: the STL head is NO
 
 **Chain status**: Tier 1 frozen+guarded; Tier S negative now HARDENED by a fair per-task tune of the top candidate. Chain preserved.
 
-**Next**: record the next_lstm tune result; the cat ceiling (next_gru τ=0.5) stands, now defended against the per-task-tuning critique. Then back to the Tier-2 decision.
+**next_lstm per-task tune (the one default-tie) — CLOSED, no win.** AL LR×dropout sweep (logit-adjust τ=0.5): lr1e-2 (default) = 49.76 at both dropout 0.3 and 0.1; lr3e-3 = 49.27. **Best tuned LSTM = 49.76 (the known −0.21 tie); no config beats GRU 49.97, dropout is neutral, lower LR is worse.** Combined with the STAN-for-cat falsification, the per-task-tuning gap is now fully closed for BOTH near-candidates — neither beats the GRU cat ceiling even when fairly tuned. JSON: `t14_manifests/lstm_cat_tune_alabama.tsv`.
+
+**Investigation CLOSED.** All advisor HIGH/MED actions addressed: STAN-for-cat (falsified, −7.4pp even tuned), next_lstm tune (no win), composition #2 (skipped — gated), new heads (sound, dropped), STAN caveat (documented). The cat ceiling (next_gru τ=0.5) and reg ceiling (next_stan_flow α=0) are defended against the per-task-tuning + STAN critiques. The architecture is task-dependent (recurrence for cat, attention for reg) and the frozen ceilings already use the right head per task.
+
+**Next**: back to the Tier-2 decision (T2.1 dual-tower) — the joint MTL architecture is the only remaining lever. Ceilings fully audited + fairly tuned.
 
 ---
 
