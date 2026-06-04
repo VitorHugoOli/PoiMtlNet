@@ -1,0 +1,18 @@
+
+########## ALABAMA ##########
+  anchors:  (a)deploy-reg=50.14  (c)STL-reg=62.88  (d)composite-reg=63.58  (c)STL-cat=49.97
+  regime                reg@10 disj  reg@10 deploy  cat-F1 disj  cat-F1 deploy  Δreg vs(c)
+  R3_onecycle            53.05±4.35     52.75±4.34        48.55          48.52       -9.83  <== BEST(disj)
+  R1_constant_1e3        52.96±4.15     51.94±4.14        46.23          46.22       -9.92
+  R4_head_group          52.16±4.54     50.82±4.66        46.55          46.54      -10.72
+  R5_onecycle_warm5      51.87±4.71     51.49±4.63        46.66          46.46      -11.01
+  R2_b9                  49.98±4.78     49.70±4.86        41.86          41.70      -12.90
+
+########## ARIZONA ##########
+  anchors:  (a)deploy-reg=37.78  (c)STL-reg=55.11  (d)composite-reg=55.11  (c)STL-cat=51.01
+  regime                reg@10 disj  reg@10 deploy  cat-F1 disj  cat-F1 deploy  Δreg vs(c)
+  R3_onecycle            41.03±3.36     40.86±3.38        49.64          49.64      -14.08  <== BEST(disj)
+  R1_constant_1e3        40.77±3.16     40.39±3.11        48.56          48.47      -14.34
+  R5_onecycle_warm5      39.44±3.02     39.40±3.05        49.21          49.18      -15.67
+  R4_head_group          38.55±3.07     38.34±3.24        48.37          48.04      -16.56
+  R2_b9                  37.96±2.81     37.80±2.74        46.28          45.91      -17.15

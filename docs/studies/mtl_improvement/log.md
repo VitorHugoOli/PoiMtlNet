@@ -742,6 +742,56 @@ Compute budget revisions per advisor: T2b 300 → 450 GPU-h; T8 200 → 300 GPU-
 
 ---
 
+## 2026-06-04 — T2.1 implementation + unit gate + LR mini-sweep (R3 onecycle wins)
+
+**Phase**: Tier 2.1 — implemented, unit-gated, LR mini-sweep DONE; full protocol next.
+
+**What happened**
+- Implemented `NextHeadStanFlowDualTower` + `MTLnetCrossAttnDualTower`; unit-test gate (`t21_unit_gate.py`)
+  GREEN (partition bijective+exhaustive, α Parameter/buffer per prior, capacity confined to next_poi,
+  fusion semantics, prior fires, next_forward carries the private tower). 187 model tests pass; freeze
+  sanity GREEN. End-to-end AL smoke validated the on-disk structure + per-fold log_T load + KD-OFF.
+- **Driver race caught + fixed**: concurrent `train.py` runs mis-mapped rundirs via `ls -dt|head -1`
+  (3 regimes → 1 dir; bit-identical agg numbers were the tell). Fixed with PID-suffix capture
+  (`...{ts}_{os.getpid()}`), discarded the bad run, re-ran clean. (Memory: ref-concurrent-rundir-race.)
+- **LR mini-sweep** (hard rule 7): variant (b) gated, prior-ON, v14, KD-OFF, AL+AZ, 5f×40ep×seed42,
+  5 regimes. PID-safe, MPS-collocated CONC=4 (~11GB VRAM). All 10 runs distinct.
+
+**Findings** (40ep seed42 — DIRECTIONAL, not final; full protocol is 50ep + multi-seed)
+- **WINNER = R3_onecycle** (`--scheduler onecycle --max-lr 3e-3 --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3`),
+  consistent across AL+AZ on disjoint reg, deploy reg, AND cat:
+  | | reg@10 disj | reg@10 deploy | Δreg vs (a) | cat-F1 deploy | Δcat vs (a) |
+  |---|---|---|---|---|---|
+  | AL R3 | 53.05 | 52.75 | **+2.61** | 48.52 | **+2.02** |
+  | AZ R3 | 41.03 | 40.86 | **+3.08** | 49.64 | **+1.12** |
+  - Ranking AL: R3 53.05 > R1 52.96 > R4 52.16 > R5 51.87 > **R2_b9 49.98 (WORST)**.
+    AZ: R3 41.03 > R1 40.77 > R5 39.44 > R4 38.55 > **R2_b9 37.96 (WORST)**.
+  - **R2_b9 worst** — the B9_STL_STAN_SWAP pattern: `--alternating-optimizer-step` trains reg on half the
+    batches → under-trains the heavier dual-tower. The mini-sweep did exactly its job (would have
+    sandbagged the arch under B9). R3 = the STL-reg-ceiling scheduler (onecycle max-lr 3e-3) → the
+    private STAN tower prefers the schedule it was trained under at STL. Mechanistically clean.
+- **The encouraging signal**: gated dual-tower @ R3 BEATS the (a) v14-MTL deployable baseline on BOTH
+  axes (+2.6/+3.1pp reg, +1.1/+2.0pp cat) — no collapse, modest dual-axis gain.
+- **The crux question**: disjoint reg (53.05/41.03) is still ~9.8/14.1pp BELOW the (c) STL ceiling
+  (62.88/55.11), recovering only ~18-19% of the MTL→composite gap. The private tower IS structurally
+  the STL backbone (raw 64→STAN) yet underperforms it jointly. Candidate causes to decompose in the
+  full protocol: (i) the gate mixes in the cat-shaped shared pathway (→ private_only control), (ii) the
+  in-head α-prior is ON here but the (c) ceiling is prior-OFF — O1 says prior is a STL drag (→ prior-OFF
+  control), (iii) joint optimizer/wd (0.05 vs STL 0.01) under-trains it.
+
+**Decision** (pending advisor + user checkpoint)
+- Full-protocol recipe: AL/AZ = R3 onecycle. **Open: FL recipe** — B9 (FL production, but WORST for the
+  dual-tower) vs onecycle (the arch's preference, but then confounds vs the B9-trained (a) at FL). Leaning
+  to run a **matched-recipe (a)-head baseline at onecycle** (frozen-fold paired, hard rule 2b) so the FL
+  architectural Δ is clean. Advisor to confirm.
+
+**Chain status**: T2.1 in flight; chain preserved.
+
+**Next**: advisor pass on the LR result + recipe/baseline decision → user checkpoint → full protocol
+(fusion-mode pick {gated,private_only,aux} + matched baseline, then prior-OFF + PCGrad refine, 2×2, 3-seed).
+
+---
+
 ## 2026-06-04 — Tier 2 STARTED: T2.1 dual-tower design + advisor review (pre-code)
 
 **Phase**: Tier 2.1 in flight (design + review complete; implementation next).
