@@ -47,6 +47,16 @@ arms_validate(){
     echo "onecyc_val|mtlnet_crossattn|next_getnext_hard|-|on|$st|$sd"
   done; done
 }
+# harden2 (capstone optional hardening): multi-seed CrossStitch (the one non-losing arch) +
+# multi-seed FL dual-tower (harden the FL negative). Baseline = onecyc_val multi-seed (= base_a).
+arms_harden2(){
+  for sd in 0 1 7; do
+    for st in alabama arizona florida; do
+      echo "cs|mtlnet_crossstitch|next_getnext_hard|-|on|$st|$sd"
+    done
+    echo "dtfl|mtlnet_crossattn_dualtower|next_stan_flow_dualtower|gated|on|florida|$sd"
+  done
+}
 
 run_arm(){
   local spec=$1 tag model reg_head fusion prior state seed
@@ -78,6 +88,6 @@ while IFS= read -r spec; do
   [ -z "$spec" ] && continue
   run_arm "$spec" &
   while [ "$(jobs -rp | wc -l)" -ge "$CONC" ]; do sleep 5; done
-done < <( [ "$STAGE" = "harden" ] && arms_harden || arms_validate )
+done < <( case "$STAGE" in harden) arms_harden;; validate) arms_validate;; harden2) arms_harden2;; esac )
 wait
 say "STAGE $STAGE DONE"
