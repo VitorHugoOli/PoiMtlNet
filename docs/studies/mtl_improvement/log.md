@@ -866,6 +866,41 @@ vs canonical_improvement recipe history first (was onecycle-without-alt-opt prev
 
 ---
 
+## 2026-06-04 — RECIPE × STATE MATRIX (user-requested) → scale-conditional recipe law decomposed
+
+**Phase**: Tier 2 — recipe-matrix completion (user asked: B9@small, H3-alt@FL, CA/TX B9-vs-onecycle).
+Baseline head, seed42 5f×50ep. Full write-up: `docs/results/mtl_improvement/T21_recipe_matrix.md`.
+
+**Matrix (reg@10 disj / cat-F1; (L)=landed multi-seed):**
+| recipe | AL | AZ | FL |
+|---|---|---|---|
+| H3-alt | 47.23/46.78 (L) | 38.27/48.75 (L) | **62.42/67.38** (NEW) |
+| onecycle | **56.45/48.51** | **44.26/49.43** | 61.87/65.82 |
+| B9 | **50.96/42.80** (NEW) | **38.32/46.82** (NEW) | 61.28/70.26 (L) |
+
+**Decomposition (clean):**
+- **Small states: onecycle dominates both axes.** reg: onecycle ≫ B9 ≥ H3-alt (AL 56.45/50.96/47.23)
+  — aggressive schedule helps reg (B9>H3-alt), no-alt-opt helps MORE (onecycle>B9 +5.5; alt-opt costs
+  reg too). cat: onecycle>H3-alt≫B9 (AL 48.51/46.78/**42.80** — B9's alt-SGD crushes small-state cat).
+  → onecycle = aggressive schedule + no alt-opt = the sweet spot H3-alt and B9 both missed.
+- **Large state (FL): reg recipe-insensitive (~61-62); B9 wins cat (70.26).** alt-opt FLIPS SIGN by
+  scale — hurts small-state cat, helps large-state cat. So B9 stays right at FL (cat).
+
+**Recommendation:** AL/AZ → onecycle; FL/CA/TX → keep B9. Re-states the small-state (a) baseline +
+shrinks the composite advantage. NORTH_STAR small-state recipe-change candidate (user decision).
+
+**CA/TX:** the canonical temp/ graph maps were cleaned → `build_region_sequence_tensor` FileNotFound.
+**Safely regenerated** `checkin_graph.pt` (`t21_regen_catx_graph.py`: backup + isolated preprocess —
+writes ONLY the graph .pt, deterministic spatial join — + verified 99.99% alignment vs next_region
+last_region_idx; canonical embeddings/sequences UNTOUCHED). CA/TX runs are heavy (8.5k/6.5k regions,
+~31GB/run) → must run **CONC=1 serial** (CONC=2 OOMs). B9+onecycle @ CA/TX running serially.
+
+**Chain status**: Tier 2 — recipe matrix conclusive at AL/AZ/FL; CA/TX confirmation in flight.
+
+**Next**: CA/TX complete → final big-picture advisor + surface recipe-change decision to user.
+
+---
+
 ## 2026-06-04 — HARDENING: FL pair + T2.0 + T2.2 → negative CONFIRMED across AL/AZ/FL; dose-response
 
 **Phase**: Tier 2 hardening (user-approved). All onecycle per-head, seed42, 5f×50ep, prior-ON, KD-OFF.
