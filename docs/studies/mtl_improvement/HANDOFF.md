@@ -81,6 +81,20 @@ launch. The overlap finding makes T2 better-motivated (more data widens the reg 
 Other open/optional items: T4.0 loss-scale/RLW litmus (cheap, ungated); the cheap training levers (cat fp32 vs
 fp16-autocast, shorter 25ep schedule — audit MED); overlap-pattern confirm at AZ/GE/FL + multi-seed.
 
+## 7b. Audit open items (2026-06-03) — `AUDIT_TIER1_TIERS_2026-06-03.md`
+An independent audit (SOTA-head check + advisor) closed the cat-bug propagation here and left 5 ranked
+items for execution (see the audit §6):
+- **O1** read the saved learned **α** from the prior-on reg run dirs — settles whether "α=0 wins" is a
+  real "prior not needed" or an optimization artifact (learnable α scored 0.56pp *worse* than frozen-0,
+  which shouldn't happen). Then reframe the claim. Cheap.
+- **O2** multi-seed `next_lstm` + `next_single` cat at **GE/AZ** (they nominally win single-seed) — closes
+  the one Tier-S crack ("failed to show a win" ≠ "no win").
+- **O3** multi-seed **FL (c)-cat** (it sits below the MTL it bounds — same symptom class as the cat bug).
+- **O4** account for `next_hybrid` (unaccounted in the cat screen); note `*_hsm` deferral.
+- **O5** windowing → a **dedicated follow-up study** (user decision: defer the dense-supervision rebuild;
+  keep non-overlap canon for this paper's consistency) — BUT carry a limitations note + the AL probe
+  rebuttal into the current paper now, and re-confirm the regime finding under dense supervision there.
+
 ## 8. How to resume
 1. Read this → `log.md` (bottom 12 entries) → `INDEX.html` §"The regime finding" + the Tier 2 cards →
    `TIER01_RESULTS.md`.
