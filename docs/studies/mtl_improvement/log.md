@@ -666,6 +666,40 @@ S.3 (compose) NOT triggered (nothing promoted). **Conclusion: the STL head is NO
 
 ---
 
+## 2026-06-04 — T2P.0 LINCHPIN ran + a load-bearing advisor catch (fp16-no-scaler harness confound) → fp32 CONTROL in flight
+
+**Phase**: Tier 2P — T2P.0 executed; new agent onboarded (read AGENT_PROMPT/HANDOFF/PAPER_UPDATE + full dual-tower code audit). Before any further lever, an fp32 control is running. **NOT yet surfaced to user — verdict pending the control.**
+
+**Code audit before launch (user asked for meticulous eval) — all CLEAN:**
+- Dual-tower (`next_stan_flow_dualtower` + `mtlnet_crossattn_dualtower`) read end-to-end vs design §6: fidelity chain exact (`private_stan`=NextHeadSTAN.forward_features on raw [B,9,64], priv 4heads/0.3do/d128; distinct `priv_*` names dodge the inject-filter); partition bijective+exhaustive (private tower ∈ next_poi ∈ reg+task, excluded from shared); `t21_unit_gate.py` re-run **GREEN**.
+- **T2P.0 precheck (advisor-flagged) CONFIRMED**: `static_weight` with `--category-weight 0.0` → weights `[1-cw,cw]=[1,0]` → `0.0*cat_loss` = exactly zero cat gradient into shared/cat params (`static_weight/loss.py:36`); in `private_only` reg ignores `shared_next` so reg gradient never touches cross-attn/encoder either. Empirically confirmed: cat-F1 collapsed to 6-9% (cat untrained). Only residual diff from STL = the joint loop.
+- Sister audits (background agents): **T2.3 MoE/CGC partition GREEN** (independently re-verified `t23_audit_partition.py`; -lite caveats accurate — per-task-input adaptation, DSelect-K misnamed dense combo; gate OPEN for -lite confirmatory, no rebuild). **T2.4 hybrids scoped** (3 archs, partition-wiring per arm, F49 substring-trap flagged; crossstitch→crossattn HIGH leak risk, SwiGLU LOW).
+
+**T2P.0 result** (`mtlnet_crossattn_dualtower` private_only prior-OFF, **cat-weight 0 + wd 0.01**, onecycle, KD-OFF, v14, 5f×50ep seed42, seeded per-fold log_T; `t2p0_manifest.tsv`, agg via `t21_agg.py`):
+| state | T2P.0 reg@10 disj | prior wd0.05 cell | (c) STL reg | Δ from wd fix | Δ vs (c) |
+|---|---|---|---|---|---|
+| AL | 52.90 ±4.20 | dtpriv_cat0 52.98 / ladder 52.32 | 62.88 | **−0.08** | −9.98 |
+| AZ | 40.80 ±2.87 | dtpriv_cat0 40.83 | 55.11 | **−0.03** | −14.31 |
+| FL | 59.53 ±0.40 | (none exact) | 73.31 | — | −13.78 |
+
+**Two findings (both survived an adversarial advisor pass):**
+1. **wd is RULED OUT** — 0.05→0.01 moved reg ~0pp (AL −0.08, AZ −0.03). wd-match to (c) is now exact (p1 (c) uses AdamW wd=0.01; T2P.0 wd=0.01).
+2. **`max_size_cycle` is a NO-OP here** — and the reason is stronger than equal parquet rows: the check2hgi MTL preset feeds **one shared X (next.parquet) through a single shared `sgkf.split`** to both task slots (`folds.py:_create_check2hgi_mtl_folds`), so cat/reg loaders are equal-length **by construction every fold** (verified counts: AL 12709/12709, AZ 26396/26396, FL 159175/159175). `batches_per_epoch=max(len(reg),len(cat))` cycles nothing; reg gets its natural step count + an onecycle LR trajectory identical to p1's (grad_accum=1; `OneCycleLR(max_lr=3e-3)` scalar broadcasts to all groups → the per-head `--cat/reg/shared-lr` are FLATTENED to 3e-3 under onecycle, which for reg coincidentally = p1's reg max_lr). **Corollary: T2P.2's per-task-LR + no-cycle-starve levers are INERT under onecycle** → T2P.2 is even more moot than first argued.
+
+**⚠ ADVISOR CATCH (load-bearing, headline-shaping) — the gate is NOT clean: an fp16-no-GradScaler HARNESS confound.** The CUDA MTL trainer runs `torch.autocast(float16)` with **NO GradScaler anywhere** (`mtl_cv.py:286`, grep: zero `scaler`); the (c) STL ceiling (p1 harness, `p1_region_head_ablation.py`) runs **fp32**. fp16-no-scaler on a ~1k-class STAN ranking head degrades exactly Acc@10, worse at larger class spaces — matching the gap ordering (FL ~14pp > AL ~10pp). Because T2P.0 already stripped joint *dynamics* to near-zero (cat-grad 0 + private_only + matched LR/wd/folds), the residual is **mostly trainer/precision harness, not loop poison** — the OPPOSITE of "the joint loop caps reg." So "joint loop poisons reg → T2P.1" is **confounded** and must not be gated directly. (Advisor also ruled out: fold-partition mismatch — both use the same seeded StratifiedGroupKFold; residual-skip path — off by default. The fused-classifier dropout 0.1 vs STL 0.3 is a real but second-order fidelity gap.)
+
+**Action: cheapest decisive control = re-run the EXACT T2P.0 cell in fp32.** Added a diagnostic env-var gate `MTL_DISABLE_AMP=1` in `mtl_cv.py` (forces the fp32 path; default unset = canonical fp16 untouched; verified import + present). Driver `t2p0_fp32_control.sh` (FL decisive σ=0.40 + AL), running now.
+- **fp32 jumps toward (c)** → gap was PRECISION/harness, NOT joint-loop poison → T2P.1's premise ("reg trained outside the joint harness reaches (c)") undermined; the real fix is the trainer precision path. Also re-frames the WHOLE MTL→STL reg gap (every Tier-2 MTL number ran fp16 vs fp32 STL ceilings — though RELATIVE within-MTL comparisons like the dose-response are unaffected since all fp16).
+- **fp32 stays ~T2P.0 (~52/59)** → harness exonerated → T2P.1 (staged) gates cleanly.
+
+**Corrections applied to interpretation (advisor): lead the gate on FL (±0.40, ~34σ), not AL (±4.20, ~2.4σ noisy); demote the "joint dynamics" claim; flag the fp16 confound as the leading unexplained residual; record the onecycle-flattens-per-head-LR quirk.**
+
+**Chain status**: Tier 2P — T2P.0 ran but the gate is confounded; fp32 control decides. Frozen (c)/(d) untouched.
+
+**Next**: fp32 control lands → combined verdict (precision-artifact vs joint-poison) → **STOP + surface to user** (tier-boundary cadence; do NOT auto-launch T2P.1/T2P.2). If precision-artifact: the bigger story is the fp16-no-scaler trainer path (affects the MTL-vs-STL-ceiling gap magnitude study-wide) — propose a GradScaler/fp32 fix + re-baseline scope to the user.
+
+---
+
 ## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
 
 **Phase**: Design complete; no experiments run yet.

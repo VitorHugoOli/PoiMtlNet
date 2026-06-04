@@ -283,9 +283,17 @@ def train_model(model: torch.nn.Module,
 
     # Mixed-precision autocast: float16 forward passes on CUDA, no-op otherwise.
     # MPS float16 autocast adds overhead for small tensors — disabled there.
+    # Diagnostic escape hatch (mtl_improvement T2P.0 harness-confound control):
+    # set MTL_DISABLE_AMP=1 to force the full fp32 path (no autocast), matching
+    # the p1-STL ceiling harness which never autocasts. NB the CUDA trainer runs
+    # fp16 autocast with NO GradScaler — this env var isolates that precision
+    # delta when comparing MTL-reg vs the fp32 STL ceiling. Default (unset) keeps
+    # the canonical fp16 behaviour untouched.
+    import os as _os
+    _disable_amp = _os.environ.get("MTL_DISABLE_AMP") == "1"
     _autocast_ctx = (
         torch.autocast(DEVICE.type, dtype=torch.float16)
-        if DEVICE.type == 'cuda'
+        if DEVICE.type == 'cuda' and not _disable_amp
         else contextlib.nullcontext()
     )
 
