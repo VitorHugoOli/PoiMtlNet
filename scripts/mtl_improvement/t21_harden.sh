@@ -72,10 +72,12 @@ run_arm(){
 
 say "STAGE=$STAGE CONC=$CONC OMP=$OMP_NUM_THREADS"
 nvidia-smi --query-gpu=memory.used --format=csv,noheader | sed 's/^/[gpu] /'
-( [ "$STAGE" = "harden" ] && arms_harden || arms_validate ) | while IFS= read -r spec; do
+# Process substitution (NOT a pipe) so the loop runs in THIS shell — otherwise
+# `wait` can't see the backgrounded run_arm jobs and prints DONE prematurely.
+while IFS= read -r spec; do
   [ -z "$spec" ] && continue
   run_arm "$spec" &
   while [ "$(jobs -rp | wc -l)" -ge "$CONC" ]; do sleep 5; done
-done
+done < <( [ "$STAGE" = "harden" ] && arms_harden || arms_validate )
 wait
 say "STAGE $STAGE DONE"
