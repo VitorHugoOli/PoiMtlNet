@@ -789,10 +789,76 @@ follow-up — do NOT re-pin anything off seed42.
   baseline improvement, (c) proceed to the remaining Tier-2 cards (T2.0 hard-share anchor, T2.2
   CrossStitch) or close Tier 2 as "architecture doesn't move the reg gap; composite is the answer."
 
+**Mechanism probe (`t21_mech.sh`, cat-weight=0 = reg-only, AL+AZ, R3 onecycle, seed42, 5f×50ep)**
+| arm (reg-only) | AL reg@10 disj | vs (c) | vs cat0.75 | AZ reg@10 disj | vs (c) | vs cat0.75 |
+|---|---|---|---|---|---|---|
+| base_cat0 (shared head) | 57.42 | −5.46 | +0.97 | 44.83 | −10.28 | +0.57 |
+| dtpriv_cat0 (private tower) | 52.98 | −9.90 | +0.66 | 40.83 | −14.28 | +0.28 |
+- **Turning cat OFF barely moves reg (+0.3..+1.0pp)** → the MTL→STL reg gap is **NOT multi-task
+  interference** (sharper P4 — cat-weight-0 on both heads, not just frozen-cat).
+- **Even reg-only, the shared head stays −5.5/−10.3 below (c)** → the residual is the **harness/optimizer
+  wrapper itself**, not cat competition. The private tower stays worse than the shared head reg-only too.
+- One confound remains in base_cat0 vs (c): base uses prior-ON + wd0.05; (c) is prior-OFF + wd0.01.
+  → `base_clean` (cross-attn + next_getnext_hard, **prior-OFF + wd0.01 + cat0 + onecycle**) isolates the
+  cross-attn wrapper, matched to (c) on prior/wd/scheduler. **RESULT: AL 57.07 / AZ 44.62 disjoint —
+  vs base_cat0 (prior-ON wd0.05) −0.35/−0.21 (≈ NO CHANGE), still −5.81/−10.49 below (c).** So prior+wd
+  are NOT the gap; the residual is the **cross-attn MTL harness/architecture path itself** (reg read
+  through next_encoder 64→256 + cross-attn + shared_next vs STL's bare STAN-on-raw-64). Claim #2 STANDS
+  and strengthens: the MTL→STL reg gap is NOT interference, NOT the prior, NOT wd → the joint cross-attn
+  wrapper. Residual confound (small): base_clean runs train.py-MTL-harness vs (c)'s p1-STL-harness.
+
+**Advisor (Tier-2 boundary pass) — applied**: negative SOUND (paired + monotonic dose-response +
+mechanism); label scoped "FALSIFIED at AL+AZ seed42 paired"; harden with ONE FL gated-vs-base pair +
+T2.0 hard-share (4th dose-response point). cat0 zeroes the cat *objective* not the cross-attn *pathway*
+(phrasing fixed). The frozen (a) anchor is now known-improvable by onecycle (don't re-pin off seed42;
+future "fraction-recovered" framing must use the onecycle (a)). Skip T2.3/T2.4; keep T2.2 CrossStitch
+as optional rebuttal card.
+
+---
+
+## 2026-06-04 — TIER 2 SUMMARY (T2.1 centerpiece resolved: NEGATIVE) — surface to user
+
+**Tier-2 status: the load-bearing card (T2.1 dual-tower) is a clean NEGATIVE. Composite is the answer.**
+
+**What ran** (all v14, R3 onecycle, seed42, 5f×50ep, KD-OFF, frozen-fold paired, AL+AZ):
+- Unit gate GREEN; end-to-end validated; LR mini-sweep (R3 onecycle winner; B9 worst).
+- Diagnostic ladder (matched baseline + gated + private_only + killer cell) + 2 mechanism probes
+  (cat-weight=0; prior-OFF+wd0.01).
+
+**The verdict (4 findings):**
+1. **T2.1 dual-tower FALSIFIED** (AL+AZ, paired): a private reg STAN tower LOSES to the same-recipe
+   shared-backbone baseline by −2.1..−4.1pp reg (cat ≈ tie). Monotonic **more-shared = better reg**
+   (base_a 56.45 > gated 53.95 > private_only 52.41 @AL). **Refutes the §6.4 "missing private backbone"
+   hypothesis** — the shared cross-attn backbone HELPS reg; isolating the reg tower hurts.
+2. **The MTL→STL reg gap is the cross-attn HARNESS, not interference/prior/wd** (3 mechanism cells):
+   cat-weight=0 barely moves reg (not multi-task competition); prior-OFF+wd0.01 barely moves reg (not the
+   α-prior, not weight decay). Even reg-only, recipe-matched to (c), the harness reg head sits −5.8/−10.5
+   below the STL ceiling. **No single-model change inside the cross-attn MTL harness closes the gap.**
+3. **→ The composite (STL-cat ⊕ STL-HGI-reg, two models) is the deployable answer** — the HANDOFF §9
+   "paper-grade negative" branch is now the live result.
+4. **Byproduct (Tier-4 lever): onecycle lifts the EXISTING reg head ~+6-9pp** vs landed H3-alt (a)
+   (base_a disjoint 56.45/44.26 vs landed 47.23/38.27; deploy ≈ disjoint, so not oracle-only). The
+   frozen (a) MTL anchor is **known-improvable**; seed42 — needs multi-seed+FL validation before re-pin.
+
+**Open decisions for the user (the tier-boundary STOP):**
+- (H) Harden the negative: run ONE FL `base_a` vs `dt_gated_on` pair (onecycle; needs FL seed42 v14
+  log_T built) + T2.0 hard-share anchor (AL+AZ; recipe caveat: base `mtlnet` lacks per-head LR) to
+  complete the 4-point dose-response curve. ~1h A40.
+- (R) Pursue the onecycle recipe lever as a Tier-4 baseline improvement (multi-seed + FL).
+- (C) Close Tier 2 on "architecture doesn't move the reg gap; ship composite" + write it up; defer
+  T2.2 CrossStitch as an optional rebuttal card; skip T2.3/T2.4 (prior-falsified).
+
+**Chain status**: T2.1 resolved (NEGATIVE); chain preserved. Composite-fallback branch is live.
+
+**Next**: user decides H/R/C (no autopilot — tier-boundary cadence).
+
+---
+
 **Chain status**: T2.1 resolved (negative); chain preserved. The "composite is the deploy fallback"
 branch is now the live hypothesis (HANDOFF §9 "paper-grade negative").
 
-**Next**: read mechanism probe → write Tier-2 summary → STOP + surface to user (tier-boundary cadence).
+**Next**: read `base_clean` → Tier-2 advisor pass on the negative → write Tier-2 summary → STOP + surface
+to user (tier-boundary cadence).
 
 ---
 
