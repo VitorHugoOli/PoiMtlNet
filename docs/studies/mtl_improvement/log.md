@@ -700,9 +700,21 @@ S.3 (compose) NOT triggered (nothing promoted). **Conclusion: the STL head is NO
 
 ---
 
-## 2026-06-04 — ⚠⚠ MAJOR: the T2P.0 gap is an INPUT-ARTIFACT CONFOUND, not joint-loop poison — the (c) ceiling and the MTL reg head eat DIFFERENT embedding spaces
+## 2026-06-04 — ⛔ RETRACTED (same session): the "input-artifact confound" below was a FALSE ALARM — MTL reg input is BYTE-IDENTICAL to the (c) ceiling input
 
-**Phase**: Tier 2P — the T2P.0 fp32 control + a root-cause dig overturned the linchpin's premise. **Confirmatory experiment in flight; NOT yet surfaced — this is a potential central-claim reframing the user MUST weigh in on.**
+**RETRACTION (the honest correction, kept for the lab-notebook trail).** The hypothesis below — "the MTL reg head eats `next_region.parquet` (check-in-level) while (c) eats pooled `region_embeddings.parquet`, a different space (cosine 0.125)" — is **WRONG**. I compared the WRONG tensor. `next_region.parquet`'s emb columns are an **unused red herring**: `FoldCreator._create_check2hgi_mtl_folds` (`folds.py:902,985`) uses `next_region.parquet` ONLY for the **labels** (`region_idx`) + `last_region_idx` (aux), and builds the actual reg INPUT fresh via `data.inputs.region_sequence.build_region_sequence_tensor` (a pooled `region_embeddings.parquet` lookup). **Direct test: `build_region_sequence_tensor` (MTL reg input) vs p1's `_build_region_sequence_tensor` (the (c) input) are BYTE-IDENTICAL — max abs diff 0.0, shape (159175,9,64).** So the MTL reg head AND the dual-tower private tower (raw_region_seq=next_input=task_b X) eat the **SAME** input as (c). **The dual-tower design premise ("private STAN on next_input IS exactly the STL path") is TRUE. There is NO input confound.** My cosine-0.125 measurement was against `next_region.parquet`'s stale emb columns, which the MTL pipeline never feeds the reg head.
+
+**What the confirmatory `t2p0_input_artifact.sh` actually showed** (p1, next_stan_flow α=0, 5f50ep): `region` (pooled lookup) AL 66.79 / FL 73.87 (FL ✓≈ frozen (c) 73.31); `checkin` (next.parquet check-in emb — p1's "checkin" loads next.parquet, NOT next_region) AL 21.87 / FL 37.79. The huge region≫checkin delta just confirms a STAN needs region embeddings (not raw check-in emb) — it does NOT bear on the MTL-vs-(c) gap, because the MTL reg already uses the `region` input (verified identical).
+
+**NET — the original Tier-2P reading STANDS, now SHARPENED.** With the input ruled out (identical), wd ruled out, cycle a no-op, and precision ruled out (fp32 control AL 52.92/FL 59.66 ≈ fp16), the isolated reg STAN (T2P.0, dual-tower private, dynamics-neutralized) reaches **52.90/59.53 in the train.py-MTL harness vs 62.88–66.8 in the p1 harness on the IDENTICAL input** → the residual ~10-14pp is a genuine **train.py-MTL / joint-harness** effect, not input/precision/wd/cycle. **Open sub-question (decides T2P.1's value):** is it the JOINT mixed-loop specifically (→ T2P.1 staged removes reg from it) or a train.py-vs-p1 single-task harness-implementation detail (e.g. the dual-tower fused-classifier dropout 0.1 vs p1 STAN 0.3; the next_forward eval path; data ordering)? The cleanest isolation = run the isolated reg STAN as a train.py `--task next` single-task (NOT p1, NOT joint) on the (c) input — if ≈66 the joint mixed-loop is the poison (T2P.1 helps); if ≈52 it's a train.py-harness detail (staging won't help; fix the harness/recipe).
+
+**Lesson logged (feedback-class):** the study's recurring "probe the task's REAL input artifact" gotcha bit me — but in REVERSE: `next_region.parquet`'s emb columns LOOK like the reg input but are unused; the real input is `build_region_sequence_tensor`. Always verify the tensor the dataloader actually yields (`_resolve_x`), not the parquet that shares the task's name.
+
+---
+
+## 2026-06-04 — [SUPERSEDED BY THE RETRACTION ABOVE] hypothesis: T2P.0 gap = input-artifact confound
+
+**Phase**: Tier 2P — the T2P.0 fp32 control + a root-cause dig SEEMED to overturn the linchpin's premise. **This hypothesis was REFUTED in-session by the byte-identical tensor test above — kept for the trail.**
 
 **fp32 control (`t2p0_fp32_control.sh`, MTL_DISABLE_AMP=1, FL+AL):** reg@10 disj **AL 52.92 (vs fp16 52.90, +0.02) / FL 59.66 (vs fp16 59.53, +0.13)**. **fp16-no-GradScaler precision is EXONERATED** (~0pp). So the ~10-14pp gap survives EVERY dynamics control: topology, interference (cat0), prior, wd, cycle-starvation, AND precision.
 
