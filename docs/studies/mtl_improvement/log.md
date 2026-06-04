@@ -742,6 +742,60 @@ Compute budget revisions per advisor: T2b 300 → 450 GPU-h; T8 200 → 300 GPU-
 
 ---
 
+## 2026-06-04 — Tier 2 STARTED: T2.1 dual-tower design + advisor review (pre-code)
+
+**Phase**: Tier 2.1 in flight (design + review complete; implementation next).
+
+**What happened**
+- Onboarded Tier 2 per HANDOFF §9. Confirmed Tier 0/1/S + audit closed & frozen; `t14_freeze_sanity.py` GREEN.
+- Read the load-bearing code: `mtlnet_crossattn/model.py`, `next_stan_flow/head.py`, `next_stan/head.py`
+  (the STAN backbone + `forward_features` pool), `mtlnet/model.py` (`_build_next_head` inject+filter,
+  param partitions), `helpers.py` (`setup_per_head_optimizer` + α-no-wd + reg-encoder/head LR split).
+- Traced CLI→model→trainer plumbing (sub-agent): how `--reg-head`/`--per-fold-transition-dir`/
+  `--mtl-loss`/`--cat-lr/--reg-lr/--shared-lr`/`--alternating-optimizer-step` wire through; how the
+  per-fold head rebuild injects the seeded `transition_path`; how PCGrad enumerates
+  `shared_parameters()`/`task_specific_parameters()`; how `geom_simple` (deployable) vs
+  `diagnostic_best_epochs` (disjoint) are reported.
+- Pinned the **(a) baseline**: HANDOFF §9 "MTL deployable reg" = the JOINT-GEOM-SIMPLE rows of
+  `v14_mtl_vs_canonical.md` (AL 50.14 / AZ 37.78 / GE 42.64 / FL 61.21), run **KD-OFF, in-head α-prior
+  ON**. KD-on-the-new-stack is **Tier 3 / T3.1** → Tier 2 holds **KD OFF** for a clean architectural Δ.
+- Confirmed the **frozen-fold paired** design = deterministic `StratifiedGroupKFold(random_state=seed)`
+  (all arms at a seed share folds automatically); `freeze_folds.py` is a drift-guard, run `--check`
+  preflight, not a partition loader.
+- Wrote the design proposal `T2.1_DUALTOWER_DESIGN.md` (8 open questions) → ran a **rigorous advisor
+  sub-agent** critique BEFORE any code.
+
+**Design (post-advisor)**
+- New reg head `NextHeadStanFlowDualTower` (registry `next_stan_flow_dualtower`): a **private full-STAN
+  backbone on the raw [B,9,64] region sequence** (faithful (c)-STL replica) + the existing **shared**
+  STAN on the cross-attn output [B,9,256] (faithful (a) replica), fused at the pooled [B,128] feature
+  by per-dim sigmoid **gate** (variant b PRIMARY) / **private_only** (a) / **aux** (c), then a single
+  classifier + the α·log_T prior. Private tower lives **inside `next_poi`** → automatically in
+  `reg_specific_parameters()`+`task_specific_parameters()` (advisor confirmed partition stays
+  bijective+exhaustive). Model subclass `MTLnetCrossAttnDualTower` overrides `forward` **and
+  `next_forward`** to pass the post-mask raw `next_input` as `raw_region_seq`.
+
+**Decision** (advisor-driven, applied to the design doc §6)
+- **Fidelity fix (P0):** use **distinct param names** `priv_num_heads=4`/`priv_dropout=0.3` (STL
+  defaults, NOT injected) for the private tower; let the injected `num_heads=8`/`dropout=0.1` drive the
+  shared tower (matches (a)). `d_model=128`, `bias="alibi"` both. Frozen (c) reg ceiling recipe verified:
+  `NextHeadSTAN` defaults + AdamW lr=1e-4 **wd=0.01** OneCycleLR max_lr=3e-3, α=0 prior-OFF.
+- **Prior:** primary arm prior-ON (match (a)); **prior-OFF control** on the winning mode (true
+  (c)-backbone replica + MTL-regime O1 test).
+- **`next_forward` MUST pass raw** (disjoint diagnostic-best is the headline metric) — unit-tested.
+- None-fallback keeps private tower+β in-graph; **PCGrad gated to winning mode** (9→pick→3, not 18);
+  gate-bias init +1.0 toward private + log mean-gate/epoch; **stale-log_T mtime preflight** each stage;
+  wd=0.05 global mismatch vs STL 0.01 accepted+documented (single-model recipe).
+
+**Chain status**: T2.1 in flight; chain preserved (Tier 0/1/S frozen, untouched).
+
+**Next**
+- Implement `NextHeadStanFlowDualTower` + `MTLnetCrossAttnDualTower`, register, then the **unit-test
+  gate** (hard rule 10) before any multi-fold launch. Then LR mini-sweep (b gated, v14, AL+AZ,
+  5f×40ep×seed42, 5 regimes).
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:
