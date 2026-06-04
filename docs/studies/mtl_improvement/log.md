@@ -626,6 +626,24 @@ S.3 (compose) NOT triggered (nothing promoted). **Conclusion: the STL head is NO
 
 ---
 
+## 2026-06-04 — Independent review of the close-out (user-requested) → ENDORSED; no doc change; proceed to Tier 2
+
+**Phase**: review of the O1–O5 close-out (no experiments). Verdict: the close-out is **sound — proceed to Tier 2 unchanged.**
+
+**Evaluation.** O1 is a genuine, honestly-scoped finding (it falsified BOTH prior audit hypotheses: α converges *large* 0.45→1.09, the head leans into the prior, yet the prior drags the ceiling 0.56–3.03pp; standalone prior validates vs Markov-1 floors → not "embeddings subsume transitions," not a stuck-α bug; mechanism correctly stated as 1-of-3). O2 (multi-band cat negative holds; next_single GE-specific T5.2 candidate), O3 (FL inversion benign, bounds deployable), O4/O5 all clean. Leak audit NONE, freeze-sanity GREEN, frozen (c)/(d) unchanged. No substantive objection.
+
+**Considered + REJECTED a steer (recorded so it is not re-litigated): pulling the multi-state (AZ/GE/FL) dense-supervision regime re-confirm FORWARD as a Tier-2 parallel probe.** Rejected after advisor pushback, for three reasons: (1) **it changes no Tier-2 action** — Tier 2 runs and is interpreted under the frozen non-overlap regime regardless; the dense re-confirm strengthens a *paper sentence*, not Tier 2's premise or go/no-go. (2) **The architectural reading is already triply-supported**, incl. the **windowing-INDEPENDENT P4 frozen-cat test** (reg peaks ep 2 with cat frozen — orthogonal to stride) + the 4-state non-overlap regime confirm + the AL dense probe (gap *widens*). For the re-confirm to overturn anything, AZ/GE/FL would have to behave opposite to AL in exactly the direction P4 says is structural — low-probability. (3) **It re-opens the windowing follow-up the user just deferred** (O5 / `overlapping_windows.md` explicitly scopes the AZ/GE/FL multi-seed re-confirm there) — and would be the 3rd scope-expansion after two trims. **Decision: leave the dense re-confirm parked in the follow-up study.** If a future agent can name a concrete way a dense result would change the Tier-2 *build* or go/no-go (not a paper sentence), revisit — none identified.
+
+**O1 mechanism** (why a leaned-into prior hurts): leave as the existing **Tier-3 carry-over** (log_T = KD-on-representation in MTL vs additive-bias in STL; T3.1 re-sweeps log_T-KD on the new stack and naturally probes the distinction). Do NOT build a mechanism-isolation card now.
+
+**Where attention belongs instead (for the next agent): the Tier-2 gates, not probes around them.** The two places T2.1 fails if it fails: (i) the **param-partition check** — the dual-tower's private backbone is a NEW param group; a silent omission in `shared/cat/reg_specific_parameters()` is the F49 class of bug (wire it into the partition; assert bijective+exhaustive in the unit-test gate); (ii) the **per-arch LR mini-sweep** — the B9_STL_STAN_SWAP collapse was the B9 recipe applied blind to a non-α head.
+
+**Chain status**: unchanged — frozen (c)/(d) hold; close-out endorsed; **GO for T2.1**. Chain preserved.
+
+**Next**: start Tier 2 (T2.1 dual-tower) per HANDOFF §9 — gates first (param-partition + per-arch LR), then multi-fold, scored vs frozen (c)/(d).
+
+---
+
 ## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
 
 **Phase**: Design complete; no experiments run yet.
