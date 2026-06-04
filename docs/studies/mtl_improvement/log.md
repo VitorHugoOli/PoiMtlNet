@@ -901,6 +901,30 @@ last_region_idx; canonical embeddings/sequences UNTOUCHED). CA/TX runs are heavy
 
 ---
 
+## 2026-06-04 — CA 1-fold directional (user: cancel TX/CA 5-fold) → large-state recipe = no dominance
+
+**Phase**: Tier 2 — large-state recipe confirmation (fast). 5-fold CA/TX was ~5h/run (impractical) →
+user cancelled → 1-fold CA only (`--folds 1` → n_splits=2 single fold; leak-free 2-fold seeded log_T).
+
+**CA (8501 regions, 1-fold directional — NOT comparable to 5-fold absolutes; read B9-vs-onecycle Δ only):**
+- onecycle: reg 47.05 / cat 61.28 · B9: reg 49.60 / cat 59.32 → **B9 and onecycle TRADE** (B9 +2.5 reg,
+  onecycle +2.0 cat); **neither dominates**.
+
+**Large-state recipe verdict (FL 5-fold multi-seed + CA 1-fold):** onecycle does NOT dominate at scale
+(FL: reg-tie, B9 wins cat +4.4; CA: B9 wins reg, onecycle wins cat) → **keep B9 at large states**. The
+small-state onecycle dominance (AL/AZ multi-seed, +6-9 reg / +1-2 cat) is the clear, actionable win.
+
+**Hygiene:** the 2-fold log_T build OVERWROTE CA fold1/2 (filenames don't encode n_splits) → **restored
+CA 5-fold seed42 log_T** (rebuilt --n-splits 5; 5 files verified). CA back to clean state. TX left as-is
+(graph regenerated, not run). Driver `t21_ca_1fold.sh`.
+
+**Chain status**: Tier 2 — recipe finding complete (small dominate / large no-dominance); CA/TX 5-fold
+not pursued (impractical wall-clock; directional 1-fold sufficed).
+
+**Next**: surface complete Tier-2 close + onecycle-adoption decision to user.
+
+---
+
 ## 2026-06-04 — CAPSTONE ADVISOR (whole-Tier-2 implementation + decisions + big picture)
 
 **Phase**: Tier 2 final review (AGENT_PROMPT item 5 — implementation-correctness + whole-track pass).
