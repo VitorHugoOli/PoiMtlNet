@@ -1,8 +1,8 @@
 # HANDOFF — MTL Improvement track (read this FIRST, then `log.md` + `INDEX.html`)
 
-**As of 2026-06-04 (TIER 2 COMPLETE).** Branch `mtl-improve`, all pushed, working tree clean.
+**As of 2026-06-04 (TIER 2 topology COMPLETE → REDIRECT to Tier 2P).** Branch `mtl-improve`, all pushed.
 This is a single "you are here" snapshot. Full chronology: `log.md` (the 2026-06-04 Tier-2 entries).
-Design + per-tier results: `INDEX.html`. **Tier-2 close-out (read this): `PAPER_UPDATE.md`.**
+Design + per-tier results: `INDEX.html`. **Tier-2 close-out: `PAPER_UPDATE.md`. ⭐ NEXT STEP: §0c (T2P.0).**
 
 ---
 
@@ -11,10 +11,12 @@ Design + per-tier results: `INDEX.html`. **Tier-2 close-out (read this): `PAPER_
 MTL→STL reg gap. The reg-private **dual-tower LOSES** to the matched baseline (FL multi-seed −3.35); a
 5-point sharing dose-response (`CrossStitch ≥ base_a ≈ hard-share ≫ dual-tower`) shows **more sharing
 helps reg** — refuting the §6.4 "missing private backbone" hypothesis; 3 mechanism cells (cat-weight=0,
-prior-OFF+wd0.01) localize the gap to the **joint cross-attn harness itself** (not interference/prior/wd).
-**→ the composite (two-model) is the deployable reg answer; the gap is irreducibly architectural.** The
-architecture axis is near-exhausted — **T2.3 (MoE) + T2.4 (hybrids) remain as the confirmatory close of
-the card set (§0b, user-requested next step; expected negative per §6.3).** CrossStitch = a real-but-small partial (+1pp reg multi-seed, mixed cat,
+prior-OFF+wd0.01 — but that wd0.01 cell was the SHARED config base_a, NOT the private tower) localize the
+SHARED-config gap to the **joint cross-attn pathway** (not interference/prior/wd). **→ the composite
+(two-model) is the deployable reg answer for now. ⚠ "irreducibly architectural" is SUPERSEDED by the
+REDIRECT below — the private-tower (STL-topology) collapse points the residual at the training PROTOCOL.**
+The sharing-topology axis is near-exhausted — **T2.3 (MoE) + T2.4 (hybrids) remain as the confirmatory close of
+the card set (§0b; expected negative per §6.3).** CrossStitch = a real-but-small partial (+1pp reg multi-seed, mixed cat,
 −5..−10 below ceiling, NOT a closer). Implementation (`next_stan_flow_dualtower`,
 `mtlnet_crossattn_dualtower`) + unit gate + all drivers are committed; capstone advisor verified the
 code is correct and the decisions sound.
@@ -114,9 +116,17 @@ re-judge under MTL + HGI sanity probe (2 seeds × AL+AZ × 5f×30ep), compose wi
 **Run T2P.0 FIRST** (INDEX `#T2P-0`) — it decides whether Tier 2P's primary lever is staged training
 (T2P.1) or asymmetric per-task recipe (T2P.2). It is one clean knob change on an existing cell.
 
-**The experiment.** The `private_only prior-OFF` dose-response cell (AL 52.32) ran at the joint **wd=0.05**;
-the frozen (c) STL reg ceiling (62.88) used **wd=0.01**. Re-run that exact cell at **wd=0.01**, everything
-else identical to (c):
+**Why this is NOT already done (read — the mechanism cells are close but don't cover it).** The mechanism
+probe (`t21_mech.sh`, log §2026-06-04) ran `base_clean` = the **SHARED** config (base_a, cross-attn) at
+prior-OFF+wd0.01+cat0 → AL 57.07, ≈ unchanged from wd0.05 → so prior/wd do NOT explain the **shared**
+config's −5.8pp gap (that gap is the cross-attn pathway). BUT the **private tower** (`dtpriv_cat0`, the
+STL-topology arm) was tested ONLY at wd=0.05+prior-ON (AL 52.98) — it was **never** matched to (c) on wd
+(the team noted a per-head `reg-head-wd` "needs a new flag"). T2P.0 closes exactly that cell, and it does
+NOT need a new flag: in `private_only`+`cat-weight=0`, a GLOBAL `--weight-decay 0.01` IS the private
+tower's wd. T2P.0 is the clean test of "does the joint LOOP alone poison the STL topology."
+
+**The experiment.** Re-run the `private_only prior-OFF` arm at **wd=0.01** (STL-matched), everything else
+identical to (c). Compare vs (c) 62.88 and vs the existing `dtpriv_cat0` wd0.05 cell (AL 52.98):
 ```
 train.py --task mtl --task-set check2hgi_next_region --engine check2hgi_design_k_resln_mae_l0_1 \
   --model mtlnet_crossattn_dualtower --reg-head next_stan_flow_dualtower \
@@ -144,7 +154,7 @@ model); the 2-model composite is the null every Tier-2P arm must beat. See INDEX
 - **Tier 0 + Tier 1 are COMPLETE and FROZEN.** The (c)/(d) STL ceilings are the immutable track yardstick
   (UNTOUCHED by Tier 2; `t14_freeze_sanity.py` GREEN).
 - **Tier S (STL head search) is COMPLETE — a reviewer-proof NEGATIVE**: the head is NOT the lever.
-- **Tier 2 (T2.1 dual-tower) is now COMPLETE (NEGATIVE)** — see §0 above.
+- **Tier 2 sharing-topology axis COMPLETE (NEGATIVE)** — see §0; **redirected to Tier 2P (protocol), next = §0c.**
 - A major out-of-band finding (overlapping windows) was validated + documented as future-work; **the
   non-overlapping canon is deliberately KEPT** for whole-study consistency.
 
@@ -206,15 +216,13 @@ canonical substrate is UNTOUCHED. If ever adopted, see the rebuild checklist in 
 - Scripts: `scripts/mtl_improvement/` — `t14_*` (T1.4 sweep/validate/repin/agg/sanity), `tierS_*`
   (screen/confirm/unit), `stan_for_cat.sh`, `overlap_*`.
 
-## 7. THE NEXT STEP (open decision — surface to the user, do NOT autopilot)
-Per the AGENT_PROMPT tier-boundary cadence, the user decides. The clear next is **Tier 2 — T2.1 dual-tower**
-(INDEX `#tier2`): the reg-private full-STAN backbone vs the frozen (c)/(d), regime×substrate 2×2, frozen-fold
-paired, with the mandatory **unit-test gate + per-arch LR mini-sweep** (hard rule 7/10) BEFORE the multi-fold
-launch. The overlap finding makes T2 better-motivated (more data widens the reg gap → the bottleneck is real).
-Other open/optional items: T4.0 loss-scale/RLW litmus (cheap, ungated); the cheap training levers (cat fp32 vs
-fp16-autocast, shorter 25ep schedule — audit MED); overlap-pattern confirm at AZ/GE/FL + multi-seed.
+## 7. THE NEXT STEP — ⚠ SUPERSEDED (this section described T2.1, now DONE). See §0c (T2P.0).
+<s>The clear next is Tier 2 — T2.1 dual-tower.</s> **T2.1 is complete (NEGATIVE); the live next step is the
+Tier 2P redirect — §0c (T2P.0 linchpin).** Other still-open/optional items (unchanged): T4.0 loss-scale/RLW
+litmus (cheap, ungated); cheap training levers (cat fp32 vs fp16-autocast, shorter 25ep schedule — audit
+MED); the deferred overlap/dense-supervision follow-up study (`future_works/overlapping_windows.md`).
 
-## 7b. Audit close-out (O1–O5) — ✅ ALL CLOSED 2026-06-04 (`AUDIT_TIER1_TIERS_2026-06-03.md §6`)
+## 7b. Audit close-out (O1–O5) — ✅ ALL CLOSED 2026-06-04 (`archaive/AUDIT_TIER1_TIERS_2026-06-03.md §6`)
 The 5 audit items are closed + advisor-reviewed (leak audit: NONE). Full write-ups: `TIER01_RESULTS.md
 §Audit close-out`. Frozen (c)/(d) UNCHANGED; `t14_freeze_sanity.py` GREEN. Commits `4fba15b` → `b94b29f`
 → `87e3f62`.
@@ -237,14 +245,15 @@ The 5 audit items are closed + advisor-reviewed (leak audit: NONE). Full write-u
   deferred to `future_works/overlapping_windows.md`.
 
 ## 8. How to resume
-1. Read this → `log.md` (the two 2026-06-04 entries + advisor pass) → `INDEX.html` §"The regime finding" + the
-   Tier 2 cards → `TIER01_RESULTS.md` (incl. §Audit close-out).
+1. Read this (esp. §0, §0c) → `log.md` (the 2026-06-04 entries incl. the REDIRECT) → `INDEX.html` §Tier 2P
+   (`#tier2p`) + the Tier-2 final-decision callout → `TIER01_RESULTS.md`.
 2. `git pull`; confirm `t14_freeze_sanity.py` is GREEN.
-3. For Tier 2: follow §9 below.
+3. **Run §0c (T2P.0 linchpin) FIRST**, then T2.3/T2.4 (§0b) confirmatory.
 4. STOP + surface at the tier boundary (advisor pass → summary → user decision).
 
-## 9. TIER 2 onboarding (next agent starts HERE) — added 2026-06-04
-**You are starting Tier 2. Tier 0/1/S + the audit close-out are DONE and FROZEN; nothing upstream is open.**
+## 9. ⚠ SUPERSEDED — T2.1 onboarding (kept for the gates/yardstick reference; T2.1 itself is DONE/NEGATIVE)
+**This section onboarded T2.1 (now complete — see §0). Its hard-gate discipline + the FROZEN yardstick table
+below still apply to Tier 2P; the "one experiment: T2.1" framing is obsolete (T2.1 lost; the live work is §0c).**
 The headline (the regime finding) is confirmed at AL/AZ/GE/FL (`v14_mtl_vs_canonical.md`): v14 ≈ matched
 canonical in MTL — the STL substrate gains wash out jointly. **The locus is the joint-training architecture, not
 the substrate or the per-task head** (Tier-S proved the head is not the lever; T1.3 proved the upstream encoder
