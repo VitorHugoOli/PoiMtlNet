@@ -210,8 +210,8 @@ study removes it.
 | item | status | result |
 |---|---|---|
 | **O1** | ✅ CLOSED | Both hypotheses FALSIFIED — α converges LARGE (0.45→1.09, ↑ scale), prior-ON still 0.56–3.03pp < α=0. A train/val co-adaptation drag. See below + `docs/results/mtl_improvement/TIER01_RESULTS.md §O1`. |
-| **O2** | ⏳ running | multi-seed {0,1,7,100} next_lstm + next_single cat at GE/AZ (`o2o3_multiseed_cat.sh o2`). |
-| **O3** | ⏳ running | multi-seed {0,1,7,100} FL (c)-cat next_gru (`o2o3_multiseed_cat.sh o3`). |
+| **O2** | ✅ CLOSED | next_lstm ties at all 4 states multi-seed (single-seed wins evaporate); next_single GE +1.54±0.17 (robust, GE-specific) → T5.2 candidate, fails ≥2-band gate, does NOT re-open (c). Multi-band negative HOLDS. |
+| **O3** | ✅ CLOSED | FL (c)-cat 69.96±0.08 validates seed42 69.97; inversion vs MTL-diag 70.26 PERSISTS multi-seed (−0.30) but tiny + explained (oracle-epoch + small FL cat transfer), not a bug. |
 | **O4** | ✅ CLOSED | next_hybrid AL cat 49.34 (< 49.97 floor; was a reporting omission) + `*_hsm` deferral noted. INDEX §S.1/S.2. |
 | **O5** | ✅ CLOSED | Limitation (vi) added to `PAPER_DRAFT.md §7 Beat 3` (windowing + AL rebuttal); dense rebuild deferred. |
 
@@ -228,14 +228,19 @@ study removes it.
   prior is a net drag on the STL reg ceiling"** — NOT "embeddings subsume transitions," NOT a stuck-α
   optimization artifact. The §2c HGI-prior-artifact corollary stands and is strengthened. Full write-up +
   table: `docs/results/mtl_improvement/TIER01_RESULTS.md §O1`; JSON `o1_alpha_probe.json`.
-- **O2 (cheap, closes the Tier-S crack §3).** Multi-seed `next_lstm` **and** `next_single` cat at **GE +
-  AZ** (where they nominally win single-seed: next_lstm GE +0.51 / AZ +0.48; next_single GE +1.45). Until
-  this lands, the Tier-S cat negative is "failed to demonstrate a win," not "no win." If either clears
-  ≥0.5pp multi-seed, it is a real T5.2 candidate (does NOT re-open the frozen (c)).
-- **O3 (cheap, §4).** Multi-seed **FL (c)-cat** to resolve the ceiling-below-MTL inversion (69.97 < MTL
-  diag-best 70.26 — the same symptom class that exposed the cat bug; arch already confirmed NextHeadGRU,
-  so likely a seed/metric confound, but confirm). More broadly the single-seed (seed=42) frozen ceilings
-  contradict the n≥10 rule — at minimum multi-seed the ones that bound a tier decision.
+- **O2 (cheap, closes the Tier-S crack §3). — ✅ CLOSED 2026-06-04.** Multi-seed {0,1,7,100} `next_lstm` +
+  `next_single` cat at GE+AZ. **next_lstm: the single-seed nominal wins EVAPORATE** (AZ +0.48→+0.25, GE
+  +0.51→+0.18; with AL −0.21 / FL +0.14 → tie at all 4 states) → the crack closes: "shown no win." **next_single:
+  GE win is REAL and robust** (+1.45 single → **+1.54 ± 0.17** multi-seed) but GE-SPECIFIC (AL −8.11, AZ −0.03)
+  → fails the ≥2-band gate. Per this item's rule ("clears ≥0.5pp → real T5.2 candidate") it ENTERS the T5.2
+  candidate set as a state-conditional option (re-judged under MTL); does NOT re-open frozen (c) (moving-baseline
+  guard — (c) GE-cat stays next_gru 58.12). **Net: the multi-band Tier-S cat negative HOLDS.** `TIER01_RESULTS.md §O2`.
+- **O3 (cheap, §4). — ✅ CLOSED 2026-06-04.** Multi-seed FL (c)-cat = **69.96 ± 0.08** → validates the seed42
+  frozen 69.97 (agree to 0.01pp; the single-seed yardstick is representative at FL). **The inversion vs MTL
+  diag-best 70.26 PERSISTS multi-seed (−0.30pp) — NOT the single-seed artifact hypothesised.** Tiny (~0.35σ) +
+  explained: (c) bounds the *deployable* MTL cat (69.96 ≫ 66.73); the diag-best is an oracle epoch + a small FL
+  cat transfer (board Δcat≈0). Not a bug (arch=NextHeadGRU; freeze-sanity hard checks pass). Honest caveat
+  retained in the (c) footnote. `TIER01_RESULTS.md §O3`.
 - **O4 (reporting, §3).** Account for `next_hybrid` (in the cat-screen driver loop + passes the unit gate,
   but absent from the result TSV — ran-and-dropped vs failed is unresolvable from the repo). Note the 2
   `*_hsm` reg heads were never GPU-screened (need a prebuilt `hierarchy_path`; deferred, not bit-rot).

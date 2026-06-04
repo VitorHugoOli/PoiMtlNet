@@ -289,10 +289,42 @@ the AL dense-supervision probe (MTL→STL reg gap *widens* 8.34→12.96, not clo
 just under-supervision" reviewer attack; the dense rebuild is deferred to the `docs/future_works/overlapping_windows.md`
 follow-up study (user decision, audit §6). NOT shipped silently.
 
-### O2 / O3 — multi-seed cat confirms
-See the `o2o3_multiseed_cat.sh` runs + `o2o3_agg.py` table below (filled when the {0,1,7,100} sweeps land).
+### O2 — multi-seed cat (next_lstm / next_single) at AZ+GE — CLOSED 2026-06-04
+Multi-seed {0,1,7,100}, 5f×50ep, `train.py --task next --model X --logit-adjust-tau 0.5` (the cat-floor tool),
+vs the frozen (c)-cat next_gru floor. AZ+GE are the states where each head nominally won single-seed.
 
-<!-- O2O3_RESULTS_PLACEHOLDER -->
+| head | state | seeds (macro-F1) | mean±sd | (c) floor | Δ | verdict |
+|---|---|---|---|---|---|---|
+| next_lstm | AZ | 51.3/51.4/51.0/51.4 | 51.26 ± 0.19 | 51.01 | +0.25 | tie |
+| next_lstm | GE | 58.1/58.0/58.3/58.7 | 58.30 ± 0.31 | 58.12 | +0.18 | tie |
+| next_single | AZ | 50.8/50.7/51.0/51.4 | 50.98 ± 0.29 | 51.01 | −0.03 | tie |
+| next_single | GE | 59.8/59.5/59.6/59.8 | **59.66 ± 0.17** | 58.12 | **+1.54** | **clears ≥0.5pp (GE-specific)** |
+
+**next_lstm: the single-seed nominal wins do NOT survive multi-seed.** AZ +0.48→+0.25, GE +0.51→+0.18 — both
+collapse to ties. With AL −0.21 / FL +0.14 (single-seed, `tierS_confirm.sh`), next_lstm is a **tie at all four
+states** → no win anywhere. The Tier-S crack ("failed to demonstrate a win") is closed → **"shown no win"**.
+
+**next_single: a robust but GE-SPECIFIC win.** Its GE win is real and tightens multi-seed (+1.45 single →
+**+1.54 ± 0.17** multi-seed) — NOT a single-seed artifact. But it is state-conditional (AL −8.11, AZ −0.03), so
+it **fails the ≥2-band promotion gate** (clears only middle) → it does **NOT** change the scale-robust frozen (c)
+head (next_gru). Per the audit's narrow framing ("clears ≥0.5pp multi-seed → a real T5.2 candidate") it **enters
+the T5.2 candidate set as a state-conditional option**, re-judged under MTL at Tier 5. **Does NOT re-open frozen
+(c)** (moving-baseline guard, hard-rule 15): (c) GE-cat stays next_gru 58.12; next_single 59.66 is a logged
+candidate, not a re-pin. **Net: the multi-band Tier-S cat negative HOLDS** — no scale-robust head beats the
+incumbent; the one validated state-specific candidate is logged, not shipped.
+
+### O3 — multi-seed FL (c)-cat — CLOSED 2026-06-04
+FL next_gru, logit-adjust τ=0.5, seeds {0,1,7,100}: **69.96 ± 0.08** (70.0/69.9/69.9/70.0). This **validates the
+seed-42 frozen (c)-cat ceiling 69.97** — they agree to 0.01pp, σ=0.08 (so the single-seed yardstick is
+representative at FL). **The inversion vs the MTL diagnostic-best (70.26) PERSISTS multi-seed** (−0.30pp) — so it
+is **NOT** the single-seed artifact the audit hypothesised. It is tiny (~0.35σ at fold-σ≈0.86) and explained:
+(c) is the STL ceiling on the *deployable* basis and correctly bounds the *deployable* MTL cat (69.96 ≫ 66.73);
+the MTL *diagnostic-best* is an oracle per-task epoch plus a small positive cat transfer at FL (the board shows
+FL Δcat≈0, i.e. MTL cat ≈ STL cat at FL). Not a bug recurrence — arch confirmed NextHeadGRU, freeze-sanity hard
+checks pass. Honest caveat retained in the (c) footnote; the (c) ceiling is valid vs the deployable number.
+
+JSONs: O2 rundirs in `/tmp/o2o3/manifest_o2.tsv` → `results/check2hgi_design_k_resln_mae_l0_1/{arizona,georgia}/next_*ep50*`;
+O3 in `manifest_o3.tsv` → `.../florida/next_*ep50*`. Aggregator `o2o3_agg.py`. Compute: O2 16 runs + O3 4 runs ≈ 6 GPU-h.
 
 ## Scripts (all on branch `mtl-improve`)
 `scripts/mtl_improvement/`: `freeze_folds.py` (T0.0 + drift-guard), `ge_board.sh` + `ge_board_agg.py`

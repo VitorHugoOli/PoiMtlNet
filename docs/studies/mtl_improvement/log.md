@@ -605,6 +605,25 @@ S.3 (compose) NOT triggered (nothing promoted). **Conclusion: the STL head is NO
 
 ---
 
+## 2026-06-04 — O2/O3 multi-seed cat LANDED → audit close-out COMPLETE (O1–O5 all closed)
+
+**Phase**: the O2/O3 multi-seed sweeps ({0,1,7,100}, ≈6 GPU-h) finished; audit AUDIT_TIER1_TIERS_2026-06-03 is now fully closed. Frozen (c)/(d) UNCHANGED; freeze-sanity GREEN.
+
+**O2 — Tier-S cat crack closed (multi-band negative HOLDS, with one honest nuance).**
+- **next_lstm**: the single-seed nominal wins EVAPORATE multi-seed — AZ +0.48→+0.25 (51.26±0.19), GE +0.51→+0.18 (58.30±0.31); with AL −0.21 / FL +0.14 it is a **tie at all 4 states**. "Failed to show a win" → **"shown no win."**
+- **next_single**: GE win is REAL and robust — +1.45 single → **+1.54±0.17** multi-seed (59.66 vs floor 58.12). But GE-SPECIFIC (AL −8.11, AZ −0.03) → fails the ≥2-band gate. Per the audit's narrow rule it ENTERS the **T5.2 candidate set as a state-conditional option** (re-judged under MTL); **does NOT re-open frozen (c)** (moving-baseline guard — (c) GE-cat stays next_gru 58.12, the scale-robust incumbent). The absolute STL GE-cat best-over-heads is next_single 59.66, but (c) is the tuned-INCUMBENT ceiling by design.
+- Net: no scale-robust head beats the incumbent → the reviewer-proof Tier-S cat negative stands at the multi-band level; one validated GE-specific candidate logged for T5.2.
+
+**O3 — FL (c)-cat inversion resolved (not a single-seed artifact, not a bug).** Multi-seed FL (c)-cat = **69.96±0.08** validates the seed42 frozen 69.97 (agree 0.01pp). The inversion vs MTL diag-best (70.26) **PERSISTS** multi-seed (−0.30pp) — so it is NOT the seed artifact the audit guessed; it is tiny (~0.35σ) + explained (oracle epoch + small FL cat transfer; board Δcat≈0). (c) validly bounds the DEPLOYABLE MTL cat (69.96 ≫ 66.73). Freeze-sanity hard checks pass; the (c) footnote caveat is retained.
+
+**Decision**: all 5 audit items CLOSED. No change to the frozen yardstick. The reframed O1 claim ("the fixed additive log_T prior is a net drag on the STL reg ceiling — a co-adaptation effect, not a stuck-α bug") + the O2 nuance (next_single GE-specific T5.2 candidate) + the O5 paper limitation are the substantive deltas.
+
+**Chain status**: Tier-1 + Tier-S frozen ceilings UNCHANGED; audit close-out confirmatory. Chain preserved. T2.1 dual-tower is the next decision.
+
+**Next**: surface the fully-closed audit to the user at the Tier-1→Tier-2 boundary for the **T2.1 dual-tower go decision** (per the review cadence — STOP, don't autopilot). Tier-2 build: dual-tower per `B9_STL_STAN_SWAP §6.4` + `future_works/mtl_architecture_revisit`, unit-test gate + per-arch LR mini-sweep (hard rules 7/10) BEFORE multi-fold, scored vs frozen (c)/(d).
+
+---
+
 ## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
 
 **Phase**: Design complete; no experiments run yet.
