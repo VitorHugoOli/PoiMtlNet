@@ -66,10 +66,48 @@ def load_manifest(path: Path):
     return out
 
 
+def show_ladder(state, rows_by_tag, baseline_tag):
+    """Ladder view: Δreg/Δcat vs the matched-baseline arm + position vs (c)/(d)."""
+    base = rows_by_tag.get(baseline_tag)
+    cbase = FROZEN_C_REG.get(state)
+    dbase = FROZEN_D_REG.get(state)
+    print(f"\n########## {state.upper()} (ladder; Δ vs '{baseline_tag}', the matched (a)@recipe zero-point) ##########")
+    print(f"  anchors:  (a)landed-deploy-reg={A_BASE_DEPLOY_REG.get(state,'?')}  "
+          f"(c)STL-reg={cbase}  (d)composite-reg={dbase}  (c)STL-cat={FROZEN_C_CAT.get(state,'?')}")
+    if base is None:
+        print(f"  (baseline arm '{baseline_tag}' not present yet)")
+    hdr = (f"  {'arm':<14}{'reg@10 disj':>12}{'reg@10 dep':>12}{'cat-F1 dep':>11}"
+           f"{'Δreg vs base':>13}{'Δcat vs base':>13}{'%gap(disj→c)':>13}")
+    print(hdr)
+    order = ["base_a", "dt_gated_on", "dt_priv_on", "dt_priv_off"]
+    tags = [t for t in order if t in rows_by_tag] + [t for t in rows_by_tag if t not in order]
+    for tag in tags:
+        m = rows_by_tag[tag]
+        dvb_r = f"{m['reg_disjoint']-base['reg_disjoint']:+.2f}" if base else "?"
+        dvb_c = f"{m['cat_deploy']-base['cat_deploy']:+.2f}" if base else "?"
+        # fraction of the disjoint→(c) gap the arm closes relative to base_a
+        pct = "?"
+        if base and cbase and (cbase - base['reg_disjoint']) > 0:
+            pct = f"{100*(m['reg_disjoint']-base['reg_disjoint'])/(cbase-base['reg_disjoint']):+.0f}%"
+        print(f"  {tag:<14}{m['reg_disjoint']:>9.2f}±{m['reg_disjoint_std'] or 0:<2.0f}"
+              f"{m['reg_deploy'] or 0:>9.2f}  {m['cat_deploy'] or 0:>10.2f}"
+              f"{dvb_r:>13}{dvb_c:>13}{pct:>13}")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--manifest", required=True)
+    ap.add_argument("--baseline-tag", default=None,
+                    help="if set, render a ladder view with Δ vs this arm tag")
     args = ap.parse_args()
+    if args.baseline_tag:
+        man = load_manifest(Path(args.manifest))
+        for state in sorted(man):
+            rows = {tag: extract(rd) for tag, rd in man[state]}
+            rows = {t: m for t, m in rows.items() if m and m["reg_disjoint"] is not None}
+            if rows:
+                show_ladder(state, rows, args.baseline_tag)
+        return
     man = load_manifest(Path(args.manifest))
     if not man:
         print(f"(no runs in manifest {args.manifest} yet)")
