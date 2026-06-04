@@ -231,11 +231,76 @@ P1 (HIGH) T1.3 over-read → prior-off re-run + scope downgrade. P2 (MED) gradie
 + recipe → sign-pattern-only. P3 (LOW) "conclusive" → "directionally clear" (single-seed fold-SD).
 P4 (LOW) driver manifest path says `embedding_eval/` but p1 writes `docs/results/P1/` (numbers fine).
 
+## Audit close-out (O1–O5) — 2026-06-04
+
+Closing the 5 open items from [`../../studies/mtl_improvement/AUDIT_TIER1_TIERS_2026-06-03.md §6`](../../studies/mtl_improvement/AUDIT_TIER1_TIERS_2026-06-03.md).
+
+### O1 — the α=0 "prior is a drag" finding (SETTLED — both audit hypotheses falsified)
+Re-ran the prior-ON STL-reg config (`next_stan_flow`, **learnable** α init 0.1, prior ON, v14 region-emb,
+frozen folds, seeded log_T, 5f×50ep seed42) and read the **converged learned α** per fold (the model was
+never persisted, so this is a faithful re-run via `o1_alpha_probe.py`, which monkeypatches p1's `_build_head`
+to capture the trained head). The replication is exact — prior-ON reproduces the documented Acc@10 at every
+state — so the α reading is trustworthy.
+
+| state | learned α (mean±sd) | prior-ON Acc@10 (replication) | α=0 ceiling (prior-OFF) | Δ (α0 − priorON) | standalone log_T Acc@10 | Markov-1-region ref |
+|---|---|---|---|---|---|---|
+| AL | **+0.454** ± 0.001 | 62.32 ✓ | 62.88 | +0.56 | 50.86 | 47.01 |
+| AZ | **+0.789** ± 0.002 | 52.87 ✓ | 55.11 | +2.24 | 44.11 | — |
+| GE | **+0.944** ± 0.005 | 55.81 ✓ | 58.45 | +2.64 | 49.29 | — |
+| FL | **+1.095** ± 0.003 | 70.28 ✓ | 73.31 | +3.03 | 66.15 | 65.05 |
+
+**Both audit hypotheses are FALSIFIED.** α did **not** converge ≈0 (the "unexplained optimization artifact"
+hypothesis) and did **not** stay ≈0.1 (the "model didn't drop the prior" hypothesis). Instead **α converges to
+a large positive value that grows with scale/coverage (0.45 → 1.09)** — the model actively *leans into* the
+prior. Yet the prior-ON ceiling is **0.56–3.03 pp WORSE than α=0 at every state**, the gap also growing with
+scale.
+
+The standalone log_T prior (prior alone, no encoder) scores 44–66 % Acc@10 and **validates against the
+authoritative Markov-1-region floors** (AL 50.86 ≈ 47.01; FL 66.15 ≈ 65.05 — `docs/AGENT_CONTEXT.md` §184-185;
+the legacy "~21.3 %" is the *degenerate POI-level* markov, not comparable). So the prior carries real signal —
+**"α=0 wins" is NOT "transition priors are worthless."**
+
+**Mechanism (the actual finding, sharper than the audit anticipated): a train/val co-adaptation drag.** With
+the prior present (learnable α), the STAN encoder co-adapts to lean on the **train-only** per-fold log_T; α
+grows to exploit it. But the per-fold log_T is a weaker signal at val (it is train-estimated), so the
+crutch-dependent solution generalizes **worse** than the α=0 encoder that is forced to internalize the
+transition structure in its own representation. This also explains the MTL-vs-STL coherence (audit §2d): in MTL
+log_T enters as a **KD loss on the shared representation** (helps a starved backbone); in STL it enters as an
+**additive logit bias** (hurts a head that co-adapts and over-leans). **Reframe the written claim to: "the fixed
+additive log_T prior is a net drag on the STL reg ceiling — a learnable α leans into it (α↑ with scale) yet the
+co-adapted solution generalizes worse than the prior-free encoder."** Do NOT write "embeddings subsume
+transitions" (the prior is a strong standalone floor) nor "α stuck at its optimum" (it converged large). The
+§2c corollary stands and is strengthened: HGI's apparent reg edge was this same additive-prior artifact — with
+both substrates α=0-hardened, v14 ≈ HGI (every Δ < 0.5σ). JSON: `o1_alpha_probe.json`; driver
+`scripts/mtl_improvement/o1_alpha_probe.py`.
+
+### O4 — Tier-S reporting gaps closed
+- **`next_hybrid` accounted** (it ran, was a reporting omission not a dropped arm): AL cat macro-F1 **49.34** with
+  logit-adjust τ=0.5 — below the re-pinned next_gru floor (49.97), in the recurrent-family ~tie cluster with
+  next_lstm (49.76). All 8 S.2 cat encoders lose-to-or-tie the floor → the negative is unchanged. (INDEX §S.2.)
+- **`*_hsm` deferral noted**: the 2 hierarchical-softmax reg heads (`next_getnext_hard_hsm`, `next_stan_flow_hsm`)
+  were never GPU-screened — they need a prebuilt `hierarchy_path` (`scripts/build_region_hierarchy.py`); a
+  deliberate prerequisite deferral, NOT bit-rot. (INDEX §S.1.)
+
+### O5 — paper limitations note carried in
+Added limitation **(vi)** to `articles/[BRACIS]_Beyond_Cross_Task/PAPER_DRAFT.md` §7 Beat 3: non-overlapping
+length-9 windows under-supervise (≈8× fewer history→next pairs); internal Δs are apples-to-apples on both arms;
+the AL dense-supervision probe (MTL→STL reg gap *widens* 8.34→12.96, not closes) pre-empts the "your reg gap is
+just under-supervision" reviewer attack; the dense rebuild is deferred to the `docs/future_works/overlapping_windows.md`
+follow-up study (user decision, audit §6). NOT shipped silently.
+
+### O2 / O3 — multi-seed cat confirms
+See the `o2o3_multiseed_cat.sh` runs + `o2o3_agg.py` table below (filled when the {0,1,7,100} sweeps land).
+
+<!-- O2O3_RESULTS_PLACEHOLDER -->
+
 ## Scripts (all on branch `mtl-improve`)
 `scripts/mtl_improvement/`: `freeze_folds.py` (T0.0 + drift-guard), `ge_board.sh` + `ge_board_agg.py`
 (T0.2/T0.3), `t13_encoder_probe.sh` + `t13_prioroff.sh` + `t13_agg.py` (T1.3),
 `build_ge_hgi_train.sh` + `t1_ceilings.sh` (T1.1/T1.2), `t14_sweep.sh` + `t14_validate_azge.sh` +
-`t14_hgi_hardening.sh` + `t14_agg.py` (T1.4), `tierS_unit_screen.py` (Tier-S Prong-A). Loss code:
+`t14_hgi_hardening.sh` + `t14_agg.py` (T1.4), `tierS_unit_screen.py` (Tier-S Prong-A),
+`o1_alpha_probe.py` (O1 learned-α + standalone-prior probe), `o2o3_multiseed_cat.sh` + `o2o3_agg.py`
+(O2/O3 multi-seed cat). Loss code:
 `src/losses/calibrated.py` + `tests/test_losses/test_calibrated.py`; wiring in `next_cv.py` +
 `ExperimentConfig.loss_calibration` + `train.py`/`p1_region_head_ablation.py` flags. GE onboarding:
 `scripts/_v14_run/build_ge.sh`.

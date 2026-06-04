@@ -580,6 +580,31 @@ S.3 (compose) NOT triggered (nothing promoted). **Conclusion: the STL head is NO
 
 ---
 
+## 2026-06-04 — Audit close-out (O1–O5 from AUDIT_TIER1_TIERS_2026-06-03)
+
+**Phase**: closing the 5 ranked audit items. Tier-1/Tier-S unchanged (these are confirmations + reporting, NOT new ceilings). Result files: `docs/results/mtl_improvement/{o1_alpha_probe.json,TIER01_RESULTS.md §Audit close-out}`.
+
+**O1 — α=0 "prior is a drag": SETTLED, both audit hypotheses FALSIFIED.** Re-ran the prior-ON STL-reg config (`next_stan_flow`, learnable α init 0.1, prior ON, v14, frozen folds, seeded log_T, 5f×50ep s42) via a faithful probe (`o1_alpha_probe.py`, monkeypatches p1's `_build_head` to read the trained α — the model was never persisted). Replication exact (prior-ON reproduces 62.32/70.28/52.87/55.81).
+- **Learned α converges LARGE and grows with scale**: AL +0.454 / AZ +0.789 / GE +0.944 / FL +1.095 (σ≈0.001–0.005). NOT ≈0 (the "optimization artifact" hypothesis) and NOT ≈0.1 (the "didn't drop the prior" hypothesis) — the model actively LEANS INTO the prior. Yet prior-ON is still 0.56/2.24/2.64/3.03 pp BELOW α=0 (AL/AZ/GE/FL), the gap also growing with scale.
+- **The prior carries real signal**: standalone log_T Acc@10 = 50.86 (AL) / 66.15 (FL), validating against the authoritative Markov-1-region floors 47.01/65.05 (`AGENT_CONTEXT.md §184-185`; the legacy "~21.3%" is the degenerate POI-level markov, not comparable). So "α=0 wins" is NOT "transition priors are worthless."
+- **Mechanism (sharper than the audit hoped): a train/val co-adaptation drag.** With the prior present the STAN encoder over-leans on the train-only log_T (α↑), and the crutch-dependent solution generalizes worse than the α=0 encoder forced to internalize transitions. Coherent with MTL-vs-STL (§2d): MTL log_T = KD loss on the shared rep (helps a starved backbone); STL log_T = additive logit bias (hurts a co-adapting head).
+
+**Decision (O1)**: reframe the written claim to **"the fixed additive log_T prior is a net drag on the STL reg ceiling — learnable α leans into it yet generalizes worse than α=0."** NOT "embeddings subsume transitions," NOT a stuck-α bug. §2c HGI-prior-artifact corollary stands + strengthened. Applied to `TIER01_RESULTS.md §O1`, INDEX T1.4 verdict, AUDIT §6.
+
+**O4 — Tier-S reporting closed.** `next_hybrid` recovered (AL cat 49.34 < 49.97 floor; it RAN — a reporting omission, not a dropped arm; all 8 S.2 encoders lose/tie → negative unchanged). `*_hsm` deferral (needs prebuilt `hierarchy_path`; not bit-rot) noted in INDEX §S.1.
+
+**O5 — paper limitations carried in.** Added limitation (vi) to `PAPER_DRAFT.md §7 Beat 3` — non-overlapping windows under-supervise (≈8× fewer pairs); internal Δs apples-to-apples; AL rebuttal (MTL→STL reg gap widens 8.34→12.96) pre-empts the under-supervision reviewer attack; dense rebuild deferred to `future_works/overlapping_windows.md`. NOT shipped silently.
+
+**O2/O3 — multi-seed cat: RUNNING.** `o2o3_multiseed_cat.sh` {0,1,7,100}: O2 = next_lstm + next_single cat at AZ+GE (vs floor AZ 51.01 / GE 58.12; ≥0.5pp at ≥2 bands → real T5.2 candidate, does NOT re-open (c)); O3 = FL next_gru cat (resolves the (c)-cat 69.97 vs MTL-diag 70.26 inversion). next_lstm ~5× slower (the long pole). Aggregator `o2o3_agg.py`; verdicts pending.
+
+**Findings**: O1 numeric above. **Frozen (c)/(d) UNCHANGED** — O1/O2/O3 are confirmations/reporting; the immutable yardstick is untouched (O2 winners, if any, become T5.2 candidates only).
+
+**Chain status**: Tier-1 + Tier-S frozen ceilings UNCHANGED; audit close-out is confirmatory. Chain preserved. T2.1 dual-tower remains the next decision.
+
+**Next**: (1) when O2/O3 land, run `o2o3_agg.py`, fill the `<!-- O2O3_RESULTS_PLACEHOLDER -->` in `TIER01_RESULTS.md` + INDEX §S.2 multi-state-confirm verdict + AUDIT §6 O2/O3 rows, run `t14_freeze_sanity.py` (must stay GREEN), commit. (2) Then surface the closed audit to the user at the Tier-1→Tier-2 boundary (per the review cadence) for the T2.1 go decision.
+
+---
+
 ## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
 
 **Phase**: Design complete; no experiments run yet.

@@ -1,0 +1,322 @@
+{
+  "alabama": {
+    "state": "alabama",
+    "seed": 42,
+    "folds": 5,
+    "epochs": 50,
+    "alpha_mean": 0.45348,
+    "alpha_std": 0.0006,
+    "alpha_per_fold": [
+      0.45254,
+      0.45334,
+      0.45356,
+      0.45415,
+      0.4538
+    ],
+    "prioron_acc10_mean": 62.318,
+    "standalone_prior_acc10_mean": 50.861,
+    "coverage_frac": 0.6483,
+    "per_fold": [
+      {
+        "fold": 1,
+        "alpha_learned": 0.45254,
+        "prioron_acc10": 65.775,
+        "standalone_prior_acc10": 53.029,
+        "logT_coverage": {
+          "n_regions": 1109,
+          "n_covered_rows": 719,
+          "coverage_frac": 0.6483
+        },
+        "best_epoch": 18
+      },
+      {
+        "fold": 2,
+        "alpha_learned": 0.45334,
+        "prioron_acc10": 63.769,
+        "standalone_prior_acc10": 52.282,
+        "logT_coverage": {
+          "n_regions": 1109,
+          "n_covered_rows": 731,
+          "coverage_frac": 0.6592
+        },
+        "best_epoch": 28
+      },
+      {
+        "fold": 3,
+        "alpha_learned": 0.45356,
+        "prioron_acc10": 64.398,
+        "standalone_prior_acc10": 52.872,
+        "logT_coverage": {
+          "n_regions": 1109,
+          "n_covered_rows": 735,
+          "coverage_frac": 0.6628
+        },
+        "best_epoch": 31
+      },
+      {
+        "fold": 4,
+        "alpha_learned": 0.45415,
+        "prioron_acc10": 62.077,
+        "standalone_prior_acc10": 51.456,
+        "logT_coverage": {
+          "n_regions": 1109,
+          "n_covered_rows": 723,
+          "coverage_frac": 0.6519
+        },
+        "best_epoch": 26
+      },
+      {
+        "fold": 5,
+        "alpha_learned": 0.4538,
+        "prioron_acc10": 55.569,
+        "standalone_prior_acc10": 44.667,
+        "logT_coverage": {
+          "n_regions": 1109,
+          "n_covered_rows": 728,
+          "coverage_frac": 0.6564
+        },
+        "best_epoch": 25
+      }
+    ]
+  },
+  "florida": {
+    "state": "florida",
+    "seed": 42,
+    "folds": 5,
+    "epochs": 50,
+    "alpha_mean": 1.09487,
+    "alpha_std": 0.00283,
+    "alpha_per_fold": [
+      1.09719,
+      1.09507,
+      1.09689,
+      1.09505,
+      1.09013
+    ],
+    "prioron_acc10_mean": 70.276,
+    "standalone_prior_acc10_mean": 66.15,
+    "coverage_frac": 0.8286,
+    "per_fold": [
+      {
+        "fold": 1,
+        "alpha_learned": 1.09719,
+        "prioron_acc10": 70.931,
+        "standalone_prior_acc10": 66.411,
+        "logT_coverage": {
+          "n_regions": 4702,
+          "n_covered_rows": 3896,
+          "coverage_frac": 0.8286
+        },
+        "best_epoch": 9
+      },
+      {
+        "fold": 2,
+        "alpha_learned": 1.09507,
+        "prioron_acc10": 69.452,
+        "standalone_prior_acc10": 65.274,
+        "logT_coverage": {
+          "n_regions": 4702,
+          "n_covered_rows": 3903,
+          "coverage_frac": 0.8301
+        },
+        "best_epoch": 10
+      },
+      {
+        "fold": 3,
+        "alpha_learned": 1.09689,
+        "prioron_acc10": 70.16,
+        "standalone_prior_acc10": 66.5,
+        "logT_coverage": {
+          "n_regions": 4702,
+          "n_covered_rows": 3907,
+          "coverage_frac": 0.8309
+        },
+        "best_epoch": 10
+      },
+      {
+        "fold": 4,
+        "alpha_learned": 1.09505,
+        "prioron_acc10": 70.432,
+        "standalone_prior_acc10": 66.286,
+        "logT_coverage": {
+          "n_regions": 4702,
+          "n_covered_rows": 3915,
+          "coverage_frac": 0.8326
+        },
+        "best_epoch": 9
+      },
+      {
+        "fold": 5,
+        "alpha_learned": 1.09013,
+        "prioron_acc10": 70.403,
+        "standalone_prior_acc10": 66.281,
+        "logT_coverage": {
+          "n_regions": 4702,
+          "n_covered_rows": 3886,
+          "coverage_frac": 0.8265
+        },
+        "best_epoch": 10
+      }
+    ]
+  },
+  "arizona": {
+    "state": "arizona",
+    "seed": 42,
+    "folds": 5,
+    "epochs": 50,
+    "alpha_mean": 0.78898,
+    "alpha_std": 0.00235,
+    "alpha_per_fold": [
+      0.788,
+      0.79172,
+      0.79114,
+      0.78625,
+      0.78777
+    ],
+    "prioron_acc10_mean": 52.872,
+    "standalone_prior_acc10_mean": 44.109,
+    "coverage_frac": 0.7364,
+    "per_fold": [
+      {
+        "fold": 1,
+        "alpha_learned": 0.788,
+        "prioron_acc10": 54.082,
+        "standalone_prior_acc10": 44.232,
+        "logT_coverage": {
+          "n_regions": 1540,
+          "n_covered_rows": 1134,
+          "coverage_frac": 0.7364
+        },
+        "best_epoch": 16
+      },
+      {
+        "fold": 2,
+        "alpha_learned": 0.79172,
+        "prioron_acc10": 54.101,
+        "standalone_prior_acc10": 45.009,
+        "logT_coverage": {
+          "n_regions": 1540,
+          "n_covered_rows": 1146,
+          "coverage_frac": 0.7442
+        },
+        "best_epoch": 19
+      },
+      {
+        "fold": 3,
+        "alpha_learned": 0.79114,
+        "prioron_acc10": 54.196,
+        "standalone_prior_acc10": 46.316,
+        "logT_coverage": {
+          "n_regions": 1540,
+          "n_covered_rows": 1137,
+          "coverage_frac": 0.7383
+        },
+        "best_epoch": 20
+      },
+      {
+        "fold": 4,
+        "alpha_learned": 0.78625,
+        "prioron_acc10": 48.049,
+        "standalone_prior_acc10": 39.167,
+        "logT_coverage": {
+          "n_regions": 1540,
+          "n_covered_rows": 1128,
+          "coverage_frac": 0.7325
+        },
+        "best_epoch": 21
+      },
+      {
+        "fold": 5,
+        "alpha_learned": 0.78777,
+        "prioron_acc10": 53.931,
+        "standalone_prior_acc10": 45.823,
+        "logT_coverage": {
+          "n_regions": 1540,
+          "n_covered_rows": 1156,
+          "coverage_frac": 0.7506
+        },
+        "best_epoch": 16
+      }
+    ]
+  },
+  "georgia": {
+    "state": "georgia",
+    "seed": 42,
+    "folds": 5,
+    "epochs": 50,
+    "alpha_mean": 0.94377,
+    "alpha_std": 0.00457,
+    "alpha_per_fold": [
+      0.93899,
+      0.94055,
+      0.94343,
+      0.95071,
+      0.94515
+    ],
+    "prioron_acc10_mean": 55.812,
+    "standalone_prior_acc10_mean": 49.293,
+    "coverage_frac": 0.6963,
+    "per_fold": [
+      {
+        "fold": 1,
+        "alpha_learned": 0.93899,
+        "prioron_acc10": 55.225,
+        "standalone_prior_acc10": 48.866,
+        "logT_coverage": {
+          "n_regions": 2282,
+          "n_covered_rows": 1589,
+          "coverage_frac": 0.6963
+        },
+        "best_epoch": 14
+      },
+      {
+        "fold": 2,
+        "alpha_learned": 0.94055,
+        "prioron_acc10": 53.541,
+        "standalone_prior_acc10": 47.237,
+        "logT_coverage": {
+          "n_regions": 2282,
+          "n_covered_rows": 1617,
+          "coverage_frac": 0.7086
+        },
+        "best_epoch": 16
+      },
+      {
+        "fold": 3,
+        "alpha_learned": 0.94343,
+        "prioron_acc10": 54.624,
+        "standalone_prior_acc10": 48.422,
+        "logT_coverage": {
+          "n_regions": 2282,
+          "n_covered_rows": 1645,
+          "coverage_frac": 0.7209
+        },
+        "best_epoch": 14
+      },
+      {
+        "fold": 4,
+        "alpha_learned": 0.95071,
+        "prioron_acc10": 59.56,
+        "standalone_prior_acc10": 52.612,
+        "logT_coverage": {
+          "n_regions": 2282,
+          "n_covered_rows": 1635,
+          "coverage_frac": 0.7165
+        },
+        "best_epoch": 15
+      },
+      {
+        "fold": 5,
+        "alpha_learned": 0.94515,
+        "prioron_acc10": 56.109,
+        "standalone_prior_acc10": 49.327,
+        "logT_coverage": {
+          "n_regions": 2282,
+          "n_covered_rows": 1641,
+          "coverage_frac": 0.7191
+        },
+        "best_epoch": 13
+      }
+    ]
+  }
+}

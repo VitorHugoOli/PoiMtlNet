@@ -206,13 +206,28 @@ study removes it.
   transitions." The saved α value would confirm — but it is NOT in the committed `docs/results/P1/*.json`
   (only on the A40 run dirs) → see open item O1.
 
+### Close-out status (2026-06-04)
+| item | status | result |
+|---|---|---|
+| **O1** | ✅ CLOSED | Both hypotheses FALSIFIED — α converges LARGE (0.45→1.09, ↑ scale), prior-ON still 0.56–3.03pp < α=0. A train/val co-adaptation drag. See below + `docs/results/mtl_improvement/TIER01_RESULTS.md §O1`. |
+| **O2** | ⏳ running | multi-seed {0,1,7,100} next_lstm + next_single cat at GE/AZ (`o2o3_multiseed_cat.sh o2`). |
+| **O3** | ⏳ running | multi-seed {0,1,7,100} FL (c)-cat next_gru (`o2o3_multiseed_cat.sh o3`). |
+| **O4** | ✅ CLOSED | next_hybrid AL cat 49.34 (< 49.97 floor; was a reporting omission) + `*_hsm` deferral noted. INDEX §S.1/S.2. |
+| **O5** | ✅ CLOSED | Limitation (vi) added to `PAPER_DRAFT.md §7 Beat 3` (windowing + AL rebuttal); dense rebuild deferred. |
+
 ### OPEN — for the A40 to execute / close (ranked)
-- **O1 (cheap, settles §2).** Read the saved/learned **α** from the prior-on (default-prior, learnable-α)
-  reg run dirs. If α converged ≈0 yet still scored 62.32 (< frozen-0's 62.88) → unexplained artifact
-  (check weight-decay on α / the `alpha*0.0` path). If α stayed ≈0.1 → "the model didn't drop the prior"
-  (weaker claim). Then reframe the write-up to "the fixed additive prior is not needed here," not
-  "embeddings subsume transitions." Optional: standalone log_T Acc@10 (prior alone, no encoder) + log_T
-  row-coverage at small states to rule out "just a sparse/bad prior."
+- **O1 (cheap, settles §2). — ✅ CLOSED 2026-06-04.** Re-ran the prior-ON config and read the converged
+  learned α (faithful re-run; the model was never persisted). **Result overturns BOTH framings in this item:**
+  α did NOT converge ≈0 and did NOT stay ≈0.1 — it converges **large and growing with scale (AL +0.454 / AZ
+  +0.789 / GE +0.944 / FL +1.095)**, i.e. the model actively *leans into* the prior, yet prior-ON still scores
+  0.56–3.03pp BELOW α=0 at every state. The replication is exact (reproduces 62.32/70.28/52.87/55.81) and the
+  standalone log_T prior (50.86/66.15 at AL/FL) validates against the authoritative Markov-1-region floors
+  (47.01/65.05), so the prior carries real signal. **Mechanism: a train/val co-adaptation drag** — the encoder
+  leans on the train-only log_T (α↑) but the crutch-dependent solution generalizes worse than the α=0 encoder
+  forced to internalize transitions. **Reframed claim (per this item's instruction): "the fixed additive log_T
+  prior is a net drag on the STL reg ceiling"** — NOT "embeddings subsume transitions," NOT a stuck-α
+  optimization artifact. The §2c HGI-prior-artifact corollary stands and is strengthened. Full write-up +
+  table: `docs/results/mtl_improvement/TIER01_RESULTS.md §O1`; JSON `o1_alpha_probe.json`.
 - **O2 (cheap, closes the Tier-S crack §3).** Multi-seed `next_lstm` **and** `next_single` cat at **GE +
   AZ** (where they nominally win single-seed: next_lstm GE +0.51 / AZ +0.48; next_single GE +1.45). Until
   this lands, the Tier-S cat negative is "failed to demonstrate a win," not "no win." If either clears
