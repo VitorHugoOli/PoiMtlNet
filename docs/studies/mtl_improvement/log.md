@@ -742,6 +742,47 @@ Compute budget revisions per advisor: T2b 300 → 450 GPU-h; T8 200 → 300 GPU-
 
 ---
 
+## 2026-06-04 — Advisor on LR result → REORDER to a diagnostic ladder (recipe-drift catch)
+
+**Phase**: Tier 2.1 — advisor pass on the LR sweep; full protocol reordered before launch.
+
+**Advisor verdict (applied)**
+- **R3_onecycle winner ENDORSED** — but it's a **cat-driven + STL-schedule-fidelity** pick: on reg alone
+  R3 *ties* R1 (constant 1e-3) within fold-σ (AL 53.05 vs 52.96; AZ 41.03 vs 40.77). R3's real edge is
+  cat (+1.2–2.3pp, outside noise) + it's the schedule the private tower was trained under at STL. R3
+  dominates-or-ties everywhere, never loses → still the right pick. Don't oversell a reg win over R1.
+- **CRITICAL recipe-drift catch — my "+2.6/+3.1 vs (a)" is partly NOT architecture.** The landed (a)
+  AL/AZ numbers (50.14/37.78) were **H3-alt** (≈constant), not onecycle. The dual-tower at *constant*
+  (R1) deploy reg is already 51.94/40.39 = **+1.8/+2.6 above landed (a)** — that gap is recipe/epoch/
+  harness drift, NOT the architecture. **The clean architectural Δ REQUIRES a matched `next_getnext_hard`
+  @onecycle baseline** (frozen-fold paired, same seed/folds) as the zero-point, at every state. Folded
+  into the ladder as arm #1.
+- **Promote the killer cell `private_only @ prior-OFF` to stage 1** = "the (c) STL ceiling trained
+  jointly" (private tower IS the raw-64→STAN (c)-replica; prior-OFF makes it the faithful α=0 (c) recipe;
+  private_only removes the shared pathway). If it ≈ (c) → the gate/shared-mix is the drag; if << (c) →
+  the residual is irreducibly joint-optimization (→ composite is the deploy answer, paper-grade negative).
+- **Reorder (D3):** run a cheap AL+AZ **diagnostic ladder** FIRST (answers the headline in <1h A40), spend
+  FL/multi-seed only on survivors. Defer fusion beauty-contest, substrate-2×2, HGI probe.
+- **Driver traps flagged** (`t21_full_protocol.sh`, NOT launched as written): FL fusion_pick CRASHES (no
+  FL v14 seed42 log_T — verified 0 files); HGI stage CRASHES (no HGI log_T at AL/AZ); FL pcgrad+alt-opt
+  arg-invalid; FL→B9 hardcoding re-confounds (FL must be onecycle to match). The ladder (AL+AZ only)
+  sidesteps all of these.
+
+**Decision**: build a purpose-built `t21_ladder.sh` (AL+AZ, R3 onecycle, seed42, 5f×50ep, static_weight
+cat0.75, KD-OFF, seeded per-fold log_T). Core 4 arms × 2 states = 8 runs:
+  1. `base_a`      = mtlnet_crossattn + next_getnext_hard, prior-ON → **matched (a)@onecycle zero-point**
+  2. `dt_gated_on` = dualtower gated, prior-ON → primary thesis (Δ vs #1)
+  3. `dt_priv_on`  = dualtower private_only, prior-ON → gate-vs-no-gate isolation
+  4. `dt_priv_off` = dualtower private_only, prior-OFF → **killer cell** ((c) trained jointly)
+Conditional isolators (only if #4 << (c)): reg-head-wd=0.01 (needs a new flag) + cat-weight=0 (P4 frozen-cat
+probe). Then surface the decomposition to the user (the real ship/partial/negative decision point).
+
+**Chain status**: T2.1 in flight; chain preserved.
+
+**Next**: launch `t21_ladder.sh`; aggregate vs (a)-matched + (c)/(d); surface decomposition to user.
+
+---
+
 ## 2026-06-04 — T2.1 implementation + unit gate + LR mini-sweep (R3 onecycle wins)
 
 **Phase**: Tier 2.1 — implemented, unit-gated, LR mini-sweep DONE; full protocol next.
