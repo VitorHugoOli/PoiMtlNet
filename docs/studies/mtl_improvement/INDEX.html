@@ -121,6 +121,13 @@
     <li><a href="#T2-3">T2.3 Faithful MoE family (gated)</a></li>
     <li><a href="#T2-4">T2.4 Per-task-input mixers</a></li>
   </ul>
+  <h2>Tier 2P — Protocol ★</h2>
+  <ul>
+    <li><a href="#T2P-0">⭐ T2P.0 Linchpin (joint-loop isolation)</a></li>
+    <li><a href="#T2P-1">T2P.1 Staged (frozen-reg trunk)</a></li>
+    <li><a href="#T2P-2">T2P.2 Asymmetric per-task recipe</a></li>
+    <li><a href="#T2P-3">T2P.3 Composite distillation (gated)</a></li>
+  </ul>
   <h2>Tier 3 — Prior pathway</h2>
   <ul>
     <li><a href="#T3-1">T3.1 log_T-KD re-sweep on stack</a></li>
@@ -917,8 +924,56 @@ The user flagged that the screens used <strong>registry defaults, not a per-arch
 </div>
 
 <div class="callout">
-<h4>Tier 2 final decision</h4>
-Pin the architecture (T2.1 winner ± composed CrossStitch/hybrid). If <em>no</em> arch recovers a meaningful fraction of the composite gap, that is the paper's negative result — "the MTL reg gap is irreducibly architectural; the deployable answer is the composite" — and the chain shifts to shipping the composite (T6) + the cat-lift MTL story. Run T2.1 on BOTH substrates so the regime×substrate interaction is in hand regardless.
+<h4>Tier 2 final decision (REVISED 2026-06-04 — the topology axis is negative, but "irreducibly architectural" is too strong)</h4>
+The sharing-<em>topology</em> axis is a hardened negative: no arch (hard/soft/private/+MoE/hybrid) closes the gap; the dose-response is <code>CrossStitch ≥ base_a ≈ hard-share ≫ dual-tower</code> (more sharing helps reg — refuting the §6.4 "missing private backbone" thesis). <strong>BUT the close-out's "irreducibly architectural" headline is contradicted by its own data:</strong> the <code>private_only</code> arm <em>is</em> the STL reg topology by construction, run under the good (onecycle) recipe, and it still loses ~10pp to STL-standalone (AL 52.41 vs 62.88). An identical topology failing only when trained jointly means the residual is <strong>NOT in the topology — it is in the joint training PROTOCOL</strong> (which Tier 2 never varied), and the onecycle recipe finding (a pure protocol change, +5–9pp small-state reg) confirms the protocol axis is where the gap is already moving. → <strong>the chain continues to <a href="#tier2p">Tier 2P (joint-training protocol)</a></strong>, not "ship the composite." T2.3/T2.4 still complete the topology card-set (confirmatory). The composite remains the <em>null</em> Tier 2P must beat in one model.
+</div>
+
+<!-- ============================================================== -->
+<h2 id="tier2p">Tier 2P — Joint-training protocol (the residual locus) <span class="pill tier2">Tier 2P</span> <span class="pill info">NEW 2026-06-04 — user-approved redirect</span></h2>
+<p>Tier 2 closed the <em>topology</em> axis (negative) but its own data relocated the residual: the STL-identical <code>private_only</code> tower, under the good recipe, loses ~10pp purely from <strong>joint training</strong>, and onecycle (a protocol change) already recovered +5–9pp. Tier 2 varied <em>how to share</em>; Tier 2P varies <em>how to train</em>. <strong>Goal: composite-quality reg in ONE deployable model</strong> — the 2-model composite is the <strong>null</strong> every arm must beat on single-model economy. <strong>Gated by T2P.0</strong> (the isolation experiment decides which lever is primary). Hard gates unchanged: unit-test param-partition, frozen-fold paired, seeded per-fold log_T, score Δ vs frozen (c)/(d) + the composite null.</p>
+<div class="callout warn">
+<strong>Framing trap (advisor 2026-06-04) — be honest about what closes:</strong> staged "reg→freeze→cat" gives reg ≈ STL <em>by construction</em> (arithmetic, not a finding) and is one flag from the two-checkpoint deploy the user already dropped. So the tier's real question is <strong>"does CAT survive being bolted onto a frozen-reg trunk?"</strong> — i.e. composite-quality on <em>both</em> heads in one model. Distinguish a <em>deployment</em> win (one model at ≈composite numbers, ½ the params) from a <em>scientific</em> gap-closure (joint training that beats the composite). Claim only what the numbers show.
+</div>
+
+<div class="experiment" id="T2P-0">
+<h3>T2P.0 — Linchpin: isolate the joint-loop locus (GATES the tier) <span class="pill tier2">Tier 2P</span> <span class="pill cost-s">S-cost</span> <span class="pill warn">decides T2P.1 vs T2P.2</span></h3>
+<div class="meta">Targets: is the ~10pp private-tower collapse the joint LOOP or a hyperparameter mismatch? · Mechanism: one clean knob change on an existing cell</div>
+<div class="block"><div class="block-title">Hypothesis</div>The <code>private_only prior-OFF</code> dose-response cell (AL 52.32) ran at the joint <strong>wd=0.05</strong>, but the frozen (c) STL ceiling (62.88) used <strong>wd=0.01</strong>. So the collapse confounds "joint training" with "wrong wd / joint recipe." Re-run that exact cell at <strong>wd=0.01</strong> (STL-matched), holding architecture + α=0 + onecycle identical to (c) — the ONLY remaining difference is the joint loop (the <code>max_size_cycle</code> mixed-batch iteration + the shared optimizer/scheduler stepping; cat tower present but gradient-free at <code>--category-weight 0.0</code> with reg on the private path).</div>
+<div class="block"><div class="block-title">Methodology</div><code>--model mtlnet_crossattn_dualtower --reg-head next_stan_flow_dualtower --reg-head-param fusion_mode=private_only --reg-head-param alpha_init=0.0 --reg-head-param freeze_alpha=True --category-weight 0.0 --weight-decay 0.01 --scheduler onecycle --max-lr 3e-3</code>, AL+AZ+FL, 5f×50ep seed42, seeded per-fold log_T. (Verify in <code>mtl_cv.py</code> that <code>category_weight=0</code> zeroes cat's gradient into shared params, not just the loss scalar — confirm before trusting the cell.) Compare vs the existing wd=0.05 cell (52.32 AL) and STL (c) 62.88.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Recovers (≈62, STL-level):</strong> the collapse was wd/recipe mismatch → the joint loop is NOT the poison → <strong>T2P.2 (asymmetric per-task recipe) is primary</strong> (give the reg path its STL-optimal wd/iteration inside the joint model). <strong>Still collapsed (≈52):</strong> the joint LOOP itself caps reg even with identical arch+HP → <strong>T2P.1 (staged / sequential) is primary</strong> (decouple reg's training from the joint loop entirely). Either outcome is decisive + cheap (~few GPU-h).</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T2P-1">
+<h3>T2P.1 — Staged / sequential: does cat survive a frozen-reg trunk? <span class="pill tier2">Tier 2P</span> <span class="pill cost-m">M-cost</span> <span class="pill info">primary if T2P.0 = "joint loop"</span></h3>
+<div class="meta">Targets: composite-quality both-heads in ONE model · Mechanism: train reg to its STL ceiling, freeze it, train cat on top</div>
+<div class="block"><div class="block-title">Hypothesis</div>If the joint loop poisons reg even with identical arch, then <em>removing reg from the joint loop</em> recovers it: train the reg backbone STL-style to its (c) ceiling, <strong>freeze it</strong>, then train the cat head (+ its own encoder/cross-attn) on the frozen reg trunk. Reg ≈ (c) <em>by construction</em>; the open question is whether <strong>cat stays non-inferior</strong> on a frozen trunk (cat in MTL is already ≈ STL, board Δcat small — so the bar is plausible).</div>
+<div class="block"><div class="block-title">Methodology</div>Variants: (i) reg-first → freeze reg backbone → train cat head; (ii) the <code>--freeze-cat-after-epoch</code> curriculum (reg-only for N epochs then unfreeze cat — the P4 hypothesised-but-never-run staged idea, <code>phase1_phase2_verdict_v6_final.md:118</code>; flag exists). AL+AZ+FL, 5f×50ep seed42 → top to 3-seed. Score {cat,reg}×{disjoint,joint} vs frozen (c)/(d) <strong>and vs the composite null</strong>.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Gap closed in one model:</strong> reg ≈ (c) AND cat non-inferior to the composite (TOST δ=2) at ≥2 of {AL,AZ,FL} → a single deployable model at composite quality (the user's target). <strong>Cat collapses on the frozen trunk:</strong> staging is a two-checkpoint-deploy in disguise → report, fall back to the composite. <strong>Be explicit</strong> whether the win is deployment (½ params) or scientific (beats the composite).</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T2P-2">
+<h3>T2P.2 — Asymmetric per-task training inside the joint loop <span class="pill tier2">Tier 2P</span> <span class="pill cost-m">M-cost</span> <span class="pill info">primary if T2P.0 = "recipe mismatch"</span></h3>
+<div class="meta">Targets: give reg its STL-optimal protocol without leaving the joint model · Mechanism: decouple reg's wd / data-iteration / schedule / early-stop from cat</div>
+<div class="block"><div class="block-title">Hypothesis</div>If T2P.0 shows the collapse is recipe/iteration mismatch (not the loop per se), then the lever is to run the reg path at its STL-optimal settings <em>within</em> the joint model: per-task wd (reg 0.01 via <code>--reg-head-weight-decay</code>, build if absent), avoid <code>max_size_cycle</code> starving reg (per-task step budget), and let reg early-stop at its peak (P4: reg peaks ep ~2) while cat keeps training.</div>
+<div class="block"><div class="block-title">Methodology</div>Ablate one knob at a time on the most-shared baseline (base_a) + the dual-tower: (a) reg wd 0.01; (b) per-task iteration (no cycle-starve); (c) reg early-stop / LR-freeze at peak. AL+AZ+FL 5f seed42. Targeted axis reg Acc@10; cat non-inferior.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: a knob recovers ≥1pp reg toward (c) at ≥2 states, cat non-inferior. Compose the winners. <strong>Else</strong>: the joint loop is irreducible for reg → composite is the answer (now with the protocol axis closed too).</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T2P-3">
+<h3>T2P.3 — Composite distillation into one model (gated, optional) <span class="pill tier2">Tier 2P</span> <span class="pill cost-m">M-cost</span> <span class="pill warn">gated — only if T2P.1/.2 leave a gap</span></h3>
+<div class="meta">Targets: the composite's quality in one deployable model · Mechanism: distill the 2-model composite → 1 multi-head student</div>
+<div class="block"><div class="block-title">Hypothesis</div>If staging/asymmetric-recipe don't fully close it but a single model is still wanted, distill: teachers = the STL reg ceiling model + the (STL/MTL) cat model; student = one multi-head model trained to match both teachers' outputs (+ true labels). Tests whether composite quality is <em>compressible</em> into one model even if it isn't <em>jointly trainable</em>.</div>
+<div class="block"><div class="block-title">Methodology</div>KD loss to each teacher's logits (reg: the (c) STL reg teacher; cat: the (c) cat teacher), τ-swept, on one shared-or-dual-head student. AL+AZ+FL 5f seed42. Score vs the composite null. Run ONLY if T2P.1+T2P.2 leave &gt;2pp reg to the composite.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: student reg ≈ composite, cat non-inferior, in one model. <strong>Else</strong>: composite is the irreducible deployable answer — a paper-grade negative with topology AND protocol AND distillation all closed.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="callout">
+<h4>Tier 2P final decision</h4>
+If any arm delivers reg ≈ (c) + cat non-inferior in ONE model at ≥2 of {AL,AZ,FL} → <strong>the gap closes in a single deployable model</strong> (the headline the track has been chasing; distinguish deployment vs scientific closure honestly). If none → the composite is the honest deployable answer, and the paper's negative is now far stronger: the gap survives the full topology axis (Tier 2), the protocol axis (Tier 2P), AND distillation — "the joint MTL reg sacrifice is irreducible; deploy the composite + the cat-lift story."
 </div>
 
 <!-- ============================================================== -->

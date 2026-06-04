@@ -644,6 +644,28 @@ S.3 (compose) NOT triggered (nothing promoted). **Conclusion: the STL head is NO
 
 ---
 
+## 2026-06-04 — Tier-2 review → REDIRECT: new Tier 2P (joint-training protocol); "irreducibly architectural" overturned
+
+**Phase**: independent review of the pulled Tier-2 results (T2.0/2.1/2.2 + dose-response + mechanism cells + onecycle recipe). User concern: "we are not closing the gap with STL." Verdict: **Tier 2 sound as executed, but its headline conclusion is wrong — redirect to a protocol tier.**
+
+**Evaluation.** Implementation faithful (advisor-verified param-partition, distinct priv/shared backbones, prior controls); the topology negative is multi-seed-hardened; the dose-response (`CrossStitch ≥ base_a ≈ hard-share ≫ dual-tower`) and mechanism cells are clean; onecycle is a genuine +5–9pp small-state recipe win. No objection to *what was done*.
+
+**The contradiction (the find).** The close-out says "the gap is irreducibly architectural; ship the composite." But the `private_only` arm **IS the STL reg topology by construction** (design doc §2.1/§6), it **ran under the good onecycle recipe** (verified: `t21_harden.sh:29` `--scheduler onecycle`; base_a AL 56.45 matches the onecycle cell), and it **still lost ~10pp to STL-standalone** (AL 52.41 vs 62.88; prior-OFF 52.32). An identical topology failing *only when trained jointly* ⟹ the residual is **the joint training PROTOCOL, not the topology.** Tier 2 varied *how to share*, never *how to train* — and onecycle (a pure protocol change) already moved the gap. Advisor independently confirmed this is a logical contradiction in the close-out's framing, headline-flipping, not scope-creep.
+
+**Two confounds tightened (advisor), now encoded as the T2P.0 linchpin.** The private-tower ran at the joint **wd=0.05** vs STL's **wd=0.01**, and used the joint recipe — so "joint training poisons reg" is confounded with "wrong wd/recipe." The cleanest isolation: re-run `private_only prior-OFF` at **wd=0.01** (STL-matched), all else identical to (c). Recovers→recipe mismatch (lever = asymmetric per-task recipe); still-collapsed→the joint loop itself (lever = staged/sequential). Also flagged: verify `--category-weight 0.0` zeroes cat's gradient (not just the loss scalar) in `mtl_cv.py`.
+
+**Decision (user, AskUserQuestion 2026-06-04): "Pursue the protocol axis."** Added **Tier 2P — joint-training protocol** (INDEX `#tier2p`): **T2P.0** linchpin (gates) → **T2P.1** staged (reg→freeze→cat) / **T2P.2** asymmetric per-task recipe / **T2P.3** composite-distillation. **Goal = composite-quality reg in ONE deployable model; the 2-model composite is the null.** Framing trap recorded (advisor): staged gives reg≈STL *by construction* (arithmetic, one flag from the dropped two-checkpoint deploy) — the real question is **does cat survive a frozen-reg trunk?** Distinguish a deployment win (½ params) from a scientific gap-closure (beats the composite). Closest prior art: the P4 `--freeze-cat-after-epoch` staged idea (`phase1_phase2_verdict_v6_final.md:118`) was hypothesised but never run as a gap-closer.
+
+**Docs changed.** INDEX: revised the Tier-2 final-decision callout (topology-negative but NOT "irreducibly architectural"), new Tier 2P section (T2P.0–T2P.3 + final-decision), TOC. HANDOFF: §0 redirect, §0b reframed (T2.3/T2.4 now confirmatory-of-topology), new §0c (T2P.0 onboarding + the exact CLI). T2.3/T2.4 remain as the cheap confirmatory close of the topology card-set.
+
+**Separate open item (NOT bundled):** the onecycle small-state recipe reshapes a §0.1 claim → author sign-off pending (HANDOFF §0(2)).
+
+**Chain status**: Tier-2 topology axis CLOSED (negative); **Tier 2P OPEN, T2P.0 is the next step.** Chain preserved (Tier 2P is the evidence-pointed continuation of the regime attack, not a detour). Frozen (c)/(d) unchanged.
+
+**Next**: A40 runs **T2P.0** (the linchpin) → STOP + surface the verdict → launch the chosen lever (T2P.1 or T2P.2). Finish T2.3/T2.4 confirmatory alongside.
+
+---
+
 ## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
 
 **Phase**: Design complete; no experiments run yet.

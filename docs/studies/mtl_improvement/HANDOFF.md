@@ -26,14 +26,23 @@ keep B9 at large states (FL/CA). Adopted in `NORTH_STAR.md`. **§0.1 small-state
 `results/RESULTS_TABLE.md §0.1` — author sign-off needed** (it reshapes a central claim; reg shrink is
 modest on v11, the cat-flip is mostly a B9→deployable-recipe fix — read the nuance in `PAPER_UPDATE.md`).
 
-**OPEN for the next agent / author:** (a) **run the leftover Tier-2 cards T2.3 + T2.4 — see §0b below
-(user-requested, the immediate next step)**; (b) the §0.1 paper re-statement decision (author); (c) then
-Tier 3 (prior pathway — regime finding predicts limited headroom) or close the track; (d) optional:
-confirm onecycle at CA/TX (5-fold impractical ~5h/run; CA 1-fold directional done, TX not run).
+**⭐ 2026-06-04 REDIRECT (user-approved) — NEW Tier 2P (joint-training protocol). This supersedes "ship
+the composite."** Independent review found the close-out's "irreducibly architectural" headline is
+**contradicted by its own data**: the `private_only` dual-tower arm IS the STL reg topology by
+construction, ran under the GOOD (onecycle) recipe, and still lost ~10pp to STL-standalone (AL 52.41 vs
+62.88). An identical topology failing only when trained jointly ⟹ the residual is **the joint training
+PROTOCOL, not the topology** — which Tier 2 never varied (onecycle, a pure protocol change, already
+recovered +5–9pp). **New `Tier 2P` (INDEX `#tier2p`): T2P.0 linchpin → T2P.1 staged / T2P.2 asymmetric-
+recipe / T2P.3 distillation, goal = composite-quality reg in ONE model.**
+
+**THE IMMEDIATE NEXT STEP is `T2P.0` (the linchpin, ~few GPU-h, DECISIVE) — see §0c below.** Then:
+(a) finish T2.3+T2.4 as the confirmatory close of the *topology* card-set (§0b — no longer the headline,
+just completeness); (b) run Tier 2P per the T2P.0 verdict; (c) the §0.1 paper re-statement decision
+(author); (d) Tier 3 / close only after Tier 2P; (e) optional onecycle CA/TX.
 
 ---
 
-## 0b. ⭐ NEXT AGENT STARTS HERE — T2.3 + T2.4 (the leftover Tier-2 architecture cards)
+## 0b. T2.3 + T2.4 — confirmatory close of the TOPOLOGY card-set (run after/alongside T2P.0; no longer the headline)
 
 **You are running T2.3 (faithful MoE family) + T2.4 (per-task-input mixers/hybrids)** — the two Tier-2
 cards not yet executed (INDEX `#T2-3`, `#T2-4`). Tier 2's verdict so far is a hardened NEGATIVE (§0); the
@@ -97,6 +106,37 @@ PID-suffix (the driver already does; see memory `ref-concurrent-rundir-race`).
 ("MTL reg gap irreducibly architectural; ship composite") is final. If a hybrid surprises → promote,
 re-judge under MTL + HGI sanity probe (2 seeds × AL+AZ × 5f×30ep), compose with base_a. Then advisor pass
 → update `PAPER_UPDATE.md` + this HANDOFF → surface to user (tier-boundary cadence).
+
+---
+
+## 0c. ⭐ NEXT AGENT STARTS HERE — T2P.0 (the linchpin; decisive, ~few GPU-h)
+
+**Run T2P.0 FIRST** (INDEX `#T2P-0`) — it decides whether Tier 2P's primary lever is staged training
+(T2P.1) or asymmetric per-task recipe (T2P.2). It is one clean knob change on an existing cell.
+
+**The experiment.** The `private_only prior-OFF` dose-response cell (AL 52.32) ran at the joint **wd=0.05**;
+the frozen (c) STL reg ceiling (62.88) used **wd=0.01**. Re-run that exact cell at **wd=0.01**, everything
+else identical to (c):
+```
+train.py --task mtl --task-set check2hgi_next_region --engine check2hgi_design_k_resln_mae_l0_1 \
+  --model mtlnet_crossattn_dualtower --reg-head next_stan_flow_dualtower \
+  --reg-head-param raw_embed_dim=64 --reg-head-param fusion_mode=private_only \
+  --reg-head-param alpha_init=0.0 --reg-head-param freeze_alpha=True \
+  --category-weight 0.0 --weight-decay 0.01 --scheduler onecycle --max-lr 3e-3 \
+  --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3 --log-t-kd-weight 0.0 \
+  --per-fold-transition-dir output/check2hgi_design_k_resln_mae_l0_1/<state> --no-checkpoints
+```
+AL+AZ+FL, 5f×50ep seed42, seeded per-fold log_T. **Pre-check (advisor):** confirm in `mtl_cv.py` that
+`--category-weight 0.0` zeroes cat's gradient into the shared/cat params (not just the loss scalar) — in
+`private_only` mode reg never touches the cross-attn, so with cat-weight 0 the only residual difference
+from STL is the joint loop (`max_size_cycle` mixed-batch iteration + the shared optimizer/scheduler step).
+
+**Decision.** Recovers to ≈62 (STL-level) → the collapse was wd/recipe mismatch, the joint loop is NOT the
+poison → **T2P.2 (asymmetric per-task recipe) primary.** Still ≈52 → the joint LOOP caps reg even with
+identical arch+HP → **T2P.1 (staged / sequential) primary.** Then STOP + surface to the user (tier-boundary
+cadence) before launching the chosen lever. Honest-framing reminder: staged reg→freeze→cat gives reg≈STL by
+construction — the real question is whether CAT survives the frozen-reg trunk (composite-quality in one
+model); the 2-model composite is the null every Tier-2P arm must beat. See INDEX `#tier2p`.
 
 ---
 
