@@ -742,6 +742,60 @@ Compute budget revisions per advisor: T2b 300 → 450 GPU-h; T8 200 → 300 GPU-
 
 ---
 
+## 2026-06-04 — T2.1 DIAGNOSTIC LADDER → dual-tower FALSIFIED (clean negative) + a recipe finding
+
+**Phase**: Tier 2.1 — the centerpiece experiment RESOLVED (negative). Mechanism probe running.
+
+**Result** (AL+AZ, R3 onecycle, seed42, 5f×50ep, KD-OFF, **frozen-fold paired**, Δ vs the matched
+`base_a` = `next_getnext_hard`@onecycle zero-point). Verified arms ran the intended models
+(base_a=MTLnetCrossAttn+NextHeadStanFlow; dt_*=MTLnetCrossAttnDualTower+private_stan); per-fold log_T
+loaded; base_a AL disjoint cross-checked from fold JSONs = [60.87,56.58,58.82,56.53,49.45]→56.45.
+
+| arm | AL reg@10 disj | Δ vs base | AZ reg@10 disj | Δ vs base | cat (AL/AZ) |
+|---|---|---|---|---|---|
+| **base_a** (matched (a)@onecycle) | **56.45** | 0 | **44.26** | 0 | 48.51 / 49.43 |
+| dt_gated_on | 53.95 | **−2.50** | 42.13 | **−2.13** | 48.44 / 49.38 |
+| dt_priv_on | 52.41 | −4.04 | 40.50 | −3.76 | 47.64 / 49.54 |
+| dt_priv_off (killer cell) | 52.32 | −4.13 | 40.55 | −3.71 | 48.07 / 49.80 |
+| (c) STL reg ceiling | 62.88 | — | 55.11 | — | — |
+
+**Verdict: T2.1 dual-tower FALSIFIED at AL+AZ.** <span>FALSIFIED</span>
+- The dual-tower **LOSES to the same-recipe baseline by −2.1 to −4.1pp reg** at both states (cat ≈ tie).
+- **Monotonic: more shared backbone = better reg** (base_a 56.45 > gated 53.95 > private_only 52.41).
+  This is the **OPPOSITE of the §6.4 "missing private backbone" hypothesis** — the shared cross-attn
+  backbone HELPS reg; isolating the reg head into a private tower HURTS it.
+- **Killer cell** `dt_priv_off` (= "(c)-replica trained jointly", prior-OFF, no gate) = 52.32/40.55 —
+  still **−10.6/−14.6 below (c)** AND below base_a. The private tower recovers NOTHING toward the STL
+  ceiling. The MTL→STL reg gap is **not** the shared-vs-private pathway.
+- The earlier "+2.6/+3.1 vs landed (a)" (LR sweep) was **entirely recipe drift** (advisor's catch
+  confirmed): the matched onecycle baseline (56.45/44.26) ≫ landed H3-alt (a) (~47/38).
+
+**Orthogonal finding (valuable byproduct) — the ONECYCLE recipe is a real reg lever.** The EXISTING
+reg head (`next_getnext_hard`, no architecture change) at onecycle reaches disjoint reg AL 56.45 /
+AZ 44.26 vs the landed H3-alt (a) diagnostic-best 47.23 / 38.27 → **~+6-9pp**. This is an
+**optimizer/recipe** improvement (Tier-4 territory), NOT architecture, and it means the (a) MTL reg
+baseline is itself improvable by a scheduler swap. CAVEAT: seed42 (dev seed; AL/AZ seed42≈multiseed
+per CLAUDE.md, but needs multi-seed + FL validation before any ceiling/baseline change). Does NOT touch
+the frozen (c)/(d) (those are STL ceilings; this is an MTL-baseline recipe finding). Flag for Tier 4 /
+follow-up — do NOT re-pin anything off seed42.
+
+**Decision (pending mechanism probe + user checkpoint)**
+- Dual-tower did NOT survive the cheap ladder → **do NOT spend FL/3-seed on it** (advisor decision logic).
+- Mechanism probe running (`t21_mech.sh`): `{base_a, dt_priv_off} × cat-weight=0 × AL+AZ` = reg-only
+  training (P4 frozen-cat applied here). Tells us if the residual is multi-task competition (cat0 ≈ (c))
+  or the joint harness/optimizer itself (cat0 << (c)).
+- This is a **Tier-2-boundary-class decision** → surface to user: ship-composite negative + the recipe
+  lever + whether to (a) confirm the negative at FL (1 matched pair), (b) pursue onecycle as a Tier-4
+  baseline improvement, (c) proceed to the remaining Tier-2 cards (T2.0 hard-share anchor, T2.2
+  CrossStitch) or close Tier 2 as "architecture doesn't move the reg gap; composite is the answer."
+
+**Chain status**: T2.1 resolved (negative); chain preserved. The "composite is the deploy fallback"
+branch is now the live hypothesis (HANDOFF §9 "paper-grade negative").
+
+**Next**: read mechanism probe → write Tier-2 summary → STOP + surface to user (tier-boundary cadence).
+
+---
+
 ## 2026-06-04 — Advisor on LR result → REORDER to a diagnostic ladder (recipe-drift catch)
 
 **Phase**: Tier 2.1 — advisor pass on the LR sweep; full protocol reordered before launch.

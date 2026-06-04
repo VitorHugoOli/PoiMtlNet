@@ -1,0 +1,16 @@
+
+########## ALABAMA (ladder; Δ vs 'base_a', the matched (a)@recipe zero-point) ##########
+  anchors:  (a)landed-deploy-reg=50.14  (c)STL-reg=62.88  (d)composite-reg=63.58  (c)STL-cat=49.97
+  arm            reg@10 disj  reg@10 dep cat-F1 dep Δreg vs base Δcat vs base %gap(disj→c)
+  base_a            56.45±4     56.06       48.51        +0.00        +0.00          +0%
+  dt_gated_on       53.95±5     53.73       48.44        -2.50        -0.07         -39%
+  dt_priv_on        52.41±4     51.84       47.64        -4.04        -0.87         -63%
+  dt_priv_off       52.32±4     51.75       48.07        -4.13        -0.44         -64%
+
+########## ARIZONA (ladder; Δ vs 'base_a', the matched (a)@recipe zero-point) ##########
+  anchors:  (a)landed-deploy-reg=37.78  (c)STL-reg=55.11  (d)composite-reg=55.11  (c)STL-cat=51.01
+  arm            reg@10 disj  reg@10 dep cat-F1 dep Δreg vs base Δcat vs base %gap(disj→c)
+  base_a            44.26±3     44.11       49.43        +0.00        +0.00          +0%
+  dt_gated_on       42.13±3     42.01       49.38        -2.13        -0.05         -20%
+  dt_priv_on        40.50±3     40.48       49.54        -3.76        +0.11         -35%
+  dt_priv_off       40.55±3     40.49       49.80        -3.71        +0.37         -34%

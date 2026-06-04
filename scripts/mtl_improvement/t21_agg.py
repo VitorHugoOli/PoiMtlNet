@@ -56,12 +56,16 @@ def load_manifest(path: Path):
     out = {}
     if not path.exists():
         return out
+    import re
     for line in path.read_text().splitlines():
         parts = line.split("\t")
         if len(parts) < 3:
             continue
         key, tag, rd = parts[0], parts[1], parts[2]
-        state = key.split("|")[0]
+        # Derive state from the rundir path (robust to key format differences
+        # between drivers: LR-sweep uses state|regime, ladder uses tag|state).
+        m = re.search(r"/(alabama|arizona|florida|georgia|california|texas)/", rd)
+        state = m.group(1) if m else key.split("|")[0]
         out.setdefault(state, []).append((tag, rd))
     return out
 
