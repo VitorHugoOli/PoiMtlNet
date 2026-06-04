@@ -700,6 +700,32 @@ S.3 (compose) NOT triggered (nothing promoted). **Conclusion: the STL head is NO
 
 ---
 
+## 2026-06-04 — ⚠⚠ MAJOR: the T2P.0 gap is an INPUT-ARTIFACT CONFOUND, not joint-loop poison — the (c) ceiling and the MTL reg head eat DIFFERENT embedding spaces
+
+**Phase**: Tier 2P — the T2P.0 fp32 control + a root-cause dig overturned the linchpin's premise. **Confirmatory experiment in flight; NOT yet surfaced — this is a potential central-claim reframing the user MUST weigh in on.**
+
+**fp32 control (`t2p0_fp32_control.sh`, MTL_DISABLE_AMP=1, FL+AL):** reg@10 disj **AL 52.92 (vs fp16 52.90, +0.02) / FL 59.66 (vs fp16 59.53, +0.13)**. **fp16-no-GradScaler precision is EXONERATED** (~0pp). So the ~10-14pp gap survives EVERY dynamics control: topology, interference (cat0), prior, wd, cycle-starvation, AND precision.
+
+**Root-cause dig (the find).** With all dynamics ruled out, the residual must be a train.py-MTL vs p1-STL **pipeline** difference. Traced the (c)-ceiling provenance: `t14_sweep.sh`/`t14_validate_azge.sh` built (c) via `p1_region_head_ablation.py --heads next_stan_flow --input-type region --region-emb-source <v14> --override-hparams freeze_alpha=True alpha_init=0.0`. **`--input-type region`** routes through p1's `_build_region_sequence_tensor` = a **pooled `region_embeddings.parquet` lookup** ([n_regions,64], 4703 rows at FL). But the MTL reg head + the dual-tower private tower are fed **`next_region.parquet`** ([N,9,64] check-in-level contextual emb). p1's OWN `--input-type` enum proves these are two different artifacts: `checkin`→`next_region.parquet` (= the MTL input), `region`→pooled lookup (= the (c) ceiling).
+
+**MEASURED — they are different embedding spaces** (`next_region` per-step vs `pooled[last_region_idx]`, 2000 rows/state): **0/2000 exact matches; cosine mean AL 0.197 / AZ 0.111 / FL 0.125; nearest-pooled dist 3.83**. NOT the same input.
+
+**⟹ The dual-tower design's central premise is FALSE.** `T2.1_DUALTOWER_DESIGN.md §1` claims "the dual-tower adds a private STAN on the raw 64-dim sequence (**exactly the STL path**)" and feeds it `next_input`. But `next_input` = `next_region.parquet` (check-in-level), while the (c) STL ceiling ate the pooled `region_embeddings.parquet`. **The private tower was NEVER a true (c) replica — it ate a different (apparently worse-for-reg) input.** So:
+- **T2.1 (dual-tower) and T2P.0 (linchpin) are both CONFOUNDED by input representation.** "The private STL-topology tower trained jointly loses ~10pp to STL-standalone" — the basis of the entire Tier-2P redirect (HANDOFF §0) — conflates joint-training with check-in-level-vs-pooled-region input.
+- The Tier-2 "irreducibly architectural / joint cross-attn harness caps reg" headline may be **substantially an input-artifact difference**, not joint-training dynamics. (The within-MTL dose-response, all on `next_region.parquet`, is UNAFFECTED — only the MTL-vs-(c)-ceiling ABSOLUTE gap is confounded.)
+
+**Decisive confirmatory experiment IN FLIGHT (`t2p0_input_artifact.sh`):** the SAME `next_stan_flow α=0` head, SAME p1 harness/recipe, on BOTH input-types at AL+FL. `region` arm validates the harness (should reproduce (c) ~62.88/73.31); `checkin` arm = the matched comparand (same `next_region.parquet` the MTL eats). **Within-session paired delta = pure input effect.**
+- **checkin << region (toward MTL reg ~53/60)** → the MTL-reg gap is the INPUT REPRESENTATION → reframes Tier 2/2P; the real lever = give MTL reg the pooled-region pathway (a NEW, un-falsified dual-tower variant: private tower on `region_embeddings.parquet`, not `next_region.parquet`).
+- **checkin ≈ region (~62/73)** → check-in input is fine for STL reg → the MTL gap is genuinely architectural/joint after all (T2P.1 gates cleanly).
+
+**This opens a concrete NEW lever the track never tested:** a dual-tower whose PRIVATE tower consumes the pooled `region_embeddings.parquet` sequence (the (c) input) fused with the shared check-in-level pathway — i.e. give the one MTL model access to BOTH representations. Potentially the gap-closer the track has been chasing.
+
+**Chain status**: Tier 2P — the linchpin's "joint loop" reading is overturned pending the confirmatory paired run; the gap is (very likely) an input-artifact confound. Frozen (c)/(d) untouched (they remain valid STL ceilings on THEIR input; the issue is they were compared to MTL reg on a DIFFERENT input).
+
+**Next**: input-artifact paired run lands → **STOP + surface the full reframing to the user** (decide: confirm + pursue the pooled-region private-tower lever / re-state the Tier-2 headline / etc.). Do NOT auto-launch. This supersedes the simple T2P.1-vs-T2P.2 gate.
+
+---
+
 ## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
 
 **Phase**: Design complete; no experiments run yet.
