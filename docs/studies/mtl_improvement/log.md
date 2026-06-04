@@ -901,6 +901,47 @@ last_region_idx; canonical embeddings/sequences UNTOUCHED). CA/TX runs are heavy
 
 ---
 
+## 2026-06-04 — CAPSTONE ADVISOR (whole-Tier-2 implementation + decisions + big picture)
+
+**Phase**: Tier 2 final review (AGENT_PROMPT item 5 — implementation-correctness + whole-track pass).
+
+**Verdict: implementation CORRECT for this case; decisions SOUND; both headlines hold; Tier 2 CLOSEABLE.**
+
+- **Implementation (verified end-to-end):** dual-tower fidelity chain exact (shared_stan = (a) head
+  8heads/0.1do/d128; private_stan = (c) STL 4heads/0.3do/d128/raw64; distinct `priv_*` names genuinely
+  dodge the inject-filter clobber — the load-bearing P0 fix is real). Matched baseline = `next_getnext_hard`
+  = the shipped reg head. Param partition auto-covered + unit-gate-asserted (real F49-class guard). Mechanism
+  cells isolate what's claimed; the ONE residual confound (train.py-MTL vs p1-STL harness for base_clean vs
+  (c)) is honestly disclosed → sharpen paper wording to "the joint MTL reg pathway as instantiated," not
+  provably "the cross-attn block" (deploy conclusion unchanged). CA/TX regen safety proof
+  (parquet-untouched + 99.99% align) is necessary+sufficient for "canonical not corrupted"; the 0.01%
+  (~hundreds of rows, 8.5k-region tract-boundary/tie) is benign — note it. Rundir-race fix sound.
+- **Decisions:** the advisor matched-baseline REORDER was the save (converted a false "+2.6/+3.1 win"
+  recipe-drift into the true negative). Killer-cell promotion, PCGrad/aux gating, hardening-after-negative,
+  onecycle multiseed-before-claim + the recipe-history audit = clean hygiene. The ~2h CA/TX serial is mild
+  over-confirmation (FL already anchors large states) — lower-EV but not wrong; non-load-bearing.
+- **Scope:** R1 correctly "FALSIFIED (seed42 paired AL/AZ + FL pair)" — carry the seed caveat with
+  "paper-grade." R2 "+6-9pp" honest (onecycle also beats B9 +5.5 reg at small states → not just beating the
+  weak H3-alt). "Shrinks composite advantage" arithmetic correct: (c)/(d) frozen STL, recipe-independent;
+  only (a)-deploy moves up. CrossStitch under-claimed (σ-bounded, not promoted) = honest.
+- **Big picture (for paper):** Tier 2 = two paper-grade results pointing the same way. (R1) No single-model
+  MTL architecture closes the MTL→STL reg gap; the deployable answer is the **two-model composite**; the gap
+  is **irreducibly the joint cross-attn harness** (not interference/prior/wd/head). (R2) onecycle re-states
+  the small-state MTL (a) baseline UP +6-9pp → part of the "composite wins +12-17pp" was an under-tuned
+  small-state recipe artifact. **Single most important next action: the onecycle adoption decision** (it
+  re-states §0.1(a) + the composite-advantage comparison the paper rests on).
+- **Open before close:** (1) onecycle adoption re-states §0.1(a) + composite-advantage everywhere (HANDOFF
+  §9, NORTH_STAR, PAPER_DRAFT) — multiseed AL/AZ done, CA/TX in flight; do NOT re-pin off seed42; one more
+  grep of canonical_improvement recipe history before NORTH_STAR change. (2) CrossStitch 3-seed = optional
+  hardening. (3) FL dual-tower 3-seed = optional reviewer insurance. (4) Re-run `t14_freeze_sanity.py`
+  after any onecycle re-pin (first baseline-number change the track makes). Frozen (c)/(d) untouched ✓.
+
+**Chain status**: Tier 2 closeable (R1+R2); CA/TX confirmation in flight (non-load-bearing).
+
+**Next**: CA/TX lands → fold into recipe matrix → surface onecycle-adoption decision + Tier-2 close to user.
+
+---
+
 ## 2026-06-04 — HARDENING: FL pair + T2.0 + T2.2 → negative CONFIRMED across AL/AZ/FL; dose-response
 
 **Phase**: Tier 2 hardening (user-approved). All onecycle per-head, seed42, 5f×50ep, prior-ON, KD-OFF.
