@@ -1,19 +1,42 @@
 # HANDOFF — MTL Improvement track (read this FIRST, then `log.md` + `INDEX.html`)
 
-**As of 2026-06-04.** Branch `mtl-improve` (≈56 commits ahead of `main`, all pushed). Working tree clean.
-**2026-06-04: the Tier-1/Tier-S AUDIT close-out (O1–O5) is COMPLETE + advisor-reviewed** — see §7b (closed) and
-the new §9 (Tier-2 onboarding). Tier 2 is still NOT started; it is the next step.
-This is a single "you are here" snapshot. Full chronology: `log.md` (27 dated entries). Design + per-tier
-results: `INDEX.html`. Canonical numbers: `docs/results/mtl_improvement/TIER01_RESULTS.md`.
+**As of 2026-06-04 (TIER 2 COMPLETE).** Branch `mtl-improve`, all pushed, working tree clean.
+This is a single "you are here" snapshot. Full chronology: `log.md` (the 2026-06-04 Tier-2 entries).
+Design + per-tier results: `INDEX.html`. **Tier-2 close-out (read this): `PAPER_UPDATE.md`.**
 
 ---
 
-## 1. Where we are
-- **Tier 0 + Tier 1 are COMPLETE and FROZEN.** The (c)/(d) STL ceilings are the immutable track yardstick.
-- **Tier S (STL head search) is COMPLETE — a reviewer-proof NEGATIVE**: no head, encoder, aux loss, OR
-  per-task-tuned challenger beats the tuned per-task incumbent. The head is NOT the lever (regime finding).
-- **Tier 2 (T2.1 dual-tower) is the next step and has NOT started.** It is the centerpiece — the architectural
-  gap in the joint MTL reg pathway. Now *better motivated* (see the overlap finding §4).
+## 0. ⭐ TIER 2 IS COMPLETE — two results (2026-06-04). Read `PAPER_UPDATE.md`.
+**(1) Architecture: clean, multi-seed-hardened NEGATIVE.** No single-model MTL architecture closes the
+MTL→STL reg gap. The reg-private **dual-tower LOSES** to the matched baseline (FL multi-seed −3.35); a
+5-point sharing dose-response (`CrossStitch ≥ base_a ≈ hard-share ≫ dual-tower`) shows **more sharing
+helps reg** — refuting the §6.4 "missing private backbone" hypothesis; 3 mechanism cells (cat-weight=0,
+prior-OFF+wd0.01) localize the gap to the **joint cross-attn harness itself** (not interference/prior/wd).
+**→ the composite (two-model) is the deployable reg answer; the gap is irreducibly architectural.** The
+architecture axis is EXHAUSTED. CrossStitch = a real-but-small partial (+1pp reg multi-seed, mixed cat,
+−5..−10 below ceiling, NOT a closer). Implementation (`next_stan_flow_dualtower`,
+`mtlnet_crossattn_dualtower`) + unit gate + all drivers are committed; capstone advisor verified the
+code is correct and the decisions sound.
+
+**(2) Recipe WIN: `onecycle` is the new recommended SMALL-STATE recipe.** onecycle (aggressive schedule,
+NO alt-opt) dominates H3-alt at AL/AZ (v14 multi-seed +6–9pp reg / +1–2pp cat) and beats B9 on the v11
+paper substrate (AL reg +2.98 / cat +7.36; AZ reg +0.76 / cat +4.69). **alt-opt flips sign by scale** →
+keep B9 at large states (FL/CA). Adopted in `NORTH_STAR.md`. **§0.1 small-state arch-Δ annotated in
+`results/RESULTS_TABLE.md §0.1` — author sign-off needed** (it reshapes a central claim; reg shrink is
+modest on v11, the cat-flip is mostly a B9→deployable-recipe fix — read the nuance in `PAPER_UPDATE.md`).
+
+**OPEN for the next agent / author:** (a) the §0.1 paper re-statement decision (author); (b) whether to
+proceed to **Tier 3** (prior pathway / log_T-KD on the consolidated stack — regime finding predicts
+limited headroom now the architecture lever is closed) or **close the track**; (c) optional: confirm the
+onecycle recipe at CA/TX (5-fold was impractical ~5h/run; CA 1-fold directional done, TX not run).
+
+---
+
+## 1. Where we are (pre-Tier-2 context, all still true)
+- **Tier 0 + Tier 1 are COMPLETE and FROZEN.** The (c)/(d) STL ceilings are the immutable track yardstick
+  (UNTOUCHED by Tier 2; `t14_freeze_sanity.py` GREEN).
+- **Tier S (STL head search) is COMPLETE — a reviewer-proof NEGATIVE**: the head is NOT the lever.
+- **Tier 2 (T2.1 dual-tower) is now COMPLETE (NEGATIVE)** — see §0 above.
 - A major out-of-band finding (overlapping windows) was validated + documented as future-work; **the
   non-overlapping canon is deliberately KEPT** for whole-study consistency.
 

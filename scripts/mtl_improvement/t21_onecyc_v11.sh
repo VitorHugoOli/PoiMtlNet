@@ -23,7 +23,9 @@ COMMON="--task mtl --task-set check2hgi_next_region --engine check2hgi \
   --log-t-kd-weight 0.0 --no-checkpoints"
 
 run_arm(){
-  local state=$1 seed=$2 key="onecyc_v11|${state}|s${seed}"
+  local state="$1"
+  local seed="$2"
+  local key="onecyc_v11|${state}|s${seed}"
   grep -qF "$key	" "$MANIFEST" && { say "skip $key"; return 0; }
   say "start $key"
   $PY scripts/train.py $COMMON --state "$state" --seed "$seed" $RECIPE \
@@ -37,11 +39,10 @@ run_arm(){
 }
 
 say "CONC=$CONC"; nvidia-smi --query-gpu=memory.used --format=csv,noheader | sed 's/^/[gpu] /'
-while IFS= read -r spec; do
-  [ -z "$spec" ] && continue
-  st=${spec% *}; sd=${spec#* }
+while read -r st sd; do
+  [ -z "$st" ] && continue
   run_arm "$st" "$sd" &
   while [ "$(jobs -rp | wc -l)" -ge "$CONC" ]; do sleep 3; done
-done < <(for st in alabama arizona; do for sd in 0 1 7 100; do echo "$st $sd"; done; done)
+done < <(for s in alabama arizona; do for d in 0 1 7 100; do echo "$s $d"; done; done)
 wait
 say "ALL DONE"

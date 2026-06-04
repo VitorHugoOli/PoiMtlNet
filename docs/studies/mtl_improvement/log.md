@@ -1198,6 +1198,48 @@ probe). Then surface the decomposition to the user (the real ship/partial/negati
 
 ---
 
+## 2026-06-04 — TIER 2 FINAL: hardening (multi-seed) + v11 onecycle confirmation + adoption
+
+**Phase**: Tier 2 close (user: "adopt + harden first" → "write close-out + HANDOFF"). All onecycle,
+KD-OFF, seeded per-fold log_T, 5f×50ep.
+
+**Hardening (harden2, multi-seed) — both verdicts hold:**
+- **FL dual-tower negative HARDENED multi-seed** ({0,1,7}): dt_gated reg 59.03±0.15 vs base_a 62.38 =
+  **Δ −3.35** (tighter + bigger than seed42's −2.89). The architecture negative is multi-seed-solid at FL.
+- **CrossStitch partial is REAL but small** ({0,1,7}): Δreg **+1.07/+1.02** at AL/AZ (σ 0.08–0.33, OUTSIDE
+  noise; seed42 "within σ" was too conservative), +0.37 FL; cat MIXED (AL −1.40 / AZ −0.11 / FL +0.59).
+  → CrossStitch genuinely improves reg ~1pp (the ONLY arch that does) at a small AL-cat cost, still
+  −5 to −10pp below the (c) ceiling → a real weak-partial, NOT a gap-closer. Verdict unchanged.
+
+**v11 onecycle confirmation (paper substrate, AL/AZ {0,1,7,100}, diagnostic-best to match §0.1):**
+| | onecyc reg | vs §0.1 B9 | arch-Δ reg | onecyc cat | vs §0.1 B9 | arch-Δ cat |
+|---|---|---|---|---|---|---|
+| AL | 53.15±0.44 | +2.98 | −8.06 (was −11.04) | 47.93±0.16 | +7.36 | +6.58 (was −0.78) |
+| AZ | 41.54±0.23 | +0.76 | −11.52 (was −12.28) | 49.79±0.17 | +4.69 | +5.89 (was +1.20) |
+
+- **The recipe finding TRANSFERS to v11** (onecycle > B9 on the paper substrate), but with NUANCE:
+  - **reg gain over B9 is MODEST on v11** (AL +2.98, AZ +0.76 — smaller than v14's +5.5) → the reg
+    arch-deficit shrinks only modestly (AL −11→−8, AZ −12.3→−11.5).
+  - **cat gain over B9 is LARGE** (AL +7.36, AZ +4.69) — but this is mostly because **§0.1's table uses B9
+    (alt-SGD tanks small-state cat), not the SHIPPED H3-alt.** vs H3-alt (cat ~46.78), onecycle cat (~47.9)
+    is only +1pp. So the §0.1 "AL cat −0.78" was a **B9-recipe artifact**; the deployable cat is positive.
+
+**ADOPTION DECISION (user-approved "adopt + harden first"):**
+- **Adopt onecycle as the recommended small-state (AL/AZ) MTL recipe** (NORTH_STAR) — dominates H3-alt
+  (v14 +6-9 reg / +1-2 cat, multi-seed) and beats B9 (v11 paper substrate, modest reg + large cat).
+- **Keep B9 at large states** (FL/CA: onecycle does not dominate; B9 wins cat at scale).
+- **§0.1 re-statement (DELICATE — touches the BRACIS architectural-Δ headline):** documented as an
+  ANNOTATION (provenance-preserving, not overwriting B9 numbers) — the implied onecycle small-state
+  arch-Δ + the nuance (modest reg shrink; cat-flip entangled with §0.1's B9-vs-H3-alt choice). Flagged
+  for user review before it enters the submission proper. Do NOT silently rewrite §0.1.
+
+**Chain status**: Tier 2 COMPLETE — architecture NEGATIVE (multi-seed hardened) + onecycle recipe WIN
+(adopted small-state). Frozen (c)/(d) untouched; freeze-sanity GREEN.
+
+**Next**: write PAPER_UPDATE.md (Tier-2 close-out) + rewrite HANDOFF.md (Tier 2 complete); commit + push.
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:
