@@ -17,8 +17,14 @@ disjoint (capacity); cat = macro-F1 deploy.
 | onecycle | **56.45 / 48.51** | **44.26 / 49.43** | 61.87 / 65.82 | _pending_ | _pending_ |
 | B9 | **50.96 / 42.80** | **38.32 / 46.82** | 61.28 / 70.26 (L) | _pending_ | _pending_ |
 
-(CA/TX: B9 + onecycle pending — canonical substrate, graph maps safely regenerated 2026-06-04,
-99.99% aligned; run serially CONC=1 due to 8.5k/6.5k-region VRAM ~31GB/run.)
+**CA (largest, 8501 regions) — 1-fold directional** (n_splits=2 single fold, leak-free; NOT comparable
+to the 5-fold absolutes above — read the B9-vs-onecycle Δ only; canonical substrate, graph maps safely
+regenerated + 5-fold log_T restored. TX cancelled by user; full 5-fold CA was ~5h/run, impractical):
+| recipe | CA reg@10 disj / dep | CA cat-F1 |
+|---|---|---|
+| onecycle | 47.05 / 46.75 | **61.28** |
+| B9 | **49.60 / 48.67** | 59.32 |
+→ at CA, **B9 and onecycle TRADE** (B9 wins reg +2.5, onecycle wins cat +2.0); **neither dominates**.
 
 ## Decomposition (the answer)
 **Small states (AL/AZ): onecycle DOMINATES both axes.**
@@ -44,9 +50,11 @@ aggressive scheduler AND alt-opt. The "aggressive-schedule-minus-alt-opt" cell w
 small-state cat, helps large-state cat); the aggressive schedule helps reg everywhere but matters most
 at small states where H3-alt's weak constant LR left reg on the table.
 
-## Recommendation (pending CA/TX confirmation + user decision)
-- **AL/AZ: adopt onecycle** (dominates H3-alt by +6–9pp reg / +1–2pp cat, multi-seed validated).
-- **FL/CA/TX: keep B9** (cat win at scale; reg insensitive). Expect CA/TX to mirror FL.
+## Recommendation (large-state side now confirmed by FL multi-seed + CA 1-fold)
+- **AL/AZ: adopt onecycle** (DOMINATES H3-alt by +6–9pp reg / +1–2pp cat, multi-seed validated). Clear.
+- **FL/CA/TX: keep B9** — at large states **onecycle does NOT dominate**: FL reg-tie + B9 wins cat (+4.4);
+  CA B9 wins reg (+2.5) / onecycle wins cat (+2.0), a trade. No clear reason to switch large states.
+  (TX not run — user cancelled the 5-fold; FL multi-seed + CA 1-fold are the large-state evidence.)
 - **Consequence:** re-states the (a) MTL baseline at small states → shrinks the composite advantage
   (AL MTL→composite gap 13.44→7.44pp). NORTH_STAR small-state recipe change candidate; needs the user.
 - **Does NOT change** the T2.1 architecture verdict (dual-tower falsified) or the STL (c)/(d) ceilings.
