@@ -61,13 +61,23 @@ run_one(){
   local rec; rec=$(recipe "$regime") || { say "FAIL bad regime $regime"; return 1; }
   local log="$LOGDIR/${regime}_${state}.log"
   say "start $key"
-  if $PY scripts/train.py $COMMON --state "$state" $rec \
-       --per-fold-transition-dir "output/$V14/$state" > "$log" 2>&1; then
-    local rd; rd=$(ls -dt results/$V14/$state/mtlnet_*ep${EPOCHS}_* 2>/dev/null | head -1)
+  # Race-free rundir capture: train.py names its rundir ...{ts}_{os.getpid()}
+  # (src/tracking/experiment.py). Background it, capture the PID, and map the
+  # rundir deterministically by its PID suffix — NOT `ls -dt` (which races under
+  # concurrency and silently mis-attributes runs to the same dir).
+  $PY scripts/train.py $COMMON --state "$state" $rec \
+      --per-fold-transition-dir "output/$V14/$state" > "$log" 2>&1 &
+  local pid=$!
+  wait "$pid"; local rc=$?
+  if [ $rc -eq 0 ]; then
+    local rd; rd=$(ls -d results/$V14/$state/mtlnet_*ep${EPOCHS}_*_${pid} 2>/dev/null | head -1)
+    if [ -z "$rd" ] || [ ! -f "$rd/summary/full_summary.json" ]; then
+      say "WARN $key — rundir for pid=$pid not found/incomplete (rd='$rd')"
+    fi
     printf '%s\t%s\t%s\n' "$key" "$regime" "$rd" >> "$MANIFEST"
-    say "done $key -> $rd"
+    say "done $key (pid=$pid) -> $rd"
   else
-    say "FAIL $key — see $log"
+    say "FAIL $key (pid=$pid rc=$rc) — see $log"
   fi
 }
 
