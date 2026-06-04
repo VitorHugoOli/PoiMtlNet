@@ -544,5 +544,21 @@ class MTLnet(nn.Module):
             )
         )
 
+    def cat_specific_parameters(self) -> Iterator[nn.Parameter]:
+        """Cat-only params (cat encoder + cat head) for the per-head-LR
+        optimizer (F48-H3). Added 2026-06-04 so the hard-share anchor (T2.0,
+        mtl_improvement) can run under the SAME per-head onecycle recipe as the
+        cross-attn arms — a clean dose-response comparison. Excludes the shared
+        trunk (film/task_embedding/shared_layers), which stays in
+        ``shared_parameters``. Mirrors ``MTLnetCrossStitch``."""
+        yield from self.category_encoder.parameters()
+        yield from self.category_poi.parameters()
+
+    def reg_specific_parameters(self) -> Iterator[nn.Parameter]:
+        """Reg/next-only params (next encoder + next head) for the per-head-LR
+        optimizer. See ``cat_specific_parameters``."""
+        yield from self.next_encoder.parameters()
+        yield from self.next_poi.parameters()
+
 
 __all__ = ["MTLnet"]
