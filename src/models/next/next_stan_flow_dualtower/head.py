@@ -1,0 +1,259 @@
+"""Dual-tower STAN-Flow reg head — T2.1 (mtl_improvement, reg-private dual-tower).
+
+The centerpiece of Tier 2. The MTL reg head currently reads only the
+cross-attn *shared* backbone output (a cat-shaped, joint-trained [B,9,256]
+representation), which caps reg learning at ~12-17pp below the deployable
+composite (the "regime finding": the gap is architectural, P4 + §6.4 — ~75% is
+the *missing private backbone*). This head adds a **private full-STAN backbone
+on the RAW [B,9,64] region sequence** — exactly the STL reg pathway — and fuses
+it with the shared pathway at the pooled feature, then applies one classifier +
+the α·log_T trajectory-flow prior.
+
+Two towers, each a faithful replica of its reference path (distinct param names
+so ``MTLnet._build_next_head``'s inject+filter can't silently mis-set them):
+
+  * ``private_stan`` — raw 64-dim → STAN. **(c)-STL-ceiling faithful**:
+    ``priv_num_heads=4``, ``priv_dropout=0.3``, ``d_model=128``, ``bias="alibi"``
+    (the frozen ceiling used ``NextHeadSTAN`` defaults; see
+    ``docs/studies/mtl_improvement/log.md`` T1.4 + ``T2.1_DUALTOWER_DESIGN.md``).
+  * ``shared_stan`` — cross-attn output 256-dim → STAN. **(a)-baseline faithful**:
+    ``num_heads`` (=8, INJECTED), ``dropout`` (=0.1, INJECTED), ``d_model=128``.
+
+Fusion at the pooled ``[B, d_model]`` feature:
+  * ``gated`` (b, PRIMARY): ``g = σ(W·[priv ; shared]); feat = g·priv + (1-g)·shared``
+    — the only mode that tests whether the shared backbone *adds* to the private
+    tower. Gate bias inits toward private (σ≈0.73) so the under-trained shared
+    backbone must earn its weight.
+  * ``private_only`` (a): ``feat = priv`` — composite trained jointly (control).
+  * ``aux`` (c): ``feat = priv + β·aux_proj(shared)``, β learnable init 0.1
+    (≈ private at init; dials in the cross-attn auxiliary if useful).
+
+The two sub-STANs are used **only via ``forward_features``** (the pooled feature);
+their internal classifiers are replaced with ``Identity`` to avoid two redundant
+high-cardinality (≈ d_model × n_regions) projections. One fused classifier owns
+the logits.
+
+α·log_T prior plumbing (aux side-channel, per-fold seeded ``transition_path``) is
+identical to ``NextHeadStanFlow`` so the per-fold head rebuild + ``--alpha-no-
+weight-decay`` (reads ``model.next_poi.alpha``) keep working unchanged.
+"""
+
+from __future__ import annotations
+
+from typing import Optional
+
+import torch
+import torch.nn as nn
+
+from data.aux_side_channel import get_current_aux
+from models.next.next_stan.head import NextHeadSTAN
+from models.registry import register_model
+
+_FUSION_MODES = ("gated", "private_only", "aux")
+
+
+@register_model("next_stan_flow_dualtower")
+class NextHeadStanFlowDualTower(nn.Module):
+    """Reg-private dual-tower STAN-Flow head (gated / private_only / aux fusion).
+
+    Parameters
+    ----------
+    embed_dim:
+        Dim of the SHARED pathway input ``x`` (= shared_layer_size, 256;
+        injected by ``MTLnet._build_next_head``). Drives ``shared_stan``.
+    num_classes, seq_length:
+        Region label space + window length.
+    d_model:
+        STAN hidden width for BOTH towers (the frozen (c) ceiling used 128;
+        not injected — head default). Gate/aux fusion requires both towers at
+        ``d_model``.
+    num_heads, dropout:
+        SHARED-tower STAN heads/dropout. **Injected** by ``_build_next_head``
+        (model ``num_heads``=8, ``dropout``=0.1) → faithful (a)-baseline replica.
+    bias_init:
+        STAN pairwise-bias init for both towers ("alibi", the ceiling default).
+    raw_embed_dim:
+        Dim of the RAW region sequence handed to ``private_stan`` (64). Pass via
+        ``--reg-head-param raw_embed_dim=64``.
+    priv_num_heads, priv_dropout:
+        PRIVATE-tower STAN heads/dropout. **Distinct names** so the inject+filter
+        cannot override them — STL-ceiling-faithful defaults (4 / 0.3).
+    fusion_mode:
+        ``{"gated"(b), "private_only"(a), "aux"(c)}``.
+    transition_path, alpha_init, freeze_alpha:
+        α·log_T prior — identical semantics to ``NextHeadStanFlow``. The primary
+        T2.1 arm runs prior-ON (matches the (a) baseline); the prior-OFF control
+        passes ``freeze_alpha=True alpha_init=0.0``.
+    """
+
+    def __init__(
+        self,
+        embed_dim: int,
+        num_classes: int,
+        seq_length: int = 9,
+        d_model: int = 128,
+        num_heads: int = 8,
+        dropout: float = 0.1,
+        bias_init: str = "alibi",
+        raw_embed_dim: int = 64,
+        priv_num_heads: int = 4,
+        priv_dropout: float = 0.3,
+        fusion_mode: str = "gated",
+        transition_path: Optional[str] = None,
+        alpha_init: float = 0.1,
+        freeze_alpha: bool = False,
+    ):
+        super().__init__()
+        if fusion_mode not in _FUSION_MODES:
+            raise ValueError(
+                f"fusion_mode must be one of {_FUSION_MODES}, got {fusion_mode!r}"
+            )
+        self.fusion_mode = str(fusion_mode)
+        self._num_classes = int(num_classes)
+        self.d_model = int(d_model)
+
+        # --- Private tower: raw [B,9,64] region sequence → STAN backbone.
+        #     (c)-STL-ceiling faithful (priv_num_heads=4, priv_dropout=0.3, d_model=128).
+        self.private_stan = NextHeadSTAN(
+            embed_dim=int(raw_embed_dim),
+            num_classes=num_classes,
+            seq_length=seq_length,
+            d_model=self.d_model,
+            num_heads=int(priv_num_heads),
+            dropout=float(priv_dropout),
+            bias_init=bias_init,
+        )
+        # Drop the sub-STAN's own classifier — we pool via forward_features and
+        # own the logits with a single fused classifier (avoids a redundant
+        # d_model × n_regions projection per tower).
+        self.private_stan.classifier = nn.Identity()
+
+        # --- Shared tower: cross-attn output [B,9,256] → STAN backbone.
+        #     (a)-baseline faithful (num_heads/dropout injected). Built only for
+        #     modes that consume the shared pathway.
+        if self.fusion_mode in ("gated", "aux"):
+            self.shared_stan = NextHeadSTAN(
+                embed_dim=int(embed_dim),
+                num_classes=num_classes,
+                seq_length=seq_length,
+                d_model=self.d_model,
+                num_heads=int(num_heads),
+                dropout=float(dropout),
+                bias_init=bias_init,
+            )
+            self.shared_stan.classifier = nn.Identity()
+        else:
+            self.shared_stan = None
+
+        # --- Fusion modules.
+        if self.fusion_mode == "gated":
+            # Per-dim sigmoid gate over [priv ; shared]; bias init +1.0 → σ≈0.73
+            # toward private so the shared backbone must earn its weight.
+            self.gate_net = nn.Linear(2 * self.d_model, self.d_model)
+            nn.init.constant_(self.gate_net.bias, 1.0)
+        elif self.fusion_mode == "aux":
+            self.aux_proj = nn.Linear(self.d_model, self.d_model)
+            self.beta = nn.Parameter(torch.tensor(0.1))
+
+        # --- Fused classifier (mirrors NextHeadSTAN.classifier structure).
+        self.classifier = nn.Sequential(
+            nn.LayerNorm(self.d_model),
+            nn.Dropout(float(dropout)),
+            nn.Linear(self.d_model, num_classes),
+        )
+
+        # --- α·log_T trajectory-flow prior (identical to NextHeadStanFlow).
+        if bool(freeze_alpha):
+            self.register_buffer("alpha", torch.tensor(float(alpha_init)))
+        else:
+            self.alpha = nn.Parameter(torch.tensor(float(alpha_init)))
+
+        if transition_path is not None:
+            payload = torch.load(
+                transition_path, map_location="cpu", weights_only=False
+            )
+            log_T = payload["log_transition"] if isinstance(payload, dict) else payload
+            log_T = log_T.float()
+            if log_T.shape[0] < num_classes or log_T.shape[1] < num_classes:
+                raise ValueError(
+                    f"Transition matrix shape {tuple(log_T.shape)} is smaller "
+                    f"than num_classes={num_classes}. Rebuild for this state."
+                )
+            log_T = log_T[:num_classes, :num_classes].contiguous()
+            self.register_buffer("log_T", log_T)
+        else:
+            self.register_buffer("log_T", torch.zeros(num_classes, num_classes))
+
+    # ------------------------------------------------------------------
+    def _fuse(
+        self,
+        priv_feat: Optional[torch.Tensor],
+        shared_feat: Optional[torch.Tensor],
+        ref: torch.Tensor,
+    ) -> torch.Tensor:
+        """Combine pooled [B, d_model] tower features per ``fusion_mode``.
+
+        ``ref`` supplies device/dtype/batch for the defensive zero-fill on the
+        ``raw_region_seq is None`` probe path (never the training/eval path).
+        """
+        b = ref.size(0)
+        if priv_feat is None:
+            priv_feat = ref.new_zeros(b, self.d_model)
+        if self.fusion_mode == "private_only":
+            return priv_feat
+        if shared_feat is None:
+            shared_feat = ref.new_zeros(b, self.d_model)
+        if self.fusion_mode == "gated":
+            g = torch.sigmoid(
+                self.gate_net(torch.cat([priv_feat, shared_feat], dim=-1))
+            )
+            return g * priv_feat + (1.0 - g) * shared_feat
+        # aux
+        return priv_feat + self.beta * self.aux_proj(shared_feat)
+
+    def _apply_prior(self, logits: torch.Tensor) -> torch.Tensor:
+        """Add α·log_T[last_region_idx]; keep α in-graph on the no-aux path."""
+        aux = get_current_aux()  # [B] int64 last_region_idx, or None
+        if aux is None:
+            # Defensive (eval outside AuxPublishingLoader / FLOPs probe / unit
+            # test): keep α (and the prior pathway) in the autograd graph via a
+            # zero-coefficient multiply so PCGrad's task-param enumeration never
+            # hits ``p.grad is None``. Mirrors NextHeadStanFlow.forward.
+            return logits + self.alpha * 0.0
+        if aux.device != logits.device:
+            aux = aux.to(logits.device)
+        pad_mask = (aux < 0) | (aux >= self._num_classes)
+        safe_idx = aux.clamp(min=0, max=self._num_classes - 1)
+        transition_prior = self.log_T[safe_idx]  # [B, num_classes]
+        if pad_mask.any():
+            transition_prior = transition_prior.masked_fill(
+                pad_mask.unsqueeze(-1), 0.0
+            )
+        return logits + self.alpha * transition_prior
+
+    def forward(
+        self,
+        x: torch.Tensor,
+        raw_region_seq: Optional[torch.Tensor] = None,
+    ) -> torch.Tensor:
+        """Args:
+        x: SHARED pathway [B, S, embed_dim=256] (cross-attn output).
+        raw_region_seq: RAW [B, S, raw_embed_dim=64] region sequence — the
+            model subclass passes the post-pad-mask ``next_input`` here.
+        """
+        priv_feat = (
+            self.private_stan.forward_features(raw_region_seq)
+            if raw_region_seq is not None
+            else None
+        )
+        shared_feat = (
+            self.shared_stan.forward_features(x)
+            if self.shared_stan is not None
+            else None
+        )
+        feat = self._fuse(priv_feat, shared_feat, ref=x)
+        logits = self.classifier(feat)
+        return self._apply_prior(logits)
+
+
+__all__ = ["NextHeadStanFlowDualTower"]

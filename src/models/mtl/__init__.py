@@ -3,12 +3,13 @@
 from .mtlnet.model import MTLnet
 from .mtlnet_cgc.model import MTLnetCGC
 from .mtlnet_crossattn.model import MTLnetCrossAttn
+from .mtlnet_crossattn_dualtower.model import MTLnetCrossAttnDualTower
 from .mtlnet_crossstitch.model import MTLnetCrossStitch
 from .mtlnet_dselectk.model import MTLnetDSelectK
 from .mtlnet_mmoe.model import MTLnetMMoE
 from .mtlnet_ple.model import MTLnetPLE
 
 __all__ = [
-    "MTLnet", "MTLnetCGC", "MTLnetCrossAttn", "MTLnetCrossStitch",
-    "MTLnetMMoE", "MTLnetDSelectK", "MTLnetPLE",
+    "MTLnet", "MTLnetCGC", "MTLnetCrossAttn", "MTLnetCrossAttnDualTower",
+    "MTLnetCrossStitch", "MTLnetMMoE", "MTLnetDSelectK", "MTLnetPLE",
 ]
