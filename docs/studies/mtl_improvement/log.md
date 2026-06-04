@@ -816,6 +816,47 @@ as optional rebuttal card.
 
 ---
 
+## 2026-06-04 — HARDENING: FL pair + T2.0 + T2.2 → negative CONFIRMED across AL/AZ/FL; dose-response
+
+**Phase**: Tier 2 hardening (user-approved). All onecycle per-head, seed42, 5f×50ep, prior-ON, KD-OFF.
+Added `cat_specific/reg_specific_parameters` to base MTLnet so T2.0 hard-share runs the matched recipe
+(partition verified bijective+exhaustive; 17 mtlnet tests pass). FL seed42 v14 log_T staged+fresh.
+
+**Sharing dose-response (reg@10 disjoint; `T21_dose_response_50ep_seed42.txt`):**
+| arm | AL | AZ | FL | Δreg vs base_a |
+|---|---|---|---|---|
+| T2.2 CrossStitch | 58.12 | 45.10 | 63.43 | **+0.8..+1.7** |
+| base_a (cross-attn, most-shared) | 56.45 | 44.26 | 61.87 | 0 |
+| T2.0 hard-share (mtlnet trunk) | 56.28 | 43.72 | 61.35 | −0.2..−0.5 |
+| T2.1 dual gated | 53.95 | 42.13 | **58.98** | −2.1..−2.9 |
+| T2.1 dual private-only | 52.41 | 40.50 | — | −3.8..−4.0 |
+| (c) STL ceiling | 62.88 | 55.11 | 73.31 | — |
+
+**Findings:**
+1. **Dual-tower negative CONFIRMED at FL** (gated 58.98 vs base_a 61.87 = −2.89) → the negative holds
+   across the full coverage range AL/AZ/FL. The advisor's "harden at the large state" satisfied.
+2. **Clean monotonic sharing→reg dose-response** at all 3 states: CrossStitch ≥ base_a ≈ hard-share ≫
+   gated > private-only. More cross-task sharing helps reg; isolation (the dual-tower) hurts. The §6.4
+   "missing private backbone" hypothesis is decisively refuted with a 5-point curve.
+3. **T2.0 hard-share ≈ base_a** (within 0.5pp) — hard (shared trunk) and soft (cross-attn) sharing are
+   equivalent for reg; both ≫ the dual-tower. The cross-attn champion is not the bottleneck.
+4. **T2.2 CrossStitch is the only architecture that doesn't lose reg** — slight +0.8..+1.7 vs base_a,
+   CONSISTENT across 3 states (cf §6.3 +1.84 "within σ"), but cat MIXED (AL −1.71, AZ +0.17, FL +1.41)
+   and still **−4.8 to −9.9pp below the (c) ceiling** → a weak partial within fold-σ, NOT a gap-closer.
+   Worth a multi-seed look as a minor reg-lever; does not change the verdict.
+5. **No architecture closes the MTL→STL reg gap** (best = CrossStitch, still −4.8..−9.9 below (c)) →
+   **composite (two-model deploy) is the answer.** Verdict hardened.
+6. **The onecycle "+6-9pp reg lever" is SMALL-STATE-specific:** at FL, base_a@onecycle reg 61.87 ≈
+   landed B9 61.28 (+0.6) but cat 65.82 < B9 70.26 (**−4.4pp cat!**). So onecycle helps reg at AL/AZ,
+   is reg-neutral + cat-HURTING at FL. The multi-seed validate stage (running, CONC=2) quantifies this —
+   the lever is NOT a universal Tier-4 win.
+
+**Chain status**: T2.1 NEGATIVE hardened across AL/AZ/FL; chain preserved.
+
+**Next**: read validate (onecycle multi-seed AL/AZ/FL) → final Tier-2 verdict + advisor + write-up.
+
+---
+
 ## 2026-06-04 — TIER 2 SUMMARY (T2.1 centerpiece resolved: NEGATIVE) — surface to user
 
 **Tier-2 status: the load-bearing card (T2.1 dual-tower) is a clean NEGATIVE. Composite is the answer.**

@@ -856,7 +856,8 @@ The user flagged that the screens used <strong>registry defaults, not a per-arch
 <div class="block"><div class="block-title">Methodology</div>FiLM-off <code>mtlnet</code>: shared <code>ResidualBlock</code> trunk + per-task encoders + task heads, with FiLM γ/β set to identity (near-zero code in <code>src/models/mtl/mtlnet/model.py</code>). Same recipe + heads + log_T as the rest of Tier 2. 5f × 50ep × seed42 AL+AZ+FL, frozen folds. <strong>Do NOT add AdaShare / Learning-to-Branch</strong> — at 2 tasks they collapse to branch-depth, which the dual-tower (T2.1) already spans; cite them as related-work justification for T2.1, not as arms.</div>
 <div class="block"><div class="block-title">Evaluation</div>cat F1 + reg Acc@10 @ 3 frontiers + per-task disjoint/joint (§Metrics), vs v14-base (a) + the soft (crossattn) and private (dual-tower) ends. Locates the hard end of the spectrum table.</div>
 <div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Anchor</strong>: pin the hard-share point of the spectrum regardless of outcome. <strong>Surprise-promote</strong> (unlikely): if hard-share ≥ the soft champion on reg, the P4 task-starvation story needs revisiting — escalate. <strong>Expected</strong>: hard-share ≤ soft ≤ private on reg — the completed spectrum that frames T2.1.</div></div>
-<div class="results-placeholder">Results: <em>pending execution</em></div>
+<div class="block"><div class="block-title">Results (2026-06-04) — onecycle, seed42, 5f×50ep</div>
+<p>Hard-share (<code>mtlnet</code> shared trunk + next_getnext_hard) reg@10 disjoint: AL 56.28 / AZ 43.72 / FL 61.35 — <strong>≈ base_a (cross-attn) within 0.2–0.5pp</strong> at all 3 states. Hard and soft sharing are <em>equivalent</em> for reg; both ≫ the dual-tower. <strong>Verdict:</strong> <span class="pill warn">anchor pinned</span> — the spectrum is hard ≈ soft ≫ dual-tower; the "surprise-promote" (hard-share inverts the §6.4 story) did NOT fire but the dose-response is the cleaner refutation. Agg: <code>docs/results/mtl_improvement/T21_dose_response_50ep_seed42.txt</code>.</p></div>
 </div>
 
 <div class="experiment" id="T2-1">
@@ -892,8 +893,9 @@ The user flagged that the screens used <strong>registry defaults, not a per-arch
 <div class="block"><div class="block-title">Hypothesis</div>B9_STL_STAN_SWAP §6.3: CrossStitch is the only Pareto-improvement (+1.84pp reg / +0.23pp cat, within σ at AZ single-seed). Never multi-seed/leak-free on v14. Per-channel α (Misra faithful) vs the current global 2×2.</div>
 <div class="block"><div class="block-title">Methodology</div>Upgrade <code>mtlnet_crossstitch</code> to per-channel α; with/without <code>detach_cross_stream</code>. Per-arch LR mini-sweep. 5f × 50ep AL+AZ+FL on v14. Compose with T2.1 if both promote.</div>
 <div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: ≥1pp reg (n=5) / ≥0.5pp (n=15), cat non-inferior. <strong>Compose</strong> with T2.1 winner if independent.</div></div>
-<div class="block"><div class="block-title">HGI sanity probe</div>If promoted: as T2.1.</div>
-<div class="results-placeholder">Results: <em>pending execution</em></div>
+<div class="block"><div class="block-title">HGI sanity probe</div>If promoted: as T2.1. <em>(N/A.)</em></div>
+<div class="block"><div class="block-title">Results (2026-06-04) — onecycle, seed42, 5f×50ep (current <code>mtlnet_crossstitch</code>, not yet per-channel α)</div>
+<p>CrossStitch (cross-stitch units + next_getnext_hard) reg@10 disjoint: AL 58.12 / AZ 45.10 / FL 63.43 — <strong>the only architecture that does NOT lose reg vs base_a</strong> (Δ +1.67/+0.84/+1.56, consistent across 3 states; cf §6.3 +1.84 "within σ"). But cat MIXED (AL −1.71 / AZ +0.17 / FL +1.41) and still <strong>−4.8 to −9.9pp below the (c) STL ceiling</strong>. <strong>Verdict:</strong> <span class="pill warn">weak partial (within fold-σ), NOT a gap-closer</span> — the best of the architectures but recovers only ~8–26% of the base_a→(c) gap. A minor reg-lever worth a multi-seed look; does not change the "ship composite" verdict. The faithful per-channel-α upgrade (Misra) was NOT needed to reach this read. Agg: <code>T21_dose_response_50ep_seed42.txt</code>.</p></div>
 </div>
 
 <div class="experiment" id="T2-3">

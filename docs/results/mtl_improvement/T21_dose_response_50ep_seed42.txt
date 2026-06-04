@@ -1,0 +1,25 @@
+
+### ALABAMA   (c) STL reg ceiling = 62.88
+  arm                                  reg@10 disj   cat-F1  Δreg vs base   vs (c)
+  T2.2 CrossStitch (cross-talk)              58.12    46.80         +1.67    -4.76
+  base_a (cross-attn, most-shared)           56.45    48.51         +0.00    -6.43
+  T2.0 hard-share (mtlnet trunk)             56.28    47.53         -0.17    -6.60
+  T2.1 dual-tower gated                      53.95    48.44         -2.50    -8.93
+  T2.1 dual private-only                     52.41    47.64         -4.04   -10.47
+  T2.1 dual private-only prior-OFF           52.32    48.07         -4.13   -10.56
+
+### ARIZONA   (c) STL reg ceiling = 55.11
+  arm                                  reg@10 disj   cat-F1  Δreg vs base   vs (c)
+  T2.2 CrossStitch (cross-talk)              45.10    49.60         +0.84   -10.01
+  base_a (cross-attn, most-shared)           44.26    49.43         +0.00   -10.85
+  T2.0 hard-share (mtlnet trunk)             43.72    48.98         -0.54   -11.39
+  T2.1 dual-tower gated                      42.13    49.38         -2.13   -12.98
+  T2.1 dual private-only                     40.50    49.54         -3.76   -14.61
+  T2.1 dual private-only prior-OFF           40.55    49.80         -3.71   -14.56
+
+### FLORIDA   (c) STL reg ceiling = 73.31
+  arm                                  reg@10 disj   cat-F1  Δreg vs base   vs (c)
+  T2.2 CrossStitch (cross-talk)              63.43    67.23         +1.56    -9.88
+  base_a (cross-attn, most-shared)           61.87    65.82         +0.00   -11.44
+  T2.0 hard-share (mtlnet trunk)             61.35    65.33         -0.52   -11.96
+  T2.1 dual-tower gated                      58.98    69.22         -2.89   -14.33
