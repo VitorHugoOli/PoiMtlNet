@@ -1,0 +1,18 @@
+
+### ALABAMA  (n=4 seeds; landed (a) recipe=H3-alt)
+  reg_disj  onecycle= 56.46±0.36  landed(a)= 47.23  Δ= +9.23
+  reg_dep   onecycle= 56.14±0.32  landed(a)= 50.14  Δ= +6.00
+  cat_disj  onecycle= 48.78±0.30  landed(a)= 46.78  Δ= +2.00
+  cat_dep   onecycle= 48.62±0.18  landed(a)= 46.50  Δ= +2.12
+
+### ARIZONA  (n=4 seeds; landed (a) recipe=H3-alt)
+  reg_disj  onecycle= 44.22±0.18  landed(a)= 38.27  Δ= +5.95
+  reg_dep   onecycle= 44.06±0.25  landed(a)= 37.78  Δ= +6.28
+  cat_disj  onecycle= 49.52±0.43  landed(a)= 48.75  Δ= +0.77
+  cat_dep   onecycle= 49.44±0.42  landed(a)= 48.52  Δ= +0.92
+
+### FLORIDA  (n=4 seeds; landed (a) recipe=B9)
+  reg_disj  onecycle= 62.38±0.32  landed(a)= 61.28  Δ= +1.10
+  reg_dep   onecycle= 61.22±0.89  landed(a)= 61.21  Δ= +0.01
+  cat_disj  onecycle= 69.10±0.10  landed(a)= 70.26  Δ= -1.16
+  cat_dep   onecycle= 66.01±0.88  landed(a)= 66.73  Δ= -0.72

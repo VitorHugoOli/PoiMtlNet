@@ -816,6 +816,56 @@ as optional rebuttal card.
 
 ---
 
+## 2026-06-04 — ONECYCLE VALIDATION (multi-seed) → small-state recipe WIN; TIER 2 final verdict
+
+**Phase**: Tier 2 closing. onecycle {0,1,7,100} × AL/AZ/FL vs landed (a) (H3-alt small / B9 FL).
+
+**Result (`T21_onecycle_validation_multiseed.txt`):**
+| state (vs landed recipe) | reg_disj | reg_dep | cat_disj | cat_dep |
+|---|---|---|---|---|
+| AL (vs H3-alt) | 56.46±0.36 (**+9.23**) | 56.14 (**+6.00**) | 48.78 (+2.00) | 48.62 (+2.12) |
+| AZ (vs H3-alt) | 44.22±0.18 (**+5.95**) | 44.06 (**+6.28**) | 49.52 (+0.77) | 49.44 (+0.92) |
+| FL (vs B9) | 62.38±0.32 (+1.10) | 61.22 (+0.01) | 69.10 (−1.16) | 66.01 (−0.72) |
+
+- **STATE-CONDITIONAL recipe win**: at small states (AL/AZ) the blessed recipe is H3-alt (weak constant
+  LR); onecycle (aggressive schedule, **no alt-opt**) wins **+6-9pp reg AND +1-2pp cat**, multi-seed,
+  tight σ (0.18-0.43) → not seed42 luck. At FL the recipe is already B9 (strong) → onecycle ≈ B9 (reg
+  neutral, cat −1pp). Mechanism: onecycle = B9's aggressive schedule WITHOUT B9's alt-opt (which the LR
+  sweep showed is the WORST knob for the reg head) → the small-state sweet spot H3-alt + B9 both missed.
+- **Improves the (a) MTL baseline at small states** → shrinks the composite advantage: AL MTL→composite
+  gap 13.44→7.44pp (deploy 56.14 vs composite 63.58); AZ 17.33→11.05pp. The "composite +12-17pp" claim
+  (HANDOFF §9) was partly an artifact of the weak H3-alt small-state recipe.
+- Does NOT change the T2.1 architecture verdict (dual-tower loses to base_a, both at onecycle).
+
+**=== TIER 2 FINAL VERDICT (two results) ===**
+1. **ARCHITECTURE: NEGATIVE (paper-grade, hardened AL/AZ/FL).** No MTL architecture closes the MTL→STL
+   reg gap. Clean 5-point sharing dose-response (CrossStitch ≥ base_a ≈ hard-share ≫ dual-tower) +
+   3-cell mechanism (gap is the cross-attn joint harness, not interference/prior/wd). **Composite
+   (two-model deploy) is the deployable answer.** CrossStitch = weak partial (within σ, not a closer).
+2. **RECIPE: a real Tier-4 WIN.** onecycle replaces H3-alt at small states for **+6-9pp reg / +1-2pp
+   cat** (multi-seed). Actionable, paper-relevant — re-states the (a) baseline + composite-advantage.
+
+**Open for user (recipe-change is consequential):** adopt onecycle as the small-state recipe (replacing
+H3-alt in NORTH_STAR), validate at CA/TX, and re-state §0.1 (a)/composite small-state numbers? Cross-check
+vs canonical_improvement recipe history first (was onecycle-without-alt-opt previously tested/rejected?).
+
+**Chain status**: Tier 2 complete (architecture negative + recipe win); chain preserved.
+
+**Soundness sanity-check (DONE):**
+- **Leak-free**: onecyc_val runs loaded 5 seeded per-fold log_T each, KD OFF (verified in logs).
+- **GENUINELY NEW, not a re-discovery** (sub-agent recipe-history audit): H3-alt was blessed over B9 at
+  small states because B9's **alt-SGD** hurts cat (AL Δcat −2.22 p=1.9e-6, AZ −0.96 p=7.1e-4;
+  `RESULTS_TABLE.md §0.4`, `NORTH_STAR.md:18-24`) — the rejection was pinned on **alt-opt, not the
+  scheduler**. But H3-alt dropped BOTH the aggressive scheduler AND alt-opt. The "aggressive schedule +
+  no alt-opt" cell was only ever tested at **FL** (F50_T3 A1/A2, where it loses to B9 because FL already
+  has B9); **never at AL/AZ**. H3-alt was a binary over-correction; onecycle keeps the helpful lever
+  (schedule), drops only the harmful one (alt-opt) → the small-state sweet spot both H3-alt and B9 missed.
+  **Genuinely new, paper-relevant.**
+
+**Next**: surface complete verdict + recipe decision to user (adopt onecycle small-state recipe? Tier 3?).
+
+---
+
 ## 2026-06-04 — HARDENING: FL pair + T2.0 + T2.2 → negative CONFIRMED across AL/AZ/FL; dose-response
 
 **Phase**: Tier 2 hardening (user-approved). All onecycle per-head, seed42, 5f×50ep, prior-ON, KD-OFF.
