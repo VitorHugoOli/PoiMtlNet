@@ -250,29 +250,37 @@ state — so the α reading is trustworthy.
 | FL | **+1.095** ± 0.003 | 70.28 ✓ | 73.31 | +3.03 | 66.15 | 65.05 |
 
 **Both audit hypotheses are FALSIFIED.** α did **not** converge ≈0 (the "unexplained optimization artifact"
-hypothesis) and did **not** stay ≈0.1 (the "model didn't drop the prior" hypothesis). Instead **α converges to
-a large positive value that grows with scale/coverage (0.45 → 1.09)** — the model actively *leans into* the
-prior. Yet the prior-ON ceiling is **0.56–3.03 pp WORSE than α=0 at every state**, the gap also growing with
-scale.
+hypothesis) and did **not** stay ≈0.1 (the "model didn't drop the prior" hypothesis). Instead **α converges to a
+large positive value (0.45 → 1.09)** — the model actively *leans into* the prior. Yet the prior-ON ceiling is
+**0.56–3.03 pp WORSE than α=0 at every state**. (α is **larger at the larger / higher-coverage states**: AL 0.45
+< AZ 0.79 < GE 0.94 < FL 1.09, and the Δ tracks the same way — but this is n=4 noisy points, *suggestive, not a
+fitted trend*, and is NOT load-bearing for the finding. Note also: the captured α is the **final-epoch (50)**
+value while prior-ON Acc@10 is the best-epoch snapshot — immaterial given σ_α ≈ 0.001–0.005, but they are not
+read at the same epoch.)
 
 The standalone log_T prior (prior alone, no encoder) scores 44–66 % Acc@10 and **validates against the
 authoritative Markov-1-region floors** (AL 50.86 ≈ 47.01; FL 66.15 ≈ 65.05 — `docs/AGENT_CONTEXT.md` §184-185;
 the legacy "~21.3 %" is the *degenerate POI-level* markov, not comparable). So the prior carries real signal —
 **"α=0 wins" is NOT "transition priors are worthless."**
 
-**Mechanism (the actual finding, sharper than the audit anticipated): a train/val co-adaptation drag.** With
-the prior present (learnable α), the STAN encoder co-adapts to lean on the **train-only** per-fold log_T; α
-grows to exploit it. But the per-fold log_T is a weaker signal at val (it is train-estimated), so the
-crutch-dependent solution generalizes **worse** than the α=0 encoder that is forced to internalize the
-transition structure in its own representation. This also explains the MTL-vs-STL coherence (audit §2d): in MTL
-log_T enters as a **KD loss on the shared representation** (helps a starved backbone); in STL it enters as an
-**additive logit bias** (hurts a head that co-adapts and over-leans). **Reframe the written claim to: "the fixed
-additive log_T prior is a net drag on the STL reg ceiling — a learnable α leans into it (α↑ with scale) yet the
-co-adapted solution generalizes worse than the prior-free encoder."** Do NOT write "embeddings subsume
-transitions" (the prior is a strong standalone floor) nor "α stuck at its optimum" (it converged large). The
-§2c corollary stands and is strengthened: HGI's apparent reg edge was this same additive-prior artifact — with
-both substrates α=0-hardened, v14 ≈ HGI (every Δ < 0.5σ). JSON: `o1_alpha_probe.json`; driver
-`scripts/mtl_improvement/o1_alpha_probe.py`.
+**Phenomenology — the drag is the finding; the mechanism is NOT isolated (advisor 2026-06-04).** The probe
+establishes two facts cleanly: a learnable α converges large (and the head leans hard into the prior), yet
+prior-ON generalizes 0.56–3.03 pp *worse* than the prior-free (α=0) encoder at every state. **The fixed additive
+log_T prior is therefore a net drag on the STL-reg ceiling.** The *most likely* cause is that the **train-only**
+per-fold prior generalizes worse than transitions the encoder is forced to internalize (a train/val gap) — but
+the probe does **not** discriminate this from two observationally-equivalent alternatives: **additive
+scale-mismatch** (a large α mis-scales already-well-scaled encoder logits) or **double-counting** (STAN already
+models transitions; an additive Markov bias is redundant). State the drag as *observed*, the train/val-gap as
+*most-likely-but-not-proven*. This is coherent with the MTL-vs-STL split (audit §2d): in MTL log_T enters as a
+**KD loss on the shared representation** (helps a starved backbone); in STL as an **additive logit bias** (hurts
+a head that already fits transitions). **Reframed claim: "the fixed additive log_T prior is a net drag on the STL
+reg ceiling."** Do NOT write "embeddings subsume transitions" (the prior is a strong standalone floor), nor "α
+stuck at its optimum" (it converged large), nor assert the co-adaptation mechanism as proven (it is one of three
+candidate causes). The §2c corollary stands and is strengthened: HGI's apparent reg edge was this same
+additive-prior artifact — with both substrates α=0-hardened, v14 ≈ HGI (every Δ < 0.5σ). JSON:
+`o1_alpha_probe.json`; driver `scripts/mtl_improvement/o1_alpha_probe.py`. **Leak audit (advisor): NONE** —
+`last_region_idx` is the last *input* region (not the target), per-fold log_T is train-only, and the probe's
+SGKF(seed42) split matches the log_T builder's split bit-for-bit.
 
 ### O4 — Tier-S reporting gaps closed
 - **`next_hybrid` accounted** (it ran, was a reporting omission not a dropped arm): AL cat macro-F1 **49.34** with
@@ -310,8 +318,12 @@ it **fails the ≥2-band promotion gate** (clears only middle) → it does **NOT
 head (next_gru). Per the audit's narrow framing ("clears ≥0.5pp multi-seed → a real T5.2 candidate") it **enters
 the T5.2 candidate set as a state-conditional option**, re-judged under MTL at Tier 5. **Does NOT re-open frozen
 (c)** (moving-baseline guard, hard-rule 15): (c) GE-cat stays next_gru 58.12; next_single 59.66 is a logged
-candidate, not a re-pin. **Net: the multi-band Tier-S cat negative HOLDS** — no scale-robust head beats the
-incumbent; the one validated state-specific candidate is logged, not shipped.
+candidate, not a re-pin. **Stated plainly (advisor 2026-06-04, no "hidden ceiling"):** next_single's 59.66 *is* a
+higher STL GE-cat number than (c)'s 58.12 — so the **per-state** STL GE-cat ceiling is 59.66; (c) is the
+**scale-robust incumbent** (single config, no per-state branching), not the per-state STL maximum, and next_single
+is retained as a GE-only candidate precisely because its edge collapses/inverts elsewhere (−8.11 at AL). **Net:
+the multi-band Tier-S cat negative HOLDS** — no scale-robust head beats the incumbent; the one validated
+state-specific candidate is logged, not shipped.
 
 ### O3 — multi-seed FL (c)-cat — CLOSED 2026-06-04
 FL next_gru, logit-adjust τ=0.5, seeds {0,1,7,100}: **69.96 ± 0.08** (70.0/69.9/69.9/70.0). This **validates the

@@ -209,7 +209,7 @@ study removes it.
 ### Close-out status (2026-06-04)
 | item | status | result |
 |---|---|---|
-| **O1** | ✅ CLOSED | Both hypotheses FALSIFIED — α converges LARGE (0.45→1.09, ↑ scale), prior-ON still 0.56–3.03pp < α=0. A train/val co-adaptation drag. See below + `docs/results/mtl_improvement/TIER01_RESULTS.md §O1`. |
+| **O1** | ✅ CLOSED | Both hypotheses FALSIFIED — α converges LARGE (0.45→1.09), prior-ON still 0.56–3.03pp < α=0. The fixed additive prior is a net drag on the STL-reg ceiling (mechanism not isolated; train/val-gap most-likely). See below + `docs/results/mtl_improvement/TIER01_RESULTS.md §O1`. |
 | **O2** | ✅ CLOSED | next_lstm ties at all 4 states multi-seed (single-seed wins evaporate); next_single GE +1.54±0.17 (robust, GE-specific) → T5.2 candidate, fails ≥2-band gate, does NOT re-open (c). Multi-band negative HOLDS. |
 | **O3** | ✅ CLOSED | FL (c)-cat 69.96±0.08 validates seed42 69.97; inversion vs MTL-diag 70.26 PERSISTS multi-seed (−0.30) but tiny + explained (oracle-epoch + small FL cat transfer), not a bug. |
 | **O4** | ✅ CLOSED | next_hybrid AL cat 49.34 (< 49.97 floor; was a reporting omission) + `*_hsm` deferral noted. INDEX §S.1/S.2. |
@@ -218,16 +218,18 @@ study removes it.
 ### OPEN — for the A40 to execute / close (ranked)
 - **O1 (cheap, settles §2). — ✅ CLOSED 2026-06-04.** Re-ran the prior-ON config and read the converged
   learned α (faithful re-run; the model was never persisted). **Result overturns BOTH framings in this item:**
-  α did NOT converge ≈0 and did NOT stay ≈0.1 — it converges **large and growing with scale (AL +0.454 / AZ
-  +0.789 / GE +0.944 / FL +1.095)**, i.e. the model actively *leans into* the prior, yet prior-ON still scores
-  0.56–3.03pp BELOW α=0 at every state. The replication is exact (reproduces 62.32/70.28/52.87/55.81) and the
-  standalone log_T prior (50.86/66.15 at AL/FL) validates against the authoritative Markov-1-region floors
-  (47.01/65.05), so the prior carries real signal. **Mechanism: a train/val co-adaptation drag** — the encoder
-  leans on the train-only log_T (α↑) but the crutch-dependent solution generalizes worse than the α=0 encoder
-  forced to internalize transitions. **Reframed claim (per this item's instruction): "the fixed additive log_T
-  prior is a net drag on the STL reg ceiling"** — NOT "embeddings subsume transitions," NOT a stuck-α
-  optimization artifact. The §2c HGI-prior-artifact corollary stands and is strengthened. Full write-up +
-  table: `docs/results/mtl_improvement/TIER01_RESULTS.md §O1`; JSON `o1_alpha_probe.json`.
+  α did NOT converge ≈0 and did NOT stay ≈0.1 — it converges **large (AL +0.454 / AZ +0.789 / GE
+  +0.944 / FL +1.095; larger at higher-coverage states, n=4 — suggestive only)**, i.e. the model actively *leans
+  into* the prior, yet prior-ON still scores 0.56–3.03pp BELOW α=0 at every state. The replication is exact
+  (reproduces 62.32/70.28/52.87/55.81) and the standalone log_T prior (50.86/66.15 at AL/FL) validates against
+  the authoritative Markov-1-region floors (47.01/65.05), so the prior carries real signal. **Phenomenology: the
+  fixed additive log_T prior is a net drag on the STL-reg ceiling** (a learnable α leans in yet generalizes worse
+  than α=0). **Mechanism NOT isolated** — most-likely cause is the train-only prior's train/val generalization
+  gap, but the probe does not discriminate it from additive scale-mismatch or transition double-counting (advisor
+  2026-06-04). **Reframed claim: "the fixed additive log_T prior is a net drag on the STL reg ceiling"** — NOT
+  "embeddings subsume transitions," NOT a stuck-α artifact, NOT the co-adaptation mechanism asserted as proven.
+  Leak audit: NONE. The §2c HGI-prior-artifact corollary stands and is strengthened. Full write-up + table:
+  `docs/results/mtl_improvement/TIER01_RESULTS.md §O1`; JSON `o1_alpha_probe.json`.
 - **O2 (cheap, closes the Tier-S crack §3). — ✅ CLOSED 2026-06-04.** Multi-seed {0,1,7,100} `next_lstm` +
   `next_single` cat at GE+AZ. **next_lstm: the single-seed nominal wins EVAPORATE** (AZ +0.48→+0.25, GE
   +0.51→+0.18; with AL −0.21 / FL +0.14 → tie at all 4 states) → the crack closes: "shown no win." **next_single:
