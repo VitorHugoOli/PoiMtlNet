@@ -13,7 +13,8 @@ MTL→STL reg gap. The reg-private **dual-tower LOSES** to the matched baseline 
 helps reg** — refuting the §6.4 "missing private backbone" hypothesis; 3 mechanism cells (cat-weight=0,
 prior-OFF+wd0.01) localize the gap to the **joint cross-attn harness itself** (not interference/prior/wd).
 **→ the composite (two-model) is the deployable reg answer; the gap is irreducibly architectural.** The
-architecture axis is EXHAUSTED. CrossStitch = a real-but-small partial (+1pp reg multi-seed, mixed cat,
+architecture axis is near-exhausted — **T2.3 (MoE) + T2.4 (hybrids) remain as the confirmatory close of
+the card set (§0b, user-requested next step; expected negative per §6.3).** CrossStitch = a real-but-small partial (+1pp reg multi-seed, mixed cat,
 −5..−10 below ceiling, NOT a closer). Implementation (`next_stan_flow_dualtower`,
 `mtlnet_crossattn_dualtower`) + unit gate + all drivers are committed; capstone advisor verified the
 code is correct and the decisions sound.
@@ -25,10 +26,77 @@ keep B9 at large states (FL/CA). Adopted in `NORTH_STAR.md`. **§0.1 small-state
 `results/RESULTS_TABLE.md §0.1` — author sign-off needed** (it reshapes a central claim; reg shrink is
 modest on v11, the cat-flip is mostly a B9→deployable-recipe fix — read the nuance in `PAPER_UPDATE.md`).
 
-**OPEN for the next agent / author:** (a) the §0.1 paper re-statement decision (author); (b) whether to
-proceed to **Tier 3** (prior pathway / log_T-KD on the consolidated stack — regime finding predicts
-limited headroom now the architecture lever is closed) or **close the track**; (c) optional: confirm the
-onecycle recipe at CA/TX (5-fold was impractical ~5h/run; CA 1-fold directional done, TX not run).
+**OPEN for the next agent / author:** (a) **run the leftover Tier-2 cards T2.3 + T2.4 — see §0b below
+(user-requested, the immediate next step)**; (b) the §0.1 paper re-statement decision (author); (c) then
+Tier 3 (prior pathway — regime finding predicts limited headroom) or close the track; (d) optional:
+confirm onecycle at CA/TX (5-fold impractical ~5h/run; CA 1-fold directional done, TX not run).
+
+---
+
+## 0b. ⭐ NEXT AGENT STARTS HERE — T2.3 + T2.4 (the leftover Tier-2 architecture cards)
+
+**You are running T2.3 (faithful MoE family) + T2.4 (per-task-input mixers/hybrids)** — the two Tier-2
+cards not yet executed (INDEX `#T2-3`, `#T2-4`). Tier 2's verdict so far is a hardened NEGATIVE (§0); the
+prior (§6.3) says MMoE/CGC lose ~2.7pp reg and PLE collapses, so **these are expected to be confirmatory
+negatives** that complete the architecture card-set for the paper. Promote only on a genuine surprise
+(≥1pp on the targeted axis, cat non-inferior TOST δ=2, at ≥2 of {AL,AZ,FL}).
+
+**The comparand (CRITICAL — use the matched baseline, not the landed (a)):** score Δ vs **`base_a` @
+onecycle MULTI-SEED**, which already exists as the **`onecyc_val`** rows in
+`scripts/mtl_improvement/t21_harden_manifest.tsv` (= `mtlnet_crossattn + next_getnext_hard` @ onecycle,
+{0,1,7,100}, AL/AZ/FL). Also position each arm vs the frozen (c)/(d) ceilings (§2) and **fold the new
+arms into the sharing dose-response** (`scripts/mtl_improvement/t21_doseresp.py` +
+`docs/results/mtl_improvement/T21_dose_response_50ep_seed42.txt`) — MoE/hybrids are new points on the
+`CrossStitch ≥ base_a ≈ hard-share ≫ dual-tower` curve.
+
+**Recipe (the now-adopted one):** `onecycle` for AL/AZ (`--scheduler onecycle --max-lr 3e-3 --cat-lr 1e-3
+--reg-lr 3e-3 --shared-lr 1e-3`), `mtlnet_crossattn`-style COMMON: `--mtl-loss static_weight
+--category-weight 0.75 --cat-head next_gru --reg-head next_getnext_hard --task-a-input-type checkin
+--task-b-input-type region --log-t-kd-weight 0.0 --engine check2hgi_design_k_resln_mae_l0_1
+--per-fold-transition-dir output/.../<state> --no-checkpoints`, 5f×50ep, seeded per-fold log_T. AL+AZ
+first; FL only for a promoted arm.
+
+**T2.3 — faithful MoE.** Models `mtlnet_mmoe`, `mtlnet_cgc` are REGISTERED and (verified 2026-06-04)
+their `cat/reg/shared` partition is already **bijective+exhaustive (0 uncovered params)** → they run
+under the per-head onecycle recipe with NO code change. **Skip PLE** (robust collapse, §6.3/F50).
+**Fidelity caveat:** the on-disk MMoE/CGC are "-lite" per-task-input adaptations (not canonical; DSelect-K
+is misnamed — dense convex combo), see `MTL_FLAWS_AND_FIXES.md §3.1`. Pragmatic path given the §6.3
+prior + exhausted axis: run the existing -lite MMoE+CGC as the confirmatory multi-seed check + document
+the fidelity caveat; only build faithful versions if -lite surprises. DSelect-K only if MMoE/CGC surprise.
+
+**T2.4 — 3 hybrids (must BUILD — not in registry).** (i) MulT-faithful (intra-task self-attn BEFORE the
+cross-attn block — extend `mtlnet_crossattn`); (ii) cross-stitch→cross-attn series (compose
+`mtlnet_crossstitch` then `mtlnet_crossattn`); (iii) pre-norm + SwiGLU FFN (a `_CrossAttnBlock` variant).
+Each = new `@register_model` subclass + the gates below. (The card says "compose with T2.1 winner" — but
+T2.1 was negative, so the comparand is `base_a`; reframe T2.4 as "does per-task-input mixing beat plain
+cross-attn?".)
+
+**HARD GATES (do not skip — same as T2.1):**
+1. **Unit-test gate (hard rule 10)** before any multi-fold launch — adapt `scripts/mtl_improvement/
+   t21_unit_gate.py`: forward/backward on a synthetic 100-user batch, loss-finite, param-count within
+   ~10% of B9 at D=256, and `shared/cat_specific/reg_specific_parameters()` **bijective+exhaustive**
+   (for any NEW T2.4 module, wire it into the right group — experts/mixers → `shared`, reg-private bits
+   → `reg_specific`; the base `MTLnet.shared_parameters()` is a NAME-SUBSTRING match, so a new module
+   whose name lacks `shared_layers/film/task_embedding` will be SILENTLY dropped from `shared` → fix by
+   overriding the partition like `mtlnet_crossattn` does). MMoE/CGC already pass; verify anyway.
+2. **Per-arch LR mini-sweep (hard rule 7)** for each T2.4 hybrid (new arch): 5 regimes × AL+AZ × 5f×40ep
+   × seed42, then full-protocol at the winner. (Reuse `t21_lr_sweep.sh` pattern.) MoE may start at
+   onecycle (existing arch) + mini-sweep only if it surprises.
+3. Stay at `shared_layer_size=256`; no fclass-as-feature; log_T-KD OFF; **stale-log_T preflight**
+   (`stat` log_T vs next_region.parquet) + `freeze_folds.py --check` before each sweep.
+
+**Reusable assets (this session):** `t21_harden.sh` (copy the `harden2` stage pattern — add a `t23`/`t24`
+arms function + STAGE case; it has the **PID-safe rundir capture** + the **process-substitution wait-fix**
++ idempotent manifest skip), `t21_doseresp.py` / `t21_agg.py` (aggregation), `t21_unit_gate.py` (gate
+template). **CONC discipline:** small states ~5GB (CONC=4 ok), FL ~14GB (CONC≤2), CA ~31GB (CONC=1 only).
+**Rundir-race trap:** never capture rundirs via `ls -dt | head -1` under concurrency — use the `$!`
+PID-suffix (the driver already does; see memory `ref-concurrent-rundir-race`).
+
+**Tier-2 close after T2.3+T2.4:** if nothing recovers a meaningful fraction of the composite gap
+(expected), the architecture axis is CLOSED with the complete card set (T2.0–T2.4) → the paper's negative
+("MTL reg gap irreducibly architectural; ship composite") is final. If a hybrid surprises → promote,
+re-judge under MTL + HGI sanity probe (2 seeds × AL+AZ × 5f×30ep), compose with base_a. Then advisor pass
+→ update `PAPER_UPDATE.md` + this HANDOFF → surface to user (tier-boundary cadence).
 
 ---
 
