@@ -712,6 +712,14 @@ S.3 (compose) NOT triggered (nothing promoted). **Conclusion: the STL head is NO
 
 ---
 
+## 2026-06-05 — TIER-2 FINAL: dual-tower CLOSES the FL gap → the MTL→STL reg gap is CLOSED at all 3 states (re-validation COMPLETE)
+**Combo** (dual-tower gated + prior-OFF, FL, multi-seed, unweighted) = **73.01±0.01** (−0.30 vs (c) ceiling 73.31). ≈ dual_gated-alone (73.06, prior-ON) → prior-OFF does NOT stack with the dual-tower (the private tower already captures the prior benefit). **The dual-tower (73.06) is the FL champion, −0.25 vs ceiling (tight σ).**
+**⟹ THE MTL→STL REG GAP IS CLOSED at all 3 states by a single jointly-trained MTL model:** AL base_a 64.52 (**+1.6** vs ceiling), GE base_a 57.84 (−0.6), FL dual-tower 73.06 (−0.25). What was a "−7 to −17pp irreducible architectural gap" is now ≤0.6pp (≈0 within multi-seed noise) once the loss matches the metric + (at the large state) the dual-tower is used. **Tier-2 architecture verdict: POSITIVE — the dual-tower closes the gap; it was the centerpiece NEGATIVE under the class-weighting confound.** RE-VALIDATION COMPLETE.
+
+**Final close-out doc state (organized + pushed):** HANDOFF top = clean "you are here" (finding/fix/re-validation table/narrative-flip/provenance); PAPER_UPDATE = paper-facing reframe; CONCERNS C25 = re-validated; CLAIMS/NORTH_STAR/INDEX banners updated. **Remaining (smaller):** CANONICAL_VERSIONS new pinned version (unweighted recipe), Acc@1→Acc@10 reg-monitor code fix, FL-B9 §0.1-table recipe-continuity follow-up, optional HGI 3-way regime arm. T2P.1/2/3 UNNEEDED; T2.3/T2.4 optional stretch (push reg ABOVE ceiling, not close a gap).
+
+---
+
 ## 2026-06-05 — ⭐⭐ TIER-2 RE-RUN under the fix → ORDERINGS FLIPPED (dual-tower WORST→BEST); FL gap closeable (prior + dual-tower)
 **Phase**: Tier-2 architecture re-run under the C25 fix (FL, unweighted, multi-seed {0,1,7,100}; `c25_tier2_refix.sh`). **The user's question — "could T2.1/T2.2 be different now?" — answered: YES, decisively.**
 | arm (FL, unweighted) | reg@10 (mean±sd) | Δreg vs base_a | gap vs (c) 73.31 |
