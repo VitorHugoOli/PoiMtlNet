@@ -19,7 +19,9 @@ ts(){ date '+%Y-%m-%d %H:%M:%S'; }; say(){ echo "[$(ts)] C25T24 $*"; }
 
 # --- wait for the GPU to free (the T2.3 MoE driver finishes first) ---
 say "waiting for GPU to free (T2.3 MoE driver to finish)..."
-while [ "$(pgrep -fc 'scripts/train.py' || echo 0)" -gt 0 ]; do sleep 60; done
+# bracket pattern avoids self-match; pgrep -c always prints a count (0 when none)
+# — do NOT append `|| echo 0` (it double-emits "0\n0" and breaks the integer test).
+while true; do p=$(pgrep -fc 'scripts/[t]rain.py'); [ "${p:-0}" -gt 0 ] || break; sleep 60; done
 say "GPU free — starting SwiGLU sweep"
 export OMP_NUM_THREADS=$((32 / CONC))
 
