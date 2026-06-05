@@ -370,6 +370,7 @@ Net: the residual reg gap is now **triply confirmed** non-cat-interference / non
 | **C17** | **`next_single` cat evidence demoted to head-sensitivity row** | **resolved 2026-04-27** | Reviewer cites legacy +18.30 vs new +15.50 as cherry-picking |
 | **C18** | **Encoder-swap leak-probe directional drift (T3.2 ResLN: +2.13 pp leak F1 over canonical at FL)** | **monitored 2026-05-15** | Cumulative drift across T3.3/T3.4 approaches or exceeds the +5 pp red flag |
 | **C19** | **F51 `--folds 1` × 5-fold log_T leak bug — audit clears canonical_improvement** | **resolved 2026-05-15** | Any new code path that invokes `scripts/train.py --folds <5` without rebuilding log_T at the same n-splits |
+| **C25** | **⭐ MTL reg trained on CLASS-WEIGHTED CE vs UNWEIGHTED STL ceiling → MTL→STL reg gap is largely an objective-mismatch confound (`default_mtl use_class_weights=True`)** | **under re-validation 2026-06-05** | AL/GE/FL re-baseline under unweighted reg CE + per-task-weighting fix + regime-finding re-test |
 
 ---
 
@@ -571,3 +572,25 @@ Small states (AL/AZ) and FL: seed=42 ≈ multi-seed → no development bias. Lar
 - New `task_b_input_type` introduced that re-interprets the 9-window.
 
 **Reference:** `docs/studies/substrate-protocol-cleanup/window_mask_audit.md` + log.md 2026-05-28 advisor entry.
+
+---
+
+## C25 — MTL reg head trained on CLASS-WEIGHTED CE while the STL reg ceiling is UNWEIGHTED → the MTL→STL reg gap is substantially an objective-mismatch confound (DISCOVERED 2026-06-05; UNDER RE-VALIDATION)
+
+**Concern raised:** 2026-06-05, from the `mtl_improvement` Tier-2P root-cause hunt (T2P.0).
+
+**The bug.** `ExperimentConfig.default_mtl` silently sets `use_class_weights=True` (`src/configs/experiment.py:364`; the dataclass default `:235` is also `True`), while `default_next` (the STL next/reg factory) sets it `False` (`:403`). This flows to `src/training/runners/mtl_cv.py:1283-1291`, where the **MTL reg criterion** becomes `CrossEntropyLoss(weight=alpha_next)` with `alpha_next = compute_class_weights(...)` (`:1276`). So the ~1109/4702-region MTL reg head trains on **class-BALANCED CE**, whereas the STL reg ceiling (p1 / `default_next`) and every clean reconstruction train on **UNWEIGHTED CE**.
+
+**Why it depresses the headline metric.** The reg head is reported by **`top10_acc_indist` (Acc@10)** — a frequency-weighted, head-heavy metric. Class-balancing up-weights rare regions and down-weights the ~22%-majority region → it optimizes *macro* accuracy and *away from* top-K. So the MTL reg number is depressed ~10-14pp **purely by the loss objective**, from epoch 1, on every fold; the effect scales with class count / imbalance (FL −14 > AL −10), which exactly matches the observed state-scaling.
+
+**Verified.** T2P.0 (AL, `mtlnet_crossattn_dualtower` private_only) with `--no-class-weights` → reg disjoint **64.81 ≥ the STL (c) ceiling 62.88** (agent fold1 68.69), vs the buggy default **52.90**. The deficit is an objective mismatch, not architecture/substrate/joint-loop.
+
+**Blast radius.** EVERY `default_mtl` MTL run used `use_class_weights=True` — undocumented in `NORTH_STAR.md` / `CANONICAL_VERSIONS.md`. Affected (absolute MTL reg ~10-14pp low): **§0.1 deployable MTL reg, the MTL→composite gap, the `mtl_improvement` Tier-2/2P "MTL sacrifices reg / irreducibly architectural / ship-the-composite" line, and potentially the central REGIME FINDING** ("STL substrate gains wash out in MTL" compared depressed-MTL-reg to full-STL-reg → must be re-tested under unweighted CE: does the substrate gain re-appear at MTL?). *Relative* within-MTL Δs (v14 vs canonical, dual-tower vs base_a — all class-weighted) are common-mode and likely hold. Directly **reopens C12** (STL-vs-MTL HP mismatch) and **bears on C15** (MTL coupling vs matched-head STL on reg — the "resolution" never controlled for this loss-objective axis).
+
+**Pragmatic resolution (in flight, user-approved 2026-06-05).** (1) per-task class-weighting code fix (reg OFF for Acc@10; cat decided by macro-F1 — the current `--no-class-weights` couples both heads, `mtl_cv.py:1284-1290`); (2) re-test the regime finding + a real joint run (`category-weight 0.75`) + §0.1/composite re-baseline under unweighted reg CE at **AL/GE/FL** (CA/TX deferred). **Do NOT cite any absolute MTL-reg number until re-baselined.** Frozen (c)/(d) STL ceilings are UNAFFECTED (unweighted).
+
+**Second, smaller artifact (logged here, separate):** the MTL reg deployment SNAPSHOT is selected by `MultiTaskBestTracker.reg_best` monitor = `accuracy` (Acc@1; `src/tracking/best_tracker.py:116`, preset `primary_metric=ACCURACY` `src/tasks/presets.py:100`), whose best epoch ≠ the Acc@10-best epoch → understates the *deployable* reg ~2-3pp. Independent of the disjoint metric (`per_metric_best.top10_acc_indist`, oracle-Acc@10, selector-independent).
+
+**Status:** `under re-validation 2026-06-05`. Closes when the AL/GE/FL re-baseline under unweighted reg CE lands + the per-task-weighting fix is committed + the regime finding is re-tested.
+
+**Reference:** `docs/studies/mtl_improvement/log.md` 2026-06-05 ROOT-CAUSE entry; `HANDOFF.md` §top; `PAPER_UPDATE.md` superseding banner. Scripts: `scripts/mtl_improvement/t2p0_*`.

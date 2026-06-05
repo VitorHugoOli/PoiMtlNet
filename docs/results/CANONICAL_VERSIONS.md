@@ -1,5 +1,7 @@
 # Canonical Versions Registry
 
+> ⛔ **2026-06-05 — UNDOCUMENTED RECIPE DEFAULT flagged (CONCERNS C25): `default_mtl use_class_weights=True`.** Every canonical MTL run (v11–v14) trained the reg head on **class-weighted CE** (`src/configs/experiment.py:364` → `mtl_cv.py:1283-1291`), while the STL reg ceiling (`default_next`) is **unweighted**. Class-balancing optimizes macro accuracy *away from* the reported Acc@10 metric → MTL reg is depressed ~10-14pp (verified: `--no-class-weights` recovers MTL reg to ≥ the STL ceiling). This was NEVER recorded as part of any version recipe. **The absolute §0.1 MTL-reg numbers are UNDER RE-VALIDATION** (AL/GE/FL under unweighted reg CE); a corrected recipe (per-task class-weighting, reg OFF) + possibly a new pinned version will follow. Until then, treat absolute MTL-reg figures as provisional. See `CONCERNS.md §C25` + `docs/studies/mtl_improvement/log.md` 2026-06-05.
+
 **Purpose:** a single source of truth for which *recipe + substrate + code-default*
 combination each named canonical version (`v11`, `v12`, …) refers to, and the
 **exact reproduction map** between them. This file exists because the code
