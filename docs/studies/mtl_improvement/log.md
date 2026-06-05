@@ -712,6 +712,19 @@ S.3 (compose) NOT triggered (nothing promoted). **Conclusion: the STL head is NO
 
 ---
 
+## 2026-06-05 — RE-AUDIT (user-requested: "are we missing another use_class_weights?") → class-weighting is the SINGLE dominant confound; 2 smaller real secondaries flagged
+**Phase**: post-root-cause skeptical re-audit (independent agent + my config-factory diff). **Verdict: class-weighting is THE dominant confound; NO second bug of comparable magnitude.** The user's worry is addressed.
+- **My catch (config diff):** `default_next` is `use_class_weights=True` (`experiment.py:444`), NOT False — corrected the propagated error in HANDOFF/CONCERNS/log. The (c) ceiling is **p1/unweighted** (`build_calibrated_loss` no-calibration = plain CE; synthetic-verified bit-identical to `F.cross_entropy`), not `default_next`.
+- **Why the probes hit 66 (the mechanism, now explained):** `t2p0_mechanism_probe.py` + `t2p0_singletask_isolation.py` both use **unweighted `F.cross_entropy`** → they silently dropped the class weighting → that's why "mixed loader" / "full-model forward" couldn't reproduce the gap. The dismissals were CORRECT; the weighting was the poison.
+- **Secondary #1 (real, MEDIUM): wd=0.05 (MTL global default) vs 0.01 (STL ceiling + `default_next`).** `default_mtl weight_decay=0.05` (`experiment.py:347`); T2P.0 patched it to 0.01, but the **real §0.1 canonical recipe runs wd=0.05 UN-overridden** → the (a)-vs-(c) comparison carries a wd mismatch ON TOP of class-weights. Same silent-asymmetry class. **Re-baseline must test wd=0.01 vs 0.05 (both unweighted) — if Δ>1pp, wd-match the (a)-vs-(c).**
+- **Secondary #2 (real, smaller): the Acc@1 reg checkpoint monitor** (`best_tracker.py:116 reg_monitor='accuracy'`, preset `primary_metric=ACCURACY`) — ACTIVE post-C2-fix (`train.py:206-208` wires it). Costs ~3.5-4pp (`MTL_FLAWS_AND_FIXES §2.10`) BUT only on the **deployable / `diagnostic_best_epochs[...]['metrics']`** number — NOT `per_metric_best.top10_acc_indist.best_value` (top10's own argmax, mismatch-free), which the study reads (memory `ref_mtl_metric_field`). Fix: set reg monitor to a top10 metric, OR enforce the per_metric_best read. Cheap, worth doing.
+- **Cleared (re-confirmed):** weighted sampling (OFF both — `FoldCreator` default False), fp16 (non-causal), dataloader kwargs, grad-accum/clip, optimizer betas/eps, calibrated-loss defaults, per-fold log_T rebuild (MTL stricter).
+- **Part D — fix GENERALIZES** to the real joint recipe (class-weight code is recipe-agnostic). ONE interaction: `--no-class-weights` unweights BOTH cat+reg at category_weight=0.75 → verify cat F1 holds (cat is 7-class balanced → small; → per-task weighting if it regresses). Exact real-joint re-baseline command captured in the agent report + task #11.
+
+**Next**: implement per-task class-weighting (reg OFF, cat tbd) + the Acc@1 monitor fix (task #10), then the AL/GE/FL re-baseline incl. the wd=0.01-vs-0.05 control (task #11).
+
+---
+
 ## 2026-06-05 — ⚠⚠ MECHANISM PROBE (user-requested) → the reg gap is `mtl_cv`-IMPLEMENTATION-SPECIFIC, NOT structural; a faithful joint reconstruction reaches the CEILING
 
 **Phase**: Tier 2P — mechanism probe of WHY the joint loop costs 10-14pp. **Surfaced to user — this is bigger than T2P.1 and may reframe the regime finding.** FL mixed-loop confirmation in flight.
