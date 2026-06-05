@@ -274,6 +274,28 @@ For STL eval: `scripts/p1_region_head_ablation.py --region-emb-source check2hgi_
 
 ---
 
+## v15 — UNWEIGHTED-LOSS recipe (C25 fix; the re-validated MTL recipe, 2026-06-05)
+
+**What v15 IS:** v11/v12-recipe + substrate, but with the **C25 unweighting fix** — the load-bearing change that re-validated the MTL story. Both MTL heads train on **UNWEIGHTED CrossEntropyLoss** (per-task `use_class_weights_{reg,cat}=False`, now the `default_mtl` default) instead of the silent class-weighted CE that depressed reg ~10-14pp / cat ~3-5pp. Plus the **Acc@10 reg checkpoint monitor** (was Acc@1). The substrate is unchanged (v11 GCN for the paper table; v14 design_k for the forward base).
+
+**Why it exists:** the pre-v15 class-weighted reg CE was an **objective mismatch** vs the reported Acc@10 metric (CONCERNS C25). v15 is the recipe under which the MTL→STL reg gap CLOSES, the substrate gain transfers to MTL, and the composite advantage dissolves — see `studies/mtl_improvement/PAPER_UPDATE.md`.
+
+**Re-validated numbers (multi-seed {0,1,7,100}, unweighted real-joint, onecycle):**
+| state | MTL reg (v14) | MTL reg (canon v11-GCN) | STL ceiling | MTL cat (v14) | STL cat ceiling |
+|---|---|---|---|---|---|
+| AL | 64.52 | 62.60 | 62.88 | 53.38 | 49.97 |
+| GE | 57.84 | 56.34 | 58.45 | 61.37 | 58.12 |
+| FL | 71.55 (dual-tower 73.06) | 70.74 | 73.31 | 71.89 | 69.97 |
+
+**Reproduction map:**
+- **To recover pre-C25 (class-weighted) MTL numbers** (v11–v14 as previously reported): pass **`--reg-class-weights --cat-class-weights`** (or `--use-class-weights`) + (for the old reg monitor) note the Acc@1→Acc@10 monitor change is a code default, not flag-gated (the disjoint `per_metric_best.top10_acc_indist` is unaffected by it).
+- **v15 is the new code default** — bare `default_mtl` runs are now v15 (unweighted). 
+- **Recipe note:** the re-validation used **onecycle**; an FL-B9 §0.1-continuity run (exact paper-table recipe) is the pending follow-up. The large-state reg champion is the **dual-tower** (`mtlnet_crossattn_dualtower`, closes the FL gap to −0.25).
+
+**Caveat:** the FL numbers above use onecycle; the §0.1 paper table uses B9 at FL — the FL-B9 v15 run will pin exact §0.1 continuity. Frozen (c)/(d) STL ceilings are v15-comparable (always unweighted p1).
+
+---
+
 ## Quick reference — version × axis matrix
 
 | Axis | v11 (paper canon) | v12 (new default) | v13 (recommended base, opt-in) |
