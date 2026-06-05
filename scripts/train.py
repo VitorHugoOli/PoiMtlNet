@@ -489,6 +489,22 @@ def _parse_args(argv=None) -> argparse.Namespace:
         default=None,
         help="Force-disable class-balanced CE weighting even if the config default is on.",
     )
+    # C25 (2026-06-05) — PER-TASK class-weight overrides (MTL only). The legacy
+    # --[no-]class-weights flag couples BOTH heads; these override per task and
+    # take precedence. None → inherit use_class_weights. Best default: reg OFF
+    # (Acc@10), cat ON (macro-F1) — set in ExperimentConfig.default_mtl.
+    parser.add_argument("--reg-class-weights", dest="use_class_weights_reg",
+                        action="store_true", default=None,
+                        help="MTL: class-weight the REG (next_region) CE. Recovers pre-C25 behaviour.")
+    parser.add_argument("--no-reg-class-weights", dest="use_class_weights_reg",
+                        action="store_false", default=None,
+                        help="MTL: unweighted REG CE (the C25 fix; matches the STL Acc@10 ceiling).")
+    parser.add_argument("--cat-class-weights", dest="use_class_weights_cat",
+                        action="store_true", default=None,
+                        help="MTL: class-weight the CAT (next_category) CE (macro-F1 benefits).")
+    parser.add_argument("--no-cat-class-weights", dest="use_class_weights_cat",
+                        action="store_false", default=None,
+                        help="MTL: unweighted CAT CE.")
     # --- T1.4 STL loss calibration (next_cv.py cat tune; leak-free, train-only stats) ---
     parser.add_argument("--focal-gamma", type=float, default=0.0,
                         help="T1.4: focal focusing parameter (>0 enables focal). STL cat lever.")
@@ -1148,6 +1164,11 @@ def _apply_cli_overrides(
         )
     if args.use_class_weights is not None:
         config = dataclasses.replace(config, use_class_weights=args.use_class_weights)
+    # C25 per-task overrides (take precedence over --[no-]class-weights).
+    if getattr(args, "use_class_weights_reg", None) is not None:
+        config = dataclasses.replace(config, use_class_weights_reg=args.use_class_weights_reg)
+    if getattr(args, "use_class_weights_cat", None) is not None:
+        config = dataclasses.replace(config, use_class_weights_cat=args.use_class_weights_cat)
     # T1.4 STL loss calibration (next_cv.py cat tune). Only assembles a non-empty
     # dict when a calibration flag is set, so default runs keep the legacy path.
     _lc = {}

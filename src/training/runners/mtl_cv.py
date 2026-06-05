@@ -1280,14 +1280,23 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             dataloader_category.train.y, task_a_num_classes, DEVICE
         )
 
-        _use_class_weights = bool(getattr(config, "use_class_weights", False))
+        # C25 (2026-06-05) — PER-TASK class weighting. The reg head (task_b,
+        # next_criterion) is reported by top-K Acc@10, which class-balancing HURTS;
+        # the cat head (task_a, category_criterion) is reported by macro-F1, which
+        # balancing HELPS. ``use_class_weights_{reg,cat}`` override the legacy
+        # single ``use_class_weights``; ``None`` inherits it (back-compat).
+        _base_cw = bool(getattr(config, "use_class_weights", False))
+        _cw_reg_override = getattr(config, "use_class_weights_reg", None)
+        _cw_cat_override = getattr(config, "use_class_weights_cat", None)
+        _use_cw_reg = _base_cw if _cw_reg_override is None else bool(_cw_reg_override)
+        _use_cw_cat = _base_cw if _cw_cat_override is None else bool(_cw_cat_override)
         next_criterion = CrossEntropyLoss(
             reduction='mean',
-            weight=alpha_next if _use_class_weights else None,
+            weight=alpha_next if _use_cw_reg else None,
         )
         category_criterion = CrossEntropyLoss(
             reduction='mean',
-            weight=alpha_cat if _use_class_weights else None,
+            weight=alpha_cat if _use_cw_cat else None,
         )
 
         history.set_model_arch(str(model))

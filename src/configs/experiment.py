@@ -233,6 +233,16 @@ class ExperimentConfig:
     mtl_loss: str = "nash_mtl"
     mtl_loss_params: dict = field(default_factory=dict)
     use_class_weights: bool = True
+    # C25 (2026-06-05) — PER-TASK class weighting. The single ``use_class_weights``
+    # flag silently weighted BOTH MTL heads' CE, which depresses the REG head's
+    # top-K (Acc@10) metric by ~10-14pp (class-balancing optimises macro accuracy
+    # AWAY from the frequency-weighted top-K the study reports), while the STL reg
+    # ceiling is unweighted. These per-task overrides decouple cat/reg. ``None`` =
+    # inherit ``use_class_weights`` (back-compat: legacy runs unchanged). Best
+    # defaults are set in ``default_mtl`` (reg OFF for Acc@10; cat inherits, ON for
+    # macro-F1). See CONCERNS.md §C25.
+    use_class_weights_cat: Optional[bool] = None
+    use_class_weights_reg: Optional[bool] = None
     # T1.4 STL loss calibration (next_cv.py). Empty -> legacy CrossEntropyLoss
     # path. Keys: focal_gamma, logit_adjust_tau, label_smoothing, tail_mode
     # ('balanced'|'cb'|'ldam'), cb_beta, ldam_max_m, ldam_scale. All class
@@ -362,6 +372,14 @@ class ExperimentConfig:
                 "optim_niter": 30,
             },
             use_class_weights=True,
+            # C25 fix (2026-06-05): the REG head is reported by top-K Acc@10, which
+            # class-balancing HURTS (it optimises macro accuracy). The STL reg
+            # ceiling is unweighted. So reg-CE is UNWEIGHTED by default; cat-CE
+            # inherits ``use_class_weights=True`` (macro-F1 benefits from balancing).
+            # Pass ``--reg-class-weights`` to recover the pre-C25 (buggy) behaviour
+            # for v11-v14 reproduction. See CONCERNS.md §C25.
+            use_class_weights_reg=False,
+            use_class_weights_cat=None,  # → inherits use_class_weights (True)
             k_folds=5,
             seed=42,
         )
