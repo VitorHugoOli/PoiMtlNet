@@ -29,10 +29,13 @@ COMMON="--task mtl --task-set check2hgi_next_region --engine $V14 \
   --per-fold-transition-dir output/$V14/$ST --no-checkpoints"
 
 # tag | model | reg_head | extra-head-params
+# (T2.3 stretch: mmoe/cgc -lite added 2026-06-05; the 4 base arms already in the manifest are skipped)
 ARMS="prior_off|mtlnet_crossattn|next_getnext_hard|--reg-head-param freeze_alpha=True --reg-head-param alpha_init=0.0
 dual_gated|mtlnet_crossattn_dualtower|next_stan_flow_dualtower|--reg-head-param raw_embed_dim=64 --reg-head-param fusion_mode=gated
 crossstitch|mtlnet_crossstitch|next_getnext_hard|
-hardshare|mtlnet|next_getnext_hard|"
+hardshare|mtlnet|next_getnext_hard|
+mmoe|mtlnet_mmoe|next_getnext_hard|
+cgc|mtlnet_cgc|next_getnext_hard|"
 
 run(){ # tag model reg_head extra seed
   local tag=$1 model=$2 rh=$3 extra=$4 sd=$5 key="${tag}|s${sd}"
