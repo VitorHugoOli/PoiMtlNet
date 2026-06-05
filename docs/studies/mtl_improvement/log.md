@@ -712,6 +712,30 @@ S.3 (compose) NOT triggered (nothing promoted). **Conclusion: the STL head is NO
 
 ---
 
+## 2026-06-05 — STRATEGIC RE-RUN ASSESSMENT (user-requested: "is it worth re-running Tier 2 / any part of the study?") → large REFRAME, narrow re-validation
+**Phase**: strategic agent assessment of what the C25 fix invalidates / salvages / requires re-running, before spending re-baseline compute. **Surface to user — this is a paper-narrative-level decision.**
+
+**THE REFRAME (the agent's bottom line):** the paper's central reg story flips from **"MTL sacrifices reg (−7 to −17pp); the gap is irreducibly architectural; ship the 2-model composite"** → **"MTL reg matches/approaches the STL ceiling once the loss matches the reported metric — the gap was an objective mismatch (class-balanced CE vs frequency-weighted Acc@10)."** This DISSOLVES the Tier-2/2P architecture-negative, SHRINKS/KILLS the composite advantage (CH25), and puts the REGIME FINDING (the track's headline) genuinely back in play. **But the re-validation cost is contained: essentially TWO multi-seed MTL sweeps.**
+
+**Verdicts (INVALIDATED / SALVAGEABLE-common-mode / NEEDS-RERUN / KEEP):**
+- **Tier 2 architecture search:** premise INVALIDATED (the "gap" was the confound; unweighted MTL reg ≥ ceiling with NO arch change). The *relative* orderings (dual-tower < base_a, dose-response, mechanism cells) are common-mode → SALVAGEABLE as relative claims, but they no longer answer a live question. **RETIRE** "irreducibly architectural" + "ship composite as *the* reg answer"; dual-tower/crossstitch code stays as tested assets, off the critical path.
+- **Tier 2P (joint-loop):** MOOT — the "joint loop caps reg" was the class-weighting (already overturned). **RETIRE T2P.1/2/3.**
+- **T2.3 (MoE) + T2.4 (hybrids):** **CANCEL** — they complete an architecture-negative card set that no longer exists. *Single biggest compute saving.*
+- **REGIME FINDING:** **NEEDS-RERUN (highest EV)** — the v14-vs-canonical MTL tie is common-mode (likely holds), but "does the STL substrate gain TRANSFER to MTL under unweighted reg CE?" was NEVER tested (it crosses the weighted/unweighted boundary). This is the track headline. NB the α=0 0.03% floor (>70pp collapse, `phase_b_fl_3way.md:70-73`) is a DISTINCT OOD phenomenon NOT dissolved by the confound (but already hedged as regime-scoped).
+- **§0.1 absolute MTL reg + CH25 composite:** **NEEDS-RERUN (very high EV)** — §0.1 MTL reg ~10-14pp understated; CH25's +7-12pp composite advantage was vs depressed MTL reg → shrinks/dissolves. Re-derive CH25 from the same numbers (no extra run).
+- **CAT side:** also ~5pp understated (cat was weighted too); §0.1 cat row NEEDS-RERUN (same job); cat-relative arch claims common-mode. **Careful: cat recipe-consistency (B9 vs deployable) + class-weight corrections STACK — don't double-count.**
+- **onecycle recipe (R2):** KEEP-AS-IS (recipe-level, common-mode).
+- **CH26 log_T-KD (+2-5pp):** SALVAGEABLE common-mode (both arms weighted), but FLAG — if unweighted MTL reg is already at ceiling, KD headroom may shrink → fold a W=0.2 arm into the regime re-test.
+- **canonical_improvement Tier 6 (selector), embedding_eval (STL-only), frozen (c)/(d):** KEEP-AS-IS (insulated).
+
+**RANKED re-runs (EV/cost):** (1) Regime re-test: v14/design_k vs canonical vs HGI, MTL, **unweighted reg**, AL/GE/FL, seeds {0,1,7,100}, leak-free — decides the thesis; mid-tens GPU-h. (2) §0.1 re-baseline (MTL reg+cat) on the **v11 GCN paper substrate**, B9, FL multi-seed — re-establishes the central table; tens GPU-h. (3) +W=0.2 KD arm in #1. (4) Acc@1→Acc@10 reg-monitor fix (code). (5) Promote per-task-weighting (cat-unweighted +5pp = real recipe WIN) to NORTH_STAR/CANONICAL (doc-only). **DON'T re-run:** T2.3/T2.4, Tier 2P, dose-response/mechanism, onecycle matrix, canonical_improvement Tier 6, embedding_eval, (c)/(d).
+
+**⚠ CRITICAL caution (agent):** the in-flight `c25_rebaseline.sh` is NECESSARY but NOT SUFFICIENT for any paper claim — it is **v14-substrate, single-seed-42, no canonical/HGI arm**. It settles "magnitude of the fix on one substrate at the dev seed," nothing else. Do NOT let it stand in for re-run #1 (regime) or #2 (§0.1 on v11 GCN). Per C23, seed=42 overshoots multi-seed at large states.
+
+**Next**: re-baseline lands → aggregate AL/GE/FL best-vs-old → STOP + surface the reframe + the ranked re-run plan to the user to scope (which re-runs to launch; confirm the retire/cancel list; the paper-narrative decision).
+
+---
+
 ## 2026-06-05 — CAT-AXIS TEST (user-requested: "did we test cat unweighted?") → BOTH heads unweighted is best; my cat=weighted default was WRONG
 **Phase**: per-task class-weighting validation BEFORE the full re-baseline (user: "eval the best combination before run the executions"). I had set the cat default to WEIGHTED by REASONING ("balancing helps macro-F1") — the user (correctly) insisted on testing it.
 **Real joint recipe** (mtlnet_crossattn + next_getnext_hard reg + next_gru cat, category-weight 0.75, onecycle, v14, AL, 5f×50ep seed42):
