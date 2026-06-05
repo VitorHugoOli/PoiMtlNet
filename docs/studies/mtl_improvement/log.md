@@ -712,6 +712,35 @@ S.3 (compose) NOT triggered (nothing promoted). **Conclusion: the STL head is NO
 
 ---
 
+## 2026-06-05 — ⚠⚠ MECHANISM PROBE (user-requested) → the reg gap is `mtl_cv`-IMPLEMENTATION-SPECIFIC, NOT structural; a faithful joint reconstruction reaches the CEILING
+
+**Phase**: Tier 2P — mechanism probe of WHY the joint loop costs 10-14pp. **Surfaced to user — this is bigger than T2P.1 and may reframe the regime finding.** FL mixed-loop confirmation in flight.
+
+**The result — four independent reconstructions reach the (c) ceiling; ONLY `mtl_cv` is the outlier:**
+| harness | AL reg@10 | FL reg@10 | notes |
+|---|---|---|---|
+| p1 (blessed STL ceiling) | 62.88 | 73.31 | the frozen (c) |
+| my standalone head, single-task loop | 62.88 | 73.12 | `t2p0_singletask_isolation.py` |
+| my FULL model + per-head opt, single-task | 63.01 | — | `t2p0_mechanism_probe.py` |
+| my FULL model + per-head opt, **real-cat MIXED loop** (cat-weight 0) | **63.20** | (pending) | `--mixed` |
+| **`mtl_cv` joint loop (T2P.0)** | **52.90** | **59.53** | the outlier |
+
+**Controls ruled out as the cause** (verified identical between my reconstruction and T2P.0): input (byte-identical), head, recipe (LR/wd/onecycle/epochs/bs), folds, precision (fp32 control), **grad accumulation** (default_mtl=1, not the dataclass-default 2), **loss weighting** (use_class_weights=False → unweighted CE both), **grad-clip** (1.0 both), **metric selection** (`per_metric_best.top10_acc_indist` = oracle best epoch), **early stopping** (T2P.0 ran all 50 epochs — verified from per-epoch CSV), **mixed-batch structure** (my real-cat mixed loop reaches 63.20), **full-model forward + per-head optimizer** (my full-model probe reaches 63.01).
+
+**T2P.0 reg trajectory (FL fold1, `metrics/fold1_next_region_val.csv`):** rises 0→58 by ep6, then SLOWLY climbs to a **plateau at 59.30 (peak ep44)**, ran all 50 ep. A genuine **low training plateau**, NOT an early-peak-crash, NOT a measurement/selection/early-stop artifact. `mtl_cv` trains reg to a ~14pp-worse optimum than the identical head/input/recipe in any other harness.
+
+**⟹ THE FINDING (strong + surprising + high-value):** the MTL→STL reg gap is **specific to the `mtl_cv` training-loop implementation**, NOT to MTL/joint-training per se, NOT the architecture/substrate/input/recipe. A faithful re-implementation of the SAME joint training (full model + per-head optimizer + real-cat mixed loop + cat-weight 0) reaches the **(c) ceiling**. Load-bearing because:
+- The gap may be a **recoverable `mtl_cv` issue** — fixing it could lift MTL reg ~10-14pp **without staging** (T2P.1 may be unnecessary).
+- ALL the study's MTL reg numbers (the **regime finding**, the dose-response, §0.1 deployable reg) ran through `mtl_cv` → may be **systematically ~10-14pp depressed**. The Tier-2 "joint loop caps reg" negative is REAL (mtl_cv does cap reg) but its CAUSE is an implementation detail, not a fundamental MTL limitation.
+
+**⚠ HONEST CAVEAT (do NOT over-claim yet):** my reconstructions independently match the **blessed p1 ceiling** (strong evidence they're correct, not leaky — 4 harnesses incl. p1 sharing a leak while mtl_cv alone is correct is low-probability). BUT the EXACT `mtl_cv` behavior causing the deficit is **NOT yet pinpointed**. Before any paper claim or "free reg recovery," the next step MUST pinpoint it — bisect mtl_cv toward the reconstruction, or run mtl_cv with checkpoints + re-eval reg with a direct forward, or diff the dataloader/criterion/step path. Residual chance my reconstruction omits something mtl_cv does correctly (making 63 optimistic) — p1 agreement argues against it.
+
+**Chain status**: Tier 2P — T2P.0 resolved AND now localized to the `mtl_cv` implementation. SUPERSEDES the simple "→ T2P.1 staged" plan. Frozen (c)/(d) untouched.
+
+**Next**: **STOP + surface to user.** Decide: (a) pinpoint the exact mtl_cv cause (decisive next probe — bisect/checkpoint-reeval), (b) re-assess T2P.1 vs an mtl_cv fix, (c) gauge blast radius on the regime finding + §0.1. Do NOT autopilot into T2P.1.
+
+---
+
 ## 2026-06-05 — ✅ JOINT-LOOP ISOLATION (user-requested decider) → the JOINT TRAINING LOOP is the poison; T2P.1 (staged) WILL recover reg to ceiling
 
 **Phase**: Tier 2P — the decisive isolation that resolves T2P.0. **Surfaced to user next.**
