@@ -712,6 +712,23 @@ S.3 (compose) NOT triggered (nothing promoted). **Conclusion: the STL head is NO
 
 ---
 
+## 2026-06-05 — CAT-AXIS TEST (user-requested: "did we test cat unweighted?") → BOTH heads unweighted is best; my cat=weighted default was WRONG
+**Phase**: per-task class-weighting validation BEFORE the full re-baseline (user: "eval the best combination before run the executions"). I had set the cat default to WEIGHTED by REASONING ("balancing helps macro-F1") — the user (correctly) insisted on testing it.
+**Real joint recipe** (mtlnet_crossattn + next_getnext_hard reg + next_gru cat, category-weight 0.75, onecycle, v14, AL, 5f×50ep seed42):
+| arm (reg-CE / cat-CE) | reg@10 disj | cat-F1 disj | reg@10 dep | cat-F1 dep |
+|---|---|---|---|---|
+| old (weighted / weighted) — pre-C25 | 56.45 | 48.51 | 56.06 | 48.51 |
+| fix (UNweighted / weighted) | 64.51 | 48.37 | 61.98 | 48.14 |
+| **catu (UNweighted / UNweighted)** | **64.82** | **53.51** | **64.20** | **53.47** |
+| (c) STL ceiling | 62.88 | 49.97 | — | — |
+- **Reg axis (old→fix): +8.06pp** (56.45→64.51 ≥ ceiling 62.88) — the reg fix holds on the REAL joint recipe (not just the cat-0 isolation).
+- **Cat axis (fix→catu, i.e. cat-weighted→cat-unweighted at reg-unweighted): +5.14pp cat-F1** (48.37→53.51). **My "class-balancing helps macro-F1" assumption was FALSE** — unweighted cat is BETTER for macro-F1 (the balanced averaging is over per-class F1, but the WEIGHTED loss destabilises the 7-class cat head under joint training). cat-unweighted also slightly helps reg (64.82 vs 64.51, within noise).
+- **⟹ BOTH heads UNWEIGHTED is the validated best default** (reg 64.82 ≥ ceiling AND cat 53.51 > ceiling 49.97). **Code default flipped to both-unweighted** (`default_mtl use_class_weights_{reg,cat}=False`). The cat axis is being re-confirmed at GE/FL in the full re-baseline. **Lesson: don't reason about loss-vs-metric interactions — TEST them (the user's instinct, twice now: use_class_weights itself + the cat default).**
+
+**Next**: full re-baseline (best=both-unweighted vs old=both-weighted × AL/GE/FL) running → settles the reg+cat axes at scale + the MTL-vs-ceiling claim → then the regime-finding re-test.
+
+---
+
 ## 2026-06-05 — RE-AUDIT (user-requested: "are we missing another use_class_weights?") → class-weighting is the SINGLE dominant confound; 2 smaller real secondaries flagged
 **Phase**: post-root-cause skeptical re-audit (independent agent + my config-factory diff). **Verdict: class-weighting is THE dominant confound; NO second bug of comparable magnitude.** The user's worry is addressed.
 - **My catch (config diff):** `default_next` is `use_class_weights=True` (`experiment.py:444`), NOT False — corrected the propagated error in HANDOFF/CONCERNS/log. The (c) ceiling is **p1/unweighted** (`build_calibrated_loss` no-calibration = plain CE; synthetic-verified bit-identical to `F.cross_entropy`), not `default_next`.

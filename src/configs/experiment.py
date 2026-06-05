@@ -371,15 +371,18 @@ class ExperimentConfig:
                 "update_weights_every": 4,
                 "optim_niter": 30,
             },
-            use_class_weights=True,
-            # C25 fix (2026-06-05): the REG head is reported by top-K Acc@10, which
-            # class-balancing HURTS (it optimises macro accuracy). The STL reg
-            # ceiling is unweighted. So reg-CE is UNWEIGHTED by default; cat-CE
-            # inherits ``use_class_weights=True`` (macro-F1 benefits from balancing).
-            # Pass ``--reg-class-weights`` to recover the pre-C25 (buggy) behaviour
-            # for v11-v14 reproduction. See CONCERNS.md §C25.
+            use_class_weights=True,  # legacy master (kept for back-compat / reproduction)
+            # C25 fix (2026-06-05): BOTH heads' CE are UNWEIGHTED by default.
+            #   reg: class-balancing HURTS top-K Acc@10 (it optimises macro accuracy);
+            #        the STL reg ceiling is unweighted. (verified: AL 56.45→64.51 ≥ ceiling.)
+            #   cat: EMPIRICALLY unweighted also wins macro-F1 (+5.1pp AL: 48.37→53.51) —
+            #        the "balancing helps macro-F1" assumption was FALSE (tested 2026-06-05,
+            #        user-requested). So cat-CE is unweighted too.
+            # Recover the pre-C25 (both-weighted) behaviour for v11-v14 reproduction with
+            # ``--reg-class-weights --cat-class-weights`` (or ``--use-class-weights``).
+            # See CONCERNS.md §C25 + log.md 2026-06-05 cat-axis test.
             use_class_weights_reg=False,
-            use_class_weights_cat=None,  # → inherits use_class_weights (True)
+            use_class_weights_cat=False,
             k_folds=5,
             seed=42,
         )
