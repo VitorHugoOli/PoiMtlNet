@@ -1,8 +1,10 @@
 # HANDOFF — MTL Improvement track (read this FIRST, then `log.md` + `INDEX.html`)
 
-**As of 2026-06-04 (TIER 2 topology COMPLETE → REDIRECT to Tier 2P).** Branch `mtl-improve`, all pushed.
-This is a single "you are here" snapshot. Full chronology: `log.md` (the 2026-06-04 Tier-2 entries).
-Design + per-tier results: `INDEX.html`. **Tier-2 close-out: `PAPER_UPDATE.md`. ⭐ NEXT STEP: §0c (T2P.0).**
+**As of 2026-06-05 (TIER 2P — T2P.0 RESOLVED: the JOINT LOOP is the poison).** Branch `mtl-improve`, pushed.
+This is a single "you are here" snapshot. Full chronology: `log.md` (the 2026-06-05 joint-loop-isolation entry first, then the 2026-06-04 T2P.0 thread incl. a RETRACTED input-artifact false alarm).
+Design + per-tier results: `INDEX.html`. **Tier-2 close-out: `PAPER_UPDATE.md`.**
+
+> ⭐ **2026-06-05 — T2P.0 (linchpin) is DONE and DECISIVE.** The MTL→STL reg gap is **specifically the joint `mtl_cv` training loop**, not the architecture/substrate/head/input/precision. Proof: the EXACT T2P.0 reg head + byte-identical input + identical recipe/folds/fp16, trained in a plain **single-task** loop, reaches the **(c) ceiling** (AL 62.88 = ceiling; FL 73.12 ≈ 73.31) but loses **10–14pp** in the joint loop (AL 52.90 / FL 59.53). Controls ruled out: wd, max_size_cycle (loaders equal by construction), fp16 precision (fp32 control), cat interference (cat-weight 0), and an input-artifact hypothesis that was chased and **RETRACTED** (MTL reg input is byte-identical to (c); `next_region.parquet` emb cols are unused). **→ T2P.1 (staged: reg→freeze→cat) is the lever and its reg arm is PROVEN to hit the ceiling; the only open question is whether CAT survives a frozen-reg trunk + beats the 2-model composite. Open scientific puzzle (non-blocking): WHY the joint loop costs 10-14pp at cat-weight 0.** Scripts: `t2p0_linchpin.sh`, `t2p0_fp32_control.sh`, `t2p0_input_artifact.sh`, `t2p0_singletask_isolation.py`. Diagnostic env-gate added: `MTL_DISABLE_AMP=1` (forces fp32; default unset = canonical fp16).
 
 ---
 

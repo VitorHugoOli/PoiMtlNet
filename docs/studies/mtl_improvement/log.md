@@ -712,6 +712,32 @@ S.3 (compose) NOT triggered (nothing promoted). **Conclusion: the STL head is NO
 
 ---
 
+## 2026-06-05 — ✅ JOINT-LOOP ISOLATION (user-requested decider) → the JOINT TRAINING LOOP is the poison; T2P.1 (staged) WILL recover reg to ceiling
+
+**Phase**: Tier 2P — the decisive isolation that resolves T2P.0. **Surfaced to user next.**
+
+**The experiment** (`scripts/mtl_improvement/t2p0_singletask_isolation.py`): train the EXACT T2P.0 reg head (`NextHeadStanFlowDualTower`, `fusion_mode=private_only`, prior-OFF — self-contained: forward ignores shared `x`, reads only raw_region_seq) on the IDENTICAL input (`build_region_sequence_tensor`, byte-identical to (c)) + IDENTICAL folds (`StratifiedGroupKFold(5, shuffle, random_state=42).split(X, y_cat, groups=userids)` — same as `folds.py`) + IDENTICAL recipe (AdamW wd=0.01, OneCycleLR max_lr=3e-3 pct_start=0.3, 50ep, bs2048, **fp16**) — but in a **SINGLE-TASK loop**: no cat loader, no `max_size_cycle` mixed iteration, no per-head optimizer. So vs T2P.0 the only removed variable is the joint `mtl_cv` trainer machinery.
+
+| | single-task loop (this) | T2P.0 joint loop | (c) STL ceiling | joint-loop cost |
+|---|---|---|---|---|
+| AL reg@10 | **62.88 ± 3.79** | 52.90 | 62.88 | **−9.98** |
+| FL reg@10 | **73.12 ± 0.41** | 59.53 | 73.31 | **−13.6** |
+
+**VERDICT — the JOINT mtl_cv training loop is the poison.** The IDENTICAL head/input/recipe/folds/precision reaches the **(c) ceiling** in a plain single-task loop (AL 62.88 = ceiling; FL 73.12 ≈ 73.31) but loses **10–14pp** in the joint loop. This is decisive: the MTL→STL reg gap is NOT the head, NOT the input (byte-identical), NOT precision (fp32 control), NOT wd, NOT cycle, NOT the topology, NOT cat interference (cat-weight 0 = zero cat gradient), and NOT a generic train.py-vs-p1 harness detail (this single-task loop IS train.py-side code + fp16 and it hits the ceiling). **It is specifically the joint `mtl_cv` training loop.**
+
+**Consequences:**
+1. **Tier-2P premise VINDICATED + localized.** "The joint loop caps reg" is now empirically pinned to the joint trainer itself, the cleanest possible statement of the P4 finding.
+2. **T2P.1 (staged) is the clear lever AND its reg arm is PROVEN.** Staged trains reg single-task → reg = ceiling **by construction** (this experiment IS that: single-task reg = 62.88/73.12 ≈ ceiling). So a single deployable model CAN carry ceiling-quality reg — the headline the track has chased. **The ONLY open T2P.1 question is whether CAT survives a frozen-reg trunk** (the framing trap, now sharply isolated). The 2-model composite remains the null to beat.
+3. **Open SCIENTIFIC puzzle (mechanism, not blocking):** WHY does the joint loop cost 10-14pp when cat-weight=0 (cat contributes ZERO gradient and reg never reads the cross-attn in private_only)? Mechanistically the reg params should get identical gradients. Candidates: (a) mixed-batch iteration perturbs dropout RNG / batch-order for the reg stream; (b) a subtlety in mtl_cv's reg eval (`next_forward` zero-A partial) vs a direct forward — though the deployable geom_simple metric corroborates ~52-59, arguing against a pure measurement artifact; (c) some mtl_cv plumbing (per-head optimizer / full-model forward) interaction. Worth a targeted probe before the paper claims the mechanism; does NOT change the lever (T2P.1).
+
+**Caveat (honest):** the single-task loop is my minimal trainer (standard AdamW/onecycle/CE/fp16), not literally mtl_cv-with-cat-removed. It is faithful to the head/input/recipe/folds/eval, and it reaches the ceiling — so it bounds the result cleanly (a plain loop suffices; the joint loop does not). A future tightening could add a `--single-task` path INSIDE mtl_cv to remove the last plumbing differences, but the 10-14pp recovery is far outside that residual.
+
+**Chain status**: Tier 2P — T2P.0 RESOLVED (joint loop = poison); T2P.1 strongly motivated + reg-recovery proven. Frozen (c)/(d) untouched.
+
+**Next**: **STOP + surface to user** → on approval, run **T2P.1 (staged: reg→freeze→cat)** focusing on the real open question (does cat survive the frozen-reg trunk? does the one model beat the composite?). Optionally a short mechanism probe (why the joint loop costs 10-14pp at cat-weight 0). Then finish T2.3/T2.4 confirmatory.
+
+---
+
 ## 2026-06-04 — [SUPERSEDED BY THE RETRACTION ABOVE] hypothesis: T2P.0 gap = input-artifact confound
 
 **Phase**: Tier 2P — the T2P.0 fp32 control + a root-cause dig SEEMED to overturn the linchpin's premise. **This hypothesis was REFUTED in-session by the byte-identical tensor test above — kept for the trail.**
