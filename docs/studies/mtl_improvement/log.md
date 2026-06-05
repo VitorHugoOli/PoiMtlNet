@@ -1599,6 +1599,48 @@ KD-OFF, seeded per-fold log_T, 5f×50ep.
 
 ---
 
+## 2026-06-05 — STRETCH CLOSED (T2.3 MoE + T2.4 SwiGLU, both NULL on reg) + #19 §0.1 continuity A/B → fix lifts §0.1 FL +3.15reg/+3.52cat
+
+**Phase**: Tier-2 optional stretch (user: "close the three remaining gaps + execute the optional stretch") — COMPLETE. All FL, multi-seed {0,1,7,100}, UNWEIGHTED real-joint (C25 default), onecycle KD-OFF, seeded per-fold log_T (freshness verified vs next_region.parquet). Disjoint reg = `per_metric_best.next_region.top10_acc_indist`; cat = `diagnostic_task_best.next_category.f1`. Aggregator: `scripts/mtl_improvement/c25_stretch_agg.py`.
+
+**What happened**
+- **Gaps #17/#18 closed** (committed earlier): CANONICAL_VERSIONS v15 pin (C25 unweighted recipe + reproduction map `--reg/cat-class-weights`); Acc@1→Acc@10 reg checkpoint monitor (`PrimaryMetric.TOP10` + reg `primary_metric` → TOP10; selector-independent diagnostic/disjoint reads unaffected).
+- **T2.3 MoE** built+ran (`mtlnet_mmoe`, `mtlnet_cgc` added to `c25_tier2_refix.sh`).
+- **T2.4 SwiGLU** built (`mtlnet_crossattn_swiglu`: subclass of mtlnet_crossattn; pre-norm + SwiGLU FFN, parallel bidirectional attn, hidden=round(2/3·ffn_dim) for param parity; only `_build_shared_backbone` overridden). Unit gate `t24_swiglu_unit_gate.py` GREEN — partition bijective+exhaustive, shared-backbone capacity Δ=0.086% vs baseline, structure (3-proj SwiGLU hidden=171) confirmed.
+- **#19 FL-B9 §0.1 continuity** ran (canon GCN, B9 recipe = cosine + alt-opt + α-no-wd + min-best-5, UNWEIGHTED) + a **same-harness WEIGHTED A/B** (`c25_fl_b9_weighted.sh`, `--reg/cat-class-weights`) to control for harness drift vs the published §0.1.
+
+**Findings**
+- **Full FL stretch board (reg@10 disj / cat-F1 diag, n=4 seeds):**
+  | arm | reg | cat | Δreg vs base_a | Δreg vs ceiling(73.31) | intervention |
+  |---|---|---|---|---|---|
+  | dual_gated (T2.1) | **73.06**±0.08 | 72.03 | +1.51 | **−0.25** | private reg pathway |
+  | prior_off | 72.94±0.07 | 72.02 | +1.39 | −0.37 | α·log_T prior OFF |
+  | crossstitch | 71.97±0.12 | 72.08 | +0.42 | −1.34 | soft feature-share |
+  | cgc (T2.3) | 71.77±0.06 | 71.58 | +0.22 | −1.55 | MoE expert capacity |
+  | swiglu (T2.4) | 71.71±0.14 | **72.13**±0.03 | +0.16 | −1.60 | modern backbone |
+  | mmoe (T2.3) | 71.68±0.12 | 71.57 | +0.13 | −1.63 | MoE expert capacity |
+  | hardshare | 71.48±0.08 | 71.62 | −0.07 | −1.83 | hard-share anchor |
+- **#19 §0.1 continuity — SAME-HARNESS A/B (B9-canon, only the class-weight flag differs):**
+  | | reg@10 | cat-F1 |
+  |---|---|---|
+  | WEIGHTED (pre-C25 repro) | 63.91±0.16 | 70.34±0.06 |
+  | UNWEIGHTED (C25 fix) | 67.06±0.08 | 73.86±0.06 |
+  | **Δ (fix)** | **+3.15** | **+3.52** |
+  - Harness drift quantified: same-harness weighted (63.91/70.34) vs published §0.1 (63.27/68.56) = +0.64 reg / +1.78 cat → the cross-harness delta (+3.79/+5.30) was inflated by drift; the **clean fix effect is +3.15/+3.52**. (Cross-check: weighted cat 70.34 == `v14_mtl_vs_canonical.md` canon FL cat 70.34 → harness consistent.)
+  - **§0.1 architectural Δ_reg** (vs §0.1 STL ceiling 70.62): weighted −6.71 → unweighted **−3.56** (reg gap ~halved). **Δ_cat**: +3.18 → **+6.70** (cat advantage ~doubled).
+
+**Decision**
+- **Stretch verdict LOCKED — architecture capacity is NOT the bottleneck.** TWO independent "more/better architecture" interventions (MoE expert capacity; SwiGLU modern backbone) are NULL on reg (+0.13..+0.22, within σ). Only the TWO mechanism interventions move it: prior-OFF (+1.39) and the private un-mixed reg pathway / dual-tower (+1.51). The residual MTL→STL reg gap is the **α·log_T prior + shared-pathway dilution, not architecture or backbone quality.** dual_gated (73.06, −0.25 from ceiling) remains FL best.
+- **SwiGLU's only real effect is cat:** 72.13 = best cat of any arm (+0.24 vs base_a) — a small modern-backbone cat bump, no reg movement.
+- **MulT-faithful + crossstitch→crossattn hybrids = NOT BUILT (dropped):** they'd be a 3rd architecture-capacity test of a twice-falsified hypothesis. Model class + gate for SwiGLU are committed and reusable if ever needed.
+- **#19 result is paper-relevant:** the C25 fix lifts the EXACT §0.1 paper-canon FL MTL row by +3.15 reg / +3.52 cat and roughly halves the central architectural reg gap. → RESULTS_TABLE §0.1 gets a continuity ANNOTATION (NOT a table rewrite — author sign-off, same convention as the onecycle annotation).
+
+**Chain status**: Tier-2 stretch COMPLETE. All three gaps (#17/#18/#19) closed. Frozen (c)/(d) untouched.
+
+**Next**: consolidate docs (HANDOFF stretch-done, RESULTS_TABLE §0.1 continuity annotation, CONCERNS C25 cross-ref); commit + push. Study is at a clean stopping point — no open GPU work. CA/TX deferred per user (large-state compute).
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:
