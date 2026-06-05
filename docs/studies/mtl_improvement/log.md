@@ -712,6 +712,21 @@ S.3 (compose) NOT triggered (nothing promoted). **Conclusion: the STL head is NO
 
 ---
 
+## 2026-06-05 — RE-VALIDATION: single-seed re-baseline CONFIRMS the reframe at AL/GE/FL; multi-seed sweep LAUNCHED (user: "both re-runs now")
+**Single-seed re-baseline** (real-joint, v14, onecycle, seed42; `c25_rebaseline.sh`, best=both-unweighted vs old=both-weighted):
+| state | best reg/cat | old reg/cat | (c) ceiling reg/cat | Δreg | Δcat |
+|---|---|---|---|---|---|
+| AL | 64.82 / 53.51 | 56.45 / 48.51 | 62.88 / 49.97 | +8.37 | +5.00 |
+| GE | 57.91 / 61.31 | 48.00 / 56.94 | 58.45 / 58.12 | +9.91 | +4.37 |
+| FL | 71.41 / 72.08 | 61.87 / 69.08 | 73.31 / 69.97 | +9.54 | +3.00 |
+- **With the fix, MTL reg ≈ the STL ceiling at ALL 3 states** (AL +1.9, GE −0.5, FL −1.9 vs (c)) and **cat EXCEEDS the ceiling everywhere** (+2.1 to +3.5). The pre-C25 (both-weighted) recipe was −8 to −10pp reg. **The "MTL sacrifices reg" gap is gone** once the loss matches the metric. (seed42 dev-seed; multi-seed below for paper-grade.)
+**Multi-seed re-validation sweep LAUNCHED** (`c25_revalidate.sh`, tracked `buunjh5f3`): **v14 vs canon (check2hgi v11 GCN) × AL/GE/FL × seeds {0,1,7,100}**, MTL real-joint, unweighted, onecycle, KD-OFF. Merges re-run #1 (regime: Δ=v14−canon — does the STL substrate gain transfer to MTL now?) + #2 (§0.1 re-baseline = the canon arm, multi-seed) + CH25 re-derivation (composite vs canon MTL reg). Seeded log_T for all seeds verified on disk. HGI 3-way arm deferred (needs log_T + AL/GE next_region). ~1.5h.
+**Reframe close-out (doc-only) DONE/PENDING:** INDEX banner (Tier 2/2P RETIRED, T2.3/T2.4 CANCELLED) ✓; PENDING (after multi-seed confirms): NORTH_STAR/CANONICAL promotion of per-task weighting (a real recipe WIN: cat-unweighted +3-5pp), Acc@1→Acc@10 monitor code fix, PAPER_UPDATE full reframe.
+
+**Next**: multi-seed sweep lands → aggregate v14-vs-canon multi-seed table (does substrate transfer? regime finding verdict) + canon §0.1 re-baseline vs (c) ceilings + CH25 re-derivation → surface the re-validated regime + §0.1 picture + the paper-narrative decision.
+
+---
+
 ## 2026-06-05 — STRATEGIC RE-RUN ASSESSMENT (user-requested: "is it worth re-running Tier 2 / any part of the study?") → large REFRAME, narrow re-validation
 **Phase**: strategic agent assessment of what the C25 fix invalidates / salvages / requires re-running, before spending re-baseline compute. **Surface to user — this is a paper-narrative-level decision.**
 
