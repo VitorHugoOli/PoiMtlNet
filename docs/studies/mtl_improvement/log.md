@@ -741,6 +741,35 @@ S.3 (compose) NOT triggered (nothing promoted). **Conclusion: the STL head is NO
 
 ---
 
+## 2026-06-05 — PINPOINT (axis nailed) + ASSESS (blast radius) — user chose "pinpoint and assess"
+
+**PINPOINT — axis = TRAINING, not measurement; exact line needs a runtime bisect.** Continued ruling-out:
+- **Metric RULED OUT (empirical):** added mtl_cv's exact `top10_acc_indist` (mtl_eval.py:28-51) to my reconstruction → FL indist **73.7** (≈ plain 73.1); mtl_cv indist 59.53. Same metric, ~14pp apart. indist ≥ plain (excludes cold-start), so the metric difference can't explain it.
+- **Dataloader RULED OUT:** `POIDataset.__getitem__` returns raw `(features[idx], labels[idx])` — no normalization/transform; loader is shuffle + no weighted sampling (use_weighted_sampling=False). Same tensor my reconstruction feeds (build_region_sequence_tensor, byte-identical to (c)).
+- **Training-forward code RULED OUT:** mtl_cv:478-485 is `model((x_a,x_b))` → `CrossEntropyLoss(out_next)` — identical to my reconstruction.
+- **Axis = TRAINING:** my indist eval (= mtl_eval's) gives 73.7 on good weights; mtl_cv's same-metric eval gives 59 on its own weights → same eval, worse weights → mtl_cv TRAINS reg to a worse optimum. (Gold-standard confirmation = checkpoint-reeval of mtl_cv weights with a direct forward; deferred.)
+- **Cumulative ruled-out (none is the cause):** input-tensor, head, recipe, optimizer (per-head), precision, grad-accum, loss-weighting, grad-clip, metric (plain+indist), early-stop, mixed-batch-structure, full-model-forward, training-forward-code, dataloader-transform. The exact `mtl_cv` line is UNPINNED — it requires a **runtime bisect** (progressively morph the passing reconstruction `t2p0_mechanism_probe.py --mixed` into the mtl_cv loop until reg drops to 59; or instrument mtl_cv). That is the clean next-session task. **Surprising honest state: a 14pp deficit with every obvious cause excluded ⟹ a subtle mtl_cv interaction, OR (low-prob, p1-agreement argues against) a shared optimism in 4 reconstructions.**
+
+**Final reconstruction table (both states):**
+| harness (identical head/input/recipe/folds/fp16) | AL reg@10 | FL reg@10 |
+|---|---|---|
+| p1 (blessed (c) ceiling) | 62.88 | 73.31 |
+| standalone single-task | 62.88 | 73.12 (indist 73.7) |
+| full-model single-task | 63.01 | — |
+| full-model real-cat MIXED loop (cat-wt 0) | 63.20 | 73.16 |
+| **mtl_cv joint (T2P.0)** | **52.90** | **59.53** |
+
+**ASSESS — blast radius (structural reasoning; common-mode cancellation):**
+- **RELATIVE findings are UNAFFECTED** (both arms run through mtl_cv, so a ~14pp common-mode reg depression cancels in the Δ): the **regime finding** (v14-MTL ≈ canonical-MTL → substrate washes out jointly), the **Tier-2 architecture negative** (dual-tower < base_a; the dose-response), and all within-MTL comparisons HOLD. The paper's central negatives don't move.
+- **ABSOLUTE MTL-reg numbers are potentially ~14pp understated** (all ran through mtl_cv): §0.1 deployable reg, the **MTL→composite reg gap**, and the "MTL sacrifices reg" magnitude. **If the mtl_cv deficit is real + fixable, MTL reg could approach the STL ceiling → the composite advantage shrinks dramatically or dissolves, and "MTL sacrifices reg" largely goes away.** This is the high-EV upside — but GATED on the runtime-bisect confirmation (don't re-state §0.1 or the composite gap until the exact cause is found + a fix validated leak-free).
+- **STL ceilings (c)/(d) UNAFFECTED** (p1 harness, not mtl_cv) — they remain valid; they're the target MTL reg should be able to reach if the mtl_cv deficit is fixed.
+
+**Chain status**: Tier 2P — T2P.0 resolved; the reg deficit is mtl_cv-training-specific (axis nailed, exact line pending a runtime bisect). Relative findings safe; absolute MTL-reg numbers are the open upside. Frozen (c)/(d) untouched.
+
+**Next**: surface pinpoint+assess to user. Recommended decisive next step = the **runtime bisect** (morph the passing `--mixed` reconstruction into mtl_cv) to find the exact line, THEN decide fix-mtl_cv (free reg recovery, re-baseline) vs T2P.1 (staged). Do NOT re-state any absolute reg number until the cause is found + fix validated.
+
+---
+
 ## 2026-06-05 — ✅ JOINT-LOOP ISOLATION (user-requested decider) → the JOINT TRAINING LOOP is the poison; T2P.1 (staged) WILL recover reg to ceiling
 
 **Phase**: Tier 2P — the decisive isolation that resolves T2P.0. **Surfaced to user next.**

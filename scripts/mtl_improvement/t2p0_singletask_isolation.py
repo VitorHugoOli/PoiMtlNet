@@ -57,6 +57,17 @@ def topk_acc(logits, y, k=10):
     return (topk == y.unsqueeze(-1)).any(-1).float().mean().item()
 
 
+def topk_acc_indist(logits, y, train_labels_t, k=10):
+    """mtl_cv's top{k}_acc_indist: top-k over ONLY val samples whose true label
+    was seen in train (excludes cold-start). Mirrors mtl_eval.py:28-51."""
+    mask = torch.isin(y, train_labels_t)
+    if int(mask.sum()) == 0:
+        return 0.0
+    lg, yy = logits[mask], y[mask]
+    topk = lg.topk(k, dim=-1).indices
+    return (topk == yy.unsqueeze(-1)).any(-1).float().mean().item()
+
+
 def run_state(state: str):
     eng = EmbeddingEngine(V14)
     # --- inputs/labels exactly as the MTL fold builder assembles them ---
@@ -73,6 +84,8 @@ def run_state(state: str):
     for fold, (tr, va) in enumerate(sgkf.split(np.asarray(X), np.asarray(y_cat), groups=np.asarray(userids))):
         tr_ds = TensorDataset(region_seq[tr], y_region[tr])
         va_x, va_y = region_seq[va].to(DEVICE), y_region[va].to(DEVICE)
+        train_labels_t = torch.as_tensor(sorted(set(y_region[tr].tolist())),
+                                         dtype=va_y.dtype, device=DEVICE)
         tr_dl = DataLoader(tr_ds, batch_size=BS, shuffle=True, drop_last=False)
 
         # EXACT T2P.0 reg head: dual-tower private_only, prior-OFF (alpha=0 buffer).
@@ -89,7 +102,7 @@ def run_state(state: str):
         actx = torch.autocast(DEVICE.type, dtype=torch.float16) if DEVICE.type == "cuda" else _null()
 
         # dummy shared input (private_only ignores it; kept for the forward signature)
-        best = 0.0
+        best, best_id = 0.0, 0.0
         for ep in range(EPOCHS):
             head.train()
             for xb, yb in tr_dl:
@@ -105,18 +118,19 @@ def run_state(state: str):
             # eval (full val in chunks)
             head.eval()
             with torch.no_grad():
-                accs = []
+                logits_all = []
                 for i in range(0, va_x.size(0), BS):
                     xb = va_x[i:i+BS]
                     dummy = xb.new_zeros(xb.size(0), 9, 256)
                     with actx:
-                        lg = head(dummy, raw_region_seq=xb)
-                    accs.append((topk_acc(lg.float(), va_y[i:i+BS], 10), xb.size(0)))
-                tot = sum(n for _, n in accs)
-                acc10 = sum(a*n for a, n in accs) / tot
-            best = max(best, acc10)
+                        logits_all.append(head(dummy, raw_region_seq=xb).float())
+                lg = torch.cat(logits_all, 0)
+                acc10 = topk_acc(lg, va_y, 10)
+                acc10_id = topk_acc_indist(lg, va_y, train_labels_t, 10)
+            if acc10 > best:
+                best, best_id = acc10, acc10_id
         fold_best.append(best * 100)
-        print(f"  [{state}] fold{fold+1}: best val Acc@10 = {best*100:.2f}")
+        print(f"  [{state}] fold{fold+1}: best val Acc@10 plain={best*100:.2f} indist={best_id*100:.2f}")
     mean = float(np.mean(fold_best)); std = float(np.std(fold_best))
     print(f"\n[{state}] SINGLE-TASK isolated reg Acc@10 (best-epoch, mean±std over 5 folds): "
           f"{mean:.2f} ± {std:.2f}  folds={[round(f,2) for f in fold_best]}")
