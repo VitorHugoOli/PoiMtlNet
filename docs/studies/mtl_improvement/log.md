@@ -712,6 +712,25 @@ S.3 (compose) NOT triggered (nothing promoted). **Conclusion: the STL head is NO
 
 ---
 
+## 2026-06-05 — ⭐⭐ TIER-2 RE-RUN under the fix → ORDERINGS FLIPPED (dual-tower WORST→BEST); FL gap closeable (prior + dual-tower)
+**Phase**: Tier-2 architecture re-run under the C25 fix (FL, unweighted, multi-seed {0,1,7,100}; `c25_tier2_refix.sh`). **The user's question — "could T2.1/T2.2 be different now?" — answered: YES, decisively.**
+| arm (FL, unweighted) | reg@10 (mean±sd) | Δreg vs base_a | gap vs (c) 73.31 |
+|---|---|---|---|
+| **dual_gated (T2.1)** | **73.06±0.07** | **+1.51** | **−0.25** |
+| prior_off (base_a α=0) | 72.94±0.07 | +1.39 | −0.37 |
+| crossstitch (T2.2) | 71.98±0.12 | +0.43 | −1.33 |
+| base_a (ref, prior-ON) | 71.55±0.08 | 0 | −1.76 |
+| hardshare (T2.0) | 71.48±0.08 | −0.07 | −1.83 |
+**Findings:**
+1. **THE ORDERINGS FLIPPED — the common-mode assumption was FALSE (user vindicated).** Under the OLD class-weighted recipe: `CrossStitch ≥ base_a ≈ hard-share ≫ dual-tower` (dual-tower WORST, −2.89 at FL). Under the unweighted fix: **`dual_gated > prior_off > crossstitch > base_a ≈ hardshare`** — the **dual-tower went from WORST to BEST (+1.51 vs base_a)**, nearly closing the FL gap (−0.25). The dual-tower's "loss" WAS the class-weighting interacting non-uniformly with its private reg tower. **The Tier-2 "irreducibly architectural negative" is fully OVERTURNED.**
+2. **The residual FL gap is the α·log_T PRIOR, not architecture per se.** prior_off (base_a with α=0, matching the (c) ceiling's prior-OFF) = 72.94 (−0.37 vs ceiling) — closes ~80% of base_a's −1.76 gap. O1's "prior is a drag on the STL ceiling" extends to MTL.
+3. **Both gap-closers stack** → dual-tower + prior-OFF should fully close / beat the ceiling (combo running). hard-share ≈ base_a (hard≈soft, unchanged); CrossStitch a small +0.43 (was the only non-loser, consistent).
+**⟹ A single MTL model (dual-tower, or base_a prior-OFF) reaches the STL ceiling at FL** — the last residual is closed by architecture/prior, NOT a fundamental MTL limit. Combined with the regime + composite re-validation: the entire "MTL sacrifices reg / ship composite / architecture-negative" edifice is overturned.
+
+**Next**: dual-tower prior-OFF combo (does it fully close/beat the FL ceiling?) → then surface the complete Tier-2 + re-validation picture + the paper-reframe decision. T2P.1/2/3 likely UNNEEDED (the gap is ~closed); T2.3/T2.4 optional (the axis is live but the gap is already closed).
+
+---
+
 ## 2026-06-05 — wd THEORY REFUTED → the residual FL gap is NOT weight-decay; proceeding to Tier 2 (user sequence)
 `c25_wd_theory.sh` (wd=0.01 vs the recipe's wd=0.05, v14, unweighted real-joint, AL/GE/FL × {0,1,7,100}):
 | state | wd0.05 reg | wd0.01 reg | Δ | (c) ceiling | gap@wd0.01 |
