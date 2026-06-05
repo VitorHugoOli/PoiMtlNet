@@ -24,6 +24,13 @@ class PrimaryMetric(str, Enum):
     F1 = "f1"
     ACCURACY = "accuracy"
     MRR = "mrr"
+    # C25 (2026-06-05): the headline reg metric is Acc@10 (``top10_acc_indist``,
+    # merged into the reg val-metrics dict by mtl_eval — NOT from
+    # compute_classification_metrics, but a valid monitor key in
+    # ``val_metrics_task_b``; mtl_cv.py:849,884). The high-cardinality region head
+    # should select its checkpoint by Acc@10, not Acc@1 — else the DEPLOYABLE reg
+    # number lags the headline ~2-3pp (the Acc@1-best epoch ≠ the Acc@10-best epoch).
+    TOP10 = "top10_acc_indist"
 
 
 @dataclass(frozen=True)

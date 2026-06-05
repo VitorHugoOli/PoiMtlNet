@@ -97,7 +97,11 @@ CHECK2HGI_NEXT_REGION = TaskSet(
         # region. See issues/REGION_HEAD_MISMATCH.md for the full audit.
         head_factory="next_gru",
         is_sequential=True,
-        primary_metric=PrimaryMetric.ACCURACY,
+        # C25 (2026-06-05): select the reg checkpoint by Acc@10 (the headline
+        # metric), not Acc@1 — the deployable reg number was lagging the headline
+        # ~2-3pp because the Acc@1-best epoch ≠ the Acc@10-best epoch. The disjoint
+        # ``per_metric_best.top10_acc_indist`` (oracle Acc@10 epoch) is unaffected.
+        primary_metric=PrimaryMetric.TOP10,
     ),
 )
 """Check2HGI-track pair. Task-a (`next_category`, 7 classes) uses the
