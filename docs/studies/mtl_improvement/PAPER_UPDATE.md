@@ -1,5 +1,35 @@
 > ⛔⛔ **2026-06-05 SUPERSEDING BANNER — READ BEFORE USING ANYTHING BELOW.** The Tier-2 close-out's **R1 ("no single-model MTL architecture closes the MTL→STL reg gap; ship the composite")** is **SUBSTANTIALLY INVALIDATED**: the MTL→STL reg gap it studied was largely a **class-weighting CONFOUND**, not architecture. The MTL reg head trained on class-BALANCED CE (`default_mtl use_class_weights=True`, `experiment.py:364` → `mtl_cv.py:1283-1291`) while the STL ceiling used UNWEIGHTED CE — and class-balancing optimizes macro accuracy AWAY from the top-K (Acc@10) metric. **Verified:** with `--no-class-weights`, MTL reg reaches/exceeds the STL ceiling (T2P.0 AL 64.81 ≥ 62.88, vs the buggy 52.90). So the dose-response, the "irreducibly architectural" claim, and "ship the composite" were all measuring a confounded gap. The architecture search attacked an artifact. **R1 is UNDER RE-VALIDATION** (regime finding + §0.1 + composite advantage being re-tested under unweighted reg CE at AL/GE/FL). **R2 (onecycle recipe) is unaffected** (recipe-level, both arms class-weighted → common-mode). Do NOT cite R1 or any absolute MTL-reg number until the re-baseline lands. Full trail: `log.md` 2026-06-05 ROOT-CAUSE entry + `HANDOFF.md` §top.
 
+# ⭐ PAPER UPDATE (2026-06-05) — the reg narrative is REFRAMED (the "unweighting" finding)
+
+> The earlier "Tier 2 close-out" (R1/R2 below, 2026-06-04) is **superseded** by this section. The whole "MTL sacrifices reg → ship the composite + architecture-negative" line was an **objective-mismatch confound**: the MTL reg head trained on **class-weighted CE** while the STL ceiling + the reported **Acc@10** metric are unweighted. Fixed (both heads unweighted, per-task) and re-validated multi-seed. **Source-of-truth numbers + full trail: `CONCERNS.md §C25`, `log.md` 2026-06-05, `HANDOFF.md §top`.**
+
+## The single sentence
+**A single jointly-trained MTL model matches/beats the STL reg ceiling AND the 2-model composite once the reg loss matches the reported metric (unweighted CE for top-K Acc@10, not class-balanced CE); the substrate gain transfers to MTL; and cat improves too.**
+
+## Re-validated headline numbers (multi-seed {0,1,7,100}, unweighted real-joint, AL/GE/FL)
+| state | MTL reg (v14) | STL ceiling (c) | composite (d) | MTL cat (v14) | STL cat ceiling |
+|---|---|---|---|---|---|
+| AL | 64.52 | 62.88 (**+1.6**) | 63.58 (**+0.9, beats it**) | 53.38 | 49.97 (**+3.4**) |
+| GE | 57.84 | 58.45 (−0.6) | 58.76 (−0.9) | 61.37 | 58.12 (**+3.2**) |
+| FL | 71.55 | 73.31 (−1.8*) | 73.62 (−2.1) | 71.89 | 69.97 (**+1.9**) |
+
+\* the FL −1.8pp residual is the **α·log_T prior** (prior-OFF closes ~80%) and is **closed by the dual-tower** (FL dual-tower 73.06, −0.25 vs ceiling) — not a fundamental MTL limit.
+
+## What changes for the paper (claim-by-claim)
+- **Regime finding (CH28) — OVERTURNED.** Old: "STL substrate gains wash out under the cross-attn MTL regime." New: **Δreg(v14−canonical) = +1.92/+1.49/+0.81 (AL/GE/FL), σ~0.1 — the substrate gain TRANSFERS to MTL** (partial — smaller than the STL Δ — but positive and significant).
+- **Composite advantage (CH25) — DISSOLVED.** Old: "composite STL-cat ⊕ STL-HGI-reg = +7-12pp over MTL@disjoint; deploy 2 models." New: a **single MTL model ≥ the composite** (AL +0.94; GE/FL within 1-2pp). The 2-model deploy is no longer justified on reg.
+- **Tier-2 architecture — POSITIVE, not negative.** Old: "no architecture closes the gap; dual-tower loses; irreducibly architectural." New: the **dual-tower CLOSES the gap** (FL +1.51 vs base_a, −0.25 vs ceiling) — the orderings FLIPPED under the fix (`dual_gated > prior_off > crossstitch > base_a ≈ hardshare`). The class-weighted "dual-tower loses" was the confound interacting non-uniformly with its private reg tower.
+- **§0.1 absolute MTL reg — re-stated +10-13pp** (canonical v11 GCN substrate: AL 62.60 / GE 56.34 / FL 70.74, multi-seed, vs old ~50/42/61). The "MTL reg ≪ STL" architectural-Δ column flips to "MTL reg ≈ STL ceiling."
+- **MTL cat — re-stated UP** (exceeds the STL cat ceiling at all states). Caveat: stacks with the deployable-recipe correction (don't double-count); use unweighted MTL cat vs unweighted STL cat for apples-to-apples.
+- **R2 (onecycle small-state recipe) — UNAFFECTED** (recipe-level, common-mode).
+- **Per-task class-weighting — a genuine recipe WIN** to adopt (cat-unweighted +3-5pp macro-F1 is not just a bug fix).
+
+## Open before the paper freezes
+FL-B9 follow-up for exact §0.1-table recipe continuity (re-validation used onecycle); the Acc@1→Acc@10 reg checkpoint-monitor fix (deployable numbers); the dual-tower + prior-OFF combo (full FL closure confirmation); pin a new `CANONICAL_VERSIONS` version for the unweighted recipe; promote to `NORTH_STAR.md`. **Frozen (c)/(d) STL ceilings are UNAFFECTED** (unweighted p1, valid comparands).
+
+---
+
 # Tier 2 close-out — paper-facing update (2026-06-04) — ⚠ R1 SUPERSEDED, see banner above
 
 The MTL Improvement track's **Tier 2 (architecture)** is COMPLETE. Two paper-grade results, both
