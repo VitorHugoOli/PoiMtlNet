@@ -712,6 +712,30 @@ S.3 (compose) NOT triggered (nothing promoted). **Conclusion: the STL head is NO
 
 ---
 
+## 2026-06-05 — ⭐⭐⭐ MULTI-SEED RE-VALIDATION LANDED → REGIME FINDING OVERTURNED + COMPOSITE ADVANTAGE DISSOLVED (paper-redefining)
+**Phase**: the paper-grade re-validation (`c25_revalidate.sh`, 24 runs: v14 vs canon × AL/GE/FL × {0,1,7,100}, unweighted real-joint, onecycle, KD-OFF). **Surface to user — this flips the central narrative.**
+
+**Results (multi-seed {0,1,7,100}, tight σ ~0.1):**
+| state | v14 reg / cat | canon reg / cat | (c) STL ceiling | (d) composite reg | Δreg(v14−canon) | v14 reg vs (d) |
+|---|---|---|---|---|---|---|
+| AL | 64.52 / 53.38 | 62.60 / 53.43 | 62.88 / 49.97 | 63.58 | **+1.92** | **+0.94 (BEATS composite)** |
+| GE | 57.84 / 61.37 | 56.34 / 61.61 | 58.45 / 58.12 | 58.76 | **+1.49** | −0.92 |
+| FL | 71.55 / 71.89 | 70.74 / 72.07 | 73.31 / 69.97 | 73.62 | **+0.81** | −2.07 |
+
+**Four paper-redefining findings:**
+1. **REGIME FINDING OVERTURNED.** Δreg(v14−canon) is POSITIVE at all 3 states (+1.92/+1.49/+0.81, σ~0.1 → significant). The old (class-weighted) regime finding said "v14 ≈ canon in MTL → the STL substrate gain washes out under the cross-attn MTL regime." With unweighted reg CE, **v14 > canon in MTL — the substrate gain TRANSFERS.** The "washes out in MTL" headline (`v14_mtl_vs_canonical.md`, CH28) was a class-weighting artifact. (The substrate Δ in MTL is smaller than the STL Δ — partial transfer — but it is POSITIVE and significant, not a wash-out.)
+2. **MTL reg ≈ the STL ceiling.** v14: AL 64.52 (+1.6 vs (c)), GE 57.84 (−0.6), FL 71.55 (−1.8). The "MTL sacrifices reg −7 to −17pp" gap is GONE; what remains is a small −1.8pp residual at FL only (→ wd theory).
+3. **COMPOSITE ADVANTAGE (CH25) DISSOLVED.** vs (d) composite reg: a SINGLE MTL model is **+0.94 at AL (BEATS the composite)**, −0.92 GE, −2.07 FL. The "composite = +7-12pp over MTL@disjoint" headline collapses to ~−2 to +1pp. **The 2-model composite is no longer the deployable reg answer — a single MTL model matches/beats it.**
+4. **CAT also re-baselined up ~+3-5pp** — MTL cat EXCEEDS the STL cat ceiling at all 3 states (AL 53.4>49.97, GE 61.4>58.12, FL 71.9>69.97). (cat was also class-weighted; unweighting + the onecycle recipe stack — see C25 cat-axis.)
+
+**§0.1 re-baseline (the canon arm = v11 GCN substrate = the §0.1 substrate):** MTL reg AL 62.60 / GE 56.34 / FL 70.74 (multi-seed) — vs the OLD class-weighted §0.1 MTL reg (~50/42/61) = **+10-13pp**. The §0.1 architectural-Δ table (MTL reg ≪ STL) is substantially re-stated: MTL reg now ≈ STL ceiling.
+
+**THE NARRATIVE FLIP:** OLD = "MTL sacrifices reg (−7..−17pp); the gap is irreducibly architectural; ship the 2-model composite." NEW = **"MTL reg ≈/> the STL ceiling AND the composite once the loss matches the metric (unweighted CE vs frequency-weighted Acc@10); the substrate gain transfers to MTL; cat improves too."** This dissolves the Tier-2/2P architecture-negative AND the composite headline (CH25) AND overturns the regime finding (CH28). Caveats: residual FL reg gap −1.8pp (wd theory next); recipe = onecycle (not the §0.1 B9 — FL B9 follow-up for exact table continuity); frozen (c)/(d) untouched (unweighted STL, valid comparands).
+
+**Next**: (per user sequence) wd theory (running, `c25_wd_theory.sh`) → does wd=0.01 close the FL −1.8pp residual? → then Tier 2 re-run under the fix (test the orderings — the user's question — at FL multi-seed). Then the doc promotions (regime/CH25/CH28 re-statement, NORTH_STAR per-task-weighting, PAPER_UPDATE reframe).
+
+---
+
 ## 2026-06-05 — RE-VALIDATION: single-seed re-baseline CONFIRMS the reframe at AL/GE/FL; multi-seed sweep LAUNCHED (user: "both re-runs now")
 **Single-seed re-baseline** (real-joint, v14, onecycle, seed42; `c25_rebaseline.sh`, best=both-unweighted vs old=both-weighted):
 | state | best reg/cat | old reg/cat | (c) ceiling reg/cat | Δreg | Δcat |
