@@ -76,6 +76,7 @@ def run_state(state, mixed=False):
         # EXACT T2P.0 full model: MTLnetCrossAttnDualTower, reg head private_only prior-OFF.
         ts = resolve_task_set(
             CHECK2HGI_NEXT_REGION, task_b_num_classes=n_regions,
+            task_a_head_factory="next_gru",  # match mtl_cv's --cat-head next_gru (was default next_mtl)
             task_b_head_factory="next_stan_flow_dualtower",
             task_b_head_params={"raw_embed_dim": 64, "fusion_mode": "private_only",
                                 "freeze_alpha": True, "alpha_init": 0.0},
