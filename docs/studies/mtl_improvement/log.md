@@ -712,6 +712,19 @@ S.3 (compose) NOT triggered (nothing promoted). **Conclusion: the STL head is NO
 
 ---
 
+## 2026-06-05 — wd THEORY REFUTED → the residual FL gap is NOT weight-decay; proceeding to Tier 2 (user sequence)
+`c25_wd_theory.sh` (wd=0.01 vs the recipe's wd=0.05, v14, unweighted real-joint, AL/GE/FL × {0,1,7,100}):
+| state | wd0.05 reg | wd0.01 reg | Δ | (c) ceiling | gap@wd0.01 |
+|---|---|---|---|---|---|
+| AL | 64.52 | 64.56 | +0.04 | 62.88 | +1.68 |
+| GE | 57.84 | 57.80 | −0.04 | 58.45 | −0.65 |
+| FL | 71.55 | 71.50 | −0.05 | 73.31 | **−1.81** |
+- **wd makes ~0 difference** (±0.04, within noise) — wd=0.01 (matching the (c) ceiling) does NOT close the FL gap. **The residual FL −1.8pp is GENUINE (not class-weighting, not wd).** Candidates now: (a) joint cat-competition at the large state (architectural — Tier 2), (b) the prior axis — MTL base_a uses `next_getnext_hard` (prior-ON, α learnable) but the (c) ceiling is `next_stan_flow` α=0 (prior-OFF); O1 found prior-ON is a drag on the STL ceiling, so the FL gap may be the prior. → the Tier-2 re-run includes a prior-OFF arm to decompose this.
+
+**Next**: Tier 2 re-run under the fix at FL multi-seed (base_a, dual-tower, CrossStitch, hard-share, + prior-OFF arm) → does any architecture close the −1.8pp FL gap? do the orderings change vs the class-weighted Tier-2 (the user's question)?
+
+---
+
 ## 2026-06-05 — ⭐⭐⭐ MULTI-SEED RE-VALIDATION LANDED → REGIME FINDING OVERTURNED + COMPOSITE ADVANTAGE DISSOLVED (paper-redefining)
 **Phase**: the paper-grade re-validation (`c25_revalidate.sh`, 24 runs: v14 vs canon × AL/GE/FL × {0,1,7,100}, unweighted real-joint, onecycle, KD-OFF). **Surface to user — this flips the central narrative.**
 
