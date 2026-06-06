@@ -1015,7 +1015,19 @@ Priorities: <strong>P0 = paper-blocking</strong>, P1 = the one dominant arch tes
 <div class="block"><div class="block-title">Why</div>G is seeds {0,1,7,100}; the (c)/(d) ceilings are seed-42 single-seed — <em>disjoint</em> seeds. Small-state reg fold-σ is 3–4pp, and the FL margin is only +0.26 → the "beats both reg ceilings" headline rests on an un-seed-matched bar. (CRITIQUE §3 G1.)</div>
 <div class="block"><div class="block-title">Method</div>Re-run the STL ceilings at {0,1,7,100} × AL/AZ/GE/FL: reg = <code>next_stan_flow</code> α=0 (the (c) recipe, p1 harness); cat = <code>next_gru</code> logit-adjust τ=0.5; recompute (d) composite (max v14/HGI-α0). Recompute every G−ceiling Δ seed-matched.</div>
 <div class="block"><div class="block-title">Gate</div><div class="gate"><strong>Headline holds</strong>: G ≥ (c) reg at ≥3/4 states seed-matched → "beats both ceilings" is paper-grade. <strong>Shrinks to tie</strong> (esp. FL): downgrade reg to <strong>"matches the STL ceiling + composite in one model"</strong> (still strong; cat gain unaffected).</div></div>
-<div class="results-placeholder">Results: <em>pending execution</em></div>
+<div class="block"><div class="block-title">Results (2026-06-06) — multi-seed {0,1,7,100} ceilings vs G; the headline HOLDS at 4/4</div>
+<table>
+<thead><tr><th>state</th><th>(c) reg ms</th><th>(c) reg s42</th><th>G reg</th><th>Δ G−ms</th><th>(c) cat ms</th><th>G cat</th><th>Δ G−ms</th><th>verdict</th></tr></thead>
+<tbody>
+<tr><td>AL</td><td class="num">62.67 ± 0.13</td><td class="num">62.88</td><td class="num">64.47</td><td class="num"><span class="delta-pos">+1.80</span></td><td class="num">50.35 ± 0.69</td><td class="num">52.91</td><td class="num"><span class="delta-pos">+2.56</span></td><td>★ beats BOTH</td></tr>
+<tr><td>AZ</td><td class="num">54.80 ± 0.22</td><td class="num">55.11</td><td class="num">55.75</td><td class="num"><span class="delta-pos">+0.95</span></td><td class="num">50.39 ± 0.13</td><td class="num">54.48</td><td class="num"><span class="delta-pos">+4.09</span></td><td>★ beats BOTH</td></tr>
+<tr><td>GE</td><td class="num">58.44 ± 0.06</td><td class="num">58.45</td><td class="num">59.37</td><td class="num"><span class="delta-pos">+0.93</span></td><td class="num">57.50 ± 0.12</td><td class="num">61.43</td><td class="num"><span class="delta-pos">+3.93</span></td><td>★ beats BOTH</td></tr>
+<tr><td>FL</td><td class="num">73.27 ± 0.06</td><td class="num">73.31</td><td class="num">73.57</td><td class="num"><span class="delta-pos">+0.30</span></td><td class="num">69.96 ± 0.07</td><td class="num">73.16</td><td class="num"><span class="delta-pos">+3.20</span></td><td>★ beats BOTH</td></tr>
+</tbody>
+</table>
+<p><strong>Verdict:</strong> <span class="pill good">HEADLINE HOLDS — paper-grade at 4/4 states</span>. The critique's #1 fear (a lucky seed-42 ceiling swinging several pp at small states) is <strong>resolved</strong>: the ceilings are remarkably <em>stable</em> across seeds (σ ≤ 0.7, small-state included — the "3–4pp fold-σ" is fold-noise within a run, which the per-seed mean already averages out), so the seed-matched margins are essentially unchanged from seed-42 and <strong>G beats both (c) ceilings at every state</strong>. <strong>(d) composite</strong>: multi-seed FL = 73.49 ± 0.03 (HGI-α0); G FL reg 73.57 now <strong>nudges ahead</strong> (+0.08, was a seed-42 tie). <strong>Conservative:</strong> the p1 ceiling harness is fp32 while G runs fp16 — the precision offset DISADVANTAGES G's reg (T2V.2 fp32-G was +0.13 reg), so beating the fp32 ceiling on fp16 is a lower bound. <em>(d)-HGI recomputed at FL only (HGI region-emb on disk only at FL; AL/AZ/GE (d) stays seed-42 — HGI margin there ≤0.7pp, not load-bearing.)</em></p>
+<p class="footnote">Driver: <code>scripts/mtl_improvement/t2v1_ceilings_multiseed.sh</code> · manifest: <code>t2v1_ceilings_manifest.tsv</code> · 36 STL runs, 0 FAIL · reg field <code>heads.next_stan_flow.aggregate_per_metric_best.top10_acc_at_top10_acc_best_mean</code>; cat <code>per_metric_best.next.f1.mean</code> · log: 2026-06-06.</p>
+</div>
 </div>
 
 <div class="experiment" id="T2V-2">

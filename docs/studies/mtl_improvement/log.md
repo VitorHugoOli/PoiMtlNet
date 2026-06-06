@@ -1743,6 +1743,31 @@ KD-OFF, seeded per-fold log_T, 5f×50ep.
 
 ---
 
+## 2026-06-06 — ✅ T2V.1 LANDED: the reg-"beats-ceiling" headline HOLDS seed-matched (the critique's #1 gate)
+
+**Phase**: Tier 2V P0, the #1 paper-blocking gate (CRITIQUE §3 G1). Multi-seed (c)/(d) STL ceilings {0,1,7,100} × AL/AZ/GE/FL, 36 STL runs, 0 FAIL. Driver `t2v1_ceilings_multiseed.sh`.
+
+**Findings — multi-seed (c) ceilings vs G (seed-matched):**
+| state | (c)reg ms | (c)reg s42 | G reg | Δ | (c)cat ms | G cat | Δ | verdict |
+|---|---|---|---|---|---|---|---|---|
+| AL | 62.67±0.13 | 62.88 | 64.47 | **+1.80** | 50.35±0.69 | 52.91 | **+2.56** | ★ both |
+| AZ | 54.80±0.22 | 55.11 | 55.75 | **+0.95** | 50.39±0.13 | 54.48 | **+4.09** | ★ both |
+| GE | 58.44±0.06 | 58.45 | 59.37 | **+0.93** | 57.50±0.12 | 61.43 | **+3.93** | ★ both |
+| FL | 73.27±0.06 | 73.31 | 73.57 | **+0.30** | 69.96±0.07 | 73.16 | **+3.20** | ★ both |
+(d) composite reg FL multi-seed = 73.49±0.03 (HGI-α0); G FL 73.57 → **+0.08 ahead** (was a seed-42 tie).
+
+**Decision**
+- **The reg "beats both ceilings" headline HOLDS, seed-matched, at 4/4 states — paper-grade.** The critique's central worry (the seed-42 ceiling was a lucky draw; a multi-seed ceiling could swing several pp at small states and flip the margins) is **resolved**: the STL ceilings are remarkably stable across seeds (σ ≤ 0.7 incl. small states — the "3–4pp fold-σ" is within-run fold noise that the per-seed mean averages out). Seed-matched (c) ≈ seed-42 (c) everywhere; G's margins barely move.
+- **Conservative read intact:** the p1 ceiling harness is fp32, G runs fp16 (precision offset DISADVANTAGES G's reg per T2V.2's fp32-G +0.13) → G beating the fp32 ceiling on fp16 is a lower bound.
+- **(d)-HGI** recomputed at FL only (substrate on disk only at FL); AL/AZ/GE (d) stays seed-42 (HGI margin ≤0.7pp, not load-bearing). The "G ties/beats the composite" framing is now seed-matched at FL.
+- **The critique's recommended downgrade ("matches" not "beats") is NOT triggered** — G ≥ (c) reg at 4/4 (not just ≥3/4). The cat gain (+2.5..+4.1pp) was never in doubt and is conservative (G's cat is plain unweighted vs the ceiling's logit-adjust τ=0.5).
+
+**Chain status**: T2V.1 CLOSED (the #1 gate passes). Frozen seed-42 (c)/(d) untouched — T2V.1 ADDED multi-seed columns (immutable-yardstick rule).
+
+**Next**: (1) one **checkpointed-G re-run at FL** (G ran `--no-checkpoints`) → unblocks **T2V.2** (full top10_acc + popularity-bins + macro vs prior-ON, the tail-regression check) + the **T2V.3 independent checkpoint re-eval**; (2) then **P1 T2V.4** — the alt-arch fair re-rank (per-arch category-weight, post-C25) — the critique's one dominant test.
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:
