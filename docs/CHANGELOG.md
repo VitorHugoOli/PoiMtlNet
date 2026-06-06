@@ -30,7 +30,15 @@
 
 ## Timeline of findings (most recent first)
 
-### 2026-06-03 — v14 MTL multi-seed confirms NO MTL benefit (upgrades the 2-fold pilot)
+### 2026-06-06 — ⭐⭐⭐ `mtl_improvement` SUCCEEDED: champion "G" makes MTL Pareto-POSITIVE (single model beats both STL ceilings, 4 states)
+
+**The headline result of the whole branch.** A single jointly-trained MTL model ("G") **beats BOTH single-task STL ceilings (next-region Acc@10 AND next-category macro-F1) at all 4 available states, 4-seed**: AL reg 64.47/cat 52.91; AZ 55.75/54.48; GE 59.37/61.43; FL 73.57/73.16 — every Δ positive vs the (c) ceilings; FL also ties the (d) 2-model composite while winning cat → composite strictly dominated. **The classic MTL tradeoff is INVERTED, not just dissolved.**
+
+**This OVERTURNS the 2026-06-03 entry below ("NO MTL benefit").** That entry — and the whole "regime finding / architecture-negative / ship-the-composite" line — was an artifact of a **class-weighting confound (C25)**: the MTL reg head trained on class-WEIGHTED CE while the reported Acc@10 metric + STL ceiling are unweighted, depressing MTL reg ~10-14pp. Fixed (both heads unweighted, `default_mtl` default). On top of the fix, the champion architecture is the reg-private **dual-tower + `aux` fusion + α·log_T-prior-OFF** (`mtlnet_crossattn_dualtower` + `next_stan_flow_dualtower`). Architecture *capacity* is NOT the lever — falsified 5 independent ways (MoE, SwiGLU, MulT, crossstitch→crossattn, more cross-attn blocks).
+
+**Numbers to trust:** `studies/mtl_improvement/CHAMPION.md` (config + reproduction), `CANONICAL_VERSIONS.md §v16` (pin), `CLAIMS_AND_HYPOTHESES.md` (CH30 + the C25 banner overturning CH25/CH28), `CONCERNS.md §C25` (the confound), `studies/mtl_improvement/{log.md,HANDOFF.md,PAPER_UPDATE.md}` (chronology). **NOT yet on the paper §0 whitelist** — G is a study champion on the v14 substrate / unweighted recipe; the BRACIS §0 restatement (paper still v11) is the lone open author decision. CA/TX deferred (no v14 substrate).
+
+### 2026-06-03 — v14 MTL multi-seed confirms NO MTL benefit (upgrades the 2-fold pilot) [⛔ SUPERSEDED 2026-06-06 — see entry above; this was the class-weighting confound]
 
 Full paper-grade MTL eval of **v14** (`check2hgi_design_k_resln_mae_l0_1`) vs **matched canonical**
 (`check2hgi`, frozen v11 GCN), FL/AL/AZ, seeds {0,1,7,100}, 5-fold, leak-free, KD off, corrected

@@ -292,7 +292,28 @@ For STL eval: `scripts/p1_region_head_ablation.py --region-emb-source check2hgi_
 - **v15 is the new code default** — bare `default_mtl` runs are now v15 (unweighted). 
 - **Recipe note:** the re-validation used **onecycle**; an FL-B9 §0.1-continuity run (exact paper-table recipe) is the pending follow-up. The large-state reg champion is the **dual-tower** (`mtlnet_crossattn_dualtower`, closes the FL gap to −0.25).
 
-**Caveat:** the FL numbers above use onecycle; the §0.1 paper table uses B9 at FL — the FL-B9 v15 run will pin exact §0.1 continuity. Frozen (c)/(d) STL ceilings are v15-comparable (always unweighted p1).
+**Caveat:** the FL numbers above use onecycle; the §0.1 paper table uses B9 at FL — the FL-B9 v15 run pins exact §0.1 continuity (LANDED 2026-06-05: +3.15 reg / +3.52 cat same-harness A/B; see RESULTS_TABLE §0.1 annotation). Frozen (c)/(d) STL ceilings are v15-comparable (always unweighted p1).
+
+---
+
+## v16 — CHAMPION MTL config "G" (Pareto-positive single model, 2026-06-06)
+
+**What v16 IS:** v15 (unweighted) recipe + the **champion ARCHITECTURE "G"** found by `mtl_improvement`: the reg-private **dual-tower** with **`aux` fusion** and the **α·log_T prior OFF**. The first config where a SINGLE MTL model **beats BOTH single-task STL ceilings** (reg AND cat), at all 4 available states, 4-seed.
+
+**Config (full rationale + runnable command: [`../studies/mtl_improvement/CHAMPION.md`](../studies/mtl_improvement/CHAMPION.md)):**
+`--model mtlnet_crossattn_dualtower --reg-head next_stan_flow_dualtower --reg-head-param raw_embed_dim=64 --reg-head-param fusion_mode=aux --reg-head-param freeze_alpha=True --reg-head-param alpha_init=0.0 --cat-head next_gru --mtl-loss static_weight --category-weight 0.75 --scheduler onecycle --max-lr 3e-3 --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3 --log-t-kd-weight 0.0` on the **v14 substrate** (`check2hgi_design_k_resln_mae_l0_1`), unweighted (v15 default).
+
+**Numbers — 4-seed {0,1,7,100}, vs (c) STL ceilings (reg / cat):**
+| state | G reg | (c) reg | Δreg | G cat | (c) cat | Δcat |
+|---|---|---|---|---|---|---|
+| AL | 64.47±0.11 | 62.88 | **+1.59** | 52.91±0.27 | 49.97 | **+2.94** |
+| AZ | 55.75±0.21 | 55.11 | **+0.64** | 54.48±0.74 | 51.01 | **+3.47** |
+| GE | 59.37±0.04 | 58.45 | **+0.92** | 61.43±0.26 | 58.12 | **+3.31** |
+| FL | 73.57±0.06 | 73.31 | **+0.26** | 73.16±0.04 | 69.97 | **+3.19** |
+
+FL also ties the (d) composite reg (73.62) while winning cat → composite strictly dominated.
+
+**Status / scope:** v16 is a **study champion, NOT the paper §0 canon** (paper still v11). It is **opt-in** (explicit `--model`/`--reg-head` flags; the code default model is still canon cross-attn). The mechanism (aux fusion + prior-OFF) is decisive — `gated` fusion or re-enabling the additive prior REGRESSES it (CHAMPION.md §5). Architecture capacity is NOT the lever (falsified 5 ways). CA/TX need a v14 build first. **Reproduce:** the command above + seeded fresh per-fold log_T at `--per-fold-transition-dir output/check2hgi_design_k_resln_mae_l0_1/<state>`.
 
 ---
 
