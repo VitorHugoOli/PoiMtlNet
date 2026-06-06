@@ -1294,10 +1294,37 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             reduction='mean',
             weight=alpha_next if _use_cw_reg else None,
         )
-        category_criterion = CrossEntropyLoss(
-            reduction='mean',
-            weight=alpha_cat if _use_cw_cat else None,
-        )
+        # T2V.7 (2026-06-06) — CAT loss-calibration lever for MTL. When
+        # ``config.loss_calibration`` is non-empty (set by --logit-adjust-tau /
+        # --focal-gamma / --cat-label-smoothing / --tail-loss), build the CAT
+        # criterion via the train-only-stats calibrated loss (Menon ICLR'21
+        # logit-adjustment etc.) — the SAME lever the (c) STL cat ceiling used
+        # (la τ=0.5). Leak guard: ``dataloader_category.train.y`` is the TRAIN
+        # split. Calibration is the cat-loss axis; it is mutually exclusive with
+        # cat class-weighting (the T1.4 finding: logit-adjust ALONE wins; stacking
+        # with class weights over-corrects) → when calibrated, cat is NOT also
+        # class-weighted. Empty dict (the default) keeps the plain-CE path
+        # bit-identical, so non-calibrated runs are unaffected.
+        _cat_lc = dict(getattr(config, "loss_calibration", {}) or {})
+        if _cat_lc:
+            from losses.calibrated import build_calibrated_loss
+            category_criterion = build_calibrated_loss(
+                task_a_num_classes,
+                dataloader_category.train.y,
+                label_smoothing=_cat_lc.get("label_smoothing", 0.0),
+                focal_gamma=_cat_lc.get("focal_gamma", 0.0),
+                logit_adjust_tau=_cat_lc.get("logit_adjust_tau", 0.0),
+                tail_mode=_cat_lc.get("tail_mode", None),
+                cb_beta=_cat_lc.get("cb_beta", 0.999),
+                ldam_max_m=_cat_lc.get("ldam_max_m", 0.5),
+                ldam_scale=_cat_lc.get("ldam_scale", 30.0),
+                device=DEVICE,
+            )
+        else:
+            category_criterion = CrossEntropyLoss(
+                reduction='mean',
+                weight=alpha_cat if _use_cw_cat else None,
+            )
 
         history.set_model_arch(str(model))
 
