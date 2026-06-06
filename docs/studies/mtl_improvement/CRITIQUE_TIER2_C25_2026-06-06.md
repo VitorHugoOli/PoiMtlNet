@@ -143,6 +143,8 @@ private cat tower isolates cat from that → **predicted: helps nothing, costs p
 *confirm the asymmetry is principled* (reg needs private, cat wants shared) — not to find a win. This asymmetry
 is the cleanest mechanistic story in the paper; confirming it is high-value for the *narrative*, low for the metric.
 
+> ✅ **RESOLVED 2026-06-06 (T2V.4).** The standalone alt-archs were re-ranked POST-C25, each at its OWN best `category-weight` {0.5,0.65,0.75}, FL 1-seed: hardshare 71.45 / crossstitch 71.94 / mmoe 71.69 / cgc 71.69 — **all lose to G (73.57) by 1.6–2.1pp and none reaches the (c) ceiling (73.31)**, with category-weight barely moving reg. Run STANDALONE (not under the dual-tower) → the §6.4 "the 5 nulls are gate-suppressed shared-pathway swaps" objection no longer applies. The falsification is now FAIR + un-confounded → paper-safe. No -lite surprised → the faithful CGC build is NOT triggered. See INDEX `#T2V-4`.
+
 ### 6.4 Other backbones (point 2) — the falsifications are doubly-confounded
 Post-C25, only the **cross-attn family** ran (base, dual-tower, SwiGLU/MulT/xstitch *under* it). Standalone
 **hard-share / CrossStitch / MMoE / CGC** were ranked **PRE-C25** — under the class-weighting confound that

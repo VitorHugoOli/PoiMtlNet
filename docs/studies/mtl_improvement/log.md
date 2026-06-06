@@ -1784,6 +1784,30 @@ KD-OFF, seeded per-fold log_T, 5f×50ep.
 
 ---
 
+## 2026-06-06 — T2V.4 CLOSED: alt-arch fair re-rank → G HOLDS (the falsification is now un-confounded, paper-safe)
+
+**Phase**: Tier 2V P1, the critique's ONE dominant test (§6.4–6.6). Standalone alt-archs re-ranked POST-C25, each at its own category-weight {0.5,0.65,0.75}, FL seed0. Driver `t2v4_altarch_rerank.sh` (12 runs; a CONC=3→2 OOM-recovery on the heavy MoE arms, 0 net FAIL).
+
+**Findings — best reg@10 per arch (its own cat-weight optimum) vs G 73.57 / (c) ceiling 73.31:**
+| arch (standalone) | best reg @cw | cat | Δ vs G | Δ vs (c) |
+|---|---|---|---|---|
+| crossstitch | 71.94 @0.65 | 72.14 | −1.63 | −1.37 |
+| mmoe (-lite) | 71.69 @0.65 | 71.7 | −1.88 | −1.62 |
+| cgc (-lite) | 71.69 @0.50 | 71.6 | −1.88 | −1.62 |
+| hardshare | 71.45 @0.50 | 71.6 | −2.12 | −1.86 |
+
+**Decision**
+- **G HOLDS — no fairly-tuned standalone alt-arch ties/beats it.** All land at ~base_a level (71.4–71.9), none reaches even the (c) ceiling, category-weight barely moves reg (reg is architecture-bound for these archs). This RESOLVES the critique's §6.4 worry that the "architecture-capacity falsified" claim was under-powered/confounded: the alt-archs were run STANDALONE (not gate-suppressed shared-pathway swaps), un-confounded (post-C25), and per-arch-tuned — and still lose by 1.6–2.1pp. **"The private reg tower, not architecture capacity, is the reg lever" is now paper-safe.**
+- No -lite surprised → the faithful learned-gate CGC build is NOT triggered.
+- crossstitch is the best alt (its prior weak-partial status holds) but −1.63 vs G.
+- Sub-sweep (a) backbone-UNDER-the-dual-tower (a cat/aux lever) deferred to T2V.5/T2V.8 — the standalone result already settles the architecture claim. CRITIQUE §6.4 annotated RESOLVED.
+
+**Chain status**: T2V.4 CLOSED (P1 dominant test). All P0 + the dominant P1 test now pass.
+
+**Next**: T2V.5 (reg-private HEAD sweep + d_model/aux-β + cat-private-tower ablation), T2V.6 (optimizer/FAMO + per-task LR/precision); then P2 T2V.7 (logit-adjust on G's cat — highest-EV cat lever) + T2V.8 (combine) + P3 T2V.9 (CA/TX).
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:
