@@ -1673,6 +1673,36 @@ KD-OFF, seeded per-fold log_T, 5f×50ep.
 
 ---
 
+## 2026-06-06 — G GENERALIZES: beats both ceilings at AL/AZ/GE too (1-seed); speculative hybrids NULL; G sweep finds no Pareto gain
+
+**Phase**: G follow-up screens (user: "run the dropped speculative hybrids; run G at the other states 1 seed; advisor on G's sweep space"). COMPLETE. Driver `c25_gv2.sh` (13 arms, seed 0, FL+AL/AZ/GE, unweighted onecycle KD-OFF). 2nd advisor (G sweep space) ran first — see its analysis in the previous session; key call: reg headroom is THIN (G ties the composite), highest-EV is multi-state validation not micro-sweeps, fp32 is the one reg lever with a documented sign, aux→gated/sequence-level fusion would REGRESS the ceiling-break.
+
+**Findings (seed-0 screen, reg disjoint / cat diag):**
+- **(I) Speculative hybrids @ FL — NULL/NEGATIVE on reg (advisor confirmed):** MulT-faithful (`mtlnet_crossattn_mult`) reg 71.28 / cat 71.92; crossstitch→crossattn (`mtlnet_crossattn_xstitch`) reg 71.13 / cat 72.02. **Both BELOW base_a (71.55)** and far below dual_gated/ceiling. Adding intra-stream self-attention (MulT) or composing cross-stitch+cross-attn = the shared-pathway capacity lever, now falsified a 4th/5th independent way (after MoE, SwiGLU). Clean negatives; not pursued further.
+- **(II) ⭐ G MULTI-STATE — beats BOTH (c) ceilings at every other available state (1-seed):**
+  | state | g reg | (c) reg | Δreg | g cat | (c) cat | Δcat |
+  |---|---|---|---|---|---|---|
+  | AL | 64.61 | 62.88 | **+1.73** | 52.75 | 49.97 | **+2.78** |
+  | AZ | 55.69 | 55.11 | **+0.58** | 54.77 | 51.01 | **+3.76** |
+  | GE | 59.34 | 58.45 | **+0.89** | 61.63 | 58.12 | **+3.51** |
+  G's "single MTL model beats both STL ceilings" now holds at **4/4 available states** (FL 4-seed + AL/AZ/GE 1-seed). CA/TX have no v14 substrate (can't run without building it). **This is the high-value result — the Pareto-positive headline generalizes.**
+- **(III) G sweep @ FL — NO Pareto improvement over G (73.57/73.16); G is well-tuned:**
+  - `g_fp32` (MTL_DISABLE_AMP=1): reg **73.70 (+0.13)** but cat **72.05 (−1.11)** — the advisor-predicted fp16→fp32 reg lift IS real (documented sign at 4703-class) but it's a **reg/cat TRADE, not a win** (geom 72.87 < G's 73.36 → G stays champion). Worth noting as a precision-sensitivity finding.
+  - `g_catw0.50` reg 73.59 (+0.02, noise) / cat 72.19 (−0.97); `g_catw0.65` 73.46/72.48; `g_catw0.85` 73.07/72.90 — category-weight trades reg↔cat monotonically; 0.75 (G) is a good joint point.
+  - `g_pdrop0.1` reg 72.52 (−1.05, worse) ; `g_pdrop0.2` 73.52 (−0.05 ≈ G) — priv_dropout 0.3 (G default) confirmed near-optimal; lowering hurts.
+  - `g_kd0.1`/`g_kd0.2`: reg 73.56 / cat 73.12 — IDENTICAL to G. Soft log_T-KD adds nothing on the dual-tower (KD was tuned on the old single-pathway arch; doesn't transfer). Confirms prior-OFF is the right call; no KD re-entry needed.
+
+**Decision**
+- **G's config is locked — no sweep beat it.** category-weight 0.75, priv_dropout 0.3, aux fusion, prior-OFF (KD off), AMP-on are all at/near their joint optimum. The sweep validated G rather than improving it (the advisor's thin-headroom prediction held exactly).
+- **Speculative hybrids = closed NEGATIVE.** MulT + crossstitch→crossattn join MoE + SwiGLU as falsified shared-pathway-capacity interventions. The architecture-capacity hypothesis is now falsified 5 independent ways.
+- **G multi-state is the promotion candidate** (beats ceiling at AL/AZ/GE 1-seed) → propose 4-seed {1,7,100} confirmation at AL/AZ/GE to make the Pareto-positive claim multi-state paper-grade (ASKED user before launching).
+
+**Chain status**: G follow-ups COMPLETE. Frozen (c)/(d) untouched.
+
+**Next**: (pending user OK) 4-seed AL/AZ/GE confirmation of G; optional fp32 + (c)/(d) multi-seed seed-match. Then paper-doc restatement (CH25/CH28/§0.1 → Pareto-positive, multi-state).
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:
