@@ -190,3 +190,47 @@ PLE/CGC (Tang RecSys'20, DOI 10.1145/3383313.3412236); branched-MTL (arXiv:1904.
 ICML'20, arXiv:1905.07553); **Xin "Do MTO methods even help?" NeurIPS'22 arXiv:2209.11379**; Kurin "Unitary
 Scalarization" NeurIPS'22 arXiv:2201.04122; **FAMO (Liu NeurIPS'23 arXiv:2306.03792, O(1))**; STAN (Luo WWW'21
 arXiv:2102.04095).
+
+---
+
+## 7. Execution TODO (for the A40) — closes this critique → see `INDEX.html #tier2v`
+These cards translate §3–§6 into runs. Priority: **P0 = paper-blocking · P1 = the one dominant arch test ·
+P2 = winner hypertuning · P3 = completeness.** Recipe baseline = G (`mtlnet_crossattn_dualtower` +
+`next_stan_flow_dualtower` aux+prior-OFF, v14, unweighted onecycle KD-OFF). Score Δ vs frozen (c)/(d) + the
+composite null; seeded per-fold log_T; frozen-fold paired. **G is a validated positive — VALIDATE/EXTEND it,
+do not re-litigate it.** Mark each `[ ]→[x]` + fill the INDEX Tier-2V Results block + a `log.md` entry on land.
+
+**P0 — validate the headline (do these before any "beats both ceilings" paper claim):**
+- [ ] **T2V.1 ⭐ multi-seed (c)/(d) ceilings** {0,1,7,100} × AL/AZ/GE/FL (reg next_stan_flow α=0; cat next_gru
+      logit-adjust τ=0.5; recompute (d)). Seed-match every G−ceiling Δ. *The #1 gate — the FL margin is +0.26
+      vs a single-seed bar.* (§3 G1)
+- [ ] **T2V.2 G full-metric + tail slice** — re-score G vs prior-ON on `top10_acc` (full, not `_indist`) +
+      popularity-binned Acc@10 + macro, FL+AL. Is G winning the head at the tail's expense? (§3 G2)
+- [ ] **T2V.3 checkpoint re-eval** — independent forward on G's saved checkpoint (forecloses harness artifact,
+      `log:883`) + G param/FLOP count vs base_a & composite (fix the "½ params" claim). (§3)
+
+**P1 — un-confound the alternative-arch falsifications (one dominant test):**
+- [ ] **T2V.4 fair re-rank** — hard-share / CrossStitch / -lite MMoE+CGC, EACH × category-weight {0.5,0.65,0.75},
+      unweighted post-C25, 1-seed FL, vs G → promote ties to multi-seed; build a faithful learned-gate CGC ONLY
+      if a -lite surprises. Retires "5-ways-falsified" or re-opens the axis. (§6.4–§6.6)
+
+**P2 — hypertune the champion G:**
+- [ ] **T2V.5 ⭐ logit-adjust on G's cat head** (τ∈{0.5,1.0}) — highest-EV cat lever; G's cat is plain
+      unweighted, the ceiling used logit-adjust. (§4.1)
+- [ ] **T2V.6 G micro-levers** — aux-β init/learnability + granularity; private-tower d_model/depth; per-task
+      LR; per-task precision split (fp32-reg/fp16-cat). (§6)
+- [ ] **T2V.7 FAMO on G** (confirmatory) + **lighter private tower** (GRU/TCN — efficiency) + **cat-private-tower**
+      (predicted null — confirms the asymmetry). (§6.2/§6.3/§6.5)
+
+**P3 — completeness:**
+- [ ] **T2V.8 CA/TX** — build v14 substrate → G + ceilings at the two largest (highest-imbalance) states; the
+      scale-conditional headline's real gap. (§4.2)
+
+**A40 doc close-out (housekeeping — fill the data + close the stale tiers, user-requested):**
+- [ ] **Close Tier 2 (topology):** fill INDEX T2.3 (-lite MoE) + T2.4 (SwiGLU/MulT/xstitch) Results blocks with
+      the landed C25-stretch data (all NULL on reg); flip the Tier-2 banner + final-decision from "UNDER
+      RE-VALIDATION" → RESOLVED post-C25 (orderings flipped; dual-tower G is the winner).
+- [ ] **Close Tier 2P (joint-loop):** mark MOOT — the "joint loop poisons reg" hypothesis WAS the C25
+      class-weighting confound; T2P.0 wd sub-question answered (wd not the cause) + T2P.1/.2/.3 superseded.
+      Banner the cards superseded → C25 / Tier 2V; keep for the trail.
+- [ ] Keep `HANDOFF.md` + this `§7` + INDEX Tier-2V Results blocks in sync as cards land.

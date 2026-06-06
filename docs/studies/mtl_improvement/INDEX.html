@@ -128,6 +128,17 @@
     <li><a href="#T2P-2">T2P.2 Asymmetric per-task recipe</a></li>
     <li><a href="#T2P-3">T2P.3 Composite distillation (gated)</a></li>
   </ul>
+  <h2>Tier 2V — Champion (G) ★ NEW</h2>
+  <ul>
+    <li><a href="#T2V-1">⭐ T2V.1 Multi-seed ceilings (P0)</a></li>
+    <li><a href="#T2V-2">T2V.2 Full-metric + tail slice (P0)</a></li>
+    <li><a href="#T2V-3">T2V.3 Checkpoint re-eval + params (P0)</a></li>
+    <li><a href="#T2V-4">T2V.4 Fair arch re-rank (P1)</a></li>
+    <li><a href="#T2V-5">⭐ T2V.5 logit-adjust G's cat (P2)</a></li>
+    <li><a href="#T2V-6">T2V.6 G micro-levers (P2)</a></li>
+    <li><a href="#T2V-7">T2V.7 FAMO + tower ablations (P2)</a></li>
+    <li><a href="#T2V-8">T2V.8 CA/TX completeness (P3)</a></li>
+  </ul>
   <h2>Tier 3 — Prior pathway</h2>
   <ul>
     <li><a href="#T3-1">T3.1 log_T-KD re-sweep on stack</a></li>
@@ -979,6 +990,93 @@ The sharing-<em>topology</em> axis is a hardened negative: no arch (hard/soft/pr
 <div class="callout">
 <h4>Tier 2P final decision</h4>
 If any arm delivers reg ≈ (c) + cat non-inferior in ONE model at ≥2 of {AL,AZ,FL} → <strong>the gap closes in a single deployable model</strong> (the headline the track has been chasing; distinguish deployment vs scientific closure honestly). If none → the composite is the honest deployable answer, and the paper's negative is now far stronger: the gap survives the full topology axis (Tier 2), the protocol axis (Tier 2P), AND distillation — "the joint MTL reg sacrifice is irreducible; deploy the composite + the cat-lift story."
+</div>
+
+<!-- ============================================================== -->
+<h2 id="tier2v">Tier 2V — Champion (G) validation, fair re-rank &amp; hypertuning (post-C25) <span class="pill tier2">Tier 2V</span> <span class="pill info">NEW 2026-06-06 — executes CRITIQUE_TIER2_C25</span></h2>
+<p>The C25 reversal landed: champion <strong>G</strong> (<code>mtlnet_crossattn_dualtower</code> +
+<code>next_stan_flow_dualtower</code> <code>fusion_mode=aux freeze_alpha=True alpha_init=0.0</code>, v14,
+<strong>unweighted onecycle KD-OFF</strong>) beats both STL ceilings at 4 states × 4 seeds. This tier executes
+the gates + follow-ups from <a href="CRITIQUE_TIER2_C25_2026-06-06.md"><code>CRITIQUE_TIER2_C25_2026-06-06.md</code></a>
+(§3–§6). <strong>G is a validated positive — Tier 2V VALIDATES and EXTENDS it; it does NOT re-litigate it.</strong>
+Comparand discipline: Δ vs frozen (c)/(d) + the composite null; reg = <code>per_metric_best.top10_acc_indist</code>,
+cat = <code>diagnostic_task_best.f1</code>; seeded per-fold log_T; frozen-fold paired.
+Priorities: <strong>P0 = paper-blocking</strong>, P1 = the one dominant arch test, P2 = winner hypertuning, P3 = completeness.</p>
+
+<div class="experiment" id="T2V-1">
+<h3>T2V.1 — ⭐ Multi-seed (c)/(d) STL ceilings (seed-match G) <span class="pill tier2">Tier 2V</span> <span class="pill cost-m">M-cost</span> <span class="pill bad">P0 — the #1 gate</span></h3>
+<div class="block"><div class="block-title">Why</div>G is seeds {0,1,7,100}; the (c)/(d) ceilings are seed-42 single-seed — <em>disjoint</em> seeds. Small-state reg fold-σ is 3–4pp, and the FL margin is only +0.26 → the "beats both reg ceilings" headline rests on an un-seed-matched bar. (CRITIQUE §3 G1.)</div>
+<div class="block"><div class="block-title">Method</div>Re-run the STL ceilings at {0,1,7,100} × AL/AZ/GE/FL: reg = <code>next_stan_flow</code> α=0 (the (c) recipe, p1 harness); cat = <code>next_gru</code> logit-adjust τ=0.5; recompute (d) composite (max v14/HGI-α0). Recompute every G−ceiling Δ seed-matched.</div>
+<div class="block"><div class="block-title">Gate</div><div class="gate"><strong>Headline holds</strong>: G ≥ (c) reg at ≥3/4 states seed-matched → "beats both ceilings" is paper-grade. <strong>Shrinks to tie</strong> (esp. FL): downgrade reg to <strong>"matches the STL ceiling + composite in one model"</strong> (still strong; cat gain unaffected).</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T2V-2">
+<h3>T2V.2 — G on the FULL (non-indist) metric + a tail/macro reg slice vs prior-ON <span class="pill tier2">Tier 2V</span> <span class="pill cost-s">S-cost</span> <span class="pill bad">P0</span></h3>
+<div class="block"><div class="block-title">Why</div>G stacks <strong>unweighted CE + prior-OFF</strong> — both optimize the head-heavy <code>Acc@10</code>, the exact axis C25 showed can trade against the tail. Is the champion winning the head at the tail's expense? (CRITIQUE §3 G2 — within-distribution tail, NOT cold-start.)</div>
+<div class="block"><div class="block-title">Method</div>Re-score the existing G runs on <code>top10_acc</code> (FULL, not <code>_indist</code>) + Acc@10 binned by region popularity (head/mid/tail) + macro-Acc@10, G vs the prior-ON dual-tower (α learnable) at FL+AL. No new training — re-evaluation only.</div>
+<div class="block"><div class="block-title">Gate</div><div class="gate"><strong>Clean</strong>: G ≥ prior-ON on tail/macro too → prior-OFF is a free win. <strong>Tail regression</strong>: report the trade; consider a small α (not full prior-OFF) for deployment robustness.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T2V-3">
+<h3>T2V.3 — Checkpoint re-eval (independent forward) + G param/FLOP count <span class="pill tier2">Tier 2V</span> <span class="pill cost-s">S-cost</span> <span class="pill bad">P0</span></h3>
+<div class="block"><div class="block-title">Why</div>The flip rests on the training harness's own eval (the gold-standard re-eval was deferred, <code>log:883</code>); the study has had ≥3 measurement artifacts (C25, the Acc@1 monitor, 2 retractions). And "composite strictly dominated, ½ params" is wrong — G <em>adds</em> a private STAN tower. (CRITIQUE §3.)</div>
+<div class="block"><div class="block-title">Method</div>Load G's checkpoint, run an independent forward (outside <code>mtl_cv</code>), re-score reg/cat at FL. Separately count G params/FLOPs vs base_a and vs the 2-model composite.</div>
+<div class="block"><div class="block-title">Gate</div><div class="gate"><strong>Confirmed</strong>: independent forward reproduces G within σ → forecloses "another harness artifact." Param table replaces "½ the composite" with the true ratio.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T2V-4">
+<h3>T2V.4 — Fair post-C25 re-rank of the alternative architectures (the one dominant arch test) <span class="pill tier2">Tier 2V</span> <span class="pill cost-m">M-cost</span> <span class="pill warn">P1</span></h3>
+<div class="block"><div class="block-title">Why</div>The "architecture falsified 5 ways" verdict is about the <em>alternatives</em>, which were ranked <strong>pre-C25</strong> (the confound that inverted the dual-tower's own ranking) AND at a <strong>single un-swept loss weight</strong> — Xin NeurIPS'22: comparing arches under one fixed scalarization can manufacture illusory rankings → the negatives are under-powered, not closed. (CRITIQUE §6.4–§6.6.)</div>
+<div class="block"><div class="block-title">Method</div>Post-C25, unweighted, 1-seed FL: standalone <strong>hard-share</strong> (FiLM-off <code>mtlnet</code>), <strong>CrossStitch</strong> (<code>mtlnet_crossstitch</code>), <strong>-lite MMoE + CGC</strong> (<code>mtlnet_mmoe</code>/<code>mtlnet_cgc</code>) — EACH with its own <code>category-weight</code> sweep {0.5,0.65,0.75} (the ranking-validity prerequisite). Score vs G. <strong>Build a faithful learned-gate CGC (1 shared + 1 reg-private) ONLY if a -lite ties/beats G</strong> (registry MMoE/CGC are "-lite", <code>MTL_FLAWS §4.1</code>).</div>
+<div class="block"><div class="block-title">Gate</div><div class="gate"><strong>G holds</strong>: no fairly-tuned alternative ties G → the arch claim is honest ("compared fairly"), close the axis. <strong>An alternative ties/beats G</strong>: promote to multi-seed; the dual-tower was not uniquely best → re-open.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T2V-5">
+<h3>T2V.5 — ⭐ logit-adjust on G's cat head (highest-EV cat lever) <span class="pill tier2">Tier 2V</span> <span class="pill cost-s">S-cost</span> <span class="pill info">P2 — winner hypertuning</span></h3>
+<div class="block"><div class="block-title">Why</div>G's cat head is <strong>plain unweighted CE</strong> (verified — no logit-adjust in any G driver), yet it beats the STL cat ceiling which DID use logit-adjust τ=0.5 → the cat comparison is conservative AND the calibration lever is open on G. (CRITIQUE §4.1, §6.7.)</div>
+<div class="block"><div class="block-title">Method</div>G + cat logit-adjust τ ∈ {0.5, 1.0} (the existing <code>--logit-adjust-tau</code> path on the cat head), FL + 1 small state → multi-seed if it wins. Also resolves the "plain-unweighted-cat-wins" puzzle (plain unweighted may not be the cat optimum, just better than <em>weighted</em>).</div>
+<div class="block"><div class="block-title">Gate</div><div class="gate"><strong>Promote</strong>: cat +≥0.5pp multi-seed, reg non-inferior → adopt into G. <strong>Else</strong>: plain unweighted is the cat optimum (document — strengthens the conservative-comparison claim).</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T2V-6">
+<h3>T2V.6 — G micro-levers (un-swept axes) <span class="pill tier2">Tier 2V</span> <span class="pill cost-m">M-cost</span> <span class="pill info">P2</span></h3>
+<div class="block"><div class="block-title">Method</div>On G, the axes the 1-seed <code>c25_gv2</code> sweep did NOT cover (it found category-weight/priv_dropout/KD near-optimal): <strong>aux-β</strong> init/learnability + fusion granularity; <strong>private-tower d_model/depth</strong> (currently STL default 128/4-head); <strong>per-task LR</strong> for the private tower; <strong>per-task precision split</strong> (fp32-reg / fp16-cat — global fp32 was +0.13 reg / −1.11 cat, a trade; a split may capture reg without the cat loss). FL 1-seed screen → multi-seed any winner.</div>
+<div class="block"><div class="block-title">Gate</div><div class="gate"><strong>Promote</strong> any Pareto-positive (one axis up, other non-inferior) multi-seed; else confirm G is well-tuned.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T2V-7">
+<h3>T2V.7 — FAMO confirmatory on G + lighter-private-tower &amp; cat-private-tower ablations <span class="pill tier2">Tier 2V</span> <span class="pill cost-m">M-cost</span> <span class="pill info">P2 — confirm-only</span></h3>
+<div class="block"><div class="block-title">Method</div>(a) <strong>FAMO</strong> on G (O(1) balancer; note FAMO/Aligned-MTL pre-C25 didn't unpin reg-best, <code>MTL_FLAWS §304</code> → low headroom, confirmatory). (b) <strong>Lighter private tower</strong> (GRU/TCN matched budget) — an <em>efficiency</em> ablation: is the full-STAN duplicate over-provisioned? (c) <strong>Cat-private-tower</strong> — predicted null (cat is positive-transfer); confirms the asymmetry for the narrative. (CRITIQUE §6.2/§6.3/§6.5.)</div>
+<div class="block"><div class="block-title">Gate</div><div class="gate">(a) FAMO ≥ G → adopt; else static_weight confirmed fine. (b) lighter ≈ G reg → full STAN over-provisioned (efficiency win). (c) cat-private ≤ G → asymmetry confirmed.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="T2V-8">
+<h3>T2V.8 — CA/TX completeness (scale-conditional) <span class="pill tier2">Tier 2V</span> <span class="pill cost-l">L-cost</span> <span class="pill info">P3</span></h3>
+<div class="block"><div class="block-title">Why</div>The C25 confound scaled with class count → CA/TX (8.5k/6.5k regions) are where the fix's benefit is predicted <em>biggest</em>, and they're missing (no v14 substrate). For the <em>scale-conditional</em> headline specifically this is the real completeness gap (not a blocker for the 4-state result). (CRITIQUE §4.2.)</div>
+<div class="block"><div class="block-title">Method</div>Build the v14 substrate at CA/TX → run G + the (c)/(d) ceilings (T2V.1 recipe) → does G beat both ceilings at the two largest states? 1-fold acceptable if 5-fold is impractical (flag directional).</div>
+<div class="block"><div class="block-title">Gate</div><div class="gate"><strong>Generalizes</strong>: G beats both ceilings at CA/TX → 6-state headline. <strong>Else</strong>: scale-conditional — report the boundary.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="callout">
+<h4>Tier 2V final decision</h4>
+After P0 (T2V.1–.3): the headline is either "G beats both ceilings" (paper-grade) or "G matches the STL ceiling + composite in one model with a large cat gain" (still strong). After P1 (T2V.4): the architecture comparison is honest (G best under fair tuning) or re-opened. P2/P3 polish + extend. <strong>G is not on trial here — its validated positive is the floor; Tier 2V only sharpens the claims around it.</strong>
+</div>
+
+<div class="callout warn">
+<h4>⚙ A40 doc close-out tasks (fill the missing data + close the stale tiers — user-requested)</h4>
+<ul>
+<li><strong>Close Tier 2 (topology):</strong> fill the <a href="#T2-3">T2.3</a> (-lite MoE) + <a href="#T2-4">T2.4</a> (SwiGLU/MulT/xstitch) Results blocks with the landed C25-stretch data (all NULL on reg); mark the sharing-topology axis CLOSED with the post-C25 verdict (dual-tower G is the winner). Update the Tier-2 banner + final-decision from "UNDER RE-VALIDATION" → RESOLVED (orderings flipped post-C25; see <a href="#tier2v">Tier 2V</a>).</li>
+<li><strong>Close Tier 2P (joint-loop protocol):</strong> mark <a href="#tier2p">Tier 2P</a> <strong>MOOT</strong> — the "joint loop poisons reg" hypothesis was the C25 class-weighting confound; T2P.0's wd sub-question was answered by the wd-theory run (wd NOT the cause) + C25. T2P.1/.2/.3 superseded (no joint-loop poison to fix). Keep the cards for the trail; banner them superseded → C25 / Tier 2V.</li>
+<li><strong>Fill Tier 2V Results blocks</strong> as each card lands; update <code>HANDOFF.md</code> + <code>CRITIQUE_TIER2_C25_2026-06-06.md §7</code> + this INDEX continuously.</li>
+</ul>
 </div>
 
 <!-- ============================================================== -->
