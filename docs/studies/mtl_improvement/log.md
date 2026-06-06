@@ -1641,6 +1641,38 @@ KD-OFF, seeded per-fold log_T, 5f×50ep.
 
 ---
 
+## 2026-06-06 — ⭐⭐⭐ CEILING BROKEN: a single MTL model (dual aux + prior-OFF) BEATS both STL ceilings + matches the composite (FL 4-seed)
+
+**Phase**: Tier-2 combo screen (user: "execute the speculative hybrids + other combinations; screen at 1 seed, promote promising to 4 seeds; the dual_gated gates are promising, try the shared component as crossstitch/swiglu/etc.; use an advisor"). COMPLETE — and it produced the study's strongest result. All FL, unweighted onecycle KD-OFF, disjoint reg `per_metric_best.top10_acc_indist` / cat `diagnostic_task_best.f1`.
+
+**Advisor first (user-requested).** Code-grounded architecture advisor (general-purpose subagent) reframed the user's hypothesis decisively: **the only reg-moving levers are the private reg tower + the α·log_T prior — both FLAG-controllable on the existing dual-tower with ZERO new code.** Swapping the shared backbone (crossstitch/swiglu/MulT) underneath a dual-tower is a CAT play, not a reg play — the dual-tower gate (inits ≈0.73 toward private) suppresses the shared pathway, so SwiGLU/MoE-style upgrades can't move reg. Advisor's standout call was a combo the user did NOT name: **`aux` fusion** (`priv + β·shared`, β init 0.1) ADDS the shared pathway WITHOUT diluting the private tower (unlike `gated`, which makes them compete) → the best mechanistic fit to the "dilution" finding. Advisor DROPPED dual+crossstitch (mechanism fights the dual-tower premise, HIGH effort, null) and MulT/crossstitch→crossattn (shared-capacity lever, twice-falsified).
+
+**What happened.** Built combo (F) `mtlnet_crossattn_dualtower_swiglu` (diamond-avoiding subclass of dualtower, overrides only `_build_shared_backbone`; gate `t24_dualtower_swiglu_gate.py` GREEN). 1-seed screen (seed 0) of 4 arms, then promoted the 2 ceiling-breakers to 4 seeds {0,1,7,100}. Drivers: `c25_combos_{screen,promote}.sh`.
+
+**Findings**
+- **1-seed screen (FL, seed 0):** (G) dual aux+prior-OFF **73.56/73.12 ★**; (H) dual private_only+prior-OFF **73.43/72.19 ★**; (A) dual gated+prior-OFF 73.00/72.09 (≈ dual_gated; prior-OFF redundant with the gated prior-ON); (F) dual+SwiGLU+prior-OFF 72.87/72.09 (SwiGLU NULL on reg — advisor's prediction confirmed: the shared-backbone swap is not a reg lever).
+- **4-seed confirmation {0,1,7,100} (the headline):**
+  | arm | reg@10 | cat-F1 | vs (c) STL ceiling | vs (d) composite | vs dual_gated |
+  |---|---|---|---|---|---|
+  | **(G) dual aux + prior-OFF** | **73.57±0.06** | **73.16±0.04** | reg **+0.26** / cat **+3.19** | reg −0.05 (TIE) | reg +0.51 / cat +1.13 |
+  | (H) dual private_only + prior-OFF | 73.42±0.03 | 72.17±0.07 | reg +0.11 / cat +2.20 | reg −0.20 | reg +0.36 / cat +0.14 |
+  - (G) per-seed reg = [73.56, 73.55, 73.51, 73.67] — EVERY seed clears the (c) ceiling 73.31; σ=0.06.
+  - Anchors: (c) STL reg ceiling 73.31 / cat 69.97; (d) composite reg 73.62 (max v14/HGI α0); dual_gated(prior-ON) 73.06/72.03; base_a 71.55/71.89.
+
+**Decision**
+- **(G) `dual aux + prior-OFF` is the new FL MTL champion.** A SINGLE joint MTL model that (1) **beats the (c) STL reg ceiling** (+0.26), (2) **beats the (c) STL cat ceiling** (+3.19), (3) **matches the (d) two-model composite reg** (−0.05, within σ) while also winning cat. Config: `mtlnet_crossattn_dualtower` + `next_stan_flow_dualtower` (`raw_embed_dim=64 fusion_mode=aux freeze_alpha=True alpha_init=0.0`), v14 substrate, unweighted onecycle KD-OFF.
+- **The MTL tradeoff is not just dissolved — it is INVERTED.** OLD: "MTL sacrifices reg; ship the 2-model composite." NEW (post-C25 + this combo): **a single joint model is Pareto-OPTIMAL — it beats both single-task ceilings AND matches the composite.** The composite is now strictly dominated (same reg, worse cat, 2× the params/inference).
+- **Mechanism, fully resolved:** the residual gap was (a) the α·log_T prior (biased logit term — remove it) + (b) shared-pathway DILUTION of the private reg representation. `aux` fusion fixes (b) by adding shared as a non-attenuating residual; prior-OFF fixes (a). Neither is architecture capacity (MoE, SwiGLU, gated-competition all null/worse).
+- **(H) private_only confirms** the private tower alone (no shared pathway) already clears the ceiling — i.e. the reg signal is carried entirely by the un-diluted private STAN; the shared pathway's only positive contribution is via `aux` (additive, small) and to cat.
+
+**Caveat (recorded):** the (c)/(d) ceilings are seed=42 single-seed; (G) is 4-seed. The margin is robust (all (G) seeds ≥73.51 > 73.31) but a fully seed-matched claim would re-run (c)/(d) multi-seed. FL only — AL/AZ/GE/CA/TX not yet run for (G) (per user, large states deferred).
+
+**Chain status**: Combo screen COMPLETE; (G) promoted + confirmed. Frozen (c)/(d) untouched.
+
+**Next**: promote (G) into PAPER_UPDATE.md (headline table → Pareto-positive), HANDOFF top block, NORTH_STAR.md (FL-validated champion, flagged 1-state pending AL/AZ/GE multi-state confirm). Optional future: (G) at AL/AZ/GE (small states, cheap) to make it multi-state; re-run (c)/(d) multi-seed to seed-match the ceiling claim.
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:
