@@ -1031,7 +1031,18 @@ Priorities: <strong>P0 = paper-blocking</strong>, P1 = the one dominant arch tes
 <div class="block"><div class="block-title">Why</div>The flip rests on the training harness's own eval (the gold-standard re-eval was deferred, <code>log:883</code>); the study has had ≥3 measurement artifacts (C25, the Acc@1 monitor, 2 retractions). And "composite strictly dominated, ½ params" is wrong — G <em>adds</em> a private STAN tower. (CRITIQUE §3.)</div>
 <div class="block"><div class="block-title">Method</div>Load G's checkpoint, run an independent forward (outside <code>mtl_cv</code>), re-score reg/cat at FL. Separately count G params/FLOPs vs base_a and vs the 2-model composite.</div>
 <div class="block"><div class="block-title">Gate</div><div class="gate"><strong>Confirmed</strong>: independent forward reproduces G within σ → forecloses "another harness artifact." Param table replaces "½ the composite" with the true ratio.</div></div>
-<div class="results-placeholder">Results: <em>pending execution</em></div>
+<div class="block"><div class="block-title">Results (2026-06-06) — PARAM count DONE; checkpoint re-eval PENDING</div>
+<table>
+<thead><tr><th>model (FL, n_reg=4703)</th><th>params</th><th>Δ vs base_a</th></tr></thead>
+<tbody>
+<tr><td>base_a (cross-attn + getnext_hard)</td><td class="num">5,951,224</td><td class="num">—</td></tr>
+<tr><td><strong>G</strong> (dual-tower + stan_flow_dualtower aux)</td><td class="num">6,241,536</td><td class="num">+290,312 (<strong>+4.9%</strong>)</td></tr>
+<tr><td>&nbsp;&nbsp;↳ of which the reg-private STAN tower</td><td class="num">273,800</td><td class="num">—</td></tr>
+</tbody>
+</table>
+<p><strong>The "½ params / strictly dominates 2 models" claim is CORRECTED (CRITIQUE §3):</strong> G is a SINGLE model at <strong>+4.9% over base_a</strong> — it adds ONE small reg-private STAN tower (274K params), it does NOT duplicate the backbone. vs a true 2-model composite (~2× a full single-task model), G's single-model economy is real, but the honest phrasing is "one model at ≈1.05× base_a" not "half the params of two." <strong>Pending:</strong> the independent checkpoint re-eval (G ran <code>--no-checkpoints</code> → needs one checkpointed G re-run at FL, then an out-of-<code>mtl_cv</code> forward). Also available now for T2V.2's tail read: G's summary already carries <code>accuracy_macro</code> + <code>_indist</code> metrics; the FULL (non-indist) <code>top10_acc</code> + popularity-bins need the same checkpointed re-run.</p>
+<p class="footnote">Param count: <code>scripts/mtl_improvement/</code> inline (committed in the T2V.3 commit). Verdict: <span class="pill good">param claim CORRECTED</span> · checkpoint re-eval <span class="pill warn">pending (1 checkpointed G re-run)</span>.</p>
+</div>
 </div>
 
 <div class="callout warn">

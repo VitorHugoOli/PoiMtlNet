@@ -1726,6 +1726,23 @@ KD-OFF, seeded per-fold log_T, 5f×50ep.
 
 ---
 
+## 2026-06-06 — TIER 2V OPENED: critique close-out begun (Tier 2/2P closed; T2V.3 param; T2V.1 launched)
+
+**Phase**: executing `CRITIQUE_TIER2_C25_2026-06-06.md` §7 (user: "close the points raised + update Tier 2/2P in INDEX + everything P0–P3"). This entry = the first batch.
+
+**What happened**
+- **Tier 2 + Tier 2P CLOSED in INDEX** (doc, no runs): Tier-2 banner UNDER RE-VALIDATION→RESOLVED post-C25; filled T2.3 (-lite MoE NULL) + T2.4 (SwiGLU/MulT/xstitch NULL/neg) Results blocks with the landed stretch data; Tier-2 final-decision → POSITIVE (topology axis: private reg tower + aux is the win); **Tier 2P → MOOT** (the "joint loop poisons reg" hypothesis WAS the C25 confound; T2P.0 wd refuted; T2P.1/.2/.3 superseded). Flagged the pre-C25 alt-arch dose-response as UNDER-POWERED (confounded + un-swept loss-weight) pending the T2V.4 fair re-rank.
+- **T2V.3 param count DONE** (the critique's "½ params" correction): G = 6,241,536 params = base_a (5,951,224) **+4.9%** (+290,312, of which the reg-private STAN tower is 273,800). G adds ONE small private tower, does NOT duplicate the backbone → "strictly dominates 2 models / ½ params" RE-FRAMED to "one model at ≈1.05× base_a." Checkpoint re-eval + T2V.2 full-metric/tail still pending (G ran `--no-checkpoints` → need one checkpointed G re-run; G's summary already has `accuracy_macro` + `_indist`).
+- **T2V.1 LAUNCHED** (the #1 gate — multi-seed (c)/(d) ceilings {0,1,7,100} × AL/AZ/GE/FL; `t2v1_ceilings_multiseed.sh`): (c) reg = next_stan_flow α=0 (p1, v14); (c) cat = next_gru + logit-adjust τ=0.5; (d) reg = HGI-α0 at FL only (HGI region-emb on disk only at FL — AL/AZ/GE HGI margin ≤0.7pp, substrate absent → (d) stays seed-42 there, flagged). ~36 STL runs, CONC=3. Caught + fixed a bash single-line-`local` `set -u` gotcha (`local a=$1 b=$2 key="${b}…"` expands `${b}` from the OUTER scope; split the declaration).
+
+**Decision**: G is a validated positive — Tier 2V VALIDATES/EXTENDS, does not re-litigate (per critique §7). Everything (P0+P1–P3) is in scope (user). Dependency: T2V.4–9 score against the T2V.1 multi-seed ceilings → T2V.1 lands first.
+
+**Chain status**: Tier 2V in flight. Frozen seed-42 (c)/(d) untouched (T2V.1 ADDS multi-seed columns, does not overwrite — the immutable-yardstick rule).
+
+**Next**: aggregate T2V.1 → re-state G's Δ vs the multi-seed ceilings (fill INDEX T2V.1) → checkpointed-G re-run for T2V.2/T2V.3-reeval → then P1 (T2V.4 alt-arch fair re-rank, the one dominant test) → P2/P3.
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:
