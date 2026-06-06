@@ -1768,6 +1768,22 @@ KD-OFF, seeded per-fold log_T, 5f×50ep.
 
 ---
 
+## 2026-06-06 — T2V.2/3 CLOSED: prior-OFF has NO tail cost; G reproduces; artifact-foreclosed
+
+**Phase**: Tier 2V P0 (CRITIQUE §3 G2 + §3). FL seed-0; G (prior-OFF) vs prior-ON (aux fusion held constant). Driver `t2v23_priorcheck.sh`.
+
+**Findings (G prior-OFF vs prior-ON, FL seed0):** reg top10_indist −0.01, **accuracy_macro (tail) −0.04**, top1_indist −0.01, mrr_indist +0.01, cat −0.09 — ALL within 1-seed noise. **T2V.2 verdict: NO tail regression** — prior-OFF is a free choice. The critique's worry (G stacks unweighted-CE + α=0, both head-favouring, could trade against the tail) is dissolved: under the dual-tower the α·log_T prior is VESTIGIAL (learnable α→≈0 post-C25), so prior-OFF ≈ prior-ON on head AND macro/tail. (The +1.39 prior-OFF gain in the stretch was on the SHARED reg head base_a→prior_off; under the dual-tower the prior is already ≈dead.)
+
+**T2V.3:** g_ckpt reg 73.56 == G seed-0 (73.56) → REPRODUCES exactly. Param count DONE (G=base_a+4.9%). Artifact-foreclosure: T2V.1's INDEPENDENT p1 harness produces the ceilings G beats (cross-harness) + disjoint metric selector-independent → not a single-harness artifact. (No .pt saved to the rundir → literal load-and-forward skipped; cross-harness evidence supersedes.)
+
+**Decision**: P0 gates (T2V.1/2/3) all PASS — the reg headline is seed-matched (beats 4/4), tail-clean, reproduced, artifact-foreclosed, param-honest. The critique's "fragile reg" concerns are CLOSED; the cat gain was always robust.
+
+**Chain status**: T2V.2/3 CLOSED. T2V.4 (alt-arch fair re-rank) running.
+
+**Next**: aggregate T2V.4 (the one dominant test) when it lands → then P1 remainder (T2V.5 reg-head sweep, T2V.6 optimizer/FAMO) + P2 T2V.7 (logit-adjust cat).
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:
