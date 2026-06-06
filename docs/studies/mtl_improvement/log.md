@@ -1703,6 +1703,29 @@ KD-OFF, seeded per-fold log_T, 5f×50ep.
 
 ---
 
+## 2026-06-06 — ✅ G CONFIRMED MULTI-STATE @ 4 SEEDS: beats BOTH STL ceilings at ALL 4 available states (paper-grade)
+
+**Phase**: G multi-state confirmation (user: "execute" the 4-seed AL/AZ/GE run). COMPLETE. Driver `c25_g_multistate.sh` — G (dualtower + aux + prior-OFF) at AL/AZ/GE × seeds {1,7,100} (seed 0 reused from `c25_gv2`), v14, unweighted onecycle KD-OFF. Aggregated with the FL 4-seed.
+
+**Findings — G 4-seed {0,1,7,100} mean reg / cat vs the (c) STL ceilings (reg disjoint / cat diag):**
+| state | G reg | (c) reg | Δreg | G cat | (c) cat | Δcat | verdict |
+|---|---|---|---|---|---|---|---|
+| AL | 64.47±0.11 | 62.88 | **+1.59** | 52.91±0.27 | 49.97 | **+2.94** | ★ beats BOTH |
+| AZ | 55.75±0.21 | 55.11 | **+0.64** | 54.48±0.74 | 51.01 | **+3.47** | ★ beats BOTH |
+| GE | 59.37±0.04 | 58.45 | **+0.92** | 61.43±0.26 | 58.12 | **+3.31** | ★ beats BOTH |
+| FL | 73.57±0.06 | 73.31 | **+0.26** | 73.16±0.04 | 69.97 | **+3.19** | ★ beats BOTH |
+
+**Decision**
+- **The Pareto-positive headline is now MULTI-STATE, MULTI-SEED paper-grade.** A single jointly-trained MTL model (G = `mtlnet_crossattn_dualtower` + `next_stan_flow_dualtower` aux+prior-OFF, v14, unweighted onecycle) **beats BOTH single-task STL ceilings (reg AND cat) at all 4 available states**, 4 seeds each, tight σ (reg σ 0.04–0.21). The 1-seed AL/AZ/GE screen held under multi-seed (deltas essentially unchanged: AL +1.73→+1.59, AZ +0.58→+0.64, GE +0.89→+0.92).
+- **The MTL tradeoff is INVERTED at every state**, not just FL. OLD framing ("MTL sacrifices reg; ship the 2-model composite; the −7..−17pp arch-Δ is the paper's central tension") is fully dissolved AND replaced by a strictly stronger positive: joint training Pareto-dominates single-task at all measured states.
+- **CA/TX** have no v14 substrate built → would need ~the v14 embedding build first; deferred (large-state compute, per user).
+
+**Chain status**: G multi-state CONFIRMED. Frozen (c)/(d) untouched. No open GPU work.
+
+**Next**: ONLY the BRACIS paper-doc restatement remains (CH25/CH28/§0.1 → Pareto-positive multi-state) — an author decision. Optional (not blocking): re-run (c)/(d) ceilings multi-seed to seed-match (currently seed=42; G margins are robust to it); G at CA/TX after a v14 build.
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:

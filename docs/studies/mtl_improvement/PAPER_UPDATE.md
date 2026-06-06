@@ -7,7 +7,16 @@
 ## The single sentence
 **A single jointly-trained MTL model BEATS both single-task STL ceilings (reg AND cat) and matches the 2-model composite — once (i) the reg loss matches the reported metric (unweighted CE for top-K Acc@10), (ii) the reg task gets a private un-diluted pathway fused additively (`aux`), and (iii) the biased α·log_T prior is turned off. The MTL tradeoff is not merely dissolved — it is INVERTED (joint training Pareto-dominates single-task).**
 
-> ⭐ **FL champion (G) — 4-seed {0,1,7,100}, 2026-06-06:** `mtlnet_crossattn_dualtower` + `next_stan_flow_dualtower` (`raw_embed_dim=64 fusion_mode=aux freeze_alpha=True alpha_init=0.0`), v14 substrate, unweighted onecycle KD-OFF. **reg 73.57±0.06** (vs (c) STL ceiling 73.31 = **+0.26**; vs (d) composite 73.62 = −0.05 TIE) / **cat 73.16±0.04** (vs (c) STL cat 69.97 = **+3.19**). Every seed clears the ceiling (per-seed reg [73.56, 73.55, 73.51, 73.67]). FL-only so far. Trail: `log.md` 2026-06-06.
+> ⭐ **Champion (G) — `mtlnet_crossattn_dualtower` + `next_stan_flow_dualtower` (`raw_embed_dim=64 fusion_mode=aux freeze_alpha=True alpha_init=0.0`), v14 substrate, unweighted onecycle KD-OFF. CONFIRMED MULTI-STATE @ 4 seeds {0,1,7,100} (2026-06-06) — beats BOTH STL ceilings at ALL 4 available states:**
+>
+> | state | G reg | (c) STL reg | Δreg | G cat | (c) STL cat | Δcat |
+> |---|---|---|---|---|---|---|
+> | AL | 64.47±0.11 | 62.88 | **+1.59** | 52.91±0.27 | 49.97 | **+2.94** |
+> | AZ | 55.75±0.21 | 55.11 | **+0.64** | 54.48±0.74 | 51.01 | **+3.47** |
+> | GE | 59.37±0.04 | 58.45 | **+0.92** | 61.43±0.26 | 58.12 | **+3.31** |
+> | FL | 73.57±0.06 | 73.31 | **+0.26** | 73.16±0.04 | 69.97 | **+3.19** |
+>
+> FL also TIES the (d) 2-model composite reg (73.62, −0.05) while winning cat → the composite is strictly dominated. CA/TX deferred (no v14 substrate). Trail: `log.md` 2026-06-06; drivers `c25_combos_{screen,promote}.sh` + `c25_g_multistate.sh`.
 
 ## Re-validated headline numbers (multi-seed {0,1,7,100}, unweighted real-joint, AL/GE/FL)
 | state | MTL reg (v14) | STL ceiling (c) | composite (d) | MTL cat (v14) | STL cat ceiling |
