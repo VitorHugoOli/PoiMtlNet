@@ -209,22 +209,31 @@ do not re-litigate it.** Mark each `[ ]→[x]` + fill the INDEX Tier-2V Results 
 - [ ] **T2V.3 checkpoint re-eval** — independent forward on G's saved checkpoint (forecloses harness artifact,
       `log:883`) + G param/FLOP count vs base_a & composite (fix the "½ params" claim). (§3)
 
-**P1 — un-confound the alternative-arch falsifications (one dominant test):**
-- [ ] **T2V.4 fair re-rank** — hard-share / CrossStitch / -lite MMoE+CGC, EACH × category-weight {0.5,0.65,0.75},
-      unweighted post-C25, 1-seed FL, vs G → promote ties to multi-seed; build a faithful learned-gate CGC ONLY
-      if a -lite surprises. Retires "5-ways-falsified" or re-opens the axis. (§6.4–§6.6)
+**P1 — the multi-axis exploration (the axes never fairly searched). DISCIPLINE: OFAT around G, each config
+gets a FAIR optimizer (per-arch category-weight min), then COMBINE (T2V.8). No axis "falsified" until tuned.**
+- [ ] **T2V.4 — Axis 1: shared backbones.** (a) backbone *under the dual-tower* {cross-attn[G], MMoE-lite,
+      CGC-lite, CrossStitch, hard-share, simple/none} (mainly a cat + aux-reg lever); (b) the same *standalone*
+      (is the dual-tower uniquely the best reg mechanism?). Each × category-weight {0.5,0.65,0.75}, post-C25,
+      1-seed FL → promote ties to multi-seed. Faithful learned-gate CGC ONLY if a -lite surprises. (§6.4–§6.6)
+- [ ] **T2V.5 — Axis 2: reg-private HEAD in place of STAN** {next_gru/lstm/tcn_residual/transformer_relpos/
+      conv_attn…} matched-budget, each per-arch-tuned — accuracy (beats STAN here?) AND efficiency (is full
+      STAN over-provisioned?). + private-tower d_model/depth/aux-β/granularity. + cat-private-tower ablation
+      (predicted null → confirms the asymmetry). (§6.2/§6.3)
+- [ ] **T2V.6 — Axis 3: optimizer / loss-balancer (the user's confound concern).** On G + the top T2V.4/.5
+      configs: {static_weight[G] · per-arch category-weight · FAMO (O(1)) · uncertainty-weighting · CAGrad/Nash
+      if k=2 tractable} + per-task LR + per-task precision split (fp32-reg/fp16-cat). Does a balancer lift G OR
+      re-rank the alternatives (an arch that lost under static_weight ties G under FAMO → falsifications were
+      optimization-confounded)? The whole study ran static_weight only. (§6.5)
 
-**P2 — hypertune the champion G:**
-- [ ] **T2V.5 ⭐ logit-adjust on G's cat head** (τ∈{0.5,1.0}) — highest-EV cat lever; G's cat is plain
-      unweighted, the ceiling used logit-adjust. (§4.1)
-- [ ] **T2V.6 G micro-levers** — aux-β init/learnability + granularity; private-tower d_model/depth; per-task
-      LR; per-task precision split (fp32-reg/fp16-cat). (§6)
-- [ ] **T2V.7 FAMO on G** (confirmatory) + **lighter private tower** (GRU/TCN — efficiency) + **cat-private-tower**
-      (predicted null — confirms the asymmetry). (§6.2/§6.3/§6.5)
+**P2 — cat loss + synthesis:**
+- [ ] **T2V.7 — Axis 4: ⭐ logit-adjust on G's cat head** (τ∈{0.5,1.0}; + focal/CB) — highest-EV cat lever; G's
+      cat is plain unweighted, the ceiling used logit-adjust. (§4.1)
+- [ ] **T2V.8 — COMBINE the winning levers** (best backbone × private head × optimizer × cat loss) onto G →
+      multi-seed confirm vs G + the T2V.1 ceilings. Watch non-additivity (PLE/MMoE history). (§6.7)
 
 **P3 — completeness:**
-- [ ] **T2V.8 CA/TX** — build v14 substrate → G + ceilings at the two largest (highest-imbalance) states; the
-      scale-conditional headline's real gap. (§4.2)
+- [ ] **T2V.9 CA/TX** — build v14 substrate → champion + ceilings at the two largest (highest-imbalance) states;
+      the scale-conditional headline's real gap. (§4.2)
 
 **A40 doc close-out (housekeeping — fill the data + close the stale tiers, user-requested):**
 - [ ] **Close Tier 2 (topology):** fill INDEX T2.3 (-lite MoE) + T2.4 (SwiGLU/MulT/xstitch) Results blocks with
