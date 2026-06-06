@@ -1,0 +1,30 @@
+\babel@toc {brazilian}{}\relax 
+\contentsline {section}{Como ler este documento}{1}{section*.1}%
+\contentsline {section}{Parte I --- Estado do artigo (baseline v11)}{2}{part*.3}%
+\contentsline {section}{\numberline {1}Resultados do artigo (v11)}{2}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Substrato: Check2HGI vs.\ HGI (single-task, \S 0.3)}{3}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Baselines de referência}{3}{subsection.1.2}%
+\contentsline {section}{\numberline {2}Metodologia antiga}{3}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Arquitetura Check2HGI (substrato)}{3}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Arquitetura MTL (\textit {champion} do paper)}{4}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}\textcolor {red!60!black}{Os dois defeitos metodológicos descobertos depois}}{4}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Avaliação: \textit {disjoint} vs.\ \textit {jointly}}{4}{subsection.2.4}%
+\contentsline {section}{Parte II --- Estado atual}{5}{part*.4}%
+\contentsline {section}{\numberline {3}Melhorias no Check2HGI (substrato)}{5}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Nova metodologia de avaliação de \textit {embeddings}: a escada L0--L3}{5}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Hipóteses de melhoria testadas (a jornada, incluindo o que deu errado)}{5}{subsection.3.2}%
+\contentsline {section}{\numberline {4}Resultados após melhorias no Check2HGI (v14)}{6}{section.4}%
+\contentsline {subsection}{\numberline {4.1}STL next-cat e STL next-reg (FL, leak-free, multi-seed)}{6}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Tetos \textit {single-task} congelados (a régua interna)}{6}{subsection.4.2}%
+\contentsline {section}{\numberline {5}Melhorias no single-task (STL)}{7}{section.5}%
+\contentsline {section}{\numberline {6}Melhorias no MTL --- o achado central (correção C25)}{7}{section.6}%
+\contentsline {subsection}{\numberline {6.1}A hipótese antiga e sua queda}{7}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}O \textit {confound} de \textit {class-weighting} (C25) e a correção}{7}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Números re-validados (multi-seed, não-ponderado, AL/GE/FL)}{8}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.4}O que isto reescreve (claim a claim)}{8}{subsection.6.4}%
+\contentsline {subsection}{\numberline {6.5}O número do artigo, antes e depois da correção (mesmo substrato v11)}{8}{subsection.6.5}%
+\contentsline {subsection}{\numberline {6.6}Outras melhorias MTL (receita)}{9}{subsection.6.6}%
+\contentsline {section}{Parte III --- Melhorias futuras}{9}{part*.5}%
+\contentsline {section}{\numberline {7}Janelas sobrepostas (\textit {stride}=1 vs.\ \textit {stride}=9): um teto escondido}{9}{section.7}%
+\contentsline {section}{\numberline {8}Pendências para fechar o ciclo}{10}{section.8}%
+\contentsline {section}{Síntese de uma página}{10}{section*.6}%

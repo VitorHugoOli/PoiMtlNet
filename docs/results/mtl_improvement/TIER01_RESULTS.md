@@ -233,7 +233,7 @@ P4 (LOW) driver manifest path says `embedding_eval/` but p1 writes `docs/results
 
 ## Audit close-out (O1–O5) — 2026-06-04
 
-Closing the 5 open items from [`../../studies/mtl_improvement/AUDIT_TIER1_TIERS_2026-06-03.md §6`](../../studies/mtl_improvement/AUDIT_TIER1_TIERS_2026-06-03.md).
+Closing the 5 open items from [`../../studies/mtl_improvement/AUDIT_TIER1_TIERS_2026-06-03.md §6`](../../studies/mtl_improvement/archaive/AUDIT_TIER1_TIERS_2026-06-03.md).
 
 ### O1 — the α=0 "prior is a drag" finding (SETTLED — both audit hypotheses falsified)
 Re-ran the prior-ON STL-reg config (`next_stan_flow`, **learnable** α init 0.1, prior ON, v14 region-emb,

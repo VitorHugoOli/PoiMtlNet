@@ -1,0 +1,618 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{geometry}
+\geometry{margin=2.3cm}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{array}
+
+\hypersetup{colorlinks=true, linkcolor=blue!60!black, citecolor=blue!60!black, urlcolor=blue!60!black}
+
+\newcommand{\good}[1]{\textcolor{green!45!black}{\textbf{#1}}}
+\newcommand{\bad}[1]{\textcolor{red!60!black}{\textbf{#1}}}
+\newcommand{\note}[1]{\textcolor{black!55}{\textit{#1}}}
+
+\title{\textbf{Relatório de Evolução --- Check2HGI + MTL Conjunto\\
+\large \{next\_category, next\_region\} desde a submissão BRACIS 2026}}
+\author{Vitor Hugo}
+\date{05 de junho de 2026}
+
+\begin{document}
+\maketitle
+
+\noindent\footnotesize\textit{Guia de leitura e síntese para a fala estão no documento de apoio
+\texttt{report\_05\_06\_notas.md}. Os números do ``estado atual'' (\S\ref{sec:mtl}, correção C25,
+2026-06-05) são \textbf{provisórios / em re-validação} --- ver a Tabela~\ref{tab:c25} e suas ressalvas.}
+\normalsize
+\bigskip
+
+% ###########################################################################
+\part*{Parte I --- Estado do artigo (\textit{baseline} v11)}
+\addcontentsline{toc}{section}{Parte I --- Estado do artigo (baseline v11)}
+% ###########################################################################
+
+A versão canônica do artigo é a \textbf{v11} (``\textit{paper canon}'', congelada). Todos os números
+abaixo vêm de \texttt{docs/results/RESULTS\_TABLE.md \S0.1} --- multi-seed \textbf{n=20}
+(sementes \{0,1,7,100\} $\times$ 5 \textit{folds}), substrato GCN, \texttt{log\_T-KD} desligado.
+
+% ===========================================================================
+\section{Resultados do artigo (v11)}\label{sec:v11}
+% ===========================================================================
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{\textbf{v11 --- tabela arquitetural \S0.1 (5 estados, n=20).} reg = Acc@10 (\%); cat =
+macro-F1 (\%). $\Delta$ = MTL $-$ STL. Todos os $p \le 2\!\times\!10^{-6}$ (Wilcoxon pareado, n=20).}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lr cc c c cc c c}
+\toprule
+ & & \multicolumn{3}{c}{\textbf{next-region (Acc@10)}} & & \multicolumn{3}{c}{\textbf{next-category (macro-F1)}} \\
+\cmidrule(lr){3-5}\cmidrule(lr){7-9}
+\textbf{Estado} & \textbf{\#reg.} & \textbf{MTL} & \textbf{STL} & \textbf{$\Delta$reg} & & \textbf{MTL} & \textbf{STL} & \textbf{$\Delta$cat} \\
+\midrule
+AL & 1.109 & 50,17 & 61,21 & \bad{$-11,04$} & & 40,57 & 41,35 & \bad{$-0,78$} \\
+AZ & 1.547 & 40,78 & 53,06 & \bad{$-12,27$} & & 45,10 & 43,90 & \good{$+1,20$} \\
+FL & 4.703 & 63,27 & 70,62 & \bad{$-7,34$}  & & 68,56 & 67,16 & \good{$+1,40$} \\
+CA & 8.501 & 47,35 & 56,85 & \bad{$-9,50$}  & & 64,07 & 62,39 & \good{$+1,68$} \\
+TX & 6.553 & 42,84 & 59,44 & \bad{$-16,59$} & & 65,00 & 63,11 & \good{$+1,89$} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent\textbf{Leitura do \textit{baseline}.}
+\begin{itemize}[leftmargin=*,noitemsep]
+\item \textbf{Região (reg):} o MTL fica \bad{$-7$ a $-17$~p.p.\ abaixo} do \textit{single-task} em
+todos os 5 estados (sinal consistente). \textbf{Este é o ``gap'' que o artigo declarou como
+limitação} --- e que a Parte II mostra ser, em grande parte, artefato metodológico.
+\item \textbf{Categoria (cat):} o MTL \good{empata ou supera} o STL em 4 dos 5 estados
+(AZ/FL/CA/TX). AL é a exceção ($-0,78$~p.p.) --- e mesmo essa exceção some sob a receita
+corrigida (\S\ref{sec:mtl-outras}).
+\end{itemize}
+
+\subsection{Substrato: Check2HGI vs.\ HGI (single-task, \S0.3)}
+
+O substrato Check2HGI (\textit{embeddings} contextuais \emph{por check-in}) é a base do paper.
+Contra o HGI (POI-level), a vantagem é \emph{enorme em categoria} e \emph{neutra em região}:
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{STL \textit{matched-head}, substrato Check2HGI vs.\ HGI (\S0.3). cat: Wilcoxon $p=0,0312$
+(5/5 \textit{folds}) em todos os estados. reg: HGI nominalmente acima por 1,6--3,1~p.p.\ (TOST).}
+\begin{tabular}{lcc c cc c}
+\toprule
+ & \multicolumn{3}{c}{\textbf{cat macro-F1}} & \multicolumn{3}{c}{\textbf{reg Acc@10}} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+\textbf{Estado} & \textbf{C2HGI} & \textbf{HGI} & \textbf{$\Delta$} & \textbf{C2HGI} & \textbf{HGI} & \textbf{$\Delta$} \\
+\midrule
+AL & 41,35 & 25,26 & \good{$+15,50$} & 59,15 & 61,86 & $-2,71$ \\
+AZ & 43,90 & 28,69 & \good{$+14,52$} & 50,24 & 53,37 & $-3,13$ \\
+FL & 63,43 & 34,41 & \good{$+29,02$} & 69,22 & 71,34 & $-2,12$ \\
+CA & 59,94 & 31,13 & \good{$+28,81$} & 55,92 & 57,77 & $-1,85$ \\
+TX & 60,24 & 31,89 & \good{$+28,34$} & 58,89 & 60,47 & $-1,59$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent \textbf{Lição que guiou tudo depois:} o Check2HGI domina em \emph{categoria} (a intenção
+categórica varia por visita; o HGI destrói isso por construção), mas em \emph{região} o sinal não
+vive na geometria do \textit{embedding} --- vive no \emph{operador de transição} (a matriz Markov
+$\log T$). Esse é o ponto de partida da nova metodologia de avaliação (\S\ref{sec:l0l3}).
+
+\subsection{Baselines de referência}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{Pisos e teto neural para region (Acc@10), por estado.}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Baseline} & \textbf{AL} & \textbf{AZ} & \textbf{FL} & \textbf{CA} & \textbf{TX} \\
+\midrule
+Markov-1-region (piso clássico) & 47,01 & 42,96 & 65,05 & 52,09 & 54,94 \\
+STAN (Luo, WWW 2021, adaptado) & 59,20 & 52,24 & 72,62 & 58,82 & 61,35 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent\note{FL é o ``regime denso'': Markov-1-region satura em $\sim$65\% --- $\sim$85\% das
+linhas de validação têm a região anterior já vista no treino. Assumido como limitação no paper.}
+
+% ===========================================================================
+\section{Metodologia antiga}\label{sec:antiga}
+% ===========================================================================
+
+\subsection{Arquitetura Check2HGI (substrato)}
+
+Estende o HGI (\textit{Hierarchical Graph Infomax}) de 3 para 4 níveis, deslocando a granularidade
+do \textit{embedding} de POI para \textbf{check-in}:
+\[
+\texttt{Check-in} \to \texttt{POI} \to \texttt{Região (census tract)} \to \texttt{Cidade}
+\]
+Cada nó é um \textbf{evento de check-in}; \textit{features} = \textit{one-hot} de categoria $+$ 4 dim
+temporais ($\sin/\cos$ de hora e dia-da-semana); arestas de sequência do usuário pesadas por
+$\exp(-\Delta t/\tau)$. \textit{Encoder} GCN 2-camadas $\to$ vetor de dim $D=64$ por check-in. Perda
+contrastiva \textit{mutual-information} em 3 fronteiras simultâneas
+($\alpha_{c2p},\alpha_{p2r},\alpha_{r2c}$). O mesmo POI, visitado em contextos diferentes, gera vetores
+distintos --- propriedade que o HGI não produz.
+
+\subsection{Arquitetura MTL (\textit{champion} do paper)}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{ll}
+\toprule
+\textbf{Componente} & \textbf{Escolha} \\
+\midrule
+Arquitetura & \texttt{mtlnet\_crossattn} --- 2 blocos de \textit{cross-attention} bidirecional ($d=256$, 8 cabeças) \\
+\textit{Loss} MTL & \texttt{static\_weight}: $\mathcal{L}=0{,}75\,\mathcal{L}_\text{cat}+0{,}25\,\mathcal{L}_\text{reg}$ \\
+Cabeça cat (task\_a) & \texttt{next\_gru} (GRU 1-camada sobre a janela de 9 check-ins) \\
+Cabeça reg (task\_b) & \texttt{next\_getnext\_hard} (STAN $+$ \textit{prior} aditivo $\alpha\cdot\log T$) \\
+\textit{Input} por tarefa & cat $\leftarrow$ \textit{embedding} check-in; reg $\leftarrow$ \textit{embedding} região \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent Em vez de um \textit{backbone} compartilhado monolítico (FiLM/MMoE/CGC), os dois
+\textit{streams} (um por tarefa) trocam informação \emph{por conteúdo} via \textit{cross-attention} ---
+cada cabeça recebe sua modalidade preferida \emph{e} é informada pela outra tarefa. A cabeça de região
+soma um \textit{prior} estatístico de transições $\alpha\cdot\log T[r_\text{último}]$ (GETNext-style).
+
+\subsection{\textcolor{red!60!black}{Os dois defeitos metodológicos descobertos depois}}\label{sec:bugs}
+
+\textbf{Estes dois defeitos --- presentes na metodologia que produziu os números v11 --- são a razão
+do ``gap'' de região.} Corrigi-los é o que reescreve a história (Parte II).
+
+\begin{description}[leftmargin=1.2em,style=nextline]
+
+\item[\textbf{(A) A fórmula do \textit{joint} estava errada} (seletor de \textit{checkpoint}, C21).]
+Para \emph{implantar} um único modelo, é preciso escolher \emph{uma} época que sirva às duas tarefas.
+O seletor antigo era a média aritmética $\tfrac{1}{2}(\text{cat\_F1}+\text{reg\_F1})$ --- mas as duas
+métricas vivem em escalas diferentes, e ``reg\_F1'' não é a métrica reportada (Acc@10). O seletor
+correto é a \textbf{média geométrica alinhada à \textit{headline}}:
+\[
+\texttt{geom\_simple} = \sqrt{\text{cat\_macroF1}\;\cdot\;\text{reg\_Acc@10}}.
+\]
+A troca \textbf{recuperou $+5{,}6$~p.p.\ de reg implantável} (FL multi-seed). \note{Importante: a
+\S0.1 em si \emph{não} usa esse seletor (ela reporta a melhor época \emph{por tarefa} = ``disjoint'',
+independente do seletor); o bug afeta apenas o número \emph{conjunto/implantável}.}
+
+\item[\textbf{(B) O método de \textit{loss} das cabeças estava desalinhado da métrica} (C25,
+descoberto 2026-06-05).] A cabeça de região era treinada (silenciosamente, por um \textit{default}
+não-documentado \texttt{use\_class\_weights=True}) com \textbf{CrossEntropy ponderada por classe},
+enquanto (i) o teto \textit{single-task} e (ii) a própria métrica reportada \textbf{Acc@10} são
+\emph{não-ponderados}. Balancear por classe otimiza a acurácia \emph{macro} e \textbf{afasta do
+top-K} --- deprimindo a reg do MTL em \bad{$\sim$10--14~p.p.} (pior quanto mais classes/regiões,
+i.e.\ maior em FL). \textbf{Esse confound --- não a arquitetura, não o substrato, não o
+\textit{loop} conjunto --- era essencialmente todo o ``gap MTL$\to$STL de região''.} A correção
+(ambas as cabeças não-ponderadas) é detalhada na \S\ref{sec:mtl}.
+
+\end{description}
+
+\subsection{Avaliação: \textit{disjoint} vs.\ \textit{jointly}}\label{sec:disjoint}
+
+Toda corrida MTL é reportada em dois ``\textit{fronts}'', e a diferença entre eles quantifica o custo
+de servir um \emph{único} \textit{checkpoint}:
+\begin{itemize}[leftmargin=*,noitemsep]
+\item \textbf{\textit{disjoint}} (diagnóstico / teto-oráculo): cada cabeça avaliada na sua própria
+melhor época --- são \emph{dois} \textit{checkpoints}. Mede a capacidade máxima de cada tarefa.
+\item \textbf{\textit{jointly}} (implantável): as duas cabeças no \emph{mesmo} \textit{checkpoint}
+único, escolhido por \texttt{geom\_simple}. É o número honesto de ``um modelo, duas tarefas''.
+\end{itemize}
+\note{O defeito (A) acima é exatamente o seletor do \textit{front} \textit{jointly}.}
+
+% ###########################################################################
+\part*{Parte II --- Estado atual}
+\addcontentsline{toc}{section}{Parte II --- Estado atual}
+% ###########################################################################
+
+% ===========================================================================
+\section{Melhorias no Check2HGI (substrato)}\label{sec:c2hgi}
+% ===========================================================================
+
+\subsection{Nova metodologia de avaliação de \textit{embeddings}: a escada L0--L3}\label{sec:l0l3}
+
+\textbf{Problema que resolve.} Antes, julgávamos um substrato treinando uma cabeça STL completa
+(\texttt{next\_gru}, \texttt{next\_stan\_flow}) sobre \textit{embeddings} congelados. Isso
+\textbf{confunde três coisas} --- qualidade do \textit{embedding}, capacidade da cabeça, e o regime
+STL$\neq$MTL --- e já tínhamos um contraexemplo (ResLN/Design-B é o melhor substrato STL mas
+\emph{não} dá ganho em MTL). Uma única nota STL de cabeça-forte podia \emph{coroar o vencedor errado}.
+A escada separa esses confounds:
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{A escada L0--L3 de avaliação de substrato.}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{p{0.7cm}p{3.2cm}p{6.0cm}p{4.0cm}}
+\toprule
+\textbf{Nível} & \textbf{O que isola} & \textbf{Protocolo} & \textbf{Custo} \\
+\midrule
+\textbf{L0} & Geometria pura (sem treino) & kNN-LOO, \textit{silhouette}, separação de centroides, CKA, coerência de adjacência --- \emph{zero} confound de cabeça & segundos \\
+\textbf{L1} & Sinal linearmente acessível & \textit{embeddings} congelados $\to$ uma camada \texttt{Linear} softmax, multi-seed & minutos \\
+\textbf{L2} & Tarefa sequencial real vs.\ capacidade da cabeça (uma \emph{curva}) & escada de cabeça: Linear $\to$ \texttt{next\_gru} $\to$ \texttt{next\_stan\_flow} (STL) & horas-GPU \\
+\textbf{L3} & Objetivo conjunto implantado & a corrida MTL \{cat,reg\} sob a receita NORTH\_STAR & horas-GPU \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent\textbf{Correção crucial de especificidade por tarefa.} Para \textbf{next-cat} (atributo
+estático do POI), L0 já é um \emph{ranqueador} quase-suficiente --- o alvo está na geometria. Para
+\textbf{next-reg} (transição), \emph{nenhuma} métrica de geometria estática ranqueia substratos: o
+alvo vive em $\log T$, não na geometria (correlação $\approx 0{,}05$ entre cosseno de regiões e
+$T_{ij}$ para \emph{todo} \textit{engine}). Logo, ranqueamento de região começa só no \textbf{L2}.
+Essa é a razão de muitas hipóteses de substrato falharem em região (abaixo).
+
+\subsection{Hipóteses de melhoria testadas (a jornada, incluindo o que deu errado)}\label{sec:falhas}
+
+Exploramos um espaço grande de melhorias de substrato. A maioria \textbf{não} moveu as tarefas
+\textit{downstream} (ou vazou). Resumo honesto --- útil para delimitar o espaço de busca e mostrar
+rigor:
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{Principais hipóteses de substrato/arquitetura e seus veredictos. ``vazamento'' = ganho
+ilusório por \textit{label leak} (descartado).}
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{p{5.2cm}p{2.3cm}p{6.3cm}}
+\toprule
+\textbf{Hipótese} & \textbf{Veredicto} & \textbf{Evidência / motivo} \\
+\midrule
+\texttt{merge\_design} B/H/I/J/M (POI2Vec injetado na fronteira de \textit{pooling}) & STL+ / MTL-nulo & Pareto sobre canônico em STL ($\sim$+2~p.p.\ reg); \emph{não} bate HGI; some no MTL \\
+Design A (\textit{late-fusion} na cabeça) & \bad{falsificado} & cat $-9$ / reg $-10$~p.p. \\
+Design D (heterografo, arestas reversas) & \bad{vazamento} & $+20$~p.p.\ de \textit{leak} no \textit{probe} de último passo \\
+GATv2 (atenção no grafo) & \bad{vazamento} & \textit{leak} estrutural catastrófico (cat $\to$ 99\%) \\
+R-GCN ($K{=}2$) & \bad{vazamento} & $+27{,}85$~p.p.\ de \textit{leak}; $K{=}1$ colapsa \\
+Time2Vec / GraphMAE / POI \textit{side-feats} & \bad{falsificado} & perde cat ou não replica entre estados \\
+\texttt{hgi\_category\_injection} (6 variantes) & \bad{falsificado} & melhor (D\_orth) cat $+0{,}36$ / reg $+0{,}10$ (ruído) \\
+\textit{Balanced sampler} na cabeça reg (MTL) & \bad{falsificado} & $-18$ a $-30$~p.p. \\
+\textbf{Delaunay POI-POI GCN} (arestas espaciais) & \good{revivido} & falsificado em AL/AZ; \textbf{re-validado em FL} --- o eixo espacial que faltava \\
+ResLN (\textit{encoder} residual + LayerNorm) & \good{promovido (STL)} & melhor \textit{encoder} de cat STL ($+0{,}9$ a $+1{,}7$~p.p.); STL-only \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent O ponto-chave: \textbf{Delaunay} (importar o grafo espacial do HGI como arestas POI-POI) foi
+\emph{descartado cedo} num estudo AL/AZ-only, e \textbf{re-validado em FL} graças à escada L0--L3 ---
+é a única alavanca que se traduziu em região (L2). Isso virou o substrato \textbf{v14}.
+
+% ===========================================================================
+\section{Resultados após melhorias no Check2HGI (v14)}\label{sec:v14}
+% ===========================================================================
+
+\textbf{v14} $=$ \texttt{check2hgi\_design\_k\_resln\_mae\_l0\_1}: três eixos ortogonais empilhados ---
+\textbf{ResLN} ($+$cat, via \textit{encoder}) $\oplus$ \textbf{Delaunay POI-GCN} ($+$reg, caminho de
+região destacado) $\oplus$ \textbf{mae} (recon.\ mascarada de agregado de categoria, $+$cat marginal).
+
+\subsection{STL next-cat e STL next-reg (FL, leak-free, multi-seed)}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{Substratos no FL (leak-free, multi-seed \{0,1,7,100\}). v14 é o campeão \emph{dual-axis}:
+mantém a liderança esmagadora em cat e fecha a maior parte do gap de reg para o HGI.}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Engine} & \textbf{next-cat F1} & \textbf{next-reg Acc@10} \\
+\midrule
+canonical (Check2HGI) & $\sim$64,6 & 0,6943 \\
+design\_k (gcn$+$Delaunay) & 64,82 & 0,7034 \\
+design\_k$+$resln & 66,95 & 0,7020 \\
+\textbf{design\_k$+$resln$+$mae (v14)} & \good{67,36} & \good{0,7024} \\
+HGI & 34,29 & 0,7060 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent\textbf{Leitura.} cat: v14 \good{67,36} $\approx$ canônico-congelado e $\gg$ HGI (34,29;
+$+33$~p.p.). reg: v14 \good{0,7024} fica $+0{,}81$~p.p.\ sobre o canônico e \textbf{fecha $\sim$69\%}
+do gap canônico$\to$HGI; resta $-0{,}36$~p.p.\ para o HGI (e plain design\_k(gcn) fecha $\sim$78\% em
+0,7034, mas custa $-2{,}5$~p.p.\ de cat --- por isso a escolha \textit{dual-axis} é o v14).
+
+\subsection{Tetos \textit{single-task} congelados (a régua interna)}\label{sec:tetos}
+
+As corridas posteriores são medidas contra estes tetos STL \emph{congelados} (régua imutável):
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{Tetos STL congelados. reg $=$ \texttt{next\_stan\_flow} com $\alpha{=}0$ (\textit{prior} OFF);
+cat $=$ \texttt{next\_gru} com \textit{logit-adjust} $\tau{=}0{,}5$. \textbf{(c)} $=$ teto por tarefa;
+\textbf{(d)} $=$ \textit{composite} de 2 modelos (cat-v14 $\oplus$ reg-melhor). Seed=42.}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{} & \textbf{AL} & \textbf{AZ} & \textbf{GE}$^\dagger$ & \textbf{FL} \\
+\midrule
+(c) cat macro-F1 & 49,97 & 51,01 & 58,12 & 69,97 \\
+(c) reg Acc@10   & 62,88 & 55,11 & 58,45 & 73,31 \\
+(d) \textit{composite} reg & 63,58 & 55,11 & 58,76 & 73,62 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\note{$^\dagger$ GE (Georgia, $\sim$2.283 regiões) é um estado \emph{intermediário novo}, criado
+2026-06-03 para testar a hipótese de escala; não está no paper.}
+
+% ===========================================================================
+\section{Melhorias no single-task (STL)}\label{sec:stl}
+% ===========================================================================
+
+Duas alavancas de \textit{tuning} (não-arquiteturais) elevaram os tetos STL --- e, no caminho,
+\emph{esvaziaram} a vantagem aparente de substrato em região:
+
+\begin{description}[leftmargin=1.2em,style=nextline]
+
+\item[\textbf{reg: $\alpha{=}0$ --- desligar o \textit{prior} aditivo $\log T$.}] O \textit{prior}
+estatístico de transições, somado como $\alpha\cdot\log T$, é um \textbf{lastro líquido} no teto STL
+de região: desligá-lo (\,$\alpha{=}0$\,) ganha $+0{,}56$ (AL) a $+3{,}03$~p.p.\ (FL). Surpreendente:
+quando $\alpha$ é \emph{aprendível}, ele converge \emph{grande} (AL $0{,}45 \to$ FL $1{,}09$) --- o
+modelo ``apoia-se'' no \textit{prior} --- e \emph{mesmo assim} generaliza pior que o \textit{encoder}
+puro. \note{Interpretação honesta: o \textit{prior} carrega sinal real (sozinho bate o piso
+Markov-1-region), mas como viés \emph{aditivo} fixo ele atrapalha um \textit{encoder} que já modela
+transições. O mecanismo exato (gap treino/val vs.\ \textit{double-counting}) não foi isolado.}
+
+\item[\textbf{cat: \textit{logit-adjustment} $\tau{=}0{,}5$} (Menon, ICLR 2021).] Ajuste de
+\textit{logits} por frequência de classe (sem \textit{class-weighting}/focal/\textit{label-smoothing},
+que \emph{pioram} quando empilhados): $+1{,}9$ a $+4{,}0$~p.p.\ de macro-F1 em todos os estados.
+
+\end{description}
+
+\noindent\textbf{Consequência forte (eixo de substrato esgotado).} Uma vez que \emph{ambos} os
+substratos estão $\alpha{=}0$-endurecidos, \textbf{v14 $\approx$ HGI em reg STL} (todo $\Delta \le
+0{,}70$~p.p.\ e $< 0{,}5\sigma$). \textbf{A ``vantagem de substrato'' do HGI em região era um artefato
+do \textit{prior} $\log T$.} Isso reforça a tese central: o gap de região \emph{não} é substrato ---
+é arquitetural/protocolo (Parte II, \S\ref{sec:mtl}).
+
+% ===========================================================================
+\section{Melhorias no MTL --- o achado central (correção C25)}\label{sec:mtl}
+% ===========================================================================
+
+\subsection{A hipótese antiga e sua queda}
+
+A leitura anterior (``\textit{regime finding}'') era: o gap de região $-7$ a $-17$~p.p.\ é
+\textbf{irredutivelmente arquitetural} (o \textit{pathway} de região do \textit{backbone}
+compartilhado), os ganhos de substrato ``lavam'' no MTL, e a resposta de \textit{deploy} seria o
+\textit{composite} de \emph{dois} modelos. \textbf{Isso caiu em 2026-06-05.}
+
+\subsection{O \textit{confound} de \textit{class-weighting} (C25) e a correção}
+
+A causa do gap era o defeito \textbf{(B)} da \S\ref{sec:bugs}: a cabeça de região treinava com CE
+\emph{ponderada por classe}, enquanto a métrica Acc@10 e o teto STL são \emph{não-ponderados}. A
+correção é \textbf{ponderação por tarefa, ambas as cabeças não-ponderadas} por \textit{default}.
+Verificado: com \texttt{--no-class-weights}, a reg do MTL \textbf{alcança/supera} o teto STL (ex.\ AL:
+de $52{,}90$ ``bugado'' $\to 64{,}81 \ge 62{,}88$). A correção da cabeça de \emph{categoria} também é
+um ganho real ($+3$ a $+5$~p.p.\ macro-F1 --- a hipótese de que ``balancear ajuda macro-F1'' foi
+testada e é \emph{falsa}).
+
+\subsection{Números re-validados (multi-seed, não-ponderado, AL/GE/FL)}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{\textbf{Estado atual do MTL (provisório).} Multi-seed \{0,1,7,100\}, \textit{real-joint}
+não-ponderado, substrato v14, \textbf{front \textit{jointly}/implantável} (seletor \texttt{geom\_simple}).
+($+$/$-$) $=$ $\Delta$ vs.\ o teto/composite da mesma coluna.}\label{tab:c25}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{lccc c cc}
+\toprule
+ & \multicolumn{3}{c}{\textbf{next-region (Acc@10)}} & & \multicolumn{2}{c}{\textbf{next-category (macro-F1)}} \\
+\cmidrule(lr){2-4}\cmidrule(lr){6-7}
+\textbf{Estado} & \textbf{MTL (v14)} & \textbf{teto STL (c)} & \textbf{composite (d)} & & \textbf{MTL (v14)} & \textbf{teto STL cat} \\
+\midrule
+AL & \good{64,52} & 62,88 \good{($+1,6$)} & 63,58 \good{($+0,9$, supera)} & & \good{53,38} & 49,97 \good{($+3,4$)} \\
+GE & 57,84 & 58,45 ($-0,6$) & 58,76 ($-0,9$) & & \good{61,37} & 58,12 \good{($+3,2$)} \\
+FL & 71,55 & 73,31 ($-1,8^{*}$) & 73,62 ($-2,1$) & & \good{71,89} & 69,97 \good{($+1,9$)} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent$^{*}$\,O resíduo de $-1{,}8$~p.p.\ em FL é o \textit{prior} $\alpha\cdot\log T$
+(\textit{prior}-OFF fecha $\sim$80\%) e é \textbf{fechado pelo \textit{dual-tower}} (FL 73,06,
+$-0{,}25$ vs.\ teto) --- não é um limite fundamental do MTL.
+
+\medskip
+\noindent\textbf{Sobre \textit{disjoint} vs.\ \textit{jointly} (nota de honestidade).} A re-validação
+corrigida reportou, até agora, apenas o front \textit{jointly}/implantável (acima). O \emph{split} 2$\times$2
+\{cat,reg\}$\times$\{\textit{disjoint},\textit{jointly}\} \textbf{sob a receita corrigida ainda está
+pendente} --- o split \textit{disjoint}/\textit{jointly} disponível hoje é o da receita \emph{antiga}
+(ponderada), que foi \textbf{deliberadamente excluído} por carregar o \textit{confound} C25. Como o
+front \textit{jointly} é o número de \textit{deploy} (e o mais conservador dos dois), ele é o reportado;
+o \textit{disjoint} corrigido é uma das pendências (\S\ref{sec:pend}). \note{Referência: na receita
+antiga, o gap \textit{disjoint}$-$\textit{jointly} media o custo de servir um único \textit{checkpoint}
+(\S\ref{sec:disjoint}); espera-se que ele encolha sob a correção.}
+
+\subsection{O que isto reescreve (claim a claim)}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{O efeito-dominó da correção C25 sobre as conclusões do paper.}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{p{4.6cm}p{6.0cm}p{2.4cm}}
+\toprule
+\textbf{Conclusão antiga} & \textbf{Nova (corrigida)} & \textbf{Veredicto} \\
+\midrule
+``MTL sacrifica reg $-7$ a $-17$~p.p.'' (\S0.1) & MTL reg $\approx$ teto STL (AL $+1{,}6$ / GE $-0{,}6$ / FL $-1{,}8$); \S0.1 reg sobe $+10$ a $+13$~p.p. & \good{DISSOLVIDO} \\
+``Ganho de substrato lava no MTL'' (\textit{regime finding}) & $\Delta$reg(v14$-$canônico) $= +1{,}92$/$+1{,}49$/$+0{,}81$ --- o substrato \textbf{transfere} & \good{SUPERADO} \\
+``\textit{Composite} (2 modelos) $= +7$ a $+12$~p.p.; implante 2 modelos'' & \textbf{1 modelo} MTL $\ge$ \textit{composite} (AL $+0{,}94$; GE/FL dentro de 1--2~p.p.) & \good{DISSOLVIDO} \\
+``\textit{Dual-tower} perde; gap irredutível'' & \textit{Dual-tower} \textbf{fecha} o gap (FL $+1{,}51$ vs.\ base; $-0{,}25$ vs.\ teto); ordenações inverteram & \good{SUPERADO} \\
+``MTL cat'' (\S0.1) & MTL cat \textbf{supera} o teto STL de cat em todos os estados ($+2$ a $+3{,}5$~p.p.) & \good{RE-AFIRMADO $\uparrow$} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{O \textit{dual-tower}: fechando o último resíduo (FL)}\label{sec:dualtower}
+
+\noindent\textbf{O que é (breve).} O \textit{dual-tower} dá à tarefa de região uma \emph{torre própria}
+--- um \textit{backbone} STAN completo e \emph{privado}, que opera sobre o \textit{input} de região
+cru --- em paralelo à \emph{torre compartilhada} (a \textit{cross-attention} que serve as duas
+tarefas). Uma fusão com \textit{gate} aprendível combina as duas: a cabeça de região deixa de ser
+``diluída'' pelo compartilhamento com a categoria, mas \emph{ainda} recebe contexto cruzado da
+categoria via o \textit{gate}. É a peça que, sob a receita corrigida, fecha o último resíduo de região
+no estado grande (FL).
+
+\noindent\textbf{As ordenações inverteram.} Sob a receita \emph{antiga} (ponderada, com o
+\textit{confound} C25), o \textit{dual-tower} era o \emph{pior} ponto da curva de compartilhamento
+($-2{,}89$~p.p.\ em FL) --- e foi por isso que a leitura anterior o declarou ``derrotado, gap
+irredutível''. Sob a correção, ele vai de \textbf{pior a melhor}:
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{Re-run da arquitetura Tier-2 sob a correção (FL, não-ponderado, multi-seed \{0,1,7,100\}).
+Teto STL (c) $=73{,}31$. As ordenações inverteram vs.\ a receita antiga (onde o \textit{dual-tower}
+era o pior, $-2{,}89$).}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Arquitetura (FL)} & \textbf{reg Acc@10} & \textbf{$\Delta$ vs.\ base} & \textbf{gap vs.\ teto (c)} \\
+\midrule
+\textbf{\textit{dual-tower} com \textit{gate} (T2.1)} & \good{73,06} & \good{$+1,51$} & \good{$-0,25$} \\
+\textit{prior}-OFF (base, $\alpha{=}0$) & 72,94 & $+1,39$ & $-0,37$ \\
+\textit{cross-stitch} (T2.2) & 71,98 & $+0,43$ & $-1,33$ \\
+\texttt{base\_a} (ref., \textit{prior}-ON) & 71,55 & $0$ & $-1,76$ \\
+\textit{hard-share} (T2.0) & 71,48 & $-0,07$ & $-1,83$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent\textbf{Leitura.} Combinando com a Tabela~\ref{tab:c25}: \textbf{o gap MTL$\to$STL de região
+fecha nos 3 estados com um único modelo} --- AL 64,52 (\good{$+1{,}6$} vs.\ teto, já com \texttt{base\_a});
+GE 57,84 ($-0{,}6$); FL 73,06 ($-0{,}25$, com \textit{dual-tower}). O que era um ``gap arquitetural
+irredutível de $-7$ a $-17$~p.p.'' virou $\le 0{,}6$~p.p.\ ($\approx 0$ dentro do ruído multi-seed).
+\note{O combo \textit{dual-tower} $+$ \textit{prior}-OFF \emph{não} empilha (73,01 $\approx$ 73,06): a
+torre privada já captura o benefício do \textit{prior}-OFF. \textbf{Escopo:} o \textit{dual-tower} foi
+rodado em FL multi-seed; em AL/GE o \texttt{base\_a} já atinge o teto, então a torre privada não foi
+necessária.}
+
+\subsection{O número do artigo, antes e depois da correção (mesmo substrato v11)}\label{sec:c25-num}
+
+Para a comparação \emph{maçã-com-maçã} (mesmo substrato GCN do paper, só corrigindo o
+\textit{loss}), o gap de região do \textit{baseline} essencialmente \textbf{some}:
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{Re-statement da reg do MTL na \S0.1 (substrato v11 GCN, multi-seed, não-ponderado). O
+``gap'' arquitetural vira ``$\approx$ teto STL''. Tetos STL de ambos os substratos para referência
+(C2HGI $=$ \S0.1; HGI $=$ \S0.3, \texttt{next\_stan\_flow} \textit{matched-head}).}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Estado} & \textbf{\S0.1 v11 (ponderado, \emph{bug})} & \textbf{\S0.1 corrigido (não-pond.)} & \textbf{teto STL C2HGI} & \textbf{teto STL HGI} \\
+\midrule
+AL & 50,17 \bad{($-11,04$)} & \good{62,60} & 61,21 & 61,86 \\
+FL & 63,27 \bad{($-7,34$)} & \good{70,74} & 70,62 & 71,34 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent\textbf{Leitura.} A reg do MTL corrigida (62,60 AL / 70,74 FL) \textbf{ultrapassa} o teto STL
+do próprio substrato do paper (C2HGI: 61,21 / 70,62) e fica praticamente \emph{no} teto do
+\emph{melhor} substrato single-task (HGI: 61,86 / 71,34; $-0{,}24$ AL / $-0{,}60$ FL). I.e.\ o número
+do artigo, só corrigindo o \textit{loss}, deixa de ``sacrificar região'' e passa a empatar o melhor
+single-task possível.
+
+\medskip
+\noindent\textbf{Disciplina de números (não confundir).} Há dois conjuntos corrigidos distintos:
+\textbf{(i)} substrato v11 GCN não-ponderado --- AL 62,60 / GE 56,34 / FL 70,74 --- é o número
+\emph{do artigo} após a correção (só o \textit{bug}); \textbf{(ii)} substrato v14 não-ponderado ---
+AL 64,52 / GE 57,84 / FL 71,55 --- \emph{empilha} o ganho de substrato por cima. Os 50,14/37,78/61,21
+do antigo ``\textit{board} v14'' são \emph{pré-correção} (ponderados) e \textbf{não} devem ser citados
+como estado atual.
+
+\subsection{Outras melhorias MTL (receita)}\label{sec:mtl-outras}
+
+\begin{itemize}[leftmargin=*,noitemsep]
+\item \textbf{\texttt{onecycle} (nova receita de estado pequeno).} Agenda agressiva sem
+\textit{alternating-optimizer-step}: domina a H3-alt e bate a B9 em AL/AZ ($+6$ a $+9$~p.p.\ reg /
+$+1$ a $+2$~p.p.\ cat em v14 multi-seed). O \textit{alt-opt} \emph{inverte de sinal por escala} (pune
+cat em estado pequeno) --- por isso a B9 fica nos estados grandes (FL/CA). \note{Isso também explica a
+exceção AL $-0{,}78$ da \S0.1: era artefato da receita B9 em estado pequeno, não da tarefa.}
+\item \textbf{\texttt{log\_T-KD} $W{=}0{,}2$ ($\tau{=}1{,}0$).} Destilação KL do \textit{prior}
+$\log T$ por \textit{fold} (apenas-treino) nos \textit{logits} de região: \textbf{paper-grade} em
+estado pequeno ($+2{,}27$ AL / $+4{,}91$ AZ, n=20, $p\approx10^{-6}$, auditado sem vazamento);
+\textit{pilot} em FL ($+2{,}40$). É a alavanca confirmada que vive no \emph{pathway do prior}, não no
+\textit{encoder}. \note{Em STL o $\log T$ aditivo atrapalha; em MTL como \textit{loss} de KD ajuda ---
+não é contradição, são mecanismos distintos.}
+\end{itemize}
+
+% ###########################################################################
+\part*{Parte III --- Melhorias futuras}
+\addcontentsline{toc}{section}{Parte III --- Melhorias futuras}
+% ###########################################################################
+
+% ===========================================================================
+\section{Janelas sobrepostas (\textit{stride}=1 vs.\ \textit{stride}=9): um teto escondido}
+% ===========================================================================
+
+\textbf{O achado.} \texttt{generate\_sequences} usa \textit{stride} $=$ tamanho-da-janela $=9$, i.e.\
+janelas \textbf{não-sobrepostas}: um usuário com $N$ check-ins gera $\sim N/9$ sequências em vez de
+$\sim N$. Em Alabama: 113.846 check-ins $\to$ apenas \textbf{12.709} sequências de treino. Com
+\textit{stride}$=1$ (sobreposto): $\sim$108.073 --- um aumento de \textbf{7,5--8,4$\times$} na
+supervisão (história$\to$próximo). Não-sobrepor \textbf{não} é padrão na literatura de next-POI
+(STAN/GETNext/DeepMove usam \textit{stride} 1). E o teto é \textbf{independente da cabeça} --- por
+isso nenhuma troca de cabeça revelou esse limite.
+
+\textbf{Leak-safe.} A CV é \texttt{StratifiedGroupKFold(groups=userid)}: todas as janelas de um
+usuário caem no \emph{mesmo} \textit{fold} $\to$ sobreposição \emph{não} cruza treino/val (efeito de
+variância, não viés para cima).
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{Validado em AL (\textit{pipeline} real). $\Delta$ $=$ \textit{stride}=1 $-$ \textit{stride}=9.}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Métrica} & \textbf{não-sobreposto} & \textbf{sobreposto (\textit{stride}=1)} & \textbf{ganho} \\
+\midrule
+STL cat (\texttt{next\_gru}) & 49,97 & 59,74 & \good{$+9,77$} \\
+STL reg (v14) & 62,88 & 68,01 & \good{$+5,13$} \\
+STL reg (HGI) & 63,58 & 68,47 & \good{$+4,89$} \\
+MTL cat (\textit{joint}/\textit{disjoint}) & 46,30 / 46,52 & 55,21 / 55,90 & \good{$+8,9$/$+9,4$} \\
+MTL reg (\textit{joint}/\textit{disjoint}) & 54,54 / 53,47 & 55,05 / 54,46 & $+0,5$/$+1,0$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent\textbf{Por que isto \emph{fortalece} a tese (a parte importante).}
+\begin{itemize}[leftmargin=*,noitemsep]
+\item \textbf{cat $=$ maré que sobe:} a sobreposição eleva cat quase igual em STL ($+9{,}8$) e MTL
+($+8{,}9$) --- o \textit{pathway} de categoria do MTL aproveita o dado extra.
+\item \textbf{reg $=$ o gap STL$\to$MTL \emph{alarga}:} a sobreposição eleva o STL reg ($+5{,}1$) mas o
+MTL reg quase não move ($+0{,}5$). O gap STL$\to$MTL passa de $8{,}34 \to 12{,}96$. O
+\textit{backbone} compartilhado \emph{não absorve} o dado extra --- evidência direta a favor do
+\textit{dual-tower}.
+\end{itemize}
+\note{Escala-dependente: AL (pequeno) cat $+9{,}77$; FL (grande) só $+1{,}30$ (perto de saturação). A
+\emph{decisão} foi \textbf{manter a canon não-sobreposta} (consistência de todo o estudo: tetos
+congelados, \textit{board}, \texttt{log\_T} por \textit{fold} e a \S0.1 do paper são todos
+não-sobrepostos). Adotar exigiria reconstruir todos os números.}
+
+% ===========================================================================
+\section{Pendências para fechar o ciclo}\label{sec:pend}
+% ===========================================================================
+
+\begin{enumerate}[leftmargin=*,noitemsep]
+\item \textbf{Re-validar AZ/CA/TX} sob a receita corrigida (não-ponderada) --- hoje só AL/GE/FL.
+\item \textbf{Continuidade de receita:} re-rodar a \S0.1 em FL com a receita \texttt{B9} exata (a
+re-validação usou \texttt{onecycle}) antes de substituir a tabela do paper.
+\item \textbf{\textit{Dual-tower} $+$ \textit{prior}-OFF} (FL multi-seed) para confirmar o fechamento
+completo do resíduo de FL.
+\item \textbf{Correção do monitor de \textit{checkpoint} de reg} (Acc@1 $\to$ Acc@10) para os números
+implantáveis.
+\item \textbf{Congelar} uma nova versão canônica para a receita não-ponderada e promovê-la ao
+NORTH\_STAR; \textbf{re-pin} da \S0.1.
+\end{enumerate}
+
+\end{document}
