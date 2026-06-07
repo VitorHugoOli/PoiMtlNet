@@ -1887,6 +1887,24 @@ KD-OFF, seeded per-fold log_T, 5f×50ep.
 
 ---
 
+## 2026-06-07 — ⭐ G&prime; CONFIRMED: both-private dual-tower Pareto-improves G (cat +1.61, reg flat) — a champion upgrade from the B-A3 surprise
+
+**Phase**: B-A3 multi-seed promotion. The seed-0 cat-private surprise (+1.58) was tested at {0,1,7,100} FL. Driver `ba3_catpriv_multiseed.sh`.
+
+**Finding — the lift HOLDS rock-solid:** G' (both-private dual-tower) reg **73.59±0.07** / cat **74.77±0.04** (per-seed cat 74.71/74.81/74.80/74.74) vs G reg 73.57 / cat 73.16. **Δcat +1.61 (σ 0.04), Δreg +0.03 (flat).** The cat-ceiling beat WIDENS from +3.19 to **+4.80** (74.77 vs 69.97).
+
+**Decision**
+- **G' = `mtlnet_crossattn_dualtower_catpriv` (cat-head + reg-head both `next_stan_flow_dualtower`, aux + prior-OFF) is the new FL champion.** Adding a private tower to the CAT head (private STAN on raw checkin, additive aux) lifts cat +1.61 at ZERO reg cost → a clean Pareto improvement over G. The B-A3 "predicted null" was a genuine improvement — vindicating the finish-the-residuals discipline.
+- **reg framing UNCHANGED — "matches" (B-A2).** G''s reg path is identical to G; reg 73.59 ≈ G 73.57; the +0.28 indist vs the (c) ceiling is the same indist-vs-full artifact → reg matches (Pareto-non-inferior). The UPGRADE is on cat.
+- **Scope: FL-only 4-seed.** G stays the multi-state-confirmed result (AL/AZ/GE/FL); G' is the FL-confirmed cat upgrade. Multi-state confirm of G' (AL/AZ/GE) is the natural next step (proposed to user, NOT auto-launched).
+- Propagate G' to the champion docs (CHAMPION/NORTH_STAR/CANONICAL_VERSIONS/CLAIMS/HANDOFF) as the cat-improved variant; keep reg "matches".
+
+**Chain status**: B-A3 promotion CLOSED — G' confirmed. All critique residuals done.
+
+**Next**: (pending user) multi-state confirm of G' at AL/AZ/GE. Then the BRACIS paper-doc restatement (now: matches reg + beats cat by ~+4.8pp with G').
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:
