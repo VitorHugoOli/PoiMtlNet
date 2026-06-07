@@ -50,6 +50,55 @@ from models.next.next_stan.head import NextHeadSTAN
 from models.registry import register_model
 
 _FUSION_MODES = ("gated", "private_only", "aux")
+_ALT_PRIV_HEADS = ("gru", "lstm", "tcn")
+
+
+class _AltPrivTower(nn.Module):
+    """Alternative private reg tower (GRU / LSTM / TCN) for the T2V.5 head-swap.
+
+    Maps a raw region sequence ``[B, S, in_dim]`` to a pooled ``[B, d_model]``
+    feature — the SAME contract as ``NextHeadSTAN.forward_features`` — so it
+    drops into the dual-tower head's ``private_stan`` slot unchanged. Padded
+    steps (all-zero rows, the project pad convention) are masked out of the pool.
+    Used only when ``priv_head != "stan"``; the champion (priv_head="stan", the
+    default) is unaffected and bit-identical.
+    """
+
+    def __init__(self, kind: str, in_dim: int, d_model: int, dropout: float):
+        super().__init__()
+        if kind not in _ALT_PRIV_HEADS:
+            raise ValueError(f"priv_head must be one of {('stan',) + _ALT_PRIV_HEADS}, got {kind!r}")
+        self.kind = kind
+        self.d_model = int(d_model)
+        if kind in ("gru", "lstm"):
+            rnn = nn.GRU if kind == "gru" else nn.LSTM
+            # 2-layer bidirectional to roughly match the STAN tower's capacity.
+            self.rnn = rnn(in_dim, d_model, num_layers=2, batch_first=True,
+                           bidirectional=True, dropout=float(dropout))
+            self.proj = nn.Linear(2 * d_model, d_model)
+        else:  # tcn — dilated causal-ish Conv1d stack over the time axis
+            self.tcn = nn.Sequential(
+                nn.Conv1d(in_dim, d_model, kernel_size=3, padding=1),
+                nn.GELU(), nn.Dropout(float(dropout)),
+                nn.Conv1d(d_model, d_model, kernel_size=3, padding=2, dilation=2),
+                nn.GELU(), nn.Dropout(float(dropout)),
+            )
+            self.proj = nn.Linear(d_model, d_model)
+        self.norm = nn.LayerNorm(d_model)
+
+    def forward_features(self, x: torch.Tensor) -> torch.Tensor:
+        # x: [B, S, in_dim]; pad steps are all-zero rows.
+        mask = (x.abs().sum(dim=-1) != 0).float()  # [B, S] 1 at valid steps
+        denom = mask.sum(dim=1, keepdim=True).clamp(min=1.0)  # [B,1]
+        if self.kind in ("gru", "lstm"):
+            out, _ = self.rnn(x)            # [B, S, 2*d_model]
+            out = self.proj(out)           # [B, S, d_model]
+        else:
+            out = self.tcn(x.transpose(1, 2)).transpose(1, 2)  # [B, S, d_model]
+            out = self.proj(out)
+        # masked mean-pool over valid steps
+        pooled = (out * mask.unsqueeze(-1)).sum(dim=1) / denom  # [B, d_model]
+        return self.norm(pooled)
 
 
 @register_model("next_stan_flow_dualtower")
@@ -98,6 +147,7 @@ class NextHeadStanFlowDualTower(nn.Module):
         raw_embed_dim: int = 64,
         priv_num_heads: int = 4,
         priv_dropout: float = 0.3,
+        priv_head: str = "stan",
         fusion_mode: str = "gated",
         transition_path: Optional[str] = None,
         alpha_init: float = 0.1,
@@ -111,22 +161,37 @@ class NextHeadStanFlowDualTower(nn.Module):
         self.fusion_mode = str(fusion_mode)
         self._num_classes = int(num_classes)
         self.d_model = int(d_model)
+        self.priv_head = str(priv_head)
 
-        # --- Private tower: raw [B,9,64] region sequence → STAN backbone.
-        #     (c)-STL-ceiling faithful (priv_num_heads=4, priv_dropout=0.3, d_model=128).
-        self.private_stan = NextHeadSTAN(
-            embed_dim=int(raw_embed_dim),
-            num_classes=num_classes,
-            seq_length=seq_length,
-            d_model=self.d_model,
-            num_heads=int(priv_num_heads),
-            dropout=float(priv_dropout),
-            bias_init=bias_init,
-        )
-        # Drop the sub-STAN's own classifier — we pool via forward_features and
-        # own the logits with a single fused classifier (avoids a redundant
-        # d_model × n_regions projection per tower).
-        self.private_stan.classifier = nn.Identity()
+        # --- Private tower: raw [B,9,64] region sequence → [B, d_model] pooled.
+        #     ``priv_head="stan"`` (DEFAULT) = the (c)-STL-ceiling-faithful STAN
+        #     (priv_num_heads=4, priv_dropout=0.3, d_model=128) — bit-identical to
+        #     the champion G. T2V.5 (CRITIQUE §6.2): swap in a GRU/LSTM/TCN private
+        #     tower (matched d_model) to test whether STAN is over-provisioned or
+        #     beaten as the private reg backbone. Each alt tower exposes the same
+        #     ``forward_features([B,S,raw_embed_dim]) -> [B,d_model]`` interface, so
+        #     the rest of the head (fusion / prior / classifier) is unchanged.
+        if self.priv_head == "stan":
+            self.private_stan = NextHeadSTAN(
+                embed_dim=int(raw_embed_dim),
+                num_classes=num_classes,
+                seq_length=seq_length,
+                d_model=self.d_model,
+                num_heads=int(priv_num_heads),
+                dropout=float(priv_dropout),
+                bias_init=bias_init,
+            )
+            # Drop the sub-STAN's own classifier — we pool via forward_features and
+            # own the logits with a single fused classifier (avoids a redundant
+            # d_model × n_regions projection per tower).
+            self.private_stan.classifier = nn.Identity()
+        else:
+            self.private_stan = _AltPrivTower(
+                kind=self.priv_head,
+                in_dim=int(raw_embed_dim),
+                d_model=self.d_model,
+                dropout=float(priv_dropout),
+            )
 
         # --- Shared tower: cross-attn output [B,9,256] → STAN backbone.
         #     (a)-baseline faithful (num_heads/dropout injected). Built only for
