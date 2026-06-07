@@ -1905,6 +1905,24 @@ KD-OFF, seeded per-fold log_T, 5f×50ep.
 
 ---
 
+## 2026-06-07 — ⚠ G prime DEMOTED: cat-private tower is FL-ONLY, CRATERS small-state cat → G remains the multi-state champion
+
+**Phase**: G' multi-state confirmation (user-requested). G' (both-private dual-tower) at AL/AZ/GE × {0,1,7,100}. Driver `gprime_multistate.sh`. 12 runs, 0 FAIL.
+
+**Finding (⚠ the FL lift does NOT generalize):** G' cat vs G cat — AL **37.66 (−15.25!)**, AZ **42.02 (−12.45)**, GE 57.84 (−3.59), FL 74.77 (+1.61). reg flat at every state (+0.02..+0.11). **The cat-private STAN tower OVERFITS at small-state data scale and CRATERS cat 3.6–15.3pp at AL/AZ/GE** (AL/AZ fall BELOW the STL cat ceiling). It only helps at FL's large data scale.
+
+**Decision**
+- **G' is DEMOTED — it is NOT a multi-state champion.** The cat-private tower is a scale-conditional FL-only effect that is *catastrophic* at small states (the extra private-tower capacity overfits the smaller AL/AZ data). **G (cat-shared) remains THE champion** — cat beats the ceiling at all 4 states, reg matches.
+- **I over-promoted G' on the FL-only 4-seed result** (propagated "new champion" to CHAMPION/NORTH_STAR/CANONICAL_VERSIONS/CLAIMS/HANDOFF). **REVERT that** — restate G' as an FL-only experimental variant (cat +1.61 at FL only; craters small states; not shippable). The B-A3 finding stands as a *mechanism* note (cat CAN benefit from a private tower at large data scale) but is NOT a champion change.
+- **The multi-state test (user's call) caught the FL-only trap** — exactly the don't-ship-an-FL-only-result discipline (AGENT_PROMPT rule 13 / the moving-baseline guard). A 1-state win that reverses at scale.
+- reg robustness reconfirmed: the reg path (G's dual-tower) is flat across all states under the cat-tower change → reg is stable.
+
+**Chain status**: G' demoted to FL-only variant; G is the champion. All critique residuals remain closed.
+
+**Next**: revert the G' champion propagation in the 5 claim docs → G' = FL-only experimental note; G stays champion. Then the BRACIS restatement (G: matches reg + beats cat at 4 states).
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:
