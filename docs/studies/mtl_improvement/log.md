@@ -1870,6 +1870,23 @@ KD-OFF, seeded per-fold log_T, 5f×50ep.
 
 ---
 
+## 2026-06-07 — B-A3 SURPRISE: cat-private tower HELPS cat +1.58 (a potential champion improvement) → all §8 residuals closed
+
+**Phase**: last CRITIQUE §8 residual (B-A3 cat-private-tower ablation, narrative). Built `mtlnet_crossattn_dualtower_catpriv` (gives the CAT head a private tower on raw checkin, aux fusion — symmetric to reg). FL seed0.
+
+**Finding (⚠ surprise):** cat-private cat **74.74 (+1.58 vs G 73.16)**, reg 73.52 (−0.05 ≈ G). **The predicted NULL is WRONG** — the cat head ALSO benefits from a private raw-checkin tower, at no reg cost. Because `aux` fusion is additive (priv + β·shared), cat keeps the shared rising tide AND gains private signal the shared cross-attn (which mixes cat+reg) doesn't fully exploit.
+
+**Decision**
+- **Asymmetry narrative REFINED:** not "reg needs private / cat wants shared" but "**BOTH tasks benefit from private+shared**; reg's private tower is load-bearing (carries reg), cat's is additive (lifts cat +1.58 at no reg cost)." The clean-asymmetry story is too strong; state the nuanced version.
+- **Potential NEW champion (promote-on-surprise):** a both-private dual-tower (G + cat-private) Pareto-improves G — cat +1.58, reg flat — and would widen the cat-ceiling beat to +4.77 (74.74 vs 69.97). **1-seed; +1.58 is well outside the ~0.1–0.3 cat σ → promote to multi-seed {0,1,7,100} to confirm** (proposed to user; NOT auto-launched). The critique's test-don't-assume discipline caught a real improvement where a null was predicted — exactly why the residuals were worth finishing.
+- **ALL CRITIQUE §8 residuals now closed:** B-A1 (STAN load-bearing), B-A2 (reg "beats"→"matches", harness-clean), B-A3 (cat-private SURPRISE +1.58), B-A4 (plain CE optimal) + T2V.6 optimizers (static_weight confirmed). Only the BRACIS paper-doc restatement remains (author) — PLUS the optional both-private multi-seed promotion.
+
+**Chain status**: §8 residuals CLOSED. B-A3 opened a new (optional) champion-improvement thread.
+
+**Next**: (pending user) multi-seed confirm of the both-private dual-tower (cat-private champion). Then paper-doc restatement.
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:
