@@ -236,7 +236,7 @@ gets a FAIR optimizer (per-arch category-weight min), then COMBINE (T2V.8). No a
       multi-seed confirm vs G + the T2V.1 ceilings. Watch non-additivity (PLE/MMoE history). (§6.7)
 
 **P3 — completeness:**
-- [ ] **T2V.9 CA/TX** — build v14 substrate → champion + ceilings at the two largest (highest-imbalance) states;
+- [~] **T2V.9 CA/TX** — DEFERRED 2026-06-07 (user): documented future-work; 4-state result is paper-grade.  — build v14 substrate → champion + ceilings at the two largest (highest-imbalance) states;
       the scale-conditional headline's real gap. (§4.2)
 
 **A40 doc close-out (housekeeping — fill the data + close the stale tiers, user-requested):**

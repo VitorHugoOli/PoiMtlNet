@@ -1827,6 +1827,26 @@ KD-OFF, seeded per-fold log_T, 5f×50ep.
 
 ---
 
+## 2026-06-07 — ✅ TIER 2V CLOSED + STUDY CLOSE-OUT: critique fully addressed; T2V.9 deferred (user)
+
+**Phase**: Tier 2V close-out. Every `CRITIQUE_TIER2_C25_2026-06-06` concern resolved; T2V.9 (CA/TX) deferred to future-work by user decision; study at a clean close.
+
+**Tier 2V scorecard (all cards):**
+- **P0** — T2V.1 ✅ reg headline HOLDS seed-matched (4/4; multi-seed ceilings stable σ≤0.7; the "downgrade to matches" was NOT triggered) · T2V.2 ✅ no tail regression (prior-OFF ≈ prior-ON on macro) · T2V.3 ✅ reproduced + artifact-foreclosed (independent p1 harness) + "½ params" → +4.9%.
+- **P1** — T2V.4 ✅ alt-arch FAIR re-rank (standalone, post-C25, per-arch cat-weight) → G holds, all alts −1.6..−2.1pp → falsification un-confounded/paper-safe · T2V.5 ✅ private STAN right-sized (d_model=256 hurts, heads=8 ties) → head-swap/cat-private builds NOT motivated · T2V.6 ✅ FAMO ≈ G → static_weight fine, optimizer not a confound.
+- **P2** — T2V.7 ✅ logit-adjust HURTS MTL cat (plain CE is the optimum; resolves the §4.4 "unweighted cat wins" puzzle; cat-calibration code committed + works) · T2V.8 MOOT (no winning lever to combine).
+- **P3** — T2V.9 (CA/TX) DEFERRED to documented future-work (`docs/future_works/mtl_improvement_catx_scale_conditional.md`) — the 4-state result is already paper-grade; CA/TX is the lone scale-conditional completeness extension + the single most expensive step (design_k build + champion + ceilings on CA 8501 / TX 6553 regions). Prediction recorded: the C25 benefit scales with class count → CA/TX should show the LARGEST margins.
+
+**Decision / final state**
+- **G is the validated, robust, paper-safe champion.** `mtlnet_crossattn_dualtower` + `next_stan_flow_dualtower` (aux, prior-OFF), v14, unweighted onecycle KD-OFF. Beats both single-task STL ceilings (reg AND cat) at all 4 available states, 4-seed; the MTL tradeoff is INVERTED. The critique's "fragile reg" worries are all closed; the cat gain was always robust + conservative (G's plain CE vs the ceiling's logit-adjust).
+- **The ONLY remaining work is the BRACIS paper-doc restatement** (CH25/CH28/§0.1 → Pareto-positive multi-state) — an author decision. No open experimental work.
+
+**Chain status**: Tier 2V CLOSED. Study at a clean stopping point. Frozen seed-42 (c)/(d) untouched (T2V.1 added multi-seed columns).
+
+**Next**: author-side BRACIS restatement. Optional future: T2V.9 CA/TX (future-work memo).
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:
