@@ -37,6 +37,34 @@ with the flags needed to recover every prior version.
 
 ---
 
+## ⭐ The `--canon` selector (2026-06-07) — versions are now one flag
+
+**As of 2026-06-07, `scripts/train.py --task mtl` takes `--canon {v11,v12,v15,v16,none}`,
+default `v16` (champion G).** Each version is a *bundle* of CLI flags (`src/configs/canon.py
+::CANON_BUNDLES`) injected **before** your own flags, so **explicit flags always override the
+bundle** (argparse last-wins). This makes the champion the default while keeping every prior
+version reproducible with a single flag — instead of the ~15-flag invocations below.
+
+- **Run the champion (default):** `train.py --task mtl --state <s> --seed <S>` → v16/G.
+- **Traceback to a prior version:** `--canon v11` (paper canon) · `--canon v12` (log_T-KD, weighted)
+  · `--canon v15` (C25-unweighted) · `--canon none` (bare smoke defaults, no injection).
+- **Scope:** MTL only; no-op under `--config` or `--task category|next`.
+- **`--per-fold-transition-dir`** auto-derives to `output/<engine>/<state>` under `--canon` (so a
+  bare run still uses leak-free seeded log_T); pass it explicitly to override.
+
+> ⚠ **Contract — pin `--canon` in every script/driver.** Because the default bundle (v16) merges
+> with whatever flags you pass, a driver that passes *some* recipe flags but omits `--canon` and
+> some others will inherit the rest from v16 (e.g. a v12 driver that omits `--log-t-kd-weight`
+> would get v16's 0.0). Partial specification was never safe (the old bare default was a smoke
+> `mtlnet`); now full specification is one flag. **Scripted runs must pass `--canon vNN`** (or
+> `--canon none` for a fully hand-specified recipe). The bundles are **append-only** (never edit a
+> frozen one) and **guarded by `tests/test_configs/test_canon.py`** (asserts each `--canon vNN`
+> resolves to the documented config field-by-field — a future default flip that breaks v11
+> reproduction fails CI). The §vNN blocks below remain the authoritative recipe definitions; the
+> bundles encode them.
+
+---
+
 ## v11 — BRACIS paper canon (FROZEN 2026-05-30)
 
 **This is the version the BRACIS 2026 submission numbers come from. It is FROZEN.

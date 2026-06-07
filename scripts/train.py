@@ -362,9 +362,39 @@ _DEFAULT_FACTORIES = {
 # ---------------------------------------------------------------------------
 
 def _parse_args(argv=None) -> argparse.Namespace:
+    from configs.canon import DEFAULT_CANON, CANON_CHOICES, resolve_canon_argv
+
+    if argv is None:
+        argv = sys.argv[1:]
+    argv = list(argv)
+
+    # --canon: inject a pinned-version recipe bundle BEFORE the user's flags so explicit
+    # flags override it (argparse last-wins). MTL-only; no-op under --config or --canon none.
+    _pre = argparse.ArgumentParser(add_help=False)
+    _pre.add_argument("--canon", default=DEFAULT_CANON)
+    _pre.add_argument("--task", default=None)
+    _pre.add_argument("--config", default=None)
+    _known, _ = _pre.parse_known_args(argv)
+    _task = _known.task or "mtl"
+    _canon_active = (
+        _known.config is None and _task == "mtl" and _known.canon not in (None, "none")
+    )
+    effective_argv = resolve_canon_argv(_known.canon, argv) if _canon_active else argv
+
     parser = argparse.ArgumentParser(
         description="Train an MTLnet model via cross-validation.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument(
+        "--canon",
+        type=str,
+        default=DEFAULT_CANON,
+        choices=CANON_CHOICES,
+        help=(
+            "Canonical version recipe bundle to inject for --task mtl (default v16 = champion G). "
+            "Explicit flags override the bundle. Use --canon v11/v12/v15 to reproduce a prior "
+            "version, or --canon none for bare smoke defaults. See docs/results/CANONICAL_VERSIONS.md."
+        ),
     )
     parser.add_argument(
         "--state",
@@ -1067,7 +1097,12 @@ def _parse_args(argv=None) -> argparse.Namespace:
             "May introduce numeric drift vs NORTH_STAR — exploratory."
         ),
     )
-    return parser.parse_args(argv)
+    args = parser.parse_args(effective_argv)
+    # Record whether the canon bundle was actually injected (for the manifest / auto-derivations).
+    args._canon_active = bool(_canon_active)
+    if not _canon_active:
+        args.canon = "none"
+    return args
 
 
 def _coerce_cli_value(raw: str):
@@ -1332,6 +1367,18 @@ def _apply_cli_overrides(
             raise ValueError("--per-fold-transition-dir requires --task mtl")
         config = dataclasses.replace(
             config, per_fold_transition_dir=str(args.per_fold_transition_dir)
+        )
+    elif (
+        getattr(args, "_canon_active", False)
+        and config.task_type == "mtl"
+        and args.engine is not None
+        and args.state is not None
+    ):
+        # Under --canon (mtl), default the seeded per-fold log_T dir to output/<engine>/<state>
+        # so a bare `--canon` run uses leak-free seeded log_T (the canon recipes all require it).
+        # Explicit --per-fold-transition-dir still wins (handled above).
+        config = dataclasses.replace(
+            config, per_fold_transition_dir=f"output/{args.engine}/{config.state}"
         )
 
     if getattr(args, "min_best_epoch", 0):
