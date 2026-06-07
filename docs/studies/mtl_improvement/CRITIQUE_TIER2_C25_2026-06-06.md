@@ -202,7 +202,16 @@ P2 = winner hypertuning · P3 = completeness.** Recipe baseline = G (`mtlnet_cro
 composite null; seeded per-fold log_T; frozen-fold paired. **G is a validated positive — VALIDATE/EXTEND it,
 do not re-litigate it.** Mark each `[ ]→[x]` + fill the INDEX Tier-2V Results block + a `log.md` entry on land.
 
-> **STATUS 2026-06-07 — CLOSE-OUT.** P0 (T2V.1/2/3) ✅, P1 (T2V.4/5/6) ✅, P2 (T2V.7) ✅ + T2V.8 MOOT, doc close-out ✅. **Verdict: every critique concern resolved — G is validated, robust, and paper-safe.** The lone open card is **P3 T2V.9 (CA/TX)** — a heavy `design_k` substrate build + champion + ceilings on the two largest states; gated on a user go/no-go given the large-state compute cost. Per-card results: INDEX `#tier2v`; chronology: `log.md` 2026-06-06/07.
+> **STATUS 2026-06-07 — CLOSE-OUT (headline-gating concerns) + §8 RESIDUALS (2026-06-06).** P0 (T2V.1/2/3)
+> ✅, P1 (T2V.4/5/6) ✅, P2 (T2V.7) ✅ + T2V.8 MOOT, doc close-out ✅. **Verdict: every concern that gates
+> headline *correctness* is resolved — G is the validated, paper-safe champion.** The remaining work is
+> robustness / efficiency / completeness, enumerated in **§8**: the **lighter GRU/TCN private tower** (§6.2
+> efficiency, un-run — **user priority**), the literal **checkpoint re-eval** (licenses the "beats" verb vs
+> the safe "matches"), and the cat-private-tower narrative ablation. None blocks the 4-state Pareto-positive
+> result. **CA/TX is out of the A40 queue** — pure future-work
+> ([`docs/future_works/mtl_improvement_catx_scale_conditional.md`](../../future_works/mtl_improvement_catx_scale_conditional.md)),
+> resumed on the final model. Per-card results: INDEX `#tier2v`; chronology: `log.md` 2026-06-06/07;
+> **the A40 queue: §8**.
 
 **P0 — validate the headline (do these before any "beats both ceilings" paper claim):**
 - [x] **T2V.1 ⭐ multi-seed (c)/(d) ceilings** {0,1,7,100} × AL/AZ/GE/FL (reg next_stan_flow α=0; cat next_gru
@@ -247,3 +256,80 @@ gets a FAIR optimizer (per-arch category-weight min), then COMBINE (T2V.8). No a
       class-weighting confound; T2P.0 wd sub-question answered (wd not the cause) + T2P.1/.2/.3 superseded.
       Banner the cards superseded → C25 / Tier 2V; keep for the trail.
 - [x] Keep `HANDOFF.md` + this `§7` + INDEX Tier-2V Results blocks in sync as cards land.
+
+---
+
+## 8. Remaining work after the Tier 2V close-out (2026-06-06) — what's missing + the A40 queue
+
+**Context.** Tier 2V cleared every critique concern that gates **headline correctness** (the P0 reg gates,
+the P1 dominant arch re-rank, the P2 cat-loss lever). The items below are the **residuals** — robustness,
+efficiency, completeness and narrative work that the close-out either *substituted*, judged
+*"not motivated"*, or *deferred*. They are split into **(A) closeable by analysis (done in this doc pass,
+no GPU)** and **(B) the A40 execution queue (needs GPU)**. **None blocks the 4-state Pareto-positive
+headline.** The two worth doing before the paper hardens are **B-A1 (lighter tower — user priority)** and
+**B-A2 (checkpoint re-eval — only if the paper says "beats")**.
+
+### (A) Closed in this doc pass — no execution required
+
+- **A-1. HANDOFF navigation de-staled.** `HANDOFF.md` §0b/§0c still read *"NEXT AGENT STARTS HERE —
+  T2P.0"* for a tier the top block declares MOOT → a fresh agent reading top-down could be sent to a dead
+  experiment. The §0b/§0c headers are now marked **SUPERSEDED** (→ top block / Tier 2V close-out). The
+  housekeeping item "keep HANDOFF in sync" is now fully done. **[closed 2026-06-06]**
+- **A-2. T2V.3 framing decision (the claim *verb*).** Until the literal checkpoint re-eval lands (B-A2),
+  the **paper-safe claim is "matches / Pareto-non-inferior"** — bulletproof: seed-matched G ≥ (c) reg at
+  **4/4** states, cat **+2.5…+4.1 pp** on a *conservative* loss (plain CE vs the ceiling's logit-adjust).
+  The stronger **"beats both ceilings"** verb rests on **thin FL margins (+0.30 reg / +0.08 vs composite)**
+  measured inside the `train.py`/`mtl_cv` harness, and is licensed **only after B-A2**. **Recommendation:
+  write "matches" now; upgrade to "beats" iff B-A2 confirms.** **[decision recorded — author's to apply in
+  the paper]**
+
+### (B) A40 execution queue (GPU) — priority order
+
+> Common protocol for every card: score Δ vs the **frozen (c)/(d) ceilings + the composite null**; seeded
+> per-fold `log_T`; **frozen-fold paired**; sweep **per-arch `category-weight` {0.5,0.65,0.75}** before
+> calling any arm "lost" (the C25 lesson); 1-seed FL to screen → promote any tie/beat to multi-seed
+> {0,1,7,100}. Baseline = **G** (`mtlnet_crossattn_dualtower` + `next_stan_flow_dualtower`, aux + prior-OFF,
+> v14, unweighted onecycle, KD-OFF). FL reference: G reg **73.57** / cat **73.16**; (c) ceiling **73.31**.
+
+**⭐ B-A1 — LIGHTER private reg tower (GRU / TCN / shallow-attention), matched budget. [USER PRIORITY — DO NOT DROP.]**
+The §6.2 *efficiency* question is genuinely **un-run**. T2V.5 answered only *"is a **bigger** STAN better?"*
+(no — `d_model=256` hurts, `heads=8` ties) — it did **not** answer *"could something **cheaper** match
+STAN?"* The private STAN tower is **273,800 params** (G = base_a + 4.9%); the open question is whether a
+GRU/TCN/shallow-attention private tower at **matched-or-smaller budget** holds G's reg.
+- **Build:** add `next_gru_dualtower` / `next_tcn_dualtower` analogous to `next_stan_flow_dualtower`
+  (private-tower head-type as a param; same `aux` fusion, prior-OFF, raw `[B,9,64]` region sequence; shared
+  cross-attn backbone unchanged). Size each to **±10 %** of the STAN tower (or run a small budget ladder
+  64/96/128). Unit-test gate first (param-partition bijective+exhaustive — the private tower is a new param
+  group; same hard-rule-10 check as `next_stan_flow_dualtower`).
+- **Run:** FL seed-0 + per-arch `category-weight`, then promote ties to multi-seed.
+- **Both outcomes are useful:** (i) a lighter tower **matches** STAN → an efficiency win + a stronger
+  "right-sized" story; (ii) it **loses** → *"the full STAN is load-bearing, not over-provisioned"* becomes a
+  **tested** claim, not an assumption. Either way the §6.2 critique is genuinely closed.
+- Cost: ~small build + ≈ a 9–12-run sweep (a few A40-h).
+
+**B-A2 — T2V.3 literal checkpoint re-eval (licenses the "beats" verb).**
+The reproduction already done (73.56 == 73.56) is `train.py`-vs-`train.py` and **cannot catch a
+`train.py`-harness inflation**; the cross-harness argument (ceilings come from the independent `p1`
+harness) *mitigates* but does not *foreclose* the artifact the critique named (track record: C25, the Acc@1
+monitor, 2 retractions). Mitigant on record: fp16 runs **against** G (fp32-G was +0.13 reg), so the beat
+survives a known offset — but that is not the literal check.
+- **Run:** one **checkpointed** G at FL (drop `--no-checkpoints`) → load the `.pt` → independent forward in a
+  clean / `p1`-style eval path → confirm reg@10 within noise of 73.57.
+- Cheap insurance; **only needed if the paper uses "beats" rather than "matches"** (see A-2).
+
+**B-A3 — cat-private-tower ablation (narrative-only). [low metric priority, high narrative value]**
+Add a private tower to the **cat** head (predicted **null** — cat is positive-transfer; it *exceeds* its STL
+ceiling because it shares the rising tide). Confirms the asymmetry **"reg needs private / cat wants shared"**
+— the cleanest mechanistic story in the paper. FL seed-0; score cat vs G. ~1–2 runs.
+
+**B-A4 — minor loss / metric completeness (optional).**
+- *Cat tail:* focal / class-balanced on G's cat head (only logit-adjust τ was tested in T2V.7 — it lost;
+  these likely lose too, but are untested).
+- *Reg tail granularity:* popularity-binned Acc@10 + the full (non-`_indist`) `top10_acc` on G vs prior-ON
+  (the `accuracy_macro` proxy already showed no tail cost; the bins are finer-grained for §3 G2).
+
+> **Out of scope for this queue: CA/TX (the old T2V.9).** Removed by user — it is **not** A40 work now.
+> It lives as pure future-work in [`docs/future_works/mtl_improvement_catx_scale_conditional.md`](../../future_works/mtl_improvement_catx_scale_conditional.md)
+> (gates only the "scales with class count" claim; the 4-state result stands without it; resume on the final model).
+
+**A40 ordering:** **B-A1** (user priority) → B-A2 (iff "beats" wanted) → B-A3 → B-A4.

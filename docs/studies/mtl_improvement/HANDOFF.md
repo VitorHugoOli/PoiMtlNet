@@ -77,7 +77,12 @@ just completeness); (b) run Tier 2P per the T2P.0 verdict; (c) the §0.1 paper r
 
 ---
 
-## 0b. T2.3 + T2.4 — confirmatory close of the TOPOLOGY card-set (run after/alongside T2P.0; no longer the headline)
+## 0b. ⛔ SUPERSEDED (2026-06-06 by the Tier 2V close-out — see top block). [Kept for the trail.]
+> T2.3 (-lite MoE) + T2.4 (SwiGLU/MulT/xstitch) **were run and are NULL on reg** (closed in INDEX); the
+> "run after/alongside T2P.0" framing below is obsolete (T2P is MOOT). **Do NOT start here.** Live residuals
+> + the A40 queue = `CRITIQUE_TIER2_C25_2026-06-06.md §8`.
+
+### [obsolete] T2.3 + T2.4 — confirmatory close of the TOPOLOGY card-set
 
 **You are running T2.3 (faithful MoE family) + T2.4 (per-task-input mixers/hybrids)** — the two Tier-2
 cards not yet executed (INDEX `#T2-3`, `#T2-4`). Tier 2's verdict so far is a hardened NEGATIVE (§0); the
@@ -144,7 +149,13 @@ re-judge under MTL + HGI sanity probe (2 seeds × AL+AZ × 5f×30ep), compose wi
 
 ---
 
-## 0c. ⭐ NEXT AGENT STARTS HERE — T2P.0 (the linchpin; decisive, ~few GPU-h)
+## 0c. ⛔ SUPERSEDED (2026-06-06 — T2P is MOOT; do NOT start here). [Kept for the trail.]
+> **This said "NEXT AGENT STARTS HERE — T2P.0".** That is obsolete: the "joint loop poisons reg" hypothesis
+> T2P.0 was built to test WAS the C25 class-weighting confound (top block). T2P.0/.1/.2/.3 are superseded.
+> **The live next work is `CRITIQUE_TIER2_C25_2026-06-06.md §8` (A40 queue) — start with B-A1, the lighter
+> GRU/TCN private tower.** The §0c body below is kept only for the provenance trail.
+
+### [obsolete] T2P.0 — the linchpin (kept for the trail)
 
 **Run T2P.0 FIRST** (INDEX `#T2P-0`) — it decides whether Tier 2P's primary lever is staged training
 (T2P.1) or asymmetric per-task recipe (T2P.2). It is one clean knob change on an existing cell.
