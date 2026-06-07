@@ -19,6 +19,8 @@ A **single jointly-trained MTL model** — "G" — **MATCHES the single-task STL
 
 Seeds {0,1,7,100}. Metrics: reg = disjoint `per_metric_best.next_region.top10_acc_indist`; cat = `diagnostic_task_best.next_category.f1`. FL: on the matched full metric G (72.93) ≈ the (d) 2-model composite — single-model parity at half the params, the deployable win. CA/TX not run (no v14 substrate built — see §6).
 
+> ⭐ **G′ — the cat-improved variant (FL 4-seed, 2026-06-07).** Giving the **cat** head its own private tower too (the both-private dual-tower, `mtlnet_crossattn_dualtower_catpriv`; cat-head + reg-head both `next_stan_flow_dualtower` aux+prior-OFF) **Pareto-improves G: cat 74.77±0.04 (+1.61 vs G; +4.80 vs the cat ceiling), reg 73.59±0.07 (flat, +0.03).** The cat-private tower adds raw-checkin signal the shared cross-attn (which mixes cat+reg) doesn't fully exploit; `aux` is additive so cat keeps the rising tide AND gains private signal — no reg cost. **G′ is the new FL champion (cat-improved); reg framing is unchanged ("matches" — the reg path is identical to G).** Scope: **FL-only 4-seed** — G remains the multi-state-confirmed result (AL/AZ/GE/FL); G′'s multi-state confirm (AL/AZ/GE) is the natural next step. (This came from the B-A3 cat-private ablation that was *predicted null* — a real improvement caught by the critique's test-don't-assume discipline.) Trail: `log.md`/`INDEX.html #T2V-5` 2026-06-07; driver `ba3_catpriv_multiseed.sh`.
+
 ---
 
 ## 2. The G config
