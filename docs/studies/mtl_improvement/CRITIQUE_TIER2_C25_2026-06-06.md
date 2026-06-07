@@ -202,35 +202,37 @@ P2 = winner hypertuning · P3 = completeness.** Recipe baseline = G (`mtlnet_cro
 composite null; seeded per-fold log_T; frozen-fold paired. **G is a validated positive — VALIDATE/EXTEND it,
 do not re-litigate it.** Mark each `[ ]→[x]` + fill the INDEX Tier-2V Results block + a `log.md` entry on land.
 
+> **STATUS 2026-06-07 — CLOSE-OUT.** P0 (T2V.1/2/3) ✅, P1 (T2V.4/5/6) ✅, P2 (T2V.7) ✅ + T2V.8 MOOT, doc close-out ✅. **Verdict: every critique concern resolved — G is validated, robust, and paper-safe.** The lone open card is **P3 T2V.9 (CA/TX)** — a heavy `design_k` substrate build + champion + ceilings on the two largest states; gated on a user go/no-go given the large-state compute cost. Per-card results: INDEX `#tier2v`; chronology: `log.md` 2026-06-06/07.
+
 **P0 — validate the headline (do these before any "beats both ceilings" paper claim):**
-- [ ] **T2V.1 ⭐ multi-seed (c)/(d) ceilings** {0,1,7,100} × AL/AZ/GE/FL (reg next_stan_flow α=0; cat next_gru
+- [x] **T2V.1 ⭐ multi-seed (c)/(d) ceilings** {0,1,7,100} × AL/AZ/GE/FL (reg next_stan_flow α=0; cat next_gru
       logit-adjust τ=0.5; recompute (d)). Seed-match every G−ceiling Δ. *The #1 gate — the FL margin is +0.26
       vs a single-seed bar.* (§3 G1)
-- [ ] **T2V.2 G full-metric + tail slice** — re-score G vs prior-ON on `top10_acc` (full, not `_indist`) +
+- [x] **T2V.2 G full-metric + tail slice** — re-score G vs prior-ON on `top10_acc` (full, not `_indist`) +
       popularity-binned Acc@10 + macro, FL+AL. Is G winning the head at the tail's expense? (§3 G2)
-- [ ] **T2V.3 checkpoint re-eval** — independent forward on G's saved checkpoint (forecloses harness artifact,
+- [x] **T2V.3 checkpoint re-eval** — independent forward on G's saved checkpoint (forecloses harness artifact,
       `log:883`) + G param/FLOP count vs base_a & composite (fix the "½ params" claim). (§3)
 
 **P1 — the multi-axis exploration (the axes never fairly searched). DISCIPLINE: OFAT around G, each config
 gets a FAIR optimizer (per-arch category-weight min), then COMBINE (T2V.8). No axis "falsified" until tuned.**
-- [ ] **T2V.4 — Axis 1: shared backbones.** (a) backbone *under the dual-tower* {cross-attn[G], MMoE-lite,
+- [x] **T2V.4 — Axis 1: shared backbones.** (a) backbone *under the dual-tower* {cross-attn[G], MMoE-lite,
       CGC-lite, CrossStitch, hard-share, simple/none} (mainly a cat + aux-reg lever); (b) the same *standalone*
       (is the dual-tower uniquely the best reg mechanism?). Each × category-weight {0.5,0.65,0.75}, post-C25,
       1-seed FL → promote ties to multi-seed. Faithful learned-gate CGC ONLY if a -lite surprises. (§6.4–§6.6)
-- [ ] **T2V.5 — Axis 2: reg-private HEAD in place of STAN** {next_gru/lstm/tcn_residual/transformer_relpos/
+- [x] **T2V.5 — Axis 2: reg-private HEAD in place of STAN** {next_gru/lstm/tcn_residual/transformer_relpos/
       conv_attn…} matched-budget, each per-arch-tuned — accuracy (beats STAN here?) AND efficiency (is full
       STAN over-provisioned?). + private-tower d_model/depth/aux-β/granularity. + cat-private-tower ablation
       (predicted null → confirms the asymmetry). (§6.2/§6.3)
-- [ ] **T2V.6 — Axis 3: optimizer / loss-balancer (the user's confound concern).** On G + the top T2V.4/.5
+- [x] **T2V.6 — Axis 3: optimizer / loss-balancer (the user's confound concern).** On G + the top T2V.4/.5
       configs: {static_weight[G] · per-arch category-weight · FAMO (O(1)) · uncertainty-weighting · CAGrad/Nash
       if k=2 tractable} + per-task LR + per-task precision split (fp32-reg/fp16-cat). Does a balancer lift G OR
       re-rank the alternatives (an arch that lost under static_weight ties G under FAMO → falsifications were
       optimization-confounded)? The whole study ran static_weight only. (§6.5)
 
 **P2 — cat loss + synthesis:**
-- [ ] **T2V.7 — Axis 4: ⭐ logit-adjust on G's cat head** (τ∈{0.5,1.0}; + focal/CB) — highest-EV cat lever; G's
+- [x] **T2V.7 — Axis 4: ⭐ logit-adjust on G's cat head** (τ∈{0.5,1.0}; + focal/CB) — highest-EV cat lever; G's
       cat is plain unweighted, the ceiling used logit-adjust. (§4.1)
-- [ ] **T2V.8 — COMBINE the winning levers** (best backbone × private head × optimizer × cat loss) onto G →
+- [~] **T2V.8 — COMBINE the winning levers** — **MOOT (2026-06-07): no lever won** (T2V.5/6/7 all ≈/<G), nothing to combine. (best backbone × private head × optimizer × cat loss) onto G →
       multi-seed confirm vs G + the T2V.1 ceilings. Watch non-additivity (PLE/MMoE history). (§6.7)
 
 **P3 — completeness:**
@@ -238,10 +240,10 @@ gets a FAIR optimizer (per-arch category-weight min), then COMBINE (T2V.8). No a
       the scale-conditional headline's real gap. (§4.2)
 
 **A40 doc close-out (housekeeping — fill the data + close the stale tiers, user-requested):**
-- [ ] **Close Tier 2 (topology):** fill INDEX T2.3 (-lite MoE) + T2.4 (SwiGLU/MulT/xstitch) Results blocks with
+- [x] **Close Tier 2 (topology):** fill INDEX T2.3 (-lite MoE) + T2.4 (SwiGLU/MulT/xstitch) Results blocks with
       the landed C25-stretch data (all NULL on reg); flip the Tier-2 banner + final-decision from "UNDER
       RE-VALIDATION" → RESOLVED post-C25 (orderings flipped; dual-tower G is the winner).
-- [ ] **Close Tier 2P (joint-loop):** mark MOOT — the "joint loop poisons reg" hypothesis WAS the C25
+- [x] **Close Tier 2P (joint-loop):** mark MOOT — the "joint loop poisons reg" hypothesis WAS the C25
       class-weighting confound; T2P.0 wd sub-question answered (wd not the cause) + T2P.1/.2/.3 superseded.
       Banner the cards superseded → C25 / Tier 2V; keep for the trail.
-- [ ] Keep `HANDOFF.md` + this `§7` + INDEX Tier-2V Results blocks in sync as cards land.
+- [x] Keep `HANDOFF.md` + this `§7` + INDEX Tier-2V Results blocks in sync as cards land.
