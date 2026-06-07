@@ -6,16 +6,18 @@
 
 ## 1. The result (one paragraph)
 
-A **single jointly-trained MTL model** — "G" — **beats BOTH single-task STL ceilings (next-region Acc@10 AND next-category macro-F1) at all 4 available states, 4 seeds each.** This inverts the study's original framing ("MTL sacrifices reg by −7…−17 pp; ship the 2-model composite; the architectural-Δ is the paper's central tension"). The tradeoff is not merely dissolved — **joint training Pareto-dominates single-task** (same/better reg, better cat, half the params of the composite).
+A **single jointly-trained MTL model** — "G" — **MATCHES the single-task STL next-region ceiling (Pareto-non-inferior) AND substantially BEATS the next-category ceiling (+3 pp macro-F1) at all 4 available states, 4 seeds each.** This inverts the study's original framing ("MTL sacrifices reg by −7…−17 pp; ship the 2-model composite; the architectural-Δ is the paper's central tension"): the −7…−17 pp 'MTL sacrifices reg' tension was a class-weighting artifact (C25), and once fixed, **joint training is Pareto-positive** (matches reg + beats cat).
 
-| state | G reg@10 | (c) STL reg | Δreg | G cat-F1 | (c) STL cat | Δcat |
+> ⚠ **REG CLAIM CORRECTED 2026-06-07 (B-A2 independent re-eval — INDEX `#T2V-3`).** The reg "Δ" column below is **G's in-distribution `top10_acc_indist`** vs the **(c) ceiling's FULL `top10_acc`** (the p1 ceiling harness has no indist/OOD split). On a **MATCHED** metric G is **~0.35 pp BELOW** the (c) reg ceiling (FL: G-full 72.93 vs ceiling-full 73.31). So the honest reg verb is **"matches" (within ~0.4 pp), NOT "beats"** — the +Δreg figures below are inflated by the indist-vs-full gap (~0.6 pp at FL; small-state values un-re-eval'd, expected to temper similarly). The **cat +Δ is exact** (single metric, no indist/full split). The Pareto-positive / inverted-tradeoff headline STANDS (matches reg + beats cat).
+
+| state | G reg@10 (indist) | (c) STL reg (full) | Δreg *(indist−full; see ⚠)* | G cat-F1 | (c) STL cat | **Δcat (exact)** |
 |---|---|---|---|---|---|---|
-| AL | 64.47 ± 0.11 | 62.88 | **+1.59** | 52.91 ± 0.27 | 49.97 | **+2.94** |
-| AZ | 55.75 ± 0.21 | 55.11 | **+0.64** | 54.48 ± 0.74 | 51.01 | **+3.47** |
-| GE | 59.37 ± 0.04 | 58.45 | **+0.92** | 61.43 ± 0.26 | 58.12 | **+3.31** |
-| FL | 73.57 ± 0.06 | 73.31 | **+0.26** | 73.16 ± 0.04 | 69.97 | **+3.19** |
+| AL | 64.47 ± 0.11 | 62.88 | +1.59* | 52.91 ± 0.27 | 49.97 | **+2.94** |
+| AZ | 55.75 ± 0.21 | 55.11 | +0.64* | 54.48 ± 0.74 | 51.01 | **+3.47** |
+| GE | 59.37 ± 0.04 | 58.45 | +0.92* | 61.43 ± 0.26 | 58.12 | **+3.31** |
+| FL | 73.57 ± 0.06 | 73.31 | +0.26* (matched: **−0.38**) | 73.16 ± 0.04 | 69.97 | **+3.19** |
 
-Seeds {0,1,7,100}. Metrics: reg = disjoint `per_metric_best.next_region.top10_acc_indist` (oracle-best epoch, selector-independent); cat = `diagnostic_task_best.next_category.f1`. FL additionally **ties the (d) 2-model composite** reg (73.62, −0.05) while winning cat → the composite is strictly dominated. CA/TX not run (no v14 substrate built — see §6).
+Seeds {0,1,7,100}. Metrics: reg = disjoint `per_metric_best.next_region.top10_acc_indist`; cat = `diagnostic_task_best.next_category.f1`. FL: on the matched full metric G (72.93) ≈ the (d) 2-model composite — single-model parity at half the params, the deployable win. CA/TX not run (no v14 substrate built — see §6).
 
 ---
 
