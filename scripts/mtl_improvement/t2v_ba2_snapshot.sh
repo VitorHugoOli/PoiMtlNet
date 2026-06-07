@@ -22,7 +22,7 @@ $PY scripts/train.py --task mtl --task-set check2hgi_next_region --engine $V14 -
   --scheduler onecycle --max-lr 3e-3 --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3 \
   --model mtlnet_crossattn_dualtower --per-fold-transition-dir output/$V14/$ST \
   --save-task-best-snapshots > "$log" 2>&1
-rc=$?; pid=$!
+rc=$?
 if [ $rc -eq 0 ]; then
   rd=$(ls -dt results/$V14/$ST/mtlnet_*ep${EPOCHS}_* 2>/dev/null | head -1)
   printf 'g_snap|s0\tg_snap\t%s\n' "$rd" >>"$MAN"; say "done -> $rd (snapshots in \$rd/task_best_snapshots)"

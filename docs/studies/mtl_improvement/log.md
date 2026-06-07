@@ -1847,6 +1847,29 @@ KD-OFF, seeded per-fold log_T, 5f×50ep.
 
 ---
 
+## 2026-06-07 — ⚠⭐ CRITIQUE §8 RESIDUALS CLOSED: B-A2 tempers the reg headline to "MATCHES" (metric-mismatch caught); B-A1/B-A4/optimizers all confirm G
+
+**Phase**: Tier 2V §8 residual queue (the items the close-out substituted/deferred). FL seed0. Drivers `t2v_dropped_flagarms.sh` (focal/cb + uncert/cagrad/nash), `t2v5_headswap.sh` (priv gru/lstm/tcn + reg-head-lr), `t2v_ba2_snapshot.sh` (checkpointed G + route_task_best).
+
+**⚠ B-A2 (independent checkpoint re-eval) — THE consequential one.** route_task_best re-scored G's saved reg_best snapshots (a DIFFERENT code path from mtl_cv): reg Acc@10 (FULL top10_acc) folds [73.77,71.97,73.38,72.54,73.00], **mean 72.93**. This (a) FORECLOSES harness inflation — G's reg reproduces ~73 via an independent path; the −0.63 vs G's reported 73.56 is the **mechanical OOD penalty** (ood_fraction 0.83%; 73.56×(1−0.0083)≈72.95), not inflation — AND (b) **caught a metric-mismatch in the "beats" headline**: p1 computes ONLY full `top10_acc` (no `_indist`), so the (c) ceiling 73.31 is FULL, while G's reported 73.56 is `top10_acc_indist`. **On a MATCHED metric G is ~0.35pp BELOW the ceiling** (G-full 72.93 vs ceiling-full 73.31 = −0.38; or G-indist 73.56 vs ceiling-indist ≈73.9 = −0.34). **→ the "+0.26 beats reg ceiling" was G-indist-vs-ceiling-full; on matched metrics G MATCHES (Pareto-non-inferior, within ~0.4pp), NOT beats.** Exactly the §8 A-2 recommendation — the critique's insistence on the re-eval was vindicated. The cat +3pp beat is UNAFFECTED (cat F1 is a single metric, no indist/full split). **CLAIM CORRECTION: reg "matches the STL ceiling"; cat "beats by +3pp". The Pareto-positive / inverted-tradeoff story STANDS (matches reg + beats cat dissolves the −7..−17pp tension) — only the reg verb tempers from "beats" to "matches".**
+
+**⭐ B-A1 (lighter private tower — USER PRIORITY) — STAN is LOAD-BEARING (tested, not assumed).** vs G(stan, 273,800 priv params, reg 73.57): gru (478,592, heavier) 71.17 (−2.40); lstm (627,072) 70.15 (−3.42); **tcn (90,752, 3× lighter) 71.77 (−1.80)**. NONE matches STAN — heavier RNNs AND the 3× lighter TCN all lose 1.8–3.4pp. So the §6.2 "is the full STAN over-provisioned?" question is answered NO: the STAN's pairwise spatiotemporal-attention inductive bias is genuinely the right private-tower architecture (not just capacity). "The full STAN is load-bearing, not over-provisioned" is now a TESTED claim. §6.2 CLOSED.
+
+**B-A4-cat (cat loss family) — plain CE is the MTL cat optimum.** focal γ=2 cat 71.44 (−1.72); class-balanced 73.04 (−0.12); (logit-adjust −0.87/−2.71 from T2V.7). The ENTIRE cat-loss family (logit-adjust/focal/CB) loses or ties → plain unweighted CE is genuinely the MTL cat optimum (the §4.4 "unweighted cat wins" puzzle fully resolved across the family). reg unaffected (cat-only lever).
+
+**T2V.6 optimizers (completing FAMO) — static_weight confirmed across the family.** uncertainty-weighting reg 73.55/cat 72.14; CAGrad 73.67/71.84; Nash 73.65/71.61 (no cvxpy error); reg-head-lr 1e-4 73.56/73.12. All ≈ G on reg or trade reg(+0.1, noise)↔cat(−1.3..−1.5); NONE Pareto-beats G. With FAMO (≈G), the whole optimizer/balancer axis confirms static_weight — the user's §6.5 confound concern fully resolved for G.
+
+**Decision**
+- **Reg claim TEMPERED to "matches" (B-A2 metric-mismatch).** Propagate to the claim docs (CLAIMS CH30, NORTH_STAR, CANONICAL_VERSIONS §v16, CHAMPION.md, PAPER_UPDATE.md, HANDOFF): reg = "MATCHES the STL ceiling (Pareto-non-inferior, within ~0.4pp matched-metric)"; cat = "BEATS by +3pp (conservative loss)". The inverted-tradeoff headline stands.
+- **B-A1/B-A4/optimizers all confirm G is robust + well-tuned** — no lever beats it on any axis; the STAN tower is load-bearing.
+- **Lone remaining residual: B-A3 (cat-private-tower ablation, narrative-only, predicted null) — needs a cat dual-tower build.** B-A4-reg popularity-binning is moot (the full metric 72.93 + macro proxy already show no differential tail effect).
+
+**Chain status**: §8 residuals CLOSED except B-A3 (narrative). The reg headline correction is the key output. Driver bug fixed (t2v_ba2 `pid=$!` foreground).
+
+**Next**: propagate the "matches not beats" reg tempering to all claim docs; then B-A3 (cat-private) if wanted.
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:
