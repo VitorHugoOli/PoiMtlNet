@@ -1924,6 +1924,36 @@ KD-OFF, seeded per-fold log_T, 5f×50ep.
 
 ---
 
+## 2026-06-07 — ⛔ G′ RESCUE SCREEN CLOSED: no lever recovers small-state cat; the FL gain needs the very config that craters small states → G′ is irreducibly large-state-only
+
+**What.** `gprime_rescue_screen.sh` — 1-seed (s0) AL+FL, 6 arms testing the advisor's ranked hypertuning levers on the catpriv cat head: L0 base (priv_dropout=0.3, cat-lr=1e-3, d=128) · L1 priv_dropout=0.1 · L2 cat-lr=3e-4 · L3 d_model=64+heads=2 · L12 drop+lr · L13 drop+small. Question: does any lever lift **AL cat to ≥ G (52.91) WITHOUT losing FL's +1.58**? Metric: `per_metric_best.next_category.f1.mean` (diagnostic-best, per-task) + reg `top10_acc_indist`.
+
+| arm | AL cat (Δ vs G) | FL cat (Δ vs G) | note |
+|---|---|---|---|
+| L0_base (drop 0.3) | 37.49 (−15.42) | **74.74 (+1.58)** | FL gain present; AL crater |
+| L1 drop 0.1 | 37.38 (−15.53) | 73.17 (+0.01) | dropout↓ **kills FL gain**, AL flat |
+| L2 cat-lr 3e-4 | 37.49 (−15.42) | 74.74 (+1.58) | LR inert both states |
+| L3 small tower | **38.44 (−14.47)** | 74.40 (+1.24) | best AL (+0.95 vs L0) but still −14.5; FL gain partly eroded |
+| L12 drop+lr | 37.38 (−15.53) | 73.17 (+0.01) | = L1 |
+| L13 drop+small | 38.01 (−14.90) | 73.75 (+0.59) | both eroded |
+
+reg flat everywhere (AL ~64.5 / FL ~73.5) — the reg path is unchanged → robust.
+
+**Verdict — NO RESCUE. G′ is irreducibly large-state-only.**
+- **AL:** every lever stays **−14.5 to −15.5 pp below G**; the best (smaller tower, L3) closes <1 pp of a 15 pp hole. Lowering dropout (L1) and softening LR (L2) do **nothing** at AL.
+- **FL:** the +1.58 gain survives **only at the original `priv_dropout=0.3`**; dropping it to 0.1 **erases the gain** (74.74→73.17). Smaller tower (L3) partly erodes it too (74.40).
+- **The tension is irreducible:** the heavy-regularized large private tower that *produces* the FL gain is exactly what *cannot* learn small-state 7-class cat; and the only lever that nudges AL up (shrink the tower) simultaneously eats the FL gain. There is no setting that wins both.
+
+**Refined mechanism (sharper than the "underfit" note above):** it is NOT merely over-regularization — L1 (drop 0.1) didn't help AL at all, so reducing the regularizer doesn't unlock fit. The `next_stan_flow_dualtower` flow/attention head is **architecturally mismatched** for a 7-class target at small-state data scale; the smaller-tower marginal gain (+0.95) is the only directional signal and it's nowhere near sufficient. "Underfit" is correct as a symptom; the *cause* is head↔task-cardinality mismatch, not a tunable hyperparameter.
+
+**Decision.** G′ stays **DEMOTED — an FL-only experimental variant, NOT a champion.** **G (cat-SHARED `next_gru`) is THE multi-state champion.** No further G′ work is motivated (the lever space is exhausted at 1-seed; a multi-seed confirm would only sharpen an already-decisive −14.5pp gap). The B-A3/G′ line is **CLOSED**.
+
+**Chain status**: closed cleanly — G is champion; G′ catpriv is a documented dead-end (FL-only, head↔7-class mismatch). All critique residuals + the rescue follow-up are now closed.
+
+**Next**: nothing on G′. Open items unchanged: (author) BRACIS paper-doc restatement (G: matches reg + beats cat, 4 states); (optional, deferred) build the CA v14 substrate to test G at a second large state.
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:
