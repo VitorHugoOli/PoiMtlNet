@@ -322,6 +322,17 @@ Add a private tower to the **cat** head (predicted **null** — cat is positive-
 ceiling because it shares the rising tide). Confirms the asymmetry **"reg needs private / cat wants shared"**
 — the cleanest mechanistic story in the paper. FL seed-0; score cat vs G. ~1–2 runs.
 
+> **→ CLOSED 2026-06-07 (outcome ≠ predicted null, then re-confirmed by a harder test).** FL seed-0 gave a
+> SURPRISE cat **+1.58** → promoted to **G′** (`mtlnet_crossattn_dualtower_catpriv`, 4-seed FL +1.61). The
+> multi-state confirm (AL/AZ/GE × {0,1,7,100}) **FALSIFIED** G′ as a champion — cat **craters −3.6…−15.3 pp**
+> at the small states. Mechanism corrected "overfit"→**underfit** (AL train-F1 caps 0.45 vs the GRU head's
+> 0.98), then refined to a **head↔7-class-cardinality mismatch** by a 6-lever rescue screen that found **NO**
+> recoverable config (best AL lever still −14.5 pp; the FL gain survives only at `priv_dropout=0.3`).
+> **Net: the asymmetry story HOLDS but is sharper than predicted — "reg's private tower is load-bearing; a
+> cat-private tower helps ONLY at large data scale and is catastrophic at small scale" — NOT a champion
+> change. G′ DEMOTED, FL-only dead-end; G (cat-shared) stays champion.** Trail: `log.md`/`INDEX.html #T2V-5`
+> 2026-06-07; `CONCERNS §C26`; drivers `gprime_{multistate,rescue_screen}.sh`.
+
 **B-A4 — minor loss / metric completeness (optional).**
 - *Cat tail:* focal / class-balanced on G's cat head (only logit-adjust τ was tested in T2V.7 — it lost;
   these likely lose too, but are untested).

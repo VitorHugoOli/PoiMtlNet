@@ -30,6 +30,13 @@
 
 ## Timeline of findings (most recent first)
 
+### 2026-06-07 — `mtl_improvement` B-A3 / G′ (cat-private dual-tower) explored & CLOSED — FL-only dead-end; G stays champion
+
+A both-private variant **G′** (`mtlnet_crossattn_dualtower_catpriv`, the cat head ALSO `next_stan_flow_dualtower`) looked like a Pareto cat win **at FL only** (cat 74.77, +1.61 vs G; reg flat). It was briefly **over-promoted to "new champion" in 5 claim docs (CHAMPION/NORTH_STAR/CANONICAL_VERSIONS/CLAIMS/HANDOFF) then REVERTED** when the multi-state confirm (AL/AZ/GE × {0,1,7,100}, `gprime_multistate.sh`) **FALSIFIED** it: cat **CRATERS** at small states — AL 37.66 (−15.25 vs G), AZ −12.45, GE −3.59; reg flat everywhere.
+- **Mechanism CORRECTED** from "overfits" → **UNDERFITS** (advisor root-cause): AL G′ cat **train**-F1 caps at 0.45 vs the `next_gru` head's 0.98 (tiny train–val gap = textbook underfit). No wiring bug (α·log_T prior correctly OFF).
+- **Rescue screen CLOSED with NO rescue** (`gprime_rescue_screen.sh`, 1-seed AL+FL, 6 levers: priv_dropout↓ / cat-lr↓ / smaller tower / combos): best AL lever still −14.5pp vs G; the FL gain survives **only** at the original `priv_dropout=0.3` (lowering it to 0.1 erases the gain, 74.74→73.17). Refined mechanism = the STAN flow/attention head is **architecturally mismatched for a 7-class target at small data** (head↔task-cardinality mismatch), not a tunable.
+- **Verdict: G′ DEMOTED — FL-only experimental dead-end, NOT a champion. G (cat-SHARED `next_gru`) remains THE multi-state champion. The B-A3/G′ line is CLOSED.** Lesson logged as `CONCERNS §C26`. Trail: `studies/mtl_improvement/{log.md 2026-06-07, CHAMPION.md §G′, INDEX.html #T2V-5}`; drivers `gprime_{multistate,rescue_screen}.sh`.
+
 ### 2026-06-07 — `mtl_improvement` Tier 2V: champion G VALIDATED against a skeptical critique (paper-safe)
 
 The 2026-06-06 G result (below) was stress-tested via `CRITIQUE_TIER2_C25_2026-06-06` and **held on every axis** — so the Pareto-positive headline is now critique-hardened, not just a first result:

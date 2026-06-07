@@ -9,6 +9,8 @@
 
 > ⚠ **REG CLAIM CORRECTED 2026-06-07 (B-A2, the critique's checkpoint re-eval).** Earlier drafts of this doc said G "beats both ceilings." The independent re-eval found the reg "beat" compared G's *in-distribution* Acc@10 to the (c) ceiling's *full* `top10_acc` (the p1 harness has no indist split); on a **matched** metric G is ~0.35 pp BELOW the (c) reg ceiling (FL: 72.93 vs 73.31). **Honest claim: reg = "matches" (Pareto-non-inferior, within ~0.4 pp); cat = "beats by +3 pp" (exact).** Trail: `log.md`/`INDEX.html #T2V-3` 2026-06-07. (Every "beats both ceilings" phrasing below should read "matches reg + beats cat".)
 
+> ⛔ **G′ (the cat-private both-private dual-tower, FL cat 74.77) is NOT a paper claim — DO NOT CITE.** It is an FL-only experimental dead-end: the cat gain craters −3.6…−15.3 pp at AL/AZ/GE (AL/AZ below the STL cat ceiling), and a rescue screen found no recoverable config (CLOSED 2026-06-07; `INDEX.html #T2V-5` / `CHAMPION.md §G′`). The paper champion is **G** with the **cat-SHARED `next_gru`** head. Cite G's cat (AL 52.91 / AZ 54.48 / GE 61.43 / FL 73.16), never G′'s 74.77.
+
 > ⭐ **Champion (G) — `mtlnet_crossattn_dualtower` + `next_stan_flow_dualtower` (`raw_embed_dim=64 fusion_mode=aux freeze_alpha=True alpha_init=0.0`), v14 substrate, unweighted onecycle KD-OFF. CONFIRMED MULTI-STATE @ 4 seeds {0,1,7,100} (2026-06-06) — beats BOTH STL ceilings at ALL 4 available states:**
 >
 > | state | G reg | (c) STL reg | Δreg | G cat | (c) STL cat | Δcat |
