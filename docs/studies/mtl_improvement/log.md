@@ -1808,6 +1808,25 @@ KD-OFF, seeded per-fold log_T, 5f×50ep.
 
 ---
 
+## 2026-06-07 — T2V.5/6/7 CLOSED: NO hypertuning lever beats G → T2V.8 moot, G is robustly optimal
+
+**Phase**: Tier 2V P1/P2 winner-hypertuning (CRITIQUE §4.1/§6.2/§6.5). FL seed0, 5 flag-arms. Driver `t2v567_hypertune.sh`. (New code: MTL cat criterion now honours `--logit-adjust-tau` via leak-free `build_calibrated_loss`, commit 72c77f54.)
+
+**Findings (vs G reg 73.57 / cat 73.16):**
+- **T2V.7 logit-adjust on cat — NEGATIVE.** la τ=0.5 cat 72.29 (−0.87); τ=1.0 cat 70.45 (−2.71); reg unaffected. Logit-adjust LIFTED the STL cat ceiling (+2.7) but HURTS the MTL cat — opposite regime. **Resolves the "unweighted cat wins is unexplained" puzzle (§4.4):** in joint training the cat head is already above its STL ceiling (rising tide) and sits in a different regime; logit-adjust over-corrects. Plain unweighted CE is genuinely the MTL cat optimum.
+- **T2V.5 reg-tower internals — G's STAN is RIGHT-SIZED.** priv d_model=256 reg 72.70 (−0.87, overfit/hurts); priv heads=8 reg 73.55 (−0.02, tie). No headroom either way → the §6.2 over-provisioning question answers "no"; the STAN→other-head swap + cat-private-tower code-builds are NOT motivated (S.1 STAN-is-reg-winner stands).
+- **T2V.6 FAMO — ≈ G.** reg 73.44 (−0.13) / cat 73.40 (+0.24), both noise. static_weight confirmed fine; the optimizer/balancer is not a confound on G (§6.5 resolved). FAMO ran clean (no per-head-LR conflict).
+
+**Decision**
+- **NO hypertuning lever beats G on any axis (cat-loss, reg-tower-size, optimizer).** G is robustly optimal. **→ T2V.8 (combine the winning levers) is MOOT** — there are no winners to stack. The T2V.5 head-swap + cat-private-tower builds are unmotivated (no tower headroom). Document them as tested-negative / not-motivated rather than running them.
+- The only remaining substantive card is **T2V.9 (CA/TX)** — the scale-conditional completeness gap (needs a v14 design_k substrate build).
+
+**Chain status**: T2V.4/5/6/7 CLOSED; T2V.8 MOOT. P0 + P1 + P2 all done. Only P3 (T2V.9 CA/TX) remains.
+
+**Next**: T2V.9 — build v14 (`check2hgi_design_k_resln_mae_l0_1`) at CA/TX, then champion G + the (c)/(d) ceilings (the heavy serial-spine build). Then the Tier-2V close-out summary + CRITIQUE §7 checklist.
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:

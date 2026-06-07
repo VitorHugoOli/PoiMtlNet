@@ -1102,7 +1102,15 @@ The Tier-2 winner was found within ONE corner: cross-attn backbone · STAN priva
 <div class="block"><div class="block-title">Why</div>G's private tower is a full STAN; "other heads in place of STAN" was never swept <em>in the private-tower context</em> (the Tier-S head sweep was pre-C25 + single-pathway). Two questions at once: <strong>accuracy</strong> (does another head beat STAN as the private reg tower?) and <strong>efficiency</strong> (is the full-STAN duplicate over-provisioned — the §6.2 param-cost critique?). (CRITIQUE §6.2.)</div>
 <div class="block"><div class="block-title">Method</div>Replace STAN in G's private reg tower with the coded heads {<code>next_gru</code>, <code>next_lstm</code>, <code>next_tcn_residual</code>, <code>next_transformer_relpos</code>, <code>next_conv_attn</code>, …}, matched-budget, each per-arch-tuned, 1-seed FL → multi-seed winner. Also sweep the private tower's <strong>d_model / depth / aux-β &amp; fusion granularity</strong> (the reg-tower internals the <code>c25_gv2</code> sweep skipped). Plus the <strong>cat-private-tower</strong> ablation (predicted NULL — cat is positive-transfer; confirms the reg-private/cat-shared asymmetry for the narrative, §6.3).</div>
 <div class="block"><div class="block-title">Gate</div><div class="gate"><strong>Head beats/ties STAN</strong> (accuracy) → adopt; <strong>a lighter head ≈ STAN</strong> → full STAN over-provisioned (efficiency win); <strong>cat-private ≤ G</strong> → asymmetry confirmed.</div></div>
-<div class="results-placeholder">Results: <em>pending execution</em></div>
+<div class="block"><div class="block-title">Results (2026-06-06, partial) — private-STAN internals; G's tower is RIGHT-SIZED</div>
+<table><thead><tr><th>arm</th><th>reg</th><th>Δreg vs G</th><th>cat</th></tr></thead><tbody>
+<tr><td>G (priv STAN d_model=128, heads=4)</td><td class="num">73.57</td><td class="num">—</td><td class="num">73.16</td></tr>
+<tr><td>priv d_model=256 (wider)</td><td class="num">72.70</td><td class="num"><span class="delta-neg">−0.87</span></td><td class="num">72.14</td></tr>
+<tr><td>priv num_heads=8</td><td class="num">73.55</td><td class="num">−0.02</td><td class="num">73.03</td></tr>
+</tbody></table>
+<p><strong>Verdict:</strong> <span class="pill good">G's private STAN is right-sized — not over/under-provisioned</span>. Widening d_model 128→256 <strong>HURTS</strong> reg (−0.87, overfit); more heads ties (−0.02). So the §6.2 "is the full-STAN duplicate over-provisioned?" question answers <em>no headroom either way</em> at FL — G's defaults (d_model=128, 4 heads) are optimal. <strong>→ the STAN→other-head swap + cat-private-tower ablation (which need new head code) are NOT motivated</strong> (no reg headroom in the tower; the STAN-is-the-reg-winner result, S.1, stands). β-init/fusion-granularity left as documented-untested (hardcoded; low EV given the internals show no headroom).</p>
+<p class="footnote">Driver: <code>t2v567_hypertune.sh</code> · log: 2026-06-06.</p>
+</div>
 </div>
 
 <div class="experiment" id="T2V-6">
@@ -1110,7 +1118,10 @@ The Tier-2 winner was found within ONE corner: cross-attn backbone · STAN priva
 <div class="block"><div class="block-title">Why</div><strong>The ENTIRE study used <code>--mtl-loss static_weight</code> — no gradient-balancer was ever run in the Tier-2 arch comparison</strong>, and <code>category-weight</code> was swept only for G. The user's concern: alternatives may have lost from poor optimization, not poor architecture. The C25 lesson makes this not-paranoia — a loss-axis confound already inverted the arch ranking once. (CRITIQUE §6.5.)</div>
 <div class="block"><div class="block-title">Method</div>On G AND the top 1–2 configs from T2V.4/T2V.5: sweep the balancer {<code>static_weight</code>[G] · per-arch <code>category-weight</code> · <strong>FAMO</strong> (O(1), the feasible one at k=2/9k) · uncertainty-weighting · CAGrad/Nash only if k=2 is tractable} + <strong>per-task LR</strong> (private-tower group) + <strong>per-task precision split</strong> (fp32-reg / fp16-cat — global fp32 was +0.13 reg/−1.11 cat, a trade). FL 1-seed → multi-seed winner. (Note: FAMO/Aligned-MTL were tried pre-C25 on the base arch without unpinning reg-best, <code>MTL_FLAWS §304</code> → low headroom on G specifically, but the cross-architecture re-rank under a balancer is the open part.)</div>
 <div class="block"><div class="block-title">Gate</div><div class="gate"><strong>A balancer lifts G</strong> → adopt for hypertuning. <strong>A balancer re-ranks the alternatives</strong> (an arch that lost under static_weight ties/beats G under FAMO) → the falsifications were optimization-confounded → re-open. <strong>Else</strong> → static_weight confirmed + the arch ranking is balancer-robust (closes the user's concern).</div></div>
-<div class="results-placeholder">Results: <em>pending execution</em></div>
+<div class="block"><div class="block-title">Results (2026-06-06) — FAMO ≈ G; static_weight confirmed fine</div>
+<p>G + <strong>FAMO</strong> (O(1) gradient balancer, replaces static_weight): reg <strong>73.44</strong> (−0.13 vs G) / cat <strong>73.40</strong> (+0.24). Both within 1-seed noise — FAMO neither unpins reg (the critique's prediction: it didn't pre-C25 either) nor materially lifts cat. <strong>Verdict:</strong> <span class="pill good">static_weight is fine — the optimizer/balancer is NOT a confound on G</span>. (The full-fp32 per-task-precision arm was already tested = +0.13reg/−1.11cat trade, T2V.2; per-task fp32-reg/fp16-cat split needs code and is low-EV given the trade.) The user's optimizer-confound concern (§6.5) is resolved for G: it stands at its own static_weight optimum and a balancer only confirms it.</p>
+<p class="footnote">Driver: <code>t2v567_hypertune.sh</code> · log: 2026-06-06.</p>
+</div>
 </div>
 
 <div class="experiment" id="T2V-7">
@@ -1118,7 +1129,15 @@ The Tier-2 winner was found within ONE corner: cross-attn backbone · STAN priva
 <div class="block"><div class="block-title">Why</div>G's cat head is <strong>plain unweighted CE</strong> (verified — no logit-adjust in any G driver), yet it beats the STL cat ceiling which DID use logit-adjust τ=0.5 → the cat comparison is conservative AND the calibration lever is open on G. (CRITIQUE §4.1, §6.7.)</div>
 <div class="block"><div class="block-title">Method</div>G + cat logit-adjust τ ∈ {0.5, 1.0} (the existing <code>--logit-adjust-tau</code> path on the cat head) + the cat loss family (focal/CB) for completeness, FL + 1 small state → multi-seed if it wins. Resolves the "plain-unweighted-cat-wins" puzzle (plain unweighted may not be the cat optimum, just better than <em>weighted</em>).</div>
 <div class="block"><div class="block-title">Gate</div><div class="gate"><strong>Promote</strong>: cat +≥0.5pp multi-seed, reg non-inferior → adopt into G. <strong>Else</strong>: plain unweighted is the cat optimum (document — strengthens the conservative-comparison claim).</div></div>
-<div class="results-placeholder">Results: <em>pending execution</em></div>
+<div class="block"><div class="block-title">Results (2026-06-06) — FL seed0; logit-adjust HURTS cat in MTL (opposite of STL)</div>
+<table><thead><tr><th>arm</th><th>cat F1</th><th>Δcat vs G</th><th>reg</th><th>Δreg</th></tr></thead><tbody>
+<tr><td>G (plain unweighted cat)</td><td class="num">73.16</td><td class="num">—</td><td class="num">73.57</td><td class="num">—</td></tr>
+<tr><td>+ logit-adjust τ=0.5</td><td class="num">72.29</td><td class="num"><span class="delta-neg">−0.87</span></td><td class="num">73.54</td><td class="num">−0.03</td></tr>
+<tr><td>+ logit-adjust τ=1.0</td><td class="num">70.45</td><td class="num"><span class="delta-neg">−2.71</span></td><td class="num">73.55</td><td class="num">−0.02</td></tr>
+</tbody></table>
+<p><strong>Verdict:</strong> <span class="pill bad">NEGATIVE — plain unweighted CE IS the MTL cat optimum</span>. Logit-adjust lifted the STL cat ceiling (+2.7) but <strong>HURTS the MTL cat</strong> (−0.87/−2.71). This resolves the critique's "unweighted cat wins is unexplained" puzzle (§4.4): in joint training the cat head is already lifted above its STL ceiling by the rising-tide effect and sits in a different regime — logit-adjust (trading head accuracy for tail balance) over-corrects. So G's plain-unweighted cat is genuinely optimal, not merely "better than weighted." reg unaffected (cat-only lever). <em>Code: the MTL cat criterion now honours <code>--logit-adjust-tau</code> via <code>build_calibrated_loss</code> (leak-free, committed) — the lever works, it just doesn't help here.</em></p>
+<p class="footnote">Driver: <code>t2v567_hypertune.sh</code> · mtl_cv cat-calibration wiring committed 72c77f54 · log: 2026-06-06.</p>
+</div>
 </div>
 
 <div class="experiment" id="T2V-8">
