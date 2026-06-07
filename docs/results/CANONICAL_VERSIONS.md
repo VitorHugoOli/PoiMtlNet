@@ -315,6 +315,8 @@ FL also ties the (d) composite reg (73.62) while winning cat → composite stric
 
 **Status / scope:** v16 is a **study champion, NOT the paper §0 canon** (paper still v11). It is **opt-in** (explicit `--model`/`--reg-head` flags; the code default model is still canon cross-attn). The mechanism (aux fusion + prior-OFF) is decisive — `gated` fusion or re-enabling the additive prior REGRESSES it (CHAMPION.md §5). Architecture capacity is NOT the lever (falsified 5 ways). CA/TX need a v14 build first. **Reproduce:** the command above + seeded fresh per-fold log_T at `--per-fold-transition-dir output/check2hgi_design_k_resln_mae_l0_1/<state>`.
 
+**VALIDATED 2026-06-07 (Tier 2V — `studies/mtl_improvement/CRITIQUE_TIER2_C25_2026-06-06.md` §7 + `INDEX.html #tier2v`):** v16 survived a skeptical re-test. The (c)/(d) ceilings were re-run at G's seeds {0,1,7,100} (they were seed-42 only) — stable (σ≤0.7), G still beats both at 4/4 states. Alt-archs re-ranked FAIRLY (standalone, post-C25, per-arch `category-weight`) all lose by 1.6–2.1pp → the "architecture-capacity is not the reg lever" claim is un-confounded. No tail regression; no hypertuning lever beats G (logit-adjust HURTS the MTL cat — plain CE is the MTL cat optimum; private STAN right-sized; FAMO ≈ G). Param-honest: G = base_a +4.9% (one model, not "½ of two"). The v16 champion is **paper-safe**.
+
 ---
 
 ## Quick reference — version × axis matrix
