@@ -2190,6 +2190,30 @@ SHARED backbone (mtlnet_crossattn + next_stan_flow prior-OFF = G minus the priva
 
 ---
 
+## 2026-06-08 — (a) cat-transfer ablation + (b) T5.3 HSM — both decisive
+
+**Phase**: two user-requested follow-ups after the Tier-3/4 closes. seed0. Docs: `docs/results/mtl_improvement/cat_transfer_and_T53.md`.
+
+**(a) Cat-transfer ablation — the +3pp MTL-cat gain is ARCHITECTURE-dominated, not region-transfer.**
+Ran G's recipe with `--category-weight 1.0` (reg loss ×0 → reg gradient OFF; reg cratered to 0.12%, confirming the shared trunk is cat-only-trained). Decomposition (STL cat → cat+trunk-reg-OFF → G):
+| state | STL (no trunk) | cat+trunk reg-OFF | G (reg ON) | architecture | region-transfer |
+|---|---|---|---|---|---|
+| AL | 50.35 | 53.46 | 52.75 | **+3.11** | **−0.71** |
+| FL | 69.96 | 72.23 | 73.12 | **+2.27** | **+0.89** |
+→ The cat win over STL is **mostly the cross-attn architecture** (+2.3..+3.1pp); genuine region co-training adds only **+0.89 at FL** and slightly HURTS at AL (−0.71). Exactly consistent with gradient-orthogonality (little direct transfer; the gain is a better encoder + a small scale-dependent representation transfer). Caveat: the STL ceiling used logit-adjust (which inflates STL cat / hurts MTL cat) → the architecture component is conservative. **Paper implication:** re-state the cat result as "the joint cross-attn architecture is a better category encoder (+ small region→cat transfer at scale)," NOT "the region task teaches category."
+
+**(b) T5.3 HSM reg head — FALSIFIED.** HSM (`next_stan_flow_hsm`) is single-pathway (no dual-tower) → tested the mechanism at the STL/ceiling level first (built FL hierarchy, 69 clusters; p1 FL seed0 prior-OFF): flat `next_stan_flow` 73.22±0.77 vs `next_stan_flow_hsm` 73.21±0.80 — identical (−0.01, within σ). Hierarchical softmax gives NO accuracy gain at 4,700 classes (speed/memory technique, not accuracy). No dual-tower-HSM build motivated. Tier-5's last residual closed; flat softmax sufficient. (CA/TX untested; gain unlikely.)
+
+**Decision**
+- Both clean: cat gain = architecture-dominated (refines the paper claim, consistent with orthogonality); HSM = flat (Tier-5 closed). **Champion G unchanged.**
+- New code: `--loss-scale-norm` (T4, gated) earlier; FL region hierarchy artifact built. No champion change from either probe.
+
+**Chain status**: (a)+(b) done. Tiers 2V/3/4/5 all closed; champion G robust. Remaining open work is completeness only: CA/TX (C-A) + paper-canon restatement (C-B), both author/heavy.
+
+**Next** (pending user): CA/TX completeness (heavy v14 build) and/or BRACIS paper-doc restatement; otherwise the experimental study is at a clean, comprehensive close.
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:

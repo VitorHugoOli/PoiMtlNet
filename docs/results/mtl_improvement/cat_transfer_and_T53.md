@@ -1,0 +1,65 @@
+# Cat-transfer ablation (a) + T5.3 HSM reg head (b) — 2026-06-08
+
+Two follow-up probes after the Tier-3/4 closes. Both seed0; reg matched-metric (R0 method).
+
+## (a) Cat-transfer ablation — is MTL-cat's +3pp gain region-driven or architecture-driven?
+
+**Question.** G's MTL category head beats the STL cat ceiling by +3pp. Is that *positive transfer*
+from the region task, or just the *cross-attn shared architecture* being a better cat encoder than
+the STL head (`next_gru` on raw check-in embeddings)?
+
+**Method.** Run G's exact recipe but `--category-weight 1.0` → reg loss weight = 0 → reg contributes
+**zero gradient** → the shared cross-attn trunk + cat head train cat-ONLY (with the architecture, no
+region co-training). Driver `scripts/mtl_improvement/cat_transfer_ablation.sh`. Reg confirmed OFF
+(FL reg cratered to 0.12% — the trunk is cat-only-trained). Decompose:
+`total = architecture (STL→cat+trunk) + region-transfer (cat+trunk→G)`.
+
+| state | STL cat (no trunk) | cat+trunk, reg OFF | G cat (reg ON) | **architecture** | **region-transfer** | total |
+|---|---|---|---|---|---|---|
+| AL | 50.35 | 53.46 | 52.75 | **+3.11** | **−0.71** | +2.40 |
+| FL | 69.96 | 72.23 | 73.12 | **+2.27** | **+0.89** | +3.16 |
+
+**Verdict — the cat gain is ARCHITECTURE-DOMINATED; region transfer is modest and scale-dependent.**
+The cross-attn shared trunk accounts for +2.3 to +3.1 pp; genuine region co-training adds only **+0.89
+at FL** (large state) and slightly **HURTS at AL (−0.71)** — at small data the region signal mildly
+distracts the cat head. This is exactly what the gradient-orthogonality finding predicts: orthogonal
+gradients ⇒ little *direct* cross-task transfer ⇒ the category improvement is mostly a better encoder,
+with a small representation-level transfer that only materializes where there's enough data (FL).
+
+**Caveat (makes the conclusion conservative).** The STL cat ceiling used `next_gru` + logit-adjust
+τ=0.5, while cat+trunk and G use plain CE. T2V.7/B-A4 showed logit-adjust *helps* STL cat (+2.7) but
+*hurts* MTL cat — so the STL ceiling here is, if anything, an *inflated* comparand. Against a
+plain-CE STL baseline the architecture component would be even larger → the architecture-dominance
+conclusion is robust.
+
+**Paper implication.** Re-state the cat result precisely: MTL category beats single-task **mostly
+because the joint cross-attn architecture is a better category encoder**, with a small genuine
+region→category transfer at large scale (+0.89 FL). It is NOT primarily "the region task teaches
+category." This is the honest, orthogonality-consistent framing.
+
+## (b) T5.3 — hierarchical-softmax reg head (the last live Tier-5 lever)
+
+**Question.** Does hierarchical softmax (HSM) beat flat softmax for the high-cardinality reg head
+(FL 4.7k regions)? The HSM head (`next_stan_flow_hsm`) is **single-pathway** (no dual-tower), so test
+the *mechanism* at the STL/ceiling level first (cheap) before any dual-tower-HSM build.
+
+**Method.** Built the FL region hierarchy (`build_region_hierarchy.py`, 69 clusters). p1 at FL,
+prior-OFF, 5f seed0: `next_stan_flow_hsm` (hierarchy) vs `next_stan_flow` (flat). Driver
+`scripts/mtl_improvement/t53_hsm_stl_test.sh`.
+
+| reg head | FL reg Acc@10 (full) |
+|---|---|
+| `next_stan_flow` (flat softmax) | 73.22 ± 0.77 |
+| `next_stan_flow_hsm` (hierarchical) | 73.21 ± 0.80 |
+
+**Verdict — FALSIFIED.** HSM = flat (−0.01, within σ 0.8). Hierarchical softmax gives **no accuracy
+gain** at 4,700 classes — it is a speed/memory technique, not an accuracy improver, and flat softmax
+on a GPU is fine at this cardinality. **No dual-tower-HSM build is motivated** for G (saved the code
++ compute). Tier 5's last residual is closed: flat softmax is sufficient. (Larger states CA 8.5k /
+TX 6.5k were not tested, but the FL null at 4.7k + the speed-not-accuracy nature of HSM make a gain
+there unlikely; flag as untested if a reviewer asks.)
+
+## Net
+- (a) The cat-beats-STL story is **architecture-dominated** (cross-attn trunk), region-transfer modest
+  (+0.89 FL / −0.71 AL) — consistent with orthogonal gradients. Refines the paper claim.
+- (b) HSM falsified — flat softmax sufficient; Tier 5 closed. **Champion G unchanged.**
