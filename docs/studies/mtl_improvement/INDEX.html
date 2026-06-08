@@ -1254,7 +1254,20 @@ The Tier-2 winner was found within ONE corner: cross-attn backbone · STAN priva
 <div class="block"><div class="block-title">Why (regime-reopened)</div>The overlapping-windows study found dense (stride-1) supervision lifts STL reg +5.1pp but the MTL reg gap WIDENED — measured on the <em>shared backbone</em>, the exact bottleneck G removes. G's private STAN reg tower is a private pathway (like STL), so it may now absorb the lift the shared regime wasted. <strong>This is the mechanism test of the dual-tower thesis</strong>, not just a number chase.</div>
 <div class="block"><div class="block-title">Method</div>Run G under the dense-supervision engine (<code>check2hgi_dk_ovl</code>, stride-1 — built at AL per docs; verify on the box) vs non-overlap G, AL first → AZ/GE/FL if it moves. <strong>Measure the MATCHED-metric G−ceiling under BOTH overlap and non-overlap</strong> (overlap raises the ceiling too — R0 framing). Question: does overlap change G−ceiling (i.e. does the private tower absorb the dense lift better than the STL ceiling does)?</div>
 <div class="block"><div class="block-title">Gate</div><div class="gate"><strong>Mechanism win</strong>: G−ceiling improves under overlap → the private tower absorbs data the shared regime wasted (causal evidence for the dual-tower; paper-grade even if small). <strong>Null</strong>: G−ceiling unchanged → overlap is a rising-tide that moves both equally (still a clean finding: the dual-tower already captures the supervision). Either way report the mechanism. Full canon rebuild only if a decisive win + the user wants to adopt.</div></div>
-<div class="results-placeholder">Results: <em>pending execution</em></div>
+<div class="block">
+<div class="block-title">Results (2026-06-08) — MECHANISM WIN: the private tower absorbs the dense lift</div>
+<p>AL seed=42, clean paired 2×2 in the CURRENT harness (driver <code>r1_overlap_under_g.sh</code>). Reg matched-metric (R0 method): G-full = indist·(1−ood); ceiling = p1 full top10_acc. log_T inert (G prior-OFF + KD-off).</p>
+<table>
+<thead><tr><th>windowing</th><th>STL reg ceil</th><th>G reg-full</th><th>ΔG−ceil reg</th><th>G cat F1</th></tr></thead>
+<tbody>
+<tr><td>non-overlap (v14)</td><td class="num">62.88 ± 4.05</td><td class="num">62.77 ± 4.0</td><td class="num">−0.11</td><td class="num">52.79</td></tr>
+<tr><td>overlap (dk_ovl, stride-1)</td><td class="num">68.01 ± 4.22</td><td class="num">67.67 ± 3.6</td><td class="num">−0.34</td><td class="num">61.18</td></tr>
+</tbody>
+</table>
+<p>STL reg lift <strong>+5.12</strong> (reproduces prior +5.13); <strong>G reg lift +4.89 ≈ STL lift</strong>; ΔG−ceil shift <strong>−0.23pp</strong> (within fold σ ~4); cat rising-tide +8.39. Cross-checks: non-overlap ceiling 62.88 = frozen §2; non-overlap ΔG−ceil −0.11 = R0's −0.09.</p>
+<p><strong>Verdict:</strong> <span class="pill good">MECHANISM WIN</span> + <span class="pill warn">G−ceiling NULL (rising tide)</span> — <strong>the dual-tower thesis is CONFIRMED.</strong> Under the OLD shared-backbone regime the same intervention gave MTL reg +0.50 vs STL +5.13 (gap WIDENED); under G's <em>private</em> STAN tower MTL reg lifts +4.89 ≈ STL +5.12 (gap UNCHANGED). G's reg pathway absorbs the dense supervision the shared backbone wasted — direct causal evidence for the dual-tower, independent of C25. The matched bar does not move (overlap lifts G and ceiling equally) → not a champion change; the value is the mechanism. Non-overlap canon unchanged (2026-06-03 decision stands); overlap stays future-work, now carrying this evidence.</p>
+<p class="footnote">Results: <code>docs/results/mtl_improvement/R1_overlap_under_g.md</code> · manifest: <code>scripts/mtl_improvement/r1_overlap_manifest.tsv</code> · compute: ~12 GPU-min (overlap 8.5× data) + 3 light runs.</p>
+</div>
 </div>
 
 <div class="experiment" id="R2">

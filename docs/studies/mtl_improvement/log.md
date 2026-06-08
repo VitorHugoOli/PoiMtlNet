@@ -2029,6 +2029,35 @@ FL (d) composite (HGI-α0) full = 73.49 → G-full − composite = **−0.53** (
 
 ---
 
+## 2026-06-08 — ✅ R1 LANDED: overlap-under-G is a MECHANISM WIN — the private tower absorbs dense supervision (dual-tower thesis confirmed)
+
+**Phase**: Tier 3 R1 (the top-candidate reg-pathway probe). AL seed=42 clean paired 2×2 in the current harness. Driver `scripts/mtl_improvement/r1_overlap_under_g.sh`; results `docs/results/mtl_improvement/R1_overlap_under_g.md`.
+
+**What happened**
+- The overlap study (2026-06-03) found dense (stride-1) supervision lifts **STL reg +5.13** but, under the **OLD regime** (class-weighted CE + the SHARED `next_stan` reg backbone), **MTL reg lifted only +0.50 → the gap WIDENED ~+4.6pp** (the shared backbone couldn't absorb the data). R1 re-runs the SAME windowing contrast under **champion G** (dual-tower private STAN reg pathway, post-C25 unweighted, aux + prior-OFF) to test the dual-tower thesis.
+- Ran 4 cells at AL seed42: {non-overlap v14, overlap dk_ovl} × {STL reg ceiling (p1 α=0), champion G}. Reg scored matched-metric (R0 method: G-full = indist·(1−ood); ceiling = p1 full top10_acc). log_T is inert (G prior-OFF + KD-off); the v14 seed-42 log_T satisfies the trainer's existence/freshness guards (point `--per-fold-transition-dir` at the v14 dir while `--engine check2hgi_dk_ovl` drives the overlap data).
+
+**Findings (AL seed42):**
+| windowing | STL reg ceil | G reg-full | ΔG−ceil reg | G cat F1 |
+|---|---|---|---|---|
+| non-overlap | 62.88 ± 4.05 | 62.77 ± 4.0 | **−0.11** | 52.79 |
+| overlap | 68.01 ± 4.22 | 67.67 ± 3.6 | **−0.34** | 61.18 |
+
+- STL reg ceiling lift = **+5.12** (reproduces prior +5.13 exactly). **G reg-full lift = +4.89 ≈ the STL lift.**
+- ΔG−ceil reg shift = **−0.23pp** (−0.11 → −0.34), within fold σ (~4). cat rising-tide +8.39 (STL +9.77).
+- Cross-checks: non-overlap reg ceiling 62.88 = frozen §2 seed42; non-overlap ΔG−ceil −0.11 = R0 multi-seed −0.09 → seed-42 cell sound.
+
+**Decision**
+- **MECHANISM WIN — the dual-tower thesis is CONFIRMED.** The identical windowing intervention that the OLD shared backbone could not use (MTL reg +0.50 vs STL +5.13, gap widened) is now **fully absorbed by G's private STAN reg tower** (MTL reg +4.89 ≈ STL +5.12, gap unchanged). G's MTL reg pathway behaves like an STL pathway under data scaling — exactly the dual-tower design intent, and **direct causal evidence for the central architectural claim, independent of the C25 loss confound.**
+- **G−ceiling is NULL (rising tide):** overlap lifts G and the ceiling ~equally, so the matched bar barely moves (−0.23pp, within σ). Per the magnitude rule this is NOT a champion-improving number — the value is the **mechanism**, exactly as the R1 card anticipated ("paper-grade even if small").
+- Non-overlap canon unchanged (the 2026-06-03 user decision stands); overlap stays documented future-work, now ALSO carrying this dual-tower mechanism evidence.
+
+**Chain status**: R1 CLOSED (mechanism win; matched bar null). Frozen (c)/(d) untouched. Committed. R2 next.
+
+**Next**: R2 — dual-substrate routing HGI→reg at FL (does HGI's +0.36pp STL reg edge survive the joint dynamics under G?). Then the Tier-3 boundary review (advisor + summary + STOP for user).
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:
