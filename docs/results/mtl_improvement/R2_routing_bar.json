@@ -1,0 +1,23 @@
+{
+  "states": {
+    "florida": {
+      "g_hgi_reg_full_mean": 73.221,
+      "g_hgi_reg_full_std": 0.085,
+      "g_hgi_cat_mean": 73.05,
+      "g_hgi_reg_indist_mean": 73.829,
+      "g_v14_reg_full": 72.97,
+      "g_v14_cat": 73.16,
+      "c_v14_ceil": 73.27,
+      "d_hgi_ceil": 73.49,
+      "delta_vs_gv14_reg": 0.251,
+      "delta_vs_gv14_cat": -0.11,
+      "delta_vs_d_hgi_ceil": -0.269,
+      "per_seed_reg_full": [
+        73.142,
+        73.202,
+        73.364,
+        73.177
+      ]
+    }
+  }
+}

@@ -2058,6 +2058,32 @@ FL (d) composite (HGI-α0) full = 73.49 → G-full − composite = **−0.53** (
 
 ---
 
+## 2026-06-08 — ✅ R2 LANDED: HGI→reg routing — substrate edge TRANSFERS under G (premise falsified) but rising-tide → NULL on matched bar
+
+**Phase**: Tier 3 R2 (dual-substrate routing pilot). FL multi-seed {0,1,7,100}. Driver `scripts/mtl_improvement/r2_dual_substrate_routing.sh`; results `docs/results/mtl_improvement/R2_dual_substrate_routing.md`.
+
+**What happened**
+- Routed HGI region-emb into champion G's PRIVATE reg tower (cat task_a + shared-aux stay v14) via the `REGION_EMB_ENGINE=hgi` env-var hook (`src/data/folds.py:980`) — inference-time swap, no rebuild (HGI region_embeddings.parquet on disk at FL, 64-dim = dual-tower raw_embed_dim). Verified the routing is real (HGI vs v14 region-emb mean |Δ|=0.30; routed seq tensor differs). log_T inert (G prior-OFF + KD-off; v14 seeded log_T satisfies guards). The memo was shelved on the "substrate washes out in MTL" premise that C25 falsified — R2 tests whether HGI's +0.36pp STL reg edge survives the joint dynamics under G.
+
+**Findings (FL, 4 seeds, matched-metric):**
+| arm | reg-full | cat F1 | Δ vs G-v14 | Δ vs (d) HGI ceil |
+|---|---|---|---|---|
+| G-HGI-routed | 73.22 ± 0.08 | 73.05 ± 0.15 | **+0.25** reg / −0.11 cat | **−0.27** |
+| G-v14 (R0 control) | 72.97 ± 0.06 | 73.16 ± 0.04 | — | (vs (c) v14: −0.30) |
+
+Per-seed G-HGI reg-full [73.14, 73.20, 73.36, 73.18]. (d) HGI STL ceiling 73.49; (c) v14 ceiling 73.27.
+
+**Decision**
+- **POSITIVE mechanism — the substrate edge TRANSFERS under G.** G-HGI beats G-v14 by **+0.25pp reg** (outside σ 0.08), capturing ~⅔ of HGI's +0.36pp STL edge. This **refutes the "substrate washes out in MTL" premise** that shelved the part-2 routing memo — exactly the C25 reframe (substrate transfers to MTL post-C25). Clean confirmation.
+- **NULL on the deployable bar — rising tide.** HGI lifts BOTH G (+0.25) and its own STL ceiling (+0.22) equally → the matched G−ceiling gap is unchanged: −0.27 (HGI) ≈ −0.30 (v14, R0). Per the gate ("promote iff routing moves G−ceiling >0") this is NULL → v14 is sufficient under G; the +0.25 absolute reg gain costs a 2nd inference substrate (HGI alongside v14) — not justified for +0.25pp at flat cat.
+- **Same shape as R1**: post-C25, both the data-scale lever (R1 overlap) AND the substrate lever (R2 HGI) transfer into G's private reg tower (they did NOT under the old shared backbone), but neither beats the achievable ceiling because the ceiling moves with them. The mechanism (transfer) is the value; the matched bar (deployability vs ceiling) holds.
+
+**Chain status**: R2 CLOSED (substrate transfers / matched bar null). Frozen (c)/(d) untouched. Committed. Tier-3 live reg-pathway probes (R1 + R2) both done.
+
+**Next**: Tier-3 boundary review — advisor pass on R0/R1/R2 → tier summary → STOP for user (decide Tier 4 optimization probes vs other). No autopilot.
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:

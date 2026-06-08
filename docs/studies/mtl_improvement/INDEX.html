@@ -1275,7 +1275,19 @@ The Tier-2 winner was found within ONE corner: cross-attn backbone · STAN priva
 <div class="block"><div class="block-title">Why (regime-reframed)</div>The routing memo was shelved on the "substrate washes out in MTL" premise — which C25 <em>falsified</em> (substrate now transfers, Δreg(v14−canon) +1.92/+1.49/+0.81). HGI carries a documented +0.36pp STL reg edge over v14. Routing HGI's region-emb into G's reg tower tests whether that edge survives the joint dynamics.</div>
 <div class="block"><div class="block-title">Method</div>Use the built <code>REGION_EMB_ENGINE</code> hook to feed HGI region-emb into G's private reg tower (cat stays on v14), FL (HGI region-emb on disk at FL; inference-time swap, no rebuild). <strong>Measure G−ceiling on the matched metric</strong> (HGI's edge is vs the v14 STL ceiling — compare to the right bar).</div>
 <div class="block"><div class="block-title">Gate</div><div class="gate"><strong>Promote</strong>: routing moves G−ceiling &gt;0 at FL multi-seed → a dual-substrate champion variant (re-judge cost: 2 substrates at inference). <strong>Null</strong>: HGI's STL edge doesn't survive the joint dynamics → confirms v14 is sufficient under G (clean finding).</div></div>
-<div class="results-placeholder">Results: <em>pending execution</em></div>
+<div class="block">
+<div class="block-title">Results (2026-06-08) — substrate edge TRANSFERS, but rising-tide → NULL on the matched bar</div>
+<p>FL {0,1,7,100}, HGI region-emb routed into G's private reg tower via the <code>REGION_EMB_ENGINE=hgi</code> hook (cat + shared-aux stay v14; routing verified real, mean |Δ|=0.30). Reg matched-metric (R0 method). Control = G-v14 (R0).</p>
+<table>
+<thead><tr><th>arm</th><th>reg-full</th><th>cat F1</th><th>Δ vs G-v14</th><th>Δ vs (d) HGI ceil</th></tr></thead>
+<tbody>
+<tr><td>G-HGI-routed</td><td class="num">73.22 ± 0.08</td><td class="num">73.05 ± 0.15</td><td class="num">+0.25 reg / −0.11 cat</td><td class="num">−0.27</td></tr>
+<tr><td>G-v14 (control)</td><td class="num">72.97 ± 0.06</td><td class="num">73.16 ± 0.04</td><td class="num">—</td><td class="num">(vs (c) v14: −0.30)</td></tr>
+</tbody>
+</table>
+<p><strong>Verdict:</strong> <span class="pill good">substrate TRANSFERS (premise falsified)</span> + <span class="pill warn">NULL on matched bar (rising tide)</span> — HGI's +0.36pp STL reg edge <strong>survives the joint dynamics under G</strong> (G-HGI beats G-v14 +0.25, outside σ), directly refuting the "substrate washes out in MTL" premise that shelved this memo (the C25 reframe). BUT it's a <strong>rising tide</strong>: HGI lifts G (+0.25) and its own ceiling (+0.22) equally → matched G−ceiling unchanged (−0.27 HGI ≈ −0.30 v14). Per the gate this is NULL (G−ceiling not moved &gt;0); the +0.25 absolute reg gain costs a 2nd inference substrate → not promoted, v14 sufficient under G. Same shape as R1 (reg levers transfer into the private tower post-C25 but don't beat the moving ceiling).</p>
+<p class="footnote">Results: <code>docs/results/mtl_improvement/R2_dual_substrate_routing.md</code> · JSON: <code>R2_routing_bar.json</code> · hook: <code>src/data/folds.py:980</code> · compute: ~2.3 GPU-h (4× FL @ CONC=2).</p>
+</div>
 </div>
 
 <div class="experiment" id="T3-richer">
