@@ -1030,6 +1030,25 @@ Deletion-bisect agent (218k tokens) + my independent verification PINNED it. **T
 
 ---
 
+## 2026-06-07 — Re-scope folded IN PLACE into Tiers 3/4/5/6 (user: no parallel umbrella; Tier 4 = the optimization tier, expanded with src/losses)
+
+**Phase**: structural re-org of the prior-turn re-scope (no runs). User: "keep Tier 4 a separate tier, apply my changes directly into it + EXPAND with the other optimizations in src/*; same for Tier 5/6 — alter the scope in place, not a new re-scope umbrella."
+
+**What changed.** Removed the parallel "Tiers 3–6 RE-SCOPED" umbrella (with R0–R4 cards) and folded the live work into the REAL tier sections:
+- **Tier 3 → "Reg-input pathway (prior · supervision · substrate)"**: houses R1 (overlap-under-G) + R2 (dual-substrate routing); T3.1 KD = done/moot; richer-priors = parked. (Old pre-G T3.1/T3.2 cards deleted; the principle + DONE/MOOT/LIVE table kept here as cross-tier context.)
+- **Tier 4 → "Optimization (loss + optimizer)" — user-prioritised, EXPANDED with `src/losses`**: T4.0 loss-scale-norm + RLW (=R3); **T4.1 = the FULL registry sweep** — inventoried `src/losses/registry.py` (~20 losses); T2V.6 swept only 4 (famo/cagrad/nash/uw); the rest (db_mtl, dwa, gradnorm, aligned_mtl, uw_so, stch, scheduled_static, fairgrad, bayesagg_mtl, excess_mtl, equal_weight, random_weight=RLW) untested under G → the expansion; T4.2 optimizer (per-head LR + AdamW knobs; Lion/Prodigy noted as new-dep contingency since `helpers.py` is AdamW-only).
+- **Tier 5 → heads (post-G)**: T5.1/T5.2 marked DONE (STAN load-bearing, next_gru+plain-CE — regime-independent, stand); added **T5.3 HSM** high-cardinality reg head (=R4) as the one live residual.
+- **Tier 6 → ship+completeness**: added **T6.0/R0** (FREE matched-metric re-score, do-FIRST, gates the probes); T6.1 re-framed to CA/TX + multi-seed ship of G; T6.2 paper-canon.
+- TOC, the DONE/MOOT/LIVE table cross-refs, and the HANDOFF block all updated to the in-place structure. INDEX tags balanced; no duplicate Tier 3.
+
+**Carried framing (unchanged):** the regime-dependence re-open test; the C25 magnitude rule (score G−ceiling on the MATCHED metric); mechanistic framing; sequencing T6.0/R0 → R1+R2+T4.0/T4.1 → T5.3, CA/TX+paper-canon parallel.
+
+**Chain status**: Tiers 3–6 re-scoped in place under G; G remains the champion baseline. No runs yet.
+
+**Next**: A40 — T6.0/R0 (free, pins the bar) first; then the Tier 3 (R1/R2) + Tier 4 (T4.0 + the registry sweep) cheap probes; T5.3 HSM; CA/TX + paper-canon parallel.
+
+---
+
 ## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
 
 **Phase**: Design complete; no experiments run yet.

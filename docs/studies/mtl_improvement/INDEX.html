@@ -140,34 +140,29 @@
     <li><a href="#T2V-8">T2V.8 Combine winning levers (P2)</a></li>
     <li><a href="#T2V-9">T2V.9 CA/TX completeness (P3)</a></li>
   </ul>
-  <h2>Tiers 3–6 RE-SCOPED ★ (post-G)</h2>
+  <h2>Tier 3 — Reg-input pathway ★ (post-G)</h2>
   <ul>
     <li><a href="#tier36">Principle + DONE/MOOT/LIVE table</a></li>
-    <li><a href="#R0">R0 matched-metric re-score (bar)</a></li>
     <li><a href="#R1">★ R1 overlap-under-G</a></li>
     <li><a href="#R2">R2 dual-substrate routing</a></li>
-    <li><a href="#R3">R3 loss-scale norm + RLW</a></li>
-    <li><a href="#R4">R4 HSM high-card reg head</a></li>
+    <li><a href="#T3-richer">T3 richer priors (parked)</a></li>
   </ul>
-  <h2>Tier 3 — Prior pathway (pre-G)</h2>
+  <h2>Tier 4 — Optimization ★ (loss + optimizer)</h2>
   <ul>
-    <li><a href="#T3-1">T3.1 log_T-KD re-sweep on stack</a></li>
-    <li><a href="#T3-2">T3.2 log_T-as-supervision variants</a></li>
+    <li><a href="#T4-0">⭐ T4.0 Loss-scale norm + RLW</a></li>
+    <li><a href="#T4-1">T4.1 Full src/losses registry sweep</a></li>
+    <li><a href="#T4-2">T4.2 Optimizer + per-head LR</a></li>
   </ul>
-  <h2>Tier 4 — Loss scale/balance</h2>
+  <h2>Tier 5 — Heads (post-G)</h2>
   <ul>
-    <li><a href="#T4-0">T4.0 Loss-scale norm (ungated)</a></li>
-    <li><a href="#T4-1">T4.1 Gradient balancers (gated)</a></li>
-    <li><a href="#T4-2">T4.2 Optimizer + per-head LR refit</a></li>
+    <li><a href="#T5-1">T5.1 Reg-head sweep (done)</a></li>
+    <li><a href="#T5-2">T5.2 Cat-head sweep (done)</a></li>
+    <li><a href="#T5-3">★ T5.3 HSM high-card reg head</a></li>
   </ul>
-  <h2>Tier 5 — Final heads</h2>
+  <h2>Tier 6 — Ship + completeness</h2>
   <ul>
-    <li><a href="#T5-1">T5.1 Reg-head sweep</a></li>
-    <li><a href="#T5-2">T5.2 Cat-head sweep</a></li>
-  </ul>
-  <h2>Tier 6 — Ship</h2>
-  <ul>
-    <li><a href="#T6-1">T6.1 Multi-seed ship</a></li>
+    <li><a href="#T6-0">⭐ R0/T6.0 matched-metric bar (FIRST)</a></li>
+    <li><a href="#T6-1">T6.1 CA/TX + multi-seed ship</a></li>
     <li><a href="#T6-2">T6.2 Paper-canon re-eval</a></li>
   </ul>
 </nav>
@@ -1225,8 +1220,8 @@ The Tier-2 winner was found within ONE corner: cross-attn backbone · STAN priva
 </div>
 
 <!-- ============================================================== -->
-<h2 id="tier36">Tiers 3–6 RE-SCOPED under champion G (2026-06-07) <span class="pill tier3">post-G</span> <span class="pill info">user-requested re-open + advisor-calibrated</span></h2>
-<p>The original Tier 3–6 cards (below, kept for the trail) were designed pre-C25 to close a reg gap that <strong>no longer exists</strong>. But the C25/G reversal did NOT moot them uniformly — it <strong>re-opened the specific cards whose prior negative/moot verdict depended on the now-removed regime</strong> (the class-weighted, shared-backbone training G replaces), while leaving the regime-independent verdicts closed. That test is the organizing principle here.</p>
+<h2 id="tier36">Tier 3 — Reg-input pathway: prior · supervision · substrate (RE-SCOPED post-G, 2026-06-07) <span class="pill tier3">Tier 3 ★</span> <span class="pill info">reg-pathway levers reopened by C25/G</span></h2>
+<p>The original Tier 3 was just "log_T-KD" (now moot — KD is identical to G). Re-scoped to the broader question it should have been: <strong>what feeds/supervises the reg tower</strong> — the prior, the supervision density, and the substrate. The C25/G reversal <strong>re-opened the cards whose prior negative/moot verdict depended on the now-removed regime</strong> (class-weighted, shared-backbone). <strong>Tiers 4, 5, 6 are re-scoped IN PLACE below</strong> (Tier 4 = the optimization tier, expanded with the full <code>src/losses</code> registry). This status note + the principle apply across all of them.</p>
 <div class="callout">
 <h4>Organizing principle + two framing rules (advisor 2026-06-07)</h4>
 <ul>
@@ -1240,27 +1235,19 @@ The Tier-2 winner was found within ONE corner: cross-attn backbone · STAN priva
 <thead><tr><th>card / source</th><th>verdict</th><th>why</th></tr></thead>
 <tbody>
 <tr><td>T3.1 log_T-KD W/τ sweep</td><td><span class="pill bad">DONE/MOOT</span></td><td>g-sweep KD = identical to G; prior vestigial under dual-tower (α→0).</td></tr>
-<tr><td>T4.1 gradient balancers</td><td><span class="pill bad">DONE</span></td><td>T2V.6 swept FAMO/CAGrad/Nash/UW — none Pareto-beats G.</td></tr>
+<tr><td>T4.1 balancer registry</td><td><span class="pill warn">PARTIAL → LIVE</span></td><td>T2V.6 swept only 4 of ~20 (famo/cagrad/nash/uw ≈G); the rest (db_mtl/dwa/gradnorm/aligned_mtl/RLW/…) untested under G → <a href="#tier4">Tier 4</a> EXPANDED.</td></tr>
 <tr><td>T5.1 reg-head swaps · T5.2 cat-head sweep</td><td><span class="pill bad">DONE</span></td><td>STAN load-bearing (B-A1); next_gru+plain-CE cat optimal; regime-independent → stand.</td></tr>
 <tr><td>fw: composite · mtl_architecture_revisit · substrate_adaptive_balancing · head_window_batch · task_pivot</td><td><span class="pill bad">MOOT/DONE</span></td><td>composite dissolved (G≥it); MoE/CGC/cross-stitch falsified 5 ways; sampler falsified; pivot is a doc note.</td></tr>
-<tr><td><strong>R0</strong> multi-state matched-metric re-score</td><td><span class="pill warn">LIVE-completeness (FREE, FIRST)</span></td><td>"matches" is FL-only (B-A2); pins the G−ceiling bar at AL/AZ/GE. Zero retrain.</td></tr>
-<tr><td><strong>R1</strong> overlap-under-G (fw/overlapping_windows)</td><td><span class="pill good">LIVE-PROMISING ★</span></td><td>RE-OPENED: the MTL-negative was the shared backbone; G's private tower may absorb the dense lift. Engine+ceiling built at AL.</td></tr>
-<tr><td><strong>R2</strong> dual-substrate routing HGI→reg (fw/part2_routing)</td><td><span class="pill good">LIVE-PROMISING ★</span></td><td>REFRAMED: C25 falsified its "washes out" premise (substrate transfers now). Hook built; HGI region-emb on disk at FL.</td></tr>
-<tr><td><strong>R3</strong> T4.0 loss-scale-norm + RLW</td><td><span class="pill good">LIVE-PROMISING</span></td><td>Untested; distinct from balancers (the ~4.7× CE-magnitude gap, never ÷log(K)). Ungated, near-free, runs on G.</td></tr>
-<tr><td><strong>R4</strong> HSM high-cardinality reg head (next_stan_flow_hsm)</td><td><span class="pill good">LIVE-PROMISING</span></td><td>Never GPU-run (needs hierarchy build, script exists); high-card-softmax lever at the large states where reg headroom lives.</td></tr>
-<tr><td><strong>C-A</strong> CA/TX (T6.1/T2V.9)</td><td><span class="pill warn">LIVE-completeness (heavy, parallel)</span></td><td>The scale-conditional reviewer challenge; needs a v14 build at CA(8.5k)/TX(6.5k).</td></tr>
-<tr><td><strong>C-B</strong> paper-canon restatement (T6.2)</td><td><span class="pill warn">LIVE-completeness (author)</span></td><td>§0.1 + CH25/CH28 → Pareto-positive multi-state; mostly no-GPU.</td></tr>
+<tr><td><strong>R0 → <a href="#T6-0">T6.0</a></strong> multi-state matched-metric re-score</td><td><span class="pill warn">LIVE (FREE, FIRST)</span></td><td>"matches" is FL-only (B-A2); pins the G−ceiling bar at AL/AZ/GE. Zero retrain. Gates every probe.</td></tr>
+<tr><td><strong>R1 → <a href="#R1">Tier 3</a></strong> overlap-under-G (fw/overlapping_windows)</td><td><span class="pill good">LIVE-PROMISING ★</span></td><td>RE-OPENED: the MTL-negative was the shared backbone; G's private tower may absorb the dense lift. Engine+ceiling built at AL.</td></tr>
+<tr><td><strong>R2 → <a href="#R2">Tier 3</a></strong> dual-substrate routing HGI→reg (fw/part2_routing)</td><td><span class="pill good">LIVE-PROMISING ★</span></td><td>REFRAMED: C25 falsified its "washes out" premise (substrate transfers now). Hook built; HGI region-emb on disk at FL.</td></tr>
+<tr><td><strong>→ <a href="#tier4">Tier 4</a></strong> loss-scale-norm (T4.0) + full balancer registry (T4.1)</td><td><span class="pill good">LIVE-PROMISING</span></td><td>Untested under G; T4.0 distinct from balancers (~4.7× CE gap, never ÷log K); T4.1 = ~16 unswept registry losses (db_mtl, dwa, gradnorm, aligned_mtl, RLW…).</td></tr>
+<tr><td><strong>→ <a href="#T5-3">T5.3</a></strong> HSM high-cardinality reg head</td><td><span class="pill good">LIVE-PROMISING</span></td><td>Never GPU-run (hierarchy script exists); high-card-softmax lever at the large states where reg headroom lives.</td></tr>
+<tr><td><strong>C-A → <a href="#T6-1">T6.1</a></strong> CA/TX</td><td><span class="pill warn">LIVE-completeness (heavy, parallel)</span></td><td>The scale-conditional reviewer challenge; needs a v14 build at CA(8.5k)/TX(6.5k).</td></tr>
+<tr><td><strong>C-B → <a href="#T6-2">T6.2</a></strong> paper-canon restatement</td><td><span class="pill warn">LIVE-completeness (author)</span></td><td>§0.1 + CH25/CH28 → Pareto-positive multi-state; mostly no-GPU.</td></tr>
 <tr><td>T3.2 richer priors · T4.2 Lion/Prodigy</td><td><span class="pill info">PARKED contingency</span></td><td>T3.2's pathways (additive-α/KD) are falsified — only viable recast as a private-tower feature; Lion/Prodigy is a low-prob LR re-tune. Run ONLY if R1–R4 stall.</td></tr>
 </tbody>
 </table></div>
-
-<div class="experiment" id="R0">
-<h3>R0 — Multi-state matched-metric re-score (defines the bar; FREE; do FIRST) <span class="pill tier3">post-G</span> <span class="pill cost-s">S-cost (no retrain)</span> <span class="pill bad">prerequisite</span></h3>
-<div class="block"><div class="block-title">Why</div>The "reg matches the ceiling" verb is verified on the MATCHED metric (FULL <code>top10_acc</code>) at FL only (B-A2). Until the G−ceiling delta is pinned on the matched metric at AL/AZ/GE, the probes below can't be measured ("does it move G−ceiling?"). This is the bar.</div>
-<div class="block"><div class="block-title">Method</div>Re-score the EXISTING G runs + the (c)/(d) ceiling runs on FULL <code>top10_acc</code> (not <code>_indist</code>) at AL/AZ/GE (FL done). Zero retraining — pure re-evaluation. Report G−ceiling (matched) per state = the bar R1–R4 must move.</div>
-<div class="block"><div class="block-title">Gate</div><div class="gate">Pins the per-state matched-metric G−ceiling delta. Likely confirms "matches" (small ±); if a state shows a real matched gap, that's where R1–R4 have the most to gain.</div></div>
-<div class="results-placeholder">Results: <em>pending execution</em></div>
-</div>
 
 <div class="experiment" id="R1">
 <h3>R1 — ★ Overlap-under-G: does the private tower absorb dense supervision? <span class="pill tier3">post-G</span> <span class="pill cost-m">M-cost</span> <span class="pill good">regime-reopened, top candidate</span></h3>
@@ -1278,83 +1265,52 @@ The Tier-2 winner was found within ONE corner: cross-attn backbone · STAN priva
 <div class="results-placeholder">Results: <em>pending execution</em></div>
 </div>
 
-<div class="experiment" id="R3">
-<h3>R3 — T4.0 loss-scale normalization + RLW litmus <span class="pill tier3">post-G</span> <span class="pill cost-s">S-cost, ungated</span></h3>
-<div class="block"><div class="block-title">Why</div>Genuinely untested (T2V.6 swept gradient-<em>balancers</em>; the <code>g_catw*</code> sweep tuned the inter-task <em>weight</em> — neither is loss-SCALE normalization). The ~4.7× built-in CE-magnitude gap (7-class ln7 vs ~5–9k-class ln≈8.5) was never decoupled from <code>w</code> by ÷log(num_classes). Flagged highest-EV-near-free.</div>
-<div class="block"><div class="block-title">Method</div>On G: divide each task CE by <code>log(num_classes)</code> (or EMA baseline), re-tune <code>w</code> (small grid); + RLW litmus (random weighting ≈ w=0.75? → the weight isn't the bottleneck). FL + a small state.</div>
-<div class="block"><div class="block-title">Gate</div><div class="gate"><strong>Promote</strong>: scale-norm + re-tuned w moves either head on the matched metric, other non-inferior. <strong>Else</strong>: G's static w=0.75 is the optimum (RLW confirms).</div></div>
-<div class="results-placeholder">Results: <em>pending execution</em></div>
-</div>
-
-<div class="experiment" id="R4">
-<h3>R4 — HSM high-cardinality reg head (next_stan_flow_hsm) <span class="pill tier3">post-G</span> <span class="pill cost-s">S-cost + 1-time hierarchy build</span></h3>
-<div class="block"><div class="block-title">Why</div>Never GPU-run (needs a prebuilt <code>hierarchy_path</code>; <code>scripts/build_region_hierarchy.py</code> exists). Hierarchical softmax is a high-cardinality-specific reg mechanism (FL 4.7k / CA 8.5k / TX 6.5k classes) — distinct from the small-state head swaps already falsified (B-A1), and aimed at the large states where reg headroom (matches→beats) actually lives.</div>
-<div class="block"><div class="block-title">Method</div>Build the region hierarchy; swap G's reg-head to <code>next_stan_flow_hsm</code> (keep aux+prior-OFF), FL → multi-seed if it moves. Matched-metric G−ceiling.</div>
-<div class="block"><div class="block-title">Gate</div><div class="gate"><strong>Promote</strong>: ≥0.5pp matched-metric reg over G at FL multi-seed, cat non-inferior. <strong>Else</strong>: flat softmax is sufficient at G's cardinalities.</div></div>
-<div class="results-placeholder">Results: <em>pending execution</em></div>
+<div class="experiment" id="T3-richer">
+<h3>T3.contingency — richer reg priors (Markov-2 / hierarchical / time-decayed) <span class="pill tier3">T3</span> <span class="pill cost-m">M-cost</span> <span class="pill info">PARKED — run only if R1/R2 stall</span></h3>
+<div class="block"><div class="block-title">Why parked</div>Both pathways a richer log_T would enter through are falsified under G: the additive-α term (prior-OFF≈ON, T2V.2) and the KD term (T3.1 = identical to G). Only viable if re-cast as a <strong>private-tower input feature</strong> (a new mechanism), not a prior/KD term. Contingency behind R1/R2.</div>
+<div class="results-placeholder">Results: <em>pending (contingency)</em></div>
 </div>
 
 <div class="callout warn">
-<h4>Sequencing + completeness + parked (the discipline — ~4 probes + 3 completeness, not 12 runs)</h4>
-<strong>Order:</strong> <strong>R0</strong> (free, pins the bar) → <strong>R1 + R2 + R3</strong> (cheap probes, gated on R0's matched bar) → <strong>R4</strong> → then the contingencies only if R1–R4 stall. <strong>Completeness (parallel track, doesn't block the probes):</strong> <strong>C-A CA/TX</strong> (heavy v14 build; the scale-conditional reviewer challenge) · <strong>C-B paper-canon restatement</strong> (author). <strong>Parked contingencies (run ONLY if R1–R4 stall):</strong> T3.2 richer priors recast as a private-tower input feature (its additive-α/KD pathways are falsified); T4.2 Lion/Prodigy (low-prob LR re-tune on an already-tuned config). Every probe scores Δ vs the R0 matched-metric bar + reports its mechanism finding.
+<h4>Tier-3 sequencing + where the other reopened cards live</h4>
+<strong>Within Tier 3:</strong> R1 (overlap) + R2 (routing) are the live reg-pathway probes; T3.1 log_T-KD = DONE/moot; the richer-priors card is a parked contingency. <strong>The other reopened cards are re-scoped IN their own tiers:</strong> loss-scale-norm + the full balancer registry → <a href="#tier4">Tier 4</a> (T4.0/T4.1); HSM high-cardinality reg head → <a href="#tier5">Tier 5</a>; the matched-metric re-score bar (R0) + CA/TX → <a href="#tier6">Tier 6</a>. <strong>Global order:</strong> R0 (Tier 6, FREE — pins the bar) FIRST → R1+R2 (here) + T4.0/T4.1 (Tier 4) cheap probes → R4 (Tier 5) → contingencies only if all stall. Every probe scores Δ vs the R0 matched bar + reports its mechanism.
 </div>
 
 <!-- ============================================================== -->
-<h2 id="tier3">Tier 3 — Prior pathway (log_T-KD) <span class="pill tier3">Tier 3</span> <span class="pill warn">⛔ original pre-G plan — see Tiers 3–6 RE-SCOPED above</span></h2>
-<p>log_T-KD is the one confirmed MTL-reg lever (+2.4/+5.06/+2.32pp; v12 default). The open question: does it <em>stack</em> with the Tier-2 architecture or is it redundant? <strong>Compute:</strong> ~60 GPU-h + ~3 days.</p>
-
-<div class="experiment" id="T3-1">
-<h3>T3.1 — log_T-KD weight/τ re-sweep on the new stack <span class="pill tier3">T3</span> <span class="pill cost-s">S-cost</span></h3>
-<div class="meta">Targets: does the confirmed reg lever stack with the dual-tower? · Mechanism: W/τ sweep on Tier-2 winner</div>
-<div class="block"><div class="block-title">Hypothesis</div>log_T-KD W=0.2 was tuned on the cross-attn backbone. On the dual-tower (which gives reg a private STAN pathway that may already exploit log_T via α), the optimal W may shift or the KD may become redundant.</div>
-<div class="block"><div class="block-title">Methodology</div>W ∈ {0.0, 0.1, 0.2, 0.4} × τ ∈ {1.0, 2.0} on the Tier-2 winner, 5f × 50ep AL+AZ+FL, seeded log_T. Compare to W=0.2 default.</div>
-<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: a (W,τ) strictly beats W=0.2 on disjoint+deployable reg, cat non-inferior. <strong>Redundant</strong>: dual-tower already captures it → keep W=0.2, note the redundancy.</div></div>
-<div class="results-placeholder">Results: <em>pending execution</em></div>
-</div>
-
-<div class="experiment" id="T3-2">
-<h3>T3.2 — log_T-as-supervision variants <span class="pill tier3">T3</span> <span class="pill cost-s">S-cost</span></h3>
-<div class="meta">Targets: reg_head_architecture_sweep §log_T axis · Mechanism: alternative priors / KD targets</div>
-<div class="block"><div class="block-title">Hypothesis</div>The current log_T is 1st-order Markov train-only. Alternatives (Markov-2, hierarchical county→tract, time-decayed log_T) may carry orthogonal signal to the KD. (reg_head_architecture_sweep §"log_T as supervision".)</div>
-<div class="block"><div class="block-title">Methodology</div>2-3 alternative log_T builders + KD targets on the Tier-2 winner, AL+AZ + FL, seeded log_T rebuilt per variant. Include freeze-α diagnostic ("% from prior").</div>
-<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: ≥1pp reg over plain log_T-KD, cat non-inferior. <strong>Else</strong>: 1st-order log_T-KD is sufficient.</div></div>
-<div class="results-placeholder">Results: <em>pending execution</em></div>
-</div>
-
-<!-- ============================================================== -->
-<h2 id="tier4">Tier 4 — Loss scale + balancing <span class="pill tier4">Tier 4</span></h2>
-<p>Re-ranked 2026-06-03 after <code>joint_selection_and_loss_combination.md</code>: the likely <em>real</em> loss lever is <strong>scale</strong>, not the inter-task weight. <strong>T4.0 (loss-scale normalization) is ungated and cheap — run it regardless</strong> (highest EV). The gradient-balancer sweep (T4.1) stays gated (P4 demoted interference-targeting) and is re-scoped to <strong>FAMO</strong> (the only O(1)-cost balancer feasible at 9k regions). <strong>Compute:</strong> ~30 GPU-h (T4.0) + ~50 GPU-h (T4.1 if triggered) + ~5 days.</p>
+<h2 id="tier4">Tier 4 — Optimization: loss-scale, the full <code>src/losses</code> balancer registry &amp; optimizer (RE-SCOPED post-G, 2026-06-07) <span class="pill tier4">Tier 4 ★</span> <span class="pill info">user-prioritised — C25 reopened the loss axis</span></h2>
+<p><strong>This is now a first-class tier.</strong> The C25 discovery (a loss-objective confound was the entire "reg gap") makes the <em>loss/optimization axis</em> the most natural place to look next — and most of the <code>src/losses/</code> registry has never been run under the corrected (unweighted) recipe + champion G. Re-scoped into three cards, all on the G baseline, scored vs the R0 matched-metric bar (§ status note above): <strong>T4.0</strong> loss-scale normalization (=R3, highest-EV, ungated); <strong>T4.1</strong> the FULL balancer registry sweep (expanded — see below); <strong>T4.2</strong> the optimizer axis. <strong>Why now & not "done":</strong> T2V.6 swept only 4 of the ~20 registered losses (FAMO/CAGrad/Nash/UW) — the rest are untested under G, and the prior P4 "balancing is low-EV" verdict was pre-C25 (it assumed the gap was interference; C25 showed it was the loss objective itself → the loss axis is reopened, not closed).</p>
+<div class="callout warn"><strong>Magnitude + mechanism rule (carries from the status note):</strong> a loss change that lifts STL reg lifts the ceiling too → score every arm as <strong>G − ceiling on the MATCHED metric</strong>, and report the mechanism (e.g. "scale-norm lets the under-scaled head learn"), not just the number.</div>
 
 <div class="experiment" id="T4-0">
-<h3>T4.0 — Loss-scale normalization + RLW litmus <span class="pill tier4">T4</span> <span class="pill cost-s">S-cost</span> <span class="pill good">ungated — highest EV, near-free</span> <span class="pill good">RUN EARLY (with T1.3)</span></h3>
+<h3>T4.0 — Loss-scale normalization + RLW litmus <span class="pill tier4">T4 ★</span> <span class="pill cost-s">S-cost</span> <span class="pill good">ungated — highest EV, near-free; run on G first</span></h3>
 <div class="meta">Targets: the ~4.7× built-in CE magnitude gap · Mechanism: normalize each CE by log(num_classes); RLW diagnostic · <strong>Sequencing: run alongside T1.3 in the cheap-diagnostic slot — it's orthogonal to the architecture (P4 froze cat entirely), so it does NOT depend on Tier 2/3; its RLW signal tells you early whether the inter-task weight even matters, informing the expensive tiers.</strong></div>
 <div class="block"><div class="block-title">Hypothesis</div>Random-init 7-class CE ≈ ln 7 ≈ 1.95 vs ~9k-class CE ≈ ln 9000 ≈ 9.1 — a <strong>~4.7× magnitude gap before any weighting</strong>. The region loss dominates the gradient by construction; <code>w=0.75</code> on category is partly just undoing that. Normalizing each CE by <code>log(num_classes)</code> (or a running-EMA baseline) <em>before</em> applying <code>w</code> decouples scale from the inter-task weight — the DB-MTL log-transform / UW principle. Highest-EV, near-free (<code>joint_selection_and_loss_combination.md</code> Part 2).</div>
-<div class="block"><div class="block-title">Methodology</div>(a) divide each CE by <code>log(num_classes)</code>, then re-tune <code>w</code> (small grid around 0.5); (b) <strong>RLW litmus</strong> (Lin TMLR'22): if random weighting ≈ <code>w=0.75</code>, the inter-task weight is NOT the bottleneck → the lever is scale + intra-task imbalance, not balancing. On the Tier-3 winner, AL+AZ+GE+FL, frozen folds. Orthogonal head-level option (record, don't necessarily run): logit-adjustment on the cat head (Menon ICLR'21, consistent for macro-F1).</div>
+<div class="block"><div class="block-title">Methodology</div>(a) divide each CE by <code>log(num_classes)</code>, then re-tune <code>w</code> (small grid around 0.5); (b) <strong>RLW litmus</strong> (Lin TMLR'22): if random weighting ≈ <code>w=0.75</code>, the inter-task weight is NOT the bottleneck → the lever is scale + intra-task imbalance, not balancing. On champion G, FL + a small state (matched-metric G−ceiling). composes with <code>db_mtl</code> (T4.1). (cat logit-adjust already tested under G — T2V.7, hurts; plain CE is the cat optimum.)</div>
 <div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: scale-norm + re-tuned w beats <code>w=0.75</code> by ≥1pp on either head, other non-inferior. <strong>RLW≈0.75</strong>: confirms weight isn't the bottleneck → skip most of T4.1, focus on scale/imbalance. This experiment runs regardless of the T2/T3 residual (cheap + diagnostic).</div></div>
 <div class="results-placeholder">Results: <em>pending execution</em></div>
 </div>
 
 <div class="experiment" id="T4-1">
-<h3>T4.1 — Gradient balancers (gated, FAMO-led) <span class="pill tier4">T4</span> <span class="pill cost-m">M-cost</span> <span class="pill warn">gated</span></h3>
-<div class="meta">Targets: substrate_adaptive_mtl_balancing · Mechanism: FAMO (O(1)) first; O(k) methods deprioritized at 9k</div>
-<div class="block"><div class="block-title">Hypothesis</div>P4 says the gap isn't cat-vs-reg interference, so balancing is low-EV — but if a residual remains, <strong>FAMO</strong> (Liu NeurIPS'23) is the right tool: O(1) cost (no per-task gradient storage), directly targets the under-optimized task, feasible at our ~9k-class region head. <strong>PCGrad / CAGrad / NashMTL are O(k)-gradient — a poor fit at 9k</strong> (and NashMTL has cvxpy/ECOS instability); deprioritize. UW/MGDA can WORSEN region neglect (down-weight hard tasks) — do not deploy blind.</div>
-<div class="block"><div class="block-title">Methodology</div>FAMO (gamma + w_lr sweep) first; DB-MTL (log-scale + grad balance, composes with T4.0) second; Aligned-MTL only if both stall. On the Tier-3 winner + T4.0 scale-norm, AL+AZ+GE+FL. <strong>EXCLUDED</strong>: class-balanced sampler (falsified −18 to −30pp); blind UW/MGDA (region-neglect risk); O(k) PCGrad/CAGrad/NashMTL unless FAMO surprises.</div>
-<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Run only if</strong> Tier-2/3/T4.0 leave &gt;2pp to composite. <strong>Promote</strong>: ≥1pp on targeted axis, non-inferior. <strong>Else</strong>: confirm balancing is not the lever (P4 holds).</div></div>
-<div class="results-placeholder">Results: <em>pending execution (gated)</em></div>
+<h3>T4.1 — FULL <code>src/losses</code> balancer registry sweep under G (EXPANDED) <span class="pill tier4">T4</span> <span class="pill cost-m">M-cost</span> <span class="pill info">the src/* expansion</span></h3>
+<div class="meta">Targets: the ~20 registered MTL losses — most never run under G/unweighted · Mechanism: A/B each vs G (static_weight)</div>
+<div class="block"><div class="block-title">Hypothesis</div>The registry (<code>src/losses/registry.py</code>) holds ~20 balancers; T2V.6 swept only <strong>4</strong> (famo, cagrad, nash_mtl, uncertainty_weighting → all ≈G). The rest are <strong>untested under G + unweighted</strong>, and the pre-C25 "balancing is low-EV" verdict (P4) assumed interference — C25 reopened the loss axis. Some target exactly G's profile (under-scaled cat vs huge-cardinality reg).</div>
+<div class="block"><div class="block-title">Methodology</div>A/B each registered loss vs G's <code>static_weight</code>, FL seed0 screen → multi-seed any that moves matched-metric G−ceiling. <strong>UNTESTED (run):</strong> <code>db_mtl</code> (log-scale+grad-balance — composes with T4.0 scale-norm, the strongest fit), <code>aligned_mtl</code>, <code>dwa</code>, <code>gradnorm</code>, <code>scheduled_static</code>, <code>uw_so</code>, <code>fairgrad</code>, <code>bayesagg_mtl</code>, <code>excess_mtl</code>, <code>stch</code>, <code>equal_weight</code>, <code>random_weight</code> (= the <strong>RLW litmus</strong> — if RLW≈G the inter-task weight isn't the bottleneck). <strong>DONE (cite, don't re-run):</strong> famo/cagrad/nash/uncertainty (T2V.6 ≈G). <strong>EXCLUDED:</strong> class-balanced sampler (falsified −18..−30pp); <code>pcgrad</code> O(k)-gradient (impractical at 9k) unless a cheaper arm surprises; <code>focal</code> (cat-loss, T2V.7-done — lost).</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: a loss moves matched-metric G−ceiling ≥0.5pp on either head multi-seed, other non-inferior → adopt (esp. db_mtl ⊕ T4.0). <strong>Else</strong>: G's static_weight is confirmed optimal across the full registry (a strong, paper-clean negative — "no balancer beats tuned scalarization," Xin NeurIPS'22). RLW pins whether the weight matters at all.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
 </div>
 
 <div class="experiment" id="T4-2">
-<h3>T4.2 — Optimizer + per-head LR re-fit on consolidated stack <span class="pill tier4">T4</span> <span class="pill cost-m">M-cost</span></h3>
-<div class="meta">Targets: C7 — LR/optim re-sweep after arch+loss · Mechanism: Lion/Prodigy + per-head LR grid</div>
-<div class="block"><div class="block-title">Hypothesis</div>Per-head LR (cat=1e-3/reg=3e-3/shared=1e-3) was tuned for cross-attn. The dual-tower's private reg backbone is a new param group needing its own LR. Re-fit; try Lion/Prodigy (auto per-group LR).</div>
-<div class="block"><div class="block-title">Methodology</div>per-head LR grid (incl. the private-backbone group) + Lion/Prodigy, AL+AZ + FL on the consolidated stack. <strong>Validates the T3 winner under the new optimizer</strong>; narrow-scope T3 re-run if flipped.</div>
-<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: ≥0.5pp joint improvement; pin the recipe. Re-validate T3 if the optimizer flips it.</div></div>
+<h3>T4.2 — Optimizer axis: per-head LR refit + AdamW knobs (Lion/Prodigy optional) <span class="pill tier4">T4</span> <span class="pill cost-m">M-cost</span></h3>
+<div class="meta">Targets: the optimizer under G's new param group · Mechanism: per-group LR + the existing AdamW levers; Lion/Prodigy = new dep</div>
+<div class="block"><div class="block-title">Hypothesis</div>G's per-head LR (cat 1e-3 / reg 3e-3 / shared 1e-3) was inherited; the dual-tower's private STAN is a NEW param group that may want its own LR. (T2V.6 tested reg-head-lr 1e-4 ≈ G — partial.)</div>
+<div class="block"><div class="block-title">Methodology</div><strong>In-code assets first</strong> (<code>src/training/helpers.py</code> is AdamW-only): per-group LR grid incl. the private-tower group (<code>--reg-head-lr</code>); the AdamW knobs (<code>--weight-decay</code>, <code>--adam-eps</code>, betas, <code>--alternating-optimizer-step</code>, <code>--alpha-no-weight-decay</code>). FL + a small state on G. <strong>Lion/Prodigy are NOT in <code>src/*</code></strong> → a contingency (adds a dep) only if the AdamW grid shows headroom. (Low prior: G's LR is already near-optimal per the c25 sweep.)</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: ≥0.5pp matched-metric joint improvement; pin. <strong>Else</strong>: G's optimizer recipe is confirmed (Lion/Prodigy not worth the dep).</div></div>
 <div class="results-placeholder">Results: <em>pending execution</em></div>
 </div>
 
 <!-- ============================================================== -->
-<h2 id="tier5">Tier 5 — Final per-task head re-ablation <span class="pill tier5">Tier 5</span></h2>
-<p>The chicken/egg resolution (C9): the best head depends on the consolidated backbone+prior. Re-ablate per task under the final recipe. <strong>The candidate set = the head registry + any <a href="#tierS">Tier-S</a> STL winners</strong> — this is the join point where the parallel STL frontier rejoins the chain (best-STL ≠ best-STL-in-MTL, so a Tier-S winner is a <em>candidate</em> here, re-judged under MTL, not an automatic pick). <strong>Compute:</strong> ~80 GPU-h + ~3 days.</p>
+<h2 id="tier5">Tier 5 — Head re-ablation (RE-SCOPED post-G, 2026-06-07) <span class="pill tier5">Tier 5</span></h2>
+<p><strong>Mostly answered under G — one live residual.</strong> T5.1/T5.2 (below) were substantially resolved by Tier-S + T2V.5/B-A1: the reg <strong>STAN private tower is load-bearing</strong> (GRU/LSTM/TCN all −1.8 to −3.4pp), and the <strong>cat head is next_gru + plain CE</strong> (the whole loss family + encoder swaps lost). Those verdicts are regime-independent → they STAND. The ONE genuinely-untested head is <strong>T5.3 — the HSM high-cardinality reg head</strong> (never GPU-run; the large-state-specific lever where the reg matches→beats headroom lives). <strong>Compute:</strong> T5.3 ~small + a one-time hierarchy build.</p>
 
 <div class="experiment" id="T5-1">
 <h3>T5.1 — Reg-head sweep under the consolidated recipe <span class="pill tier5">T5</span> <span class="pill cost-m">M-cost</span></h3>
@@ -1370,20 +1326,36 @@ The Tier-2 winner was found within ONE corner: cross-attn backbone · STAN priva
 <div class="meta">Targets: head_window_batch_audit §A (cat) · Mechanism: cat heads on the winner backbone</div>
 <div class="block"><div class="block-title">Hypothesis</div>Standalone-vs-MTL head inversion: best standalone ≠ best MTL. <strong>Candidate set = the Tier-S/S.2 winners</strong> re-judged under MTL: <code>next_gru</code> (current) vs the coded cat-capable encoders (<code>next_transformer_relpos</code>/<code>next_transformer_optimized</code>/<code>next_single</code>/<code>next_temporal_cnn</code>/<code>next_tcn_residual</code>) plus any Prong-B build that cleared S.2. (NOT the <code>category_*</code> family — wrong modality/substrate, see scope-boundaries callout.)</div>
 <div class="block"><div class="block-title">Methodology</div>The S.2-promoted cat heads on the consolidated backbone, AL+AZ+FL. Top-2 to 3-seed.</div>
-<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: ≥1pp cat at ≥2 states, reg non-inferior.</div></div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: ≥1pp cat at ≥2 states, reg non-inferior. <span class="pill bad">STATUS: DONE</span> — next_gru + plain CE confirmed (T2V/B-A4); regime-independent.</div></div>
+<div class="results-placeholder">Results (2026-06): DONE — next_gru cat winner; loss family + encoder swaps all lost. No change.</div>
+</div>
+
+<div class="experiment" id="T5-3">
+<h3>T5.3 — HSM high-cardinality reg head (next_stan_flow_hsm) <span class="pill tier5">T5 ★</span> <span class="pill cost-s">S-cost + 1-time hierarchy build</span> <span class="pill good">the live Tier-5 residual</span></h3>
+<div class="block"><div class="block-title">Why</div>Never GPU-run (needs a prebuilt <code>hierarchy_path</code>; <code>scripts/build_region_hierarchy.py</code> exists). Hierarchical softmax is a high-cardinality-specific reg mechanism (FL 4.7k / CA 8.5k / TX 6.5k) — distinct from the small-state head swaps already falsified (B-A1), and aimed at the large states where the reg matches→beats headroom lives.</div>
+<div class="block"><div class="block-title">Methodology</div>Build the region hierarchy; swap G's reg-head to <code>next_stan_flow_hsm</code> (keep aux + prior-OFF), FL → multi-seed if it moves. Score matched-metric G−ceiling (R0 bar).</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: ≥0.5pp matched-metric reg over G at FL multi-seed, cat non-inferior. <strong>Else</strong>: flat softmax is sufficient at G's cardinalities (a clean negative for the paper).</div></div>
 <div class="results-placeholder">Results: <em>pending execution</em></div>
 </div>
 
 <!-- ============================================================== -->
-<h2 id="tier6">Tier 6 — Ship + paper-canon re-eval <span class="pill tier6">Tier 6</span></h2>
-<p>Multi-seed n=20 across 5 states; trigger the paper-canon re-run. <strong>Compute:</strong> ~300 GPU-h + ~5 days.</p>
+<h2 id="tier6">Tier 6 — Ship + completeness (RE-SCOPED post-G) <span class="pill tier6">Tier 6</span></h2>
+<p><strong>The ship recipe is G</strong> (= v16, the train.py default). 4 states (AL/AZ/GE/FL) are done at 4 seeds; what remains is <strong>R0</strong> (the FREE matched-metric bar — do FIRST, it gates every probe), the <strong>CA/TX</strong> completeness run, and the paper-canon restatement. <strong>Compute:</strong> R0 ~0 (re-eval); CA/TX heavy (v14 build); T6.2 mostly author.</p>
+
+<div class="experiment" id="T6-0">
+<h3>R0 / T6.0 — Multi-state matched-metric re-score (the bar; FREE; do FIRST) <span class="pill tier6">T6 ★</span> <span class="pill cost-s">S-cost (no retrain)</span> <span class="pill bad">prerequisite — gates R1/R2/T4/T5.3</span></h3>
+<div class="block"><div class="block-title">Why</div>The "reg matches the ceiling" verb is matched-metric-verified (FULL <code>top10_acc</code>, not <code>_indist</code>) at FL ONLY (B-A2). Until G−ceiling is pinned on the matched metric at AL/AZ/GE, no probe can be measured ("does it move G−ceiling?"). This is the bar every reopened card scores against.</div>
+<div class="block"><div class="block-title">Methodology</div>Re-score the EXISTING G runs + the (c)/(d) ceiling runs on FULL <code>top10_acc</code> at AL/AZ/GE. Zero retraining. Output: per-state matched-metric G−ceiling = the bar.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate">Pins the bar; likely confirms "matches" (small ±). A state with a real matched gap is where the probes have the most to gain. Also hardens the paper "matches" verb multi-state.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
 
 <div class="experiment" id="T6-1">
-<h3>T6.1 — Multi-seed shipping run <span class="pill tier6">T6</span> <span class="pill cost-l">L-cost</span></h3>
-<div class="meta">Targets: paper-grade numbers · Mechanism: final recipe, 4 seeds × 5 folds × 5 states</div>
-<div class="block"><div class="block-title">Hypothesis</div>The consolidated recipe (v14 + dual-tower + log_T-KD + tuned heads/LR) beats v14-base-MTL and recovers a paper-grade fraction of the composite ceiling, with v14&gt;canonical emerging (substrate finally survives).</div>
-<div class="block"><div class="block-title">Methodology</div>Final recipe at seeds {0,1,7,100} × 5 folds × AL/AZ/FL/CA/TX (build v14 at CA/TX here per T0.1), three-frontier, all 4 anchors, Δm, generality probes. Pooled Wilcoxon n=20.</div>
-<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Ship</strong>: paper-grade reg improvement over v14-base at ≥4/5 states OR a scale-conditional ship (large-state + small-state recipes). <strong>Composite fallback</strong>: if no integrated winner, ship the composite for reg + the MTL cat-lift story. <strong>Negative</strong>: "the gap is irreducibly architectural" — itself paper-grade.</div></div>
+<h3>T6.1 — CA/TX completeness + multi-seed ship of G <span class="pill tier6">T6</span> <span class="pill cost-l">L-cost</span> <span class="pill warn">parallel track</span></h3>
+<div class="meta">Targets: the scale-conditional completeness (CA/TX) · Mechanism: build v14 at CA/TX, run G + ceilings</div>
+<div class="block"><div class="block-title">Hypothesis</div>The C25 effect scales with class count → CA (8.5k) / TX (6.5k) are where G's margins should be LARGEST. The 4-state result (AL/AZ/GE/FL, 4-seed) is paper-grade; CA/TX is the lone completeness gap a reviewer will challenge.</div>
+<div class="block"><div class="block-title">Methodology</div>Build the v14 <code>design_k</code> substrate + seeded log_T at CA/TX → run champion G + the (c)/(d) ceilings, {0,1,7,100} (1-fold acceptable if 5-fold impractical — flag directional). Plus any probe winner (R1/R2/T4/T5.3) folded into the final recipe before the ship run.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Generalizes</strong>: G beats both ceilings at CA/TX → 6-state Pareto-positive headline. <strong>Else</strong>: scale-conditional — report the boundary. Runs PARALLEL to the probes (doesn't block them).</div></div>
 <div class="results-placeholder">Results: <em>pending execution</em></div>
 </div>
 

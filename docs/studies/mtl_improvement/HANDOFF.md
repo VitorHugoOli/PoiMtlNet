@@ -11,20 +11,27 @@ This is the organized "you are here". Full chronology: `log.md` (newest-first 20
 > beats" correction) **and BEATS the STL cat ceiling by +3pp**, at all 4 available states, 4-seed. **G′
 > (cat-private) is DEMOTED** — an FL-only dead-end (craters small-state cat); G (cat-shared) is THE champion.
 >
-> **⛔→♻ Tiers 3–6 RE-SCOPED (2026-06-07, user-reopened + advisor-calibrated) — see INDEX `#tier36`.** The
-> original chain's HEADLINE levers ARE moot (log_T-KD = identical to G, T3.1; balancers swept, T2V.6; heads
-> settled, B-A1). **BUT the C25/G reversal RE-OPENED the specific cards whose prior negative/moot verdict
-> depended on the now-removed regime** (the class-weighted, shared-backbone training G replaces). The live set
-> (organizing test = "re-open iff regime-dependent"):
-> - **R0** (FREE, FIRST) multi-state matched-metric re-score — pins the G−ceiling "matches" bar at AL/AZ/GE (FL-only today).
-> - **R1 ★** overlap-under-G — RE-OPENED: the dense-supervision MTL-negative was the *shared backbone*; G's private tower may absorb it (mechanism test of the dual-tower thesis).
-> - **R2 ★** dual-substrate routing HGI→reg (FL pilot) — REFRAMED: C25 falsified its "washes out" premise; hook built, HGI on disk at FL.
-> - **R3** loss-scale norm + RLW (T4.0) — untested, distinct from balancers, near-free on G.
-> - **R4** HSM high-cardinality reg head — never GPU-run; large-state-specific reg lever.
-> - PARKED contingencies (only if R1–R4 stall): T3.2 richer priors (recast as a private-tower feature), T4.2 Lion/Prodigy.
+> **⛔→♻ Tiers 3–6 RE-SCOPED IN PLACE (2026-06-07, user-reopened + advisor-calibrated) — INDEX `#tier36`→`#tier6`.**
+> The original chain's HEADLINE levers ARE moot (log_T-KD = identical to G; T5 heads settled, B-A1). **BUT the
+> C25/G reversal RE-OPENED the cards whose prior negative/moot verdict depended on the now-removed regime**
+> (class-weighted, shared-backbone). Re-scoped into the REAL tiers (no parallel umbrella):
+> - **Tier 3 — Reg-input pathway** (prior · supervision · substrate): **R1 ★** overlap-under-G (RE-OPENED — the
+>   dense-supervision MTL-negative was the *shared backbone*; G's private tower may absorb it = dual-tower
+>   mechanism test) · **R2 ★** dual-substrate routing HGI→reg, FL (REFRAMED — C25 falsified "washes out"; hook+HGI
+>   on disk) · T3.1 KD = done/moot · richer-priors = parked.
+> - **Tier 4 — OPTIMIZATION ★ (user-prioritised, expanded with `src/losses`):** T4.0 loss-scale-norm + RLW
+>   (untested, distinct from balancers) · **T4.1 the FULL registry** — T2V.6 swept only 4 of ~20; the rest
+>   (db_mtl/dwa/gradnorm/aligned_mtl/uw_so/stch/scheduled_static/RLW/…) untested under G · T4.2 optimizer
+>   (per-head LR + AdamW knobs; Lion/Prodigy = optional new dep).
+> - **Tier 5 — Heads:** T5.1/T5.2 DONE (STAN load-bearing, next_gru+plain-CE); **T5.3 ★** HSM high-cardinality
+>   reg head = the one live residual (never GPU-run, large-state lever).
+> - **Tier 6 — Ship+completeness:** **R0/T6.0** (FREE, FIRST) multi-state matched-metric re-score = the
+>   G−ceiling "matches" bar (FL-only today; gates every probe) · T6.1 CA/TX (heavy, parallel) · T6.2 paper-canon.
+> - PARKED (only if the probes stall): T3 richer priors, T4.2 Lion/Prodigy.
 > ⚠ **Magnitude rule (C25-trap):** every probe measures whether it moves **G−ceiling on the MATCHED metric**
 > (a lever lifting STL reg lifts the ceiling too) — NOT "a +5pp lever for a 0.35pp gap." Report the **mechanism**.
-> **Sequencing:** R0 → R1+R2+R3 → R4; completeness (CA/TX, paper-canon) is a PARALLEL track.
+> **Sequencing:** T6.0/R0 (free, pins the bar) FIRST → R1+R2 (Tier 3) + T4.0/T4.1 (Tier 4) cheap probes → T5.3 →
+> contingencies only if all stall. CA/TX + paper-canon = PARALLEL track.
 >
 > **DEFAULTS LANDED (2026-06-07): G is now the train.py default via `--canon` (v16).** `train.py --task mtl
 > --state X --seed S` runs G. Traceback with ONE flag: `--canon v11|v12|v15|none` (explicit flags override the
