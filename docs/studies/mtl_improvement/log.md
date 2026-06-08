@@ -2084,6 +2084,44 @@ Per-seed G-HGI reg-full [73.14, 73.20, 73.36, 73.18]. (d) HGI STL ceiling 73.49;
 
 ---
 
+## 2026-06-08 — Tier-3 BOUNDARY REVIEW: advisor pass + R1b de-confound (R1 corrected) + tier summary — STOP for user
+
+**Phase**: Tier-3 boundary cadence (workflow §4): advisor pass → R1b correction → summary → STOP. No autopilot into Tier 4.
+
+### Advisor pass (adversarial sub-agent on R0/R1/R2)
+Verdicts: **R0 SOUND** (one wording fix: the indist→full conversion is validated-at-FL/by-analogy at AL/AZ/GE, not "exact"; error is in G's favour — applied). **R1 OVER-READ** (the "dual-tower absorbs dense supervision" attribution confounds C25-unweighting with the tower; the +0.50→+4.89 swing changed BOTH the loss and the backbone — needs the unweighted+shared cell). **R2 SOUND** (null on matched bar correct; comparing to the (d) HGI ceiling is the right framing; substrate-transfer is a standalone falsification worth keeping). Leak/confound check: **clean** (log_T truly inert under prior-OFF+KD-off; R2 routing verified to swap only the reg-tower region-emb). Top recommendation: run the de-confound cell or soften R1.
+
+### R1b — de-confound (ran the cell; `r1b_shared_overlap_deconfound.sh`)
+SHARED backbone (mtlnet_crossattn + next_stan_flow prior-OFF = G minus the private tower), C25-unweighted onecycle, AL seed42, overlap vs non-overlap:
+| overlap reg lift | regime | lift |
+|---|---|---|
+| OLD overlap study | class-weighted + shared | +0.50 |
+| **R1b** | **C25-unweighted + shared** | **+4.32** |
+| R1 (G) | C25-unweighted + private tower | +4.89 |
+
+**The shared backbone, once unweighted, ALSO absorbs the dense lift (+4.32 ≈ tower +4.89, within σ).** → **The absorber is C25 unweighting, NOT the dual-tower.** R1's mechanism claim CORRECTED: the old "overlap gap-widens" was the class-weighting confound; R1 is further evidence for C25 as the dominant reg lever, not dual-tower-specific evidence. The matched-bar null (rising tide) is unaffected. (This is the advisor pass doing its job — caught an over-read before it reached the paper.)
+
+### ⭐ TIER 3 SUMMARY (R0 + R1 + R2) — reg-pathway levers TRANSFER post-C25 but the matched bar holds
+
+**What ran:** R0 (free matched-metric re-score, AL/AZ/GE/FL), R1 (overlap-under-G, AL) + R1b (de-confound), R2 (HGI→reg routing, FL multi-seed). ~5 GPU-h total.
+
+**The three results, one story:**
+1. **R0 — the bar is pinned.** G **matches** the reg ceiling (Δ matched −0.09/−0.12/−0.09/−0.31 at AL/AZ/GE/FL, Pareto-non-inferior) and **beats** cat (+2.6..+4.1) multi-state. The reg matched-headroom any probe must move is **tiny + consistent (~0.1–0.3pp)**, largest at FL/AZ. Reconciles exactly with the T2V.1 ceilings.
+2. **R1 — overlap (data-scale lever): rising tide, null on the matched bar.** Dense supervision lifts G (+4.89) and the ceiling (+5.12) equally → matched bar unchanged. R1b: the absorption is driven by **C25**, not the tower (shared +4.32 ≈ private +4.89).
+3. **R2 — HGI (substrate lever): substrate edge TRANSFERS (premise falsified), rising tide, null on the matched bar.** HGI's +0.36pp STL edge survives under G (G-HGI +0.25 over G-v14, refuting "substrate washes out in MTL") but lifts G and its own ceiling equally → matched gap unchanged (−0.27 ≈ −0.30); +0.25 not worth a 2nd inference substrate → not promoted.
+
+**Unified conclusion:** post-C25, BOTH reg-pathway levers (more data, better substrate) **transfer into the MTL reg pathway** (they did NOT under the old class-weighted regime), confirming the C25 reframe — but **neither beats the achievable ceiling**, because any lever that lifts MTL reg lifts its STL ceiling too (the magnitude rule, now empirically demonstrated twice). **G remains the champion; no Tier-3 probe changes it.** The valuable outputs are (a) the pinned multi-state matched bar (R0), (b) two clean falsifications of the "substrate/data washes out in MTL" family (R2 + R1's C25 attribution), (c) the demonstrated mechanism that the matched gap is structurally hard to move from the reg-INPUT side.
+
+**Implication for Tier 4 (the user's call):** the reg-input side is exhausted (R1/R2). The remaining lever class is the **loss/optimization axis** (Tier 4: loss-scale-norm T4.0, the full balancer registry T4.1). Per the advisor: balancers are the ONE place a lever could genuinely move G−ceiling, because most have **no STL analogue** → the ceiling is FIXED for them (unlike R1/R2). Tier 4 must (i) score Δ vs the R0 bar, (ii) run the param-partition unit-test on G's dual-tower per gradient-surgery balancer (private tower ∈ `reg_specific`, not `shared` — a mis-partition silently corrupts gradient-surgery results), (iii) watch the cvxpy/ECOS NashMTL collapse. T4.1 driver scaffolding already committed (0a8f1753).
+
+**Chain status**: Tier 3 CLOSED (R0/R1/R1b/R2 done; R1 corrected). Frozen (c)/(d) untouched. Champion G unchanged. Committed + pushed.
+
+**STOP — surfacing to the user (tier-boundary cadence).** Decision needed: proceed to Tier 4 (T4.0 loss-scale + T4.1 balancer registry under G), or T5.3 (HSM high-card reg head), or CA/TX completeness, or close the study. No autopilot.
+
+**Next** (pending user): if Tier 4 → T4.0 first (cheap, highest-EV, ungated) then T4.1 (per-method-tuned registry, arch-wired to G).
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:

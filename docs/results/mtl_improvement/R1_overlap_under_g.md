@@ -29,21 +29,44 @@ KD-off); the v14 seed-42 log_T satisfies the trainer's existence/freshness guard
 - Cross-checks: non-overlap reg ceiling 62.88 reproduces the frozen §2 seed-42 ceiling; non-overlap
   G ΔG−ceil −0.11 reproduces R0's multi-seed −0.09 → the seed-42 cell is sound.
 
-## Verdict — MECHANISM WIN (dual-tower confirmed); G−ceiling NULL (rising tide)
+## R1b de-confound (2026-06-08, advisor-required) — the absorber is C25, NOT the dual-tower
 
-**The private tower absorbs the dense supervision the shared backbone wasted.** The identical
-windowing intervention that the OLD shared-backbone regime could not use (MTL reg +0.50 vs STL +5.13,
-gap widened ~+4.6pp) is now **fully captured by G's private STAN reg tower** (MTL reg +4.89 ≈ STL
-+5.12, gap unchanged). G's MTL reg pathway behaves like an STL pathway under the data scaling —
-exactly the dual-tower design intent. This is **direct causal evidence for the dual-tower thesis**
-(the central architectural claim of the study), independent of the C25 loss confound.
+⚠ **The initial R1 verdict ("the PRIVATE tower absorbs the dense lift the shared backbone wasted")
+was an OVER-READ — corrected here.** The +0.50→+4.89 swing changed TWO things at once: the loss
+(class-weighted → C25-unweighted) AND the backbone (shared → private dual-tower). The advisor flagged
+the confound; R1b isolates it by running the **SHARED backbone (mtlnet_crossattn + next_stan_flow,
+prior-OFF) under the SAME C25-unweighted onecycle recipe** — i.e. G *minus* the private tower —
+overlap vs non-overlap, AL seed42. Driver `scripts/mtl_improvement/r1b_shared_overlap_deconfound.sh`.
 
-Per the magnitude rule this is NOT a champion-improving number — overlap is a *rising tide* that lifts
-G and the ceiling equally, so the matched G−ceiling bar is unchanged (−0.23pp shift, within σ). The
-value is the **mechanism**: the dual-tower converts a shared-backbone bottleneck (gap-widening under
-more data) into a private-pathway non-issue (gap-stable). The non-overlap canon is unchanged (the
-2026-06-03 user decision stands); overlap remains documented future-work that now ALSO carries this
-mechanism evidence.
+| AL seed42, overlap reg lift | regime | lift |
+|---|---|---|
+| OLD overlap study | class-weighted CE + SHARED backbone | **+0.50** |
+| R1b | **C25-unweighted + SHARED backbone** | **+4.32** |
+| R1 (G) | C25-unweighted + PRIVATE tower | +4.89 |
+
+(R1b: shared reg-full 62.84 → 67.16; cat 53.05 → 60.98.)
+
+**The shared backbone, once unweighted, ALSO absorbs the dense supervision (+4.32 ≈ the tower's
++4.89, within fold σ ~4).** The private tower adds only ~+0.57 (inside noise). So the dominant cause
+of "overlap now registers in MTL reg" is **C25 unweighting** (the class-weighted loss optimised away
+from top-K, suppressing the lift to +0.50) — **NOT the dual-tower architecture.** The old "shared
+backbone can't absorb more data → gap widens" reading was the class-weighting confound, exactly the
+pattern C25 fixed everywhere else.
+
+## Verdict — rising tide on the matched bar; the "gap-widening" was the C25 confound (not the tower)
+
+1. **G−ceiling NULL (rising tide) — solid, unchanged.** Overlap lifts G and the STL reg ceiling ≈
+   equally (G reg +4.89, ceiling +5.12) → the matched G−ceiling bar is unchanged (−0.11 → −0.34,
+   within σ). Not a champion-improving number.
+2. **Mechanism (corrected): the absorber is C25, not the dual-tower.** R1b shows the shared backbone
+   absorbs the dense lift just as well (+4.32) once unweighted. R1 therefore is **further evidence for
+   C25 as the dominant reg lever** (the old overlap "gap-widening" was the class-weighting confound),
+   NOT independent evidence for the dual-tower. The dual-tower thesis stands on its OTHER evidence
+   (the C25-era Tier-2 re-run, T2V.4 alt-arch fair re-rank, B-A1 STAN-load-bearing) — R1 neither adds
+   to nor subtracts from it.
+3. Non-overlap canon unchanged (the 2026-06-03 user decision stands); overlap stays documented
+   future-work, now with the cleaner attribution (its MTL benefit is unlocked by C25, and it's a
+   rising tide that doesn't beat the achievable ceiling).
 
 ## Scope / caveats
 - AL only, single seed (42), matching the seed-42 overlap STL ceilings + frozen non-overlap ceilings.

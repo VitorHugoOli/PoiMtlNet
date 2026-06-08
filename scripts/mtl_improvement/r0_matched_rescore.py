@@ -8,8 +8,12 @@ reopened Tier-3/4/5 probe can be measured against a real bar at AL/AZ/GE too.
 
 Method (validated vs B-A2's independent route_task_best at FL: 72.95 vs 72.93):
   full_top10 = indist_top10 * (1 - ood_fraction)            [per fold]
-OOD samples (target never seen in train) are always wrong in the full metric, so
-the relation is exact (B-A2 confirmed to ~0.02pp). ``ood_fraction`` is split-
+OOD samples (target never seen in train) almost never land in the full-metric top-10
+(an OOD class index CAN be hit by chance, but B-A2 confirmed the OOD-hit rate ≈ 0 at
+FL: 72.95 converted vs 72.93 independent, ~0.02pp). So the relation is empirically
+near-exact, VALIDATED AT FL; at AL/AZ/GE it is validated-by-analogy (any residual
+OOD-hit would make true G-full HIGHER, shrinking the deficit → "matches" is robust to
+it, error is in G's favour). ``ood_fraction`` is split-
 determined and epoch-invariant per fold, so G's full-best epoch == its
 indist-best epoch -> G-full at the indist-best epoch IS G-full-best. The (c)
 ceiling (p1 JSON) is already the FULL top10_acc at its own top10-best epoch.
