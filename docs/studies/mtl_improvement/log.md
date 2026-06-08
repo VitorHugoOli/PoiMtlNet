@@ -1003,6 +1003,33 @@ Deletion-bisect agent (218k tokens) + my independent verification PINNED it. **T
 
 ---
 
+## 2026-06-07 — Tiers 3–6 RE-SCOPED under G (user re-opened "Tier 3 is moot"; advisor-calibrated)
+
+**Phase**: re-planning (no runs). User: "explore Tier 3/4/5/6 (CA/TX in 6) — those had promising points; add necessary points/tiers from future_works; use advising." I had called Tiers 3–6 blanket-MOOT last turn — that was too hasty.
+
+**The correction (the organizing principle).** A breadth agent classified every Tier 3–6 card + all ~13 future_works memos {DONE / MOOT / LIVE-PROMISING / LIVE-COMPLETENESS}. Key insight (advisor-affirmed): the C25/G reversal did NOT moot the chain uniformly — it **RE-OPENED the cards whose prior negative/moot verdict depended on the now-removed regime** (class-weighted, shared-backbone) and left the regime-independent verdicts closed. Re-open test = "was the prior verdict regime-dependent?"
+
+**LIVE set (post-G), advisor-calibrated to ~4 probes + 3 completeness (not 12 runs):**
+- **R0 (FREE, FIRST)** multi-state matched-metric re-score — the "matches" verb is FL-only (B-A2); pin G−ceiling at AL/AZ/GE. Defines the bar every probe must move.
+- **R1 ★** overlap-under-G — RE-OPENED: the dense-supervision MTL-negative was the *shared backbone* failing to absorb data; G's private STAN tower may now absorb it = a mechanism test of the dual-tower thesis. Engine+ceiling built at AL.
+- **R2 ★** dual-substrate routing HGI→reg (FL pilot) — REFRAMED: C25 falsified its "substrate washes out" premise; HGI's +0.36pp STL reg edge ≈ G's matched shortfall; hook built, HGI region-emb on disk at FL.
+- **R3** T4.0 loss-scale norm + RLW — untested, DISTINCT from the balancers (T2V.6) and the category-weight sweep; the ~4.7× CE-magnitude gap never ÷log(K). Ungated, near-free on G.
+- **R4** HSM high-cardinality reg head (`next_stan_flow_hsm`) — never GPU-run (hierarchy build script exists); large-state-specific reg lever where the matches→beats headroom lives.
+- **PARKED contingencies** (only if R1–R4 stall): T3.2 richer priors (recast as a private-tower feature — its additive-α/KD pathways are falsified), T4.2 Lion/Prodigy.
+- **DONE/MOOT (stand):** T3.1 (KD identical to G), T4.1 (balancers swept), T5.1/5.2 (heads settled), composite/MoE/sampler/architecture-revisit (regime-independent verdicts).
+
+**Two advisor corrections encoded (the C25-trap, again):** (1) **Magnitude** — a lever that lifts STL reg lifts the *ceiling* too, so every probe measures **G−ceiling on the MATCHED metric** (the matches→beats delta), NOT "a +5pp lever for a 0.35pp gap" (the agent's arithmetic over-promised R1/R2). (2) **Mechanistic framing** — the valuable output may be a mechanism finding (e.g. "the private tower absorbs data the shared regime wasted" = causal dual-tower evidence), not a new number; report the mechanism, pass or fail.
+
+**Sequencing:** R0 (free, pins the bar) → R1+R2+R3 (cheap, gated on R0's matched bar) → R4 → contingencies only if stall. **Completeness is a PARALLEL track** (doesn't block probes): CA/TX (heavy v14 build; scale-conditional reviewer challenge) + paper-canon restatement (author).
+
+**Docs:** INDEX new section "Tiers 3–6 RE-SCOPED" (`#tier36`) — the principle + the full DONE/MOOT/LIVE table + cards R0–R4 + the sequencing/parked callout; old Tier 3–6 cards banner-marked "pre-G" (kept for the trail). HANDOFF current-state block updated (⛔→♻). TOC updated.
+
+**Chain status**: study re-opened post-G with the regime-dependence-filtered live set. G remains the champion baseline; all probes score Δ vs the R0 matched-metric bar.
+
+**Next**: A40 — R0 (free re-score) first to pin the bar, then the R1/R2/R3 cheap probes (gated), then R4; CA/TX + paper-canon in parallel. Advisor + STOP-for-user at the boundary.
+
+---
+
 ## 2026-05-16 — Track designed, awaiting execution (v1 — SUPERSEDED by the 2026-06-02 reframe above)
 
 **Phase**: Design complete; no experiments run yet.

@@ -140,7 +140,16 @@
     <li><a href="#T2V-8">T2V.8 Combine winning levers (P2)</a></li>
     <li><a href="#T2V-9">T2V.9 CA/TX completeness (P3)</a></li>
   </ul>
-  <h2>Tier 3 — Prior pathway</h2>
+  <h2>Tiers 3–6 RE-SCOPED ★ (post-G)</h2>
+  <ul>
+    <li><a href="#tier36">Principle + DONE/MOOT/LIVE table</a></li>
+    <li><a href="#R0">R0 matched-metric re-score (bar)</a></li>
+    <li><a href="#R1">★ R1 overlap-under-G</a></li>
+    <li><a href="#R2">R2 dual-substrate routing</a></li>
+    <li><a href="#R3">R3 loss-scale norm + RLW</a></li>
+    <li><a href="#R4">R4 HSM high-card reg head</a></li>
+  </ul>
+  <h2>Tier 3 — Prior pathway (pre-G)</h2>
   <ul>
     <li><a href="#T3-1">T3.1 log_T-KD re-sweep on stack</a></li>
     <li><a href="#T3-2">T3.2 log_T-as-supervision variants</a></li>
@@ -1216,7 +1225,82 @@ The Tier-2 winner was found within ONE corner: cross-attn backbone · STAN priva
 </div>
 
 <!-- ============================================================== -->
-<h2 id="tier3">Tier 3 — Prior pathway (log_T-KD) <span class="pill tier3">Tier 3</span></h2>
+<h2 id="tier36">Tiers 3–6 RE-SCOPED under champion G (2026-06-07) <span class="pill tier3">post-G</span> <span class="pill info">user-requested re-open + advisor-calibrated</span></h2>
+<p>The original Tier 3–6 cards (below, kept for the trail) were designed pre-C25 to close a reg gap that <strong>no longer exists</strong>. But the C25/G reversal did NOT moot them uniformly — it <strong>re-opened the specific cards whose prior negative/moot verdict depended on the now-removed regime</strong> (the class-weighted, shared-backbone training G replaces), while leaving the regime-independent verdicts closed. That test is the organizing principle here.</p>
+<div class="callout">
+<h4>Organizing principle + two framing rules (advisor 2026-06-07)</h4>
+<ul>
+<li><strong>Re-open IFF regime-dependent.</strong> A card re-opens only if its prior verdict was measured under the shared-backbone+weighted regime G removes (e.g. "overlap hurts MTL reg" was the shared backbone failing to absorb data; "substrate washes out in MTL" was the class-weighting confound). Verdicts produced under G/post-C25 STAND (architecture-capacity falsified 5 ways; cat-head sweep; balancer sweep T2V.6).</li>
+<li><strong>⚠ Magnitude rule (avoid the C25 trap).</strong> A lever that lifts STL reg also lifts the STL <em>ceiling</em>. So every probe measures whether it moves <strong>G − ceiling on the MATCHED metric</strong> (the "matches→beats" delta), NOT "a +5pp lever closing a 0.35pp gap." The +5.1pp overlap STL lift and HGI's +0.36pp STL edge move the bar too.</li>
+<li><strong>Mechanistic framing.</strong> The valuable paper output may be a <em>mechanism finding</em>, not a new number — e.g. if G's private tower absorbs the dense-supervision lift the shared backbone wasted, that is direct causal evidence for the dual-tower thesis even if G−ceiling barely moves. Report the mechanism, not just pass/fail.</li>
+</ul>
+</div>
+<div class="block"><div class="block-title">DONE / MOOT / LIVE — the full scope table (advisor-calibrated; scope is the user's call)</div>
+<table>
+<thead><tr><th>card / source</th><th>verdict</th><th>why</th></tr></thead>
+<tbody>
+<tr><td>T3.1 log_T-KD W/τ sweep</td><td><span class="pill bad">DONE/MOOT</span></td><td>g-sweep KD = identical to G; prior vestigial under dual-tower (α→0).</td></tr>
+<tr><td>T4.1 gradient balancers</td><td><span class="pill bad">DONE</span></td><td>T2V.6 swept FAMO/CAGrad/Nash/UW — none Pareto-beats G.</td></tr>
+<tr><td>T5.1 reg-head swaps · T5.2 cat-head sweep</td><td><span class="pill bad">DONE</span></td><td>STAN load-bearing (B-A1); next_gru+plain-CE cat optimal; regime-independent → stand.</td></tr>
+<tr><td>fw: composite · mtl_architecture_revisit · substrate_adaptive_balancing · head_window_batch · task_pivot</td><td><span class="pill bad">MOOT/DONE</span></td><td>composite dissolved (G≥it); MoE/CGC/cross-stitch falsified 5 ways; sampler falsified; pivot is a doc note.</td></tr>
+<tr><td><strong>R0</strong> multi-state matched-metric re-score</td><td><span class="pill warn">LIVE-completeness (FREE, FIRST)</span></td><td>"matches" is FL-only (B-A2); pins the G−ceiling bar at AL/AZ/GE. Zero retrain.</td></tr>
+<tr><td><strong>R1</strong> overlap-under-G (fw/overlapping_windows)</td><td><span class="pill good">LIVE-PROMISING ★</span></td><td>RE-OPENED: the MTL-negative was the shared backbone; G's private tower may absorb the dense lift. Engine+ceiling built at AL.</td></tr>
+<tr><td><strong>R2</strong> dual-substrate routing HGI→reg (fw/part2_routing)</td><td><span class="pill good">LIVE-PROMISING ★</span></td><td>REFRAMED: C25 falsified its "washes out" premise (substrate transfers now). Hook built; HGI region-emb on disk at FL.</td></tr>
+<tr><td><strong>R3</strong> T4.0 loss-scale-norm + RLW</td><td><span class="pill good">LIVE-PROMISING</span></td><td>Untested; distinct from balancers (the ~4.7× CE-magnitude gap, never ÷log(K)). Ungated, near-free, runs on G.</td></tr>
+<tr><td><strong>R4</strong> HSM high-cardinality reg head (next_stan_flow_hsm)</td><td><span class="pill good">LIVE-PROMISING</span></td><td>Never GPU-run (needs hierarchy build, script exists); high-card-softmax lever at the large states where reg headroom lives.</td></tr>
+<tr><td><strong>C-A</strong> CA/TX (T6.1/T2V.9)</td><td><span class="pill warn">LIVE-completeness (heavy, parallel)</span></td><td>The scale-conditional reviewer challenge; needs a v14 build at CA(8.5k)/TX(6.5k).</td></tr>
+<tr><td><strong>C-B</strong> paper-canon restatement (T6.2)</td><td><span class="pill warn">LIVE-completeness (author)</span></td><td>§0.1 + CH25/CH28 → Pareto-positive multi-state; mostly no-GPU.</td></tr>
+<tr><td>T3.2 richer priors · T4.2 Lion/Prodigy</td><td><span class="pill info">PARKED contingency</span></td><td>T3.2's pathways (additive-α/KD) are falsified — only viable recast as a private-tower feature; Lion/Prodigy is a low-prob LR re-tune. Run ONLY if R1–R4 stall.</td></tr>
+</tbody>
+</table></div>
+
+<div class="experiment" id="R0">
+<h3>R0 — Multi-state matched-metric re-score (defines the bar; FREE; do FIRST) <span class="pill tier3">post-G</span> <span class="pill cost-s">S-cost (no retrain)</span> <span class="pill bad">prerequisite</span></h3>
+<div class="block"><div class="block-title">Why</div>The "reg matches the ceiling" verb is verified on the MATCHED metric (FULL <code>top10_acc</code>) at FL only (B-A2). Until the G−ceiling delta is pinned on the matched metric at AL/AZ/GE, the probes below can't be measured ("does it move G−ceiling?"). This is the bar.</div>
+<div class="block"><div class="block-title">Method</div>Re-score the EXISTING G runs + the (c)/(d) ceiling runs on FULL <code>top10_acc</code> (not <code>_indist</code>) at AL/AZ/GE (FL done). Zero retraining — pure re-evaluation. Report G−ceiling (matched) per state = the bar R1–R4 must move.</div>
+<div class="block"><div class="block-title">Gate</div><div class="gate">Pins the per-state matched-metric G−ceiling delta. Likely confirms "matches" (small ±); if a state shows a real matched gap, that's where R1–R4 have the most to gain.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="R1">
+<h3>R1 — ★ Overlap-under-G: does the private tower absorb dense supervision? <span class="pill tier3">post-G</span> <span class="pill cost-m">M-cost</span> <span class="pill good">regime-reopened, top candidate</span></h3>
+<div class="block"><div class="block-title">Why (regime-reopened)</div>The overlapping-windows study found dense (stride-1) supervision lifts STL reg +5.1pp but the MTL reg gap WIDENED — measured on the <em>shared backbone</em>, the exact bottleneck G removes. G's private STAN reg tower is a private pathway (like STL), so it may now absorb the lift the shared regime wasted. <strong>This is the mechanism test of the dual-tower thesis</strong>, not just a number chase.</div>
+<div class="block"><div class="block-title">Method</div>Run G under the dense-supervision engine (<code>check2hgi_dk_ovl</code>, stride-1 — built at AL per docs; verify on the box) vs non-overlap G, AL first → AZ/GE/FL if it moves. <strong>Measure the MATCHED-metric G−ceiling under BOTH overlap and non-overlap</strong> (overlap raises the ceiling too — R0 framing). Question: does overlap change G−ceiling (i.e. does the private tower absorb the dense lift better than the STL ceiling does)?</div>
+<div class="block"><div class="block-title">Gate</div><div class="gate"><strong>Mechanism win</strong>: G−ceiling improves under overlap → the private tower absorbs data the shared regime wasted (causal evidence for the dual-tower; paper-grade even if small). <strong>Null</strong>: G−ceiling unchanged → overlap is a rising-tide that moves both equally (still a clean finding: the dual-tower already captures the supervision). Either way report the mechanism. Full canon rebuild only if a decisive win + the user wants to adopt.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="R2">
+<h3>R2 — Dual-substrate routing HGI→reg (FL pilot) <span class="pill tier3">post-G</span> <span class="pill cost-s">S-cost (FL, no rebuild)</span> <span class="pill good">regime-reframed</span></h3>
+<div class="block"><div class="block-title">Why (regime-reframed)</div>The routing memo was shelved on the "substrate washes out in MTL" premise — which C25 <em>falsified</em> (substrate now transfers, Δreg(v14−canon) +1.92/+1.49/+0.81). HGI carries a documented +0.36pp STL reg edge over v14. Routing HGI's region-emb into G's reg tower tests whether that edge survives the joint dynamics.</div>
+<div class="block"><div class="block-title">Method</div>Use the built <code>REGION_EMB_ENGINE</code> hook to feed HGI region-emb into G's private reg tower (cat stays on v14), FL (HGI region-emb on disk at FL; inference-time swap, no rebuild). <strong>Measure G−ceiling on the matched metric</strong> (HGI's edge is vs the v14 STL ceiling — compare to the right bar).</div>
+<div class="block"><div class="block-title">Gate</div><div class="gate"><strong>Promote</strong>: routing moves G−ceiling &gt;0 at FL multi-seed → a dual-substrate champion variant (re-judge cost: 2 substrates at inference). <strong>Null</strong>: HGI's STL edge doesn't survive the joint dynamics → confirms v14 is sufficient under G (clean finding).</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="R3">
+<h3>R3 — T4.0 loss-scale normalization + RLW litmus <span class="pill tier3">post-G</span> <span class="pill cost-s">S-cost, ungated</span></h3>
+<div class="block"><div class="block-title">Why</div>Genuinely untested (T2V.6 swept gradient-<em>balancers</em>; the <code>g_catw*</code> sweep tuned the inter-task <em>weight</em> — neither is loss-SCALE normalization). The ~4.7× built-in CE-magnitude gap (7-class ln7 vs ~5–9k-class ln≈8.5) was never decoupled from <code>w</code> by ÷log(num_classes). Flagged highest-EV-near-free.</div>
+<div class="block"><div class="block-title">Method</div>On G: divide each task CE by <code>log(num_classes)</code> (or EMA baseline), re-tune <code>w</code> (small grid); + RLW litmus (random weighting ≈ w=0.75? → the weight isn't the bottleneck). FL + a small state.</div>
+<div class="block"><div class="block-title">Gate</div><div class="gate"><strong>Promote</strong>: scale-norm + re-tuned w moves either head on the matched metric, other non-inferior. <strong>Else</strong>: G's static w=0.75 is the optimum (RLW confirms).</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="experiment" id="R4">
+<h3>R4 — HSM high-cardinality reg head (next_stan_flow_hsm) <span class="pill tier3">post-G</span> <span class="pill cost-s">S-cost + 1-time hierarchy build</span></h3>
+<div class="block"><div class="block-title">Why</div>Never GPU-run (needs a prebuilt <code>hierarchy_path</code>; <code>scripts/build_region_hierarchy.py</code> exists). Hierarchical softmax is a high-cardinality-specific reg mechanism (FL 4.7k / CA 8.5k / TX 6.5k classes) — distinct from the small-state head swaps already falsified (B-A1), and aimed at the large states where reg headroom (matches→beats) actually lives.</div>
+<div class="block"><div class="block-title">Method</div>Build the region hierarchy; swap G's reg-head to <code>next_stan_flow_hsm</code> (keep aux+prior-OFF), FL → multi-seed if it moves. Matched-metric G−ceiling.</div>
+<div class="block"><div class="block-title">Gate</div><div class="gate"><strong>Promote</strong>: ≥0.5pp matched-metric reg over G at FL multi-seed, cat non-inferior. <strong>Else</strong>: flat softmax is sufficient at G's cardinalities.</div></div>
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<div class="callout warn">
+<h4>Sequencing + completeness + parked (the discipline — ~4 probes + 3 completeness, not 12 runs)</h4>
+<strong>Order:</strong> <strong>R0</strong> (free, pins the bar) → <strong>R1 + R2 + R3</strong> (cheap probes, gated on R0's matched bar) → <strong>R4</strong> → then the contingencies only if R1–R4 stall. <strong>Completeness (parallel track, doesn't block the probes):</strong> <strong>C-A CA/TX</strong> (heavy v14 build; the scale-conditional reviewer challenge) · <strong>C-B paper-canon restatement</strong> (author). <strong>Parked contingencies (run ONLY if R1–R4 stall):</strong> T3.2 richer priors recast as a private-tower input feature (its additive-α/KD pathways are falsified); T4.2 Lion/Prodigy (low-prob LR re-tune on an already-tuned config). Every probe scores Δ vs the R0 matched-metric bar + reports its mechanism finding.
+</div>
+
+<!-- ============================================================== -->
+<h2 id="tier3">Tier 3 — Prior pathway (log_T-KD) <span class="pill tier3">Tier 3</span> <span class="pill warn">⛔ original pre-G plan — see Tiers 3–6 RE-SCOPED above</span></h2>
 <p>log_T-KD is the one confirmed MTL-reg lever (+2.4/+5.06/+2.32pp; v12 default). The open question: does it <em>stack</em> with the Tier-2 architecture or is it redundant? <strong>Compute:</strong> ~60 GPU-h + ~3 days.</p>
 
 <div class="experiment" id="T3-1">

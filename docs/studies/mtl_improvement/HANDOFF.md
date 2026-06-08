@@ -11,30 +11,29 @@ This is the organized "you are here". Full chronology: `log.md` (newest-first 20
 > beats" correction) **and BEATS the STL cat ceiling by +3pp**, at all 4 available states, 4-seed. **G′
 > (cat-private) is DEMOTED** — an FL-only dead-end (craters small-state cat); G (cat-shared) is THE champion.
 >
-> **⛔ Tier 3 (and the rest of the original chain) is MOOT — do NOT run it.** Tier 3 = the log_T-KD prior
-> pathway, but C25/G dissolved the reg gap it existed to close: the prior is **vestigial under the dual-tower**
-> (T2V.2: learnable α→≈0, prior-OFF ≈ prior-ON), and the g-sweep showed `log_T-KD` is **identical to G**
-> (adds nothing). Tier 4 (optimizer) was swept in T2V.6 (static_weight confirmed across FAMO/CAGrad/Nash/UW);
-> Tier 5 (heads) is settled (STAN load-bearing, plain-CE cat optimal). Mechanically running Tier 3 = motion,
-> not progress.
+> **⛔→♻ Tiers 3–6 RE-SCOPED (2026-06-07, user-reopened + advisor-calibrated) — see INDEX `#tier36`.** The
+> original chain's HEADLINE levers ARE moot (log_T-KD = identical to G, T3.1; balancers swept, T2V.6; heads
+> settled, B-A1). **BUT the C25/G reversal RE-OPENED the specific cards whose prior negative/moot verdict
+> depended on the now-removed regime** (the class-weighted, shared-backbone training G replaces). The live set
+> (organizing test = "re-open iff regime-dependent"):
+> - **R0** (FREE, FIRST) multi-state matched-metric re-score — pins the G−ceiling "matches" bar at AL/AZ/GE (FL-only today).
+> - **R1 ★** overlap-under-G — RE-OPENED: the dense-supervision MTL-negative was the *shared backbone*; G's private tower may absorb it (mechanism test of the dual-tower thesis).
+> - **R2 ★** dual-substrate routing HGI→reg (FL pilot) — REFRAMED: C25 falsified its "washes out" premise; hook built, HGI on disk at FL.
+> - **R3** loss-scale norm + RLW (T4.0) — untested, distinct from balancers, near-free on G.
+> - **R4** HSM high-cardinality reg head — never GPU-run; large-state-specific reg lever.
+> - PARKED contingencies (only if R1–R4 stall): T3.2 richer priors (recast as a private-tower feature), T4.2 Lion/Prodigy.
+> ⚠ **Magnitude rule (C25-trap):** every probe measures whether it moves **G−ceiling on the MATCHED metric**
+> (a lever lifting STL reg lifts the ceiling too) — NOT "a +5pp lever for a 0.35pp gap." Report the **mechanism**.
+> **Sequencing:** R0 → R1+R2+R3 → R4; completeness (CA/TX, paper-canon) is a PARALLEL track.
 >
 > **DEFAULTS LANDED (2026-06-07): G is now the train.py default via `--canon` (v16).** `train.py --task mtl
-> --state X --seed S` runs G. Traceback to any prior version with ONE flag: `--canon v11|v12|v15|none`
-> (explicit flags override the bundle; bundles in `src/configs/canon.py`, guarded by
-> `tests/test_configs/test_canon.py`). **Contract: pin `--canon` in EVERY script** (partial flags merge with
-> the default bundle). See `CANONICAL_VERSIONS.md §The --canon selector`.
+> --state X --seed S` runs G. Traceback with ONE flag: `--canon v11|v12|v15|none` (explicit flags override the
+> bundle; `src/configs/canon.py`, guarded by `tests/test_configs/test_canon.py`). **Contract: pin `--canon` in
+> EVERY script** (partial flags merge with the default bundle). See `CANONICAL_VERSIONS.md §The --canon selector`.
 >
-> **THE ONLY REMAINING WORK:**
-> 1. **CA/TX (T2V.9)** — the one open experimental item: build the v14 `design_k` substrate at CA (8501) / TX
->    (6553), run G + the (c)/(d) ceilings. Highest-cardinality states where C25 predicted the *largest* effect
->    → the natural reviewer challenge to the scale-conditional claim. Heavy (substrate build).
-> 2. **BRACIS paper-doc restatement (author)** — CH25/CH28/§0.1 → "matches reg + beats cat +3pp" Pareto-positive,
->    multi-state. No experimental work.
-> 3. **(optional) Strengthen "matches"** — the matched-metric (full-vs-indist) reg comparison is FL-only (B-A2);
->    a multi-state matched-metric check would harden the "matches" verb everywhere.
->
-> **Do NOT open Tier 3.** If a new research thrust is wanted, it is a NEW question (e.g. the deferred
-> overlapping-windows dense-supervision study, `future_works/`), not the obsoleted log_T-KD tier.
+> **COMPLETENESS (parallel, won't change the champion):** **CA/TX (C-A/T2V.9)** — v14 build at CA(8.5k)/TX(6.5k),
+> the scale-conditional reviewer challenge (heavy); **paper-canon restatement (C-B/T6.2, author)** — CH25/CH28/§0.1
+> → matches-reg + beats-cat Pareto-positive. (R0 also hardens the "matches" verb multi-state — do it first.)
 
 > ## ⭐⭐⭐ THE FINDING (the "unweighting problem") — read this whole block
 > **What it was.** The MTL reg head was silently trained on **class-WEIGHTED CrossEntropyLoss** (`default_mtl use_class_weights=True`, `src/configs/experiment.py:235,364` → `mtl_cv.py:1283-1291`), while the STL reg ceiling (`p1_region_head_ablation.py`, unweighted) AND the reported metric (**`top10_acc_indist` = Acc@10**) are frequency-weighted. Class-balancing optimises *macro* accuracy and **away from top-K**, depressing MTL reg **~10-14pp** (scales with class count / imbalance → bigger at FL). **This — not architecture, not the joint loop, not the substrate — was the entire "MTL→STL reg gap."** The cat head was also weighted; unweighting it gains **+3-5pp macro-F1** too. (The α=0 OOD floor finding is distinct and NOT dissolved by this.)
