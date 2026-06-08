@@ -3,6 +3,21 @@
 **As of 2026-06-06 (⭐⭐⭐ THE UNWEIGHTING FINDING + RE-VALIDATION + CEILING BROKEN — the reg narrative is reframed AND the FL champion (G) `dual aux + prior-OFF` BEATS both STL ceilings).** Branch `mtl-improve`, pushed.
 This is the organized "you are here". Full chronology: `log.md` (newest-first 2026-06-05 entries). Design/cards: `INDEX.html`. Paper-facing: `PAPER_UPDATE.md`. Confound write-up: `docs/CONCERNS.md §C25`.
 
+> ## ✅ TIER 3 CLOSED (2026-06-08) — reg-input axis exhausted; G unchanged; NEXT = Tier 4 (T4.0)
+> **R0/R1/R2 done + advisor-signed-off CLOSE.** (1) **R0** (free re-score) pinned the matched G−ceiling bar
+> multi-state: G **matches** reg (Δ −0.09/−0.12/−0.09/−0.31 at AL/AZ/GE/FL, Pareto-non-inferior) + **beats**
+> cat (+2.6..+4.1) — the "matches" verb now holds at all 4 states, not FL-only. (2) **R1** (overlap/data-scale)
+> + **R2** (HGI/substrate) = clean **rising-tide nulls** on the matched bar: both reg-input levers *transfer*
+> into G's private reg tower post-C25 (falsifying "data/substrate washes out in MTL" TWICE) but neither beats
+> the achievable ceiling (the ceiling moves with them — magnitude rule). (3) **R1b** de-confound: the overlap
+> absorption is **C25 unweighting, not the dual-tower** (advisor-caught over-read, corrected). T3-richer NOT run
+> (trigger "R1/R2 stall" didn't fire; it'd be a 3rd rising tide). **No Tier-3 probe changes champion G.**
+> Results: `docs/results/mtl_improvement/{R0_matched_metric_bar.json,R1_overlap_under_g.md,R2_dual_substrate_routing.md}`;
+> drivers `scripts/mtl_improvement/{r0_matched_rescore.py,r1_overlap_under_g.sh,r1b_shared_overlap_deconfound.sh,r2_dual_substrate_routing.sh}`.
+> **→ NEXT: Tier 4 (loss/optimization) — the ONE lever class with no STL analogue → the ceiling is FIXED for it
+> (unlike every reg-input lever), so it is the only place a lever can structurally move G−ceiling. Start T4.0
+> (loss-scale-norm + RLW litmus, cheap/ungated), then T4.1 (per-method-tuned registry, arch-wired to G).**
+>
 > ## ⭐ CURRENT STATE & NEXT (2026-06-07) — read this first
 > **The experimental study is at a paper-grade CLOSE.** Tier 2V + the whole `CRITIQUE_TIER2_C25` are CLOSED
 > (all `[x]` except T2V.9 CA/TX = `[~]` deferred). **Champion = G** (`mtlnet_crossattn_dualtower` +

@@ -2122,6 +2122,20 @@ SHARED backbone (mtlnet_crossattn + next_stan_flow prior-OFF = G minus the priva
 
 ---
 
+## 2026-06-08 — TIER 3 CLOSED (advisor close/continue decision) → proceeding to Tier 4
+
+**Phase**: Tier-3 close/continue decision (user-requested 2nd advisor: "eval our finds + decide close vs other promising Tier-3 parts; if close, finalize docs then follow to Tier 4").
+
+**Advisor verdict: CLOSE Tier 3.** Reasoning (full text in the session): (1) R1/R2 did NOT stall — they *resolved* (decisive rising-tide nulls + mechanism), so the T3-richer "run only if R1/R2 stall" trigger does not fire. (2) T3-richer-as-private-tower-input-feature is predictably a THIRD rising tide: a richer prior fed as an input feature still has an STL analogue (feed the STL ceiling the same feature → ceiling moves with it), same magnitude-rule trap; its other pathways (additive-α, KD) are already falsified under G. (3) No remaining reg-pathway lever is both non-rising-tide and unfalsified. (4) The Tier-3 summary's forward claim is CORRECT: the loss/optimization axis (Tier 4) is the one lever class with NO STL analogue → the STL ceiling is FIXED for balancers/scale-norm (unlike R1/R2/T5.3, which move the ceiling with them) → Tier 4 is the only place a lever can structurally move G−ceiling, strictly higher-EV than T5.3 (rising-tide reg-head lever) or CA/TX (deferrable completeness).
+
+**Decision (applied):** Tier 3 CLOSED — reg-input axis exhausted; champion G unchanged. T3-richer marked NOT-RUN (trigger didn't fire). Docs finalized: INDEX `#tier36` (CLOSED banner + T3-richer not-run block), HANDOFF top (Tier-3-closed status line), this entry. Value captured for the paper: the pinned multi-state matched bar (R0, hardens the "matches" reg verb beyond FL-only) + two clean falsifications of the "washes out in MTL" family (R1's C25 attribution, R2's substrate transfer).
+
+**Chain status**: Tier 3 CLOSED. Champion G unchanged. → Tier 4.
+
+**Next**: Tier 4 — **T4.0 first** (loss-scale normalization: divide each CE by log(num_classes), re-tune w; + RLW litmus — cheap, ungated, highest-EV; RLW tells us early if the inter-task weight even matters). Then T4.1 (full src/losses registry, per-method-tuned, arch-wired to G's dual-tower partition; param-partition unit-test per gradient-surgery balancer; cvxpy/ECOS Nash-collapse watch). Score Δ vs the R0 matched bar.
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:
