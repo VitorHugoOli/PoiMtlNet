@@ -14,7 +14,13 @@ This is the organized "you are here". Full chronology: `log.md` (newest-first 20
 > Mechanistic payoff: orthogonal task gradients unify the study (balancers can't help; more-sharing failed
 > in Tier 2; dual-tower wins). New: `--loss-scale-norm` flag (gated, default off). 3 figures for the talk.
 > Write-up: `docs/results/mtl_improvement/T4_audit_and_verdict.md`. **Champion G unchanged.**
-> Open: optional cat-transfer ablation (cat-only w/ cross-attn trunk); then T5.3 / CA-TX / paper restatement.
+>
+> ## ✅ TIER 5 CLOSED + follow-ups DONE (2026-06-08) — G unchanged; only completeness remains
+> - **(a) cat-transfer ablation DONE:** the +3pp MTL-cat gain is **architecture-dominated** (cross-attn trunk +2.27 FL/+3.11 AL); genuine region→cat transfer only +0.89 FL / −0.71 AL. Refines CH30 (not "region teaches category"). `cat_transfer_and_T53.md §a`.
+> - **(b) T5.3 HSM reg head FALSIFIED:** HSM = flat softmax at FL 4.7k (73.21 vs 73.22). No dual-tower-HSM build motivated. With T5.1/T5.2 already done (STAN load-bearing; next_gru+plain-CE), **Tier 5 is CLOSED.** `cat_transfer_and_T53.md §b`.
+> - **Conceptual write-up created** (the orthogonality / why-no-modern-optimizers narrative + the 3 figures): `WHY_ORTHOGONAL_AND_NO_MODERN_OPTIMIZERS.md`.
+> - **Cross-doc settled:** CHANGELOG 2026-06-08, CONCERNS §C27, CLAIMS CH31 + CH30 cat-refinement, MTL_FLAWS §5.6, CANONICAL_VERSIONS v16 re-confirm.
+> **→ NEXT AGENT: see `HANDOFF_TIER5.md` (Tier 5 is closed; the live work is Tier 6 — CA/TX completeness + the BRACIS paper-doc restatement).**
 >
 > ## ✅ TIER 3 CLOSED (2026-06-08) — reg-input axis exhausted; G unchanged; NEXT = Tier 4 (T4.0)
 > **R0/R1/R2 done + advisor-signed-off CLOSE.** (1) **R0** (free re-score) pinned the matched G−ceiling bar

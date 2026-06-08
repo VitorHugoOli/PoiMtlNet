@@ -462,6 +462,14 @@ F49 Layer 2: under cross-attention, the silenced encoder co-adapts via attention
 
 If a Tier 1 alternative changes the FL champion, P3 must re-run under the new config. Currently P3 is gated on Tier 1 reconvene per `PHASE2_TRACKER.md`.
 
+### 5.6 Gradient-surgery balancers are mis-wired under a dual-tower head; `_BACKWARD_ONLY_LOSSES` preflight was incomplete (2026-06-08, `mtl_improvement` Tier-4 audit)
+
+**Flaw.** The gradient-surgery balancers (`cagrad`/`pcgrad`/`aligned_mtl`) apply their surgical/combined gradient over `shared_parameters()` only; task-specific params get `autograd.grad(losses.sum(), ts_params)` = **unit weight per task**. Under champion G's reg-private **dual-tower**, the private STAN reg tower (>80 % of the reg pathway, ∈ `reg_specific`) is therefore never reweighted → these methods silently **collapse to ≈equal-weighting** (probe: cagrad logs weights `[1,0]` but its private-tower gradient equals `equal_weight`'s). Their balancer cells **do not count** as fair tests under a dual-tower head. (gradnorm/dwa/fairgrad additionally mis-default: gradnorm lr=1e-3 + L1-renorm-to-sum=2 centers on equal; dwa per-batch loss history; fairgrad step_size too small.)
+
+**Fix (code, landed).** `scripts/train.py` `_BACKWARD_ONLY_LOSSES` omitted `cagrad`+`aligned_mtl` (they backprop internally / return `loss=None`) → `TypeError` under `grad_accum>1` (safe in practice only because `default_mtl` pins grad_accum=1). Added both 2026-06-08.
+
+**Why it didn't change the Tier-4 verdict.** The mechanism is decisive independently: **gradient cosine(cat,reg)≈0** (FL +0.0007 / AL +0.0026; see §2.8) → no task conflict for any balancer to resolve, so even correctly-wired surgery can't help. Corrected re-runs (gradnorm @lr=0.05, nash @max_norm=2.2) + static cw-sweep confirm no Pareto win; matches Kurin/Xin NeurIPS'22. **Lesson:** before trusting a gradient-surgery result under a private-tower/dual-tower head, verify the method actually reweights the task-specific params, and check the inter-task gradient cosine first (cos≈0 ⇒ no balancer can help — don't sweep them). Full write-up: `docs/CONCERNS.md §C27`, `docs/results/mtl_improvement/T4_audit_and_verdict.md`.
+
 ---
 
 ## 6 · Open questions (the F50 search frontier)

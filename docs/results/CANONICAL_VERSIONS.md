@@ -345,6 +345,8 @@ FL also ties the (d) composite reg (73.62) while winning cat → composite stric
 
 **VALIDATED 2026-06-07 (Tier 2V — `studies/mtl_improvement/CRITIQUE_TIER2_C25_2026-06-06.md` §7 + `INDEX.html #tier2v`):** v16 survived a skeptical re-test. The (c)/(d) ceilings were re-run at G's seeds {0,1,7,100} (they were seed-42 only) — stable (σ≤0.7), G still beats both at 4/4 states. Alt-archs re-ranked FAIRLY (standalone, post-C25, per-arch `category-weight`) all lose by 1.6–2.1pp → the "architecture-capacity is not the reg lever" claim is un-confounded. No tail regression; no hypertuning lever beats G (logit-adjust HURTS the MTL cat — plain CE is the MTL cat optimum; private STAN right-sized; FAMO ≈ G). Param-honest: G = base_a +4.9% (one model, not "½ of two"). The v16 champion is **paper-safe**.
 
+**v16 RE-CONFIRMED 2026-06-08 (Tiers 3/4/5 close — no recipe change):** the loss/optimization axis was exhausted with no Pareto gain over v16's `static_weight cw=0.75` (full balancer registry + a new gated `--loss-scale-norm` flag both FALSIFIED; gradient cosine(cat,reg)≈0 = no conflict for balancers to resolve). Reg-input levers (overlap, HGI routing) and the HSM reg head also gave no gain. **v16 recipe is unchanged + further hardened.** Note: `--loss-scale-norm` (new CLI flag, `loss_scale_norm` config field) is **experimental, default OFF, and FALSIFIED** (starves the high-cardinality reg head) — it is NOT part of any canon version; do not enable. See `results/mtl_improvement/T4_audit_and_verdict.md` + `studies/mtl_improvement/WHY_ORTHOGONAL_AND_NO_MODERN_OPTIMIZERS.md`.
+
 ---
 
 ## Quick reference — version × axis matrix
