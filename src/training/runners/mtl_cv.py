@@ -215,6 +215,7 @@ def train_model(model: torch.nn.Module,
                 task_best_save_dir: Optional[Path] = None,
                 log_t_kd_weight: float = 0.0,
                 log_t_kd_tau: float = 1.0,
+                loss_scale_norm: bool = False,
                 checkpoint_selector: str = "geom_simple",
                 joint_min_epoch: int = 0,
                 ):
@@ -483,6 +484,19 @@ def train_model(model: torch.nn.Module,
                 # Calculate losses (inside autocast so CE uses float16 logits)
                 task_b_loss = next_criterion(pred_task_b, truth_task_b)
                 task_a_loss = category_criterion(pred_task_a, truth_task_a)
+
+                # T4.0a (mtl_improvement) loss-scale normalization — divide each
+                # task's CE by log(num_classes) BEFORE the MTL combiner, so the
+                # built-in ~4.7x CE-magnitude gap (ln(n_regions) vs ln(7)) is
+                # decoupled from the inter-task weight. Gated; default no-op.
+                if loss_scale_norm:
+                    import math as _math
+                    _nb = pred_task_b.shape[-1]
+                    _na = pred_task_a.shape[-1]
+                    if _nb > 1:
+                        task_b_loss = task_b_loss / _math.log(_nb)
+                    if _na > 1:
+                        task_a_loss = task_a_loss / _math.log(_na)
 
                 # substrate-protocol-cleanup Tier A1 / mtl-protocol-fix Phase 3 §4.5 —
                 # log_T KL distillation supervisory signal. For each sample with
@@ -1423,6 +1437,7 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             task_best_save_dir=task_best_save_dir,
             log_t_kd_weight=float(getattr(config, "log_t_kd_weight", 0.0) or 0.0),
             log_t_kd_tau=float(getattr(config, "log_t_kd_tau", 1.0) or 1.0),
+            loss_scale_norm=bool(getattr(config, "loss_scale_norm", False)),
             checkpoint_selector=str(getattr(config, "checkpoint_selector", "geom_simple")),
             joint_min_epoch=int(getattr(config, "min_best_epoch", 0) or 0),
         )

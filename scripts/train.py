@@ -921,6 +921,19 @@ def _parse_args(argv=None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--loss-scale-norm",
+        dest="loss_scale_norm",
+        action="store_true",
+        default=False,
+        help=(
+            "T4.0a (mtl_improvement) — divide each task's CE by "
+            "log(num_classes) BEFORE the MTL combiner, decoupling the built-in "
+            "~4.7x CE-magnitude gap (ln(n_regions)≈8.5 reg vs ln(7)≈1.95 cat) "
+            "from the inter-task weight. MTL-only; default off (champion G + "
+            "all --canon versions untouched)."
+        ),
+    )
+    parser.add_argument(
         "--log-t-kd-tau",
         dest="log_t_kd_tau",
         type=float,
@@ -1506,6 +1519,16 @@ def _apply_cli_overrides(
         # KD term is fully specified without requiring --log-t-kd-tau.
         config = dataclasses.replace(
             config, log_t_kd_tau=_V12_LOG_T_KD_DEFAULT_TAU
+        )
+
+    # T4.0a (mtl_improvement) loss-scale normalization — opt-in, MTL-only.
+    if getattr(args, "loss_scale_norm", False):
+        if config.task_type != "mtl":
+            raise ValueError("--loss-scale-norm requires --task mtl")
+        config = dataclasses.replace(config, loss_scale_norm=True)
+        logger.info(
+            "loss-scale-norm ON (T4.0a) — each task CE divided by "
+            "log(num_classes) before the MTL combiner"
         )
 
     # substrate-protocol-cleanup Tier C1 — --save-task-best-snapshots.

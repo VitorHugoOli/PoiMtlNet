@@ -211,6 +211,14 @@ class ExperimentConfig:
     log_t_kd_weight: float = 0.0
     log_t_kd_tau: float = 1.0
 
+    # T4.0a (mtl_improvement) loss-scale normalization. When True, each task's
+    # raw CE is divided by ``log(num_classes_of_that_task)`` BEFORE the MTL
+    # combiner / inter-task weight, decoupling the built-in ~4.7x CE-magnitude
+    # gap (ln(n_regions)≈8.5 reg vs ln(7)≈1.95 cat) from the inter-task weight
+    # ``w`` (DB-MTL / UW log-transform principle). Default False = strict no-op
+    # (champion G + all canon versions untouched). CLI: ``--loss-scale-norm``.
+    loss_scale_norm: bool = False
+
     # Per-task input modality (Check2HGI MTL only). These mirror the
     # ``--task-a-input-type`` / ``--task-b-input-type`` CLI flags and the
     # ``FoldCreator(task_a_input_type=..., task_b_input_type=...)`` parameters.
