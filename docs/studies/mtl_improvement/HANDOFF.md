@@ -20,8 +20,12 @@ This is the organized "you are here". Full chronology: `log.md` (newest-first 20
 >   mechanism test) · **R2 ★** dual-substrate routing HGI→reg, FL (REFRAMED — C25 falsified "washes out"; hook+HGI
 >   on disk) · T3.1 KD = done/moot · richer-priors = parked.
 > - **Tier 4 — OPTIMIZATION ★ (user-prioritised, expanded with `src/losses`):** T4.0 loss-scale-norm + RLW
->   (untested, distinct from balancers) · **T4.1 the FULL registry** — T2V.6 swept only 4 of ~20; the rest
->   (db_mtl/dwa/gradnorm/aligned_mtl/uw_so/stch/scheduled_static/RLW/…) untested under G · T4.2 optimizer
+>   (untested, distinct from balancers) · **T4.1 the FULL registry incl. NashMTL** — T2V.6 swept only 4 of ~20
+>   AT DEFAULT PARAMS; the rest (db_mtl/dwa/gradnorm/aligned_mtl/uw_so/stch/scheduled_static/RLW/…) untested
+>   under G. ⚠ **Each balancer (a) at its OWN best params** (Nash optim_niter/max_norm — watch cvxpy collapse;
+>   CAGrad c; GradNorm α; FAMO γ/w_lr) **and (b) arch-wired to G's dual-tower partition** (gradient-surgery
+>   methods enumerate `shared_parameters()`; the private tower ∈ `reg_specific` — run the param-partition
+>   unit-test on G per balancer before its result counts; O(k) Nash/CAGrad/PCGrad may be slow) · T4.2 optimizer
 >   (per-head LR + AdamW knobs; Lion/Prodigy = optional new dep).
 > - **Tier 5 — Heads:** T5.1/T5.2 DONE (STAN load-bearing, next_gru+plain-CE); **T5.3 ★** HSM high-cardinality
 >   reg head = the one live residual (never GPU-run, large-state lever).
