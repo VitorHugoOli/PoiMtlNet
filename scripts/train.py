@@ -1898,7 +1898,13 @@ def main(argv=None) -> None:
     logger.info("=" * 72)
 
     # Validate loss + gradient accumulation compatibility before training.
-    _BACKWARD_ONLY_LOSSES = {"nash_mtl", "pcgrad", "gradnorm"}
+    # All balancers that backprop internally / return loss=None must be listed
+    # here, else they hit a TypeError at mtl_cv backward under grad_accum>1.
+    # cagrad + aligned_mtl added 2026-06-08 (T4.1 audit — they were omitted;
+    # safe only because default_mtl pins grad_accum=1).
+    _BACKWARD_ONLY_LOSSES = {
+        "nash_mtl", "pcgrad", "gradnorm", "cagrad", "aligned_mtl",
+    }
     grad_accum = getattr(config, "gradient_accumulation_steps", 1) or 1
     if (
         task_key == "mtl"
