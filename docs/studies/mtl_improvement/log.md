@@ -2159,6 +2159,37 @@ SHARED backbone (mtlnet_crossattn + next_stan_flow prior-OFF = G minus the priva
 
 ---
 
+## 2026-06-08 — ✅ TIER 4 CLOSED: audit found+fixed a balancer wiring bug; gradient cosine≈0 = the mechanism; static_weight is Pareto-optimal
+
+**Phase**: Tier 4 close-out. The first T4.1 screen ("no balancer beats static_weight; all cluster at equal_weight") was flagged by the user as suspicious → meticulous audit (2 sub-agents + direct probes + corrected re-runs + 3 figures). Full write-up: `docs/results/mtl_improvement/T4_audit_and_verdict.md`.
+
+**The audit (user-requested "we must be losing something"):**
+- **Real bug found:** gradient-surgery (cagrad/pcgrad/aligned_mtl) applies its combined gradient ONLY to `shared_parameters()`; under G's dual-tower the private reg tower (∈ `reg_specific`, >80% of the reg pathway) trains at UNIT weight always → they collapse to ≈equal-weighting (live probe: cagrad logs w=[1,0] but its private-tower grad == equal_weight's). → those 3 cells DON'T COUNT.
+- **Misconfigured at defaults:** gradnorm (lr=1e-3 + L1-renorm-to-sum=2 → range 0.016, can't reach 0.25/0.75), dwa (per-batch loss history → pinned ≈1.0), fairgrad (step_size too small).
+- **Latent preflight bug FIXED:** `_BACKWARD_ONLY_LOSSES` omitted cagrad+aligned_mtl (TypeError under grad_accum>1; safe here as default_mtl pins grad_accum=1).
+- **Correctly wired (valid):** nash, uw, uw_so, db_mtl, bayesagg, excess, stch, go4align, famo, scheduled_static, equal_weight, static_weight, random_weight.
+
+**The decisive mechanism — task gradients are ORTHOGONAL.** cos(∇cat,∇reg) on shared ≈ 0 at BOTH states (FL +0.0007 / AL +0.0026, band [−0.08,+0.19]). No conflict → no balancer CAN help (even correctly wired). Figure `figs/grad_cosine_tasks.png`. Literature (Kurin/Xin NeurIPS'22, Royer'23, 2025) confirms: tuned scalarization beating advanced MTO at k=2-with-tuned-baseline is the EXPECTED result; balancers only help under strongly-negative cosine.
+
+**Corrected re-runs (bug-aware retune + Xin'22 fairness), FL+AL seed0:**
+- gradnorm@lr0.05: FL +0.12 reg / −1.29 cat; nash@max_norm2.2: FL +0.09 reg / −1.51 cat (AL cat +1.50 REVERSES at FL → state-dependent, not a win). Both just trade cat for reg (cos≈0 → no free lunch).
+- static cw-sweep {0.5,0.6,0.66,0.8}: a monotone reg↔cat trade; NO cw Pareto-beats 0.75 → G's weight is on the Pareto front (baseline tuned as hard as challengers).
+- **T4.0a scale-norm FALSIFIED:** divides reg CE by log(4703)=8.46 → starves the high-card reg head (FL reg 35.47 at default cw; 70.25/68.52/63.51 across reg-favorable cw, never reaching G 72.95). The large reg CE is a genuinely harder task needing the gradient, not unfair dominance.
+- **T4.0b RLW** (earlier): inter-task weight not a sensitive lever.
+
+**Decision**
+- **Tier 4 CLOSED — clean, bug-free, fairness-checked NEGATIVE.** Six convergent lines (RLW, full screen, tuned+arch-wired re-run, static sweep, scale-norm falsified, cosine≈0). G's `static_weight cw=0.75` is Pareto-optimal; the loss/optimization axis yields no gain. Paper-grade ("no balancer beats tuned scalarization at k=2"). No multi-seed promotion warranted.
+- **Unifying mechanistic payoff:** the orthogonal task gradients explain the WHOLE study — why balancers can't help (Tier 4), why forcing more sharing failed (Tier 2: it would induce the conflict that isn't there), and why the dual-tower wins (protect reg, let cat harvest the shared representation). The "matches reg / beats cat +3pp" Pareto-positive result = the signature of an orthogonal task pair handled by the right architecture.
+- **3 figures** produced (for the BRACIS talk): grad_cosine_tasks, t4_balancer_scatter_FL, t4_loss_weight_trajectories_FL.
+
+**Open follow-up flagged to user:** the +3pp cat transfer is representation-level (not gradient-mediated, per cosine≈0); a clean ablation (category-only with the same cross-attn trunk) would verify it's region-driven vs architecture-driven — proposed, not yet run.
+
+**Chain status**: Tier 4 CLOSED. Champion G unchanged. Tiers 3+4 both closed. Committed + pushed.
+
+**Next** (pending user): (a) optional cat-transfer ablation; (b) T5.3 HSM reg head (the last live reg-pathway lever); (c) CA/TX completeness; (d) study close → paper restatement.
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:

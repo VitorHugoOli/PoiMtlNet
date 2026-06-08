@@ -3,6 +3,19 @@
 **As of 2026-06-06 (⭐⭐⭐ THE UNWEIGHTING FINDING + RE-VALIDATION + CEILING BROKEN — the reg narrative is reframed AND the FL champion (G) `dual aux + prior-OFF` BEATS both STL ceilings).** Branch `mtl-improve`, pushed.
 This is the organized "you are here". Full chronology: `log.md` (newest-first 2026-06-05 entries). Design/cards: `INDEX.html`. Paper-facing: `PAPER_UPDATE.md`. Confound write-up: `docs/CONCERNS.md §C25`.
 
+> ## ✅ TIER 4 CLOSED (2026-06-08) — loss/optimization axis exhausted; G's static_weight is Pareto-optimal
+> Audit (user-flagged the suspicious "all balancers cluster at equal_weight"): found gradient-surgery
+> (cagrad/pcgrad/aligned_mtl) is mis-wired under G's dual-tower (private reg tower trains at unit weight →
+> collapses to equal) + gradnorm/dwa/fairgrad misconfigured + a latent preflight bug (FIXED). BUT the
+> negative is real + airtight: **gradient cosine(cat,reg)≈0 at AL+FL** (no conflict for any balancer to
+> resolve) + corrected re-runs (gradnorm lr=0.05, nash max_norm=2.2 still trade cat for reg) + static
+> cw-sweep (0.75 on the Pareto front) + **scale-norm FALSIFIED** (starves the high-card reg head) + RLW
+> litmus + literature (Kurin/Xin NeurIPS'22: tuned scalarization wins at k=2). **Six convergent lines.**
+> Mechanistic payoff: orthogonal task gradients unify the study (balancers can't help; more-sharing failed
+> in Tier 2; dual-tower wins). New: `--loss-scale-norm` flag (gated, default off). 3 figures for the talk.
+> Write-up: `docs/results/mtl_improvement/T4_audit_and_verdict.md`. **Champion G unchanged.**
+> Open: optional cat-transfer ablation (cat-only w/ cross-attn trunk); then T5.3 / CA-TX / paper restatement.
+>
 > ## ✅ TIER 3 CLOSED (2026-06-08) — reg-input axis exhausted; G unchanged; NEXT = Tier 4 (T4.0)
 > **R0/R1/R2 done + advisor-signed-off CLOSE.** (1) **R0** (free re-score) pinned the matched G−ceiling bar
 > multi-state: G **matches** reg (Δ −0.09/−0.12/−0.09/−0.31 at AL/AZ/GE/FL, Pareto-non-inferior) + **beats**
