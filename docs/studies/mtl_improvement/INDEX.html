@@ -1350,7 +1350,22 @@ The Tier-2 winner was found within ONE corner: cross-attn backbone · STAN priva
 <div class="block"><div class="block-title">Why</div>The "reg matches the ceiling" verb is matched-metric-verified (FULL <code>top10_acc</code>, not <code>_indist</code>) at FL ONLY (B-A2). Until G−ceiling is pinned on the matched metric at AL/AZ/GE, no probe can be measured ("does it move G−ceiling?"). This is the bar every reopened card scores against.</div>
 <div class="block"><div class="block-title">Methodology</div>Re-score the EXISTING G runs + the (c)/(d) ceiling runs on FULL <code>top10_acc</code> at AL/AZ/GE. Zero retraining. Output: per-state matched-metric G−ceiling = the bar.</div>
 <div class="block"><div class="block-title">Decision gate</div><div class="gate">Pins the bar; likely confirms "matches" (small ±). A state with a real matched gap is where the probes have the most to gain. Also hardens the paper "matches" verb multi-state.</div></div>
-<div class="results-placeholder">Results: <em>pending execution</em></div>
+<div class="block">
+<div class="block-title">Results (2026-06-08) — the matched-metric bar is PINNED multi-state</div>
+<p>Zero-retrain re-score of the existing G runs ({0,1,7,100}) onto the FULL <code>top10_acc</code> via <code>full = indist·(1−ood_fraction)</code> — method <strong>validated</strong> against B-A2's independent <code>route_task_best</code> at FL (72.95 vs 72.93, per-fold near-identical). Ceilings re-extracted from the same T2V.1 p1 JSONs (reconcile EXACTLY: cat 50.35/50.39/57.50/69.96; reg 62.67/54.80/58.44/73.27; (d) 73.49). G-indist cross-check reproduces the reported headline exactly (64.47/55.75/59.37/73.57). Script: <code>scripts/mtl_improvement/r0_matched_rescore.py</code>.</p>
+<table>
+<thead><tr><th>State</th><th>G-full reg</th><th>(c) reg ceil (full)</th><th>Δreg <em>matched</em></th><th>G cat F1</th><th>(c) cat</th><th>Δcat</th></tr></thead>
+<tbody>
+<tr><td>AL</td><td class="num">62.57 ± 0.10</td><td class="num">62.67 ± 0.13</td><td class="num">−0.09</td><td class="num">52.91 ± 0.27</td><td class="num">50.35</td><td class="num">+2.56</td></tr>
+<tr><td>AZ</td><td class="num">54.68 ± 0.24</td><td class="num">54.80 ± 0.22</td><td class="num">−0.12</td><td class="num">54.48 ± 0.74</td><td class="num">50.39</td><td class="num">+4.08</td></tr>
+<tr><td>GE</td><td class="num">58.35 ± 0.04</td><td class="num">58.44 ± 0.06</td><td class="num">−0.09</td><td class="num">61.43 ± 0.26</td><td class="num">57.50</td><td class="num">+3.93</td></tr>
+<tr><td>FL</td><td class="num">72.97 ± 0.06</td><td class="num">73.27 ± 0.06</td><td class="num">−0.31</td><td class="num">73.16 ± 0.04</td><td class="num">69.96</td><td class="num">+3.20</td></tr>
+</tbody>
+</table>
+<p>FL (d) 2-model composite (HGI-α0) full = 73.49 → G-full − composite = <strong>−0.53</strong> (the seed-42 "+0.08 ahead" was the indist-vs-full artifact; on matched metric G is ~½pp below the composite at FL).</p>
+<p><strong>Verdict:</strong> <span class="pill good">BAR PINNED</span> — the reg "<strong>matches</strong>" verb (B-A2) generalizes multi-state: G is Pareto-non-inferior on reg at all 4 states (Δreg <strong>−0.09 to −0.31 pp</strong>, within fold σ), cat <strong>beats +2.6 to +4.1 pp</strong> everywhere. <strong>The reg matched-gap any probe must move is tiny + consistent (~0.1–0.3 pp), largest at FL (−0.31) and AZ (−0.12)</strong> — exactly the magnitude rule's warning. R1/R2/T4/T5.3 are now measurable against this bar.</p>
+<p class="footnote">JSON: <code>docs/results/mtl_improvement/R0_matched_metric_bar.json</code> · re-score: <code>scripts/mtl_improvement/r0_matched_rescore.py</code> · compute: 0 GPU-h (re-score only).</p>
+</div>
 </div>
 
 <div class="experiment" id="T6-1">

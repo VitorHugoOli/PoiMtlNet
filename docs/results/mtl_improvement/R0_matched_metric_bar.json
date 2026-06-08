@@ -1,0 +1,285 @@
+{
+  "method": "full=indist*(1-ood_frac); validated vs B-A2 FL 72.93",
+  "seeds": [
+    0,
+    1,
+    7,
+    100
+  ],
+  "states": {
+    "alabama": {
+      "g_reg_full_mean": 62.573,
+      "g_reg_full_std": 0.102,
+      "g_reg_full_per_seed": [
+        62.64,
+        62.703,
+        62.491,
+        62.459
+      ],
+      "g_reg_indist_mean": 64.465,
+      "c_reg_ceiling_full_mean": 62.666,
+      "c_reg_ceiling_full_std": 0.126,
+      "c_reg_ceiling_per_seed": [
+        62.569,
+        62.876,
+        62.569,
+        62.648
+      ],
+      "delta_reg_matched": -0.092,
+      "g_cat_f1_mean": 52.909,
+      "g_cat_f1_std": 0.274,
+      "c_cat_ceiling_mean": 50.352,
+      "delta_cat": 2.558,
+      "per_fold": {
+        "0": {
+          "g_full_folds": [
+            64.123,
+            62.549,
+            65.775,
+            64.201,
+            56.553
+          ]
+        },
+        "1": {
+          "g_full_folds": [
+            66.798,
+            64.634,
+            64.359,
+            61.212,
+            56.513
+          ]
+        },
+        "7": {
+          "g_full_folds": [
+            65.578,
+            61.33,
+            62.628,
+            65.578,
+            57.34
+          ]
+        },
+        "100": {
+          "g_full_folds": [
+            65.828,
+            61.448,
+            66.798,
+            62.574,
+            55.647
+          ]
+        }
+      },
+      "g_rundirs": {
+        "0": "results/check2hgi_design_k_resln_mae_l0_1/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260606_033232_1966647",
+        "1": "results/check2hgi_design_k_resln_mae_l0_1/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260606_134143_2166701",
+        "7": "results/check2hgi_design_k_resln_mae_l0_1/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260606_134143_2166704",
+        "100": "results/check2hgi_design_k_resln_mae_l0_1/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260606_134508_2167696"
+      }
+    },
+    "arizona": {
+      "g_reg_full_mean": 54.681,
+      "g_reg_full_std": 0.243,
+      "g_reg_full_per_seed": [
+        54.622,
+        54.97,
+        54.815,
+        54.319
+      ],
+      "g_reg_indist_mean": 55.748,
+      "c_reg_ceiling_full_mean": 54.798,
+      "c_reg_ceiling_full_std": 0.221,
+      "c_reg_ceiling_per_seed": [
+        55.02,
+        54.989,
+        54.701,
+        54.482
+      ],
+      "delta_reg_matched": -0.117,
+      "g_cat_f1_mean": 54.476,
+      "g_cat_f1_std": 0.735,
+      "c_cat_ceiling_mean": 50.393,
+      "delta_cat": 4.083,
+      "per_fold": {
+        "0": {
+          "g_full_folds": [
+            53.95,
+            55.417,
+            58.647,
+            49.593,
+            55.503
+          ]
+        },
+        "1": {
+          "g_full_folds": [
+            55.541,
+            55.701,
+            57.008,
+            50.066,
+            56.537
+          ]
+        },
+        "7": {
+          "g_full_folds": [
+            56.591,
+            55.095,
+            57.625,
+            48.371,
+            56.393
+          ]
+        },
+        "100": {
+          "g_full_folds": [
+            55.181,
+            56.117,
+            56.374,
+            49.403,
+            54.518
+          ]
+        }
+      },
+      "g_rundirs": {
+        "0": "results/check2hgi_design_k_resln_mae_l0_1/arizona/mtlnet_lr1.0e-04_bs2048_ep50_20260606_033443_1967297",
+        "1": "results/check2hgi_design_k_resln_mae_l0_1/arizona/mtlnet_lr1.0e-04_bs2048_ep50_20260606_134508_2167700",
+        "7": "results/check2hgi_design_k_resln_mae_l0_1/arizona/mtlnet_lr1.0e-04_bs2048_ep50_20260606_134848_2168707",
+        "100": "results/check2hgi_design_k_resln_mae_l0_1/arizona/mtlnet_lr1.0e-04_bs2048_ep50_20260606_135048_2169277"
+      }
+    },
+    "georgia": {
+      "g_reg_full_mean": 58.345,
+      "g_reg_full_std": 0.038,
+      "g_reg_full_per_seed": [
+        58.295,
+        58.395,
+        58.364,
+        58.326
+      ],
+      "g_reg_indist_mean": 59.371,
+      "c_reg_ceiling_full_mean": 58.438,
+      "c_reg_ceiling_full_std": 0.062,
+      "c_reg_ceiling_per_seed": [
+        58.486,
+        58.337,
+        58.437,
+        58.491
+      ],
+      "delta_reg_matched": -0.093,
+      "g_cat_f1_mean": 61.43,
+      "g_cat_f1_std": 0.263,
+      "c_cat_ceiling_mean": 57.501,
+      "delta_cat": 3.929,
+      "per_fold": {
+        "0": {
+          "g_full_folds": [
+            57.626,
+            56.708,
+            56.131,
+            61.69,
+            59.322
+          ]
+        },
+        "1": {
+          "g_full_folds": [
+            58.159,
+            55.864,
+            56.481,
+            61.494,
+            59.978
+          ]
+        },
+        "7": {
+          "g_full_folds": [
+            58.359,
+            56.892,
+            56.209,
+            62.424,
+            57.937
+          ]
+        },
+        "100": {
+          "g_full_folds": [
+            57.47,
+            56.792,
+            56.954,
+            61.923,
+            58.493
+          ]
+        }
+      },
+      "g_rundirs": {
+        "0": "results/check2hgi_design_k_resln_mae_l0_1/georgia/mtlnet_lr1.0e-04_bs2048_ep50_20260606_033603_1967645",
+        "1": "results/check2hgi_design_k_resln_mae_l0_1/georgia/mtlnet_lr1.0e-04_bs2048_ep50_20260606_135454_2170308",
+        "7": "results/check2hgi_design_k_resln_mae_l0_1/georgia/mtlnet_lr1.0e-04_bs2048_ep50_20260606_135654_2170865",
+        "100": "results/check2hgi_design_k_resln_mae_l0_1/georgia/mtlnet_lr1.0e-04_bs2048_ep50_20260606_140444_2172948"
+      }
+    },
+    "florida": {
+      "g_reg_full_mean": 72.968,
+      "g_reg_full_std": 0.063,
+      "g_reg_full_per_seed": [
+        72.951,
+        72.944,
+        73.072,
+        72.905
+      ],
+      "g_reg_indist_mean": 73.574,
+      "c_reg_ceiling_full_mean": 73.275,
+      "c_reg_ceiling_full_std": 0.056,
+      "c_reg_ceiling_per_seed": [
+        73.22,
+        73.231,
+        73.361,
+        73.287
+      ],
+      "delta_reg_matched": -0.307,
+      "g_cat_f1_mean": 73.164,
+      "g_cat_f1_std": 0.041,
+      "c_cat_ceiling_mean": 69.963,
+      "delta_cat": 3.201,
+      "per_fold": {
+        "0": {
+          "g_full_folds": [
+            73.79,
+            71.972,
+            73.413,
+            72.548,
+            73.033
+          ]
+        },
+        "1": {
+          "g_full_folds": [
+            73.711,
+            72.656,
+            71.619,
+            73.884,
+            72.851
+          ]
+        },
+        "7": {
+          "g_full_folds": [
+            73.469,
+            72.546,
+            73.394,
+            72.218,
+            73.734
+          ]
+        },
+        "100": {
+          "g_full_folds": [
+            73.557,
+            71.843,
+            72.712,
+            72.48,
+            73.934
+          ]
+        }
+      },
+      "g_rundirs": {
+        "0": "results/check2hgi_design_k_resln_mae_l0_1/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260606_000400_1913517",
+        "1": "results/check2hgi_design_k_resln_mae_l0_1/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260606_005512_1926210",
+        "7": "results/check2hgi_design_k_resln_mae_l0_1/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260606_005512_1926213",
+        "100": "results/check2hgi_design_k_resln_mae_l0_1/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260606_012953_1934947"
+      },
+      "d_composite_reg_full_mean": 73.493,
+      "delta_reg_vs_composite": -0.525
+    }
+  }
+}
