@@ -1314,7 +1314,18 @@ The Tier-2 winner was found within ONE corner: cross-attn backbone · STAN priva
 <div class="block"><div class="block-title">Hypothesis</div>Random-init 7-class CE ≈ ln 7 ≈ 1.95 vs ~9k-class CE ≈ ln 9000 ≈ 9.1 — a <strong>~4.7× magnitude gap before any weighting</strong>. The region loss dominates the gradient by construction; <code>w=0.75</code> on category is partly just undoing that. Normalizing each CE by <code>log(num_classes)</code> (or a running-EMA baseline) <em>before</em> applying <code>w</code> decouples scale from the inter-task weight — the DB-MTL log-transform / UW principle. Highest-EV, near-free (<code>joint_selection_and_loss_combination.md</code> Part 2).</div>
 <div class="block"><div class="block-title">Methodology</div>(a) divide each CE by <code>log(num_classes)</code>, then re-tune <code>w</code> (small grid around 0.5); (b) <strong>RLW litmus</strong> (Lin TMLR'22): if random weighting ≈ <code>w=0.75</code>, the inter-task weight is NOT the bottleneck → the lever is scale + intra-task imbalance, not balancing. On champion G, FL + a small state (matched-metric G−ceiling). composes with <code>db_mtl</code> (T4.1). (cat logit-adjust already tested under G — T2V.7, hurts; plain CE is the cat optimum.)</div>
 <div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: scale-norm + re-tuned w beats <code>w=0.75</code> by ≥1pp on either head, other non-inferior. <strong>RLW≈0.75</strong>: confirms weight isn't the bottleneck → skip most of T4.1, focus on scale/imbalance. This experiment runs regardless of the T2/T3 residual (cheap + diagnostic).</div></div>
-<div class="results-placeholder">Results: <em>pending execution</em></div>
+<div class="block">
+<div class="block-title">Results (2026-06-08) — T4.0b RLW litmus DONE: inter-task weight is NOT the bottleneck</div>
+<p>G arch + <code>--mtl-loss random_weight</code> (RLW, Dirichlet per-step) vs G (static_weight cw0.75), AL+FL seed0, matched-metric. Driver <code>t40_rlw_litmus.sh</code>.</p>
+<table>
+<thead><tr><th>state</th><th>RLW reg-full</th><th>G reg-full</th><th>Δreg</th><th>RLW cat</th><th>G cat</th><th>Δcat</th></tr></thead>
+<tbody>
+<tr><td>AL</td><td class="num">62.31</td><td class="num">62.64</td><td class="num">−0.33</td><td class="num">54.25</td><td class="num">52.75</td><td class="num">+1.49</td></tr>
+<tr><td>FL</td><td class="num">73.02</td><td class="num">72.95</td><td class="num">+0.07</td><td class="num">71.94</td><td class="num">73.12</td><td class="num">−1.18</td></tr>
+</tbody>
+</table>
+<p><strong>Verdict (T4.0b):</strong> <span class="pill warn">RLW ≈ G → inter-task weight NOT the bottleneck</span> — random per-step weighting matches tuned static_weight on reg (±0.33), trades on cat. The canonical RLW signal (Lin TMLR'22) → <strong>the full T4.1 balancer registry is predictably low-EV</strong> (all manipulate inter-task weighting/gradient combo), consistent with P4 + T2V.6. <strong>T4.0a (loss-scale norm)</strong> is the distinct intra-task-scale mechanism — genuinely untested (needs a code change), highest-remaining Tier-4 EV, but also predicted low-EV by the litmus. Results: <code>docs/results/mtl_improvement/T40_rlw_litmus.md</code>. Decision on T4.0a + T4.1 scope pending (see log.md).</p>
+</div>
 </div>
 
 <div class="experiment" id="T4-1">

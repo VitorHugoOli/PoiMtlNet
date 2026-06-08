@@ -2136,6 +2136,29 @@ SHARED backbone (mtlnet_crossattn + next_stan_flow prior-OFF = G minus the priva
 
 ---
 
+## 2026-06-08 — Tier 4 START: T4.0b RLW litmus → inter-task weight is NOT the bottleneck (T4.1 low-EV)
+
+**Phase**: Tier 4 (loss/optimization), first move. T4.0b = the cheap ungated RLW pre-check (the gate that decides whether the L-cost T4.1 balancer sweep is worth running).
+
+**What happened**
+- Ran champion G with `--mtl-loss random_weight` (RLW, Lin TMLR'22 — Dirichlet per-step random task weights) vs G (static_weight cw0.75), AL+FL seed0, matched-metric. Driver `scripts/mtl_improvement/t40_rlw_litmus.sh` (needed `--canon none` + explicit G flags + `--no-reg/cat-class-weights`, since the v16 canon auto-injects `--category-weight` which conflicts with random_weight).
+
+**Findings (seed0, matched-metric):**
+| state | RLW reg-full | G reg-full | Δreg | RLW cat | G cat | Δcat |
+|---|---|---|---|---|---|---|
+| AL | 62.31 | 62.64 | −0.33 | 54.25 | 52.75 | +1.49 |
+| FL | 73.02 | 72.95 | +0.07 | 71.94 | 73.12 | −1.18 |
+
+**Decision**
+- **RLW ≈ G → the inter-task weight is NOT the bottleneck.** Random per-step weighting (spanning the whole simplex over training) matches tuned static_weight on reg (±0.33pp) and merely trades on cat (zero-sum). Canonical RLW litmus signal. → **The full T4.1 balancer registry (~16 methods, all manipulating inter-task weighting / gradient combination) is predictably LOW-EV** under G — it will not beat static_weight. Consistent with P4 ("balancing low-EV"), T2V.6 (famo/cagrad/nash/uw ≈ G at defaults), and now the weight axis directly shown flat. Neither RLW nor the matched bar moves; G sits at the reg ceiling regardless of inter-task weighting.
+- **T4.0a (loss-scale normalization)** — the distinct intra-task-scale mechanism (~4.3× CE-magnitude gap, ln4703 vs ln7) — remains genuinely UNTESTED (needs a small code change: divide each CE by log(num_classes) before the combiner). It's the highest-remaining Tier-4 EV, but RLW indirectly exercises extreme scale imbalances and still matches G → scale-norm is also predicted low-EV.
+
+**Chain status**: Tier 4 opened; T4.0b (RLW litmus) DONE. The litmus down-weights the entire balancer axis. Champion G unchanged. Committed.
+
+**Next / decision point for the user**: the RLW litmus (the T4.0 gate) says the inter-task weight axis is flat → T4.1 is low-EV. Options: (a) implement + run T4.0a scale-norm (distinct mechanism, small code change, but predicted low-EV); (b) run a minimal confirmatory T4.1 subset (e.g. db_mtl ⊕ scale-norm, the one with a scale rationale) anyway for completeness; (c) treat the loss/optimization axis as low-EV-confirmed (RLW + P4 + T2V.6) and move to T5.3 (HSM reg head) / CA-TX completeness / close. Surfaced to user.
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:
