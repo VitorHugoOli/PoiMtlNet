@@ -14,7 +14,7 @@ onecycle, KD-OFF. Read order for a fresh agent: this file → `HANDOFF.md` (top 
 | card | status | result |
 |---|---|---|
 | **T5.1** reg-head sweep | DONE | The reg **STAN private tower is load-bearing** — GRU/LSTM/TCN private towers all −1.8…−3.4 pp (B-A1). STAN stays. |
-| **T5.2** cat-head sweep | DONE | **`next_gru` + plain CE** is the MTL cat optimum (the whole loss family + encoder swaps lost; T2V/B-A4). |
+| **T5.2** cat-head sweep | DONE (re-run UNDER G 2026-06-09) | **`next_gru` is the multi-state cat champion** — confirmed by a clean cat-ENCODER swap under G (10 heads × AL+FL): **no head wins at both states**; every FL-beater (conv_attn +1.06, temporal_cnn +0.59, lstm +0.34) craters at AL (−1.3…−23.6). Plain CE is the loss optimum (B-A4). `T52_cathead_sweep.md`. **Bonus:** next_conv_attn = a +1.06 FL-only cat lever (scale-conditional future-work, not adopted). |
 | **T5.3** HSM high-card reg head | **FALSIFIED (2026-06-08)** | Hierarchical softmax = flat softmax at FL 4.7k (73.21 vs 73.22, within σ). HSM is a speed/memory technique, not an accuracy lever. No dual-tower-HSM build motivated. `cat_transfer_and_T53.md §b`. |
 | (follow-up) cat-transfer ablation | DONE (2026-06-08) | The +3 pp MTL-cat gain is **architecture-dominated** (cross-attn trunk +2.27 FL/+3.11 AL); genuine region→cat transfer only +0.89 FL/−0.71 AL. `cat_transfer_and_T53.md §a`. |
 

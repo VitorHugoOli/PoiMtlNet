@@ -2214,6 +2214,35 @@ Ran G's recipe with `--category-weight 1.0` (reg loss ×0 → reg gradient OFF; 
 
 ---
 
+## 2026-06-09 — T5.2 cat-head sweep RE-RUN UNDER champion G (user: "why is Tier 5 closed? it's important") → next_gru confirmed, on real evidence
+
+**Phase**: Tier 5 re-opened + executed properly. User challenged the Tier-5 closure — correctly: T5.1/T5.2 had carried "DONE" verdicts INHERITED from Tier-S (STL head search) + B-A1 (reg private-tower swap) + B-A4/T2V (cat LOSS family). Only T5.3 (HSM) had been run this arc. The genuine open gap was a clean cat-ENCODER swap under champion G — especially important since the cat-transfer ablation showed the cat gain is architecture-driven. Ran it.
+
+**What ran:** 10 cat-capable encoders (next_gru control + lstm/transformer_relpos/transformer_optimized/single/temporal_cnn/tcn_residual/conv_attn/hybrid/mamba) × {AL,FL} seed0, matched-metric, swap `--cat-head` only under G. Driver `t52_cathead_sweep.sh`; data `T52_cathead_sweep.json`; doc `T52_cathead_sweep.md`.
+
+**Findings (Δcat vs next_gru):**
+| cat-head | AL | FL | |
+|---|---|---|---|
+| next_gru (G) | 52.75 | 73.12 | CHAMPION — only head strong at both |
+| next_conv_attn | −21.50 | **+1.06** | FL-only (craters AL) |
+| next_temporal_cnn | −23.60 | +0.59 | FL-only |
+| next_lstm | −1.28 | +0.34 | FL-only |
+| next_hybrid | −2.55 | +0.22 | ≈/worse |
+| transformers/single/mamba/tcn | −9…−16 | −0.9…−9.5 | worse |
+
+reg flat across all heads (AL range 0.31 / FL 1.16) — the dual-tower isolates reg from the cat head.
+
+**Decision**
+- **next_gru CONFIRMED as the multi-state cat champion UNDER G** (real under-G evidence, not inherited). **No head wins at both states** — every FL-beater (conv_attn +1.06, temporal_cnn +0.59, lstm +0.34) craters at AL (−1.3…−23.6). Same FL-only trap as G′ / next_single (CONCERNS §C26) → fails the multi-state band gate.
+- **Bonus (future-work, NOT adopted):** `next_conv_attn` is a genuine +1.06 FL-only cat lever (scale-conditional, in the overlap/design_k family) — logged for a possible scale-conditional paper cat head, not a champion change (the study ships one multi-state recipe).
+- **Honesty correction:** "Tier 5 closed" was previously closed-by-inheritance; it is now **closed-by-direct-under-G-evidence** for the cat axis. Reg axis (T5.1): coded private-tower types (stan/gru/lstm/tcn) swept in B-A1 (STAN load-bearing); other reg archs as private towers need new code (low-EV, STAN-family also won at STL). T5.3 HSM falsified. → Tier 5 genuinely closed.
+
+**Chain status**: Tier 5 re-validated under G; champion G unchanged. Committed.
+
+**Next** (pending user): only Tier 6 completeness remains — CA/TX + BRACIS paper restatement (see HANDOFF_TIER5.md).
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:
