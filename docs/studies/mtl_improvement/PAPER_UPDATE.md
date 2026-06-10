@@ -1,3 +1,39 @@
+# ⭐ PAPER UPDATE (2026-06-10) — the MECHANISM + the analysis/limitations section (Tiers 3/4/5 closed)
+
+> This is the newest layer. The G Pareto-positive headline (below, 2026-06-06/07) is unchanged; this
+> section adds the paper-relevant findings from the Tier-3/4/5 close-out. Source docs:
+> `WHY_ORTHOGONAL_AND_NO_MODERN_OPTIMIZERS.md`, `results/mtl_improvement/{T4_audit_and_verdict.md,
+> orthogonality_intrinsic_test.md, cat_transfer_and_T53.md, T52_cathead_sweep.md}`; claims `CLAIMS CH31`.
+
+**1. The unifying mechanism — the two tasks are gradient-ORTHOGONAL (tested intrinsic).**
+cos(∇L_cat, ∇L_reg) on the shared trunk ≈ 0 (FL +0.0007 / AL +0.0026). TESTED, not asserted: in a
+fully-shared model where reg's shared gradient is *larger* than cat's (ratio 1.26 AL / 1.78 FL), cos is
+still ≈0 — so it's intrinsic to the task pair, not induced by the dual-tower. This single fact is the
+paper's mechanistic spine: it explains why the MTL win is **architectural/representational, not
+gradient-cooperation**, why more parameter-sharing *hurts* (induces conflict that isn't there), and why
+the dual-tower wins (it exploits the orthogonality).
+
+**2. Analysis / limitations section — no modern MTL optimizer helps (a paper-grade NEGATIVE).** The full
+`src/losses` balancer registry (GradNorm/PCGrad/CAGrad/Nash/Aligned-MTL/DWA/DB-MTL/FAMO/UW/RLW…,
+per-method-tuned + arch-wired) + loss-scale normalization + a static-weight sweep all FAIL to
+Pareto-beat tuned `static_weight cw=0.75`. This is the *expected* k=2-with-tuned-baseline result
+(Kurin NeurIPS'22, Xin NeurIPS'22): at gradient cos≈0 there is no conflict for a balancer to resolve.
+Figures: `figs/{grad_cosine_tasks, t4_balancer_scatter_FL, t4_loss_weight_trajectories_FL}.png`.
+
+**3. State the cat result precisely (decomposition).** MTL category beats single-task by +3 pp, but
+the gain is **architecture-dominated** (the cross-attn encoder: +2.13 FL / +3.22 AL, 4-seed), with only
+a small genuine region→category **transfer (+1.08 FL / −0.67 AL)**. Frame as "the joint cross-attn
+architecture is a better category *encoder*, with a small region transfer at scale" — NOT "the region
+task teaches category."
+
+**4. Completeness (no champion change).** The reg-input axis (overlap data-scale, HGI substrate
+routing), the loss/optimization axis, and the head axis (cat-encoder sweep under G → `next_gru` is the
+unique multi-state choice; HSM reg head = flat softmax) are all EXHAUSTED — none beats G. A bonus
+scale-conditional finding (a conv-attention cat head wins +1.06 at FL only, craters small states) is
+logged as future-work, not adopted. Only Tier-6 completeness (CA/TX build) + this restatement remain.
+
+---
+
 > ⛔⛔ **2026-06-05 SUPERSEDING BANNER — READ BEFORE USING ANYTHING BELOW.** The Tier-2 close-out's **R1 ("no single-model MTL architecture closes the MTL→STL reg gap; ship the composite")** is **SUBSTANTIALLY INVALIDATED**: the MTL→STL reg gap it studied was largely a **class-weighting CONFOUND**, not architecture. The MTL reg head trained on class-BALANCED CE (`default_mtl use_class_weights=True`, `experiment.py:364` → `mtl_cv.py:1283-1291`) while the STL ceiling used UNWEIGHTED CE — and class-balancing optimizes macro accuracy AWAY from the top-K (Acc@10) metric. **Verified:** with `--no-class-weights`, MTL reg reaches/exceeds the STL ceiling (T2P.0 AL 64.81 ≥ 62.88, vs the buggy 52.90). So the dose-response, the "irreducibly architectural" claim, and "ship the composite" were all measuring a confounded gap. The architecture search attacked an artifact. **R1 is UNDER RE-VALIDATION** (regime finding + §0.1 + composite advantage being re-tested under unweighted reg CE at AL/GE/FL). **R2 (onecycle recipe) is unaffected** (recipe-level, both arms class-weighted → common-mode). Do NOT cite R1 or any absolute MTL-reg number until the re-baseline lands. Full trail: `log.md` 2026-06-05 ROOT-CAUSE entry + `HANDOFF.md` §top.
 
 # ⭐ PAPER UPDATE (2026-06-05) — the reg narrative is REFRAMED (the "unweighting" finding)
