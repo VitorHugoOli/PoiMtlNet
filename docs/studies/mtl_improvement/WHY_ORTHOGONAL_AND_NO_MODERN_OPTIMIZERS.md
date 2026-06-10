@@ -54,18 +54,21 @@ Two results, two distinct mechanisms, each mapping cleanly onto the architecture
   (run G but `--category-weight 1.0` → reg gradient OFF → trunk trains cat-only; reg confirmed cratered to
   0.12 %):
 
-  | state | STL cat (next_gru, no trunk) | cat + cross-attn trunk, **reg OFF** | G cat (reg ON) | **architecture** | **region-transfer** |
+  | state | STL cat (next_gru, no trunk) | cat + cross-attn trunk, **reg OFF** (4-seed) | G cat (reg ON, 4-seed) | **architecture** | **region-transfer** |
   |---|---|---|---|---|---|
-  | AL | 50.35 | 53.46 | 52.75 | **+3.11** | **−0.71** |
-  | FL | 69.96 | 72.23 | 73.12 | **+2.27** | **+0.89** |
+  | AL | 50.35 | 53.57 ± 0.24 | 52.91 ± 0.27 | **+3.22** | **−0.67** |
+  | FL | 69.96 | 72.09 ± 0.08 | 73.16 ± 0.04 | **+2.13** | **+1.08** |
 
-  The cross-attn shared trunk is a **better category encoder** than the single-task head (+2.3…+3.1 pp).
-  Genuine region→category transfer is small and scale-dependent: **+0.89 at FL** (large state, enough
-  data) and slightly **negative at AL** (−0.71; at small data the region signal mildly distracts cat).
-  This is exactly what orthogonal gradients predict: little *direct* transfer, so the win is a better
-  encoder plus a modest representation-level transfer that only materialises at scale.
-  (Conservative: the STL ceiling used logit-adjust, which *helps* STL cat — so the architecture share is
-  if anything understated. See `docs/results/mtl_improvement/cat_transfer_and_T53.md`.)
+  The cross-attn shared trunk is a **better category encoder** than the single-task head (+2.1…+3.2 pp).
+  Genuine region→category transfer is smaller and scale-dependent: **+1.08 at FL** (large state, enough
+  data) and slightly **negative at AL** (−0.67; at small data the region signal mildly distracts cat).
+  Both signs hold multi-seed (4-seed {0,1,7,100}, tight σ). The win is mostly a better encoder plus a
+  modest representation-level transfer that materialises at scale.
+  (Conservative on two counts: the STL ceiling used logit-adjust, which *helps* STL cat — so the
+  architecture share is understated; and the ablation isn't a *perfectly* clean isolation — with reg's
+  loss weight 0 the cat stream still attends to the reg stream's keys/values in the bidirectional
+  cross-attn, so a little region structure remains in the "architecture" term. See
+  `docs/results/mtl_improvement/{cat_transfer_and_T53.md, orthogonality_intrinsic_test.md}`.)
 
 **Net Pareto-positive story** ("matches reg, beats cat") = the signature of an **orthogonal task pair
 handled by the right architecture**: no interference (reg is safe) + a better shared encoder with small
@@ -78,11 +81,19 @@ NOT *"the region task teaches category."*
 **The orthogonality is mostly *intrinsic to this task pair*, and the right response is to *exploit* it —
 not to try to force cooperation.**
 
-- **It's largely intrinsic.** Category (7 semantic classes) and next-region (~4,700-way spatial
-  transition) are genuinely different prediction problems over the same check-in sequence; they need
-  different feature directions, so orthogonal shared-trunk gradients are the *expected* structure, not a
-  defect. No optimiser can manufacture cooperation that isn't in the task geometry — which is precisely
-  why every balancer failed (no conflict to resolve, no synergy to amplify).
+- **It's intrinsic — TESTED, not asserted (2026-06-10).** Category (7 semantic classes) and next-region
+  (~4,700-way spatial transition) are genuinely different prediction problems over the same check-in
+  sequence; they need different feature directions, so orthogonal shared-trunk gradients are the
+  *expected* structure, not a defect. **We ruled out the obvious confound** — that G's dual-tower (β=0.1
+  aux gating) merely *starves* reg's shared channel and so *induces* cos≈0. In the dual-tower reg's
+  shared gradient IS attenuated (reg:cat ratio 0.26 AL / 0.47 FL); but in a **fully-shared** model
+  (`mtlnet_crossattn` + `next_stan_flow`, no private tower) where reg's shared gradient is **larger** than
+  cat's (ratio 1.26 AL / 1.78 FL), the cosine is **still ≈0** (+0.0024 AL / +0.0017 FL). The orthogonality
+  persists exactly where the confound predicted it should vanish → it is a genuine property of the task
+  pair, not an artifact of the architecture. So the dual-tower **exploits** a pre-existing orthogonality;
+  it does not manufacture it. (Evidence: `docs/results/mtl_improvement/orthogonality_intrinsic_test.md`.)
+  No optimiser can manufacture cooperation that isn't in the task geometry — which is precisely why every
+  balancer failed (no conflict to resolve, no synergy to amplify).
 
 - **Architecture influences it — in the opposite direction from "fix it."** Forcing *more* sharing
   *induces* conflict, it doesn't create cooperation. This is exactly what **Tier 2** showed: MoE,

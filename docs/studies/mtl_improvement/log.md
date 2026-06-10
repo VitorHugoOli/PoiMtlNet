@@ -2243,6 +2243,27 @@ reg flat across all heads (AL range 0.31 / FL 1.16) — the dual-tower isolates 
 
 ---
 
+## 2026-06-10 — Final critical-advisor pass → P0 (orthogonality confound) RESOLVED + P1 decomposition multi-seeded → clear to close
+
+**Phase**: user-requested final "are we missing anything?" advisor pass + acting on it. The advisor marked Tier 4 / G′ / HSM / R1 / the headline G claim all genuinely CLOSED, and flagged exactly ONE P0 + paper-safety polish. Both run; both strengthen the conclusions.
+
+**P0 (the one load-bearing gap) — is cos≈0 INTRINSIC or induced by the dual-tower's β=0.1 aux gating?** RESOLVED — intrinsic. Evidence (`results/mtl_improvement/orthogonality_intrinsic_test.md`):
+- P0-a (free, from logged grad-norms): in the dual-tower, reg's shared gradient IS attenuated (reg:cat ratio 0.26 AL / 0.47 FL) — the confound was real to check.
+- P0-b (decisive): in a **fully-shared** model (`mtlnet_crossattn` + `next_stan_flow`, no private tower) where reg's shared gradient is **larger** than cat's (ratio **1.26 AL / 1.78 FL**), the cosine is **still ≈0** (+0.0024 AL / +0.0017 FL). The orthogonality persists exactly where the confound predicted it should vanish → **intrinsic to the task pair, not architecture-induced.** This STRENGTHENS the paper: the dual-tower *exploits* a pre-existing orthogonality, it doesn't manufacture it.
+
+**P1 — multi-seed the cat-transfer decomposition (4-seed {0,1,7,100}):** architecture-dominated holds; region→cat transfer **+1.08 FL** (σ~0.08, firmed up from seed0 +0.89) / **−0.67 AL** (from −0.71). Both signs robust. + honesty caveat added: the reg-OFF ablation isn't perfectly clean (cat still attends to reg's K/V in the bidirectional cross-attn at reg-weight 0).
+
+**Decision**
+- **We are CLEAR to close.** The advisor's single P0 is resolved in favor of the existing narrative (now tested, not asserted); the P1 numbers are multi-seed paper-safe. No conclusion changed; several were strengthened.
+- **GPU note:** a non-study `python3 main.py` job (26GB, not ours) was running on the shared A40 — left untouched; our runs fit in the headroom.
+- Docs settled: `orthogonality_intrinsic_test.md` (new), WHY doc (Q2 multi-seed + co-adaptation caveat; Q3 intrinsic-tested), `cat_transfer_and_T53.md` (multi-seed), CLAIMS CH31 (tested-intrinsic) + CH30 (multi-seed cat numbers), CHAMPION.md.
+
+**Chain status**: study closed + hardened; champion G unchanged. Only Tier-6 completeness (CA/TX) + paper restatement remain (HANDOFF_TIER5.md).
+
+**Next** (pending user): Tier 6 completeness / paper restatement; the experimental + mechanistic track is comprehensively closed.
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:

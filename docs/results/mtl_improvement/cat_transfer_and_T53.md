@@ -14,10 +14,12 @@ region co-training). Driver `scripts/mtl_improvement/cat_transfer_ablation.sh`. 
 (FL reg cratered to 0.12% — the trunk is cat-only-trained). Decompose:
 `total = architecture (STL→cat+trunk) + region-transfer (cat+trunk→G)`.
 
-| state | STL cat (no trunk) | cat+trunk, reg OFF | G cat (reg ON) | **architecture** | **region-transfer** | total |
+| state | STL cat (no trunk) | cat+trunk, reg OFF (4-seed) | G cat (reg ON, 4-seed) | **architecture** | **region-transfer** | total |
 |---|---|---|---|---|---|---|
-| AL | 50.35 | 53.46 | 52.75 | **+3.11** | **−0.71** | +2.40 |
-| FL | 69.96 | 72.23 | 73.12 | **+2.27** | **+0.89** | +3.16 |
+| AL | 50.35 | 53.57 ± 0.24 | 52.91 ± 0.27 | **+3.22** | **−0.67** | +2.56 |
+| FL | 69.96 | 72.09 ± 0.08 | 73.16 ± 0.04 | **+2.13** | **+1.08** | +3.21 |
+
+(Multi-seed {0,1,7,100}, updated 2026-06-10; supersedes the seed0 estimates +3.11/−0.71 AL, +2.27/+0.89 FL — both signs held, the FL transfer firmed up to +1.08±~0.1. The reg-OFF isolation isn't perfectly clean: the cat stream still attends to the reg stream's K/V in the bidirectional cross-attn even at reg-weight 0, so a little region structure remains in the "architecture" term — see `orthogonality_intrinsic_test.md`.)
 
 **Verdict — the cat gain is ARCHITECTURE-DOMINATED; region transfer is modest and scale-dependent.**
 The cross-attn shared trunk accounts for +2.3 to +3.1 pp; genuine region co-training adds only **+0.89
