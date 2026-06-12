@@ -1,31 +1,40 @@
 # closing-data — study briefing (DRAFT scaffold, 2026-06-12 — NOT YET LAUNCHED)
 
-> **Status: SCAFFOLD.** Created at the close of `mtl_improvement` per the user's plan: *after all
-> improvement studies are evaluated and closed, open one final study that re-checks everything and
-> then spends the heavy compute ONCE against the final frozen recipe.* Do not start execution until
-> the user launches it. Read this file, then `PLAN.md`, then append to `log.md`.
+> **Status: SCAFFOLD (re-scoped 2026-06-12 per user).** Created at the close of `mtl_improvement`.
+> This study is the **experimental engine for the NEW paper**: it regenerates the full results base
+> — STL baselines re-run, MTL champion, and every relevant experiment from the BRACIS paper — at
+> **ALL states × 4 seeds {0,1,7,100} × 5 folds**, once, under the final frozen recipe. The new
+> paper's *story* is defined in a follow-up effort and may not use every cell — closing-data is
+> story-agnostic and errs on the side of completeness (cells can be dropped later; they can't be
+> cheaply un-run later). Do not start execution until the user launches it. Read this file, then
+> `PLAN.md`, then append to `log.md`.
 
 ## Mission
 
 1. **Re-evaluate every study** in `docs/studies/log.md` — confirm each closure is sound and harvest
-   anything promotable that was parked/orphaned. Output: a "nothing left on the table" verdict or a
-   short pre-freeze addendum list.
-2. **Run the pre-freeze gates** — the cheap tests that could still change the recipe (currently one:
-   the aligned-pairing test inherited from `mtl_improvement`).
-3. **FREEZE the final recipe** as a canon version (v16 = champion G today; v17 only if a gate
-   promotes) — model, heads, loss, schedule, seeds {0,1,7,100}, 5-fold protocol, matched-metric
-   scoring, per-state recipe variants if any.
-4. **Run the majors ONCE**: CA/TX substrate builds + champion + STL ceilings — the only remaining
-   scale gap (the recorded prediction says the C25 margins are LARGEST there).
-5. **Produce the final cross-state tables** for the paper/thesis and sync the canonical docs.
+   anything promotable that was parked/orphaned (P1a).
+2. **Inventory the BRACIS experimental suite** (`TABLES_FIGURES.md` T1–T5 + `RESULTS_TABLE.md`
+   §0.1–0.6 + the baselines strategy) into **`RUN_MATRIX.md`** — per cell: RE-RUN / REUSE /
+   STORY-DEPENDENT, with exact run specs (P1b). This is the ledger Phase 3 executes.
+3. **Run the pre-freeze gates** — the cheap tests that could still change the recipe (currently
+   one: the aligned-pairing test inherited from `mtl_improvement`) (P0).
+4. **FREEZE the final recipe + protocol** — canon version (v16 = champion G today; v17 only if a
+   gate promotes), **substrate identity** (user decision: v14 vs canonical), seeds {0,1,7,100} ×
+   5 folds (n=20) for every cell, matched-metric fp32-parity scoring, selector (P2 — hard barrier).
+5. **Regenerate the full experimental base ONCE** (P3): CA/TX substrate builds + seeded log_T for
+   all reporting seeds; **STL baselines re-run** (per-task ceilings, composite, external baseline
+   engines per the matrix); **champion G at all states**; the remaining BRACIS-suite cells; one
+   full-board matched-metric re-score with per-cell provenance.
+6. **Hand off the results base** to the new-paper story effort + sync the canonical docs (P4).
 
 ## Why this study exists
 
-CA/TX were deliberately NOT run during the improvement studies — every recipe change would have
-forced a re-run of the most expensive builds (CA 8.5k / TX 6.5k regions, multi-day large-state
-compute). This study is the single, final spend. Corollary: **no improvement work happens here.**
-If a gate or the re-evaluation surfaces a promotable lever, it becomes a scoped go/no-go decision
-for the user — not ad-hoc tuning inside this study.
+CA/TX and the full-board re-runs were deliberately NOT done during the improvement studies — every
+recipe change would have forced re-running the most expensive builds and the whole comparison board
+(CA 8.5k / TX 6.5k regions, multi-day large-state compute; ~n=20 per cell across 6 states). This
+study is the single, final spend that the NEW paper draws from. Corollary: **no improvement work
+happens here.** If a gate or the re-evaluation surfaces a promotable lever, it becomes a scoped
+go/no-go decision for the user — not ad-hoc tuning inside this study.
 
 ## Inherited state (where this study starts from)
 

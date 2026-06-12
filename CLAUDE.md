@@ -16,7 +16,7 @@ The project's primary study is **check2hgi** — a check-in-level Check2HGI subs
 
 **Follow-up studies** (layered on check2hgi) live under [`docs/studies/`](docs/studies/) — the status registry is [`docs/studies/README.md`](docs/studies/README.md) + the outcomes log [`docs/studies/log.md`](docs/studies/log.md). Highlights:
 - [`docs/studies/mtl_improvement/`](docs/studies/mtl_improvement/) — **CLOSED 2026-06-12**: the C25 class-weighting confound dissolved the "MTL sacrifices reg" gap; champion **G (= canon v16, the `train.py --task mtl` default)** matches the STL reg ceiling + beats the cat ceiling +2.6…+4.1 (4 states × 4 seeds). Read [`FINAL_SYNTHESIS.md`](docs/studies/mtl_improvement/FINAL_SYNTHESIS.md) first (incl. the corrections registry).
-- [`docs/studies/closing_data/`](docs/studies/closing_data/) — **SCAFFOLDED, not launched**: the final study (cross-study re-eval → pre-freeze gates → recipe freeze → CA/TX majors once → final tables). Read `AGENT_PROMPT.md` + `PLAN.md`.
+- [`docs/studies/closing_data/`](docs/studies/closing_data/) — **SCAFFOLDED, not launched**: the experimental engine for the NEW paper (cross-study re-eval + BRACIS-suite RUN_MATRIX inventory → pre-freeze gates → recipe+substrate freeze → full base regeneration once: STL baselines re-run + champion + suite cells, ALL states × 4 seeds × 5 folds). Read `AGENT_PROMPT.md` + `PLAN.md`.
 - [`docs/studies/canonical_improvement/`](docs/studies/canonical_improvement/) — CLOSED; 18-experiment slate to improve canonical Check2HGI.
 - [`docs/studies/merge_design/`](docs/studies/merge_design/) — Designs A-M / Levers 1-6 / Phase 11.
 - [`docs/studies/hgi_category_injection/`](docs/studies/hgi_category_injection/) — CLOSED (AZ falsified 2026-05-04). Read `STATUS.md`.
