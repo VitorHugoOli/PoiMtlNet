@@ -13,10 +13,26 @@
 > dominated" → **dominated on the joint reading only** (composite keeps ~0.5pp reg-only FL edge, R0);
 > CHAMPION.md/PAPER_UPDATE stale "+Δreg beats-both" tables replaced with the R0 matched values. The
 > partition pre-flight T4.1 mandated now exists as pytest (`test_mtl_param_partition.py`, dualtower
-> family, 33 green). **Remaining work: `HANDOFF_AUDIT.md` (A40 punch list: P0 + H1/H2) → then the study
-> CLOSES.** **T6.1 CA/TX is DEFERRED OUT** to the upcoming **`closing-data` study** (user decision
-> 2026-06-12 — the major large-state runs happen ONCE, against the final frozen recipe, after all
-> improvement studies close); T6.2 paper-canon restatement = author-side.
+> family, 33 green).
+>
+> **SECOND-PASS DEEP CODE AUDIT (same day, user-requested) — `CODE_AUDIT_2026-06-12.md` + INDEX Tier 7.**
+> Three verified structural finds: **(P0-A/X1)** cross-attn trains on RANDOMLY-PAIRED windows (two
+> independent shuffled loaders) but evaluates aligned — per-sample cross-modal transfer was never
+> trainable (may itself explain "mixing is dead" + caps the cat-transfer reading); **(P0-B/X2)** the
+> dualtower head is missing from the aux gate → the `g_kd0.1/0.2` arms were NO-OPS — "KD adds nothing
+> on the dual-tower" RETRACTED, KD-on-G genuinely untested; **(P1-C/X3)** the aux fusion scalar β is
+> weight-decayed and never logged; **(P1-D/X4)** MTL eval is fp16 vs the fp32 ceiling harness inside a
+> −0.09…−0.31pp verdict. X1/X2/X3 are **MTL-only levers (no rising tide — the first since C25)** = the
+> last honest in-study shots at "reg beats STL". Also: v11/B9 `--category-weight` is a DEAD FLAG under
+> alternating-opt (doc note in CANONICAL_VERSIONS §v11); CLI `KEY=False` bool-inversion FIXED
+> (`train.py` + `test_cli_param_coercion.py`); literature verdict = parity is the expected outcome in
+> the weak-auxiliary regime (citations in the audit doc Part 2; future-work mechanisms in INDEX `#T7-FW`).
+>
+> **Remaining work: `HANDOFF_AUDIT.md` (A40 punch list: P0 + X1–X4 + H1/H2) → then the study CLOSES**
+> (if an X-probe promotes ≥0.3pp, STOP and report — it re-opens the champion question). **T6.1 CA/TX is
+> DEFERRED OUT** to the upcoming **`closing-data` study** (user decision 2026-06-12 — the major
+> large-state runs happen ONCE, against the final frozen recipe, after all improvement studies close);
+> T6.2 paper-canon restatement = author-side.
 
 **As of 2026-06-06 (⭐⭐⭐ THE UNWEIGHTING FINDING + RE-VALIDATION + CEILING BROKEN — the reg narrative is reframed AND the FL champion (G) `dual aux + prior-OFF` matches the STL reg ceiling + beats the cat ceiling; verbs per B-A2/R0).** Branch `mtl-improve`, pushed.
 This is the organized "you are here". Full chronology: `log.md` (newest-first 2026-06-05 entries). Design/cards: `INDEX.html`. Paper-facing: `PAPER_UPDATE.md`. Confound write-up: `docs/CONCERNS.md §C25`.

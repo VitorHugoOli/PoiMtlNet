@@ -165,6 +165,14 @@
     <li><a href="#T6-1">T6.1 CA/TX + multi-seed ship</a></li>
     <li><a href="#T6-2">T6.2 Paper-canon re-eval</a></li>
   </ul>
+  <h2>Tier 7 — Code-audit probes (X-series)</h2>
+  <ul>
+    <li><a href="#T7-X1">★ X1 cross-attn pairing misalignment</a></li>
+    <li><a href="#T7-X2">★ X2 aux-gate fix + REAL KD-on-G</a></li>
+    <li><a href="#T7-X3">X3 β weight-decay probe</a></li>
+    <li><a href="#T7-X4">X4 eval-precision parity</a></li>
+    <li><a href="#T7-FW">Future-work mechanisms (literature)</a></li>
+  </ul>
 </nav>
 
 <main>
@@ -1426,6 +1434,50 @@ The Tier-2 winner was found within ONE corner: cross-attn backbone · STAN priva
 <div class="block"><div class="block-title">Methodology</div>Re-run §0.1 five-state n=20 under the winner; add the deployable-selector column (geom_simple) the F1 fix produced. <strong>If T1.4 / Tier S / T5 produced a validated better STL head, re-run the §0.1 STL-ceiling columns (cat + reg) under it too</strong> — the paper-reported STL baseline is refreshable here (it is NOT the track-internal frozen yardstick; see Hard rule "Frozen ceiling"). Update NORTH_STAR + CLAIMS + a <code>PAPER_UPDATE.md</code> documenting which rows/banners change.</div>
 <div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Done</strong>: §0.1 updated (or confirmed unchanged); paper-facing docs synced in one commit.</div></div>
 <div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<hr class="section"/>
+<!-- ============================================================== -->
+<h2 id="tier7">Tier 7 — Pre-closure code-audit probes (X-series, 2026-06-12) <span class="pill tier6">Tier 7 ★</span> <span class="pill warn">GATES CLOSURE — full evidence in CODE_AUDIT_2026-06-12.md</span></h2>
+<div class="callout warn"><h4>⚠ Why a new tier at closure: the deep code audit found two structurally-DISABLED MTL-only mechanisms</h4>
+<p>A user-requested hostile audit of the full MTL code flow (3 code auditors + 1 literature analyst, all findings re-verified at the code level) found that three mechanisms that move G <strong>without moving the STL ceiling</strong> (exempt from the rising-tide magnitude rule — the first such levers since C25) were never actually exercised: <strong>(X1)</strong> cross-attention trains on RANDOMLY-PAIRED windows (two independent <code>shuffle=True</code> loaders, no shared generator) but evaluates aligned — per-sample cross-modal transfer was untrainable, which may itself explain "K/V mixing is dead"; <strong>(X2)</strong> <code>next_stan_flow_dualtower</code> is missing from the aux gate (<code>folds.py:933-937</code>) → the <code>g_kd0.1/0.2</code> arms were NO-OPS and "KD adds nothing on the dual-tower" (CHAMPION §5) was a dead-codepath artifact — KD-on-G is genuinely untested; <strong>(X3)</strong> the aux fusion scalar β is weight-decayed at 0.05 (only α was peeled, F50) and never logged. Plus <strong>(X4)</strong>: MTL eval is fp16-autocast vs the fp32 STL ceiling harness, with tie-favorable ranking — a precision asymmetry inside the −0.09…−0.31pp "matches" verdict. G's published numbers are NOT invalidated (eval was aligned + consistent across all arms); what's at stake is the <em>interpretation</em> (mixing-dead, KD-dead-end, architecture-vs-transfer) and the last honest in-study shots at "reg beats STL". Specs + sequencing: <code>HANDOFF_AUDIT.md §X-SERIES</code>; evidence: <code>CODE_AUDIT_2026-06-12.md</code>. Also fixed this session: CLI <code>KEY=False</code> bool-inversion footgun (P1-F, <code>scripts/train.py</code> + test); v11/B9 <code>--category-weight</code> documented as a dead flag under alternating-optimizer (P1-E, doc-only).</p></div>
+
+<div class="experiment" id="T7-X1">
+<h3>X1 — Cross-attn pairing misalignment: roll probe → aligned-training run <span class="pill tier6">T7 ★</span> <span class="pill cost-s">S→M-cost</span> <span class="pill info">MTL-only lever (no rising tide)</span></h3>
+<div class="block"><div class="block-title">Hypothesis</div>Cross-attn was trained on noise pairs → it learned to ignore the other stream. Aligned training (one shared permutation for both loaders) may unlock per-sample cross-modal transfer — lifting cat (region context) and possibly reg (check-in context), neither of which the STL ceiling can use.</div>
+<div class="block"><div class="block-title">Method</div>(1) Roll probe, zero training: evaluate a trained G twice — normal vs task-b val batch <code>torch.roll(x_b,1,0)</code>. (2) If Δ&gt;0 (or regardless, for the definitive answer): ONE G run AL+FL seed0 with a single shared train permutation, vs the R0 bar.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: ≥0.3pp on either head → multi-seed + STOP for user (re-opens the champion + partially un-explains "mixing dead"). <strong>Null</strong>: misalignment irrelevant — record as clean evidence FOR the mixing-dead claim.</div></div>
+<div class="results-placeholder">Results: <em>pending execution (A40)</em></div>
+</div>
+
+<div class="experiment" id="T7-X2">
+<h3>X2 — Aux-gate fix + the FIRST real KD-on-G test <span class="pill tier6">T7 ★</span> <span class="pill cost-s">S-cost</span> <span class="pill info">MTL-only lever (no rising tide)</span></h3>
+<div class="block"><div class="block-title">Hypothesis</div>log_T-KD (the one confirmed pre-G reg lever, v12 default W=0.2) was never actually applied to the dual-tower — the aux gate omission made it a silent no-op. Applied for real, it may lift G reg; the frozen ceiling (α=0, no KD) does not move.</div>
+<div class="block"><div class="block-title">Method</div>Add <code>next_stan_flow_dualtower</code> to <code>_HEADS_REQUIRING_AUX_MTL</code> (+ p1 script set) or gate on <code>hasattr(head,"log_T")</code> → smoke (assert aux non-None; G bit-identical since α=0/KD=0) → G + <code>--log-t-kd-weight 0.2</code> AL+FL seed0 vs G.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: ≥0.3pp reg → multi-seed + STOP for user. <strong>Null</strong>: NOW the "KD adds nothing on the dual-tower" claim is real — restore it to CHAMPION §5 with actual evidence.</div></div>
+<div class="results-placeholder">Results: <em>pending execution (A40)</em></div>
+</div>
+
+<div class="experiment" id="T7-X3">
+<h3>X3 — β weight-decay probe <span class="pill tier6">T7</span> <span class="pill cost-s">S-cost</span></h3>
+<div class="block"><div class="block-title">Hypothesis</div>The aux fusion scalar β (init 0.1) is decayed at wd 0.05 toward <code>private_only</code> — the same mechanism F50 diagnosed for α. Freeing it may strengthen the shared→reg pathway ("the key lever", CHAMPION §2).</div>
+<div class="block"><div class="block-title">Method</div>Log β per epoch (next to <code>head_alpha</code>, <code>mtl_cv.py:743-746</code>) on the X2 smoke run; if β decays materially → ONE FL seed0 run with β in a zero-WD group.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate"><strong>Promote</strong>: ≥0.3pp either head → multi-seed. <strong>Null/no-decay</strong>: record β trajectory, close.</div></div>
+<div class="results-placeholder">Results: <em>pending execution (A40)</em></div>
+</div>
+
+<div class="experiment" id="T7-X4">
+<h3>X4 — Eval-precision parity for the "matches" verdict <span class="pill tier6">T7</span> <span class="pill cost-s">S-cost</span></h3>
+<div class="block"><div class="block-title">Hypothesis</div>MTL val metrics are fp16-autocast with tie-favorable ranking; the STL p1 ceiling is fp32. The −0.09…−0.31pp matched Δreg sits within plausible precision delta — the paper number should be precision-clean.</div>
+<div class="block"><div class="block-title">Method</div>Extend the AMP escape hatch to eval (<code>MTL_DISABLE_AMP_EVAL</code>); score the SAME trained G weights fp16-eval vs fp32-eval at FL; if |Δ| ≳ 0.1pp re-score the R0 FL row fp32 and annotate the bar.</div>
+<div class="block"><div class="block-title">Decision gate</div><div class="gate">Report Δ either way; update R0 caveat if material. The "matches" verb is robust unless Δ is wildly asymmetric.</div></div>
+<div class="results-placeholder">Results: <em>pending execution (A40)</em></div>
+</div>
+
+<div class="experiment" id="T7-FW">
+<h3>FW — Literature mechanisms beyond this study (recorded for closing-data / future work) <span class="pill tier6">T7</span> <span class="pill warn">NOT for this study</span></h3>
+<div class="block"><div class="block-title">Context</div>The literature verdict (full citations in <code>CODE_AUDIT_2026-06-12.md</code> Part 2): with a 7-class (~2.8-bit) auxiliary, orthogonal gradients, and a data-rich tuned main task, parity-not-improvement IS the expected outcome (Du'18 gradient-similarity theory; Bingel&amp;Søgaard'17 low-data regime; Kurin/Xin'22 k=2 scalarization). The domain "MTL wins" dissolve on inspection (iMTL = conditional coupling, no STL ablation; GETNext = input-side category, aux losses unisolated single-seed; MCARNN = the one true MTL&gt;STL ablation — 2018 low-capacity RNN, no variance, and its own λ-sweep shows the main task improving as aux weight shrinks). Paper framing: state the negative as the <strong>weak-auxiliary regime</strong>; phrase orthogonality as a first-order average statement (Fifty'21 lookahead-affinity is the reviewer counter); pre-empt MCARNN.</div>
+<div class="block"><div class="block-title">Ranked mechanisms (plausibility × cost)</div>(1) <strong>Conditional coupling</strong> — cat-head output → reg head input (concat/FiLM), train+inference (iMTL pattern), cheap; (2) <strong>category-conditioned logit prior</strong> <code>logits_reg += W·p(cat)</code> (CatDM/LBPR pattern), cheap; (3) <strong>coarse-to-fine REGION-vocab factorization</strong> (semantic IDs/codebooks — distinct from the falsified spatial-cluster HSM), medium; (4) <strong>category-transition input feature</strong> (GETNext pattern, 7×7 transition row into the reg head), cheap; (5) <strong>region→category consistency loss</strong> (KL through the region→cat map; MobTCast analogue, same family as the log_T-KD win), medium — a contribution, not a replication; (6) gradient-gated aux weighting — predicted null at cos≈0, falsification checkbox only. Plus one paper-hardening item: a Fifty-style lookahead-affinity measurement for the orthogonality spine.</div>
 </div>
 
 <hr class="section"/>

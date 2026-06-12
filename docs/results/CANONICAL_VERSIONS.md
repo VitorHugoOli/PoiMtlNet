@@ -113,6 +113,16 @@ default GCN encoder. To rebuild a v11 substrate from source:
 --max-lr 3e-3` with `--scheduler constant`. Heads + input-modality + `--log-t-kd-weight 0.0`
 identical.
 
+> ⚠ **Mechanism note (2026-06-12 code audit, P1-E — documentation only, numbers unchanged).**
+> Under `--alternating-optimizer-step` the trainer bypasses `_get_weighted_loss` entirely
+> (`src/training/runners/mtl_cv.py:596-612`): even batches step on the raw cat loss, odd batches
+> on the raw reg loss — **`--mtl-loss static_weight --category-weight 0.75` never enters the
+> objective.** So v11/B9 (FL/CA/TX) actually trained as 50/50 alternating single-task steps; the
+> 0.75 weighting was only ever live at H3-alt small states (no alt-opt). Keep both flags in the
+> invocation for bit-exact reproduction, but do NOT describe B9's mechanism as "static-weighted
+> 0.75", and treat any historical `category-weight` sweep under B9 as a no-op. Full trail:
+> `docs/studies/mtl_improvement/CODE_AUDIT_2026-06-12.md`.
+
 ### Reproduction map — getting v11 from v12-default code
 
 After the 2026-05-30 default flip (v12), recover v11 by passing the OLD defaults

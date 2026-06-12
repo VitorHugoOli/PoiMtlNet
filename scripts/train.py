@@ -1119,7 +1119,17 @@ def _parse_args(argv=None) -> argparse.Namespace:
 
 
 def _coerce_cli_value(raw: str):
-    """Parse CLI override values while keeping strings usable."""
+    """Parse CLI override values while keeping strings usable.
+
+    Python-style literals are accepted alongside JSON: ``json.loads`` rejects
+    ``True``/``False``/``None``, so without this mapping ``KEY=False`` stayed
+    the string ``"False"`` — and ``bool("False") is True``, silently inverting
+    every boolean head/model/loss param passed in Python style (2026-06-12
+    code audit, P1-F).
+    """
+    _PY_LITERALS = {"True": True, "False": False, "None": None}
+    if raw in _PY_LITERALS:
+        return _PY_LITERALS[raw]
     try:
         return json.loads(raw)
     except json.JSONDecodeError:

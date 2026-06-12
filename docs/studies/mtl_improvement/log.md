@@ -2287,6 +2287,32 @@ reg flat across all heads (AL range 0.31 / FL 1.16) — the dual-tower isolates 
 
 ---
 
+## 2026-06-12 (second pass) — DEEP CODE-FLOW AUDIT (user-requested, pre-handover): 2 structural P0s found + literature analysis of "why reg doesn't beat STL" → Tier 7 X-series gates closure
+
+**Phase**: user-requested "deepest analysis" before the A40 handover — (1) hunt the next C25-class silent flaw; (2) analyze why MTL reg only matches STL + literature. 3 hostile code auditors (data path / training loop / model forward) + 1 literature analyst; every finding re-verified at the code level by the design agent. Full record: `CODE_AUDIT_2026-06-12.md`. Probes: `HANDOFF_AUDIT.md §X-SERIES` + INDEX Tier 7.
+
+**Result — code (all verified, with file:line in the audit doc)**
+- **P0-A (X1): cross-attn pairing misalignment.** Two independent `shuffle=True` loaders (no shared generator, `folds.py:1054-1080`) zipped per batch (`mtl_cv.py:463`) → cross-attn trains on RANDOMLY-PAIRED windows, evaluates ALIGNED (val unshuffled). Found independently by all 3 auditors. Affects every `mtlnet_crossattn*` run v11→v16. Does NOT invalidate G's numbers (eval aligned + consistent across arms) — but per-sample cross-modal transfer was never trainable, which itself predicts "K/V mixing is dead" (F52 P5) and caps the cat-transfer reading. **First MTL-only lever since C25 — a fix cannot lift the STL ceiling.**
+- **P0-B (X2): dualtower head missing from the aux gate** (`folds.py:933-937`) → `get_current_aux()` always None → `c25_gv2.sh` `g_kd0.1/0.2` were NO-OPS and every "prior-ON" dualtower arm was actually prior-OFF. **CHAMPION §5 "KD adds nothing on the dual-tower" RETRACTED (dead-codepath artifact)** — KD-on-G (the one confirmed pre-G reg lever) is genuinely untested. Also MTL-only.
+- **P1-C (X3):** aux fusion scalar β (init 0.1, "the key lever") weight-decayed at 0.05 (only α was peeled, F50) and never logged. **P1-D (X4):** MTL eval = fp16 autocast + tie-favorable ranking vs the fp32 STL p1 harness — a precision asymmetry inside the −0.09…−0.31pp "matches" verdict.
+- **P1-E:** v11/B9 `--category-weight 0.75` is a DEAD FLAG under `--alternating-optimizer-step` (`mtl_cv.py:596-612` bypasses static_weight) — B9 actually trained 50/50 alternating; doc note added to CANONICAL_VERSIONS §v11 (numbers unchanged, mechanism description corrected). **P1-F FIXED:** CLI `KEY=False` parsed as the string `"False"` → truthy — silently inverted boolean params; fixed in `train.py` `_coerce_cli_value` + `tests/test_configs/test_cli_param_coercion.py` (12 green).
+- Audited-clean (so nobody re-chases): pad semantics PROVEN zero-vector end-to-end; user-disjoint folds identical MTL↔p1 (paired comparisons valid); OOD definition; frozen region embeddings; KD gate at W=0; BestTracker; scheduler stepping; canon v16 ≡ CHAMPION §3.
+
+**Result — "why doesn't reg beat STL" (literature, full citations in the audit doc Part 2)**
+- Parity is the EXPECTED outcome: cos≈0 ⇒ no first-order aux contribution (Du'18); MTL gains live in data-starved regimes (Bingel&Søgaard'17, AuxiLearn'21); k=2 tuned scalarization unbeatable (Kurin/Xin'22); our 7-class (~2.8-bit) aux is far below the 180-300+ class vocabularies of every positive category-aux result. Domain "MTL wins" dissolve on inspection (iMTL = conditional coupling, no STL ablation; GETNext = input-side; MCARNN = the one true MTL>STL ablation, 2018 low-capacity single-run). Paper framing prescribed (PAPER_UPDATE 2026-06-12 layer): weak-auxiliary regime; orthogonality as first-order average (Fifty'21 caveat); pre-empt MCARNN; disclose the cat-head config asymmetry.
+- **BUT "reg can't beat STL" is not yet fully earned**: X1 (aligned pairing), X2 (real KD), X3 (β free) are MTL-only levers that were structurally disabled — they run before closure. Future-work mechanisms (conditional coupling, cat-conditioned prior, semantic-ID region factorization, cat-transition feature, region→cat consistency loss) recorded in INDEX `#T7-FW` for closing-data/next paper.
+
+**Decision**
+- Tier 7 (X-series) added — GATES closure alongside P0/H1/H2. If any X-probe promotes ≥0.3pp vs the R0 bar: STOP, report, user decides scope (it would re-open the champion question).
+- Claims on HOLD until X1/X2: "mixing is dead", "cat gain = architecture not transfer" (X1); "KD dead-end on dualtower" (RETRACTED, X2 tests for real).
+
+**Chain status**: chain preserved; G's published numbers unchanged; three interpretations on hold pending X-series.
+
+**Next**
+- A40: `HANDOFF_AUDIT.md` — P0 → X2 smoke (+X3 β log) → X1 roll probe → gated X runs → X4 → H1/H2 → closure entry (or STOP on promotion).
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:

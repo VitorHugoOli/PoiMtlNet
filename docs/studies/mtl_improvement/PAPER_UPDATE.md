@@ -1,3 +1,28 @@
+# ⭐ PAPER UPDATE (2026-06-12) — code-audit layer: claims on HOLD pending X-series + literature positioning
+
+> **Three paper-facing items from the 2026-06-12 deep code audit (`CODE_AUDIT_2026-06-12.md`; probes
+> = `HANDOFF_AUDIT.md §X-SERIES`). G's headline numbers are NOT invalidated — but hold these claims:**
+> 1. **"K/V mixing is dead" / "cat gain is architecture, not transfer" — HOLD until X1.** Cross-attn
+>    trained on randomly-paired windows (two independent shuffled loaders) and evaluated aligned —
+>    per-sample cross-modal transfer was never trainable, which *itself* predicts exactly those two
+>    findings. X1 (aligned-training run) decides whether they are intrinsic or artifacts.
+> 2. **"KD adds nothing on the dual-tower" — RETRACTED (dead codepath; the kd arms were no-ops).**
+>    KD-on-G runs for the first time in X2. Do not cite the old verdict.
+> 3. **Literature positioning for the MTL-negative (write it this way):** with a 7-class (~2.8-bit)
+>    auxiliary, cos≈0, and a data-rich tuned main task, parity-not-improvement is the EXPECTED
+>    outcome (Du et al. arXiv:1812.02224; Bingel & Søgaard EACL'17; Kurin & Xin NeurIPS'22). Frame
+>    the negative as the **weak-auxiliary regime**, not "category auxiliaries don't work" (the
+>    positive literature uses 180-300+ class vocabularies). Phrase orthogonality as a
+>    **first-order average statement** (Fifty et al. NeurIPS'21 lookahead-affinity is the reviewer
+>    counter; a per-module/lookahead measurement is the optional hardening). **Pre-empt MCARNN
+>    (IJCAI'18)** — the one published same-architecture MTL>STL ablation in this task pair: 2018
+>    low-capacity RNN, single-run no-variance, rich latent-topic aux, and its own λ-sweep shows the
+>    main task improving as the aux weight shrinks. Also disclose: the +3pp cat comparison spans
+>    head-config differences (STL ceiling: 2-layer GRU, dropout 0.3, logit-adjust τ=0.5; G's cat
+>    head: 4-layer, dropout 0.1, plain CE) — absorbed by the "architecture-dominated" framing but
+>    must be stated. Citations + mechanism future-work list: `CODE_AUDIT_2026-06-12.md` Part 2 +
+>    INDEX `#T7-FW`.
+
 # ⭐ PAPER UPDATE (2026-06-10) — the MECHANISM + the analysis/limitations section (Tiers 3/4/5 closed)
 
 > This is the newest layer. The G Pareto-positive headline (below, 2026-06-06/07) is unchanged; this
