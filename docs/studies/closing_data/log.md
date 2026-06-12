@@ -69,6 +69,19 @@
 
 ---
 
+## 2026-06-12 — HANDOFF.md created (the returning-agent entry point)
+
+**Phase**: pre-launch documentation.
+
+**What happened**
+- `HANDOFF.md` written: state of play, arrival checklist (incl. the drift check against
+  `CANONICAL_VERSIONS.md` at launch), the inherited specs (G/v16, matched-metric scoring, the G0.1
+  gate, the P1b suite list), the 5 already-made decisions (do NOT re-ask), the machine allocation
+  with the H100 metering rules, the C25–C28 trap list, and the pointer map. Read order is now
+  HANDOFF → AGENT_PROMPT → PLAN → log.
+
+---
+
 ## How to add an entry
 
 ```markdown

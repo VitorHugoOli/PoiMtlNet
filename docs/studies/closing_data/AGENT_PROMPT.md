@@ -6,7 +6,8 @@
 > **ALL states × 4 seeds {0,1,7,100} × 5 folds**, once, under the final frozen recipe. The new
 > paper's *story* is defined in a follow-up effort and may not use every cell — closing-data is
 > story-agnostic and errs on the side of completeness (cells can be dropped later; they can't be
-> cheaply un-run later). Do not start execution until the user launches it. Read this file, then
+> cheaply un-run later). Do not start execution until the user launches it. **Entry point for a
+> returning agent: `HANDOFF.md`** (state of play, arrival checklist, traps) — then this file, then
 > `PLAN.md`, then append to `log.md`.
 
 ## Mission
