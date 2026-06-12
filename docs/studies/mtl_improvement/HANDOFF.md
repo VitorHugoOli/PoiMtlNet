@@ -1,6 +1,15 @@
 # HANDOFF — MTL Improvement track (read this FIRST, then `log.md` + `INDEX.html`)
 
-> ## ⭐ STUDY AT CLOSE (2026-06-12) — one punch list left, then CLOSED. A40: read `HANDOFF_AUDIT.md` and ONLY that.
+> ## ✅ STUDY CLOSED (2026-06-12) — HANDOFF_AUDIT punch list DONE; champion G unchanged; CA/TX → `closing-data`.
+> The audit punch list (`HANDOFF_AUDIT.md`) is complete: **P0 fixed** (FL cat-transfer re-run — the
+> `s1/s7/s100` rows had mis-pointed to the fully-shared intrinsic run; true FL transfer +1.08→**+0.93**,
+> sign held), **X1–X4 all NULL** (mixing dead Δcat −0.004; KD-on-G null after the aux-gate fix; β→0 is
+> gradient-driven not WD; "matches" fp32-precision-clean Δ −0.005), **H1** cos≈0 widened 2→16 runs
+> (+0.0008, n=3,797), **H2** `T4_corrected_rerun.json` committed. New concern **C28** (aux-gate dead
+> codepath + rundir race). Evidence: `X_SERIES_FINDINGS.md`, `CODE_AUDIT_2026-06-12.md`, `log.md` (third
+> pass), `INDEX.html #tier7`. **No X-probe promoted → no scope re-open.** Only open item: the BRACIS
+> paper-doc restatement (author decision). Below is the historical close state.
+>
 > Tiers 1–5 + the Tier-3 probes (R0/R1/R1b/R2) + Tier 4 are ALL closed; champion **G** stands:
 > **matches the STL reg ceiling on the matched metric (Δreg −0.09…−0.31) + beats the STL cat ceiling
 > (+2.6…+4.1), 4 states × 4 seeds** (R0 bar, `results/mtl_improvement/R0_matched_metric_bar.json`).

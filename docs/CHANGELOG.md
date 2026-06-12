@@ -30,6 +30,13 @@
 
 ## Timeline of findings (most recent first)
 
+### 2026-06-12 — `mtl_improvement` HANDOFF_AUDIT punch list CLOSED — study CLOSED; P0 data-integrity fix + X-series all NULL; champion G unchanged
+Pre-closure deep code-audit (`CODE_AUDIT_2026-06-12.md`) findings executed on the A40 (`docs/studies/mtl_improvement/{HANDOFF_AUDIT.md,X_SERIES_FINDINGS.md → docs/results/mtl_improvement/X_SERIES_FINDINGS.md}`, `log.md` 2026-06-12 third pass).
+- **P0 (data integrity):** the cat-transfer manifest's FL `s1/s7/s100` rows had mis-pointed (via an `ls -dt|head` capture race) to the FL *fully-shared* intrinsic-test run, not a cat-transfer run — FL cat-transfer at {1,7,100} had never run. Re-ran genuine reg-OFF: FL cat+trunk **72.24 ± 0.03** (was 72.09); decomposition **architecture +2.13→+2.27, region-transfer +1.08→+0.93** (sign held, −0.15pp, now closer to the seed0 +0.89). One paper-bound number corrected; verdict (architecture-dominated) unchanged.
+- **X-series — all NULL** (every MTL-only lever the audit surfaced + two claim stress-tests): X1 cross-attn mixing genuinely dead (roll Δcat −0.004); X2 aux-gate fixed + first *real* KD-on-G test null (FL reg +0.05 / AL −0.13, cat −0.57; the old "KD adds nothing" was a dead codepath); X3 β decays to ≈0 by gradient even with WD removed (not a WD artifact, metrics null); X4 the "matches" −0.31pp gap is fp32-precision-clean (Δ −0.005). The "matches reg, beats cat / can't beat reg" verdict is now earned at a strictly higher standard.
+- **H1/H2:** cos≈0 figure widened from 2 → 16 G runs (4 states × 4 seeds, pooled +0.0008, n=3,797); `T4_corrected_rerun.json` committed.
+- **Code (all env-gated, G defaults unchanged):** aux-gate fix (`folds.py`), β logging (`mtl_cv.py`), `MTL_DISABLE_AMP_EVAL`, `MTL_ROLL_TASKB_EVAL`, `MTL_BETA_NO_WD`. New concern **C28** (aux-gate dead codepath + rundir-race). **Champion G unchanged; CA/TX deferred to `closing-data`.** Numbers to trust: `RESULTS_TABLE.md §0` unchanged; cat-transfer decomposition → `cat_transfer_and_T53.md`.
+
 ### 2026-06-08 — `mtl_improvement` Tiers 3 + 4 + 5 CLOSED; gradient-orthogonality is the unifying mechanism; champion G unchanged
 
 A long execution session ran the re-scoped Tiers 3 (reg-input pathway) and 4 (loss/optimization) + closed Tier 5. **No champion change — G stands.** Key outcomes:
