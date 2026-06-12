@@ -1,5 +1,9 @@
 # Agent Onboarding Prompt — MTL Improvement Track (v2, v14-rebased)
 
+> ⛔ **STUDY CLOSED (2026-06-12) — do NOT onboard from this file.** It describes the original
+> T0–T8 launch plan, which the study long outgrew. Read [`FINAL_SYNTHESIS.md`](FINAL_SYNTHESIS.md)
+> (outcome + corrections registry); for remaining work see `docs/studies/closing_data/`.
+
 > **Paste this prompt (or its core block) at the start of every fresh Claude Code session that picks up this research track.** It onboards you with everything you need before touching code.
 
 > ⛔⛔ **2026-06-06 — THE TRACK SUCCEEDED; READ `HANDOFF.md` + `CHAMPION.md` FIRST, then this.** Two findings below this prompt was written for are now SUPERSEDED:

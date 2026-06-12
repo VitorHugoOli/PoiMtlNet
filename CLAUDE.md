@@ -14,8 +14,10 @@ The project's primary study is **check2hgi** — a check-in-level Check2HGI subs
 - **Science**: [`docs/`](docs/) root — `README.md` (navigation landing), `AGENT_CONTEXT.md`, `NORTH_STAR.md`, `CHANGELOG.md`, `CLAIMS_AND_HYPOTHESES.md`, `CONCERNS.md`, `FINAL_SURVEY.md`, `MTL_ARCHITECTURE_JOURNEY.md`, `PAPER_BASELINES_STRATEGY.md`. Canonical numbers: [`docs/results/RESULTS_TABLE.md §0`](docs/results/RESULTS_TABLE.md). Per-experiment findings (F-trail): [`docs/findings/`](docs/findings/).
 - **Paper**: [`articles/[BRACIS]_Beyond_Cross_Task/`](articles/[BRACIS]_Beyond_Cross_Task/) — BRACIS 2026 submission working folder (`AGENT.md` first if writing prose, then `PAPER_DRAFT.md`, `PAPER_STRUCTURE.md`, `STATISTICAL_AUDIT.md`, `TABLES_FIGURES.md`, `samplepaper.tex`, `references.bib`, `AUDIT_LOG.md`).
 
-**Active follow-up studies** (layered on check2hgi) live under [`docs/studies/`](docs/studies/):
-- [`docs/studies/canonical_improvement/`](docs/studies/canonical_improvement/) — 18-experiment slate to improve canonical Check2HGI.
+**Follow-up studies** (layered on check2hgi) live under [`docs/studies/`](docs/studies/) — the status registry is [`docs/studies/README.md`](docs/studies/README.md) + the outcomes log [`docs/studies/log.md`](docs/studies/log.md). Highlights:
+- [`docs/studies/mtl_improvement/`](docs/studies/mtl_improvement/) — **CLOSED 2026-06-12**: the C25 class-weighting confound dissolved the "MTL sacrifices reg" gap; champion **G (= canon v16, the `train.py --task mtl` default)** matches the STL reg ceiling + beats the cat ceiling +2.6…+4.1 (4 states × 4 seeds). Read [`FINAL_SYNTHESIS.md`](docs/studies/mtl_improvement/FINAL_SYNTHESIS.md) first (incl. the corrections registry).
+- [`docs/studies/closing_data/`](docs/studies/closing_data/) — **SCAFFOLDED, not launched**: the final study (cross-study re-eval → pre-freeze gates → recipe freeze → CA/TX majors once → final tables). Read `AGENT_PROMPT.md` + `PLAN.md`.
+- [`docs/studies/canonical_improvement/`](docs/studies/canonical_improvement/) — CLOSED; 18-experiment slate to improve canonical Check2HGI.
 - [`docs/studies/merge_design/`](docs/studies/merge_design/) — Designs A-M / Levers 1-6 / Phase 11.
 - [`docs/studies/hgi_category_injection/`](docs/studies/hgi_category_injection/) — CLOSED (AZ falsified 2026-05-04). Read `STATUS.md`.
 
@@ -320,7 +322,7 @@ Quick pointers:
 
 The primary check2hgi study lives at [`docs/`](docs/) root and is loaded automatically on every branch.
 
-Active follow-up studies live under [`docs/studies/`](docs/studies/) — currently `canonical_improvement/`, `merge_design/`, `hgi_category_injection/`. Each has its own onboarding doc (`AGENT_PROMPT.md`, `STATE.md`, or `INDEX.md`).
+Follow-up studies live under [`docs/studies/`](docs/studies/) — see the status registry [`docs/studies/README.md`](docs/studies/README.md). Each has its own onboarding doc (`AGENT_PROMPT.md`, `STATE.md`, `INDEX.md`, or — for closed studies — `FINAL_SYNTHESIS.md`).
 
 When a branch is dedicated to one of those follow-up studies (or a new one), create a `CLAUDE.local.md` at the repo root pointing to the study's onboarding doc. The file is gitignored and branch-local. Example:
 

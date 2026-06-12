@@ -2361,6 +2361,26 @@ reg flat across all heads (AL range 0.31 / FL 1.16) — the dual-tower isolates 
 
 ---
 
+## 2026-06-12 (final) — FINAL_SYNTHESIS published; closure propagated; `closing_data` scaffolded
+
+**Phase**: documentation closure (design agent + user).
+
+**What happened**
+- **`FINAL_SYNTHESIS.md` published** — the study's one-stop closure doc (headline R0 table, the six
+  findings, the corrections-and-retractions registry, process lessons C25–C28, shipped code,
+  inherited items). It supersedes HANDOFF as the entry point; HANDOFF/AGENT_PROMPT now carry
+  redirect banners.
+- **Closure propagated**: `docs/studies/log.md` (CLOSED row), `docs/studies/README.md`,
+  `docs/CHANGELOG.md` (new top row), `docs/README.md` (banner + studies list), `CLAUDE.md` (study
+  registry pointers).
+- **`closing_data` scaffolded** (`docs/studies/closing_data/{AGENT_PROMPT.md,PLAN.md,log.md}`, DRAFT,
+  not launched): P0 pre-freeze gates (G0.1 aligned-pairing, inherited from X1) → P1 cross-study
+  re-eval → P2 recipe FREEZE → P3 CA/TX majors → P4 final tables. Launch pending user sign-off.
+
+**Chain status**: study CLOSED; this log is now historical — new work logs in `closing_data/log.md`.
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:

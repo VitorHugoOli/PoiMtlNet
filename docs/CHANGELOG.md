@@ -30,6 +30,13 @@
 
 ## Timeline of findings (most recent first)
 
+### 2026-06-12 — `mtl_improvement` FINAL CLOSE (4th-pass review endorsed) — `FINAL_SYNTHESIS.md` published; `closing_data` study scaffolded
+
+The closure drop (row below) was critically reviewed (4th pass) and **ENDORSED with one verdict-wording correction**: the X1 roll probe earns "numbers pairing-safe + the deployed model performs no per-sample cross-modal mixing" — NOT "mixing intrinsically dead" (the probe is circular against the aligned-training counterfactual; X3's β→0 and F52 P5 inherit the same conditioning). The **aligned-pairing training test** is inherited by `closing_data` as a **PRE-FREEZE gate** (it must run before the recipe freezes for the CA/TX majors). Paper wording: "the architecture wins *without* per-sample cross-modal mixing (pairing-invariance verified)".
+- **The study's one-stop closure doc**: [`studies/mtl_improvement/FINAL_SYNTHESIS.md`](studies/mtl_improvement/FINAL_SYNTHESIS.md) — headline R0 table, the six findings (C25 / dual-tower / orthogonality / no-optimizer / cat decomposition / rising-tide rule), **the corrections-and-retractions registry (cite the RIGHT claims)**, process lessons (C25–C28), shipped code, inherited items.
+- **`closing_data` scaffolded (NOT launched)**: [`studies/closing_data/`](studies/closing_data/) — phases P0 pre-freeze gates (G0.1 aligned-pairing) → P1 cross-study re-eval → P2 recipe FREEZE → P3 CA/TX majors (once) → P4 final tables. Launch pending user sign-off on `PLAN.md`.
+- Registry updates: `studies/log.md` (mtl_improvement CLOSED + closing_data SCAFFOLDED rows), `studies/README.md` (both rows). Numbers to trust: unchanged — `RESULTS_TABLE.md §0` (v11 paper canon) + `R0_matched_metric_bar.json` (G matched-metric bar) + `CANONICAL_VERSIONS.md` (v16 = G = train.py MTL default).
+
 ### 2026-06-12 — `mtl_improvement` HANDOFF_AUDIT punch list CLOSED — study CLOSED; P0 data-integrity fix + X-series all NULL; champion G unchanged
 Pre-closure deep code-audit (`CODE_AUDIT_2026-06-12.md`) findings executed on the A40 (`docs/studies/mtl_improvement/{HANDOFF_AUDIT.md,X_SERIES_FINDINGS.md → docs/results/mtl_improvement/X_SERIES_FINDINGS.md}`, `log.md` 2026-06-12 third pass).
 - **P0 (data integrity):** the cat-transfer manifest's FL `s1/s7/s100` rows had mis-pointed (via an `ls -dt|head` capture race) to the FL *fully-shared* intrinsic-test run, not a cat-transfer run — FL cat-transfer at {1,7,100} had never run. Re-ran genuine reg-OFF: FL cat+trunk **72.24 ± 0.03** (was 72.09); decomposition **architecture +2.13→+2.27, region-transfer +1.08→+0.93** (sign held, −0.15pp, now closer to the seed0 +0.89). One paper-bound number corrected; verdict (architecture-dominated) unchanged.

@@ -1,4 +1,7 @@
-# HANDOFF — MTL Improvement track (read this FIRST, then `log.md` + `INDEX.html`)
+# HANDOFF — MTL Improvement track (study CLOSED — read `FINAL_SYNTHESIS.md` FIRST)
+
+> ⭐ **This study is CLOSED (2026-06-12). The one-stop closure doc is [`FINAL_SYNTHESIS.md`](FINAL_SYNTHESIS.md)** — headline numbers, the six findings, the
+> corrections-and-retractions registry, shipped code, and the inherited items (`closing_data` pre-freeze gate + CA/TX). This HANDOFF is the historical "you are here" stack, kept for the trail.
 
 > ## ✅ STUDY CLOSED (2026-06-12) — HANDOFF_AUDIT punch list DONE; champion G unchanged; CA/TX → `closing-data`.
 > The audit punch list (`HANDOFF_AUDIT.md`) is complete: **P0 fixed** (FL cat-transfer re-run — the
