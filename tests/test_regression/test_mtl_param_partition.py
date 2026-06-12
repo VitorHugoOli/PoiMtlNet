@@ -129,6 +129,71 @@ def _build_mtlnet_crossattn():
     )
 
 
+# Region-task cardinality for the check2HGI-preset variants below — distinct
+# from NUM_CLASSES so a cat/reg head mix-up would shape-error loudly.
+N_REGIONS = 37
+
+_COMMON_PARAMS = dict(
+    feature_size=EMBED_DIM,
+    shared_layer_size=256,
+    num_classes=NUM_CLASSES,
+    num_heads=8,
+    num_layers=4,
+    seq_length=SEQ_LEN,
+    num_shared_layers=4,
+)
+
+
+def _resolve_check2hgi_task_set(**kwargs):
+    from tasks import CHECK2HGI_NEXT_REGION
+    from tasks.presets import resolve_task_set
+
+    return resolve_task_set(
+        CHECK2HGI_NEXT_REGION,
+        task_b_num_classes=N_REGIONS,
+        **kwargs,
+    )
+
+
+def _dualtower_head_params(prior_on: bool = False) -> dict:
+    head_params = {"raw_embed_dim": EMBED_DIM, "fusion_mode": "aux"}
+    if not prior_on:
+        # Champion G runs prior-OFF: alpha becomes a buffer (absent from
+        # .parameters()), which the partition must tolerate.
+        head_params.update({"freeze_alpha": True, "alpha_init": 0.0})
+    return head_params
+
+
+def _build_dualtower(model_name: str, prior_on: bool = False, catpriv: bool = False):
+    """Builds the dual-tower family as the trainer does (create_model +
+    resolve_task_set), with the private STAN tower actually installed —
+    the partition bug surface is the head-held private tower, so building
+    with a default head would not exercise it."""
+    from models.registry import create_model
+
+    ts_kwargs = dict(
+        task_b_head_factory="next_stan_flow_dualtower",
+        task_b_head_params=_dualtower_head_params(prior_on),
+    )
+    if catpriv:
+        # G′: the cat head gets its own private tower too.
+        ts_kwargs.update(
+            task_a_head_factory="next_stan_flow_dualtower",
+            task_a_head_params=_dualtower_head_params(prior_on),
+        )
+    task_set = _resolve_check2hgi_task_set(**ts_kwargs)
+    return create_model(model_name, task_set=task_set, **_COMMON_PARAMS)
+
+
+def _build_registry_variant(model_name: str):
+    """Plain check2HGI-preset build for the remaining registered crossattn
+    variants (swiglu / mult / xstitch / crossstitch)."""
+    from models.registry import create_model
+
+    task_set = _resolve_check2hgi_task_set()
+    return create_model(model_name, task_set=task_set, **_COMMON_PARAMS)
+
+
 BUILDERS = [
     ("mtlnet", lambda: _build_mtlnet(use_adashare=False)),
     ("mtlnet_adashare_on", lambda: _build_mtlnet(use_adashare=True)),
@@ -137,6 +202,43 @@ BUILDERS = [
     ("mtlnet_ple", _build_mtlnet_ple),
     ("mtlnet_dselectk", _build_mtlnet_dselectk),
     ("mtlnet_crossattn", _build_mtlnet_crossattn),
+    # Champion-G family (mtl_improvement study; the T4.1 audit found the
+    # gradient-surgery losses silently collapse when the partition misses
+    # the head-held private tower — these entries are the regression guard).
+    (
+        "mtlnet_crossattn_dualtower_G",  # champion G: aux fusion, prior-OFF
+        lambda: _build_dualtower("mtlnet_crossattn_dualtower", prior_on=False),
+    ),
+    (
+        "mtlnet_crossattn_dualtower_prior_on",
+        lambda: _build_dualtower("mtlnet_crossattn_dualtower", prior_on=True),
+    ),
+    (
+        "mtlnet_crossattn_dualtower_catpriv",  # G′ (demoted, still registered)
+        lambda: _build_dualtower(
+            "mtlnet_crossattn_dualtower_catpriv", prior_on=False, catpriv=True
+        ),
+    ),
+    (
+        "mtlnet_crossattn_dualtower_swiglu",  # combo F
+        lambda: _build_dualtower("mtlnet_crossattn_dualtower_swiglu", prior_on=False),
+    ),
+    (
+        "mtlnet_crossattn_swiglu",
+        lambda: _build_registry_variant("mtlnet_crossattn_swiglu"),
+    ),
+    (
+        "mtlnet_crossattn_mult",
+        lambda: _build_registry_variant("mtlnet_crossattn_mult"),
+    ),
+    (
+        "mtlnet_crossattn_xstitch",
+        lambda: _build_registry_variant("mtlnet_crossattn_xstitch"),
+    ),
+    (
+        "mtlnet_crossstitch",
+        lambda: _build_registry_variant("mtlnet_crossstitch"),
+    ),
 ]
 
 
@@ -299,3 +401,50 @@ def test_dselectk_lora_and_skip_receive_gradient_under_surgery_loss():
             f"parameter is not in shared ∪ task_specific. This is "
             f"MTL_PARAM_PARTITION_BUG."
         )
+
+
+def test_dualtower_private_tower_receives_gradient_under_surgery_loss():
+    """Champion G's private STAN tower must receive gradients under PCGrad.
+
+    The T4.1 audit (mtl_improvement, 2026-06-09) found that under the
+    dual-tower, gradient-surgery losses apply their *combined/reweighted*
+    gradient only to ``shared_parameters()`` — the private tower (inside
+    ``task_specific_parameters()``) trains at unit task weight by design.
+    That semantic limitation is documented
+    (``docs/results/mtl_improvement/T4_audit_and_verdict.md``); what must
+    NEVER happen is the silent failure mode this file guards: a private-tower
+    parameter falling outside shared ∪ task_specific and receiving NO
+    gradient at all. This test pins gradient *coverage* for every
+    private-tower parameter of the champion-G build.
+    """
+    seed_everything()
+    from losses.pcgrad import PCGrad
+
+    model = _build_dualtower("mtlnet_crossattn_dualtower", prior_on=False)
+
+    cat_in = torch.randn(4, SEQ_LEN, EMBED_DIM)
+    next_in = torch.randn(4, SEQ_LEN, EMBED_DIM)
+    out_cat, out_next = model((cat_in, next_in))
+
+    y_cat = torch.randint(0, NUM_CLASSES, (out_cat.size(0),))
+    y_reg = torch.randint(0, N_REGIONS, (out_next.size(0),))
+    ce = torch.nn.CrossEntropyLoss()
+    losses = torch.stack([ce(out_cat, y_cat), ce(out_next, y_reg)])
+
+    pcgrad = PCGrad(n_tasks=2, device=torch.device("cpu"))
+    pcgrad.backward(
+        losses=losses,
+        shared_parameters=list(model.shared_parameters()),
+        task_specific_parameters=list(model.task_specific_parameters()),
+    )
+
+    missing = [
+        name
+        for name, p in model.next_poi.named_parameters()
+        if p.requires_grad and p.grad is None
+    ]
+    assert not missing, (
+        f"{len(missing)} private-tower/reg-head parameter(s) received no "
+        f"gradient under PCGrad.backward — outside shared ∪ task_specific "
+        f"(MTL_PARAM_PARTITION_BUG on the champion-G dual-tower): {missing}"
+    )

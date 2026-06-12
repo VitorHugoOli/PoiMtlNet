@@ -126,8 +126,11 @@ tuned `static_weight cw=0.75`.** Six convergent lines of evidence (full write-up
    sensitive lever (Lin TMLR'22).
 3. **Full registry screen** (19 arms, AL+FL) — all cluster near the equal-weight point; none beats G.
    Figure: `figs/t4_balancer_scatter_FL.png`.
-4. **Per-method-tuned + arch-wired re-run** (GradNorm @lr=0.05, Nash @max_norm=2.2) — still trade
-   ~1.3–1.5 pp cat for ~0.1 pp reg at FL; no Pareto win.
+4. **Targeted retune re-run** (GradNorm @lr=0.05 α=1.5 — genuinely retuned; Nash @max_norm=2.2,
+   which *is* the registry default — a config-identity re-run, not a new tuning point) — still trade
+   ~1.3–1.5 pp cat for ~0.1 pp reg at FL; no Pareto win. (Wording precision: this is a
+   convergent-evidence negative, NOT an exhaustive per-method tuning study — see the
+   evidence-strength banner in `T4_audit_and_verdict.md`.)
 5. **Static cw-sweep {0.5,0.6,0.66,0.8}** — a monotone reg↔cat trade; 0.75 is on the Pareto front
    (satisfies Xin'22's fairness condition: the baseline is tuned as hard as the challengers).
 6. **Loss-scale normalization FALSIFIED** — dividing each CE by log(num_classes) *starves* the

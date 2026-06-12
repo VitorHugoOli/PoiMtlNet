@@ -1,6 +1,24 @@
 # HANDOFF — MTL Improvement track (read this FIRST, then `log.md` + `INDEX.html`)
 
-**As of 2026-06-06 (⭐⭐⭐ THE UNWEIGHTING FINDING + RE-VALIDATION + CEILING BROKEN — the reg narrative is reframed AND the FL champion (G) `dual aux + prior-OFF` BEATS both STL ceilings).** Branch `mtl-improve`, pushed.
+> ## ⭐ STUDY AT CLOSE (2026-06-12) — one punch list left, then CLOSED. A40: read `HANDOFF_AUDIT.md` and ONLY that.
+> Tiers 1–5 + the Tier-3 probes (R0/R1/R1b/R2) + Tier 4 are ALL closed; champion **G** stands:
+> **matches the STL reg ceiling on the matched metric (Δreg −0.09…−0.31) + beats the STL cat ceiling
+> (+2.6…+4.1), 4 states × 4 seeds** (R0 bar, `results/mtl_improvement/R0_matched_metric_bar.json`).
+> The 2026-06-12 local re-audit of the Tier-3/4/5 drop found the science sound and self-correcting
+> (R1b, B-A2) but flagged: **(P0) the FL cat-transfer multi-seed manifest points 3 seeds at ONE rundir**
+> (paper-bound +1.08 FL transfer number at risk — verify/re-run), (H1) the cos≈0 evidence is n=2 runs —
+> widen for free over the 16 multistate rundirs, (H2) corrected-rerun/wgrid numbers are markdown-only —
+> commit JSONs. It also corrected overclaims in place: Tier-4 is a **convergent-evidence negative, NOT
+> "per-method-tuned + arch-wired"** (see `T4_audit_and_verdict.md` banner); "composite strictly
+> dominated" → **dominated on the joint reading only** (composite keeps ~0.5pp reg-only FL edge, R0);
+> CHAMPION.md/PAPER_UPDATE stale "+Δreg beats-both" tables replaced with the R0 matched values. The
+> partition pre-flight T4.1 mandated now exists as pytest (`test_mtl_param_partition.py`, dualtower
+> family, 33 green). **Remaining work: `HANDOFF_AUDIT.md` (A40 punch list: P0 + H1/H2) → then the study
+> CLOSES.** **T6.1 CA/TX is DEFERRED OUT** to the upcoming **`closing-data` study** (user decision
+> 2026-06-12 — the major large-state runs happen ONCE, against the final frozen recipe, after all
+> improvement studies close); T6.2 paper-canon restatement = author-side.
+
+**As of 2026-06-06 (⭐⭐⭐ THE UNWEIGHTING FINDING + RE-VALIDATION + CEILING BROKEN — the reg narrative is reframed AND the FL champion (G) `dual aux + prior-OFF` matches the STL reg ceiling + beats the cat ceiling; verbs per B-A2/R0).** Branch `mtl-improve`, pushed.
 This is the organized "you are here". Full chronology: `log.md` (newest-first 2026-06-05 entries). Design/cards: `INDEX.html`. Paper-facing: `PAPER_UPDATE.md`. Confound write-up: `docs/CONCERNS.md §C25`.
 
 > ## ✅ TIER 4 CLOSED (2026-06-08) — loss/optimization axis exhausted; G's static_weight is Pareto-optimal

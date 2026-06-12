@@ -2264,6 +2264,29 @@ reg flat across all heads (AL range 0.31 / FL 1.16) — the dual-tower isolates 
 
 ---
 
+## 2026-06-12 — LOCAL RE-AUDIT of the Tier-3/4/5 drop → quality CONFIRMED, 1 data-integrity flaw (P0) + overclaim corrections in place; CA/TX deferred to `closing-data`; `HANDOFF_AUDIT.md` issued
+
+**Phase**: user-requested critical re-evaluation of the full A40 drop (local/design agent, 3 parallel readers + independent code/results audit — no GPU).
+
+**What was verified**
+- Code changes: `--loss-scale-norm` gated-off-by-default ✅ (canon bundles untouched); preflight fix ✅; git clean ✅. Result JSONs: `R0_matched_metric_bar.json` fully recomputed — every mean/delta/fold-roll-up checks ✅. No evidence of fabrication anywhere; the science is sound and self-correcting (R1b killed its own "mechanism win"; B-A2/R0 verb corrections advisor-forced).
+
+**Result**
+- **P0 FLAW (unflagged by the A40): `cat_transfer_manifest.tsv` FL rows s1/s7/s100 all point to ONE rundir** (`...20260610_031405_3670616`; the AL rows are three distinct, time-advancing rundirs). The FL 4-seed reg-OFF mean 72.09±0.08 — and the paper-bound decomposition (arch +2.13 / transfer +1.08 FL) — may be one run counted multiple times. → `HANDOFF_AUDIT.md` P0 (verify on the box or re-run 3 seeds).
+- **Overclaims corrected IN PLACE (this session):** Tier-4 "per-method-tuned + arch-wired" → **convergent-evidence negative** (the screen ran at registry DEFAULTS, seed0, AL+FL; only gradnorm genuinely retuned; the nash "retune" @max_norm=2.2 IS the registry default — config-identity re-run; the gradient-surgery family was never validly tested individually — collapses to ≈equal_weight under the dual-tower, and equal_weight was screened and lost; bayesagg/excess AL-cat craters relabeled "misconfigured-at-defaults, undiagnosed"). "Composite strictly dominated" → **dominated on the JOINT reading only** (matched metric: the composite keeps a +0.53 reg-only FL edge — R0). CHAMPION.md + PAPER_UPDATE stale "+Δreg beats-both" tables replaced in place with the R0 matched values (superseded values kept for traceback, marked do-not-cite).
+- **Guard added:** `tests/test_regression/test_mtl_param_partition.py` extended to the dualtower family (G aux/prior-OFF + prior-ON, G′ catpriv, dualtower-swiglu, plus swiglu/mult/xstitch/crossstitch) + a PCGrad gradient-coverage test on G's private tower — the per-balancer pre-flight T4.1 mandated but the screen skipped. **33/33 green.** The partition itself is correct on every variant (confirms the audit's reading: the T4.1 bug was surgery *semantics*, not partition coverage).
+
+**Decision**
+- **T6.1 CA/TX is DEFERRED OUT of this study** (user decision 2026-06-12): the major large-state runs (v14 CA/TX builds + G + ceilings + any final-recipe confirmation) move to the upcoming **`closing-data` study**, opened after ALL improvement studies are evaluated and closed — heavy compute spent once, against the final frozen recipe. The T6.1 card is the spec it inherits. T6.2 stays author-side.
+- **Closure path:** the A40 executes `HANDOFF_AUDIT.md` (P0 mandatory; H1 cosine-n widening over the 16 existing multistate rundirs; H2 commit the missing raw JSONs; H3 optional) → then the study CLOSES.
+
+**Chain status**: chain preserved; champion G unchanged by everything above (wording + integrity fixes only).
+
+**Next**
+- A40: `HANDOFF_AUDIT.md`, top to bottom — and ONLY that. No CA/TX, no new probes, no new tiers.
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:

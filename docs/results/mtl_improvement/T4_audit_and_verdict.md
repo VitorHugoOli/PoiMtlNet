@@ -1,9 +1,20 @@
 # Tier 4 (loss / optimization) — audit + final verdict (2026-06-08)
 
-**Verdict: CLOSED — clean, bug-free, fairness-checked NEGATIVE.** No loss-scale normalization,
-no balancer (the full `src/losses` registry, per-method-tuned + arch-wired), and no alternative
-static weight Pareto-beats champion G's `static_weight cw=0.75`. The loss/optimization axis is
-exhausted. Six convergent lines of evidence (below). Champion G unchanged.
+**Verdict: CLOSED — fairness-checked convergent NEGATIVE.** No loss-scale normalization, no
+balancer (the full `src/losses` registry), and no alternative static weight Pareto-beats champion
+G's `static_weight cw=0.75`. The loss/optimization axis is exhausted. Six convergent lines of
+evidence (below). Champion G unchanged.
+
+> ⚠ **Evidence-strength precision (2026-06-12 re-audit; supersedes earlier "per-method-tuned +
+> arch-wired" phrasing).** What actually ran: the full screen at **registry DEFAULTS, seed 0,
+> AL+FL**; only **GradNorm** genuinely retuned (lr=0.05, α=1.5); the "retuned" Nash arm used
+> `max_norm=2.2`, which **is** the registry default — a config-identity re-run, not a new tuning
+> point; DWA/FairGrad diagnosed misconfigured-at-defaults and **not** retuned; the three
+> gradient-surgery methods (CAGrad/PCGrad/Aligned-MTL) **never validly tested individually** under
+> G — as wired they collapse to ≈`equal_weight`, which *was* screened and lost. The negative is
+> sound (equal-weight collapse + tuned-static fairness sweep + RLW litmus + cos≈0 mechanism + the
+> k=2 literature), but it is a **convergent-evidence negative, not an exhaustive per-method tuning
+> study** — word it that way in the paper.
 
 ## How we got here (the suspicious result that triggered a deep audit)
 The first T4.1 screen showed *every* advanced balancer clustered at the `equal_weight` point and none
@@ -26,6 +37,11 @@ was *partially invalid*) — but the underlying conclusion survives for a deeper
 - **Correctly wired + adapting (valid tests):** nash_mtl, uncertainty_weighting, uw_so, db_mtl,
   bayesagg_mtl, excess_mtl, stch, go4align, famo, scheduled_static, equal_weight, static_weight,
   random_weight. These genuinely reweight the full graph incl. the private tower.
+  ⚠ *Exception (2026-06-12):* bayesagg_mtl (AL cat **37.75**) and excess_mtl (AL cat **45.97**)
+  crater far below G (52.75) with no diagnosis — treat those two cells as
+  **misconfigured-at-defaults, undiagnosed**, not as valid evidence about the methods themselves.
+  (Doesn't change the verdict: a method needing a per-state rescue tune to merely reach the
+  baseline is not a promotion candidate.)
 
 ## 2. The decisive mechanistic finding — task gradients are ORTHOGONAL
 `cos(∇L_cat, ∇L_reg)` on the shared trunk ≈ **0** over all 50 epochs at BOTH states (FL mean **+0.0007**,
@@ -75,10 +91,11 @@ lever (Lin TMLR'22). First of the six convergent signals.
 
 ## Verdict
 **Tier 4 CLOSED — the loss/optimization axis yields no Pareto gain over G's `static_weight cw=0.75`.**
-Six convergent lines: (1) RLW litmus, (2) full registry screen, (3) per-method-tuned + arch-wired
-re-run, (4) static cw-sweep (fairness), (5) scale-norm falsified, (6) gradient cosine ≈ 0 (mechanism) +
-literature. The negative is paper-grade ("no balancer beats tuned scalarization at k=2", Kurin'22/Xin'22)
-and now bug-free. **Mechanistic payoff:** the orthogonal task gradients unify the whole study — they
+Six convergent lines: (1) RLW litmus, (2) full registry screen (defaults), (3) targeted retune
+re-run (GradNorm; Nash = default-config identity — see the precision banner), (4) static cw-sweep
+(fairness), (5) scale-norm falsified, (6) gradient cosine ≈ 0 (mechanism) + literature. The negative
+is paper-grade ("no balancer beats tuned scalarization at k=2", Kurin'22/Xin'22) as a
+convergent-evidence negative (see banner for exact wording). **Mechanistic payoff:** the orthogonal task gradients unify the whole study — they
 explain why balancers can't help AND why forcing more sharing failed in Tier 2 (it would induce the
 conflict that isn't there) AND why the dual-tower wins (protect reg, let cat harvest the shared
 representation). No multi-seed promotion warranted.

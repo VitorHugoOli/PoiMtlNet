@@ -1,5 +1,11 @@
 # HANDOFF — Tier 5 (and what's actually next) — for the next agent
 
+> ## ⛔ SUPERSEDED (2026-06-12) — read `HANDOFF_AUDIT.md` instead; do NOT start CA/TX.
+> The "only work left = Tier 6 CA/TX" line below is STALE: **T6.1 CA/TX is deferred OUT of this study**
+> (user decision 2026-06-12) to the upcoming **`closing-data` study** (heavy runs happen once, against
+> the final frozen recipe, after all improvement studies close). The A40's entire remaining scope is the
+> closure punch list in **`HANDOFF_AUDIT.md`** (P0 FL cat-transfer manifest integrity + cheap hardening).
+
 **Date:** 2026-06-08. **Branch:** `mtl-improve` (pushed). **Champion:** **G** (unchanged) —
 `mtlnet_crossattn_dualtower` + `next_stan_flow_dualtower` (aux, prior-OFF), v14 substrate, unweighted
 onecycle, KD-OFF. Read order for a fresh agent: this file → `HANDOFF.md` (top banners) → `CHAMPION.md`

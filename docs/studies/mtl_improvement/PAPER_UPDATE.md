@@ -14,10 +14,15 @@ gradient-cooperation**, why more parameter-sharing *hurts* (induces conflict tha
 the dual-tower wins (it exploits the orthogonality).
 
 **2. Analysis / limitations section — no modern MTL optimizer helps (a paper-grade NEGATIVE).** The full
-`src/losses` balancer registry (GradNorm/PCGrad/CAGrad/Nash/Aligned-MTL/DWA/DB-MTL/FAMO/UW/RLW…,
-per-method-tuned + arch-wired) + loss-scale normalization + a static-weight sweep all FAIL to
-Pareto-beat tuned `static_weight cw=0.75`. This is the *expected* k=2-with-tuned-baseline result
-(Kurin NeurIPS'22, Xin NeurIPS'22): at gradient cos≈0 there is no conflict for a balancer to resolve.
+`src/losses` balancer registry (GradNorm/PCGrad/CAGrad/Nash/Aligned-MTL/DWA/DB-MTL/FAMO/UW/RLW…) +
+loss-scale normalization + a static-weight fairness sweep all FAIL to Pareto-beat tuned
+`static_weight cw=0.75`. This is the *expected* k=2-with-tuned-baseline result (Kurin NeurIPS'22,
+Xin NeurIPS'22): at gradient cos≈0 there is no conflict for a balancer to resolve.
+⚠ *Paper wording (2026-06-12 precision)*: state it as a **convergent-evidence negative** (defaults
+screen + tuned-static fairness sweep + RLW litmus + cos≈0 mechanism), NOT as "every method
+individually tuned" — and disclose that the gradient-surgery family is inapplicable to the
+dual-tower as wired (collapses to equal-weighting, which was itself screened and lost). See the
+evidence-strength banner in `results/mtl_improvement/T4_audit_and_verdict.md`.
 Figures: `figs/{grad_cosine_tasks, t4_balancer_scatter_FL, t4_loss_weight_trajectories_FL}.png`.
 
 **3. State the cat result precisely (decomposition).** MTL category beats single-task by +3 pp, but
@@ -47,16 +52,16 @@ logged as future-work, not adopted. Only Tier-6 completeness (CA/TX build) + thi
 
 > ⛔ **G′ (the cat-private both-private dual-tower, FL cat 74.77) is NOT a paper claim — DO NOT CITE.** It is an FL-only experimental dead-end: the cat gain craters −3.6…−15.3 pp at AL/AZ/GE (AL/AZ below the STL cat ceiling), and a rescue screen found no recoverable config (CLOSED 2026-06-07; `INDEX.html #T2V-5` / `CHAMPION.md §G′`). The paper champion is **G** with the **cat-SHARED `next_gru`** head. Cite G's cat (AL 52.91 / AZ 54.48 / GE 61.43 / FL 73.16), never G′'s 74.77.
 
-> ⭐ **Champion (G) — `mtlnet_crossattn_dualtower` + `next_stan_flow_dualtower` (`raw_embed_dim=64 fusion_mode=aux freeze_alpha=True alpha_init=0.0`), v14 substrate, unweighted onecycle KD-OFF. CONFIRMED MULTI-STATE @ 4 seeds {0,1,7,100} (2026-06-06) — beats BOTH STL ceilings at ALL 4 available states:**
+> ⭐ **Champion (G) — `mtlnet_crossattn_dualtower` + `next_stan_flow_dualtower` (`raw_embed_dim=64 fusion_mode=aux freeze_alpha=True alpha_init=0.0`), v14 substrate, unweighted onecycle KD-OFF. CONFIRMED MULTI-STATE @ 4 seeds {0,1,7,100} (2026-06-06) — MATCHES the STL reg ceiling + BEATS the STL cat ceiling at ALL 4 available states** *(table corrected in place 2026-06-12 to the R0 matched-metric values — `results/mtl_improvement/R0_matched_metric_bar.json`; the original Δreg column here was the indist-vs-full artifact, +1.59/+0.64/+0.92/+0.26)*:
 >
-> | state | G reg | (c) STL reg | Δreg | G cat | (c) STL cat | Δcat |
+> | state | G reg (full, matched) | (c) STL reg (full) | Δreg (matched) | G cat | (c) STL cat | Δcat |
 > |---|---|---|---|---|---|---|
-> | AL | 64.47±0.11 | 62.88 | **+1.59** | 52.91±0.27 | 49.97 | **+2.94** |
-> | AZ | 55.75±0.21 | 55.11 | **+0.64** | 54.48±0.74 | 51.01 | **+3.47** |
-> | GE | 59.37±0.04 | 58.45 | **+0.92** | 61.43±0.26 | 58.12 | **+3.31** |
-> | FL | 73.57±0.06 | 73.31 | **+0.26** | 73.16±0.04 | 69.97 | **+3.19** |
+> | AL | 62.57±0.10 | 62.67±0.13 | **−0.09** (matches) | 52.91±0.27 | 50.35 | **+2.56** |
+> | AZ | 54.68±0.24 | 54.80±0.22 | **−0.12** (matches) | 54.48±0.74 | 50.39 | **+4.08** |
+> | GE | 58.35±0.04 | 58.44±0.06 | **−0.09** (matches) | 61.43±0.26 | 57.50 | **+3.93** |
+> | FL | 72.97±0.06 | 73.27±0.06 | **−0.31** (matches) | 73.16±0.04 | 69.96 | **+3.20** |
 >
-> FL also TIES the (d) 2-model composite reg (73.62, −0.05) while winning cat → the composite is strictly dominated. CA/TX deferred (no v14 substrate). Trail: `log.md` 2026-06-06; drivers `c25_combos_{screen,promote}.sh` + `c25_g_multistate.sh`.
+> Composite, matched metric (R0): the (d) FL composite reg-full is **73.49** → G is **−0.53** on reg alone; the composite is dominated only on the **joint** reading (G: reg ≈ −0.5, cat **+3.2**, at ~half the deploy footprint) — do NOT write "strictly dominated" / "ties the composite" (those were indist-vs-full artifacts). CA/TX deferred (no v14 substrate). Trail: `log.md` 2026-06-06 + R0 2026-06-08; drivers `c25_combos_{screen,promote}.sh` + `c25_g_multistate.sh`, re-score `r0_matched_rescore.py`.
 
 ## Re-validated headline numbers (multi-seed {0,1,7,100}, unweighted real-joint, AL/GE/FL)
 | state | MTL reg (v14) | STL ceiling (c) | composite (d) | MTL cat (v14) | STL cat ceiling |
@@ -69,7 +74,7 @@ logged as future-work, not adopted. Only Tier-6 completeness (CA/TX build) + thi
 
 ## What changes for the paper (claim-by-claim)
 - **Regime finding (CH28) — OVERTURNED.** Old: "STL substrate gains wash out under the cross-attn MTL regime." New: **Δreg(v14−canonical) = +1.92/+1.49/+0.81 (AL/GE/FL), σ~0.1 — the substrate gain TRANSFERS to MTL** (partial — smaller than the STL Δ — but positive and significant).
-- **Composite advantage (CH25) — DISSOLVED, now strictly DOMINATED.** Old: "composite STL-cat ⊕ STL-HGI-reg = +7-12pp over MTL@disjoint; deploy 2 models." New: a **single MTL model ≥ the composite** (AL +0.94; the (G) FL champion TIES the composite reg at 73.57 vs 73.62 while ALSO winning cat). The 2-model deploy is strictly dominated — same reg, worse cat, 2× params/inference.
+- **Composite advantage (CH25) — DISSOLVED** *(verb corrected 2026-06-12 per R0 matched metric)*. Old: "composite STL-cat ⊕ STL-HGI-reg = +7-12pp over MTL@disjoint; deploy 2 models." New: the +7–12pp composite reg advantage collapses to **+0.5pp at FL (73.49 vs G 72.97, matched full metric)** while G wins cat by +3.2 at roughly half the deploy footprint — the composite is dominated on the **joint** reading, NOT "strictly" (it keeps a ~0.5pp reg-only edge at FL; the earlier "TIES at 73.57 vs 73.62" was the indist-vs-full artifact).
 - **Tier-2 architecture — POSITIVE, and now BEATS the ceiling.** Old: "no architecture closes the gap; dual-tower loses; irreducibly architectural." New: the **dual-tower CLOSES the gap** (gated FL +1.51 vs base_a, −0.25 vs ceiling) and the **(G) `aux`-fusion + prior-OFF variant BEATS it** (FL 73.57, +0.26 over ceiling, 4-seed). Orderings flipped under the fix (`dual_aux_off > dual_privonly_off > dual_gated > prior_off > crossstitch > base_a ≈ hardshare`). The class-weighted "dual-tower loses" was the confound interacting non-uniformly with its private reg tower. **Mechanism settled:** MoE expert-capacity (mmoe/cgc) and SwiGLU backbone-quality were both NULL on reg — the gap is the α·log_T prior + shared-pathway dilution (resolved by `aux` additive fusion + prior-OFF), NOT architecture capacity/quality.
 - **§0.1 absolute MTL reg — re-stated +10-13pp** (canonical v11 GCN substrate: AL 62.60 / GE 56.34 / FL 70.74, multi-seed, vs old ~50/42/61). The "MTL reg ≪ STL" architectural-Δ column flips to "MTL reg ≈ STL ceiling."
 - **MTL cat — re-stated UP** (exceeds the STL cat ceiling at all states). Caveat: stacks with the deployable-recipe correction (don't double-count); use unweighted MTL cat vs unweighted STL cat for apples-to-apples.
