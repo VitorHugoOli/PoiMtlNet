@@ -11,8 +11,12 @@
 > log_T-KD-on-G, P1-C β-no-WD) were fixed and exercised; the two stress-tested claims (mixing-dead,
 > "matches"-precision) were checked. **Every result is null or negligible** — the "matches, can't beat"
 > verdict is now earned at a strictly higher standard, and champion G is unchanged:
-> - **P0-A (X1):** roll probe Δcat-F1 **−0.004** → cross-attn mixing is genuinely dead (not a noise-pair
->   artifact); aligned-training run justified-skipped.
+> - **P0-A (X1):** roll probe Δcat-F1 **−0.004** → every published number is **pairing-safe** and the
+>   deployed model performs no per-sample mixing. ⚠ Wording corrected (design-agent review): the probe
+>   CANNOT discriminate "intrinsically dead" from "never trainable under noise pairs" (a noise-trained
+>   model is forced into the invariance the probe measures — circular). The aligned-TRAINING
+>   counterfactual is inherited by **`closing-data` as a PRE-FREEZE gate** (it would change the final
+>   recipe if positive). See `X_SERIES_FINDINGS.md §X1` correction banner.
 > - **P0-B (X2):** aux gate **FIXED** (`folds.py` + `p1_region_head_ablation.py`); first real KD-on-G test
 >   **NULL** (FL reg +0.05 / AL reg −0.13, FL cat −0.57); gate fix empirically inert on G (Δ −0.022 vs R0).
 > - **P1-C (X3):** β **decays to ≈0 by gradient even with WD removed** (mean final −0.0001) → β→0 is not a

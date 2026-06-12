@@ -3,12 +3,20 @@
 > ## ✅ STUDY CLOSED (2026-06-12) — HANDOFF_AUDIT punch list DONE; champion G unchanged; CA/TX → `closing-data`.
 > The audit punch list (`HANDOFF_AUDIT.md`) is complete: **P0 fixed** (FL cat-transfer re-run — the
 > `s1/s7/s100` rows had mis-pointed to the fully-shared intrinsic run; true FL transfer +1.08→**+0.93**,
-> sign held), **X1–X4 all NULL** (mixing dead Δcat −0.004; KD-on-G null after the aux-gate fix; β→0 is
-> gradient-driven not WD; "matches" fp32-precision-clean Δ −0.005), **H1** cos≈0 widened 2→16 runs
-> (+0.0008, n=3,797), **H2** `T4_corrected_rerun.json` committed. New concern **C28** (aux-gate dead
-> codepath + rundir race). Evidence: `X_SERIES_FINDINGS.md`, `CODE_AUDIT_2026-06-12.md`, `log.md` (third
-> pass), `INDEX.html #tier7`. **No X-probe promoted → no scope re-open.** Only open item: the BRACIS
-> paper-doc restatement (author decision). Below is the historical close state.
+> sign held), **X1–X4 all NULL** (pairing roll-probe Δcat −0.004 → numbers pairing-safe; KD-on-G null
+> after the aux-gate fix; β→0 is gradient-driven not WD; "matches" fp32-precision-clean Δ −0.005),
+> **H1** cos≈0 widened 2→16 runs (+0.0008, n=3,797), **H2** `T4_corrected_rerun.json` committed. New
+> concern **C28** (aux-gate dead codepath + rundir race). Evidence: `X_SERIES_FINDINGS.md`,
+> `CODE_AUDIT_2026-06-12.md`, `log.md` (third pass), `INDEX.html #tier7`. **No X-probe promoted → no
+> scope re-open.**
+> ⚠ **One X1 verdict-wording correction (design-agent review, 4th pass):** the roll probe earns
+> "numbers pairing-safe + deployed model performs no per-sample mixing" — it does NOT earn "mixing
+> intrinsically dead" (circular: a noise-pair-trained model is forced into the invariance the probe
+> measures; X3's β→0 and F52 P5 inherit the same conditioning). The **aligned-TRAINING test** (shared
+> permutation + G at AL+FL seed0) is inherited by **`closing-data` as a PRE-FREEZE gate** — run it
+> BEFORE the final recipe freezes for the CA/TX majors. Correction banner: `X_SERIES_FINDINGS.md §X1`.
+> Open items: that pre-freeze gate (closing-data) + the BRACIS paper-doc restatement (author decision).
+> Below is the historical close state.
 >
 > Tiers 1–5 + the Tier-3 probes (R0/R1/R1b/R2) + Tier 4 are ALL closed; champion **G** stands:
 > **matches the STL reg ceiling on the matched metric (Δreg −0.09…−0.31) + beats the STL cat ceiling

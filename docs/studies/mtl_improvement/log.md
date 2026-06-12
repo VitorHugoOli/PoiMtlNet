@@ -2342,6 +2342,25 @@ reg flat across all heads (AL range 0.31 / FL 1.16) — the dual-tower isolates 
 
 ---
 
+## 2026-06-12 (fourth pass) — Closure review of the A40 drop: ENDORSED with ONE verdict-wording correction (X1) → study stays CLOSED; aligned-training test inherited by `closing-data` as a PRE-FREEZE gate
+
+**Phase**: design-agent critical review of the third-pass closure drop (user-requested).
+
+**Review verdict**
+- The drop is high quality: P0 forensics exemplary (the FL rows pointed at the *fully-shared intrinsic run*, not just a triple-count — genuine re-runs landed, +0.93 propagated everywhere, `cat_transfer_decomposition_4seed.json` committed); X2/X3/X4 designs and nulls sound; H1 (cos≈0 at n=3,797 over 16 runs) and H2 verified; code changes env-gated with G defaults unchanged (aux-gate fix reviewed — well-commented, intentionally un-gated since it un-deads KD/prior, inert on G); C28 registered; tests green locally (53 partition/canon/coercion).
+- **ONE defect found and corrected: the X1 "justified-skipped" inference was circular.** A model trained under random pairing is *forced* into invariance to the cross-stream; the roll probe measures exactly that trained-in invariance and reads Δ≈0 whether or not aligned training could activate mixing — it has **no power against the aligned-training counterfactual**. What X1 EARNS: every published number is pairing-safe; the deployed G performs no per-sample cross-modal mixing. What it does NOT earn: "mixing genuinely dead, NOT a noise-pair artifact." The same conditioning applies to F52 P5 and to X3's β→0-by-gradient (under misaligned pairing the gradient is *expected* to kill β). Corrected in: `X_SERIES_FINDINGS.md §X1` (+X3 caveat), `CODE_AUDIT_2026-06-12.md` resolution banner, INDEX `#T7-X1`, HANDOFF top banner, PAPER_UPDATE item 1 (paper wording: "the architecture wins *without* per-sample cross-modal mixing (pairing-invariance verified)", not "mixing is intrinsically useless").
+
+**Decision**
+- **Closure ENDORSED** — the correction does not re-open the study: every published number and every paper claim survives under the corrected wording (the numbers were measured without mixing either way).
+- **The aligned-training test (one shared-permutation change + G at AL+FL seed0) is inherited by `closing-data` as a PRE-FREEZE gate**: it must run BEFORE the final recipe freezes for the CA/TX majors, because a positive would change the recipe — exactly the rework closing-data exists to avoid. If it promotes, the paper wording above survives unchanged.
+
+**Chain status**: study CLOSED (endorsed); champion G unchanged; one interpretive claim re-scoped to its earned strength; one test handed to closing-data pre-freeze.
+
+**Next**
+- `closing-data` (when opened): (1) PRE-FREEZE gate — aligned-pairing G run; (2) CA/TX majors against the then-frozen recipe. Author-side: T6.2 paper-canon restatement.
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:

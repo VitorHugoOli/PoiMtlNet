@@ -1,13 +1,19 @@
-# ⭐ PAPER UPDATE (2026-06-12) — code-audit layer: claims on HOLD pending X-series + literature positioning
+# ⭐ PAPER UPDATE (2026-06-12) — code-audit layer: X-series RESOLVED + literature positioning
 
 > **Three paper-facing items from the 2026-06-12 deep code audit (`CODE_AUDIT_2026-06-12.md`; probes
-> = `HANDOFF_AUDIT.md §X-SERIES`). G's headline numbers are NOT invalidated — but hold these claims:**
-> 1. **"K/V mixing is dead" / "cat gain is architecture, not transfer" — HOLD until X1.** Cross-attn
->    trained on randomly-paired windows (two independent shuffled loaders) and evaluated aligned —
->    per-sample cross-modal transfer was never trainable, which *itself* predicts exactly those two
->    findings. X1 (aligned-training run) decides whether they are intrinsic or artifacts.
-> 2. **"KD adds nothing on the dual-tower" — RETRACTED (dead codepath; the kd arms were no-ops).**
->    KD-on-G runs for the first time in X2. Do not cite the old verdict.
+> = `HANDOFF_AUDIT.md §X-SERIES`, results `results/mtl_improvement/X_SERIES_FINDINGS.md`). G's
+> headline numbers are NOT invalidated. Hold-resolutions:**
+> 1. **"K/V mixing is dead" / "cat gain is architecture, not transfer" — PARTIALLY resolved (X1 roll
+>    probe Δ −0.004): every published number is pairing-safe and the deployed model performs no
+>    per-sample cross-modal mixing.** ⚠ But the probe is circular w.r.t. the INTRINSIC claim (a
+>    noise-pair-trained model is forced into the invariance the probe measures), so the paper must
+>    say: **"the architecture wins *without* per-sample cross-modal mixing (pairing-invariance
+>    verified)"** — NOT "cross-modal mixing is intrinsically useless for this task pair." The
+>    aligned-training counterfactual is a `closing-data` PRE-FREEZE gate; if it ever promotes, this
+>    wording survives unchanged (the published numbers were measured without mixing either way).
+> 2. **"KD adds nothing on the dual-tower" — now stands on a REAL test (X2, post-aux-gate-fix):**
+>    FL reg +0.05 / AL reg −0.13, FL cat −0.57 → null. Cite the real test, not the pre-fix arms
+>    (those were dead-codepath no-ops — C28).
 > 3. **Literature positioning for the MTL-negative (write it this way):** with a 7-class (~2.8-bit)
 >    auxiliary, cos≈0, and a data-rich tuned main task, parity-not-improvement is the EXPECTED
 >    outcome (Du et al. arXiv:1812.02224; Bingel & Søgaard EACL'17; Kurin & Xin NeurIPS'22). Frame

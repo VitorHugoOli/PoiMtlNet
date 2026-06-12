@@ -13,7 +13,7 @@ negligible; and the two stress-tested claims hold under proper testing.
 
 | probe | what it tests | result | verdict |
 |---|---|---|---|
-| **X1** roll probe | does cat depend on per-sample cross-attn pairing? | FL cat-F1 aligned 73.012 vs task-b-rolled 73.008 → **Δ −0.004** | **mixing DEAD (clean)** — aligned-training run justified-skipped |
+| **X1** roll probe | does cat depend on per-sample cross-attn pairing? | FL cat-F1 aligned 73.012 vs task-b-rolled 73.008 → **Δ −0.004** | **numbers pairing-safe; deployed model performs no per-sample mixing.** ⚠ The aligned-TRAINING counterfactual remains untested (see §X1 correction) → closing-data pre-freeze gate |
 | **X2** KD-on-G, FL | does log_T-KD help G's reg (first real test)? | FL reg KD0.2 72.976 vs KD-off 72.929 → **+0.05**; FL cat −0.57 | **NULL** (≪0.3pp; trades cat) |
 | **X2** KD-on-G, AL | " | AL reg KD0.2 62.506 vs R0 seed0 62.64 → **−0.13** | **NULL** (KD slightly hurts) |
 | **X2** G-unchanged | is the aux-gate fix inert on G? | FL KD-off post-fix 72.929 vs R0 seed0 G 72.951 → **Δ −0.022** | **inert ✓** (bit-identity confirmed empirically) |
@@ -27,11 +27,26 @@ The two MTL train loaders draw independent shuffles → the cross-attn block mix
 (reg) of **randomly-paired** windows at train, while val is aligned (`folds.py:1054-1080`,
 `mtl_cv.py:463`). Probe (zero new training): re-train G with the task-b/reg stream **rolled by 1 along
 the batch dim at eval only** (`MTL_ROLL_TASKB_EVAL=1`, `mtl_eval.py`) so cat row i cross-attends reg row
-i−1. **cat-F1 is unchanged (Δ −0.004)** → the model ignores per-sample pairing → "K/V mixing is dead"
-(F52 P5 identity-attn ≈ baseline) is a clean intrinsic fact, NOT a noise-pair-training artifact. The
-cat gain and the cat-transfer decomposition do not depend on an alignment training never saw. **The
-aligned-training run (X1 step 2) is justified-skipped** (roll Δ≈0). The cross-modal-transfer story is
-not re-opened.
+i−1. **cat-F1 is unchanged (Δ −0.004)** → the deployed model ignores per-sample pairing → every
+published number (the +3pp cat, the decomposition, the R0 bar) is **pairing-safe**, and the deployed G
+performs no per-sample cross-modal mixing.
+
+> ⚠ **VERDICT WORDING CORRECTED (2026-06-12 design-agent review).** The original write-up concluded
+> "mixing is a clean intrinsic fact, NOT a noise-pair-training artifact" and skipped the
+> aligned-training run on that basis. **That inference is circular:** a model trained under random
+> pairing is *forced* to become invariant to the cross-stream (its per-sample content is noise w.r.t.
+> the row), and the roll probe measures exactly that trained-in invariance — it would read Δ≈0
+> whether or not aligned training could activate mixing. The probe has **no power against the
+> counterfactual** "mixing is learnable under aligned pairing." The same conditioning applies to
+> F52 P5 (identity-attn ≈ baseline, measured under misaligned training) and to X3's β→0-by-gradient
+> (under misaligned training the shared cross-attended feature is noise-mixed w.r.t. reg's row — the
+> gradient *should* kill β). **What is earned:** numbers safe; deployed-model mixing absent.
+> **What is NOT earned:** "intrinsic / not an artifact." **Disposition:** the aligned-training test
+> (one shared-permutation change + G at AL+FL seed0) is inherited by the **`closing-data` study as a
+> PRE-FREEZE gate** — it must run BEFORE the final recipe freezes for the CA/TX majors, because a
+> positive would change the recipe. Paper wording: claim "the architecture wins *without*
+> per-sample cross-modal mixing (pairing-invariance verified)", not "cross-modal mixing is
+> intrinsically useless for this task pair."
 
 ### X2 — aux-gate fix + the FIRST REAL KD-on-G test (CODE_AUDIT P0-B)
 `next_stan_flow_dualtower` was missing from `_HEADS_REQUIRING_AUX_MTL` (`folds.py:933-937`) →
@@ -67,3 +82,8 @@ adds little to reg" claim: reg genuinely lives in the private tower because the 
 the shared pathway off, not because WD forces it. (Nuances CHAMPION §2's "β is the key lever": β is the
 coefficient the model elects to disable.) Rundir `…20260612_202300_800572`; gate code `MTL_BETA_NO_WD`
 in `helpers.py` (env-gated, G default unchanged).
+⚠ *Conditioning caveat (see the §X1 correction banner):* β→0-by-gradient was measured under
+**misaligned pairing** — the shared cross-attended feature is noise-mixed w.r.t. reg's row, so the
+gradient is *expected* to kill β in that regime. "The model elects to gate the shared pathway off" is
+earned **under the current training distribution**; whether β survives under aligned pairing is part
+of the same `closing-data` pre-freeze gate.
