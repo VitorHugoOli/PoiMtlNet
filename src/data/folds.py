@@ -930,9 +930,19 @@ class FoldCreator:
         # Both legacy and renamed (2026-05-01 → STAN-Flow) registry IDs are listed
         # so the aux gate fires whether the user passes `next_getnext_hard` or
         # `next_stan_flow` via the head factory.
+        #
+        # 2026-06-12 (HANDOFF_AUDIT X2 / CODE_AUDIT P0-B): the champion-G dual-tower
+        # head ``next_stan_flow_dualtower`` was MISSING here → use_aux=False →
+        # get_current_aux() returned None in every forward → the α·log_T prior took
+        # the defensive ``logits + α·0.0`` branch (prior structurally OFF) AND the
+        # trainer's log_T-KD branch (mtl_cv.py, requires _aux is not None) was a
+        # no-op on the dual-tower. Added so the prior / KD are actually reachable on
+        # G. (G itself pins prior-OFF + KD 0.0, so G's numbers are unchanged; this
+        # only un-deads the KD-on-G test.)
         _HEADS_REQUIRING_AUX_MTL = {
             "next_getnext_hard", "next_getnext_hard_hsm",       # legacy aliases
             "next_stan_flow", "next_stan_flow_hsm",             # paper-facing names
+            "next_stan_flow_dualtower",                         # champion-G dual-tower
         }
         use_aux = task_b_head in _HEADS_REQUIRING_AUX_MTL
         if use_aux:

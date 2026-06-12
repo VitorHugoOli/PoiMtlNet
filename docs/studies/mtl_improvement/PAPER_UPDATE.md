@@ -51,10 +51,11 @@ evidence-strength banner in `results/mtl_improvement/T4_audit_and_verdict.md`.
 Figures: `figs/{grad_cosine_tasks, t4_balancer_scatter_FL, t4_loss_weight_trajectories_FL}.png`.
 
 **3. State the cat result precisely (decomposition).** MTL category beats single-task by +3 pp, but
-the gain is **architecture-dominated** (the cross-attn encoder: +2.13 FL / +3.22 AL, 4-seed), with only
-a small genuine region→category **transfer (+1.08 FL / −0.67 AL)**. Frame as "the joint cross-attn
+the gain is **architecture-dominated** (the cross-attn encoder: +2.27 FL / +3.22 AL, 4-seed), with only
+a small genuine region→category **transfer (+0.93 FL / −0.67 AL)**. Frame as "the joint cross-attn
 architecture is a better category *encoder*, with a small region transfer at scale" — NOT "the region
-task teaches category."
+task teaches category." (FL re-run 2026-06-12 under HANDOFF_AUDIT P0 — was +2.13/+1.08; the FL `s1/s7/s100`
+manifest rows had mis-pointed to the fully-shared intrinsic-test run. Transfer sign unchanged.)
 
 **4. Completeness (no champion change).** The reg-input axis (overlap data-scale, HGI substrate
 routing), the loss/optimization axis, and the head axis (cat-encoder sweep under G → `next_gru` is the

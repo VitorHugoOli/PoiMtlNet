@@ -26,8 +26,10 @@ interaction channel: the first-order gradient direction on the *shared* paramete
 | **> 0** (synergy) | tasks push the same direction | each step directly lowers both losses |
 | **≈ 0** (our case) | gradient steps are independent | neither destructive nor directly reinforcing |
 
-Measured: cos ≈ **0** over all 50 epochs at both scales — **FL +0.0007, AL +0.0026** (band [−0.08,+0.19],
-~50 % negative = zero-mean noise). Figure: `figs/grad_cosine_tasks.png`.
+Measured: cos ≈ **0** over all 50 epochs — pooled mean **+0.0008** over the **16 champion-G runs (4
+states × 4 seeds {0,1,7,100})**, n = 3,797 epoch-fold points (per-state: FL +0.0007, AL +0.0032, AZ
+−0.0005, GE −0.0004; ~50 % negative = zero-mean noise). Figure: `figs/grad_cosine_tasks.png` (widened
+2026-06-12 from the original 2 static-screen seed-0 runs to all 16 G rundirs — HANDOFF_AUDIT H1).
 
 So orthogonality rules out two things: (a) the tasks hurting each other through the shared trunk, and
 (b) the *naive* "they descend together" form of help. But MTL transfer has a **second channel the cosine
@@ -57,13 +59,14 @@ Two results, two distinct mechanisms, each mapping cleanly onto the architecture
   | state | STL cat (next_gru, no trunk) | cat + cross-attn trunk, **reg OFF** (4-seed) | G cat (reg ON, 4-seed) | **architecture** | **region-transfer** |
   |---|---|---|---|---|---|
   | AL | 50.35 | 53.57 ± 0.24 | 52.91 ± 0.27 | **+3.22** | **−0.67** |
-  | FL | 69.96 | 72.09 ± 0.08 | 73.16 ± 0.04 | **+2.13** | **+1.08** |
+  | FL | 69.96 | 72.24 ± 0.03 | 73.16 ± 0.04 | **+2.27** | **+0.93** |
 
-  The cross-attn shared trunk is a **better category encoder** than the single-task head (+2.1…+3.2 pp).
-  Genuine region→category transfer is smaller and scale-dependent: **+1.08 at FL** (large state, enough
+  The cross-attn shared trunk is a **better category encoder** than the single-task head (+2.3…+3.2 pp).
+  Genuine region→category transfer is smaller and scale-dependent: **+0.93 at FL** (large state, enough
   data) and slightly **negative at AL** (−0.67; at small data the region signal mildly distracts cat).
-  Both signs hold multi-seed (4-seed {0,1,7,100}, tight σ). The win is mostly a better encoder plus a
-  modest representation-level transfer that materialises at scale.
+  Both signs hold multi-seed (4-seed {0,1,7,100}, tight σ; FL re-run 2026-06-12 under HANDOFF_AUDIT P0 —
+  was +2.13/+1.08, see `cat_transfer_and_T53.md`). The win is mostly a better encoder plus a modest
+  representation-level transfer that materialises at scale.
   (Conservative on two counts: the STL ceiling used logit-adjust, which *helps* STL cat — so the
   architecture share is understated; and the ablation isn't a *perfectly* clean isolation — with reg's
   loss weight 0 the cat stream still attends to the reg stream's keys/values in the bidirectional

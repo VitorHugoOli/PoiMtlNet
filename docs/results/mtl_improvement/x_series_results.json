@@ -1,0 +1,70 @@
+{
+  "runs": {
+    "A_fl_kdoff_ckpt": {
+      "state": "florida",
+      "rundir": "results/check2hgi_design_k_resln_mae_l0_1/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260612_190314_781619",
+      "reg_full": 72.929,
+      "cat_f1": 73.012
+    },
+    "C_fl_kd02": {
+      "state": "florida",
+      "rundir": "results/check2hgi_design_k_resln_mae_l0_1/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260612_190314_781625",
+      "reg_full": 72.976,
+      "cat_f1": 72.447
+    },
+    "D_al_kd02": {
+      "state": "alabama",
+      "rundir": "results/check2hgi_design_k_resln_mae_l0_1/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260612_194301_790591",
+      "reg_full": 62.506,
+      "cat_f1": 52.707
+    },
+    "B_fl_kdoff_fp32": {
+      "state": "florida",
+      "rundir": "results/check2hgi_design_k_resln_mae_l0_1/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260612_194120_790096",
+      "reg_full": 72.924,
+      "cat_f1": 73.012
+    },
+    "E_fl_rollprobe": {
+      "state": "florida",
+      "rundir": "results/check2hgi_design_k_resln_mae_l0_1/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260612_194705_791484",
+      "reg_full": 54.135,
+      "cat_f1": 73.008
+    }
+  },
+  "verdicts": {
+    "X2_G_unchanged_FL": {
+      "A_reg": 72.929,
+      "A_cat": 73.012,
+      "R0_seed0_FL_G_reg": 72.951,
+      "delta_reg_vs_R0": -0.022,
+      "note": "post-fix KD-off G should match R0 seed0 G (aux-gate fix inert on G)"
+    },
+    "X2_KDon_FL": {
+      "C_reg": 72.976,
+      "A_reg": 72.929,
+      "delta_reg": 0.047,
+      "C_cat": 72.447,
+      "delta_cat": -0.565,
+      "promote": false
+    },
+    "X2_KDon_AL": {
+      "D_reg": 62.506,
+      "R0_seed0_AL_G_reg": 62.64,
+      "delta_reg": -0.134,
+      "promote": false
+    },
+    "X4_fp32_eval_FL": {
+      "A_reg_fp16": 72.929,
+      "B_reg_fp32": 72.924,
+      "delta_reg_fp32_minus_fp16": -0.005,
+      "material": false
+    },
+    "X1_roll_probe_FL": {
+      "A_cat_aligned": 73.012,
+      "E_cat_rolled": 73.008,
+      "delta_cat": -0.004,
+      "mixing_dead": true,
+      "note": "reg under roll is meaningless by construction \u2014 read cat-F1 only"
+    }
+  }
+}

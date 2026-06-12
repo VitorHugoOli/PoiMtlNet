@@ -4,6 +4,7 @@ Deduplicates compute_class_weights / setup_optimizer / setup_fold patterns
 that were copy-pasted across category, next, and MTL cross-validation files.
 """
 
+import os
 from typing import Optional, Union
 
 import numpy as np
@@ -159,6 +160,20 @@ def setup_per_head_optimizer(
             alpha_params = [alpha]
             alpha_id = id(alpha)
             reg_params = [p for p in reg_params if id(p) != alpha_id]
+
+    # 2026-06-12 (HANDOFF_AUDIT X3 / CODE_AUDIT P1-C) — same treatment for the
+    # dual-tower fusion scalar β (`priv + β·aux_proj(shared)`). β init 0.1 sits in
+    # the reg group at wd=0.05 and is logged to decay to ≈0 by ~epoch 25 (the exact
+    # AdamW pull-toward-zero F50 diagnosed for α). Env-gated probe: MTL_BETA_NO_WD=1
+    # peels β into the zero-WD group to test whether WD (vs the model's own gradient)
+    # was driving β→0 and thus suppressing the shared→reg pathway. Folded into the
+    # alpha_no_wd group so no new scheduler group is needed. Default unset → no-op.
+    if os.environ.get("MTL_BETA_NO_WD") == "1" and hasattr(model, "next_poi"):
+        beta = getattr(model.next_poi, "beta", None)
+        if isinstance(beta, torch.nn.Parameter) and beta.requires_grad:
+            beta_id = id(beta)
+            reg_params = [p for p in reg_params if id(p) != beta_id]
+            alpha_params = alpha_params + [beta]
 
     # F50 D3/D6 — split reg_params into encoder vs head when EITHER
     # reg_encoder_lr or reg_head_lr is set.

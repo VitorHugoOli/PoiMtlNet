@@ -44,9 +44,11 @@ was *partially invalid*) — but the underlying conclusion survives for a deeper
   baseline is not a promotion candidate.)
 
 ## 2. The decisive mechanistic finding — task gradients are ORTHOGONAL
-`cos(∇L_cat, ∇L_reg)` on the shared trunk ≈ **0** over all 50 epochs at BOTH states (FL mean **+0.0007**,
-AL **+0.0026**; band [−0.08, +0.19], ~50% negative — i.e. zero-mean noise). Figure:
-`docs/studies/mtl_improvement/figs/grad_cosine_tasks.png`. **There is no gradient conflict for any
+`cos(∇L_cat, ∇L_reg)` on the shared trunk ≈ **0** over all 50 epochs — pooled mean **+0.0008** over the
+**16 champion-G runs (4 states × 4 seeds), n=3,797 epoch-fold points** (FL +0.0007 / AL +0.0032 / AZ
+−0.0005 / GE −0.0004; ~50% negative — zero-mean noise). Figure:
+`docs/studies/mtl_improvement/figs/grad_cosine_tasks.png` (widened 2026-06-12 from 2 runs → 16 — H1).
+**There is no gradient conflict for any
 balancer to resolve.** Gradient-surgery / dynamic-weighting methods only help under *strongly negative*
 cosine (high interference); at cos≈0 they cannot help — even correctly wired. This is *why* fixing the
 dual-tower wiring is moot for the verdict.
@@ -111,5 +113,6 @@ Single-seed (seed0) screen + corrected re-run, FL+AL (the cosine≈0 + literatur
 multi-seed unnecessary — there is no candidate to promote). Gradient-surgery wiring under the dual-tower
 is a documented limitation (moot here by cos≈0); if a future *conflicting* task pair is studied, the
 surgery methods' task-specific-param handling must be fixed first (see the audit). Data:
-`T4_full_screen.json`, `T40_rlw_litmus.md`; manifests `t4_full_manifest.tsv`, `t40a_wgrid_manifest.tsv`,
-`t4_corrected_manifest.tsv`.
+`T4_full_screen.json`, **`T4_corrected_rerun.json`** (the §4 corrected re-run + §5 scale-norm cw-grid,
+aggregated 2026-06-12 under HANDOFF_AUDIT H2 — previously markdown-only), `T40_rlw_litmus.md`; manifests
+`t4_full_manifest.tsv`, `t40a_wgrid_manifest.tsv`, `t4_corrected_manifest.tsv`.

@@ -101,7 +101,12 @@ _HEAD_MAX_LR = {
 # Note: next_getnext/next_tgstan/next_stahyper also consume log_T but
 # read last-step embedding from x[..., last_idx] internally — they
 # don't need the aux side channel.
-_HEADS_REQUIRING_AUX = {"next_getnext_hard", "next_getnext_hard_hsm", "next_stan_flow"}
+# 2026-06-12 (HANDOFF_AUDIT X2 / CODE_AUDIT P0-B): added next_stan_flow_dualtower —
+# keep in sync with _HEADS_REQUIRING_AUX_MTL in src/data/folds.py.
+_HEADS_REQUIRING_AUX = {
+    "next_getnext_hard", "next_getnext_hard_hsm", "next_stan_flow",
+    "next_stan_flow_dualtower",
+}
 
 
 def _load_region_embeddings(state: str, source: str = "check2hgi") -> tuple[np.ndarray, int]:

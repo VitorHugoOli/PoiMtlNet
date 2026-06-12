@@ -6,6 +6,21 @@
 > 1 literature analyst, all findings **independently re-verified at the code level** by the design
 > agent before entering this record. Every claim below carries file:line evidence.
 
+> ## ✅ RESOLUTION (X-series executed 2026-06-12 — all probes NULL; full detail: `docs/results/mtl_improvement/X_SERIES_FINDINGS.md`)
+> The three "MTL-only levers" that were structurally disabled (P0-A aligned cross-attn, P0-B
+> log_T-KD-on-G, P1-C β-no-WD) were fixed and exercised; the two stress-tested claims (mixing-dead,
+> "matches"-precision) were checked. **Every result is null or negligible** — the "matches, can't beat"
+> verdict is now earned at a strictly higher standard, and champion G is unchanged:
+> - **P0-A (X1):** roll probe Δcat-F1 **−0.004** → cross-attn mixing is genuinely dead (not a noise-pair
+>   artifact); aligned-training run justified-skipped.
+> - **P0-B (X2):** aux gate **FIXED** (`folds.py` + `p1_region_head_ablation.py`); first real KD-on-G test
+>   **NULL** (FL reg +0.05 / AL reg −0.13, FL cat −0.57); gate fix empirically inert on G (Δ −0.022 vs R0).
+> - **P1-C (X3):** β **decays to ≈0 by gradient even with WD removed** (mean final −0.0001) → β→0 is not a
+>   WD artifact; β-no-WD run NULL (FL reg +0.015 / cat +0.139).
+> - **P1-D (X4):** fp32-eval vs fp16-eval Δreg **−0.005** → the "matches" −0.31pp gap is precision-clean.
+> - **P1-F** (CLI bool coercion) was fixed in-session; **P1-E** (dead `category-weight` under alt-opt) and
+>   **P1-G** items are documentation-only (no rerun). Mechanisms 1-6 → future work (`closing-data`).
+
 ---
 
 ## PART 1 — Code-flow findings

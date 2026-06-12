@@ -146,18 +146,24 @@ question and the user decides scope.
 - Commit discipline: explicit pathspec only (the repo pre-stages unrelated `articles/*`); pin
   `--canon` in every new script (`CANONICAL_VERSIONS.md §The --canon selector`).
 
-## Done-when (closure checklist)
+## Done-when (closure checklist) — ALL DONE 2026-06-12 (no X-probe promoted)
 
-- [ ] P0 resolved: FL cat-transfer numbers verified-or-rerun, manifest fixed, all citing docs settled.
-- [ ] X1: roll probe done; aligned-training run done (or justified-skipped if roll probe Δ≈0 AND
-      the aligned run is deemed redundant — record the reasoning); claims updated either way.
-- [ ] X2: aux gate fixed + smoke green; REAL KD-on-G test run; CHAMPION/CLAIMS settled with the
-      actual result.
-- [ ] X3: β logged; no-WD run if β decays.
-- [ ] X4: eval-precision Δ measured; R0 FL row re-scored if material.
-- [ ] H1: cosine n stated + widened over the existing multistate rundirs; figure re-rendered.
-- [ ] H2: `T4_corrected_rerun.json` (+ AL wgrid) committed.
-- [ ] (H3 optional.)
-- [ ] `log.md` closure entry: "AUDIT PUNCH LIST CLOSED — study CLOSED; CA/TX → closing-data study."
-      (If an X-probe PROMOTED, the entry instead reports it and STOPS for the user's scope decision.)
-- [ ] Push. Do NOT start CA/TX or any new experiment beyond the gated X-runs.
+- [x] **P0 resolved**: FL cat-transfer **re-run** at {1,7,100} (the `s1/s7/s100` rows had mis-pointed to the
+      fully-shared intrinsic-test run, not a duplicate — FL cat-transfer had never run). True FL cat+trunk
+      72.24 ± 0.03; arch +2.27 / transfer +0.93 (was +2.13/+1.08; sign held, −0.15pp < flag threshold).
+      Manifest fixed; `cat_transfer_decomposition_4seed.json`; all 6 citing docs settled.
+- [x] **X1**: roll probe done (Δcat-F1 −0.004 → mixing dead); aligned-training run **justified-skipped**
+      (roll Δ≈0); claims updated (`X_SERIES_FINDINGS.md`, CODE_AUDIT resolution).
+- [x] **X2**: aux gate fixed (both sets) + smoke green (optimizer/forward see real aux, G bit-identical);
+      REAL KD-on-G test run → **NULL** (FL reg +0.05 / AL reg −0.13, FL cat −0.57); CHAMPION §5 + CLAIMS settled.
+- [x] **X3**: β logged (decays 0.108→≈0 by ep~20); no-WD run done → **β→0 is gradient-driven, not WD**
+      (mean final −0.0001); metrics null (Δreg +0.015 / cat +0.139). CHAMPION §2 nuance added.
+- [x] **X4**: eval-precision Δ measured (fp32 vs fp16 FL reg **−0.005**) → immaterial; "matches" precision-clean;
+      R0 FL row NOT re-scored (Δ < 0.1pp).
+- [x] **H1**: cosine widened over the 16 G rundirs (pooled +0.0008, n=3,797, 4 states × 4 seeds); figure
+      re-rendered; seeds stated; WHY + T4 + intrinsic-test docs updated.
+- [x] **H2**: `T4_corrected_rerun.json` (+ AL wgrid) written + verified vs §4/§5; T4 doc references it.
+- [x] **H3**: left "undiagnosed" label (trajectory patterns don't reconcile with the aggregate).
+- [x] **`log.md` closure entry** added (2026-06-12 third pass — AUDIT PUNCH LIST CLOSED; study CLOSED;
+      CA/TX → `closing-data`). No promotion occurred.
+- [ ] **Push** (final step — explicit pathspec). Do NOT start CA/TX or any new experiment.

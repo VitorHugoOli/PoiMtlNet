@@ -18,12 +18,24 @@ so it must be tested, not asserted.
 
 ## Result
 
-| model | reg‖∇‖shared | cat‖∇‖shared | **ratio reg:cat** | **cos(∇cat,∇reg)** |
-|---|---|---|---|---|
-| G dual-tower, FL | 0.0723 | 0.1555 | 0.47 | +0.0007 |
-| G dual-tower, AL | 0.0688 | 0.2661 | 0.26 | +0.0026 |
-| **Fully-shared (no private tower), AL** | **0.3009** | 0.2383 | **1.26** | **+0.0024** |
-| **Fully-shared (no private tower), FL** | **0.3182** | 0.1787 | **1.78** | **+0.0017** |
+| model | seed(s) | rundir | reg‖∇‖shared | cat‖∇‖shared | **ratio reg:cat** | **cos(∇cat,∇reg)** |
+|---|---|---|---|---|---|---|
+| G dual-tower, FL | {0,1,7,100} | R0 `g_rundirs.florida` | 0.0723 | 0.1555 | 0.47 | +0.0007 |
+| G dual-tower, AL | {0,1,7,100} | R0 `g_rundirs.alabama` | 0.0688 | 0.2661 | 0.26 | +0.0026 |
+| **Fully-shared (no private tower), AL** | **42** (R1b non-overlap) | `…20260608` (r1b_shared_overlap_deconfound.sh) | **0.3009** | 0.2383 | **1.26** | **+0.0024** |
+| **Fully-shared (no private tower), FL** | unrecorded (single fresh P0-b run) | `…20260610_031405_3670616` | **0.3182** | 0.1787 | **1.78** | **+0.0017** |
+
+> **Seed provenance (HANDOFF_AUDIT H1, 2026-06-12).** The G dual-tower cosines are the per-state means
+> over the FOUR R0 seeds {0,1,7,100} (not single runs) — the load-bearing cos≈0 figure
+> `figs/grad_cosine_tasks.png` is now pooled over all **16 G rundirs (4 states × 4 seeds), mean +0.0008
+> over 3,797 epoch-fold points** (was "2 static-screen runs, seed 0"). The AL fully-shared run is the R1b
+> non-overlap arm at **seed 42** (`r1b_shared_overlap_deconfound.sh`). The FL fully-shared run was a
+> single ad-hoc P0-b run (rundir `…20260610_031405_3670616`); its **seed is not persisted on disk and the
+> launcher was not committed** — the rundir is identified by its unique grad-ratio-1.78 / reg-top10-0.73
+> signature and is the same artefact the FL row above is computed from. The per-fold val-size fingerprint
+> does not discriminate the seed (StratifiedGroupKFold folds stay ~equal-sized at every seed). Because the
+> conclusion's seed-robustness is independently carried by the 16-run pooled figure (cos +0.0008 over
+> {0,1,7,100} × 4 states), the single confound-check run's exact seed is immaterial to the verdict.
 
 ## Verdict — INTRINSIC orthogonality CONFIRMED (architecture-induced alternative ruled out)
 
@@ -45,11 +57,18 @@ encoder) — it does not *manufacture* it.
 | state | STL cat | cat+trunk, reg-OFF (4-seed) | G (4-seed) | **architecture** | **region→cat transfer** |
 |---|---|---|---|---|---|
 | AL | 50.35 | 53.57 ± 0.24 | 52.91 ± 0.27 | **+3.22** | **−0.67** |
-| FL | 69.96 | 72.09 ± 0.08 | 73.16 ± 0.04 | **+2.13** | **+1.08** |
+| FL | 69.96 | 72.24 ± 0.03 | 73.16 ± 0.04 | **+2.27** | **+0.93** |
 
 The decomposition is **multi-seed-robust** (tight σ): architecture-dominated at both states; genuine
-region→category transfer **+1.08 at FL** (large state) and **−0.67 at AL** (small state — region mildly
+region→category transfer **+0.93 at FL** (large state) and **−0.67 at AL** (small state — region mildly
 distracts cat). Both signs hold multi-seed. (Updates the seed0 estimates +0.89 FL / −0.71 AL.)
+
+> **⚠ P0 fix 2026-06-12 (HANDOFF_AUDIT).** The FL row was **72.09 ± 0.08 / arch +2.13 / transfer +1.08**;
+> its `s1/s7/s100` manifest rows had all pointed to one rundir, which turned out to be the FL
+> *fully-shared* intrinsic-test run below (reg ON), not a cat-transfer run. Re-ran the genuine reg-OFF
+> ablation at {1,7,100} (distinct rundirs, reg cratered ≈0): FL cat+trunk = **72.24 ± 0.03** → arch
+> **+2.27**, transfer **+0.93** (sign unchanged; −0.15pp, below the flag threshold; now closer to the
+> seed0 +0.89). See `cat_transfer_and_T53.md` §a + `cat_transfer_decomposition_4seed.json`.
 
 ## Honesty caveat (advisor confound C) — the ablation is not a *perfectly* clean isolation
 `--category-weight 1.0` → reg loss weight = 0 → reg gets zero gradient (confirmed: reg cratered to

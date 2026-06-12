@@ -745,6 +745,18 @@ def train_model(model: torch.nn.Module,
         if isinstance(head_alpha, torch.Tensor) and head_alpha.numel() == 1:
             diagnostic_payload["head_alpha"] = float(head_alpha.detach().cpu())
 
+        # 2026-06-12 (HANDOFF_AUDIT X3 / CODE_AUDIT P1-C) — β trajectory logging.
+        # The dual-tower head fuses the shared pathway via
+        # `priv_feat + β · aux_proj(shared_feat)` (next_stan_flow_dualtower,
+        # β init 0.1). β sits in the reg param group and is weight-decayed at
+        # wd=0.05 (only α is peeled into the zero-WD group) — the same AdamW
+        # decay-to-zero mechanism F50 diagnosed for α. Logging β per epoch makes
+        # that drift visible (was invisible — only head_alpha was logged). Silent
+        # no-op for heads without a `beta` attribute.
+        head_beta = getattr(next_head, "beta", None)
+        if isinstance(head_beta, torch.Tensor) and head_beta.numel() == 1:
+            diagnostic_payload["head_beta"] = float(head_beta.detach().cpu())
+
         # F50 D5 — encoder trajectory diagnostic. Frobenius norm of current
         # encoder weights, drift from epoch-0 init, and step drift from the
         # previous epoch. Cheap (one cat + two diffs of an O(64×256×L) flat

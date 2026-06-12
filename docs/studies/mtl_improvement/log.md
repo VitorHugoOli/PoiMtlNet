@@ -2313,6 +2313,35 @@ reg flat across all heads (AL range 0.31 / FL 1.16) — the dual-tower isolates 
 
 ---
 
+## 2026-06-12 (third pass) — AUDIT PUNCH LIST CLOSED — study CLOSED; CA/TX → `closing-data`
+
+**Phase**: HANDOFF_AUDIT executed end-to-end on the A40. P0 + X1–X4 + H1–H3. No X-probe promoted → no scope re-open.
+
+**What happened**
+- **P0 (FL cat-transfer integrity) — RESOLVED, finding upgraded.** Forensics: the manifest's FL `s1/s7/s100` rows didn't just triple-count one cat-transfer run — they pointed to rundir `…20260610_031405`, which is **the FL *fully-shared* intrinsic-test run** (reg ON, `NextHeadStanFlow`, reg top10≈0.73, grad-ratio 1.78), captured by the `ls -dt|head` race. FL cat-transfer at {1,7,100} had **never run**. Re-ran the genuine reg-OFF ablation at {1,7,100} (distinct PID-suffixed rundirs, reg cratered ≈0 ✓): true FL cat+trunk = **72.24 ± 0.03** (was 72.09 ± 0.08). Decomposition: **architecture +2.13→+2.27, region-transfer +1.08→+0.93** — **sign UNCHANGED (positive), moved −0.15pp (< the 0.3pp loud-flag threshold)**, now *closer* to the seed0 estimate (+0.89): the contamination had mildly inflated transfer. Manifest fixed; `cat_transfer_decomposition_4seed.json` written; settled cat_transfer_and_T53 / orthogonality_intrinsic_test / PAPER_UPDATE / CHAMPION / WHY / CLAIMS.
+- **X-series (the deep-audit MTL-only levers + claim stress-tests) — ALL NULL.** `X_SERIES_FINDINGS.md`, `x_series_results.json`.
+  - **X2 aux-gate fix** (`folds.py:933-937` + `p1_region_head_ablation.py` now include `next_stan_flow_dualtower`). Post-fix KD-off G = R0 seed0 (Δ −0.022 → gate fix inert on G, bit-identity confirmed). First **real KD-on-G test NULL**: FL reg +0.05 / AL reg −0.13 (≪0.3pp), FL cat −0.57. The old "KD adds nothing on the dual-tower" was a dead-codepath artifact; the verdict now stands on a real test.
+  - **X1 roll probe NULL**: task-b stream rolled by 1 at eval (`MTL_ROLL_TASKB_EVAL`) → FL cat-F1 Δ **−0.004** → cross-attn mixing is genuinely dead, NOT a noise-pair-training artifact. Aligned-training run (step 2) **justified-skipped**.
+  - **X3 β-no-WD NULL, decisively**: β logged to decay 0.108→≈0 by ep~20; re-run with β in a zero-WD group (`MTL_BETA_NO_WD`) **still drives β→0** (mean final −0.0001) → β→0 is **gradient-driven, not a WD artifact**; reg/cat Δ +0.015/+0.139. The model *elects* to gate the shared→reg pathway off → reg genuinely lives in the private tower.
+  - **X4 precision NULL**: fp32-eval (`MTL_DISABLE_AMP_EVAL`) vs fp16 → FL reg Δ **−0.005** → the −0.31pp "matches" gap is precision-clean.
+- **H1**: cos≈0 figure widened from 2 runs → **16 G runs (4 states × 4 seeds), pooled +0.0008, n=3,797 epoch-fold points**; seeds stated (AL fully-shared = seed42; FL fully-shared seed not persisted on disk — recorded honestly; robustness carried by the 16-run figure). WHY + T4 docs updated.
+- **H2**: `T4_corrected_rerun.json` written (corrected re-run §4 + scale-norm cw-grid §5 + AL wgrid), verified bit-for-bit vs the markdown tables.
+- **H3**: left "undiagnosed" label — bayesagg(slow-converge)/excess(late-collapse) fold-1 trajectories don't cleanly reconcile with the diagnostic-best aggregate; not worth overclaiming.
+- **Code**: aux-gate fix, β logging (`mtl_cv.py`), `MTL_DISABLE_AMP_EVAL` (mtl_eval + mtl_validation), `MTL_ROLL_TASKB_EVAL` (mtl_eval), `MTL_BETA_NO_WD` (helpers.py) — all env-gated, **G defaults unchanged**. Tests: `test_mtl_param_partition` + full regression + coercion = 66 green.
+
+**Findings**
+- The "MTL reg matches but cannot beat STL" verdict is now **earned at a strictly higher standard**: every structurally-disabled MTL-only lever (aligned cross-attn, KD-on-G, β-no-WD), when actually exercised, is null; both stress-tested claims (mixing-dead, matches-precision-clean) hold. Champion G **unchanged**.
+
+**Decision**
+- Study **CLOSED**. No champion change, no scope re-open. The large-state (CA/TX) runs remain deferred to the upcoming **`closing-data`** study (run once against the final frozen recipe), per the user decision and HANDOFF_AUDIT scope.
+
+**Chain status**: chain preserved; G's published numbers unchanged; the three formerly-on-hold interpretations (mixing-dead, KD-dead-end, "matches") are now all confirmed on real tests; one paper-bound number corrected (FL region-transfer +1.08 → +0.93, sign held).
+
+**Next**
+- Author-side: T6.2 paper-canon restatement (out of this study's scope). `closing-data`: CA/TX completeness against the final recipe.
+
+---
+
 ## How to add an entry to this log
 
 Use this template for every working session:

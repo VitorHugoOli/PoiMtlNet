@@ -1,4 +1,5 @@
 import contextlib
+import os
 
 import torch
 from sklearn.metrics import classification_report
@@ -18,9 +19,15 @@ def validation_best_model(data_next,
     all_pred_category = []
     all_truth_category = []
 
+    # 2026-06-12 (HANDOFF_AUDIT X4) — honour the same fp32-eval escape hatch as
+    # mtl_eval.evaluate_model so MTL_DISABLE_AMP_EVAL=1 yields a fully fp32 eval.
+    _disable_amp_eval = (
+        os.environ.get("MTL_DISABLE_AMP_EVAL") == "1"
+        or os.environ.get("MTL_DISABLE_AMP") == "1"
+    )
     _autocast_ctx = (
         torch.autocast(DEVICE.type, dtype=torch.float16)
-        if DEVICE.type == 'cuda'
+        if DEVICE.type == 'cuda' and not _disable_amp_eval
         else contextlib.nullcontext()
     )
 

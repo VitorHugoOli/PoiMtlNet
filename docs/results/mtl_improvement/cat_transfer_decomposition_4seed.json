@@ -1,0 +1,48 @@
+{
+  "_note": "P0 re-aggregation after manifest triple-count fix (HANDOFF_AUDIT 2026-06-12). FL cat+trunk is now 4 DISTINCT seeds {0,1,7,100}; supersedes the prior 72.09 (=seed0 + one run counted 3x). Comparands g_cat/stl from R0_matched_metric_bar.json.",
+  "metric": "diagnostic_task_best.next_category.f1.mean (macro-F1, %)",
+  "florida": {
+    "cat_trunk_regOFF_per_seed": {
+      "0": 72.235,
+      "1": 72.195,
+      "7": 72.257,
+      "100": 72.253
+    },
+    "cat_trunk_regOFF_mean": 72.235,
+    "cat_trunk_regOFF_std": 0.025,
+    "n_seeds": 4,
+    "stl_cat_ceiling": 69.963,
+    "g_cat_regON": 73.164,
+    "architecture": 2.272,
+    "region_transfer": 0.929,
+    "total": 3.201,
+    "rundirs": {
+      "0": "results/check2hgi_design_k_resln_mae_l0_1/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260608_185334_3061119",
+      "1": "results/check2hgi_design_k_resln_mae_l0_1/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260612_180342_759371",
+      "7": "results/check2hgi_design_k_resln_mae_l0_1/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260612_180342_759377",
+      "100": "results/check2hgi_design_k_resln_mae_l0_1/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260612_184406_775255"
+    }
+  },
+  "alabama": {
+    "cat_trunk_regOFF_per_seed": {
+      "0": 53.457,
+      "1": 53.621,
+      "7": 53.94,
+      "100": 53.281
+    },
+    "cat_trunk_regOFF_mean": 53.575,
+    "cat_trunk_regOFF_std": 0.243,
+    "n_seeds": 4,
+    "stl_cat_ceiling": 50.352,
+    "g_cat_regON": 52.909,
+    "architecture": 3.223,
+    "region_transfer": -0.666,
+    "total": 2.557,
+    "rundirs": {
+      "0": "results/check2hgi_design_k_resln_mae_l0_1/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260608_185331_3061125",
+      "1": "results/check2hgi_design_k_resln_mae_l0_1/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260610_031508_3671027",
+      "7": "results/check2hgi_design_k_resln_mae_l0_1/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260610_031907_3671875",
+      "100": "results/check2hgi_design_k_resln_mae_l0_1/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260610_032306_3672588"
+    }
+  }
+}
