@@ -19,8 +19,11 @@
 3. **Run the pre-freeze gates** — the cheap tests that could still change the recipe (currently
    one: the aligned-pairing test inherited from `mtl_improvement`) (P0).
 4. **FREEZE the final recipe + protocol** — canon version (v16 = champion G today; v17 only if a
-   gate promotes), **substrate identity** (user decision: v14 vs canonical), seeds {0,1,7,100} ×
-   5 folds (n=20) for every cell, matched-metric fp32-parity scoring, selector (P2 — hard barrier).
+   gate promotes), **substrate = v14 or its blessed successor at launch (user decision 2026-06-12;
+   re-check `CANONICAL_VERSIONS.md`)**, seeds {0,1,7,100} × 5 folds (n=20) for every cell,
+   matched-metric fp32-parity scoring, selector (P2 — hard barrier). External baselines: RE-RUN
+   under this new regime (no reuse of BRACIS-era lighter numbers). Execution splits across three
+   machines (H100 6h / A40 unmetered / M4 Pro local) — see `PLAN.md §Machine allocation`.
 5. **Regenerate the full experimental base ONCE** (P3): CA/TX substrate builds + seeded log_T for
    all reporting seeds; **STL baselines re-run** (per-task ceilings, composite, external baseline
    engines per the matrix); **champion G at all states**; the remaining BRACIS-suite cells; one

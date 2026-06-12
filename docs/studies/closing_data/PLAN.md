@@ -1,7 +1,23 @@
-# closing-data — phase plan (DRAFT v1, 2026-06-12 — re-scoped per user)
+# closing-data — phase plan (DRAFT v2, 2026-06-12 — open questions RESOLVED by user)
 
-> **DRAFT — launch requires user sign-off.** Phases strictly ordered: P0/P1 are cheap and can
-> interleave; **P2 (FREEZE) is a hard barrier** — nothing in P3/P4 starts before the freeze commit.
+> **DRAFT — sign-off on the RUN_MATRIX (P1b output) is the remaining launch gate.** Phases strictly
+> ordered: P0/P1 are cheap and can interleave; **P2 (FREEZE) is a hard barrier** — nothing in P3/P4
+> starts before the freeze commit.
+
+## ✅ Resolved decisions (user, 2026-06-12)
+
+1. **Studies settled?** Working assumption YES — P1a still verifies (esp. `merge_design`
+   ACTIVE-CLOSING) as its first item; a surprise there becomes a pre-freeze gate, not a blocker.
+2. **Substrate identity = v14** (`check2hgi_design_k_resln_mae_l0_1`) — **or whichever newer
+   blessed base exists when this study launches** (check `CANONICAL_VERSIONS.md` at launch; if a
+   v15+/successor substrate was blessed since, freeze THAT instead). Single-substrate board; the
+   canonical `check2hgi` substrate appears only if the story explicitly needs a substrate-
+   comparison panel (T2-style — STORY-DEPENDENT in the matrix).
+3. **External baselines (T5 set): RE-RUN under the NEW regime** — do NOT reuse the BRACIS-era
+   (lighter-protocol) numbers; every kept baseline engine runs at the full frozen protocol
+   (ALL states × 4 seeds × 5 folds). P1b still dispositions per-engine which baselines the matrix
+   carries (existence/relevance), but the protocol question is settled: new regime, full n=20.
+4. **No timeline pressure; execution is split across 3 machines** — see §Machine allocation below.
 >
 > **⭐ What this study IS (re-scoped 2026-06-12):** the **experimental engine for the NEW paper**.
 > The story/narrative of that paper is defined in a follow-up effort and may not reuse every BRACIS
@@ -64,9 +80,9 @@ the new paper keeps them and at what protocol), **§0.3** substrate axis, **§0.
 
 - **Recipe**: v16 (champion G) or v17 if a P0 gate promoted — pinned in
   `docs/results/CANONICAL_VERSIONS.md` + `NORTH_STAR.md`.
-- **Substrate identity** (user decision — paper-level): the new paper's numbers live on ONE declared
-  substrate (v14 `check2hgi_design_k_resln_mae_l0_1` vs canonical `check2hgi`); mixed tables only if
-  the story explicitly compares substrates (T2-style).
+- **Substrate identity — DECIDED (user 2026-06-12): v14**, or whichever newer blessed base exists at
+  launch (re-check `CANONICAL_VERSIONS.md` then). Single-substrate board; canonical appears only in
+  an explicit STORY-DEPENDENT comparison panel.
 - **Protocol**: ALL states × seeds **{0,1,7,100}** × **5 folds** (n=20) for every cell; user-disjoint
   frozen folds; matched-metric scoring (`r0_matched_rescore.py` method — FULL `top10_acc`, fp32-eval
   parity); checkpoint selector `geom_simple`; per-state recipe variants decision (ONE recipe, or a
@@ -86,7 +102,9 @@ promising the rest** — builds dominate the budget.
 ### M1 — STL baselines re-run (the comparand side)
 At ALL states × {0,1,7,100} × 5f under the frozen protocol: per-task **STL ceilings** (cat +
 reg, p1 harness on the frozen substrate); the **(d) composite** (incl. its HGI-reg component if the
-matrix keeps it); the **external baseline engines** (T5 set) per the RUN_MATRIX disposition.
+matrix keeps it); the **external baseline engines** (T5 set) — **decided: RE-RUN under the new
+regime at the full n=20 protocol** (no reuse of BRACIS-era lighter-protocol numbers); P1b
+dispositions per-engine existence/relevance only.
 
 ### M2 — MTL champion
 Frozen-recipe **G at ALL states × {0,1,7,100} × 5f**. Recorded prediction to test at CA/TX: the C25
@@ -115,17 +133,26 @@ truth**. Per-cell provenance (rundir, seed, fold, commit) embedded; C28 manifest
 
 ---
 
-## Budget sketch (refine after P1b + the first CA build)
-P0–P1: <1 GPU-h + reading. P3: dominated by (a) the CA/TX v14 builds (multi-day class — measure
-first) and (b) the full board ≈ [#engines-kept × 6 states + G + ceilings + composite] × 4 seeds × 5f
-— at A40 timing (~14 min/seed-FL-MTL, small states ~2-3 min) the champion+ceiling board is hours,
-not days; the baseline-engine re-runs scale with how much of T5 the matrix keeps. P4: ~0.
+## Machine allocation (user, 2026-06-12 — three boxes, no timeline pressure)
 
-## Open questions for the user before launch
-1. Are all improvement studies the user wants closed actually closed (is `merge_design`
-   ACTIVE-CLOSING settled)?
-2. **Substrate identity for the new paper** — v14 everywhere (the better base, breaks continuity
-   with BRACIS-v11) vs canonical (continuity, weaker)? Drives M0/M1 scope.
-3. **External baselines (T5 set)** — keep for the new paper? If yes, at the full n=20 protocol
-   (BRACIS ran them lighter) → sizeable M1 addition; per-engine keep/drop happens in P1b.
-4. Timeline pressure (camera-ready / thesis dates) that constrains P3 ordering?
+| machine | budget | role |
+|---|---|---|
+| **H100** | **6 h TOTAL** | The scarce burst — spend it on the single most serial-critical, highest-speedup item that MEASURABLY fits. Default: the **CA/TX v14 substrate builds** (the critical path for everything large-state). Rule: measure the CA build's first epochs → extrapolate; if one build > ~5 h, do CA on the H100 and TX on the A40 (slow but unmetered); if builds don't fit at all, flip roles — builds go to the A40 and the H100 burns through the largest batched RUN waves (CA/TX champion + ceilings are the most per-run expensive). Do NOT spend H100 time on anything the A40 can absorb overnight. |
+| **A40** | unmetered | **The workhorse.** The full run board (M1 baselines, M2 champion, M3 suite cells) at AL/AZ/GE/FL + whatever large-state work the H100 didn't take. Existing drivers/manifest patterns apply (PID-suffixed rundirs, per-run seed echo — C28). |
+| **M4 Pro 32GB (local, MPS)** | unmetered | **Prep + scoring + small-state lane**: fold freezing, seeded log_T builds, input generation, RUN_MATRIX/aggregation/re-score scripts (M4 of P3), doc settling; small-state (AL/AZ) STL/baseline runs only if the GPUs are saturated — mind the MPS caveats (`docs/infra/`, memory: no AMP on MPS, fp32, slower; per-machine guidance in `docs/infra/README.md`). |
+
+Coordination rules: every machine writes to its own manifest (merged in M4); artifacts sync per
+`docs/infra/` (Drive/git); **the H100's 6 h are not started until the exact job list for it is
+written down and timed on the A40 first** (no exploratory spending on the metered box).
+
+## Budget sketch (refine after P1b + the first CA build)
+P0–P1: <1 GPU-h + reading. P3: dominated by (a) the CA/TX v14 builds (multi-day class on A40;
+the H100's 6 h likely buys one build — measure first) and (b) the full board ≈ [#engines-kept ×
+6 states + G + ceilings + composite] × 4 seeds × 5f — at A40 timing (~14 min/seed-FL-MTL, small
+states ~2-3 min) the champion+ceiling board is hours-to-a-day; the external-baseline re-runs at
+full n=20 (decided) scale with #engines the matrix keeps. P4: ~0.
+
+## Remaining sign-off before launch
+The four pre-launch questions are RESOLVED (top of file). The one remaining gate: **user sign-off on
+`RUN_MATRIX.md`** (the P1b output — which engines/cells the board carries) together with the P2
+freeze commit.

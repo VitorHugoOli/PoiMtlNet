@@ -50,6 +50,25 @@
 
 ---
 
+## 2026-06-12 — Pre-launch questions RESOLVED (user) → PLAN v2; machine allocation defined
+
+**Phase**: pre-launch draft refinement (design agent + user).
+
+**Decisions (user)**
+1. Studies settled — working assumption YES; P1a verifies (`merge_design` first).
+2. **Substrate = v14** or whichever newer blessed base exists at launch (re-check
+   `CANONICAL_VERSIONS.md` then). Single-substrate board.
+3. **External baselines: RE-RUN under the NEW regime** at the full n=20 protocol — no reuse of
+   BRACIS-era lighter-protocol numbers. P1b dispositions per-engine existence/relevance only.
+4. No timeline pressure. **Execution split across 3 machines**: H100 (**6 h TOTAL** — the metered
+   burst, default = CA/TX v14 builds, job list must be timed on the A40 before spending), A40
+   (unmetered workhorse — the run board), M4 Pro 32GB (prep/scoring/small-state lane, MPS caveats
+   per `docs/infra/`). Coordination: per-machine manifests merged at M4; C28 rundir rules.
+
+**Remaining launch gate**: user sign-off on `RUN_MATRIX.md` (P1b) together with the P2 freeze.
+
+---
+
 ## How to add an entry
 
 ```markdown
