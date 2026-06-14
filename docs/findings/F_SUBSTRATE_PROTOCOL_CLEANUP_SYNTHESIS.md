@@ -112,7 +112,7 @@ finding); the value is STL/representation-quality/generality only — never impl
 improves MTL.
 
 Source: `../results/substrate_protocol_cleanup/tier_resln/phase_resln_verdict.md`,
-`../studies/substrate-protocol-cleanup/canonical_improvement_coverage_audit.md`.
+`../studies/archive/substrate-protocol-cleanup/canonical_improvement_coverage_audit.md`.
 
 ## 6. The deployable conclusion + the v12 default
 
@@ -128,5 +128,5 @@ Source: `../results/substrate_protocol_cleanup/tier_resln/phase_resln_verdict.md
 
 See also: [`../results/CANONICAL_VERSIONS.md`](../results/CANONICAL_VERSIONS.md),
 [`../results/RESULTS_TABLE.md §0.8` + `§0.9`](../results/RESULTS_TABLE.md),
-[`../studies/substrate-protocol-cleanup/CLOSURE.md`](../studies/substrate-protocol-cleanup/CLOSURE.md),
+[`../studies/archive/substrate-protocol-cleanup/CLOSURE.md`](../studies/archive/substrate-protocol-cleanup/CLOSURE.md),
 [`../NORTH_STAR.md`](../NORTH_STAR.md), [`../CONCERNS.md` C15](../CONCERNS.md).

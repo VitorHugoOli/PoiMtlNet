@@ -1,8 +1,8 @@
 # MTL Improvement — Tier 0 + Tier 1 results of record (2026-06-03)
 
 Consolidated numbers for the Tier-0/Tier-1 execution. The narrative + verdicts live in
-[`docs/studies/mtl_improvement/INDEX.html`](../../studies/mtl_improvement/INDEX.html) (Results
-blocks) and [`log.md`](../../studies/mtl_improvement/log.md). This file is the durable, greppable
+[`docs/studies/archive/mtl_improvement/INDEX.html`](../../studies/archive/mtl_improvement/INDEX.html) (Results
+blocks) and [`log.md`](../../studies/archive/mtl_improvement/log.md). This file is the durable, greppable
 record — especially for the MTL board cells, whose per-fold run dirs sit under the gitignored
 `results/` tree.
 
@@ -233,7 +233,7 @@ P4 (LOW) driver manifest path says `embedding_eval/` but p1 writes `docs/results
 
 ## Audit close-out (O1–O5) — 2026-06-04
 
-Closing the 5 open items from [`../../studies/mtl_improvement/AUDIT_TIER1_TIERS_2026-06-03.md §6`](../../studies/mtl_improvement/archaive/AUDIT_TIER1_TIERS_2026-06-03.md).
+Closing the 5 open items from [`../../studies/archive/mtl_improvement/AUDIT_TIER1_TIERS_2026-06-03.md §6`](../../studies/archive/mtl_improvement/archaive/AUDIT_TIER1_TIERS_2026-06-03.md).
 
 ### O1 — the α=0 "prior is a drag" finding (SETTLED — both audit hypotheses falsified)
 Re-ran the prior-ON STL-reg config (`next_stan_flow`, **learnable** α init 0.1, prior ON, v14 region-emb,

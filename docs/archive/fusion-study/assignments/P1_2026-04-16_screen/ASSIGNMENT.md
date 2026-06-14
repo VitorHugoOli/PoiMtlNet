@@ -2,7 +2,7 @@
 
 **Scope:** 210 planned tests = 5 archs × 21 optimizers × 2 states × 1 stage (screen).
 **Tier:** `screen` — 1 fold × 10 epochs × batch 4096 × seed 42 × fusion engine.
-**State pinning:** Alabama → M2 Pro, Arizona → Linux 4050 (hardware-consistency contract, see `docs/studies/fusion/machines.yaml`).
+**State pinning:** Alabama → M2 Pro, Arizona → Linux 4050 (hardware-consistency contract, see `docs/studies/archive/fusion/machines.yaml`).
 **Coordinator:** Opus on M2 Pro (this machine). Owns state.json writes. Sub-worker machines use `--no-sync` and never touch state.json.
 
 ---
@@ -21,7 +21,7 @@
 ## mac-m2  (primary, owns state.json)
 
 **Tests:** 105 (all P1_AL_screen_*).
-**Test-ID list:** `docs/studies/fusion/assignments/P1_2026-04-16_screen/mac-m2_test_ids.txt`.
+**Test-ID list:** `docs/studies/archive/fusion/assignments/P1_2026-04-16_screen/mac-m2_test_ids.txt`.
 **Estimated wall-clock:** 105 × ~1 min ≈ 1h 45m sequential on MPS.
 
 ### Prompt to paste in the local Sonnet session
@@ -37,7 +37,7 @@ use --no-sync so state.json stays coordinator-owned.
 ## Hard rules
 
 - Run ONLY the test-IDs in the list at
-  `docs/studies/fusion/assignments/P1_2026-04-16_screen/mac-m2_test_ids.txt`.
+  `docs/studies/archive/fusion/assignments/P1_2026-04-16_screen/mac-m2_test_ids.txt`.
 - Use --no-sync on every `study.py next` call.
 - Do NOT touch src/, state.json, or any other study file.
 - Do NOT modify experiment.py, model configs, or loss registry.
@@ -66,13 +66,13 @@ while read TID; do
     echo "FAILED: $TID (rc=$rc) — stopping loop"
     exit $rc
   fi
-done < docs/studies/fusion/assignments/P1_2026-04-16_screen/mac-m2_test_ids.txt
+done < docs/studies/archive/fusion/assignments/P1_2026-04-16_screen/mac-m2_test_ids.txt
 ```
 
 ## At the end
 
 Print a summary listing:
-  - how many tests ran successfully (count of `results/<phase>/<test_id>/summary.json` files under docs/studies/fusion/results/P1/ belonging to AL)
+  - how many tests ran successfully (count of `results/<phase>/<test_id>/summary.json` files under docs/studies/archive/fusion/results/P1/ belonging to AL)
   - any stale .heartbeat files (indicates a silent death)
   - first failing test-ID if the loop stopped early
 
@@ -86,7 +86,7 @@ Do NOT run `study.py import` or `study.py analyze`. The coordinator
 ## linux-4050  (CUDA sub-worker)
 
 **Tests:** 105 (all P1_AZ_screen_*).
-**Test-ID list:** `docs/studies/fusion/assignments/P1_2026-04-16_screen/linux-4050_test_ids.txt`.
+**Test-ID list:** `docs/studies/archive/fusion/assignments/P1_2026-04-16_screen/linux-4050_test_ids.txt`.
 **Estimated wall-clock:** 105 × ~30s on 4050 ≈ 55 min.
 
 ### One-time setup on linux-4050
@@ -123,7 +123,7 @@ state.json directly — use --no-sync.
 ## Hard rules
 
 - Run ONLY the test-IDs in the list at
-  `docs/studies/fusion/assignments/P1_2026-04-16_screen/linux-4050_test_ids.txt`.
+  `docs/studies/archive/fusion/assignments/P1_2026-04-16_screen/linux-4050_test_ids.txt`.
 - Use --no-sync on every `study.py next` call.
 - Do NOT touch src/, state.json, or any other study file.
 - Do NOT modify experiment.py, model configs, or loss registry.
@@ -164,7 +164,7 @@ while read TID; do
     echo "FAILED: $TID (rc=$rc) — stopping loop"
     exit $rc
   fi
-done < docs/studies/fusion/assignments/P1_2026-04-16_screen/linux-4050_test_ids.txt
+done < docs/studies/archive/fusion/assignments/P1_2026-04-16_screen/linux-4050_test_ids.txt
 ```
 
 ## After all tests run
@@ -173,15 +173,15 @@ Rsync results back to the coordinator (M2 Pro):
 
 ```bash
 rsync -avz --progress \
-  docs/studies/fusion/results/P1/ \
-  vitor@<m2-pro-host>:/Users/vitor/Desktop/mestrado/ingred/docs/studies/fusion/results/P1/
+  docs/studies/archive/fusion/results/P1/ \
+  vitor@<m2-pro-host>:/Users/vitor/Desktop/mestrado/ingred/docs/studies/archive/fusion/results/P1/
 # Also sync the per-test heartbeat/summary artifacts
 ```
 
 ## Final report
 
 Print a summary with:
-  - successful test count (count summary.json files in docs/studies/fusion/results/P1/P1_AZ_*/)
+  - successful test count (count summary.json files in docs/studies/archive/fusion/results/P1/P1_AZ_*/)
   - stale .heartbeat files (if any)
   - first failing test-ID if the loop stopped early
 

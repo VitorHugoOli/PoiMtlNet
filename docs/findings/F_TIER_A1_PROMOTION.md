@@ -1,6 +1,6 @@
 # F_TIER_A1_PROMOTION — log_T-KD multi-seed promotion (substrate-protocol-cleanup Tier A1)
 
-**Date:** 2026-05-29. **Study:** [`studies/substrate-protocol-cleanup/`](../studies/substrate-protocol-cleanup/) Tier A1. **Claim:** CH26. **Cross-ref:** [`F_TIER_A1_LEAK_AUDIT.md`](F_TIER_A1_LEAK_AUDIT.md) (independent 7-vector leak audit — NO LEAK). **Cost:** ~2.5 GPU-h (1 h small-state sweep + 1.5 h large-state pilot).
+**Date:** 2026-05-29. **Study:** [`studies/archive/substrate-protocol-cleanup/`](../studies/archive/substrate-protocol-cleanup/) Tier A1. **Claim:** CH26. **Cross-ref:** [`F_TIER_A1_LEAK_AUDIT.md`](F_TIER_A1_LEAK_AUDIT.md) (independent 7-vector leak audit — NO LEAK). **Cost:** ~2.5 GPU-h (1 h small-state sweep + 1.5 h large-state pilot).
 
 ## Question
 

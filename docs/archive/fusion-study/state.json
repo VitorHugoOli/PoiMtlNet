@@ -29,7 +29,7 @@
       "test_id": "P1_phase_level",
       "type": "methodology",
       "raised_at": "2026-04-17T08:38:11+00:00",
-      "description": "F1: joint-peak checkpoint selection biases config rankings. AL winner mmoe4\u00d7gradnorm (joint@J=0.4082) drops to mid-pack under per-task-best (joint@T=0.4220); equal_weight leads at joint@T. See docs/studies/fusion/issues/P1_METHODOLOGY_FLAWS.md F1 and claim C32.",
+      "description": "F1: joint-peak checkpoint selection biases config rankings. AL winner mmoe4\u00d7gradnorm (joint@J=0.4082) drops to mid-pack under per-task-best (joint@T=0.4220); equal_weight leads at joint@T. See docs/studies/archive/fusion/issues/P1_METHODOLOGY_FLAWS.md F1 and claim C32.",
       "status": "open",
       "resolution": null
     },
@@ -192,7 +192,7 @@
             "epochs": 50,
             "seed": 42
           },
-          "results_archive": "docs/studies/fusion/results/P0/leakage_ablation/alabama/baseline/mtl_results",
+          "results_archive": "docs/studies/archive/fusion/results/P0/leakage_ablation/alabama/baseline/mtl_results",
           "observed": {
             "cat_f1": 0.7855,
             "cat_f1_std": 0.0,
@@ -223,7 +223,7 @@
             "epochs": 50,
             "seed": 42
           },
-          "results_archive": "docs/studies/fusion/results/P0/leakage_ablation/alabama/C_fclass_shuffle/mtl_results",
+          "results_archive": "docs/studies/archive/fusion/results/P0/leakage_ablation/alabama/C_fclass_shuffle/mtl_results",
           "observed": {
             "cat_f1": 0.14366,
             "cat_f1_std": 0.0,
@@ -254,7 +254,7 @@
             "epochs": 50,
             "seed": 42
           },
-          "results_archive": "docs/studies/fusion/results/P0/leakage_ablation/florida/baseline/mtl_results",
+          "results_archive": "docs/studies/archive/fusion/results/P0/leakage_ablation/florida/baseline/mtl_results",
           "observed": {
             "cat_f1": 0.7649,
             "cat_f1_std": 0.0,
@@ -285,7 +285,7 @@
             "epochs": 50,
             "seed": 42
           },
-          "results_archive": "docs/studies/fusion/results/P0/leakage_ablation/florida/C_fclass_shuffle/mtl_results",
+          "results_archive": "docs/studies/archive/fusion/results/P0/leakage_ablation/florida/C_fclass_shuffle/mtl_results",
           "observed": {
             "cat_f1": 0.1506,
             "cat_f1_std": 0.0,
@@ -303,7 +303,7 @@
           "status": "archived",
           "phase": "P0",
           "test_id": "cbic_AL_dgi",
-          "results_archive": "docs/studies/fusion/results/P0/cbic_AL_dgi",
+          "results_archive": "docs/studies/archive/fusion/results/P0/cbic_AL_dgi",
           "observed": {
             "cat_f1": 0.4610095679759979,
             "cat_f1_std": 0.015623388110921671,
@@ -373,7 +373,7 @@
             "epochs": 50,
             "seed": 42
           },
-          "results_archive": "docs/studies/fusion/results/P0/leakage_ablation/alabama/A_no_hierarchy/mtl_results",
+          "results_archive": "docs/studies/archive/fusion/results/P0/leakage_ablation/alabama/A_no_hierarchy/mtl_results",
           "observed": {
             "cat_f1": 0.7992,
             "cat_f1_std": 0.0,
@@ -404,7 +404,7 @@
             "epochs": 50,
             "seed": 42
           },
-          "results_archive": "docs/studies/fusion/results/P0/leakage_ablation/alabama/B_uniform_negs/mtl_results",
+          "results_archive": "docs/studies/archive/fusion/results/P0/leakage_ablation/alabama/B_uniform_negs/mtl_results",
           "observed": {
             "cat_f1": 0.7723,
             "cat_f1_std": 0.0,
@@ -435,7 +435,7 @@
             "epochs": 50,
             "seed": 42
           },
-          "results_archive": "docs/studies/fusion/results/P0/leakage_ablation/alabama/AB_both/mtl_results",
+          "results_archive": "docs/studies/archive/fusion/results/P0/leakage_ablation/alabama/AB_both/mtl_results",
           "observed": {
             "cat_f1": 0.769,
             "cat_f1_std": 0.0,
@@ -500,7 +500,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_base_equal_weight_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_base_equal_weight_seed42",
           "observed": {
             "cat_f1": 0.7242016196250916,
             "cat_f1_std": 0.0,
@@ -567,7 +567,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_base_static_weight_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_base_static_weight_seed42",
           "observed": {
             "cat_f1": 0.6991031765937805,
             "cat_f1_std": 0.0,
@@ -634,7 +634,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_base_uncertainty_weighting_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_base_uncertainty_weighting_seed42",
           "observed": {
             "cat_f1": 0.7183159589767456,
             "cat_f1_std": 0.0,
@@ -701,7 +701,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_base_dwa_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_base_dwa_seed42",
           "observed": {
             "cat_f1": 0.7135671377182007,
             "cat_f1_std": 0.0,
@@ -768,7 +768,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_base_famo_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_base_famo_seed42",
           "observed": {
             "cat_f1": 0.707279622554779,
             "cat_f1_std": 0.0,
@@ -835,7 +835,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_base_bayesagg_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_base_bayesagg_mtl_seed42",
           "observed": {
             "cat_f1": 0.7127655744552612,
             "cat_f1_std": 0.0,
@@ -902,7 +902,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_base_excess_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_base_excess_mtl_seed42",
           "observed": {
             "cat_f1": 0.7248828411102295,
             "cat_f1_std": 0.0,
@@ -969,7 +969,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_base_nash_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_base_nash_mtl_seed42",
           "observed": {
             "cat_f1": 0.7151654958724976,
             "cat_f1_std": 0.0,
@@ -1036,7 +1036,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_base_stch_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_base_stch_seed42",
           "observed": {
             "cat_f1": 0.7205296754837036,
             "cat_f1_std": 0.0,
@@ -1103,7 +1103,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_base_pcgrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_base_pcgrad_seed42",
           "observed": {
             "cat_f1": 0.7087053060531616,
             "cat_f1_std": 0.0,
@@ -1170,7 +1170,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_base_gradnorm_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_base_gradnorm_seed42",
           "observed": {
             "cat_f1": 0.7060256004333496,
             "cat_f1_std": 0.0,
@@ -1237,7 +1237,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_base_cagrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_base_cagrad_seed42",
           "observed": {
             "cat_f1": 0.705054521560669,
             "cat_f1_std": 0.0,
@@ -1304,7 +1304,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_base_aligned_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_base_aligned_mtl_seed42",
           "observed": {
             "cat_f1": 0.7002366185188293,
             "cat_f1_std": 0.0,
@@ -1371,7 +1371,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_base_db_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_base_db_mtl_seed42",
           "observed": {
             "cat_f1": 0.6983314752578735,
             "cat_f1_std": 0.0,
@@ -1438,7 +1438,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_base_fairgrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_base_fairgrad_seed42",
           "observed": {
             "cat_f1": 0.7036292552947998,
             "cat_f1_std": 0.0,
@@ -1508,7 +1508,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc22_equal_weight_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc22_equal_weight_seed42",
           "observed": {
             "cat_f1": 0.7447363138198853,
             "cat_f1_std": 0.0,
@@ -1578,7 +1578,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc22_static_weight_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc22_static_weight_seed42",
           "observed": {
             "cat_f1": 0.7226676940917969,
             "cat_f1_std": 0.0,
@@ -1648,7 +1648,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc22_uncertainty_weighting_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc22_uncertainty_weighting_seed42",
           "observed": {
             "cat_f1": 0.7500264644622803,
             "cat_f1_std": 0.0,
@@ -1718,7 +1718,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc22_dwa_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc22_dwa_seed42",
           "observed": {
             "cat_f1": 0.7477262020111084,
             "cat_f1_std": 0.0,
@@ -1788,7 +1788,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc22_famo_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc22_famo_seed42",
           "observed": {
             "cat_f1": 0.7203854918479919,
             "cat_f1_std": 0.0,
@@ -1858,7 +1858,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc22_bayesagg_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc22_bayesagg_mtl_seed42",
           "observed": {
             "cat_f1": 0.7719820737838745,
             "cat_f1_std": 0.0,
@@ -1928,7 +1928,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc22_excess_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc22_excess_mtl_seed42",
           "observed": {
             "cat_f1": 0.7432141304016113,
             "cat_f1_std": 0.0,
@@ -1998,7 +1998,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc22_nash_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc22_nash_mtl_seed42",
           "observed": {
             "cat_f1": 0.7501649856567383,
             "cat_f1_std": 0.0,
@@ -2068,7 +2068,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc22_stch_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc22_stch_seed42",
           "observed": {
             "cat_f1": 0.7173701524734497,
             "cat_f1_std": 0.0,
@@ -2138,7 +2138,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc22_pcgrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc22_pcgrad_seed42",
           "observed": {
             "cat_f1": 0.7374017238616943,
             "cat_f1_std": 0.0,
@@ -2208,7 +2208,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc22_gradnorm_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc22_gradnorm_seed42",
           "observed": {
             "cat_f1": 0.5421099066734314,
             "cat_f1_std": 0.0,
@@ -2278,7 +2278,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc22_cagrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc22_cagrad_seed42",
           "observed": {
             "cat_f1": 0.7569842338562012,
             "cat_f1_std": 0.0,
@@ -2348,7 +2348,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc22_aligned_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc22_aligned_mtl_seed42",
           "observed": {
             "cat_f1": 0.7533732652664185,
             "cat_f1_std": 0.0,
@@ -2418,7 +2418,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc22_db_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc22_db_mtl_seed42",
           "observed": {
             "cat_f1": 0.7262221574783325,
             "cat_f1_std": 0.0,
@@ -2488,7 +2488,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc22_fairgrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc22_fairgrad_seed42",
           "observed": {
             "cat_f1": 0.7251678705215454,
             "cat_f1_std": 0.0,
@@ -2558,7 +2558,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc21_equal_weight_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc21_equal_weight_seed42",
           "observed": {
             "cat_f1": 0.7707889080047607,
             "cat_f1_std": 0.0,
@@ -2628,7 +2628,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc21_static_weight_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc21_static_weight_seed42",
           "observed": {
             "cat_f1": 0.7595197558403015,
             "cat_f1_std": 0.0,
@@ -2698,7 +2698,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc21_uncertainty_weighting_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc21_uncertainty_weighting_seed42",
           "observed": {
             "cat_f1": 0.7747539281845093,
             "cat_f1_std": 0.0,
@@ -2768,7 +2768,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc21_dwa_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc21_dwa_seed42",
           "observed": {
             "cat_f1": 0.7657468318939209,
             "cat_f1_std": 0.0,
@@ -2838,7 +2838,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc21_famo_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc21_famo_seed42",
           "observed": {
             "cat_f1": 0.7671375274658203,
             "cat_f1_std": 0.0,
@@ -2908,7 +2908,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc21_bayesagg_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc21_bayesagg_mtl_seed42",
           "observed": {
             "cat_f1": 0.7735085487365723,
             "cat_f1_std": 0.0,
@@ -2978,7 +2978,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc21_excess_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc21_excess_mtl_seed42",
           "observed": {
             "cat_f1": 0.7693943977355957,
             "cat_f1_std": 0.0,
@@ -3048,7 +3048,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc21_nash_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc21_nash_mtl_seed42",
           "observed": {
             "cat_f1": 0.763385534286499,
             "cat_f1_std": 0.0,
@@ -3118,7 +3118,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc21_stch_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc21_stch_seed42",
           "observed": {
             "cat_f1": 0.7593808174133301,
             "cat_f1_std": 0.0,
@@ -3188,7 +3188,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc21_pcgrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc21_pcgrad_seed42",
           "observed": {
             "cat_f1": 0.7663781046867371,
             "cat_f1_std": 0.0,
@@ -3258,7 +3258,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc21_gradnorm_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc21_gradnorm_seed42",
           "observed": {
             "cat_f1": 0.5351596474647522,
             "cat_f1_std": 0.0,
@@ -3328,7 +3328,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc21_cagrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc21_cagrad_seed42",
           "observed": {
             "cat_f1": 0.7622976303100586,
             "cat_f1_std": 0.0,
@@ -3398,7 +3398,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc21_aligned_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc21_aligned_mtl_seed42",
           "observed": {
             "cat_f1": 0.7622976303100586,
             "cat_f1_std": 0.0,
@@ -3468,7 +3468,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc21_db_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc21_db_mtl_seed42",
           "observed": {
             "cat_f1": 0.7423874139785767,
             "cat_f1_std": 0.0,
@@ -3538,7 +3538,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_cgc21_fairgrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_cgc21_fairgrad_seed42",
           "observed": {
             "cat_f1": 0.7593178749084473,
             "cat_f1_std": 0.0,
@@ -3607,7 +3607,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_mmoe4_equal_weight_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_mmoe4_equal_weight_seed42",
           "observed": {
             "cat_f1": 0.7641214728355408,
             "cat_f1_std": 0.0,
@@ -3676,7 +3676,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_mmoe4_static_weight_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_mmoe4_static_weight_seed42",
           "observed": {
             "cat_f1": 0.7484946846961975,
             "cat_f1_std": 0.0,
@@ -3745,7 +3745,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_mmoe4_uncertainty_weighting_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_mmoe4_uncertainty_weighting_seed42",
           "observed": {
             "cat_f1": 0.769368052482605,
             "cat_f1_std": 0.0,
@@ -3814,7 +3814,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_mmoe4_dwa_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_mmoe4_dwa_seed42",
           "observed": {
             "cat_f1": 0.7544585466384888,
             "cat_f1_std": 0.0,
@@ -3883,7 +3883,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_mmoe4_famo_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_mmoe4_famo_seed42",
           "observed": {
             "cat_f1": 0.7554324865341187,
             "cat_f1_std": 0.0,
@@ -3952,7 +3952,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_mmoe4_bayesagg_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_mmoe4_bayesagg_mtl_seed42",
           "observed": {
             "cat_f1": 0.770569920539856,
             "cat_f1_std": 0.0,
@@ -4021,7 +4021,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_mmoe4_excess_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_mmoe4_excess_mtl_seed42",
           "observed": {
             "cat_f1": 0.7536561489105225,
             "cat_f1_std": 0.0,
@@ -4090,7 +4090,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_mmoe4_nash_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_mmoe4_nash_mtl_seed42",
           "observed": {
             "cat_f1": 0.7733123302459717,
             "cat_f1_std": 0.0,
@@ -4159,7 +4159,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_mmoe4_stch_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_mmoe4_stch_seed42",
           "observed": {
             "cat_f1": 0.7592737674713135,
             "cat_f1_std": 0.0,
@@ -4228,7 +4228,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_mmoe4_pcgrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_mmoe4_pcgrad_seed42",
           "observed": {
             "cat_f1": 0.7577792406082153,
             "cat_f1_std": 0.0,
@@ -4297,7 +4297,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_mmoe4_gradnorm_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_mmoe4_gradnorm_seed42",
           "observed": {
             "cat_f1": 0.7578949928283691,
             "cat_f1_std": 0.0,
@@ -4366,7 +4366,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_mmoe4_cagrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_mmoe4_cagrad_seed42",
           "observed": {
             "cat_f1": 0.7637700438499451,
             "cat_f1_std": 0.0,
@@ -4435,7 +4435,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_mmoe4_aligned_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_mmoe4_aligned_mtl_seed42",
           "observed": {
             "cat_f1": 0.7704898118972778,
             "cat_f1_std": 0.0,
@@ -4504,7 +4504,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_mmoe4_db_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_mmoe4_db_mtl_seed42",
           "observed": {
             "cat_f1": 0.7490453124046326,
             "cat_f1_std": 0.0,
@@ -4573,7 +4573,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_mmoe4_fairgrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_mmoe4_fairgrad_seed42",
           "observed": {
             "cat_f1": 0.7502837181091309,
             "cat_f1_std": 0.0,
@@ -4644,7 +4644,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_dsk42_equal_weight_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_dsk42_equal_weight_seed42",
           "observed": {
             "cat_f1": 0.658250093460083,
             "cat_f1_std": 0.0,
@@ -4715,7 +4715,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_dsk42_static_weight_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_dsk42_static_weight_seed42",
           "observed": {
             "cat_f1": 0.6404716968536377,
             "cat_f1_std": 0.0,
@@ -4786,7 +4786,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_dsk42_uncertainty_weighting_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_dsk42_uncertainty_weighting_seed42",
           "observed": {
             "cat_f1": 0.6564577221870422,
             "cat_f1_std": 0.0,
@@ -4857,7 +4857,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_dsk42_dwa_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_dsk42_dwa_seed42",
           "observed": {
             "cat_f1": 0.6550215482711792,
             "cat_f1_std": 0.0,
@@ -4928,7 +4928,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_dsk42_famo_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_dsk42_famo_seed42",
           "observed": {
             "cat_f1": 0.6514343023300171,
             "cat_f1_std": 0.0,
@@ -4999,7 +4999,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_dsk42_bayesagg_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_dsk42_bayesagg_mtl_seed42",
           "observed": {
             "cat_f1": 0.7470602989196777,
             "cat_f1_std": 0.0,
@@ -5070,7 +5070,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_dsk42_excess_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_dsk42_excess_mtl_seed42",
           "observed": {
             "cat_f1": 0.6599785089492798,
             "cat_f1_std": 0.0,
@@ -5141,7 +5141,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_dsk42_nash_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_dsk42_nash_mtl_seed42",
           "observed": {
             "cat_f1": 0.6627631783485413,
             "cat_f1_std": 0.0,
@@ -5212,7 +5212,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_dsk42_stch_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_dsk42_stch_seed42",
           "observed": {
             "cat_f1": 0.649505615234375,
             "cat_f1_std": 0.0,
@@ -5283,7 +5283,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_dsk42_pcgrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_dsk42_pcgrad_seed42",
           "observed": {
             "cat_f1": 0.657023549079895,
             "cat_f1_std": 0.0,
@@ -5354,7 +5354,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_dsk42_gradnorm_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_dsk42_gradnorm_seed42",
           "observed": {
             "cat_f1": 0.655706524848938,
             "cat_f1_std": 0.0,
@@ -5425,7 +5425,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_dsk42_cagrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_dsk42_cagrad_seed42",
           "observed": {
             "cat_f1": 0.6514495015144348,
             "cat_f1_std": 0.0,
@@ -5496,7 +5496,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_dsk42_aligned_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_dsk42_aligned_mtl_seed42",
           "observed": {
             "cat_f1": 0.6516428589820862,
             "cat_f1_std": 0.0,
@@ -5567,7 +5567,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_dsk42_db_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_dsk42_db_mtl_seed42",
           "observed": {
             "cat_f1": 0.6433771252632141,
             "cat_f1_std": 0.0,
@@ -5638,7 +5638,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_screen_dsk42_fairgrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_screen_dsk42_fairgrad_seed42",
           "observed": {
             "cat_f1": 0.6392372846603394,
             "cat_f1_std": 0.0,
@@ -5705,7 +5705,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_base_equal_weight_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_base_equal_weight_seed42",
           "observed": {
             "cat_f1": 0.6824061870574951,
             "cat_f1_std": 0.0,
@@ -5772,7 +5772,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_base_static_weight_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_base_static_weight_seed42",
           "observed": {
             "cat_f1": 0.6655064821243286,
             "cat_f1_std": 0.0,
@@ -5839,7 +5839,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_base_uncertainty_weighting_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_base_uncertainty_weighting_seed42",
           "observed": {
             "cat_f1": 0.6787104606628418,
             "cat_f1_std": 0.0,
@@ -5906,7 +5906,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_base_dwa_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_base_dwa_seed42",
           "observed": {
             "cat_f1": 0.6966500878334045,
             "cat_f1_std": 0.0,
@@ -5973,7 +5973,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_base_famo_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_base_famo_seed42",
           "observed": {
             "cat_f1": 0.6819294691085815,
             "cat_f1_std": 0.0,
@@ -6040,7 +6040,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_base_bayesagg_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_base_bayesagg_mtl_seed42",
           "observed": {
             "cat_f1": 0.6491202116012573,
             "cat_f1_std": 0.0,
@@ -6107,7 +6107,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_base_excess_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_base_excess_mtl_seed42",
           "observed": {
             "cat_f1": 0.6928359270095825,
             "cat_f1_std": 0.0,
@@ -6174,7 +6174,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_base_nash_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_base_nash_mtl_seed42",
           "observed": {
             "cat_f1": 0.6991537809371948,
             "cat_f1_std": 0.0,
@@ -6241,7 +6241,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_base_stch_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_base_stch_seed42",
           "observed": {
             "cat_f1": 0.6920156478881836,
             "cat_f1_std": 0.0,
@@ -6308,7 +6308,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_base_pcgrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_base_pcgrad_seed42",
           "observed": {
             "cat_f1": 0.693305253982544,
             "cat_f1_std": 0.0,
@@ -6375,7 +6375,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_base_gradnorm_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_base_gradnorm_seed42",
           "observed": {
             "cat_f1": 0.694239616394043,
             "cat_f1_std": 0.0,
@@ -6442,7 +6442,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_base_cagrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_base_cagrad_seed42",
           "observed": {
             "cat_f1": 0.7004717588424683,
             "cat_f1_std": 0.0,
@@ -6509,7 +6509,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_base_aligned_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_base_aligned_mtl_seed42",
           "observed": {
             "cat_f1": 0.6975231766700745,
             "cat_f1_std": 0.0,
@@ -6576,7 +6576,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_base_db_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_base_db_mtl_seed42",
           "observed": {
             "cat_f1": 0.6851471662521362,
             "cat_f1_std": 0.0,
@@ -6643,7 +6643,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_base_fairgrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_base_fairgrad_seed42",
           "observed": {
             "cat_f1": 0.6839865446090698,
             "cat_f1_std": 0.0,
@@ -6713,7 +6713,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc22_equal_weight_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc22_equal_weight_seed42",
           "observed": {
             "cat_f1": 0.7038923501968384,
             "cat_f1_std": 0.0,
@@ -6783,7 +6783,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc22_static_weight_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc22_static_weight_seed42",
           "observed": {
             "cat_f1": 0.7051242589950562,
             "cat_f1_std": 0.0,
@@ -6853,7 +6853,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc22_uncertainty_weighting_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc22_uncertainty_weighting_seed42",
           "observed": {
             "cat_f1": 0.7084910869598389,
             "cat_f1_std": 0.0,
@@ -6923,7 +6923,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc22_dwa_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc22_dwa_seed42",
           "observed": {
             "cat_f1": 0.7084059715270996,
             "cat_f1_std": 0.0,
@@ -6993,7 +6993,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc22_famo_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc22_famo_seed42",
           "observed": {
             "cat_f1": 0.7044510245323181,
             "cat_f1_std": 0.0,
@@ -7063,7 +7063,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc22_bayesagg_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc22_bayesagg_mtl_seed42",
           "observed": {
             "cat_f1": 0.6818612813949585,
             "cat_f1_std": 0.0,
@@ -7133,7 +7133,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc22_excess_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc22_excess_mtl_seed42",
           "observed": {
             "cat_f1": 0.7064251899719238,
             "cat_f1_std": 0.0,
@@ -7203,7 +7203,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc22_nash_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc22_nash_mtl_seed42",
           "observed": {
             "cat_f1": 0.7077040672302246,
             "cat_f1_std": 0.0,
@@ -7273,7 +7273,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc22_stch_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc22_stch_seed42",
           "observed": {
             "cat_f1": 0.6975755095481873,
             "cat_f1_std": 0.0,
@@ -7343,7 +7343,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc22_pcgrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc22_pcgrad_seed42",
           "observed": {
             "cat_f1": 0.71134352684021,
             "cat_f1_std": 0.0,
@@ -7413,7 +7413,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc22_gradnorm_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc22_gradnorm_seed42",
           "observed": {
             "cat_f1": 0.7057499885559082,
             "cat_f1_std": 0.0,
@@ -7483,7 +7483,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc22_cagrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc22_cagrad_seed42",
           "observed": {
             "cat_f1": 0.708984375,
             "cat_f1_std": 0.0,
@@ -7553,7 +7553,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc22_aligned_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc22_aligned_mtl_seed42",
           "observed": {
             "cat_f1": 0.7068171501159668,
             "cat_f1_std": 0.0,
@@ -7623,7 +7623,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc22_db_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc22_db_mtl_seed42",
           "observed": {
             "cat_f1": 0.6956559419631958,
             "cat_f1_std": 0.0,
@@ -7693,7 +7693,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc22_fairgrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc22_fairgrad_seed42",
           "observed": {
             "cat_f1": 0.7004991769790649,
             "cat_f1_std": 0.0,
@@ -7763,7 +7763,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc21_equal_weight_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc21_equal_weight_seed42",
           "observed": {
             "cat_f1": 0.7118223309516907,
             "cat_f1_std": 0.0,
@@ -7833,7 +7833,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc21_static_weight_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc21_static_weight_seed42",
           "observed": {
             "cat_f1": 0.7155940532684326,
             "cat_f1_std": 0.0,
@@ -7903,7 +7903,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc21_uncertainty_weighting_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc21_uncertainty_weighting_seed42",
           "observed": {
             "cat_f1": 0.71534663438797,
             "cat_f1_std": 0.0,
@@ -7973,7 +7973,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc21_dwa_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc21_dwa_seed42",
           "observed": {
             "cat_f1": 0.7085891962051392,
             "cat_f1_std": 0.0,
@@ -8043,7 +8043,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc21_famo_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc21_famo_seed42",
           "observed": {
             "cat_f1": 0.7144194841384888,
             "cat_f1_std": 0.0,
@@ -8113,7 +8113,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc21_bayesagg_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc21_bayesagg_mtl_seed42",
           "observed": {
             "cat_f1": 0.7200806736946106,
             "cat_f1_std": 0.0,
@@ -8183,7 +8183,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc21_excess_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc21_excess_mtl_seed42",
           "observed": {
             "cat_f1": 0.7079601287841797,
             "cat_f1_std": 0.0,
@@ -8253,7 +8253,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc21_nash_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc21_nash_mtl_seed42",
           "observed": {
             "cat_f1": 0.7186713218688965,
             "cat_f1_std": 0.0,
@@ -8323,7 +8323,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc21_stch_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc21_stch_seed42",
           "observed": {
             "cat_f1": 0.7225582599639893,
             "cat_f1_std": 0.0,
@@ -8393,7 +8393,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc21_pcgrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc21_pcgrad_seed42",
           "observed": {
             "cat_f1": 0.7066834568977356,
             "cat_f1_std": 0.0,
@@ -8463,7 +8463,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc21_gradnorm_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc21_gradnorm_seed42",
           "observed": {
             "cat_f1": 0.7110161781311035,
             "cat_f1_std": 0.0,
@@ -8533,7 +8533,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc21_cagrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc21_cagrad_seed42",
           "observed": {
             "cat_f1": 0.7150775790214539,
             "cat_f1_std": 0.0,
@@ -8603,7 +8603,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc21_aligned_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc21_aligned_mtl_seed42",
           "observed": {
             "cat_f1": 0.7106324434280396,
             "cat_f1_std": 0.0,
@@ -8673,7 +8673,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc21_db_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc21_db_mtl_seed42",
           "observed": {
             "cat_f1": 0.725823163986206,
             "cat_f1_std": 0.0,
@@ -8743,7 +8743,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_cgc21_fairgrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_cgc21_fairgrad_seed42",
           "observed": {
             "cat_f1": 0.7145899534225464,
             "cat_f1_std": 0.0,
@@ -8812,7 +8812,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_mmoe4_equal_weight_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_mmoe4_equal_weight_seed42",
           "observed": {
             "cat_f1": 0.690569281578064,
             "cat_f1_std": 0.0,
@@ -8881,7 +8881,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_mmoe4_static_weight_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_mmoe4_static_weight_seed42",
           "observed": {
             "cat_f1": 0.6967453956604004,
             "cat_f1_std": 0.0,
@@ -8950,7 +8950,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_mmoe4_uncertainty_weighting_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_mmoe4_uncertainty_weighting_seed42",
           "observed": {
             "cat_f1": 0.698112964630127,
             "cat_f1_std": 0.0,
@@ -9019,7 +9019,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_mmoe4_dwa_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_mmoe4_dwa_seed42",
           "observed": {
             "cat_f1": 0.6983384490013123,
             "cat_f1_std": 0.0,
@@ -9088,7 +9088,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_mmoe4_famo_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_mmoe4_famo_seed42",
           "observed": {
             "cat_f1": 0.7044123411178589,
             "cat_f1_std": 0.0,
@@ -9157,7 +9157,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_mmoe4_bayesagg_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_mmoe4_bayesagg_mtl_seed42",
           "observed": {
             "cat_f1": 0.6962820291519165,
             "cat_f1_std": 0.0,
@@ -9226,7 +9226,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_mmoe4_excess_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_mmoe4_excess_mtl_seed42",
           "observed": {
             "cat_f1": 0.7017150521278381,
             "cat_f1_std": 0.0,
@@ -9295,7 +9295,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_mmoe4_nash_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_mmoe4_nash_mtl_seed42",
           "observed": {
             "cat_f1": 0.7029104828834534,
             "cat_f1_std": 0.0,
@@ -9364,7 +9364,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_mmoe4_stch_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_mmoe4_stch_seed42",
           "observed": {
             "cat_f1": 0.6911791563034058,
             "cat_f1_std": 0.0,
@@ -9433,7 +9433,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_mmoe4_pcgrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_mmoe4_pcgrad_seed42",
           "observed": {
             "cat_f1": 0.7005609273910522,
             "cat_f1_std": 0.0,
@@ -9502,7 +9502,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_mmoe4_gradnorm_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_mmoe4_gradnorm_seed42",
           "observed": {
             "cat_f1": 0.6982269287109375,
             "cat_f1_std": 0.0,
@@ -9571,7 +9571,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_mmoe4_cagrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_mmoe4_cagrad_seed42",
           "observed": {
             "cat_f1": 0.6922861337661743,
             "cat_f1_std": 0.0,
@@ -9640,7 +9640,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_mmoe4_aligned_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_mmoe4_aligned_mtl_seed42",
           "observed": {
             "cat_f1": 0.7041730284690857,
             "cat_f1_std": 0.0,
@@ -9709,7 +9709,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_mmoe4_db_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_mmoe4_db_mtl_seed42",
           "observed": {
             "cat_f1": 0.6986214518547058,
             "cat_f1_std": 0.0,
@@ -9778,7 +9778,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_mmoe4_fairgrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_mmoe4_fairgrad_seed42",
           "observed": {
             "cat_f1": 0.7038522362709045,
             "cat_f1_std": 0.0,
@@ -9849,7 +9849,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_dsk42_equal_weight_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_dsk42_equal_weight_seed42",
           "observed": {
             "cat_f1": 0.7102367877960205,
             "cat_f1_std": 0.0,
@@ -9920,7 +9920,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_dsk42_static_weight_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_dsk42_static_weight_seed42",
           "observed": {
             "cat_f1": 0.7100696563720703,
             "cat_f1_std": 0.0,
@@ -9991,7 +9991,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_dsk42_uncertainty_weighting_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_dsk42_uncertainty_weighting_seed42",
           "observed": {
             "cat_f1": 0.7158957719802856,
             "cat_f1_std": 0.0,
@@ -10062,7 +10062,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_dsk42_dwa_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_dsk42_dwa_seed42",
           "observed": {
             "cat_f1": 0.7082110643386841,
             "cat_f1_std": 0.0,
@@ -10133,7 +10133,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_dsk42_famo_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_dsk42_famo_seed42",
           "observed": {
             "cat_f1": 0.7103757858276367,
             "cat_f1_std": 0.0,
@@ -10204,7 +10204,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_dsk42_bayesagg_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_dsk42_bayesagg_mtl_seed42",
           "observed": {
             "cat_f1": 0.7035467624664307,
             "cat_f1_std": 0.0,
@@ -10275,7 +10275,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_dsk42_excess_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_dsk42_excess_mtl_seed42",
           "observed": {
             "cat_f1": 0.7130870223045349,
             "cat_f1_std": 0.0,
@@ -10346,7 +10346,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_dsk42_nash_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_dsk42_nash_mtl_seed42",
           "observed": {
             "cat_f1": 0.7011491656303406,
             "cat_f1_std": 0.0,
@@ -10417,7 +10417,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_dsk42_stch_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_dsk42_stch_seed42",
           "observed": {
             "cat_f1": 0.6984761953353882,
             "cat_f1_std": 0.0,
@@ -10488,7 +10488,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_dsk42_pcgrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_dsk42_pcgrad_seed42",
           "observed": {
             "cat_f1": 0.719419002532959,
             "cat_f1_std": 0.0,
@@ -10559,7 +10559,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_dsk42_gradnorm_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_dsk42_gradnorm_seed42",
           "observed": {
             "cat_f1": 0.7110846042633057,
             "cat_f1_std": 0.0,
@@ -10630,7 +10630,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_dsk42_cagrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_dsk42_cagrad_seed42",
           "observed": {
             "cat_f1": 0.7058801651000977,
             "cat_f1_std": 0.0,
@@ -10701,7 +10701,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_dsk42_aligned_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_dsk42_aligned_mtl_seed42",
           "observed": {
             "cat_f1": 0.7060339450836182,
             "cat_f1_std": 0.0,
@@ -10772,7 +10772,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_dsk42_db_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_dsk42_db_mtl_seed42",
           "observed": {
             "cat_f1": 0.6949141025543213,
             "cat_f1_std": 0.0,
@@ -10843,7 +10843,7 @@
             ]
           },
           "enrolled_at": "2026-04-16T01:17:20+00:00",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_screen_dsk42_fairgrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_screen_dsk42_fairgrad_seed42",
           "observed": {
             "cat_f1": 0.7140130996704102,
             "cat_f1_std": 0.0,
@@ -10918,7 +10918,7 @@
           "finished_at": "2026-04-16T22:16:59+00:00",
           "wall_clock_seconds": 147.3,
           "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep15_20260416_1914",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_promote_mmoe4_dwa_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_promote_mmoe4_dwa_seed42",
           "observed": {
             "cat_f1": 0.7971631586551666,
             "cat_f1_std": 0.022371842217522128,
@@ -10993,7 +10993,7 @@
           "finished_at": "2026-04-16T22:21:03+00:00",
           "wall_clock_seconds": 195.0,
           "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep15_20260416_1917",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_promote_cgc22_excess_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_promote_cgc22_excess_mtl_seed42",
           "observed": {
             "cat_f1": 0.8085067868232727,
             "cat_f1_std": 0.0002731958720476151,
@@ -11068,7 +11068,7 @@
           "finished_at": "2026-04-16T22:24:19+00:00",
           "wall_clock_seconds": 195.4,
           "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep15_20260416_1921",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_promote_cgc22_db_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_promote_cgc22_db_mtl_seed42",
           "observed": {
             "cat_f1": 0.8057158291339874,
             "cat_f1_std": 0.0104585297237358,
@@ -11143,7 +11143,7 @@
           "finished_at": "2026-04-16T22:27:25+00:00",
           "wall_clock_seconds": 185.5,
           "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep15_20260416_1924",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_promote_cgc21_bayesagg_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_promote_cgc21_bayesagg_mtl_seed42",
           "observed": {
             "cat_f1": 0.7799705266952515,
             "cat_f1_std": 0.009151598098261486,
@@ -11218,7 +11218,7 @@
           "finished_at": "2026-04-16T22:31:35+00:00",
           "wall_clock_seconds": 249.3,
           "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep15_20260416_1927",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_promote_cgc22_nash_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_promote_cgc22_nash_mtl_seed42",
           "observed": {
             "cat_f1": 0.8119420111179352,
             "cat_f1_std": 0.002728376238352725,
@@ -11292,7 +11292,7 @@
           "finished_at": "2026-04-16T22:36:42+00:00",
           "wall_clock_seconds": 307.1,
           "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep15_20260416_1931",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_promote_mmoe4_pcgrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_promote_mmoe4_pcgrad_seed42",
           "observed": {
             "cat_f1": 0.8035106956958771,
             "cat_f1_std": 0.023046950436969627,
@@ -11366,7 +11366,7 @@
           "finished_at": "2026-04-16T22:41:39+00:00",
           "wall_clock_seconds": 296.4,
           "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep15_20260416_1936",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_promote_mmoe4_gradnorm_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_promote_mmoe4_gradnorm_seed42",
           "observed": {
             "cat_f1": 0.8022062480449677,
             "cat_f1_std": 0.0238310504066663,
@@ -11440,7 +11440,7 @@
           "finished_at": "2026-04-16T22:48:26+00:00",
           "wall_clock_seconds": 406.6,
           "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep15_20260416_1941",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_promote_mmoe4_excess_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_promote_mmoe4_excess_mtl_seed42",
           "observed": {
             "cat_f1": 0.7945087254047394,
             "cat_f1_std": 0.015184034378777238,
@@ -11514,7 +11514,7 @@
           "finished_at": "2026-04-16T22:55:25+00:00",
           "wall_clock_seconds": 418.9,
           "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep15_20260416_1948",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_promote_mmoe4_nash_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_promote_mmoe4_nash_mtl_seed42",
           "observed": {
             "cat_f1": 0.8048464059829712,
             "cat_f1_std": 0.007071735417945888,
@@ -11589,7 +11589,7 @@
           "finished_at": "2026-04-16T22:57:39+00:00",
           "wall_clock_seconds": 133.8,
           "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep15_20260416_1955",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_promote_cgc22_equal_weight_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_promote_cgc22_equal_weight_seed42",
           "observed": {
             "cat_f1": 0.8077736496925354,
             "cat_f1_std": 0.0035761600961493585,
@@ -11664,7 +11664,7 @@
           "finished_at": "2026-04-16T23:29:11+00:00",
           "wall_clock_seconds": 1828.0,
           "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260416_1958",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_confirm_cgc22_nash_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_confirm_cgc22_nash_mtl_seed42",
           "observed": {
             "cat_f1": 0.8230751156806946,
             "cat_f1_std": 0.008640116459048712,
@@ -11739,7 +11739,7 @@
           "finished_at": "2026-04-17T00:10:43+00:00",
           "wall_clock_seconds": 2491.4,
           "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260416_2029",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_confirm_cgc22_excess_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_confirm_cgc22_excess_mtl_seed42",
           "observed": {
             "cat_f1": 0.8313451051712036,
             "cat_f1_std": 0.011145262171839912,
@@ -11814,7 +11814,7 @@
           "finished_at": "2026-04-17T00:34:56+00:00",
           "wall_clock_seconds": 1452.9,
           "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260416_2110",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_confirm_cgc22_equal_weight_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_confirm_cgc22_equal_weight_seed42",
           "observed": {
             "cat_f1": 0.8219172239303589,
             "cat_f1_std": 0.02032181920689193,
@@ -11889,7 +11889,7 @@
           "finished_at": "2026-04-17T01:09:46+00:00",
           "wall_clock_seconds": 2089.5,
           "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260416_2135",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_confirm_cgc21_bayesagg_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_confirm_cgc21_bayesagg_mtl_seed42",
           "observed": {
             "cat_f1": 0.8197010517120361,
             "cat_f1_std": 0.009511404414318707,
@@ -11963,7 +11963,7 @@
           "finished_at": "2026-04-17T01:34:28+00:00",
           "wall_clock_seconds": 1481.0,
           "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260416_2209",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_confirm_mmoe4_gradnorm_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_confirm_mmoe4_gradnorm_seed42",
           "observed": {
             "cat_f1": 0.8218703985214233,
             "cat_f1_std": 0.011794735834765592,
@@ -12038,7 +12038,7 @@
           "finished_at": "2026-04-17T01:39:43+00:00",
           "wall_clock_seconds": 221.0,
           "run_dir": "results/fusion/arizona/mtlnet_lr1.0e-04_bs4096_ep15_20260416_2236",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_promote_cgc21_uncertainty_weighting_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_promote_cgc21_uncertainty_weighting_seed42",
           "observed": {
             "cat_f1": 0.7188003361225128,
             "cat_f1_std": 0.009240654389165005,
@@ -12113,7 +12113,7 @@
           "finished_at": "2026-04-17T01:43:18+00:00",
           "wall_clock_seconds": 214.8,
           "run_dir": "results/fusion/arizona/mtlnet_lr1.0e-04_bs4096_ep15_20260416_2239",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_promote_cgc21_dwa_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_promote_cgc21_dwa_seed42",
           "observed": {
             "cat_f1": 0.7187849581241608,
             "cat_f1_std": 0.0037066888859875976,
@@ -12188,7 +12188,7 @@
           "finished_at": "2026-04-17T01:48:35+00:00",
           "wall_clock_seconds": 316.0,
           "run_dir": "results/fusion/arizona/mtlnet_lr1.0e-04_bs4096_ep15_20260416_2243",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_promote_cgc21_gradnorm_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_promote_cgc21_gradnorm_seed42",
           "observed": {
             "cat_f1": 0.7162090539932251,
             "cat_f1_std": 0.004647954453781394,
@@ -12263,7 +12263,7 @@
           "finished_at": "2026-04-17T01:54:27+00:00",
           "wall_clock_seconds": 352.2,
           "run_dir": "results/fusion/arizona/mtlnet_lr1.0e-04_bs4096_ep15_20260416_2248",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_promote_cgc21_excess_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_promote_cgc21_excess_mtl_seed42",
           "observed": {
             "cat_f1": 0.7181515097618103,
             "cat_f1_std": 0.006734644923555758,
@@ -12337,7 +12337,7 @@
           "finished_at": "2026-04-17T02:01:34+00:00",
           "wall_clock_seconds": 426.8,
           "run_dir": "results/fusion/arizona/mtlnet_lr1.0e-04_bs4096_ep15_20260416_2254",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_promote_mmoe4_nash_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_promote_mmoe4_nash_mtl_seed42",
           "observed": {
             "cat_f1": 0.7137561142444611,
             "cat_f1_std": 0.0034389721042463986,
@@ -12412,7 +12412,7 @@
           "finished_at": "2026-04-17T02:07:43+00:00",
           "wall_clock_seconds": 367.6,
           "run_dir": "results/fusion/arizona/mtlnet_lr1.0e-04_bs4096_ep15_20260416_2301",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_promote_cgc22_aligned_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_promote_cgc22_aligned_mtl_seed42",
           "observed": {
             "cat_f1": 0.7130798101425171,
             "cat_f1_std": 0.0005617331969531956,
@@ -12487,7 +12487,7 @@
           "finished_at": "2026-04-17T02:13:46+00:00",
           "wall_clock_seconds": 362.9,
           "run_dir": "results/fusion/arizona/mtlnet_lr1.0e-04_bs4096_ep15_20260416_2307",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_promote_cgc22_cagrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_promote_cgc22_cagrad_seed42",
           "observed": {
             "cat_f1": 0.7150266766548157,
             "cat_f1_std": 0.0024044777075465044,
@@ -12562,7 +12562,7 @@
           "finished_at": "2026-04-17T02:17:47+00:00",
           "wall_clock_seconds": 240.6,
           "run_dir": "results/fusion/arizona/mtlnet_lr1.0e-04_bs4096_ep15_20260416_2313",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_promote_cgc22_stch_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_promote_cgc22_stch_seed42",
           "observed": {
             "cat_f1": 0.7127490043640137,
             "cat_f1_std": 0.0015265588530645818,
@@ -12638,7 +12638,7 @@
           "finished_at": "2026-04-17T02:24:52+00:00",
           "wall_clock_seconds": 424.7,
           "run_dir": "results/fusion/arizona/mtlnet_lr1.0e-04_bs4096_ep15_20260416_2317",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_promote_dsk42_nash_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_promote_dsk42_nash_mtl_seed42",
           "observed": {
             "cat_f1": 0.7169220447540283,
             "cat_f1_std": 0.003967704318815564,
@@ -12713,7 +12713,7 @@
           "finished_at": "2026-04-17T02:30:48+00:00",
           "wall_clock_seconds": 355.3,
           "run_dir": "results/fusion/arizona/mtlnet_lr1.0e-04_bs4096_ep15_20260416_2324",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_promote_cgc21_pcgrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_promote_cgc21_pcgrad_seed42",
           "observed": {
             "cat_f1": 0.7133677005767822,
             "cat_f1_std": 0.0038451412833458844,
@@ -12788,7 +12788,7 @@
           "finished_at": "2026-04-17T03:15:08+00:00",
           "wall_clock_seconds": 2572.4,
           "run_dir": "results/fusion/arizona/mtlnet_lr1.0e-04_bs4096_ep50_20260416_2332",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_confirm_cgc21_gradnorm_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_confirm_cgc21_gradnorm_seed42",
           "observed": {
             "cat_f1": 0.7380486845970153,
             "cat_f1_std": 0.01425147483088028,
@@ -12863,7 +12863,7 @@
           "finished_at": "2026-04-17T04:02:17+00:00",
           "wall_clock_seconds": 2828.0,
           "run_dir": "results/fusion/arizona/mtlnet_lr1.0e-04_bs4096_ep50_20260417_0015",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_confirm_cgc21_pcgrad_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_confirm_cgc21_pcgrad_seed42",
           "observed": {
             "cat_f1": 0.7282066106796264,
             "cat_f1_std": 0.010800984131485178,
@@ -12938,7 +12938,7 @@
           "finished_at": "2026-04-17T04:31:10+00:00",
           "wall_clock_seconds": 1733.1,
           "run_dir": "results/fusion/arizona/mtlnet_lr1.0e-04_bs4096_ep50_20260417_0102",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_confirm_cgc21_dwa_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_confirm_cgc21_dwa_seed42",
           "observed": {
             "cat_f1": 0.7345866084098815,
             "cat_f1_std": 0.013829020345636654,
@@ -13013,7 +13013,7 @@
           "finished_at": "2026-04-17T04:59:54+00:00",
           "wall_clock_seconds": 1723.2,
           "run_dir": "results/fusion/arizona/mtlnet_lr1.0e-04_bs4096_ep50_20260417_0131",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_confirm_cgc21_uncertainty_weighting_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_confirm_cgc21_uncertainty_weighting_seed42",
           "observed": {
             "cat_f1": 0.7319490194320679,
             "cat_f1_std": 0.0146176359941416,
@@ -13087,7 +13087,7 @@
           "finished_at": "2026-04-17T05:56:36+00:00",
           "wall_clock_seconds": 3401.3,
           "run_dir": "results/fusion/arizona/mtlnet_lr1.0e-04_bs4096_ep50_20260417_0159",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_confirm_mmoe4_nash_mtl_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_confirm_mmoe4_nash_mtl_seed42",
           "observed": {
             "cat_f1": 0.7293691039085388,
             "cat_f1_std": 0.022385825586007806,
@@ -13156,7 +13156,7 @@
           "finished_at": "2026-04-17T11:20:50+00:00",
           "wall_clock_seconds": 798.0,
           "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260417_0807",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_confirm_base_equal_weight_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_confirm_base_equal_weight_seed42",
           "observed": {
             "cat_f1": 0.8281837701797485,
             "cat_f1_std": 0.012369581125116665,
@@ -13231,7 +13231,7 @@
           "finished_at": "2026-04-17T11:46:43+00:00",
           "wall_clock_seconds": 1503.2,
           "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260417_0821",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_confirm_mmoe4_gradnorm_seed123",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_confirm_mmoe4_gradnorm_seed123",
           "observed": {
             "cat_f1": 0.8297492504119873,
             "cat_f1_std": 0.020263486255424373,
@@ -13306,7 +13306,7 @@
           "finished_at": "2026-04-17T12:11:36+00:00",
           "wall_clock_seconds": 1492.4,
           "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260417_0846",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_confirm_mmoe4_gradnorm_seed2024",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_confirm_mmoe4_gradnorm_seed2024",
           "observed": {
             "cat_f1": 0.8175055623054505,
             "cat_f1_std": 0.013387494895418557,
@@ -13382,7 +13382,7 @@
           "finished_at": "2026-04-17T12:29:05+00:00",
           "wall_clock_seconds": 1047.8,
           "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260417_0911",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_confirm_cgc22_equal_weight_seed123",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_confirm_cgc22_equal_weight_seed123",
           "observed": {
             "cat_f1": 0.820667564868927,
             "cat_f1_std": 0.02348957135143572,
@@ -13458,7 +13458,7 @@
           "finished_at": "2026-04-17T12:46:26+00:00",
           "wall_clock_seconds": 1040.6,
           "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260417_0929",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AL_confirm_cgc22_equal_weight_seed2024",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AL_confirm_cgc22_equal_weight_seed2024",
           "observed": {
             "cat_f1": 0.8221506237983703,
             "cat_f1_std": 0.011341846212432333,
@@ -13534,7 +13534,7 @@
           "finished_at": "2026-04-17T13:15:15+00:00",
           "wall_clock_seconds": 1728.5,
           "run_dir": "results/fusion/arizona/mtlnet_lr1.0e-04_bs4096_ep50_20260417_0946",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_confirm_cgc21_uncertainty_weighting_seed123",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_confirm_cgc21_uncertainty_weighting_seed123",
           "observed": {
             "cat_f1": 0.728917407989502,
             "cat_f1_std": 0.014551583719684702,
@@ -13610,7 +13610,7 @@
           "finished_at": "2026-04-17T13:43:57+00:00",
           "wall_clock_seconds": 1722.1,
           "run_dir": "results/fusion/arizona/mtlnet_lr1.0e-04_bs4096_ep50_20260417_1015",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_confirm_cgc21_uncertainty_weighting_seed2024",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_confirm_cgc21_uncertainty_weighting_seed2024",
           "observed": {
             "cat_f1": 0.7350067138671875,
             "cat_f1_std": 0.022435366983859974,
@@ -13686,7 +13686,7 @@
           "finished_at": "2026-04-17T14:12:38+00:00",
           "wall_clock_seconds": 1719.5,
           "run_dir": "results/fusion/arizona/mtlnet_lr1.0e-04_bs4096_ep50_20260417_1044",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_confirm_cgc21_dwa_seed123",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_confirm_cgc21_dwa_seed123",
           "observed": {
             "cat_f1": 0.7330549001693726,
             "cat_f1_std": 0.011856257212116151,
@@ -13762,7 +13762,7 @@
           "finished_at": "2026-04-17T14:41:20+00:00",
           "wall_clock_seconds": 1721.6,
           "run_dir": "results/fusion/arizona/mtlnet_lr1.0e-04_bs4096_ep50_20260417_1112",
-          "results_archive": "docs/studies/fusion/results/P1/P1_AZ_confirm_cgc21_dwa_seed2024",
+          "results_archive": "docs/studies/archive/fusion/results/P1/P1_AZ_confirm_cgc21_dwa_seed2024",
           "observed": {
             "cat_f1": 0.73562171459198,
             "cat_f1_std": 0.017417102430877008,
@@ -13831,7 +13831,7 @@
           "finished_at": "2026-04-18T05:34:56+00:00",
           "wall_clock_seconds": 39.1,
           "run_dir": "results/fusion/alabama/category_lr1.0e-04_bs4096_ep50_20260418_0234",
-          "results_archive": "docs/studies/fusion/results/P2/P2_AL_single_cat_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P2/P2_AL_single_cat_seed42",
           "observed": {
             "cat_f1": 0.8111680746078491,
             "cat_f1_std": 0.012256894669221169,
@@ -13893,7 +13893,7 @@
           "finished_at": "2026-04-18T05:38:23+00:00",
           "wall_clock_seconds": 206.9,
           "run_dir": "results/fusion/alabama/next_lr1.0e-04_bs4096_ep50_20260418_0235",
-          "results_archive": "docs/studies/fusion/results/P2/P2_AL_single_next_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P2/P2_AL_single_next_seed42",
           "observed": {
             "cat_f1": null,
             "cat_f1_std": null,
@@ -13957,7 +13957,7 @@
           "finished_at": "2026-04-18T12:29:49+00:00",
           "wall_clock_seconds": 38.3,
           "run_dir": "results/fusion/alabama/category_lr1.0e-04_bs4096_ep50_20260418_0929",
-          "results_archive": "docs/studies/fusion/results/P2/P2_AL_single_cat_seed123",
+          "results_archive": "docs/studies/archive/fusion/results/P2/P2_AL_single_cat_seed123",
           "observed": {
             "cat_f1": 0.8081502199172974,
             "cat_f1_std": 0.010245215072903708,
@@ -14021,7 +14021,7 @@
           "finished_at": "2026-04-18T12:46:26+00:00",
           "wall_clock_seconds": 36.2,
           "run_dir": "results/fusion/alabama/category_lr1.0e-04_bs4096_ep50_20260418_094555",
-          "results_archive": "docs/studies/fusion/results/P2/P2_AL_single_cat_seed2024",
+          "results_archive": "docs/studies/archive/fusion/results/P2/P2_AL_single_cat_seed2024",
           "observed": {
             "cat_f1": 0.8074172139167786,
             "cat_f1_std": 0.012049281639291955,
@@ -14085,7 +14085,7 @@
           "finished_at": "2026-04-18T12:33:51+00:00",
           "wall_clock_seconds": 206.3,
           "run_dir": "results/fusion/alabama/next_lr1.0e-04_bs4096_ep50_20260418_0930",
-          "results_archive": "docs/studies/fusion/results/P2/P2_AL_single_next_seed123",
+          "results_archive": "docs/studies/archive/fusion/results/P2/P2_AL_single_next_seed123",
           "observed": {
             "cat_f1": null,
             "cat_f1_std": null,
@@ -14149,7 +14149,7 @@
           "finished_at": "2026-04-18T12:37:11+00:00",
           "wall_clock_seconds": 199.7,
           "run_dir": "results/fusion/alabama/next_lr1.0e-04_bs4096_ep50_20260418_0933",
-          "results_archive": "docs/studies/fusion/results/P2/P2_AL_single_next_seed2024",
+          "results_archive": "docs/studies/archive/fusion/results/P2/P2_AL_single_next_seed2024",
           "observed": {
             "cat_f1": null,
             "cat_f1_std": null,
@@ -14213,7 +14213,7 @@
           "finished_at": "2026-04-18T12:38:12+00:00",
           "wall_clock_seconds": 60.4,
           "run_dir": "results/fusion/arizona/category_lr1.0e-04_bs4096_ep50_20260418_093717",
-          "results_archive": "docs/studies/fusion/results/P2/P2_AZ_single_cat_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P2/P2_AZ_single_cat_seed42",
           "observed": {
             "cat_f1": 0.7508360385894776,
             "cat_f1_std": 0.010348285535337141,
@@ -14277,7 +14277,7 @@
           "finished_at": "2026-04-18T12:44:52+00:00",
           "wall_clock_seconds": 399.9,
           "run_dir": "results/fusion/arizona/next_lr1.0e-04_bs4096_ep50_20260418_093817",
-          "results_archive": "docs/studies/fusion/results/P2/P2_AZ_single_next_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P2/P2_AZ_single_next_seed42",
           "observed": {
             "cat_f1": null,
             "cat_f1_std": null,
@@ -14346,7 +14346,7 @@
           "finished_at": "2026-04-18T13:07:26+00:00",
           "wall_clock_seconds": 1259.7,
           "run_dir": "results/dgi/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260418_094630",
-          "results_archive": "docs/studies/fusion/results/P2/P2_AL_cbic_contrast_dgi_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P2/P2_AL_cbic_contrast_dgi_seed42",
           "observed": {
             "cat_f1": 0.44678929448127747,
             "cat_f1_std": 0.01463207154334852,
@@ -14415,7 +14415,7 @@
           "finished_at": "2026-04-18T13:28:11+00:00",
           "wall_clock_seconds": 1243.8,
           "run_dir": "results/hgi/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260418_100731",
-          "results_archive": "docs/studies/fusion/results/P2/P2_AL_cbic_contrast_hgi_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P2/P2_AL_cbic_contrast_hgi_seed42",
           "observed": {
             "cat_f1": 0.8186573386192322,
             "cat_f1_std": 0.013090255548364493,
@@ -14484,7 +14484,7 @@
           "finished_at": "2026-04-18T13:49:08+00:00",
           "wall_clock_seconds": 1256.7,
           "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260418_102815",
-          "results_archive": "docs/studies/fusion/results/P2/P2_AL_cbic_contrast_fusion_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P2/P2_AL_cbic_contrast_fusion_seed42",
           "observed": {
             "cat_f1": 0.8239567637443542,
             "cat_f1_std": 0.01580958788221419,
@@ -14558,7 +14558,7 @@
           "finished_at": "2026-04-18T17:00:42+00:00",
           "wall_clock_seconds": 1284.5,
           "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260418_133924",
-          "results_archive": "docs/studies/fusion/results/P2/P2_AL_hparam_mmoe4_ne2_gradnorm_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P2/P2_AL_hparam_mmoe4_ne2_gradnorm_seed42",
           "observed": {
             "cat_f1": 0.8229737877845764,
             "cat_f1_std": 0.014026584699309333,
@@ -14632,7 +14632,7 @@
           "finished_at": "2026-04-18T17:32:48+00:00",
           "wall_clock_seconds": 1925.6,
           "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260418_140047",
-          "results_archive": "docs/studies/fusion/results/P2/P2_AL_hparam_mmoe4_ne8_gradnorm_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P2/P2_AL_hparam_mmoe4_ne8_gradnorm_seed42",
           "observed": {
             "cat_f1": 0.8243686079978942,
             "cat_f1_std": 0.014876568287375467,
@@ -14760,7 +14760,7 @@
           "finished_at": "2026-04-18T20:15:11+00:00",
           "wall_clock_seconds": 1481.1,
           "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260418_165035",
-          "results_archive": "docs/studies/fusion/results/P2/P2_AL_hparam_mmoe4_gradnorm_a05_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P2/P2_AL_hparam_mmoe4_gradnorm_a05_seed42",
           "observed": {
             "cat_f1": 0.8148646712303161,
             "cat_f1_std": 0.016196612323199622,
@@ -14836,7 +14836,7 @@
           "finished_at": "2026-04-18T20:39:50+00:00",
           "wall_clock_seconds": 1478.6,
           "run_dir": "results/fusion/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260418_171516",
-          "results_archive": "docs/studies/fusion/results/P2/P2_AL_hparam_mmoe4_gradnorm_a30_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P2/P2_AL_hparam_mmoe4_gradnorm_a30_seed42",
           "observed": {
             "cat_f1": 0.8236160993576049,
             "cat_f1_std": 0.008589952843216389,
@@ -14900,7 +14900,7 @@
           "finished_at": "2026-04-20T05:28:46+00:00",
           "wall_clock_seconds": 57.2,
           "run_dir": "results/fusion/arizona/category_lr1.0e-04_bs4096_ep50_20260420_022756",
-          "results_archive": "docs/studies/fusion/results/P2/P2_AZ_single_cat_seed123",
+          "results_archive": "docs/studies/archive/fusion/results/P2/P2_AZ_single_cat_seed123",
           "observed": {
             "cat_f1": 0.7525988221168518,
             "cat_f1_std": 0.011910593723906049,
@@ -14964,7 +14964,7 @@
           "finished_at": "2026-04-20T05:29:39+00:00",
           "wall_clock_seconds": 52.3,
           "run_dir": "results/fusion/arizona/category_lr1.0e-04_bs4096_ep50_20260420_022850",
-          "results_archive": "docs/studies/fusion/results/P2/P2_AZ_single_cat_seed2024",
+          "results_archive": "docs/studies/archive/fusion/results/P2/P2_AZ_single_cat_seed2024",
           "observed": {
             "cat_f1": 0.751948869228363,
             "cat_f1_std": 0.008529614338350394,
@@ -15028,7 +15028,7 @@
           "finished_at": "2026-04-20T05:36:15+00:00",
           "wall_clock_seconds": 395.4,
           "run_dir": "results/fusion/arizona/next_lr1.0e-04_bs4096_ep50_20260420_022944",
-          "results_archive": "docs/studies/fusion/results/P2/P2_AZ_single_next_seed123",
+          "results_archive": "docs/studies/archive/fusion/results/P2/P2_AZ_single_next_seed123",
           "observed": {
             "cat_f1": null,
             "cat_f1_std": null,
@@ -15092,7 +15092,7 @@
           "finished_at": "2026-04-20T05:42:52+00:00",
           "wall_clock_seconds": 396.2,
           "run_dir": "results/fusion/arizona/next_lr1.0e-04_bs4096_ep50_20260420_023620",
-          "results_archive": "docs/studies/fusion/results/P2/P2_AZ_single_next_seed2024",
+          "results_archive": "docs/studies/archive/fusion/results/P2/P2_AZ_single_next_seed2024",
           "observed": {
             "cat_f1": null,
             "cat_f1_std": null,
@@ -15174,7 +15174,7 @@
           "finished_at": "2026-04-20T06:08:13+00:00",
           "wall_clock_seconds": 1486.4,
           "run_dir": "results/hgi/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260420_024331",
-          "results_archive": "docs/studies/fusion/results/P3/P3_AL_champion_hgi_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P3/P3_AL_champion_hgi_seed42",
           "observed": {
             "cat_f1": 0.8262043833732605,
             "cat_f1_std": 0.012543623624899714,
@@ -15249,7 +15249,7 @@
           "finished_at": "2026-04-20T06:32:47+00:00",
           "wall_clock_seconds": 1474.0,
           "run_dir": "results/dgi/alabama/mtlnet_lr1.0e-04_bs4096_ep50_20260420_030818",
-          "results_archive": "docs/studies/fusion/results/P3/P3_AL_champion_dgi_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P3/P3_AL_champion_dgi_seed42",
           "observed": {
             "cat_f1": 0.45480924248695376,
             "cat_f1_std": 0.014959443916042404,
@@ -15324,7 +15324,7 @@
           "finished_at": "2026-04-20T07:18:45+00:00",
           "wall_clock_seconds": 2757.2,
           "run_dir": "results/hgi/arizona/mtlnet_lr1.0e-04_bs4096_ep50_20260420_033252",
-          "results_archive": "docs/studies/fusion/results/P3/P3_AZ_champion_hgi_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P3/P3_AZ_champion_hgi_seed42",
           "observed": {
             "cat_f1": 0.7302136898040772,
             "cat_f1_std": 0.024877450123543223,
@@ -15399,7 +15399,7 @@
           "finished_at": "2026-04-20T08:04:49+00:00",
           "wall_clock_seconds": 2763.3,
           "run_dir": "results/fusion/arizona/mtlnet_lr1.0e-04_bs4096_ep50_20260420_041850",
-          "results_archive": "docs/studies/fusion/results/P3/P3_AZ_champion_fusion_seed42",
+          "results_archive": "docs/studies/archive/fusion/results/P3/P3_AZ_champion_fusion_seed42",
           "observed": {
             "cat_f1": 0.7221680045127868,
             "cat_f1_std": 0.020245432557028473,

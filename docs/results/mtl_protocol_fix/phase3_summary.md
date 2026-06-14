@@ -1,7 +1,7 @@
 # Phase 3 — Post-closure deferred-work execution summary
 
 **Date:** 2026-05-21
-**Scope:** Execution pass on `docs/studies/mtl-protocol-fix/DEFERRED_WORK.md` items per the user-confirmed Option A ("polish the closed study"). Tier 1 items run; Tier 2/3 deferred to next-tier studies.
+**Scope:** Execution pass on `docs/studies/archive/mtl-protocol-fix/DEFERRED_WORK.md` items per the user-confirmed Option A ("polish the closed study"). Tier 1 items run; Tier 2/3 deferred to next-tier studies.
 **States:** AL/AZ + FL (CA/TX skipped per user 2026-05-21 — closure of substrate + MTL means large-state compute is not worth it).
 **Seeds:** single seed=42 throughout. Multi-seed promotion gated on next-tier work.
 
@@ -13,7 +13,7 @@
 | 2 | §4.6 **class-balanced reg sampler** | **FALSIFIED** | −30.46 / −18.49 / (skipped) pp (all 10 cells p=1.0000) | flat at disjoint | [`phase3_rank2_findings.md`](phase3_rank2_findings.md) |
 | 3 | §4.1 per-task best-epoch shipping | **DROPPED** by user 2026-05-21 | — | — | sub-track in [`mtl_architecture_revisit.md`](../../future_works/mtl_architecture_revisit.md) |
 | 4 | §4.2 **composite** (HGI reg + c2hgi cat) | **ESTABLISHED** | +11.04 / +12.04 / +7.43 pp vs MTL@disjoint (zero retrain) | matches MTL cat | [`phase3_rank4_composite_analysis.md`](phase3_rank4_composite_analysis.md) + [`composite_two_substrate_engine.md`](../../future_works/composite_two_substrate_engine.md) |
-| 5-8 | rest | DEFERRED | — | — | see [`PRIORITY_IMPACT.md`](../../studies/mtl-protocol-fix/PRIORITY_IMPACT.md) Tier 2/3 |
+| 5-8 | rest | DEFERRED | — | — | see [`PRIORITY_IMPACT.md`](../../studies/archive/mtl-protocol-fix/PRIORITY_IMPACT.md) Tier 2/3 |
 
 ## Headline finding — the residual MTL-vs-STL reg gap is architectural
 
@@ -53,7 +53,7 @@ This closes the "long-tail rare-class under-sampling drives reg destabilisation"
 
 ## What this pass did NOT cover (deferred for next-tier)
 
-Per [`PRIORITY_IMPACT.md`](../../studies/mtl-protocol-fix/PRIORITY_IMPACT.md):
+Per [`PRIORITY_IMPACT.md`](../../studies/archive/mtl-protocol-fix/PRIORITY_IMPACT.md):
 - Rank 5 — §4.4-partial freeze-reg-after-peak (P4 already says cat isn't the bottleneck; symmetric reg test untested)
 - Rank 6 — §4.7 Designs J/B re-eval under F1 (40-60 GPU-h, substrate parquets need rebuild)
 - Rank 7 — merge_design Levers 4/5 (substrate axis, Lever 6 already FALSIFIED in same gap)
@@ -65,7 +65,7 @@ These are speculative or compute-heavy with low EV; defer to the next-tier studi
 
 - Findings docs: [`phase3_rank1_findings.md`](phase3_rank1_findings.md), [`phase3_rank2_findings.md`](phase3_rank2_findings.md), [`phase3_rank4_composite_analysis.md`](phase3_rank4_composite_analysis.md)
 - Per-state raw summaries: `docs/results/mtl_protocol_fix/phase3_rank{1_log_t_kd, 2_balanced_sampler}/{alabama,arizona,florida}/{state}_summary.{md,json}`
-- Ranking + execution decisions: [`docs/studies/mtl-protocol-fix/PRIORITY_IMPACT.md`](../../studies/mtl-protocol-fix/PRIORITY_IMPACT.md)
-- Inventory of deferred items: [`docs/studies/mtl-protocol-fix/DEFERRED_WORK.md`](../../studies/mtl-protocol-fix/DEFERRED_WORK.md)
-- Execution log: [`docs/studies/mtl-protocol-fix/log.md`](../../studies/mtl-protocol-fix/log.md) 2026-05-21 entries
+- Ranking + execution decisions: [`docs/studies/archive/mtl-protocol-fix/PRIORITY_IMPACT.md`](../../studies/archive/mtl-protocol-fix/PRIORITY_IMPACT.md)
+- Inventory of deferred items: [`docs/studies/archive/mtl-protocol-fix/DEFERRED_WORK.md`](../../studies/archive/mtl-protocol-fix/DEFERRED_WORK.md)
+- Execution log: [`docs/studies/archive/mtl-protocol-fix/log.md`](../../studies/archive/mtl-protocol-fix/log.md) 2026-05-21 entries
 - Code: `src/configs/experiment.py`, `src/training/runners/mtl_cv.py`, `scripts/train.py`, `src/data/folds.py`, `scripts/mtl_protocol_fix/`

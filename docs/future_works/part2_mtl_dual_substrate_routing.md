@@ -1,7 +1,7 @@
 # Future Work — Part 2: MTL dual-substrate routing on the v14 base
 
 **Date drafted:** 2026-06-02
-**Source:** `docs/studies/embedding_eval/FINAL_SYNTHESIS.md` (Part-1 closed). Sibling memo:
+**Source:** `docs/studies/archive/embedding_eval/FINAL_SYNTHESIS.md` (Part-1 closed). Sibling memo:
 [`composite_two_substrate_engine.md`](composite_two_substrate_engine.md) (same idea, earlier framing).
 
 ## Why this exists

@@ -47,7 +47,7 @@ was *partially invalid*) — but the underlying conclusion survives for a deeper
 `cos(∇L_cat, ∇L_reg)` on the shared trunk ≈ **0** over all 50 epochs — pooled mean **+0.0008** over the
 **16 champion-G runs (4 states × 4 seeds), n=3,797 epoch-fold points** (FL +0.0007 / AL +0.0032 / AZ
 −0.0005 / GE −0.0004; ~50% negative — zero-mean noise). Figure:
-`docs/studies/mtl_improvement/figs/grad_cosine_tasks.png` (widened 2026-06-12 from 2 runs → 16 — H1).
+`docs/studies/archive/mtl_improvement/figs/grad_cosine_tasks.png` (widened 2026-06-12 from 2 runs → 16 — H1).
 **There is no gradient conflict for any
 balancer to resolve.** Gradient-surgery / dynamic-weighting methods only help under *strongly negative*
 cosine (high interference); at cos≈0 they cannot help — even correctly wired. This is *why* fixing the

@@ -107,4 +107,4 @@ Script: `/tmp/mi_audit.py` (read whole `next_region.parquet`, no filtering by fo
 - `docs/results/substrate_protocol_cleanup/tier_a1/phase_a1_verdict.md` (sweep summary)
 - `docs/results/substrate_protocol_cleanup/tier_a1/alabama/W{0.0,0.2}/seed0/run.log` (log_T loading messages)
 - `output/check2hgi/alabama/region_transition_log_seed0_fold1.pt` (payload schema)
-- Read for historical anchors: `docs/CONCERNS.md` §C18/C19/C22/C24; `docs/findings/F50_T4_C4_LEAK_DIAGNOSIS.md` (referenced); `docs/findings/F50_T4_BROADER_LEAKAGE_AUDIT.md` (referenced); `docs/studies/substrate-protocol-cleanup/window_mask_audit.md` (noted as PRE-DATING log_T-KD landing — does not cover A1).
+- Read for historical anchors: `docs/CONCERNS.md` §C18/C19/C22/C24; `docs/findings/F50_T4_C4_LEAK_DIAGNOSIS.md` (referenced); `docs/findings/F50_T4_BROADER_LEAKAGE_AUDIT.md` (referenced); `docs/studies/archive/substrate-protocol-cleanup/window_mask_audit.md` (noted as PRE-DATING log_T-KD landing — does not cover A1).

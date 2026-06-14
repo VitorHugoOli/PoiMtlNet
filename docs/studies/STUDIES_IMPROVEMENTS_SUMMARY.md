@@ -51,9 +51,9 @@
 
 ## Per-study detail
 
-### 1. `substrate-protocol-cleanup/` — ACTIVE → CLOSED 2026-05-29 (the focus study)
+### 1. `archive/substrate-protocol-cleanup/` — ACTIVE → CLOSED 2026-05-29 (the focus study)
 
-Five Tiers (A–D) of cheap, non-architectural cleanup carved out of `mtl-protocol-fix/DEFERRED_WORK.md`. The study did not need a champion; its purpose was clean verdicts orthogonal to the architectural revisit in `mtl_improvement`. Per-tier verdict table: `docs/studies/substrate-protocol-cleanup/CLOSURE.md:25-39`.
+Five Tiers (A–D) of cheap, non-architectural cleanup carved out of `archive/mtl-protocol-fix/DEFERRED_WORK.md`. The study did not need a champion; its purpose was clean verdicts orthogonal to the architectural revisit in `mtl_improvement`. Per-tier verdict table: `docs/studies/archive/substrate-protocol-cleanup/CLOSURE.md:25-39`.
 
 #### Tier A1 — log_T-KD (the single PROMOTION)
 
@@ -129,7 +129,7 @@ The 18-experiment canonical_improvement slate promoted exactly **two** items —
 
 ---
 
-### 2. `canonical_improvement/` — CLOSED 2026-05-19
+### 2. `archive/canonical_improvement/` — CLOSED 2026-05-19
 
 18-experiment, 5-tier slate to improve canonical Check2HGI on the **STL** axis (cf. `README.md:9`, INDEX.html). Compared against the STL matched-head ceiling (Table 2, seed=42 n=5). Verdict-and-classification table: `canonical_improvement_coverage_audit.md:32-59`.
 
@@ -150,7 +150,7 @@ Goal: merge HGI POI semantics into Check2HGI to close the **STL** canonical→HG
 
 ---
 
-### 4. `mtl-protocol-fix/` — CLOSED 2026-05-24 (v6 final), the predecessor study
+### 4. `archive/mtl-protocol-fix/` — CLOSED 2026-05-24 (v6 final), the predecessor study
 
 EV-ranked execution of `DEFERRED_WORK.md` (`PRIORITY_IMPACT.md:18-30`). Headline outcomes:
 
@@ -162,9 +162,9 @@ EV-ranked execution of `DEFERRED_WORK.md` (`PRIORITY_IMPACT.md:18-30`). Headline
 
 ---
 
-### 5. `mtl_improvement/` — ACTIVE (branch `mtl-improve`) — DESIGN-ONLY
+### 5. `archive/mtl_improvement/` — ACTIVE (branch `mtl-improve`) — DESIGN-ONLY
 
-T0–T8 chain (backbones, loss, batch, LR, α, heads, multi-seed champion). Owns the **architectural** fix for the residual MTL-vs-STL reg gap that every other study eliminated as non-architectural. **No experiment results on file** (`docs/results/mtl_improvement` does not exist); T0.2 mask audit closed-by-handoff to substrate-protocol-cleanup D1 (`mtl_improvement/log.md` tail). Design notes: cat needs the thick MLP at AL scale (−2.57 pp paper-grade loss if simplified); reg fine with Linear+LN. Full chain ~1250–1700 GPU-h estimate. **This is the live open frontier for next-reg MTL improvement.**
+T0–T8 chain (backbones, loss, batch, LR, α, heads, multi-seed champion). Owns the **architectural** fix for the residual MTL-vs-STL reg gap that every other study eliminated as non-architectural. **No experiment results on file** (`docs/results/mtl_improvement` does not exist); T0.2 mask audit closed-by-handoff to substrate-protocol-cleanup D1 (`archive/mtl_improvement/log.md` tail). Design notes: cat needs the thick MLP at AL scale (−2.57 pp paper-grade loss if simplified); reg fine with Linear+LN. Full chain ~1250–1700 GPU-h estimate. **This is the live open frontier for next-reg MTL improvement.**
 
 ---
 
@@ -174,15 +174,15 @@ Fed into `mtl_improvement` design. Files: EXPERIMENT_NO_ENCODERS, EXPERIMENT_HGI
 
 ---
 
-### 7. `hgi_category_injection/` — CLOSED (AZ falsified 2026-05-04)
+### 7. `archive/hgi_category_injection/` — CLOSED (AZ falsified 2026-05-04)
 
 6 variants on Arizona (seed=42, 30ep) injecting category into HGI's POI2Vec. None lifts next-cat F1 or next-reg Acc@10 above noise. Best (D_orth, orthogonal projection): cat +0.36 / reg +0.10, no Wilcoxon at n=5 (best p=0.0625 floor vs strict gate 0.0312) (`STATUS.md` table). Confirms "HGI POI2Vec ≈ fclass lookup" (dropping fclass→category collapses fclass probe 71%→13%). Kept pending FL/CA/TX re-open decision; do NOT treat as active without explicit re-open commit.
 
 ---
 
-### 8. `fusion/` — minimal/archived content
+### 8. `archive/fusion/` — minimal/archived content
 
-`docs/studies/fusion/` contains only `results/P0/folds/frozen.json` (a frozen-fold artefact). The fusion *study* is archived under `docs/archive/fusion-study/`; the FUSION *engine* remains first-class in code (per CLAUDE.md). No new improvement verdicts here.
+`docs/studies/archive/fusion/` contains only `results/P0/folds/frozen.json` (a frozen-fold artefact). The fusion *study* is archived under `docs/archive/fusion-study/`; the FUSION *engine* remains first-class in code (per CLAUDE.md). No new improvement verdicts here.
 
 ---
 

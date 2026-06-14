@@ -1,7 +1,7 @@
 # Future Work — POI decoder with HGI embedding as distillation target (§4.8)
 
 **Date drafted:** 2026-05-21
-**Source:** [`docs/studies/mtl-protocol-fix/DEFERRED_WORK.md`](../studies/mtl-protocol-fix/DEFERRED_WORK.md) §4.8. NEW memo flagged for drafting in DEFERRED_WORK.md §"NEW MEMOS TO DRAFT WHEN PICKED UP".
+**Source:** [`docs/studies/archive/mtl-protocol-fix/DEFERRED_WORK.md`](../studies/archive/mtl-protocol-fix/DEFERRED_WORK.md) §4.8. NEW memo flagged for drafting in DEFERRED_WORK.md §"NEW MEMOS TO DRAFT WHEN PICKED UP".
 **Sequencing:** speculative re-open of the canonical_improvement substrate axis (declared exhausted 2026-05-19 at ±0.8 pp ceiling). Pick up ONLY if a substrate-axis hook is needed AND `mtl_architecture_revisit.md` + `composite_two_substrate_engine.md` both leave a residual reg gap that the substrate side could plausibly close.
 
 ## What's deferred
@@ -60,7 +60,7 @@ When picked up:
 
 ## Pointers
 
-- Tier 4 falsified history: [`../studies/canonical_improvement/INDEX.html`](../studies/canonical_improvement/INDEX.html) §Tier 4
+- Tier 4 falsified history: [`../studies/archive/canonical_improvement/INDEX.html`](../studies/archive/canonical_improvement/INDEX.html) §Tier 4
 - Lever 6 falsified history: [`../studies/merge_design/LEVER_6_FINDINGS.md`](../studies/merge_design/LEVER_6_FINDINGS.md)
 - Composite alternative: [`composite_two_substrate_engine.md`](composite_two_substrate_engine.md)
 - HGI POI embedding: `output/hgi/{state}/poi_embeddings.parquet` (256-dim)

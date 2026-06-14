@@ -139,7 +139,7 @@ C29 was confirmed on HGI-only: category F1 drops from 0.786 → 0.144 (random-ch
 
 ### Resolution
 
-- [x] **Cheap proxy completed (2026-04-17):** linear probe on AL fusion category input. See `docs/studies/fusion/results/P1/linear_probe_fusion_AL.json`. Sphere2Vec-half probe F1 = 0.111 (below chance); HGI-half probe F1 = 0.688 (88% of MTL ceiling); full-fusion probe 0.682 (no lift from Sphere2Vec). **Shortcut fully carried by HGI half; Sphere2Vec does not mitigate.** C31 status updated from `pending` → `partial`.
+- [x] **Cheap proxy completed (2026-04-17):** linear probe on AL fusion category input. See `docs/studies/archive/fusion/results/P1/linear_probe_fusion_AL.json`. Sphere2Vec-half probe F1 = 0.111 (below chance); HGI-half probe F1 = 0.688 (88% of MTL ceiling); full-fusion probe 0.682 (no lift from Sphere2Vec). **Shortcut fully carried by HGI half; Sphere2Vec does not mitigate.** C31 status updated from `pending` → `partial`.
 - [ ] **Primary test pending:** extend `experiments/hgi_leakage_ablation.py` to generate a fusion input from a fclass-shuffled HGI embedding, then train MTL. Expected: MTL category F1 ≈ 0.15 (chance), matching the HGI-only arm-C result. ~30 min of plumbing + 1 training run (~10 min at 1f×10ep, or 35 min at 5f×50ep if we want apples-to-apples with the P1c cells).
 - [ ] Update CLAIMS C31 status from `partial` → `confirmed` once primary test lands.
 - [ ] Paper: add N05 or amend N03 to explicitly cover fusion.
@@ -283,5 +283,5 @@ Corrected in this session. Status is now `partially_refuted` to reflect: AL +0.0
 
 ### Resolution
 
-- [ ] Commit now: `git add docs/studies/fusion/ && git commit -m "study(P1): complete + critical review"`.
+- [ ] Commit now: `git add docs/studies/archive/fusion/ && git commit -m "study(P1): complete + critical review"`.
 - [ ] Do not squash — the multiple analysis passes (coordinator, critical review) are legitimate separate history.

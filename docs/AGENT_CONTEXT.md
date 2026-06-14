@@ -1,6 +1,6 @@
 # Check2HGI Study — Agent Context
 
-Read this before any scientific work on the `worktree-check2hgi-mtl` branch. It is the study-specific briefing extracted from the repo-wide `CLAUDE.md` — the check2HGI track's counterpart to `docs/studies/fusion/AGENT_CONTEXT.md`.
+Read this before any scientific work on the `worktree-check2hgi-mtl` branch. It is the study-specific briefing extracted from the repo-wide `CLAUDE.md` — the check2HGI track's counterpart to `docs/studies/archive/fusion/AGENT_CONTEXT.md`.
 
 ---
 
@@ -15,7 +15,7 @@ This study runs **alongside** the fusion study — they coexist under `docs/stud
 > - **`canonical_improvement` CLOSED 2026-05-19** — substrate axis exhausted ±0.8 pp (Tier 1-6, 26 mechanism families).
 > - **`mtl-protocol-fix` CLOSED 2026-05-24 v6 final** — F1 selector fix (`joint_geom_simple`) recovers +5.6 pp at FL multi-seed deployable axis. C21 RESOLVED. P4 frozen-cat identifies residual MTL-vs-STL reg gap as ARCHITECTURAL.
 > - **Phase 3 of `mtl-protocol-fix`** — §4.5 log_T-KD PROMOTED (+2.4/+5.1/+2.3 pp AL/AZ/FL Wilcoxon-strict); §4.6 class-balanced sampler FALSIFIED; §4.2 composite STL c2hgi-cat + STL HGI-reg ESTABLISHED as **current project headline on the reg axis (+7-12 pp vs MTL@disjoint at every state)**.
-> - **`mtl_improvement` SUCCEEDED 2026-06-06** (branch `mtl-improve`) — champion **"G"**: a single MTL model **MATCHES the STL reg ceiling (Pareto-non-inferior) + BEATS the cat ceiling (+3pp)** at all 4 states, 4-seed (tradeoff Pareto-POSITIVE), via the C25 unweighting fix + dual-tower/`aux`/prior-OFF. ⚠ reg verb CORRECTED 2026-06-07 (B-A2 found the earlier "beats reg" was an indist-vs-full metric mismatch; matched-metric G ~−0.35pp vs the reg ceiling). Experimental work complete; only the BRACIS paper-doc restatement remains. See [`studies/mtl_improvement/CHAMPION.md`](studies/mtl_improvement/CHAMPION.md) + `CONCERNS.md §C25` + `CANONICAL_VERSIONS.md §v16`.
+> - **`mtl_improvement` SUCCEEDED 2026-06-06** (branch `mtl-improve`) — champion **"G"**: a single MTL model **MATCHES the STL reg ceiling (Pareto-non-inferior) + BEATS the cat ceiling (+3pp)** at all 4 states, 4-seed (tradeoff Pareto-POSITIVE), via the C25 unweighting fix + dual-tower/`aux`/prior-OFF. ⚠ reg verb CORRECTED 2026-06-07 (B-A2 found the earlier "beats reg" was an indist-vs-full metric mismatch; matched-metric G ~−0.35pp vs the reg ceiling). Experimental work complete; only the BRACIS paper-doc restatement remains. See [`studies/archive/mtl_improvement/CHAMPION.md`](studies/archive/mtl_improvement/CHAMPION.md) + `CONCERNS.md §C25` + `CANONICAL_VERSIONS.md §v16`.
 > - **`substrate-protocol-cleanup` CLOSED 2026-05-29** (main) — Tier A-D substrate + protocol cleanup. log_T-KD PROMOTED (now **v12 default**); substrate axis NULL in MTL at AL/AZ/FL (regime-limited, even HGI ≈ canonical in MTL); ResLN encoder = STL-best (v12 default, no MTL benefit). Default flip v11→v12: see [`results/CANONICAL_VERSIONS.md`](results/CANONICAL_VERSIONS.md). BRACIS paper cites v11 (reproduce: `--log-t-kd-weight 0.0 --encoder gcn`).
 >
 > When both active studies land champions, the §0 pipeline will be **re-run from scratch** and this briefing refreshed. Until then, v11 below remains the paper-citable canon with the F1 / composite / log_T-KD caveats above. Cross-study outcomes log at [`studies/log.md`](studies/log.md).
@@ -51,7 +51,7 @@ This study runs **alongside** the fusion study — they coexist under `docs/stud
 > **Implications:**
 > - The canonical_improvement Tier-6 T6.4 substrate hypothesis (POI-level supervision lifts reg) is **falsified at matched protocol** — T6.4 variants add Δ_reg = +0.08-0.17 pp over shipping under per-task disjoint, well within σ. The "+13 pp" originally claimed was a cross-selector artefact, not a substrate effect. See `CLAIMS_AND_HYPOTHESES.md` CH23-A.
 > - The selector bug affects **every Check2HGI MTL run in the published canon**. Future substrate comparisons under the production selector are comparing checkpoints where reg has destabilised; substrate-axis orderings may flip once the selector is fixed.
-> - See `CONCERNS.md` C21 (full diagnosis) and the **CLOSED follow-on study at [`docs/studies/mtl-protocol-fix/`](studies/mtl-protocol-fix/) (closed 2026-05-20 v6 final)** which validated the F1 fix at multi-seed (+5.6 pp at FL deployable selector axis), discovered the C22 stale log_T bug, and characterised the residual MTL-vs-STL gap as **architectural** (P4 frozen-cat test falsified the cat-task-interference hypothesis). Next-tier highest-EV is [`future_works/mtl_architecture_revisit.md`](future_works/mtl_architecture_revisit.md). Full closure verdict at [`docs/results/mtl_protocol_fix/phase1_phase2_verdict_v6_final.md`](results/mtl_protocol_fix/phase1_phase2_verdict_v6_final.md).
+> - See `CONCERNS.md` C21 (full diagnosis) and the **CLOSED follow-on study at [`docs/studies/archive/mtl-protocol-fix/`](studies/archive/mtl-protocol-fix/) (closed 2026-05-20 v6 final)** which validated the F1 fix at multi-seed (+5.6 pp at FL deployable selector axis), discovered the C22 stale log_T bug, and characterised the residual MTL-vs-STL gap as **architectural** (P4 frozen-cat test falsified the cat-task-interference hypothesis). Next-tier highest-EV is [`future_works/mtl_architecture_revisit.md`](future_works/mtl_architecture_revisit.md). Full closure verdict at [`docs/results/mtl_protocol_fix/phase1_phase2_verdict_v6_final.md`](results/mtl_protocol_fix/phase1_phase2_verdict_v6_final.md).
 
 **Headline (the classic MTL tradeoff, sign-consistent across 5 states):**
 - Cat: MTL ≥ STL at four of five states (AZ +1.20 p < 1e-4 / FL +1.40 p = 2e-06 / CA +1.68 p = 2e-06 / TX +1.89 p = 2e-06); AL is small-significantly negative (Δ = −0.78 pp, p = 0.036, n = 20 multi-seed; magnitude ~1.9% relative). **All five states (AL/AZ/CA/TX/FL) are now pooled multi-seed (n = 20) on the headline §0.1 axis — the last remaining single-seed asymmetry (FL) closed in v11.**
@@ -230,7 +230,7 @@ None yet — this study is freshly split from the fusion track. Issues raised du
 
 ## What lives in the sibling fusion study (don't touch from this branch)
 
-- `docs/studies/fusion/` — any artefact, any state.
+- `docs/studies/archive/fusion/` — any artefact, any state.
 - The POI-category classification task + HAVANA / PGC baselines.
 - The 5×20 arch×optim grid (fusion's P1).
 - The fusion engine + Sphere2Vec + Time2Vec wrangling.

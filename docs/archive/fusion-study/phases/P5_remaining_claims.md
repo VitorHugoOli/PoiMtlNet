@@ -170,7 +170,7 @@ user-isolated; category F1 change expected to be negligible.
 
 **Budget:** ~30 min compute (two AL/DGI 5f × 50ep runs).
 
-**Output:** `docs/studies/fusion/results/P5/protocol_delta/`
+**Output:** `docs/studies/archive/fusion/results/P5/protocol_delta/`
 
 **Status:** planned — do NOT run until P1–P4 complete.
 

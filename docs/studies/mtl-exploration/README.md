@@ -1,6 +1,6 @@
 # mtl-exploration — support study (superseded for protocol-fix scope)
 
-> **Status (2026-05-20):** support / scaffold study. **The F1/F2/F3 workstream described in [`FUTUREWORK_substrate_aware_mtl_balancing.md`](FUTUREWORK_substrate_aware_mtl_balancing.md) is now picked up by the dedicated [`docs/studies/mtl-protocol-fix/`](../mtl-protocol-fix/) study (launched 2026-05-20).** The memo here is kept as a historical predecessor — read `../mtl-protocol-fix/` for the active plan.
+> **Status (2026-05-20):** support / scaffold study. **The F1/F2/F3 workstream described in [`FUTUREWORK_substrate_aware_mtl_balancing.md`](FUTUREWORK_substrate_aware_mtl_balancing.md) is now picked up by the dedicated [`docs/studies/archive/mtl-protocol-fix/`](../archive/mtl-protocol-fix/) study (launched 2026-05-20).** The memo here is kept as a historical predecessor — read `../archive/mtl-protocol-fix/` for the active plan.
 >
 > This folder gathers the artefacts from a one-day deep audit of the existing MTL state of the art + a follow-up ablation that surfaced (and helped fix) a real codebase bug. Its purpose was to give the next agent (and the user) a clean baseline before committing to the *real* MTL study — that real study is now `mtl-protocol-fix`.
 
@@ -49,7 +49,7 @@
 
 - **Paper-canonical numbers:** `docs/results/RESULTS_TABLE.md §0` (v11). Never cite this folder for paper-facing numbers.
 - **The MTL state-of-the-art narrative:** [`docs/MTL_ARCHITECTURE_JOURNEY.md`](../../MTL_ARCHITECTURE_JOURNEY.md) and [`docs/findings/`](../../findings/) (the F-trail).
-- **The "real" follow-up studies:** [`docs/studies/canonical_improvement/`](../canonical_improvement/) and [`docs/studies/merge_design/`](../merge_design/).
+- **The "real" follow-up studies:** [`docs/studies/archive/canonical_improvement/`](../archive/canonical_improvement/) and [`docs/studies/merge_design/`](../merge_design/).
 - **The codebase fix details:** `src/training/runners/mtl_cv.py` (n_splits guard) and `scripts/compute_region_transition.py` (payload n_splits field), both 2026-05-15.
 
 ## Reproducing the experiments

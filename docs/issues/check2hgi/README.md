@@ -2,7 +2,7 @@
 
 Deep-dive audits of flaws, bugs, and methodological issues discovered during the study. Complements `CONCERNS.md` (lightweight index of open concerns) with full investigations.
 
-Convention (mirrors `docs/studies/fusion/issues/`):
+Convention (mirrors `docs/studies/archive/fusion/issues/`):
 - `<ISSUE_NAME>_AUDIT.md` — investigation + fix + verification
 - `<ISSUE_NAME>_EXPLAINED.md` — optional deeper explanation for reviewers
 

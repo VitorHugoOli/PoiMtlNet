@@ -153,7 +153,7 @@
   <li><strong>Substrate task-asymmetry</strong> — per-visit context drives the cat lift; region pooling erases the per-visit variance. <a href="findings/SUBSTRATE_COMPARISON_FINDINGS.md">findings/SUBSTRATE_COMPARISON_FINDINGS.md</a>.</li>
   <li><strong>F49 — λ=0 cross-attn methodology side-finding</strong>: loss-side <code>task_weight=0</code> ablation does NOT isolate the targeted encoder under cross-attention (silenced encoder co-adapts via attention K/V). Encoder-frozen isolation is required. Generalises beyond our study (MulT, InvPT, HMT-GRN). <a href="findings/F49_LAMBDA0_DECOMPOSITION_RESULTS.md">findings/F49_LAMBDA0_DECOMPOSITION_RESULTS.md</a>, <a href="findings/F49_LAMBDA0_DECOMPOSITION_GAP.md">F49_LAMBDA0_DECOMPOSITION_GAP.md</a>.</li>
   <li><strong>FL Markov-1-region floor</strong> — at FL Gowalla, Markov-1-region transitions cover ≥ 85% of validation rows (Acc@10 floor ≈ 65%). Our STAN-Flow exceeds it; MTL trails on Acc@10 but exceeds on Acc@5 + MRR. Honest framing in <a href="../articles/[BRACIS]_Beyond_Cross_Task/STATISTICAL_AUDIT.md">articles/STATISTICAL_AUDIT.md §7.3</a>.</li>
-  <li><strong>HGI POI2Vec ≈ fclass lookup</strong> — diagnosed in the closed hgi_category_injection sub-study. <a href="studies/hgi_category_injection/STATUS.md">studies/hgi_category_injection/STATUS.md</a>.</li>
+  <li><strong>HGI POI2Vec ≈ fclass lookup</strong> — diagnosed in the closed hgi_category_injection sub-study. <a href="studies/archive/hgi_category_injection/STATUS.md">studies/archive/hgi_category_injection/STATUS.md</a>.</li>
   <li><strong>F-trail journey:</strong> the supplementary-material narrative is in <a href="MTL_ARCHITECTURE_JOURNEY.md">MTL_ARCHITECTURE_JOURNEY.md</a> (B3 → F45 → F48-H3-alt → F49 → paper closure). Per-experiment findings: <a href="findings/">findings/</a> (66 entries, with topic index in <a href="findings/README.md">findings/README.md</a>).</li>
 </ul>
 
@@ -194,9 +194,9 @@
 </thead>
 <tbody>
 <tr>
-  <td><a href="studies/canonical_improvement/"><code>canonical_improvement/</code></a></td>
+  <td><a href="studies/archive/canonical_improvement/"><code>canonical_improvement/</code></a></td>
   <td><span class="tag tag-active">ACTIVE</span> — 18-experiment slate across 5 tiers</td>
-  <td><a href="studies/canonical_improvement/AGENT_PROMPT.md">AGENT_PROMPT.md</a></td>
+  <td><a href="studies/archive/canonical_improvement/AGENT_PROMPT.md">AGENT_PROMPT.md</a></td>
 </tr>
 <tr>
   <td><a href="studies/merge_design/"><code>merge_design/</code></a></td>
@@ -204,9 +204,9 @@
   <td><a href="studies/merge_design/STATE.md">STATE.md</a></td>
 </tr>
 <tr>
-  <td><a href="studies/hgi_category_injection/"><code>hgi_category_injection/</code></a></td>
+  <td><a href="studies/archive/hgi_category_injection/"><code>hgi_category_injection/</code></a></td>
   <td><span class="tag tag-closed">CLOSED</span> — AZ falsified 2026-05-04; kept pending FL/CA/TX revisit</td>
-  <td><a href="studies/hgi_category_injection/STATUS.md">STATUS.md</a> + <a href="studies/hgi_category_injection/INDEX.md">INDEX.md</a></td>
+  <td><a href="studies/archive/hgi_category_injection/STATUS.md">STATUS.md</a> + <a href="studies/archive/hgi_category_injection/INDEX.md">INDEX.md</a></td>
 </tr>
 </tbody>
 </table>

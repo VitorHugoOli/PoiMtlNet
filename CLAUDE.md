@@ -15,11 +15,11 @@ The project's primary study is **check2hgi** — a check-in-level Check2HGI subs
 - **Paper**: [`articles/[BRACIS]_Beyond_Cross_Task/`](articles/[BRACIS]_Beyond_Cross_Task/) — BRACIS 2026 submission working folder (`AGENT.md` first if writing prose, then `PAPER_DRAFT.md`, `PAPER_STRUCTURE.md`, `STATISTICAL_AUDIT.md`, `TABLES_FIGURES.md`, `samplepaper.tex`, `references.bib`, `AUDIT_LOG.md`).
 
 **Follow-up studies** (layered on check2hgi) live under [`docs/studies/`](docs/studies/) — the status registry is [`docs/studies/README.md`](docs/studies/README.md) + the outcomes log [`docs/studies/log.md`](docs/studies/log.md). Highlights:
-- [`docs/studies/mtl_improvement/`](docs/studies/mtl_improvement/) — **CLOSED 2026-06-12**: the C25 class-weighting confound dissolved the "MTL sacrifices reg" gap; champion **G (= canon v16, the `train.py --task mtl` default)** matches the STL reg ceiling + beats the cat ceiling +2.6…+4.1 (4 states × 4 seeds). Read [`FINAL_SYNTHESIS.md`](docs/studies/mtl_improvement/FINAL_SYNTHESIS.md) first (incl. the corrections registry).
+- [`docs/studies/archive/mtl_improvement/`](docs/studies/archive/mtl_improvement/) — **CLOSED 2026-06-12**: the C25 class-weighting confound dissolved the "MTL sacrifices reg" gap; champion **G (= canon v16, the `train.py --task mtl` default)** matches the STL reg ceiling + beats the cat ceiling +2.6…+4.1 (4 states × 4 seeds). Read [`FINAL_SYNTHESIS.md`](docs/studies/archive/mtl_improvement/FINAL_SYNTHESIS.md) first (incl. the corrections registry).
 - [`docs/studies/closing_data/`](docs/studies/closing_data/) — **SCAFFOLDED, not launched**: the experimental engine for the NEW paper (cross-study re-eval + BRACIS-suite RUN_MATRIX inventory → pre-freeze gates → recipe+substrate freeze → full base regeneration once: STL baselines re-run + champion + suite cells, ALL states × 4 seeds × 5 folds). Read `AGENT_PROMPT.md` + `PLAN.md`.
-- [`docs/studies/canonical_improvement/`](docs/studies/canonical_improvement/) — CLOSED; 18-experiment slate to improve canonical Check2HGI.
+- [`docs/studies/archive/canonical_improvement/`](docs/studies/archive/canonical_improvement/) — CLOSED; 18-experiment slate to improve canonical Check2HGI.
 - [`docs/studies/merge_design/`](docs/studies/merge_design/) — Designs A-M / Levers 1-6 / Phase 11.
-- [`docs/studies/hgi_category_injection/`](docs/studies/hgi_category_injection/) — CLOSED (AZ falsified 2026-05-04). Read `STATUS.md`.
+- [`docs/studies/archive/hgi_category_injection/`](docs/studies/archive/hgi_category_injection/) — CLOSED (AZ falsified 2026-05-04). Read `STATUS.md`.
 
 The earlier **fusion** study has been archived under [`docs/archive/fusion-study/`](docs/archive/fusion-study/) — concepts, results, claim catalog, leakage diagnoses, lab-notebook records all preserved intact.
 
@@ -167,7 +167,7 @@ Configure `state` (florida, alabama, etc.) and engine. Outputs go to `results/{e
 > - **v11** = the BRACIS **paper canon** (FROZEN): B9/H3-alt recipe, **GCN substrate**, **log_T-KD OFF**. `docs/results/RESULTS_TABLE.md §0.1` IS v11. The on-disk `output/check2hgi/<state>/` IS the frozen v11 GCN substrate — do NOT overwrite it.
 > - **v12** = the **new code default**: v11 + **log_T-KD W=0.2 ON** (scoped to MTL `check2hgi_next_region`) + **ResLN encoder** (future builds). log_T-KD is paper-grade at AL/AZ + single-seed pilot at FL/CA/TX; ResLN is **STL-only, NO MTL benefit** (the regime finding).
 > - **v13** = the **recommended STL / forward-MTL base** (opt-in, NOT a default — `--engine` is always explicit): engine **`check2hgi_resln_design_b`** (ResLN + POI2Vec@pool). Best STL dual-axis engine (equalises HGI reg at AL, keeps/widens cat); **STL-only, NO MTL benefit today** — it is the strongest base for future MTL work. Needs the POI2Vec teacher; built at all five states (AL/AZ/FL/CA/TX) as of 2026-05-30. Canonical `check2hgi` engine identity unchanged → paper-safe. See CANONICAL_VERSIONS §v13.
-> - **v14** = the **NEW recommended STL / forward-MTL base** (opt-in, supersedes v13 — `embedding_eval` Part-1 CLOSED 2026-06-02): engine **`check2hgi_design_k_resln_mae_l0_1`** (ResLN+mae cat lever ⊕ Delaunay-POI-GCN reg lever [design_k], orthogonal stack). Leak-free multi-seed FL: next-cat 67.36 (≈ frozen-canon ≫ HGI) + next-reg 0.7024 (closes ~69% of the canon→HGI gap; design_k(gcn) reg 0.7034 closes ~78% but is −2.5pp cat; HGI keeps a −0.36pp reg edge). **STL-only, NO MTL benefit** (v14 or dual-substrate routing pilots) — the MTL cross-attn regime is the wall. design_k was wrongly discarded by a prior AL/AZ-only study; FL re-validation overturned it. Mechanisms graduated into `Check2HGIModule` (`reg_poi_mode`); canonical `check2hgi` untouched → paper-safe. See CANONICAL_VERSIONS §v14 + `docs/studies/embedding_eval/FINAL_SYNTHESIS.md`.
+> - **v14** = the **NEW recommended STL / forward-MTL base** (opt-in, supersedes v13 — `embedding_eval` Part-1 CLOSED 2026-06-02): engine **`check2hgi_design_k_resln_mae_l0_1`** (ResLN+mae cat lever ⊕ Delaunay-POI-GCN reg lever [design_k], orthogonal stack). Leak-free multi-seed FL: next-cat 67.36 (≈ frozen-canon ≫ HGI) + next-reg 0.7024 (closes ~69% of the canon→HGI gap; design_k(gcn) reg 0.7034 closes ~78% but is −2.5pp cat; HGI keeps a −0.36pp reg edge). **STL-only, NO MTL benefit** (v14 or dual-substrate routing pilots) — the MTL cross-attn regime is the wall. design_k was wrongly discarded by a prior AL/AZ-only study; FL re-validation overturned it. Mechanisms graduated into `Check2HGIModule` (`reg_poi_mode`); canonical `check2hgi` untouched → paper-safe. See CANONICAL_VERSIONS §v14 + `docs/studies/archive/embedding_eval/FINAL_SYNTHESIS.md`.
 > - **To reproduce v11 paper numbers from v12-default code: pass `--log-t-kd-weight 0.0` and use the frozen GCN substrate.**
 >
 > ⚠ **For Check2HGI MTL you MUST pass the full canonical recipe — bare defaults will NOT reproduce paper numbers.** Three classes of flag are silently wrong by default and each one alone drops a head by 10–30 pp:
@@ -329,8 +329,8 @@ When a branch is dedicated to one of those follow-up studies (or a new one), cre
 ```markdown
 # Branch-active study
 This branch is the **canonical_improvement** study. Read first:
-- `docs/studies/canonical_improvement/AGENT_PROMPT.md`
-- `docs/studies/canonical_improvement/log.md`
+- `docs/studies/archive/canonical_improvement/AGENT_PROMPT.md`
+- `docs/studies/archive/canonical_improvement/log.md`
 ```
 
 If `CLAUDE.local.md` does not exist, the primary check2hgi study at `docs/` root is the default context.

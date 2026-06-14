@@ -20,14 +20,14 @@ The promotion `git mv` preserves the file but the internal refs become wrong (be
 - `docs/studies/check2hgi/README.md` (becomes `docs/README.md` — replaced wholesale)
 - `docs/studies/check2hgi/issues/README.md`
 - `docs/studies/check2hgi/research/*.md` (~40 files referencing each other) → moves to `docs/findings/`
-- `docs/studies/check2hgi/research/canonical_improvement/{AGENT_PROMPT.md, INDEX.html, considerations.md, log.md}` → moves to `docs/studies/canonical_improvement/`
+- `docs/studies/check2hgi/research/canonical_improvement/{AGENT_PROMPT.md, INDEX.html, considerations.md, log.md}` → moves to `docs/studies/archive/canonical_improvement/`
 - `docs/studies/check2hgi/research/merge_design/*` → moves to `docs/studies/merge_design/`
-- `docs/studies/check2hgi/research/hgi_category_injection/INDEX.md` → moves to `docs/studies/hgi_category_injection/`
+- `docs/studies/check2hgi/research/hgi_category_injection/INDEX.md` → moves to `docs/studies/archive/hgi_category_injection/`
 - `docs/studies/check2hgi/research/archive/F50/*.md` → moves to `docs/findings/archive/F50/`
 - `docs/studies/check2hgi/archive/post_paper_closure_2026-05-01/*.md` → moves to `docs/archive/check2hgi-post-paper-closure-2026-05-01/`
 - `docs/studies/check2hgi/launch_plans/*.md` → moves to `docs/launch_plans/`
 
-## Refs to `docs/studies/fusion/` (will become `docs/archive/fusion-study/`)
+## Refs to `docs/studies/archive/fusion/` (will become `docs/archive/fusion-study/`)
 
 - `CLAUDE.md`
 - `experiments/hgi_leakage_ablation.py`
@@ -36,7 +36,7 @@ The promotion `git mv` preserves the file but the internal refs become wrong (be
 - `docs/reports/report_v1_20260415.md`, `docs/reports/README.md`
 - `docs/studies/check2hgi/AGENT_CONTEXT.md` (cross-references fusion docs)
 
-**NOTE**: Many of these are Python scripts that read `docs/studies/fusion/state.json` etc. at runtime. Need to verify whether they ALSO need `docs/archive/fusion-study/state.json` after the move, OR if the original path needs to stay live (e.g., as a symlink). Decide in 3-1 execution.
+**NOTE**: Many of these are Python scripts that read `docs/studies/archive/fusion/state.json` etc. at runtime. Need to verify whether they ALSO need `docs/archive/fusion-study/state.json` after the move, OR if the original path needs to stay live (e.g., as a symlink). Decide in 3-1 execution.
 
 ## Refs to `docs/RUNPOD_GUIDE.md` and `docs/COLAB_GUIDE.md` (become breadcrumbs)
 

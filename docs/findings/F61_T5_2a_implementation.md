@@ -9,7 +9,7 @@ exact Hyp A signature that closed §Discussion-DEAD on 2026-05-17 via
 pooled p₂ = 0.024 across n=5. See `## Results (2026-05-18)` below and
 `docs/results/canonical_improvement/STACKING_ABLATION.md §7`.
 **Date**: 2026-05-17
-**Spec**: `docs/studies/canonical_improvement/INDEX.html#T5-2a`
+**Spec**: `docs/studies/archive/canonical_improvement/INDEX.html#T5-2a`
 **Sister F-trail entries**: F60 (T5.1 ID embedding, sister agent), F62 (T5.2b masked POI), F63 (T5.3 multi-view).
 
 > **Integration audit (2026-05-17, applied in integration branch):**
@@ -255,6 +255,6 @@ mechanistic reading for paper §7 Beat 7.
 
 **Documentation:**
 - `docs/results/canonical_improvement/STACKING_ABLATION.md §7` (per-candidate verdict table)
-- `docs/studies/canonical_improvement/log.md` 2026-05-18 entry
-- `docs/studies/canonical_improvement/INDEX.html` T5.2a results-placeholder cell
+- `docs/studies/archive/canonical_improvement/log.md` 2026-05-18 entry
+- `docs/studies/archive/canonical_improvement/INDEX.html` T5.2a results-placeholder cell
 - `articles/[BRACIS]_Beyond_Cross_Task/PAPER_DRAFT.md §7 Beat 7`

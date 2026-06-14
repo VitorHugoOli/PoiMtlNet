@@ -1,7 +1,7 @@
 # Future Work — Paper-canon §0.1 multi-seed re-evaluation under the F1-fix selector
 
 **Date drafted:** 2026-05-20
-**Source studies:** [`docs/studies/canonical_improvement/`](../studies/canonical_improvement/) (Tier 6 CORRECTION 2026-05-19), [`docs/studies/mtl-protocol-fix/`](../studies/mtl-protocol-fix/) (sequencing decision 2026-05-20)
+**Source studies:** [`docs/studies/archive/canonical_improvement/`](../studies/archive/canonical_improvement/) (Tier 6 CORRECTION 2026-05-19), [`docs/studies/archive/mtl-protocol-fix/`](../studies/archive/mtl-protocol-fix/) (sequencing decision 2026-05-20)
 **Sequencing:** **deferred until after MTL-architecture revisit (`mtl_architecture_revisit.md`) lands**, because the paper-canon re-evaluation only carries weight if it includes whatever MTL arch / loss balancing the next round of work surfaces.
 
 ## What's deferred

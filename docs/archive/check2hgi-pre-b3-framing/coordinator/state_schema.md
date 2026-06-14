@@ -1,12 +1,12 @@
 # State.json Schema — Check2HGI Study
 
-The state-file schema is **shared** with the fusion study. See `docs/studies/fusion/coordinator/state_schema.md` for the full specification (top-level fields, per-phase fields, per-test fields, lifecycle transitions).
+The state-file schema is **shared** with the fusion study. See `docs/studies/archive/fusion/coordinator/state_schema.md` for the full specification (top-level fields, per-phase fields, per-test fields, lifecycle transitions).
 
 ## Check2HGI-specific fields
 
 Beyond the shared schema, `docs/studies/check2hgi/state.json` includes:
 
-- **`sibling_studies`** — array documenting parallel studies (currently `[{name: "fusion", path: "docs/studies/fusion", ...}]`). Cosmetic; the coordinator does not read these but humans do.
+- **`sibling_studies`** — array documenting parallel studies (currently `[{name: "fusion", path: "docs/studies/archive/fusion", ...}]`). Cosmetic; the coordinator does not read these but humans do.
 
 ## Per-test `observed` fields for this study
 

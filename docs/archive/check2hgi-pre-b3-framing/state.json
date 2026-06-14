@@ -6,7 +6,7 @@
   "sibling_studies": [
     {
       "name": "fusion",
-      "path": "docs/studies/fusion",
+      "path": "docs/studies/archive/fusion",
       "relationship": "parallel — separate task (POI-category classification), separate baselines (HAVANA/PGC/POI-RGNN), separate state machine. Shared codebase + infrastructure."
     }
   ],

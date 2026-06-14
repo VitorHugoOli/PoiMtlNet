@@ -1,0 +1,2324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Canonical Check2HGI Improvement Track &mdash; Experiment Design &amp; Index</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #161a22;
+    --panel-2: #1c212c;
+    --text: #e6e9ef;
+    --muted: #9aa3b2;
+    --accent: #6ea8fe;
+    --accent-2: #5dd39e;
+    --warn: #ffb454;
+    --bad: #ef6a6a;
+    --good: #4ade80;
+    --tier1: #5dd39e;
+    --tier2: #6ea8fe;
+    --tier3: #c792ea;
+    --tier4: #ffb454;
+    --tier5: #ff79c6;
+    --border: #2a3140;
+    --code-bg: #0b0e13;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+    font-size: 14.5px;
+  }
+  .layout { display: grid; grid-template-columns: 300px 1fr; min-height: 100vh; }
+  nav.toc {
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    padding: 24px 18px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  nav.toc h2 { color: var(--accent); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 18px;}
+  nav.toc h2:first-child { margin-top: 0; }
+  nav.toc ul { list-style: none; padding-left: 0; margin: 6px 0 0 0; }
+  nav.toc li a { color: var(--muted); text-decoration: none; display: block; padding: 3px 8px; border-radius: 4px; font-size: 12.5px;}
+  nav.toc li a:hover { color: var(--text); background: var(--panel-2); }
+  nav.toc li.tier-head { font-weight: 600; margin-top: 4px; }
+  main { padding: 32px 48px; max-width: 1100px; }
+  h1 { font-size: 26px; margin: 0 0 4px 0; color: #fff; }
+  .subtitle { color: var(--muted); margin-bottom: 28px; font-size: 13.5px;}
+  h2 {
+    margin-top: 44px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+    font-size: 20px;
+    color: var(--accent);
+  }
+  h3 { margin-top: 24px; color: var(--accent-2); font-size: 16px; }
+  h4 { margin-top: 18px; color: var(--text); font-size: 14.5px; }
+  p, li { color: var(--text); }
+  code {
+    background: var(--code-bg);
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 12.5px;
+    color: #f5d28a;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+  }
+  pre {
+    background: var(--code-bg);
+    padding: 12px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    overflow-x: auto;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  pre code { background: none; padding: 0; color: #d6e2f0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    background: var(--panel);
+    border-radius: 6px;
+    overflow: hidden;
+    font-size: 12.5px;
+  }
+  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: var(--panel-2); color: var(--accent); font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.04em; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tr:last-child td { border-bottom: none; }
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: var(--panel);
+    padding: 14px 18px;
+    margin: 18px 0;
+    border-radius: 0 6px 6px 0;
+  }
+  .callout.good { border-left-color: var(--good); }
+  .callout.warn { border-left-color: var(--warn); }
+  .callout.bad  { border-left-color: var(--bad); }
+  .callout h4 { margin: 0 0 6px 0; }
+  .pill {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 10px;
+    font-size: 10.5px;
+    font-weight: 600;
+    margin-right: 4px;
+    letter-spacing: 0.02em;
+  }
+  .pill.good { background: rgba(74,222,128,0.15); color: var(--good); }
+  .pill.bad  { background: rgba(239,106,106,0.15); color: var(--bad); }
+  .pill.warn { background: rgba(255,180,84,0.15); color: var(--warn); }
+  .pill.info { background: rgba(110,168,254,0.15); color: var(--accent); }
+  .pill.tier1 { background: rgba(93,211,158,0.15); color: var(--tier1); }
+  .pill.tier2 { background: rgba(110,168,254,0.15); color: var(--tier2); }
+  .pill.tier3 { background: rgba(199,146,234,0.15); color: var(--tier3); }
+  .pill.tier4 { background: rgba(255,180,84,0.15); color: var(--tier4); }
+  .pill.tier5 { background: rgba(255,121,198,0.15); color: var(--tier5); }
+  .pill.cost-s { background: rgba(74,222,128,0.12); color: var(--good); }
+  .pill.cost-m { background: rgba(255,180,84,0.12); color: var(--warn); }
+  .pill.cost-l { background: rgba(239,106,106,0.12); color: var(--bad); }
+  .experiment {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0;
+  }
+  .experiment > h3 {
+    margin-top: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .experiment .meta { font-size: 12px; color: var(--muted); margin: 4px 0 10px 0; }
+  .experiment .block {
+    margin: 10px 0;
+  }
+  .experiment .block-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+  .experiment .results-placeholder {
+    background: var(--code-bg);
+    border: 1px dashed var(--border);
+    padding: 10px 14px;
+    border-radius: 4px;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 12.5px;
+  }
+  .delta-pos { color: var(--good); font-weight: 600; }
+  .delta-neg { color: var(--bad);  font-weight: 600; }
+  .delta-flat { color: var(--muted); }
+  hr.section { border: none; border-top: 1px dashed var(--border); margin: 30px 0; }
+  .footnote { font-size: 11.5px; color: var(--muted); margin-top: 4px; }
+  .ascii-diagram {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 11.5px;
+    color: #c8d3e2;
+    white-space: pre;
+    overflow-x: auto;
+    line-height: 1.4;
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav class="toc">
+  <h2>Track Map</h2>
+  <ul>
+    <li><a href="#tldr">TL;DR &amp; scope</a></li>
+    <li><a href="#exec">Execution guidelines</a></li>
+    <li><a href="#falsified">Falsified history (do not retry)</a></li>
+    <li><a href="#audit">Audit of user considerations</a></li>
+    <li><a href="#eval">Evaluation framework</a></li>
+  </ul>
+
+  <h2>Tier 1 &mdash; Hygiene</h2>
+  <ul>
+    <li><a href="#T1-1">T1.1 Leak audit</a></li>
+    <li><a href="#T1-2">T1.2 Multi-seed</a></li>
+    <li><a href="#T1-3">T1.3 &alpha; sweep</a></li>
+    <li><a href="#T1-4">T1.4 Best-epoch by probe</a></li>
+    <li><a href="#T1-5">T1.5 Optimizer hygiene</a></li>
+    <li><a href="#T1-6">T1.6 Epoch budget</a></li>
+  </ul>
+
+  <h2>Tier 2 &mdash; Loss / negatives</h2>
+  <ul>
+    <li><a href="#T2-1">T2.1 p2r hard negatives</a></li>
+    <li><a href="#T2-2">T2.2 InfoNCE @ p2r</a></li>
+    <li><a href="#T2-3">T2.3 Feature corruption p2r/r2c</a></li>
+    <li><a href="#T2-4">T2.4 DropEdge</a></li>
+  </ul>
+
+  <h2>Tier 3 &mdash; Architecture</h2>
+  <ul>
+    <li><a href="#T3-1">T3.1 GATv2 temporal</a></li>
+    <li><a href="#T3-2">T3.2 ResidualLN encoder</a></li>
+    <li><a href="#T3-3">T3.3 Heterogeneous edges</a></li>
+    <li><a href="#T3-4">T3.4 Time2Vec</a></li>
+  </ul>
+
+  <h2>Tier 4 &mdash; Semantic recovery</h2>
+  <ul>
+    <li><a href="#T4-1">T4.1 GraphMAE recon</a></li>
+    <li><a href="#T4-2">T4.2 SwAV prototypes</a></li>
+    <li><a href="#T4-3">T4.3 POI side-features</a></li>
+    <li><a href="#T4-4">T4.4 Spatial-lifted edges</a></li>
+  </ul>
+
+  <h2>Tier 5 &mdash; Stretch</h2>
+  <ul>
+    <li><a href="#T5-1">T5.1 POI ID embedding</a></li>
+    <li><a href="#T5-2a">T5.2a Joint Node2Vec POI-POI</a></li>
+    <li><a href="#T5-2b">T5.2b Masked POI features</a></li>
+    <li><a href="#T5-3">T5.3 Multi-view co-training</a></li>
+  </ul>
+
+  <h2>Tier 6 &mdash; POI-level supervision (reg-gap)</h2>
+  <ul>
+    <li><a href="#G3">G3 Per-POI hold-out probe</a></li>
+    <li><a href="#T6-1">T6.1 POI-co-visit InfoNCE (4th boundary)</a></li>
+    <li><a href="#T6-2">T6.2 Composite C3 edge weights</a></li>
+    <li><a href="#T6-3">T6.3 Low-rank POI side-channel</a></li>
+    <li><a href="#T6-4">T6.4 Finish T2.2 + T2.3</a></li>
+  </ul>
+
+  <h2>Reference</h2>
+  <ul>
+    <li><a href="#refs">External literature</a></li>
+    <li><a href="#integration">Future integration with merge-design</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<h1>Canonical Check2HGI Improvement Track</h1>
+<p class="subtitle">
+  A research track to improve canonical Check2HGI <em>without</em> using the merge-family approach
+  (no importing HGI&#39;s pretrained POI2Vec at the POI&#8209;pool boundary). Findings here will be combined with
+  the merge-design findings later. Design last updated 2026-05-14; <strong>study CLOSED 2026-05-16 at Tier-4
+  paper-closeout (see banner below)</strong>.
+</p>
+
+<div class="callout" style="border-left:4px solid var(--good); padding:14px;">
+<h3 style="margin-top:0;">📋 STUDY CLOSED 2026-05-16 — final shipping stack</h3>
+<p><strong>canonical Check2HGI + v3c (AdamW WD=5e-2) + T3.2 ResidualLN encoder</strong> &mdash; two paper-grade
+micro-improvements on disjoint axes (v3c &rarr; reg-FL, T3.2 &rarr; cat all three states), IJM-verified
+structurally honest.</p>
+
+<table>
+<tr><th>state</th><th>cat F1 lift</th><th>reg Acc@10 lift</th><th>leak drift</th><th>paired sign test (5 seeds)</th></tr>
+<tr><td>FL</td><td><strong>+0.86</strong></td><td><strong>+0.71</strong></td><td>+2.24 pp</td><td>both axes p=0.03125 ✅</td></tr>
+<tr><td>AL</td><td><strong>+1.48</strong></td><td>−0.29 (null)</td><td>+1.69 pp</td><td>cat p=0.03125 ✅</td></tr>
+<tr><td>AZ</td><td><strong>+1.70</strong></td><td>−0.15 (null)</td><td>+2.46 pp</td><td>cat p=0.03125 ✅</td></tr>
+</table>
+
+<p><strong>IJM-masked leak probe</strong> (user-held-out StratifiedGroupKFold; <code>scripts/canonical_improvement/ijm_leak_probe.py</code>):
+T3.2 leak claim is <strong>STRUCTURALLY HONEST</strong>. Canonical FL SK 40.85 / SGKF 40.75 (drift +0.10). T3.2
+ResLN FL SK 43.40 / SGKF 43.43 (drift &minus;0.02). Drift difference &minus;0.13 pp &laquo; ±1 pp threshold &rarr;
+the +2.24 pp leak drift is encoder-architectural, not user-level leakage.</p>
+
+<p><strong>Methodological asset — 9 protocol-falsified variants</strong>: the pre-flight leak-probe protocol caught
+nine architecturally distinct variants before publication, with inflation magnitudes from +0.5 pp (mild)
+to +30 pp (catastrophic). Tabulated in §05:30 of <code>log.md</code> and in the per-variant cells below.</p>
+
+<p><strong>Deliverables</strong>:</p>
+<ul>
+  <li><code>docs/results/canonical_improvement/STACKING_ABLATION.md</code> &mdash; FL/AL/AZ multi-seed table for the shipping stack</li>
+  <li><code>docs/results/canonical_improvement/ijm_leak_probe_{canonical,t32_resln}_FL.json</code> &mdash; structural-honesty audit</li>
+  <li><code>docs/studies/archive/canonical_improvement/log.md §05:30</code> &mdash; final closeout entry</li>
+  <li>Hand-off to BRACIS paper writing: <code>articles/[BRACIS]_Beyond_Cross_Task/</code></li>
+</ul>
+
+<p><strong>What did NOT make it</strong>: T4.2 SwAV (skipped per Tier-4 wrap-up advisor &mdash; same axis as the
+already-saturated T4.1/T4.3/T4.4, ≤20 % prior on FL cat lift, not worth 3-4 hr deadline cost). Tier 5 deferred
+(highest-EV T5.1 POI ID embedding at ~25 % prior, separate leak-risk class).</p>
+</div>
+
+<!-- ================================================================ -->
+<div class="callout" style="border-left:4px solid var(--warn); padding:14px; margin-top:14px;">
+<h3 style="margin-top:0;">🔬 2026-05-17 — Categorical sign-off plan (Path 2 pragmatic closure)</h3>
+
+<p>Advisor #1 post-closure audit flagged: <em>"Hyp D rejected" is not the same as "shipping affirmed."</em> The Tier-1-4
+shipping claim has <strong>4 residual evidence holes</strong> from the post-Tier-4 hypothesis sweep, plus an honest
+re-audit of Hyp A/B/C statistical coverage.</p>
+
+<table>
+  <tr><th>Hyp</th><th>Coverage</th><th>Δcat (single-seed=42)</th><th>Status</th></tr>
+  <tr><td>A (v3c+T3.2+T4.3)</td><td>FL+AL+AZ n=1</td><td>FL=−0.00, AL=−0.33, AZ=−0.26</td><td>single-seed heuristic kill (3 states)</td></tr>
+  <tr><td>B (T2.4-sym+T3.2 no v3c)</td><td>AL n=1 only</td><td>AL=−0.19</td><td>single-state single-seed kill</td></tr>
+  <tr><td>C (T3.2+T4.3 no v3c)</td><td>FL n=1 only</td><td>FL=−0.18</td><td>single-state single-seed kill</td></tr>
+  <tr><td>D (canonical+T3.2 no v3c)</td><td>FL n=5 + AL/AZ n=1</td><td>FL=+0.20 (p=0.062), AL=−0.36, AZ=−0.45</td><td>partial multi-seed; needs AL+AZ multi-seed</td></tr>
+</table>
+
+<p><strong>5/5 directional consistency</strong> across all single-seed candidate tests (Δcat negative at every state for
+every Hyp) &mdash; pattern is unambiguous but n=1 is not paper-grade falsification.</p>
+
+<p><strong>Path 2 closure plan</strong> (~6&ndash;8 GPU-h vs Path 1's ~25&ndash;30 GPU-h full multi-seed expansion):</p>
+<ul>
+  <li><strong>Phase 1</strong> (~5 hr parallel):
+    <ul>
+      <li>1a &mdash; Hyp D AL multi-seed (seeds 0/1/7/100) &mdash; categorical small-state regression test</li>
+      <li>1b &mdash; Hyp D AZ multi-seed (seeds 0/1/7/100) &mdash; categorical small-state regression test</li>
+      <li>1c &mdash; Hyp A FL multi-seed (seeds 0/1/7/100) &mdash; Hyp A FL was Δcat=−0.00 (closest to borderline)</li>
+      <li>1d &mdash; IJM leak probe on Hyp D FL seed=42 &mdash; protocol parity with shipping</li>
+    </ul>
+  </li>
+  <li><strong>Phase 2</strong> (~1 hr parallel): v3c-only multi-seed at AL+AZ (task #59) &mdash; v3c marginal contribution row</li>
+  <li><strong>Phase 3</strong> &mdash; deferred unless Phase 1 indecisive: Hyp D FL n=10 (5 more seeds) only if AL+AZ
+    produces |mean Δcat| ∈ (0, 0.10).</li>
+</ul>
+
+<p><strong>Hyp B + Hyp C explicit caveat</strong> &mdash; no further multi-seed:</p>
+<p>Documented as single-state single-seed heuristic kills. Rationale: 5/5 directional consistency + 0/8 Tier-4 + Hyp
+sweep promotion rate makes further multi-seed investment low-EV. A meticulous reviewer asking "did you multi-seed Hyp B/C?"
+gets answered by the directional-consistency argument + Hyp D AL/AZ multi-seed (which IS the strongest of the 4 candidates).</p>
+
+<p><strong>Decision tree (post Phase 1+2)</strong>:</p>
+<ul>
+  <li>Hyp D AL/AZ multi-seed 5/5 negative &rarr; categorical small-state kill &rarr; <strong>shipping AFFIRMED CATEGORICALLY</strong>.</li>
+  <li>Hyp D AL/AZ sign flip &rarr; controlling premise broken &rarr; escalate to Phase 3 + paper headline rewrite.</li>
+  <li>Hyp A FL Δcat ≥ +0.3 multi-seed &rarr; re-open Hyp A; AL/AZ multi-seed required.</li>
+  <li>Otherwise &rarr; close Tier 1-4 categorically; proceed to Tier 5.</li>
+</ul>
+
+<p><strong>Categorical statement target</strong> (post Phase 1+2):</p>
+<blockquote style="margin:8px 0; padding:8px 12px; border-left:3px solid var(--muted); background:#f8f8f8;">
+"Shipping (canonical+v3c+T3.2) is the best Tier 1-4 outcome: dominates Hyp D at AL multi-seed (n=5), dominates Hyp D
+at AZ multi-seed (n=5), equivalent at FL multi-seed (n=5, paired-t p=0.062 borderline-null), v3c standalone documented
+at all 3 multi-seed states, both stacks pass identical IJM leak audit. Hyp B/C single-state single-seed kills documented;
+5/5 directional consistency across all single-seed candidate tests supports the categorical claim."
+</blockquote>
+
+<p><em>Status</em>: runs NOT yet launched (user hold). Tier-5 re-scoping advisor running in parallel.</p>
+</div>
+
+<!-- ================================================================ -->
+<div class="callout" style="border-left:4px solid var(--ok); padding:14px; margin-top:14px;">
+<h3 style="margin-top:0;">🔁 2026-05-17 — Tier 5 RE-SCOPED: all 4 candidates UN-DEFERRED</h3>
+
+<p>User pushed back on previous "skip T5.2b + T5.3" advisor call. Framing correction: <em>"all this experiments is to
+stretch, try new improvements and changes on check2hgi; POI is the under-engaged substrate."</em></p>
+
+<p><strong>Re-scoping advisor verdict</strong> &mdash; previous deferral failed on three grounds:</p>
+
+<ol>
+  <li><strong>T4.1 ≠ T5.2b (graph-level conflation)</strong>: T4.1 GraphMAE was at <strong>check-in level</strong> (mask
+    11-dim raw input feature). T5.2b is at <strong>POI level</strong> (mask whole POI pool entry, reconstruct from
+    Delaunay POI-POI neighborhood). Different graph hierarchy, different bottleneck, different inductive bias.
+    T5.2b's prior is <strong>independent / weakly-related at 35&ndash;45 %</strong>, not dominated by T4.1.</li>
+  <li><strong>T5.3 cost was inflated ~2×</strong>: spec says "2× canonical" → AL+AZ first-gate = <strong>~6 GPU-h,
+    NOT 25</strong>. The 25-hr estimate assumed FL gate + full λ grid + multi-seed front-loaded sequentially.
+    Skip the grid; run the diagnostic.</li>
+  <li><strong>POI-substrate coverage gap</strong>: each T5 candidate exercises an orthogonal POI dimension &mdash;
+    dropping any = coverage hole under the user's "stretch the substrate" framing.</li>
+</ol>
+
+<table>
+  <tr><th>Candidate</th><th>POI dimension</th><th>Native mechanism</th><th>In canonical?</th></tr>
+  <tr><td>T5.1</td><td>per-POI <strong>identity slot</strong></td><td><code>nn.Embedding(N_poi, 64)</code></td><td>No</td></tr>
+  <tr><td>T5.2a</td><td>POI-POI <strong>structural co-occurrence</strong></td><td>Node2Vec walks + skip-gram</td><td>No</td></tr>
+  <tr><td>T5.2b</td><td>POI-level <strong>feature self-supervision</strong></td><td>GraphMAE at POI pool, Delaunay decode</td><td>No</td></tr>
+  <tr><td>T5.3</td><td>POI <strong>cross-view alignment</strong></td><td>Symmetric MSE/InfoNCE View1↔View2</td><td>No</td></tr>
+</table>
+
+<p><strong>New ranking</strong> (previous → re-evaluated):</p>
+<ul>
+  <li>T5.1: RANK 1 → <strong>RANK 2</strong> (after T5.2 calibrates leak floor)</li>
+  <li>T5.2a: RANK 2 conditional → <strong>RANK 1 parallel w/ T5.2b</strong> (shared Delaunay preprocess)</li>
+  <li>T5.2b: SKIP → <strong>RANK 1 parallel w/ T5.2a</strong> (~5&ndash;6 GPU-h; paired falsification value with T4.1)</li>
+  <li>T5.3: SKIP → <strong>RANK 3 first-gate only</strong> (~6 GPU-h; novel mechanism class)</li>
+</ul>
+
+<p><strong>Reframed success</strong> &mdash; each candidate is an <em>exploration probe</em>, NOT a shipping candidate:</p>
+<ul>
+  <li><strong>Paper-discussion-worthy</strong>: finding lands in §Discussion (e.g. T5.2a probe lift = mechanism attribution)</li>
+  <li><strong>Future-work-worthy</strong>: finding lands in §Future Work (e.g. T5.1 probe lift with reg regression)</li>
+  <li><strong>Paired-falsification value</strong>: T5.2b clean negative with T4.1 = §Discussion para "GraphMAE-family falsifies at BOTH levels"</li>
+  <li><strong>Kill = waste of GPU-h</strong>: any cat regression &gt;2pp at AL (Phase-11 S3-b V2-c collapse pattern)</li>
+</ul>
+
+<p><strong>Sequencing (~24&ndash;28 GPU-h total first-gate budget)</strong>:</p>
+<ol>
+  <li><strong>Phase 1 parallel</strong>: T5.2a + T5.2b @ AL+AZ × λ=0.3 × single-seed (shared Delaunay). ~12&ndash;14 GPU-h.</li>
+  <li><strong>Phase 2</strong>: T5.1 @ AL+AZ × γ-sweep × single-seed. ~6&ndash;8 GPU-h. After T5.2 calibrates C18 leak baseline.</li>
+  <li><strong>Phase 3 conditional</strong>: T5.3 first-gate @ AL+AZ × λ_x=0.3. ~6 GPU-h. Only if budget remains.</li>
+</ol>
+
+<p><strong>Mandatory cross-cutting gates (all 4 candidates)</strong>: unit-test gate, IJM-masked leak probe with C18 budget
+Σ(Δleak) ≤ +5pp, 5 generality probes, kNN-Jaccard vs HGI diagnostic, cat-path-byte-identical flag.</p>
+
+<p><strong>Drop-priority if deadline forces cuts</strong>: drop T5.3 before T5.2b (T5.2b's paired-falsification with T4.1
+is the cheaper paper asset).</p>
+
+<p><em>Status</em>: runs NOT yet launched. Recommended interleaving: launch Path 2 Phase 1 (Hyp D AL/AZ + Hyp A FL + IJM probe)
+FIRST, then start T5.2a + T5.2b as Path 2 lands.</p>
+</div>
+
+<!-- ================================================================ -->
+<div class="callout" style="border-left:4px solid var(--good); padding:14px; margin-top:14px;">
+<h3 style="margin-top:0;">✅ 2026-05-17 — Path 2 Phase 1+1.5 CLOSED — Shipping FINAL, Tier 5 green-lit</h3>
+
+<p>All Phase 1 (9 JSONs) + Phase 1.5 (4 JSONs) results landed. Final advisor delivered categorical close.</p>
+
+<table>
+  <tr><th>Hyp</th><th>FL Δcat (p₂)</th><th>AL Δcat (p₂)</th><th>AZ Δcat (p₂)</th><th>Reg axis</th><th>Verdict</th></tr>
+  <tr><td><strong>Hyp A</strong> (T4.3+)</td><td>+0.353 (0.041 ✓)</td><td>−0.05 (NULL)</td><td>+0.02 (NULL)</td><td><strong>Pooled −0.89 pp (p=0.024 ✓ NEGATIVE)</strong></td><td>🛑 DEAD for shipping</td></tr>
+  <tr><td><strong>Hyp D</strong> (drop v3c)</td><td>+0.20 (0.082 borderline)</td><td>−0.06 (NULL)</td><td>+0.15 (NULL)</td><td>Pooled +0.29 (p=0.082 borderline POS)</td><td>📋 KEEP-AS-DOCUMENTATION</td></tr>
+</table>
+
+<p><strong>SHIPPING STACK FINAL</strong>: <code>canonical Check2HGI + v3c (AdamW WD=5e-2) + T3.2 ResLN encoder</code>. No change from 2026-05-16. §5 paper headlines stand.</p>
+
+<p><strong>Key findings</strong>:</p>
+<ul>
+  <li><strong>Hyp A is substrate-asymmetric</strong>: T4.3 side features lift FL cat (+0.35 pp p=0.041) but destroy small-state reg by ~0.9 pp pooled (paired-t p=0.024 paper-grade NEGATIVE, 8/10 paired observations negative). Documented as §Discussion finding for the paper.</li>
+  <li><strong>v3c is dispensable at the mean</strong>: Hyp D shows statistical equivalence to shipping on 7 of 9 axis×state cells; trend-positive small-state reg restoration. v3c retained for protocol inertia + locked 5-state replication coverage, NOT for measured marginal lift.</li>
+  <li><strong>IJM leak parity confirmed</strong>: Hyp D drift +0.016 pp vs shipping −0.024 pp — both structurally honest. v3c does NOT reduce leak vs no-WD.</li>
+</ul>
+
+<p><strong>Lesson logged — explicit reg-axis kill criterion for Tier 5</strong>:</p>
+<ul>
+  <li>Reg-axis kill: Δreg ≤ −0.5 pp at any state OR pooled p₂ ≤ 0.05 with ≥6/10 paired negative → CLOSE as §Discussion regardless of cat-axis lift</li>
+  <li>Substrate-asymmetry rule: no FL-only positive ships without AL+AZ multi-seed replication</li>
+  <li>Multi-seed mandatory: no single-seed=42 result promotes to shipping (Phase 1 demonstrated 2/2 single-seed signals were noise — Hyp D AL/AZ "regression" and Hyp A AL/AZ "regression" both collapsed at multi-seed in opposite directions)</li>
+</ul>
+
+<p><strong>Paper §Discussion paragraphs drafted</strong> by advisor; to be added to <code>articles/[BRACIS]_Beyond_Cross_Task/PAPER_DRAFT.md</code> in a later step.</p>
+
+<p><strong>Tier 5 GREEN LIGHT</strong>. Sequence per re-scope plan: T5.2a + T5.2b in parallel (first-gate, shared Delaunay), then T5.1, then T5.3. Updated kill criteria injected.</p>
+
+<p><strong>Implementation gap before launch</strong>: T5.2a (Node2Vec POI-POI skip-gram joint training) and T5.2b (masked POI feature reconstruction via Delaunay decode) require encoder + CLI scaffolding that does not yet exist in <code>scripts/canonical_improvement/regen_emb_t3.py</code> or <code>research/embeddings/check2hgi/model/variants.py</code>. Scaffolding work needed before launch (similar to T3.x encoder scaffolding work in May 15-16).</p>
+</div>
+
+<!-- ================================================================ -->
+<div class="callout" style="border-left:4px solid var(--good); padding:14px; margin-top:14px;">
+<h3 style="margin-top:0;">✅ 2026-05-18 — Tier 5 CLOSED — shipping stack unchanged, ~16 GPU-h banked</h3>
+
+<p>Four POI-side mechanism candidates closed against the shipping stack (<code>canonical + v3c + T3.2 ResLN</code>). Substrate fixed (Check2HGI); recipe locked. Each candidate exercises a different POI-substrate axis. Wrap-up advisor produced categorical verdicts + 4 paper §Discussion paragraph beats (Beats 5/6/7/8) for the BRACIS draft. <strong>No shipping changes.</strong></p>
+
+<p style="background:#fff7e6; padding:8px 12px; border-left:3px solid var(--warn); margin:8px 0;"><strong>Phase-3 follow-up (2026-05-18):</strong> after the first-pass close, T5.2b was extended to FL multi-seed (5 seeds) AND T5.3 ran at AL+AZ × 5 seeds (un-skipped). Bonferroni family count tightens to <strong>m = 28</strong> (α* ≈ 0.00179); nothing clears. Verdicts updated in the table below.</p>
+
+<table>
+  <tr><th>Candidate</th><th>n_seeds</th><th>Headline</th><th>Verdict</th></tr>
+  <tr><td><strong>T5.1</strong> (POI ID embedding)</td><td>1 (s42 AL+AZ)</td><td><strong>AL Δreg = −6.37 pp, AZ Δreg = −4.63 pp</strong> (9–12× kill threshold)</td><td><span class="pill bad">DEAD — V2-c pool collapse</span></td></tr>
+  <tr><td><strong>T5.2a</strong> (Node2Vec POI-POI + alignment)</td><td>1 (s42 AL+AZ)</td><td><strong>AL Δcat = −0.48, AZ Δcat = −0.45</strong> (cat regression both states)</td><td><span class="pill warn">CLOSED §Disc — Hyp A signature</span></td></tr>
+  <tr><td><strong>T5.2b</strong> (Masked POI feature recon)</td><td>5 × 3 states (s42,0,1,7,100 × FL+AL+AZ)</td><td>3-state cross-state cat sign-test <strong>13/15+ p=0.0074</strong>; AL cat 5/5+ paired-t p_one=0.021; FL cat 4/5+ mean +0.234; reg flat across 3 states (pooled +0.07 pp); <em>fails Bonferroni at m=28</em></td><td><span class="pill warn">3-state multi-seed §Disc (13/15 cat+, fails Bonferroni m=28)</span></td></tr>
+  <tr><td><strong>T5.3</strong> (Multi-view co-training)</td><td>5 (s42,0,1,7,100 AL+AZ) — RAN Phase 3</td><td>AZ reg mean +0.303 Cohen d=+0.85 p_one=0.065 (strongest Tier-5 effect size); all 4 cells mean-positive; no reg-axis kill; <em>fails Bonferroni at m=28</em></td><td><span class="pill warn">RAN — §Discussion only (positive trend, sub-Bonferroni)</span></td></tr>
+</table>
+
+<p><strong>Key findings (post Phase 3)</strong>:</p>
+<ul>
+  <li><strong>T5.2b cross-state cat-axis sign-test 13/15 paired-positive (p=0.0074)</strong> is the strongest single piece of Tier-5 evidence. AL cat alone clears raw α=0.05 paired-t (p_one=0.021, Cohen d≈+1.33); FL adds 4/5+ at mean +0.234 pp; AZ 4/5+ at +0.090 pp. Pooled Δreg essentially flat (+0.07 pp). Fails Bonferroni at m=28 by ~4× on the pooled cat sign-test. Reported as §Discussion-only motivation for future-work masked-POI pretraining.</li>
+  <li><strong>T5.3 is the cleanest positive-but-not-shipping Tier-5 candidate</strong>: all four (AL+AZ × cat+reg) cells mean-positive; AZ reg Cohen d ≈ +0.85 (strongest Tier-5 effect size) at p_one ≈ 0.065 (sub-Bonferroni). No regression on either axis at either state. Flagged as prime future-work multi-seed-on-FL extension.</li>
+  <li><strong>T5.1 V2-c reproduction</strong> stands as the mechanistic reading anchor: per-POI free parameters added pre-aggregation → POI-table memorisation → pooled-region representation degeneracy. Pairs with T5.2a's Hyp-A-shaped small-state cat regression.</li>
+  <li><strong>§6.5 reg-axis kill rule forward-validated</strong>: T5.1 killed at single seed (~10× threshold) without multi-seed escalation; T5.2a small-state cat regression identified at single seed. Banked ~16 GPU-h at the first-pass close; Phase 3 spent ~12-15 GPU-h on T5.2b-FL + T5.3 AL+AZ multi-seed.</li>
+  <li><strong>Per-POI hold-out probe remains the gating open item</strong> (per F60/F62 caveats) — neither T5.1 nor T5.2b can be promoted to NORTH_STAR until that probe is built and passes. Building the probe also opens T5.3's runnability condition.</li>
+</ul>
+
+<p><strong>SHIPPING STACK FINAL (unchanged)</strong>: <code>canonical Check2HGI + v3c (AdamW WD=5e-2) + T3.2 ResLN encoder</code>. §5 paper headlines stand. T5.2b's 13/15 cross-state cat sign-test enters the paper as the §Discussion headline for masked-POI pretraining; T5.3's positive-trend AZ axes are the §Discussion piece on multi-view co-training; T5.1 + T5.2a are paired in §Discussion as the mechanistic-reading triangulation.</p>
+
+<p><strong>Deliverables (Phase-3 update)</strong>:</p>
+<ul>
+  <li><code>docs/results/canonical_improvement/STACKING_ABLATION.md §7.6</code> — Phase-3 closeout (T5.2b FL multi-seed, T5.3 AL+AZ multi-seed, m=28 Bonferroni framing, no shipping change)</li>
+  <li><code>docs/studies/archive/canonical_improvement/log.md</code> — 2026-05-18 follow-up entry (Phase-3 close)</li>
+  <li><code>docs/findings/F62_T5_2b_implementation.md</code> — Florida Multi-Seed Results section appended</li>
+  <li><code>docs/findings/F63_T5_3_implementation.md</code> — Multi-Seed Results section (replaces SKIPPED placeholder)</li>
+  <li><code>articles/[BRACIS]_Beyond_Cross_Task/PAPER_DRAFT.md §7</code> — Beats 5/6/7/8 (verbatim advisor prose; replaces prior 3-beat Tier-5 §Discussion plan)</li>
+  <li><code>docs/CHANGELOG.md</code> + <code>docs/CLAIMS_AND_HYPOTHESES.md</code> — Phase-3 close entry + whitelist row</li>
+</ul>
+</div>
+
+<!-- ============================================================== -->
+<h2 id="tldr">TL;DR &amp; scope</h2>
+
+<div class="callout">
+<p><strong>Goal:</strong> close the cat F1 / reg Acc@10 / fclass-probe Pareto gap that canonical Check2HGI leaves open,
+<em>using only mechanisms native to c2hgi training</em> &mdash; no HGI pretrained artifacts, no fclass labels in the encoder
+(<strong>fclass is the linear-probe target &mdash; using it as a feature or supervision is a tautological leak</strong>),
+no merge-family designs. The track is structured so its surviving improvements can be later <em>stacked</em>
+on the merge family (B/M) in a future synthesis study.</p>
+
+<p><strong>Out of scope</strong> (covered by <code>../merge_design/</code>, do not duplicate):</p>
+<ul>
+  <li>Importing HGI&#39;s frozen POI2Vec at the POI&#8209;pool boundary (Designs B/H/I/J/M)</li>
+  <li>POI2Vec in the check-in input (Design E / A)</li>
+  <li>Heterograph with POI nodes (Design D)</li>
+  <li>POI&#8593;POI contrastive boundary on the merge substrate (Lever 6)</li>
+</ul>
+
+<p><strong>What this track does</strong>: 18 experiments across 5 tiers attacking the canonical engine&#39;s weaknesses
+&mdash; recipe hygiene, p2r-boundary loss shape (asymmetrically untested), encoder inductive bias,
+semantic-recovery via unsupervised proxies, and one stretch tier (Tier 5) for native POI-identity mechanisms.</p>
+</div>
+
+<h3>Pinned baseline landscape</h3>
+
+<p>Three baseline regimes pulled from <code>docs/results/</code> &mdash;
+canonical-improvement experiments must measure against the <strong>STL matched-head paired-test</strong> protocol (Table 2)
+for cheap iteration, then promote final winners to the <strong>MTL B9 multi-seed v11</strong> protocol (Table 3)
+for shipping-grade numbers.</p>
+
+<h4>Table 1 &mdash; Simple floors (for context only, not comparison targets)</h4>
+<table>
+<thead><tr><th>Baseline</th><th>AL cat F1</th><th>AL reg Acc@10</th><th>AZ reg Acc@10</th><th>FL reg Acc@10</th><th>Source</th></tr></thead>
+<tbody>
+<tr><td>Random (uniform)</td><td class="num">~14.3</td><td class="num">0.90</td><td class="num">~0.07</td><td class="num">0.21</td><td>theoretical</td></tr>
+<tr><td>Majority class</td><td class="num">&mdash;</td><td class="num">1.97</td><td class="num">&mdash;</td><td class="num">22.25</td><td>P0 simple_baselines</td></tr>
+<tr><td>Markov-1-region (paper floor)</td><td class="num">&mdash;</td><td class="num">47.01 &plusmn; 3.55</td><td class="num">&mdash;</td><td class="num">65.05 &plusmn; 0.93</td><td>P0/{AL,FL}/next_region</td></tr>
+<tr><td>Markov-9-region (context-matched)</td><td class="num">&mdash;</td><td class="num">32.79 &plusmn; 1.92</td><td class="num">&mdash;</td><td class="num">54.10 &plusmn; 0.72</td><td>P0</td></tr>
+</tbody>
+</table>
+
+<h4>Table 2 &mdash; STL matched-head ceilings (leak-free per-fold log_T, seed=42, n=5 &mdash; PRIMARY COMPARISON TARGET) <span class="pill info">use this for Tier 1-4</span></h4>
+<table>
+<thead><tr><th>Substrate</th><th>AL cat F1</th><th>AL reg Acc@10</th><th>AZ cat F1</th><th>AZ reg Acc@10</th><th>FL reg Acc@10</th><th>fclass probe (AL/AZ)</th></tr></thead>
+<tbody>
+<tr><td><strong>Canonical Check2HGI</strong> <span class="pill info">this is what we&#39;re improving</span></td><td class="num">40.76 &plusmn; 1.68</td><td class="num">59.15 &plusmn; 3.48</td><td class="num">43.21 &plusmn; 0.87</td><td class="num">50.24 &plusmn; 2.51</td><td class="num">0.6922</td><td class="num">4.26 / 4.31 %</td></tr>
+<tr><td>HGI (matched-head STL)</td><td class="num">25.26 &plusmn; 1.18</td><td class="num">61.86 &plusmn; 3.29</td><td class="num">28.69 &plusmn; 0.79</td><td class="num">53.37 &plusmn; 2.55</td><td class="num">0.7134</td><td class="num">98.34 / 97.92 %</td></tr>
+<tr><td>STL STAN (region ceiling, B8a/B-AZ-stan)</td><td class="num">&mdash;</td><td class="num">59.20 &plusmn; 3.62</td><td class="num">&mdash;</td><td class="num">52.24 &plusmn; 2.38</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+<tr><td>STL GRU on Check2HGI (B8)</td><td class="num">&mdash;</td><td class="num">56.94 &plusmn; 4.01</td><td class="num">&mdash;</td><td class="num">48.88 &plusmn; 2.48</td><td class="num">68.33 &plusmn; 0.58</td><td class="num">&mdash;</td></tr>
+</tbody>
+</table>
+<p class="footnote">cat F1 = <code>next_gru</code> head; reg Acc@10 = <code>next_getnext_hard</code> head (≡ <code>next_stan_flow</code> in v11) with per-fold leak-free <code>region_transition_log_seed42_fold{1..5}.pt</code>. Sources: <code>results/paired_tests/design_audit_al_az.json</code>, <code>results/P1/region_head_florida_*_pf_5f50ep.json</code>, <code>results/paired_tests/generality_probes.json</code>. The first row is what every Tier 1-4 experiment in this track compares against.</p>
+
+<h4>Table 3 &mdash; MTL B9 paper-canonical multi-seed v11 (for FINAL shipping comparison only) <span class="pill warn">use this only for Tier-4 winners</span></h4>
+<table>
+<thead><tr><th>State</th><th>n_pairs</th><th>MTL B9 reg Acc@10</th><th>STL reg ceiling</th><th>&Delta;_reg</th><th>MTL B9 cat F1</th><th>STL cat ceiling</th><th>&Delta;_cat</th></tr></thead>
+<tbody>
+<tr><td>AL</td><td class="num">20</td><td class="num">50.17 &plusmn; 0.24</td><td class="num">61.21 &plusmn; 0.18</td><td class="num"><span class="delta-neg">&minus;11.04</span></td><td class="num">40.57 &plusmn; 0.24</td><td class="num">41.35 &plusmn; 0.17</td><td class="num"><span class="delta-neg">&minus;0.78</span></td></tr>
+<tr><td>AZ</td><td class="num">20</td><td class="num">40.78 &plusmn; 0.07</td><td class="num">53.06 &plusmn; 0.15</td><td class="num"><span class="delta-neg">&minus;12.27</span></td><td class="num">45.10 &plusmn; 0.19</td><td class="num">43.90 &plusmn; 0.17</td><td class="num"><span class="delta-pos">+1.20</span></td></tr>
+<tr><td>FL</td><td class="num">20</td><td class="num">63.27 &plusmn; 0.10</td><td class="num">70.62 &plusmn; 0.09</td><td class="num"><span class="delta-neg">&minus;7.34</span></td><td class="num">68.56 &plusmn; 0.79</td><td class="num">67.16 &plusmn; 0.13</td><td class="num"><span class="delta-pos">+1.40</span></td></tr>
+<tr><td>CA</td><td class="num">20</td><td class="num">47.35 &plusmn; 0.11</td><td class="num">56.85 &plusmn; 0.09</td><td class="num"><span class="delta-neg">&minus;9.50</span></td><td class="num">64.07 &plusmn; 0.14</td><td class="num">62.39 &plusmn; 0.13</td><td class="num"><span class="delta-pos">+1.68</span></td></tr>
+<tr><td>TX</td><td class="num">20</td><td class="num">42.84 &plusmn; 0.14</td><td class="num">59.44 &plusmn; 0.09</td><td class="num"><span class="delta-neg">&minus;16.59</span></td><td class="num">65.00 &plusmn; 0.11</td><td class="num">63.11 &plusmn; 0.13</td><td class="num"><span class="delta-pos">+1.89</span></td></tr>
+</tbody>
+</table>
+<p class="footnote">From <code>results/RESULTS_TABLE.md §0.1</code> (v11, 2026-05-02). n=20 = 4 seeds &times; 5 folds pooled. MTL B9 = <code>mtlnet_crossattn + static_weight(cat=0.75) + next_gru (cat) + next_stan_flow (reg) + per-head LR (cat=1e-3/reg=3e-3/shared=1e-3) + cosine + alt-SGD + &alpha;-no-WD + per-fold log_T</code>. This is the published headline asymmetric MTL claim &mdash; canonical-improvement winners only need to be re-measured against this table once they pass STL paired-test gates (Table 2).</p>
+
+<div class="callout warn">
+<strong>What baseline to use for each canonical-improvement comparison:</strong>
+<ul>
+<li><strong>Tier 1-4 experiments:</strong> compare against <strong>Table 2 row 1 (Canonical Check2HGI STL)</strong> with paired Wilcoxon at seed=42, n=5 folds. Re-run baselines fresh under matched protocol every time (lesson from FL stale-baseline incident).</li>
+<li><strong>Tier-4 final winners:</strong> additionally measure against <strong>Table 3 (MTL B9 multi-seed v11)</strong> for shipping-grade numbers. Re-train the winner under B9 MTL across 4 seeds &times; 5 folds; report pooled Wilcoxon at n=20.</li>
+<li><strong>fclass probe / kNN-Jaccard / generality probes:</strong> the Table 2 row 1 numbers (4 %, 0.006) are the floor; HGI&#39;s 98 % is the ceiling. Closing 50&nbsp;% of that gap natively is a Tier-4 win condition.</li>
+<li><strong>Floor sanity check:</strong> any canonical-improvement reg result that falls below Markov-1-region (Table 1) at FL is a red flag, not just &quot;not winning&quot;.</li>
+</ul>
+</div>
+
+<!-- ============================================================== -->
+<h2 id="exec">Execution guidelines for the implementing agent</h2>
+
+<div class="callout good">
+<h4>Required workflow</h4>
+<ol>
+<li><strong>Use Claude Code&#39;s task system (<code>TaskCreate</code> / <code>TaskUpdate</code>).</strong> Break down each
+experiment into <em>unit-test &rarr; validate &rarr; launch &rarr; import &rarr; analyze</em> sub-tasks. Mark
+<em>in_progress</em> before starting; <em>completed</em> only when results are in the HTML&#39;s Results placeholder for that
+experiment AND a log.md entry is written. Never leave a task <em>in_progress</em> overnight.</li>
+
+<li><strong>Mandatory unit-test gate before any T3.* or T5.* multi-fold launch.</strong> Every architectural variant
+(new encoder, new loss head, new edge type, new pooler) requires a unit test under
+<code>tests/test_embeddings/test_check2hgi_variants.py</code> confirming: (a) forward + backward shape correctness on a
+synthetic 100-node graph, (b) one-step loss is finite (no NaN), (c) parameter count is within ~5 % of canonical at D=64
+(F51 capacity-scaling guardrail). Pin the test before launching the multi-fold run. Burning 5 folds &times; 50 epochs
+&times; 2 states on a silently-broken wrapper is the failure mode <code>tests/test_embeddings/test_hgi_reference_equivalence.py</code>
+saved the merge_design track from &mdash; the canonical track must wire its own equivalent.</li>
+
+<li><strong>Use the <code>/goal</code> slash command to run experiments autonomously.</strong> Each tier&#39;s
+experiments are mostly independent and can be queued via /goal with the experiment&#39;s &quot;Methodology&quot; block
+as the goal description. Steer the goal-run when results come in: if T1.3 (&alpha; sweep) closes the AZ reg
+gap, don&#39;t waste Tier 4 budget &mdash; report and stop. The design is a strong starting point, not a cage.</li>
+
+<li><strong>Run in a dedicated git worktree on branch <code>check2hgi-canonical-improve</code></strong>, branched
+from <code>check2hgi-up</code> (current). Do not contaminate other ongoing work.</li>
+
+<li><strong>Update this HTML&#39;s Results placeholders inline.</strong> Each experiment block has a Results
+section. Fill it with: per-state numbers, paired-test JSON path, plot path, fold-by-fold deltas, and a
+1-line verdict. Add a finish-date.</li>
+
+<li><strong>Keep log.md current.</strong> Append every decision, blocker, falsified hypothesis, and direction
+change. Date every entry.</li>
+
+<li><strong>Encouraged: deviate.</strong> If results suggest a new path worth exploring &mdash; e.g., T3.1 GATv2 wins
+cat but hurts reg, suggesting attention is over-fitting; you might propose a T3.1b GAT-with-DropAttention
+variant &mdash; <em>propose and pursue it</em>. Add a new experiment block to the HTML and document the
+rationale in log.md.</li>
+
+<li><strong>Mandatory advisor call</strong> when (a) you believe a tier is complete and (b) before declaring the
+whole track done. Capture advisor feedback in log.md.</li>
+</ol>
+</div>
+
+<h3>Hard rules</h3>
+<ul>
+<li><strong>No merge-family code paths.</strong> Do not import <code>output/hgi/&lt;state&gt;/poi_embeddings.csv</code> or any HGI artifact.
+Adding a feature derived from HGI&#39;s training output is forbidden; deriving from intrinsic data (OSM <code>category</code>,
+coordinates, visit counts) is fine.</li>
+<li><strong>No fclass-as-feature.</strong> fclass is the linear-probe label. Using it in the encoder &mdash; even as a learned
+embedding side-feature &mdash; trivially passes the probe and tells you nothing. Reframe to: category (coarse 7-class) supervision,
+unsupervised prototypes, or fclass-correlated proxies (popularity, opening-hours profile, co-visit category-mix).</li>
+<li><strong>Always pre-flight T1.1 (leak audit) on canonical first.</strong> Establishes the linear-probe floor for every
+later comparison.</li>
+<li><strong>Re-run baselines at comparison time.</strong> Do not quote pre-Phase-11 numbers as canonical. The FL +13&nbsp;pp stale-baseline
+incident in merge_design is the cautionary tale.</li>
+<li><strong>Statistical claims need n &ge; 10.</strong> At n=5 the Wilcoxon floor is p=0.0312. Any &quot;wins HGI on reg&quot; claim
+requires multi-seed (T1.2) to be in place first.</li>
+</ul>
+
+<!-- ============================================================== -->
+<h2 id="falsified">Falsified history &mdash; do not retry these</h2>
+
+<p>The following levers have been empirically falsified in prior Phase 11 / merge_design / F-series work.
+Re-running them as-is wastes budget. If you have a <em>genuinely different</em> formulation, document the
+distinction explicitly in log.md before running.</p>
+
+<table>
+<thead><tr><th>What was tried</th><th>Where</th><th>Result</th><th>Why it failed</th></tr></thead>
+<tbody>
+<tr><td>Hard negatives at <strong>c2p</strong> (same-region different-POI)</td><td>Phase 11 S1</td><td class="num"><span class="delta-neg">AL &minus;1.21, AZ &minus;0.81 pp</span></td><td>Sharpened c2p disrupts downstream POI&#8209;pool dynamics. <strong>Boundary-asymmetry rule:</strong> hard negs at p2r are still untested (T2.1).</td></tr>
+<tr><td>DGI two-pass feature corruption at <strong>c2p</strong></td><td>Phase 11 S4</td><td class="num"><span class="delta-neg">AL &minus;0.07, AZ &minus;1.16 pp</span></td><td>Same mechanism as S1. Corruption at p2r/r2c untested (T2.3).</td></tr>
+<tr><td>Aux Checkin2Region 4th boundary</td><td>Phase 11 S3-a (v1 + v2)</td><td>PMA collapsed to uniform attention; PR-norm=1.0 throughout</td><td>Supervision is redundant with existing 3-boundary path; the pooler degenerates.</td></tr>
+<tr><td>Per-check-in POI2Vec anchor</td><td>Phase 11 S3-b V2-c</td><td class="num"><span class="delta-neg">AL &minus;9.95, AZ &minus;0.28 pp</span></td><td>State-asymmetric pool collapse: small per-region pools (AL avg 10.7 POIs) collapse to mean(POI2Vec) under anchor gravity. <em>Pre-pool POI-constant features at check-in level are dangerous.</em></td></tr>
+<tr><td>Checkin2Region replacement (no POI bottleneck)</td><td>Phase 11 S3-b V1</td><td>~0.1 pp lift</td><td>The pool architecture is not the bottleneck; the POI2Vec prior is.</td></tr>
+<tr><td>POI2Vec in check-in input + stop-grad encoder</td><td>Design E</td><td class="num"><span class="delta-neg">AL cat &minus;9.54, AZ &minus;9.38 pp</span></td><td>Input-side POI2Vec propagates through GCN regardless of gradient routing. <strong>Killer is the input, not the gradient.</strong> Rules out PCGrad/GradNorm/adapters on POI2Vec-augmented input.</td></tr>
+<tr><td>Late-fusion concat [c2hgi(64) &Vert; POI2Vec(64)]</td><td>Design A</td><td class="num"><span class="delta-neg">AL &minus;8.49 cat / &minus;18.73 reg pp</span></td><td>GRU/STAN heads can&#39;t suppress half the input columns.</td></tr>
+<tr><td>Heterograph POIs as first-class nodes</td><td>Design D</td><td>Cat +32 pp leak</td><td>Reverse-visits edges + 2-hop HeteroConv leaks target POI&#39;s POI2Vec into last check-in. <strong>Leak-flagged.</strong></td></tr>
+<tr><td>POI&#8593;POI contrastive on merge substrate (4th boundary)</td><td>Lever 6</td><td>L6 = J empirically across &alpha; &isin; {0.1, 0.3, 1.0}</td><td>No &alpha; overcomes HGI; 4th boundary adds zero on the merge family.</td></tr>
+<tr><td>Delaunay POI-POI GCN on J substrate</td><td>Design K</td><td>K = J (AL &minus;0.02, AZ &minus;0.06 pp)</td><td>Spatial topology is not the residual on the merge family. <em>Note:</em> T4.4 tests this differently &mdash; on the canonical baseline, lifted to the check-in graph, no POI2Vec underneath.</td></tr>
+<tr><td>Capacity scaling at fixed inductive bias</td><td>F51 Tier 2</td><td>Wider/deeper of same arch regresses cat catastrophically</td><td>&quot;Capacity scaling alone doesn&#39;t help.&quot; <strong>F51 constraint:</strong> any new architecture must change <em>inductive bias</em> at D=64, not widen.</td></tr>
+<tr><td>Wider shared backbone (256 &rarr; 384 &rarr; 512)</td><td>F51 T2</td><td>&sigma;=19.54 pp at 384, total cat collapse at 512</td><td>Cat&#39;s 1e-3 LR cannot adapt to wider shared distribution.</td></tr>
+<tr><td>Wider cross-attn FFN (256 &rarr; 1024)</td><td>F51 T2</td><td>&sigma;=25.87 pp, multi-fold collapse</td><td>Same mechanism.</td></tr>
+<tr><td>Deeper per-task encoder (2 &rarr; 4 layers)</td><td>F51 T2</td><td class="num"><span class="delta-neg">&minus;0.60 reg, &minus;2.07 cat</span></td><td>Over-regularization regime.</td></tr>
+<tr><td>fclass-as-feature anywhere in encoder</td><td>(rule, not experiment)</td><td>Probe &rarr; ~100 % tautology</td><td>fclass is the linear-probe label. Using it for supervision or as an input feature destroys the diagnostic.</td></tr>
+</tbody>
+</table>
+
+<!-- ============================================================== -->
+<h2 id="audit">Audit of user considerations</h2>
+<p>Each of the 11 considerations was checked against the falsified history above and the 5 breadth-search
+sub-agents. Outcome per consideration, ordered by user&#39;s original numbering:</p>
+
+<table>
+<thead><tr><th>C#</th><th>Consideration</th><th>Verdict</th><th>Mapped experiment(s)</th></tr></thead>
+<tbody>
+<tr><td>C1</td><td>More per-node features</td><td><span class="pill good">ACCEPT scoped</span></td><td>T3.4 (Time2Vec), T4.3 (POI side-features post-pool), plus check-in features like time-since-last-checkin and session position folded into T3.4 / T1.5 hygiene</td></tr>
+<tr><td>C2</td><td>Time-aware edge weights</td><td><span class="pill good">ACCEPT</span></td><td>T3.4 (Time2Vec on edge weights), folded into T1.3 &alpha; sweep variants</td></tr>
+<tr><td>C3</td><td>Delaunay + temporal decay edges</td><td><span class="pill good">ACCEPT reframed</span> &middot; <span class="pill warn">RE-OPENED Tier 6</span></td><td>T4.4 (spatial-lifted Delaunay neighbours, uniform weight &mdash; FALSIFIED 2026-05-16); <strong>T6.2 re-tests the <em>composite</em> scheme</strong> (Delaunay multiplier + cross-region penalty w<sub>r</sub> + temporal decay as a unified weighting), which T4.4 never tested.</td></tr>
+<tr><td>C4</td><td>Improve simple CheckinEncoder</td><td><span class="pill good">STRONG ACCEPT</span></td><td>T3.1 (GATv2), T3.2 (ResidualLN), T3.3 (Heterogeneous edges); scaffolding already in <code>variants.py</code></td></tr>
+<tr><td>C5</td><td>Bring back hard-negative mining</td><td><span class="pill warn">REFRAME</span></td><td>T2.1 (p2r only &mdash; c2p was Phase 11 S1, falsified). HGI uses p2r hard negs; never tested on c2hgi.</td></tr>
+<tr><td>C6</td><td>Bring back two-pass corruption</td><td><span class="pill warn">REFRAME</span> &middot; <span class="pill warn">RE-OPENED Tier 6</span></td><td>T2.3 (p2r/r2c only &mdash; c2p was Phase 11 S4, falsified) &mdash; DEFERRED-CLOSED in Tier 2. <strong>T6.4 finishes the ~5-min p2r edit</strong> (per 2026-05-16 audit) as prerequisite scaffolding for T6.1's InfoNCE machinery.</td></tr>
+<tr><td>C7</td><td>fclass as input to Checkin2POI</td><td><span class="pill bad">REJECT (leak)</span></td><td>fclass IS the probe target. Reframed alternatives: T4.2 (SwAV with K=64 unlabeled prototypes), T4.3 (popularity/opening-hours/co-visit), T5.1 (native POI ID embedding)</td></tr>
+<tr><td>C8</td><td>Delaunay POI-POI graph</td><td><span class="pill warn">PARTIAL ACCEPT</span></td><td>T4.4 (check-in-level lifting) and T5.2a (POI-POI skip-gram aux boundary). Note Design K already tested this on the merge substrate &mdash; falsified.</td></tr>
+<tr><td>C9</td><td>4th contrastive boundary</td><td><span class="pill warn">REFRAME</span> &middot; <span class="pill warn">RE-OPENED Tier 6</span></td><td>Drop MI-style 4th boundary (S3-a + L6 falsified). Replace with: T4.1 (masked feature reconstruction), T4.2 (prototype assignment), T5.2 (POI-POI skip-gram as a Node2Vec-style auxiliary). <strong>T6.1 re-attempts a 4th boundary as POI&harr;POI InfoNCE on the existing pooled representation</strong> &mdash; structurally distinct from S3-a (which was checkin&harr;region) and from T5.2a (no separate Node2Vec; positives derived in-batch from user-session co-visits; zero new free parameters).</td></tr>
+<tr><td>C10</td><td>POI2Vec in input</td><td><span class="pill bad">REJECT</span></td><td>Design E falsified; explicitly merge-family</td></tr>
+<tr><td>C10v2</td><td>Encapsulate POI2Vec logic in check2hgi</td><td><span class="pill good">ACCEPT (Tier 5)</span> &middot; <span class="pill warn">RE-OPENED Tier 6</span></td><td>T5.2a (Joint Node2Vec POI-POI skip-gram &mdash; CLOSED §Discussion at n=1) + T5.2b (Masked POI feature recon &mdash; §Discussion, sub-Bonferroni). User concern (2026-05-18): Tier 5 under-explored the POI-internal-supervision hypothesis. <strong>Tier 6 is the dedicated re-attempt</strong>: T6.1 (4th POI&harr;POI boundary using existing parameters), T6.3 (low-rank POI side-channel at the attention-logit layer). Both train POI structure inside the model with zero free input-layer parameters &mdash; addressing the T5.1 failure mode of "free shortcut at the wrong layer".</td></tr>
+</tbody>
+</table>
+
+<!-- ============================================================== -->
+<h2 id="eval">Evaluation framework</h2>
+
+<h3>Primary metrics (canonical protocol, must preserve)</h3>
+<ul>
+<li><strong>Next-category macro F1</strong> &mdash; <code>next_gru</code> head, B9 MTL recipe (alternating-SGD, Cosine LR, per-head LRs cat 1e-3/reg 3e-3/shared 1e-3, static_weight cat=0.75).</li>
+<li><strong>Next-region Acc@10</strong> &mdash; <code>next_getnext_hard</code> head, per-fold leak-free <code>region_transition_log_seed42_fold{1..5}.pt</code>.</li>
+</ul>
+
+<h3>Generality probes (must report all five for every experiment)</h3>
+<ol>
+<li><strong>POI fclass linear probe</strong> &mdash; macro-F1 of logistic regression on frozen POI embeddings &rarr; fclass label. Canonical floor: 4 %. HGI ceiling: 98 %. Reuse <code>scripts/probe/generality_probes.py</code>.</li>
+<li><strong>POI kNN-Jaccard@10 vs HGI</strong> &mdash; geometric similarity to HGI&#39;s POI2Vec. Canonical: 0.006.</li>
+<li><strong>Region category-mix regression R&sup2;</strong> &mdash; predict per-region category-fraction vector from region embedding.</li>
+<li><strong>POI popularity regression R&sup2;</strong> (new) &mdash; predict log(visit_count) from POI embedding. Detects popularity collapse.</li>
+<li><strong>Temporal autocorrelation</strong> (new) &mdash; same-POI, disjoint-time-bin cosine. High &rarr; check-in collapses to POI prototype (canonical&#39;s design intent is the opposite).</li>
+</ol>
+
+<h3>New eval probes to wire up (currently missing)</h3>
+<ul>
+<li><strong>Next-POI top-k accuracy</strong> (Hit@1/5/10, MRR) &mdash; the axis flagged missing in <code>merge_design/AUDIT_HGI_GAP.md §3</code>. Use the existing <code>scripts/p1_poi_head_ablation.py</code> (fixed in commit <code>e99e904</code>: `OneCycleLR` now wired in + per-step `scheduler.step()` + `label_smoothing=0.1`). <strong>The existing T1 next-POI JSONs in <code>results/P1/poi_head_*_T1_*_5f50ep.json</code> were trained under the pre-fix suboptimal regime (fixed LR, no label smoothing) and are pessimistic absolute numbers</strong> &mdash; do NOT reuse them as canonical-improvement baselines. Re-run a fresh canonical Check2HGI + HGI baseline under the fixed script before any canonical-improvement next-POI comparison.</li>
+<li><strong>User-trajectory reconstruction</strong> &mdash; mask 15 % of a user&#39;s check-ins, decode via kNN over learned embeddings, measure recall@k.</li>
+</ul>
+
+<h3>Statistical gates</h3>
+<ul>
+<li><strong>TOST non-inferiority on cat F1</strong>, &delta;=2 pp (same gate as merge_design).</li>
+<li><strong>Wilcoxon one-sided strict</strong> p&lt;0.05 on reg vs canonical baseline.</li>
+<li><strong>Any &quot;beats HGI&quot; claim requires n &ge; 10</strong> (multi-seed via T1.2, otherwise p-floor blocks).</li>
+<li><strong>Both axes simultaneously</strong>: at n=5 no design clears it; at n &ge; 10 the gate is reachable.</li>
+</ul>
+
+<h3>Mandatory pre-flight</h3>
+<div class="callout warn">
+<strong>Tier 1.1 (leak audit) must pass on canonical first.</strong> Mirror the Design D diagnostic (<code>scripts/probe/leak_sniff_ijm.py</code>): linear probe on the last check-in&#39;s embedding alone. Canonical should land around 30 % (the harmless baseline leak from sequence edges). Any new experiment must report this probe value alongside its main metrics &mdash; a +10 pp delta vs canonical here is a leak red flag.
+</div>
+
+<h3>STL vs MTL training protocol &mdash; clarification</h3>
+<div class="callout">
+<strong>Default: STL paired tests for Tier 1&ndash;4 winners; B9 MTL only for final shipping candidates.</strong> The B9 MTL recipe
+(alternating-SGD, Cosine LR, per-head LRs, static_weight cat=0.75) approximately doubles compute and is the protocol used for
+<em>shipping</em> numbers; merge_design&#39;s headline paired tests were largely STL. Run Tier 1&ndash;4 experiments under STL with the
+matched-head heads (<code>next_gru</code> for cat F1, <code>next_getnext_hard</code> for reg Acc@10), 5 folds &times; 50 epochs, single seed 42.
+Promote the winning Tier-4 candidates to B9 MTL at the end of Tier 4 for the final shipping-grade comparison. This matches
+merge_design&#39;s protocol and keeps statistical comparisons across the two tracks consistent.
+</div>
+
+<h3>AL/AZ &rarr; FL promotion protocol</h3>
+<div class="callout warn">
+Most experiments specify AL+AZ as the first run. <strong>Promote a winning experiment to FL only if</strong>
+(a) cat F1 non-inferior at TOST p&lt;0.01 at <em>both</em> AL+AZ, AND
+(b) reg Acc@10 strictly positive at Wilcoxon p&lt;0.05 at <em>both</em>.
+<strong>Always re-run a fresh FL canonical baseline under matched protocol at the time of comparison</strong> &mdash;
+never quote pre-existing FL canonical numbers. The merge_design FL stale-baseline incident (+13&nbsp;pp inflation
+from an old protocol baseline) is the cautionary tale.
+</div>
+
+<!-- ============================================================== -->
+<h2 id="tier1">Tier 1 &mdash; Hygiene &amp; statistical power
+<span class="pill tier1">Tier 1</span></h2>
+
+<p>All Tier 1 experiments are S-cost (hours), parallelisable, and gate every later tier. Run all 6 before
+Tier 2. If T1.3 (&alpha; sweep) or T1.5 (optimizer hygiene) closes the AZ reg gap to within 1 pp of HGI,
+some later-tier experiments may become unnecessary &mdash; report and stop.</p>
+
+<div class="callout warn">
+<strong>Order within Tier 1:</strong> T1.1 &rarr; T1.3 &rarr; T1.4 &rarr; T1.5 &rarr; T1.6 (sequential, single-seed).
+<strong>T1.2 (multi-seed) runs LAST</strong> on the winning recipe so the multi-seed baseline reflects the
+<em>tuned</em> canonical, not the un-tuned default. Running multi-seed first would have to be redone after each Tier 1
+tuning lever lands; the wasted compute is 2&ndash;3&times;.
+</div>
+
+<!-- T1.1 -->
+<div class="experiment" id="T1-1">
+<h3>T1.1 &mdash; Pre-flight canonical leak audit <span class="pill tier1">T1</span> <span class="pill cost-s">S-cost</span></h3>
+<div class="meta">Targets: baseline floor for every later experiment &middot; Risk: none (diagnostic) &middot; Mechanism: linear probe</div>
+
+<div class="block">
+<div class="block-title">Hypothesis</div>
+Canonical Check2HGI has a small but harmless sequence-edge leak: the last check-in&#39;s embedding alone predicts its POI&#39;s
+category at ~30 % macro-F1 (above random ~14 % for 7 classes but far below Design D&#39;s leaky +20 pp). All later experiments
+should remain within ~1 pp of canonical on this probe; a larger jump indicates a new leak path.
+</div>
+
+<div class="block">
+<div class="block-title">Methodology</div>
+On the canonical embeddings at AL/AZ/FL: load <code>embeddings.parquet</code>, select the last check-in per user (or per
+user-day session), train a logistic regression with 5-fold CV on the resulting [N_users &times; 64] matrix to predict
+category. Report macro-F1 and accuracy. Mirror exactly the Design D diagnostic.
+</div>
+
+<div class="block">
+<div class="block-title">Evaluation criteria</div>
+<ul>
+<li>Report canonical floor at all 3 states; pin to log.md as the leak-audit floor.</li>
+<li>Every later experiment&#39;s log entry must include its leak-probe value alongside main metrics.</li>
+<li>Red flag: &Delta; vs canonical &gt; +5 pp.</li>
+</ul>
+</div>
+
+<div class="block">
+<div class="block-title">Success</div>
+Establishes a reproducible canonical leak-probe number. The numerical value isn&#39;t the win &mdash; the gate is.
+</div>
+
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<!-- T1.2 -->
+<div class="experiment" id="T1-2">
+<h3>T1.2 &mdash; Multi-seed canonical and key variants <span class="pill tier1">T1</span> <span class="pill cost-m">M-cost</span> <span class="pill good">CLOSED &mdash; done in passing</span></h3>
+<div class="meta">Targets: statistical power; breaks n=5 Wilcoxon floor &middot; Mechanism: re-run canonical at seeds {42, 43, 44, 45, 46}</div>
+
+<div class="block">
+<div class="block-title">Closure rationale (2026-05-16, deferred-experiment triage)</div>
+Multi-seed coverage was achieved <em>en route</em> during the Tier-3 paper-grade gates. The v3c (5 seeds × FL),
+T3.2 ResLN (5 seeds × FL + 5 seeds × AL + 5 seeds × AZ), and canonical (n=20 at FL/AL/AZ in
+<code>RESULTS_TABLE.md §0.1</code>) collectively satisfy what the originally-scheduled T1.2 was meant to verify:
+breaking the n=5 Wilcoxon floor for the canonical and key-variant cells. The 5-seed × 3-state shipping-stack
+table is captured in <code>docs/results/canonical_improvement/STACKING_ABLATION.md §1-3</code>. No additional
+canonical re-run needed.
+</div>
+
+<div class="block">
+<div class="block-title">Hypothesis</div>
+Many tier-2/3 candidates show numerical lifts within 1&sigma; of canonical but cannot clear the n=5 Wilcoxon p=0.0312 floor.
+Multi-seed runs convert the test to n=25 fold-pairs, dropping the floor to p&lt;1e-3 and enabling &quot;beats HGI&quot; claims.
+</div>
+
+<div class="block">
+<div class="block-title">Methodology</div>
+Re-train canonical Check2HGI at seeds {42, 43, 44, 45, 46} &times; 5 folds &times; 50 epochs on AL+AZ. Compute pooled
+Wilcoxon over 25 fold-pairs against HGI baseline. After Tier 2 winners emerge, re-run the top-2 at the same 5 seeds.
+F1.2 results inform the n required for downstream claims (likely 3-5 seeds will suffice).
+</div>
+
+<div class="block">
+<div class="block-title">Evaluation criteria</div>
+<ul>
+<li>Variance &sigma;<sub>seed</sub> for cat F1 and reg Acc@10 at canonical: target &le; 0.5 pp for cat, &le; 1 pp for reg.</li>
+<li>Pooled Wilcoxon p-value for canonical vs HGI on reg (expected: p &lt; 1e-3 with n=25).</li>
+<li>Recommend final n for subsequent tier comparisons.</li>
+</ul>
+</div>
+
+<div class="block">
+<div class="block-title">Success</div>
+Provides a multi-seed canonical baseline; enables &quot;beats HGI on reg with strict significance&quot; claims for later experiments.
+</div>
+
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<!-- T1.3 -->
+<div class="experiment" id="T1-3">
+<h3>T1.3 &mdash; &alpha; boundary-weight sweep <span class="pill tier1">T1</span> <span class="pill cost-s">S-cost</span></h3>
+<div class="meta">Targets: never-swept loss weights &middot; Mechanism: grid over (&alpha;<sub>c2p</sub>, &alpha;<sub>p2r</sub>, &alpha;<sub>r2c</sub>)</div>
+
+<div class="block">
+<div class="block-title">Hypothesis</div>
+The canonical 0.4 / 0.3 / 0.3 is an arbitrary default that has never been swept. The 1 pp residual reg gap to HGI could
+plausibly live entirely in this triple. Sweeping is pure hparam tuning with zero structural risk.
+</div>
+
+<div class="block">
+<div class="block-title">Methodology</div>
+Coarse grid: &alpha;<sub>c2p</sub> &isin; {0.2, 0.4, 0.6}, &alpha;<sub>p2r</sub> &isin; {0.2, 0.4, 0.6},
+&alpha;<sub>r2c</sub> = 1 &minus; &alpha;<sub>c2p</sub> &minus; &alpha;<sub>p2r</sub> (constrained to sum=1). Total 9 valid points.
+Run at AL+AZ with seed 42, 5 folds &times; 50 epochs. Refine the winning region with a finer grid if needed.
+</div>
+
+<div class="block">
+<div class="block-title">Evaluation criteria</div>
+<ul>
+<li>Best (cat F1, reg Acc@10) at AL+AZ.</li>
+<li>fclass probe &mdash; does the winning &alpha; trade cat for fclass?</li>
+<li>Pareto frontier plot.</li>
+</ul>
+</div>
+
+<div class="block">
+<div class="block-title">Success</div>
+A weight triple that strictly dominates the default (0.4/0.3/0.3) on cat AND reg AND fclass probe at both AL+AZ.
+</div>
+
+<div class="block">
+<div class="block-title">Results (2026-05-15)</div>
+<table>
+<thead><tr><th>tag</th><th>&alpha; (c, p, r)</th><th>AL cat F1</th><th>AL reg Acc@10</th><th>AL leak</th><th>AZ cat F1</th><th>AZ reg Acc@10</th><th>AZ leak</th></tr></thead>
+<tbody>
+<tr><td>c04p03r03 (canonical)</td><td>(0.4, 0.3, 0.3)</td><td class="num">40.22 ± 0.43</td><td class="num">50.04 ± 3.49</td><td class="num">31.04</td><td class="num">45.80 ± 1.67</td><td class="num">40.98 ± 2.82</td><td class="num">34.57</td></tr>
+<tr><td>c02p02r06</td><td>(0.2, 0.2, 0.6)</td><td class="num">39.62 ± 1.02</td><td class="num">50.15 ± 3.51</td><td class="num">30.14</td><td class="num">45.19 ± 1.54</td><td class="num">41.02 ± 2.76</td><td class="num">33.85</td></tr>
+<tr><td>c02p04r04</td><td>(0.2, 0.4, 0.4)</td><td class="num">39.04 ± 1.70</td><td class="num">50.13 ± 3.62</td><td class="num">30.91</td><td class="num">45.49 ± 1.24</td><td class="num">40.98 ± 2.68</td><td class="num">33.97</td></tr>
+<tr><td>c02p06r02</td><td>(0.2, 0.6, 0.2)</td><td class="num">40.06 ± 1.05</td><td class="num">49.74 ± 3.85</td><td class="num">29.94</td><td class="num">45.51 ± 1.38</td><td class="num">40.88 ± 2.80</td><td class="num">33.97</td></tr>
+<tr><td>c04p02r04</td><td>(0.4, 0.2, 0.4)</td><td class="num">40.04 ± 0.88</td><td class="num">50.06 ± 3.58</td><td class="num">30.21</td><td class="num">45.38 ± 1.22</td><td class="num">40.89 ± 2.73</td><td class="num">34.21</td></tr>
+<tr><td>c04p04r02</td><td>(0.4, 0.4, 0.2)</td><td class="num">40.20 ± 0.99</td><td class="num">50.20 ± 3.72</td><td class="num">31.30</td><td class="num">45.57 ± 1.03</td><td class="num">40.95 ± 2.86</td><td class="num">34.02</td></tr>
+</tbody>
+</table>
+<p><strong>Verdict</strong>: <span class="pill bad">FALSIFIED</span> at n=4 grid points (advisor 2026-05-15) — max |&Delta;reg| across grids = 0.30 pp &laquo;&laquo; per-fold &sigma; (~3 pp at AL, ~2.7 pp at AZ); max |&Delta;cat| = 1.18 pp (all negative). No variant strictly dominates canonical on either head at either state. The &alpha; triple controls at most &plusmn;0.3 pp of reg movement &mdash; i.e. <strong>explains &lt; 3 %</strong> of the ~11 pp HGI gap at AL / ~12 pp at AZ. Hypothesis was miscalibrated by an order of magnitude. Grids 5 (c04p04r02) and 6 (c06p02r02) deferred to background sanity appendix.</p>
+<p class="footnote">Per-grid JSONs: <code>docs/results/canonical_improvement/T1-3_{tag}.json</code>. Summarizer: <code>scripts/canonical_improvement/T1-3_summarize.py</code>. Compute note: A40 GPU shared with a co-tenant during the sweep, per-grid wall 5&ndash;15 min variable; the shared fold-3 reg dip across all grids is data-driven (not &alpha;-driven), filed as a separate concern.</p>
+</div>
+</div>
+
+<!-- T1.4 -->
+<div class="experiment" id="T1-4">
+<h3>T1.4 &mdash; Best-epoch selection by fclass probe vs training loss <span class="pill tier1">T1</span> <span class="pill cost-s">S-cost</span> <span class="pill bad">CLOSED &mdash; self-fulfilling-leak risk</span></h3>
+<div class="meta">Targets: selection-criterion alignment &middot; Mechanism: track fclass-probe every 10 epochs, pick max</div>
+
+<div class="block">
+<div class="block-title">Closure rationale (2026-05-16, deferred-experiment triage)</div>
+<strong>The fclass linear probe IS the diagnostic the paper claims as the leak-axis defence</strong>; selecting
+the SSL epoch that maximises it is, definitionally, optimising the encoder against the diagnostic &mdash; it
+inverts the entire pre-flight protocol's logic (the protocol's value is that the probe is an <em>unselected</em>
+measurement). The methodology stub specifies "train-fold POIs only" which controls user-level leakage but does
+NOT control "the metric you select on is the metric you report on" leak. Two failure modes if run anyway:
+(a) null/no signal &rarr; wasted; (b) inflates fclass probe by direct optimisation &rarr; the entire leak claim
+collapses, IJM probe needs re-run, paper-table withdrawal. A genuinely defensible variant (held-out probe over
+disjoint fclass subsets) costs another half-day for a +5-20 pp lift on a number that <em>isn't even on the
+shipping-stack claim path</em>. <strong>Decision</strong>: skip; turn the omission into a defensive feature
+in &sect;Methodology &mdash; "best-epoch selected on training loss precisely to avoid probe self-selection
+bias". Advisor: deferred-experiment triage (2026-05-16).
+</div>
+
+<div class="block">
+<div class="block-title">Hypothesis</div>
+Canonical best-epoch is &quot;lowest training loss&quot;. The training loss has no semantic content, so the chosen epoch optimises a
+contrastive objective, not the diagnostic that actually matters. Switching to fclass-probe-based selection should give
+strict-better embeddings on the probe axis without hurting downstream metrics.
+</div>
+
+<div class="block">
+<div class="block-title">Methodology</div>
+Run canonical c2hgi on AL+AZ as usual, but at every 10 epochs save embeddings and run the fclass linear probe
+(<strong>train-fold POIs only</strong>, never on val/test &mdash; this is mandatory). Pick the epoch with highest probe
+F1. Compare end-to-end downstream metrics against the same canonical with default best-epoch.
+</div>
+
+<div class="block">
+<div class="block-title">Evaluation criteria</div>
+<ul>
+<li>&Delta; fclass probe (probe-selected vs loss-selected).</li>
+<li>&Delta; cat F1, reg Acc@10.</li>
+<li>kNN-Jaccard vs HGI.</li>
+<li>Confirm no train-fold &rarr; val/test leak in the probe (regression test).</li>
+</ul>
+</div>
+
+<div class="block">
+<div class="block-title">Success</div>
+Probe-selected canonical: +5&ndash;20 pp fclass probe vs loss-selected, no regression on cat or reg.
+</div>
+
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<!-- T1.5 -->
+<div class="experiment" id="T1-5">
+<h3>T1.5 &mdash; Optimizer hygiene: LR warmup + cosine + weight-decay <span class="pill tier1">T1</span> <span class="pill cost-s">S-cost</span></h3>
+<div class="meta">Targets: recipe gaps &middot; Mechanism: drop-in scheduler + AdamW</div>
+
+<div class="block">
+<div class="block-title">Hypothesis</div>
+Canonical training uses Adam + constant LR + no warmup + no weight-decay. Modern self-supervised graph recipes use
+warmup (~5 % of epochs) + cosine decay + AdamW wd~0.01. Free win if any one of three helps.
+</div>
+
+<div class="block">
+<div class="block-title">Methodology</div>
+3 single-factor ablations at AL+AZ:
+<ol>
+<li>+ 5 % linear warmup (epochs 0-25) &rarr; constant LR.</li>
+<li>Cosine decay LR from 1e-3 to 1e-5 over 500 epochs.</li>
+<li>AdamW with wd &isin; {1e-3, 1e-2, 5e-2}.</li>
+</ol>
+Then combinations: best-of-each stacked. Report cat F1, reg Acc@10, fclass probe.
+</div>
+
+<div class="block">
+<div class="block-title">Evaluation criteria</div>
+<ul>
+<li>Best single-factor &Delta; on each metric.</li>
+<li>Best stacked recipe.</li>
+<li>Convergence-speed plot (epochs to plateau).</li>
+</ul>
+</div>
+
+<div class="block">
+<div class="block-title">Success</div>
+A new optimizer recipe that beats default on at least one metric without regressing the other two; pins as new canonical baseline.
+</div>
+
+<div class="block">
+<div class="block-title">Results (2026-05-15)</div>
+<table>
+<thead><tr><th>variant</th><th>AL cat F1</th><th>AL reg Acc@10</th><th>AL leak</th><th>AZ cat F1</th><th>AZ reg Acc@10</th><th>AZ leak</th><th>&Delta; vs canonical (AL c/r &middot; AZ c/r)</th></tr></thead>
+<tbody>
+<tr><td>canonical (c04p03r03 Stage B)</td><td class="num">40.22 &plusmn; 0.43</td><td class="num">50.04 &plusmn; 3.49</td><td class="num">31.04</td><td class="num">45.80 &plusmn; 1.67</td><td class="num">40.98 &plusmn; 2.82</td><td class="num">34.57</td><td class="num">&mdash;</td></tr>
+<tr><td>v1_warmup5 (warmup 5 %)</td><td class="num">39.94 &plusmn; 0.60</td><td class="num">50.23 &plusmn; 3.61</td><td class="num">30.86</td><td class="num">45.20 &plusmn; 1.42</td><td class="num">40.93 &plusmn; 2.77</td><td class="num">34.11</td><td class="num">&minus;0.28 / +0.19 &middot; &minus;0.60 / &minus;0.05</td></tr>
+<tr><td>v2_cosine (1e-3 &rarr; 1e-5)</td><td class="num">40.15 &plusmn; 0.90</td><td class="num">50.30 &plusmn; 3.76</td><td class="num">30.97</td><td class="num">44.99 &plusmn; 1.18</td><td class="num">40.96 &plusmn; 2.83</td><td class="num">34.11</td><td class="num">&minus;0.07 / +0.26 &middot; &minus;0.81 / &minus;0.02</td></tr>
+<tr><td>v3a_wd1e3 (AdamW 1e-3)</td><td class="num">40.07 &plusmn; 1.08</td><td class="num">50.18 &plusmn; 3.73</td><td class="num">30.94</td><td class="num">45.51 &plusmn; 1.33</td><td class="num">40.91 &plusmn; 2.71</td><td class="num">34.14</td><td class="num">&minus;0.15 / +0.14 &middot; &minus;0.29 / &minus;0.07</td></tr>
+<tr><td>v3b_wd1e2 (AdamW 1e-2)</td><td class="num"><strong>40.60 &plusmn; 0.74</strong></td><td class="num">49.07 &plusmn; 3.84</td><td class="num">30.70</td><td class="num">45.41 &plusmn; 0.91</td><td class="num">40.98 &plusmn; 2.76</td><td class="num">34.45</td><td class="num">+0.38 / &minus;0.97 &middot; &minus;0.39 / +0.00</td></tr>
+<tr><td><strong>v3c_wd5e2 (AdamW 5e-2)</strong></td><td class="num"><strong>40.60 &plusmn; 1.00</strong></td><td class="num">50.13 &plusmn; 3.59</td><td class="num">31.23</td><td class="num">45.65 &plusmn; 1.22</td><td class="num">40.93 &plusmn; 2.71</td><td class="num">34.64</td><td class="num"><strong>+0.38 / +0.09 &middot; &minus;0.15 / &minus;0.05</strong></td></tr>
+</tbody>
+</table>
+<p><strong>Per-variant verdicts:</strong></p>
+<ul>
+<li>v1_warmup5: <span class="pill warn">non-inferior</span> &mdash; all &Delta;s within &sigma;, no signal.</li>
+<li>v2_cosine: <span class="pill warn">non-inferior</span> &mdash; AL reg +0.26 within &sigma;, AZ cat &minus;0.81 within &sigma;.</li>
+<li>v3a_wd1e3: <span class="pill warn">non-inferior</span> &mdash; WD too low to register.</li>
+<li>v3b_wd1e2: <span class="pill warn">non-inferior</span> &mdash; AL cat +0.38 paired with AL reg &minus;0.97 (variance-driven Pareto-trade, not mechanism).</li>
+<li><strong>v3c_wd5e2:</strong> <span class="pill good">non-inferior with small AL cat lift</span> &mdash; +0.38 AL cat / +0.09 AL reg consistent in sign with v3b; cat lift is monotone in WD (v3a 40.07 &rarr; v3b 40.60 &rarr; v3c 40.60). Carried forward as provisional canonical for Tier-2+ STL comparisons. Multi-seed deferred to T1.2.</li>
+</ul>
+<p><strong>Tier-1 decision gate:</strong> <span class="pill bad">NOT TRIGGERED</span> &mdash; AZ reg gap to HGI remains 12.13 pp (v3c moves AZ reg by &minus;0.05 pp). T1.3 &alpha;-sweep + T1.5 optimizer hygiene together explain &lt; 3 % of the gap. Tier 2/3/4 work is required.</p>
+<p><strong>Key empirical finding:</strong> <strong>AZ reg is optimizer-invariant</strong> (40.91&ndash;40.98 across all 5 variants). The AZ reg gap is NOT in the optimizer; it is architectural / data-structural. Localizes future search to Tier 3 (architecture), Tier 4 (semantic recovery), Tier 5 (new boundaries).</p>
+<p><strong>Caveat:</strong> AL fold-5 reg dip (&sim;43.9) is shared across all T1.3 grids and all T1.5 variants &rarr; confirmed fold-structural, not model-driven. Flagged for fold-creation audit before any AL "reg ceiling" claim.</p>
+<p class="footnote">JSON: <code>docs/results/canonical_improvement/T1-5_{v1_warmup5,v2_cosine,v3a_wd1e3,v3b_wd1e2,v3c_wd5e2}.json</code>. All variants share seed=42, 5f &times; 50ep MTL B9full recipe; only the embedding optimizer hygiene axis varies. Per-fold &sigma; on reg &sim;3 pp at AL / &sim;2.7 pp at AZ.</p>
+</div>
+</div>
+
+<!-- T1.6 -->
+<div class="experiment" id="T1-6">
+<h3>T1.6 &mdash; Epoch budget sweep <span class="pill tier1">T1</span> <span class="pill cost-s">S-cost</span></h3>
+<div class="meta">Targets: 500-epoch default justification &middot; Mechanism: train-then-eval at epoch checkpoints</div>
+
+<div class="block">
+<div class="block-title">Hypothesis</div>
+Canonical trains 500 epochs by inheritance. If metrics plateau by 100-200 epochs, the remaining budget is wasted and
+can be redirected to multi-seed runs or longer Tier 4 experiments.
+</div>
+
+<div class="block">
+<div class="block-title">Methodology</div>
+Single state (AL), single seed (42), 5 folds. Save checkpoints at epochs {50, 100, 200, 300, 500}. Run full downstream
+evaluation at each. Plot metric-vs-epoch curves.
+</div>
+
+<div class="block">
+<div class="block-title">Evaluation criteria</div>
+Pinpoint the epoch where cat F1, reg Acc@10, fclass probe all plateau within 0.5 pp of their 500-epoch values.
+</div>
+
+<div class="block">
+<div class="block-title">Success</div>
+A new default epoch budget that saves &ge; 50 % wall-clock with &le; 0.5 pp metric loss.
+</div>
+
+<div class="block">
+<div class="block-title">Results (2026-05-15)</div>
+<p><strong>Outcome:</strong> Reg plateaus by ep50 at both states (every &Delta;reg within &plusmn;0.2 pp of ep500 &lt;&lt; &sigma;_fold ~3 pp).
+Cat plateaus later: AZ cat trajectory is monotone 41.83 &rarr; 44.69 &rarr; 44.63 &rarr; 45.19 &rarr; 45.80 (ep50 &rarr; ep500),
+converging to within &sigma;_fold by ep300. AL cat is noise-dominated above ep50.</p>
+<table>
+<thead><tr><th>variant</th><th>AL cat F1</th><th>AL reg Acc@10</th><th>AL leak</th><th>AZ cat F1</th><th>AZ reg Acc@10</th><th>AZ leak</th></tr></thead>
+<tbody>
+<tr><td>ep500 (canonical)</td><td class="num">40.22 &plusmn; 0.43</td><td class="num">50.04 &plusmn; 3.49</td><td class="num">31.04</td><td class="num">45.80 &plusmn; 1.67</td><td class="num">40.98 &plusmn; 2.82</td><td class="num">34.57</td></tr>
+<tr><td>ep50</td><td class="num">39.97</td><td class="num">50.21</td><td class="num">30.00</td><td class="num">41.83</td><td class="num">40.91</td><td class="num">34.01</td></tr>
+<tr><td>ep100</td><td class="num">38.98</td><td class="num">50.12</td><td class="num">29.58</td><td class="num">44.69</td><td class="num">41.01</td><td class="num">33.86</td></tr>
+<tr><td>ep200</td><td class="num">38.76</td><td class="num">50.13</td><td class="num">29.79</td><td class="num">44.63</td><td class="num">40.93</td><td class="num">33.86</td></tr>
+<tr><td><strong>ep300</strong></td><td class="num">39.74</td><td class="num">50.22</td><td class="num">30.51</td><td class="num">45.19</td><td class="num">41.00</td><td class="num">34.46</td></tr>
+</tbody>
+</table>
+<p><strong>Verdict:</strong> <span class="pill good">ep300 adopted as exploration default</span> (40 % wall savings vs ep500;
+all &Delta;s within &sigma;_fold). ep500 retained for T1.2 multi-seed + shipping numbers.</p>
+<p><strong>Asymmetric-budget strategy:</strong></p>
+<ul>
+<li>Tier-2 reg-axis (p2r negatives, loss shape): <strong>ep200</strong></li>
+<li>Tier-3 architecture: <strong>ep300</strong> default + ep500 verification on winners</li>
+<li>Tier-4 semantic recovery (cat-axis): <strong>ep500 mandatory</strong></li>
+<li>Tier-5 substrate changes: ep300 + ep500 verification</li>
+</ul>
+<p><strong>Tier-1 decision gate:</strong> <span class="pill bad">NOT CLOSED</span> &mdash; AZ reg gap to HGI ~12 pp; T1.3+T1.5+T1.6 jointly moved &lt; 0.1 pp. AZ reg confirmed <em>recipe-invariant</em>. Tier 2/3/4 mandatory.</p>
+<p class="footnote">JSON: <code>docs/results/canonical_improvement/t16_ep{50,100,200,300}.json</code>.</p>
+</div>
+</div>
+
+<!-- ============================================================== -->
+<h2 id="tier2">Tier 2 &mdash; Loss-shape &amp; negative sampling
+<span class="pill tier2">Tier 2</span></h2>
+
+<p>Most Tier 2 work has scaffolding in <code>research/embeddings/check2hgi/model/variants.py</code> or
+<code>Check2HGIModule.py</code>. The asymmetric falsification rule applies: <strong>c2p is fragile (Phase 11 S1+S4), p2r and
+r2c are open territory.</strong></p>
+
+<!-- T2.1 -->
+<div class="experiment" id="T2-1">
+<h3>T2.1 &mdash; Hard negatives at p2r (HGI&#39;s recipe, untested on c2hgi) <span class="pill tier2">T2</span> <span class="pill cost-s">S-cost</span> <span class="pill info">highest-asymmetry</span></h3>
+<div class="meta">Targets: 1 pp HGI gap on reg &middot; Mechanism: 25 % hard negs from coarse_region_similarity 0.6&ndash;0.8 band</div>
+
+<div class="block">
+<div class="block-title">Hypothesis</div>
+HGI&#39;s 25 % similarity-band hard negatives at p2r close 1&ndash;2 pp on next-region. c2hgi&#39;s p2r boundary uses random negatives.
+Phase 11 S1 tested hard negs at c2p (regressed); p2r has never been tested. <strong>Asymmetric: known-to-help mechanism in
+HGI, no falsification on c2hgi at this boundary.</strong>
+</div>
+
+<div class="block">
+<div class="block-title">Methodology</div>
+Enable 25 % hard-neg sampling at p2r using the existing <code>coarse_region_similarity</code> matrix (already built by preprocess).
+Mirror HGI exactly: candidate set = regions with similarity &isin; [0.6, 0.8]; 25 % of negs sampled from this candidate set.
+Run AL+AZ &times; 5 folds &times; seed 42. Then sweep the hard-frac in {0.1, 0.25, 0.5} if 0.25 lifts reg.
+</div>
+
+<div class="block">
+<div class="block-title">Evaluation criteria</div>
+<ul>
+<li>&Delta; reg Acc@10 vs canonical at AL+AZ, with Wilcoxon strict (n=5 to start, multi-seed if T1.2 done).</li>
+<li>&Delta; cat F1 (must be TOST non-inferior at &delta;=2 pp).</li>
+<li>&Delta; vs HGI: does it close the gap or merely match canonical?</li>
+<li>Leak probe (T1.1 protocol): no jump.</li>
+</ul>
+</div>
+
+<div class="block">
+<div class="block-title">Success</div>
+&Delta; reg &ge; +1 pp at both AL+AZ at Wilcoxon p&lt;0.05, no cat regression, no leak.
+</div>
+
+<div class="block">
+<div class="block-title">Results (2026-05-15)</div>
+<p>4-rate sweep {0.00, 0.25, 0.50, 0.75} at p2r, AL+AZ &times; 5f &times; 50ep, seed 42, sim-band [0.6, 0.8], ep200 + AdamW WD=5e-2 base.</p>
+<table>
+<thead><tr><th>variant</th><th>rate</th><th>AL cat F1</th><th>AL reg Acc@10</th><th>AL leak</th><th>AZ cat F1</th><th>AZ reg Acc@10</th><th>AZ leak</th></tr></thead>
+<tbody>
+<tr><td>t21_p2r00</td><td>0.00</td><td class="num">38.11 &plusmn; 1.89</td><td class="num">50.15 &plusmn; 3.78</td><td class="num">29.70</td><td class="num">44.92 &plusmn; 1.06</td><td class="num">40.92 &plusmn; 2.65</td><td class="num">33.63</td></tr>
+<tr><td>t21_p2r025</td><td>0.25</td><td class="num">36.51 &plusmn; 2.50</td><td class="num">50.20 &plusmn; 3.70</td><td class="num">29.72</td><td class="num">45.74 &plusmn; 1.26</td><td class="num">41.03 &plusmn; 2.66</td><td class="num">33.74</td></tr>
+<tr><td>t21_p2r050</td><td>0.50</td><td class="num">39.50 &plusmn; 1.10</td><td class="num">50.11 &plusmn; 3.68</td><td class="num">30.09</td><td class="num">45.20 &plusmn; 1.48</td><td class="num">41.01 &plusmn; 2.72</td><td class="num">33.92</td></tr>
+<tr><td>t21_p2r075</td><td>0.75</td><td class="num">38.07 &plusmn; 0.71</td><td class="num">50.17 &plusmn; 3.66</td><td class="num">29.99</td><td class="num">44.73 &plusmn; 1.66</td><td class="num">40.93 &plusmn; 2.70</td><td class="num">33.73</td></tr>
+</tbody>
+</table>
+<p><strong>Reg spread</strong>: AL 0.09 pp / AZ 0.11 pp &mdash; both &lt;&lt; &sigma;_fold (~3 / 2.7 pp). <strong>Cat</strong>: non-monotone, noise-dominated (AL 2.99 pp, AZ 1.01 pp); best rates disagree across states. <strong>Leak</strong>: invariant (&plusmn;0.4 pp).</p>
+<p><strong>Verdict:</strong> <span class="pill bad">FALSIFIED</span> &mdash; p2r hard-neg rate is null on reg (target axis) and noise on cat. Success criterion (&Delta;reg &ge; +1 pp both states, Wilcoxon p&lt;0.05) unreachable. <strong>Localization</strong>: HGI gap is not in p2r loss-shape &mdash; triangulates with T1.5 (recipe-invariant) and T1.6 (budget-invariant). Gap lives in encoder/substrate (Tier 3) or sequence head (Tier 4).</p>
+<p><strong>Follow-ups:</strong> None. T2.2 (InfoNCE @ p2r) + T2.3 (corruption @ p2r/r2c) <span class="pill warn">deferred</span> per advisor: same-boundary class, expected-info downgraded after T2.1 falsification. T2.4 (DropEdge on user-sequence edges) <span class="pill good">promoted</span> as structurally-distinct topology test.</p>
+<p class="footnote">JSON: <code>docs/results/canonical_improvement/t21_p2r{00,025,050,075}.json</code>.</p>
+</div>
+</div>
+
+<!-- T2.2 -->
+<div class="experiment" id="T2-2">
+<h3>T2.2 &mdash; InfoNCE at p2r <span class="pill tier2">T2</span> <span class="pill cost-s">S-cost</span> <span class="pill bad">CLOSED &mdash; zombie hypothesis post-T2.1</span></h3>
+<div class="meta">Targets: 1 pp HGI gap, 4 % fclass probe &middot; Mechanism: K-negative cross-entropy in place of sigmoid+JS</div>
+
+<div class="block">
+<div class="block-title">Closure rationale (2026-05-16, deferred-experiment triage)</div>
+T2.1 (hard negatives at p2r) closed FALSIFIED at the wrap-up with the verbatim conclusion: <em>"HGI gap is not
+in p2r loss-shape &mdash; triangulates with T1.5 (recipe-invariant) and T1.6 (budget-invariant). Gap lives in
+encoder/substrate (Tier 3) or sequence head (Tier 4)."</em> The Tier-3 + Tier-4 closeout subsequently confirmed
+this: cat-axis improvement is encoder-architectural (T3.2 paper-grade), and seven separate encoder-side attacks
+came down to "encoder is saturated or leaks". Re-attacking p2r loss-shape now has prior &lt; 0.05 and adds zero
+novel mechanism class to the 9-variant falsification corpus. The expected outcome is "10th protocol-falsified
+variant" &mdash; diminishing methodological return. <strong>Decision</strong>: close as deferred-closed.
+</div>
+
+<div class="block">
+<div class="block-title">Hypothesis</div>
+The sigmoid+JS at p2r gives no margin pressure between near-miss regions. InfoNCE with K=32 in-batch negatives and
+temperature &tau;=0.2 is empirically the strongest linear-probe objective in self-supervised graph learning &mdash; it
+explicitly optimises the feature geometry the fclass probe measures.
+</div>
+
+<div class="block">
+<div class="block-title">Methodology</div>
+Use <code>Check2HGI_InfoNCE</code> scaffolding in <code>variants.py</code>; apply only at p2r (NOT c2p &mdash; S1/S4 fragile).
+Sweep K &isin; {16, 32, 64}, &tau; &isin; {0.1, 0.2, 0.5}. AL+AZ, 5 folds, seed 42.
+</div>
+
+<div class="block">
+<div class="block-title">Evaluation criteria</div>
+<ul>
+<li>&Delta; cat F1, reg Acc@10, fclass probe.</li>
+<li>Best (K, &tau;) combo per state.</li>
+<li>Convergence stability: any fold collapse?</li>
+</ul>
+</div>
+
+<div class="block">
+<div class="block-title">Success</div>
+Strict-positive &Delta; on fclass probe (&gt; +20 pp expected) without regressing cat or reg.
+</div>
+
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<!-- T2.3 -->
+<div class="experiment" id="T2-3">
+<h3>T2.3 &mdash; Two-pass feature corruption at p2r / r2c <span class="pill tier2">T2</span> <span class="pill cost-s">S-cost</span> <span class="pill bad">CLOSED &mdash; zombie hypothesis (same axis as T2.2)</span></h3>
+<div class="meta">Targets: asymmetric falsification test &middot; Mechanism: enable existing c2p_corrupted_neg pathway but at p2r/r2c</div>
+
+<div class="block">
+<div class="block-title">Closure rationale (2026-05-16, deferred-experiment triage)</div>
+Same family / same prior collapse as T2.2 (zombie hypothesis). The original asymmetric-falsification framing
+("c2p was falsified at Phase 11 S4, but p2r/r2c might still benefit") has been overridden by the Tier-3+4
+encoder-saturation finding: <em>where</em> the corruption hits matters less than the fact that the SSL signal
+the encoder can extract from any boundary's negative-pair geometry has been maxed out. Cost-benefit:
+~2-3 hr wall to confirm the 11th falsification, no novel mechanism class added to the corpus.
+<strong>Decision</strong>: close as deferred-closed.
+</div>
+
+<div class="block">
+<div class="block-title">Hypothesis</div>
+Phase 11 S4 falsified DGI-style two-pass feature corruption at c2p. The asymmetric-falsification rule says p2r and r2c
+might still benefit (this is HGI&#39;s actual recipe). Worth a single test.
+</div>
+
+<div class="block">
+<div class="block-title">Methodology</div>
+Patch <code>Check2HGIModule.py</code> to optionally use the second-pass corrupted POI/region embedding as the p2r and r2c
+negative (instead of random/shuffled). AL+AZ, 5 folds, seed 42.
+</div>
+
+<div class="block">
+<div class="block-title">Evaluation criteria</div>
+Same as T2.1. Expected outcome: marginal &mdash; either small lift or null.
+</div>
+
+<div class="block">
+<div class="block-title">Success</div>
+Strict-positive &Delta; on reg at p&lt;0.05, no cat regression.
+</div>
+
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<!-- T2.4 -->
+<div class="experiment" id="T2-4">
+<h3>T2.4 &mdash; DropEdge on user-sequence edges <span class="pill tier2">T2</span> <span class="pill cost-s">S-cost</span></h3>
+<div class="meta">Targets: over-smoothing on dense chains &middot; Mechanism: randomly drop p % of edges per epoch</div>
+
+<div class="block">
+<div class="block-title">Hypothesis</div>
+The user-sequence graph is chain-like; GCN over-smooths along chains. Random edge dropout each epoch acts as a stochastic
+augmentation and regulariser. Standard finding in graph SSL literature.
+</div>
+
+<div class="block">
+<div class="block-title">Methodology</div>
+Patch the training loop: at each forward pass, sample a binary mask over edges (Bernoulli p). Sweep p &isin; {0.1, 0.2, 0.3}.
+AL+AZ, 5 folds, seed 42.
+</div>
+
+<div class="block">
+<div class="block-title">Evaluation criteria</div>
+&Delta; on all five generality probes. Particular attention to temporal-autocorrelation: DropEdge should NOT increase same-POI different-time cosine.
+</div>
+
+<div class="block">
+<div class="block-title">Success</div>
+Strict-positive &Delta; on reg or fclass probe at p&lt;0.05, no cat regression.
+</div>
+
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<!-- ============================================================== -->
+<h2 id="tier3">Tier 3 &mdash; Architecture
+<span class="pill tier3">Tier 3</span></h2>
+
+<p><strong>F51 constraint:</strong> every architectural change must be a <em>inductive-bias swap at fixed D=64</em>, not a capacity widening.
+Wider/deeper of the same architecture is already known to regress cat (F51 Tier 2).</p>
+
+<!-- T3.1 -->
+<div class="experiment" id="T3-1">
+<h3>T3.1 &mdash; GATv2 encoder with temporal edge-weight conditioning <span class="pill tier3">T3</span> <span class="pill cost-s">S-cost</span> <span class="pill bad">FALSIFIED &mdash; structural leak</span></h3>
+<div class="meta">Targets: trajectory-sensitive aggregation &middot; Mechanism: GATv2Conv with edge_dim=1 carrying exp-decay weight</div>
+
+<div class="block">
+<div class="block-title">Hypothesis</div>
+The current GCN averages neighbours uniformly, ignoring temporal-decay edge weights at the aggregation step.
+GATv2 attention weighted on the 1-d temporal-decay edge feature makes attention a function of time gap, preserving
+visit-order signal.
+</div>
+
+<div class="block">
+<div class="block-title">Methodology</div>
+Wire <code>GATTimeEncoder</code> from <code>variants.py</code> as the CheckinEncoder. 4 heads &times; 16 dim each = 64 total
+(fixed D, F51-safe). AL+AZ, 5 folds, seed 42.
+</div>
+
+<div class="block">
+<div class="block-title">Evaluation criteria</div>
+<ul>
+<li>&Delta; on all five generality probes.</li>
+<li>Attention-entropy diagnostic: do heads attend differently (good) or all collapse (bad)?</li>
+<li>Per-fold stability (no &sigma; &gt; 2&times; canonical).</li>
+</ul>
+</div>
+
+<div class="block">
+<div class="block-title">Success</div>
+Strict-positive &Delta; on cat or reg without regressing the other. Bonus: attention heads showing distinct entropy patterns.
+</div>
+
+<div class="block">
+<div class="block-title">Result (2026-05-15, FL, single seed)</div>
+FL cat F1 &asymp; <strong>99%</strong> &mdash; 30&times; &sigma; outlier vs canonical 68.56 &plusmn; 0.79. Catastrophic leak. Advisor
+diagnosed it as <strong>structural, not a wiring bug</strong>: attention &times; <code>edge_attr</code> (1-d temporal decay)
+&times; user-sequence edge typing forms a triangle that lets the attention mechanism reconstruct the next-category
+label from per-visit temporal weights. T3.2 ResidualLN (same wiring, no attention) lands at cat 69.5 &mdash;
+confirming the leak is GAT-specific. Follow-up <strong>T3.1b (use_edge_attr=False)</strong> testing whether dropping
+the temporal-decay conditioning closes the leak corner.
+</div>
+</div>
+
+<!-- T3.2 -->
+<div class="experiment" id="T3-2">
+<h3>T3.2 &mdash; ResidualLN encoder <span class="pill tier3">T3</span> <span class="pill cost-s">S-cost</span> <span class="pill good">PAPER-GRADE CAT-AXIS WIN (FL, n=5)</span></h3>
+<div class="meta">Targets: gradient stability, deeper-stack viability &middot; Mechanism: GCN + pre-LayerNorm + skip</div>
+
+<div class="block">
+<div class="block-title">Hypothesis</div>
+GCN without LayerNorm/residual is known to oversmooth past 2 layers. Pre-LN + skip stabilises gradients and unlocks
+3-layer depth without the F51 collapse mode (F51 tested deeper *MLPnet* layers, not GCN with residual).
+</div>
+
+<div class="block">
+<div class="block-title">Methodology</div>
+Wire <code>ResidualLNEncoder</code> from <code>variants.py</code> with num_layers &isin; {2, 3, 4}. AL+AZ, 5 folds, seed 42.
+</div>
+
+<div class="block">
+<div class="block-title">Evaluation criteria</div>
+Five generality probes; convergence stability; per-fold &sigma;.
+</div>
+
+<div class="block">
+<div class="block-title">Success</div>
+3-layer ResidualLN strictly dominates 2-layer GCN at both AL+AZ.
+</div>
+
+<div class="block">
+<div class="block-title">Result (2026-05-15, FL, n=5 multi-seed, v3c base)</div>
+<table>
+<tr><th>metric</th><th>T3.2 ResLN (n=5)</th><th>v3c (n=5)</th><th>canonical</th><th>&Delta;cat / &Delta;reg paired vs v3c</th></tr>
+<tr><td>cat F1</td><td><strong>69.42 &plusmn; 0.25</strong></td><td>68.23</td><td>68.56 &plusmn; 0.79</td><td><strong>+1.19 &plusmn; 0.37</strong> (5/5 positive, sign p=0.03125 ✅ paper-grade)</td></tr>
+<tr><td>reg Acc@10</td><td>63.98 &plusmn; 0.09</td><td>63.90 &plusmn; 0.05</td><td>63.27 &plusmn; 0.10</td><td>+0.08 &plusmn; 0.10 (4/5, sign p=0.19 ❌ null)</td></tr>
+<tr><td>leak F1</td><td>43.09 &plusmn; 0.12</td><td>41.33</td><td>40.85</td><td>+2.24 pp vs canonical (well below +5 pp red flag, &sigma;_seed=0.12)</td></tr>
+</table>
+<strong>Verdict: paper-grade cat-axis micro-improvement.</strong> 5/5 seeds strictly above v3c on cat;
+reg delta washes to noise as predicted by the single-seed advisor. Advisor predicted this
+exact outcome from the residual-identity-pathway analysis. Also doubles as the
+<strong>falsification control for T3.1</strong> &mdash; same encoder dispatch, no attention &rarr; cat lands at
+69 not 99 (T3.1 GAT-structural leak confirmed). Accepted into the canonical stack:
+<strong>v3c + T3.2 = cat +0.86 / reg +0.71 vs canonical at FL n=5</strong>. AL/AZ replication still
+required before "paper headline" claim &mdash; both axes may have scale-conditional behaviour like v3c.
+</div>
+</div>
+
+<!-- T3.3 -->
+<div class="experiment" id="T3-3">
+<h3>T3.3 &mdash; Heterogeneous edge typing (R-GCN) <span class="pill tier3">T3</span> <span class="pill cost-m">M-cost</span> <span class="pill bad">FALSIFIED &mdash; structural leak (K=2) AND capability collapse (K=1)</span></h3>
+
+<div class="block">
+<div class="block-title">Result (2026-05-16, AL ep50)</div>
+<table>
+<tr><th>variant</th><th>cat F1</th><th>reg Acc@10</th><th>leak F1</th><th>Δleak vs baseline_both 20.37</th></tr>
+<tr><td>R-GCN num_bases=2 ep50</td><td><strong>47.65 ± 2.91</strong></td><td>47.17 ± 3.74</td><td><strong>48.22</strong></td><td><strong>+27.85 pp catastrophic</strong></td></tr>
+<tr><td>R-GCN num_bases=1 ep50 (fix)</td><td>29.64 ± 1.52</td><td>46.44 ± 4.43</td><td>22.53</td><td>+2.16 pp (leak OK)</td></tr>
+<tr><td>R-GCN cat-weight=0 isolation</td><td>45.18 ± 0.86</td><td>49.03 ± 4.63</td><td>48.95</td><td>+28.58 (encoder-internal leak)</td></tr>
+</table>
+Mechanism: per-relation <code>W_r</code> on label-aligned <code>same_poi</code> edges learns a near-identity
+category-copy operation. <code>num_bases=2</code> &rarr; catastrophic shortcut. <code>num_bases=1</code> shares
+weights across relations &rarr; leak fixed but capability collapse (cat &minus;10.93 pp, reg &minus;3.73 pp vs
+canonical). The per-relation weight matrices ARE both the leak channel AND the relation-typing benefit; on this
+substrate (where <code>same_poi ≡ same_category</code> by construction) they cannot be decoupled.
+</div>
+</div>
+
+<!-- T3.3-disabled-original -->
+<div class="experiment" style="display:none;" id="T3-3-orig">
+<h3>T3.3 &mdash; Heterogeneous edge typing (R-GCN) <span class="pill tier3">T3</span> <span class="pill cost-m">M-cost</span></h3>
+<div class="meta">Targets: distinct inductive bias per edge type &middot; Mechanism: separate conv params per edge type</div>
+
+<div class="block">
+<div class="block-title">Hypothesis</div>
+The canonical engine&#39;s edge_type=&#39;both&#39; merges user-sequence and same-POI edges into one GCNConv. They carry qualitatively
+different signal (temporal vs categorical co-location); separate weight matrices let the encoder route them through
+different inductive biases without inflating total D.
+</div>
+
+<div class="block">
+<div class="block-title">Methodology</div>
+Patch preprocess to emit edge_type tensor (0=user_seq, 1=same_poi). Replace CheckinEncoder with RGCNConv at fixed D=64
+(num_relations=2). Optionally add a 3rd relation: spatial k-NN edges. AL+AZ, 5 folds, seed 42.
+</div>
+
+<div class="block">
+<div class="block-title">Evaluation criteria</div>
+Five probes; per-relation aggregation-weight stability.
+</div>
+
+<div class="block">
+<div class="block-title">Success</div>
+Strict-positive &Delta; on at least one of (cat, reg, fclass probe) without regressing the others.
+</div>
+
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<!-- T3.4 -->
+<div class="experiment" id="T3-4">
+<h3>T3.4 &mdash; Time2Vec drop-in for fixed sin/cos <span class="pill tier3">T3</span> <span class="pill cost-s">S-cost</span> <span class="pill warn">CLOSED &mdash; substitute-not-stack for v3c</span></h3>
+
+<div class="block">
+<div class="block-title">Result (2026-05-16, FL n=5)</div>
+<table>
+<tr><th>variant</th><th>cat F1</th><th>Δcat vs canonical</th><th>reg Acc@10</th><th>Δreg vs canonical</th><th>vs v3c (the base)</th></tr>
+<tr><td>T3.4 random init</td><td>68.00 ± 0.18</td><td>−0.56 (5/5 NEGATIVE, sign p=0.03125)</td><td>63.93 ± 0.22</td><td>+0.66 (5/5 positive)</td><td>+0.03 reg / &minus;0.23 cat (substitute)</td></tr>
+<tr><td>T3.4-warm (seed=42)</td><td>67.83 ± 1.12</td><td>−0.73 (regresses further)</td><td>63.72 ± 0.82</td><td>+0.45 (loses reg)</td><td>both axes worse</td></tr>
+</table>
+T3.4 reaches the SAME reg ceiling as v3c (63.93 vs 63.90) via a different mechanism (learned-frequency periodic features vs AdamW WD regularisation) but with a small cat cost. Substitute-not-stack &mdash; not paper-positive
+vs the v3c+T3.2 shipping stack. Warm-start init (canonical sin/cos recovery at init) regresses both axes:
+contrastive training wipes the warm-start.
+</div>
+</div>
+
+<div class="experiment" style="display:none;" id="T3-4-orig">
+<h3>T3.4 &mdash; Time2Vec drop-in for fixed sin/cos <span class="pill tier3">T3</span> <span class="pill cost-s">S-cost</span></h3>
+<div class="meta">Targets: learnable temporal frequencies + per-edge piecewise decay &middot; Mechanism: replace 4 sin/cos dims with learnable Time2Vec</div>
+
+<div class="block">
+<div class="block-title">Hypothesis</div>
+Time2Vec (Kazemi 2019) generalises sin/cos with learnable frequencies; outperforms fixed encodings on temporal tasks.
+Drop-in replacement for the 4 fixed temporal dims in canonical c2hgi features. Also enables piecewise/learnable temporal decay on edge weights.
+</div>
+
+<div class="block">
+<div class="block-title">Methodology</div>
+Patch preprocess to emit raw (hour, dow) instead of sin/cos; insert Time2Vec layer at the encoder input.
+Optional: also replace exp-decay edge weight with learnable kernel. AL+AZ, 5 folds, seed 42.
+Combine with T3.1 GATv2 (Time2Vec inside GATv2 attention) as an optional T3.4b.
+</div>
+
+<div class="block">
+<div class="block-title">Evaluation criteria</div>
+Five probes; temporal-autocorrelation probe is particularly informative.
+</div>
+
+<div class="block">
+<div class="block-title">Success</div>
+Strict-positive &Delta; on cat or temporal-autocorrelation probe without regressing the others.
+</div>
+
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<!-- ============================================================== -->
+<h2 id="tier4">Tier 4 &mdash; Semantic recovery (native attacks on the 4 % fclass probe)
+<span class="pill tier4">Tier 4</span></h2>
+
+<p>This tier targets the canonical engine&#39;s most measurable weakness: <strong>POI representations carry zero semantic
+identity</strong> (fclass probe 4 % vs HGI 98 %). All Tier 4 experiments recover semantic structure <em>natively</em> &mdash; no
+HGI artifact, no fclass label (which would be tautological).</p>
+
+<!-- T4.1 -->
+<div class="experiment" id="T4-1">
+<h3>T4.1 &mdash; GraphMAE-style masked feature reconstruction (aux head) <span class="pill tier4">T4</span> <span class="pill cost-m">M-cost</span> <span class="pill bad">FALSIFIED &mdash; no cat lift at any λ ∈ {0.1, 0.3, 0.5}</span></h3>
+
+<div class="block">
+<div class="block-title">Result (2026-05-16, AL ep50 λ sweep)</div>
+<table>
+<tr><th>λ</th><th>cat F1</th><th>Δcat vs canonical</th><th>reg Acc@10</th><th>leak F1</th></tr>
+<tr><td>0.1</td><td>40.35 ± 0.81</td><td>−0.22</td><td>50.07</td><td>31.12 (Δ=+0.08)</td></tr>
+<tr><td>0.3 (spec default)</td><td>39.42 ± 1.00</td><td>−1.15</td><td>50.19</td><td>30.41 (Δ=&minus;0.63)</td></tr>
+<tr><td>0.5</td><td>40.16 ± 0.60</td><td>−0.41</td><td>49.51</td><td>30.55 (Δ=&minus;0.49)</td></tr>
+</table>
+Masked-feature reconstruction (SCE loss, learned mask_token w/ normal-init, separate masked encoder pass)
+adds no SSL signal on top of the canonical 3-boundary contrastive on this substrate. Same saturation pattern as
+T3.4 random and T4.3: encoder already extracts the available cat signal; aux losses do not unlock more.
+</div>
+</div>
+
+<div class="experiment" style="display:none;" id="T4-1-orig">
+<h3>T4.1 &mdash; GraphMAE-style masked feature reconstruction (aux head) <span class="pill tier4">T4</span> <span class="pill cost-m">M-cost</span> <span class="pill info">literature top-pick</span></h3>
+<div class="meta">Targets: 4 % fclass probe &middot; Mechanism: mask 15 % of check-in features, reconstruct via decoder</div>
+
+<div class="block">
+<div class="block-title">Hypothesis</div>
+GraphMAE2 (WWW 2023) showed that masked feature reconstruction directly optimises the property a linear probe measures.
+Adding a small MLP decoder + masked-feature reconstruction loss at the check-in level penalises any encoder configuration
+that fails to retain category/temporal features, fixing the 4 % probe at its source.
+</div>
+
+<div class="block">
+<div class="block-title">Methodology</div>
+Add to <code>Check2HGIModule.py</code>:
+<pre><code>L_total = L_c2hgi + &lambda;<sub>mae</sub> &middot; SCE(decode(mask(x)), x)</code></pre>
+where SCE is scaled cosine error (per GraphMAE2). Mask ratio 15 %, &lambda;<sub>mae</sub> &isin; {0.1, 0.3, 0.5}.
+Decoder: 2-layer MLP (64 &rarr; 128 &rarr; 11). AL+AZ, 5 folds, seed 42.
+</div>
+
+<div class="block">
+<div class="block-title">Evaluation criteria</div>
+<ul>
+<li>Primary: fclass probe at all 3 states. Target: &ge; 30 % (large move from 4 %).</li>
+<li>Secondary: cat F1, reg Acc@10 non-inferior.</li>
+<li>kNN-Jaccard vs HGI.</li>
+</ul>
+</div>
+
+<div class="block">
+<div class="block-title">Success</div>
+&ge; +20 pp fclass probe at AL+AZ, TOST non-inferior cat F1, no reg regression.
+</div>
+
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<!-- T4.2 -->
+<div class="experiment" id="T4-2">
+<h3>T4.2 &mdash; SwAV-style learned prototypes <span class="pill tier4">T4</span> <span class="pill cost-m">M-cost</span> <span class="pill warn">SKIPPED at Tier-4 wrap-up (paper closeout)</span></h3>
+
+<div class="block">
+<div class="block-title">Decision (2026-05-16, Tier-4 wrap-up advisor)</div>
+SwAV's mechanism (Sinkhorn-balanced prototype assignment with swap-loss) is structurally distinct from
+T4.1/T4.3/T4.4 but operates on the SAME encoder-side, cat-/fclass-axis where three back-to-back falsifications
+established the saturation pattern. Estimated prior on FL +0.5 pp cat gate: ≤20 %. Cost: 3-4 hr wall.
+Expected value if it falls: a 9th protocol-falsified variant &mdash; diminishing return on a corpus already at 8.
+<strong>Decision: skip. Lock paper scope at the canonical+v3c+T3.2 shipping stack.</strong>
+</div>
+</div>
+
+<div class="experiment" style="display:none;" id="T4-2-orig">
+<h3>T4.2 &mdash; SwAV-style learned prototypes <span class="pill tier4">T4</span> <span class="pill cost-m">M-cost</span></h3>
+<div class="meta">Targets: 4 % fclass probe &middot; Mechanism: K=64 unlabeled prototypes, swap loss</div>
+
+<div class="block">
+<div class="block-title">Hypothesis</div>
+SwAV (Caron 2020) forces representations to be partitionable into balanced clusters via online cluster-assignment swap
+with Sinkhorn balancing. K=64 learned prototypes (no fclass labels) provide an inductive bias that semantic structure must survive
+contrastive squash &mdash; without using the probe label.
+</div>
+
+<div class="block">
+<div class="block-title">Methodology</div>
+Add prototype bank P &isin; R<sup>64&times;64</sup>; for each POI embedding compute soft assignment q = softmax(P&middot;poi/&tau;);
+swap loss with two augmented views. &lambda;<sub>swap</sub> &isin; {0.1, 0.3}. K &isin; {32, 64, 128} (~OSM fclass cardinality).
+AL+AZ, 5 folds.
+</div>
+
+<div class="block">
+<div class="block-title">Evaluation criteria</div>
+<ul>
+<li>fclass probe at AL+AZ.</li>
+<li>kNN-Jaccard vs HGI.</li>
+<li>Cluster purity vs ground-truth fclass (diagnostic only, not used in selection).</li>
+</ul>
+</div>
+
+<div class="block">
+<div class="block-title">Success</div>
+&ge; +20 pp fclass probe, no cat or reg regression.
+</div>
+
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<!-- T4.3 -->
+<div class="experiment" id="T4-3">
+<h3>T4.3 &mdash; POI side-features (popularity, opening-hours, co-visit category-mix) <span class="pill tier4">T4</span> <span class="pill cost-m">M-cost</span> <span class="pill bad">FALSIFIED &mdash; AL lift doesn&#39;t replicate at FL</span></h3>
+
+<div class="block">
+<div class="block-title">Result (2026-05-16, AL ep50 per-feature ablation + FL gate)</div>
+<table>
+<tr><th>subset</th><th>AL cat</th><th>Δcat (AL)</th><th>AL leak</th><th>FL cat (best subset)</th><th>FL Δcat</th></tr>
+<tr><td>popular</td><td>40.70</td><td>+0.13</td><td>31.43</td><td>—</td><td>—</td></tr>
+<tr><td>hours</td><td>39.57</td><td>−1.00</td><td>30.47</td><td>—</td><td>—</td></tr>
+<tr><td>covisit (drop-last-pair)</td><td>40.49</td><td>−0.08</td><td>31.05</td><td>—</td><td>—</td></tr>
+<tr><td>no_covisit</td><td>40.91</td><td>+0.34</td><td>30.68</td><td>—</td><td>—</td></tr>
+<tr><td><strong>all (popular+hours+covisit)</strong></td><td>41.20</td><td><strong>+0.63</strong></td><td>31.20</td><td><strong>68.56</strong></td><td><strong>0.00 (FAIL)</strong></td></tr>
+</table>
+Post-pool injection (after Checkin2POI, before POI2Region), Linear(32→16) + concat + Linear(80→64) + LayerNorm,
+c2p path decoupled to avoid side-feature shortcut. AL "all" passes +0.5 cat gate but FL single-seed Δcat=0 &mdash;
+substrate-density-dependent signal that washes at the paper-grade state.
+Implementation+audit incl. Tier-3-wrap-up-advisor blockers: per-feature gating, drop-last-pair cv mitigation,
+PReLU+LayerNorm in post-pool, leak gates intact.
+</div>
+</div>
+
+<div class="experiment" style="display:none;" id="T4-3-orig">
+<h3>T4.3 &mdash; POI side-features (popularity, opening-hours, co-visit category-mix) <span class="pill tier4">T4</span> <span class="pill cost-m">M-cost</span></h3>
+<div class="meta">Targets: 4 % fclass probe &middot; Mechanism: derived POI features injected POST-pool</div>
+
+<div class="block">
+<div class="block-title">Hypothesis</div>
+fclass-correlated proxies derived from c2hgi&#39;s own check-in data (popularity, opening-hours histogram, co-visit
+category-mix) inject POI semantic distinctiveness without using fclass labels. Injection point is POST-pool (after
+<code>Checkin2POI</code>) so they never enter the attention pool (avoiding the S3-b V2-c failure mode).
+</div>
+
+<div class="block">
+<div class="block-title">Methodology</div>
+Add to preprocess: per POI compute
+<ol>
+<li><strong>Popularity</strong>: log(visit_count) (per fold &mdash; train-fold rows only to avoid leak).</li>
+<li><strong>Opening-hours histogram</strong>: 24-dim visit-hour distribution (per fold).</li>
+<li><strong>Co-visit category-mix</strong>: 7-dim normalised category distribution of co-visited POIs (per fold).</li>
+</ol>
+Concat to <code>poi_emb</code> after Checkin2POI: <code>poi_emb_aug = [poi_emb &Vert; Linear(side_features)]</code>;
+project back to 64-dim before POI2Region. AL+AZ, 5 folds, seed 42.
+</div>
+
+<div class="block">
+<div class="block-title">Evaluation criteria</div>
+<ul>
+<li>fclass probe.</li>
+<li>kNN-Jaccard vs HGI.</li>
+<li>Per-feature ablation: which of {popularity, hours, co-visit} carries the lift?</li>
+<li>Leak audit (T1.1): no jump (these features are train-fold-only).</li>
+<li><strong>MANDATORY: held-out-fclass-split probe-leak test for co-visit category-mix.</strong> Co-visit category-mix is
+fclass-correlated by construction (the categories of co-visited POIs are functionally close to the host POI&#39;s fclass).
+A +30&nbsp;pp fclass probe could be the feature carrying the label directly, not the encoder learning. Protocol: hold out
+20&nbsp;% of fclass classes at random (e.g. 10/50 fclasses); train the fclass probe on the remaining 80&nbsp;%; the T4.3
+lift must <em>persist</em> on the held-out fclass classes. If lift collapses on held-out fclass, the co-visit feature is
+a probe-leak proxy &mdash; drop it from the final recipe. Apply the same test to opening-hours and popularity for
+completeness (expected weaker proxies).</li>
+</ul>
+</div>
+
+<div class="block">
+<div class="block-title">Success</div>
+&ge; +15 pp fclass probe <em>that persists on held-out-fclass split</em>, no cat or reg regression, no leak.
+</div>
+
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<!-- T4.4 -->
+<div class="experiment" id="T4-4">
+<h3>T4.4 &mdash; Spatial-lifted Delaunay neighbour edges in check-in graph <span class="pill tier4">T4</span> <span class="pill cost-m">M-cost</span> <span class="pill bad">FALSIFIED &mdash; over-smoothing collapses cat (−11.30 pp at AL ep50)</span></h3>
+
+<div class="block">
+<div class="block-title">Result (2026-05-16, AL ep50)</div>
+<table>
+<tr><th>metric</th><th>T4.4 Delaunay</th><th>canonical AL</th><th>Δ vs canonical</th></tr>
+<tr><td>cat F1</td><td><strong>29.27 ± 1.59</strong></td><td>40.57 ± 0.24</td><td><strong>−11.30 catastrophic</strong></td></tr>
+<tr><td>reg Acc@10</td><td>47.95 ± 3.34</td><td>50.17 ± 0.24</td><td>−2.22</td></tr>
+<tr><td>leak F1</td><td>23.49</td><td>31.04 (vs both 20.37)</td><td>+3.12 vs both (marginal)</td></tr>
+</table>
+Mechanism: redesigned per Tier-3 wrap-up advisor to use uniform GCN (no R-GCN dependency &mdash; T3.3 closed
+FALSIFIED). scipy.spatial.Delaunay over POI lat/lon &rarr; 35K POI-POI pairs &rarr; lifted to check-in edges
+(k=5 representatives per neighbor, bidirectional). Total: 894K Delaunay edges + 220K user_seq = 1.1M total
+(≈5× canonical density). 2-layer GCN over-smooths in the deluge of geographically-neighbouring same-region
+check-ins (which span many categories). Same failure family as T3.3-K=1: excess aggregation destroys check-in
+distinctiveness.
+</div>
+</div>
+
+<div class="experiment" style="display:none;" id="T4-4-orig">
+<h3>T4.4 &mdash; Spatial-lifted Delaunay neighbour edges in check-in graph <span class="pill tier4">T4</span> <span class="pill cost-m">M-cost</span></h3>
+<div class="meta">Targets: HGI&#39;s spatial inductive bias &middot; Mechanism: lift POI Delaunay edges into check-in graph</div>
+
+<div class="block">
+<div class="block-title">Hypothesis</div>
+HGI&#39;s residual reg edge over canonical c2hgi (AUDIT_HGI_GAP) traces to POI-level Delaunay spatial adjacency. Design K
+tested adding this on top of the merge family (J + Delaunay GCN) and got K=J. <em>Different mechanism here</em>: lift POI
+Delaunay edges INTO the check-in graph &mdash; for each check-in c<sub>i</sub> at POI p, add edge c<sub>i</sub> &harr; c<sub>j</sub>
+where c<sub>j</sub> is at a Delaunay-neighbour POI. Test on canonical (no POI2Vec).
+</div>
+
+<div class="block">
+<div class="block-title">Methodology</div>
+Patch preprocess: build POI Delaunay over coordinates (reuse HGI&#39;s preprocess code), then expand each Delaunay POI-POI
+edge to all (c<sub>i</sub>, c<sub>j</sub>) check-in pairs. Cap fan-out to 50 per POI to prevent density explosion.
+Weight new edges by spatial distance &times; (existing temporal decay if c<sub>i</sub>, c<sub>j</sub> are also user-sequence adjacent;
+else uniform). Add as a 3rd edge type combined with R-GCN (T3.3 prerequisite). AL+AZ, 5 folds.
+</div>
+
+<div class="block">
+<div class="block-title">Evaluation criteria</div>
+<ul>
+<li>&Delta; reg Acc@10 (the targeted weakness).</li>
+<li>Five generality probes.</li>
+<li>Leak audit: pure geometry, no leak path expected; verify.</li>
+</ul>
+</div>
+
+<div class="block">
+<div class="block-title">Success</div>
+Strict-positive &Delta; reg without cat regression. Closes &ge; 50 % of canonical&rarr;HGI reg gap.
+</div>
+
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<!-- ============================================================== -->
+<h2 id="tier5">Tier 5 &mdash; Stretch (high-risk / high-leverage)
+<span class="pill tier5">Tier 5</span></h2>
+
+<p>Stretch tier. Only run after Tier 1-4 winners are clear, unless your goal is to test the
+&quot;unexplored mechanism&quot; (T5.2 family) directly.</p>
+
+<!-- T5.1 -->
+<div class="experiment" id="T5-1">
+<h3>T5.1 &mdash; Native learned POI ID embedding <span class="pill tier5">T5</span> <span class="pill cost-m">M-cost</span> <span class="pill warn">borderline merge-spirit</span></h3>
+<div class="meta">Targets: POI identity gap &middot; Mechanism: nn.Embedding(N_poi, 64) zero-init, trained end-to-end</div>
+
+<div class="block">
+<div class="block-title">Hypothesis</div>
+Canonical c2hgi has zero parameters dedicated to per-POI identity &mdash; every POI emerges from check-in pooling alone, which is
+exactly why the fclass probe is 4 %. A zero-init learned POI table (trained ONLY by c2hgi&#39;s 3 boundaries, NOT warm-started
+from POI2Vec) gives each POI an identity slot natively.
+</div>
+
+<div class="block">
+<div class="block-title">Methodology</div>
+Add <code>poi_table = nn.Embedding(N_poi, 64)</code>, init to zero or small Gaussian (NOT POI2Vec &mdash; that would be merge-family).
+Combine: <code>poi_emb = Checkin2POI(checkins) + &gamma; &middot; poi_table[poi_idx]</code>. &gamma; &isin; {0.1, 0.3, 1.0}.
+Cold-start POIs (low visit-count) are at risk of being noise &mdash; report fclass probe split by visit-count quantile.
+AL+AZ, 5 folds.
+</div>
+
+<div class="block">
+<div class="block-title">Evaluation criteria</div>
+<ul>
+<li>fclass probe overall + per visit-count quantile.</li>
+<li>cat F1 + reg Acc@10 (TOST non-inferior).</li>
+<li>kNN-Jaccard vs HGI.</li>
+<li>Leak audit: verify the learned table doesn&#39;t memorise train-set transitions in a way that probe-leaks.</li>
+</ul>
+</div>
+
+<div class="block">
+<div class="block-title">Success</div>
+&ge; +30 pp fclass probe at AL+AZ, no cat or reg regression, no cold-start collapse.
+</div>
+
+<div class="results-placeholder">
+<strong>Results (2026-05-18)</strong> <span class="pill bad">DEAD &mdash; V2-c pool collapse</span><br>
+Single-seed (s42) AL+AZ vs shipping (<code>t32_resln_ALAZ_seed42.json</code>):
+<ul>
+  <li>AL: cat Δ = −0.31; <strong>reg Δ = −6.37 pp</strong> (≈9× the §6.5 kill threshold of −0.5 pp)</li>
+  <li>AZ: cat Δ = +0.60; <strong>reg Δ = −4.63 pp</strong> (≈12× the §6.5 kill threshold)</li>
+</ul>
+JSONs: <code>T5_1_poiId_{alabama,arizona}_seed42.json</code>. Signature matches Phase 11 S3-b V2-c (per-POI free parameters → POI-table memorisation → pooled-region representation degeneracy). Multi-seed escalation skipped per §6.5; no realistic seed variance would close a ~10× gap. <strong>Verdict: DEAD for shipping.</strong> Documented in <code>STACKING_ABLATION.md §7</code> + paper §7 Beat 7 (paired with T5.2a as mechanistic-reading triangulation). Per F60 audit: no T5.1 promotion permitted before a per-POI hold-out probe is built and passes.
+</div>
+</div>
+
+<!-- T5.2a -->
+<div class="experiment" id="T5-2a">
+<h3>T5.2a &mdash; Joint Node2Vec POI-POI skip-gram (4th boundary, native) <span class="pill tier5">T5</span> <span class="pill cost-l">L-cost</span> <span class="pill warn">unexplored mechanism</span></h3>
+<div class="meta">Targets: HGI&#39;s recipe-side edge &middot; Mechanism: Node2Vec walks on Delaunay POI graph + skip-gram, trained jointly with c2hgi</div>
+
+<div class="block">
+<div class="block-title">Hypothesis</div>
+HGI&#39;s POI2Vec pretraining (Node2Vec on Delaunay + skip-gram + hierarchical fclass L2) is what gives it 98 % fclass.
+The merge family imports the <em>output</em> of that training as a frozen prior. Untested mechanism: <strong>train POI2Vec
+jointly with c2hgi&#39;s 3 boundaries, as a 4th objective</strong>. No HGI artifact imported.
+</div>
+
+<div class="block">
+<div class="block-title">Methodology</div>
+<ol>
+<li>Build Delaunay POI graph in preprocess (reuse HGI&#39;s <em>preprocessing infrastructure</em> &mdash; the Delaunay graph construction code in <code>research/embeddings/hgi/preprocess.py</code>. This is graph construction, NOT a pretrained artifact, so it is outside the merge-family rule. The forbidden import is HGI&#39;s pretrained POI2Vec output; reusing infrastructure to build the same kind of graph from scratch under c2hgi training is allowed).</li>
+<li>Add a learnable POI table (separate from T5.1 or shared &mdash; ablate both).</li>
+<li>Run Node2Vec random walks on Delaunay graph during c2hgi training (one batch of walks per epoch).</li>
+<li>Skip-gram contrastive on POI pairs (positive: co-walk neighbours; negative: random POIs).</li>
+<li>Loss: <code>L_total = L_c2hgi + &lambda;<sub>n2v</sub> &middot; L_skipgram</code>. &lambda; &isin; {0.1, 0.3, 1.0}.</li>
+<li>NO fclass L2 regularizer (would be leak).</li>
+</ol>
+AL+AZ, 5 folds. Phase 11 S3-b V2-c risk: this is structurally different (per-POI skip-gram, not per-check-in anchor)
+but state-asymmetric pool collapse remains a watch-out.
+</div>
+
+<div class="block">
+<div class="block-title">Evaluation criteria</div>
+<ul>
+<li>fclass probe, kNN-Jaccard vs HGI.</li>
+<li>Five generality probes.</li>
+<li>Per-state stability: AL is the prior failure-mode state.</li>
+</ul>
+</div>
+
+<div class="block">
+<div class="block-title">Success</div>
+&ge; +40 pp fclass probe at AL+AZ AND no AL catastrophic collapse. Bonus: reg Acc@10 beats HGI.
+</div>
+
+<div class="results-placeholder">
+<strong>Results (2026-05-18)</strong> <span class="pill warn">CLOSED §Disc &mdash; Hyp A signature</span><br>
+Single-seed (s42) AL+AZ vs shipping (<code>t32_resln_ALAZ_seed42.json</code>):
+<ul>
+  <li>AL: <strong>cat Δ = −0.48 pp</strong>; reg Δ = +0.72 pp</li>
+  <li>AZ: <strong>cat Δ = −0.45 pp</strong>; reg Δ = +0.03 pp</li>
+</ul>
+JSONs: <code>T5_2a_n2vAlign_{alabama,arizona}_seed42.json</code>. <strong>Sign-consistent small-state cat regression at both AL and AZ</strong> — same fingerprint as Hyp A (T4.3 side features) which closed §Discussion-DEAD on 2026-05-17 by pooled p₂=0.024 across n=5. The mechanism reading: a parallel skip-gram objective competing for gradient with the c2hgi 3 boundaries dilutes the boundary discipline and degrades the small-state cat axis. Reg lift is only at AL (not AZ) and is single-seed; not promotable. Multi-seed escalation skipped — the directional cat regression at both small states already matches the Hyp A close pattern. <strong>Verdict: §Discussion paragraph (Beat 7, paired with T5.1 as mechanistic-reading triangulation).</strong>
+</div>
+</div>
+
+<!-- T5.2b -->
+<div class="experiment" id="T5-2b">
+<h3>T5.2b &mdash; Masked POI feature reconstruction (parallel to T5.2a) <span class="pill tier5">T5</span> <span class="pill cost-m">M-cost</span></h3>
+<div class="meta">Targets: 4 % probe via simpler hypothesis &middot; Mechanism: GraphMAE-style at the POI level (vs T4.1 at check-in level)</div>
+
+<div class="block">
+<div class="block-title">Hypothesis</div>
+T4.1 applies GraphMAE at the check-in level. T5.2b is the POI-level analogue: mask 15 % of POIs entirely (zero out
+their pooled embedding), reconstruct the masked POI&#39;s feature-aggregate from its Delaunay neighbours. Tests whether
+HGI&#39;s recipe lift comes from <em>masked POI reconstruction</em> rather than <em>Node2Vec walks</em>.
+</div>
+
+<div class="block">
+<div class="block-title">Methodology</div>
+Add a masked-POI decoder head: random 15 % of POIs are masked at each step, the encoder must reconstruct their feature
+aggregate (e.g., the mean category one-hot of their check-ins, or visit-count log) via a small MLP over the (POI2Region-aggregated)
+neighbour embeddings. &lambda;<sub>mae</sub> &isin; {0.1, 0.3}. AL+AZ, 5 folds. Run in parallel with T5.2a.
+</div>
+
+<div class="block">
+<div class="block-title">Evaluation criteria</div>
+Compare against T5.2a directly &mdash; which mechanism (walks vs masking) buys more fclass-probe lift?
+</div>
+
+<div class="block">
+<div class="block-title">Success</div>
+&ge; +30 pp fclass probe; equivalent or better than T5.2a at lower compute.
+</div>
+
+<div class="results-placeholder">
+<strong>Results (2026-05-18, Phase-3 close)</strong> <span class="pill warn">3-state multi-seed §Disc (13/15 cat+, fails Bonferroni m=28)</span><br>
+n = 5 seeds (42, 0, 1, 7, 100) × 3 states (FL, AL, AZ) vs shipping. JSONs: <code>T5_2b_maePoi_{FL,alaz}_seed{42,0,1,7,100}.json</code>.
+
+<p><em>FL per-seed (Phase-3 extension):</em></p>
+<table>
+  <tr><th>seed</th><th>FL Δcat</th><th>FL Δreg</th></tr>
+  <tr><td>42</td><td>+0.49</td><td>−0.11</td></tr>
+  <tr><td>0</td><td>+0.82</td><td>−0.05</td></tr>
+  <tr><td>1</td><td>+0.11</td><td>−0.09</td></tr>
+  <tr><td>7</td><td>+0.27</td><td>+0.07</td></tr>
+  <tr><td>100</td><td>−0.52</td><td>−0.16</td></tr>
+</table>
+
+<p><em>AL+AZ per-seed (§7 first-pass):</em></p>
+<table>
+  <tr><th>seed</th><th>AL Δcat</th><th>AL Δreg</th><th>AZ Δcat</th><th>AZ Δreg</th></tr>
+  <tr><td>42</td><td>+0.04</td><td>+0.64</td><td>+0.30</td><td>+0.00</td></tr>
+  <tr><td>0</td><td>+0.12</td><td>−0.48</td><td>+0.07</td><td>−0.25</td></tr>
+  <tr><td>1</td><td>+0.12</td><td>+0.48</td><td>−0.57</td><td>+0.24</td></tr>
+  <tr><td>7</td><td>+0.14</td><td>−0.10</td><td>+0.50</td><td>+0.81</td></tr>
+  <tr><td>100</td><td>+0.35</td><td>+0.10</td><td>+0.14</td><td>−0.11</td></tr>
+</table>
+
+<p><em>3-state × 5-seed statistical summary:</em></p>
+<table>
+  <tr><th>Cell</th><th>n</th><th>mean Δ</th><th>t one-sided p</th><th>Sign p</th><th>pos</th></tr>
+  <tr><td>FL cat</td><td>5</td><td>+0.234</td><td>0.178</td><td>0.375</td><td>4/5</td></tr>
+  <tr><td>FL reg</td><td>5</td><td>−0.069</td><td>0.926</td><td>0.375</td><td>1/5</td></tr>
+  <tr><td><strong>AL cat</strong></td><td>5</td><td><strong>+0.152</strong></td><td><strong>0.021</strong></td><td>0.063</td><td><strong>5/5</strong></td></tr>
+  <tr><td>AL reg</td><td>5</td><td>+0.128</td><td>0.279</td><td>1.000</td><td>3/5</td></tr>
+  <tr><td>AZ cat</td><td>5</td><td>+0.090</td><td>0.323</td><td>0.375</td><td>4/5</td></tr>
+  <tr><td>AZ reg</td><td>5</td><td>+0.140</td><td>0.247</td><td>1.000</td><td>3/5</td></tr>
+  <tr><td><strong>Pooled cat (3-state)</strong></td><td><strong>15</strong></td><td><strong>+0.158</strong></td><td>0.053</td><td><strong>0.0074</strong></td><td><strong>13/15</strong></td></tr>
+</table>
+
+<ul>
+  <li><strong>Cross-state cat-axis sign-test 13/15 paired-positive (p = 0.0074)</strong> &mdash; strongest single piece of Tier-5 evidence in the entire slate.</li>
+  <li><strong>AL cat alone clears raw α=0.05</strong> (paired-t p_one=0.021, Cohen d ≈ +1.33).</li>
+  <li>Reg axis essentially flat across 3 states: pooled mean +0.07 pp; FL reg trends −0.07 pp but well within §6.5 −0.5 pp kill threshold.</li>
+  <li><strong>Fails Bonferroni at m=28 family scale</strong> (α* ≈ 0.00179): AL cat (p=0.021) misses by ~12×; pooled cat sign-test (p=0.0074) misses by ~4×.</li>
+</ul>
+<strong>Verdict: §Discussion-only.</strong> The strongest piece of Tier-5 evidence is the cross-state cat-axis 13/15 sign-test; it is sub-detection-threshold at the m=28 family scale and is reported as motivation for future work on masked-POI pretraining rather than as a shipping change. Paper §7 Beat 6. Per F62 audit: no T5.2b promotion permitted before a per-POI hold-out probe is built and passes.
+</div>
+</div>
+
+<!-- T5.3 -->
+<div class="experiment" id="T5-3">
+<h3>T5.3 &mdash; Multi-view co-training (category-view co-trained encoder) <span class="pill tier5">T5</span> <span class="pill cost-l">L-cost</span></h3>
+<div class="meta">Targets: 4 % probe + reg gap &middot; Mechanism: parallel encoder on same-POI + category graph, distil at POI level</div>
+
+<div class="block">
+<div class="block-title">Hypothesis</div>
+View 1: current user-sequence + temporal features. View 2: same-POI graph + category features only. Train both;
+distil at the POI level via symmetric MSE or InfoNCE. View 2 is built explicitly around POI categorical structure &mdash;
+agreement at the POI level forces View 1 to carry that structure natively without importing HGI&#39;s POI2Vec.
+</div>
+
+<div class="block">
+<div class="block-title">Methodology</div>
+Build two preprocessed graphs (View 1, View 2). Two Check2HGI instances with shared D=64. Add cross-view loss:
+<code>L_cross = &lambda;<sub>x</sub> &middot; (1 &minus; cos(poi_emb_v1, poi_emb_v2))</code> averaged over POIs.
+&lambda;<sub>x</sub> &isin; {0.1, 0.3, 1.0}. AL+AZ, 5 folds. Compute cost: 2&times; canonical.
+</div>
+
+<div class="block">
+<div class="block-title">Evaluation criteria</div>
+<ul>
+<li>fclass probe (View 1, View 2, ensemble).</li>
+<li>Reg Acc@10.</li>
+<li>kNN-Jaccard vs HGI.</li>
+<li>Does View 2 alone beat canonical on reg? Diagnostic only.</li>
+</ul>
+</div>
+
+<div class="block">
+<div class="block-title">Success</div>
+View 1 (the cat-friendly view) reaches HGI-grade fclass probe AND non-inferior reg.
+</div>
+
+<div class="results-placeholder">
+<strong>Results (2026-05-18, Phase-3 close)</strong> <span class="pill warn">RAN — §Discussion only (positive trend, sub-Bonferroni)</span><br>
+After the §7 first-pass close had T5.3 marked SKIPPED → §Future Work, Phase 3 ran T5.3 at AL+AZ × 5 seeds (s42, 0, 1, 7, 100) once GPU-h budget was confirmed available. JSONs: <code>T5_3_multiview_{alabama,arizona}_seed42.json</code> + <code>T5_3_multiview_alaz_seed{0,1,7,100}.json</code>.
+
+<p><em>Per-seed deltas vs shipping:</em></p>
+<table>
+  <tr><th>seed</th><th>AL Δcat</th><th>AL Δreg</th><th>AZ Δcat</th><th>AZ Δreg</th></tr>
+  <tr><td>42</td><td>−0.43</td><td>+0.73</td><td>−0.04</td><td>+0.12</td></tr>
+  <tr><td>0</td><td>+0.18</td><td>−0.61</td><td>+0.31</td><td>−0.02</td></tr>
+  <tr><td>1</td><td>−0.06</td><td>+0.48</td><td>−0.10</td><td>+0.11</td></tr>
+  <tr><td>7</td><td>+0.08</td><td>−0.14</td><td>+0.97</td><td>+0.87</td></tr>
+  <tr><td>100</td><td>+0.67</td><td>+0.10</td><td>+0.43</td><td>+0.44</td></tr>
+</table>
+
+<p><em>Statistical summary:</em></p>
+<table>
+  <tr><th>Cell</th><th>n</th><th>mean Δ</th><th>t one-sided p</th><th>Cohen d</th><th>pos</th></tr>
+  <tr><td>AL cat</td><td>5</td><td>+0.086</td><td>0.328</td><td>+0.22</td><td>3/5</td></tr>
+  <tr><td>AL reg</td><td>5</td><td>+0.113</td><td>0.327</td><td>+0.22</td><td>3/5</td></tr>
+  <tr><td>AZ cat</td><td>5</td><td>+0.314</td><td>0.090</td><td>+0.73</td><td>3/5</td></tr>
+  <tr><td><strong>AZ reg</strong></td><td>5</td><td><strong>+0.303</strong></td><td><strong>0.065</strong></td><td><strong>+0.85</strong></td><td>4/5</td></tr>
+</table>
+
+<ul>
+  <li><strong>All four cells mean-positive</strong>; no reg-axis kill at either state (§6.5 does not fire).</li>
+  <li><strong>AZ reg is the largest Tier-5 effect size</strong> (Cohen d ≈ +0.85, p_one = 0.065); AZ cat d ≈ +0.73 (p_one = 0.090).</li>
+  <li>AL cells higher seed variance (sd 0.40–0.52 pp), 3/5+ — directional but underpowered.</li>
+  <li><strong>Fails Bonferroni at m=28</strong> (α* ≈ 0.00179): AZ reg (p=0.065) misses by ~36×.</li>
+</ul>
+<strong>Verdict: cleanest positive-but-not-shipping Tier-5 candidate.</strong> Paper §7 Beat 7. Prime future-work multi-seed-on-FL extension if a follow-on paper revisits Tier 5. T5.3 FL multi-seed deferred on cost-benefit (2× multi-view compute × 5 seeds ≈ 25-30 GPU-h, unlikely to clear m=28 Bonferroni given AL+AZ p_one ≈ 0.065 floor). Per-POI hold-out probe gates promotion to NORTH_STAR (per F60/F62 caveat carries forward).
+</div>
+</div>
+
+<!-- ============================================================== -->
+<h2 id="tier6">Tier 6 &mdash; POI-level supervision (closing the next-reg gap)
+<span class="pill warn">RE-OPENED 2026-05-18</span> <span class="pill bad">CLOSED 2026-05-19 &mdash; hypothesis FALSIFIED across all four pre-registered mechanism families</span></h2>
+
+<div class="block" style="background:#fff3cd; border-left:4px solid #856404;">
+<div class="block-title">Tier 6 closure summary (2026-05-19)</div>
+<p>The Tier-6 hypothesis (<em>"direct, parameter-sharing, in-batch-derived POI-level supervision is the missing component for next-reg"</em>) is <strong>operationally falsified</strong> under matched protocol (FL, ep=50, single-seed=42, n=5 folds, dual-selector framing) across <strong>all four pre-registered mechanism families</strong>:</p>
+<table>
+<thead><tr><th>ID</th><th>Mechanism</th><th>Per-task disjoint Δ_reg</th><th>joint_geom_simple primary gate</th><th>Verdict</th></tr></thead>
+<tbody>
+<tr><td>T6.4 (×2)</td><td>Loss-shape reform (InfoNCE @ p2r, two-pass corruption)</td><td class="num">+0.08 to +0.17</td><td>FAIL (Δ_reg within fold σ)</td><td><span class="pill bad">FALSIFIED</span></td></tr>
+<tr><td>T6.1 (×4 orig + ×1 robust)</td><td>POI↔POI co-visit InfoNCE 4th boundary</td><td class="num">+0.05 to +0.20</td><td>FAIL (Δ_reg within fold σ; cat regresses on deployable)</td><td><span class="pill bad">FALSIFIED</span></td></tr>
+<tr><td>T6.2 (×4)</td><td>HGI-inspired composite edge weights (Delaunay multiplier + cross-region penalty)</td><td class="num">+0.23 to +0.76</td><td>FAIL (regresses on BOTH axes; cat -1.3 to -3.6 pp)</td><td><span class="pill warn">§Discussion (Pareto trade)</span></td></tr>
+<tr><td><strong>T6.3</strong></td><td>Low-rank per-POI bias at Checkin2POI attention-logit (rank-restricted T5.1 cousin)</td><td>halted (G3 gate)</td><td>N/A (aborted)</td><td><span class="pill bad">FALSIFIED at G3 gate</span></td></tr>
+</tbody>
+</table>
+<p><strong>Per-task disjoint reg-top10 ceiling at FL clusters at ~76.1-76.9 pp across 11 cells with σ ~0.3 pp.</strong> No Tier-6 intervention raises the substrate's reg-capacity bound by more than +0.76 pp at single-seed n=5, and the only cell that touches that magnitude (T6.2 α=2.0 w<sub>r</sub>=0.3) trades it for a -3.55 pp cat regression.</p>
+<p><strong>The load-bearing Tier-6 finding is CH23-B / CONCERNS C21</strong> &mdash; <em>not</em> any substrate result. The production <code>joint_canonical_b9</code> selector throws away ~10.7 pp of reg-top10 capacity that the canonical Check2HGI substrate already produces, with no substrate change involved. The substrate-axis effect (Tier 6) is bounded at ±0.8 pp; the protocol-axis effect is +10.7 pp. The natural next study is <a href="../mtl-exploration/FUTUREWORK_substrate_aware_mtl_balancing.md">mtl-exploration F1/F2/F3</a> (substrate-aware joint score + substrate-adaptive MTL balancing + substrate × protocol 2×2 ablation) <em>before</em> any further substrate intervention is attempted.</p>
+<p><strong>Closure narrative (locked 2026-05-19, advisor-approved):</strong> <em>"Tier 6 falsifies the POI-internal-supervision hypothesis under matched protocol at FL across all four pre-registered mechanism families (loss-shape reform, contrastive 4th boundary, geometric edge-weighting, capacity-restricted POI bias). No cell delivers a deployable single-checkpoint improvement under <code>joint_geom_simple</code>. Per-task-disjoint reg-capacity ceiling stays bounded at ~76.1 pp at FL under canonical static_weight MTL balancing. The load-bearing finding is the protocol-axis selector bug (CH23-B / C21), not any substrate result; the substrate-axis effect is an order of magnitude smaller than the protocol-axis effect."</em></p>
+</div>
+
+<p><strong>Origin.</strong> Post-closure user review (2026-05-18) identified that Tier 5 did not adequately test the user's core hypothesis: <em>"promote POI features inside check2hgi to close the next-reg gap over HGI, without copying HGI/POI2Vec and without concatenating their embeddings &mdash; train the POI representation inside the model."</em> Three Tier-5 candidates closed at n=1 single-seed; only T5.3 ran multi-seed (AZ &Delta;reg d=+0.85, p_one=0.065 &mdash; the strongest reg-relevant signal in the entire study) and got &sect;Discussion-only treatment because the Tier-4 wrap-up advisor had nearly killed Tier 5 wholesale. The per-POI hold-out probe (gap 3 from the audit) was never built &mdash; meaning no Tier-5 POI-side variant has an honest leak evaluation.</p>
+
+<p><strong>Hypothesis.</strong> Check2HGI's POI representation has no direct supervisory signal at the POI level &mdash; it is a downstream byproduct of the c2p boundary. HGI explicitly supervises POI representations via hierarchical MI on a POI graph; that is the structural difference that yields HGI's stronger next-reg. Adding direct POI-level supervision <em>inside</em> the check2hgi forward+backward pass (no separate Node2Vec, no concat, no free input-layer table) should narrow the next-reg gap.</p>
+
+<p><strong>Scope.</strong> Tier 6 unifies six open gaps from the post-closure audit:</p>
+<ul>
+  <li><strong>Gap 3:</strong> Per-POI hold-out leak probe never built (gates all POI-side variants) &rarr; <code>G3</code> (pre-flight).</li>
+  <li><strong>Gap 4:</strong> T2.2 (InfoNCE @ p2r) and T2.3 (two-pass corruption) deferred-closed without running &rarr; <code>T6.4</code> (prerequisite scaffolding).</li>
+  <li><strong>Gap 5:</strong> T1.2 multi-seed canonical formalisation &rarr; <em>NOT pursued under Tier 6</em> per user decision 2026-05-18 (focus on improvements first; defer stack-vs-stack comparison to future work if needed).</li>
+  <li><strong>Gap 7 (C3):</strong> Composite Delaunay + cross-region penalty + temporal-decay edge weighting never tested as a unit (T4.4 only tested Delaunay with uniform weight) &rarr; <code>T6.2</code>.</li>
+  <li><strong>Gap 8 (C6):</strong> Two-pass corruption restoration &rarr; subsumed in <code>T6.4</code>.</li>
+  <li><strong>Gap 9 (C11):</strong> "Encapsulate POI2Vec inside check2hgi" &rarr; <code>T6.1</code> as the load-bearing experiment (4th boundary on existing POI representation); <code>T6.3</code> as fallback (low-rank side-channel).</li>
+</ul>
+
+<p><strong>Falsified-history compliance (user-aligned 2026-05-18).</strong> Each Tier-6 design must document its structural distinction from prior falsified variants before launch:</p>
+<ul>
+  <li><strong>vs Phase-11 S3-a (Checkin2Region 4th boundary, FALSIFIED):</strong> T6.1 is POI&harr;POI on the unsupervised stratum &mdash; <em>not</em> checkin&harr;region. Same-level supervision, not a new cross-level MI term.</li>
+  <li><strong>vs Phase-11 S3-b V2-c (per-check-in POI2Vec anchor, AL &minus;9.95 pp FALSIFIED):</strong> T6.1 introduces <em>zero</em> free parameters at the input or check-in layer; positives are derived in-batch from user-session structure. T6.3's low-rank side-channel lives at the Checkin2POI attention-logit, never at the input or message-passing path.</li>
+  <li><strong>vs T5.1 (free <code>nn.Embedding(N_poi, 64)</code> additive pre-aggregation, DEAD V2-c reg collapse):</strong> The failure mode is "free shortcut at the input layer" &mdash; the per-POI vector trivially satisfies c2p without using the graph, so message-passing degrades. T6.1 has no free embedding table; T6.3 restricts capacity to rank r &le; 8 and places the correction at the pooling-attention layer, after message-passing.</li>
+  <li><strong>vs T5.2a (Joint Node2Vec POI-POI + alignment, &sect;Discussion at n=1, Hyp A signature):</strong> T6.1 does not train a separate Node2Vec graph and align it; positives come from in-batch user-session co-visits computed from raw data each forward pass. No alignment loss. The skip-gram-vs-InfoNCE distinction is also structural: InfoNCE gives a tighter MI lower bound than skip-gram.</li>
+  <li><strong>vs F51 capacity-scaling guardrail:</strong> T6.* changes <em>inductive bias</em> (new objective or new edge-weight scheme), never capacity at fixed bias. Embedding dim stays at D=64; parameter-count budgets stay within +5% of canonical (T6.3 adds at most r&times;N_poi + D&times;r parameters; an N_poi&approx;5000 case at r=8 is &lt;0.05M, well within F51).</li>
+</ul>
+
+<!-- ============================================================== -->
+<!-- G3 — Per-POI hold-out leak probe -->
+<div class="experiment" id="G3">
+<h3>G3 &mdash; Per-POI hold-out leak probe (pre-flight, MANDATORY) <span class="pill info">Pre-flight</span> <span class="pill cost-s">S-cost</span></h3>
+<div class="meta">Targets: honest POI-side evaluation &middot; Mechanism: hold out 10% of POIs per fold; encode their check-ins; linear-probe their identity from the pooled representation</div>
+
+<div class="block">
+<div class="block-title">Hypothesis</div>
+Any POI-internal supervision lever (T6.1, T6.3) risks identity leakage: the encoder may memorise POI identity at training time and surface it through the pooled representation. Existing leak audits (T1.1 / IJM) measure sequence-edge leakage on the last check-in window; they do <em>not</em> probe POI-identity leakage at the pooled-representation level. G3 is the missing instrument.
+</div>
+
+<div class="block">
+<div class="block-title">Methodology</div>
+<ol>
+<li>Per fold: randomly hold out 10% of POIs from the contrastive training graph (their check-ins remain available; their POI nodes are excluded from c2p positives at training).</li>
+<li>Train the embedding on the remaining 90% under the canonical+v3c+T3.2 recipe.</li>
+<li>At evaluation, encode the held-out POIs' check-ins through the trained encoder and Checkin2POI pool. The encoder has never seen these POIs as positives.</li>
+<li>Linear-probe POI identity (multinomial, |held-out| classes) from the resulting pooled representations. Report top-1 / top-5 accuracy.</li>
+<li>Baseline: above-chance threshold = 5/|held-out|. Honest substrate &le; 2&times; chance. Leak alarm &ge; 5&times; chance.</li>
+</ol>
+Reuse the <code>scripts/probe/leak_sniff_ijm.py</code> scaffolding; new script at <code>scripts/probe/poi_holdout_probe.py</code>.
+</div>
+
+<div class="block">
+<div class="block-title">Evaluation criteria</div>
+<ul>
+<li>Probe value on canonical+v3c+T3.2 (current shipping stack) &mdash; establishes the honest baseline.</li>
+<li>Probe value on T5.1 retrospectively (sanity check: should show leak fingerprint).</li>
+<li>Probe value on every T6.* variant (gate for promotion).</li>
+</ul>
+</div>
+
+<div class="block">
+<div class="block-title">Success</div>
+Probe baseline pinned at FL/AL/AZ on the shipping stack. T5.1 retrospective probe flags leak (sanity check). Every T6.* variant must stay within +1 pp of the shipping-stack baseline to be promoted past single-seed.
+</div>
+
+<div class="results-placeholder">Results: <em>pending build + run</em></div>
+</div>
+
+<!-- ============================================================== -->
+<!-- T6.1 — POI-co-visit InfoNCE 4th boundary -->
+<div class="experiment" id="T6-1">
+<h3>T6.1 &mdash; POI-co-visit InfoNCE 4th boundary (LOAD-BEARING) <span class="pill tier5">T6</span> <span class="pill cost-m">M-cost</span> <span class="pill good">load-bearing for reg gap</span></h3>
+<div class="meta">Targets: next-reg gap vs HGI &middot; Mechanism: 4th contrastive boundary on existing pooled POI representations, in-batch InfoNCE on user-session co-visit positives, shared Checkin2POI parameters</div>
+
+<div class="block">
+<div class="block-title">Hypothesis</div>
+The next-reg gap reflects a missing direct supervisory signal at the POI level. Adding a POI&harr;POI InfoNCE boundary &mdash; using the <em>existing</em> pooled POI representation z<sub>p</sub> from Checkin2POI, with no new free parameters &mdash; pulls together POIs that co-visit within a user-session and pushes apart POIs from different regions. This shapes the POI representation space to be regionally discriminative, which downstream improves next-region prediction. Cat F1 is expected to remain non-inferior because the new objective shares parameters with c2p and adds a regionally-consistent regulariser.
+</div>
+
+<div class="block">
+<div class="block-title">Methodology (user-aligned 2026-05-18)</div>
+<ol>
+<li><strong>Pool sharing (user-decision 2026-05-18):</strong> the SAME Checkin2POI pool feeds both the existing c2p boundary and the new 4th boundary &mdash; single pool, two objectives. No parallel POI-supervision pool. This keeps parameter count strictly unchanged and avoids the shortcut path that would re-emerge from an independent POI-supervision pool.</li>
+<li><strong>Co-visit positives (user-decision 2026-05-18):</strong> within-user-session. For each POI p in a batch, a positive POI p&plus; is another POI visited by the same user within k = 3 sequential check-ins. Negatives are in-batch POIs from different regions (hardest first by region-mismatch), then random.</li>
+<li><strong>Loss:</strong> <code>L_total = L_c2p + L_p2r + L_r2c + &lambda;<sub>p2p</sub> &middot; InfoNCE(z_p, z_p+, {z_p-})</code> where z_p = Checkin2POI(Encoder(checkin_features_of_p)). Temperature &tau; = 0.1.</li>
+<li><strong>&lambda;<sub>p2p</sub> sweep:</strong> {0.05, 0.1, 0.2, 0.3}. Pick the cat-non-inferior &lambda; with the largest reg lift.</li>
+<li><strong>Pre-flight:</strong> G3 probe on each &lambda; before multi-seed promotion. Reject any &lambda; whose probe value drifts &gt; +1 pp vs shipping baseline.</li>
+<li><strong>States:</strong> single-seed sweep at FL/AL/AZ to pin &lambda;, then multi-seed (5 seeds &times; 5 folds) at the chosen &lambda;.</li>
+</ol>
+Implementation: extend <code>research/embeddings/check2hgi/model/Check2HGIModule.py</code> with a new <code>_poi_covisit_infonce()</code> method. Co-visit positives computed in-batch from <code>checkin_to_user</code> and <code>checkin_index_in_session</code> tensors that already exist in the preprocess output.
+</div>
+
+<div class="block">
+<div class="block-title">Evaluation criteria (dual-selector, updated 2026-05-19 post-T6.4 closure)</div>
+<p>The original T6.1 criterion (reg Acc@10 at FL under the canonical B9 selector) was implicitly under <code>joint_canonical_b9 = 0.5*(cat_macro_f1 + reg_macro_f1)</code>. After the T6.4 matched-protocol analysis demonstrated that this selector throws away ~10.7 pp of reg-top10 capacity from the canonical shipping substrate itself (see CONCERNS.md C21), T6.1's evaluation is now stated under the dual-selector framing: three selectors reported in parallel, with the primary gate locked to <code>joint_geom_simple</code> (the principled single-checkpoint selector).</p>
+<ul>
+<li><strong>Primary (shipping-grade) — under <code>joint_geom_simple = sqrt(cat_f1 * reg_top10_indist)</code>:</strong> reg top10 at FL &ge; +0.5 pp vs shipping ss=42 n=5 matched baseline, AND cat F1 non-inferior at FL/AL/AZ (sign-test 4/5+ or TOST &epsilon; = 0.2 pp). One deployable checkpoint, principled rule, no protocol divergence from §0.1 except the macro-F1-vs-top10 swap. <em>This is what gets multi-seed promotion.</em></li>
+<li><strong>Diagnostic (substrate-capacity) — under per-task disjoint best:</strong> report cat F1 at cat-best epoch and reg top10 at reg-best epoch. Two checkpoints; characterises substrate ceiling. <em>§Discussion-grade only — does not gate shipping.</em></li>
+<li><strong>Reference (production) — under <code>joint_canonical_b9</code>:</strong> reported for cross-comparison with the published §0.1 canon. Known broken; not gating.</li>
+<li><strong>Stacking:</strong> applied on top of canonical+v3c+T3.2 (the shipping stack), not bare canonical.</li>
+<li><strong>Guardrails:</strong> G3 per-POI probe within +1 pp of shipping baseline at low-visit quantile AND hi/lo ratio &ge; shipping ratio; IJM sequence-edge leak within +1 pp.</li>
+<li><strong>Comparison anchor:</strong> shipping FL ep=50 ss=42 n=5 matched baseline (already on disk: <code>docs/results/canonical_improvement/shipping_florida_mtl_ep50_seed42/</code>). Cat 70.49 ± 0.86 / reg top10 76.12 ± 0.33 at per-task disjoint; cat 67.93 ± 1.74 / reg top10 72.38 ± 2.20 at <code>joint_geom_simple</code>; cat 69.99 ± 1.13 / reg top10 65.38 ± 9.10 at <code>joint_canonical_b9</code>.</li>
+</ul>
+</div>
+
+<div class="block">
+<div class="block-title">Success (locked 2026-05-19; pre-registered)</div>
+<strong>Strict (shipping-grade) under <code>joint_geom_simple</code> selector:</strong> reg top10 at FL &ge; <strong>+0.5 pp vs shipping</strong> (i.e., &ge; 72.88) at sign-test 5/5+ across 5 seeds, with cat F1 non-inferior at FL/AL/AZ (sign-test 4/5+ or TOST &epsilon; = 0.2 pp). G3 probe &le; +1 pp low-visit drift AND hi/lo ratio preserved. Then promote to a Bonferroni-corrected paired test at m = m_Tier6.<br><br>
+<strong>Loose (directional, §Discussion-only):</strong> reg lift at FL of +0.3 pp under <code>joint_geom_simple</code> with no small-state reg-axis kill and no probe drift. Documented as §Discussion candidate for follow-on; does NOT motivate shipping promotion.<br><br>
+<strong>Substrate-capacity-only (§Discussion-only):</strong> if T6.1 lifts only under per-task disjoint best (substrate has the capacity but not deliverable as a single checkpoint), report as substrate-capacity finding and forward to mtl-exploration F1/F2 future work. Same disposition as the T6.4 closure.<br><br>
+<strong>Falsified:</strong> if all three selectors show |&Delta;_reg| &le; fold σ vs shipping AND no per-task disjoint signal, T6.1 is falsified (same disposition as T6.4).
+</div>
+
+<div class="results-placeholder">Results: <em>pending execution</em></div>
+</div>
+
+<!-- ============================================================== -->
+<!-- T6.2 — Composite C3 edge weights -->
+<div class="experiment" id="T6-2">
+<h3>T6.2 &mdash; Composite C3 edge-weight scheme (unified test) <span class="pill tier5">T6</span> <span class="pill cost-s">S-cost</span></h3>
+<div class="meta">Targets: gap 7 (C3) &middot; Mechanism: temporal decay &middot; Delaunay-POI multiplier &middot; cross-region penalty as a unified edge-weight</div>
+
+<div class="block">
+<div class="block-title">Hypothesis</div>
+Prior T4.4 tested Delaunay-POI-POI lifted to check-ins with <em>uniform weight</em> under standard GCN &mdash; over-smoothed and falsified at AL ep50 (&Delta;cat &minus;11.30). The user's original C3 was the <em>composite</em>: Delaunay neighbours weighted relative to non-neighbours, cross-region penalty w<sub>r</sub> on inter-region edges, and the existing temporal decay &mdash; <em>as a unified weighting scheme</em>, not three orthogonal edge sets. T6.2 tests the composite as a unit.
+</div>
+
+<div class="block">
+<div class="block-title">Methodology</div>
+<ol>
+<li>For each check-in pair (A, B) with an existing temporal edge: <code>edge_weight(A&rarr;B) = decay(&Delta;t) &middot; [&alpha;<sub>delaunay</sub> if POI(A),POI(B) Delaunay-adjacent else 1.0] &middot; [w<sub>r</sub> if region(A) &ne; region(B) else 1.0]</code>.</li>
+<li>Sweep: &alpha;<sub>delaunay</sub> &isin; {1.5, 2.0}, w<sub>r</sub> &isin; {0.3, 0.5}. 2&times;2 grid, single-seed at FL/AL/AZ.</li>
+<li>Delaunay graph reused from HGI's preprocessing infrastructure (graph construction is infra, allowed; HGI training output is forbidden).</li>
+<li>Stacks on canonical+v3c+T3.2.</li>
+</ol>
+</div>
+
+<div class="block">
+<div class="block-title">Evaluation criteria (dual-selector, updated 2026-05-19)</div>
+<p>Same dual-selector framing as T6.1 (see T6.1 evaluation criteria block for the rationale and the locked criteria). Three selectors reported in parallel; primary gate is <code>joint_geom_simple</code>.</p>
+<ul>
+<li><strong>Primary (shipping-grade) under <code>joint_geom_simple</code>:</strong> reg top10 at FL &ge; +0.5 pp vs shipping matched baseline (&ge; 72.88) AND cat F1 non-inferior, at least one (&alpha;, w<sub>r</sub>) cell.</li>
+<li><strong>Diagnostic under per-task disjoint:</strong> reported alongside, &sect;Discussion-grade only.</li>
+<li><strong>Reference under <code>joint_canonical_b9</code>:</strong> reported for cross-comparison.</li>
+<li>fclass probe (held-out-fclass split per T4.3 protocol).</li>
+<li>G3 per-POI probe (gate &mdash; same criteria as T6.1).</li>
+<li>Stacks on canonical+v3c+T3.2 (the shipping stack), orthogonal to T6.1 if both pass.</li>
+</ul>
+</div>
+
+<div class="block">
+<div class="block-title">Success (locked 2026-05-19; pre-registered)</div>
+At least one (&alpha;<sub>delaunay</sub>, w<sub>r</sub>) cell with reg top10 at FL &ge; +0.5 pp under <code>joint_geom_simple</code>, cat non-inferior, no §6.5 kill, G3 probe within budget. Orthogonal to T6.1 — stacks if both pass.
+</div>
+
+<div class="block">
+<div class="block-title">Results (2026-05-19, matched-protocol)</div>
+<p><span class="pill bad">FALSIFIED at primary gate &mdash; §Discussion only</span> 4 cells (&alpha;<sub>delaunay</sub> &isin; {1.5, 2.0}, w<sub>r</sub> &isin; {0.3, 0.5}) × 3 states (AL/AZ/FL) at single-seed=42 n=5 folds ep=500 emb regen + G3 + FL MTL ep=50.</p>
+<p><strong>G3 probe outcomes (all 4 FL cells pass cleanly; AZ has cell-dependent ratio pass; AL all pass):</strong></p>
+<ul>
+<li><strong>FL:</strong> all 4 cells pass G3 gate. Low-visit Δ ≤ +0.18 pp; hi/lo ratio rises 5.01× &rarr; 5.23-5.42× (graph-derived signal scaling, not memorisation). Cleaner G3 than T6.4 and T6.1.</li>
+<li><strong>AZ:</strong> only &alpha;=1.5 w<sub>r</sub>=0.5 passes the hi/lo ratio sub-gate; other cells trigger mild ratio compression.</li>
+<li><strong>AL:</strong> all 4 cells pass.</li>
+</ul>
+<p><strong>FL MTL — matched-protocol dual-selector (single-seed=42 n=5 ep=50):</strong></p>
+<table>
+<thead><tr><th>Selector</th><th>Variant</th><th>cat F1</th><th>reg top10</th><th>Δ cat</th><th>Δ reg</th></tr></thead>
+<tbody>
+<tr><td rowspan="5"><strong>Per-task disjoint best</strong></td><td><strong>shipping</strong></td><td class="num">70.49 ± 0.86</td><td class="num">76.12 ± 0.33</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+<tr><td>&alpha;=1.5, w<sub>r</sub>=0.3</td><td class="num">67.82 ± 0.85</td><td class="num">76.49 ± 0.33</td><td class="num">−2.67</td><td class="num">+0.37</td></tr>
+<tr><td>&alpha;=1.5, w<sub>r</sub>=0.5</td><td class="num">69.21 ± 0.84</td><td class="num">76.35 ± 0.29</td><td class="num">−1.28</td><td class="num">+0.23</td></tr>
+<tr><td><strong>&alpha;=2.0, w<sub>r</sub>=0.3</strong></td><td class="num">66.94 ± 0.77</td><td class="num"><strong>76.88 ± 0.82</strong></td><td class="num"><strong>−3.55</strong></td><td class="num"><strong>+0.76</strong></td></tr>
+<tr><td>&alpha;=2.0, w<sub>r</sub>=0.5</td><td class="num">68.40 ± 0.74</td><td class="num">76.39 ± 0.23</td><td class="num">−2.09</td><td class="num">+0.27</td></tr>
+<tr><td rowspan="5"><code>joint_geom_simple</code></td><td><strong>shipping</strong></td><td class="num">67.93 ± 1.74</td><td class="num">72.38 ± 2.20</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+<tr><td>&alpha;=1.5, w<sub>r</sub>=0.3</td><td class="num">65.81 ± 2.33</td><td class="num">70.34 ± 1.64</td><td class="num">−2.12</td><td class="num">−2.04</td></tr>
+<tr><td>&alpha;=1.5, w<sub>r</sub>=0.5</td><td class="num">66.49 ± 2.00</td><td class="num">71.79 ± 1.91</td><td class="num">−1.44</td><td class="num">−0.59</td></tr>
+<tr><td>&alpha;=2.0, w<sub>r</sub>=0.3</td><td class="num">65.08 ± 1.51</td><td class="num">72.01 ± 3.76</td><td class="num">−2.85</td><td class="num">−0.37</td></tr>
+<tr><td>&alpha;=2.0, w<sub>r</sub>=0.5</td><td class="num">67.05 ± 1.10</td><td class="num">70.09 ± 1.14</td><td class="num">−0.88</td><td class="num">−2.29</td></tr>
+</tbody>
+</table>
+<p><strong>Verdict (advisor-locked 2026-05-19):</strong> the primary <code>joint_geom_simple</code> gate is <strong>FAILED at every cell</strong> &mdash; reg top10 regresses on the deployable selector. The diagnostic per-task-disjoint cell &alpha;=2.0, w<sub>r</sub>=0.3 shows a small substrate-capacity reg lift (+0.76 pp, separable from σ=0.82) but at an unambiguous cat cost (−3.55 pp at per-task disjoint). The cat regression makes the "first non-null Tier-6 substrate effect" framing dishonest; the cell traces the same cat-reg Pareto trade-off that T4.4 (uniform Delaunay-lifted weights) characterised at single-seed, just at a slightly more favourable point.</p>
+<p><strong>Allowed §Discussion claim:</strong> "T6.2 composite C3 edge-weighting (HGI-inspired Delaunay multiplier + cross-region penalty) reproduces the T4.4 cat-reg Pareto-trade shape at a more favourable point; no cell delivers a deployable single-checkpoint improvement, and the per-task-disjoint reg-capacity ceiling stays bounded by ~+0.76 pp at single-seed n=5 with a -3.55 pp cat cost. Bonferroni correction at m_Tier6=10 (T6.4×2 + T6.1×4 original + T6.1×1 robust + T6.2×4 cells minus one for shipping reference) sets α* ≈ 0.005; the strongest cell does not survive."</p>
+<p><strong>Disallowed:</strong> "T6.2 lifts reg." (Only at per-task disjoint, and the cat trade-off makes it not a substrate winner.)</p>
+<p class="footnote">Tool: <code>scripts/canonical_improvement/analyze_t64_selectors.py</code>. Source-of-truth: <code>docs/results/canonical_improvement/T6_2_dual_selector.{json,md}</code> (all 5 arms — shipping + 4 T6.2 cells). G3 JSONs: <code>G3_{state}_T6_2_a{1_5_0_3,1_5_0_5,2_0_0_3,2_0_0_5}.json</code>. Per-state per-cell logs at <code>logs/t62_sweep/T6_2_a*.log</code>. Upstream framing: <code>docs/CONCERNS.md</code> C21. Closure path: <code>docs/studies/mtl-exploration/FUTUREWORK_substrate_aware_mtl_balancing.md</code> F1/F2/F3.</p>
+</div>
+</div>
+
+<!-- ============================================================== -->
+<!-- T6.3 — Low-rank POI side-channel -->
+<div class="experiment" id="T6-3">
+<h3>T6.3 &mdash; Low-rank POI side-channel at Checkin2POI attention-logit (fallback) <span class="pill tier5">T6</span> <span class="pill cost-m">M-cost</span> <span class="pill warn">structural cousin of T5.1 &mdash; explicit guardrails</span></h3>
+<div class="meta">Targets: gap 9 (C11) fallback &middot; Mechanism: rank-r per-POI bias at attention-logit only, not at input</div>
+
+<div class="block">
+<div class="block-title">Hypothesis</div>
+If T6.1 leaves reg uncovered, the failure mode of T5.1 (free per-POI table at input) is its <em>placement</em>, not the underlying need for POI identity-awareness. A capacity-restricted (rank r) per-POI bias applied <em>only at the attention-logit</em> of Checkin2POI &mdash; not at the input, not at the aggregated pooled vector &mdash; preserves message-passing on graph features while granting the pool a small identity-aware bias for which check-ins contribute to which POI.
+</div>
+
+<div class="block">
+<div class="block-title">Methodology</div>
+<ol>
+<li>Introduce <code>v &isin; R<sup>N_poi&times;r</sup></code> (per-POI rank-r free vector) and <code>U &isin; R<sup>D&times;r</sup></code> (shared projection). Init: v small Gaussian (&sigma; = 0.01), U Xavier.</li>
+<li>Modify Checkin2POI attention logit: <code>logit<sub>p,c</sub> = q<sub>p</sub> &middot; k<sub>c</sub> + (U v<sub>p</sub>) &middot; k<sub>c</sub></code>. The bias only re-weights which check-ins attend to POI p &mdash; never enters the input layer, never enters the pooled output directly.</li>
+<li>Rank sweep: r &isin; {4, 8}. Smaller r limits shortcut capacity.</li>
+<li>Parameter count: at r=8, N_poi&approx;5000, +0.04M params &mdash; well within F51's +5% budget.</li>
+<li>Single-seed AL/AZ first (smallest, riskiest for V2-c collapse). If reg stays within &sect;6.5 kill, escalate to FL multi-seed.</li>
+</ol>
+</div>
+
+<div class="block">
+<div class="block-title">Evaluation criteria (dual-selector, updated 2026-05-19)</div>
+<p>Same dual-selector framing as T6.1 and T6.2. T6.3 is the highest-risk T6.* candidate for identity leakage (closest structural cousin of T5.1 DEAD), so the G3 gate is the load-bearing pre-promotion check.</p>
+<ul>
+<li><strong>Primary (shipping-grade) under <code>joint_geom_simple</code>:</strong> reg top10 at FL &ge; +0.5 pp vs shipping matched baseline with cat non-inferior.</li>
+<li><strong>Diagnostic under per-task disjoint:</strong> reported alongside, &sect;Discussion-grade only.</li>
+<li><strong>Reference under <code>joint_canonical_b9</code>:</strong> reported for cross-comparison.</li>
+<li>AL/AZ reg Acc@10 vs &sect;6.5 kill threshold (&minus;0.5 pp) at single-seed before any FL promotion.</li>
+<li>cat F1 non-inferior at FL/AL/AZ.</li>
+<li><strong>G3 per-POI probe (gate &mdash; highest-risk T6.* candidate)</strong>: low-visit &Delta;top1 &le; +1 pp AND hi/lo quantile ratio &ge; shipping ratio.</li>
+<li>kNN-Jaccard vs canonical baseline (sanity).</li>
+</ul>
+</div>
+
+<div class="block">
+<div class="block-title">Success (locked 2026-05-19; pre-registered)</div>
+Reg top10 at FL &ge; +0.5 pp under <code>joint_geom_simple</code> at multi-seed with cat non-inferior AND G3 probe within budget AND no &sect;6.5 kill at AL/AZ single-seed. <strong>This experiment only runs if T6.1 fails to deliver under <code>joint_geom_simple</code>.</strong> Treated as fallback, not primary.
+</div>
+
+<div class="block">
+<div class="block-title">Results (2026-05-19, AL/AZ-first kill-check ABORTED at G3 gate)</div>
+<p><span class="pill bad">FALSIFIED at G3 gate &mdash; halted before FL stage</span> Implemented as rank-r per-POI bias on the Checkin2POI attention-logit only (zero new parameters at input, never enters the pooled output directly). r &isin; {4, 8}; v ∈ R<sup>N_pois&times;r</sup> zero-init, U ∈ R<sup>r&times;D</sup> Xavier-init &rarr; step-0 forward bit-identical to canonical. Implementation in <code>research/embeddings/check2hgi/model/Checkin2POI.py</code>.</p>
+<p><strong>Pre-registered sweep order (advisor-locked 2026-05-19):</strong> AL/AZ at both ranks FIRST (kill-check), then FL only if every AL/AZ cell passes G3 (low-visit Δ ≤ +1 pp AND hi/lo ratio ≥ shipping ratio).</p>
+<p><strong>Stage 1 — AL/AZ G3 results:</strong></p>
+<table>
+<thead><tr><th>State</th><th>Variant</th><th>Overall top-1</th><th>Low q25</th><th>High q75</th><th>hi/lo</th><th>Gate</th></tr></thead>
+<tbody>
+<tr><td>AL</td><td>shipping</td><td class="num">7.64 ± 0.51</td><td class="num">3.30 ± 0.60</td><td class="num">12.64 ± 1.83</td><td class="num">3.82×</td><td>ref</td></tr>
+<tr><td>AL</td><td>T6.3 r=4</td><td class="num">7.35 ± 0.68</td><td class="num">2.91 ± 0.75</td><td class="num">12.42 ± 1.21</td><td class="num">4.27×</td><td><span class="pill good">✓</span></td></tr>
+<tr><td>AL</td><td>T6.3 r=8</td><td class="num">6.95 ± 0.42</td><td class="num">2.84 ± 1.04</td><td class="num">12.25 ± 1.25</td><td class="num">4.32×</td><td><span class="pill good">✓</span></td></tr>
+<tr><td>AZ</td><td>shipping</td><td class="num">6.33 ± 0.44</td><td class="num">3.21 ± 0.42</td><td class="num">11.49 ± 1.30</td><td class="num">3.58×</td><td>ref</td></tr>
+<tr><td>AZ</td><td>T6.3 r=4</td><td class="num">6.54 ± 0.29</td><td class="num">3.18 ± 0.43</td><td class="num">12.06 ± 0.99</td><td class="num">3.79×</td><td><span class="pill good">✓</span></td></tr>
+<tr><td><strong>AZ</strong></td><td><strong>T6.3 r=8</strong></td><td class="num">6.75 ± 0.29</td><td class="num">3.87 ± 0.19</td><td class="num">11.96 ± 1.06</td><td class="num"><strong>3.09×</strong></td><td><span class="pill bad">✗ ratio compression</span></td></tr>
+</tbody>
+</table>
+<p><strong>AZ r=8 trips the hi/lo ratio sub-gate</strong> (shipping 3.58× &rarr; T6.3 r=8 3.09× = ratio compression, the exact leak signature the advisor's 2026-05-19 review-of-T6.1 explicitly flagged as the highest-risk T6.* failure mode). Per the pre-registered locked criteria ("G3 probe must clear at all three states; one violation = falsified"), <strong>T6.3 is FALSIFIED at the AL/AZ kill-check before FL stage 2 launches.</strong> The script halted automatically and restored shipping outputs; FL embeddings were never regenerated for T6.3.</p>
+<p><strong>Observation (does NOT override the gate):</strong> 3 of 4 stage-1 cells pass cleanly. Only the higher-capacity r=8 variant trips, and only at AZ (the smaller state where the bias has enough rank to start memorising identity at lower statistics). r=4 cell passes both states. This is a clean validation of the advisor's prediction that T6.3 has higher leak risk at higher capacity at small states. <strong>The locked pre-registered criterion was "ALL states pass," NOT "majority of cells pass"</strong>; the gate-override would be exactly the kind of post-hoc move the 2026-05-19 advisor warned against. Closure stands as FALSIFIED.</p>
+<p><strong>Allowed §Discussion claim:</strong> "T6.3 (rank-r per-POI bias at Checkin2POI attention-logit) was pre-registered as the structural cousin of T5.1 (DEAD) with capacity-restricted placement. The AL/AZ pre-promotion G3 kill-check tripped at r=8 (AZ hi/lo ratio compression 3.58× → 3.09×); per pre-registration, the FL stage did not run. The r=4 cell passed both states' gates, suggesting the leak signature scales with bias capacity — consistent with the T5.1 V2-c collapse mechanism (more per-POI parameters → more identity memorisation)."</p>
+<p><strong>Disallowed:</strong> "T6.3 r=4 passes the gate." (Locked criterion was ALL state-rank cells pass; one violation falsifies the full experiment per pre-registration.)</p>
+<p class="footnote">G3 JSONs: <code>docs/results/canonical_improvement/G3_{alabama,arizona}_T6_3_r{4,8}.json</code>. Stashed emb: <code>docs/results/canonical_improvement/T6_3_r{4,8}/{alabama,arizona}/</code>. Per-cell logs: <code>logs/t63_sweep/T6_3_r{4,8}_{alabama,arizona}.log</code>. Gate-check log: <code>logs/t63_sweep/_gate_check.log</code>.</p>
+</div>
+</div>
+
+<!-- ============================================================== -->
+<!-- T6.4 — Finish T2.2 + T2.3 -->
+<div class="experiment" id="T6-4">
+<h3>T6.4 &mdash; Finish T2.2 (InfoNCE @ p2r) + T2.3 (two-pass corruption) <span class="pill tier5">T6</span> <span class="pill cost-s">S-cost</span> <span class="pill info">prerequisite scaffolding</span></h3>
+<div class="meta">Targets: gaps 4 and 8 &middot; Mechanism: one-edit-away code completions for T2.2 and T2.3, then 5f&times;50ep runs</div>
+
+<div class="block">
+<div class="block-title">Hypothesis</div>
+Both T2.2 (InfoNCE replacing JSD at p2r) and T2.3 (two-pass feature-level corruption at p2r and r2c) were deferred-closed in Tier 2 without running. The 2026-05-16 implementation audit flagged T2.2's scaffold as mis-targeted at C2P but "one edit away" from p2r; T2.3's p2r side is "&sim;5-min edit away". Both share infrastructure with T6.1's InfoNCE machinery and are honest gap-closures (gap 4, gap 8 from the audit). Finish them before T6.1 so the InfoNCE module is exercised under the already-established p2r boundary first.
+</div>
+
+<div class="block">
+<div class="block-title">Methodology</div>
+<ol>
+<li>T2.2 (InfoNCE @ p2r): edit <code>scripts/probe/build_substrate_s1.py</code>-style code to target p2r instead of C2P. Negative sampling: in-batch random POI&harr;region pairs. &tau; = 0.1. Stacks on canonical+v3c+T3.2.</li>
+<li>T2.3 (two-pass feature corruption): apply feature-level corruption twice per batch at p2r and r2c boundaries (currently single-pass). Reuse the existing r2c corruption code path; add the symmetric p2r call.</li>
+<li>Single-seed at FL/AL/AZ; multi-seed only if either lifts reg or cat non-inferior with directional improvement.</li>
+</ol>
+</div>
+
+<div class="block">
+<div class="block-title">Evaluation criteria</div>
+<ul>
+<li>cat F1 + reg Acc@10 at FL/AL/AZ.</li>
+<li>IJM sequence-edge leak audit.</li>
+<li>Whichever passes single-seed gates for direction goes to multi-seed.</li>
+</ul>
+</div>
+
+<div class="block">
+<div class="block-title">Success</div>
+At minimum: code lands, results recorded, audit log on whether they confirm or update the deferred-closed verdicts. Bonus: either passes the &sect;6.5 promotion gate.
+</div>
+
+<div class="block">
+<div class="block-title">Results (2026-05-19, matched-protocol final)</div>
+<p><span class="pill bad">FALSIFIED &mdash; T6.4 substrate adds no measurable capacity over canonical+v3c+T3.2 at matched protocol</span> Code edits in <code>research/embeddings/check2hgi/model/Check2HGIModule.py</code> (new kwargs <code>p2r_use_infonce</code>, <code>p2r_infonce_temperature</code>, <code>two_pass_corruption</code>; defaults preserve canonical bit-for-bit). Three configurations evaluated at FL/AL/AZ single-seed=42 ep=500 stacked on canonical+v3c+T3.2: <code>--two-pass-corruption</code>, <code>--p2r-use-infonce</code> at &tau; &isin; {0.1, 0.3, 0.5}, and the combination.</p>
+<p><strong>G3 probe outcomes (FL/AL/AZ on the resulting embeddings):</strong></p>
+<ul>
+<li><strong>FL:</strong> all variants pass the G3 gate cleanly. hi/lo quantile ratio rises (5.01&times; &rarr; 5.21-6.00&times;), confirming graph-derived (not memorisation-based) signal.</li>
+<li><strong>AZ:</strong> only <code>infonce &tau;=0.5</code> passes (ratio 3.58&times; &rarr; 3.59&times;); &tau;=0.1 and &tau;=0.3 trigger mild uniformity drift.</li>
+<li><strong>AL:</strong> all variants violate the low-visit budget (low &Delta; +1.05-1.41 pp vs +1 pp gate). hi/lo ratio rises 2.96&times; &rarr; 4.46-5.03&times; &mdash; proportional structure preserved (mechanism-distinct from T5.1's flat-ratio memorisation), but the absolute magnitude exceeds the budget.</li>
+</ul>
+<p><strong>FL MTL — matched protocol dual-selector analysis (single-seed=42, n=5 folds, ep=50, three arms):</strong></p>
+<table>
+<thead><tr><th>Selector</th><th>Variant</th><th>cat F1</th><th>reg top10</th><th>selected ep</th></tr></thead>
+<tbody>
+<tr><td rowspan="3"><strong>Per-task disjoint best</strong><br>(substrate capacity; 2 checkpoints)</td><td><strong>shipping</strong></td><td class="num">70.49 ± 0.86</td><td class="num"><strong>76.12 ± 0.33</strong></td><td>cat 35 ± 6, reg 4 ± 0.4</td></tr>
+<tr><td>T6.4 two_pass</td><td class="num">70.55 ± 0.85</td><td class="num">76.20 ± 0.27</td><td>cat 38, reg 5</td></tr>
+<tr><td>T6.4 infonce &tau;=0.5</td><td class="num">70.49 ± 0.95</td><td class="num">76.29 ± 0.29</td><td>cat 37, reg 4</td></tr>
+<tr><td rowspan="3"><code>joint_geom_simple</code><br>(single deployable checkpoint)</td><td><strong>shipping</strong></td><td class="num">67.93 ± 1.74</td><td class="num">72.38 ± 2.20</td><td>14 ± 8.5</td></tr>
+<tr><td>T6.4 two_pass</td><td class="num">67.33 ± 2.06</td><td class="num">73.33 ± 2.28</td><td>12 ± 9.5</td></tr>
+<tr><td>T6.4 infonce &tau;=0.5</td><td class="num">67.12 ± 2.45</td><td class="num">73.48 ± 2.48</td><td>12 ± 9.6</td></tr>
+<tr><td rowspan="3"><code>joint_canonical_b9</code><br>(production &mdash; <em>BUG</em>)</td><td><strong>shipping</strong></td><td class="num">69.99 ± 1.13</td><td class="num">65.38 ± <strong>9.10</strong></td><td>29 ± 11</td></tr>
+<tr><td>T6.4 two_pass</td><td class="num">70.13 ± 1.06</td><td class="num">61.19 ± 11.86</td><td>30 ± 11</td></tr>
+<tr><td>T6.4 infonce &tau;=0.5</td><td class="num">70.28 ± 0.82</td><td class="num">56.78 ± 11.79</td><td>32 ± 11</td></tr>
+</tbody>
+</table>
+<p><strong>&Delta; T6.4 vs shipping (matched protocol):</strong></p>
+<ul>
+<li><strong>Per-task disjoint:</strong> &Delta;_cat = +0.00 to +0.06 pp, &Delta;_reg = +0.08 to +0.17 pp. Both within fold &sigma; (&sigma;_reg ~0.3). <strong>No substrate improvement above noise.</strong></li>
+<li><strong>joint_geom_simple:</strong> &Delta;_cat = −0.60 to −0.81 pp, &Delta;_reg = +0.95 to +1.10 pp. Slight Pareto-frontier shift but still within fold &sigma; (&sigma;_cat ~2, &sigma;_reg ~2).</li>
+<li><strong>joint_canonical_b9 (production):</strong> &Delta;_cat = +0.14 to +0.29 pp, &Delta;_reg = −4.19 to −8.60 pp. T6.4 actually <em>regresses</em> reg under the production selector (huge &sigma; on both arms; not a stable comparison).</li>
+</ul>
+<p><strong>Cross-check vs published §0.1 numbers:</strong> Shipping FL §0.1 multi-seed n=20 reports cat 68.56 ± 0.79, reg top10 63.27 ± 0.10. The single-seed matched <code>joint_canonical_b9</code> values (cat 69.99 ± 1.13, reg 65.38 ± 9.10) are consistent with §0.1 within single-seed variance &mdash; confirming <strong>§0.1 reports joint-best, not reg-best</strong>.</p>
+<p><strong>Verdict — T6.4 FALSIFIED.</strong> Under matched protocol, T6.4 variants do not improve over canonical shipping at any selector to within statistical significance at n=5. The "+11-13 pp reg lift" originally claimed (2026-05-19 morning) was a <strong>cross-selector comparison artefact</strong>: T6.4 reg-best epoch was compared against shipping §0.1's joint-best multi-seed numbers. Different selectors, not different substrates.</p>
+<p><strong>Load-bearing finding — `joint_canonical_b9` is structurally broken on the canonical Check2HGI MTL setup itself.</strong> Shipping's per-task disjoint reg top10 = 76.12; shipping's production reg top10 = 65.38. <strong>Production selector throws away ~10.7 pp of reg-top10 capacity</strong> from the canonical substrate, with no substrate change involved. Root cause: <code>reg_macro_f1</code> over ~4 700 sparse FL regions is dominated by rare-class noise and is blind to reg_top10's peak-and-collapse trajectory (peak ep ~5 at top10 ~76 %, collapse by ep ~30 to top10 ~65 %).</p>
+<p><strong>Paper-claim disposition (locked 2026-05-19):</strong></p>
+<ul>
+<li><strong>Allowed (CH23-B, §Discussion-only):</strong> "Under per-task disjoint best (or a substrate-aware <code>joint_geom_simple</code> selector), the canonical Check2HGI substrate reaches reg top10 ≈ 76 % at FL &mdash; ~+13 pp above the §0.1 joint-best number. The production B9 joint selector (<code>0.5 * (cat_macro_f1 + reg_macro_f1)</code>) is structurally broken on this MTL setup."</li>
+<li><strong>Disallowed:</strong> "T6.4 ships a substrate improvement." (Δ_reg = +0.08-0.17 pp within σ; FALSIFIED.)</li>
+<li><strong>Disallowed:</strong> "T6.4 enables cat +2 / reg +13 lift." (The cross-selector lift exists in <em>shipping itself</em>, not in T6.4.)</li>
+</ul>
+<p class="footnote">Tool: <code>scripts/canonical_improvement/analyze_t64_selectors.py</code> (reads per-fold val CSVs; zero retraining for any new selector). Source-of-truth: <code>docs/results/canonical_improvement/T6_4_dual_selector_final.{json,md}</code> (all 3 arms; supersedes the earlier <code>_preliminary</code> file which only had T6.4 variants and compared against §0.1 cross-selector). Upstream framing: <code>docs/CONCERNS.md</code> C21 (selector-bug-on-shipping; not T6.4-specific). Locked claims: <code>docs/CLAIMS_AND_HYPOTHESES.md</code> CH23-A (T6.4 falsified) and CH23-B (production selector bug). Closure path: <code>docs/studies/mtl-exploration/FUTUREWORK_substrate_aware_mtl_balancing.md</code> F1/F2/F3.</p>
+</div>
+</div>
+
+<!-- ============================================================== -->
+<h3>Tier 6 &mdash; execution order &amp; gating</h3>
+<ol>
+<li><strong>G3 first</strong> (mandatory pre-flight). Pin the per-POI probe baseline at FL/AL/AZ on the shipping stack. Retrospective probe on T5.1 as sanity check.</li>
+<li><strong>T6.4</strong> (~10 GPU-h) &mdash; honest gap-closure of T2.2 + T2.3, exercises the InfoNCE module on the established p2r boundary before T6.1 stacks a 4th boundary.</li>
+<li><strong>T6.1 single-seed FL/AL/AZ</strong> with the &lambda;<sub>p2p</sub> sweep + G3 probe gating each &lambda;. Pick the cat-non-inferior &lambda; with the largest reg lift.</li>
+<li><strong>T6.1 multi-seed</strong> at the chosen &lambda; (5 seeds &times; 5 folds, FL/AL/AZ). Sign-test at the seed level (paper-grade directional).</li>
+<li><strong>T6.2</strong> (~6 GPU-h) &mdash; composite C3 edge-weight sweep. Stacks orthogonally on T6.1 if both pass.</li>
+<li><strong>T6.3</strong> &mdash; runs <em>only if</em> T6.1 misses the reg target. Single-seed AL/AZ kill-check first; FL multi-seed only after.</li>
+<li><strong>Tier 6 advisor pass</strong> at the end of the tier &mdash; capture in <code>log.md</code> before declaring closure.</li>
+</ol>
+
+<p><strong>Estimated total cost:</strong> &sim;80-100 GPU-h (G3: 5h; T6.4: 10h; T6.1: 25h single-seed + 35h multi-seed if promoted; T6.2: 6h; T6.3: 15h conditional).</p>
+
+<p><strong>What Tier 6 is NOT.</strong> It is not a re-run of Tier 5 with different cosmetics. T5.1 was a free input-layer table (DEAD shortcut path); T5.2a was a separately-trained Node2Vec aligned via L2 (dilutes c2hgi gradient discipline); T5.2b was feature reconstruction at the POI level (helped cat sub-Bonferroni, not reg); T5.3 was multi-view co-training (positive trend but no per-POI guardrail). Tier 6 is a single integrated hypothesis: <em>direct, parameter-sharing, in-batch-derived POI-level supervision is the missing component for next-reg</em> &mdash; tested with explicit structural distinctions from the falsified history and a mandatory leak guardrail (G3) that was never built before.</p>
+
+<p><strong>Gap 5 (T1.2 multi-seed canonical formalisation) deferred</strong>: per user decision 2026-05-18, we focus on improvements first; if a Tier-6 winner emerges, the stack-vs-stack comparison will be performed at that point under the §0.1 protocol. Until then the canonical+v3c+T3.2 shipping numbers in <code>STACKING_ABLATION.md §5</code> stand as the comparison baseline for Tier-6 work.</p>
+
+<!-- ============================================================== -->
+<h2 id="refs">External references the implementing agent must read</h2>
+
+<table>
+<thead><tr><th>Used in</th><th>Paper</th><th>Why it matters</th></tr></thead>
+<tbody>
+<tr><td>T4.1, T5.2b</td><td><a href="https://arxiv.org/abs/2304.04779">GraphMAE2 (WWW 2023)</a></td><td>Masked feature reconstruction is the most direct attack on the 4 % linear-probe gap.</td></tr>
+<tr><td>T4.2</td><td><a href="https://arxiv.org/abs/2006.09882">SwAV (NeurIPS 2020)</a></td><td>Online cluster prototypes with Sinkhorn balancing; gives semantic structure for free without labels.</td></tr>
+<tr><td>conceptual</td><td><a href="https://www.frontiersin.org/journals/neurorobotics/articles/10.3389/fnbot.2024.1428785/full">MGCL: Multi-Granularity Contrastive (Frontiers 2024)</a></td><td>Closest published analog to Check2HGI&#39;s 4-level hierarchy; explicit per-level loss.</td></tr>
+<tr><td>T2.1 variant</td><td><a href="https://dl.acm.org/doi/10.1145/3589334.3645327">GRAPE (WWW 2024)</a></td><td>Subspace-preserving hard negatives; explains why band-mining can degrade semantic structure.</td></tr>
+<tr><td>T2.2 / T2.3 variants</td><td><a href="https://arxiv.org/abs/2102.06514">BGRL (ICLR 2022)</a></td><td>Bootstrapped target encoder; no negatives needed, sidesteps the c2p fragility.</td></tr>
+<tr><td>T2.4 background</td><td><a href="https://arxiv.org/abs/2106.12484">CCA-SSG (NeurIPS 2021)</a></td><td>Feature decorrelation as the SSL objective; no negatives.</td></tr>
+<tr><td>T5.3 background</td><td><a href="https://arxiv.org/pdf/2303.04741">GETNext (SIGIR 2022)</a></td><td>Trajectory-flow map at the head, not the encoder &mdash; principled separation we adopt for T4.3 co-visit.</td></tr>
+<tr><td>T3.4</td><td><a href="https://arxiv.org/pdf/1907.05321">Time2Vec (ICLR 2020 workshop)</a></td><td>Learnable time encoding superior to fixed sin/cos.</td></tr>
+</tbody>
+</table>
+
+<!-- ============================================================== -->
+<h2 id="integration">Future integration with merge-design findings</h2>
+
+<p>The findings here will eventually be combined with the merge-design family (B/M). To make that combination clean,
+each experiment&#39;s Results section must report:</p>
+
+<ol>
+<li><strong>cat-path-byte-identical?</strong> Does this experiment keep canonical&#39;s 11-dim input + Checkin2POI byte-identical?
+If YES, it stacks cleanly on Design B (B inserts POI2Vec only at the POI-pool boundary, behind a stop-gradient on cat).
+If NO, this experiment becomes an <em>alternative canonical baseline</em> on which a future B-variant must be re-stacked.</li>
+<li><strong>POI-side modifications?</strong> Does this experiment modify the POI-level representation (T5.1 POI ID embedding,
+T4.3 side-features, T5.2 Node2Vec)? Then it interacts with Design B&#39;s POI2Vec injection at the same boundary &mdash; a
+future synthesis study must run a stacked ablation: canonical + this experiment + B.</li>
+<li><strong>Does it use fclass directly or indirectly?</strong> Even &quot;native&quot; experiments can leak fclass through proxies
+(e.g., co-visit category-mix that is too informative). Each experiment must report fclass-probe behaviour on a held-out
+fclass split, to confirm the probe value is honest.</li>
+</ol>
+
+<p>A plausible shipping synthesis (subject to results &mdash; do not pre-commit before evidence): <strong>canonical + T1.x hygiene
+winners</strong> (T1.3 &alpha; sweep + T1.5 optimizer hygiene mostly likely to land) + <em>if T2.1 p2r hard negs lifts reg
+without breaking cat,</em> + T2.1 + <em>if a T3.x architectural winner emerges,</em> + that architecture + <em>if a T4
+semantic-recovery candidate passes the held-out-fclass guardrail,</em> + that aux loss + Design B&#39;s POI2Vec injection
+from the merge family. The merge_design ship-B verdict remains current; this track adds orthogonal improvements <em>that
+should</em> stack cleanly &mdash; but each combination must be re-tested empirically, not assumed.</p>
+
+<hr class="section">
+
+<p class="footnote">
+File created 2026-05-14. Audit + breadth-search synthesis by main agent &mdash; the implementing agent should
+read <code>../merge_design/STUDY_BRIEFING.html</code>, <code>../merge_design/STATE.md</code>, and
+<code>../merge_design/AUDIT_HGI_GAP.md</code> before starting any experiment. Critical engine sources:
+<code>research/embeddings/check2hgi/{check2hgi.py, preprocess.py, model/}</code>; canonical evaluation pipelines:
+<code>scripts/p1_region_head_ablation.py</code>, <code>scripts/p1_poi_head_ablation.py</code>,
+<code>scripts/probe/generality_probes.py</code>, <code>scripts/probe/leak_sniff_ijm.py</code>,
+<code>scripts/probe/calibrate_canonical_pr_norm.py</code>.
+</p>
+
+</main>
+</div>
+</body>
+</html>

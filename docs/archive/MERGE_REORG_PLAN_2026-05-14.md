@@ -6,7 +6,7 @@
 
 This is the consolidated Phase 2 plan covering merge strategy (2a), code conflicts (2b), fusion archival (2c), check2hgi promotion (2d), ops/infra consolidation (2e), branch cleanup (2f), and CLAUDE.md updates (2g).
 
-A central finding from Phase 1 reframes the work: **`worktree-check2hgi-mtl` is a content-superset of `main` (372 commits ahead, 1 commit behind), and main's only unique commit is a stale revert of `docs/studies/fusion/results/P0/folds/frozen.json`.** No fusion-study knowledge sits on main that isn't already on this branch. The merge itself is therefore mechanical; the high-value/high-risk work is the **docs reorganization** that lands check2hgi as the project's primary study and tucks fusion into archive.
+A central finding from Phase 1 reframes the work: **`worktree-check2hgi-mtl` is a content-superset of `main` (372 commits ahead, 1 commit behind), and main's only unique commit is a stale revert of `docs/studies/archive/fusion/results/P0/folds/frozen.json`.** No fusion-study knowledge sits on main that isn't already on this branch. The merge itself is therefore mechanical; the high-value/high-risk work is the **docs reorganization** that lands check2hgi as the project's primary study and tucks fusion into archive.
 
 ---
 
@@ -18,7 +18,7 @@ Why:
 - **Preserves the full 372-commit history** of the check2hgi study on main — every BRACIS doc-pass, every F-trail experiment, every Phase-11 substrate probe is reachable from `main` after merge.
 - **Single readable merge commit** as the integration point — bisection-friendly, reviewable as one diff.
 - **No force-push** required to main (avoids destroying the `bump: froxen file` commit, even though it's effectively a stale revert).
-- The one expected conflict (`docs/studies/fusion/results/P0/folds/frozen.json`) is resolved trivially: keep `worktree-check2hgi-mtl`'s newer (2026-04-18) version with the cleaned-up entries.
+- The one expected conflict (`docs/studies/archive/fusion/results/P0/folds/frozen.json`) is resolved trivially: keep `worktree-check2hgi-mtl`'s newer (2026-04-18) version with the cleaned-up entries.
 
 Alternatives considered:
 - **Fast-forward (impossible)**: main has +1 commit, so FF is blocked unless we force-update.
@@ -33,7 +33,7 @@ Order on this branch (revised after advisor B2/B3 + suggestion to commit per-ste
    - `git tag pre-reorg-2026-05-14 worktree-check2hgi-mtl` (recovery anchor).
    - Verify `h100/pervisit-fl-ca-tx-results` integration. Concrete check: grep `docs/studies/check2hgi/results/` for FL/CA/TX × 5 folds × 3 cells (= 45 per-fold CH19 JSONs). If absent → `git cherry-pick a858177 d714ce0` first.
    - Repo-wide grep for cross-refs that the reorg will break: especially `articles/[BRACIS]_Beyond_Cross_Task/**` and `notebooks/**` for `docs/studies/check2hgi/...` paths. Record the list — sed sweep happens in steps 3 and 5 below.
-2. Fusion: in-place consolidation (ARCHIVE_NOTE only, no drops) → `git mv docs/studies/fusion docs/archive/fusion-study`. **Single commit.**
+2. Fusion: in-place consolidation (ARCHIVE_NOTE only, no drops) → `git mv docs/studies/archive/fusion docs/archive/fusion-study`. **Single commit.**
 3. Ops/infra consolidation into `docs/infra/` + breadcrumbs at old locations + ref-sweep pass for moved RUNPOD/COLAB/H100 references. **Single commit.**
 4. Promote check2hgi docs to `docs/` (2d) — **after explicit user approval**. Includes the `research/` → `findings/` rename + ref-sweep pass updating every `docs/studies/check2hgi/...` path across `articles/`, `notebooks/`, `CLAUDE.md`, `README.md`, anywhere else found in step 1's grep. **Single commit (or split move-commit + sed-commit if cleaner).**
 5. Update `CLAUDE.md` (2g) + delete `CLAUDE.local.md`. **Single commit.**
@@ -49,7 +49,7 @@ There is **one** code/asset conflict in the merge:
 
 | Path | Stake | Resolution | Preserved | Dropped |
 |---|---|---|---|---|
-| `docs/studies/fusion/results/P0/folds/frozen.json` | Fusion fold registry — main has 2 stale entries (`alabama/fusion/category`, `alabama/fusion/next`) re-added on 2026-05-13; branch removed them on 2026-04-18 with newer `updated_at` | **Keep branch version (newer cleanup)** | Cleaned, current registry state | The stale main entries (their fold artifacts may not exist anymore) |
+| `docs/studies/archive/fusion/results/P0/folds/frozen.json` | Fusion fold registry — main has 2 stale entries (`alabama/fusion/category`, `alabama/fusion/next`) re-added on 2026-05-13; branch removed them on 2026-04-18 with newer `updated_at` | **Keep branch version (newer cleanup)** | Cleaned, current registry state | The stale main entries (their fold artifacts may not exist anymore) |
 
 **No source-code conflicts.** Every `src/`, `scripts/`, `pipelines/`, `experiments/` change on main is already on this branch.
 
@@ -66,15 +66,15 @@ These ride along with the merge unchanged.
 
 ## 2c · Fusion study consolidation plan
 
-Goal: make `docs/studies/fusion/` coherent as a closed body of work, then move under `docs/archive/`.
+Goal: make `docs/studies/archive/fusion/` coherent as a closed body of work, then move under `docs/archive/`.
 
 ### Step 1 — In-place consolidation
 
 **Add (1 file):**
-- `docs/studies/fusion/ARCHIVE_NOTE.md` — closure-status banner: when archived, what the final status was, what concepts/results survived (point to `KNOWLEDGE_SNAPSHOT.md`, `STUDY_OVERVIEW.md`, `CLAIMS_AND_HYPOTHESES.md`, results), what work was superseded by check2hgi, and how to reach back into the archive if needed.
+- `docs/studies/archive/fusion/ARCHIVE_NOTE.md` — closure-status banner: when archived, what the final status was, what concepts/results survived (point to `KNOWLEDGE_SNAPSHOT.md`, `STUDY_OVERVIEW.md`, `CLAIMS_AND_HYPOTHESES.md`, results), what work was superseded by check2hgi, and how to reach back into the archive if needed.
 
 **Update (1 file):**
-- `docs/studies/fusion/README.md` — add a CLOSURE banner at top pointing to `ARCHIVE_NOTE.md`. The existing body content (entry point, master plan reference, claim catalog, phase navigation) stays.
+- `docs/studies/archive/fusion/README.md` — add a CLOSURE banner at top pointing to `ARCHIVE_NOTE.md`. The existing body content (entry point, master plan reference, claim catalog, phase navigation) stays.
 
 **Drop: NOTHING.** (Revised after advisor B1.) Earlier draft proposed dropping `state.json`, `machines.yaml`, `assignments/P1_2026-04-16_screen/`. Keeping them — they are the lab-notebook record of how the multi-machine grid was conducted (who ran what, where, in what order, with what outcome). Combined size is a few KB; cost of keeping is nothing; preserving them honors the "concepts/results/findings survive" principle.
 
@@ -89,7 +89,7 @@ Goal: make `docs/studies/fusion/` coherent as a closed body of work, then move u
 
 ### Step 2 — Move to `docs/archive/`
 
-**Move:** `docs/studies/fusion/` → `docs/archive/fusion-study/` (preserves git history via `git mv`).
+**Move:** `docs/studies/archive/fusion/` → `docs/archive/fusion-study/` (preserves git history via `git mv`).
 
 After move, `docs/studies/` contains only `check2hgi/` (until 2d empties it further).
 
@@ -164,9 +164,9 @@ Plan:
 
 | From | To | Why |
 |---|---|---|
-| `docs/studies/check2hgi/research/canonical_improvement/` | `docs/studies/canonical_improvement/` | Active 18-experiment track on its own branch (`check2hgi-canonical-improve`) — promoted to first-class study |
+| `docs/studies/check2hgi/research/canonical_improvement/` | `docs/studies/archive/canonical_improvement/` | Active 18-experiment track on its own branch (`check2hgi-canonical-improve`) — promoted to first-class study |
 | `docs/studies/check2hgi/research/merge_design/` | `docs/studies/merge_design/` | Audit trail with open levers (Lever 6 active), Phase 11 plan in flight — promoted to first-class study |
-| `docs/studies/check2hgi/research/hgi_category_injection/` | `docs/studies/hgi_category_injection/` | Completed sub-study (AZ falsified) but per user request kept in `studies/` (not archived) — may be re-opened. **Add `STATUS.md` (or banner in `INDEX.md`) reading: "CLOSED — AZ falsified 2026-05-04. Kept under `studies/` pending decision to revisit on FL/CA/TX. Do NOT treat as active without an explicit re-open commit."** |
+| `docs/studies/check2hgi/research/hgi_category_injection/` | `docs/studies/archive/hgi_category_injection/` | Completed sub-study (AZ falsified) but per user request kept in `studies/` (not archived) — may be re-opened. **Add `STATUS.md` (or banner in `INDEX.md`) reading: "CLOSED — AZ falsified 2026-05-04. Kept under `studies/` pending decision to revisit on FL/CA/TX. Do NOT treat as active without an explicit re-open commit."** |
 | `docs/studies/check2hgi/research/*.md` and `*.json` (68 files) | `docs/findings/` | Paper-supporting F-trail (closed evidence) |
 | `docs/studies/check2hgi/research/archive/F50/` | `docs/findings/archive/F50/` | Further-archived findings stay alongside their parent F-trail |
 | `docs/studies/check2hgi/research/figs/` | `docs/findings/figs/` | Finding figures stay alongside the F-trail |
@@ -213,9 +213,9 @@ Plan:
 
 ### "What active follow-up studies are running?"
 - [`studies/`](studies/) — active research tracks layered on check2hgi
-  - [`studies/canonical_improvement/`](studies/canonical_improvement/) — 18-experiment slate to improve canonical Check2HGI (branch `check2hgi-canonical-improve`)
+  - [`studies/archive/canonical_improvement/`](studies/archive/canonical_improvement/) — 18-experiment slate to improve canonical Check2HGI (branch `check2hgi-canonical-improve`)
   - [`studies/merge_design/`](studies/merge_design/) — Designs A-M / Levers 1-6 / Phase 11 audit trail
-  - [`studies/hgi_category_injection/`](studies/hgi_category_injection/) — HGI POI2Vec category-injection on AZ (falsified, archived in studies/ pending revisit)
+  - [`studies/archive/hgi_category_injection/`](studies/archive/hgi_category_injection/) — HGI POI2Vec category-injection on AZ (falsified, archived in studies/ pending revisit)
 
 ### "I'm running on machine X — where do I look?"
 - [`infra/`](infra/) — operational documentation
@@ -387,7 +387,7 @@ docs/
 │   ├── HGI_HYPERPARAMETER_TUNING_2026-04-13.md       (kept)
 │   ├── HGI_PERFORMANCE_IMPROVEMENT_PLAN.md           (kept)
 │   ├── KNOWLEDGE_BASE_2026-04-13.md                  (moved from docs/)
-│   ├── fusion-study/                                 ← from docs/studies/fusion/ (2c)
+│   ├── fusion-study/                                 ← from docs/studies/archive/fusion/ (2c)
 │   ├── check2hgi-post-paper-closure-2026-05-01/      ← from check2hgi/archive/
 │   ├── check2hgi-pre-b3-framing/
 │   ├── check2hgi-research-pre-b3/
@@ -413,15 +413,15 @@ docs/
 
 After all `git mv` operations and the standard ref-sweep, the following **explicit edits** must happen in the same Phase 3-3 commit:
 
-1. **Update `docs/studies/canonical_improvement/AGENT_PROMPT.md`**:
+1. **Update `docs/studies/archive/canonical_improvement/AGENT_PROMPT.md`**:
    - Branching instruction: `check2hgi-up` → `main`. Verify the example `git worktree add ../worktree-check2hgi-canonical-improve -b check2hgi-canonical-improve check2hgi-up` becomes `... -b check2hgi-canonical-improve main`.
    - All 10 path references in the "Required reading" table:
-     - `docs/studies/check2hgi/research/canonical_improvement/log.md` → `docs/studies/canonical_improvement/log.md`
-     - `docs/studies/check2hgi/research/canonical_improvement/INDEX.html` → `docs/studies/canonical_improvement/INDEX.html`
+     - `docs/studies/check2hgi/research/canonical_improvement/log.md` → `docs/studies/archive/canonical_improvement/log.md`
+     - `docs/studies/check2hgi/research/canonical_improvement/INDEX.html` → `docs/studies/archive/canonical_improvement/INDEX.html`
      - `docs/studies/check2hgi/research/merge_design/STUDY_BRIEFING.html` → `docs/studies/merge_design/STUDY_BRIEFING.html`
      - `docs/studies/check2hgi/research/merge_design/STATE.md` → `docs/studies/merge_design/STATE.md`
      - `docs/studies/check2hgi/research/merge_design/AUDIT_HGI_GAP.md` → `docs/studies/merge_design/AUDIT_HGI_GAP.md`
-     - `docs/studies/check2hgi/research/canonical_improvement/considerations.md` → `docs/studies/canonical_improvement/considerations.md`
+     - `docs/studies/check2hgi/research/canonical_improvement/considerations.md` → `docs/studies/archive/canonical_improvement/considerations.md`
      - `docs/studies/check2hgi/AGENT_CONTEXT.md` → `docs/AGENT_CONTEXT.md`
      - `docs/studies/check2hgi/NORTH_STAR.md` → `docs/NORTH_STAR.md`
      - `research/embeddings/check2hgi/CLAUDE.md` (no change — repo-root `research/`)
@@ -434,7 +434,7 @@ After all `git mv` operations and the standard ref-sweep, the following **explic
    - `docs/findings/README.md` — findings landing (drafted above).
 
 3. **Author the closure banner**:
-   - `docs/studies/hgi_category_injection/STATUS.md` (or banner in `INDEX.md`) — closure status text per the table above.
+   - `docs/studies/archive/hgi_category_injection/STATUS.md` (or banner in `INDEX.md`) — closure status text per the table above.
 
 4. **Repo-wide ref-sweep** (sed pass + manual review):
    - All `docs/studies/check2hgi/...` references → new path:
@@ -540,7 +540,7 @@ docs/
 │   ├── HGI_HYPERPARAMETER_TUNING_2026-04-13.md       (kept)
 │   ├── HGI_PERFORMANCE_IMPROVEMENT_PLAN.md           (kept)
 │   ├── KNOWLEDGE_BASE_2026-04-13.md                  (moved)
-│   ├── fusion-study/                                 ← from docs/studies/fusion/ (2c)
+│   ├── fusion-study/                                 ← from docs/studies/archive/fusion/ (2c)
 │   ├── check2hgi-post-paper-closure-2026-05-01/      ← from check2hgi/archive/
 │   ├── check2hgi-pre-b3-framing/                     ← from check2hgi/archive/
 │   ├── check2hgi-research-pre-b3/                    ← from check2hgi/archive/
@@ -795,8 +795,8 @@ The current CLAUDE.md (240 lines) is already a good map. The reorg requires targ
    ```markdown
    # Branch-active study
    This branch is the **canonical_improvement** study. Read first:
-   - `docs/studies/canonical_improvement/AGENT_PROMPT.md`
-   - `docs/studies/canonical_improvement/log.md`
+   - `docs/studies/archive/canonical_improvement/AGENT_PROMPT.md`
+   - `docs/studies/archive/canonical_improvement/log.md`
    ```
    ```
 

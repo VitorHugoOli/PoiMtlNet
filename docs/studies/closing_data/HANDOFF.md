@@ -26,12 +26,12 @@ gate, never ad-hoc tuning.
 | Pre-launch questions | **RESOLVED** (user 2026-06-12): substrate = **v14 or newer blessed base at launch**; baselines **re-run under the new regime, full n=20**; studies assumed settled (P1a verifies); no timeline pressure |
 | Launch gate | user sign-off on `RUN_MATRIX.md` + the P2 freeze commit |
 | Executed so far | **nothing** — no runs, no matrix, no freeze |
-| Predecessor | `mtl_improvement` **CLOSED 2026-06-12** — read its [`FINAL_SYNTHESIS.md`](../mtl_improvement/FINAL_SYNTHESIS.md) before touching anything (esp. its **corrections-and-retractions registry**: several superseded claims float in older docs — cite only the corrected ones) |
+| Predecessor | `mtl_improvement` **CLOSED 2026-06-12** — read its [`FINAL_SYNTHESIS.md`](../archive/mtl_improvement/FINAL_SYNTHESIS.md) before touching anything (esp. its **corrections-and-retractions registry**: several superseded claims float in older docs — cite only the corrected ones) |
 
 ## 3. What to do when you arrive (in order)
 
 1. **Re-read the launch context**: this file → `AGENT_PROMPT.md` (mission + hard rules) → `PLAN.md`
-   (the phases) → `log.md` (decisions trail) → `../mtl_improvement/FINAL_SYNTHESIS.md` §2/§5/§8.
+   (the phases) → `log.md` (decisions trail) → `../archive/mtl_improvement/FINAL_SYNTHESIS.md` §2/§5/§8.
 2. **Check for drift since scaffolding**: `docs/results/CANONICAL_VERSIONS.md` (is v14 still the
    blessed base, or did a successor land? is v16 still the champion recipe?), `docs/studies/log.md`
    (any study re-opened?), and `git log` on `scripts/train.py` + `src/configs/canon.py` (defaults
@@ -48,7 +48,7 @@ gate, never ad-hoc tuning.
 
 - **Champion / recipe**: G = canon **v16** = the bare `scripts/train.py --task mtl` default
   (`--canon` selector; explicit flags override). Exact config + reproduce command:
-  `../mtl_improvement/CHAMPION.md §2-3`. Bare `--canon v16` runs dev seed 42 — always pass `--seed`
+  `../archive/mtl_improvement/CHAMPION.md §2-3`. Bare `--canon v16` runs dev seed 42 — always pass `--seed`
   for reporting runs.
 - **Scoring**: the matched-metric method (FULL `top10_acc` both sides, fold-paired, fp32-parity) —
   `scripts/mtl_improvement/r0_matched_rescore.py` is the reference implementation; the R0 bar
@@ -118,10 +118,10 @@ gate, never ad-hoc tuning.
 | Mission + hard rules | `AGENT_PROMPT.md` (this folder) |
 | Phases + machine plan + resolved decisions | `PLAN.md` (v2) |
 | Decisions trail | `log.md` (this folder, append-only) |
-| Predecessor outcome + corrections registry | `../mtl_improvement/FINAL_SYNTHESIS.md` |
-| Champion config + do-not-retry table | `../mtl_improvement/CHAMPION.md` |
+| Predecessor outcome + corrections registry | `../archive/mtl_improvement/FINAL_SYNTHESIS.md` |
+| Champion config + do-not-retry table | `../archive/mtl_improvement/CHAMPION.md` |
 | Version pins / what's blessed | `docs/results/CANONICAL_VERSIONS.md` |
 | Cross-study registry | `docs/studies/log.md` + `docs/studies/README.md` |
 | Concerns C25–C28 | `docs/CONCERNS.md` |
 | Infra per machine | `docs/infra/README.md` |
-| Paper-side coordination (author-owned) | `../mtl_improvement/PAPER_UPDATE.md` + `articles/[BRACIS]_Beyond_Cross_Task/` |
+| Paper-side coordination (author-owned) | `../archive/mtl_improvement/PAPER_UPDATE.md` + `articles/[BRACIS]_Beyond_Cross_Task/` |

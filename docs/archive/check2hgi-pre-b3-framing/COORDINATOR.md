@@ -1,6 +1,6 @@
 # Coordinator Agent — Check2HGI Study Specification
 
-The coordinator workflow is **shared** with the fusion study — see `docs/studies/fusion/COORDINATOR.md` for the full specification (state machine, actions, preflight/execution/postflight/analysis phases, claim-update protocol, abort conditions, operational guarantees).
+The coordinator workflow is **shared** with the fusion study — see `docs/studies/archive/fusion/COORDINATOR.md` for the full specification (state machine, actions, preflight/execution/postflight/analysis phases, claim-update protocol, abort conditions, operational guarantees).
 
 This document captures only the **check2HGI-specific bindings** of the shared workflow.
 
@@ -14,7 +14,7 @@ The shared coordinator commands (`/coordinator`, `/worker`, `/study`) pick up th
 export STUDY_DIR=docs/studies/check2hgi
 ```
 
-Without the override, commands default to `docs/studies/fusion/` and will operate on the wrong study.
+Without the override, commands default to `docs/studies/archive/fusion/` and will operate on the wrong study.
 
 ---
 

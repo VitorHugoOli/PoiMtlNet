@@ -14,7 +14,7 @@ If instead the margin shrinks/flips at CA/TX, that bounds the scale-conditional 
 ## What it takes (the cost that motivated the deferral)
 1. **Build the v14 `design_k` substrate** at CA + TX — `check2hgi_design_k_resln_mae_l0_1` =
    ResLN + mae cat lever ⊕ Delaunay-POI-GCN reg lever. Entry: `scripts/canonical_improvement/regen_emb_t3.py`;
-   exact recipe must be reconstructed from `docs/studies/embedding_eval/` (CANDIDATES.md / FINAL_SYNTHESIS.md)
+   exact recipe must be reconstructed from `docs/studies/archive/embedding_eval/` (CANDIDATES.md / FINAL_SYNTHESIS.md)
    + `docs/results/CANONICAL_VERSIONS.md §v14`. **Get the recipe right before launching — a wrong build wastes
    the large-state hours.** CA/TX have the base `output/check2hgi/<state>/` to build from.
 2. **Seeded per-fold log_T** at CA/TX: `scripts/compute_region_transition.py --state <st> --per-fold --seed <S>`.
@@ -27,4 +27,4 @@ If instead the margin shrinks/flips at CA/TX, that bounds the scale-conditional 
 ## Comparand
 Same as the 4-state result: G reg/cat vs the (c) STL ceilings (reg next_stan_flow α=0; cat next_gru
 logit-adjust τ=0.5) + the (d) composite. Paper-grade = multi-seed {0,1,7,100}; large states earlier
-shipped at n=20 (§0.1). Trail: `docs/studies/mtl_improvement/{CHAMPION.md, HANDOFF.md, log.md, INDEX.html #T2V-9}`.
+shipped at n=20 (§0.1). Trail: `docs/studies/archive/mtl_improvement/{CHAMPION.md, HANDOFF.md, log.md, INDEX.html #T2V-9}`.

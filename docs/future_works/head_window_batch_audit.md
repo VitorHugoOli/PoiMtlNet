@@ -2,8 +2,8 @@
 
 **Date drafted:** 2026-05-20
 **Updated:** 2026-05-28 — partial status update:
-- **§A head re-design:** absorbed into [`docs/studies/mtl_improvement/`](../studies/mtl_improvement/) T7 (head re-ablation under the new backbone). Co-designed with arch.
-- **§B window/mask audit:** moved to [`docs/studies/substrate-protocol-cleanup/`](../studies/substrate-protocol-cleanup/) Tier D as a cheap no-GPU pilot. ~1 day calendar.
+- **§A head re-design:** absorbed into [`docs/studies/archive/mtl_improvement/`](../studies/archive/mtl_improvement/) T7 (head re-ablation under the new backbone). Co-designed with arch.
+- **§B window/mask audit:** moved to [`docs/studies/archive/substrate-protocol-cleanup/`](../studies/archive/substrate-protocol-cleanup/) Tier D as a cheap no-GPU pilot. ~1 day calendar.
 - **§C batch class-balance:** **PARTIALLY FALSIFIED** by `mtl-protocol-fix` Phase 3 Rank 2. The `WeightedRandomSampler` variant regresses disjoint reg by **−18 to −30 pp at AL/AZ** (Wilcoxon p=1.0000 in both states; FL skipped). See [`docs/results/mtl_protocol_fix/phase3_rank2_findings.md`](../results/mtl_protocol_fix/phase3_rank2_findings.md). The focal-loss-only variant of §C remains untested, but the sampler form is closed.
 
 **Source:** [`docs/studies/mtl-exploration/considerations.md`](../studies/mtl-exploration/considerations.md) (user bullets on heads, window/mask, batch balance)

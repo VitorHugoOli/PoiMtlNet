@@ -17,7 +17,7 @@
 
 **Mandatory metric discipline — every C06/C07/C08/C10 comparison in this phase
 must report BOTH `joint@J` and `joint@T`.** See claim C32 and
-`docs/studies/fusion/issues/P1_METHODOLOGY_FLAWS.md` F1.
+`docs/studies/archive/fusion/issues/P1_METHODOLOGY_FLAWS.md` F1.
 
 - `joint@J` = harmonic mean at the **joint-peak** checkpoint (deployment view).
 - `joint@T` = harmonic mean computed from **per-task-best** epochs

@@ -584,8 +584,8 @@ These test the classic Caruana (1997) / Ruder (2017) / Crawshaw (2020) MTL mecha
 > Appended via append-only discipline — existing C01–C28 untouched.
 > These claims arose from the in-study HGI leakage audit; they refine
 > evaluation methodology rather than propose new model mechanisms.
-> Companion docs: `docs/studies/fusion/issues/HGI_LEAKAGE_AUDIT.md` (technical),
-> `docs/studies/fusion/issues/HGI_LEAKAGE_EXPLAINED.md` (glossary),
+> Companion docs: `docs/studies/archive/fusion/issues/HGI_LEAKAGE_AUDIT.md` (technical),
+> `docs/studies/archive/fusion/issues/HGI_LEAKAGE_EXPLAINED.md` (glossary),
 > `docs/studies/results/P0/leakage_ablation/`.
 
 ### C29 — Category F1 on OSM-Gowalla data primarily measures fclass-identity preservation, not learned representation quality
@@ -657,7 +657,7 @@ with the P1c champion config.
 StratifiedKFold, LogisticRegression C=1.0) on the **raw fusion category input**
 (11,848 POIs × 128-dim, preset `space_hgi_time`: [Sphere2Vec(64), HGI(64)]).
 Script: `/tmp/linear_probe_fusion.py`. Output:
-`docs/studies/fusion/results/P1/linear_probe_fusion_AL.json`.
+`docs/studies/archive/fusion/results/P1/linear_probe_fusion_AL.json`.
 **Phase:** Blocking-issue for P1→P2 transition. Primary test still scheduled;
 proxy is strong evidence.
 **Status:** `partial` — proxy strongly supports the claim; full arm-C retrain
@@ -735,7 +735,7 @@ per-task-best selection is not rank-correlated (ρ < 0.5). The "AL winner"
 
 **Source:** In-study discovery, 2026-04-17, analyzing
 `diagnostic_task_best` logs from P1c.
-**Test:** Completed already. See `docs/studies/fusion/results/P1/SUMMARY.md`
+**Test:** Completed already. See `docs/studies/archive/fusion/results/P1/SUMMARY.md`
 §Per-task-best reanalysis and `issues/P1_METHODOLOGY_FLAWS.md` F1 for the table.
 **Phase:** P1 (discovered), but applies to every MTL phase going forward.
 **Status:** `confirmed` on AL P1c data; also demonstrated on AZ P1c (smaller

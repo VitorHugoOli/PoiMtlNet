@@ -1,6 +1,6 @@
 # Canonical Versions Registry
 
-> ⛔ **2026-06-05 — UNDOCUMENTED RECIPE DEFAULT flagged (CONCERNS C25): `default_mtl use_class_weights=True`.** Every canonical MTL run (v11–v14) trained the reg head on **class-weighted CE** (`src/configs/experiment.py:364` → `mtl_cv.py:1283-1291`), while the STL reg ceiling (`default_next`) is **unweighted**. Class-balancing optimizes macro accuracy *away from* the reported Acc@10 metric → MTL reg is depressed ~10-14pp (verified: `--no-class-weights` recovers MTL reg to ≥ the STL ceiling). This was NEVER recorded as part of any version recipe. **CODE FIX LANDED 2026-06-05** (commit on `mtl-improve`): per-task class-weighting — `default_mtl` now sets **BOTH heads' CE UNWEIGHTED** (`use_class_weights_{reg,cat}=False`). reg-unweighted matches the Acc@10 metric + the STL ceiling; cat-unweighted was EMPIRICALLY validated (+5.1pp cat macro-F1 at AL — the "balancing helps macro-F1" assumption was tested and FALSE). **Reproduction:** to recover the pre-C25 (both-weighted) behaviour for v11–v14 numbers, pass **`--reg-class-weights --cat-class-weights`** (or `--use-class-weights`). **The absolute §0.1 MTL-reg numbers are UNDER RE-VALIDATION** (AL/GE/FL re-baseline under the fixed recipe in flight); a new pinned version will follow once it lands. Until then, treat absolute MTL-reg figures as provisional. See `CONCERNS.md §C25` + `docs/studies/mtl_improvement/log.md` 2026-06-05.
+> ⛔ **2026-06-05 — UNDOCUMENTED RECIPE DEFAULT flagged (CONCERNS C25): `default_mtl use_class_weights=True`.** Every canonical MTL run (v11–v14) trained the reg head on **class-weighted CE** (`src/configs/experiment.py:364` → `mtl_cv.py:1283-1291`), while the STL reg ceiling (`default_next`) is **unweighted**. Class-balancing optimizes macro accuracy *away from* the reported Acc@10 metric → MTL reg is depressed ~10-14pp (verified: `--no-class-weights` recovers MTL reg to ≥ the STL ceiling). This was NEVER recorded as part of any version recipe. **CODE FIX LANDED 2026-06-05** (commit on `mtl-improve`): per-task class-weighting — `default_mtl` now sets **BOTH heads' CE UNWEIGHTED** (`use_class_weights_{reg,cat}=False`). reg-unweighted matches the Acc@10 metric + the STL ceiling; cat-unweighted was EMPIRICALLY validated (+5.1pp cat macro-F1 at AL — the "balancing helps macro-F1" assumption was tested and FALSE). **Reproduction:** to recover the pre-C25 (both-weighted) behaviour for v11–v14 numbers, pass **`--reg-class-weights --cat-class-weights`** (or `--use-class-weights`). **The absolute §0.1 MTL-reg numbers are UNDER RE-VALIDATION** (AL/GE/FL re-baseline under the fixed recipe in flight); a new pinned version will follow once it lands. Until then, treat absolute MTL-reg figures as provisional. See `CONCERNS.md §C25` + `docs/studies/archive/mtl_improvement/log.md` 2026-06-05.
 
 **Purpose:** a single source of truth for which *recipe + substrate + code-default*
 combination each named canonical version (`v11`, `v12`, …) refers to, and the
@@ -121,7 +121,7 @@ identical.
 > 0.75 weighting was only ever live at H3-alt small states (no alt-opt). Keep both flags in the
 > invocation for bit-exact reproduction, but do NOT describe B9's mechanism as "static-weighted
 > 0.75", and treat any historical `category-weight` sweep under B9 as a no-op. Full trail:
-> `docs/studies/mtl_improvement/CODE_AUDIT_2026-06-12.md`.
+> `docs/studies/archive/mtl_improvement/CODE_AUDIT_2026-06-12.md`.
 
 ### Reproduction map — getting v11 from v12-default code
 
@@ -238,7 +238,7 @@ identity is **unchanged** — the BRACIS paper (v11/v12) is unaffected.
 - **Build dependency (important):** requires the **POI2Vec teacher**
   (`output/hgi/<state>/poi2vec_poi_embeddings_<State>.csv`) + the Design-B build. Built at
   **all five states (AL / AZ / FL / CA / TX)** as of 2026-05-30 (CA/TX added — see
-  `studies/substrate-protocol-cleanup/log.md`). The canonical `check2hgi` engine remains
+  `studies/archive/substrate-protocol-cleanup/log.md`). The canonical `check2hgi` engine remains
   the safe default for any state without a v13 substrate.
 - **Reproduction safety:** v13 is additive/opt-in. v11 (paper) and v12 (default) are
   untouched; nothing about `output/check2hgi/<state>/` changes.
@@ -316,7 +316,7 @@ For STL eval: `scripts/p1_region_head_ablation.py --region-emb-source check2hgi_
 
 **What v15 IS:** v11/v12-recipe + substrate, but with the **C25 unweighting fix** — the load-bearing change that re-validated the MTL story. Both MTL heads train on **UNWEIGHTED CrossEntropyLoss** (per-task `use_class_weights_{reg,cat}=False`, now the `default_mtl` default) instead of the silent class-weighted CE that depressed reg ~10-14pp / cat ~3-5pp. Plus the **Acc@10 reg checkpoint monitor** (was Acc@1). The substrate is unchanged (v11 GCN for the paper table; v14 design_k for the forward base).
 
-**Why it exists:** the pre-v15 class-weighted reg CE was an **objective mismatch** vs the reported Acc@10 metric (CONCERNS C25). v15 is the recipe under which the MTL→STL reg gap CLOSES, the substrate gain transfers to MTL, and the composite advantage dissolves — see `studies/mtl_improvement/PAPER_UPDATE.md`.
+**Why it exists:** the pre-v15 class-weighted reg CE was an **objective mismatch** vs the reported Acc@10 metric (CONCERNS C25). v15 is the recipe under which the MTL→STL reg gap CLOSES, the substrate gain transfers to MTL, and the composite advantage dissolves — see `studies/archive/mtl_improvement/PAPER_UPDATE.md`.
 
 **Re-validated numbers (multi-seed {0,1,7,100}, unweighted real-joint, onecycle):**
 | state | MTL reg (v14) | MTL reg (canon v11-GCN) | STL ceiling | MTL cat (v14) | STL cat ceiling |
@@ -338,7 +338,7 @@ For STL eval: `scripts/p1_region_head_ablation.py --region-emb-source check2hgi_
 
 **What v16 IS:** v15 (unweighted) recipe + the **champion ARCHITECTURE "G"** found by `mtl_improvement`: the reg-private **dual-tower** with **`aux` fusion** and the **α·log_T prior OFF**. The first config where a SINGLE MTL model **MATCHES the STL reg ceiling (Pareto-non-inferior) AND substantially beats the STL cat ceiling (+3pp)**, at all 4 available states, 4-seed. ⚠ **REG verb CORRECTED 2026-06-07 (B-A2):** earlier "beats reg ceiling" compared G's *indist* Acc@10 to the (c) ceiling's *full* `top10_acc`; on a matched metric G is ~0.35pp BELOW (FL 72.93 vs 73.31) → "matches", not "beats". Cat beat exact. ⚠ **G′ (cat-private, FL-ONLY — DEMOTED 2026-06-07):** giving the CAT head a private tower too (both-private dual-tower, `mtlnet_crossattn_dualtower_catpriv`) gained cat at FL only (74.77, +1.61); the multi-state confirm (AL/AZ/GE × 4 seeds) **FALSIFIED** it — cat CRATERS at small states (AL 37.66 = −15.25 vs G, AZ −12.45, GE −3.59; reg flat). The cat-private tower **UNDERFITS** small-state cat (NOT overfit — the off-label STAN-flow head is over-regularized: AL train-F1 caps ~0.45 vs the GRU head's 0.98; a rescue screen of lower dropout / softer LR / smaller tower **CLOSED 2026-06-07 with NO rescue** — best AL lever still −14.5pp vs G, and the FL gain survives ONLY at the original `priv_dropout=0.3` (lowering it erases the gain, 74.74→73.17); the STAN flow/attention head is architecturally mismatched for a 7-class target at small data) → G′ is a **CLOSED FL-only experimental dead-end**, **NOT a champion**; **G (cat-SHARED) remains the multi-state champion**. See CHAMPION.md / INDEX `#T2V-5`.
 
-**Config (full rationale + runnable command: [`../studies/mtl_improvement/CHAMPION.md`](../studies/mtl_improvement/CHAMPION.md)):**
+**Config (full rationale + runnable command: [`../studies/archive/mtl_improvement/CHAMPION.md`](../studies/archive/mtl_improvement/CHAMPION.md)):**
 `--model mtlnet_crossattn_dualtower --reg-head next_stan_flow_dualtower --reg-head-param raw_embed_dim=64 --reg-head-param fusion_mode=aux --reg-head-param freeze_alpha=True --reg-head-param alpha_init=0.0 --cat-head next_gru --mtl-loss static_weight --category-weight 0.75 --scheduler onecycle --max-lr 3e-3 --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3 --log-t-kd-weight 0.0` on the **v14 substrate** (`check2hgi_design_k_resln_mae_l0_1`), unweighted (v15 default).
 
 **Numbers — 4-seed {0,1,7,100}, vs (c) STL ceilings (reg / cat):**
@@ -353,9 +353,9 @@ FL also ties the (d) composite reg (73.62) while winning cat → composite stric
 
 **Status / scope:** v16 is a **study champion, NOT the paper §0 canon** (paper still v11). It is **opt-in** (explicit `--model`/`--reg-head` flags; the code default model is still canon cross-attn). The mechanism (aux fusion + prior-OFF) is decisive — `gated` fusion or re-enabling the additive prior REGRESSES it (CHAMPION.md §5). Architecture capacity is NOT the lever (falsified 5 ways). CA/TX need a v14 build first. **Reproduce:** the command above + seeded fresh per-fold log_T at `--per-fold-transition-dir output/check2hgi_design_k_resln_mae_l0_1/<state>`.
 
-**VALIDATED 2026-06-07 (Tier 2V — `studies/mtl_improvement/CRITIQUE_TIER2_C25_2026-06-06.md` §7 + `INDEX.html #tier2v`):** v16 survived a skeptical re-test. The (c)/(d) ceilings were re-run at G's seeds {0,1,7,100} (they were seed-42 only) — stable (σ≤0.7), G still beats both at 4/4 states. Alt-archs re-ranked FAIRLY (standalone, post-C25, per-arch `category-weight`) all lose by 1.6–2.1pp → the "architecture-capacity is not the reg lever" claim is un-confounded. No tail regression; no hypertuning lever beats G (logit-adjust HURTS the MTL cat — plain CE is the MTL cat optimum; private STAN right-sized; FAMO ≈ G). Param-honest: G = base_a +4.9% (one model, not "½ of two"). The v16 champion is **paper-safe**.
+**VALIDATED 2026-06-07 (Tier 2V — `studies/archive/mtl_improvement/CRITIQUE_TIER2_C25_2026-06-06.md` §7 + `INDEX.html #tier2v`):** v16 survived a skeptical re-test. The (c)/(d) ceilings were re-run at G's seeds {0,1,7,100} (they were seed-42 only) — stable (σ≤0.7), G still beats both at 4/4 states. Alt-archs re-ranked FAIRLY (standalone, post-C25, per-arch `category-weight`) all lose by 1.6–2.1pp → the "architecture-capacity is not the reg lever" claim is un-confounded. No tail regression; no hypertuning lever beats G (logit-adjust HURTS the MTL cat — plain CE is the MTL cat optimum; private STAN right-sized; FAMO ≈ G). Param-honest: G = base_a +4.9% (one model, not "½ of two"). The v16 champion is **paper-safe**.
 
-**v16 RE-CONFIRMED 2026-06-08 (Tiers 3/4/5 close — no recipe change):** the loss/optimization axis was exhausted with no Pareto gain over v16's `static_weight cw=0.75` (full balancer registry + a new gated `--loss-scale-norm` flag both FALSIFIED; gradient cosine(cat,reg)≈0 = no conflict for balancers to resolve). Reg-input levers (overlap, HGI routing) and the HSM reg head also gave no gain. **v16 recipe is unchanged + further hardened.** Note: `--loss-scale-norm` (new CLI flag, `loss_scale_norm` config field) is **experimental, default OFF, and FALSIFIED** (starves the high-cardinality reg head) — it is NOT part of any canon version; do not enable. See `results/mtl_improvement/T4_audit_and_verdict.md` + `studies/mtl_improvement/WHY_ORTHOGONAL_AND_NO_MODERN_OPTIMIZERS.md`.
+**v16 RE-CONFIRMED 2026-06-08 (Tiers 3/4/5 close — no recipe change):** the loss/optimization axis was exhausted with no Pareto gain over v16's `static_weight cw=0.75` (full balancer registry + a new gated `--loss-scale-norm` flag both FALSIFIED; gradient cosine(cat,reg)≈0 = no conflict for balancers to resolve). Reg-input levers (overlap, HGI routing) and the HSM reg head also gave no gain. **v16 recipe is unchanged + further hardened.** Note: `--loss-scale-norm` (new CLI flag, `loss_scale_norm` config field) is **experimental, default OFF, and FALSIFIED** (starves the high-cardinality reg head) — it is NOT part of any canon version; do not enable. See `results/mtl_improvement/T4_audit_and_verdict.md` + `studies/archive/mtl_improvement/WHY_ORTHOGONAL_AND_NO_MODERN_OPTIMIZERS.md`.
 
 ---
 
@@ -379,7 +379,7 @@ FL also ties the (d) composite reg (73.62) while winning cat → composite stric
 **spatial axis** v13 lacked → cat 67.36 (≫ HGI) + reg 0.7024 (closes ~69 % of HGI gap).
 **STL-only (no MTL benefit, regime-limited); strongest forward base for Part-2.** Engine identity
 unchanged → v11/v12/v13 untouched. Build default = resln+mae (opt out: `--encoder gcn --mae-poi-lambda 0`).
-Reg ranking requires seeded `--per-fold-transition-dir`. See the v14 section above + `studies/embedding_eval/FINAL_SYNTHESIS.md`.
+Reg ranking requires seeded `--per-fold-transition-dir`. See the v14 section above + `studies/archive/embedding_eval/FINAL_SYNTHESIS.md`.
 
 ---
 
@@ -387,6 +387,6 @@ Reg ranking requires seeded `--per-fold-transition-dir`. See the v14 section abo
 
 - [`../NORTH_STAR.md`](../NORTH_STAR.md) — champion recipe + the regime finding.
 - [`RESULTS_TABLE.md §0.1`](RESULTS_TABLE.md) (v11 canon) + §0.8 (log_T-KD v12 lift).
-- [`../studies/substrate-protocol-cleanup/CLOSURE.md`](../studies/substrate-protocol-cleanup/CLOSURE.md) — the study that validated v12.
+- [`../studies/archive/substrate-protocol-cleanup/CLOSURE.md`](../studies/archive/substrate-protocol-cleanup/CLOSURE.md) — the study that validated v12.
 - [`../findings/F_TIER_A1_PROMOTION.md`](../findings/F_TIER_A1_PROMOTION.md) + [`../findings/F_TIER_A1_LEAK_AUDIT.md`](../findings/F_TIER_A1_LEAK_AUDIT.md) — log_T-KD promotion + leak audit.
 - [`../findings/F_SUBSTRATE_PROTOCOL_CLEANUP_SYNTHESIS.md`](../findings/F_SUBSTRATE_PROTOCOL_CLEANUP_SYNTHESIS.md) — one-stop investigation synthesis.

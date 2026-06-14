@@ -12,7 +12,7 @@
 **Status: ~~URGENT~~ (selector RESOLVED 2026-06-03; loss-balancing still open) — the production B9 joint selector is structurally broken on the canonical shipping substrate itself.** Not vague future work — matched-protocol analysis (2026-05-19) demonstrated that the canonical Check2HGI shipping recipe loses ~10.7 pp of reg-top10 capacity to the production selector at FL, with no substrate change involved. Every Check2HGI MTL number in the published canon (`RESULTS_TABLE.md §0`) is reported at this destabilised joint-best epoch. The next study under `mtl-exploration` should pick this up as its primary track.
 
 **Date:** 2026-05-19 (created); rewritten same day with matched-protocol findings after the initial substrate-focused interpretation was falsified.
-**Source study:** [`docs/studies/canonical_improvement/`](../canonical_improvement/) — Tier 6 / T6.4 closure log entry (2026-05-19 CORRECTION).
+**Source study:** [`docs/studies/archive/canonical_improvement/`](../archive/canonical_improvement/) — Tier 6 / T6.4 closure log entry (2026-05-19 CORRECTION).
 **Trigger:** T6.4 substrate hypothesis was falsified at matched protocol (Δ_reg = +0.08-0.17 pp over shipping, within σ). The dual-selector analysis intended to characterise T6.4's substrate effect instead exposed a load-bearing selector bug in the **shipping recipe**.
 
 ---
@@ -142,11 +142,11 @@ This memo and the mtl-exploration follow-on study are responsible for the F1/F2/
 - **Joint-score implementation** (the bug site): `src/training/runners/mtl_cv.py:679` — `joint_score = 0.5 * (f1_val_task_b + f1_val_task_a)`.
 - **Geometric-lift alternative** (already coded but unused as the primary selector): `src/training/runners/mtl_cv.py:710` — `joint_geom_lift = sqrt(task_b_lift * task_a_lift)`.
 - **Dual-selector analysis tool**: `scripts/canonical_improvement/analyze_t64_selectors.py` — zero retraining; any new selector can be re-evaluated against existing per-fold val CSVs.
-- **Closure-of-Tier-6 log entry** (the CORRECTION supersedes the earlier same-day entries): `docs/studies/canonical_improvement/log.md` (2026-05-19 entry titled "CORRECTION (supersedes the earlier 2026-05-19 entries above): T6.4 FALSIFIED at matched protocol; shipping selector is the actual bug").
+- **Closure-of-Tier-6 log entry** (the CORRECTION supersedes the earlier same-day entries): `docs/studies/archive/canonical_improvement/log.md` (2026-05-19 entry titled "CORRECTION (supersedes the earlier 2026-05-19 entries above): T6.4 FALSIFIED at matched protocol; shipping selector is the actual bug").
 - **Project-wide doc cross-references** (all updated 2026-05-19 with the matched-protocol framing):
   - `docs/CONCERNS.md` C21 — open concern (selector-bug-on-shipping).
   - `docs/CLAIMS_AND_HYPOTHESES.md` CH23-A (T6.4 falsified), CH23-B (selector bug as paper §Discussion-only).
   - `docs/AGENT_CONTEXT.md` — mandatory blocker callout for future agents.
   - `docs/NORTH_STAR.md` — selector-limitation flag above the B9 champion config.
   - `docs/CHANGELOG.md` — 2026-05-19 timeline entry.
-  - `docs/studies/canonical_improvement/INDEX.html` — T6.4 Results section (FALSIFIED verdict).
+  - `docs/studies/archive/canonical_improvement/INDEX.html` — T6.4 Results section (FALSIFIED verdict).

@@ -6,7 +6,7 @@ Snapshot written at session close. This file is **transient**; trust `state.json
 
 ## ⚠️ Read first
 
-`docs/studies/fusion/issues/P1_METHODOLOGY_FLAWS.md` catalogs 10 flaws identified in the post-P1 critical review. The two high-severity items (F1 joint-peak checkpoint bias; F2 single-seed) **must be resolved or explicitly acknowledged before P2 runs** — P2's #1 paper claim (C06 MTL vs single-task) rides on the champion we freeze from P1.
+`docs/studies/archive/fusion/issues/P1_METHODOLOGY_FLAWS.md` catalogs 10 flaws identified in the post-P1 critical review. The two high-severity items (F1 joint-peak checkpoint bias; F2 single-seed) **must be resolved or explicitly acknowledged before P2 runs** — P2's #1 paper claim (C06 MTL vs single-task) rides on the champion we freeze from P1.
 
 ---
 
@@ -37,7 +37,7 @@ Snapshot written at session close. This file is **transient**; trust `state.json
 - **AZ "winner" at joint@J:** `cgc21 × uncertainty_weighting` = **0.4374**.
 - **AZ at joint@T:** `cgc21 × dwa` = **0.4416**. Top-4 cgc21 within 0.0024.
 - **C02 refuted under joint@T.** AL grad−eq = −0.0009; AZ grad−static = −0.0010.
-- Full tables + per-task-best reanalysis: `docs/studies/fusion/results/P1/SUMMARY.md`.
+- Full tables + per-task-best reanalysis: `docs/studies/archive/fusion/results/P1/SUMMARY.md`.
 
 ### Claim updates from P1
 
@@ -119,7 +119,7 @@ P1 has been closed via `/study advance`. Before any P2 work:
 ```
 # 1. Commit the P1 body of work
 git status
-git add docs/studies/fusion/ src/losses/gradnorm/loss.py tests/test_losses/test_gradnorm.py pipelines/train/next_head.pipe.py
+git add docs/studies/archive/fusion/ src/losses/gradnorm/loss.py tests/test_losses/test_gradnorm.py pipelines/train/next_head.pipe.py
 git commit -m "study(P1): complete 3-stage grid + critical review + flaw tracker"
 
 # 2. Run the fclass-on-fusion check (C31)

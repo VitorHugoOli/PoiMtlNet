@@ -27,7 +27,7 @@ Successful end-to-end execution of the planned reorg + merge. Main now reflects 
 | `docs/studies/check2hgi/{baselines,paper,scope,review,launch_plans}/` | `docs/<name>/` | Promoted alongside the rest |
 | `docs/studies/check2hgi/issues/` | `docs/issues/check2hgi/` | Nested to avoid clash with 7 existing generic issues |
 | `docs/studies/check2hgi/archive/<subdir>/` (7 dirs) | `docs/archive/check2hgi-<subdir>/` | Each pre-existing archive subdir promoted as sibling |
-| `docs/studies/fusion/` | `docs/archive/fusion-study/` | Predecessor study archived (with closure note) |
+| `docs/studies/archive/fusion/` | `docs/archive/fusion-study/` | Predecessor study archived (with closure note) |
 | `docs/RUNPOD_GUIDE.md` | `docs/infra/runpod/README.md` | Ops doc consolidation |
 | `docs/COLAB_GUIDE.md` | `docs/infra/colab/README.md` | Ops doc consolidation |
 | `scripts/H100_FLCATX_PERVISIT_PROMPT.md` | `docs/infra/h100/README.md` | Ops doc consolidation (rewritten as proper env doc + closed appendix) |
@@ -40,7 +40,7 @@ Successful end-to-end execution of the planned reorg + merge. Main now reflects 
 - **`docs/studies/README.md`** — active studies index with semantics (`studies/` vs `findings/` vs `archive/`).
 - **`docs/findings/README.md`** — F-trail index with `findings/` vs `results/` boundary rule + topic index.
 - **`docs/infra/README.md`** + 6 per-env subdir READMEs (`local/`, `runpod/`, `colab/`, `lightning/`, `h100/`, `data/`) + 4 supporting docs (`runpod/scripts.md`, `colab/notebooks.md`, `colab/study_runner.md`, `data/drive_download.md`).
-- **`docs/studies/hgi_category_injection/STATUS.md`** — explicit CLOSED banner (AZ falsified 2026-05-04) so future agents don't treat the study as active.
+- **`docs/studies/archive/hgi_category_injection/STATUS.md`** — explicit CLOSED banner (AZ falsified 2026-05-04) so future agents don't treat the study as active.
 - **`docs/archive/fusion-study/ARCHIVE_NOTE.md`** — fusion study closure note: status, what survives, why archived, how to reach back into the work.
 - **Closure banner in `docs/archive/fusion-study/README.md`** — preserves original entry-point text below.
 - **Breadcrumbs at old paths**: 1-line stubs at `docs/RUNPOD_GUIDE.md`, `docs/COLAB_GUIDE.md`, `scripts/H100_FLCATX_PERVISIT_PROMPT.md` so external links keep working.
@@ -151,7 +151,7 @@ Updated path references in:
 - `experiments/check2hgi_up/` (6 files)
 - `research/baselines/` (7 files)
 - `docs/baselines/POI_RGNN_AUDIT.md`, `docs/CHANGELOG.md`, `docs/AGENT_CONTEXT.md`, `docs/infra/runpod/README.md`
-- `docs/studies/canonical_improvement/AGENT_PROMPT.md` (10 path refs + branching point: `check2hgi-up` → `main`)
+- `docs/studies/archive/canonical_improvement/AGENT_PROMPT.md` (10 path refs + branching point: `check2hgi-up` → `main`)
 - `scripts/run_f27_cathead_sweep.sh`
 - `.claude/commands/{study, coordinator}.md`
 - `scripts/study/*.py` (4 files: `enroll_p1.py`, `archive_result.py`, `_state.py`, `_backfill_joint_taskbest.py`)
@@ -169,7 +169,7 @@ Dated `review/`, `scope/`, and archive memos retain old paths intentionally — 
 - ✅ Pre-flight ref-sweep grep complete (catalog persisted)
 - ✅ Each reorg step committed separately (5 commits on worktree branch + 1 merge commit on main = bisectable)
 - ✅ pytest sanity: 166 tests pass on `tests/test_regression/ tests/test_data/ tests/test_models/test_mtlnet.py`
-- ✅ All sanity-checked navigation paths resolve (docs/README.md, docs/AGENT_CONTEXT.md, docs/NORTH_STAR.md, docs/CHANGELOG.md, docs/CLAIMS_AND_HYPOTHESES.md, docs/results/RESULTS_TABLE.md, docs/findings/README.md, docs/studies/README.md, docs/infra/README.md, docs/archive/fusion-study/ARCHIVE_NOTE.md, docs/studies/hgi_category_injection/STATUS.md, docs/studies/canonical_improvement/AGENT_PROMPT.md)
+- ✅ All sanity-checked navigation paths resolve (docs/README.md, docs/AGENT_CONTEXT.md, docs/NORTH_STAR.md, docs/CHANGELOG.md, docs/CLAIMS_AND_HYPOTHESES.md, docs/results/RESULTS_TABLE.md, docs/findings/README.md, docs/studies/README.md, docs/infra/README.md, docs/archive/fusion-study/ARCHIVE_NOTE.md, docs/studies/archive/hgi_category_injection/STATUS.md, docs/studies/archive/canonical_improvement/AGENT_PROMPT.md)
 - ✅ AGENT_PROMPT.md branching instruction now reads `from main` (was `from check2hgi-up`)
 - ✅ Final branch state: `main`, `worktree-check2hgi-mtl`, `bracis` — local + remote each
 - ✅ All deleted branches preserved as `archived/<name>` tags (pushed to origin)

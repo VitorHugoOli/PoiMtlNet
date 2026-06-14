@@ -2,7 +2,7 @@
 
 **Date:** 2026-05-21
 **Source:** Existing numbers from `docs/results/RESULTS_TABLE.md §0.3` (STL HGI reg) + `§0.6` (STL c2hgi cat) + `phase1_phase2_verdict_v6_final.md` (MTL shipping under F1 selector). **NO new training** — this is a pure deployable-recipe synthesis.
-**Maps to:** [`DEFERRED_WORK.md`](../../studies/mtl-protocol-fix/DEFERRED_WORK.md) §4.2 (HGI reg-head + c2hgi cat-head COMPOSITE).
+**Maps to:** [`DEFERRED_WORK.md`](../../studies/archive/mtl-protocol-fix/DEFERRED_WORK.md) §4.2 (HGI reg-head + c2hgi cat-head COMPOSITE).
 **Lands in (memo):** [`composite_two_substrate_engine.md`](../../future_works/composite_two_substrate_engine.md) (NEW, drafted concurrently).
 
 ---
@@ -61,8 +61,8 @@ Lever 6 failed to close the gap to HGI on reg (LEVER_6_FINDINGS.md). The composi
 - **Promotion:** Defer to next-tier paper revision. Triggers no immediate code change; the recipe is a deploy-side selection, not an MTL-architecture change.
 - **Cross-references:**
   - [`docs/future_works/composite_two_substrate_engine.md`](../../future_works/composite_two_substrate_engine.md) — NEW memo (drafted 2026-05-21 alongside this analysis)
-  - [`docs/studies/mtl-protocol-fix/DEFERRED_WORK.md`](../../studies/mtl-protocol-fix/DEFERRED_WORK.md) §4.2
-  - [`docs/studies/mtl-protocol-fix/PRIORITY_IMPACT.md`](../../studies/mtl-protocol-fix/PRIORITY_IMPACT.md) Rank 4
+  - [`docs/studies/archive/mtl-protocol-fix/DEFERRED_WORK.md`](../../studies/archive/mtl-protocol-fix/DEFERRED_WORK.md) §4.2
+  - [`docs/studies/archive/mtl-protocol-fix/PRIORITY_IMPACT.md`](../../studies/archive/mtl-protocol-fix/PRIORITY_IMPACT.md) Rank 4
 
 ## Raw numbers cited
 

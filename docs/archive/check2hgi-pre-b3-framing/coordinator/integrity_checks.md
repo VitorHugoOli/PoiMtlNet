@@ -1,6 +1,6 @@
 # Integrity Checks — Check2HGI Study
 
-Preflight + postflight checks specific to this study. The general framework (what preflight / postflight means, when checks run, how failures pause the coordinator) is inherited from `docs/studies/fusion/coordinator/integrity_checks.md`.
+Preflight + postflight checks specific to this study. The general framework (what preflight / postflight means, when checks run, how failures pause the coordinator) is inherited from `docs/studies/archive/fusion/coordinator/integrity_checks.md`.
 
 ---
 

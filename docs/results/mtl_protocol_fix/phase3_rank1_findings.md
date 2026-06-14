@@ -115,4 +115,4 @@ W=0.2 is the highest-lift, no-regression setting at every state in scope. **Reco
 - Per-state summaries: `docs/results/mtl_protocol_fix/phase3_rank1_log_t_kd/{alabama,arizona,florida}/{state}_summary.{md,json}`
 - Future-work memo (where this sub-track was absorbed): [`docs/future_works/reg_head_architecture_sweep.md`](../../future_works/reg_head_architecture_sweep.md) §"log_T as supervisory signal".
 - Phase 3 Rank 4 composite: [`phase3_rank4_composite_analysis.md`](phase3_rank4_composite_analysis.md).
-- Bug + fix during execution (CUDA OOB on AZ): [`../../studies/mtl-protocol-fix/log.md`](../../studies/mtl-protocol-fix/log.md) 2026-05-21 entry.
+- Bug + fix during execution (CUDA OOB on AZ): [`../../studies/archive/mtl-protocol-fix/log.md`](../../studies/archive/mtl-protocol-fix/log.md) 2026-05-21 entry.

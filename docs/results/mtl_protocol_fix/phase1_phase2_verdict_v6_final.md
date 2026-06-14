@@ -35,7 +35,7 @@ SEED=42 python scripts/canonical_improvement/regen_emb_t3.py \
     --weight-decay 5e-2 --epoch 500
 ```
 
-(Defaults: scheduler=step, warmup_pct=0, eta_min_ratio=0.01, num_layers=2, dropout=0 — bit-matches documented shipping contract per `docs/studies/canonical_improvement/log.md` 2026-05-18 SHIPPING FINAL lock.)
+(Defaults: scheduler=step, warmup_pct=0, eta_min_ratio=0.01, num_layers=2, dropout=0 — bit-matches documented shipping contract per `docs/studies/archive/canonical_improvement/log.md` 2026-05-18 SHIPPING FINAL lock.)
 
 ## Final 5-state three-frontier table
 

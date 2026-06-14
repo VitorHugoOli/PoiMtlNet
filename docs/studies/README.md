@@ -2,27 +2,51 @@
 
 This folder hosts ongoing research tracks layered on top of the primary check2hgi study (`docs/` root). Each subdir is a self-contained study with its own briefing, design, log, and findings.
 
-## Active studies
+## ⭐ Pre-freeze program (2026-06-14) — the study family launching the bases for `closing_data/`
+
+Orchestrator + dependency DAG + machine map: **[`PRE_FREEZE_PROGRAM.md`](PRE_FREEZE_PROGRAM.md)**. Hierarchy: exploration/inventory (Level 0) → pre-freeze gates (Level 1) → `closing_data` FREEZE (Level 2) → base regeneration (Level 3) → external validation (Level 4). The three studies below are the upstream tracks; they feed `closing_data` G0.2 and must resolve before its freeze.
+
+| Study | Status | Machine | Read first |
+|---|---|---|---|
+| [`mtl_frontier/`](mtl_frontier/) | **SCAFFOLDED 2026-06-14** — MTL exploration frontier (R1 log_C co-location prior, R2 STEM-AFTB gating, R3 cross-task distillation); a ≥0.3 pp lever → v17 gate. Runs FIRST. | A40 | [`mtl_frontier/AGENT_PROMPT.md`](mtl_frontier/AGENT_PROMPT.md) |
+| [`pre_freeze_gates/`](pre_freeze_gates/) | **SCAFFOLDED 2026-06-14** — substrate/base gates: A2 feature-concat control, A4 transductivity bound, overlapping-windows adopt/keep (base change) | A40 | [`pre_freeze_gates/AGENT_PROMPT.md`](pre_freeze_gates/AGENT_PROMPT.md) |
+| [`second_dataset/`](second_dataset/) | **SCAFFOLDED 2026-06-14** — second corpus (Massive-STEPS NYC): ETL parallel on the Mac, validation phase = temporal-split bridge | Mac (ETL) + CUDA (validation) | [`second_dataset/AGENT_PROMPT.md`](second_dataset/AGENT_PROMPT.md) |
+| [`baseline_gap/`](baseline_gap/) | **SCAFFOLDED 2026-06-14** — net-new external baselines (B1 CTLE, B2 POI2Vec/skip-gram, B3 HMT-GRN-style MTL, B4 cascade, B5 Flashback/DeepMove); triage → RUN_MATRIX decision pre-freeze, runs fold into P3 | A40 + Mac | [`baseline_gap/AGENT_PROMPT.md`](baseline_gap/AGENT_PROMPT.md) |
+
+## Active / pending-decision studies
 
 | Study | Status | Branch (post-merge) | Read first |
 |---|---|---|---|
-| [`canonical_improvement/`](canonical_improvement/) | **CLOSED** 2026-05-19 — Tier 1-6 substrate axis exhausted at ±0.8 pp ceiling | (closed) | [`canonical_improvement/AGENT_PROMPT.md`](canonical_improvement/AGENT_PROMPT.md) |
-| [`mtl-protocol-fix/`](mtl-protocol-fix/) | **CLOSED** 2026-05-24 — F1 selector fix + P4 mechanism identification (residual is architectural) | (closed) | [`mtl-protocol-fix/AGENT_PROMPT.md`](mtl-protocol-fix/AGENT_PROMPT.md) + [`mtl-protocol-fix/DEFERRED_WORK.md`](mtl-protocol-fix/DEFERRED_WORK.md) |
-| [`mtl_improvement/`](mtl_improvement/) | **CLOSED** 2026-06-12 — the C25 class-weighting confound dissolved the "MTL sacrifices reg" gap; champion **G (= canon v16, the train.py MTL default)** matches the STL reg ceiling + beats the cat ceiling +2.6…+4.1 (4 states × 4 seeds); mechanism = gradient orthogonality; no MTL optimizer helps. CA/TX + the aligned-pairing pre-freeze gate → `closing_data/` | `mtl-improve` | [`mtl_improvement/FINAL_SYNTHESIS.md`](mtl_improvement/FINAL_SYNTHESIS.md) |
 | [`closing_data/`](closing_data/) | **SCAFFOLDED (not launched; re-scoped 2026-06-12)** — the experimental engine for the NEW paper: cross-study re-eval + BRACIS-suite inventory (RUN_MATRIX) → pre-freeze gates → recipe+substrate FREEZE → full base regeneration ONCE (STL baselines re-run + champion + suite cells, ALL states × 4 seeds × 5 folds) → hand-off to the story effort. Launch pending user sign-off on the plan | (TBD) | [`closing_data/HANDOFF.md`](closing_data/HANDOFF.md) → [`closing_data/AGENT_PROMPT.md`](closing_data/AGENT_PROMPT.md) + [`closing_data/PLAN.md`](closing_data/PLAN.md) |
-| [`substrate-protocol-cleanup/`](substrate-protocol-cleanup/) | **CLOSED** 2026-05-29 — log_T-KD PROMOTED (now **v12 default**); substrate axis NULL in MTL at AL/AZ/FL (regime-limited, even HGI ≈ canonical in MTL); ResLN encoder = STL-best (v12 default). v11→v12 default flip + v13 base: [`results/CANONICAL_VERSIONS.md`](../results/CANONICAL_VERSIONS.md) | `main` | [`substrate-protocol-cleanup/CLOSURE.md`](substrate-protocol-cleanup/CLOSURE.md) |
 | [`merge_design/`](merge_design/) | **ACTIVE-CLOSING** — Designs A-M and Levers 1-6 mostly falsified or saturated; Phase 11 plan in flight | (no dedicated branch) | [`merge_design/STATE.md`](merge_design/STATE.md) |
-| [`hgi_category_injection/`](hgi_category_injection/) | **CLOSED** (AZ falsified 2026-05-04) — kept here pending decision to revisit on FL/CA/TX. **Do NOT treat as active without an explicit re-open commit.** | (no dedicated branch) | [`hgi_category_injection/INDEX.md`](hgi_category_injection/INDEX.md) + [`hgi_category_injection/STATUS.md`](hgi_category_injection/STATUS.md) |
+| [`mtl-exploration/`](mtl-exploration/) | older exploration track (no-encoders / HGI-substrate / leak-blast audits); kept for reference | (no dedicated branch) | [`mtl-exploration/README.md`](mtl-exploration/README.md) |
 
-## Folder semantics — `studies/` vs `findings/` vs `archive/`
+> The four upstream pre-freeze studies (`mtl_frontier`, `pre_freeze_gates`, `second_dataset`, `baseline_gap`) are listed in the ⭐ Pre-freeze program table above.
 
-> **`studies/`** = active or pending-decision research tracks (still being worked on, or recently closed but kept here pending re-open).
-> **`findings/`** = closed per-experiment findings supporting the BRACIS paper (read-only history).
-> **`archive/`** = fully closed studies and snapshots, unlikely to be re-opened.
+## Archived studies — [`archive/`](archive/)
+
+Fully-closed studies, moved out of the active set 2026-06-14 (see [`archive/README.md`](archive/README.md)). Their findings remain authoritative and are heavily cross-referenced; archiving is an organizational move, not a deprecation.
+
+| Study | Closed | One-line outcome |
+|---|---|---|
+| [`archive/mtl_improvement/`](archive/mtl_improvement/) | 2026-06-12 | C25 confound dissolved the "MTL sacrifices reg" gap; champion **G (= canon v16)** matches the STL reg ceiling + beats cat +2.6…+4.1 (4 states × 4 seeds); gradient-orthogonal regime; no optimizer helps. Read [`FINAL_SYNTHESIS.md`](archive/mtl_improvement/FINAL_SYNTHESIS.md) |
+| [`archive/embedding_eval/`](archive/embedding_eval/) | 2026-06-02 | champion **v14 = `check2hgi_design_k_resln_mae_l0_1`**; design_k re-validated at FL; NO MTL benefit (regime is the wall). Read [`FINAL_SYNTHESIS.md`](archive/embedding_eval/FINAL_SYNTHESIS.md) |
+| [`archive/substrate-protocol-cleanup/`](archive/substrate-protocol-cleanup/) | 2026-05-29 | log_T-KD PROMOTED (v12 default); substrate axis NULL in MTL (regime-limited, even HGI ≈ canonical). Read [`CLOSURE.md`](archive/substrate-protocol-cleanup/CLOSURE.md) |
+| [`archive/mtl-protocol-fix/`](archive/mtl-protocol-fix/) | 2026-05-24 | F1-selector fix + P4 mechanism ID (residual gap is architectural). Read [`AGENT_PROMPT.md`](archive/mtl-protocol-fix/AGENT_PROMPT.md) |
+| [`archive/canonical_improvement/`](archive/canonical_improvement/) | 2026-05-19 | Tier 1-6 substrate axis exhausted at ±0.8 pp ceiling. Read [`AGENT_PROMPT.md`](archive/canonical_improvement/AGENT_PROMPT.md) |
+| [`archive/hgi_category_injection/`](archive/hgi_category_injection/) | 2026-05-04 | AZ falsified; category injection on HGI POI2Vec inert. **Do NOT treat as active without an explicit re-open commit.** Read [`STATUS.md`](archive/hgi_category_injection/STATUS.md) |
+| [`archive/fusion/`](archive/fusion/) | — | leftover fusion `results/` snapshot (the fusion *study* proper is at [`../archive/fusion-study/`](../archive/fusion-study/)) |
+
+## Folder semantics — `studies/` vs `studies/archive/` vs `findings/` vs `docs/archive/`
+
+> **`studies/`** = active or pending-decision research tracks (still being worked on, or pending a launch/re-open decision).
+> **`studies/archive/`** = fully-closed studies layered on check2hgi, moved here to declutter the active set; findings stay authoritative and cross-referenced.
+> **`findings/`** = closed per-experiment findings supporting the paper (the F-trail; read-only history) at [`docs/findings/`](../findings/).
+> **`docs/archive/`** = repo-level archive of *non-study* material (old reorg plans, the earlier fusion-study, pre-B3 framing snapshots).
 
 ## Archive policy
 
-Studies in this folder are *active or pending decision*. When a study is fully closed and unlikely to be re-opened, `git mv` it to `docs/archive/<study>-closed-YYYY-MM-DD/`.
+When a study is fully closed and unlikely to be re-opened, `git mv docs/studies/<study>` → `docs/studies/archive/<study>/` (keep the folder name; do **not** rename with a date suffix — the cross-references rely on the name), add a row to the Archived-studies table above and a line to [`archive/README.md`](archive/README.md), and fix inbound links (`studies/<study>` → `studies/archive/<study>`).
 
 ## Where do paper-supporting findings go?
 
@@ -32,9 +56,9 @@ Closed per-experiment findings that support the BRACIS paper (the "F-trail") liv
 
 1. Create the subdir: `docs/studies/<study_name>/`.
 2. Author a study-onboarding doc at the top — `AGENT_PROMPT.md` (if agent-driven), `README.md`, or `STATE.md` (per the existing studies' conventions).
-3. Update this `README.md` with a row in the Active studies table.
+3. Update this `README.md` with a row in the Active/pending-decision studies table (or the ⭐ Pre-freeze program table if it feeds `closing_data`).
 4. If the study is large enough to warrant its own branch, branch from `main` (or the latest target branch) and document the branching point in the study's onboarding doc.
-5. Optional: add a `state.json` for run-tracking (see fusion archive's pattern).
+5. Optional: add a `state.json` for run-tracking (see [`archive/fusion-study/state.json`](../archive/fusion-study/state.json) for the pattern).
 
 ## Layered-study pattern
 

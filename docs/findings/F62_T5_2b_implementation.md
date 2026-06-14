@@ -4,7 +4,7 @@
 **Date**: 2026-05-17 (implementation); 2026-05-18 (Phase-3 close with FL multi-seed extension).
 **Branch**: `worktree-agent-a3bb7f7bb217a001f` (integrated into
 `tier5-cohort-integration` on 2026-05-17; see C20 in `docs/CONCERNS.md`).
-**Spec**: `docs/studies/canonical_improvement/INDEX.html` §T5.2b (lines ~1700-1730)
+**Spec**: `docs/studies/archive/canonical_improvement/INDEX.html` §T5.2b (lines ~1700-1730)
 **Pair**: T4.1 (falsified, AL+AZ 2026-05) — see "paired-falsification value" below
 
 > **Integration audit (2026-05-17):** T5.2b carries the **same per-POI

@@ -21,15 +21,15 @@ Phase P0 is in exit review — the coordinator has passed the gate;
 
 | File | Purpose |
 |------|---------|
-| `docs/studies/fusion/README.md` | Entry point |
-| `docs/studies/fusion/QUICK_REFERENCE.md` | One-page overview |
-| `docs/studies/fusion/MASTER_PLAN.md` | 6-phase strategy (P0 prep → P1 arch×optim → P2 heads+MTL → P3 cross-embedding → P4 hparams → P5 mechanism) |
-| `docs/studies/fusion/CLAIMS_AND_HYPOTHESES.md` | Authoritative claim catalog (C01..C30 + N01–N04) |
-| `docs/studies/fusion/COORDINATOR.md` | Orchestrator agent spec |
-| `docs/studies/fusion/phases/` | Per-phase execution plans |
-| `docs/studies/fusion/state.json` | Runtime state (current phase + test statuses) |
-| `docs/studies/fusion/KNOWLEDGE_SNAPSHOT.md` | Current project snapshot |
-| `docs/studies/fusion/HANDOFF.md` | Session handoff notes |
+| `docs/studies/archive/fusion/README.md` | Entry point |
+| `docs/studies/archive/fusion/QUICK_REFERENCE.md` | One-page overview |
+| `docs/studies/archive/fusion/MASTER_PLAN.md` | 6-phase strategy (P0 prep → P1 arch×optim → P2 heads+MTL → P3 cross-embedding → P4 hparams → P5 mechanism) |
+| `docs/studies/archive/fusion/CLAIMS_AND_HYPOTHESES.md` | Authoritative claim catalog (C01..C30 + N01–N04) |
+| `docs/studies/archive/fusion/COORDINATOR.md` | Orchestrator agent spec |
+| `docs/studies/archive/fusion/phases/` | Per-phase execution plans |
+| `docs/studies/archive/fusion/state.json` | Runtime state (current phase + test statuses) |
+| `docs/studies/archive/fusion/KNOWLEDGE_SNAPSHOT.md` | Current project snapshot |
+| `docs/studies/archive/fusion/HANDOFF.md` | Session handoff notes |
 
 Before doing any scientific work, read `QUICK_REFERENCE.md` and
 `KNOWLEDGE_SNAPSHOT.md`.

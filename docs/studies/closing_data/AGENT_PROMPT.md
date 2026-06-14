@@ -43,7 +43,7 @@ go/no-go decision for the user — not ad-hoc tuning inside this study.
 ## Inherited state (where this study starts from)
 
 - **Champion/recipe**: G = canon **v16**, the `scripts/train.py --task mtl` default
-  (`docs/studies/mtl_improvement/FINAL_SYNTHESIS.md` §2; exact command `CHAMPION.md §3`).
+  (`docs/studies/archive/mtl_improvement/FINAL_SYNTHESIS.md` §2; exact command `CHAMPION.md §3`).
 - **The bar**: matched-metric G−ceiling scoring (FULL `top10_acc`, fold-paired, seeds {0,1,7,100})
   per `r0_matched_rescore.py` — every number this study reports uses it.
 - **Inherited items** (full specs in `PLAN.md`): the X1 aligned-pairing pre-freeze gate; the CA/TX
@@ -67,7 +67,7 @@ go/no-go decision for the user — not ad-hoc tuning inside this study.
 ## Read first
 
 1. This file → `PLAN.md` (phases + cards) → `log.md` (chronology, append-only).
-2. `docs/studies/mtl_improvement/FINAL_SYNTHESIS.md` — the predecessor's outcome + corrections
+2. `docs/studies/archive/mtl_improvement/FINAL_SYNTHESIS.md` — the predecessor's outcome + corrections
    registry (cite the RIGHT claims).
 3. `docs/results/CANONICAL_VERSIONS.md` — version pins; `docs/studies/log.md` — the cross-study
    outcomes registry (Phase 1 walks every row).

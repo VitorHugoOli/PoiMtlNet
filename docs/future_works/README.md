@@ -28,7 +28,7 @@ When a future-work item is picked up:
 
 ## Cross-reference — mtl-protocol-fix deferred work
 
-[`../studies/mtl-protocol-fix/DEFERRED_WORK.md`](../studies/mtl-protocol-fix/DEFERRED_WORK.md) is the authoritative deferred-work map for the mtl-protocol-fix research line. It catalogs the original §3 Rank 1-5 + §4.1-§4.8 considerations (11 items total) with each marked DONE / FALSIFIED / SKIPPED / DEFERRED, and maps every DEFERRED item to its landing in this folder or in `docs/studies/merge_design/`. **Future agents picking up architecture / loss-balancing / head-axis / composite-engine work must read it first** — it identifies which items each future_works memo above must absorb, plus two NEW memos to draft when triggered (`composite_two_substrate_engine.md` and `poi_decoder_hgi_distill.md`).
+[`../studies/archive/mtl-protocol-fix/DEFERRED_WORK.md`](../studies/archive/mtl-protocol-fix/DEFERRED_WORK.md) is the authoritative deferred-work map for the mtl-protocol-fix research line. It catalogs the original §3 Rank 1-5 + §4.1-§4.8 considerations (11 items total) with each marked DONE / FALSIFIED / SKIPPED / DEFERRED, and maps every DEFERRED item to its landing in this folder or in `docs/studies/merge_design/`. **Future agents picking up architecture / loss-balancing / head-axis / composite-engine work must read it first** — it identifies which items each future_works memo above must absorb, plus two NEW memos to draft when triggered (`composite_two_substrate_engine.md` and `poi_decoder_hgi_distill.md`).
 
 ## 2026-05-28 — re-routing after Phase 3 closure
 
@@ -36,8 +36,8 @@ The post-closure rebalance moved several items out of these memos into two activ
 
 | Memo | What moved out | New owner |
 |---|---|---|
-| `mtl_architecture_revisit.md` | T0-T8 chain execution (backbones, loss, batch, LR, α, heads, multi-seed) | [`docs/studies/mtl_improvement/`](../studies/mtl_improvement/) |
-| `mtl_architecture_revisit.md` | §4.1 per-task best-epoch shipping (variant A: 3 internally-consistent MTL snapshots routed by task) | [`docs/studies/substrate-protocol-cleanup/`](../studies/substrate-protocol-cleanup/) Tier C |
+| `mtl_architecture_revisit.md` | T0-T8 chain execution (backbones, loss, batch, LR, α, heads, multi-seed) | [`docs/studies/archive/mtl_improvement/`](../studies/archive/mtl_improvement/) |
+| `mtl_architecture_revisit.md` | §4.1 per-task best-epoch shipping (variant A: 3 internally-consistent MTL snapshots routed by task) | [`docs/studies/archive/substrate-protocol-cleanup/`](../studies/archive/substrate-protocol-cleanup/) Tier C |
 | `substrate_adaptive_mtl_balancing.md` | Loss balancers (NashMTL revive, GradNorm, PCGrad, FAMO, Aligned-MTL) | `mtl_improvement` T3 |
 | `substrate_adaptive_mtl_balancing.md` | §4.4 freeze-reg-after-peak (asymmetric reg-stop pilot, the one curriculum variant P4 did not falsify) | `substrate-protocol-cleanup` Tier C (cheap pilot) |
 | `head_window_batch_audit.md` §A | Head re-design with backbone | `mtl_improvement` T7 |
