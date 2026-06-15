@@ -1,0 +1,59 @@
+{
+  "config": "aftb_late (none,ab+ba)",
+  "comparand": "base = champion G (KD-off)",
+  "states": {
+    "arizona": {
+      "seeds": [
+        0
+      ],
+      "delta_reg": -0.087,
+      "delta_cat": 0.173,
+      "base_cat": 54.607,
+      "late_cat": 54.78
+    },
+    "georgia": {
+      "seeds": [
+        0
+      ],
+      "delta_reg": 0.06,
+      "delta_cat": 0.158,
+      "base_cat": 61.537,
+      "late_cat": 61.695
+    },
+    "florida": {
+      "seeds": [
+        0,
+        1,
+        7,
+        100
+      ],
+      "delta_reg": 0.019,
+      "std_reg": 0.014,
+      "delta_cat": -0.026,
+      "std_cat": 0.055,
+      "per_seed_cat": [
+        0.068,
+        -0.052,
+        -0.073,
+        -0.045
+      ]
+    },
+    "alabama": {
+      "seeds": [
+        0,
+        1,
+        7,
+        100
+      ],
+      "delta_reg": 0.173,
+      "delta_cat": 0.636,
+      "_ref": "AL multi-seed"
+    }
+  },
+  "generalizes": {
+    "states_with_cat>=0.3": [
+      "alabama"
+    ],
+    "FL_cat_delta": -0.026
+  }
+}

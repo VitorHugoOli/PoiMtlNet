@@ -11,8 +11,8 @@
 | ID | Lever | State | Verdict |
 |---|---|---|---|
 | R1 | log_C co-location prior + probability-chain | **CLOSED 2026-06-15** | **NULL** — real but sub-threshold (AL multi-seed Δreg **+0.207±0.196**, p=0.008 15/20 pairs, gate ≥0.3 FAIL; FL seed0 +0.171 / cat −0.27; W non-monotonic, peaks at 0.2). Not v17. See `FINDINGS.md §R1`. |
-| R2 | STEM-AFTB gating sweep | **next** | — |
-| R3 | live cross-task distillation | not started | — |
+| R2 | STEM-AFTB gating sweep | **CLOSED 2026-06-15** | **NULL** (not v17) — reg clean multi-seed null at all states; cat lift is AL-only & **decays with scale** (AL +0.636 / AZ +0.173 / GE +0.158 / **FL −0.026**); user-approved multi-state confirm → does NOT generalize. Citable STEM-AFTB dose-response. See `FINDINGS.md §R2`. |
+| R3 | live cross-task distillation | **next** | — |
 
 Later waves (R4–R9) gated on first-wave outcomes — see `AGENT_PROMPT.md`.
 
@@ -34,3 +34,10 @@ Null → log here + `../log.md` row; do not silently fold into the freeze.
   multi-seed AL {0,1,7,100} = **+0.207±0.196 (gate ≥0.3 FAIL)**, Wilcoxon p=0.008; weight sweep
   non-monotonic (peaks W=0.2, craters at 0.6). Real-but-small incremental signal over log_T-KD;
   weak-7-class-auxiliary + spatial overlap with log_T. Proceeding to **R2 (STEM-AFTB gating sweep)**.
+- 2026-06-15 — **R2 launched + CLOSED NULL.** Built directional per-layer AFTB gates
+  (`detach_ab`/`detach_ba` + `aftb_spec`, champion G unchanged). AL seed0 → all 5 configs cross gate;
+  AL multi-seed → reg null (best +0.173 p=0.009 sub-threshold), cat AL-only high-var lift. User-approved
+  multi-state confirm (aftb_late, AZ/GE seed0 + FL {1,7,100}): **cat decays with scale, AL-only**
+  (AL +0.64 / AZ +0.17 / GE +0.16 / FL −0.03) → does NOT generalize → NOT v17. Inverse-G′. Citable
+  STEM-AFTB dose-response (cross-task gradient is small-state harmful noise; reg unaffected — sharing
+  topology doesn't move the reg gap). Proceeding to **R3 (live cross-task distillation)**.
