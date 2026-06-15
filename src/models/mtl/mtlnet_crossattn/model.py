@@ -93,6 +93,12 @@ class _CrossAttnBlock(nn.Module):
             self.grm_b = nn.Linear(dim, dim)
             nn.init.constant_(self.grm_a.bias, 2.0)
             nn.init.constant_(self.grm_b.bias, 2.0)
+            # R10 diagnostic — last-batch mean γ per stream (detached floats), so
+            # the trainer can log the TRAINED gate trajectory (init≈0.88; if it
+            # stays ≈0.88 the gate found no reason to modulate, if it moves the
+            # gate learned input-conditioning — either way a non-trivial null check).
+            self.last_gamma_a = None
+            self.last_gamma_b = None
         # R2 (mtl_frontier) STEM-AFTB — DIRECTIONAL stop-grad, per block.
         #   detach_ab: detach b's (reg) K/V in cross_ab (Q=cat) → cat reads reg
         #     forward-only; L_cat does NOT backprop into the reg pathway here.
@@ -165,9 +171,9 @@ class _CrossAttnBlock(nn.Module):
             )
             if self.grm_gate:
                 # γ_a from a's pre-update masked-mean → how much a reads from b.
-                a_upd = torch.sigmoid(
-                    self.grm_a(_masked_mean_seq(a, a_pad_mask))
-                ).unsqueeze(1) * a_upd
+                _ga = torch.sigmoid(self.grm_a(_masked_mean_seq(a, a_pad_mask)))
+                self.last_gamma_a = float(_ga.detach().mean())
+                a_upd = _ga.unsqueeze(1) * a_upd
             a = self.ln_a1(a + a_upd)
             # b queries a (uses updated a as K/V so the two streams converge
             # symmetrically; this is MulT's "late" bidirectional pattern)
@@ -187,9 +193,9 @@ class _CrossAttnBlock(nn.Module):
                 query=b, key=kv_a, value=kv_a, key_padding_mask=a_pad_mask
             )
             if self.grm_gate:
-                b_upd = torch.sigmoid(
-                    self.grm_b(_masked_mean_seq(b, b_pad_mask))
-                ).unsqueeze(1) * b_upd
+                _gb = torch.sigmoid(self.grm_b(_masked_mean_seq(b, b_pad_mask)))
+                self.last_gamma_b = float(_gb.detach().mean())
+                b_upd = _gb.unsqueeze(1) * b_upd
             b = self.ln_b1(b + b_upd)
         # Per-stream FFN
         a = self.ln_a2(a + self.ffn_a(a))

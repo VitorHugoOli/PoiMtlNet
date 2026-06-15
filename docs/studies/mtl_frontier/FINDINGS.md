@@ -190,6 +190,29 @@ is null here. **SSC (top-k router) was NOT pursued** — the GRM primary showed 
 falsifier "GRM ≡ G" already closes the R10 family per the spec (run R2 first → GRM is "what if AFTB were
 learned" → null like AFTB).
 
+**Trained-γ confirmation (2026-06-15, post-audit — the null is NOT a frozen-gate artifact).** An
+independent audit asked whether "GRM≡G" could be a dead mechanism (γ trapped near 1). A diagnostic run
+(`--model-param crossattn_grm=True`, per-epoch mean γ logged; AL seed0) shows the **gate is the opposite
+of trapped — it trains a LARGE, consistent, input-conditioned swing and still lands on G's accuracy:**
+
+| | init | ep10 | ep25 | final |
+|---|---|---|---|---|
+| γ_a (cat reads reg) | 0.874 | 0.845 | ~0.49 | **~0.31** |
+| γ_b (reg reads cat) | 0.874 | 0.854 | ~0.62 | **~0.55** |
+
+(means over 2 blocks, 3 folds shown; metrics AL cat 52.56 / reg 64.49 ≈ champion G within noise.) The
+learned gate **discovered it should roughly halve the cat→reg read** (γ_a 0.87→0.31) and modestly cut
+reg→cat — a decisive, trained modulation — yet accuracy is identical to the fixed full-read G. So the
+cross-attn read can be gated however the data dictates and the metrics do not move: there is no
+exploitable input-conditioned cross-task signal (cos≈0). This rules out the frozen-gate artifact and
+makes "GRM ≡ G" a genuine regime result. Diagnostic code: `grm_gamma_a/grm_gamma_b` per-epoch
+(`mtl_cv.py`, `_CrossAttnBlock.last_gamma_{a,b}`).
+
+**Efficiency (champion G strictly dominates G+GRM).** G+GRM **matches** G's accuracy (the null) but
+costs **+263,168 params (+5.6%; 4.66M→4.92M, all in the shared cross-attn)** and is **not faster**
+(matched-seed FL wall-clock 1.02×/1.05×/0.98× = equal within GPU-sharing noise). Same accuracy, more
+parameters, equal speed → no efficiency case for R10; champion G dominates.
+
 **Artifacts.** `docs/results/mtl_frontier/{r10_screen_results.json, r10_fl_multiseed_results.json}`;
 drivers `/tmp/r10_screen/run.sh`, `/tmp/r10_flms/run.sh`; aggregators `{r10_agg.py,
 r10_fl_multiseed_agg.py}`. Code: `crossattn_grm` + `_masked_mean_seq` in

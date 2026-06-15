@@ -1,0 +1,22 @@
+{
+  "_note": "R10 post-audit: trained-\u03b3 + efficiency confirmation (2026-06-15).",
+  "audit": "independent agent \u2014 all 17 correctness properties PASS, 0 bugs; GRM null is real, not frozen-gate artifact.",
+  "trained_gamma_AL_seed0": {
+    "init": 0.874,
+    "final_gamma_a": 0.31,
+    "final_gamma_b": 0.55,
+    "note": "gate trains a large input-conditioned swing 0.87\u21920.31 yet metrics \u2261 G (cat 52.56/reg 64.49) \u2192 cos\u22480, nothing to gate."
+  },
+  "efficiency": {
+    "params_G": 4661118,
+    "params_G_GRM": 4924286,
+    "delta_params": 263168,
+    "delta_pct": 5.6,
+    "wallclock_GRM_over_G": [
+      1.02,
+      1.048,
+      0.979
+    ],
+    "verdict": "G+GRM matches G accuracy, +5.6% params, ~equal speed \u2192 G dominates; R10 NOT more efficient."
+  }
+}

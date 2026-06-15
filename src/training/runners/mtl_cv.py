@@ -850,6 +850,18 @@ def train_model(model: torch.nn.Module,
         if isinstance(head_beta, torch.Tensor) and head_beta.numel() == 1:
             diagnostic_payload["head_beta"] = float(head_beta.detach().cpu())
 
+        # R10 — trained GRM gate trajectory. Mean γ_a/γ_b over the cross-attn
+        # blocks (last batch of the epoch). init≈0.88; logged so the "GRM≡G" null
+        # is checkable (did the gate move, and where did it settle?).
+        _blocks = getattr(model, "crossattn_blocks", None)
+        if _blocks is not None:
+            _ga = [b.last_gamma_a for b in _blocks if getattr(b, "last_gamma_a", None) is not None]
+            _gb = [b.last_gamma_b for b in _blocks if getattr(b, "last_gamma_b", None) is not None]
+            if _ga:
+                diagnostic_payload["grm_gamma_a"] = sum(_ga) / len(_ga)
+            if _gb:
+                diagnostic_payload["grm_gamma_b"] = sum(_gb) / len(_gb)
+
         # F50 D5 — encoder trajectory diagnostic. Frobenius norm of current
         # encoder weights, drift from epoch-0 init, and step drift from the
         # previous epoch. Cheap (one cat + two diffs of an O(64×256×L) flat
