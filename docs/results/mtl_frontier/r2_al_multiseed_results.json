@@ -1,0 +1,103 @@
+{
+  "state": "alabama",
+  "comparand": "base = champion G (v16, KD-off)",
+  "configs": {
+    "aftb_all": {
+      "spec": "ab+ba,ab+ba",
+      "mean_delta_reg": 0.02,
+      "std_delta_reg": 0.14,
+      "mean_delta_cat": 0.348,
+      "std_delta_cat": 0.348,
+      "per_seed_delta_reg": [
+        0.252,
+        -0.118,
+        -0.047,
+        -0.008
+      ],
+      "wilcoxon_reg_p_n20": 0.35869,
+      "gate_either_>=0.3": true
+    },
+    "aftb_late": {
+      "spec": "none,ab+ba",
+      "mean_delta_reg": 0.173,
+      "std_delta_reg": 0.061,
+      "mean_delta_cat": 0.636,
+      "std_delta_cat": 0.452,
+      "per_seed_delta_reg": [
+        0.212,
+        0.181,
+        0.228,
+        0.071
+      ],
+      "wilcoxon_reg_p_n20": 0.00859,
+      "gate_either_>=0.3": true
+    },
+    "aftb_early": {
+      "spec": "ab+ba,none",
+      "mean_delta_reg": 0.161,
+      "std_delta_reg": 0.162,
+      "mean_delta_cat": 0.316,
+      "std_delta_cat": 0.32,
+      "per_seed_delta_reg": [
+        0.315,
+        0.016,
+        -0.016,
+        0.331
+      ],
+      "wilcoxon_reg_p_n20": 0.06155,
+      "gate_either_>=0.3": true
+    },
+    "reg_protect": {
+      "spec": "ab,ab",
+      "mean_delta_reg": 0.053,
+      "std_delta_reg": 0.241,
+      "mean_delta_cat": 0.213,
+      "std_delta_cat": 0.388,
+      "per_seed_delta_reg": [
+        0.417,
+        -0.22,
+        0.11,
+        -0.094
+      ],
+      "wilcoxon_reg_p_n20": 0.249,
+      "gate_either_>=0.3": false
+    },
+    "cat_protect": {
+      "spec": "ba,ba",
+      "mean_delta_reg": -0.0,
+      "std_delta_reg": 0.106,
+      "mean_delta_cat": 0.372,
+      "std_delta_cat": 0.248,
+      "per_seed_delta_reg": [
+        0.087,
+        0.047,
+        0.047,
+        -0.181
+      ],
+      "wilcoxon_reg_p_n20": 0.56526,
+      "gate_either_>=0.3": true
+    }
+  },
+  "promote_candidates": [
+    {
+      "config": "aftb_all",
+      "mean_delta_reg": 0.02,
+      "mean_delta_cat": 0.348
+    },
+    {
+      "config": "aftb_late",
+      "mean_delta_reg": 0.173,
+      "mean_delta_cat": 0.636
+    },
+    {
+      "config": "aftb_early",
+      "mean_delta_reg": 0.161,
+      "mean_delta_cat": 0.316
+    },
+    {
+      "config": "cat_protect",
+      "mean_delta_reg": -0.0,
+      "mean_delta_cat": 0.372
+    }
+  ]
+}
