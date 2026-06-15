@@ -217,6 +217,10 @@ def train_model(model: torch.nn.Module,
                 log_t_kd_tau: float = 1.0,
                 log_c_kd_weight: float = 0.0,
                 log_c_kd_tau: float = 1.0,
+                log_c_kd_warmup_epochs: int = 0,
+                log_c_kd_ec_lambda: float = 0.0,
+                cat_kd_weight: float = 0.0,
+                cat_kd_tau: float = 1.0,
                 loss_scale_norm: bool = False,
                 checkpoint_selector: str = "geom_simple",
                 joint_min_epoch: int = 0,
@@ -576,7 +580,11 @@ def train_model(model: torch.nn.Module,
                 # no-op fast path at weight 0.0. C28 dead-codepath guard: a one-shot
                 # diagnostic asserts the teacher is non-trivial (non-uniform) and
                 # logs its mean max-prob the first time it fires.
-                if log_c_kd_weight > 0.0:
+                # R3 (mtl_frontier) — CrossDistil warm-up gate (both arms): the
+                # synchronous teacher is noisy early; apply only from epoch N.
+                _logc_active = epoch_idx >= int(log_c_kd_warmup_epochs)
+                _ec = float(log_c_kd_ec_lambda)
+                if log_c_kd_weight > 0.0 and _logc_active:
                     _reg_head_c = getattr(model, "next_poi", None)
                     _log_C = getattr(_reg_head_c, "log_C", None) if _reg_head_c is not None else None
                     if _log_C is not None:
@@ -591,37 +599,61 @@ def train_model(model: torch.nn.Module,
                             _prior = _phat @ _P_reg_c.transpose(0, 1)                     # [B, n_regions]
                             _prior = _prior.clamp_min(1e-12)
                             _teacher_c = torch.softmax(torch.log(_prior) / _tau_c, dim=-1)
+                            # R3 CrossDistil error-correction: blend the soft teacher
+                            # with the reg ground-truth one-hot (corrects teacher errors).
+                            if _ec > 0.0:
+                                _oh = torch.zeros_like(_teacher_c)
+                                _yb = truth_task_b.clamp(0, _ncr - 1).long().unsqueeze(-1)
+                                _oh.scatter_(1, _yb, 1.0)
+                                _teacher_c = (1.0 - _ec) * _teacher_c + _ec * _oh
                             _student_c_log = torch.log_softmax(pred_task_b.float() / _tau_c, dim=-1)
                             _student_c = _student_c_log.exp()
                             _log_teacher_c = torch.log(_teacher_c.clamp_min(1e-12))
                             _kldc = (_student_c * (_student_c_log - _log_teacher_c)).sum(dim=-1)
                             _kdc_loss = _kldc.mean() * (_tau_c * _tau_c)
                             task_b_loss = task_b_loss + log_c_kd_weight * _kdc_loss
-                            # C28 mechanism-fires one-shot diagnostic.
                             if not globals().get("_LOGC_FIRED", False):
                                 globals()["_LOGC_FIRED"] = True
                                 _tmax = float(_teacher_c.max(dim=-1).values.mean())
                                 _unif = 1.0 / float(_ncr)
                                 logger.info(
-                                    "[R1 log_C-KD FIRED] W=%.3g τ=%.3g teacher mean "
-                                    "max-prob=%.4f (uniform=%.5f → %.0f× peaked) "
-                                    "mean KL=%.4f n_regions=%d n_cats=%d",
-                                    log_c_kd_weight, _tau_c, _tmax, _unif,
-                                    _tmax / _unif, float(_kldc.mean()), _ncr, _nca,
+                                    "[R1/R3 log_C-KD fwd FIRED] W=%.3g τ=%.3g warmup=%d "
+                                    "ec=%.2g teacher max-prob=%.4f (%.0f× uniform) "
+                                    "mean KL=%.4f",
+                                    log_c_kd_weight, _tau_c, log_c_kd_warmup_epochs, _ec,
+                                    _tmax, _tmax / _unif, float(_kldc.mean()),
                                 )
-                                if _tmax <= _unif * 1.5:
-                                    logger.warning(
-                                        "[R1 log_C-KD] teacher looks ~uniform "
-                                        "(max-prob %.4f ≈ uniform %.5f) — prior "
-                                        "may be trivial; check the matrix.", _tmax, _unif,
-                                    )
-                        else:
-                            if not globals().get("_LOGC_SHAPE_WARNED", False):
-                                globals()["_LOGC_SHAPE_WARNED"] = True
-                                logger.warning(
-                                    "[R1 log_C-KD] shape mismatch log_C=%s vs "
-                                    "(n_regions=%d, n_cats=%d) — term skipped.",
-                                    tuple(_log_C.shape), _ncr, _nca,
+
+                # R3 reverse arm — distill the reg-implied category prior into the
+                # CAT head: prior(cat)=Σ_r P(cat|r)·P̂_reg(r), P̂_reg detached.
+                #   L_cat += W · τ² · KL(softmax(cat_logits/τ) || softmax(log(prior)/τ))
+                if cat_kd_weight > 0.0 and _logc_active:
+                    _reg_head_r = getattr(model, "next_poi", None)
+                    _log_Crev = getattr(_reg_head_r, "log_C_rev", None) if _reg_head_r is not None else None
+                    if _log_Crev is not None:
+                        _ncr = pred_task_b.shape[-1]; _nca = pred_task_a.shape[-1]
+                        if _log_Crev.shape[0] >= _ncr and _log_Crev.shape[1] == _nca:
+                            _tau_k = float(cat_kd_tau)
+                            _phat_reg = torch.softmax(pred_task_b.float(), dim=-1).detach()   # [B, n_regions]
+                            _P_cat_r = _log_Crev[:_ncr, :].float().exp()                       # [n_regions, n_cats]
+                            _prior_cat = (_phat_reg @ _P_cat_r).clamp_min(1e-12)               # [B, n_cats]
+                            _teacher_k = torch.softmax(torch.log(_prior_cat) / _tau_k, dim=-1)
+                            if _ec > 0.0:
+                                _ohc = torch.zeros_like(_teacher_k)
+                                _ya = truth_task_a.clamp(0, _nca - 1).long().unsqueeze(-1)
+                                _ohc.scatter_(1, _ya, 1.0)
+                                _teacher_k = (1.0 - _ec) * _teacher_k + _ec * _ohc
+                            _student_k_log = torch.log_softmax(pred_task_a.float() / _tau_k, dim=-1)
+                            _kldk = (_student_k_log.exp() * (_student_k_log - torch.log(_teacher_k.clamp_min(1e-12)))).sum(dim=-1)
+                            task_a_loss = task_a_loss + cat_kd_weight * (_kldk.mean() * (_tau_k * _tau_k))
+                            if not globals().get("_CATKD_FIRED", False):
+                                globals()["_CATKD_FIRED"] = True
+                                _tmk = float(_teacher_k.max(dim=-1).values.mean())
+                                logger.info(
+                                    "[R3 reverse cat-KD FIRED] W=%.3g τ=%.3g warmup=%d "
+                                    "ec=%.2g teacher max-prob=%.4f (%.1f× uniform) mean KL=%.4f",
+                                    cat_kd_weight, _tau_k, log_c_kd_warmup_epochs, _ec,
+                                    _tmk, _tmk * _nca, float(_kldk.mean()),
                                 )
 
             # substrate-protocol-cleanup Tier C2 — after the reg-freeze
@@ -1235,7 +1267,8 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                 # seed/fold/n_splits + stale-mtime leak guards as log_T (a leak
                 # here would contaminate the reg KD teacher exactly as a stale
                 # log_T contaminates the Markov prior).
-                if float(getattr(config, "log_c_kd_weight", 0.0) or 0.0) > 0.0:
+                if (float(getattr(config, "log_c_kd_weight", 0.0) or 0.0) > 0.0
+                        or float(getattr(config, "cat_kd_weight", 0.0) or 0.0) > 0.0):
                     pc_path = (
                         _Path(per_fold_dir)
                         / f"region_colocation_log_seed{seed}_fold{i_fold + 1}.pt"
@@ -1562,6 +1595,10 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             log_t_kd_tau=float(getattr(config, "log_t_kd_tau", 1.0) or 1.0),
             log_c_kd_weight=float(getattr(config, "log_c_kd_weight", 0.0) or 0.0),
             log_c_kd_tau=float(getattr(config, "log_c_kd_tau", 1.0) or 1.0),
+            log_c_kd_warmup_epochs=int(getattr(config, "log_c_kd_warmup_epochs", 0) or 0),
+            log_c_kd_ec_lambda=float(getattr(config, "log_c_kd_ec_lambda", 0.0) or 0.0),
+            cat_kd_weight=float(getattr(config, "cat_kd_weight", 0.0) or 0.0),
+            cat_kd_tau=float(getattr(config, "cat_kd_tau", 1.0) or 1.0),
             loss_scale_norm=bool(getattr(config, "loss_scale_norm", False)),
             checkpoint_selector=str(getattr(config, "checkpoint_selector", "geom_simple")),
             joint_min_epoch=int(getattr(config, "min_best_epoch", 0) or 0),

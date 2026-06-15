@@ -223,6 +223,19 @@ class ExperimentConfig:
     log_c_kd_weight: float = 0.0
     log_c_kd_tau: float = 1.0
 
+    # R3 (mtl_frontier) — CrossDistil refinements over the R1 co-location KD.
+    #   log_c_kd_warmup_epochs: apply BOTH co-location KD arms only from this epoch
+    #     on (teacher is noisy early; CrossDistil warm-up gating). 0 = always on.
+    #   log_c_kd_ec_lambda: CrossDistil ERROR-CORRECTION — blend the soft teacher
+    #     with the ground-truth one-hot: teacher* = (1-λ)·teacher + λ·onehot(y).
+    #     0 = pure soft teacher (R1). Corrects the synchronous teacher's errors.
+    #   cat_kd_weight / cat_kd_tau: the REVERSE arm — distill the reg-implied
+    #     category prior Σ_r P(cat|r)·P̂_reg(r) into the CAT head (KD on task_a_loss).
+    log_c_kd_warmup_epochs: int = 0
+    log_c_kd_ec_lambda: float = 0.0
+    cat_kd_weight: float = 0.0
+    cat_kd_tau: float = 1.0
+
     # T4.0a (mtl_improvement) loss-scale normalization. When True, each task's
     # raw CE is divided by ``log(num_classes_of_that_task)`` BEFORE the MTL
     # combiner / inter-task weight, decoupling the built-in ~4.7x CE-magnitude

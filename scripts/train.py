@@ -977,6 +977,28 @@ def _parse_args(argv=None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--log-c-kd-warmup-epochs", dest="log_c_kd_warmup_epochs", type=int,
+        default=None, metavar="N",
+        help="R3 — apply BOTH co-location KD arms only from epoch N on (CrossDistil "
+             "warm-up; teacher is noisy early). Default 0 = always on.",
+    )
+    parser.add_argument(
+        "--log-c-kd-ec-lambda", dest="log_c_kd_ec_lambda", type=float,
+        default=None, metavar="L",
+        help="R3 — CrossDistil error-correction: blend the soft co-location teacher "
+             "with the ground-truth one-hot, teacher*=(1-L)·teacher+L·onehot(y). "
+             "0=pure soft (R1).",
+    )
+    parser.add_argument(
+        "--cat-kd-weight", dest="cat_kd_weight", type=float, default=None, metavar="W",
+        help="R3 reverse arm — distill the reg-implied category prior "
+             "Σ_r P(cat|r)·P̂_reg(r) into the CAT head. Default 0.0 = off.",
+    )
+    parser.add_argument(
+        "--cat-kd-tau", dest="cat_kd_tau", type=float, default=None, metavar="TAU",
+        help="R3 — temperature τ for the reverse cat-KD term. Default 1.0.",
+    )
+    parser.add_argument(
         "--alpha-frozen-until-epoch",
         dest="alpha_frozen_until_epoch",
         type=int,
@@ -1577,6 +1599,31 @@ def _apply_cli_overrides(
         if tau_c <= 0.0:
             raise ValueError(f"--log-c-kd-tau={tau_c} must be > 0.0")
         config = dataclasses.replace(config, log_c_kd_tau=tau_c)
+
+    # R3 (mtl_frontier) — CrossDistil refinements + reverse arm. All opt-in, MTL-only.
+    if getattr(args, "log_c_kd_warmup_epochs", None) is not None:
+        we = int(args.log_c_kd_warmup_epochs)
+        if we < 0:
+            raise ValueError("--log-c-kd-warmup-epochs must be >= 0")
+        config = dataclasses.replace(config, log_c_kd_warmup_epochs=we)
+    if getattr(args, "log_c_kd_ec_lambda", None) is not None:
+        ec = float(args.log_c_kd_ec_lambda)
+        if not (0.0 <= ec <= 1.0):
+            raise ValueError("--log-c-kd-ec-lambda must be in [0,1]")
+        config = dataclasses.replace(config, log_c_kd_ec_lambda=ec)
+    if getattr(args, "cat_kd_weight", None) is not None:
+        wk = float(args.cat_kd_weight)
+        if args.task != "mtl":
+            raise ValueError("--cat-kd-weight requires --task mtl")
+        if wk < 0.0:
+            raise ValueError("--cat-kd-weight must be >= 0.0")
+        config = dataclasses.replace(config, cat_kd_weight=wk)
+        logger.info("R3 reverse cat-KD %s (W=%.3g)", "ON" if wk > 0 else "OFF", wk)
+    if getattr(args, "cat_kd_tau", None) is not None:
+        tk = float(args.cat_kd_tau)
+        if tk <= 0.0:
+            raise ValueError("--cat-kd-tau must be > 0.0")
+        config = dataclasses.replace(config, cat_kd_tau=tk)
 
     # T4.0a (mtl_improvement) loss-scale normalization — opt-in, MTL-only.
     if getattr(args, "loss_scale_norm", False):

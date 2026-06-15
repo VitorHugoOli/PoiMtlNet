@@ -268,8 +268,18 @@ class NextHeadStanFlowDualTower(nn.Module):
                 )
             log_C = log_C[:num_classes, :].contiguous()
             self.register_buffer("log_C", log_C)
+            # R3 (mtl_frontier) reverse arm — log P(cat|region) [num_classes, n_cats],
+            # row-normalized. Teacher for the cat head: Σ_r P(cat|r)·P̂_reg(r). Consumed
+            # by the trainer's reverse cat-KD branch. Absent in legacy R1 files → None.
+            log_C_rev = cpayload.get("log_cat_given_region") if isinstance(cpayload, dict) else None
+            if log_C_rev is not None:
+                log_C_rev = log_C_rev.float()[:num_classes, :].contiguous()
+                self.register_buffer("log_C_rev", log_C_rev)
+            else:
+                self.register_buffer("log_C_rev", None, persistent=False)
         else:
             self.register_buffer("log_C", None, persistent=False)
+            self.register_buffer("log_C_rev", None, persistent=False)
 
     # ------------------------------------------------------------------
     def _fuse(

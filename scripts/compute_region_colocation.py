@@ -129,10 +129,13 @@ def _log_colocation_from_rows(
     counts = np.full((n_regions, N_CATS), smoothing_eps, dtype=np.float64)
     np.add.at(counts, (r, c), 1.0)
 
-    # Column-normalize: P(region | cat) — each category column sums to 1.
+    # Column-normalize: P(region | cat) — each category column sums to 1 (R1 fwd).
     col_sums = counts.sum(axis=0, keepdims=True)
-    probs = counts / col_sums
-    return np.log(probs).astype(np.float32), int(cat_ok.sum()), n_excluded
+    log_reg_given_cat = np.log(counts / col_sums).astype(np.float32)
+    # Row-normalize: P(cat | region) — each region row sums to 1 (R3 reverse arm).
+    row_sums = counts.sum(axis=1, keepdims=True)
+    log_cat_given_reg = np.log(counts / row_sums).astype(np.float32)
+    return log_reg_given_cat, log_cat_given_reg, int(cat_ok.sum()), n_excluded
 
 
 def build_colocation_from_userids(
@@ -157,7 +160,7 @@ def build_colocation_from_userids(
         raise ValueError(f"No rows match train_userids (state={state})")
 
     target_placeids = sub["target_poi"].astype(np.int64).to_numpy()
-    log_probs, n_used, n_excl = _log_colocation_from_rows(
+    log_reg_given_cat, log_cat_given_reg, n_used, n_excl = _log_colocation_from_rows(
         target_placeids, placeid_to_idx, poi_to_region, cat_idx_lookup,
         n_regions, smoothing_eps,
     )
@@ -166,28 +169,36 @@ def build_colocation_from_userids(
         "n_used=%d n_excluded_cat(None/missing)=%d",
         state, n_regions, N_CATS, len(sub), n_used, n_excl,
     )
-    return log_probs, n_regions
+    return log_reg_given_cat, log_cat_given_reg, n_regions
 
 
 def save(
     state: str,
     engine: EmbeddingEngine,
-    log_probs: np.ndarray,
+    log_reg_given_cat: np.ndarray,
+    log_cat_given_reg: np.ndarray,
     smoothing_eps: float,
     filename: str,
     n_splits: Optional[int] = None,
     seed: Optional[int] = None,
 ) -> Path:
-    """Persist to output/<engine>/<state>/ (beside the per-fold log_T)."""
+    """Persist to output/<engine>/<state>/ (beside the per-fold log_T).
+
+    Payload carries BOTH directions:
+      log_colocation       = log P(region|cat)  [n_regions, n_cats]  (R1 fwd, col-norm)
+      log_cat_given_region = log P(cat|region)  [n_regions, n_cats]  (R3 reverse, row-norm)
+    """
     out_dir = _root / "output" / engine.value / state
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / filename
-    tensor = torch.from_numpy(log_probs)
+    t_rc = torch.from_numpy(log_reg_given_cat)
+    t_cr = torch.from_numpy(log_cat_given_reg)
     payload = {
-        "log_colocation": tensor,
+        "log_colocation": t_rc,            # P(region|cat) — back-compat key (R1)
+        "log_cat_given_region": t_cr,      # P(cat|region) — R3 reverse
         "smoothing_eps": smoothing_eps,
-        "n_regions": int(tensor.shape[0]),
-        "n_cats": int(tensor.shape[1]),
+        "n_regions": int(t_rc.shape[0]),
+        "n_cats": int(t_rc.shape[1]),
     }
     if n_splits is not None:
         payload["n_splits"] = int(n_splits)
@@ -195,7 +206,7 @@ def save(
         payload["seed"] = int(seed)
     torch.save(payload, out_path)
     logger.info("[%s] Saved %s (shape=%s, n_splits=%s, seed=%s)",
-                state, out_path, tuple(tensor.shape), n_splits, seed)
+                state, out_path, tuple(t_rc.shape), n_splits, seed)
     return out_path
 
 
@@ -217,12 +228,12 @@ def _build_per_fold(state: str, engine: EmbeddingEngine, smoothing_eps: float,
         sgkf.split(X_next, y_next, groups=next_userids)
     ):
         train_userids = set(int(u) for u in next_userids[train_idx])
-        log_probs, _ = build_colocation_from_userids(
+        log_rc, log_cr, _ = build_colocation_from_userids(
             state, train_userids=train_userids, smoothing_eps=smoothing_eps,
             seq_df=seq_df, cat_idx_lookup=cat_idx_lookup,
         )
         out = save(
-            state, engine, log_probs, smoothing_eps,
+            state, engine, log_rc, log_cr, smoothing_eps,
             filename=f"region_colocation_log_seed{seed}_fold{fold_idx + 1}.pt",
             n_splits=n_splits, seed=seed,
         )
