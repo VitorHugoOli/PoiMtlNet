@@ -857,6 +857,13 @@ def train_model(model: torch.nn.Module,
         if _aux_gamma is not None:
             diagnostic_payload["aux_gamma"] = float(_aux_gamma)
 
+        # Conditional coupling — mean ‖cat-condition contribution‖ into the reg
+        # feature (0 at init via zero-init cond_proj; >0 means the reg head
+        # learned to use the predicted category — the C28 fires-check).
+        _cond_norm = getattr(next_head, "last_cond_norm", None)
+        if _cond_norm is not None:
+            diagnostic_payload["cond_norm"] = float(_cond_norm)
+
         # R10 — trained GRM gate trajectory. Mean γ_a/γ_b over the cross-attn
         # blocks (last batch of the epoch). init≈0.88; logged so the "GRM≡G" null
         # is checkable (did the gate move, and where did it settle?).

@@ -153,6 +153,9 @@ class NextHeadStanFlowDualTower(nn.Module):
         colocation_path: Optional[str] = None,
         alpha_init: float = 0.1,
         freeze_alpha: bool = False,
+        cond_coupling: str = "none",
+        cond_dim: int = 7,
+        cond_detach: bool = False,
     ):
         super().__init__()
         if fusion_mode not in _FUSION_MODES:
@@ -231,6 +234,26 @@ class NextHeadStanFlowDualTower(nn.Module):
             self.aux_gate = nn.Linear(2 * self.d_model, self.d_model)
             nn.init.constant_(self.aux_gate.bias, -2.0)
             self.last_aux_gamma = None  # C28 trajectory diagnostic (mean γ)
+
+        # --- Conditional coupling (mtl_frontier — iMTL/GETNext pattern): inject
+        # the cat head's PREDICTION as an INPUT FEATURE to the reg head, fused
+        # additively into the pooled feature before the classifier, trained +
+        # at inference (unlike the train-only KD priors R1/R3). This conditions
+        # the region prediction on the predicted category — changing the reg
+        # head's input distribution rather than re-gating an orthogonal gradient.
+        #   cond_coupling="posterior" → feed softmax(cat_logits) [B, cond_dim].
+        # cond_proj is ZERO-INIT so the untrained head ≡ champion G; the model
+        # learns the coupling from there. cond_detach controls whether the
+        # cat→reg gradient flows (False = true iMTL end-to-end).
+        self.cond_coupling = str(cond_coupling)
+        self.cond_detach = bool(cond_detach)
+        if self.cond_coupling not in ("none", "posterior"):
+            raise ValueError(f"cond_coupling must be none|posterior, got {cond_coupling!r}")
+        if self.cond_coupling != "none":
+            self.cond_proj = nn.Linear(int(cond_dim), self.d_model)
+            nn.init.zeros_(self.cond_proj.weight)
+            nn.init.zeros_(self.cond_proj.bias)
+            self.last_cond_norm = None  # C28 diagnostic — mean ‖cond contribution‖
 
         # --- Fused classifier (mirrors NextHeadSTAN.classifier structure).
         self.classifier = nn.Sequential(
@@ -349,11 +372,14 @@ class NextHeadStanFlowDualTower(nn.Module):
         self,
         x: torch.Tensor,
         raw_region_seq: Optional[torch.Tensor] = None,
+        cat_cond: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """Args:
         x: SHARED pathway [B, S, embed_dim=256] (cross-attn output).
         raw_region_seq: RAW [B, S, raw_embed_dim=64] region sequence — the
             model subclass passes the post-pad-mask ``next_input`` here.
+        cat_cond: [B, cond_dim] cat-head prediction for conditional coupling
+            (the model passes softmax(cat_logits) when cond_coupling != none).
         """
         priv_feat = (
             self.private_stan.forward_features(raw_region_seq)
@@ -366,6 +392,11 @@ class NextHeadStanFlowDualTower(nn.Module):
             else None
         )
         feat = self._fuse(priv_feat, shared_feat, ref=x)
+        if self.cond_coupling != "none" and cat_cond is not None:
+            c = cat_cond.detach() if self.cond_detach else cat_cond
+            cond = self.cond_proj(c.float().to(feat.dtype))
+            self.last_cond_norm = float(cond.detach().norm(dim=-1).mean())
+            feat = feat + cond
         logits = self.classifier(feat)
         return self._apply_prior(logits)
 

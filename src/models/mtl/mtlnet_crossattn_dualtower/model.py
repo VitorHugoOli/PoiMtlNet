@@ -88,7 +88,19 @@ class MTLnetCrossAttnDualTower(MTLnetCrossAttn):
         # STAN backbone runs on the un-mixed [B,9,64] pathway. ``next_input`` is
         # the post-pad-mask raw region-embedding sequence (same tensor STL feeds
         # its STAN). NOT the falsified thin residual-skip — a full private tower.
-        out_next = self.next_poi(shared_next, raw_region_seq=next_input)
+        #
+        # Conditional coupling (mtl_frontier): when the reg head opts in
+        # (cond_coupling != none), pass the cat head's posterior as an input
+        # feature so the region prediction is conditioned on the predicted
+        # category (iMTL/GETNext). Champion G (cond_coupling="none") is
+        # bit-identical — the softmax + kwarg are skipped entirely.
+        if getattr(self.next_poi, "cond_coupling", "none") != "none":
+            cat_cond = torch.softmax(out_cat, dim=-1)
+            out_next = self.next_poi(
+                shared_next, raw_region_seq=next_input, cat_cond=cat_cond
+            )
+        else:
+            out_next = self.next_poi(shared_next, raw_region_seq=next_input)
         return out_cat, out_next
 
     def next_forward(self, next_input: torch.Tensor) -> torch.Tensor:
