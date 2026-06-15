@@ -41,6 +41,16 @@ from models.registry import register_model
 from tasks import LEGACY_CATEGORY_NEXT, TaskSet
 
 
+def _masked_mean_seq(x: torch.Tensor, pad_mask: Optional[torch.Tensor]) -> torch.Tensor:
+    """Mean over the sequence dim [B,T,D]→[B,D], skipping padded steps.
+    ``pad_mask`` is True at padded positions (MultiheadAttention convention)."""
+    if pad_mask is None:
+        return x.mean(dim=1)
+    keep = (~pad_mask).unsqueeze(-1).to(x.dtype)        # [B,T,1]
+    denom = keep.sum(dim=1).clamp_min(1.0)              # [B,1]
+    return (x * keep).sum(dim=1) / denom
+
+
 class _CrossAttnBlock(nn.Module):
     """One bidirectional cross-attention + FFN block.
 
@@ -66,9 +76,23 @@ class _CrossAttnBlock(nn.Module):
         zero_cat_kv: bool = False,
         detach_ab: bool = False,
         detach_ba: bool = False,
+        grm_gate: bool = False,
     ):
         super().__init__()
         self.detach_kv = bool(detach_kv)
+        # R10 (mtl_frontier) — Gated Residual Memory read (arXiv:2602.24281 primitive,
+        # "on the layers"). Per-sample, per-dim input-dependent gate γ∈[0,1]^d on each
+        # stream's cross-attn read of the OTHER stream: a ← LN(a + γ_a⊙CrossAttn(a,b)).
+        # γ_a = σ(W_a · masked-mean_seq(a)). A continuous, input-conditioned
+        # generalization of R2's binary detach masks (R2 gated the gradient; GRM gates
+        # the forward read magnitude, gradient flows through γ). Bias init +2 → γ≈0.88
+        # so the untrained block ≈ champion G (full read), with room to modulate down.
+        self.grm_gate = bool(grm_gate)
+        if self.grm_gate:
+            self.grm_a = nn.Linear(dim, dim)
+            self.grm_b = nn.Linear(dim, dim)
+            nn.init.constant_(self.grm_a.bias, 2.0)
+            nn.init.constant_(self.grm_b.bias, 2.0)
         # R2 (mtl_frontier) STEM-AFTB — DIRECTIONAL stop-grad, per block.
         #   detach_ab: detach b's (reg) K/V in cross_ab (Q=cat) → cat reads reg
         #     forward-only; L_cat does NOT backprop into the reg pathway here.
@@ -139,6 +163,11 @@ class _CrossAttnBlock(nn.Module):
             a_upd, _ = self.cross_ab(
                 query=a, key=kv_b, value=kv_b, key_padding_mask=b_pad_mask
             )
+            if self.grm_gate:
+                # γ_a from a's pre-update masked-mean → how much a reads from b.
+                a_upd = torch.sigmoid(
+                    self.grm_a(_masked_mean_seq(a, a_pad_mask))
+                ).unsqueeze(1) * a_upd
             a = self.ln_a1(a + a_upd)
             # b queries a (uses updated a as K/V so the two streams converge
             # symmetrically; this is MulT's "late" bidirectional pattern)
@@ -157,6 +186,10 @@ class _CrossAttnBlock(nn.Module):
             b_upd, _ = self.cross_ba(
                 query=b, key=kv_a, value=kv_a, key_padding_mask=a_pad_mask
             )
+            if self.grm_gate:
+                b_upd = torch.sigmoid(
+                    self.grm_b(_masked_mean_seq(b, b_pad_mask))
+                ).unsqueeze(1) * b_upd
             b = self.ln_b1(b + b_upd)
         # Per-stream FFN
         a = self.ln_a2(a + self.ffn_a(a))
@@ -192,6 +225,7 @@ class MTLnetCrossAttn(MTLnet):
         crossattn_ffn_dim: Optional[int] = None,
         detach_crossattn_kv: bool = False,
         aftb_spec: Optional[str] = None,
+        crossattn_grm: bool = False,
         disable_cross_attn: bool = False,
         identity_cross_attn: bool = False,
         zero_cat_kv: bool = False,
@@ -220,6 +254,7 @@ class MTLnetCrossAttn(MTLnet):
         self._aftb_per_block = self._parse_aftb_spec(
             aftb_spec, int(num_crossattn_blocks)
         )
+        self._crossattn_grm = bool(crossattn_grm)   # R10 GRM-gated read
         self._disable_cross_attn = bool(disable_cross_attn)
         self._identity_cross_attn = bool(identity_cross_attn)
         self._zero_cat_kv = bool(zero_cat_kv)
@@ -339,10 +374,16 @@ class MTLnetCrossAttn(MTLnet):
                     zero_cat_kv=self._zero_cat_kv,
                     detach_ab=self._aftb_per_block[i][0],
                     detach_ba=self._aftb_per_block[i][1],
+                    grm_gate=self._crossattn_grm,
                 )
                 for i in range(self._num_crossattn_blocks)
             ]
         )
+        if self._crossattn_grm:
+            import logging as _lg
+            _lg.getLogger(__name__).info(
+                "[R10 GRM] input-dependent gated cross-attn read ENABLED "
+                "(%d blocks, per-dim γ init≈0.88).", self._num_crossattn_blocks)
         if any(ab or ba for ab, ba in self._aftb_per_block):
             import logging as _logging
             _logging.getLogger(__name__).info(
