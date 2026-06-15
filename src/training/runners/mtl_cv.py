@@ -850,6 +850,13 @@ def train_model(model: torch.nn.Module,
         if isinstance(head_beta, torch.Tensor) and head_beta.numel() == 1:
             diagnostic_payload["head_beta"] = float(head_beta.detach().cpu())
 
+        # Idea 2 — input-dependent aux-fusion gate γ (fusion_mode=aux_gated).
+        # Mean γ over the last batch; logged so the "aux_gated≡aux" null is
+        # checkable (did the input-conditioned gate move off its ≈0.12 init?).
+        _aux_gamma = getattr(next_head, "last_aux_gamma", None)
+        if _aux_gamma is not None:
+            diagnostic_payload["aux_gamma"] = float(_aux_gamma)
+
         # R10 — trained GRM gate trajectory. Mean γ_a/γ_b over the cross-attn
         # blocks (last batch of the epoch). init≈0.88; logged so the "GRM≡G" null
         # is checkable (did the gate move, and where did it settle?).

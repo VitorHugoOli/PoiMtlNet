@@ -49,7 +49,7 @@ from data.aux_side_channel import get_current_aux
 from models.next.next_stan.head import NextHeadSTAN
 from models.registry import register_model
 
-_FUSION_MODES = ("gated", "private_only", "aux")
+_FUSION_MODES = ("gated", "private_only", "aux", "aux_gated")
 _ALT_PRIV_HEADS = ("gru", "lstm", "tcn")
 
 
@@ -220,6 +220,17 @@ class NextHeadStanFlowDualTower(nn.Module):
         elif self.fusion_mode == "aux":
             self.aux_proj = nn.Linear(self.d_model, self.d_model)
             self.beta = nn.Parameter(torch.tensor(0.1))
+        elif self.fusion_mode == "aux_gated":
+            # mtl_frontier Idea 2 — the input-dependent generalization of `aux`'s
+            # SCALAR β: feat = priv + γ(·)·aux_proj(shared), γ=σ(MLP([priv;shared]))
+            # per-dim, input-conditioned. Tests "use the shared pathway for SOME
+            # check-ins, not others" — which a scalar β (X3: β→0 by gradient)
+            # cannot express. The additive sibling of `gated` (convex, lost to aux).
+            # γ-bias init −2.0 → γ≈0.12 ≈ champion β=0.1 (clean comparand).
+            self.aux_proj = nn.Linear(self.d_model, self.d_model)
+            self.aux_gate = nn.Linear(2 * self.d_model, self.d_model)
+            nn.init.constant_(self.aux_gate.bias, -2.0)
+            self.last_aux_gamma = None  # C28 trajectory diagnostic (mean γ)
 
         # --- Fused classifier (mirrors NextHeadSTAN.classifier structure).
         self.classifier = nn.Sequential(
@@ -305,6 +316,12 @@ class NextHeadStanFlowDualTower(nn.Module):
                 self.gate_net(torch.cat([priv_feat, shared_feat], dim=-1))
             )
             return g * priv_feat + (1.0 - g) * shared_feat
+        if self.fusion_mode == "aux_gated":
+            gamma = torch.sigmoid(
+                self.aux_gate(torch.cat([priv_feat, shared_feat], dim=-1))
+            )
+            self.last_aux_gamma = float(gamma.detach().mean())
+            return priv_feat + gamma * self.aux_proj(shared_feat)
         # aux
         return priv_feat + self.beta * self.aux_proj(shared_feat)
 
