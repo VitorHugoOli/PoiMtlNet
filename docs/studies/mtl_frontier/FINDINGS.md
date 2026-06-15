@@ -229,6 +229,45 @@ r10_fl_multiseed_agg.py}`. Code: `crossattn_grm` + `_masked_mean_seq` in
 | **R3** | output-level coupling | CrossDistil (live teacher, ec, warm-up, reverse) | AL cat +0.45 | **null** (washes out; log_T-KD saturates the family) |
 | **R10** | asymmetric sharing | learned input-conditioned GRM gate | FL cat +0.32 | **null** (washes out; GRM ≡ G) |
 
+### Follow-up screens (user ideas, advisor-structured) — three more nulls (2026-06-15)
+
+After the 4-null first wave, three user-proposed follow-ups were screened (advisor evaluation in
+the session record). All null; one is informative.
+
+**Idea 1 — R10 GRM at the other states (close the "FL-only multi-seed" gap).** GRM screened at AZ/GE
+seed0 + AL multi-seed {0,1,7,100} vs champion G (baselines reused). **Null everywhere:** AZ Δreg
+−0.239 / Δcat +0.140; GE +0.083 / +0.269; AL 4-seed +0.141 / +0.178. Confirms the trained-γ
+prediction — GRM's "nothing to gate" is state-agnostic; R10 is null at all 4 built states.
+
+**Idea 2 — `aux_gated` fusion: input-dependent β in the reg head (the best-shot idea).** New fusion
+mode `feat = priv + γ(·)·aux_proj(shared)`, γ=σ(MLP([priv;shared])) per-dim (init γ≈0.12≈champion β).
+The gate is **fully alive and moves**: γ trains 0.12→**0.30 (AL)** / 0.12→**0.47 (FL)** — it learns to
+*open* the shared pathway. Result: AL cat **+0.48** (seed-0 flare) but **FL cat −0.85 (crater)**, reg
+flat. **Not a lever — actively harmful at scale, and it re-confirms the champion's design:** champion
+`aux` drives β→**0** (closes the shared→reg pathway, X3); an input-conditioned gate *opens* it, which
+dilutes the large-state cat exactly as the falsified `gated` mode did (gated 73.06 < aux 73.57). The
+additive-input-dependent point between `aux`(scalar) and `gated`(convex) inherits `gated`'s FL
+weakness. Input-conditioning does not rescue the shared-pathway fusion. (Code: `fusion_mode=aux_gated`
++ `aux_gamma` diagnostic; champion `aux` unchanged.)
+
+**Idea 3 — stack the best-direction variants** (G + log_T-KD + log_C-KD + reverse cat-KD + aftb_late +
+GRM) vs G+log_T-KD, AL+FL seed0, pre-registered to promote only on **super-additivity** (>0.3 over the
+best single component). **Sub-additive null:** AL cat +0.456 < the best single component (aftb_late
++0.636); FL +0.091 reg / +0.109 cat. The levers are redundant views of one mechanism and **interfere**
+(as `r3_both` already showed) — stacking is worse than the best component, not better. Fails the
+pre-registered gate.
+
+**Net:** the three follow-ups add a 5th/6th/7th null and one positively-useful datum — Idea 2 shows
+the champion's β→0 / `aux`-over-`gated` choice is *robust to input-conditioning*, strengthening the
+architecture claim. The recommended next direction (out of the cos≈0 box that all of R1/R2/R3/R10 +
+these three have now nulled) is **conditional coupling**: feed the cat head's *output* as an *input
+feature* to the reg head (GETNext/iMTL pattern) — the one mechanism with a literature prior for
+beating parity in this regime (FINAL_SYNTHESIS §4; advisor recommendation). Artifacts:
+`docs/results/mtl_frontier/followup_results.json`; driver `scripts/mtl_frontier/followup_screens.sh`;
+agg `followup_agg.py`.
+
+---
+
 **One conclusion, four independent confirmations.** Every output-level coupling (R1 static prior, R3
 live distillation) and every sharing-topology lever (R2 binary gate, R10 learned gate) is a **null over
 champion G**. The recurring pattern — a promising single-seed effect (always at the state with the

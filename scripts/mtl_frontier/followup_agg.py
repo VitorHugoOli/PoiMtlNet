@@ -42,7 +42,7 @@ for line in (REPO / "scripts/mtl_frontier/r2_multistate_manifest.tsv").read_text
 r2al = {}
 for line in (REPO / "scripts/mtl_frontier/r2_al_multiseed_manifest.tsv").read_text().splitlines():
     p = line.split("\t")
-    if len(p) >= 4 and p[0].startswith("base_s"):
+    if len(p) >= 4 and p[0].startswith("base_s") and p[2].strip().isdigit():
         r2al[int(p[2])] = p[3]
 # G+log_T-KD baseline (R1 base)
 r1 = {}

@@ -1,0 +1,65 @@
+{
+  "idea1_R10_multistate": {
+    "comparand": "champion G (KD-off)",
+    "states": {
+      "arizona": {
+        "seeds": [
+          0
+        ],
+        "delta_reg": -0.239,
+        "delta_cat": 0.14
+      },
+      "georgia": {
+        "seeds": [
+          0
+        ],
+        "delta_reg": 0.083,
+        "delta_cat": 0.269
+      },
+      "alabama": {
+        "seeds": [
+          0
+        ],
+        "delta_reg": 0.141,
+        "std_reg": 0.0,
+        "delta_cat": 0.178,
+        "std_cat": 0.0,
+        "per_seed_cat": [
+          0.178
+        ]
+      }
+    }
+  },
+  "idea2_aux_gated": {
+    "comparand": "champion G (fusion=aux, KD-off)",
+    "states": {
+      "alabama": {
+        "delta_reg": 0.251,
+        "delta_cat": 0.479,
+        "gate_reg_>=0.3": false,
+        "gate_either_>=0.3": true
+      },
+      "florida": {
+        "delta_reg": -0.009,
+        "delta_cat": -0.853,
+        "gate_reg_>=0.3": false,
+        "gate_either_>=0.3": false
+      }
+    }
+  },
+  "idea3_stack": {
+    "comparand": "G + log_T-KD 0.2",
+    "states": {
+      "alabama": {
+        "delta_reg": -0.047,
+        "delta_cat": 0.456,
+        "gate_either_>=0.3": true
+      },
+      "florida": {
+        "delta_reg": 0.091,
+        "delta_cat": 0.109,
+        "gate_either_>=0.3": false
+      }
+    }
+  }
+}
