@@ -64,9 +64,21 @@ class _CrossAttnBlock(nn.Module):
         detach_kv: bool = False,
         identity_attn: bool = False,
         zero_cat_kv: bool = False,
+        detach_ab: bool = False,
+        detach_ba: bool = False,
     ):
         super().__init__()
         self.detach_kv = bool(detach_kv)
+        # R2 (mtl_frontier) STEM-AFTB — DIRECTIONAL stop-grad, per block.
+        #   detach_ab: detach b's (reg) K/V in cross_ab (Q=cat) → cat reads reg
+        #     forward-only; L_cat does NOT backprop into the reg pathway here.
+        #   detach_ba: detach a's (cat) K/V in cross_ba (Q=reg) → reg reads cat
+        #     forward-only; L_reg does NOT backprop into the cat pathway here.
+        # detach_kv=True is the symmetric both-directions case (F50 P2) and is
+        # honored as (detach_ab=detach_ba=True). All-Forward Task-specific-Backward
+        # (STEM, AAAI'24) = both True at every block.
+        self.detach_ab = bool(detach_ab) or self.detach_kv
+        self.detach_ba = bool(detach_ba) or self.detach_kv
         # substrate-protocol-cleanup Tier C3 — runtime ablation that zeroes
         # the cat-stream K/V tensors before they participate in
         # ``cross_ab`` (Q from reg queries cat keys/values). Reg-side K/V
@@ -123,14 +135,14 @@ class _CrossAttnBlock(nn.Module):
             a = self.ln_a1(a)
             b = self.ln_b1(b)
         else:
-            kv_b = b.detach() if self.detach_kv else b
+            kv_b = b.detach() if self.detach_ab else b
             a_upd, _ = self.cross_ab(
                 query=a, key=kv_b, value=kv_b, key_padding_mask=b_pad_mask
             )
             a = self.ln_a1(a + a_upd)
             # b queries a (uses updated a as K/V so the two streams converge
             # symmetrically; this is MulT's "late" bidirectional pattern)
-            kv_a = a.detach() if self.detach_kv else a
+            kv_a = a.detach() if self.detach_ba else a
             # substrate-protocol-cleanup Tier C3 — zero the cat-stream K/V
             # tensors going into ``cross_ba`` (where reg's Q queries cat's
             # K/V). Forward-only ablation: weights of self.cross_ba.in_proj
@@ -179,6 +191,7 @@ class MTLnetCrossAttn(MTLnet):
         num_crossattn_heads: int = 4,
         crossattn_ffn_dim: Optional[int] = None,
         detach_crossattn_kv: bool = False,
+        aftb_spec: Optional[str] = None,
         disable_cross_attn: bool = False,
         identity_cross_attn: bool = False,
         zero_cat_kv: bool = False,
@@ -197,6 +210,16 @@ class MTLnetCrossAttn(MTLnet):
             int(crossattn_ffn_dim) if crossattn_ffn_dim is not None else int(shared_layer_size)
         )
         self._detach_crossattn_kv = bool(detach_crossattn_kv)
+        # R2 (mtl_frontier) STEM-AFTB spec — per-block directional stop-grad.
+        # Format: comma-separated per-block tokens, each a '+'-join of directions
+        # from {ab, ba} (or 'none'/'' for no detach). 'ab' = cat reads reg
+        # forward-only (detach reg K/V in cross_ab); 'ba' = reg reads cat
+        # forward-only (detach cat K/V in cross_ba). Length MUST equal
+        # num_crossattn_blocks. None → no AFTB (champion G). detach_crossattn_kv
+        # (symmetric, all-blocks) still works and is OR-ed in per block.
+        self._aftb_per_block = self._parse_aftb_spec(
+            aftb_spec, int(num_crossattn_blocks)
+        )
         self._disable_cross_attn = bool(disable_cross_attn)
         self._identity_cross_attn = bool(identity_cross_attn)
         self._zero_cat_kv = bool(zero_cat_kv)
@@ -270,6 +293,31 @@ class MTLnetCrossAttn(MTLnet):
                 nn.LayerNorm(shared_layer_size),
             )
 
+    @staticmethod
+    def _parse_aftb_spec(spec, num_blocks: int):
+        """Parse an AFTB spec string → list of (detach_ab, detach_ba) per block.
+
+        ``None`` / '' → all-False (champion G, full bidirectional gradient).
+        Else comma-separated per-block tokens; each token is a '+'-join of
+        {ab, ba} (or 'none'). Length must equal ``num_blocks``.
+        """
+        if spec is None or str(spec).strip() == "":
+            return [(False, False)] * num_blocks
+        tokens = [t.strip().lower() for t in str(spec).split(",")]
+        if len(tokens) != num_blocks:
+            raise ValueError(
+                f"aftb_spec has {len(tokens)} blocks but num_crossattn_blocks="
+                f"{num_blocks}; spec={spec!r}. One comma-separated token per block."
+            )
+        out = []
+        for tok in tokens:
+            dirs = set() if tok in ("none", "") else {d.strip() for d in tok.split("+")}
+            bad = dirs - {"ab", "ba"}
+            if bad:
+                raise ValueError(f"aftb_spec token {tok!r} has bad directions {bad}; use ab/ba/none")
+            out.append(("ab" in dirs, "ba" in dirs))
+        return out
+
     def _build_shared_backbone(
         self,
         shared_layer_size: int,
@@ -289,10 +337,19 @@ class MTLnetCrossAttn(MTLnet):
                     detach_kv=self._detach_crossattn_kv,
                     identity_attn=self._identity_cross_attn,
                     zero_cat_kv=self._zero_cat_kv,
+                    detach_ab=self._aftb_per_block[i][0],
+                    detach_ba=self._aftb_per_block[i][1],
                 )
-                for _ in range(self._num_crossattn_blocks)
+                for i in range(self._num_crossattn_blocks)
             ]
         )
+        if any(ab or ba for ab, ba in self._aftb_per_block):
+            import logging as _logging
+            _logging.getLogger(__name__).info(
+                "[R2 AFTB] per-block (detach_ab, detach_ba): %s "
+                "(ab=cat-reads-reg-readonly, ba=reg-reads-cat-readonly)",
+                self._aftb_per_block,
+            )
         # Final layer norms on each stream
         self.cat_final_ln = nn.LayerNorm(shared_layer_size)
         self.next_final_ln = nn.LayerNorm(shared_layer_size)
