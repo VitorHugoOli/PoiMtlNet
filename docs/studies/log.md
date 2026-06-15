@@ -22,6 +22,7 @@ One line per study per closure or major direction shift. **Outcomes only.** Proc
 | 2026-06-14 | `pre_freeze_gates` | **SCAFFOLDED (not launched)** — A2 feature-concat control (interpretation), A4 transductivity bound (disclosure), overlapping-windows adopt/keep (base change; effect already validated AL). Must resolve before `closing_data` freeze. A40. |
 | 2026-06-14 | `second_dataset` | **SCAFFOLDED (not launched)** — Massive-STEPS NYC (recommended; user-confirm): Mac ETL in parallel (cat→7-root map, coords→tracts, shipped temporal split), validation phase = temporal-split bridge. Off the freeze critical path. |
 | 2026-06-14 | `baseline_gap` | **SCAFFOLDED (not launched)** — closes the audit gap: owns the net-new external baselines (B1 CTLE, B2 POI2Vec/skip-gram, B3 HMT-GRN-style MTL, B4 cascade, B5 Flashback/DeepMove) from `baseline_gap_analysis.md`. Triage → RUN_MATRIX rows/columns decision pre-freeze (P1b); runs fold into P3. A40 + Mac. |
+| 2026-06-15 | `mtl_frontier` R1 | **NULL** — log_C co-location ESMM-KD prior (`prior(reg)=Σ_c P(reg\|c)·P̂(c)`, on top of log_T-KD): AL multi-seed Δreg **+0.207±0.196** (gate ≥0.3 FAIL; Wilcoxon p=0.008, 15/20 fold-seed pairs +, no cat regression), FL seed0 +0.171/cat−0.27; weight non-monotonic (peaks W=0.2, craters at 0.6). Real-but-small increment over log_T-KD (weak 7-class aux + spatial overlap). Not v17. Code behind `--log-c-kd-weight` (default off). → R2. |
 
 ## How to append
 

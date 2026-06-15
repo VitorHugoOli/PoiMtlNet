@@ -1,0 +1,56 @@
+{
+  "runs": {
+    "r1_alabama": {
+      "state": "alabama",
+      "reg_full": 62.837,
+      "reg_full_std": 3.215,
+      "cat_f1": 53.058,
+      "reg_diag_indist": 64.815,
+      "rundir": "results/check2hgi_design_k_resln_mae_l0_1/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260615_024730_1977558"
+    },
+    "base_alabama": {
+      "state": "alabama",
+      "reg_full": 62.506,
+      "reg_full_std": 3.332,
+      "cat_f1": 52.707,
+      "reg_diag_indist": 64.475,
+      "rundir": "results/check2hgi_design_k_resln_mae_l0_1/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260615_024730_1977552"
+    },
+    "base_florida": {
+      "state": "florida",
+      "reg_full": 72.976,
+      "reg_full_std": 0.702,
+      "cat_f1": 72.447,
+      "reg_diag_indist": 73.588,
+      "rundir": "results/check2hgi_design_k_resln_mae_l0_1/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260615_025101_1978782"
+    },
+    "r1_florida": {
+      "state": "florida",
+      "reg_full": 73.147,
+      "reg_full_std": 0.633,
+      "cat_f1": 72.178,
+      "reg_diag_indist": 73.761,
+      "rundir": "results/check2hgi_design_k_resln_mae_l0_1/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260615_025101_1978788"
+    }
+  },
+  "gate": {
+    "alabama": {
+      "base_reg_full": 62.506,
+      "r1_reg_full": 62.837,
+      "delta_reg": 0.331,
+      "base_cat": 52.707,
+      "r1_cat": 53.058,
+      "delta_cat": 0.351,
+      "promote_reg_>=0.3": true
+    },
+    "florida": {
+      "base_reg_full": 72.976,
+      "r1_reg_full": 73.147,
+      "delta_reg": 0.171,
+      "base_cat": 72.447,
+      "r1_cat": 72.178,
+      "delta_cat": -0.269,
+      "promote_reg_>=0.3": false
+    }
+  }
+}

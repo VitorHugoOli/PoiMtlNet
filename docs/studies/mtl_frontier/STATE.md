@@ -10,8 +10,8 @@
 ## First-wave queue
 | ID | Lever | State | Verdict |
 |---|---|---|---|
-| R1 | log_C co-location prior + probability-chain | not started | — |
-| R2 | STEM-AFTB gating sweep | not started | — |
+| R1 | log_C co-location prior + probability-chain | **CLOSED 2026-06-15** | **NULL** — real but sub-threshold (AL multi-seed Δreg **+0.207±0.196**, p=0.008 15/20 pairs, gate ≥0.3 FAIL; FL seed0 +0.171 / cat −0.27; W non-monotonic, peaks at 0.2). Not v17. See `FINDINGS.md §R1`. |
+| R2 | STEM-AFTB gating sweep | **next** | — |
 | R3 | live cross-task distillation | not started | — |
 
 Later waves (R4–R9) gated on first-wave outcomes — see `AGENT_PROMPT.md`.
@@ -28,3 +28,9 @@ Null → log here + `../log.md` row; do not silently fold into the freeze.
 ## Decisions log
 - 2026-06-14 — scaffolded from `docs/research/mtl_frontier.md` §4 (R1–R9). Optimizer aisle declared closed
   (19-arm null + Kurin/Xin/Mueller); only R9 residual sanity arms remain citable-cheap.
+- 2026-06-15 — **R1 launched + CLOSED NULL.** Built train-only per-fold/seed `P(region|cat)`
+  (`compute_region_colocation.py`) + ESMM KD coupling on top of log_T-KD (`--log-c-kd-weight`,
+  default off; G unchanged). Screen AL+FL seed0 → AL +0.331 (promote-eligible) / FL +0.171 null →
+  multi-seed AL {0,1,7,100} = **+0.207±0.196 (gate ≥0.3 FAIL)**, Wilcoxon p=0.008; weight sweep
+  non-monotonic (peaks W=0.2, craters at 0.6). Real-but-small incremental signal over log_T-KD;
+  weak-7-class-auxiliary + spatial overlap with log_T. Proceeding to **R2 (STEM-AFTB gating sweep)**.
