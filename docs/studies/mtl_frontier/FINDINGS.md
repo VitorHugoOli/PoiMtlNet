@@ -113,3 +113,48 @@ r2_multistate_results.json}`; drivers `scripts/mtl_frontier/{r2_aftb_screen.sh, 
 r2_multistate_confirm.sh}`; aggregators `{r2_agg.py, r2_multiseed_agg.py, r2_multistate_agg.py}`. Code:
 directional `detach_ab`/`detach_ba` + `aftb_spec` in `src/models/mtl/mtlnet_crossattn/model.py`
 (champion G defaults unchanged).
+
+---
+
+## R3 — CrossDistil (warm-up + error-correction + reverse reg→cat) — **NULL** (2026-06-15)
+
+**Verdict.** CrossDistil (AAAI'22) — the live-teacher generalization of log_T-KD — does **not** beat
+G + log_T-KD. The error-correction + warm-up refinements **do not rescue** R1's forward cat→reg null,
+the genuinely-new **reverse reg→cat** arm's AL gain is **seed-0 noise** (washes out multi-seed), and
+FL is null throughout. Champion G + log_T-KD unchanged. **Proceed to R10.**
+
+**Configs (vs G + log_T-KD), warmup=15 ep, ec λ=0.3.** Forward arm = R1's co-location KD + CrossDistil
+error-correction `teacher*=(1−λ)·teacher+λ·onehot(y)` + warm-up. Reverse arm = distill the reg-implied
+category prior `Σ_r P(cat|r)·P̂_reg(r)` (detached reg posterior) into the cat head.
+
+**AL+FL seed-0 screen:**
+
+| config | AL Δreg | AL Δcat | FL Δreg | FL Δcat |
+|---|---|---|---|---|
+| r3_fwd_ec (CrossDistil-refined forward) | +0.063 | **−0.182** | +0.108 | −0.195 |
+| r3_rev (reverse reg→cat) | +0.126 | **+0.452** | −0.008 | +0.087 |
+| r3_both | +0.118 | +0.263 | +0.133 | −0.143 |
+
+- **The forward CrossDistil refinements do NOT rescue R1** — r3_fwd_ec is null on reg (+0.06) and
+  *hurts* cat (−0.18). Error-correction + warm-up do not turn the sub-threshold R1 co-location prior
+  into a lever. R1's forward verdict stands at a higher standard.
+- **r3_rev** was the only seed-0 promote (AL cat +0.452) — the same AL-only/FL-null shape as R2.
+
+**r3_rev AL multi-seed {0,1,7,100}: the seed-0 cat lift is NOISE.** Δcat **+0.100 ± 0.282** (Wilcoxon
+n=4 p=0.31; per-seed [+0.452, **−0.335**, +0.168, +0.114] — one seed negative); Δreg +0.081 ± 0.098
+(p=0.025, sub-threshold). **Gate FAILS.** Unlike R2's AFTB cat lift (which held multi-seed at AL before
+failing the *multi-state* test), r3_rev's seed-0 AL effect does not even survive AL multi-seeding.
+
+**Mechanism / takeaway.** CrossDistil is the named, refined version of this repo's one proven lever
+(log_T-KD = a static-teacher instance). Making the teacher *live* (cat posterior), *calibrated*
+(τ), *error-corrected* (GT blend), *warm-up-gated*, and *bidirectional* adds **nothing** over the
+static log_T teacher already in G. This is the strongest form of the "output-level prior family is
+saturated by log_T-KD" conclusion: the cat↔reg label-space coupling carries no further multi-seed,
+multi-state signal. Together with R1 (static co-location) and R2 (sharing topology), **all three
+first-wave levers are nulls** that reproduce the same regime: small-state-only, high-variance,
+FL-null, reg-immovable.
+
+**Artifacts.** `docs/results/mtl_frontier/{r3_screen_results.json, r3_rev_al_multiseed_results.json}`;
+drivers `scripts/mtl_frontier/r3_screen.sh` (+ `/tmp/r3_alms/run.sh`); aggregators
+`{r3_agg.py, r3_rev_multiseed_agg.py}`. Code: `log_C_rev` buffer + warm-up/ec/reverse arms behind
+`--log-c-kd-warmup-epochs`/`--log-c-kd-ec-lambda`/`--cat-kd-weight` (champion G defaults unchanged).

@@ -1,0 +1,23 @@
+{
+  "config": "r3_rev (reverse reg\u2192cat KD, warmup15 ec0.3)",
+  "comparand": "base = G + log_T-KD 0.2",
+  "mean_delta_reg": 0.081,
+  "std_delta_reg": 0.098,
+  "mean_delta_cat": 0.1,
+  "std_delta_cat": 0.282,
+  "per_seed_delta_reg": [
+    0.126,
+    0.055,
+    0.205,
+    -0.063
+  ],
+  "per_seed_delta_cat": [
+    0.452,
+    -0.335,
+    0.168,
+    0.114
+  ],
+  "wilcoxon_reg_p_n20": 0.02547,
+  "wilcoxon_cat_p_n4": 0.3125,
+  "gate_either_>=0.3": false
+}

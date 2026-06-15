@@ -12,7 +12,7 @@
 |---|---|---|---|
 | R1 | log_C co-location prior + probability-chain | **CLOSED 2026-06-15** | **NULL** — real but sub-threshold (AL multi-seed Δreg **+0.207±0.196**, p=0.008 15/20 pairs, gate ≥0.3 FAIL; FL seed0 +0.171 / cat −0.27; W non-monotonic, peaks at 0.2). Not v17. See `FINDINGS.md §R1`. |
 | R2 | STEM-AFTB gating sweep | **CLOSED 2026-06-15** | **NULL** (not v17) — reg clean multi-seed null at all states; cat lift is AL-only & **decays with scale** (AL +0.636 / AZ +0.173 / GE +0.158 / **FL −0.026**); user-approved multi-state confirm → does NOT generalize. Citable STEM-AFTB dose-response. See `FINDINGS.md §R2`. |
-| R3 | live cross-task distillation | **next** | — |
+| R3 | live cross-task distillation | **CLOSED 2026-06-15** | **NULL** — CrossDistil (warm-up+error-correct+reverse) doesn't beat G+log_T-KD. Fwd refinements don't rescue R1 (AL cat −0.18); reverse reg→cat AL cat +0.45 seed0 → multi-seed **+0.100±0.282** (p=0.31, one seed −0.34); FL null. log_T-KD saturates the output-prior family. See `FINDINGS.md §R3`. |
 
 Later waves (R4–R9) gated on first-wave outcomes — see `AGENT_PROMPT.md`.
 
@@ -41,3 +41,9 @@ Null → log here + `../log.md` row; do not silently fold into the freeze.
   (AL +0.64 / AZ +0.17 / GE +0.16 / FL −0.03) → does NOT generalize → NOT v17. Inverse-G′. Citable
   STEM-AFTB dose-response (cross-task gradient is small-state harmful noise; reg unaffected — sharing
   topology doesn't move the reg gap). Proceeding to **R3 (live cross-task distillation)**.
+- 2026-06-15 — **R3 launched + CLOSED NULL.** Built CrossDistil: warm-up gating + error-correction on
+  the fwd cat→reg co-loc KD + a new reverse reg→cat arm (`log_C_rev`=P(cat\|region), `--cat-kd-weight`).
+  Screen vs G+log_T-KD: fwd refinements don't rescue R1 (AL cat −0.18); reverse AL cat +0.45 seed0 →
+  multi-seed +0.100±0.282 (p=0.31, seed1 −0.34) → noise; FL null. log_T-KD saturates the output-prior
+  family. **First wave (R1/R2/R3) = three nulls, all the same regime** (small-state-only, FL-null,
+  reg-immovable). User decision "full R3 then R10" → proceeding to **R10 (GRM/SSC gated read)**.

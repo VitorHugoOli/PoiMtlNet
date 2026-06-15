@@ -32,8 +32,9 @@ for line in (REPO / "scripts/mtl_frontier/r1_screen_manifest.tsv").read_text().s
         base[0] = p[2]
 for line in (REPO / "scripts/mtl_frontier/r1_al_multiseed_manifest.tsv").read_text().splitlines():
     p = line.split("\t")
+    # format: tag \t state \t seed \t rundir
     if len(p) >= 4 and p[0].startswith("base_s"):
-        base[int(p[1])] = p[3]
+        base[int(p[2])] = p[3]
 for line in (REPO / "scripts/mtl_frontier/r3_screen_manifest.tsv").read_text().splitlines():
     p = line.split("\t")
     if len(p) >= 3 and p[0] == "r3_rev_alabama":
