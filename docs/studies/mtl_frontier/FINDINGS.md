@@ -158,3 +158,63 @@ FL-null, reg-immovable.
 drivers `scripts/mtl_frontier/r3_screen.sh` (+ `/tmp/r3_alms/run.sh`); aggregators
 `{r3_agg.py, r3_rev_multiseed_agg.py}`. Code: `log_C_rev` buffer + warm-up/ec/reverse arms behind
 `--log-c-kd-warmup-epochs`/`--log-c-kd-ec-lambda`/`--cat-kd-weight` (champion G defaults unchanged).
+
+---
+
+## R10 — GRM-gated cross-attn read (Memory-Caching primitive, "on the layers") — **NULL** (2026-06-15)
+
+**Verdict.** The input-dependent **Gated Residual Memory** read (arXiv:2602.24281 primitive) — a
+learned, continuous generalization of R2's binary AFTB masks — **does not beat champion G**. The seed-0
+FL cat lift (+0.324) is **seed noise** (multi-seed +0.085 ± 0.203, two seeds negative). This is the
+**exact falsifier the R10 spec named: GRM ≡ G within noise** (the learned gate reproduces the
+hand-built dual-tower asymmetry — a citable null). Champion G unchanged.
+
+**Mechanism (new code, `_CrossAttnBlock`).** Per-sample, per-dim gate `γ=σ(W·masked-mean_seq(query))`
+on each stream's cross-attn read: `a ← LN(a + γ_a⊙CrossAttn(a,b))`. R2 gated the *gradient* (binary
+detach); GRM gates the *forward read magnitude*, input-conditioned, gradient flowing through γ. Bias
+init +2 → γ≈0.88 (untrained ≈ G). Unit-verified input-dependent (γ∈[0.815,0.924] across samples,
+C28 non-trivial). Enabled via `--model-param crossattn_grm=True`; G default unchanged.
+
+**Screen (G+GRM vs champion G, seed0):** AL Δreg +0.141 / Δcat +0.178 (null); **FL Δreg −0.026 / Δcat
++0.324** (crossed the gate — the FIRST FL effect in the study, where FL cat is tight, R0 σ=0.04).
+
+**FL multi-seed {0,1,7,100}: WASHED OUT.** Δcat **+0.085 ± 0.203** (Wilcoxon n=4 p=0.31; per-seed
+[+0.324, −0.053, +0.238, −0.170] — two seeds negative); Δreg −0.027 ± 0.028 (p=0.82). **Gate FAILS.**
+
+**Takeaway.** Making R2's sharing gate **learned and input-conditioned** adds nothing over champion G's
+fixed asymmetry — GRM ≡ the hand-built dual-tower. The cos≈0 regime leaves the cross-task read with no
+input-conditioned structure worth gating: where the binary mask was a (small-state) effect, the learned
+gate is a wash at the matched standard. The Memory-Caching headline (long-context recall) was never
+applicable (fixed length-9 windows); its transplantable gated-read primitive, applied "on the layers",
+is null here. **SSC (top-k router) was NOT pursued** — the GRM primary showed no signal, so the
+falsifier "GRM ≡ G" already closes the R10 family per the spec (run R2 first → GRM is "what if AFTB were
+learned" → null like AFTB).
+
+**Artifacts.** `docs/results/mtl_frontier/{r10_screen_results.json, r10_fl_multiseed_results.json}`;
+drivers `/tmp/r10_screen/run.sh`, `/tmp/r10_flms/run.sh`; aggregators `{r10_agg.py,
+r10_fl_multiseed_agg.py}`. Code: `crossattn_grm` + `_masked_mean_seq` in
+`src/models/mtl/mtlnet_crossattn/model.py` (champion G defaults unchanged).
+
+---
+
+## SYNTHESIS — first wave + R10: four nulls, one regime (2026-06-15)
+
+| lever | family | mechanism | best seed-0 | multi-seed verdict |
+|---|---|---|---|---|
+| **R1** | output-level prior | log_C co-location KD `Σ_c P(reg\|c)·P̂(c)` | AL reg +0.33 | **null** (+0.207, sub-threshold) |
+| **R2** | asymmetric sharing | binary STEM-AFTB stop-grad masks | AL cat +1.31 | **null** (AL-only; decays to FL −0.03) |
+| **R3** | output-level coupling | CrossDistil (live teacher, ec, warm-up, reverse) | AL cat +0.45 | **null** (washes out; log_T-KD saturates the family) |
+| **R10** | asymmetric sharing | learned input-conditioned GRM gate | FL cat +0.32 | **null** (washes out; GRM ≡ G) |
+
+**One conclusion, four independent confirmations.** Every output-level coupling (R1 static prior, R3
+live distillation) and every sharing-topology lever (R2 binary gate, R10 learned gate) is a **null over
+champion G**. The recurring pattern — a promising single-seed effect (always at the state with the
+loosest cat variance) that **washes out under multi-seeding** — is the signature of the **cos≈0,
+data-rich, weak-7-class-auxiliary regime** documented in `archive/mtl_improvement/FINAL_SYNTHESIS.md`.
+The study's two proven wins (the dual-tower architecture + the static log_T-KD prior) are **not
+extended** by their literature-frontier generalizations: CrossDistil = G's already-present static
+teacher; STEM-AFTB / GRM = G's already-present hand-built asymmetry. **No lever promotes to v17; champion
+G stands.** This is a strong, citable negative for the paper: the post-2022 MTL frontier (asymmetric
+modularity + output-level coupling), brought to this LBSN regime, reproduces — but does not beat — the
+two mechanisms the `mtl_improvement` study already found. Remaining program (R4-R9) deferred; the
+optimizer aisle stays closed (Kurin/Xin/Mueller).

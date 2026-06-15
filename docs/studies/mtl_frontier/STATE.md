@@ -16,10 +16,15 @@
 
 Later waves (R4–R9) gated on first-wave outcomes — see `AGENT_PROMPT.md`.
 
-**R10 (★ user-requested) — Memory-Caching / GRM gating at the layer level** (arXiv:2602.24281, no code).
-Second-wave architectural lever adjacent to R2: GRM-gated / SSC-routed read between the dual towers
-(primary), and GRM/Memory-Soup fusion across Check2HGI hierarchy levels (speculative, STL-first).
-"On the layers, not the transformers." Run R2 first; promote ≥0.3 pp over G, multi-seed. See `AGENT_PROMPT.md §R10`.
+**R10 (★ user-requested) — Memory-Caching / GRM gating — CLOSED 2026-06-15: NULL.** GRM-gated cross-attn
+read (learned input-conditioned generalization of R2's binary AFTB). Screen: FL cat +0.324 seed0 (first
+FL effect) → FL multi-seed **+0.085±0.203** (p=0.31, 2 seeds negative) = noise. **GRM ≡ champion G** —
+the exact falsifier the spec named. SSC not pursued (GRM primary null). Code behind
+`--model-param crossattn_grm=True`, G default unchanged. See `FINDINGS.md §R10`.
+
+**STUDY STATUS (2026-06-15): R1/R2/R3 + R10 all NULL.** Four independent levers (output-prior, binary
+sharing, live distillation, learned gating) reproduce but do not beat champion G — airtight confirmation
+of the cos≈0 / weak-auxiliary regime. No v17 promotion. R4-R9 deferred. See `FINDINGS.md §SYNTHESIS`.
 
 ## Promote-gate convention
 ≥0.3 pp either head, multi-seed {0,1,7,100} → STOP for user (recipe → v17) → register in `closing_data` G0.2.
