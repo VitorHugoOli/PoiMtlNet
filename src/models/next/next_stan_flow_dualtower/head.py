@@ -150,6 +150,7 @@ class NextHeadStanFlowDualTower(nn.Module):
         priv_head: str = "stan",
         fusion_mode: str = "gated",
         transition_path: Optional[str] = None,
+        colocation_path: Optional[str] = None,
         alpha_init: float = 0.1,
         freeze_alpha: bool = False,
     ):
@@ -248,6 +249,27 @@ class NextHeadStanFlowDualTower(nn.Module):
             self.register_buffer("log_T", log_T)
         else:
             self.register_buffer("log_T", torch.zeros(num_classes, num_classes))
+
+        # --- R1 (mtl_frontier) co-location prior P(region|cat), [num_classes, n_cats].
+        # log P(region|cat), column-normalized; consumed ONLY by the trainer's
+        # log_C-KD branch (mtl_cv.py) — NOT by _apply_prior (this is a KD teacher
+        # factor, not an additive logit prior). Buffer so it moves to device with
+        # the model and is fold-scoped (the head is rebuilt per fold). Absent →
+        # zeros (the KD branch's weight==0 fast path makes that a strict no-op).
+        if colocation_path is not None:
+            cpayload = torch.load(colocation_path, map_location="cpu", weights_only=False)
+            log_C = cpayload["log_colocation"] if isinstance(cpayload, dict) else cpayload
+            log_C = log_C.float()
+            if log_C.shape[0] < num_classes:
+                raise ValueError(
+                    f"Co-location matrix rows {log_C.shape[0]} < num_classes="
+                    f"{num_classes} (regions). Rebuild for this state: "
+                    f"scripts/compute_region_colocation.py --per-fold."
+                )
+            log_C = log_C[:num_classes, :].contiguous()
+            self.register_buffer("log_C", log_C)
+        else:
+            self.register_buffer("log_C", None, persistent=False)
 
     # ------------------------------------------------------------------
     def _fuse(

@@ -211,6 +211,18 @@ class ExperimentConfig:
     log_t_kd_weight: float = 0.0
     log_t_kd_tau: float = 1.0
 
+    # R1 (mtl_frontier) — log_C co-location KD prior (ESMM probability-chain).
+    # A SECOND distillation term on the reg loss whose teacher is the
+    # cat-marginalized region prior:
+    #     prior(reg) = Σ_c P(reg|c) · P̂(c)        (P̂ = softmax(cat_logits).detach())
+    #     L_reg += log_c_kd_weight · τ² · KL(student || softmax(log(prior)/τ))
+    # P(reg|c) is the per-fold/per-seed train-only matrix from
+    # ``scripts/compute_region_colocation.py`` (buffer ``log_C`` on the reg head).
+    # Stacks ON TOP of log_t_kd (the comparand is G WITH log_T-KD). Default 0.0 =
+    # strict no-op. See docs/studies/mtl_frontier/ (R1).
+    log_c_kd_weight: float = 0.0
+    log_c_kd_tau: float = 1.0
+
     # T4.0a (mtl_improvement) loss-scale normalization. When True, each task's
     # raw CE is divided by ``log(num_classes_of_that_task)`` BEFORE the MTL
     # combiner / inter-task weight, decoupling the built-in ~4.7x CE-magnitude

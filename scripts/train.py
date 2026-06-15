@@ -949,6 +949,34 @@ def _parse_args(argv=None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--log-c-kd-weight",
+        dest="log_c_kd_weight",
+        type=float,
+        default=None,
+        metavar="W",
+        help=(
+            "R1 (mtl_frontier) — ESMM co-location KD weight. Adds a SECOND "
+            "distillation term to the reg loss whose teacher is the "
+            "cat-marginalized region prior prior(reg)=Σ_c P(reg|c)·P̂(c) "
+            "(P̂=softmax(cat_logits).detach()), on top of any --log-t-kd-weight. "
+            "Requires --reg-head next_stan_flow_dualtower with a buffered log_C "
+            "(per-fold region_colocation_log_seed{S}_fold{N}.pt at "
+            "--per-fold-transition-dir; build via "
+            "scripts/compute_region_colocation.py --per-fold). Default 0.0 = off."
+        ),
+    )
+    parser.add_argument(
+        "--log-c-kd-tau",
+        dest="log_c_kd_tau",
+        type=float,
+        default=None,
+        metavar="TAU",
+        help=(
+            "R1 — temperature τ for the log_C co-location KD term (same "
+            "Hinton τ² form as --log-t-kd-tau). Default 1.0."
+        ),
+    )
+    parser.add_argument(
         "--alpha-frozen-until-epoch",
         dest="alpha_frozen_until_epoch",
         type=int,
@@ -1530,6 +1558,25 @@ def _apply_cli_overrides(
         config = dataclasses.replace(
             config, log_t_kd_tau=_V12_LOG_T_KD_DEFAULT_TAU
         )
+
+    # R1 (mtl_frontier) — log_C co-location KD. Opt-in, MTL-only, default OFF
+    # (no version default; never auto-enabled). Stacks on top of log_t_kd.
+    if getattr(args, "log_c_kd_weight", None) is not None:
+        wc = float(args.log_c_kd_weight)
+        if args.task != "mtl":
+            raise ValueError("--log-c-kd-weight requires --task mtl")
+        if wc < 0.0:
+            raise ValueError(f"--log-c-kd-weight={wc} must be >= 0.0 (0.0 = off)")
+        config = dataclasses.replace(config, log_c_kd_weight=wc)
+        logger.info(
+            "log_C co-location KD %s (W=%.3g) via --log-c-kd-weight (R1)",
+            "ON" if wc > 0.0 else "OFF", wc,
+        )
+    if getattr(args, "log_c_kd_tau", None) is not None:
+        tau_c = float(args.log_c_kd_tau)
+        if tau_c <= 0.0:
+            raise ValueError(f"--log-c-kd-tau={tau_c} must be > 0.0")
+        config = dataclasses.replace(config, log_c_kd_tau=tau_c)
 
     # T4.0a (mtl_improvement) loss-scale normalization — opt-in, MTL-only.
     if getattr(args, "loss_scale_norm", False):

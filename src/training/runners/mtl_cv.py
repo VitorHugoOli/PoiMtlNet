@@ -215,6 +215,8 @@ def train_model(model: torch.nn.Module,
                 task_best_save_dir: Optional[Path] = None,
                 log_t_kd_weight: float = 0.0,
                 log_t_kd_tau: float = 1.0,
+                log_c_kd_weight: float = 0.0,
+                log_c_kd_tau: float = 1.0,
                 loss_scale_norm: bool = False,
                 checkpoint_selector: str = "geom_simple",
                 joint_min_epoch: int = 0,
@@ -562,6 +564,65 @@ def train_model(model: torch.nn.Module,
                                 _denom = _valid.sum().clamp_min(1).float()
                                 _kd_loss = (_kld_per_sample.sum() / _denom) * (_tau * _tau)
                                 task_b_loss = task_b_loss + log_t_kd_weight * _kd_loss
+
+                # R1 (mtl_frontier) — log_C co-location KD (ESMM probability-chain).
+                # A SECOND distillation term whose per-sample teacher is the
+                # cat-marginalized region prior:
+                #   prior(reg) = Σ_c P(reg|c) · P̂(c),  P̂ = softmax(cat_logits).detach()
+                #   teacher    = softmax(log(prior)/τ);  student = softmax(reg_logits/τ)
+                #   L_reg += W · τ² · KL(student || teacher)
+                # P(reg|c) = exp(log_C) is the train-only per-fold/seed matrix
+                # buffered on the reg head. Stacks on top of log_T-KD. Strict
+                # no-op fast path at weight 0.0. C28 dead-codepath guard: a one-shot
+                # diagnostic asserts the teacher is non-trivial (non-uniform) and
+                # logs its mean max-prob the first time it fires.
+                if log_c_kd_weight > 0.0:
+                    _reg_head_c = getattr(model, "next_poi", None)
+                    _log_C = getattr(_reg_head_c, "log_C", None) if _reg_head_c is not None else None
+                    if _log_C is not None:
+                        _ncr = pred_task_b.shape[-1]   # n_regions
+                        _nca = pred_task_a.shape[-1]   # n_cats
+                        if _log_C.shape[0] >= _ncr and _log_C.shape[1] == _nca:
+                            _tau_c = float(log_c_kd_tau)
+                            # P̂(c) — detached cat posterior (teacher factor only).
+                            _phat = torch.softmax(pred_task_a.float(), dim=-1).detach()  # [B, n_cats]
+                            _P_reg_c = _log_C[:_ncr, :].float().exp()                     # [n_regions, n_cats]
+                            # prior(reg) = Σ_c P(reg|c)·P̂(c) → [B, n_regions]
+                            _prior = _phat @ _P_reg_c.transpose(0, 1)                     # [B, n_regions]
+                            _prior = _prior.clamp_min(1e-12)
+                            _teacher_c = torch.softmax(torch.log(_prior) / _tau_c, dim=-1)
+                            _student_c_log = torch.log_softmax(pred_task_b.float() / _tau_c, dim=-1)
+                            _student_c = _student_c_log.exp()
+                            _log_teacher_c = torch.log(_teacher_c.clamp_min(1e-12))
+                            _kldc = (_student_c * (_student_c_log - _log_teacher_c)).sum(dim=-1)
+                            _kdc_loss = _kldc.mean() * (_tau_c * _tau_c)
+                            task_b_loss = task_b_loss + log_c_kd_weight * _kdc_loss
+                            # C28 mechanism-fires one-shot diagnostic.
+                            if not globals().get("_LOGC_FIRED", False):
+                                globals()["_LOGC_FIRED"] = True
+                                _tmax = float(_teacher_c.max(dim=-1).values.mean())
+                                _unif = 1.0 / float(_ncr)
+                                logger.info(
+                                    "[R1 log_C-KD FIRED] W=%.3g τ=%.3g teacher mean "
+                                    "max-prob=%.4f (uniform=%.5f → %.0f× peaked) "
+                                    "mean KL=%.4f n_regions=%d n_cats=%d",
+                                    log_c_kd_weight, _tau_c, _tmax, _unif,
+                                    _tmax / _unif, float(_kldc.mean()), _ncr, _nca,
+                                )
+                                if _tmax <= _unif * 1.5:
+                                    logger.warning(
+                                        "[R1 log_C-KD] teacher looks ~uniform "
+                                        "(max-prob %.4f ≈ uniform %.5f) — prior "
+                                        "may be trivial; check the matrix.", _tmax, _unif,
+                                    )
+                        else:
+                            if not globals().get("_LOGC_SHAPE_WARNED", False):
+                                globals()["_LOGC_SHAPE_WARNED"] = True
+                                logger.warning(
+                                    "[R1 log_C-KD] shape mismatch log_C=%s vs "
+                                    "(n_regions=%d, n_cats=%d) — term skipped.",
+                                    tuple(_log_C.shape), _ncr, _nca,
+                                )
 
             # substrate-protocol-cleanup Tier C2 — after the reg-freeze
             # boundary, the reg loss is contributed at weight 0 so the MTL
@@ -1168,6 +1229,56 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                     )
                 tb_head_params = dict(ts.task_b.head_params or {})
                 tb_head_params["transition_path"] = str(pf_path)
+
+                # R1 (mtl_frontier) — per-fold log_C co-location prior, swapped
+                # in beside log_T when --log-c-kd-weight > 0. Same dir, same
+                # seed/fold/n_splits + stale-mtime leak guards as log_T (a leak
+                # here would contaminate the reg KD teacher exactly as a stale
+                # log_T contaminates the Markov prior).
+                if float(getattr(config, "log_c_kd_weight", 0.0) or 0.0) > 0.0:
+                    pc_path = (
+                        _Path(per_fold_dir)
+                        / f"region_colocation_log_seed{seed}_fold{i_fold + 1}.pt"
+                    )
+                    if not pc_path.exists():
+                        raise FileNotFoundError(
+                            f"--log-c-kd-weight>0 but per-fold log_C {pc_path} "
+                            f"missing. Build: python "
+                            f"scripts/compute_region_colocation.py --state "
+                            f"{config.state} --per-fold --seed {seed} --engine "
+                            f"{getattr(config, 'embedding_engine', '<engine>')}"
+                        )
+                    if parquet_path.exists() and (
+                        pc_path.stat().st_mtime < parquet_path.stat().st_mtime
+                    ):
+                        raise ValueError(
+                            f"Stale per-fold log_C: {pc_path} mtime predates "
+                            f"{parquet_path}; rebuild via "
+                            f"scripts/compute_region_colocation.py --per-fold "
+                            f"--seed {seed}."
+                        )
+                    pc_payload = torch.load(pc_path, map_location="cpu", weights_only=False)
+                    pc_n_splits = (
+                        pc_payload.get("n_splits") if isinstance(pc_payload, dict) else None
+                    )
+                    if pc_n_splits is not None and int(pc_n_splits) != trainer_n_splits:
+                        raise ValueError(
+                            f"Per-fold log_C at {pc_path} built with "
+                            f"n_splits={pc_n_splits} != trainer {trainer_n_splits}; "
+                            f"rebuild (leaks val co-locations into the KD teacher)."
+                        )
+                    pc_seed = pc_payload.get("seed") if isinstance(pc_payload, dict) else None
+                    if pc_seed is not None and int(pc_seed) != seed:
+                        raise ValueError(
+                            f"Per-fold log_C at {pc_path} built at seed={pc_seed} "
+                            f"!= trainer seed={seed}."
+                        )
+                    tb_head_params["colocation_path"] = str(pc_path)
+                    logger.info(
+                        "[R1 per-fold log_C] fold %d seed %d using %s",
+                        i_fold + 1, seed, pc_path,
+                    )
+
                 new_task_b = _dataclasses.replace(ts.task_b, head_params=tb_head_params)
                 new_task_set = _dataclasses.replace(ts, task_b=new_task_b)
                 per_fold_model_params = dict(config.model_params)
@@ -1449,6 +1560,8 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             task_best_save_dir=task_best_save_dir,
             log_t_kd_weight=float(getattr(config, "log_t_kd_weight", 0.0) or 0.0),
             log_t_kd_tau=float(getattr(config, "log_t_kd_tau", 1.0) or 1.0),
+            log_c_kd_weight=float(getattr(config, "log_c_kd_weight", 0.0) or 0.0),
+            log_c_kd_tau=float(getattr(config, "log_c_kd_tau", 1.0) or 1.0),
             loss_scale_norm=bool(getattr(config, "loss_scale_norm", False)),
             checkpoint_selector=str(getattr(config, "checkpoint_selector", "geom_simple")),
             joint_min_epoch=int(getattr(config, "min_best_epoch", 0) or 0),
