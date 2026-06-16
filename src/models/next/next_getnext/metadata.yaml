@@ -1,7 +1,7 @@
 name: next_getnext
 domain: next
-status: implemented
-evidence_status: implemented
+status: ablated
+evidence_status: ablated
 registry_key: next_getnext
 runtime_class: models.next.next_getnext.head.NextHeadGETNext
 runtime_file: src/models/next/next_getnext/head.py

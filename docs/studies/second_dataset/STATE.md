@@ -17,7 +17,7 @@ Directional (NOT paper numbers; ResLN-80ep substrate, 1 seed × 5 folds × 50 ep
 AL 12,709 · AZ 26,396 · **NYC 30,155** · FL 159,175 · **Istanbul 58,075 (mahalle, primary) / 60,091 (H3)** · CA 358,302 · TX 460,976. → Istanbul ≈ between AZ and FL; NYC ≈ AZ (both small-to-mid → H3-alt recipe).
 
 ## ⚠ Key findings (detail in PHASE_E_REPORT.md §F1–F3, verified vs source + paper)
-- **F1 — shipped split is NOT temporal.** User-stratified RANDOM split over trails (seed 42, 7:1:2; users in all 3 splits by design; only 14% of train∩test users have test-after-train). The "free temporal-split bridge" rationale in `future_work.md §8` is **falsified** — a temporal bridge needs a Gowalla chronological re-split (A5).
+- **F1 — shipped split is NOT temporal.** User-stratified RANDOM split over trails (seed 42, 7:1:2; users in all 3 splits by design; only 14% of train∩test users have test-after-train). The "free temporal-split bridge" rationale in `future_work.md §8` is **falsified**. The fix: build our OWN **chronological per-user split** from the per-check-in timestamps — the scoped **Phase E2** item (Mac, no CUDA, no freeze dep); doing it on Massive-STEPS is now the **recommended** route to A5 (modern non-US+US corpus), with a Gowalla-side chronological re-split as the fallback.
 - **F2 — shipped split ⊥ repo window=9** (trails median=2). **F3 — Massive-STEPS native windowing is within-trail; it has NO category/region task** (both are our Gowalla-ported additions).
 - **Decision (user): build BOTH** protocols; **lead with set (a)** within-user + user-grouped CV (controlled Gowalla-parity = the honest external-validity comparison); set (b) within-trail = footnote. A **3rd native-shape set** (within-trail, window≈5, overlapping) is recommended, not yet built.
 - **Phase-V non-negotiables:** freeze each city's substrate to the *bit-identical Gowalla recipe* (transductivity must be matched); report Markov-1 floor + STL ceilings in-table & compare gap-to-ceiling (not absolute Acc@k); drop temporal-bridge language.
@@ -31,8 +31,10 @@ AL 12,709 · AZ 26,396 · **NYC 30,155** · FL 159,175 · **Istanbul 58,075 (mah
 | E | folds + both protocols + per-fold priors | ✅ done — (a) NYC 30,155 / IST 58,075 (mahalle primary; 60,091 H3) seq + 25 priors each {0,1,7,100,42}; (b) NYC 9,509 / IST 6,419 (mahalle) + shipped-train prior |
 | E | T1-style stats | ✅ done — `STATS_T1.md` |
 | E | 3rd native-shape set (within-trail w5 overlapping) | ⬜ recommended, not built (offered to user) |
+| **E2** | **chronological per-user re-split (timestamp-ordered 80/10/10-ish) + matching per-fold train-only priors** — Mac, parallel, **no CUDA / no freeze dep**; this is the **temporal bridge (roadmap A5)**, corrective to F1 | ⬜ **not built** — scoped (the shipped split is RANDOM, not temporal; build our own from timestamps) |
 | V | substrate embeddings (frozen recipe) → next/category parquets | ⛔ blocked on freeze + CUDA |
-| V | champion G + STL ceilings + Markov floor, 4 seeds | ⛔ blocked on freeze + CUDA |
+| V | champion G + STL ceilings + Markov floor, 4 seeds (within-user CV = Gowalla-parity) | ⛔ blocked on freeze + CUDA |
+| V | **A5 temporal bridge**: re-run headline cells on the Phase E2 chronological split | ⛔ blocked on freeze + CUDA (split built in E2) |
 
 ## Conventions
 - Mac = ETL only; no heavy CUDA training. Phase V waits for a CUDA box + the frozen champion/substrate.

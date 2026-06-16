@@ -2,6 +2,26 @@
 
 Reference: Luo, Liu, Liu. *STAN: Spatio-Temporal Attention Network for Next Location Recommendation.* The Web Conference (WWW) 2021. [arXiv:2102.04095](https://arxiv.org/abs/2102.04095) · [Repo](https://github.com/yingtaoluo/Spatial-Temporal-Attention-Network-for-POI-Recommendation).
 
+## Why This
+- Bi-layer spatio-temporal self-attention next head, adapted from STAN (Luo et al., WWW 2021).
+  It is the shared attention backbone re-used by every STAN-Flow reg head (`next_stan_flow`,
+  `next_stan_flow_hsm`, `next_stan_flow_dualtower`, `next_getnext`, `next_tgstan`,
+  `next_stahyper`) and beats the `next_gru` prior as a standalone STL region head.
+
+## Runtime Mapping
+- Model registry key: `next_stan`
+- Runtime class: `models.next.next_stan.head.NextHeadSTAN`
+- Runtime file: `src/models/next/next_stan/head.py`
+
+## Evidence Status
+- Current: `implemented`
+- Last Reviewed: `2026-06-16`
+
+## Sources
+- Lineage: STAN (Luo, Liu, Liu, WWW 2021, arXiv:2102.04095).
+- P1 region-head ablation: `next_stan` beats `next_gru` +2.26 pp (AL) / +3.36 pp (AZ) Acc@10.
+  See `docs/findings/SOTA_STAN_BASELINE.md`.
+
 ## Architecture
 
 Bi-layer self-attention with a fully-learnable pairwise position bias. Layer 1 aggregates trajectory context; Layer 2 is a last-position query attending over all positions (STAN's "matching" layer adapted to classification). Bidirectional (no causal mask — all 9 input positions are past observations of a later target).

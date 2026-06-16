@@ -40,7 +40,11 @@ LEVEL 3 — SINGLE HEAVY SPEND
 
 LEVEL 4 — EXTERNAL VALIDATION (may overlap P3 tail)
               second_dataset/        validation phase: champion G + STL ceilings + Markov floor on
-                                     Massive-STEPS NYC = the temporal-split bridge (roadmap A5)
+                                     Massive-STEPS NYC/Istanbul (within-user user-grouped CV = Gowalla-parity).
+                                     NOTE: this validation is NOT the temporal-split bridge — the shipped
+                                     Massive-STEPS split is user-stratified RANDOM, not temporal (F1). The
+                                     bridge (roadmap A5) is the separate Phase E2 chronological per-user
+                                     re-split (Mac-track, parallel, no freeze dependency).
 ```
 
 **Why exploration is strictly first** (the user's hierarchy): a lever promoted by `mtl_frontier` or a
@@ -50,7 +54,11 @@ lever that becomes a gate. So Level 0 → Level 1 → freeze, no shortcuts.
 
 **Why `second_dataset` runs in parallel and off the critical path:** its ETL touches nothing the freeze
 pins (a different corpus), so the Mac builds it during Levels 0–1; only its *validation runs* depend on
-the frozen champion, so they sit at Level 4.
+the frozen champion, so they sit at Level 4. Note the validation phase is **not** the temporal-split
+bridge — the shipped Massive-STEPS split is user-stratified RANDOM, not temporal (F1). The bridge
+(roadmap A5) is the **Phase E2 chronological per-user re-split** built from the corpus's per-check-in
+timestamps: it too is Mac-track with **no freeze dependency**, so it runs in parallel alongside the ETL
+during Levels 0–1 (only its champion *runs* would join the Level-4 validation).
 
 **Why `baseline_gap` is Level 0/1 for the *decision* but trails for the *runs*:** which external
 baselines enter the final tables is a RUN_MATRIX input (`closing_data` P1b) and must be pinned at the

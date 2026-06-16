@@ -11,11 +11,13 @@ class TestEmbeddingEngine:
     """Test suite for EmbeddingEngine enum."""
 
     def test_all_engines_defined(self):
-        """Test that all embedding engines are defined."""
-        expected_values = {"dgi", "hgi", "hmrm", "time2vec", "space2vec", "sphere2vec",
-                           "check2hgi", "poi2hgi", "fusion"}
+        """The canonical embedding engines must all be defined. Research/ablation
+        variants (check2hgi_design_*, *_resln, gat, rgcn, …) get added to the enum
+        over time, so this is a subset check on the canonical set, not exact equality."""
+        canonical = {"dgi", "hgi", "hmrm", "time2vec", "space2vec", "sphere2vec",
+                     "check2hgi", "poi2hgi", "fusion"}
         actual_values = {e.value for e in EmbeddingEngine}
-        assert actual_values == expected_values
+        assert canonical <= actual_values, f"missing canonical engines: {canonical - actual_values}"
 
     def test_fusion_engine(self):
         """Test FUSION engine configuration."""

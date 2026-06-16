@@ -180,8 +180,11 @@ def test_check2hgi_metric_keys_use_preset_task_names():
     assert "val_joint_lift" in metrics          # alias
     assert "val_joint_geom_lift" in metrics     # canonical name (geometric mean)
     assert "val_joint_arith_lift" in metrics    # reported for comparison
-    # val_joint_lift alias should equal val_joint_geom_lift bit-exactly
-    assert metrics["val_joint_lift"] == metrics["val_joint_geom_lift"]
+    # val_joint_lift is the monitor alias for the C21 shipped selector
+    # (joint_geom_simple = sqrt(cat_f1 · reg_top10)); see mtl_cv.py emission
+    # ("monitor=val_joint_lift tracks the shipped selector"). It must mirror
+    # val_joint_geom_simple bit-exactly, NOT the interim acc1-lift geom form.
+    assert metrics["val_joint_lift"] == metrics["val_joint_geom_simple"]
 
     # Legacy names must NOT leak into the metrics dict under a non-legacy preset.
     for legacy_key in ("val_f1_category", "val_f1_next", "val_accuracy_category", "val_accuracy_next"):
