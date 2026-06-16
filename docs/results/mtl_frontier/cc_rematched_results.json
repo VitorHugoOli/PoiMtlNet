@@ -1,0 +1,55 @@
+{
+  "state": "florida",
+  "comparand": "FRESH matched champion-G (2 replicates/seed)",
+  "per_seed": [
+    {
+      "seed": 0,
+      "G_a_cat": 73.012,
+      "G_b_cat": 73.012,
+      "G_mean_cat": 73.012,
+      "cc_cat": 73.462,
+      "delta_cat_matched": 0.45,
+      "G_noise_cat": 0.0,
+      "delta_reg_matched": 0.025,
+      "G_noise_reg": 0.0
+    },
+    {
+      "seed": 1,
+      "G_a_cat": 73.212,
+      "G_b_cat": 73.212,
+      "G_mean_cat": 73.212,
+      "cc_cat": 73.286,
+      "delta_cat_matched": 0.074,
+      "G_noise_cat": 0.0,
+      "delta_reg_matched": 0.1,
+      "G_noise_reg": 0.0
+    },
+    {
+      "seed": 7,
+      "G_a_cat": 73.181,
+      "G_b_cat": 73.181,
+      "G_mean_cat": 73.181,
+      "cc_cat": 73.387,
+      "delta_cat_matched": 0.206,
+      "G_noise_cat": 0.0,
+      "delta_reg_matched": 0.101,
+      "G_noise_reg": 0.0
+    },
+    {
+      "seed": 100,
+      "G_a_cat": 73.143,
+      "G_b_cat": 73.143,
+      "G_mean_cat": 73.143,
+      "cc_cat": 73.352,
+      "delta_cat_matched": 0.209,
+      "G_noise_cat": 0.0,
+      "delta_reg_matched": 0.053,
+      "G_noise_reg": 0.0
+    }
+  ],
+  "mean_delta_cat_matched": 0.235,
+  "std_delta_cat_matched": 0.136,
+  "mean_delta_reg_matched": 0.07,
+  "mean_G_noise_cat": 0.0,
+  "mean_G_noise_reg": 0.0
+}

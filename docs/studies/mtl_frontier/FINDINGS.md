@@ -229,7 +229,31 @@ r10_fl_multiseed_agg.py}`. Code: `crossattn_grm` + `_masked_mean_seq` in
 | **R3** | output-level coupling | CrossDistil (live teacher, ec, warm-up, reverse) | AL cat +0.45 | **null** (washes out; log_T-KD saturates the family) |
 | **R10** | asymmetric sharing | learned input-conditioned GRM gate | FL cat +0.32 | **null** (washes out; GRM ≡ G) |
 
+### AUDIT — "seed-0 is always best" (user-flagged) → determinism + real seed variance, results stand (2026-06-16)
+
+The user noticed every lever's delta was largest at seed-0. Audited:
+- **Champion G is fully DETERMINISTIC** on the current code: two distinct runs (different rundirs/PIDs)
+  at the same seed are bit-identical (Δcat = 0.0000 at all 4 FL seeds; `gmatched_manifest.tsv`,
+  `cc_rematched_results.json`). No run-to-run non-determinism.
+- **The earlier "run-to-run noise (AL 0.38 / FL 0.11)" was CODE DRIFT**, not noise — it compared
+  current-code (mtl_frontier, June 15) baselines to the OLD mtl_improvement R0 numbers (June 6, on a
+  different code state). Champion-G cat shifted ~0.1–0.4 between the two code versions. **Within
+  mtl_frontier every comparison uses the same code → valid; do NOT mix mtl_frontier absolute numbers
+  with the older R0 bar.**
+- **Reused baselines were CORRECT** (deterministic, matched per seed). No "low-draw" inflation.
+- **The seed-0 pattern is REAL seed variance:** champion-G FL cat per seed is deterministically
+  `[73.012, 73.212, 73.181, 73.143]` — seed-0 is genuinely the weakest seed (same at AL). Levers lift
+  the weak seed-0 baseline most → "best at seed-0." Not a bug; the multi-seed gate averages it out.
+- **Implication:** the nulls are unchanged (deterministic, matched); the conditional-coupling positive
+  is CONFIRMED real (matched re-eval = exactly +0.235 FL cat, noise floor 0.000), not a baseline artifact.
+
 ### Conditional coupling (cat output → reg input feature, iMTL/GETNext) — the FIRST genuine positive (sub-threshold) (2026-06-16)
+
+> **AUDIT-CONFIRMED (2026-06-16):** the matched, replicated, deterministic re-eval reproduces this
+> exactly (FL Δcat +0.235, 4/4 seeds positive [+0.45,+0.07,+0.21,+0.21], G noise floor 0.000; +0.16
+> even excluding the weak seed-0). It is a genuine reproducible effect, not a seed-0/baseline artifact.
+> The richer 256-dim `features` variant HURTS FL (−0.31/−0.36) → the sub-threshold cap is the regime
+> (the weak 7-class semantic prior is the useful signal), not a fixable weak-conditioning HP.
 
 **Verdict.** The advisor's recommended out-of-the-cos≈0-box direction. Feed the cat head's posterior
 `softmax(cat_logits)` [B,7] as an **input feature** into the reg head (fused additively before the
