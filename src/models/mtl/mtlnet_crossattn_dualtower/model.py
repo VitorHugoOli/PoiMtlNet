@@ -94,8 +94,13 @@ class MTLnetCrossAttnDualTower(MTLnetCrossAttn):
         # feature so the region prediction is conditioned on the predicted
         # category (iMTL/GETNext). Champion G (cond_coupling="none") is
         # bit-identical — the softmax + kwarg are skipped entirely.
-        if getattr(self.next_poi, "cond_coupling", "none") != "none":
-            cat_cond = torch.softmax(out_cat, dim=-1)
+        _cc = getattr(self.next_poi, "cond_coupling", "none")
+        if _cc != "none":
+            if _cc == "features" and hasattr(self.category_poi, "forward_features"):
+                # richer cat-condition: the cat head's penultimate [B, hidden]
+                cat_cond = self.category_poi.forward_features(shared_cat)
+            else:
+                cat_cond = torch.softmax(out_cat, dim=-1)   # posterior [B, n_cats]
             out_next = self.next_poi(
                 shared_next, raw_region_seq=next_input, cat_cond=cat_cond
             )

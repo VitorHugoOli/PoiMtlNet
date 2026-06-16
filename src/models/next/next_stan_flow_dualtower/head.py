@@ -247,8 +247,8 @@ class NextHeadStanFlowDualTower(nn.Module):
         # cat→reg gradient flows (False = true iMTL end-to-end).
         self.cond_coupling = str(cond_coupling)
         self.cond_detach = bool(cond_detach)
-        if self.cond_coupling not in ("none", "posterior"):
-            raise ValueError(f"cond_coupling must be none|posterior, got {cond_coupling!r}")
+        if self.cond_coupling not in ("none", "posterior", "features"):
+            raise ValueError(f"cond_coupling must be none|posterior|features, got {cond_coupling!r}")
         if self.cond_coupling != "none":
             self.cond_proj = nn.Linear(int(cond_dim), self.d_model)
             nn.init.zeros_(self.cond_proj.weight)

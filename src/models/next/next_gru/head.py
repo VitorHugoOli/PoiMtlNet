@@ -32,6 +32,17 @@ class NextHeadGRU(nn.Module):
             nn.Linear(hidden_dim, num_classes),
         )
 
+    def forward_features(self, x: torch.Tensor) -> torch.Tensor:
+        """Pre-classifier penultimate [B, hidden_dim] (the last-valid GRU hidden).
+        Exposed for conditional coupling (mtl_frontier): a richer cat-condition
+        than the 7-dim posterior."""
+        padding_mask = (x.abs().sum(dim=-1) == 0)
+        seq_lengths = (~padding_mask).sum(dim=1)
+        output, _ = self.gru(x)
+        last_idx = (seq_lengths - 1).clamp(min=0)
+        batch_idx = torch.arange(x.size(0), device=output.device)
+        return output[batch_idx, last_idx]
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         padding_mask = (x.abs().sum(dim=-1) == 0)
         seq_lengths = (~padding_mask).sum(dim=1)
