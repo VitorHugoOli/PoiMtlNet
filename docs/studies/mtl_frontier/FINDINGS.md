@@ -229,6 +229,47 @@ r10_fl_multiseed_agg.py}`. Code: `crossattn_grm` + `_masked_mean_seq` in
 | **R3** | output-level coupling | CrossDistil (live teacher, ec, warm-up, reverse) | AL cat +0.45 | **null** (washes out; log_T-KD saturates the family) |
 | **R10** | asymmetric sharing | learned input-conditioned GRM gate | FL cat +0.32 | **null** (washes out; GRM ≡ G) |
 
+### Conditional coupling (cat output → reg input feature, iMTL/GETNext) — the FIRST genuine positive (sub-threshold) (2026-06-16)
+
+**Verdict.** The advisor's recommended out-of-the-cos≈0-box direction. Feed the cat head's posterior
+`softmax(cat_logits)` [B,7] as an **input feature** into the reg head (fused additively before the
+classifier, train+inference; zero-init → untrained ≡ G; `cond_coupling=posterior`). Unlike the 7
+prior nulls, this is a **real, consistent, multi-seed Pareto positive at FL** — the **first non-null
+direction** — but it lands **just below the 0.3 promote gate**.
+
+**Seed-0 screen (both variants, vs champion G):** AL cat +0.962 (e2e) / +0.383 (detach); **FL cat
++0.450 (e2e) / +0.413 (detach)**; reg flat-to-slightly-neg. The coupling fires hard (cond_norm FL
+0.13→4.57 — the reg head leans on the cat prediction). First lever with a solid positive FL cat across
+2 variants × 2 states.
+
+**cc_e2e multi-seed {0,1,7,100}:**
+
+| state | Δreg | Δcat | per-seed Δcat |
+|---|---|---|---|
+| AL | +0.089 ± 0.15 | −0.056 ± 0.71 (washed out) | [+0.96, −0.31, −0.99, +0.12] |
+| **FL** | **+0.070** (Wilcoxon n=20 p=0.035) | **+0.235 ± 0.14** (n=4 p=0.0625) | **[+0.45, +0.07, +0.21, +0.21] — 4/4 positive** |
+
+AL washed out (the seed-0 +0.96 was a small-state flare). **FL is genuine:** cat +0.235 with **every
+seed positive** (the only lever in the study with no negative seed) AND reg significantly positive
+(+0.070, p=0.035) — a real both-heads Pareto gain. **It fails the ≥0.3 gate (cat +0.235 < 0.3), so no
+v17 promotion** — but it is qualitatively different from the nulls.
+
+**Why this is the right mechanism, and why it's capped.** Conditional coupling changes the reg head's
+**input distribution** (it gets the predicted category as a feature) rather than re-gating the cos≈0
+cross-task gradient — exactly the one channel FINAL_SYNTHESIS §4 + the literature (iMTL/GETNext) name
+as able to beat parity here. That it produces the study's only genuine multi-seed positive **validates
+both** (a) the direction (input-side conditioning works where output-side/sharing levers are null), and
+(b) the **weak-auxiliary cap**: the conditioning signal is the **7-class (~2.8-bit) posterior**, the
+weakest possible — so the gain is real but small (+0.235), below the bar. This is the cleanest
+in-study confirmation of the "weak-7-class-auxiliary regime" framing. **Open test (the obvious next
+step):** richer conditioning — feed the cat head's **penultimate features / a category embedding**
+(GETNext's actual form, 256-dim not 7-dim) — does the FL gain clear 0.3, or is the cap a hard wall?
+This also directly answers the "is the sub-threshold a weak-signal (fixable) limitation vs the regime"
+question. Artifacts: `cc_screen_results.json`, `cc_e2e_multiseed_results.json`; code
+`cond_coupling`/`cond_detach`/`cond_proj` (champion G unchanged).
+
+---
+
 ### Follow-up screens (user ideas, advisor-structured) — three more nulls (2026-06-15)
 
 After the 4-null first wave, three user-proposed follow-ups were screened (advisor evaluation in

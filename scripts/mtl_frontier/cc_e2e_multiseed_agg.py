@@ -30,9 +30,9 @@ for line in (REPO / "scripts/mtl_frontier/r2_aftb_manifest.tsv").read_text().spl
     if len(p) >= 4 and p[0] == "base_alabama": base["alabama"][0] = p[3]
     if len(p) >= 4 and p[0] == "base_florida": base["florida"][0] = p[3]
 for line in (REPO / "scripts/mtl_frontier/r2_al_multiseed_manifest.tsv").read_text().splitlines():
-    p = line.split("\t")
-    if len(p) >= 4 and p[0].startswith("base_s") and p[2].strip().isdigit():
-        base["alabama"][int(p[2])] = p[3]
+    p = line.split("\t")  # tag \t seed \t spec(empty) \t rundir
+    if len(p) >= 4 and p[0].startswith("base_s") and p[1].strip().isdigit():
+        base["alabama"][int(p[1])] = p[3]
 for line in (REPO / "scripts/mtl_frontier/r10_fl_multiseed_manifest.tsv").read_text().splitlines():
     p = line.split("\t")  # tag seed grm rundir
     if len(p) >= 4 and p[0].startswith("base_s") and p[2] == "0":
