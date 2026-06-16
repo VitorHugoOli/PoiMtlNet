@@ -67,8 +67,8 @@ champion's behaviour transfers directionally.** Only its *validation runs* (Phas
 depend on the frozen champion, so they sit at Level 4 (blocked on P2 + a CUDA box). Note the validation phase is **not** the temporal-split
 bridge — the shipped Massive-STEPS split is user-stratified RANDOM, not temporal (F1). The bridge
 (roadmap A5) is the **Phase E2 chronological per-user re-split** built from the corpus's per-check-in
-timestamps: it too is Mac-track with **no freeze dependency**, so it runs in parallel alongside the ETL
-during Levels 0–1 (only its champion *runs* would join the Level-4 validation).
+timestamps — **✅ built 2026-06-16 (`scripts/second_dataset/build_chrono_split.py`)**; Mac-track, no
+freeze dependency. Only its champion *runs* join the Level-4 validation (post-freeze, CUDA).
 
 **Why `baseline_gap` is Level 0/1 for the *decision* but trails for the *runs*:** which external
 baselines enter the final tables is a RUN_MATRIX input (`closing_data` P1b) and must be pinned at the
