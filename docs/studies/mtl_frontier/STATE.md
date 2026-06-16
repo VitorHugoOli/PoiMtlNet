@@ -1,11 +1,24 @@
 # mtl_frontier — STATE
 
-**Status:** SCAFFOLDED, not launched · **Machine:** A40 · **Created:** 2026-06-14
-**Onboarding:** [`AGENT_PROMPT.md`](AGENT_PROMPT.md) · **Family DAG:** [`../PRE_FREEZE_PROGRAM.md`](../PRE_FREEZE_PROGRAM.md)
+**Status:** FIRST WAVE + R10 + follow-ups + conditional coupling DONE (2026-06-16). **R4–R9 OPEN.**
+· **Machine:** A40 · **Created:** 2026-06-14 · **Branch:** `study/mtl-frontier`
+**Onboarding:** [`AGENT_PROMPT.md`](AGENT_PROMPT.md) · **Mechanism narrative + every number:** [`FINDINGS.md`](FINDINGS.md)
+**Continue the study (R4–R9):** [`HANDOFF.md`](HANDOFF.md) ⭐ · **Family DAG:** [`../PRE_FREEZE_PROGRAM.md`](../PRE_FREEZE_PROGRAM.md)
+
+## Headline (2026-06-16)
+**Champion G is UNCHANGED — no v17 promotion.** 8 levers tested: **7 nulls + 1 genuine sub-threshold
+positive** (conditional coupling: FL cat **+0.235** / reg +0.070, audit-confirmed deterministic, below
+the 0.3 gate). The cos≈0 / data-rich / weak-7-class-auxiliary regime caps every mechanism. The one
+direction that produced real (capped) transfer is **input-side conditional coupling** (cat output → reg
+input feature, iMTL/GETNext) — the recommended R4+ direction is to push *that* family, not more
+output-prior / sharing-gate variants. Audit (user-flagged "seed-0 always best"): champion G is fully
+DETERMINISTIC; the seed-0 pattern is real seed variance (G seed-0 is the weakest seed), not a bug.
 
 ## Level / blocking
 - Level 0 (exploration). Blocks: `closing_data` P2 FREEZE (a promoted lever → v17 → re-pin before freeze).
 - Runs in parallel with `second_dataset` (Mac) and `closing_data` P1a (reading).
+- **Nothing flows to `closing_data` G0.2** (no promoted lever). The aligned-pairing pre-freeze gate (G0.1)
+  is a separate `mtl_improvement` inheritance, untouched here.
 
 ## First-wave queue
 | ID | Lever | State | Verdict |
@@ -14,17 +27,31 @@
 | R2 | STEM-AFTB gating sweep | **CLOSED 2026-06-15** | **NULL** (not v17) — reg clean multi-seed null at all states; cat lift is AL-only & **decays with scale** (AL +0.636 / AZ +0.173 / GE +0.158 / **FL −0.026**); user-approved multi-state confirm → does NOT generalize. Citable STEM-AFTB dose-response. See `FINDINGS.md §R2`. |
 | R3 | live cross-task distillation | **CLOSED 2026-06-15** | **NULL** — CrossDistil (warm-up+error-correct+reverse) doesn't beat G+log_T-KD. Fwd refinements don't rescue R1 (AL cat −0.18); reverse reg→cat AL cat +0.45 seed0 → multi-seed **+0.100±0.282** (p=0.31, one seed −0.34); FL null. log_T-KD saturates the output-prior family. See `FINDINGS.md §R3`. |
 
-Later waves (R4–R9) gated on first-wave outcomes — see `AGENT_PROMPT.md`.
+| **R10** ★ | Memory-Caching / GRM gated read | **CLOSED 2026-06-15** | **NULL** — learned input-conditioned generalization of R2's binary AFTB. FL cat +0.324 seed0 → multi-seed **+0.085±0.203** (2 seeds neg) = noise. Trained-γ swings 0.87→0.31 yet ≡ G → "nothing to gate" (cos≈0). SSC not pursued. `--model-param crossattn_grm=True`. §R10. |
 
-**R10 (★ user-requested) — Memory-Caching / GRM gating — CLOSED 2026-06-15: NULL.** GRM-gated cross-attn
-read (learned input-conditioned generalization of R2's binary AFTB). Screen: FL cat +0.324 seed0 (first
-FL effect) → FL multi-seed **+0.085±0.203** (p=0.31, 2 seeds negative) = noise. **GRM ≡ champion G** —
-the exact falsifier the spec named. SSC not pursued (GRM primary null). Code behind
-`--model-param crossattn_grm=True`, G default unchanged. See `FINDINGS.md §R10`.
+**Follow-ups (user ideas, advisor-structured) — CLOSED 2026-06-15, three more nulls:** (1) R10 GRM at
+AZ/GE seed0 + AL multi-seed → null everywhere; (2) **aux_gated** (input-dependent β in reg head): gate
+moves (γ 0.12→0.47) but AL cat +0.48 / **FL cat −0.85 crater** → re-confirms champion β→0 / aux>gated;
+(3) **best-stack** → SUB-additive (AL cat +0.456 < best component aftb_late +0.636). §Follow-up.
 
-**STUDY STATUS (2026-06-15): R1/R2/R3 + R10 all NULL.** Four independent levers (output-prior, binary
-sharing, live distillation, learned gating) reproduce but do not beat champion G — airtight confirmation
-of the cos≈0 / weak-auxiliary regime. No v17 promotion. R4-R9 deferred. See `FINDINGS.md §SYNTHESIS`.
+**★ CONDITIONAL COUPLING (cat output → reg input feature, iMTL/GETNext) — CLOSED 2026-06-16: the FIRST
+genuine positive (sub-threshold).** `cond_coupling=posterior` (feed `softmax(cat_logits)` as a reg input
+feature, train+inference). FL cat **+0.235** (4/4 seeds positive [+0.45,+0.07,+0.21,+0.21]) + reg
+**+0.070** — audit-confirmed deterministic, matched-baseline, NOT an artifact. **Below the 0.3 v17 gate**
+but the study's only real Pareto-positive. Richer 256-dim `features` variant HURTS FL (−0.31) → cap is
+the regime (weak 7-class prior), not a fixable HP. Code: `cond_coupling`/`cond_detach` (G unchanged). §Conditional coupling.
+
+**AUDIT (user-flagged "seed-0 always best") — RESOLVED 2026-06-16:** champion G is fully DETERMINISTIC
+(2 distinct runs/seed bit-identical). The earlier "non-determinism 0.38/0.11" was **code drift** vs the
+old `mtl_improvement` R0 numbers (different code state) — within mtl_frontier all comparisons are valid.
+seed-0 pattern = real seed variance (G seed-0 genuinely weakest). Reused baselines were correct. **No
+bug; nulls unchanged; conditional coupling confirmed real.** §AUDIT. **Lesson: run matched same-batch
+baselines (harmless here only because G is deterministic); don't compare absolute numbers across the
+mtl_improvement↔current code drift (~0.1–0.4 cat).**
+
+**STUDY STATUS (2026-06-16): 7 NULLS + 1 sub-threshold positive.** No v17 promotion; champion G stands.
+**R4–R9 OPEN** — see `HANDOFF.md`. The one productive direction is the conditional-coupling family
+(input-side conditioning), capped by the weak 7-class auxiliary. See `FINDINGS.md §SYNTHESIS`.
 
 ## Promote-gate convention
 ≥0.3 pp either head, multi-seed {0,1,7,100} → STOP for user (recipe → v17) → register in `closing_data` G0.2.
@@ -52,3 +79,16 @@ Null → log here + `../log.md` row; do not silently fold into the freeze.
   multi-seed +0.100±0.282 (p=0.31, seed1 −0.34) → noise; FL null. log_T-KD saturates the output-prior
   family. **First wave (R1/R2/R3) = three nulls, all the same regime** (small-state-only, FL-null,
   reg-immovable). User decision "full R3 then R10" → proceeding to **R10 (GRM/SSC gated read)**.
+- 2026-06-15 — **R10 launched + CLOSED NULL.** GRM-gated cross-attn read; FL seed0 +0.324 → multi-seed
+  +0.085±0.203 noise; trained-γ diagnostic (0.87→0.31, ≡ G) proves the gate is live but cos≈0 gives
+  nothing to gate. Independent audit (16-property) + efficiency: G+GRM = +5.6% params, ~equal speed,
+  same accuracy → G dominates.
+- 2026-06-15 — **Follow-ups (3 user ideas) CLOSED, all null.** R10-other-states (null everywhere),
+  aux_gated (input-dependent β: FL cat −0.85 crater, re-confirms champion aux>gated), best-stack
+  (sub-additive). Advisor recommended **conditional coupling** as the higher-merit next bet.
+- 2026-06-16 — **CONDITIONAL COUPLING launched + CLOSED: first genuine positive (sub-threshold).**
+  cat posterior → reg input feature (iMTL). FL cat +0.235 / reg +0.070, 4/4 seeds positive. Richer
+  256-dim features HURT FL. Below 0.3 gate; no v17 promotion.
+- 2026-06-16 — **AUDIT (user-flagged seed-0 pattern) RESOLVED.** Champion G deterministic; seed-0 is
+  the genuinely-weakest seed; earlier "non-determinism" was code drift vs old R0; cc result confirmed
+  real. Methodology lesson recorded. **R4–R9 handed off via `HANDOFF.md`.**

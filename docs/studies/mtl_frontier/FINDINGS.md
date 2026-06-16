@@ -220,7 +220,7 @@ r10_fl_multiseed_agg.py}`. Code: `crossattn_grm` + `_masked_mean_seq` in
 
 ---
 
-## SYNTHESIS — first wave + R10: four nulls, one regime (2026-06-15)
+## SYNTHESIS — 8 levers: 7 nulls + 1 sub-threshold positive, one regime (2026-06-16)
 
 | lever | family | mechanism | best seed-0 | multi-seed verdict |
 |---|---|---|---|---|
@@ -228,6 +228,23 @@ r10_fl_multiseed_agg.py}`. Code: `crossattn_grm` + `_masked_mean_seq` in
 | **R2** | asymmetric sharing | binary STEM-AFTB stop-grad masks | AL cat +1.31 | **null** (AL-only; decays to FL −0.03) |
 | **R3** | output-level coupling | CrossDistil (live teacher, ec, warm-up, reverse) | AL cat +0.45 | **null** (washes out; log_T-KD saturates the family) |
 | **R10** | asymmetric sharing | learned input-conditioned GRM gate | FL cat +0.32 | **null** (washes out; GRM ≡ G) |
+| FU-1 | asymmetric sharing | R10 GRM at AZ/GE/AL | — | **null** everywhere |
+| FU-2 | input-dependent fusion | `aux_gated` (input-dep β in reg head) | AL cat +0.48 | **null + harmful** (FL cat −0.85; aux>gated re-confirmed) |
+| FU-3 | stacking | best-stack of R1+R2+R3+R10 | AL cat +0.46 | **null** (sub-additive; < best component) |
+| **★ CC** | **input-side conditioning** | **cat posterior → reg input feature (iMTL/GETNext)** | **FL cat +0.45** | **REAL but sub-threshold** (FL cat **+0.235**, reg **+0.070**, 4/4 seeds positive, audit-confirmed deterministic; richer 256-dim features HURT) |
+
+**The shape of the answer.** Everything that **re-gates the cos≈0 cross-task gradient or the output-prior
+channel** (R1/R2/R3/R10/FU) is **null** — those channels are empty/saturated. The ONE family that
+produces *real* transfer is **input-side conditional coupling** (give the reg head the predicted category
+as new input information) — and even that is **capped below the 0.3 gate by the weak 7-class (~2.8-bit)
+auxiliary** (richer raw conditioning overfits and hurts). So: champion G's two wins (dual-tower +
+log_T-KD) are **replicated but not exceeded** by the post-2022 MTL frontier in this regime — a strong,
+citable negative — with conditional coupling marking exactly where (and how little) genuine transfer is
+available. **Recommended next direction (R-CC+ in `HANDOFF.md`):** push the conditional-coupling family
+(cleaner semantic conditioning, FiLM/input-side injection, cat-conditioned logit prior), not more
+gradient/sharing variants.
+
+### (historical, 2026-06-15) first wave + R10 framing
 
 ### AUDIT — "seed-0 is always best" (user-flagged) → determinism + real seed variance, results stand (2026-06-16)
 
