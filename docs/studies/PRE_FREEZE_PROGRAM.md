@@ -23,8 +23,11 @@ LEVEL 0 — EXPLORATION & INVENTORY (must finish first; outputs influence the fr
   ├─ [A40+Mac]  baseline_gap/        triage external baselines → which become RUN_MATRIX rows/columns
   │                                  (B1 CTLE · B2 POI2Vec/skip-gram · B3 HMT-GRN-MTL · B4 cascade · B5 Flashback)
   │                                  — DECISION pre-freeze (feeds P1b); impl ∥; final runs fold into P3
-  └─ [Mac, ∥]   second_dataset/      Massive-STEPS NYC ETL (cat→7-root map, coords→tracts, splits)
-                                     — NO freeze dependency; prep runs concurrently with Level 0/1
+  └─ [Mac, ✅]  second_dataset/      Phase E ETL ✅ COMPLETE (2026-06-15): Massive-STEPS NYC + Istanbul
+                                     (FSQ→7-root map; regions = NYC TIGER tracts, IST mahalle PRIMARY +
+                                     H3 secondary; both sequence protocols + leak-free per-fold priors).
+                                     Mac dry-run validated pipeline + champion transfer (DIRECTIONAL only).
+                                     — NO freeze dependency; Phase V (real numbers) is Level 4 below.
 
 LEVEL 1 — PRE-FREEZE GATES (cheap tests that can still change recipe/base; after/with Level 0)
   ├─ [A40]      pre_freeze_gates/    A2 feature-concat control · A4 transductivity bound
@@ -38,13 +41,18 @@ LEVEL 2 — HARD BARRIER ──────────────────�
 LEVEL 3 — SINGLE HEAVY SPEND
               closing_data P3        full base regeneration (A40 unmetered + H100 6 h for CA/TX builds)
 
-LEVEL 4 — EXTERNAL VALIDATION (may overlap P3 tail)
-              second_dataset/        validation phase: champion G + STL ceilings + Markov floor on
-                                     Massive-STEPS NYC/Istanbul (within-user user-grouped CV = Gowalla-parity).
-                                     NOTE: this validation is NOT the temporal-split bridge — the shipped
-                                     Massive-STEPS split is user-stratified RANDOM, not temporal (F1). The
-                                     bridge (roadmap A5) is the separate Phase E2 chronological per-user
-                                     re-split (Mac-track, parallel, no freeze dependency).
+LEVEL 4 — EXTERNAL VALIDATION (may overlap P3 tail)  ⛔ BLOCKED on P2 freeze + CUDA box
+              second_dataset/        Phase V: champion G + per-task STL ceilings + Markov-1 floor on
+                                     Massive-STEPS NYC/Istanbul, 4 seeds (within-user user-grouped CV =
+                                     Gowalla-parity). ETL ✅ + Mac dry-run ✅ done (pipeline + champion
+                                     transfer confirmed DIRECTIONALLY: MTL beats STL cat ceiling +9–10 pp,
+                                     matches STL reg ceiling ±1 pp, clears the Markov floor). Paper numbers
+                                     NEED the FROZEN substrate (P2) on a CUDA box — the Mac/ResLN-80ep dry-run
+                                     substrate is throwaway. Use the corrected `--canon none` recipe
+                                     (DRY_RUN_RESULTS.md), or `--canon v16` (needs the v14 substrate built).
+                                     NOTE: NOT the temporal-split bridge — the shipped Massive-STEPS split is
+                                     user-stratified RANDOM, not temporal (F1); the bridge (roadmap A5) is the
+                                     separate Phase E2 chronological per-user re-split (Mac, no freeze dep).
 ```
 
 **Why exploration is strictly first** (the user's hierarchy): a lever promoted by `mtl_frontier` or a
@@ -53,8 +61,10 @@ regenerated first, that spend would be thrown away. Inventory (`P1a`) likewise c
 lever that becomes a gate. So Level 0 → Level 1 → freeze, no shortcuts.
 
 **Why `second_dataset` runs in parallel and off the critical path:** its ETL touches nothing the freeze
-pins (a different corpus), so the Mac builds it during Levels 0–1; only its *validation runs* depend on
-the frozen champion, so they sit at Level 4. Note the validation phase is **not** the temporal-split
+pins (a different corpus), so the Mac builds it during Levels 0–1 — **DONE (2026-06-15): Phase E ETL
+complete for both NYC + Istanbul, with a Mac dry-run confirming the pipeline runs end-to-end and the
+champion's behaviour transfers directionally.** Only its *validation runs* (Phase V, paper numbers)
+depend on the frozen champion, so they sit at Level 4 (blocked on P2 + a CUDA box). Note the validation phase is **not** the temporal-split
 bridge — the shipped Massive-STEPS split is user-stratified RANDOM, not temporal (F1). The bridge
 (roadmap A5) is the **Phase E2 chronological per-user re-split** built from the corpus's per-check-in
 timestamps: it too is Mac-track with **no freeze dependency**, so it runs in parallel alongside the ETL
@@ -84,7 +94,7 @@ the leak surface). External baselines on the *second dataset* are out of scope u
 | Machine | Metering | Pre-freeze role | Notes |
 |---|---|---|---|
 | **A40** | unmetered workhorse | `mtl_frontier` (R1–R3) **and** `pre_freeze_gates` (A2/A4/overlap) | All training-bearing exploration. Serialize R1→R2→R3 or interleave; gates are cheap and slot between waves. |
-| **Mac M2 Pro** (user's local box) | local, MPS only | `second_dataset` ETL + scoring only | **No heavy CUDA training here** — ETL (parse, category map, tract spatial-join, split build), substrate prep, and scoring passes. Champion training on the new corpus waits for a CUDA box at Level 4. (Note: `docs/infra/` references an M4 Pro 32GB lane — same MPS caveats apply: no AMP, fp32, slower.) |
+| **Mac M2 Pro** (user's local box) | local, MPS only | `second_dataset` ETL + scoring (✅ Phase E DONE) | **No heavy CUDA training here** — ETL (parse, category map, tract/H3 spatial-join, split build), substrate prep, scoring. ✅ Phase E complete (NYC + Istanbul) + a Mac dry-run validation. Champion training for the paper (Phase V) waits for a CUDA box at Level 4. (Note: `docs/infra/` references an M4 Pro 32GB lane — same MPS caveats: no AMP, fp32, slower.) |
 | **H100** | **6 h metered** | reserved for `closing_data` P3 (CA/TX v14 builds) | Do **not** spend on pre-freeze exploration — the A40 absorbs it overnight. |
 
 ---
