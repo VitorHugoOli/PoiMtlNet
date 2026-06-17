@@ -542,6 +542,82 @@ class TestTaskInputTypePersistence:
 
         assert captured["task_b_input_type"] == "region"
 
+    def test_route_task_best_persisted_heads_win_over_task_set(self, tmp_path, monkeypatch, caplog):
+        """The dual-tower trap (closing_data C1): when the config persists a
+        task_set with head OVERRIDES (champion G: reg=next_stan_flow_dualtower),
+        --task-set must be IGNORED — get_preset(name) would rebuild the DEFAULT
+        preset heads (reg=next_gru), whose topology fails load_state_dict on the
+        dual-tower snapshots. The persisted heads must win, with a warning."""
+        import dataclasses
+        import logging
+
+        sys.path.insert(0, str(_root / "scripts"))
+        import route_task_best as rtb
+        from configs.experiment import ExperimentConfig
+        from configs.paths import EmbeddingEngine
+
+        cfg = ExperimentConfig.default_mtl(
+            name="route-dualtower-probe",
+            embedding_engine=EmbeddingEngine.CHECK2HGI.value,
+            state="alabama",
+        )
+        # Persist the FULL champion-G dual-tower task_set (the trained topology).
+        reg_head_params = {
+            "raw_embed_dim": 64, "fusion_mode": "aux",
+            "freeze_alpha": True, "alpha_init": 0.0,
+        }
+        model_params = dict(cfg.model_params)
+        model_params["task_set"] = {
+            "name": "check2hgi_next_region",
+            "task_a": {"name": "next_category", "num_classes": 7,
+                       "head_factory": "next_gru", "primary_metric": "f1"},
+            "task_b": {"name": "next_region", "num_classes": 1109,
+                       "head_factory": "next_stan_flow_dualtower",
+                       "head_params": reg_head_params,
+                       "primary_metric": "top10_acc_indist"},
+        }
+        cfg = dataclasses.replace(
+            cfg, model_params=model_params,
+            task_a_input_type="checkin", task_b_input_type="region",
+        )
+        cfg_path = tmp_path / "config.json"
+        cfg.save(cfg_path)
+
+        snap_dir = tmp_path / "snaps"
+        snap_dir.mkdir()
+        for slot in ("cat", "reg", "joint"):
+            (snap_dir / f"fold1_{slot}_best.pt").write_bytes(b"x")
+
+        captured = {}
+
+        class _StopHere(Exception):
+            pass
+
+        def _fake_fold_creator(*args, **kwargs):
+            captured["task_set"] = kwargs.get("task_set")
+            raise _StopHere()
+
+        monkeypatch.setattr(rtb, "FoldCreator", _fake_fold_creator)
+
+        argv = [
+            "--snapshots-dir", str(snap_dir),
+            "--fold", "1",
+            "--config", str(cfg_path),
+            # Passing --task-set used to clobber the heads with the default preset.
+            "--task-set", "check2hgi_next_region",
+        ]
+        with caplog.at_level(logging.WARNING):
+            with pytest.raises(_StopHere):
+                rtb.main(argv)
+
+        ts = captured["task_set"]
+        assert ts is not None, "FoldCreator must receive the resolved (non-legacy) task_set"
+        assert ts.task_b.head_factory == "next_stan_flow_dualtower", (
+            "persisted dual-tower reg head must win over the --task-set default preset"
+        )
+        assert ts.task_b.head_params == reg_head_params
+        assert ts.task_a.head_factory == "next_gru"
+
 
 # ---------------------------------------------------------------------------
 # A1 — --log-t-kd-weight / --log-t-kd-tau: KL distillation supervisory signal
