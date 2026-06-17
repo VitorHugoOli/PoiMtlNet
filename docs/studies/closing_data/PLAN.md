@@ -42,8 +42,22 @@
 - **Gate**: ≥0.3pp either head → multi-seed → STOP for user (recipe → v17). Null → v16 freezes;
   the "wins without per-sample mixing" wording is fully earned.
 
-### G0.2 — (placeholder) gates added by the Phase-1 harvest
-Each needs spec, cost, promote-gate, and user sign-off BEFORE running. Default: empty.
+### G0.2 — gates added by the Phase-1 harvest
+Each needs spec, cost, promote-gate, and user sign-off BEFORE running.
+
+- **C1 — 3-snapshot per-task routing, confirm-on-G — ✅ DONE 2026-06-17: PROMOTE (deploy panel).**
+  Per-task-best routing (two snapshots from one G run) vs the single `geom_simple` checkpoint, on
+  champion G, v14 substrate, M2 Pro/MPS, FL+AL × seeds {0,1,7,100} (n=20/state). **AL Δreg +1.55 pp
+  (p=0.0001), FL Δreg +0.63 pp (p<0.0001), cat not hurt** (FL cat sig. positive); POOLED +1.09 pp.
+  Clears the ≥0.3 pp gate at both states, multi-seed. **NOT subsumed** by C25-fix + dual-tower +
+  geom_simple — but FL's +0.63 ≪ the pre-C25 +2.80, so most of the old 2/3-state signal *was*
+  recovered; a real residual remains. It is a **deploy mode** (G's weights unchanged), NOT a recipe
+  change, does NOT become v17. **User scope (2026-06-17): adopt as a SUPPORTIVE *diagnostic* panel
+  ONLY — NOT the primary deploy.** Per-task routing loads 2 snapshots / runs 2 forwards ≈
+  task-specialised models, forfeiting the single-model property the MTL thesis rests on; the single
+  `geom_simple` checkpoint stays the headline. C1 reports deploy-time per-task *selection* headroom
+  (single-ckpt ≤ C1 ≤ STL ceiling), not the task ceiling. **Gate CLOSED.** Full verdict + provenance
+  + tooling: [`C1_VERDICT.md`](C1_VERDICT.md).
 
 ## Phase 1 — Re-evaluation + inventory (reading-heavy, ~no GPU)
 
