@@ -110,7 +110,19 @@ R9(b) Smooth-Tchebycheff unmotivated (R4 front near-degenerate). No promotion; c
   FU1 "AL 4-seed" was seed-0-only (agg seed-column bug) — corrected to +0.045 reg/−0.066 cat. R4 cat
   convention-A vs convB +0.259pp cross-table hazard documented. **Champion G stands; no verdict flipped.**
   See `FINDINGS.md §CAT↑/REG↓` + `§AUDIT`.
-- 2026-06-17 — **R6/R7/R8 CLOSED as reasoned predicted-negatives (deferred).** Each is a substantial
+- 2026-06-17 — **R7 (merge-vs-joint) RUN (user-requested) → MEASURED negative.** Two dual-tower specialists
+  (cat-only cw=1.0, reg-only cw=0.0, FL seed0). Ensemble = best-case merge = rigorous upper bound. Result:
+  ensemble cat 72.235 (−0.777 vs joint G 73.012) / reg 72.952 (+0.023) → **Merge < joint G** (loses the
+  joint trunk's cat co-training benefit; reg identical, β→0 insulation). Conservative bound (cat-spec is a
+  λ=0 ablation that co-adapts via cross-attn → real gap ~−3pp). Tangent-space theory confirmed in LBSN.
+  Champion G stands. See `FINDINGS.md §R7`.
+- 2026-06-17 — **PAPER MEMO drafted + adversarially fact-checked + corrected** (`articles/[BRACIS]_…/MEMO_2026-06-17_catreg_regime_and_C2.md`):
+  the paper's C2 "−7…−17pp reg cost" is **~half C25 class-weighting confound + ~half config** (controlled
+  A/B: unweighting alone recovers +3.15pp at FL, gap −6.71→−3.56 halved; full parity needs v14+dual-tower).
+  Confound-free champion G = reg-parity (−0.09…−0.31) + cat +2.6…+4.1. Recommends C2 reframing
+  (Pareto-gain-on-easy-task-at-parity) with honest caveats (confound+config not flag-flip; CA/TX unmeasured;
+  cat lift partly head-config). An earlier "purely the confound" draft was caught + corrected by the advisor.
+- 2026-06-17 — **R6/R8 remain reasoned predicted-negatives (deferred); R7 done.** Each is a substantial
   from-scratch impl (fork/merge surgery; weight-space merge framework; 2→3-task refactor) whose outcome is
   mechanistically determined: **R6** ForkMerge ≤ G (scheduled_static already null + R4 near-corner weight-
   front); **R7** merge-vs-joint < G (tangent-space theory — from-scratch experts don't share a basin);

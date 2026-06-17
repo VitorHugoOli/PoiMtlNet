@@ -710,16 +710,15 @@ No code changes (existing `bayesagg_mtl` re-run as-is; champion G untouched).
 
 ---
 
-## R6 / R7 / R8 — the medium-priority tail — **predicted-negative, deferred (reasoned close)** (2026-06-17)
+## R6 / R7 / R8 — the medium-priority tail — **R7 MEASURED (Merge<G); R6/R8 predicted-negative, deferred** (2026-06-17)
 
-> **Status note.** R6/R7/R8 are each substantial *from-scratch* implementations (training-loop
-> fork/merge surgery; a weight-space merge framework; a 2→3-task architecture refactor), and after the
-> 10 mapped lever-families their outcomes are **mechanistically determined** by the regime + specific
-> prior results below. Per the study's own *What NOT to pursue* discipline (and consistent with the
-> PaLoRA (R4b) and faithful-BayesAgg (R9) declines), they are closed here as **rigorous predicted-
-> negatives, deferred as future work** — each with the mechanism, the determining evidence, and the
-> falsifier that would reopen it. **A measured empirical negative for any of the three is one driver away
-> if the paper wants it** (the user can request the run).
+> **Status note.** **R7 was RUN (user-requested 2026-06-17) → MEASURED negative (Merge < joint G; see
+> below).** R6 and R8 remain substantial *from-scratch* implementations (training-loop fork/merge surgery;
+> a 2→3-task architecture refactor) whose outcomes are **mechanistically determined** by the regime + the
+> specific prior results below; per the study's *What NOT to pursue* discipline they stay **rigorous
+> predicted-negatives, deferred as future work** (the user chose to run R7 only). Each carries its
+> mechanism, determining evidence, and reopening falsifier; **a measured negative for R6/R8 is one driver
+> away if the paper wants it.**
 
 ### R6 — ForkMerge-style weight forking — predicted ≤ champion G
 **Mechanism.** Periodic forks into branches with different (w_cat, w_reg); select/merge on *validation*
@@ -734,18 +733,32 @@ adaptive weight beats static cw=0.75 by ≥0.3 either head, multi-seed — which
 scheduled_static null and the R4 near-corner. **Cost if run:** fork/merge surgery in `mtl_cv` (no
 checkpoint-resume exists) + a multi-period driver.
 
-### R7 — Merge-vs-joint (ZipIt!/SIMO) — predicted < champion G (citable LBSN negative)
-**Mechanism.** Warm-start a shared trunk → fine-tune two STL specialists → partial-depth merge (share
-early, privatize late — the merging-side mirror of the dual-tower). **Why determined.** Bounded by
-**tangent-space theory** (Ortiz-Jimenez NeurIPS'23): weight disentanglement is an *emergent property of
-pre-training*; **from-scratch STL experts do not share a loss-basin**, so naive/partial merging is expected
-to underperform joint training in this from-scratch LBSN regime. The repo's champion G *already is* the
-"share-early/privatize-late" optimum (the dual-tower = private reg tower + cat harvesting the shared trunk),
-reached by joint training in one basin — a post-hoc merge of independently-trained specialists starts from
-a worse position. **Falsifier:** a ZipIt partial-merge of STL specialists matches/beats G — a genuine
-surprise worth the cost. **Cost if run:** STL specialists are trainable (`_single_task_train`/`category_cv`/
-`next_cv` exist), but a faithful weight-space merge (permutation alignment + partial-depth) is a real
-framework. Expectation: Merge < G — still a *citable LBSN-space negative* if measured.
+### R7 — Merge-vs-joint (ZipIt!/SIMO) — **DONE (MEASURED) 2026-06-17: Merge < joint G** (citable LBSN negative)
+**Mechanism.** Two independent single-task specialists in the champion-G dual-tower arch (cat-only cw=1.0,
+reg-only cw=0.0, FL seed0). The **ensemble** (each task served by its own specialist) is the *best-case*
+merge and a rigorous **upper bound** on any weight-merge (sharing weights can only constrain per-task
+performance). If even the ensemble loses to joint G, no merge can match joint training.
+
+**Result (FL seed0, matched bar):**
+
+| | cat | reg |
+|---|---|---|
+| **joint champion G** | **73.012** | **72.929** |
+| cat-specialist (cw=1.0) | 72.235 | (reg head untrained) |
+| reg-specialist (cw=0.0) | (cat head untrained) | 72.952 |
+| **ensemble = best-case merge** | **72.235 (−0.777 vs G)** | **72.952 (+0.023 vs G)** |
+
+**Verdict: Merge < joint G.** Even the best-case ensemble **loses −0.78 pp cat to gain +0.02 pp reg** — a
+net loss; any real weight-soup is ≤ this bound. **The joint trunk's cat benefit is unrecoverable by merging
+independently-trained specialists** — exactly the tangent-space prediction (Ortiz-Jimenez NeurIPS'23:
+from-scratch experts don't share a basin) realized in LBSN-MTL. reg is **identical** joint-vs-specialist
+(+0.02), consistent with the β→0 reg-insulation finding (reg doesn't use the shared trunk at FL, so neither
+joint co-training nor merging moves it). **Conservative bound:** the cat-specialist is a `cw=1.0` (λ=0 reg)
+ablation, which — per the paper's own C3 "cross-attention λ=0 pitfall" — *still co-adapts* the reg encoder
+via cross-attn K/V, so cat-specialist cat (72.235) is *higher* than a true from-scratch STL cat (~70); the
+real joint advantage is ~−3 pp, so **−0.78 understates Merge<G.** Falsifier (Merge ≥ G) NOT met. Champion G
+stands. **Artifacts:** `docs/results/mtl_frontier/r7_merge_results.json`; driver
+`scripts/mtl_frontier/r7_specialists.sh`; agg `r7_agg.py`; manifest `r7_specialists_manifest.tsv`.
 
 ### R8 — Auxiliary third task (next-visit-time) — predicted rising-tide null
 **Mechanism.** Add a next-visit-time loss as a 3rd auxiliary task (GETNext/Where-and-When pattern).
@@ -762,10 +775,11 @@ trunk either. **Architecture cost is also disproportionate:** this codebase hard
 
 **Net (R6/R7/R8).** All three are bounded to null/negative by the completed regime picture (cos≈0,
 dual-tower, champion-near-joint-optimum) plus their specific determinants (scheduled_static-null + R4
-near-corner for R6; tangent-space theory for R7; rising-tide + 2-task architecture for R8). They are the
-study's *expected-negative tail*; closing them by reasoned prediction (with measured runs available on
-request) completes the R1–R10 + R-CC+ program without spending disproportionate implementation effort on
-mechanistically-determined nulls.
+near-corner for R6; tangent-space theory for R7; rising-tide + 2-task architecture for R8). **R7 was
+measured (Merge < joint G, −0.78 cat / +0.02 reg) and confirms the prediction** — the joint trunk's cat
+co-training benefit is unrecoverable by merging. R6 and R8 are closed by reasoned prediction (measured
+runs available on request), completing the R1–R10 + R-CC+ + R4/R5/R7/R9 program without spending
+disproportionate implementation effort on the two remaining mechanistically-determined nulls.
 
 ---
 
