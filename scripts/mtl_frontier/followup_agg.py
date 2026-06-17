@@ -42,8 +42,11 @@ for line in (REPO / "scripts/mtl_frontier/r2_multistate_manifest.tsv").read_text
 r2al = {}
 for line in (REPO / "scripts/mtl_frontier/r2_al_multiseed_manifest.tsv").read_text().splitlines():
     p = line.split("\t")
-    if len(p) >= 4 and p[0].startswith("base_s") and p[2].strip().isdigit():
-        r2al[int(p[2])] = p[3]
+    # 2026-06-17 audit fix: seed is in p[1] (format: tag \t seed \t <blank> \t rundir),
+    # NOT p[2] — the old p[2].isdigit() check captured 0 seeds, so the FU1 AL "4-seed"
+    # number was silently SEED0-ONLY. With the fix r2al captures seeds {1,7,100}.
+    if len(p) >= 4 and p[0].startswith("base_s") and p[1].strip().isdigit():
+        r2al[int(p[1])] = p[3]
 # G+log_T-KD baseline (R1 base)
 r1 = {}
 for line in (REPO / "scripts/mtl_frontier/r1_screen_manifest.tsv").read_text().splitlines():

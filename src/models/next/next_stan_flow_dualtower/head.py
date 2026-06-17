@@ -204,8 +204,12 @@ class NextHeadStanFlowDualTower(nn.Module):
 
         # --- Shared tower: cross-attn output [B,9,256] → STAN backbone.
         #     (a)-baseline faithful (num_heads/dropout injected). Built only for
-        #     modes that consume the shared pathway.
-        if self.fusion_mode in ("gated", "aux"):
+        #     modes that consume the shared pathway. NOTE (2026-06-17 audit fix):
+        #     "aux_gated" MUST be here — it was omitted, so aux_gated silently ran
+        #     with shared_stan=None (shared pathway severed → priv + γ·aux_proj(0)
+        #     = priv + γ·bias), invalidating the FU2 mechanistic claim. Champion G
+        #     uses "aux" (already listed) so G is unaffected by this fix.
+        if self.fusion_mode in ("gated", "aux", "aux_gated"):
             self.shared_stan = NextHeadSTAN(
                 embed_dim=int(embed_dim),
                 num_classes=num_classes,

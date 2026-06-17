@@ -18,14 +18,20 @@
       },
       "alabama": {
         "seeds": [
-          0
+          0,
+          1,
+          7,
+          100
         ],
-        "delta_reg": 0.141,
-        "std_reg": 0.0,
-        "delta_cat": 0.178,
-        "std_cat": 0.0,
+        "delta_reg": 0.045,
+        "std_reg": 0.079,
+        "delta_cat": -0.066,
+        "std_cat": 0.557,
         "per_seed_cat": [
-          0.178
+          0.178,
+          0.68,
+          -0.82,
+          -0.304
         ]
       }
     }
@@ -34,14 +40,14 @@
     "comparand": "champion G (fusion=aux, KD-off)",
     "states": {
       "alabama": {
-        "delta_reg": 0.251,
-        "delta_cat": 0.479,
+        "delta_reg": -0.221,
+        "delta_cat": 0.728,
         "gate_reg_>=0.3": false,
         "gate_either_>=0.3": true
       },
       "florida": {
-        "delta_reg": -0.009,
-        "delta_cat": -0.853,
+        "delta_reg": -0.308,
+        "delta_cat": -0.91,
         "gate_reg_>=0.3": false,
         "gate_either_>=0.3": false
       }

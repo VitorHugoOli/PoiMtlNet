@@ -97,6 +97,19 @@ weights the 7-class cat vs 1109-class reg), not a defaults artifact → the 19-a
 R9(b) Smooth-Tchebycheff unmotivated (R4 front near-degenerate). No promotion; champion G stands. See
 `FINDINGS.md §R9`.
 
+- 2026-06-17 — **AUDIT (user-requested: per-experiment impl+outcome review + the cat↑/reg↓ "are we losing
+  something" question) — 18-agent workflow, all 4 cat/reg lenses adversarially verified.** VERDICT: **no
+  reg loss, no bug.** (1) Core R-program (R-CC+/R4/R5/R9 + R1/R2/R3/R10/cc) all impl=correct/outcome=sound,
+  numbers reproduced to 3dp. (2) cat↑/reg↓ is **selective perception** (cat+/reg+ is the largest of 41
+  quadrant-pairs; cat-reg correlation POSITIVE; reg positive 28/41) + a **diagnostic-best epoch-decoupling
+  artifact** (R5 reg-down → null at the deployable checkpoint) + the **β-gated regime split** (head_beta→0
+  at FL ⇒ no shared reg channel to rob; live β=0.08-0.12 at small states ⇒ both heads move together). (3)
+  DECISIVE: **MTL reg matches the same-substrate STL reg ceiling within −0.09…−0.31pp** ⇒ reg is already
+  MAXED, not shortchanged. (4) Two follow-up BUGS found & FIXED: FU2 aux_gated ran with shared_stan severed
+  (head.py:208) — re-ran fixed (FL now craters BOTH heads −0.91/−0.31, validly re-confirming aux>gated);
+  FU1 "AL 4-seed" was seed-0-only (agg seed-column bug) — corrected to +0.045 reg/−0.066 cat. R4 cat
+  convention-A vs convB +0.259pp cross-table hazard documented. **Champion G stands; no verdict flipped.**
+  See `FINDINGS.md §CAT↑/REG↓` + `§AUDIT`.
 - 2026-06-17 — **R6/R7/R8 CLOSED as reasoned predicted-negatives (deferred).** Each is a substantial
   from-scratch impl (fork/merge surgery; weight-space merge framework; 2→3-task refactor) whose outcome is
   mechanistically determined: **R6** ForkMerge ≤ G (scheduled_static already null + R4 near-corner weight-

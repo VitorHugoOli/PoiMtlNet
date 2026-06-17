@@ -220,6 +220,118 @@ r10_fl_multiseed_agg.py}`. Code: `crossattn_grm` + `_masked_mean_seq` in
 
 ---
 
+## ★ CAT↑/REG↓ — WHY, and is reg being shortchanged? **No — reg is at its STL ceiling, not lost** (2026-06-17 audit)
+
+**The question (user, 2026-06-17):** across the levers cat seems to improve while reg degrades — "it seems
+we are losing something." A 4-lens investigation (data · measurement-artifact · mechanism · adversarial
+bug-hunt), each **adversarially verified** (all 4 verifications: *holds=True, refuted=False*), with every
+load-bearing number reproduced from rundirs, gives a decisive answer: **nothing is being lost on reg; reg
+is genuinely immovable because it is already at its single-task ceiling, and the cat↑/reg↓ impression is
+selective perception + a diagnostic-best epoch-decoupling artifact, not a real systematic trade and not a
+bug.** Four converging findings:
+
+**1. The pattern is mostly selective perception (DATA).** Across the full 41-pair (cat_delta, reg_delta)
+table (every results JSON, multi-seed + seed0, all states), the **largest quadrant is cat+/reg+ (19)**, not
+cat+/reg− (only 7); the cat–reg delta correlation is **positive, not negative** (Pearson +0.026 all /
++0.39 multi-seed) — a genuine "reg funds cat" trade would require a strong *negative* correlation. **reg is
+positive in 28/41** (mean +0.047, median +0.063; max +0.331 at R1 AL). The cat↑/reg↓ impression comes from
+reading the two most-recent levers against the wrong frame: **R5** (cat+0.47/reg−0.10) only vs the
+*handicapped global-W-KD-ON* base — vs the true KD-off champion it is Pareto-dominated on *both* heads; and
+**R10** (cat+0.085/reg−0.027 multi-seed) is pure seed noise (2/4 cat seeds negative, reg Wilcoxon p=0.82).
+
+**2. R5's reg-down is partly a measurement artifact (MEASUREMENT).** cat and reg peak **~26 epochs apart**
+(cat-best ~ep18-20, reg-best ~ep44-46). The study's "diagnostic-best" metric reads each task at its *own*
+best epoch, so it harvests reg at its late peak where R5's small reg cost is maximally visible. At the
+**single deployable joint (geom_simple) checkpoint** — which sits ~+1.6 ep from cat-best, ~24 ep before
+reg-best — R5 covmax's reg-down **collapses to a null** (diag −0.100 → joint −0.025, n=20 Wilcoxon p=0.73)
+while the cat-up *survives* (+0.54). So at one deployable model R5 is cat-up/reg-**flat**, not reg-down.
+(coventr's reg-down partly survives, −0.094, p=0.038.) The (1−ood) factor is verified **bit-exact and
+non-differential** (cancels in matched deltas). By contrast the cc family's both-heads-up is **real and
+grows** at the joint checkpoint (reg +0.070 diag → +0.166 joint, p=0.021) — genuine transfer.
+
+**3. The mechanism — a β-gated regime split (MECHANISM).** The reg head's *only* shared-trunk channel is
+`feat = priv + β·aux_proj(shared)` (head.py:403, β init 0.1). The **trained β is gated by state scale**:
+at **FL, β converges to ≈0 in every arm** (champion-G all 4 seeds ≈ −0.00005; every R4 weight; every
+lever) → there is **no shared reg contribution for cat gains to "rob,"** so the cat↑ cannot be coming at
+reg's shared-trunk expense. At small states the channel is **live** (β = +0.078 GE, +0.088 AZ, +0.11…0.12
+AL) and **levers move BOTH heads together** (R1 AL cat +0.20 / reg +0.21; R2 AL aftb cat +0.64 / reg +0.17).
+cat is movable everywhere because it harvests the shared cross-attn trunk (the easy 7-class task); reg at FL
+is driven by its **private STAN tower, which is saturated** (R4: as cw drops 0.85→0.40 the private-tower
+drift *triples* 8.4→28.8 with reg accuracy *flat* 72.4→73.0 — moves hard for no payoff). cos(∇cat,∇reg)≈0
+throughout. cc fits cleanly: it moves reg up via a **new input channel** (cond_norm 0.13→4.56) while β stays
+≈0 — reg gains via the category-posterior *input*, never the shared trunk.
+
+**4. No bug shortchanges reg, and reg is NOT under-trained (BUG-HUNT — the decisive check).** Adversarially
+testing every reg-shortchange channel: **MTL reg MATCHES the same-substrate STL reg ceiling within −0.09
+(AL) … −0.31 (FL) pp** (reproduced from `R0_matched_metric_bar.json`) — reg is **already at its single-task
+ceiling**, so there is no hidden gap for a bug to hide behind and no recoverable reg gain to lose. The eval
+path is the joint forward with **no cat-contamination for champion G** (cond_coupling='none' → the cc branch
+is skipped, β≈0 insulates reg); the matched-bar `top10_acc_indist·(1−ood)` is **mathematically exact**
+(native full top-K == indist·(1−ood) to float epsilon — OOD never lands in top-K), ood is non-differential
+between arms, the KD/α prior is a **verified no-op at eval** (head_alpha=0), fp16 eval is immaterial and
+*tie-optimistic toward MTL*, and the analyses use the **reg-favourable** diagnostic-best field (not the
+~0.9pp-lower joint field). reg sends ~zero gradient to the shared trunk (grad-norm 1.7e-5) so the
+w_reg=0.25 loss weight does not starve it.
+
+**The answer, in one line.** **We are not losing anything on reg.** reg is immovable because it is *already
+maxed* (at its STL ceiling) and, at the headline state, *architecturally insulated* (β→0, private tower
+saturated, cos≈0) — so the levers can only move the easy shared-trunk-harvesting cat task, and where the
+shared→reg channel is alive (small states) they move **both** heads together. The cat↑/reg↓ reading was an
+artifact of one lever's wrong comparand (R5) + one lever's seed noise (R10) + the diagnostic-best epoch
+decoupling. **Paper framing:** this is the cleanest possible statement of the regime — *MTL achieves
+reg-parity-at-the-STL-ceiling with a free cat lift; it cannot exceed reg because reg has no headroom and no
+transfer channel at scale* — exactly the cos≈0 / dual-tower / weak-2.8-bit-auxiliary regime, and precisely
+the parity-not-gain outcome the post-2022 MTL literature predicts.
+
+**Artifacts.** Audit workflow `mtl-frontier-audit` (18 agents: 10 per-experiment reviews + 4 cat/reg lenses
++ 4 adversarial verifications); evidence reproduced from `docs/results/mtl_frontier/*.json`,
+`docs/results/mtl_improvement/R0_matched_metric_bar.json`, and the rundir diagnostics CSVs (head_beta,
+head_alpha, grad_norm_*_shared, reg_encoder_drift). See `## AUDIT (2026-06-17)` below for per-experiment
+verdicts + the two follow-up bugs it surfaced.
+
+---
+
+## AUDIT (2026-06-17) — per-experiment impl+outcome review (18-agent workflow) + 2 follow-up bugs found & fixed
+
+An adversarial advisor reviewed **each experiment individually** (implementation correctness + independent
+reproduction of every headline number from rundirs + outcome soundness). **9 of 10 review units came back
+impl=correct / outcome=sound with numbers reproduced to 3 decimals and no reg-shortchange** — specifically
+**R1, R2, R3, R10, cc, R-CC+, R4, R5, R9** are all clean (the core R-program is implementation-correct and
+its verdicts hold). The audit surfaced **two real bugs, both in the inherited `followup` experiments**
+(prior agent), plus one cross-table reporting concern in R4:
+
+**BUG 1 (FIXED) — FU2 `aux_gated` ran with the shared pathway SEVERED.** `next_stan_flow_dualtower/head.py:208`
+built `shared_stan` only for `("gated","aux")` and **omitted `"aux_gated"`** → for `aux_gated`,
+`shared_stan=None`, so `_fuse` returned `priv + γ·aux_proj(0) = priv + γ·bias` — the input-dependent β
+*never saw the shared pathway it was meant to gate*. The FU2 promote-decision (don't adopt aux_gated) is
+still safe, but its **mechanistic narrative** ("γ learns to *open* the shared pathway"; "re-confirms champion
+β→0 over an *open* pathway") was **invalid**. **Fix:** added `"aux_gated"` to the build set (champion G uses
+`"aux"`, already listed → G bit-identical; 5/5 identity tests pass). **Re-ran** FU2 (fixed) AL+FL seed0 — see
+the corrected FU2 result in the Follow-up section.
+
+**BUG 2 (FIXED) — FU1 "AL 4-seed" was silently SEED0-ONLY.** `followup_agg.py` read the seed from `p[2]`
+(blank) instead of `p[1]` in `r2_al_multiseed_manifest.tsv` → captured 0 multi-seed baselines → the FU1
+Idea-1 AL number reported as "4-seed +0.141 reg / +0.178 cat" was actually **seed-0 only**. The true 4-seed
+mean is **reg +0.045 / cat −0.066** (cat goes slightly *negative*) — *more* null, so the verdict (R10-GRM
+null everywhere) is unchanged and strengthened. **Fix:** read seed from `p[1]`; re-aggregated.
+
+**CONCERN (documented) — R4 uses a different cat "diagnostic-best" convention than the cc/R5 tables.** R4's
+aggregators use **convention A** (max over the *mean-fold* epoch curve); cc/R-CC+/R5 use **convention B**
+(`full_summary.diagnostic_task_best` = per-fold-best then mean). On identical bit-deterministic champion-G
+rundirs this is a fixed **+0.259 pp cat-side offset** (reg is convention-insensitive: ~+0.03pp). It does
+**not** change any verdict (R4 applies convention A uniformly, so its internal near-corner conclusion is
+intact; cc deltas are convB-vs-convB). The only hazard is **cross-table**: do NOT read R4's cw=0.75 champion
+cat (72.878, convA) against the cc/R5 KD-off champion cat (73.137, convB) — the 0.26pp gap is purely the
+convention, not a real cat regression. Recommend standardizing cross-table comparands to convB
+(full_summary) in any future synthesis.
+
+**Net.** The audit **validates the core R-program** (R-CC+/R4/R5/R9 this session + R1/R2/R3/R10/cc prior
+are implementation-correct and outcome-sound), **resolves the cat↑/reg↓ concern** (no loss, no bug — see
+the `## CAT↑/REG↓` section above), and **corrects two inherited follow-up bugs** (neither flips any promote
+decision). Champion G stands.
+
+---
+
 ## SYNTHESIS — 10 lever-families: 9 nulls + 1 sub-threshold positive + R4 (paper-front), one regime (2026-06-17)
 
 | lever | family | mechanism | best seed-0 | multi-seed verdict |
@@ -228,8 +340,8 @@ r10_fl_multiseed_agg.py}`. Code: `crossattn_grm` + `_masked_mean_seq` in
 | **R2** | asymmetric sharing | binary STEM-AFTB stop-grad masks | AL cat +1.31 | **null** (AL-only; decays to FL −0.03) |
 | **R3** | output-level coupling | CrossDistil (live teacher, ec, warm-up, reverse) | AL cat +0.45 | **null** (washes out; log_T-KD saturates the family) |
 | **R10** | asymmetric sharing | learned input-conditioned GRM gate | FL cat +0.32 | **null** (washes out; GRM ≡ G) |
-| FU-1 | asymmetric sharing | R10 GRM at AZ/GE/AL | — | **null** everywhere |
-| FU-2 | input-dependent fusion | `aux_gated` (input-dep β in reg head) | AL cat +0.48 | **null + harmful** (FL cat −0.85; aux>gated re-confirmed) |
+| FU-1 | asymmetric sharing | R10 GRM at AZ/GE/AL | — | **null** everywhere (AL 4-seed corrected +0.045 reg / −0.066 cat) |
+| FU-2 | input-dependent fusion | `aux_gated` (input-dep β in reg head) | AL cat +0.73 | **null + harmful** (audit-fixed: FL craters BOTH −0.91 cat / −0.31 reg; aux>gated validly re-confirmed) |
 | FU-3 | stacking | best-stack of R1+R2+R3+R10 | AL cat +0.46 | **null** (sub-additive; < best component) |
 | **★ CC** | **input-side conditioning** | **cat posterior → reg input feature (iMTL/GETNext)** | **FL cat +0.45** | **REAL but sub-threshold** (FL cat **+0.235**, reg **+0.070**, 4/4 seeds positive, audit-confirmed deterministic; richer 256-dim features HURT) |
 | **R-CC+** | **input-side conditioning (family map)** | signal {calib,argmax,topk} × inject {film,concat_seq} × output-side logit prior | FL cat +0.45 (calib, ties cc) | **NULL** — every axis ties or **underperforms** additive cc; family caps **+0.235** (calib +0.237, argmax +0.214, concat +0.033 washes out, logitp +0.016 null). The cc cap is the **regime**, not the injection knob |
@@ -475,6 +587,14 @@ geom_simple selector lands consistently. Reporting the epoch-front + the geom_si
 arguing one scalar) is the principled resolution of the C21 selector class. Champion G unchanged; nothing
 to promote (paper-narrative lever).
 
+**⚠ Convention note (2026-06-17 audit).** R4's aggregators report cat diagnostic-best via **convention A**
+(max over the *mean-fold* epoch curve); the cc/R-CC+/R5 tables use **convention B** (`full_summary`
+per-fold-best then mean). On identical champion-G rundirs these differ by a fixed **+0.259 pp** on the cat
+axis (reg is convention-insensitive). R4's internal conclusions are intact (convention A applied uniformly),
+but do NOT cross-compare R4's cw=0.75 champion cat (72.878, convA) against the cc/R5 KD-off champion cat
+(73.137, convB) — the gap is the convention, not a real effect. Standardize to convB for any cross-table
+comparand.
+
 **Artifacts.** `docs/results/mtl_frontier/{r4_scalar_front_results.json, r4_front_multiseed_results.json}`;
 drivers `scripts/mtl_frontier/{r4_scalar_front.sh, r4_front_multiseed.sh}`; aggregators
 `{r4_front_agg.py, r4_front_multiseed_agg.py}`; manifests `{r4_scalar_front_manifest.tsv,
@@ -529,6 +649,13 @@ to catch. **Methodological note for the paper/next agent:** the promote-gate mus
 *deployable champion*, not a lever's internal control; R5 is the case study. **Incidental finding** (worth
 citing): this cleanly re-quantifies that **log_T-KD(0.2) is cat-harmful at FL** (−0.70 cat), and that
 per-instance Markov-coverage gating recovers ~2/3 of that cost but never beats KD-off.
+
+**Audit refinement (2026-06-17).** The cat/reg audit (`## CAT↑/REG↓` section) shows R5's reg-down is also
+*partly a diagnostic-best artifact*: cat and reg peak ~26 epochs apart, and at the single deployable
+geom_simple checkpoint R5 covmax is cat-up/reg-**flat** (Δreg −0.025, n=20 p=0.73 = null) rather than
+reg-down. So R5 is even more clearly "not a reg loss" — it neither beats the KD-off champion (Pareto-
+dominated) nor genuinely sacrifices reg at the deployable point; it just partially un-does log_T-KD's FL
+cat-cost. Verdict unchanged (NULL, no v17).
 
 **Code (champion G bit-identical when off; default `none`).** `--log-t-kd-gate {none,coverage_max,
 coverage_entropy}` → `ExperimentConfig.log_t_kd_gate` → the KD branch in `mtl_cv.py` applies a per-sample,
@@ -649,19 +776,26 @@ the session record). All null; one is informative.
 
 **Idea 1 — R10 GRM at the other states (close the "FL-only multi-seed" gap).** GRM screened at AZ/GE
 seed0 + AL multi-seed {0,1,7,100} vs champion G (baselines reused). **Null everywhere:** AZ Δreg
-−0.239 / Δcat +0.140; GE +0.083 / +0.269; AL 4-seed +0.141 / +0.178. Confirms the trained-γ
-prediction — GRM's "nothing to gate" is state-agnostic; R10 is null at all 4 built states.
+−0.239 / Δcat +0.140; GE +0.083 / +0.269; AL 4-seed **Δreg +0.045 / Δcat −0.066** *(2026-06-17 audit
+correction — `followup_agg.py` read the seed from the wrong column and reported the AL number as seed-0-
+only "+0.141/+0.178"; the true 4-seed mean is +0.045 reg / −0.066 cat — cat slightly NEGATIVE, even more
+null)*. Confirms the trained-γ prediction — GRM's "nothing to gate" is state-agnostic; R10 is null at all
+4 built states.
 
 **Idea 2 — `aux_gated` fusion: input-dependent β in the reg head (the best-shot idea).** New fusion
 mode `feat = priv + γ(·)·aux_proj(shared)`, γ=σ(MLP([priv;shared])) per-dim (init γ≈0.12≈champion β).
-The gate is **fully alive and moves**: γ trains 0.12→**0.30 (AL)** / 0.12→**0.47 (FL)** — it learns to
-*open* the shared pathway. Result: AL cat **+0.48** (seed-0 flare) but **FL cat −0.85 (crater)**, reg
-flat. **Not a lever — actively harmful at scale, and it re-confirms the champion's design:** champion
-`aux` drives β→**0** (closes the shared→reg pathway, X3); an input-conditioned gate *opens* it, which
-dilutes the large-state cat exactly as the falsified `gated` mode did (gated 73.06 < aux 73.57). The
-additive-input-dependent point between `aux`(scalar) and `gated`(convex) inherits `gated`'s FL
-weakness. Input-conditioning does not rescue the shared-pathway fusion. (Code: `fusion_mode=aux_gated`
-+ `aux_gamma` diagnostic; champion `aux` unchanged.)
+**⚠ 2026-06-17 AUDIT: the original FU2 run was BUGGY** — `head.py:208` omitted `"aux_gated"` from the
+shared-tower build list, so `shared_stan=None` and the lever silently degenerated to `priv + γ·aux_proj(0)
+= priv + γ·bias` (the shared pathway it was meant to gate **was never present**). The original numbers
+(AL cat +0.48 / FL cat −0.85, reg flat) and the "γ *opens* the shared pathway" narrative were therefore
+**invalid**. **Fixed** (`"aux_gated"` added to the build set; champion `aux` untouched → G bit-identical)
+and **re-ran** AL+FL seed0. **Corrected result (shared pathway genuinely live):** AL Δreg **−0.221** /
+Δcat **+0.728** (seed-0 cat flare, now with a reg cost); **FL Δreg −0.308 / Δcat −0.910 — craters BOTH
+heads.** This **strengthens** the verdict and now supports it *validly*: with the shared pathway actually
+open, the input-dependent γ dilutes large-state performance and is **harmful on both axes at FL** —
+re-confirming the champion's `aux`/β→0 design (close the shared→reg pathway) over a genuinely-open
+input-conditioned gate, exactly as the falsified convex `gated` mode predicted. Not a lever. (Code:
+`fusion_mode=aux_gated` + `aux_gamma` diagnostic; champion `aux` unchanged.)
 
 **Idea 3 — stack the best-direction variants** (G + log_T-KD + log_C-KD + reverse cat-KD + aftb_late +
 GRM) vs G+log_T-KD, AL+FL seed0, pre-registered to promote only on **super-additivity** (>0.3 over the
@@ -670,14 +804,16 @@ best single component). **Sub-additive null:** AL cat +0.456 < the best single c
 (as `r3_both` already showed) — stacking is worse than the best component, not better. Fails the
 pre-registered gate.
 
-**Net:** the three follow-ups add a 5th/6th/7th null and one positively-useful datum — Idea 2 shows
-the champion's β→0 / `aux`-over-`gated` choice is *robust to input-conditioning*, strengthening the
-architecture claim. The recommended next direction (out of the cos≈0 box that all of R1/R2/R3/R10 +
-these three have now nulled) is **conditional coupling**: feed the cat head's *output* as an *input
-feature* to the reg head (GETNext/iMTL pattern) — the one mechanism with a literature prior for
-beating parity in this regime (FINAL_SYNTHESIS §4; advisor recommendation). Artifacts:
-`docs/results/mtl_frontier/followup_results.json`; driver `scripts/mtl_frontier/followup_screens.sh`;
-agg `followup_agg.py`.
+**Net:** the three follow-ups add a 5th/6th/7th null and one positively-useful datum — Idea 2 (now on the
+*audit-corrected, bug-fixed* run) shows the champion's β→0 / `aux`-over-`gated` choice is **harmful to
+overturn even with an input-conditioned, genuinely-open shared pathway** (FL craters both heads −0.91/
+−0.31), *validly* strengthening the architecture claim. The recommended next direction (out of the cos≈0
+box that all of R1/R2/R3/R10 + these three have now nulled) is **conditional coupling**: feed the cat
+head's *output* as an *input feature* to the reg head (GETNext/iMTL pattern) — the one mechanism with a
+literature prior for beating parity in this regime (FINAL_SYNTHESIS §4; advisor recommendation). Artifacts:
+`docs/results/mtl_frontier/followup_results.json`; drivers `scripts/mtl_frontier/{followup_screens.sh,
+fu2_rerun.sh}`; agg `followup_agg.py` (seed-column fix). *Audit note: the original FU2 numbers (severed
+shared pathway) and the FU1 "AL 4-seed" (seed-0-only) are corrected above; see `## AUDIT (2026-06-17)`.*
 
 ---
 
