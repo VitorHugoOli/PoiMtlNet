@@ -93,9 +93,10 @@ the leak surface). External baselines on the *second dataset* are out of scope u
 
 | Machine | Metering | Pre-freeze role | Notes |
 |---|---|---|---|
-| **A40** | unmetered workhorse | `mtl_frontier` (R1–R3) **and** `pre_freeze_gates` (A2/A4/overlap) | All training-bearing exploration. Serialize R1→R2→R3 or interleave; gates are cheap and slot between waves. |
-| **Mac M2 Pro** (user's local box) | local, MPS only | `second_dataset` ETL + scoring (✅ Phase E DONE) | **No heavy CUDA training here** — ETL (parse, category map, tract/H3 spatial-join, split build), substrate prep, scoring. ✅ Phase E complete (NYC + Istanbul) + a Mac dry-run validation. Champion training for the paper (Phase V) waits for a CUDA box at Level 4. (Note: `docs/infra/` references an M4 Pro 32GB lane — same MPS caveats: no AMP, fp32, slower.) |
-| **H100** | **6 h metered** | reserved for `closing_data` P3 (CA/TX v14 builds) | Do **not** spend on pre-freeze exploration — the A40 absorbs it overnight. |
+| **A40** | unmetered workhorse | `mtl_frontier` R4–R9 (RUNNING) | Currently saturated by the conditional-coupling family (R4–R9). Pre-freeze GPU gates wait for it to free. |
+| **Mac M2 Pro** (user's local box) | local, MPS only | ✅ `second_dataset` Phase E + E2 DONE → now **C1 confirm-on-G** ([`closing_data/HANDOFF_C1_M2.md`](closing_data/HANDOFF_C1_M2.md)) | MPS-feasible (FL+AL champion-G runs, fp32, slow but OK). **NOT P3** — P3 is post-freeze, the heaviest spend (all states × 4 seeds × 5 folds incl. CA/TX), and needs M0 + the A40/H100; it cannot run here now. Optional `toward-P3` task: pre-stage the **GE** v14 substrate (M0) if MPS budget allows; CA/TX v14 are H100. |
+| **M4 Pro** (user's 2nd Mac) | local, MPS only | `pre_freeze_gates` **A2 then A4** ([`pre_freeze_gates/HANDOFF_M4_A2_A4.md`](pre_freeze_gates/HANDOFF_M4_A2_A4.md)) | A2 (feature-concat, light: STL heads on existing v14 — **sync** the canonical v14 artifacts, do not rebuild). A4 (transductivity, heavy: retrains v14 per-fold train-only — needs the v14 build pipeline recreated here; FL×1 seed; if MPS too slow, defer A4 to the A40 post-R4–R9). |
+| **H100** | **6 h metered** | reserved for `closing_data` P3 (CA/TX v14 builds) | Do **not** spend on pre-freeze exploration. |
 
 ---
 
@@ -112,6 +113,7 @@ the leak surface). External baselines on the *second dataset* are out of scope u
 | A4 transductivity bound | pre_freeze_gates | n/a (disclosure gate) | report delta + re-anchor headline numbers | one-paragraph defusal in the paper |
 | Overlapping-windows | pre_freeze_gates | adopt only if user accepts full-base rebuild + a clean leak re-audit | stride change → leak re-audit, rebuild ALL bases + priors pre-freeze, and the regime baselines must match | keep non-overlap canon (default) |
 | B1–B5 baseline triage | baseline_gap | n/a (inventory decision) | chosen baselines → RUN_MATRIX rows/columns; **final runs on the frozen base** (blocked on overlap decision + freeze; end-to-end baselines mirror the adopted windowing) | baseline excluded from the matrix with a recorded reason |
+| **C1 3-snapshot per-task routing** (★ ESCALATED to G0.2 by user 2026-06-16; P1a recommended STORY-DEPENDENT) | closing_data (confirm-on-G) · run on **M2 Pro** | ≥0.3 pp reg over the single `geom_simple` checkpoint, **on champion G**, multi-seed (don't hurt cat) | adopt as a deploy panel (two-checkpoint routing); it is a **deploy mode**, not a single-model recipe change | confirmed dead on G (the C25-fix + dual-tower + geom_simple already recovered the 2/3-state pre-C25 signal) |
 
 > `baseline_gap`'s gate is an **inventory decision** (which external baselines the final tables carry),
 > not a recipe-promotion gate: it does not change the frozen numbers, but it must resolve by P1b so the
