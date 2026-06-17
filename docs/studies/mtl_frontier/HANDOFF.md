@@ -26,16 +26,23 @@ away** (each verdict in `FINDINGS.md §R6/R7/R8` names the impl + falsifier).
 
 ## 1. Where the study is (one paragraph)
 
-8 levers tested, **7 nulls + 1 genuine sub-threshold positive**; **champion G is unchanged, no v17
-promotion, nothing flows to `closing_data` G0.2.** The output-prior family (R1 log_C, R3 CrossDistil),
-the sharing-topology family (R2 binary AFTB, R10 learned GRM), and input-dependent fusion (aux_gated) are
-all null/harmful — they re-gate the **cos≈0 cross-task gradient**, which is empty. The ONE thing that
-produced real transfer is **input-side conditional coupling** (feed the cat head's predicted posterior as
-an *input feature* to the reg head, iMTL/GETNext): FL cat **+0.235** + reg **+0.070** (4/4 seeds positive,
-audit-confirmed deterministic) — but the **weak 7-class (~2.8-bit) auxiliary caps it below the 0.3 gate**,
-and a richer 256-dim conditioning HURTS (−0.31). Net: the post-2022 MTL frontier *replicates* champion
-G's two wins (dual-tower + log_T-KD) but does not exceed them in this regime — a strong, citable negative,
-with conditional coupling as the one place a real (capped) gain lives.
+> **★ STUDY CLOSED 2026-06-17 — read [`FINAL_SYNTHESIS.md`](FINAL_SYNTHESIS.md) first.** This HANDOFF is
+> retained for the reusable code/infra + the champion-G invocation; the closure verdict lives in
+> FINAL_SYNTHESIS.
+
+**10 lever-families tested: 9 nulls + 1 genuine sub-threshold positive** (+ R4 paper-narrative front, R7
+measured Merge<G, R9 optimizer close-out); **champion G is unchanged, no v17 promotion, nothing flows to
+`closing_data` G0.2.** The output-prior family (R1 log_C, R3 CrossDistil, R5 per-instance KD), the
+sharing-topology family (R2 binary AFTB, R10 learned GRM), and input-dependent fusion (aux_gated) are all
+null/harmful — they re-gate the **cos≈0 cross-task gradient**, which is empty. The ONE thing that produced
+real transfer is **input-side conditional coupling** (cat predicted posterior → reg input feature,
+iMTL/GETNext): FL cat **+0.235** + reg **+0.070** (4/4 seeds) — but the **weak 7-class (~2.8-bit) auxiliary
+caps it below the 0.3 gate** (R-CC+ mapped the whole family; nothing beats additive cc). Net: the post-2022
+MTL frontier *replicates* champion G's two wins (dual-tower + log_T-KD) but does not exceed them — a strong
+citable negative. **The headline output is the cat↑/reg↓ resolution** (`FINDINGS.md §CAT↑/REG↓`): reg is at
+its STL ceiling (not shortchanged), and the paper's C2 "−7…−17pp reg cost" is ~half a class-weighting
+confound + ~half config (see the C2 memo). R10 (the "most promising" lever) was re-audited 2026-06-17 —
+impl/eval/placement all correct; the head/tower placement alternatives are regime-bounded (§FINAL_SYNTHESIS §5).
 
 ## 2. The regime — what is already settled (do NOT re-litigate)
 

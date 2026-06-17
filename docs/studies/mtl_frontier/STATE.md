@@ -1,8 +1,9 @@
 # mtl_frontier — STATE
 
-**Status:** **R-PROGRAM COMPLETE (R1–R10 + R-CC+) — 2026-06-17.** WAVE-1 + R10 + follow-ups + cc + R-CC+
-+ R4 + R5 + R9 done (executed); R6/R7/R8 closed as reasoned predicted-negatives (deferred, runnable on
-request). **No v17 promotion; champion G stands.**
+**Status:** **★ STUDY CLOSED 2026-06-17 — read [`FINAL_SYNTHESIS.md`](FINAL_SYNTHESIS.md) first.**
+R-program complete (R1–R10 + R-CC+ + R4/R5/R7/R9 executed; R6/R8 reasoned predicted-negatives); the cat↑/reg↓
+audit + the R10 re-eval (impl/eval/placement all correct) + the C2 paper memo done. **No v17 promotion;
+champion G stands; nothing flows to `closing_data` G0.2.**
 · **Machine:** A40 · **Created:** 2026-06-14 · **Branch:** `study/mtl-frontier`
 **Onboarding:** [`AGENT_PROMPT.md`](AGENT_PROMPT.md) · **Mechanism narrative + every number:** [`FINDINGS.md`](FINDINGS.md)
 **Continue the study (R4–R9):** [`HANDOFF.md`](HANDOFF.md) ⭐ · **Family DAG:** [`../PRE_FREEZE_PROGRAM.md`](../PRE_FREEZE_PROGRAM.md)
@@ -122,7 +123,17 @@ R9(b) Smooth-Tchebycheff unmotivated (R4 front near-degenerate). No promotion; c
   Confound-free champion G = reg-parity (−0.09…−0.31) + cat +2.6…+4.1. Recommends C2 reframing
   (Pareto-gain-on-easy-task-at-parity) with honest caveats (confound+config not flag-flip; CA/TX unmeasured;
   cat lift partly head-config). An earlier "purely the confound" draft was caught + corrected by the advisor.
-- 2026-06-17 — **R6/R8 remain reasoned predicted-negatives (deferred); R7 done.** Each is a substantial
+- 2026-06-17 — **R6/R8 remain reasoned predicted-negatives (deferred); R7 done.**
+- 2026-06-17 — **R10 RE-EVAL (user-requested "most promising lever" deep audit) — done correctly, placed
+  correctly.** 13-agent workflow (3 re-audit + 7 placement + 3 verify, all hold): impl faithful (manual
+  forward == model bit-exact, gate live γ 0.874→0.31 yet ≡ G), eval reproduced bit-exact (FL multi-seed
+  +0.085±0.203 null), placement on-point (cross-attn = spec's primary). The user's head/tower alternatives:
+  P4 intra-tower STAN (reg-at-ceiling bounded), P5 GRU-head (length-9 kills growing-memory + cat-lifted),
+  P2 hierarchical fusion (substrate/rising-tide, very-high cost), P6 SSC/Soup (same cross-task channel),
+  P3 reg-head gate = FU2 (already measured harmful). None worth running. R10 fully mapped + closed.
+- 2026-06-17 — **STUDY CLOSED.** Completeness check (adversarially verified): scientifically complete, only
+  doc-consolidation owed (done: `FINAL_SYNTHESIS.md` + deferred-lever ledger + stale-count fixes). Wrote
+  `FINAL_SYNTHESIS.md`; registry + log updated. Champion G unchanged. Each is a substantial
   from-scratch impl (fork/merge surgery; weight-space merge framework; 2→3-task refactor) whose outcome is
   mechanistically determined: **R6** ForkMerge ≤ G (scheduled_static already null + R4 near-corner weight-
   front); **R7** merge-vs-joint < G (tangent-space theory — from-scratch experts don't share a basin);
