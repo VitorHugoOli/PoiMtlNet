@@ -156,6 +156,11 @@ class NextHeadStanFlowDualTower(nn.Module):
         cond_coupling: str = "none",
         cond_dim: int = 7,
         cond_detach: bool = False,
+        cond_signal: str = "softmax",
+        cond_temp: float = 1.0,
+        cond_topk: int = 0,
+        cond_inject: str = "add",
+        cond_logit_prior: bool = False,
     ):
         super().__init__()
         if fusion_mode not in _FUSION_MODES:
@@ -245,15 +250,64 @@ class NextHeadStanFlowDualTower(nn.Module):
         # cond_proj is ZERO-INIT so the untrained head ≡ champion G; the model
         # learns the coupling from there. cond_detach controls whether the
         # cat→reg gradient flows (False = true iMTL end-to-end).
+        #
+        # R-CC+ (mtl_frontier, 2026-06-16) — extend the one direction that
+        # produced real transfer. Three orthogonal axes, all default-off so
+        # champion G is bit-identical:
+        #   cond_signal  : how the cat prediction is shaped *before* projection
+        #                  (model-side, read off this head): softmax(=existing
+        #                  posterior) | calibrated(τ=cond_temp) | argmax(discrete
+        #                  one-hot, GETNext form) | topk(cond_topk-sparse mask).
+        #   cond_inject  : where the cat signal enters the reg head:
+        #                  add(=existing additive fused-feature) | film(γ,β on the
+        #                  fused feature, zero-init→identity) | concat_seq(broadcast
+        #                  into the private-STAN input sequence, GETNext-faithful
+        #                  input-side, zero-init→no-op) | none(feature-side off,
+        #                  for a pure output-side prior).
+        #   cond_logit_prior : output-side learned cat→region logit map
+        #                  (CatDM/LBPR sibling), zero-init→no-op.
         self.cond_coupling = str(cond_coupling)
         self.cond_detach = bool(cond_detach)
+        self.cond_signal = str(cond_signal)
+        self.cond_temp = float(cond_temp)
+        self.cond_topk = int(cond_topk)
+        self.cond_inject = str(cond_inject)
+        self.cond_logit_prior = bool(cond_logit_prior)
         if self.cond_coupling not in ("none", "posterior", "features"):
             raise ValueError(f"cond_coupling must be none|posterior|features, got {cond_coupling!r}")
+        if self.cond_signal not in ("softmax", "calibrated", "argmax", "topk"):
+            raise ValueError(f"cond_signal must be softmax|calibrated|argmax|topk, got {cond_signal!r}")
+        if self.cond_inject not in ("add", "film", "concat_seq", "none"):
+            raise ValueError(f"cond_inject must be add|film|concat_seq|none, got {cond_inject!r}")
         if self.cond_coupling != "none":
-            self.cond_proj = nn.Linear(int(cond_dim), self.d_model)
-            nn.init.zeros_(self.cond_proj.weight)
-            nn.init.zeros_(self.cond_proj.bias)
-            self.last_cond_norm = None  # C28 diagnostic — mean ‖cond contribution‖
+            # feature/input-side injection module (exactly one, zero-init → ≡ G)
+            if self.cond_inject == "add":
+                self.cond_proj = nn.Linear(int(cond_dim), self.d_model)
+                nn.init.zeros_(self.cond_proj.weight)
+                nn.init.zeros_(self.cond_proj.bias)
+            elif self.cond_inject == "film":
+                # FiLM on the fused feature: feat ← (1+γ)·feat + β. Zero-init the
+                # projection → γ=0, β=0 → (1+0)·feat+0 ≡ champion G.
+                self.cond_film = nn.Linear(int(cond_dim), 2 * self.d_model)
+                nn.init.zeros_(self.cond_film.weight)
+                nn.init.zeros_(self.cond_film.bias)
+            elif self.cond_inject == "concat_seq":
+                # Input-side: broadcast-add a cat embedding to every *valid* step
+                # of the raw region sequence before the private tower (GETNext:
+                # the predicted category modulates the input). Project cond_dim →
+                # raw_embed_dim, zero-init → no change ≡ champion G. Added only on
+                # non-pad steps so the private STAN's pad mask is preserved.
+                self.cond_seq_proj = nn.Linear(int(cond_dim), int(raw_embed_dim))
+                nn.init.zeros_(self.cond_seq_proj.weight)
+                nn.init.zeros_(self.cond_seq_proj.bias)
+            # cond_inject == "none": no feature/input injection (pure logit prior).
+            if self.cond_logit_prior:
+                # Output-side learned cat→region prior added to the logits;
+                # zero-init → no-op ≡ champion G.
+                self.cond_logit = nn.Linear(int(cond_dim), int(num_classes))
+                nn.init.zeros_(self.cond_logit.weight)
+                nn.init.zeros_(self.cond_logit.bias)
+            self.last_cond_norm = None  # C28 diagnostic — mean ‖injected delta‖
 
         # --- Fused classifier (mirrors NextHeadSTAN.classifier structure).
         self.classifier = nn.Sequential(
@@ -381,6 +435,23 @@ class NextHeadStanFlowDualTower(nn.Module):
         cat_cond: [B, cond_dim] cat-head prediction for conditional coupling
             (the model passes softmax(cat_logits) when cond_coupling != none).
         """
+        # R-CC+ conditioning signal (None unless the head opts in AND the model
+        # supplied a cat prediction — e.g. the disjoint ``next_forward`` path
+        # passes cat_cond=None, so conditioning is inert there, exactly like the
+        # original additive cc).
+        c = None
+        if self.cond_coupling != "none" and cat_cond is not None:
+            c = (cat_cond.detach() if self.cond_detach else cat_cond).float()
+
+        # Input-side injection (GETNext-faithful): modulate the raw region
+        # sequence BEFORE the private tower. Only on valid (non-pad) steps so the
+        # private STAN's abs-sum pad mask is preserved.
+        if c is not None and self.cond_inject == "concat_seq" and raw_region_seq is not None:
+            valid = (raw_region_seq.abs().sum(dim=-1, keepdim=True) != 0).to(raw_region_seq.dtype)
+            delta_seq = self.cond_seq_proj(c.to(raw_region_seq.dtype)).unsqueeze(1)  # [B,1,raw]
+            raw_region_seq = raw_region_seq + delta_seq * valid
+            self.last_cond_norm = float(delta_seq.detach().norm(dim=-1).mean())
+
         priv_feat = (
             self.private_stan.forward_features(raw_region_seq)
             if raw_region_seq is not None
@@ -392,12 +463,29 @@ class NextHeadStanFlowDualTower(nn.Module):
             else None
         )
         feat = self._fuse(priv_feat, shared_feat, ref=x)
-        if self.cond_coupling != "none" and cat_cond is not None:
-            c = cat_cond.detach() if self.cond_detach else cat_cond
-            cond = self.cond_proj(c.float().to(feat.dtype))
-            self.last_cond_norm = float(cond.detach().norm(dim=-1).mean())
-            feat = feat + cond
+
+        # Feature-side injection on the fused pooled feature.
+        if c is not None and self.cond_inject in ("add", "film"):
+            cc = c.to(feat.dtype)
+            if self.cond_inject == "add":
+                cond = self.cond_proj(cc)
+                self.last_cond_norm = float(cond.detach().norm(dim=-1).mean())
+                feat = feat + cond
+            else:  # film
+                gamma, beta = self.cond_film(cc).chunk(2, dim=-1)
+                self.last_cond_norm = float(
+                    (gamma.detach().norm(dim=-1) + beta.detach().norm(dim=-1)).mean()
+                )
+                feat = (1.0 + gamma) * feat + beta
+
         logits = self.classifier(feat)
+
+        # Output-side learned cat→region prior (CatDM/LBPR sibling).
+        if c is not None and self.cond_logit_prior:
+            lp = self.cond_logit(c.to(logits.dtype))
+            self.last_cond_norm = float(lp.detach().norm(dim=-1).mean())
+            logits = logits + lp
+
         return self._apply_prior(logits)
 
 

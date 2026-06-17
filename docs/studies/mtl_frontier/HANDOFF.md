@@ -1,9 +1,20 @@
 # mtl_frontier — HANDOFF (continue R4–R9) ⭐ read this first
 
 **You are the next `mtl_frontier` agent.** Wave 1 (R1/R2/R3) + R10 + 3 user follow-ups + conditional
-coupling are DONE (2026-06-16, branch `study/mtl-frontier`). **R4–R9 are OPEN.** This file is your
-entry point: the state, the regime you're working in, the reusable code, the R4–R9 specs (updated with
-what we learned), the one direction that actually worked, and the protocol you MUST follow.
+coupling + **R-CC+** are DONE (2026-06-17, branch `study/mtl-frontier`). **R4–R9 are OPEN** (R-CC+ was
+the live thread and is now CLOSED NULL — start at **R4**). This file is your entry point: the state, the
+regime you're working in, the reusable code, the R4–R9 specs (updated with what we learned), and the
+protocol you MUST follow.
+
+> **R-CC+ closed 2026-06-17 (NULL).** The conditional-coupling family is fully mapped along signal
+> {calibrated/argmax/topk} × injection {FiLM/input-side concat} × output-side {learned logit prior}.
+> **No variant exceeds the original additive-posterior cc** (FL multi-seed: cc_e2e +0.235, calib +0.237,
+> argmax +0.214 — all 4/4 seeds +, reg +0.066…0.070 p<0.05; **input-side concat washes out +0.033**;
+> output-side logitp +0.016 null; richer `features` already HURT). The +0.235 sub-threshold cap is the
+> **regime** (weak 2.8-bit auxiliary), not the injection knob. Advisor audit 5/5 PASS (G bit-identical,
+> leak-free). Code: `cond_signal`/`cond_temp`/`cond_topk`/`cond_inject`/`cond_logit_prior` (G unchanged).
+> **One untested future lever (not pursued):** cross-attn cat↔reg coupling (cat penultimate as K/V queried
+> by the reg pooled feature) — expected sub-threshold. See `FINDINGS.md §R-CC+`. **Next priority: R4.**
 
 > **Read in this order:** this file → [`FINDINGS.md`](FINDINGS.md) (every result + mechanism) →
 > [`STATE.md`](STATE.md) (queue + decisions log) → [`AGENT_PROMPT.md`](AGENT_PROMPT.md) (original scope) →
@@ -50,6 +61,7 @@ with conditional coupling as the one place a real (capped) gain lives.
 | GRM-gated cross-attn read (R10) | `--model-param crossattn_grm=True` (logs `grm_gamma_*`) | `_CrossAttnBlock` + `_masked_mean_seq` |
 | aux_gated fusion (input-dep β) | `--reg-head-param fusion_mode=aux_gated` | reg head `_fuse` (logs `aux_gamma`) |
 | **conditional coupling (the one that worked)** | `--reg-head-param cond_coupling=posterior` (or `features`) `--reg-head-param cond_dim=7` (256 for features) `--reg-head-param cond_detach=False` | reg head `cond_proj` (zero-init → ≡ G) + `mtlnet_crossattn_dualtower.forward` + `next_gru.forward_features` (logs `cond_norm`) |
+| **R-CC+ family axes** (CLOSED null) | `--reg-head-param cond_signal=`{softmax,calibrated,argmax,topk} `cond_temp=T` `cond_topk=k` · `cond_inject=`{add,film,concat_seq,none} · `cond_logit_prior=True` | reg head `next_stan_flow_dualtower` (FiLM/concat_seq/logit injections, all zero-init → ≡ G) + signal transform in `mtlnet_crossattn_dualtower.forward` (logs `cond_norm`) |
 
 **Screening pattern (copy it):** a `*_screen.sh` driver (PID-suffix rundir capture, `--no-checkpoints`,
 writes a `*_manifest.tsv`) + a `*_agg.py` (reads the manifest, matched reg = `top10_acc_indist·(1−ood)`
@@ -104,19 +116,21 @@ have NO substrate** (a build is `closing_data` scope, deferred).
 > Source rationale + citations: `docs/research/mtl_frontier.md §4`. Re-prioritized given the wave-1
 > result: **conditional coupling is the only family that produced real transfer — push it FIRST.**
 
-### ★ R-CC+ (NEW, highest priority) — extend the conditional-coupling family
-The one win. cc_e2e (cat posterior → reg input) gave FL cat +0.235 / reg +0.070 (sub-threshold; richer
-256-dim features HURT). Concrete next probes (each cheap, AL+FL seed-0 → multi-seed FL on a positive):
-- **Stronger conditioning signal that ISN'T raw features:** a small *learned category embedding* table
-  indexed by argmax(cat) (GETNext's actual form — discrete, low-capacity, not the noisy 256-dim
-  penultimate that overfit); or the **calibrated** posterior (temperature-scaled) ; or **top-k** category
-  mask. Hypothesis: a cleaner semantic signal beats both the raw 7-dim posterior and the 256-dim features.
-- **Where to inject:** we fused additively before the classifier. Try FiLM (γ,β from cat) on the private
-  tower, or concat into the private-STAN input sequence (input-side, GETNext-faithful).
-- **Cat-conditioned logit prior** (CatDM/LBPR, FINAL_SYNTHESIS §4 #2): `logits_reg += W·g(P̂(cat))` with
-  a learned region|category map — the output-side sibling of cc (cheap; distinct from R1's KD form).
-- **Falsifier:** if no conditioning variant clears FL 0.3 multi-seed, the **2.8-bit category is a hard
-  cap** — a clean, citable regime result (and the honest paper framing).
+### ✅ R-CC+ (CLOSED 2026-06-17 — NULL, the falsifier fired) — conditional-coupling family fully mapped
+All the probes below were run. **The falsifier fired:** no conditioning variant clears FL 0.3 multi-seed
+→ the **2.8-bit category is a hard regime cap** (the honest paper framing). Details:
+- **Signal** (calibrated-τ / discrete-argmax-GETNext / top-k): all **tie** the plain posterior (FL
+  multi-seed calib +0.237, argmax +0.214 vs cc_e2e +0.235) — signal form is not the bottleneck; the
+  ~2.8-bit content is. (`cond_proj(softmax)` is already a soft cat-embedding lookup.)
+- **Injection** (FiLM, input-side concat-into-sequence): both **worse** than additive; the input-side
+  concat was multi-seeded to rule out an identity-init confound and **washed out** (+0.033, 2 seeds neg)
+  → additive-late is the family optimum.
+- **Output-side logit prior** (CatDM/LBPR `logits_reg += W·P̂(cat)`): **null** (+0.016) — the output
+  channel is saturated (same wall as R1/R3).
+- **Richer `features`** (256-dim penultimate): already shown to **HURT** (−0.31). Raising raw capacity is
+  worse, not better.
+- **Conclusion:** champion G unchanged, no v17; the cc direction is closed at sub-threshold. See
+  `FINDINGS.md §R-CC+`. The one mechanism NOT yet run (deferred): cross-attn cat↔reg coupling.
 
 ### R4 — Pareto-front profiling (PaLoRA-style) — MED, paper-narrative
 Frozen trunk + per-task LoRA adapters; the convex mixture parameterizes the whole cat↔reg trade-off
@@ -149,9 +163,9 @@ rising-tide rule predicts it lifts STL as much as MTL. **Falsifier:** lifts STL 
 cos≈0). (b) **Smooth-Tchebycheff** — only if R4's measured front is non-convex. Closes the optimizer
 aisle citably.
 
-**Sequencing recommendation:** R-CC+ first (the live thread) → R4 (paper-narrative, runs on the frozen
-champion) → R5 (cheap, reuses code) → R9 (trivial close-out) → R6/R7/R8 (medium, lower priority). Do NOT
-re-open the trunk-gradient / output-prior / sharing-gate families — wave 1 nulled them four ways.
+**Sequencing recommendation (R-CC+ now done):** **R4** (paper-narrative, runs on the frozen champion) →
+R5 (cheap, reuses code) → R9 (trivial close-out) → R6/R7/R8 (medium, lower priority). Do NOT re-open the
+trunk-gradient / output-prior / sharing-gate / conditional-coupling families — all nulled now.
 
 ## 7. Logistics
 

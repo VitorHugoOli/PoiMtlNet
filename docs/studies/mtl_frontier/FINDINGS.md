@@ -220,7 +220,7 @@ r10_fl_multiseed_agg.py}`. Code: `crossattn_grm` + `_masked_mean_seq` in
 
 ---
 
-## SYNTHESIS — 8 levers: 7 nulls + 1 sub-threshold positive, one regime (2026-06-16)
+## SYNTHESIS — 9 lever-families: 8 nulls + 1 sub-threshold positive (now fully mapped), one regime (2026-06-17)
 
 | lever | family | mechanism | best seed-0 | multi-seed verdict |
 |---|---|---|---|---|
@@ -232,6 +232,7 @@ r10_fl_multiseed_agg.py}`. Code: `crossattn_grm` + `_masked_mean_seq` in
 | FU-2 | input-dependent fusion | `aux_gated` (input-dep β in reg head) | AL cat +0.48 | **null + harmful** (FL cat −0.85; aux>gated re-confirmed) |
 | FU-3 | stacking | best-stack of R1+R2+R3+R10 | AL cat +0.46 | **null** (sub-additive; < best component) |
 | **★ CC** | **input-side conditioning** | **cat posterior → reg input feature (iMTL/GETNext)** | **FL cat +0.45** | **REAL but sub-threshold** (FL cat **+0.235**, reg **+0.070**, 4/4 seeds positive, audit-confirmed deterministic; richer 256-dim features HURT) |
+| **R-CC+** | **input-side conditioning (family map)** | signal {calib,argmax,topk} × inject {film,concat_seq} × output-side logit prior | FL cat +0.45 (calib, ties cc) | **NULL** — every axis ties or **underperforms** additive cc; family caps **+0.235** (calib +0.237, argmax +0.214, concat +0.033 washes out, logitp +0.016 null). The cc cap is the **regime**, not the injection knob |
 
 **The shape of the answer.** Everything that **re-gates the cos≈0 cross-task gradient or the output-prior
 channel** (R1/R2/R3/R10/FU) is **null** — those channels are empty/saturated. The ONE family that
@@ -240,9 +241,11 @@ as new input information) — and even that is **capped below the 0.3 gate by th
 auxiliary** (richer raw conditioning overfits and hurts). So: champion G's two wins (dual-tower +
 log_T-KD) are **replicated but not exceeded** by the post-2022 MTL frontier in this regime — a strong,
 citable negative — with conditional coupling marking exactly where (and how little) genuine transfer is
-available. **Recommended next direction (R-CC+ in `HANDOFF.md`):** push the conditional-coupling family
-(cleaner semantic conditioning, FiLM/input-side injection, cat-conditioned logit prior), not more
-gradient/sharing variants.
+available. **R-CC+ (2026-06-17) has now fully mapped that family** (cleaner semantic conditioning,
+FiLM/input-side injection, cat-conditioned logit prior) and found **no variant exceeds the original
+additive-posterior cc** — it caps at +0.235 < 0.3, so the sub-threshold bound is the **regime** (weak
+2.8-bit auxiliary), not an unexplored knob. The conditional-coupling direction is closed at sub-threshold.
+See `## R-CC+` above. Remaining program: R4–R9 (`HANDOFF.md`).
 
 ### (historical, 2026-06-15) first wave + R10 framing
 
@@ -308,6 +311,99 @@ step):** richer conditioning — feed the cat head's **penultimate features / a 
 This also directly answers the "is the sub-threshold a weak-signal (fixable) limitation vs the regime"
 question. Artifacts: `cc_screen_results.json`, `cc_e2e_multiseed_results.json`; code
 `cond_coupling`/`cond_detach`/`cond_proj` (champion G unchanged).
+
+---
+
+## R-CC+ — extend the conditional-coupling family — **NULL** (the cc cap is the regime, not the injection knob) (2026-06-17)
+
+**Verdict.** R-CC+ pushes the one direction that produced real transfer (conditional coupling) along
+**three orthogonal axes** — (1) the cat *signal* (softmax / calibrated-τ / discrete-argmax / top-k),
+(2) the *injection point* (additive-feature / FiLM / input-side concat-into-sequence / output-side
+logit prior), and (3) richer conditioning (already-tested `features`). **Every variant either ties or
+underperforms the original additive-posterior `cc_e2e`, and the whole family caps at FL cat ≈ +0.21…+0.24
+multi-seed — none clears the 0.3 gate.** The sub-threshold bound is therefore the **regime** (data-rich
+main task + weak **7-class ~2.8-bit** auxiliary), **not** a fixable conditioning hyperparameter. Champion
+G unchanged; no v17 promotion. This closes the conditional-coupling family.
+
+**New code (all default-off, champion G bit-identical — independently audited, see below).** Three reg-head
+axes on `next_stan_flow_dualtower` + the cat-signal transform on `mtlnet_crossattn_dualtower`:
+`cond_signal` ∈ {softmax,calibrated(`cond_temp`),argmax,topk(`cond_topk`)} · `cond_inject` ∈
+{add,film,concat_seq,none} · `cond_logit_prior` (learned cat→region logit map). Every injection module is
+**zero-initialized** → the untrained head ≡ G; FiLM is `(1+γ)·feat+β` (γ=β=0 → identity); concat_seq adds
+only on **non-pad** steps so the private-STAN pad mask is preserved. The signal `cat_cond` derives ONLY
+from the model's **own predicted** `out_cat` (softmax/argmax) — never the GT label (leak-checked).
+
+**Seed-0 screen (AL+FL, vs fresh matched champion G; gate ≥0.3 either head):**
+
+| variant (FL) | mechanism | Δcat seed0 | note |
+|---|---|---|---|
+| cc_e2e | posterior, additive (the prior cc) | **+0.450** | reproduces the known +0.45 → no code drift |
+| cc_calib | calibrated τ=2, additive | +0.450 | ties posterior |
+| cc_argmax | discrete one-hot (GETNext form), additive | +0.418 | ties posterior |
+| cc_topk | top-2 mask, additive | +0.438 | ties posterior |
+| cc_film | FiLM γ,β on fused feature | +0.243 | **worse** than additive |
+| cc_concat | input-side, concat into private-STAN seq (GETNext-faithful) | +0.259 | **worse** than additive |
+| cc_logitp | output-side learned cat→region prior | +0.016 | **null** (output channel saturated, cf. R1/R3) |
+
+(reg ~flat +0.02…+0.05 for all. AL = the noisy small state: all variants +0.45…+0.96 cat, the known
+seed-0-weakest pattern that washes out multi-seed.)
+
+**FL multi-seed {0,1,7,100} (matched same-batch G, the 4 promote-eligible additive-family + the input-side
+control):**
+
+| config | Δreg (n=20, Wilcoxon) | Δcat (4-seed) | per-seed Δcat | gate ≥0.3 |
+|---|---|---|---|---|
+| cc_e2e | +0.070 (p=0.035) | **+0.235 ± 0.136** | [+0.45,+0.07,+0.21,+0.21] (4/4 +) | **FAIL** |
+| cc_calib | +0.067 (p=0.020) | +0.237 ± 0.138 | [+0.45,+0.11,+0.27,+0.12] (4/4 +) | **FAIL** |
+| cc_argmax | +0.066 (p=0.008) | +0.214 ± 0.127 | [+0.42,+0.08,+0.22,+0.14] (4/4 +) | **FAIL** |
+| cc_concat | +0.020 (p=0.23) | +0.033 ± 0.137 | [+0.26,+0.02,**−0.05**,**−0.10**] (washes out) | **FAIL** |
+
+**Mechanism / what each axis taught us.**
+1. **Signal shaping does nothing.** Calibrating (τ=2), discretizing (argmax — GETNext's literal form), or
+   sparsifying (top-k) the 7-class posterior all land within ~0.02 of the plain posterior, multi-seed and
+   seed-0. The bottleneck is the auxiliary's **information content (~2.8 bits)**, not the signal's form —
+   and `cond_proj(softmax(·))` is already a soft category-embedding lookup, so the "cleaner embedding"
+   variants are re-parameterizations of the same map. The HANDOFF hypothesis ("a cleaner semantic signal
+   beats the raw 7-dim posterior") is **falsified**.
+2. **Injection point matters, and additive-late is best.** FiLM and the input-side concat are both
+   *worse* than the additive feature injection. The input-side `concat_seq` — multi-seeded specifically
+   to rule out an identity-init slow-start confound (advisor request) — **washes out** (Δcat +0.033, two
+   seeds negative), i.e. it is genuinely worse, not merely slow-starting. So `cc_e2e`'s additive form is
+   the **family optimum**, not an arbitrary choice.
+3. **Output-side and richer-signal both fail.** The learned cat→region logit prior is null (+0.016 —
+   the output-prior channel is saturated, the same wall R1/R3 hit), and the richer 256-dim `features`
+   conditioning was already shown to **hurt** FL (−0.31/−0.36, the prior cc work) — overfitting the
+   noisy penultimate. Raising raw capacity makes it worse, not better.
+
+**The synthesis.** Across signal × injection × output-side × capacity, **nothing exceeds the original
+additive-posterior cc, and that optimum caps at +0.235 < 0.3.** This is the cleanest possible in-study
+proof that the conditional-coupling sub-threshold is a **hard regime cap set by the 2.8-bit category
+auxiliary**, not an unexplored-hyperparameter artifact. It is the honest paper framing: input-side
+conditioning is the one channel that yields *real* transfer here (both heads, every seed positive on the
+additive family), and the LBSN next-POI regime's weak category vocabulary bounds it just below promotion.
+
+**Independent advisor audit (2026-06-17).** A separate reviewer read the code and verified, with
+file:line evidence, all five correctness claims **PASS**: (1) G bit-identity when off, (2) zero-init ≡ G
+for every inject mode (incl. FiLM identity + concat_seq pad-mask preservation), (3) **no GT leakage**
+(`cat_cond` ← predicted `out_cat` only), (4) train/eval consistency (eval runs the joint `forward`, so
+conditioning fires identically; the disjoint `next_forward` path is inert by design), (5) valid signal
+transforms. No bugs. Its methodological catch — don't drop the input-side `concat_seq` on confounded
+seed-0 evidence — was adopted (the concat multi-seed addendum above), and confirmed the cap rather than
+breaking it.
+
+**The one untested lever (future, not pursued — out of "pause-after-R-CC+" scope).** The advisor's
+remaining suggestion is a **cross-attention coupling** (cat penultimate as K/V, queried by the reg pooled
+feature) so the reg head can *select* relevant cat dims per-sample, rather than additive/scalar injection.
+Given (a) `features` already hurts and (b) the bottleneck is diagnosed as auxiliary *information*, the
+expectation is another sub-threshold result — but it is the one structurally-distinct mechanism not yet
+run, and is logged here for completeness.
+
+**Artifacts.** `docs/results/mtl_frontier/{ccplus_screen_results.json, ccplus_fl_multiseed_results.json}`;
+drivers `scripts/mtl_frontier/{ccplus_screen.sh, ccplus_fl_multiseed.sh, ccplus_fl_concat_addendum.sh}`;
+aggregators `{ccplus_agg.py, ccplus_fl_multiseed_agg.py}`; manifests `{ccplus_manifest.tsv,
+ccplus_fl_multiseed_manifest.tsv}`. Code: `cond_signal`/`cond_temp`/`cond_topk`/`cond_inject`/
+`cond_logit_prior` in `next_stan_flow_dualtower/head.py` + the signal transform in
+`mtlnet_crossattn_dualtower/model.py` (champion G defaults unchanged).
 
 ---
 

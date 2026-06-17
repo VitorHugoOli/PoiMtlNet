@@ -1,14 +1,16 @@
 # mtl_frontier — STATE
 
-**Status:** FIRST WAVE + R10 + follow-ups + conditional coupling DONE (2026-06-16). **R4–R9 OPEN.**
+**Status:** FIRST WAVE + R10 + follow-ups + conditional coupling + **R-CC+** DONE (2026-06-17). **R4–R9 OPEN.**
 · **Machine:** A40 · **Created:** 2026-06-14 · **Branch:** `study/mtl-frontier`
 **Onboarding:** [`AGENT_PROMPT.md`](AGENT_PROMPT.md) · **Mechanism narrative + every number:** [`FINDINGS.md`](FINDINGS.md)
 **Continue the study (R4–R9):** [`HANDOFF.md`](HANDOFF.md) ⭐ · **Family DAG:** [`../PRE_FREEZE_PROGRAM.md`](../PRE_FREEZE_PROGRAM.md)
 
-## Headline (2026-06-16)
-**Champion G is UNCHANGED — no v17 promotion.** 8 levers tested: **7 nulls + 1 genuine sub-threshold
-positive** (conditional coupling: FL cat **+0.235** / reg +0.070, audit-confirmed deterministic, below
-the 0.3 gate). The cos≈0 / data-rich / weak-7-class-auxiliary regime caps every mechanism. The one
+## Headline (2026-06-17)
+**Champion G is UNCHANGED — no v17 promotion.** 9 lever-families tested: **8 nulls + 1 genuine
+sub-threshold positive** (conditional coupling: FL cat **+0.235** / reg +0.070, audit-confirmed
+deterministic, below the 0.3 gate). **R-CC+ (2026-06-17) fully mapped the conditional-coupling family
+along signal × injection × output-side axes — no variant exceeds the original additive-posterior cc;
+the +0.235 cap is the regime (weak 2.8-bit auxiliary), not a fixable knob.** The cos≈0 / data-rich / weak-7-class-auxiliary regime caps every mechanism. The one
 direction that produced real (capped) transfer is **input-side conditional coupling** (cat output → reg
 input feature, iMTL/GETNext) — the recommended R4+ direction is to push *that* family, not more
 output-prior / sharing-gate variants. Audit (user-flagged "seed-0 always best"): champion G is fully
@@ -49,9 +51,21 @@ bug; nulls unchanged; conditional coupling confirmed real.** §AUDIT. **Lesson: 
 baselines (harmless here only because G is deterministic); don't compare absolute numbers across the
 mtl_improvement↔current code drift (~0.1–0.4 cat).**
 
-**STUDY STATUS (2026-06-16): 7 NULLS + 1 sub-threshold positive.** No v17 promotion; champion G stands.
-**R4–R9 OPEN** — see `HANDOFF.md`. The one productive direction is the conditional-coupling family
-(input-side conditioning), capped by the weak 7-class auxiliary. See `FINDINGS.md §SYNTHESIS`.
+**★ R-CC+ (conditional-coupling family extension) — CLOSED 2026-06-17: NULL (the cc cap is the regime,
+not the injection knob).** Pushed cc along 3 orthogonal axes — signal {calibrated-τ, discrete-argmax,
+top-k}, injection {FiLM, input-side concat-into-sequence}, output-side {learned cat→region logit prior}.
+**Every variant ties or underperforms the original additive-posterior `cc_e2e`**; FL multi-seed: calib
++0.237 / argmax +0.214 / **cc_e2e +0.235** (all 4/4 seeds +, reg +0.066…+0.070 p<0.05) / **concat +0.033
+washes out** (2 seeds neg) / logitp +0.016 null; richer 256-dim `features` already shown to HURT (−0.31).
+**Nothing clears 0.3** → the sub-threshold bound is the **regime** (data-rich main + weak 7-class ~2.8-bit
+auxiliary), not a fixable HP. Independent advisor audit: code correct, leak-free, G bit-identical (5/5
+claims PASS). New code `cond_signal`/`cond_temp`/`cond_topk`/`cond_inject`/`cond_logit_prior` (G unchanged).
+No v17. See `FINDINGS.md §R-CC+`.
+
+**STUDY STATUS (2026-06-17): 8 NULLS + 1 sub-threshold positive (cc family now fully mapped).** No v17
+promotion; champion G stands. **R4–R9 OPEN** — see `HANDOFF.md`. The conditional-coupling family (the one
+productive direction) is closed at sub-threshold, capped by the weak 7-class auxiliary. See
+`FINDINGS.md §SYNTHESIS` + `§R-CC+`.
 
 ## Promote-gate convention
 ≥0.3 pp either head, multi-seed {0,1,7,100} → STOP for user (recipe → v17) → register in `closing_data` G0.2.
@@ -92,3 +106,15 @@ Null → log here + `../log.md` row; do not silently fold into the freeze.
 - 2026-06-16 — **AUDIT (user-flagged seed-0 pattern) RESOLVED.** Champion G deterministic; seed-0 is
   the genuinely-weakest seed; earlier "non-determinism" was code drift vs old R0; cc result confirmed
   real. Methodology lesson recorded. **R4–R9 handed off via `HANDOFF.md`.**
+- 2026-06-17 — **R-CC+ launched + CLOSED NULL (cc family fully mapped).** Implemented 3 orthogonal cc
+  axes (champion G bit-identical, zero-init ≡ G, smoke-verified + advisor-audited 5/5 PASS, no GT leak):
+  `cond_signal`{softmax,calibrated,argmax,topk} · `cond_inject`{add,film,concat_seq,none} ·
+  `cond_logit_prior`. Seed-0 screen (AL+FL, fresh matched G): FL additive family (e2e/calib/argmax/topk)
+  ties +0.42…+0.45; FiLM +0.243 & input-side concat +0.259 worse; output-side logitp +0.016 null.
+  FL multi-seed {0,1,7,100} (matched in-batch G): cc_e2e **+0.235** (reproduced exactly → determinism +
+  no-drift reconfirmed), calib +0.237, argmax +0.214 (all 4/4 seeds +, reg +0.066…0.070 p<0.05),
+  **concat washes out +0.033** (2 seeds neg, advisor-requested input-side control → confirms additive is
+  the family optimum, not init-confound). **None clears 0.3** → sub-threshold cap = regime (weak 2.8-bit
+  auxiliary), not a knob. richer `features` already HURT (prior cc work). No v17; champion G stands.
+  **Pausing here for R4–R9 realignment per user.** Untested future lever: cross-attn cat↔reg coupling
+  (advisor idea; expected sub-threshold). See `FINDINGS.md §R-CC+`.
