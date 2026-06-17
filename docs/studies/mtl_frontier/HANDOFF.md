@@ -1,4 +1,4 @@
-# mtl_frontier — HANDOFF (continue R4–R9) ⭐ read this first
+# mtl_frontier — HANDOFF (study CLOSED — reusable code + champion-G invocation) ⭐ read FINAL_SYNTHESIS.md first
 
 **You are the next `mtl_frontier` agent.** The **R-program is COMPLETE** (2026-06-17, branch
 `study/mtl-frontier`): R1/R2/R3 + R10 + 3 follow-ups + cc + **R-CC+ + R4 + R5 + R9** executed; **R6/R7/R8
@@ -119,7 +119,7 @@ have NO substrate** (a build is `closing_data` scope, deferred).
 7. **Keep champion G bit-identical** when your flag is off (verified for every lever — the audit agent
    re-checked). Commit per lever; pin `--canon none` + full explicit recipe in every driver.
 
-## 6. R4–R9 queue (specs updated with what we learned)
+## 6. R4–R9 queue (HISTORICAL — all executed/closed 2026-06-17; see §1 + FINAL_SYNTHESIS §3/§5/§7. The "Next: …" lines below are stale forward-pointers from when the queue was live.)
 
 > Source rationale + citations: `docs/research/mtl_frontier.md §4`. Re-prioritized given the wave-1
 > result: **conditional coupling is the only family that produced real transfer — push it FIRST.**
@@ -198,7 +198,8 @@ coupling (both expected-null). Champion G is the committed champion; nothing flo
 
 ## 7. Logistics
 
-- **Branch** `study/mtl-frontier` (this work; do NOT commit to `main`). 26 commits; PR to be opened.
+- **Branch** `study/mtl-frontier` (this work; do NOT commit to `main`). **PR #24 OPEN** → main (opened
+  2026-06-16, kept updated). 37+ commits.
 - Everything is committed: code (champion G unchanged), drivers, aggregators, manifests, results JSON,
   FINDINGS/STATE/this file, `docs/studies/log.md` rows.
 - **A40**, ~unmetered. FL run ≈ 30 min (5f/50ep); AL/AZ/GE faster. CONC=2 is safe on the A40 (~24 GB/run).

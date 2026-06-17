@@ -359,7 +359,7 @@ available. **R-CC+ (2026-06-17) has now fully mapped that family** (cleaner sema
 FiLM/input-side injection, cat-conditioned logit prior) and found **no variant exceeds the original
 additive-posterior cc** — it caps at +0.235 < 0.3, so the sub-threshold bound is the **regime** (weak
 2.8-bit auxiliary), not an unexplored knob. The conditional-coupling direction is closed at sub-threshold.
-See `## R-CC+` above. Remaining program: R4–R9 (`HANDOFF.md`).
+See `## R-CC+` above. *(Historical pointer — R4–R9 are all executed/closed; see `FINAL_SYNTHESIS.md` §3/§5/§7.)*
 
 ### (historical, 2026-06-15) first wave + R10 framing
 
@@ -841,5 +841,6 @@ extended** by their literature-frontier generalizations: CrossDistil = G's alrea
 teacher; STEM-AFTB / GRM = G's already-present hand-built asymmetry. **No lever promotes to v17; champion
 G stands.** This is a strong, citable negative for the paper: the post-2022 MTL frontier (asymmetric
 modularity + output-level coupling), brought to this LBSN regime, reproduces — but does not beat — the
-two mechanisms the `mtl_improvement` study already found. Remaining program (R4-R9) deferred; the
-optimizer aisle stays closed (Kurin/Xin/Mueller).
+two mechanisms the `mtl_improvement` study already found. *(Historical note: "remaining program R4–R9" was
+later all executed/closed — R4/R7/R9 done, R5 null, R6/R8 reasoned-negatives; see `FINAL_SYNTHESIS.md`.)*
+The optimizer aisle stays closed (Kurin/Xin/Mueller + R9).

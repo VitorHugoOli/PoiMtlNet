@@ -10,9 +10,10 @@
 input-side conditioning, Pareto-front profiling, model-merging, residual optimizers, auxiliary tasks — to
 this repo's measured LBSN regime (**cos(∇cat,∇reg)≈0** on the shared trunk, **dual-tower** with a private
 reg tower, **data-rich** next-region main task, **weak 7-class ~2.8-bit** category auxiliary). Across **10
-lever-families** (R1, R2, R3, R10, 3 follow-ups, conditional-coupling, R-CC+) plus **R4** (Pareto front),
-**R5** (per-instance KD gating), **R7** (merge-vs-joint), **R9** (optimizer close-out), the result is **9
-nulls + 1 genuine sub-threshold positive (conditional coupling, FL cat +0.235 / reg +0.070)**; **R4**
+lever-families** (R1, R2, R3, R10, 3 follow-ups, conditional-coupling, R-CC+, **R5**) plus the non-gated
+methodology items **R4** (Pareto front), **R7** (merge-vs-joint), **R9** (optimizer close-out), the result
+is **9 nulls** (R1, R2, R3, R10, FU1, FU2, FU3, R-CC+, R5) **+ 1 genuine sub-threshold positive (conditional
+coupling, FL cat +0.235 / reg +0.070)**; **R4**
 resolved the C21 selector saga (publish the epoch-front), **R7** measured Merge<joint-G, **R9** closed the
 optimizer aisle. **No lever clears the ≥0.3 multi-seed promote gate; champion G is unchanged; nothing flows
 to `closing_data` G0.2.** The frontier **replicates but does not exceed** champion G's two wins (dual-tower +
