@@ -327,6 +327,34 @@ def _load_data(state: str, input_type: str, region_emb_source: str = "check2hgi"
     raise ValueError(f"Unknown input_type: {input_type}")
 
 
+def _append_visit_features(x_tensor, state: str, seq_engine: EmbeddingEngine | None):
+    """A2: concat the canonical per-visit raw features onto each window position.
+
+    Features align to the sequences the input was built from: ``seq_engine`` for the
+    checkin path (engine_override), check2hgi otherwise. Raw load_city is the feature
+    source; falls back to check2hgi metadata if the placeid-alignment assert trips
+    (e.g. a state where check2hgi filtered the check-in set).
+    """
+    sys.path.insert(0, str(_root / "scripts"))
+    from pre_freeze_gates.a2_features import build_per_visit_features
+
+    seq_eng = seq_engine or EmbeddingEngine.CHECK2HGI
+    seq_df = pd.read_parquet(IoPaths.get_seq_next(state, seq_eng))
+    try:
+        feat = build_per_visit_features(seq_df, IoPaths.load_city(state), validate=True)
+    except AssertionError as e:
+        logger.warning("visit-feat align vs raw checkins failed (%s); retrying with check2hgi metadata", e)
+        meta = pd.read_parquet(
+            IoPaths.CHECK2HGI.get_state_dir(state) / "embeddings.parquet",
+            columns=["userid", "placeid", "datetime", "category"],
+        )
+        feat = build_per_visit_features(seq_df, meta, validate=True)
+    ft = torch.from_numpy(feat)  # [N, 9, F]
+    if ft.shape[:2] != x_tensor.shape[:2]:
+        raise RuntimeError(f"visit-feat shape {tuple(ft.shape)} misaligned with x {tuple(x_tensor.shape)}")
+    return torch.cat([x_tensor, ft], dim=-1), x_tensor.shape[-1] + ft.shape[-1]
+
+
 def _dataloader(x, y, batch_size, shuffle, aux=None):
     """Build a DataLoader; if ``aux`` is provided, wrap with
     ``POIDatasetWithAux`` + ``AuxPublishingLoader`` so the head can read
@@ -656,12 +684,19 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
                  per_fold_transition_dir: str | None = None,
                  engine_override: EmbeddingEngine | None = None,
                  target: str = "region",
-                 loss_cfg: dict | None = None):
-    logger.info("Loading data for %s (input_type=%s, region_emb=%s, target=%s, engine_override=%s)...",
-                state, input_type, region_emb_source, target, engine_override)
+                 loss_cfg: dict | None = None,
+                 add_visit_features: bool = False):
+    logger.info("Loading data for %s (input_type=%s, region_emb=%s, target=%s, engine_override=%s, visit_feats=%s)...",
+                state, input_type, region_emb_source, target, engine_override, add_visit_features)
     x_tensor, y_region, y_cat, userids, emb_dim, n_regions, last_region_tensor = _load_data(
         state, input_type, region_emb_source, engine_override=engine_override,
     )
+    if add_visit_features:
+        # A2 feature-concat control: append the per-visit raw features (= Check2HGI's
+        # node features) to each window position. Aligned to the SAME sequences the
+        # input tensor was built from (engine_override for checkin, check2hgi otherwise).
+        x_tensor, emb_dim = _append_visit_features(x_tensor, state, engine_override)
+        logger.info("  +visit-features: x=%s emb_dim=%d", tuple(x_tensor.shape), emb_dim)
     aux_hint = "present" if last_region_tensor is not None else "missing"
     if target == "category":
         y_tensor = torch.from_numpy(np.ascontiguousarray(y_cat, dtype=np.int64))
@@ -915,6 +950,12 @@ def main():
                         help="Override OneCycleLR max_lr (default: per-head)")
     parser.add_argument("--label-smoothing", type=float, default=0.0)
     parser.add_argument("--input-layernorm", action="store_true")
+    parser.add_argument("--add-visit-features", dest="add_visit_features", action="store_true",
+                        help="pre_freeze_gates A2: append the canonical per-visit raw features "
+                             "(category one-hot + hour/dow sin/cos, = Check2HGI's node features) to "
+                             "each window position of the input. Used to test whether HGI ⊕ raw "
+                             "features closes Check2HGI's lift (feature-injection vs infomax-learning). "
+                             "Faithful + alignment-validated; see scripts/pre_freeze_gates/a2_features.py.")
     parser.add_argument("--tag", type=str, default=None,
                         help="Suffix for result file (e.g. E1, E2_scale, E_region)")
     parser.add_argument("--resume", dest="resume", action="store_true", default=True,
@@ -1014,6 +1055,7 @@ def main():
         engine_override=eo,
         target=args.target,
         loss_cfg=loss_cfg,
+        add_visit_features=args.add_visit_features,
     )
 
 
