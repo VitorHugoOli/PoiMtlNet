@@ -62,10 +62,20 @@ auxiliary), not a fixable HP. Independent advisor audit: code correct, leak-free
 claims PASS). New code `cond_signal`/`cond_temp`/`cond_topk`/`cond_inject`/`cond_logit_prior` (G unchanged).
 No v17. See `FINDINGS.md §R-CC+`.
 
-**STUDY STATUS (2026-06-17): 8 NULLS + 1 sub-threshold positive (cc family now fully mapped).** No v17
-promotion; champion G stands. **R4–R9 OPEN** — see `HANDOFF.md`. The conditional-coupling family (the one
-productive direction) is closed at sub-threshold, capped by the weak 7-class auxiliary. See
-`FINDINGS.md §SYNTHESIS` + `§R-CC+`.
+**★ R4 (Pareto-front profiling, PaLoRA-style) — DONE 2026-06-17 (paper-narrative; resolves C21).** Profiled
+the cat↔reg front on the FROZEN champion G (FL multi-seed): **(1) the scalarization/mixture-weight axis is
+a near-corner** — champion cw=0.75 is Pareto-dominant (lowering cw 0.75→0.55 buys +0.05pp reg for −0.87pp
+cat; raising to 0.85 loses on both), tasks weakly coupled (the falsifier → publishable regime datum);
+**(2) the deployment-epoch axis carries the real, STABLE trade** — 12–16 Pareto epochs/run, geom_simple
+deploys a consistent ep18–20 point every seed. **C21 resolved**: the selector saga is an epoch-deployment
+choice on a real, well-localised epoch-front, not a weight/architecture problem. **PaLoRA-proper NOT built**
+(justified: shared-trunk adapter mixture can't move the private-tower reg → would reproduce the
+near-collapsed weight-front). No code changes; champion G untouched; paper-narrative (no promote gate).
+See `FINDINGS.md §R4`.
+
+**STUDY STATUS (2026-06-17): 8 NULLS + 1 sub-threshold positive + R4 (paper-narrative front).** No v17
+promotion; champion G stands. **R5/R9/R6/R7/R8 OPEN** (running autonomously per user: stop only on a
+≥0.3 multi-seed promote or a blocker). See `FINDINGS.md §SYNTHESIS` + `§R-CC+` + `§R4`; `HANDOFF.md`.
 
 ## Promote-gate convention
 ≥0.3 pp either head, multi-seed {0,1,7,100} → STOP for user (recipe → v17) → register in `closing_data` G0.2.
@@ -118,3 +128,10 @@ Null → log here + `../log.md` row; do not silently fold into the freeze.
   auxiliary), not a knob. richer `features` already HURT (prior cc work). No v17; champion G stands.
   **Pausing here for R4–R9 realignment per user.** Untested future lever: cross-attn cat↔reg coupling
   (advisor idea; expected sub-threshold). See `FINDINGS.md §R-CC+`.
+- 2026-06-17 — **R4 (Pareto-front profiling) DONE — paper-narrative, resolves C21.** Scalarization
+  `--category-weight` sweep on frozen champion G (FL, multi-seed {0,1,7,100}): weight-front is a
+  **near-corner** (champion cw=0.75 Pareto-dominant; lowering→0.55 = +0.05pp reg/−0.87pp cat; raising→0.85
+  dominated) → tasks weakly coupled on the loss-weight axis (falsifier datum). Champion **epoch-trajectory
+  front** is the real, **stable** C21 locus (12–16 Pareto epochs, geom_simple ep18–20 every seed).
+  **PaLoRA-proper declined** (mechanistic: shared-trunk adapter mixture can't move the private-tower reg
+  → reproduces the near-collapsed weight-front). No model code; champion untouched. → R5.

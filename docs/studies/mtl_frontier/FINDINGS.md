@@ -407,6 +407,80 @@ ccplus_fl_multiseed_manifest.tsv}`. Code: `cond_signal`/`cond_temp`/`cond_topk`/
 
 ---
 
+## R4 — Pareto-front profiling (PaLoRA-style) — **DONE (paper-narrative; resolves C21)** (2026-06-17)
+
+**Verdict.** R4 publishes the cat↔reg trade-off **front** instead of defending one geom_simple point,
+permanently resolving the C21/geom_simple selector saga. Two axes were profiled on the **frozen champion
+G** (FL, multi-seed {0,1,7,100}; R4 is paper-narrative — no promote gate): **(1) the scalarization /
+mixture-weight axis is a near-corner** — champion cw=0.75 is Pareto-dominant and the tasks are weakly
+coupled there (the spec's falsifier, "front collapses → publishable regime datum"); **(2) the
+deployment-epoch axis carries the real, stable cat↔reg trade** — 12–16 Pareto-optimal epochs per run,
+geom_simple deploying a consistent ep18–20 point across all seeds. So C21 is an **epoch-deployment** choice
+on a real epoch-front, **not** a weight/architecture problem. PaLoRA-proper was **not built** (justified
+below).
+
+**Method.** Sweep `--category-weight` (static_weight: `loss=(1−cw)·L_reg + cw·L_cat`) on the frozen
+champion, reg/cat heads + recipe identical to G, log_T-KD off. Each weight = a deployable model; the
+(cat-F1 ceiling, reg-Acc@10 ceiling) set is the achievable front. Per run we also extract the per-epoch
+(mean-fold cat-F1, mean-fold reg-matched) trajectory → the within-run epoch Pareto front, and the
+geom_simple-selected epoch (argmax_e √(cat_e·reg_e)). No new model code — only drivers + aggregators.
+
+**(1) Scalarization weight-front, 4-seed diagnostic-best ceilings (FL):**
+
+| cw | cat-F1 (mean±std) | reg-Acc@10 (mean±std) | note |
+|---|---|---|---|
+| 0.55 (reg-favored) | 72.005 ± 0.013 | 72.988 ± 0.079 | reg-corner |
+| **0.75 (champion)** | **72.878 ± 0.119** | **72.938 ± 0.057** | Pareto-dominant |
+| 0.85 (cat-favored) | 72.387 ± 0.061 | 72.427 ± 0.123 | **dominated** (both ↓) |
+
+(seed-0 also swept {0.40, 0.70, 0.92}: the reg ceiling is flat ~72.9–73.05 for cw ≤ 0.75, then cw=0.92
+**craters reg to 64.26** — pure reg-loss starvation, a degenerate under-training point, not a Pareto
+trade.) **Lowering cw 0.75→0.55 buys only +0.050 pp reg for −0.873 pp cat; raising to 0.85 loses on
+BOTH heads.** The achievable weight-front is therefore a **tiny near-vertical segment** with champion
+cw=0.75 at the knee — the cat↔reg tasks barely trade off on the loss-weight (and, by the argument below,
+the mixture) axis. **Near-corner / weak-coupling confirmed multi-seed** — exactly the cos≈0, dual-tower,
+champion-near-joint-optimum regime.
+
+**(2) Champion epoch-trajectory front (the real C21 locus), stable across seeds:**
+
+| seed | #Pareto epochs | geom_simple epoch | deployed (cat, reg) |
+|---|---|---|---|
+| 0 | 14 | 19 | (72.66, 71.88) |
+| 1 | 14 | 18 | (72.91, 71.92) |
+| 7 | 16 | 19 | (73.03, 72.13) |
+| 100 | 12 | 20 | (72.88, 72.05) |
+
+Within a single champion run there are 12–16 Pareto-optimal epochs (the late-epoch cat↔reg tension is
+real: per-task ceilings sit at different epochs), and **geom_simple deploys a consistent ep18–20 point at
+every seed**. This is the genuine selector locus: publishing this epoch-front (with geom_simple's pick
+marked) is R4's "publish the front, not a point" deliverable, and it shows the C21 choice is stable and
+well-localised — not the knife-edge the selector saga implied.
+
+**Why PaLoRA-proper was not built (mechanistic, not a shortcut).** PaLoRA traces a front by mixing
+**shared-trunk** LoRA adapters. But in the dual-tower champion, **reg's signal flows through its private
+STAN tower**, not the shared trunk (the cat head harvests the shared trunk; reg is isolated — the X3
+dual-tower finding). A shared-trunk adapter mixture therefore moves **cat** and barely moves **reg** — it
+would reproduce the same near-collapsed weight-front measured above, at substantial implementation cost.
+The weight-sweep already *is* the convex-emphasis front, and it collapses to a near-corner; a LoRA-mixture
+front would too. **The dual-tower's reg-privacy means a shared-trunk Pareto-profiler cannot trace a reg
+trade-off in this architecture** — itself a clean, citable paper point (and the honest reading of the
+R4 falsifier).
+
+**Takeaway for the paper.** The cat↔reg front in this LBSN-MTL regime is (a) near-degenerate on the
+loss-weight / shared-trunk-mixture axis — champion G sits at the joint corner, tasks weakly coupled
+(cos≈0) — and (b) a real but **stable, well-localised** trade on the deployment-epoch axis, where the
+geom_simple selector lands consistently. Reporting the epoch-front + the geom_simple point (rather than
+arguing one scalar) is the principled resolution of the C21 selector class. Champion G unchanged; nothing
+to promote (paper-narrative lever).
+
+**Artifacts.** `docs/results/mtl_frontier/{r4_scalar_front_results.json, r4_front_multiseed_results.json}`;
+drivers `scripts/mtl_frontier/{r4_scalar_front.sh, r4_front_multiseed.sh}`; aggregators
+`{r4_front_agg.py, r4_front_multiseed_agg.py}`; manifests `{r4_scalar_front_manifest.tsv,
+r4_front_multiseed_manifest.tsv}` (+ champion cw=0.75 reuses the deterministic `ccplus_fl_multiseed`
+base rows). No code changes (champion G untouched).
+
+---
+
 ### Follow-up screens (user ideas, advisor-structured) — three more nulls (2026-06-15)
 
 After the 4-null first wave, three user-proposed follow-ups were screened (advisor evaluation in

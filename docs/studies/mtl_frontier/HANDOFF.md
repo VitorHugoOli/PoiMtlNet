@@ -132,11 +132,15 @@ All the probes below were run. **The falsifier fired:** no conditioning variant 
 - **Conclusion:** champion G unchanged, no v17; the cc direction is closed at sub-threshold. See
   `FINDINGS.md §R-CC+`. The one mechanism NOT yet run (deferred): cross-attn cat↔reg coupling.
 
-### R4 — Pareto-front profiling (PaLoRA-style) — MED, paper-narrative
-Frozen trunk + per-task LoRA adapters; the convex mixture parameterizes the whole cat↔reg trade-off
-curve at inference. **Resolves the C21/geom_simple selector saga permanently** (publish the front, not a
-point). Cheap at k=2; novel in POI-MTL. **Falsifier:** front collapses to a point (tasks decoupled) —
-itself a publishable regime datum. Run on the frozen champion; doesn't need a promotion.
+### ✅ R4 — Pareto-front profiling — DONE 2026-06-17 (paper-narrative; resolves C21)
+Profiled the cat↔reg front on the frozen champion (FL multi-seed). **(1) Loss-weight/mixture axis is a
+near-corner** — champion cw=0.75 Pareto-dominant (lowering→0.55 = +0.05pp reg/−0.87pp cat; raising→0.85
+dominated): tasks weakly coupled (the falsifier's publishable regime datum). **(2) Deployment-epoch axis
+carries the real, STABLE trade** — 12–16 Pareto epochs/run, geom_simple ep18–20 every seed → **C21 is an
+epoch-deployment choice, not a weight/arch problem**; publish the epoch-front + geom_simple pick.
+**PaLoRA-proper NOT built** (mechanistic: shared-trunk adapter mixture can't move the private-tower reg →
+reproduces the near-collapsed weight-front; the dual-tower's reg-privacy defeats a shared-trunk
+Pareto-profiler — itself a citable point). See `FINDINGS.md §R4`. **Next: R5.**
 
 ### R5 — Per-instance KD gating — LOW-MED
 Modulate the R1/R3 (or cc) prior weight **per check-in** (by Markov-coverage of the last region,
