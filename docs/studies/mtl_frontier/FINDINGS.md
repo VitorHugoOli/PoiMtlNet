@@ -220,7 +220,7 @@ r10_fl_multiseed_agg.py}`. Code: `crossattn_grm` + `_masked_mean_seq` in
 
 ---
 
-## SYNTHESIS — 9 lever-families: 8 nulls + 1 sub-threshold positive (now fully mapped), one regime (2026-06-17)
+## SYNTHESIS — 10 lever-families: 9 nulls + 1 sub-threshold positive + R4 (paper-front), one regime (2026-06-17)
 
 | lever | family | mechanism | best seed-0 | multi-seed verdict |
 |---|---|---|---|---|
@@ -233,6 +233,8 @@ r10_fl_multiseed_agg.py}`. Code: `crossattn_grm` + `_masked_mean_seq` in
 | FU-3 | stacking | best-stack of R1+R2+R3+R10 | AL cat +0.46 | **null** (sub-additive; < best component) |
 | **★ CC** | **input-side conditioning** | **cat posterior → reg input feature (iMTL/GETNext)** | **FL cat +0.45** | **REAL but sub-threshold** (FL cat **+0.235**, reg **+0.070**, 4/4 seeds positive, audit-confirmed deterministic; richer 256-dim features HURT) |
 | **R-CC+** | **input-side conditioning (family map)** | signal {calib,argmax,topk} × inject {film,concat_seq} × output-side logit prior | FL cat +0.45 (calib, ties cc) | **NULL** — every axis ties or **underperforms** additive cc; family caps **+0.235** (calib +0.237, argmax +0.214, concat +0.033 washes out, logitp +0.016 null). The cc cap is the **regime**, not the injection knob |
+| **R4** | Pareto-front profiling | scalarization weight-sweep + epoch-front (frozen champion) | — (paper-narrative) | **DONE** — weight-front a **near-corner** (champion cw=0.75 dominant); real trade is the **epoch axis** (stable, geom_simple ep18–20) → **resolves C21**; PaLoRA declined (dual-tower reg-privacy) |
+| **R5** | per-instance KD gating | redistribute log_T-KD weight by Markov-coverage (covmax/coventr) | FL cat +0.47 vs global-W | **NULL** — fired the gate but a **comparand artifact**: only recovers log_T-KD's own FL cat-cost; vs the true (KD-off) champion R5 is **−0.22 cat / −0.06 reg** (worse on both); reg ≤ global-W (falsifier met) |
 
 **The shape of the answer.** Everything that **re-gates the cos≈0 cross-task gradient or the output-prior
 channel** (R1/R2/R3/R10/FU) is **null** — those channels are empty/saturated. The ONE family that
@@ -478,6 +480,66 @@ drivers `scripts/mtl_frontier/{r4_scalar_front.sh, r4_front_multiseed.sh}`; aggr
 `{r4_front_agg.py, r4_front_multiseed_agg.py}`; manifests `{r4_scalar_front_manifest.tsv,
 r4_front_multiseed_manifest.tsv}` (+ champion cw=0.75 reuses the deterministic `ccplus_fl_multiseed`
 base rows). No code changes (champion G untouched).
+
+---
+
+## R5 — per-instance KD gating — **NULL** (a fired gate that is a comparand artifact) (2026-06-17)
+
+**Verdict.** Per-instance gating of the log_T-KD weight (redistribute the batch-mean-fixed KD weight by
+Markov-coverage of the sample's last-region transition row — peaked row ⇒ upweight) produces a robust FL
+multi-seed **cat lift that clears the ≥0.3 gate against its designed global-W comparand** — but this is a
+**comparand artifact**: the lift merely recovers part of log_T-KD's own FL cat-cost, and against the
+study's true FL champion (KD-OFF G) R5 is **worse on BOTH heads**. On the KD's own target axis (reg) gated
+≤ global-W (the R5 falsifier is met). **No v17 promotion; champion G stands.** Independently advisor-audited
+(verdict: null, do not escalate).
+
+**The decisive table (FL, 4-seed {0,1,7,100}, diagnostic-best; cat=macro-F1, reg=matched Acc@10):**
+
+| config | cat | reg | vs KD-OFF champion |
+|---|---|---|---|
+| **KD-OFF champion G** (the true FL champion; §0.1 paper canon) | **73.137 ± 0.076** | **72.958 ± 0.06** | — |
+| R5 base = G + GLOBAL log_T-KD W=0.2 (gate=none) | 72.441 ± 0.059 | 72.995 ± 0.055 | cat −0.696 / reg +0.037 |
+| R5 covmax (gate=coverage_max) | 72.913 ± 0.081 | 72.895 ± 0.068 | **cat −0.224 / reg −0.063** |
+| R5 coventr (gate=coverage_entropy) | 72.863 ± 0.079 | 72.912 ± 0.073 | cat −0.274 / reg −0.046 |
+
+**vs the designed global-W comparand:** covmax Δcat **+0.472 ± 0.042** (4/4 seeds + [0.514,0.404,0.471,0.498],
+p=0.0625 = the n=4 sign-consistency floor), Δreg **−0.100** (Wilcoxon p≈1.0 — significantly *worse*);
+coventr Δcat +0.422, Δreg −0.082. **vs the true champion (KD-OFF G):** both variants are negative on cat
+AND reg. AL seed0: covmax +0.236 reg/+0.181 cat, coventr +0.189 reg/−0.014 cat — **gate fails at AL** (the
+state where log_T-KD actually lives).
+
+**Why the gate fired, and why it is null (mechanism).** log_T-KD is a **reg-side** KD that is "small-state
+only" — at the large headline state FL it **costs 0.70 pp cat for +0.04 pp reg** (the global-W base sits at
+72.441 cat vs the KD-off champion's 73.137). Per-instance gating (concentrating the fixed KD budget on
+high-Markov-coverage samples) **recovers ~2/3 of that self-inflicted cat-cost** (+0.472 of the 0.696 lost)
+via the shared cross-attn trunk — a genuine, clean, mechanistically-interpretable spillover (`r5_gate_std`
+≈ 0.4–0.6 confirms the gate genuinely redistributes, C28-live) — **but it never fully recovers it, and it
+gives back reg on the KD's own axis (−0.10).** So:
+- Against the **designed control** (global-W KD-on), R5 measurably shifts the cat↔reg trade — a citable
+  mechanism datum (instance-gated KD redistribution works as a knob).
+- Against the **v17 comparand** (deployable champion G = KD-OFF), R5 is Pareto-**dominated** (−0.22 cat,
+  −0.06 reg), and is itself **dominated by the trivial known alternative** "turn log_T-KD off at FL"
+  (which recovers the full 0.70 cat at ~flat reg). The falsifier "gated ≤ global-W" holds on reg.
+
+**Takeaway.** R5 is the same regime as R1/R2/R3/R10/cc: an output-prior/KD-family lever that is
+small-state-flavoured, FL-null-or-harmful, and reg-immovable. Its one positive (the +0.472-vs-global-W cat
+recovery) is a **comparand artifact** of the handicapped log_T-KD-ON FL base — exactly the kind of fired
+gate the matched-baseline protocol (re-baseline on the true champion; don't compare across recipes) exists
+to catch. **Methodological note for the paper/next agent:** the promote-gate must be read against the
+*deployable champion*, not a lever's internal control; R5 is the case study. **Incidental finding** (worth
+citing): this cleanly re-quantifies that **log_T-KD(0.2) is cat-harmful at FL** (−0.70 cat), and that
+per-instance Markov-coverage gating recovers ~2/3 of that cost but never beats KD-off.
+
+**Code (champion G bit-identical when off; default `none`).** `--log-t-kd-gate {none,coverage_max,
+coverage_entropy}` → `ExperimentConfig.log_t_kd_gate` → the KD branch in `mtl_cv.py` applies a per-sample,
+batch-mean-1-normalized weight from the teacher-row peakedness (`coverage_max`=max-prob, `coverage_entropy`
+=normalized 1−H); C28 diagnostic `r5_gate_std`. (A one-line `_math` scope bug cost the first `coventr`
+pass — `coverage_max` was unaffected — fixed + smoke-verified before the multi-seed.)
+
+**Artifacts.** `docs/results/mtl_frontier/{r5_screen_results.json, r5_fl_multiseed_results.json}`; drivers
+`scripts/mtl_frontier/{r5_screen.sh, r5_coventr_fix.sh, r5_fl_multiseed.sh}`; aggregators `{r5_agg.py,
+r5_fl_multiseed_agg.py}`; manifests `{r5_screen_manifest.tsv, r5_fl_multiseed_manifest.tsv}`. Code:
+`log_t_kd_gate` in `experiment.py` / `train.py` / `mtl_cv.py` (champion G defaults unchanged).
 
 ---
 

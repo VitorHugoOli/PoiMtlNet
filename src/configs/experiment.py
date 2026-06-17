@@ -210,6 +210,12 @@ class ExperimentConfig:
     # ``docs/studies/substrate-protocol-cleanup/INDEX.md`` §A1.
     log_t_kd_weight: float = 0.0
     log_t_kd_tau: float = 1.0
+    # R5 (mtl_frontier) — per-instance log_T-KD gating. Redistribute the (mean-fixed)
+    # KD weight across check-ins by Markov-coverage of the sample's last-region log_T
+    # row: peaked row (Markov-1 binds) → upweight KD; flat row → downweight. Mean-1
+    # normalized per batch so the TOTAL KD budget matches global-W (tests redistribution,
+    # not strength). "none" (default) = global W (bit-identical). See FINDINGS §R5.
+    log_t_kd_gate: str = "none"  # none | coverage_max | coverage_entropy
 
     # R1 (mtl_frontier) — log_C co-location KD prior (ESMM probability-chain).
     # A SECOND distillation term on the reg loss whose teacher is the

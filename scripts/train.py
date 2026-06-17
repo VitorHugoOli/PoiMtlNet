@@ -934,6 +934,24 @@ def _parse_args(argv=None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--log-t-kd-gate",
+        dest="log_t_kd_gate",
+        type=str,
+        default=None,
+        choices=["none", "coverage_max", "coverage_entropy"],
+        help=(
+            "R5 (mtl_frontier) — per-instance gating of the log_T-KD weight. "
+            "Redistributes the (batch-mean-fixed) KD weight across check-ins by "
+            "Markov-coverage of the sample's last-region log_T row: 'coverage_max' "
+            "(teacher max-prob) / 'coverage_entropy' (normalized 1-H) upweight "
+            "peaked (Markov-binding) samples and downweight flat ones, mean-1 "
+            "normalized per batch so the TOTAL KD budget == global-W. Tests "
+            "redistribution, not strength. Requires --log-t-kd-weight > 0. "
+            "Default 'none' = global W (bit-identical). MTL-only; champion G "
+            "untouched. See docs/studies/mtl_frontier/FINDINGS.md §R5."
+        ),
+    )
+    parser.add_argument(
         "--log-t-kd-tau",
         dest="log_t_kd_tau",
         type=float,
@@ -1580,6 +1598,19 @@ def _apply_cli_overrides(
         config = dataclasses.replace(
             config, log_t_kd_tau=_V12_LOG_T_KD_DEFAULT_TAU
         )
+
+    # R5 (mtl_frontier) — per-instance log_T-KD gate (opt-in, MTL-only, default none).
+    if getattr(args, "log_t_kd_gate", None) is not None:
+        gate = str(args.log_t_kd_gate)
+        if gate != "none" and config.task_type != "mtl":
+            raise ValueError("--log-t-kd-gate requires --task mtl")
+        if gate != "none" and config.log_t_kd_weight <= 0.0:
+            raise ValueError(
+                "--log-t-kd-gate requires --log-t-kd-weight > 0 (it gates that weight)"
+            )
+        config = dataclasses.replace(config, log_t_kd_gate=gate)
+        if gate != "none":
+            logger.info("R5 per-instance log_T-KD gate ON (%s, batch-mean-1 normalized)", gate)
 
     # R1 (mtl_frontier) — log_C co-location KD. Opt-in, MTL-only, default OFF
     # (no version default; never auto-enabled). Stacks on top of log_t_kd.

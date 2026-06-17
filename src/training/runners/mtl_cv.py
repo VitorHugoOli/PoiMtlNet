@@ -215,6 +215,7 @@ def train_model(model: torch.nn.Module,
                 task_best_save_dir: Optional[Path] = None,
                 log_t_kd_weight: float = 0.0,
                 log_t_kd_tau: float = 1.0,
+                log_t_kd_gate: str = "none",
                 log_c_kd_weight: float = 0.0,
                 log_c_kd_tau: float = 1.0,
                 log_c_kd_warmup_epochs: int = 0,
@@ -564,7 +565,29 @@ def train_model(model: torch.nn.Module,
                                 _kld_per_sample = (
                                     _student * (_student_log - _log_teacher)
                                 ).sum(dim=-1)
-                                _kld_per_sample = _kld_per_sample * _valid.float()
+                                # R5 (mtl_frontier) — per-instance KD gating. Redistribute
+                                # the (batch-mean-fixed) KD weight by Markov-coverage of the
+                                # teacher row: peaked row (Markov-1 binds) → upweight KD; flat
+                                # row → downweight. Mean-1 over valid samples ⇒ the TOTAL KD
+                                # budget equals global-W (tests redistribution, not strength).
+                                # gate=="none" → multiply by _valid only (bit-identical).
+                                if log_t_kd_gate != "none":
+                                    import math as _math
+                                    if log_t_kd_gate == "coverage_max":
+                                        _cov = _teacher.max(dim=-1).values
+                                    else:  # coverage_entropy
+                                        _ent = -(_teacher * _log_teacher).sum(dim=-1)
+                                        _cov = 1.0 - _ent / _math.log(_teacher.shape[-1])
+                                    _cov = _cov * _valid.float()
+                                    _gmean = (_cov.sum() / _valid.sum().clamp_min(1)).clamp_min(1e-6)
+                                    _gate = _cov / _gmean  # mean-1 over valid, 0 on pad
+                                    # C28 fires-diagnostic: spread of the per-sample gate
+                                    # (0 ⇒ uniform ⇒ ≡ global-W; >0 ⇒ genuinely redistributing).
+                                    if _valid.any():
+                                        model._r5_gate_std = float(_gate[_valid].std().detach())
+                                    _kld_per_sample = _kld_per_sample * _gate
+                                else:
+                                    _kld_per_sample = _kld_per_sample * _valid.float()
                                 _denom = _valid.sum().clamp_min(1).float()
                                 _kd_loss = (_kld_per_sample.sum() / _denom) * (_tau * _tau)
                                 task_b_loss = task_b_loss + log_t_kd_weight * _kd_loss
@@ -863,6 +886,11 @@ def train_model(model: torch.nn.Module,
         _cond_norm = getattr(next_head, "last_cond_norm", None)
         if _cond_norm is not None:
             diagnostic_payload["cond_norm"] = float(_cond_norm)
+
+        # R5 — per-instance log_T-KD gate spread (0 ⇒ uniform ≡ global-W; >0 ⇒ live).
+        _r5_gate_std = getattr(model, "_r5_gate_std", None)
+        if _r5_gate_std is not None:
+            diagnostic_payload["r5_gate_std"] = float(_r5_gate_std)
 
         # R10 — trained GRM gate trajectory. Mean γ_a/γ_b over the cross-attn
         # blocks (last batch of the epoch). init≈0.88; logged so the "GRM≡G" null
@@ -1619,6 +1647,7 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             task_best_save_dir=task_best_save_dir,
             log_t_kd_weight=float(getattr(config, "log_t_kd_weight", 0.0) or 0.0),
             log_t_kd_tau=float(getattr(config, "log_t_kd_tau", 1.0) or 1.0),
+            log_t_kd_gate=str(getattr(config, "log_t_kd_gate", "none") or "none"),
             log_c_kd_weight=float(getattr(config, "log_c_kd_weight", 0.0) or 0.0),
             log_c_kd_tau=float(getattr(config, "log_c_kd_tau", 1.0) or 1.0),
             log_c_kd_warmup_epochs=int(getattr(config, "log_c_kd_warmup_epochs", 0) or 0),

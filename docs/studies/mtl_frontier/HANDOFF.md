@@ -142,11 +142,14 @@ epoch-deployment choice, not a weight/arch problem**; publish the epoch-front + 
 reproduces the near-collapsed weight-front; the dual-tower's reg-privacy defeats a shared-trunk
 Pareto-profiler — itself a citable point). See `FINDINGS.md §R4`. **Next: R5.**
 
-### R5 — Per-instance KD gating — LOW-MED
-Modulate the R1/R3 (or cc) prior weight **per check-in** (by Markov-coverage of the last region,
-trajectory entropy, or sequence length). Plausible because Markov-1 binds at dense states but not sparse
-ones → a global W is provably suboptimal. Reuse the R1/R3 code + a per-sample weight. **Falsifier:**
-gated ≤ global-W everywhere.
+### ✅ R5 — Per-instance KD gating — DONE 2026-06-17 (NULL; gate fired but comparand artifact)
+Gated log_T-KD by Markov-coverage (covmax=teacher max-prob, coventr=entropy), batch-mean-fixed. FL
+multi-seed **clears the ≥0.3 cat gate vs the global-W-KD-ON base** (covmax +0.472, 4/4 seeds) — but that
+is a **comparand artifact**: log_T-KD(0.2) is cat-harmful at FL (−0.70 cat), gating only recovers ~2/3 of
+it, and vs the true KD-OFF champion R5 is **−0.224 cat / −0.063 reg (worse on both)**, dominated by the
+trivial "KD-off at FL". reg ≤ global-W (falsifier met); AL gate fails. **No v17** (advisor-audited).
+**Lesson: read the promote-gate against the deployable champion, not a lever's internal control.** Code
+`--log-t-kd-gate {none,coverage_max,coverage_entropy}` (G bit-identical off). See `FINDINGS.md §R5`. **Next: R9.**
 
 ### R6 — ForkMerge-style weight forking — MED
 Periodic forks with different (w_cat,w_reg); select/merge on **validation** error. Conflict-agnostic,

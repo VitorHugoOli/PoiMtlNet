@@ -1,16 +1,19 @@
 # mtl_frontier — STATE
 
-**Status:** FIRST WAVE + R10 + follow-ups + conditional coupling + **R-CC+** DONE (2026-06-17). **R4–R9 OPEN.**
+**Status:** WAVE-1 + R10 + follow-ups + cc + **R-CC+ + R4 + R5** DONE (2026-06-17). **R9/R6/R7/R8 OPEN.**
 · **Machine:** A40 · **Created:** 2026-06-14 · **Branch:** `study/mtl-frontier`
 **Onboarding:** [`AGENT_PROMPT.md`](AGENT_PROMPT.md) · **Mechanism narrative + every number:** [`FINDINGS.md`](FINDINGS.md)
 **Continue the study (R4–R9):** [`HANDOFF.md`](HANDOFF.md) ⭐ · **Family DAG:** [`../PRE_FREEZE_PROGRAM.md`](../PRE_FREEZE_PROGRAM.md)
 
 ## Headline (2026-06-17)
-**Champion G is UNCHANGED — no v17 promotion.** 9 lever-families tested: **8 nulls + 1 genuine
-sub-threshold positive** (conditional coupling: FL cat **+0.235** / reg +0.070, audit-confirmed
-deterministic, below the 0.3 gate). **R-CC+ (2026-06-17) fully mapped the conditional-coupling family
-along signal × injection × output-side axes — no variant exceeds the original additive-posterior cc;
-the +0.235 cap is the regime (weak 2.8-bit auxiliary), not a fixable knob.** The cos≈0 / data-rich / weak-7-class-auxiliary regime caps every mechanism. The one
+**Champion G is UNCHANGED — no v17 promotion.** 10 lever-families tested: **9 nulls + 1 genuine
+sub-threshold positive** + R4 (paper-narrative front). The positive is conditional coupling: FL cat
+**+0.235** / reg +0.070 (audit-confirmed deterministic, below the 0.3 gate). **R-CC+ (2026-06-17) fully
+mapped the conditional-coupling family along signal × injection × output-side axes — no variant exceeds the
+original additive-posterior cc; the +0.235 cap is the regime (weak 2.8-bit auxiliary), not a fixable knob.**
+**R5 (per-instance KD gating)** fired the gate vs its global-W comparand but is a comparand artifact —
+worse than the KD-off champion on both heads (NULL). **R4** resolved the C21 selector saga via the
+epoch-front. The cos≈0 / data-rich / weak-7-class-auxiliary regime caps every mechanism. The one
 direction that produced real (capped) transfer is **input-side conditional coupling** (cat output → reg
 input feature, iMTL/GETNext) — the recommended R4+ direction is to push *that* family, not more
 output-prior / sharing-gate variants. Audit (user-flagged "seed-0 always best"): champion G is fully
@@ -73,9 +76,20 @@ choice on a real, well-localised epoch-front, not a weight/architecture problem.
 near-collapsed weight-front). No code changes; champion G untouched; paper-narrative (no promote gate).
 See `FINDINGS.md §R4`.
 
-**STUDY STATUS (2026-06-17): 8 NULLS + 1 sub-threshold positive + R4 (paper-narrative front).** No v17
-promotion; champion G stands. **R5/R9/R6/R7/R8 OPEN** (running autonomously per user: stop only on a
-≥0.3 multi-seed promote or a blocker). See `FINDINGS.md §SYNTHESIS` + `§R-CC+` + `§R4`; `HANDOFF.md`.
+**★ R5 (per-instance KD gating) — DONE 2026-06-17: NULL (a fired gate that is a comparand artifact).**
+Redistribute the log_T-KD weight per check-in by Markov-coverage (covmax/coventr), batch-mean-fixed.
+FL multi-seed clears the ≥0.3 cat gate **vs its designed global-W comparand** (covmax +0.472, 4/4 seeds)
+— BUT this only recovers part of log_T-KD's own FL cat-cost (log_T-KD(0.2) costs −0.70 cat at FL); vs the
+study's TRUE FL champion (KD-OFF G) R5 is **−0.224 cat / −0.063 reg = worse on BOTH heads**, dominated by
+the trivial "KD-off at FL". On the KD's target axis (reg) gated ≤ global-W (falsifier met); AL gate fails.
+**No v17** (independently advisor-audited: null, do not escalate). Citable mechanism datum: instance-gated
+KD recovers ~2/3 of log_T-KD's FL cat-cost but never beats KD-off. Code `--log-t-kd-gate` (G unchanged).
+See `FINDINGS.md §R5`.
+
+**STUDY STATUS (2026-06-17): 9 NULLS + 1 sub-threshold positive + R4 (paper-narrative front).** No v17
+promotion; champion G stands. **R9/R6/R7/R8 OPEN** (running autonomously per user: stop only on a ≥0.3
+multi-seed promote that beats the deployable champion, or a blocker). See `FINDINGS.md §SYNTHESIS` +
+`§R-CC+` + `§R4` + `§R5`; `HANDOFF.md`.
 
 ## Promote-gate convention
 ≥0.3 pp either head, multi-seed {0,1,7,100} → STOP for user (recipe → v17) → register in `closing_data` G0.2.
@@ -135,3 +149,10 @@ Null → log here + `../log.md` row; do not silently fold into the freeze.
   front** is the real, **stable** C21 locus (12–16 Pareto epochs, geom_simple ep18–20 every seed).
   **PaLoRA-proper declined** (mechanistic: shared-trunk adapter mixture can't move the private-tower reg
   → reproduces the near-collapsed weight-front). No model code; champion untouched. → R5.
+- 2026-06-17 — **R5 (per-instance KD gating) DONE — NULL (gate fired, comparand artifact).** `--log-t-kd-gate`
+  redistributes log_T-KD weight by Markov-coverage (covmax/coventr), batch-mean-fixed (G bit-identical off).
+  FL multi-seed covmax +0.472 cat (4/4 seeds) vs the global-W-KD-ON base **clears the gate** — but that base
+  is handicapped (log_T-KD costs −0.70 cat at FL); vs the true KD-OFF champion R5 is −0.224 cat/−0.063 reg
+  (worse on both, dominated by KD-off-at-FL); reg ≤ global-W (falsifier met); AL gate fails. Advisor-audited
+  → null, no escalation. Caught by matched-baseline rigor (read the gate vs the *deployable* champion, not a
+  lever's internal control). Incidental: re-quantifies log_T-KD FL cat-harm. → R9.
