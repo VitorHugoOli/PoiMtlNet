@@ -86,10 +86,19 @@ the trivial "KD-off at FL". On the KD's target axis (reg) gated ≤ global-W (fa
 KD recovers ~2/3 of log_T-KD's FL cat-cost but never beats KD-off. Code `--log-t-kd-gate` (G unchanged).
 See `FINDINGS.md §R5`.
 
-**STUDY STATUS (2026-06-17): 9 NULLS + 1 sub-threshold positive + R4 (paper-narrative front).** No v17
-promotion; champion G stands. **R9/R6/R7/R8 OPEN** (running autonomously per user: stop only on a ≥0.3
+**★ R9 (BayesAgg-MTL optimizer close-out) — DONE 2026-06-17: optimizer aisle closed citably.** Repo
+`bayesagg_mtl` is NOT faithful to ICML'24 (gradient-MAGNITUDE variance, Kendall-style; not the posterior
+gradient-DIRECTION uncertainty). Re-run at the CHAMPION recipe it **still craters cat** (AL 37.754 = the
+19-arm 37.75 reproduced exactly; FL 63.689) → the crater is a recipe-invariant **impl pathology** (down-
+weights the 7-class cat vs 1109-class reg), not a defaults artifact → the 19-arm bayesagg null is now
+**diagnosed**. Faithful ICML'24 port unbuilt + expected-null (cos≈0 + 19-arm + Mueller TMLR'25) → deferred.
+R9(b) Smooth-Tchebycheff unmotivated (R4 front near-degenerate). No promotion; champion G stands. See
+`FINDINGS.md §R9`.
+
+**STUDY STATUS (2026-06-17): 9 NULLS + 1 sub-threshold positive + R4 (front) + R9 (optimizer close-out).**
+No v17 promotion; champion G stands. **R6/R7/R8 OPEN** (running autonomously per user: stop only on a ≥0.3
 multi-seed promote that beats the deployable champion, or a blocker). See `FINDINGS.md §SYNTHESIS` +
-`§R-CC+` + `§R4` + `§R5`; `HANDOFF.md`.
+`§R-CC+` + `§R4` + `§R5` + `§R9`; `HANDOFF.md`.
 
 ## Promote-gate convention
 ≥0.3 pp either head, multi-seed {0,1,7,100} → STOP for user (recipe → v17) → register in `closing_data` G0.2.
@@ -156,3 +165,10 @@ Null → log here + `../log.md` row; do not silently fold into the freeze.
   (worse on both, dominated by KD-off-at-FL); reg ≤ global-W (falsifier met); AL gate fails. Advisor-audited
   → null, no escalation. Caught by matched-baseline rigor (read the gate vs the *deployable* champion, not a
   lever's internal control). Incidental: re-quantifies log_T-KD FL cat-harm. → R9.
+- 2026-06-17 — **R9 (BayesAgg-MTL) DONE — optimizer aisle closed citably.** Verified repo `bayesagg_mtl`
+  is gradient-MAGNITUDE-variance (Kendall-style), NOT faithful ICML'24 (gradient-DIRECTION posterior).
+  Re-ran at the champion recipe (not the 19-arm registry defaults): cat **still craters** (AL 37.754 =
+  19-arm 37.75 exactly; FL 63.689) → recipe-invariant impl pathology (down-weights 7-class cat vs 1109-
+  class reg), 19-arm null now diagnosed. Faithful port unbuilt + expected-null (cos≈0 + Mueller TMLR'25) →
+  deferred per "trivial close-out". R9(b) Smooth-Tchebycheff unmotivated (R4 front near-degenerate). No
+  code changes; champion G untouched. → R6/R7/R8.

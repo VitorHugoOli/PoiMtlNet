@@ -164,11 +164,14 @@ late — the merging-side mirror of the dual-tower). **Expectation bounded by ta
 GETNext/Where-and-When pattern (time loss as auxiliary). **MUST run with a paired STL control** — the
 rising-tide rule predicts it lifts STL as much as MTL. **Falsifier:** lifts STL and MTL equally.
 
-### R9 — Residual optimizer sanity — TRIVIAL, expected null
-(a) **BayesAgg-MTL** — verify the `src/losses/registry.py` impl matches ICML'24 and whether it was in the
-19-arm null before re-running (weights by gradient *uncertainty*, the one non-vacuous mechanism at
-cos≈0). (b) **Smooth-Tchebycheff** — only if R4's measured front is non-convex. Closes the optimizer
-aisle citably.
+### ✅ R9 — Residual optimizer sanity (BayesAgg-MTL) — DONE 2026-06-17 (optimizer aisle closed)
+(a) Verified the repo `bayesagg_mtl` is gradient-MAGNITUDE-variance (Kendall-style), **NOT** faithful to
+ICML'24 (gradient-DIRECTION posterior). Re-ran at the CHAMPION recipe → cat **still craters** (AL 37.754 =
+the 19-arm 37.75 reproduced exactly; FL 63.689) → recipe-invariant impl pathology, so the 19-arm bayesagg
+null is now **diagnosed**. The faithful ICML'24 port is the one untested optimizer arm — substantial
+(Laplace/last-layer Bayesian gradient covariance), expected-null by the regime (cos≈0 + 19-arm + Mueller
+TMLR'25) → **deferred** (the one remaining optimizer probe). (b) Smooth-Tchebycheff **unmotivated** (R4's
+front is near-degenerate, not non-convex). Champion G stands. See `FINDINGS.md §R9`. **Next: R6/R7/R8.**
 
 **Sequencing recommendation (R-CC+ now done):** **R4** (paper-narrative, runs on the frozen champion) →
 R5 (cheap, reuses code) → R9 (trivial close-out) → R6/R7/R8 (medium, lower priority). Do NOT re-open the

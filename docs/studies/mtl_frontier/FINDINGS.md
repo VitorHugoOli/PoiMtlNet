@@ -543,6 +543,46 @@ r5_fl_multiseed_agg.py}`; manifests `{r5_screen_manifest.tsv, r5_fl_multiseed_ma
 
 ---
 
+## R9 — residual optimizer sanity (BayesAgg-MTL) — **DONE (optimizer aisle closed citably)** (2026-06-17)
+
+**Verdict.** The R9 spec named **BayesAgg-MTL** (ICML'24) "the one non-vacuous optimizer at cos≈0"
+(weights by gradient *uncertainty*, not conflict). Verification + a champion-recipe re-run close it:
+**(1)** the repo's `bayesagg_mtl` is **not faithful** to the paper — it weights by gradient **magnitude**
+variance (Kendall-style task difficulty, inverse-variance EMA), **not** the ICML'24 posterior
+gradient-**direction** uncertainty; **(2)** re-run at the **champion recipe** (not the registry defaults
+that produced the undiagnosed 19-arm crater) it **still craters cat** — AL **37.754** (−14.6 vs G 52.378;
+reproduces the documented 19-arm 37.75 to 3 decimals), FL **63.689** (−9.3 vs 73.012), reg flat. So the
+crater is an **impl pathology** (the magnitude-variance weighting catastrophically down-weights the
+7-class cat head against the 1109-class reg head), **not** a defaults artifact → the 19-arm bayesagg null
+is now **diagnosed**. The faithful ICML'24 method is **unbuilt** and **expected-null by the regime**;
+**R9(b) Smooth-Tchebycheff is unmotivated** (R4's front is near-degenerate, not the non-convex front that
+would justify it). **Optimizer aisle stays closed; champion G stands.**
+
+**Champion-recipe screen (seed0, `--mtl-loss bayesagg_mtl` vs G `static_weight 0.75`):**
+
+| state | champion cat / reg | bayesagg cat / reg | Δcat |
+|---|---|---|---|
+| AL | 52.378 / 62.381 | **37.754** / 62.554 | **−14.624** (crater) |
+| FL | 73.012 / 72.929 | **63.689** / 72.786 | **−9.323** (crater) |
+
+**Why this closes the aisle.** The optimizer aisle was already closed by the 19-arm registry null
+(`mtl_improvement` Tier 4) + Kurin/Xin (NeurIPS'22, "scalarization suffices") + Mueller (TMLR'25, "gradient
+conflict/geometry doesn't predict transfer"). R9 removes the one asterisk: the 19-arm bayesagg cell was
+flagged "misconfigured-at-defaults, undiagnosed." The champion-recipe re-run shows the crater is **recipe-
+invariant** (AL 37.75 reproduced exactly) → the repo impl is simply broken for this 7-vs-1109-class task,
+not a valid test of uncertainty-weighting. The **faithful** ICML'24 BayesAgg (Bayesian gradient-direction
+posterior, inverse-variance aggregation) is the single optimizer arm never run here; a faithful port is a
+substantial Laplace/last-layer reimplementation, and at cos≈0 with a representational (not optimization)
+gap, the regime predicts null — so it is **logged as the one remaining optimizer probe and deferred**, not
+built (consistent with R9's "trivial close-out, expected null" scoping). No promotion (optimizer
+close-out).
+
+**Artifacts.** `docs/results/mtl_frontier/r9_screen_results.json`; driver
+`scripts/mtl_frontier/r9_bayesagg_screen.sh`; aggregator `r9_agg.py`; manifest `r9_screen_manifest.tsv`.
+No code changes (existing `bayesagg_mtl` re-run as-is; champion G untouched).
+
+---
+
 ### Follow-up screens (user ideas, advisor-structured) — three more nulls (2026-06-15)
 
 After the 4-null first wave, three user-proposed follow-ups were screened (advisor evaluation in

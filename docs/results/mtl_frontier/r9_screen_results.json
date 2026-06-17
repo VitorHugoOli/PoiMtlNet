@@ -1,0 +1,24 @@
+{
+  "comparand": "champion G (static_weight 0.75, KD-off), seed0",
+  "note": "repo bayesagg_mtl = gradient-magnitude-variance weighting (Kendall-style), NOT the faithful ICML'24 posterior gradient-direction uncertainty.",
+  "by_state": {
+    "alabama": {
+      "champion_reg": 62.381,
+      "champion_cat": 52.378,
+      "bayesagg_reg": 62.554,
+      "bayesagg_cat": 37.754,
+      "delta_reg": 0.173,
+      "delta_cat": -14.624,
+      "cratered_cat": true
+    },
+    "florida": {
+      "champion_reg": 72.929,
+      "champion_cat": 73.012,
+      "bayesagg_reg": 72.786,
+      "bayesagg_cat": 63.689,
+      "delta_reg": -0.143,
+      "delta_cat": -9.323,
+      "cratered_cat": true
+    }
+  }
+}
