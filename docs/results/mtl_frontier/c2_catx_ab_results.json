@@ -1,0 +1,11 @@
+{
+  "status": "INFEASIBLE on the A40 — NOT USABLE as confound evidence (do not cite these numbers)",
+  "goal": "controlled class-weighting A/B (weighted vs unweighted reg CE) at the paper headline states CA+TX, on the v11 GCN/B9 config (seed42), to substantiate that ~half the −9.50/−16.59pp v11 reg-cost is the C25 class-weighting confound (the FL A/B showed +3.15pp, gap halved).",
+  "outcome": {
+    "texas": "OOM at every feasible batch (bs2048 CONC2, bs2048 CONC1, bs512 CONC1) — ~8.5k region logits + the B9 STAN recipe exceed the A40's 44 GB. NOT MEASURED.",
+    "california": "ran at bs512 but the WEIGHTED arm DIVERGED — reg top10_acc_indist ~0.0001-0.0008 across all 50 epochs (vs the v11 bs2048 weighted MTL CA reg ~40). The bs512 reduction (needed to fit) + class-weighting at ~4.7k regions destabilised the reg head. The apparent 'confound recovers +40.99pp' is an artifact of a broken weighted baseline, NOT a clean confound delta. NOT USABLE.",
+    "california_raw_NOT_USABLE": {"weighted_reg": 0.114, "unweighted_reg": 41.1, "note": "weighted arm diverged at bs512; delta meaningless"}
+  },
+  "decision": "The CA/TX measured confound A/B is hardware-infeasible here (TX OOM; CA needs bs<2048 to fit, which diverges the weighted arm). The confound is already cleanly measured at FL (+3.15pp, gap −6.71→−3.56 halved; scripts/mtl_improvement/c25_fl_b9). The CA/TX confound share is PREDICTED by the C25 class-count scaling (more classes → larger confound depression; v11 cost FL −7.34 < CA −9.50 < TX −16.59) and is DEFERRED to closing_data's §0 re-baseline on appropriate hardware / the confound-free champion. See C2_REFRAMING_PROPOSAL.md §4b/§5.",
+  "usable_confound_evidence": "FL only (+3.15pp reg, gap halved) — docs/studies/archive/mtl_improvement/ c25_fl_b9 A/B."
+}

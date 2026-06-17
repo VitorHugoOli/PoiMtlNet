@@ -60,15 +60,23 @@ now *also* delivers a free cat lift at no reg cost, rather than paying a reg tax
 **(b) Controlled class-weighting A/B (flip only the flag; fixed v11 GCN/B9 recipe)** — the confound's share
 of the region gap:
 
-| state | weighted MTL reg | unweighted MTL reg | Δ (confound recovers) | STL ceiling | gap weighted → unweighted |
-|---|---|---|---|---|---|
-| FL (seeds {0,1,7,100}) | 63.91 | 67.06 | **+3.15** | 70.62 | −6.71 → −3.56 (**halved**) |
-| CA (seed 42) | TODO | TODO | **TODO** | TODO | TODO |
-| TX (seed 42) | TODO | TODO | **TODO** | TODO | TODO |
+| state | weighted MTL reg | unweighted MTL reg | Δ (confound recovers) | gap weighted → unweighted |
+|---|---|---|---|---|
+| FL (seeds {0,1,7,100}, bs2048) | 63.91 | 67.06 | **+3.15** | −6.71 → −3.56 (**halved**) |
+| CA (seed 42) | — | — | **not measured** | confound A/B hardware-infeasible (see note) |
+| TX (seed 42) | — | — | **not measured** | confound A/B hardware-infeasible (see note) |
 
-*(CA/TX rows from `scripts/mtl_frontier/c2_catx_classweight_ab.sh` → `c2_catx_ab_manifest.tsv`. Expectation
-per C25: the confound share scales with class count, so CA/TX should recover an **even larger** share than
-FL — i.e. the dramatic TX "−16.59 pp" is mostly the confound.)*
+> **⚠ CA/TX measured A/B is hardware-infeasible on the A40 (2026-06-17), deferred to `closing_data`.** The
+> v11 B9 recipe OOMs the A40 for the large states: **TX** (~8.5k region logits) OOMs at every feasible batch
+> (bs2048/512); **CA** fits only at bs512, where the **weighted arm diverges** (reg ≈ 0 across all epochs vs
+> the v11 bs2048 weighted ≈ 40 — a small-batch instability, not a clean confound delta). So **only FL has a
+> clean controlled A/B** (+3.15 pp). The CA/TX confound share is **predicted** by the C25 class-count scaling
+> — the confound depresses top-K *more* at higher class count, and the v11 reg-cost itself scales with class
+> count (FL −7.34 < CA −9.50 < TX −16.59) — so the dramatic TX "−16.59 pp" is expected to be **largely the
+> confound**, but this is a **reasoned prediction, not measured here.** The clean measurement is part of
+> `closing_data`'s §0 re-baseline (the confound-free champion on the v14 substrate at all states, on
+> appropriate hardware). *(Attempt logged: `c2_catx_ab_results.json` (status=INFEASIBLE);
+> `scripts/mtl_frontier/c2_catx_classweight_ab.sh`.)*
 
 ## 5. Scope + honest caveats (MUST keep in the paper)
 

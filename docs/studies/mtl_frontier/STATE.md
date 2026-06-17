@@ -140,9 +140,11 @@ R9(b) Smooth-Tchebycheff unmotivated (R4 front near-degenerate). No promotion; c
   fully closed across all 6 placements. See `FINAL_SYNTHESIS.md §5`.
 - 2026-06-17 — **C2 reframing PROPOSAL drafted** (`articles/[BRACIS]_…/C2_REFRAMING_PROPOSAL.md`): paste-ready
   C2 prose ("Pareto gain on the easy task at parity on the hard one") + abstract edit + parity table +
-  caveats. CA/TX confound A/B attempted to substantiate the confound at the headline states; the v11 B9
-  recipe OOMs the A40 at bs2048 for the large states → retried at bs512 (confound delta is batch-robust);
-  full CA/TX parity deferred to `closing_data` (re-runs §0 on the confound-free champion).
+  caveats. CA/TX confound A/B attempted to substantiate the confound at the headline states but is
+  **hardware-infeasible on the A40**: TX OOMs at every feasible batch (~8.5k region logits); CA fits only at
+  bs512 where the **weighted arm diverges** (reg≈0 vs v11 bs2048 ≈40 — small-batch instability, not a clean
+  delta). Only FL has a clean A/B (+3.15pp). CA/TX confound share is C25-scaling-PREDICTED (not measured) →
+  deferred to `closing_data`'s §0 re-baseline. (`c2_catx_ab_results.json` status=INFEASIBLE; not cited.)
 - 2026-06-17 — **STUDY CLOSED.** Completeness check (adversarially verified): scientifically complete, only
   doc-consolidation owed (done: `FINAL_SYNTHESIS.md` + deferred-lever ledger + stale-count fixes). Wrote
   `FINAL_SYNTHESIS.md`; registry + log updated. Champion G unchanged. Each is a substantial
