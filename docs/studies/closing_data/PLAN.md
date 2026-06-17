@@ -91,6 +91,8 @@ the new paper keeps them and at what protocol), **§0.3** substrate axis, **§0.
 
 ## Phase 3 — FULL EXPERIMENTAL-BASE REGENERATION (the single heavy spend; executes `RUN_MATRIX.md`)
 
+> **Operational plan with the current on-disk artifact inventory + machine routing: [`M0_P3_PLAN.md`](M0_P3_PLAN.md)** (2026-06-16). Key delta from "build CA/TX/GE": AL/AZ complete; FL needs only its multi-seed log_T; GE is likely a sync from the A40, not a build; CA/TX are the genuine H100 builds — and M0a (substrate) can pre-stage *now*, M0b (log_T) waits for the windowing gate.
+
 ### M0 — Missing artifacts
 v14 builds at **CA (8.5k) + TX (6.5k)** (`scripts/canonical_improvement/regen_emb_t3.py`, design_k
 per CANONICAL_VERSIONS §v14) + **seeded per-fold log_T for ALL FOUR reporting seeds** at every state
