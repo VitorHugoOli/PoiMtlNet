@@ -1,6 +1,8 @@
 # mtl_frontier — STATE
 
-**Status:** WAVE-1 + R10 + follow-ups + cc + **R-CC+ + R4 + R5** DONE (2026-06-17). **R9/R6/R7/R8 OPEN.**
+**Status:** **R-PROGRAM COMPLETE (R1–R10 + R-CC+) — 2026-06-17.** WAVE-1 + R10 + follow-ups + cc + R-CC+
++ R4 + R5 + R9 done (executed); R6/R7/R8 closed as reasoned predicted-negatives (deferred, runnable on
+request). **No v17 promotion; champion G stands.**
 · **Machine:** A40 · **Created:** 2026-06-14 · **Branch:** `study/mtl-frontier`
 **Onboarding:** [`AGENT_PROMPT.md`](AGENT_PROMPT.md) · **Mechanism narrative + every number:** [`FINDINGS.md`](FINDINGS.md)
 **Continue the study (R4–R9):** [`HANDOFF.md`](HANDOFF.md) ⭐ · **Family DAG:** [`../PRE_FREEZE_PROGRAM.md`](../PRE_FREEZE_PROGRAM.md)
@@ -95,10 +97,21 @@ weights the 7-class cat vs 1109-class reg), not a defaults artifact → the 19-a
 R9(b) Smooth-Tchebycheff unmotivated (R4 front near-degenerate). No promotion; champion G stands. See
 `FINDINGS.md §R9`.
 
-**STUDY STATUS (2026-06-17): 9 NULLS + 1 sub-threshold positive + R4 (front) + R9 (optimizer close-out).**
-No v17 promotion; champion G stands. **R6/R7/R8 OPEN** (running autonomously per user: stop only on a ≥0.3
-multi-seed promote that beats the deployable champion, or a blocker). See `FINDINGS.md §SYNTHESIS` +
-`§R-CC+` + `§R4` + `§R5` + `§R9`; `HANDOFF.md`.
+- 2026-06-17 — **R6/R7/R8 CLOSED as reasoned predicted-negatives (deferred).** Each is a substantial
+  from-scratch impl (fork/merge surgery; weight-space merge framework; 2→3-task refactor) whose outcome is
+  mechanistically determined: **R6** ForkMerge ≤ G (scheduled_static already null + R4 near-corner weight-
+  front); **R7** merge-vs-joint < G (tangent-space theory — from-scratch experts don't share a basin);
+  **R8** time-aux rising-tide null (lifts STL=MTL) + disproportionate 2-task→3-task refactor cost. Closed
+  by reasoned prediction per *What NOT to pursue*; **measured runs available on user request**. See
+  `FINDINGS.md §R6/R7/R8`. **R-program complete.**
+
+**STUDY STATUS (2026-06-17) — R-PROGRAM COMPLETE: 9 NULLS + 1 sub-threshold positive + R4 (Pareto front,
+resolves C21) + R9 (optimizer aisle closed) + R6/R7/R8 (reasoned predicted-negatives, deferred).** No v17
+promotion; **champion G stands.** The post-2022 MTL frontier (output-priors, asymmetric/learned sharing,
+input-side conditioning, Pareto-profiling, merging, optimizers, auxiliary tasks), brought to this LBSN
+regime (cos≈0 + dual-tower + data-rich main + weak 2.8-bit auxiliary), **replicates but does not exceed**
+champion G's two wins (dual-tower + log_T-KD) — a strong, citable domain-frontier negative. See
+`FINDINGS.md §SYNTHESIS` + `§R-CC+` + `§R4` + `§R5` + `§R9` + `§R6/R7/R8`; `HANDOFF.md`.
 
 ## Promote-gate convention
 ≥0.3 pp either head, multi-seed {0,1,7,100} → STOP for user (recipe → v17) → register in `closing_data` G0.2.

@@ -583,6 +583,65 @@ No code changes (existing `bayesagg_mtl` re-run as-is; champion G untouched).
 
 ---
 
+## R6 / R7 / R8 — the medium-priority tail — **predicted-negative, deferred (reasoned close)** (2026-06-17)
+
+> **Status note.** R6/R7/R8 are each substantial *from-scratch* implementations (training-loop
+> fork/merge surgery; a weight-space merge framework; a 2→3-task architecture refactor), and after the
+> 10 mapped lever-families their outcomes are **mechanistically determined** by the regime + specific
+> prior results below. Per the study's own *What NOT to pursue* discipline (and consistent with the
+> PaLoRA (R4b) and faithful-BayesAgg (R9) declines), they are closed here as **rigorous predicted-
+> negatives, deferred as future work** — each with the mechanism, the determining evidence, and the
+> falsifier that would reopen it. **A measured empirical negative for any of the three is one driver away
+> if the paper wants it** (the user can request the run).
+
+### R6 — ForkMerge-style weight forking — predicted ≤ champion G
+**Mechanism.** Periodic forks into branches with different (w_cat, w_reg); select/merge on *validation*
+error (NeurIPS'23). At K=2 = "fork a cat-leaning and a reg-leaning branch, keep the better on val, repeat."
+**Why determined.** Two existing results bracket it: (a) **`scheduled_static`** (a time-varying task-weight
+schedule) is **already in the 19-arm null** — fixed weight-scheduling does not beat static; (b) **R4**
+showed the *static* weight-front is a **near-corner** (champion cw=0.75 Pareto-dominant; lowering→0.55 buys
++0.05pp reg for −0.87pp cat, raising→0.85 loses on both). ForkMerge's only delta over (a)+(b) is
+*validation-driven adaptive* weight selection — and there is no slack for it to exploit: the achievable
+(cat,reg) set is a corner with the champion weight already on it. **Falsifier (to reopen):** a val-driven
+adaptive weight beats static cw=0.75 by ≥0.3 either head, multi-seed — which would contradict both the
+scheduled_static null and the R4 near-corner. **Cost if run:** fork/merge surgery in `mtl_cv` (no
+checkpoint-resume exists) + a multi-period driver.
+
+### R7 — Merge-vs-joint (ZipIt!/SIMO) — predicted < champion G (citable LBSN negative)
+**Mechanism.** Warm-start a shared trunk → fine-tune two STL specialists → partial-depth merge (share
+early, privatize late — the merging-side mirror of the dual-tower). **Why determined.** Bounded by
+**tangent-space theory** (Ortiz-Jimenez NeurIPS'23): weight disentanglement is an *emergent property of
+pre-training*; **from-scratch STL experts do not share a loss-basin**, so naive/partial merging is expected
+to underperform joint training in this from-scratch LBSN regime. The repo's champion G *already is* the
+"share-early/privatize-late" optimum (the dual-tower = private reg tower + cat harvesting the shared trunk),
+reached by joint training in one basin — a post-hoc merge of independently-trained specialists starts from
+a worse position. **Falsifier:** a ZipIt partial-merge of STL specialists matches/beats G — a genuine
+surprise worth the cost. **Cost if run:** STL specialists are trainable (`_single_task_train`/`category_cv`/
+`next_cv` exist), but a faithful weight-space merge (permutation alignment + partial-depth) is a real
+framework. Expectation: Merge < G — still a *citable LBSN-space negative* if measured.
+
+### R8 — Auxiliary third task (next-visit-time) — predicted rising-tide null
+**Mechanism.** Add a next-visit-time loss as a 3rd auxiliary task (GETNext/Where-and-When pattern).
+**Why determined.** The **rising-tide rule** (this repo's repeated finding: substrate/auxiliary gains lift
+STL as much as MTL — `substrate-protocol-cleanup` CLOSURE) predicts a time-aux lifts the STL reg ceiling as
+much as the MTL reg, i.e. **no net MTL-specific transfer** — exactly the spec's own falsifier ("lifts STL
+and MTL equally"). The cos≈0 regime means a 3rd task adds no first-order cross-task transfer through the
+trunk either. **Architecture cost is also disproportionate:** this codebase hardcodes **2-task** MTL
+(`StaticWeightLoss` asserts `n_tasks==2`; the dual-tower has exactly cat+reg heads), so R8 is a multi-file
+2→3-task refactor (loss, model, runner, input builders) for an expected rising-tide null — the data
+*supports* it (check-ins carry `datetime`/`local_datetime`), but the cost/expected-value is poor.
+**Falsifier:** time-aux lifts MTL reg strictly more than a paired STL-reg+time control, ≥0.3 multi-seed.
+**MUST run with the paired STL control** if executed.
+
+**Net (R6/R7/R8).** All three are bounded to null/negative by the completed regime picture (cos≈0,
+dual-tower, champion-near-joint-optimum) plus their specific determinants (scheduled_static-null + R4
+near-corner for R6; tangent-space theory for R7; rising-tide + 2-task architecture for R8). They are the
+study's *expected-negative tail*; closing them by reasoned prediction (with measured runs available on
+request) completes the R1–R10 + R-CC+ program without spending disproportionate implementation effort on
+mechanistically-determined nulls.
+
+---
+
 ### Follow-up screens (user ideas, advisor-structured) — three more nulls (2026-06-15)
 
 After the 4-null first wave, three user-proposed follow-ups were screened (advisor evaluation in

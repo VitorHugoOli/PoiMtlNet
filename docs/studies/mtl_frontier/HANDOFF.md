@@ -1,10 +1,11 @@
 # mtl_frontier — HANDOFF (continue R4–R9) ⭐ read this first
 
-**You are the next `mtl_frontier` agent.** Wave 1 (R1/R2/R3) + R10 + 3 user follow-ups + conditional
-coupling + **R-CC+** are DONE (2026-06-17, branch `study/mtl-frontier`). **R4–R9 are OPEN** (R-CC+ was
-the live thread and is now CLOSED NULL — start at **R4**). This file is your entry point: the state, the
-regime you're working in, the reusable code, the R4–R9 specs (updated with what we learned), and the
-protocol you MUST follow.
+**You are the next `mtl_frontier` agent.** The **R-program is COMPLETE** (2026-06-17, branch
+`study/mtl-frontier`): R1/R2/R3 + R10 + 3 follow-ups + cc + **R-CC+ + R4 + R5 + R9** executed; **R6/R7/R8
+closed as reasoned predicted-negatives** (deferred, runnable on request). **No v17 promotion; champion G
+stands.** This file remains the entry point: the state, the regime, the reusable code, the per-lever
+verdicts, and the protocol. **If the user wants measured negatives for R6/R7/R8, those are one driver
+away** (each verdict in `FINDINGS.md §R6/R7/R8` names the impl + falsifier).
 
 > **R-CC+ closed 2026-06-17 (NULL).** The conditional-coupling family is fully mapped along signal
 > {calibrated/argmax/topk} × injection {FiLM/input-side concat} × output-side {learned logit prior}.
@@ -173,9 +174,20 @@ null is now **diagnosed**. The faithful ICML'24 port is the one untested optimiz
 TMLR'25) → **deferred** (the one remaining optimizer probe). (b) Smooth-Tchebycheff **unmotivated** (R4's
 front is near-degenerate, not non-convex). Champion G stands. See `FINDINGS.md §R9`. **Next: R6/R7/R8.**
 
-**Sequencing recommendation (R-CC+ now done):** **R4** (paper-narrative, runs on the frozen champion) →
-R5 (cheap, reuses code) → R9 (trivial close-out) → R6/R7/R8 (medium, lower priority). Do NOT re-open the
-trunk-gradient / output-prior / sharing-gate / conditional-coupling families — all nulled now.
+### ✅ R6 / R7 / R8 — CLOSED 2026-06-17 as reasoned predicted-negatives (deferred; runnable on request)
+- **R6 ForkMerge** — predicted ≤ G: `scheduled_static` (time-varying weight) is already in the 19-arm
+  null + R4's weight-front is a near-corner → no slack for val-driven weight adaptation.
+- **R7 merge-vs-joint** — predicted < G: tangent-space theory (from-scratch experts don't share a basin);
+  G already is the share-early/privatize-late optimum. A measured ZipIt negative is citable if run.
+- **R8 next-visit-time aux** — predicted rising-tide null (lifts STL=MTL) + disproportionate 2→3-task
+  refactor (codebase hardcodes `n_tasks==2`). Data supports it (`datetime`); MUST use a paired STL control.
+Each verdict in `FINDINGS.md §R6/R7/R8` carries the mechanism + falsifier + impl-cost. **To run any for a
+measured negative:** implement per the falsifier, screen AL+FL seed0 → multi-seed FL on a positive.
+
+**R-program COMPLETE.** Do NOT re-open the trunk-gradient / output-prior / sharing-gate / conditional-
+coupling families — all nulled. The remaining open work is the user's call: (a) measured runs of R6/R7/R8
+if the paper wants empirical negatives; (b) the deferred faithful-BayesAgg port + cross-attn cat↔reg
+coupling (both expected-null). Champion G is the committed champion; nothing flows to `closing_data` G0.2.
 
 ## 7. Logistics
 
