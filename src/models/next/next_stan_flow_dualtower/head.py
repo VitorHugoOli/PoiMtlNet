@@ -161,8 +161,12 @@ class NextHeadStanFlowDualTower(nn.Module):
         cond_topk: int = 0,
         cond_inject: str = "add",
         cond_logit_prior: bool = False,
+        priv_grm: bool = False,
     ):
         super().__init__()
+        # R10 P4 (mtl_frontier) — enable the intra-tower GRM gated read on the PRIVATE
+        # reg STAN tower only (the reg workhorse). Default OFF → champion G bit-identical.
+        self._priv_grm = bool(priv_grm)
         if fusion_mode not in _FUSION_MODES:
             raise ValueError(
                 f"fusion_mode must be one of {_FUSION_MODES}, got {fusion_mode!r}"
@@ -189,6 +193,7 @@ class NextHeadStanFlowDualTower(nn.Module):
                 num_heads=int(priv_num_heads),
                 dropout=float(priv_dropout),
                 bias_init=bias_init,
+                grm_read=self._priv_grm,  # R10 P4 — gate the private reg tower's trajectory read
             )
             # Drop the sub-STAN's own classifier — we pool via forward_features and
             # own the logits with a single fused classifier (avoids a redundant

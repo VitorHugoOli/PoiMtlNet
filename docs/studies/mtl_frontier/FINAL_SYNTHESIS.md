@@ -96,16 +96,25 @@ implementation, usage, evaluation, and **placement**:
 | **P1 cross-attn read** (done) | cross-task | yes | DONE/null | cos≈0 → nothing to gate (the genuine GRM≡G null) |
 | P2 hierarchical fusion ("on the layers") | substrate | yes | regime-bounded | STL-axis, rising-tide-bounded + reg-at-ceiling; VERY HIGH cost (substrate rebuild) |
 | P3 reg-head fusion gate | intra-reg | yes | = FU2 `aux_gated` | already run, **harmful** (FL −0.91/−0.31) |
-| **P4 "in a TOWER"** (intra-STAN gate) | intra-reg | yes | regime-bounded | different channel (not cos≈0) but **reg tower at its STL ceiling** (saturated); FU2 (≈ this) is harmful |
-| **P5 "as a HEAD"** (GRU state gate) | intra-cat | partial | regime-bounded | only real RNN, but **length-9 fixed window kills growing-memory**; cat already lifted +2.6…+4.1 |
+| **P4 "in a TOWER"** (intra-STAN gate, `priv_grm`) | intra-reg | yes | **MEASURED null** (2026-06-17) | FL multi-seed **Δcat +0.075±0.167 (p=0.31, 2/4 seeds neg), Δreg −0.033** — washes out to ≈ R10's cross-attn +0.085; reg tower at its STL ceiling |
+| **P5 "as a HEAD"** (GRU state gate, `grm_state`) | intra-cat | partial | **MEASURED sub-gate** (2026-06-17) | FL seed0 cat +0.229 (<0.3, no multi-seed); AL +0.80 cat / **−0.23 reg** = seed0-flare-with-reg-cost; length-9 kills growing-memory |
 | P6 SSC / Memory-Soup | cross-task | yes | covered | same cross-attn read P1 nulled; trained-γ "nothing to gate" closes the family |
 
-**Answer to "should it be a head or in a tower?"** Those are genuinely *different (intra-task)* channels the
-cos≈0 null does not directly cover — but they are bounded by **other** regime facts: the reg tower is at its
-STL ceiling (P4) and the cat GRU runs on a length-9 window where the paper's growing-memory mechanism does
-not apply (P5). Decisively, the **morally-equivalent intra-reg-head gate (FU2 `aux_gated`) was already
-measured and is harmful.** So no placement would express; R10 is fully closed. *(P4/P5 are LOW-cost to
-measure if a measured confirmation is wanted — see §7 / the offer in the closing note.)*
+**Answer to "should it be a head or in a tower?" — MEASURED 2026-06-17 (the user's two hypotheses, now
+empirical).** Implemented both as default-off flags (champion G bit-identical, 5/5 identity tests pass):
+**P4 "in a tower"** = GRM gated read inside the private reg STAN tower (`--reg-head-param priv_grm=True`);
+**P5 "as a head"** = GRM on the cat GRU's last hidden (`--cat-head-param grm_state=True`). Both are
+genuinely *different intra-task* channels the cos≈0 null does not directly cover — and both reproduce the
+**same seed0-flare-that-washes-out** signature as the cross-attn placement: **P4 FL seed0 cat +0.324
+(identical to R10's cross-attn +0.324) → multi-seed +0.075 NULL** (2/4 seeds negative, p=0.31, reg −0.033);
+**P5 FL seed0 +0.229 sub-gate** (AL +0.80 cat but −0.23 reg = a cat-only flare with a reg cost). The
+intra-reg placement is bounded by the reg tower being **at its STL ceiling** (P4 + the morally-equivalent
+FU2 `aux_gated`, harmful), and the intra-cat by the **length-9 window** (no growing-memory) + cat already
+lifted. **So no placement — cross-attn (P1), hierarchical-fusion (P2), reg-head (P3=FU2), intra-tower (P4),
+GRU-head (P5), SSC/Soup (P6) — beats champion G. R10 is fully mapped and closed.** Artifacts:
+`docs/results/mtl_frontier/{r10_placement_results.json, r10_p4_fl_multiseed_results.json}`; drivers
+`scripts/mtl_frontier/{r10_placement_screen.sh, r10_p4_fl_multiseed.sh}`; code `grm_read` (NextHeadSTAN) /
+`priv_grm` (dualtower) / `grm_state` (next_gru), all default-off.
 
 ## 6. Corrections & retractions registry (cite the RIGHT claim)
 

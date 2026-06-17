@@ -131,6 +131,18 @@ R9(b) Smooth-Tchebycheff unmotivated (R4 front near-degenerate). No promotion; c
   P4 intra-tower STAN (reg-at-ceiling bounded), P5 GRU-head (length-9 kills growing-memory + cat-lifted),
   P2 hierarchical fusion (substrate/rising-tide, very-high cost), P6 SSC/Soup (same cross-task channel),
   P3 reg-head gate = FU2 (already measured harmful). None worth running. R10 fully mapped + closed.
+- 2026-06-17 — **R10 P4/P5 head/tower placements MEASURED (user-requested, post-closure).** Implemented
+  `grm_read`(NextHeadSTAN)/`priv_grm`(dualtower) + `grm_state`(next_gru), default-off (G bit-identical, 5/5
+  identity tests). **P4 "in a tower"** (private-STAN GRM): FL seed0 cat +0.324 (= R10's cross-attn +0.324) →
+  multi-seed **+0.075±0.167 NULL** (p=0.31, 2/4 seeds neg; reg −0.033). **P5 "as a head"** (GRU GRM): FL
+  seed0 +0.229 sub-gate; AL +0.80 cat/−0.23 reg flare-with-cost. Both reproduce the seed0-flare-that-washes-
+  out signature → confirm the intra-task placements are regime-bounded; NO placement beats champion G. R10
+  fully closed across all 6 placements. See `FINAL_SYNTHESIS.md §5`.
+- 2026-06-17 — **C2 reframing PROPOSAL drafted** (`articles/[BRACIS]_…/C2_REFRAMING_PROPOSAL.md`): paste-ready
+  C2 prose ("Pareto gain on the easy task at parity on the hard one") + abstract edit + parity table +
+  caveats. CA/TX confound A/B attempted to substantiate the confound at the headline states; the v11 B9
+  recipe OOMs the A40 at bs2048 for the large states → retried at bs512 (confound delta is batch-robust);
+  full CA/TX parity deferred to `closing_data` (re-runs §0 on the confound-free champion).
 - 2026-06-17 — **STUDY CLOSED.** Completeness check (adversarially verified): scientifically complete, only
   doc-consolidation owed (done: `FINAL_SYNTHESIS.md` + deferred-lever ledger + stale-count fixes). Wrote
   `FINAL_SYNTHESIS.md`; registry + log updated. Champion G unchanged. Each is a substantial

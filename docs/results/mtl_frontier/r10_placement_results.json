@@ -1,0 +1,41 @@
+{
+  "comparand": "champion G, seed0",
+  "by_state": {
+    "alabama": {
+      "p4_privgrm": {
+        "reg": 62.475,
+        "cat": 52.809,
+        "d_reg": 0.094,
+        "d_cat": 0.431,
+        "base_reg": 62.381,
+        "base_cat": 52.378
+      },
+      "p5_grugrm": {
+        "reg": 62.152,
+        "cat": 53.18,
+        "d_reg": -0.229,
+        "d_cat": 0.802,
+        "base_reg": 62.381,
+        "base_cat": 52.378
+      }
+    },
+    "florida": {
+      "p4_privgrm": {
+        "reg": 72.874,
+        "cat": 73.336,
+        "d_reg": -0.055,
+        "d_cat": 0.324,
+        "base_reg": 72.929,
+        "base_cat": 73.012
+      },
+      "p5_grugrm": {
+        "reg": 72.981,
+        "cat": 73.241,
+        "d_reg": 0.052,
+        "d_cat": 0.229,
+        "base_reg": 72.929,
+        "base_cat": 73.012
+      }
+    }
+  }
+}

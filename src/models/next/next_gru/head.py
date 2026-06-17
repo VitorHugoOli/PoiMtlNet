@@ -17,6 +17,7 @@ class NextHeadGRU(nn.Module):
         num_classes: int = 7,
         num_layers: int = 2,
         dropout: float = 0.3,
+        grm_state: bool = False,
     ):
         super().__init__()
         self.gru = nn.GRU(
@@ -31,6 +32,25 @@ class NextHeadGRU(nn.Module):
             nn.Dropout(dropout),
             nn.Linear(hidden_dim, num_classes),
         )
+        # R10 P5 (mtl_frontier, "as a head") — Gated Residual Memory READ on the GRU's
+        # last-valid hidden state (the closest the stack has to the paper's RNN-state
+        # primitive; next_gru is the only real RNN). γ=σ(W·masked-mean(input)) per-dim
+        # gates the read: last ← γ⊙last. Default OFF (champion G bit-identical). Bias-init
+        # +2 → γ≈0.88 ≈ full read at init. NOTE (audit): the length-9 fixed window has no
+        # segments/growing-memory, so this is the gated-read primitive only, not the
+        # paper's caching mechanism — expected regime-bounded (cat already lifted).
+        self.grm_state = bool(grm_state)
+        if self.grm_state:
+            self.grm_gate = nn.Linear(embed_dim, hidden_dim)
+            nn.init.zeros_(self.grm_gate.weight)
+            nn.init.constant_(self.grm_gate.bias, 2.0)
+
+    def _grm_apply(self, x: torch.Tensor, last: torch.Tensor, padding_mask: torch.Tensor) -> torch.Tensor:
+        """Gate the last-valid GRU hidden by γ=σ(W·masked-mean_seq(x)). Identity-ish at init."""
+        valid = (~padding_mask).float().unsqueeze(-1)
+        mp = (x * valid).sum(dim=1) / valid.sum(dim=1).clamp_min(1.0)  # [B, embed_dim]
+        gamma = torch.sigmoid(self.grm_gate(mp))  # [B, hidden_dim]
+        return gamma * last
 
     def forward_features(self, x: torch.Tensor) -> torch.Tensor:
         """Pre-classifier penultimate [B, hidden_dim] (the last-valid GRU hidden).
@@ -41,7 +61,10 @@ class NextHeadGRU(nn.Module):
         output, _ = self.gru(x)
         last_idx = (seq_lengths - 1).clamp(min=0)
         batch_idx = torch.arange(x.size(0), device=output.device)
-        return output[batch_idx, last_idx]
+        last = output[batch_idx, last_idx]
+        if self.grm_state:
+            last = self._grm_apply(x, last, padding_mask)
+        return last
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         padding_mask = (x.abs().sum(dim=-1) == 0)
@@ -61,6 +84,8 @@ class NextHeadGRU(nn.Module):
         last_idx = (seq_lengths - 1).clamp(min=0)
         batch_idx = torch.arange(batch_size, device=output.device)
         last_output = output[batch_idx, last_idx]
+        if self.grm_state:
+            last_output = self._grm_apply(x, last_output, padding_mask)
         return self.classifier(last_output)
 
 
