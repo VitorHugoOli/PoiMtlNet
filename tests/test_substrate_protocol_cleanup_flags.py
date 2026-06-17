@@ -763,10 +763,20 @@ class TestLogTKD:
 
 
 class TestLogTKDCLIDefault:
-    """The v12 default flip turns log_T-KD ON (W=0.2, τ=1.0) by default, but
-    ONLY for MTL `check2hgi_next_region`. Category-only / non-region / non-MTL
-    runs must keep W=0.0. An explicit --log-t-kd-weight (incl. 0.0 for v11
-    reproduction) always wins.
+    """log_T-KD CLI defaulting, under the `--canon` mechanism.
+
+    The default canon is **v16 (champion G)**, whose bundle sets
+    ``--log-t-kd-weight 0.0`` — so a bare MTL check2hgi_next_region run now has
+    KD **OFF** (G's recipe; KD was found null on the dual-tower). The earlier
+    v12 *auto-default-ON* (W=0.2, τ=1.0, scoped to MTL check2hgi_next_region)
+    still exists in ``_apply_cli_overrides`` and is reached with ``--canon none``
+    (no bundle) or ``--canon v12`` (bundle sets 0.2 explicitly). Category-only /
+    non-region / non-MTL runs keep W=0.0. An explicit --log-t-kd-weight always
+    wins (incl. 0.0 for v11 reproduction over a v12 ON default).
+
+    NOTE: tests pin ``--canon`` explicitly so they assert the intended branch
+    rather than passing by coincidence of whatever the default canon happens to
+    set. See docs/results/CANONICAL_VERSIONS.md (v11/v12/v16) + src/configs/canon.py.
     """
 
     def _apply(self, argv):
@@ -783,23 +793,47 @@ class TestLogTKDCLIDefault:
         )
         return train_cli._apply_cli_overrides(config, args)
 
-    def test_v12_default_on_for_check2hgi_region_mtl(self):
+    def test_default_canon_v16_kd_off(self):
+        """The DEFAULT canon (v16 / champion G) sets KD OFF for a bare MTL
+        check2hgi_next_region run — KD is null on the dual-tower."""
         cfg = self._apply([
             "--task", "mtl", "--task-set", "check2hgi_next_region",
+            "--state", "florida", "--engine", "check2hgi",
+        ])
+        assert float(cfg.log_t_kd_weight) == 0.0
+
+    def test_v12_auto_default_on_with_canon_none(self):
+        """With --canon none (no bundle), the v12 auto-default-ON logic still
+        fires for MTL check2hgi_next_region: W=0.2, τ=1.0."""
+        cfg = self._apply([
+            "--task", "mtl", "--task-set", "check2hgi_next_region",
+            "--canon", "none",
             "--state", "florida", "--engine", "check2hgi",
         ])
         assert float(cfg.log_t_kd_weight) == 0.2
         assert float(cfg.log_t_kd_tau) == 1.0
 
-    def test_explicit_zero_recovers_v11(self):
+    def test_canon_v12_sets_kd_on(self):
+        """The v12 bundle pins KD ON (W=0.2)."""
         cfg = self._apply([
             "--task", "mtl", "--task-set", "check2hgi_next_region",
+            "--canon", "v12",
+            "--state", "florida", "--engine", "check2hgi",
+        ])
+        assert float(cfg.log_t_kd_weight) == 0.2
+
+    def test_explicit_zero_recovers_v11_over_v12_on(self):
+        """Explicit --log-t-kd-weight 0.0 wins over a v12 ON default (v11 repro)."""
+        cfg = self._apply([
+            "--task", "mtl", "--task-set", "check2hgi_next_region",
+            "--canon", "v12",
             "--state", "florida", "--engine", "check2hgi",
             "--log-t-kd-weight", "0.0",
         ])
         assert float(cfg.log_t_kd_weight) == 0.0
 
     def test_explicit_weight_wins(self):
+        """Explicit --log-t-kd-weight wins over the bundle (here over v16's 0.0)."""
         cfg = self._apply([
             "--task", "mtl", "--task-set", "check2hgi_next_region",
             "--state", "florida", "--engine", "check2hgi",
@@ -808,16 +842,17 @@ class TestLogTKDCLIDefault:
         assert float(cfg.log_t_kd_weight) == 0.5
 
     def test_no_default_for_legacy_task_set(self):
-        """Default MTL task-set (legacy_category_next) must NOT get KD on."""
+        """Legacy MTL task-set (no check2hgi_next_region) must NOT get KD on.
+        Pinned to --canon none so the v16 bundle does not inject a task-set."""
         cfg = self._apply([
-            "--task", "mtl",
+            "--task", "mtl", "--canon", "none",
             "--state", "florida", "--engine", "check2hgi",
         ])
         assert float(cfg.log_t_kd_weight) == 0.0
 
     def test_no_default_for_category_task(self):
         """Category-only runs must NOT get KD on (and must not trip the
-        --log-t-kd-weight-requires-mtl guard)."""
+        --log-t-kd-weight-requires-mtl guard). Canon is MTL-only anyway."""
         cfg = self._apply([
             "--task", "category",
             "--state", "florida", "--engine", "check2hgi",
