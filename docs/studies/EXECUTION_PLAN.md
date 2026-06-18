@@ -102,9 +102,12 @@ model board run — all windowing- AND recipe-dependent.
    `Georgia.parquet` exists); verify-or-build it (substrate + TIGER tracts + region cardinality + `poi_to_region`
    + folds + seeded log_T) on the SAME machine+seed as the hash anchor before the freeze.
 3. **Windowing** = the ADOPT/KEEP decision + stride — **validated at FL/small-state first** (§1b). **Window
-   length = 9: KEEP (literature-confirmed, §9).** **`MIN_SEQUENCE_LENGTH`** = DECISION PENDING (§8 #6 — the field
-   mode is 10-core, ours is a lenient user-side 5; it changes the user population, fold composition, paired-test
-   n, T1 stats, cold-user counts — *independent of stride*).
+   length = 9: KEEP (literature-confirmed, §9).** **`MIN_SEQUENCE_LENGTH` = 10 (user-side; NO POI filter)** at
+   the frozen base — the field-aligned 10-core *user* side + 9+1-window alignment (every kept user fills ≥1 full
+   window); the POI-side 10-core is next-POI-specific (omitted — our targets are category/region). Code:
+   `src/data/inputs/core.py:17` 5→10, applied at the **P3 base rebuild** (M0b). ⚠ **Hold MIN at 5 during the
+   overlap-validation (Lane 2) to isolate the overlap effect** vs the AL prior — don't confound two base changes.
+   Massive-STEPS keeps its native filter (≥2/trail, ≥3 trails/user), disclosed.
 4. **Second-dataset windowing + region granularity** = mirror overlap on Massive-STEPS (§1a, user-chosen) + the
    region label: **Istanbul mahalle (520) PRIMARY + H3-9 (2,585) as a sensitivity row; NYC TIGER tracts (1,912)**;
    gap-to-ceiling / lift-over-floor framing mandatory.
@@ -202,17 +205,14 @@ deferrals (none weaken the core 4 beats):
 **6. Windowing / filter — literature-informed (search 2026-06-18; §9):**
 - **Window = 9 → KEEP (confirmed).** Typical for the daily-session family + coarse targets; ablations saturate
   early; Massive-STEPS has no window standard. Locked into axis 3.
-- **`MIN_SEQUENCE_LENGTH` = 5 → DECISION PENDING (your pick).** The Gowalla/Foursquare mode is **10-core**
-  (user ≥10 AND POI ≥10). Ours is **lenient + one-sided** (user-side 5, `core.py:17/52`; no POI filter).
-  Massive-STEPS is *more* lenient (≥2/trail, ≥3 trails/user). The POI-side 10-core is **next-POI-specific**
-  (rare-POI *targets*); our targets are category/region, so it is not strictly motivated for us — the live
-  fork is the **user-side** floor. Three options: **(A) raise user-side 5→10** (field mode + window-9+1
-  alignment: every kept user fills ≥1 full window; comparable to GETNext/STAN/SGRec; drops more sparse users
-  but mostly all-padding ones) — *recommended*; **(B) keep 5** (more coverage, closer to Massive-STEPS,
-  defensible for coarse targets, but a likely reviewer question); **(C) full 10-core incl. a POI≥10 filter**
-  (strict field-standard, but the POI-side rebuilds the Check2HGI graph and is not well-motivated for
-  cat/region targets). For the **second dataset, keep Massive-STEPS' native filter (≥2/≥3), disclosed** — do
-  not force 10-core on a cold-start benchmark (gap-to-ceiling framing already normalizes).
+- **`MIN_SEQUENCE_LENGTH` → RESOLVED ✓ (user, option A): raise the user-side floor 5→10** (`core.py:17`),
+  **no POI filter**. Rationale: matches the Gowalla **10-core** field mode on the user side (comparable to
+  GETNext/STAN/SGRec), aligns with the 9+1 window (every kept user fills ≥1 full window → removes all-padding
+  users; window/sample count drops far less than the user count), and the POI-side 10-core is next-POI-specific
+  (rare-POI *targets*) so it is correctly omitted for our category/region targets. Applied at the **P3 rebuild**;
+  **held at 5 during the Lane-2 overlap-validation** to isolate the overlap effect. **Second dataset keeps
+  Massive-STEPS' native filter (≥2/trail, ≥3 trails/user), disclosed** — not force-10-cored (gap-to-ceiling
+  framing normalizes the cold-start population).
 
 None of these blocks the §2 NOW-lanes; they gate the freeze. **GE (Georgia) is a hard M0 BLOCKER** (axis 2) —
 not a decision, a build.

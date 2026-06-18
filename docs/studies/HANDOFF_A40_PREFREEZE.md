@@ -46,7 +46,9 @@
 ADOPT is the user's decision, but the disciplined way is to **validate at scale FIRST** (it's AL/single-seed/KD-off
 only today, with an FL-saturation warning: AL +9.8 but FL +1.3). Reproduce the overlap effect at **FL + one
 small/mid state, multi-seed**; estimate the full-base rebuild cost. **If weak at FL-scale, STOP for the user** —
-that is itself a finding.
+that is itself a finding. ⚠ **Hold `MIN_SEQUENCE_LENGTH=5` during this validation** to isolate the overlap effect
+vs the AL prior — the frozen-base value is **10** (`core.py:17`, user-side; resolved) but it applies at the P3
+rebuild, NOT here (don't confound two base changes).
 
 **Leak re-audit checklist — the stride-9 CLEAN verdict does NOT cover stride-1. Confirm all FOUR fold paths
 individually (STOP: do not freeze windowing until all four pass), anchored to Luca et al. (ML 2023):**
