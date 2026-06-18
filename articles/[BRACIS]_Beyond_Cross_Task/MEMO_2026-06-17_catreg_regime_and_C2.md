@@ -4,6 +4,12 @@
 > **From:** `mtl_frontier` audit (2026-06-17) + `mtl_improvement` closure (2026-06-12, §C25). **Adversarially
 > fact-checked 2026-06-17** — an earlier draft *overstated* the attribution; this version is corrected.
 > **For:** the BRACIS paper team — input for a recommended **revision of contribution C2**.
+> **⚠ Pre-prose verification (PR-audit 2026-06-17):** before any of this enters `PAPER_DRAFT` §0, re-check
+> (a) the **Kurin/Xin/Mueller** citations (§ below) — the Mueller TMLR venue/year and the *direction* of its
+> finding in particular; (b) the **fp16 attribution** in the retraction box below — the project's own fp32
+> control **exonerated fp16 (~0 pp; `mtl_improvement/log.md` precision-control rows)**, so the inflated
+> "10–14 pp" old figure traces to the **class-weighted joint `mtl_cv` training default (C25)**, not a
+> precision-harness artifact; (c) scope CA/TX as **expected-but-unmeasured** (confound A/B hardware-infeasible).
 > **One sentence:** the paper's current C2 ("classic MTL tradeoff: small cat lift, **−7…−17 pp reg cost**")
 > is **NOT a pure representational tradeoff** — on a matched config, flipping the class-weighting confound
 > (C25) recovers ~**half** the reg gap, and the **confound-free champion (G)** — unweighted CE + v14 substrate

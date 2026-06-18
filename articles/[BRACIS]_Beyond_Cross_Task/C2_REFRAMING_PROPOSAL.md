@@ -7,6 +7,16 @@
 > **One-line ask:** replace C2's "MTL pays a −7…−17 pp region cost (classic tradeoff)" with "MTL is a
 > Pareto gain on the easy task at parity on the hard one; the pre-2026-06 region 'cost' was ~half a
 > class-weighting confound + ~half config, not a representational tradeoff."
+>
+> **⚠ Pre-prose verification (PR-audit 2026-06-17) — check before this text enters `PAPER_DRAFT` §0:**
+> (1) **Citations** — confirm the "scalarization-suffices / parity-not-conflict" framing's sources:
+> Kurin et al. NeurIPS'22 (*In Defense of the Unitary Scalarization*) and Xin et al. NeurIPS'22 (*Do
+> Current MTO Methods Even Help?*) support it; the **Mueller TMLR** citation's venue/year **and direction**
+> need re-checking (an audit flagged its finding may lean toward "gradient conflict *does* affect
+> generalization" — opposite to how it's used here). (2) **Scope** — the headline must say region-parity is
+> *measured at AL/AZ/GE/FL*; **CA/TX parity is expected-but-unmeasured** (their confound A/B is
+> hardware-infeasible, deferred to `closing_data`). (3) Say region **PARITY**, never "beats"; frame the cat
+> lift as a *deployable* Pareto gain (head-config asymmetry), not "MTL beats STL on category."
 
 ## 1. The current C2 (to be replaced)
 
@@ -85,8 +95,9 @@ of the region gap:
    move is to **re-baseline §0 on the confound-free champion** (the `closing_data` plan) and report those.
 2. **State coverage.** Champion-G region-PARITY is established at **AL/AZ/GE/FL**; **CA/TX have no v14
    substrate yet** (a `closing_data` build) — CA/TX parity is *expected* (same mechanism) but **unmeasured**.
-   The CA/TX *confound A/B* (this proposal §4b) is on the GCN substrate and shows the confound share, not
-   full parity. Report FL as the established headline; CA/TX confound-share measured, parity pending.
+   The CA/TX *confound A/B* (this proposal §4b) would show the confound share but is **hardware-infeasible
+   (deferred to `closing_data`)**, not full parity. Report FL as the established headline; CA/TX
+   confound-share **C25-scaling-predicted (not measured)**, parity pending.
 3. **The cat lift is partly the C25 cat-unweighting fix and partly head-config** (the STL cat ceiling uses a
    different head config than G) — it is a real *deployable* gain but not a pure "MTL beats STL" effect;
    disclose the recipe/head-config asymmetry.
