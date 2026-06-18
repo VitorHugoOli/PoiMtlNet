@@ -8,8 +8,13 @@ os.environ.setdefault('PYTORCH_ENABLE_MPS_FALLBACK', '1')
 
 import torch
 
-DEVICE = torch.device(
-    "mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu")
+# INGRED_DEVICE=cpu forces CPU (escape hatch for flaky-MPS boxes; opt-in, default unchanged).
+_forced = os.environ.get("INGRED_DEVICE", "").strip().lower()
+if _forced in ("cpu", "cuda", "mps"):
+    DEVICE = torch.device(_forced)
+else:
+    DEVICE = torch.device(
+        "mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu")
 
 # DEVICE = torch.device("cpu")
 

@@ -42,7 +42,7 @@
 - **Gate**: ≥0.3pp either head → multi-seed → STOP for user (recipe → v17). Null → v16 freezes;
   the "wins without per-sample mixing" wording is fully earned.
 
-### G0.2 — gates added by the Phase-1 harvest
+### G0.2 — gates added by the Phase-1 harvest / pre_freeze_gates
 Each needs spec, cost, promote-gate, and user sign-off BEFORE running.
 
 - **C1 — 3-snapshot per-task routing, confirm-on-G — ✅ DONE 2026-06-17: PROMOTE (deploy panel).**
@@ -58,6 +58,30 @@ Each needs spec, cost, promote-gate, and user sign-off BEFORE running.
   `geom_simple` checkpoint stays the headline. C1 reports deploy-time per-task *selection* headroom
   (single-ckpt ≤ C1 ≤ STL ceiling), not the task ceiling. **Gate CLOSED.** Full verdict + provenance
   + tooling: [`C1_VERDICT.md`](C1_VERDICT.md).
+
+**A2 — feature-concat control (interpretation gate) — ✅ RESOLVED 2026-06-17 (M4 Pro).**
+HGI ⊕ Check2HGI's *exact* per-visit node features (category one-hot + hour/dow sin/cos) vs HGI and
+vs Check2HGI (v14 + v11 paper-canon), matched heads (`next_gru` cat / `next_stan_flow` reg), STL,
+AL+AZ × seeds {0,1,7,100} (n=20), faithful alignment-validated concat. **Result:** the feature
+concat closes only **7.1–8.3%** of the next-cat gap to v14 (12–18% of the v11 gap); concat lift
++1.6–2.0pp against a +23–24pp substrate gap; reg concat **inert** (−0.13pp, NS). **Verdict: the
+substrate's category lift is the hierarchical-infomax *learning*, not feature injection → the C1
+substrate claim STANDS and is STRENGTHENED.** RUN_MATRIX caveat: none needed for the cat claim; the
+paper may state the feature-concat control was run and the lift survives it. Substrates were rebuilt
+locally on the M4 (HGI+v14 absent from this box); HGI-cat fidelity reproduced the board (26.5 vs
+25.3). Detail: [`pre_freeze_gates/A2_RESULTS.md`](../pre_freeze_gates/A2_RESULTS.md).
+
+**A4 — transductivity bound (disclosure gate) — ✅ RESOLVED 2026-06-17 (M4 Pro); ON NULL both axes.**
+Train-only v14 rebuilt per fold (AL+FL seed0). **Reg inflation ≈0** (AL −0.33pp, FL −0.12pp; full arms
+reproduce A2 v14 61.90/70.09 → eval validated) — low-sensitivity (log_T dominates reg), so cat was
+measured directly too. **Cat (the substrate-driven axis where the +14–29pp lift lives) measured via
+in-coverage POI proxy: ≈0** (AL +0.29pp @66.8% cov, FL +0.00pp @86.9% cov) → the substrate's POI
+representations are NOT transductively inflated on cat. **Verdict: ON NULL → one-paragraph defusal; reg AND cat headline numbers do NOT need
+re-anchoring.** Paper caveats: cat is a POI-level proxy on ~67% in-coverage (cold-POI remainder + the
+contextual per-visit component are bounded by inductive-Check2HGI future-work, `research/future_work.md
+§2` — the inductive wall prevents a check-in-level measurement on a transductive substrate). RUN_MATRIX
+caveat: substrate transductive but downstream inflation measured ≈0 on both heads. Detail:
+[`pre_freeze_gates/A4_RESULTS.md`](../pre_freeze_gates/A4_RESULTS.md).
 
 ## Phase 1 — Re-evaluation + inventory (reading-heavy, ~no GPU)
 
