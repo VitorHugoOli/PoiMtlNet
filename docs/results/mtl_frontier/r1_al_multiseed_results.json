@@ -1,0 +1,46 @@
+{
+  "state": "alabama",
+  "metric": "reg-full = top10_acc_indist*(1-ood) @ indist-best epoch",
+  "comparand": "base = G + log_T-KD 0.2 ; R1 = base + log_C-KD 0.2",
+  "per_seed": {
+    "0": {
+      "base_reg": 62.506,
+      "r1_reg": 62.837,
+      "delta_reg": 0.33,
+      "base_cat": 52.707,
+      "r1_cat": 53.058,
+      "delta_cat": 0.351
+    },
+    "1": {
+      "base_reg": 62.585,
+      "r1_reg": 62.986,
+      "delta_reg": 0.401,
+      "base_cat": 53.558,
+      "r1_cat": 53.625,
+      "delta_cat": 0.066
+    },
+    "7": {
+      "base_reg": 62.625,
+      "r1_reg": 62.514,
+      "delta_reg": -0.11,
+      "base_cat": 53.204,
+      "r1_cat": 53.282,
+      "delta_cat": 0.078
+    },
+    "100": {
+      "base_reg": 62.223,
+      "r1_reg": 62.427,
+      "delta_reg": 0.205,
+      "base_cat": 53.294,
+      "r1_cat": 53.598,
+      "delta_cat": 0.304
+    }
+  },
+  "mean_delta_reg": 0.207,
+  "std_delta_reg": 0.196,
+  "mean_delta_cat": 0.2,
+  "wilcoxon_n": 20,
+  "wilcoxon_p_onesided_greater": 0.007877743045773716,
+  "n_pairs_positive": 15,
+  "gate_mean_reg_>=0.3": false
+}

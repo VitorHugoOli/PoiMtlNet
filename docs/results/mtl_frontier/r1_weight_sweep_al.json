@@ -1,0 +1,28 @@
+{
+  "_note": "R1 AL seed0 weight sweep \u2014 reg lift is non-monotonic in W_C, peaks at 0.2; no weight clears the 0.3pp gate.",
+  "base_seed0": {
+    "reg_full": 62.506,
+    "cat_f1": 52.707
+  },
+  "sweep": {
+    "0.2": {
+      "reg_full": 62.837,
+      "delta_reg": 0.331,
+      "cat_f1": 53.058,
+      "delta_cat": 0.351
+    },
+    "0.4": {
+      "reg_full": 62.624,
+      "delta_reg": 0.118,
+      "cat_f1": 52.938,
+      "delta_cat": 0.231
+    },
+    "0.6": {
+      "reg_full": 61.507,
+      "delta_reg": -0.999,
+      "cat_f1": 53.128,
+      "delta_cat": 0.421
+    }
+  },
+  "verdict": "W=0.2 is the optimum; multi-seed mean \u0394reg +0.207 (<0.3); higher W craters reg."
+}

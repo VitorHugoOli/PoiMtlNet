@@ -215,6 +215,13 @@ def train_model(model: torch.nn.Module,
                 task_best_save_dir: Optional[Path] = None,
                 log_t_kd_weight: float = 0.0,
                 log_t_kd_tau: float = 1.0,
+                log_t_kd_gate: str = "none",
+                log_c_kd_weight: float = 0.0,
+                log_c_kd_tau: float = 1.0,
+                log_c_kd_warmup_epochs: int = 0,
+                log_c_kd_ec_lambda: float = 0.0,
+                cat_kd_weight: float = 0.0,
+                cat_kd_tau: float = 1.0,
                 loss_scale_norm: bool = False,
                 checkpoint_selector: str = "geom_simple",
                 joint_min_epoch: int = 0,
@@ -558,10 +565,119 @@ def train_model(model: torch.nn.Module,
                                 _kld_per_sample = (
                                     _student * (_student_log - _log_teacher)
                                 ).sum(dim=-1)
-                                _kld_per_sample = _kld_per_sample * _valid.float()
+                                # R5 (mtl_frontier) — per-instance KD gating. Redistribute
+                                # the (batch-mean-fixed) KD weight by Markov-coverage of the
+                                # teacher row: peaked row (Markov-1 binds) → upweight KD; flat
+                                # row → downweight. Mean-1 over valid samples ⇒ the TOTAL KD
+                                # budget equals global-W (tests redistribution, not strength).
+                                # gate=="none" → multiply by _valid only (bit-identical).
+                                if log_t_kd_gate != "none":
+                                    import math as _math
+                                    if log_t_kd_gate == "coverage_max":
+                                        _cov = _teacher.max(dim=-1).values
+                                    else:  # coverage_entropy
+                                        _ent = -(_teacher * _log_teacher).sum(dim=-1)
+                                        _cov = 1.0 - _ent / _math.log(_teacher.shape[-1])
+                                    _cov = _cov * _valid.float()
+                                    _gmean = (_cov.sum() / _valid.sum().clamp_min(1)).clamp_min(1e-6)
+                                    _gate = _cov / _gmean  # mean-1 over valid, 0 on pad
+                                    # C28 fires-diagnostic: spread of the per-sample gate
+                                    # (0 ⇒ uniform ⇒ ≡ global-W; >0 ⇒ genuinely redistributing).
+                                    if _valid.any():
+                                        model._r5_gate_std = float(_gate[_valid].std().detach())
+                                    _kld_per_sample = _kld_per_sample * _gate
+                                else:
+                                    _kld_per_sample = _kld_per_sample * _valid.float()
                                 _denom = _valid.sum().clamp_min(1).float()
                                 _kd_loss = (_kld_per_sample.sum() / _denom) * (_tau * _tau)
                                 task_b_loss = task_b_loss + log_t_kd_weight * _kd_loss
+
+                # R1 (mtl_frontier) — log_C co-location KD (ESMM probability-chain).
+                # A SECOND distillation term whose per-sample teacher is the
+                # cat-marginalized region prior:
+                #   prior(reg) = Σ_c P(reg|c) · P̂(c),  P̂ = softmax(cat_logits).detach()
+                #   teacher    = softmax(log(prior)/τ);  student = softmax(reg_logits/τ)
+                #   L_reg += W · τ² · KL(student || teacher)
+                # P(reg|c) = exp(log_C) is the train-only per-fold/seed matrix
+                # buffered on the reg head. Stacks on top of log_T-KD. Strict
+                # no-op fast path at weight 0.0. C28 dead-codepath guard: a one-shot
+                # diagnostic asserts the teacher is non-trivial (non-uniform) and
+                # logs its mean max-prob the first time it fires.
+                # R3 (mtl_frontier) — CrossDistil warm-up gate (both arms): the
+                # synchronous teacher is noisy early; apply only from epoch N.
+                _logc_active = epoch_idx >= int(log_c_kd_warmup_epochs)
+                _ec = float(log_c_kd_ec_lambda)
+                if log_c_kd_weight > 0.0 and _logc_active:
+                    _reg_head_c = getattr(model, "next_poi", None)
+                    _log_C = getattr(_reg_head_c, "log_C", None) if _reg_head_c is not None else None
+                    if _log_C is not None:
+                        _ncr = pred_task_b.shape[-1]   # n_regions
+                        _nca = pred_task_a.shape[-1]   # n_cats
+                        if _log_C.shape[0] >= _ncr and _log_C.shape[1] == _nca:
+                            _tau_c = float(log_c_kd_tau)
+                            # P̂(c) — detached cat posterior (teacher factor only).
+                            _phat = torch.softmax(pred_task_a.float(), dim=-1).detach()  # [B, n_cats]
+                            _P_reg_c = _log_C[:_ncr, :].float().exp()                     # [n_regions, n_cats]
+                            # prior(reg) = Σ_c P(reg|c)·P̂(c) → [B, n_regions]
+                            _prior = _phat @ _P_reg_c.transpose(0, 1)                     # [B, n_regions]
+                            _prior = _prior.clamp_min(1e-12)
+                            _teacher_c = torch.softmax(torch.log(_prior) / _tau_c, dim=-1)
+                            # R3 CrossDistil error-correction: blend the soft teacher
+                            # with the reg ground-truth one-hot (corrects teacher errors).
+                            if _ec > 0.0:
+                                _oh = torch.zeros_like(_teacher_c)
+                                _yb = truth_task_b.clamp(0, _ncr - 1).long().unsqueeze(-1)
+                                _oh.scatter_(1, _yb, 1.0)
+                                _teacher_c = (1.0 - _ec) * _teacher_c + _ec * _oh
+                            _student_c_log = torch.log_softmax(pred_task_b.float() / _tau_c, dim=-1)
+                            _student_c = _student_c_log.exp()
+                            _log_teacher_c = torch.log(_teacher_c.clamp_min(1e-12))
+                            _kldc = (_student_c * (_student_c_log - _log_teacher_c)).sum(dim=-1)
+                            _kdc_loss = _kldc.mean() * (_tau_c * _tau_c)
+                            task_b_loss = task_b_loss + log_c_kd_weight * _kdc_loss
+                            if not globals().get("_LOGC_FIRED", False):
+                                globals()["_LOGC_FIRED"] = True
+                                _tmax = float(_teacher_c.max(dim=-1).values.mean())
+                                _unif = 1.0 / float(_ncr)
+                                logger.info(
+                                    "[R1/R3 log_C-KD fwd FIRED] W=%.3g τ=%.3g warmup=%d "
+                                    "ec=%.2g teacher max-prob=%.4f (%.0f× uniform) "
+                                    "mean KL=%.4f",
+                                    log_c_kd_weight, _tau_c, log_c_kd_warmup_epochs, _ec,
+                                    _tmax, _tmax / _unif, float(_kldc.mean()),
+                                )
+
+                # R3 reverse arm — distill the reg-implied category prior into the
+                # CAT head: prior(cat)=Σ_r P(cat|r)·P̂_reg(r), P̂_reg detached.
+                #   L_cat += W · τ² · KL(softmax(cat_logits/τ) || softmax(log(prior)/τ))
+                if cat_kd_weight > 0.0 and _logc_active:
+                    _reg_head_r = getattr(model, "next_poi", None)
+                    _log_Crev = getattr(_reg_head_r, "log_C_rev", None) if _reg_head_r is not None else None
+                    if _log_Crev is not None:
+                        _ncr = pred_task_b.shape[-1]; _nca = pred_task_a.shape[-1]
+                        if _log_Crev.shape[0] >= _ncr and _log_Crev.shape[1] == _nca:
+                            _tau_k = float(cat_kd_tau)
+                            _phat_reg = torch.softmax(pred_task_b.float(), dim=-1).detach()   # [B, n_regions]
+                            _P_cat_r = _log_Crev[:_ncr, :].float().exp()                       # [n_regions, n_cats]
+                            _prior_cat = (_phat_reg @ _P_cat_r).clamp_min(1e-12)               # [B, n_cats]
+                            _teacher_k = torch.softmax(torch.log(_prior_cat) / _tau_k, dim=-1)
+                            if _ec > 0.0:
+                                _ohc = torch.zeros_like(_teacher_k)
+                                _ya = truth_task_a.clamp(0, _nca - 1).long().unsqueeze(-1)
+                                _ohc.scatter_(1, _ya, 1.0)
+                                _teacher_k = (1.0 - _ec) * _teacher_k + _ec * _ohc
+                            _student_k_log = torch.log_softmax(pred_task_a.float() / _tau_k, dim=-1)
+                            _kldk = (_student_k_log.exp() * (_student_k_log - torch.log(_teacher_k.clamp_min(1e-12)))).sum(dim=-1)
+                            task_a_loss = task_a_loss + cat_kd_weight * (_kldk.mean() * (_tau_k * _tau_k))
+                            if not globals().get("_CATKD_FIRED", False):
+                                globals()["_CATKD_FIRED"] = True
+                                _tmk = float(_teacher_k.max(dim=-1).values.mean())
+                                logger.info(
+                                    "[R3 reverse cat-KD FIRED] W=%.3g τ=%.3g warmup=%d "
+                                    "ec=%.2g teacher max-prob=%.4f (%.1f× uniform) mean KL=%.4f",
+                                    cat_kd_weight, _tau_k, log_c_kd_warmup_epochs, _ec,
+                                    _tmk, _tmk * _nca, float(_kldk.mean()),
+                                )
 
             # substrate-protocol-cleanup Tier C2 — after the reg-freeze
             # boundary, the reg loss is contributed at weight 0 so the MTL
@@ -756,6 +872,37 @@ def train_model(model: torch.nn.Module,
         head_beta = getattr(next_head, "beta", None)
         if isinstance(head_beta, torch.Tensor) and head_beta.numel() == 1:
             diagnostic_payload["head_beta"] = float(head_beta.detach().cpu())
+
+        # Idea 2 — input-dependent aux-fusion gate γ (fusion_mode=aux_gated).
+        # Mean γ over the last batch; logged so the "aux_gated≡aux" null is
+        # checkable (did the input-conditioned gate move off its ≈0.12 init?).
+        _aux_gamma = getattr(next_head, "last_aux_gamma", None)
+        if _aux_gamma is not None:
+            diagnostic_payload["aux_gamma"] = float(_aux_gamma)
+
+        # Conditional coupling — mean ‖cat-condition contribution‖ into the reg
+        # feature (0 at init via zero-init cond_proj; >0 means the reg head
+        # learned to use the predicted category — the C28 fires-check).
+        _cond_norm = getattr(next_head, "last_cond_norm", None)
+        if _cond_norm is not None:
+            diagnostic_payload["cond_norm"] = float(_cond_norm)
+
+        # R5 — per-instance log_T-KD gate spread (0 ⇒ uniform ≡ global-W; >0 ⇒ live).
+        _r5_gate_std = getattr(model, "_r5_gate_std", None)
+        if _r5_gate_std is not None:
+            diagnostic_payload["r5_gate_std"] = float(_r5_gate_std)
+
+        # R10 — trained GRM gate trajectory. Mean γ_a/γ_b over the cross-attn
+        # blocks (last batch of the epoch). init≈0.88; logged so the "GRM≡G" null
+        # is checkable (did the gate move, and where did it settle?).
+        _blocks = getattr(model, "crossattn_blocks", None)
+        if _blocks is not None:
+            _ga = [b.last_gamma_a for b in _blocks if getattr(b, "last_gamma_a", None) is not None]
+            _gb = [b.last_gamma_b for b in _blocks if getattr(b, "last_gamma_b", None) is not None]
+            if _ga:
+                diagnostic_payload["grm_gamma_a"] = sum(_ga) / len(_ga)
+            if _gb:
+                diagnostic_payload["grm_gamma_b"] = sum(_gb) / len(_gb)
 
         # F50 D5 — encoder trajectory diagnostic. Frobenius norm of current
         # encoder weights, drift from epoch-0 init, and step drift from the
@@ -1168,6 +1315,57 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                     )
                 tb_head_params = dict(ts.task_b.head_params or {})
                 tb_head_params["transition_path"] = str(pf_path)
+
+                # R1 (mtl_frontier) — per-fold log_C co-location prior, swapped
+                # in beside log_T when --log-c-kd-weight > 0. Same dir, same
+                # seed/fold/n_splits + stale-mtime leak guards as log_T (a leak
+                # here would contaminate the reg KD teacher exactly as a stale
+                # log_T contaminates the Markov prior).
+                if (float(getattr(config, "log_c_kd_weight", 0.0) or 0.0) > 0.0
+                        or float(getattr(config, "cat_kd_weight", 0.0) or 0.0) > 0.0):
+                    pc_path = (
+                        _Path(per_fold_dir)
+                        / f"region_colocation_log_seed{seed}_fold{i_fold + 1}.pt"
+                    )
+                    if not pc_path.exists():
+                        raise FileNotFoundError(
+                            f"--log-c-kd-weight>0 but per-fold log_C {pc_path} "
+                            f"missing. Build: python "
+                            f"scripts/compute_region_colocation.py --state "
+                            f"{config.state} --per-fold --seed {seed} --engine "
+                            f"{getattr(config, 'embedding_engine', '<engine>')}"
+                        )
+                    if parquet_path.exists() and (
+                        pc_path.stat().st_mtime < parquet_path.stat().st_mtime
+                    ):
+                        raise ValueError(
+                            f"Stale per-fold log_C: {pc_path} mtime predates "
+                            f"{parquet_path}; rebuild via "
+                            f"scripts/compute_region_colocation.py --per-fold "
+                            f"--seed {seed}."
+                        )
+                    pc_payload = torch.load(pc_path, map_location="cpu", weights_only=False)
+                    pc_n_splits = (
+                        pc_payload.get("n_splits") if isinstance(pc_payload, dict) else None
+                    )
+                    if pc_n_splits is not None and int(pc_n_splits) != trainer_n_splits:
+                        raise ValueError(
+                            f"Per-fold log_C at {pc_path} built with "
+                            f"n_splits={pc_n_splits} != trainer {trainer_n_splits}; "
+                            f"rebuild (leaks val co-locations into the KD teacher)."
+                        )
+                    pc_seed = pc_payload.get("seed") if isinstance(pc_payload, dict) else None
+                    if pc_seed is not None and int(pc_seed) != seed:
+                        raise ValueError(
+                            f"Per-fold log_C at {pc_path} built at seed={pc_seed} "
+                            f"!= trainer seed={seed}."
+                        )
+                    tb_head_params["colocation_path"] = str(pc_path)
+                    logger.info(
+                        "[R1 per-fold log_C] fold %d seed %d using %s",
+                        i_fold + 1, seed, pc_path,
+                    )
+
                 new_task_b = _dataclasses.replace(ts.task_b, head_params=tb_head_params)
                 new_task_set = _dataclasses.replace(ts, task_b=new_task_b)
                 per_fold_model_params = dict(config.model_params)
@@ -1449,6 +1647,13 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             task_best_save_dir=task_best_save_dir,
             log_t_kd_weight=float(getattr(config, "log_t_kd_weight", 0.0) or 0.0),
             log_t_kd_tau=float(getattr(config, "log_t_kd_tau", 1.0) or 1.0),
+            log_t_kd_gate=str(getattr(config, "log_t_kd_gate", "none") or "none"),
+            log_c_kd_weight=float(getattr(config, "log_c_kd_weight", 0.0) or 0.0),
+            log_c_kd_tau=float(getattr(config, "log_c_kd_tau", 1.0) or 1.0),
+            log_c_kd_warmup_epochs=int(getattr(config, "log_c_kd_warmup_epochs", 0) or 0),
+            log_c_kd_ec_lambda=float(getattr(config, "log_c_kd_ec_lambda", 0.0) or 0.0),
+            cat_kd_weight=float(getattr(config, "cat_kd_weight", 0.0) or 0.0),
+            cat_kd_tau=float(getattr(config, "cat_kd_tau", 1.0) or 1.0),
             loss_scale_norm=bool(getattr(config, "loss_scale_norm", False)),
             checkpoint_selector=str(getattr(config, "checkpoint_selector", "geom_simple")),
             joint_min_epoch=int(getattr(config, "min_best_epoch", 0) or 0),

@@ -1,0 +1,49 @@
+{
+  "comparand": "matched same-batch GLOBAL log_T-KD W=0.2 (gate=none), FL",
+  "configs": {
+    "coventr": {
+      "n_seeds": 4,
+      "mean_delta_reg": -0.082,
+      "std_delta_reg": 0.033,
+      "mean_delta_cat": 0.422,
+      "std_delta_cat": 0.102,
+      "per_seed_delta_cat": [
+        0.523,
+        0.382,
+        0.273,
+        0.508
+      ],
+      "per_seed_delta_reg": [
+        -0.12,
+        -0.11,
+        -0.052,
+        -0.048
+      ],
+      "wilcoxon_reg_p_n20": 0.99965,
+      "wilcoxon_cat_p_n4": 0.0625,
+      "gate_either_>=0.3": true
+    },
+    "covmax": {
+      "n_seeds": 4,
+      "mean_delta_reg": -0.1,
+      "std_delta_reg": 0.029,
+      "mean_delta_cat": 0.472,
+      "std_delta_cat": 0.042,
+      "per_seed_delta_cat": [
+        0.514,
+        0.404,
+        0.471,
+        0.498
+      ],
+      "per_seed_delta_reg": [
+        -0.109,
+        -0.058,
+        -0.094,
+        -0.139
+      ],
+      "wilcoxon_reg_p_n20": 0.99999,
+      "wilcoxon_cat_p_n4": 0.0625,
+      "gate_either_>=0.3": true
+    }
+  }
+}

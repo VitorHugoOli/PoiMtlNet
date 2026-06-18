@@ -1,6 +1,9 @@
 # mtl_frontier — the MTL exploration frontier (A40, runs FIRST)
 
-> **Status:** SCAFFOLDED, not launched (2026-06-14). Machine: **A40 (unmetered)**. Position in the
+> **⚠ HISTORICAL SCOPE DOC — study CLOSED 2026-06-17. Read [`FINAL_SYNTHESIS.md`](FINAL_SYNTHESIS.md) first.**
+> This file is the original scaffolding/scope (preserved for provenance); the outcomes are in FINAL_SYNTHESIS.
+>
+> **Status (original):** SCAFFOLDED, not launched (2026-06-14). Machine: **A40 (unmetered)**. Position in the
 > family: **Level 0** of [`../PRE_FREEZE_PROGRAM.md`](../PRE_FREEZE_PROGRAM.md) — exploration precedes
 > the freeze. A promoted lever becomes a `closing_data` pre-freeze gate (G0.2).
 >

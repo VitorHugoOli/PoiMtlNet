@@ -183,6 +183,7 @@ class NextHeadSTAN(nn.Module):
         bias_init: str = "alibi",
         enable_residual_skip: bool = False,
         raw_embed_dim: int | None = None,
+        grm_read: bool = False,
     ):
         # Default changed from "gaussian" to "alibi" on 2026-04-22 per
         # docs/issues/check2hgi/MODEL_DESIGN_REVIEW_2026-04-22.md
@@ -227,6 +228,19 @@ class NextHeadSTAN(nn.Module):
         else:
             self.residual_proj = None
 
+        # R10 P4 (mtl_frontier, "in a tower") — Gated Residual Memory READ on this STAN
+        # tower's trajectory-block self-attention contribution: snapshot the pre-block
+        # state h_pre, gate the live read by γ=σ(W·masked-mean_seq(h_pre)) per-dim →
+        # h ← h_pre + γ⊙(block(h_pre) − h_pre). Default OFF (champion G bit-identical).
+        # Bias-init +2 → γ≈0.88 ≈ full read at init. INTRA-task channel (the tower's own
+        # representation), distinct from R10's cross-task cross-attn gate — expected
+        # regime-bounded (the reg private tower is at its STL ceiling / saturated).
+        self.grm_read = bool(grm_read)
+        if self.grm_read:
+            self.grm_gate = nn.Linear(d_model, d_model)
+            nn.init.zeros_(self.grm_gate.weight)
+            nn.init.constant_(self.grm_gate.bias, 2.0)
+
     def forward_features(self, x: torch.Tensor) -> torch.Tensor:
         """Run STAN's encoder up to the matching-attention output (pre-classifier).
 
@@ -244,7 +258,15 @@ class NextHeadSTAN(nn.Module):
         h = self.input_norm(h)
         h = self.input_dropout(h)
 
-        h = self.trajectory_block(h, padding_mask=padding_mask)
+        if self.grm_read:
+            h_pre = h
+            h_blk = self.trajectory_block(h_pre, padding_mask=padding_mask)
+            valid = (~padding_mask).float().unsqueeze(-1)
+            mp = (h_pre * valid).sum(dim=1) / valid.sum(dim=1).clamp_min(1.0)  # [B, d_model]
+            gamma = torch.sigmoid(self.grm_gate(mp)).unsqueeze(1)  # [B, 1, d_model]
+            h = h_pre + gamma * (h_blk - h_pre)  # GRM gated trajectory read
+        else:
+            h = self.trajectory_block(h, padding_mask=padding_mask)
 
         h_norm = self.matching_norm(h)
         last = self.matching_attn(h_norm, padding_mask=padding_mask, last_query_only=True)

@@ -1,0 +1,63 @@
+{
+  "comparand": "champion G + GLOBAL log_T-KD W=0.2 (gate=none), seed0",
+  "by_state": {
+    "alabama": {
+      "base_reg": 62.506,
+      "base_cat": 52.707,
+      "configs": {
+        "covmax": {
+          "reg": 62.742,
+          "cat": 52.888,
+          "delta_reg": 0.236,
+          "delta_cat": 0.181,
+          "gate_either_>=0.3": false
+        },
+        "coventr": {
+          "reg": 62.695,
+          "cat": 52.693,
+          "delta_reg": 0.189,
+          "delta_cat": -0.014,
+          "gate_either_>=0.3": false
+        }
+      }
+    },
+    "florida": {
+      "base_reg": 72.976,
+      "base_cat": 72.447,
+      "configs": {
+        "covmax": {
+          "reg": 72.867,
+          "cat": 72.961,
+          "delta_reg": -0.109,
+          "delta_cat": 0.514,
+          "gate_either_>=0.3": true
+        },
+        "coventr": {
+          "reg": 72.856,
+          "cat": 72.971,
+          "delta_reg": -0.12,
+          "delta_cat": 0.524,
+          "gate_either_>=0.3": true
+        }
+      }
+    }
+  },
+  "promote_candidates": [
+    {
+      "state": "florida",
+      "config": "covmax",
+      "delta_reg": -0.109,
+      "delta_cat": 0.514
+    },
+    {
+      "state": "florida",
+      "config": "coventr",
+      "delta_reg": -0.12,
+      "delta_cat": 0.524
+    }
+  ],
+  "fl_multiseed_next": [
+    "coventr",
+    "covmax"
+  ]
+}

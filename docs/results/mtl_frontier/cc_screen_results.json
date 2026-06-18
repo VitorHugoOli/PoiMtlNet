@@ -1,0 +1,71 @@
+{
+  "comparand": "champion G (cond=none, KD-off)",
+  "by_state": {
+    "alabama": {
+      "base_reg": 62.381,
+      "base_cat": 52.378,
+      "configs": {
+        "cc_e2e": {
+          "reg": 62.239,
+          "cat": 53.34,
+          "delta_reg": -0.142,
+          "delta_cat": 0.962,
+          "gate_either_>=0.3": true
+        },
+        "cc_detach": {
+          "reg": 62.302,
+          "cat": 52.761,
+          "delta_reg": -0.079,
+          "delta_cat": 0.383,
+          "gate_either_>=0.3": true
+        }
+      }
+    },
+    "florida": {
+      "base_reg": 72.929,
+      "base_cat": 73.012,
+      "configs": {
+        "cc_e2e": {
+          "reg": 72.954,
+          "cat": 73.462,
+          "delta_reg": 0.025,
+          "delta_cat": 0.45,
+          "gate_either_>=0.3": true
+        },
+        "cc_detach": {
+          "reg": 72.988,
+          "cat": 73.425,
+          "delta_reg": 0.059,
+          "delta_cat": 0.413,
+          "gate_either_>=0.3": true
+        }
+      }
+    }
+  },
+  "promote_candidates": [
+    {
+      "state": "alabama",
+      "config": "cc_e2e",
+      "delta_reg": -0.142,
+      "delta_cat": 0.962
+    },
+    {
+      "state": "alabama",
+      "config": "cc_detach",
+      "delta_reg": -0.079,
+      "delta_cat": 0.383
+    },
+    {
+      "state": "florida",
+      "config": "cc_e2e",
+      "delta_reg": 0.025,
+      "delta_cat": 0.45
+    },
+    {
+      "state": "florida",
+      "config": "cc_detach",
+      "delta_reg": 0.059,
+      "delta_cat": 0.413
+    }
+  ]
+}

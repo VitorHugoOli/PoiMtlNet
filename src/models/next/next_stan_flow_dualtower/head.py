@@ -49,7 +49,7 @@ from data.aux_side_channel import get_current_aux
 from models.next.next_stan.head import NextHeadSTAN
 from models.registry import register_model
 
-_FUSION_MODES = ("gated", "private_only", "aux")
+_FUSION_MODES = ("gated", "private_only", "aux", "aux_gated")
 _ALT_PRIV_HEADS = ("gru", "lstm", "tcn")
 
 
@@ -150,10 +150,23 @@ class NextHeadStanFlowDualTower(nn.Module):
         priv_head: str = "stan",
         fusion_mode: str = "gated",
         transition_path: Optional[str] = None,
+        colocation_path: Optional[str] = None,
         alpha_init: float = 0.1,
         freeze_alpha: bool = False,
+        cond_coupling: str = "none",
+        cond_dim: int = 7,
+        cond_detach: bool = False,
+        cond_signal: str = "softmax",
+        cond_temp: float = 1.0,
+        cond_topk: int = 0,
+        cond_inject: str = "add",
+        cond_logit_prior: bool = False,
+        priv_grm: bool = False,
     ):
         super().__init__()
+        # R10 P4 (mtl_frontier) — enable the intra-tower GRM gated read on the PRIVATE
+        # reg STAN tower only (the reg workhorse). Default OFF → champion G bit-identical.
+        self._priv_grm = bool(priv_grm)
         if fusion_mode not in _FUSION_MODES:
             raise ValueError(
                 f"fusion_mode must be one of {_FUSION_MODES}, got {fusion_mode!r}"
@@ -180,6 +193,7 @@ class NextHeadStanFlowDualTower(nn.Module):
                 num_heads=int(priv_num_heads),
                 dropout=float(priv_dropout),
                 bias_init=bias_init,
+                grm_read=self._priv_grm,  # R10 P4 — gate the private reg tower's trajectory read
             )
             # Drop the sub-STAN's own classifier — we pool via forward_features and
             # own the logits with a single fused classifier (avoids a redundant
@@ -195,8 +209,12 @@ class NextHeadStanFlowDualTower(nn.Module):
 
         # --- Shared tower: cross-attn output [B,9,256] → STAN backbone.
         #     (a)-baseline faithful (num_heads/dropout injected). Built only for
-        #     modes that consume the shared pathway.
-        if self.fusion_mode in ("gated", "aux"):
+        #     modes that consume the shared pathway. NOTE (2026-06-17 audit fix):
+        #     "aux_gated" MUST be here — it was omitted, so aux_gated silently ran
+        #     with shared_stan=None (shared pathway severed → priv + γ·aux_proj(0)
+        #     = priv + γ·bias), invalidating the FU2 mechanistic claim. Champion G
+        #     uses "aux" (already listed) so G is unaffected by this fix.
+        if self.fusion_mode in ("gated", "aux", "aux_gated"):
             self.shared_stan = NextHeadSTAN(
                 embed_dim=int(embed_dim),
                 num_classes=num_classes,
@@ -219,6 +237,86 @@ class NextHeadStanFlowDualTower(nn.Module):
         elif self.fusion_mode == "aux":
             self.aux_proj = nn.Linear(self.d_model, self.d_model)
             self.beta = nn.Parameter(torch.tensor(0.1))
+        elif self.fusion_mode == "aux_gated":
+            # mtl_frontier Idea 2 — the input-dependent generalization of `aux`'s
+            # SCALAR β: feat = priv + γ(·)·aux_proj(shared), γ=σ(MLP([priv;shared]))
+            # per-dim, input-conditioned. Tests "use the shared pathway for SOME
+            # check-ins, not others" — which a scalar β (X3: β→0 by gradient)
+            # cannot express. The additive sibling of `gated` (convex, lost to aux).
+            # γ-bias init −2.0 → γ≈0.12 ≈ champion β=0.1 (clean comparand).
+            self.aux_proj = nn.Linear(self.d_model, self.d_model)
+            self.aux_gate = nn.Linear(2 * self.d_model, self.d_model)
+            nn.init.constant_(self.aux_gate.bias, -2.0)
+            self.last_aux_gamma = None  # C28 trajectory diagnostic (mean γ)
+
+        # --- Conditional coupling (mtl_frontier — iMTL/GETNext pattern): inject
+        # the cat head's PREDICTION as an INPUT FEATURE to the reg head, fused
+        # additively into the pooled feature before the classifier, trained +
+        # at inference (unlike the train-only KD priors R1/R3). This conditions
+        # the region prediction on the predicted category — changing the reg
+        # head's input distribution rather than re-gating an orthogonal gradient.
+        #   cond_coupling="posterior" → feed softmax(cat_logits) [B, cond_dim].
+        # cond_proj is ZERO-INIT so the untrained head ≡ champion G; the model
+        # learns the coupling from there. cond_detach controls whether the
+        # cat→reg gradient flows (False = true iMTL end-to-end).
+        #
+        # R-CC+ (mtl_frontier, 2026-06-16) — extend the one direction that
+        # produced real transfer. Three orthogonal axes, all default-off so
+        # champion G is bit-identical:
+        #   cond_signal  : how the cat prediction is shaped *before* projection
+        #                  (model-side, read off this head): softmax(=existing
+        #                  posterior) | calibrated(τ=cond_temp) | argmax(discrete
+        #                  one-hot, GETNext form) | topk(cond_topk-sparse mask).
+        #   cond_inject  : where the cat signal enters the reg head:
+        #                  add(=existing additive fused-feature) | film(γ,β on the
+        #                  fused feature, zero-init→identity) | concat_seq(broadcast
+        #                  into the private-STAN input sequence, GETNext-faithful
+        #                  input-side, zero-init→no-op) | none(feature-side off,
+        #                  for a pure output-side prior).
+        #   cond_logit_prior : output-side learned cat→region logit map
+        #                  (CatDM/LBPR sibling), zero-init→no-op.
+        self.cond_coupling = str(cond_coupling)
+        self.cond_detach = bool(cond_detach)
+        self.cond_signal = str(cond_signal)
+        self.cond_temp = float(cond_temp)
+        self.cond_topk = int(cond_topk)
+        self.cond_inject = str(cond_inject)
+        self.cond_logit_prior = bool(cond_logit_prior)
+        if self.cond_coupling not in ("none", "posterior", "features"):
+            raise ValueError(f"cond_coupling must be none|posterior|features, got {cond_coupling!r}")
+        if self.cond_signal not in ("softmax", "calibrated", "argmax", "topk"):
+            raise ValueError(f"cond_signal must be softmax|calibrated|argmax|topk, got {cond_signal!r}")
+        if self.cond_inject not in ("add", "film", "concat_seq", "none"):
+            raise ValueError(f"cond_inject must be add|film|concat_seq|none, got {cond_inject!r}")
+        if self.cond_coupling != "none":
+            # feature/input-side injection module (exactly one, zero-init → ≡ G)
+            if self.cond_inject == "add":
+                self.cond_proj = nn.Linear(int(cond_dim), self.d_model)
+                nn.init.zeros_(self.cond_proj.weight)
+                nn.init.zeros_(self.cond_proj.bias)
+            elif self.cond_inject == "film":
+                # FiLM on the fused feature: feat ← (1+γ)·feat + β. Zero-init the
+                # projection → γ=0, β=0 → (1+0)·feat+0 ≡ champion G.
+                self.cond_film = nn.Linear(int(cond_dim), 2 * self.d_model)
+                nn.init.zeros_(self.cond_film.weight)
+                nn.init.zeros_(self.cond_film.bias)
+            elif self.cond_inject == "concat_seq":
+                # Input-side: broadcast-add a cat embedding to every *valid* step
+                # of the raw region sequence before the private tower (GETNext:
+                # the predicted category modulates the input). Project cond_dim →
+                # raw_embed_dim, zero-init → no change ≡ champion G. Added only on
+                # non-pad steps so the private STAN's pad mask is preserved.
+                self.cond_seq_proj = nn.Linear(int(cond_dim), int(raw_embed_dim))
+                nn.init.zeros_(self.cond_seq_proj.weight)
+                nn.init.zeros_(self.cond_seq_proj.bias)
+            # cond_inject == "none": no feature/input injection (pure logit prior).
+            if self.cond_logit_prior:
+                # Output-side learned cat→region prior added to the logits;
+                # zero-init → no-op ≡ champion G.
+                self.cond_logit = nn.Linear(int(cond_dim), int(num_classes))
+                nn.init.zeros_(self.cond_logit.weight)
+                nn.init.zeros_(self.cond_logit.bias)
+            self.last_cond_norm = None  # C28 diagnostic — mean ‖injected delta‖
 
         # --- Fused classifier (mirrors NextHeadSTAN.classifier structure).
         self.classifier = nn.Sequential(
@@ -249,6 +347,37 @@ class NextHeadStanFlowDualTower(nn.Module):
         else:
             self.register_buffer("log_T", torch.zeros(num_classes, num_classes))
 
+        # --- R1 (mtl_frontier) co-location prior P(region|cat), [num_classes, n_cats].
+        # log P(region|cat), column-normalized; consumed ONLY by the trainer's
+        # log_C-KD branch (mtl_cv.py) — NOT by _apply_prior (this is a KD teacher
+        # factor, not an additive logit prior). Buffer so it moves to device with
+        # the model and is fold-scoped (the head is rebuilt per fold). Absent →
+        # zeros (the KD branch's weight==0 fast path makes that a strict no-op).
+        if colocation_path is not None:
+            cpayload = torch.load(colocation_path, map_location="cpu", weights_only=False)
+            log_C = cpayload["log_colocation"] if isinstance(cpayload, dict) else cpayload
+            log_C = log_C.float()
+            if log_C.shape[0] < num_classes:
+                raise ValueError(
+                    f"Co-location matrix rows {log_C.shape[0]} < num_classes="
+                    f"{num_classes} (regions). Rebuild for this state: "
+                    f"scripts/compute_region_colocation.py --per-fold."
+                )
+            log_C = log_C[:num_classes, :].contiguous()
+            self.register_buffer("log_C", log_C)
+            # R3 (mtl_frontier) reverse arm — log P(cat|region) [num_classes, n_cats],
+            # row-normalized. Teacher for the cat head: Σ_r P(cat|r)·P̂_reg(r). Consumed
+            # by the trainer's reverse cat-KD branch. Absent in legacy R1 files → None.
+            log_C_rev = cpayload.get("log_cat_given_region") if isinstance(cpayload, dict) else None
+            if log_C_rev is not None:
+                log_C_rev = log_C_rev.float()[:num_classes, :].contiguous()
+                self.register_buffer("log_C_rev", log_C_rev)
+            else:
+                self.register_buffer("log_C_rev", None, persistent=False)
+        else:
+            self.register_buffer("log_C", None, persistent=False)
+            self.register_buffer("log_C_rev", None, persistent=False)
+
     # ------------------------------------------------------------------
     def _fuse(
         self,
@@ -273,6 +402,12 @@ class NextHeadStanFlowDualTower(nn.Module):
                 self.gate_net(torch.cat([priv_feat, shared_feat], dim=-1))
             )
             return g * priv_feat + (1.0 - g) * shared_feat
+        if self.fusion_mode == "aux_gated":
+            gamma = torch.sigmoid(
+                self.aux_gate(torch.cat([priv_feat, shared_feat], dim=-1))
+            )
+            self.last_aux_gamma = float(gamma.detach().mean())
+            return priv_feat + gamma * self.aux_proj(shared_feat)
         # aux
         return priv_feat + self.beta * self.aux_proj(shared_feat)
 
@@ -300,12 +435,32 @@ class NextHeadStanFlowDualTower(nn.Module):
         self,
         x: torch.Tensor,
         raw_region_seq: Optional[torch.Tensor] = None,
+        cat_cond: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """Args:
         x: SHARED pathway [B, S, embed_dim=256] (cross-attn output).
         raw_region_seq: RAW [B, S, raw_embed_dim=64] region sequence — the
             model subclass passes the post-pad-mask ``next_input`` here.
+        cat_cond: [B, cond_dim] cat-head prediction for conditional coupling
+            (the model passes softmax(cat_logits) when cond_coupling != none).
         """
+        # R-CC+ conditioning signal (None unless the head opts in AND the model
+        # supplied a cat prediction — e.g. the disjoint ``next_forward`` path
+        # passes cat_cond=None, so conditioning is inert there, exactly like the
+        # original additive cc).
+        c = None
+        if self.cond_coupling != "none" and cat_cond is not None:
+            c = (cat_cond.detach() if self.cond_detach else cat_cond).float()
+
+        # Input-side injection (GETNext-faithful): modulate the raw region
+        # sequence BEFORE the private tower. Only on valid (non-pad) steps so the
+        # private STAN's abs-sum pad mask is preserved.
+        if c is not None and self.cond_inject == "concat_seq" and raw_region_seq is not None:
+            valid = (raw_region_seq.abs().sum(dim=-1, keepdim=True) != 0).to(raw_region_seq.dtype)
+            delta_seq = self.cond_seq_proj(c.to(raw_region_seq.dtype)).unsqueeze(1)  # [B,1,raw]
+            raw_region_seq = raw_region_seq + delta_seq * valid
+            self.last_cond_norm = float(delta_seq.detach().norm(dim=-1).mean())
+
         priv_feat = (
             self.private_stan.forward_features(raw_region_seq)
             if raw_region_seq is not None
@@ -317,7 +472,29 @@ class NextHeadStanFlowDualTower(nn.Module):
             else None
         )
         feat = self._fuse(priv_feat, shared_feat, ref=x)
+
+        # Feature-side injection on the fused pooled feature.
+        if c is not None and self.cond_inject in ("add", "film"):
+            cc = c.to(feat.dtype)
+            if self.cond_inject == "add":
+                cond = self.cond_proj(cc)
+                self.last_cond_norm = float(cond.detach().norm(dim=-1).mean())
+                feat = feat + cond
+            else:  # film
+                gamma, beta = self.cond_film(cc).chunk(2, dim=-1)
+                self.last_cond_norm = float(
+                    (gamma.detach().norm(dim=-1) + beta.detach().norm(dim=-1)).mean()
+                )
+                feat = (1.0 + gamma) * feat + beta
+
         logits = self.classifier(feat)
+
+        # Output-side learned cat→region prior (CatDM/LBPR sibling).
+        if c is not None and self.cond_logit_prior:
+            lp = self.cond_logit(c.to(logits.dtype))
+            self.last_cond_norm = float(lp.detach().norm(dim=-1).mean())
+            logits = logits + lp
+
         return self._apply_prior(logits)
 
 

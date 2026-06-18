@@ -1,0 +1,89 @@
+{
+  "comparand": "frozen champion G, --category-weight scalarization sweep (FL seed0)",
+  "deployable_front_geomsimple": [
+    {
+      "category_weight": 0.4,
+      "cat_diagbest": 71.808,
+      "reg_diagbest": 73.048,
+      "cat_geomsimple": 71.763,
+      "reg_geomsimple": 72.278,
+      "geomsimple_epoch": 25
+    },
+    {
+      "category_weight": 0.55,
+      "cat_diagbest": 71.988,
+      "reg_diagbest": 72.958,
+      "cat_geomsimple": 71.988,
+      "reg_geomsimple": 72.133,
+      "geomsimple_epoch": 23
+    },
+    {
+      "category_weight": 0.7,
+      "cat_diagbest": 72.498,
+      "reg_diagbest": 72.895,
+      "cat_geomsimple": 72.498,
+      "reg_geomsimple": 71.856,
+      "geomsimple_epoch": 20
+    },
+    {
+      "category_weight": 0.75,
+      "cat_diagbest": 72.694,
+      "reg_diagbest": 72.903,
+      "cat_geomsimple": 72.655,
+      "reg_geomsimple": 71.881,
+      "geomsimple_epoch": 19
+    },
+    {
+      "category_weight": 0.85,
+      "cat_diagbest": 72.413,
+      "reg_diagbest": 72.353,
+      "cat_geomsimple": 70.773,
+      "reg_geomsimple": 72.341,
+      "geomsimple_epoch": 46
+    },
+    {
+      "category_weight": 0.92,
+      "cat_diagbest": 72.33,
+      "reg_diagbest": 64.256,
+      "cat_geomsimple": 70.995,
+      "reg_geomsimple": 63.974,
+      "geomsimple_epoch": 38
+    }
+  ],
+  "pareto_optimal_weights": [
+    0.4,
+    0.55,
+    0.75,
+    0.85
+  ],
+  "deployable_cat_span_pp": 1.882,
+  "deployable_reg_span_pp": 8.367,
+  "collapse_threshold_pp": 0.5,
+  "front_collapsed_to_point": false,
+  "champion_epoch_front": {
+    "geomsimple_epoch": 19,
+    "geomsimple_point": [
+      72.655,
+      71.881
+    ],
+    "pareto_epochs": [
+      19,
+      20,
+      32,
+      35,
+      36,
+      37,
+      38,
+      39,
+      41,
+      43,
+      45,
+      46,
+      47,
+      50
+    ],
+    "n_pareto_epochs": 14,
+    "cat_range": 35.874,
+    "reg_range": 43.141
+  }
+}

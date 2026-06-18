@@ -1,0 +1,67 @@
+{
+  "comparand": "frozen champion G weight-front, FL multi-seed {0,1,7,100}",
+  "weights": {
+    "0.55": {
+      "n_seeds": 4,
+      "cat_diagbest_mean": 72.005,
+      "cat_diagbest_std": 0.013,
+      "reg_diagbest_mean": 72.988,
+      "reg_diagbest_std": 0.079
+    },
+    "0.75": {
+      "n_seeds": 4,
+      "cat_diagbest_mean": 72.878,
+      "cat_diagbest_std": 0.119,
+      "reg_diagbest_mean": 72.938,
+      "reg_diagbest_std": 0.057
+    },
+    "0.85": {
+      "n_seeds": 4,
+      "cat_diagbest_mean": 72.387,
+      "cat_diagbest_std": 0.061,
+      "reg_diagbest_mean": 72.427,
+      "reg_diagbest_std": 0.123
+    }
+  },
+  "near_corner_test": {
+    "reg_gain_lowering_to_0.55": 0.05,
+    "cat_cost_lowering_to_0.55": -0.873,
+    "reg_change_raising_to_0.85": -0.511,
+    "cat_change_raising_to_0.85": -0.491,
+    "near_corner": true
+  },
+  "champion_epoch_front_by_seed": {
+    "0": {
+      "n_pareto_epochs": 14,
+      "geomsimple_epoch": 19,
+      "geomsimple_point": [
+        72.655,
+        71.881
+      ]
+    },
+    "1": {
+      "n_pareto_epochs": 14,
+      "geomsimple_epoch": 18,
+      "geomsimple_point": [
+        72.908,
+        71.919
+      ]
+    },
+    "7": {
+      "n_pareto_epochs": 16,
+      "geomsimple_epoch": 19,
+      "geomsimple_point": [
+        73.027,
+        72.127
+      ]
+    },
+    "100": {
+      "n_pareto_epochs": 12,
+      "geomsimple_epoch": 20,
+      "geomsimple_point": [
+        72.881,
+        72.051
+      ]
+    }
+  }
+}

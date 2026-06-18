@@ -1,0 +1,22 @@
+{
+  "config": "P4 intra-tower GRM (priv_grm)",
+  "state": "florida",
+  "mean_dcat": 0.075,
+  "std_dcat": 0.167,
+  "per_seed_dcat": [
+    0.324,
+    -0.053,
+    0.127,
+    -0.099
+  ],
+  "mean_dreg": -0.033,
+  "per_seed_dreg": [
+    -0.055,
+    0.036,
+    -0.074,
+    -0.04
+  ],
+  "wilcoxon_cat_p": 0.3125,
+  "wilcoxon_reg_p": 0.7656,
+  "gate": false
+}

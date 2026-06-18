@@ -1,0 +1,189 @@
+{
+  "comparand": "fresh matched champion G (cond=none, KD-off), seed0",
+  "by_state": {
+    "alabama": {
+      "base_reg": 62.381,
+      "base_cat": 52.378,
+      "configs": {
+        "cc_e2e": {
+          "reg": 62.239,
+          "cat": 53.34,
+          "delta_reg": -0.142,
+          "delta_cat": 0.962,
+          "gate_either_>=0.3": true
+        },
+        "cc_calib": {
+          "reg": 62.263,
+          "cat": 52.91,
+          "delta_reg": -0.118,
+          "delta_cat": 0.532,
+          "gate_either_>=0.3": true
+        },
+        "cc_argmax": {
+          "reg": 62.412,
+          "cat": 52.969,
+          "delta_reg": 0.031,
+          "delta_cat": 0.591,
+          "gate_either_>=0.3": true
+        },
+        "cc_topk": {
+          "reg": 62.373,
+          "cat": 52.931,
+          "delta_reg": -0.008,
+          "delta_cat": 0.553,
+          "gate_either_>=0.3": true
+        },
+        "cc_film": {
+          "reg": 62.562,
+          "cat": 53.046,
+          "delta_reg": 0.181,
+          "delta_cat": 0.668,
+          "gate_either_>=0.3": true
+        },
+        "cc_concat": {
+          "reg": 62.593,
+          "cat": 52.831,
+          "delta_reg": 0.212,
+          "delta_cat": 0.453,
+          "gate_either_>=0.3": true
+        },
+        "cc_logitp": {
+          "reg": 62.278,
+          "cat": 52.925,
+          "delta_reg": -0.103,
+          "delta_cat": 0.547,
+          "gate_either_>=0.3": true
+        }
+      }
+    },
+    "florida": {
+      "base_reg": 72.929,
+      "base_cat": 73.012,
+      "configs": {
+        "cc_e2e": {
+          "reg": 72.954,
+          "cat": 73.462,
+          "delta_reg": 0.025,
+          "delta_cat": 0.45,
+          "gate_either_>=0.3": true
+        },
+        "cc_calib": {
+          "reg": 72.966,
+          "cat": 73.462,
+          "delta_reg": 0.037,
+          "delta_cat": 0.45,
+          "gate_either_>=0.3": true
+        },
+        "cc_argmax": {
+          "reg": 72.949,
+          "cat": 73.43,
+          "delta_reg": 0.02,
+          "delta_cat": 0.418,
+          "gate_either_>=0.3": true
+        },
+        "cc_topk": {
+          "reg": 72.946,
+          "cat": 73.45,
+          "delta_reg": 0.017,
+          "delta_cat": 0.438,
+          "gate_either_>=0.3": true
+        },
+        "cc_film": {
+          "reg": 72.981,
+          "cat": 73.255,
+          "delta_reg": 0.052,
+          "delta_cat": 0.243,
+          "gate_either_>=0.3": false
+        },
+        "cc_concat": {
+          "reg": 72.953,
+          "cat": 73.271,
+          "delta_reg": 0.024,
+          "delta_cat": 0.259,
+          "gate_either_>=0.3": false
+        },
+        "cc_logitp": {
+          "reg": 72.868,
+          "cat": 73.028,
+          "delta_reg": -0.061,
+          "delta_cat": 0.016,
+          "gate_either_>=0.3": false
+        }
+      }
+    }
+  },
+  "promote_candidates": [
+    {
+      "state": "alabama",
+      "config": "cc_e2e",
+      "delta_reg": -0.142,
+      "delta_cat": 0.962
+    },
+    {
+      "state": "alabama",
+      "config": "cc_calib",
+      "delta_reg": -0.118,
+      "delta_cat": 0.532
+    },
+    {
+      "state": "alabama",
+      "config": "cc_argmax",
+      "delta_reg": 0.031,
+      "delta_cat": 0.591
+    },
+    {
+      "state": "alabama",
+      "config": "cc_topk",
+      "delta_reg": -0.008,
+      "delta_cat": 0.553
+    },
+    {
+      "state": "alabama",
+      "config": "cc_film",
+      "delta_reg": 0.181,
+      "delta_cat": 0.668
+    },
+    {
+      "state": "alabama",
+      "config": "cc_concat",
+      "delta_reg": 0.212,
+      "delta_cat": 0.453
+    },
+    {
+      "state": "alabama",
+      "config": "cc_logitp",
+      "delta_reg": -0.103,
+      "delta_cat": 0.547
+    },
+    {
+      "state": "florida",
+      "config": "cc_e2e",
+      "delta_reg": 0.025,
+      "delta_cat": 0.45
+    },
+    {
+      "state": "florida",
+      "config": "cc_calib",
+      "delta_reg": 0.037,
+      "delta_cat": 0.45
+    },
+    {
+      "state": "florida",
+      "config": "cc_argmax",
+      "delta_reg": 0.02,
+      "delta_cat": 0.418
+    },
+    {
+      "state": "florida",
+      "config": "cc_topk",
+      "delta_reg": 0.017,
+      "delta_cat": 0.438
+    }
+  ],
+  "fl_multiseed_next": [
+    "cc_argmax",
+    "cc_calib",
+    "cc_e2e",
+    "cc_topk"
+  ]
+}

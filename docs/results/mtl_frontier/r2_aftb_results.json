@@ -1,0 +1,202 @@
+{
+  "runs": {
+    "aftb_all_alabama": {
+      "state": "alabama",
+      "spec": "ab+ba,ab+ba",
+      "reg_full": 62.632,
+      "cat_f1": 53.261
+    },
+    "base_alabama": {
+      "state": "alabama",
+      "spec": "(G baseline)",
+      "reg_full": 62.381,
+      "cat_f1": 52.378
+    },
+    "aftb_late_alabama": {
+      "state": "alabama",
+      "spec": "none,ab+ba",
+      "reg_full": 62.593,
+      "cat_f1": 53.685
+    },
+    "aftb_early_alabama": {
+      "state": "alabama",
+      "spec": "ab+ba,none",
+      "reg_full": 62.695,
+      "cat_f1": 53.044
+    },
+    "reg_protect_alabama": {
+      "state": "alabama",
+      "spec": "ab,ab",
+      "reg_full": 62.798,
+      "cat_f1": 53.083
+    },
+    "cat_protect_alabama": {
+      "state": "alabama",
+      "spec": "ba,ba",
+      "reg_full": 62.467,
+      "cat_f1": 53.107
+    },
+    "aftb_all_florida": {
+      "state": "florida",
+      "spec": "ab+ba,ab+ba",
+      "reg_full": 72.881,
+      "cat_f1": 72.894
+    },
+    "base_florida": {
+      "state": "florida",
+      "spec": "(G baseline)",
+      "reg_full": 72.929,
+      "cat_f1": 73.012
+    },
+    "aftb_late_florida": {
+      "state": "florida",
+      "spec": "none,ab+ba",
+      "reg_full": 72.957,
+      "cat_f1": 73.079
+    },
+    "aftb_early_florida": {
+      "state": "florida",
+      "spec": "ab+ba,none",
+      "reg_full": 72.959,
+      "cat_f1": 73.037
+    },
+    "reg_protect_florida": {
+      "state": "florida",
+      "spec": "ab,ab",
+      "reg_full": 72.92,
+      "cat_f1": 73.059
+    },
+    "cat_protect_florida": {
+      "state": "florida",
+      "spec": "ba,ba",
+      "reg_full": 72.956,
+      "cat_f1": 73.083
+    }
+  },
+  "by_state": {
+    "alabama": {
+      "base_reg": 62.381,
+      "base_cat": 52.378,
+      "configs": {
+        "aftb_all": {
+          "spec": "ab+ba,ab+ba",
+          "reg": 62.632,
+          "cat": 53.261,
+          "delta_reg": 0.251,
+          "delta_cat": 0.883,
+          "gate_either_>=0.3": true
+        },
+        "aftb_late": {
+          "spec": "none,ab+ba",
+          "reg": 62.593,
+          "cat": 53.685,
+          "delta_reg": 0.212,
+          "delta_cat": 1.307,
+          "gate_either_>=0.3": true
+        },
+        "aftb_early": {
+          "spec": "ab+ba,none",
+          "reg": 62.695,
+          "cat": 53.044,
+          "delta_reg": 0.314,
+          "delta_cat": 0.666,
+          "gate_either_>=0.3": true
+        },
+        "reg_protect": {
+          "spec": "ab,ab",
+          "reg": 62.798,
+          "cat": 53.083,
+          "delta_reg": 0.417,
+          "delta_cat": 0.705,
+          "gate_either_>=0.3": true
+        },
+        "cat_protect": {
+          "spec": "ba,ba",
+          "reg": 62.467,
+          "cat": 53.107,
+          "delta_reg": 0.086,
+          "delta_cat": 0.729,
+          "gate_either_>=0.3": true
+        }
+      }
+    },
+    "florida": {
+      "base_reg": 72.929,
+      "base_cat": 73.012,
+      "configs": {
+        "aftb_all": {
+          "spec": "ab+ba,ab+ba",
+          "reg": 72.881,
+          "cat": 72.894,
+          "delta_reg": -0.048,
+          "delta_cat": -0.118,
+          "gate_either_>=0.3": false
+        },
+        "aftb_late": {
+          "spec": "none,ab+ba",
+          "reg": 72.957,
+          "cat": 73.079,
+          "delta_reg": 0.028,
+          "delta_cat": 0.067,
+          "gate_either_>=0.3": false
+        },
+        "aftb_early": {
+          "spec": "ab+ba,none",
+          "reg": 72.959,
+          "cat": 73.037,
+          "delta_reg": 0.03,
+          "delta_cat": 0.025,
+          "gate_either_>=0.3": false
+        },
+        "reg_protect": {
+          "spec": "ab,ab",
+          "reg": 72.92,
+          "cat": 73.059,
+          "delta_reg": -0.009,
+          "delta_cat": 0.047,
+          "gate_either_>=0.3": false
+        },
+        "cat_protect": {
+          "spec": "ba,ba",
+          "reg": 72.956,
+          "cat": 73.083,
+          "delta_reg": 0.027,
+          "delta_cat": 0.071,
+          "gate_either_>=0.3": false
+        }
+      }
+    }
+  },
+  "promote_candidates": [
+    {
+      "state": "alabama",
+      "config": "aftb_all",
+      "delta_reg": 0.251,
+      "delta_cat": 0.883
+    },
+    {
+      "state": "alabama",
+      "config": "aftb_late",
+      "delta_reg": 0.212,
+      "delta_cat": 1.307
+    },
+    {
+      "state": "alabama",
+      "config": "aftb_early",
+      "delta_reg": 0.314,
+      "delta_cat": 0.666
+    },
+    {
+      "state": "alabama",
+      "config": "reg_protect",
+      "delta_reg": 0.417,
+      "delta_cat": 0.705
+    },
+    {
+      "state": "alabama",
+      "config": "cat_protect",
+      "delta_reg": 0.086,
+      "delta_cat": 0.729
+    }
+  ]
+}

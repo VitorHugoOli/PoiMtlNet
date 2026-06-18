@@ -1,0 +1,30 @@
+{
+  "comparand": "base = champion G (v16, KD-off; reused R2 base)",
+  "by_state": {
+    "alabama": {
+      "base_reg": 62.381,
+      "base_cat": 52.378,
+      "grm_reg": 62.522,
+      "grm_cat": 52.556,
+      "delta_reg": 0.141,
+      "delta_cat": 0.178,
+      "gate_either_>=0.3": false
+    },
+    "florida": {
+      "base_reg": 72.929,
+      "base_cat": 73.012,
+      "grm_reg": 72.903,
+      "grm_cat": 73.336,
+      "delta_reg": -0.026,
+      "delta_cat": 0.324,
+      "gate_either_>=0.3": true
+    }
+  },
+  "promote": [
+    {
+      "state": "florida",
+      "delta_reg": -0.026,
+      "delta_cat": 0.324
+    }
+  ]
+}

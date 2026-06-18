@@ -88,7 +88,45 @@ class MTLnetCrossAttnDualTower(MTLnetCrossAttn):
         # STAN backbone runs on the un-mixed [B,9,64] pathway. ``next_input`` is
         # the post-pad-mask raw region-embedding sequence (same tensor STL feeds
         # its STAN). NOT the falsified thin residual-skip — a full private tower.
-        out_next = self.next_poi(shared_next, raw_region_seq=next_input)
+        #
+        # Conditional coupling (mtl_frontier): when the reg head opts in
+        # (cond_coupling != none), pass the cat head's posterior as an input
+        # feature so the region prediction is conditioned on the predicted
+        # category (iMTL/GETNext). Champion G (cond_coupling="none") is
+        # bit-identical — the softmax + kwarg are skipped entirely.
+        _cc = getattr(self.next_poi, "cond_coupling", "none")
+        if _cc != "none":
+            if _cc == "features" and hasattr(self.category_poi, "forward_features"):
+                # richer cat-condition: the cat head's penultimate [B, hidden]
+                cat_cond = self.category_poi.forward_features(shared_cat)
+            else:
+                # R-CC+ signal transform (the head declares which; defaults to the
+                # original posterior so champion-cc is bit-identical).
+                _sig = getattr(self.next_poi, "cond_signal", "softmax")
+                if _sig == "argmax":
+                    # discrete one-hot of the predicted category (GETNext form);
+                    # the selection is non-differentiable but the cat→reg gradient
+                    # still flows through the learned embedding (cond_proj weight).
+                    cat_cond = torch.zeros_like(out_cat).scatter_(
+                        -1, out_cat.argmax(dim=-1, keepdim=True), 1.0
+                    )
+                else:
+                    _temp = float(getattr(self.next_poi, "cond_temp", 1.0))
+                    cat_cond = torch.softmax(out_cat / _temp, dim=-1)
+                    if _sig == "topk":
+                        _k = int(getattr(self.next_poi, "cond_topk", 0))
+                        if 0 < _k < cat_cond.size(-1):
+                            _, idx = cat_cond.topk(_k, dim=-1)
+                            keep = torch.zeros_like(cat_cond).scatter_(-1, idx, 1.0)
+                            cat_cond = cat_cond * keep
+                            cat_cond = cat_cond / cat_cond.sum(
+                                dim=-1, keepdim=True
+                            ).clamp_min(1e-9)
+            out_next = self.next_poi(
+                shared_next, raw_region_seq=next_input, cat_cond=cat_cond
+            )
+        else:
+            out_next = self.next_poi(shared_next, raw_region_seq=next_input)
         return out_cat, out_next
 
     def next_forward(self, next_input: torch.Tensor) -> torch.Tensor:

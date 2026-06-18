@@ -1,0 +1,22 @@
+{
+  "comparand": "joint champion G, FL seed0 (R9 base_florida)",
+  "champion_G": {
+    "cat": 73.012,
+    "reg": 72.929
+  },
+  "cat_specialist": {
+    "cat": 72.235,
+    "reg_untrained": 0.379
+  },
+  "reg_specialist": {
+    "reg": 72.952,
+    "cat_untrained": 9.396
+  },
+  "ensemble_best_case_merge": {
+    "cat": 72.235,
+    "reg": 72.952,
+    "delta_cat_vs_G": -0.777,
+    "delta_reg_vs_G": 0.023
+  },
+  "verdict": "merge<=ensemble; ensemble net-worse than joint G"
+}

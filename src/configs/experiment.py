@@ -210,6 +210,37 @@ class ExperimentConfig:
     # ``docs/studies/substrate-protocol-cleanup/INDEX.md`` §A1.
     log_t_kd_weight: float = 0.0
     log_t_kd_tau: float = 1.0
+    # R5 (mtl_frontier) — per-instance log_T-KD gating. Redistribute the (mean-fixed)
+    # KD weight across check-ins by Markov-coverage of the sample's last-region log_T
+    # row: peaked row (Markov-1 binds) → upweight KD; flat row → downweight. Mean-1
+    # normalized per batch so the TOTAL KD budget matches global-W (tests redistribution,
+    # not strength). "none" (default) = global W (bit-identical). See FINDINGS §R5.
+    log_t_kd_gate: str = "none"  # none | coverage_max | coverage_entropy
+
+    # R1 (mtl_frontier) — log_C co-location KD prior (ESMM probability-chain).
+    # A SECOND distillation term on the reg loss whose teacher is the
+    # cat-marginalized region prior:
+    #     prior(reg) = Σ_c P(reg|c) · P̂(c)        (P̂ = softmax(cat_logits).detach())
+    #     L_reg += log_c_kd_weight · τ² · KL(student || softmax(log(prior)/τ))
+    # P(reg|c) is the per-fold/per-seed train-only matrix from
+    # ``scripts/compute_region_colocation.py`` (buffer ``log_C`` on the reg head).
+    # Stacks ON TOP of log_t_kd (the comparand is G WITH log_T-KD). Default 0.0 =
+    # strict no-op. See docs/studies/mtl_frontier/ (R1).
+    log_c_kd_weight: float = 0.0
+    log_c_kd_tau: float = 1.0
+
+    # R3 (mtl_frontier) — CrossDistil refinements over the R1 co-location KD.
+    #   log_c_kd_warmup_epochs: apply BOTH co-location KD arms only from this epoch
+    #     on (teacher is noisy early; CrossDistil warm-up gating). 0 = always on.
+    #   log_c_kd_ec_lambda: CrossDistil ERROR-CORRECTION — blend the soft teacher
+    #     with the ground-truth one-hot: teacher* = (1-λ)·teacher + λ·onehot(y).
+    #     0 = pure soft teacher (R1). Corrects the synchronous teacher's errors.
+    #   cat_kd_weight / cat_kd_tau: the REVERSE arm — distill the reg-implied
+    #     category prior Σ_r P(cat|r)·P̂_reg(r) into the CAT head (KD on task_a_loss).
+    log_c_kd_warmup_epochs: int = 0
+    log_c_kd_ec_lambda: float = 0.0
+    cat_kd_weight: float = 0.0
+    cat_kd_tau: float = 1.0
 
     # T4.0a (mtl_improvement) loss-scale normalization. When True, each task's
     # raw CE is divided by ``log(num_classes_of_that_task)`` BEFORE the MTL
