@@ -60,6 +60,7 @@ from configs.globals import DEVICE
 from configs.model import InputsConfig
 from configs.paths import EmbeddingEngine, IoPaths, OUTPUT_DIR
 from data.aux_side_channel import AuxPublishingLoader
+from data.log_t_freshness import assert_log_t_fresh
 from data.folds import (
     POIDataset,
     POIDatasetWithAux,
@@ -802,6 +803,10 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
                         f"python scripts/compute_region_transition.py "
                         f"--state {state} --per-fold --seed {seed}"
                     )
+                # Stale-log_T freshness preflight (CLAUDE.md hard rule; shared
+                # portable util). The seeded file leaks +8..+12 pp into reg Acc@10
+                # if it predates the next_region.parquet it was built from.
+                assert_log_t_fresh(pf_path, state=state, seed=seed)
                 fold_overrides["transition_path"] = str(pf_path)
                 logger.info("[C4 STL] fold %d using per-fold log_T %s", fold_idx, pf_path)
             t0 = time.time()

@@ -10,17 +10,27 @@
 
 ## 0 · Do FIRST (blockers + hygiene — before any board cell)
 
-1. **GE (Georgia) v14 — verify-or-build (M0 BLOCKER).** `ls output/check2hgi/georgia/` — **absent on the user's
-   local box** (only `data/checkins/Georgia.parquet` exists). On the A40: if a GE v14 exists, **hash-compare** it
-   to the canonical anchor; if absent or non-identical, **build it on the SAME fixed machine+seed as the CA/TX
-   builds** (Lane 3) — substrate + TIGER tracts + region cardinality (record it next to CA ~8.5k / TX ~6.5k) +
-   `poi_to_region` + frozen folds + seeded log_T. **STOP CONDITION: no n=20 board cell launches until all 6
-   states have a hash-manifested v14 from the same anchor.**
-2. **Rebuild the stale AL `design_k` log_T** (it is older than `next_region.parquet` right now):
-   `python scripts/compute_region_transition.py --state alabama --per-fold --seed {0,1,7,100}`.
-3. **Centralize the freshness preflight.** Wire the mtime assert (`log_T mtime > next_region.parquet mtime`) into
-   every `--per-fold-transition-dir` consumer (`a4_eval.py`, `p1_region_head_ablation.py` lack it). Turn-key check
-   before EVERY such run (A40 is Linux → `stat -c`):
+> **A40 STATUS (2026-06-18, session `study/pre-freeze-a40`):** all three §0 items are **RESOLVED on the A40**
+> — the blockers as written reflect the user's *local box*, not this machine. GPU is currently **shared** (~40/46 GB
+> held by another user `lucas.lana`, `python3 main.py`); GPU-heavy lanes (1/2-full/3) are queued behind it.
+
+1. ~~**GE (Georgia) v14 — verify-or-build (M0 BLOCKER).**~~ **✅ PRESENT + COMPLETE on the A40**
+   (`output/check2hgi_design_k_resln_mae_l0_1/georgia/`, built 2026-06-03): embeddings/poi/region parquets +
+   seeded log_T {0,1,7,100,42}×5 + input/. **Region cardinality = 2283** (AL 1109 · AZ 1547 · FL 4703 · GE 2283;
+   CA/TX TBD at build). Hashed into the manifest (item 3). Still TODO: when CA/TX/GE are (re)built on the fixed
+   anchor machine+seed, re-hash so all 6 share ONE anchor. **STOP CONDITION (unchanged): no n=20 board cell
+   launches until all 6 states have a hash-manifested v14 from the same anchor** — CA/TX are the only genuine
+   gap (Lane 3, GPU).
+2. ~~**Rebuild the stale AL `design_k` log_T.**~~ **✅ NOT STALE on the A40.** AL `design_k` log_T for all
+   reporting seeds {0,1,7,100} mtime `2026-06-02 23:11` **>** `next_region.parquet` `22:59` → fresh by the
+   mandated rule (verified via the new shared util across all 4 v14 states; all pass). No rebuild needed here.
+3. **✅ Freshness preflight CENTRALIZED.** New portable util `src/data/log_t_freshness.py`
+   (`assert_log_t_fresh` / `assert_per_fold_dir_fresh`; Python `st_mtime` → correct on Linux **and** macOS) wired
+   into `a4_eval.py` + `p1_region_head_ablation.py` (both lacked it); `c1_run_g.sh`'s BSD-only `stat -f %m` made
+   portable (it silently no-op'd on the Linux A40). `mtl_cv.py` already had the C22 inline guard (board path
+   safe). **v14 hash manifest emitted:** `scripts/closing_data/emit_v14_hash_manifest.py` →
+   `docs/studies/closing_data/V14_HASH_MANIFEST.json` (AL/AZ/FL/GE; re-run with `--states california texas` after
+   the builds). Turn-key check still valid before any such run (A40 is Linux → `stat -c`):
    ```bash
    stat -c '%Y %n' output/check2hgi_design_k_resln_mae_l0_1/{state}/region_transition_log_seed{S}_fold*.pt
    stat -c '%Y %n' output/check2hgi_design_k_resln_mae_l0_1/{state}/input/next_region.parquet
@@ -51,13 +61,22 @@ vs the AL prior — the frozen-base value is **10** (`core.py:17`, user-side; re
 rebuild, NOT here (don't confound two base changes).
 
 **Leak re-audit checklist — the stride-9 CLEAN verdict does NOT cover stride-1. Confirm all FOUR fold paths
-individually (STOP: do not freeze windowing until all four pass), anchored to Luca et al. (ML 2023):**
-- [ ] (a) MTL `StratifiedGroupKFold(userid)` — user-disjoint holds under stride-1.
-- [ ] (b) STL-NEXT `StratifiedGroupKFold(userid)` — user-disjoint holds under stride-1.
-- [ ] (c) **STL-CATEGORY plain `StratifiedKFold`** — the one NON-user-grouped carve-out (`FOLD_LEAKAGE_AUDIT`
-  line 108); under stride-1 per-(POI,window) rows can straddle the cat fold boundary — the **most likely to leak**.
-- [ ] (d) second-dataset **E2 chronological per-user** stride-1 split — boundary-straddling windows near the
-  80/10/10 cut (EXECUTION_PLAN §1a).
+individually (STOP: do not freeze windowing until all four pass), anchored to Luca et al. (ML 2023).**
+**STATIC-ANALYSIS pass done 2026-06-18 → [`pre_freeze_gates/STRIDE1_LEAK_REAUDIT.md`](pre_freeze_gates/STRIDE1_LEAK_REAUDIT.md):**
+- [x] (a) MTL `StratifiedGroupKFold(userid)` — **PASS by construction.** Grouping key `userid` is
+  stride-invariant; `generate_sequences` windows within one user → all a user's (denser) windows stay co-located.
+- [x] (b) STL-NEXT `StratifiedGroupKFold(userid)` — **PASS by construction** (same argument; `folds.py:629`).
+- [x] (c) **STL-CATEGORY plain `StratifiedKFold`** — **RE-SCOPED: not a stride-1 surface.** The carve-out
+  (`folds.py:633`) is the **flat POI-level** classifier (one row/POI, no window — `FOLD_LEAKAGE_AUDIT` line 108),
+  so stride is a no-op; and the board's category metric is windowed **`next_category` via `next_gru`**
+  (`RUN_MATRIX §2a`) → routes through the user-grouped path (a)/(b), **not** this carve-out. ⚠ Guard: a *windowed*
+  cat-STL, if ever added, MUST use `StratifiedGroupKFold(userid)`.
+- [ ] (d) second-dataset **E2 chronological per-user** stride-1 split — **OPEN (genuinely dangerous).** Per-user
+  chrono cut is NOT user-grouped (same user spans all splits) → a boundary-straddling window shares 8/9 check-ins
+  across the 80/10/10 cut (EXECUTION_PLAN §1a). Needs the empirical re-audit (Mac track); not a code property.
+
+> The structural question for the main-board paths (a)/(b)/(c) is **closed clean** for stride-1. The base change
+> still gates on the **empirical** FL-scale overlap reproduction (Lane-2-FULL, GPU) + the **(d)** chrono surface.
 
 ## 3 · Lane 3 — canonical-v14 builds + hash manifest (windowing-INDEPENDENT → start now)
 

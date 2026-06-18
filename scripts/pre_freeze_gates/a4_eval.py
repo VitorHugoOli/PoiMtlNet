@@ -30,6 +30,7 @@ sys.path.insert(0, str(_root / "scripts"))
 
 from configs.paths import EmbeddingEngine, IoPaths
 from data.folds import load_next_data
+from data.log_t_freshness import assert_log_t_fresh
 import p1_region_head_ablation as H
 from pre_freeze_gates.a2_collect import per_fold_metric
 
@@ -88,8 +89,10 @@ def main():
     def _eval_fold(region_emb, train_idx, val_idx, f):
         x_region = build_region_seq_from_emb(args.state, region_emb)
         logt = logt_dir / f"region_transition_log_seed{args.seed}_fold{f + 1}.pt"
-        if not logt.exists():
-            raise FileNotFoundError(f"missing seeded log_T {logt}")
+        # Stale-log_T freshness preflight (CLAUDE.md hard rule; shared portable util).
+        # logt_dir here is the check2hgi substrate dir, so the parquet it derives from
+        # is logt_dir/input/next_region.parquet (the util's default).
+        assert_log_t_fresh(logt, state=state_lc, seed=args.seed)
         m = H._train_single_task(
             "next_stan_flow", x_region, y_region, train_idx, val_idx,
             emb_dim=region_emb.shape[1], n_classes=n_regions,

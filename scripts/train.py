@@ -934,6 +934,19 @@ def _parse_args(argv=None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--aligned-pairing",
+        dest="aligned_pairing",
+        action="store_true",
+        default=False,
+        help=(
+            "G0.1 (closing_data P0 gate) — drive the Check2HGI MTL cat+reg TRAIN "
+            "loaders from ONE shared per-epoch permutation so cat-window k trains "
+            "paired with reg-window k (same window) instead of independent shuffles "
+            "(random cross-task pairing). MTL-check2hgi only; default off (champion "
+            "G untouched). Requires KD off + alpha frozen (the champion-G recipe)."
+        ),
+    )
+    parser.add_argument(
         "--log-t-kd-gate",
         dest="log_t_kd_gate",
         type=str,
@@ -1666,6 +1679,16 @@ def _apply_cli_overrides(
             "log(num_classes) before the MTL combiner"
         )
 
+    # G0.1 aligned-pairing — opt-in, MTL-only.
+    if getattr(args, "aligned_pairing", False):
+        if config.task_type != "mtl":
+            raise ValueError("--aligned-pairing requires --task mtl")
+        config = dataclasses.replace(config, aligned_pairing=True)
+        logger.info(
+            "aligned-pairing ON (G0.1) — cat+reg train loaders share one "
+            "per-epoch permutation (aligned cross-task pairing)"
+        )
+
     # substrate-protocol-cleanup Tier C1 — --save-task-best-snapshots.
     if getattr(args, "save_task_best_snapshots", False):
         if config.task_type != "mtl":
@@ -1748,6 +1771,7 @@ def _resolve_folds(
             task_set=task_set,
             task_a_input_type=getattr(args, "task_a_input_type", "checkin"),
             task_b_input_type=getattr(args, "task_b_input_type", "checkin"),
+            aligned_pairing=getattr(config, "aligned_pairing", False),
         )
         return creator.create_folds(config.state, engine)
 

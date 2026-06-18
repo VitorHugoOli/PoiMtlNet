@@ -1,0 +1,110 @@
+{
+  "engine": "check2hgi_design_k_resln_mae_l0_1",
+  "generated_utc": "2026-06-18T13:22:42+00:00",
+  "states": {
+    "alabama": {
+      "engine": "check2hgi_design_k_resln_mae_l0_1",
+      "files": {
+        "embeddings.parquet": {
+          "bytes": 39579129,
+          "sha256": "41ba7bdf208d4ee130c091c982a648bbd9b91a51de9540254fb39ee8179e0d68"
+        },
+        "input/next.parquet": {
+          "bytes": 37290546,
+          "sha256": "9805419a93b62814ddbe05934cda173704185908fbb3d22b3c477a4d6ba3f400"
+        },
+        "input/next_region.parquet": {
+          "bytes": 37324719,
+          "sha256": "0d8bf1a772d4366f99970243683e727f64c03125fb3a8170b759e969ccbb559d"
+        },
+        "poi_embeddings.parquet": {
+          "bytes": 4470002,
+          "sha256": "232fc8710dfebb78eb748ddbdbec0fb98e6f9bbd8341452a13cba3f9e2c2c0f1"
+        },
+        "region_embeddings.parquet": {
+          "bytes": 420092,
+          "sha256": "78439b4b5cc99e573da3c577548d3a34dd4c3b986a84b0a351d1f687f2052f6d"
+        }
+      },
+      "n_regions": 1109
+    },
+    "arizona": {
+      "engine": "check2hgi_design_k_resln_mae_l0_1",
+      "files": {
+        "embeddings.parquet": {
+          "bytes": 84493500,
+          "sha256": "760f3f3c7dd6851bcca454e770038f74e75dbe77bfdbd14bad24ac492f9a3a12"
+        },
+        "input/next.parquet": {
+          "bytes": 78645272,
+          "sha256": "f8ffa6b628784b7841cfc3999a09ec4c812d19deec962bb7654de3d0f9f36d16"
+        },
+        "input/next_region.parquet": {
+          "bytes": 78718492,
+          "sha256": "1d44ce81cda856c3bc99aa1adf55aee9079e3d24a60f53bf58bfbebe04f1e523"
+        },
+        "poi_embeddings.parquet": {
+          "bytes": 7940297,
+          "sha256": "a75361b3bffc555b0cd711fc9cd099ac5881274f149a07c41fe3f698389b0674"
+        },
+        "region_embeddings.parquet": {
+          "bytes": 573608,
+          "sha256": "592e57f5bb8d06160ad21a52a3dfe6c43555d2f8b4995ab63979e602d82234f2"
+        }
+      },
+      "n_regions": 1547
+    },
+    "florida": {
+      "engine": "check2hgi_design_k_resln_mae_l0_1",
+      "files": {
+        "embeddings.parquet": {
+          "bytes": 441947503,
+          "sha256": "17230b83cfd958cb2877e1ea611e43e30458759b8a2d4244041e6984b858f194"
+        },
+        "input/next.parquet": {
+          "bytes": 510562927,
+          "sha256": "94f39410982563bd49c1238bd997f35c6a6ca6fb34269333e56dddc85ea7e173"
+        },
+        "input/next_region.parquet": {
+          "bytes": 526654031,
+          "sha256": "966d2c54486f3fb4b219027269b7a2d9f9c9fdf6f5249a87bea7bb59a50b388c"
+        },
+        "poi_embeddings.parquet": {
+          "bytes": 29876273,
+          "sha256": "6f1cc1e3b497c47fc339c052e70c58c053456d6456cf8dda528ad65251f1efa9"
+        },
+        "region_embeddings.parquet": {
+          "bytes": 1754390,
+          "sha256": "a5143d71662337aa5e244e0387bc85f97426850a18b8d5be9c18e088ed9ba9ce"
+        }
+      },
+      "n_regions": 4703
+    },
+    "georgia": {
+      "engine": "check2hgi_design_k_resln_mae_l0_1",
+      "files": {
+        "embeddings.parquet": {
+          "bytes": 138739716,
+          "sha256": "178e9aeb4fc2af443afcf19092869465177291be9c4dc24d12518808720aff0f"
+        },
+        "input/next.parquet": {
+          "bytes": 137447962,
+          "sha256": "6b4830252c78d62886cc9fa70e7015e994d0fcc6fb9f402252b2d6e94c76d85d"
+        },
+        "input/next_region.parquet": {
+          "bytes": 137569227,
+          "sha256": "7e8d0c74127918de90b6ec478e96b030858e87e7fed8d3bd13350910055e9b55"
+        },
+        "poi_embeddings.parquet": {
+          "bytes": 11379462,
+          "sha256": "1bc39689fbecfa0c262e305e91b88749ebc1370f6cca3856ee3ab540e524f260"
+        },
+        "region_embeddings.parquet": {
+          "bytes": 848734,
+          "sha256": "ac6113af2371f193c6ca8d4daf1bf45b9855cb968e8940f90efd7e2f4f61adc6"
+        }
+      },
+      "n_regions": 2283
+    }
+  }
+}

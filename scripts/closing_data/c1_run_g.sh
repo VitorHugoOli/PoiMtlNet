@@ -28,12 +28,14 @@ LOGROOT=/tmp/c1_run; mkdir -p "$LOGROOT"
 say(){ echo "[c1_run $STATE s$SEED] $*"; }
 
 # --- stale-log_T preflight (CLAUDE.md hard rule) ---
+# Portable mtime: GNU coreutils (Linux/A40) uses `stat -c %Y`; BSD (macOS/M2) uses `stat -f %m`.
+mtime(){ stat -c %Y "$1" 2>/dev/null || stat -f %m "$1"; }
 [ -f "$NEXT_REGION" ] || { echo "ERR next_region missing: $NEXT_REGION (run c1_prep_substrate.sh)"; exit 1; }
-nr_m=$(stat -f %m "$NEXT_REGION")
+nr_m=$(mtime "$NEXT_REGION")
 for f in 1 2 3 4 5; do
     lt="$TDIR/region_transition_log_seed${SEED}_fold${f}.pt"
     [ -f "$lt" ] || { echo "ERR missing log_T $lt (run c1_prep_substrate.sh $STATE $SEED)"; exit 1; }
-    [ "$(stat -f %m "$lt")" -ge "$nr_m" ] || { echo "ERR STALE log_T $lt < next_region"; exit 1; }
+    [ "$(mtime "$lt")" -ge "$nr_m" ] || { echo "ERR STALE log_T $lt < next_region"; exit 1; }
 done
 say "log_T freshness OK (5 folds seed=$SEED)"
 

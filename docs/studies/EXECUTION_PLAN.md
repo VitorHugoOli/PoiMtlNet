@@ -197,8 +197,11 @@ deferrals (none weaken the core 4 beats):
 4. **G0.1 binding on the frozen base** ✓ — {0,1,7,100}, 0.3 pp gate pre-registered.
 
 **RESOLVED ✓ (user, 2026-06-18):**
-5. **Loss-scale normalization** → **RUN** as a pre-freeze FL advisory alongside G0.1 (CE/`log(num_classes)`
-   before `cw=0.75`; ≥0.3 pp either head → v17 candidate; null → exclude on the record).
+5. **Loss-scale normalization** → **RAN 2026-06-18 (A40, AL+FL seed0) → EXCLUDED (harmful at scale).** Not a
+   v17. AL cat +0.61 (small-state rebalance artifact) but **FL reg −37.81 pp** (degenerate head, reached
+   epoch 2-6) — normalization divides reg CE by `ln(n_reg)≈8.46` vs cat `ln7≈1.95`, starving the large reg head
+   on top of `cw=0.75`; worsens with region cardinality (worst at CA/TX). Recipe stays v16. Verdict:
+   [`pre_freeze_gates/LANE1_LOSSSCALE_VERDICT.md`](pre_freeze_gates/LANE1_LOSSSCALE_VERDICT.md).
 7. **B7 selection-on-reporting-fold** → **disclosure-only** (pair every diagnostic-best number with the
    deployable geom_simple number + state the shared-fold bias; no separate B7 run).
 

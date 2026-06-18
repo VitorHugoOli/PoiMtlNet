@@ -35,7 +35,7 @@ import pandas as pd
 import torch
 from sklearn.model_selection import StratifiedGroupKFold, StratifiedKFold
 from sklearn.utils.class_weight import compute_class_weight
-from torch.utils.data import DataLoader, Dataset, WeightedRandomSampler
+from torch.utils.data import DataLoader, Dataset, TensorDataset, WeightedRandomSampler
 
 from configs.globals import CATEGORIES_MAP, DEVICE
 from configs.model import InputsConfig
@@ -107,6 +107,13 @@ class TaskFoldData:
 class FoldResult:
     next: Optional[TaskFoldData] = None
     category: Optional[TaskFoldData] = None
+    # G0.1 aligned-pairing: when set, a single train loader that yields
+    # ``((x_reg, y_reg), (x_cat, y_cat))`` per batch under ONE shared
+    # permutation (cat-window k paired with reg-window k), and publishes the
+    # reg aux side-channel. mtl_cv drives the progress bar from this single
+    # loader instead of the two independent ``.next``/``.category`` train
+    # loaders. None = legacy independent-shuffle path.
+    joint_train_loader: Optional[object] = None
 
 
 # ============================================================
@@ -361,6 +368,76 @@ def _create_aux_dataloader(
     return AuxPublishingLoader(base)
 
 
+class AlignedJointLoader:
+    """G0.1 aligned-pairing: a SINGLE train loader over a joint dataset so the
+    cat and reg streams share ONE per-epoch permutation (cat-window k trains
+    paired with reg-window k — the same window — instead of the two loaders'
+    independent shuffles). Yields ``((x_reg, y_reg), (x_cat, y_cat))`` so the
+    MTL training loop's ``(data_task_b, data_task_a)`` unpacking is unchanged,
+    and publishes the reg aux (``last_region_idx``) to the side-channel each
+    batch (kept aligned; inert under champion G where KD is off + alpha frozen,
+    but correct should a log_T-aware head read it).
+    """
+
+    def __init__(self, dataloader: DataLoader, has_aux: bool):
+        self._loader = dataloader
+        self._has_aux = has_aux
+        self.batch_size = getattr(dataloader, "batch_size", None)
+        self.dataset = getattr(dataloader, "dataset", None)
+
+    def __iter__(self):
+        from data.aux_side_channel import _publish_aux, _clear_aux
+        for batch in self._loader:
+            if self._has_aux:
+                x_b, y_b, x_a, y_a, aux = batch
+                _publish_aux(aux)
+            else:
+                x_b, y_b, x_a, y_a = batch
+                _publish_aux(None)
+            yield (x_b, y_b), (x_a, y_a)
+        _clear_aux()
+
+    def __len__(self) -> int:
+        return len(self._loader)
+
+
+def _create_aligned_joint_loader(x_b, y_b, x_a, y_a, aux, batch_size: int, seed: int):
+    """Build the single shared-permutation train loader for G0.1 aligned-pairing.
+
+    ``x_b/y_b`` (reg) and ``x_a/y_a`` (cat) are row-aligned (both indexed by the
+    same ``train_idx`` off the same ``next.parquet`` rows), so one shuffle over a
+    joint ``TensorDataset`` pairs window k with window k across tasks. ``aux`` is
+    the per-sample reg ``last_region_idx`` (or None when the reg head needs none).
+    """
+    num_workers = _get_num_workers()
+    dataset_device = DEVICE if num_workers == 0 else None
+
+    def _mv(t):
+        if dataset_device is not None and isinstance(t, torch.Tensor) and t.device != dataset_device:
+            return t.to(dataset_device)
+        return t
+
+    tensors = [_mv(x_b), _mv(y_b), _mv(x_a), _mv(y_a)]
+    has_aux = aux is not None
+    if has_aux:
+        tensors.append(_mv(aux))
+
+    g = torch.Generator()
+    g.manual_seed(seed)
+    base = DataLoader(
+        TensorDataset(*tensors),
+        batch_size=batch_size,
+        shuffle=True,
+        generator=g,
+        num_workers=num_workers,
+        pin_memory=torch.cuda.is_available() and num_workers > 0,
+        persistent_workers=num_workers > 0,
+        prefetch_factor=2 if num_workers > 0 else None,
+        worker_init_fn=_worker_init_fn if num_workers > 0 else None,
+    )
+    return AlignedJointLoader(base, has_aux)
+
+
 # ============================================================
 # DATA LOADING
 # ============================================================
@@ -539,12 +616,18 @@ class FoldCreator:
             task_set: Optional[object] = None,
             task_a_input_type: str = "checkin",
             task_b_input_type: str = "checkin",
+            aligned_pairing: bool = False,
     ):
         self.task_type = task_type
         self.n_splits = n_splits
         self.batch_size = batch_size
         self.seed = seed
         self.use_weighted_sampling = use_weighted_sampling
+        # G0.1 aligned-pairing — only consumed by ``_create_check2hgi_mtl_folds``.
+        # When True the cat + reg train loaders share one per-epoch permutation
+        # (a single joint loader on FoldResult.joint_train_loader). Default
+        # False = strict no-op (independent shuffles, the legacy behaviour).
+        self.aligned_pairing = bool(aligned_pairing)
         # Optional ``TaskSet`` (``src/tasks/presets.py``) used to select
         # which label column loads into task_a slot on the MTL_CHECK2HGI
         # path. ``Optional[object]`` keeps this module free of a
@@ -1070,6 +1153,26 @@ class FoldCreator:
                     self.batch_size, False, False, self.seed,
                 )
 
+            # G0.1 aligned-pairing: one shared-permutation joint TRAIN loader so
+            # cat-window k trains paired with reg-window k (both indexed by the
+            # same train_idx → same window). Val stays the independent (already
+            # aligned) loaders. Seed is fold-offset so each fold reshuffles
+            # distinctly yet reproducibly. Weighted sampling is incompatible
+            # with the shared permutation (champion G uses none).
+            joint_train_loader = None
+            if self.aligned_pairing:
+                if self.use_weighted_sampling:
+                    raise ValueError(
+                        "aligned_pairing is incompatible with use_weighted_sampling "
+                        "(the shared permutation cannot also weight-sample)."
+                    )
+                joint_train_loader = _create_aligned_joint_loader(
+                    x_task_b[train_idx], y_region_tensor[train_idx],
+                    x_task_a[train_idx], y_cat_tensor[train_idx],
+                    aux_tensor[train_idx] if use_aux else None,
+                    self.batch_size, self.seed + fold_idx,
+                )
+
             fold_results[fold_idx] = FoldResult(
                 next=TaskFoldData(
                     train=FoldData(
@@ -1097,6 +1200,7 @@ class FoldCreator:
                         x_task_a[val_idx], y_cat_tensor[val_idx],
                     ),
                 ),
+                joint_train_loader=joint_train_loader,
             )
             gc.collect()
 

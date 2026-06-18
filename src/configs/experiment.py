@@ -250,6 +250,16 @@ class ExperimentConfig:
     # (champion G + all canon versions untouched). CLI: ``--loss-scale-norm``.
     loss_scale_norm: bool = False
 
+    # G0.1 aligned-pairing (closing_data P0 gate). When True, the Check2HGI MTL
+    # cat + reg TRAIN loaders are driven by ONE shared per-epoch permutation
+    # (a single joint loader), so cat-window k always trains paired with
+    # reg-window k (same user/window) instead of the default independent
+    # shuffles (random cross-task pairing). Val is already aligned. Default
+    # False = strict no-op (champion G untouched). CLI: ``--aligned-pairing``.
+    # MTL-check2hgi only; requires KD off + alpha frozen (champion G), which
+    # makes the reg aux side-channel inert under the joint loader.
+    aligned_pairing: bool = False
+
     # Per-task input modality (Check2HGI MTL only). These mirror the
     # ``--task-a-input-type`` / ``--task-b-input-type`` CLI flags and the
     # ``FoldCreator(task_a_input_type=..., task_b_input_type=...)`` parameters.

@@ -225,6 +225,7 @@ def train_model(model: torch.nn.Module,
                 loss_scale_norm: bool = False,
                 checkpoint_selector: str = "geom_simple",
                 joint_min_epoch: int = 0,
+                joint_train_loader=None,
                 ):
     """
     Train the model with multi-task learning.
@@ -272,13 +273,25 @@ def train_model(model: torch.nn.Module,
     if task_specific_parameters is None:
         task_specific_parameters = list(model.task_specific_parameters())
 
-    # Create progress bar that extends tqdm
-    progress = TrainingProgressBar(
-        num_epochs,
-        [dataloader_next.train.dataloader,
-         dataloader_category.train.dataloader],
-        joint_loader_strategy=joint_loader_strategy,
-    )
+    # Create progress bar that extends tqdm.
+    # G0.1 aligned-pairing: when a joint train loader is provided, drive the
+    # epoch from that SINGLE loader (it yields ((x_reg,y_reg),(x_cat,y_cat))
+    # under one shared permutation → cat-window k paired with reg-window k).
+    # zip_longest_cycle with a 1-element list passes batches straight through,
+    # so the loop's ``(data_task_b, data_task_a)`` unpacking is unchanged.
+    if joint_train_loader is not None:
+        progress = TrainingProgressBar(
+            num_epochs,
+            [joint_train_loader],
+            joint_loader_strategy=joint_loader_strategy,
+        )
+    else:
+        progress = TrainingProgressBar(
+            num_epochs,
+            [dataloader_next.train.dataloader,
+             dataloader_category.train.dataloader],
+            joint_loader_strategy=joint_loader_strategy,
+        )
 
     cb = CallbackList(callbacks)
 
@@ -1657,6 +1670,7 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             loss_scale_norm=bool(getattr(config, "loss_scale_norm", False)),
             checkpoint_selector=str(getattr(config, "checkpoint_selector", "geom_simple")),
             joint_min_epoch=int(getattr(config, "min_best_epoch", 0) or 0),
+            joint_train_loader=getattr(dataloader, "joint_train_loader", None),
         )
 
         # substrate-protocol-cleanup Tier C1 — write the three best
