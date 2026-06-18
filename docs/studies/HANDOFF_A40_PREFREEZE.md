@@ -1,5 +1,16 @@
 # HANDOFF — A40 pre-freeze lanes (G0.1 · overlapping-windows · canonical-v14 prep)
 
+> **⚠ REFINED ORDERING — read [`EXECUTION_PLAN.md`](EXECUTION_PLAN.md) first (2026-06-18).** Under the user's
+> full-scope ADOPT-overlap decision, the ordering is de-risked: (1) **validate overlap FIRST** (FL + a
+> small/mid state, multi-seed + leak re-audit) — treat ADOPT as *gated*, not assumed (the effect is validated
+> at AL/single-seed only, with an FL-saturation warning); (2) **G0.1 is split** — advisory (current base, fast)
+> vs **binding** (frozen base, {0,1,7,100}, gate pre-registered); only the binding run re-pins the recipe;
+> (3) the **CA/TX v14 builds (Lane 3) MUST use the same machine + fixed seed as the canonical-v14 hash anchor**
+> (else they are a second non-identical artifact); (4) **B1 CTLE / B2b skip-gram pretrain inputs are
+> windowing-dependent** (re-run at freeze) — only B2a POI2Vec is fully reusable; (5) the **second dataset must
+> mirror the adopted windowing** (a freeze sub-axis, §1a of the plan). The lane specs below stand; the plan
+> reorders + de-risks them.
+
 > Created 2026-06-17. Machine: **A40 (unmetered CUDA workhorse)**, now free after `mtl_frontier` R4–R9.
 > These are the three lanes that gate the `closing_data` P2 freeze (the reading lane — B1–B5 + RUN_MATRIX —
 > runs separately, no GPU). Run them in parallel where independent; honor the sequencing note in Lane 3.

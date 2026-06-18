@@ -1,0 +1,156 @@
+# Execution Plan — full-scope "complete the picture, then write" (overlapping-windows ADOPTED)
+
+> Created 2026-06-18. The user's strategic decision: **adopt overlapping windows** (a base change) and
+> **execute every open experiment — the overlapping-windows rebuild, Massive-STEPS Phase V, and the new
+> external baselines — BEFORE writing**, so the paper rests on the complete picture. This doc is the
+> critique-hardened master ordering. It supersedes the optimistic first-pass; it was adversarially
+> stress-tested and corrects two material holes (see §2).
+>
+> **Relationship to existing docs:** the gate ledger lives in [`PRE_FREEZE_PROGRAM.md`](PRE_FREEZE_PROGRAM.md);
+> the freeze prerequisites in [`closing_data/FREEZE_READINESS.md`](closing_data/FREEZE_READINESS.md); the P3
+> ops inventory in [`closing_data/M0_P3_PLAN.md`](closing_data/M0_P3_PLAN.md); the run ledger draft in
+> [`closing_data/RUN_MATRIX.md`](closing_data/RUN_MATRIX.md). This plan re-sequences them under the ADOPT
+> decision and flags where that decision changes them.
+
+## 0 · The discipline (why "do everything" does not mean "a moving target")
+
+"Complete the picture before writing" is the right call for a strong, defensible paper — **but only if the
+base is frozen ONCE and the full board runs on that frozen base.** The failure mode is letting a board
+result tempt a base change (p-hacking / moving target). The non-negotiable rule:
+
+> Resolve the base-**defining** forks (windowing, recipe via G0.1, baseline set) → **FREEZE one base** →
+> run everything on it (champion + STL ceilings + all baselines + Phase V) → **then** write final numbers.
+> No P3 training before the freeze. The "full picture" comes from a **complete board on a frozen base**,
+> not from iterating the base after seeing results.
+
+The v0 article draft ([`articles/netcore/PAPER_DRAFT_v0.md`](../../articles/netcore/PAPER_DRAFT_v0.md)) locks
+**story + structure** now; **all numbers are provisional** and regenerate at the board re-score (M4).
+
+## 1 · The two material corrections (from the adversarial stress-test) — read these first
+
+### 1a · The second-dataset windowing inconsistency is REAL and must be a freeze sub-axis
+Massive-STEPS set-(a) **and** the E2 chronological bridge are built on **non-overlapping** window=9
+(`second_dataset/STATE.md`, STATS_T1). If the main board adopts overlap, a clean external-validity claim
+**cannot pair stride-1 Gowalla against stride-9 Massive-STEPS** — the cat "rising-tide" effect is itself
+windowing-driven, so mismatched windowing confounds the transfer claim. The earlier "second_dataset DONE,
+off critical path, idle" classification is **wrong under ADOPT.** Two honest options (a freeze decision):
+- **(i) Mirror overlap on Massive-STEPS:** rebuild set-(a) sequences + the 25 per-fold priors/city + the E2
+  chrono split at stride-1, and **re-prove the E2 leak checks** — note this is a *per-user chronological*
+  split, a **more dangerous leak surface** than the user-grouped-CV the overlap memo proved safe (a stride-1
+  window near the 80/10/10 boundary can straddle train/val/test). Cost: 2 cities × 2 protocols rebuild + a
+  fresh E2 leak re-audit on the CUDA Phase-V box.
+- **(ii) Run the external-validity table at NON-overlap on BOTH arms** — keep a non-overlap Gowalla comparand
+  specifically for that table, and footnote it. Cheaper; the main-board overlap claim and the
+  external-validity claim then live on different (but each internally-matched) windowing.
+
+### 1b · "ADOPT" must be a GATED decision, not a pre-commitment
+Overlap is validated at **AL / single-seed / KD-off only**, and the memo itself warns the cat lift is
+**scale-dependent** (AL +9.8 pp but FL +1.3 pp at data saturation). Freezing a 6-state board on it before the
+evidence exists is a moving-target on the *central* narrative ("overlap strengthens the regime") and a
+p-hacking surface on G0.1's binding base. **Honoring the user's ADOPT steer the disciplined way = run the
+cheap validation FIRST:** reproduce the overlap effect at **FL + one small/mid state, multi-seed**, and
+**re-run the leak audit on the overlapping surface**, *then* sign the base change. This is not
+re-litigating the decision — it is de-risking it so the base you freeze is the validated one. **If the
+FL/small-state reproduction comes back weak, that is itself a finding to weigh before committing the full
+board.**
+
+## 2 · Parallel lanes that are SAFE to start NOW (windowing-independent)
+
+These are the only pre-freeze spends that survive the overlap rebuild:
+
+| Lane | Where | Work | Windowing note |
+|---|---|---|---|
+| **A — substrate builds** | H100 (metered) | CA + TX v14 builds (measure CA first; overflow TX → A40). **Same machine + fixed seed as the canonical-v14 regeneration** so the build IS the hash anchor (else it's a second non-identical artifact). | Embedding is per-check-in → independent ✓ |
+| **B — recipe + base validation** | A40 (free post-R4–R9) | **G0.1-advisory** (AL+FL seed0, current base, fast signal) + the **overlap FL/small-state multi-seed reproduction + leak re-audit** (§1b) | the validation runs are the gate that decides ADOPT |
+| **C — baseline CODE** | A40/Mac dev | implement + smoke-test B1 CTLE, B2a POI2Vec, B2b skip-gram, B3 HMT-GRN-style, B4 cascade, B5 Flashback | **code** independent; but see ⚠ below |
+| **D — reading lane** | no GPU | B1–B5 triage final sign-off + RUN_MATRIX reconciliation (drafts landed) | fully decoupled ✓ |
+| **E — audit fixes** | A40 (light) | emit the v14 **hash manifest**, regenerate ONE canonical v14/state (anchor), rebuild the **stale AL log_T**, wire the shared **freshness-assert utility** into every `--per-fold-transition-dir` consumer | the BLOCKER fix |
+
+> ⚠ **Correction (stress-test):** baseline *code* is windowing-independent, but **B1 CTLE and B2b skip-gram
+> pre-train on per-fold train-only sequences** → their pretrain INPUTS (and any cached pretrain artifacts) are
+> windowing-dependent and **re-run at the freeze**. Only **B2a POI2Vec** (per-POI embedding) is fully reusable.
+> And the C-lane smoke-tests run on the non-overlap base, so they do **not** validate stride-1 behavior
+> (causal mask + memory under ~7.5–8.4× more sequences) — budget that the "one re-run" may surface
+> OOM/convergence issues at stride-1.
+
+**Throwaway if started early (HOLD until freeze):** seeded per-fold log_T, sequence/fold rebuilds, and **any**
+model board run — all windowing- AND recipe-dependent.
+
+## 3 · G0.1 split (removes the p-hacking surface)
+
+- **G0.1-advisory:** current base, AL+FL seed0 — a fast, **non-binding** signal (can run now in Lane B).
+- **G0.1-binding:** on whatever base the freeze pins (overlap if adopted), full **{0,1,7,100}**, with the
+  **0.3 pp gate pre-registered**. Only the binding run can re-pin recipe v16 → v17. State this in advance so
+  there is no temptation to pick the favorable base/seed-subset.
+- ⚠ aligned-pairing may interact with stride-1's ~7.5× denser per-sample supervision → the current-base
+  result may **not** transfer; the binding run on the frozen base is what counts.
+
+## 4 · The freeze (P2) — FIVE axes (one commit)
+
+1. **Recipe** = v16 / champion G, unless **G0.1-binding** promotes → v17.
+2. **Substrate** = v14, materialized as **ONE hash-manifested canonical artifact per state** (fixed
+   machine+seed; CA/TX/GE builds anchored to it; C1/A2/A4 absolutes re-derived against it).
+3. **Windowing** = the ADOPT/KEEP decision + stride — **validated at FL/small-state first** (§1b).
+4. **Windowing of the second dataset** = the §1a sub-decision (mirror overlap, or non-overlap-both-arms). *New
+   axis the stress-test surfaced; currently invisible elsewhere.*
+5. **RUN_MATRIX** = the signed cell + baseline-inclusion inventory (pin the E2E set HARD — §6).
+
+Plus the protocol constant: 6 states × {0,1,7,100} × 5 folds (n=20), user-disjoint frozen folds, matched
+scorer, geom_simple selector. **NOT pinned:** the numbers (P3 output) and the prose (story locked, numbers
+provisional until M4). **Cannot commit** until all three gates close (G0.1-binding, overlap-validated, B1–B5
+inclusion) **and** the audit prereqs are met (hash manifest + AL log_T fresh + freshness preflight centralized).
+
+## 5 · Post-freeze board (P3) + external validity (Phase V)
+
+- **M0b:** rebuild seeded per-fold log_T + sequences + frozen folds on the **adopted windowing** (FL: consolidate
+  the multi-seed log_T from the A40 first).
+- **M1 → M2 → M3** (A40, the multi-day bulk): STL cat/reg ceilings → champion G at all 6 states (save per-task-best
+  snapshots for the C1 supportive panel) → suite cells (T3/§0.1 first) + **all chosen baselines mirroring the
+  adopted windowing**.
+- **M4:** single matched-metric board re-score → the paper's source of truth (provisional → final here). **CA/TX
+  are the expected-but-unmeasured PARETO cells — the C2 headline (Pareto at all 6 states) cannot be written
+  final until these land; if they surprise, the headline is honestly re-scoped.**
+- **Phase V (L4, CUDA):** champion G + STL ceilings + Markov-1 on NYC/Istanbul (within-user CV = Gowalla-parity),
+  on the frozen substrate **and the §1a windowing decision**.
+
+## 6 · Defer to camera-ready / a follow-up (to cap the open-ended cost)
+
+The full board + all baselines + Phase V is the largest-possible scope. Cap it: **pin the E2E baseline set HARD
+at P1b** and treat any post-freeze addition as a camera-ready item, **not** a freeze re-open. Recommended
+deferrals (none weaken the core 4 beats):
+- **E2/A5 chronological temporal bridge** — beat 4 (external validity) is carried by the within-user CV
+  Gowalla-parity comparison; the chrono bridge is a *strengthening* robustness check and is exactly the hardest
+  leak-re-audit-under-overlap. **Defer unless cheap.**
+- **B4-faithful (CSLSL/CatDM E2E) and B5 DeepMove** — B3 HMT-GRN-style + B5 Flashback-only + the existing
+  faithful set already establish the frontier-negative. Recommend the **cheap B4 substrate-column cascade**;
+  defer faithful-B4 + DeepMove.
+- **F2 scale-progression scatter** (visualizes the dissolved gap → likely DROP); **T2 / §0.8** story-dependent
+  (single-v14 board drops T2; §0.8 log_T-KD is NULL on G → do NOT run).
+- **EXCLUDE composite / dual-substrate routing from the board** — they forfeit the single-model thesis; if ever
+  shown, supportive-panel only, never a freeze-reopening run.
+
+## 7 · Compute realism (honest)
+
+- **Pre-freeze:** CA/TX v14 builds = the metered H100 burst (**measure CA first — TX is ~3× FL and a
+  check-in-level HGI build at that scale plausibly exceeds 6 h; route TX → A40 if so**). G0.1-advisory + overlap
+  validation + leak re-audit ≈ 1–2 A40-days. Baseline code + hash manifest + reading lane ≈ dev time.
+- **Post-freeze (the dominant spend, A40 unmetered):** the board = [champion G + 2 STL ceilings + composite +
+  up-to-7 net-new baselines + the existing faithful E2E set] × 6 states × 4 seeds × 5 folds. ⚠ **Under stride-1,
+  CA/TX carry ~7.5–8.4× more sequences than non-overlap** — the FL-anchored "hours-to-a-day" estimate is
+  optimistic; the full external-baseline suite at n=20 across 6 states under overlap is plausibly an
+  **order of magnitude more GPU-hours** and a genuine multi-day-to-week A40 run. **The overlap adoption is the
+  cost multiplier.** This is the strongest argument for pinning the baseline set tight (§6).
+- **Phase V:** modest (2 cities × 4 seeds × {champion + ceilings + Markov}, small-to-mid corpora).
+
+## 8 · Decisions for the user (before the freeze)
+
+1. **Overlap validation FIRST (§1b):** confirm I should run the FL/small-state multi-seed reproduction + leak
+   re-audit *before* committing the base change (the disciplined ADOPT), accepting we reconsider if it's weak at scale.
+2. **Second-dataset windowing (§1a):** mirror overlap on Massive-STEPS (cleaner claim, more cost) **vs**
+   non-overlap on both arms for the external-validity table (cheaper, footnoted).
+3. **Baseline set pinned hard (§6):** recommend INCLUDE B1 CTLE + B2a/B2b + B3 HMT-GRN-style + B5 Flashback-only +
+   the existing faithful set; the **cheap** B4 cascade; **defer** faithful-B4 + DeepMove + E2/A5 bridge + F2.
+4. **G0.1 advisory/binding split (§3):** confirm the binding G0.1 is on the frozen base, {0,1,7,100}, gate
+   pre-registered.
+
+None of these blocks the §2 NOW-lanes; they gate the freeze.
