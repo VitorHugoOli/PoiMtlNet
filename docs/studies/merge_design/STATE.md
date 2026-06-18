@@ -1,5 +1,11 @@
 # Current state — merge_design study (2026-05-06 14:10)
 
+> **STATUS: CLOSED** (flipped from ACTIVE-CLOSING). All structural RQs closed; Designs A-M / Levers 1-6
+> falsified or saturated; Lever 5 was rescued and FALSIFIED by `substrate-protocol-cleanup` Tier B4;
+> design_k graduated into the v14 substrate (`check2hgi_design_k_resln_mae_l0_1`). No surviving open
+> item. See [`../closing_data/PHASE1_VERDICT.md`](../closing_data/PHASE1_VERDICT.md) §1 (cross-study
+> table: "safe to mark CLOSED") + §2 (Lever 5 / Designs B/J CONFIRMED DEAD in MTL).
+
 This is the single big-picture document. Other files in this folder
 are **per-design audits** (`DESIGN_*.md`), the **HGI-gap diagnostic**
 (`AUDIT_HGI_GAP.md`), and **historical narrative** (`MERGE_DESIGN_NOTES.md`,

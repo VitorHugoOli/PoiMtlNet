@@ -1,79 +1,87 @@
-# HANDOFF — A40 pre-freeze lanes (G0.1 · overlapping-windows · canonical-v14 prep)
+# HANDOFF — A40 pre-freeze lanes (turn-key) · G0.1 · overlap-validation · canonical-v14
 
-> **⚠ REFINED ORDERING — read [`EXECUTION_PLAN.md`](EXECUTION_PLAN.md) first (2026-06-18).** Under the user's
-> full-scope ADOPT-overlap decision, the ordering is de-risked: (1) **validate overlap FIRST** (FL + a
-> small/mid state, multi-seed + leak re-audit) — treat ADOPT as *gated*, not assumed (the effect is validated
-> at AL/single-seed only, with an FL-saturation warning); (2) **G0.1 is split** — advisory (current base, fast)
-> vs **binding** (frozen base, {0,1,7,100}, gate pre-registered); only the binding run re-pins the recipe;
-> (3) the **CA/TX v14 builds (Lane 3) MUST use the same machine + fixed seed as the canonical-v14 hash anchor**
-> (else they are a second non-identical artifact); (4) **B1 CTLE / B2b skip-gram pretrain inputs are
-> windowing-dependent** (re-run at freeze) — only B2a POI2Vec is fully reusable; (5) the **second dataset must
-> mirror the adopted windowing** (a freeze sub-axis, §1a of the plan). The lane specs below stand; the plan
-> reorders + de-risks them.
+> Machine: **A40 (unmetered CUDA workhorse)**, free after `mtl_frontier` R4–R9. These lanes gate the
+> `closing_data` **P2 freeze** under the user's full-scope decision (ADOPT overlapping windows + complete all
+> open experiments before writing). **Master plan: [`EXECUTION_PLAN.md`](EXECUTION_PLAN.md)** (read §1–§4b + §8).
+> Branch `study/pre-freeze-a40`; do **not** commit to `main`. Honor `CLAUDE.md` (canonical recipe + stale-log_T
+> preflight) and C28 (PID-suffixed rundirs, per-run seed echo, no `ls -dt|head`). Each lane closes with a
+> verdict + a gate-ledger row in `PRE_FREEZE_PROGRAM.md`, and **STOP for the user** on any recipe-/base-changing
+> result. The 4 base-forks are RESOLVED (EXECUTION_PLAN §8); 3 new audit items are flagged there.
 
-> Created 2026-06-17. Machine: **A40 (unmetered CUDA workhorse)**, now free after `mtl_frontier` R4–R9.
-> These are the three lanes that gate the `closing_data` P2 freeze (the reading lane — B1–B5 + RUN_MATRIX —
-> runs separately, no GPU). Run them in parallel where independent; honor the sequencing note in Lane 3.
->
-> **Read first:** [`closing_data/FREEZE_READINESS.md`](closing_data/FREEZE_READINESS.md) (why these gate the
-> freeze + the cross-cutting audit constraints), [`closing_data/PLAN.md`](closing_data/PLAN.md) (gate specs),
-> [`closing_data/M0_P3_PLAN.md`](closing_data/M0_P3_PLAN.md) (substrate inventory). Honor `CLAUDE.md` (the
-> canonical recipe + stale-log_T preflight) and C28 (PID-suffixed rundirs, per-run seed echo, no `ls -dt|head`).
-> Branch `study/pre-freeze-a40`; do **not** commit to `main`. Each lane closes with a verdict + a gate-ledger
-> row in `PRE_FREEZE_PROGRAM.md` + `closing_data/PLAN.md`, and **STOP for the user** on any recipe-changing
-> or base-changing result.
+## 0 · Do FIRST (blockers + hygiene — before any board cell)
 
-## Lane 1 — G0.1 aligned-pairing (the lone mandatory recipe-changing gate) — DO FIRST
+1. **GE (Georgia) v14 — verify-or-build (M0 BLOCKER).** `ls output/check2hgi/georgia/` — **absent on the user's
+   local box** (only `data/checkins/Georgia.parquet` exists). On the A40: if a GE v14 exists, **hash-compare** it
+   to the canonical anchor; if absent or non-identical, **build it on the SAME fixed machine+seed as the CA/TX
+   builds** (Lane 3) — substrate + TIGER tracts + region cardinality (record it next to CA ~8.5k / TX ~6.5k) +
+   `poi_to_region` + frozen folds + seeded log_T. **STOP CONDITION: no n=20 board cell launches until all 6
+   states have a hash-manifested v14 from the same anchor.**
+2. **Rebuild the stale AL `design_k` log_T** (it is older than `next_region.parquet` right now):
+   `python scripts/compute_region_transition.py --state alabama --per-fold --seed {0,1,7,100}`.
+3. **Centralize the freshness preflight.** Wire the mtime assert (`log_T mtime > next_region.parquet mtime`) into
+   every `--per-fold-transition-dir` consumer (`a4_eval.py`, `p1_region_head_ablation.py` lack it). Turn-key check
+   before EVERY such run (A40 is Linux → `stat -c`):
+   ```bash
+   stat -c '%Y %n' output/check2hgi_design_k_resln_mae_l0_1/{state}/region_transition_log_seed{S}_fold*.pt
+   stat -c '%Y %n' output/check2hgi_design_k_resln_mae_l0_1/{state}/input/next_region.parquet
+   # if any log_T mtime < next_region.parquet mtime → rebuild that seed's log_T first
+   ```
 
-- **Question:** the MTL cross-attn trained on **randomly-paired** windows the whole improvement study; the
-  roll-probe proved the published numbers pairing-safe but is **circular** against "mixing is learnable under
-  aligned pairing." A positive changes the recipe → must precede the freeze.
-- **Spec (from `PLAN.md §G0.1` + `docs/results/mtl_improvement/X_SERIES_FINDINGS.md §X1`):** ONE shared
-  permutation for BOTH MTL train loaders — a single sampler / joint dataset (same seed on two
-  `DataLoader(shuffle=True)` is **NOT** enough; see `src/data/folds.py:1054-1080`). Champion **G** recipe
-  EXACTLY (the `NORTH_STAR.md` invocation), v14 substrate, geom_simple selector. Start **AL + FL seed 0** vs
-  the R0 matched-metric bar.
-- **Gate:** ≥0.3 pp either head → expand to {0,1,7,100} → **STOP for the user** (recipe → v17). Null → v16
-  freezes; the "wins without per-sample mixing" wording is fully earned. Either way write the G0.1 ledger row.
-- **Leak/precision:** per-fold per-seed train-only priors; **stale-log_T freshness preflight** before any
-  `--per-fold-transition-dir` run (and note AL's `design_k` log_T is currently stale — rebuild it, Lane 3).
+## 1 · Lane 1 — G0.1-advisory + the loss-scale advisory (run together at FL+AL, FIRST)
 
-## Lane 2 — Overlapping-windows ADOPT/KEEP (base-change decision)
+- **G0.1-advisory** (the lone recipe-changing gate): ONE shared permutation for BOTH MTL train loaders — a single
+  sampler / joint dataset (same seed on two `DataLoader(shuffle=True)` is **NOT** enough; `src/data/folds.py:1054-1080`).
+  Champion **G** recipe EXACTLY (the `NORTH_STAR.md` invocation), v14 substrate, geom_simple. **AL+FL seed 0** vs
+  the R0 matched-metric bar. This is **advisory** (current base) — the **binding** G0.1 reruns on the frozen base,
+  full {0,1,7,100}, 0.3 pp gate pre-registered (only the binding run re-pins v16→v17). ⚠ aligned-pairing may
+  interact with stride-1's denser supervision → the current-base result may not transfer.
+- **Loss-scale normalization advisory** (EXECUTION_PLAN §8 #5 — the one "left on the table" lever): divide each CE
+  by `log(num_classes)` before the static `cw=0.75` (cat `ln7≈1.95` vs reg `ln~9000≈9.1` ⇒ ~4.7× magnitude gap).
+  A few lines in the loss path, no new infra; run it as one extra FL pass alongside G0.1-advisory. **≥0.3 pp either
+  head → v17 candidate (STOP for user); null → record EXPLICITLY EXCLUDED in the freeze notes** (mirror the
+  composite/routing exclusion wording).
 
-- **Question:** adopt overlapping (strided) windows or keep the non-overlap canon? Effect validated at AL
-  only (`docs/future_works/overlapping_windows.md`). This is a **base change** — ADOPT forces a full base
-  rebuild + a clean leak re-audit + baseline re-match.
-- **Spec:** reproduce the AL overlapping-window effect at ≥1 more state (FL decides scale, as everywhere);
-  **re-run the window leak-audit on the overlapping surface** (overlapping windows change the leak surface —
-  user-disjoint folds must still hold, and no target may appear in another sample's context across the
-  train/val boundary); estimate the full-base rebuild cost (every base + every seeded log_T regenerates).
-- **Gate (base change — USER SIGN-OFF):** produce an ADOPT/KEEP **recommendation** with the leak re-audit
-  result + cost; the user makes the call (default KEEP non-overlap). If ADOPT, the regime baselines must match
-  the adopted stride and **Lane 3's log_T builds must wait for it**. Write the ledger row.
+## 2 · Lane 2 — overlap VALIDATION (gate the base change) + the 4-path leak re-audit
 
-## Lane 3 — Canonical-v14 prep + log_T hygiene (M0a) — substrate now, log_T after Lane 2
+ADOPT is the user's decision, but the disciplined way is to **validate at scale FIRST** (it's AL/single-seed/KD-off
+only today, with an FL-saturation warning: AL +9.8 but FL +1.3). Reproduce the overlap effect at **FL + one
+small/mid state, multi-seed**; estimate the full-base rebuild cost. **If weak at FL-scale, STOP for the user** —
+that is itself a finding.
 
-The audit's 🔴 blocker: the board needs **ONE** canonical v14 per state, built on a **fixed machine + fixed
-build seed**, with a **hash manifest** every consumer verifies against (the three studies' local rebuilds are
-non-identical → absolutes are not cross-comparable; see `FREEZE_READINESS.md §2`).
+**Leak re-audit checklist — the stride-9 CLEAN verdict does NOT cover stride-1. Confirm all FOUR fold paths
+individually (STOP: do not freeze windowing until all four pass), anchored to Luca et al. (ML 2023):**
+- [ ] (a) MTL `StratifiedGroupKFold(userid)` — user-disjoint holds under stride-1.
+- [ ] (b) STL-NEXT `StratifiedGroupKFold(userid)` — user-disjoint holds under stride-1.
+- [ ] (c) **STL-CATEGORY plain `StratifiedKFold`** — the one NON-user-grouped carve-out (`FOLD_LEAKAGE_AUDIT`
+  line 108); under stride-1 per-(POI,window) rows can straddle the cat fold boundary — the **most likely to leak**.
+- [ ] (d) second-dataset **E2 chronological per-user** stride-1 split — boundary-straddling windows near the
+  80/10/10 cut (EXECUTION_PLAN §1a).
 
-- **Substrate (windowing-INDEPENDENT — start NOW):** build the genuine missing v14 substrates — **CA + TX**
-  (`scripts/canonical_improvement/regen_emb_t3.py --state {S} --encoder resln` + the design_k/mae flags per
-  `CANONICAL_VERSIONS.md §v14`, then `postbuild_design_substrate.sh check2hgi_design_k_resln_mae_l0_1 {st}`);
-  **verify/sync GE** (champion G was validated at GE in `mtl_improvement` → its v14 likely already exists —
-  sync, don't rebuild, if so). **Pin `--seed` explicitly** on every build and record it. Emit a **hash
-  manifest** (sha256 of each `output/check2hgi_design_k_resln_mae_l0_1/{state}/…` artifact) so P3 and the
-  three audited studies can be checked for identity. Per-state deps first: POI2Vec teacher + Delaunay POI-POI
-  graph + region artifacts at CA/TX/GE. **Measure the first build's wall-time before promising the rest.**
-- **log_T (windowing-DEPENDENT — WAIT for Lane 2):** rebuild the currently-**stale AL** `design_k` log_T now
-  (it's needed for any AL re-run regardless), but **defer the full seeded {0,1,7,100} log_T build** at every
-  state until the overlapping-windows decision lands — if overlap is adopted, every log_T regenerates.
-- **Shared utility (small code task — flag if not done elsewhere):** a freshness-assert helper
-  (`log_T mtime > next_region.parquet mtime`) wired into every `--per-fold-transition-dir` consumer
-  (`a4_eval.py` and `p1_region_head_ablation.py` currently lack it).
+## 3 · Lane 3 — canonical-v14 builds + hash manifest (windowing-INDEPENDENT → start now)
 
-## What is NOT in scope here
-P3 (the full base regeneration — all states × 4 seeds × 5 folds) is **post-freeze** and not started until P2
-commits. The H100's metered 6 h is reserved for the CA/TX builds **only if** the A40 can't absorb them
-overnight (measure first; the A40 is unmetered, so prefer it). The reading lane (B1–B5 + RUN_MATRIX) is being
-driven separately and does not need the A40.
+- **Build CA + TX v14** (and GE per §0): `scripts/canonical_improvement/regen_emb_t3.py --state {S} --encoder resln`
+  + the design_k/mae flags per `CANONICAL_VERSIONS.md §v14`, then
+  `scripts/substrate_protocol_cleanup/postbuild_design_substrate.sh check2hgi_design_k_resln_mae_l0_1 {state}`.
+  **Pin `--seed` explicitly on every build and use the SAME machine+seed for CA/TX/GE** so the build IS the
+  canonical hash anchor (else a second non-identical artifact). Per-state deps first: POI2Vec teacher + Delaunay
+  POI-POI graph + region artifacts. **Measure the CA build's first epochs before promising the rest** — TX is ~3×
+  FL; if a build won't fit the metered H100 6 h, run it here on the A40 (unmetered).
+- **Emit the hash manifest:** sha256 of each `output/check2hgi_design_k_resln_mae_l0_1/{state}/…` artifact, so P3
+  + the C1/A2/A4 studies are checked for identity against ONE anchor.
+- ⚠ **Do NOT build seeded log_T / sequences / folds yet** beyond the AL fix in §0 — those are windowing-DEPENDENT
+  and rebuild after the overlap decision (Lane 2). Building them now = guaranteed throwaway.
+
+## 4 · STOP conditions (hand back to the user)
+
+- G0.1-advisory or the loss-scale advisory fires ≥0.3 pp either head → potential v17.
+- Overlap reproduction is weak at FL-scale, or any of the 4 leak-paths fails under stride-1.
+- A GE build can't be made identical to the anchor, or any state's v14 hash doesn't match.
+- Before **M2/M4**: confirm `scripts/evaluate.py` either has the dual-tower partial-forward override
+  (CROSSATTN_PARTIAL_FORWARD_CRASH) or is NOT on the board's eval path (board uses `route_task_best.py` /
+  `mtl_cv` internal eval). The C1 reg-metric caveat (plain `top10_acc`/partial forward ≠ board
+  `top10_acc_indist`/joint) travels with every C1 panel number.
+
+## 5 · NOT in scope here
+P3 (the full board: all states × 4 seeds × 5 folds) is **post-freeze** and not started until P2 commits. The
+reading lane (B1–B5 triage + RUN_MATRIX) is driven separately. Baseline *code* implementation is windowing-
+independent (it can proceed), but baseline *runs* + seeded log_T + sequences + folds wait for the freeze.

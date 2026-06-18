@@ -73,6 +73,13 @@ These are the only pre-freeze spends that survive the overlap rebuild:
 > (causal mask + memory under ~7.5–8.4× more sequences) — budget that the "one re-run" may surface
 > OOM/convergence issues at stride-1.
 
+> ⚠ **Candidate advisory lever to run alongside G0.1-advisory (§8 #5):** **loss-scale normalization** — divide
+> each task CE by `log(num_classes)` before the static `cw=0.75` (cat `ln 7 ≈ 1.95` vs reg `ln ~9000 ≈ 9.1` ⇒ a
+> ~4.7× built-in magnitude gap; `cw=0.75` may be partly undoing it). The one CHEAP, recipe-touching lever aimed
+> at the region-sacrifice weakness that is **neither tested nor excluded**, and mechanistically distinct from
+> every closed R-gate (a *magnitude* problem → survives the P4 gradient-conflict null). A few lines, no new
+> infra. ≥0.3 pp → a v17 candidate like the closed R-gates; null → exclude on the record.
+
 **Throwaway if started early (HOLD until freeze):** seeded per-fold log_T, sequence/fold rebuilds, and **any**
 model board run — all windowing- AND recipe-dependent.
 
@@ -85,20 +92,53 @@ model board run — all windowing- AND recipe-dependent.
 - ⚠ aligned-pairing may interact with stride-1's ~7.5× denser per-sample supervision → the current-base
   result may **not** transfer; the binding run on the frozen base is what counts.
 
-## 4 · The freeze (P2) — FIVE axes (one commit)
+## 4 · The freeze (P2) — SIX axes (one commit)
 
-1. **Recipe** = v16 / champion G, unless **G0.1-binding** promotes → v17.
+1. **Recipe** = v16 / champion G, unless **G0.1-binding** promotes → v17. (Confirm `--category-weight 0.75` is
+   LIVE under static_weight+onecycle — NOT the historical alternating-step no-op.)
 2. **Substrate** = v14, materialized as **ONE hash-manifested canonical artifact per state** (fixed
-   machine+seed; CA/TX/GE builds anchored to it; C1/A2/A4 absolutes re-derived against it).
-3. **Windowing** = the ADOPT/KEEP decision + stride — **validated at FL/small-state first** (§1b).
-4. **Windowing of the second dataset** = the §1a sub-decision (mirror overlap, or non-overlap-both-arms). *New
-   axis the stress-test surfaced; currently invisible elsewhere.*
-5. **RUN_MATRIX** = the signed cell + baseline-inclusion inventory (pin the E2E set HARD — §6).
+   machine+seed; CA/TX/GE builds anchored to it; C1/A2/A4 absolutes re-derived against it). ⚠ **GE (Georgia) is
+   a first-class M0 BLOCKER, not a presumed sync** — its v14 substrate is ABSENT on the local box (only raw
+   `Georgia.parquet` exists); verify-or-build it (substrate + TIGER tracts + region cardinality + `poi_to_region`
+   + folds + seeded log_T) on the SAME machine+seed as the hash anchor before the freeze.
+3. **Windowing** = the ADOPT/KEEP decision + stride — **validated at FL/small-state first** (§1b) — **and
+   `MIN_SEQUENCE_LENGTH`** (pinned at **5** = status quo unless 5→2 is decided; it changes the user population,
+   fold composition, paired-test n, T1 stats, and cold-user counts — *independent of stride*).
+4. **Second-dataset windowing + region granularity** = mirror overlap on Massive-STEPS (§1a, user-chosen) + the
+   region label: **Istanbul mahalle (520) PRIMARY + H3-9 (2,585) as a sensitivity row; NYC TIGER tracts (1,912)**;
+   gap-to-ceiling / lift-over-floor framing mandatory.
+5. **Label-space** (now explicit, frozen by VALUE): the 7-root FSQ/Gowalla **category map**; region =
+   census/TIGER **tract** on Gowalla + NYC, **mahalle**-primary on Istanbul; **per-state region cardinalities**
+   (AL ~1.1k … CA ~8.5k; NYC 1,912; IST 520) — every B1–B5 reg run-spec threads these.
+6. **RUN_MATRIX** = the signed cell + baseline-inclusion inventory (pin the E2E set HARD — §6).
 
 Plus the protocol constant: 6 states × {0,1,7,100} × 5 folds (n=20), user-disjoint frozen folds, matched
 scorer, geom_simple selector. **NOT pinned:** the numbers (P3 output) and the prose (story locked, numbers
 provisional until M4). **Cannot commit** until all three gates close (G0.1-binding, overlap-validated, B1–B5
-inclusion) **and** the audit prereqs are met (hash manifest + AL log_T fresh + freshness preflight centralized).
+inclusion), the audit prereqs are met (hash manifest + AL log_T fresh + freshness preflight centralized), **GE
+is verified-or-built**, and the §4b decisions are pinned.
+
+### 4b · Freeze-record decisions to PIN (completeness audit, 2026-06-18)
+
+The 4-doc-tree sweep found **zero uncaptured base-changer** — these are "pin-so-it-is-not-silently-inconsistent"
+items (all cheap; recommended default in **bold**):
+- **T4 Δm metric:** the Δm joint-score table uses reg-**MRR** as primary while the board headline is reg-**Acc@10**
+  → pin **Acc@10-primary** (headline-consistent), or compute both + footnote metric-robustness.
+- **Cross-state reporting convention:** main-board reg Acc@10 is NOT comparable across states (tracts 1.1k–8.5k) →
+  pin the **gap-to-ceiling / lift-over-floor** convention for the main board (consistent with the second dataset),
+  or accept absolute-Acc@10 cross-state with a stated caveat.
+- **Selection-on-reporting-fold (B7):** no held-out test; selection + reporting share the val fold; §0.1 is
+  diagnostic-best → pin **disclosure-only (pair every diagnostic-best number with the deployable geom_simple
+  number + state the shared-fold bias)**; one nested-selection/per-state-holdout B7 pass is OPTIONAL.
+- **Task-scope pivot (SIGNED):** record the foundational decision — **drop next-POI ranking; report next_category
+  (7-class macro-F1) + next_region (Acc@10)** — in the freeze record / PAPER §Methods, with the **affirmative
+  task-pairing defense** (the "next-POI MTL with the main task amputated" attack; deployment/sparsity/privacy
+  rationale, positioning §2.2; `task_pivot_memo.md` drafts the sentence).
+- **Leak re-audit enumerates THREE stride-1 fold paths** (the stride-9 CLEAN verdict does NOT cover them): (a) MTL
+  `StratifiedGroupKFold(userid)`, (b) STL-NEXT user-disjointness, (c) **the category-STL plain `StratifiedKFold`
+  carve-out** — the one NON-user-grouped fold path (`FOLD_LEAKAGE_AUDIT` line 108), where stride-1 per-(POI,window)
+  rows could straddle the cat fold boundary — plus the second-dataset E2 chronological split. Anchor to Luca et al.
+  (ML 2023).
 
 ## 5 · Post-freeze board (P3) + external validity (Phase V)
 
@@ -142,15 +182,23 @@ deferrals (none weaken the core 4 beats):
   cost multiplier.** This is the strongest argument for pinning the baseline set tight (§6).
 - **Phase V:** modest (2 cities × 4 seeds × {champion + ceilings + Markov}, small-to-mid corpora).
 
-## 8 · Decisions for the user (before the freeze)
+## 8 · Decisions — the 4 base-forks RESOLVED (user, 2026-06-18) + new audit items
 
-1. **Overlap validation FIRST (§1b):** confirm I should run the FL/small-state multi-seed reproduction + leak
-   re-audit *before* committing the base change (the disciplined ADOPT), accepting we reconsider if it's weak at scale.
-2. **Second-dataset windowing (§1a):** mirror overlap on Massive-STEPS (cleaner claim, more cost) **vs**
-   non-overlap on both arms for the external-validity table (cheaper, footnoted).
-3. **Baseline set pinned hard (§6):** recommend INCLUDE B1 CTLE + B2a/B2b + B3 HMT-GRN-style + B5 Flashback-only +
-   the existing faithful set; the **cheap** B4 cascade; **defer** faithful-B4 + DeepMove + E2/A5 bridge + F2.
-4. **G0.1 advisory/binding split (§3):** confirm the binding G0.1 is on the frozen base, {0,1,7,100}, gate
-   pre-registered.
+**RESOLVED ✓ (all four):**
+1. **Validate overlap FIRST** ✓ — run the FL/small-state multi-seed reproduction + leak re-audit before committing
+   the base change.
+2. **Second-dataset windowing** ✓ — **mirror overlap on Massive-STEPS** (the complete-picture option).
+3. **Baseline set** ✓ — INCLUDE B1 CTLE + B2a/B2b + B3 HMT-GRN-style + B5 Flashback-only + the existing faithful
+   set + the **cheap** B4 SC cascade; **defer** faithful-B4 + DeepMove + E2/A5 + F2.
+4. **G0.1 binding on the frozen base** ✓ — {0,1,7,100}, 0.3 pp gate pre-registered.
 
-None of these blocks the §2 NOW-lanes; they gate the freeze.
+**NEW items the completeness audit surfaced (your call before the freeze):**
+5. **Loss-scale normalization** (the one genuine "left on the table" lever, §2): run as a G0.1-style advisory
+   pre-freeze, or exclude on the record? *Recommend run it* (cheap, aimed at the central weakness, untested).
+6. **MIN_SEQUENCE_LENGTH** (axis 3): pin at **5** (status quo) or change 5→2 (adds ~58% more AL users; reshapes
+   folds/T1/n)? *Recommend pin 5* unless you want the cold-user population in.
+7. **B7 selection confirmation** (§4b): disclosure-only, or add one nested-selection/per-state-holdout pass?
+   *Recommend disclosure-only.*
+
+None of these blocks the §2 NOW-lanes; they gate the freeze. **GE (Georgia) is a hard M0 BLOCKER** (axis 2) —
+not a decision, a build.

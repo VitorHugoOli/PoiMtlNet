@@ -69,8 +69,9 @@ decision and (b) the P2 freeze** — they fold into P3/M1+M3 and budget ONE re-r
 | Substrate linear probe × C2HGI/HGI | §0.6 v11 | SC | RE-RUN n=20 | `p1_poi_head_ablation.py` linear probe on frozen base | HGI at CA/TX/GE → build |
 | STL `next_gru` × v14 (cat ceiling) | = T3 fam (2) | SC | RE-RUN n=20 | shared with T3 STL cat ceiling | — |
 | **B1 CTLE** (AAAI 2021) | NET-NEW | SC | **INCLUDE (Tier-1)** | Adapt Logan-Lin/CTLE → Gowalla state corpora; emit **64-d** per-visit embedding routed as a substrate column under `next_gru`; matched head, 6 states × {0,1,7,100} × 5f. **CTLE PRE-TRAINS on TRAIN-PORTION-ONLY per fold** (its MLM objective) → no transductive full-corpus advantage. | Coordinate transductive-fairness statement with **pre_freeze_gates/A4**; record tuning budget in fairness ledger (baseline_gap §1.4); re-run pretrain if overlap ADOPTED (re-windowed inputs). |
-| **B2a POI2Vec** (AAAI 2017) | NET-NEW | SC | **INCLUDE (Tier-1)** | Emit **per-POI** (not per-fclass) **64-d** POI2Vec substrate parquet, register as substrate engine; matched `next_gru`, 6 states × {0,1,7,100} × 5f. | **NET-NEW caveat:** in-repo POI2Vec (`research/embeddings/hgi/poi2vec.py`) is an **fclass-level HGI input feature**, NOT a standalone POI-level column — must be emitted fresh. |
+| **B2a POI2Vec** (AAAI 2017) | NET-NEW | SC | **INCLUDE (Tier-1)** | Emit **per-POI** (not per-fclass) **64-d** POI2Vec substrate parquet, register as substrate engine; matched `next_gru`, 6 states × {0,1,7,100} × 5f. **Pretrain TRAIN-PORTION-ONLY per fold** (parity with B1 CTLE + B2b skip-gram; a full-corpus POI2Vec would carry the same transductive asymmetry CTLE is held to). | **NET-NEW caveat:** in-repo POI2Vec (`research/embeddings/hgi/poi2vec.py`) is an **fclass-level HGI input feature**, NOT a standalone POI-level column — must be emitted fresh. Record tuning budget in the fairness ledger (`baseline_gap/TRIAGE.md` + baseline_gap §1.4). |
 | **B2b skip-gram** (word2vec over check-in seqs) | NET-NEW | SC | **INCLUDE (Tier-1)** | Train skip-gram on check-in sequences **train-portion-only per fold** (parity with CTLE); emit 64-d; matched `next_gru`, 6 states × {0,1,7,100} × 5f. | Cheap (minutes/state). |
+| **B2c one-hot-POI 64-d** (zero-training floor) | NET-NEW | SC | **INCLUDE (Tier-1 floor) — recommend ADD** | Emit a fixed **64-d** one-hot/hashed-POI-id (deterministic random projection) substrate column — **NO training**; matched `next_gru`, 6 states × {0,1,7,100} × 5f. Completes CTLE's canonical substrate-floor triplet (**one-hot / skip-gram / POI2Vec**) — the trivial absolute-zero below every learned substrate. | No training cost; deterministic across folds (fixed seed). |
 | MTL × v14 (our model, cat) | = T3 fam (1) | SC | RE-RUN n=20 | shared with T3 MTL-G | — |
 
 ### 2b · next-REGION block (Acc@10)
@@ -84,8 +85,8 @@ decision and (b) the P2 freeze** — they fold into P3/M1+M3 and budget ONE re-r
 | STAN faithful (Luo 2021) | §0.5 v11 | E2E | RE-RUN n=20 | native trainer, swap POI head → region head (~1.1k–8.5k tracts), report Acc@10; mirror windowing/folds | repo has the STAN region-adaptation pattern (`next_stan/`); blocked on windowing |
 | ReHDM faithful (Li 2025) | §0.5 v11 (AL/AZ/FL only) | E2E | RE-RUN n=20; **CA/TX DEFERRED** | native trainer, mirror frozen protocol; CA/TX marked "—" (collaborator pool scales quadratically with region cardinality, exceeded H100 budget — honest-framing footnote, TABLES_FIGURES §7) | blocked on windowing; CA/TX deferral is a USER decision |
 | **B3 HMT-GRN-style MTL** (SIGIR 2022) | NET-NEW | **E2E** | **INCLUDE (sole external MTL row)** | Shared LSTM/GRN hidden state + per-task softmax heads for next-**category** + next-**region** (TIGER tracts), equal-weight CE; mirror windowing/folds/seeds/labels, per-fold train-only priors. **Documented deviations:** beam-search/selectivity DROPPED (regions are headline, no next-POI head); geohash→TIGER tract; native per-user 80/20 split → our fold regime. Label **"HMT-GRN-STYLE"**. 6 states × {0,1,7,100} × 5f. | blocked on windowing + P2 freeze; budget one re-run if overlap ADOPTED. |
-| **B4 cascade (CSLSL/CatDM pattern)** | NET-NEW | **EITHER (recommend SC)** | **CONDITIONAL — recommend SC cascade** | **Recommended SC variant:** cascade OVER the frozen substrate — predicted-category signal wired into the region head, reusing `next_gru` (cat) + `next_stan_flow`/`next_lstm` (reg). Inherits windowing/folds/labels; isolates "cascade vs parallel" as the only varying factor. 6 states × {0,1,7,100} × 5f. *Fallback (Tier-3):* faithful CSLSL/CatDM E2E reimpl → mirror windowing (blocked). No next-POI head; 7-root cat + TIGER tract. | SC variant: none new (reuses heads). E2E variant: blocked on windowing. **USER decision: SC vs faithful E2E.** |
-| **B5 Flashback / DeepMove** (IJCAI 2020 / WWW 2018) | NET-NEW | **E2E** | **CONDITIONAL — recommend Flashback-only** | Swap POI head → region head (~1.1k–8.5k tracts), report Acc@10 (mirrors repo's STAN region adaptation); keep Flashback's spatiotemporal hidden-state weighting / DeepMove's historical attention faithful. **Recommend Flashback ONLY** (sparse-trace fit for AL/AZ); DEFER DeepMove to Tier-3. mirror windowing/folds/seeds/labels. 6 states × {0,1,7,100} × 5f. | blocked on windowing + P2 freeze; one re-run if overlap ADOPTED. **USER decision: Flashback-only vs +DeepMove vs defer all.** |
+| **B4 cascade (CSLSL/CatDM pattern)** | NET-NEW | **SC (pinned)** | **INCLUDE — pin SC cascade** | **Pinned SC variant:** cascade OVER the frozen substrate — predicted-category signal wired into the region head, reusing `next_gru` (cat) + `next_stan_flow`/`next_lstm` (reg). Inherits windowing/folds/labels; isolates "cascade vs parallel" as the only varying factor. 6 states × {0,1,7,100} × 5f. **This is a controlled cascade-vs-parallel isolation reusing our heads, NOT a faithful CSLSL/CatDM reproduction** (pre-empts the faithfulness objection; see `baseline_gap/TRIAGE.md §B4 framing`). Faithful CSLSL/CatDM E2E (Tier-3) **DEFERRED to camera-ready**. No next-POI head; 7-root cat + TIGER tract. | SC variant: none new (reuses heads). Faithful E2E deferred (camera-ready). |
+| **B5 Flashback** (IJCAI 2020) | NET-NEW | **E2E** | **INCLUDE — pin Flashback-only** | Swap POI head → region head (~1.1k–8.5k tracts), report Acc@10 (mirrors repo's STAN region adaptation); keep Flashback's spatiotemporal hidden-state weighting faithful. **Pinned Flashback ONLY** — well-justified for the **sparse AL/AZ traces** (the next-region axis is already multi-state anchored by STAN + ReHDM, so this is the defensible single add). **DeepMove DEFERRED to camera-ready** (Tier-3). mirror windowing/folds/seeds/labels. 6 states × {0,1,7,100} × 5f. | blocked on windowing + P2 freeze; one re-run if overlap ADOPTED. |
 | MTL × v14 (our model, reg) | = T3 fam (1) | SC | RE-RUN n=20 | shared with T3 MTL-G | — |
 
 ## 3 · Counts
@@ -96,11 +97,14 @@ decision and (b) the P2 freeze** — they fold into P3/M1+M3 and budget ONE re-r
 - **Paper-facing REQUIRED cells:** T1 REUSE · T2 STORY-DEP · T3 RE-RUN★ · T4 RE-RUN · T5 RE-RUN · F1 STORY-DEP.
 - **External-baseline rows after the B1–B5 merge:** existing T5 rows (Majority, Markov-1-POI/region,
   POI-RGNN, MHA+PE, substrate probes, STL ceilings, STAN/ReHDM faithful, MTL rows) **+ NET-NEW: B1 CTLE,
-  B2a POI2Vec, B2b skip-gram (3 SC columns, Tier-1 INCLUDE); B3 HMT-GRN-style MTL (1 E2E row, INCLUDE);
-  B4 cascade (1 row, CONDITIONAL, recommend SC); B5 Flashback (1 E2E row, CONDITIONAL, recommend
-  Flashback-only)** = up to **7 net-new baseline rows/columns** (4 firm INCLUDE + B2b, 2 conditional).
-- **Comparability split:** SC (auto-inherit frozen base) = B1, B2a, B2b, substrate probes, STL ceilings,
-  recommended-B4. E2E (mirror windowing) = B3, B5, STAN/ReHDM/POI-RGNN/MHA+PE faithful, faithful-B4.
+  B2a POI2Vec, B2b skip-gram, B2c one-hot-POI 64-d (4 SC substrate-floor columns, Tier-1 INCLUDE);
+  B3 HMT-GRN-style MTL (1 E2E row, INCLUDE); B4 cascade (1 row, INCLUDE, pinned SC); B5 Flashback
+  (1 E2E row, INCLUDE, pinned Flashback-only)** = **7 net-new baseline rows/columns, all INCLUDE**
+  (faithful-B4 CSLSL/CatDM E2E + DeepMove DEFERRED to camera-ready). B1/B2a/B2b/B2c are the CTLE
+  canonical substrate-floor suite (one-hot/skip-gram/POI2Vec) measured against the contextual substrates.
+- **Comparability split:** SC (auto-inherit frozen base) = B1, B2a, B2b, B2c, substrate probes, STL
+  ceilings, pinned-SC-B4. E2E (mirror windowing) = B3, B5, STAN/ReHDM/POI-RGNN/MHA+PE faithful,
+  faithful-B4 (deferred).
 
 ## 4 · Blocked-on note (what gates this RUN_MATRIX before sign-off)
 
@@ -110,8 +114,9 @@ decision and (b) the P2 freeze** — they fold into P3/M1+M3 and budget ONE re-r
    re-run.** Gates M0b (seeded log_T) and all reg-touching RE-RUN cells. **Must resolve before P2.** OPEN.
 2. **G0.1 aligned-pairing** — the lone *recipe-changing* P0 gate; ≥0.3 pp either head → recipe→v17 (would
    re-pin the whole frozen constant). Freeze cannot commit while OPEN.
-3. **B1–B5 per-engine INCLUSION** — which net-new baselines the board carries (this matrix's §2). Inventory
-   decision, must pin at P1b. OPEN.
+3. **B1–B5 per-engine INCLUSION** — which net-new baselines the board carries (this matrix's §2).
+   Inventory decision, must pin at P1b. Triage now pins all 7 net-new rows as INCLUDE (B4 = SC cascade;
+   B5 = Flashback-only; faithful-B4 + DeepMove deferred to camera-ready); user confirmation at P2.
 4. **M0 artifact prerequisite** (does not block sign-off, blocks P3 execution): v14 substrate at CA/TX
    (H100 build) + GE (sync/verify) — FL/AL/AZ present; seeded per-fold log_T for {0,1,7,100} at every state
    (FL multi-seed to consolidate from A40; CA/TX/GE to build — built AFTER the windowing gate); HGI/DGI/
