@@ -197,6 +197,25 @@ def _get_num_workers() -> int:
     return 0
 
 
+def _dataset_device(num_workers: int):
+    """Device the dataset tensors are pre-moved to.
+
+    Default: ``DEVICE`` when ``num_workers==0`` (pre-move the whole dataset to GPU
+    so __getitem__ returns device slices — fastest for the small, GPU-fitting
+    datasets the study normally runs). ``None`` keeps tensors on CPU (the training
+    loop transfers each batch via ``.to(DEVICE)``), trading speed for GPU memory.
+
+    Escape hatch ``MTL_DATASET_CPU=1`` forces CPU-resident datasets — required when
+    the whole dataset does NOT fit alongside the model on the GPU (the large-state /
+    overlapping-window case: e.g. FL stride-1 ~1.38M sequences OOMs a 44 GB A40 if
+    pre-moved). Default unset preserves the canonical GPU-pre-move behaviour exactly.
+    """
+    import os as _os
+    if _os.environ.get("MTL_DATASET_CPU", "").strip() in ("1", "true", "True"):
+        return None
+    return DEVICE if num_workers == 0 else None
+
+
 def _worker_init_fn(worker_id: int) -> None:
     worker_seed = torch.initial_seed() % 2 ** 32 + worker_id
     np.random.seed(worker_seed)
@@ -303,7 +322,7 @@ def _create_dataloader(
     # Forked workers cannot share GPU/MPS memory with the parent process —
     # but with num_workers=0 (the MPS path), we can keep the dataset entirely
     # on-device and skip the per-batch host->device copy.
-    dataset_device = DEVICE if num_workers == 0 else None
+    dataset_device = _dataset_device(num_workers)
 
     sampler = None
     if use_weighted_sampling:
@@ -346,7 +365,7 @@ def _create_aux_dataloader(
     from data.aux_side_channel import AuxPublishingLoader
 
     num_workers = _get_num_workers()
-    dataset_device = DEVICE if num_workers == 0 else None
+    dataset_device = _dataset_device(num_workers)
 
     sampler = None
     if use_weighted_sampling:
@@ -410,7 +429,7 @@ def _create_aligned_joint_loader(x_b, y_b, x_a, y_a, aux, batch_size: int, seed:
     the per-sample reg ``last_region_idx`` (or None when the reg head needs none).
     """
     num_workers = _get_num_workers()
-    dataset_device = DEVICE if num_workers == 0 else None
+    dataset_device = _dataset_device(num_workers)
 
     def _mv(t):
         if dataset_device is not None and isinstance(t, torch.Tensor) and t.device != dataset_device:
