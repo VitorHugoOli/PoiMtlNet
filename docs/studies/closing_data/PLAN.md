@@ -112,7 +112,7 @@ Known suite members to inventory: **T2** substrate ablation (two-panel), **T3/§
 both tasks (already n=20 protocol — re-runs under the final recipe), **T4/§0.2** Δm joint score,
 **T5/§0.5–0.6** external baselines per state (DGI/HGI/HMRM/Time2Vec/… — decide per-engine whether
 the new paper keeps them and at what protocol), **§0.3** substrate axis, **§0.4** recipe selection.
-**Output**: `RUN_MATRIX.md` = the definitive run ledger P3 executes. User signs it off with the freeze.
+**Output**: `RUN_MATRIX.md` = the definitive run ledger P3 executes. User signs it off with the freeze. **[DRAFT landed 2026-06-17](RUN_MATRIX.md)** (P1b reading-lane: BRACIS-suite inventory + B1–B5 triage reconciled, cross-checked vs [`PHASE1_VERDICT.md §3`](PHASE1_VERDICT.md); blocked on overlapping-windows + G0.1 + B1–B5 inclusion before sign-off).
 
 ## Phase 2 — RECIPE + PROTOCOL FREEZE (hard barrier — one commit)
 
