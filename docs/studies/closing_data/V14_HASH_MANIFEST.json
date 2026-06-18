@@ -1,6 +1,7 @@
 {
   "engine": "check2hgi_design_k_resln_mae_l0_1",
   "generated_utc": "2026-06-18T13:22:42+00:00",
+  "last_run_utc": "2026-06-18T22:10:08+00:00",
   "states": {
     "alabama": {
       "engine": "check2hgi_design_k_resln_mae_l0_1",
@@ -26,6 +27,7 @@
           "sha256": "78439b4b5cc99e573da3c577548d3a34dd4c3b986a84b0a351d1f687f2052f6d"
         }
       },
+      "hashed_utc": "2026-06-18T22:10:08+00:00",
       "n_regions": 1109
     },
     "arizona": {

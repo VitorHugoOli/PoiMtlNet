@@ -11,7 +11,8 @@
 set -euo pipefail
 
 STATE="$1"; SEED="$2"; ARM="$3"; EXTRA="${4:-}"
-ENGINE=check2hgi_design_k_resln_mae_l0_1
+# Engine override via env (Lane 2 overlap uses check2hgi_dk_ovl); default = v14 design_k.
+ENGINE="${LANE1_ENGINE:-check2hgi_design_k_resln_mae_l0_1}"
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"; cd "$REPO"
 PY=.venv/bin/python; [ -x "$PY" ] || PY=python3
 

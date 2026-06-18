@@ -806,7 +806,7 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
                 # Stale-log_T freshness preflight (CLAUDE.md hard rule; shared
                 # portable util). The seeded file leaks +8..+12 pp into reg Acc@10
                 # if it predates the next_region.parquet it was built from.
-                assert_log_t_fresh(pf_path, state=state, seed=seed)
+                assert_log_t_fresh(pf_path, state=state, seed=seed, n_splits=max(2, folds))
                 fold_overrides["transition_path"] = str(pf_path)
                 logger.info("[C4 STL] fold %d using per-fold log_T %s", fold_idx, pf_path)
             t0 = time.time()

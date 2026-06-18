@@ -37,6 +37,7 @@ def assert_log_t_fresh(
     *,
     state: str | None = None,
     seed: int | None = None,
+    n_splits: int | None = None,
 ) -> None:
     """Assert ``log_t_path`` is at least as new as the substrate parquet it derives from.
 
@@ -46,13 +47,18 @@ def assert_log_t_fresh(
             ``<log_t dir>/input/next_region.parquet`` (matches the layout
             ``compute_region_transition.py`` and ``mtl_cv.py`` assume).
         state / seed: only used to make the rebuild hint actionable.
+        n_splits: if given, also assert the log_T payload's stored ``n_splits``
+            matches (a different fold count means a different StratifiedGroupKFold
+            split → val transitions leak into the prior, the same class of leak as
+            a stale mtime). Mirrors the inline guard in ``mtl_cv.py``. Omit to keep
+            the cheap mtime-only fast path (no torch load).
 
     Raises:
         FileNotFoundError: log_T missing.
-        StaleLogTError: log_T mtime < parquet mtime (would leak +8..+12 pp into reg Acc@10).
+        StaleLogTError: log_T mtime < parquet mtime, or n_splits mismatch.
 
-    No-op (returns) when the parquet is absent — there is nothing to be stale against
-    (mirrors the mtl_cv.py guard, which only fires when the parquet exists).
+    No-op (returns) for the mtime check when the parquet is absent — there is nothing
+    to be stale against (mirrors the mtl_cv.py guard, which only fires when present).
     """
     log_t_path = Path(log_t_path)
     if not log_t_path.exists():
@@ -66,17 +72,28 @@ def assert_log_t_fresh(
         if parquet_path is not None
         else next_region_parquet_for(log_t_path.parent)
     )
-    if not parquet_path.exists():
-        return  # nothing to compare against
-    if log_t_path.stat().st_mtime < parquet_path.stat().st_mtime:
-        raise StaleLogTError(
-            f"Stale per-fold log_T detected: {log_t_path} mtime is older than "
-            f"{parquet_path} mtime. The substrate parquet has been regenerated since "
-            f"this log_T was built; running would silently leak ~+8 to +12 pp into "
-            f"reg Acc@10. Rebuild: python scripts/compute_region_transition.py "
-            f"--state {state or '<state>'} --per-fold "
-            f"--seed {seed if seed is not None else '<seed>'}"
-        )
+    if parquet_path.exists():
+        if log_t_path.stat().st_mtime < parquet_path.stat().st_mtime:
+            raise StaleLogTError(
+                f"Stale per-fold log_T detected: {log_t_path} mtime is older than "
+                f"{parquet_path} mtime. The substrate parquet has been regenerated since "
+                f"this log_T was built; running would silently leak ~+8 to +12 pp into "
+                f"reg Acc@10. Rebuild: python scripts/compute_region_transition.py "
+                f"--state {state or '<state>'} --per-fold "
+                f"--seed {seed if seed is not None else '<seed>'}"
+            )
+    if n_splits is not None:
+        import torch  # lazy: only when the caller opts into the n_splits check
+        payload = torch.load(log_t_path, map_location="cpu", weights_only=False)
+        stored = payload.get("n_splits") if isinstance(payload, dict) else None
+        if stored is not None and int(stored) != int(n_splits):
+            raise StaleLogTError(
+                f"per-fold log_T {log_t_path} was built with n_splits={stored} but the "
+                f"caller is running at n_splits={n_splits}; the fold split differs, which "
+                f"leaks val transitions into the prior. Rebuild for n_splits={n_splits}: "
+                f"python scripts/compute_region_transition.py --state {state or '<state>'} "
+                f"--per-fold --n-splits {n_splits} --seed {seed if seed is not None else '<seed>'}"
+            )
 
 
 def assert_per_fold_dir_fresh(
@@ -86,11 +103,14 @@ def assert_per_fold_dir_fresh(
     *,
     state: str | None = None,
     parquet_path: str | Path | None = None,
+    check_n_splits: bool = True,
 ) -> None:
     """Run :func:`assert_log_t_fresh` over all ``n_folds`` seeded log_T files in a dir.
 
     Convenience wrapper for the seeded layout
-    ``<dir>/region_transition_log_seed{seed}_fold{1..n_folds}.pt``.
+    ``<dir>/region_transition_log_seed{seed}_fold{1..n_folds}.pt``. By default also
+    verifies each log_T's stored ``n_splits`` matches ``n_folds`` (set
+    ``check_n_splits=False`` for the cheap mtime-only check).
     """
     pq = (
         Path(parquet_path)
@@ -99,4 +119,7 @@ def assert_per_fold_dir_fresh(
     )
     for fold in range(1, n_folds + 1):
         lt = Path(per_fold_dir) / f"region_transition_log_seed{seed}_fold{fold}.pt"
-        assert_log_t_fresh(lt, pq, state=state, seed=seed)
+        assert_log_t_fresh(
+            lt, pq, state=state, seed=seed,
+            n_splits=n_folds if check_n_splits else None,
+        )

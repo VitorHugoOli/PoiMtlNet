@@ -92,7 +92,7 @@ def main():
         # Stale-log_T freshness preflight (CLAUDE.md hard rule; shared portable util).
         # logt_dir here is the check2hgi substrate dir, so the parquet it derives from
         # is logt_dir/input/next_region.parquet (the util's default).
-        assert_log_t_fresh(logt, state=state_lc, seed=args.seed)
+        assert_log_t_fresh(logt, state=state_lc, seed=args.seed, n_splits=max(2, args.folds))
         m = H._train_single_task(
             "next_stan_flow", x_region, y_region, train_idx, val_idx,
             emb_dim=region_emb.shape[1], n_classes=n_regions,

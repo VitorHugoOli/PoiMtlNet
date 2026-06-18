@@ -61,15 +61,25 @@ def manifest_for_state(state: str) -> dict | None:
             p = indir / name
             if p.exists():
                 files[f"input/{name}"] = {"sha256": sha256_file(p), "bytes": p.stat().st_size}
-    # region cardinality (board comparability metadatum)
+    # region cardinality (board comparability metadatum) — read row count from
+    # parquet metadata, not the full payload.
     n_regions = None
     rp = d / "region_embeddings.parquet"
     if rp.exists():
         try:
-            n_regions = int(len(pd.read_parquet(rp, columns=None)))
+            import pyarrow.parquet as _pq
+            n_regions = int(_pq.ParquetFile(rp).metadata.num_rows)
         except Exception:
-            n_regions = None
-    return {"engine": ENGINE, "n_regions": n_regions, "files": files}
+            try:
+                n_regions = int(len(pd.read_parquet(rp, columns=[])))
+            except Exception:
+                n_regions = None
+    return {
+        "engine": ENGINE,
+        "n_regions": n_regions,
+        "hashed_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "files": files,
+    }
 
 
 def main():
@@ -86,7 +96,9 @@ def main():
         manifest = json.loads(OUT_JSON.read_text())
     manifest.setdefault("engine", ENGINE)
     manifest.setdefault("states", {})
-    manifest["generated_utc"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    # last_run_utc = when THIS invocation ran; each state carries its own hashed_utc
+    # (a partial --states re-run no longer restamps untouched states).
+    manifest["last_run_utc"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
 
     for st in states:
         m = manifest_for_state(st)
