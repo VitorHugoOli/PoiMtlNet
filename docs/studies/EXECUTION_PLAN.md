@@ -101,9 +101,10 @@ model board run — all windowing- AND recipe-dependent.
    a first-class M0 BLOCKER, not a presumed sync** — its v14 substrate is ABSENT on the local box (only raw
    `Georgia.parquet` exists); verify-or-build it (substrate + TIGER tracts + region cardinality + `poi_to_region`
    + folds + seeded log_T) on the SAME machine+seed as the hash anchor before the freeze.
-3. **Windowing** = the ADOPT/KEEP decision + stride — **validated at FL/small-state first** (§1b) — **and
-   `MIN_SEQUENCE_LENGTH`** (pinned at **5** = status quo unless 5→2 is decided; it changes the user population,
-   fold composition, paired-test n, T1 stats, and cold-user counts — *independent of stride*).
+3. **Windowing** = the ADOPT/KEEP decision + stride — **validated at FL/small-state first** (§1b). **Window
+   length = 9: KEEP (literature-confirmed, §9).** **`MIN_SEQUENCE_LENGTH`** = DECISION PENDING (§8 #6 — the field
+   mode is 10-core, ours is a lenient user-side 5; it changes the user population, fold composition, paired-test
+   n, T1 stats, cold-user counts — *independent of stride*).
 4. **Second-dataset windowing + region granularity** = mirror overlap on Massive-STEPS (§1a, user-chosen) + the
    region label: **Istanbul mahalle (520) PRIMARY + H3-9 (2,585) as a sensitivity row; NYC TIGER tracts (1,912)**;
    gap-to-ceiling / lift-over-floor framing mandatory.
@@ -192,13 +193,41 @@ deferrals (none weaken the core 4 beats):
    set + the **cheap** B4 SC cascade; **defer** faithful-B4 + DeepMove + E2/A5 + F2.
 4. **G0.1 binding on the frozen base** ✓ — {0,1,7,100}, 0.3 pp gate pre-registered.
 
-**NEW items the completeness audit surfaced (your call before the freeze):**
-5. **Loss-scale normalization** (the one genuine "left on the table" lever, §2): run as a G0.1-style advisory
-   pre-freeze, or exclude on the record? *Recommend run it* (cheap, aimed at the central weakness, untested).
-6. **MIN_SEQUENCE_LENGTH** (axis 3): pin at **5** (status quo) or change 5→2 (adds ~58% more AL users; reshapes
-   folds/T1/n)? *Recommend pin 5* unless you want the cold-user population in.
-7. **B7 selection confirmation** (§4b): disclosure-only, or add one nested-selection/per-state-holdout pass?
-   *Recommend disclosure-only.*
+**RESOLVED ✓ (user, 2026-06-18):**
+5. **Loss-scale normalization** → **RUN** as a pre-freeze FL advisory alongside G0.1 (CE/`log(num_classes)`
+   before `cw=0.75`; ≥0.3 pp either head → v17 candidate; null → exclude on the record).
+7. **B7 selection-on-reporting-fold** → **disclosure-only** (pair every diagnostic-best number with the
+   deployable geom_simple number + state the shared-fold bias; no separate B7 run).
+
+**6. Windowing / filter — literature-informed (search 2026-06-18; §9):**
+- **Window = 9 → KEEP (confirmed).** Typical for the daily-session family + coarse targets; ablations saturate
+  early; Massive-STEPS has no window standard. Locked into axis 3.
+- **`MIN_SEQUENCE_LENGTH` = 5 → DECISION PENDING (your pick).** The Gowalla/Foursquare mode is **10-core**
+  (user ≥10 AND POI ≥10). Ours is **lenient + one-sided** (user-side 5, `core.py:17/52`; no POI filter).
+  Massive-STEPS is *more* lenient (≥2/trail, ≥3 trails/user). The POI-side 10-core is **next-POI-specific**
+  (rare-POI *targets*); our targets are category/region, so it is not strictly motivated for us — the live
+  fork is the **user-side** floor. Three options: **(A) raise user-side 5→10** (field mode + window-9+1
+  alignment: every kept user fills ≥1 full window; comparable to GETNext/STAN/SGRec; drops more sparse users
+  but mostly all-padding ones) — *recommended*; **(B) keep 5** (more coverage, closer to Massive-STEPS,
+  defensible for coarse targets, but a likely reviewer question); **(C) full 10-core incl. a POI≥10 filter**
+  (strict field-standard, but the POI-side rebuilds the Check2HGI graph and is not well-motivated for
+  cat/region targets). For the **second dataset, keep Massive-STEPS' native filter (≥2/≥3), disclosed** — do
+  not force 10-core on a cold-start benchmark (gap-to-ceiling framing already normalizes).
 
 None of these blocks the §2 NOW-lanes; they gate the freeze. **GE (Georgia) is a hard M0 BLOCKER** (axis 2) —
 not a decision, a build.
+
+## 9 · Windowing / filter literature (search 2026-06-18)
+
+**Window length.** Field is bimodal: daily-session 2–10 (DeepMove, LSTPM, GETNext avg ~7–8) · fixed-RNN ≈20
+(Flashback, SGRec, PLSPL) · long attention caps =100 (STAN, GeoSAN, padding-dominated). **Window=9 is
+typical/short-but-normal**; ablations show next-POI accuracy *saturates early* and very long windows add noise;
+coarse targets need less context → 9 is sufficient/generous for next-category/next-region. **Massive-STEPS**
+(Wongso, Xue, Salim; arXiv:2505.11239, ACM 2026): no window standard — variable-length trails grouped by an
+**8 h inter-check-in gap**, mostly 2–10 check-ins; baselines inherit LibCity defaults.
+**Activity filter.** Mode = **10-core** (user ≥10 AND POI ≥10: GETNext, SGRec, LSTPM, GeoSAN, PLSPL); stricter
+outliers Flashback ≥100, HMT-GRN 20–50; Massive-STEPS lenient (≥2/trail, ≥3 trails/user). **Our 5 is lenient +
+one-sided.** Sources: Flashback (IJCAI'20, code `setting.py` `sequence_length=20`/`min_checkins=101`),
+DeepMove (WWW'18, `session 2–10`/`trace_min=10`), GETNext (SIGIR'22, daily ≈7–8/`<10` filter), STAN (WWW'21,
+max=100), SGRec (IJCAI'21, `n=20`/10-core), CTLE (AAAI'21), HMT-GRN (SIGIR'22, 20–50/geohash regions),
+Massive-STEPS (arXiv:2505.11239).
