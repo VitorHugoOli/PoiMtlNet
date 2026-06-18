@@ -97,9 +97,12 @@ def _parse_args(argv=None) -> argparse.Namespace:
         type=str,
         default=None,
         help=(
-            "Override task_set name (e.g. 'check2hgi_next_region'). When "
-            "omitted, the script reads it from config.model_params['task_set']"
-            "or falls back to LEGACY_CATEGORY_NEXT."
+            "FALLBACK task_set name (e.g. 'check2hgi_next_region') for OLD "
+            "configs that never persisted a task_set. When config.model_params "
+            "carries a task_set, THAT wins (it has the trained head overrides) "
+            "and this flag is ignored with a warning — passing it forces the "
+            "DEFAULT preset heads, which fail to load dual-tower snapshots. "
+            "Normally leave this unset."
         ),
     )
     parser.add_argument(
@@ -247,10 +250,16 @@ def main(argv=None) -> None:
             primary_metric=PrimaryMetric(d.get("primary_metric", "f1")),
         )
 
+    # PRECEDENCE: the config-persisted task_set ALWAYS wins when present, because
+    # it carries the run's actual head_factory/head_params/num_classes overrides
+    # (e.g. champion G's dual-tower: cat=next_gru, reg=next_stan_flow_dualtower).
+    # get_preset(name) returns the DEFAULT preset heads (cat=next_mtl, reg=next_gru),
+    # whose topology mismatches the saved snapshots → load_state_dict fails. So
+    # --task-set is only a FALLBACK for OLD configs that never persisted a task_set,
+    # and is IGNORED (with a warning) when a persisted one is present.
     _ts_raw = config.model_params.get("task_set")
-    if args.task_set is not None:
-        task_set = get_preset(args.task_set)
-    elif hasattr(_ts_raw, "task_a"):
+    if hasattr(_ts_raw, "task_a"):
+        # In-memory TaskSet (programmatic caller); already the trained topology.
         task_set = _ts_raw
     elif isinstance(_ts_raw, dict) and _ts_raw.get("task_a"):
         # Reconstruct WITH the run's head_factory overrides intact.
@@ -259,6 +268,22 @@ def main(argv=None) -> None:
             task_a=_taskconfig_from_dict(_ts_raw["task_a"]),
             task_b=_taskconfig_from_dict(_ts_raw["task_b"]),
         )
+        if args.task_set is not None and args.task_set != task_set.name:
+            logger.warning(
+                "Ignoring --task-set=%s: config persists task_set '%s' with the "
+                "trained head topology. The named preset rebuilds DEFAULT heads "
+                "and would fail load_state_dict on the snapshots.",
+                args.task_set, task_set.name,
+            )
+    elif args.task_set is not None:
+        # Fallback: OLD config with no persisted task_set. Heads come from the
+        # default preset and may mismatch the snapshots — warn.
+        logger.warning(
+            "config.model_params has no task_set; falling back to preset '%s'. "
+            "Heads come from the DEFAULT preset and may mismatch the snapshots.",
+            args.task_set,
+        )
+        task_set = get_preset(args.task_set)
     else:
         task_set = LEGACY_CATEGORY_NEXT
 

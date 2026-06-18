@@ -542,6 +542,82 @@ class TestTaskInputTypePersistence:
 
         assert captured["task_b_input_type"] == "region"
 
+    def test_route_task_best_persisted_heads_win_over_task_set(self, tmp_path, monkeypatch, caplog):
+        """The dual-tower trap (closing_data C1): when the config persists a
+        task_set with head OVERRIDES (champion G: reg=next_stan_flow_dualtower),
+        --task-set must be IGNORED — get_preset(name) would rebuild the DEFAULT
+        preset heads (reg=next_gru), whose topology fails load_state_dict on the
+        dual-tower snapshots. The persisted heads must win, with a warning."""
+        import dataclasses
+        import logging
+
+        sys.path.insert(0, str(_root / "scripts"))
+        import route_task_best as rtb
+        from configs.experiment import ExperimentConfig
+        from configs.paths import EmbeddingEngine
+
+        cfg = ExperimentConfig.default_mtl(
+            name="route-dualtower-probe",
+            embedding_engine=EmbeddingEngine.CHECK2HGI.value,
+            state="alabama",
+        )
+        # Persist the FULL champion-G dual-tower task_set (the trained topology).
+        reg_head_params = {
+            "raw_embed_dim": 64, "fusion_mode": "aux",
+            "freeze_alpha": True, "alpha_init": 0.0,
+        }
+        model_params = dict(cfg.model_params)
+        model_params["task_set"] = {
+            "name": "check2hgi_next_region",
+            "task_a": {"name": "next_category", "num_classes": 7,
+                       "head_factory": "next_gru", "primary_metric": "f1"},
+            "task_b": {"name": "next_region", "num_classes": 1109,
+                       "head_factory": "next_stan_flow_dualtower",
+                       "head_params": reg_head_params,
+                       "primary_metric": "top10_acc_indist"},
+        }
+        cfg = dataclasses.replace(
+            cfg, model_params=model_params,
+            task_a_input_type="checkin", task_b_input_type="region",
+        )
+        cfg_path = tmp_path / "config.json"
+        cfg.save(cfg_path)
+
+        snap_dir = tmp_path / "snaps"
+        snap_dir.mkdir()
+        for slot in ("cat", "reg", "joint"):
+            (snap_dir / f"fold1_{slot}_best.pt").write_bytes(b"x")
+
+        captured = {}
+
+        class _StopHere(Exception):
+            pass
+
+        def _fake_fold_creator(*args, **kwargs):
+            captured["task_set"] = kwargs.get("task_set")
+            raise _StopHere()
+
+        monkeypatch.setattr(rtb, "FoldCreator", _fake_fold_creator)
+
+        argv = [
+            "--snapshots-dir", str(snap_dir),
+            "--fold", "1",
+            "--config", str(cfg_path),
+            # Passing --task-set used to clobber the heads with the default preset.
+            "--task-set", "check2hgi_next_region",
+        ]
+        with caplog.at_level(logging.WARNING):
+            with pytest.raises(_StopHere):
+                rtb.main(argv)
+
+        ts = captured["task_set"]
+        assert ts is not None, "FoldCreator must receive the resolved (non-legacy) task_set"
+        assert ts.task_b.head_factory == "next_stan_flow_dualtower", (
+            "persisted dual-tower reg head must win over the --task-set default preset"
+        )
+        assert ts.task_b.head_params == reg_head_params
+        assert ts.task_a.head_factory == "next_gru"
+
 
 # ---------------------------------------------------------------------------
 # A1 — --log-t-kd-weight / --log-t-kd-tau: KL distillation supervisory signal
@@ -687,10 +763,20 @@ class TestLogTKD:
 
 
 class TestLogTKDCLIDefault:
-    """The v12 default flip turns log_T-KD ON (W=0.2, τ=1.0) by default, but
-    ONLY for MTL `check2hgi_next_region`. Category-only / non-region / non-MTL
-    runs must keep W=0.0. An explicit --log-t-kd-weight (incl. 0.0 for v11
-    reproduction) always wins.
+    """log_T-KD CLI defaulting, under the `--canon` mechanism.
+
+    The default canon is **v16 (champion G)**, whose bundle sets
+    ``--log-t-kd-weight 0.0`` — so a bare MTL check2hgi_next_region run now has
+    KD **OFF** (G's recipe; KD was found null on the dual-tower). The earlier
+    v12 *auto-default-ON* (W=0.2, τ=1.0, scoped to MTL check2hgi_next_region)
+    still exists in ``_apply_cli_overrides`` and is reached with ``--canon none``
+    (no bundle) or ``--canon v12`` (bundle sets 0.2 explicitly). Category-only /
+    non-region / non-MTL runs keep W=0.0. An explicit --log-t-kd-weight always
+    wins (incl. 0.0 for v11 reproduction over a v12 ON default).
+
+    NOTE: tests pin ``--canon`` explicitly so they assert the intended branch
+    rather than passing by coincidence of whatever the default canon happens to
+    set. See docs/results/CANONICAL_VERSIONS.md (v11/v12/v16) + src/configs/canon.py.
     """
 
     def _apply(self, argv):
@@ -707,23 +793,47 @@ class TestLogTKDCLIDefault:
         )
         return train_cli._apply_cli_overrides(config, args)
 
-    def test_v12_default_on_for_check2hgi_region_mtl(self):
+    def test_default_canon_v16_kd_off(self):
+        """The DEFAULT canon (v16 / champion G) sets KD OFF for a bare MTL
+        check2hgi_next_region run — KD is null on the dual-tower."""
         cfg = self._apply([
             "--task", "mtl", "--task-set", "check2hgi_next_region",
+            "--state", "florida", "--engine", "check2hgi",
+        ])
+        assert float(cfg.log_t_kd_weight) == 0.0
+
+    def test_v12_auto_default_on_with_canon_none(self):
+        """With --canon none (no bundle), the v12 auto-default-ON logic still
+        fires for MTL check2hgi_next_region: W=0.2, τ=1.0."""
+        cfg = self._apply([
+            "--task", "mtl", "--task-set", "check2hgi_next_region",
+            "--canon", "none",
             "--state", "florida", "--engine", "check2hgi",
         ])
         assert float(cfg.log_t_kd_weight) == 0.2
         assert float(cfg.log_t_kd_tau) == 1.0
 
-    def test_explicit_zero_recovers_v11(self):
+    def test_canon_v12_sets_kd_on(self):
+        """The v12 bundle pins KD ON (W=0.2)."""
         cfg = self._apply([
             "--task", "mtl", "--task-set", "check2hgi_next_region",
+            "--canon", "v12",
+            "--state", "florida", "--engine", "check2hgi",
+        ])
+        assert float(cfg.log_t_kd_weight) == 0.2
+
+    def test_explicit_zero_recovers_v11_over_v12_on(self):
+        """Explicit --log-t-kd-weight 0.0 wins over a v12 ON default (v11 repro)."""
+        cfg = self._apply([
+            "--task", "mtl", "--task-set", "check2hgi_next_region",
+            "--canon", "v12",
             "--state", "florida", "--engine", "check2hgi",
             "--log-t-kd-weight", "0.0",
         ])
         assert float(cfg.log_t_kd_weight) == 0.0
 
     def test_explicit_weight_wins(self):
+        """Explicit --log-t-kd-weight wins over the bundle (here over v16's 0.0)."""
         cfg = self._apply([
             "--task", "mtl", "--task-set", "check2hgi_next_region",
             "--state", "florida", "--engine", "check2hgi",
@@ -732,16 +842,17 @@ class TestLogTKDCLIDefault:
         assert float(cfg.log_t_kd_weight) == 0.5
 
     def test_no_default_for_legacy_task_set(self):
-        """Default MTL task-set (legacy_category_next) must NOT get KD on."""
+        """Legacy MTL task-set (no check2hgi_next_region) must NOT get KD on.
+        Pinned to --canon none so the v16 bundle does not inject a task-set."""
         cfg = self._apply([
-            "--task", "mtl",
+            "--task", "mtl", "--canon", "none",
             "--state", "florida", "--engine", "check2hgi",
         ])
         assert float(cfg.log_t_kd_weight) == 0.0
 
     def test_no_default_for_category_task(self):
         """Category-only runs must NOT get KD on (and must not trip the
-        --log-t-kd-weight-requires-mtl guard)."""
+        --log-t-kd-weight-requires-mtl guard). Canon is MTL-only anyway."""
         cfg = self._apply([
             "--task", "category",
             "--state", "florida", "--engine", "check2hgi",

@@ -82,6 +82,47 @@
 
 ---
 
+## 2026-06-17 — C1 (3-snapshot per-task routing) confirm-on-G → PROMOTE (deploy panel)
+
+**Phase**: G0.2 gate (escalated from P1a STORY-DEPENDENT by user 2026-06-16). Completed. Branch
+`study/c1-confirm-g`, Mac M2 Pro (MPS, fp32). **STOP for user before closing the gate.**
+
+**What ran**
+- Built v14 substrate (`check2hgi_design_k_resln_mae_l0_1`) **locally on MPS** at FL + AL
+  (`build_design_k_delaunay.py`, 500 ep); postbuild inputs + seed-tagged per-fold log_T
+  (`scripts/closing_data/c1_prep_substrate.sh`).
+- Champion **G** (`--canon v16`) with `--save-task-best-snapshots --no-checkpoints`, FL + AL ×
+  seeds {0,1,7,100} × 5 folds. Independent re-score of the 3 per-fold snapshots vs the single
+  `geom_simple` checkpoint (`route_task_best.py`); paired Wilcoxon (`c1_aggregate.py`).
+
+**Result** (per-task-best routing − single geom_simple checkpoint; reg = Acc@10):
+- AL n=20: Δreg **+1.554 pp** (Wilcoxon p=0.0001); Δcat +0.109 pp (n.s.). PROMOTE.
+- FL n=20: Δreg **+0.625 pp** (p<0.0001); Δcat +0.187 pp (sig. positive). PROMOTE.
+- POOLED n=40: Δreg +1.089 pp, Δcat +0.148 pp. PROMOTE.
+
+**Decision** — **PROMOTE, gate CLOSED → SUPPORTIVE diagnostic panel ONLY, NOT primary deploy**
+(user, 2026-06-17). Deploy mode; G weights unchanged; NOT v17. NOT subsumed on G; FL's +0.63 ≪
+pre-C25 +2.80 ⇒ most of the old 2/3-state signal was recovered by C25-fix + dual-tower + geom_simple,
+a real residual remains. AL (which FAILED pre-C25 on a degenerate Acc@1 snapshot) now passes 5/5
+every seed — the v15 Acc@10 reg-monitor fixed that mode.
+**User methodological scope:** per-task routing loads 2 snapshots / runs 2 forwards ≈ task-specialised
+models → forfeits the "single model for N tasks" property the MTL thesis rests on. So the single
+`geom_simple` checkpoint stays the **headline/primary**; C1 is reported as deploy-time per-task
+*selection* headroom (single-ckpt ≤ C1 ≤ STL ceiling), NOT the task ceiling, NOT the proposal.
+Verdict doc: `C1_VERDICT.md`. Gate ledger + PLAN G0.2 updated.
+
+**Notes / traps hit**
+- Under `--no-checkpoints`, snapshots + config land at the **top-level** `results/<engine>/<state>/`
+  (not the timestamped rundir) and are **shared across seeds** → driver isolates per seed to
+  `c1_snap_s<N>/` + copies the seed-stamped `config.json`.
+- `route_task_best.py` must **NOT** be passed `--task-set`: that forces the default-preset heads and
+  the dual-tower state_dict fails to load. Omit it → it reconstructs champion-G heads from config.json.
+
+**Next** — C1 CLOSED. **G0.1 aligned-pairing is now the lone open recipe-changing P0 gate** before
+the freeze.
+
+---
+
 ## How to add an entry
 
 ```markdown
