@@ -187,13 +187,22 @@ class POIDatasetWithAux(Dataset):
 # UTILITIES
 # ============================================================
 def _get_num_workers() -> int:
-    # In-memory tensor datasets: num_workers=0 is fastest on every device.
-    # Each worker is a forked Python process that pickles the tensor over
-    # IPC per epoch — pure overhead when the dataset is already a torch
-    # tensor in RAM. On CUDA (Colab T4), 8 workers each forked a 9.8 GB
-    # copy of the FL dataset and OOM-killed the cgroup; on MPS the IPC
-    # cost showed up as visible per-epoch warm-up time. See PyTorch
-    # Lightning MPS docs + 2026-04-27 FL-on-T4 OOM postmortem.
+    # Default (GPU-pre-moved dataset) + ALL of MPS: num_workers=0 is fastest.
+    # Each worker is a forked Python process that pickles the tensor over IPC per
+    # epoch — pure overhead when the dataset is already a torch tensor on-device
+    # (and on CUDA, forking the GPU-pre-moved tensor OOM'd the T4 cgroup; on MPS the
+    # IPC cost is visible per-epoch warm-up). See 2026-04-27 FL-on-T4 OOM postmortem.
+    #
+    # ⚠ num_workers>0 was TESTED on the CPU-resident path (MTL_DATASET_CPU=1) and
+    # REJECTED — it is NOT quality-neutral: AL champion-G with 4 workers shifted
+    # cat macro-F1 +0.92 / reg Acc@10 +0.23 vs the byte-identical num_workers=0
+    # baseline (2026-06-18 measurement). Root cause: the per-task train loaders
+    # (_create_dataloader / _create_aux_dataloader) shuffle with NO explicit
+    # `generator=` → they consume the GLOBAL torch RNG, and worker plumbing perturbs
+    # the consumption order. Adding a seeded generator would itself change the frozen
+    # baseline numbers, so we keep workers=0 everywhere. The VRAM win for large
+    # states comes from CPU-residency alone (MTL_DATASET_CPU, byte-identical), NOT
+    # from workers — so there is no quality-neutral reason to enable them.
     return 0
 
 

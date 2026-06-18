@@ -10,6 +10,10 @@
 #   bash scripts/pre_freeze_gates/lane1_run.sh florida 0 lossscale "--loss-scale-norm"
 set -euo pipefail
 
+# P2 (advisor-vetted, math/determinism-inert): reduce CUDA allocator fragmentation.
+# Ignored on non-CUDA (MPS/CPU) → MPS-compatible.
+export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True}"
+
 STATE="$1"; SEED="$2"; ARM="$3"; EXTRA="${4:-}"
 # Engine override via env (Lane 2 overlap uses check2hgi_dk_ovl); default = v14 design_k.
 ENGINE="${LANE1_ENGINE:-check2hgi_design_k_resln_mae_l0_1}"
