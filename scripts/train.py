@@ -1830,8 +1830,57 @@ def _load_config_from_file(path: str) -> ExperimentConfig:
     return mod.config()
 
 
+def _preflight_canon_guards(args) -> None:
+    """[anti-stumble] Visibility guards so a fresh agent/dev does not silently hit a wrong
+    flow. WARN-only by default → **numerically inert** (no config/computation change); set
+    ``MTL_STRICT=1`` to hard-fail (freeze-grade runs). Covers the three silent stumbles the
+    pre-freeze defaults-audit surfaced (2026-06-19): development-seed 42, champion-recipe-on-
+    the-wrong-substrate, and torch ≠ 2.11.0+cu128. The recipe itself is already enforced by
+    ``--canon`` (default v16); these only catch the values canon deliberately does NOT pin.
+    """
+    import os as _os
+    from configs.canon import CANON_BUNDLES
+
+    strict = _os.environ.get("MTL_STRICT", "").strip() in ("1", "true", "True")
+
+    def _emit(msg: str) -> None:
+        if strict:
+            raise SystemExit("MTL_STRICT=1 → " + msg)
+        logger.warning(msg)
+
+    canon = getattr(args, "canon", None)
+    canon_active = (getattr(args, "task", None) == "mtl"
+                    and getattr(args, "config", None) is None
+                    and canon not in (None, "none"))
+
+    if canon_active:
+        # (1) development-seed 42 is NOT paper-grade (overshoots §0.1 at large states).
+        if getattr(args, "seed", None) is None:
+            _emit("[canon-guard] --seed not set → development seed 42 (overshoots §0.1 by "
+                  "~+3pp CA / +8pp TX). Paper-grade numbers require --seed in {0,1,7,100}.")
+        # (2) champion recipe running on a DIFFERENT substrate than the canon bundle pins.
+        bundle = CANON_BUNDLES.get(canon, [])
+        bundle_engine = next((bundle[i + 1] for i, t in enumerate(bundle)
+                              if t == "--engine" and i + 1 < len(bundle)), None)
+        resolved_engine = getattr(args, "engine", None)
+        if bundle_engine and resolved_engine and resolved_engine != bundle_engine:
+            _emit(f"[canon-guard] --canon {canon} is pinned to substrate '{bundle_engine}' "
+                  f"but --engine resolved to '{resolved_engine}' → the champion recipe is on "
+                  f"a DIFFERENT substrate (wrong-substrate stumble; use the matching --canon).")
+
+    # (3) torch build: the frozen reg Acc@10 tie-break depends on the fp16 TopK kernel.
+    try:
+        import torch as _torch
+        if _torch.__version__ != "2.11.0+cu128":
+            _emit(f"[canon-guard] torch is '{_torch.__version__}', expected '2.11.0+cu128' "
+                  f"(torch ≥2.12 rewrote the TopK kernel → frozen reg Acc@10 tie-break shifts).")
+    except Exception:
+        pass
+
+
 def main(argv=None) -> None:
     args = _parse_args(argv)
+    _preflight_canon_guards(args)
 
     # Build config
     if args.config is not None:
