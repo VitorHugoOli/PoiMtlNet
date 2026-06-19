@@ -1,7 +1,7 @@
 {
   "engine": "check2hgi_design_k_resln_mae_l0_1",
   "generated_utc": "2026-06-18T13:22:42+00:00",
-  "last_run_utc": "2026-06-18T22:10:08+00:00",
+  "last_run_utc": "2026-06-19T11:34:51+00:00",
   "states": {
     "alabama": {
       "engine": "check2hgi_design_k_resln_mae_l0_1",
@@ -56,6 +56,25 @@
       },
       "n_regions": 1547
     },
+    "california": {
+      "engine": "check2hgi_design_k_resln_mae_l0_1",
+      "files": {
+        "embeddings.parquet": {
+          "bytes": 946108336,
+          "sha256": "ac2e0148c62deeef87795e2762e7a65317717475c5567703675080563411f9c5"
+        },
+        "poi_embeddings.parquet": {
+          "bytes": 67025501,
+          "sha256": "d3f6200e613c8d8b71993679b107839d353d8d707f2d10303bac2826269b066e"
+        },
+        "region_embeddings.parquet": {
+          "bytes": 3204110,
+          "sha256": "393e527d622c316b838dbdb0c191d49856e4c9453039e85e80e0d84c9bd72fc2"
+        }
+      },
+      "hashed_utc": "2026-06-19T11:34:52+00:00",
+      "n_regions": 8501
+    },
     "florida": {
       "engine": "check2hgi_design_k_resln_mae_l0_1",
       "files": {
@@ -107,6 +126,25 @@
         }
       },
       "n_regions": 2283
+    },
+    "texas": {
+      "engine": "check2hgi_design_k_resln_mae_l0_1",
+      "files": {
+        "embeddings.parquet": {
+          "bytes": 1217246067,
+          "sha256": "d928bb7a1fae5d36d3b0792487d80fee2cddd40faffb069553cca2579737bcb9"
+        },
+        "poi_embeddings.parquet": {
+          "bytes": 63720884,
+          "sha256": "3a90906d956f4162397af856ec218a5e5f6c127d3653d8b538aa5955c62a347c"
+        },
+        "region_embeddings.parquet": {
+          "bytes": 2422547,
+          "sha256": "2dfda1531ddbbe7040de77fc006656d7962d749e109032390abcf82ea172718f"
+        }
+      },
+      "hashed_utc": "2026-06-19T11:34:52+00:00",
+      "n_regions": 6553
     }
   }
 }
