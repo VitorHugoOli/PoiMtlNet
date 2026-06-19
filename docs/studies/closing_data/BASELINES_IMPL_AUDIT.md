@@ -67,10 +67,34 @@ These don't gate the freeze: scored runs are P3. They DO gate paper-grade n=20.
   Add `assert dst_dir.resolve() != frozen.resolve()` before any write. (Operationally avoided so far
   by always pointing `OUTPUT_DIR` at scratch; make it structural for P3.)
 
-## ⚠ USER DECISION — B2a POI2Vec faithfulness
+## ✅ RESOLVED (2026-06-19) — POI2Vec faithfulness + architecture
 
-The audit found B2a's **core mechanism** departs from POI2Vec (Feng et al., AAAI'17), not just the
-documented task-adaptation deviations:
+> Decisions taken (user-confirmed) + a 9-agent audit workflow (`wf_37d016d2`, all 4 streams adversarially
+> verified) + a build workflow (`wf_0df62a24`). Outcomes:
+>
+> - **B2a is NOT POI2Vec → relabeled.** The unfaithful impl was renamed `GeoPOI2Vec → GeoTreeSkipGram`
+>   (`scripts/baselines/geotree_skipgram_lib/`, `build_geotree_skipgram_substrate.py`), all false AAAI'17
+>   claims scrubbed, **kept as a separate honest baseline** (a geo-tree-regularized skip-gram). Commit `27aafa7c`.
+> - **Faithful AAAI'17 POI2Vec is being built** as the new B2a (`scripts/baselines/poi2vec_lib/`): CBOW +
+>   fixed midpoint-grid tree + **overlap-area φ** + user latent, **64-d** (matched to the board; the paper's
+>   200-d would confound the substrate axis — intentional matched-protocol deviation), loss = paper
+>   `pr_user·pr_path` (stable-NLL fallback documented), φ unit-tested on a 2×2 grid, leak-safe per-fold,
+>   `dst!=frozen` overwrite guard. Build + adversarial review in flight.
+> - **HGI teacher left as-is** (`research/embeddings/hgi/poi2vec.py`): it's an fclass-Node2Vec teacher
+>   mislabeled "POI2Vec", load-bearing for frozen HGI/v14 **build-time only**. Per user choice, **not
+>   renamed** (would churn ~25 consumer scripts reading its CSV by hardcoded path for zero board benefit);
+>   added a clarifying docstring note only.
+> - **Architecture (SC baselines via `train.py --engine`) CONFIRMED.** Own-pipes would reintroduce
+>   head/recipe/selector/metric drift the SC axis exists to prevent. The per-fold-substrate scoring gap is
+>   closed by an additive, **default-inert `--only-fold k`** flag (lands in the consolidated [ENUM-MERGE]
+>   commit AFTER the FL byte-identity scans; spec: keep `train.py:1862`, restructure 1863-1865 + wrap
+>   2034-2036). B3/B5 stay own E2E drivers; B4 stays the train.py-wrapper.
+> - **Lane 2(d) leak re-audit:** CLOSED CLEAN (see `pre_freeze_gates/STRIDE1_LEAK_REAUDIT.md`).
+
+### (historical) the faithfulness finding that drove the above
+
+The audit found the original B2a's **core mechanism** departs from POI2Vec (Feng et al., AAAI'17), not just
+the documented task-adaptation deviations:
 1. **Objective inverted** — paper is CBOW (sum a *context window* into one vector, route the *target*
    POI's tree path against it); impl is true skip-gram (single center → single context, one pair).
 2. **Wrong φ (the defining mechanism)** — paper's geographical influence φ = normalized **overlap
