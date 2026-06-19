@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
-# Tiny LEAK-SAFE smoke for B2a POI2Vec: AL, 1 fold, 2 epochs, scratch OUTPUT_DIR.
+# Tiny LEAK-SAFE smoke for GeoTreeSkipGram: AL, 1 fold, 2 epochs, scratch OUTPUT_DIR.
 # Proves: leak-safe per-fold split, per-POI table, check-in-level row-alignment,
 # and (if a GPU is free) end-to-end matched-head plumbing. NEVER touches the
 # frozen output/check2hgi/. Do NOT run full n=20 here.
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 REPO="$(pwd)"
-SCRATCH="${SCRATCH:-/tmp/bl_b2a_smoke}"
+SCRATCH="${SCRATCH:-/tmp/bl_geotree_smoke}"
 STATE="${STATE:-alabama}"
 SEED="${SEED:-0}"
 FOLD="${FOLD:-0}"
 DEV="${DEV:-cuda}"
 
-echo "=== B2a POI2Vec smoke :: state=$STATE seed=$SEED fold=$FOLD device=$DEV ==="
+echo "=== GeoTreeSkipGram smoke :: state=$STATE seed=$SEED fold=$FOLD device=$DEV ==="
 echo "    scratch OUTPUT_DIR=$SCRATCH (frozen output/ untouched)"
 rm -rf "$SCRATCH"
 mkdir -p "$SCRATCH/check2hgi/$STATE"
@@ -49,9 +49,9 @@ cp "$REAL_OUT/input/next.parquet" "$SCRATCH/check2hgi/$STATE/input/next.parquet"
 # and the builder reads the FROZEN sequences for skip-gram + windowing — copy it.
 cp "$REAL_OUT/temp/sequences_next.parquet" "$SCRATCH/check2hgi/$STATE/temp/sequences_next.parquet"
 
-echo "--- step 1: build leak-safe per-fold POI2Vec substrate ---"
+echo "--- step 1: build leak-safe per-fold GeoTreeSkipGram substrate ---"
 OUTPUT_DIR="$SCRATCH" PYTHONPATH=src .venv/bin/python \
-  scripts/baselines/build_b2a_poi2vec_substrate.py "$STATE" \
+  scripts/baselines/build_geotree_skipgram_substrate.py "$STATE" \
   --seed "$SEED" --fold "$FOLD" --epochs 2 --batch-size 512 \
   --max-pairs 150000 --max-depth 10 --min-leaf 8 --device "$DEV"
 

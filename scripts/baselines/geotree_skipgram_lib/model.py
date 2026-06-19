@@ -1,38 +1,34 @@
-"""POI2Vec model — geographically-influenced skip-gram with a spatial binary tree.
+"""GeoTreeSkipGram — geographically-tree-regularized skip-gram, per-POI 64-d substrate.
 
-Faithfulness (Feng et al., "POI2Vec: Geographical Latent Representation for
-Predicting Future Visitors", AAAI 2017, vol. 31 — https://ojs.aaai.org/index.php/AAAI/article/view/10500):
-  Core mechanism = word2vec/skip-gram over POI check-in sequences, where the
-  GEOGRAPHICAL INFLUENCE is injected through a **binary tree built over a
-  recursive rectangular partition of the map** (hierarchical-softmax style).
-  Each POI is assigned to leaf path(s) of the tree; the routing probabilities
-  along a POI's path are shared across spatially-near POIs, so geographically
-  close POIs are pulled together in the latent space. The paper also assigns a
-  POI to MULTIPLE leaves with influence weights phi (a POI near a region
-  boundary contributes to both sub-regions); we keep the multi-leaf influence.
+⚠ This is NOT POI2Vec (Feng et al., AAAI 2017), despite an earlier mislabel. It is
+an honest geo-regularized skip-gram kept as its own baseline. The FAITHFUL AAAI'17
+POI2Vec lives in ``scripts/baselines/poi2vec_lib/`` (CBOW + fixed midpoint-grid tree
++ overlap-area phi + user latent). The audit
+(docs/studies/closing_data/BASELINES_IMPL_AUDIT.md) found this module diverges from
+POI2Vec on its DEFINING mechanism, so it was relabeled (class GeoPOI2Vec→GeoTreeSkipGram).
 
-  Output = a LATENT REPRESENTATION PER POI (the input/center embedding table),
-  which is exactly the standalone per-POI 64-d column this baseline must emit.
+Method (what this actually is):
+  word2vec/skip-gram over POI check-in sequences, with a soft GEOGRAPHICAL
+  regularizer injected through a binary tree over a recursive rectangular partition
+  of the map (hierarchical-softmax style). Each POI routes to leaf path(s); routing
+  probabilities are shared across spatially-near POIs, pulling geographically close
+  POIs together. A POI near a split line contributes to both children via a heuristic
+  multi-leaf influence weight phi. Output = a per-POI latent table (center embeddings),
+  the standalone per-POI 64-d column this baseline emits.
 
-Deviations from the paper (documented for the audit):
-  D1. The paper's downstream task is "predict future visitors of a POI"; OUR
-      board's downstream is next-category (macro-F1) + next-region (Acc@10)
-      under the matched champion heads. We use ONLY POI2Vec's *representation*
-      (the per-POI latent table) as a substrate column — the SC-substrate
-      protocol — and let the frozen matched heads do prediction. This isolates
-      the representation contribution on the substrate axis.
-  D2. The paper optionally fuses a USER latent vector. We emit only the POI
-      table (the substrate is per-POI / per-check-in, user identity enters
-      downstream through the sequence head, not the embedding). User vectors
-      are trained as the skip-gram "center" side but not exported.
-  D3. The rectangular partition granularity (theta / tree depth) is a
-      hyper-parameter; the paper tunes it per dataset. We use a quad-style
-      recursive split to a fixed max depth with a min-POIs-per-leaf stop,
-      yielding a balanced binary routing tree. Depth is configurable.
-  D4. This is the AAAI'17 POI2Vec. It is DISTINCT from the in-repo
-      ``research/embeddings/hgi/poi2vec.py``, which is an FCLASS-level Node2Vec
-      teacher used *inside* HGI (multiple POIs of the same fclass share a
-      vector). That file is NOT a standalone per-POI baseline; this module is.
+How it DIFFERS from AAAI'17 POI2Vec (i.e. why it is not POI2Vec):
+  (1) objective = skip-gram (single center→context pair); the paper is CBOW (sum a
+      context window, route the TARGET POI's tree path against it).
+  (2) phi = ad-hoc boundary-fraction heuristic; the paper's phi = normalized OVERLAP
+      AREA of a POI's theta-buffered box with each leaf rectangle.
+  (3) tree = data-dependent median kd-tree; the paper's = FIXED recursive rectangular
+      midpoint grid to a theta cell size.
+  (4) no user latent; the paper includes a user term in the objective.
+
+Board integration (unchanged): SC-substrate-column — the per-POI table plugs UNDER
+the matched champion heads via train.py --engine; downstream is next-category
+(macro-F1) + next-region (Acc@10), leak-safe per (state,seed,fold) train-only
+pretraining. theta/tree-depth is a configurable hyper-parameter.
 """
 from __future__ import annotations
 
@@ -166,15 +162,17 @@ def build_geo_binary_tree(
 # ----------------------------------------------------------------------------
 # The skip-gram + geo-hierarchical-softmax model
 # ----------------------------------------------------------------------------
-class GeoPOI2Vec(nn.Module):
-    """POI2Vec: center POI embeddings + geographical-binary-tree hierarchical softmax.
+class GeoTreeSkipGram(nn.Module):
+    """GeoTreeSkipGram: center POI embeddings + geographical-binary-tree hierarchical softmax.
 
     For a (center_poi, context_poi) skip-gram pair, the probability of the
     context POI is the product of binary routing probabilities along the
     context POI's geographical-tree path, each routing being
-    sigmoid(dir * <center_emb, node_vec>). Paths with influence weight phi are
-    summed (the paper's multi-leaf geographical influence). This is the exact
-    geographical-softmax that injects spatial structure into the latent space.
+    sigmoid(dir * <center_emb, node_vec>). Paths with heuristic influence weight
+    phi are summed (a multi-leaf geographical influence). This is a geo-regularized
+    softmax that injects spatial structure into the latent space. NOTE: this is a
+    skip-gram with a tree regularizer, NOT the faithful AAAI'17 POI2Vec (which is
+    CBOW with overlap-area phi + a midpoint grid + a user term — see poi2vec_lib/).
 
     Exported substrate = ``in_embed.weight`` (per-POI 64-d latent table).
     """

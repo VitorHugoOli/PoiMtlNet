@@ -1,10 +1,13 @@
 #!/usr/bin/env python
-"""B2a POI2Vec (Feng et al., AAAI 2017) — build a STANDALONE per-POI 64-d probe
-engine that plugs into the matched-head MTL pipeline (cat=next_gru,
+"""GeoTreeSkipGram (geographically-tree-regularized skip-gram) — build a STANDALONE
+per-POI 64-d probe engine that plugs into the matched-head MTL pipeline (cat=next_gru,
 reg=next_stan_flow_dualtower) exactly like build_overlap_probe_engine.py.
 
+⚠ NOT POI2Vec (AAAI'17). This is an honest geo-regularized skip-gram baseline; the
+faithful AAAI'17 POI2Vec builder is scripts/baselines/build_poi2vec_substrate.py.
+
 LEAK-SAFE per-fold protocol (HARD requirement):
-  POI2Vec is PRETRAINED on the FOLD'S TRAIN PORTION ONLY. We reproduce the
+  GeoTreeSkipGram is PRETRAINED on the FOLD'S TRAIN PORTION ONLY. We reproduce the
   trainer's user-disjoint split bit-identically with
   ``StratifiedGroupKFold(n_splits, shuffle=True, random_state=seed)`` over
   ``load_next_data(state, CHECK2HGI)`` (same algorithm/groups/y/seed as
@@ -22,15 +25,15 @@ SUBSTRATE ROW-ALIGNMENT:
   The matched heads consume a CHECK-IN-LEVEL ``embeddings.parquet`` with columns
   ``userid, placeid, category, datetime, 0..63`` in the SAME row order as the
   frozen check2hgi substrate. We reconstruct it by LEFT-JOINING the per-POI
-  POI2Vec table onto the check2hgi embeddings frame on ``placeid`` (so every
-  check-in of a POI gets that POI's vector — POI2Vec is per-POI by construction).
+  GeoTreeSkipGram table onto the check2hgi embeddings frame on ``placeid`` (so every
+  check-in of a POI gets that POI's vector — GeoTreeSkipGram is per-POI by construction).
   We then run the canonical ``generate_next_input_from_checkins`` +
   ``build_next_region_for`` so next/next_region/sequences are byte-compatible
   with the champion pipeline and row-aligned (asserts mirror the champion's).
 
 Usage (smoke, leak-safe single fold, into a scratch OUTPUT_DIR):
   OUTPUT_DIR=/tmp/bl_b2a PYTHONPATH=src .venv/bin/python \
-    scripts/baselines/build_b2a_poi2vec_substrate.py alabama --seed 0 --fold 0 \
+    scripts/baselines/build_geotree_skipgram_substrate.py alabama --seed 0 --fold 0 \
     --epochs 2 --max-pairs 200000 --device cpu
 """
 import argparse
@@ -52,7 +55,8 @@ from data.inputs.builders import generate_next_input_from_checkins
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "mtl_improvement"))
 from build_overlap_probe_engine import build_next_region_for  # noqa: E402
 
-from b2a_poi2vec_lib import GeoPOI2Vec, build_geo_binary_tree  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from geotree_skipgram_lib import GeoTreeSkipGram, build_geo_binary_tree  # noqa: E402
 
 # The probe engine value. We reuse an EXISTING allow-listed engine (CHECK2HGI)
 # at the FROZEN check2hgi allow-lists by emitting into a SCRATCH OUTPUT_DIR and
@@ -118,19 +122,19 @@ def build_skipgram_pairs(seq_df: pd.DataFrame, placeid_to_idx: dict,
     return centers, contexts
 
 
-def train_poi2vec(centers, contexts, n_poi, poi_xy, embed_dim, epochs,
+def train_geotree_skipgram(centers, contexts, n_poi, poi_xy, embed_dim, epochs,
                   batch_size, lr, max_depth, min_leaf, boundary_frac, device):
     print(f"  building geo binary tree (depth<={max_depth}, min_leaf={min_leaf}, "
           f"boundary_frac={boundary_frac})...")
     tree = build_geo_binary_tree(poi_xy, max_depth=max_depth, min_leaf=min_leaf,
                                  boundary_frac=boundary_frac)
     print(f"  tree internal nodes={tree.n_internal}")
-    model = GeoPOI2Vec(n_poi, tree, embed_dim=embed_dim).to(device)
+    model = GeoTreeSkipGram(n_poi, tree, embed_dim=embed_dim).to(device)
     opt = torch.optim.Adam(model.parameters(), lr=lr)
     c = torch.from_numpy(centers)
     x = torch.from_numpy(contexts)
     n = len(centers)
-    print(f"  training POI2Vec: {n:,} pairs, {epochs} epochs, bs={batch_size}, "
+    print(f"  training GeoTreeSkipGram: {n:,} pairs, {epochs} epochs, bs={batch_size}, "
           f"lr={lr}, device={device}")
     model.train()
     for ep in range(epochs):
@@ -186,7 +190,7 @@ def main():
         engine_value = PROBE_ENGINE.value
         tag = f"seed={args.seed} fold={args.fold}"
     dst_dir = OUTPUT_DIR / engine_value / state
-    print(f"=== build B2a POI2Vec substrate :: {state} :: {tag} ===")
+    print(f"=== build B2a GeoTreeSkipGram substrate :: {state} :: {tag} ===")
     print(f"    OUTPUT_DIR={OUTPUT_DIR}  (engine dir={dst_dir})")
 
     # 1. Leak-safe fold split -> train-user set.
@@ -228,12 +232,12 @@ def main():
     if len(centers) == 0:
         raise RuntimeError("no skip-gram pairs — check train_userids / sequences.")
 
-    # 4. Train POI2Vec -> per-POI latent table.
-    poi_table = train_poi2vec(
+    # 4. Train GeoTreeSkipGram -> per-POI latent table.
+    poi_table = train_geotree_skipgram(
         centers, contexts, n_poi, poi_xy, args.embed_dim, args.epochs,
         args.batch_size, args.lr, args.max_depth, args.min_leaf,
         args.boundary_frac, device)
-    print(f"  POI2Vec table shape={poi_table.shape}")
+    print(f"  GeoTreeSkipGram table shape={poi_table.shape}")
 
     # 5. Reconstruct CHECK-IN-LEVEL embeddings.parquet aligned to check2hgi row order.
     base_emb = IoPaths.load_embedd(state, EmbeddingEngine.CHECK2HGI)
