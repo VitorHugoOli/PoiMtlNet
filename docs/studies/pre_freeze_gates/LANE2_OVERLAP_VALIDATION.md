@@ -79,6 +79,22 @@ arms → use **unpaired across-seed** stats, not paired per-fold. (c) Footnote t
 sound and genuinely helps (scale-dependent: large at small states, saturated-but-positive at large states) —
 **supports the user's ADOPT lean.** Methodological notes above travel into the freeze record.
 
+## FINAL RESULT (2026-06-19) — overlap ADOPT supported
+
+| arm | cat Δ | reg Δ |
+|---|---|---|
+| **AL** (n=3 seeds {0,1,7}) | **+8.12** (53.07→61.19) | **+3.57** (64.37→67.94) |
+| **FL** (seed0, 5-fold) | **+3.64** (73.01→76.65) | **+0.62** (73.54→74.16) |
+
+Overlap is **positive on both heads at both scales** — scale-dependent (smaller at FL = saturation) but
+never negative. FL MTL cat **+3.64 > memo STL FL cat +1.30**: the cross-attn cat encoder exploits the denser
+(history→target) supervision more under MTL than STL. Reg saturates at FL (+0.62) but is large at AL (+3.57).
+With the audit clean (sound, no leak, training-length confound refuted, same population), this is a clean
+**ADOPT** case — overlap *strengthens* the regime, especially cat. Caveats for the paper carry forward: train
+non-overlap to convergence (FL reg ep50 tail), unpaired across-seed stats, footnote ~3pp power-user reweighting.
+**Binding for the freeze:** ADOPT overlapping windows; the full board rebuilds sequences/log_T/folds at stride-1
+(reusing v14 embeddings), and the binding G0.1 + baselines mirror the adopted windowing.
+
 ## Perf notes (2026-06-19)
 - 43 min/FL-overlap-fold = **proportional** (8.5× windows × ~5 min non-overlap fold); both run 50 epochs.
 - **Dataset can go back on GPU** now the train-logit accumulation is CPU-side (`8ff36dba`): ~6.4 GB dataset +
