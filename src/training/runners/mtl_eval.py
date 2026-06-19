@@ -3,7 +3,13 @@ import os
 
 import torch
 
-from tracking.metrics import compute_classification_metrics
+from tracking.metrics import (
+    compute_classification_metrics,
+    _handrolled_cls_metrics,
+    _rank_of_target,
+    _mrr_from_rank,
+    _ndcg_from_rank,
+)
 from utils.progress import zip_longest_cycle
 
 
@@ -108,6 +114,25 @@ def evaluate_model(
     logits_cat_list, truths_cat_list = [], []
     batches = 0
 
+    # S2 (perf-audit) — CHUNKED/STREAMING val metric for the high-cardinality reg head.
+    # The full path cats the whole val epoch's [N, n_regions] reg logits ON GPU and runs
+    # compute_classification_metrics + _ood_restricted_topk over it — which OOMs the A40 at
+    # CA/TX scale (4.7k-8.5k regions). Every val reg metric (incl. the SCORED top10_acc_indist)
+    # is a per-ROW reduction or additive per-CLASS count, so we stream per-batch reductions on
+    # GPU (matching the canonical fp16-CUDA topk tie-breaking — NEVER CPU-moved) and assemble
+    # the IDENTICAL metric dicts + ood dict from the accumulators. Reg only; cat (C=7) keeps the
+    # full path. SCORED PATH → behind MTL_CHUNK_VAL_METRIC (default OFF) until A40 A/B-verified.
+    _nc_b_gate = task_b_num_classes if task_b_num_classes is not None else (
+        num_classes if num_classes is not None else getattr(model, "num_classes", 0)
+    )
+    _chunk_val = (
+        os.environ.get("MTL_CHUNK_VAL_METRIC", "").strip() in ("1", "true", "True")
+        and _nc_b_gate is not None and _nc_b_gate > 256  # only the handrolled path
+    )
+    _S2_KS = (1, 3, 5, 10)  # union of metrics_next top_k=(3,5) and ood ks=(1,5,10)
+    sv_preds, sv_tgts, sv_rank = [], [], []
+    sv_hit = {k: [] for k in _S2_KS}
+
     # 2026-06-12 (HANDOFF_AUDIT X4 / CODE_AUDIT P1-D) — eval-precision escape hatch.
     # MTL eval autocasts fp16 on CUDA unconditionally, while the p1-STL ceiling
     # harness evaluates in fp32. Over ~5-9k region logits, fp16 quantisation
@@ -158,10 +183,23 @@ def evaluate_model(
         category_running_loss += category_loss.detach()
         combined_running_loss += (next_loss.detach() + category_loss.detach()) / 2
 
-        logits_next_list.append(next_out.detach())
-        truths_next_list.append(y_next)
+        # cat (task_a) — low-card, always full path.
         logits_cat_list.append(cat_out.detach())
         truths_cat_list.append(y_category)
+        if _chunk_val:
+            # reg (task_b) — STREAM per-row reductions ON GPU (canonical fp16 tie-break);
+            # discard the [batch, n_regions] logits so the full [N, C] is never materialized.
+            _no = next_out.detach()
+            sv_preds.append(_no.argmax(dim=-1))
+            sv_tgts.append(y_next)
+            sv_rank.append(_rank_of_target(_no, y_next))
+            for _k in _S2_KS:
+                _ke = min(_k, _no.shape[-1])
+                sv_hit[_k].append((_no.topk(_ke, dim=-1).indices == y_next.unsqueeze(-1)).any(dim=-1))
+            del _no
+        else:
+            logits_next_list.append(next_out.detach())
+            truths_next_list.append(y_next)
         batches += 1
 
     if batches == 0:
@@ -177,8 +215,6 @@ def evaluate_model(
     loss_next = next_running_loss.item() / batches
     loss_category = category_running_loss.item() / batches
 
-    all_logits_next = torch.cat(logits_next_list)
-    all_truths_next = torch.cat(truths_next_list)
     all_logits_category = torch.cat(logits_cat_list)
     all_truths_category = torch.cat(truths_cat_list)
 
@@ -191,9 +227,28 @@ def evaluate_model(
     nc_b = task_b_num_classes if task_b_num_classes is not None else num_classes
     nc_a = task_a_num_classes if task_a_num_classes is not None else num_classes
 
-    metrics_next = compute_classification_metrics(
-        all_logits_next, all_truths_next, num_classes=nc_b,
-    )
+    if _chunk_val:
+        # Reg metrics_next from the streamed accumulators (byte-identical to
+        # compute_classification_metrics(full reg logits, top_k=(3,5)) on the C>256
+        # handrolled path: same helpers, same keys/order; preds/rank/hit per-row, on-GPU).
+        _P = torch.cat(sv_preds)
+        _T = torch.cat(sv_tgts)
+        _R = torch.cat(sv_rank)
+        _HIT = {k: torch.cat(sv_hit[k]) for k in _S2_KS}
+        _am, _aM, _fm, _fw = _handrolled_cls_metrics(_P, _T, nc_b)
+        metrics_next = {
+            "accuracy": _am, "accuracy_macro": _aM, "f1": _fm,
+            "f1_weighted": _fw, "mrr": _mrr_from_rank(_R),
+        }
+        for _k in (3, 5):
+            metrics_next[f"top{_k}_acc"] = _HIT[_k].float().mean().item()
+            metrics_next[f"ndcg_{_k}"] = _ndcg_from_rank(_R, _k)
+    else:
+        all_logits_next = torch.cat(logits_next_list)
+        all_truths_next = torch.cat(truths_next_list)
+        metrics_next = compute_classification_metrics(
+            all_logits_next, all_truths_next, num_classes=nc_b,
+        )
     metrics_category = compute_classification_metrics(
         all_logits_category, all_truths_category, num_classes=nc_a,
     )
@@ -207,7 +262,29 @@ def evaluate_model(
     # against the artefact where a model scores well on train-overlap
     # POIs but 0 on OOD POIs, and the raw Acc@K averages across both.
     if train_labels_b is not None:
-        ood_b = _ood_restricted_topk(all_logits_next, all_truths_next, train_labels_b)
+        if _chunk_val:
+            # Byte-identical to _ood_restricted_topk (ks=(1,5,10)) from the same
+            # streamed accumulators + the in-dist mask: hit/rank are per-row, so
+            # hit_all[mask] == hit on logits[mask]; one .float().mean() (NOT a running
+            # int count — that drifts at the last ULP).
+            _train_t = torch.as_tensor(sorted(train_labels_b), dtype=_T.dtype, device=_T.device)
+            _mask = torch.isin(_T, _train_t)
+            _ni = int(_mask.sum().item())
+            _noo = len(_T) - _ni
+            ood_b = {
+                "n_indist": float(_ni), "n_ood": float(_noo),
+                "ood_fraction": float(_noo / max(len(_T), 1)),
+            }
+            if _ni == 0:
+                for _k in (1, 5, 10):
+                    ood_b[f"top{_k}_acc_indist"] = 0.0
+                ood_b["mrr_indist"] = 0.0
+            else:
+                for _k in (1, 5, 10):
+                    ood_b[f"top{_k}_acc_indist"] = float(_HIT[_k][_mask].float().mean().item())
+                ood_b["mrr_indist"] = float((1.0 / _R[_mask].float()).mean().item())
+        else:
+            ood_b = _ood_restricted_topk(all_logits_next, all_truths_next, train_labels_b)
         metrics_next.update(ood_b)
     if train_labels_a is not None:
         ood_a = _ood_restricted_topk(all_logits_category, all_truths_category, train_labels_a)
