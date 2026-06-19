@@ -25,6 +25,7 @@ def generate_sequences(
     pad_value: int = PADDING_VALUE,
     stride: int = None,
     return_start_indices: bool = False,
+    min_sequence_length: int = MIN_SEQUENCE_LENGTH,
 ):
     """
     Generate sequences of fixed length for next-POI prediction.
@@ -41,6 +42,10 @@ def generate_sequences(
         return_start_indices: If True, return List[Tuple[int, List[int]]] where each
             tuple is (start_idx, sequence). Needed for position-based embedding lookup
             in check-in-level conversion.
+        min_sequence_length: Minimum number of check-ins a user must have for any
+            sequence to be emitted; users with fewer are dropped (returns []).
+            Default == the module constant MIN_SEQUENCE_LENGTH (5) so existing
+            callers are byte-identical to the pre-parameterization behaviour.
 
     Returns:
         If return_start_indices is False:
@@ -49,7 +54,7 @@ def generate_sequences(
             List of (start_idx, sequence) tuples.
         Empty list if insufficient data.
     """
-    if not places_visited or len(places_visited) < MIN_SEQUENCE_LENGTH:
+    if not places_visited or len(places_visited) < min_sequence_length:
         return []
 
     sequences = []
@@ -340,6 +345,7 @@ def convert_user_checkins_to_sequences(
     window_size: int,
     embedding_dim: int,
     stride: int = None,
+    min_sequence_length: int = MIN_SEQUENCE_LENGTH,
 ) -> Tuple[List[np.ndarray], List[List[int]]]:
     """
     Convert a single user's check-in DataFrame to embedding sequences using position-based lookup.
@@ -387,7 +393,11 @@ def convert_user_checkins_to_sequences(
     # Generate POI sequences using shared function (with start indices for position safety)
     places = placeids.tolist()
     sequences_with_idx = generate_sequences(
-        places, window_size=window_size, stride=stride, return_start_indices=True
+        places,
+        window_size=window_size,
+        stride=stride,
+        return_start_indices=True,
+        min_sequence_length=min_sequence_length,
     )
 
     if not sequences_with_idx:

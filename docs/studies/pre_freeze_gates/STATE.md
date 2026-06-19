@@ -11,7 +11,7 @@
 |---|---|---|---|
 | A2 feature-concat control | interpretation | ✅ RESOLVED (M4, 2026-06-17) | **ON NULL — claim STRENGTHENED.** concat closes only 7–8% of v14 cat gap (12–18% of v11); reg inert. See `A2_RESULTS.md`. |
 | A4 transductivity bound | disclosure | ✅ RESOLVED (M4, 2026-06-17), AL+FL | **ON NULL both axes.** Reg ≈0 (AL −0.33, FL −0.12pp; validated vs A2). Cat (substrate-driven axis) measured via in-coverage POI proxy ≈0 (AL +0.29 @67%, FL +0.00 @87% cov). One-paragraph defusal; no re-anchoring. Caveat: POI proxy + cold-POI/contextual residual → inductive-Check2HGI future-work. See `A4_RESULTS.md`. |
-| Overlapping-windows adopt/keep | base change (effect already validated AL) | not started (not on M4) | — |
+| Overlapping-windows adopt/keep | base change (effect already validated AL) | ✅ VALIDATED (A40, 2026-06-19) | **ADOPT supported.** AL n=3 cat +8.12/reg +3.57; FL seed0 cat +3.64/reg +0.62 — positive both heads both scales (scale-dependent, never negative); leak/training-length/population audits clean. See `LANE2_OVERLAP_VALIDATION.md`. P3 rebuilds sequences/log_T/folds at stride-1 (reuses v14 embeddings). |
 
 > **NOTE (2026-06-17):** the HANDOFF said A2/A4 SYNC the canonical v14 + HGI artifacts. They were
 > absent from this M4 (and HGI was missing from the rsync list), so per user direction the substrates
@@ -45,6 +45,19 @@
   `results/pre_freeze_gates/a4/` (gitignored — numbers captured in `A4_RESULTS.md`, reproducible via the scripts).
 
 ## Decisions log
+- 2026-06-19 — **Lane 1/2/3 + baselines closed on the A40** (session `study/pre-freeze-a40`).
+  Lane 1: G0.1-advisory + loss-scale advisory both **null** → recipe stays v16. Lane 2: overlap **ADOPT**
+  supported (table above); stride-1 leak paths (a/b/c) clean, (d) E2-chrono is a Mac-track empirical item.
+  Lane 3: CA+TX v14 built (embeddings-only anchor, seed 42, A40) → **all 6 states hash-manifested**
+  (`V14_HASH_MANIFEST.json`) → §0 STOP-condition lifted. Baselines: 7 INCLUDE externals implemented +
+  adversarially audited (B3 READY; 6 NEEDS_FIX, cheap fixes applied) — see `closing_data/BASELINES_IMPL_AUDIT.md`.
+  **B2a POI2Vec RESOLVED** (unfaithful → `GeoTreeSkipGram` honest rename + **faithful AAAI'17 POI2Vec built**,
+  `poi2vec_lib/`). **FL new-code scan DONE** — byte-identical (MTL 73.0116/73.5414 exact; `FL_NEWCODE_SCAN.md`).
+  **FL overlap STL-vs-MTL DONE** (`FL_OVERLAP_STL_MTL.md`; reg-ceiling Acc@10 under overlap deferred to T3 —
+  not matchable in-probe). **Speed levers** (`SPEED_LEVERS.md`): `--compile --tf32` **ADOPTED + pinned** for
+  the P3 board (result-neutral +0.05 pp, ~15% faster); torch stays 2.11; workers skipped. **Lane 2(d)
+  E2-chrono leak re-audit CLOSED CLEAN** (`STRIDE1_LEAK_REAUDIT.md`) — all 4 stride-1 paths closed.
+  Architecture: SC baselines via `train.py --engine`; `--only-fold k` added (default-inert, P3 per-fold scoring).
 - 2026-06-17 — **A2 RESOLVED** (claim strengthened: concat closes 2.4–8.3% of the v14 cat gap, AL/AZ/FL) +
   **A4 RESOLVED** (ON NULL both axes: reg ≈0, cat ≈0 via in-coverage POI proxy, AL+FL). M4 run. See results docs.
 - 2026-06-14 — scaffolded. A2 from `baseline_gap_analysis.md` Tier-1; A4 from `evaluation_protocol_review.md §4.1`;

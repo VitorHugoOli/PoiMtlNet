@@ -23,6 +23,10 @@ static_weight --category-weight 0.75`; **UNWEIGHTED CE both heads** (v15 / C25 f
 STL-full). **Provenance (C28, every RE-RUN):** PID-suffixed rundirs + per-run seed echo; seed-tagged
 per-fold `log_T` freshness preflight (log_T mtime > `next_region.parquet` mtime) before any
 `--per-fold-transition-dir` run; `--canon` pinned in every driver.
+**Execution config (PINNED 2026-06-19):** every P3 cell runs with **`--compile --tf32`** + GPU-resident
+dataset (auto-fit) — ~15% faster, empirically result-neutral (cat +0.046 / reg +0.065 pp vs the no-knobs
+byte-identical anchor, ≪ noise; `pre_freeze_gates/SPEED_LEVERS.md`). Run the WHOLE board compiled (never mix
+compiled/non-compiled cells); reviewers reproduce *with* them. torch **2.11** (no upgrade); `num_workers=0`.
 
 **Story consequence (load-bearing):** the frozen recipe **INVERTS** the BRACIS headline. §0.1/T3 reported
 "MTL sacrifices region −7…−17 pp"; under G the gap **dissolves** (MTL matches the STL reg ceiling, matched

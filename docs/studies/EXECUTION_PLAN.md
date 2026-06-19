@@ -126,6 +126,15 @@ is verified-or-built**, and the §4b decisions are pinned.
 
 The 4-doc-tree sweep found **zero uncaptured base-changer** — these are "pin-so-it-is-not-silently-inconsistent"
 items (all cheap; recommended default in **bold**):
+- **Execution config: `--compile --tf32` ADOPTED for the P3 board (user-confirmed 2026-06-19).** torch.compile
+  + TF32, GPU-resident dataset (auto-fit). EMPIRICALLY result-neutral: champion-G FL non-overlap seed0 5f
+  vs the byte-identical no-knobs baseline → cat +0.046 pp, reg +0.065 pp (both ≪ ±1 pp seed/fold noise);
+  ~15% faster/fold. These are **execution knobs, NOT recipe identity** (v16 model/heads/loss unchanged;
+  frozen embeddings untouched — compile is training-only). PIN: the whole P3 board runs with `--compile
+  --tf32` ONCE (never mix compiled/non-compiled cells); reviewers reproduce *with* them. The no-knobs
+  byte-identical anchors (e.g. FL 73.01/73.54) are the reference; board cells sit ~0.05 pp above. torch
+  stays **2.11** (§10 NO-GO: `torch_cluster` cu128 wheel + topk re-baseline); `num_workers` **skipped**
+  (non-bottleneck with GPU-resident data + non-deterministic). Eval: `pre_freeze_gates/SPEED_LEVERS.md`.
 - **T4 Δm metric:** the Δm joint-score table uses reg-**MRR** as primary while the board headline is reg-**Acc@10**
   → pin **Acc@10-primary** (headline-consistent), or compute both + footnote metric-robustness.
 - **Cross-state reporting convention:** main-board reg Acc@10 is NOT comparable across states (tracts 1.1k–8.5k) →
@@ -197,8 +206,11 @@ deferrals (none weaken the core 4 beats):
 4. **G0.1 binding on the frozen base** ✓ — {0,1,7,100}, 0.3 pp gate pre-registered.
 
 **RESOLVED ✓ (user, 2026-06-18):**
-5. **Loss-scale normalization** → **RUN** as a pre-freeze FL advisory alongside G0.1 (CE/`log(num_classes)`
-   before `cw=0.75`; ≥0.3 pp either head → v17 candidate; null → exclude on the record).
+5. **Loss-scale normalization** → **RAN 2026-06-18 (A40, AL+FL seed0) → EXCLUDED (harmful at scale).** Not a
+   v17. AL cat +0.61 (small-state rebalance artifact) but **FL reg −37.81 pp** (degenerate head, reached
+   epoch 2-6) — normalization divides reg CE by `ln(n_reg)≈8.46` vs cat `ln7≈1.95`, starving the large reg head
+   on top of `cw=0.75`; worsens with region cardinality (worst at CA/TX). Recipe stays v16. Verdict:
+   [`pre_freeze_gates/LANE1_LOSSSCALE_VERDICT.md`](pre_freeze_gates/LANE1_LOSSSCALE_VERDICT.md).
 7. **B7 selection-on-reporting-fold** → **disclosure-only** (pair every diagnostic-best number with the
    deployable geom_simple number + state the shared-fold bias; no separate B7 run).
 
@@ -231,3 +243,17 @@ one-sided.** Sources: Flashback (IJCAI'20, code `setting.py` `sequence_length=20
 DeepMove (WWW'18, `session 2–10`/`trace_min=10`), GETNext (SIGIR'22, daily ≈7–8/`<10` filter), STAN (WWW'21,
 max=100), SGRec (IJCAI'21, `n=20`/10-core), CTLE (AAAI'21), HMT-GRN (SIGIR'22, 20–50/geohash regions),
 Massive-STEPS (arXiv:2505.11239).
+
+## 10 · Torch upgrade decision — NO-GO (2026-06-19, eval-backed)
+
+User strategy (sound): adopting overlap re-runs all MODEL training anyway, so a torch upgrade's re-baseline
+cost is largely amortized → bundle it into the one freeze. **But evaluated → NO-GO for the freeze.** Make-or-break:
+`torch_cluster` (load-bearing: the check2hgi embedding builder imports `torch_geometric.nn.Node2Vec` →
+`torch_cluster.random_walk` at module-load) has **ZERO torch-2.12 wheels** (cu126/cu130/cu132 all confirmed
+absent at https://data.pyg.org/whl/; sdist frozen at 1.6.3). `torch_scatter`/`torch_sparse` DO have pt212 wheels;
+`torch_cluster` does not. Migrating ⇒ from-source compile against cu126/130 nvcc on a shared box hosting live
+runs — high-risk. Benefit ~nil (2.12's TopK RadixSelect speedup is sub-noise for our few-thousand-region Acc@10
+topk; no quality win). Driver 580 supports cu126/cu130 (not the blocker). **Decision: stay torch 2.11.0+cu128
+for the entire freeze.** The torch-build guard (lane1_run.sh, commit b5332b2e) enforces it. Revisit 2.12
+post-paper IF torch_cluster publishes pt212 wheels OR the Node2Vec import is made lazy. ⇒ CA/TX v14 builds on
+2.11 are FINAL (not throwaway) — Lane 3 unblocked.

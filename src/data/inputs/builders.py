@@ -8,6 +8,9 @@ Moved from pipelines/create_inputs.pipe.py to follow the pattern where pipes onl
 handle orchestration and modules contain business logic.
 """
 from typing import Optional
+import json
+import subprocess
+from datetime import datetime, timezone
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
@@ -49,7 +52,60 @@ from .core import (
     PADDING_VALUE,
     DEFAULT_BATCH_SIZE,
     MISSING_CATEGORY_VALUE,
+    MIN_SEQUENCE_LENGTH,
 )
+
+
+def _git_sha() -> str:
+    """Best-effort current git commit hash; 'unknown' if unavailable."""
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "HEAD"],
+            stderr=subprocess.DEVNULL,
+            text=True,
+        ).strip()
+    except Exception:
+        return "unknown"
+
+
+def _write_build_provenance(
+    state: str,
+    engine: EmbeddingEngine,
+    task: str,
+    *,
+    min_sequence_length: int,
+    stride: Optional[int],
+    window_size: int,
+) -> None:
+    """Write an additive build-provenance sidecar next to the task's input parquet.
+
+    Path: ``<engine_dir>/input/<task>_build_provenance.json``. This NEVER gates
+    anything — it only records how the windowing-dependent inputs were built so a
+    later reviewer can tell a stride-1/min_seq-10 board build apart from the frozen
+    stride-9/min_seq-5 default build. ``stride=None`` means non-overlapping
+    (step == window_size), matching the default code path.
+    """
+    try:
+        # Anchor the sidecar to the same input dir the next parquet lives in.
+        next_path = IoPaths.get_next(state, engine)
+        sidecar = next_path.parent / f"{task}_build_provenance.json"
+        payload = {
+            "task": task,
+            "engine": engine.value,
+            "state": state,
+            "min_sequence_length": min_sequence_length,
+            # JSON-friendly: record the effective step explicitly too.
+            "stride": stride,
+            "effective_step": stride if stride is not None else window_size,
+            "window_size": window_size,
+            "git_sha": _git_sha(),
+            "utc": datetime.now(tz=timezone.utc).isoformat(),
+        }
+        sidecar.parent.mkdir(parents=True, exist_ok=True)
+        sidecar.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    except Exception:
+        # Provenance is best-effort and must never break a build.
+        pass
 
 
 def generate_category_input(state: str, engine: EmbeddingEngine) -> None:
@@ -86,7 +142,9 @@ def generate_category_input(state: str, engine: EmbeddingEngine) -> None:
 def generate_next_input_from_poi(
     state: str,
     engine: EmbeddingEngine,
-    batch_size: int = DEFAULT_BATCH_SIZE
+    batch_size: int = DEFAULT_BATCH_SIZE,
+    stride: Optional[int] = None,
+    min_sequence_length: int = MIN_SEQUENCE_LENGTH,
 ) -> None:
     """
     Generate next-POI input from POI-level embeddings.
@@ -97,6 +155,10 @@ def generate_next_input_from_poi(
         state: State name
         engine: Embedding engine
         batch_size: Batch size for processing sequences
+        stride: Step between sequence starts. ``None`` (default) → step ==
+            window_size (non-overlapping), byte-identical to the legacy path.
+        min_sequence_length: Minimum user check-ins to emit any sequence.
+            Default == MIN_SEQUENCE_LENGTH (5) → legacy behaviour preserved.
     """
     # Load data
     embeddings_df = IoPaths.load_embedd(state, engine)
@@ -111,7 +173,11 @@ def generate_next_input_from_poi(
     # Generate sequences per user
     checkins_df = checkins_df.sort_values(['userid', 'datetime'])
     user_sequences = checkins_df.groupby('userid')['placeid'].apply(
-        lambda places: generate_sequences(places.tolist())
+        lambda places: generate_sequences(
+            places.tolist(),
+            stride=stride,
+            min_sequence_length=min_sequence_length,
+        )
     )
 
     # Flatten sequences into DataFrame
@@ -137,12 +203,21 @@ def generate_next_input_from_poi(
     # Save output
     save_next_input_dataframe(all_results, window_size, embedding_dim, state, engine)
 
+    # Additive build-provenance sidecar (never gates anything)
+    _write_build_provenance(
+        state, engine, "next",
+        min_sequence_length=min_sequence_length,
+        stride=stride,
+        window_size=window_size,
+    )
+
 
 def generate_next_input_from_checkins(
     state: str,
     engine: EmbeddingEngine,
     batch_size: int = DEFAULT_BATCH_SIZE,
     stride: int = None,
+    min_sequence_length: int = MIN_SEQUENCE_LENGTH,
 ) -> None:
     """
     Generate next-POI input from check-in-level embeddings.
@@ -154,6 +229,10 @@ def generate_next_input_from_checkins(
         state: State name
         engine: Embedding engine
         batch_size: Batch size for processing sequences (unused, kept for API compatibility)
+        stride: Step between sequence starts. ``None`` (default) → step ==
+            window_size (non-overlapping), byte-identical to the legacy path.
+        min_sequence_length: Minimum user check-ins to emit any sequence.
+            Default == MIN_SEQUENCE_LENGTH (5) → legacy behaviour preserved.
     """
     # Load data
     embeddings_df = IoPaths.load_embedd(state, engine)
@@ -178,7 +257,8 @@ def generate_next_input_from_checkins(
         user_df = user_df.reset_index(drop=True)
 
         results, sequences = convert_user_checkins_to_sequences(
-            user_df, emb_cols, window_size, embedding_dim, stride=stride
+            user_df, emb_cols, window_size, embedding_dim,
+            stride=stride, min_sequence_length=min_sequence_length,
         )
 
         all_results.extend(results)
@@ -196,3 +276,11 @@ def generate_next_input_from_checkins(
 
     # Save output DataFrame
     save_next_input_dataframe(all_results, window_size, embedding_dim, state, engine)
+
+    # Additive build-provenance sidecar (never gates anything)
+    _write_build_provenance(
+        state, engine, "next",
+        min_sequence_length=min_sequence_length,
+        stride=stride,
+        window_size=window_size,
+    )

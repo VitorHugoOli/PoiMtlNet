@@ -1,5 +1,13 @@
 """POI2Vec: Pre-training POI embeddings using fclass-level hierarchical Node2Vec for HGI.
 
+⚠ NAMING (clarity note, 2026-06-19): despite the module/class name, this is an *fclass-level
+hierarchical Node2Vec teacher* used INSIDE HGI — it is NOT the AAAI'17 POI2Vec baseline
+(Feng et al. 2017). The faithful AAAI'17 POI2Vec baseline lives in
+``scripts/baselines/poi2vec_lib/``. This teacher is load-bearing for the frozen HGI/v14
+substrates (build-time only; train.py reads the frozen parquet and never imports this), so the
+class/module/artifact names are intentionally LEFT UNCHANGED to avoid churning the ~25 build
+scripts that read its output CSV by hardcoded path. Do not rename without a dedicated PR.
+
 Reference Implementation
 ------------------------
 This implementation follows the region-embedding-benchmark approach:

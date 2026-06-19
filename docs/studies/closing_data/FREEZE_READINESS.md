@@ -15,7 +15,12 @@
 **OPEN — the freeze cannot commit while any is open:**
 - **G0.1 aligned-pairing** — the lone *recipe-changing* P0 gate. Spec in [`PLAN.md §G0.1`](PLAN.md). ≥0.3 pp
   either head (multi-seed) → recipe becomes v17 + STOP for user; null → v16 freezes and "wins without
-  per-sample mixing" is earned.
+  per-sample mixing" is earned. **▶ ADVISORY RESOLVED NULL 2026-06-18 (A40, AL+FL seed0):** FL null
+  (cat +0.17 / reg ±0.00), AL aligned HURTS cat (−4.77) — random pairing is a beneficial augmentation, not a
+  confound. v16 stands; X1 circularity closed. The **binding** {0,1,7,100} run on the FROZEN base remains the
+  formal closure (expected null). [`pre_freeze_gates/LANE1_G01_VERDICT.md`](../pre_freeze_gates/LANE1_G01_VERDICT.md).
+  **Loss-scale advisory (the §8 #5 companion lever): ▶ EXCLUDED** — FL reg −37.8 pp (harmful at scale);
+  [`pre_freeze_gates/LANE1_LOSSSCALE_VERDICT.md`](../pre_freeze_gates/LANE1_LOSSSCALE_VERDICT.md).
 - **Overlapping-windows ADOPT/KEEP** — base change (validated AL only). ADOPT ⇒ full base rebuild + a clean
   leak re-audit + baseline re-match; default is KEEP. **User sign-off required** (it accepts the rebuild cost).
 - **B1–B5 baseline triage** (P1b) — which external baselines become RUN_MATRIX rows. Reading/decision; the
@@ -36,6 +41,15 @@ every branch); the hazard is purely at the **on-disk artifact** level.
   studies' absolutes next to the board.**
 - **Fix (P3/M0a):** regenerate **ONE** canonical v14 per state on a **fixed machine + fixed build seed**, and
   add a **hash manifest** every consumer checks against before use. See [`M0_P3_PLAN.md`](M0_P3_PLAN.md).
+
+> **A40 UPDATE 2026-06-18 (`study/pre-freeze-a40`):** the freshness-preflight item below is **DONE** — portable
+> shared util `src/data/log_t_freshness.py` wired into the two unguarded consumers (`a4_eval.py`,
+> `p1_region_head_ablation.py`) + `c1_run_g.sh` made portable (its `stat -f %m` was BSD-only, silently no-op on
+> the Linux A40). AL is **NOT stale on the A40** (all reporting seeds' log_T newer than `next_region.parquet`).
+> The hash-manifest BLOCKER is **CLOSED (2026-06-19)**: `V14_HASH_MANIFEST.json` records **all 6 states**
+> AL/AZ/FL/GE/CA/TX (region cards 1109/1547/4703/2283/8501/6553) — CA+TX built on the A40 (seed 42). The §0
+> STOP-condition is **LIFTED** (substrate-identity gate satisfied on one fixed machine+seed; CA/TX carry the
+> windowing-independent substrate files, input parquets deferred to the post-windowing-gate per RUN_MATRIX M0).
 
 ### 🟠 MAJOR — centralize the stale-`log_T` freshness preflight; AL is stale now
 The mandated freshness rule (`log_T` mtime > `next_region.parquet` mtime before any `--per-fold-transition-dir`

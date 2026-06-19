@@ -934,6 +934,19 @@ def _parse_args(argv=None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--aligned-pairing",
+        dest="aligned_pairing",
+        action="store_true",
+        default=False,
+        help=(
+            "G0.1 (closing_data P0 gate) — drive the Check2HGI MTL cat+reg TRAIN "
+            "loaders from ONE shared per-epoch permutation so cat-window k trains "
+            "paired with reg-window k (same window) instead of independent shuffles "
+            "(random cross-task pairing). MTL-check2hgi only; default off (champion "
+            "G untouched). Requires KD off + alpha frozen (the champion-G recipe)."
+        ),
+    )
+    parser.add_argument(
         "--log-t-kd-gate",
         dest="log_t_kd_gate",
         type=str,
@@ -1074,6 +1087,19 @@ def _parse_args(argv=None) -> argparse.Namespace:
             "`python scripts/compute_region_transition.py --state <S> "
             "--per-fold --n-splits max(2,N) --seed <seed>`. See "
             "docs/studies/mtl-exploration/LEAK_BLAST_RADIUS_AUDIT.md."
+        ),
+    )
+    parser.add_argument(
+        "--only-fold",
+        type=int,
+        default=None,
+        help=(
+            "[ONLY-FOLD] Run EXACTLY fold k (0-indexed) of the canonical n_splits=5 split. "
+            "For scoring per-(state,seed,fold) substrate baselines (B1 CTLE / B2a POI2Vec / "
+            "B2b skipgram) leak-cleanly against the matching 5-split seeded log_T — the "
+            "single-fold substrate must be evaluated on exactly its own fold of the 5-split, "
+            "which --folds N (n_splits=max(2,N)) cannot express. Mutually exclusive with "
+            "--folds. Default None => no behavior change (the champion never passes it)."
         ),
     )
     parser.add_argument(
@@ -1666,6 +1692,16 @@ def _apply_cli_overrides(
             "log(num_classes) before the MTL combiner"
         )
 
+    # G0.1 aligned-pairing — opt-in, MTL-only.
+    if getattr(args, "aligned_pairing", False):
+        if config.task_type != "mtl":
+            raise ValueError("--aligned-pairing requires --task mtl")
+        config = dataclasses.replace(config, aligned_pairing=True)
+        logger.info(
+            "aligned-pairing ON (G0.1) — cat+reg train loaders share one "
+            "per-epoch permutation (aligned cross-task pairing)"
+        )
+
     # substrate-protocol-cleanup Tier C1 — --save-task-best-snapshots.
     if getattr(args, "save_task_best_snapshots", False):
         if config.task_type != "mtl":
@@ -1748,6 +1784,7 @@ def _resolve_folds(
             task_set=task_set,
             task_a_input_type=getattr(args, "task_a_input_type", "checkin"),
             task_b_input_type=getattr(args, "task_b_input_type", "checkin"),
+            aligned_pairing=getattr(config, "aligned_pairing", False),
         )
         return creator.create_folds(config.state, engine)
 
@@ -1793,8 +1830,57 @@ def _load_config_from_file(path: str) -> ExperimentConfig:
     return mod.config()
 
 
+def _preflight_canon_guards(args) -> None:
+    """[anti-stumble] Visibility guards so a fresh agent/dev does not silently hit a wrong
+    flow. WARN-only by default → **numerically inert** (no config/computation change); set
+    ``MTL_STRICT=1`` to hard-fail (freeze-grade runs). Covers the three silent stumbles the
+    pre-freeze defaults-audit surfaced (2026-06-19): development-seed 42, champion-recipe-on-
+    the-wrong-substrate, and torch ≠ 2.11.0+cu128. The recipe itself is already enforced by
+    ``--canon`` (default v16); these only catch the values canon deliberately does NOT pin.
+    """
+    import os as _os
+    from configs.canon import CANON_BUNDLES
+
+    strict = _os.environ.get("MTL_STRICT", "").strip() in ("1", "true", "True")
+
+    def _emit(msg: str) -> None:
+        if strict:
+            raise SystemExit("MTL_STRICT=1 → " + msg)
+        logger.warning(msg)
+
+    canon = getattr(args, "canon", None)
+    canon_active = (getattr(args, "task", None) == "mtl"
+                    and getattr(args, "config", None) is None
+                    and canon not in (None, "none"))
+
+    if canon_active:
+        # (1) development-seed 42 is NOT paper-grade (overshoots §0.1 at large states).
+        if getattr(args, "seed", None) is None:
+            _emit("[canon-guard] --seed not set → development seed 42 (overshoots §0.1 by "
+                  "~+3pp CA / +8pp TX). Paper-grade numbers require --seed in {0,1,7,100}.")
+        # (2) champion recipe running on a DIFFERENT substrate than the canon bundle pins.
+        bundle = CANON_BUNDLES.get(canon, [])
+        bundle_engine = next((bundle[i + 1] for i, t in enumerate(bundle)
+                              if t == "--engine" and i + 1 < len(bundle)), None)
+        resolved_engine = getattr(args, "engine", None)
+        if bundle_engine and resolved_engine and resolved_engine != bundle_engine:
+            _emit(f"[canon-guard] --canon {canon} is pinned to substrate '{bundle_engine}' "
+                  f"but --engine resolved to '{resolved_engine}' → the champion recipe is on "
+                  f"a DIFFERENT substrate (wrong-substrate stumble; use the matching --canon).")
+
+    # (3) torch build: the frozen reg Acc@10 tie-break depends on the fp16 TopK kernel.
+    try:
+        import torch as _torch
+        if _torch.__version__ != "2.11.0+cu128":
+            _emit(f"[canon-guard] torch is '{_torch.__version__}', expected '2.11.0+cu128' "
+                  f"(torch ≥2.12 rewrote the TopK kernel → frozen reg Acc@10 tie-break shifts).")
+    except Exception:
+        pass
+
+
 def main(argv=None) -> None:
     args = _parse_args(argv)
+    _preflight_canon_guards(args)
 
     # Build config
     if args.config is not None:
@@ -1836,7 +1922,13 @@ def main(argv=None) -> None:
     # --folds: limits execution, doesn't change split structure.
     # StratifiedKFold requires n_splits >= 2, so we use max(2, requested).
     max_folds = args.folds  # None means run all folds
-    if max_folds is not None:
+    if getattr(args, "only_fold", None) is not None:
+        # [ONLY-FOLD] force the canonical 5-split so fold k matches the per-fold substrate
+        # + the n_splits=5 seeded log_T. Mutually exclusive with --folds. Inert by default.
+        if max_folds is not None:
+            raise SystemExit("--only-fold and --folds are mutually exclusive; pass only one.")
+        config = dataclasses.replace(config, k_folds=5)
+    elif max_folds is not None:
         n_splits = max(2, max_folds)
         config = dataclasses.replace(config, k_folds=n_splits)
 
@@ -1906,6 +1998,10 @@ def main(argv=None) -> None:
             EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_L0_1,
             EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_MAE_L0_1,  # option-b dual-axis base
             EmbeddingEngine.CHECK2HGI_DK_OVL,  # overlap-window probe (v14 re-windowed stride=1)
+            EmbeddingEngine.BASELINE_B2C_ONEHOT64,  # [ENUM-MERGE] B2c zero-training floor probe
+            EmbeddingEngine.CHECK2HGI_CTLE,  # [ENUM-MERGE] B1 CTLE contextual per-visit substrate
+            EmbeddingEngine.BASELINE_B2A_POI2VEC,  # [ENUM-MERGE] B2a faithful POI2Vec
+            EmbeddingEngine.BASELINE_GEOTREE_SKIPGRAM,  # [ENUM-MERGE] geo-tree skip-gram baseline
         )
         if is_check2hgi_track and engine not in _ALLOWED_ENGINES_FOR_C2HGI_PRESET:
             print(
@@ -2003,10 +2099,22 @@ def main(argv=None) -> None:
         updated_params["task_set"] = task_set
         config = dataclasses.replace(config, model_params=updated_params)
 
-    # Apply max_folds limit (run only first N folds).
+    # Apply --only-fold / --folds limit (run only the requested fold(s)).
     # config.k_folds stays as the split structure count (>= 2);
     # runners use len(fold_results) to determine actual execution count.
-    if max_folds is not None and max_folds < len(fold_results):
+    if getattr(args, "only_fold", None) is not None:
+        # [ONLY-FOLD] keep EXACTLY fold k (0-indexed), PRESERVING its dict key so the runner
+        # loads region_transition_log_seed{seed}_fold{k+1}.pt. Fail loud on a stale (<5)-split
+        # cache or an out-of-range k.
+        if len(fold_results) != 5:
+            raise SystemExit(
+                f"--only-fold needs the canonical 5-split (got {len(fold_results)} folds); "
+                f"re-freeze folds / rebuild the per-fold substrate at n_splits=5.")
+        if args.only_fold not in fold_results:
+            raise SystemExit(
+                f"--only-fold {args.only_fold} not in available folds {sorted(fold_results)}")
+        fold_results = {args.only_fold: fold_results[args.only_fold]}
+    elif max_folds is not None and max_folds < len(fold_results):
         fold_results = dict(list(fold_results.items())[:max_folds])
 
     results_path = IoPaths.get_results_dir(config.state, engine)

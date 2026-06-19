@@ -73,6 +73,13 @@ class EmbeddingEngine(Enum):
     CHECK2HGI_RESLN_P2P = "check2hgi_resln_p2p"
     CHECK2HGI_GPROP = "check2hgi_gprop"  # baseline check-in emb + GCN^2-propagated region emb (adjacency-aware head proxy)
     CHECK2HGI_RESLN_DESIGN_B_GPROP = "check2hgi_resln_design_b_gprop"  # v13 + GCN^2 region emb
+    # ── external-baseline probe engines (scripts/baselines/) ──────────────────
+    # [ENUM-MERGE] appended at the END; do NOT reorder existing members. Value-keyed
+    # routing → inert for the champion (which uses check2hgi_design_k_resln_mae_l0_1).
+    BASELINE_B2C_ONEHOT64 = "baseline_b2c_onehot64"  # B2c: FIXED 64-d seeded random projection of POI id (zero-training floor; NO pretrain → leak-trivial, windowing-independent, reusable)
+    CHECK2HGI_CTLE = "check2hgi_ctle"  # B1: CTLE (Lin et al. AAAI'21) contextual per-visit embedding (MLM+MH pretrain, leak-safe per fold)
+    BASELINE_B2A_POI2VEC = "baseline_b2a_poi2vec"  # B2a: faithful AAAI'17 POI2Vec (CBOW + midpoint tree + overlap-area phi + user term, leak-safe per fold)
+    BASELINE_GEOTREE_SKIPGRAM = "baseline_geotree_skipgram"  # geo-tree-regularized skip-gram (the renamed, honest non-POI2Vec baseline)
     POI2HGI = "poi2hgi"
     FUSION = "fusion"  # Multi-embedding fusion
 
@@ -487,6 +494,10 @@ class IoPaths:
             EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_L0_1,    # design_k + resln
             EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_MAE_L0_1,  # dual-axis champion (option-b base)
             EmbeddingEngine.CHECK2HGI_DK_OVL,  # overlap-window real-pipeline probe (v14 re-windowed stride=1)
+            EmbeddingEngine.BASELINE_B2C_ONEHOT64,  # [ENUM-MERGE] B2c zero-training floor probe
+            EmbeddingEngine.CHECK2HGI_CTLE,  # [ENUM-MERGE] B1 CTLE contextual per-visit substrate
+            EmbeddingEngine.BASELINE_B2A_POI2VEC,  # [ENUM-MERGE] B2a faithful POI2Vec
+            EmbeddingEngine.BASELINE_GEOTREE_SKIPGRAM,  # [ENUM-MERGE] geo-tree skip-gram baseline
         )
         if embedd_engine not in supported:
             raise ValueError(
