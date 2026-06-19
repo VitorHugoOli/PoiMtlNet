@@ -47,14 +47,16 @@ CANON_BUNDLES: dict[str, List[str]] = {
         "--checkpoint-selector", "joint_f1_mean",
         "--reg-class-weights", "--cat-class-weights",
     ],
-    # v12 — v11 + log_T-KD W=0.2 ON; still class-WEIGHTED (predates C25); geom_simple selector (default).
+    # v12 — v11 + log_T-KD W=0.2 ON; still class-WEIGHTED (predates C25); geom_simple selector.
     "v12": _CROSSATTN_B9 + [
         "--log-t-kd-weight", "0.2",
+        "--checkpoint-selector", "geom_simple",   # pin explicitly (was the argparse default; identity-preserving)
         "--reg-class-weights", "--cat-class-weights",
     ],
     # v15 — v12 recipe + the C25 fix: BOTH heads UNWEIGHTED (the current bare code default).
     "v15": _CROSSATTN_B9 + [
         "--log-t-kd-weight", "0.2",
+        "--checkpoint-selector", "geom_simple",   # pin explicitly (identity-preserving)
         "--no-reg-class-weights", "--no-cat-class-weights",
     ],
     # v16 — CHAMPION "G": reg-private dual-tower (aux fusion, α·log_T prior OFF), v14 substrate,
@@ -72,6 +74,7 @@ CANON_BUNDLES: dict[str, List[str]] = {
         "--scheduler", "onecycle", "--max-lr", "3e-3",
         "--cat-lr", "1e-3", "--reg-lr", "3e-3", "--shared-lr", "1e-3",
         "--log-t-kd-weight", "0.0",
+        "--checkpoint-selector", "geom_simple",   # pin explicitly (was the argparse default; identity-preserving)
         "--no-reg-class-weights", "--no-cat-class-weights",
         "--task-a-input-type", "checkin", "--task-b-input-type", "region",
         "--engine", "check2hgi_design_k_resln_mae_l0_1",   # v14 substrate
