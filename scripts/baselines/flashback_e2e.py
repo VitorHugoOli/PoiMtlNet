@@ -47,8 +47,10 @@ user embedding and linearly projected to the label space (network.py forward).
 
 Defaults (setting.py, GOWALLA): lambda_t=0.1, lambda_s=1000, hidden_dim=10,
 rnn='rnn', lr=0.01. We keep lambda_t=0.1. For lambda_s we expose a CLI flag and
-default to 100 because our distances are in KILOMETRES (haversine), whereas the
-reference uses raw lat/lon-derived units; see DEVIATIONS below.
+default to **0.3** because our distances are in KILOMETRES (haversine): lambda_s=100
+underflowed exp(-ds_km*100) (~85% of past positions floored → aggregation collapsed
+to a vanilla RNN); 0.3 keeps exp(-ds_km*0.3)~O(0.1–1) for the observed 2–9 km gaps.
+See DEVIATIONS D3 + the [AUDIT-FIX B5] note at the CLI.
 
 ================================================================================
 DEVIATIONS FROM THE PAPER (documented for the audit)
@@ -66,7 +68,7 @@ D2. WINDOWED INPUT (not full trajectory). The board uses fixed 9-step windows
     9-window so it row-aligns with the board's eval inputs and stays leak-clean
     per fold. Paper-grade overlapping (stride-1) windows are POST-FREEZE (P3).
 D3. DISTANCE UNITS. Haversine km between POI centroids vs the reference's
-    raw lat/lon Euclidean distance -> lambda_s rescaled (CLI; default 100).
+    raw lat/lon Euclidean distance -> lambda_s rescaled (CLI; default 0.3).
 D4. hidden_dim raised from the reference toy default (10) to 128 for the
     larger TIGER label space; CLI-overridable.
 

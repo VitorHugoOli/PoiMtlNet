@@ -47,5 +47,6 @@ FL baseline cat 73.01 == documented deterministic champion-G FL seed0 (73.012) �
 `results/lane1_g01/{alabama,florida}_s0__{baseline,aligned}/`. Scorer: `scripts/pre_freeze_gates/lane1_score.py`.
 Driver: `scripts/pre_freeze_gates/lane1_run.sh`. Implementation: `--aligned-pairing` →
 `FoldCreator(aligned_pairing=)` → `_create_aligned_joint_loader`/`AlignedJointLoader` (`src/data/folds.py`) →
-`FoldResult.joint_train_loader` → `mtl_cv.train_model(joint_train_loader=)`. Alignment unit-tested + 5-fold
-integration smoke (both pass). No folds-cache path needed (champion G builds folds on the fly).
+`FoldResult.joint_train_loader` → `mtl_cv.train_model(joint_train_loader=)`. Alignment validated by an
+in-session A/B + a 5-fold smoke (both pass); a **landed regression test is P3** (the flag is default-inert,
+so champion numbers are unaffected). No folds-cache path needed (champion G builds folds on the fly).

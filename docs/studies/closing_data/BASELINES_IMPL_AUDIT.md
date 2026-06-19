@@ -18,7 +18,7 @@
 | B5 | Flashback (IJCAI'20) | B (E2E) | ✓ | ✗ | ✓ | NEEDS_FIX | **fixed now** (λ_s→0.3) |
 | B1 | CTLE (AAAI'21) | A (SC) | ✗¹ | ✓ | ✓ | NEEDS_FIX | recipe fix + P3 infra |
 | B2b | Skip-gram / SGNS (NeurIPS'13) | A (SC) | ✓ | ✓ | ✗ | NEEDS_FIX | P3 infra (`--only-fold`) |
-| B2a | POI2Vec (AAAI'17) | A (SC) | ✓ | ✗² | ✓ | NEEDS_FIX | **USER DECISION** |
+| B2a | POI2Vec (AAAI'17) | A (SC) | ✓ | ✓ (rebuilt)² | ✓ | **RESOLVED** | faithful AAAI'17 built; old→GeoTreeSkipGram |
 
 ¹ B1 leak is in the *documented run recipe* (`--folds 1`), not the builder — see below; trivially closed by `--folds 5`.
 ² B2a's *core mechanism* diverges from the paper (see B2a section) — a paper-baseline-identity call.

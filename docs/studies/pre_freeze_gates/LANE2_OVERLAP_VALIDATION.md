@@ -98,5 +98,7 @@ non-overlap to convergence (FL reg ep50 tail), unpaired across-seed stats, footn
 ## Perf notes (2026-06-19)
 - 43 min/FL-overlap-fold = **proportional** (8.5× windows × ~5 min non-overlap fold); both run 50 epochs.
 - **Dataset can go back on GPU** now the train-logit accumulation is CPU-side (`8ff36dba`): ~6.4 GB dataset +
-  ~16 GB ≈ 22 GB < 44 GB → drop `MTL_DATASET_CPU` for FL-overlap → no per-batch transfer → ~28% faster,
-  byte-identical. Use GPU-resident for the board where it fits; CA/TX may still need CPU-residency (bigger).
+  ~16 GB ≈ 22 GB < 44 GB → drop `MTL_DATASET_CPU` for FL-overlap → no per-batch transfer, byte-identical.
+  ⚠ **The earlier "~28% faster" estimate here was REFUTED** by a controlled probe (2026-06-19): GPU-vs-CPU
+  resident dataset is **~0%** (the model is compute/launch-bound, not transfer-bound) — auto-fit's value is
+  **OOM-avoidance, not speed**. See [`SPEED_LEVERS.md`](SPEED_LEVERS.md). CA/TX may still need CPU-residency.

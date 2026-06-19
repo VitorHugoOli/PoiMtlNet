@@ -58,13 +58,12 @@ forbids by construction. **⇒ user-disjointness holds identically at stride-1 a
   stride-9 via `stride=None`) and (ii) a tightened per-window per-check-in span assertion replacing
   `leak_check_1`. **All four stride-1 leak paths (a/b/c/d) are now closed for the freeze.**
 
-## What remains for Lane-2-FULL (GPU-gated, not closed here)
+## What remains for Lane-2-FULL (GPU-gated)
 
-1. **Empirical reproduction** of the overlap effect at **FL + one small/mid state, multi-seed**, KD-off,
-   **MIN_SEQUENCE_LENGTH held at 5** (isolate overlap vs the AL prior; `EXECUTION_PLAN §1b/§4-axis3`).
-   If weak at FL-scale → STOP for the user (a finding in itself; AL +9.8 but FL +1.3 saturation warning).
-2. **(d)** the chrono-split leak re-audit above.
-3. Full-base rebuild cost estimate under stride-1 (~7.5–8.4× more sequences at CA/TX).
+1. ✅ **DONE (2026-06-19)** — overlap effect reproduced at **FL + AL multi-seed** → ADOPT supported
+   (`LANE2_OVERLAP_VALIDATION.md`; FL cat +3.64 / AL cat +8.12; not weak enough to STOP).
+2. ✅ **DONE (2026-06-19)** — **(d)** chrono-split leak re-audit CLOSED CLEAN (above).
+3. Full-base rebuild cost estimate under stride-1 (~7.5–8.4× more sequences at CA/TX) — **P3 (board build)**.
 
 **Bottom line:** ALL FOUR stride-1 leak paths (a/b/c/d) are now **closed clean**. The main-board fold
 paths (a)/(b)/(c) are structurally leak-free under stride-1 (StratifiedGroupKFold(userid) is

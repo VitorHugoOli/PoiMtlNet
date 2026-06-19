@@ -29,15 +29,17 @@
 p1 (STL reg) reports FULL top10/top5; MTL reg records top5-full + top10-indist (not full top10) → compared
 on **top5-full / MRR-full** (common to both). B-A2 correction respected.
 
-**⚠ Story-relevant finding (REG head under overlap).** Non-overlap, MTL ≈ STL reg ceiling (+0.84 top5,
-+0.60 MRR) — the "MTL doesn't sacrifice reg" / dissolved-gap claim. **Under the ADOPTED overlap windowing
-it softens:** overlap lifts the **STL reg ceiling more than MTL reg** (STL top5 +3.76 [65.20→68.96] vs MTL
-+0.83 [66.04→66.87]), so MTL reg now **trails the STL ceiling by −2.09 on top5** (tied on MRR +0.07). The
-cat win is unchanged (+3.55). So under overlap the headline becomes "MTL **beats** the STL cat ceiling and
-**roughly matches** STL reg (tied MRR, −2pp top5)" rather than "matches/edges" reg. Caveats: **single seed
-(0), unpaired** folds, **top5/MRR-full** (not the headline Acc@10, which isn't matchable here). Directional
-— the binding call is the **n=20 T3** comparison (post-freeze, run compiled). **Flagged for the user** (it
-touches the reg-ceiling narrative under the adopted base).
+**⚠ REG head under overlap — the HEADLINE (Acc@10) is UNDETERMINED here, NOT "softened."** The board's
+headline reg metric is **Acc@10**, which is **NOT matchable in this probe**: p1 (STL reg) reports FULL
+`top10_acc` (76.08) while champion-G MTL records `top10_acc`-**indist** (74.16) — indist > full → an illegal
+subtraction (B-A2 correction). So the Acc@10 reg-ceiling-under-overlap comparison **cannot be drawn from this
+probe**; it awaits the **T3 matched scorer** (post-freeze, n=20, both sides on the same FULL Acc@10). On the
+*secondary* metrics that ARE matchable (top5/MRR-full): non-overlap MTL ≈ STL reg ceiling (+0.84 top5, +0.60
+MRR); under overlap the STL ceiling lifts more (top5 +3.76 vs MTL +0.83), so MTL reg **trails STL by −2.09 on
+top5** (tied MRR +0.07). But this is **top5-only, single-seed (0), unpaired** — a directional signal on a
+**non-headline** metric, NOT a verdict on the Acc@10 narrative. The cat win is solid + matched (+3.55).
+**Freeze-record statement:** overlap is a clean ADOPT (helps both heads; MTL clearly beats the STL *cat*
+ceiling); the reg-ceiling **Acc@10** claim under overlap is **"to be determined at T3/n=20,"** NOT "softened."
 
 **Overlap deltas:** STL cat **+5.52** (67.58→73.10) · MTL cat **+3.64** (73.01→76.65) · STL reg top5 **+3.76**
 · MTL reg top5 **+0.83** · MTL reg Acc@10-indist **+0.62** (73.54→74.16). Cat: overlap helps STL *more*
@@ -50,11 +52,14 @@ leads by +3.55. Reg: overlap *also* helps STL more, enough to edge ahead on top5
 |---|---|---|---|
 | **STL cat** (next_gru) | **5.86 min** (352 ± 1.5 s) | ~7 s | 1× |
 | **MTL champion-G** | **~43.2 min** (2592 s, 44 ± 0.7 min overnight; current-code confirmed) | ~50 s | **~7.4×** |
-| **STL reg** (next_stan_flow) | *running* | — | — |
+| **STL reg** (next_stan_flow) | *completed — result in §2; time contended¹* | — | — |
+
+¹ STL reg overlap ran co-resident with the compile experiment → its wall-clock is contended, not a clean
+timing figure (omitted). Its **result** is contention-independent (Acc@10-full 76.08 ± 0.58, MRR 57.11).
 
 MTL costs **~7.4× the wall-clock of STL-cat per fold** under overlap — the concrete time tradeoff for the
 joint model. (Both STL-cat and the overnight MTL ran with *tight* per-fold variance → uncontended; a
-contended re-run was discarded.) Overlap is ~7–8× the non-overlap cost on both arms (8.5× more sequences).
+contended MTL re-run was discarded.) Overlap is ~7–8× the non-overlap cost on both arms (8.5× more sequences).
 
 ## 4 · Methodology notes
 - The contended MTL re-run was **killed** (timing on a shared GPU is unfair; lucas.lana was actively

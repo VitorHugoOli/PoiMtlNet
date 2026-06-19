@@ -30,6 +30,17 @@
 
 ## Timeline of findings (most recent first)
 
+### 2026-06-19 — Pre-freeze A40 session (`study/pre-freeze-a40`): all lane gates closed, §0 STOP lifted, recipe stays v16, baselines landed, compile+TF32 pinned
+
+The `closing_data` **pre-freeze gates** ran on the A40. **Recipe UNCHANGED (still v16)** + new production code is **BYTE-IDENTICAL** (FL non-overlap MTL scan = **73.0116 / 73.5414** exact) → nothing in the frozen number-set moves.
+- **Lane 1 (recipe gates):** G0.1 aligned-pairing → **ADVISORY NULL** (FL null; AL aligned *hurts* cat); loss-scale lever **EXCLUDED**. No v17. (`pre_freeze_gates/LANE1_G01_VERDICT.md`, `LANE1_LOSSSCALE_VERDICT.md`)
+- **Lane 2 (overlap):** overlapping-windows **ADOPT supported** (AL cat +8.12 / FL cat +3.64; both heads positive, scale-saturated). Stride-1 leak re-audit **CLOSED CLEAN** — all 4 paths incl. (d) E2-chrono. (`LANE2_OVERLAP_VALIDATION.md`, `STRIDE1_LEAK_REAUDIT.md`)
+- **Lane 3 (substrate):** CA + TX v14 built → **all 6 states hash-manifested** (`V14_HASH_MANIFEST.json`) → **§0 STOP-condition lifted**.
+- **New production code (memory/OOM fixes, all byte-identical):** S1 streaming train-metric, S2 chunked val-metric (scored path), dataset-on-GPU auto-fit, `<U32` builder fix.
+- **Baselines:** 7 INCLUDE externals (B1 CTLE / B2a faithful POI2Vec / B2b skipgram / B2c onehot64 / B3 HMT-GRN / B4 cascade / B5 Flashback) implemented + adversarially audited + cheap-fixed + enum-registered. **POI2Vec resolved:** unfaithful B2a renamed `GeoPOI2Vec→GeoTreeSkipGram` (kept honest) + **faithful AAAI'17 POI2Vec built** (`scripts/baselines/poi2vec_lib/`). SC baselines run via `train.py --engine`; `--only-fold k` added (default-inert). (`closing_data/BASELINES_IMPL_AUDIT.md`)
+- **Speed levers (the one re-baseline knob):** controlled probe → dataset-on-GPU ~0%, TF32 ~0%, `torch.compile` ~15% (model is launch-bound). **`--compile --tf32` ADOPTED + pinned for the P3 board** — result-neutral (+0.05 pp, within noise). **torch stays 2.11** (NO-GO: `torch_cluster` cu128 wheel + topk re-baseline); workers skipped. (`pre_freeze_gates/SPEED_LEVERS.md`)
+- **Numbers to trust:** unchanged — `RESULTS_TABLE.md §0` / `CANONICAL_VERSIONS.md` (v16 = champion G). The P3 board re-baselines absolutes by ~0.05 pp (compile pin) with an identical recipe. **Deferred to P3:** the n=20 board build, B1/B2b per-fold scoring via `--only-fold`, the B2a/GeoTreeSkipGram include/exclude decision, the reg-ceiling **Acc@10**-under-overlap verdict (T3 matched scorer — not matchable in the FL probe: STL-full vs MTL-indist).
+
 ### 2026-06-12 — `mtl_improvement` FINAL CLOSE (4th-pass review endorsed) — `FINAL_SYNTHESIS.md` published; `closing_data` study scaffolded
 
 The closure drop (row below) was critically reviewed (4th pass) and **ENDORSED with one verdict-wording correction**: the X1 roll probe earns "numbers pairing-safe + the deployed model performs no per-sample cross-modal mixing" — NOT "mixing intrinsically dead" (the probe is circular against the aligned-training counterfactual; X3's β→0 and F52 P5 inherit the same conditioning). The **aligned-pairing training test** is inherited by `closing_data` as a **PRE-FREEZE gate** (it must run before the recipe freezes for the CA/TX majors). Paper wording: "the architecture wins *without* per-sample cross-modal mixing (pairing-invariance verified)".

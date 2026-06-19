@@ -61,14 +61,14 @@ byte-identical anchors are the reference and board cells sit ~0.05 pp above. tor
 blocker, §10); workers skipped (non-bottleneck + non-deterministic). Recorded in EXECUTION_PLAN §4b +
 closing_data/RUN_MATRIX.md (Execution config PINNED).
 
-## Recommendation
-- **Pre-freeze:** keep tf32/compile OFF (byte-identity). Nothing to change. The dataset auto-fit stays
-  (its job is OOM-avoidance, not speed).
-- **Post-freeze (if speed matters for the P3 board):** `--compile` is the one real lever (~14% per fold,
-  more across folds via graph reuse) — but it must be re-baselined (it changes the numbers), so adopt it
-  only with a fresh frozen-number set, not mid-freeze. The bigger remaining overhead is CPU-side
-  (mixed-batch Python loop + per-batch metric); `num_workers>0` was rejected earlier for non-determinism,
-  so reducing per-batch Python/metric work is the cleaner target.
+## Recommendation (aligned to the DECISION above)
+- **compile+TF32: ADOPTED for the P3 board** (user-confirmed 2026-06-19) — result-neutral (+0.05 pp, within
+  noise), ~15% faster. Pinned as execution flags (training-only; v16 recipe + frozen embeddings unchanged);
+  the whole board runs compiled ONCE; reviewers reproduce *with* them. This re-baselines the board's absolutes
+  by ~0.05 pp vs the no-knobs anchors — acceptable (the board isn't built yet → built-once, no waste).
+- **torch stays 2.11** (§10 NO-GO: `torch_cluster` cu128 wheel + topk re-baseline). **`num_workers` skipped**
+  (non-bottleneck with GPU-resident data + non-deterministic). The remaining overhead is CPU-side (mixed-batch
+  Python loop + per-batch metric) — a post-freeze target if more speed is wanted.
 
 Captures: `/tmp/lane1/speed_{cpu,gpu,gpu_tf32,compile}.log`; methodology = cumulative tqdm elapsed at epoch
 boundaries (538 batches/epoch), steady = epochs 2+ (compile warmup = epoch 1 excluded).

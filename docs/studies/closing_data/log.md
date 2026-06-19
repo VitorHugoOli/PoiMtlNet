@@ -133,3 +133,20 @@ the freeze.
 ```
 Rules: append at the bottom; never edit historic entries; if a gate promotes, STOP and record the
 user decision before proceeding.
+
+---
+
+## 2026-06-19 — Pre-freeze gates RUN on the A40 (`study/pre-freeze-a40`) — freeze prerequisites MET
+
+**Phase**: P0 pre-freeze gates — completed (the freeze barrier P2 prerequisites are now met).
+
+**What ran / Result**
+- **Lane 1** G0.1 aligned-pairing = **ADVISORY NULL** (FL null; AL aligned hurts cat) + loss-scale lever **EXCLUDED** → recipe stays **v16** (no v17).
+- **Lane 2** overlapping-windows **ADOPT supported** (AL cat +8.12 / FL cat +3.64); stride-1 leak re-audit **CLOSED CLEAN** (all 4 paths incl. (d) E2-chrono).
+- **Lane 3** CA + TX v14 substrates built → **all 6 states hash-manifested** (`V14_HASH_MANIFEST.json`) → **§0 STOP-condition LIFTED**.
+- **New production code BYTE-IDENTICAL** (S1 train-metric streaming, S2 chunked val-metric [scored path], dataset-on-GPU auto-fit, `<U32` builder fix): FL non-overlap MTL = **73.0116 / 73.5414** exact.
+- **Baselines** — 7 INCLUDE externals implemented + adversarially audited + cheap-fixed + enum-registered; **POI2Vec resolved** (GeoTreeSkipGram honest rename + faithful AAAI'17 build); `--only-fold k` added for P3 per-fold scoring.
+- **Speed levers** — `--compile --tf32` **ADOPTED + pinned** for the P3 board (result-neutral +0.05 pp, ~15% faster); torch stays 2.11; workers skipped.
+
+**Decision**: freeze prerequisites met — recipe v16 + byte-identical code; the P3 board re-baselines absolutes by ~0.05 pp (compile pin) only.
+**Next (P3, post-freeze)**: n=20 board build (compiled); B1/B2b/faithful-POI2Vec per-fold scoring via `--only-fold`; B2a/GeoTreeSkipGram include/exclude decision; reg-ceiling Acc@10-under-overlap via the T3 matched scorer. Full per-gate docs under `docs/studies/pre_freeze_gates/` + `closing_data/{BASELINES_IMPL_AUDIT,FREEZE_READINESS}.md`.
