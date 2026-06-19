@@ -250,16 +250,6 @@ class ExperimentConfig:
     # (champion G + all canon versions untouched). CLI: ``--loss-scale-norm``.
     loss_scale_norm: bool = False
 
-    # G0.1 aligned-pairing (closing_data P0 gate). When True, the Check2HGI MTL
-    # cat + reg TRAIN loaders are driven by ONE shared per-epoch permutation
-    # (a single joint loader), so cat-window k always trains paired with
-    # reg-window k (same user/window) instead of the default independent
-    # shuffles (random cross-task pairing). Val is already aligned. Default
-    # False = strict no-op (champion G untouched). CLI: ``--aligned-pairing``.
-    # MTL-check2hgi only; requires KD off + alpha frozen (champion G), which
-    # makes the reg aux side-channel inert under the joint loader.
-    aligned_pairing: bool = False
-
     # Per-task input modality (Check2HGI MTL only). These mirror the
     # ``--task-a-input-type`` / ``--task-b-input-type`` CLI flags and the
     # ``FoldCreator(task_a_input_type=..., task_b_input_type=...)`` parameters.
@@ -314,6 +304,20 @@ class ExperimentConfig:
 
     # --- Schema evolution ---
     schema_version: int = 1
+
+    # --- Input windowing provenance (pre-freeze P3 board) ---
+    # PROVENANCE ONLY — these fields are NEVER consumed by the training code
+    # path; they exist so a run's manifest records HOW the windowing-dependent
+    # inputs were built (see ``pipelines/create_inputs.pipe.py --stride/--min-seq``
+    # and the ``<task>_build_provenance.json`` sidecar). Appended at the END of
+    # the dataclass so existing positional/asdict ordering is unchanged and old
+    # ``manifest.json`` / ``config.json`` files (lacking these keys) still load
+    # via ``ExperimentConfig.load`` (defaults apply). ``stride=None`` means the
+    # frozen non-overlapping build (step == window_size); ``min_sequence_length=5``
+    # is the frozen MIN_SEQUENCE_LENGTH. DatasetSignature hashes data-file bytes,
+    # not this config, so adding these fields does NOT change any signature.
+    stride: Optional[int] = None
+    min_sequence_length: int = 5
 
     def __post_init__(self):
         if self.epochs <= 0:

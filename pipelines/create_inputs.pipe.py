@@ -2,6 +2,7 @@
 """Input generation pipeline — generate category + next-POI inputs. Usage: python pipelines/create_inputs.pipe.py"""
 
 import sys
+import argparse
 import logging
 from pathlib import Path
 from datetime import datetime
@@ -11,6 +12,7 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root / 'src'))
 
 from configs.paths import EmbeddingEngine
+from data.inputs.core import MIN_SEQUENCE_LENGTH
 from data.inputs.builders import (
     generate_category_input,
     generate_next_input_from_poi,
@@ -50,8 +52,20 @@ STATES = {
 # =============================================================================
 
 
-def process_state(name: str, state_cfg: dict) -> bool:
-    """Generate category and next-POI inputs for a single state/engine."""
+def process_state(
+    name: str,
+    state_cfg: dict,
+    stride: int = None,
+    min_sequence_length: int = MIN_SEQUENCE_LENGTH,
+) -> bool:
+    """Generate category and next-POI inputs for a single state/engine.
+
+    ``stride``/``min_sequence_length`` are the windowing knobs threaded to the
+    next-POI builders. Their defaults (``None`` → step==window_size, ``5``) are
+    EXACTLY the legacy values, so omitting the CLI flags reproduces today's
+    byte-identical inputs. They affect only the next-POI task; the category task
+    is unaffected (POI-level copy, no windowing).
+    """
     try:
         engine = state_cfg['engine']
         use_checkin = state_cfg.get('use_checkin', False)
@@ -64,11 +78,19 @@ def process_state(name: str, state_cfg: dict) -> bool:
         logger.info(f"  [1/2] Generating category input")
         generate_category_input(name, engine)
 
-        logger.info(f"  [2/2] Generating next-POI input")
+        logger.info(
+            f"  [2/2] Generating next-POI input "
+            f"(stride={stride if stride is not None else 'window_size'}, "
+            f"min_seq={min_sequence_length})"
+        )
         if use_checkin:
-            generate_next_input_from_checkins(name, engine)
+            generate_next_input_from_checkins(
+                name, engine, stride=stride, min_sequence_length=min_sequence_length
+            )
         else:
-            generate_next_input_from_poi(name, engine)
+            generate_next_input_from_poi(
+                name, engine, stride=stride, min_sequence_length=min_sequence_length
+            )
 
         logger.info(f"[{name}/{engine.value}] Complete")
         return True
@@ -78,7 +100,7 @@ def process_state(name: str, state_cfg: dict) -> bool:
         return False
 
 
-def run_pipeline() -> dict:
+def run_pipeline(stride: int = None, min_sequence_length: int = MIN_SEQUENCE_LENGTH) -> dict:
     """Process all configured states in order, MAX_WORKERS at a time."""
     logger.info(f"Input Pipeline - {len(STATES)} configuration(s)")
 
@@ -90,11 +112,13 @@ def run_pipeline() -> dict:
         chunk = states[i:i + MAX_WORKERS]
         if MAX_WORKERS == 1:
             for name, cfg in chunk:
-                results[name] = process_state(name, cfg)
+                results[name] = process_state(name, cfg, stride, min_sequence_length)
         else:
             with ProcessPoolExecutor(max_workers=MAX_WORKERS) as executor:
                 futures = {
-                    executor.submit(process_state, name, dict(cfg)): name
+                    executor.submit(
+                        process_state, name, dict(cfg), stride, min_sequence_length
+                    ): name
                     for name, cfg in chunk
                 }
                 for future in as_completed(futures):
@@ -109,6 +133,33 @@ def run_pipeline() -> dict:
     return results
 
 
+def _parse_args(argv=None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--stride",
+        type=int,
+        default=None,
+        help=(
+            "Step between sequence starts. Omit (default) for the FROZEN "
+            "non-overlapping behaviour (step == window_size == 9). Pass "
+            "--stride 1 for fully overlapping windows (P3 board)."
+        ),
+    )
+    parser.add_argument(
+        "--min-seq",
+        type=int,
+        default=MIN_SEQUENCE_LENGTH,
+        dest="min_seq",
+        help=(
+            f"Minimum user check-ins to emit any sequence. Default "
+            f"{MIN_SEQUENCE_LENGTH} reproduces frozen inputs; pass --min-seq 10 "
+            f"for the P3 board."
+        ),
+    )
+    return parser.parse_args(argv)
+
+
 if __name__ == '__main__':
-    results = run_pipeline()
+    args = _parse_args()
+    results = run_pipeline(stride=args.stride, min_sequence_length=args.min_seq)
     exit(0 if all(results.values()) else 1)

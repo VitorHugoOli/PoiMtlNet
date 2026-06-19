@@ -31,20 +31,33 @@
 | **seed (reporting)** | {0,1,7,100} | None → **42** (dev seed) | **FAIL-LOUD-GUARD** | ✅ guard added (WARN) |
 | **engine ↔ substrate** | v16 ⇒ v14 substrate | user `--engine` wins | **FAIL-LOUD-GUARD** | ✅ guard added (WARN) |
 | **torch 2.11+cu128** | pinned | only lane1 shell guard | **FAIL-LOUD-GUARD** | ✅ guard added to `train.py` (WARN) |
-| checkpoint-selector | geom_simple | argparse default (v12/v15/v16 omit it from bundle) | recommend pin into bundles | ◻ pending (identity-preserving) |
-| build provenance (stride, min_seq) | recorded | not recorded | recommend ExperimentConfig/RunManifest fields + sidecar | ◻ pending |
+| checkpoint-selector | geom_simple | argparse default (v12/v15/v16 omit it) | pin into bundles | ✅ pinned (v12/v15/v16; identity-preserving) |
+| build provenance (stride, min_seq) | recorded | not recorded | ExperimentConfig fields + sidecar | ✅ added (config fields + `<task>_build_provenance.json`) |
+| stride/min_seq plumbing | reachable | not threaded | parameterize build path | ✅ threaded `--stride`/`--min-seq` (DEFAULT-PRESERVING; no-flag path byte-identical) |
 
 ## Guards added (`train.py:_preflight_canon_guards`, WARN-only → numerically inert; `MTL_STRICT=1` hard-fails)
 1. **dev-seed 42** — canon-active MTL with no `--seed` → WARN (paper-grade needs {0,1,7,100}).
 2. **wrong substrate** — canon-active MTL where `--engine` ≠ the bundle's pinned substrate → WARN.
 3. **torch build** — `torch != 2.11.0+cu128` → WARN (2.12 rewrote TopK → reg Acc@10 tie-break shift).
 
-## The biggest anti-stumble lever (recommended, pending user sign-off)
-**One canonical P3-board driver** (`scripts/closing_data/p3_board.*`) as the ONLY sanctioned build+run path:
-(1) regenerate the base at `--min-seq 10 --stride 1` (the only place these non-default values live);
-(2) `train.py --canon v16 --compile --tf32 --seed <s>` per cell, uniformly (all-cells-same compile/tf32);
-(3) `--canon` pinned per cell + PID-suffix rundir capture (no `ls -dt|head`); (4) run the torch/seed/engine
-preflight first. Today the board is assembled ad-hoc from scattered `run_*` scripts — that *is* the stumble.
+## The biggest anti-stumble lever — BUILT (safety-stopped pending 3 launch-blockers)
+**`scripts/closing_data/p3_board.sh`** is the ONLY sanctioned build+run path: (1) rebuild the base at
+`--stride 1 --min-seq 10` reusing the frozen v14 embeddings; (2) `train.py --canon v16 --compile --tf32
+--seed <s>` per cell, uniformly; (3) `--canon` pinned per cell + PID-suffix rundir capture (no `ls -dt|head`);
+(4) torch + log_T-freshness preflight. The four board values live HERE and nowhere else. **`--dry-run` works
+(prints the 24-cell plan); a real run currently REFUSES (`exit 1`)** behind a LAUNCH SAFETY-STOP because the
+adversarial review found 3 launch-blockers that would corrupt the frozen substrate / produce wrong numbers:
+
+> **P3 board-build launch-blockers (fix before `P3_BOARD_FORCE=1`):**
+> 1. `build_inputs` overwrites the frozen v14 `next.parquet`/`sequences_next.parquet` IN PLACE then aborts →
+>    stage stride-1 inputs to a separate dir (or back-up/restore); never clobber the frozen substrate.
+> 2. `build_design_next_region.py` joins against the CANONICAL stride-9 sequences → hard-fails at stride-1 →
+>    needs a stride-aware next_region builder (join the engine's OWN stride-1 sequences).
+> 3. `compute_region_transition.py --per-fold` is hardwired to `CHECK2HGI` → emits stride-9 log_T while the
+>    mtime guard passes (copy+touch) → the +8..+12pp stale-log_T trap → make it stride/engine-aware.
+
+These three are P3 infra (the board is post-freeze). The parameterization + provenance + the driver skeleton
+ship now; the driver is inert (refuses to run) until they land — so it can't be a stumble.
 
 ## Reproduction / desync TRAPS — NEVER do
 1. Never flip `core.py:17` MIN_SEQ 5→10 globally (desyncs frozen v11/v14 rebuild + confounds Lane-2).

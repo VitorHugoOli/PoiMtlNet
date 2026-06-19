@@ -8,6 +8,9 @@ Moved from pipelines/create_inputs.pipe.py to follow the pattern where pipes onl
 handle orchestration and modules contain business logic.
 """
 from typing import Optional
+import json
+import subprocess
+from datetime import datetime, timezone
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
@@ -34,9 +37,6 @@ _CHECKIN_LEVEL_ENGINES = {
     EmbeddingEngine.CHECK2HGI_RESLN,
     EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_B,
     EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_J,
-    EmbeddingEngine.CHECK2HGI_CTLE,  # [ENUM-MERGE] B1 CTLE contextual per-visit substrate
-    EmbeddingEngine.BASELINE_B2A_POI2VEC,  # [ENUM-MERGE] B2a faithful POI2Vec (check-in-level)
-    EmbeddingEngine.BASELINE_GEOTREE_SKIPGRAM,  # [ENUM-MERGE] geo-tree skip-gram (check-in-level)
     EmbeddingEngine.TIME2VEC,
 }
 
@@ -52,7 +52,60 @@ from .core import (
     PADDING_VALUE,
     DEFAULT_BATCH_SIZE,
     MISSING_CATEGORY_VALUE,
+    MIN_SEQUENCE_LENGTH,
 )
+
+
+def _git_sha() -> str:
+    """Best-effort current git commit hash; 'unknown' if unavailable."""
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "HEAD"],
+            stderr=subprocess.DEVNULL,
+            text=True,
+        ).strip()
+    except Exception:
+        return "unknown"
+
+
+def _write_build_provenance(
+    state: str,
+    engine: EmbeddingEngine,
+    task: str,
+    *,
+    min_sequence_length: int,
+    stride: Optional[int],
+    window_size: int,
+) -> None:
+    """Write an additive build-provenance sidecar next to the task's input parquet.
+
+    Path: ``<engine_dir>/input/<task>_build_provenance.json``. This NEVER gates
+    anything — it only records how the windowing-dependent inputs were built so a
+    later reviewer can tell a stride-1/min_seq-10 board build apart from the frozen
+    stride-9/min_seq-5 default build. ``stride=None`` means non-overlapping
+    (step == window_size), matching the default code path.
+    """
+    try:
+        # Anchor the sidecar to the same input dir the next parquet lives in.
+        next_path = IoPaths.get_next(state, engine)
+        sidecar = next_path.parent / f"{task}_build_provenance.json"
+        payload = {
+            "task": task,
+            "engine": engine.value,
+            "state": state,
+            "min_sequence_length": min_sequence_length,
+            # JSON-friendly: record the effective step explicitly too.
+            "stride": stride,
+            "effective_step": stride if stride is not None else window_size,
+            "window_size": window_size,
+            "git_sha": _git_sha(),
+            "utc": datetime.now(tz=timezone.utc).isoformat(),
+        }
+        sidecar.parent.mkdir(parents=True, exist_ok=True)
+        sidecar.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    except Exception:
+        # Provenance is best-effort and must never break a build.
+        pass
 
 
 def generate_category_input(state: str, engine: EmbeddingEngine) -> None:
@@ -89,7 +142,9 @@ def generate_category_input(state: str, engine: EmbeddingEngine) -> None:
 def generate_next_input_from_poi(
     state: str,
     engine: EmbeddingEngine,
-    batch_size: int = DEFAULT_BATCH_SIZE
+    batch_size: int = DEFAULT_BATCH_SIZE,
+    stride: Optional[int] = None,
+    min_sequence_length: int = MIN_SEQUENCE_LENGTH,
 ) -> None:
     """
     Generate next-POI input from POI-level embeddings.
@@ -100,6 +155,10 @@ def generate_next_input_from_poi(
         state: State name
         engine: Embedding engine
         batch_size: Batch size for processing sequences
+        stride: Step between sequence starts. ``None`` (default) → step ==
+            window_size (non-overlapping), byte-identical to the legacy path.
+        min_sequence_length: Minimum user check-ins to emit any sequence.
+            Default == MIN_SEQUENCE_LENGTH (5) → legacy behaviour preserved.
     """
     # Load data
     embeddings_df = IoPaths.load_embedd(state, engine)
@@ -114,7 +173,11 @@ def generate_next_input_from_poi(
     # Generate sequences per user
     checkins_df = checkins_df.sort_values(['userid', 'datetime'])
     user_sequences = checkins_df.groupby('userid')['placeid'].apply(
-        lambda places: generate_sequences(places.tolist())
+        lambda places: generate_sequences(
+            places.tolist(),
+            stride=stride,
+            min_sequence_length=min_sequence_length,
+        )
     )
 
     # Flatten sequences into DataFrame
@@ -140,12 +203,21 @@ def generate_next_input_from_poi(
     # Save output
     save_next_input_dataframe(all_results, window_size, embedding_dim, state, engine)
 
+    # Additive build-provenance sidecar (never gates anything)
+    _write_build_provenance(
+        state, engine, "next",
+        min_sequence_length=min_sequence_length,
+        stride=stride,
+        window_size=window_size,
+    )
+
 
 def generate_next_input_from_checkins(
     state: str,
     engine: EmbeddingEngine,
     batch_size: int = DEFAULT_BATCH_SIZE,
     stride: int = None,
+    min_sequence_length: int = MIN_SEQUENCE_LENGTH,
 ) -> None:
     """
     Generate next-POI input from check-in-level embeddings.
@@ -157,6 +229,10 @@ def generate_next_input_from_checkins(
         state: State name
         engine: Embedding engine
         batch_size: Batch size for processing sequences (unused, kept for API compatibility)
+        stride: Step between sequence starts. ``None`` (default) → step ==
+            window_size (non-overlapping), byte-identical to the legacy path.
+        min_sequence_length: Minimum user check-ins to emit any sequence.
+            Default == MIN_SEQUENCE_LENGTH (5) → legacy behaviour preserved.
     """
     # Load data
     embeddings_df = IoPaths.load_embedd(state, engine)
@@ -173,39 +249,20 @@ def generate_next_input_from_checkins(
     emb_cols = [str(i) for i in range(embedding_dim)]
     window_size = InputsConfig.SLIDE_WINDOW
 
-    # Process each user. ``convert_user_checkins_to_sequences`` returns rows as
-    # ``<U32`` arrays (the float embeddings are concatenated with the string
-    # target_category + userid, which upcasts the whole 578-elem row to 128
-    # bytes/elem = 32x bloat). At stride=1 the FL row count is ~8.5x the stride=9
-    # case (~1.27M rows), so accumulating those <U32 rows + the np.array() copy
-    # in save_next_input_dataframe peaks at ~168 GB and OOM-kills the box. Fix
-    # (memory-safe, byte-identical output): convert each user's small batch of
-    # rows to float32 immediately and split off the cat/userid metadata, so the
-    # global accumulation is a compact float32 list instead of <U32. Peak ~5 GB.
-    num_features = window_size * embedding_dim
-    out_cols = [str(i) for i in range(num_features)]
-    emb_rows: list = []          # float32 (num_features,) per window
-    cat_meta: list = []          # target_category (str) — same value as before
-    uid_meta: list = []          # userid (str, as the <U32 path produced)
+    # Process each user using shared function
+    all_results = []
     all_sequences = []
 
     for userid, user_df in tqdm(embeddings_df.groupby('userid'), desc="Processing users"):
         user_df = user_df.reset_index(drop=True)
 
         results, sequences = convert_user_checkins_to_sequences(
-            user_df, emb_cols, window_size, embedding_dim, stride=stride
+            user_df, emb_cols, window_size, embedding_dim,
+            stride=stride, min_sequence_length=min_sequence_length,
         )
 
+        all_results.extend(results)
         all_sequences.extend(sequences)
-        for row in results:
-            # row is a <U32 array; row[:num_features] are the float values as
-            # strings — parsing back to float32 is lossless (numpy's str repr of
-            # a float32 round-trips exactly), so the parquet is byte-identical to
-            # the legacy save_next_input_dataframe path.
-            emb_rows.append(np.asarray(row[:num_features], dtype=np.float32))
-            cat_meta.append(row[num_features])
-            uid_meta.append(row[num_features + 1])
-        del results  # free this user's <U32 batch before the next group
 
     # Save intermediate sequences (for debugging/analysis)
     seq_cols = [f'poi_{i}' for i in range(window_size)] + ['target_poi', 'userid']
@@ -217,15 +274,13 @@ def generate_next_input_from_checkins(
     sequences_path = IoPaths.get_seq_next(state, engine)
     save_parquet(sequences_df, sequences_path)
 
-    # Save output DataFrame — preallocate ONE float32 matrix (no <U32, no extra
-    # np.array copy). Columns/dtypes/order match save_next_input_dataframe exactly.
-    if emb_rows:
-        mat = np.empty((len(emb_rows), num_features), dtype=np.float32)
-        for i, e in enumerate(emb_rows):
-            mat[i] = e
-        output_df = pd.DataFrame(mat, columns=out_cols)
-        output_df["next_category"] = cat_meta
-        output_df["userid"] = uid_meta
-    else:
-        output_df = pd.DataFrame(columns=out_cols + ["next_category", "userid"])
-    save_parquet(output_df, IoPaths.get_next(state, engine))
+    # Save output DataFrame
+    save_next_input_dataframe(all_results, window_size, embedding_dim, state, engine)
+
+    # Additive build-provenance sidecar (never gates anything)
+    _write_build_provenance(
+        state, engine, "next",
+        min_sequence_length=min_sequence_length,
+        stride=stride,
+        window_size=window_size,
+    )
