@@ -40,6 +40,23 @@ Compile also pays a **one-time warmup**: epoch 1 = 95 s (vs ~46 s steady) ≈ +4
 3. **Most of the cost is intrinsic.** Overlap is 8.5× the sequences; the per-step cost is set by the
    cross-attn dual-tower + GRU. No memory fix changes that.
 
+## Result-neutrality check (compile+TF32 vs byte-identical baseline, 2026-06-19)
+
+Champion-G FL non-overlap, seed 0, 5-fold, **GPU-resident + TF32 + `--compile`** vs the byte-identical
+baseline (no knobs) **73.0116 / 73.5414**:
+
+| metric | compile+TF32 | baseline | Δ |
+|---|---|---|---|
+| cat macro-F1 | 73.0577 ± 0.80 | 73.0116 | **+0.046 pp** |
+| reg top10_acc_indist | 73.6067 ± 0.71 | 73.5414 | **+0.065 pp** |
+
+Δ ≈ +0.05 pp on both heads — **far below** the ±0.8 pp fold std / ~±1 pp seed noise. **compile+TF32 is
+result-neutral** (neither improves nor degrades — it's fp-ordering noise), and gives ~15% speed.
+**Verdict: SAFE to adopt** IF done as ONE deliberate full-board re-baseline (compile pinned in the recipe;
+never mix compiled + non-compiled cells; reviewers reproduce *with* compile). The P3 board isn't built yet,
+so adopting now = built-once, no waste; the frozen embeddings are unaffected (compile is training-only).
+torch stays 2.11 (toolchain blocker); workers skipped (non-bottleneck + non-deterministic).
+
 ## Recommendation
 - **Pre-freeze:** keep tf32/compile OFF (byte-identity). Nothing to change. The dataset auto-fit stays
   (its job is OOM-avoidance, not speed).
