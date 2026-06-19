@@ -52,10 +52,14 @@ baseline (no knobs) **73.0116 / 73.5414**:
 
 Δ ≈ +0.05 pp on both heads — **far below** the ±0.8 pp fold std / ~±1 pp seed noise. **compile+TF32 is
 result-neutral** (neither improves nor degrades — it's fp-ordering noise), and gives ~15% speed.
-**Verdict: SAFE to adopt** IF done as ONE deliberate full-board re-baseline (compile pinned in the recipe;
-never mix compiled + non-compiled cells; reviewers reproduce *with* compile). The P3 board isn't built yet,
-so adopting now = built-once, no waste; the frozen embeddings are unaffected (compile is training-only).
-torch stays 2.11 (toolchain blocker); workers skipped (non-bottleneck + non-deterministic).
+
+**✅ DECISION (user-confirmed 2026-06-19): ADOPTED for the P3 board.** Pinned as execution flags `--compile
+--tf32` (+ GPU-resident auto-fit) on every P3 cell — they are execution knobs, NOT recipe identity (v16
+model/heads/loss unchanged; frozen embeddings untouched, compile is training-only). Run the WHOLE board
+compiled ONCE (never mix compiled + non-compiled cells); reviewers reproduce *with* them; the no-knobs
+byte-identical anchors are the reference and board cells sit ~0.05 pp above. torch stays 2.11 (toolchain
+blocker, §10); workers skipped (non-bottleneck + non-deterministic). Recorded in EXECUTION_PLAN §4b +
+closing_data/RUN_MATRIX.md (Execution config PINNED).
 
 ## Recommendation
 - **Pre-freeze:** keep tf32/compile OFF (byte-identity). Nothing to change. The dataset auto-fit stays

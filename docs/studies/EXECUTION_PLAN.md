@@ -126,6 +126,15 @@ is verified-or-built**, and the §4b decisions are pinned.
 
 The 4-doc-tree sweep found **zero uncaptured base-changer** — these are "pin-so-it-is-not-silently-inconsistent"
 items (all cheap; recommended default in **bold**):
+- **Execution config: `--compile --tf32` ADOPTED for the P3 board (user-confirmed 2026-06-19).** torch.compile
+  + TF32, GPU-resident dataset (auto-fit). EMPIRICALLY result-neutral: champion-G FL non-overlap seed0 5f
+  vs the byte-identical no-knobs baseline → cat +0.046 pp, reg +0.065 pp (both ≪ ±1 pp seed/fold noise);
+  ~15% faster/fold. These are **execution knobs, NOT recipe identity** (v16 model/heads/loss unchanged;
+  frozen embeddings untouched — compile is training-only). PIN: the whole P3 board runs with `--compile
+  --tf32` ONCE (never mix compiled/non-compiled cells); reviewers reproduce *with* them. The no-knobs
+  byte-identical anchors (e.g. FL 73.01/73.54) are the reference; board cells sit ~0.05 pp above. torch
+  stays **2.11** (§10 NO-GO: `torch_cluster` cu128 wheel + topk re-baseline); `num_workers` **skipped**
+  (non-bottleneck with GPU-resident data + non-deterministic). Eval: `pre_freeze_gates/SPEED_LEVERS.md`.
 - **T4 Δm metric:** the Δm joint-score table uses reg-**MRR** as primary while the board headline is reg-**Acc@10**
   → pin **Acc@10-primary** (headline-consistent), or compute both + footnote metric-robustness.
 - **Cross-state reporting convention:** main-board reg Acc@10 is NOT comparable across states (tracts 1.1k–8.5k) →
