@@ -42,12 +42,21 @@ forbids by construction. **⇒ user-disjointness holds identically at stride-1 a
   the flat-POI carve-out. So (c) is doubly moot: the carve-out is stride-invariant **and** not a
   board cell. ⚠ **Guard:** if a *windowed* category-STL is ever added to the board, it MUST use
   `StratifiedGroupKFold(userid)` — do not let a windowed task reach `folds.py:633`.
-- [ ] **(d) second-dataset E2 chronological per-user split** — **OPEN (the genuinely dangerous one).**
-  A *per-user chronological* 80/10/10 cut is not user-grouped (the same user spans train+val+test by
-  design), so a stride-1 window straddling a boundary shares 8/9 check-ins across the cut — a real
-  leak surface that code-inspection alone cannot clear. Requires the empirical re-audit on
-  `scripts/second_dataset/build_chrono_split.py` output (Mac track; `EXECUTION_PLAN §1a`). Note this
-  is exactly why §6 recommends **deferring** the E2/A5 chrono bridge unless cheap.
+- [x] **(d) second-dataset E2 chronological per-user split** — **CLOSED CLEAN at stride-1**
+  (independently re-verified + adversarially checked 2026-06-19 on real FL Gowalla; workflow `wf_37d016d2`).
+  The worry — a per-user chronological 80/10/10 cut is not user-grouped, so a stride-1 window straddling
+  a boundary shares 8/9 check-ins across the cut — is real ONLY for the *naive* window-then-split design
+  (~11.5% of windows straddle). **The code does not do that:** `build_chrono_split.py:219` windows each
+  80/10/10 portion **separately** (`[_sequences_within_portion(...) for s in SPLITS]`), so a window's 9
+  inputs + target are always co-located in one split → **0 / 1.35M boundary-straddling windows** at
+  stride-1 (empirically reproduced twice; matches the on-disk 1.378M stride-1 count). E2/A5 is also
+  DEFERRED + off the BRACIS critical path (no train/eval consumer reads the chrono artifacts; in no freeze
+  hash manifest) → zero champion-byte-identity / board-number risk. **Caveat for any future promotion:**
+  the in-code `leak_check_1` (line 156) is only a *partial* backstop — it silently passes ~33% of a naive
+  regression on large val/test portions; the construction invariant at line 219 is the actual guard. IF
+  E2 is ever promoted on-board at stride-1, REQUIRE (i) an explicit stride at line 139 (today silently
+  stride-9 via `stride=None`) and (ii) a tightened per-window per-check-in span assertion replacing
+  `leak_check_1`. **All four stride-1 leak paths (a/b/c/d) are now closed for the freeze.**
 
 ## What remains for Lane-2-FULL (GPU-gated, not closed here)
 
@@ -57,7 +66,9 @@ forbids by construction. **⇒ user-disjointness holds identically at stride-1 a
 2. **(d)** the chrono-split leak re-audit above.
 3. Full-base rebuild cost estimate under stride-1 (~7.5–8.4× more sequences at CA/TX).
 
-**Bottom line:** the *structural* leak question for the main-board fold paths (a)/(b)/(c) is **closed
-clean** for stride-1 — overlap does not open a within-board user-disjointness hole. The base change
-still gates on the **empirical** FL-scale reproduction (does overlap actually help at scale?) and on
-the **(d)** chronological-split surface, neither of which is a fold-creator code property.
+**Bottom line:** ALL FOUR stride-1 leak paths (a/b/c/d) are now **closed clean**. The main-board fold
+paths (a)/(b)/(c) are structurally leak-free under stride-1 (StratifiedGroupKFold(userid) is
+stride-invariant); path (d) — the second-dataset chronological split — was empirically re-audited
+(2026-06-19) and is leak-free by construction (within-portion windowing). The base change's remaining
+gate is purely the **empirical** FL-scale reproduction (Lane-2-FULL: does overlap help at scale? →
+answered YES, `LANE2_OVERLAP_VALIDATION.md`). No open leak surface remains for the freeze.
