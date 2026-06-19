@@ -11,7 +11,13 @@ logger = logging.getLogger(__name__)
 
 from torch.nn import CrossEntropyLoss
 
-from tracking.metrics import compute_classification_metrics
+from tracking.metrics import (
+    compute_classification_metrics,
+    _handrolled_cls_metrics,
+    _rank_of_target,
+    _mrr_from_rank,
+    _ndcg_from_rank,
+)
 from utils.flops import calculate_model_flops
 from utils.mps import clear_mps_cache
 from utils.progress import TrainingProgressBar
@@ -467,6 +473,24 @@ def train_model(model: torch.nn.Module,
         all_task_b_logits, all_task_b_targets = [], []
         all_task_a_logits, all_task_a_targets = [], []
 
+        # S1 (perf-audit) — STREAMING TRAIN-metric for the high-cardinality reg head.
+        # Retaining the full epoch's [N, n_regions] reg logits to compute train metrics
+        # OOMs the GPU and (after the CPU move) costs ~tens of GB host RAM at large/overlap
+        # scale. Every train metric is a per-ROW reduction (accuracy / rank→MRR/NDCG /
+        # top-k hit) or an additive per-CLASS count (bincount via _handrolled_cls_metrics),
+        # so we accumulate only tiny [N]/[C] vectors per batch and reconstruct the IDENTICAL
+        # metric dict at epoch end via the SAME metrics.py helpers — byte-identical to the
+        # full-logit path (verified), O(N·C)→O(N+C) memory. Reg only (cat C=7 is trivial and
+        # uses the torchmetrics low-card path). Disable with MTL_STREAM_TRAIN_METRIC=0.
+        import os as _os_s1
+        _stream_train_b = (
+            _os_s1.environ.get("MTL_STREAM_TRAIN_METRIC", "1").strip() in ("1", "true", "True")
+            and task_b_num_classes is not None and task_b_num_classes > 256
+        )
+        _S1_TOPK = (3, 5)  # matches compute_classification_metrics default top_k
+        s1_preds_b, s1_targets_b, s1_rank_b = [], [], []
+        s1_hit_b = {k: [] for k in _S1_TOPK}
+
         # Per-epoch diagnostics — recomputed once per epoch on batch 0
         # (see Phase 0 §60 of plan/MTL_IMPROVEMENT_PLAN.md).
         epoch_grad_cosine: float = float("nan")
@@ -809,21 +833,57 @@ def train_model(model: torch.nn.Module,
             # NB: do NOT apply this to the VAL path (mtl_eval.py) — val IS the scored
             # metric and its fp16-CUDA tie-breaking defines the canonical Acc@10.
             with torch.no_grad():
-                all_task_b_logits.append(pred_task_b.detach().cpu())
-                all_task_b_targets.append(truth_task_b.cpu())
+                # cat (task_a) — low-cardinality, keep the full-logit path (trivial size).
                 all_task_a_logits.append(pred_task_a.detach().cpu())
                 all_task_a_targets.append(truth_task_a.cpu())
+                if _stream_train_b:
+                    # reg (task_b) — STREAM per-row/per-class reductions on CPU (matches the
+                    # CPU compute path byte-for-byte), discarding the [batch, C] logits.
+                    _lb = pred_task_b.detach().cpu()
+                    _tb = truth_task_b.cpu()
+                    s1_preds_b.append(_lb.argmax(dim=-1))
+                    s1_targets_b.append(_tb)
+                    s1_rank_b.append(_rank_of_target(_lb, _tb))
+                    for _k in _S1_TOPK:
+                        _ke = min(_k, _lb.shape[-1])
+                        _topk = _lb.topk(_ke, dim=-1).indices
+                        s1_hit_b[_k].append((_topk == _tb.unsqueeze(-1)).any(dim=-1))
+                    del _lb
+                else:
+                    all_task_b_logits.append(pred_task_b.detach().cpu())
+                    all_task_b_targets.append(truth_task_b.cpu())
 
             steps += 1
 
-        epoch_task_b_logits = torch.cat(all_task_b_logits)
-        epoch_task_b_targets = torch.cat(all_task_b_targets)
         epoch_task_a_logits = torch.cat(all_task_a_logits)
         epoch_task_a_targets = torch.cat(all_task_a_targets)
 
-        train_metrics_task_b = compute_classification_metrics(
-            epoch_task_b_logits, epoch_task_b_targets, num_classes=task_b_num_classes,
-        )
+        if _stream_train_b:
+            # Reconstruct the reg train-metric dict from the streamed [N]/[C] accumulators.
+            # Byte-identical to compute_classification_metrics(full reg logits, top_k=(3,5))
+            # on the C>256 handrolled path: same helpers, same keys, same order. preds=cat of
+            # per-batch argmax == full argmax (per-row); rank/hit are per-row; bincounts are
+            # additive — so every metric matches the full-logit computation exactly.
+            _preds = torch.cat(s1_preds_b)
+            _tgts = torch.cat(s1_targets_b)
+            _rank = torch.cat(s1_rank_b)
+            _accm, _accM, _f1m, _f1w = _handrolled_cls_metrics(_preds, _tgts, task_b_num_classes)
+            train_metrics_task_b = {
+                "accuracy": _accm,
+                "accuracy_macro": _accM,
+                "f1": _f1m,
+                "f1_weighted": _f1w,
+                "mrr": _mrr_from_rank(_rank),
+            }
+            for _k in _S1_TOPK:
+                train_metrics_task_b[f"top{_k}_acc"] = torch.cat(s1_hit_b[_k]).float().mean().item()
+                train_metrics_task_b[f"ndcg_{_k}"] = _ndcg_from_rank(_rank, _k)
+        else:
+            epoch_task_b_logits = torch.cat(all_task_b_logits)
+            epoch_task_b_targets = torch.cat(all_task_b_targets)
+            train_metrics_task_b = compute_classification_metrics(
+                epoch_task_b_logits, epoch_task_b_targets, num_classes=task_b_num_classes,
+            )
         train_metrics_task_a = compute_classification_metrics(
             epoch_task_a_logits, epoch_task_a_targets, num_classes=task_a_num_classes,
         )
