@@ -1090,6 +1090,19 @@ def _parse_args(argv=None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--only-fold",
+        type=int,
+        default=None,
+        help=(
+            "[ONLY-FOLD] Run EXACTLY fold k (0-indexed) of the canonical n_splits=5 split. "
+            "For scoring per-(state,seed,fold) substrate baselines (B1 CTLE / B2a POI2Vec / "
+            "B2b skipgram) leak-cleanly against the matching 5-split seeded log_T — the "
+            "single-fold substrate must be evaluated on exactly its own fold of the 5-split, "
+            "which --folds N (n_splits=max(2,N)) cannot express. Mutually exclusive with "
+            "--folds. Default None => no behavior change (the champion never passes it)."
+        ),
+    )
+    parser.add_argument(
         "--embedding-dim",
         type=int,
         default=None,
@@ -1860,7 +1873,13 @@ def main(argv=None) -> None:
     # --folds: limits execution, doesn't change split structure.
     # StratifiedKFold requires n_splits >= 2, so we use max(2, requested).
     max_folds = args.folds  # None means run all folds
-    if max_folds is not None:
+    if getattr(args, "only_fold", None) is not None:
+        # [ONLY-FOLD] force the canonical 5-split so fold k matches the per-fold substrate
+        # + the n_splits=5 seeded log_T. Mutually exclusive with --folds. Inert by default.
+        if max_folds is not None:
+            raise SystemExit("--only-fold and --folds are mutually exclusive; pass only one.")
+        config = dataclasses.replace(config, k_folds=5)
+    elif max_folds is not None:
         n_splits = max(2, max_folds)
         config = dataclasses.replace(config, k_folds=n_splits)
 
@@ -1932,6 +1951,8 @@ def main(argv=None) -> None:
             EmbeddingEngine.CHECK2HGI_DK_OVL,  # overlap-window probe (v14 re-windowed stride=1)
             EmbeddingEngine.BASELINE_B2C_ONEHOT64,  # [ENUM-MERGE] B2c zero-training floor probe
             EmbeddingEngine.CHECK2HGI_CTLE,  # [ENUM-MERGE] B1 CTLE contextual per-visit substrate
+            EmbeddingEngine.BASELINE_B2A_POI2VEC,  # [ENUM-MERGE] B2a faithful POI2Vec
+            EmbeddingEngine.BASELINE_GEOTREE_SKIPGRAM,  # [ENUM-MERGE] geo-tree skip-gram baseline
         )
         if is_check2hgi_track and engine not in _ALLOWED_ENGINES_FOR_C2HGI_PRESET:
             print(
@@ -2029,10 +2050,22 @@ def main(argv=None) -> None:
         updated_params["task_set"] = task_set
         config = dataclasses.replace(config, model_params=updated_params)
 
-    # Apply max_folds limit (run only first N folds).
+    # Apply --only-fold / --folds limit (run only the requested fold(s)).
     # config.k_folds stays as the split structure count (>= 2);
     # runners use len(fold_results) to determine actual execution count.
-    if max_folds is not None and max_folds < len(fold_results):
+    if getattr(args, "only_fold", None) is not None:
+        # [ONLY-FOLD] keep EXACTLY fold k (0-indexed), PRESERVING its dict key so the runner
+        # loads region_transition_log_seed{seed}_fold{k+1}.pt. Fail loud on a stale (<5)-split
+        # cache or an out-of-range k.
+        if len(fold_results) != 5:
+            raise SystemExit(
+                f"--only-fold needs the canonical 5-split (got {len(fold_results)} folds); "
+                f"re-freeze folds / rebuild the per-fold substrate at n_splits=5.")
+        if args.only_fold not in fold_results:
+            raise SystemExit(
+                f"--only-fold {args.only_fold} not in available folds {sorted(fold_results)}")
+        fold_results = {args.only_fold: fold_results[args.only_fold]}
+    elif max_folds is not None and max_folds < len(fold_results):
         fold_results = dict(list(fold_results.items())[:max_folds])
 
     results_path = IoPaths.get_results_dir(config.state, engine)

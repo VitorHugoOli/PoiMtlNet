@@ -35,6 +35,8 @@ _CHECKIN_LEVEL_ENGINES = {
     EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_B,
     EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_J,
     EmbeddingEngine.CHECK2HGI_CTLE,  # [ENUM-MERGE] B1 CTLE contextual per-visit substrate
+    EmbeddingEngine.BASELINE_B2A_POI2VEC,  # [ENUM-MERGE] B2a faithful POI2Vec (check-in-level)
+    EmbeddingEngine.BASELINE_GEOTREE_SKIPGRAM,  # [ENUM-MERGE] geo-tree skip-gram (check-in-level)
     EmbeddingEngine.TIME2VEC,
 }
 
