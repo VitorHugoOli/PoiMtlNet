@@ -796,13 +796,23 @@ def train_model(model: torch.nn.Module,
             task_b_running_loss += task_b_loss.detach()
             task_a_running_loss += task_a_loss.detach()
 
-            # Collect logits on-device for epoch-level metrics. We keep the
-            # full logit tensor (not argmax) so ranking metrics are free.
+            # Collect logits for epoch-level TRAIN metrics. We keep the full logit
+            # tensor (not argmax) so ranking metrics are free. Accumulate on CPU:
+            # at large/overlap scale (FL stride-1 ~1.1M train rows, CA/TX ~4.7-8.5k
+            # regions) the on-GPU torch.cat of a full epoch's [N, n_regions] logits
+            # OOMs the 44 GB A40 (dies on the last batch's cat). These are
+            # DIAGNOSTIC TRAIN metrics only — they feed logging/progress, NOT
+            # selection/early-stopping/checkpointing (all of which key off VAL
+            # metrics), so moving the accumulation to host RAM is quality-neutral:
+            # the model trajectory (post-step, no_grad, detached) and the val-driven
+            # scored results are bitwise unchanged (advisor-vetted + AL A/B verified).
+            # NB: do NOT apply this to the VAL path (mtl_eval.py) — val IS the scored
+            # metric and its fp16-CUDA tie-breaking defines the canonical Acc@10.
             with torch.no_grad():
-                all_task_b_logits.append(pred_task_b.detach())
-                all_task_b_targets.append(truth_task_b)
-                all_task_a_logits.append(pred_task_a.detach())
-                all_task_a_targets.append(truth_task_a)
+                all_task_b_logits.append(pred_task_b.detach().cpu())
+                all_task_b_targets.append(truth_task_b.cpu())
+                all_task_a_logits.append(pred_task_a.detach().cpu())
+                all_task_a_targets.append(truth_task_a.cpu())
 
             steps += 1
 
