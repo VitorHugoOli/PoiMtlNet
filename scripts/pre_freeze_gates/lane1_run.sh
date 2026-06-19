@@ -20,6 +20,16 @@ ENGINE="${LANE1_ENGINE:-check2hgi_design_k_resln_mae_l0_1}"
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"; cd "$REPO"
 PY=.venv/bin/python; [ -x "$PY" ] || PY=python3
 
+# torch-build guard (perf-audit S-pin): the canonical reg Acc@10 is defined by fp16-CUDA
+# topk tie-breaking; torch 2.12 rewrote the TopK kernel (RadixSelect) + dropped cu128 wheels,
+# so a silent build change would re-baseline the frozen numbers. Warn loudly on mismatch
+# (set MTL_STRICT_TORCH=1 to hard-fail for freeze-grade runs).
+_TVER="$($PY -c 'import torch;print(torch.__version__)' 2>/dev/null || echo unknown)"
+if [ "$_TVER" != "2.11.0+cu128" ]; then
+  echo "⚠ WARN: torch build is '$_TVER', expected '2.11.0+cu128' — fp16 topk tie-breaking may differ → frozen Acc@10 could shift."
+  [ "${MTL_STRICT_TORCH:-0}" = "1" ] && { echo "MTL_STRICT_TORCH=1 → abort"; exit 1; }
+fi
+
 RES="results/${ENGINE}/${STATE}"
 TDIR="output/${ENGINE}/${STATE}"
 CAP="results/lane1_g01/${STATE}_s${SEED}__${ARM}"

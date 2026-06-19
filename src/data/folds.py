@@ -206,23 +206,51 @@ def _get_num_workers() -> int:
     return 0
 
 
-def _dataset_device(num_workers: int):
+def _dataset_device(num_workers: int, tensor_nbytes: int | None = None):
     """Device the dataset tensors are pre-moved to.
 
-    Default: ``DEVICE`` when ``num_workers==0`` (pre-move the whole dataset to GPU
-    so __getitem__ returns device slices — fastest for the small, GPU-fitting
-    datasets the study normally runs). ``None`` keeps tensors on CPU (the training
-    loop transfers each batch via ``.to(DEVICE)``), trading speed for GPU memory.
+    Pre-moving the whole dataset to ``DEVICE`` (so __getitem__ returns device slices)
+    is fastest — zero per-batch host→device copy — and is the right choice whenever
+    the dataset fits on the GPU alongside the model+activations. ``None`` keeps tensors
+    on CPU (the training loop transfers each batch via ``.to(DEVICE)``), trading speed
+    for GPU memory — needed only when the dataset would not fit.
 
-    Escape hatch ``MTL_DATASET_CPU=1`` forces CPU-resident datasets — required when
-    the whole dataset does NOT fit alongside the model on the GPU (the large-state /
-    overlapping-window case: e.g. FL stride-1 ~1.38M sequences OOMs a 44 GB A40 if
-    pre-moved). Default unset preserves the canonical GPU-pre-move behaviour exactly.
+    AUTO-FIT (default on CUDA): when ``tensor_nbytes`` is known, pre-move to GPU only if
+    it fits in (free VRAM − headroom); else keep it CPU-resident. Decisions are made
+    per-loader as loaders are built, so ``cuda.mem_get_info()`` already reflects tensors
+    pre-moved by earlier loaders (cumulative-aware). This removes the manual guessing
+    that caused the FL-overlap OOM and is robust across machines. **Byte-identical**:
+    the dataset's device never changes the computation (verified: CPU-resident vs
+    GPU-pre-move produce identical metrics) — only throughput/VRAM. The CHOICE may vary
+    with GPU occupancy (non-deterministic), but the trained model + scored numbers do not.
+
+    Overrides: ``MTL_DATASET_CPU=1`` forces CPU-resident; ``MTL_DATASET_GPU=1`` forces
+    pre-move; ``MTL_GPU_HEADROOM_GB`` (default 16) reserves VRAM for model+activations.
+    MPS/CPU always pre-move (unified / host memory). ``num_workers>0`` ⇒ CPU (workers
+    can't share a pre-moved GPU tensor).
     """
     import os as _os
     if _os.environ.get("MTL_DATASET_CPU", "").strip() in ("1", "true", "True"):
         return None
-    return DEVICE if num_workers == 0 else None
+    if _os.environ.get("MTL_DATASET_GPU", "").strip() in ("1", "true", "True"):
+        return DEVICE if num_workers == 0 else None
+    if num_workers != 0:
+        return None
+    if DEVICE.type != "cuda":
+        return DEVICE  # MPS unified memory / CPU: pre-move as before
+    if tensor_nbytes is None:
+        return DEVICE  # unknown size → legacy pre-move (callers that don't pass a size)
+    try:
+        free, _total = torch.cuda.mem_get_info()
+    except Exception:
+        return DEVICE
+    headroom = int(_os.environ.get("MTL_GPU_HEADROOM_GB", "16")) * (1024 ** 3)
+    return DEVICE if (int(tensor_nbytes) + headroom) < free else None
+
+
+def _nbytes(*tensors) -> int:
+    """Total bytes of the given tensors (for the dataset auto-fit decision)."""
+    return sum(int(t.numel()) * int(t.element_size()) for t in tensors if hasattr(t, "numel"))
 
 
 def _worker_init_fn(worker_id: int) -> None:
@@ -331,7 +359,7 @@ def _create_dataloader(
     # Forked workers cannot share GPU/MPS memory with the parent process —
     # but with num_workers=0 (the MPS path), we can keep the dataset entirely
     # on-device and skip the per-batch host->device copy.
-    dataset_device = _dataset_device(num_workers)
+    dataset_device = _dataset_device(num_workers, _nbytes(x, y))
 
     sampler = None
     if use_weighted_sampling:
@@ -374,7 +402,7 @@ def _create_aux_dataloader(
     from data.aux_side_channel import AuxPublishingLoader
 
     num_workers = _get_num_workers()
-    dataset_device = _dataset_device(num_workers)
+    dataset_device = _dataset_device(num_workers, _nbytes(x, y, aux))
 
     sampler = None
     if use_weighted_sampling:
@@ -438,7 +466,7 @@ def _create_aligned_joint_loader(x_b, y_b, x_a, y_a, aux, batch_size: int, seed:
     the per-sample reg ``last_region_idx`` (or None when the reg head needs none).
     """
     num_workers = _get_num_workers()
-    dataset_device = _dataset_device(num_workers)
+    dataset_device = _dataset_device(num_workers, _nbytes(x_b, y_b, x_a, y_a, aux))
 
     def _mv(t):
         if dataset_device is not None and isinstance(t, torch.Tensor) and t.device != dataset_device:
