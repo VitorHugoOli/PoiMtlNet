@@ -34,6 +34,7 @@ _CHECKIN_LEVEL_ENGINES = {
     EmbeddingEngine.CHECK2HGI_RESLN,
     EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_B,
     EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_J,
+    EmbeddingEngine.CHECK2HGI_CTLE,  # [ENUM-MERGE] B1 CTLE contextual per-visit substrate
     EmbeddingEngine.TIME2VEC,
 }
 

@@ -1027,6 +1027,8 @@ class FoldCreator:
             EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_L0_1,
             EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_MAE_L0_1,  # option-b dual-axis base
             EmbeddingEngine.CHECK2HGI_DK_OVL,  # overlap-window probe (v14 re-windowed stride=1)
+            EmbeddingEngine.BASELINE_B2C_ONEHOT64,  # [ENUM-MERGE] B2c zero-training floor probe
+            EmbeddingEngine.CHECK2HGI_CTLE,  # [ENUM-MERGE] B1 CTLE contextual per-visit substrate
         )
         if embedding_engine not in _MTL_C2HGI_ALLOWED_ENGINES:
             raise ValueError(
