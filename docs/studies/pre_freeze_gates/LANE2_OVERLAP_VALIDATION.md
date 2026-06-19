@@ -47,3 +47,40 @@ blocked by the A40 OOM. Obtainable only via a CPU-resident-dataset training path
 default off) + a multi-hour run, OR a bigger GPU. Whether to spend that is part of the user decision.
 
 Captures: `results/lane1_g01/{alabama_s{0,1,7}__{baseline,ovl}, florida_s0__baseline}/`.
+
+## Meticulous audit (2026-06-19) — overlap gain is SOUND, not a confound
+
+User flagged the overlap as possibly "weird / losing the big picture." Independent audit + my measurements:
+
+**FL overlap fold-1 (corrected): cat 77.20 (+4.19), reg 74.25 (+0.71).** (An earlier note quoted cat ~72.68 —
+that was a *mid-training running-best of fold 2*, not the diagnostic-best; disregard it.) So FL overlap is
+**positive on both heads**, scale-saturated on reg — matching the memo's STL pattern (AL +9.77 / FL +1.30).
+
+**Training-length confound — REFUTED (the central worry).** Overlap runs ~8.5× more gradient updates/fold at
+fixed 50 epochs, so the fear was the non-overlap baseline is under-trained. Convergence curves refute it:
+AL baseline cat plateaus by epoch 20 (57.1%), reg by epoch 26-38 — flat to epoch 50; overlap reaches a
+*higher* plateau *faster* (cat by ep16, reg by ep27). Both arms reach OneCycle's low-LR tail before stopping.
+The captures are per-task **diagnostic-best** (peak epoch, selector-independent) = best-of-run vs best-of-run.
+⇒ the +8.12 cat / +3.57 reg is a **higher ceiling from denser supervision, not extra updates**.
+
+**Data + leak — CLEAN.** Leak re-verified empirically on the real 108k-row AL overlap data: all 5 folds
+user-disjoint at seeds {0,1,7}. AL (06-03) and FL (today, fixed `<U32` builder) overlap engines are
+build-consistent (same schema, MIN=5, v14-symlinked embeddings). 0.0% last_region padding is expected at
+stride-1. **Same user population** (AL 1622=1622, FL 13935=13935, zero set difference) — overlap changes only
+how many windows each user contributes, not which users. Power-user reweighting is **mild** (Gini +0.04,
+top-decile window share +3pp) → one-line footnote, not a population swap.
+
+**Caveats for paper-grade claims:** (a) FL reg *baseline* is mildly still rising at epoch 50 (+~1pp tail) →
+train non-overlap to convergence; this would *shrink* the already-small FL reg gain, never inflate it.
+(b) Folds are generated on-the-fly per arm (different windowed rows) → partitions are NOT bit-identical across
+arms → use **unpaired across-seed** stats, not paired per-fold. (c) Footnote the ~3pp power-user reweighting.
+
+**Verdict:** the "weird" feeling was a premature mid-training comparison, not a methodological flaw. Overlap is
+sound and genuinely helps (scale-dependent: large at small states, saturated-but-positive at large states) —
+**supports the user's ADOPT lean.** Methodological notes above travel into the freeze record.
+
+## Perf notes (2026-06-19)
+- 43 min/FL-overlap-fold = **proportional** (8.5× windows × ~5 min non-overlap fold); both run 50 epochs.
+- **Dataset can go back on GPU** now the train-logit accumulation is CPU-side (`8ff36dba`): ~6.4 GB dataset +
+  ~16 GB ≈ 22 GB < 44 GB → drop `MTL_DATASET_CPU` for FL-overlap → no per-batch transfer → ~28% faster,
+  byte-identical. Use GPU-resident for the board where it fits; CA/TX may still need CPU-residency (bigger).
