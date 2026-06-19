@@ -234,3 +234,17 @@ one-sided.** Sources: Flashback (IJCAI'20, code `setting.py` `sequence_length=20
 DeepMove (WWW'18, `session 2–10`/`trace_min=10`), GETNext (SIGIR'22, daily ≈7–8/`<10` filter), STAN (WWW'21,
 max=100), SGRec (IJCAI'21, `n=20`/10-core), CTLE (AAAI'21), HMT-GRN (SIGIR'22, 20–50/geohash regions),
 Massive-STEPS (arXiv:2505.11239).
+
+## 10 · Torch upgrade decision — NO-GO (2026-06-19, eval-backed)
+
+User strategy (sound): adopting overlap re-runs all MODEL training anyway, so a torch upgrade's re-baseline
+cost is largely amortized → bundle it into the one freeze. **But evaluated → NO-GO for the freeze.** Make-or-break:
+`torch_cluster` (load-bearing: the check2hgi embedding builder imports `torch_geometric.nn.Node2Vec` →
+`torch_cluster.random_walk` at module-load) has **ZERO torch-2.12 wheels** (cu126/cu130/cu132 all confirmed
+absent at https://data.pyg.org/whl/; sdist frozen at 1.6.3). `torch_scatter`/`torch_sparse` DO have pt212 wheels;
+`torch_cluster` does not. Migrating ⇒ from-source compile against cu126/130 nvcc on a shared box hosting live
+runs — high-risk. Benefit ~nil (2.12's TopK RadixSelect speedup is sub-noise for our few-thousand-region Acc@10
+topk; no quality win). Driver 580 supports cu126/cu130 (not the blocker). **Decision: stay torch 2.11.0+cu128
+for the entire freeze.** The torch-build guard (lane1_run.sh, commit b5332b2e) enforces it. Revisit 2.12
+post-paper IF torch_cluster publishes pt212 wheels OR the Node2Vec import is made lazy. ⇒ CA/TX v14 builds on
+2.11 are FINAL (not throwaway) — Lane 3 unblocked.
