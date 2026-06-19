@@ -20,17 +20,29 @@
 |---|---|---|---|---|
 | **cat** macro-F1 (matched) | non-overlap | 67.58 ± 0.86 | 73.01 ± 0.98 | **+5.43** |
 | **cat** macro-F1 (matched) | **overlap** | **73.10 ± 0.67** | **76.65 ± 1.05** | **+3.55** |
-| **reg** top10_acc_indist | non-overlap | 71.61 (full)¹ | 73.54 ± 0.76 | — ¹ |
-| **reg** top10_acc_indist | **overlap** | *running (p1)* | **74.16 ± 0.79** | *pending* |
+| **reg** top5_acc-full (matched) | non-overlap | 65.20 ± 0.93 | 66.04 ± 0.84 | **+0.84** |
+| **reg** top5_acc-full (matched) | **overlap** | **68.96** | **66.87 ± 0.82** | **−2.09** ⚠ |
+| **reg** MRR-full (matched) | non-overlap | 55.31 ± 0.86 | 55.91 ± 0.77 | +0.60 |
+| **reg** MRR-full (matched) | **overlap** | **57.11 ± 0.67** | **57.18 ± 0.39** | +0.07 (tie) |
+| *(non-matched, do not subtract)* | overlap | Acc@10-full 76.08 | Acc@10-indist 74.16 | — |
 
-¹ p1 (STL reg) reports FULL top10_acc; MTL reports indist — not directly comparable (B-A2 correction). On
-the **matched** metrics common to both (top5-full / MRR-full), non-overlap MTL ≈ STL reg ceiling (+0.84 /
-+0.60). Overlap STL reg is in flight (`fl_ovl_stl_reg`, p1 `--engine-override check2hgi_dk_ovl`).
+p1 (STL reg) reports FULL top10/top5; MTL reg records top5-full + top10-indist (not full top10) → compared
+on **top5-full / MRR-full** (common to both). B-A2 correction respected.
 
-**Overlap deltas:** STL cat **+5.52** (67.58→73.10) · MTL cat **+3.64** (73.01→76.65) · MTL reg **+0.62**
-(73.54→74.16). Reads: overlap helps STL cat *more* than MTL cat — overlap STL cat (73.10) ≈ non-overlap
-MTL cat (73.01), i.e. denser supervision nearly closes the STL→MTL cat gap; but MTL overlap (76.65) still
-leads STL overlap by **+3.55**, so MTL keeps winning cat. (The dissolved-gap finding holds under overlap.)
+**⚠ Story-relevant finding (REG head under overlap).** Non-overlap, MTL ≈ STL reg ceiling (+0.84 top5,
++0.60 MRR) — the "MTL doesn't sacrifice reg" / dissolved-gap claim. **Under the ADOPTED overlap windowing
+it softens:** overlap lifts the **STL reg ceiling more than MTL reg** (STL top5 +3.76 [65.20→68.96] vs MTL
++0.83 [66.04→66.87]), so MTL reg now **trails the STL ceiling by −2.09 on top5** (tied on MRR +0.07). The
+cat win is unchanged (+3.55). So under overlap the headline becomes "MTL **beats** the STL cat ceiling and
+**roughly matches** STL reg (tied MRR, −2pp top5)" rather than "matches/edges" reg. Caveats: **single seed
+(0), unpaired** folds, **top5/MRR-full** (not the headline Acc@10, which isn't matchable here). Directional
+— the binding call is the **n=20 T3** comparison (post-freeze, run compiled). **Flagged for the user** (it
+touches the reg-ceiling narrative under the adopted base).
+
+**Overlap deltas:** STL cat **+5.52** (67.58→73.10) · MTL cat **+3.64** (73.01→76.65) · STL reg top5 **+3.76**
+· MTL reg top5 **+0.83** · MTL reg Acc@10-indist **+0.62** (73.54→74.16). Cat: overlap helps STL *more*
+(+5.52 vs +3.64) — overlap STL cat (73.10) ≈ non-overlap MTL cat (73.01) — but MTL overlap (76.65) still
+leads by +3.55. Reg: overlap *also* helps STL more, enough to edge ahead on top5 (see ⚠ above).
 
 ## 3 · STL vs MTL — TIME (FL overlap, per-fold, clean GPU)
 
