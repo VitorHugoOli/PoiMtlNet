@@ -6,6 +6,15 @@
 > reproduces the §0.1 MTL-vs-STL story under the current code. FL seed 0, 5-fold, **v14** substrate
 > (`check2hgi_design_k_resln_mae_l0_1`), champion-G recipe, geom_simple, KD off, **non-overlap** (matches
 > the LANE2 baseline arm). Per-task **diagnostic-best** (selector-independent).
+>
+> **⚠ Correction (PR #28 audit, 2026-06-19):** the scan empirically exercised **S1 (train-metric streaming,
+> default ON) + dataset-on-GPU auto-fit + the `<U32` fix** — all byte-identical (S1/auto-fit by construction;
+> `<U32` verified AL max|Δ|=0). **S2 (chunked val-metric) was NOT exercised** — it is behind
+> `MTL_CHUNK_VAL_METRIC` (default OFF), which no committed run sets, so 73.0116/73.5414 came off the legacy val
+> path. S2 is byte-identical **BY CONSTRUCTION** (per-row argmax/rank/topk reconstruction, `.float().mean()` not
+> a running int) but is NOT empirically verified — **run an S2-ON A/B before the board enables it** (for
+> large-state overlap val OOM). Also: "exact to 4 dp" is consistent-but-unproven (the baseline was only recorded
+> to 2 dp: 73.01/73.54).
 
 ## 1 · Byte-identity — the new code is INERT (the headline of the scan)
 
