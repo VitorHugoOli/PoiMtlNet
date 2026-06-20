@@ -203,6 +203,7 @@ def generate_sequences(
     stride: int = None,
     return_start_indices: bool = False,
     min_sequence_length: int = MIN_SEQUENCE_LENGTH,
+    emit_tail: bool = True,
 ):
     """
     Generate sequences of fixed length for next-POI prediction.
@@ -223,6 +224,16 @@ def generate_sequences(
             sequence to be emitted; users with fewer are dropped (returns []).
             Default == the module constant MIN_SEQUENCE_LENGTH (5) so existing
             callers are byte-identical to the pre-parameterization behaviour.
+        emit_tail: If True (default), emit the out-of-bounds "tail" windows where
+            the sliding window walks off the end of the user's history and the
+            last real visit is demoted to the target (history shifted). This is
+            required at the non-overlapping default (stride=9) — it is how each
+            user's FINAL window/last-POI target is produced. If False (the M1
+            gate, used only at stride=1), these tail windows are skipped: at
+            stride=1 each user emits ~window_size of them, all targeting the SAME
+            last POI on near-all-padding histories, which over-weights the
+            last-POI target and injects trivial low-context samples (a label-
+            distribution skew, not a leak). Default True ⇒ byte-identical.
 
     Returns:
         If return_start_indices is False:
@@ -250,6 +261,11 @@ def generate_sequences(
         target_idx = start_idx + window_size
         if target_idx < total_visits:
             target_poi = places_visited[target_idx]
+        elif not emit_tail:
+            # M1 gate: skip the OOB tail window (no genuine next visit exists
+            # past the history). Used at stride=1 to avoid the last-POI-target
+            # skew. At the default emit_tail=True this branch is never taken.
+            continue
         else:
             # Use last real visit as target, shift history
             for j in range(len(history) - 1, -1, -1):
@@ -523,6 +539,7 @@ def convert_user_checkins_to_sequences(
     embedding_dim: int,
     stride: int = None,
     min_sequence_length: int = MIN_SEQUENCE_LENGTH,
+    emit_tail: bool = True,
 ) -> Tuple[List[np.ndarray], List[List[int]]]:
     """
     Convert a single user's check-in DataFrame to embedding sequences using position-based lookup.
@@ -575,6 +592,7 @@ def convert_user_checkins_to_sequences(
         stride=stride,
         return_start_indices=True,
         min_sequence_length=min_sequence_length,
+        emit_tail=emit_tail,
     )
 
     if not sequences_with_idx:

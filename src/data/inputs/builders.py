@@ -59,6 +59,18 @@ from .core import (
 )
 
 
+def _resolve_emit_tail(emit_tail: Optional[bool], stride: Optional[int]) -> bool:
+    """Resolve the AUTO (``None``) emit_tail policy from the stride.
+
+    AUTO ⇒ emit tail windows at the default/non-overlap stride (byte-identical
+    legacy behaviour) but GATE them at ``stride==1`` (the M1 last-POI-target
+    skew fix — the overlap board's only use of stride-1). An explicit bool wins.
+    """
+    if emit_tail is not None:
+        return emit_tail
+    return stride != 1
+
+
 def _git_sha() -> str:
     """Best-effort current git commit hash; 'unknown' if unavailable."""
     try:
@@ -79,6 +91,7 @@ def _write_build_provenance(
     min_sequence_length: int,
     stride: Optional[int],
     window_size: int,
+    emit_tail: Optional[bool] = None,
 ) -> None:
     """Write an additive build-provenance sidecar next to the task's input parquet.
 
@@ -101,6 +114,7 @@ def _write_build_provenance(
             "stride": stride,
             "effective_step": stride if stride is not None else window_size,
             "window_size": window_size,
+            "emit_tail": emit_tail,
             "git_sha": _git_sha(),
             "utc": datetime.now(tz=timezone.utc).isoformat(),
         }
@@ -206,6 +220,7 @@ def generate_next_input_from_poi(
     batch_size: int = DEFAULT_BATCH_SIZE,
     stride: Optional[int] = None,
     min_sequence_length: int = MIN_SEQUENCE_LENGTH,
+    emit_tail: Optional[bool] = None,
 ) -> None:
     """
     Generate next-POI input from POI-level embeddings.
@@ -220,7 +235,13 @@ def generate_next_input_from_poi(
             window_size (non-overlapping), byte-identical to the legacy path.
         min_sequence_length: Minimum user check-ins to emit any sequence.
             Default == MIN_SEQUENCE_LENGTH (5) → legacy behaviour preserved.
+        emit_tail: Whether to emit OOB tail windows (see ``generate_sequences``).
+            ``None`` (default) → AUTO: emit at the default/non-overlap stride,
+            but GATE (skip) them at ``stride==1`` (the M1 last-POI-target skew
+            fix). Pass an explicit bool to override. AUTO at non-overlap keeps
+            the legacy byte-identical behaviour.
     """
+    emit_tail = _resolve_emit_tail(emit_tail, stride)
     # Load data
     embeddings_df = IoPaths.load_embedd(state, engine)
     checkins_df = IoPaths.load_city(state)
@@ -242,6 +263,7 @@ def generate_next_input_from_poi(
             places.tolist(),
             stride=stride,
             min_sequence_length=min_sequence_length,
+            emit_tail=emit_tail,
         )
     )
 
@@ -274,6 +296,7 @@ def generate_next_input_from_poi(
         min_sequence_length=min_sequence_length,
         stride=stride,
         window_size=window_size,
+        emit_tail=emit_tail,
     )
 
 
@@ -283,6 +306,7 @@ def generate_next_input_from_checkins(
     batch_size: int = DEFAULT_BATCH_SIZE,
     stride: int = None,
     min_sequence_length: int = MIN_SEQUENCE_LENGTH,
+    emit_tail: Optional[bool] = None,
 ) -> None:
     """
     Generate next-POI input from check-in-level embeddings.
@@ -310,7 +334,11 @@ def generate_next_input_from_checkins(
             window_size (non-overlapping), byte-identical to the legacy path.
         min_sequence_length: Minimum user check-ins to emit any sequence.
             Default == MIN_SEQUENCE_LENGTH (5) → legacy behaviour preserved.
+        emit_tail: Whether to emit OOB tail windows (see ``generate_sequences``).
+            ``None`` (default) → AUTO: emit at the default/non-overlap stride,
+            GATE at ``stride==1`` (the M1 skew fix). Explicit bool overrides.
     """
+    emit_tail = _resolve_emit_tail(emit_tail, stride)
     # Load data
     embeddings_df = IoPaths.load_embedd(state, engine)
 
@@ -354,6 +382,7 @@ def generate_next_input_from_checkins(
         results, sequences = convert_user_checkins_to_sequences(
             user_df, emb_cols, window_size, embedding_dim,
             stride=stride, min_sequence_length=min_sequence_length,
+            emit_tail=emit_tail,
         )
 
         # Convert this user's small <U32 batch to float32 + metadata immediately,
@@ -380,4 +409,5 @@ def generate_next_input_from_checkins(
         min_sequence_length=min_sequence_length,
         stride=stride,
         window_size=window_size,
+        emit_tail=emit_tail,
     )
