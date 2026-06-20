@@ -8,6 +8,13 @@
 
 ## The problem (what people saw)
 1. **Box RAM exhaustion (~123 GB)** during MTL input build / training — killed the machine / tmux.
+   **This actually happened (2026-06-20): a CA stride-1 overlap build exhausted 125 GB RAM + 8 GB swap and
+   killed the tmux session.** Root cause = the `<U32` upcast × O(N) row accumulation (~440 GB at CA stride-1).
+   ⚠ **Regression history:** `33fe18da` first fixed the `<U32` blowup (per-user float32 conversion); a later
+   threading merge (`dade24ad`) **reverted it** back to `all_results.extend(<U32 rows>)`. It was re-fixed for
+   good in `eb45c744` with the **streaming** writer (float32-immediate + O(chunk) parquet row-groups), which
+   also removes the O(N) accumulation the original float32-only fix still had. **Never run a large-state
+   (CA/TX/FL) overlap build with an uncapped, non-streaming builder.**
 2. **A40 GPU OOM** for the **region task** (`next_region`) MTL — FL *overlap* MTL OOM'd outright; **CA/TX
    (large states, 8501/6553 regions) were believed to OOM the A40 at bs2048** (peaks ~39 GB, spikes >44 GB).
    The prior conclusion was "CA/TX region-MTL is not feasible on the A40 → use a bigger GPU / defer."
@@ -25,7 +32,7 @@ upcast the whole row to 128-byte `<U32`).
 | **S1** streaming train-metric | `src/training/runners/mtl_cv.py` | accumulate per-batch preds/targets/rank/hit on **CPU** (O(N+C)) instead of full logits on GPU (O(N·C)). **This is the actual OOM fix.** Default-ON, gated `C>256`, byte-identical. |
 | **S2** chunked val-metric | `src/training/runners/mtl_eval.py` | the scored val-metric path streams in chunks (k∈{1,3,5,10}) instead of materializing full val logits. Default-OFF (`MTL_CHUNK_VAL_METRIC=1`), byte-identical. |
 | **dataset-on-GPU auto-fit** | `src/data/folds.py:_dataset_device` | pre-move the dataset to GPU **if it fits** (free VRAM − 16 GB headroom, `MTL_GPU_HEADROOM_GB`), else keep it **CPU-resident** (per-batch transfer). Byte-identical (device never changes the math). Overrides: `MTL_DATASET_CPU=1` / `MTL_DATASET_GPU=1`. |
-| **`<U32` builder fix** | `src/data/inputs/builders.py` | convert each user's batch to float32 immediately → kills the 32× string-upcast RAM blowup. Byte-identical. |
+| **`<U32` builder fix (streaming)** | `src/data/inputs/builders.py` + `src/data/inputs/core.py` | convert each user's batch to float32 immediately **and stream rows to parquet in O(chunk) row-groups** (`NextInputStreamWriter`/`_SequenceStreamWriter`) → kills the 32× string-upcast RAM blowup *and* the O(N) accumulation. Byte-identical (alabama: uint32-view `array_equal`, maxdiff 0.0). |
 
 ## Validation (it works)
 - **FL overlap MTL** (the case that OOM'd): now **completes** (cat 76.65 / reg 74.16).

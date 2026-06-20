@@ -56,6 +56,11 @@ adversarial review found 3 launch-blockers that would corrupt the frozen substra
 > 3. `compute_region_transition.py --per-fold` is hardwired to `CHECK2HGI` → emits stride-9 log_T while the
 >    mtime guard passes (copy+touch) → the +8..+12pp stale-log_T trap → make it stride/engine-aware.
 
+> 4. **Stride-1 tail-window label skew (M1, `WINDOWING_AUDIT.md`)** — at stride=1 each user emits ~8 OOB
+>    tail windows whose target is the user's LAST POI (leak-free but skews the label distribution toward
+>    end-of-history). DECIDE before the board build: gate the tail (`emit_tail=False` for stride=1, changes
+>    numbers) or keep+document. Not a launch *blocker*, but a board-recipe decision.
+
 These three are P3 infra (the board is post-freeze). The parameterization + provenance + the driver skeleton
 ship now; the driver is inert (refuses to run) until they land — so it can't be a stumble.
 
