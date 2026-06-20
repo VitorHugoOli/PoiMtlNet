@@ -77,18 +77,29 @@ def build_next_region_for(state: str, engine: EmbeddingEngine):
           f"pad={(last_region<0).mean()*100:.1f}%)")
 
 
+# Board overlap windowing = stride-1, GATED (emit_tail auto-off at stride==1), MIN_SEQ=10.
+# min_seq defaults to 10 HERE (board value) rather than core.py's global 5 — the overlap
+# engine is board-only, so this never touches the frozen non-overlap v11/v14 substrate
+# (which must stay at the global MIN_SEQ=5 for §0.1 reproduction; see DEFAULTS_AND_GUARDS
+# TRAP #1). Override with argv[3].
+BOARD_MIN_SEQ = 10
+
+
 def main():
     state = sys.argv[1] if len(sys.argv) > 1 else "alabama"
     stride = int(sys.argv[2]) if len(sys.argv) > 2 else 1
+    min_seq = int(sys.argv[3]) if len(sys.argv) > 3 else BOARD_MIN_SEQ
     src_dir = OUTPUT_DIR / V14.value / state.lower()
     dst_dir = OUTPUT_DIR / OVL.value / state.lower()
-    print(f"=== build overlap probe engine {OVL.value} for {state} (stride={stride}) ===")
+    print(f"=== build overlap probe engine {OVL.value} for {state} "
+          f"(stride={stride}, min_seq={min_seq}) ===")
     # 1. symlink the shared (windowing-independent) artifacts from v14
     for f in ("embeddings.parquet", "region_embeddings.parquet", "poi_embeddings.parquet"):
         _symlink(src_dir / f, dst_dir / f)
     # 2. build overlapping next.parquet + sequences_next.parquet into the probe dir
-    print("  building overlapping next.parquet + sequences (stride=%d)..." % stride)
-    generate_next_input_from_checkins(state, OVL, stride=stride)
+    print("  building overlapping next.parquet + sequences "
+          "(stride=%d, min_seq=%d)..." % (stride, min_seq))
+    generate_next_input_from_checkins(state, OVL, stride=stride, min_sequence_length=min_seq)
     # 3. build overlapping next_region.parquet
     build_next_region_for(state, OVL)
     n = len(IoPaths.load_next(state, OVL))

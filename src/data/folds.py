@@ -675,17 +675,26 @@ def _warn_if_ungated_overlap(state, embedding_engine) -> None:
         if not sidecar.exists():
             return
         prov = json.loads(sidecar.read_text())
-        if prov.get("stride") == 1 and prov.get("emit_tail") is True:
-            msg = (
-                f"UNGATED overlap engine: {embedding_engine.value}/{state} was built "
-                f"stride=1 with emit_tail=True (kept the OOB tail windows). The board "
-                f"windowing is GATED (emit_tail=False). Rebuild with "
-                f"`python scripts/mtl_improvement/build_overlap_probe_engine.py {state} 1` "
-                f"unless you are INTENTIONALLY testing ungated."
-            )
-            if os.environ.get("MTL_STRICT") == "1":
-                raise ValueError(msg)
-            logger.warning("[gated-overlap guard] %s", msg)
+        if prov.get("stride") == 1:
+            problems = []
+            if prov.get("emit_tail") is True:
+                problems.append("emit_tail=True (ungated — board windowing is GATED)")
+            if prov.get("min_sequence_length") not in (None, 10):
+                problems.append(
+                    f"min_sequence_length={prov.get('min_sequence_length')} "
+                    f"(board overlap windowing is min_seq=10)"
+                )
+            if problems:
+                msg = (
+                    f"non-board overlap engine {embedding_engine.value}/{state}: "
+                    + "; ".join(problems)
+                    + f". Rebuild board-correct with "
+                    f"`python scripts/mtl_improvement/build_overlap_probe_engine.py {state} 1` "
+                    f"(stride=1, gated, min_seq=10) unless intentionally testing a variant."
+                )
+                if os.environ.get("MTL_STRICT") == "1":
+                    raise ValueError(msg)
+                logger.warning("[board-overlap guard] %s", msg)
     except ValueError:
         raise
     except Exception:
