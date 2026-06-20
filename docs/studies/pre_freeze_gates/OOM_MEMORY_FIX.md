@@ -68,6 +68,26 @@ box-killing, pre-fix). Byte-identity: bare AL champion-G seed 0 reproduces **52.
 construction, *before* any `.to(device)` move. Full writeup: `WINDOWING_AUDIT.md` cross-ref + the workflow
 result.
 
+## Q1 CLOSED (2026-06-20) — CA/TX overlap MTL: use AUTO dataset-fit, NOT `MTL_DATASET_GPU=1`
+**CA/TX stride-1 overlap champion-G MTL is VIABLE on the A40** (verified: TX fold-1 trains, ~160 s/epoch
+on a 3.06M-row train fold; CA similar). **But the dataset-device mode matters:**
+- ✅ **AUTO (the default, `folds._dataset_device`)** — for large states the per-fold dataset is ~31 GB of
+  redundant copies (next.train + cat.train + the joint-train loader's 3rd copy + val tensors, ×2 towers),
+  which does NOT fit on the GPU with head-room, so AUTO **keeps it CPU-resident** (TX runs at **GPU ~6 GB**,
+  per-batch host→device transfer). AUTO **never OOMs** — it falls back to CPU. **This is the correct mode.**
+- ❌ **`MTL_DATASET_GPU=1` (force)** — forces all those copies onto the GPU → **OOM on TX** (no CPU fallback;
+  ~31 GB data + model/activations > 44 GB). Only use the force flag for SMALL states whose dataset genuinely
+  fits. **Do NOT set `MTL_DATASET_GPU=1` for CA/TX.**
+- AUTO's GPU peak is **occupancy-dependent** (it moves what fits at decision time) — TX has been observed at
+  ~6 GB (dataset CPU) and, when more VRAM was free, higher; either way it fits because it never forces.
+- **Speed:** TX overlap MTL ≈ **160 s/epoch** uncompiled (CPU-resident dataset). A full TX MTL (5f×50ep) is
+  therefore ~11 h — the cost is intrinsic (8.5× overlap sequences + per-batch transfer), not a misconfig.
+  `--compile`/`--tf32` give ~15% (FL-measured, `SPEED_LEVERS.md`); they are board-execution knobs, opt-in.
+
+> TL;DR for agents: **CA/TX overlap MTL fits the A40 on the DEFAULT auto-fit (dataset CPU-resident for the
+> big states). Never set `MTL_DATASET_GPU=1` for CA/TX — it OOMs. The host-RAM lazy-fold fix + auto-fit are
+> what make it run; the GPU was never the constraint.**
+
 ## Implication (the takeaway for planning)
 **CA/TX region-MTL no longer need a bigger GPU for VRAM — the A40 can run the whole board.** The H100 /
 `closing_data` hardware is no longer forced by memory; it would only be a *speed* choice. Two standing rules
