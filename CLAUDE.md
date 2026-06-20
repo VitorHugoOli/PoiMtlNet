@@ -142,6 +142,14 @@ Key methods: `shared_parameters()` and `task_specific_parameters()` enable gradi
 
 Key files: `src/training/runners/mtl_cv.py`, `scripts/train.py`
 
+> ⚠ **MTL OOM was FIXED (2026-06-19/20) — do NOT believe "large states need a bigger GPU."** Region-MTL
+> (`next_region`, C=1109…8501 classes) used to OOM (FL overlap; CA/TX believed infeasible on the A40). The
+> driver was the **per-epoch metric accumulating full logits O(N·C)**, not the model. Fixed by **S1**
+> (streaming train-metric, `mtl_cv.py`, default-on) + **S2** (chunked val-metric, `mtl_eval.py`,
+> `MTL_CHUNK_VAL_METRIC=1`) + **dataset-on-GPU auto-fit** (`folds._dataset_device`) + the `<U32` builder fix —
+> all **byte-identical**. **Verified: CA/TX champion-G MTL FIT the A40** (~11–13 GB peak). Full explanation:
+> [`docs/studies/pre_freeze_gates/OOM_MEMORY_FIX.md`](docs/studies/pre_freeze_gates/OOM_MEMORY_FIX.md).
+
 **Training loop** (`mtl_cv.py`):
 - Per fold: initialize MTLnet, optimizer, scheduler, criteria
 - **Optimizer**: AdamW (lr=1e-4, weight_decay=0.05, eps=1e-8)
