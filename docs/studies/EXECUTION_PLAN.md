@@ -257,3 +257,50 @@ topk; no quality win). Driver 580 supports cu126/cu130 (not the blocker). **Deci
 for the entire freeze.** The torch-build guard (lane1_run.sh, commit b5332b2e) enforces it. Revisit 2.12
 post-paper IF torch_cluster publishes pt212 wheels OR the Node2Vec import is made lazy. ⇒ CA/TX v14 builds on
 2.11 are FINAL (not throwaway) — Lane 3 unblocked.
+
+## 11 · PR #28 (A40 pre-freeze lanes) — audit outcome + post-merge follow-ups (2026-06-19)
+
+**MERGED.** Very-critical audit (10-dim + lean 7-dim workflows + 3 hand-verified dims): **no blockers, no gate
+rework** — every gate verdict holds. G0.1 advisory NULL (correct *single-joint-loader* impl; AL aligned HURTS
+cat −4.77 → random pairing is a beneficial augmentation; v16 stands). **Loss-scale EXCLUDED (FL reg −37.8 pp,
+harmful at scale).** Overlap ADOPT (training-length confound REFUTED via convergence curves; leak clean; MIN
+held at 5; AL cat +8.12/reg +3.57, FL cat +3.64/reg +0.62). v14 6-state recipe-identical — the builder
+`build_design_k_delaunay.py` is **UNCHANGED**, so the OOM/streaming work never touched the substrate. 7 baselines
+faithful (POI2Vec φ unit-tested). Champion G bit-identical; guidelines followed (C28, validate-first, MIN=5 held,
+no commit-to-main).
+
+### Resolved-here (doc-overclaim corrections, applied 2026-06-19)
+- **byte-identity:** S2 chunked-val was never empirically run (default-OFF) → byte-identical *by construction*
+  only; "4-dp exact" softened (baseline at 2 dp). (`FL_NEWCODE_SCAN.md`.)
+- **leak:** (c) category-STL is flat one-row-per-POI → **NOT a stride-1 leak surface** (resolves §4b's
+  carve-out worry); (d) chrono "stride-1 reproduction" was actually stride-9 (off-critical-path, clean by
+  construction). (`STRIDE1_LEAK_REAUDIT.md`.)
+- **v14:** "all 6 on one machine+seed" overstated — **AL/AZ/FL/GE are the existing canonical artifacts (Jun 2–3),
+  only CA/TX fresh (Jun-19 A40)**; all recipe-identical (builder unchanged). `V14_HASH_MANIFEST.json` proves
+  OUTPUT integrity but records no build-env metadata → strict one-environment identity is not provable from the
+  manifest (low risk: deterministic recipe + seed 42).
+
+### Known bug (inert for champion G; fix before relying on it)
+- **`train.py --aligned-pairing` crashes** (`dataclasses.replace` on the undeclared `aligned_pairing` field).
+  INERT for champion G (default off; the G0.1 advisory ran via the working `lane1_run.sh` → `FoldCreator(
+  aligned_pairing=)` path). **The binding G0.1 must use `lane1_run.sh`**, or declare+wire the field first.
+
+### P3 verification checklist (deferred — execute at/after the freeze; NOT rework)
+- **Binding G0.1** on the frozen base, full {0,1,7,100}, 0.3 pp gate pre-registered — via `lane1_run.sh`.
+  Expected null (advisory is clearly null/negative).
+- **S2-ON byte-identity A/B** before the board enables `MTL_CHUNK_VAL_METRIC` (needed for large-state overlap
+  val OOM).
+- **Empirical stride-1 leak check** on the adopted overlap sequences ((a)/(b), the real board surface).
+- **v14 build-env note** — record per-state build provenance (date/machine/torch/seed) when the board re-hashes
+  against the manifest.
+- **Streaming-path regression test** + the frozen-substrate clobber guard on the geotree/b2b builders.
+
+### ⚠ TWO USER DECISIONS (do not block the merge; gate the P3 board)
+1. **Overlap board hardware/data-path.** FL/CA/TX overlap-MTL **OOMs the A40** at 8.5× sequences. The P3 board
+   needs either the CPU-resident-dataset path (`MTL_DATASET_CPU=1`, slower) or a bigger GPU (H100) —
+   ~order-of-magnitude more GPU-hours. *This is the cost the "full picture" decision implies; confirm the
+   hardware/data-path before the board runs.*
+2. **compile+TF32 pin.** Pinned for the P3 board as result-neutral (+0.05 pp, within ±0.8 fold std; ~15% faster;
+   fp32-eval hatch intact → the matched scorer stays fp32). Marked "user-confirmed" on the A40 side —
+   **confirm the pin explicitly** (it re-baselines the board's absolutes by +0.05 pp; built once, reviewers
+   reproduce *with* the flags).

@@ -7,6 +7,16 @@
 > Lane-2-full and GPU-gated. Anchored to Luca et al. (ML 2023) — leak surface = a sample whose
 > features overlap a sample in the other split.
 >
+> **⚠ Correction (PR #28 audit, 2026-06-19):** two clarifications. **(c) the category-STL fold path is NOT a
+> stride-1 leak surface** — `generate_category_input` is FLAT one-row-per-POI (never windowed), so stride is a
+> no-op (the "per-(POI,window) straddle" worry presupposed a windowed cat-STL task the code does not have);
+> this RESOLVES the `EXECUTION_PLAN §4b` "non-user-grouped carve-out" concern. **(d) the §(d) verdict
+> overclaimed a "stride-1 empirical reproduction (~1.378M windows)"** — the chrono builder runs **stride-9**
+> (`scripts/second_dataset/build_chrono_split.py` step=9), so no stride-1 run happened; (d) is clean BY
+> CONSTRUCTION (within-portion windowing) and is off the freeze critical path (no consumer; not in the hash
+> manifest). The EMPIRICAL stride-1 leak check on the **adopted overlap sequences** ((a)/(b), the real board
+> surface) is deferred to P3. Code line-numbers below are stale (~+100 vs the branch).
+>
 > The overlap memo's stride-9 CLEAN verdict does **not** cover stride-1; this is the gap it left.
 
 ## The structural invariant that decides (a) and (b)
