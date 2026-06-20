@@ -397,6 +397,33 @@ def load_category_data(state: str, embedding_engine: EmbeddingEngine) -> Tuple[n
     return X, y, placeids, embedding_dim
 
 
+def _guard_cpu_resident_ram(n_rows: int, num_features: int, *, where: str) -> None:
+    """Fail-loud CPU-RAM guard for loading a CPU-resident next/MTL dataset.
+
+    Estimates ~2x the [N, num_features] float32 matrix (the ``.values`` copy plus
+    the parquet-backed DataFrame / downstream tensors) and raises a clear error if
+    it would exceed available RAM minus head-room, rather than OOM-killing the box.
+    No-op when psutil is unavailable or the estimate fits. Head-room is the env
+    ``MTL_RAM_HEADROOM_GB`` (default 16 GB) — the SAME knob the build guard uses.
+    """
+    try:
+        import psutil
+    except Exception:
+        return
+    headroom_gb = float(os.environ.get("MTL_RAM_HEADROOM_GB", "16"))
+    est_gb = 2 * n_rows * num_features * 4 / (1024 ** 3)
+    avail_gb = psutil.virtual_memory().available / (1024 ** 3)
+    if est_gb > (avail_gb - headroom_gb):
+        raise MemoryError(
+            f"{where}: CPU-resident next dataset needs ~{est_gb:.1f} GB "
+            f"(n_rows={n_rows}, num_features={num_features}) but only "
+            f"{avail_gb:.1f} GB is available (head-room {headroom_gb:.1f} GB). "
+            f"This usually means an oversized (e.g. stride-1 large-state) build. "
+            f"Use a smaller config or rebuild at the default stride. Override "
+            f"head-room via MTL_RAM_HEADROOM_GB."
+        )
+
+
 def load_next_data(
     state: str, embedding_engine: EmbeddingEngine
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, int]:
@@ -421,6 +448,14 @@ def load_next_data(
     num_features = len(feature_cols)
     slide_window = InputsConfig.SLIDE_WINDOW
     embedding_dim = num_features // slide_window
+
+    # CPU-RAM guard (fail-loud): the .values.astype(float32) below materialises a
+    # second full [N, num_features] float32 matrix alongside the parquet-backed
+    # DataFrame; downstream fold tensors hold another copy. A too-big CPU-resident
+    # next dataset (e.g. an accidental stride-1 large-state build) would OOM the
+    # box silently. Estimate ~2x the float32 matrix and raise a clear error rather
+    # than letting the host run out of RAM. Headroom via MTL_RAM_HEADROOM_GB.
+    _guard_cpu_resident_ram(len(df), num_features, where="load_next_data")
 
     X = df[feature_cols].values.astype(np.float32)
     y = df['label'].values.astype(np.int64)
