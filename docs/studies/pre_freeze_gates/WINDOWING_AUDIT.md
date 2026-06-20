@@ -22,7 +22,9 @@ demotes the last POI to the target, so for a user with `n` check-ins there are u
 **target is the user's LAST POI** — i.e. the last POI is over-represented as a prediction target, and those
 tail windows carry mostly-padding histories (down to a single real token).
 
-- **It is leak-free and chronologically valid** (the target always post-dates its history). This is NOT a leak.
+- **It is leak-free and chronologically valid** (the target always post-dates its history). This is NOT a leak
+  — stride-1 leakage is independently closed in `STRIDE1_LEAK_REAUDIT.md` (user-grouped folds are
+  stride-invariant). M1 is a **distinct, orthogonal** label-distribution concern, not a train/val straddle.
 - **But it skews the label distribution** toward "predict the end-of-history POI" and injects trivial
   near-all-padding samples — a *data-quality* / representativeness concern for the overlap board, not a bug.
 - **Why it matters now:** the P3 board adopts stride-1 overlap. At stride-9 (the frozen default) the effect is
