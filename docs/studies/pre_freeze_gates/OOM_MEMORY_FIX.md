@@ -42,6 +42,32 @@ upcast the whole row to 128-byte `<U32`).
   **CA peak 10.9 GB, TX peak 13.0 GB** (/ 46 GB) — ~3× under the old ~39 GB peak. The GPU consumer is now just
   the model+activations+per-batch (~11–13 GB); the dataset auto-fits.
 
+## A THIRD, distinct OOM — host-RAM in CV fold construction (overlap CA/TX) — FIXED 2026-06-20
+The two fixes above are about **GPU VRAM** (the metric) and the **`<U32` build**. A separate
+**host-RAM** OOM appears only at **stride-1 overlap on the large states** (CA 2.93M / TX 3.83M rows)
+and killed the whole box (tmux + session) twice. Audited by workflow `wjrt9xqs7` (6 agents + adversarial
++ empirical). Root cause was NOT the GPU (watchdog caught GPU at 3 MiB while host RSS hit 61 GB and
+climbing): `folds._create_check2hgi_mtl_folds` built **all `n_splits` folds eagerly** into a dict and
+never freed them, and each fold stored a **second** full fancy-index copy of the `[N,9,D]` slices in
+`FoldData.x` (which the MTL runner never reads). At CA that is ~126 GB → OOM-kill.
+
+**Fix (commit `8fa32344`, byte-identical):**
+- **Lazy per-fold construction** (`_LazyFoldMapping`): the runner consumes folds one-at-a-time, so only
+  ONE fold is resident (not all 5). 
+- **Drop `FoldData.x`** on the MTL path (`None`; verified never read in training).
+- **S2 auto-enable** (`mtl_eval.py`): when the full val reg-logit `[N_val,C]` would exceed a GPU budget
+  (`MTL_S2_AUTO_BUDGET_GB`, default 4 GB), auto-switch to the byte-identical chunked val metric instead of
+  OOMing the GPU. Non-overlap (small `N_val`) keeps the full path → frozen §0.1 untouched.
+- **`_guard_mtl_check2hgi_ram`** fail-loud host-RAM guard + the RSS-watchdog harness
+  (`scripts/pre_freeze_gates/overlap_fit_safe.sh`) as the safety net.
+
+**Verified (watchdog, auto dataset mode, 2026-06-20):** CA overlap MTL **GPU 26 GB / host 49 GB**; TX
+(3.83M rows) **GPU 27 GB / host 59 GB** — **both FIT** the A40 (46 GB) and the 125 GB box (was >126 GB,
+box-killing, pre-fix). Byte-identity: bare AL champion-G seed 0 reproduces **52.3781 / 64.3450 exactly**.
+⚠ **`MTL_DATASET_GPU=1` does NOT help this OOM** (empirically tested) — the host peak is in CPU fold
+construction, *before* any `.to(device)` move. Full writeup: `WINDOWING_AUDIT.md` cross-ref + the workflow
+result.
+
 ## Implication (the takeaway for planning)
 **CA/TX region-MTL no longer need a bigger GPU for VRAM — the A40 can run the whole board.** The H100 /
 `closing_data` hardware is no longer forced by memory; it would only be a *speed* choice. Two standing rules
