@@ -30,13 +30,31 @@ tail windows carry mostly-padding histories (down to a single real token).
 - **Why it matters now:** the P3 board adopts stride-1 overlap. At stride-9 (the frozen default) the effect is
   negligible (few windows/user); at stride-1 it is ~8 tail windows/user.
 
-**Options for the P3 board build (USER/board decision — NOT changed in code):**
-1. **Gate the tail branch for stride-1** (`emit_tail=False` when stride==1) — drops the ~8 OOB tail
-   windows/user, removing the skew *and* shaving ~8 rows/user off the RAM multiplier. Changes board numbers.
-2. **Keep tail windows, document the skew** — they add short-context training signal; accept the
-   end-of-history weighting as a property of the overlap recipe.
+**DECISION (2026-06-20, user-approved): GATE the tail for stride-1.** Implemented as `emit_tail`
+(`generate_sequences`/`convert_user_checkins_to_sequences`/both builders), AUTO-gated at `stride==1` via
+`_resolve_emit_tail`; default `emit_tail=True` keeps non-overlap byte-identical (alabama maxdiff 0.0).
+Unit-tested (`tests/test_data/test_emit_tail_gate.py`).
 
-This is deliberately left for the freeze decision because it changes board numbers. Flag to the user before launching the P3 board.
+### Empirical skew (stride-1, gated vs ungated)
+| state | windows full→gated | **last-POI-target share** | avg last-POI dup/user | low-ctx (<3 real) |
+|---|---|---|---|---|
+| **AL** | 108 073 → 96 326 (−10.9 %) | **15.1 % → 4.7 %** | 10.05 → 2.81 | 3.0 % → 0.0 % |
+| **FL** | 1 378 327 → 1 274 418 (−7.5 %) | **10.1 % → 2.8 %** | 10.00 → 2.54 | 2.0 % → 0.0 % |
+
+Ungated, **10–15 % of ALL training targets are "predict the user's last POI"** — each user's final POI is
+duplicated ~10× as a target (the OOB tail windows) — plus a few % trivial near-all-padding samples. The gate
+removes both. (FL's ungated 1.378 M matches the documented on-disk stride-1 count → the **current** adopted
+overlap board is the UNGATED build; gating is the change being adopted.)
+
+### Does StratifiedGroupKFold mitigate this skew? — **NO.**
+`StratifiedGroupKFold(groups=userid, y=next_category)` does exactly two things: (1) **group** — all of a
+user's windows (incl. its ~10 duplicated last-POI targets) land in the SAME fold (leak prevention); (2)
+**stratify on `next_category`** — balances the *category* proportions ACROSS folds. Neither touches the M1
+skew: the last-POI over-sampling is a **pooled-dataset property** (a target-identity / context-length effect),
+present **identically (~10–15 %) in every fold's train AND val**. Stratification spreads it evenly; it does not
+reduce it — and it stratifies on category, not on the target POI/region or context length, so the **region
+task** (which the skew most affects) gets no balancing at all. The val metric is even partly computed on the
+duplicated / low-context targets. ⇒ SGKF is the wrong lever; the `emit_tail` gate is the fix.
 
 ## Fixed in this branch (byte-identical / robustness — safe to ship)
 | id | file | fix |
