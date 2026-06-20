@@ -557,6 +557,55 @@ def _guard_cpu_resident_ram(n_rows: int, num_features: int, *, where: str) -> No
         )
 
 
+def _guard_mtl_check2hgi_ram(
+    n_rows: int, num_features: int, n_region_towers: int, *, where: str
+) -> None:
+    """Fail-loud CPU-RAM guard for the check2hgi-MTL dataset construction.
+
+    Unlike ``_guard_cpu_resident_ram`` (which models only the single ``load_next_data``
+    matrix), this path holds, SIMULTANEOUSLY and with no ``del`` between them: the ``X``
+    matrix, the ``x_checkin`` tensor, one ``[N, 9, D]`` region tensor per region tower
+    (``task_a``/``task_b`` set to "region"/"concat"), AND a per-fold train+val slice of
+    each. We model the peak as ``matrix × (1 + 2.5·(1 + n_region_towers))`` float32
+    copies (X + checkin + region towers + ~1.5× per-fold slices) and raise BEFORE the
+    big tensors are built if it would exceed available RAM minus head-room — so an
+    oversized (e.g. stride-1 large-state, 2.9M-row CA) overlap load FAILS LOUD with a
+    clear message instead of OOM-killing the box. Head-room via ``MTL_RAM_HEADROOM_GB``.
+    """
+    try:
+        import psutil
+    except Exception:
+        return
+    headroom_gb = float(os.environ.get("MTL_RAM_HEADROOM_GB", "16"))
+    matrix_gb = n_rows * num_features * 4 / (1024 ** 3)
+    # Conservative empirical model. Measured on CA stride-1 overlap (2.9M rows,
+    # matrix ~6.3 GB): host RSS exceeded 61 GB *and was still climbing* during
+    # CPU dataset construction (GPU at 3 MiB) — an unbounded run OOM-killed the
+    # 125 GB box. So the real peak is ~10-16× the matrix, far above the naive
+    # "X + tensors" sum (fancy-index temporaries + per-fold slices + torch copies
+    # stack). Err toward over-estimating: a false WARN/raise never kills the box,
+    # a false PASS can. ``3 + 6·(1+towers)`` ⇒ CA(towers=1) ≈ 94 GB, FL ≈ 42 GB,
+    # non-overlap CA ≈ 10 GB (all consistent with observed fit/OOM behaviour).
+    est_gb = matrix_gb * (3.0 + 6.0 * (1 + max(0, n_region_towers)))
+    avail_gb = psutil.virtual_memory().available / (1024 ** 3)
+    logger.info(
+        "check2hgi-MTL host-RAM estimate: ~%.1f GB (n_rows=%d, feat=%d, "
+        "region_towers=%d), avail=%.1f GB, head-room=%.1f GB",
+        est_gb, n_rows, num_features, n_region_towers, avail_gb, headroom_gb,
+    )
+    if est_gb > (avail_gb - headroom_gb):
+        raise MemoryError(
+            f"{where}: check2hgi-MTL dataset construction would need ~{est_gb:.1f} GB "
+            f"peak host RAM (n_rows={n_rows}, feat={num_features}, "
+            f"region_towers={n_region_towers}) but only {avail_gb:.1f} GB is available "
+            f"(head-room {headroom_gb:.1f} GB). This is the stride-1 large-state overlap "
+            f"load (CA/TX ~3M rows). Run with MTL_DATASET_CPU=1 on a host with more RAM, "
+            f"subsample the engine, or use the non-overlap build. The GPU is NOT the "
+            f"limit here (per-batch footprint is N-independent) — this is host memory. "
+            f"Override head-room via MTL_RAM_HEADROOM_GB."
+        )
+
+
 def load_next_data(
     state: str, embedding_engine: EmbeddingEngine
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, int]:
@@ -1147,6 +1196,24 @@ class FoldCreator:
                     f"`python scripts/regenerate_next_region.py --state {state}`."
                 )
             y_last_region = region_df["last_region_idx"].to_numpy(dtype=np.int64)
+
+        # All needed columns are now extracted to numpy — free the (large) region
+        # DataFrame before we build the [N, 9, D] tensors (CA overlap: ~7.6 GB).
+        del region_df
+
+        # Host-RAM fail-loud guard BEFORE building the big tensors: this path holds
+        # X + x_checkin + one region tensor per "region"/"concat" tower + per-fold
+        # slices, all at once. An oversized stride-1 large-state load (CA/TX ~3M rows)
+        # would otherwise OOM-kill the box. The GPU is not the limit (per-batch
+        # footprint is N-independent); this is host memory.
+        _n_region_towers = sum(
+            1 for t in (self.task_a_input_type, self.task_b_input_type)
+            if t in ("region", "concat")
+        )
+        _num_features = int(X.shape[1])
+        _guard_mtl_check2hgi_ram(
+            len(X), _num_features, _n_region_towers, where="mtl_check2hgi",
+        )
 
         slide_window = InputsConfig.SLIDE_WINDOW
         x_checkin, y_cat_tensor = _convert_to_tensors(
