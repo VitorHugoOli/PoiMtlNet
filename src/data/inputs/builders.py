@@ -232,7 +232,11 @@ def generate_next_input_from_poi(
     category_lookup = create_category_lookup(checkins_df)
 
     # Generate sequences per user
-    checkins_df = checkins_df.sort_values(['userid', 'datetime'])
+    # M2 (2026-06-20): stable sort so datetime ties break deterministically
+    # (numpy quicksort is non-deterministic run-to-run; an unstable order would
+    # make the chronological "next" target ambiguous under same-timestamp ties).
+    # Byte-identical where no ties exist (e.g. alabama: 0 ties).
+    checkins_df = checkins_df.sort_values(['userid', 'datetime'], kind='mergesort')
     user_sequences = checkins_df.groupby('userid')['placeid'].apply(
         lambda places: generate_sequences(
             places.tolist(),
@@ -314,7 +318,9 @@ def generate_next_input_from_checkins(
     # No need for separate category lookup
 
     # Sort by user and time to ensure chronological order
-    embeddings_df = embeddings_df.sort_values(['userid', 'datetime'])
+    # M2 (2026-06-20): stable sort (see generate_next_input_from_poi) — deterministic
+    # under datetime ties; byte-identical where none exist.
+    embeddings_df = embeddings_df.sort_values(['userid', 'datetime'], kind='mergesort')
 
     # Detect embedding dimension from data
     numeric_cols = [c for c in embeddings_df.columns if c.isdigit()]

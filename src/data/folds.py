@@ -1083,6 +1083,21 @@ class FoldCreator:
                 f"next_region.parquet rows ({len(region_df)}) disagree with "
                 f"next.parquet rows ({len(X)}) for {state}. Regenerate both."
             )
+        # C1 (alignment guard, 2026-06-20): row-count parity is necessary but NOT
+        # sufficient — a stale next_region.parquet built from a different windowing
+        # (e.g. a stride-1 next.parquet against a stride-9 region file) can have the
+        # SAME row count yet a different per-row user/order, silently mis-pairing
+        # every (X, region) row. Assert userid CONTENT equality row-for-row.
+        if "userid" in region_df.columns:
+            region_uids = region_df["userid"].astype(int).to_numpy()
+            if not np.array_equal(region_uids, userids):
+                raise ValueError(
+                    f"next_region.parquet userid column is not row-aligned with "
+                    f"next.parquet for {state} (same row count but different "
+                    f"per-row userids — a stale/cross-windowing region file). "
+                    f"Regenerate both from the SAME sequences via "
+                    f"`python scripts/regenerate_next_region.py --state {state}`."
+                )
         y_region = region_df["region_idx"].to_numpy(dtype=np.int64)
 
         # B5 hard-index path: when task_b head is ``next_getnext_hard`` (or any

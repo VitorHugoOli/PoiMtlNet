@@ -41,7 +41,21 @@ def build_next_region_for(state: str, engine: EmbeddingEngine):
     placeid_to_idx, poi_to_region = _load_graph_maps(state)
     n_regions = int(poi_to_region.max()) + 1
     tgt = seq_df["target_poi"].astype(np.int64).to_numpy()
-    poi_idx = pd.Series(tgt).map(placeid_to_idx).to_numpy(dtype=np.int64)
+    # M3 (2026-06-20): guard OOV target POIs. Without this, .map() returns NaN for
+    # any target not in placeid_to_idx and .to_numpy(int64) silently coerces NaN to
+    # a huge negative int, which then negative-indexes poi_to_region (wrong region)
+    # or raises a cryptic IndexError. Mirror the last_region path's explicit guard.
+    poi_idx_s = pd.Series(tgt).map(placeid_to_idx)
+    oov = int(poi_idx_s.isna().sum())
+    if oov:
+        bad = sorted(set(tgt[poi_idx_s.isna().to_numpy()].tolist()))[:10]
+        raise ValueError(
+            f"{state}/{engine.value}: {oov} target_poi values are not in the "
+            f"check2hgi placeid_to_idx vocabulary (e.g. {bad}). The probe engine's "
+            f"sequences are out of sync with the check2hgi graph maps — rebuild the "
+            f"engine's sequences against the same graph."
+        )
+    poi_idx = poi_idx_s.to_numpy(dtype=np.int64)
     region_idx = poi_to_region[poi_idx]
     # last_region_idx from poi_{0..8}
     poi_cols = [f"poi_{i}" for i in range(9)]
