@@ -662,11 +662,42 @@ def _guard_mtl_check2hgi_ram(
         )
 
 
+def _warn_if_ungated_overlap(state, embedding_engine) -> None:
+    """Train-time guard: the overlap windowing (stride==1) is GATED by default
+    (M1 tail-gate, ``emit_tail=False``). A *manual* ungated rebuild
+    (``emit_tail=True``) can be left stale on disk and silently train on the wrong
+    windowing (this bit us once: AL OVL was left ungated → a 2.5pp phantom "drop").
+    Read the build-provenance sidecar and WARN loudly if an overlap engine is
+    ungated; ``MTL_STRICT=1`` hard-fails. No-op for non-overlap / missing sidecar.
+    """
+    try:
+        sidecar = IoPaths.get_next(state, embedding_engine).parent / "next_build_provenance.json"
+        if not sidecar.exists():
+            return
+        prov = json.loads(sidecar.read_text())
+        if prov.get("stride") == 1 and prov.get("emit_tail") is True:
+            msg = (
+                f"UNGATED overlap engine: {embedding_engine.value}/{state} was built "
+                f"stride=1 with emit_tail=True (kept the OOB tail windows). The board "
+                f"windowing is GATED (emit_tail=False). Rebuild with "
+                f"`python scripts/mtl_improvement/build_overlap_probe_engine.py {state} 1` "
+                f"unless you are INTENTIONALLY testing ungated."
+            )
+            if os.environ.get("MTL_STRICT") == "1":
+                raise ValueError(msg)
+            logger.warning("[gated-overlap guard] %s", msg)
+    except ValueError:
+        raise
+    except Exception:
+        pass  # provenance check is best-effort; never break a load
+
+
 def load_next_data(
     state: str, embedding_engine: EmbeddingEngine
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, int]:
     """Load next-POI data. Returns (X, y, userids, embedding_dim)."""
     logger.info(f"Loading next-POI data: {state}/{embedding_engine.value}")
+    _warn_if_ungated_overlap(state, embedding_engine)
     df = IoPaths.load_next(state, embedding_engine)
 
     df['label'] = _map_categories(df['next_category'])
