@@ -4,19 +4,196 @@ Pure logic functions for MTL input generation (no I/O).
 This module contains stateless, testable functions extracted from create_input.py.
 """
 
+import logging
+import os
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
 
 from configs.model import InputsConfig
 
+logger = logging.getLogger(__name__)
+
 # Constants
 PADDING_VALUE = -1
 MIN_SEQUENCE_LENGTH = 5
 DEFAULT_BATCH_SIZE = 100000
 MISSING_CATEGORY_VALUE = "None"
+
+# Number of output rows held in RAM per parquet row-group during the streaming
+# next-input build (see ``NextInputStreamWriter``). 200k rows × 578 float32 ≈
+# ~0.46 GB/chunk — small relative to the box, large enough for good parquet
+# compression. Overridable via env for tuning / tests.
+NEXT_BUILD_CHUNK_ROWS = int(os.environ.get("MTL_NEXT_BUILD_CHUNK_ROWS", "200000"))
+
+# Default head-room (GB) subtracted from psutil-available RAM before the build
+# RAM estimate is compared. Overridable via MTL_RAM_HEADROOM_GB.
+DEFAULT_RAM_HEADROOM_GB = float(os.environ.get("MTL_RAM_HEADROOM_GB", "16"))
+
+
+def estimate_next_build_ram_gb(n_rows: int, num_features: int) -> float:
+    """Estimate peak RAM (GB) of the *legacy* (non-streaming) next-input build.
+
+    The legacy path holds, simultaneously, the per-row ``<U32`` accumulation list
+    (``n_rows × (num_features + 2) × 128`` bytes) **and** the ``np.array(results)``
+    copy of the same — i.e. ~2× the ``<U32`` payload. This estimator returns that
+    worst-case so callers can warn before a large build.
+    """
+    u32_payload = n_rows * (num_features + 2) * 128  # bytes, one <U32 matrix
+    return 2 * u32_payload / (1024 ** 3)
+
+
+def available_ram_gb() -> Optional[float]:
+    """Available system RAM in GB, or ``None`` if psutil is unavailable."""
+    try:
+        import psutil
+    except Exception:  # pragma: no cover - psutil is a hard dep elsewhere
+        return None
+    return psutil.virtual_memory().available / (1024 ** 3)
+
+
+def check_next_build_ram(
+    n_rows: int,
+    num_features: int,
+    *,
+    streaming: bool,
+    headroom_gb: float = None,
+) -> None:
+    """Fail-loud / warn-loud CPU-RAM guard for the next-input build.
+
+    With ``streaming=True`` (the chunked writer) peak RAM is O(chunk), so this
+    only emits an informational WARN with the legacy-equivalent estimate — it
+    never raises (the build is safe). With ``streaming=False`` (the legacy O(N)
+    accumulation, used only by callers that still need the in-RAM list) it raises
+    a clear ``MemoryError`` when the estimate would exceed available RAM, pointing
+    at the chunked path, rather than letting the box OOM.
+    """
+    if headroom_gb is None:
+        headroom_gb = DEFAULT_RAM_HEADROOM_GB
+    est_gb = estimate_next_build_ram_gb(n_rows, num_features)
+    avail = available_ram_gb()
+    if streaming:
+        # Streaming holds only ~chunk rows of float32 at once.
+        chunk_gb = NEXT_BUILD_CHUNK_ROWS * num_features * 4 / (1024 ** 3)
+        logger.info(
+            "next-input streaming build: %d rows, legacy-equiv peak ~%.1f GB, "
+            "streaming peak ~%.2f GB/chunk (chunk=%d rows)%s",
+            n_rows, est_gb, chunk_gb, NEXT_BUILD_CHUNK_ROWS,
+            "" if avail is None else f", avail={avail:.1f} GB",
+        )
+        if avail is not None and est_gb > (avail - headroom_gb):
+            logger.warning(
+                "next-input build would need ~%.1f GB in the LEGACY path "
+                "(avail %.1f GB - headroom %.1f GB); using the streaming writer "
+                "instead so peak stays ~%.2f GB/chunk.",
+                est_gb, avail, headroom_gb, chunk_gb,
+            )
+        return
+    # Non-streaming: this is the dangerous path.
+    if avail is not None and est_gb > (avail - headroom_gb):
+        raise MemoryError(
+            f"next-input build needs ~{est_gb:.1f} GB peak RAM (n_rows={n_rows}, "
+            f"num_features={num_features}) but only {avail:.1f} GB is available "
+            f"(headroom {headroom_gb:.1f} GB). Use the streaming build path "
+            f"(generate_next_input_from_checkins, which writes incrementally) or "
+            f"a smaller config. Override headroom via MTL_RAM_HEADROOM_GB."
+        )
+
+
+class NextInputStreamWriter:
+    """Incremental parquet writer for next-input rows (memory-bounded build).
+
+    Accumulates rows in an in-RAM buffer and flushes a parquet **row-group**
+    every ``chunk_rows`` rows, so peak RAM is O(chunk) instead of O(N). The
+    produced file is byte-identical in *schema, column order, dtypes and row
+    order* to the legacy ``save_next_input_dataframe`` single-shot write: each
+    flushed chunk is materialised as the *same* pandas DataFrame the legacy path
+    builds (float32 embedding matrix + object ``next_category`` + object
+    ``userid``) and converted to Arrow via ``pyarrow.Table.from_pandas`` with the
+    schema pinned from the first chunk.
+
+    Usage::
+
+        w = NextInputStreamWriter(out_path, num_features)
+        for emb_f32, cat, uid in per_user_rows:   # emb_f32: (num_features,) float32
+            w.add(emb_f32, cat, uid)
+        w.close()
+    """
+
+    def __init__(self, output_path, num_features: int, chunk_rows: int = None):
+        from pathlib import Path as _P
+
+        self.output_path = _P(output_path)
+        self.output_path.parent.mkdir(parents=True, exist_ok=True)
+        self.num_features = num_features
+        self.cols = [str(i) for i in range(num_features)]
+        self.chunk_rows = chunk_rows or NEXT_BUILD_CHUNK_ROWS
+        self._buf_emb: List[np.ndarray] = []
+        self._buf_cat: List = []
+        self._buf_uid: List = []
+        self._n_buf = 0
+        self._writer = None  # pyarrow.parquet.ParquetWriter, lazily opened
+        self._schema = None
+        self._total = 0
+
+    def add(self, emb_row: np.ndarray, cat, uid) -> None:
+        self._buf_emb.append(emb_row)
+        self._buf_cat.append(cat)
+        self._buf_uid.append(uid)
+        self._n_buf += 1
+        if self._n_buf >= self.chunk_rows:
+            self._flush()
+
+    def _chunk_dataframe(self) -> pd.DataFrame:
+        # Build EXACTLY the frame the legacy save_next_input_dataframe builds for
+        # this slice: a contiguous float32 matrix + object metadata columns.
+        mat = np.empty((self._n_buf, self.num_features), dtype=np.float32)
+        for i, e in enumerate(self._buf_emb):
+            mat[i] = e
+        df = pd.DataFrame(mat, columns=self.cols)
+        # ``.tolist()`` mirrors save_next_input_dataframe (object dtype columns).
+        df["next_category"] = list(self._buf_cat)
+        df["userid"] = list(self._buf_uid)
+        return df
+
+    def _flush(self) -> None:
+        if self._n_buf == 0:
+            return
+        import pyarrow as pa
+        import pyarrow.parquet as pq
+
+        df = self._chunk_dataframe()
+        table = pa.Table.from_pandas(df, preserve_index=False)
+        if self._writer is None:
+            self._schema = table.schema
+            self._writer = pq.ParquetWriter(str(self.output_path), self._schema)
+        else:
+            # Pin every chunk to the first chunk's schema (object columns can
+            # otherwise infer string vs large_string differently per chunk).
+            table = table.cast(self._schema)
+        self._writer.write_table(table)
+        self._total += self._n_buf
+        # Release the buffer for this chunk before the next one accumulates.
+        self._buf_emb.clear()
+        self._buf_cat.clear()
+        self._buf_uid.clear()
+        self._n_buf = 0
+
+    def close(self) -> int:
+        """Flush any remainder and finalise the file. Returns total rows written."""
+        self._flush()
+        if self._writer is not None:
+            self._writer.close()
+        else:
+            # No rows at all: write an empty, correctly-typed parquet so the
+            # output schema still matches the legacy empty-frame path.
+            empty = pd.DataFrame(
+                columns=self.cols + ["next_category", "userid"]
+            )
+            empty.to_parquet(self.output_path, index=False)
+        return self._total
 
 
 def generate_sequences(
@@ -26,6 +203,7 @@ def generate_sequences(
     stride: int = None,
     return_start_indices: bool = False,
     min_sequence_length: int = MIN_SEQUENCE_LENGTH,
+    emit_tail: bool = True,
 ):
     """
     Generate sequences of fixed length for next-POI prediction.
@@ -46,6 +224,16 @@ def generate_sequences(
             sequence to be emitted; users with fewer are dropped (returns []).
             Default == the module constant MIN_SEQUENCE_LENGTH (5) so existing
             callers are byte-identical to the pre-parameterization behaviour.
+        emit_tail: If True (default), emit the out-of-bounds "tail" windows where
+            the sliding window walks off the end of the user's history and the
+            last real visit is demoted to the target (history shifted). This is
+            required at the non-overlapping default (stride=9) — it is how each
+            user's FINAL window/last-POI target is produced. If False (the M1
+            gate, used only at stride=1), these tail windows are skipped: at
+            stride=1 each user emits ~window_size of them, all targeting the SAME
+            last POI on near-all-padding histories, which over-weights the
+            last-POI target and injects trivial low-context samples (a label-
+            distribution skew, not a leak). Default True ⇒ byte-identical.
 
     Returns:
         If return_start_indices is False:
@@ -73,6 +261,11 @@ def generate_sequences(
         target_idx = start_idx + window_size
         if target_idx < total_visits:
             target_poi = places_visited[target_idx]
+        elif not emit_tail:
+            # M1 gate: skip the OOB tail window (no genuine next visit exists
+            # past the history). Used at stride=1 to avoid the last-POI-target
+            # skew. At the default emit_tail=True this branch is never taken.
+            continue
         else:
             # Use last real visit as target, shift history
             for j in range(len(history) - 1, -1, -1):
@@ -346,6 +539,7 @@ def convert_user_checkins_to_sequences(
     embedding_dim: int,
     stride: int = None,
     min_sequence_length: int = MIN_SEQUENCE_LENGTH,
+    emit_tail: bool = True,
 ) -> Tuple[List[np.ndarray], List[List[int]]]:
     """
     Convert a single user's check-in DataFrame to embedding sequences using position-based lookup.
@@ -398,6 +592,7 @@ def convert_user_checkins_to_sequences(
         stride=stride,
         return_start_indices=True,
         min_sequence_length=min_sequence_length,
+        emit_tail=emit_tail,
     )
 
     if not sequences_with_idx:

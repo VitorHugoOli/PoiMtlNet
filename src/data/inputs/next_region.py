@@ -8,8 +8,13 @@ Builds ``output/check2hgi/<state>/input/next_region.parquet`` from:
    dict with ``poi_to_region: np.ndarray[n_pois]`` mapping POI index →
    region index.
 3. ``next.parquet`` (the check-in-level X sequences + userid + next_category
-   label) — we reuse its X columns so next_category and next_region share
-   identical feature tensors at the row level.
+   label) — its rows are copied so next_region stays row-aligned with
+   next.parquet (same userid/order; enforced at load by the C1 guard in
+   ``folds.py``). NOTE: the copied X columns 0..575 are VESTIGIAL at MTL train
+   time — the MTL loader picks each slot's own X (the region task consumes the
+   region-embedding sequence, not these columns; see ``folds.py`` "each slot
+   picks its own X"). They are kept only so the two parquets share a schema/row
+   index, not because the region task reads them.
 
 Output schema::
 

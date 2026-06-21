@@ -49,11 +49,26 @@ from .core import (
     save_next_input_dataframe,
     save_parquet,
     get_zero_embedding,
+    NextInputStreamWriter,
+    check_next_build_ram,
+    NEXT_BUILD_CHUNK_ROWS,
     PADDING_VALUE,
     DEFAULT_BATCH_SIZE,
     MISSING_CATEGORY_VALUE,
     MIN_SEQUENCE_LENGTH,
 )
+
+
+def _resolve_emit_tail(emit_tail: Optional[bool], stride: Optional[int]) -> bool:
+    """Resolve the AUTO (``None``) emit_tail policy from the stride.
+
+    AUTO ⇒ emit tail windows at the default/non-overlap stride (byte-identical
+    legacy behaviour) but GATE them at ``stride==1`` (the M1 last-POI-target
+    skew fix — the overlap board's only use of stride-1). An explicit bool wins.
+    """
+    if emit_tail is not None:
+        return emit_tail
+    return stride != 1
 
 
 def _git_sha() -> str:
@@ -76,6 +91,7 @@ def _write_build_provenance(
     min_sequence_length: int,
     stride: Optional[int],
     window_size: int,
+    emit_tail: Optional[bool] = None,
 ) -> None:
     """Write an additive build-provenance sidecar next to the task's input parquet.
 
@@ -98,6 +114,7 @@ def _write_build_provenance(
             "stride": stride,
             "effective_step": stride if stride is not None else window_size,
             "window_size": window_size,
+            "emit_tail": emit_tail,
             "git_sha": _git_sha(),
             "utc": datetime.now(tz=timezone.utc).isoformat(),
         }
@@ -106,6 +123,64 @@ def _write_build_provenance(
     except Exception:
         # Provenance is best-effort and must never break a build.
         pass
+
+
+class _SequenceStreamWriter:
+    """Memory-bounded writer for the intermediate POI-sequence parquet.
+
+    Mirrors the legacy single-shot build exactly: ``pd.DataFrame(all_sequences,
+    columns=seq_cols)`` with every ``poi_*``/``target_poi`` column cast to ``str``
+    (object dtype), ``userid`` left as-is. Streams row-group chunks so peak RAM is
+    O(chunk) instead of O(N). Schema is pinned from the first chunk so per-chunk
+    object→arrow inference stays consistent.
+    """
+
+    def __init__(self, output_path, seq_cols, poi_cols, chunk_rows: int = None):
+        from pathlib import Path as _P
+
+        self.output_path = _P(output_path)
+        self.output_path.parent.mkdir(parents=True, exist_ok=True)
+        self.seq_cols = list(seq_cols)
+        self.poi_cols = set(poi_cols)
+        self.chunk_rows = chunk_rows or NEXT_BUILD_CHUNK_ROWS
+        self._buf = []
+        self._writer = None
+        self._schema = None
+
+    def add(self, seq_row) -> None:
+        self._buf.append(seq_row)
+        if len(self._buf) >= self.chunk_rows:
+            self._flush()
+
+    def _flush(self) -> None:
+        if not self._buf:
+            return
+        import pyarrow as pa
+        import pyarrow.parquet as pq
+
+        df = pd.DataFrame(self._buf, columns=self.seq_cols)
+        for col in self.seq_cols:
+            if col in self.poi_cols:
+                df[col] = df[col].astype(str)
+        table = pa.Table.from_pandas(df, preserve_index=False)
+        if self._writer is None:
+            self._schema = table.schema
+            self._writer = pq.ParquetWriter(str(self.output_path), self._schema)
+        else:
+            table = table.cast(self._schema)
+        self._writer.write_table(table)
+        self._buf.clear()
+
+    def close(self) -> None:
+        self._flush()
+        if self._writer is not None:
+            self._writer.close()
+        else:
+            empty = pd.DataFrame(columns=self.seq_cols)
+            for col in self.seq_cols:
+                if col in self.poi_cols:
+                    empty[col] = empty[col].astype(str)
+            empty.to_parquet(self.output_path, index=False)
 
 
 def generate_category_input(state: str, engine: EmbeddingEngine) -> None:
@@ -145,6 +220,7 @@ def generate_next_input_from_poi(
     batch_size: int = DEFAULT_BATCH_SIZE,
     stride: Optional[int] = None,
     min_sequence_length: int = MIN_SEQUENCE_LENGTH,
+    emit_tail: Optional[bool] = None,
 ) -> None:
     """
     Generate next-POI input from POI-level embeddings.
@@ -159,7 +235,13 @@ def generate_next_input_from_poi(
             window_size (non-overlapping), byte-identical to the legacy path.
         min_sequence_length: Minimum user check-ins to emit any sequence.
             Default == MIN_SEQUENCE_LENGTH (5) → legacy behaviour preserved.
+        emit_tail: Whether to emit OOB tail windows (see ``generate_sequences``).
+            ``None`` (default) → AUTO: emit at the default/non-overlap stride,
+            but GATE (skip) them at ``stride==1`` (the M1 last-POI-target skew
+            fix). Pass an explicit bool to override. AUTO at non-overlap keeps
+            the legacy byte-identical behaviour.
     """
+    emit_tail = _resolve_emit_tail(emit_tail, stride)
     # Load data
     embeddings_df = IoPaths.load_embedd(state, engine)
     checkins_df = IoPaths.load_city(state)
@@ -171,12 +253,17 @@ def generate_next_input_from_poi(
     category_lookup = create_category_lookup(checkins_df)
 
     # Generate sequences per user
-    checkins_df = checkins_df.sort_values(['userid', 'datetime'])
+    # M2 (2026-06-20): stable sort so datetime ties break deterministically
+    # (numpy quicksort is non-deterministic run-to-run; an unstable order would
+    # make the chronological "next" target ambiguous under same-timestamp ties).
+    # Byte-identical where no ties exist (e.g. alabama: 0 ties).
+    checkins_df = checkins_df.sort_values(['userid', 'datetime'], kind='mergesort')
     user_sequences = checkins_df.groupby('userid')['placeid'].apply(
         lambda places: generate_sequences(
             places.tolist(),
             stride=stride,
             min_sequence_length=min_sequence_length,
+            emit_tail=emit_tail,
         )
     )
 
@@ -209,6 +296,7 @@ def generate_next_input_from_poi(
         min_sequence_length=min_sequence_length,
         stride=stride,
         window_size=window_size,
+        emit_tail=emit_tail,
     )
 
 
@@ -218,12 +306,25 @@ def generate_next_input_from_checkins(
     batch_size: int = DEFAULT_BATCH_SIZE,
     stride: int = None,
     min_sequence_length: int = MIN_SEQUENCE_LENGTH,
+    emit_tail: Optional[bool] = None,
 ) -> None:
     """
     Generate next-POI input from check-in-level embeddings.
 
     Uses embeddings that vary per check-in (e.g., Time2Vec).
     Each check-in already has its contextual embedding.
+
+    Memory-bounded build (default-preserving): rows are streamed to parquet in
+    row-group chunks instead of accumulating all N rows in RAM. The legacy path
+    held the per-row ``<U32`` list (``N × 578 × 128`` bytes) *plus* the
+    ``np.array(results)`` copy in ``save_next_input_dataframe`` — peak ≈ 2× the
+    ``<U32`` payload (~86× the output parquet, measured on alabama). At stride=1
+    on a large state (CA, ~3M rows) that is ~440 GB and OOM-kills the box. Here
+    each user's ``<U32`` rows are immediately converted to float32 + split off
+    metadata and streamed out, so peak RAM is O(chunk) (~0.46 GB at the 200k-row
+    default). The output parquet is byte-identical to the legacy single-shot
+    write (same schema / column order / dtypes / row order). See
+    ``core.NextInputStreamWriter`` and ``core.check_next_build_ram``.
 
     Args:
         state: State name
@@ -233,7 +334,11 @@ def generate_next_input_from_checkins(
             window_size (non-overlapping), byte-identical to the legacy path.
         min_sequence_length: Minimum user check-ins to emit any sequence.
             Default == MIN_SEQUENCE_LENGTH (5) → legacy behaviour preserved.
+        emit_tail: Whether to emit OOB tail windows (see ``generate_sequences``).
+            ``None`` (default) → AUTO: emit at the default/non-overlap stride,
+            GATE at ``stride==1`` (the M1 skew fix). Explicit bool overrides.
     """
+    emit_tail = _resolve_emit_tail(emit_tail, stride)
     # Load data
     embeddings_df = IoPaths.load_embedd(state, engine)
 
@@ -241,17 +346,35 @@ def generate_next_input_from_checkins(
     # No need for separate category lookup
 
     # Sort by user and time to ensure chronological order
-    embeddings_df = embeddings_df.sort_values(['userid', 'datetime'])
+    # M2 (2026-06-20): stable sort (see generate_next_input_from_poi) — deterministic
+    # under datetime ties; byte-identical where none exist.
+    embeddings_df = embeddings_df.sort_values(['userid', 'datetime'], kind='mergesort')
 
     # Detect embedding dimension from data
     numeric_cols = [c for c in embeddings_df.columns if c.isdigit()]
     embedding_dim = len(numeric_cols)
     emb_cols = [str(i) for i in range(embedding_dim)]
     window_size = InputsConfig.SLIDE_WINDOW
+    num_features = window_size * embedding_dim
 
-    # Process each user using shared function
-    all_results = []
-    all_sequences = []
+    # CPU-RAM guard: estimate the legacy-equivalent peak and (for the streaming
+    # path) WARN if it would have blown the box; never raises here because the
+    # streaming writer below keeps peak at O(chunk). For an exact pre-count we'd
+    # have to materialise sequences, so we use a cheap upper bound: at stride=1
+    # the row count is <= number of check-ins; at the default stride it is far
+    # smaller. Use the check-in count as a conservative n_rows estimate.
+    _est_rows = len(embeddings_df)
+    check_next_build_ram(_est_rows, num_features, streaming=True)
+
+    # Streaming writers — peak RAM is O(chunk), not O(N).
+    next_writer = NextInputStreamWriter(
+        IoPaths.get_next(state, engine), num_features
+    )
+    seq_cols = [f'poi_{i}' for i in range(window_size)] + ['target_poi', 'userid']
+    poi_cols = [f'poi_{i}' for i in range(window_size)] + ['target_poi']
+    seq_writer = _SequenceStreamWriter(
+        IoPaths.get_seq_next(state, engine), seq_cols, poi_cols
+    )
 
     for userid, user_df in tqdm(embeddings_df.groupby('userid'), desc="Processing users"):
         user_df = user_df.reset_index(drop=True)
@@ -259,23 +382,26 @@ def generate_next_input_from_checkins(
         results, sequences = convert_user_checkins_to_sequences(
             user_df, emb_cols, window_size, embedding_dim,
             stride=stride, min_sequence_length=min_sequence_length,
+            emit_tail=emit_tail,
         )
 
-        all_results.extend(results)
-        all_sequences.extend(sequences)
+        # Convert this user's small <U32 batch to float32 + metadata immediately,
+        # then stream out. The float32 round-trip of the string repr is lossless
+        # (numpy's str repr of a float32 round-trips exactly), so the parquet is
+        # byte-identical to save_next_input_dataframe's float32 cast.
+        for row in results:
+            next_writer.add(
+                np.asarray(row[:num_features], dtype=np.float32),
+                row[num_features],
+                row[num_features + 1],
+            )
+        for seq in sequences:
+            seq_writer.add(seq)
+        # Free this user's batch before the next group accumulates.
+        del results, sequences
 
-    # Save intermediate sequences (for debugging/analysis)
-    seq_cols = [f'poi_{i}' for i in range(window_size)] + ['target_poi', 'userid']
-    sequences_df = pd.DataFrame(all_sequences, columns=seq_cols)
-    # POI columns may mix str placeids with int padding (-1); unify to str for parquet
-    poi_cols = [f'poi_{i}' for i in range(window_size)] + ['target_poi']
-    for col in poi_cols:
-        sequences_df[col] = sequences_df[col].astype(str)
-    sequences_path = IoPaths.get_seq_next(state, engine)
-    save_parquet(sequences_df, sequences_path)
-
-    # Save output DataFrame
-    save_next_input_dataframe(all_results, window_size, embedding_dim, state, engine)
+    seq_writer.close()
+    next_writer.close()
 
     # Additive build-provenance sidecar (never gates anything)
     _write_build_provenance(
@@ -283,4 +409,5 @@ def generate_next_input_from_checkins(
         min_sequence_length=min_sequence_length,
         stride=stride,
         window_size=window_size,
+        emit_tail=emit_tail,
     )

@@ -72,3 +72,61 @@ closing_data/RUN_MATRIX.md (Execution config PINNED).
 
 Captures: `/tmp/lane1/speed_{cpu,gpu,gpu_tf32,compile}.log`; methodology = cumulative tqdm elapsed at epoch
 boundaries (538 batches/epoch), steady = epochs 2+ (compile warmup = epoch 1 excluded).
+
+---
+
+## ⚠ UPDATE 2026-06-20 — the "never mix" rule had an unhandled exception (the STL **reg** ceiling)
+
+User-raised concern: a *systematic, one-sided* compile bias is worse for a matched MTL-vs-STL comparison
+than random noise of the same size (noise averages out across seeds/folds; a systematic shift does not).
+So "+0.05 pp is within noise" is **not sufficient** — what must hold is that the **delta** (MTL − ceiling)
+is preserved. Audit of the board tooling against the PINNED rule ("run the WHOLE board compiled, never mix
+compiled/non-compiled cells"):
+
+- **cat** comparison — MTL (`train.py`) vs STL-cat ceiling (`train.py --task next`): both compilable ⇒ **uniform ✓**.
+- **reg** comparison — MTL (`train.py`) vs STL-reg ceiling (`p1_region_head_ablation.py`): **p1 had NO
+  `--compile`/`--tf32`** ⇒ MTL-compiled vs STL-**un**compiled ⇒ the rule was **silently violated for reg**.
+  Worse, p1 trains **fp32** (no autocast) while the MTL trainer is **fp16-autocast**, so `--tf32` perturbs
+  the STL reg matmuls *more* than the MTL ones — an asymmetric, head-specific shift on the tightest delta
+  (reg Δ −0.09…−0.31).
+
+**Fixes:**
+- **(b)** `--compile`/`--tf32` added to `p1_region_head_ablation.py` (this commit) so the STL reg ceiling
+  CAN share the MTL execution recipe (the board can now be genuinely uniform).
+- **(a)** Until validated, the **comparison-critical cells run UNCOMPILED** (byte-identical) — do NOT rely
+  on the assumed neutrality. Uniform-compiled is allowed ONLY after the delta-neutrality test below passes.
+
+## Pending: delta-neutrality validation (before the board may flip to uniform-compiled)
+Measure the **delta** (MTL − ceiling), fold-paired, focusing on **reg** (tie-break sensitive), on a SMALL
+(AL) and a HUGE (TX, 3.83M) state, overlap windowing:
+- `Δ_off`  = MTL_off − ceiling_off (both uncompiled)  ← trustworthy reference
+- `Δ_on`   = MTL_on  − ceiling_on  (both compiled, **uniform**)  ← if ≈ `Δ_off`, uniform compile is comparison-safe
+- `Δ_mixed`= MTL_on  − ceiling_off (the board's pre-fix reg asymmetry)  ← quantifies the bias removed
+
+Pass criterion: `|Δ_on − Δ_off|` ≪ fold σ (~±0.8 pp) on reg, at BOTH states. Single seed (42) detects a
+systematic shift (it appears at n=1); escalate to {0,1,7,100} only if the shift lands near the noise floor.
+
+---
+
+## UPDATE 2026-06-21 — the "compile warmup" was an EAGER-FALLBACK; the board compiled path
+Re-investigation (FL MTL, gated overlap). The earlier "compiled MTL has a ~30-min warmup" was
+**wrong**: it was torch.compile exceeding `torch._dynamo.config.cache_size_limit=8` and silently
+**falling back to EAGER** (running un-compiled, slow). The MTL forward needs a TRAIN (grad) + EVAL
+(no-grad) graph variant (`requires_grad` guard) plus shape variants — that exceeds 8.
+
+**Fix = three levers (committed):**
+1. `MTL_COMPILE_DYNAMIC=1` → one symbolic-shape graph (collapses the per-shape recompiles).
+2. **Shared persistent `TORCHINDUCTOR_CACHE_DIR`** across all board cells → reuse compiled kernels.
+3. `cache_size_limit` raised 8→64 (default-on when compiling; env `MTL_COMPILE_CACHE_LIMIT`) → never
+   eager-fall-back.
+
+**Measured (FL MTL fold-1, 8ep, gated min_seq=10):**
+| run | time | recompiles |
+|---|---|---|
+| uncompiled | ~366s | — |
+| compile+dynamic, fresh cache (1st cell) | 372s | 13 (≈ break-even) |
+| compile+dynamic, **cache reuse (2nd cell+)** | **318s** | **0** (~13% faster, 0 warmup) |
+
+**Board recipe:** run every compiled cell with `--compile --tf32 MTL_COMPILE_DYNAMIC=1` and ONE shared
+`TORCHINDUCTOR_CACHE_DIR`. First cell compiles once (~break-even); all later cells are ~13–15% faster,
+quality-neutral. Quality neutrality verified (STL cat −0.05 / reg +0.02; AL cat/reg flat; SPEED_LEVERS A/B +0.05pp).

@@ -1,7 +1,10 @@
 import contextlib
+import logging
 import os
 
 import torch
+
+logger = logging.getLogger(__name__)
 
 from tracking.metrics import (
     compute_classification_metrics,
@@ -125,10 +128,35 @@ def evaluate_model(
     _nc_b_gate = task_b_num_classes if task_b_num_classes is not None else (
         num_classes if num_classes is not None else getattr(model, "num_classes", 0)
     )
+    _s2_env = os.environ.get("MTL_CHUNK_VAL_METRIC", "").strip() in ("1", "true", "True")
+    # FOOTGUN GUARD (2026-06-20): the full path cats the WHOLE val epoch's
+    # [N_val, n_regions] reg logits on GPU. At overlap scale (8.5× rows) with a
+    # high region count this is ~20 GB for CA (586k × 8501 × 4 B) and instantly
+    # OOMs the A40 mid-validation — even after the host-RAM fix. S2 is byte-identical
+    # (assembles the same metric dicts from streamed per-batch reductions), so when
+    # the full logit would exceed a GPU-safe budget we AUTO-enable chunking (with a
+    # one-time WARN) instead of OOMing. Non-overlap region MTL (small N_val ⇒ ~2 GB
+    # at CA) stays on the full path untouched, preserving the frozen §0.1 numbers.
+    _full_logit_gb = 0.0
+    try:
+        _n_val = len(dataloaders[0].dataset)
+        _full_logit_gb = _n_val * int(_nc_b_gate or 0) * 4 / (1024 ** 3)
+    except Exception:
+        pass
+    _S2_BUDGET_GB = float(os.environ.get("MTL_S2_AUTO_BUDGET_GB", "4"))
+    _auto_chunk = _full_logit_gb > _S2_BUDGET_GB
     _chunk_val = (
-        os.environ.get("MTL_CHUNK_VAL_METRIC", "").strip() in ("1", "true", "True")
+        (_s2_env or _auto_chunk)
         and _nc_b_gate is not None and _nc_b_gate > 256  # only the handrolled path
     )
+    if _auto_chunk and not _s2_env:
+        logger.warning(
+            "[S2 auto] full val reg-logit ≈ %.1f GB (N_val=%d × C=%d) exceeds the "
+            "%.1f GB budget — auto-enabling the chunked val metric (byte-identical) "
+            "to avoid a GPU OOM. Set MTL_CHUNK_VAL_METRIC=1 to silence, or "
+            "MTL_S2_AUTO_BUDGET_GB to tune.",
+            _full_logit_gb, locals().get("_n_val", -1), int(_nc_b_gate or 0), _S2_BUDGET_GB,
+        )
     _S2_KS = (1, 3, 5, 10)  # union of metrics_next top_k=(3,5) and ood ks=(1,5,10)
     sv_preds, sv_tgts, sv_rank = [], [], []
     sv_hit = {k: [] for k in _S2_KS}

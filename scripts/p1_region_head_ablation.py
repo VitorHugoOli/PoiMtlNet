@@ -75,6 +75,15 @@ from utils.seed import seed_everything
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
+# Speed levers (opt-in, CUDA-only, numerically NON-identical — see SPEED_LEVERS.md).
+# Set in main() from --compile/--tf32. Exposed so the STL reg ceiling can be run with
+# the SAME execution recipe as the MTL champion cell (the board's "never mix
+# compiled/non-compiled cells" rule — otherwise the reg MTL-vs-ceiling delta is
+# confounded by the compile fp-ordering shift). NB: p1 trains fp32 (no autocast), so
+# --tf32 has a LARGER matmul effect here than in the fp16-autocast MTL trainer — which
+# is exactly why uniform application must be validated, not assumed.
+_P1_USE_COMPILE = False
+
 ALL_HEADS = [
     "next_mtl", "next_gru", "next_lstm", "next_tcn_residual", "next_temporal_cnn",
     "next_stan", "next_getnext", "next_getnext_hard", "next_getnext_hard_hsm",
@@ -570,6 +579,9 @@ def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
             head=model,
         )
     model = model.to(DEVICE)
+    if _P1_USE_COMPILE and DEVICE.type == "cuda":
+        # Match the MTL champion's --compile (kernel fusion); CUDA-only, fp-non-identical.
+        model = torch.compile(model)
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=0.01)
     steps_per_epoch = len(train_dl)
@@ -1035,7 +1047,30 @@ def main():
                         help="LDAM max per-class margin (only with --tail-loss ldam).")
     parser.add_argument("--ldam-scale", type=float, default=30.0,
                         help="LDAM logit scale (only with --tail-loss ldam).")
+    parser.add_argument("--compile", dest="use_compile", action="store_true",
+                        help="Wrap the head in torch.compile (CUDA only). Matches the "
+                             "MTL champion's --compile so the STL reg ceiling shares the "
+                             "board execution recipe. NUMERICALLY NON-IDENTICAL "
+                             "(fused kernels) — opt-in; see SPEED_LEVERS.md.")
+    parser.add_argument("--tf32", action="store_true",
+                        help="Enable TF32 fp32 matmul + cudnn (CUDA only; no-op MPS/CPU). "
+                             "NON-IDENTICAL (reduced matmul precision). Matches the MTL "
+                             "board cell. NB p1 trains fp32, so tf32 bites harder here "
+                             "than in the fp16-autocast MTL trainer.")
     args = parser.parse_args()
+
+    global _P1_USE_COMPILE
+    _P1_USE_COMPILE = bool(args.use_compile)
+    if args.tf32:
+        if torch.cuda.is_available():
+            torch.set_float32_matmul_precision("high")
+            torch.backends.cuda.matmul.allow_tf32 = True
+            torch.backends.cudnn.allow_tf32 = True
+            logger.info("TF32 enabled (matmul_precision=high, cudnn.allow_tf32=True)")
+        else:
+            logger.info("--tf32 requested but CUDA unavailable; ignored")
+    if _P1_USE_COMPILE:
+        logger.info("torch.compile enabled for the p1 head (CUDA only)")
 
     overrides = _parse_overrides(args.override_hparams)
     eo = EmbeddingEngine(args.engine_override) if args.engine_override else None

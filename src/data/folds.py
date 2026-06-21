@@ -93,7 +93,12 @@ class SerializableFolds:
 @dataclass
 class FoldData:
     dataloader: DataLoader
-    x: torch.Tensor
+    # x is the materialized feature slice. It is NOT read by the MTL training
+    # path (the runner only uses ``.dataloader`` and ``.y``; verified), so the
+    # check2hgi-MTL builder passes ``None`` to avoid a second full per-fold copy
+    # of the [N,9,D] tensor (the host-RAM blowup on CA/TX overlap). Other paths
+    # still pass the tensor.
+    x: Optional[torch.Tensor]
     y: torch.Tensor
 
 
@@ -114,6 +119,54 @@ class FoldResult:
     # loader instead of the two independent ``.next``/``.category`` train
     # loaders. None = legacy independent-shuffle path.
     joint_train_loader: Optional[object] = None
+
+
+class _LazyFoldMapping:
+    """Lazy, single-pass ``Mapping[int, FoldResult]`` for memory-bounded CV.
+
+    The check2hgi-MTL CV runner consumes folds ONE AT A TIME, in order, via
+    ``dataloaders.items()`` and never re-reads a prior fold (``mtl_cv.py``). The
+    old eager ``Dict[int, FoldResult]`` instead materialized ALL ``n_splits``
+    folds' fancy-index slices up front and held them for the whole run — at CA
+    stride-1 overlap (2.9M rows × 5 folds × 2 towers) that is ~113 GB and
+    OOM-kills the box.
+
+    This wrapper builds each ``FoldResult`` ON DEMAND via ``build(i)`` and does
+    not cache it, so only the fold currently being trained is resident; the prior
+    fold is freed when the runner reassigns its loop variable. Behaviour is
+    byte-identical (same split indices, same loaders, same seeds — only the build
+    *timing* changes). Implements just the dict surface the runner + callers use:
+    ``len``, ``iter``, ``keys``, ``items``, ``values``, ``[]``, ``in``.
+    """
+
+    def __init__(self, n_splits: int, build):
+        self._n = int(n_splits)
+        self._build = build
+
+    def __len__(self):
+        return self._n
+
+    def __iter__(self):
+        return iter(range(self._n))
+
+    def __contains__(self, k):
+        return isinstance(k, int) and 0 <= k < self._n
+
+    def keys(self):
+        return range(self._n)
+
+    def __getitem__(self, i):
+        if not (isinstance(i, int) and 0 <= i < self._n):
+            raise KeyError(i)
+        return self._build(i)
+
+    def items(self):
+        for i in range(self._n):
+            yield i, self._build(i)
+
+    def values(self):
+        for i in range(self._n):
+            yield self._build(i)
 
 
 # ============================================================
@@ -530,11 +583,130 @@ def load_category_data(state: str, embedding_engine: EmbeddingEngine) -> Tuple[n
     return X, y, placeids, embedding_dim
 
 
+def _guard_cpu_resident_ram(n_rows: int, num_features: int, *, where: str) -> None:
+    """Fail-loud CPU-RAM guard for loading a CPU-resident next/MTL dataset.
+
+    Estimates ~2x the [N, num_features] float32 matrix (the ``.values`` copy plus
+    the parquet-backed DataFrame / downstream tensors) and raises a clear error if
+    it would exceed available RAM minus head-room, rather than OOM-killing the box.
+    No-op when psutil is unavailable or the estimate fits. Head-room is the env
+    ``MTL_RAM_HEADROOM_GB`` (default 16 GB) — the SAME knob the build guard uses.
+    """
+    try:
+        import psutil
+    except Exception:
+        return
+    headroom_gb = float(os.environ.get("MTL_RAM_HEADROOM_GB", "16"))
+    est_gb = 2 * n_rows * num_features * 4 / (1024 ** 3)
+    avail_gb = psutil.virtual_memory().available / (1024 ** 3)
+    if est_gb > (avail_gb - headroom_gb):
+        raise MemoryError(
+            f"{where}: CPU-resident next dataset needs ~{est_gb:.1f} GB "
+            f"(n_rows={n_rows}, num_features={num_features}) but only "
+            f"{avail_gb:.1f} GB is available (head-room {headroom_gb:.1f} GB). "
+            f"This usually means an oversized (e.g. stride-1 large-state) build. "
+            f"Use a smaller config or rebuild at the default stride. Override "
+            f"head-room via MTL_RAM_HEADROOM_GB."
+        )
+
+
+def _guard_mtl_check2hgi_ram(
+    n_rows: int, num_features: int, n_region_towers: int, *, where: str
+) -> None:
+    """Fail-loud CPU-RAM guard for the check2hgi-MTL dataset construction.
+
+    Unlike ``_guard_cpu_resident_ram`` (which models only the single ``load_next_data``
+    matrix), this path holds, SIMULTANEOUSLY and with no ``del`` between them: the ``X``
+    matrix, the ``x_checkin`` tensor, one ``[N, 9, D]`` region tensor per region tower
+    (``task_a``/``task_b`` set to "region"/"concat"), AND a per-fold train+val slice of
+    each. We model the peak as ``matrix × (1 + 2.5·(1 + n_region_towers))`` float32
+    copies (X + checkin + region towers + ~1.5× per-fold slices) and raise BEFORE the
+    big tensors are built if it would exceed available RAM minus head-room — so an
+    oversized (e.g. stride-1 large-state, 2.9M-row CA) overlap load FAILS LOUD with a
+    clear message instead of OOM-killing the box. Head-room via ``MTL_RAM_HEADROOM_GB``.
+    """
+    try:
+        import psutil
+    except Exception:
+        return
+    headroom_gb = float(os.environ.get("MTL_RAM_HEADROOM_GB", "16"))
+    matrix_gb = n_rows * num_features * 4 / (1024 ** 3)
+    # Post-fix model (lazy per-fold construction + FoldData.x dropped). The
+    # resident set is now: the base master tensors (X + one region tower per
+    # "region"/"concat" slot ⇒ matrix × (1+towers)) PLUS exactly ONE fold's
+    # train+val slices live at a time (≈ matrix × (1+towers), since train+val
+    # together ≈ full N once). With a temporaries margin: matrix × (1+towers) × 2.5.
+    # Calibrated to the MEASURED post-fix peak: CA overlap (matrix 6.3 GB, towers=1,
+    # auto dataset-device) peaked at 49 GB host RSS while training fold-1 → coefficient
+    # ≈ 49/(6.3·2) ≈ 3.9; use 4.0. ⇒ CA ≈ 50 GB, TX ≈ 66 GB, FL ≈ 22 GB, non-overlap
+    # ≈ 5-6 GB. (Pre-fix this path held ALL n_splits folds at once → ~126 GB at CA →
+    # OOM-killed the box; the lazy build + dropped FoldData.x removed that.)
+    # Err toward over-estimating: a false raise never kills the box, a false PASS can.
+    est_gb = matrix_gb * (1 + max(0, n_region_towers)) * 4.0
+    avail_gb = psutil.virtual_memory().available / (1024 ** 3)
+    logger.info(
+        "check2hgi-MTL host-RAM estimate: ~%.1f GB (n_rows=%d, feat=%d, "
+        "region_towers=%d), avail=%.1f GB, head-room=%.1f GB",
+        est_gb, n_rows, num_features, n_region_towers, avail_gb, headroom_gb,
+    )
+    if est_gb > (avail_gb - headroom_gb):
+        raise MemoryError(
+            f"{where}: check2hgi-MTL dataset construction would need ~{est_gb:.1f} GB "
+            f"peak host RAM (n_rows={n_rows}, feat={num_features}, "
+            f"region_towers={n_region_towers}) but only {avail_gb:.1f} GB is available "
+            f"(head-room {headroom_gb:.1f} GB). This is the stride-1 large-state overlap "
+            f"load (CA/TX ~3M rows). Run with MTL_DATASET_CPU=1 on a host with more RAM, "
+            f"subsample the engine, or use the non-overlap build. The GPU is NOT the "
+            f"limit here (per-batch footprint is N-independent) — this is host memory. "
+            f"Override head-room via MTL_RAM_HEADROOM_GB."
+        )
+
+
+def _warn_if_ungated_overlap(state, embedding_engine) -> None:
+    """Train-time guard: the overlap windowing (stride==1) is GATED by default
+    (M1 tail-gate, ``emit_tail=False``). A *manual* ungated rebuild
+    (``emit_tail=True``) can be left stale on disk and silently train on the wrong
+    windowing (this bit us once: AL OVL was left ungated → a 2.5pp phantom "drop").
+    Read the build-provenance sidecar and WARN loudly if an overlap engine is
+    ungated; ``MTL_STRICT=1`` hard-fails. No-op for non-overlap / missing sidecar.
+    """
+    try:
+        sidecar = IoPaths.get_next(state, embedding_engine).parent / "next_build_provenance.json"
+        if not sidecar.exists():
+            return
+        prov = json.loads(sidecar.read_text())
+        if prov.get("stride") == 1:
+            problems = []
+            if prov.get("emit_tail") is True:
+                problems.append("emit_tail=True (ungated — board windowing is GATED)")
+            if prov.get("min_sequence_length") not in (None, 10):
+                problems.append(
+                    f"min_sequence_length={prov.get('min_sequence_length')} "
+                    f"(board overlap windowing is min_seq=10)"
+                )
+            if problems:
+                msg = (
+                    f"non-board overlap engine {embedding_engine.value}/{state}: "
+                    + "; ".join(problems)
+                    + f". Rebuild board-correct with "
+                    f"`python scripts/mtl_improvement/build_overlap_probe_engine.py {state} 1` "
+                    f"(stride=1, gated, min_seq=10) unless intentionally testing a variant."
+                )
+                if os.environ.get("MTL_STRICT") == "1":
+                    raise ValueError(msg)
+                logger.warning("[board-overlap guard] %s", msg)
+    except ValueError:
+        raise
+    except Exception:
+        pass  # provenance check is best-effort; never break a load
+
+
 def load_next_data(
     state: str, embedding_engine: EmbeddingEngine
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, int]:
     """Load next-POI data. Returns (X, y, userids, embedding_dim)."""
     logger.info(f"Loading next-POI data: {state}/{embedding_engine.value}")
+    _warn_if_ungated_overlap(state, embedding_engine)
     df = IoPaths.load_next(state, embedding_engine)
 
     df['label'] = _map_categories(df['next_category'])
@@ -554,6 +726,14 @@ def load_next_data(
     num_features = len(feature_cols)
     slide_window = InputsConfig.SLIDE_WINDOW
     embedding_dim = num_features // slide_window
+
+    # CPU-RAM guard (fail-loud): the .values.astype(float32) below materialises a
+    # second full [N, num_features] float32 matrix alongside the parquet-backed
+    # DataFrame; downstream fold tensors hold another copy. A too-big CPU-resident
+    # next dataset (e.g. an accidental stride-1 large-state build) would OOM the
+    # box silently. Estimate ~2x the float32 matrix and raise a clear error rather
+    # than letting the host run out of RAM. Headroom via MTL_RAM_HEADROOM_GB.
+    _guard_cpu_resident_ram(len(df), num_features, where="load_next_data")
 
     X = df[feature_cols].values.astype(np.float32)
     y = df['label'].values.astype(np.int64)
@@ -1048,6 +1228,21 @@ class FoldCreator:
                 f"next_region.parquet rows ({len(region_df)}) disagree with "
                 f"next.parquet rows ({len(X)}) for {state}. Regenerate both."
             )
+        # C1 (alignment guard, 2026-06-20): row-count parity is necessary but NOT
+        # sufficient — a stale next_region.parquet built from a different windowing
+        # (e.g. a stride-1 next.parquet against a stride-9 region file) can have the
+        # SAME row count yet a different per-row user/order, silently mis-pairing
+        # every (X, region) row. Assert userid CONTENT equality row-for-row.
+        if "userid" in region_df.columns:
+            region_uids = region_df["userid"].astype(int).to_numpy()
+            if not np.array_equal(region_uids, userids):
+                raise ValueError(
+                    f"next_region.parquet userid column is not row-aligned with "
+                    f"next.parquet for {state} (same row count but different "
+                    f"per-row userids — a stale/cross-windowing region file). "
+                    f"Regenerate both from the SAME sequences via "
+                    f"`python scripts/regenerate_next_region.py --state {state}`."
+                )
         y_region = region_df["region_idx"].to_numpy(dtype=np.int64)
 
         # B5 hard-index path: when task_b head is ``next_getnext_hard`` (or any
@@ -1097,6 +1292,24 @@ class FoldCreator:
                     f"`python scripts/regenerate_next_region.py --state {state}`."
                 )
             y_last_region = region_df["last_region_idx"].to_numpy(dtype=np.int64)
+
+        # All needed columns are now extracted to numpy — free the (large) region
+        # DataFrame before we build the [N, 9, D] tensors (CA overlap: ~7.6 GB).
+        del region_df
+
+        # Host-RAM fail-loud guard BEFORE building the big tensors: this path holds
+        # X + x_checkin + one region tensor per "region"/"concat" tower + per-fold
+        # slices, all at once. An oversized stride-1 large-state load (CA/TX ~3M rows)
+        # would otherwise OOM-kill the box. The GPU is not the limit (per-batch
+        # footprint is N-independent); this is host memory.
+        _n_region_towers = sum(
+            1 for t in (self.task_a_input_type, self.task_b_input_type)
+            if t in ("region", "concat")
+        )
+        _num_features = int(X.shape[1])
+        _guard_mtl_check2hgi_ram(
+            len(X), _num_features, _n_region_towers, where="mtl_check2hgi",
+        )
 
         slide_window = InputsConfig.SLIDE_WINDOW
         x_checkin, y_cat_tensor = _convert_to_tensors(
@@ -1164,12 +1377,17 @@ class FoldCreator:
         sgkf = StratifiedGroupKFold(
             n_splits=self.n_splits, shuffle=True, random_state=self.seed,
         )
-        fold_results: Dict[int, FoldResult] = {}
         self._fold_manifests: List[dict] = []
 
-        for fold_idx, (train_idx, val_idx) in enumerate(
-            sgkf.split(X, y_cat, groups=userids)
-        ):
+        # Compute the split index arrays EAGERLY (cheap — just int64 index arrays,
+        # ~N×8 B per fold) and record fold indices/manifests. The expensive part —
+        # materializing each fold's [N_fold,9,D] fancy-index slices and loaders —
+        # is deferred to ``_build_fold`` and produced ONE FOLD AT A TIME by the
+        # _LazyFoldMapping below. This keeps host-RAM at ~base + one fold instead of
+        # base + all n_splits folds (the CA/TX overlap OOM). Byte-identical: same
+        # split indices, same loaders, same seeds — only the build *timing* changes.
+        splits = list(sgkf.split(X, y_cat, groups=userids))
+        for fold_idx, (train_idx, val_idx) in enumerate(splits):
             logger.info(
                 f"Fold {fold_idx + 1}/{self.n_splits}: "
                 f"train={len(train_idx)} val={len(val_idx)} "
@@ -1182,7 +1400,6 @@ class FoldCreator:
             self._fold_indices[TaskType.CATEGORY].append(
                 FoldIndices(fold_idx, train_idx, val_idx)
             )
-
             self._fold_manifests.append({
                 'fold_idx': fold_idx,
                 'train_count': int(len(train_idx)),
@@ -1190,6 +1407,9 @@ class FoldCreator:
                 'split_mode': 'check2hgi_mtl_user_group',
                 'seed': self.seed,
             })
+
+        def _build_fold(fold_idx: int) -> FoldResult:
+            train_idx, val_idx = splits[fold_idx]
 
             # Task-b (region) dataloader: aux-aware if head needs last_region_idx.
             if use_aux:
@@ -1233,15 +1453,16 @@ class FoldCreator:
                     self.batch_size, self.seed + fold_idx,
                 )
 
-            fold_results[fold_idx] = FoldResult(
+            # FoldData.x is None: the MTL runner never reads it (only .dataloader
+            # and .y) — keeping it would re-materialize a second full per-fold copy
+            # of the [N_fold,9,D] tensor (the CA/TX overlap host-RAM blowup).
+            result = FoldResult(
                 next=TaskFoldData(
                     train=FoldData(
-                        train_loader_b,
-                        x_task_b[train_idx], y_region_tensor[train_idx],
+                        train_loader_b, None, y_region_tensor[train_idx],
                     ),
                     val=FoldData(
-                        val_loader_b,
-                        x_task_b[val_idx], y_region_tensor[val_idx],
+                        val_loader_b, None, y_region_tensor[val_idx],
                     ),
                 ),
                 category=TaskFoldData(
@@ -1250,21 +1471,22 @@ class FoldCreator:
                             x_task_a[train_idx], y_cat_tensor[train_idx],
                             self.batch_size, True, self.use_weighted_sampling, self.seed,
                         ),
-                        x_task_a[train_idx], y_cat_tensor[train_idx],
+                        None, y_cat_tensor[train_idx],
                     ),
                     val=FoldData(
                         _create_dataloader(
                             x_task_a[val_idx], y_cat_tensor[val_idx],
                             self.batch_size, False, False, self.seed,
                         ),
-                        x_task_a[val_idx], y_cat_tensor[val_idx],
+                        None, y_cat_tensor[val_idx],
                     ),
                 ),
                 joint_train_loader=joint_train_loader,
             )
             gc.collect()
+            return result
 
-        return fold_results
+        return _LazyFoldMapping(self.n_splits, _build_fold)
 
     def save(self, save_dir: Path) -> Path:
         if not self._task_tensors:
