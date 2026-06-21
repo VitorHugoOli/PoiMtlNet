@@ -150,3 +150,15 @@ user decision before proceeding.
 
 **Decision**: freeze prerequisites met — recipe v16 + byte-identical code; the P3 board re-baselines absolutes by ~0.05 pp (compile pin) only.
 **Next (P3, post-freeze)**: n=20 board build (compiled); B1/B2b/faithful-POI2Vec per-fold scoring via `--only-fold`; B2a/GeoTreeSkipGram include/exclude decision; reg-ceiling Acc@10-under-overlap via the T3 matched scorer. Full per-gate docs under `docs/studies/pre_freeze_gates/` + `closing_data/{BASELINES_IMPL_AUDIT,FREEZE_READINESS}.md`.
+
+## 2026-06-20/21 — gated-overlap board prep (Q1/Q2/Q3) + perf
+Consolidated findings: `docs/studies/pre_freeze_gates/OVERLAP_BOARD_FINDINGS.md`.
+- Board windowing = stride-1 GATED (M1 emit_tail=False) + min_seq=10, enforced as default + train-time guard.
+- Host-RAM OOM fixed (lazy per-fold folds + dropped dead FoldData.x; byte-identical). CA/TX overlap MTL fit
+  the A40 via auto-fit; NEVER MTL_DATASET_GPU=1 for CA/TX (OOM). TX ~160s/epoch (~11h full).
+- Q2 FL board-grade (gated, seed-42): champion-G cat +3.12 (beats ceiling) / reg −1.12 (FLAG — was −0.35
+  non-overlap; needs multi-seed; seed-0 compiled run in progress).
+- Q3 compile/tf32: quality-neutral; the "32min warmup" was an eager-fallback (cache_size_limit=8). Fixed via
+  MTL_COMPILE_DYNAMIC=1 + shared TORCHINDUCTOR_CACHE_DIR + cache_size_limit→64 → ~13-15% faster, 0 warmup on
+  cache reuse. Board compiled path: --compile --tf32 MTL_COMPILE_DYNAMIC=1 + shared cache, applied uniformly.
+- All code on PR #29 (byte-identical + perf).
