@@ -69,8 +69,27 @@ impossible on an 83 GB-free disk (CA alone ≈ 180 GB).
 | alabama | 96,326 | 16 MB | 115 MB | ✔ |
 | arizona | 200,895 | 34 MB | 252 MB | ✔ |
 | california | 2,925,466 | 536 MB | 4.8 GB | ✔ |
-| florida | — | — | — | building |
-| georgia | — | — | — | queued |
-| texas | — | — | — | queued |
+| florida | 1,274,418 | ~170 MB | (trimmed) | ✔ |
+| georgia | 349,191 | ~50 MB | (trimmed) | ✔ |
+| texas | 3,830,414 | ~700 MB | (trimmed) | ✔ |
+**B2c COMPLETE for all 6 states** (next/next_region trimmed to embeddings-only).
 region/poi embeddings symlinked from frozen check2hgi; `log_T` reused via
 `--per-fold-transition-dir output/check2hgi/<state>` at the (CUDA) train step.
+
+## 6 · Fan-out driver + launch
+`scripts/closing_data/m2pro_baseline_fanout.py` drives B2b/POI2Vec/CTLE per
+`(state,seed,fold)` (staging for POI2Vec/CTLE, `--stride 1`, `MTL_RAM_HEADROOM_GB=2`,
+row-align asserts, embeddings-only keep to `output/board_baselines/<baseline>/<state>/
+s<seed>_f<fold>/`, disk-floor=18 GB stop, resumable). Validated on 3 AL cells
+(b2b 25s / poi2vec 138s / ctle 63s) — all 113,846-row distinct substrates.
+
+**LAUNCHED (background, serial):** small/mid states **AL, AZ, GA, FL** × {0,1,7,100} ×
+5f × 3 baselines = **240 cells** (`/tmp/fanout_small.log`). Serial to avoid the RAM
+contention that killed a concurrent TX build on the 24 GB box.
+
+**DEFERRED (need headroom / a decision):**
+- **CA + TX heavy fan-out** — run AFTER the small batch (RAM) with disk monitoring;
+  user chose "free disk first" — ~92 GB free now (my own regennable builds reclaimed),
+  CA+TX × 3 heavy baselines ≈ 60–70 GB embeddings-only.
+- **AL-ownership fold-1 fit check** (opt-in: run AL's STL+MTL on MPS too) — AL v14
+  design_k substrate present, so feasible; run when the box has headroom.
