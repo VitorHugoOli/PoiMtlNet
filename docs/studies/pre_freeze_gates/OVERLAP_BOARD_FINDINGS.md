@@ -66,3 +66,15 @@ per-fold copies onto the GPU → OOM (no CPU fallback). The host-RAM OOM (eager 
 1. **reg −1.12 multi-seed check** — FL seed-0 (compiled) in progress; full board T3 settles it.
 2. **PR #29** — all byte-identical + perf code (lazy-fold, S2-auto, M1 gate, guards, min_seq default, compile
    levers). Awaiting merge.
+
+
+### reg-gap ATTRIBUTION — CONFIRMED windowing (2026-06-21, disentangler + 4-agent audit)
+The reg Δ widening (−0.31 non-overlap → −1.2 gated) is the **GATED OVERLAP WINDOWING**, not optimizer/compile/seed.
+Audit (workflow): the only optimizer mismatch is weight_decay (STL 0.01 vs MTL 0.05; max_lr matched at 3e-3),
+and it's CONSTANT across windowings (present in both −0.31 and −1.2). Disentangler (FL non-overlap, seed-42,
+IDENTICAL recipe, uncompiled — windowing the only flip): **Δ non-overlap = −0.28** (≈ historical multi-seed
+−0.31), vs **Δ gated = −1.12**. Ruled out 3 ways: compile (gated −1.12 was UNCOMPILED; compiled reg 75.50 ≈
+uncompiled 75.52), optimizer (wd constant), seed (s42 non-ovl −0.28 ≈ multi-seed −0.31; gated reproduces s0
+−1.21). Mechanism: overlap lifts the STL standalone reg ceiling (+3.4) MORE than the joint MTL reg tower
+(+2.5) → the matched gap widens ~0.84pp. **TRUSTWORTHY.** Net: under the board windowing cat beats +3.1/+3.8,
+reg slips from "matches" to ~−1.2 below ceiling — the open board decision is whether that reg cost is acceptable.
