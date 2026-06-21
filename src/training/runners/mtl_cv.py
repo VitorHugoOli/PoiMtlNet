@@ -1461,7 +1461,21 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
         # Initialize model via registry
         model = create_model(config.model_name, **per_fold_model_params).to(DEVICE)
         if config.use_torch_compile and DEVICE.type == 'cuda':
-            model = torch.compile(model)
+            # Opt-in compile tuning (default unchanged → eager-equivalent compile).
+            # MTL_COMPILE_DYNAMIC=1 → one symbolic-shape graph instead of recompiling
+            # per batch shape (the mixed-batch zip_longest_cycle + partial-last-batch
+            # produce many shapes → a recompile each → the ~32-min FL warmup). This
+            # collapses that storm. MTL_COMPILE_MODE overrides the inductor mode.
+            # Pair with a persistent shared TORCHINDUCTOR_CACHE_DIR across board cells
+            # so the (one-time) compile is reused for every seed/state → ~0 warmup.
+            import os as _os
+            _ckw = {}
+            if _os.environ.get("MTL_COMPILE_DYNAMIC") == "1":
+                _ckw["dynamic"] = True
+            _cmode = _os.environ.get("MTL_COMPILE_MODE")
+            if _cmode:
+                _ckw["mode"] = _cmode
+            model = torch.compile(model, **_ckw)
 
         # F49 encoder-frozen λ=0 isolation: freeze the cat encoder + cat
         # head so the cat **encoder** cannot co-adapt as a reg-helper via
