@@ -1469,6 +1469,20 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             # Pair with a persistent shared TORCHINDUCTOR_CACHE_DIR across board cells
             # so the (one-time) compile is reused for every seed/state → ~0 warmup.
             import os as _os
+            # Raise the dynamo recompile cache limit (default 8). The MTL forward is
+            # compiled in a TRAIN (grad) and an EVAL (no-grad) variant — genuinely
+            # different graphs — plus a couple of shape variants; that can exceed 8
+            # and make dynamo silently FALL BACK TO EAGER (catastrophic — the original
+            # "minutes-long compiled fold" was this fallback, not a real warmup). A
+            # higher limit keeps every variant compiled. Pure safety: no numeric change.
+            try:
+                import torch._dynamo as _dyn
+                _lim = int(_os.environ.get("MTL_COMPILE_CACHE_LIMIT", "64"))
+                _dyn.config.cache_size_limit = max(_dyn.config.cache_size_limit, _lim)
+                if hasattr(_dyn.config, "recompile_limit"):
+                    _dyn.config.recompile_limit = max(_dyn.config.recompile_limit, _lim)
+            except Exception:
+                pass
             _ckw = {}
             if _os.environ.get("MTL_COMPILE_DYNAMIC") == "1":
                 _ckw["dynamic"] = True
