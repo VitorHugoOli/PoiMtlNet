@@ -46,12 +46,17 @@ def estimate_next_build_ram_gb(n_rows: int, num_features: int) -> float:
 
 
 def available_ram_gb() -> Optional[float]:
-    """Available system RAM in GB, or ``None`` if psutil is unavailable."""
+    """Available system RAM in GB, or ``None`` if psutil is unavailable or the
+    query fails. macOS psutil can intermittently raise on
+    ``host_statistics(HOST_VM_INFO)`` under memory pressure ("array not large
+    enough"); since this guard is advisory (the streaming writer bounds peak RAM
+    regardless) a transient query failure must not crash the build — fall back to
+    ``None``, which every caller already handles."""
     try:
         import psutil
-    except Exception:  # pragma: no cover - psutil is a hard dep elsewhere
+        return psutil.virtual_memory().available / (1024 ** 3)
+    except Exception:  # pragma: no cover - psutil missing OR transient syscall failure
         return None
-    return psutil.virtual_memory().available / (1024 ** 3)
 
 
 def check_next_build_ram(

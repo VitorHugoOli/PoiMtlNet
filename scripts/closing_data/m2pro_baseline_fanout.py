@@ -103,7 +103,11 @@ def builder_cmd(baseline: str, state: str, seed: int, fold: int, scratch: Path |
 
 
 def keep_and_trim(baseline, state, seed, fold, native: Path):
-    """Copy embeddings + markers to the handoff dir; delete regennable next/next_region."""
+    """Copy embeddings + markers to the handoff dir, then delete the regennable
+    next/next_region. For staged builders the scratch is rmtree'd by the caller;
+    for the non-staged b2b the native engine dir (which holds the multi-GB
+    next/next_region) must be reclaimed HERE or it accumulates (FL/CA/TX b2b is
+    3-11 GB/cell)."""
     hd = HANDOFF / baseline / state / f"s{seed}_f{fold}"
     hd.mkdir(parents=True, exist_ok=True)
     emb = native / "embeddings.parquet"
@@ -118,6 +122,9 @@ def keep_and_trim(baseline, state, seed, fold, native: Path):
         f"TRAIN-ONLY per fold; row-align (next==next_region==seq) + val-user disjoint "
         f"asserted by the builder. next/next_region dropped (regen on CUDA, --stride 1).\n"
     )
+    # Reclaim the non-staged native engine dir (embeddings already copied above).
+    if baseline not in STAGED and native.exists():
+        shutil.rmtree(native, ignore_errors=True)
 
 
 def main():
