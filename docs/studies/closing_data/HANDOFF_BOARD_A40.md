@@ -88,6 +88,13 @@ at a time). But several things overlap onto **CPU / host RAM** while a GPU cell 
       never pair an A40 cell against an MPS-built or A100-built cell (until the A/B confirms ±0.05 pp).
 - [ ] **Seeds.** The A/B + the early TX cell are **1 seed (seed 0)**. The full P3 board (post-freeze) is
       **{0, 1, 7, 100}**.
+- [ ] **`--canon none` + explicit recipe pins (REQUIRED under MTL_STRICT=1).** Every MTL cell on `check2hgi_dk_ovl`
+      must add `--canon none --checkpoint-selector geom_simple --no-reg-class-weights --no-cat-class-weights` or it
+      hard-fails the canon wrong-substrate guard / inherits the C25 weighting. Full rationale at §3c. The driver
+      `scripts/closing_data/a40_task1_fl_ab.sh` already encodes it.
+- [ ] **Folds are generated on-the-fly** (no frozen cache for `check2hgi_dk_ovl`). Deterministic given seed, so the
+      A40/A100 A/B halves still match; but the post-freeze board wants frozen splits for paired stats — freeze via
+      `scripts/study/freeze_folds.py --state <st> --engine check2hgi_dk_ovl --task mtl_check2hgi` before P3.
 
 **STALE-log_T extra warning:** the engine builder does NOT rebuild log_T, and `train.py` does not validate its
 freshness beyond the mtime guard — an old log_T survives across a re-windowing. Always rebuild log_T for the
@@ -116,17 +123,50 @@ state+seed AFTER building/rebuilding its overlap engine.
 PYTHONPATH=src .venv/bin/python scripts/mtl_improvement/build_overlap_probe_engine.py texas 1
 #                                                                                    state stride
 # auto-gates at stride==1 (emit_tail=False), min_seq defaults to 10 (board value).
-# Symlinks v14 embeddings/region/poi; rebuilds ONLY the overlapping next/sequences/next_region.
+# Symlinks v14 embeddings/region/poi; rebuilds ONLY the overlapping next/sequences/next_region
+# (incl. next_region via the engine-aware build_next_region_for — NOT the stride-broken
+# build_design_next_region.py the p3_board build_inputs uses).
 ```
+> 🛑 **VERIFY GATING FIRST — the engine may already exist but be MIS-GATED.** As of 2026-06-21 the overlap
+> engines were pre-built for AL/CA/FL/TX, **but TX was `min_sequence_length=5`** (board requires 10; FL was
+> correct at 10). A stale min_seq≠10 build hard-fails `_warn_if_ungated_overlap` under `MTL_STRICT=1`. Before
+> trusting any pre-built engine, check the sidecar and rebuild if wrong:
+> ```bash
+> cat output/check2hgi_dk_ovl/texas/input/next_build_provenance.json   # want min_sequence_length:10, emit_tail:false, stride:1
+> ```
+> ⚠ **DISK.** The stride-1 TX `next.parquet`+`next_region.parquet` are **~21 GB** (CA larger). On a tight disk
+> (the A40 box was at 97% / 15 GB free 2026-06-21), **delete the old mis-gated parquets BEFORE rebuilding** (an
+> in-place rebuild can need 2× and fill the disk → corruption, the duplicate-driver lesson):
+> ```bash
+> rm output/check2hgi_dk_ovl/texas/input/next.parquet output/check2hgi_dk_ovl/texas/input/next_region.parquet
+> ```
 
 ### 3b · Build the seeded per-fold log_T (CPU — after the engine, before any reg cell)
 ```bash
+# (1) build canonical log_T  →  writes to output/check2hgi/<state>/ (NOT the v14 dir!)
 PYTHONPATH=src .venv/bin/python scripts/compute_region_transition.py --state texas --per-fold --seed 0
-# emits region_transition_log_seed0_fold{1..5}.pt; then verify freshness (§2 mtime check).
+# (2) STAGE into the v14 dir the trainer actually reads, then touch so the freshness mtime guard passes
+for f in 1 2 3 4 5; do
+  cp output/check2hgi/texas/region_transition_log_seed0_fold${f}.pt \
+     output/check2hgi_design_k_resln_mae_l0_1/texas/region_transition_log_seed0_fold${f}.pt
+done
+sleep 1; touch output/check2hgi_design_k_resln_mae_l0_1/texas/region_transition_log_seed0_fold*.pt
+# (3) verify freshness (§2 mtime check): staged log_T must be NEWER than the overlap next_region.parquet.
 ```
-> ⚠ The early cells point `--per-fold-transition-dir` at `output/$V14/$ST` (the gated_overlap_g.sh / fl_overlap_compare.sh
-> convention — the v14 dir holds the seeded log_T the trainer reads). When you rebuild the overlap engine, make
-> sure the log_T the trainer will read is **newer than the overlap `next_region.parquet`** it scores against.
+> 🛑 **The staging COPY is mandatory and was omitted from this handoff before 2026-06-21.**
+> `compute_region_transition.py --per-fold` writes to `output/check2hgi/<state>/` (canonical engine dir,
+> `save()` → `IoPaths.CHECK2HGI.get_state_dir`). But the early cells point `--per-fold-transition-dir` at
+> `output/$V14/$ST` (the gated_overlap_g.sh / fl_overlap_compare.sh convention — the v14 dir holds the log_T the
+> trainer reads). So you MUST **copy** the 5 files into the v14 dir and `touch` them (this is exactly what
+> `scripts/closing_data/p3_board.sh:build_logT` does). Running step (1) alone leaves the v14-dir log_T missing
+> (TX) or stale (any rebuild) → the run either errors (`per_fold_transition_dir set but … missing`) or silently
+> leaks +8…+12 pp into reg Acc@10.
+> ⚠ **Stride-9 caveat (acknowledged, applies equally to FL — the A/B reference):** `compute_region_transition.py`
+> is hardwired to the canonical CHECK2HGI engine (reads canonical `next_region` + canonical fold groups), so the
+> emitted log_T reflects **stride-9 (non-overlap)** transitions, not the stride-1 windowing it's scored against
+> (see `p3_board.sh:158-163` "KNOWN GAP"). This is a flagged correctness caveat for the real launch, NOT a per-lane
+> blocker; both the MTL and STL sides — and the A100's FL half — use the identical staged log_T, so every paired Δ
+> stays internally consistent.
 
 ### 3c · Task 1 — FL champion-G MTL cell (the A/B half), compiled + tf32, seed 0
 Champion-G is exactly the `gated_overlap_g.sh` invocation. For the A/B add the compile knobs (env above) and the
@@ -141,9 +181,22 @@ Champion-G is exactly the `gated_overlap_g.sh` invocation. For the A/B add the c
     --task-a-input-type checkin --task-b-input-type region --log-t-kd-weight 0.0 \
     --scheduler onecycle --max-lr 3e-3 --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3 \
     --model mtlnet_crossattn_dualtower \
+    --checkpoint-selector geom_simple --no-reg-class-weights --no-cat-class-weights \
+    --canon none \
     --compile --tf32 \
     --per-fold-transition-dir output/check2hgi_design_k_resln_mae_l0_1/florida --no-checkpoints
 ```
+> 🛑 **CANON-GUARD GAP (found 2026-06-21, A40 — MUST add the three extra flags above).** With `MTL_STRICT=1`
+> set (as §2/§3 mandate for the GATE guard), `train.py` auto-injects `--canon v16` whose **wrong-substrate
+> guard HARD-FAILS** because the deliberate overlap engine `check2hgi_dk_ovl` ≠ v16's pinned v14 substrate
+> (`SystemExit: MTL_STRICT=1 → [canon-guard] … champion recipe is on a DIFFERENT substrate`). Fix = **`--canon
+> none`** (disables the canon guards; the GATE guard `_warn_if_ungated_overlap` is canon-independent and stays
+> active) **plus** explicitly pin `--checkpoint-selector geom_simple` and `--no-reg-class-weights
+> --no-cat-class-weights`. The class-weight flags **default to `None`, not `False`** (`scripts/train.py:526-537`),
+> so they MUST be explicit or the run inherits the config-factory default (the C25 weighting confound) instead of
+> v16's unweighted heads. With these, the effective config == auto-v16 + the engine override → byte-identical to
+> the A100 half. (The committed `gated_overlap_g.sh` never tripped this because it runs WITHOUT `MTL_STRICT=1`.)
+> The A40 driver `scripts/closing_data/a40_task1_fl_ab.sh` already encodes this.
 > ⚠ Two notes vs the raw script: (1) the committed `gated_overlap_g.sh` does **not** pass `--compile --tf32` (it
 > was the uncompiled R1-comparable run) — the **A/B and the whole board ADD them** (PINNED, RUN_MATRIX §0 /
 > DEFAULTS_AND_GUARDS). (2) `gated_overlap_g.sh florida 0 50 5` runs the same recipe minus the compile flags; to
