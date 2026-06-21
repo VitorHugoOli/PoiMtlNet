@@ -105,3 +105,28 @@ Measure the **delta** (MTL − ceiling), fold-paired, focusing on **reg** (tie-b
 
 Pass criterion: `|Δ_on − Δ_off|` ≪ fold σ (~±0.8 pp) on reg, at BOTH states. Single seed (42) detects a
 systematic shift (it appears at n=1); escalate to {0,1,7,100} only if the shift lands near the noise floor.
+
+---
+
+## UPDATE 2026-06-21 — the "compile warmup" was an EAGER-FALLBACK; the board compiled path
+Re-investigation (FL MTL, gated overlap). The earlier "compiled MTL has a ~30-min warmup" was
+**wrong**: it was torch.compile exceeding `torch._dynamo.config.cache_size_limit=8` and silently
+**falling back to EAGER** (running un-compiled, slow). The MTL forward needs a TRAIN (grad) + EVAL
+(no-grad) graph variant (`requires_grad` guard) plus shape variants — that exceeds 8.
+
+**Fix = three levers (committed):**
+1. `MTL_COMPILE_DYNAMIC=1` → one symbolic-shape graph (collapses the per-shape recompiles).
+2. **Shared persistent `TORCHINDUCTOR_CACHE_DIR`** across all board cells → reuse compiled kernels.
+3. `cache_size_limit` raised 8→64 (default-on when compiling; env `MTL_COMPILE_CACHE_LIMIT`) → never
+   eager-fall-back.
+
+**Measured (FL MTL fold-1, 8ep, gated min_seq=10):**
+| run | time | recompiles |
+|---|---|---|
+| uncompiled | ~366s | — |
+| compile+dynamic, fresh cache (1st cell) | 372s | 13 (≈ break-even) |
+| compile+dynamic, **cache reuse (2nd cell+)** | **318s** | **0** (~13% faster, 0 warmup) |
+
+**Board recipe:** run every compiled cell with `--compile --tf32 MTL_COMPILE_DYNAMIC=1` and ONE shared
+`TORCHINDUCTOR_CACHE_DIR`. First cell compiles once (~break-even); all later cells are ~13–15% faster,
+quality-neutral. Quality neutrality verified (STL cat −0.05 / reg +0.02; AL cat/reg flat; SPEED_LEVERS A/B +0.05pp).
