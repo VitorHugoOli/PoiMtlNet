@@ -35,11 +35,19 @@ per-fold copies onto the GPU → OOM (no CPU fallback). The host-RAM OOM (eager 
 | reg top10 (full) | 75.52 ± 1.07 | 76.64 | **−1.12** ⚠ |
 
 - **cat clearly holds** (+3.12, in range). Absolutes are higher than non-overlap (overlap lifts both heads).
-- **reg is a FLAG:** historical (non-overlap, multi-seed) reg Δ was −0.35 ("matches"); under gated overlap at
-  **seed-42** it's −1.12 (~0.8 pp more negative). Both sides ran at seed-42 (delta robust to seed bias), but
-  it's single-seed/single-state. **Open: does the gate/overlap genuinely cost ~0.8 pp of reg-match, or is
-  seed-42 unlucky? → needs multi-seed {0,1,7,100} fold-paired (board T3).** A seed-0 confirm is in progress.
-- Wall times (uncompiled): STL-cat 23m50, STL-reg 39m41, MTL 3h11m (≈38 m/fold), total 4h15.
+- **reg is a FLAG — and it's SYSTEMATIC (2026-06-21, seed-0 confirm):** historical (non-overlap) reg Δ was
+  −0.35 ("matches"). Under gated overlap the reg Δ is **−1.12 (seed-42) and −1.21 (seed-0)** — *consistent
+  across two seeds*, so NOT a seed artifact. **The gated overlap windowing widens the reg-match gap to a
+  systematic ~−1.2 pp** (vs −0.35 non-overlap). Mechanism: overlap is a rising tide that lifts the **STL reg
+  ceiling MORE than the MTL reg** (STL reg 76.6-76.7 vs MTL reg ~75.5). cat Δ is +3.12/+3.84 (beats, even
+  stronger). **Implication: the central "MTL matches the reg ceiling" claim WEAKENS under the board windowing**
+  (from "−0.35 matches" to "~−1.2, at the edge of matches"); cat strengthens. The full board T3 (multi-seed
+  fold-paired Wilcoxon) formally settles matches-vs-below, but 2 seeds already say the effect is real. **This
+  is the open paper-claim-relevant decision: is the gated-overlap reg cost (~1.2pp gap, but higher absolutes)
+  acceptable for the board?** → user call (held).
+- Wall times: uncompiled (seed-42) STL-cat 23m50 / STL-reg 39m41 / MTL 3h11m, total 4h15. **Compiled board
+  path (seed-0, dynamic + shared-cache reuse): STL-cat 24m58 (~0%) / STL-reg 29m54 (~25%) / MTL 2h31m (~21%),
+  total ~3h26 — ~19% faster, 0 warmup, quality-neutral.** Confirms Q3 positive at full 50-ep scale.
 
 ## Q3 — compile/tf32 (CLOSED)
 - **Quality: neutral** (STL −0.05/+0.02; AL flat; SPEED_LEVERS A/B +0.05 pp). compile/tf32 = fp-ordering noise.
