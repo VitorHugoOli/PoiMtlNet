@@ -303,4 +303,52 @@ no commit-to-main).
 2. **compile+TF32 pin.** Pinned for the P3 board as result-neutral (+0.05 pp, within ±0.8 fold std; ~15% faster;
    fp32-eval hatch intact → the matched scorer stays fp32). Marked "user-confirmed" on the A40 side —
    **confirm the pin explicitly** (it re-baselines the board's absolutes by +0.05 pp; built once, reviewers
-   reproduce *with* the flags).
+   reproduce *with* the flags). [→ §12: ADOPTED board-wide via PR #29, misdiagnosed warmup fixed.]
+
+## 12 · PR #29 (board-enabling) — audit outcome + board prep (2026-06-21)
+
+**MERGED.** Rigorous 6-dim audit: **no blockers.** M1 tail-gate LEGITIMATE (principled OOB de-skewing of
+last-POI target over-representation; keeps the full-context prediction; train/eval consistent; no leak;
+non-overlap byte-identical) — framing fix applied (dropped windows are valid examples, NOT "trivial padding").
+OOM fixes (lazy per-fold + drop `FoldData.x` + streaming build + S2 auto-enable) byte-identical +
+non-overlap-§0.1-safe by construction. Windowing math sound (0 leaks / 3359 windows). Guards real;
+default-preserving; 179 tests pass.
+
+**Resolves last turn's hardware decision (§11 #1):** CA/TX overlap-MTL now **fits the A40** (auto-fit,
+CPU-resident dataset, ~11 h/TX; NEVER `MTL_DATASET_GPU=1`); the A100 adds parallel throughput. **compile+TF32
+ADOPTED board-wide** (quality-neutral, ~13–21% faster; the "32-min warmup" was an eager-fallback cache bug,
+fixed via `MTL_COMPILE_DYNAMIC=1` + shared `TORCHINDUCTOR_CACHE_DIR` + cache_size_limit 8→64; p1 STL-reg
+ceiling now compiled too → fair). Apply UNIFORMLY (mixing confounds paired Δ at ±0.05 pp).
+
+### 🔴 The headline-relevant finding — gated overlap widens the reg gap
+Under gated overlap, FL reg MTL 75.52 vs STL 76.64 = **−1.12 (s42) / −1.21 (s0)** — SYSTEMATIC (vs −0.35
+non-overlap; mechanism: overlap lifts the STL reg ceiling MORE than MTL reg). Cat strengthens (+3.12, beats).
+The reg "matches" claim moves from "−0.3 visibly ties" to "non-inferior within a TOST margin." **Audit fix
+(F3-2):** the δ=2 pp TOST in `STATISTICAL_AUDIT §0.3` is the **SUBSTRATE-axis** margin — the **MTL-vs-STL**
+reg-parity claim needs its OWN pinned margin (see [`closing_data/STATISTICAL_PROTOCOL.md §3`](closing_data/STATISTICAL_PROTOCOL.md);
+recommend δ_reg=2 pp justified for THIS axis, user-confirm at P2). **F3-3:** the MTL headline JSONs are not
+committed → the P3 board MUST commit the MTL artifacts (C28).
+
+### Board run-spec additions (resolve-here, audit F5)
+- **⚠ Cross-GPU rule (A40 + A100 parallelization):** partition the board **BY STATE** — each state's MTL + its
+  STL ceilings + its baselines run **entirely on ONE GPU**; **never split a comparison group across GPUs**
+  (torch.compile emits arch-specific kernels + TF32 differs across architectures → A40/A100 cells of the same
+  config can differ by ~fp-noise, confounding paired Δ). **Before parallelizing, run a cross-GPU equivalence
+  A/B** (one FL cell on A40 vs A100, compiled+tf32) — confirm |Δ| ≤ fp-noise (~±0.05 pp); if it exceeds,
+  by-state partition is mandatory and cross-GPU absolutes carry a caveat.
+- **Pinned methodology:** [`closing_data/STATISTICAL_PROTOCOL.md`](closing_data/STATISTICAL_PROTOCOL.md) (paired
+  Wilcoxon for superiority; TOST per-axis for equivalence; pairing discipline; Holm-Bonferroni) +
+  [`RUN_MATRIX §2.5`](closing_data/RUN_MATRIX.md) baseline comparison design (substrate-column = embedding
+  isolation; end-to-end native = system; both on OUR protocol, only emb/arch varies).
+
+### ⚠ THE de-risk gate before the full board (advisor Condition 1 — endorsed)
+Run **ONE TX (large-state) gated-overlap reg cell** (1 seed, 5-fold; matched B-A2: G-MTL FULL top10 vs STL
+`next_stan_flow` ceiling, BOTH on overlap). **Rule:** |Δreg| ≤ ~1.5 pp (inside δ_reg=2 pp) → adopt overlap
+board-wide; > 2 pp → DO NOT adopt, keep the non-overlap base (paper-grade at −0.09…−0.31). The mechanism warns
+CA/TX (4703–8501 regions) could be worse than FL's −1.2; this single cell de-risks the multi-day board.
+
+### USER DECISIONS now (gate the freeze/board)
+1. **Adopt gated overlap?** — pending the TX de-risk cell (run it first). If TX passes, adopt: reg becomes
+   "non-inferior within δ_reg" + cat "+3 beats" (stronger, more-defensible — removes the "under-fed STL" attack).
+2. **δ_reg** — confirm **2 pp** for the MTL-vs-STL reg-parity TOST (not inherited from the substrate axis).
+3. **A100 equivalence** — run the cross-GPU A/B before splitting the board; confirm by-state partition.

@@ -13,8 +13,14 @@ ungated or min_seq≠10 — so a stale ungated build can't silently train (it bi
 phantom −2.5pp, see `ref_ovl_emit_tail_stale`).
 
 ## M1 — the tail-gate (why gated)
-At stride-1, ~window_size OOB tail windows/user all target the user's LAST POI on near-all-padding
-histories — a label-distribution skew (NOT a leak; orthogonal to `STRIDE1_LEAK_REAUDIT`). The gate drops them.
+At stride-1, ~window_size OOB tail windows/user all target the user's LAST POI — a **target-identity
+over-representation** skew (NOT a leak; orthogonal to `STRIDE1_LEAK_REAUDIT`). The gate drops them.
+> **⚠ Framing correction (PR #29 audit, 2026-06-21):** these are NOT "near-all-padding / trivial" windows.
+> On real AL data, 50% of the dropped windows have **≥5 real history tokens** (mean 4.5, max 8); only ~12.5%
+> have a single real token. They are **valid** next-POI examples that happen to target the last POI. The gate
+> de-skews the last-POI **target over-representation** (~10×→1× per user) and KEEPS one full-context
+> prediction of the last POI — it does NOT remove degenerate padding or "hard examples." Use the
+> over-representation rationale in paper prose, never "trivial padding."
 Footprint **shrinks with state size**: AL 10.9% of windows / 15.1% last-POI skew → TX 5.2% / 7.5%. So the
 gate helps most at small states and is ~neutral at huge (can't hurt). StratifiedGroupKFold does NOT mitigate
 the skew (it balances category across folds, not the pooled target distribution).

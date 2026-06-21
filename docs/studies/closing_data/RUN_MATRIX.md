@@ -93,6 +93,77 @@ decision and (b) the P2 freeze** — they fold into P3/M1+M3 and budget ONE re-r
 | **B5 Flashback** (IJCAI 2020) | NET-NEW | **E2E** | **INCLUDE — pin Flashback-only** | Swap POI head → region head (~1.1k–8.5k tracts), report Acc@10 (mirrors repo's STAN region adaptation); keep Flashback's spatiotemporal hidden-state weighting faithful. **Pinned Flashback ONLY** — well-justified for the **sparse AL/AZ traces** (the next-region axis is already multi-state anchored by STAN + ReHDM, so this is the defensible single add). **DeepMove DEFERRED to camera-ready** (Tier-3). mirror windowing/folds/seeds/labels. 6 states × {0,1,7,100} × 5f. | blocked on windowing + P2 freeze; one re-run if overlap ADOPTED. |
 | MTL × v14 (our model, reg) | = T3 fam (1) | SC | RE-RUN n=20 | shared with T3 MTL-G | — |
 
+## 2.5 · Baseline comparison design (the comparison ladder + the "original way" rule)
+
+> Defines WHAT each baseline run answers and the non-negotiable rule that keeps every run comparable. The
+> statistical tests for these comparisons are pre-registered in
+> [`STATISTICAL_PROTOCOL.md`](STATISTICAL_PROTOCOL.md) (family B = baselines-vs-STL / baselines-vs-MTL; paired
+> Wilcoxon for "we beat X", Holm-Bonferroni across the baseline × state × task grid; pairing per the SC/E2E
+> split). Grounding: [`../baseline_gap/TRIAGE.md`](../baseline_gap/TRIAGE.md) (B1–B5 + comparability classes),
+> `PAPER_BASELINES_STRATEGY.md`, §2 above (the row inventory).
+
+### The 4 run types (the comparison ladder)
+
+Every baseline appears as one or both of these forms. The ladder is designed so each rung isolates exactly one
+factor versus our champion, and the two baseline rungs (3, 4) answer two *different* questions — both reported.
+
+| # | Run type | Architecture | Embedding / substrate | Heads | Isolates | Answers |
+|---|---|---|---|---|---|---|
+| **1** | **MTL champion G** (ours) | our dual-tower `mtlnet_crossattn_dualtower` | **our Check2HGI v14** (`check2hgi_design_k_resln_mae_l0_1`) | `next_gru` (cat) + `next_stan_flow_dualtower` (reg) | — (the proposed system) | the headline number |
+| **2** | **STL ceiling** (ours) | our single-task trainers | **our Check2HGI v14** | our matched head per task (`next_gru` cat / `next_stan_flow` reg) | the MTL coupling (vs run 1) | does joint training beat our own per-task ceiling? (cat superiority / reg non-inferiority) |
+| **3** | **Substrate-column baseline** | **OURS** (our `next_gru` / `next_stan_flow` heads) | **BASELINE embedding** (CTLE / POI2Vec / skip-gram / one-hot, 64-d, dropped into the v14 slot) | our matched head per task | the **EMBEDDING** (only the substrate slot changes; heads/folds/windowing held to ours) | **does our Check2HGI embedding beat theirs at matched capacity?** |
+| **4** | **End-to-end native baseline** | **BASELINE arch** (HMT-GRN-style / Flashback / cascade / STAN / ReHDM / POI-RGNN / MHA+PE) | baseline's own embedding | baseline's own heads, region-adapted where needed | the **SYSTEM** (the whole published method) | **do we beat the published method end-to-end?** |
+
+Run 3 is a **substrate-column (SC)** form: it inherits the frozen base through the matched-head pipeline, so it
+is **paired** vs runs 1 and 2 by construction (same folds/seeds/windowing/labels — only the embedding slot
+swaps). Run 4 is an **end-to-end (E2E)** form: it builds its own sequences and must be re-windowed onto the
+adopted base; it is paired vs ours only if it ran on the same user-disjoint splits + same windowing, else
+unpaired (see `STATISTICAL_PROTOCOL.md §4`).
+
+### The non-negotiable rule — "original way" = original ARCH/EMBEDDING, NOT original DATA-PROTOCOL
+
+> A baseline's **"original way"** means its original **architecture / embedding** — NOT its original
+> data-protocol. **ALL** baselines run on **OUR data + OUR user-disjoint splits + OUR seeds {0,1,7,100} + OUR
+> label spaces (7-root next-category macro-F1 + TIGER-tract next-region Acc@10) + the ADOPTED gated-overlap
+> windowing (min_seq=10, stride-1).** Only the **embedding (run 3)** or the **architecture (run 4)** varies;
+> everything in the data/eval harness is held to ours.
+
+Running a baseline under its **own** windowing / splits / label space / metric breaks comparability — the
+resulting Δ would confound the method difference with a data-protocol difference, and no paired test on it
+would be valid. This is the same trap the B-A2 correction (RUN_MATRIX §0) and the windowing-matched-ceiling
+condition (`../pre_freeze_gates/BOARD_ADOPTION_DECISION.md` Condition 3) guard against on our own arms: the
+ceiling/baseline must be built on the **same windowing** as what it is compared to, or the comparison is void.
+Concretely: a faithful E2E baseline keeps its backbone, hidden-state weighting, and auxiliary objectives, but
+its **inputs are re-built from our windowed, user-disjoint, seeded folds** and it predicts into **our** label
+spaces — documented deviations (beam-search dropped, geohash→TIGER tract, native split→our fold regime) are
+recorded per baseline in `../baseline_gap/TRIAGE.md` and labelled (e.g. "HMT-GRN-STYLE", "Flashback-only").
+
+### Baseline → form map (which rung(s) each baseline occupies)
+
+| Baseline | Form(s) | Class | Question answered | Notes |
+|---|---|---|---|---|
+| **CTLE** (Lin 2021) | Substrate-column (run 3) | SC | does our embedding beat theirs at matched capacity? | CTLE's *native* usage IS a per-visit contextual substrate → its faithful form is exactly the SC column. Pretrain train-portion-only per fold. |
+| **POI2Vec** (Feng 2017) | Substrate-column (run 3) | SC | " | static-embedding floor; emit fresh per-POI 64-d (in-repo POI2Vec is fclass-level — net-new). Train-portion-only per fold. |
+| **skip-gram** (word2vec / check-in seqs) | Substrate-column (run 3) | SC | " | completes CTLE's canonical floor triplet. Train-portion-only per fold. |
+| **one-hot-POI 64-d** | Substrate-column (run 3) | SC | " (absolute-zero floor) | zero-training; deterministic random projection / hashed POI id. |
+| **STAN** (Luo 2021) faithful | End-to-end (run 4) | E2E | do we beat the published method? | re-windowed to overlap base; POI head → region head (Acc@10). |
+| **ReHDM** (Li 2025) faithful | End-to-end (run 4) | E2E | " | re-windowed; CA/TX deferred (quadratic collaborator-pool scaling — footnote). |
+| **POI-RGNN** (Capanema 2022) faithful | End-to-end (run 4) | E2E | " (next-category) | re-windowed; non-user-disjoint published caveat preserved. |
+| **MHA+PE** (Zeng 2019) faithful | End-to-end (run 4) | E2E | " (next-category) | re-windowed. |
+| **HMT-GRN-style** (Lim 2022) | End-to-end (run 4) | E2E | the sole external **MTL** row — beats the published shared-LSTM MTL design? | re-windowed; "HMT-GRN-STYLE" (beam-search/selectivity dropped, geohash→TIGER). |
+| **Flashback** (Yang 2020) | End-to-end (run 4) | E2E | do we beat the published method on the sparse-trace reg axis? | re-windowed; Flashback-only (DeepMove deferred). |
+| **cascade** (CSLSL/CatDM pattern) | **Substrate-column (run 3, pinned)** + faithful E2E deferred | SC (pinned) | does the cascade ordering beat our parallel dual-tower? | pinned SC variant reuses our heads, changes ONE factor (region head conditioned on predicted category); faithful CSLSL/CatDM E2E deferred to camera-ready. |
+
+**Why both run 3 and run 4 are reported (they answer different questions).** Run 3 (substrate-column) isolates
+the **embedding** at matched architectural capacity — it tells a reviewer that any advantage attributable to
+the Check2HGI *substrate* is not merely "any contextualisation" (CTLE is the head-on contextual competitor;
+POI2Vec / skip-gram / one-hot are the floor). Run 4 (end-to-end native) isolates the **whole system** —
+whether the proposed model, embedding and heads together beat the published SOTA-equivalent method as a unit.
+A baseline can lose at run 3 (our embedding wins at matched capacity) yet be a different story at run 4 (its
+native architecture closes part of the gap), or vice-versa; reporting only one would let a reviewer dissolve
+or inflate the contribution. Both are carried, each tested per `STATISTICAL_PROTOCOL.md` (paired Wilcoxon vs
+our STL/MTL where folds match; Holm-corrected across the baseline × state × task grid).
+
 ## 3 · Counts
 
 - **BRACIS-suite cells inventoried: 12** — RE-RUN 4 (T3★, T4, §0.4, §0.9) + T5 (RE-RUN, per-engine
