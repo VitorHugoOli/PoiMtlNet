@@ -347,8 +347,48 @@ Run **ONE TX (large-state) gated-overlap reg cell** (1 seed, 5-fold; matched B-A
 board-wide; > 2 pp → DO NOT adopt, keep the non-overlap base (paper-grade at −0.09…−0.31). The mechanism warns
 CA/TX (4703–8501 regions) could be worse than FL's −1.2; this single cell de-risks the multi-day board.
 
-### USER DECISIONS now (gate the freeze/board)
-1. **Adopt gated overlap?** — pending the TX de-risk cell (run it first). If TX passes, adopt: reg becomes
-   "non-inferior within δ_reg" + cat "+3 beats" (stronger, more-defensible — removes the "under-fed STL" attack).
-2. **δ_reg** — confirm **2 pp** for the MTL-vs-STL reg-parity TOST (not inherited from the substrate axis).
-3. **A100 equivalence** — run the cross-GPU A/B before splitting the board; confirm by-state partition.
+### USER DECISIONS — RESOLVED (user, 2026-06-21)
+1. **Gated overlap → ADOPTED unconditionally** (user: "make the methodology clean, otherwise it's a mess" — ONE
+   base for everything beats a conditional/mixed base; this IS the plan's "freeze one base, no moving target"
+   discipline). The TX cell is **no longer a go/no-go gate** — it is **early insurance**: run TX (+CA)
+   gated-overlap reg EARLY (before the full multi-day board) so the **reg-claim framing is known up front**
+   (non-inferior within δ_reg, or — if CA/TX exceed 2 pp — an honest re-scope / the composite-reg fallback). We
+   adopt overlap regardless; the early cell only fixes how we WRITE the reg claim, not whether to freeze.
+2. **δ_reg = 2 pp → CONFIRMED** for the MTL-vs-STL reg-parity TOST (its own axis; `STATISTICAL_PROTOCOL.md §3`).
+3. **A100 equivalence A/B + by-state partition → CONFIRMED.**
+
+## 13 · Board launch sequence + device allocation (2026-06-21)
+
+**THE GOVERNING RULE (extends the cross-GPU rule to the Macs):** every PAIRED comparison runs end-to-end on ONE
+device-class. ⇒ partition the board **BY STATE** across {A40, A100, M2 Pro, M4 Pro}; a state's full cell set
+(MTL + STL ceilings + its baselines) runs on ONE device. Every per-state Δ (the headline: MTL-vs-STL,
+baseline-vs-ours) is then **device-internal and clean**; only the ABSOLUTE cross-state table carries a
+device-class footnote (small states MPS-fp32; large states CUDA-compiled-tf32). **Never split one comparison
+across device-classes** (MPS fp32 vs CUDA tf32+compile differ well beyond the ±0.05 pp effect size).
+
+### Using the Macs for the light cells (user, 2026-06-21)
+- **(preferred) Macs BUILD the light baseline embeddings** (CTLE / POI2Vec / skip-gram / one-hot pretrains,
+  train-only per fold) in parallel — embeddings are device-tolerant *inputs*; the matched-head comparison then
+  runs on the uniform CUDA board → cleanest (no device footnote). This is the highest-value Mac use.
+- **OR Macs OWN whole small states** (AL on M2 Pro 32 GB, AZ on M4 Pro 24 GB): the state's MTL + STL + baselines
+  all on that Mac → Δ's MPS-internal; footnote the device class on absolutes. ⚠ first confirm AL/AZ overlap-MTL
+  fits MPS memory + the wall-time is acceptable (MPS fp32, no compile). **Do NOT** split a state's baselines onto
+  a Mac while its STL/MTL is on CUDA (confounds the paired Δ).
+
+### Launch sequence (to the freeze and the board)
+1. **A100-equivalence A/B** (one FL cell A40 vs A100, compiled+tf32) — |Δ| ≤ ±0.05 pp; lets a state move between
+   the two CUDA cards without drift. [gates by-state parallelization]
+2. **TX (+CA) gated-overlap reg cell, EARLY** (1 seed × 5 folds, matched B-A2, both overlap) — insurance for the
+   reg-claim framing (not a stop-gate); records the large-state Δreg before the full spend.
+3. **P2 FREEZE** (one commit): recipe v16 · substrate v14 6-state (hashed) · windowing = **gated stride-1
+   overlap, MIN_SEQ=10** · label-space · signed RUN_MATRIX (carrying §2.5 baseline design + STATISTICAL_PROTOCOL).
+4. **P3 board** — all states × {0,1,7,100} × 5 folds, partitioned by state across A40/A100/Macs, CUDA cells
+   compiled, **committing the MTL + STL + baseline artifacts** (C28; closes F3-3). Substrate-column + end-to-end
+   native baselines per RUN_MATRIX §2.5.
+5. **Stats** per STATISTICAL_PROTOCOL (paired Wilcoxon superiority + TOST δ_reg=2 pp non-inferiority + Holm).
+6. **L4** second-dataset Phase V (mirror the overlap windowing).
+
+### Reg-claim fallback (insurance, not plan)
+If CA/TX blow the 2 pp margin under overlap: (a) re-scope honestly ("non-inferior at AL/AZ/FL/GE; within X pp at
+CA/TX"), or (b) the 2-model composite reg panel (SUPPORTIVE only — forfeits the single-model property, never the
+headline).
