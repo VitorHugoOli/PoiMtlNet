@@ -62,10 +62,26 @@ per-fold copies onto the GPU → OOM (no CPU fallback). The host-RAM OOM (eager 
   `TORCHINDUCTOR_CACHE_DIR`. First cell ≈ break-even; all later cells ~13–15% faster, quality-neutral.
   Apply UNIFORMLY (p1 STL-reg ceiling supports `--compile`/`--tf32` so the comparison stays fair — never mix).
 
+## DECISION (2026-06-21) — ADOPTED, see `BOARD_ADOPTION_DECISION.md`
+All three board changes are **ADOPTED** (user call + critical advisor review = **GO-WITH-CONDITIONS**):
+gated overlap base, compile path (`--compile --tf32 MTL_COMPILE_DYNAMIC=1` + shared cache), CA/TX-on-A40.
+
+**⚠ Reframe the reg "loss" — it is NOT a claim collapse.** The paper defines "matches/Pareto-non-inferior" as
+**TOST non-inferiority at δ=2 pp** (`STATISTICAL_AUDIT §0.3`), not Δ≈0. **A −1.2 pp gap (σ~1.0) still PASSES
+the δ=2 pp test** → "single model non-inferior on reg (within 2pp) AND beats cat +3" survives gated overlap.
+What's lost is rhetorical margin (−0.31 "visibly ties" → −1.2 "non-inferior within 2pp"). Write the reg side
+as explicit TOST non-inferiority, not "ties."
+
+**Advisor condition before the full board:** run **one TX (large-state) gated-overlap reg cell, 1 seed** — the
+board commits 6 states × 4 seeds off FL-2-seed, and the mechanism warns the reg gap may be WORSE at CA/TX
+(more regions, untested). Rule: |Δreg| ≤ ~1.5 pp → adopt board-wide; > 2 pp → keep non-overlap. Plus: confirm
+AL under the final recipe; pin the windowing-matched ceiling (B-A2 trap); write reg as TOST. Full rationale +
+caveats (compile uniformity, CA/TX phrasing, blast radius, composite fallback): `BOARD_ADOPTION_DECISION.md`.
+
 ## Open
-1. **reg −1.12 multi-seed check** — FL seed-0 (compiled) in progress; full board T3 settles it.
+1. **TX gated-overlap reg de-risk cell** (Condition 1) — the gate before launching the full board.
 2. **PR #29** — all byte-identical + perf code (lazy-fold, S2-auto, M1 gate, guards, min_seq default, compile
-   levers). Awaiting merge.
+   levers) + these adoption docs. Awaiting merge.
 
 
 ### reg-gap ATTRIBUTION — CONFIRMED windowing (2026-06-21, disentangler + 4-agent audit)
