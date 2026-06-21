@@ -1,92 +1,82 @@
-# HANDOFF — board launch · A40 · A100 · M2 Pro (2026-06-21)
+# HANDOFF — board launch INDEX (A40 · A100 · M2 Pro) · 2026-06-21
 
-> The pre-freeze gates are all closed; we are entering **P2 (freeze) → P3 (board)**. This is the turn-key
-> run-spec for the three things to kick off in parallel NOW. **Read first:**
-> [`../EXECUTION_PLAN.md §13`](../EXECUTION_PLAN.md) (sequence + the device rule),
+> The pre-freeze gates are closed; we are entering **P2 (freeze) → P3 (board)**. This is the **index** — the
+> shared governing rule, the per-machine process, the launch sequence, and the shared CUDA recipe. **Each machine
+> works from its OWN per-machine handoff** (links in §3), and touches ONLY its own work.
+>
+> **Read alongside:** [`../EXECUTION_PLAN.md §12–§13`](../EXECUTION_PLAN.md) (sequence + device rule),
 > [`../pre_freeze_gates/OVERLAP_BOARD_FINDINGS.md`](../pre_freeze_gates/OVERLAP_BOARD_FINDINGS.md) +
-> [`../pre_freeze_gates/DEFAULTS_AND_GUARDS.md`](../pre_freeze_gates/DEFAULTS_AND_GUARDS.md) (the board recipe +
-> guards), [`STATISTICAL_PROTOCOL.md`](STATISTICAL_PROTOCOL.md) + [`RUN_MATRIX.md §2.5`](RUN_MATRIX.md).
+> [`../pre_freeze_gates/DEFAULTS_AND_GUARDS.md`](../pre_freeze_gates/DEFAULTS_AND_GUARDS.md) (board recipe +
+> guards), [`STATISTICAL_PROTOCOL.md`](STATISTICAL_PROTOCOL.md) + [`RUN_MATRIX.md §0, §2.5`](RUN_MATRIX.md).
 
-## Governing rule (non-negotiable)
+## 1 · Governing rule (non-negotiable)
 **Every PAIRED comparison runs end-to-end on ONE device-class.** Partition the board **BY STATE** across
-{A40, A100, M2 Pro}; a state's full cell set (MTL + STL ceilings + its baselines) stays on ONE device. Per-state
-Δ's are then device-internal and clean; the absolute cross-state table carries a device-class footnote. **Never
-split one comparison across device-classes** (MPS fp32 vs CUDA tf32+compile differ ≫ the ±0.05 pp effect size).
+{A40, A100, M2 Pro (+M4 Pro)}; a state's full cell set (MTL + STL ceilings + its baselines) stays on ONE device.
+Per-state Δ's (the headline: MTL-vs-STL, baseline-vs-ours) are then device-internal and clean; only the absolute
+cross-state table carries a device-class footnote (small states MPS-fp32; large states CUDA-compiled-tf32).
+**Never split one comparison across device-classes** (MPS fp32 vs CUDA tf32+compile differ ≫ the ±0.05 pp effect
+size). The Macs' highest-value role is **building the light baseline embeddings** (device-tolerant inputs the
+CUDA board consumes), NOT running the comparison.
 
-## Process — each machine: OWN branch · incremental commits · OWN PR
-**Each of the three machines works on its OWN branch and opens its OWN PR** — so each lane is independently
-auditable and gets its own further instructions (same pattern as PR #26–#29). Do **NOT** share a branch (avoids
-conflicts), do **NOT** commit to `main`.
+## 2 · Process — each machine: OWN branch · incremental commits · OWN PR
+Same pattern as PR #26–#29: each machine is an independently-auditable lane on its OWN branch with its OWN PR.
 - **A40** → branch `study/board-a40`
 - **A100** → branch `study/board-a100`
 - **M2 Pro** → branch `study/board-m2pro`
 
-**Commit INCREMENTALLY** — per cell / per built artifact / per verdict (a small, frequent commit carrying the
-result JSON + a one-line finding), never one giant end-of-run commit; this makes progress auditable mid-flight.
-**Open the PR early (draft) and push as you go**; when the A/B, a de-risk cell, or an embedding-build batch
-completes, flag it for audit. The orchestrator audits each PR, gives further instructions, and merges/reconciles
-after — the machines do not merge each other or `main`.
+Do **NOT** share a branch (avoids conflicts), do **NOT** commit to `main`, do **NOT** merge another lane.
+**Commit INCREMENTALLY** — per cell / per built artifact / per verdict, each carrying the result JSON + a
+one-line finding (never one giant end-of-run commit). **Open the PR early (draft) and push as you go**; when an
+A/B half, a de-risk cell, or an embedding-build batch completes, flag it for audit. The orchestrator audits each
+PR, gives further instructions, and merges/reconciles after — the machines do not merge each other or `main`.
 
-## Shared CUDA board recipe (A40 + A100)
-- Base = **gated stride-1 overlap, MIN_SEQ=10** engine `check2hgi_dk_ovl`, built per state via
+## 3 · The three per-machine handoffs (work ONLY from yours)
+| Machine | Branch | Scope (pre-freeze) | Handoff |
+|---|---|---|---|
+| **A40** (CUDA) | `study/board-a40` | A/B FL half (seed 0) · **EARLY TX** gated-overlap reg cell · then owns its by-state partition | [`HANDOFF_BOARD_A40.md`](HANDOFF_BOARD_A40.md) |
+| **A100** (CUDA) | `study/board-a100` | A/B FL half (byte-identical) · **EARLY CA** gated-overlap reg cell (largest, most at-risk) · then owns the heavy states | [`HANDOFF_BOARD_A100.md`](HANDOFF_BOARD_A100.md) |
+| **M2 Pro** (MPS) | `study/board-m2pro` | **BUILD the light SC baseline embeddings** (CTLE / POI2Vec / skip-gram / one-hot) on the gated-overlap base, train-only per fold, states × {0,1,7,100} × 5f · optional: own whole small state AL | [`HANDOFF_BOARD_M2PRO.md`](HANDOFF_BOARD_M2PRO.md) |
+
+## 4 · Shared CUDA board recipe (A40 + A100)
+The CUDA lanes both run this; the per-machine handoffs carry the verbatim commands + env.
+- **Base** = gated stride-1 overlap, MIN_SEQ=10 engine `check2hgi_dk_ovl`, built per state via
   `python scripts/mtl_improvement/build_overlap_probe_engine.py <state> 1` (auto-gates at stride==1, min_seq=10).
-- Recipe = champion **G / v16** (the `docs/NORTH_STAR.md` invocation) on `--engine check2hgi_dk_ovl`, geom_simple
-  selector, matched scorer (FULL top10_acc, fp32-eval), per-fold per-seed **train-only** log_T.
-- **Compile path (uniform, mandatory):** `--compile --tf32` + `MTL_COMPILE_DYNAMIC=1` + ONE shared
-  `TORCHINDUCTOR_CACHE_DIR=<persistent path>`. Apply to **MTL and the STL ceilings alike** (the p1 STL-reg
-  ceiling supports `--compile/--tf32`) — mixing compiled/uncompiled confounds every paired Δ at ±0.05 pp.
-- **Memory:** dataset **auto-fit** (default) — **NEVER set `MTL_DATASET_GPU=1` for CA/TX** (forces ~31 GB
-  redundant copies → OOM). The lazy-fold + streaming fixes (PR #29) are in place.
-- **Preflight every `--per-fold-transition-dir` run:** stale-log_T freshness check (`src/data/log_t_freshness.py`).
-- Drivers: `scripts/closing_data/p3_board.sh`, `scripts/pre_freeze_gates/gated_overlap_g.sh`. torch pinned 2.11.0+cu128.
-- Provenance (C28): PID-suffixed rundirs, per-run seed echo, **commit the MTL + STL + baseline result JSONs**
-  (closes audit F3-3 — the MTL headline artifacts were missing).
-- **Per-machine branch + incremental commits + own PR** (see Process above); do **not** commit to `main`.
+- **Recipe** = champion **G / v16** (the [`../../NORTH_STAR.md`](../../NORTH_STAR.md) invocation; the exact command
+  is `scripts/pre_freeze_gates/gated_overlap_g.sh` + `--compile --tf32`) on `--engine check2hgi_dk_ovl`,
+  `geom_simple` selector, matched scorer (FULL `top10_acc`, fp32-eval, BOTH sides — `r0_matched_rescore.py`),
+  per-fold per-seed **train-only** seeded log_T.
+- **Compile path (uniform, mandatory):** `--compile --tf32` + `MTL_COMPILE_DYNAMIC=1` + ONE **per-box** persistent
+  `TORCHINDUCTOR_CACHE_DIR`. Apply to **MTL and the STL ceilings alike** (the p1 STL-reg ceiling supports
+  `--compile/--tf32`) — mixing compiled/uncompiled confounds every paired Δ at ±0.05 pp.
+- **Memory:** dataset **auto-fit** (default) — **NEVER `MTL_DATASET_GPU=1` for CA/TX** (forces ~31 GB redundant
+  copies → OOM). The lazy-fold + streaming fixes (PR #29) are in place. `MTL_CHUNK_VAL_METRIC=1` at overlap scale.
+- **Preflight every `--per-fold-transition-dir` run:** stale-log_T freshness check
+  (`src/data/log_t_freshness.py`). **Gate guard `MTL_STRICT=1`** so a stale ungated / min_seq≠10 overlap build
+  hard-fails (`folds._warn_if_ungated_overlap`).
+- **Pins:** torch **2.11.0+cu128** · the **B-A2 trap** (assert the STL ceiling is on the SAME overlap windowing) ·
+  commit the MTL + STL + baseline result JSONs (C28, closes F3-3) · seeds = 1 (seed 0) for the A/B + early cells,
+  {0,1,7,100} for the full board · δ_reg = 2 pp decision rule for the early reg cells.
 
----
+## 5 · Launch sequence (to the freeze and the board)
+1. **A100-equivalence A/B** — one FL cell, A40 vs A100, compiled+tf32, seed 0, 5f, **byte-identical command** →
+   `|Δ| ≤ ±0.05 pp` on cat macro-F1 + reg top10_acc (4 dp). Gates by-state parallelization across the two cards.
+2. **EARLY large-state reg cells** (insurance, not a stop-gate): **TX on A40**, **CA on A100** — matched B-A2 reg
+   (G-MTL FULL top10 vs STL `next_stan_flow` ceiling, BOTH on overlap), 1 seed × 5f, report **Δreg vs δ_reg=2 pp**.
+   **In parallel: the M2 Pro builds the light baseline embeddings.**
+3. **P2 FREEZE** (one commit): recipe v16 · substrate v14 6-state (hashed) · windowing = gated stride-1 overlap
+   MIN_SEQ=10 · label-space · signed RUN_MATRIX (carrying §2.5 baseline design + STATISTICAL_PROTOCOL).
+4. **P3 board** — all states × {0,1,7,100} × 5 folds, partitioned by state across A40/A100/Macs, CUDA cells
+   compiled, **committing the MTL + STL + baseline artifacts** (C28). Substrate-column (run 3) + end-to-end
+   native (run 4) baselines per RUN_MATRIX §2.5. The ONE sanctioned build+run path is
+   `scripts/closing_data/p3_board.sh` (currently behind a launch safety-stop pending 3 P3 infra fixes — see
+   DEFAULTS_AND_GUARDS).
+5. **Stats** per `STATISTICAL_PROTOCOL.md` (paired Wilcoxon superiority + TOST δ_reg=2 pp non-inferiority + Holm).
+6. **L4** second-dataset Phase V (mirror the overlap windowing).
 
-## A40
-1. **A100-equivalence A/B (A40 half) — PRIORITY.** Run ONE FL champion-G cell on the overlap engine, **seed 0,
-   5-fold, compiled+tf32**; record `cat macro-F1` + `reg top10_acc` to **4 dp**. The A100 runs the byte-identical
-   command. Pass = |Δ| ≤ **±0.05 pp** on both heads → by-state parallelization across the two CUDA cards is clean.
-2. **Early TX gated-overlap reg cell (insurance, not a stop-gate).** Build the TX overlap engine
-   (`build_overlap_probe_engine.py texas 1`), then the **matched B-A2 reg**: STL `next_stan_flow` reg ceiling
-   (overlap, compiled) + champion-G **MTL** reg (overlap, compiled, auto-fit), **1 seed × 5 folds**. Report
-   **Δreg = MTL FULL top10 − STL ceiling** vs **δ_reg = 2 pp**. (~11 h for TX MTL; freshness preflight first;
-   assert the STL ceiling is itself on overlap — the B-A2 trap.)
-3. **Post-freeze:** A40 owns its assigned states for the full board (by-state partition).
-
-## A100
-1. **A100-equivalence A/B (A100 half).** Run the **byte-identical** FL command as the A40; record to 4 dp;
-   confirm |Δ| ≤ ±0.05 pp **before** splitting the board.
-2. **Early CA gated-overlap reg cell.** CA is the largest (8501 regions) → the **most at-risk** for the δ_reg=2 pp
-   margin. Build CA overlap engine; matched B-A2 reg, 1 seed × 5 folds; report Δreg vs 2 pp.
-3. **Post-freeze:** A100 owns the heavy states (per the partition) + the heavy end-to-end baselines.
-
-## M2 Pro (MPS)
-**Build the LIGHT substrate-column baseline EMBEDDINGS** on the gated-overlap base — device-tolerant *inputs* the
-CUDA board's matched-head cells will consume (the actual comparison runs on CUDA, so MPS-built embeddings are
-safe: small fp differences are absorbed, and the comparison is head-level on one device). For each board state ×
-seed {0,1,7,100} × 5 folds, **train-only per fold, on the gated-overlap windowing** (so they match the frozen base):
-- CTLE — `python scripts/baselines/build_ctle_substrate.py …`
-- POI2Vec (faithful AAAI'17) — `scripts/baselines/build_poi2vec_substrate.py …`
-- skip-gram (B2b) — `scripts/baselines/build_b2b_skipgram_substrate.py …`
-- one-hot64 (B2c) — `scripts/baselines/build_b2c_onehot64_substrate.py …`
-MPS fp32, no compile (these are builds). **Do NOT run the matched-head COMPARISON cells on MPS** — those go on
-CUDA with the state's STL/MTL (device-class rule). *Optional:* if 32 GB + wall-time allow, own whole small states
-AL/AZ (MTL+STL+baselines all on MPS) — confirm AL/AZ overlap-MTL fits memory first.
-
----
-
-## STOP conditions
-- **A100-equiv |Δ| > ±0.05 pp** → by-state partition is mandatory; cross-GPU absolutes carry a caveat. STOP for user.
-- **TX/CA Δreg > 2 pp** → NOT a stop (overlap is adopted) but **flag for the reg-claim framing** — the paper
-  re-scopes the reg claim honestly per `EXECUTION_PLAN §12/§13` (non-inferior where it holds; the composite-reg
-  panel is a supportive fallback). Record + report.
-- Any freshness-preflight / OOM / `_warn_if_ungated_overlap` (MTL_STRICT) guard failure → STOP.
-
-## Then → P2 FREEZE → P3 board
-Once the A100-equiv is clean, the early TX/CA cells are recorded, and the `RUN_MATRIX` is signed: **P2 freeze**
-(recipe v16 · v14 6-state hashed · gated-overlap-MIN10 windowing · label-space · signed RUN_MATRIX) → **P3 board**
-(all states × {0,1,7,100} × 5 folds, partitioned by state, CUDA cells compiled, artifacts committed) → stats per
-`STATISTICAL_PROTOCOL.md` (paired Wilcoxon superiority + TOST δ_reg=2 pp non-inferiority + Holm) → L4 Phase V.
+## 6 · Shared STOP conditions
+- **A/B `|Δ| > ±0.05 pp`** → by-state partition mandatory; cross-GPU absolutes carry a caveat. STOP for user.
+- **TX/CA Δreg > 2 pp** → NOT a stop (overlap is ADOPTED) but **flag for the reg-claim framing** — the paper
+  re-scopes the reg claim honestly per EXECUTION_PLAN §12/§13 (non-inferior where it holds; the composite-reg
+  panel is the supportive fallback, never the headline). Record + report.
+- Any freshness-preflight / OOM / `_warn_if_ungated_overlap` (`MTL_STRICT=1`) / leak-safety guard failure → STOP.
+- torch ≠ 2.11.0+cu128 → STOP.
