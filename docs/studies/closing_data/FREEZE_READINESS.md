@@ -3,8 +3,8 @@
 > Created 2026-06-17 from the PR #24/#26/#27 audit (24-agent workflow). This is the durable checklist of
 > everything standing between "now" and the P2 freeze. The **gate ledger** lives in
 > [`../PRE_FREEZE_PROGRAM.md`](../PRE_FREEZE_PROGRAM.md); this doc records the audit's cross-cutting findings
-> + the per-gate open work. Execution of the GPU/prep lanes is handed to the A40 in
-> [`../HANDOFF_A40_PREFREEZE.md`](../HANDOFF_A40_PREFREEZE.md).
+> + the per-gate open work. The pre-freeze GPU/prep lanes are **DONE** (PR #28/#29); the board launch run-spec
+> for A40/A100/M2 Pro is [`HANDOFF_BOARD.md`](HANDOFF_BOARD.md).
 
 ## 1 · Gate status (post-merge)
 
