@@ -341,8 +341,14 @@ def build_one_fold(state, seed, fold, args):
              sub_dir / "region_embeddings.parquet")
 
     # downstream inputs: next.parquet + sequences_next.parquet + next_region.parquet
-    print(f"  building downstream inputs (next + sequences + next_region)...")
-    generate_next_input_from_checkins(state, CTLE_ENGINE)
+    # WINDOWING: CTLE has no windowing of its own to inherit (the §3d handoff
+    # assumption was wrong); thread --stride explicitly like the other 3 builders.
+    # --stride 1 -> gated overlap (emit_tail auto-off via _resolve_emit_tail);
+    # min_seq stays the global 5 (a proven no-op at stride-1: a full 9+1 window
+    # already needs >=10 check-ins). The contextual embeddings.parquet is
+    # windowing-INDEPENDENT (one ctx vector per check-in row) -> stays 113,846.
+    print(f"  building downstream inputs (next + sequences + next_region, stride={args.stride})...")
+    generate_next_input_from_checkins(state, CTLE_ENGINE, stride=args.stride)
     build_next_region_for(state, CTLE_ENGINE)
     n = len(IoPaths.load_next(state, CTLE_ENGINE))
     nr = len(IoPaths.load_next_region(state, CTLE_ENGINE))
@@ -367,6 +373,10 @@ def main():
     ap.add_argument("--batch-size", type=int, default=256)
     ap.add_argument("--max-len", type=int, default=64)
     ap.add_argument("--lr", type=float, default=1e-3)
+    ap.add_argument("--stride", type=int, default=None,
+                    help="window stride for next/next_region (None=stride-9 "
+                         "non-overlap default; pass 1 for the P3 gated-overlap "
+                         "board build, matching the other 3 baseline builders).")
     ap.add_argument("--smoke", action="store_true",
                     help="tiny config (2 layers/4 heads); use with --fold 0 "
                          "--pretrain-epochs 2 for a fast plumbing check")
