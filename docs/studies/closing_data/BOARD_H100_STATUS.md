@@ -53,12 +53,16 @@ satisfies the freeze-plan's "ONE frozen substrate for all lanes." **This reverts
   recomputed on the frozen overlap engine (will then be directly A40-comparable).
 
 ### Overlap engines on the FROZEN substrate (rebuild status)
-- **AL, AZ**: overlap engine + seed-0 log_T built & fresh on this box (small, safe on 14GB). ✓
+- **AL, AZ, GA**: overlap engine (gated min_seq10/stride1) + seed-0 log_T built & fresh on this box. ✓ READY.
 - **FL, CA, TX**: stale rebuilt-overlap cleared; **rebuild on the 108GB GPU box** via
   `scripts/closing_data/h100_prep_state.sh <state>` (the `next_region` build does a full in-memory `.copy()`
-  of the multi-GB overlap frame → OOMs a 14GB VM).
-- **Georgia**: BLOCKED — no canonical `check2hgi/georgia` graph, no hgi edges/poi2vec teacher (its Drive hgi
-  folder had only 3 files). Needs the canonical `check2hgi/georgia` + hgi prereqs downloaded before any GA cell.
+  of the multi-GB overlap frame → OOMs a 14GB VM). FL/CA log_T present but stale → the prep script refreshes.
+- **Georgia**: UNBLOCKED 2026-06-22 — user fixed GA in Drive; re-downloaded canonical `check2hgi/georgia`
+  (graph maps in `temp/checkin_graph.pt`, n_regions=2283) + GA hgi, both VERIFIED vs their manifests
+  (`GE_BASE_CHECK2HGI_HASH_MANIFEST.json`, `HGI_HASH_MANIFEST.json`). GA overlap + log_T now staged.
+
+### Integrity — all downloaded artifacts verified vs manifest
+- V14/design_k (6 states) ✓ · HGI (6 states) ✓ · GA canonical check2hgi (6 files) ✓.
 
 ## Scope (this lane)
 - **FL** — full cell set on the rebuilt-substrate gated-overlap engine `check2hgi_dk_ovl`: STL cat ceiling,
