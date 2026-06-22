@@ -213,6 +213,11 @@ PYTHONPATH=src .venv/bin/python scripts/closing_data/m2pro_baseline_fanout.py \
   `_warn_if_ungated_overlap` guard reads the engine sidecar's `min_sequence_length` — the
   baseline engines will report 5. This is the established lane convention (B2c + small-state
   builds are all min_seq=5); flagged so the comparison either accepts 5-at-stride-1 or restamps.
+  **⚠ Caveat (verify at comparison):** the equivalence is established by equal row *count* vs the
+  v11 `check2hgi` substrate; the row-*set* identity against the actual board base
+  `check2hgi_dk_ovl` (design-k re-windowed, NOT v11) is **inferred, not verified** here. The CUDA
+  comparison reads both sides' rows and will hard-test it — if a baseline cell's row set diverges
+  from `dk_ovl`'s, the paired Δ is invalid for that cell. (Geometry says they match; confirm.)
 - **Deliverables persistence.** Embeddings accumulate on `/tmp` (non-persistent). Migration to
   `/home` is best-effort as space frees; full `{0,1,7,100}` deliverables ≈ 78 GB and exceed
   `/home`'s post-reclaim 28 GB. The durable fix is `/dados` access — surfaced to the user.

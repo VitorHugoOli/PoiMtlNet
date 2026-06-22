@@ -162,3 +162,37 @@ Consolidated findings: `docs/studies/pre_freeze_gates/OVERLAP_BOARD_FINDINGS.md`
   MTL_COMPILE_DYNAMIC=1 + shared TORCHINDUCTOR_CACHE_DIR + cache_size_limit→64 → ~13-15% faster, 0 warmup on
   cache reuse. Board compiled path: --compile --tf32 MTL_COMPILE_DYNAMIC=1 + shared cache, applied uniformly.
 - All code on PR #29 (byte-identical + perf).
+
+## 2026-06-22 — M2 Pro lane: light SC baseline EMBEDDINGS built (PR #30, `study/board-m2pro`)
+
+**Phase**: P3 board prep — the M2 Pro (run on an M4 Pro, 24 GB / MPS) lane of `HANDOFF_BOARD_M2PRO.md`.
+Built the light substrate-column baseline embeddings (device-tolerant inputs; matched-head COMPARISON
+stays CUDA-only). Full lane log: `M2PRO_BUILD_LOG.md`; built-artifact record: `M2PRO_MANIFEST.md` (226 cells).
+
+**Built on the Mac (✅):** B2c one-hot64 6/6 states · b2b skip-gram 80/80 (AL/AZ/GA/FL) ·
+CTLE 60 (AL/AZ/GA) · POI2Vec 80/80 (AL/AZ/GA/FL). All stride-1 gated-overlap, train-only per fold.
+**Routed to A40** (>1 h/cell on the Mac, compute-bound): CTLE FL/CA/TX · POI2Vec CA/TX · b2b CA/TX
+(A40 lane live, `M2PRO_BUILD_LOG.md §9`).
+
+**3 builder defects/gaps found + fixed** (§2/§7): CTLE had **no `--stride`** → silently built stride-9
+non-overlap (12,709 vs 96,326 rows) — the §3d "inherits windowing" assumption was wrong; both CTLE+POI2Vec
+did per-batch `.item()` (MPS sync anti-pattern vs canonical `mtl_cv.py:818`) → on-device accumulation;
+POI2Vec needs per-cell scratch-staging (the §3c command was incomplete).
+
+**Stride-1 gate = NO-OP confirmed** (§1): `min_seq` 5 vs 10 identical at stride-1 (emit_tail=False geometry
+needs ≥10 check-ins anyway; AL both = 96,326). Caveat (§9d): row-*set* identity vs the design-k `check2hgi_dk_ovl`
+base is inferred from equal counts, **not** verified — the CUDA comparison hard-tests it.
+
+**3 infra incidents on the 24 GB box** (§7/§10): external SSD dropped off the bus **3×** under write load →
+fixed by `--work-dir` (heavy transient I/O to internal); CPU oversubscription at 6 workers (load 22) →
+`--threads` cap; **RAM-exhaustion crash** → `--ram-floor-gb` gate + 3 workers. FL POI2Vec finished via
+**all-internal execution** (substrate staged internal, build+handoff internal, embeddings moved back to SSD →
+zero per-cell SSD I/O). **Finding**: internal storage is a RELIABILITY win, NOT speed, for POI2Vec
+(~60 min/cell internal ≈ ~51 min SSD — it's `phi`/CBOW compute-bound) → confirms CTLE/POI2Vec-CA/TX belong on the A40.
+
+**Decision/Next**: Mac lane CONTENT-complete; flagged for audit (handoff §4.4) on PR #30. The multi-GB
+embeddings stay gitignored (manifest = the committed record, §4.3). **Orchestrator**: transfer the Mac's
+`output/board_baselines/` + `output/baseline_b2c_onehot64/` to the CUDA board for the comparison; the Mac does
+not merge/transfer. Open: train.py end-to-end *consumption* of a baseline engine dir is shape-verified only
+(plumbing smoke deferred to the orchestrator). Parked (opt-in, user-approved-conditionally): AL-ownership
+fold-1 MPS fit check.
