@@ -1,0 +1,85 @@
+{
+  "engine": "hgi",
+  "generated_utc": "2026-06-22T04:44:01+00:00",
+  "recipe": "dim=64 epoch=2000 lr=0.006 warmup=40 w_r=0.7 device=cpu (build_catx_hgi.sh / build_ge_hgi_train.sh / build_hgi.py)",
+  "states": {
+    "alabama": {
+      "engine": "hgi",
+      "files": {
+        "embeddings.parquet": {
+          "bytes": 4415484,
+          "sha256": "a5eb976932b0d79a8ad4a4abf8dfc3c8a22bd9eeada667f9b041b399b2c92474"
+        },
+        "region_embeddings.parquet": {
+          "bytes": 420288,
+          "sha256": "9c3af479663748ed111743375de86e43d5ccb2bc8f40727b59d3e2a9a3a95d23"
+        }
+      }
+    },
+    "arizona": {
+      "engine": "hgi",
+      "files": {
+        "embeddings.parquet": {
+          "bytes": 7829022,
+          "sha256": "12c39a0822e85e90847754c57802792106d07b27a86174c6494ba30f46279a76"
+        },
+        "region_embeddings.parquet": {
+          "bytes": 573676,
+          "sha256": "e1966f9515a053c7a6026009e269e7eaf2612e29c7e495f52e03113d0292d8bd"
+        }
+      }
+    },
+    "florida": {
+      "engine": "hgi",
+      "files": {
+        "embeddings.parquet": {
+          "bytes": 29334191,
+          "sha256": "7aa8505c322986238a2e19e12a59ccb0b50df007f56aa3a9abd3b50533d30edf"
+        },
+        "region_embeddings.parquet": {
+          "bytes": 1754342,
+          "sha256": "77b673e9feb83d74584ef8ac93aaa57d2e175ae0cb7bc83383c2842a73020e6a"
+        }
+      }
+    },
+    "california": {
+      "engine": "hgi",
+      "files": {
+        "embeddings.parquet": {
+          "bytes": 65930062,
+          "sha256": "7b6da912c6347137c0d0829678ccf640f8bae3d29ebc537e2b5b5b7b8f842a70"
+        },
+        "region_embeddings.parquet": {
+          "bytes": 3203794,
+          "sha256": "fbfdab330d9bc481e00da3984d9c45ab49588ebaf375cc41d52e8d160f0ae053"
+        }
+      }
+    },
+    "texas": {
+      "engine": "hgi",
+      "files": {
+        "embeddings.parquet": {
+          "bytes": 62704131,
+          "sha256": "3f73229cca563b9c2d127bbfde8ae61f7de8a490194a6ca98701f05d0caa3d0f"
+        },
+        "region_embeddings.parquet": {
+          "bytes": 2422511,
+          "sha256": "9f802f627ed5f9f5f71b4e273673b85354cbf2e5606f277a7ad2dbe38cee267a"
+        }
+      }
+    },
+    "georgia": {
+      "engine": "hgi",
+      "files": {
+        "embeddings.parquet": {
+          "bytes": 11211821,
+          "sha256": "8f025b286215f656fa2f317924aff6cacc62d169baf9eaec89717dc553eb5fdc"
+        },
+        "region_embeddings.parquet": {
+          "bytes": 849254,
+          "sha256": "1d7521fef46136e41d7e06413e8762732b35aed0568042bef63d0b5811b5151a"
+        }
+      }
+    }
+  }
+}
