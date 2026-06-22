@@ -582,7 +582,29 @@ def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
     model = model.to(DEVICE)
     if _P1_USE_COMPILE and DEVICE.type == "cuda":
         # Match the MTL champion's --compile (kernel fusion); CUDA-only, fp-non-identical.
-        model = torch.compile(model)
+        # Mirror mtl_cv.py: the head is compiled in a TRAIN (grad) and an EVAL (no-grad)
+        # variant + several batch-shape variants (overlap folds differ in size + the
+        # partial last batch). The default dynamo cache_size_limit=8 is easily exceeded
+        # → SILENT EAGER FALLBACK (the uniform ~770s/fold seen on the H100 board run,
+        # ~2x the A40). Raise the limit and (MTL_COMPILE_DYNAMIC=1) use one symbolic-shape
+        # graph so every variant stays compiled. Pure speed; no numeric change beyond the
+        # compiled-vs-eager fp-ordering noise the --compile rule already accepts.
+        import os as _os
+        try:
+            import torch._dynamo as _dyn
+            _lim = int(_os.environ.get("MTL_COMPILE_CACHE_LIMIT", "64"))
+            _dyn.config.cache_size_limit = max(_dyn.config.cache_size_limit, _lim)
+            if hasattr(_dyn.config, "recompile_limit"):
+                _dyn.config.recompile_limit = max(_dyn.config.recompile_limit, _lim)
+        except Exception:
+            pass
+        _ckw = {}
+        if _os.environ.get("MTL_COMPILE_DYNAMIC") == "1":
+            _ckw["dynamic"] = True
+        _cmode = _os.environ.get("MTL_COMPILE_MODE")
+        if _cmode:
+            _ckw["mode"] = _cmode
+        model = torch.compile(model, **_ckw)
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=0.01)
     steps_per_epoch = len(train_dl)
