@@ -8,8 +8,7 @@
 set -uo pipefail
 REPO=/teamspace/studios/this_studio/PoiMtlNet; cd "$REPO"; export PYTHONPATH=src
 PY=python
-export MTL_CHUNK_VAL_METRIC=1
-export P1_CHUNK_VAL_METRIC=1              # p1 STL-reg ceiling: CPU val-metric (avoids ~18.5GB GPU logit cat at C=8501)
+export MTL_CHUNK_VAL_METRIC=1            # for Cell B (MTL) S2 chunked val; explicitly unset for Cell A below
 export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"
 export OMP_NUM_THREADS=24
 export MTL_STRICT=1
@@ -22,7 +21,10 @@ L=/tmp/h100_board; mkdir -p "$L"
 
 # ---------- Cell A: STL reg ceiling (next_stan_flow a0) on OVERLAP ----------
 stl_log="$L/ca_stl_reg_s${SD}.log"
-echo "[$(date '+%F %T')] CA Cell A — STL reg ceiling (next_stan_flow a0) on $OVL, compiled+tf32"
+# H100 is GPU-rich (80GB) / host-RAM-tight (108GB): keep the 19.9GB val-logit cat ON THE GPU
+# (P1_S2_AUTO_BUDGET_GB=30 > 19.9; unset the chunk flags for THIS cell) — faster + frees host RAM.
+echo "[$(date '+%F %T')] CA Cell A — STL reg ceiling (next_stan_flow a0) on $OVL, compiled+tf32 (GPU val path)"
+env -u MTL_CHUNK_VAL_METRIC -u P1_CHUNK_VAL_METRIC P1_S2_AUTO_BUDGET_GB=30 \
 $PY -u scripts/p1_region_head_ablation.py --state "$ST" --heads next_stan_flow \
     --input-type region --region-emb-source "$V14" \
     --override-hparams freeze_alpha=True alpha_init=0.0 \
