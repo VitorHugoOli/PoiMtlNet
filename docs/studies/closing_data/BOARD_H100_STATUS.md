@@ -33,7 +33,32 @@ substrate+device-class footnote for the H100-owned states.
 
 ## Substrate provenance (rebuilt here)
 `V14_REBUILD_H100_PROVENANCE.json` records the rebuilt FL+CA hashes (all `matches_frozen: false`, by design).
-This file is the source-of-truth substrate fingerprint for all `study/board-h100` cells.
+
+## ⭐ UPDATE 2026-06-22 — SWITCHED TO THE FROZEN v14 SUBSTRATE (supersedes own-states)
+The user provided the frozen v14 + hgi via Drive. Downloaded with `scripts/phase3_download_drive.py`
+(direct-requests downloader — sidesteps gdown's confirm-interstitial/rate-limit failures) and **verified:
+all 6 states' frozen `{embeddings,poi,region}.parquet` match `V14_HASH_MANIFEST.json` exactly**.
+
+**Why we switched away from the rebuilt substrate:** the rebuilt embeddings are distributionally equivalent
+(mean/std/row-norm match) and downstream-equivalent (FL STL reg ceiling 76.77 vs A40 76.71, +0.05pp), BUT
+per-POI **cosine(frozen, rebuilt) ≈ 0.02** — an arbitrary rotation (independent unsupervised GNN runs share
+geometry, not basis). So a rebuilt-substrate MTL run is *not the same experiment* as the A40's. Using the
+**frozen** substrate makes every H100 cell byte-identical-input to the A40 → a clean arch-only A/B, and
+satisfies the freeze-plan's "ONE frozen substrate for all lanes." **This reverts the own-states decision.**
+
+- Frozen v14 installed for **all 6 states** → `output/check2hgi_design_k_resln_mae_l0_1/<state>/` (verified).
+- HGI copied for all states → `output/hgi/<state>/` (georgia partial — see below).
+- Rebuilt embeddings archived at `output/_h100_rebuilt_v14_archive/{florida,california}/`.
+- **FL ceilings computed on the rebuilt substrate (cat 75.46 / reg 76.77) are SUPERSEDED** — must be
+  recomputed on the frozen overlap engine (will then be directly A40-comparable).
+
+### Overlap engines on the FROZEN substrate (rebuild status)
+- **AL, AZ**: overlap engine + seed-0 log_T built & fresh on this box (small, safe on 14GB). ✓
+- **FL, CA, TX**: stale rebuilt-overlap cleared; **rebuild on the 108GB GPU box** via
+  `scripts/closing_data/h100_prep_state.sh <state>` (the `next_region` build does a full in-memory `.copy()`
+  of the multi-GB overlap frame → OOMs a 14GB VM).
+- **Georgia**: BLOCKED — no canonical `check2hgi/georgia` graph, no hgi edges/poi2vec teacher (its Drive hgi
+  folder had only 3 files). Needs the canonical `check2hgi/georgia` + hgi prereqs downloaded before any GA cell.
 
 ## Scope (this lane)
 - **FL** — full cell set on the rebuilt-substrate gated-overlap engine `check2hgi_dk_ovl`: STL cat ceiling,
