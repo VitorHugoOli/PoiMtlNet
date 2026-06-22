@@ -74,7 +74,7 @@ def main():
         "reg_full_top10_mean": round(rm, 4), "reg_full_top10_std": round(rs, 4), "reg_per_fold": [round(x, 4) for x in reg_full], "reg_best_epochs": reg_eps,
         "n_folds": rn,
     }
-    sidecar = rundir / "a40_matched_score.json"
+    sidecar = rundir / "h100_matched_score.json"
     sidecar.write_text(json.dumps(out, indent=2))
     print(f"  wrote {sidecar}")
 
