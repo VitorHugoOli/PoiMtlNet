@@ -118,13 +118,22 @@ prone. On a GPU it's minutes. So per the handoff's intended split:
 - **POI2Vec** — small states (AL/AZ/GA) building; **FL** to build here (medium).
 - **CTLE** — small states ✅ (AL/AZ/GA 60/80).
 
-**→ HAND TO A40 (user decision 2026-06-22 — Mac gives up CTLE entirely):**
-- **CTLE for FL, CA, TX** — all seeds×folds. Build on the A40 GPU via
-  `build_ctle_substrate.py --stride 1 --device cuda` on the gated-overlap base
-  (the `--stride` + `--device` fixes are committed); leak-clean per fold; reuse the
-  frozen check2hgi fold split. (AL/AZ/GA CTLE are already built here = valid
+**→ HAND TO A40 (user decision 2026-06-22 — anything >1 h on the Mac goes to A40):**
+- **CTLE for FL, CA, TX** — all seeds×folds. `build_ctle_substrate.py --stride 1 --device cuda`
+  on the gated-overlap base (the `--stride` + `--device` fixes are committed); leak-clean per
+  fold; reuse the frozen check2hgi fold split. (AL/AZ/GA CTLE already built here = valid
   device-tolerant inputs; A40 only needs FL/CA/TX — or rebuild all 6 for uniformity.)
-- **POI2Vec for CA, TX** — heavy CBOW build; candidate for A40 too (assess on Mac first).
+- **POI2Vec for CA, TX** — measured **~66 min/cell (CA) / ~85 min/cell (TX)** on the Mac
+  (>1 h PER CELL) → A40. `build_poi2vec_substrate.py <state> --seed S --fold F --n-splits 5
+  --epochs 30 --embed-dim 64 --user-dim 64 --theta 0.05 --route-count 4 --context-window 9
+  --loss-form mixture --stride 1 --device cuda` (per-cell scratch OUTPUT_DIR + frozen-stage,
+  see §2 gap-1 / the smoke script). On-device-accumulation fix is committed (helps CUDA too).
+- **b2b skip-gram for CA, TX** — ~12 min (CA) / ~15 min (TX) per cell, ~4–5 h each batch
+  (>1 h) → A40. `build_b2b_skipgram_substrate.py --state <st> --seed S --fold F --n-splits 5
+  --epochs 5 --dim 64 --stride 1 --device cuda` (namespaced dir; no staging needed).
+
+**MAC keeps (all <1 h/cell):** POI2Vec **AL/AZ/GA/FL** (running, CPU-parallel) — AL ~140s,
+AZ ~256s, GA ~8min, FL ~29min per cell.
 
 ### MPS finding (why CTLE is NOT worth keeping on the Mac)
 Audited + made the builders MPS-correct (CTLE `--device` auto-MPS; **on-device loss
@@ -140,5 +149,6 @@ data confirmed on-device). But MPS does **not** rescue large-state CTLE:
   captures it); never run ad-hoc MPS jobs alongside the managed CPU fan-out (that drove
   RAM to 23 % and tripped a build guard).
 
-**MAC NOW: finish POI2Vec (AL/AZ/GA/FL, CPU-parallel, running) + b2b CA/TX (light).**
+**MAC NOW (final scope): finish POI2Vec AL/AZ/GA/FL (CPU-parallel, running).** Everything
+else (CTLE FL/CA/TX, POI2Vec CA/TX, b2b CA/TX) is >1 h on the Mac → A40.
 **STILL PARKED:** AL-ownership fold-1 MPS fit check (opt-in; AL v14 substrate present).
