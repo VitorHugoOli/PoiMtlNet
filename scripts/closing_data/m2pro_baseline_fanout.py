@@ -60,6 +60,28 @@ def free_gb(path: Path) -> float:
     return st.f_bavail * st.f_frsize / (1024 ** 3)
 
 
+def avail_ram_gb() -> float:
+    """Available system RAM in GB; +inf if psutil can't answer (don't gate on a
+    failed probe — macOS psutil intermittently raises under pressure)."""
+    try:
+        import psutil
+        return psutil.virtual_memory().available / (1024 ** 3)
+    except Exception:
+        return float("inf")
+
+
+def wait_for_ram(floor_gb: float, tag: str, stop) -> None:
+    """Block until available RAM >= floor (concurrent builds each hold GB-scale
+    data; dispatching a new one under low RAM crashed the box). Caps the wait so
+    a wrong estimate can't deadlock — proceeds after ~120 s."""
+    waited = 0
+    while avail_ram_gb() < floor_gb and not stop.is_set() and waited < 120:
+        if waited == 0:
+            print(f"{tag}  WAIT-RAM (avail {avail_ram_gb():.1f} GB < {floor_gb} GB)", flush=True)
+        time.sleep(5)
+        waited += 5
+
+
 def stage_scratch(state: str, scratch: Path) -> None:
     """Replicate the smoke-script staging: copy the frozen reads the builder OVERWRITES
     (embeddings/next/sequences), symlink the read-only ones (region/graph)."""
@@ -163,9 +185,13 @@ def main():
                          "(e.g. /private/tmp/board_work) to spare a flaky external "
                          "SSD — only the small final embeddings are written to the "
                          "external handoff. Frozen check2hgi is READ from OUTPUT.")
-    ap.add_argument("--threads", type=int, default=2,
+    ap.add_argument("--threads", type=int, default=3,
                     help="threads per build (torch/BLAS). Tune so workers*threads ~= "
-                         "physical cores; default 2 (6 workers x 2 = 12 cores).")
+                         "physical cores; default 3 (4 workers x 3 = 12 cores).")
+    ap.add_argument("--ram-floor-gb", type=float, default=5.0,
+                    help="a build waits before launching until this much RAM is free "
+                         "(concurrent builds each hold GB-scale data; low RAM crashed "
+                         "the box). Raise for big-state poi2vec/ctle.")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
@@ -211,6 +237,9 @@ def main():
         scratch = (work / f"{b}_{st}_s{sd}_f{fd}") if b in STAGED else None
         t0 = time.time()
         try:
+            wait_for_ram(args.ram_floor_gb, tag, stop)
+            if stop.is_set():
+                return
             if scratch is not None:
                 if scratch.exists():
                     shutil.rmtree(scratch)
