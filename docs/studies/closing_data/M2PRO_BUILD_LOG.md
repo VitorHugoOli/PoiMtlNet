@@ -118,10 +118,27 @@ prone. On a GPU it's minutes. So per the handoff's intended split:
 - **POI2Vec** — small states (AL/AZ/GA) building; **FL** to build here (medium).
 - **CTLE** — small states ✅ (AL/AZ/GA 60/80).
 
-**→ HAND TO CUDA (GPU = minutes; the matched COMPARISON is CUDA-only anyway):**
-- **CTLE for FL, CA, TX** — all seeds×folds (the ~68 h CPU wall). Build via
-  `build_ctle_substrate.py --stride 1` on the gated-overlap base (the `--stride` fix
-  is committed); leak-clean per fold; reuse the frozen check2hgi fold split.
-- **POI2Vec for CA, TX** — heavy CBOW build at 2.9M/3.8M check-ins; offload alongside CTLE.
+**→ HAND TO A40 (user decision 2026-06-22 — Mac gives up CTLE entirely):**
+- **CTLE for FL, CA, TX** — all seeds×folds. Build on the A40 GPU via
+  `build_ctle_substrate.py --stride 1 --device cuda` on the gated-overlap base
+  (the `--stride` + `--device` fixes are committed); leak-clean per fold; reuse the
+  frozen check2hgi fold split. (AL/AZ/GA CTLE are already built here = valid
+  device-tolerant inputs; A40 only needs FL/CA/TX — or rebuild all 6 for uniformity.)
+- **POI2Vec for CA, TX** — heavy CBOW build; candidate for A40 too (assess on Mac first).
 
+### MPS finding (why CTLE is NOT worth keeping on the Mac)
+Audited + made the builders MPS-correct (CTLE `--device` auto-MPS; **on-device loss
+accumulation, no per-batch `.item()` sync** — matches canonical `mtl_cv.py:818`;
+data confirmed on-device). But MPS does **not** rescue large-state CTLE:
+- **Single GPU → cannot parallelize cells**; the CPU path runs 3–4 in parallel.
+- Small transformer (4-layer, bs 256) → MPS per-op overhead eats the gain
+  (**AL CTLE: 40 s MPS ≈ 52 s CPU**; clean FL ≈ ~28–32 min/cell, ~2–3× per-cell only).
+- Net **MPS-serial ≈ CPU-parallel** in throughput → ~50–60 h either way. So large-state
+  CTLE goes to the A40 (real datacenter GPU); the Mac's many-small-cell batches stay
+  **CPU-parallel** (better throughput than MPS-serial). MPS only wins for a *single* big cell.
+- Unified-memory caveat: MPS shares the 24 GB system RAM (the `psutil` RAM-floor gate
+  captures it); never run ad-hoc MPS jobs alongside the managed CPU fan-out (that drove
+  RAM to 23 % and tripped a build guard).
+
+**MAC NOW: finish POI2Vec (AL/AZ/GA/FL, CPU-parallel, running) + b2b CA/TX (light).**
 **STILL PARKED:** AL-ownership fold-1 MPS fit check (opt-in; AL v14 substrate present).
