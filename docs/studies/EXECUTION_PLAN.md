@@ -392,3 +392,30 @@ across device-classes** (MPS fp32 vs CUDA tf32+compile differ well beyond the ±
 If CA/TX blow the 2 pp margin under overlap: (a) re-scope honestly ("non-inferior at AL/AZ/FL/GE; within X pp at
 CA/TX"), or (b) the 2-model composite reg panel (SUPPORTIVE only — forfeits the single-model property, never the
 headline).
+
+## 14 · Board results + the reg-base decision (2026-06-22) — DECISION C
+
+**Board WIP (seed 0, gated overlap, frozen v14, compiled+tf32; PRs #30/#31/#32):** FL Δcat **+3.37** / Δreg
+**−1.29** (H100; A40 MTL cat 79.01 / reg 75.50). **Cross-GPU (A40 vs H100, SAME frozen v14): reg robust
+(Δ0.08 pp) but cat diverges 0.49 pp** (Ampere vs Hopper + compile) → **by-state partition MANDATORY, vindicated
+by data** (never compare cat *absolutes* across GPUs). **TX Δreg −2.41 (EXCEEDS δ_reg=2 pp).** **CA pending**
+(H100 Lightning studio interrupted, exit 137 — needs restart; FS survived). Cat beats everywhere.
+
+**DECISION (user, 2026-06-22) = C: gated overlap STAYS the headline base; RE-SCOPE the reg claim.** The reg gap
+is **cardinality-dependent** (FL 4703 reg −1.3 ✅ → TX 6553 −2.4 ✗ → CA 8501 pending/likely-worse). The reg
+claim is therefore **NOT flat parity** — it is:
+> *MTL is non-inferior on region (TOST δ=2 pp) at the ≤~5k-region states (AL/AZ/FL/GE) and trails by ~2.4–3 pp
+> at the largest (TX/CA) — a cost that grows with region cardinality — while beating the category ceiling +3–4
+> pp everywhere, in a single model.*
+The cat win is the robust headline; the reg side is a **cardinality-binned non-inferiority + an honest
+large-state cost** (mechanism: dense-data overlap lifts the STL reg ceiling more than MTL at high region
+counts). ⇒ update `STATISTICAL_PROTOCOL.md §3` (the reg TOST is **per-state / cardinality-binned**, not pooled)
++ the netcore C2 reg prose (provisional → finalized at M4). (Note: the non-overlap base would have given a flat
+clean Pareto −0.09…−0.31; the user chose overlap for methodological cleanliness + the dense-data argument,
+accepting the cardinality-binned reg framing.)
+
+**Next:** (1) **restart the H100 → run CA** (confirms the trend; most-at-risk reg cell); (2) **p3_board.sh fix**
+(the 3 blockers → build via `build_overlap_probe_engine.py` [separate engine, no frozen clobber] + stride/
+engine-aware next_region + log_T); (3) **M4 disk policy** = keep embeddings + provenance, regen next/next_region
+on CUDA; (4) PRs #30/#31/#32 stay WIP until CA + a cleanup pass. Then **P2 freeze** (windowing = gated-overlap
+MIN_SEQ=10) → **P3 board**.
