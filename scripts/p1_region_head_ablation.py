@@ -38,6 +38,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 import pickle as pkl
 import sys
 import time
@@ -625,11 +626,35 @@ def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
 
         # Val
         model.eval()
+        # S2-analog for the STL ceiling (OOM_MEMORY_FIX.md): at large-C overlap scale the
+        # full val logit [N_val, C] OOMs the GPU on torch.cat (TX overlap: ~18.7GB at 6553
+        # regions; CA worse). compute_classification_metrics already chunks internally and is
+        # device-agnostic (operates on the input's device; rank-of-target uses strict `>`), so
+        # accumulating the val logits on CPU and scoring there is BYTE-IDENTICAL to the GPU path
+        # for the rank-based metrics (top-k/MRR/NDCG) — validated on AL. The dataset stays on
+        # GPU; only the val logits move, so the 18.7GB GPU cat is removed entirely. Auto-enable
+        # when the full val logit would exceed a GPU budget, or via MTL_CHUNK_VAL_METRIC /
+        # P1_CHUNK_VAL_METRIC; else keep the GPU path so small-state / frozen p1 numbers are untouched.
+        _val_logit_gb = (len(x_val) * n_classes * 4) / 1e9
+        _chunk_val = (
+            os.environ.get("MTL_CHUNK_VAL_METRIC", "").strip() in ("1", "true", "True")
+            or os.environ.get("P1_CHUNK_VAL_METRIC", "").strip() in ("1", "true", "True")
+            or _val_logit_gb > float(os.environ.get("P1_S2_AUTO_BUDGET_GB", "4"))
+        )
+        if _chunk_val and epoch == 0:
+            logger.info(
+                "[p1 S2] scoring val metric on CPU (full val logit ~= %.1f GB, N_val=%d x C=%d) "
+                "to avoid GPU OOM at overlap scale — byte-identical for rank-based metrics",
+                _val_logit_gb, len(x_val), n_classes,
+            )
         all_logits, all_targets = [], []
         with torch.no_grad():
             for x_batch, y_batch in val_dl:
-                out = model(x_batch)
-                all_logits.append(out.detach())
+                out = model(x_batch).detach()
+                if _chunk_val:
+                    out = out.cpu()
+                    y_batch = y_batch.cpu()
+                all_logits.append(out)
                 all_targets.append(y_batch)
 
         logits = torch.cat(all_logits)
