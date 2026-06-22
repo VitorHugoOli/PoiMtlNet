@@ -227,7 +227,10 @@ def train_poi2vec(ctx_idx, ctx_len, tgt_idx, usr_idx, n_poi, n_user, poi_xy,
     model.train()
     for ep in range(epochs):
         perm = torch.randperm(n)
-        tot, nb = 0.0, 0
+        # Accumulate on-device — NO per-batch .item() (it forces a CPU<->GPU sync
+        # that serializes MPS/CUDA). Canonical: src/training/runners/mtl_cv.py:818.
+        tot = torch.zeros((), device=device)
+        nb = 0
         t0 = time.time()
         for s in range(0, n, batch_size):
             bi = perm[s:s + batch_size]
@@ -235,13 +238,13 @@ def train_poi2vec(ctx_idx, ctx_len, tgt_idx, usr_idx, n_poi, n_user, poi_xy,
             mb = mask[bi].to(device)
             tb = tgt[bi].to(device)
             ub = usr[bi].to(device)
-            opt.zero_grad()
+            opt.zero_grad(set_to_none=True)
             loss = model.forward_nll(cb, mb, tb, ub)
             loss.backward()
             opt.step()
-            tot += loss.item()
+            tot += loss.detach()
             nb += 1
-        print(f"    epoch {ep+1}/{epochs}: loss={tot/max(nb,1):.4f} ({time.time()-t0:.1f}s)")
+        print(f"    epoch {ep+1}/{epochs}: loss={(tot/max(nb,1)).item():.4f} ({time.time()-t0:.1f}s)")
     return model.export_table()
 
 

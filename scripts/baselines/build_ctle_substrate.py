@@ -220,7 +220,12 @@ def pretrain_and_embed(state, seed, fold, df, train_userids, val_userids,
     rng = np.random.default_rng(seed)
     for ep in range(pretrain_epochs):
         rng.shuffle(order)
-        tot = mlm_t = mh_t = 0.0
+        # Accumulate on-device — NO per-batch .item() (each .item() forces a
+        # CPU<->GPU sync that serializes the MPS/CUDA pipeline). Canonical pattern:
+        # src/training/runners/mtl_cv.py:818. We sync once per epoch for the log.
+        tot = torch.zeros((), device=device)
+        mlm_t = torch.zeros((), device=device)
+        mh_t = torch.zeros((), device=device)
         nb = 0
         for bs in range(0, len(order), batch_size):
             batch = [train_trajs[j] for j in order[bs:bs + batch_size]]
@@ -229,13 +234,13 @@ def pretrain_and_embed(state, seed, fold, df, train_userids, val_userids,
             masked, mlm_tgt, mh_tgt, _sel = build_mlm_mh_batch(
                 loc, hr_i, vocab_size, cfg.mask_ratio, gen)
             total, mlm_l, mh_l = model(masked, hr_f, mlm_tgt, mh_tgt, _sel)
-            opt.zero_grad()
+            opt.zero_grad(set_to_none=True)
             total.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             opt.step()
-            tot += total.item(); mlm_t += mlm_l.item(); mh_t += mh_l.item(); nb += 1
-        print(f"    epoch {ep+1}/{pretrain_epochs}  loss={tot/nb:.4f} "
-              f"mlm={mlm_t/nb:.4f} mh={mh_t/nb:.4f}")
+            tot += total.detach(); mlm_t += mlm_l.detach(); mh_t += mh_l.detach(); nb += 1
+        print(f"    epoch {ep+1}/{pretrain_epochs}  loss={(tot/nb).item():.4f} "
+              f"mlm={(mlm_t/nb).item():.4f} mh={(mh_t/nb).item():.4f}")
 
     # ---- emit: run frozen encoder over ALL trajectories (no masking) ----
     model.eval()
