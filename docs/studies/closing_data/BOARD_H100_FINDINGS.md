@@ -9,7 +9,31 @@ filesystem survived** — rebuilt v14 substrates (FL+CA), gated-overlap engines 
 FL STL-ceiling results are all intact. **Resume requires restarting the H100 studio** (see Resume below).
 > Operational note: stopping this studio detaches the GPU but keeps `/teamspace/studios/this_studio`.
 
-## Results so far (seed 0, 5 folds, gated-overlap `check2hgi_dk_ovl`, compiled+tf32)
+## ⭐ CURRENT STATE (2026-06-22, frozen v14 substrate — supersedes the rebuilt-substrate results below)
+Board switched to the **frozen v14 substrate** (verified == V14_HASH_MANIFEST for all 6 states). FL+CA cells
+re-run on frozen. Studio restarted 3× (~every 5h); FL Task 1 finished + committed before the 3rd restart; CA
+recovered via p1 checkpoint resume.
+
+**HANDOFF_BOARD_A100 — Task 1 (FL) ✅ COMPLETE** (frozen v14, seed 0, 5f, H100 compiled+tf32):
+| FL | STL ceiling | MTL | Δ | vs A40 (same frozen substrate) |
+|---|---|---|---|---|
+| cat macro-F1 | 75.147 | 78.517 | **+3.37** (beats) | MTL −0.49 |
+| reg FULL top10 | 76.712 | 75.422 | **−1.29** (within δ_reg=2pp) | MTL −0.08; ceiling 76.7123 vs 76.7138 (−0.0015) |
+
+Device-internal Δreg −1.29 reproduces the A40's −1.21 (systematic ~−1.2 gated-overlap reg gap). Reg
+cross-arch reproduction is ~exact; cat MTL −0.49 is fold-std + volatile cat best-epoch ([8,8,43,20,9]).
+Result JSON: `docs/results/closing_data/h100/florida_s0_board.json`.
+
+**Task 2 (CA) — IN PROGRESS:**
+- STL reg ceiling ✅ **63.4848 ± 0.31** (full top10, 8501 regions; per-fold 63.25/63.45/63.38/63.33/64.02).
+  Resumed cleanly from a 3-fold checkpoint after the restart. `docs/results/P1/region_head_california_..._s0.json`.
+- CA champion-G MTL 🔄 running (~80 s/epoch → ~5.6 h, GPU-resident). **Risk: 5.6 h > ~5 h restart cadence** →
+  may be killed before finishing; train.py MTL does NOT auto-resume → mitigated by per-fold partial snapshots
+  (`california_s0_mtl_partial.json`) so a partial Δreg (≥2-3 folds) survives. Δreg vs δ_reg=2pp at completion.
+
+---
+
+## Results so far (seed 0, 5 folds, gated-overlap `check2hgi_dk_ovl`, compiled+tf32) — REBUILT-substrate, superseded
 
 ### FL — A40 (frozen substrate) vs H100 (rebuilt substrate)
 | FL cell | A40 frozen | H100 rebuilt | Δ |
