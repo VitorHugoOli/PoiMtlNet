@@ -4,7 +4,7 @@
 > `output/`). Regenerate with `scripts/closing_data/m2pro_manifest.py`. All cells are
 > stride-1 gated-overlap, train-only per fold (leak-marker asserted by the builder).
 
-**Total built cells: 189**
+**Total built cells: 219**
 
 ## Counts (built / expected)
 
@@ -13,7 +13,7 @@
 | b2c_onehot64 | 1/1 | 1/1 | 1/1 | 1/1 | 1/1 | 1/1 |
 | b2b | 20/20 | 20/20 | 20/20 | 20/20 | — | — |
 | ctle | 20/20 | 20/20 | 20/20 | — | — | — |
-| poi2vec | 20/20 | 20/20 | 3/20 | — | — | — |
+| poi2vec | 20/20 | 20/20 | 20/20 | 13/20 | — | — |
 
 ## Cells
 
@@ -205,6 +205,36 @@
 | poi2vec | arizona | 7 | 2 | 236,450 | 35.5 | 1 | 5 | ✓ |
 | poi2vec | arizona | 7 | 3 | 236,450 | 35.5 | 1 | 5 | ✓ |
 | poi2vec | arizona | 7 | 4 | 236,450 | 35.5 | 1 | 5 | ✓ |
+| poi2vec | florida | 0 | 0 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
+| poi2vec | florida | 0 | 1 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
+| poi2vec | florida | 0 | 2 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
+| poi2vec | florida | 0 | 3 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
+| poi2vec | florida | 0 | 4 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
+| poi2vec | florida | 1 | 0 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
+| poi2vec | florida | 1 | 1 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
+| poi2vec | florida | 1 | 2 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
+| poi2vec | florida | 1 | 3 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
+| poi2vec | florida | 1 | 4 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
+| poi2vec | florida | 7 | 0 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
+| poi2vec | florida | 7 | 1 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
+| poi2vec | florida | 7 | 2 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
 | poi2vec | georgia | 0 | 0 | 402,581 | 59.9 | 1 | 5 | ✓ |
 | poi2vec | georgia | 0 | 1 | 402,581 | 59.9 | 1 | 5 | ✓ |
 | poi2vec | georgia | 0 | 2 | 402,581 | 59.9 | 1 | 5 | ✓ |
+| poi2vec | georgia | 0 | 3 | 402,581 | 59.9 | 1 | 5 | ✓ |
+| poi2vec | georgia | 0 | 4 | 402,581 | 59.9 | 1 | 5 | ✓ |
+| poi2vec | georgia | 100 | 0 | 402,581 | 59.9 | 1 | 5 | ✓ |
+| poi2vec | georgia | 100 | 1 | 402,581 | 59.9 | 1 | 5 | ✓ |
+| poi2vec | georgia | 100 | 2 | 402,581 | 59.9 | 1 | 5 | ✓ |
+| poi2vec | georgia | 100 | 3 | 402,581 | 59.9 | 1 | 5 | ✓ |
+| poi2vec | georgia | 100 | 4 | 402,581 | 59.9 | 1 | 5 | ✓ |
+| poi2vec | georgia | 1 | 0 | 402,581 | 59.9 | 1 | 5 | ✓ |
+| poi2vec | georgia | 1 | 1 | 402,581 | 59.9 | 1 | 5 | ✓ |
+| poi2vec | georgia | 1 | 2 | 402,581 | 59.9 | 1 | 5 | ✓ |
+| poi2vec | georgia | 1 | 3 | 402,581 | 59.9 | 1 | 5 | ✓ |
+| poi2vec | georgia | 1 | 4 | 402,581 | 59.9 | 1 | 5 | ✓ |
+| poi2vec | georgia | 7 | 0 | 402,581 | 59.9 | 1 | 5 | ✓ |
+| poi2vec | georgia | 7 | 1 | 402,581 | 59.9 | 1 | 5 | ✓ |
+| poi2vec | georgia | 7 | 2 | 402,581 | 59.9 | 1 | 5 | ✓ |
+| poi2vec | georgia | 7 | 3 | 402,581 | 59.9 | 1 | 5 | ✓ |
+| poi2vec | georgia | 7 | 4 | 402,581 | 59.9 | 1 | 5 | ✓ |
