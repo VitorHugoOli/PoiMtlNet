@@ -221,6 +221,15 @@ is the B-A2 windowing-match; add `--compile --tf32` for the board recipe):
     --tag tx_ovl_stl_reg_s0
 # reads the AGGREGATE line: Acc@10 = STL reg ceiling (FULL top10_acc, fp32). This IS the B-A2 ceiling — on overlap.
 ```
+> 🛑 **p1 STL-ceiling OOM at large-C overlap — FIXED 2026-06-22 (commit `61a7e0fd`).** p1
+> `_train_single_task` materialised the FULL val logit `[N_val, C]` on the GPU (`torch.cat`) before
+> scoring → OOM on the A40 at TX overlap (~18.7 GB / 6553 regions; CA worse). MTL got S1/S2
+> (`OOM_MEMORY_FIX.md`); the STL ceiling never did. The fix is the S2-analog: when the full val logit
+> would exceed a GPU budget (or under **`MTL_CHUNK_VAL_METRIC=1`** — already in the §3 board env — or
+> `P1_CHUNK_VAL_METRIC=1`), p1 accumulates val logits on **CPU** and scores there (dataset stays on GPU).
+> Identical at reporting precision (unit-tested CPU vs CUDA ≤ 4.66e-10 on rank metrics; the STL ceiling
+> is a within-device comparand, not the cross-GPU A/B). Small-state/frozen p1 runs keep the GPU path
+> (auto-gate, `P1_S2_AUTO_BUDGET_GB` default 4). **No action needed — the board env triggers it.**
 
 **Champion-G MTL on TX overlap** — same command as §3c with `--state texas` (~11 h; auto-fit; NEVER
 `MTL_DATASET_GPU=1`). Then:
