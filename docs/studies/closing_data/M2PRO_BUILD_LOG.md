@@ -152,3 +152,67 @@ data confirmed on-device). But MPS does **not** rescue large-state CTLE:
 **MAC NOW (final scope): finish POI2Vec AL/AZ/GA/FL (CPU-parallel, running).** Everything
 else (CTLE FL/CA/TX, POI2Vec CA/TX, b2b CA/TX) is >1 h on the Mac → A40.
 **STILL PARKED:** AL-ownership fold-1 MPS fit check (opt-in; AL v14 substrate present).
+
+---
+
+## 9 · A40 lane pickup (2026-06-22) — the heavy cells handed off in §8
+
+A40 box (`study/board-m2pro` worktree at `/home/vitor.oliveira/PoiMtlNet-board-m2pro`,
+running against the MAIN repo `/home/vitor.oliveira/PoiMtlNet`). Picking up the §8 hand-off:
+**CTLE FL/CA/TX + POI2Vec CA/TX + b2b CA/TX**, full `{0,1,7,100}` × 5 folds (140 cells),
+`--device cuda`, gated stride-1, train-only per fold.
+
+### 9a · Feasibility (verified before launch)
+- **GPU — fits.** A40 46 GB; the other lane's TX champion-G MTL run (board-a40 Task 2,
+  PID 595258) holds ~23 GB and is on fold 4/5. The baseline builds are small. Per the A40
+  "GPU cells strictly serial" rule, the CUDA fan-out **waits for that run to finish** rather
+  than confound its timed insurance cell. torch pinned `2.11.0+cu128` ✔.
+- **DISK — the §4 blocker, resolved by routing.** `/home` was at 97 % / 12 GB free; `/dados`
+  (2.4 TB) is **not accessible** to this user (group `dados`, permission denied). Decision
+  (user, 2026-06-22): **free `/home` + build on `/tmp` (80 GB on `/`) + migrate finished
+  embeddings back to `/home` as space frees.**
+  - Freed **16.1 GB** on `/home` → 28 GB: deleted the regennable `check2hgi_dk_ovl/california`
+    `next.parquet`+`next_region.parquet` (CA is the A100's lane, unused on this box; breadcrumb
+    `RECLAIMED_README.txt` + `build_overlap_probe_engine.py california 1` to regen).
+  - Build buffer: `--work-dir /tmp/board_work` (transient next/next_region spikes, ~9 GB CA /
+    ~21 GB TX per cell, trimmed per cell) + `--handoff-dir /tmp/board_baselines` (kept
+    embeddings). `/home` is only READ (frozen substrate via `--output-root`), never filled by
+    a build.
+
+### 9b · Driver changes (committed this PR)
+The fan-out driver was CPU-only and pinned to the checkout's own `output/`. Added `--device`
+(cuda, threaded to all three builders), `--output-root` (read frozen substrate + write
+deliverables to the MAIN repo `output/` while running from the worktree), `--handoff-dir`
+(route embeddings to `/tmp`, migrate later). Fixed a pre-existing `--dry-run` NameError
+(`fg`→`fg_ext`). M2 Pro CPU path unchanged (defaults preserve prior behavior). The worktree
+`.venv` is a gitignored symlink to the main repo venv.
+
+**Validated:** `--help`, full-{0,1,7,100} CTLE dry-run (60 cells, main-repo output read), one
+real AL b2b CPU cell end-to-end (28 s → embeddings + provenance + leak marker in `/tmp` →
+migrated to repo `output/` → removed as a throwaway plumbing test).
+
+### 9c · Launch command (run once the GPU frees)
+```bash
+cd /home/vitor.oliveira/PoiMtlNet-board-m2pro
+PYTHONPATH=src .venv/bin/python scripts/closing_data/m2pro_baseline_fanout.py \
+    --baselines ctle poi2vec b2b \
+    --states florida california texas \   # CTLE wants FL+CA+TX; b2b/poi2vec only CA/TX (filter per §8)
+    --seeds 0 1 7 100 --folds 0 1 2 3 4 \
+    --device cuda \
+    --output-root /home/vitor.oliveira/PoiMtlNet/output \
+    --handoff-dir /tmp/board_baselines --work-dir /tmp/board_work \
+    --workers 1 --threads 24 --disk-floor-gb 15
+```
+> NOTE: b2b/poi2vec are CA/TX only (FL stays on the Mac per §8); run CTLE (FL/CA/TX) and
+> b2b/poi2vec (CA/TX) as separate invocations so the state lists stay correct.
+
+### 9d · Open notes for the orchestrator (comparison step, CUDA-only)
+- **min_seq=5 vs board's 10.** All baseline builds carry `min_sequence_length=5` (global
+  default); §1 proved this a **no-op at stride-1** (geometry → identical rows to min_seq=10).
+  Row-alignment holds. If the matched-head comparison runs `train.py` with `MTL_STRICT=1`, the
+  `_warn_if_ungated_overlap` guard reads the engine sidecar's `min_sequence_length` — the
+  baseline engines will report 5. This is the established lane convention (B2c + small-state
+  builds are all min_seq=5); flagged so the comparison either accepts 5-at-stride-1 or restamps.
+- **Deliverables persistence.** Embeddings accumulate on `/tmp` (non-persistent). Migration to
+  `/home` is best-effort as space frees; full `{0,1,7,100}` deliverables ≈ 78 GB and exceed
+  `/home`'s post-reclaim 28 GB. The durable fix is `/dados` access — surfaced to the user.
