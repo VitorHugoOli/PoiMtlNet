@@ -70,6 +70,26 @@ the **v11 dir** is the hardwired source (`IoPaths.CHECK2HGI`, code-level, not ju
 The trainer log_T *consumer* is engine-flexible (reads from `--per-fold-transition-dir`), so a *re-train*
 of an already-staged cell no longer needs v11 — but any *new* state/seed log_T or label/fold build does.
 
+## 4b · Are the baselines "built on v11"? — NO (verified 2026-06-22)
+
+Natural worry: the CTLE / POI2Vec / b2b builders read `output/check2hgi/<state>/embeddings.parquet`
+(v11). **They use it ONLY for checkin metadata + row order** (`userid, placeid, category, datetime`),
+to which they align their OWN from-scratch embeddings — they never consume v11's 64-d vectors
+(`build_b2b_skipgram_substrate.py:90` "Read the FROZEN check2hgi … for row order"; the builder then
+overwrites the 64 vector columns). Because v11 and v14 are the SAME checkins, this is equivalent to
+staging from v14.
+
+Empirical proof (`embeddings.parquet`, AL + FL):
+- **Metadata rows byte-identical** v11 vs v14: AL = 113,846 rows, FL = 1,407,034 rows; every
+  `userid/placeid/category/datetime` equal in the same order (`True`).
+- **Embedding vectors differ** (mean |v11−v14| = 1.27 AL / 0.33 FL on col 0) → genuinely different
+  substrates; the baselines replace the vector columns with their own.
+
+**Conclusion: no v11 contamination.** The baselines are validly row-aligned to the v14 board — the
+checkin/fold/region structure is substrate-independent and identical across v11/v14, so staging from
+v11 ≡ staging from v14. No change needed (and the region-label / fold / log_T producers are
+CHECK2HGI-hardwired regardless — §4 — so v11 stays the structural backbone either way).
+
 ## 5 · Disk-deletion verdict
 
 | Target | Size | Verdict | Why |
