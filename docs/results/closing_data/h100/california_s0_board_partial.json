@@ -1,17 +1,18 @@
 {
   "state": "california",
   "seed": 0,
-  "status": "PARTIAL (1/5 folds)",
+  "status": "PARTIAL (2/5 folds)",
   "substrate": "frozen v14",
   "stl_reg_ceiling_full_top10": 63.4848,
-  "mtl_reg_full_top10_partial": 58.1417,
-  "mtl_cat_macro_f1_partial": 73.9331,
-  "delta_reg_partial": -5.3431,
+  "mtl_reg_full_top10_partial": 58.2592,
+  "mtl_cat_macro_f1_partial": 74.7189,
+  "delta_reg_partial": -5.2256,
   "reg_per_fold": [
-    58.1417
+    58.1417,
+    58.3766
   ],
   "cat_per_fold": [
-    73.9331
-  ],
-  "note": "CA MTL in progress; partial seed-0 de-risk. Full 5f \u0394reg pending."
+    73.9331,
+    75.5047
+  ]
 }
