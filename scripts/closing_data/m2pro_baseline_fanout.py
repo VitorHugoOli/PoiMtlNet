@@ -54,6 +54,11 @@ STAGED = {"poi2vec", "ctle"}
 # workers * THREADS ~= physical cores (avoids torch/BLAS oversubscription).
 THREADS = "2"
 
+# Compute device for the sub-builders. Default "cpu" (the M2 Pro lane). The A40
+# lane overrides to "cuda" via --device (the heavy CTLE/POI2Vec/b2b CA/TX/FL cells
+# handed off per M2PRO_BUILD_LOG.md §8). Set in main from --device.
+DEVICE = "cpu"
+
 
 def free_gb(path: Path) -> float:
     st = os.statvfs(path)
@@ -120,7 +125,7 @@ def builder_cmd(baseline: str, state: str, seed: int, fold: int, scratch: Path |
         argv = [PY, "scripts/baselines/build_b2b_skipgram_substrate.py",
                 "--state", state, "--seed", str(seed), "--fold", str(fold),
                 "--n-splits", "5", "--epochs", "5", "--dim", "64",
-                "--stride", "1", "--device", "cpu",
+                "--stride", "1", "--device", DEVICE,
                 "--read-output-dir", str(OUTPUT)]
         native = work / f"b2b_skipgram_s{seed}_f{fold}" / state
     elif baseline == "poi2vec":
@@ -129,14 +134,14 @@ def builder_cmd(baseline: str, state: str, seed: int, fold: int, scratch: Path |
                 "--seed", str(seed), "--fold", str(fold), "--n-splits", "5",
                 "--epochs", "30", "--embed-dim", "64", "--user-dim", "64",
                 "--theta", "0.05", "--route-count", "4", "--context-window", "9",
-                "--loss-form", "mixture", "--stride", "1", "--device", "cpu"]
+                "--loss-form", "mixture", "--stride", "1", "--device", DEVICE]
         native = scratch / "check2hgi" / state
     elif baseline == "ctle":
         env["OUTPUT_DIR"] = str(scratch)
         argv = [PY, "scripts/baselines/build_ctle_substrate.py",
                 "--state", state, "--seed", str(seed), "--fold", str(fold),
                 "--pretrain-epochs", "10", "--batch-size", "256", "--max-len", "64",
-                "--lr", "1e-3", "--stride", "1"]
+                "--lr", "1e-3", "--stride", "1", "--device", DEVICE]
         native = scratch / "check2hgi_ctle" / state
     else:
         raise ValueError(baseline)
@@ -169,6 +174,7 @@ def keep_and_trim(baseline, state, seed, fold, native: Path):
 
 
 def main():
+    global THREADS, DEVICE, OUTPUT, HANDOFF
     ap = argparse.ArgumentParser()
     ap.add_argument("--baselines", nargs="+", default=["b2b", "poi2vec", "ctle"])
     ap.add_argument("--states", nargs="+", required=True)
@@ -193,11 +199,27 @@ def main():
                     help="a build waits before launching until this much RAM is free "
                          "(concurrent builds each hold GB-scale data; low RAM crashed "
                          "the box). Raise for big-state poi2vec/ctle.")
+    ap.add_argument("--device", default="cpu",
+                    help="compute device for the sub-builders. 'cpu' = M2 Pro lane; "
+                         "'cuda' = A40 lane (the heavy CTLE/POI2Vec/b2b CA/TX/FL cells "
+                         "handed off per M2PRO_BUILD_LOG.md §8).")
+    ap.add_argument("--output-root", default=str(OUTPUT),
+                    help="root that holds the frozen check2hgi substrate (READ) and "
+                         "receives the deliverables (default = this checkout's output/). "
+                         "On the A40 the driver runs from the worktree but must read/write "
+                         "the MAIN repo's output/, so point this there.")
+    ap.add_argument("--handoff-dir", default=None,
+                    help="where the kept embeddings.parquet land "
+                         "(default <output-root>/board_baselines). On a tight disk point "
+                         "this at a scratch volume (e.g. /tmp/board_baselines) and migrate "
+                         "to the repo output/ as space frees.")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
-    global THREADS
     THREADS = str(args.threads)
+    DEVICE = args.device
+    OUTPUT = Path(args.output_root)
+    HANDOFF = Path(args.handoff_dir) if args.handoff_dir else (OUTPUT / "board_baselines")
 
     work = Path(args.work_dir)
     work.mkdir(parents=True, exist_ok=True)
@@ -232,7 +254,7 @@ def main():
             stop.set()
             return
         if args.dry_run:
-            print(f"{tag}  (dry-run)  free={fg:.1f} GB", flush=True)
+            print(f"{tag}  (dry-run)  free={fg_ext:.1f} GB", flush=True)
             return
 
         scratch = (work / f"{b}_{st}_s{sd}_f{fd}") if b in STAGED else None
