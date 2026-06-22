@@ -149,8 +149,8 @@ data confirmed on-device). But MPS does **not** rescue large-state CTLE:
   captures it); never run ad-hoc MPS jobs alongside the managed CPU fan-out (that drove
   RAM to 23 % and tripped a build guard).
 
-**MAC NOW (final scope): finish POI2Vec AL/AZ/GA/FL (CPU-parallel, running).** Everything
-else (CTLE FL/CA/TX, POI2Vec CA/TX, b2b CA/TX) is >1 h on the Mac → A40.
+**MAC SCOPE: POI2Vec AL/AZ/GA/FL — ✅ COMPLETE (see §10).** Everything else
+(CTLE FL/CA/TX, POI2Vec CA/TX, b2b CA/TX) is >1 h on the Mac → A40.
 **STILL PARKED:** AL-ownership fold-1 MPS fit check (opt-in; AL v14 substrate present).
 
 ---
@@ -216,3 +216,29 @@ PYTHONPATH=src .venv/bin/python scripts/closing_data/m2pro_baseline_fanout.py \
 - **Deliverables persistence.** Embeddings accumulate on `/tmp` (non-persistent). Migration to
   `/home` is best-effort as space frees; full `{0,1,7,100}` deliverables ≈ 78 GB and exceed
   `/home`'s post-reclaim 28 GB. The durable fix is `/dados` access — surfaced to the user.
+
+---
+
+## 10 · MAC LANE COMPLETE (2026-06-22) — 226 cells; all-internal FL finish
+**Mac lane done** (`M2PRO_MANIFEST.md`, 226 cells): B2c 6/6 · b2b 80/80 (AL/AZ/GA/FL) ·
+CTLE 60 (AL/AZ/GA) · POI2Vec 80/80 (AL/AZ/GA/FL).
+
+**FL POI2Vec finished via all-internal execution** (the external SSD dropped off the bus a
+**3rd** time under FL load). Pattern: copy the frozen FL substrate → internal
+(`/private/tmp/fl_src`, one-time ~1.1 GB SSD read), run with `--output-root /private/tmp/fl_src
+--work-dir /private/tmp/board_work --handoff-dir /private/tmp/board_baselines` (reads + scratch
++ handoff ALL internal → **zero per-cell SSD I/O**), then move the embeddings internal→SSD
+(the single SSD write). SSD touched exactly twice (one read, one write) — the failing drive
+can't be triggered by the build load.
+
+**Finding — internal storage is a RELIABILITY win, NOT a speed win for POI2Vec.** Measured FL
+POI2Vec ≈ **~60 min/cell on internal ≈ ~51 min on the SSD** (3-way). POI2Vec is compute-bound
+on the overlap-area `phi` step (O(POIs); 76,544 POIs at FL) + CBOW build — NOT I/O-bound (the
+30 training epochs are ~5 min total, ~10 s/epoch). Consequence for the A40-routed cells:
+- **CTLE** (transformer pretrain, compute-bound) and **POI2Vec CA/TX** (more POIs → slower
+  `phi`) stay >1 h/cell → **A40** — internal storage would not rescue them.
+- Only **b2b CA/TX** is I/O-bound (the stride-1 next-build) and would benefit from internal,
+  but it's trivial on the A40 GPU and already queued there.
+
+**STILL ON A40:** CTLE FL/CA/TX · POI2Vec CA/TX · b2b CA/TX.
+**STILL PARKED:** AL-ownership fold-1 MPS fit check (opt-in).

@@ -4,7 +4,7 @@
 > `output/`). Regenerate with `scripts/closing_data/m2pro_manifest.py`. All cells are
 > stride-1 gated-overlap, train-only per fold (leak-marker asserted by the builder).
 
-**Total built cells: 219**
+**Total built cells: 226**
 
 ## Counts (built / expected)
 
@@ -13,7 +13,7 @@
 | b2c_onehot64 | 1/1 | 1/1 | 1/1 | 1/1 | 1/1 | 1/1 |
 | b2b | 20/20 | 20/20 | 20/20 | 20/20 | — | — |
 | ctle | 20/20 | 20/20 | 20/20 | — | — | — |
-| poi2vec | 20/20 | 20/20 | 20/20 | 13/20 | — | — |
+| poi2vec | 20/20 | 20/20 | 20/20 | 20/20 | — | — |
 
 ## Cells
 
@@ -210,6 +210,11 @@
 | poi2vec | florida | 0 | 2 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
 | poi2vec | florida | 0 | 3 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
 | poi2vec | florida | 0 | 4 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
+| poi2vec | florida | 100 | 0 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
+| poi2vec | florida | 100 | 1 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
+| poi2vec | florida | 100 | 2 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
+| poi2vec | florida | 100 | 3 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
+| poi2vec | florida | 100 | 4 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
 | poi2vec | florida | 1 | 0 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
 | poi2vec | florida | 1 | 1 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
 | poi2vec | florida | 1 | 2 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
@@ -218,6 +223,8 @@
 | poi2vec | florida | 7 | 0 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
 | poi2vec | florida | 7 | 1 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
 | poi2vec | florida | 7 | 2 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
+| poi2vec | florida | 7 | 3 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
+| poi2vec | florida | 7 | 4 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
 | poi2vec | georgia | 0 | 0 | 402,581 | 59.9 | 1 | 5 | ✓ |
 | poi2vec | georgia | 0 | 1 | 402,581 | 59.9 | 1 | 5 | ✓ |
 | poi2vec | georgia | 0 | 2 | 402,581 | 59.9 | 1 | 5 | ✓ |
