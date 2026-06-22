@@ -110,6 +110,7 @@ def builder_cmd(baseline: str, state: str, seed: int, fold: int, scratch: Path |
     # per-cell time explodes). With THREADS_PER_BUILD set so workers*threads ~= cores,
     # each build gets a fair slice and net throughput scales.
     env = dict(os.environ, PYTHONPATH="src", MTL_RAM_HEADROOM_GB="2",
+               PYTHONUNBUFFERED="1",  # else epoch prints block-buffer to the log file
                OMP_NUM_THREADS=THREADS, MKL_NUM_THREADS=THREADS,
                OPENBLAS_NUM_THREADS=THREADS, VECLIB_MAXIMUM_THREADS=THREADS,
                NUMEXPR_NUM_THREADS=THREADS, PYTORCH_NUM_THREADS=THREADS)
