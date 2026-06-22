@@ -188,7 +188,13 @@ def _collate(trajs, max_len: int):
 def pretrain_and_embed(state, seed, fold, df, train_userids, val_userids,
                        embed_dim=64, max_len=64, pretrain_epochs=10,
                        batch_size=256, lr=1e-3, device=None, smoke=False):
-    device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+    if device is None:
+        if torch.cuda.is_available():
+            device = "cuda"
+        elif torch.backends.mps.is_available():
+            device = "mps"  # Apple GPU: CTLE transformer pretrain is ~CPU-bound otherwise
+        else:
+            device = "cpu"
     placeid_to_loc, vocab_size = _build_vocab(df)
     cfg = CTLEConfig(vocab_size=vocab_size, embed_dim=embed_dim,
                      max_len=max_len,
@@ -320,6 +326,7 @@ def build_one_fold(state, seed, fold, args):
         embed_dim=64, max_len=args.max_len,
         pretrain_epochs=args.pretrain_epochs,
         batch_size=args.batch_size, lr=args.lr, smoke=args.smoke,
+        device=args.device,
     )
 
     # write substrate embeddings.parquet (metadata cols + CTLE ctx cols).
@@ -377,6 +384,10 @@ def main():
                     help="window stride for next/next_region (None=stride-9 "
                          "non-overlap default; pass 1 for the P3 gated-overlap "
                          "board build, matching the other 3 baseline builders).")
+    ap.add_argument("--device", default=None,
+                    help="cuda / mps / cpu. Default: auto (cuda > mps > cpu). On a "
+                         "Mac, mps (Apple GPU) is FAR faster than cpu for the "
+                         "transformer pretrain. Embeddings are device-tolerant inputs.")
     ap.add_argument("--smoke", action="store_true",
                     help="tiny config (2 layers/4 heads); use with --fold 0 "
                          "--pretrain-epochs 2 for a fast plumbing check")
