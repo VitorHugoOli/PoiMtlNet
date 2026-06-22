@@ -53,7 +53,9 @@ $PY scripts/train.py --task mtl --task-set check2hgi_next_region --engine "$OVL"
     --canon none --compile --tf32 \
     --per-fold-transition-dir "output/$V14/$ST" --no-checkpoints > "$mtl_log" 2>&1 &
 pid=$!; wait "$pid"; rc=$?; [ $rc -ne 0 ] && { echo "Cell B FAIL rc=$rc"; tail -30 "$mtl_log"; exit $rc; }
-MTL_RD=$(ls -d results/$OVL/$ST/mtlnet_*ep${EP}_*_${pid} 2>/dev/null | head -1)
+# rundir by most-recent-of-prefix within the state dir (the /commands/python wrapper makes
+# $! != the python PID, so the PID-suffix glob is unreliable on this box). State+prefix segregated.
+MTL_RD=$(ls -dt results/$OVL/$ST/mtlnet_*ep${EP}_* 2>/dev/null | head -1)
 echo "$MTL_RD" > "$L/ca_mtl_s${SD}.rundir"
 echo "[$(date '+%F %T')] CA Cell B DONE — MTL rundir: ${MTL_RD:-<not found; see $mtl_log>}"
 
