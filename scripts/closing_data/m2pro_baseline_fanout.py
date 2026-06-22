@@ -50,6 +50,10 @@ PY = str(REPO / ".venv" / "bin" / "python")
 # Builders that use the non-namespaced CHECK2HGI probe-engine -> need staged scratch.
 STAGED = {"poi2vec", "ctle"}
 
+# Per-build thread cap (string for env). Set in main from --threads so
+# workers * THREADS ~= physical cores (avoids torch/BLAS oversubscription).
+THREADS = "2"
+
 
 def free_gb(path: Path) -> float:
     st = os.statvfs(path)
@@ -79,7 +83,14 @@ def builder_cmd(baseline: str, state: str, seed: int, fold: int, scratch: Path |
     the builder writes embeddings.parquet. All heavy transient writes (native dir /
     scratch) land under ``work`` (set to internal disk to spare a flaky external SSD);
     the frozen check2hgi substrate is READ from the external OUTPUT root."""
-    env = dict(os.environ, PYTHONPATH="src", MTL_RAM_HEADROOM_GB="2")
+    # Cap per-build thread pools: torch/BLAS otherwise each grab ALL cores, so N
+    # concurrent torch builds (ctle/poi2vec) oversubscribe badly (load >> ncpu,
+    # per-cell time explodes). With THREADS_PER_BUILD set so workers*threads ~= cores,
+    # each build gets a fair slice and net throughput scales.
+    env = dict(os.environ, PYTHONPATH="src", MTL_RAM_HEADROOM_GB="2",
+               OMP_NUM_THREADS=THREADS, MKL_NUM_THREADS=THREADS,
+               OPENBLAS_NUM_THREADS=THREADS, VECLIB_MAXIMUM_THREADS=THREADS,
+               NUMEXPR_NUM_THREADS=THREADS, PYTORCH_NUM_THREADS=THREADS)
     if baseline == "b2b":
         # OUTPUT_DIR -> work (writes land internal); read frozen substrate from OUTPUT.
         env["OUTPUT_DIR"] = str(work)
@@ -152,8 +163,14 @@ def main():
                          "(e.g. /private/tmp/board_work) to spare a flaky external "
                          "SSD — only the small final embeddings are written to the "
                          "external handoff. Frozen check2hgi is READ from OUTPUT.")
+    ap.add_argument("--threads", type=int, default=2,
+                    help="threads per build (torch/BLAS). Tune so workers*threads ~= "
+                         "physical cores; default 2 (6 workers x 2 = 12 cores).")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
+
+    global THREADS
+    THREADS = str(args.threads)
 
     work = Path(args.work_dir)
     work.mkdir(parents=True, exist_ok=True)
