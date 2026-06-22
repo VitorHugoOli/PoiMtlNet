@@ -87,9 +87,41 @@ s<seed>_f<fold>/`, disk-floor=18 GB stop, resumable). Validated on 3 AL cells
 5f × 3 baselines = **240 cells** (`/tmp/fanout_small.log`). Serial to avoid the RAM
 contention that killed a concurrent TX build on the 24 GB box.
 
-**DEFERRED (need headroom / a decision):**
-- **CA + TX heavy fan-out** — run AFTER the small batch (RAM) with disk monitoring;
-  user chose "free disk first" — ~92 GB free now (my own regennable builds reclaimed),
-  CA+TX × 3 heavy baselines ≈ 60–70 GB embeddings-only.
-- **AL-ownership fold-1 fit check** (opt-in: run AL's STL+MTL on MPS too) — AL v14
-  design_k substrate present, so feasible; run when the box has headroom.
+## 7 · Hardening after three infra incidents (2026-06-22) + driver knobs
+The fan-out exposed three independent failure modes on this 24 GB Mac; each fixed:
+1. **External SSD dropped off the bus twice under sustained write load** (Errno 5,
+   then full unmount). Fix: **`--work-dir`** routes ALL heavy transient writes
+   (b2b native via `--read-output-dir`, POI2Vec/CTLE scratch, logs) to the **internal**
+   disk; only the small final embeddings are written to the external handoff. Disk-floor
+   now guards **both** disks. (Commit `0ce0aa10`.)
+2. **CPU oversubscription** — at `--workers 6` each torch build grabbed all 12 cores
+   (load avg ~22, ctle cell 176s→1438s). Fix: **`--threads`** pins OMP/MKL/OpenBLAS/torch
+   so `workers*threads ≈ cores`. (Commit `466dd228`.)
+3. **RAM exhaustion → box crash** — 6 concurrent builds × GB-scale data (poi2vec CBOW
+   examples / ctle ~6.6 GB) blew 24 GB. Fix: **`--ram-floor-gb`** gate (a build waits
+   before launch until N GB free) + memory-safe defaults **3 workers × 4 threads**.
+   (Commit `211bdc87`.) Plus **`PYTHONUNBUFFERED`** so long builds don't *look* hung
+   (their epoch prints were block-buffered to the log). (Commit … unbuffered.)
+All commits are pushed; build artefacts are regennable, so nothing was lost across
+the incidents — only wall-time.
+
+## 8 · DEVICE SPLIT (user decision 2026-06-22): Mac = light, CUDA = heavy CTLE
+**Measured wall:** CTLE has **no GPU path on this Mac** (its code only knows cuda/cpu;
+MPS unsafe for its RNG) and uses **~1 core effectively** on CPU → **~110 min + 6.6 GB
+RAM per Florida cell**; large-state CTLE (FL+CA+TX × 20) ≈ **~68 h babysat**, RAM/crash-
+prone. On a GPU it's minutes. So per the handoff's intended split:
+
+**MAC OWNS (light / feasible) — building here:**
+- **B2c one-hot64** — ✅ all 6 states.
+- **b2b skip-gram** — small states ✅ (80/80); **CA/TX to build here** (b2b is light;
+  next-build churn goes to the internal work-dir).
+- **POI2Vec** — small states (AL/AZ/GA) building; **FL** to build here (medium).
+- **CTLE** — small states ✅ (AL/AZ/GA 60/80).
+
+**→ HAND TO CUDA (GPU = minutes; the matched COMPARISON is CUDA-only anyway):**
+- **CTLE for FL, CA, TX** — all seeds×folds (the ~68 h CPU wall). Build via
+  `build_ctle_substrate.py --stride 1` on the gated-overlap base (the `--stride` fix
+  is committed); leak-clean per fold; reuse the frozen check2hgi fold split.
+- **POI2Vec for CA, TX** — heavy CBOW build at 2.9M/3.8M check-ins; offload alongside CTLE.
+
+**STILL PARKED:** AL-ownership fold-1 MPS fit check (opt-in; AL v14 substrate present).
