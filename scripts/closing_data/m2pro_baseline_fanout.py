@@ -37,7 +37,9 @@ import os
 import shutil
 import subprocess
 import sys
+import threading
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent.parent
@@ -135,6 +137,10 @@ def main():
     ap.add_argument("--folds", nargs="+", type=int, default=[0, 1, 2, 3, 4])
     ap.add_argument("--disk-floor-gb", type=float, default=18.0,
                     help="abort before a cell if free space < this (CA/TX spike ~9 GB)")
+    ap.add_argument("--workers", type=int, default=1,
+                    help="concurrent cells (each build uses ~2 cores / ~1-2 GB at small "
+                         "states). 1=serial. Keep low (1-2) for CA/TX (~9 GB transient "
+                         "spike/cell + heavier I/O).")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
@@ -146,21 +152,28 @@ def main():
           f"seeds={args.seeds} folds={args.folds}) ===", flush=True)
     print(f"    disk free={free_gb(OUTPUT):.1f} GB  floor={args.disk_floor_gb} GB", flush=True)
 
-    done = skipped = failed = 0
-    for i, (b, st, sd, fd) in enumerate(cells, 1):
+    state = {"done": 0, "skipped": 0, "failed": 0}
+    lock = threading.Lock()
+    stop = threading.Event()
+
+    def run_cell(i, b, st, sd, fd):
         tag = f"[{i}/{len(cells)}] {b}/{st} s{sd} f{fd}"
         hd_emb = HANDOFF / b / st / f"s{sd}_f{fd}" / "embeddings.parquet"
         if hd_emb.exists():
             print(f"{tag}  SKIP (handoff exists)", flush=True)
-            skipped += 1
-            continue
+            with lock:
+                state["skipped"] += 1
+            return
+        if stop.is_set():
+            return
         fg = free_gb(OUTPUT)
         if fg < args.disk_floor_gb:
             print(f"{tag}  STOP: disk {fg:.1f} GB < floor {args.disk_floor_gb} GB", flush=True)
-            break
+            stop.set()
+            return
         if args.dry_run:
             print(f"{tag}  (dry-run)  free={fg:.1f} GB", flush=True)
-            continue
+            return
 
         scratch = (OUTPUT / "_scratch" / f"{b}_{st}_s{sd}_f{fd}") if b in STAGED else None
         t0 = time.time()
@@ -178,17 +191,36 @@ def main():
                                    stderr=subprocess.STDOUT)
             if r.returncode != 0:
                 print(f"{tag}  FAIL (exit {r.returncode}) — see {log}", flush=True)
-                failed += 1
-                continue
+                with lock:
+                    state["failed"] += 1
+                return
             keep_and_trim(b, st, sd, fd, native)
+        except Exception as e:  # never let one cell kill the pool
+            print(f"{tag}  FAIL ({type(e).__name__}: {e})", flush=True)
+            with lock:
+                state["failed"] += 1
+            return
         finally:
             if scratch is not None and scratch.exists():
                 shutil.rmtree(scratch)
-        done += 1
+        with lock:
+            state["done"] += 1
         print(f"{tag}  OK  {time.time()-t0:.0f}s  free={free_gb(OUTPUT):.1f} GB", flush=True)
 
-    print(f"=== fan-out end: done={done} skipped={skipped} failed={failed} "
-          f"free={free_gb(OUTPUT):.1f} GB ===", flush=True)
+    if args.workers <= 1:
+        for i, (b, st, sd, fd) in enumerate(cells, 1):
+            if stop.is_set():
+                break
+            run_cell(i, b, st, sd, fd)
+    else:
+        print(f"    parallel: {args.workers} workers", flush=True)
+        with ThreadPoolExecutor(max_workers=args.workers) as ex:
+            futs = [ex.submit(run_cell, i, *c) for i, c in enumerate(cells, 1)]
+            for _ in as_completed(futs):
+                pass
+
+    print(f"=== fan-out end: done={state['done']} skipped={state['skipped']} "
+          f"failed={state['failed']} free={free_gb(OUTPUT):.1f} GB ===", flush=True)
 
 
 if __name__ == "__main__":
