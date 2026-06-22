@@ -21,13 +21,12 @@ L=/tmp/h100_board; mkdir -p "$L"
 
 # ---------- Cell A: STL reg ceiling (next_stan_flow a0) on OVERLAP ----------
 stl_log="$L/ca_stl_reg_s${SD}.log"
-# CA STL-reg val materialization is ~63GB on GPU (logit list 19.9 + cat 18.5 + dataset 6.7 + model)
-# → does NOT fit alongside FL-MTL even MTL-only (18+63=81>80; OOM'd twice). CPU-val it is: ~40GB cat
-# on host, which fits when FL is STEADY (dataset GPU-resident → ~90GB host free). The earlier CPU-val
-# OOM was only during FL's 3-cell LOAD spike, now past. Metric is PATH-INVARIANT (advisory-confirmed:
-# GPU vs CPU give identical integer topk), so CPU-val does not bias the reg ceiling.
-echo "[$(date '+%F %T')] CA Cell A — STL reg ceiling (next_stan_flow a0) on $OVL, compiled+tf32 (CPU val; FL steady)"
-P1_CHUNK_VAL_METRIC=1 \
+# CA STL-reg auto-RESUMES from its per-fold checkpoint (p1 resume=True). With FL DONE the GPU is
+# free, so GPU-val (P1_S2_AUTO_BUDGET_GB=30 > 19.9) fits the ~63GB val materialization ALONE on the
+# 80GB H100 and is ~3x faster per fold than CPU-val. Path-invariant metric (advisory) → the GPU-val
+# remaining folds combine cleanly with the CPU-val folds already in the checkpoint.
+echo "[$(date '+%F %T')] CA Cell A — STL reg ceiling (next_stan_flow a0) on $OVL, compiled+tf32 (GPU val; FL done, resumes from ckpt)"
+env -u MTL_CHUNK_VAL_METRIC -u P1_CHUNK_VAL_METRIC P1_S2_AUTO_BUDGET_GB=30 \
 $PY -u scripts/p1_region_head_ablation.py --state "$ST" --heads next_stan_flow \
     --input-type region --region-emb-source "$V14" \
     --override-hparams freeze_alpha=True alpha_init=0.0 \
