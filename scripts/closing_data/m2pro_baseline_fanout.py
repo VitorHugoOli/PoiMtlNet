@@ -73,17 +73,22 @@ def stage_scratch(state: str, scratch: Path) -> None:
         link.symlink_to((real / sub / name if sub else real / name).resolve())
 
 
-def builder_cmd(baseline: str, state: str, seed: int, fold: int, scratch: Path | None):
+def builder_cmd(baseline: str, state: str, seed: int, fold: int, scratch: Path | None,
+                work: Path):
     """Return (argv, env, native_engine_dir) for one cell. native_engine_dir is where
-    the builder writes embeddings.parquet (scratch for staged builders)."""
+    the builder writes embeddings.parquet. All heavy transient writes (native dir /
+    scratch) land under ``work`` (set to internal disk to spare a flaky external SSD);
+    the frozen check2hgi substrate is READ from the external OUTPUT root."""
     env = dict(os.environ, PYTHONPATH="src", MTL_RAM_HEADROOM_GB="2")
-    base = [PY, ]
     if baseline == "b2b":
+        # OUTPUT_DIR -> work (writes land internal); read frozen substrate from OUTPUT.
+        env["OUTPUT_DIR"] = str(work)
         argv = [PY, "scripts/baselines/build_b2b_skipgram_substrate.py",
                 "--state", state, "--seed", str(seed), "--fold", str(fold),
                 "--n-splits", "5", "--epochs", "5", "--dim", "64",
-                "--stride", "1", "--device", "cpu"]
-        native = OUTPUT / f"b2b_skipgram_s{seed}_f{fold}" / state
+                "--stride", "1", "--device", "cpu",
+                "--read-output-dir", str(OUTPUT)]
+        native = work / f"b2b_skipgram_s{seed}_f{fold}" / state
     elif baseline == "poi2vec":
         env["OUTPUT_DIR"] = str(scratch)
         argv = [PY, "scripts/baselines/build_poi2vec_substrate.py", state,
@@ -141,16 +146,25 @@ def main():
                     help="concurrent cells (each build uses ~2 cores / ~1-2 GB at small "
                          "states). 1=serial. Keep low (1-2) for CA/TX (~9 GB transient "
                          "spike/cell + heavier I/O).")
+    ap.add_argument("--work-dir", default=str(OUTPUT / "_scratch"),
+                    help="root for ALL heavy transient writes (b2b native dir, "
+                         "POI2Vec/CTLE scratch, logs). Point at an internal disk "
+                         "(e.g. /private/tmp/board_work) to spare a flaky external "
+                         "SSD — only the small final embeddings are written to the "
+                         "external handoff. Frozen check2hgi is READ from OUTPUT.")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
+    work = Path(args.work_dir)
+    work.mkdir(parents=True, exist_ok=True)
     cells = [(b, st, sd, fd)
              for b in args.baselines for st in args.states
              for sd in args.seeds for fd in args.folds]
     print(f"=== M2 Pro baseline fan-out: {len(cells)} cells "
           f"(baselines={args.baselines} states={args.states} "
           f"seeds={args.seeds} folds={args.folds}) ===", flush=True)
-    print(f"    disk free={free_gb(OUTPUT):.1f} GB  floor={args.disk_floor_gb} GB", flush=True)
+    print(f"    ext disk free={free_gb(OUTPUT):.1f} GB  floor={args.disk_floor_gb} GB  "
+          f"work_dir={work} (free={free_gb(work):.1f} GB)", flush=True)
 
     state = {"done": 0, "skipped": 0, "failed": 0}
     lock = threading.Lock()
@@ -166,16 +180,18 @@ def main():
             return
         if stop.is_set():
             return
-        fg = free_gb(OUTPUT)
-        if fg < args.disk_floor_gb:
-            print(f"{tag}  STOP: disk {fg:.1f} GB < floor {args.disk_floor_gb} GB", flush=True)
+        fg_ext, fg_work = free_gb(OUTPUT), free_gb(work)
+        if fg_ext < args.disk_floor_gb or fg_work < args.disk_floor_gb:
+            which = "ext" if fg_ext < args.disk_floor_gb else "work"
+            print(f"{tag}  STOP: {which} disk low (ext={fg_ext:.1f} work={fg_work:.1f} GB "
+                  f"< floor {args.disk_floor_gb} GB)", flush=True)
             stop.set()
             return
         if args.dry_run:
             print(f"{tag}  (dry-run)  free={fg:.1f} GB", flush=True)
             return
 
-        scratch = (OUTPUT / "_scratch" / f"{b}_{st}_s{sd}_f{fd}") if b in STAGED else None
+        scratch = (work / f"{b}_{st}_s{sd}_f{fd}") if b in STAGED else None
         t0 = time.time()
         try:
             if scratch is not None:
@@ -183,8 +199,8 @@ def main():
                     shutil.rmtree(scratch)
                 scratch.mkdir(parents=True)
                 stage_scratch(st, scratch)
-            argv, env, native = builder_cmd(b, st, sd, fd, scratch)
-            log = OUTPUT / "_scratch" / f"log_{b}_{st}_s{sd}_f{fd}.txt"
+            argv, env, native = builder_cmd(b, st, sd, fd, scratch, work)
+            log = work / f"log_{b}_{st}_s{sd}_f{fd}.txt"
             log.parent.mkdir(parents=True, exist_ok=True)
             with open(log, "w") as lf:
                 r = subprocess.run(argv, env=env, cwd=str(REPO), stdout=lf,
