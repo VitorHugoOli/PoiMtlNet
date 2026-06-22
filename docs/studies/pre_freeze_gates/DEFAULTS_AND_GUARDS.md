@@ -64,6 +64,17 @@ adversarial review found 3 launch-blockers that would corrupt the frozen substra
 These three are P3 infra (the board is post-freeze). The parameterization + provenance + the driver skeleton
 ship now; the driver is inert (refuses to run) until they land — so it can't be a stumble.
 
+### A 4th infra OOM — the STL reg-ceiling eval — FIXED 2026-06-22 (`fix(p1): S2-analog CPU val metric`)
+Distinct from the 3 build-blockers above (this is the **eval** path, not the build). `p1_region_head_ablation.
+_train_single_task` materialised the FULL val logit `[N_val, C]` on the GPU (`torch.cat(all_logits)`) before
+scoring → OOM at large-C overlap scale (TX overlap: 766083×6553×4B ≈ 20 GB; CA worse). The MTL trainer got
+S1/S2 (`OOM_MEMORY_FIX.md`); the STL ceiling never did. **Fix:** `_should_chunk_val_metric(n_val, n_classes)`
+**auto-routes the val metric to CPU when the full val logit would exceed `P1_S2_AUTO_BUDGET_GB` (default 4 GB,
+matching MTL's `MTL_S2_AUTO_BUDGET_GB`)** — DEFAULT-ON, so it fires WITHOUT any env; `MTL_CHUNK_VAL_METRIC=1` /
+`P1_CHUNK_VAL_METRIC=1` force it. Dataset stays on GPU; only the val logits move → the GPU cat is gone.
+Identical at reporting precision (`compute_classification_metrics` is device-agnostic + already chunked; rank
+uses strict `>`). **Pinned by `tests/test_scripts/test_p1_val_chunk_guard.py`** (gate logic + CPU≡CUDA ≤1e-6).
+
 ## Reproduction / desync TRAPS — NEVER do
 1. Never flip `core.py:17` MIN_SEQ 5→10 globally (desyncs frozen v11/v14 rebuild + confounds Lane-2).
 2. Never flip `core.py:26` stride None→1 globally (8.5× rows everywhere, OOMs large states, double-counts the base change). Keep overlap engine-/board-scoped.
@@ -74,3 +85,7 @@ ship now; the driver is inert (refuses to run) until they land — so it can't b
 7. Never run a freeze-grade comparison on torch ≠ 2.11.0+cu128.
 8. Never "fix" CA/TX region-MTL OOM by lowering bs=2048 (region-MTL diverges at smaller bs — it's GPU routing).
 9. Never pin a single seed into canon to "fix" the seed trap (champion G is a {0,1,7,100} multi-seed result).
+10. Never revert p1's `_should_chunk_val_metric` CPU-val guard or disable its default-on auto-budget (it stops the
+    STL reg-ceiling OOMing at TX/CA overlap scale; CPU≡GPU at reporting precision). `tests/test_scripts/
+    test_p1_val_chunk_guard.py` pins it. (Mirror lesson: a memory fix here was once silently reverted by a merge —
+    `33fe18da`→`dade24ad`, OOM_MEMORY_FIX.md.) Don't "optimise" it back to a GPU `torch.cat` of the full val logit.
