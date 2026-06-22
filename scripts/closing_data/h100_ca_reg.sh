@@ -9,6 +9,7 @@ set -uo pipefail
 REPO=/teamspace/studios/this_studio/PoiMtlNet; cd "$REPO"; export PYTHONPATH=src
 PY=python
 export MTL_CHUNK_VAL_METRIC=1
+export P1_CHUNK_VAL_METRIC=1              # p1 STL-reg ceiling: CPU val-metric (avoids ~18.5GB GPU logit cat at C=8501)
 export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"
 export OMP_NUM_THREADS=24
 export MTL_STRICT=1
