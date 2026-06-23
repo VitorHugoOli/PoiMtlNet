@@ -90,10 +90,14 @@ def _load_category_idx_lookup(state: str) -> dict:
     return idx_lookup
 
 
-def _load_sequences(state: str) -> pd.DataFrame:
-    seq_path = IoPaths.CHECK2HGI.get_temp_dir(state) / "sequences_next.parquet"
+def _load_sequences(state: str, engine: EmbeddingEngine = EmbeddingEngine.CHECK2HGI) -> pd.DataFrame:
+    # ⚠ ENGINE-AWARE (2026-06-23, C29 mirror). Like the log_T prior, the log_C co-location
+    # prior MUST be built from the training engine's sequences + split — a dk_ovl (stride-1,
+    # MIN_SEQ-filtered) run has a different user set than canonical CHECK2HGI; a canonical
+    # prior leaks val users. Default stays CHECK2HGI (backward-compat).
+    seq_path = IoPaths.get_seq_next(state, engine)
     if not seq_path.exists():
-        raise FileNotFoundError(f"Missing {seq_path}; run the check2HGI pipeline first")
+        raise FileNotFoundError(f"Missing {seq_path}; build the {engine.value} engine first")
     return pd.read_parquet(seq_path)
 
 
@@ -144,10 +148,11 @@ def build_colocation_from_userids(
     smoothing_eps: float = 0.01,
     seq_df: Optional[pd.DataFrame] = None,
     cat_idx_lookup: Optional[dict] = None,
+    engine: EmbeddingEngine = EmbeddingEngine.CHECK2HGI,
 ) -> tuple[np.ndarray, int]:
     """Train-only P(region|cat) from rows whose userid ∈ train_userids."""
     if seq_df is None:
-        seq_df = _load_sequences(state)
+        seq_df = _load_sequences(state, engine)
     placeid_to_idx, poi_to_region = _load_graph_maps(state)
     if cat_idx_lookup is None:
         cat_idx_lookup = _load_category_idx_lookup(state)
@@ -199,6 +204,7 @@ def save(
         "smoothing_eps": smoothing_eps,
         "n_regions": int(t_rc.shape[0]),
         "n_cats": int(t_rc.shape[1]),
+        "engine": engine.value,            # provenance: split+sequences engine (C29 mirror)
     }
     if n_splits is not None:
         payload["n_splits"] = int(n_splits)
@@ -218,8 +224,10 @@ def _build_per_fold(state: str, engine: EmbeddingEngine, smoothing_eps: float,
     from sklearn.model_selection import StratifiedGroupKFold
     from data.folds import load_next_data
 
-    X_next, y_next, next_userids, _ = load_next_data(state, EmbeddingEngine.CHECK2HGI)
-    seq_df = _load_sequences(state)
+    # ⚠ split + sequences MUST match the TRAINING engine (C29 mirror): a canonical split on a
+    # dk_ovl run mismatches the user→fold partition → leaky co-location prior.
+    X_next, y_next, next_userids, _ = load_next_data(state, engine)
+    seq_df = _load_sequences(state, engine)
     cat_idx_lookup = _load_category_idx_lookup(state)
 
     sgkf = StratifiedGroupKFold(n_splits=n_splits, shuffle=True, random_state=seed)
@@ -230,7 +238,7 @@ def _build_per_fold(state: str, engine: EmbeddingEngine, smoothing_eps: float,
         train_userids = set(int(u) for u in next_userids[train_idx])
         log_rc, log_cr, _ = build_colocation_from_userids(
             state, train_userids=train_userids, smoothing_eps=smoothing_eps,
-            seq_df=seq_df, cat_idx_lookup=cat_idx_lookup,
+            seq_df=seq_df, cat_idx_lookup=cat_idx_lookup, engine=engine,
         )
         out = save(
             state, engine, log_rc, log_cr, smoothing_eps,
@@ -245,8 +253,10 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--state", action="append", required=True)
     parser.add_argument("--engine", default="check2hgi_design_k_resln_mae_l0_1",
-                        help="Substrate engine — controls the SAVE dir only "
-                             "(split/maps are engine-invariant base check2hgi).")
+                        help="Training engine — controls the SAVE dir AND the split+sequences "
+                             "(C29 fix: these are NOT engine-invariant; an overlap/filtered engine "
+                             "has a different fold partition. Graph/region maps stay canonical "
+                             "check2hgi, valid only for re-windowing engines like dk_ovl).")
     parser.add_argument("--smoothing-eps", type=float, default=0.01)
     parser.add_argument("--per-fold", action="store_true",
                         help="Build one P(region|cat) per fold from train userids only")

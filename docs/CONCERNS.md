@@ -663,8 +663,22 @@ records `engine` provenance. Verified: `--engine check2hgi_dk_ovl` reproduces th
 exactly (graph maps stay canonical — windowing-independent). **Any prior-ON dk_ovl/filtered recipe MUST build its
 prior with `--engine <that engine>`.**
 
-**Remaining follow-ups (for the advisor / next agent):** (1) `compute_region_colocation.py` (the log_C
-co-location prior) likely has the SAME canonical-hardcoding — audit + apply the same `--engine` fix. (2) Add a
-**trainer-side guard**: when the prior is ON (α≠0 or kd>0), fail-loud if `payload["engine"] != training engine`
-(the provenance field now exists to enable this). (3) `log_t_freshness.py` could additionally assert the engine
-provenance, not just mtime.
+**Advisor audit (2026-06-23) + follow-through.** A correctness-advisor pass confirmed the C29 fix is correct
+and byte-identical at the default, found ONE more same-class latent bug, and verified the split contract:
+- ✅ **`compute_region_colocation.py` (log_C prior) had the IDENTICAL bug** — `--engine` controlled only the
+  save dir while the split+sequences were hardcoded canonical. **Now fixed** (same engine-aware threading +
+  `engine` provenance in the payload). Inert today (log_C off on the board) but a real latent leak under any
+  `--log-c-kd-weight>0` dk_ovl recipe.
+- ✅ **Trainer-side enforcement guard added** (`mtl_cv.py`, beside the n_splits guard): fail-loud if
+  `payload["engine"] != config.embedding_engine` **only when the prior is ACTIVE** (not `freeze_alpha=True
+  alpha_init=0.0`). Double-gated → never fires on the board (prior-OFF AND legacy payloads lack the key);
+  catches any future prior-ON engine mismatch.
+- ✅ **Split contract verified line-for-line**: the prior's `StratifiedGroupKFold(n_splits, shuffle, seed)` on
+  `load_next_data(engine)` matches `FoldCreator` (`folds.py:1377-1389`, y=next_category, groups=userid) EXACTLY
+  once engine+seed+n_splits agree — so the engine fix fully closes the split mismatch.
+- **Remaining (lower priority, both inert on the board):** (1) thread `engine` into
+  `log_t_freshness.assert_log_t_fresh` + pass it from `p1_region_head_ablation.py:889` (catches the p1
+  consumer-mismatch the trainer guard doesn't cover). (2) constrain `_load_graph_maps`' canonical-graph pin to a
+  re-windowing-engine allowlist (the pin is correct for dk_ovl but wrong for a genuinely different region map).
+  Advisor's unifying suggestion: stamp a single `split_fingerprint=(engine,seed,n_splits)` and assert it
+  whenever the prior is active.

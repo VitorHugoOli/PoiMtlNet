@@ -1447,6 +1447,33 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                         f"{config.state} --per-fold --n-splits "
                         f"{trainer_n_splits} --seed {seed}"
                     )
+                # 2026-06-23 (C29 — docs/CONCERNS.md): the per-fold split is built PER
+                # ENGINE. A prior built on a DIFFERENT engine than the trainer (e.g. a
+                # canonical CHECK2HGI prior on a dk_ovl run, whose MIN_SEQ filter drops a
+                # different user set) has a mismatched user->fold partition -> leaks val
+                # users into the prior. Post-2026-06-23 compute_region_transition stamps
+                # 'engine'; legacy files lack it (accepted). Fail loud ONLY when the prior
+                # is ACTIVE — a freeze_alpha=True + alpha_init=0.0 head ignores log_T
+                # entirely (output = stan_logits alone), so a mismatch is INERT. That is
+                # exactly the closing_data board recipe, so this guard never fires there.
+                _pf_engine = pf_payload.get("engine") if isinstance(pf_payload, dict) else None
+                _tb_hp_guard = dict(ts.task_b.head_params or {})
+                _prior_active = not (
+                    bool(_tb_hp_guard.get("freeze_alpha", False))
+                    and float(_tb_hp_guard.get("alpha_init", 0.1)) == 0.0
+                )
+                if (_pf_engine is not None and _prior_active
+                        and str(_pf_engine) != str(config.embedding_engine)):
+                    raise ValueError(
+                        f"Per-fold log_T at {pf_path} was built for engine "
+                        f"'{_pf_engine}', but the trainer runs engine "
+                        f"'{config.embedding_engine}' with the prior ACTIVE (alpha!=0). "
+                        f"The fold split is engine-specific (overlap/filtered engines "
+                        f"drop users) so this leaks val users into the prior. Rebuild for "
+                        f"the trainer's engine: python scripts/compute_region_transition.py "
+                        f"--state {config.state} --per-fold --seed {seed} "
+                        f"--engine {config.embedding_engine}"
+                    )
                 tb_head_params = dict(ts.task_b.head_params or {})
                 tb_head_params["transition_path"] = str(pf_path)
 
