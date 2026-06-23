@@ -12,14 +12,24 @@
 
 ## 0 · SCOPE BOUNDARY (what THIS machine does — and what it must NOT touch)
 
-**The A40 does exactly two pre-freeze cells, then (post-freeze) owns its by-state partition.**
+**The A40 does the precision gate + its early cells, then (post-freeze) owns its by-state partition.**
 
+0. **Task 0 — PRECISION-EQUIVALENCE A/B (bf16 vs fp32) — NEW, run FIRST** (RUN_MATRIX §0a; gates the whole
+   board's precision). FL champion-G MTL, seed 0, 5 folds, compile+tf32 fixed on BOTH arms (commands in §3a0):
+   - Arm X (bf16): `MTL_AUTOCAST_BF16=1 MTL_DISABLE_AMP_EVAL=1`
+   - Arm Y (fp32): `MTL_DISABLE_AMP=1`
+   Record matched `cat macro-F1` + reg FULL `top10_acc` per-fold + 5f-mean to **4 dp**. **Decision:**
+   `|Δcat|,|Δreg| ≤ 0.05 pp` ⇒ board standardizes **bf16**; else **fp32**. Also report Arm-X reg vs the FL STL
+   reg ceiling 76.71 (expect ≳ 0). **STOP and post the table for the user** — the chosen precision freezes into
+   §0 before Task 1/2 and the full board. (Cross-checks the H100 fp32 fold-1 anchor: reg 77.71 / cat 79.43.)
 1. **Task 1 — A100-equivalence A/B, A40 HALF.** ONE FL champion-G MTL cell on the gated-overlap engine, seed 0,
-   5 folds, compiled+tf32. Record `cat macro-F1` + `reg top10_acc` to **4 dp**. The A100 runs the *byte-identical*
-   command on its half. PASS = `|Δ| ≤ ±0.05 pp` on BOTH heads.
-2. **Task 2 — EARLY TX gated-overlap reg cell** (insurance, NOT a stop-gate): build the TX overlap engine, then
-   the matched **B-A2 reg** pair — STL `next_stan_flow` reg ceiling on overlap **+** champion-G MTL reg on
-   overlap — 1 seed × 5 folds; report **Δreg vs δ_reg = 2 pp**. ~11 h for the TX MTL cell.
+   5 folds, compiled+tf32, **in the Task-0 chosen precision**. Record `cat macro-F1` + `reg top10_acc` to **4 dp**.
+   The A100 runs the *byte-identical* command on its half. PASS = `|Δ| ≤ ±0.05 pp` on BOTH heads.
+2. **Task 2 — TX gated-overlap reg cell — ⚠ RE-RUN under the chosen precision.** The prior TX B-A2 result
+   (`tx_ba2_s0.json`, Δreg −2.41, `mtl_reg_best_epochs=[4,50,4,4,5]`) is a **fp16 ep30-collapse artifact → VOID**
+   (same signature as CA; see `CA_MTL_DIVERGENCE.md`). Re-run the matched **B-A2 reg** pair — STL `next_stan_flow`
+   reg ceiling on overlap (already fp32, can REUSE the prior ceiling 64.96) **+** champion-G MTL reg on overlap
+   **in bf16/fp32** — 1 seed × 5 folds; report the corrected **Δreg vs δ_reg = 2 pp**. ~11 h for the TX MTL cell.
 
 **Do NOT do (these belong to other machines):**
 - **Do NOT run the CA early reg cell** — that is the **A100** (`study/board-a100`). CA is the largest state
@@ -110,6 +120,30 @@ state+seed AFTER building/rebuilding its overlap engine.
 
 `V14=check2hgi_design_k_resln_mae_l0_1` (frozen v14 substrate — never rebuilt) ·
 `OVL=check2hgi_dk_ovl` (gated stride-1 overlap engine).
+
+### 3a0 · Task 0 — precision-equivalence A/B (bf16 vs fp32), FL, seed 0, 5f — RUN FIRST
+Both arms are the EXACT §3c champion-G FL command (same env above, `--compile --tf32`); they differ ONLY by the
+precision env vars prefixed on the line. Run serially; score BOTH with `r0_matched_rescore.py` (fp32 re-forward).
+```bash
+# Arm X — bf16 train, fp32 eval (the proposed board default)
+MTL_AUTOCAST_BF16=1 MTL_DISABLE_AMP_EVAL=1 \
+  .venv/bin/python scripts/train.py --task mtl --task-set check2hgi_next_region --engine check2hgi_dk_ovl \
+    --state florida --seed 0 --epochs 50 --folds 5 --batch-size 2048 \
+    --mtl-loss static_weight --category-weight 0.75 \
+    --cat-head next_gru --reg-head next_stan_flow_dualtower \
+    --reg-head-param raw_embed_dim=64 --reg-head-param fusion_mode=aux \
+    --reg-head-param freeze_alpha=True --reg-head-param alpha_init=0.0 \
+    --task-a-input-type checkin --task-b-input-type region --log-t-kd-weight 0.0 \
+    --scheduler onecycle --max-lr 3e-3 --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3 \
+    --model mtlnet_crossattn_dualtower --compile --tf32 \
+    --per-fold-transition-dir output/check2hgi_design_k_resln_mae_l0_1/florida --no-checkpoints
+
+# Arm Y — full fp32 train + eval (the reference). Identical except the prefix:
+MTL_DISABLE_AMP=1   .venv/bin/python scripts/train.py ... (same flags as Arm X) ...
+```
+Report a 4-dp table: per-fold + 5f-mean cat macro-F1 and reg FULL top10_acc for X and Y, `|Δ|` per head, and
+Arm-X reg vs the FL STL reg ceiling **76.71**. **Decision rule:** `|Δcat|,|Δreg| ≤ 0.05 pp` ⇒ bf16; else fp32.
+**STOP — post the table for the user before Task 1.** (Note: fp32 (Arm Y) is ~2–3× slower; bf16 keeps speed.)
 
 ### 3a · Build the overlap engine (CPU — run while a GPU cell is busy)
 ```bash

@@ -48,6 +48,11 @@ The CUDA lanes both run this; the per-machine handoffs carry the verbatim comman
 - **Compile path (uniform, mandatory):** `--compile --tf32` + `MTL_COMPILE_DYNAMIC=1` + ONE **per-box** persistent
   `TORCHINDUCTOR_CACHE_DIR`. Apply to **MTL and the STL ceilings alike** (the p1 STL-reg ceiling supports
   `--compile/--tf32`) — mixing compiled/uncompiled confounds every paired Δ at ±0.05 pp.
+- **Precision (PINNED 2026-06-23, RUN_MATRIX §0):** every MTL cell trains with **`MTL_AUTOCAST_BF16=1`** (bf16
+  autocast — NOT the trainer default fp16, which overflows CA/TX's wide reg logits → ep30 NaN collapse; see
+  `CA_MTL_DIVERGENCE.md`) and evaluates in fp32 (matched scorer re-forwards fp32; add `MTL_DISABLE_AMP_EVAL=1`
+  to any in-trainer val metric). bf16 is the default **pending the A40 equivalence gate** (§5 step 0.5); if it
+  fails, fall back to full fp32 (`MTL_DISABLE_AMP=1`) board-wide. STL **reg** ceilings stay as-is (already fp32).
 - **Memory:** dataset **auto-fit** (default) — **NEVER `MTL_DATASET_GPU=1` for CA/TX** (forces ~31 GB redundant
   copies → OOM). The lazy-fold + streaming fixes (PR #29) are in place. `MTL_CHUNK_VAL_METRIC=1` at overlap scale.
 - **Preflight every `--per-fold-transition-dir` run:** stale-log_T freshness check
@@ -58,8 +63,13 @@ The CUDA lanes both run this; the per-machine handoffs carry the verbatim comman
   {0,1,7,100} for the full board · δ_reg = 2 pp decision rule for the early reg cells.
 
 ## 5 · Launch sequence (to the freeze and the board)
-1. **A100-equivalence A/B** — one FL cell, A40 vs A100, compiled+tf32, seed 0, 5f, **byte-identical command** →
-   `|Δ| ≤ ±0.05 pp` on cat macro-F1 + reg top10_acc (4 dp). Gates by-state parallelization across the two cards.
+0.5. **Precision-equivalence gate (A40, bf16-vs-fp32)** — PRECONDITION (RUN_MATRIX §0a). FL champion-G MTL,
+   seed 0, 5f, compile+tf32 fixed: Arm X `MTL_AUTOCAST_BF16=1 MTL_DISABLE_AMP_EVAL=1` vs Arm Y
+   `MTL_DISABLE_AMP=1`. `|Δcat|,|Δreg| ≤ 0.05 pp` ⇒ standardize **bf16**; else **fp32** board-wide. Re-runs the
+   collapsed/at-risk MTL cells (CA all-fold, TX, FL fold-3) under the chosen precision. STOP for user with the table.
+1. **A100-equivalence A/B** — one FL cell, A40 vs A100, compiled+tf32, **chosen precision**, seed 0, 5f,
+   **byte-identical command** → `|Δ| ≤ ±0.05 pp` on cat macro-F1 + reg top10_acc (4 dp). Gates by-state
+   parallelization across the two cards.
 2. **EARLY large-state reg cells** (insurance, not a stop-gate): **TX on A40**, **CA on A100** — matched B-A2 reg
    (G-MTL FULL top10 vs STL `next_stan_flow` ceiling, BOTH on overlap), 1 seed × 5f, report **Δreg vs δ_reg=2 pp**.
    **In parallel: the M2 Pro builds the light baseline embeddings.**

@@ -17,10 +17,14 @@
 1. **Task 1 — A100-equivalence A/B, A100 HALF.** Run the **byte-identical** FL champion-G MTL command as the A40
    (seed 0, 5 folds, compiled+tf32). Record `cat macro-F1` + `reg top10_acc` to **4 dp**. **Confirm
    `|Δ| ≤ ±0.05 pp` on BOTH heads vs the A40 BEFORE any by-state parallelization across the two CUDA cards.**
-2. **Task 2 — EARLY CA gated-overlap reg cell.** CA is the **largest** state (8501 regions) → the **most at-risk**
-   for the δ_reg = 2 pp margin (the mechanism warns the reg gap may widen vs FL's −1.2 at more regions). Build
-   the CA overlap engine, then the matched **B-A2 reg** pair — STL `next_stan_flow` reg ceiling on overlap **+**
-   champion-G MTL reg on overlap — 1 seed × 5 folds; report **Δreg vs δ_reg = 2 pp**.
+2. **Task 2 — EARLY CA gated-overlap reg cell — under the CHOSEN PRECISION (bf16/fp32).** The earlier CA run
+   collapsed at ep30 (fp16-autocast overflow, no GradScaler → both heads to the ~3% floor; the −5.23 reg breach
+   is **VOID**, root cause `CA_MTL_DIVERGENCE.md`). The fix (**bf16 autocast, `MTL_AUTOCAST_BF16=1`**) is committed
+   (`958d71f3`) and validated healthy through ep28 — **re-run CA to a clean ep30+** (start CA FIRST in a fresh GPU
+   window, ~40 min to clear ep30). Then the matched **B-A2 reg** pair — STL `next_stan_flow` reg ceiling on overlap
+   (already fp32) **+** champion-G MTL reg on overlap (bf16/fp32) — 1 seed × 5 folds; report the corrected
+   **Δreg vs δ_reg = 2 pp** (and reg vs the CA STL ceiling 63.48). The Task-0 A40 gate (RUN_MATRIX §0a) picks
+   bf16-vs-fp32; mirror it here. **STL reg ceilings need NO re-run** (already fp32).
 
 **Do NOT do (these belong to other machines):**
 - **Do NOT run the TX early reg cell** — that is the **A40** (`study/board-a40`).
