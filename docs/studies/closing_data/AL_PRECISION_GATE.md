@@ -47,5 +47,19 @@ is moot under `--no-checkpoints` + diagnostic-best scoring). `MTL_STRICT=1` stil
 - env: `MTL_CHUNK_VAL_METRIC=1 MTL_STRICT=1 MTL_COMPILE_DYNAMIC=1`, bf16 = `MTL_AUTOCAST_BF16=1 MTL_DISABLE_AMP_EVAL=1`, fp32 = `MTL_DISABLE_AMP=1`.
 - Both: zero non-finite events (no `[NONFINITE-GUARD]`), 50 ep × 5 folds completed clean.
 
+## AL CELL — COMPLETE (small states = fp32, user decision 2026-06-23)
+User chose **fp32 for the small/mid states** (and a FL fp32-vs-bf16 gate, see `FL_PRECISION_GATE.md`). So the AL
+MTL result is the **fp32 arm**: cat **63.5591** / reg **69.8067** (seed0, 5f, gated overlap).
+
+| AL (seed0, 5f, gated overlap) | value | ceiling | Δ vs ceiling |
+|---|---|---|---|
+| MTL fp32 cat macro-F1 | **63.5591** | STL cat 55.8704 (5f, `next_gru`) | **+7.69 (beats)** |
+| MTL fp32 reg FULL top10 | **69.8067** | STL reg 69.98 (REUSE, fp32) | **−0.17 (closes most of gap)** |
+
+STL cat ceiling scored from `results/check2hgi_dk_ovl/alabama/next_lr1.0e-04_bs2048_ep50_20260622_120957_17857`
+via `scripts/closing_data/score_stl_cat_ceiling.py` (the scorer reproduces the committed FL cat ceiling 75.147
+exactly → validated). STL reg ceiling 69.98 REUSED (already fp32, p1). **AL cell needs no further runs.**
+
 ## Status
-**OPEN — STOP for user precision decision.** Once chosen, the chosen arm is the AL MTL result; §3 (AZ+FL) and §4 (CA) run at the chosen precision.
+**Gate verdict delivered; user chose fp32 for small/mid states. AL cell COMPLETE.** FL runs its own fp32-vs-bf16
+gate (`FL_PRECISION_GATE.md`); §4 (CA) precision follows the FL gate outcome.
