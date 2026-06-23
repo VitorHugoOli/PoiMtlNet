@@ -318,11 +318,17 @@ def train_model(model: torch.nn.Module,
     # the canonical fp16 behaviour untouched.
     import os as _os
     _disable_amp = _os.environ.get("MTL_DISABLE_AMP") == "1"
+    # MTL_AUTOCAST_BF16=1 → bfloat16 autocast (fp32 exponent range, no 65504 overflow,
+    # no GradScaler needed) instead of fp16. Fixes the wide-logit fp16 overflow that
+    # NaN-collapses large states (CA/TX) — see docs/studies/closing_data/CA_MTL_DIVERGENCE.md.
+    _amp_dtype = torch.bfloat16 if _os.environ.get("MTL_AUTOCAST_BF16") == "1" else torch.float16
     _autocast_ctx = (
-        torch.autocast(DEVICE.type, dtype=torch.float16)
+        torch.autocast(DEVICE.type, dtype=_amp_dtype)
         if DEVICE.type == 'cuda' and not _disable_amp
         else contextlib.nullcontext()
     )
+    if DEVICE.type == 'cuda' and not _disable_amp:
+        logger.info("MTL autocast dtype = %s", _amp_dtype)
 
     cutoff_hits = {
         task_b_name: False,
