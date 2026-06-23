@@ -247,3 +247,48 @@ on the overlap-area `phi` step (O(POIs); 76,544 POIs at FL) + CBOW build — NOT
 
 **STILL ON A40:** CTLE FL/CA/TX · POI2Vec CA/TX · b2b CA/TX.
 **STILL PARKED:** AL-ownership fold-1 MPS fit check (opt-in).
+
+---
+
+## 10 · A40 lane EXECUTION RESULTS (2026-06-22 → 23)
+
+The §9 plan executed. Outcome by baseline (all on the gated stride-1 overlap base, train-only
+per fold, `--device cuda`, → main-repo `output/board_baselines/`; manifest regenerated → **326 cells**):
+
+| baseline | A40 scope | status |
+|---|---|---|
+| **CTLE** | FL/CA/TX × {0,1,7,100} × 5f = 60 | ✅ **60/60** (0 fails) |
+| **b2b** | CA/TX × {0,1,7,100} × 5f = 40 | ✅ **40/40** (0 fails) |
+| **POI2Vec** | CA/TX — **REDUCED to 10/state** (seeds {0,1} × 5f = 20), per user decision | ⏳ in progress |
+
+Combined with the Mac lane (AL/AZ/GA/FL), the board now has **b2b + CTLE complete for all 6 states**
+and **b2c for all 6**; POI2Vec CA/TX is the only remainder.
+
+### What it took
+- **GPU/disk feasibility, shared box.** CTLE large-state runs are GPU-heavy (~32 GB/cell) → kept
+  **serial**; b2b is light → ran **parallel** alongside. The box is **shared** (users `felipe.sousa`,
+  `lucas.lana` ran 8–26 GB Jupyter/`main.py` jobs intermittently) — handled with pause/resume +
+  GPU-near-ceiling watchdogs; no OOM hit our cells or theirs. Disk: built on `/tmp` then migrated to
+  `/home`; later (another user freed ~67 GB of the shared `/home`) wrote POI2Vec direct to `/home`.
+- **POI2Vec was INFEASIBLE until a perf fix.** `build_poi_routes` (phi) was an O(n_poi·n_leaf) pure-
+  Python loop = 169K × 65K ≈ 11B calls ≈ **~3 h/cell** at CA scale (TX worse), recomputed per cell —
+  8 cells sat 90 min in phi with the GPU idle. **Vectorized it (numpy, byte-identical — verified
+  leaf_ids+phi bit-exact incl. NaN/edge/tie cases), committed `7a6f30e3`** → phi now **seconds**.
+  POI2Vec then relaunched and bumped to **workers=10** (phi is no longer the bound; CBOW training
+  ~30–40 min/cell + next-build ~20 min/cell now dominate).
+- **Scope reduced to 10/state** (seeds {0,1}) for POI2Vec per user decision (vs the board's
+  {0,1,7,100}); manifest "expected" stays 20, so POI2Vec CA/TX will read **10/20** = the deliberate
+  reduced scope, not a shortfall.
+
+### Further POI2Vec optimization — evaluated, deferred (see `POI2VEC_OPTIMIZATION_EVAL.md`)
+The remaining quality-safe optimizations (per-state tree/phi/edge **cache**; **next-build**
+vectorize/parallelize) save <1 % on this workers=10 reduced run (post-phi the cell is ~95 %
+training+next-build, and at workers=10 the next-build is already overlapped) at real risk to the
+SHARED `core.py`. **Deferred to the full-board launch** (hundreds of cells → tens of hours of
+next-build) each gated by a byte-equivalence check. The quality-RISK options (batch↑/fp16/fewer-epochs)
+are rejected — they change the trained `poi_embed`.
+
+### Commits (A40 lane on this PR)
+driver `--device/--output-root/--handoff-dir` · `SUBSTRATE_VERSION_MAP.md` (+§4b no-v11-contamination)
+· POI2Vec phi vectorization `7a6f30e3` · `POI2VEC_OPTIMIZATION_EVAL.md` · manifest cross-box merge +
+regen (326 cells).

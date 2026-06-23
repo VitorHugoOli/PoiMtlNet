@@ -17,12 +17,16 @@ Writes: docs/studies/closing_data/M2PRO_MANIFEST.md  (+ .json)
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 import pyarrow.parquet as pq
 
 REPO = Path(__file__).resolve().parent.parent.parent
-OUT = REPO / "output"
+# Scan root is overridable so a git WORKTREE (whose own output/ is empty) can point at
+# the MAIN repo's output where the deliverables actually live (e.g. the A40 lane runs the
+# worktree's script against /home/.../PoiMtlNet/output via MANIFEST_OUTPUT_ROOT).
+OUT = Path(os.environ.get("MANIFEST_OUTPUT_ROOT", str(REPO / "output")))
 DOCS = REPO / "docs" / "studies" / "closing_data"
 
 
@@ -72,6 +76,21 @@ def collect():
 
 def main():
     cells = collect()
+    # MERGE with the committed manifest so cells built on ANOTHER box are preserved
+    # (the Mac lane's parquets aren't present on the A40 box and vice-versa). The local
+    # scan is authoritative for cells present locally; remote-only cells are carried over.
+    def key(c):
+        return (c["baseline"], c["state"], str(c["seed"]), str(c["fold"]))
+    local_keys = {key(c) for c in cells}
+    existing = DOCS / "M2PRO_MANIFEST.json"
+    if existing.exists():
+        try:
+            for c in json.loads(existing.read_text()):
+                if key(c) not in local_keys:
+                    cells.append(c)
+        except Exception:
+            pass
+    cells.sort(key=key)
     # counts per (baseline, state)
     counts = {}
     for c in cells:
