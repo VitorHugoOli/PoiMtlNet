@@ -58,7 +58,13 @@ MTL result is the **fp32 arm**: cat **63.5591** / reg **69.8067** (seed0, 5f, ga
 
 STL cat ceiling scored from `results/check2hgi_dk_ovl/alabama/next_lr1.0e-04_bs2048_ep50_20260622_120957_17857`
 via `scripts/closing_data/score_stl_cat_ceiling.py` (the scorer reproduces the committed FL cat ceiling 75.147
-exactly → validated). STL reg ceiling 69.98 REUSED (already fp32, p1). **AL cell needs no further runs.**
+exactly → validated).
+
+**STL reg ceiling — fresh 5f artifact built 2026-06-23 (confirms the documented 69.98 scalar):** p1
+`next_stan_flow` a0 (TRUE fp32) on dk_ovl, seed0, 5f → AGG Acc@10 **69.99 ± 3.56** (per-fold [72.15, 68.98,
+73.44, 71.05, 64.33], best_ep [46,46,44,37,47]). Artifact `docs/results/P1/region_head_alabama_region_5f_50ep_alabama_ovl_stl_reg_s0.json`.
+**69.99 ≈ the prior 69.98** → the documented scalar is now backed by an on-disk per-fold artifact. Δreg vs the
+fresh ceiling = 69.8067 − 69.99 = **−0.18** (unchanged). **AL cell needs no further runs.**
 
 ## Status
 **Gate verdict delivered; user chose fp32 for small/mid states. AL cell COMPLETE.** FL runs its own fp32-vs-bf16
