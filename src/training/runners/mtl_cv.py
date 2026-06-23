@@ -9,6 +9,31 @@ from typing import Optional
 
 logger = logging.getLogger(__name__)
 
+
+def guard_finite_step(total_norm, loss_val, *, epoch=-1, batch=-1, strict=False):
+    """Default-ON non-finite guard for the MTL optimizer step.
+
+    Returns True if the step should PROCEED, False to SKIP it (a non-finite grad/loss
+    was seen). Under ``strict`` it RAISES instead of skipping (fail-loud).
+
+    Rationale: a non-finite loss/grad makes ``clip_grad_norm_`` return total_norm=inf →
+    clip_coef = max_norm/inf = 0, which zeros every finite grad AND turns the offending
+    grad into inf*0 = NaN, which ``optimizer.step()`` then writes into the SHARED backbone —
+    permanently collapsing both heads (the CA ep30 fp16-overflow collapse;
+    docs/studies/closing_data/CA_MTL_DIVERGENCE.md). Skipping the step drops one batch and
+    keeps the weights finite; strict mode aborts so a silent collapse can never recur.
+    For a healthy run (no non-finite) this is a no-op → byte-identical."""
+    if math.isfinite(float(total_norm)) and math.isfinite(float(loss_val)):
+        return True
+    msg = (f"[NONFINITE-GUARD] non-finite at epoch={epoch} batch={batch}: "
+           f"grad_norm={float(total_norm)} loss={float(loss_val)} — would NaN-poison the shared "
+           f"backbone (CA_MTL_DIVERGENCE.md). ")
+    if strict:
+        raise RuntimeError(msg + "MTL_STRICT=1 → fail-loud abort. Use bf16 (MTL_AUTOCAST_BF16=1) "
+                           "or fp32 (MTL_DISABLE_AMP=1) to avoid the fp16 overflow.")
+    logger.error(msg + "Skipping optimizer+scheduler step (no poison); set MTL_STRICT=1 to abort.")
+    return False
+
 from torch.nn import CrossEntropyLoss
 
 from tracking.metrics import (
@@ -397,6 +422,7 @@ def train_model(model: torch.nn.Module,
     # Main training loop
     import os as _os_ng
     _os_nanguard = _os_ng.environ.get("MTL_NAN_GUARD") == "1"
+    _mtl_strict = _os_ng.environ.get("MTL_STRICT") == "1"
     for epoch_idx in progress:
         model.train()
         # F50 B4 — at the boundary epoch, unfreeze α so it can grow.
@@ -813,24 +839,30 @@ def train_model(model: torch.nn.Module,
                     for p in _alt_inactive_params:
                         if p.grad is not None:
                             p.grad.zero_()
+                _step_ok = True
                 if max_grad_norm and max_grad_norm > 0:
                     _gn = torch.nn.utils.clip_grad_norm_(
                         list(model.parameters()) + _criterion_parameters(mtl_criterion),
                         max_grad_norm,
                     )
-                    # Env-gated NaN/grad-norm diagnostic (MTL_NAN_GUARD=1). No-op otherwise
-                    # (byte-identical). Catches the first non-finite loss/grad and traces the
-                    # pre-NaN grad-norm trajectory — for the CA ep30-collapse audit.
-                    if _os_nanguard:
-                        _lf = float(loss.detach()); _gnf = float(_gn)
-                        if (not math.isfinite(_lf)) or (not math.isfinite(_gnf)):
-                            logger.warning("[NAN_GUARD] NON-FINITE epoch=%d batch=%d loss=%s grad_norm=%s",
-                                           epoch_idx, batch_idx, _lf, _gnf)
-                        elif (batch_idx % 100) == 0:
-                            logger.info("[NAN_GUARD] epoch=%d batch=%d loss=%.4f grad_norm=%.3f",
-                                        epoch_idx, batch_idx, _lf, _gnf)
-                optimizer.step()
-                scheduler.step()
+                    # DEFAULT-ON fail-loud non-finite guard (no-op for healthy runs → byte-identical).
+                    # Prevents the CA ep30 collapse: a non-finite grad/loss would make clip return
+                    # inf-norm -> coef 0 -> NaN-poison the shared backbone. Skip the step (default) or
+                    # abort under MTL_STRICT=1. See docs/studies/closing_data/CA_MTL_DIVERGENCE.md.
+                    _step_ok = guard_finite_step(_gn, loss.detach(),
+                                                 epoch=epoch_idx, batch=batch_idx, strict=_mtl_strict)
+                    # Opt-in grad-norm trajectory logging (MTL_NAN_GUARD=1).
+                    if _os_nanguard and _step_ok and (batch_idx % 100) == 0:
+                        logger.info("[NAN_GUARD] epoch=%d batch=%d loss=%.4f grad_norm=%.3f",
+                                    epoch_idx, batch_idx, float(loss.detach()), float(_gn))
+                else:
+                    # No grad-clipping configured → still guard on the loss (defense-in-depth:
+                    # a non-finite loss would NaN-poison the shared backbone regardless of clipping).
+                    _step_ok = guard_finite_step(0.0, loss.detach(),
+                                                 epoch=epoch_idx, batch=batch_idx, strict=_mtl_strict)
+                if _step_ok:
+                    optimizer.step()
+                    scheduler.step()
                 optimizer.zero_grad(set_to_none=True)
                 accumulated_in_group = 0
 

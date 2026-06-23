@@ -28,10 +28,41 @@ dataset (auto-fit) — ~15% faster, empirically result-neutral (cat +0.046 / reg
 byte-identical anchor, ≪ noise; `pre_freeze_gates/SPEED_LEVERS.md`). Run the WHOLE board compiled (never mix
 compiled/non-compiled cells); reviewers reproduce *with* them. torch **2.11** (no upgrade); `num_workers=0`.
 
+**Precision (PINNED 2026-06-23 — supersedes the implicit fp16 autocast; root cause `CA_MTL_DIVERGENCE.md`).**
+Every MTL training cell runs **bf16 autocast** (`MTL_AUTOCAST_BF16=1`, `mtl_cv.py:321-326`) — NOT the trainer
+default fp16. fp16 autocast (no GradScaler) overflows the 65504 ceiling at CA/TX's wide reg logits → a
+deterministic ep30 NaN that poisons the shared backbone → both heads collapse (CA −5.23 / TX −2.41 reg were
+**collapse artifacts, VOID**), and it *understated* MTL reg even where it didn't crash (AL fp32 closes ½ the
+gap −0.38→−0.18; **FL fp32 reg 77.71 BEATS the STL ceiling 76.71**). bf16 has fp32's exponent range (no
+overflow) at tensor-core speed. **Eval/scoring stays fp32** — the matched scorer `r0_matched_rescore.py`
+re-forwards in fp32, and any in-trainer val metric uses `MTL_DISABLE_AMP_EVAL=1`; the STL **reg** ceiling is
+already true fp32 (`p1_region_head_ablation.py:83`), so MTL-vs-ceiling is now precision-matched (it was a
+fp16-MTL-vs-fp32-ceiling MISMATCH before). **bf16 is the default PENDING the A40 equivalence gate (§0a)** — if
+bf16 ≢ fp32 there, the board falls back to full fp32 (`MTL_DISABLE_AMP=1`, ~2–3× slower). STL ceilings need NO
+re-run (already fp32); STL cat ceilings are precision-insensitive (AL 63.44→63.48, optional). Re-baseline scope
+= **MTL cells only**.
+
+## 0a · Precision-equivalence gate (A40 — PRECONDITION for the §0 precision pin)
+Before the board standardizes on bf16, the A40 lane runs a **bf16-vs-fp32 A/B** (mirrors the A100-equivalence
+A/B, same ±0.05 pp rule). State **FL** (representative scale; completes in both precisions; cross-checks the
+H100 fp32 fold-1 anchor reg 77.71 / cat 79.43), champion-G MTL, seed 0, 5 folds, `--compile --tf32` on
+`check2hgi_dk_ovl`, **compile+tf32 held FIXED on both arms** (isolates the autocast dtype):
+- **Arm X (bf16):** `MTL_AUTOCAST_BF16=1 MTL_DISABLE_AMP_EVAL=1` → bf16 train, fp32 eval.
+- **Arm Y (fp32):** `MTL_DISABLE_AMP=1` → fp32 train + fp32 eval (still tf32-matmul, board-consistent).
+- **Compare** matched cat macro-F1 + reg FULL `top10_acc`, per-fold and 5f-mean, **4 dp**.
+- **Decision rule:** `|Δcat| ≤ 0.05 pp AND |Δreg| ≤ 0.05 pp` ⇒ **bf16 ≡ fp32 → standardize bf16 board-wide**
+  (fast). Else ⇒ **fp32 board-wide** (`MTL_DISABLE_AMP=1`) for every MTL cell. Either way, report Arm-X reg vs
+  the FL STL reg ceiling 76.71 (expect Δreg ≳ 0, confirming the gap closed/reversed). STOP for the user with
+  the table; the chosen precision is then frozen into §0 + the shared recipe before the full board launches.
+
 **Story consequence (load-bearing):** the frozen recipe **INVERTS** the BRACIS headline. §0.1/T3 reported
 "MTL sacrifices region −7…−17 pp"; under G the gap **dissolves** (MTL matches the STL reg ceiling, matched
 Δ −0.09…−0.31, and beats the STL cat ceiling +2.6…+4.1). Restating §0.1 / the BRACIS tables is an AUTHOR
 decision (PAPER_UPDATE rule) — closing_data regenerates the base story-agnostically.
+> ⚠ The "matched Δ −0.09…−0.31" reg parity above was measured under the **fp16 harness** (MTL reg
+> fp16-understated). Under the §0 bf16/fp32 pin the gap is expected to **close further or reverse** (AL fp32
+> −0.18; FL fp32 +1.0 over the ceiling) — these numbers are being re-baselined by the precision re-run; do not
+> cite −0.09…−0.31 as final.
 
 ## 1 · BRACIS-suite cells (T1–T5, F1–F2, F-arch, §0.x supporting)
 

@@ -40,7 +40,7 @@
 2. **wrong substrate** — canon-active MTL where `--engine` ≠ the bundle's pinned substrate → WARN.
 3. **torch build** — `torch != 2.11.0+cu128` → WARN (2.12 rewrote TopK → reg Acc@10 tie-break shift).
 
-## The biggest anti-stumble lever — BUILT (safety-stopped pending 3 launch-blockers)
+## The biggest anti-stumble lever — BUILT + UNBLOCKED (3 launch-blockers FIXED 2026-06-22)
 **`scripts/closing_data/p3_board.sh`** is the ONLY sanctioned build+run path: (1) rebuild the base at
 `--stride 1 --min-seq 10` reusing the frozen v14 embeddings; (2) `train.py --canon v16 --compile --tf32
 --seed <s>` per cell, uniformly; (3) `--canon` pinned per cell + PID-suffix rundir capture (no `ls -dt|head`);
@@ -64,6 +64,26 @@ adversarial review found 3 launch-blockers that would corrupt the frozen substra
 These three are P3 infra (the board is post-freeze). The parameterization + provenance + the driver skeleton
 ship now; the driver is inert (refuses to run) until they land — so it can't be a stumble.
 
+> **✅ FIXED 2026-06-22 (verified).** All 3 rewired to `build_overlap_probe_engine.py` — the separate OVL engine
+> `check2hgi_dk_ovl` (auto-gated `emit_tail=False`, min_seq=10) builds its OWN stride-1 sequences + next_region
+> and **never clobbers the frozen v14** (#1, #2); log_T staging + the freshness preflight are now checked vs the
+> **OVL engine's** stride-1 `next_region.parquet` (#3, the stale-log_T trap closed). Blocker #4 (M1 tail-gate)
+> resolved — the builder auto-gates. The hard `exit 1` is now a launch confirmation (`P3_BOARD_CONFIRM=1`);
+> torch + log_T-freshness preflights intact; `--dry-run` previews the 24-cell plan (exit 0, nothing touched).
+> The per-cell recipe is byte-identical to the v16 canon bundle (only `--engine` overridden to the OVL engine,
+> as the proven board PR drivers do). Verified: frozen v14 mtimes unchanged; `bash -n` clean.
+
+### A 4th infra OOM — the STL reg-ceiling eval — FIXED 2026-06-22 (`fix(p1): S2-analog CPU val metric`)
+Distinct from the 3 build-blockers above (this is the **eval** path, not the build). `p1_region_head_ablation.
+_train_single_task` materialised the FULL val logit `[N_val, C]` on the GPU (`torch.cat(all_logits)`) before
+scoring → OOM at large-C overlap scale (TX overlap: 766083×6553×4B ≈ 20 GB; CA worse). The MTL trainer got
+S1/S2 (`OOM_MEMORY_FIX.md`); the STL ceiling never did. **Fix:** `_should_chunk_val_metric(n_val, n_classes)`
+**auto-routes the val metric to CPU when the full val logit would exceed `P1_S2_AUTO_BUDGET_GB` (default 4 GB,
+matching MTL's `MTL_S2_AUTO_BUDGET_GB`)** — DEFAULT-ON, so it fires WITHOUT any env; `MTL_CHUNK_VAL_METRIC=1` /
+`P1_CHUNK_VAL_METRIC=1` force it. Dataset stays on GPU; only the val logits move → the GPU cat is gone.
+Identical at reporting precision (`compute_classification_metrics` is device-agnostic + already chunked; rank
+uses strict `>`). **Pinned by `tests/test_scripts/test_p1_val_chunk_guard.py`** (gate logic + CPU≡CUDA ≤1e-6).
+
 ## Reproduction / desync TRAPS — NEVER do
 1. Never flip `core.py:17` MIN_SEQ 5→10 globally (desyncs frozen v11/v14 rebuild + confounds Lane-2).
 2. Never flip `core.py:26` stride None→1 globally (8.5× rows everywhere, OOMs large states, double-counts the base change). Keep overlap engine-/board-scoped.
@@ -74,3 +94,7 @@ ship now; the driver is inert (refuses to run) until they land — so it can't b
 7. Never run a freeze-grade comparison on torch ≠ 2.11.0+cu128.
 8. Never "fix" CA/TX region-MTL OOM by lowering bs=2048 (region-MTL diverges at smaller bs — it's GPU routing).
 9. Never pin a single seed into canon to "fix" the seed trap (champion G is a {0,1,7,100} multi-seed result).
+10. Never revert p1's `_should_chunk_val_metric` CPU-val guard or disable its default-on auto-budget (it stops the
+    STL reg-ceiling OOMing at TX/CA overlap scale; CPU≡GPU at reporting precision). `tests/test_scripts/
+    test_p1_val_chunk_guard.py` pins it. (Mirror lesson: a memory fix here was once silently reverted by a merge —
+    `33fe18da`→`dade24ad`, OOM_MEMORY_FIX.md.) Don't "optimise" it back to a GPU `torch.cat` of the full val logit.

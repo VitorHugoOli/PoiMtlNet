@@ -1,0 +1,28 @@
+{
+  "state": "texas",
+  "seed": 0,
+  "folds": 5,
+  "engine": "check2hgi_dk_ovl",
+  "windowing": "gated stride-1 overlap min_seq=10",
+  "stl_reg_ceiling_top10": 64.96,
+  "mtl_reg_full_top10": 62.5505,
+  "mtl_reg_per_fold": [
+    62.3609,
+    63.8205,
+    61.2977,
+    62.6139,
+    62.6595
+  ],
+  "mtl_reg_best_epochs": [
+    4,
+    50,
+    4,
+    4,
+    5
+  ],
+  "mtl_cat_macro_f1": 76.2798,
+  "delta_reg": -2.4095,
+  "delta_reg_margin": 2.0,
+  "verdict": "\u0394reg=-2.41pp EXCEEDS \u03b4_reg=2pp \u2192 FLAG reg-claim re-scope (handoff \u00a75; NOT a stop, overlap adopted)",
+  "note": "reg diagnostic-best at epoch ~4-5 in 4/5 folds (reg converges early; shared backbone drifts to cat). cat ceiling NOT run for TX (only FL ceilings queued)."
+}
