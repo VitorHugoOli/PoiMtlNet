@@ -313,3 +313,16 @@ What it took:
 
 OPEN (user): the original `{0,1,7,100}` runs left ~80 extra non-seed-0 cells (CTLE 45, b2b 30, CA-poi2vec 5)
 on `/home` — keep (for a possible full 4-seed board) or prune to exactly seed0×5f. Awaiting decision.
+
+### 10b · Disk reclaimed on the A40 box (all regennable / gitignored)
+To fit the build on the shared `/home` (was at 97 %), these were deleted from the A40's gitignored
+`output/` + `results/` (none are study results; all regennable). Recorded so the orchestrator knows
+what's absent on this box:
+- `output/check2hgi_dk_ovl/california/input/next*.parquet` (16 G) — regen: `build_overlap_probe_engine.py california 1` (breadcrumb `RECLAIMED_README.txt` left in the dir). CA is the A100's lane, unused here.
+- `output/check2hgi_resln_design_b/` (v13, 12 G) — superseded by v14 (see SUBSTRATE_VERSION_MAP); regennable.
+- `docs/results/canonical_improvement/T6_*` git-ignored sweep dirs (~8 G) — closed study, tracked summaries kept.
+- `results/**/checkpoint_epoch_*.pt` (5 G) — redundant intermediate checkpoints (`*_best.pt` kept).
+- `results/**/*.png` stale training plots (~4 G, untracked; recent board plots kept).
+The frozen substrates (`output/check2hgi` = v11, `output/check2hgi_design_k_resln_mae_l0_1` = v14) and
+`output/check2hgi_dk_ovl/{texas,florida}` were NOT touched. The 115 baseline `embeddings.parquet`
+(81 G) are real files on `/home/.../output/board_baselines` — nothing on `/tmp` (only symlink pointers).
