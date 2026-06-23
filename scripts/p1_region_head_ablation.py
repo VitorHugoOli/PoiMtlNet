@@ -85,6 +85,32 @@ logger = logging.getLogger(__name__)
 # is exactly why uniform application must be validated, not assumed.
 _P1_USE_COMPILE = False
 
+
+def _should_chunk_val_metric(n_val: int, n_classes: int) -> tuple[bool, float]:
+    """[S2-analog OOM guard] Decide whether to score the val metric on CPU.
+
+    The STL eval would otherwise ``torch.cat`` the FULL val logit ``[n_val, n_classes]``
+    on the GPU and OOM at large-C overlap scale (TX overlap: 766083×6553×4B ≈ 20 GB; CA
+    worse). Returns ``(chunk_on_cpu, full_val_logit_gb)``.
+
+    Default-ON guard: chunking auto-enables when the full val logit would exceed
+    ``P1_S2_AUTO_BUDGET_GB`` (default 4 GB, matching MTL's ``MTL_S2_AUTO_BUDGET_GB``),
+    so a future agent/dev running p1 on a large-C overlap state NEVER hits the OOM even
+    without setting any env. ``MTL_CHUNK_VAL_METRIC=1`` / ``P1_CHUNK_VAL_METRIC=1`` force
+    it on. Scoring on CPU is identical-at-reporting-precision to the GPU path for the
+    rank-based metrics (``compute_classification_metrics`` is device-agnostic + already
+    chunked; rank uses strict ``>``). See ``OOM_MEMORY_FIX.md`` + the regression test
+    ``tests/test_training/test_p1_val_chunk_guard.py``.
+    """
+    val_logit_gb = (n_val * n_classes * 4) / 1e9
+    forced = (
+        os.environ.get("MTL_CHUNK_VAL_METRIC", "").strip() in ("1", "true", "True")
+        or os.environ.get("P1_CHUNK_VAL_METRIC", "").strip() in ("1", "true", "True")
+    )
+    budget_gb = float(os.environ.get("P1_S2_AUTO_BUDGET_GB", "4"))
+    return (forced or val_logit_gb > budget_gb), val_logit_gb
+
+
 ALL_HEADS = [
     "next_mtl", "next_gru", "next_lstm", "next_tcn_residual", "next_temporal_cnn",
     "next_stan", "next_getnext", "next_getnext_hard", "next_getnext_hard_hsm",
@@ -657,12 +683,7 @@ def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
         # GPU; only the val logits move, so the 18.7GB GPU cat is removed entirely. Auto-enable
         # when the full val logit would exceed a GPU budget, or via MTL_CHUNK_VAL_METRIC /
         # P1_CHUNK_VAL_METRIC; else keep the GPU path so small-state / frozen p1 numbers are untouched.
-        _val_logit_gb = (len(x_val) * n_classes * 4) / 1e9
-        _chunk_val = (
-            os.environ.get("MTL_CHUNK_VAL_METRIC", "").strip() in ("1", "true", "True")
-            or os.environ.get("P1_CHUNK_VAL_METRIC", "").strip() in ("1", "true", "True")
-            or _val_logit_gb > float(os.environ.get("P1_S2_AUTO_BUDGET_GB", "4"))
-        )
+        _chunk_val, _val_logit_gb = _should_chunk_val_metric(len(x_val), n_classes)
         if _chunk_val and epoch == 0:
             logger.info(
                 "[p1 S2] scoring val metric on CPU (full val logit ~= %.1f GB, N_val=%d x C=%d) "
