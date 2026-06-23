@@ -124,7 +124,18 @@ Plan (do NOT pick a fix yet):
 2. **CA true-fp32** (running) — large-state confirmation (cliff disappears + real CA reg vs ceiling 63.48).
 3. **Advisor** after the empirics — evaluate the best outcome for data quality + the reg-gap claim, then choose
    the board-wide fix (skip-guard vs GradScaler vs fp32) and the re-baseline scope.
-[Empirical results + advisor verdict appended here.]
+
+### Empirical result — AL precision-bias (seed0, 5f, gated overlap) — 2026-06-23
+AL (1109 regions) is too small to fp16-overflow, so fp16 MTL does NOT crash here → a clean precision-bias measurement:
+| | reg full top10 | Δreg vs STL ceiling 69.98 | cat macro-F1 |
+|---|---|---|---|
+| fp16 MTL (default autocast) | 69.60 | **−0.38** | 63.44 |
+| fp32 MTL (`MTL_DISABLE_AMP=1`) | 69.80 | **−0.18** | 63.48 |
+
+**fp32 closes ~HALF the small-state reg gap (+0.20 pp: −0.38 → −0.18)** — the fp16 harness *was* understating MTL
+reg (confirms the 2026-06-04 `t2p0_fp32_control.sh` hypothesis) — but a real **~−0.18 joint-loop gap persists**
+in fp32. cat unchanged (≈63.4 both). So the precision fix (a) stops the CA/TX crash AND (b) materially improves
+reg toward the ceiling, but does not fully erase the gap. (FL fp32 + CA fp32 data points pending.)
 
 ## Repro / evidence
 - Both runs: §3c champion-G command on `--engine check2hgi_dk_ovl --state california`, seed 0; tf32 = `--compile
