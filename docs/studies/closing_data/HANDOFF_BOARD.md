@@ -16,8 +16,8 @@
 ## 2 · Device allocation (whole-state-per-device → every per-state Δ is device-internal-clean)
 | Device | Owns | Order | Handoff |
 |---|---|---|---|
-| **H100** (fast, interrupts) | **precision gate** + AL, AZ, CA | gate@AL → AL → AZ → **CA last** | [`HANDOFF_BOARD_H100.md`](HANDOFF_BOARD_H100.md) |
-| **A40** (stable) | finish POI2Vec → FL, TX | POI2Vec → FL → **TX last (~11h)** | [`HANDOFF_BOARD_A40.md`](HANDOFF_BOARD_A40.md) |
+| **H100** (fast, interrupts) | **precision gate** + AL, AZ, **FL**, CA | gate@AL → AL → **AZ‖FL co-scheduled** → **CA last** | [`HANDOFF_BOARD_H100.md`](HANDOFF_BOARD_H100.md) |
+| **A40** (stable) | finish POI2Vec → **TX only** | POI2Vec → **TX (~11h)** | [`HANDOFF_BOARD_A40.md`](HANDOFF_BOARD_A40.md) |
 | **Macs** (M2 Pro + M4 Pro, MPS) | ALL baselines (device-internal) + data consolidation | one-hot → skip-gram → POI2Vec → CTLE | [`HANDOFF_BOARD_MACS.md`](HANDOFF_BOARD_MACS.md) |
 | **(stretch)** | Istanbul external validity | reuse the MPS dry-run as the §6.3 provisional box | — |
 

@@ -34,14 +34,14 @@ artifact exists; build only the missing ones.
 **The rule that makes the split valid:** assign each state's FULL cell set (MTL + its STL ceilings) to ONE
 device. Then every reported Δ (MTL−STL, the Fig-3 points) is a same-device difference — valid. Fig 3 plots
 **Δ's**, so mixing AL-on-H100 with FL-on-A40 is fine. ONLY an absolute cross-state table needs a device-class
-footnote (small/CA states = H100-Hopper; FL/TX = A40-Ampere; baselines = MPS-fp32). The A100-equivalence A/B is
+footnote (AL/AZ/FL/CA = H100-Hopper; TX = A40-Ampere; baselines = MPS-fp32). The A100-equivalence A/B is
 **NOT required** for the headline under this split (it only buys cross-state *absolute* comparability) → skipped
 for the deadline.
 
 | Device | States / work | Order (cheap → expensive) | Handoff |
 |---|---|---|---|
-| **H100** (fast, interrupt-prone) | precision gate + AL, AZ, CA | **AL bf16-vs-fp32 gate** → AL → AZ → **CA last** | `HANDOFF_BOARD_H100.md` |
-| **A40** (stable Ampere) | finish POI2Vec, then FL, TX | POI2Vec → **FL** → **TX** (~11h, last) | `HANDOFF_BOARD_A40.md` |
+| **H100** (fast, interrupt-prone) | precision gate + AL, AZ, **FL**, CA | **AL bf16-vs-fp32 gate** → AL → **AZ‖FL co-scheduled** → **CA last** | `HANDOFF_BOARD_H100.md` |
+| **A40** (stable Ampere) | finish POI2Vec, then **TX only** | POI2Vec → **TX** (~11h) | `HANDOFF_BOARD_A40.md` |
 | **Macs** (M2 Pro 32G + M4 Pro 24G, MPS=fp32) | ALL baselines, device-internal | one-hot → skip-gram → POI2Vec → CTLE | `HANDOFF_BOARD_MACS.md` |
 
 **Precision gate** (RUN_MATRIX §0a) runs FIRST on the H100 at **AL** (smallest → ~2-3h for both arms; doubles as
