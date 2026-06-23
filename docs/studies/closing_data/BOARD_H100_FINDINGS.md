@@ -75,3 +75,67 @@ Env persists (torch 2.11.0+cu128 + pt211 pyg). Re-export the board env, then **r
 2. **CA**: `scripts/closing_data/h100_ca_reg.sh` (Cell A GPU-val + Cell B MTL) — run when the GPU is free of
    other big cells. CA STL-reg val-cat is ~37 GB; keep it alone or with one light cell.
 3. Commit MTL + matched-score JSONs (C28); update the FL table; flag PR #32 for audit.
+
+---
+
+# SESSION 2026-06-23 (PM) — precision gate, small-state cells, Istanbul Phase V, reg-prior leak fix
+
+> Branch `study/board-h100`, 16 commits (this session). All seed-0×5f unless noted; engine `check2hgi_dk_ovl`
+> (gated stride-1 overlap, frozen v14 substrate) for Gowalla board states; `check2hgi` for Istanbul.
+
+## 1 · Precision gate (the fp16-collapse fix, CA_MTL_DIVERGENCE follow-through)
+- **AL gate (bf16 vs fp32, fp32-scored):** reg bf16 69.6873 / fp32 **69.8067** (Δ −0.12); cat bf16 63.5810 /
+  fp32 63.5591 (Δ +0.02). fp32 hits the §1 anchor exactly. **User decision: small/mid states → fp32**; FL runs
+  its own fp32-vs-bf16 gate.
+- **FL gate (running):** partial folds 1-2 — fp32 reg 77.54 / bf16 77.56; fp32 cat 79.68 / bf16 79.91. **Both
+  precisions beat BOTH FL ceilings** (reg 77.5 > 76.71, cat 79.8 > 75.15) — the fp16-artifact reg-gap REVERSAL
+  confirmed. **bf16 ≈ fp32 on quality AND speed** — these overlap runs are **data-loading/launch-bound** (GPU
+  util ~8-25%), so bf16 buys ~0 wall-clock; precision only matters for CA (fp16 overflow). Full 5f table pending.
+
+## 2 · Cells completed (fp32, gated overlap)
+| state | MTL cat | STL cat ceiling | Δcat | MTL reg FULL@10 | STL reg ceiling | Δreg |
+|---|---|---|---|---|---|---|
+| **AL** | 63.5591 | 55.8704 | **+7.69 (beats)** | 69.8067 | 69.99 (fresh p1 = doc 69.98) | **−0.18 (matches)** |
+| **AZ** | 63.3875 | 57.1305 | **+6.26 (beats)** | 59.3360 | 59.40 | **−0.06 (matches)** |
+| **CA** | (MTL §4 pending) | **70.2573** (NEW, fills gap) | — | — | 63.4848 (reuse) | — |
+| **FL** | gate running | 75.147 (reuse) | — | gate running | 76.7123 (reuse) | — |
+Pattern (both small states): MTL **beats the cat ceiling, matches the reg ceiling** under correct precision.
+AL reg ceiling rebuilt as a fresh 5f artifact (69.99 ≈ the documented 69.98 → scalar now backed on disk).
+
+## 3 · Istanbul Phase V — champion-G transfers to a non-US corpus (frozen substrate, paper-grade)
+Built frozen GCN-500ep substrate on the existing 520-mahalle graph (index-aligned, `phase_v_substrate.py`);
+4 seeds (0/1/7/100). **cat 60.16±0.07 (beats STL cat 52.10 +8.06), reg 69.79±0.06 (matches STL reg 70.37,
+−0.58), +17.27 over the Markov-1 floor 52.52.** Tiny cross-seed variance → highly reproducible. Region def =
+mahalle (proper admin, PRIMARY); H3 (2585) staged as secondary. TX v14 substrate sha256-verified vs manifest
+(no download needed). See `PHASE_V_ISTANBUL_S0.md`.
+
+## 4 · ⚠ Reg-prior split-provenance leak (CONCERNS C29) — found, FIXED, **zero impact** (two advisors)
+`compute_region_transition.py` (+ `compute_region_colocation.py`) built the per-fold log_T/log_C split on the
+**canonical CHECK2HGI** engine while the board trains on **dk_ovl** (stride-1, MIN_SEQ-filtered, ~220 vs ~322
+val-users/fold) → the prior's fold partition mismatched → ~80% of dk_ovl val-users leaked into the prior.
+**INERT in every actual run** (verified bit-identical + by two independent advisors): the board reg head runs
+**prior-OFF** (`freeze_alpha=True alpha_init=0.0`) and `--log-t-kd-weight 0.0`, so log_T is ×0; Istanbul's prior
+IS active but built on its **matched** engine. **Fixes shipped:** both builders engine-aware (`--engine` threads
+split+sequences+output, stamps `engine` provenance, with a substrate-engine probe-fallback); a trainer-side
+guard in `mtl_cv.py` fails loud on a prior-engine mismatch **when the prior is active** (α-prior OR any
+log_T/C-KD weight>0 — the v12 default `--log-t-kd-weight 0.2` makes the KD route the sneaky one). Double-gated →
+never fires on the board (prior-OFF + legacy payloads).
+
+## 5 · Operational learnings (carry forward)
+- **Resume driver (`resume_fl_fold.sh`)** for the ~1-2h studio restarts: `--only-fold` is **0-INDEXED**
+  (canonical fold F = `--only-fold F-1`, loads `fold{F}.pt`) AND re-indexes its single output CSV to `fold1` —
+  copy `fold1_*`→`fold{F}_*` into the master. Isolated `RESULTS_ROOT` per arm (no rundir race). Idempotent.
+- **Host-RAM headroom guard is real — never override it.** The overlap datasets (FL 1.27M / CA 2.92M / TX
+  3.83M rows) need ~16-22GB host RAM each; `MTL_RAM_HEADROOM_GB=10` passed the preflight then **OOM-killed**
+  (took the newest proc — protected FL). Big-dataset cat ceilings (CA/TX) can't co-exist with the FL gate
+  through its fold transitions without RAM pressure; run them when the gate frees RAM, or alone.
+- **bf16≈fp32 speed**: these runs are CPU/launch-bound, so `--compile`/`MTL_COMPILE_DYNAMIC=1` (distinct
+  `TORCHINDUCTOR_CACHE_DIR` per co-scheduled proc) help the compute path that isn't the bottleneck.
+- **The env is conda `cloudspace` (`python`), NOT `.venv`** (the handoff's `.venv/bin/python` is wrong here).
+- **Board recipe needs `--canon none` + explicit `--no-{reg,cat}-class-weights`**: bare `train.py` auto-injects
+  canon-v16 which trips the wrong-substrate guard under `MTL_STRICT=1` (the board runs champion-G on dk_ovl).
+
+## Remaining
+FL gate full-5f table; **CA MTL §4** (the heavy/restart-risky cell — run alone, must clear ep30 under bf16/fp32);
+TX cat ceiling (running); A40 lane = TX MTL + TX cat (staged). Multi-seed {1,7,100} for Gowalla states is out of
+scope (1-seed reduced board).
