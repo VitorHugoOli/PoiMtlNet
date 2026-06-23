@@ -292,3 +292,24 @@ are rejected — they change the trained `poi_embed`.
 driver `--device/--output-root/--handoff-dir` · `SUBSTRATE_VERSION_MAP.md` (+§4b no-v11-contamination)
 · POI2Vec phi vectorization `7a6f30e3` · `POI2VEC_OPTIMIZATION_EVAL.md` · manifest cross-box merge +
 regen (326 cells).
+
+### 10a · POI2Vec CA/TX complete (2026-06-23) + the journey
+POI2Vec CA/TX finished: **CA seed0×5f ✅ (also seed1 = 10 on disk), TX seed0×5f ✅ (5)** — 0 fails.
+Final A40 board on `/home`: b2c (6 states), b2b + CTLE (all 6 states, seed0 ✅), POI2Vec CA(10)+TX(5).
+With the Mac lane (AL/AZ/GA/FL), **seed0×5f is covered for every baseline×state**.
+
+What it took:
+- **phi vectorization** (`7a6f30e3`) turned POI2Vec CA/TX from infeasible (~3 h/cell) to viable.
+- **Environment recycles** repeatedly killed the run (driver+cells+monitors together — a whole-group
+  teardown, not OOM; even `setsid` didn't escape). Mitigation that worked: **workers=4 + bank-as-you-go**
+  (cells land on `/home` per round, resume-skip preserves them) so progress accumulates across recycles
+  instead of resetting to 0.
+- **RAM**: the **TX next-build is the RAM hog (~27 GB RSS/cell)** — 4 concurrent co-peaked available RAM
+  to ~3.5 GB once before staggering back to 54 GB. workers=4 (vs 10) keeps it survivable; an auto-relief
+  watchdog (kill highest-RSS cell at <2 GB) was armed as a last-resort OS-OOM backstop (never needed to fire).
+- **Scope** (user decision): POI2Vec descoped to seed0×5f for TX (CA kept its already-built seed0+seed1).
+  The board target is **seed0×5f for FL/CA/TX**; the manifest's hardcoded "/20 expected" therefore reads
+  10/20 (CA) and 5/20 (TX) — that is the intended reduced scope, not a shortfall.
+
+OPEN (user): the original `{0,1,7,100}` runs left ~80 extra non-seed-0 cells (CTLE 45, b2b 30, CA-poi2vec 5)
+on `/home` — keep (for a possible full 4-seed board) or prune to exactly seed0×5f. Awaiting decision.

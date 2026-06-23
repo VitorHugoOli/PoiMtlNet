@@ -4,7 +4,7 @@
 > `output/`). Regenerate with `scripts/closing_data/m2pro_manifest.py`. All cells are
 > stride-1 gated-overlap, train-only per fold (leak-marker asserted by the builder).
 
-**Total built cells: 326**
+**Total built cells: 341**
 
 ## Counts (built / expected)
 
@@ -13,7 +13,7 @@
 | b2c_onehot64 | 1/1 | 1/1 | 1/1 | 1/1 | 1/1 | 1/1 |
 | b2b | 20/20 | 20/20 | 20/20 | 20/20 | 20/20 | 20/20 |
 | ctle | 20/20 | 20/20 | 20/20 | 20/20 | 20/20 | 20/20 |
-| poi2vec | 20/20 | 20/20 | 20/20 | 20/20 | — | — |
+| poi2vec | 20/20 | 20/20 | 20/20 | 20/20 | 10/20 | 5/20 |
 
 ## Cells
 
@@ -305,6 +305,16 @@
 | poi2vec | arizona | 7 | 2 | 236,450 | 35.5 | 1 | 5 | ✓ |
 | poi2vec | arizona | 7 | 3 | 236,450 | 35.5 | 1 | 5 | ✓ |
 | poi2vec | arizona | 7 | 4 | 236,450 | 35.5 | 1 | 5 | ✓ |
+| poi2vec | california | 0 | 0 | 3,171,380 | 558.4 | 1 | 5 | ✓ |
+| poi2vec | california | 0 | 1 | 3,171,380 | 558.4 | 1 | 5 | ✓ |
+| poi2vec | california | 0 | 2 | 3,171,380 | 558.4 | 1 | 5 | ✓ |
+| poi2vec | california | 0 | 3 | 3,171,380 | 558.4 | 1 | 5 | ✓ |
+| poi2vec | california | 0 | 4 | 3,171,380 | 558.4 | 1 | 5 | ✓ |
+| poi2vec | california | 1 | 0 | 3,171,380 | 558.4 | 1 | 5 | ✓ |
+| poi2vec | california | 1 | 1 | 3,171,380 | 558.4 | 1 | 5 | ✓ |
+| poi2vec | california | 1 | 2 | 3,171,380 | 558.4 | 1 | 5 | ✓ |
+| poi2vec | california | 1 | 3 | 3,171,380 | 558.4 | 1 | 5 | ✓ |
+| poi2vec | california | 1 | 4 | 3,171,380 | 558.4 | 1 | 5 | ✓ |
 | poi2vec | florida | 0 | 0 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
 | poi2vec | florida | 0 | 1 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
 | poi2vec | florida | 0 | 2 | 1,407,034 | 221.1 | 1 | 5 | ✓ |
@@ -345,3 +355,8 @@
 | poi2vec | georgia | 7 | 2 | 402,581 | 59.9 | 1 | 5 | ✓ |
 | poi2vec | georgia | 7 | 3 | 402,581 | 59.9 | 1 | 5 | ✓ |
 | poi2vec | georgia | 7 | 4 | 402,581 | 59.9 | 1 | 5 | ✓ |
+| poi2vec | texas | 0 | 0 | 4,089,892 | 700.5 | 1 | 5 | ✓ |
+| poi2vec | texas | 0 | 1 | 4,089,892 | 700.5 | 1 | 5 | ✓ |
+| poi2vec | texas | 0 | 2 | 4,089,892 | 700.5 | 1 | 5 | ✓ |
+| poi2vec | texas | 0 | 3 | 4,089,892 | 700.5 | 1 | 5 | ✓ |
+| poi2vec | texas | 0 | 4 | 4,089,892 | 700.5 | 1 | 5 | ✓ |
