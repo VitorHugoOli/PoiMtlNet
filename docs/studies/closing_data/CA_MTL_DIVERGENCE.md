@@ -110,6 +110,22 @@ Recommendation: **(1)** as the minimal robustness fix (preserves the frozen reci
 with **(3)** as the confirmation/control. **Choosing the board-wide fix is a user call** (it touches the trainer
 precision path that produced every prior MTL number).
 
+## DECISION (user, 2026-06-23) — measure data quality first, then pick the fix via an advisor
+Priority = **best data quality**, and the deeper goal = **close the MTL reg gap vs the STL reg ceiling**. The
+fp16-no-GradScaler harness may have *understated* MTL reg even at small states (the `t2p0_fp32_control.sh` note:
+fp32 "jumps toward (c)"), so the gap may be partly a precision/harness artifact rather than joint-loop sacrifice.
+Plan (do NOT pick a fix yet):
+1. **Small-state bias experiment** — run true-fp32 (`MTL_DISABLE_AMP=1`) champion-G MTL at FL (and AL) and
+   compare reg vs the committed fp16 reg and the STL reg ceiling:
+   - fp32 reg → STL ceiling ⇒ the −1.2…−5.2 gap was largely **precision/harness** ⇒ fp32/GradScaler is the
+     quality fix AND it CLOSES the reg gap (a major positive for the central claim).
+   - fp32 reg ≈ fp16 reg (still below ceiling) ⇒ the gap is **real joint-loop**, and precision only fixes the
+     CA/TX crash (skip-guard suffices there).
+2. **CA true-fp32** (running) — large-state confirmation (cliff disappears + real CA reg vs ceiling 63.48).
+3. **Advisor** after the empirics — evaluate the best outcome for data quality + the reg-gap claim, then choose
+   the board-wide fix (skip-guard vs GradScaler vs fp32) and the re-baseline scope.
+[Empirical results + advisor verdict appended here.]
+
 ## Repro / evidence
 - Both runs: §3c champion-G command on `--engine check2hgi_dk_ovl --state california`, seed 0; tf32 = `--compile
   --tf32`, fp32 = `--compile` (no `--tf32`). Both collapse at ep30.
