@@ -135,7 +135,20 @@ AL (1109 regions) is too small to fp16-overflow, so fp16 MTL does NOT crash here
 **fp32 closes ~HALF the small-state reg gap (+0.20 pp: −0.38 → −0.18)** — the fp16 harness *was* understating MTL
 reg (confirms the 2026-06-04 `t2p0_fp32_control.sh` hypothesis) — but a real **~−0.18 joint-loop gap persists**
 in fp32. cat unchanged (≈63.4 both). So the precision fix (a) stops the CA/TX crash AND (b) materially improves
-reg toward the ceiling, but does not fully erase the gap. (FL fp32 + CA fp32 data points pending.)
+reg toward the ceiling, but does not fully erase the gap.
+
+### Empirical result — FL fp32 fold-1 (2026-06-23) — even stronger
+FL fp32 MTL fold-1: reg FULL top10 = **77.71** (best-ep 50, **NO collapse**) — that is **ABOVE the FL STL reg
+ceiling (76.71)** and well above fp16 fold-1 (76.05) / the fp16 5f mean (75.42, which was dragged down by the
+fold-3 ep50 collapse). So at FL, true-fp32 MTL reg may actually **BEAT** the ceiling (Δreg ≳ 0) — the apparent
+"MTL sacrifices reg" was largely a **fp16-harness artifact** (crash + systematic understatement), not a real
+joint-loop cost. (FL 5-fold mean pending; AL retains a small real −0.18, so the effect is state-dependent but
+the direction is unambiguous: correct precision closes — and at FL reverses — the reg gap.)
+
+**Emerging picture:** the fp16-autocast-no-GradScaler harness both (1) **crashed** large states (CA/TX) and (2)
+**understated MTL reg** everywhere (≈+0.2 pp at AL, ≈+1.7 pp at FL fold-1). Correct precision (fp32 / GradScaler)
+is therefore a **data-quality fix that also closes/reverses the central reg gap** — a material positive for the
+paper's MTL-vs-STL reg claim. This warrants a board-wide MTL re-baseline under the corrected precision path.
 
 ## Repro / evidence
 - Both runs: §3c champion-G command on `--engine check2hgi_dk_ovl --state california`, seed 0; tf32 = `--compile
