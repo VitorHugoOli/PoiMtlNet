@@ -150,6 +150,21 @@ the direction is unambiguous: correct precision closes — and at FL reverses �
 is therefore a **data-quality fix that also closes/reverses the central reg gap** — a material positive for the
 paper's MTL-vs-STL reg claim. This warrants a board-wide MTL re-baseline under the corrected precision path.
 
+### Precision-by-code-path (VERIFIED 2026-06-23) — the reg gap was a precision MISMATCH
+| path | used for | precision | re-run? |
+|---|---|---|---|
+| `mtl_cv.py` (MTL) | champion-G MTL (reg+cat) | **fp16 autocast, no GradScaler** | YES (fix precision) |
+| `p1_region_head_ablation.py` | **STL REG ceiling** (next_stan_flow) | **TRUE fp32, no autocast** (`p1:83`) | **NO — already fp32** |
+| `_single_task_train.py`/`next_cv` (`--task next`) | STL CAT ceiling (next_gru) | **fp16 autocast** (`:66`) | for Δcat parity only (cat ~precision-insensitive: AL 63.44→63.48) — low priority |
+
+**Key correction:** the STL **reg** ceiling was ALWAYS fp32 (p1, no autocast). So the original Δreg compared a
+**fp16-understated MTL against an fp32 ceiling** — a precision MISMATCH that *unfairly penalised* the MTL. The
+"reg gap" is therefore largely a harness artifact; matching precision (fp32 MTL vs the fp32 reg ceiling) is what
+closes it (AL −0.18) and reverses it (FL fold-1 77.71 > 76.71). **The reg ceiling does NOT need re-running.**
+(An earlier advisor pass wrongly claimed all STL ceilings are fp16 — true only for the *cat* ceiling path; the
+*reg* ceiling is p1/fp32, verified at `p1_region_head_ablation.py:83` + its no-autocast train loop.)
+**Re-baseline scope = MTL cells only** (precision fix); reg ceilings stand; cat ceilings optional for Δcat parity.
+
 ## Repro / evidence
 - Both runs: §3c champion-G command on `--engine check2hgi_dk_ovl --state california`, seed 0; tf32 = `--compile
   --tf32`, fp32 = `--compile` (no `--tf32`). Both collapse at ep30.
