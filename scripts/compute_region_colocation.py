@@ -90,6 +90,26 @@ def _load_category_idx_lookup(state: str) -> dict:
     return idx_lookup
 
 
+def _resolve_split_engine(state: str, engine: EmbeddingEngine) -> EmbeddingEngine:
+    """C29 mirror: split+sequences come from the engine the model TRAINS on. A pure
+    SUBSTRATE engine (e.g. design_k: embeddings/sequences but no ``input/next.parquet``)
+    is not trained on directly — its canonical-windowed training reads CHECK2HGI inputs,
+    so the split falls back to canonical. A trainable engine (dk_ovl, own inputs) uses its
+    own split. Probe ``input/next.parquet`` to decide."""
+    if engine == EmbeddingEngine.CHECK2HGI:
+        return engine
+    try:
+        has_inputs = IoPaths.get_next(state, engine).exists()
+    except Exception:
+        has_inputs = False
+    if has_inputs:
+        return engine
+    logger.warning("[%s] engine '%s' has no input/next.parquet (substrate-only) → split"
+                   "+sequences from canonical check2hgi; save dir still '%s'.",
+                   state, engine.value, engine.value)
+    return EmbeddingEngine.CHECK2HGI
+
+
 def _load_sequences(state: str, engine: EmbeddingEngine = EmbeddingEngine.CHECK2HGI) -> pd.DataFrame:
     # ⚠ ENGINE-AWARE (2026-06-23, C29 mirror). Like the log_T prior, the log_C co-location
     # prior MUST be built from the training engine's sequences + split — a dk_ovl (stride-1,
@@ -186,6 +206,7 @@ def save(
     filename: str,
     n_splits: Optional[int] = None,
     seed: Optional[int] = None,
+    provenance_engine: Optional[EmbeddingEngine] = None,
 ) -> Path:
     """Persist to output/<engine>/<state>/ (beside the per-fold log_T).
 
@@ -204,7 +225,7 @@ def save(
         "smoothing_eps": smoothing_eps,
         "n_regions": int(t_rc.shape[0]),
         "n_cats": int(t_rc.shape[1]),
-        "engine": engine.value,            # provenance: split+sequences engine (C29 mirror)
+        "engine": (provenance_engine or engine).value,  # provenance: split+sequences engine (C29 mirror)
     }
     if n_splits is not None:
         payload["n_splits"] = int(n_splits)
@@ -225,9 +246,11 @@ def _build_per_fold(state: str, engine: EmbeddingEngine, smoothing_eps: float,
     from data.folds import load_next_data
 
     # ⚠ split + sequences MUST match the TRAINING engine (C29 mirror): a canonical split on a
-    # dk_ovl run mismatches the user→fold partition → leaky co-location prior.
-    X_next, y_next, next_userids, _ = load_next_data(state, engine)
-    seq_df = _load_sequences(state, engine)
+    # dk_ovl run mismatches the user→fold partition → leaky co-location prior. Substrate-only
+    # engines (e.g. design_k, the default) fall back to canonical (their training windowing).
+    split_engine = _resolve_split_engine(state, engine)
+    X_next, y_next, next_userids, _ = load_next_data(state, split_engine)
+    seq_df = _load_sequences(state, split_engine)
     cat_idx_lookup = _load_category_idx_lookup(state)
 
     sgkf = StratifiedGroupKFold(n_splits=n_splits, shuffle=True, random_state=seed)
@@ -238,12 +261,12 @@ def _build_per_fold(state: str, engine: EmbeddingEngine, smoothing_eps: float,
         train_userids = set(int(u) for u in next_userids[train_idx])
         log_rc, log_cr, _ = build_colocation_from_userids(
             state, train_userids=train_userids, smoothing_eps=smoothing_eps,
-            seq_df=seq_df, cat_idx_lookup=cat_idx_lookup, engine=engine,
+            seq_df=seq_df, cat_idx_lookup=cat_idx_lookup, engine=split_engine,
         )
         out = save(
             state, engine, log_rc, log_cr, smoothing_eps,
             filename=f"region_colocation_log_seed{seed}_fold{fold_idx + 1}.pt",
-            n_splits=n_splits, seed=seed,
+            n_splits=n_splits, seed=seed, provenance_engine=split_engine,
         )
         paths.append(out)
     return paths

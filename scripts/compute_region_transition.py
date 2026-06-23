@@ -65,6 +65,27 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
+def _resolve_split_engine(state: str, engine: EmbeddingEngine) -> EmbeddingEngine:
+    """The fold split + sequences must come from the engine the model TRAINS on.
+    A pure SUBSTRATE engine (e.g. design_k: embeddings + sequences but NO
+    ``input/next.parquet``) is never trained on directly — its canonical-windowed
+    training reads the CHECK2HGI inputs, so the split falls back to canonical. A real
+    trainable engine (e.g. check2hgi_dk_ovl, which builds its OWN stride-1 inputs) uses
+    its own split. Probe ``input/next.parquet`` to decide (cheap, no data load)."""
+    if engine == EmbeddingEngine.CHECK2HGI:
+        return engine
+    try:
+        has_inputs = IoPaths.get_next(state, engine).exists()
+    except Exception:
+        has_inputs = False
+    if has_inputs:
+        return engine
+    logger.warning("[%s] engine '%s' has no input/next.parquet (substrate-only) → "
+                   "building the split+sequences from canonical check2hgi (its training "
+                   "windowing). Save dir still '%s'.", state, engine.value, engine.value)
+    return EmbeddingEngine.CHECK2HGI
+
+
 def _load_graph_maps(state: str):
     path = IoPaths.CHECK2HGI.get_graph_data_file(state)
     with open(path, "rb") as f:
@@ -221,6 +242,7 @@ def save(
     n_splits: Optional[int] = None,
     seed: Optional[int] = None,
     engine: EmbeddingEngine = EmbeddingEngine.CHECK2HGI,
+    provenance_engine: Optional[EmbeddingEngine] = None,
 ) -> Path:
     """Persist a transition-log-probabilities matrix as ``.pt``.
 
@@ -242,9 +264,10 @@ def save(
         "log_transition": tensor,
         "smoothing_eps": smoothing_eps,
         "n_regions": tensor.shape[0],
-        # provenance: the engine whose split+sequences built this prior. A trainer can
-        # fail-loud if its engine differs (prevents the canonical-prior-on-dk_ovl leak).
-        "engine": engine.value,
+        # provenance: the engine whose split+sequences built this prior (NOT the save dir —
+        # they differ for a substrate-only --engine that falls back to canonical). A trainer
+        # fails loud if its engine differs (prevents the canonical-prior-on-dk_ovl leak).
+        "engine": (provenance_engine or engine).value,
     }
     if n_splits is not None:
         payload["n_splits"] = int(n_splits)
@@ -273,8 +296,10 @@ def _build_per_fold(state: str, smoothing_eps: float, n_splits: int, seed: int,
 
     # ⚠ split MUST be computed on the SAME engine the trainer uses, else the user→fold
     # partition mismatches (filtered/overlap engines drop/duplicate rows) → leaky prior.
-    X_next, y_next, next_userids, _ = load_next_data(state, engine)
-    seq_df = _load_sequences(state, engine)
+    # A substrate-only engine (no own inputs) falls back to canonical (its training windowing).
+    split_engine = _resolve_split_engine(state, engine)
+    X_next, y_next, next_userids, _ = load_next_data(state, split_engine)
+    seq_df = _load_sequences(state, split_engine)
 
     sgkf = StratifiedGroupKFold(n_splits=n_splits, shuffle=True, random_state=seed)
     paths = []
@@ -287,7 +312,7 @@ def _build_per_fold(state: str, smoothing_eps: float, n_splits: int, seed: int,
             train_userids=train_userids,
             smoothing_eps=smoothing_eps,
             seq_df=seq_df,
-            engine=engine,
+            engine=split_engine,
         )
         # Filename encodes seed so a trainer running at --seed N cannot
         # silently load a per-fold log_T built for a different seed.
@@ -300,6 +325,7 @@ def _build_per_fold(state: str, smoothing_eps: float, n_splits: int, seed: int,
             n_splits=n_splits,
             seed=seed,
             engine=engine,
+            provenance_engine=split_engine,
         )
         paths.append(out)
     return paths
