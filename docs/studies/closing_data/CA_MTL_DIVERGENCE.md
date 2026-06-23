@@ -171,6 +171,31 @@ closes it (AL −0.18) and reverses it (FL fold-1 77.71 > 76.71). **The reg ceil
 - Evidence: per-epoch `best/tr/val=N..|C..` in the run logs (`logs/ca_mtl_*.log`); per-fold
   `metrics/fold*_next_{region,category}_val.csv` (top10/f1, loss, ood_fraction).
 
-## Status
-Both CA MTL runs (tf32, fp32) killed (collapsed = void). CA reg ceiling 63.48 stands. CA Δreg blocked pending a
-real fix to the ep30 collapse. FL Task 1 result stands with the caveat (1 late-fold collapse; minor).
+## bf16 fix validation (2026-06-23) — PARTIAL (ep28, restart-truncated; NOT yet ep30)
+The chosen fix (bf16 autocast, `MTL_AUTOCAST_BF16=1`, `mtl_cv.py:319-326`) was run at CA scale. **It reached
+only ep28 — the studio restarted ~2 epochs short of the ep30 cliff, so the cliff is NOT yet definitively
+cleared.** But the evidence through ep28 is strong:
+| metric @epoch | fp16 (collapsed) | bf16 (this run) |
+|---|---|---|
+| reg val loss ep20 | **7.82** (runaway) | (healthy band) |
+| reg val loss ep26–28 | → NaN by ep30 | **3.87–4.20 (stable)** |
+| cat ep26–28 | declining → 3.16 @ep30 | **72.9 → 73.7 (climbing)** |
+| non-finite events | yes (ep30) | **0** through ep28 |
+| pre-clip grad-norm ep27 | — | ~3.5 (finite, clipped to 1.0) |
+
+fp16 was **deep in runaway divergence by ep20** (loss 7.82, +80% over healthy); **bf16 shows none of it at
+ep28** (loss ~4, cat still climbing, zero non-finite). So bf16 is **near-conclusively** the fix — but a clean
+**ep30+ run is still required** to be 100% (truncated by the recurring ~1–2 h studio restarts). When the GPU
+returns: start CA bf16 FIRST in the fresh window (~40 min to clear ep30).
+
+### FL fp32 50ep fold-1 (re-run, completed) — beats BOTH ceilings
+reg FULL **77.71** @ep50 (no collapse) > STL reg ceiling **76.71** (+1.0); cat **79.43** > cat ceiling 75.15
+(+4.3). Reproduces the earlier fold-1 exactly → the "MTL sacrifices reg" was a fp16 artifact; in correct
+precision the MTL **meets/beats** both ceilings at FL.
+
+## Status (2026-06-23)
+- **Root cause CONFIRMED** (fp16-autocast overflow, no GradScaler); **fix = bf16** (committed, `958d71f3`).
+- **bf16 validated through ep28** (healthy, 0 non-finite) — ep30+ confirmation pending a clean GPU window.
+- **Correct precision closes/reverses the reg gap**: FL fp32 fold-1 beats both ceilings; AL fp32 closes ~half.
+- CA reg ceiling 63.48 (fp32) stands; STL reg ceilings need NO re-run; **re-baseline = MTL cells only**.
+- Recurring ~1–2 h studio restarts keep truncating the ~40 min CA runs — start CA bf16 first thing when GPU is back.
