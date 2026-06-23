@@ -27,13 +27,14 @@ Result JSON: `docs/results/closing_data/h100/florida_s0_board.json`.
 **Task 2 (CA) — IN PROGRESS:**
 - STL reg ceiling ✅ **63.4848 ± 0.31** (full top10, 8501 regions; per-fold 63.25/63.45/63.38/63.33/64.02).
   Resumed cleanly from a 3-fold checkpoint after the restart. `docs/results/P1/region_head_california_..._s0.json`.
-- CA champion-G MTL: the first attempt (compiled+**tf32**) **DIVERGED** (val loss → NaN by ep30, all folds) →
-  the −5.23 pp "Δreg breach" it produced is a **tf32-divergence ARTIFACT — VOID, do not cite.** Root cause +
-  fp32 A/B fix in [`CA_MTL_TF32_DIVERGENCE.md`](CA_MTL_TF32_DIVERGENCE.md). Re-running in **fp32** (drop
-  `--tf32`, a perf knob — not a recipe change); fp32 is stable (reg val loss settles ~4.1 vs tf32's 7.8→NaN).
-  True CA Δreg pending the fp32 run.
-- ⚠ **FL caveat:** FL Task 1 ran under tf32 (fold 3 NaN'd at ep50, scorer used its pre-NaN peak) → FL reg
-  75.42 may be slightly underestimated; an fp32 FL re-run is recommended before freezing FL's reg headline.
+- CA champion-G MTL **COLLAPSES at ep30** (both heads → ~3% floor) → the −5.23 pp "Δreg breach" it produced is
+  a **collapse ARTIFACT — VOID, do not cite.** **It is NOT a tf32 issue:** fp32 collapses at the identical ep30
+  (precision refuted). Deterministic NaN event at ep30, CA-scale; under audit. Full writeup:
+  [`CA_MTL_DIVERGENCE.md`](CA_MTL_DIVERGENCE.md). CA Δreg blocked pending a real fix (LR / NaN-guard / anomaly
+  diagnosis). CA reg ceiling 63.48 stands.
+- ⚠ **FL caveat:** FL Task 1 hit the same instability in 1/5 folds at ep50 (late, benign; scorer used the
+  pre-collapse peak) → FL reg 75.42 slightly underestimated; FL MTL re-run recommended once a fix exists.
+- **STL ceilings are CLEAN** (single-task heads stable) — no re-run needed.
 
 ---
 
