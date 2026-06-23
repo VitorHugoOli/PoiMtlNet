@@ -1,0 +1,39 @@
+{
+  "rundir": "results/check2hgi/istanbul/mtlnet_lr1.0e-04_bs2048_ep50_20260623_200213_22686",
+  "seed": 100,
+  "tag": "istanbul_s100",
+  "method": "reg full=top10_acc_indist*(1-ood_frac) at indist-best epoch; cat=macro-f1 at f1-best epoch; per-task diagnostic-best, fold-mean",
+  "cat_macro_f1_mean": 60.2016,
+  "cat_macro_f1_std": 0.5631,
+  "cat_per_fold": [
+    59.1833,
+    60.1458,
+    60.2382,
+    60.665,
+    60.7757
+  ],
+  "cat_best_epochs": [
+    22,
+    23,
+    20,
+    21,
+    21
+  ],
+  "reg_full_top10_mean": 69.7035,
+  "reg_full_top10_std": 0.6141,
+  "reg_per_fold": [
+    70.2093,
+    70.1604,
+    70.2179,
+    69.1456,
+    68.7843
+  ],
+  "reg_best_epochs": [
+    19,
+    21,
+    15,
+    17,
+    16
+  ],
+  "n_folds": 5
+}

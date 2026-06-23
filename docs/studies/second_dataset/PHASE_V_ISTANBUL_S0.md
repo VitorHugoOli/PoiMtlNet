@@ -28,5 +28,21 @@ now on a **non-US corpus (Istanbul)** under the **frozen substrate**. Replicates
 - STL cat: `train.py --task next --model next_gru`; STL reg: `p1 --heads next_stan_flow --target region --region-emb-source check2hgi --override-hparams freeze_alpha=True alpha_init=0.0 --per-fold-transition-dir output/check2hgi/istanbul`; floor: `compute_simple_baselines.py --task next_region`.
 - Rundirs: MTL `results/check2hgi/istanbul/mtlnet_lr1.0e-04_bs2048_ep50_20260623_190800_105170`; STL cat `results/check2hgi/istanbul/next_lr1.0e-04_bs2048_ep50_20260623_191002_105363`; STL reg `docs/results/P1/region_head_istanbul_*`; floor `docs/results/P0/simple_baselines/istanbul/next_region.json`.
 
+## Multi-seed (0/1/7/100) — champion-G holds across all 4 seeds (2026-06-23)
+Seeds 1/7/100 MTL re-run after a studio crash (fresh per-seed log_T, fp32). Per-seed (5f) cat / reg:
+| seed | cat macro-F1 | reg FULL top10 |
+|---|---|---|
+| 0 | 60.1461 | 69.7892 |
+| 1 | 60.0606 | 69.8561 |
+| 7 | 60.2401 | 69.8218 |
+| 100 | 60.2016 | 69.7035 |
+| **mean** | **60.16 ± 0.07** | **69.79 ± 0.06** |
+
+→ **Δcat = +8.06** vs STL cat ceiling 52.10 (beats); **Δreg = −0.58** vs STL reg ceiling 70.37 (matches);
+**+17.27** over the Markov-1 floor 52.52. Cross-seed variance is tiny (±0.07 cat / ±0.06 reg) → the
+champion-G signature (cat gain + reg parity-above-floor) is **highly reproducible** on the frozen non-US
+substrate. (Ceilings/floor are seed-0; both are seed-stable. Per-seed ceilings optional for full rigor.)
+
 ## Status
-**Istanbul seed-0 cell COMPLETE.** Remaining: seeds 1/7/100 (queue as GPU frees); H3 secondary-robustness variant; the A5 chronological-split bridge (run the same cells on `chrono_split/`).
+**Istanbul multi-seed (0/1/7/100) MTL COMPLETE.** Remaining: per-seed STL ceilings (optional, seed-stable);
+H3 secondary-robustness variant; the A5 chronological-split bridge (same cells on `chrono_split/`).
