@@ -1458,16 +1458,29 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                 # exactly the closing_data board recipe, so this guard never fires there.
                 _pf_engine = pf_payload.get("engine") if isinstance(pf_payload, dict) else None
                 _tb_hp_guard = dict(ts.task_b.head_params or {})
-                _prior_active = not (
+                # "active" = the leaky log_T can actually reach the loss. Two routes:
+                #  (1) the α·log_T HEAD prior — off only when freeze_alpha=True AND alpha_init=0.0;
+                #  (2) log_T KNOWLEDGE-DISTILLATION (--log-t-kd-weight, v12 DEFAULT 0.2 = ON) — the
+                #      KD teacher is the same per-fold log_T buffer, so a leaky split leaks via KD
+                #      EVEN when α=0. log_C-KD (--log-c-kd-weight / --cat-kd-weight) is the same story.
+                # Guarding only the head-prior would miss the KD routes (audit gap, 2026-06-23).
+                _head_prior_on = not (
                     bool(_tb_hp_guard.get("freeze_alpha", False))
                     and float(_tb_hp_guard.get("alpha_init", 0.1)) == 0.0
                 )
+                _kd_on = (
+                    float(getattr(config, "log_t_kd_weight", 0.0) or 0.0) > 0.0
+                    or float(getattr(config, "log_c_kd_weight", 0.0) or 0.0) > 0.0
+                    or float(getattr(config, "cat_kd_weight", 0.0) or 0.0) > 0.0
+                )
+                _prior_active = _head_prior_on or _kd_on
                 if (_pf_engine is not None and _prior_active
                         and str(_pf_engine) != str(config.embedding_engine)):
                     raise ValueError(
                         f"Per-fold log_T at {pf_path} was built for engine "
                         f"'{_pf_engine}', but the trainer runs engine "
-                        f"'{config.embedding_engine}' with the prior ACTIVE (alpha!=0). "
+                        f"'{config.embedding_engine}' with the prior ACTIVE "
+                        f"(head α-prior on={_head_prior_on}, log_T/C-KD on={_kd_on}). "
                         f"The fold split is engine-specific (overlap/filtered engines "
                         f"drop users) so this leaks val users into the prior. Rebuild for "
                         f"the trainer's engine: python scripts/compute_region_transition.py "

@@ -676,9 +676,23 @@ and byte-identical at the default, found ONE more same-class latent bug, and ver
 - ✅ **Split contract verified line-for-line**: the prior's `StratifiedGroupKFold(n_splits, shuffle, seed)` on
   `load_next_data(engine)` matches `FoldCreator` (`folds.py:1377-1389`, y=next_category, groups=userid) EXACTLY
   once engine+seed+n_splits agree — so the engine fix fully closes the split mismatch.
-- **Remaining (lower priority, both inert on the board):** (1) thread `engine` into
-  `log_t_freshness.assert_log_t_fresh` + pass it from `p1_region_head_ablation.py:889` (catches the p1
-  consumer-mismatch the trainer guard doesn't cover). (2) constrain `_load_graph_maps`' canonical-graph pin to a
-  re-windowing-engine allowlist (the pin is correct for dk_ovl but wrong for a genuinely different region map).
-  Advisor's unifying suggestion: stamp a single `split_fingerprint=(engine,seed,n_splits)` and assert it
-  whenever the prior is active.
+**Second independent advisor (2026-06-23) — results CLEAN + one more guard gap closed.** A fresh auditor
+re-derived the leak exposure of EVERY actual run from configs/cmdlines/payloads (not from prior conclusions):
+- **Board (`check2hgi_dk_ovl`) = CLEAN** — in every run all three prior/KD routes are inert: head α-prior OFF
+  (`freeze_alpha=True alpha_init=0.0`), `log_t_kd_weight=log_c_kd_weight=cat_kd_weight=0.0` (AZ even had
+  `per_fold_transition_dir=None` → log_T never loaded). The leaky-split log_T is ×0 → bit-identical to no prior.
+- **Istanbul (`check2hgi`) = CLEAN** — prior is genuinely ACTIVE (`next_getnext_hard`, learnable α) but its log_T
+  was built on the SAME engine it trains on (`compute_region_transition --state istanbul`, default check2hgi),
+  split verified line-for-line vs `FoldCreator` (`folds.py:1036`) → no mismatch. log_C-KD off.
+- **Guard gap found + CLOSED:** the trainer guard's `_prior_active` keyed only on the head α-prior, MISSING the
+  **log_T-KD route** (`--log-t-kd-weight`, v12 default **0.2 = ON**): with α=0 + KD-on, the KD teacher IS the
+  per-fold log_T buffer, so a leaky split would leak via KD while the guard stayed silent. **Was 0.0 in every
+  real run** (no result affected), but a real latent hole. **Fixed**: `_prior_active = head_prior_on OR
+  (log_t_kd_weight>0 or log_c_kd_weight>0 or cat_kd_weight>0)` (`mtl_cv.py`). Verified: board still never fires
+  (all weights 0); a future dk_ovl run leaving `--log-t-kd-weight` at its v12 default now fails loud.
+- **Remaining (lower priority, all inert on the board):** (1) thread `engine` into
+  `log_t_freshness.assert_log_t_fresh` + pass it from `p1_region_head_ablation.py:889` (p1 consumer-mismatch).
+  (2) the log_C consumer (`pc_path`) carries `engine` provenance now but the trainer does not yet engine-check it
+  (only log_T is guarded) — extend the same check to `colocation_path`. (3) constrain `_load_graph_maps`'
+  canonical-graph pin to a re-windowing-engine allowlist. Unifying idea: one `split_fingerprint=(engine,seed,
+  n_splits)` asserted whenever any prior/KD route is active.
