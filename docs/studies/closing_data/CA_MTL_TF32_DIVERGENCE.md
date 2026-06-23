@@ -49,6 +49,31 @@ fp32 reg val loss peaks at ep6 (5.10) then **settles to ~4.1 and stays** — no 
 at CA's scale (8501-way softmax, large overlap matmuls) accumulate enough error to walk the optimizer off and
 NaN. **fp32 is the fix.**
 
+## Scope — what must be re-run vs what is CLEAN (verified 2026-06-23)
+The instability hits **only the complex MTL model** (`mtlnet_crossattn_dualtower`). The **single-task STL
+heads are numerically stable under tf32 even at CA scale** — verified by their per-fold trajectories (all
+converge with LATE best-epochs, no NaN, no collapse):
+
+| run | head | under tf32 | re-run in fp32? |
+|---|---|---|---|
+| **FL STL cat ceiling** | next_gru | ✅ clean — folds ep50 acc 77–79%, loss ~0.6 | **No** (valid as-is) |
+| **FL STL reg ceiling** | next_stan_flow | ✅ clean — per-fold [76.98,76.77,75.58,75.87,78.36], best-ep [47,49,44,48,50] | **No** (valid; matched A40 to −0.0015 pp) |
+| **CA STL reg ceiling** | next_stan_flow | ✅ clean — per-fold [63.25,63.45,63.38,63.33,64.02], best-ep [49,49,49,48,48] | **No** (valid as-is) |
+| **CA champion-G MTL** | mtlnet_crossattn_dualtower | ❌ DIVERGED (all folds NaN @ep30) | **YES** — fp32 (in progress) |
+| **FL champion-G MTL** | mtlnet_crossattn_dualtower | ⚠ 1/5 folds NaN @ep50 (reg slightly under) | **YES** — fp32, for a clean headline |
+| **TX champion-G MTL** (A40 lane, if run) | mtlnet_crossattn_dualtower | ⚠ TX is *larger* than CA (6553 reg / 3.83 M rows) → expected to diverge ≥ CA | **YES** — A40 lane must re-check/re-run fp32 |
+| **full P3 board MTL** (all states × {0,1,7,100}) | mtlnet_crossattn_dualtower | at-risk, escalating with state size | **fp32 board-wide** |
+
+**Bottom line:** the STL ceilings do **not** need re-running (single-task heads converge cleanly under tf32;
+the tf32↔fp32 gap on a *converged* single-task run is the documented sub-noise ±0.05 pp). Only the **MTL
+cells** need fp32. Matched-Δ note: a fp32 MTL vs a tf32 (converged) ceiling mixes precision by ≤0.05 pp —
+acceptable for the de-risk; for headline freeze, prefer fp32 on both sides (or document the mixed precision).
+
+**Board-wide implication (the real "huge problem"):** every tf32 MTL cell already produced is suspect, with
+severity scaling by state size — **marginal at AL/AZ/FL, catastrophic at CA/TX**. The A40 lane's tf32 results
+(FL A/B `cat 79.0083 / reg 75.5000`, and especially any TX MTL) must be re-validated in fp32. Adopt **fp32 for
+all MTL cells on the P3 board.**
+
 ## Fix + board implication
 - **Run CA (and any large state) MTL in fp32 — drop `--tf32`.** `--tf32` is a documented *perf knob*, not
   recipe identity (DEFAULTS_AND_GUARDS: "NEVER in canon … board-execution-only"), so fp32 is **not** a recipe
