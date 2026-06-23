@@ -1,5 +1,27 @@
 # HANDOFF — REDUCED board · **H100** (CUDA, Hopper) · branch `study/board-h100`
 
+## 🚀 NEXT-AGENT KICKOFF — connect the H100, then start here
+**State as of 2026-06-23 (handoff author):** the GPU is currently a **CPU-only fallback** (`torch.cuda.is_available()==False`);
+the H100 is **not attached** — the user must restart/attach the Lightning studio to get it. The filesystem PERSISTS.
+Everything else is ready, so on a fresh GPU window you can start in minutes:
+- **Env READY:** `torch 2.11.0+cu128` + matching pyg stack already installed in the studio venv (`.venv`). No reinstall.
+- **Prep DONE on disk (do NOT rebuild unless the freshness preflight fails):** v14 substrate + gated-overlap engine
+  built for AL/AZ/FL/CA (and GA/TX), and **seed-0 per-fold log_T present for AL/AZ/FL/CA (5 folds each)** under
+  `output/check2hgi_design_k_resln_mae_l0_1/<state>/region_transition_log_seed0_fold*.pt`.
+- **Trainer hardened (on `main`, commit `27b4bc5a`):** `mtl_cv.py` has the default-on `guard_finite_step` —
+  board runs set **`MTL_STRICT=1`** so any NaN event ABORTS loud (no more silent ep30 collapse). bf16 via
+  `MTL_AUTOCAST_BF16=1`. Test: `tests/test_training/test_mtl_nonfinite_guard.py` (10/10).
+- **ON CONNECT, in order:** (1) `python -c "import torch;print(torch.cuda.is_available(), torch.cuda.get_device_name(0))"`
+  → must be a Hopper H100; (2) `git checkout study/board-h100 && git merge main` — **the guard fix + this patched
+  doc live on `main` (commit `27b4bc5a`); the board branch MUST contain them before you run** (confirm with
+  `git log --oneline | grep 27b4bc5a` and `grep -q guard_finite_step src/training/runners/mtl_cv.py`). Keep results
+  on the board branch / its own PR — do NOT push results to `main`; (3) re-export the board env (§1 block);
+  (4) **log_T freshness preflight** (`src/data/log_t_freshness.py`,
+  enforced by `MTL_STRICT=1`); (5) start **§1 — the AL precision gate (bf16-vs-fp32)**, which BLOCKS all other MTL.
+  After the gate verdict, §3 (AZ+FL co-scheduled) then §4 (CA — note its restart-risk caveat: launch CA at the
+  START of a fresh window so it can clear ep30 before the next ~1-2 h restart). **STOP for the user** at: the
+  precision-gate table; any CA bf16 run that still collapses at/after ep30; any freshness/OOM/leak-guard failure.
+
 > Deadline-grade 1-seed board (`RUN_MATRIX_REDUCE.md`). The H100 carries the **precision gate** + the small/mid
 > states + **CA last**. **1 seed (0) × 5 folds** everywhere. Incremental commits + own PR; do NOT touch main or
 > another lane. The prior fp16 results on this branch are VOID (CA_MTL_DIVERGENCE.md) but the branch is mergeable
