@@ -39,12 +39,17 @@ for F in 1 2 3 4 5; do
       --per-fold-transition-dir output/check2hgi_design_k_resln_mae_l0_1/florida --no-checkpoints
   rc=$?
   if [ $rc -ne 0 ]; then echo "[resume] fold $F FAILED rc=$rc — stop"; exit $rc; fi
-  # copy the produced fold CSV(s) from the newest florida rundir (in THIS arm's isolated root) into the master
+  # --only-fold runs a SINGLE fold and the storage RE-INDEXES it to fold1 (it's the only fold),
+  # even though it used the canonical fold{F} split + fold{F}.pt log_T. So copy the run's fold1
+  # CSV and RENAME it to fold{F} in the master. Fail loud if the source is missing.
   NEW=$(ls -dt "$RESULTS_ROOT"/check2hgi_dk_ovl/florida/mtlnet_* | head -1)
   mkdir -p "$MASTER/metrics"
-  cp "$NEW/metrics/fold${F}_next_region_val.csv" "$MASTER/metrics/" 2>/dev/null
-  cp "$NEW/metrics/fold${F}_next_category_val.csv" "$MASTER/metrics/" 2>/dev/null
-  echo "[resume] fold $F done → copied into master $MASTER"
+  src_r="$NEW/metrics/fold1_next_region_val.csv"; src_c="$NEW/metrics/fold1_next_category_val.csv"
+  if [ ! -f "$src_r" ] || [ ! -f "$src_c" ]; then
+    echo "[resume] ERROR: expected fold1 CSVs in $NEW not found — abort"; exit 3; fi
+  cp "$src_r" "$MASTER/metrics/fold${F}_next_region_val.csv"
+  cp "$src_c" "$MASTER/metrics/fold${F}_next_category_val.csv"
+  echo "[resume] fold $F done → copied (fold1→fold${F}) into master $MASTER"
 done
 echo "[resume] $ARM ALL FOLDS PRESENT in $MASTER"
 echo "WALLCLOCK_END=$(date +%s)"

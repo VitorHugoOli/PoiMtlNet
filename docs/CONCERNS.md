@@ -634,3 +634,37 @@ Small states (AL/AZ) and FL: seed=42 ≈ multi-seed → no development bias. Lar
 **Smaller items from the same audit (documentation-only, no rerun):** CLI bool coercion `KEY=False`→truthy-True (FIXED in `scripts/train.py`, guarded by `test_cli_param_coercion.py`); `--category-weight` is a dead flag under `--alternating-optimizer-step` (v11/B9 trained 50/50 alternating; doc note); fp16 eval autocast vs fp32 STL ceiling (X4 measured Δreg −0.005 → immaterial, `MTL_DISABLE_AMP_EVAL` hatch added). Full list + file:line trail: `CODE_AUDIT_2026-06-12.md` P1-E/F/G.
 
 **Resolution / status:** `Both issues FIXED 2026-06-12; champion G unchanged; study CLOSED.` Guards: `tests/test_regression/test_mtl_param_partition.py` (dualtower family + PCGrad coverage), `test_cli_param_coercion.py`. Trail: `studies/archive/mtl_improvement/{CODE_AUDIT_2026-06-12.md, HANDOFF_AUDIT.md, log.md 2026-06-12, INDEX.html #tier7}`; `results/mtl_improvement/X_SERIES_FINDINGS.md`.
+
+## C29 — per-fold log_T prior built on the CANONICAL split/sequences, not the training engine's (split-provenance leak) — FIXED + INERT on the board
+
+**Found 2026-06-23 (user audit, board-h100 lane).** `compute_region_transition.py` was hardcoded to the
+**canonical CHECK2HGI** engine for both the sequences it reads (`_load_sequences`) and the `StratifiedGroupKFold`
+**fold split** (`_build_per_fold` → `load_next_data(state, CHECK2HGI)`). The closing_data board trains on the
+**`check2hgi_dk_ovl`** overlap substrate (stride-1, `MIN_SEQ=10`-filtered), which has a **different user set**
+(FL: ~220 val-users/fold vs canonical ~322) and 8× the rows. So a prior built canonically and used for a dk_ovl
+run **mismatches the fold partition**: ~180 of ~220 dk_ovl val-users/fold fall in the canonical *train* set →
+their region transitions leak into the prior the dk_ovl model evaluates against. The board's v14-dir per-fold
+log_T was verified **hash-identical** to the canonical-dir one (`d65824…`) → it WAS the canonical (stride-9)
+prior. The freshness guard (`log_t_freshness.py`) cannot catch this — it checks mtime, not split-provenance.
+
+**Impact on the board = ZERO (empirically + by construction).** Both the MTL reg head (`next_stan_flow_dualtower`)
+and the STL reg ceiling (`next_stan_flow`) run with **`freeze_alpha=True alpha_init=0.0`** = the documented
+**prior-OFF** control (`next_stan_flow/head.py:95-98`: "disables the α·log_T graph prior entirely — output =
+stan_logits alone"), and the board also passes `--log-t-kd-weight 0.0`. So the log_T is loaded but multiplied by
+α=0 → never affects the output. **Verified bit-identical**: rebuilding AL's reg ceiling with a correct leak-free
+prior gave Acc@10 0.6999 = the leaky 0.6999, Acc@1 0.3103±0.0256 in both. **Istanbul is independently clean** —
+it runs on engine `check2hgi` (not dk_ovl), so training + prior + Markov floor all use the SAME sequences/split
+(prior is ON there, α≈0.1, but correctly built → no leak).
+
+**Fix (committed):** `compute_region_transition.py` is now **engine-aware** — `--engine` (default `check2hgi`,
+byte-identical) threads the engine through `_load_sequences` (→ `get_seq_next(state, engine)`), the split
+(`load_next_data(state, engine)`), and the output dir (`OUTPUT_DIR/<engine>/<state>`). The saved payload now
+records `engine` provenance. Verified: `--engine check2hgi_dk_ovl` reproduces the manual leak-free prior tensor
+exactly (graph maps stay canonical — windowing-independent). **Any prior-ON dk_ovl/filtered recipe MUST build its
+prior with `--engine <that engine>`.**
+
+**Remaining follow-ups (for the advisor / next agent):** (1) `compute_region_colocation.py` (the log_C
+co-location prior) likely has the SAME canonical-hardcoding — audit + apply the same `--engine` fix. (2) Add a
+**trainer-side guard**: when the prior is ON (α≠0 or kd>0), fail-loud if `payload["engine"] != training engine`
+(the provenance field now exists to enable this). (3) `log_t_freshness.py` could additionally assert the engine
+provenance, not just mtime.

@@ -59,7 +59,7 @@ import numpy as np
 import pandas as pd
 import torch
 
-from configs.paths import IoPaths, EmbeddingEngine
+from configs.paths import IoPaths, EmbeddingEngine, OUTPUT_DIR
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -118,20 +118,26 @@ def _log_probs_from_rows(
     return np.log(probs).astype(np.float32)
 
 
-def _load_sequences(state: str) -> pd.DataFrame:
-    seq_path = IoPaths.CHECK2HGI.get_temp_dir(state) / "sequences_next.parquet"
+def _load_sequences(state: str, engine: EmbeddingEngine = EmbeddingEngine.CHECK2HGI) -> pd.DataFrame:
+    # ⚠ ENGINE-AWARE (2026-06-23 fix). The prior MUST be built from the SAME engine's
+    # sequences as training: an overlap/MIN_SEQ-filtered engine (e.g. check2hgi_dk_ovl,
+    # stride-1) has a different windowing AND a different user set than the canonical
+    # CHECK2HGI (stride-9). Building a CHECK2HGI prior for a dk_ovl run mismatches the
+    # fold split → leaks val users into the prior. Default stays CHECK2HGI (backward-compat).
+    seq_path = IoPaths.get_seq_next(state, engine)
     if not seq_path.exists():
-        raise FileNotFoundError(f"Missing {seq_path}; run the check2HGI pipeline first")
+        raise FileNotFoundError(f"Missing {seq_path}; build the {engine.value} engine first")
     return pd.read_parquet(seq_path)
 
 
-def build_transition_matrix(state: str, smoothing_eps: float = 0.01) -> tuple[np.ndarray, int]:
+def build_transition_matrix(state: str, smoothing_eps: float = 0.01,
+                            engine: EmbeddingEngine = EmbeddingEngine.CHECK2HGI) -> tuple[np.ndarray, int]:
     """Legacy: build log_T from ALL rows of ``sequences_next.parquet``.
 
     Has C4 leakage: val rows of every fold contribute to the prior.
     Use ``build_transition_matrix_from_userids`` for per-fold builds.
     """
-    seq_df = _load_sequences(state)
+    seq_df = _load_sequences(state, engine)
     placeid_to_idx, poi_to_region = _load_graph_maps(state)
     n_regions = int(poi_to_region.max()) + 1
 
@@ -155,6 +161,7 @@ def build_transition_matrix_from_userids(
     train_userids: Iterable[int],
     smoothing_eps: float = 0.01,
     seq_df: Optional[pd.DataFrame] = None,
+    engine: EmbeddingEngine = EmbeddingEngine.CHECK2HGI,
 ) -> tuple[np.ndarray, int]:
     """C4-clean: build log_T from rows whose userid is in ``train_userids``.
 
@@ -175,7 +182,9 @@ def build_transition_matrix_from_userids(
         ``userid``.
     """
     if seq_df is None:
-        seq_df = _load_sequences(state)
+        seq_df = _load_sequences(state, engine)
+    # graph maps (placeid→poi→region) are windowing-independent → always the canonical graph
+    # (overlap engines re-window the SAME check-ins through the same check2hgi graph).
     placeid_to_idx, poi_to_region = _load_graph_maps(state)
     n_regions = int(poi_to_region.max()) + 1
 
@@ -211,6 +220,7 @@ def save(
     filename: str = "region_transition_log.pt",
     n_splits: Optional[int] = None,
     seed: Optional[int] = None,
+    engine: EmbeddingEngine = EmbeddingEngine.CHECK2HGI,
 ) -> Path:
     """Persist a transition-log-probabilities matrix as ``.pt``.
 
@@ -222,7 +232,9 @@ def save(
     default). See ``src/training/runners/mtl_cv.py`` for the load-side
     guard. Tracking memo: ``docs/studies/mtl-exploration/LEAK_BLAST_RADIUS_AUDIT.md``.
     """
-    out_dir = IoPaths.CHECK2HGI.get_state_dir(state)
+    # engine-aware output dir: OUTPUT_DIR/<engine>/<state> (CHECK2HGI → output/check2hgi/<state>,
+    # unchanged default). A dk_ovl prior lands in output/check2hgi_dk_ovl/<state>.
+    out_dir = OUTPUT_DIR / engine.value / state.lower()
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / filename
     tensor = torch.from_numpy(log_probs)
@@ -230,6 +242,9 @@ def save(
         "log_transition": tensor,
         "smoothing_eps": smoothing_eps,
         "n_regions": tensor.shape[0],
+        # provenance: the engine whose split+sequences built this prior. A trainer can
+        # fail-loud if its engine differs (prevents the canonical-prior-on-dk_ovl leak).
+        "engine": engine.value,
     }
     if n_splits is not None:
         payload["n_splits"] = int(n_splits)
@@ -243,7 +258,8 @@ def save(
     return out_path
 
 
-def _build_per_fold(state: str, smoothing_eps: float, n_splits: int, seed: int):
+def _build_per_fold(state: str, smoothing_eps: float, n_splits: int, seed: int,
+                    engine: EmbeddingEngine = EmbeddingEngine.CHECK2HGI):
     """Reproduce the trainer's StratifiedGroupKFold split and write
     one log_T per fold from train userids only.
 
@@ -255,8 +271,10 @@ def _build_per_fold(state: str, smoothing_eps: float, n_splits: int, seed: int):
     from sklearn.model_selection import StratifiedGroupKFold
     from data.folds import load_next_data
 
-    X_next, y_next, next_userids, _ = load_next_data(state, EmbeddingEngine.CHECK2HGI)
-    seq_df = _load_sequences(state)
+    # ⚠ split MUST be computed on the SAME engine the trainer uses, else the user→fold
+    # partition mismatches (filtered/overlap engines drop/duplicate rows) → leaky prior.
+    X_next, y_next, next_userids, _ = load_next_data(state, engine)
+    seq_df = _load_sequences(state, engine)
 
     sgkf = StratifiedGroupKFold(n_splits=n_splits, shuffle=True, random_state=seed)
     paths = []
@@ -269,6 +287,7 @@ def _build_per_fold(state: str, smoothing_eps: float, n_splits: int, seed: int):
             train_userids=train_userids,
             smoothing_eps=smoothing_eps,
             seq_df=seq_df,
+            engine=engine,
         )
         # Filename encodes seed so a trainer running at --seed N cannot
         # silently load a per-fold log_T built for a different seed.
@@ -280,6 +299,7 @@ def _build_per_fold(state: str, smoothing_eps: float, n_splits: int, seed: int):
             filename=f"region_transition_log_seed{seed}_fold{fold_idx + 1}.pt",
             n_splits=n_splits,
             seed=seed,
+            engine=engine,
         )
         paths.append(out)
     return paths
@@ -297,14 +317,20 @@ def main():
                         help="Number of CV folds (must match trainer; default 5)")
     parser.add_argument("--seed", type=int, default=42,
                         help="Fold seed (must match trainer; default 42 = FoldCreator default)")
+    parser.add_argument("--engine", default="check2hgi",
+                        help="Engine whose split+sequences build the prior — MUST match the "
+                             "TRAINING engine. Default 'check2hgi' (canonical, stride-9). For an "
+                             "overlap/filtered substrate pass e.g. 'check2hgi_dk_ovl' (stride-1), "
+                             "else the fold split mismatches and the prior leaks val users.")
     args = parser.parse_args()
 
+    engine = EmbeddingEngine(args.engine)
     for state in args.state:
         if args.per_fold:
-            _build_per_fold(state, args.smoothing_eps, args.n_splits, args.seed)
+            _build_per_fold(state, args.smoothing_eps, args.n_splits, args.seed, engine=engine)
         else:
-            log_probs, _ = build_transition_matrix(state, smoothing_eps=args.smoothing_eps)
-            save(state, log_probs, args.smoothing_eps)
+            log_probs, _ = build_transition_matrix(state, smoothing_eps=args.smoothing_eps, engine=engine)
+            save(state, log_probs, args.smoothing_eps, engine=engine)
 
 
 if __name__ == "__main__":
