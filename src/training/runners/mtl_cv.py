@@ -318,11 +318,17 @@ def train_model(model: torch.nn.Module,
     # the canonical fp16 behaviour untouched.
     import os as _os
     _disable_amp = _os.environ.get("MTL_DISABLE_AMP") == "1"
+    # MTL_AUTOCAST_BF16=1 → bfloat16 autocast (fp32 exponent range, no 65504 overflow,
+    # no GradScaler needed) instead of fp16. Fixes the wide-logit fp16 overflow that
+    # NaN-collapses large states (CA/TX) — see docs/studies/closing_data/CA_MTL_DIVERGENCE.md.
+    _amp_dtype = torch.bfloat16 if _os.environ.get("MTL_AUTOCAST_BF16") == "1" else torch.float16
     _autocast_ctx = (
-        torch.autocast(DEVICE.type, dtype=torch.float16)
+        torch.autocast(DEVICE.type, dtype=_amp_dtype)
         if DEVICE.type == 'cuda' and not _disable_amp
         else contextlib.nullcontext()
     )
+    if DEVICE.type == 'cuda' and not _disable_amp:
+        logger.info("MTL autocast dtype = %s", _amp_dtype)
 
     cutoff_hits = {
         task_b_name: False,
@@ -389,6 +395,8 @@ def train_model(model: torch.nn.Module,
             )
 
     # Main training loop
+    import os as _os_ng
+    _os_nanguard = _os_ng.environ.get("MTL_NAN_GUARD") == "1"
     for epoch_idx in progress:
         model.train()
         # F50 B4 — at the boundary epoch, unfreeze α so it can grow.
@@ -806,10 +814,21 @@ def train_model(model: torch.nn.Module,
                         if p.grad is not None:
                             p.grad.zero_()
                 if max_grad_norm and max_grad_norm > 0:
-                    torch.nn.utils.clip_grad_norm_(
+                    _gn = torch.nn.utils.clip_grad_norm_(
                         list(model.parameters()) + _criterion_parameters(mtl_criterion),
                         max_grad_norm,
                     )
+                    # Env-gated NaN/grad-norm diagnostic (MTL_NAN_GUARD=1). No-op otherwise
+                    # (byte-identical). Catches the first non-finite loss/grad and traces the
+                    # pre-NaN grad-norm trajectory — for the CA ep30-collapse audit.
+                    if _os_nanguard:
+                        _lf = float(loss.detach()); _gnf = float(_gn)
+                        if (not math.isfinite(_lf)) or (not math.isfinite(_gnf)):
+                            logger.warning("[NAN_GUARD] NON-FINITE epoch=%d batch=%d loss=%s grad_norm=%s",
+                                           epoch_idx, batch_idx, _lf, _gnf)
+                        elif (batch_idx % 100) == 0:
+                            logger.info("[NAN_GUARD] epoch=%d batch=%d loss=%.4f grad_norm=%.3f",
+                                        epoch_idx, batch_idx, _lf, _gnf)
                 optimizer.step()
                 scheduler.step()
                 optimizer.zero_grad(set_to_none=True)

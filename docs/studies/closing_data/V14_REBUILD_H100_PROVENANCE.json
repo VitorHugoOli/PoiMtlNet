@@ -1,0 +1,52 @@
+{
+  "engine": "check2hgi_design_k_resln_mae_l0_1",
+  "rebuilt_on": {
+    "torch": "2.11.0+cu128",
+    "gpu": "NVIDIA H100 80GB HBM3",
+    "seed": 42,
+    "recipe": "resln + anchor-lambda 0.1 + mae-poi-lambda 0.3, 500 epochs"
+  },
+  "note": "H100 OWN-STATES rebuild. NOT byte-identical to V14_HASH_MANIFEST (cross-GPU nondeterminism; build sets only manual_seed). This is the provenance for all study/board-h100 FL+CA cells.",
+  "states": {
+    "florida": {
+      "embeddings.parquet": {
+        "bytes": 442067803,
+        "sha256": "86da8eb902f166e1126b213388c281bf4d113777139ff523b6f6fd1c93c19f9b",
+        "frozen_sha256": "17230b83cfd958cb2877e1ea611e43e30458759b8a2d4244041e6984b858f194",
+        "matches_frozen": false
+      },
+      "poi_embeddings.parquet": {
+        "bytes": 29880157,
+        "sha256": "e067bc43f7c00bd6f5d61457b386cf53e10d19067cea4b0d20e4a604eceef97f",
+        "frozen_sha256": "6f1cc1e3b497c47fc339c052e70c58c053456d6456cf8dda528ad65251f1efa9",
+        "matches_frozen": false
+      },
+      "region_embeddings.parquet": {
+        "bytes": 1754398,
+        "sha256": "b5f9204064065fdc72675a3e404acfd77caceca0b20755aa21616ca6425df4bf",
+        "frozen_sha256": "a5143d71662337aa5e244e0387bc85f97426850a18b8d5be9c18e088ed9ba9ce",
+        "matches_frozen": false
+      }
+    },
+    "california": {
+      "embeddings.parquet": {
+        "bytes": 946096241,
+        "sha256": "5ef96d0ad9a9cf7852753dfca47d95f004e296a77a7a122ae1cf704cb9413858",
+        "frozen_sha256": "ac2e0148c62deeef87795e2762e7a65317717475c5567703675080563411f9c5",
+        "matches_frozen": false
+      },
+      "poi_embeddings.parquet": {
+        "bytes": 67026981,
+        "sha256": "b9bfa95f440880b3e14289a20188f73fe4fd7308b4c6a7041f17c93f9582c910",
+        "frozen_sha256": "d3f6200e613c8d8b71993679b107839d353d8d707f2d10303bac2826269b066e",
+        "matches_frozen": false
+      },
+      "region_embeddings.parquet": {
+        "bytes": 3204394,
+        "sha256": "24597625466f02282ba1b3c1ff4986b0b555aeab7d9f88fc1aed43c954358831",
+        "frozen_sha256": "393e527d622c316b838dbdb0c191d49856e4c9453039e85e80e0d84c9bd72fc2",
+        "matches_frozen": false
+      }
+    }
+  }
+}

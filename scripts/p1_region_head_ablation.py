@@ -38,6 +38,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 import pickle as pkl
 import sys
 import time
@@ -581,7 +582,29 @@ def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
     model = model.to(DEVICE)
     if _P1_USE_COMPILE and DEVICE.type == "cuda":
         # Match the MTL champion's --compile (kernel fusion); CUDA-only, fp-non-identical.
-        model = torch.compile(model)
+        # Mirror mtl_cv.py: the head is compiled in a TRAIN (grad) and an EVAL (no-grad)
+        # variant + several batch-shape variants (overlap folds differ in size + the
+        # partial last batch). The default dynamo cache_size_limit=8 is easily exceeded
+        # → SILENT EAGER FALLBACK (the uniform ~770s/fold seen on the H100 board run,
+        # ~2x the A40). Raise the limit and (MTL_COMPILE_DYNAMIC=1) use one symbolic-shape
+        # graph so every variant stays compiled. Pure speed; no numeric change beyond the
+        # compiled-vs-eager fp-ordering noise the --compile rule already accepts.
+        import os as _os
+        try:
+            import torch._dynamo as _dyn
+            _lim = int(_os.environ.get("MTL_COMPILE_CACHE_LIMIT", "64"))
+            _dyn.config.cache_size_limit = max(_dyn.config.cache_size_limit, _lim)
+            if hasattr(_dyn.config, "recompile_limit"):
+                _dyn.config.recompile_limit = max(_dyn.config.recompile_limit, _lim)
+        except Exception:
+            pass
+        _ckw = {}
+        if _os.environ.get("MTL_COMPILE_DYNAMIC") == "1":
+            _ckw["dynamic"] = True
+        _cmode = _os.environ.get("MTL_COMPILE_MODE")
+        if _cmode:
+            _ckw["mode"] = _cmode
+        model = torch.compile(model, **_ckw)
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=0.01)
     steps_per_epoch = len(train_dl)
@@ -625,11 +648,35 @@ def _train_single_task(head_name, x_tensor, y_tensor, train_idx, val_idx,
 
         # Val
         model.eval()
+        # S2-analog for the STL ceiling (OOM_MEMORY_FIX.md): at large-C overlap scale the
+        # full val logit [N_val, C] OOMs the GPU on torch.cat (TX overlap: ~18.7GB at 6553
+        # regions; CA worse). compute_classification_metrics already chunks internally and is
+        # device-agnostic (operates on the input's device; rank-of-target uses strict `>`), so
+        # accumulating the val logits on CPU and scoring there is BYTE-IDENTICAL to the GPU path
+        # for the rank-based metrics (top-k/MRR/NDCG) — validated on AL. The dataset stays on
+        # GPU; only the val logits move, so the 18.7GB GPU cat is removed entirely. Auto-enable
+        # when the full val logit would exceed a GPU budget, or via MTL_CHUNK_VAL_METRIC /
+        # P1_CHUNK_VAL_METRIC; else keep the GPU path so small-state / frozen p1 numbers are untouched.
+        _val_logit_gb = (len(x_val) * n_classes * 4) / 1e9
+        _chunk_val = (
+            os.environ.get("MTL_CHUNK_VAL_METRIC", "").strip() in ("1", "true", "True")
+            or os.environ.get("P1_CHUNK_VAL_METRIC", "").strip() in ("1", "true", "True")
+            or _val_logit_gb > float(os.environ.get("P1_S2_AUTO_BUDGET_GB", "4"))
+        )
+        if _chunk_val and epoch == 0:
+            logger.info(
+                "[p1 S2] scoring val metric on CPU (full val logit ~= %.1f GB, N_val=%d x C=%d) "
+                "to avoid GPU OOM at overlap scale — byte-identical for rank-based metrics",
+                _val_logit_gb, len(x_val), n_classes,
+            )
         all_logits, all_targets = [], []
         with torch.no_grad():
             for x_batch, y_batch in val_dl:
-                out = model(x_batch)
-                all_logits.append(out.detach())
+                out = model(x_batch).detach()
+                if _chunk_val:
+                    out = out.cpu()
+                    y_batch = y_batch.cpu()
+                all_logits.append(out)
                 all_targets.append(y_batch)
 
         logits = torch.cat(all_logits)
