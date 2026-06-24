@@ -13,8 +13,12 @@ RAM-safety watcher armed to kill TX (newest) if avail < 4 GB. Cleared constructi
 CA untouched.
 
 ## TX STL ceilings (to beat)
-- cat macro-F1 ceiling: **TBD** (A40 lane `a40_tx_cat_ceiling.sh` — fill when scored)
-- reg FULL top10 ceiling: **TBD**
+- cat macro-F1 ceiling: **RUNNING** (`next_gru` STL on dk_ovl, seed0 5f — launched here 2026-06-24 ~06:00,
+  co-scheduled with the MTL run; scored + filled by `tx_cat_ceiling_commit.sh` on completion).
+- reg FULL top10 ceiling: **64.96 ± 0.46** (raw top10_acc, `next_stan_flow` a0/fp32, a40 artefact
+  `docs/results/closing_data/a40/tx_stl_reg_ceiling_s0.json`; per-fold [64.84, 65.18, 64.11, 65.27, 65.40]).
+  Metric-basis note: this is raw top10_acc; the MTL column is FULL top10 (=top10_indist×(1-ood)) — small
+  OOD-adjustment gap, but the documented board ceiling. **TX MTL fold 1 reg 66.94 → +1.98 (beats).**
 
 ## Per-fold results (diagnostic-best, scored by `h100_score_matched.py`)
 Updated incrementally as each fold completes (autonomous per-fold committer).
