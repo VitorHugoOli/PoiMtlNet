@@ -103,3 +103,4 @@ scripts/substrate_protocol_cleanup/
 # v14 MTL/STL eval session — keep drivers/aggregators/manifests, drop bulky logs
 scripts/_v14_run/logs/
 scripts/_v14_run/*.out
+results_resume_*/
