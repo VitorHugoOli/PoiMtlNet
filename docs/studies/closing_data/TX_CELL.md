@@ -30,11 +30,24 @@ Updated incrementally as each fold completes (autonomous per-fold committer).
 |---|---|---|---|---|
 | fold1 | 77.6885 | 50 | 66.9382 | 49 |
 | fold2 | 77.3113 | 50 | 67.3184 | 50 |
+| fold3 | 77.3870 | 50 | 66.1210 | 50 |
+| fold4 | 77.5648 | 48 | 67.1598 | 49 |
+| fold5 | 77.3925 | 50 | 67.4477 | 49 |
 
-**Running mean (n=2):** cat **77.4999** ±0.1886 | reg **67.1283** ±0.1901
+**Running mean (n=5):** cat **77.4688** ±0.1377 | reg **66.9970** ±0.4698
 <!--TXTABLE_END-->
 
 ## Status
 - Started 2026-06-24 ~04:42. ~5–6h for 5 folds co-scheduled; faster once CA frees the box.
 - The session driving this run **ends before TX finishes** — per-fold results are committed+pushed
   autonomously (`scripts/closing_data/tx_autocommit.sh`) so progress survives session death.
+
+
+## TX CELL — COMPLETE (5f)
+| task | TX MTL (5f) | ceiling | Δ |
+|---|---|---|---|
+| cat macro-F1 | **77.47** | 69.95 (A40 #37, dk_ovl/seed0) | **+7.52** (beats) |
+| reg FULL top10 | **67.00** | 64.96 (A40, dk_ovl/seed0) | **+2.04** (BEATS) |
+
+TX MTL **beats both ceilings** (cat +7.52 / reg +2.04) — joins CA/FL in reversing "MTL sacrifices reg".
+Cat ceiling reused from the A40 lane (#37, same dk_ovl/seed0/next_gru recipe) — not re-run here.
