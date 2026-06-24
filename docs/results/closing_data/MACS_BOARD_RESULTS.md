@@ -33,7 +33,7 @@
 *(Comparand = full MTL champion, CUDA — cross-device; HMT reg clears the Markov floor, champion leads. Device-labeled.)*
 
 ## CTLE-SC → CUDA (FL/CA/TX only); Istanbul CTLE-SC → MAC
-**FL/CA/TX** too heavy for 24GB MPS (FL CTLE-SC watchdog-killed at 14% free solo; 1.27M-3.5M rows + 12.6GB log_T load) → A40 (`HANDOFF_A40_CTLE_SC.md`): `mac_baseline_compare.py --baseline ctle` + `comparand_check2hgi_sc.py` per state.
+**FL/CA/TX** too heavy for 24GB MPS (FL CTLE-SC watchdog-killed at 14% free solo; 1.27M-3.5M rows + 12.6GB log_T load) → CUDA (`../../studies/closing_data/BASELINE_H100.md`): `mac_baseline_compare.py --baseline ctle` + `comparand_check2hgi_sc.py` per state.
 **Istanbul CTLE-SC stays on the MAC** (small, 58,297 rows ≈ AZ): build a 5-fold leak-clean CTLE substrate (`build_ctle_substrate --state istanbul`) at **set-a windowing** (match the champion, NOT dk_ovl overlap) + matched heads (cat next_gru / reg next_stan_flow checkin) vs champion-G on the Phase-V substrate (engine check2hgi). Runs after TX HMT frees MPS. **MPS note**: training is MPS-resident; HMT eval top-k is per-batch CPU (memory-safety trade, ~3% — could stay MPS-per-batch accumulating scalars).
 
 ## Istanbul ETL (rebuilt on Mac, ready for CUDA)

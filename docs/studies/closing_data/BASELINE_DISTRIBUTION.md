@@ -3,8 +3,8 @@
 > Executable per-machine plan for the **baseline phase**, derived from the LOCKED decisions in
 > [`../../../articles/[mobiwac]/BASELINE_HANDOFF.md`](../../../articles/%5Bmobiwac%5D/BASELINE_HANDOFF.md)
 > (the *why* + roles + drop list). Machines pull THIS doc. Protocol: seed 0 × 5 folds (n=5), gated stride-1
-> overlap, leak-free per-fold train-only priors, user-disjoint folds, fp32 for large-state CUDA. **Supersedes
-> `HANDOFF_A40_CTLE_SC.md`** (its CTLE-SC-at-CA/TX scope is DROPPED — CTLE is FL-only now).
+> overlap, leak-free per-fold train-only priors, user-disjoint folds, fp32 for large-state CUDA. Supersedes the
+> prior CTLE-SC-at-CA/TX handoff (removed): CTLE is **FL-only** now.
 >
 > **Machine state:** A40 frees in ~1 h · H100 finishing TX MTL but has spare capacity NOW · M4 Pro free.
 
@@ -18,7 +18,9 @@ POI-RGNN faithful (canonical FL 34.49/CA 31.78/TX 33.03 + AL/AZ/GA) · Markov-9-
 ReHDM faithful AL/AZ/FL (66.06/54.65/65.68) · STAN `stl_hgi` all states (AL 62.88…TX 62.70) · HMT-GRN
 AL/AZ/FL/CA/Istanbul (`docs/baselines/`). → slim Tables A/B (`BASELINE_HANDOFF §6`).
 
-## C · MISSING — distributed across the three machines
+## C · MISSING — distributed (each machine reads its OWN self-contained handoff)
+> [`BASELINE_H100.md`](BASELINE_H100.md) · [`BASELINE_A40.md`](BASELINE_A40.md) · [`BASELINE_M4.md`](BASELINE_M4.md).
+> The summary below is the cross-machine map; the per-machine files carry the full env/commands/traps/validation.
 
 ### H100 (CUDA) — the FL ROLE-2 novelty block + CSLSL FL  ·  **paper-critical, keep on ONE device**
 All FL, seed 0 × 5f, dk_ovl, leak-clean per-fold → one device so every Δ is clean. Start now (spare capacity);
