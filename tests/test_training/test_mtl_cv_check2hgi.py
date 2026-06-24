@@ -22,7 +22,7 @@ from torch.nn import CrossEntropyLoss
 from torch.utils.data import DataLoader
 
 from configs.globals import DEVICE
-from data.folds import FoldData, FoldResult, POIDataset, TaskFoldData
+from data.folds import FoldData, FoldResult, POIDataset, TaskFoldData, _batched_collate
 from losses.registry import create_loss
 from models.mtl import MTLnet
 from tasks import CHECK2HGI_NEXT_REGION, resolve_task_set
@@ -46,7 +46,11 @@ def _make_synthetic_fold(n_train: int, n_val: int, seq_len: int, dim: int, n_reg
     y_reg_val = torch.from_numpy(rng.integers(0, n_regions, size=n_val).astype(np.int64))
 
     def _dl(x, y, bs):
-        return DataLoader(POIDataset(x, y, device=DEVICE), batch_size=bs, shuffle=False)
+        # POIDataset defines __getitems__ (returns pre-stacked batch tensors via index_select),
+        # so it MUST be paired with the passthrough _batched_collate — exactly as the production
+        # loaders do (folds.py:454,498). The default collate re-stacks and raises on [B,9,64] vs [B].
+        return DataLoader(POIDataset(x, y, device=DEVICE), batch_size=bs, shuffle=False,
+                          collate_fn=_batched_collate)
 
     return FoldResult(
         # Slot B (NEXT in legacy attr naming) == next_region
