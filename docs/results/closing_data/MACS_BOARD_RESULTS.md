@@ -8,7 +8,16 @@
 ## Device caveat (READ FIRST)
 - torch **2.11.0 (MPS, no +cu128)**. All cells (CTLE-SC, Check2HGI-SC comparand, HMT-GRN) run on the SAME M4/MPS.
 - **CTLE-SC vs Check2HGI-SC is device-internal & valid** — frozen-embedding STL heads reproduce CUDA within noise (AL cat 55.59 vs recorded 55.72; AL reg 61.86 vs recorded 61.94). CTLE-SC and comparand use the identical dk_ovl row set + fold partition (min_seq=10 pinned) and checkin-modality reg (C-2).
-- **HMT-GRN is DEVICE-CONFOUNDED → OPEN DECISION.** Its comparand is the CUDA MTL champion (§5 forbids re-run on Mac), and HMT learns embeddings from scratch so M2/CUDA→M4 float diffs compound ~5pp over 50 ep (AL reg M4 57.05 vs recorded 62.37). Mac HMT numbers are labeled **[M4/MPS]** and are NOT validated against the CUDA champion. Decide: run all HMT on CUDA for the final table, or accept the labeled Mac set.
+- **HMT-GRN — AUDITED (2026-06-24): the Mac numbers are CORRECT; the recorded M2 value was the outlier.**
+  Triggered by the AL gap (M4 reg 57.05 vs recorded M2 62.37). Audit: b3_hmt_grn is **byte-identical** between the
+  recorded run (`1f203a0d`) and mine (`git diff` empty), the base-builder is unchanged, AL dk_ovl rebuilds to the exact
+  96,326 rows, same seed/config, and all leak paths (vocab/prior/OOD-set/POI-emb/fold-split) are train-only. A leak
+  would inflate *all* runs equally → it can't create a gap. **Decisive test — AL HMT on CPU (deterministic): cat 19.34,
+  reg 56.99 — matches M4-MPS (19.37 / 57.05) within 0.06 pp, fold-for-fold.** So M4-MPS == CPU (validated); the recorded
+  **M2 62.37 is the anomaly** (+5 pp vs both; its artifacts were reclaimed so it can't be re-verified — an M2-MPS-LSTM
+  trajectory divergence or an undocumented run difference). **Takeaway: trust the Mac/CPU HMT (~57); the recorded
+  62.37 should be re-verified on CUDA, not the Mac value.** HMT reg "closest region competitor" framing → ~57, not 62.
+  (CPU-vs-M4 per-fold: 60.0/56.5/58.8/58.2/51.4 vs 60.1/56.5/59.1/58.2/51.4.)
 
 ## CTLE-SC vs Check2HGI-SC (the W3 novelty gate — cat is the headline)
 | State | rows | CTLE-SC cat | Check2HGI-SC cat | **Δ cat** | CTLE-SC reg | Check2HGI-SC reg | Δ reg |
