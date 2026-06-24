@@ -37,7 +37,9 @@
 | Istanbul | check2hgi (Phase-V) | 58,297 | 20.87 | 56.56 | champ-G STL reg ceiling 70.4, Markov floor 52.5 |
 | Florida | dk_ovl | 1,274,418 | 26.87 | 63.74 | n_regions=4703; folds reg 64.1/63.8/62.3/63.0/65.5 |
 | California | dk_ovl | 2,925,466 | 24.01 | 49.61 | n_regions=8501 (wide); folds reg 49.0/49.0/49.9/49.7/50.4 |
-| Texas | dk_ovl | ~3.5M | (building dk_ovl→HMT) | | n_regions~6553 |
+| Texas | dk_ovl | 3,830,414 | 25.81 | 53.85 | n_regions=6553; folds reg 53.5/54.2/53.1/54.5/54.0 |
+
+**All 5 Gowalla HMT-GRN done** (AL/AZ/FL/CA/TX) + Istanbul (stride-1, below). [M4/MPS; AL is CPU-validated — see HMT audit.]
 
 *(Comparand = full MTL champion, CUDA — cross-device; HMT reg clears the Markov floor, champion leads. Device-labeled.)*
 
