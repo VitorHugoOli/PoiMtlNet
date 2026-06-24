@@ -1,4 +1,6 @@
-# HANDOFF — A40 (CUDA) · **CTLE-SC + Check2HGI-SC comparand for FL · CA · TX · Istanbul**
+# HANDOFF — A40 (CUDA) · **CTLE-SC + Check2HGI-SC comparand for FL · CA · TX**
+
+> **SCOPE CORRECTION (2026-06-24):** Istanbul CTLE-SC was moved **back to the Mac** (it's small, 58k rows — Mac-feasible; deferred originally only for tooling). **The A40 runs ONLY FL · CA · TX.** Istanbul references below are struck through / for context.
 
 > The Mac (M4 Pro, 24 GB MPS) board run (2026-06-24, `study/board-m2pro`, see
 > [`docs/results/closing_data/MACS_BOARD_RESULTS.md`](../../results/closing_data/MACS_BOARD_RESULTS.md))
@@ -11,7 +13,7 @@
 |---|---|---|
 | **CTLE-SC** (cat next_gru + reg next_stan_flow, checkin-modality) | FL, CA, TX | 1.27M–3.5M overlapping rows × 2 heads × 50 ep × 5 folds; the input build + per-fold staging OOM'd 24 GB (FL CTLE-SC watchdog-killed at 14 % free *solo*). |
 | **Check2HGI-SC comparand** (matched STL heads on `check2hgi_dk_ovl`) | FL, CA, TX | `compute_region_transition` loads the full N×576 embedding matrix (CA = **12.6 GB**) → `MemoryError` on 24 GB. This is the *exact* step that failed on the Mac. |
-| **CTLE-SC + comparand** | Istanbul | needs a 5-fold CTLE substrate built (MLM pretrain) + matched heads on the Phase-V substrate. |
+| ~~CTLE-SC + comparand~~ | ~~Istanbul~~ | **MOVED BACK TO THE MAC** (2026-06-24): Istanbul is small (58,297 rows ≈ AZ, which ran fine on 24 GB). It was deferred only for tooling (build the CTLE substrate + set-a windowing), NOT compute. The Mac owns it. A40 does **NOT** run Istanbul. |
 | *(optional, recommended)* **HMT-GRN re-run on CUDA** | all 6 | the Mac HMT numbers are M4/MPS-labeled and **device-confounded** vs the CUDA MTL champion (HMT learns embeddings from scratch → float trajectory diverges ~5 pp; AL reg M4 57.05 vs recorded 62.37). For the official "we-beat-SOTA-on-region" row, run HMT on the same CUDA basis as the champion. |
 
 Already done (do NOT redo): **AL, AZ** CTLE-SC + comparand + HMT (committed, validated — comparand reproduced recorded CUDA within noise: AL cat 55.59≈55.72, reg 61.86≈61.94). HMT-GRN AL/AZ/CA/FL/TX/Istanbul exist on the Mac as a labeled set.
@@ -58,14 +60,7 @@ python scripts/compute_region_transition.py --state $S --engine check2hgi_dk_ovl
 python scripts/closing_data/comparand_check2hgi_sc.py --state $S --folds 5 --heads cat reg
 #  -> docs/results/closing_data/baseline_compare/${S}_check2hgi_sc.json
 ```
-**Istanbul CTLE-SC** (base = the Phase-V substrate, `--engine check2hgi`, set-a windowing — **NOT** dk_ovl overlap, per HANDOFF_BOARD_MACS §4):
-```bash
-# build the per-fold leak-clean CTLE substrate for istanbul (engine = check2hgi base):
-for f in 0 1 2 3 4; do python scripts/baselines/build_ctle_substrate.py --state istanbul --fold $f --stride 1; done
-# then matched heads (cat next_gru + reg next_stan_flow checkin-modality) on the ctle engine,
-# comparand = the Istanbul champion-G (cat +8.06 / reg −0.58 over Markov; STL reg ceiling 70.4, Markov floor 52.5).
-# (Adapt mac_baseline_compare/comparand to engine check2hgi + the ctle-istanbul cells; report gap-to-ceiling, not Acc@k.)
-```
+~~**Istanbul CTLE-SC**~~ — **MOVED TO THE MAC** (small; set-a windowing + Phase-V substrate base already there). Do NOT run on the A40.
 **(optional) HMT-GRN on CUDA** (device-consistent vs champion): `python scripts/baselines/b3_hmt_grn.py --state <s> --engine check2hgi_dk_ovl --seed 0 --folds 5 --epochs 50` (US) / `--engine check2hgi` (Istanbul).
 
 ## 4 · PROBLEMS I HIT ON THE MAC — pre-empt them here
