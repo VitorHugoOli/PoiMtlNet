@@ -26,9 +26,9 @@
 | Alabama | dk_ovl | 96,326 | 19.37 | 57.05 | recorded 20.43/62.37; MTL champ ~63.6/69.8 |
 | Arizona | dk_ovl | 200,895 | 18.04 | 43.70 | — |
 | Istanbul | check2hgi (Phase-V) | 58,297 | 20.87 | 56.56 | champ-G STL reg ceiling 70.4, Markov floor 52.5 |
+| Florida | dk_ovl | 1,274,418 | 26.87 | 63.74 | n_regions=4703; folds reg 64.1/63.8/62.3/63.0/65.5 |
 | California | dk_ovl | 2,925,466 | 24.01 | 49.61 | n_regions=8501 (wide); folds reg 49.0/49.0/49.9/49.7/50.4 |
-| Florida | dk_ovl | 1,274,418 | (rerun queued) | | n_regions=4703 |
-| Texas | dk_ovl | ~3.5M | queued | | n_regions~8501 |
+| Texas | dk_ovl | ~3.5M | (building dk_ovl→HMT) | | n_regions~6553 |
 
 *(Comparand = full MTL champion, CUDA — cross-device; HMT reg clears the Markov floor, champion leads. Device-labeled.)*
 
