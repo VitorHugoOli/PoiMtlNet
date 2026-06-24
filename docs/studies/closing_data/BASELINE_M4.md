@@ -88,10 +88,25 @@ Do it after Task 1 (the critical-path CTLE diagnosis). Keep the 4-seed set-a res
 Expected: champion cat beats its STL ceiling, reg matches/near (the non-US replication), and champion > CTLE-SC
 (+~26 cat) and > HMT-GRN (60.4 reg) at stride-1.
 
-## 3 · (Optional) CSLSL @ AL/AZ — only if the A40 stays busy
+## 3 · ✅ DONE (2026-06-24): CSLSL / cascade @ AL/AZ [M4/MPS]
+> Ran `b4_cascade.py --state {alabama,arizona} --seed 0 --folds 5 --epochs 50` on MPS (no `--device` flag exists —
+> device auto-detects MPS; use `MTL_RAM_HEADROOM_GB=4` to clear the conservative CPU-RAM guard). Built the missing
+> **AZ v14 inputs + per-fold log_T** this session (AL was on disk). Also ran the **matched parallel champion-G
+> comparand on the same v14 set-a base** (b4 cmd minus the 5 cascade pins) for a clean cascade-vs-parallel Δ, and a
+> **1-fold-equivalent MPS==CPU cross-check** (AL). Full results + provenance:
+> [`../../results/closing_data/CSLSL_CASCADE_RESULTS.md`](../../results/closing_data/CSLSL_CASCADE_RESULTS.md).
+>
+> **Verdict — parallel (champion-G) ≥ cascade everywhere** (v14 set-a, MPS, seed0 5f, n=5 provisional):
+> Δ(parallel−cascade) cat **+5.04 (AL) / +1.62 (AZ)**, reg **+0.56 (AL) / −0.05 (AZ tie)**. Expected cascade
+> signature (cat drops more than reg when cross-attn is severed). MPS==CPU within 0.63pp → `[M4/MPS]` trustworthy.
+> Durable JSONs: `baseline_compare/{alabama,arizona}_cslsl_cascade.json`.
+
+<details><summary>original Task 3 spec</summary>
+
 `python scripts/baselines/b4_cascade.py --state {alabama,arizona} --seed 0 --folds 5 --epochs 50 --device mps` —
 MPS from-scratch training is trustworthy here (HMT validated MPS==CPU); **label the result `[M4/MPS]`** and
 cross-check one fold vs CPU. Otherwise leave CSLSL to the A40 (CUDA, cleaner vs the champion).
+</details>
 
 ## 4 · Traps + outputs
 - ≤2–3 concurrent; `ram_watchdog.sh` kills the newest proc < 4 GB free. Do NOT run a CA/TX embedding-quality kNN here (that's what OOM-rebooted the box).

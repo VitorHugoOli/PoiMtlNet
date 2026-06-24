@@ -1,0 +1,30 @@
+{
+  "state": "arizona",
+  "baseline": "cslsl_cascade",
+  "engine": "check2hgi_design_k_resln_mae_l0_1",
+  "windowing": "set-a (stride=9 non-overlap, min_seq=5); SAME base as the parallel comparand",
+  "device": "M4/MPS",
+  "seed": 0,
+  "n_folds": 5,
+  "n_provisional": true,
+  "pinned_config": "cond_coupling=posterior cond_signal=softmax cond_inject=add cond_detach=True; disable_cross_attn=True (directed cat->region cascade, symmetric channel severed)",
+  "cascade_CSLSL": {
+    "cat_macro_f1_mean": 53.207,
+    "cat_macro_f1_std": 0.976,
+    "reg_top10_acc_indist_mean": 54.479,
+    "reg_top10_acc_indist_std": 3.385,
+    "joint_geom_simple_mean": 0.5382
+  },
+  "parallel_championG": {
+    "cat_macro_f1_mean": 54.826,
+    "cat_macro_f1_std": 2.197,
+    "reg_top10_acc_indist_mean": 54.426,
+    "reg_top10_acc_indist_std": 3.554,
+    "joint_geom_simple_mean": 0.546
+  },
+  "delta_parallel_minus_cascade": {
+    "cat_macro_f1": 1.619,
+    "reg_top10_acc_indist": -0.053
+  },
+  "comparand_note": "parallel = b4 command MINUS the 5 cascade pins (cross-attn ON); SAME device/engine/windowing/selector -> clean cascade-vs-parallel delta. NOT the board dk_ovl stride-1 champion (different base)."
+}

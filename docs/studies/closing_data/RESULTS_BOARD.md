@@ -94,6 +94,12 @@ Per the baselines README, the paper's baseline tables read from [`../../baseline
   value is correct; the **62.37 is the outlier** (unreproducible, artifacts reclaimed). Use the Mac/CPU HMT-GRN reg:
   **AL 57.1 / AZ 43.7 / FL 63.7 / CA 49.6 / TX 53.9 / Istanbul 60.4** — all **well below our MTL ~65-69**, so we beat
   the sole region-native baseline by a wide margin (all 6 states now done). (Re-verify the old 62.37, not the Mac value.)
+- ✅ **CSLSL / cascade (B4, the "published MTL alternative"): AL/AZ done [M4/MPS]** — cascade-vs-parallel ablation
+  on the **same v14 set-a base** (directed cat→region, cross-attn severed) vs champion-G (parallel) on that base.
+  **Parallel ≥ cascade everywhere**: Δ(parallel−cascade) cat **+5.04 (AL) / +1.62 (AZ)**, reg **+0.56 (AL) / −0.05
+  (AZ tie)** — our symmetric coupling beats/matches the directed cascade. MPS==CPU within 0.63pp (AL). n=5
+  provisional; multi-seed + FL/CA/TX are A40/post-deadline. **Compare ONLY within the v14 set-a base, NOT the board
+  dk_ovl numbers.** (`CSLSL_CASCADE_RESULTS.md`; `baseline_compare/{alabama,arizona}_cslsl_cascade.json`.)
 
 ## 5 · Provenance legend
 ✅ main = source JSON on main, verified-readable · ⏳ 2/5 = run in-flight, partial folds (not a 5f mean) ·

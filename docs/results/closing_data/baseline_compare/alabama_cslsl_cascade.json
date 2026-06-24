@@ -1,0 +1,44 @@
+{
+  "state": "alabama",
+  "baseline": "cslsl_cascade",
+  "engine": "check2hgi_design_k_resln_mae_l0_1",
+  "windowing": "set-a (stride=9 non-overlap, min_seq=5); SAME base as the parallel comparand",
+  "device": "M4/MPS",
+  "seed": 0,
+  "n_folds": 5,
+  "n_provisional": true,
+  "pinned_config": "cond_coupling=posterior cond_signal=softmax cond_inject=add cond_detach=True; disable_cross_attn=True (directed cat->region cascade, symmetric channel severed)",
+  "cascade_CSLSL": {
+    "cat_macro_f1_mean": 45.931,
+    "cat_macro_f1_std": 2.316,
+    "reg_top10_acc_indist_mean": 63.415,
+    "reg_top10_acc_indist_std": 3.189,
+    "joint_geom_simple_mean": 0.5396
+  },
+  "parallel_championG": {
+    "cat_macro_f1_mean": 50.969,
+    "cat_macro_f1_std": 3.07,
+    "reg_top10_acc_indist_mean": 63.979,
+    "reg_top10_acc_indist_std": 3.708,
+    "joint_geom_simple_mean": 0.571
+  },
+  "delta_parallel_minus_cascade": {
+    "cat_macro_f1": 5.038,
+    "reg_top10_acc_indist": 0.564
+  },
+  "comparand_note": "parallel = b4 command MINUS the 5 cascade pins (cross-attn ON); SAME device/engine/windowing/selector -> clean cascade-vs-parallel delta. NOT the board dk_ovl stride-1 champion (different base).",
+  "cpu_crosscheck": {
+    "cascade_cpu": {
+      "cat_macro_f1_mean": 46.559,
+      "cat_macro_f1_std": 2.355,
+      "reg_top10_acc_indist_mean": 63.642,
+      "reg_top10_acc_indist_std": 3.44,
+      "joint_geom_simple_mean": 0.5443
+    },
+    "delta_mps_minus_cpu": {
+      "cat_macro_f1": -0.628,
+      "reg_top10_acc_indist": -0.227
+    },
+    "verdict": "MPS == CPU within fold noise (<=0.63pp) -> MPS trustworthy (consistent w/ HMT MPS==CPU)"
+  }
+}
