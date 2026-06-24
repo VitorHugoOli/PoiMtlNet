@@ -73,16 +73,22 @@ Istanbul −0.58). **CA, the largest region state, is 5f-complete and beats** �
 ## 4 · Baselines → `docs/baselines/` (separate home, established schema)
 Per the baselines README, the paper's baseline tables read from [`../../baselines/`](../../baselines/)
 (`next_category/` + `next_region/`, each with per-baseline `.md` + `results/<state>.json` + `comparison.md`).
-The **new board baselines** (now on main via #36) are being consolidated into `docs/baselines/` from
-`docs/results/closing_data/baseline_compare/*.json` + `MACS_BOARD_RESULTS.md`. **Audit-verified citability:**
-- ✅ **CTLE-SC vs Check2HGI-SC Δcat** is **device-internal-clean** (both frozen-embedding STL heads on the same
-  M4; reproduces CUDA within noise, AL cat 55.59≈55.72): **substrate drives next-cat +37.8 (AL) / +37.0 (AZ) pp**.
-  CTLE-SC leak-clean is committed at **AL/AZ only**; FL/CA/TX handed to CUDA (`HANDOFF_A40_CTLE_SC.md`).
-- ⚠ **HMT-GRN is `[M4/MPS]` device-confounded** vs the CUDA champion (learns embeddings from scratch → ~5 pp MPS
-  drift; AL reg 57.05 Mac vs 62.37 CUDA). **Do NOT put it in the paired MTL-vs-STL Δ table** — re-run on CUDA for
-  the official row, or use only the coarse "beats the region-native by a wide margin even granting a device handicap."
-- ⚠ **SC reg numbers were INVALID** (substrate-bypass + shared prior + stale log_T → bit-identical 69.76); fixes
-  landed (checkin-modality + per-engine stride-1 C29 log_T) but the SC reg cells **must be re-run** before citation.
+**Which baselines the ARTICLE uses (decided 2026-06-24) — the SC distinction matters:**
+- ✅ **CTLE-SC (category) IS used — it is the reviewer W3 novelty gate** (`REVIEW_PANEL.md` required-change #2,
+  *non-negotiable*: "score CTLE leak-clean and show it loses to Check2HGI attributable to the hierarchy"). It is
+  the **representation-isolation** comparison (CTLE-emb → our head vs Check2HGI-emb → our head, matched capacity)
+  that substantiates contribution-1 novelty; without it C1's "novel" *evaporates*. **Δcat +37.8 (AL) / +37.0 (AZ)**,
+  device-internal-clean (reproduces CUDA within noise). Leak-clean at AL/AZ; FL/CA/TX → CUDA (`HANDOFF_A40_CTLE_SC.md`).
+  POI2Vec/skip-gram/one-hot SC-cat are the representation **controls** (§7 checklist).
+- ❌ **SC *region* is NOT used in the article.** The pre-fix SC reg was INVALID (substrate-bypass + shared prior +
+  stale log_T) — now **quarantined** (`_reg_status: INVALID_PENDING_RERUN` stamped on every `baseline_compare/*.json`).
+  Region's substrate-isolation story is weak anyway (HGI keeps a small region edge; the representation benefit is
+  category-only). **The article's REGION baselines come from native-E2E (HMT-GRN, STAN) + Markov-1**, which ARE
+  substrate-sensitive — not from SC. (So a re-run of SC-reg is optional, not article-blocking.)
+- ✅ **HMT-GRN (region native-E2E): Mac numbers are CORRECT** — PR #38 audit: M4/MPS == deterministic CPU within
+  0.06 pp fold-for-fold; the recorded **62.37 was the anomaly** (unreproducible, +5 pp). HMT-GRN reg ≈ **57 (AL)**,
+  **FL 63.74, CA 49.61** — all **well below our MTL ~65-69**, so we beat the sole region-native baseline by an even
+  *wider* margin than 62.37 implied. (Re-verify the old 62.37 on CUDA for completeness; not blocking.)
 
 ## 5 · Provenance legend
 ✅ main = source JSON on main, verified-readable · ⏳ 2/5 = run in-flight, partial folds (not a 5f mean) ·

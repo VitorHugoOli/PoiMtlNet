@@ -40,5 +40,8 @@
   "top10_acc_mean": 61.859,
   "top10_acc_std": 3.621,
   "mrr_mean": 40.855,
-  "mrr_std": 2.776
+  "mrr_std": 2.776,
+  "_reg_status": "INVALID_PENDING_RERUN",
+  "_reg_void_reason": "VOID \u2014 pre-fix SC reg: --input-type region hardcoded the check2hgi region embedding (substrate bypass) + shared region prior + stale stride-9 log_T -> not substrate-sensitive. PENDING checkin-modality re-run (C-1/C-2/C-3 fixes landed). Do NOT cite. Region baselines for the article come from native-E2E (HMT-GRN/STAN) + Markov-1, NOT SC. See RESULTS_BOARD \u00a74 + RUN_MATRIX_REDUCE \u00a74b.",
+  "_cat_status": "VALID \u2014 macro_f1 is the substrate-column (representation-isolation) result; CTLE-SC cat = the reviewer W3 novelty gate"
 }
