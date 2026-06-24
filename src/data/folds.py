@@ -198,6 +198,16 @@ class POIDataset(Dataset):
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
         return self.features[idx], self.targets[idx]
 
+    def __getitems__(self, indices):
+        # Batched fetch (perf fix 2026-06-24, ca-mtl speed workflow): one
+        # `index_select` per tensor instead of len(batch) per-sample __getitem__
+        # slices + a default_collate stack. With a GPU-resident dataset + workers=0
+        # that collapses ~2048 tiny CUDA index kernels/batch (the collate sink that
+        # starved the GPU on the wide-head CA/TX states) into one. Rows/order come
+        # from the sampler → byte-identical batches. Pair with ``_batched_collate``.
+        idx = torch.as_tensor(indices, dtype=torch.long, device=self.features.device)
+        return self.features.index_select(0, idx), self.targets.index_select(0, idx)
+
 
 class POIDatasetWithAux(Dataset):
     """POIDataset variant that yields 3-tuples ``(features, labels, aux)``.
@@ -234,6 +244,21 @@ class POIDatasetWithAux(Dataset):
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         return self.features[idx], self.targets[idx], self.aux[idx]
+
+    def __getitems__(self, indices):
+        # Batched fetch — see POIDataset.__getitems__ (perf fix 2026-06-24).
+        idx = torch.as_tensor(indices, dtype=torch.long, device=self.features.device)
+        return (self.features.index_select(0, idx),
+                self.targets.index_select(0, idx),
+                self.aux.index_select(0, idx))
+
+
+def _batched_collate(batch):
+    """Passthrough collate for the ``__getitems__`` batched-fetch path: the
+    dataset already returns the stacked batch tensors via ``index_select``, so
+    the DataLoader must NOT re-collate them. Byte-identical to default_collate of
+    per-sample ``__getitem__`` outputs (same rows, same order from the sampler)."""
+    return batch
 
 
 # ============================================================
@@ -426,6 +451,7 @@ def _create_dataloader(
         shuffle=shuffle if sampler is None else False,
         sampler=sampler,
         num_workers=num_workers,
+        collate_fn=_batched_collate,
         pin_memory=torch.cuda.is_available() and num_workers > 0,
         persistent_workers=num_workers > 0,
         prefetch_factor=2 if num_workers > 0 else None,
@@ -469,6 +495,7 @@ def _create_aux_dataloader(
         shuffle=shuffle if sampler is None else False,
         sampler=sampler,
         num_workers=num_workers,
+        collate_fn=_batched_collate,
         pin_memory=torch.cuda.is_available() and num_workers > 0,
         persistent_workers=num_workers > 0,
         prefetch_factor=2 if num_workers > 0 else None,

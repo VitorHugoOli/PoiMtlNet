@@ -888,17 +888,24 @@ def train_model(model: torch.nn.Module,
                 all_task_a_logits.append(pred_task_a.detach().cpu())
                 all_task_a_targets.append(truth_task_a.cpu())
                 if _stream_train_b:
-                    # reg (task_b) — STREAM per-row/per-class reductions on CPU (matches the
-                    # CPU compute path byte-for-byte), discarding the [batch, C] logits.
-                    _lb = pred_task_b.detach().cpu()
-                    _tb = truth_task_b.cpu()
-                    s1_preds_b.append(_lb.argmax(dim=-1))
-                    s1_targets_b.append(_tb)
-                    s1_rank_b.append(_rank_of_target(_lb, _tb))
+                    # reg (task_b) — STREAM per-row reductions on the GPU-resident logits and
+                    # D2H only the tiny [batch] result vectors. (perf fix 2026-06-24, ca-mtl
+                    # speed workflow): the old path did a per-batch [batch, C] `.cpu()` copy
+                    # (~67 MB/batch at C=8501) then ran argmax/rank/topk single-threaded on the
+                    # CPU — the dominant sink that pegged the CPU and starved the GPU on the
+                    # wide-reg-head states (CA/TX 8501; FL/AL/AZ unaffected because narrow).
+                    # argmax/topk/_rank_of_target are per-row, deterministic, and device-
+                    # independent (lowest-index tie-break on both), so the accumulated [N]/[C]
+                    # vectors — and the reconstructed metric dict below — are byte-identical.
+                    _lb = pred_task_b.detach()
+                    _tb = truth_task_b
+                    s1_preds_b.append(_lb.argmax(dim=-1).cpu())
+                    s1_targets_b.append(_tb.cpu())
+                    s1_rank_b.append(_rank_of_target(_lb, _tb).cpu())
                     for _k in _S1_TOPK:
                         _ke = min(_k, _lb.shape[-1])
                         _topk = _lb.topk(_ke, dim=-1).indices
-                        s1_hit_b[_k].append((_topk == _tb.unsqueeze(-1)).any(dim=-1))
+                        s1_hit_b[_k].append((_topk == _tb.unsqueeze(-1)).any(dim=-1).cpu())
                     del _lb
                 else:
                     all_task_b_logits.append(pred_task_b.detach().cpu())
