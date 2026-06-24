@@ -76,11 +76,14 @@ Per the baselines README, the paper's baseline tables read from [`../../baseline
 The **new board baselines** (now on main via #36) are being consolidated into `docs/baselines/` from
 `docs/results/closing_data/baseline_compare/*.json` + `MACS_BOARD_RESULTS.md`. **Audit-verified citability:**
 - ✅ **CTLE-SC vs Check2HGI-SC Δcat** is **device-internal-clean** (both frozen-embedding STL heads on the same
-  M4; reproduces CUDA within noise, AL cat 55.59≈55.72): **substrate drives next-cat +37.8 (AL) / +37.0 (AZ) pp**.
-  CTLE-SC leak-clean is committed at **AL/AZ only**; FL/CA/TX handed to CUDA (`HANDOFF_A40_CTLE_SC.md`).
-- ⚠ **HMT-GRN is `[M4/MPS]` device-confounded** vs the CUDA champion (learns embeddings from scratch → ~5 pp MPS
-  drift; AL reg 57.05 Mac vs 62.37 CUDA). **Do NOT put it in the paired MTL-vs-STL Δ table** — re-run on CUDA for
-  the official row, or use only the coarse "beats the region-native by a wide margin even granting a device handicap."
+  M4; reproduces CUDA within noise, AL cat 55.59≈55.72): **substrate drives next-cat — AL +37.8 / AZ +37.0 /
+  Istanbul +28.6 pp** (next-reg a near-tie: AL −0.4, AZ −0.3, Istanbul −3.5 [CTLE edges ahead on Istanbul's small
+  520-region space]). CTLE-SC leak-clean committed at **AL/AZ + Istanbul (stride-1)** on the Mac (PR #38); **FL/CA/TX → CUDA** (`HANDOFF_A40_CTLE_SC.md`). Istanbul re-run at stride-1 for board-consistency (supersedes set-a).
+- ✅ **HMT-GRN `[M4/MPS]` is AUDITED & CITABLE — the Mac value is CPU-validated.** The AL gap (Mac 57.05 vs recorded
+  M2 62.37) was traced: byte-identical code/base/seed, all leak paths train-only → a leak can't create a gap.
+  **Decisive: AL HMT on CPU (deterministic) reg 56.99 ≈ M4-MPS 57.05 within 0.06 pp, fold-for-fold.** So **the Mac
+  ~57 is correct; the recorded M2 62.37 is the outlier** (unreproducible — artifacts reclaimed). Use the Mac/CPU
+  HMT (AL 57.1 / AZ 43.7 / FL 63.7 / CA 49.6 / TX 53.9 / Istanbul 60.4); **re-verify the old 62.37, not the Mac value.**
 - ⚠ **SC reg numbers were INVALID** (substrate-bypass + shared prior + stale log_T → bit-identical 69.76); fixes
   landed (checkin-modality + per-engine stride-1 C29 log_T) but the SC reg cells **must be re-run** before citation.
 
