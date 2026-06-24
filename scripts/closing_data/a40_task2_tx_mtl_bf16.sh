@@ -20,7 +20,13 @@ PY=.venv/bin/python
 export MTL_CHUNK_VAL_METRIC=1                 # S2 chunked val metric (8.5x overlap scale)
 export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"
 export OMP_NUM_THREADS=24
-export MTL_STRICT=1                           # GATE guard hard-fails on stale ungated/min_seq!=10; + non-finite fail-loud
+# MTL_STRICT is deliberately OFF (was =1 in the first attempt, which ABORTED at fold1 ep36 b69 on a
+# backward-pass NaN GRADIENT — finite loss=1.79, NOT an fp16 overflow). With strict OFF the non-finite
+# guard does its designed job: SKIP that one batch (no NaN-poison of the shared backbone) and CONTINUE
+# (CA_MTL_DIVERGENCE.md fix option 1). bf16 avoids the fp16-OVERFLOW collapse but not this rare grad-NaN.
+# MTL_NAN_GUARD=1 logs grad-norm trajectory + every skip so we can judge skip frequency / result quality.
+# The GATE guard's fail-loud (lost with MTL_STRICT off) is replaced by the inline provenance assert below.
+export MTL_NAN_GUARD=1
 export MTL_COMPILE_DYNAMIC=1
 export TORCHINDUCTOR_CACHE_DIR=/home/vitor.oliveira/.inductor_cache_board
 export MTL_AUTOCAST_BF16=1                     # bf16 train autocast (the fp16-overflow fix)
@@ -36,6 +42,16 @@ ST=texas; SD=0; EP=50; F=5
 V14=check2hgi_design_k_resln_mae_l0_1; OVL=check2hgi_dk_ovl
 L=/tmp/a40_board; mkdir -p "$L"
 mtl_log="$L/task2_tx_mtl_bf16_s${SD}.log"
+
+# GATE safety (replaces the MTL_STRICT hard-fail): assert the overlap engine is correctly gated.
+$PY - <<'PY'
+import json
+d = json.load(open("output/check2hgi_dk_ovl/texas/input/next_build_provenance.json"))
+assert d.get("emit_tail") is False and d.get("min_sequence_length") == 10 and d.get("stride") == 1, \
+    f"GATE ASSERT FAILED (stale/ungated overlap): {d}"
+print("[gate-assert] TX overlap engine gated OK: min_seq=10 emit_tail=False stride=1")
+PY
+if [ $? -ne 0 ]; then echo "[$(date '+%F %T')] GATE ASSERT FAILED — abort"; exit 9; fi
 
 echo "[$(date '+%F %T')] TX champion-G MTL (bf16) on $OVL, compiled+tf32, auto-fit (~11h)"
 $PY scripts/train.py --task mtl --task-set check2hgi_next_region --engine "$OVL" \
