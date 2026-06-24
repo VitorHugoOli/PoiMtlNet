@@ -62,6 +62,40 @@ work from the CUDA cards. Seed 0 × 5 folds. (Partial reuse: SSD already has `b2
 - **Regen, don't move**: `check2hgi_dk_ovl` is **deterministically regennable** from v14+v11 (both on Drive) via
   `build_overlap_probe_engine.py <state> 1` — each CUDA box rebuilds it locally; do NOT push it to Drive.
 
+## 4a · Baseline plan (AUDITED 2026-06-24, wf_df9e9211 — SC vs E2E, ranked for the deadline)
+Two-rung ladder (RUN_MATRIX §2.5) — **keep BOTH, they prove different things**: **SC** (baseline-emb → our matched
+heads) isolates the REPRESENTATION (contribution-1 novelty); **E2E** (baseline's own arch on our data) isolates
+the SYSTEM (beats-the-published-method). The native-E2E set is largely built+run at AL already (#34).
+
+**P0 — MUST (flips poster→regular + makes the comparand real):**
+1. **TX cell** (A40) — build the overlap engine (blocker) → cat ceiling + MTL Cell B, fp32, perf-fixed ~11 h.
+2. **CTLE SC column, leak-clean, AL seed0×5f** (`--folds 5`, per-fold train-only pretrain — the original `--folds 1`
+   leaked 81.8% of val users; stride-1 build fixed by #30 `d7064fbf`). **Single most reviewer-load-bearing cell**
+   (REVIEW_PANEL W3 BLOCKER: novelty C1 needs CTLE scored leak-clean). CTLE embeddings already on SSD.
+3. **Land bf16/CA MTL** so the E2E comparand (our full solution ~63.6 cat / ~69.8 reg) is real, not fp16-void.
+4. **Re-run the SC REG comparisons** after the 3 reg fixes (C-1 `--input-type checkin`; C-2 modality match; C-3
+   per-engine stride-1 C29 log_T). ⚠ **ALL prior AL SC reg JSONs are INVALID** (bit-identical 69.76 across
+   baselines — substrate-bypass + shared prior + stale stride-9 log_T). Until re-run, table reg ONLY from native-E2E.
+**P1 — SHOULD (mostly DONE; "we beat published systems", low cost):**
+5. **HMT-GRN E2E** — the sole external MTL baseline; AL done (cat 20.43 / **reg 62.37**, the closest region
+   competitor, < our MTL ~69.8). "Run HMT-GRN" = fan out AZ+FL seed0×5f (cheap LSTM, MPS-fine).
+6. **CTLE-E2E + Flashback-E2E** — AL done; fan AZ+FL if MPS time allows.
+**P2 — DROP / defer (do only with spare time):** STAN (region SOTA, NOT stride-1 aligned — needs a retrofit; do
+FIRST if any P2 time); POI-RGNN / MHA+PE (category already won +35-45pp → redundant); ReHDM (session-based, hardest
+→ footnote-defer); POI2Vec-E2E (SC column covers it). The 4 `research/baselines/{stan,rehdm,poi_rgnn,mha_pe}`
+slide their OWN stride-9/8 windows → **comparability-VOID until stride-1 retrofitted**; drop/footnote, don't rush.
+
+## 4b · Paper-claim caveats (load-bearing — do NOT let these slip into prose)
+- **"Baselines/CTLE can use OUR substrate as a base" — DO NOT CLAIM (overclaim, zero supporting experiment).**
+  The tempting evidence (CTLE native-E2E 21.24 > frozen-SC 17.75) is a *within-CTLE* frozen-vs-fine-tuned ablation
+  of CTLE's OWN encoder — in NEITHER setup does CTLE ingest our Check2HGI vectors (SC feeds CTLE's own frozen
+  column; E2E learns its own embedding from raw placeid+hour, `ctle_e2e.py:33`). It says only "frozen-SC undersells
+  deep models" (the justification for running E2E), NOTHING about our representation. Claiming it concedes the
+  single-model thesis to substrate-portability and invites a reviewer to demand the missing transfer cell.
+  Supported framings ONLY: (1) substrate drives next-cat (+31-45 pp over every SC AND native baseline);
+  (2) only region-native HMT-GRN is competitive on reg, still trails our MTL; (3) the 17.75→21.24 gap = E2E justification.
+- **SC reg numbers are INVALID until re-run** (see P0.4) — table reg from native-E2E only meanwhile.
+
 ## 5 · Honesty caveats forced by n=5
 - TOST **non-inferiority power is lower at n=5** — report the TOST power statement (§5.3d) or label region
   non-inferiority "n=5 provisional". Wilcoxon **superiority** (cat) is fine (p-floor 0.0312 < 0.05).
