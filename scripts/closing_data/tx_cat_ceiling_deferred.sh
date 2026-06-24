@@ -11,6 +11,9 @@ DEST=docs/results/closing_data/h100
 REG_CEIL=64.96
 mkdir -p "$HOME/.inductor_cache_tx_cat"
 
+# skip if the parallel run already produced the cat-ceiling artefact
+[ -f "$DEST/texas_s0_stl_cat_ceiling.json" ] && { echo "[tx-cat-deferred] cat ceiling already done (parallel run) — skip"; exit 0; }
+
 echo "[tx-cat-deferred] waiting for TX MTL to finish (frees ~56 GB)..."
 until grep -q 'EXIT=' "$MTL_LOG" 2>/dev/null; do sleep 60; done
 echo "[tx-cat-deferred] TX MTL done — waiting for RAM to free"
@@ -27,7 +30,7 @@ echo "[tx-cat-deferred] launching cat ceiling (next_gru STL, dk_ovl, seed0, 5f) 
   MTL_CHUNK_VAL_METRIC=1 PYTHONPATH=src TORCHINDUCTOR_CACHE_DIR="$HOME/.inductor_cache_tx_cat" \
   python scripts/train.py --task next --state texas --engine check2hgi_dk_ovl \
     --model next_gru --folds 5 --epochs 50 --seed 0 --batch-size 2048 --max-lr 3e-3 \
-    --gradient-accumulation-steps 1 --no-checkpoints --compile --tf32
+    --gradient-accumulation-steps 1 --no-checkpoints --tf32
   echo "EXIT=$? WALLCLOCK_END=$(date +%s)"; } > "$RUN_LOG" 2>&1
 
 RD=$(ls -dt results/check2hgi_dk_ovl/texas/next_* 2>/dev/null | head -1)
