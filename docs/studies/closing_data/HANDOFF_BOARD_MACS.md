@@ -157,7 +157,34 @@ The SC baselines (b2c/b2b/poi2vec/ctle) are all **next-POI / embedding** methods
 - **Comparand = our FULL solution (MTL champion / E2E Check2HGI)**, NOT the frozen-substrate STL ceiling (E2E-vs-frozen would be apples-to-oranges).
 - **Row-base alignment (REQUIRED):** the E2E natives default to canonical **stride-9** (`load_next_data(CHECK2HGI)`, 12,709 rows AL) but the board base is gated **stride-1** `check2hgi_dk_ovl` (96,326 rows). All native baselines must read the stride-1 base for comparability (the ultracode workflow adds a `--engine/--base` flag to Flashback/HMT-GRN; MHA+PE/POI-RGNN/ReHDM need the same check before tabling).
 
-### In flight / next
-- **ultracode workflow `wf_31cfde91-f0d`**: implements `scripts/baselines/ctle_e2e.py` + `poi2vec_e2e.py` (native arch + reg/cat heads, stride-1, leak-safe per-fold) + aligns `flashback_e2e.py`/`b3_hmt_grn.py` to stride-1, adversarial-reviewed; emits a run-list + SOTA synthesis.
-- **Then run the full AL native set** (CTLE-E2E, POI2Vec-E2E, Flashback, HMT-GRN, MHA+PE, POI-RGNN, ReHDM) — coordinated ≤2–3 concurrent under `ram_watchdog.sh` (MPS OOM guard); report the cat + region native-baseline tables vs the MTL champion.
-- ⚠ Do NOT launch the native runs while the workflow is active (MPS already ~5 procs → OOM zone).
+### ultracode workflow `wf_31cfde91-f0d` — DONE
+Implemented + adversarially reviewed: `scripts/baselines/ctle_e2e.py` + `poi2vec_e2e.py` (native arch + reg/cat heads,
+stride-1, leak-safe per-fold) and aligned `flashback_e2e.py`/`b3_hmt_grn.py` to the stride-1 base (`--engine/--base`
+flag, default `check2hgi_dk_ovl`). All 4 verified to read the **96,326-row stride-1** base. (One review agent —
+`review:align_existing` — died on an API drop; the alignment was verified manually: flashback smoke rows=96,326.)
+Region research confirmed: **HMT-GRN is the only region-native POI baseline; no other is missing**; grid-native
+crowd-flow models (ST-ResNet/STDN/UniMove) are dense-GPS/aggregate → apples-to-oranges for sparse check-ins.
+
+### Native-E2E baseline RESULTS — AL, seed 0 × 5 folds, stride-1, vs Check2HGI (paused mid-run)
+| model | cat macro-F1 | reg Acc@10 | status |
+|---|---|---|---|
+| **Check2HGI — MTL champion** (full solution) | **~63.6** | **~69.8** | reference (PR #33) |
+| Check2HGI — STL ceiling | 55.72 | 61.94 (checkin) / 69.73 (region) | this lane |
+| **HMT-GRN** (region-native E2E) | 20.43 | **62.37** | ✅ 5f |
+| **CTLE-E2E** (native transformer, fine-tuned) | 21.24 | 42.74 | ✅ 5f |
+| **Flashback** (IJCAI'20) | 18.06 | 26.65 | ✅ 5f |
+| **POI2Vec-E2E** | 18.65 | 49.59 | ⏸ 1/5 folds (paused) |
+
+**Findings (honest):** (1) **Category — Check2HGI crushes every native baseline by +35–45 pp**; even fully-fine-tuned
+native models can't approach it. Decisive. (2) **Region — HMT-GRN (region-native) is the closest competitor (62.4 ≈ our
+STL-checkin 61.9, below our MTL 69.8)**; region is where a region-native model competes, but Check2HGI's full solution
+still leads. (3) **CTLE native-E2E (cat 21.2) >> CTLE frozen-SC (cat 17.75)** — confirms freezing undersells deep models;
+native E2E is the honest treatment.
+
+### PAUSED — resume here
+- **Resume POI2Vec-E2E** AL (got 1/5; `poi2vec_e2e.py --state alabama --seed 0 --folds 5 --epochs 20`, CPU/geo-tree, slow).
+- **Align + run MHA+PE, POI-RGNN (cat-native) + ReHDM (region-aware)** — they use `research/baselines/*/etl.py`
+  (canonical stride-9); apply the same `--engine/--base` stride-1 alignment the workflow gave Flashback/HMT-GRN,
+  then run AL seed 0 × 5f. (Inline mechanical change, or a small ultracode pass.)
+- Then fan out the native-E2E set to **AZ/GA/FL** (small/mid) and flag **CA/TX** (may need CUDA).
+- ⚠ MPS: keep ≤2–3 concurrent under `ram_watchdog.sh` (4+ → OOM-reboot zone).
