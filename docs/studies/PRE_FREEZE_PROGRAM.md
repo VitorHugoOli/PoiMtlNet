@@ -94,8 +94,8 @@ the leak surface). External baselines on the *second dataset* are out of scope u
 | Machine | Metering | Pre-freeze role | Notes |
 |---|---|---|---|
 | **A40** | unmetered workhorse | `mtl_frontier` R4–R9 (RUNNING) | Currently saturated by the conditional-coupling family (R4–R9). Pre-freeze GPU gates wait for it to free. |
-| **Mac M2 Pro** (user's local box) | local, MPS only | ✅ `second_dataset` Phase E + E2 DONE · ✅ **C1 confirm-on-G CLOSED (PR #26)** → now **board: build the light baseline embeddings** ([`closing_data/HANDOFF_BOARD.md`](closing_data/HANDOFF_BOARD.md)) | MPS fp32. Device rule: every paired comparison on ONE device-class — Macs build device-tolerant embeddings or own whole small states (AL/AZ), never split a comparison across MPS/CUDA. |
-| **M4 Pro** (user's 2nd Mac) | local, MPS only | ✅ `pre_freeze_gates` **A2 + A4 CLOSED (PR #27)** → board: light-cell overflow per [`closing_data/HANDOFF_BOARD.md`](closing_data/HANDOFF_BOARD.md) | optional second Mac for light baseline embeddings / small-state cells (same device rule). |
+| **Mac M2 Pro** (user's local box) | local, MPS only | ✅ `second_dataset` Phase E + E2 DONE · ✅ **C1 confirm-on-G CLOSED (PR #26)** → now **board: build the light baseline embeddings** ([`closing_data/HANDOFF.md`](closing_data/HANDOFF.md)) | MPS fp32. Device rule: every paired comparison on ONE device-class — Macs build device-tolerant embeddings or own whole small states (AL/AZ), never split a comparison across MPS/CUDA. |
+| **M4 Pro** (user's 2nd Mac) | local, MPS only | ✅ `pre_freeze_gates` **A2 + A4 CLOSED (PR #27)** → board: light-cell overflow per [`closing_data/HANDOFF.md`](closing_data/HANDOFF.md) | optional second Mac for light baseline embeddings / small-state cells (same device rule). |
 | **H100** | **6 h metered** | reserved for `closing_data` P3 (CA/TX v14 builds) | Do **not** spend on pre-freeze exploration. |
 
 ---
