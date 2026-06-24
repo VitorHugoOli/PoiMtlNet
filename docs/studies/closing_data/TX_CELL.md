@@ -35,3 +35,9 @@ Updated incrementally as each fold completes (autonomous per-fold committer).
 - Started 2026-06-24 ~04:42. ~5–6h for 5 folds co-scheduled; faster once CA frees the box.
 - The session driving this run **ends before TX finishes** — per-fold results are committed+pushed
   autonomously (`scripts/closing_data/tx_autocommit.sh`) so progress survives session death.
+
+
+## TX STL ceilings — RESULT (scored 1f)
+- **cat macro-F1 ceiling = 70.5426 ± 0.0000** (next_gru STL, dk_ovl, seed0; per-fold [70.5426]).
+- reg FULL top10 ceiling = 64.96 (a40 fp32, see above).
+- **Compare to the TX MTL cell (TX_CELL table): MTL cat beats this ceiling by the table-mean minus 70.54.**
