@@ -14,8 +14,9 @@
 | State | rows | CTLE-SC cat | Check2HGI-SC cat | **Δ cat** | CTLE-SC reg | Check2HGI-SC reg | Δ reg |
 |---|---|---|---|---|---|---|---|
 | Alabama | 96,326 | 17.77 ±1.47 | 55.59 ±1.78 | **+37.82** | 62.23 ±3.91 | 61.86 ±3.62 | −0.37 |
+| Arizona | 200,895 | 19.30 ±0.95 | 56.31 ±1.61 | **+37.01** | 51.34 ±1.68 | 51.08 ±1.63 | −0.26 |
 
-*(cat = macro-F1; reg = top10_acc_indist, checkin-modality. CTLE cat 17.77 reproduces recorded 17.75.)*
+*(cat = macro-F1; reg = top10_acc_indist, checkin-modality. AL CTLE cat 17.77 ≈ recorded 17.75; AZ comparand cat 56.31 ≈ recorded h100 ceiling 57.13.)*
 
 **Read:** substrate (representation) drives next-CATEGORY — Check2HGI beats CTLE-SC by **+37.8 pp** on AL. Next-REGION is a tie (region is where a contextual baseline competes).
 
