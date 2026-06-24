@@ -1,0 +1,25 @@
+{
+  "state": "texas",
+  "seed": 0,
+  "folds": 5,
+  "engine": "check2hgi_dk_ovl",
+  "windowing": "gated stride-1 overlap min_seq=10",
+  "head": "next_gru (STL)",
+  "cat_macro_f1_ceiling": 69.9492,
+  "cat_macro_f1_std": 0.2101,
+  "cat_per_fold": [
+    70.3069,
+    69.7098,
+    70.0022,
+    69.9585,
+    69.7688
+  ],
+  "cat_best_epochs": [
+    45,
+    48,
+    50,
+    49,
+    49
+  ],
+  "rundir": "results/check2hgi_dk_ovl/texas/next_lr1.0e-04_bs2048_ep50_20260624_115140_1467288"
+}

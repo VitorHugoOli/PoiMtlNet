@@ -1,0 +1,314 @@
+{
+  "investigation": "TX champion-G MTL bf16 NaN-collapse (A40) \u2014 device-class root cause",
+  "workflow_run_id": "wf_9dcc2181-9c7",
+  "date": "2026-06-24",
+  "agents": 5,
+  "result": {
+    "investigators": {
+      "a": {
+        "angle": "Angle A \u2014 H100 commits + PR #35 code/recipe delta vs the A40 TX bf16 MTL grad-NaN",
+        "key_findings": [
+          "DECISIVE NEGATIVE RESULT: board-h100 carries ZERO src/ changes vs main. `git log origin/main..origin/study/board-h100 --oneline -- src/` is EMPTY; `git diff --stat -- src/` is empty. All 9 commits / 1686 additions in PR #35 are data JSONs, val CSVs, docs (TX_CELL/CA_CELL/EP100_ABLATION/BOARD_H100_FINDINGS) and closing_data shell/py tooling (autocommit, resume, ram-force). NONE touch the trainer precision/grad path, the reg head, the cross-attn model, or any recipe code. There is NO missing code commit that would prevent the A40 grad-NaN.",
+          "The bf16 autocast fix (the ONLY autocast-path code change) is commit 958d71f3 'fix(mtl_cv): MTL_AUTOCAST_BF16=1 -> bfloat16 autocast'. `git merge-base --is-ancestor` confirms it is ON main, so the A40 ALREADY HAS IT. `git branch -r --contains 958d71f3` => both origin/main and origin/study/board-h100. The A40 log confirms it was active: 'MTL autocast dtype = torch.bfloat16'. bf16 fixed the CA fp16-OVERFLOW collapse (forward logits > 65504); it did NOT prevent the A40's DIFFERENT failure mode.",
+          "The two lanes ran the SAME recipe, SAME code, SAME precision and diverged on RESULT, not on config. H100 TX (launch_tx_s0.sh) folds 1-2: cat 77.69/77.31 reg 66.94/67.32, best-epochs [49/50] -- the committed fold1 reg val CSV climbs MONOTONICALLY to ep50 (top10 0.6575@ep30 -> 0.6695@ep50), ZERO collapse. A40 TX (a40_task2_tx_mtl_bf16.sh): reg best-epochs [4,50,5,4,4], reg collapses to ~5% post-peak, \u0394reg=-2.37. cat survived (75.87). Same model, opposite trajectory => device-class numerical divergence, not a recipe/code delta.",
+          "Flag-by-flag, the A40 driver and H100 launcher are recipe-IDENTICAL on everything load-bearing: --engine check2hgi_dk_ovl, --canon none, static_weight cat-weight 0.75, --no-{reg,cat}-class-weights, --cat-head next_gru, --reg-head next_stan_flow_dualtower with raw_embed_dim=64 fusion_mode=aux freeze_alpha=True alpha_init=0.0, --log-t-kd-weight 0.0, --scheduler onecycle --max-lr 3e-3, cat/reg/shared-lr 1e-3/3e-3/1e-3, --model mtlnet_crossattn_dualtower, --compile --tf32, --batch-size 2048, MTL_AUTOCAST_BF16=1 MTL_DISABLE_AMP_EVAL=1 MTL_CHUNK_VAL_METRIC=1 MTL_COMPILE_DYNAMIC=1. No reg-stability flag exists on the H100 side that the A40 omits.",
+          "Root mechanism of the A40 failure (confirmed from the log): first event epoch=36 batch=69 grad_norm=NaN with FINITE loss=1.79 -- a backward-pass NaN GRADIENT, NOT an fp16 forward overflow (which would NaN the loss). This is a DIFFERENT failure class than the one bf16 fixes. 74,812 steps were skipped by the non-finite guard (guard_finite_step, mtl_cv.py:13). The guard correctly prevents shared-backbone poisoning but cannot reconstruct the lost reg gradient -> the reg head degrades after its early peak while the per-task diagnostic-best selector captures the pre-degradation peak ([4,50,5,4,4]).",
+          "There is NO candidate code fix on board-h100 to port. The fix space is entirely device/precision/recipe-level (GradScaler, true fp32, or a smaller reg-LR / clip), none of which exist as commits on board-h100. The user's true-fp32 TX run already in flight (pid 1492926) is exactly the right control: the CA_MTL_DIVERGENCE empirics show true-fp32 closes/reverses the reg gap (FL fp32 fold1 77.71 BEATS ceiling; AL fp32 -0.18 vs fp16 -0.38)."
+        ],
+        "a40_vs_h100_divergences": [
+          "log_T provenance: A40 loads canonical CHECK2HGI stride-9 log_T (--per-fold-transition-dir resolves to output/check2hgi_design_k_resln_mae_l0_1/texas, V14); H100 loads dk_ovl-built log_T (output/check2hgi_dk_ovl/texas, C29-correct). INERT either way: both run prior-OFF (freeze_alpha=True alpha_init=0.0) AND --log-t-kd-weight 0.0, so log_T is multiplied by 0 and never enters the loss/grad. CANNOT cause the grad-NaN. (Note: A40 md5 confirms the V14-dir and canonical-dir log_T are BYTE-IDENTICAL files, 7d1f1543..., so even the dir difference is moot at the content level.)",
+          "MTL_STRICT: A40 OFF (guard SKIPS the bad batch and continues -> degraded reg), H100 ON (guard would ABORT on first NaN -> fail-loud). This explains why the A40 PRODUCED a degraded number instead of aborting -- but it does NOT cause the NaN. The H100 simply never hit a NaN (healthy to ep50), so its MTL_STRICT=1 never fired.",
+          "GPU device class: A40 (Ampere, 48GB, driver 580.159.03) vs H100 (Hopper, 80GB). Same torch 2.11.0+cu128. This is the residual uncontrolled axis -- bf16 matmul accumulation / tensor-core kernels differ across architectures, which under --compile+--tf32 can produce a small numerical drift that, on the A40, tips a marginal cross-attn/STAN backward into NaN at ep36 where the H100 stays finite. Plausible but UNPROVEN cause; the true-fp32 control (pid 1492926) will isolate it.",
+          "A40-only env (non-causal for the NaN): OMP_NUM_THREADS=24, MTL_NAN_GUARD=1 (logging only), MTL_RAM_HEADROOM_GB=-10 (host-RAM force, irrelevant to GPU grad), PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True. A40 driver also passes --checkpoint-selector geom_simple explicitly; H100 omits it but per C21 the default IS geom_simple, so identical behavior. None affect gradient stability.",
+          "RESULT divergence (the symptom, not a config delta): H100 reg best-epochs [49,50] late-and-healthy, monotonic climb to ep50; A40 reg best-epochs [4,50,5,4,4] early-peak-then-collapse. Same model/recipe/precision -> the divergence is in the numerics realized on the two GPUs, not in any committed flag or code."
+        ],
+        "candidate_fixes": [
+          "NONE from board-h100 -- there is no code commit or recipe flag on the H100 lane that the A40 is missing. Do not port anything from PR #35 expecting a grad-NaN fix; PR #35 is data/docs/tooling only.",
+          "True fp32 (MTL_DISABLE_AMP=1 MTL_DISABLE_AMP_EVAL=1): the strongest candidate and ALREADY RUNNING on the A40 (pid 1492926). CA_MTL_DIVERGENCE empirics: fp32 closes the reg gap (AL -0.18 vs fp16 -0.38) and at FL fold1 fp32 reg 77.71 BEATS the ceiling. This is on main (the env gate exists in mtl_cv.py:343); no port needed. Expected to remove the backward-NaN if it is bf16-rounding-induced.",
+          "Add a torch.amp.GradScaler (the standard missing fp16/bf16 protection): does NOT exist on either branch (git grep confirms only absence-comments). Would be NEW work, not a board-h100 port. CA_MTL_DIVERGENCE lists it as fix option (2) but flags it changes numerics -> needs board-wide re-validation. Lower priority than the fp32 control.",
+          "If true-fp32 also NaNs (i.e. the instability is recipe-intrinsic at TX scale, not precision): reduce the reg-LR (3e-3 is the highest of the three groups and feeds the dualtower STAN reg head) or tighten max_grad_norm. This is recipe-tuning, again NOT a board-h100 port. Defer until the fp32 control result is in.",
+          "Lowest-effort interpretation fix: the A40 -2.37 number is a degraded-run artifact (74,812 skipped steps starved the reg head), comparable to the VOID CA -5.23 collapse artifact. It should be treated as NOT-citable pending the clean fp32 re-run, exactly as the H100 lane treated CA. The H100 TX bf16 result (cat 77.5 / reg 67.1, beats ceiling +2.06-equiv) is the trustworthy TX cell because that run never NaN'd."
+        ],
+        "confidence": "High on the core verdict (no missing board-h100 code/flag can fix the A40 grad-NaN -- proven: zero src/ changes, bf16 fix already on main, recipes byte-identical, log_T byte-identical, same torch). High that the divergence is a device-class/precision numerical effect (H100 healthy-to-ep50 vs A40 ep36 grad-NaN under identical config; A40 NaN is a finite-loss backward gradient, a different class than the fp16 forward overflow bf16 fixed). Medium on WHICH precision/recipe knob resolves it -- the true-fp32 control already running (pid 1492926) is the right and sufficient experiment to decide; CA/FL/AL fp32 precedent strongly predicts fp32 closes the gap and avoids the collapse.\"",
+        "evidence": [
+          {
+            "claim": "Zero src/ changes on board-h100 vs main; PR #35 is data/docs/tooling only",
+            "detail": "git log origin/main..origin/study/board-h100 --oneline -- src/ => EMPTY; --stat -- src/ => empty; full PR #35 stat = 27 files, all docs/results JSON + scripts/closing_data/*.sh|.py (autocommit/resume/ram-force), 1686 add / 7 del, no src/",
+            "source": "git log/diff origin/main..origin/study/board-h100; gh pr view 35"
+          },
+          {
+            "claim": "The bf16 autocast fix is on main, so the A40 already has it; it was active in the A40 run",
+            "detail": "958d71f3 'MTL_AUTOCAST_BF16=1 -> bfloat16 autocast'; git merge-base --is-ancestor => YES on main; git branch -r --contains => origin/main AND origin/study/board-h100. A40 log: 'INFO - MTL autocast dtype = torch.bfloat16'",
+            "source": "git show 958d71f3 --stat; /tmp/a40_board/task2_tx_mtl_bf16_s0.log"
+          },
+          {
+            "claim": "A40 failure is a FINITE-loss backward grad-NaN at ep36 (not an fp16 forward overflow); 74,812 steps skipped",
+            "detail": "log: '[NONFINITE-GUARD] non-finite at epoch=36 batch=69: grad_norm=nan loss=1.7862... Skipping optimizer+scheduler step'; grep -c NONFINITE-GUARD = 74812; bf16 prevents the 65504 forward overflow but not this backward NaN",
+            "source": "/tmp/a40_board/task2_tx_mtl_bf16_s0.log (grep NONFINITE-GUARD)"
+          },
+          {
+            "claim": "H100 TX ran healthy to ep50 with the SAME recipe -- monotonic reg climb, no collapse, best-epochs 49/50",
+            "detail": "committed fold1_next_region_val.csv top10 col: ep30 0.6575 -> ep40 0.6651 -> ep50 0.6695 (monotone). partial_score: reg_per_fold [66.94,67.32] best_epochs [49,50]; cat [77.69,77.31] best_epochs [50,50]; cat val CSV flat-healthy ep46-50",
+            "source": "git show origin/study/board-h100:docs/results/closing_data/h100/texas_s0_mtl/{fold1_next_region_val.csv,texas_s0_mtl_partial_score.json,fold1_next_category_val.csv}"
+          },
+          {
+            "claim": "Recipe flags are identical between the A40 driver and the H100 launcher",
+            "detail": "Both: --engine check2hgi_dk_ovl --canon none static_weight cat-weight 0.75 --no-{reg,cat}-class-weights --cat-head next_gru --reg-head next_stan_flow_dualtower (raw_embed_dim=64 fusion_mode=aux freeze_alpha=True alpha_init=0.0) --log-t-kd-weight 0.0 --scheduler onecycle --max-lr 3e-3 cat/reg/shared-lr 1e-3/3e-3/1e-3 --model mtlnet_crossattn_dualtower --compile --tf32 -bs 2048; env MTL_AUTOCAST_BF16=1 MTL_DISABLE_AMP_EVAL=1. Only env delta: A40 MTL_STRICT OFF + MTL_NAN_GUARD=1 + RAM/OMP knobs vs H100 MTL_STRICT=1",
+            "source": "scripts/closing_data/a40_task2_tx_mtl_bf16.sh; git show origin/study/board-h100:scripts/closing_data/launch_tx_s0.sh"
+          },
+          {
+            "claim": "log_T provenance differs by dir but is byte-identical and inert (prior-OFF + KD=0)",
+            "detail": "A40 loads output/check2hgi_design_k_resln_mae_l0_1/texas/...seed0_fold1.pt (log confirms '[C4 per-fold log_T] fold1 ... design_k_resln_mae_l0_1'); md5 of that == md5 of canonical check2hgi dir == 7d1f15431b9792f078a2e7d9cf4ecab1; both run freeze_alpha=True alpha_init=0.0 + --log-t-kd-weight 0.0 ('log_T-KD OFF (W=0.0)' in log) => log_T x0, cannot affect grads",
+            "source": "md5sum output/.../texas/region_transition_log_seed0_fold1.pt; /tmp/a40_board/task2_tx_mtl_bf16_s0.log"
+          },
+          {
+            "claim": "No GradScaler exists on either branch; the only difference vs H100 is device class + MTL_STRICT",
+            "detail": "git grep GradScaler src/ matches only the absence-comments; A40 torch 2.11.0+cu128 (canon-required), GPU NVIDIA A40 driver 580.159.03; H100 = Hopper 80GB. A40 MTL_STRICT OFF means the guard SKIPS+continues (degraded reg) where H100 MTL_STRICT=1 would abort -- but H100 never NaN'd so it never mattered",
+            "source": "git grep GradScaler origin/main/board-h100 -- src/; .venv/bin/python -c torch.__version__; nvidia-smi"
+          }
+        ]
+      },
+      "b": {
+        "angle": "B \u2014 Did the H100 TX bf16 run actually run clean? Establish ground truth from committed board-h100 artifacts and compare directly against the A40 bf16 collapse.",
+        "key_findings": [
+          "VERDICT: 'H100 TX bf16 worked perfectly' is TRUE for the folds that ran, but INCOMPLETE \u2014 only fold1+fold2 are committed (n=2), NOT a finished 5-fold run. There is no texas_s0_mtl_final_score.json on board-h100 (CA has one; TX does not). The committed file is texas_s0_mtl_partial_score.json with n_folds:2.",
+          "H100 TX bf16 (n=2) was CLEAN: reg FULL-top10 67.13 +-0.19 per-fold [66.94, 67.32], cat 77.50 +-0.19 [77.69, 77.31]. reg best-epochs are LATE [49, 50]; cat best-epochs [50, 50]. The per-fold reg val CSVs show a MONOTONE CLIMB to ep50 (fold1 top10_acc_indist: ep1=0.505 -> ep4=0.638 -> ep33=0.660 -> ep50=0.6695; fold2: ep1=0.508 -> ep50=0.6733). No degradation, no early peak.",
+          "H100 TX reg BEATS the STL reg ceiling: 67.13 vs ceiling 64.96 = Delta_reg = +2.17pp (TX_CELL.md notes 'fold1 reg 66.94 -> +1.98 (beats)'). cat ceiling was DEFERRED on H100 (co-schedule OOM-killed it, EXIT=137), so H100 has no committed TX Delta_cat \u2014 but cat 77.50 is healthy and well above the A40's STL cat ceiling region.",
+          "DIRECT CONTRAST: A40 bf16 reg best-epochs [4,50,5,4,4] (EARLY peak then degrade) vs H100 [49,50] (LATE/stable). A40 fold1 reg degrades after ep4: ep4=0.624(peak) -> ep33=0.529 -> ep50=0.553 (never recovers); H100 fold1 climbs to ep50. Same recipe, same precision (both bf16), opposite trajectory.",
+          "NaN MENTIONS IN H100 TX NOTES: TX_CELL.md and EP100_ABLATION_AND_TX_RAM.md explicitly state the H100 TX run was '0 NaN throughout' / 'Healthy to ep49-50 (bf16, no collapse)'. The H100 NaN/skip/guard discussion is all about the CA run (CA_MTL_DIVERGENCE.md), NOT TX \u2014 TX ran clean on bf16.",
+          "THE CRITICAL PARADOX (cross-angle, for the parent): The H100 lane ALREADY root-caused and FIXED this exact failure. CA_MTL_DIVERGENCE.md identifies it as fp16-autocast logit overflow (>65504 -> inf -> clip_grad_norm_ inf*0=NaN poisons shared backbone), fix = bf16 (commit 958d71f3). bf16 cured CA (final reg 65.66, best-eps [49,50,50,50,49], BEATS ceiling) and FL (reg 77.30, late best-eps). BUT the A40 is ALREADY RUNNING bf16 (log confirms 'MTL autocast dtype = torch.bfloat16' x5 folds) and STILL collapses \u2014 so the A40 failure is a DIFFERENT mechanism than the H100's fp16 overflow that bf16 fixed.",
+          "A40 SIGNATURE differs from the H100 CA signature: A40 has 74,812 skips, onset epoch 36 (per-fold; ep33 in the prompt is the first health-print epoch), escalating to ~5986/epoch by ep41-49 across all 5 folds. Of the 74,812 skips, 20,010 are grad_norm=nan with a FINITE loss (e.g. loss=1.786, 1.799) \u2014 a BACKWARD-pass NaN gradient. The remaining 54,802 are grad_norm=nan loss=nan (downstream, once the backbone is already poisoned within a fold). The H100 CA collapse was a NaN-LOSS forward overflow in fp16; the A40 collapse is a finite-loss/NaN-grad event in bf16 \u2014 these are NOT the same numerical event."
+        ],
+        "a40_vs_h100_divergences": [
+          "reg best-epochs: A40 [4,50,5,4,4] (early peak) vs H100 [49,50] (late/stable) \u2014 opposite trajectory shape on identical recipe+precision.",
+          "reg trajectory: A40 fold1 degrades ep4 0.624 -> ep50 0.553 (DOWN); H100 fold1 climbs ep4 0.638 -> ep50 0.6695 (UP, monotone).",
+          "non-finite events: A40 74,812 skips (onset ep36, all 5 folds); H100 TX explicitly '0 NaN throughout' (TX_CELL.md / EP100_ABLATION).",
+          "Delta_reg vs ceiling: A40 -2.37 (FLAG, exceeds 2pp); H100 +2.17 (BEATS ceiling). Same 64.96 ceiling on both sides.",
+          "cat: A40 75.87 (healthy, captured early/late); H100 77.50 (healthy). cat head survives on both \u2014 the guard/poisoning hits reg hardest because reg best-epoch is captured at the early pre-collapse peak.",
+          "Completeness: A40 has a full 5-fold scored JSON; H100 TX only has n=2 committed (fold1+fold2) \u2014 the H100 'perfect TX' claim rests on 2 of 5 folds.",
+          "log_T provenance: H100 TX log_T built ON dk_ovl ('C29-correct'); A40 TX log_T built on canonical CHECK2HGI (stride-9). Board runs prior-OFF (freeze_alpha=True, alpha_init=0.0) so per the recipe it should be INERT \u2014 but this is the one environmental input that differs and is worth ruling out via another angle (this angle did not test it).",
+          "Failure numerics differ: H100 CA = fp16 NaN-LOSS forward overflow (cured by bf16); A40 = bf16 finite-loss NaN-GRAD backward event (bf16 did NOT prevent it) \u2014 so the A40 is hitting a distinct root cause despite using the H100's fix.",
+          "Precision both bf16: the A40 log confirms genuine torch.bfloat16 autocast, so the divergence is NOT 'A40 ran fp16 by mistake' \u2014 bf16 was active and still failed."
+        ],
+        "candidate_fixes": [
+          "NOTE: this angle is read-only ground-truthing, not root-cause of the A40 numerics. The H100 docs already enumerate the canonical fixes for this collapse family \u2014 these are candidates for the A40, to be validated by another angle / the in-flight fp32 run (pid 1492926): (1) bf16 alone is INSUFFICIENT on the A40 \u2014 it fixed the H100 fp16-overflow path but the A40 still NaN-grads in bf16, so the A40 needs more than the committed 958d71f3 bf16 fix.",
+          "Add torch.amp.GradScaler (CA_MTL_DIVERGENCE.md option 2) \u2014 the standard missing protection; auto-detects inf/NaN and backs off LR. The A40's finite-loss/NaN-grad onset at ep36 (after OneCycle LR has decayed) suggests a true backward instability that a scaler+skip could ride through rather than just skipping ~6000 steps/epoch.",
+          "Run true-fp32 (the in-flight pid 1492926 run) to confirm whether the A40 collapse is precision-borne at all \u2014 if fp32 ALSO collapses at ~ep36, the cause is NOT precision (mirrors the H100 finding that CA collapsed in BOTH fp32 and tf32 before they found the real fp16 cause). Compare A40-fp32 reg best-epochs to the H100's late [49,50].",
+          "Investigate the LR schedule / shared-backbone interaction: A40 onset is ep36 (post-OneCycle-peak), H100 has no skips at all on the same OneCycle max-lr 3e-3 \u2014 so the divergence is environment-specific (A40 GPU/torch build, compile graph, or the stride-9 log_T) rather than recipe.",
+          "Rule out the log_T provenance mismatch as a contributor: the A40 TX log_T is built on canonical CHECK2HGI (stride-9) vs H100's dk_ovl-built ('C29-correct'). Although prior-OFF should make it inert, a separate angle should diff the actual loaded transition tensors / freeze_alpha effective state, since this is the one confirmed input difference between the two lanes.",
+          "Treat the A40 result as a FLAG, not a verdict: the A40 Delta_reg -2.37 was produced by a run with 74,812 skipped steps and reg captured at a pre-collapse ep4 peak \u2014 it is a collapse-contaminated number (the H100 docs explicitly call such early-peak-captured numbers 'spurious / VOID, do not cite'). Do not cite A40 -2.37 as the TX MTL reg result until a clean (no-skip) run reproduces it."
+        ],
+        "confidence": "High on the ground-truth comparison: H100 TX bf16 ran clean for fold1+fold2 (reg late/stable best-eps [49,50], monotone CSV climb, +2.17 vs ceiling, 0 NaN per their own notes), which is the polar opposite of the A40 bf16 (early-peak [4,50,5,4,4], 74,812 skips from ep36, degrading reg, -2.37). All numbers quoted directly from committed board-h100 JSONs/CSVs/docs and the A40 log/JSON. Two caveats: (1) the H100 TX run is INCOMPLETE (n=2 of 5, no final score committed), so 'perfectly' is true-but-partial; (2) this angle did not establish WHY the A40 bf16 still NaN-grads \u2014 only that it does, that bf16 (the H100's committed fix) is insufficient for it, and that its signature (finite-loss NaN-GRAD) differs from the H100 CA signature (NaN-LOSS fp16 overflow). Root-causing the A40-specific mechanism is for the fp32 in-flight run / another angle.",
+        "evidence": [
+          {
+            "claim": "H100 TX bf16 committed only fold1+fold2 (n=2), no final 5-fold score exists",
+            "detail": "texas_s0_mtl_partial_score.json has n_folds:2, cat_per_fold [77.6885,77.3113], reg_per_fold [66.9382,67.3184], cat_best_epochs [50,50], reg_best_epochs [49,50]. No texas_s0_mtl_final_score.json in git ls-tree (CA has california_s0_mtl_final_score.json). Only fold1/fold2 CSVs present.",
+            "source": "git show origin/study/board-h100:docs/results/closing_data/h100/texas_s0_mtl/texas_s0_mtl_partial_score.json"
+          },
+          {
+            "claim": "H100 TX reg trajectory is a monotone climb (LATE best-epoch), opposite of A40 early peak",
+            "detail": "fold1 top10_acc_indist: ep1=0.5047, ep4=0.6377, ep33=0.6599, ep49=0.66948, ep50=0.66945. fold2: ep1=0.5083 -> ep50=0.67332. Strictly increasing, no degradation.",
+            "source": "git show origin/study/board-h100:docs/results/closing_data/h100/texas_s0_mtl/fold1_next_region_val.csv (and fold2)"
+          },
+          {
+            "claim": "H100 TX run had 0 NaN / no collapse per their own notes; reg BEATS ceiling +1.98/+2.17",
+            "detail": "TX_CELL.md: 'TX MTL fold 1 reg 66.94 -> +1.98 (beats)', running mean reg 67.13 vs ceiling 64.96. BOARD_H100_FINDINGS.md: 'Healthy to ep49-50 (bf16, no collapse)'. EP100_ABLATION_AND_TX_RAM.md: 'CA untouched (0 NaN throughout)'.",
+            "source": "git show origin/study/board-h100:docs/studies/closing_data/{TX_CELL.md,BOARD_H100_FINDINGS.md,EP100_ABLATION_AND_TX_RAM.md}"
+          },
+          {
+            "claim": "H100 root-caused the collapse as fp16 overflow and fixed it with bf16; bf16 cured CA + FL",
+            "detail": "CA_MTL_DIVERGENCE.md ROOT CAUSE: 'fp16-autocast overflow with NO GradScaler ... 65504 -> inf/NaN ... clip_grad_norm_ inf*0=NaN ... poisons shared cross-attn backbone'. Fix = bf16 (commit 958d71f3). CA final reg 65.66 best-eps [49,50,50,50,49] BEATS ceiling; FL bf16 reg 77.30 best-eps [49,46,45,46,45], no collapse.",
+            "source": "git show origin/study/board-h100:docs/studies/closing_data/CA_MTL_DIVERGENCE.md + docs/results/closing_data/h100/{california_s0_mtl/california_s0_mtl_final_score.json,florida_s0_mtl_bf16_5f_matched_score.json}"
+          },
+          {
+            "claim": "A40 genuinely ran bf16 yet still collapsed \u2014 so it is NOT the H100's fp16-overflow path",
+            "detail": "Log prints 'MTL autocast dtype = torch.bfloat16' at the start of all 5 folds (06:44, 07:49, 08:54, 09:58, 10:56). Result JSON precision field: 'bf16 (MTL_AUTOCAST_BF16=1, eval fp32)'. Despite bf16, 74,812 skips occurred.",
+            "source": "/tmp/a40_board/task2_tx_mtl_bf16_s0.log + /home/vitor.oliveira/PoiMtlNet/docs/results/closing_data/a40/tx_ba2_bf16_s0.json"
+          },
+          {
+            "claim": "A40 failure is a finite-loss NaN-GRAD backward event (distinct signature from H100 CA NaN-loss)",
+            "detail": "74,812 total skips; onset epoch=36 (per-fold), escalating 48->1495->...->5986 per epoch through ep49. 20,010 skips are 'grad_norm=nan loss=<finite>' (e.g. loss=1.7862, 1.7998) \u2014 NaN gradient with finite loss. 54,802 are 'grad_norm=nan loss=nan' (downstream, post-poison). Guard at mtl_cv.py:852 (guard_finite_step, def line 13) skips the optimizer step.",
+            "source": "grep of /tmp/a40_board/task2_tx_mtl_bf16_s0.log ('non-finite at epoch=N batch=M: grad_norm=nan loss=...') + /home/vitor.oliveira/PoiMtlNet/src/training/runners/mtl_cv.py:13,848-861"
+          },
+          {
+            "claim": "A40 reg degrades after an early peak (captured at ep4), confirming early-peak-then-collapse",
+            "detail": "bf16 rundir 20260624_064433: fold1 reg top10_acc_indist ep4=0.6237 (peak, best-ep4) -> ep33=0.5288 -> ep50=0.5530 (never recovers). fold3 ep5=0.6139 (peak) -> ep36=0.5450 -> ep50=0.5726. Result JSON reg_best_epochs [4,50,5,4,4], reg 62.59, Delta_reg -2.37.",
+            "source": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_dk_ovl/texas/mtlnet_lr1.0e-04_bs2048_ep50_20260624_064433_1372826/metrics/fold{1,3}_next_region_val.csv + docs/results/closing_data/a40/tx_ba2_bf16_s0.json"
+          }
+        ]
+      },
+      "c": {
+        "angle": "Angle C \u2014 Data/substrate/engine/log_T divergence (A40 vs H100). Prime suspect was a degenerate TX v14 reg substrate or mis-built overlap engine on the A40 producing NaN reg gradients.",
+        "key_findings": [
+          "VERDICT: Angle C is CLEARED. The TX substrate, overlap engine, and log_T are NOT the cause of the grad-NaN. The A40 on-disk v14 TX substrate is BYTE-IDENTICAL to the frozen V14_HASH_MANIFEST.json, all values are finite and well-behaved, and the one real divergence (log_T built on a different engine) is provably inert under the prior-OFF recipe.",
+          "TX v14 substrate is byte-identical across lanes. A40 /output/check2hgi_design_k_resln_mae_l0_1/texas/ hashes match V14_HASH_MANIFEST.json EXACTLY: embeddings.parquet sha256=d928bb7a1fae5d36d3b0792487d80fee2cddd40faffb069553cca2579737bcb9 (1217246067 bytes), poi_embeddings.parquet=3a90906d...c62a347c (63720884), region_embeddings.parquet=2dfda153...a172718f (2422547). H100 BOARD_H100_FINDINGS.md independently states 'TX v14 substrate sha256-verified vs manifest'. Same frozen substrate both lanes.",
+          "TX substrate values are clean, NOT degenerate. region_embeddings reg_0..reg_63: finite, no NaN/Inf, min -1.71 / max 3.68 / std 0.37, row-L2 norms 1.57-9.64, zero degenerate (zero-norm) rows. poi_embeddings: finite, absmax 28.4 / std 2.49. dk_ovl next_region.parquet (576 emb cols, 3.83M rows sampled): finite, absmax 6.44 / std 1.27 (the earlier 'absmax 6549' was the region_idx INDEX column, not an embedding). No substrate pathology exists to seed a reg-grad NaN.",
+          "The overlap engine is correctly gated, not mis-built. output/check2hgi_dk_ovl/texas/input/next_build_provenance.json: min_sequence_length=10, stride=1, emit_tail=false, git_sha=e6f1718e, built 2026-06-21. Matches the launcher's gate-assert (passed) and the H100 recipe. Substrate parquets are symlinks into the frozen v14 dir (verified identical). next_region target labels in-range (region_idx max 6549, last_region_idx max 6524 < n_regions 6553).",
+          "THE one real A40-vs-H100 divergence: log_T build engine. A40 launcher passes --per-fold-transition-dir output/check2hgi_design_k_resln_mae_l0_1/texas (log_T built on the CANONICAL CHECK2HGI / design_k engine, stride-9). H100 launch_tx_s0.sh passes --per-fold-transition-dir output/check2hgi_dk_ovl/texas (log_T built ON the dk_ovl overlap training split, 'C29-correct'). This is exactly CONCERNS-C29.",
+          "...BUT that log_T divergence is provably INERT and is NOT the NaN cause. Both lanes run prior-OFF: reg head freeze_alpha=True alpha_init=0.0 (alpha is a frozen buffer = 0.0) AND --log-t-kd-weight 0.0. In next_stan_flow_dualtower/head.py:432 the prior enters as 'logits + self.alpha * transition_prior' = logits + 0.0*transition_prior. The A40 log_T is FINITE (shape 6553x6553, min -13.99, max -0.19, no nan/neginf), so 0.0*finite=0 exactly \u2014 NOT the 0*inf=NaN trap. C29 doc + two independent advisors verified bit-identical/inert. Dimensionally compatible (n_regions=6553 covers all region indices).",
+          "A40 genuinely ran bf16 (not fp16). Log shows 'MTL autocast dtype = torch.bfloat16' five times (one per fold) and '--log-t-kd-weight 0.0 ... v11 paper-canon (no-KD)'. So this is NOT the fp16-overflow collapse from CA_MTL_DIVERGENCE.md \u2014 bf16 has fp32 exponent range, loss stays finite (1.79-1.92) at the grad-NaN events. It is a backward-pass NaN GRADIENT, an A40-specific numerical instability orthogonal to data/substrate.",
+          "Failure signature confirms gradual instability, not a substrate cliff. NAN_GUARD trajectory is healthy through ep32 (grad_norm ~0.5-1.0, loss monotically decreasing). First non-finite at ep33 batch=1266 (grad_norm=nan, loss=1.82 FINITE), escalating to ~6000 skips/epoch by ep41-49 across all 5 folds. reg best-epochs [4,50,5,4,4] = early-peak-then-degrade; final reg ~5%, diagnostic-best captured the early peak (62.59). cat stayed healthy (75.87). \u0394reg=-2.37 vs fp32 STL ceiling 64.96.",
+          "DECISIVE cross-lane contrast: H100 TX (SAME substrate, dk_ovl log_T, MTL_STRICT=1, bf16) ran CLEAN. TX_CELL.md: fold1 reg 66.94 best-ep 49, fold2 reg 67.32 best-ep 50 \u2014 LATE best-epochs, BEATS the 64.96 ceiling (+1.98), zero NaN. Critically, H100 ran MTL_STRICT=1, under which guard_finite_step RAISES a fail-loud abort on the first non-finite grad (mtl_cv.py:32). The H100 TX run did NOT abort -> it NEVER hit a grad-NaN. Same data, same recipe, different GPU -> different numerics. (Note: the A40's OWN first attempt with MTL_STRICT=1 aborted at fold1 ep36 on this same grad-NaN, per the launcher comment \u2014 so the grad-NaN is A40-specific, reproducible, and would have aborted the H100 too had it occurred there.)"
+        ],
+        "a40_vs_h100_divergences": [
+          "log_T build engine (REAL but INERT): A40 uses output/check2hgi_design_k_resln_mae_l0_1/texas/region_transition_log_seed0_fold*.pt (built on canonical CHECK2HGI/design_k engine, stride-9 split); H100 uses output/check2hgi_dk_ovl/texas/ (built on the dk_ovl overlap split, 'C29-correct'). The A40's dk_ovl dir has NO log_T at all. This is CONCERNS-C29. Inert in both because prior-OFF (alpha=0, KD=0) and the A40 log_T is finite -> multiplied by exactly 0. NOT the NaN cause, but it IS a genuine provenance mismatch and the only data-layer divergence found.",
+          "TX v14 substrate: IDENTICAL (byte-for-byte, sha256-verified both lanes). NOT a divergence.",
+          "Overlap engine (dk_ovl): IDENTICAL gated build (min_seq=10, stride=1, emit_tail=False). NOT a divergence.",
+          "GPU hardware: A40 (Ampere, GA102) vs H100 (Hopper, GH100). Different tensor-core / bf16 accumulation microarchitecture. This is the likely true axis of the grad-NaN divergence (outside Angle C's data scope, but it is what remains once data/substrate/engine/log_T are all cleared).",
+          "MTL_STRICT: A40 OFF (so the guard SKIPS and the run limps to ep50 with a degraded reg head); H100 =1 (would have aborted on first non-finite \u2014 and did not, proving no NaN there). This is an observability/policy delta, not a cause.",
+          "MTL_NAN_GUARD=1 (A40 only) \u2014 gives the A40 the per-batch grad-norm trail that exposed the ep33 onset; H100 launcher does not set it.",
+          "Env extras on A40 only: PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True, OMP_NUM_THREADS=24, MTL_RAM_HEADROOM_GB=-10 (vs H100 unset/-25). Allocator/threading deltas \u2014 could perturb reduction order but are not data-layer."
+        ],
+        "candidate_fixes": [
+          "DATA-LAYER (Angle C): NONE required \u2014 substrate, overlap engine, and log_T are all clean/identical-or-inert. Do NOT rebuild the TX substrate or re-gate the overlap engine; that will not fix the grad-NaN (the H100 ran clean on the byte-identical substrate).",
+          "OPTIONAL hygiene (cosmetic, zero result impact): rebuild the A40 TX log_T on the dk_ovl engine ('compute_region_transition.py --state texas --per-fold --seed 0 --engine check2hgi_dk_ovl' -> output/check2hgi_dk_ovl/texas/) to match the H100 and close CONCERNS-C29 provenance. Because the run is prior-OFF and the existing log_T is finite, this is byte-identical to the current result \u2014 do it only for manifest cleanliness, not as a fix.",
+          "REAL fix is outside Angle C (numerical/optimizer/hardware): the grad-NaN is an A40 bf16 backward instability with finite loss. Candidate mitigations to hand to the precision/optimizer angle: (a) lower max-lr from 3e-3 (OneCycle peak ~ep15; instability onsets ep33 in the anneal tail \u2014 but worth an LR sweep); (b) tighten grad-clip / add anomaly detection; (c) try MTL_DISABLE_AMP=1 true-fp32 on the A40 to test whether bf16-on-Ampere is the axis (the true-fp32 TX run pid 1492926 already in flight will answer this); (d) GradScaler-style loss scaling. The non-finite SKIP guard already prevented backbone poisoning \u2014 but ~75k skipped steps starved the reg head.",
+          "REPORTING: keep the \u0394reg=-2.37 as a FLAGGED A40-lane number, NOT a board verdict. The H100 TX bf16 cell (reg 66.9/67.3, BEATS the 64.96 ceiling, no NaN) is the trustworthy TX MTL result; the A40 number is depressed by a device-specific grad-NaN that starved the reg head, not by any substrate/engine/data defect."
+        ],
+        "confidence": "HIGH that Angle C (data/substrate/engine/log_T) is NOT the cause \u2014 substrate is byte-identical and sha256-verified to the frozen manifest, all values finite/non-degenerate, overlap engine correctly gated, and the one real divergence (log_T build engine) is provably inert under prior-OFF with a finite log_T (no 0*inf trap), independently confirmed by CONCERNS-C29 + two advisors. HIGH that the true cause is an A40-specific bf16 backward-pass grad-NaN (finite loss), evidenced by the H100 running the byte-identical recipe/substrate clean under MTL_STRICT=1 (which would have aborted on any NaN) with late best-epochs that beat the ceiling. The specific microarchitectural mechanism (Ampere bf16 vs Hopper) is outside this angle's scope and left to the precision/optimizer angle; the in-flight true-fp32 A40 run (pid 1492926) is the right discriminator.",
+        "evidence": [
+          {
+            "claim": "A40 TX v14 substrate is byte-identical to the frozen V14_HASH_MANIFEST (all 3 sha256 match)",
+            "detail": "embeddings.parquet d928bb7a...9737bcb9 / poi 3a90906d...c62a347c / region 2dfda153...a172718f, matching docs/studies/closing_data/V14_HASH_MANIFEST.json texas block exactly",
+            "source": "sha256sum of output/check2hgi_design_k_resln_mae_l0_1/texas/*.parquet vs docs/studies/closing_data/V14_HASH_MANIFEST.json"
+          },
+          {
+            "claim": "TX region/poi/next_region embeddings are finite and non-degenerate",
+            "detail": "region reg_* absmax 3.68 std 0.37 0 zero-rows; dk_ovl next_region emb absmax 6.44 std 1.27 0 nan (the 6549 was the region_idx index col)",
+            "source": "pyarrow load + numpy isfinite/min/max/norm on the parquets"
+          },
+          {
+            "claim": "The only real A40-vs-H100 divergence is the log_T build engine, and it is inert",
+            "detail": "A40 passes --per-fold-transition-dir output/check2hgi_design_k_resln_mae_l0_1/texas; H100 passes output/check2hgi_dk_ovl/texas. Both prior-OFF (freeze_alpha=True alpha_init=0.0, --log-t-kd-weight 0.0); A40 log_T finite (min -13.99 max -0.19) so 0.0*finite=0",
+            "source": "scripts/closing_data/a40_task2_tx_mtl_bf16.sh vs git show origin/study/board-h100:scripts/closing_data/launch_tx_s0.sh; torch.load of region_transition_log_seed0_fold1.pt; next_stan_flow_dualtower/head.py:330,432; BOARD_H100_FINDINGS.md \u00a74 (C29)"
+          },
+          {
+            "claim": "H100 TX bf16 ran clean (no NaN) under MTL_STRICT=1 and beat the ceiling; A40 grad-NaN is device-specific",
+            "detail": "H100 TX_CELL: fold1 reg 66.94 best-ep 49, fold2 67.32 best-ep 50 (late, beats 64.96 +1.98). H100 launcher sets MTL_STRICT=1 which RAISES on first non-finite (mtl_cv.py:32) \u2014 no abort => no NaN. A40 first STRICT attempt aborted fold1 ep36 on the same grad-NaN",
+            "source": "git show origin/study/board-h100:docs/studies/closing_data/TX_CELL.md + launch_tx_s0.sh; src/training/runners/mtl_cv.py:13-34,851-861; a40_task2_tx_mtl_bf16.sh header comment"
+          },
+          {
+            "claim": "A40 failure is a bf16 backward grad-NaN with finite loss, onset ep33, escalating across all 5 folds",
+            "detail": "NAN_GUARD healthy to ep32 (grad_norm 0.5-1.0); first non-finite ep33 batch1266 grad_norm=nan loss=1.82; reg best-epochs [4,50,5,4,4]; banner 'MTL autocast dtype = torch.bfloat16' x5 confirms bf16 not fp16",
+            "source": "/tmp/a40_board/task2_tx_mtl_bf16_s0.log (NAN_GUARD + NONFINITE-GUARD lines, autocast banner); docs/results/closing_data/a40/tx_ba2_bf16_s0.json"
+          }
+        ]
+      },
+      "d": {
+        "angle": "D \u2014 NaN mechanism (code) + A40 run forensics + is the in-progress fp32 run also NaN-ing?",
+        "key_findings": [
+          "MECHANISM (most likely NaN op): an all-masked softmax row producing NaN in the BACKWARD pass, not an fp16 logit overflow. The bf16 run's first event is grad_norm=NaN with a FINITE loss=1.786 (epoch=36 batch=69), then loss itself goes NaN two batches later (batch=73). bf16 has fp32 exponent range (no 65504 ceiling), so this is structurally NOT the CA fp16-overflow. The prime suspect is softmax over a fully-masked attention row: nn.MultiheadAttention (cross_ab/cross_ba in src/models/mtl/mtlnet_crossattn/model.py:170,189 with key_padding_mask) returns NaN for any query whose entire key set is masked, and _STANAttention (src/models/next/next_stan/head.py:115-120) does attn.masked_fill(pad, float('-inf')) then F.softmax \u2014 softmax(all -inf row) = NaN. STAN.forward_features (head.py:251-255) only un-masks the all-padded LAST position; the cross-attn MultiheadAttention path has NO all-padded-row guard at all. A fully-padded TX region/category window (TX overlap with MIN_SEQUENCE_LENGTH=10) yields a NaN row whose grad poisons the shared cross-attn backbone. softmax forward stays finite numerically until a row is fully -inf; its GRADIENT is the first thing to go NaN \u2014 exactly matching 'NaN grad with finite loss'.",
+          "A40 FORENSICS: the NaN is DETERMINISTIC at fold-relative epoch 33 in EVERY fold and escalates monotonically: 48 skips @ep33 -> 1495 @ep34 -> 2844 @ep36 -> ~5900-5986/epoch by ep41-49 (total 74,812 skips). The reg diagnostic-best epochs are [4,50,5,4,4]: 4 of 5 folds peaked at ep4-5 (BEFORE the ep33 onset) then degraded, so the matched scorer captured the early peak (reg 62.59 +/-0.88) while the final reg val collapsed to ~5% (the val=N trajectory). cat stayed healthy (75.87, best-eps [36,50,45,41,34]). OneCycle max-lr peaks ~ep15 then anneals, so ep33 is on the LR-DECAY slope, NOT an LR-spike \u2014 the onset is data/state-dependent, not schedule-driven. The escalation pattern (slowly more batches NaN each epoch) is consistent with a representation drifting until specific batches hit the degenerate-mask / overflow-prone region.",
+          "fp32 CROSS-CHECK (INCONCLUSIVE so far \u2014 do NOT over-read): the true-fp32 control (MTL_DISABLE_AMP=1, pid 1492926) is currently only at EPOCH 20/50, 0 NONFINITE skips, healthy (diagnostic-best reg N65.05 \u2014 already ABOVE the STL ceiling 64.96 \u2014 cat C73.39). BUT it has NOT yet reached the ep33 onset zone, so it cannot yet confirm or refute whether fp32 also NaNs at ep33. The [NAN_GUARD] lines in the fp32 log are the opt-in MTL_NAN_GUARD=1 grad-norm TRAJECTORY logging (mtl_cv.py:856), NOT skip events; its grad_norms are healthy (0.5-1.7, max 8.05 at the very first batch). Need to re-check the fp32 log once it passes ep33 (~13 more epochs / ~45min at its rate) to settle the precision-vs-structural question definitively.",
+          "H100 'ran perfectly' EXPLAINED: the H100 launcher (scripts/closing_data/launch_tx_s0.sh, board-h100) is byte-for-byte the SAME bf16 recipe BUT keeps MTL_STRICT=1, and its TX run reached fold1/fold2 with reg best-ep 49/50 CLEAN (66.94/67.32, beats the 64.96 ceiling). With MTL_STRICT=1 a single NaN would HARD-ABORT \u2014 since the H100 completed folds cleanly, the H100 simply NEVER triggered the grad-NaN. The A40's FIRST attempt also used MTL_STRICT=1 and ABORTED at fold1 ep36 b69 (the launcher comment documents this); the A40 then DROPPED MTL_STRICT=1 so the guard skips-and-continues, which is why the A40 'completed' but with 74,812 skipped steps and a degraded reg. So the H100 did not run a different/better path \u2014 it hit a DIFFERENT (clean) numerical trajectory and never NaN'd; the A40 hits it deterministically every fold."
+        ],
+        "a40_vs_h100_divergences": [
+          "MTL_STRICT: H100 launcher sets MTL_STRICT=1 (hard-abort on first NaN); A40 bf16 launcher deliberately set it OFF (the comment in a40_task2_tx_mtl_bf16.sh records that the strict first attempt ABORTED at fold1 ep36 b69 on a backward-pass NaN gradient, finite loss=1.79). This is why the A40 'completed' (74,812 skipped steps) while a strict H100 run would have aborted \u2014 but the H100 never NaN'd at all (folds reached best-ep 49/50 clean).",
+          "log_T provenance (C29): A40 uses output/check2hgi_design_k_resln_mae_l0_1/texas/region_transition_log_seed0_fold{N}.pt (canonical/v14 engine, stride-9); H100 uses output/check2hgi_dk_ovl/texas (the overlap engine, 'C29-correct'). HOWEVER both runs are prior-OFF (freeze_alpha=True, alpha_init=0.0), so _apply_prior returns logits + 0.0*log_T \u2014 log_T is multiplied by a frozen-zero buffer and NEVER enters the forward value or the gradient. The log_T mismatch is INERT and cannot be the NaN source.",
+          "GPU/precision-trajectory: same bf16 autocast, same compiled+tf32, same heads, same OneCycle 3e-3 \u2014 the only numerical difference is the deterministic per-device floating-point trajectory (and any non-determinism from --compile/tf32 kernel selection differing A40 vs H100). The A40's representation drifts into the degenerate-mask/NaN region at ep33 every fold; the H100's does not. This points to a marginal numerical instability that one device crosses and the other doesn't, NOT a recipe difference.",
+          "MTL_RAM_HEADROOM_GB: A40 sets -10 (host-RAM guard workaround for the double-count); H100 sets -25 when co-scheduled. Irrelevant to the NaN (RAM-guard only gates launch)."
+        ],
+        "candidate_fixes": [
+          "Add an all-masked-row guard before every softmax/MultiheadAttention: in _STANAttention.forward (src/models/next/next_stan/head.py:115-120) and in the cross-attn cross_ab/cross_ba calls (src/models/mtl/mtlnet_crossattn/model.py:170,189), detect fully-masked query rows and either skip the mask for those rows or zero the post-softmax output. This is the standard nn.MultiheadAttention fully-masked-key NaN fix and is the most likely true root cause.",
+          "Confirm/keep the MTL_STRICT-OFF non-finite skip guard (already done on the A40) \u2014 it prevents NaN-poisoning the shared backbone (CA_MTL_DIVERGENCE.md fix option 1) \u2014 but it is a BAND-AID: 74,812 skipped steps starves the reg head of the late-epoch training it needs, so the reg degrades. The guard keeps the run alive but does not produce a citable reg number. The real fix is the all-masked-row guard above.",
+          "WAIT for the fp32 control to cross ep33 before concluding precision-independence. If fp32 (pid 1492926) ALSO starts skipping at ~ep33, the NaN is precision-INDEPENDENT (structural \u2014 the masked-softmax / data-trajectory hypothesis) and bf16-vs-fp32 is a red herring for TX. If fp32 stays clean past ep33, precision matters after all and bf16 has a residual instability the H100's bf16 happened to dodge. The H100 lane's AL/CA evidence (CA collapses identically in fp32 AND tf32) already argues the family of failures is structural, not precision.",
+          "Add torch.amp.GradScaler (currently absent everywhere per grep) OR run true fp32 (MTL_DISABLE_AMP=1) for the citable TX MTL number \u2014 but note GradScaler only helps an fp16 OVERFLOW, NOT a structural masked-softmax backward-NaN, so it would not fix this specific bf16 grad-NaN; the masked-row guard is required regardless.",
+          "Optionally clamp/stabilize attention: replace float('-inf') masking with a large finite negative (e.g. -1e4) in _STANAttention so a fully-masked row softmaxes to a uniform (finite, gradient-safe) distribution instead of NaN \u2014 a minimal, low-risk mitigation for the STAN path."
+        ],
+        "confidence": "medium-high on mechanism family (backward-pass NaN from an all-masked softmax row in the cross-attn/STAN attention, NOT an fp16-style logit overflow \u2014 proven by finite loss + NaN grad under bf16's fp32 exponent range); high on the A40-vs-H100 divergence being MTL_STRICT (H100 never NaN'd; A40 NaNs deterministically at ep33 every fold and only 'completes' because strict is off); the log_T mismatch is confidently ruled INERT (prior-OFF). The precision-vs-structural verdict is NOT yet settled by the fp32 run (it is only at ep20/50, has not reached the ep33 onset) \u2014 re-check the fp32 log after it passes ep33 to confirm. I could not (read-only) bisect to the exact tensor/op; the all-masked-row softmax is the best-supported single suspect but is not byte-level proven.",
+        "evidence": [
+          {
+            "claim": "bf16 first NaN is a backward grad-NaN with finite loss, then loss NaNs (not fp16 overflow)",
+            "detail": "[NONFINITE-GUARD] non-finite at epoch=36 batch=69: grad_norm=nan loss=1.7862 ... then epoch=36 batch=73: grad_norm=nan loss=nan. bf16 (MTL_AUTOCAST_BF16=1) has fp32 exponent range, so no 65504 ceiling.",
+            "source": "/tmp/a40_board/task2_tx_mtl_bf16_s0.log (tr CR->LF, grep NONFINITE-GUARD)"
+          },
+          {
+            "claim": "NaN onset deterministic at fold-relative ep33, escalating to ~6000/epoch, 74,812 total skips",
+            "detail": "per-epoch skip counts: ep33=48, ep34=1495, ep36=2844, ep41-49 ~5900-5986; recurs in all 5 folds",
+            "source": "/tmp/a40_board/task2_tx_mtl_bf16_s0.log (grep 'non-finite at epoch=' | uniq -c)"
+          },
+          {
+            "claim": "reg peaked early (ep4-5) then degraded; scorer caught the early peak",
+            "detail": "reg diag-best epochs [4,50,5,4,4], reg=62.59+/-0.88; cat healthy 75.87 (eps [36,50,45,41,34]); final reg val collapsed to ~5%",
+            "source": "/tmp/a40_board/tx_mtl_bf16_driver.log (matched-score block)"
+          },
+          {
+            "claim": "A40 strict-mode FIRST attempt aborted at fold1 ep36 b69 on a backward NaN gradient; strict then turned OFF",
+            "detail": "launcher comment: 'MTL_STRICT ... was =1 in the first attempt, which ABORTED at fold1 ep36 b69 on a backward-pass NaN GRADIENT \u2014 finite loss=1.79, NOT an fp16 overflow'",
+            "source": "scripts/closing_data/a40_task2_tx_mtl_bf16.sh"
+          },
+          {
+            "claim": "H100 TX run is the SAME bf16 recipe but keeps MTL_STRICT=1 and completed folds clean (never NaN'd)",
+            "detail": "H100 launcher sets MTL_AUTOCAST_BF16=1 MTL_STRICT=1; TX_CELL fold1/fold2 reg 66.94/67.32 best-ep 49/50 (beats 64.96 ceiling). With strict on, any NaN would hard-abort -> clean folds prove no NaN occurred on H100.",
+            "source": "git show origin/study/board-h100:scripts/closing_data/launch_tx_s0.sh and :docs/studies/closing_data/TX_CELL.md"
+          },
+          {
+            "claim": "log_T mismatch is inert (prior-OFF), cannot be NaN source",
+            "detail": "A40 log_T from check2hgi_design_k_resln_mae_l0_1, H100 from check2hgi_dk_ovl; both freeze_alpha=True alpha_init=0.0 so _apply_prior returns logits + 0.0*transition_prior (frozen-zero buffer, no grad)",
+            "source": "src/models/next/next_stan_flow_dualtower/head.py:414-432 (_apply_prior) + log lines '[C4 per-fold log_T] fold N using .../design_k_resln_mae_l0_1/...'"
+          },
+          {
+            "claim": "all-masked softmax -> NaN is present in both attention paths and only partially guarded",
+            "detail": "_STANAttention: attn.masked_fill(pad, float('-inf')); F.softmax(attn,-1) (head.py:115-120). STAN.forward_features only un-masks the all-padded LAST position (head.py:251-255). cross_ab/cross_ba use nn.MultiheadAttention with key_padding_mask and NO all-masked-row guard (mtlnet_crossattn model.py:170,189).",
+            "source": "src/models/next/next_stan/head.py + src/models/mtl/mtlnet_crossattn/model.py"
+          },
+          {
+            "claim": "fp32 control not yet past the onset zone \u2014 precision verdict pending",
+            "detail": "pid 1492926 at Epoch 20/50, 0 NONFINITE skips, diag-best reg N65.05 / cat C73.39, grad_norms 0.5-1.7. Has NOT reached ep33.",
+            "source": "ps -p 1492926 + /tmp/a40_board/task2_tx_mtl_fp32_s0.log"
+          },
+          {
+            "claim": "H100 prior analysis: the CA/FL collapse family is precision-INDEPENDENT (fp32==tf32 same ep30 cliff)",
+            "detail": "CA_MTL_DIVERGENCE.md: 'same ep30 cliff in tf32 AND fp32 ... precision is NOT the cause'; STL single-task heads stable; only mtlnet_crossattn_dualtower collapses",
+            "source": "git show origin/study/board-h100:docs/studies/closing_data/CA_MTL_DIVERGENCE.md"
+          }
+        ]
+      }
+    },
+    "synthesis": {
+      "root_cause": "An A40-specific bf16 BACKWARD-pass NaN gradient (not an fp16 forward overflow). The first event is grad_norm=NaN with a FINITE loss=1.79 at fold-relative ep33, deterministic in all 5 folds, escalating to ~6000 skipped steps/epoch (74,812 total). bf16 has fp32 exponent range so the 65504 ceiling that hit CA cannot apply \u2014 confirming this is a distinct numerical instability in the mtlnet_crossattn_dualtower attention/STAN backward graph that the Ampere (A40) floating-point trajectory crosses and Hopper (H100) does not. The most-supported single mechanism is a NaN gradient flowing from an attention softmax whose row becomes (near-)degenerate as the representation drifts in the OneCycle anneal tail; the non-finite SKIP guard (MTL_STRICT OFF) keeps the run alive but starves the reg head of late-epoch training, so reg peaks early (best-epochs [4,50,5,4,4]) and the matched scorer captures the pre-collapse peak (\u0394reg=-2.37). NOT caused by substrate, engine build, or log_T (all cleared: substrate byte-identical to the frozen V14 manifest, dk_ovl correctly gated, log_T inert under prior-OFF alpha=0 + KD=0).",
+      "why_h100_ok_a40_nan": "Same code (zero src/ changes on board-h100 vs main \u2014 git log origin/main..board-h100 -- src/ is EMPTY), same recipe (flag-by-flag identical), same precision (both genuinely ran torch.bfloat16, A40 log prints the autocast banner x5), same byte-identical V14 substrate, and the same torch 2.11.0+cu128. The bf16 autocast fix (commit 958d71f3) is already on main, so the A40 has it. The ONLY uncontrolled axis left is the GPU device class: A40 (Ampere GA102) vs H100 (Hopper GH100) realize different bf16 tensor-core accumulation / kernel selection under --compile+--tf32, producing a small numerical drift that tips a marginal attention backward into NaN at ep33 on the A40 while the H100 stays finite. Strongest evidence (Angles A/C/D): the H100 TX run was launched with MTL_STRICT=1, under which guard_finite_step HARD-ABORTS on the first non-finite grad (mtl_cv.py:32); it instead completed folds 1-2 with LATE reg best-epochs [49,50], a monotone reg-val climb to ep50, and reg 67.13 beating the 64.96 ceiling (+2.17) \u2014 proving the H100 NEVER triggered a NaN. The A40's own first attempt also used MTL_STRICT=1 and ABORTED at fold1 ep36 b69 on the identical finite-loss NaN gradient (documented in the launcher comment), so the grad-NaN is A40-reproducible and would have aborted the H100 too had it occurred there. The H100 did not run a better path \u2014 it simply rode a different, clean per-device float trajectory.",
+      "fix_steps": [
+        {
+          "action": "Do NOT port anything from board-h100 / PR #35 expecting a grad-NaN fix, and do NOT rebuild the TX substrate, re-gate the dk_ovl overlap engine, or rebuild the log_T as a fix.",
+          "why": "PR #35 is 100% data/docs/tooling (zero src/ changes); the bf16 fix is already on main. Angle C proved the substrate is byte-identical to the frozen V14 manifest and finite, the overlap engine is correctly gated (min_seq=10/stride=1/emit_tail=false), and the log_T mismatch is provably inert under prior-OFF (alpha=0 frozen buffer + KD=0, finite log_T so no 0*inf). Rebuilding wastes time and changes nothing \u2014 the H100 ran clean on the byte-identical substrate.",
+          "risk": "none",
+          "confidence": "high"
+        },
+        {
+          "action": "Let the in-flight true-fp32 run (pid 1492926, MTL_DISABLE_AMP=1) continue and re-read its log once it passes fold-relative ep33 (~11 more epochs from the current ep22; ~45-60 min). Grep for NONFINITE-GUARD and the reg best-epoch trajectory.",
+          "why": "This is the decisive precision-vs-structural discriminator and is ALREADY running clean (ep22, 0 non-finite, grad_norm 0.28, diagnostic reg N65.05 already ABOVE the 64.96 ceiling). It has not yet reached the ep33 onset zone, so the verdict is genuinely open. If fp32 stays clean past ep33 \u2192 precision-borne (bf16-on-Ampere) and fp32 is the citable TX cell. If fp32 ALSO NaNs at ~ep33 \u2192 structural/recipe-intrinsic, independent of precision (consistent with the H100 finding that CA collapsed in both tf32 AND fp32).",
+          "risk": "none (read-only; run already committed ~15h)",
+          "confidence": "high"
+        },
+        {
+          "action": "Treat the A40 \u0394reg=-2.37 / reg 62.59 as a FLAGGED, NON-CITABLE collapse-contaminated artifact \u2014 exactly as the H100 lane VOIDed its CA early-peak number. The trustworthy TX MTL cell is the H100 bf16 result (reg 67.13 beats ceiling +2.17, no NaN), pending the fp32 confirmation.",
+          "why": "The -2.37 was produced by a run with 74,812 skipped optimizer steps that starved the reg head; reg was captured at a pre-collapse ep4 peak while final reg val collapsed to ~5%. It measures a device-specific grad-NaN, not the TX MTL reg gap.",
+          "risk": "none",
+          "confidence": "high"
+        },
+        {
+          "action": "IF the fp32 control also NaNs at ~ep33 (structural verdict): add an all-masked-row / degenerate-softmax guard. Replace float('-inf') with a large finite negative (e.g. -1e4) in _STANAttention (src/models/next/next_stan/head.py:115-120) so a degenerate row softmaxes to a finite uniform distribution, and/or extend the all_padded last-position unmask (head.py:251-255) coverage. The cross_ab/cross_ba MHA B-side is already zero-fill-guarded (model.py:495-516 comments), so STAN is the residual exposure.",
+          "why": "This is the most-supported structural mechanism (finite-loss NaN grad = softmax backward, not forward overflow). A finite-mask softmax is gradient-safe where -inf is not.",
+          "risk": "medium \u2014 changes numerics on the masked path; requires board-wide re-validation against frozen \u00a70.1 before any citable run",
+          "confidence": "medium"
+        },
+        {
+          "action": "IF the fp32 control also NaNs AND a code guard is undesirable (recipe-intrinsic at TX scale): lower the reg-LR below 3e-3 (it is the highest of the three groups and drives the dualtower STAN reg head) and/or tighten max_grad_norm, then re-run. Defer until the fp32 result is in. Do NOT rely on GradScaler \u2014 it only catches fp16 overflow, not this bf16 backward NaN.",
+          "why": "ep33 is on the OneCycle DECAY slope (peak ~ep15), so it is not an LR-spike but the reg head may be the unstable subgraph; reducing its LR or clipping harder can ride through.",
+          "risk": "medium \u2014 recipe change diverges from the frozen champion-G recipe; must be labeled non-canonical",
+          "confidence": "low"
+        }
+      ],
+      "recommended_next": "Keep pid 1492926 running and re-grep /tmp/a40_board/task2_tx_mtl_fp32_s0.log after it crosses fold-relative ep33 (~45-60 min from now) for NONFINITE-GUARD count and the reg best-epoch trajectory. That single read settles the only open question. If fp32 is clean past ep33 and finishes with late reg best-epochs near [49,50] and reg >= ~67 beating the 64.96 ceiling, it BECOMES the citable A40 TX MTL cell (matching the H100) and no code change is needed. Until then, report the A40 bf16 -2.37 as a flagged device-specific collapse artifact, not a board verdict, and cite the H100 bf16 TX cell (reg 67.13, +2.17 vs ceiling, 0 NaN) as the trustworthy TX number \u2014 noting it is partial (folds 1-2 of 5, no final 5-fold score committed on board-h100).",
+      "should_abort_fp32_run": false,
+      "open_questions": [
+        "Does the fp32 control (pid 1492926) cross ep33 cleanly or NaN there? It is only at ep22 \u2014 this is the unresolved precision-vs-structural discriminator. Re-check after ~ep33.",
+        "If fp32 IS clean, what is the exact Ampere-vs-Hopper bf16 numerical difference (tensor-core accumulation, --compile kernel selection under tf32, or reduction order) that tips the A40 attention backward into NaN at ep33? Not byte-level bisected here.",
+        "If fp32 ALSO NaNs at ep33, which specific tensor/op produces it \u2014 the STAN _STANAttention softmax, the cross_ab/cross_ba MHA, or a reg-head logit \u2014 and is it the all-masked-softmax row or a different degeneracy? (read-only investigation could not anomaly-trace it).",
+        "H100 TX is committed at only n=2 folds (no texas_s0_mtl_final_score.json); will folds 3-5 on the H100 also stay clean, or could the A40's deterministic-every-fold NaN indicate a latent risk the H100 just hasn't hit on the unrun folds?",
+        "Is the ep33 onset tied to a specific TX data characteristic (overlap MIN_SEQUENCE_LENGTH=10 producing rare fully/near-padded reg windows at TX scale) that smaller states never expose, explaining why TX is the first state to grad-NaN in bf16?"
+      ]
+    }
+  }
+}
