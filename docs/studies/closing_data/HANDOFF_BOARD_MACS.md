@@ -50,3 +50,72 @@ The SSD is now on the M2 Pro. Stabilize the data so it is portable:
 - First confirm AL overlap STL head FITS MPS memory (fold-1 fit check) before fanning out the large states.
 - **STOP for the user:** MPS OOM on a large state (CA/TX baselines may need a CUDA card — flag it); any leak-marker
   assertion failure. Do NOT run the MTL champion (CUDA cards) or merge.
+
+---
+
+## 6 · PROGRESS LOG — DONE so far (2026-06-23, M2 Pro / MPS)
+
+### Data consolidation (§4) — COMPLETE
+- **A40 → SSD pull DONE** (5→serial→resilient channels; the flaky external enclosure drops under ≥5 concurrent
+  WRITE streams, so the working mode is ≤2-channel + drop-resilient retry + end-of-run hash-verify-and-repull).
+  All large-state board cells now on the SSD: **b2b CA/TX (40)**, **ctle FL/CA/TX (60)**, **poi2vec CA (10, seeds{0,1})
+  + TX (5, seed0)**. Combined with the Mac-built small states → full board baseline set local.
+- **Hash manifest**: [`BASELINES_HASH_MANIFEST.json`](BASELINES_HASH_MANIFEST.json) (per-cell bytes+sha256; gen/merge
+  via `scripts/closing_data/baseline_hash_manifest.py`; mirrors V14/HGI manifests). 326 cells (b2b 120, ctle 120,
+  poi2vec 80, b2c 6); **TODO**: re-merge to add poi2vec CA/TX (they post-date the first A40 hash).
+- **Drive**: Mac-built baselines + manifests mirrored (throttled). ⚠ Mac→Drive is **mirror-mode + tiny local cache**
+  → bulk Drive sync is impractical from this Mac; SSD is the durable copy.
+
+### Part-1 + floors (REDUCE §1, non-training) — COMPLETE
+- **Embedding-quality** ([`PART1_QUALITY/`](PART1_QUALITY/), 6 states, MPS fp32 ≡ CPU verified): Check2HGI (v14/v11) ≫ HGI
+  on **next-cat** (kNN-10 0.98 vs 0.78; linear-probe 0.98 vs 0.69; silhouette 0.56 vs 0.00); **HGI keeps a next-reg
+  edge** (POI-granularity); **CKA vs HGI ≈ 0.16** (fundamentally different reps). FL/CA/TX POI-capped at 40k.
+- **Simple-baseline floors** (`docs/results/P0/simple_baselines/`): Markov-1 **region** Acc@10 — AL .470, AZ .430,
+  FL .650, CA .521, TX .549. (Category Acc@10 degenerate at C=7 → use majority Acc@1 / macro-F1.)
+
+### Matched-head STL comparison (§3) — AL COMPLETE; tooling validated
+- **Check2HGI dk_ovl AL ceiling (Mac/MPS, seed0×5f)**: **cat macro-F1 55.72 ± 1.54**, **reg Acc@10 69.73 ± 3.5**
+  (reg matches prior 69.98 → pipeline validated).
+- **AL baseline Δ (cat VALID; reg INVALID — see bug)** — `docs/results/closing_data/baseline_compare/` (gitignored):
+
+  | substrate | cat macro-F1 ✅ | reg Acc@10 ⛔ |
+  |---|---|---|
+  | **Check2HGI (ours)** | **55.72** | (69.73, region-modality ceiling) |
+  | b2b skip-gram | 24.20 | 69.76 ⛔ |
+  | poi2vec | 22.53 | 69.76 ⛔ |
+  | b2c one-hot (floor) | 19.50 | 69.76 ⛔ |
+
+  **cat headline (valid)**: substrate drives **next-cat** — Check2HGI **+31…+36 pp** over every baseline.
+  **⛔ reg BUG (2026-06-23)**: the reg numbers are **bit-identical across baselines** (per-fold `[73.55,68.95,70.98,71.31,64.02]`)
+  → **invalid**. Cause: `p1_region_head_ablation.py --input-type region` hardcodes `_load_region_embeddings(source="check2hgi")`
+  (line 149/158) — `--engine` only changes sequences/labels, NOT the region-embedding values, so every baseline fed the SAME
+  check2hgi region embedding (+ same shared log_T) into the reg head. The baseline substrate is never used.
+  **FIX**: re-run reg with **`--input-type checkin`** (baseline's own check-in embedding → reg head) for BOTH baselines AND the
+  Check2HGI ceiling (matched). Region-modality stays a Check2HGI-only ceiling (baselines have no region embedding). The driver's
+  `run_reg` must switch to `--input-type checkin` (or build per-baseline region embeddings + pass `--region-emb-source <eng>`).
+
+### Tooling built/validated this session
+- `scripts/closing_data/mac_baseline_compare.py` — the §3 driver (per-fold stage → stride-1 input-build → cat via
+  `train.py --task next --cat-head next_gru --only-fold f` → reg via `p1_region_head_ablation.py next_stan_flow
+  --input-type region --only-fold f` → score → aggregate).
+- `scripts/p1_region_head_ablation.py` — added **`--only-fold`** (fold-index-preserving for the seeded log_T;
+  **validated bit-identical** to fold-0 of a full run) + baseline engines in `--engine-override` choices.
+- `scripts/embedding_eval/{geometry,linear_probe}.py` — `_device()` MPS-aware + `EMBED_EVAL_DEVICE` override.
+- **C29 adopted** (`scripts/compute_region_transition.py`, from PR #33): engine-aware log_T over the **stride-1**
+  partition → leak-free. (Pre-C29 AL reg used the canonical stride-9 log_T → leak-affected in ABSOLUTE value but
+  symmetric across arms → Δ valid; advisor-audited, no Δ-corrupting bug.)
+- Ops: `pull_a40_{serial,parallel_v2,poi2vec}.sh`, `ram_watchdog.sh`, `baseline_hash_manifest.py`.
+
+### Operational findings (for the next states)
+- **MPS parallelism**: 4 concurrent AL trainings + pulls → RAM 25% (OOM-reboot risk). **2–3 concurrent is the safe max**;
+  `ram_watchdog.sh` kills at <14% free. The earlier full reboot was the **MPS kNN eval on CA** (169k POIs) over-subscribing
+  ~40 GB unified memory — NOT the pull/SSD.
+- **SSD enclosure** (WD_BLACK SN850X, SMART OK) drops the bus under ≥5 concurrent writes — use ≤2-channel resilient pulls.
+- **FL feasible on the Mac** (~4 GB stride-1 inputs, fits): pull `next`/`next_region` from the A40 (`check2hgi_dk_ovl/florida`,
+  deterministic) — but its log_T is **stale/pre-C29** (mtime 06-18 < next_region 06-20) → **rebuild with C29** locally.
+
+### PENDING
+- **FL b2b + Check2HGI-FL** (device-internal Δ on the Mac): pull A40 FL `next`/`next_region` → C29 FL log_T → run.
+- **AZ, GA** AL-style baseline Δ (small states, safe on MPS).
+- **CA / TX** baselines — large; may need a CUDA card (§5 STOP) — flag before fan-out.
+- Re-merge `BASELINES_HASH_MANIFEST.json` to include poi2vec CA/TX.

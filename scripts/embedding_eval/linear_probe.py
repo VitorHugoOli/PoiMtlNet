@@ -26,7 +26,15 @@ from tracking.metrics import compute_classification_metrics
 
 
 def _device() -> torch.device:
-    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    import os
+    forced = os.environ.get("EMBED_EVAL_DEVICE")
+    if forced:
+        return torch.device(forced)
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+    if getattr(torch.backends, "mps", None) is not None and torch.backends.mps.is_available():
+        return torch.device("mps")
+    return torch.device("cpu")
 
 
 def _stratifiable(y: np.ndarray) -> bool:
