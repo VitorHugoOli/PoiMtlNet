@@ -109,7 +109,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger("b3_hmt_grn")
 
-ENGINE = EmbeddingEngine.CHECK2HGI  # source of the SHARED fold inputs / labels
+ENGINE = EmbeddingEngine.CHECK2HGI_DK_OVL  # DEFAULT board base: GATED STRIDE-1 OVERLAP
+# (AL=96,326 rows) — the base the board + Check2HGI + the SC baselines run on. Pass
+# --engine check2hgi for the legacy CANONICAL stride-9 base (AL=12,709; back-compat).
 BASELINE_TAG = "baseline_b3_hmt_grn_style"
 N_CAT = len(CATEGORIES_MAP)  # 8 slots (0..6 + 'None')
 PAD = -1
@@ -124,17 +126,17 @@ def _map_categories(next_category: pd.Series) -> np.ndarray:
     return next_category.map(inv).to_numpy(dtype=np.int64)
 
 
-def load_b3_data(state: str):
+def load_b3_data(state: str, engine: EmbeddingEngine = ENGINE):
     """Return raw-POI-id sequences + aligned (cat, region, last_region, userid).
 
     Row order is the SHARED order of next.parquet/next_region.parquet/
     sequences_next.parquet. The three are asserted equal length, matching the
     matched-head row-alignment contract.
     """
-    seq_path = IoPaths.get_seq_next(state, ENGINE)
+    seq_path = IoPaths.get_seq_next(state, engine)
     seq_df = pd.read_parquet(seq_path)
-    next_df = IoPaths.load_next(state, ENGINE)
-    region_df = IoPaths.load_next_region(state, ENGINE)
+    next_df = IoPaths.load_next(state, engine)
+    region_df = IoPaths.load_next_region(state, engine)
 
     n = len(seq_df)
     assert len(next_df) == n, (len(next_df), n)
@@ -178,7 +180,8 @@ def load_b3_data(state: str):
     }
 
 
-def build_fold_split(state: str, seed: int, n_splits: int, split_k: int = 5):
+def build_fold_split(state: str, seed: int, n_splits: int, split_k: int = 5,
+                     engine: EmbeddingEngine = ENGINE):
     """BIT-IDENTICAL fold split to FoldCreator._create_check2hgi_mtl_folds.
 
     Reuses load_next_data(state, CHECK2HGI) for (X, y_cat, userids) and the same
@@ -188,7 +191,7 @@ def build_fold_split(state: str, seed: int, n_splits: int, split_k: int = 5):
     selects how many of those 5 folds we actually RUN (smoke uses 1). Returns
     (list of (train_idx, val_idx), userids).
     """
-    X, y_cat, userids, _ = load_next_data(state, ENGINE)
+    X, y_cat, userids, _ = load_next_data(state, engine)
     sgkf = StratifiedGroupKFold(n_splits=split_k, shuffle=True, random_state=seed)
     splits = [tuple(s) for s in sgkf.split(X, y_cat, groups=userids)]
     return splits[:n_splits], userids
@@ -423,6 +426,11 @@ def main():
     ap.add_argument("--lr", type=float, default=1e-3)
     ap.add_argument("--device", default=None,
                     help="override device (cpu/cuda); default = repo DEVICE")
+    ap.add_argument("--engine", "--base", dest="engine", default="check2hgi_dk_ovl",
+                    help="board base engine that supplies the fold inputs + region/cat labels. "
+                         "DEFAULT 'check2hgi_dk_ovl' = the GATED STRIDE-1 OVERLAP base the board + "
+                         "Check2HGI + the SC baselines run on (AL=96,326 rows). Pass 'check2hgi' for "
+                         "the legacy CANONICAL stride-9 base (AL=12,709 rows; back-compat only).")
     ap.add_argument("--smoke", action="store_true",
                     help="tiny AL run: 1 fold, 2 epochs, asserts leak-safety")
     ap.add_argument("--no-write", action="store_true",
@@ -435,15 +443,17 @@ def main():
         args.epochs = 2
         args.no_write = True
 
-    device = torch.device(args.device) if args.device else DEVICE
-    logger.info("B3 HMT-GRN-STYLE | state=%s seed=%d folds=%d epochs=%d device=%s",
-                args.state, args.seed, args.folds, args.epochs, device)
+    engine = EmbeddingEngine(args.engine)
 
-    data = load_b3_data(args.state)
+    device = torch.device(args.device) if args.device else DEVICE
+    logger.info("B3 HMT-GRN-STYLE | state=%s seed=%d folds=%d epochs=%d device=%s engine=%s",
+                args.state, args.seed, args.folds, args.epochs, device, engine.value)
+
+    data = load_b3_data(args.state, engine)
     logger.info("rows=%d  n_regions=%d  cat_classes=%d",
                 len(data["userids"]), data["n_regions"], N_CAT)
 
-    splits, userids = build_fold_split(args.state, args.seed, args.folds)
+    splits, userids = build_fold_split(args.state, args.seed, args.folds, engine=engine)
 
     fold_results = []
     for fold_idx, (train_idx, val_idx) in enumerate(splits):
@@ -495,6 +505,7 @@ def main():
             "per-fold train-only region transition prior",
         ],
         "state": args.state,
+        "base_engine": engine.value,
         "seed": args.seed,
         "folds": args.folds,
         "epochs": args.epochs,

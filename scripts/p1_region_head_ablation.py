@@ -766,7 +766,8 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
                  engine_override: EmbeddingEngine | None = None,
                  target: str = "region",
                  loss_cfg: dict | None = None,
-                 add_visit_features: bool = False):
+                 add_visit_features: bool = False,
+                 only_fold: int | None = None):
     logger.info("Loading data for %s (input_type=%s, region_emb=%s, target=%s, engine_override=%s, visit_feats=%s)...",
                 state, input_type, region_emb_source, target, engine_override, add_visit_features)
     x_tensor, y_region, y_cat, userids, emb_dim, n_regions, last_region_tensor = _load_data(
@@ -792,12 +793,27 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
     else:
         raise ValueError(f"--target must be region|category (got {target!r})")
 
-    sgkf = StratifiedGroupKFold(n_splits=max(2, folds), shuffle=True, random_state=seed)
-    splits = list(sgkf.split(np.zeros(len(y_cat)), y_cat, groups=userids))[:folds]
+    # [ONLY-FOLD] mirror train.py: force the canonical 5-split so fold k matches the
+    # per-fold substrate cell (s0_f<k>) + the seeded log_T region_transition_log_..._fold{k+1}.
+    # `splits` carries (true_fold_idx, (train_idx, val_idx)) so the log_T index is preserved.
+    _n_splits = 5 if only_fold is not None else max(2, folds)
+    sgkf = StratifiedGroupKFold(n_splits=_n_splits, shuffle=True, random_state=seed)
+    _all_splits = list(sgkf.split(np.zeros(len(y_cat)), y_cat, groups=userids))
+    if only_fold is not None:
+        if not (0 <= only_fold < _n_splits):
+            raise SystemExit(f"--only-fold {only_fold} out of range for n_splits={_n_splits}")
+        splits = [(only_fold, _all_splits[only_fold])]
+        n_target = 1
+    else:
+        splits = list(enumerate(_all_splits[:folds]))
+        n_target = folds
 
     out_dir = Path("docs/results/P1")
     out_dir.mkdir(parents=True, exist_ok=True)
-    ckpt_path = _checkpoint_path(out_dir, state, input_type, folds, epochs, tag)
+    # only-fold runs get a distinct checkpoint per fold so they never collide on resume.
+    _ckpt_folds = folds if only_fold is None else 5
+    _ckpt_tag = tag if only_fold is None else f"{tag or ''}_onlyfold{only_fold}"
+    ckpt_path = _checkpoint_path(out_dir, state, input_type, _ckpt_folds, epochs, _ckpt_tag)
     ckpt = _load_checkpoint(ckpt_path) if resume else {}
     if ckpt:
         logger.info(
@@ -822,7 +838,7 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
         head_state = results.get(head_name, {})
         fold_metrics: list = list(head_state.get("per_fold", []))
         completed = len(fold_metrics)
-        if completed >= folds:
+        if completed >= n_target:
             logger.info(
                 "Head %s already has %d/%d folds — skipping (delete %s to re-run).",
                 head_name, completed, folds, ckpt_path,
@@ -848,8 +864,8 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
                 head_name, completed, folds, completed,
             )
 
-        for fold_idx, (train_idx, val_idx) in enumerate(splits):
-            if fold_idx < completed:
+        for fold_idx, (train_idx, val_idx) in splits:
+            if only_fold is None and fold_idx < completed:
                 continue
             # AUDIT-C4 — when per_fold_transition_dir is set, override the
             # head's transition_path with the leak-free fold-specific file.
@@ -886,7 +902,7 @@ def run_ablation(state: str, heads: list[str], folds: int, epochs: int,
                 # Stale-log_T freshness preflight (CLAUDE.md hard rule; shared
                 # portable util). The seeded file leaks +8..+12 pp into reg Acc@10
                 # if it predates the next_region.parquet it was built from.
-                assert_log_t_fresh(pf_path, state=state, seed=seed, n_splits=max(2, folds))
+                assert_log_t_fresh(pf_path, state=state, seed=seed, n_splits=_n_splits)
                 fold_overrides["transition_path"] = str(pf_path)
                 logger.info("[C4 STL] fold %d using per-fold log_T %s", fold_idx, pf_path)
             t0 = time.time()
@@ -1025,6 +1041,10 @@ def main():
     parser.add_argument("--state", default="alabama")
     parser.add_argument("--heads", nargs="+", default=ALL_HEADS)
     parser.add_argument("--folds", type=int, default=1)
+    parser.add_argument("--only-fold", type=int, default=None,
+                        help="Run EXACTLY this 0-based fold of the canonical 5-split; preserves the "
+                             "fold index for the seeded per-fold log_T (region_transition_log_seed{S}_fold{k+1}). "
+                             "Takes precedence over --folds. Used for per-fold leak-safe baseline cells.")
     parser.add_argument("--epochs", type=int, default=30)
     parser.add_argument("--batch-size", type=int, default=2048)
     parser.add_argument("--seed", type=int, default=42)
@@ -1090,7 +1110,10 @@ def main():
                                  # v14's ResLN+mae cat lever makes them distinct).
                                  "check2hgi_design_k_resln_mae_l0_1",
                                  "check2hgi_design_k_resln_l0_1",
-                                 "check2hgi_design_k_l0_1", "check2hgi_dk_ovl"],
+                                 "check2hgi_design_k_l0_1", "check2hgi_dk_ovl",
+                                 # closing_data board: substrate-column baseline engines (STL reg comparison)
+                                 "baseline_b2c_onehot64", "baseline_geotree_skipgram",
+                                 "check2hgi_ctle", "baseline_b2a_poi2vec"],
                         help="Override the engine used to load next.parquet/next_region.parquet. "
                              "Region labels and graph maps still come from check2hgi. "
                              "Used by Design A probe and HGI-substrate category-injection probes.")
@@ -1164,6 +1187,7 @@ def main():
         target=args.target,
         loss_cfg=loss_cfg,
         add_visit_features=args.add_visit_features,
+        only_fold=args.only_fold,
     )
 
 
