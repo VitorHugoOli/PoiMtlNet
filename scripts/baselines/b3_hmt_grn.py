@@ -139,7 +139,10 @@ def load_b3_data(state: str, engine: EmbeddingEngine = ENGINE):
     # (it learns POI-id embeddings from scratch). Materialising the full matrix OOM'd large
     # states on 24GB unified memory (FL 1.27M×578≈2.9GB; CA/TX 6-8GB) — watchdog-killed.
     next_df = pd.read_parquet(IoPaths.get_next(state, engine), columns=["next_category", "userid"])
-    region_df = IoPaths.load_next_region(state, engine)
+    # next_region.parquet is built as next_df.copy()+region cols, so it ALSO carries the 576
+    # embedding cols (CA dk_ovl ≈7.6GB). B3 needs only the two region columns.
+    region_df = pd.read_parquet(IoPaths.get_next_region(state, engine),
+                                columns=["region_idx", "last_region_idx"])
 
     n = len(seq_df)
     assert len(next_df) == n, (len(next_df), n)
