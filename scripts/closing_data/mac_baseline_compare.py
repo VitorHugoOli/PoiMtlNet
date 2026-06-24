@@ -80,19 +80,17 @@ def build_inputs(baseline: str, state: str):
 
 
 def stage_logt(baseline: str, state: str):
-    """Copy+touch the seeded per-fold log_T (built from check2hgi) into the engine dir."""
+    """Build the per-fold seeded log_T over THIS engine's OWN stride-1 partition (C29
+    engine-aware) -> output/<engine>/<state>/, NOT a copy of the canonical stride-9 prior.
+    Copying the canonical prior leaks (its user->fold partition differs from the trainer's
+    stride-1 split). Must run AFTER build_inputs (so the engine has input/next.parquet ->
+    _resolve_split_engine uses the engine's own stride-1 split, not canonical fallback).
+    The build writes after next_region -> mtime-fresh; payload carries engine provenance."""
     engine, _, _ = ENGINE[baseline]
-    dst = OUT / engine / state
-    src = OUT / "check2hgi" / state
-    for f in range(1, 6):
-        name = f"region_transition_log_seed0_fold{f}.pt"
-        if (src / name).exists():
-            shutil.copy2(src / name, dst / name)
-    time.sleep(1)
-    for f in range(1, 6):
-        p = dst / f"region_transition_log_seed0_fold{f}.pt"
-        if p.exists():
-            p.touch()
+    env = {**os.environ, "PYTHONPATH": "src", "MTL_RAM_HEADROOM_GB": "2", "OMP_NUM_THREADS": "4"}
+    cmd = [PY, "scripts/compute_region_transition.py", "--state", state,
+           "--engine", engine, "--per-fold", "--seed", "0", "--n-splits", "5"]
+    subprocess.run(cmd, env=env, cwd=str(REPO), check=True)
 
 
 def run_cat(engine: str, state: str, fold: int) -> dict:

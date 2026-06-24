@@ -90,9 +90,17 @@ The SSD is now on the M2 Pro. Stabilize the data so it is portable:
   → **invalid**. Cause: `p1_region_head_ablation.py --input-type region` hardcodes `_load_region_embeddings(source="check2hgi")`
   (line 149/158) — `--engine` only changes sequences/labels, NOT the region-embedding values, so every baseline fed the SAME
   check2hgi region embedding (+ same shared log_T) into the reg head. The baseline substrate is never used.
-  **FIX**: re-run reg with **`--input-type checkin`** (baseline's own check-in embedding → reg head) for BOTH baselines AND the
-  Check2HGI ceiling (matched). Region-modality stays a Check2HGI-only ceiling (baselines have no region embedding). The driver's
-  `run_reg` must switch to `--input-type checkin` (or build per-baseline region embeddings + pass `--region-emb-source <eng>`).
+  **TWO independent reg defects (2nd advisor audit, 2026-06-23) — reg Δ INVALID until BOTH fixed + re-run:**
+  - **C-1 substrate bypass (input)**: `--input-type region` hardcodes the check2hgi region embedding → fed identical input
+    to every baseline. **Fixed**: `run_reg` now `--input-type checkin` (baseline's own per-visit embedding → substrate-sensitive).
+  - **C-2 modality mismatch**: the recorded Check2HGI reg ceiling **69.73 is region-modality** (~53% scale); baselines now run
+    checkin-modality (~20% scale) → apples-to-oranges. **Must recompute the Check2HGI dk_ovl reg ceiling at `--input-type checkin`**
+    for a matched Δ. (Region-modality stays a Check2HGI-only ceiling — baselines have no region embedding.)
+  - **C-3 log_T leak (C29 code adopted but NOT used)**: the driver's old `stage_logt` **copied the canonical stride-9 log_T and
+    touched it** (mtime guard fooled) → its user→fold partition mismatched the stride-1 training split → leak. **Fixed**:
+    `stage_logt` now BUILDS the per-engine log_T over the engine's own stride-1 partition via `compute_region_transition
+    --engine <eng> --per-fold` (C29 path; payload carries `engine` provenance).
+  - **ALL AL reg JSONs in `baseline_compare/` are pre-fix → discard; reg must be re-run for every state after these fixes.**
 
 ### Tooling built/validated this session
 - `scripts/closing_data/mac_baseline_compare.py` — the §3 driver (per-fold stage → stride-1 input-build → cat via
@@ -101,9 +109,9 @@ The SSD is now on the M2 Pro. Stabilize the data so it is portable:
 - `scripts/p1_region_head_ablation.py` — added **`--only-fold`** (fold-index-preserving for the seeded log_T;
   **validated bit-identical** to fold-0 of a full run) + baseline engines in `--engine-override` choices.
 - `scripts/embedding_eval/{geometry,linear_probe}.py` — `_device()` MPS-aware + `EMBED_EVAL_DEVICE` override.
-- **C29 adopted** (`scripts/compute_region_transition.py`, from PR #33): engine-aware log_T over the **stride-1**
-  partition → leak-free. (Pre-C29 AL reg used the canonical stride-9 log_T → leak-affected in ABSOLUTE value but
-  symmetric across arms → Δ valid; advisor-audited, no Δ-corrupting bug.)
+- **C29** (`scripts/compute_region_transition.py`, from PR #33): engine-aware log_T over the **stride-1** partition.
+  ⚠ The CODE was adopted but the driver initially **copied the canonical stride-9 prior instead of building per-engine**
+  (2nd-audit C-3) → leak persisted in the AL reg JSONs. NOW `stage_logt` invokes `--engine <eng> --per-fold` (built, not copied).
 - Ops: `pull_a40_{serial,parallel_v2,poi2vec}.sh`, `ram_watchdog.sh`, `baseline_hash_manifest.py`.
 
 ### Operational findings (for the next states)
