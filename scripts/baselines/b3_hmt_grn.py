@@ -311,14 +311,12 @@ def build_train_vocab(poi_windows: np.ndarray, target_poi: np.ndarray,
     """Distinct POI ids in the FOLD'S TRAIN rows -> dense ids starting at 1
     (0 = OOV/pad). Built from train rows only; val rows with unseen POIs map to 0.
     """
-    train_pois = set()
-    for r in train_idx:
-        for p in poi_windows[r]:
-            if p >= 0:
-                train_pois.add(int(p))
-        # target_poi itself is NOT an input feature for the next-region/cat
-        # heads, so it is intentionally excluded from the input vocab.
-    return {p: i + 1 for i, p in enumerate(sorted(train_pois))}
+    # Vectorised (was a Python double-loop over n_train×9 ≈ 9-31M elements, whose
+    # transient overhead spiked RAM enough to trip the watchdog on large states).
+    # np.unique gives the SAME sorted-unique vocab. target_poi is intentionally excluded.
+    tw = poi_windows[train_idx]            # [n_train, 9]
+    uniq = np.unique(tw[tw >= 0])          # sorted unique POI ids, PAD(-1) dropped
+    return {int(p): i + 1 for i, p in enumerate(uniq)}
 
 
 def remap_windows(poi_windows: np.ndarray, vocab: dict) -> np.ndarray:
