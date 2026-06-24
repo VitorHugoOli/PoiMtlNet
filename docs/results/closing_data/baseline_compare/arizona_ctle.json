@@ -1,0 +1,46 @@
+{
+  "state": "arizona",
+  "baseline": "ctle",
+  "engine": "check2hgi_ctle",
+  "per_fold": [
+    {
+      "fold": 0,
+      "macro_f1": 18.10072050047616,
+      "top10_acc": 53.26663255691528,
+      "mrr": 36.57347857952118
+    },
+    {
+      "fold": 1,
+      "macro_f1": 18.918007824776353,
+      "top10_acc": 51.81313753128052,
+      "mrr": 35.75321137905121
+    },
+    {
+      "fold": 2,
+      "macro_f1": 19.77341092771113,
+      "top10_acc": 52.151620388031006,
+      "mrr": 36.29702925682068
+    },
+    {
+      "fold": 3,
+      "macro_f1": 19.07980260857163,
+      "top10_acc": 48.87627959251404,
+      "mrr": 33.96364450454712
+    },
+    {
+      "fold": 4,
+      "macro_f1": 20.625790584100386,
+      "top10_acc": 50.581151247024536,
+      "mrr": 34.71256494522095
+    }
+  ],
+  "macro_f1_mean": 19.3,
+  "macro_f1_std": 0.951,
+  "top10_acc_mean": 51.338,
+  "top10_acc_std": 1.676,
+  "mrr_mean": 35.46,
+  "mrr_std": 1.098,
+  "_reg_status": "INVALID_PENDING_RERUN",
+  "_reg_void_reason": "VOID \u2014 pre-fix SC reg: --input-type region hardcoded the check2hgi region embedding (substrate bypass) + shared region prior + stale stride-9 log_T -> not substrate-sensitive. PENDING checkin-modality re-run (C-1/C-2/C-3 fixes landed). Do NOT cite. Region baselines for the article come from native-E2E (HMT-GRN/STAN) + Markov-1, NOT SC. See RESULTS_BOARD \u00a74 + RUN_MATRIX_REDUCE \u00a74b.",
+  "_cat_status": "VALID \u2014 macro_f1 is the substrate-column (representation-isolation) result; CTLE-SC cat = the reviewer W3 novelty gate"
+}

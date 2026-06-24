@@ -1,0 +1,46 @@
+{
+  "state": "alabama",
+  "baseline": "ctle",
+  "engine": "check2hgi_ctle",
+  "per_fold": [
+    {
+      "fold": 0,
+      "macro_f1": 18.530566976634574,
+      "top10_acc": 65.7896101474762,
+      "mrr": 43.00318360328674
+    },
+    {
+      "fold": 1,
+      "macro_f1": 17.901506468129984,
+      "top10_acc": 62.00363636016846,
+      "mrr": 41.30621552467346
+    },
+    {
+      "fold": 2,
+      "macro_f1": 16.92532787334201,
+      "top10_acc": 64.57121968269348,
+      "mrr": 42.634329199790955
+    },
+    {
+      "fold": 3,
+      "macro_f1": 15.826745175037162,
+      "top10_acc": 63.050246238708496,
+      "mrr": 41.10396206378937
+    },
+    {
+      "fold": 4,
+      "macro_f1": 19.662843316610026,
+      "top10_acc": 55.72570562362671,
+      "mrr": 35.90460121631622
+    }
+  ],
+  "macro_f1_mean": 17.769,
+  "macro_f1_std": 1.472,
+  "top10_acc_mean": 62.228,
+  "top10_acc_std": 3.911,
+  "mrr_mean": 40.79,
+  "mrr_std": 2.852,
+  "_reg_status": "INVALID_PENDING_RERUN",
+  "_reg_void_reason": "VOID \u2014 pre-fix SC reg: --input-type region hardcoded the check2hgi region embedding (substrate bypass) + shared region prior + stale stride-9 log_T -> not substrate-sensitive. PENDING checkin-modality re-run (C-1/C-2/C-3 fixes landed). Do NOT cite. Region baselines for the article come from native-E2E (HMT-GRN/STAN) + Markov-1, NOT SC. See RESULTS_BOARD \u00a74 + RUN_MATRIX_REDUCE \u00a74b.",
+  "_cat_status": "VALID \u2014 macro_f1 is the substrate-column (representation-isolation) result; CTLE-SC cat = the reviewer W3 novelty gate"
+}

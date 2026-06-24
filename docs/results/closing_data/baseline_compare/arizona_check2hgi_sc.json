@@ -1,0 +1,47 @@
+{
+  "state": "arizona",
+  "baseline": "check2hgi_sc",
+  "engine": "check2hgi_dk_ovl",
+  "note": "Check2HGI-SC comparand: matched STL heads on dk_ovl board base; reg is CHECKIN-modality (C-2 matched \u0394).",
+  "per_fold": [
+    {
+      "fold": 0,
+      "macro_f1": 57.334523551336666,
+      "top10_acc": 52.5398850440979,
+      "mrr": 36.713969707489014
+    },
+    {
+      "fold": 1,
+      "macro_f1": 53.46014650573492,
+      "top10_acc": 51.497048139572144,
+      "mrr": 35.7810914516449
+    },
+    {
+      "fold": 2,
+      "macro_f1": 56.699466882196724,
+      "top10_acc": 52.318376302719116,
+      "mrr": 36.18297874927521
+    },
+    {
+      "fold": 3,
+      "macro_f1": 57.041541216271284,
+      "top10_acc": 48.53032827377319,
+      "mrr": 34.167808294296265
+    },
+    {
+      "fold": 4,
+      "macro_f1": 57.007844260832776,
+      "top10_acc": 50.518929958343506,
+      "mrr": 34.92274582386017
+    }
+  ],
+  "macro_f1_mean": 56.309,
+  "macro_f1_std": 1.608,
+  "top10_acc_mean": 51.081,
+  "top10_acc_std": 1.632,
+  "mrr_mean": 35.554,
+  "mrr_std": 1.014,
+  "_reg_status": "INVALID_PENDING_RERUN",
+  "_reg_void_reason": "VOID \u2014 pre-fix SC reg: --input-type region hardcoded the check2hgi region embedding (substrate bypass) + shared region prior + stale stride-9 log_T -> not substrate-sensitive. PENDING checkin-modality re-run (C-1/C-2/C-3 fixes landed). Do NOT cite. Region baselines for the article come from native-E2E (HMT-GRN/STAN) + Markov-1, NOT SC. See RESULTS_BOARD \u00a74 + RUN_MATRIX_REDUCE \u00a74b.",
+  "_cat_status": "VALID \u2014 macro_f1 is the substrate-column (representation-isolation) result; CTLE-SC cat = the reviewer W3 novelty gate"
+}

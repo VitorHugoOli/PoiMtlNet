@@ -75,7 +75,12 @@ def build_inputs(baseline: str, state: str):
     from data.inputs.builders import generate_next_input_from_checkins
     from scripts.baselines.build_b2c_onehot64_substrate import build_next_region_for
     engine = EmbeddingEngine(ENGINE[baseline][0])
-    generate_next_input_from_checkins(state, engine, stride=1)
+    # min_sequence_length=10 to MATCH the dk_ovl board base (build_overlap_probe_engine
+    # BOARD_MIN_SEQ=10). The default is 5; for the board states it happens to emit the
+    # same rows (gated window=9 ⇒ users with <10 ck emit 0 windows), but pinning 10
+    # GUARANTEES the baseline and the Check2HGI-SC comparand are scored on the identical
+    # row set + fold partition — required for a valid CTLE-SC vs Check2HGI-SC Δ.
+    generate_next_input_from_checkins(state, engine, stride=1, min_sequence_length=10)
     build_next_region_for(state, engine)
 
 

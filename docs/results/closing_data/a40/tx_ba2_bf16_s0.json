@@ -1,0 +1,37 @@
+{
+  "state": "texas",
+  "seed": 0,
+  "folds": 5,
+  "engine": "check2hgi_dk_ovl",
+  "precision": "bf16 (MTL_AUTOCAST_BF16=1, eval fp32)",
+  "windowing": "gated stride-1 overlap min_seq=10",
+  "stl_reg_ceiling_top10": 64.9597,
+  "mtl_reg_full_top10": 62.5892,
+  "mtl_reg_per_fold": [
+    62.3622,
+    64.124,
+    61.3862,
+    62.5209,
+    62.5528
+  ],
+  "mtl_reg_best_epochs": [
+    4,
+    50,
+    5,
+    4,
+    4
+  ],
+  "mtl_cat_macro_f1": 75.8661,
+  "mtl_cat_per_fold": [
+    75.2414,
+    77.2825,
+    76.1731,
+    75.8727,
+    74.7611
+  ],
+  "delta_reg": -2.3705,
+  "delta_reg_margin": 2.0,
+  "verdict": "FLAG reg-claim re-scope (>2pp) \u2014 NOT a stop",
+  "prior_fp16_delta_reg": -2.4095,
+  "note": "bf16 re-run of the fp16-understated -2.41 (449cc9ce). STL reg ceiling is p1/fp32, clean, reused (NOT re-run). Matched scorer FULL top10 fp32 both sides."
+}

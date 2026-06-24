@@ -1,5 +1,21 @@
 # next_region — baseline comparison
 
+> ⭐ **REDUCED BOARD (2026-06-24, paper-current) — HMT-GRN native-E2E vs our MTL champion** (seed 0 × 5 folds,
+> gated stride-1 overlap; region Acc@10). HMT-GRN is the **sole region-native external baseline**; comparand is the
+> full MTL champion (not the STL ceiling). See [`hmt_grn.md`](hmt_grn.md) + `../../studies/closing_data/RESULTS_BOARD.md §4`.
+>
+> | Baseline | AL | AZ | FL | CA | Istanbul | TX |
+> |---|---:|---:|---:|---:|---:|---:|
+> | Markov-1-region (floor) | 47.01 | 42.96 | 65.05 | 52.09 | 52.5 | 54.94 |
+> | **HMT-GRN** (region-native E2E) | 57.05 | 43.70 | 63.74 | 49.61 | 56.56 | _in-flight_ |
+> | **Check2HGI — MTL champion (ours)** | **~69.8** | **59.34** | **77.28** | **65.66** | **~69.8** | **67.13** ²ᐟ⁵ |
+>
+> **Read:** our joint model beats the region-native SOTA by **≈ +13–16 pp** at every measured state. HMT-GRN clears
+> the Markov floor (learns) but trails our representation+MTL widely. (PR #38: Mac numbers validated == CPU within
+> 0.06 pp; the old 62.37 was an anomaly.) STAN (below) is the older SOTA-on-our-substrate study (different protocol).
+>
+> ---
+
 Generated from `results/<state>.json`. To refresh, regenerate the JSONs (see `../README.md` §"How to add a new baseline result") and re-run the comparison-table generator (TODO: script `scripts/build_baseline_comparison.py` not yet written).
 
 ## Cross-baseline summary — Acc@10 (mean ± σ)
