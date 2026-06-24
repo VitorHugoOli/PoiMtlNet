@@ -80,7 +80,9 @@ Per the baselines README, the paper's baseline tables read from [`../../baseline
   that substantiates contribution-1 novelty; without it C1's "novel" *evaporates*. **Δcat AL +37.8 / AZ +37.0 /
   Istanbul +28.6**, device-internal-clean (reproduces CUDA within noise). Leak-clean at **AL/AZ + Istanbul
   (stride-1, PR #38)**; FL/CA/TX → CUDA (`BASELINE_H100.md`). POI2Vec/skip-gram/one-hot SC-cat are the
-  representation **controls** (§7 checklist).
+  representation **controls** (§7 checklist). **AL frozen-below-floor (17.8 < bigram ~19.5) DIAGNOSED REAL
+  (M4, 2026-06-24)** — not a pipeline/leak bug (substrate genuinely swapped, cosine vs check2hgi 0.01; identical
+  head → 55.6 on check2hgi vs 17.8 on CTLE) → **H100 FL CTLE-SC CLEARED** (`baseline_compare/alabama_ctle_DIAGNOSIS.md`).
 - ❌ **SC *region* is NOT used in the article.** The pre-fix SC reg was INVALID (substrate-bypass + shared prior +
   stale log_T) — now **quarantined** (`_reg_status: INVALID_PENDING_RERUN` on the AL/AZ `baseline_compare/*.json`).
   Region's substrate-isolation story is weak anyway (it is a near-tie: AL −0.4, AZ −0.3, Istanbul −3.5 where CTLE

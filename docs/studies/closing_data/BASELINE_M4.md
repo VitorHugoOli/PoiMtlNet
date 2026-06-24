@@ -16,7 +16,18 @@ cd <M4 repo>; git checkout main && git pull
 export PYTHONPATH=src
 ```
 
-## 1 · Task 1 — DIAGNOSE the CTLE frozen-below-floor  ·  CRITICAL PATH (gates H100 step D)
+## 1 · Task 1 — ✅ DONE (2026-06-24): CTLE frozen-below-floor is a REAL weakness, not a bug — **H100 FL CTLE-SC CLEARED**
+> **Verdict:** the AL CTLE-SC cat 17.77 (below the ~19.5 bigram floor) is **CTLE's true frozen-SC category signal**,
+> NOT a pipeline/leak artifact. Full evidence: [`../../results/closing_data/baseline_compare/alabama_ctle_DIAGNOSIS.md`](../../results/closing_data/baseline_compare/alabama_ctle_DIAGNOSIS.md).
+> Three artifact hypotheses falsified on the committed AL artifacts (no re-run needed — the per-fold trace already exists):
+> (1) the frozen CTLE embedding is real/non-degenerate (0/64 zero-std cols, std 1.17–5.06); (2) the substrate was
+> actually swapped — row-aligned cosine(CTLE, check2hgi)=0.01, ~7× magnitude apart, NOT silent reuse; (3) the head
+> demonstrably learns — IDENTICAL head/rows/folds on check2hgi → **55.59**, on CTLE → **17.77** (comparand
+> `alabama_check2hgi_sc.json`). Only the substrate differs. **H100 proceeds with FL CTLE-SC**; the paper presents
+> CTLE-E2E (~21, fine-tuned) as the headline with CTLE-SC the matched-frozen-capacity companion (frozen-SC undersells deep models).
+
+<details><summary>original Task 1 spec (for reference)</summary>
+
 The recorded frozen **CTLE-SC cat at AL = 17.77** is *below* the bigram floor (~19.5). Before the H100 spends FL
 compute on CTLE-SC, confirm **whether that is a real CTLE weakness or a pipeline/leak-fix artifact** (e.g. the
 frozen CTLE embedding not actually feeding the head, or a min_seq/fold desync). Diagnose on **AL** (small, fast):
