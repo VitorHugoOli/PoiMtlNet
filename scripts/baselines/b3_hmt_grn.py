@@ -135,8 +135,14 @@ def load_b3_data(state: str, engine: EmbeddingEngine = ENGINE):
     """
     seq_path = IoPaths.get_seq_next(state, engine)
     seq_df = pd.read_parquet(seq_path)
-    next_df = IoPaths.load_next(state, engine)
-    region_df = IoPaths.load_next_region(state, engine)
+    # Read ONLY the label columns: next.parquet carries 576 embedding cols B3 never uses
+    # (it learns POI-id embeddings from scratch). Materialising the full matrix OOM'd large
+    # states on 24GB unified memory (FL 1.27M×578≈2.9GB; CA/TX 6-8GB) — watchdog-killed.
+    next_df = pd.read_parquet(IoPaths.get_next(state, engine), columns=["next_category", "userid"])
+    # next_region.parquet is built as next_df.copy()+region cols, so it ALSO carries the 576
+    # embedding cols (CA dk_ovl ≈7.6GB). B3 needs only the two region columns.
+    region_df = pd.read_parquet(IoPaths.get_next_region(state, engine),
+                                columns=["region_idx", "last_region_idx"])
 
     n = len(seq_df)
     assert len(next_df) == n, (len(next_df), n)
@@ -190,10 +196,23 @@ def build_fold_split(state: str, seed: int, n_splits: int, split_k: int = 5,
     must be generated with ``split_k=5`` to stay bit-identical; ``n_splits`` then
     selects how many of those 5 folds we actually RUN (smoke uses 1). Returns
     (list of (train_idx, val_idx), userids).
+
+    ORDERING: assumes ``load_b3_data`` ran first (its 0-NaN assert holds for all 6
+    board states). We derive y_cat/userids from the label cols and do NOT drop NaN
+    rows here — unlike ``load_next_data``, which drops+shifts — so the returned
+    indices stay aligned with ``load_b3_data``'s poi_windows/y_* arrays.
     """
-    X, y_cat, userids, _ = load_next_data(state, engine)
+    # Bit-identical split WITHOUT materialising the full embedding matrix that
+    # load_next_data builds (N×576 float32 = 2.9-8GB on large states -> OOM at 24GB).
+    # StratifiedGroupKFold.split uses ONLY y (stratify) + groups + n_samples, never X's
+    # values, so a zero placeholder yields identical folds. y_cat/userids derived the same
+    # way load_next_data does (assert 0 NaN — load_b3_data enforces this before this call).
+    ndf = pd.read_parquet(IoPaths.get_next(state, engine), columns=["next_category", "userid"])
+    y_cat = _map_categories(ndf["next_category"])  # int64; raises on NaN (load_b3_data asserts 0 NaN first)
+    userids = ndf["userid"].astype(np.int64).to_numpy()
     sgkf = StratifiedGroupKFold(n_splits=split_k, shuffle=True, random_state=seed)
-    splits = [tuple(s) for s in sgkf.split(X, y_cat, groups=userids)]
+    splits = [tuple(s) for s in sgkf.split(np.zeros((len(y_cat), 1), dtype=np.int8),
+                                           y_cat, groups=userids)]
     return splits[:n_splits], userids
 
 
@@ -300,14 +319,12 @@ def build_train_vocab(poi_windows: np.ndarray, target_poi: np.ndarray,
     """Distinct POI ids in the FOLD'S TRAIN rows -> dense ids starting at 1
     (0 = OOV/pad). Built from train rows only; val rows with unseen POIs map to 0.
     """
-    train_pois = set()
-    for r in train_idx:
-        for p in poi_windows[r]:
-            if p >= 0:
-                train_pois.add(int(p))
-        # target_poi itself is NOT an input feature for the next-region/cat
-        # heads, so it is intentionally excluded from the input vocab.
-    return {p: i + 1 for i, p in enumerate(sorted(train_pois))}
+    # Vectorised (was a Python double-loop over n_train×9 ≈ 9-31M elements, whose
+    # transient overhead spiked RAM enough to trip the watchdog on large states).
+    # np.unique gives the SAME sorted-unique vocab. target_poi is intentionally excluded.
+    tw = poi_windows[train_idx]            # [n_train, 9]
+    uniq = np.unique(tw[tw >= 0])          # sorted unique POI ids, PAD(-1) dropped
+    return {int(p): i + 1 for i, p in enumerate(uniq)}
 
 
 def remap_windows(poi_windows: np.ndarray, vocab: dict) -> np.ndarray:
@@ -374,27 +391,49 @@ def run_fold(data, train_idx, val_idx, seed, epochs, device, alpha_prior=1.0,
         logger.info("  epoch %d/%d  train_loss=%.4f", ep + 1, epochs,
                     running / max(len(tr), 1))
 
-    # --- eval (matched metrics) ---
+    # --- eval (matched metrics, MEMORY-SAFE chunked) ---
+    # Accumulating the full [n_val, n_regions] reg-logit matrix OOMs wide-region states
+    # (CA 680K×8501≈23GB) on 24GB unified memory. cat is tiny (8 classes) -> accumulate;
+    # reg -> per-batch top-k + rank counts. METRIC-IDENTICAL to _ood_restricted_topk /
+    # _rank_of_target: top-k is per-row, rank = 1 + #{strictly-greater logits}, in-dist =
+    # target in the train label set. Per-batch reg logits moved to CPU (≈70MB, freed each batch).
     model.eval()
     va = torch.from_numpy(np.asarray(val_idx)).long()
-    cat_logits_all, reg_logits_all = [], []
-    yc_all, yr_all = [], []
+    cat_logits_all, yc_all = [], []
+    train_labels_t = torch.as_tensor(sorted(train_label_set_b), dtype=torch.long)
+    ks = (1, 5, 10)
+    hits = {k: 0 for k in ks}
+    n_indist = 0
+    rr_sum = 0.0
     with torch.no_grad():
         for b in batches(va, shuffle=False):
             xb = poi_t[b].to(device)
             lrb = last_region_t[b].to(device)
             cl, rl = model(xb, lrb)
-            cat_logits_all.append(cl)
-            reg_logits_all.append(rl)
-            yc_all.append(y_cat_t[b].to(device))
-            yr_all.append(y_reg_t[b].to(device))
+            cat_logits_all.append(cl.cpu())
+            yc_all.append(y_cat_t[b])
+            yr_b = y_reg_t[b]                       # CPU int64
+            rl = rl.cpu()                           # [B, n_regions] CPU, freed each batch
+            in_dist = torch.isin(yr_b, train_labels_t)
+            nid = int(in_dist.sum().item())
+            n_indist += nid
+            if nid:
+                rl_id = rl[in_dist]
+                yr_id = yr_b[in_dist]
+                for k in ks:
+                    ke = min(k, rl_id.shape[-1])
+                    topk = rl_id.topk(ke, dim=-1).indices
+                    hits[k] += int((topk == yr_id.unsqueeze(-1)).any(dim=-1).sum().item())
+                tgt = rl_id.gather(1, yr_id.unsqueeze(1))
+                rank = (rl_id > tgt).sum(dim=1) + 1   # _rank_of_target tie-handling
+                rr_sum += float((1.0 / rank.float()).sum().item())
     cat_logits = torch.cat(cat_logits_all)
-    reg_logits = torch.cat(reg_logits_all)
     yc = torch.cat(yc_all)
-    yr = torch.cat(yr_all)
 
     cat_metrics = compute_classification_metrics(cat_logits, yc, num_classes=N_CAT)
-    reg_ood = _ood_restricted_topk(reg_logits, yr, train_label_set_b)
+    _inv = max(n_indist, 1)
+    reg_ood = {f"top{k}_acc_indist": hits[k] / _inv for k in ks}
+    reg_ood["mrr_indist"] = rr_sum / _inv
 
     cat_f1 = float(cat_metrics["f1"])
     reg_top10 = float(reg_ood["top10_acc_indist"])
@@ -479,6 +518,13 @@ def main():
         res["fold_idx"] = fold_idx
         res["elapsed_s"] = round(time.time() - t0, 1)
         fold_results.append(res)
+        # Release the fold's MPS/CPU memory before the next fold's setup — the
+        # caching allocator otherwise retains it, so fold N's setup spikes on top of
+        # folds 1..N-1 and trips the OOM watchdog on large states.
+        import gc as _gc
+        _gc.collect()
+        if device.type == "mps":
+            torch.mps.empty_cache()
         logger.info(
             "Fold %d  cat_f1=%.4f  reg_top10_indist=%.4f  geom=%.4f  (%.1fs)",
             fold_idx, res["cat_f1"], res["reg_top10_acc_indist"],

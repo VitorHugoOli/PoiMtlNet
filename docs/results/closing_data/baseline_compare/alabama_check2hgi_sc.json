@@ -1,0 +1,44 @@
+{
+  "state": "alabama",
+  "baseline": "check2hgi_sc",
+  "engine": "check2hgi_dk_ovl",
+  "note": "Check2HGI-SC comparand: matched STL heads on dk_ovl board base; reg is CHECKIN-modality (C-2 matched \u0394).",
+  "per_fold": [
+    {
+      "fold": 0,
+      "macro_f1": 57.10957601368627,
+      "top10_acc": 65.47822952270508,
+      "mrr": 43.64899396896362
+    },
+    {
+      "fold": 1,
+      "macro_f1": 57.811236910829045,
+      "top10_acc": 60.92914342880249,
+      "mrr": 40.70143103599548
+    },
+    {
+      "fold": 2,
+      "macro_f1": 54.93445023209163,
+      "top10_acc": 63.74584436416626,
+      "mrr": 41.675183176994324
+    },
+    {
+      "fold": 3,
+      "macro_f1": 54.31156132806873,
+      "top10_acc": 63.065820932388306,
+      "mrr": 41.980838775634766
+    },
+    {
+      "fold": 4,
+      "macro_f1": 53.76724772556417,
+      "top10_acc": 56.07350468635559,
+      "mrr": 36.26711666584015
+    }
+  ],
+  "macro_f1_mean": 55.587,
+  "macro_f1_std": 1.777,
+  "top10_acc_mean": 61.859,
+  "top10_acc_std": 3.621,
+  "mrr_mean": 40.855,
+  "mrr_std": 2.776
+}
