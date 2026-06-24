@@ -22,9 +22,9 @@ Updated incrementally as each fold completes (autonomous per-fold committer).
 <!--TXTABLE_START-->
 | fold | cat macro-F1 | cat best-ep | reg FULL top10 | reg best-ep |
 |---|---|---|---|---|
-| _(pending — fold 1 in progress)_ | | | | |
+| fold1 | 77.6885 | 50 | 66.9382 | 49 |
 
-**Running mean:** _pending._
+**Running mean (n=1):** cat **77.6885** ±0.0000 | reg **66.9382** ±0.0000
 <!--TXTABLE_END-->
 
 ## Status
