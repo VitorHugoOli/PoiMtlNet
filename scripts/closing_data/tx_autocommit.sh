@@ -23,7 +23,12 @@ commit_fold() {
   git commit -m "board-h100: TX MTL ${f} complete — incremental autonomous per-fold
 
 Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>" >/dev/null 2>&1 || true
-  git push origin "$BRANCH" >/tmp/tx_autocommit_push.txt 2>&1 || echo "[tx-autocommit] push failed for ${f} (see /tmp/tx_autocommit_push.txt)"
+  # race-robust push: rebase onto any concurrent commits (e.g. CA cell) then push, retry up to 4x
+  for try in 1 2 3 4; do
+    git pull --rebase origin "$BRANCH" >/tmp/tx_autocommit_pull.txt 2>&1 || true
+    if git push origin "$BRANCH" >/tmp/tx_autocommit_push.txt 2>&1; then break; fi
+    echo "[tx-autocommit] push retry $try for ${f}"; sleep 10
+  done
   echo "[tx-autocommit] committed+pushed ${f} ($(date -u +%H:%M:%S)Z)"
 }
 
