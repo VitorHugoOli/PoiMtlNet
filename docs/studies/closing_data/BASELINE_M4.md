@@ -51,6 +51,23 @@ matched-frozen-capacity companion (frozen-SC undersells deep models; that's the 
 / CA 49.6 / **TX 53.9** / Istanbul 60.4), all well below our MTL ~65–69. The region-native safety-net row is closed.
 
 ## 2b · Task 2 (NEW) — Istanbul champion-G @ stride-1 (make the §6.3 box internally consistent)
+> **⏸ DEFERRED (2026-06-24, user decision) — LOW priority; the 4-seed set-a champion is already a valid datapoint.**
+> Two prerequisites the next runner must handle (investigated this session — don't re-discover):
+> 1. **The stride-1 champion base is NOT on disk.** `output/check2hgi/istanbul/input/` currently holds the **set-a**
+>    base (58,297 rows, `stride=null`, `min_seq=5`; provenance utc 2026-06-24T10:18) — the baselines built their
+>    stride-1 windowing transiently and did not persist a 271,666-row base here. Build it with
+>    `generate_next_input_from_checkins('istanbul', check2hgi, stride=1, min_sequence_length=10)` +
+>    `build_next_region_for('istanbul', check2hgi)` (the same calls `mac_baseline_compare.build_inputs` uses) —
+>    this **overwrites the set-a base in place** (recoverable: the set-a numbers are recorded in
+>    `PHASE_V_ISTANBUL_S0.md` + `RESULTS_BOARD §1`, and the set-a base regenerates from `generate_next_region_input`).
+> 2. **Rebuild the per-fold log_T AFTER the base** (the on-disk `region_transition_log_seed0_fold{1..5}.pt` are
+>    STALE — older than `next_region.parquet`); verify mtime > `next_region.parquet` (standing trap).
+> 3. **The exact validated champion command is not on this box** — the set-a run was on the H100 and its rundir
+>    manifest (`results/check2hgi/istanbul/mtlnet_..._190800_105170`) is gitignored / absent locally. The recipe
+>    below has elided flags (`...`); reconstructing risks the "wrong MTL flags drop a head 10–30pp" trap. Recover
+>    the exact command (manifest on the SSD, or paste it) before the multi-hour run; smoke 1 fold × 2 ep first
+>    (sanity: cat ≈ 60 / reg ≈ 66–70 — the SC-stride-1 ceilings cat 54.52 / reg 66.16 are the matched gap-to-ceiling targets).
+
 **Why:** the Istanbul *baselines* (CTLE-SC, Check2HGI-SC ceiling, HMT-GRN) are all at **stride-1** and live here on
 the M4 (PR #38 built the 271,666-row stride-1 Phase-V base). The Istanbul *champion-G* is still at **set-a** (PR #33
 Phase V, 4 seeds, cat +8.06 / reg −0.58). So champion-vs-baseline on Istanbul currently mixes windowings. Re-run the
