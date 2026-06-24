@@ -54,7 +54,7 @@
 category_map 580/580 (fsq_tree bugfix), parse, graph (29945 POI/520 region — matches Phase-V guard), inputs (58,297 set-a + 25 priors), Phase-V GCN substrate (500ep, faithful: check2hgi.py unchanged since champion commit ff3ce1f0). HMT-GRN done on Mac.
 
 ## Status (Mac board COMPLETE)
-- ✅ **CTLE-SC + Check2HGI-SC comparand**: AL, AZ, **Istanbul** (stride-1) — done on Mac (PR #38). FL/CA/TX → A40 (`HANDOFF_A40_CTLE_SC.md`).
+- ✅ **CTLE-SC + Check2HGI-SC comparand**: AL, AZ, **Istanbul** (stride-1) — done on Mac (PR #38). FL/CA/TX → CUDA (`../../studies/closing_data/BASELINE_H100.md`).
 - ✅ **HMT-GRN: all 6 states** on Mac (AL/AZ/FL/CA/TX/Istanbul). AL CPU-validated (audit).
 - ✅ **Istanbul**: full ETL + Phase-V substrate + CTLE-SC + comparand + HMT (all Mac, stride-1).
 - → **Only remaining**: CTLE-SC FL/CA/TX on the A40.
