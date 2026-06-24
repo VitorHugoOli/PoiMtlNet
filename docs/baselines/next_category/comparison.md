@@ -1,5 +1,21 @@
 # next_category — baseline comparison
 
+> ⭐ **REDUCED BOARD (2026-06-24, paper-current) — CTLE-SC representation isolation (the W3 novelty gate)**
+> (seed 0 × 5 folds, gated stride-1 overlap; macro-F1; CTLE-emb → our head vs Check2HGI-emb → same head). See
+> [`ctle.md`](ctle.md) + `../../studies/closing_data/RESULTS_BOARD.md §4`.
+>
+> | Baseline | AL | AZ | FL | CA | TX |
+> |---|---:|---:|---:|---:|---:|
+> | **CTLE-SC** | 17.77 | 19.30 | → CUDA | → CUDA | → CUDA |
+> | **Check2HGI-SC (ours)** | **55.59** | **56.31** | — | — | — |
+> | **Δcat (ours − CTLE)** | **+37.82** | **+37.01** | _pending_ | _pending_ | _pending_ |
+>
+> **Read:** the representation drives next-category — Check2HGI beats CTLE-SC by **≈ +37 pp** at matched capacity
+> (the W3-gate evidence: "Check2HGI > CTLE attributable to the hierarchy"). FL/CA/TX CTLE-SC are heavy → CUDA
+> (`HANDOFF_A40_CTLE_SC.md`). The MHA+PE / POI-RGNN tables below are the older category-native study (different protocol).
+>
+> ---
+
 > ⚠ **SUPERSEDED 2026-05-04.** Canonical:
 > `docs/results/RESULTS_TABLE.md §0.6`. The POI-RGNN
 > numbers (33.35 / 30.71 / 32.08) below are pre-bugfix (May-2 snapshot)
