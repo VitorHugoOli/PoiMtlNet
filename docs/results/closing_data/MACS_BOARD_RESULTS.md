@@ -24,6 +24,9 @@
 |---|---|---|---|---|---|---|---|
 | Alabama | 96,326 | 17.77 ±1.47 | 55.59 ±1.78 | **+37.82** | 62.23 ±3.91 | 61.86 ±3.62 | −0.37 |
 | Arizona | 200,895 | 19.30 ±0.95 | 56.31 ±1.61 | **+37.01** | 51.34 ±1.68 | 51.08 ±1.63 | −0.26 |
+| Istanbul (stride-1) | 271,666 | 25.92 | 54.52 | **+28.60** | 69.70 | 66.16 | **−3.54** |
+
+*(Istanbul @ stride-1, board-consistent w/ Gowalla — supersedes set-a. 520 regions → reg runs higher. cat: substrate dominates +28.6. reg: CTLE slightly BEATS ours (−3.5) — region is where the contextual baseline competes; Istanbul's small region space lets CTLE edge ahead. Both leak-clean, checkin-modality.)*
 
 *(cat = macro-F1; reg = top10_acc_indist, checkin-modality. AL CTLE cat 17.77 ≈ recorded 17.75; AZ comparand cat 56.31 ≈ recorded h100 ceiling 57.13.)*
 
@@ -34,7 +37,7 @@
 |---|---|---|---|---|---|
 | Alabama | dk_ovl | 96,326 | 19.37 | 57.05 | recorded 20.43/62.37; MTL champ ~63.6/69.8 |
 | Arizona | dk_ovl | 200,895 | 18.04 | 43.70 | — |
-| Istanbul | check2hgi (Phase-V) | 58,297 | 20.87 | 56.56 | champ-G STL reg ceiling 70.4, Markov floor 52.5 |
+| Istanbul (stride-1) | check2hgi (Phase-V) | 271,666 | 19.10 | 60.42 | supersedes set-a (20.87/56.56); 520 regions; champ-G ceiling/floor were set-a |
 | Florida | dk_ovl | 1,274,418 | 26.87 | 63.74 | n_regions=4703; folds reg 64.1/63.8/62.3/63.0/65.5 |
 | California | dk_ovl | 2,925,466 | 24.01 | 49.61 | n_regions=8501 (wide); folds reg 49.0/49.0/49.9/49.7/50.4 |
 | Texas | dk_ovl | 3,830,414 | 25.81 | 53.85 | n_regions=6553; folds reg 53.5/54.2/53.1/54.5/54.0 |
@@ -45,14 +48,14 @@
 
 ## CTLE-SC → CUDA (FL/CA/TX only); Istanbul CTLE-SC → MAC
 **FL/CA/TX** too heavy for 24GB MPS (FL CTLE-SC watchdog-killed at 14% free solo; 1.27M-3.5M rows + 12.6GB log_T load) → A40 (`HANDOFF_A40_CTLE_SC.md`): `mac_baseline_compare.py --baseline ctle` + `comparand_check2hgi_sc.py` per state.
-**Istanbul CTLE-SC stays on the MAC** (small, 58,297 rows ≈ AZ): build a 5-fold leak-clean CTLE substrate (`build_ctle_substrate --state istanbul`) at **set-a windowing** (match the champion, NOT dk_ovl overlap) + matched heads (cat next_gru / reg next_stan_flow checkin) vs champion-G on the Phase-V substrate (engine check2hgi). Runs after TX HMT frees MPS. **MPS note**: training is MPS-resident; HMT eval top-k is per-batch CPU (memory-safety trade, ~3% — could stay MPS-per-batch accumulating scalars).
+**Istanbul CTLE-SC DONE on the MAC @ stride-1** (board-consistent w/ Gowalla, NOT set-a — user steer): 5-fold leak-clean CTLE substrate (`build_ctle_substrate --state istanbul --stride 1`) + matched heads (cat next_gru / reg next_stan_flow checkin) vs Check2HGI-SC on the Phase-V substrate. Base rebuilt at stride-1 (271,666 rows). Results in the CTLE-SC Δ table above. **Supersedes the set-a Istanbul numbers** (and the §4 champion-vs-baseline row, which was set-a → needs the champion at stride-1 to compare). **MPS note**: training MPS-resident; HMT eval top-k per-batch CPU (memory-safety, ~3%).
 
 ## Istanbul ETL (rebuilt on Mac, ready for CUDA)
 category_map 580/580 (fsq_tree bugfix), parse, graph (29945 POI/520 region — matches Phase-V guard), inputs (58,297 set-a + 25 priors), Phase-V GCN substrate (500ep, faithful: check2hgi.py unchanged since champion commit ff3ce1f0). HMT-GRN done on Mac.
 
 ## Status
 - ✅ AL, AZ: CTLE-SC + comparand + HMT-GRN (committed).
-- ✅ Istanbul: ETL + Phase-V substrate + HMT-GRN (Mac). CTLE-SC → CUDA.
+- ✅ Istanbul: ETL + Phase-V substrate + HMT-GRN + **CTLE-SC & comparand DONE on Mac @ stride-1** (cat Δ +28.6). Nothing for the A40.
 - ✅ CA: HMT-GRN done (24.01/49.61). 🔄 FL HMT rerun + TX HMT (post-CA chain). CTLE-SC FL/CA/TX → CUDA.
 
 ---
