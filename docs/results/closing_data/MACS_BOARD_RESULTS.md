@@ -20,15 +20,26 @@
 
 **Read:** substrate (representation) drives next-CATEGORY — Check2HGI beats CTLE-SC by **+37.8 pp** on AL. Next-REGION is a tie (region is where a contextual baseline competes).
 
-## HMT-GRN [M4/MPS — device-confounded, see caveat] vs recorded
-| State | rows | HMT cat_f1 | HMT reg_top10 | recorded (basis) |
-|---|---|---|---|---|
-| Alabama | 96,326 | 19.37 | 57.05 | 20.43 / 62.37 |
-| Arizona | 200,895 | 18.04 | 43.70 | — |
+## HMT-GRN [M4/MPS — device-confounded, see caveat]
+| State | base | rows | HMT cat_f1 | HMT reg_top10 | reference |
+|---|---|---|---|---|---|
+| Alabama | dk_ovl | 96,326 | 19.37 | 57.05 | recorded 20.43/62.37; MTL champ ~63.6/69.8 |
+| Arizona | dk_ovl | 200,895 | 18.04 | 43.70 | — |
+| Istanbul | check2hgi (Phase-V) | 58,297 | 20.87 | 56.56 | champ-G STL reg ceiling 70.4, Markov floor 52.5 |
+| Florida | dk_ovl | 1,274,418 | running | | |
+| California | dk_ovl | ~2.7M | queued | | |
+| Texas | dk_ovl | ~3.5M | queued | | |
 
-*(Comparand = full MTL champion ~63.6 cat / ~69.8 reg, CUDA — cross-device, see caveat.)*
+*(Comparand = full MTL champion, CUDA — cross-device; HMT reg clears the Markov floor, champion leads. Device-labeled.)*
+
+## CTLE-SC → CUDA (FL/CA/TX/Istanbul)
+Too heavy for 24GB MPS (FL CTLE-SC watchdog-killed at 14% free solo; 1.27M-3.5M rows). Run on A40/H100:
+`mac_baseline_compare.py --baseline ctle` + `comparand_check2hgi_sc.py` per state (builds dk_ovl from v14 on SSD; ctle emb on SSD). Istanbul CTLE-SC: build a 5-fold CTLE substrate, matched heads vs champion-G on the Phase-V substrate (engine check2hgi, set-a windowing).
+
+## Istanbul ETL (rebuilt on Mac, ready for CUDA)
+category_map 580/580 (fsq_tree bugfix), parse, graph (29945 POI/520 region — matches Phase-V guard), inputs (58,297 set-a + 25 priors), Phase-V GCN substrate (500ep, faithful: check2hgi.py unchanged since champion commit ff3ce1f0). HMT-GRN done on Mac.
 
 ## Status
-- ✅ AL: CTLE-SC, Check2HGI-SC comparand, HMT-GRN [M4].
-- 🔄 AZ: ctle + comparand running; HMT done. FL: dk_ovl building.
-- ⏳ CA, TX (next waves, disk-sequential), Istanbul (ETL + Phase-V substrate).
+- ✅ AL, AZ: CTLE-SC + comparand + HMT-GRN (committed).
+- ✅ Istanbul: ETL + Phase-V substrate + HMT-GRN (Mac). CTLE-SC → CUDA.
+- 🔄 FL/CA/TX: HMT-GRN running on Mac (serial). CTLE-SC + comparand → CUDA.
