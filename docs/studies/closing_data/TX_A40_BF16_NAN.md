@@ -11,8 +11,9 @@ The A40's TX champion-G MTL **bf16** run NaN-collapsed (74,812 skipped optimizer
 substrate/engine/log_T, same torch**. The only uncontrolled axis is the **GPU device class**: an A40-**Ampere**
 bf16 *backward-pass* NaN gradient (finite loss — NOT the fp16 forward overflow that [[CA_MTL_DIVERGENCE]] fixed)
 that the H100-**Hopper** float trajectory does not cross under identical config. **The fix is true fp32**
-(`MTL_DISABLE_AMP=1`), which removes the bf16-rounding NaN; the live A40 fp32 run is clean and tracking **above
-the ceiling**.
+(`MTL_DISABLE_AMP=1`): the A40 fp32 run finished **CLEAN — 0 skips, reg 67.02 beats the 64.96 ceiling +2.06**,
+cat 77.51 (+7.56). **MTL beats BOTH heads**, matching the H100 (reg 67.13). The bf16 −2.37 / fp16 −2.41 are
+confirmed **VOID** Ampere-bf16 collapse artifacts. **CELL CLOSED.**
 
 ## Symptom (A40, `scripts/closing_data/a40_task2_tx_mtl_bf16.sh`)
 - champion-G MTL on `check2hgi_dk_ovl`, texas, seed 0, 5f, **bf16** (`MTL_AUTOCAST_BF16=1`), compiled+tf32.
@@ -53,26 +54,30 @@ H100 TX bf16 folds 1-2 (`[[TX_CELL]]`, autonomous per-fold): cat **77.69 / 77.31
 did not run a *better* path, it rode a *different, clean* per-device float trajectory.
 > ⚠ Caveat: the H100 TX is committed at only **2/5 folds** (no final 5-fold score yet).
 
-## The fix — true fp32 (`MTL_DISABLE_AMP=1`)
-`scripts/closing_data/a40_task2_tx_mtl_fp32.sh`. Full 23-bit mantissa removes the bf16-rounding NaN. **Live
-evidence (pid 1492926):** clean through **ep32, 0 skips**, reg **N65.78 and climbing** (above the 64.96 ceiling)
-— the OPPOSITE of the bf16 early-peak collapse, matching the H100's healthy trajectory. Board-consistent: fp32
-is the non-CA small/mid-state decision ([[AL_PRECISION_GATE]]); CA/FL/AL fp32 precedent closes/reverses the gap.
-- **Decisive check (watcher armed):** does fp32 cross ep33 (the bf16 onset) clean?
-  - **clears** → fp32 is the citable A40 TX cell (expected to beat the ceiling, matching the H100) — no code change.
-  - **also NaNs** → structural, not precision → contingency below.
-- **Contingency (only if fp32 also NaNs):** add a degenerate-softmax guard in `_STANAttention` (replace
-  `float('-inf')` with a large finite negative, e.g. `-1e4`, so a degenerate row softmaxes to finite-uniform),
-  and/or lower the reg-LR (3e-3 is the highest group, drives the dualtower STAN reg head). Both are **medium
-  risk** (change numerics / diverge from frozen champion-G) → require board-wide re-validation before any citable run.
+## The fix — true fp32 (`MTL_DISABLE_AMP=1`) — ✅ CONFIRMED
+`scripts/closing_data/a40_task2_tx_mtl_fp32.sh`. Full 23-bit mantissa removes the bf16-rounding NaN.
+**Final result (seed 0, 5f, 0 non-finite skips)** → `docs/results/closing_data/a40/tx_ba2_fp32_s0.json`:
 
-## TX cell status (seed 0, 5f, gated overlap)
+| metric | MTL (fp32) | per-fold | best-ep | ceiling | Δ |
+|---|---|---|---|---|---|
+| reg FULL top10 | **67.0243** | [66.94, 67.33, 66.14, 67.23, 67.49] | [48,49,49,50,50] | 64.9597 | **+2.06 (BEATS)** |
+| cat macro-F1 | **77.5115** | [77.73, 77.38, 77.43, 77.55, 77.47] | [50,50,50,49,50] | 69.9492 | **+7.56 (BEATS)** |
+
+**0 skips**, every fold a healthy **late** best-epoch — fp32 sailed clean through the ep33–50 zone where bf16
+NaN-collapsed. reg 67.02 ≈ the H100 clean bf16 (67.13), confirming the collapse was **Ampere-bf16-specific /
+precision-borne**. The contingency (degenerate-softmax guard / lower reg-LR) was **NOT needed**; no code change.
+Board-consistent: fp32 is the non-CA small/mid-state decision ([[AL_PRECISION_GATE]]).
+> ⚠ The driver's auto-verdict string *"FLAG re-scope (>2pp)"* is a **sign-agnostic** threshold check —
+> Δreg = **+2.06 is a SURPLUS (MTL beats)**, the opposite of a deficit; it does **NOT** trigger a reg-claim re-scope.
+
+## TX cell status (seed 0, 5f, gated overlap) — ✅ CLOSED
 | piece | value | source |
 |---|---|---|
-| STL reg ceiling (fp32, p1) | **64.96** | committed `e1aa4003` (clean, reused) |
-| STL cat ceiling (next_gru) | **69.95 ± 0.21** | committed `50d9611d` |
-| MTL cat macro-F1 (bf16) | **75.87** → **Δcat +5.92 (beats)** | bf16 run (cat unaffected by the reg NaN) |
-| MTL reg FULL top10 | **pending fp32** (bf16 −2.37 is VOID) | fp32 run in flight |
+| STL reg ceiling (fp32, p1) | **64.9597** | committed `e1aa4003` (clean, reused) |
+| STL cat ceiling (next_gru) | **69.9492 ± 0.21** | committed `50d9611d` |
+| MTL reg FULL top10 (fp32) | **67.0243** → **Δreg +2.06 (BEATS)** | fp32 run, 0 skips ✓ |
+| MTL cat macro-F1 (fp32) | **77.5115** → **Δcat +7.56 (BEATS)** | fp32 run ✓ |
+| **verdict** | **MTL beats BOTH ceilings (reg +2.06, cat +7.56)** — the −2.4 "reg re-scope" was the VOID Ampere-bf16 artifact | |
 
 ## Operational lessons (carry forward)
 1. **bf16 MTL is NOT cross-GPU portable at large-C scale.** A40-Ampere and H100-Hopper diverge under
