@@ -135,7 +135,10 @@ def load_b3_data(state: str, engine: EmbeddingEngine = ENGINE):
     """
     seq_path = IoPaths.get_seq_next(state, engine)
     seq_df = pd.read_parquet(seq_path)
-    next_df = IoPaths.load_next(state, engine)
+    # Read ONLY the label columns: next.parquet carries 576 embedding cols B3 never uses
+    # (it learns POI-id embeddings from scratch). Materialising the full matrix OOM'd large
+    # states on 24GB unified memory (FL 1.27M×578≈2.9GB; CA/TX 6-8GB) — watchdog-killed.
+    next_df = pd.read_parquet(IoPaths.get_next(state, engine), columns=["next_category", "userid"])
     region_df = IoPaths.load_next_region(state, engine)
 
     n = len(seq_df)
@@ -191,9 +194,17 @@ def build_fold_split(state: str, seed: int, n_splits: int, split_k: int = 5,
     selects how many of those 5 folds we actually RUN (smoke uses 1). Returns
     (list of (train_idx, val_idx), userids).
     """
-    X, y_cat, userids, _ = load_next_data(state, engine)
+    # Bit-identical split WITHOUT materialising the full embedding matrix that
+    # load_next_data builds (N×576 float32 = 2.9-8GB on large states -> OOM at 24GB).
+    # StratifiedGroupKFold.split uses ONLY y (stratify) + groups + n_samples, never X's
+    # values, so a zero placeholder yields identical folds. y_cat/userids derived the same
+    # way load_next_data does (assert 0 NaN — load_b3_data enforces this before this call).
+    ndf = pd.read_parquet(IoPaths.get_next(state, engine), columns=["next_category", "userid"])
+    y_cat = _map_categories(ndf["next_category"])  # int64; raises on NaN (load_b3_data asserts 0 NaN first)
+    userids = ndf["userid"].astype(np.int64).to_numpy()
     sgkf = StratifiedGroupKFold(n_splits=split_k, shuffle=True, random_state=seed)
-    splits = [tuple(s) for s in sgkf.split(X, y_cat, groups=userids)]
+    splits = [tuple(s) for s in sgkf.split(np.zeros((len(y_cat), 1), dtype=np.int8),
+                                           y_cat, groups=userids)]
     return splits[:n_splits], userids
 
 
