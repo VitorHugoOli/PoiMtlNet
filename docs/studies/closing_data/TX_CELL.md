@@ -30,8 +30,9 @@ Updated incrementally as each fold completes (autonomous per-fold committer).
 |---|---|---|---|---|
 | fold1 | 77.6885 | 50 | 66.9382 | 49 |
 | fold2 | 77.3113 | 50 | 67.3184 | 50 |
+| fold3 | 77.3870 | 50 | 66.1210 | 50 |
 
-**Running mean (n=2):** cat **77.4999** ±0.1886 | reg **67.1283** ±0.1901
+**Running mean (n=3):** cat **77.4623** ±0.1629 | reg **66.7925** ±0.4996
 <!--TXTABLE_END-->
 
 ## Status
