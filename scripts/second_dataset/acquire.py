@@ -50,7 +50,15 @@ def fsq_tree(city: str) -> None:
     if r.returncode != 0:
         raise RuntimeError(f"gh api failed for FSQ tree: {r.stderr[:200]}")
     data = json.loads(base64.b64decode(r.stdout).decode("utf-8", "replace"))
-    cats = data["categories"] if isinstance(data, dict) and "categories" in data else data
+    # The 4sq_categories.json is the raw Foursquare API dump: {"meta":..,"response":{"categories":[..]}}.
+    # Unwrap response.categories (older code assumed a top-level "categories" key and iterated the
+    # dict's KEYS -> "meta".get() AttributeError). Fall back to top-level "categories" or a bare list.
+    if isinstance(data, dict) and "response" in data and "categories" in data["response"]:
+        cats = data["response"]["categories"]
+    elif isinstance(data, dict) and "categories" in data:
+        cats = data["categories"]
+    else:
+        cats = data
     flat = {}
 
     def walk(node, root):
