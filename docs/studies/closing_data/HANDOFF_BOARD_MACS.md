@@ -4,6 +4,9 @@
 > across all 6 states — `CTLE-SC` and `HMT-GRN`.** These are the two highest-value, deadline-gating baselines; the
 > other SC baselines (b2b/b2c/poi2vec) and the other E2E natives are DONE-or-deprioritized (full audit in §6/§7).
 > **1 seed (0) × 5 folds**, device-internal on MPS (fp32, no confound). Continue on `study/board-m2pro`.
+>
+> **▶ RESULTS + ENGINEERING KNOWLEDGE (2026-06-24, M4 Pro run): [`docs/results/closing_data/MACS_BOARD_RESULTS.md`](../../results/closing_data/MACS_BOARD_RESULTS.md)** —
+> AL/AZ CTLE-SC (+37pp cat / tied reg) + comparand DONE; HMT-GRN AL/AZ/CA/Istanbul DONE (FL rerun + TX queued); Istanbul ETL + Phase-V substrate rebuilt on Mac; **CTLE-SC FL/CA/TX/Istanbul → CUDA** (24 GB MPS can't hold the 1.27M-3.5M-row builds). 7 bug fixes (p1 collate, min_seq parity, fsq_tree, 4× b3 large-state OOM) + a self-contained CUDA handoff are documented there.
 
 ## 0 · SCOPE — CTLE-SC + HMT-GRN, states = AL · AZ · FL · CA · TX · Istanbul (Massive-STEPS)
 | Baseline | What / why | Comparand | Command base |

@@ -196,6 +196,11 @@ def build_fold_split(state: str, seed: int, n_splits: int, split_k: int = 5,
     must be generated with ``split_k=5`` to stay bit-identical; ``n_splits`` then
     selects how many of those 5 folds we actually RUN (smoke uses 1). Returns
     (list of (train_idx, val_idx), userids).
+
+    ORDERING: assumes ``load_b3_data`` ran first (its 0-NaN assert holds for all 6
+    board states). We derive y_cat/userids from the label cols and do NOT drop NaN
+    rows here — unlike ``load_next_data``, which drops+shifts — so the returned
+    indices stay aligned with ``load_b3_data``'s poi_windows/y_* arrays.
     """
     # Bit-identical split WITHOUT materialising the full embedding matrix that
     # load_next_data builds (N×576 float32 = 2.9-8GB on large states -> OOM at 24GB).

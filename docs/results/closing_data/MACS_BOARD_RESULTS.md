@@ -26,9 +26,9 @@
 | Alabama | dk_ovl | 96,326 | 19.37 | 57.05 | recorded 20.43/62.37; MTL champ ~63.6/69.8 |
 | Arizona | dk_ovl | 200,895 | 18.04 | 43.70 | — |
 | Istanbul | check2hgi (Phase-V) | 58,297 | 20.87 | 56.56 | champ-G STL reg ceiling 70.4, Markov floor 52.5 |
-| Florida | dk_ovl | 1,274,418 | running | | |
-| California | dk_ovl | ~2.7M | queued | | |
-| Texas | dk_ovl | ~3.5M | queued | | |
+| California | dk_ovl | 2,925,466 | 24.01 | 49.61 | n_regions=8501 (wide); folds reg 49.0/49.0/49.9/49.7/50.4 |
+| Florida | dk_ovl | 1,274,418 | (rerun queued) | | n_regions=4703 |
+| Texas | dk_ovl | ~3.5M | queued | | n_regions~8501 |
 
 *(Comparand = full MTL champion, CUDA — cross-device; HMT reg clears the Markov floor, champion leads. Device-labeled.)*
 
@@ -42,4 +42,44 @@ category_map 580/580 (fsq_tree bugfix), parse, graph (29945 POI/520 region — m
 ## Status
 - ✅ AL, AZ: CTLE-SC + comparand + HMT-GRN (committed).
 - ✅ Istanbul: ETL + Phase-V substrate + HMT-GRN (Mac). CTLE-SC → CUDA.
-- 🔄 FL/CA/TX: HMT-GRN running on Mac (serial). CTLE-SC + comparand → CUDA.
+- ✅ CA: HMT-GRN done (24.01/49.61). 🔄 FL HMT rerun + TX HMT (post-CA chain). CTLE-SC FL/CA/TX → CUDA.
+
+---
+
+## ENGINEERING KNOWLEDGE — bugs fixed this session (7)
+All bit-identical-verified where a numeric path changed.
+
+### Correctness
+1. **p1 reg-head collate crash** (`f421f1fb`, `p1_region_head_ablation._dataloader`): built `DataLoader` without `collate_fn`, but `POIDataset`/`POIDatasetWithAux` define `__getitems__` (batched index_select, perf fix 2026-06-24) which returns pre-stacked batches → `default_collate` re-stacked them → `stack expects equal size [B,9,64] vs [B]`. Fix: pair with `_batched_collate` (matches `src/data/folds.py:454,498`). **Blocked ALL Mac reg runs.**
+2. **CTLE-SC vs comparand row-parity** (`b195b89f`, `mac_baseline_compare.build_inputs`): CTLE inputs defaulted to `min_seq=5`, dk_ovl base uses `BOARD_MIN_SEQ=10`. Pinned CTLE build to `min_seq=10` so baseline + Check2HGI-SC comparand share the identical row set + fold partition (verified AL/AZ rowcounts match). **Without this the W3 Δ is invalid per-state.**
+3. **fsq_tree category-tree parse** (`b9073396`, `acquire.fsq_tree`): the 4sq_categories.json is the raw FSQ API dump `{meta, response:{categories:[..]}}`; the code assumed a top-level `categories` key, fell back to iterating the dict's KEYS → `"meta".get()` AttributeError → `fsq_v1_tree.json` never written → incomplete name-based map (Istanbul 499/580, Turkish food cats → None). Unwrap `response.categories` → 580/580, 0 unmapped.
+
+### Memory (b3_hmt_grn large-state OOM — 4 fixes, all bit-identical on Istanbul)
+4. `a27b6e1e` — `load_b3_data` read full 578-col embedding `next.parquet` for 2 labels → read label cols only.
+5. `a27b6e1e` — `build_fold_split` called `load_next_data` which materializes N×576 float32 (CA 6.7GB) only for the split's row count → split on a zero placeholder X (StratifiedGroupKFold uses only y+groups+n_samples).
+6. `68d304f4` — `build_train_vocab` Python double-loop over n_train×9 (9-31M elems) → `np.unique` (vectorized).
+7. `cf292c3d` + `250f003a` — **eval accumulated the full `[n_val,n_regions]` reg-logit matrix (CA 680K×8501≈23GB)** + MPS cache retained per fold → chunked per-batch top-k/rank eval (logits→CPU, freed each batch; metric-identical to `_ood_restricted_topk`/`_rank_of_target`) + `gc.collect()`+`torch.mps.empty_cache()` between folds; and `next_region.parquet` (built as `next_df.copy()`+region cols → carries embeddings, 7.6GB) read region cols only.
+
+### Invariants preserved (verified)
+- **Leak-safety** through the b3 refactor: vocab `np.unique(poi_windows[train_idx])` train-only; region prior `build_train_region_prior(..., train_idx)` train-only; chunked-eval OOD set = `train_label_set_b` (train rows); `build_fold_split` zero-placeholder X yields the **bit-identical** fold partition (proven via Istanbul reg match). Val users remain disjoint from train (asserted per fold).
+- **Mixed-provenance cat note**: AL/AZ/Istanbul HMT (committed pre-eval-fix) accumulated cat logits on-device; CA/FL/TX use the CPU-chunked eval → cat differs by **<0.01 pp** (Istanbul 0.2087→0.2086), far below fold-std. reg is identical. AL/AZ NOT re-run (the diff is float-rounding only).
+- **p1 `_batched_collate`** is in the shared `_dataloader` → also affects `--input-type region/concat` for any future p1 run (bit-aligned with `folds.py:454,498`); this work uses checkin-reg only.
+
+### Regression check (advisor-reviewed, 2 passes)
+- **My 5 changed files introduce no regressions.** C-1/C-2/C-3 reg defects are *empirically* disproven by the AL/AZ comparand triple-signature: reg is checkin-scale (not the void 53%/69.7 region-modality = C-2 holds), substrate-sensitive (CTLE 62.23 ≠ ours 61.86 = C-1 holds), and ≈ recorded 61.94 (per-engine per-fold log_T, not canonical copy = C-3 holds). None of the `known_bugs_fixed` surfaces (FLOPs, EmbeddingAligner, generate_sequences, config drift) are touched.
+- **Test suite**: `pytest tests/test_scripts tests/test_training` → 99 passed, 10 failed, 10 skipped. **All 10 failures are PRE-EXISTING** (targets `mtl_cv.py`/`compute_region_transition.py`/`train.py`/`folds.py` — NOT changed this session; confirmed via `git diff e709ea36..HEAD`): (a) `test_train_cli` model-name drift (`mtlnet_crossattn_dualtower` vs `mtlnet_cgc`); (b) `test_region_transition` fixture lambda-arity TypeError; (c) `test_mtl_cv_check2hgi` collate crash.
+- **⚠ DISCOVERED (pre-existing, flagged for user)**: `test_mtl_cv_check2hgi` fails with the SAME collate bug I fixed in p1 (`stack [32,9,64] vs [32]`) — i.e. the `__getitems__` perf fix (2026-06-24) left the **hot MTL path** missing `_batched_collate` somewhere too. Out of this task's scope (CTLE-SC/HMT-GRN), NOT fixed here, but likely affects MTL champion runs — recommend a follow-up.
+
+### Operational lessons
+- **dk_ovl build ≠ log_T**: `build_overlap_probe_engine` (next/seq/next_region) is feasible on Mac for CA (succeeded); the failing step was `compute_region_transition` (loads the 12.6GB embedding matrix → `_guard_cpu_resident_ram` MemoryError). **HMT builds its own per-fold prior → needs only the dk_ovl inputs, not the log_T.** So CA/TX HMT run on the built inputs directly.
+- **Run-from-local**: SSD 99% full + disconnect-under-concurrent-writes → mirror to `~/ingred_run`, write results back to SSD. CTLE-SC large-state input build is memory-spiky → run large states one heavy job at a time (orchestrator "never 2 heavy"). 24GB unified memory is the binding constraint, not CPU/disk.
+- **Device caveat**: STL-on-frozen-embedding heads (CTLE-SC, Check2HGI-SC comparand) reproduce CUDA within noise → device-internal Δ valid. HMT (from-scratch training) diverges ~5pp on M4/MPS → device-confounded vs the CUDA champion (open decision).
+
+## CUDA HANDOFF (A40/H100) — self-contained on SSD
+Everything needed is on the SSD; no Mac staging required.
+- **CTLE-SC + comparand FL/CA/TX** (per state):
+  - `PYTHONPATH=src python scripts/closing_data/mac_baseline_compare.py --state <s> --baseline ctle --cells-root output --folds 5 --heads cat reg` (builds dk_ovl from v14; ctle emb in `output/board_baselines/ctle/<s>`)
+  - `PYTHONPATH=src python scripts/closing_data/comparand_check2hgi_sc.py --state <s> --folds 5 --heads cat reg` (needs dk_ovl + per-fold log_T: `compute_region_transition --engine check2hgi_dk_ovl --per-fold --seed 0 --n-splits 5`)
+  - CA cat-ceiling + TX reg-ceiling already exist (`docs/results/closing_data/{h100,a40}`).
+- **Istanbul CTLE-SC**: ETL + Phase-V substrate staged at `output/check2hgi/istanbul` (+ `data/massive_steps_istanbul`). Build a per-fold leak-clean CTLE substrate (`build_ctle_substrate --state istanbul --fold f`), then matched heads vs champion-G on the Phase-V substrate (`--engine check2hgi`, set-a windowing — NOT dk_ovl overlap).
+- **HMT-GRN** (if running on CUDA for the official table): `b3_hmt_grn.py --state <s> --engine check2hgi_dk_ovl` (US) / `--engine check2hgi` (Istanbul), seed 0 × 5f.
