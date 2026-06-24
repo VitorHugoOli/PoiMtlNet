@@ -1430,6 +1430,56 @@
       "sha256": "f776322dcb43f8fc17cb4ff3ae413b353800558b79751516ae7d3d39851b5688",
       "source": "m2pro-ssd"
     },
+    "poi2vec/california/s0_f0": {
+      "bytes": 558371477,
+      "sha256": "c5b1333e38aaf96c4868a61fb977da224d4f026e8fd5d75962e8f5b8d4c4247f",
+      "source": "a40"
+    },
+    "poi2vec/california/s0_f1": {
+      "bytes": 558391871,
+      "sha256": "606e152a02c982d5d35ecc1182b27547267bd0d5e04eefab59510d030d7b21c6",
+      "source": "a40"
+    },
+    "poi2vec/california/s0_f2": {
+      "bytes": 558359102,
+      "sha256": "80ef13d1a9e120cc4cc47051fe358ce45cc17961f1bca32b28134bb6c788cae7",
+      "source": "a40"
+    },
+    "poi2vec/california/s0_f3": {
+      "bytes": 558371742,
+      "sha256": "744207cd83323309b247cc8ebfca404615802501bfe805dfbac24e318fe87afa",
+      "source": "a40"
+    },
+    "poi2vec/california/s0_f4": {
+      "bytes": 558376574,
+      "sha256": "77106395a36c5c01e34d8a896982bee9806faeb976a534da7b6bd6f019b3124b",
+      "source": "a40"
+    },
+    "poi2vec/california/s1_f0": {
+      "bytes": 558380461,
+      "sha256": "1377418b3a8ea0f7812c20208f7d34a7a3e912447351a6e94df3ee45d1e8b6ce",
+      "source": "a40"
+    },
+    "poi2vec/california/s1_f1": {
+      "bytes": 558380136,
+      "sha256": "bcf15ac70e7f4010e6006543e11783b06591bdc4b69e406aa67b12fc640f6288",
+      "source": "a40"
+    },
+    "poi2vec/california/s1_f2": {
+      "bytes": 558394154,
+      "sha256": "902fe54f4c224e9a27898a25a3a5763b8ff8d238d56562345367e7248c9d5be0",
+      "source": "a40"
+    },
+    "poi2vec/california/s1_f3": {
+      "bytes": 558382464,
+      "sha256": "1f6508839af1110d41d76cb2b06bfedf4c7ebabebc15acb13782a0e77278d517",
+      "source": "a40"
+    },
+    "poi2vec/california/s1_f4": {
+      "bytes": 558382264,
+      "sha256": "3e197dc5bda57c35e0f6a3b55cb5848ca112f59c9c26174af60c8db1b00f35fe",
+      "source": "a40"
+    },
     "poi2vec/florida/s0_f0": {
       "bytes": 221089279,
       "sha256": "132c533fc533d6abed46a90065fe186507278e2a31feeef1a47662b97a615294",
@@ -1629,6 +1679,31 @@
       "bytes": 59865921,
       "sha256": "18d28173cc979a3b296756c8af084ba1b7579c48183d67bb731f2a5394269277",
       "source": "m2pro-ssd"
+    },
+    "poi2vec/texas/s0_f0": {
+      "bytes": 700471356,
+      "sha256": "8e361482578e8888f04d03a2d0485e8122e7810d30783fb1366fe53d17cc91bb",
+      "source": "a40"
+    },
+    "poi2vec/texas/s0_f1": {
+      "bytes": 700466486,
+      "sha256": "46bc8a7aef57f13803f6d63963d342f575b14f1a1b1b224d7c718604c3a986f4",
+      "source": "a40"
+    },
+    "poi2vec/texas/s0_f2": {
+      "bytes": 700458114,
+      "sha256": "16c93b7e5a7b3263d080096b8cfff5d900757d5510aa137fee5dc85127ede652",
+      "source": "a40"
+    },
+    "poi2vec/texas/s0_f3": {
+      "bytes": 700473792,
+      "sha256": "be8841431b875b7f22865860c2d849d06086a6c42ee606204469311b01307a6b",
+      "source": "a40"
+    },
+    "poi2vec/texas/s0_f4": {
+      "bytes": 700467390,
+      "sha256": "06091b9c559538de92c00c85674461ec97b851c73dcced3ea9d7da687d12a1a7",
+      "source": "a40"
     }
   },
   "conflicts": [],
@@ -1636,9 +1711,9 @@
     "b2b": 120,
     "b2c": 6,
     "ctle": 120,
-    "poi2vec": 80
+    "poi2vec": 95
   },
   "engine": "board_baselines",
   "kind": "hash_manifest",
-  "n_cells": 326
+  "n_cells": 341
 }

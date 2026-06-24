@@ -127,3 +127,37 @@ The SSD is now on the M2 Pro. Stabilize the data so it is portable:
 - **AZ, GA** AL-style baseline Δ (small states, safe on MPS).
 - **CA / TX** baselines — large; may need a CUDA card (§5 STOP) — flag before fan-out.
 - Re-merge `BASELINES_HASH_MANIFEST.json` to include poi2vec CA/TX.
+
+---
+
+## 7 · TASK-NATIVE BASELINES — SOTA audit + native-E2E plan (2026-06-24)
+
+### Why this section exists
+The SC baselines (b2c/b2b/poi2vec/ctle) are all **next-POI / embedding** methods adapted to our tasks via a frozen-substrate → STL head. That undersells deep models (e.g. **CTLE-frozen cat = 17.75, BELOW the random floor**). For an honest "best-baseline vs Check2HGI" claim we add **task-native published baselines** run with their **authors-intended architecture/input** and only the **output head adapted** to next-cat / next-region (the established pattern in `flashback_e2e.py` / `b3_hmt_grn.py`).
+
+### SOTA audit — are our baselines true papers for THESE tasks? (evidence: `docs/baselines/`, `docs/research/references.md`, ultracode wf `wf_31cfde91-f0d`)
+- **next-CATEGORY — we DO have category-native papers:**
+  - **MHA+PE** (Zeng 2019) — category-native; reproduced 5-fold/6-state (`research/baselines/mha_pe/`).
+  - **POI-RGNN** (Capanema 2022, Ad Hoc Networks / PE-WASUN'21, *"Predict the Next Place's Category"*) — category-native; reproduced (`research/baselines/poi_rgnn/`). Caveat: paper numbers are global-Gowalla; only our state-level reproductions are comparable (`POI_RGNN_AUDIT.md`).
+- **next-REGION — NO truly region-native published baseline exists** (the field does next-POI and adapts the output). Region coverage:
+  - **HMT-GRN** (SIGIR'22) — **region-native** (hierarchical region+POI target). `scripts/baselines/b3_hmt_grn.py`.
+  - **ReHDM** (IJCAI'25) — **region-aware SOTA** (quadkey-L10 region as *input*; target adapted POI→region). `research/baselines/rehdm/` (`train.py` faithful). [Chosen 2nd region baseline — zero new impl.]
+  - (DRRGNN TKDD'22 *"next activity region"* is the only strictly region-target-native candidate found — **deferred**, no public impl.)
+  - STAN (WWW'21) is next-POI-native, adapted — supportive, not a region-native claim.
+
+### Decided AL native-baseline roster (seed 0 × 5 folds)
+| task | native baselines |
+|---|---|
+| next-category | **MHA+PE**, **POI-RGNN** (category-native) |
+| next-region | **HMT-GRN** (region-native) + **ReHDM** (region-aware SOTA) |
+| E2E/substrate probes | CTLE-E2E, POI2Vec-E2E, Flashback (native arch + adapted reg/cat heads) |
+
+### Methodology (the honest comparison)
+- Native baselines run their **own architecture/input**, output head adapted to next-cat (macro-F1) / next-region (`top10_acc_indist`), on **our board folds** (StratifiedGroupKFold, groups=userid, y=next_category, `--seed 0 --folds 5`).
+- **Comparand = our FULL solution (MTL champion / E2E Check2HGI)**, NOT the frozen-substrate STL ceiling (E2E-vs-frozen would be apples-to-oranges).
+- **Row-base alignment (REQUIRED):** the E2E natives default to canonical **stride-9** (`load_next_data(CHECK2HGI)`, 12,709 rows AL) but the board base is gated **stride-1** `check2hgi_dk_ovl` (96,326 rows). All native baselines must read the stride-1 base for comparability (the ultracode workflow adds a `--engine/--base` flag to Flashback/HMT-GRN; MHA+PE/POI-RGNN/ReHDM need the same check before tabling).
+
+### In flight / next
+- **ultracode workflow `wf_31cfde91-f0d`**: implements `scripts/baselines/ctle_e2e.py` + `poi2vec_e2e.py` (native arch + reg/cat heads, stride-1, leak-safe per-fold) + aligns `flashback_e2e.py`/`b3_hmt_grn.py` to stride-1, adversarial-reviewed; emits a run-list + SOTA synthesis.
+- **Then run the full AL native set** (CTLE-E2E, POI2Vec-E2E, Flashback, HMT-GRN, MHA+PE, POI-RGNN, ReHDM) — coordinated ≤2–3 concurrent under `ram_watchdog.sh` (MPS OOM guard); report the cat + region native-baseline tables vs the MTL champion.
+- ⚠ Do NOT launch the native runs while the workflow is active (MPS already ~5 procs → OOM zone).

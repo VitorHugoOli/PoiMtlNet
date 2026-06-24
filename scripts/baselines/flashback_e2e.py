@@ -162,7 +162,7 @@ def _load_poi_geo(state: str):
     return g["latitude"].to_dict(), g["longitude"].to_dict()
 
 
-def _build_window_context(state: str):
+def _build_window_context(state: str, engine: EmbeddingEngine = EmbeddingEngine.CHECK2HGI_DK_OVL):
     """Build, ROW-ALIGNED to next_region.parquet / sequences_next.parquet:
 
       poi_win   : [N, 9] int64 placeids (PAD=-1)
@@ -177,8 +177,8 @@ def _build_window_context(state: str):
       userids   : [N] int64
       n_regions, n_cats
     """
-    seq = pd.read_parquet(IoPaths.get_seq_next(state, EmbeddingEngine.CHECK2HGI))
-    nr = pd.read_parquet(IoPaths.get_next_region(state, EmbeddingEngine.CHECK2HGI))
+    seq = pd.read_parquet(IoPaths.get_seq_next(state, engine))
+    nr = pd.read_parquet(IoPaths.get_next_region(state, engine))
     assert len(seq) == len(nr), (len(seq), len(nr))
 
     poi_cols = [f"poi_{i}" for i in range(9)]
@@ -204,7 +204,7 @@ def _build_window_context(state: str):
     dt_win = np.tile(steps_back, (poi_win.shape[0], 1)) * ONE_STEP_SECONDS
 
     region_y = nr["region_idx"].astype(np.int64).to_numpy()
-    cat_y, n_cats = _load_cat_labels(state, len(seq))
+    cat_y, n_cats = _load_cat_labels(state, len(seq), engine)
     userids = seq["userid"].astype(np.int64).to_numpy()
 
     _, poi_to_region = _load_graph_maps(state)
@@ -216,9 +216,10 @@ def _build_window_context(state: str):
     )
 
 
-def _load_cat_labels(state: str, expected_len: int):
+def _load_cat_labels(state: str, expected_len: int,
+                     engine: EmbeddingEngine = EmbeddingEngine.CHECK2HGI_DK_OVL):
     """next_category labels, row-aligned (from load_next_data's y)."""
-    _, y_cat, _, _ = load_next_data(state, EmbeddingEngine.CHECK2HGI)
+    _, y_cat, _, _ = load_next_data(state, engine)
     assert len(y_cat) == expected_len, (len(y_cat), expected_len)
     y_cat = np.asarray(y_cat, dtype=np.int64)
     n_cats = int(y_cat.max()) + 1
@@ -410,6 +411,11 @@ def main():
                          "anchor = vanilla-RNN, disabling 'flashback'). 0.3 keeps exp(-ds_km*0.3)~O(0.1-1) "
                          "for few-km gaps (effective attended positions ~3.6) = real flashback re-weighting.")
     ap.add_argument("--rnn", default="rnn", choices=["rnn", "gru", "lstm"])
+    ap.add_argument("--engine", "--base", dest="engine", default="check2hgi_dk_ovl",
+                    help="board base engine that supplies the fold inputs + region/cat labels. "
+                         "DEFAULT 'check2hgi_dk_ovl' = the GATED STRIDE-1 OVERLAP base the board + "
+                         "Check2HGI + the SC baselines run on (AL=96,326 rows). Pass 'check2hgi' for "
+                         "the legacy CANONICAL stride-9 base (AL=12,709 rows; back-compat only).")
     ap.add_argument("--smoke", action="store_true",
                     help="tiny AL run: 1 fold, 2 epochs, hidden 32 — proves plumbing+leak-safety")
     ap.add_argument("--out-dir", default=None)
@@ -422,18 +428,21 @@ def main():
         args.hidden = 32
         args.seed = 0
 
+    engine = EmbeddingEngine(args.engine)
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"[flashback_b5] state={args.state} seed={args.seed} folds={args.folds} "
           f"epochs={args.epochs} hidden={args.hidden} device={device} "
-          f"lambda_t={args.lambda_t} lambda_s={args.lambda_s} rnn={args.rnn}")
+          f"lambda_t={args.lambda_t} lambda_s={args.lambda_s} rnn={args.rnn} "
+          f"engine={engine.value}")
 
     # --- board fold split (BIT-IDENTICAL to the champion) -------------------
     from sklearn.model_selection import StratifiedGroupKFold
-    X, y_cat, userids, _ = load_next_data(args.state, EmbeddingEngine.CHECK2HGI)
+    X, y_cat, userids, _ = load_next_data(args.state, engine)
     sgkf = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=args.seed)
     splits = list(sgkf.split(X, y_cat, groups=userids))
 
-    ctx = _build_window_context(args.state)
+    ctx = _build_window_context(args.state, engine)
     assert len(ctx["region_y"]) == len(X), (len(ctx["region_y"]), len(X))
     print(f"[flashback_b5] rows={len(X)} n_regions={ctx['n_regions']} n_cats={ctx['n_cats']}")
 
@@ -452,6 +461,7 @@ def main():
 
     agg = {
         "engine": ENGINE_NAME,
+        "base_engine": engine.value,
         "baseline": "B5_flashback_ijcai2020",
         "state": args.state,
         "seed": args.seed,

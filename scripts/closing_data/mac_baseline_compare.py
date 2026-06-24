@@ -124,7 +124,9 @@ def run_reg(engine: str, state: str, fold: int) -> dict:
            "--input-type", "checkin", "--epochs", "50",
            "--per-fold-transition-dir", str(OUT / engine / state), "--tag", tag, "--no-resume"]
     subprocess.run(cmd, env=env, cwd=str(REPO), check=True)
-    j = REPO / "docs/results/P1" / f"region_head_{state}_region_1f_50ep_{tag}.json"
+    # p1 names the json by input_type; we run --input-type checkin (not region) → read THAT file
+    # (reading the "region" name would silently pick up a stale region-modality run with the same tag).
+    j = REPO / "docs/results/P1" / f"region_head_{state}_checkin_1f_50ep_{tag}.json"
     d = json.loads(j.read_text())
     pf = d["heads"]["next_stan_flow"]["per_fold"][0]
     return {"top10_acc": float(pf["top10_acc"]) * 100.0, "mrr": float(pf.get("mrr", 0)) * 100.0}
