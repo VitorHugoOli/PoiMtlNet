@@ -634,3 +634,65 @@ Small states (AL/AZ) and FL: seed=42 ≈ multi-seed → no development bias. Lar
 **Smaller items from the same audit (documentation-only, no rerun):** CLI bool coercion `KEY=False`→truthy-True (FIXED in `scripts/train.py`, guarded by `test_cli_param_coercion.py`); `--category-weight` is a dead flag under `--alternating-optimizer-step` (v11/B9 trained 50/50 alternating; doc note); fp16 eval autocast vs fp32 STL ceiling (X4 measured Δreg −0.005 → immaterial, `MTL_DISABLE_AMP_EVAL` hatch added). Full list + file:line trail: `CODE_AUDIT_2026-06-12.md` P1-E/F/G.
 
 **Resolution / status:** `Both issues FIXED 2026-06-12; champion G unchanged; study CLOSED.` Guards: `tests/test_regression/test_mtl_param_partition.py` (dualtower family + PCGrad coverage), `test_cli_param_coercion.py`. Trail: `studies/archive/mtl_improvement/{CODE_AUDIT_2026-06-12.md, HANDOFF_AUDIT.md, log.md 2026-06-12, INDEX.html #tier7}`; `results/mtl_improvement/X_SERIES_FINDINGS.md`.
+
+## C29 — per-fold log_T prior built on the CANONICAL split/sequences, not the training engine's (split-provenance leak) — FIXED + INERT on the board
+
+**Found 2026-06-23 (user audit, board-h100 lane).** `compute_region_transition.py` was hardcoded to the
+**canonical CHECK2HGI** engine for both the sequences it reads (`_load_sequences`) and the `StratifiedGroupKFold`
+**fold split** (`_build_per_fold` → `load_next_data(state, CHECK2HGI)`). The closing_data board trains on the
+**`check2hgi_dk_ovl`** overlap substrate (stride-1, `MIN_SEQ=10`-filtered), which has a **different user set**
+(FL: ~220 val-users/fold vs canonical ~322) and 8× the rows. So a prior built canonically and used for a dk_ovl
+run **mismatches the fold partition**: ~180 of ~220 dk_ovl val-users/fold fall in the canonical *train* set →
+their region transitions leak into the prior the dk_ovl model evaluates against. The board's v14-dir per-fold
+log_T was verified **hash-identical** to the canonical-dir one (`d65824…`) → it WAS the canonical (stride-9)
+prior. The freshness guard (`log_t_freshness.py`) cannot catch this — it checks mtime, not split-provenance.
+
+**Impact on the board = ZERO (empirically + by construction).** Both the MTL reg head (`next_stan_flow_dualtower`)
+and the STL reg ceiling (`next_stan_flow`) run with **`freeze_alpha=True alpha_init=0.0`** = the documented
+**prior-OFF** control (`next_stan_flow/head.py:95-98`: "disables the α·log_T graph prior entirely — output =
+stan_logits alone"), and the board also passes `--log-t-kd-weight 0.0`. So the log_T is loaded but multiplied by
+α=0 → never affects the output. **Verified bit-identical**: rebuilding AL's reg ceiling with a correct leak-free
+prior gave Acc@10 0.6999 = the leaky 0.6999, Acc@1 0.3103±0.0256 in both. **Istanbul is independently clean** —
+it runs on engine `check2hgi` (not dk_ovl), so training + prior + Markov floor all use the SAME sequences/split
+(prior is ON there, α≈0.1, but correctly built → no leak).
+
+**Fix (committed):** `compute_region_transition.py` is now **engine-aware** — `--engine` (default `check2hgi`,
+byte-identical) threads the engine through `_load_sequences` (→ `get_seq_next(state, engine)`), the split
+(`load_next_data(state, engine)`), and the output dir (`OUTPUT_DIR/<engine>/<state>`). The saved payload now
+records `engine` provenance. Verified: `--engine check2hgi_dk_ovl` reproduces the manual leak-free prior tensor
+exactly (graph maps stay canonical — windowing-independent). **Any prior-ON dk_ovl/filtered recipe MUST build its
+prior with `--engine <that engine>`.**
+
+**Advisor audit (2026-06-23) + follow-through.** A correctness-advisor pass confirmed the C29 fix is correct
+and byte-identical at the default, found ONE more same-class latent bug, and verified the split contract:
+- ✅ **`compute_region_colocation.py` (log_C prior) had the IDENTICAL bug** — `--engine` controlled only the
+  save dir while the split+sequences were hardcoded canonical. **Now fixed** (same engine-aware threading +
+  `engine` provenance in the payload). Inert today (log_C off on the board) but a real latent leak under any
+  `--log-c-kd-weight>0` dk_ovl recipe.
+- ✅ **Trainer-side enforcement guard added** (`mtl_cv.py`, beside the n_splits guard): fail-loud if
+  `payload["engine"] != config.embedding_engine` **only when the prior is ACTIVE** (not `freeze_alpha=True
+  alpha_init=0.0`). Double-gated → never fires on the board (prior-OFF AND legacy payloads lack the key);
+  catches any future prior-ON engine mismatch.
+- ✅ **Split contract verified line-for-line**: the prior's `StratifiedGroupKFold(n_splits, shuffle, seed)` on
+  `load_next_data(engine)` matches `FoldCreator` (`folds.py:1377-1389`, y=next_category, groups=userid) EXACTLY
+  once engine+seed+n_splits agree — so the engine fix fully closes the split mismatch.
+**Second independent advisor (2026-06-23) — results CLEAN + one more guard gap closed.** A fresh auditor
+re-derived the leak exposure of EVERY actual run from configs/cmdlines/payloads (not from prior conclusions):
+- **Board (`check2hgi_dk_ovl`) = CLEAN** — in every run all three prior/KD routes are inert: head α-prior OFF
+  (`freeze_alpha=True alpha_init=0.0`), `log_t_kd_weight=log_c_kd_weight=cat_kd_weight=0.0` (AZ even had
+  `per_fold_transition_dir=None` → log_T never loaded). The leaky-split log_T is ×0 → bit-identical to no prior.
+- **Istanbul (`check2hgi`) = CLEAN** — prior is genuinely ACTIVE (`next_getnext_hard`, learnable α) but its log_T
+  was built on the SAME engine it trains on (`compute_region_transition --state istanbul`, default check2hgi),
+  split verified line-for-line vs `FoldCreator` (`folds.py:1036`) → no mismatch. log_C-KD off.
+- **Guard gap found + CLOSED:** the trainer guard's `_prior_active` keyed only on the head α-prior, MISSING the
+  **log_T-KD route** (`--log-t-kd-weight`, v12 default **0.2 = ON**): with α=0 + KD-on, the KD teacher IS the
+  per-fold log_T buffer, so a leaky split would leak via KD while the guard stayed silent. **Was 0.0 in every
+  real run** (no result affected), but a real latent hole. **Fixed**: `_prior_active = head_prior_on OR
+  (log_t_kd_weight>0 or log_c_kd_weight>0 or cat_kd_weight>0)` (`mtl_cv.py`). Verified: board still never fires
+  (all weights 0); a future dk_ovl run leaving `--log-t-kd-weight` at its v12 default now fails loud.
+- **Remaining (lower priority, all inert on the board):** (1) thread `engine` into
+  `log_t_freshness.assert_log_t_fresh` + pass it from `p1_region_head_ablation.py:889` (p1 consumer-mismatch).
+  (2) the log_C consumer (`pc_path`) carries `engine` provenance now but the trainer does not yet engine-check it
+  (only log_T is guarded) — extend the same check to `colocation_path`. (3) constrain `_load_graph_maps`'
+  canonical-graph pin to a re-windowing-engine allowlist. Unifying idea: one `split_fingerprint=(engine,seed,
+  n_splits)` asserted whenever any prior/KD route is active.

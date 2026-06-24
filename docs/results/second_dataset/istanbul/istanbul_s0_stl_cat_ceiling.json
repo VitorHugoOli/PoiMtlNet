@@ -1,0 +1,22 @@
+{
+  "rundir": "/teamspace/studios/this_studio/PoiMtlNet/results/check2hgi/istanbul/next_lr1.0e-04_bs2048_ep50_20260623_191002_105363",
+  "tag": "istanbul_cat_ceiling",
+  "metric": "STL cat ceiling = macro-F1 (f1 col) at f1-best epoch, fold-mean",
+  "n_folds": 5,
+  "cat_macro_f1_mean": 52.0994,
+  "cat_macro_f1_std": 0.5513,
+  "cat_per_fold": [
+    52.1789,
+    51.7521,
+    51.3568,
+    53.0112,
+    52.1977
+  ],
+  "cat_best_epochs": [
+    27,
+    21,
+    38,
+    37,
+    46
+  ]
+}

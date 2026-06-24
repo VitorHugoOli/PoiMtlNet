@@ -1,0 +1,22 @@
+{
+  "rundir": "/teamspace/studios/this_studio/PoiMtlNet/results/check2hgi_dk_ovl/florida/next_lr1.0e-04_bs2048_ep50_20260622_121954_31843",
+  "tag": "florida_cat_ceiling",
+  "metric": "STL cat ceiling = macro-F1 (f1 col) at f1-best epoch, fold-mean",
+  "n_folds": 5,
+  "cat_macro_f1_mean": 75.147,
+  "cat_macro_f1_std": 0.5398,
+  "cat_per_fold": [
+    74.7733,
+    75.322,
+    74.8303,
+    74.679,
+    76.1305
+  ],
+  "cat_best_epochs": [
+    41,
+    44,
+    46,
+    46,
+    46
+  ]
+}

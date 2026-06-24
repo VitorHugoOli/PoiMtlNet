@@ -888,17 +888,24 @@ def train_model(model: torch.nn.Module,
                 all_task_a_logits.append(pred_task_a.detach().cpu())
                 all_task_a_targets.append(truth_task_a.cpu())
                 if _stream_train_b:
-                    # reg (task_b) — STREAM per-row/per-class reductions on CPU (matches the
-                    # CPU compute path byte-for-byte), discarding the [batch, C] logits.
-                    _lb = pred_task_b.detach().cpu()
-                    _tb = truth_task_b.cpu()
-                    s1_preds_b.append(_lb.argmax(dim=-1))
-                    s1_targets_b.append(_tb)
-                    s1_rank_b.append(_rank_of_target(_lb, _tb))
+                    # reg (task_b) — STREAM per-row reductions on the GPU-resident logits and
+                    # D2H only the tiny [batch] result vectors. (perf fix 2026-06-24, ca-mtl
+                    # speed workflow): the old path did a per-batch [batch, C] `.cpu()` copy
+                    # (~67 MB/batch at C=8501) then ran argmax/rank/topk single-threaded on the
+                    # CPU — the dominant sink that pegged the CPU and starved the GPU on the
+                    # wide-reg-head states (CA/TX 8501; FL/AL/AZ unaffected because narrow).
+                    # argmax/topk/_rank_of_target are per-row, deterministic, and device-
+                    # independent (lowest-index tie-break on both), so the accumulated [N]/[C]
+                    # vectors — and the reconstructed metric dict below — are byte-identical.
+                    _lb = pred_task_b.detach()
+                    _tb = truth_task_b
+                    s1_preds_b.append(_lb.argmax(dim=-1).cpu())
+                    s1_targets_b.append(_tb.cpu())
+                    s1_rank_b.append(_rank_of_target(_lb, _tb).cpu())
                     for _k in _S1_TOPK:
                         _ke = min(_k, _lb.shape[-1])
                         _topk = _lb.topk(_ke, dim=-1).indices
-                        s1_hit_b[_k].append((_topk == _tb.unsqueeze(-1)).any(dim=-1))
+                        s1_hit_b[_k].append((_topk == _tb.unsqueeze(-1)).any(dim=-1).cpu())
                     del _lb
                 else:
                     all_task_b_logits.append(pred_task_b.detach().cpu())
@@ -1446,6 +1453,46 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                         f"python scripts/compute_region_transition.py --state "
                         f"{config.state} --per-fold --n-splits "
                         f"{trainer_n_splits} --seed {seed}"
+                    )
+                # 2026-06-23 (C29 — docs/CONCERNS.md): the per-fold split is built PER
+                # ENGINE. A prior built on a DIFFERENT engine than the trainer (e.g. a
+                # canonical CHECK2HGI prior on a dk_ovl run, whose MIN_SEQ filter drops a
+                # different user set) has a mismatched user->fold partition -> leaks val
+                # users into the prior. Post-2026-06-23 compute_region_transition stamps
+                # 'engine'; legacy files lack it (accepted). Fail loud ONLY when the prior
+                # is ACTIVE — a freeze_alpha=True + alpha_init=0.0 head ignores log_T
+                # entirely (output = stan_logits alone), so a mismatch is INERT. That is
+                # exactly the closing_data board recipe, so this guard never fires there.
+                _pf_engine = pf_payload.get("engine") if isinstance(pf_payload, dict) else None
+                _tb_hp_guard = dict(ts.task_b.head_params or {})
+                # "active" = the leaky log_T can actually reach the loss. Two routes:
+                #  (1) the α·log_T HEAD prior — off only when freeze_alpha=True AND alpha_init=0.0;
+                #  (2) log_T KNOWLEDGE-DISTILLATION (--log-t-kd-weight, v12 DEFAULT 0.2 = ON) — the
+                #      KD teacher is the same per-fold log_T buffer, so a leaky split leaks via KD
+                #      EVEN when α=0. log_C-KD (--log-c-kd-weight / --cat-kd-weight) is the same story.
+                # Guarding only the head-prior would miss the KD routes (audit gap, 2026-06-23).
+                _head_prior_on = not (
+                    bool(_tb_hp_guard.get("freeze_alpha", False))
+                    and float(_tb_hp_guard.get("alpha_init", 0.1)) == 0.0
+                )
+                _kd_on = (
+                    float(getattr(config, "log_t_kd_weight", 0.0) or 0.0) > 0.0
+                    or float(getattr(config, "log_c_kd_weight", 0.0) or 0.0) > 0.0
+                    or float(getattr(config, "cat_kd_weight", 0.0) or 0.0) > 0.0
+                )
+                _prior_active = _head_prior_on or _kd_on
+                if (_pf_engine is not None and _prior_active
+                        and str(_pf_engine) != str(config.embedding_engine)):
+                    raise ValueError(
+                        f"Per-fold log_T at {pf_path} was built for engine "
+                        f"'{_pf_engine}', but the trainer runs engine "
+                        f"'{config.embedding_engine}' with the prior ACTIVE "
+                        f"(head α-prior on={_head_prior_on}, log_T/C-KD on={_kd_on}). "
+                        f"The fold split is engine-specific (overlap/filtered engines "
+                        f"drop users) so this leaks val users into the prior. Rebuild for "
+                        f"the trainer's engine: python scripts/compute_region_transition.py "
+                        f"--state {config.state} --per-fold --seed {seed} "
+                        f"--engine {config.embedding_engine}"
                     )
                 tb_head_params = dict(ts.task_b.head_params or {})
                 tb_head_params["transition_path"] = str(pf_path)
