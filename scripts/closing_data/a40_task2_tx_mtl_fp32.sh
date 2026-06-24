@@ -78,9 +78,11 @@ cj = sorted(glob.glob("docs/results/P1/region_head_texas_region_5f_50ep_tx_ovl_s
 h = next(iter(json.load(open(cj[-1]))["heads"].values()))
 stl = h["aggregate"]["top10_acc_mean"] * 100
 dreg = mtl_reg - stl
-verdict = ("INSIDE (|Δreg|<=1.5pp)" if abs(dreg) <= 1.5
+# sign-aware: a POSITIVE Δreg is MTL beating the ceiling (superiority), NOT a deficit to re-scope.
+verdict = (f"MTL BEATS reg ceiling +{dreg:.2f}pp (superiority)" if dreg >= 0
+           else "INSIDE (|Δreg|<=1.5pp)" if abs(dreg) <= 1.5
            else "borderline (<=2pp)" if abs(dreg) <= 2.0
-           else "FLAG reg-claim re-scope (>2pp) — NOT a stop")
+           else "FLAG reg-claim re-scope (Δreg<-2pp) — NOT a stop")
 out = {"state": "texas", "seed": 0, "folds": 5, "engine": "check2hgi_dk_ovl",
        "precision": "TRUE fp32 (MTL_DISABLE_AMP=1)", "windowing": "gated stride-1 overlap min_seq=10",
        "nonfinite_skip_count": skips, "stl_reg_ceiling_top10": round(stl, 4),

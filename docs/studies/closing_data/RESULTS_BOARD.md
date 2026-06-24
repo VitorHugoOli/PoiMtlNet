@@ -7,8 +7,9 @@
 >
 > ⚠ **STATUS (2026-06-24).** CA + TX cells land via the open board PRs **#35 (H100)** / **#37 (A40)**; the
 > `mtl_cv` collate-correctness check + baseline validity are under audit (**workflow `wsftdemmg`**). Each cell
-> below carries a **provenance + status** marker. TX reg is **in-flight (fp32)**. Reconcile against the audit
-> verdict on merge.
+> below carries a **provenance + status** marker. TX reg is **settled** (fp32 5f, 0 skips: **67.02 → +2.06
+> beats**; the A40 bf16 −2.37 was a VOID Ampere-bf16 collapse, `TX_A40_BF16_NAN.md`). Reconcile against the
+> audit verdict on merge.
 
 ## 1 · Part-2 headline — MTL champion-G vs dedicated STL ceilings (Δ in pp)
 
@@ -21,12 +22,12 @@ static_weight cw=0.75, onecycle max-lr 3e-3, geom_simple selector; fp32-matched 
 | **AZ** | 1547 | 57.13 | **63.39** | **+6.26** ✅beats | 59.40 | 59.34 | **−0.06** ≈matches | fp32 | ✅ main |
 | **FL** | 4703 | 75.15 | **79.82** | **+4.68** ✅beats | 76.71 | 77.28 | **+0.57** ✅**beats** | fp32 | ✅ main |
 | **CA** | 8501 | 70.26 | **77.33** | **+7.07** ✅beats | 63.48 | 65.66 | **+2.18** ✅**beats** | bf16 | 🔶 PR #35 |
-| **TX** | 6553 | 69.95 | **75.87** | **+5.92** ✅beats | 64.96 | _in-flight_ | _(H100 clean: 67.13 → +2.17)_ | fp32 | ⏳ PR #37 |
+| **TX** | 6553 | 69.95 | **77.51** | **+7.56** ✅beats | 64.96 | **67.02** | **+2.06** ✅**beats** | fp32 | ⏳ A40 PR |
 | **Istanbul** | 520 (mahalle) | — | — | **+8.06** ✅beats | — | — | **−0.58** ≈matches | fp32 (4 seeds) | 🔶 PR #33-merged, GCN substrate |
 
 **Reading (the story, on real data):** MTL **beats the dedicated category ceiling at every state** (+4.7 … +7.7 pp)
 AND **beats-or-matches the region ceiling everywhere — including the largest states** (FL **+0.57**, CA **+2.18**;
-AL/AZ within ≈0.2; TX climbing above ceiling in fp32). The earlier fp16-autocast collapse (`CA_MTL_DIVERGENCE.md`)
+AL/AZ within ≈0.2; TX **+2.06**). The earlier fp16-autocast collapse (`CA_MTL_DIVERGENCE.md`)
 was **masking a genuine region win** — corrected precision flips the old "MTL sacrifices region" into Pareto-positive.
 
 > Per-fold arrays + best-epochs are in the source JSONs (§3). All cat best-epochs are late (ep16-50) and CA/TX
@@ -47,7 +48,7 @@ was **masking a genuine region win** — corrected precision flips the old "MTL 
 - `h100/{alabama,arizona,florida,california}_s0_stl_cat_ceiling.json` — STL cat ceilings (main)
 - `h100/california_s0_mtl/california_s0_mtl_final_score.json` — CA MTL final 5f (**PR #35** → main on merge)
 - `a40/tx_stl_cat_ceiling_s0.json` (69.95) · `a40/tx_stl_reg_ceiling_s0.json` (64.96) — TX ceilings (**PR #37/main**)
-- `a40/tx_*_mtl_*` + `h100/texas_s0_mtl/…` — TX MTL (bf16 VOID + fp32 in-flight; **PR #37/#35**)
+- `a40/tx_ba2_fp32_s0.json` — **TX MTL fp32 5f (CLEAN, 0 skips): reg 67.02 / +2.06, cat 77.51 / +7.56** (A40 PR). bf16 (`tx_ba2_bf16_s0.json`) is VOID (Ampere collapse)
 - STL **reg** ceilings: `docs/results/P1/region_head_*_dkovl*` (fp32, leak-free per-fold prior)
 
 **Narrative / per-cell docs:** `docs/studies/closing_data/`

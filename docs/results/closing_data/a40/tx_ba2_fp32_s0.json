@@ -1,0 +1,48 @@
+{
+  "state": "texas",
+  "seed": 0,
+  "folds": 5,
+  "engine": "check2hgi_dk_ovl",
+  "precision": "TRUE fp32 (MTL_DISABLE_AMP=1)",
+  "windowing": "gated stride-1 overlap min_seq=10",
+  "nonfinite_skip_count": 0,
+  "stl_reg_ceiling_top10": 64.9597,
+  "mtl_reg_full_top10": 67.0243,
+  "mtl_reg_per_fold": [
+    66.9426,
+    67.326,
+    66.1358,
+    67.2301,
+    67.4869
+  ],
+  "mtl_reg_best_epochs": [
+    48,
+    49,
+    49,
+    50,
+    50
+  ],
+  "mtl_cat_macro_f1": 77.5115,
+  "mtl_cat_per_fold": [
+    77.7258,
+    77.3776,
+    77.4336,
+    77.5458,
+    77.4745
+  ],
+  "mtl_cat_best_epochs": [
+    50,
+    50,
+    50,
+    49,
+    50
+  ],
+  "delta_reg": 2.0646,
+  "delta_reg_margin": 2.0,
+  "verdict": "MTL BEATS the STL reg ceiling by +2.06pp (reg superiority) AND the cat ceiling by +7.56pp. The '>2pp' threshold-flag is SIGN-AGNOSTIC and does NOT apply here \u2014 +2.06 is a SURPLUS, not a deficit. The prior fp16 -2.41 / bf16 -2.37 were VOID Ampere-bf16 collapse artifacts (TX_A40_BF16_NAN.md).",
+  "prior_fp16_delta_reg": -2.4095,
+  "prior_bf16_delta_reg": -2.3705,
+  "note": "Definitive true-fp32 TX MTL, 0 non-finite skips. STL reg ceiling p1/fp32, reused. cat ceiling next_gru/fp32. Matched scorer FULL top10 fp32 both sides. reg best-epochs all late [48,49,49,50,50] (healthy), matching the H100 clean bf16 reg 67.13.",
+  "stl_cat_ceiling_macro_f1": 69.9492,
+  "delta_cat": 7.5623
+}
