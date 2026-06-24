@@ -78,7 +78,7 @@ Per the baselines README, the paper's baseline tables read from [`../../baseline
   *non-negotiable*: "score CTLE leak-clean and show it loses to Check2HGI attributable to the hierarchy"). It is
   the **representation-isolation** comparison (CTLE-emb → our head vs Check2HGI-emb → our head, matched capacity)
   that substantiates contribution-1 novelty; without it C1's "novel" *evaporates*. **Δcat +37.8 (AL) / +37.0 (AZ)**,
-  device-internal-clean (reproduces CUDA within noise). Leak-clean at AL/AZ; FL/CA/TX → CUDA (`HANDOFF_A40_CTLE_SC.md`).
+  device-internal-clean (reproduces CUDA within noise). Leak-clean at AL/AZ; FL/CA/TX → CUDA (`BASELINE_H100.md`).
   POI2Vec/skip-gram/one-hot SC-cat are the representation **controls** (§7 checklist).
 - ❌ **SC *region* is NOT used in the article.** The pre-fix SC reg was INVALID (substrate-bypass + shared prior +
   stale log_T) — now **quarantined** (`_reg_status: INVALID_PENDING_RERUN` stamped on every `baseline_compare/*.json`).

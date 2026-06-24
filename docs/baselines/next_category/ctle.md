@@ -26,7 +26,7 @@ CTLE is **the closest representation competitor**: like Check2HGI it produces a 
 |---|---:|---:|---:|---|
 | Alabama | 17.77 ± 1.47 | 55.59 ± 1.78 | **+37.82** | ✅ leak-clean 5f |
 | Arizona | 19.30 ± 0.95 | 56.31 ± 1.61 | **+37.01** | ✅ leak-clean 5f |
-| Florida / California / Texas | — | — | — | → CUDA (`HANDOFF_A40_CTLE_SC.md`), pending |
+| Florida / California / Texas | — | — | — | → CUDA (`../../studies/closing_data/BASELINE_H100.md`), pending |
 
 **Read:** the substrate (representation) drives next-category — **Check2HGI beats CTLE-SC by ≈ +37 pp** at matched capacity, which is exactly the W3-gate evidence ("Check2HGI > CTLE attributable to the hierarchy"). Source: `docs/results/closing_data/baseline_compare/{alabama,arizona}_{ctle,check2hgi_sc}.json`; consolidated in `docs/studies/closing_data/RESULTS_BOARD.md §4`.
 

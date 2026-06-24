@@ -6,7 +6,7 @@
 > "single-seed ceiling" protocol already sanctioned in the paper's §8). It gives every headline number a
 > defensible significance test now; the {1,7,100} top-up to n=20 is a post-deadline refinement, not a
 > blocker. Supersedes the full `RUN_MATRIX.md` *for execution scheduling only* — the recipe, precision pin,
-> scorer, and pins are inherited verbatim from `RUN_MATRIX.md §0/§0a` and `HANDOFF_BOARD.md §4`.
+> scorer, and pins are inherited verbatim from `RUN_MATRIX.md §0/§0a`.
 
 ## 0 · What carries over UNCHANGED from RUN_MATRIX.md
 - **Recipe** = champion **G / v16** on the **gated stride-1 overlap** engine `check2hgi_dk_ovl` (RUN_MATRIX §0).
@@ -40,9 +40,12 @@ for the deadline.
 
 | Device | States / work | Order (cheap → expensive) | Handoff |
 |---|---|---|---|
-| **H100** (fast, interrupt-prone) | precision gate + AL, AZ, **FL**, CA | **AL bf16-vs-fp32 gate** → AL → **AZ‖FL co-scheduled** → **CA last** | `HANDOFF_BOARD_H100.md` |
-| **A40** (stable Ampere) | finish POI2Vec, then **TX only** | POI2Vec → **TX** (~11h) | `HANDOFF_BOARD_A40.md` |
-| **Macs** (M2 Pro 32G + M4 Pro 24G, MPS=fp32) | ALL baselines, device-internal | one-hot → skip-gram → POI2Vec → CTLE | `HANDOFF_BOARD_MACS.md` |
+| **H100** (fast, interrupt-prone) | precision gate + AL, AZ, **FL**, CA | **AL bf16-vs-fp32 gate** → AL → **AZ‖FL co-scheduled** → **CA last** | board ✅ done → `RESULTS_BOARD.md` |
+| **A40** (stable Ampere) | finish POI2Vec, then **TX only** | POI2Vec → **TX** (~11h) | board ✅ done → `RESULTS_BOARD.md` |
+| **Macs** (M2 Pro 32G + M4 Pro 24G, MPS=fp32) | ALL baselines, device-internal | one-hot → skip-gram → POI2Vec → CTLE | board ✅ done → `RESULTS_BOARD.md` |
+
+> Note: this table is the **board (MTL champion) device plan, now complete** (results in `RESULTS_BOARD.md`). The
+> current **baseline-phase** machine plan + per-machine handoffs are `BASELINE_DISTRIBUTION.md` + `BASELINE_{H100,A40,M4}.md`.
 
 **Precision gate** (RUN_MATRIX §0a) runs FIRST on the H100 at **AL** (smallest → ~2-3h for both arms; doubles as
 the AL MTL result). Verdict → board commits bf16 (likely) or fp32. **STL ceilings / baselines / Part-1 do NOT

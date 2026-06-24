@@ -12,7 +12,7 @@
 >
 > **Read:** the representation drives next-category — Check2HGI beats CTLE-SC by **≈ +37 pp** at matched capacity
 > (the W3-gate evidence: "Check2HGI > CTLE attributable to the hierarchy"). FL/CA/TX CTLE-SC are heavy → CUDA
-> (`HANDOFF_A40_CTLE_SC.md`). The MHA+PE / POI-RGNN tables below are the older category-native study (different protocol).
+> (now removed; FL CTLE is FL-only, see `BASELINE_H100.md`). The MHA+PE / POI-RGNN tables below are the older category-native study (different protocol).
 >
 > ---
 
