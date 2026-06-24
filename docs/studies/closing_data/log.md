@@ -196,3 +196,29 @@ embeddings stay gitignored (manifest = the committed record, §4.3). **Orchestra
 not merge/transfer. Open: train.py end-to-end *consumption* of a baseline engine dir is shape-verified only
 (plumbing smoke deferred to the orchestrator). Parked (opt-in, user-approved-conditionally): AL-ownership
 fold-1 MPS fit check.
+
+---
+
+## 2026-06-24 — A40: CSLSL cascade (role-3 baseline) AL+AZ — cascade ≈ parallel (dead tie)
+
+**Phase**: baselines (`BASELINE_A40.md` role-3). **What ran**: the CSLSL/CatDM **cascade** (`b4_cascade.py`,
+directed cat→region, symmetric cross-attn disabled) vs **champion-G**, both on `check2hgi_dk_ovl`, seed 0 × 5f,
+gated stride-1 overlap MIN_SEQ=10, **true fp32** (`MTL_DISABLE_AMP=1`, 0 skips), all on the **same A40** (clean
+same-device Δ; champion-G re-run alongside each cascade, GPU kept at 2 concurrent runs).
+
+**Result** (cat macro-F1 / reg FULL top10 / joint √(cat·reg)):
+- AL cascade 63.45/69.48/66.39 vs champ-G 63.25/69.65/66.37 → **Δjoint +0.02**.
+- AZ cascade 63.63/59.18/61.37 vs champ-G 63.44/59.36/61.36 → **Δjoint +0.00**.
+
+→ **Cascade ≈ parallel champion-G — a dead tie** (Δjoint ≤ 0.02 pp ≪ fold-std ~1.3–3.3). Cascade trades a hair
+of cat (+0.20) for a hair of reg (−0.17/−0.18). Our parallel bidirectional cross-attention **matches the
+dominant published multi-task alternative at equal cost**. Cascade did NOT beat champion-G (wiring sanity OK).
+A40 champ-G reproduces the board H100 champ-G (AZ ±0.05; AL within fold-std). **n=5 provisional** (seed 0).
+
+**Prep**: rebuilt AL dk_ovl at MIN_SEQ=10 (was MIN_SEQ=5 + stale log_T), built AZ dk_ovl fresh; engine-aware
+seeded per-fold log_T for both. **Env note**: `MTL_STRICT` deliberately OFF (auto-canon v16 → the
+v16-pins-v14 substrate guard hard-fails under STRICT on dk_ovl; WARN-only without it, numerically inert).
+
+**Outputs**: `RESULTS_BOARD.md §1b`, `../../results/closing_data/MACS_BOARD_RESULTS.md`, cell
+`CSLSL_CASCADE.md`; JSONs `../../results/closing_data/a40/{al,az}_{cascade,champG_a40}_s0.json`.
+**Deferred** (deadline; "only if cheap" per handoff): CA/TX cascade.

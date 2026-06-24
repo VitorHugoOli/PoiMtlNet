@@ -46,6 +46,23 @@
 
 *(Comparand = full MTL champion, CUDA — cross-device; HMT reg clears the Markov floor, champion leads. Device-labeled.)*
 
+## CSLSL cascade (role-3 multi-task baseline) [A40 / CUDA — same-device Δ]
+Cascade pattern (CSLSL/CatDM): directed cat→region edge, symmetric cross-attn disabled (`b4_cascade.py`),
+on the frozen Check2HGI heads + `check2hgi_dk_ovl` substrate. Isolates **cascade vs our parallel champion-G**.
+Seed 0 × 5f, gated stride-1 overlap (MIN_SEQ=10), **true fp32** (`MTL_DISABLE_AMP=1`, 0 skips). Champion-G
+re-run on the SAME A40 for a strict same-device Δ.
+
+| State | cascade cat | cascade reg | champ-G cat (A40) | champ-G reg (A40) | Δcat | Δreg | Δjoint √(cat·reg) |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Alabama | 63.45 | 69.48 | 63.25 | 69.65 | +0.20 | −0.17 | **+0.02** |
+| Arizona | 63.63 | 59.18 | 63.44 | 59.36 | +0.20 | −0.18 | **+0.00** |
+
+**Read:** cascade ≈ parallel champion-G — a **dead tie** on the joint objective (Δjoint ≤ 0.02 pp ≪ fold-std).
+Our parallel bidirectional cross-attention matches the dominant published multi-task alternative at equal cost.
+n=5 provisional. JSONs: `a40/{al,az}_{cascade,champG_a40}_s0.json`. CA/TX cascade deferred (deadline). Full
+cell: `../../studies/closing_data/CSLSL_CASCADE.md`. (Cross-device: A40 champ-G reproduces the board H100
+champ-G within ±0.05 pp at AZ; AL within fold-std.)
+
 ## CTLE-SC → CUDA (FL/CA/TX only); Istanbul CTLE-SC → MAC
 **FL/CA/TX** too heavy for 24GB MPS (FL CTLE-SC watchdog-killed at 14% free solo; 1.27M-3.5M rows + 12.6GB log_T load) → CUDA (`../../studies/closing_data/BASELINE_H100.md`): `mac_baseline_compare.py --baseline ctle` + `comparand_check2hgi_sc.py` per state.
 **Istanbul CTLE-SC DONE on the MAC @ stride-1** (board-consistent w/ Gowalla, NOT set-a — user steer): 5-fold leak-clean CTLE substrate (`build_ctle_substrate --state istanbul --stride 1`) + matched heads (cat next_gru / reg next_stan_flow checkin) vs Check2HGI-SC on the Phase-V substrate. Base rebuilt at stride-1 (271,666 rows). Results in the CTLE-SC Δ table above. **Supersedes the set-a Istanbul numbers** (and the §4 champion-vs-baseline row, which was set-a → needs the champion at stride-1 to compare). **MPS note**: training MPS-resident; HMT eval top-k per-batch CPU (memory-safety, ~3%).

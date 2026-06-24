@@ -1,0 +1,39 @@
+{
+  "rundir": "results/check2hgi_dk_ovl/arizona/mtlnet_lr1.0e-04_bs2048_ep50_20260624_214955_1700926",
+  "seed": 0,
+  "tag": "ar_champG_a40_s0",
+  "method": "reg full=top10_acc_indist*(1-ood_frac) at indist-best epoch; cat=macro-f1 at f1-best epoch; per-task diagnostic-best, fold-mean",
+  "cat_macro_f1_mean": 63.4355,
+  "cat_macro_f1_std": 1.3251,
+  "cat_per_fold": [
+    65.1905,
+    62.0799,
+    64.8259,
+    62.9449,
+    62.1363
+  ],
+  "cat_best_epochs": [
+    23,
+    24,
+    19,
+    21,
+    20
+  ],
+  "reg_full_top10_mean": 59.3589,
+  "reg_full_top10_std": 1.7931,
+  "reg_per_fold": [
+    62.7143,
+    59.2673,
+    59.1851,
+    57.8586,
+    57.769
+  ],
+  "reg_best_epochs": [
+    35,
+    34,
+    26,
+    25,
+    36
+  ],
+  "n_folds": 5
+}
