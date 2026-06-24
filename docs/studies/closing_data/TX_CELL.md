@@ -29,8 +29,9 @@ Updated incrementally as each fold completes (autonomous per-fold committer).
 | fold | cat macro-F1 | cat best-ep | reg FULL top10 | reg best-ep |
 |---|---|---|---|---|
 | fold1 | 77.6885 | 50 | 66.9382 | 49 |
+| fold2 | 77.3113 | 50 | 67.3184 | 50 |
 
-**Running mean (n=1):** cat **77.6885** ±0.0000 | reg **66.9382** ±0.0000
+**Running mean (n=2):** cat **77.4999** ±0.1886 | reg **67.1283** ±0.1901
 <!--TXTABLE_END-->
 
 ## Status
