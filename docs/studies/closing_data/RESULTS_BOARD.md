@@ -5,10 +5,11 @@
 > spread across per-machine JSONs + narrative docs. Numbers are read directly from the committed result JSONs
 > (paths in §3). Baselines live in [`../../baselines/`](../../baselines/) (per the established schema) — see §4.
 >
-> ⚠ **STATUS (2026-06-24).** CA + TX cells land via the open board PRs **#35 (H100)** / **#37 (A40)**; the
-> `mtl_cv` collate-correctness check + baseline validity are under audit (**workflow `wsftdemmg`**). Each cell
-> below carries a **provenance + status** marker. TX reg is **in-flight (fp32)**. Reconcile against the audit
-> verdict on merge.
+> ✅ **STATUS (2026-06-24, post-merge + audit `wsftdemmg`).** PRs #35/#36/#37 **MERGED** — all cells below are on
+> main. The committed board MTL numbers are **verified trustworthy** (the `mtl_cv` collate bug was a test-fixture
+> hard-crash, NOT silent corruption; production path byte-identical at AL — fixture fixed in `077ff136`). **CA is
+> 5f-COMPLETE and beats both ceilings — the load-bearing fact that retires the old "region cost grows with
+> cardinality" narrative.** Remaining caveat: **TX MTL reg is in-flight (2/5 clean folds)**; cite it as such.
 
 ## 1 · Part-2 headline — MTL champion-G vs dedicated STL ceilings (Δ in pp)
 
@@ -20,19 +21,30 @@ static_weight cw=0.75, onecycle max-lr 3e-3, geom_simple selector; fp32-matched 
 | **AL** | 1109 | 55.87 | **63.56** | **+7.69** ✅beats | 69.99 | 69.81 | **−0.18** ≈matches | fp32 | ✅ main |
 | **AZ** | 1547 | 57.13 | **63.39** | **+6.26** ✅beats | 59.40 | 59.34 | **−0.06** ≈matches | fp32 | ✅ main |
 | **FL** | 4703 | 75.15 | **79.82** | **+4.68** ✅beats | 76.71 | 77.28 | **+0.57** ✅**beats** | fp32 | ✅ main |
-| **CA** | 8501 | 70.26 | **77.33** | **+7.07** ✅beats | 63.48 | 65.66 | **+2.18** ✅**beats** | bf16 | 🔶 PR #35 |
-| **TX** | 6553 | 69.95 | **75.87** | **+5.92** ✅beats | 64.96 | _in-flight_ | _(H100 clean: 67.13 → +2.17)_ | fp32 | ⏳ PR #37 |
-| **Istanbul** | 520 (mahalle) | — | — | **+8.06** ✅beats | — | — | **−0.58** ≈matches | fp32 (4 seeds) | 🔶 PR #33-merged, GCN substrate |
+| **CA** | 8501 | 70.26 | **77.33** | **+7.07** ✅beats | 63.48 | 65.66 | **+2.18** ✅**beats** | bf16 | ✅ main (5f) |
+| **TX** | 6553 | 69.95 | **77.50** ²ᐟ⁵ | **+7.55** ✅beats | 64.96 | **67.13** ²ᐟ⁵ | **+2.17** ✅beats ⏳ | fp32(H100) | ⏳ 2/5 folds |
+| **Istanbul** | 520 (mahalle) | 52.10 | **60.16** | **+8.06** ✅beats | 70.37 | 69.79 | **−0.58** ≈matches | fp32 (4 seeds) | ✅ main, GCN substrate |
 
-**Reading (the story, on real data):** MTL **beats the dedicated category ceiling at every state** (+4.7 … +7.7 pp)
-AND **beats-or-matches the region ceiling everywhere — including the largest states** (FL **+0.57**, CA **+2.18**;
-AL/AZ within ≈0.2; TX climbing above ceiling in fp32). The earlier fp16-autocast collapse (`CA_MTL_DIVERGENCE.md`)
-was **masking a genuine region win** — corrected precision flips the old "MTL sacrifices region" into Pareto-positive.
+**Reading (the story, on real data):** MTL **beats the dedicated category ceiling at every state** (+4.7 … +8.1 pp)
+AND **beats the region ceiling at the LARGE region counts** (FL 4.7k **+0.57**, CA 8.5k **+2.18** — both 5f;
+TX 6.6k **+2.17** on 2/5 clean folds), while **matching within δ=2 pp at the small counts** (AL −0.18, AZ −0.06,
+Istanbul −0.58). **CA, the largest region state, is 5f-complete and beats** — that single cell retires the old
+"region cost grows with cardinality" (Decision-C) narrative. The earlier fp16-autocast collapse
+(`CA_MTL_DIVERGENCE.md`) + the A40-Ampere bf16 grad-NaN were **masking a genuine region win**.
 
-> Per-fold arrays + best-epochs are in the source JSONs (§3). All cat best-epochs are late (ep16-50) and CA/TX
-> are healthy to ep49-50 under bf16/fp32 (no ep30 collapse). The **TX bf16 run NaN-collapsed on A40-Ampere**
-> (backward-pass grad NaN, device-specific — not the fp16 overflow); the **fp32 re-run is the clean number**
-> (`TX_A40_BF16_NAN.md`); H100 ran the same TX cell clean (reg 67.13).
+> **Honest framing:** "beats on **category** everywhere; beats on **region** at the large states, matches at the
+> small." Do NOT write "beats region everywhere" (AL/AZ/Istanbul are matches-within-margin, slightly negative).
+>
+> **Caveats that MUST travel with these numbers:**
+> 1. **TX is 2/5 clean folds** (H100 `texas_s0_mtl_partial_score.json`, reg 67.13 / cat 77.50, ep49-50, 0 NaN) —
+>    label in-flight, never print a 5f mean. The 5f-complete TX cat (75.87, Δ+5.92) is from the **reg-VOID bf16**
+>    run; the clean companion to reg 67.13 is cat 77.50.
+> 2. **TX Δreg mixes device classes** — A40-fp32 ceiling 64.96 vs H100 MTL 67.13. Fix before a regular-track
+>    claim: finish the A40-fp32 TX MTL 5f (same lane as the ceiling) OR re-run the TX reg ceiling on H100.
+> 3. **VOID / stale — never cite:** `california_s0_{board,mtl}_partial.json` (fp16 collapse −5.22, superseded by
+>    the clean 65.66); TX `tx_ba2_bf16_s0.json` (−2.37) + old fp16 (−2.41) — 74,812 skipped steps, reg best-ep 4-5.
+> 4. **n=5 (seed 0 only):** Wilcoxon superiority (cat) is fine (p-floor 0.0312); region matches/beats need a
+>    **TOST-power statement** or an "n=5 provisional" label. The {1,7,100} top-up to n=20 is post-deadline.
 
 ## 2 · Precision verdict (settled) & schedule ablation (NULL)
 - **bf16 ≈ fp32** on quality (Δ≤0.12 pp) and ~0 wall-clock (overlap is data-bound, GPU util 8-25%) →
@@ -45,9 +57,10 @@ was **masking a genuine region win** — corrected precision flips the old "MTL 
 **MTL + STL matched-score JSONs:** `docs/results/closing_data/`
 - `h100/{alabama,arizona}_s0_mtl_fp32_matched_score.json` · `florida_s0_mtl_fp32_5f_matched_score.json` — MTL (main)
 - `h100/{alabama,arizona,florida,california}_s0_stl_cat_ceiling.json` — STL cat ceilings (main)
-- `h100/california_s0_mtl/california_s0_mtl_final_score.json` — CA MTL final 5f (**PR #35** → main on merge)
-- `a40/tx_stl_cat_ceiling_s0.json` (69.95) · `a40/tx_stl_reg_ceiling_s0.json` (64.96) — TX ceilings (**PR #37/main**)
-- `a40/tx_*_mtl_*` + `h100/texas_s0_mtl/…` — TX MTL (bf16 VOID + fp32 in-flight; **PR #37/#35**)
+- `h100/california_s0_mtl/california_s0_mtl_final_score.json` — CA MTL final 5f (cat 77.33/reg 65.66) ✅main
+- `a40/tx_stl_cat_ceiling_s0.json` (69.95) · `a40/tx_stl_reg_ceiling_s0.json` (64.96) — TX ceilings ✅main
+- `h100/texas_s0_mtl/texas_s0_mtl_partial_score.json` — TX MTL **2/5 clean folds** (cat 77.50/reg 67.13) ✅main
+- ⚠ VOID: `h100/california_s0_{board,mtl}_partial.json`, `a40/tx_ba2_bf16_s0.json` (fp16/bf16 collapse — do not cite)
 - STL **reg** ceilings: `docs/results/P1/region_head_*_dkovl*` (fp32, leak-free per-fold prior)
 
 **Narrative / per-cell docs:** `docs/studies/closing_data/`
@@ -60,12 +73,19 @@ was **masking a genuine region win** — corrected precision flips the old "MTL 
 ## 4 · Baselines → `docs/baselines/` (separate home, established schema)
 Per the baselines README, the paper's baseline tables read from [`../../baselines/`](../../baselines/)
 (`next_category/` + `next_region/`, each with per-baseline `.md` + `results/<state>.json` + `comparison.md`).
-The **new board baselines** (CTLE-SC, HMT-GRN, b2b/b2c/poi2vec SC, native-E2E) are being consolidated there from
-`docs/results/closing_data/baseline_compare/*.json` + `MACS_BOARD_RESULTS.md` (PR #36) **after the audit verdict +
-merge** (the SC **reg** numbers were flagged invalid pending re-run; HMT-GRN is device-labeled `[M4/MPS]`). Early
-signal (to be finalized): substrate drives next-cat — **Check2HGI-SC +37.8/+37.0 pp over CTLE-SC at AL/AZ**;
-HMT-GRN (sole region-native) reg 62.37 at AL, **below** our MTL ~69.8.
+The **new board baselines** (now on main via #36) are being consolidated into `docs/baselines/` from
+`docs/results/closing_data/baseline_compare/*.json` + `MACS_BOARD_RESULTS.md`. **Audit-verified citability:**
+- ✅ **CTLE-SC vs Check2HGI-SC Δcat** is **device-internal-clean** (both frozen-embedding STL heads on the same
+  M4; reproduces CUDA within noise, AL cat 55.59≈55.72): **substrate drives next-cat +37.8 (AL) / +37.0 (AZ) pp**.
+  CTLE-SC leak-clean is committed at **AL/AZ only**; FL/CA/TX handed to CUDA (`HANDOFF_A40_CTLE_SC.md`).
+- ⚠ **HMT-GRN is `[M4/MPS]` device-confounded** vs the CUDA champion (learns embeddings from scratch → ~5 pp MPS
+  drift; AL reg 57.05 Mac vs 62.37 CUDA). **Do NOT put it in the paired MTL-vs-STL Δ table** — re-run on CUDA for
+  the official row, or use only the coarse "beats the region-native by a wide margin even granting a device handicap."
+- ⚠ **SC reg numbers were INVALID** (substrate-bypass + shared prior + stale log_T → bit-identical 69.76); fixes
+  landed (checkin-modality + per-engine stride-1 C29 log_T) but the SC reg cells **must be re-run** before citation.
 
 ## 5 · Provenance legend
-✅ main = source JSON on main, verified-readable · 🔶 PR #N = committed on a board branch, lands on merge ·
-⏳ = run in-flight, number not final. All cells re-confirmed against the `wsftdemmg` audit on merge.
+✅ main = source JSON on main, verified-readable · ⏳ 2/5 = run in-flight, partial folds (not a 5f mean) ·
+⚠ VOID = fp16/bf16-collapse artifact, never cite. All numbers audited against `wsftdemmg` (collate-trust verdict +
+adversarial source-verification). Honest headline: **beats on category everywhere; beats on region at the large
+states (CA/FL 5f, TX 2/5), matches at the small (AL/AZ/Istanbul within δ=2 pp).**
