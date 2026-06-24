@@ -18,7 +18,7 @@
 |---|---|---|---|
 | **H100** (fast, interrupts) | **precision gate** + AL, AZ, **FL**, CA | gate@AL → AL → **AZ‖FL co-scheduled** → **CA last** | [`HANDOFF_BOARD_H100.md`](HANDOFF_BOARD_H100.md) |
 | **A40** (stable) | finish POI2Vec → **TX only** | POI2Vec → **TX (~11h)** | [`HANDOFF_BOARD_A40.md`](HANDOFF_BOARD_A40.md) |
-| **Macs** (M2 Pro + M4 Pro, MPS) | ALL baselines (device-internal) + data consolidation | one-hot → skip-gram → POI2Vec → CTLE | [`HANDOFF_BOARD_MACS.md`](HANDOFF_BOARD_MACS.md) |
+| **Macs** (M2 Pro + M4 Pro, MPS) | **CTLE-SC + HMT-GRN** (6 states, device-internal) | AL(done)→AZ→FL→Istanbul; CA/TX may need CUDA | [`HANDOFF_BOARD_MACS.md`](HANDOFF_BOARD_MACS.md) |
 | **(stretch)** | Istanbul external validity | reuse the MPS dry-run as the §6.3 provisional box | — |
 
 Fig 3 plots **Δ's** (device-internal) → the split is valid; only an absolute cross-state table needs a

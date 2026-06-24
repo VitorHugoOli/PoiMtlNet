@@ -1,55 +1,65 @@
 # HANDOFF — REDUCED board · **Macs** (M2 Pro 32 GB + M4 Pro 24 GB, MPS) · branch `study/board-m2pro`
 
-> Deadline-grade 1-seed board (`RUN_MATRIX_REDUCE.md`). The Macs run **ALL baselines, device-internal** — both
-> the baseline embedding AND our STL head on it AND our STL head on Check2HGI, on the SAME Mac, so every
-> baseline-vs-ours Δ is clean (MPS = fp32, no fp16 confound). This offloads all baseline work from the CUDA
-> cards. **1 seed (0) × 5 folds.** Continue on the existing `study/board-m2pro` / PR #30.
+> Deadline-grade 1-seed board (`RUN_MATRIX_REDUCE.md`). **FOCUS (2026-06-24, user): execute exactly TWO baselines
+> across all 6 states — `CTLE-SC` and `HMT-GRN`.** These are the two highest-value, deadline-gating baselines; the
+> other SC baselines (b2b/b2c/poi2vec) and the other E2E natives are DONE-or-deprioritized (full audit in §6/§7).
+> **1 seed (0) × 5 folds**, device-internal on MPS (fp32, no confound). Continue on `study/board-m2pro`.
 
-## 0 · SCOPE — the baseline comparison ladder (Table 3 rows + §7 checklist), seed 0 × 5f
-Substrate-column baselines (baseline-emb → our heads), built on the **gated stride-1 overlap** base (`--stride 1`):
-- **one-hot64** (B2c) — zero-training random projection (the floor)
-- **skip-gram** (B2b) — SGNS over check-in POI sequences
-- **POI2Vec** (faithful, Feng 2017) — finishing on the A40; pull its cells here
-- **CTLE** (Lin 2021) — the closest competitor, **most important**; `--stride` fix already landed (PR #30 `d7064fbf`)
-- **STAN** — SOTA region model on our representation (E2E; SSD has `baselines/stan`)
-- **Markov-1** region transition baseline (the floor for the region claim)
+## 0 · SCOPE — CTLE-SC + HMT-GRN, states = AL · AZ · FL · CA · TX · Istanbul (Massive-STEPS)
+| Baseline | What / why | Comparand | Command base |
+|---|---|---|---|
+| **CTLE-SC** (substrate-column, **leak-clean**) | CTLE's per-fold contextual embedding → OUR matched heads. **The reviewer regular-vs-poster GATE (W3): novelty C1 needs CTLE scored leak-clean.** Isolates the REPRESENTATION. | **Check2HGI-SC** (our embedding → same heads) | `mac_baseline_compare.py --baseline ctle` |
+| **HMT-GRN** (native-E2E, region-native) | The **sole external MTL / region-native baseline** — the "we beat SOTA on region" row. Isolates the SYSTEM. | **our FULL MTL champion** (~63.6 cat / ~69.8 reg), NOT the STL ceiling | `b3_hmt_grn.py` (defaults to `check2hgi_dk_ovl`) |
 
-## 1 · Reuse first — the SSD already has much of this
-SSD `/Volumes/Vitor's SSD/ingred/output`: `b2b_skipgram_s{0,1,7,100}_f{0-4}` (seed 0 DONE), `baseline_b2c_onehot64`,
-`board_baselines/{b2b,ctle,poi2vec}` (CTLE = AL only), `baselines/{stan,rehdm,poi_rgnn,mha_pe}`. **Build only the
-missing (baseline,state) cells at seed 0**; do not rebuild what exists. CTLE needs the other 4 states.
+Both at **seed 0 × 5 folds**. **Leak-clean = per-fold train-only pretrain** (the original CTLE `--folds 1` built
+n_splits=2 → 81.8% of val users leaked into the pretrain corpus; `mac_baseline_compare.py` does per-fold staging +
+`--only-fold` to avoid it). Do NOT spend Mac time on b2b/b2c/poi2vec/STAN/ReHDM/MHA+PE/POI-RGNN this pass.
 
-## 2 · Build ORDER by cost (cheap → expensive); split across the two Macs
-1. **one-hot64** — trivial, windowing-independent. `build_b2c_onehot64_substrate.py <state> 0 1` (the `1` = stride).
-2. **skip-gram** — light SGNS (seed 0 mostly on SSD; fill gaps). `build_b2b_skipgram_substrate.py <state> --seed 0 --fold f --stride 1`.
-3. **POI2Vec** — heavier (geotree + hierarchical softmax); finish on A40, comparison here. `--stride 1`.
-4. **CTLE** — heaviest (bidirectional-Transformer MLM pretrain per fold). `build_ctle_substrate.py --state <s> --fold f --stride 1`.
-   Run on the M4 Pro / MPS (`--device` auto-MPS landed, PR #30 `a7adad20`); stagger to not oversubscribe RAM.
-- **Split:** M2 Pro 32 GB takes the heavier (CTLE/POI2Vec); M4 Pro 24 GB takes one-hot/skip-gram + Markov-1.
-- **`--stride 1` is mandatory** on every builder (row-aligns to the board base). min_seq 5≡10 at stride-1 (no-op).
+## 1 · STATUS — what's done, what remains (fan-out)
+- **HMT-GRN:** ✅ AL done (cat 20.43 / **reg 62.37**, the closest region competitor). **Remaining: AZ, FL, CA, TX, Istanbul.**
+- **CTLE-SC (leak-clean):** ⚠ AL **fold-0 only**; folds 1–4 + every other state remain. CTLE embeddings exist on the
+  SSD (`board_baselines/ctle`, all states) **but must be PER-FOLD leak-clean** (pretrained on that fold's TRAIN users
+  only) — verify the SSD cells are per-fold (not the leaky `--folds 1`); rebuild any that aren't via
+  `build_ctle_substrate.py --state <s> --fold <f> --stride 1` for f∈0..4. **Remaining: AL folds 1–4, then AZ/FL/CA/TX/Istanbul.**
 
-## 3 · The comparison (device-internal) — run the head on each Mac
-For each (baseline, state): train our STL **cat** head (`next_gru`) and STL **reg** head (`next_stan_flow`) on the
-baseline embedding AND on the Check2HGI (v14/dk_ovl) embedding, SAME Mac, SAME fold split, seed 0 × 5f → report
-the baseline-vs-Check2HGI Δ (macro-F1 / Acc@10). MPS runs fp32 → no precision confound, no CUDA needed. Markov-1:
-the transition-matrix Acc@10 floor (no embedding) — report MTL-vs-Markov and ceiling-vs-Markov rows (answers R1).
+## 2 · EXACT COMMANDS (per state; seed 0 × 5f)
+```bash
+SSD="/Volumes/Vitor's SSD/ingred/output"
+# ---- CTLE-SC (cat next_gru + reg next_stan_flow, per-fold leak-safe, C29 stride-1 log_T) ----
+# (rebuild per-fold leak-clean CTLE emb first IF the SSD cell is not already per-fold:)
+#   for f in 0 1 2 3 4; do PYTHONPATH=src .venv/bin/python scripts/baselines/build_ctle_substrate.py --state <state> --fold $f --stride 1; done
+PYTHONPATH=src .venv/bin/python scripts/closing_data/mac_baseline_compare.py \
+    --state <state> --baseline ctle --cells-root "$SSD" --folds 5 --heads cat reg
+#   -> docs/results/closing_data/baseline_compare/<state>_ctle.json (per-fold + aggregate, vs Check2HGI-SC)
 
-## 4 · DATA CONSOLIDATION (the SSD → A40 → Drive task)
-The SSD is now on the M2 Pro. Stabilize the data so it is portable:
-1. **rsync** the SSD baseline embeddings + v14 to the A40 (so the CUDA cards can regen any baseline cell):
-   `rsync -av --progress "/Volumes/Vitor's SSD/ingred/output/{b2b_skipgram_*,baseline_b2c_onehot64,board_baselines,baselines,check2hgi_design_k_resln_mae_l0_1}" <a40>:~/ingred/output/`
-2. **Manifest per folder** — mirror the v14 `metadata.json` pattern
-   (`output/check2hgi_design_k_resln_mae_l0_1/metadata.json` on Drive): a `metadata.json` listing
-   {engine, state, seed, fold, rows, stride, min_seq, leak-marker, sha}. Use `scripts/closing_data/m2pro_manifest.py` as the base.
-3. **Drive** — push the **trained baseline embeddings** (NOT regennable cheaply) + manifests. Do **NOT** push
-   `check2hgi_dk_ovl` (see the side-note in HANDOFF_BOARD.md §6: it is deterministically regennable from v14+v11,
-   both already on Drive).
+# ---- HMT-GRN (native-E2E; defaults to check2hgi_dk_ovl stride-1; cheap LSTM) ----
+PYTHONPATH=src .venv/bin/python scripts/baselines/b3_hmt_grn.py \
+    --state <state> --seed 0 --folds 5 --epochs 50          # --device auto-MPS
+```
+⚠ **Reg-modality match (C-2):** the CTLE-SC reg comparand must be the **checkin-modality** Check2HGI reg ceiling
+(`--input-type checkin`), NOT the region-modality 69.73 — `mac_baseline_compare.py` runs reg checkin-modality on
+BOTH sides (the C-1/C-3 fixes landed). The earlier bit-identical-69.76 SC reg JSONs are VOID (`RUN_MATRIX_REDUCE §4b`).
+
+## 3 · DEVICE allocation by state (≤2–3 concurrent under `ram_watchdog.sh`)
+- **MPS-safe (M2 Pro 32 GB + M4 Pro 24 GB, split the states):** **AZ, FL, Istanbul** (+ AL CTLE folds 1–4). Small/mid.
+- **CA, TX — LARGE → likely need a CUDA card.** CTLE per-fold MLM pretrain + the 8501/6553-wide reg head may exceed
+  unified memory (the MPS kNN on CA's 169k POIs already triggered an OOM-reboot once). **Flag for the user / offload to
+  the A40 or H100** when a card frees up, OR run only HMT-GRN (cheap LSTM) on the Mac and defer CTLE-SC CA/TX to CUDA.
+
+## 4 · Istanbul (Massive-STEPS) — match the champion's base
+The Istanbul champion-G (PR #33 Phase V: cat **+8.06** / reg **−0.58** / +17.27 over Markov, 4 seeds) ran on the
+**frozen GCN 500-ep mahalle substrate** (`--engine check2hgi` for Istanbul, `phase_v_substrate.py`), NOT a `dk_ovl`
+overlap base. **For a valid Δ the Istanbul baselines MUST use the SAME base + windowing as that champion.** Before
+running CTLE-SC / HMT-GRN on Istanbul: confirm the Istanbul base (check `output/check2hgi/istanbul`; build the
+overlap base only if the champion used overlap — it did NOT, so point `--engine check2hgi` / `--base` at the Phase-V
+substrate). Comparand = the Istanbul champion-G, reported as gap-to-ceiling / lift (region counts differ across corpora).
 
 ## 5 · PROCESS / STOP
-- Branch `study/board-m2pro`; incremental commits per (baseline,state) cell + result JSON.
-- First confirm AL overlap STL head FITS MPS memory (fold-1 fit check) before fanning out the large states.
-- **STOP for the user:** MPS OOM on a large state (CA/TX baselines may need a CUDA card — flag it); any leak-marker
-  assertion failure. Do NOT run the MTL champion (CUDA cards) or merge.
+- Branch `study/board-m2pro`; incremental commits per (baseline, state) cell + result JSON.
+- **STOP for the user:** MPS OOM on CA/TX (offload to CUDA); any leak-marker / fold-split assertion failure; an
+  Istanbul base/windowing mismatch vs the #33 champion. Do NOT run the MTL champion (CUDA) or merge.
+- **CAVEATS (`RUN_MATRIX_REDUCE §4b`):** never claim "baselines use our substrate as a base" (overclaim); the SC reg
+  comparand is checkin-modality; HMT-GRN comparand is the full MTL champion (not the STL ceiling).
 
 ---
 
