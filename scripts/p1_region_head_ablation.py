@@ -65,6 +65,7 @@ from data.log_t_freshness import assert_log_t_fresh
 from data.folds import (
     POIDataset,
     POIDatasetWithAux,
+    _batched_collate,
     _convert_to_tensors,
     TaskType,
     load_next_data,
@@ -401,9 +402,16 @@ def _dataloader(x, y, batch_size, shuffle, aux=None):
     """
     if aux is None:
         ds = POIDataset(x, y, device=DEVICE)
-        return DataLoader(ds, batch_size=batch_size, shuffle=shuffle, num_workers=0)
+        # POIDataset defines __getitems__ (batched index_select fetch, perf fix
+        # 2026-06-24); it MUST be paired with the _batched_collate passthrough, else
+        # default_collate re-stacks the already-batched tensors and raises a shape
+        # mismatch (matches src/data/folds.py:454,498). Without this the checkin-modality
+        # reg head crashed at collate ([B,9,64] vs [B]).
+        return DataLoader(ds, batch_size=batch_size, shuffle=shuffle, num_workers=0,
+                          collate_fn=_batched_collate)
     ds = POIDatasetWithAux(x, y, aux, device=DEVICE)
-    base = DataLoader(ds, batch_size=batch_size, shuffle=shuffle, num_workers=0)
+    base = DataLoader(ds, batch_size=batch_size, shuffle=shuffle, num_workers=0,
+                      collate_fn=_batched_collate)
     return AuxPublishingLoader(base)
 
 
