@@ -38,7 +38,9 @@ the FL CTLE-SC step waits on the M4 diagnosis (§D).
 
 ### M4 Pro (MPS) — diagnosis + safety-net  ·  free now
 1. **DIAGNOSE the CTLE frozen-below-floor** (role-2 step 1, **CRITICAL PATH — gates H100 step C.2**): the recorded frozen CTLE-SC cat (AL 17.8, *below* the bigram floor) is suspicious. Confirm the frozen CTLE embedding is actually feeding the head (not a pipeline/leak-fix artifact) — `build_ctle_substrate.py` + `mac_baseline_compare.py` on AL (where the 17.8 was seen; small, MPS-fast). Report: real CTLE weakness vs pipeline bug. **Post the verdict before H100 runs FL CTLE-SC.**
-2. **TX HMT-GRN** — finish the in-flight safety-net row (already a Mac chain, "building dk_ovl→HMT"). Completes the HMT-GRN external-MTL row at all 6 states.
+2. ✅ **TX HMT-GRN — DONE (PR #38, reg 53.85)**; all 6 HMT-GRN states complete. **NEW (low priority):** re-run the
+   **Istanbul champion-G at stride-1** so the §6.3 box matches its stride-1 baselines — **on the M4, NOT the A40**
+   (the champion is device-sensitive; its baselines all live here → same-device-clean Δ). See `BASELINE_M4.md §2b`.
 3. *(optional, if A40 busy)* **CSLSL @ AL/AZ** on MPS — HMT-GRN validated MPS==CPU within 0.06 pp, so MPS from-scratch training is trustworthy here; label `[M4/MPS]` and cross-check one fold vs CPU.
 
 ## D · Sequencing / clean-Δ rules

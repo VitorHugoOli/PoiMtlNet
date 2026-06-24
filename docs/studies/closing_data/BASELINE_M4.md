@@ -1,8 +1,9 @@
 # BASELINE handoff — **M4 Pro** (24 GB, MPS) · self-contained · 2026-06-24
 
-> **You are the M4 Pro. Read ONLY this file, then execute.** Phase = baselines. Two jobs: **(1) diagnose the CTLE
-> frozen-below-floor — CRITICAL PATH, it gates the H100's FL CTLE-SC run; (2) finish the TX HMT-GRN safety-net
-> row.** You are free now; do Task 1 first. Decisions: `../../../articles/[mobiwac]/BASELINE_HANDOFF.md`; results →
+> **You are the M4 Pro. Read ONLY this file, then execute.** Phase = baselines. Jobs: **(1) diagnose the CTLE
+> frozen-below-floor — CRITICAL PATH, it gates the H100's FL CTLE-SC run (do FIRST); (2b) re-run the Istanbul
+> champion-G at stride-1 to unify the §6.3 box (LOW priority).** (TX HMT-GRN — the old Task 2 — is ✅ DONE, PR #38.)
+> Decisions: `../../../articles/[mobiwac]/BASELINE_HANDOFF.md`; results →
 > [`RESULTS_BOARD.md`](RESULTS_BOARD.md); cross-machine map → [`BASELINE_DISTRIBUTION.md`](BASELINE_DISTRIBUTION.md).
 >
 > **Protocol:** seed 0 × 5 folds (n=5), gated stride-1 overlap, leak-free per-fold train-only priors, user-disjoint
@@ -34,17 +35,30 @@ CTLE-SC. If it's a bug, identify it (the H100 fixes + reruns); if it's real, the
 presents **CTLE-E2E** (~21, the fine-tuned strength) as the headline CTLE number with CTLE-SC as the
 matched-frozen-capacity companion (frozen-SC undersells deep models; that's the honest reading).
 
-## 2 · Task 2 — finish TX HMT-GRN (the external-MTL safety-net row)
-HMT-GRN is the sole region-native external baseline; AL/AZ/FL/CA/Istanbul are done, **TX is the last cell**
-(in-flight: "building dk_ovl → HMT"). It learns its own embeddings from scratch (does NOT consume Check2HGI), so
-MPS is fine (validated == CPU). It needs only the dk_ovl **inputs**, not the 12.6 GB log_T (it builds its own
-per-fold prior).
+## 2 · Task 2 — ✅ DONE: TX HMT-GRN (PR #38, reg 53.85 / cat 25.81)
+~~Finish TX HMT-GRN.~~ **Complete** — all 5 Gowalla states + Istanbul now have HMT-GRN (AL 57.1 / AZ 43.7 / FL 63.7
+/ CA 49.6 / **TX 53.9** / Istanbul 60.4), all well below our MTL ~65–69. The region-native safety-net row is closed.
+
+## 2b · Task 2 (NEW) — Istanbul champion-G @ stride-1 (make the §6.3 box internally consistent)
+**Why:** the Istanbul *baselines* (CTLE-SC, Check2HGI-SC ceiling, HMT-GRN) are all at **stride-1** and live here on
+the M4 (PR #38 built the 271,666-row stride-1 Phase-V base). The Istanbul *champion-G* is still at **set-a** (PR #33
+Phase V, 4 seeds, cat +8.06 / reg −0.58). So champion-vs-baseline on Istanbul currently mixes windowings. Re-run the
+champion at stride-1 to unify the box. **This is the M4's job, NOT the A40's** — the champion is from-scratch-trained
+(device-sensitive, the HMT lesson), so it must be on the SAME device as the Istanbul baselines (all here) for a clean
+Δ. Istanbul-scale champion-G is MPS-proven (the original NYC/Istanbul dry-run ran it on MPS).
 ```bash
-python scripts/mtl_improvement/build_overlap_probe_engine.py texas 1   # if TX dk_ovl inputs absent (big: ~22 G disk)
-python scripts/baselines/b3_hmt_grn.py --state texas --engine check2hgi_dk_ovl --seed 0 --folds 5 --epochs 50 --device mps
-#  -> results/baseline_b3_hmt_grn_style/texas/ (gitignored); record cat/reg in MACS_BOARD_RESULTS.md + RESULTS_BOARD §4
+# the stride-1 Phase-V base already exists (PR #38). Build the per-fold seeded log_T for it if absent:
+python scripts/compute_region_transition.py --state istanbul --engine check2hgi --per-fold --seed 0 --n-splits 5
+# champion-G MTL on the stride-1 Phase-V Istanbul base (engine check2hgi = Phase-V mahalle substrate, NOT dk_ovl):
+#   the champion recipe at Istanbul = the second_dataset dry-run invocation + the frozen v16 recipe, --state istanbul
+#   --device mps. Mirror scripts/second_dataset/phase_v_substrate.py's champion call; build at --stride 1.
+#  -> score vs the Istanbul STL cat/reg ceilings (Check2HGI-SC, already on the M4); report gap-to-ceiling / lift only.
 ```
-Expected: TX HMT reg well below our MTL ~67 (we lead by the same ≈ +13–16 pp margin as the other states).
+**Priority: LOW** — Istanbul is the provisional §6.3 external-validity box (gap-to-ceiling/lift, not absolute), and
+the 4-seed set-a champion is already a valid replication datapoint; this run only buys a windowing-consistent table.
+Do it after Task 1 (the critical-path CTLE diagnosis). Keep the 4-seed set-a result too — note both windowings.
+Expected: champion cat beats its STL ceiling, reg matches/near (the non-US replication), and champion > CTLE-SC
+(+~26 cat) and > HMT-GRN (60.4 reg) at stride-1.
 
 ## 3 · (Optional) CSLSL @ AL/AZ — only if the A40 stays busy
 `python scripts/baselines/b4_cascade.py --state {alabama,arizona} --seed 0 --folds 5 --epochs 50 --device mps` —
