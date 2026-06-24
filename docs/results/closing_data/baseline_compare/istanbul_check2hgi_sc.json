@@ -1,0 +1,43 @@
+{
+  "state": "istanbul",
+  "engine": "check2hgi",
+  "windowing": "stride-1 overlap (board-consistent w/ Gowalla); reg=checkin-modality",
+  "per_fold": [
+    {
+      "fold": 0,
+      "macro_f1": 55.548847635886844,
+      "top10_acc": 67.30532050132751,
+      "mrr": 42.7280455827713
+    },
+    {
+      "fold": 1,
+      "macro_f1": 54.07390012349309,
+      "top10_acc": 65.50530791282654,
+      "mrr": 42.13297367095947
+    },
+    {
+      "fold": 2,
+      "macro_f1": 53.74636846412963,
+      "top10_acc": 66.10041856765747,
+      "mrr": 42.280471324920654
+    },
+    {
+      "fold": 3,
+      "macro_f1": 54.55034320047864,
+      "top10_acc": 66.10163450241089,
+      "mrr": 42.03997850418091
+    },
+    {
+      "fold": 4,
+      "macro_f1": 54.707166383347264,
+      "top10_acc": 65.78322649002075,
+      "mrr": 42.530593276023865
+    }
+  ],
+  "macro_f1_mean": 54.525,
+  "macro_f1_std": 0.688,
+  "top10_acc_mean": 66.159,
+  "top10_acc_std": 0.687,
+  "mrr_mean": 42.342,
+  "mrr_std": 0.284
+}

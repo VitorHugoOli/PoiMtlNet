@@ -77,18 +77,21 @@ Per the baselines README, the paper's baseline tables read from [`../../baseline
 - ✅ **CTLE-SC (category) IS used — it is the reviewer W3 novelty gate** (`REVIEW_PANEL.md` required-change #2,
   *non-negotiable*: "score CTLE leak-clean and show it loses to Check2HGI attributable to the hierarchy"). It is
   the **representation-isolation** comparison (CTLE-emb → our head vs Check2HGI-emb → our head, matched capacity)
-  that substantiates contribution-1 novelty; without it C1's "novel" *evaporates*. **Δcat +37.8 (AL) / +37.0 (AZ)**,
-  device-internal-clean (reproduces CUDA within noise). Leak-clean at AL/AZ; FL/CA/TX → CUDA (`BASELINE_H100.md`).
-  POI2Vec/skip-gram/one-hot SC-cat are the representation **controls** (§7 checklist).
+  that substantiates contribution-1 novelty; without it C1's "novel" *evaporates*. **Δcat AL +37.8 / AZ +37.0 /
+  Istanbul +28.6**, device-internal-clean (reproduces CUDA within noise). Leak-clean at **AL/AZ + Istanbul
+  (stride-1, PR #38)**; FL/CA/TX → CUDA (`BASELINE_H100.md`). POI2Vec/skip-gram/one-hot SC-cat are the
+  representation **controls** (§7 checklist).
 - ❌ **SC *region* is NOT used in the article.** The pre-fix SC reg was INVALID (substrate-bypass + shared prior +
-  stale log_T) — now **quarantined** (`_reg_status: INVALID_PENDING_RERUN` stamped on every `baseline_compare/*.json`).
-  Region's substrate-isolation story is weak anyway (HGI keeps a small region edge; the representation benefit is
-  category-only). **The article's REGION baselines come from native-E2E (HMT-GRN, STAN) + Markov-1**, which ARE
-  substrate-sensitive — not from SC. (So a re-run of SC-reg is optional, not article-blocking.)
-- ✅ **HMT-GRN (region native-E2E): Mac numbers are CORRECT** — PR #38 audit: M4/MPS == deterministic CPU within
-  0.06 pp fold-for-fold; the recorded **62.37 was the anomaly** (unreproducible, +5 pp). HMT-GRN reg ≈ **57 (AL)**,
-  **FL 63.74, CA 49.61** — all **well below our MTL ~65-69**, so we beat the sole region-native baseline by an even
-  *wider* margin than 62.37 implied. (Re-verify the old 62.37 on CUDA for completeness; not blocking.)
+  stale log_T) — now **quarantined** (`_reg_status: INVALID_PENDING_RERUN` on the AL/AZ `baseline_compare/*.json`).
+  Region's substrate-isolation story is weak anyway (it is a near-tie: AL −0.4, AZ −0.3, Istanbul −3.5 where CTLE
+  edges ahead on the small 520-region space). **The article's REGION baselines come from native-E2E (HMT-GRN, STAN)
+  + Markov-1**, which ARE substrate-sensitive — not from SC. (SC-reg re-run is optional, not article-blocking.)
+- ✅ **HMT-GRN (region native-E2E): Mac numbers are CORRECT — AUDITED & CITABLE.** PR #38: the AL gap (Mac 57.05 vs
+  recorded M2 62.37) was traced — byte-identical code/base/seed, all leak paths train-only (a leak can't create a
+  gap). **Decisive: AL HMT on deterministic CPU reg 56.99 ≈ M4-MPS 57.05 within 0.06 pp, fold-for-fold** → the Mac
+  value is correct; the **62.37 is the outlier** (unreproducible, artifacts reclaimed). Use the Mac/CPU HMT-GRN reg:
+  **AL 57.1 / AZ 43.7 / FL 63.7 / CA 49.6 / TX 53.9 / Istanbul 60.4** — all **well below our MTL ~65-69**, so we beat
+  the sole region-native baseline by a wide margin (all 6 states now done). (Re-verify the old 62.37, not the Mac value.)
 
 ## 5 · Provenance legend
 ✅ main = source JSON on main, verified-readable · ⏳ 2/5 = run in-flight, partial folds (not a 5f mean) ·
