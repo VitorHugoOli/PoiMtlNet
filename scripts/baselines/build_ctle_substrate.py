@@ -188,7 +188,13 @@ def _collate(trajs, max_len: int):
 def pretrain_and_embed(state, seed, fold, df, train_userids, val_userids,
                        embed_dim=64, max_len=64, pretrain_epochs=10,
                        batch_size=256, lr=1e-3, device=None, smoke=False):
-    device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+    if device is None:
+        if torch.cuda.is_available():
+            device = "cuda"
+        elif torch.backends.mps.is_available():
+            device = "mps"  # Apple GPU: CTLE transformer pretrain is ~CPU-bound otherwise
+        else:
+            device = "cpu"
     placeid_to_loc, vocab_size = _build_vocab(df)
     cfg = CTLEConfig(vocab_size=vocab_size, embed_dim=embed_dim,
                      max_len=max_len,
@@ -214,7 +220,12 @@ def pretrain_and_embed(state, seed, fold, df, train_userids, val_userids,
     rng = np.random.default_rng(seed)
     for ep in range(pretrain_epochs):
         rng.shuffle(order)
-        tot = mlm_t = mh_t = 0.0
+        # Accumulate on-device — NO per-batch .item() (each .item() forces a
+        # CPU<->GPU sync that serializes the MPS/CUDA pipeline). Canonical pattern:
+        # src/training/runners/mtl_cv.py:818. We sync once per epoch for the log.
+        tot = torch.zeros((), device=device)
+        mlm_t = torch.zeros((), device=device)
+        mh_t = torch.zeros((), device=device)
         nb = 0
         for bs in range(0, len(order), batch_size):
             batch = [train_trajs[j] for j in order[bs:bs + batch_size]]
@@ -223,13 +234,13 @@ def pretrain_and_embed(state, seed, fold, df, train_userids, val_userids,
             masked, mlm_tgt, mh_tgt, _sel = build_mlm_mh_batch(
                 loc, hr_i, vocab_size, cfg.mask_ratio, gen)
             total, mlm_l, mh_l = model(masked, hr_f, mlm_tgt, mh_tgt, _sel)
-            opt.zero_grad()
+            opt.zero_grad(set_to_none=True)
             total.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             opt.step()
-            tot += total.item(); mlm_t += mlm_l.item(); mh_t += mh_l.item(); nb += 1
-        print(f"    epoch {ep+1}/{pretrain_epochs}  loss={tot/nb:.4f} "
-              f"mlm={mlm_t/nb:.4f} mh={mh_t/nb:.4f}")
+            tot += total.detach(); mlm_t += mlm_l.detach(); mh_t += mh_l.detach(); nb += 1
+        print(f"    epoch {ep+1}/{pretrain_epochs}  loss={(tot/nb).item():.4f} "
+              f"mlm={(mlm_t/nb).item():.4f} mh={(mh_t/nb).item():.4f}")
 
     # ---- emit: run frozen encoder over ALL trajectories (no masking) ----
     model.eval()
@@ -320,6 +331,7 @@ def build_one_fold(state, seed, fold, args):
         embed_dim=64, max_len=args.max_len,
         pretrain_epochs=args.pretrain_epochs,
         batch_size=args.batch_size, lr=args.lr, smoke=args.smoke,
+        device=args.device,
     )
 
     # write substrate embeddings.parquet (metadata cols + CTLE ctx cols).
@@ -341,8 +353,14 @@ def build_one_fold(state, seed, fold, args):
              sub_dir / "region_embeddings.parquet")
 
     # downstream inputs: next.parquet + sequences_next.parquet + next_region.parquet
-    print(f"  building downstream inputs (next + sequences + next_region)...")
-    generate_next_input_from_checkins(state, CTLE_ENGINE)
+    # WINDOWING: CTLE has no windowing of its own to inherit (the §3d handoff
+    # assumption was wrong); thread --stride explicitly like the other 3 builders.
+    # --stride 1 -> gated overlap (emit_tail auto-off via _resolve_emit_tail);
+    # min_seq stays the global 5 (a proven no-op at stride-1: a full 9+1 window
+    # already needs >=10 check-ins). The contextual embeddings.parquet is
+    # windowing-INDEPENDENT (one ctx vector per check-in row) -> stays 113,846.
+    print(f"  building downstream inputs (next + sequences + next_region, stride={args.stride})...")
+    generate_next_input_from_checkins(state, CTLE_ENGINE, stride=args.stride)
     build_next_region_for(state, CTLE_ENGINE)
     n = len(IoPaths.load_next(state, CTLE_ENGINE))
     nr = len(IoPaths.load_next_region(state, CTLE_ENGINE))
@@ -367,6 +385,14 @@ def main():
     ap.add_argument("--batch-size", type=int, default=256)
     ap.add_argument("--max-len", type=int, default=64)
     ap.add_argument("--lr", type=float, default=1e-3)
+    ap.add_argument("--stride", type=int, default=None,
+                    help="window stride for next/next_region (None=stride-9 "
+                         "non-overlap default; pass 1 for the P3 gated-overlap "
+                         "board build, matching the other 3 baseline builders).")
+    ap.add_argument("--device", default=None,
+                    help="cuda / mps / cpu. Default: auto (cuda > mps > cpu). On a "
+                         "Mac, mps (Apple GPU) is FAR faster than cpu for the "
+                         "transformer pretrain. Embeddings are device-tolerant inputs.")
     ap.add_argument("--smoke", action="store_true",
                     help="tiny config (2 layers/4 heads); use with --fold 0 "
                          "--pretrain-epochs 2 for a fast plumbing check")

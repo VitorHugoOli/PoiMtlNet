@@ -211,12 +211,17 @@ def build_poi_routes(poi_xy: np.ndarray,
             j = int(np.argmin((leaf_cx - 0.0) ** 2 + (leaf_cy - 0.0) ** 2))
             routes.append((np.asarray([j], np.int64), np.asarray([1.0], np.float32)))
             continue
-        box = (lon - half, lat - half, lon + half, lat + half)
-        # candidate leaves: those whose rect overlaps the box. Brute force over leaves
-        # (n_leaf is modest for theta~0.05 over a state bbox). Compute overlap areas.
-        areas = np.empty(tree.n_leaf, dtype=np.float64)
-        for j in range(tree.n_leaf):
-            areas[j] = _rect_overlap_area(box, rects[j])
+        # Vectorized rect-overlap area over ALL leaves at once. The previous pure-Python
+        # `for j in range(n_leaf): areas[j] = _rect_overlap_area(box, rects[j])` was
+        # O(n_poi * n_leaf) ~ 11B scalar calls (~3 h/cell) at large-state scale
+        # (CA: 169,145 POIs x 65,536 leaves). This numpy form is BIT-IDENTICAL to the
+        # scalar _rect_overlap_area (same float64 max/min/sub/mul; np.where reproduces
+        # the w<=0|h<=0 -> 0.0 guard). Verified leaf_ids + phi byte-exact across
+        # overlap / no-overlap / on-edge / NaN / out-of-bbox / tie cases.
+        b0, b1, b2, b3 = lon - half, lat - half, lon + half, lat + half
+        w = np.minimum(b2, rects[:, 2]) - np.maximum(b0, rects[:, 0])
+        h = np.minimum(b3, rects[:, 3]) - np.maximum(b1, rects[:, 1])
+        areas = np.where((w > 0.0) & (h > 0.0), w * h, 0.0)
         total = areas.sum()
         if total <= 0.0:
             # POI outside every leaf (out of bbox) -> nearest leaf center, phi=1
