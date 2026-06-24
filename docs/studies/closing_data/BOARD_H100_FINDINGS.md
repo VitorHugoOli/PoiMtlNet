@@ -125,17 +125,29 @@ never fires on the board (prior-OFF + legacy payloads).
 - **Resume driver (`resume_fl_fold.sh`)** for the ~1-2h studio restarts: `--only-fold` is **0-INDEXED**
   (canonical fold F = `--only-fold F-1`, loads `fold{F}.pt`) AND re-indexes its single output CSV to `fold1` —
   copy `fold1_*`→`fold{F}_*` into the master. Isolated `RESULTS_ROOT` per arm (no rundir race). Idempotent.
-- **Host-RAM headroom guard is real — never override it.** The overlap datasets (FL 1.27M / CA 2.92M / TX
-  3.83M rows) need ~16-22GB host RAM each; `MTL_RAM_HEADROOM_GB=10` passed the preflight then **OOM-killed**
-  (took the newest proc — protected FL). Big-dataset cat ceilings (CA/TX) can't co-exist with the FL gate
-  through its fold transitions without RAM pressure; run them when the gate frees RAM, or alone.
+- **Host-RAM headroom guard is real — default-block is correct; override ONLY when measured.** The overlap
+  construction needs `matrix×(1+towers)×4.0` host RAM (FL ~22 / CA ~50 / TX ~66 GB peak, host-side — NOT
+  avoidable by `MTL_DATASET_GPU`). `MTL_RAM_HEADROOM_GB=10` on a genuinely-full host **OOM-killed** the newest
+  proc. BUT the guard **double-counts** (fires after ~25 GB already loaded, compares vs the *total* peak not
+  the *remaining* need), so it can block a run that fits. Safe force = **negative** `MTL_RAM_HEADROOM_GB`
+  (e.g. `-25`) *after verifying* `Σ per-proc RSS + construction_peak < total_RAM`, with a RAM-watcher that
+  kills the newest proc if avail < 4 GB. Verified: TX (66 GB) co-ran with CA (26 GB resident) on the 108 GB
+  box, swap 0, CA untouched. Full mechanics: [`EP100_ABLATION_AND_TX_RAM.md`](EP100_ABLATION_AND_TX_RAM.md) §2.
 - **bf16≈fp32 speed**: these runs are CPU/launch-bound, so `--compile`/`MTL_COMPILE_DYNAMIC=1` (distinct
   `TORCHINDUCTOR_CACHE_DIR` per co-scheduled proc) help the compute path that isn't the bottleneck.
 - **The env is conda `cloudspace` (`python`), NOT `.venv`** (the handoff's `.venv/bin/python` is wrong here).
 - **Board recipe needs `--canon none` + explicit `--no-{reg,cat}-class-weights`**: bare `train.py` auto-injects
   canon-v16 which trips the wrong-substrate guard under `MTL_STRICT=1` (the board runs champion-G on dk_ovl).
 
+## 6 · 100-epoch schedule ablation + TX RAM force (2026-06-24) → [`EP100_ABLATION_AND_TX_RAM.md`](EP100_ABLATION_AND_TX_RAM.md)
+- **100ep is NULL at AL and FL** — the OneCycle anneal puts best-val near the schedule tail at *any* length,
+  so a "late best-epoch" is the anneal shape, not unsaturated capacity. Frozen 50ep cells stand.
+- **TX RAM guard double-counts** → negative-headroom is the *measured* force knob (see §5 bullet + the doc).
+- **CA §4** (50ep bf16): folds 1-4 cat **77.31**±0.24 / reg **65.54**±0.07 → **beats both ceilings**
+  (70.26 / 63.48) by **+7.05 / +2.06**; reg variance ±0.07. Healthy to ep49-50 (bf16, no collapse). Full cell
+  on fold-5 finish. **TX** (50ep bf16, forced co-schedule): in progress → per-fold table in
+  [`TX_CELL.md`](TX_CELL.md), committed autonomously by `scripts/closing_data/tx_autocommit.sh`.
+
 ## Remaining
-FL gate full-5f table; **CA MTL §4** (the heavy/restart-risky cell — run alone, must clear ep30 under bf16/fp32);
-TX cat ceiling (running); A40 lane = TX MTL + TX cat (staged). Multi-seed {1,7,100} for Gowalla states is out of
-scope (1-seed reduced board).
+TX MTL 5-fold (running, autonomous per-fold commits); TX cat/reg ceilings (A40 lane, staged). Multi-seed
+{1,7,100} for Gowalla states is out of scope (1-seed reduced board).
