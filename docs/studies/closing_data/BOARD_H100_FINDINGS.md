@@ -1,6 +1,6 @@
 # Board lane H100 — findings & resume notes
 
-> Branch `study/board-h100`, PR #32. Companion to `BOARD_H100_STATUS.md` (setup/decision).
+> Branch `study/board-h100`, PR #32. (The `BOARD_H100_STATUS.md` setup/decision log was pruned 2026-06-25 as superseded — its content is consolidated here + in `RESULTS_BOARD.md`.)
 
 ## ⚠ INTERRUPTED 2026-06-22 ~05:45 UTC — GPU studio stopped
 The Lightning Studio's **H100 was stopped/restarted** (SIGKILL / exit 137); the shell is now on a CPU-only
