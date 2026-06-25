@@ -81,7 +81,7 @@ nine-visit windows then feed the model, which outputs the next category and the 
 \input{sections/04_method}
 \begin{figure*}[t]\centering
 \input{figs/fig2_model}
-\caption{The single multi-task model (champion-G). Two input streams, a check-in (semantic)
+\caption{The single multi-task model. Two input streams, a check-in (semantic)
 window and a region (spatial) window, pass through private per-task encoders into a shared
 bidirectional cross-attention stack (the only shared parameters). A GRU head reads the shared
 semantic output for next-category; a dual-tower region head combines that shared output with a

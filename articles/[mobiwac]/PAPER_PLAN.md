@@ -103,7 +103,7 @@ geography. The open question is whether one model should learn both, and whether
 **Part 1: the representation makes the category task learnable (frozen result).** Most place embeddings give
 every place one fixed vector, so two visits to the same café look identical. We instead describe each *visit* in
 its own context (time, nearby places, recent trail). This lifts next-category macro-F1 by a large, consistent
-margin over the standard hierarchical-graph embedding, +15 to +29 points across the five states, and we show
+margin over the standard hierarchical-graph embedding, about +28 to +40 points across four states (Texas being scored), and we show
 why: most of the gain (about 64 to 90 percent) is the per-visit context itself, not extra training signal. On
 next-region the two representations are even, so the benefit is uneven across the two tasks, and that asymmetry
 sets up Part 2.
@@ -140,11 +140,11 @@ This is the section that keeps every number in the paper honest and defensible.
 
 **We CAN say (frozen, paper-grade):**
 
-- The check-in-level representation (Check2HGI) beats HGI on next-category macro-F1 by **+15.50 / +14.52 /
-  +29.02 / +28.81 / +28.34** (AL/AZ/FL/CA/TX), paired Wilcoxon p = 0.0312 each. Two bands: about +15 at the
-  small states, about +28 to +29 at the large ones. ⚠ These are the **non-overlap** measurement; we **re-score
-  this substrate comparison under the overlap board** so the whole paper is one windowing (expect a similar
-  margin). Until then, treat the exact values as provisional-pending-re-score.
+- The check-in-level representation (Check2HGI) beats HGI on next-category macro-F1 by **+29.31 / +27.63 /
+  +39.62 / +37.95** (AL/AZ/FL/CA), paired Wilcoxon p = 0.031 (5/5 folds) each, **under the paper's overlap
+  windowing** (Texas still being scored). Two bands: about +28 to +29 at the small states, about +38 to +40 at
+  the large ones; the HGI place-level category is a consistent ~0.46 to 0.52 times the Check2HGI check-in-level
+  category. (These supersede the older non-overlap measurement; the whole paper is now one windowing.)
 - About 64 to 72 percent (small states) and 89 to 90 percent (large states) of that category gain is the
   per-visit context, measured against a per-place-averaged version of the same embedding.
 - On next-region the two representations are within about 1.6 to 3.1 points (HGI slightly ahead), so the
@@ -152,7 +152,7 @@ This is the section that keeps every number in the paper honest and defensible.
 - (Optional, text only.) Our models clear a simple Markov-1 transition floor by a wide margin on region. We
   **dropped Markov-1 from the region table** (we already beat ReHDM and STAN-on-our-substrate, which is the
   stronger comparison), but a one-clause mention of the floor is available if a reviewer wants it. Do not attach
-  the +15 to +29 figure here; that is the category-representation margin, a different axis.
+  the +28 to +40 figure here; that is the category-representation margin, a different axis.
 
 **We CAN say, but must mark PROVISIONAL (reduced board: seed 0 × 5 folds, n=5; the {1,7,100} top-up to n=20 is
 post-deadline):**
@@ -212,10 +212,10 @@ TX is now closed at 5 clean folds (fp32 single-device, region +2.06); never cite
 > place one fixed vector. Across five U.S. states, this representation improves next-category prediction by a wide
 > margin over a standard place embedding [huang2023learning], and most of the gain comes from the per-visit
 > context. We then train one model for next-category and next-region together. On every state we measure, it beats
-> a dedicated category model, and on region it beats the dedicated model where the region space is large and stays
-> within a two-point margin where the region space is small. One model wins both tasks, and the spatial win grows
-> with scale. On a non-U.S. city (Istanbul) the result is consistent: it beats on category and stays within two
-> points on region.
+> a dedicated category model, and on region it beats the dedicated model where the region space is large and is
+> statistically non-inferior, within a two-point margin (TOST), where the region space is small. One model wins
+> both tasks, and the spatial win grows with scale. On a non-U.S. city (Istanbul) the result is consistent: it
+> beats on category and stays within two points on region.
 
 *Notes:* motivation first; no model name in the first sentence; no system number, because the system reading is
 no longer a contribution; the closing line states the finding, not an application.
@@ -251,12 +251,14 @@ no longer a contribution; the closing line states the finding, not an applicatio
 > **¶5 (contributions).** Our contributions are:
 > 1. a novel check-in-level representation that extends hierarchical graph infomax from the place to the
 >    individual visit, so each check-in is described in its own context. It improves next-category prediction by a
->    large and consistent margin over a standard place embedding (+15 to +29 macro-F1 across five states), and a
+>    large and consistent margin over a standard place embedding (about +28 to +40 macro-F1; measured under the
+>    paper's windowing at Alabama, Arizona, Florida, and California, with Texas being scored), and a
 >    controlled test shows the gain comes from the per-visit context, not from extra supervision;
 > 2. a multi-task design for joint next-category and next-region prediction that shares a semantic context across
 >    the two tasks while keeping a private path for the spatial one, and the finding that this design lets a single
 >    model, in one forward pass, beat a dedicated category model at every state and beat or match the dedicated
->    region model (beating it where the region space is large, matching it within two points where it is small);
+>    region model (beating it where the region space is large, and matching it, statistically non-inferior within a
+>    two-point margin (TOST), where it is small);
 > 3. an empirical account, across five states of different sizes (with a check on one international city), of how
 >    the joint gain scales with the region space: the category win holds at every state, and the region result
 >    improves with scale, matching the dedicated model at the small region counts and beating it at the large (the
@@ -285,8 +287,8 @@ model **match or beat** the dedicated region model (beating it at the large regi
 finding, and concede the multi-granularity-MTL space (HMT-GRN, SGRec, MCMG, iMTL, MCARNN) in one sentence. The category gain is **architecture-driven** (the shared trunk is a stronger category
 encoder at no extra deployment cost, one model and one forward pass), not "the region task teaches category";
 word it that way everywhere. To substantiate "novel", the CTLE baseline (§5.4) and the HGI ablation must both be
-in the results, scored leak-clean. Contribution 3 is provisional until the frozen board (CA region cell pending);
-if it ever reads as overlapping with 2, fold it
+in the results, scored leak-clean. Contribution 3 is provisional at n=5 (the board is complete; the largest
+state, CA, beats on region); if it ever reads as overlapping with 2, fold it
 into 2 and ship two contributions.
 
 ### §2 Background and Related Work (about 1.25 pages): skeleton + fragments
@@ -437,6 +439,16 @@ a random-top-10 floor, so "negligible over 1k to 8.5k region classes" is shown, 
 non-inferiority test is not evidence of equivalence; (d) re-justify the margin for this multi-task-versus-single-
 task axis rather than reusing the substrate-axis margin.
 
+⚠ **The n=5 reporting reality (Decision, 2026-06-26):** all current numbers are seed 0 over five folds (n=5), so
+each per-state one-sided Wilcoxon sits at the **exact n=5 floor, p=0.031, with all five folds in the winning
+direction**; a family-wise Holm correction across the six category cells (or the three region-beat cells) does
+**not** reach 0.05 at n=5 (the floor times the family size). We therefore (i) report the per-state effect with its
+"5/5 folds positive, p=0.031" line, (ii) carry the **pooled** across-state evidence as the inferential backbone
+(category: 30 of 30 fold-pairs favor the joint model, p≈9e-10; region beats, FL/CA/TX: 15 of 15, p≈3e-5), and
+(iii) state plainly that the family-wise (Holm) correction is reported with the pre-registered multi-seed top-up
+(seeds {1,7,100} → n=20), which is in progress. Never present a per-state Holm-corrected significance at n=5.
+(Reproduce: `scripts/closing_data/superiority_wilcoxon.py`.)
+
 **§5.4 Baselines (locked; see §7 and `BASELINE_HANDOFF.md`).** Three roles, kept separate in the writing: (1)
 **task SOTA**, faithful author implementations on our data, our folds: next-category **POI-RGNN + Markov-9-cat**;
 next-region **ReHDM + STAN-`stl_hgi`**. (2) **representation** (FL only): **CTLE**, the closest prior contextual
@@ -452,9 +464,10 @@ per-visit ablation (Part 1).
 Each result gets a one-sentence "read this as" lead (fixes Reviewer 2's uninterpreted tables).
 
 **§6.1 The representation makes the category task learnable (Part 1).** Table (Tbl 2): Check2HGI versus HGI
-category macro-F1, five states, re-scored under the overlap board so it is on the same windowing as Part 2, plus
-the per-visit-context share. ⭐ **Category embedding-quality figure (Fig 4):** show one or two **category**-
-separability metrics where Check2HGI clearly wins (silhouette about 0.48 versus HGI 0.00; kNN-by-category about
+category macro-F1, scored under the overlap board so it is on the same windowing as Part 2 (Alabama, Arizona,
+Florida, and California measured, +27.6 to +39.6 macro-F1; Texas being scored), plus
+the per-visit-context share. ⭐ **Category embedding-quality figure (Fig 3):** show one or two **category**-
+separability metrics where Check2HGI clearly wins (silhouette about 0.56 versus HGI 0.00; kNN-by-category about
 0.98 versus 0.78), not five small plots. **Do not plot the region geometry:** on region both embeddings sit at
 the floor and HGI scores spuriously higher, which would mislead a reader (the region signal comes from the
 sequence model and the transition prior, not the static embedding's geometry). One sentence turns that absence
@@ -464,20 +477,27 @@ task learnable.
 
 **§6.2 One model, two tasks (Part 2).** The central table: joint model versus the dedicated ceilings, per state,
 both tasks, marking **superiority** where the joint model beats and **non-inferiority** (within two points) where
-it matches. ⭐ **Figure: the signed category and region deltas across states, ordered by region count**, showing
+it matches. ⭐ **Figure 4: the signed category and region deltas across states, ordered by region count**, showing
 the category delta positive everywhere and the region delta positive at the large states and within the margin at
-the small (no cardinality cost: the largest state, CA, has the largest region win). If the encoder-isolation
-probe lands, back "the category win is a stronger shared encoder, not region-to-category transfer" with it; until
-then frame that mechanism as a hypothesis. Also report the cascade result honestly here: our parallel model
-**ties** the published cascade (CSLSL) at **equal cost** (Δjoint about 0), which rules out that a cheaper cascade
-would have matched our lift, a defense, not a "we beat the cascade" claim. Read: one model wins both tasks, and
-the region win is largest at scale. Mark all cells n=5 provisional; TX is now closed at 5 folds.
+the small (no cardinality cost: the largest state, CA, has the largest region win). **Significance, stated
+honestly (see §5.3):** every fold favors the joint model (each state 5/5 folds, one-sided p=0.031, the n=5 floor);
+the pooled evidence is decisive (category 30/30 fold-pairs, p≈9e-10; region beats 15/15, p≈3e-5); the per-state
+family-wise (Holm) correction comes with the multi-seed top-up, in progress. The encoder-isolation probe (the
+region stream frozen at start) keeps the **full** category lift at Alabama, Arizona, and Florida (within 0.3 of
+the joint model, far above the dedicated ceiling), so we report the category win as **a stronger shared encoder,
+not region-to-category transfer**, as a finding, not a hypothesis. Also report the cascade result honestly here:
+our parallel model **ties** the published cascade (CSLSL) at **equal cost** (Δjoint about 0), which rules out that
+a cheaper cascade would have matched our lift, a defense, not a "we beat the cascade" claim. Read: one model wins
+both tasks, and the region win is largest at scale. Mark all cells n=5 provisional; TX is now closed at 5 folds.
 
 **§6.3 External validity (Istanbul).** One small row or figure: the finding replicates on a non-U.S. city
-(category beats, about +8 macro-F1; region matches, about −0.6), reported as gap-to-ceiling or lift, never
-absolute Acc@10, because the region counts differ. Flag that Istanbul is measured on the v11 / GCN substrate (the
-overlapping-window board substrate was not built for it), so it is a cross-substrate external check; mark it
-provisional.
+(category beats, about +6.7 macro-F1; region matches, about −0.5), reported as gap-to-ceiling or lift, never
+absolute Acc@10, because the region counts differ. Note that Istanbul is measured on the earlier
+graph-convolution (GCN) representation (the overlapping-window board representation was not built for it), so it
+is a cross-representation external check; mark it provisional. The category headline (+6.7) is the four-seed mean
+versus the single-seed dedicated ceiling; the clean seed-0 fold-paired gain is +6.5 (5/5 folds). ⚠ Istanbul
+baselines (Markov, POI-RGNN, STAN, ReHDM) must be scored on the SAME stride-1 overlap windowing as this row; the
+first STAN run was on the non-overlap (set-a) base and is not comparable as-is.
 
 ### §7 Discussion and Limitations (about 0.5 page): draft
 
@@ -543,11 +563,11 @@ external city is wanted; we lead with Istanbul.
 | #     | Type    | Content                                                                                                      | Answers                                            |
 |-------|---------|--------------------------------------------------------------------------------------------------------------|----------------------------------------------------|
 | Fig 1 | diagram | Input-graph data flow: check-in trail, four-level graph, per-visit representation, windows, two outputs      | R3 (could not picture graph or model)              |
-| Fig 2 | diagram | The single model (champion-G): two input streams, private encoders, a shared bidirectional cross-attention stack, then a GRU category head and a dual-tower region head with a private spatial path; one forward, two outputs | R3 (structural bottleneck) |
+| Fig 2 | diagram | The single model: two input streams, private encoders, a shared bidirectional cross-attention stack, then a GRU category head and a dual-tower region head with a private spatial path; one forward, two outputs | R3 (structural bottleneck) |
 | Fig 3 | panel   | **Category** embedding quality only (silhouette ~0.56 vs HGI 0.00; kNN-by-category ~0.98 vs 0.78), on the design_k board substrate (not v11). Do NOT plot region geometry (both at the floor, HGI spuriously higher = misleading). Part-1 "why"; one sentence: separates category, not region (the asymmetry) | Part 1 mechanism; Vitor's caution |
 | Fig 4 | plot    | Signed category and region deltas across states, ordered by region count, with the two-point margin. Shows category positive everywhere and region positive at the large states / within-margin at the small (the largest state, CA, has the largest region win). All cells n=5 (seed 0) provisional | R2 (interpretation); the core finding (one model wins both) |
 | Tbl 1 | stats   | Dataset statistics (above)                                                                                   | Vitor's request; R3                                |
-| Tbl 2 | result  | Representation: Check2HGI versus HGI category macro-F1 + per-visit share (5 states), **re-scored under the overlap board** (one windowing for the whole paper); the +15..+29 non-overlap gap is the prior measurement | Part 1 |
+| Tbl 2 | result  | Representation: Check2HGI versus HGI category macro-F1 + per-visit share, **on the overlap board** (one windowing for the whole paper); margin +27.6 to +39.6 at AL/AZ/FL/CA, TX being scored | Part 1 |
 | Tbl 3 | result  | Joint versus dedicated ceilings, both tasks, per state, marking superiority (beats) or non-inferiority (matches) per cell | Part 2 (provisional, n=5)                          |
 
 > Keep one headline figure (Fig 4, the signed deltas) carrying the finding. Captions state the conclusion, not "see table".
@@ -683,7 +703,7 @@ carried fragment.
 | R2: uninterpreted tables                                   | §6 "read this as" lead per table; Fig 3 as the single headline                                                                                                       |
 | R3: thin DGI/HGI background                                | §2.1 primer plus Fig 1                                                                                                                                               |
 | R3: unclear graph/model                                    | Fig 1 (input graph) and Fig 2 (model)                                                                                                                                |
-| R3: rule out a structural bottleneck                       | §4.2 private spatial path; the region win grows with scale (no shared-backbone bottleneck); the encoder-isolation probe (pending; a hypothesis until it lands) would back "category win = a stronger encoder, not transfer"            |
+| R3: rule out a structural bottleneck                       | §4.2 private spatial path; the region win grows with scale (no shared-backbone bottleneck); the encoder-isolation probe (DONE: region stream frozen keeps the full category lift at AL/AZ/FL) backs "category win = a stronger encoder, not transfer"            |
 | R3: LaTeX glitches                                         | mechanical: IEEE template, proofread pass                                                                                                                            |
 
 ---
