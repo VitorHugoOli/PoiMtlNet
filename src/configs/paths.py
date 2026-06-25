@@ -82,6 +82,11 @@ class EmbeddingEngine(Enum):
     BASELINE_GEOTREE_SKIPGRAM = "baseline_geotree_skipgram"  # geo-tree-regularized skip-gram (the renamed, honest non-POI2Vec baseline)
     POI2HGI = "poi2hgi"
     FUSION = "fusion"  # Multi-embedding fusion
+    # [ENUM-MERGE] Blocker 2 (Tbl 2, closing_data): HGI POI embeddings under the OVERLAP
+    # windowing — the frozen check2hgi_dk_ovl stride-1/MIN_SEQ=10/gated sequences remapped
+    # through the HGI POI lookup. Windows byte-identical to the Check2HGI arm; only the
+    # embedding lookup differs (cat-STL substrate contrast on ONE windowing).
+    HGI_DK_OVL = "hgi_dk_ovl"
 
 
 class Resources:
