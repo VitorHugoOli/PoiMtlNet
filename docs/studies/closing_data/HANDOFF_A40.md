@@ -2,12 +2,13 @@
 
 > **You are the A40. Read this file first.** It is the master queue for the GPU-blocked items in
 > [`../../../articles/[mobiwac]/CLOSE_BLOCKERS_HANDOFF.md`](../../../articles/[mobiwac]/CLOSE_BLOCKERS_HANDOFF.md).
-> The two **CPU-only** items (Blocker 3 Tbl-1 stats + the small-state region **TOST**) are **already DONE** on the
+> The two **CPU-only** items (Tbl-1 stats + the small-state region **TOST**) are **already DONE** on the
 > Mac (PR #49, branch `closing-data/tbl1-overlap-and-region-tost`) — do not redo them. Your plate is what remains:
-> ✅ **W6 probe DONE (PR #48): trunk, not transfer** (probe cat ≈ full-MTL, ≫ ceiling; §6.2 BACKED). Your plate is
-> now **Blocker 2** (HGI category re-score under overlap, incl. the canonical CA/TX HGI build) — the last item
-> needing new GPU runs. **Blocker 1** (FL CTLE) is the **H100's** job (PR #47 landed 2/5; W3 already closed at
-> AL/AZ/Istanbul) — commands here are a fallback only.
+> ✅ **W6 probe DONE (PR #48): trunk, not transfer** (probe cat ≈ full-MTL, ≫ ceiling; §6.2 BACKED). Your plate:
+> **Blocker 2 — FL CTLE-E2E** (NEW, §2: small/quick, the unrun half of the FL CTLE gap — do first), then
+> **Blocker 3** (HGI category re-score under overlap, incl. the canonical CA/TX HGI build — the heavier item).
+> **Blocker 1** (FL CTLE-SC 5f) is the **H100's** job (PR #47 landed 2/5; W3 already closed at AL/AZ/Istanbul) —
+> §4 here is a fallback only.
 >
 > **House rules (non-negotiable, same board as everyone):** seed 0 × 5 folds (n=5); gated stride-1 overlap,
 > engine `check2hgi_dk_ovl`, MIN_SEQ=10; **fp32** (Ampere bf16 grad-NaN) — set the AMP gate and verify healthy late
@@ -28,11 +29,13 @@ export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"
 export TORCHINDUCTOR_CACHE_DIR=$HOME/.inductor_cache_board
 ```
 
-## Priority order (UPDATED 2026-06-25 — W6 DONE)
+## Priority order (UPDATED 2026-06-25 — W6 DONE; FL CTLE-E2E = Blocker 2)
 1. ✅ **W6 encoder-isolation probe — DONE (PR #48): trunk, not transfer.** §1 below is the record; no re-run.
-2. **Blocker 2 (NOW #1, the continuing work)** — HGI category STL under overlap. Needs the canonical CA/TX HGI
-   build first (CPU-bound HGI training → kick off early; the GPU stays free meanwhile). See §2.
-3. **Blocker 1 fallback** — only if the H100's FL CTLE never reaches 5f (it has 2/5; W3 already closed at AL/AZ/Istanbul).
+2. **Blocker 2 — FL CTLE-E2E (NEW, do FIRST among the open items):** small/quick (~30 min–1 h, the cat head);
+   the unrun half of the FL CTLE gap. See §2.
+3. **Blocker 3** — HGI category STL under overlap. Needs the canonical CA/TX HGI build first (CPU-bound → kick off
+   early; the GPU stays free meanwhile). See §3.
+4. **Blocker 1 fallback** — FL CTLE-SC 5f, only if the H100's never reaches 5f (it has 2/5; W3 already closed at AL/AZ/Istanbul). See §4.
 
 ---
 
@@ -47,14 +50,40 @@ JSONs in [`W6_ENCODER_ISOLATION.md`](W6_ENCODER_ISOLATION.md) + RESULTS_BOARD §
 
 ---
 
-## 2 · Blocker 2 — Tbl 2 substrate contrast on ONE windowing (HGI category-STL under overlap)
+## 2 · Blocker 2 — FL CTLE-E2E (the unrun half of the FL CTLE gap)
+**Status: NOT RUN.** Verified on disk: `results/ctle_e2e_b1/florida/` is **absent** (only `alabama/` exists, AL
+E2E = 21.24). The **29.65** some notes cited is a **phantom — never created** (do NOT cite it). This is the
+native-end-to-end half of the FL representation block (Blocker 1 covers the *frozen-SC* half, which the H100 got
+to **2/5** in PR #47).
+
+**Why it's its own blocker (and small).** CTLE-E2E is CTLE in its *best* (fine-tuned) form — the honest "even at
+its strongest CTLE is well below ours" point for the §6.1 representation block. It is a single cat-head E2E run
+(7-class head → cheap, ~30 min–1 h, no wide-region accumulation). **Not load-bearing**: W3 (CTLE leak-clean) is
+already closed at AL/AZ/Istanbul, so FL CTLE is *corroborating*; but it removes the last phantom path at the
+headline state and completes the FL representation block.
+
+**Run (seed 0 × 5f, FL, fp32):**
+```bash
+python scripts/baselines/ctle_e2e.py --state florida --seed 0 --folds 5
+#  -> results/ctle_e2e_b1/florida/ctle_e2e_seed0.json   (AL template: results/ctle_e2e_b1/alabama/ctle_e2e_seed0.json = 21.24)
+```
+**Sanity:** native CTLE transformer fine-tuned end-to-end (NOT the frozen SC); healthy late best-epochs, fp32
+(`DISABLE_AMP=1` from §0), no ~ep12 NaN. **Acceptance:** FL CTLE-E2E cat on disk; **Check2HGI (≫) > CTLE-E2E**;
+present as the E2E rung beside the frozen CTLE-SC ladder ("even in its best E2E form CTLE is well below ours" —
+never "we crushed CTLE"). **Record** the number in `docs/baselines/next_category/ctle.md` (the `e2e` note) +
+RESULTS_BOARD §4; strike any lingering phantom 29.65. If you also have the H100's FL CTLE-SC 2/5, finishing it to
+5f here (Blocker 1, §4) is the natural companion.
+
+---
+
+## 3 · Blocker 3 — Tbl 2 substrate contrast on ONE windowing (HGI category-STL under overlap)
 
 **Why.** Part 2 is on the overlap board; the Part-1 substrate table (Tbl 2: Check2HGI vs HGI category macro-F1 +
 the per-visit share) is still on the **non-overlap** base. A reviewer asks "why two windowings?". The **Check2HGI**
 arm under overlap is already the board STL cat ceiling (`RESULTS_BOARD §1`: AL 55.87 / AZ 57.13 / FL 75.15 /
 CA 70.26 / TX 69.95). **Only the HGI arm under overlap is missing.**
 
-### 2.1 Prereq — canonical CA/TX HGI embeddings (build on the A40, CPU)
+### 3.1 Prereq — canonical CA/TX HGI embeddings (build on the A40, CPU)
 HGI is **not bit-reproducible across machines**, so the whole 6-state HGI set must be one canonical A40 build
 (AL/AZ/FL/GE already on the A40). CA/TX local copies are NOT canonical — rebuild on the A40:
 ```bash
@@ -64,9 +93,9 @@ setsid bash scripts/closing_data/build_catx_hgi.sh Texas      > /tmp/catx_hgi/te
 #  -> output/hgi/{california,texas}/{embeddings,region_embeddings}.parquet  (HGI trains on CPU, GPU stays free)
 ```
 Verify each: `[verify] region_embeddings ... nan=False std>0` and `embeddings.parquet exists=True` in the log.
-(AL/AZ/FL HGI embeddings already on disk; Istanbul HGI — see 2.4.)
+(AL/AZ/FL HGI embeddings already on disk; Istanbul HGI — see 3.4.)
 
-### 2.2 ⚠ OPEN BUILDER STEP — HGI inputs under the OVERLAP windowing
+### 3.2 ⚠ OPEN BUILDER STEP — HGI inputs under the OVERLAP windowing
 There is currently **no `hgi_dk_ovl` engine and no HGI-overlap input builder** (`build_overlap_probe_engine.py` is
 Check2HGI-only; `setup_hgi_inputs.py` builds **non-overlap** POI-level HGI inputs). You must produce HGI category
 inputs on the **same overlap windows** the board uses. The windows are **substrate-independent** — the per-user POI
@@ -85,7 +114,7 @@ vector). Recommended build (a ~20-line script mirroring `setup_hgi_inputs.py`, b
   `len(output/hgi_dk_ovl/<state>/input/next.parquet) == len(output/check2hgi_dk_ovl/<state>/input/next.parquet)`
   (FL = 1,274,418; full Tbl-1 column in `STATS_T1.md`). If they differ, the windowing desynced — stop.
 
-### 2.3 Run — HGI category STL ceiling under overlap (mirror of board Cell 1)
+### 3.3 Run — HGI category STL ceiling under overlap (mirror of board Cell 1)
 The Check2HGI cat ceiling was produced by (`scripts/closing_data/h100_state_cells.sh` Cell 1):
 ```bash
 python scripts/train.py --task next --state <state> --engine <hgi-overlap-engine> \
@@ -96,13 +125,13 @@ python scripts/train.py --task next --state <state> --engine <hgi-overlap-engine
 Run for **AL, AZ, FL, CA, TX, Istanbul**. Smoke first on AL (`--folds 1 --epochs 2` is fine for a *smoke*, but the
 real ceiling is 5f/50ep). Cat is the 7-class head → cheap, no wide-region accumulation.
 
-### 2.4 POI-pooled Check2HGI cat-STL under overlap (the per-visit-context share) — optional if time-pressed
+### 3.4 POI-pooled Check2HGI cat-STL under overlap (the per-visit-context share) — optional if time-pressed
 For the Tbl-2 per-visit share (canonical check-in-level vs POI-mean-pooled), run the same Cell-1 recipe with the
 **`check2hgi_pooled`** engine (the C4 POI-mean-pooled counterfactual, already an enum member). If time-pressed, the
 per-visit *share* is windowing-robust enough to **footnote** as the non-overlap CH19 value — but the clean version
-is to re-score. Istanbul HGI: build only if its row-count gate (2.2) passes on the Istanbul substrate; else footnote.
+is to re-score. Istanbul HGI: build only if its row-count gate (3.2) passes on the Istanbul substrate; else footnote.
 
-### 2.5 Acceptance + outputs
+### 3.5 Acceptance + outputs
 Tbl 2 = Check2HGI-cat-STL (board) vs **HGI-cat-STL (new, overlap)** at the 6 states, on ONE windowing; expect the
 substrate margin to land at the same **~+15…+29** magnitude as the non-overlap measurement (sanity: if HGI cat ≈
 Check2HGI cat, the substrate didn't swap — stop). Commit a small result JSON per state under
@@ -112,7 +141,7 @@ windowing-robust → **no** re-score.)
 
 ---
 
-## 3 · Blocker 1 (FL CTLE) — H100's job; A40 FALLBACK ONLY
+## 4 · Blocker 1 (FL CTLE-SC) — H100's job; A40 FALLBACK ONLY
 
 Do **not** start this unless the orchestrator says the H100 stalled. If re-tasked to the A40, the FL run-spec is
 the four commands below (device-agnostic; keep the fp32 AMP gate from §0). The two missing JSONs:
@@ -137,14 +166,14 @@ Then strike the phantom fold-0/never-run numbers (27.98/73.00 SC, 29.65 E2E) in 
 
 ---
 
-## 4 · Pre-flight checklist (every reg/joint cell)
+## 5 · Pre-flight checklist (every reg/joint cell)
 - [ ] `git pull` includes the freeze-reg-stream commit + PR #49; smoke passes (no reg-collate crash).
 - [ ] AMP gate exported (`DISABLE_AMP=1 MTL_DISABLE_AMP=1`); best-epochs land **late** (no ep≤12 NaN collapse).
 - [ ] `--folds 5` (NEVER `--folds 1` for a substrate/SC build); seed 0; user-disjoint folds.
 - [ ] log_T fresh (mtime ≥ `next_region.parquet`) for any `--per-fold-transition-dir` cell; rebuild if stale.
-- [ ] Blocker-2 row-count identity gate passes (HGI-overlap == Check2HGI-overlap row counts) before training.
+- [ ] Blocker-3 row-count identity gate passes (HGI-overlap == Check2HGI-overlap row counts) before training.
 - [ ] Commit per cell + a one-line finding; never cite a void fp16/bf16 JSON; branch + PR, no merge to main.
 
-## 5 · Do NOT
-Redo the Mac CPU work (Blocker 3 / TOST — PR #49). Build GE (out of scope) unless a dependency forces it. Run the
+## 6 · Do NOT
+Redo the Mac CPU work (Tbl-1 stats / TOST — PR #49). Build GE (out of scope) unless a dependency forces it. Run the
 FL CTLE cells unless the H100 stalled and the orchestrator re-tasks you. Merge to main.
