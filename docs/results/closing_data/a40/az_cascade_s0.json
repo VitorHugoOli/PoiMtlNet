@@ -1,0 +1,39 @@
+{
+  "rundir": "results/check2hgi_dk_ovl/arizona/mtlnet_lr1.0e-04_bs2048_ep50_20260624_210935_1685035",
+  "seed": 0,
+  "tag": "az_cascade_s0",
+  "method": "reg full=top10_acc_indist*(1-ood_frac) at indist-best epoch; cat=macro-f1 at f1-best epoch; per-task diagnostic-best, fold-mean",
+  "cat_macro_f1_mean": 63.6319,
+  "cat_macro_f1_std": 1.3371,
+  "cat_per_fold": [
+    65.5384,
+    62.2506,
+    64.8967,
+    63.0493,
+    62.4246
+  ],
+  "cat_best_epochs": [
+    18,
+    15,
+    20,
+    17,
+    14
+  ],
+  "reg_full_top10_mean": 59.1792,
+  "reg_full_top10_std": 1.8333,
+  "reg_per_fold": [
+    62.6148,
+    58.8417,
+    59.2026,
+    57.5325,
+    57.7043
+  ],
+  "reg_best_epochs": [
+    23,
+    24,
+    22,
+    25,
+    27
+  ],
+  "n_folds": 5
+}

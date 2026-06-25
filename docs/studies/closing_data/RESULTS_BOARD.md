@@ -46,6 +46,33 @@ Istanbul −0.58). **CA, the largest region state, is 5f-complete and beats** �
 > 4. **n=5 (seed 0 only):** Wilcoxon superiority (cat) is fine (p-floor 0.0312); region matches/beats need a
 >    **TOST-power statement** or an "n=5 provisional" label. The {1,7,100} top-up to n=20 is post-deadline.
 
+## 1b · CSLSL cascade (role-3 baseline) — cascade-vs-parallel, same-device A40
+
+CSLSL/CatDM cascade pattern (`scripts/baselines/b4_cascade.py`): a directed **cat→region** edge (posterior
+softmax, `cond_detach` feed-forward) with the symmetric cross-attention **DISABLED** — isolating
+**cascade vs parallel** as the ONLY varying factor vs champion-G (identical frozen heads `next_gru`(cat) +
+`next_stan_flow_dualtower`(reg), identical `check2hgi_dk_ovl` substrate + per-fold seeded log_T). Seed 0 × 5f,
+gated stride-1 overlap (MIN_SEQ=10), **true fp32** (`MTL_DISABLE_AMP=1`, 0 non-finite skips). Comparand =
+**champion-G re-run on the SAME A40** for a strict same-device Δ (the §1 champion-G is on the H100).
+
+| State | cascade cat | champ-G cat (A40) | **Δcat** | cascade reg | champ-G reg (A40) | **Δreg** | cascade joint | champ-G joint | **Δjoint** |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| **AL** | 63.45 ±2.00 | 63.25 ±2.02 | **+0.20** | 69.48 ±3.03 | 69.65 ±3.32 | **−0.17** | 66.39 | 66.37 | **+0.02** ≈tie |
+| **AZ** | 63.63 ±1.34 | 63.44 ±1.33 | **+0.20** | 59.18 ±1.83 | 59.36 ±1.79 | **−0.18** | 61.37 | 61.36 | **+0.00** ≈tie |
+
+*(cat = macro-F1; reg = FULL top10_acc = indist·(1−ood) at diagnostic-best epoch; joint = √(cat·reg);
+fold-mean ±pstd, matched scorer `a40_score_matched.py`. JSONs:
+`docs/results/closing_data/a40/{al,az}_{cascade,champG_a40}_s0.json`.)*
+
+**Reading:** the cascade is a **dead tie** with our parallel champion-G on the joint objective
+(Δjoint ≤ 0.02 pp ≪ fold-std). It trades a hair of category (+0.20) for a hair of region (−0.17/−0.18),
+netting ~0 → **our parallel bidirectional cross-attention matches the dominant published multi-task
+alternative (cascade) at equal cost**; neither the directed cat→region coupling nor severing the symmetric
+channel helps or hurts materially at AL/AZ. **n=5 provisional** (seed 0; {1,7,100}→n=20 post-deadline).
+Cascade did NOT beat champion-G (the `b4_cascade.py` wiring sanity check passes). **Cross-device check:**
+the A40 champion-G re-run reproduces the board (H100) champion-G — AZ cat/reg within ±0.05 pp,
+AL cat −0.31 / reg −0.16 (≤ fold-std). CA/TX cascade deferred (deadline; CA/TX only "if cheap" per handoff).
+
 ## 2 · Precision verdict (settled) & schedule ablation (NULL)
 - **bf16 ≈ fp32** on quality (Δ≤0.12 pp) and ~0 wall-clock (overlap is data-bound, GPU util 8-25%) →
   small/mid states fp32; large-state bf16 is **not cross-GPU portable** (A40-Ampere grad-NaNs where H100 stays
@@ -63,6 +90,8 @@ Istanbul −0.58). **CA, the largest region state, is 5f-complete and beats** �
 - `h100/texas_s0_mtl/texas_s0_mtl_final_score.json` — TX MTL bf16 5f corroboration (cat 77.47/reg 67.00) ✅main
 - ⚠ VOID: `h100/california_s0_{board,mtl}_partial.json`, `a40/tx_ba2_bf16_s0.json` (fp16/bf16 collapse — do not cite)
 - STL **reg** ceilings: `docs/results/P1/region_head_*_dkovl*` (fp32, leak-free per-fold prior)
+- **CSLSL cascade (§1b):** `a40/{al,az}_cascade_s0.json` (B4 cascade) + `a40/{al,az}_champG_a40_s0.json`
+  (same-device champion-G comparand) — all A40 true-fp32, dk_ovl, seed 0 × 5f ✅main
 
 **Narrative / per-cell docs:** `docs/studies/closing_data/`
 - `BOARD_H100_FINDINGS.md` (session consolidation) · `CA_CELL.md` · `TX_CELL.md` · `AL_PRECISION_GATE.md` ·
