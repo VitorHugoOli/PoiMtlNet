@@ -92,11 +92,27 @@ class TrajectoryStore:
             for p in self.poi_set[tid]:
                 self.poi_to_train_traj[p].append(tid)
 
+        # --- Vectorised-gather buffers (data-movement optimisation, byte-identical) ---
+        # Pre-stack the per-column ID arrays and a precomputed mask into contiguous
+        # [n_traj, max_len] tensors, indexed by a stable tid->row map. `stack()` then
+        # becomes a single advanced-index gather instead of a Python list-comp +
+        # per-row mask loop. The contents are exactly what the old loop produced.
+        self._row_of: dict[int, int] = {t: i for i, t in enumerate(self.traj_ids)}
+        n_traj = len(self.traj_ids)
+        self._id_mat: dict[str, torch.Tensor] = {}
+        for c in self.ID_COLS:
+            mat = np.stack([self.ids[c][t] for t in self.traj_ids]) if n_traj else \
+                np.zeros((0, max_len), dtype=np.int64)
+            self._id_mat[c] = torch.from_numpy(mat)
+        mask_mat = torch.zeros(n_traj, max_len, dtype=torch.float32)
+        for i, t in enumerate(self.traj_ids):
+            mask_mat[i, : self.lengths[t]] = 1.0
+        self._mask_mat = mask_mat
+
     def stack(self, tids: list[int]):
-        ids = {c: torch.from_numpy(np.stack([self.ids[c][t] for t in tids])) for c in self.ID_COLS}
-        mask = torch.zeros(len(tids), self.max_len, dtype=torch.float32)
-        for i, t in enumerate(tids):
-            mask[i, : self.lengths[t]] = 1.0
+        rows = torch.tensor([self._row_of[t] for t in tids], dtype=torch.long)
+        ids = {c: self._id_mat[c].index_select(0, rows) for c in self.ID_COLS}
+        mask = self._mask_mat.index_select(0, rows)
         return ids, mask
 
     def precompute_collab_pools(self, max_inter_pool: int = 32) -> None:
@@ -189,9 +205,16 @@ def make_collate(store: TrajectoryStore, max_intra: int, max_inter: int, trainin
         collab_ids, collab_mask = store.stack(all_collab)
         adjacency = torch.zeros(len(batch_tids), len(all_collab), dtype=torch.float32)
         edge_types = torch.zeros(len(batch_tids), len(all_collab), dtype=torch.long)
-        for ti, ci, rtype in edges:
-            adjacency[ti, ci] = 1.0
-            edge_types[ti, ci] = rtype
+        # Vectorised scatter from the `edges` list (data-movement optimisation,
+        # byte-identical to the per-edge Python loop). Each (ti, ci) pair is
+        # unique: intra (same-user) and inter (different-user, see :122) pools
+        # are user-disjoint and `seen_to_idx` dedups, so no (ti, ci) is written
+        # twice — index-assignment has no duplicate-index ambiguity here.
+        if edges:
+            e = torch.tensor(edges, dtype=torch.long)  # [E, 3]: (ti, ci, rtype)
+            ti_idx, ci_idx, rt = e[:, 0], e[:, 1], e[:, 2]
+            adjacency[ti_idx, ci_idx] = 1.0
+            edge_types[ti_idx, ci_idx] = rt
         return target_ids, target_mask, collab_ids, collab_mask, adjacency, edge_types, targets
 
     return collate
