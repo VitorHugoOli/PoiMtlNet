@@ -46,11 +46,12 @@ python scripts/baselines/ctle_e2e.py --state florida --seed 0 --folds 5
 #  -> results/ctle_e2e_b1/florida/ctle_e2e_seed0.json  (record number in MACS_BOARD_RESULTS.md + RESULTS_BOARD §4)
 ```
 
-**(C) feature-concat control @ FL** — "is the gain just feature injection, not the hierarchy?" Run now (no gate).
-HGI per-place vector ⊕ raw per-visit features (category one-hot + hour/day sin/cos) → `next_gru` head, same folds.
-No new embedding training. **Needs a thin builder:** extend `scripts/probe/build_design_a_concat.py` (it currently
-concats c2hgi⊕HGI; swap the 2nd stream for raw features), then run the cat head on it. *(If the wrapper isn't on
-main yet, ping the orchestrator — it's ~10 lines.)*
+**(C) feature-concat control @ FL — ✅ ALREADY DONE ON DISK, do NOT run.** It is the A2 `--add-visit-features`
+(`hgifeat`) arm (`scripts/pre_freeze_gates/run_a2.py`), FL seed0×5f: `docs/results/P1/region_head_florida_checkin_5f_30ep_A2_hgifeat_category_s0.json`.
+Finding (matched A2 config): **HGI⊕features ≈ HGI-alone** (features add only ~+0.8 pp) and both are **far below
+Check2HGI** → the category gain is the **hierarchy, not feature injection**. No new builder/run needed (the §4b
+note + the gap-audit confirm this); the exact numbers + metric convention reconcile at paper write-time (the A2
+arms are a 30ep region-head-ablation, distinct from the 50ep board ceiling). Skip this cell.
 
 **(D) CTLE-SC @ FL** — ✅ **CLEARED 2026-06-24** (M4 CTLE-diagnosis verdict: the AL frozen CTLE-SC cat 17.8 below
 the bigram floor is a **REAL CTLE frozen-substrate weakness, NOT a pipeline/leak bug** — proceed). Evidence:

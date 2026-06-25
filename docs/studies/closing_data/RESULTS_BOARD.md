@@ -124,14 +124,26 @@ Per the baselines README, the paper's baseline tables read from [`../../baseline
   value is correct; the **62.37 is the outlier** (unreproducible, artifacts reclaimed). Use the Mac/CPU HMT-GRN reg:
   **AL 57.1 / AZ 43.7 / FL 63.7 / CA 49.6 / TX 53.9 / Istanbul 60.4** — all **well below our MTL ~65-69**, so we beat
   the sole region-native baseline by a wide margin (all 6 states now done). (Re-verify the old 62.37, not the Mac value.)
-- ✅ **CSLSL / cascade (B4, the "published MTL alternative"): AL/AZ done [M4/MPS]** — cascade-vs-parallel ablation
-  on the **same v14 set-a base** (directed cat→region, cross-attn severed) vs champion-G (parallel) on that base.
-  **Parallel ≥ cascade everywhere**: Δ(parallel−cascade) cat **+5.04 (AL) / +1.62 (AZ)**, reg **+0.56 (AL) / −0.05
-  (AZ tie)** — our symmetric coupling beats/matches the directed cascade. MPS==CPU within 0.63pp (AL). n=5
-  provisional. **Compare ONLY within the v14 set-a base, NOT the board dk_ovl numbers.** **FL attempted on the M4 →
-  MPS-OOM** (24 GB insufficient for 159k rows / 4,703 regions; 4/5 folds, no comparand — NOT citable); **FL/CA/TX → A40/H100**.
-  Canonical doc: [`../../baselines/cslsl_cascade.md`](../../baselines/cslsl_cascade.md); narrative `CSLSL_CASCADE_RESULTS.md`;
-  JSONs `baseline_compare/{alabama,arizona,florida}_cslsl_cascade.json`.
+- ✅ **CSLSL / cascade (B4, role-3 "published MTL alternative") — CANONICAL = the §1b A40 dk_ovl DEAD TIE.** On the
+  board base (dk_ovl, true-fp32, same-device champion-G re-run), cascade-vs-parallel is a **dead tie** (Δjoint AL
+  +0.02 / AZ +0.00 ≪ fold-std) → our parallel cross-attn **matches** the dominant published MTL alternative at equal
+  cost. **Contribution-2 is anchored to the §1 STL-ceiling lift (+4.7…+8.1 cat, +reg at large states), NOT this
+  cascade cell** (a tie only rules out that a cheaper cascade would have matched our lift — which it does). See §1b.
+  - ⚠ **The M4/MPS `set-a` CSLSL is an APPENDIX CROSS-CHECK ONLY — never a paper-table number.** On the non-board
+    v14 set-a base (stride-9, MIN_SEQ=5, data-starved: parallel cat ~51 not the board ~63) it shows parallel ≥
+    cascade (Δcat +5.04 AL / +1.62 AZ) — *same direction*, but it **CONTRADICTS the canonical dk_ovl tie if cited as
+    headline** (the gap is regime-fragile: coupling helps when data is thin, washes out on the board). Cite ONLY as
+    "same-direction corroboration (parallel ≥ cascade, never worse)". MPS==CPU within 0.63pp = the device-trust gate.
+    FL set-a OOM'd on MPS (4/5, no comparand — VOID). Docs: `../../baselines/cslsl_cascade.md` (set-a) + `CSLSL_CASCADE.md` (dk_ovl, canonical).
+- ✅ **Feature-concat control (role-2, FL) — DONE on disk, no new run.** The A2 `--add-visit-features` (`hgifeat`)
+  arm: **HGI⊕raw-features ≈ HGI-alone** (features add only ~+0.8 pp), both **far below Check2HGI** → the category
+  gain is the **hierarchy, not feature injection**. (`docs/results/P1/region_head_florida_checkin_5f_30ep_A2_hgifeat_category_s0.json`;
+  exact numbers/metric reconcile at write-time — A2 is a 30ep ablation, distinct from the 50ep ceiling.)
+
+> ⚠ **AMP-gate PRE-TABULATION GATE (for the in-flight H100/A40 FL baseline cells).** The fp16 fix (#43) is **opt-in**
+> (`DISABLE_AMP=1`/`MTL_DISABLE_AMP=1`). Before trusting/tabulating ANY FL reg/joint baseline number, verify the
+> producing run had it set AND the FL JSON shows healthy late best-epochs (no ~ep12 freeze / no ~3% collapsed fold)
+> — else the FL wide-reg cell silently NaN'd under buggy fp16. The #43 driver wrappers export it; confirm per cell.
 
 ## 5 · Provenance legend
 ✅ main = source JSON on main, verified-readable ·

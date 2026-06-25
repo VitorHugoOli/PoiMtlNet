@@ -1,7 +1,7 @@
 {
   "rundir": "results/check2hgi_dk_ovl/arizona/mtlnet_lr1.0e-04_bs2048_ep50_20260624_214955_1700926",
   "seed": 0,
-  "tag": "ar_champG_a40_s0",
+  "tag": "az_champG_a40_s0",
   "method": "reg full=top10_acc_indist*(1-ood_frac) at indist-best epoch; cat=macro-f1 at f1-best epoch; per-task diagnostic-best, fold-mean",
   "cat_macro_f1_mean": 63.4355,
   "cat_macro_f1_std": 1.3251,

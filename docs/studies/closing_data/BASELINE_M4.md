@@ -51,7 +51,11 @@ matched-frozen-capacity companion (frozen-SC undersells deep models; that's the 
 / CA 49.6 / **TX 53.9** / Istanbul 60.4), all well below our MTL ~65–69. The region-native safety-net row is closed.
 
 ## 2b · Task 2 (NEW) — Istanbul champion-G @ stride-1 (make the §6.3 box internally consistent)
-> **⏸ DEFERRED (2026-06-24, user decision) — LOW priority; the 4-seed set-a champion is already a valid datapoint.**
+> **▶ NOW THE M4's ACTIVE TASK (Task 1 done; FL CSLSL re-homed to the A40 — M4 is free).** Still **LOW priority /
+> P2, off the deadline critical path** — the 4-seed set-a champion is already a valid datapoint, so this only buys a
+> windowing-consistent §6.3 table. Read the prerequisites below FIRST (the M4 found the stride-1 base is NOT
+> persisted + the exact champion command isn't on the box — non-trivial). Stays on the M4 (device-sensitivity). If
+> the prerequisites prove too costly before the deadline, **footnote the windowing mismatch instead** (don't block).
 > Two prerequisites the next runner must handle (investigated this session — don't re-discover):
 > 1. **The stride-1 champion base is NOT on disk.** `output/check2hgi/istanbul/input/` currently holds the **set-a**
 >    base (58,297 rows, `stride=null`, `min_seq=5`; provenance utc 2026-06-24T10:18) — the baselines built their
