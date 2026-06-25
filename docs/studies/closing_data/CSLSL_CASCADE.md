@@ -42,6 +42,41 @@ champion-G (the `b4_cascade.py` docstring's anti-overclaim sanity check passes).
 **at least as good as the cascade at equal cost**; the cross-task lift lives in the parallel coupling, and
 removing it for a directed cascade neither helps nor hurts at AL/AZ.
 
+## Verification — the mechanism is ACTIVE and EXERCISED (2026-06-25 audit)
+
+The near-identical metrics looked suspicious (could the cascade flags be silent no-ops, making the "cascade"
+secretly == champion-G?). Three independent code audits + the run artifacts say **NO — the cascade is a
+genuinely different, fully-exercised model.** The ±0.01–0.2 tie is a real result.
+
+**Code audits (3 agents, independent):**
+- `disable_cross_attn=True` → **ACTIVE**. `_coerce_cli_value` (`train.py:1224-1226`) maps `"True"`→ real bool;
+  `create_model` passes it to `MTLnetCrossAttn.__init__` (stored `model.py:264`); forward guards the cross-attn
+  loop with `if not self._disable_cross_attn:` (`mtlnet_crossattn_dualtower/model.py:64-70,149`). Runtime
+  instrumentation: the 2 cross-attn blocks were called **0×** with the flag set vs **2×** without. Disabling
+  cross-attn alone shifts init outputs (CAT max|Δ|=0.54, REG max|Δ|=0.086).
+- `cond_coupling=posterior … cond_detach=True` → **ACTIVE + trainable**. The reg head builds a **zero-init**
+  `cond_proj` (`next_stan_flow_dualtower/head.py:293-296`), injects the **live softmax cat-posterior** additively
+  into the pooled region feature (`model.py:114-127`, `head.py:477-482`), detached (feed-forward). `cond_proj` is
+  `requires_grad=True`, in the optimizer's reg group, and gets a nonzero gradient from step 1 (‖grad‖≈0.64) —
+  zero-init does NOT pin it. No freeze/zero-multiply applies.
+- Empirical instantiation: cascade has 2 extra trained tensors (`cond_proj.weight/bias`); same build path as
+  `train.py`; logits diverge at init purely from the cross-attn removal (coupling adds 0 at init by design).
+
+**Run-artifact proof (`cond_norm` = ‖cond_proj(cat_cond)‖, logged per epoch):**
+| run | cond_norm ep1 → ep50 | coupling present? |
+|---|---|---|
+| cascade AL fold1 | 0.078 → **1.574** (max 1.62) | yes — learned |
+| cascade FL fold1 | 0.291 → **4.613** (max 5.01) | yes — learned strongly (~16×) |
+| cascade FL fold3 | 0.275 → **4.407** | yes |
+| **champion-G (any fold)** | *column absent* | **no coupling** (cond_coupling=none) |
+
+So in the actual scored runs the directed cat→region coupling **grew from ~0 to a large magnitude** (FL ~4.6) —
+it is heavily used — and cross-attention was severed, yet the cascade still lands at champion-G's joint
+performance. **Conclusion:** the cascade genuinely explores a different coupling topology (severed symmetric
+channel + a strongly-learned directed edge) and **arrives at equivalent performance** → "cascade ≈ parallel"
+is a robust finding, not a plumbing artifact. The symmetric bidirectional cross-attention and the directed
+CSLSL-style cascade are **performance-equivalent on this substrate** (1.1k→4.7k regions).
+
 ## Provenance (reproduce)
 - **Substrate**: `check2hgi_dk_ovl` (= v14 design_k embeddings re-windowed gated stride-1, MIN_SEQ=10).
   Built/rebuilt on the A40 2026-06-24 via `build_overlap_probe_engine.py {alabama,arizona} 1 10`
