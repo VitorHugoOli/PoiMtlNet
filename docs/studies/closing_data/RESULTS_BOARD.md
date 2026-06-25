@@ -59,17 +59,16 @@ gated stride-1 overlap (MIN_SEQ=10), **true fp32** (`MTL_DISABLE_AMP=1`, 0 non-f
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | **AL** | 63.45 ±2.00 | 63.25 ±2.02 | **+0.20** | 69.48 ±3.03 | 69.65 ±3.32 | **−0.17** | 66.39 | 66.37 | **+0.02** ≈tie |
 | **AZ** | 63.63 ±1.34 | 63.44 ±1.33 | **+0.20** | 59.18 ±1.83 | 59.36 ±1.79 | **−0.18** | 61.37 | 61.36 | **+0.00** ≈tie |
-| **FL** | 79.83 ±0.49 | ⏳ A40 | — | 77.27 ±0.95 | ⏳ A40 | — | 78.54 | — | ⏳ |
+| **FL** | 79.83 ±0.49 | 79.82 (H100§1) | **+0.01** | 77.27 ±0.95 | 77.28 (H100§1) | **−0.01** | 78.54 | 78.55 | **−0.01** ≈tie |
 
 *(cat = macro-F1; reg = FULL top10_acc = indist·(1−ood) at diagnostic-best epoch; joint = √(cat·reg);
 fold-mean ±pstd, matched scorer `a40_score_matched.py`. JSONs:
-`docs/results/closing_data/a40/{al,az,fl}_cascade_s0.json` + `{al,az}_champG_a40_s0.json`
-(FL same-device champ-G `fl_champG_a40_s0.json` in-flight).)*
+`docs/results/closing_data/a40/{al,az,fl}_cascade_s0.json` + `{al,az}_champG_a40_s0.json`.
+FL champ-G comparand = the §1 board (H100) value — the A40 same-device champ-G FL was **stopped at 4/5 folds**
+(re-tasked to W6) after its 4-fold mean reproduced the catalog to **±0.006 cat / ±0.16 reg**, so the FL tie
+rests on the board champ-G, cross-device ±0.01.)*
 **FL (large state, 4703 regions): cascade is again a tie.** vs the §1 board champ-G FL (H100, 79.82/77.28):
-**Δcat +0.01 / Δreg −0.01** — essentially identical (cross-device). The A40 same-device champ-G FL is
-**in-flight** (fold 1/5: cat 79.45 / reg 77.71 — reproduces the board champ-G FL fold-1 to ±0.07/±0.03 and
-ties the cascade fold-1 to +0.02/+0.15; on track); the row's A40 champ-G cells + Δ fill in on completion.
-FL canonical (`dk_ovl`, 5f, fp32) —
+**Δcat +0.01 / Δreg −0.01** — essentially identical. FL canonical (`dk_ovl`, 5f, fp32) —
 **supersedes the M4 set-a partial** (`baseline_compare/florida_cslsl_cascade.json`, 4-fold MPS-OOM, no comparand).
 
 **Reading:** the cascade is a **dead tie** with our parallel champion-G on the joint objective
@@ -80,6 +79,26 @@ channel helps or hurts materially at AL/AZ. **n=5 provisional** (seed 0; {1,7,10
 Cascade did NOT beat champion-G (the `b4_cascade.py` wiring sanity check passes). **Cross-device check:**
 the A40 champion-G re-run reproduces the board (H100) champion-G — AZ cat/reg within ±0.05 pp,
 AL cat −0.31 / reg −0.16 (≤ fold-std). CA/TX cascade deferred (deadline; CA/TX only "if cheap" per handoff).
+
+## 1c · W6 — category-side encoder-isolation probe (mechanism: trunk, not transfer)
+
+Freeze the **region** stream at init (`--freeze-reg-stream`) + reg loss off (`--category-weight 1.0`), train
+champion-G on `check2hgi_dk_ovl`, read the **category** head (seed 0 × 5f, true fp32, A40). Tests the §6.2
+claim directly (the cat win is "a stronger shared encoder, NOT region→category transfer") — the right direction
+vs F49 (which freezes the cat stream).
+
+| State | STL cat ceiling | full-MTL cat (§1) | **probe cat (region frozen)** | Δ vs ceiling | Δ vs full-MTL |
+|---|---:|---:|---:|---:|---:|
+| AL | 55.87 | 63.56 | **63.50 ±1.74** | **+7.63** | −0.06 |
+| AZ | 57.13 | 63.39 | **63.67 ±1.28** | **+6.54** | +0.28 |
+| FL | 75.15 | 79.82 | **79.79 ±0.46** | **+4.64** | −0.03 |
+
+**Verdict: W6 CLOSED.** With the region stream frozen-at-init (no learned region signal, cannot co-adapt via
+cross-attn K/V), the category head keeps the **entire** joint lift — probe cat ≈ full-MTL cat (±0.3 pp) and
+**≫ STL ceiling (+4.6…+7.6 pp)** at all three states. → the category benefit is the **shared trunk
+(architecture/capacity), NOT cross-task transfer**. Freeze verified (reg optimizer group = 0 trainable params,
+all states; 0 nan). **n=5 provisional.** Full cell: `W6_ENCODER_ISOLATION.md`; JSONs
+`a40/{al,az,fl}_w6_freezereg_s0.json`.
 
 ## 2 · Precision verdict (settled) & schedule ablation (NULL)
 - **bf16 ≈ fp32** on quality (Δ≤0.12 pp) and ~0 wall-clock (overlap is data-bound, GPU util 8-25%) →

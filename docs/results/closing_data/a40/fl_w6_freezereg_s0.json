@@ -1,0 +1,39 @@
+{
+  "rundir": "results/check2hgi_dk_ovl/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260625_062409_1952096",
+  "seed": 0,
+  "tag": "fl_w6_freezereg_s0",
+  "method": "reg full=top10_acc_indist*(1-ood_frac) at indist-best epoch; cat=macro-f1 at f1-best epoch; per-task diagnostic-best, fold-mean",
+  "cat_macro_f1_mean": 79.7895,
+  "cat_macro_f1_std": 0.4613,
+  "cat_per_fold": [
+    79.4698,
+    79.8961,
+    79.6631,
+    79.2973,
+    80.6214
+  ],
+  "cat_best_epochs": [
+    47,
+    48,
+    50,
+    47,
+    50
+  ],
+  "reg_full_top10_mean": 0.1489,
+  "reg_full_top10_std": 0.0425,
+  "reg_per_fold": [
+    0.1189,
+    0.2013,
+    0.1958,
+    0.0942,
+    0.1346
+  ],
+  "reg_best_epochs": [
+    36,
+    33,
+    4,
+    13,
+    32
+  ],
+  "n_folds": 5
+}

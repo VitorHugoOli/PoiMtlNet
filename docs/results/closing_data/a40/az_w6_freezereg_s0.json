@@ -1,0 +1,39 @@
+{
+  "rundir": "results/check2hgi_dk_ovl/arizona/mtlnet_lr1.0e-04_bs2048_ep50_20260625_060527_1945958",
+  "seed": 0,
+  "tag": "az_w6_freezereg_s0",
+  "method": "reg full=top10_acc_indist*(1-ood_frac) at indist-best epoch; cat=macro-f1 at f1-best epoch; per-task diagnostic-best, fold-mean",
+  "cat_macro_f1_mean": 63.6693,
+  "cat_macro_f1_std": 1.2791,
+  "cat_per_fold": [
+    65.3849,
+    62.6669,
+    64.8811,
+    63.3813,
+    62.032
+  ],
+  "cat_best_epochs": [
+    23,
+    19,
+    22,
+    20,
+    21
+  ],
+  "reg_full_top10_mean": 0.4301,
+  "reg_full_top10_std": 0.1137,
+  "reg_per_fold": [
+    0.5426,
+    0.5177,
+    0.4878,
+    0.3634,
+    0.2389
+  ],
+  "reg_best_epochs": [
+    31,
+    1,
+    16,
+    10,
+    36
+  ],
+  "n_folds": 5
+}
