@@ -155,10 +155,11 @@ Per the baselines README, the paper's baseline tables read from [`../../baseline
   frozen overlap sequences → windows **byte-identical** to the Check2HGI arm; gates passed: row counts ==,
   `next_category` labels 100% identical, embeddings genuinely differ). Substrate margin (Check2HGI-board − HGI):
   **AL +29.31 (55.87 vs 26.56) · AZ +27.63 (57.13 vs 29.50) · FL +39.62 (75.15 vs 35.53) · CA +37.95 (70.26 vs
-  32.31)** — large +27…+40 pp everywhere (HGI POI-level cat is a consistent ~0.46–0.52× of Check2HGI check-in-level
-  cat), now windowing-consistent with Part-2. **Only TX pending** (running on the A40; will append). JSONs
-  `baseline_compare/{state}_hgi_ovl_cat.json`. The Check2HGI arm IS the §1 board STL cat ceiling. → drop the
-  "non-overlap" caveat on PAPER_PLAN Tbl 2 once TX lands.
+  32.31) · TX +37.47 (69.95 vs 32.48)** — large +27…+40 pp everywhere (HGI POI-level cat is a consistent
+  ~0.46–0.52× of Check2HGI check-in-level cat), now windowing-consistent with Part-2. **All 5 Gowalla states
+  COMPLETE** (Istanbul HGI optional per §3.4). JSONs `baseline_compare/{state}_hgi_ovl_cat.json`. The Check2HGI
+  arm IS the §1 board STL cat ceiling. → **PAPER_PLAN Tbl 2 "non-overlap" caveat dropped** (one windowing for the
+  whole paper); paper-side Tbl 2 `.tex` CA/TX cells ready for the orchestrator audit (AL/AZ/FL already filled).
 - ❌ **SC *region* is NOT used in the article.** The pre-fix SC reg was INVALID (substrate-bypass + shared prior +
   stale log_T) — now **quarantined** (`_reg_status: INVALID_PENDING_RERUN` on the AL/AZ `baseline_compare/*.json`).
   Region's substrate-isolation story is weak anyway (it is a near-tie: AL −0.4, AZ −0.3, Istanbul −3.5 where CTLE
