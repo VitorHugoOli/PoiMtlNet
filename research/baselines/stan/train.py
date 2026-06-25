@@ -46,7 +46,7 @@ from research.baselines.stan.etl import (  # noqa: E402
     centroids_path as etl_centroids_path,
     out_path as etl_out_path,
 )
-from research.baselines.stan.model import FaithfulSTAN  # noqa: E402
+from research.baselines.stan.model import FaithfulSTAN, haversine_km  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("faithful_stan")
@@ -88,7 +88,7 @@ def load_tensors(state: str):
     )
 
 
-def train_one_fold(poi, hour, lat, lon, tmin, y, centroids, train_idx, val_idx,
+def train_one_fold(poi, hour, lat, lon, tmin, y, dd_poi, train_idx, val_idx,
                    n_pois, n_regions, *, epochs, batch_size, seed,
                    d_model, dropout, lr, seq_length, patience) -> dict:
     seed_everything(seed)
@@ -120,7 +120,7 @@ def train_one_fold(poi, hour, lat, lon, tmin, y, centroids, train_idx, val_idx,
         n_pois=n_pois, n_regions=n_regions,
         d_model=d_model, dropout=dropout, seq_length=seq_length,
     ).to(DEVICE)
-    centroids_dev = centroids.to(DEVICE)
+    # dd_poi[n_pois+1, R] is precomputed once in run() and already on DEVICE.
 
     # Audit fix #5 (2026-06-26): STAN's reference trains at a CONSTANT LR (StepLR γ=1)
     # with early-stopping on a real val plateau, NOT OneCycle (which annealed the LR to
@@ -132,53 +132,74 @@ def train_one_fold(poi, hour, lat, lon, tmin, y, centroids, train_idx, val_idx,
     g = torch.Generator(device=DEVICE if torch.cuda.is_available() else "cpu")
     g.manual_seed(seed)
 
+    def _sync():
+        if torch.cuda.is_available():
+            torch.cuda.synchronize()
+
     best_acc10 = -1.0
     best_epoch = -1
     best_logits = None
     epochs_since_improve = 0
+    n_val = poi_va.shape[0]
+    n_steps = (n_train + batch_size - 1) // batch_size
     for epoch in range(epochs):
+        # ---- OBSERVER: per-epoch + per-phase timing + per-epoch val Acc@10 ----
+        t_ep = time.time()
         model.train()
         perm = torch.randperm(n_train, generator=g, device=poi_tr.device)
+        loss_sum = torch.zeros((), device=poi_tr.device)
         for s in range(0, n_train, batch_size):
             idx = perm[s:s + batch_size]
             poi_b = poi_tr[idx]; hour_b = hour_tr[idx]
             lat_b = lat_tr[idx]; lon_b = lon_tr[idx]
             t_b = tmin_tr[idx]; y_b = y_tr[idx]
             optim.zero_grad(set_to_none=True)
-            out = model(poi_b, hour_b, lat_b, lon_b, t_b, centroids_dev)
+            out = model(poi_b, hour_b, lat_b, lon_b, t_b, dd_poi)
             loss = crit(out, y_b)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             optim.step()
+            loss_sum += loss.detach()
+        _sync(); t_train = time.time() - t_ep
 
         # Cheap epoch validation: only Acc@10 (no sklearn F1) for selection.
+        t_v = time.time()
         model.eval()
-        n_val = poi_va.shape[0]
         top10_correct = 0
         val_logits_chunks = []
         with torch.no_grad():
             for s in range(0, n_val, batch_size):
                 e = s + batch_size
                 out = model(poi_va[s:e], hour_va[s:e], lat_va[s:e],
-                            lon_va[s:e], tmin_va[s:e], centroids_dev).float()
+                            lon_va[s:e], tmin_va[s:e], dd_poi).float()
                 top10 = out.topk(min(10, out.shape[-1]), dim=-1).indices  # [b, 10]
                 top10_correct += (top10 == y_va[s:e].unsqueeze(1)).any(-1).sum().item()
                 # Review fix (2026-06-26): offload each val chunk to CPU immediately —
                 # the audit's O(N_val·C) cache (FL: 4703 classes × ~300K val rows ≈ 15 GB)
                 # must not accumulate on the GPU.
                 val_logits_chunks.append(out.cpu())
+        _sync(); t_val = time.time() - t_v
         acc10 = top10_correct / n_val
-        if acc10 > best_acc10 + 1e-5:
+        improved = acc10 > best_acc10 + 1e-5
+        if improved:
             best_acc10 = acc10
             best_epoch = epoch + 1
             best_logits = torch.cat(val_logits_chunks, dim=0)
             epochs_since_improve = 0
         else:
             epochs_since_improve += 1
-            if epochs_since_improve >= patience:
-                logger.info("    early-stop at epoch %d (best Acc@10=%.4f @ep%d, patience=%d)",
-                            epoch + 1, best_acc10, best_epoch, patience)
-                break
+        # OBSERVER: flush a per-epoch line so convergence + the train/val time split
+        # are visible live (run with `python -u`); reveals which phase is the bottleneck.
+        logger.info("    ep %3d/%d  val_Acc@10=%.4f  best=%.4f@%-3d  loss=%.4f  "
+                    "| train %5.1fs (%d steps, %.0f ms/step)  val %4.1fs%s",
+                    epoch + 1, epochs, acc10, best_acc10, best_epoch,
+                    float(loss_sum) / max(1, n_steps), t_train, n_steps,
+                    1000.0 * t_train / max(1, n_steps), t_val,
+                    "  <-best" if improved else "")
+        if epochs_since_improve >= patience:
+            logger.info("    early-stop at epoch %d (best Acc@10=%.4f @ep%d, patience=%d)",
+                        epoch + 1, best_acc10, best_epoch, patience)
+            break
 
     # Full metrics ONCE at the best epoch's logits.
     m = compute_classification_metrics(best_logits, y_va.cpu(),
@@ -198,6 +219,24 @@ def run(state: str, folds: int, epochs: int, batch_size: int, seed: int,
     logger.info("Loaded %s: rows=%d  n_pois=%d  n_regions=%d  seq_len=%d  centroids=%s",
                 state, poi.shape[0], n_pois, n_regions, seq_len, tuple(centroids.shape))
 
+    # Precompute the POI->region distance matrix ONCE (numerically the same binned
+    # bias as the per-batch haversine — GPS noise << 3 km bins — but removes the
+    # matching layer's per-batch trig, the runtime bottleneck). dd_poi[n_pois, R];
+    # pad row (index n_pois) = 0 (masked anyway). Each POI's lat/lon = any check-in's.
+    flat_poi = poi.reshape(-1).numpy()
+    flat_lat = lat.reshape(-1).numpy(); flat_lon = lon.reshape(-1).numpy()
+    valid = flat_poi >= 0
+    poi_lat = np.zeros(n_pois + 1, np.float32); poi_lon = np.zeros(n_pois + 1, np.float32)
+    poi_lat[flat_poi[valid]] = flat_lat[valid]
+    poi_lon[flat_poi[valid]] = flat_lon[valid]
+    _cent = centroids.to(DEVICE)
+    _plat = torch.from_numpy(poi_lat).to(DEVICE); _plon = torch.from_numpy(poi_lon).to(DEVICE)
+    dd_poi = haversine_km(_plat[:, None], _plon[:, None],
+                          _cent[None, :, 0], _cent[None, :, 1])        # [n_pois+1, R]
+    dd_poi[n_pois].zero_()                                            # pad POI row
+    logger.info("Precomputed dd_poi %s (%.2f GB)", tuple(dd_poi.shape),
+                dd_poi.numel() * 4 / 1e9)
+
     sgkf = StratifiedGroupKFold(n_splits=max(2, folds), shuffle=True, random_state=seed)
     splits = list(sgkf.split(np.zeros(len(cat)), cat, groups=uid))[:folds]
 
@@ -210,7 +249,7 @@ def run(state: str, folds: int, epochs: int, batch_size: int, seed: int,
     for fold_idx, (train_idx, val_idx) in enumerate(splits):
         t0 = time.time()
         m = train_one_fold(
-            poi, hour, lat, lon, tmin, y, centroids, train_idx, val_idx,
+            poi, hour, lat, lon, tmin, y, dd_poi, train_idx, val_idx,
             n_pois=n_pois, n_regions=n_regions,
             epochs=epochs, batch_size=batch_size, seed=seed + fold_idx,
             d_model=d_model, dropout=dropout, lr=lr,

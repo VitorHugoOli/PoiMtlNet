@@ -79,8 +79,12 @@ def _interp_scalar(table: torch.Tensor, x: torch.Tensor) -> torch.Tensor:
     x = x.clamp(min=0.0, max=K - 1 - 1e-6)
     k = x.floor().long()
     frac = x - k.float()
-    lo = table[k]
-    hi = table[(k + 1).clamp(max=K - 1)]
+    # Use F.embedding (optimized embedding_dense_backward), NOT table[k] advanced
+    # indexing — the latter dispatches the generic indexing_backward atomic kernel
+    # that the profiler found = 97% of the backward time. Numerically identical gather.
+    tbl = table.unsqueeze(-1)                                          # [K, 1]
+    lo = F.embedding(k, tbl).squeeze(-1)
+    hi = F.embedding((k + 1).clamp(max=K - 1), tbl).squeeze(-1)
     return (1.0 - frac) * lo + frac * hi
 
 
@@ -179,27 +183,24 @@ class _MatchingLayer(nn.Module):
         # positions collapsed to a distance/proximity prior. Restored here.
         self.collapse = nn.Linear(seq_length, 1, bias=False)
 
+    def bias_per_poi(self, dd_poi: torch.Tensor) -> torch.Tensor:
+        """Interp the learned Δd interval embedding into a [n_pois+1, R] bias table,
+        ONCE per forward. dd_poi (POI->region km) is FIXED, so the bias depends only
+        on (POI, region). Computing it here (13M for AL) instead of per (batch,pos,region)
+        triple (114M) cuts the interval-bias work + its atomic-scatter backward ~9x —
+        the matching-layer bottleneck the observers found (10 s/batch -> see profile)."""
+        d_bin = (dd_poi.clamp(min=0.0, max=self.d_max) / self.d_max) * (self.k_d - 1)
+        return _interp_scalar(self.E_d_match, d_bin)                   # [n_pois+1, R]
+
     def forward(self, S: torch.Tensor, region_emb: torch.Tensor,
-                traj_lat: torch.Tensor, traj_lon: torch.Tensor,
-                region_centroids: torch.Tensor,
+                bias_match: torch.Tensor,
                 key_padding_mask: torch.Tensor) -> torch.Tensor:
         # S:                 [B, n, D]
         # region_emb:        [R, D]
-        # traj_lat/lon:      [B, n]
-        # region_centroids:  [R, 2]   (lat, lon)
+        # bias_match:        [B, n, R]  per-POI Δd interval bias, gathered (see bias_per_poi)
         # key_padding_mask:  [B, n]   bool, True=pad
         B, n, D = S.shape
         R = region_emb.shape[0]
-
-        cand_lat = region_centroids[:, 0]                              # [R]
-        cand_lon = region_centroids[:, 1]                              # [R]
-        # Pairwise Δd from each trajectory position to each candidate region.
-        dd = haversine_km(
-            traj_lat.unsqueeze(2), traj_lon.unsqueeze(2),              # [B, n, 1]
-            cand_lat[None, None, :], cand_lon[None, None, :],          # [1, 1, R]
-        )                                                              # [B, n, R]
-        d_bin = (dd.clamp(min=0.0, max=self.d_max) / self.d_max) * (self.k_d - 1)
-        bias_match = _interp_scalar(self.E_d_match, d_bin)             # [B, n, R]
 
         # Audit fix #3: reference omits the 1/√d scaling. Content dot-product on the
         # same scale as the gate so it can't be drowned out.
@@ -260,7 +261,7 @@ class FaithfulSTAN(nn.Module):
                 lat: torch.Tensor,                # [B, S] float
                 lon: torch.Tensor,                # [B, S] float
                 t_min: torch.Tensor,              # [B, S] int/float (minutes)
-                region_centroids: torch.Tensor,   # [n_regions, 2] (lat, lon)
+                dd_poi: torch.Tensor,             # [n_pois+1, n_regions] precomputed POI->region km
                 ) -> torch.Tensor:                # [B, n_regions]
         pad_mask = poi_idx < 0
         poi_safe = torch.where(pad_mask, torch.full_like(poi_idx, self.pad_poi), poi_idx)
@@ -282,6 +283,12 @@ class FaithfulSTAN(nn.Module):
         bias = self.bias_traj(dt, dd)                                  # [B, S, S]
         S = self.attn_traj(x, bias, pad_mask)                          # [B, S, D]
 
+        # Interp the Δd interval bias ONCE over [n_pois+1, R], then gather per batch
+        # (the per-element interp over [B,n,R] was the backward bottleneck).
+        bias_per_poi = self.matching.bias_per_poi(dd_poi)              # [n_pois+1, R]
+        # F.embedding (fast embedding_dense_backward), NOT bias_per_poi[poi_safe]
+        # advanced indexing (slow generic indexing_backward — the profiled bottleneck).
+        bias_match = F.embedding(poi_safe, bias_per_poi)               # [B, S, R]
         return self.matching(
-            S, self.region_emb.weight, lat, lon, region_centroids, pad_mask,
+            S, self.region_emb.weight, bias_match, pad_mask,
         )                                                              # [B, n_regions]
