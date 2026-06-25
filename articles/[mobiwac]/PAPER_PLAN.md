@@ -451,17 +451,18 @@ direction**; a family-wise Holm correction across the six category cells (or the
 
 **§5.4 Baselines (locked; see §7 and `BASELINE_HANDOFF.md`).** Three roles, kept separate in the writing: (1)
 **task SOTA**, faithful author implementations on our data: next-category **POI-RGNN + Markov-9-cat**;
-next-region **STAN (on a standard HGI place embedding) + ReHDM + HMT-GRN**. ⚠ **Region-baseline footing (audit
-2026-06-26, see `STAN_REFOOTING_HANDOFF.md`):** keep all region externals on ONE footing for the matched columns.
-**STAN** is being **re-scored at the board footing (seed 0, stride-1 overlap, HGI substrate)** — the existing
-seed-42 / non-overlap STAN numbers are NOT cited as final. **HMT-GRN** is already board-matched (seed 0, stride-1).
-**ReHDM-faithful** is reported as a **published-method reference under its own protocol** (chronological 80/10/10 +
-5 seeds), gap-to-ceiling, never as a paired/matched cell. STAN on our Check2HGI (the Istanbul stop-gap) is **not** a
-baseline and is dropped. **Comparability hierarchy (decision 2026-06-26):** HMT-GRN (faithful, region-native,
-board-matched) is the **primary** region-native comparison; **STAN (architecture on a pretrained HGI embedding) and
-ReHDM (own protocol) are secondary references, each with its regime labeled** — STAN is the lone non-faithful region
-baseline because faithful-STAN from raw falls below the Markov floor (a strawman) and is infeasible at CA/TX; we
-disclose that in a footnote rather than headline it. (2) **representation** (FL only): **CTLE**, the closest prior contextual
+next-region **STAN (faithful, from raw) + ReHDM + HMT-GRN**. ⚠ **Region-baseline footing + STAN audit (2026-06-26,
+see `STAN_REFOOTING_HANDOFF.md`):** keep all region externals on ONE footing for the matched columns.
+**STAN** is run **faithfully (its own embeddings, from raw) on our common protocol** (seed 0, stride-1 overlap) — the
+literature norm; feeding STAN a pretrained embedding (the old `stl_hgi` variant) is non-standard, so it is at most a
+labeled ablation. ⚠ **The prior faithful-STAN numbers (AL 34.46 / AZ 38.96, below Markov) are UNDER-TRAINED ARTIFACTS
+(best-epochs clipped at 49/50, stride-9 starvation, a STAN-derived head) and are NOT cited; STAN is being re-run to
+convergence.** **HMT-GRN** is already board-matched (seed 0, stride-1). **ReHDM-faithful** is reported as a
+**published-method reference under its own protocol** (chronological 80/10/10 + 5 seeds), never a paired/matched cell.
+STAN on our Check2HGI is dropped. **Comparability hierarchy:** HMT-GRN (faithful, region-native, board-matched,
+multi-task) is the **primary** region-native comparison; **STAN (faithful, from raw) and ReHDM (own protocol) are
+secondary references, each labeled.** If a converged faithful STAN still lands below the Markov floor, that is the
+honest result (STAN was built for fine next-POI, not coarse regions), reported with that note rather than headlined. (2) **representation** (FL only): **CTLE**, the closest prior contextual
 embedding, presented fairly (its end-to-end form alongside the frozen one), plus a **feature-concat control**
 (HGI ⊕ raw per-visit features), so the category gain is attributed to the hierarchy, not to any contextualization
 nor to feature injection. (3) **multi-task comparators**: the **CSLSL cascade** (the dominant published
@@ -590,14 +591,16 @@ Three roles, kept separate in the writing (see the handoff §1):
 
 **Role 1: task SOTA (faithful author implementations, our data):**
 - [ ] next-category: **POI-RGNN** + **Markov-9-cat** floor.
-- [ ] next-region: **STAN** (the STAN architecture on a standard HGI place embedding) + **HMT-GRN** + **ReHDM**.
-  ⚠ **Footing fix (audit 2026-06-26, `STAN_REFOOTING_HANDOFF.md`):** the matched columns must share ONE footing.
-  **STAN** is being **re-scored at the board footing (seed 0, stride-1 overlap, HGI substrate)** for AL/AZ/FL/CA/TX
-  and Istanbul (Istanbul needs an HGI build first); the old **seed-42 / non-overlap** STAN numbers are NOT final.
-  **HMT-GRN** is already board-matched (seed 0, stride-1). **ReHDM-faithful** (AL/AZ/FL; CA/TX footnoted infeasible)
-  is a **published-method reference under its own protocol** (chronological split, 5 seeds), reported gap-to-ceiling,
-  NOT a paired cell. NOT faithful-STAN (scores below Markov, a strawman). STAN-on-our-Check2HGI (the Istanbul
-  stop-gap) is dropped. **Markov-1 region DROPPED (2026-06-24)**; keep at most a one-clause text mention.
+- [ ] next-region: **STAN** (faithful, its own embeddings from raw) + **HMT-GRN** + **ReHDM**.
+  ⚠ **Footing + STAN audit (2026-06-26, `STAN_REFOOTING_HANDOFF.md`):** the matched columns share ONE footing.
+  **STAN** is run **faithfully on our common protocol** (seed 0, stride-1 overlap) for **AL/AZ/FL** (CA/TX faithful
+  infeasible at scale → footnote); feeding STAN a pretrained embedding (`stl_hgi`) is non-standard (literature audit),
+  so it is at most a labeled ablation. ⚠ The prior faithful-STAN numbers (AL 34.46 / AZ 38.96, below Markov) are
+  **under-trained artifacts** (clipped at 49/50 epochs, stride-9 starvation, STAN-derived head) — NOT cited; STAN is
+  being re-run to convergence. **HMT-GRN** is already board-matched (seed 0, stride-1) and is the **primary** region
+  external. **ReHDM-faithful** (AL/AZ/FL; CA/TX footnoted infeasible) is a **published-method reference under its own
+  protocol** (chronological split, 5 seeds), NOT a paired cell. STAN-on-our-Check2HGI (the Istanbul stop-gap) is
+  dropped. **Markov-1 region DROPPED (2026-06-24)**; keep at most a one-clause text mention.
 - [ ] our STL ceilings + MTL champion (the comparison anchors).
 
 **Role 2: representation novelty (FL only, small validation block):**

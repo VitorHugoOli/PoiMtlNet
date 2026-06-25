@@ -13,20 +13,24 @@
 >   is NOT a paired/matched comparison.
 > - **HMT-GRN** is already board-matched (seed 0, stride-1 overlap) — the one clean region external today.
 >
-> **Decision (user, 2026-06-26 — incremental, two phases):**
-> 1. **PHASE 1 (do first): re-run STAN-`stl_hgi` at the board footing** (seed 0, stride-1 overlap, HGI substrate)
->    for **all Gowalla states: AL/AZ/FL/CA/TX**. **Istanbul STAN is already running on the M4 (Mac) — EXCLUDED from
->    this handoff; do not run it here, and no HGI-Istanbul build is needed here.**
+> **Decision (user, 2026-06-26 — UPDATED after the faithful-STAN literature + implementation audit):**
+> 1. **PHASE 1 (do first): run FAITHFUL STAN** — STAN's OWN embeddings learned end-to-end **from raw**
+>    (`research/baselines/stan/`), NOT fed our HGI/Check2HGI embedding (the literature norm; feeding STAN a
+>    pretrained embedding is non-standard). At the board footing (seed 0, **stride-1 overlap**, user-disjoint folds)
+>    for **AL/AZ/FL** (CA/TX faithful-STAN is infeasible at scale → footnote infeasible, like ReHDM). **Istanbul STAN
+>    is on the M4 — EXCLUDED here.**
+>    ⚠ **The current faithful-STAN v4 numbers (AL 34.46 / AZ 38.96, below the Markov floor) are UNDER-TRAINED
+>    ARTIFACTS — DO NOT CITE THEM.** A two-agent audit (2026-06-26) found they are confounded by under-training
+>    (best-epochs at 49/50, still climbing), stride-9 data starvation (~9x too few windows), and an under-powered
+>    STAN-DERIVED head. The Phase-1 re-run MUST apply the audit fixes (§"Phase 1") before any STAN number is reported.
 > 2. **PHASE 2 (after Phase 1): run ReHDM-faithful** — **AL/AZ/Istanbul in parallel first, then FL/CA/TX as
->    possible** (faithful is heavy at FL/CA/TX scale; footnote-infeasible is acceptable, as for the Gowalla CA/TX
->    today). ReHDM-faithful is reported as a **published-method reference under its own protocol** (chronological
->    split, 5 seeds), gap-to-ceiling, never a paired/matched cell.
-> 3. **Comparability hierarchy (decision 2026-06-26):** **HMT-GRN** (faithful, region-native, board-matched) is
->    the **PRIMARY** region-native comparison. **STAN** (architecture on a pretrained HGI place embedding) and
->    **ReHDM** (own protocol) are **SECONDARY references, each with its regime labeled** — STAN is the one
->    non-faithful region baseline (faithful-STAN from raw falls below the Markov floor and is CA/TX-infeasible, so we
->    footnote that and do not headline it; STAN gets the standard HGI embedding, NOT our Check2HGI). Until the STAN
->    re-runs land, the STAN cells in Table 3 are **PENDING — do not cite the seed-42 / non-overlap numbers as final.**
+>    possible** (faithful is heavy at FL/CA/TX scale; footnote-infeasible is acceptable). ReHDM-faithful is reported
+>    as a **published-method reference under its own protocol** (chronological split, 5 seeds), never a paired cell.
+> 3. **Comparability hierarchy:** **HMT-GRN** (faithful, region-native, board-matched, multi-task) is the **PRIMARY**
+>    region-native comparison. **STAN (faithful, from raw — after the fixed re-run)** and **ReHDM (own protocol)** are
+>    **SECONDARY references, each labeled.** The substrate-bound **STAN-`stl_hgi`** (STAN on our HGI embedding) is now
+>    ONLY an OPTIONAL, explicitly-labeled **ablation** (isolates substrate vs architecture), NEVER the headline STAN
+>    cell. Until the fixed faithful re-run lands, the STAN cells in Table 3 are **PENDING — cite no STAN number.**
 
 ---
 
@@ -34,39 +38,59 @@
 - **seed 0 × 5 folds (n=5)**; gated **stride-1 overlap**, the SAME windowing as the board STL reg ceiling
   (`region_head_<state>_region_5f_50ep_<state>_ovl_stl_reg_s0.json`); **fp32** (set `DISABLE_AMP=1`); leak-clean
   per-fold **train-only** log_T (rebuild if stale — see CLAUDE.md stale-log_T trap); user-disjoint folds.
-- **HGI substrate input** (NOT Check2HGI): `--region-emb-source hgi`. STAN on our Check2HGI is NOT the baseline.
-- Verify healthy late best-epochs per fold; never cite a NaN-collapsed fold.
+- **Faithful STAN = STAN's own embeddings learned end-to-end from raw** (`research/baselines/stan/`), NOT fed our
+  HGI/Check2HGI embedding. The substrate-bound `stl_hgi` variant (STAN on HGI) is an OPTIONAL labeled ablation only.
+- **Train to convergence:** the per-fold best-epoch must land BEFORE the epoch cap (the current run clips at 49/50 —
+  under-trained). Raise epochs (≈150-200) or early-stop on a real plateau; verify macro-F1 is not ~0 and Acc@1 is sane.
+- Verify healthy best-epochs per fold (not at the cap, not at epoch ≤5); never cite a NaN-collapsed or degenerate fold.
 - Commit one result JSON per state + a one-line finding; branch + PR, do not merge to main (orchestrator audits).
 
-## The template run (what produced the board STL reg ceiling)
-The board STL reg ceiling at each state is the SAME region-head ablation, on the overlap windowing, seed 0. The STAN
-baseline is that run with two swaps: head `next_stan` (the published STAN attention) instead of `next_stan_flow`,
-and substrate `hgi` instead of `check2hgi`. Mirror the ceiling command exactly, swap those two flags:
+## The faithful STAN run (`research/baselines/stan/`)
+Faithful STAN is its OWN code — STAN learns its own POI embedding end-to-end from raw and applies the
+spatio-temporal interval attention. It is **NOT** the `next_stan` region-head ablation (that is the substrate-bound
+`stl_hgi` variant). Runner: `research/baselines/stan/train.py` + `etl.py`.
+
+**Three audit-mandated fixes before any number is reported** (2026-06-26 two-agent audit — `FAITHFUL_STAN_FINDINGS.md`):
+1. **Stride-1 overlap windowing.** `etl.py` currently builds NON-overlap stride-9 windows (MIN_HISTORY=5) → ~9x too
+   few training windows (data starvation; same class as the CTLE stride defect). Switch the ETL to **stride-1
+   overlap, MIN_SEQ=10** to match the board footing. Row-count gate: STAN's windowed rows must match the board
+   region-ceiling row counts per state.
+2. **Train to convergence.** `--epochs 50` clips the run (best-epochs at 49/50, still climbing). Raise to **≈150-200
+   with early-stop on a real Acc@10 plateau**; the chosen best-epoch must land BEFORE the cap. **Seed 0** (the old
+   runs are seed 42).
+3. **Verify the head is not degenerate.** macro-F1 must not be ~0 and Acc@1 must be sane (the v4 head collapsed to a
+   proximity/popularity prior → high Acc@10, ~0 macro-F1). If it is still degenerate after fixes 1-2, apply the
+   conditional head fix below.
 
 ```bash
-export DISABLE_AMP=1 PYTHONPATH=src
-python scripts/p1_region_head_ablation.py \
-    --state <state> --heads next_stan --folds 5 --epochs 50 --seed 0 \
-    --input-type region --region-emb-source hgi \
-    --engine <the-same-stride1-overlap-engine-the-board-ceiling-used> \
-    --per-fold-transition-dir <per-fold seed-0 log_T dir> \
-    --tag STAN_HGI_OVL_<state>_5f50ep_s0
-#  -> docs/results/P1/region_head_<state>_region_5f_50ep_STAN_HGI_OVL_<state>_5f50ep_s0.json
+export PYTHONPATH=. DATA_ROOT=... OUTPUT_DIR=...
+# 1) rebuild ETL at stride-1 / MIN_SEQ=10 (edit the window stride in research/baselines/stan/etl.py)
+python -m research.baselines.stan.etl --state <state>            # confirm flags vs the script
+# 2) train faithful STAN to convergence, seed 0
+python -m research.baselines.stan.train \
+    --state <state> --folds 5 --epochs 200 --early-stop --seed 0 \
+    --tag FAITHFUL_STAN_OVL_<state>_5f_s0
+#  -> docs/results/baselines/faithful_stan_<state>_*_FAITHFUL_STAN_OVL_<state>_5f_s0.json
 ```
-> ⚠ **Confirm the exact overlap-windowing flag against the board ceiling run before launching** — open the board
-> ceiling JSON's run config (or the script that produced `*_ovl_stl_reg_s0.json`) and match its windowing/engine/
-> input wiring exactly. The ONLY differences from the ceiling are `--heads next_stan` and `--region-emb-source hgi`.
-> Row-count gate: the STAN-HGI-overlap region inputs MUST have the same windowed row counts as the board ceiling.
+> ⚠ Confirm flags against `research/baselines/stan/train.py --help` (the stride / early-stop flags may need adding).
+> The OLD v4 numbers (AL 34.46 / AZ 38.96) are under-trained artifacts — SUPERSEDE them, do not cite.
 
-## Phase 1 — STAN at board footing (do FIRST; all Gowalla states)
-Run the template above for **AL, AZ, FL, CA, TX**. HGI embeddings already exist (AL/AZ/FL) or were built for the
-Tbl-2 HGI cells (CA done PR #52; TX building under Blocker 3 — STAN-TX waits on the TX HGI build). Run them
-incrementally (one state at a time is fine; disk is tight, build→train→delete the per-state HGI inputs if needed).
-**Istanbul STAN is on the M4 — do NOT run it here, and do NOT build HGI-Istanbul here.**
+**Conditional head fix (only if fixes 1-2 leave the head degenerate):** the v4 head is STAN-DERIVED, not faithful —
+it replaced STAN's learned `Linear(max_len, 1)` matching collapse with a softmax-weighted mixture and stripped the
+residual/LayerNorm. Tighten `model.py` toward the reference STAN (`Linear(M,1)` collapse + restore residual/LN;
+reference repo `yingtaoluo/Spatial-Temporal-Attention-Network-for-POI-Recommendation`, `layers.py`) so we report
+STAN, not a crippled variant. **Flag this to the orchestrator first — it is an architecture change, not config.**
 
-**Acceptance (Phase 1):** STAN-HGI-overlap Acc@10 below our MTL reg (AL 69.81 / AZ 59.34 / FL 77.28 / CA 65.66 /
-TX 67.02) at every Gowalla state, on the matched seed-0 / stride-1 footing. Commit one JSON per state +
-`docs/baselines/next_region/stan.md` row; mark the old seed-42 `STAN_HGI` numbers superseded-for-the-paper.
+## Phase 1 — faithful STAN at board footing (do FIRST)
+Run the faithful-STAN spec above for **AL, AZ, FL** (faithful STAN is **infeasible at CA/TX scale** → footnote
+"faithful infeasible at scale", like ReHDM; HMT-GRN + Markov carry the CA/TX region-external cells). **Istanbul STAN
+is on the M4 — not here.**
+
+**Acceptance (Phase 1):** faithful STAN at seed 0 / stride-1 / **converged** (best-epoch < cap, macro-F1 above floor)
+at AL/AZ/FL; CA/TX footnoted infeasible. Commit one JSON per state + a `docs/baselines/next_region/stan.md` row;
+mark the old seed-42 / v4 numbers superseded. **If converged faithful STAN STILL lands below the Markov floor at
+AL/AZ, THAT is the honest reportable result** (with the next-POI-vs-coarse-region note); if it clears Markov, report
+that. Either way the number is trustworthy only AFTER the three fixes.
 
 ## Phase 2 — ReHDM faithful (do AFTER Phase 1)
 Run ReHDM in its **faithful** form (its own architecture + raw inputs + own protocol: chronological 80/10/10 + 24h
@@ -85,22 +109,24 @@ PR #51, on our substrate + set-a) is **dropped** — superseded by the faithful 
 footnote).
 
 ## After the runs: paper-doc updates
-- **Table 3** (`src/tables/tbl3_results.tex`): replace the seed-42 STAN cells with the seed-0/stride-1 values; the
-  STAN footnote states "STAN architecture on the standard HGI place embedding, seed 0, stride-1 overlap (our
-  footing)"; the ReHDM footnote states "ReHDM under its own published protocol (reference)".
-- **`docs/baselines/next_region/comparison.md`** + `stan.md`: add the board-footing STAN row; mark the old
-  seed-42 `STAN_HGI` row as superseded-for-the-paper (kept for the April substrate study only).
-- **`RESULTS_BOARD.md §4`** + **`PAPER_PLAN.md §5.4 / §7`**: STAN board-footing done; ReHDM = footnoted reference.
+- **Table 3** (`src/tables/tbl3_results.tex`): fill the STAN cells with the **faithful, converged, seed-0 / stride-1**
+  values (AL/AZ/FL; CA/TX footnoted infeasible); the STAN footnote states "STAN run faithfully (its own embeddings,
+  from raw) on our common protocol (seed 0, stride-1 overlap)"; the ReHDM footnote states "ReHDM under its own
+  published protocol (reference)". The substrate-bound `stl_hgi` STAN, if kept, is a clearly-labeled ablation row.
+- **`docs/baselines/next_region/comparison.md`** + `stan.md`: add the faithful board-footing STAN row; mark the old
+  seed-42 / v4 `FAITHFUL_STAN` numbers superseded-for-the-paper (under-trained, kept only for the v1→v4 audit trail).
+- **`RESULTS_BOARD.md §4`** + **`PAPER_PLAN.md §5.4 / §7`**: faithful STAN board-footing done; ReHDM = footnoted reference.
 - **Istanbul row of Table 3**: STAN comes from the **M4** run (not this handoff); POI-RGNN/Markov category cells
   from PR #51 are windowing-robust and can go in now (they sit far below our 53.20/59.89 regardless).
 
 ## Acceptance checklist
-**Phase 1 (STAN, Gowalla):**
-- [ ] STAN-`stl_hgi` re-run at **seed 0 / stride-1 overlap / HGI substrate** committed for **AL/AZ/FL/CA/TX**
-  (Istanbul STAN is on the M4, not here).
-- [ ] Row-count gate passed (STAN-HGI-overlap inputs == board ceiling row counts) per state.
-- [ ] fp32 verified; healthy late best-epochs; no NaN-collapsed fold cited.
-- [ ] STAN < our MTL reg at every Gowalla state, on the matched footing.
+**Phase 1 (faithful STAN, Gowalla):**
+- [ ] Faithful STAN (own embeddings, from raw) re-run at **seed 0 / stride-1 overlap / converged (best-epoch < cap)**
+  committed for **AL/AZ/FL** (CA/TX footnoted infeasible-at-scale; Istanbul STAN is on the M4, not here).
+- [ ] macro-F1 above floor and Acc@1 sane per fold (NOT the v4 collapse); old v4/seed-42 numbers struck.
+- [ ] Row-count gate passed (faithful-STAN stride-1 windowed rows == board ceiling row counts) per state.
+- [ ] Converged: best-epoch lands BEFORE the cap (the v4 run clipped at 49/50); no NaN/degenerate fold cited.
+- [ ] STAN reported on the matched footing; if it still lands below Markov after convergence, that is the honest result.
 
 **Phase 2 (ReHDM, after Phase 1):**
 - [ ] ReHDM-faithful AL/AZ/Istanbul run in parallel (Istanbul via the FSQ→mahalle adapter, or footnoted not-available).

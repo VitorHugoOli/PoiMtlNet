@@ -158,18 +158,21 @@ windowing-robust → **no** re-score.)
 > **Do this AFTER Blocker 3** (it reuses the Blocker-3 HGI builds for CA/TX). Full brief + acceptance gates:
 > [`../../../articles/[mobiwac]/STAN_REFOOTING_HANDOFF.md`](../../../articles/[mobiwac]/STAN_REFOOTING_HANDOFF.md).
 
-**Why.** Table 3's region externals are on the WRONG footing vs the board (seed 0, stride-1 overlap): STAN-`stl_hgi`
-was measured at **seed 42 + non-overlap** (April, pre-board); ReHDM-faithful is on its **own** protocol; the Istanbul
-STAN ran on **our Check2HGI + set-a**. HMT-GRN is the only matched region external today. We re-foot STAN to the
-board, and run ReHDM-faithful as a published-method reference.
+**Why.** Table 3's region externals are on the WRONG footing vs the board (seed 0, stride-1 overlap), AND the faithful
+STAN numbers are under-trained artifacts. Two audits (2026-06-26): (1) **literature** — STAN must be run FAITHFULLY
+(own embeddings from raw, common protocol); feeding it a pretrained embedding (`stl_hgi`) is non-standard. (2)
+**implementation** — the current faithful-STAN v4 (AL 34.46 / AZ 38.96, below Markov) is confounded by under-training
+(best-epochs at 49/50), stride-9 data starvation, and a STAN-derived head → DO NOT cite. ReHDM-faithful is on its own
+protocol; HMT-GRN is the only matched region external today.
 
-### 4.1 Phase 1 — STAN-`stl_hgi` at the board footing (do first; all Gowalla states)
-For **AL/AZ/FL/CA/TX** (NOT Istanbul — that STAN is on the M4): re-run the board STL-reg-ceiling recipe with two
-swaps — head `next_stan` (not `next_stan_flow`) and `--region-emb-source hgi` (not check2hgi) — at **seed 0, stride-1
-overlap, fp32**, mirroring the run that produced `region_head_<state>_region_5f_50ep_<state>_ovl_stl_reg_s0.json`.
-TX waits on the Blocker-3 TX HGI build. **Gate:** STAN-HGI-overlap row counts == board ceiling row counts per state;
-STAN Acc@10 < our MTL reg (AL 69.81 / AZ 59.34 / FL 77.28 / CA 65.66 / TX 67.02). Commit one JSON per state; mark the
-old seed-42 `STAN_HGI` numbers superseded-for-the-paper.
+### 4.1 Phase 1 — FAITHFUL STAN at the board footing (do first)
+Run **faithful STAN** (`research/baselines/stan/`, STAN's own embeddings from raw — NOT the `next_stan`/`stl_hgi`
+ablation) for **AL/AZ/FL** (CA/TX faithful-STAN infeasible at scale → footnote, like ReHDM). NOT Istanbul (M4).
+**Three audit-mandated fixes first** (full spec: `STAN_REFOOTING_HANDOFF.md`): (1) ETL → **stride-1 overlap,
+MIN_SEQ=10** (currently stride-9, ~9x too few windows); (2) **train to convergence** (epochs ≈150-200 + early-stop;
+best-epoch must land before the cap; **seed 0**); (3) **verify the head is not degenerate** (macro-F1 above floor,
+Acc@1 sane). Conditional: if still degenerate, tighten the matching layer toward the reference STAN (`Linear(M,1)` +
+residual/LN) — flag first. **Gate:** converged + non-degenerate; old v4/seed-42 numbers superseded.
 
 ### 4.2 Phase 2 — ReHDM-faithful (after Phase 1)
 ReHDM in its **faithful** form (own architecture + raw inputs + own protocol). **Order: AL/AZ/Istanbul in parallel
