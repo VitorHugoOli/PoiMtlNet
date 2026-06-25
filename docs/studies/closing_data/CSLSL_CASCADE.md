@@ -36,6 +36,14 @@ completion. FL canonical (`dk_ovl`, 5f, with comparand) **supersedes the M4 set-
 (`baseline_compare/florida_cslsl_cascade.json`: stride-9/min_seq=5, 4-fold MPS-OOM, no comparand →
 its own recommendation was "run FL CSLSL on CUDA/A40").
 
+**FL same-device champ-G comparand — IN-FLIGHT (fold 1/5 done, 2026-06-25).** Interim fold-1 cross-check
+(A40 champ-G FL, same v16 recipe + per-head optimizers, true fp32): cat **79.45** (ep48) / reg **77.71** (ep47).
+- vs cataloged **board champ-G FL** (H100, `FL_PRECISION_GATE.md` fp32 per-fold[0] 79.38/77.68): Δ **+0.07 / +0.03**
+  → reproduces the catalog to well within the cross-GPU ±0.3 pp tolerance (re-run is faithful).
+- vs **A40 cascade FL** fold1 (79.43/77.57): Δ **+0.02 / +0.15** → same-card tie holds at fold level (per-fold
+  wobble that averages toward the ±0.01 5-fold tie). Best-epochs late (47–48), matching board (47–49) + cascade (45–49).
+The full 5-fold same-device Δ + the §1b FL row's A40 champ-G cells fill on completion (~2.5 h remaining).
+
 **Reading:** cascade ≈ parallel champion-G — Δjoint ≤ 0.02 pp, far below fold-std (~1.3–3.3 pp). The cascade
 trades a hair of category (+0.20) for a hair of region (−0.17/−0.18), netting ~0. The cascade did **not** beat
 champion-G (the `b4_cascade.py` docstring's anti-overclaim sanity check passes). → Our parallel joint model is

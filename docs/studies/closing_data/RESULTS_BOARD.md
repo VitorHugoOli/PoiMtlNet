@@ -67,7 +67,9 @@ fold-mean ±pstd, matched scorer `a40_score_matched.py`. JSONs:
 (FL same-device champ-G `fl_champG_a40_s0.json` in-flight).)*
 **FL (large state, 4703 regions): cascade is again a tie.** vs the §1 board champ-G FL (H100, 79.82/77.28):
 **Δcat +0.01 / Δreg −0.01** — essentially identical (cross-device). The A40 same-device champ-G FL is
-**in-flight**; the row's A40 champ-G cells + Δ fill in on completion. FL canonical (`dk_ovl`, 5f, fp32) —
+**in-flight** (fold 1/5: cat 79.45 / reg 77.71 — reproduces the board champ-G FL fold-1 to ±0.07/±0.03 and
+ties the cascade fold-1 to +0.02/+0.15; on track); the row's A40 champ-G cells + Δ fill in on completion.
+FL canonical (`dk_ovl`, 5f, fp32) —
 **supersedes the M4 set-a partial** (`baseline_compare/florida_cslsl_cascade.json`, 4-fold MPS-OOM, no comparand).
 
 **Reading:** the cascade is a **dead tie** with our parallel champion-G on the joint objective
