@@ -85,6 +85,14 @@ STATES = {
     # ── Massive-STEPS ───────────────────────────────────────────────────────
     'new_york_ms': {'shapefile': Resources.TL_NY,  'cross_region_weight': 0.7},
     # 'tokyo_ms':    {'shapefile': Resources.GRID,   'cross_region_weight': 0.7},  # already done
+    # Istanbul: regions are OSM mahalle (admin), not a TIGER shapefile. Build by
+    # pre-placing the mahalle boroughs CSV at output/hgi/istanbul/temp/boroughs_area.csv
+    # (cp from output/check2hgi/istanbul/temp/ — same 520/964-region taxonomy the
+    # check2hgi substrate uses) so shapefile=None consumes mahalle, not a grid:
+    #   'istanbul': {'shapefile': None, 'cross_region_weight': 0.7},
+    # Built 2026-06-25 for STAN stl_hgi (verified: HGI region_id == check2hgi
+    # region_idx, 29945/29945 POIs). Needs the preprocess.py null-geometry drop
+    # (FSQ check-ins carry missing coords).
 }
 
 # =============================================================================

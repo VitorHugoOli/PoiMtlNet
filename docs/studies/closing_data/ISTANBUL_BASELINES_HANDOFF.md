@@ -2,10 +2,14 @@
 
 > ✅ **EXECUTED 2026-06-25 — see [`ISTANBUL_BASELINES_RESULTS.md`](ISTANBUL_BASELINES_RESULTS.md)** for numbers,
 > the resolved HMT-GRN conflict (60.4 = stride-1 / 56.56 = non-overlap), and the handoff defects caught.
-> Done: Markov cat floors · POI-RGNN (30.12) · STAN-stl (Acc@10 70.39). ReHDM-stl running; §2.E not run.
+> **Variant alignment (user):** STAN = **stl_hgi** (built a new HGI substrate for Istanbul — see RESULTS §3);
+> ReHDM = **faithful** (ETL+adapter verified, training **deferred to CUDA**). Done: Markov cat floors · POI-RGNN
+> (30.12) · **STAN stl_hgi (Acc@10 71.13 ± 0.68)**. The `stl_check2hgi` (70.39) + from-scratch "faithful STAN"
+> (57.60) were the wrong variant and were removed. §2.E not run.
 > **Defects to note before re-running:** §2.A `--task next_poi` is invalid → use `--task next_category`;
-> §2.C omits `--seed` (defaults to 42) → pass `--seed 0`; rebuild per-fold log_T first (it was stale);
-> set `MTL_RAM_HEADROOM_GB=4` (the RAM guard over-trips on Istanbul's tiny dataset).
+> §2.C/STAN omits `--seed` (defaults to 42) → pass `--seed 0`; rebuild per-fold log_T first (it was stale);
+> set `MTL_RAM_HEADROOM_GB=4` (the RAM guard over-trips on Istanbul's tiny dataset). Istanbul has **no HGI
+> substrate by default** — build it (RESULTS §3) for STAN=stl_hgi.
 
 > **Goal.** Complete the **Istanbul §6.3 external-validity box** so it carries the *same baseline set* as the
 > Gowalla states. Istanbul is non-US (Massive-STEPS Foursquare, **mahalle** regions = 520 primary admin), so a
@@ -40,8 +44,8 @@ Istanbul row carry the same baseline columns as AL/AZ/FL/CA/TX, not reduced-boar
 | **HMT-GRN** (region native-E2E) | Acc@10 | **60.4** ⚠ / 56.56 | ✅ done (value ⚠ see note) | `RESULTS_BOARD §4` vs `next_region/comparison.md` |
 | **Markov-1-POI / Markov-9-cat** floors | macro-F1 | **17.55 / 22.55** (best k5 **24.55**) | ✅ done | `P0/simple_baselines/istanbul/next_category*.json` |
 | **POI-RGNN** faithful (cat native) | macro-F1 | **30.12 ± 0.84** | ✅ done | `baselines/faithful_poi_rgnn_istanbul_5f_35ep_*.json` |
-| **STAN** (region, stl_check2hgi seed 0) | Acc@10 | **70.39** | ✅ done | `P1/region_head_istanbul_..._STAN_CHECK2HGI_*.json` |
-| **ReHDM** (region, stl_check2hgi) | Acc@10 | ⏳ running | 🔄 in progress | `baselines/REHDM_STL_STUDY_istanbul_check2hgi_5f50ep_*.json` |
+| **STAN** (region, **stl_hgi** seed 0) | Acc@10 | **71.13 ± 0.68** | ✅ done | `P1/region_head_istanbul_..._STAN_HGI_*.json` |
+| **ReHDM** (region, **faithful**) | Acc@10 | deferred → CUDA | ⏸ user | (ETL+adapter verified; training pending CUDA) |
 | Champion-G @ **stride-1** (windowing unify) | cat / reg | — | ⏳ LOW (BASELINE_M4 §2b) | run §2.E |
 
 > ✅ **HMT-GRN conflict RESOLVED (2026-06-25):** NOT the same run — two distinct builds.
