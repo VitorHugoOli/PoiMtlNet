@@ -457,7 +457,11 @@ next-region **STAN (on a standard HGI place embedding) + ReHDM + HMT-GRN**. ⚠ 
 seed-42 / non-overlap STAN numbers are NOT cited as final. **HMT-GRN** is already board-matched (seed 0, stride-1).
 **ReHDM-faithful** is reported as a **published-method reference under its own protocol** (chronological 80/10/10 +
 5 seeds), gap-to-ceiling, never as a paired/matched cell. STAN on our Check2HGI (the Istanbul stop-gap) is **not** a
-baseline and is dropped. (2) **representation** (FL only): **CTLE**, the closest prior contextual
+baseline and is dropped. **Comparability hierarchy (decision 2026-06-26):** HMT-GRN (faithful, region-native,
+board-matched) is the **primary** region-native comparison; **STAN (architecture on a pretrained HGI embedding) and
+ReHDM (own protocol) are secondary references, each with its regime labeled** — STAN is the lone non-faithful region
+baseline because faithful-STAN from raw falls below the Markov floor (a strawman) and is infeasible at CA/TX; we
+disclose that in a footnote rather than headline it. (2) **representation** (FL only): **CTLE**, the closest prior contextual
 embedding, presented fairly (its end-to-end form alongside the frozen one), plus a **feature-concat control**
 (HGI ⊕ raw per-visit features), so the category gain is attributed to the hierarchy, not to any contextualization
 nor to feature injection. (3) **multi-task comparators**: the **CSLSL cascade** (the dominant published

@@ -21,8 +21,12 @@
 >    possible** (faithful is heavy at FL/CA/TX scale; footnote-infeasible is acceptable, as for the Gowalla CA/TX
 >    today). ReHDM-faithful is reported as a **published-method reference under its own protocol** (chronological
 >    split, 5 seeds), gap-to-ceiling, never a paired/matched cell.
-> 3. HMT-GRN stays as the matched region-native external. Until the STAN re-runs land, the STAN cells in Table 3
->    are **PENDING — do not cite the seed-42 / non-overlap numbers as final.**
+> 3. **Comparability hierarchy (decision 2026-06-26):** **HMT-GRN** (faithful, region-native, board-matched) is
+>    the **PRIMARY** region-native comparison. **STAN** (architecture on a pretrained HGI place embedding) and
+>    **ReHDM** (own protocol) are **SECONDARY references, each with its regime labeled** — STAN is the one
+>    non-faithful region baseline (faithful-STAN from raw falls below the Markov floor and is CA/TX-infeasible, so we
+>    footnote that and do not headline it; STAN gets the standard HGI embedding, NOT our Check2HGI). Until the STAN
+>    re-runs land, the STAN cells in Table 3 are **PENDING — do not cite the seed-42 / non-overlap numbers as final.**
 
 ---
 
