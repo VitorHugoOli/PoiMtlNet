@@ -51,16 +51,16 @@ from research.baselines.stan.model import FaithfulSTAN  # noqa: E402
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("faithful_stan")
 
-WINDOW_SIZE = 9
-
-
 def load_tensors(state: str):
     df = pd.read_parquet(etl_out_path(state))
-    poi = np.stack([df[f"poi_idx_{k}"].to_numpy(np.int64) for k in range(WINDOW_SIZE)], axis=1)
-    lat = np.stack([df[f"lat_{k}"].to_numpy(np.float32) for k in range(WINDOW_SIZE)], axis=1)
-    lon = np.stack([df[f"lon_{k}"].to_numpy(np.float32) for k in range(WINDOW_SIZE)], axis=1)
-    tmin = np.stack([df[f"t_minutes_{k}"].to_numpy(np.int64) for k in range(WINDOW_SIZE)], axis=1)
-    hour = np.stack([df[f"hour_of_week_{k}"].to_numpy(np.int64) for k in range(WINDOW_SIZE)], axis=1)
+    # Infer the sequence length (STAN CONTEXT_LEN) from the prefix-expansion columns,
+    # so the trainer follows whatever --context-len the ETL produced.
+    seq_len = sum(1 for c in df.columns if c.startswith("poi_idx_"))
+    poi = np.stack([df[f"poi_idx_{k}"].to_numpy(np.int64) for k in range(seq_len)], axis=1)
+    lat = np.stack([df[f"lat_{k}"].to_numpy(np.float32) for k in range(seq_len)], axis=1)
+    lon = np.stack([df[f"lon_{k}"].to_numpy(np.float32) for k in range(seq_len)], axis=1)
+    tmin = np.stack([df[f"t_minutes_{k}"].to_numpy(np.int64) for k in range(seq_len)], axis=1)
+    hour = np.stack([df[f"hour_of_week_{k}"].to_numpy(np.int64) for k in range(seq_len)], axis=1)
     y = df["target_region_idx"].to_numpy(np.int64)
     cat = df["target_category"].astype("category").cat.codes.to_numpy(np.int64)
     uid = df["userid"].to_numpy(np.int64)
@@ -69,8 +69,12 @@ def load_tensors(state: str):
     centroids_df = pd.read_parquet(etl_centroids_path(state)).sort_values("region_idx")
     centroids = centroids_df[["centroid_lat", "centroid_lon"]].to_numpy(np.float32)
     n_regions = int(centroids.shape[0])
-    # Cap n_regions to max-observed if any centroid index is out-of-range
-    n_regions = max(n_regions, int(y.max()) + 1)
+    # Review fix (2026-06-26): region_emb [R,D] and region_centroids [R,2] MUST share R,
+    # else the matching layer broadcast crashes. Assert rather than silently bumping
+    # n_regions above the centroid count (which would desync them).
+    assert int(y.max()) + 1 <= n_regions, (
+        f"target region idx {int(y.max())} >= n_regions(centroids) {n_regions} — "
+        f"centroid/region index desync; rebuild ETL")
 
     return (
         torch.from_numpy(poi),
@@ -80,13 +84,13 @@ def load_tensors(state: str):
         torch.from_numpy(tmin),
         torch.from_numpy(y),
         torch.from_numpy(centroids),
-        cat, uid, n_pois, n_regions,
+        cat, uid, n_pois, n_regions, seq_len,
     )
 
 
 def train_one_fold(poi, hour, lat, lon, tmin, y, centroids, train_idx, val_idx,
                    n_pois, n_regions, *, epochs, batch_size, seed,
-                   d_model, dropout, max_lr) -> dict:
+                   d_model, dropout, lr, seq_length, patience) -> dict:
     seed_everything(seed)
     # Determinism off here (warn_only=True earlier just emitted spam without
     # actual determinism since CuBLAS isn't deterministic by default).
@@ -114,24 +118,24 @@ def train_one_fold(poi, hour, lat, lon, tmin, y, centroids, train_idx, val_idx,
 
     model = FaithfulSTAN(
         n_pois=n_pois, n_regions=n_regions,
-        d_model=d_model, dropout=dropout, seq_length=WINDOW_SIZE,
+        d_model=d_model, dropout=dropout, seq_length=seq_length,
     ).to(DEVICE)
     centroids_dev = centroids.to(DEVICE)
 
-    optim = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=0.01)
-    sched = torch.optim.lr_scheduler.OneCycleLR(
-        optim, max_lr=max_lr, epochs=epochs, steps_per_epoch=steps_per_epoch
-    )
+    # Audit fix #5 (2026-06-26): STAN's reference trains at a CONSTANT LR (StepLR γ=1)
+    # with early-stopping on a real val plateau, NOT OneCycle (which annealed the LR to
+    # ~0 by ep50 so the prior run's "best at 49/50" never plateaued -> under-trained).
+    optim = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=0.01)
     crit = nn.CrossEntropyLoss()
 
-    use_amp = torch.cuda.is_available()
-    amp_dtype = torch.bfloat16
+    # Audit fix #6: fp32 (no bf16 autocast); the board protocol forbids AMP here.
     g = torch.Generator(device=DEVICE if torch.cuda.is_available() else "cpu")
     g.manual_seed(seed)
 
     best_acc10 = -1.0
     best_epoch = -1
     best_logits = None
+    epochs_since_improve = 0
     for epoch in range(epochs):
         model.train()
         perm = torch.randperm(n_train, generator=g, device=poi_tr.device)
@@ -141,13 +145,11 @@ def train_one_fold(poi, hour, lat, lon, tmin, y, centroids, train_idx, val_idx,
             lat_b = lat_tr[idx]; lon_b = lon_tr[idx]
             t_b = tmin_tr[idx]; y_b = y_tr[idx]
             optim.zero_grad(set_to_none=True)
-            with torch.autocast(device_type="cuda", dtype=amp_dtype, enabled=use_amp):
-                out = model(poi_b, hour_b, lat_b, lon_b, t_b, centroids_dev)
-                loss = crit(out, y_b)
+            out = model(poi_b, hour_b, lat_b, lon_b, t_b, centroids_dev)
+            loss = crit(out, y_b)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             optim.step()
-            sched.step()
 
         # Cheap epoch validation: only Acc@10 (no sklearn F1) for selection.
         model.eval()
@@ -157,34 +159,44 @@ def train_one_fold(poi, hour, lat, lon, tmin, y, centroids, train_idx, val_idx,
         with torch.no_grad():
             for s in range(0, n_val, batch_size):
                 e = s + batch_size
-                with torch.autocast(device_type="cuda", dtype=amp_dtype, enabled=use_amp):
-                    out = model(poi_va[s:e], hour_va[s:e], lat_va[s:e],
-                                lon_va[s:e], tmin_va[s:e], centroids_dev).float()
+                out = model(poi_va[s:e], hour_va[s:e], lat_va[s:e],
+                            lon_va[s:e], tmin_va[s:e], centroids_dev).float()
                 top10 = out.topk(min(10, out.shape[-1]), dim=-1).indices  # [b, 10]
                 top10_correct += (top10 == y_va[s:e].unsqueeze(1)).any(-1).sum().item()
-                val_logits_chunks.append(out)
+                # Review fix (2026-06-26): offload each val chunk to CPU immediately —
+                # the audit's O(N_val·C) cache (FL: 4703 classes × ~300K val rows ≈ 15 GB)
+                # must not accumulate on the GPU.
+                val_logits_chunks.append(out.cpu())
         acc10 = top10_correct / n_val
-        if acc10 > best_acc10:
+        if acc10 > best_acc10 + 1e-5:
             best_acc10 = acc10
             best_epoch = epoch + 1
-            best_logits = torch.cat(val_logits_chunks, dim=0).cpu()
+            best_logits = torch.cat(val_logits_chunks, dim=0)
+            epochs_since_improve = 0
+        else:
+            epochs_since_improve += 1
+            if epochs_since_improve >= patience:
+                logger.info("    early-stop at epoch %d (best Acc@10=%.4f @ep%d, patience=%d)",
+                            epoch + 1, best_acc10, best_epoch, patience)
+                break
 
     # Full metrics ONCE at the best epoch's logits.
     m = compute_classification_metrics(best_logits, y_va.cpu(),
                                        num_classes=n_regions, top_k=(5, 10))
-    return dict(m, best_epoch=best_epoch)
+    return dict(m, best_epoch=best_epoch, n_epochs_ran=epoch + 1)
 
 
 def run(state: str, folds: int, epochs: int, batch_size: int, seed: int,
-        d_model: int, dropout: float, max_lr: float,
+        d_model: int, dropout: float, lr: float, patience: int,
         tag: str | None) -> None:
+    # Audit fix #6: true fp32 — disable TF32 too (board protocol).
     if torch.cuda.is_available():
-        torch.backends.cuda.matmul.allow_tf32 = True
-        torch.backends.cudnn.allow_tf32 = True
-        torch.set_float32_matmul_precision("high")
-    poi, hour, lat, lon, tmin, y, centroids, cat, uid, n_pois, n_regions = load_tensors(state)
-    logger.info("Loaded %s: rows=%d  n_pois=%d  n_regions=%d  centroids=%s",
-                state, poi.shape[0], n_pois, n_regions, tuple(centroids.shape))
+        torch.backends.cuda.matmul.allow_tf32 = False
+        torch.backends.cudnn.allow_tf32 = False
+        torch.set_float32_matmul_precision("highest")
+    poi, hour, lat, lon, tmin, y, centroids, cat, uid, n_pois, n_regions, seq_len = load_tensors(state)
+    logger.info("Loaded %s: rows=%d  n_pois=%d  n_regions=%d  seq_len=%d  centroids=%s",
+                state, poi.shape[0], n_pois, n_regions, seq_len, tuple(centroids.shape))
 
     sgkf = StratifiedGroupKFold(n_splits=max(2, folds), shuffle=True, random_state=seed)
     splits = list(sgkf.split(np.zeros(len(cat)), cat, groups=uid))[:folds]
@@ -201,7 +213,8 @@ def run(state: str, folds: int, epochs: int, batch_size: int, seed: int,
             poi, hour, lat, lon, tmin, y, centroids, train_idx, val_idx,
             n_pois=n_pois, n_regions=n_regions,
             epochs=epochs, batch_size=batch_size, seed=seed + fold_idx,
-            d_model=d_model, dropout=dropout, max_lr=max_lr,
+            d_model=d_model, dropout=dropout, lr=lr,
+            seq_length=seq_len, patience=patience,
         )
         elapsed = time.time() - t0
         fold_metrics.append(m)
@@ -218,9 +231,11 @@ def run(state: str, folds: int, epochs: int, batch_size: int, seed: int,
 
     payload = {
         "state": state, "folds": folds, "epochs": epochs, "seed": seed,
-        "n_regions": n_regions, "n_pois": n_pois,
+        "n_regions": n_regions, "n_pois": n_pois, "seq_len": seq_len,
         "config": {"d_model": d_model, "dropout": dropout,
-                   "max_lr": max_lr, "batch_size": batch_size},
+                   "lr": lr, "patience": patience, "batch_size": batch_size,
+                   "schedule": "constant", "precision": "fp32",
+                   "sequence": "STAN prefix-expansion"},
         "per_fold": fold_metrics, "aggregate": agg,
     }
     out_file.write_text(json.dumps(payload, indent=2))
@@ -231,16 +246,20 @@ def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--state", required=True)
     p.add_argument("--folds", type=int, default=5)
-    p.add_argument("--epochs", type=int, default=50)
+    p.add_argument("--epochs", type=int, default=200,
+                   help="epoch CAP; early-stopping ends training on a real plateau")
     p.add_argument("--batch-size", type=int, default=2048)
-    p.add_argument("--seed", type=int, default=42)
+    p.add_argument("--seed", type=int, default=0)
     p.add_argument("--d-model", type=int, default=128)
     p.add_argument("--dropout", type=float, default=0.3)
-    p.add_argument("--max-lr", type=float, default=3e-3)
+    p.add_argument("--lr", type=float, default=1e-3,
+                   help="CONSTANT learning rate (STAN-faithful; no OneCycle)")
+    p.add_argument("--patience", type=int, default=20,
+                   help="early-stop patience on val Acc@10")
     p.add_argument("--tag", type=str, default=None)
     args = p.parse_args()
     run(args.state, args.folds, args.epochs, args.batch_size, args.seed,
-        args.d_model, args.dropout, args.max_lr, args.tag)
+        args.d_model, args.dropout, args.lr, args.patience, args.tag)
 
 
 if __name__ == "__main__":

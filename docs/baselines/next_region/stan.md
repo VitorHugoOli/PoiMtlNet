@@ -5,6 +5,25 @@
 - **Reference impl:** [`yingtaoluo/Spatial-Temporal-Attention-Network-for-POI-Recommendation`](https://github.com/yingtaoluo/Spatial-Temporal-Attention-Network-for-POI-Recommendation).
 - **Architecture (paper):** bi-layer self-attention. Layer 1 (*trajectory aggregation*) is bare single-head attention over a 9-step trajectory with a pairwise spatio-temporal bias added directly to QK^T logits; bias is `Sum_d(E_t[Δt] + E_d[Δd])` interpolated from learned 1-D interval-embedding tables (Eq. 4–5). Layer 2 (*matching*) ranks candidate POIs via attention from candidate-POI embeddings to trajectory states with a candidate-side Δd bias (Eq. 8–9). Multi-modal input embedding `e_loc + e_user + e_time(hour-of-week)` (§4.1.1).
 
+## ⚠ Faithfulness audit (2026-06-26, two-agent: paper §4 + reference `layers.py`/`load.py`/`train.py`)
+
+**The v4 `faithful` numbers (AL 34.46 / AZ 38.96, below the Markov-1 region floor) are UNTRUSTWORTHY ARTIFACTS — superseded, do NOT cite.** They are produced by a STAN that is simultaneously **(i)** mis-implemented in the matching layer (collapses to a proximity prior), **(ii)** ~9× data-starved, and **(iii)** under-trained. The "below floor" measures the broken code, not STAN. Reference behavior confirmed verbatim from `Attn`/`SelfAttn` (`layers.py`), `load.py`, `train.py`.
+
+| # | Component | Verdict | Reference (actual) | Ours (file:line) | Fix |
+|---|---|---|---|---|---|
+| 1 | **Matching layer** | **MAJOR — collapses to proximity prior** | `Attn`: **multiplicative** Δd gate (`torch.mul`) on the content dot-product, then a learned **`Linear(max_len,1)`** position collapse, **NO softmax** | additive `content/√d + bias_match`, then `softmax` over positions + reuse scores as values (`model.py:197-206`) | multiplicative gate + `nn.Linear(seq_len,1)` collapse; drop softmax |
+| 2 | **Embedding init / scale** | **MAJOR** | `nn.Embedding` default ≈ N(0,1); content on same scale as bias | std **0.02** (`model.py:228,239`) + `/√d` ⇒ distance bias ~25× content at init → content channel born dead | init std ≈ 1/√d (≈0.088) / N(0,1)-like |
+| 3 | **`/√d` scaling** | MINOR–MED | reference omits `/√d` in `SelfAttn` | divides by √d (`model.py:140,197`) | remove (or compensate via #2) |
+| 4 | **Sequence construction** | **CRITICAL — 9× starvation + bias** | prefix-expansion: every position t supervised from its causal prefix → **L−1 targets/user**, max_len=100 (`load.py`, `train.py` expanding mask) | non-overlapping **stride-9**, one target/window → ~ceil(n/9)/user, targets only at {9,18,…} (`etl.py:54,179-220`) | prefix-expansion, CONTEXT_LEN≥50 (paper 100) |
+| 5 | **Convergence** | **CRITICAL — under-trained** | constant LR (StepLR γ=1), 100 ep, early-stop on plateau, fp32 | 50 ep **OneCycleLR**→LR≈0 by ep50 ⇒ "best at 49/50" never plateaued (`train.py:122-124`) | constant/cosine-floor LR, 100–200 ep, early-stop patience ~15-20, best-ep interior |
+| 6 | **Precision / seed** | DEVIATION | fp32; (board) seed 0 | **bf16** autocast + TF32 (`train.py:127-128,144,160,182-184`); default seed **42** | fp32 (`use_amp=False`, tf32 off); `--seed 0` |
+| — | input emb, hour-of-week token, Δt/Δd, pad mask, region sjoin, CV split | **FAITHFUL** | — | — | keep |
+| — | next-**region** target, CrossEntropy, single-head, dropped user-emb | DEVIATION (task-driven, defensible) | next-POI, BPR, multi-head, e_user | documented board adaptations | keep + note |
+
+**Feasibility correction:** prefix-expansion is ~**8–9× rows** but **CA/TX are NOT infeasible** — AL/AZ trivial, FL minutes/fold, CA/TX ~3–4M instances fit GPU; the only bottleneck is the O(N_val·C) val-logit cache (`train.py:165,170`), which must be streamed. (The "large-state infeasible" lore was the unrelated MTL N×C path.) Scope per handoff stays **AL/AZ/FL** headline; CA/TX optional.
+
+**Verdict:** fixes #1+#2 (matching layer + init) and #4+#5 (prefix-expansion + convergence) are the decisive four; #3/#6 are compliance. With them, faithful STAN should **plausibly clear** the Markov-1 region floor (modestly — coarse regions erode STAN's edge). **If audited-faithful + converged STAN STILL lands below the floor, THAT is the honest reportable result** (STAN is built for fine next-POI, not coarse regions).
+
 ## Why this is a baseline (not our model)
 External published-method reference for the next-region task. We use it to:
 
