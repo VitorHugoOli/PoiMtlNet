@@ -4,10 +4,11 @@
 > [`../../../articles/[mobiwac]/CLOSE_BLOCKERS_HANDOFF.md`](../../../articles/[mobiwac]/CLOSE_BLOCKERS_HANDOFF.md).
 > The two **CPU-only** items (Blocker 3 Tbl-1 stats + the small-state region **TOST**) are **already DONE** on the
 > Mac (PR #49, branch `closing-data/tbl1-overlap-and-region-tost`) — do not redo them. Your plate is what remains:
-> ✅ **W6 probe DONE (PR #48): trunk, not transfer** (probe cat ≈ full-MTL, ≫ ceiling; §6.2 BACKED). Your plate is
-> now **Blocker 2** (HGI category re-score under overlap, incl. the canonical CA/TX HGI build) — the last item
-> needing new GPU runs. **Blocker 1** (FL CTLE) is the **H100's** job (PR #47 landed 2/5; W3 already closed at
-> AL/AZ/Istanbul) — commands here are a fallback only.
+> ✅ **W6 probe DONE (PR #48): trunk, not transfer** (probe cat ≈ full-MTL, ≫ ceiling; §6.2 BACKED). Your plate:
+> **Blocker 1.5 — FL CTLE-E2E** (NEW, §1.5: small/quick, the unrun half of the FL CTLE gap — do first), then
+> **Blocker 2** (HGI category re-score under overlap, incl. the canonical CA/TX HGI build — the heavier item).
+> **Blocker 1** (FL CTLE-SC 5f) is the **H100's** job (PR #47 landed 2/5; W3 already closed at AL/AZ/Istanbul) —
+> §3 here is a fallback only.
 >
 > **House rules (non-negotiable, same board as everyone):** seed 0 × 5 folds (n=5); gated stride-1 overlap,
 > engine `check2hgi_dk_ovl`, MIN_SEQ=10; **fp32** (Ampere bf16 grad-NaN) — set the AMP gate and verify healthy late
@@ -28,11 +29,13 @@ export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"
 export TORCHINDUCTOR_CACHE_DIR=$HOME/.inductor_cache_board
 ```
 
-## Priority order (UPDATED 2026-06-25 — W6 DONE)
+## Priority order (UPDATED 2026-06-25 — W6 DONE; Blocker 1.5 added)
 1. ✅ **W6 encoder-isolation probe — DONE (PR #48): trunk, not transfer.** §1 below is the record; no re-run.
-2. **Blocker 2 (NOW #1, the continuing work)** — HGI category STL under overlap. Needs the canonical CA/TX HGI
-   build first (CPU-bound HGI training → kick off early; the GPU stays free meanwhile). See §2.
-3. **Blocker 1 fallback** — only if the H100's FL CTLE never reaches 5f (it has 2/5; W3 already closed at AL/AZ/Istanbul).
+2. **Blocker 1.5 — FL CTLE-E2E (NEW, do FIRST among the open items):** small/quick (~30 min–1 h, the cat head);
+   the unrun half of the FL CTLE gap. See §1.5.
+3. **Blocker 2** — HGI category STL under overlap. Needs the canonical CA/TX HGI build first (CPU-bound → kick off
+   early; the GPU stays free meanwhile). See §2.
+4. **Blocker 1 fallback** — FL CTLE-SC 5f, only if the H100's never reaches 5f (it has 2/5; W3 already closed at AL/AZ/Istanbul). See §3.
 
 ---
 
@@ -44,6 +47,32 @@ Result: probe cat (region frozen) AL 63.50 / AZ 63.67 / FL 79.79 ≈ full-MTL ca
 Reproduce (record only): `STATES="alabama arizona florida" bash scripts/run_freeze_reg_probe.sh` (seed 0 × 5f,
 fp32; the first-fold `[per-head-LR]` line must show the reg group at 0 trainable params). Full verdict + per-state
 JSONs in [`W6_ENCODER_ISOLATION.md`](W6_ENCODER_ISOLATION.md) + RESULTS_BOARD §1c.
+
+---
+
+## 1.5 · Blocker 1.5 — FL CTLE-E2E (the unrun half of the FL CTLE gap)
+**Status: NOT RUN.** Verified on disk: `results/ctle_e2e_b1/florida/` is **absent** (only `alabama/` exists, AL
+E2E = 21.24). The **29.65** some notes cited is a **phantom — never created** (do NOT cite it). This is the
+native-end-to-end half of the FL representation block (Blocker 1 covers the *frozen-SC* half, which the H100 got
+to **2/5** in PR #47).
+
+**Why it's its own blocker (and small).** CTLE-E2E is CTLE in its *best* (fine-tuned) form — the honest "even at
+its strongest CTLE is well below ours" point for the §6.1 representation block. It is a single cat-head E2E run
+(7-class head → cheap, ~30 min–1 h, no wide-region accumulation). **Not load-bearing**: W3 (CTLE leak-clean) is
+already closed at AL/AZ/Istanbul, so FL CTLE is *corroborating*; but it removes the last phantom path at the
+headline state and completes the FL representation block.
+
+**Run (seed 0 × 5f, FL, fp32):**
+```bash
+python scripts/baselines/ctle_e2e.py --state florida --seed 0 --folds 5
+#  -> results/ctle_e2e_b1/florida/ctle_e2e_seed0.json   (AL template: results/ctle_e2e_b1/alabama/ctle_e2e_seed0.json = 21.24)
+```
+**Sanity:** native CTLE transformer fine-tuned end-to-end (NOT the frozen SC); healthy late best-epochs, fp32
+(`DISABLE_AMP=1` from §0), no ~ep12 NaN. **Acceptance:** FL CTLE-E2E cat on disk; **Check2HGI (≫) > CTLE-E2E**;
+present as the E2E rung beside the frozen CTLE-SC ladder ("even in its best E2E form CTLE is well below ours" —
+never "we crushed CTLE"). **Record** the number in `docs/baselines/next_category/ctle.md` (the `e2e` note) +
+RESULTS_BOARD §4; strike any lingering phantom 29.65. If you also have the H100's FL CTLE-SC 2/5, finishing it to
+5f here (Blocker 1, §3) is the natural companion.
 
 ---
 
