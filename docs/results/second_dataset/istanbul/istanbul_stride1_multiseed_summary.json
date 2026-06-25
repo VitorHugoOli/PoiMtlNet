@@ -1,0 +1,38 @@
+{
+ "cell": "istanbul_champion_stride1",
+ "windowing": "stride-1 overlap (min_seq=10)",
+ "engine": "check2hgi",
+ "regions": "mahalle-520",
+ "device": "[H100/CUDA]",
+ "seeds": [
+  0,
+  1,
+  7,
+  100
+ ],
+ "n_folds_per_seed": 5,
+ "n_total": 20,
+ "fp32": true,
+ "cat_macro_f1_per_seed": {
+  "0": 59.7252,
+  "1": 60.0136,
+  "7": 59.8157,
+  "100": 59.9918
+ },
+ "reg_full_top10_per_seed": {
+  "0": 74.2964,
+  "1": 74.2415,
+  "7": 74.3137,
+  "100": 74.2864
+ },
+ "cat_macro_f1_mean": 59.89,
+ "cat_macro_f1_std_across_seed": 0.121,
+ "reg_full_top10_mean": 74.28,
+ "reg_full_top10_std_across_seed": 0.027,
+ "stl_cat_ceiling_s0": 53.2,
+ "stl_reg_ceiling_s0": 74.8,
+ "delta_cat_vs_ceiling": 6.69,
+ "delta_reg_vs_ceiling": -0.52,
+ "reading": "champion-G signature HOLDS at stride-1, n=20: cat +6.69 over STL ceiling (gain), reg -0.51 vs ceiling (parity). Cross-seed variance tiny (cat \u00b10.1 / reg \u00b10.03). vs set-a multiseed (cat 60.16 / reg 69.79): cat ~flat, reg +4.5 = overlap density (both ceiling and MTL rise together), NOT a leak.",
+ "method": "h100_score_matched.py: cat=macro-F1 diag-best; reg=FULL top10_acc indist-best; per-task diagnostic-best, fold-mean."
+}

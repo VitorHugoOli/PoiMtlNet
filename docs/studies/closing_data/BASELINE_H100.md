@@ -125,3 +125,16 @@ Commit per cell: `docs/results/closing_data/baseline_compare/florida_{ctle,check
 record CTLE-E2E + CSLSL numbers in `MACS_BOARD_RESULTS.md` + `RESULTS_BOARD.md §4`. **n=5 provisional**; CTLE
 framed as "even in its best (E2E) form CTLE is well below ours" — never "we crushed CTLE". Do **NOT** run CA/TX
 CTLE-SC (dropped) or any region-SC (quarantined).
+
+### ✅ RESULTS (2026-06-25, H100 — full writeup: [`../../results/closing_data/H100_FL_BASELINES_FINDINGS.md`](../../results/closing_data/H100_FL_BASELINES_FINDINGS.md))
+All seed 0 × 5f, **fp32** (`DISABLE_AMP=1`). cat = macro-F1, reg = Acc@10.
+| Cell | base | cat | reg |
+|---|---|---|---|
+| **(A) Check2HGI-SC comparand** | dk_ovl | **73.47** ±0.55 | 72.71 |
+| **(B) CTLE-E2E** | dk_ovl | **29.65** | 61.47 |
+| **(D) CTLE-SC** | dk_ovl | **27.98** (fold-0 prov.; 5f parallel running) | **73.00** (fold-0 — region near-tie vs comparand 72.71) |
+| **(C) A2 hgi → hgifeat** | hgi set-a | 32.01 → 32.85 (concat closes ~9% of gap) | 70.28 → 70.05 |
+| **(E) CSLSL cascade / parallel** | v14 **set-a FENCE** | 72.00 / 72.08 (tie) | 72.63 / 73.05 |
+
+- (E) is the **set-a fence** — canonical FL cascade = dk_ovl, re-homed to the A40 (`RESULTS_BOARD §1b`, #44). FL set-a confirms the **dead tie**.
+- **Istanbul champion-G @ stride-1** (user-directed on the H100; cross-device caveat): cat **59.73**, reg Acc@10 **74.30** ≈ STL ceiling **74.80** → champion-G parity HOLDS; +4.5 reg vs set-a is overlap density, not a leak.

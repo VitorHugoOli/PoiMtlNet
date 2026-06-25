@@ -40,7 +40,9 @@ ENGINE = {  # baseline key -> EmbeddingEngine value + on-disk board dir
     "poi2vec": ("baseline_b2a_poi2vec", "board_baselines/poi2vec", True),
 }
 REPO = _root
-OUT = REPO / "output"
+# OUTPUT_DIR-aware so parallel single-fold runs can isolate each fold in its own output
+# tree (OUTPUT_DIR=output_f{f}) without clobbering the shared engine dir. Default = output/.
+OUT = Path(os.environ.get("OUTPUT_DIR", REPO / "output"))
 CANON = "output/check2hgi/{state}"  # graph maps + log_T source
 # Child subprocesses must use the SAME interpreter as this parent. On the Mac board
 # that is .venv/bin/python; on the H100/A40 conda boards there is no .venv, so default
@@ -146,6 +148,9 @@ def main():
     ap.add_argument("--baseline", required=True, choices=list(ENGINE))
     ap.add_argument("--cells-root", required=True)
     ap.add_argument("--folds", type=int, default=5)
+    ap.add_argument("--only-fold", type=int, default=None,
+                    help="run a single fold (for parallel per-fold runs w/ isolated OUTPUT_DIR); "
+                         "writes <state>_<baseline>_f{fold}.json instead of the aggregate")
     ap.add_argument("--heads", nargs="+", default=["cat", "reg"], choices=["cat", "reg"])
     a = ap.parse_args()
 
@@ -160,7 +165,8 @@ def main():
         build_inputs(a.baseline, a.state)
         stage_logt(a.baseline, a.state)
 
-    for f in range(a.folds):
+    _folds = [a.only_fold] if a.only_fold is not None else list(range(a.folds))
+    for f in _folds:
         log(f"=== {a.baseline}/{a.state} fold {f} ===")
         if per_fold:  # restage the leak-safe per-fold cell + rebuild inputs
             stage(a.baseline, a.state, cell_emb(cells_root, a.baseline, a.state, f))
@@ -179,7 +185,8 @@ def main():
         if vals:
             results[f"{key}_mean"] = round(st.mean(vals), 3)
             results[f"{key}_std"] = round(st.stdev(vals), 3) if len(vals) > 1 else 0.0
-    out = outdir / f"{a.state}_{a.baseline}.json"
+    _suffix = f"_f{a.only_fold}" if a.only_fold is not None else ""
+    out = outdir / f"{a.state}_{a.baseline}{_suffix}.json"
     out.write_text(json.dumps(results, indent=2))
     log(f"DONE -> {out}")
     log(f"  cat macro-F1={results.get('macro_f1_mean')} reg Acc@10={results.get('top10_acc_mean')}")
