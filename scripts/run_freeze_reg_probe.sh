@@ -52,7 +52,9 @@ run_one() {
       --task-a-input-type checkin --task-b-input-type region --log-t-kd-weight 0.0 \
       --scheduler onecycle --max-lr 3e-3 --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3 \
       --model mtlnet_crossattn_dualtower --compile --tf32 \
-      --per-fold-transition-dir "output/check2hgi_design_k_resln_mae_l0_1/${state}" --no-checkpoints
+      --checkpoint-selector geom_simple --no-reg-class-weights --no-cat-class-weights \
+      --canon none \
+      --per-fold-transition-dir "output/check2hgi_dk_ovl/${state}" --no-checkpoints
   # Score cat macro-F1 (the only head that matters here) and compare to the STL cat ceiling.
   echo "  -> score cat macro-F1 from the rundir; compare to ${state}_s0_stl_cat_ceiling.json"
 }
