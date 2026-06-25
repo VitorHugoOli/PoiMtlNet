@@ -80,6 +80,14 @@ class ExperimentConfig:
     # `docs/findings/F49_LAMBDA0_DECOMPOSITION_GAP.md`.
     freeze_cat_stream: bool = False
 
+    # W6 category-side encoder-isolation probe — the MIRROR of freeze_cat_stream:
+    # set requires_grad=False on `next_encoder` + `next_poi` so the region stream
+    # cannot co-adapt as a cat-helper via cross-attention K/V. Run with
+    # `mtl_loss=static_weight` + `category_weight=1.0` (reg-loss=0). If cat F1
+    # still beats the STL cat ceiling with the region stream frozen, the joint
+    # cat win is the shared trunk (architecture), NOT region->category transfer.
+    freeze_reg_stream: bool = False
+
     # F50 P3 — warmup-then-freeze: train cat side normally for the first
     # N epochs, then freeze ``category_encoder`` + ``category_poi`` from
     # epoch N onward (continued reg + shared training). Tests whether the

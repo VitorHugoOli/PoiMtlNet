@@ -1605,6 +1605,18 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                 p.requires_grad_(False)
             model.category_encoder.eval()  # disables dropout in the cat encoder
 
+        # W6 category-side probe — MIRROR of freeze_cat_stream on the region
+        # stream: freeze next_encoder + next_poi (requires_grad=False) so the
+        # region stream cannot co-adapt as a cat-helper via cross-attention K/V.
+        # Run with category_weight=1.0 (reg-loss=0). The optimizer's
+        # requires_grad filter keeps AdamW from decaying the frozen weights.
+        if getattr(config, "freeze_reg_stream", False):
+            for p in model.next_encoder.parameters():
+                p.requires_grad_(False)
+            for p in model.next_poi.parameters():
+                p.requires_grad_(False)
+            model.next_encoder.eval()  # disables dropout in the reg encoder
+
         # Cache parameter group lists once per fold (item #2 — avoids
         # walking named_parameters() on every NashMTL backward call).
         cached_shared_params = list(model.shared_parameters())
@@ -1700,6 +1712,22 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                         "still contains trainable params; the freeze did not "
                         "propagate. Check setup_per_head_optimizer's "
                         "requires_grad filter."
+                    )
+            if getattr(config, "freeze_reg_stream", False):
+                # reg lives in either a single "reg" group or split
+                # "reg_encoder"+"reg_head" (per setup_per_head_optimizer).
+                _reg_groups = [
+                    pg for pg in optimizer.param_groups
+                    if pg.get("name") in ("reg", "reg_encoder", "reg_head")
+                ]
+                if not _reg_groups or any(
+                    p.requires_grad for pg in _reg_groups for p in pg["params"]
+                ):
+                    raise RuntimeError(
+                        "freeze_reg_stream=True but the optimizer's reg "
+                        "group(s) still contain trainable params; the freeze "
+                        "did not propagate. Check next_encoder/next_poi + "
+                        "setup_per_head_optimizer's requires_grad filter."
                     )
 
         # Per-task class weights. Legacy behaviour (unchanged): weights

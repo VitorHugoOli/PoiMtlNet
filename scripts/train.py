@@ -723,6 +723,21 @@ def _parse_args(argv=None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--freeze-reg-stream",
+        dest="freeze_reg_stream",
+        action="store_true",
+        default=False,
+        help=(
+            "W6 category-side encoder-isolation probe (MIRROR of "
+            "--freeze-cat-stream): set requires_grad=False on next_encoder "
+            "+ next_poi so the region stream cannot co-adapt as a cat-helper "
+            "via cross-attention K/V. Requires --mtl-loss static_weight "
+            "--category-weight 1.0 (reg-loss must be zero). Tests whether the "
+            "joint category win is the shared trunk (architecture) or "
+            "region->category transfer. See RESULTS_BOARD / mobiwac W6."
+        ),
+    )
+    parser.add_argument(
         "--freeze-cat-after-epoch",
         dest="freeze_cat_after_epoch",
         type=int,
@@ -1427,6 +1442,29 @@ def _apply_cli_overrides(
                 f"incoherent (got category_weight={cat_w!r})"
             )
         config = dataclasses.replace(config, freeze_cat_stream=True)
+
+    if getattr(args, "freeze_reg_stream", False):
+        if config.task_type != "mtl":
+            raise ValueError("--freeze-reg-stream requires --task mtl")
+        if getattr(args, "freeze_cat_stream", False):
+            raise ValueError(
+                "--freeze-reg-stream and --freeze-cat-stream are mutually "
+                "exclusive (they probe opposite directions)"
+            )
+        if config.mtl_loss != "static_weight":
+            raise ValueError(
+                "--freeze-reg-stream requires --mtl-loss static_weight "
+                "(the W6 region-frozen probe is defined for "
+                "category_weight=1.0 under static_weight)"
+            )
+        cat_w = config.mtl_loss_params.get("category_weight")
+        if cat_w is None or float(cat_w) != 1.0:
+            raise ValueError(
+                "--freeze-reg-stream requires --category-weight 1.0 "
+                "(reg-loss=0); freezing the reg stream while still applying "
+                f"L_reg is incoherent (got category_weight={cat_w!r})"
+            )
+        config = dataclasses.replace(config, freeze_reg_stream=True)
 
     if getattr(args, "freeze_cat_after_epoch", None) is not None:
         n = int(args.freeze_cat_after_epoch)
