@@ -450,8 +450,14 @@ direction**; a family-wise Holm correction across the six category cells (or the
 (Reproduce: `scripts/closing_data/superiority_wilcoxon.py`.)
 
 **§5.4 Baselines (locked; see §7 and `BASELINE_HANDOFF.md`).** Three roles, kept separate in the writing: (1)
-**task SOTA**, faithful author implementations on our data, our folds: next-category **POI-RGNN + Markov-9-cat**;
-next-region **ReHDM + STAN-`stl_hgi`**. (2) **representation** (FL only): **CTLE**, the closest prior contextual
+**task SOTA**, faithful author implementations on our data: next-category **POI-RGNN + Markov-9-cat**;
+next-region **STAN (on a standard HGI place embedding) + ReHDM + HMT-GRN**. ⚠ **Region-baseline footing (audit
+2026-06-26, see `STAN_REFOOTING_HANDOFF.md`):** keep all region externals on ONE footing for the matched columns.
+**STAN** is being **re-scored at the board footing (seed 0, stride-1 overlap, HGI substrate)** — the existing
+seed-42 / non-overlap STAN numbers are NOT cited as final. **HMT-GRN** is already board-matched (seed 0, stride-1).
+**ReHDM-faithful** is reported as a **published-method reference under its own protocol** (chronological 80/10/10 +
+5 seeds), gap-to-ceiling, never as a paired/matched cell. STAN on our Check2HGI (the Istanbul stop-gap) is **not** a
+baseline and is dropped. (2) **representation** (FL only): **CTLE**, the closest prior contextual
 embedding, presented fairly (its end-to-end form alongside the frozen one), plus a **feature-concat control**
 (HGI ⊕ raw per-visit features), so the category gain is attributed to the hierarchy, not to any contextualization
 nor to feature injection. (3) **multi-task comparators**: the **CSLSL cascade** (the dominant published
@@ -578,11 +584,16 @@ external city is wanted; we lead with Istanbul.
 
 Three roles, kept separate in the writing (see the handoff §1):
 
-**Role 1: task SOTA (faithful author implementations, our data, our folds):**
+**Role 1: task SOTA (faithful author implementations, our data):**
 - [ ] next-category: **POI-RGNN** + **Markov-9-cat** floor.
-- [ ] next-region: **ReHDM** (faithful, AL/AZ/FL; CA/TX footnoted infeasible) + **STAN-`stl_hgi`** (all states;
-  NOT faithful-STAN, which scores below Markov). **Markov-1 region DROPPED (2026-06-24)**, we already beat ReHDM
-  and STAN-on-our-substrate, so the floor is redundant; keep at most a one-clause text mention.
+- [ ] next-region: **STAN** (the STAN architecture on a standard HGI place embedding) + **HMT-GRN** + **ReHDM**.
+  ⚠ **Footing fix (audit 2026-06-26, `STAN_REFOOTING_HANDOFF.md`):** the matched columns must share ONE footing.
+  **STAN** is being **re-scored at the board footing (seed 0, stride-1 overlap, HGI substrate)** for AL/AZ/FL/CA/TX
+  and Istanbul (Istanbul needs an HGI build first); the old **seed-42 / non-overlap** STAN numbers are NOT final.
+  **HMT-GRN** is already board-matched (seed 0, stride-1). **ReHDM-faithful** (AL/AZ/FL; CA/TX footnoted infeasible)
+  is a **published-method reference under its own protocol** (chronological split, 5 seeds), reported gap-to-ceiling,
+  NOT a paired cell. NOT faithful-STAN (scores below Markov, a strawman). STAN-on-our-Check2HGI (the Istanbul
+  stop-gap) is dropped. **Markov-1 region DROPPED (2026-06-24)**; keep at most a one-clause text mention.
 - [ ] our STL ceilings + MTL champion (the comparison anchors).
 
 **Role 2: representation novelty (FL only, small validation block):**
