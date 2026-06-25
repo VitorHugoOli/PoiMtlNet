@@ -1,51 +1,50 @@
-# BASELINE handoff — **A40** (CUDA, Ampere) · self-contained · 2026-06-24
+# BASELINE handoff — **A40** (CUDA, Ampere) · self-contained · 2026-06-25
 
-> **You are the A40. Read ONLY this file, then execute.** Phase = baselines. Your job: the **CSLSL cascade
-> (role-3) at the small/mid states** — the published multi-task alternative to our parallel joint model. Start
-> when your current run frees the card (~1 h). Decisions: `../../../articles/[mobiwac]/BASELINE_HANDOFF.md`;
-> results → [`RESULTS_BOARD.md`](RESULTS_BOARD.md); cross-machine map → [`BASELINE_DISTRIBUTION.md`](BASELINE_DISTRIBUTION.md).
+> **You are the A40. Read ONLY this file, then execute.** Phase = baselines, final. Your NEW job: the **W6
+> category-side encoder-isolation probe** (closes the one open regular-track mechanism blocker). Decisions:
+> `../../../articles/[mobiwac]/BASELINE_HANDOFF.md`; results → [`RESULTS_BOARD.md`](RESULTS_BOARD.md).
 >
-> **Protocol:** seed 0 × 5 folds (n=5), gated stride-1 overlap engine `check2hgi_dk_ovl`, **fp32**, leak-free
-> per-fold train-only priors, user-disjoint folds. Numbers from committed JSONs only.
+> ✅ **CSLSL cascade (the old A40 job) is DONE** — AL/AZ/FL all tie our parallel champion-G (Δjoint ≤ 0.02 pp;
+> §1b). ⏹ **STOP the FL same-device champ-G comparand** (user, 2026-06-25): its first folds already reproduce the
+> board champ-G, so it only confirms the cross-device ±0.01 FL tie we already have — no marginal gain. The §1b FL
+> cascade Δ stays cross-device (a tie is a tie; the same-device comparand is a post-deadline nicety). Free the card.
+>
+> **Protocol:** seed 0 × 5 folds (n=5), gated stride-1 overlap `check2hgi_dk_ovl`, **fp32**, leak-free, user-disjoint.
 
 ## 0 · Setup (once)
 ```bash
-cd <A40 repo>; git checkout main && git pull
+cd <A40 repo>; git checkout main && git pull       # MUST include the --freeze-reg-stream commit (ae898042)
 export PYTHONPATH=src
-export MTL_CHUNK_VAL_METRIC=1 MTL_STRICT=1 MTL_COMPILE_DYNAMIC=1
+export DISABLE_AMP=1 MTL_DISABLE_AMP=1              # PR #43 fp16 gate (fp32, no autocast)
+export MTL_STRICT=1 MTL_COMPILE_DYNAMIC=1
 export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"
 export TORCHINDUCTOR_CACHE_DIR=$HOME/.inductor_cache_board
 ```
 
-## 1 · What CSLSL is (so you frame it right)
-`scripts/baselines/b4_cascade.py` is the **cascade (category→region) multi-task baseline** — the dominant published
-alternative to parallel MTL. It is a PINNED SC variant that reuses the **exact champion heads on the frozen
-Check2HGI substrate**, with the only varying factor being the directed cat→region cascade edge (vs our parallel
-joint). So it isolates **cascade-vs-parallel** cleanly. Comparand = **our MTL champion-G** (NOT the STL ceiling).
+## 1 · What the W6 probe is (why it matters)
+The paper's load-bearing mechanism claim: the joint **category** win is "**a stronger shared encoder, NOT
+region→category transfer**" (PAPER_PLAN §6.2, answers R3's structural-bottleneck question). The only probe on file
+(F49) measures the OPPOSITE direction. This run tests the claim directly: freeze the **region** stream
+(`next_encoder` + `next_poi`, requires_grad=False) so it can't co-adapt as a cat-helper via cross-attn K/V, and
+zero the reg loss (`--category-weight 1.0`). Then train champion-G and read the **cat** head:
+- **probe cat F1 ≈ full-MTL cat ≫ STL cat ceiling** → the win is the shared TRUNK (architecture) → **W6 closed**.
+- **probe cat F1 ≈ STL cat ceiling** → the win WAS region→category transfer (the claim must change).
 
-## 2 · Tasks (when the card frees, ~1 h) — seed 0 × 5f
+## 2 · Task — run the probe (seed 0 × 5f, AL/AZ/FL)
 ```bash
-for S in alabama arizona; do
-  python scripts/baselines/b4_cascade.py --state $S --seed 0 --folds 5 --epochs 50
-done
-#  Preflight will STOP with the exact build command if the per-fold log_T is missing, e.g.:
-#    python scripts/compute_region_transition.py --state $S --engine check2hgi_dk_ovl --per-fold --seed 0 --n-splits 5
-#  (the dk_ovl engine itself: python scripts/mtl_improvement/build_overlap_probe_engine.py $S 1)
+STATES="alabama arizona florida" bash scripts/run_freeze_reg_probe.sh
+#  (build dk_ovl + per-fold log_T first per state if absent — the runner/preflight tells you;
+#   smoke first: MODE=smoke bash scripts/run_freeze_reg_probe.sh)
 ```
-- **CA / TX: only if cheap / spare time** (wide-region 8501/6553 heads; the `perf(mtl)` #33 fix on main makes them feasible but long). Default: skip CA/TX cascade for the deadline.
-- **If the H100 is saturated**, you may instead take **CSLSL @ FL** (`b4_cascade.py --state florida …`) — you're the stable card for the longer run.
+The flag + runner landed in commit `ae898042` (`--freeze-reg-stream`; a runtime guard RuntimeErrors at fold-0 if
+the reg group still has trainable params, so a non-propagating freeze can't pass silently). The cat-ceiling
+comparand is on disk (`docs/results/closing_data/h100/<state>_s0_stl_cat_ceiling.json`) and is device-robust
+(7 classes) → the A40 is fine for this.
 
-## 3 · Clean-Δ note (important)
-The cascade's comparand is **champion-G**, whose AL/AZ rundirs are on the **H100**. For a strictly same-device Δ,
-**re-run champion-G AL/AZ on the A40 alongside the cascade** (cheap at AL/AZ) and compare on this card — OR accept
-the documented cross-GPU **±0.05 pp** caveat (acceptable for this internal cascade-vs-parallel ablation, where the
-signal ≫ 0.05 pp). State which you did in the result.
-
-## 4 · Validation + outputs
-- **Expected:** the cascade is **≈ champion-G or slightly worse** on the joint objective (our parallel model should
-  beat or match it at equal/lower cost). A cascade that *beats* champion-G by a wide margin → check the cascade edge
-  wiring (`b4_cascade.py` docstring D-points) before trusting.
-- Commit the cascade result JSON per state (rundir under `results/…`); record the cat/reg + joint-objective number
-  in `RESULTS_BOARD.md` (the MTL-comparator block) + `MACS_BOARD_RESULTS.md`. **n=5 provisional.**
-- Do **NOT** run the FL representation block (H100's job), the CTLE diagnosis (M4's job), or any dropped baseline
-  (CTLE-SC ladder / region-SC / STAN-faithful at scale).
+## 3 · Validation + outputs
+- **Sanity:** the `[per-head-LR]` line must show the reg group(s) at **0 trainable params** (else the freeze
+  didn't take — the run aborts with a RuntimeError). Cat head trains normally.
+- **Read:** probe cat macro-F1 per state vs (a) the STL cat ceiling and (b) the full-MTL cat (RESULTS_BOARD §1).
+  Commit a small result JSON per state; record the verdict (trunk vs transfer) + the three numbers in a new
+  `docs/studies/closing_data/W6_ENCODER_ISOLATION.md` + RESULTS_BOARD. **n=5 provisional.**
+- Do **NOT** run the FL representation block (H100), the CTLE diagnosis (M4/done), or any dropped baseline.
