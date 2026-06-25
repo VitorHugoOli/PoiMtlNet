@@ -108,12 +108,12 @@ counts + max/avg sequence length + sparsity for AL/AZ/FL/CA/TX + Istanbul.
   sits well inside ±2 pp. Per-fold σ is small (0.16–0.37 pp) → power ≈1.0 to declare a true match, ≥95% to reject a
   true 2-pp gap. Results pinned in `STATISTICAL_PROTOCOL.md §3.4`, surfaced in `PAPER_PLAN.md §6.2`. Script:
   `scripts/closing_data/region_match_tost.py`. (Also fixed a stale Istanbul −0.58 → −0.52 in PAPER_PLAN.)
-- **W6 encoder-isolation probe** (`--freeze-reg-stream`, runner `scripts/run_freeze_reg_probe.sh`; handoff
-  `HANDOFF_A40_W6_PROBE.md`). It backs "the category win is a stronger shared encoder, not region→category
-  transfer." Code is shipped and the A40 is tasked, but it has **zero results** (the handoff's `⟨fill⟩` rows are
-  empty, no JSON, no W6 doc). Run AL/AZ (fast) then FL (long pole). **If it lands near the full-MTL category and
-  ≫ the STL ceiling, the §6.2 mechanism is backed; if it slips, the plan already states the mechanism as a
-  hypothesis.** Do NOT cite the wrong-direction F49 probe as support.
+- ✅ **W6 encoder-isolation probe — DONE 2026-06-25 (PR #48, A40), VERDICT = trunk, NOT transfer.** With the
+  region stream frozen-at-init (`--freeze-reg-stream`, reg-loss off), the category head keeps the ENTIRE joint
+  lift: probe cat **AL 63.50 / AZ 63.67 / FL 79.79 ≈ full-MTL cat (±0.3 pp) and ≫ STL ceiling (+4.6…+7.6 pp)**.
+  → the joint category win is the shared TRUNK (architecture), not region→category transfer. **§6.2 mechanism is
+  BACKED** — cite this category-side probe (`W6_ENCODER_ISOLATION.md`, RESULTS_BOARD §1c), NOT the wrong-direction
+  F49. Sanity gates passed (reg group 0 trainable params, 0 nan, fp32). n=5 provisional.
 
 ---
 
@@ -125,17 +125,17 @@ counts + max/avg sequence length + sparsity for AL/AZ/FL/CA/TX + Istanbul.
 - `BASELINE_HANDOFF.md` / `ctle.md` / `BASELINE_H100.md`: real FL CTLE 5f numbers; strike the phantom paths.
 - Keep the **CSLSL = tie at equal cost** framing (it is a defense, never "we beat the cascade").
 
-## Priority order
-1. **Blocker 1 (FL CTLE 5f SC + E2E):** the integrity risk; do first.
-2. **Blocker 2 (HGI-cat-STL under overlap):** needs the HGI@CA/TX build; start that build early (it can run while
-   CTLE runs).
-3. **Blocker 3 (Tbl 1 recompute):** no GPU; do any time.
-4. **Should-fix (TOST, then W6):** cheap; bundle in.
+## Priority order (UPDATED 2026-06-25 — W6 + Blocker 3 + TOST DONE; FL CTLE partial)
+1. **Blocker 2 (HGI-cat-STL under overlap):** the A40's continuing GPU work — needs the canonical CA/TX HGI build
+   first (CPU, kick off early). The last open blocker requiring new runs. See `HANDOFF_A40.md §2`.
+2. **Blocker 1 (FL CTLE):** H100 got **2/5 folds** (PR #47, partial; cat ~28 ≪ comparand 73.47, reg ~73 ≈ 72.71);
+   W3 is already satisfied at AL/AZ/Istanbul, so FL is corroborating — finish the 5f if a card frees, else cite 2/5.
+3. ✅ **Blocker 3 (Tbl 1), TOST/power, W6** — all DONE (below).
 
 ## Close-readiness checklist (the gate for "submit regular")
-- [ ] FL CTLE-SC 5f + FL CTLE-E2E 5f committed; no phantom paths cited.
-- [ ] HGI-category-STL under overlap committed at 5 states + Istanbul; Tbl 2 on one windowing.
-- [x] Tbl 1 overlap windows + max/avg seq-len + sparsity filled. **(DONE 2026-06-25, macOS)**
-- [x] (should) TOST/power statement computed for the small-state region matches. **(DONE 2026-06-25, macOS)**
-- [ ] (should) W6 probe run, or the §6.2 mechanism left as an explicit hypothesis.
+- [~] FL CTLE-SC **2/5** committed (PR #47, partial); FL CTLE-E2E done; W3 closed at AL/AZ/Istanbul (FL corroborates).
+- [ ] HGI-category-STL under overlap (Blocker 2) committed at 5 states + Istanbul; Tbl 2 on one windowing. **← A40 next**
+- [x] Tbl 1 overlap windows + max/avg seq-len + sparsity filled. **(DONE 2026-06-25)**
+- [x] (should) TOST/power statement for the small-state region matches. **(DONE 2026-06-25 — tested non-inferiority, power≈1.0)**
+- [x] (should) W6 probe run → **DONE (PR #48): trunk, not transfer; §6.2 mechanism BACKED.**
 - [ ] No void fp16/bf16 JSON cited; AMP gate verified on every reg/joint cell.

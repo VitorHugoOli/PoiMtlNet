@@ -137,7 +137,9 @@ Per the baselines README, the paper's baseline tables read from [`../../baseline
   the **representation-isolation** comparison (CTLE-emb → our head vs Check2HGI-emb → our head, matched capacity)
   that substantiates contribution-1 novelty; without it C1's "novel" *evaporates*. **Δcat AL +37.8 / AZ +37.0 /
   Istanbul +28.6**, device-internal-clean (reproduces CUDA within noise). Leak-clean at **AL/AZ + Istanbul
-  (stride-1, PR #38)**; FL/CA/TX → CUDA (`BASELINE_H100.md`). POI2Vec/skip-gram/one-hot SC-cat are the
+  (stride-1, PR #38)**; **FL = 2/5 folds (PR #47, partial)** — cat ~28 ≪ comparand 73.47 (substrate drives cat),
+  reg ~73 ≈ 72.71 (region near-tie); W3 is closed at AL/AZ/Istanbul, FL corroborates (finish 5f if a card frees).
+  CA/TX CTLE-SC not run (dropped). POI2Vec/skip-gram/one-hot SC-cat are the
   representation **controls** (§7 checklist). **AL frozen-below-floor (17.8 < bigram ~19.5) DIAGNOSED REAL
   (M4, 2026-06-24)** — not a pipeline/leak bug (substrate genuinely swapped, cosine vs check2hgi 0.01; identical
   head → 55.6 on check2hgi vs 17.8 on CTLE) → **H100 FL CTLE-SC CLEARED** (`baseline_compare/alabama_ctle_DIAGNOSIS.md`).

@@ -4,8 +4,10 @@
 > [`../../../articles/[mobiwac]/CLOSE_BLOCKERS_HANDOFF.md`](../../../articles/[mobiwac]/CLOSE_BLOCKERS_HANDOFF.md).
 > The two **CPU-only** items (Blocker 3 Tbl-1 stats + the small-state region **TOST**) are **already DONE** on the
 > Mac (PR #49, branch `closing-data/tbl1-overlap-and-region-tost`) — do not redo them. Your plate is what remains:
-> **Blocker 2** (HGI category re-score under overlap, incl. the canonical CA/TX HGI build) and the **W6 probe**.
-> **Blocker 1** (FL CTLE) is the **H100's** job; commands are here only as a fallback if the H100 stalls.
+> ✅ **W6 probe DONE (PR #48): trunk, not transfer** (probe cat ≈ full-MTL, ≫ ceiling; §6.2 BACKED). Your plate is
+> now **Blocker 2** (HGI category re-score under overlap, incl. the canonical CA/TX HGI build) — the last item
+> needing new GPU runs. **Blocker 1** (FL CTLE) is the **H100's** job (PR #47 landed 2/5; W3 already closed at
+> AL/AZ/Istanbul) — commands here are a fallback only.
 >
 > **House rules (non-negotiable, same board as everyone):** seed 0 × 5 folds (n=5); gated stride-1 overlap,
 > engine `check2hgi_dk_ovl`, MIN_SEQ=10; **fp32** (Ampere bf16 grad-NaN) — set the AMP gate and verify healthy late
@@ -26,15 +28,18 @@ export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"
 export TORCHINDUCTOR_CACHE_DIR=$HOME/.inductor_cache_board
 ```
 
-## Priority order (do in this order; W6 and the CA/TX HGI build can run in parallel)
-1. **W6 encoder-isolation probe** — cheapest, closes the last *mechanism* blocker. Fully specified already.
-2. **Blocker 2** — HGI category STL under overlap (needs the canonical CA/TX HGI build first; that build is
-   CPU-bound HGI training, so kick it off in parallel with W6 on day one).
-3. **Blocker 1 fallback** — only if the H100 does not land the FL CTLE cells.
+## Priority order (UPDATED 2026-06-25 — W6 DONE)
+1. ✅ **W6 encoder-isolation probe — DONE (PR #48): trunk, not transfer.** §1 below is the record; no re-run.
+2. **Blocker 2 (NOW #1, the continuing work)** — HGI category STL under overlap. Needs the canonical CA/TX HGI
+   build first (CPU-bound HGI training → kick off early; the GPU stays free meanwhile). See §2.
+3. **Blocker 1 fallback** — only if the H100's FL CTLE never reaches 5f (it has 2/5; W3 already closed at AL/AZ/Istanbul).
 
 ---
 
-## 1 · W6 probe (closes the §6.2 mechanism claim) — FULLY SPECIFIED ELSEWHERE
+## 1 · W6 probe — ✅ DONE (PR #48): TRUNK, not transfer
+Result: probe cat (region frozen) AL 63.50 / AZ 63.67 / FL 79.79 ≈ full-MTL cat (±0.3 pp), ≫ STL ceiling
+(+4.6…+7.6) → the joint category win is the shared trunk, not region→category transfer. Recorded in
+`W6_ENCODER_ISOLATION.md` + RESULTS_BOARD §1c. **No re-run.** (Run-spec below kept for the record.)
 
 Run-spec is complete and self-contained in **[`HANDOFF_A40_W6_PROBE.md`](HANDOFF_A40_W6_PROBE.md)** (the summary is
 also in [`BASELINE_A40.md`](BASELINE_A40.md)). One line:
