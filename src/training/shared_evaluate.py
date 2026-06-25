@@ -1,4 +1,5 @@
 import contextlib
+import os
 from typing import Union
 
 import numpy as np
@@ -16,9 +17,15 @@ def evaluate(model: nn.Module, loader: DataLoader, device: torch.device,
         model.load_state_dict(best_state)
     preds_list, truths_list = [], []
 
+    # Match the training-loop precision: DISABLE_AMP=1 / MTL_DISABLE_AMP=1 forces fp32
+    # eval (board baseline protocol + NaN-safety at large-state scale).
+    _disable_amp = (
+        os.environ.get("DISABLE_AMP") == "1"
+        or os.environ.get("MTL_DISABLE_AMP") == "1"
+    )
     _autocast_ctx = (
         torch.autocast(device.type, dtype=torch.float16)
-        if device.type == 'cuda'
+        if device.type == 'cuda' and not _disable_amp
         else contextlib.nullcontext()
     )
 

@@ -42,7 +42,10 @@ ENGINE = {  # baseline key -> EmbeddingEngine value + on-disk board dir
 REPO = _root
 OUT = REPO / "output"
 CANON = "output/check2hgi/{state}"  # graph maps + log_T source
-PY = str(REPO / ".venv/bin/python")
+# Child subprocesses must use the SAME interpreter as this parent. On the Mac board
+# that is .venv/bin/python; on the H100/A40 conda boards there is no .venv, so default
+# to sys.executable (universally correct). BASELINE_PY overrides if ever needed.
+PY = os.environ.get("BASELINE_PY") or sys.executable
 
 
 def log(m): print(f"[{time.strftime('%H:%M:%S')}] {m}", flush=True)
