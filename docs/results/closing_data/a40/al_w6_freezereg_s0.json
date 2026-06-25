@@ -1,0 +1,39 @@
+{
+  "rundir": "results/check2hgi_dk_ovl/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260625_055557_1941575",
+  "seed": 0,
+  "tag": "al_w6_freezereg_s0",
+  "method": "reg full=top10_acc_indist*(1-ood_frac) at indist-best epoch; cat=macro-f1 at f1-best epoch; per-task diagnostic-best, fold-mean",
+  "cat_macro_f1_mean": 63.4954,
+  "cat_macro_f1_std": 1.7364,
+  "cat_per_fold": [
+    63.5868,
+    64.7305,
+    64.8248,
+    64.1981,
+    60.1367
+  ],
+  "cat_best_epochs": [
+    20,
+    17,
+    18,
+    14,
+    14
+  ],
+  "reg_full_top10_mean": 0.6478,
+  "reg_full_top10_std": 0.2289,
+  "reg_per_fold": [
+    0.436,
+    0.4205,
+    0.654,
+    0.6747,
+    1.0537
+  ],
+  "reg_best_epochs": [
+    6,
+    32,
+    10,
+    1,
+    11
+  ],
+  "n_folds": 5
+}
