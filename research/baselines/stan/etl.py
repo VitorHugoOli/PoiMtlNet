@@ -69,6 +69,9 @@ _STATE_TO_SHAPEFILE = {
     "texas": Resources.TL_TX,
     "georgia": Resources.TL_GA,
     "newyork": Resources.TL_NY,
+    # Istanbul (Massive-STEPS): region = OSM admin_level=8 mahalle polygons (the
+    # TIGER-tract equivalent). GeoJSON instead of a .shp; region-id col is '@id'.
+    "istanbul": DATA_ROOT / "miscellaneous" / "istanbul_mahalle" / "istanbul_mahalle.geojson",
 }
 
 
@@ -99,7 +102,11 @@ def _assign_regions_from_shapefile(checkins: pd.DataFrame, shapefile: Path
         geometry=gpd.points_from_xy(pois["longitude"], pois["latitude"]),
         crs="EPSG:4326",
     )
-    tracts = gpd.read_file(shapefile).to_crs("EPSG:4326")[["GEOID", "geometry"]]
+    _tr = gpd.read_file(shapefile).to_crs("EPSG:4326")
+    # Region-id column: TIGER tracts use 'GEOID'; the Istanbul mahalle GeoJSON uses
+    # '@id' (OSM relation id). Normalize to 'GEOID' so the rest is substrate-agnostic.
+    _rid = "GEOID" if "GEOID" in _tr.columns else ("@id" if "@id" in _tr.columns else "name")
+    tracts = _tr[[_rid, "geometry"]].rename(columns={_rid: "GEOID"})
 
     pois_geom = pois_geom.sjoin(tracts, how="left", predicate="intersects")
     pois_geom = pois_geom.dropna(subset=["GEOID"]).reset_index(drop=True)
