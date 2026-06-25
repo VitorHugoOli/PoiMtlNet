@@ -28,7 +28,7 @@
 > "non-inferior" to "**beats at the large states, matches at the small**", which **reopens the regular track**
 > (the poster cut, `PAPER_PLAN_POSTER.md`, is now the deadline fallback, not the recommendation). Baselines locked
 > (§7 + `BASELINE_HANDOFF.md`): category = POI-RGNN + Markov-9-cat; region = ReHDM + STAN-`stl_hgi` (Markov-1
-> region dropped); representation control = CTLE (FL) + feature-concat; MTL comparator = CSLSL cascade + HMT-GRN.
+> region dropped); representation control = CTLE (FL) + feature-concat; MTL-design comparator = CSLSL cascade. (Region externals later settled: HMT-GRN primary, STAN faithful + ReHDM secondary.)
 > All Part-2 numbers are n=5 (seed 0) provisional; the board is complete (TX closed at 5 folds, region +2.06).
 
 ---
@@ -465,9 +465,10 @@ secondary references, each labeled.** If a converged faithful STAN still lands b
 honest result (STAN was built for fine next-POI, not coarse regions), reported with that note rather than headlined. (2) **representation** (FL only): **CTLE**, the closest prior contextual
 embedding, presented fairly (its end-to-end form alongside the frozen one), plus a **feature-concat control**
 (HGI ⊕ raw per-visit features), so the category gain is attributed to the hierarchy, not to any contextualization
-nor to feature injection. (3) **multi-task comparators**: the **CSLSL cascade** (the dominant published
-alternative to parallel joint training) and **HMT-GRN** as the already-run safety net. The **dedicated
-single-task ceilings** are the comparison anchors for the joint model, and the HGI representation is the
+nor to feature injection. (3) **multi-task comparator**: the **CSLSL cascade** (the dominant published
+alternative to parallel joint training) is the dedicated MTL-design comparator (parallel vs cascade). HMT-GRN is
+*also* multi-task, but its comparison is already captured as the **primary region-native external** (role 1), so we
+do not re-cast it here. The **dedicated single-task ceilings** are the comparison anchors for the joint model, and the HGI representation is the
 per-visit ablation (Part 1).
 
 ### §6 Results (about 1.5 pages): two results, two reads
@@ -609,7 +610,8 @@ Three roles, kept separate in the writing (see the handoff §1):
 - [ ] **feature-concat control** (HGI ⊕ raw per-visit features → same head): closes "is it just feature injection?".
 
 **Role 3: multi-task comparator:**
-- [ ] **CSLSL cascade** (preferred, `b4_cascade.py`) + **HMT-GRN** kept as the already-run safety net.
+- [ ] **CSLSL cascade** (`b4_cascade.py`) is the dedicated MTL-design comparator (parallel vs cascade, the §1b tie).
+  HMT-GRN (multi-task) is already the **primary region-native external** (role 1), not re-listed here.
 
 **Dropped:** CTLE as a SOTA row / full SC ladder; MHA+PE; STAN-faithful as a headline; SC-region (quarantined).
 Tables stay slim (one category table, one region table, one small FL validation block).
