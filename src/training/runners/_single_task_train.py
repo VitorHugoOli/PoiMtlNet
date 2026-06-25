@@ -2,6 +2,7 @@
 
 import contextlib
 import logging
+import os
 import time
 from typing import Optional, List
 
@@ -62,9 +63,17 @@ def train_single_task(
 
     cb.on_train_begin(CallbackContext(epoch=0, epochs_total=epochs))
 
+    # fp16 autocast on CUDA has NO GradScaler here, so it NaN-collapses at large-state
+    # scale (e.g. FL/CA/TX). DISABLE_AMP=1 (or MTL_DISABLE_AMP=1) forces fp32 — which is
+    # also the board baseline protocol (BASELINE_*.md §0 mandates fp32) and matches the
+    # MPS/CPU path (always nullcontext). See memory: mtl-fp16-autocast-no-gradscaler.
+    _disable_amp = (
+        os.environ.get("DISABLE_AMP") == "1"
+        or os.environ.get("MTL_DISABLE_AMP") == "1"
+    )
     _autocast_ctx = (
         torch.autocast(device.type, dtype=torch.float16)
-        if device.type == 'cuda'
+        if device.type == 'cuda' and not _disable_amp
         else contextlib.nullcontext()
     )
 

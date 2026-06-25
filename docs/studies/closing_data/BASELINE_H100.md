@@ -79,6 +79,43 @@ python scripts/baselines/b4_cascade.py --state florida --seed 0 --folds 5 --epoc
 4. **wide-head speed** — the `perf(mtl)` #33 fix is on main; without it FL reg is ~70× slower.
 5. **`build_next_region_for` is a Python loop over 1.27 M rows** — minutes, not a hang.
 
+## 4b · Code fixes needed to run these baselines on a conda/CUDA board
+
+Running the baselines on a **conda/CUDA** board (no `.venv`, fp16-unsafe single-task trainer) surfaced three
+code bugs (1–3, **fixed in this PR**) plus one operational gotcha (4). The fixes are env-gated /
+interpreter-agnostic / behaviour-preserving, so they're no-ops on the Mac/MPS board and on `main`'s existing
+behaviour. Any other CUDA/conda board (e.g. the A40) benefits automatically.
+
+1. **fp16 NaN collapse at FL scale (the important one).** `src/training/runners/_single_task_train.py`
+   (train loop) and `src/training/shared_evaluate.py` (eval) ran an **unconditional `torch.autocast(float16)`
+   on CUDA with no GradScaler and no off-switch** (MPS/CPU always got fp32 via `nullcontext` — why the Mac
+   AL/AZ cells were clean but the H100 FL cat head `loss=nan` ~ep12, freezing F1 at 0.69 ≪ the 75.15 ceiling).
+   The board protocol (§0) mandates **fp32** anyway. Patch: gate both autocast contexts on
+   `DISABLE_AMP` / `MTL_DISABLE_AMP` (same convention the MTL trainer already uses), then export
+   **`DISABLE_AMP=1 MTL_DISABLE_AMP=1`** for every CUDA baseline run. Validated NaN-free at FL.
+   Background: memory `mtl-fp16-autocast-no-gradscaler` (now updated to note the STL path bites too).
+2. **`.venv/bin/python` hardcoded for child subprocesses** — `scripts/closing_data/mac_baseline_compare.py`
+   (`PY` const, ~L45; also imported by `comparand_check2hgi_sc.py`) and `scripts/pre_freeze_gates/run_a2.py`
+   (`PY` const, ~L21). The conda board has no `.venv` → instant `FileNotFoundError`. Patch: `PY = os.environ.get("BASELINE_PY") or sys.executable`
+   (correct on every board — child uses the parent interpreter). Or just `export BASELINE_PY=$(which python)`.
+3. **CTLE-E2E window reconstruction used an unstable sort** — `scripts/baselines/ctle_e2e.py`
+   `_build_dk_ovl_windows` sorted check-ins with pandas' default `quicksort` (unstable), but the canonical
+   dk_ovl builder (`data/inputs/builders.py` `generate_next_input_from_checkins`) uses a **stable
+   `kind='mergesort'`**. On the rows sharing a `(userid, datetime)` (28 at FL) the tie reordered differently,
+   shifting 2/1.27 M window targets → the script's own `next_category` row-alignment assert fired and CTLE-E2E
+   crashed before training. Patch: `kind="mergesort"` on both sort sites (the assert is kept — the windowing
+   was made faithful, not weakened). Validated: all three alignment asserts pass at FL.
+4. **(operational, no code change) Step-1 (`build_overlap_probe_engine`) is non-idempotent** — it
+   unconditionally re-windows ~8 G of parquet. If `output/check2hgi_dk_ovl/<state>/input/{next,next_region}.parquet`
+   already exist with the expected rowcount (FL = 1,274,418), **skip it**; just (re)build the per-fold log_T
+   and run the comparand.
+
+> **Task (C) note (resolution, not a patch):** the "feature-concat control" the handoff says "needs a thin
+> builder" is **already implemented and more rigorous** — it's the closed A2 control via
+> `scripts/pre_freeze_gates/run_a2.py --states <st> --seeds 0 --tasks category region` (the `hgifeat` arm =
+> HGI ⊕ Check2HGI's exact per-visit node features: category one-hot + hour/dow sin/cos, alignment-asserted).
+> No new builder needed; HGI inputs must exist (`scripts/pre_freeze_gates/setup_hgi_inputs.py`).
+
 ## 5 · Outputs + honesty
 Commit per cell: `docs/results/closing_data/baseline_compare/florida_{ctle,check2hgi_sc}.json` (NOT gitignored);
 record CTLE-E2E + CSLSL numbers in `MACS_BOARD_RESULTS.md` + `RESULTS_BOARD.md §4`. **n=5 provisional**; CTLE

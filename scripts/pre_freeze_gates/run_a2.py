@@ -18,7 +18,10 @@ import sys
 from pathlib import Path
 
 _root = Path(__file__).resolve().parents[2]
-PY = str(_root / ".venv" / "bin" / "python")
+# Use the SAME interpreter as this parent (.venv on the Mac board; conda on H100/A40 where
+# there is no .venv). BASELINE_PY overrides if ever needed.
+import os
+PY = os.environ.get("BASELINE_PY") or sys.executable
 HARNESS = str(_root / "scripts" / "p1_region_head_ablation.py")
 
 V14 = "check2hgi_design_k_resln_mae_l0_1"

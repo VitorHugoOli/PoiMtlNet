@@ -163,11 +163,17 @@ def _build_dk_ovl_windows(state: str, expected_userids: np.ndarray,
     that windows row-align to the dk_ovl labels.
     """
     emb = IoPaths.load_embedd(state, ENGINE)[["userid", "placeid", "category", "datetime"]]
-    emb = emb.sort_values(["userid", "datetime"]).reset_index(drop=True)
+    # MUST match the canonical dk_ovl builder's STABLE sort
+    # (data.inputs.builders.generate_next_input_from_checkins, kind='mergesort').
+    # The default 'quicksort' is unstable, so on the 28 florida rows that share a
+    # (userid, datetime) it reorders the tie differently than the builder did,
+    # shifting 2 window targets and tripping the next_category alignment assert.
+    # mergesort is stable -> preserves the parquet row order under ties -> 0 diffs.
+    emb = emb.sort_values(["userid", "datetime"], kind="mergesort").reset_index(drop=True)
 
     poi_rows, hour_rows, uid_rows, cat_rows = [], [], [], []
     for uid, sub in emb.groupby("userid", sort=False):
-        sub = sub.sort_values("datetime").reset_index(drop=True)
+        sub = sub.sort_values("datetime", kind="mergesort").reset_index(drop=True)
         places = sub["placeid"].astype(np.int64).tolist()
         cats = sub["category"].tolist()
         hours = pd.to_datetime(sub["datetime"]).dt.hour.astype(np.int64).tolist()
