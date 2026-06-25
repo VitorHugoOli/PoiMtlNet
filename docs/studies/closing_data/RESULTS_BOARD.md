@@ -25,7 +25,7 @@ static_weight cw=0.75, onecycle max-lr 3e-3, geom_simple selector; fp32-matched 
 | **TX** | 6553 | 69.95 | **77.51** | **+7.56** ✅beats | 64.96 | **67.02** | **+2.06** ✅**beats** | fp32 | ✅ main (5f) |
 | **Istanbul** | 520 (mahalle) | 53.20 | **59.89** | **+6.69** ✅beats | 74.80 | 74.28 | **−0.52** ≈matches | fp32 (**n=20**, 4 seeds) | ✅ main, stride-1 GCN |
 
-**Reading (the story, on real data):** MTL **beats the dedicated category ceiling at every state** (+4.7 … +8.1 pp)
+**Reading (the story, on real data):** MTL **beats the dedicated category ceiling at every state** (+4.7 … +7.7 pp)
 AND **beats the region ceiling at the LARGE region counts** (FL 4.7k **+0.57**, CA 8.5k **+2.18** — both 5f;
 TX 6.6k **+2.06** — all 5f), while **matching within δ=2 pp at the small counts** (AL −0.18, AZ −0.06,
 Istanbul −0.52). **CA, the largest region state, is 5f-complete and beats** — that single cell retires the old
