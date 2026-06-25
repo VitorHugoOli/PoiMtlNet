@@ -252,3 +252,38 @@ hard-fails). All board dk_ovl drivers do this; the W6 runner forgot it.
 **Outputs**: `W6_ENCODER_ISOLATION.md`, `RESULTS_BOARD.md §1c` (W6) + §1b FL row resolved; JSONs
 `a40/{al,az,fl}_w6_freezereg_s0.json` + `a40/fl_champG_a40_4f_partial_s0.json`. **PR #48** (W6, open).
 **Deferred** (post-deadline): {1,7,100}→n=20; CA/TX cascade.
+
+## 2026-06-25 — Istanbul §6.3 external-validity baselines (M4 Pro, MPS, fp32)
+
+**Phase**: full-table completeness for the Istanbul row (seed 0 × 5f, n=5 provisional). Full record:
+[`ISTANBUL_BASELINES_RESULTS.md`](ISTANBUL_BASELINES_RESULTS.md); handoff:
+[`ISTANBUL_BASELINES_HANDOFF.md`](ISTANBUL_BASELINES_HANDOFF.md).
+
+**Variant alignment (user)**: STAN = **stl_hgi** everywhere (incl. Istanbul); ReHDM = **faithful** everywhere.
+
+**Results**: Markov cat floors (majority 7.14 · Markov-1-POI 17.55±0.44 · Markov-K-cat best-k5 24.55±0.30) ·
+POI-RGNN faithful cat **30.12±0.84** · **STAN stl_hgi region Acc@10 71.13±0.68** (on the STL reg ceiling 70.37 →
+no stale-log_T inflation). **ReHDM faithful DEFERRED to CUDA** (ETL+adapter verified, ~96 s/ep on MPS).
+
+**Built a new HGI substrate for Istanbul** (it had none — regions are OSM mahalle, not TIGER). Pre-placed the
+mahalle boroughs CSV at `output/hgi/istanbul/temp/boroughs_area.csv` (copied from check2hgi; same 520-region
+taxonomy) → `hgi.pipe.py` `shapefile=None` consumes mahalle, not a grid; 5-stage build ~13 min CPU. **Alignment
+verified**: HGI `region_id` == check2hgi `region_idx` for 29945/29945 POIs (so STAN's HGI region-emb lookup
+row-aligns with check2hgi targets + per-fold log_T). Reproducibility entry (commented) in `hgi.pipe.py::STATES`.
+
+**Code fixes (additive, no-op for US states)**: `hgi/preprocess.py` drops null-geometry POIs (FSQ/Massive-STEPS
+carry missing coords; crashed `geom_type`) · `stan/train.py` MPS `randperm` generator-device fix · `stan/etl.py`
+mahalle region adapter (`@id`→GEOID, enables faithful STAN on non-US).
+
+**Lessons / handoff defects**: `--task next_poi` invalid → `next_category`; STAN defaults to seed 42 → pass
+`--seed 0`; per-fold log_T was stale → rebuild before STAN (the `assert_log_t_fresh` guard hard-blocked it);
+`MTL_RAM_HEADROOM_GB=4` (RAM guard over-trips on the tiny dataset); custom HGI runner needs the
+`if __name__=='__main__'`+`freeze_support()` idiom (spawn). **HMT-GRN 60.4-vs-56.56 RESOLVED**: two builds —
+stride-9 non-overlap 56.56 / stride-1 overlap 60.42≈60.4; board protocol = stride-1 → **60.4 board-correct**.
+The handoff's "faithful STAN/ReHDM blocked / ~30 h ETL" was **overstated** (ReHDM faithful ETL runs as-is in ~2 s).
+
+**Superseded / removed (wrong variant)**: STAN stl_check2hgi (70.39) + from-scratch faithful STAN (57.60).
+
+**Outputs**: `ISTANBUL_BASELINES_RESULTS.md` (rewritten); JSONs `P0/simple_baselines/istanbul/next_category*.json`,
+`baselines/faithful_poi_rgnn_istanbul_5f_35ep_*.json`, `P1/region_head_istanbul_..._STAN_HGI_*.json`. **PR #51**.
+**Deferred**: ReHDM faithful (5 seeds) on CUDA; tabulation into `docs/baselines/` + `RESULTS_BOARD.md §1`.

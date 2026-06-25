@@ -60,15 +60,15 @@ Istanbul row carry the same baseline columns as AL/AZ/FL/CA/TX, not reduced-boar
 |---|---|---|
 | Markov floors | check2hgi substrate (`next.parquet`, `sequences_next.parquet`) — **exist** | ✅ runs now |
 | POI-RGNN faithful | `data/checkins/Istanbul.parquet` (Gowalla schema) + 7-class cat | ✅ runs after `parse_city` (taxonomy aligns — Istanbul `category_map.json` maps FSQ→**7 Gowalla roots** = POI-RGNN `CATEGORY_LABELS`) |
-| STAN **faithful** | raw checkins **+ TIGER shapefile** for region assignment | ⛔ blocked — `stan/etl.py:_shapefile_path` raises `KeyError` for non-US; Istanbul = mahalle. Needs a region-assignment swap (mahalle geojson) |
-| STAN **stl_check2hgi** | check2hgi region substrate + per-fold log_T — **exist** | ✅ runs now |
-| ReHDM **faithful** | raw checkins + 24h sessions + borough assignment | ⛔ blocked — borough assignment is US-tied; needs adaptation (mahalle/`boroughs_area.csv`) |
-| ReHDM **stl_check2hgi** | check2hgi substrate (`next.parquet` 9-step seq + `sequences_next.parquet`) — **exist** | ✅ runs now |
+| **STAN = stl_hgi** (chosen) | an **HGI substrate** (Istanbul had none) + per-fold log_T | ✅ DONE 2026-06-25 — built HGI on mahalle (RESULTS §3); Acc@10 71.13 |
+| STAN **faithful** (alt) | raw checkins + region polygons | ✅ unblocked — `stan/etl.py` now maps mahalle geojson (`@id`→GEOID); not the chosen variant |
+| **ReHDM = faithful** (chosen) | raw checkins + 24h sessions + boroughs CSV | ✅ ETL runs as-is (mahalle `boroughs_area.csv`; ~2 s) — training **deferred to CUDA** |
 
-> **Why faithful STAN/ReHDM were never done for Istanbul:** both ETLs assign regions via US-only geometry
-> (`data/checkins/<State>.parquet` + TIGER tracts / boroughs). Istanbul's regions are **mahalle** (520), defined
-> by `data/miscellaneous/istanbul_mahalle/istanbul_mahalle.geojson`. The substrate-fed **`stl_check2hgi`**
-> variants sidestep this entirely (they consume the already-built, mahalle-correct check2hgi region targets).
+> **The original "faithful blocked / US-tied" framing was OVERSTATED.** ReHDM's ETL is **data-driven** (sjoins
+> POIs vs `output/check2hgi/<city>/temp/boroughs_area.csv` + a pure-lat/lon quadkey) → mahalle works with no code
+> change. STAN faithful needed only a one-line `_shapefile_path`/`@id`→GEOID adapter. The chosen STAN variant is
+> **stl_hgi** (run from a newly-built HGI substrate, RESULTS §3), not faithful. Istanbul's mahalle (520) are defined
+> by `data/miscellaneous/istanbul_mahalle/istanbul_mahalle.geojson`.
 
 ---
 
@@ -92,22 +92,29 @@ caffeinate -i env PYTHONPATH=src PYTORCH_ENABLE_MPS_FALLBACK=1 $PY -m research.b
 #  ~minutes on MPS (AL was ~70 s). NaN-coord rows are dropped by build_windows (acceptable).
 ```
 
-### 2.C · STAN region — **stl_check2hgi** (runs now) ⚠ faithful is blocked (§3)
+### 2.C · STAN region — **stl_hgi** (the chosen variant; HGI substrate built 2026-06-25)
 ```bash
-caffeinate -i env PYTHONPATH=src PYTORCH_ENABLE_MPS_FALLBACK=1 $PY -u scripts/p1_region_head_ablation.py \
-    --state istanbul --heads next_stan --folds 5 --epochs 50 --input-type region \
-    --region-emb-source check2hgi --per-fold-transition-dir output/check2hgi/istanbul \
-    --tag STAN_CHECK2HGI_istanbul_5f50ep
-#  (no stl_hgi variant — Istanbul has no HGI substrate; check2hgi is the only one.)
+# Prereq: build the Istanbul HGI substrate ONCE (it has none by default — regions are mahalle, not TIGER).
+# See ISTANBUL_BASELINES_RESULTS.md §3: cp the mahalle boroughs CSV to output/hgi/istanbul/temp/, then run
+# hgi.pipe.py process_state('istanbul', {shapefile:None, cross_region_weight:0.7}). Verify HGI region_id ==
+# check2hgi region_idx before trusting STAN. Then:
+caffeinate -i env PYTHONPATH=src PYTORCH_ENABLE_MPS_FALLBACK=1 MTL_RAM_HEADROOM_GB=4 $PY -u scripts/p1_region_head_ablation.py \
+    --state istanbul --heads next_stan --folds 5 --epochs 50 --input-type region --seed 0 \
+    --region-emb-source hgi --per-fold-transition-dir output/check2hgi/istanbul \
+    --tag STAN_HGI_istanbul_5f50ep
+#  → Acc@10 71.13 ± 0.68. (stl_check2hgi was the earlier wrong-variant substitute — superseded.)
 ```
 
-### 2.D · ReHDM region — **stl_check2hgi** (runs now, ALONE) ⚠ faithful is blocked (§3)
+### 2.D · ReHDM region — **faithful** (the chosen variant; runs as-is — NOT blocked)
 ```bash
-caffeinate -i env PYTHONPATH=. PYTORCH_ENABLE_MPS_FALLBACK=1 $PY -u -m research.baselines.rehdm.train_stl_study \
-    --state istanbul --engine check2hgi --epochs 50 \
-    --batch-size 256 --lr 1e-4 --max-lr 3e-3 --max-intra 3 --max-inter 3 \
-    --tag REHDM_STL_STUDY_istanbul_check2hgi_5f50ep
-#  Hypergraph build is RAM-heavy → run this one ALONE (no co-scheduled jobs), watch ram_watchdog.
+# ETL is data-driven: sjoins POIs vs the mahalle boroughs CSV (output/check2hgi/istanbul/temp/boroughs_area.csv);
+# quadkey region is pure lat/lon. Runs as-is in ~2 s (no US dependency). Needs data/checkins/Istanbul.parquet
+# (built by parse_city, §2.B step 1).
+caffeinate -i env PYTHONPATH=. PYTORCH_ENABLE_MPS_FALLBACK=1 MTL_RAM_HEADROOM_GB=4 $PY -u -m research.baselines.rehdm.etl --state istanbul
+# Faithful training = 5 SEEDED runs (--folds = #seeds; seed 0 → seeds 0..4). ~96 s/epoch on MPS (multi-hour) →
+# DEFERRED to CUDA:
+$PY -m research.baselines.rehdm.train --state istanbul --folds 5 --epochs 50 --seed 0 --tag REHDM_istanbul_5seeds_50ep
+#  (per-batch sub-hypergraphs → RAM bounded; still run ALONE on MPS. stl_check2hgi was the wrong variant — superseded.)
 ```
 
 ### 2.E · Champion-G @ stride-1 (LOW priority — windowing unify, BASELINE_M4 §2b)
@@ -118,27 +125,27 @@ $PY scripts/compute_region_transition.py --state istanbul --engine check2hgi --p
 # Mirror the PHASE_V_ISTANBUL_S0 §provenance MTL invocation with --device mps; keep the 4-seed set-a result too.
 ```
 
-## 3 · The scope fork — faithful vs stl for STAN/ReHDM (DECISION NEEDED)
-The **reduced board** uses HMT-GRN (done) + Markov-1 (done) as Istanbul's region externals — so STAN/ReHDM are
-*not* reduced-board-critical. Two ways to give Istanbul the STAN/ReHDM columns the Gowalla table has:
+## 3 · The scope fork — RESOLVED 2026-06-25 (user): STAN=stl_hgi, ReHDM=faithful
+Per the cross-state convention: **STAN = `stl_hgi`** (substrate-fed, run from HGI), **ReHDM = faithful** (paper
+protocol). Both done/runnable for Istanbul — the original "faithful blocked / ~30 h ETL" framing was **overstated**:
 
-- **(A) `stl_check2hgi` only** (substrate-fed, §2.C/§2.D): runs **today**, zero new ETL, mahalle-correct. But it
-  is the *substrate-as-input* variant (cold-user holdout), not the paper-faithful protocol.
-- **(B) faithful too** (paper protocol): requires a **region-assignment adaptation** (swap TIGER/borough geometry
-  for the mahalle geojson in `stan/etl.py` + `rehdm/etl.py`) — real code + the ReHDM-faithful 24h-session ETL is
-  also expensive (~30 h on M4 at FL scale; Istanbul is smaller but still heavy).
+- **STAN stl_hgi**: needed a one-time **HGI substrate build** for Istanbul (it had none — mahalle ≠ TIGER). Built
+  via the mahalle boroughs CSV (RESULTS §3); region indices verified == check2hgi. Result Acc@10 71.13 ± 0.68.
+- **ReHDM faithful**: ETL runs **as-is** (data-driven mahalle sjoin; ~2 s). Only the training is heavy on MPS
+  (~96 s/ep) → **deferred to CUDA**. No region-adapter rebuild was needed.
+- (STAN's `stan/etl.py` also got a mahalle adapter so *faithful* STAN can run on non-US regions if ever wanted —
+  but the chosen STAN variant is stl_hgi, not faithful.)
 
-**Recommendation:** do (A) now (cheap, unblocks the table); treat (B) as opt-in only if a reviewer demands
-faithful-protocol parity for the external-validity row. Confirm before building the FSQ→mahalle region adapter.
+Earlier substitutes (`stl_check2hgi` STAN 70.39, from-scratch faithful STAN 57.60) are **superseded/removed**.
 
-## 4 · Sequencing (respects ram_watchdog ≤2–3 concurrent)
-1. **Group A (parallel, all cheap/light):** §2.A Markov · §2.B POI-RGNN (after `parse_city`) · §2.C STAN stl.
-2. **Then ALONE:** §2.D ReHDM stl (hypergraph RAM).
-3. **Last, LOW:** §2.E champion-G stride-1.
-(Faithful STAN/ReHDM only if §3 decision = B.)
+## 4 · Sequencing (respects ram_watchdog ≤2–3 concurrent) — AS EXECUTED 2026-06-25
+1. **Group A (parallel):** §2.A Markov · §2.B POI-RGNN (after `parse_city`) · §2.C STAN — all done.
+2. **HGI substrate build** (CPU, ~13 min) — prereq for STAN stl_hgi.
+3. **ReHDM faithful** ETL done; **training deferred to CUDA** (heavy on MPS, run ALONE there).
+4. **LOW / not run:** §2.E champion-G stride-1.
 
 ## 5 · Outputs + traps
 - All paths train-only per fold (vocab / prior / OOD / fold-split); val users disjoint from train (asserted) — don't "optimise" away.
-- Markov → `docs/results/P0/simple_baselines/istanbul/`; POI-RGNN → `docs/results/baselines/`; STAN-stl → `docs/results/P1/`; ReHDM-stl → its tagged JSON. Then tabulate into `docs/baselines/next_{category,region}/` + the Istanbul column of `RESULTS_BOARD.md §1`.
+- Markov → `docs/results/P0/simple_baselines/istanbul/`; POI-RGNN → `docs/results/baselines/`; STAN stl_hgi → `docs/results/P1/`; ReHDM faithful → its tagged JSON (on CUDA). Then tabulate into `docs/baselines/next_{category,region}/` + the Istanbul column of `RESULTS_BOARD.md §1`.
 - **n=5 provisional** everywhere. Report Istanbul as **gap-to-ceiling / lift-over-floor**, not absolute. Resolve the HMT-GRN 60.4-vs-56.56 conflict (§1 note) before tabulating.
 - Verify per-fold log_T freshness (`region_transition_log_seed0_fold*.pt` mtime > `next_region.parquet`) before any STL/MTL run that uses `--per-fold-transition-dir`.
