@@ -221,7 +221,8 @@ def train_one_fold(poi, hour, lat, lon, tmin, y, dd_poi, train_idx, val_idx,
 
 def run(state: str, folds: int, epochs: int, batch_size: int, seed: int,
         d_model: int, dropout: float, lr: float, patience: int,
-        tag: str | None, amp: str = "off", use_compile: bool = False) -> None:
+        tag: str | None, amp: str = "off", use_compile: bool = False,
+        only_fold: int | None = None) -> None:
     # Audit fix #6: true fp32 — disable TF32 too (board protocol).
     if torch.cuda.is_available():
         torch.backends.cuda.matmul.allow_tf32 = False
@@ -255,10 +256,14 @@ def run(state: str, folds: int, epochs: int, batch_size: int, seed: int,
     out_dir = Path("docs/results/baselines")
     out_dir.mkdir(parents=True, exist_ok=True)
     tag_s = f"_{tag}" if tag else ""
-    out_file = out_dir / f"faithful_stan_{state}_{folds}f_{epochs}ep{tag_s}.json"
+    # --only-fold k: run just split k -> per-fold JSON (for fold-parallel execution;
+    # aggregate the 5 _fold{k}.json afterwards). Default = all folds in one process.
+    fold_suffix = f"_fold{only_fold}" if only_fold is not None else ""
+    out_file = out_dir / f"faithful_stan_{state}_{folds}f_{epochs}ep{tag_s}{fold_suffix}.json"
+    fold_iter = [(only_fold, splits[only_fold])] if only_fold is not None else list(enumerate(splits))
 
     fold_metrics = []
-    for fold_idx, (train_idx, val_idx) in enumerate(splits):
+    for fold_idx, (train_idx, val_idx) in fold_iter:
         t0 = time.time()
         m = train_one_fold(
             poi, hour, lat, lon, tmin, y, dd_poi, train_idx, val_idx,
@@ -288,6 +293,7 @@ def run(state: str, folds: int, epochs: int, batch_size: int, seed: int,
                    "lr": lr, "patience": patience, "batch_size": batch_size,
                    "schedule": "constant", "precision": ("fp32" if amp == "off" else amp),
                    "compiled": use_compile, "sequence": "STAN prefix-expansion"},
+        "only_fold": only_fold,
         "per_fold": fold_metrics, "aggregate": agg,
     }
     out_file.write_text(json.dumps(payload, indent=2))
@@ -314,10 +320,12 @@ def main() -> None:
                         "quality A/B-validated vs fp32 before reporting)")
     p.add_argument("--compile", dest="use_compile", action="store_true",
                    help="torch.compile the model (fp32-faithful speedup)")
+    p.add_argument("--only-fold", type=int, default=None,
+                   help="run ONLY split k (0..folds-1) -> per-fold JSON, for fold-parallel runs")
     args = p.parse_args()
     run(args.state, args.folds, args.epochs, args.batch_size, args.seed,
         args.d_model, args.dropout, args.lr, args.patience, args.tag,
-        amp=args.amp, use_compile=args.use_compile)
+        amp=args.amp, use_compile=args.use_compile, only_fold=args.only_fold)
 
 
 if __name__ == "__main__":
