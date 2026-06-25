@@ -106,6 +106,7 @@ import argparse
 import json
 import math
 import os
+import random
 import sys
 import time
 from pathlib import Path
@@ -360,6 +361,14 @@ def run_fold(ctx, train_idx, val_idx, args, device):
     # ---------------------------------------------------------------------
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0.01)
     ce = nn.CrossEntropyLoss()
+    # Track the BEST-epoch val cat macro-F1 alongside the FINAL-epoch one. The board
+    # cat ceiling this baseline is compared to uses "macro-F1 at the f1-best epoch"
+    # (score_stl_cat_ceiling.py), so reporting ONLY final-epoch under-states CTLE
+    # (correctness-advisor finding #1). We keep final-epoch as the AL-comparable
+    # headline AND record best-epoch so the paper can choose the fair rule. The
+    # per-epoch eval is cat-only ([N,7], cheap) and uses NO generator -> it does NOT
+    # perturb the training RNG, so the final number is unchanged at fixed seed.
+    best_cat_f1, best_epoch = -1.0, -1
     for ep in range(args.epochs):
         model.train()
         perm = tr[torch.randperm(tr.numel(), device=device, generator=gen)]
@@ -372,7 +381,17 @@ def run_fold(ctx, train_idx, val_idx, args, device):
             loss.backward()
             opt.step()
             running += float(loss) * b.numel()
-        print(f"    [finetune {ep+1}/{args.epochs}] train_loss={running/max(tr.numel(),1):.4f}")
+        # per-epoch val cat macro-F1 (best-epoch tracking)
+        model.eval()
+        with torch.no_grad():
+            cat_ep = torch.cat([model(t["loc"][va[s:s + bs]], t["hours_f"][va[s:s + bs]])[0]
+                                for s in range(0, va.numel(), bs)])
+        f1_ep = float(compute_classification_metrics(
+            cat_ep, t["cat_y"][va], num_classes=ctx["n_cats"])["f1"])
+        if f1_ep > best_cat_f1:
+            best_cat_f1, best_epoch = f1_ep, ep + 1
+        print(f"    [finetune {ep+1}/{args.epochs}] train_loss={running/max(tr.numel(),1):.4f} "
+              f"val_cat_f1={f1_ep:.4f} (best={best_cat_f1:.4f}@{best_epoch})")
 
     # --- eval (matched board metrics) ---
     model.eval()
@@ -396,7 +415,9 @@ def run_fold(ctx, train_idx, val_idx, args, device):
     reg_top10 = float(reg_ood["top10_acc_indist"])
     geom = math.sqrt(max(cat_f1, 0.0) * max(reg_top10, 0.0))
     return {
-        "cat_f1": cat_f1,
+        "cat_f1": cat_f1,                      # FINAL-epoch (AL-comparable headline)
+        "cat_f1_best": best_cat_f1,            # BEST-epoch (matches board cat-ceiling rule)
+        "cat_f1_best_epoch": best_epoch,
         "cat_accuracy": float(cat_metrics.get("accuracy", 0.0)),
         "reg_top10_acc_indist": reg_top10,
         "reg_top5_acc_indist": float(reg_ood["top5_acc_indist"]),
@@ -439,6 +460,15 @@ def main():
         args.seed = 0
         args.batch_size = 1024
 
+    # Determinism (correctness-advisor finding #2): the data-shuffle Generator was
+    # seeded, but model init (CTLE encoder + the two linear heads) drew from the
+    # UN-seeded global RNG -> the cited number was not bit-reproducible. Seed all
+    # three global RNGs (mirrors src/data/folds.py FoldCreator). Per-fold reseed in
+    # the loop below makes each fold's init order-independent (so --only-fold matches).
+    torch.manual_seed(args.seed)
+    np.random.seed(args.seed)
+    random.seed(args.seed)
+
     if args.device:
         device = torch.device(args.device)
     elif torch.cuda.is_available():
@@ -473,6 +503,7 @@ def main():
     t0 = time.time()
     for fold_idx, (train_idx, val_idx) in fold_iter:
         print(f"[fold {fold_idx}] train={len(train_idx)} val={len(val_idx)}")
+        torch.manual_seed(1000 * args.seed + fold_idx)  # fold-stable model init
         r = run_fold(ctx, train_idx, val_idx, args, device)
         r["fold"] = fold_idx
         results.append(r)
@@ -492,6 +523,7 @@ def main():
         "epochs": args.epochs,
         "pretrain_epochs": args.pretrain_epochs,
         "cat_f1_mean": float(np.mean([r["cat_f1"] for r in results])) if results else 0.0,
+        "cat_f1_best_mean": float(np.mean([r["cat_f1_best"] for r in results])) if results else 0.0,
         "reg_top10_acc_indist_mean": float(np.mean([r["reg_top10_acc_indist"] for r in results])) if results else 0.0,
         "geom_simple_mean": float(np.mean([r["geom_simple"] for r in results])) if results else 0.0,
         "per_fold": results,
@@ -506,7 +538,8 @@ def main():
         tag += f"_fold{args.only_fold}"
     out_path = out_dir / f"ctle_e2e_{tag}.json"
     out_path.write_text(json.dumps(agg, indent=2))
-    print(f"[ctle_e2e_b1] cat_f1_mean={agg['cat_f1_mean']:.4f} "
+    print(f"[ctle_e2e_b1] cat_f1_mean(final)={agg['cat_f1_mean']:.4f} "
+          f"cat_f1_best_mean={agg['cat_f1_best_mean']:.4f} "
           f"reg_top10_acc_indist_mean={agg['reg_top10_acc_indist_mean']:.4f} "
           f"geom_simple_mean={agg['geom_simple_mean']:.4f}")
     print(f"[ctle_e2e_b1] wrote {out_path}")
