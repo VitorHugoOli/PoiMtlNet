@@ -52,9 +52,12 @@ No new embedding training. **Needs a thin builder:** extend `scripts/probe/build
 concats c2hgi⊕HGI; swap the 2nd stream for raw features), then run the cat head on it. *(If the wrapper isn't on
 main yet, ping the orchestrator — it's ~10 lines.)*
 
-**(D) CTLE-SC @ FL** — ⚠ **GATED on the M4 CTLE-diagnosis** (the recorded frozen CTLE-SC cat AL 17.8 is *below*
-the bigram floor; the M4 confirms whether that's a real CTLE weakness or a pipeline bug — do NOT run until the
-M4 posts its verdict).
+**(D) CTLE-SC @ FL** — ✅ **CLEARED 2026-06-24** (M4 CTLE-diagnosis verdict: the AL frozen CTLE-SC cat 17.8 below
+the bigram floor is a **REAL CTLE frozen-substrate weakness, NOT a pipeline/leak bug** — proceed). Evidence:
+[`../../results/closing_data/baseline_compare/alabama_ctle_DIAGNOSIS.md`](../../results/closing_data/baseline_compare/alabama_ctle_DIAGNOSIS.md)
+— frozen CTLE embedding is real/non-degenerate, the substrate is genuinely swapped (cosine(CTLE,check2hgi)=0.01),
+and the IDENTICAL head reaches 55.6 on check2hgi vs 17.8 on CTLE (same rows/folds) → the head learns; only the
+substrate differs. The §3 sanity-gate "if CTLE cat ≈ Check2HGI cat → bug" is satisfied (Δ is huge, as expected).
 ```bash
 python scripts/closing_data/mac_baseline_compare.py --state florida --baseline ctle --cells-root output --folds 5 --heads cat reg
 #  -> docs/results/closing_data/baseline_compare/florida_ctle.json

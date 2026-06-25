@@ -81,7 +81,9 @@ Per the baselines README, the paper's baseline tables read from [`../../baseline
   that substantiates contribution-1 novelty; without it C1's "novel" *evaporates*. **Δcat AL +37.8 / AZ +37.0 /
   Istanbul +28.6**, device-internal-clean (reproduces CUDA within noise). Leak-clean at **AL/AZ + Istanbul
   (stride-1, PR #38)**; FL/CA/TX → CUDA (`BASELINE_H100.md`). POI2Vec/skip-gram/one-hot SC-cat are the
-  representation **controls** (§7 checklist).
+  representation **controls** (§7 checklist). **AL frozen-below-floor (17.8 < bigram ~19.5) DIAGNOSED REAL
+  (M4, 2026-06-24)** — not a pipeline/leak bug (substrate genuinely swapped, cosine vs check2hgi 0.01; identical
+  head → 55.6 on check2hgi vs 17.8 on CTLE) → **H100 FL CTLE-SC CLEARED** (`baseline_compare/alabama_ctle_DIAGNOSIS.md`).
 - ❌ **SC *region* is NOT used in the article.** The pre-fix SC reg was INVALID (substrate-bypass + shared prior +
   stale log_T) — now **quarantined** (`_reg_status: INVALID_PENDING_RERUN` on the AL/AZ `baseline_compare/*.json`).
   Region's substrate-isolation story is weak anyway (it is a near-tie: AL −0.4, AZ −0.3, Istanbul −3.5 where CTLE
@@ -93,6 +95,14 @@ Per the baselines README, the paper's baseline tables read from [`../../baseline
   value is correct; the **62.37 is the outlier** (unreproducible, artifacts reclaimed). Use the Mac/CPU HMT-GRN reg:
   **AL 57.1 / AZ 43.7 / FL 63.7 / CA 49.6 / TX 53.9 / Istanbul 60.4** — all **well below our MTL ~65-69**, so we beat
   the sole region-native baseline by a wide margin (all 6 states now done). (Re-verify the old 62.37, not the Mac value.)
+- ✅ **CSLSL / cascade (B4, the "published MTL alternative"): AL/AZ done [M4/MPS]** — cascade-vs-parallel ablation
+  on the **same v14 set-a base** (directed cat→region, cross-attn severed) vs champion-G (parallel) on that base.
+  **Parallel ≥ cascade everywhere**: Δ(parallel−cascade) cat **+5.04 (AL) / +1.62 (AZ)**, reg **+0.56 (AL) / −0.05
+  (AZ tie)** — our symmetric coupling beats/matches the directed cascade. MPS==CPU within 0.63pp (AL). n=5
+  provisional. **Compare ONLY within the v14 set-a base, NOT the board dk_ovl numbers.** **FL attempted on the M4 →
+  MPS-OOM** (24 GB insufficient for 159k rows / 4,703 regions; 4/5 folds, no comparand — NOT citable); **FL/CA/TX → A40/H100**.
+  Canonical doc: [`../../baselines/cslsl_cascade.md`](../../baselines/cslsl_cascade.md); narrative `CSLSL_CASCADE_RESULTS.md`;
+  JSONs `baseline_compare/{alabama,arizona,florida}_cslsl_cascade.json`.
 
 ## 5 · Provenance legend
 ✅ main = source JSON on main, verified-readable ·

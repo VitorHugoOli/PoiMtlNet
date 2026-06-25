@@ -1,0 +1,22 @@
+{
+  "state": "florida",
+  "baseline": "cslsl_cascade",
+  "engine": "check2hgi_design_k_resln_mae_l0_1",
+  "windowing": "set-a (stride=9, min_seq=5)",
+  "device": "M4/MPS",
+  "seed": 0,
+  "status": "INCOMPLETE_M4_MPS_OOM",
+  "n_folds_completed": 4,
+  "n_folds_target": 5,
+  "cascade_CSLSL_partial_4fold": {
+    "cat_macro_f1_mean": 71.08,
+    "cat_macro_f1_std": 0.23,
+    "reg_top10_acc_indist_mean": 72.81,
+    "reg_top10_acc_indist_std": 0.56,
+    "note": "reconstructed from per-fold val CSVs via geom_simple joint-best epoch; summary OOM'd so full_summary.json absent"
+  },
+  "parallel_championG": "NOT OBTAINED \u2014 killed at fold 1 to protect the box from MPS OOM-reboot",
+  "delta_parallel_minus_cascade": "N/A (no comparand)",
+  "blocker": "MPS backend OOM at summary aggregation: 'other allocations 25.06 GiB' on a 24GB box (swap-oversubscribed; Chrome+Android emulator co-resident). FL is large (159,175 rows / 4703 regions). Cascade trained 4 folds then OOM'd; fold 5 + the matched champion comparand not obtained.",
+  "recommendation": "Run FL CSLSL on CUDA (A40/H100) \u2014 its documented lane (BASELINE_A40: 'CSLSL @ FL ... the stable card for the longer run'). The M4 24GB is insufficient for FL CSLSL under typical desktop load."
+}
