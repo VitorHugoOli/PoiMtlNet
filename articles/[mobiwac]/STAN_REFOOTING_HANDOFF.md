@@ -13,11 +13,16 @@
 >   is NOT a paired/matched comparison.
 > - **HMT-GRN** is already board-matched (seed 0, stride-1 overlap) — the one clean region external today.
 >
-> **Decision (user, 2026-06-26):** (1) **Re-run STAN-`stl_hgi` at the board footing** (seed 0, stride-1 overlap,
-> HGI substrate) for AL/AZ/FL/CA/TX **and Istanbul** (Istanbul needs an HGI build first). (2) **ReHDM-faithful stays
-> as a footnoted published reference** (its own protocol), never as a paired cell. (3) HMT-GRN stays as the matched
-> region-native external. Until the STAN re-runs land, the STAN cells in Table 3 are **PENDING — do not cite the
-> seed-42 / non-overlap numbers as final.**
+> **Decision (user, 2026-06-26 — incremental, two phases):**
+> 1. **PHASE 1 (do first): re-run STAN-`stl_hgi` at the board footing** (seed 0, stride-1 overlap, HGI substrate)
+>    for **all Gowalla states: AL/AZ/FL/CA/TX**. **Istanbul STAN is already running on the M4 (Mac) — EXCLUDED from
+>    this handoff; do not run it here, and no HGI-Istanbul build is needed here.**
+> 2. **PHASE 2 (after Phase 1): run ReHDM-faithful** — **AL/AZ/Istanbul in parallel first, then FL/CA/TX as
+>    possible** (faithful is heavy at FL/CA/TX scale; footnote-infeasible is acceptable, as for the Gowalla CA/TX
+>    today). ReHDM-faithful is reported as a **published-method reference under its own protocol** (chronological
+>    split, 5 seeds), gap-to-ceiling, never a paired/matched cell.
+> 3. HMT-GRN stays as the matched region-native external. Until the STAN re-runs land, the STAN cells in Table 3
+>    are **PENDING — do not cite the seed-42 / non-overlap numbers as final.**
 
 ---
 
@@ -49,22 +54,31 @@ python scripts/p1_region_head_ablation.py \
 > input wiring exactly. The ONLY differences from the ceiling are `--heads next_stan` and `--region-emb-source hgi`.
 > Row-count gate: the STAN-HGI-overlap region inputs MUST have the same windowed row counts as the board ceiling.
 
-## Per state
-1. **AL, AZ, FL, CA, TX** — HGI embeddings already exist (AL/AZ/FL) or were built for the Tbl-2 HGI cells
-   (CA done PR #52; TX building). Run the template above. **Acceptance:** STAN-HGI-overlap Acc@10 below our MTL reg
-   (AL 69.81 / AZ 59.34 / FL 77.28 / CA 65.66 / TX 67.02) at every state, on the matched seed-0/stride-1 footing.
-2. **Istanbul** — HGI-Istanbul does NOT exist yet. **Build it first** (HGI trains on CPU; mirror the CA/TX HGI build
-   `scripts/closing_data/build_catx_hgi.sh`, pointed at Istanbul / the mahalle region set), verify
-   `region_embeddings` nan=False std>0, then run the template with `--state istanbul --region-emb-source hgi` on the
-   **stride-1** Istanbul windowing (the board Istanbul is stride-1 GCN; match it). **Acceptance:** STAN-HGI-overlap
-   Istanbul Acc@10 below our MTL reg 74.28, on the stride-1 footing (NOT the set-a 70.39 that PR #51 produced).
+## Phase 1 — STAN at board footing (do FIRST; all Gowalla states)
+Run the template above for **AL, AZ, FL, CA, TX**. HGI embeddings already exist (AL/AZ/FL) or were built for the
+Tbl-2 HGI cells (CA done PR #52; TX building under Blocker 3 — STAN-TX waits on the TX HGI build). Run them
+incrementally (one state at a time is fine; disk is tight, build→train→delete the per-state HGI inputs if needed).
+**Istanbul STAN is on the M4 — do NOT run it here, and do NOT build HGI-Istanbul here.**
 
-## ReHDM (no re-run; framing only)
-Keep ReHDM-`faithful` (AL 66.06 / AZ 54.65 / FL 65.68; CA/TX footnoted infeasible at scale). **Label it explicitly
-as a published-method reference under ReHDM's own protocol** (chronological 80/10/10 + 24h sessions + 5 seeds),
-gap-to-ceiling, NOT a paired/matched cell. Do NOT report it as if it were on our seed-0/stride-1 folds. The Istanbul
-ReHDM (`stl_check2hgi`, running in PR #51) is on our substrate + set-a — drop it or, if wanted, run ReHDM-faithful
-for Istanbul with an FSQ→mahalle region adapter (heavy; footnote-infeasible is acceptable, matching CA/TX).
+**Acceptance (Phase 1):** STAN-HGI-overlap Acc@10 below our MTL reg (AL 69.81 / AZ 59.34 / FL 77.28 / CA 65.66 /
+TX 67.02) at every Gowalla state, on the matched seed-0 / stride-1 footing. Commit one JSON per state +
+`docs/baselines/next_region/stan.md` row; mark the old seed-42 `STAN_HGI` numbers superseded-for-the-paper.
+
+## Phase 2 — ReHDM faithful (do AFTER Phase 1)
+Run ReHDM in its **faithful** form (its own architecture + raw inputs + own protocol: chronological 80/10/10 + 24h
+sessions + 5 seeds). **Order: AL/AZ/Istanbul in parallel first, then FL/CA/TX as possible.**
+- **AL/AZ** faithful already exist (66.06 / 54.65) — re-confirm or reuse; cheap, run in parallel with Istanbul.
+- **Istanbul** faithful is NEW: it needs an **FSQ→mahalle region-assignment adapter** (the ReHDM ETL assigns
+  regions via US-only geometry; map the Istanbul target to the mahalle taxonomy the board uses). Run it alongside
+  AL/AZ. If the adapter proves infeasible by the deadline, footnote Istanbul ReHDM as not-available (do NOT fall
+  back to `stl_check2hgi` on our substrate — that is dropped).
+- **FL** faithful already exists (65.68); **CA/TX** faithful is heavy (~75–120 h/state) — run **as possible**, else
+  footnote "faithful infeasible at scale" (as today).
+
+ReHDM is reported as a **published-method reference under its own protocol**, gap-to-ceiling, NOT a paired/matched
+cell. Never report it as if it were on our seed-0 / stride-1 folds. The Istanbul ReHDM `stl_check2hgi` (running in
+PR #51, on our substrate + set-a) is **dropped** — superseded by the faithful run above (or the not-available
+footnote).
 
 ## After the runs: paper-doc updates
 - **Table 3** (`src/tables/tbl3_results.tex`): replace the seed-42 STAN cells with the seed-0/stride-1 values; the
@@ -73,13 +87,19 @@ for Istanbul with an FSQ→mahalle region adapter (heavy; footnote-infeasible is
 - **`docs/baselines/next_region/comparison.md`** + `stan.md`: add the board-footing STAN row; mark the old
   seed-42 `STAN_HGI` row as superseded-for-the-paper (kept for the April substrate study only).
 - **`RESULTS_BOARD.md §4`** + **`PAPER_PLAN.md §5.4 / §7`**: STAN board-footing done; ReHDM = footnoted reference.
-- **Istanbul row of Table 3**: fill STAN (board-footing) once it lands; POI-RGNN/Markov category cells from PR #51
-  are windowing-robust and can go in now (they sit far below our 53.20/59.89 regardless).
+- **Istanbul row of Table 3**: STAN comes from the **M4** run (not this handoff); POI-RGNN/Markov category cells
+  from PR #51 are windowing-robust and can go in now (they sit far below our 53.20/59.89 regardless).
 
 ## Acceptance checklist
-- [ ] STAN-`stl_hgi` re-run at **seed 0 / stride-1 overlap / HGI substrate** committed for AL/AZ/FL/CA/TX.
-- [ ] HGI-Istanbul built (nan=False, std>0); STAN-`stl_hgi` Istanbul at stride-1 committed.
+**Phase 1 (STAN, Gowalla):**
+- [ ] STAN-`stl_hgi` re-run at **seed 0 / stride-1 overlap / HGI substrate** committed for **AL/AZ/FL/CA/TX**
+  (Istanbul STAN is on the M4, not here).
 - [ ] Row-count gate passed (STAN-HGI-overlap inputs == board ceiling row counts) per state.
 - [ ] fp32 verified; healthy late best-epochs; no NaN-collapsed fold cited.
-- [ ] STAN < our MTL reg at every state, on the matched footing.
-- [ ] ReHDM labeled own-protocol reference; seed-42 STAN numbers struck from the paper artifacts.
+- [ ] STAN < our MTL reg at every Gowalla state, on the matched footing.
+
+**Phase 2 (ReHDM, after Phase 1):**
+- [ ] ReHDM-faithful AL/AZ/Istanbul run in parallel (Istanbul via the FSQ→mahalle adapter, or footnoted not-available).
+- [ ] ReHDM-faithful FL/CA/TX as possible, else footnoted infeasible-at-scale.
+- [ ] ReHDM labeled own-protocol reference (never a paired cell); the Istanbul `stl_check2hgi` stop-gap dropped.
+- [ ] seed-42 STAN numbers struck from the paper artifacts.

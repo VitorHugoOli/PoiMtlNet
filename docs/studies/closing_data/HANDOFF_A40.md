@@ -7,7 +7,7 @@
 > ✅ **W6 (PR #48) + Blocker 2 FL CTLE-E2E (PR #50) DONE.** Your plate is now **Blocker 3 — finish CA + TX**
 > (HGI cat-STL under overlap; AL/AZ/FL landed in #50, margins +27.6…+39.6; §3). The `HGI_DK_OVL` engine + builder
 > are on main — just run CA then TX (`run_hgi_ovl_cat_cell.sh`, build→train→delete, disk is tight). **Blocker 1**
-> (FL CTLE-SC 5f) is the **H100's** job (PR #47 landed 2/5; W3 closed at AL/AZ/Istanbul) — §4 here is a fallback only.
+> (FL CTLE-SC 5f) is the **H100's** job (PR #47 landed 2/5; W3 closed at AL/AZ/Istanbul) — §5 here is a fallback only.
 >
 > **House rules (non-negotiable, same board as everyone):** seed 0 × 5 folds (n=5); gated stride-1 overlap,
 > engine `check2hgi_dk_ovl`, MIN_SEQ=10; **fp32** (Ampere bf16 grad-NaN) — set the AMP gate and verify healthy late
@@ -33,7 +33,10 @@ export TORCHINDUCTOR_CACHE_DIR=$HOME/.inductor_cache_board
 2. ✅ **Blocker 2 — FL CTLE-E2E — DONE (PR #50)** (FL 29.69/33.45; phantom 29.65 retired). §2 = record; no re-run.
 3. **Blocker 3 — finish CA + TX (the continuing work)** — HGI cat-STL under overlap; AL/AZ/FL done (#50). CA/TX HGI
    already on disk (sha256-match) → just `run_hgi_ovl_cat_cell.sh` per state, build→train→delete (disk tight). See §3.
-4. **Blocker 1 fallback** — FL CTLE-SC 5f, only if the H100's never reaches 5f (it has 2/5; W3 closed at AL/AZ/Istanbul). See §4.
+4. **Blocker 4 — region-baseline re-footing (AFTER Blocker 3)** — re-run STAN-`stl_hgi` at the board footing
+   (seed 0, stride-1 overlap, HGI substrate) for **AL/AZ/FL/CA/TX** (reuses the Blocker-3 HGI builds), THEN
+   ReHDM-faithful (AL/AZ/Istanbul parallel, FL/CA/TX as possible). **Istanbul STAN is on the M4 — not here.** See §4.
+5. **Blocker 1 fallback** — FL CTLE-SC 5f, only if the H100's never reaches 5f (it has 2/5; W3 closed at AL/AZ/Istanbul). See §5.
 
 ---
 
@@ -150,7 +153,39 @@ windowing-robust → **no** re-score.)
 
 ---
 
-## 4 · Blocker 1 (FL CTLE-SC) — H100's job; A40 FALLBACK ONLY
+## 4 · Blocker 4 — Region-baseline re-footing (STAN board-match, then ReHDM)
+
+> **Do this AFTER Blocker 3** (it reuses the Blocker-3 HGI builds for CA/TX). Full brief + acceptance gates:
+> [`../../../articles/[mobiwac]/STAN_REFOOTING_HANDOFF.md`](../../../articles/[mobiwac]/STAN_REFOOTING_HANDOFF.md).
+
+**Why.** Table 3's region externals are on the WRONG footing vs the board (seed 0, stride-1 overlap): STAN-`stl_hgi`
+was measured at **seed 42 + non-overlap** (April, pre-board); ReHDM-faithful is on its **own** protocol; the Istanbul
+STAN ran on **our Check2HGI + set-a**. HMT-GRN is the only matched region external today. We re-foot STAN to the
+board, and run ReHDM-faithful as a published-method reference.
+
+### 4.1 Phase 1 — STAN-`stl_hgi` at the board footing (do first; all Gowalla states)
+For **AL/AZ/FL/CA/TX** (NOT Istanbul — that STAN is on the M4): re-run the board STL-reg-ceiling recipe with two
+swaps — head `next_stan` (not `next_stan_flow`) and `--region-emb-source hgi` (not check2hgi) — at **seed 0, stride-1
+overlap, fp32**, mirroring the run that produced `region_head_<state>_region_5f_50ep_<state>_ovl_stl_reg_s0.json`.
+TX waits on the Blocker-3 TX HGI build. **Gate:** STAN-HGI-overlap row counts == board ceiling row counts per state;
+STAN Acc@10 < our MTL reg (AL 69.81 / AZ 59.34 / FL 77.28 / CA 65.66 / TX 67.02). Commit one JSON per state; mark the
+old seed-42 `STAN_HGI` numbers superseded-for-the-paper.
+
+### 4.2 Phase 2 — ReHDM-faithful (after Phase 1)
+ReHDM in its **faithful** form (own architecture + raw inputs + own protocol). **Order: AL/AZ/Istanbul in parallel
+first, then FL/CA/TX as possible.** AL/AZ/FL faithful already exist (66.06 / 54.65 / 65.68) — reuse/re-confirm.
+Istanbul faithful is NEW and needs an **FSQ→mahalle region adapter** (else footnote not-available; do NOT use
+`stl_check2hgi`). CA/TX faithful is heavy (~75–120 h/state) — as possible, else footnote infeasible-at-scale. ReHDM
+is a **published-method reference under its own protocol**, gap-to-ceiling, never a paired cell.
+
+### 4.3 Outputs
+Commit per state under `docs/baselines/next_region/` + `docs/results/...`; update Table 3
+(`articles/[mobiwac]/src/tables/tbl3_results.tex`, the STAN `‡` cells), `comparison.md`/`stan.md`/`rehdm.md`,
+`RESULTS_BOARD.md §4`, and `PAPER_PLAN.md §5.4/§7`. Istanbul STAN comes from the M4 run, not here.
+
+---
+
+## 5 · Blocker 1 (FL CTLE-SC) — H100's job; A40 FALLBACK ONLY
 
 Do **not** start this unless the orchestrator says the H100 stalled. If re-tasked to the A40, the FL run-spec is
 the four commands below (device-agnostic; keep the fp32 AMP gate from §0). The two missing JSONs:
@@ -175,7 +210,7 @@ Then strike the phantom fold-0/never-run numbers (27.98/73.00 SC, 29.65 E2E) in 
 
 ---
 
-## 5 · Pre-flight checklist (every reg/joint cell)
+## 6 · Pre-flight checklist (every reg/joint cell)
 - [ ] `git pull` includes the freeze-reg-stream commit + PR #49; smoke passes (no reg-collate crash).
 - [ ] AMP gate exported (`DISABLE_AMP=1 MTL_DISABLE_AMP=1`); best-epochs land **late** (no ep≤12 NaN collapse).
 - [ ] `--folds 5` (NEVER `--folds 1` for a substrate/SC build); seed 0; user-disjoint folds.
@@ -183,6 +218,6 @@ Then strike the phantom fold-0/never-run numbers (27.98/73.00 SC, 29.65 E2E) in 
 - [ ] Blocker-3 row-count identity gate passes (HGI-overlap == Check2HGI-overlap row counts) before training.
 - [ ] Commit per cell + a one-line finding; never cite a void fp16/bf16 JSON; branch + PR, no merge to main.
 
-## 6 · Do NOT
+## 7 · Do NOT
 Redo the Mac CPU work (Tbl-1 stats / TOST — PR #49). Build GE (out of scope) unless a dependency forces it. Run the
 FL CTLE cells unless the H100 stalled and the orchestrator re-tasks you. Merge to main.
