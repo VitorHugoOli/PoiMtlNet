@@ -150,6 +150,14 @@ Per the baselines README, the paper's baseline tables read from [`../../baseline
   (phantom retired). Even at *best-epoch*, CTLE-E2E (FL 33.4) is **≪ Check2HGI cat (FL 73–75)** — present as the
   E2E rung beside the frozen CTLE-SC ladder; **never "we crushed CTLE."** (script `scripts/baselines/ctle_e2e.py`,
   determinism + best-epoch tracking added 2026-06-25 after a 2-advisor correctness/optimization review.)
+- ✅ **Part-1 substrate contrast (Tbl 2) — Check2HGI vs HGI category-STL, NOW ON ONE WINDOWING (gated overlap).**
+  PR #50 added the **HGI arm under `check2hgi_dk_ovl`** (new `HGI_DK_OVL` engine + streaming builder reusing the
+  frozen overlap sequences → windows **byte-identical** to the Check2HGI arm; gates passed: row counts ==,
+  `next_category` labels 100% identical, embeddings genuinely differ). Substrate margin (Check2HGI-board − HGI):
+  **AL +29.31 (55.87 vs 26.56) · AZ +27.63 (57.13 vs 29.50) · FL +39.62 (75.15 vs 35.53)** — the same +15…+29+
+  magnitude as the old non-overlap measurement, now windowing-consistent with Part-2. **CA/TX pending** (running
+  on the A40; will append). JSONs `baseline_compare/{state}_hgi_ovl_cat.json`. The Check2HGI arm IS the §1 board
+  STL cat ceiling. → drop the "non-overlap" caveat on PAPER_PLAN Tbl 2 once CA/TX land.
 - ❌ **SC *region* is NOT used in the article.** The pre-fix SC reg was INVALID (substrate-bypass + shared prior +
   stale log_T) — now **quarantined** (`_reg_status: INVALID_PENDING_RERUN` on the AL/AZ `baseline_compare/*.json`).
   Region's substrate-isolation story is weak anyway (it is a near-tie: AL −0.4, AZ −0.3, Istanbul −3.5 where CTLE
