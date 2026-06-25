@@ -287,6 +287,19 @@ class CTLE_E2E(nn.Module):
         pooled = ctx[bi, last_idx]                        # [B, D]
         return self.fc_cat(pooled), self.fc_region(pooled)
 
+    def _pool(self, loc_ids, hours_f):
+        ctx = self.ctle.encode(loc_ids, hours_f)         # [B, L, D]
+        valid = loc_ids.ne(PAD_ID).float()
+        last_idx = (valid.cumsum(dim=1).argmax(dim=1)).long()
+        bi = torch.arange(loc_ids.size(0), device=loc_ids.device)
+        return ctx[bi, last_idx]                          # [B, D]
+
+    def forward_cat(self, loc_ids, hours_f):
+        """Cat-only forward (skips the wide fc_region matmul) — for the per-epoch
+        best-epoch tracking, where the reg head's [B, n_regions] logits are unused.
+        Avoids recomputing the 4703-wide reg projection 150x on the FL val set."""
+        return self.fc_cat(self._pool(loc_ids, hours_f))
+
 
 # ============================================================================
 # Tensor prep: map placeids -> CTLE loc ids (PAD_ID at pad), build hour floats.
@@ -381,10 +394,11 @@ def run_fold(ctx, train_idx, val_idx, args, device):
             loss.backward()
             opt.step()
             running += float(loss) * b.numel()
-        # per-epoch val cat macro-F1 (best-epoch tracking)
+        # per-epoch val cat macro-F1 (best-epoch tracking) — cat-only forward
+        # (forward_cat skips the wide reg head; the reg logits are unused here).
         model.eval()
         with torch.no_grad():
-            cat_ep = torch.cat([model(t["loc"][va[s:s + bs]], t["hours_f"][va[s:s + bs]])[0]
+            cat_ep = torch.cat([model.forward_cat(t["loc"][va[s:s + bs]], t["hours_f"][va[s:s + bs]])
                                 for s in range(0, va.numel(), bs)])
         f1_ep = float(compute_classification_metrics(
             cat_ep, t["cat_y"][va], num_classes=ctx["n_cats"])["f1"])
