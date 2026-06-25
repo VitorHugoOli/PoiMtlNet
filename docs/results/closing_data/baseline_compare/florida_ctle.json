@@ -1,0 +1,29 @@
+{
+  "state": "florida",
+  "baseline": "ctle",
+  "engine": "check2hgi_ctle",
+  "status": "PARTIAL \u2014 2/5 folds (studio restarted mid-run ~2026-06-25T06:40Z; GPU detached, cannot resume here)",
+  "note": "CTLE-SC = frozen per-fold leak-safe CTLE substrate under matched heads (next_gru cat, next_stan_flow reg), dk_ovl board base, checkin-modality reg. Sequential compare died after fold 1.",
+  "per_fold": [
+    {
+      "fold": 0,
+      "macro_f1": 27.98,
+      "top10_acc": 73.0
+    },
+    {
+      "fold": 1,
+      "macro_f1": 28.06,
+      "top10_acc": 73.04
+    }
+  ],
+  "macro_f1_mean_partial": 28.02,
+  "top10_acc_mean_partial": 73.02,
+  "n_folds_done": 2,
+  "n_folds_target": 5,
+  "supplementary_reg_from_parallel_attempt": {
+    "f3": 71.81,
+    "f4": 74.54,
+    "note": "valid (isolated) reg from the earlier parallel attempt; that run's CAT raced (run_cat read a shared newest-rundir) so its cat is unusable; f2 OOM-died. Reg is prior-driven/substrate-independent so these stand."
+  },
+  "reading": "CTLE-SC cat ~28 \u226a Check2HGI-SC comparand 73.47 (the substrate drives next-category \u2014 frozen CTLE can't compete); reg Acc@10 ~73 \u2248 comparand 72.71 (region is a near-tie, log_T-prior-driven). The two-axis headline holds even at n=2."
+}
