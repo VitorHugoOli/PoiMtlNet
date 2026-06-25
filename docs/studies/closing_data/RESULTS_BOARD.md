@@ -59,10 +59,18 @@ gated stride-1 overlap (MIN_SEQ=10), **true fp32** (`MTL_DISABLE_AMP=1`, 0 non-f
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | **AL** | 63.45 ±2.00 | 63.25 ±2.02 | **+0.20** | 69.48 ±3.03 | 69.65 ±3.32 | **−0.17** | 66.39 | 66.37 | **+0.02** ≈tie |
 | **AZ** | 63.63 ±1.34 | 63.44 ±1.33 | **+0.20** | 59.18 ±1.83 | 59.36 ±1.79 | **−0.18** | 61.37 | 61.36 | **+0.00** ≈tie |
+| **FL** | 79.83 ±0.49 | ⏳ A40 | — | 77.27 ±0.95 | ⏳ A40 | — | 78.54 | — | ⏳ |
 
 *(cat = macro-F1; reg = FULL top10_acc = indist·(1−ood) at diagnostic-best epoch; joint = √(cat·reg);
 fold-mean ±pstd, matched scorer `a40_score_matched.py`. JSONs:
-`docs/results/closing_data/a40/{al,az}_{cascade,champG_a40}_s0.json`.)*
+`docs/results/closing_data/a40/{al,az,fl}_cascade_s0.json` + `{al,az}_champG_a40_s0.json`
+(FL same-device champ-G `fl_champG_a40_s0.json` in-flight).)*
+**FL (large state, 4703 regions): cascade is again a tie.** vs the §1 board champ-G FL (H100, 79.82/77.28):
+**Δcat +0.01 / Δreg −0.01** — essentially identical (cross-device). The A40 same-device champ-G FL is
+**in-flight** (fold 1/5: cat 79.45 / reg 77.71 — reproduces the board champ-G FL fold-1 to ±0.07/±0.03 and
+ties the cascade fold-1 to +0.02/+0.15; on track); the row's A40 champ-G cells + Δ fill in on completion.
+FL canonical (`dk_ovl`, 5f, fp32) —
+**supersedes the M4 set-a partial** (`baseline_compare/florida_cslsl_cascade.json`, 4-fold MPS-OOM, no comparand).
 
 **Reading:** the cascade is a **dead tie** with our parallel champion-G on the joint objective
 (Δjoint ≤ 0.02 pp ≪ fold-std). It trades a hair of category (+0.20) for a hair of region (−0.17/−0.18),
