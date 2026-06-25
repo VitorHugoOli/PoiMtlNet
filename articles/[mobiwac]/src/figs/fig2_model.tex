@@ -1,5 +1,5 @@
 % fig2_model.tex
-% Figure 2: the single multi-task model.
+% Figure 2: the single multi-task model (champion-G).
 %
 % Standalone-compilable on its own (pdflatex fig2_model.tex) AND \input-able into
 % the IEEE paper. The standalone wrapper runs only when \FIGINPUT is NOT defined.
@@ -12,13 +12,18 @@
 %   \begin{figure}[t]\centering\input{figs/fig2_model.tex}
 %   \caption{...}\label{fig:model}\end{figure}
 %
-% ONE model:
-%   two input streams (per-check-in vectors, per-region vectors)
-%   -> a shared semantic trunk
-%   -> two outputs, where the REGION output keeps a private branch INSIDE the
-%      same model (a task-specific path, not a separate model).
-% A dashed boundary encloses everything to show it is one model, one forward pass.
-% Do NOT draw a cross-attention backbone.
+% ARCHITECTURE (champion-G = mtlnet_crossattn_dualtower + next_gru (cat) +
+% next_stan_flow_dualtower (reg)), verified against src/models/.../model.py:
+%   - two input streams: a check-in (semantic) window and a region (spatial) window;
+%   - a PRIVATE per-task encoder on each stream;
+%   - a SHARED bidirectional cross-attention stack (x2) that couples the streams
+%     (the only shared parameters): K/V flow both ways;
+%   - a GRU category head on the shared semantic output -> next-category;
+%   - a region head that is a DUAL TOWER: a shared tower on the cross-attention
+%     output PLUS a private spatial tower that runs on the RAW region window
+%     (bypassing the shared stack), fused inside the head -> next-region.
+% A dashed boundary encloses everything: one model, one forward pass, two outputs.
+% This supersedes the older BRACIS single-shared-backbone schematic.
 
 \ifdefined\FIGINPUT\else
   \documentclass[border=4pt]{standalone}
@@ -31,52 +36,78 @@
 \begin{tikzpicture}[
     >={Stealth[length=2.2mm]},
     font=\footnotesize,
-    block/.style={draw, rounded corners=2pt, align=center, inner sep=4pt,
-                  minimum height=9mm, line width=0.5pt},
-    inblk/.style={block, fill=orange!8, minimum width=24mm},
-    trunk/.style={block, fill=blue!7, minimum width=30mm, minimum height=12mm},
-    priv/.style={block, fill=teal!9, minimum width=24mm},
-    outblk/.style={block, fill=green!8, minimum width=24mm},
+    box/.style={draw, rounded corners=2.5pt, align=center, inner sep=3pt,
+                minimum height=7mm, line width=0.5pt, font=\scriptsize},
+    inblk/.style={box, fill=orange!10, draw=orange!55!black, minimum width=27mm,
+                  font=\scriptsize},
+    enc/.style={box, fill=gray!9, draw=gray!55!black, minimum width=27mm},
+    shared/.style={box, fill=blue!8, draw=blue!45!black, minimum width=66mm,
+                   minimum height=14mm},
+    cathead/.style={box, fill=teal!10, draw=teal!55!black, minimum width=27mm,
+                    minimum height=9mm},
+    reghead/.style={box, fill=teal!10, draw=teal!55!black, minimum width=33mm,
+                    minimum height=12mm},
+    outlbl/.style={font=\scriptsize\itshape, text=black!72},
     flow/.style={->, line width=0.7pt, draw=black!75},
-    glabel/.style={align=center, font=\scriptsize\itshape, text=black!65},
+    kv/.style={{Stealth[length=2mm]}-{Stealth[length=2mm]}, line width=0.9pt,
+               draw=blue!50!black},
+    skip/.style={->, line width=0.8pt, draw=teal!60!black, dashed},
   ]
 
-  % ---------- two input streams ----------
-  \node[inblk] (inchk) {per-check-in\\vectors};
-  \node[inblk, below=6mm of inchk] (inreg) {per-region\\vectors};
+  % ---------- Row 1: two input streams ----------
+  \node[inblk] (inc) {check-in window\\\textit{(semantic stream)}};
+  \node[inblk, right=14mm of inc] (inr) {region window\\\textit{(spatial stream)}};
 
-  % ---------- shared semantic trunk ----------
-  \node[trunk, right=14mm of inchk, yshift=-6mm] (trunk)
-       {shared semantic\\trunk};
+  % ---------- Row 2: private per-task encoders ----------
+  \node[enc, below=6mm of inc] (enca) {semantic encoder\\\scriptsize\textit{(private)}};
+  \node[enc, below=6mm of inr] (encb) {spatial encoder\\\scriptsize\textit{(private)}};
 
-  % ---------- two paths out of the trunk ----------
-  % category path: straight from the shared trunk
-  \node[outblk, right=16mm of trunk, yshift=8mm] (outc) {next-category};
-  % region path: PRIVATE branch (task-specific) inside the same model
-  \node[priv, right=14mm of trunk, yshift=-8mm] (regpath)
-       {private spatial\\path};
-  \node[outblk, right=8mm of regpath] (outr) {next-region};
+  % ---------- Row 3: shared bidirectional cross-attention ----------
+  \node[shared, below=8mm of $(enca)!0.5!(encb)$] (cross) {};
+  \node[anchor=north, font=\scriptsize\bfseries, text=blue!30!black]
+       at ([yshift=-1.3mm]cross.north) {shared bidirectional cross-attention ($\times 2$)};
+
+  % ---------- Row 4: two task heads ----------
+  \node[cathead, below=9mm of cross.south, anchor=north, xshift=-19mm] (cath)
+       {GRU\\category head};
+  \node[reghead, below=9mm of cross.south, anchor=north, xshift=19mm] (regh)
+       {region head\\\scriptsize\textit{dual tower:}\\\scriptsize\textit{shared $+$ private spatial}};
+
+  % ---------- Row 5: outputs ----------
+  \node[outlbl, below=4mm of cath] (oc) {$\rightarrow$ next-category};
+  \node[outlbl, below=4mm of regh] (orr) {$\rightarrow$ next-region};
 
   % ---------- arrows ----------
-  % inputs into the shared trunk
-  \draw[flow] (inchk.east) -- ($(inchk.east)+(5mm,0)$) |- (trunk.west);
-  \draw[flow] (inreg.east) -- ($(inreg.east)+(5mm,0)$) |- (trunk.west);
-  % trunk -> category output (shared encoder, no private block)
-  \draw[flow] (trunk.east) -- ($(trunk.east)+(5mm,0)$) |- (outc.west);
-  % trunk -> private region branch -> region output
-  \draw[flow] (trunk.east) -- ($(trunk.east)+(5mm,0)$) |- (regpath.west);
-  \draw[flow] (regpath.east) -- (outr.west);
+  % inputs -> private encoders
+  \draw[flow] (inc) -- (enca);
+  \draw[flow] (inr) -- (encb);
+  % encoders -> shared cross-attention
+  \draw[flow] (enca.south) -- (enca.south |- cross.north);
+  \draw[flow] (encb.south) -- (encb.south |- cross.north);
+  % bidirectional K/V coupling, drawn in the LOWER half of the box (below the title)
+  \draw[kv] ([xshift=-19mm,yshift=-3.2mm]cross.center) -- ([xshift=19mm,yshift=-3.2mm]cross.center)
+       node[pos=0.5, fill=blue!8, inner sep=1pt, font=\tiny\bfseries]
+       {$K/V \leftrightarrow K/V$};
+  % shared -> heads
+  \draw[flow] (cross.south) -- (cath.north);
+  \draw[flow] (cross.south) -- (regh.north);
+  % heads -> outputs
+  \draw[flow] (cath.south) -- (oc.north);
+  \draw[flow] (regh.south) -- (orr.north);
+  % private spatial path: the RAW region window feeds the region head's private
+  % tower directly, bypassing the encoder + shared cross-attention.
+  \draw[skip] (inr.east) -- ++(11mm,0) |- (regh.east)
+       node[pos=0.27, right, font=\tiny, text=teal!55!black, align=left]
+       {raw region\\(private\\spatial path)};
 
-  % ---------- boundary: one model ----------
+  % ---------- dashed boundary: one model ----------
   \begin{scope}[on background layer]
-    \node[draw, dashed, rounded corners=4pt, line width=0.7pt,
-          draw=black!55, fill=black!2,
-          fit=(inchk)(inreg)(trunk)(outc)(regpath)(outr),
-          inner sep=6pt] (model) {};
+    \node[draw, dashed, rounded corners=4pt, line width=0.7pt, draw=black!55,
+          fill=black!2, inner sep=6pt,
+          fit=(inc)(inr)(enca)(encb)(cross)(cath)(regh)(oc)(orr)] (model) {};
   \end{scope}
-  \node[anchor=north west, font=\scriptsize\bfseries, text=black!70]
-        at ($(model.north west)+(1.5mm,-1.0mm)$)
-        {one model, one forward pass, two predictions};
+  \node[anchor=south, font=\scriptsize\bfseries, text=black!72]
+        at (model.north) {one model, one forward pass, two predictions};
 
 \end{tikzpicture}
 

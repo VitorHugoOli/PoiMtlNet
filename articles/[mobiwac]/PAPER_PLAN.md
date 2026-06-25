@@ -543,14 +543,14 @@ external city is wanted; we lead with Istanbul.
 | #     | Type    | Content                                                                                                      | Answers                                            |
 |-------|---------|--------------------------------------------------------------------------------------------------------------|----------------------------------------------------|
 | Fig 1 | diagram | Input-graph data flow: check-in trail, four-level graph, per-visit representation, windows, two outputs      | R3 (could not picture graph or model)              |
-| Fig 2 | diagram | The single model: shared part plus a separate region path, one forward, two outputs                          | R3 (structural bottleneck)                         |
-| Fig 3 | plot    | Signed category and region deltas across states, ordered by region count, with the two-point margin. Shows category positive everywhere and region positive at the large states / within-margin at the small (the largest state, CA, has the largest region win). All cells n=5 (seed 0) provisional | R2 (interpretation); the core finding (one model wins both) |
-| Fig 4 | panel   | **Category** embedding quality only (silhouette ~0.48 vs HGI 0.00; kNN-by-category ~0.98 vs 0.78). Do NOT plot region geometry (both at the floor, HGI spuriously higher = misleading). Part-1 "why"; one sentence: separates category, not region (the asymmetry) | Part 1 mechanism; Vitor's caution |
+| Fig 2 | diagram | The single model (champion-G): two input streams, private encoders, a shared bidirectional cross-attention stack, then a GRU category head and a dual-tower region head with a private spatial path; one forward, two outputs | R3 (structural bottleneck) |
+| Fig 3 | panel   | **Category** embedding quality only (silhouette ~0.56 vs HGI 0.00; kNN-by-category ~0.98 vs 0.78), on the design_k board substrate (not v11). Do NOT plot region geometry (both at the floor, HGI spuriously higher = misleading). Part-1 "why"; one sentence: separates category, not region (the asymmetry) | Part 1 mechanism; Vitor's caution |
+| Fig 4 | plot    | Signed category and region deltas across states, ordered by region count, with the two-point margin. Shows category positive everywhere and region positive at the large states / within-margin at the small (the largest state, CA, has the largest region win). All cells n=5 (seed 0) provisional | R2 (interpretation); the core finding (one model wins both) |
 | Tbl 1 | stats   | Dataset statistics (above)                                                                                   | Vitor's request; R3                                |
 | Tbl 2 | result  | Representation: Check2HGI versus HGI category macro-F1 + per-visit share (5 states), **re-scored under the overlap board** (one windowing for the whole paper); the +15..+29 non-overlap gap is the prior measurement | Part 1 |
 | Tbl 3 | result  | Joint versus dedicated ceilings, both tasks, per state, marking superiority (beats) or non-inferiority (matches) per cell | Part 2 (provisional, n=5)                          |
 
-> Keep one headline figure (Fig 3) carrying the finding. Captions state the conclusion, not "see table".
+> Keep one headline figure (Fig 4, the signed deltas) carrying the finding. Captions state the conclusion, not "see table".
 
 ---
 

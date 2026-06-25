@@ -68,21 +68,36 @@ check-in-level representation, location-based social networks, mobility data
 \input{sections/01_introduction}
 
 \input{sections/02_related}
-\input{figs/fig1_dataflow}     % Fig 1: input-graph data flow (cited in section 2.1 / 4.1)
+\begin{figure*}[t]\centering
+\input{figs/fig1_dataflow}
+\caption{From a user's check-in trail to two predictions. Each visit is placed in a
+four-level graph (check-in, POI, region, city) and described in its own context; overlapping
+nine-visit windows then feed the model, which outputs the next category and the next region.}
+\label{fig:dataflow}
+\end{figure*}     % Fig 1: input-graph data flow (cited in section 2.1 / 4.1)
 
 \input{sections/03_problem}
 
 \input{sections/04_method}
-\input{figs/fig2_model}        % Fig 2: the single model, private spatial path (section 4.2)
+\begin{figure*}[t]\centering
+\input{figs/fig2_model}
+\caption{The single multi-task model (champion-G). Two input streams, a check-in (semantic)
+window and a region (spatial) window, pass through private per-task encoders into a shared
+bidirectional cross-attention stack (the only shared parameters). A GRU head reads the shared
+semantic output for next-category; a dual-tower region head combines that shared output with a
+private spatial tower that runs on the raw region window for next-region. One model, one
+forward pass, two predictions.}
+\label{fig:model}
+\end{figure*}        % Fig 2: the single model, dual-tower + cross-attention (section 4.2)
 
 \input{sections/05_setup}
 \input{tables/tbl1_datasets}   % Table 1: dataset statistics (section 5.1)
 
 \input{sections/06_results}
 \input{tables/tbl2_substrate}  % Table 2: representation, Check2HGI vs HGI category (section 6.1)
-\input{figs/fig4_embquality}   % Fig 4: category embedding quality (section 6.1)
+\input{figs/fig3_embquality}   % Fig 3: category embedding quality (section 6.1)
 \input{tables/tbl3_results}    % Table 3: one model, two tasks, the main result (section 6.2)
-\input{figs/fig3_deltas}       % Fig 3: signed deltas across states, the headline figure (section 6.2)
+\input{figs/fig4_deltas}       % Fig 4: signed deltas across states, the headline figure (section 6.2)
 
 \input{sections/07_discussion}
 

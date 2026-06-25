@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Figure 3 (MobiWac 2026): headline signed-deltas plot.
+Figure 4 (MobiWac 2026): headline signed-deltas plot.
 
 Per state, ordered by region count, plot:
   - the next-category delta (MTL - dedicated STL category ceiling), always positive;
@@ -16,8 +16,8 @@ Numbers are the authoritative board deltas (RESULTS_BOARD.md, Delta = MTL - STL
 ceiling, in percentage points). n=5 (seed 0) provisional.
 
 Run with the repo venv:
-    /Users/vitor/Desktop/mestrado/ingred/.venv/bin/python fig3_deltas.py
-Writes fig3_deltas.pdf next to this script.
+    /Users/vitor/Desktop/mestrado/ingred/.venv/bin/python fig4_deltas.py
+Writes fig4_deltas.pdf next to this script.
 """
 
 import os
@@ -199,6 +199,6 @@ ax.legend(
 
 fig.tight_layout(pad=0.4)
 
-out_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fig3_deltas.pdf")
+out_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fig4_deltas.pdf")
 fig.savefig(out_path, bbox_inches="tight", pad_inches=0.02)
 print(f"wrote {out_path}")

@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-"""Figure 4 (MobiWac 2026): category embedding-quality panel.
+"""Figure 3 (MobiWac 2026): category embedding-quality panel.
 
 Plots the two CATEGORY-separability metrics on which the check-in-level
 Check2HGI representation clearly beats the place-level HGI embedding:
 
-  * silhouette by next-category   (check2hgi ~0.48  vs  hgi ~0.00)
-  * kNN-by-category accuracy      (check2hgi ~0.98  vs  hgi ~0.78)
+  * silhouette by next-category   (check2hgi/design_k ~0.56  vs  hgi ~0.00)
+  * kNN-by-category accuracy      (check2hgi/design_k ~0.98  vs  hgi ~0.78)
 
 Region geometry is deliberately NOT shown: on region both engines are at the
 floor and HGI scores spuriously higher, which would mislead. The story here is
@@ -13,11 +13,13 @@ strictly that the check-in-level substrate separates by category; its
 region-neutral behavior is carried in the caption, not in this panel.
 
 Source: docs/studies/closing_data/PART1_QUALITY/summary.md (L0 geometry, next-cat;
-5-fold CV, mean +/- SD over 6 states x 5 folds = 30 samples).
+5-fold CV, mean +/- SD over folds). Plots the BOARD substrate row
+check2hgi_design_k_resln_mae_l0_1 (the design_k overlap engine the paper runs on),
+NOT the plain check2hgi (v11 / canonical GCN) row.
 
 Run:
-  /Users/vitor/Desktop/mestrado/ingred/.venv/bin/python fig4_embquality.py
-Writes: fig4_embquality.pdf  (this directory)
+  /Users/vitor/Desktop/mestrado/ingred/.venv/bin/python fig3_embquality.py
+Writes: fig3_embquality.pdf  (this directory)
 """
 
 from pathlib import Path
@@ -30,11 +32,12 @@ import numpy as np
 
 # ---------------------------------------------------------------------------
 # Authoritative numbers (PART1_QUALITY/summary.md, L0 geometry -- next-cat).
-# mean +/- SD over folds. CATEGORY metrics only; region intentionally omitted.
+# Board substrate row = check2hgi_design_k_resln_mae_l0_1 (design_k), NOT plain
+# check2hgi (v11 GCN). mean +/- SD over folds. CATEGORY metrics only; region omitted.
 # ---------------------------------------------------------------------------
 METRICS = ["Silhouette\n(by category)", "kNN accuracy\n(by category)"]
 
-CHECK2HGI = {"mean": [0.4775, 0.9794], "sd": [0.0275, 0.0045]}
+CHECK2HGI = {"mean": [0.5566, 0.9820], "sd": [0.0360, 0.0039]}
 HGI = {"mean": [0.0000, 0.7780], "sd": [0.0042, 0.0292]}
 
 # Colors: a saturated accent for the contributed substrate, a muted gray for
@@ -127,7 +130,7 @@ def main() -> None:
     )
 
     fig.tight_layout(pad=0.4)
-    out = Path(__file__).resolve().parent / "fig4_embquality.pdf"
+    out = Path(__file__).resolve().parent / "fig3_embquality.pdf"
     fig.savefig(out, bbox_inches="tight", pad_inches=0.02)
     print(f"wrote {out}")
 
