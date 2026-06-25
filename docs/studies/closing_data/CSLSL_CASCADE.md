@@ -5,7 +5,7 @@
 > at the small/mid (AL/AZ) AND the large (FL, 4703 regions) states → our parallel bidirectional cross-attention
 > matches the dominant published multi-task alternative **at equal cost**. (FL same-device champ-G comparand
 > in-flight as of 2026-06-25; FL cascade ties the §1 board champ-G FL to ±0.01.) CA/TX deferred (deadline;
-> "only if cheap" per `BASELINE_A40.md`).
+> "only if cheap" per `HANDOFF_A40.md`).
 > Headline + board: [`RESULTS_BOARD.md §1b`](RESULTS_BOARD.md) and
 > [`../../results/closing_data/MACS_BOARD_RESULTS.md`](../../results/closing_data/MACS_BOARD_RESULTS.md).
 

@@ -64,14 +64,14 @@ cell: `../../studies/closing_data/CSLSL_CASCADE.md`. (Cross-device: A40 champ-G 
 champ-G within ±0.05 pp at AZ; AL within fold-std.)
 
 ## CTLE-SC → CUDA (FL/CA/TX only); Istanbul CTLE-SC → MAC
-**FL/CA/TX** too heavy for 24GB MPS (FL CTLE-SC watchdog-killed at 14% free solo; 1.27M-3.5M rows + 12.6GB log_T load) → CUDA (`../../studies/closing_data/BASELINE_H100.md`): `mac_baseline_compare.py --baseline ctle` + `comparand_check2hgi_sc.py` per state.
+**FL/CA/TX** too heavy for 24GB MPS (FL CTLE-SC watchdog-killed at 14% free solo; 1.27M-3.5M rows + 12.6GB log_T load) → CUDA (`../../studies/closing_data/RESULTS_BOARD.md` §4): `mac_baseline_compare.py --baseline ctle` + `comparand_check2hgi_sc.py` per state.
 **Istanbul CTLE-SC DONE on the MAC @ stride-1** (board-consistent w/ Gowalla, NOT set-a — user steer): 5-fold leak-clean CTLE substrate (`build_ctle_substrate --state istanbul --stride 1`) + matched heads (cat next_gru / reg next_stan_flow checkin) vs Check2HGI-SC on the Phase-V substrate. Base rebuilt at stride-1 (271,666 rows). Results in the CTLE-SC Δ table above. **Supersedes the set-a Istanbul numbers** (and the §4 champion-vs-baseline row, which was set-a → needs the champion at stride-1 to compare). **MPS note**: training MPS-resident; HMT eval top-k per-batch CPU (memory-safety, ~3%).
 
 ## Istanbul ETL (rebuilt on Mac, ready for CUDA)
 category_map 580/580 (fsq_tree bugfix), parse, graph (29945 POI/520 region — matches Phase-V guard), inputs (58,297 set-a + 25 priors), Phase-V GCN substrate (500ep, faithful: check2hgi.py unchanged since champion commit ff3ce1f0). HMT-GRN done on Mac.
 
 ## Status (Mac board COMPLETE)
-- ✅ **CTLE-SC + Check2HGI-SC comparand**: AL, AZ, **Istanbul** (stride-1) — done on Mac (PR #38). FL/CA/TX → CUDA (`../../studies/closing_data/BASELINE_H100.md`).
+- ✅ **CTLE-SC + Check2HGI-SC comparand**: AL, AZ, **Istanbul** (stride-1) — done on Mac (PR #38). FL/CA/TX → CUDA (`../../studies/closing_data/RESULTS_BOARD.md` §4).
 - ✅ **HMT-GRN: all 6 states** on Mac (AL/AZ/FL/CA/TX/Istanbul). AL CPU-validated (audit).
 - ✅ **Istanbul**: full ETL + Phase-V substrate + CTLE-SC + comparand + HMT (all Mac, stride-1).
 - → **Only remaining**: CTLE-SC FL/CA/TX on the A40.

@@ -34,11 +34,11 @@ It is not a pipeline/leak bug. So just **run FL at full 5 folds**.
 1. **FL CTLE-SC, 5 folds.** Build the frozen CTLE embedding at FL (`scripts/baselines/build_ctle_substrate.py`,
    pinned MIN_SEQ=10 to match `dk_ovl`), feed it to our `next_gru` category head, **leak-clean per-fold (`--folds 5`,
    per-fold train-only pretrain)**, matched rows/folds vs the FL Check2HGI-SC comparand (Check2HGI-SC FL ≈ 73.47).
-   Exact command + the CUDA path: `BASELINE_H100.md` (FL CTLE-SC was queued there).
+   Exact command + the CUDA path: `RESULTS_BOARD.md §4` (FL CTLE-SC was queued there).
 2. **FL CTLE-E2E, 5 folds.** `scripts/baselines/ctle_e2e.py` at FL (CTLE's native fine-tuned form; AL E2E = 21.24
    on disk at `results/ctle_e2e_b1/alabama/ctle_e2e_seed0.json` is the template). Commit
    `results/ctle_e2e_b1/florida/ctle_e2e_seed0.json`.
-3. **Strike the phantom numbers.** In `docs/studies/closing_data/BASELINE_H100.md` and
+3. **Strike the phantom numbers.** In `RESULTS_BOARD.md` and
    `docs/.../H100_FL_BASELINES_FINDINGS.md`, replace the fold-0 SC (27.98/73.00) and the never-run E2E (29.65)
    with the real 5f values, or remove them until the JSONs land. Update `docs/baselines/next_category/ctle.md`.
 
@@ -64,7 +64,7 @@ arm under overlap** (and the POI-pooled arm, for the per-visit share) is missing
 1. **HGI-category-STL under `dk_ovl`** at AL/AZ/FL/CA/TX + Istanbul. Build the HGI-substrate inputs under the
    overlap windowing (MIN_SEQ=10), then `train.py --task next --engine hgi --cat-head next_gru`, seed 0 × 5f, on
    the same folds. **Prereq:** HGI embeddings exist at AL/AZ/FL; **build HGI at CA/TX** first (HGI is windowing-
-   independent; see the substrate-build drivers referenced in `RESULTS_BOARD §3` / `BASELINE_DISTRIBUTION.md`).
+   independent; see the substrate-build drivers referenced in `RESULTS_BOARD §3` / `HANDOFF_A40.md`).
 2. **POI-pooled Check2HGI-category-STL under `dk_ovl`** (for the per-visit-context share = canonical vs
    POI-mean-pooled), same states, same protocol. (Optional if time-pressed: the per-visit *share* is windowing-
    robust enough to footnote as the non-overlap CH19 value, but the cleanest is to re-score.)
@@ -122,7 +122,7 @@ counts + max/avg sequence length + sparsity for AL/AZ/FL/CA/TX + Istanbul.
 - `PAPER_PLAN.md`: fill Tbl 1 (overlap windows), Tbl 2 (overlap substrate gap), §6.1/§6.2 numbers; if W6 landed,
   promote the encoder mechanism from hypothesis to finding (§2 spine, §6.2, §9); if TOST computed, state it in
   §5.3/§6.2.
-- `BASELINE_HANDOFF.md` / `ctle.md` / `BASELINE_H100.md`: real FL CTLE 5f numbers; strike the phantom paths.
+- `BASELINE_HANDOFF.md` / `ctle.md` / `RESULTS_BOARD.md §4`: real FL CTLE 5f numbers; strike the phantom paths.
 - Keep the **CSLSL = tie at equal cost** framing (it is a defense, never "we beat the cascade").
 
 ## Priority order (UPDATED 2026-06-25 — W6 + Blocker 3 + TOST DONE; FL CTLE partial)

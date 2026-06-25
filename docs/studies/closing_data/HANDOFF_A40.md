@@ -41,15 +41,9 @@ Result: probe cat (region frozen) AL 63.50 / AZ 63.67 / FL 79.79 ≈ full-MTL ca
 (+4.6…+7.6) → the joint category win is the shared trunk, not region→category transfer. Recorded in
 `W6_ENCODER_ISOLATION.md` + RESULTS_BOARD §1c. **No re-run.** (Run-spec below kept for the record.)
 
-Run-spec is complete and self-contained in **[`HANDOFF_A40_W6_PROBE.md`](HANDOFF_A40_W6_PROBE.md)** (the summary is
-also in [`BASELINE_A40.md`](BASELINE_A40.md)). One line:
-```bash
-MODE=smoke bash scripts/run_freeze_reg_probe.sh                          # AL 1f×2ep sanity
-STATES="alabama arizona florida" bash scripts/run_freeze_reg_probe.sh    # the real run, seed 0 × 5f, fp32
-```
-Sanity gate: the first-fold `[per-head-LR]` line MUST show the reg group(s) at **0 trainable params** (else it
-aborts with a RuntimeError — do not paper over it). Read **cat macro-F1 only**; reg is meaningless here. Verdict
-table + outputs (`W6_ENCODER_ISOLATION.md` + a result JSON per state + a RESULTS_BOARD §1c line) are in that doc.
+Reproduce (record only): `STATES="alabama arizona florida" bash scripts/run_freeze_reg_probe.sh` (seed 0 × 5f,
+fp32; the first-fold `[per-head-LR]` line must show the reg group at 0 trainable params). Full verdict + per-state
+JSONs in [`W6_ENCODER_ISOLATION.md`](W6_ENCODER_ISOLATION.md) + RESULTS_BOARD §1c.
 
 ---
 
@@ -121,7 +115,7 @@ windowing-robust → **no** re-score.)
 ## 3 · Blocker 1 (FL CTLE) — H100's job; A40 FALLBACK ONLY
 
 Do **not** start this unless the orchestrator says the H100 stalled. If re-tasked to the A40, the FL run-spec is
-`BASELINE_H100.md §2` verbatim (device-agnostic; keep the fp32 AMP gate). The two missing JSONs:
+the four commands below (device-agnostic; keep the fp32 AMP gate from §0). The two missing JSONs:
 ```bash
 # base + per-fold log_T (idempotent guard: skip the re-window if input/{next,next_region}.parquet already fresh)
 python scripts/mtl_improvement/build_overlap_probe_engine.py florida 1
@@ -135,9 +129,9 @@ python scripts/closing_data/mac_baseline_compare.py --state florida --baseline c
 python scripts/baselines/ctle_e2e.py --state florida --seed 0 --folds 5
 #  -> results/ctle_e2e_b1/florida/ctle_e2e_seed0.json
 ```
-Gates (`BASELINE_H100.md §3`): CTLE-SC cat ≈ 17–20 vs Check2HGI-SC cat ≈ 75 (Δcat large, expected); min_seq=10
+Gates: CTLE-SC cat ≈ 17–20 vs Check2HGI-SC cat ≈ 75 (Δcat large, expected); min_seq=10
 desync check `len(check2hgi_ctle/florida/input/next.parquet) == len(check2hgi_dk_ovl/florida/input/next.parquet)`.
-Then strike the phantom fold-0/never-run numbers (27.98/73.00 SC, 29.65 E2E) in `BASELINE_H100.md`,
+Then strike the phantom fold-0/never-run numbers (27.98/73.00 SC, 29.65 E2E) in `RESULTS_BOARD.md §4`,
 `H100_FL_BASELINES_FINDINGS.md`, `docs/baselines/next_category/ctle.md`. **Presentation:** CTLE as a *ladder*
 (one-hot / skip-gram / POI2Vec / CTLE-SC frozen → our head) with CTLE-E2E beside it; **never "we crushed CTLE."**
 

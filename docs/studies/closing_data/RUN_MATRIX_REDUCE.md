@@ -45,7 +45,8 @@ for the deadline.
 | **Macs** (M2 Pro 32G + M4 Pro 24G, MPS=fp32) | ALL baselines, device-internal | one-hot → skip-gram → POI2Vec → CTLE | board ✅ done → `RESULTS_BOARD.md` |
 
 > Note: this table is the **board (MTL champion) device plan, now complete** (results in `RESULTS_BOARD.md`). The
-> current **baseline-phase** machine plan + per-machine handoffs are `BASELINE_DISTRIBUTION.md` + `BASELINE_{H100,A40,M4}.md`.
+> baseline phase is likewise complete (results in `RESULTS_BOARD.md`); the one continuing item is `HANDOFF_A40.md`
+> (Blocker 2). The per-machine baseline handoffs were one-shot and have been removed as spent.
 
 **Precision gate** (RUN_MATRIX §0a) runs FIRST on the H100 at **AL** (smallest → ~2-3h for both arms; doubles as
 the AL MTL result). Verdict → board commits bf16 (likely) or fp32. **STL ceilings / baselines / Part-1 do NOT

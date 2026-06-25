@@ -41,7 +41,7 @@ The cascade edge injects the model's **own forward-pass category prediction** `c
 
 ## Status / TODO
 - ✅ **AL, AZ** done on the M4 with matched comparand + MPS==CPU cross-check. **n=5 provisional (seed 0).**
-- ⚠ **FL** attempted on the M4 → **MPS-OOM** (24 GB insufficient for 159k rows / 4,703 regions under desktop load); 4/5 folds, no comparand. **Run on CUDA (A40/H100)** — its documented lane (`../studies/closing_data/BASELINE_A40.md`).
+- ⚠ **FL** attempted on the M4 → **MPS-OOM** (24 GB insufficient for 159k rows / 4,703 regions under desktop load); 4/5 folds, no comparand. **Run on CUDA (A40/H100)** — its documented lane (`../studies/closing_data/HANDOFF_A40.md`).
 - **CA / TX**: A40/post-deadline lane.
 - Multi-seed {1,7,100}: post-deadline.
 
