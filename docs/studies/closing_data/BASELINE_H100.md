@@ -132,7 +132,7 @@ All seed 0 × 5f, **fp32** (`DISABLE_AMP=1`). cat = macro-F1, reg = Acc@10.
 |---|---|---|---|
 | **(A) Check2HGI-SC comparand** | dk_ovl | **73.47** ±0.55 | 72.71 |
 | **(B) CTLE-E2E** | dk_ovl | **29.65** | 61.47 |
-| **(D) CTLE-SC** | dk_ovl | _running (cells corrected → `board_baselines/ctle/florida/s0_f*/`)_ | — |
+| **(D) CTLE-SC** | dk_ovl | **27.98** (fold-0 prov.; 5f parallel running) | **73.00** (fold-0 — region near-tie vs comparand 72.71) |
 | **(C) A2 hgi → hgifeat** | hgi set-a | 32.01 → 32.85 (concat closes ~9% of gap) | 70.28 → 70.05 |
 | **(E) CSLSL cascade / parallel** | v14 **set-a FENCE** | 72.00 / 72.08 (tie) | 72.63 / 73.05 |
 
