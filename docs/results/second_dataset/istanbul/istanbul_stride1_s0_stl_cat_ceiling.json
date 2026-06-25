@@ -1,0 +1,16 @@
+{
+ "cell": "istanbul_stl_cat_ceiling_stride1",
+ "seed": 0,
+ "n_folds": 5,
+ "metric": "macro-F1 (f1 col) at f1-best epoch, fold-mean",
+ "cat_macro_f1_per_fold": [
+  53.91,
+  52.38,
+  52.48,
+  54.18,
+  53.04
+ ],
+ "cat_macro_f1_mean": 53.2,
+ "cat_macro_f1_std": 0.73,
+ "set_a_ref": 52.1
+}

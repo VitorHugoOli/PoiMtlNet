@@ -45,17 +45,22 @@ caveat: footnote the §6.3 Istanbul row**). Base rebuilt at stride-1 (271,666 ro
 set-a base; recoverable). CLI = the `DRY_RUN_RESULTS.md`-verified champion (incl. `--mtl-loss static_weight
 --category-weight 0.75`, which the truncated PHASE_V command had dropped). fp32, seed 0 × 5f.
 
-| Istanbul | cat macro-F1 | reg Acc@10 |
-|---|---|---|
-| **MTL champion (stride-1)** | **59.73 ± 0.62** | **74.30 ± 0.72** |
-| STL reg ceiling (stride-1) | — | 74.80 ± 0.70 |
-| MTL champion (set-a, ref) | 60.15 | 69.79 |
-| STL reg ceiling (set-a, ref) | — | 70.37 |
+Ran **multi-seed {0,1,7,100} (n=20)** to match the set-a rigour, plus the stride-1 STL cat + reg ceilings.
 
-**Reading — the champion-G signature HOLDS at stride-1.** MTL reg 74.30 ≈ STL reg ceiling 74.80 (**−0.50,
-parity**, same as set-a's −0.58), and cat clears its ceiling. The **+4.5 pp reg vs set-a (69.79 → 74.30) is the
-overlap-window density lift applied to BOTH the STL ceiling and the MTL champion — NOT a leak** (per-fold log_T
-rebuilt on the stride-1 split; user-disjoint folds). JSONs: `second_dataset/istanbul/istanbul_stride1_s0_mtl_fp32_matched_score.json`,
+| Istanbul stride-1 | cat macro-F1 | reg Acc@10 |
+|---|---|---|
+| **MTL champion (n=20, 4 seeds)** | **59.89 ± 0.12** | **74.28 ± 0.03** |
+| &nbsp;&nbsp;per-seed cat / reg | 59.73 / 60.01 / 59.82 / 59.99 | 74.30 / 74.24 / 74.31 / 74.29 |
+| **STL ceiling (seed 0)** | 53.20 ± 0.73 | 74.80 ± 0.70 |
+| **Δ (MTL − ceiling)** | **+6.69 (gain)** | **−0.52 (parity)** |
+| _set-a multi-seed (ref)_ | _60.16_ | _69.79_ |
+
+**Reading — the champion-G signature HOLDS at stride-1, n=20.** cat clears its STL ceiling by **+6.69**
+(gain); reg sits at **−0.52** vs its ceiling (parity). Cross-seed variance is tiny (cat ±0.12 / reg ±0.03) →
+highly reproducible. vs set-a (cat 60.16 / reg 69.79): cat ~flat, **reg +4.5 is the overlap-window density lift
+applied to BOTH the STL ceiling AND the MTL champion — NOT a leak** (per-fold log_T rebuilt on the stride-1
+split per seed; user-disjoint folds). JSONs: `second_dataset/istanbul/istanbul_stride1_multiseed_summary.json`,
+`istanbul_stride1_s{0,1,7,100}_mtl_fp32_matched_score.json`, `istanbul_stride1_s0_stl_cat_ceiling.json`,
 `P1/region_head_istanbul_region_5f_50ep_istanbul_stride1_stl_reg_s0.json`.
 
 ## Provenance / caveats
