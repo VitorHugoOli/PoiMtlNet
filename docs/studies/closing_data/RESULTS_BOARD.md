@@ -143,6 +143,13 @@ Per the baselines README, the paper's baseline tables read from [`../../baseline
   representation **controls** (§7 checklist). **AL frozen-below-floor (17.8 < bigram ~19.5) DIAGNOSED REAL
   (M4, 2026-06-24)** — not a pipeline/leak bug (substrate genuinely swapped, cosine vs check2hgi 0.01; identical
   head → 55.6 on check2hgi vs 17.8 on CTLE) → **H100 FL CTLE-SC CLEARED** (`baseline_compare/alabama_ctle_DIAGNOSIS.md`).
+- ✅ **CTLE-E2E (B1, CTLE's best/fine-tuned form) — FL NOW REAL & COMMITTED** (A40, seed 0 × 5f, leak-clean
+  per-fold, fp32-native, wall 113 min): **AL cat 21.14 (final) / 23.94 (best-ep); FL cat 29.69 (final) / 33.45
+  (best-ep)**, reg Acc@10 FL 61.44. JSONs `baseline_compare/{alabama,florida}_ctle_e2e_seed0.json`. The seeded
+  re-run **reproduces the prior unbacked 29.65 to ±0.04** → it was a real result lacking an artifact, now fixed
+  (phantom retired). Even at *best-epoch*, CTLE-E2E (FL 33.4) is **≪ Check2HGI cat (FL 73–75)** — present as the
+  E2E rung beside the frozen CTLE-SC ladder; **never "we crushed CTLE."** (script `scripts/baselines/ctle_e2e.py`,
+  determinism + best-epoch tracking added 2026-06-25 after a 2-advisor correctness/optimization review.)
 - ❌ **SC *region* is NOT used in the article.** The pre-fix SC reg was INVALID (substrate-bypass + shared prior +
   stale log_T) — now **quarantined** (`_reg_status: INVALID_PENDING_RERUN` on the AL/AZ `baseline_compare/*.json`).
   Region's substrate-isolation story is weak anyway (it is a near-tie: AL −0.4, AZ −0.3, Istanbul −3.5 where CTLE

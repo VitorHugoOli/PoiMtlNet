@@ -9,14 +9,18 @@ readings; it does NOT restate the canonical board (see `RESULTS_BOARD.md`).
 | Cell | base | cat macro-F1 | reg Acc@10 | JSON |
 |---|---|---|---|---|
 | **Check2HGI-SC comparand** | dk_ovl | **73.47 ± 0.55** | 72.71 ± 1.14 | `baseline_compare/florida_check2hgi_sc.json` |
-| **CTLE-E2E** (B1, headline CTLE) | dk_ovl | **29.65** | 61.47 | `results/ctle_e2e_b1/florida/ctle_e2e_seed0.json` |
+| **CTLE-E2E** (B1, headline CTLE) | dk_ovl | **29.69** (final) / 33.45 (best-ep) | 61.44 | `baseline_compare/florida_ctle_e2e_seed0.json` |
 | **CTLE-SC** (frozen) | dk_ovl | **27.98** (fold-0 provisional; full 5f running) | **73.00** (fold-0) | `baseline_compare/florida_ctle.json` |
 | **A2 feature-concat** hgi → hgifeat | hgi set-a | 32.01 → 32.85 | 70.28 → 70.05 | `P1/region_head_florida_*_A2_*_s0.json` |
 
 **Readings**
-- **CTLE is well below ours even in its best (E2E, fine-tuned) form**: cat 29.65 vs our comparand 73.47
-  (Δ ≈ −44 pp). Frozen CTLE-SC is weaker still (the M4 AL diagnosis confirmed the below-bigram-floor signal
-  is real CTLE behaviour, not a pipeline bug). Frame as "even at its best, CTLE ≪ ours" — never "we crushed it".
+- **CTLE is well below ours even in its best (E2E, fine-tuned) form**: cat 29.69 (final-epoch) / 33.45
+  (best-epoch, the board cat-ceiling rule) vs our comparand 73.47 (Δ ≈ −40…−44 pp). **NOW REAL & COMMITTED**
+  (A40, seed 0 × 5f, leak-clean per-fold, `baseline_compare/florida_ctle_e2e_seed0.json`, wall 113 min): the
+  prior **29.65 was an unbacked number** — the seeded re-run reproduces it to ±0.04 (29.69 final / 61.44 reg),
+  so it was a real result that simply lacked an artifact, now fixed. Frozen CTLE-SC is weaker still (the M4 AL
+  diagnosis confirmed the below-bigram-floor signal is real CTLE behaviour, not a pipeline bug). Frame as
+  "even at its best, CTLE ≪ ours" — never "we crushed it".
 - **CTLE-SC (frozen) — the cat/reg split is the honest two-axis story** (fold-0 provisional; full 5f running):
   **cat 27.98 ≪ our comparand 73.47** (the *substrate* drives category — frozen CTLE can't compete), but
   **reg Acc@10 73.00 ≈ comparand 72.71 — a near-tie** (region is driven by the per-fold log_T prior, which is
