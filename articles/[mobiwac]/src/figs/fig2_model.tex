@@ -1,0 +1,85 @@
+% fig2_model.tex
+% Figure 2: the single multi-task model.
+%
+% Standalone-compilable on its own (pdflatex fig2_model.tex) AND \input-able into
+% the IEEE paper. The standalone wrapper runs only when \FIGINPUT is NOT defined.
+%
+% Paper preamble (once, shared with fig1):
+%   \usepackage{tikz}
+%   \usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc}
+%   \def\FIGINPUT{1}
+% Body:
+%   \begin{figure}[t]\centering\input{figs/fig2_model.tex}
+%   \caption{...}\label{fig:model}\end{figure}
+%
+% ONE model:
+%   two input streams (per-check-in vectors, per-region vectors)
+%   -> a shared semantic trunk
+%   -> two outputs, where the REGION output keeps a private branch INSIDE the
+%      same model (a task-specific path, not a separate model).
+% A dashed boundary encloses everything to show it is one model, one forward pass.
+% Do NOT draw a cross-attention backbone.
+
+\ifdefined\FIGINPUT\else
+  \documentclass[border=4pt]{standalone}
+  \usepackage{tikz}
+  \usepackage{amsmath}
+  \usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc}
+  \begin{document}
+\fi
+
+\begin{tikzpicture}[
+    >={Stealth[length=2.2mm]},
+    font=\footnotesize,
+    block/.style={draw, rounded corners=2pt, align=center, inner sep=4pt,
+                  minimum height=9mm, line width=0.5pt},
+    inblk/.style={block, fill=orange!8, minimum width=24mm},
+    trunk/.style={block, fill=blue!7, minimum width=30mm, minimum height=12mm},
+    priv/.style={block, fill=teal!9, minimum width=24mm},
+    outblk/.style={block, fill=green!8, minimum width=24mm},
+    flow/.style={->, line width=0.7pt, draw=black!75},
+    glabel/.style={align=center, font=\scriptsize\itshape, text=black!65},
+  ]
+
+  % ---------- two input streams ----------
+  \node[inblk] (inchk) {per-check-in\\vectors};
+  \node[inblk, below=6mm of inchk] (inreg) {per-region\\vectors};
+
+  % ---------- shared semantic trunk ----------
+  \node[trunk, right=14mm of inchk, yshift=-6mm] (trunk)
+       {shared semantic\\trunk};
+
+  % ---------- two paths out of the trunk ----------
+  % category path: straight from the shared trunk
+  \node[outblk, right=16mm of trunk, yshift=8mm] (outc) {next-category};
+  % region path: PRIVATE branch (task-specific) inside the same model
+  \node[priv, right=14mm of trunk, yshift=-8mm] (regpath)
+       {private spatial\\path};
+  \node[outblk, right=8mm of regpath] (outr) {next-region};
+
+  % ---------- arrows ----------
+  % inputs into the shared trunk
+  \draw[flow] (inchk.east) -- ($(inchk.east)+(5mm,0)$) |- (trunk.west);
+  \draw[flow] (inreg.east) -- ($(inreg.east)+(5mm,0)$) |- (trunk.west);
+  % trunk -> category output (shared encoder, no private block)
+  \draw[flow] (trunk.east) -- ($(trunk.east)+(5mm,0)$) |- (outc.west);
+  % trunk -> private region branch -> region output
+  \draw[flow] (trunk.east) -- ($(trunk.east)+(5mm,0)$) |- (regpath.west);
+  \draw[flow] (regpath.east) -- (outr.west);
+
+  % ---------- boundary: one model ----------
+  \begin{scope}[on background layer]
+    \node[draw, dashed, rounded corners=4pt, line width=0.7pt,
+          draw=black!55, fill=black!2,
+          fit=(inchk)(inreg)(trunk)(outc)(regpath)(outr),
+          inner sep=6pt] (model) {};
+  \end{scope}
+  \node[anchor=north west, font=\scriptsize\bfseries, text=black!70]
+        at ($(model.north west)+(1.5mm,-1.0mm)$)
+        {one model, one forward pass, two predictions};
+
+\end{tikzpicture}
+
+\ifdefined\FIGINPUT\else
+  \end{document}
+\fi

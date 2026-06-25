@@ -1,0 +1,40 @@
+% Table 1: Dataset statistics.
+% Ordered by region count (small to large), matching the result tables.
+% STATUS: real values for check-ins / users / POIs / regions / categories
+% (from PAPER_PLAN Table 1). The overlap-window counts, max/avg sequence
+% length, and sparsity are BLOCKED (recompute under the overlapping-window
+% board); they carry a clear TBD placeholder, do not invent.
+%
+% Region counts: Istanbul 520 (mahalle), AL 1109, AZ 1547, FL 4703,
+% TX 6553, CA 8501. All seven categories: Community, Entertainment, Food,
+% Nightlife, Outdoors, Shopping, Travel.
+\begin{table*}[t]
+\caption{Dataset statistics, ordered by number of regions. Five Gowalla states and one
+international city (Istanbul, from Massive-STEPS) span small to large region spaces,
+chosen on purpose to test whether the findings hold across scales and settings. Region
+counts run from about five hundred to about eight thousand five hundred classes; the
+category space is fixed at seven. Window counts under overlapping windows, maximum and
+average sequence length, and sparsity are being recomputed under the final board and are
+marked TBD.}
+\label{tab:datasets}
+\centering
+\begin{tabular}{l l r r r r r r r r}
+\hline
+\textbf{Dataset} & \textbf{Source} & \textbf{Check-ins} & \textbf{Users} & \textbf{POIs} &
+\textbf{Regions} & \textbf{Categories} & \textbf{Windows} & \textbf{Max len} & \textbf{Sparsity} \\
+\hline
+Istanbul & Massive-STEPS &   544{,}471 & 23{,}700 &  29{,}816 &   520 & 7 & TBD & TBD & TBD \\
+AL       & Gowalla       &   113{,}846 &  3{,}858 &  11{,}848 & 1{,}109 & 7 & TBD & TBD & TBD \\
+AZ       & Gowalla       &   236{,}450 &  7{,}869 &  20{,}666 & 1{,}547 & 7 & TBD & TBD & TBD \\
+FL       & Gowalla       & 1{,}407{,}034 & 21{,}052 &  76{,}544 & 4{,}703 & 7 & TBD & TBD & TBD \\
+TX       & Gowalla       & 4{,}089{,}892 & 38{,}644 & 160{,}938 & 6{,}553 & 7 & TBD & TBD & TBD \\
+CA       & Gowalla       & 3{,}171{,}380 & 37{,}090 & 169{,}145 & 8{,}501 & 7 & TBD & TBD & TBD \\
+\hline
+\end{tabular}
+
+\vspace{2pt}
+{\footnotesize Region unit: a census tract (a mahalle for Istanbul). Windows = overlapping
+nine-visit input plus the next visit as target, after the last-place de-skew gate; the
+overlap counts, maximum and average sequence length, and sparsity ($1 - \text{check-ins} /
+(\text{users} \times \text{POIs})$) are TBD pending the overlap-board recompute.}
+\end{table*}

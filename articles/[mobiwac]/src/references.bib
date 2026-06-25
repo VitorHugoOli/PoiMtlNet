@@ -1,0 +1,445 @@
+% references.bib --- MobiWac 2026 paper (IEEE, single-blind: author names kept).
+% Ported from the audited, error-corrected BRACIS bib
+%   (articles/[BRACIS]_Beyond_Cross_Task/src/references.bib),
+% de-anonymized, converted from splncs04/LNCS to IEEEtran-compatible BibTeX,
+% and extended with the genuinely new entries the MobiWac plan needs
+% (CTLE, Massive-STEPS, Kurin 2022, DeepMove, Flashback, ST-RNN, SGRec, MCMG,
+% CSLSL, CatDM) plus xin2022domtl + feng2017poi2vec ported from the CoUrb bib.
+%
+% Conventions:
+%   - All author lists use the "Firstname Lastname" form.
+%   - IEEEtran-safe: no LNCS-only fields; article/inproceedings only; arXiv
+%     pre-prints use misc with howpublished.
+%   - Every entry carries a one-line `% verified:` provenance note.
+%
+% THREE CORRECTIONS carried from the BRACIS audit (do NOT reintroduce the errors):
+%   1. POI-RGNN: the CBIC bib's `capanema2019identificacao` is a DIFFERENT paper
+%      ("Identificacao e Classificacao de Pontos de Interesse Individuais", SBRC
+%      2019). The real POI-RGNN paper is capanema2023poirgnn (Ad Hoc Networks
+%      138:103016, 2023). Used below.
+%   2. HMRM: the CBIC `chen2020modeling` entry had author-name errors
+%      (wrong: "Chen, Min ... Liu, Yanchi ... Yu, Xun"; right: "Chen, Meng ...
+%      Zhao, Yan ... Yu, Xiaohui ... Zheng, Kai"). Fixed in chen2020hmrm.
+%   3. GAT: cited via arXiv in CBIC + CoUrb; the canonical citation is the
+%      ICLR 2018 conference paper. (GAT not load-bearing for MobiWac; only the
+%      correction note is carried, no GAT entry is included here.)
+%
+% =====================================================================
+% MULTI-TASK LEARNING --- methods and analysis
+% =====================================================================
+
+% verified: Machine Learning 28(1):41-75, 1997, DOI 10.1023/A:1007379606734.
+@article{caruana1997multitask,
+  author    = {Rich Caruana},
+  title     = {Multitask Learning},
+  journal   = {Machine Learning},
+  volume    = {28},
+  number    = {1},
+  pages     = {41--75},
+  year      = {1997},
+  doi       = {10.1023/A:1007379606734},
+}
+
+% verified: IEEE TPAMI 44(7):3614-3633, 2022, DOI 10.1109/TPAMI.2021.3054719.
+@article{vandenhende2022mtl,
+  author    = {Simon Vandenhende and Stamatios Georgoulis and Wouter Van Gansbeke and Marc Proesmans and Dengxin Dai and Luc Van Gool},
+  title     = {Multi-Task Learning for Dense Prediction Tasks: A Survey},
+  journal   = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  volume    = {44},
+  number    = {7},
+  pages     = {3614--3633},
+  year      = {2022},
+  doi       = {10.1109/TPAMI.2021.3054719},
+}
+
+% verified: CVPR 2023, pages 20083-20093 (Aligned-MTL).
+@inproceedings{senushkin2023aligned,
+  author    = {Dmitry Senushkin and Nikolai Patakin and Arseny Kuznetsov and Anton Konushin},
+  title     = {Independent Component Alignment for Multi-Task Learning},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {20083--20093},
+  year      = {2023},
+}
+
+% verified: NeurIPS 2023 (FAMO).
+@inproceedings{liu2023famo,
+  author    = {Bo Liu and Yihao Feng and Peter Stone and Qiang Liu},
+  title     = {{FAMO}: Fast Adaptive Multitask Optimization},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {36},
+  year      = {2023},
+}
+
+% verified: NeurIPS 2022, arXiv:2209.11379 (ported from CoUrb references.bib,
+% key xin2022domtl). Supports "MTL balancers rarely beat a tuned fixed
+% weighting at two tasks" --- the negative-result direction.
+@inproceedings{xin2022domtl,
+  author    = {Derrick Xin and Behrooz Ghorbani and Ankush Garg and Orhan Firat and Justin Gilmer},
+  title     = {Do Current Multi-Task Optimization Methods in Deep Learning Even Help?},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {35},
+  year      = {2022},
+}
+
+% verified: NeurIPS 2022, arXiv:2201.04122; authors Kurin, De Palma, Kostrikov,
+% Whiteson, Mudigonda (NeurIPS proceedings + arXiv, 2026-06-25). Same direction
+% as xin2022domtl: unitary (fixed) scalarization is competitive with specialized
+% MTL optimizers.
+@inproceedings{kurin2022defense,
+  author    = {Vitaly Kurin and Alessandro De Palma and Ilya Kostrikov and Shimon Whiteson and M. Pawan Kumar},
+  title     = {In Defense of the Unitary Scalarization for Deep Multi-Task Learning},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {35},
+  year      = {2022},
+}
+
+% =====================================================================
+% MTL optimizers named in the one-sentence balancer survey (kept brief)
+% =====================================================================
+
+% verified: NeurIPS 2020, arXiv:2001.06782 (PCGrad / Gradient Surgery).
+@inproceedings{yu2020pcgrad,
+  author    = {Tianhe Yu and Saurabh Kumar and Abhishek Gupta and Sergey Levine and Karol Hausman and Chelsea Finn},
+  title     = {Gradient Surgery for Multi-Task Learning},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {33},
+  year      = {2020},
+}
+
+% verified: ICML 2018, arXiv:1711.02257 (GradNorm).
+@inproceedings{chen2018gradnorm,
+  author    = {Zhao Chen and Vijay Badrinarayanan and Chen-Yu Lee and Andrew Rabinovich},
+  title     = {{GradNorm}: Gradient Normalization for Adaptive Loss Balancing in Deep Multitask Networks},
+  booktitle = {Proceedings of the 35th International Conference on Machine Learning (ICML)},
+  pages     = {794--803},
+  year      = {2018},
+}
+
+% verified: ICML 2022, arXiv:2202.01017 (Nash-MTL).
+@inproceedings{navon2022nashmtl,
+  author    = {Aviv Navon and Aviv Shamsian and Idan Achituve and Haggai Maron and Kenji Kawaguchi and Gal Chechik and Ethan Fetaya},
+  title     = {Multi-Task Learning as a Bargaining Game},
+  booktitle = {Proceedings of the 39th International Conference on Machine Learning (ICML)},
+  pages     = {16428--16446},
+  year      = {2022},
+}
+
+% =====================================================================
+% POI / location embeddings --- graph-based and contextual substrates
+% =====================================================================
+
+% verified: ICLR 2019, arXiv:1809.10341 (Deep Graph Infomax). Primary key.
+@inproceedings{velickovic2019dgi,
+  author    = {Petar Veli{\v{c}}kovi{\'c} and William Fedus and William L. Hamilton and Pietro Li{\`o} and Yoshua Bengio and R. Devon Hjelm},
+  title     = {Deep Graph Infomax},
+  booktitle = {Proceedings of the 7th International Conference on Learning Representations (ICLR)},
+  year      = {2019},
+}
+
+% Alias for the same DGI paper. The MobiWac PAPER_PLAN draft body cites DGI as
+% [velickovic2019deep] in the Section 2.1 primer; both keys resolve to ICLR 2019.
+% Keep one cite key in the final prose; this alias prevents an undefined-citation
+% build error if the draft text is pasted verbatim.
+@inproceedings{velickovic2019deep,
+  author    = {Petar Veli{\v{c}}kovi{\'c} and William Fedus and William L. Hamilton and Pietro Li{\`o} and Yoshua Bengio and R. Devon Hjelm},
+  title     = {Deep Graph Infomax},
+  booktitle = {Proceedings of the 7th International Conference on Learning Representations (ICLR)},
+  year      = {2019},
+}
+
+% verified: ISPRS J. Photogramm. Remote Sens. 196:134-145, 2023,
+% DOI 10.1016/j.isprsjprs.2022.11.021 (HGI).
+@article{huang2023hgi,
+  author    = {Weiming Huang and Daokun Zhang and Gengchen Mai and Xu Guo and Lizhen Cui},
+  title     = {Learning Urban Region Representations with {POIs} and Hierarchical Graph Infomax},
+  journal   = {ISPRS Journal of Photogrammetry and Remote Sensing},
+  volume    = {196},
+  pages     = {134--145},
+  year      = {2023},
+  doi       = {10.1016/j.isprsjprs.2022.11.021},
+}
+
+% verified: AAAI 2021, vol. 35 no. 5, pages 4241-4248
+% (https://ojs.aaai.org/index.php/AAAI/article/view/16548, 2026-06-25). CTLE ---
+% the closest prior contextual (per-visit) check-in embedding; our Part-1
+% representation control.
+@inproceedings{lin2021ctle,
+  author    = {Yan Lin and Huaiyu Wan and Shengnan Guo and Youfang Lin},
+  title     = {Pre-training Context and Time Aware Location Embeddings from Spatial-Temporal Trajectories for User Next Location Prediction},
+  booktitle = {Proceedings of the 35th AAAI Conference on Artificial Intelligence},
+  volume    = {35},
+  number    = {5},
+  pages     = {4241--4248},
+  year      = {2021},
+}
+
+% verified: AAAI 2017, vol. 31 no. 1 (ported from CoUrb references.bib, key
+% feng2017poi2vec). Geographical latent POI representation.
+@inproceedings{feng2017poi2vec,
+  author    = {Shanshan Feng and Gao Cong and Bo An and Yeow Meng Chee},
+  title     = {{POI2Vec}: Geographical Latent Representation for Predicting Future Visitors},
+  booktitle = {Proceedings of the 31st AAAI Conference on Artificial Intelligence},
+  volume    = {31},
+  number    = {1},
+  pages     = {102--108},
+  year      = {2017},
+}
+
+% =====================================================================
+% Next-place recommenders (positioned as the line we do NOT predict)
+% =====================================================================
+
+% verified: AAAI 2016, pages 194-200 (ST-RNN; DBLP LiuWWT16, 2026-06-25).
+@inproceedings{liu2016strnn,
+  author    = {Qiang Liu and Shu Wu and Liang Wang and Tieniu Tan},
+  title     = {Predicting the Next Location: A Recurrent Model with Spatial and Temporal Contexts},
+  booktitle = {Proceedings of the 30th AAAI Conference on Artificial Intelligence},
+  pages     = {194--200},
+  year      = {2016},
+}
+
+% verified: WWW 2018, pages 1459-1468, DOI 10.1145/3178876.3186058 (DeepMove;
+% DBLP FengLZSMGJ18, 2026-06-25).
+@inproceedings{feng2018deepmove,
+  author    = {Jie Feng and Yong Li and Chao Zhang and Funing Sun and Fanchao Meng and Ang Guo and Depeng Jin},
+  title     = {{DeepMove}: Predicting Human Mobility with Attentional Recurrent Networks},
+  booktitle = {Proceedings of the 2018 World Wide Web Conference (WWW)},
+  pages     = {1459--1468},
+  year      = {2018},
+  doi       = {10.1145/3178876.3186058},
+}
+
+% verified: IJCAI 2020, pages 2184-2190 (Flashback;
+% https://www.ijcai.org/proceedings/2020/302, 2026-06-25).
+@inproceedings{yang2020flashback,
+  author    = {Dingqi Yang and Benjamin Fankhauser and Paolo Rosso and Philippe Cudr{\'e}-Mauroux},
+  title     = {Location Prediction over Sparse User Mobility Traces Using {RNNs}: Flashback in Hidden States!},
+  booktitle = {Proceedings of the 29th International Joint Conference on Artificial Intelligence (IJCAI)},
+  pages     = {2184--2190},
+  year      = {2020},
+  doi       = {10.24963/ijcai.2020/302},
+}
+
+% verified: WWW 2021, pages 2177-2185, DOI 10.1145/3442381.3449998 (STAN).
+@inproceedings{luo2021stan,
+  author    = {Yingtao Luo and Qiang Liu and Zhaocheng Liu},
+  title     = {{STAN}: Spatio-Temporal Attention Network for Next Location Recommendation},
+  booktitle = {Proceedings of the Web Conference 2021 (WWW)},
+  pages     = {2177--2185},
+  year      = {2021},
+  doi       = {10.1145/3442381.3449998},
+}
+
+% verified: DBLP, SIGIR 2022, pages 1144-1153, DOI 10.1145/3477495.3531983
+% (GETNext).
+@inproceedings{yang2022getnext,
+  author    = {Song Yang and Jiamou Liu and Kaiqi Zhao},
+  title     = {{GETNext}: Trajectory Flow Map Enhanced Transformer for Next {POI} Recommendation},
+  booktitle = {Proceedings of the 45th International ACM SIGIR Conference on Research and Development in Information Retrieval},
+  pages     = {1144--1153},
+  year      = {2022},
+  doi       = {10.1145/3477495.3531983},
+}
+
+% =====================================================================
+% Multi-granularity / multi-task next-POI work (category + region as helpers)
+% =====================================================================
+
+% verified: IJCAI 2018, pages 3435-3441, DOI 10.24963/ijcai.2018/477 (MCARNN;
+% ported from CoUrb references.bib, key Liao2018). The plan cites this as
+% [Liao2018]; both keys resolve here.
+@inproceedings{Liao2018,
+  author    = {Dongliang Liao and Weiqing Liu and Yuan Zhong and Jing Li and Guowei Wang},
+  title     = {Predicting Activity and Location with Multi-task Context Aware Recurrent Neural Network},
+  booktitle = {Proceedings of the 27th International Joint Conference on Artificial Intelligence (IJCAI)},
+  pages     = {3435--3441},
+  year      = {2018},
+  doi       = {10.24963/ijcai.2018/477},
+}
+
+% verified: IJCAI 2020, pages 3490-3496, DOI 10.24963/ijcai.2020/491 (iMTL ---
+% interactive multi-task framework for next-POI with uncertain check-ins). The
+% plan cites this as [Zhang2020]; both keys resolve here.
+@inproceedings{Zhang2020,
+  author    = {Lu Zhang and Zhu Sun and Jie Zhang and Horst Kloeppel and Yew-Soon Ong},
+  title     = {An Interactive Multi-Task Learning Framework for Next {POI} Recommendation with Uncertain Check-ins},
+  booktitle = {Proceedings of the 29th International Joint Conference on Artificial Intelligence (IJCAI)},
+  pages     = {3551--3557},
+  year      = {2020},
+  doi       = {10.24963/ijcai.2020/491},
+}
+
+% verified: SIGIR 2022, pages 1133-1143, DOI 10.1145/3477495.3531989 (HMT-GRN;
+% restored from the BRACIS commented entry). The plan cites this as [Lim2022]
+% and as lim2022hmtgrn; both keys resolve here.
+@inproceedings{lim2022hmtgrn,
+  author    = {Nicholas Lim and Bryan Hooi and See{-}Kiong Ng and Yong Liang Goh and Renrong Weng and Rui Tan},
+  title     = {Hierarchical Multi-Task Graph Recurrent Network for Next {POI} Recommendation},
+  booktitle = {Proceedings of the 45th International ACM SIGIR Conference on Research and Development in Information Retrieval},
+  pages     = {1133--1143},
+  year      = {2022},
+  doi       = {10.1145/3477495.3531989},
+}
+@inproceedings{Lim2022,
+  author    = {Nicholas Lim and Bryan Hooi and See{-}Kiong Ng and Yong Liang Goh and Renrong Weng and Rui Tan},
+  title     = {Hierarchical Multi-Task Graph Recurrent Network for Next {POI} Recommendation},
+  booktitle = {Proceedings of the 45th International ACM SIGIR Conference on Research and Development in Information Retrieval},
+  pages     = {1133--1143},
+  year      = {2022},
+  doi       = {10.1145/3477495.3531989},
+}
+
+% verified: IJCAI 2021, pages 1491-1497
+% (https://www.ijcai.org/proceedings/2021/206, 2026-06-25). SGRec --- predicts
+% next POI with category as an auxiliary signal.
+@inproceedings{li2021sgrec,
+  author    = {Yang Li and Tong Chen and Yadan Luo and Hongzhi Yin and Zi Huang},
+  title     = {Discovering Collaborative Signals for Next {POI} Recommendation with Iterative {Seq2Graph} Augmentation},
+  booktitle = {Proceedings of the 30th International Joint Conference on Artificial Intelligence (IJCAI)},
+  pages     = {1491--1497},
+  year      = {2021},
+  doi       = {10.24963/ijcai.2021/206},
+}
+
+% verified: ACM TOIS 42(1), article 15, pages 15:1-15:28, 2024,
+% DOI 10.1145/3592789 (MCMG; DBLP, 2026-06-25). Multi-channel, multi-granularity
+% next-POI with POI/category/region levels.
+@article{sun2024mcmg,
+  author    = {Zhu Sun and Yu Lei and Lu Zhang and Chen Li and Yew-Soon Ong and Jie Zhang},
+  title     = {A Multi-channel Next {POI} Recommendation Framework with Multi-granularity Check-in Signals},
+  journal   = {ACM Transactions on Information Systems},
+  volume    = {42},
+  number    = {1},
+  articleno = {15},
+  pages     = {1--28},
+  year      = {2024},
+  doi       = {10.1145/3592789},
+}
+
+% verified: WWW 2020, pages 2768-2774, DOI 10.1145/3366423.3380202 (CatDM ---
+% category-aware deep model that uses category to filter candidate places).
+@inproceedings{yu2020catdm,
+  author    = {Fuqiang Yu and Lizhen Cui and Wei Guo and Xudong Lu and Qingzhong Li and Hua Lu},
+  title     = {A Category-Aware Deep Model for Successive {POI} Recommendation on Sparse Check-in Data},
+  booktitle = {Proceedings of The Web Conference 2020 (WWW)},
+  pages     = {2768--2774},
+  year      = {2020},
+  doi       = {10.1145/3366423.3380202},
+}
+
+% verified: EPJ Data Science 13, article 22, 2024,
+% DOI 10.1140/epjds/s13688-024-00460-7; arXiv:2206.05731 (CSLSL --- the cascade
+% comparator: when, then what, then where, location as headline). Author list
+% from the Springer article page (2026-06-25).
+@article{huang2024cslsl,
+  author    = {Zongyuan Huang and Shengyuan Xu and Menghan Wang and Hansi Wu and Yanyan Xu and Yaohui Jin},
+  title     = {Human Mobility Prediction with Causal and Spatial-constrained Multi-task Network},
+  journal   = {EPJ Data Science},
+  volume    = {13},
+  number    = {1},
+  pages     = {22},
+  year      = {2024},
+  doi       = {10.1140/epjds/s13688-024-00460-7},
+}
+
+% =====================================================================
+% POI prediction baselines (category / region) carried from BRACIS
+% =====================================================================
+
+% verified: Ad Hoc Networks 138:103016, 2023, DOI 10.1016/j.adhoc.2022.103016
+% (POI-RGNN). CORRECTION 1: replaces the wrong CBIC ref capanema2019identificacao.
+@article{capanema2023poirgnn,
+  author    = {Cl{\'a}udio Gustavo S. Capanema and Guilherme S. de Oliveira and Fabr{\'i}cio A. Silva and Thais Regina de Moura Braga Silva and Antonio A. F. Loureiro},
+  title     = {Combining recurrent and Graph Neural Networks to predict the next place's category},
+  journal   = {Ad Hoc Networks},
+  volume    = {138},
+  pages     = {103016},
+  year      = {2023},
+  doi       = {10.1016/j.adhoc.2022.103016},
+}
+
+% verified: CollaborateCom 2019, pages 309-322, DOI 10.1007/978-3-030-30146-0_21
+% (MHA+PE). Springer LNICST volume; LNCS-specific series fields dropped for
+% IEEEtran compatibility, publisher kept.
+@inproceedings{zeng2019mhape,
+  author    = {Jun Zeng and Xin He and Haoran Tang and Junhao Wen},
+  title     = {A Next Location Predicting Approach Based on a Recurrent Neural Network and Self-Attention},
+  booktitle = {Collaborative Computing: Networking, Applications and Worksharing (CollaborateCom)},
+  pages     = {309--322},
+  year      = {2019},
+  publisher = {Springer},
+  doi       = {10.1007/978-3-030-30146-0_21},
+}
+
+% verified: IEEE TKDE 34(4):1902-1914, 2022, DOI 10.1109/TKDE.2020.3001025 (HMRM).
+% CORRECTION 2: author names fixed (Meng Chen / Yan Zhao / Xiaohui Yu / Kai Zheng).
+@article{chen2020hmrm,
+  author    = {Meng Chen and Yan Zhao and Xiaohui Yu and Kai Zheng},
+  title     = {Modeling Spatial Trajectories with Attribute Representation Learning},
+  journal   = {IEEE Transactions on Knowledge and Data Engineering},
+  volume    = {34},
+  number    = {4},
+  pages     = {1902--1914},
+  year      = {2022},
+  doi       = {10.1109/TKDE.2020.3001025},
+}
+
+% verified: IJCAI 2025, pages 3081-3089, DOI 10.24963/ijcai.2025/343 (ReHDM ---
+% region-aware dynamic hypergraph; our next-region baseline).
+@inproceedings{li2025rehdm,
+  author    = {Xixi Li and Zhuo Gu and Rui Yao and Yong Zhou and Hancheng Zhu and Jiaqi Zhao and Wen{-}liang Du},
+  title     = {Beyond Individual and Point: Next {POI} Recommendation via Region-aware Dynamic Hypergraph with Dual-level Modeling},
+  booktitle = {Proceedings of the 34th International Joint Conference on Artificial Intelligence (IJCAI)},
+  pages     = {3081--3089},
+  year      = {2025},
+  doi       = {10.24963/ijcai.2025/343},
+}
+
+% =====================================================================
+% Our published predecessors (cited freely; MobiWac is single-blind)
+% =====================================================================
+
+% verified: ported from articles/CoUrb_2026/references.bib (silva2025mtlnet) and
+% the CBIC author block. CBIC = Congresso Brasileiro de Inteligencia Computacional.
+@inproceedings{silva2025mtlnet,
+  author    = {Vitor H. O. Silva and Ingred F. Almeida and Tarik S. Paiva and Germano B. Santos and Fabr{\'i}cio A. Silva and Felipe T. Sousa},
+  title     = {An Investigation into Multi-Task Learning for Point-of-Interest Category Classification and Next-{POI} Prediction},
+  booktitle = {Anais do Congresso Brasileiro de Intelig{\^e}ncia Computacional (CBIC)},
+  year      = {2025},
+}
+
+% verified: ported from articles/CoUrb_2026 (ST-MTLNet). CoUrb = Workshop de
+% Computacao Urbana, hosted at SBRC under the SBC (proceedings via SBC SOL).
+@inproceedings{paiva2026courb,
+  author    = {Tarik S. Paiva and Vitor H. O. Silva and Germano B. dos Santos and Fabr{\'i}cio A. Silva},
+  title     = {{ST-MTLNet}: Representa{\c{c}}{\~o}es Espa{\c{c}}o-Temporais de Pontos de Interesse para Aprendizado Multitarefa},
+  booktitle = {Anais do Workshop de Computa{\c{c}}{\~a}o Urbana (CoUrb)},
+  year      = {2026},
+  publisher = {Sociedade Brasileira de Computa{\c{c}}{\~a}o (SBC)},
+}
+
+% =====================================================================
+% Datasets and benchmarks
+% =====================================================================
+
+% verified: KDD 2011, pages 1082-1090, DOI 10.1145/2020408.2020579 (Gowalla).
+@inproceedings{cho2011gowalla,
+  author    = {Eunjoon Cho and Seth A. Myers and Jure Leskovec},
+  title     = {Friendship and Mobility: User Movement in Location-Based Social Networks},
+  booktitle = {Proceedings of the 17th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD)},
+  pages     = {1082--1090},
+  year      = {2011},
+  publisher = {ACM},
+  doi       = {10.1145/2020408.2020579},
+}
+
+% verified: arXiv:2505.11239 (Massive-STEPS; authors Wongso, Xue, Salim;
+% 15 cities incl. Istanbul, 2017-2018 check-ins; 2026-06-25). Pre-print: cited
+% as a misc entry with arXiv handle for IEEEtran.
+@misc{wongso2025massivesteps,
+  author       = {Wilson Wongso and Hao Xue and Flora D. Salim},
+  title        = {Massive-STEPS: Massive Semantic Trajectories for Understanding {POI} Check-ins --- Dataset and Benchmarks},
+  year         = {2025},
+  howpublished = {arXiv:2505.11239},
+  note         = {arXiv preprint},
+}

@@ -1,0 +1,98 @@
+% =====================================================================
+% MobiWac 2026 -- paper skeleton (IEEE two-column conference).
+% Predicting the Next Category and Region of a Visit:
+%   A Check-in-Level Multi-Task Study on Mobility Data.
+%
+% This file is the assembly point. Prose lives in sections/, results in
+% tables/, figures in figs/, references in references.bib. Fill the section
+% stubs from PAPER_PLAN section 4; the tables and figures are wired here.
+%
+% Preamble follows IEEE-conference-template-062824.tex; tikz is added for
+% the model figure (figs/fig2_model.tex needs \def\FIGINPUT{1}).
+%
+% Compile: pdflatex paper_skeleton -> bibtex paper_skeleton -> pdflatex x2.
+% =====================================================================
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds,calc}
+% tells the standalone figure files to render in \input mode, not standalone.
+\def\FIGINPUT{1}
+% figures and tables are \input from these subfolders.
+\graphicspath{{figs/}}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\begin{document}
+
+% ---------------------------------------------------------------------
+% Title and authors (single-blind: real names stay). De-anonymize before
+% submission. Working title leads with the finding, not the model name.
+% ---------------------------------------------------------------------
+\title{Predicting the Next Category and Region of a Visit:\\
+A Check-in-Level Multi-Task Study on Mobility Data}
+
+\author{\IEEEauthorblockN{Author Names}
+\IEEEauthorblockA{\textit{Affiliation} \\
+City, Country \\
+email}
+}
+
+\maketitle
+
+% ---------------------------------------------------------------------
+% Abstract (~180 words) and keywords. Draft in PAPER_PLAN section 4.
+% Motivation first; no model name in the first sentence; no system number.
+% ---------------------------------------------------------------------
+\begin{abstract}
+% TODO: draft abstract from PAPER_PLAN section 4 (Abstract).
+\end{abstract}
+
+\begin{IEEEkeywords}
+next-category prediction, next-region prediction, multi-task learning,
+check-in-level representation, location-based social networks, mobility data
+\end{IEEEkeywords}
+
+% ---------------------------------------------------------------------
+% Body. Sections live in sections/ ; fill from PAPER_PLAN section 4.
+% Figures and tables are placed near the section that first cites them.
+% ---------------------------------------------------------------------
+\input{sections/01_introduction}
+
+\input{sections/02_related}
+\input{figs/fig1_dataflow}     % Fig 1: input-graph data flow (cited in section 2.1 / 4.1)
+
+\input{sections/03_problem}
+
+\input{sections/04_method}
+\input{figs/fig2_model}        % Fig 2: the single model, private spatial path (section 4.2)
+
+\input{sections/05_setup}
+\input{tables/tbl1_datasets}   % Table 1: dataset statistics (section 5.1)
+
+\input{sections/06_results}
+\input{tables/tbl2_substrate}  % Table 2: representation, Check2HGI vs HGI category (section 6.1)
+\input{figs/fig4_embquality}   % Fig 4: category embedding quality (section 6.1)
+\input{tables/tbl3_results}    % Table 3: one model, two tasks, the main result (section 6.2)
+\input{figs/fig3_deltas}       % Fig 3: signed deltas across states, the headline figure (section 6.2)
+
+\input{sections/07_discussion}
+
+\input{sections/08_conclusion}
+
+% ---------------------------------------------------------------------
+% References. Keys live in references.bib (already de-anonymized and
+% audited; see PAPER_PLAN section 8). Choose a final IEEE bst at write-time.
+% ---------------------------------------------------------------------
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}
