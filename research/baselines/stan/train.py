@@ -90,7 +90,8 @@ def load_tensors(state: str):
 
 def train_one_fold(poi, hour, lat, lon, tmin, y, dd_poi, train_idx, val_idx,
                    n_pois, n_regions, *, epochs, batch_size, seed,
-                   d_model, dropout, lr, seq_length, patience) -> dict:
+                   d_model, dropout, lr, seq_length, patience,
+                   amp="off", use_compile=False) -> dict:
     seed_everything(seed)
     # Determinism off here (warn_only=True earlier just emitted spam without
     # actual determinism since CuBLAS isn't deterministic by default).
@@ -121,6 +122,8 @@ def train_one_fold(poi, hour, lat, lon, tmin, y, dd_poi, train_idx, val_idx,
         d_model=d_model, dropout=dropout, seq_length=seq_length,
     ).to(DEVICE)
     # dd_poi[n_pois+1, R] is precomputed once in run() and already on DEVICE.
+    if use_compile and torch.cuda.is_available():
+        model = torch.compile(model, dynamic=True)
 
     # Audit fix #5 (2026-06-26): STAN's reference trains at a CONSTANT LR (StepLR γ=1)
     # with early-stopping on a real val plateau, NOT OneCycle (which annealed the LR to
@@ -128,7 +131,11 @@ def train_one_fold(poi, hour, lat, lon, tmin, y, dd_poi, train_idx, val_idx,
     optim = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=0.01)
     crit = nn.CrossEntropyLoss()
 
-    # Audit fix #6: fp32 (no bf16 autocast); the board protocol forbids AMP here.
+    # Speed options (opt-in; fp32 default = board protocol). amp in {off,bf16,fp16}.
+    # bf16 needs no GradScaler; fp16 does. Quality is A/B-validated against fp32 before use.
+    amp_on = amp in ("bf16", "fp16") and torch.cuda.is_available()
+    amp_dtype = torch.bfloat16 if amp == "bf16" else torch.float16
+    scaler = torch.amp.GradScaler("cuda", enabled=(amp == "fp16" and torch.cuda.is_available()))
     g = torch.Generator(device=DEVICE if torch.cuda.is_available() else "cpu")
     g.manual_seed(seed)
 
@@ -154,11 +161,14 @@ def train_one_fold(poi, hour, lat, lon, tmin, y, dd_poi, train_idx, val_idx,
             lat_b = lat_tr[idx]; lon_b = lon_tr[idx]
             t_b = tmin_tr[idx]; y_b = y_tr[idx]
             optim.zero_grad(set_to_none=True)
-            out = model(poi_b, hour_b, lat_b, lon_b, t_b, dd_poi)
-            loss = crit(out, y_b)
-            loss.backward()
+            with torch.autocast("cuda", dtype=amp_dtype, enabled=amp_on):
+                out = model(poi_b, hour_b, lat_b, lon_b, t_b, dd_poi)
+                loss = crit(out, y_b)
+            scaler.scale(loss).backward()
+            scaler.unscale_(optim)
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-            optim.step()
+            scaler.step(optim)
+            scaler.update()
             loss_sum += loss.detach()
         _sync(); t_train = time.time() - t_ep
 
@@ -170,8 +180,10 @@ def train_one_fold(poi, hour, lat, lon, tmin, y, dd_poi, train_idx, val_idx,
         with torch.no_grad():
             for s in range(0, n_val, batch_size):
                 e = s + batch_size
-                out = model(poi_va[s:e], hour_va[s:e], lat_va[s:e],
-                            lon_va[s:e], tmin_va[s:e], dd_poi).float()
+                with torch.autocast("cuda", dtype=amp_dtype, enabled=amp_on):
+                    out = model(poi_va[s:e], hour_va[s:e], lat_va[s:e],
+                                lon_va[s:e], tmin_va[s:e], dd_poi)
+                out = out.float()  # metrics + topk in fp32 regardless of amp
                 top10 = out.topk(min(10, out.shape[-1]), dim=-1).indices  # [b, 10]
                 top10_correct += (top10 == y_va[s:e].unsqueeze(1)).any(-1).sum().item()
                 # Review fix (2026-06-26): offload each val chunk to CPU immediately —
@@ -209,7 +221,7 @@ def train_one_fold(poi, hour, lat, lon, tmin, y, dd_poi, train_idx, val_idx,
 
 def run(state: str, folds: int, epochs: int, batch_size: int, seed: int,
         d_model: int, dropout: float, lr: float, patience: int,
-        tag: str | None) -> None:
+        tag: str | None, amp: str = "off", use_compile: bool = False) -> None:
     # Audit fix #6: true fp32 — disable TF32 too (board protocol).
     if torch.cuda.is_available():
         torch.backends.cuda.matmul.allow_tf32 = False
@@ -254,6 +266,7 @@ def run(state: str, folds: int, epochs: int, batch_size: int, seed: int,
             epochs=epochs, batch_size=batch_size, seed=seed + fold_idx,
             d_model=d_model, dropout=dropout, lr=lr,
             seq_length=seq_len, patience=patience,
+            amp=amp, use_compile=use_compile,
         )
         elapsed = time.time() - t0
         fold_metrics.append(m)
@@ -273,8 +286,8 @@ def run(state: str, folds: int, epochs: int, batch_size: int, seed: int,
         "n_regions": n_regions, "n_pois": n_pois, "seq_len": seq_len,
         "config": {"d_model": d_model, "dropout": dropout,
                    "lr": lr, "patience": patience, "batch_size": batch_size,
-                   "schedule": "constant", "precision": "fp32",
-                   "sequence": "STAN prefix-expansion"},
+                   "schedule": "constant", "precision": ("fp32" if amp == "off" else amp),
+                   "compiled": use_compile, "sequence": "STAN prefix-expansion"},
         "per_fold": fold_metrics, "aggregate": agg,
     }
     out_file.write_text(json.dumps(payload, indent=2))
@@ -296,9 +309,15 @@ def main() -> None:
     p.add_argument("--patience", type=int, default=20,
                    help="early-stop patience on val Acc@10")
     p.add_argument("--tag", type=str, default=None)
+    p.add_argument("--amp", choices=["off", "bf16", "fp16"], default="off",
+                   help="mixed precision (off=fp32, board default; bf16/fp16 = speed, "
+                        "quality A/B-validated vs fp32 before reporting)")
+    p.add_argument("--compile", dest="use_compile", action="store_true",
+                   help="torch.compile the model (fp32-faithful speedup)")
     args = p.parse_args()
     run(args.state, args.folds, args.epochs, args.batch_size, args.seed,
-        args.d_model, args.dropout, args.lr, args.patience, args.tag)
+        args.d_model, args.dropout, args.lr, args.patience, args.tag,
+        amp=args.amp, use_compile=args.use_compile)
 
 
 if __name__ == "__main__":
