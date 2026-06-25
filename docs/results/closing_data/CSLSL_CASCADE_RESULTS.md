@@ -52,3 +52,39 @@ Both within fold noise (cat fold-std ±2.3pp) → **MPS is trustworthy** for thi
 ## Status
 - ✅ **CSLSL/cascade @ AL + AZ done on the M4 [M4/MPS], with matched parallel champion-G comparand + MPS==CPU
   cross-check.** n=5 provisional (seed 0). Multi-seed {1,7,100} + FL/CA/TX cascade are post-deadline / A40 lane.
+
+## Leak / correctness audit (2026-06-24, advisor-reviewed) — VERDICT: CLEAN
+The cascade edge is **leak-free by construction**, and the comparison is **fair** (apples-to-apples information access):
+- **No label access in the coupling.** `cat_cond = softmax(out_cat)` where `out_cat = category_poi(shared_cat)` is
+  the model's OWN forward-pass category prediction from the input embeddings (`src/models/mtl/mtlnet_crossattn_dualtower/model.py:97-127`)
+  — never a label/target. With the pinned `cond_detach=True` the reg head reads it **detached**
+  (`src/models/next/next_stan_flow_dualtower/head.py:453`), so the reg loss cannot flow back into the cat head
+  (feed-forward cascade). `cond_proj` is **zero-init** → the untrained cascade head ≡ champion-G. This is the
+  standard CSLSL "downstream stage reads the upstream *prediction*" pattern, not label leakage.
+- **Fair comparand.** The parallel champion-G also has both streams (via cross-attn); only the coupling *topology*
+  differs (bidirectional vs directed cat→region). Same information access → clean cascade-vs-parallel contrast.
+- **Inherited pipeline guards (verified at runtime on every cell):** b4 leak-preflight (per-fold log_T exists +
+  fresh, refuses stale); per-fold log_T is **train-only** (`compute_region_transition --per-fold`,
+  n_train_rows-only); folds are **user-disjoint** StratifiedGroupKFold (confirmed in each run's `users train=…/val=…`
+  lines, e.g. FL fold1 train 11,139 users / val 2,796, disjoint); region partition is a fixed geographic map
+  (poi_to_region), not label-derived. The AZ/FL inputs built this session reuse the same shared graph maps → no new
+  leak surface.
+
+## Florida — ATTEMPTED on M4, INCOMPLETE (MPS OOM) → run on CUDA
+FL CSLSL was attempted on the M4 (v14 set-a, 159,175 rows / 4,703 regions). The cascade **trained but OOM'd on MPS
+at the summary-aggregation step** — `MPS backend out of memory (… other allocations: 25.06 GiB, max 30.19 GiB)` on
+the 24 GB box (swap-oversubscribed; Chrome + Android emulator co-resident). Only **4/5 folds** completed; `summary/`
+was never written. Recovered from the per-fold val CSVs (geom_simple joint-best epoch):
+
+| State | CSLSL cascade (4-fold partial) cat | reg@10 | comparand | status |
+|---|---|---|---|---|
+| Florida | 71.08 ±0.23 | 72.81 ±0.56 | **none** (champion-G killed at fold 1 to protect the box) | ⚠ INCOMPLETE — **no Δ** |
+
+**Do NOT cite the FL cascade number** — it is 4-fold partial with no matched champion-G comparand, so the
+cascade-vs-parallel Δ (the whole point) is not computable here. The MPS allocation hit the hardware ceiling and
+risked an OOM-reboot, so both FL runs were stopped.
+
+**Recommendation: run FL CSLSL on CUDA (A40/H100)** — its documented lane (`BASELINE_A40.md`: *"if the H100 is
+saturated you may take CSLSL @ FL — you're the stable card for the longer run"*). The M4 24 GB is insufficient for a
+large state under normal desktop load. (`baseline_compare/florida_cslsl_cascade.json` carries the partial numbers +
+the blocker, status `INCOMPLETE_M4_MPS_OOM`.)
