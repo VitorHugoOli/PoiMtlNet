@@ -1,9 +1,11 @@
-# CSLSL cascade cell (role-3 baseline) — A40, 2026-06-24
+# CSLSL cascade cell (role-3 baseline) — A40, 2026-06-24/25
 
-> **Status: AL + AZ DONE (n=5 provisional, seed 0).** The CSLSL/CatDM **cascade** (directed cat→region,
+> **Status: AL + AZ + FL DONE (n=5 provisional, seed 0).** The CSLSL/CatDM **cascade** (directed cat→region,
 > symmetric cross-attention severed) is a **dead tie** with our parallel champion-G on the joint objective
-> at both small/mid states → our parallel bidirectional cross-attention matches the dominant published
-> multi-task alternative **at equal cost**. CA/TX deferred (deadline; "only if cheap" per `BASELINE_A40.md`).
+> at the small/mid (AL/AZ) AND the large (FL, 4703 regions) states → our parallel bidirectional cross-attention
+> matches the dominant published multi-task alternative **at equal cost**. (FL same-device champ-G comparand
+> in-flight as of 2026-06-25; FL cascade ties the §1 board champ-G FL to ±0.01.) CA/TX deferred (deadline;
+> "only if cheap" per `BASELINE_A40.md`).
 > Headline + board: [`RESULTS_BOARD.md §1b`](RESULTS_BOARD.md) and
 > [`../../results/closing_data/MACS_BOARD_RESULTS.md`](../../results/closing_data/MACS_BOARD_RESULTS.md).
 
@@ -22,9 +24,17 @@ geom_simple selector, checkin/region modality, log_T-KD off. Comparand = **champ
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | AL | 63.45 ±2.00 | 63.25 ±2.02 | +0.20 | 69.48 ±3.03 | 69.65 ±3.32 | −0.17 | 66.39 | 66.37 | **+0.02** |
 | AZ | 63.63 ±1.34 | 63.44 ±1.33 | +0.20 | 59.18 ±1.83 | 59.36 ±1.79 | −0.18 | 61.37 | 61.36 | **+0.00** |
+| FL | 79.83 ±0.49 | ⏳ A40 in-flight | — | 77.27 ±0.95 | ⏳ A40 in-flight | — | 78.54 | — | ⏳ |
 
 cat = macro-F1; reg = FULL top10_acc = `top10_acc_indist·(1−ood_fraction)` at the diagnostic-best epoch;
 joint = √(cat·reg); fold-mean ±pstd, matched scorer `scripts/closing_data/a40_score_matched.py`.
+
+**FL (large state, 4703 regions, 1.27M rows, dk_ovl/MIN_SEQ=10, true fp32, 0 skips):** cascade cat **79.83**
+/ reg **77.27** — vs the §1 board champ-G FL (H100, 79.82/77.28) → **Δcat +0.01 / Δreg −0.01**, essentially
+identical (cross-device). The A40 same-device champ-G FL is **in-flight** (~1.8h); its row + Δ fill on
+completion. FL canonical (`dk_ovl`, 5f, with comparand) **supersedes the M4 set-a partial**
+(`baseline_compare/florida_cslsl_cascade.json`: stride-9/min_seq=5, 4-fold MPS-OOM, no comparand →
+its own recommendation was "run FL CSLSL on CUDA/A40").
 
 **Reading:** cascade ≈ parallel champion-G — Δjoint ≤ 0.02 pp, far below fold-std (~1.3–3.3 pp). The cascade
 trades a hair of category (+0.20) for a hair of region (−0.17/−0.18), netting ~0. The cascade did **not** beat
