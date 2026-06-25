@@ -136,6 +136,31 @@ non-overlap base. δ_reg = 2 pp is the bar that de-risk cell is checked against.
 **Reporting (per cell, §6):** Δ (pp), n_pairs, "TOST non-inferiority, δ = {value}", TOST p, the CI vs δ, and
 the verdict (non-inferior / fails non-inferiority / unresolved).
 
+### 3.4 Computed results — small-state region "matches" (2026-06-25, no new runs)
+
+Paired per-fold TOST at **δ_reg = 2 pp**, Δ = MTL champion-G reg Acc@10 − STL dedicated reg ceiling, seed 0 ×
+5 folds (same frozen overlap folds → paired, §4). 90% CI = (1−2α), α = 0.05. Sources: champion =
+`docs/results/closing_data/h100/{alabama,arizona}_s0_mtl_fp32_matched_score.json` (`reg_per_fold`) +
+`docs/results/second_dataset/istanbul/istanbul_stride1_s0_mtl_fp32_matched_score.json`; STL ceiling =
+`docs/results/P1/region_head_{alabama,arizona}_region_5f_50ep_*_ovl_stl_reg_s0.json` +
+`region_head_istanbul_region_5f_50ep_istanbul_stride1_stl_reg_s0.json` (`heads.next_stan_flow.per_fold[].top10_acc`).
+The per-fold Δ-means reproduce the board (AL −0.18, AZ −0.06, Istanbul −0.50) exactly. Recompute:
+`scripts/closing_data/region_match_tost.py`.
+
+| State | n_pairs | Δ (pp) | σ_d (pp) | TOST p (δ=2) | 90% CI | verdict |
+|---|---:|---:|---:|---:|---|---|
+| **AL** | 5 | −0.18 | 0.28 | 7e-05 | (−0.46, +0.09) | **non-inferior** (CI ⊂ ±2) |
+| **AZ** | 5 | −0.06 | 0.37 | 1.5e-04 | (−0.41, +0.29) | **non-inferior** (CI ⊂ ±2) |
+| **Istanbul** (s0) | 5 | −0.50 | 0.16 | 2e-05 | (−0.65, −0.35) | **non-inferior** (CI ⊂ ±2) |
+
+**Power.** The board's per-fold region variance is σ_d ≈ 0.16–0.37 pp — far below the §3.2 working assumption of
+~1 pp, so δ_reg = 2 pp is ≥ 5σ_d. At n = 5 the equivalence test has power ≈ 1.0 to declare non-inferiority when
+the tasks truly match (seeded MC, σ = observed), and the 90% CI half-width (~0.3 pp) is ~7× narrower than the
+margin: a true ≥ 2 pp region deficit would have been detected with probability ≈ 1 (the valid TOST is level-α at
+the exact 2-pp boundary → ≥ 95% power to avoid a false "matches"). **The small-state "matches" are now a tested
+equivalence claim, not an assertion.** (Istanbul paired at s0 because the STL reg ceiling exists only at s0; the
+4-seed champion mean 74.28 ≈ the s0 champion 74.30, so the n=20 verdict is identical and the CI only tightens.)
+
 ---
 
 ## 4 · Pairing discipline (CRITICAL — get this wrong and every p is contaminated)

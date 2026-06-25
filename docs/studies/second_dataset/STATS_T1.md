@@ -48,6 +48,28 @@ the existing canonical `sequences_next.parquet`; NYC/Istanbul from this study.
   slightly by region def (H3 60,091 vs mahalle 58,075) because each region polygon set drops a
   slightly different POI/check-in tail; both are internally consistent.
 
+## OVERLAP board Tbl 1 (paper windowing — gated stride-1, MIN_SEQ=10, emit_tail=False)
+
+The paper is on the **overlap** board (`check2hgi_dk_ovl`). Window counts below are the overlap windowing,
+recomputed 2026-06-25 from the per-user check-in parquets and **validated** against the one on-disk dk_ovl
+parquet: AL recompute = 96,326 = `output/check2hgi_dk_ovl/alabama/input/next.parquet` exactly; FL = 1,274,418 =
+the value cited in `CLOSE_BLOCKERS_HANDOFF.md`. Gowalla raw == substrate; **Istanbul = mahalle substrate**
+(post null-coord drop). Recompute script: `scripts/closing_data/tbl1_overlap_stats.py` (uses `generate_sequences`).
+
+| Dataset | Source | Check-ins | Users | POIs | Regions | **Windows (overlap)** | Max seq | Avg seq | Sparsity |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Alabama | Gowalla | 113,846 | 3,858 | 11,848 | 1,109 | **96,326** | 3,835 | 29.5 | 0.9975 |
+| Arizona | Gowalla | 236,450 | 7,869 | 20,666 | 1,547 | **200,895** | 5,589 | 30.1 | 0.9985 |
+| Florida | Gowalla | 1,407,034 | 21,052 | 76,544 | 4,703 | **1,274,418** | 16,679 | 66.8 | 0.9991 |
+| California | Gowalla | 3,171,380 | 37,090 | 169,145 | 8,501 | **2,925,466** | 14,855 | 85.5 | 0.9995 |
+| Texas | Gowalla | 4,089,892 | 38,644 | 160,938 | 6,553 | **3,830,414** | 42,300 | 105.8 | 0.9993 |
+| Istanbul | Massive-STEPS | 462,615 (mahalle) | 23,694 | 29,816 | 520 | **270,217** | 817 | 19.5 | 0.9993 |
+
+- Sparsity = 1 − check-ins / (users × POIs). Avg/Max seq = per-user check-in count (verified on the parquet).
+- Overlap windows ≈ check-ins minus the per-user tail (stride-1, emit_tail=False drops the OOB last-POI windows
+  and users with < 10 check-ins) — e.g. FL 1,274,418 / 1,407,034 raw ≈ 0.906 win/check-in (vs 0.113 non-overlap).
+- Istanbul row is the **mahalle substrate** (post null-coord drop; raw corpus = 544,471 ck / 23,700 users).
+
 ## NYC (Massive-STEPS-New-York; regions = NY TIGER 2022 tracts)
 
 | Quantity | Raw corpus | After region join (substrate-eligible) |
