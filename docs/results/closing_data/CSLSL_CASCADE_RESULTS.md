@@ -88,3 +88,30 @@ risked an OOM-reboot, so both FL runs were stopped.
 saturated you may take CSLSL @ FL — you're the stable card for the longer run"*). The M4 24 GB is insufficient for a
 large state under normal desktop load. (`baseline_compare/florida_cslsl_cascade.json` carries the partial numbers +
 the blocker, status `INCOMPLETE_M4_MPS_OOM`.)
+
+## Engineering knowledge — lessons settled this session (reusable)
+1. **`b4_cascade.py` has no `--device` flag.** Device auto-detects (`configs.globals.DEVICE` → MPS on the M4;
+   `INGRED_DEVICE=cpu` forces CPU for the cross-check). The handoff's `--device mps` is a no-op/error — omit it.
+2. **CPU-RAM guard false-trips on small states.** `_guard_cpu_resident_ram` demands a 16 GB default head-room; on a
+   24 GB box with desktop apps it refuses tiny (0.1–0.4 GB) AL/AZ datasets. Set **`MTL_RAM_HEADROOM_GB=4`** to pass
+   (the `ram_watchdog`/OS is the real OOM backstop). Necessary for every M4 cascade/champion run.
+3. **AZ v14 inputs are buildable, AL/FL were on disk.** Build set-a v14 inputs with
+   `generate_next_input_from_checkins(state, EmbeddingEngine('check2hgi_design_k_resln_mae_l0_1'))` (defaults →
+   stride=9/set-a, matches AL's 12,709 / AZ 26,396 rows) + `build_next_region_for(state, engine)`, then the per-fold
+   log_T (`compute_region_transition --engine <v14> --per-fold --seed 0 --n-splits 5`). Verify log_T mtime >
+   `next_region.parquet` (standing trap).
+4. **`--only-fold` collides with the canon-injected `--folds`** (`--task mtl` auto-injects v16 canon incl. `--folds`).
+   For a 1-fold device cross-check, run the **full 5-fold** on CPU and compare aggregates instead (what we did).
+5. **The b4 driver does NOT set `MTL_CHUNK_VAL_METRIC=1`** (unneeded at AL/AZ's 1109/1547 regions). **At FL's 4,703
+   regions on the swap-bound M4 this is the failure point:** the run trained 4 folds then **MPS-OOM'd at summary
+   aggregation** (`other allocations 25 GiB` ≈ the 30 GiB MPS cap; the box was swap-oversubscribed with Chrome +
+   Android emulator co-resident). Lesson: **large-state CSLSL needs CUDA** (its documented A40/H100 lane), or at
+   minimum `MTL_CHUNK_VAL_METRIC=1` + a quiesced box — but the M4's 24 GB is the binding constraint, not a flag.
+6. **Disk discipline.** The cascade (no `--no-checkpoints`) writes a BestTracker `checkpoints/` dir (~0.5 GB/state
+   small, **2.6 GB for FL**); on the near-full SSD this tripped the disk monitor. Delete a run's `checkpoints/`
+   **after** it completes (the `summary/` JSON is the durable artifact) — never mid-run (BestTracker reads it). The
+   champion comparand uses `--no-checkpoints` so it never grows disk. Pass `--no-checkpoints` to the cascade too if
+   only the metrics are needed.
+7. **Result recovery without `summary/`.** If summary aggregation crashes (OOM), reconstruct the geom_simple result
+   from `metrics/fold{N}_next_{category,region}_val.csv`: per fold pick the epoch maximising
+   `sqrt(cat_f1 · reg_top10_acc_indist)`, read cat/reg there, average over folds. (Used to recover FL's 4 folds.)

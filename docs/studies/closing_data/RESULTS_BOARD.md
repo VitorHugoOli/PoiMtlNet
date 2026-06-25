@@ -98,8 +98,10 @@ Per the baselines README, the paper's baseline tables read from [`../../baseline
   on the **same v14 set-a base** (directed cat→region, cross-attn severed) vs champion-G (parallel) on that base.
   **Parallel ≥ cascade everywhere**: Δ(parallel−cascade) cat **+5.04 (AL) / +1.62 (AZ)**, reg **+0.56 (AL) / −0.05
   (AZ tie)** — our symmetric coupling beats/matches the directed cascade. MPS==CPU within 0.63pp (AL). n=5
-  provisional; multi-seed + FL/CA/TX are A40/post-deadline. **Compare ONLY within the v14 set-a base, NOT the board
-  dk_ovl numbers.** (`CSLSL_CASCADE_RESULTS.md`; `baseline_compare/{alabama,arizona}_cslsl_cascade.json`.)
+  provisional. **Compare ONLY within the v14 set-a base, NOT the board dk_ovl numbers.** **FL attempted on the M4 →
+  MPS-OOM** (24 GB insufficient for 159k rows / 4,703 regions; 4/5 folds, no comparand — NOT citable); **FL/CA/TX → A40/H100**.
+  Canonical doc: [`../../baselines/cslsl_cascade.md`](../../baselines/cslsl_cascade.md); narrative `CSLSL_CASCADE_RESULTS.md`;
+  JSONs `baseline_compare/{alabama,arizona,florida}_cslsl_cascade.json`.
 
 ## 5 · Provenance legend
 ✅ main = source JSON on main, verified-readable · ⏳ 2/5 = run in-flight, partial folds (not a 5f mean) ·

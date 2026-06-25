@@ -99,7 +99,14 @@ Expected: champion cat beats its STL ceiling, reg matches/near (the non-US repli
 > **Verdict — parallel (champion-G) ≥ cascade everywhere** (v14 set-a, MPS, seed0 5f, n=5 provisional):
 > Δ(parallel−cascade) cat **+5.04 (AL) / +1.62 (AZ)**, reg **+0.56 (AL) / −0.05 (AZ tie)**. Expected cascade
 > signature (cat drops more than reg when cross-attn is severed). MPS==CPU within 0.63pp → `[M4/MPS]` trustworthy.
-> Durable JSONs: `baseline_compare/{alabama,arizona}_cslsl_cascade.json`.
+> Durable JSONs: `baseline_compare/{alabama,arizona}_cslsl_cascade.json`. Canonical baseline doc:
+> [`../../baselines/cslsl_cascade.md`](../../baselines/cslsl_cascade.md).
+>
+> **⚠ FL attempted on the M4 → MPS-OOM → run on CUDA.** FL CSLSL (159k rows / 4,703 regions) trained but **OOM'd on
+> MPS at summary aggregation** ("other allocations 25 GiB" on the 24 GB box, swap-oversubscribed); only 4/5 folds, no
+> comparand obtained (champion killed at fold 1 to protect the box from an OOM-reboot). Partial 4-fold cascade
+> (cat 71.08 / reg 72.81) recovered but **NOT citable** (no Δ). **FL/CA/TX CSLSL belong on the A40/H100** (see
+> `BASELINE_A40.md` — FL is "the stable card for the longer run"). The 24 GB M4 is insufficient for large-state CSLSL.
 
 <details><summary>original Task 3 spec</summary>
 
