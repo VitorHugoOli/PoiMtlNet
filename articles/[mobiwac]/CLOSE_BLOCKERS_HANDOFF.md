@@ -133,7 +133,7 @@ counts + max/avg sequence length + sparsity for AL/AZ/FL/CA/TX + Istanbul.
 3. ✅ **Blocker 3 (Tbl 1), TOST/power, W6** — all DONE (below).
 
 ## Close-readiness checklist (the gate for "submit regular")
-- [~] FL CTLE-SC **2/5** committed (PR #47, partial); FL CTLE-E2E done; W3 closed at AL/AZ/Istanbul (FL corroborates).
+- [~] FL CTLE-SC **2/5** committed (PR #47, partial); **FL CTLE-E2E NOT run** (the cited 29.65 is a phantom — only AL E2E 21.24 exists); W3 closed at AL/AZ/Istanbul, so FL corroborates, not blocking.
 - [ ] HGI-category-STL under overlap (Blocker 2) committed at 5 states + Istanbul; Tbl 2 on one windowing. **← A40 next**
 - [x] Tbl 1 overlap windows + max/avg seq-len + sparsity filled. **(DONE 2026-06-25)**
 - [x] (should) TOST/power statement for the small-state region matches. **(DONE 2026-06-25 — tested non-inferiority, power≈1.0)**
