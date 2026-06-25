@@ -65,8 +65,9 @@ gated stride-1 overlap (MIN_SEQ=10), **true fp32** (`MTL_DISABLE_AMP=1`, 0 non-f
 fold-mean ±pstd, matched scorer `a40_score_matched.py`. JSONs:
 `docs/results/closing_data/a40/{al,az,fl}_cascade_s0.json` + `{al,az}_champG_a40_s0.json`.
 FL champ-G comparand = the §1 board (H100) value — the A40 same-device champ-G FL was **stopped at 4/5 folds**
-(re-tasked to W6) after its 4-fold mean reproduced the catalog to **±0.006 cat / ±0.16 reg**, so the FL tie
-rests on the board champ-G, cross-device ±0.01.)*
+(re-tasked to W6) after its 4-fold mean (cat 79.596 / reg 76.825, `a40/fl_champG_a40_4f_partial_s0.json`)
+reproduced the board 4-fold mean to **±0.006 cat / ±0.16 reg**, so the FL tie rests on the board champ-G,
+cross-device ±0.01.)*
 **FL (large state, 4703 regions): cascade is again a tie.** vs the §1 board champ-G FL (H100, 79.82/77.28):
 **Δcat +0.01 / Δreg −0.01** — essentially identical. FL canonical (`dk_ovl`, 5f, fp32) —
 **supersedes the M4 set-a partial** (`baseline_compare/florida_cslsl_cascade.json`, 4-fold MPS-OOM, no comparand).

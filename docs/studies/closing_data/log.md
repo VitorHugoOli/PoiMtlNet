@@ -222,3 +222,33 @@ v16-pins-v14 substrate guard hard-fails under STRICT on dk_ovl; WARN-only withou
 **Outputs**: `RESULTS_BOARD.md §1b`, `../../results/closing_data/MACS_BOARD_RESULTS.md`, cell
 `CSLSL_CASCADE.md`; JSONs `../../results/closing_data/a40/{al,az}_{cascade,champG_a40}_s0.json`.
 **Deferred** (deadline; "only if cheap" per handoff): CA/TX cascade.
+
+---
+
+## 2026-06-25 — A40: CSLSL @ FL (tie at scale) + W6 encoder-isolation probe (CLOSED)
+
+**FL CSLSL cascade** (canonical `dk_ovl`, 5f, true fp32): cat **79.83** / reg **77.27** — ties the §1 board
+champ-G FL (H100, 79.82/77.28) to **±0.01** (cross-device). The A40 same-device champ-G FL comparand was
+**STOPPED at 4/5 folds** (re-tasked to W6) after its 4-fold mean (cat 79.596 / reg 76.825,
+`fl_champG_a40_4f_partial_s0.json`) reproduced the board 4-fold mean to **±0.006 cat / ±0.16 reg**. Supersedes
+the M4 set-a partial (MPS-OOM, no comparand). **Audit** (3 agents + run artifacts): the cascade flags are
+genuinely ACTIVE — `disable_cross_attn` bypasses the 2-block cross-attn stack (runtime 0 vs 2 calls); the
+directed coupling LEARNED (`cond_norm` AL 0.08→1.6, FL 0.29→4.6; absent in champ-G) → the ±0.01 tie is a real
+"cascade ≈ parallel" result, not a no-op. PRs #44 (AL/AZ) + #46 (FL) MERGED.
+
+**W6 category-side encoder-isolation probe — CLOSED.** Freeze the region stream at init
+(`--freeze-reg-stream`) + reg loss off (`--category-weight 1.0`), read the cat head (seed 0 × 5f, true fp32).
+Probe cat vs STL ceiling / full-MTL cat: AL 63.50 (+7.63 / −0.06), AZ 63.67 (+6.54 / +0.28),
+FL 79.79 (+4.64 / −0.03). → with the region stream frozen, the cat head keeps the ENTIRE joint lift → the
+category win is the **shared TRUNK (architecture), NOT region→category transfer**. Freeze verified (reg
+optimizer group = 0 trainable params, all 3 states). Direct, correct-direction evidence for §6.2 (F49 is
+region-side). Fixed a real bug in the shipped runner (`run_freeze_reg_probe.sh` lacked `--canon none` → its own
+`MTL_STRICT=1` hard-failed the v16-vs-dk_ovl substrate guard before training).
+
+**Recurring trap (cost time twice):** champion-G on `check2hgi_dk_ovl` under `MTL_STRICT=1` MUST pass
+`--canon none` + the full explicit recipe (auto-canon v16 pins the v14 substrate → wrong-substrate guard
+hard-fails). All board dk_ovl drivers do this; the W6 runner forgot it.
+
+**Outputs**: `W6_ENCODER_ISOLATION.md`, `RESULTS_BOARD.md §1c` (W6) + §1b FL row resolved; JSONs
+`a40/{al,az,fl}_w6_freezereg_s0.json` + `a40/fl_champG_a40_4f_partial_s0.json`. **PR #48** (W6, open).
+**Deferred** (post-deadline): {1,7,100}→n=20; CA/TX cascade.

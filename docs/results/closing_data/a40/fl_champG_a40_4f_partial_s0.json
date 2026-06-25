@@ -1,0 +1,35 @@
+{
+  "rundir": "results/check2hgi_dk_ovl/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260625_024827_1848230",
+  "seed": 0,
+  "tag": "fl_champG_a40_4f_partial_s0",
+  "method": "reg full=top10_acc_indist*(1-ood_frac) at indist-best epoch; cat=macro-f1 at f1-best epoch; per-task diagnostic-best, fold-mean",
+  "cat_macro_f1_mean": 79.5964,
+  "cat_macro_f1_std": 0.1846,
+  "cat_per_fold": [
+    79.4475,
+    79.8863,
+    79.6265,
+    79.4255
+  ],
+  "cat_best_epochs": [
+    48,
+    48,
+    47,
+    47
+  ],
+  "reg_full_top10_mean": 76.8254,
+  "reg_full_top10_std": 0.8363,
+  "reg_per_fold": [
+    77.7146,
+    77.4686,
+    75.6015,
+    76.5171
+  ],
+  "reg_best_epochs": [
+    47,
+    47,
+    49,
+    48
+  ],
+  "n_folds": 4
+}
