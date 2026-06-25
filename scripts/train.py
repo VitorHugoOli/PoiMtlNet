@@ -507,7 +507,7 @@ def _parse_args(argv=None) -> argparse.Namespace:
         help=(
             "Pass class-balanced weights to per-head CrossEntropyLoss. "
             "Recommended for the check2HGI next_region head on Florida "
-            "(22% majority-class region would otherwise dominate the "
+            "(22%% majority-class region would otherwise dominate the "
             "loss and starve the next_category gradient under NashMTL). "
             "Absent classes get weight 1.0 (see src/training/helpers.py)."
         ),
@@ -571,11 +571,11 @@ def _parse_args(argv=None) -> argparse.Namespace:
         help=(
             "Check2HGI MTL only: input modality for task-b slot (next_region). "
             "NORTH_STAR B9 SPECIFIES 'region' (per docs/NORTH_STAR.md §Champion). "
-            "The default 'checkin' is a SMOKE-MODE convenience and produces ~28% "
-            "reg Acc@10 at AL (vs ~50% canonical). Always pass "
+            "The default 'checkin' is a SMOKE-MODE convenience and produces ~28%% "
+            "reg Acc@10 at AL (vs ~50%% canonical). Always pass "
             "'--task-b-input-type region' for any benchmark comparable to "
             "RESULTS_TABLE.md §0.1. P1 showed region-emb input is the right "
-            "modality for the region head (53% Acc@10 vs 20% on check-in)."
+            "modality for the region head (53%% Acc@10 vs 20%% on check-in)."
         ),
     )
     parser.add_argument(

@@ -30,6 +30,9 @@ zero the reg loss (`--category-weight 1.0`). Then train champion-G and read the 
 - **probe cat F1 ≈ full-MTL cat ≫ STL cat ceiling** → the win is the shared TRUNK (architecture) → **W6 closed**.
 - **probe cat F1 ≈ STL cat ceiling** → the win WAS region→category transfer (the claim must change).
 
+> 📋 **Full step-by-step run-spec: [`HANDOFF_A40_W6_PROBE.md`](HANDOFF_A40_W6_PROBE.md)** (prereqs, smoke, sanity
+> gates, scoring table, verdict interpretation). The summary below is the quick version.
+
 ## 2 · Task — run the probe (seed 0 × 5f, AL/AZ/FL)
 ```bash
 STATES="alabama arizona florida" bash scripts/run_freeze_reg_probe.sh
