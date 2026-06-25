@@ -6,6 +6,9 @@
 > (our result + board protocol/device rules), [`../../docs/baselines/README.md`](../../docs/baselines/README.md)
 > (table schema), and the per-baseline docs under `docs/baselines/`.
 >
+> **Istanbul baselines** (the only missing cells — Markov-9-cat, POI-RGNN, ReHDM, STAN, all `--` in Table 3) have
+> a dedicated MPS-local execution brief: [`ISTANBUL_BASELINES_HANDOFF.md`](ISTANBUL_BASELINES_HANDOFF.md).
+>
 > **House rules:** SLIM tables (we already have a lot of data; extra columns confuse); American English, no
 > em-dash; tasks named **next-category** / **next-region**; numbers from committed JSONs only; n=5 (seed 0 × 5
 > folds) reduced board, {1,7,100} top-up post-deadline; fp32 for large-state CUDA cells; leak-free per-fold

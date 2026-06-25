@@ -25,7 +25,7 @@ static_weight cw=0.75, onecycle max-lr 3e-3, geom_simple selector; fp32-matched 
 | **TX** | 6553 | 69.95 | **77.51** | **+7.56** ✅beats | 64.96 | **67.02** | **+2.06** ✅**beats** | fp32 | ✅ main (5f) |
 | **Istanbul** | 520 (mahalle) | 53.20 | **59.89** | **+6.69** ✅beats | 74.80 | 74.28 | **−0.52** ≈matches | fp32 (**n=20**, 4 seeds) | ✅ main, stride-1 GCN |
 
-**Reading (the story, on real data):** MTL **beats the dedicated category ceiling at every state** (+4.7 … +8.1 pp)
+**Reading (the story, on real data):** MTL **beats the dedicated category ceiling at every state** (+4.7 … +7.7 pp)
 AND **beats the region ceiling at the LARGE region counts** (FL 4.7k **+0.57**, CA 8.5k **+2.18** — both 5f;
 TX 6.6k **+2.06** — all 5f), while **matching within δ=2 pp at the small counts** (AL −0.18, AZ −0.06,
 Istanbul −0.52). **CA, the largest region state, is 5f-complete and beats** — that single cell retires the old
@@ -150,6 +150,14 @@ Per the baselines README, the paper's baseline tables read from [`../../baseline
   (phantom retired). Even at *best-epoch*, CTLE-E2E (FL 33.4) is **≪ Check2HGI cat (FL 73–75)** — present as the
   E2E rung beside the frozen CTLE-SC ladder; **never "we crushed CTLE."** (script `scripts/baselines/ctle_e2e.py`,
   determinism + best-epoch tracking added 2026-06-25 after a 2-advisor correctness/optimization review.)
+- ✅ **Part-1 substrate contrast (Tbl 2) — Check2HGI vs HGI category-STL, NOW ON ONE WINDOWING (gated overlap).**
+  PR #50 added the **HGI arm under `check2hgi_dk_ovl`** (new `HGI_DK_OVL` engine + streaming builder reusing the
+  frozen overlap sequences → windows **byte-identical** to the Check2HGI arm; gates passed: row counts ==,
+  `next_category` labels 100% identical, embeddings genuinely differ). Substrate margin (Check2HGI-board − HGI):
+  **AL +29.31 (55.87 vs 26.56) · AZ +27.63 (57.13 vs 29.50) · FL +39.62 (75.15 vs 35.53)** — the same +15…+29+
+  magnitude as the old non-overlap measurement, now windowing-consistent with Part-2. **CA/TX pending** (running
+  on the A40; will append). JSONs `baseline_compare/{state}_hgi_ovl_cat.json`. The Check2HGI arm IS the §1 board
+  STL cat ceiling. → drop the "non-overlap" caveat on PAPER_PLAN Tbl 2 once CA/TX land.
 - ❌ **SC *region* is NOT used in the article.** The pre-fix SC reg was INVALID (substrate-bypass + shared prior +
   stale log_T) — now **quarantined** (`_reg_status: INVALID_PENDING_RERUN` on the AL/AZ `baseline_compare/*.json`).
   Region's substrate-isolation story is weak anyway (it is a near-tie: AL −0.4, AZ −0.3, Istanbul −3.5 where CTLE

@@ -1,40 +1,45 @@
 % Table 1: Dataset statistics.
 % Ordered by region count (small to large), matching the result tables.
-% STATUS: real values for check-ins / users / POIs / regions / categories
-% (from PAPER_PLAN Table 1). The overlap-window counts, max/avg sequence
-% length, and sparsity are BLOCKED (recompute under the overlapping-window
-% board); they carry a clear TBD placeholder, do not invent.
+% STATUS: FILLED 2026-06-25 from PAPER_PLAN section 5 / STATS_T1.md (overlap board:
+% gated stride-1, MIN_SEQ=10, emit_tail=False; windows validated against the on-disk
+% check2hgi_dk_ovl parquet, AL = 96,326 exact). Gowalla raw == substrate; the Istanbul
+% row is the mahalle substrate (post null-coord drop), raw corpus 544,471 ck / 23,700 users.
 %
-% Region counts: Istanbul 520 (mahalle), AL 1109, AZ 1547, FL 4703,
-% TX 6553, CA 8501. All seven categories: Community, Entertainment, Food,
-% Nightlife, Outdoors, Shopping, Travel.
+% Columns follow the LBSN / next-POI convention (users, POIs, check-ins, density) plus our
+% region + window stats. Density (%) = 100 * check-ins / (users * POIs) -- the check-in-matrix
+% fill, the metric POI-prediction papers report (it varies 0.05-0.25%); it replaces the old
+% "sparsity = 1 - density" column, which was trivially ~0.999 for every state. The fixed
+% 7-category space is stated in the caption rather than as a constant column.
 \begin{table*}[t]
 \caption{Dataset statistics, ordered by number of regions. Five Gowalla states and one
-international city (Istanbul, from Massive-STEPS) span small to large region spaces,
-chosen on purpose to test whether the findings hold across scales and settings. Region
-counts run from about five hundred to about eight thousand five hundred classes; the
-category space is fixed at seven. Window counts under overlapping windows, maximum and
-average sequence length, and sparsity are being recomputed under the final board and are
-marked TBD.}
+international city (Istanbul, from Massive-STEPS) span small to large region spaces, chosen on
+purpose to test whether the findings hold across scales and settings. Every dataset uses the
+same seven Gowalla root categories (Community, Entertainment, Food, Nightlife, Outdoors,
+Shopping, Travel). Windows are the overlapping nine-visit input plus the next visit as target,
+under the final board windowing (gated stride one, minimum sequence length ten); maximum and
+average sequence length are per-user check-in counts. Density is the check-in-matrix fill,
+$100\times\text{check-ins}/(\text{users}\times\text{POIs})$, the standard next-POI sparsity
+measure.}
 \label{tab:datasets}
 \centering
 \begin{tabular}{l l r r r r r r r r}
 \hline
 \textbf{Dataset} & \textbf{Source} & \textbf{Check-ins} & \textbf{Users} & \textbf{POIs} &
-\textbf{Regions} & \textbf{Categories} & \textbf{Windows} & \textbf{Max len} & \textbf{Sparsity} \\
+\textbf{Regions} & \textbf{Windows} & \textbf{Max len} & \textbf{Avg len} & \textbf{Density (\%)} \\
 \hline
-Istanbul & Massive-STEPS &   544{,}471 & 23{,}700 &  29{,}816 &   520 & 7 & TBD & TBD & TBD \\
-AL       & Gowalla       &   113{,}846 &  3{,}858 &  11{,}848 & 1{,}109 & 7 & TBD & TBD & TBD \\
-AZ       & Gowalla       &   236{,}450 &  7{,}869 &  20{,}666 & 1{,}547 & 7 & TBD & TBD & TBD \\
-FL       & Gowalla       & 1{,}407{,}034 & 21{,}052 &  76{,}544 & 4{,}703 & 7 & TBD & TBD & TBD \\
-TX       & Gowalla       & 4{,}089{,}892 & 38{,}644 & 160{,}938 & 6{,}553 & 7 & TBD & TBD & TBD \\
-CA       & Gowalla       & 3{,}171{,}380 & 37{,}090 & 169{,}145 & 8{,}501 & 7 & TBD & TBD & TBD \\
+Istanbul$^{\dagger}$ & Massive-STEPS &   462{,}615 & 23{,}694 &  29{,}816 &     520 &   270{,}217 &     817 &  19.5 & 0.065 \\
+AL       & Gowalla       &   113{,}846 &  3{,}858 &  11{,}848 & 1{,}109 &    96{,}326 & 3{,}835 &  29.5 & 0.249 \\
+AZ       & Gowalla       &   236{,}450 &  7{,}869 &  20{,}666 & 1{,}547 &   200{,}895 & 5{,}589 &  30.1 & 0.145 \\
+FL       & Gowalla       & 1{,}407{,}034 & 21{,}052 &  76{,}544 & 4{,}703 & 1{,}274{,}418 & 16{,}679 &  66.8 & 0.087 \\
+TX       & Gowalla       & 4{,}089{,}892 & 38{,}644 & 160{,}938 & 6{,}553 & 3{,}830{,}414 & 42{,}300 & 105.8 & 0.066 \\
+CA       & Gowalla       & 3{,}171{,}380 & 37{,}090 & 169{,}145 & 8{,}501 & 2{,}925{,}466 & 14{,}855 &  85.5 & 0.051 \\
 \hline
 \end{tabular}
 
 \vspace{2pt}
-{\footnotesize Region unit: a census tract (a mahalle for Istanbul). Windows = overlapping
-nine-visit input plus the next visit as target, after the last-place de-skew gate; the
-overlap counts, maximum and average sequence length, and sparsity ($1 - \text{check-ins} /
-(\text{users} \times \text{POIs})$) are TBD pending the overlap-board recompute.}
+{\footnotesize Region unit: a census tract (a mahalle for Istanbul). Windows $=$ overlapping
+nine-visit input plus the next visit as target, after the last-place de-skew gate (gated
+stride one, minimum sequence length ten). Density $= 100\times\text{check-ins}/(\text{users}
+\times\text{POIs})$. $^{\dagger}$ Istanbul is the mahalle substrate (post null-coordinate
+drop); the raw corpus is 544{,}471 check-ins over 23{,}700 users.}
 \end{table*}

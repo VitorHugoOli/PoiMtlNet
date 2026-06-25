@@ -1,46 +1,45 @@
 % Table 2: The representation makes the category task learnable (Part 1).
-% Check2HGI vs HGI next-category macro-F1, matched single-task head.
+% Check2HGI vs HGI next-category macro-F1, matched single-task head (next_gru), under
+% the OVERLAP board (one windowing for the whole paper).
 %
-% STATUS: the values below are the NON-OVERLAP prior measurement
-% (5-fold, seed 42, matched next_gru STL head; paired Wilcoxon p = 0.0312
-% each, 5/5 folds positive). The whole paper is on the overlapping-window
-% board, so this substrate comparison must be RE-SCORED under overlap; the
-% overlap margin (Delta_cat re-scored) is BLOCKED and carries a TBD
-% placeholder. The +15..+29 non-overlap gap is the prior we expect to hold.
-%
-% Per-visit-context share (how much of the gain is per-visit context, not
-% extra supervision): about 64-72 pct at the small states, 89-90 pct at the
-% large states (measured against a per-place-averaged version of the same
-% embedding). Shown as a single text band, not a per-state column, until the
-% overlap re-score lands.
+% STATUS (2026-06-25): de-v11'd. The Check2HGI column is the board single-task category
+% ceiling on the design_k overlap substrate (check2hgi_dk_ovl) -- RESULTS_BOARD section 1,
+% seed 0 x 5 folds, fp32-matched -- i.e. the SAME substrate the Part-2 results use, and
+% identical to the "Dedicated" category column of Table 3. The old plain check2hgi
+% (v11 / canonical GCN) NON-OVERLAP numbers (+15..+29) were removed per the no-v11 rule.
+% The HGI arm under the SAME overlap windowing landed at AL/AZ/FL (PR #50: 26.56 / 29.50 /
+% 35.53, margins +29.31 / +27.63 / +39.62, all 5 folds, verified on disk). CA/TX are still on
+% the A40 and carry a TBD placeholder. Do NOT mix windowings or reuse the v11 gap.
 \begin{table}[t]
 \caption{The check-in-level representation (Check2HGI) makes next-category prediction far
 more learnable than a standard place embedding (HGI). Read this as: a vector per visit, not
 a vector per place, is what drives the category gain. Values are next-category macro-F1
-under a matched single-task head; the table shows the non-overlap prior measurement, and the
-overlap-board re-score (one windowing for the whole paper) is in progress and marked TBD.}
+under a matched single-task head, on the overlap board (one windowing for the whole paper).
+The Check2HGI column is the single-task category ceiling on the paper's substrate; the HGI
+arm is filled at AL, AZ, and FL (a large and consistent margin, $+27.6$ to $+39.6$), with CA
+and TX still being scored.}
 \label{tab:substrate}
 \centering
 \begin{tabular}{l r r r}
 \hline
-\textbf{State} & \textbf{HGI} & \textbf{Check2HGI} & \textbf{$\Delta$ (overlap)} \\
+\textbf{State} & \textbf{Check2HGI} & \textbf{HGI} & \textbf{$\Delta$} \\
 \hline
-AL & 25.26 & \textbf{40.76} & TBD \\
-AZ & 28.69 & \textbf{43.21} & TBD \\
-FL & 34.41 & \textbf{63.43} & TBD \\
-TX & 31.89 & \textbf{60.24} & TBD \\
-CA & 31.13 & \textbf{59.94} & TBD \\
+AL & \textbf{55.87} & 26.56 & $+29.31$ \\
+AZ & \textbf{57.13} & 29.50 & $+27.63$ \\
+FL & \textbf{75.15} & 35.53 & $+39.62$ \\
+TX & \textbf{69.95} & TBD & TBD \\
+CA & \textbf{70.26} & TBD & TBD \\
 \hline
-\multicolumn{4}{l}{\footnotesize Prior (non-overlap) $\Delta$: AL $+15.50$, AZ $+14.52$,} \\
-\multicolumn{4}{l}{\footnotesize FL $+29.02$, CA $+28.81$, TX $+28.34$ (paired Wilcoxon} \\
-\multicolumn{4}{l}{\footnotesize $p=0.0312$ each, $5/5$ folds positive). Two bands: about} \\
-\multicolumn{4}{l}{\footnotesize $+15$ at the small states, about $+28$ to $+29$ at the large.} \\
 \end{tabular}
 
 \vspace{2pt}
-{\footnotesize A controlled test attributes most of the gain to the per-visit context, not
-to extra supervision: about 64 to 72 percent of the category lift at the small states and 89
-to 90 percent at the large states is recovered against a per-place-averaged version of the
-same embedding. The overlap-board re-score (the $\Delta$ column) is pending; until it lands,
-treat the exact margin as provisional and read the non-overlap band as the prior.}
+{\footnotesize Check2HGI $=$ the single-task next-category ceiling on the paper's substrate
+(check-in level, design\_k overlap engine; RESULTS\_BOARD, seed 0 $\times$ 5 folds,
+fp32-matched), identical to the dedicated category column of Table~\ref{tab:results}. The HGI
+arm is the same single-task head on the place-level HGI embedding under the identical overlap
+windowing; AL, AZ, and FL are filled (margin $+27.6$ to $+39.6$), and CA and TX are still
+being scored (TBD). A controlled test attributes
+most of the category gain to the per-visit context rather than to extra supervision (a
+per-place-averaged version of the same embedding recovers only part of it); the exact share
+is being re-confirmed on this substrate.}
 \end{table}
