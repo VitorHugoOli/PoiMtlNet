@@ -1,0 +1,44 @@
+{
+  "state": "florida",
+  "baseline": "check2hgi_sc",
+  "engine": "check2hgi_dk_ovl",
+  "note": "Check2HGI-SC comparand: matched STL heads on dk_ovl board base; reg is CHECKIN-modality (C-2 matched \u0394).",
+  "per_fold": [
+    {
+      "fold": 0,
+      "macro_f1": 73.1936783976429,
+      "top10_acc": 72.86883592605591,
+      "mrr": 57.99838304519653
+    },
+    {
+      "fold": 1,
+      "macro_f1": 73.71140047322757,
+      "top10_acc": 72.78526425361633,
+      "mrr": 58.570003509521484
+    },
+    {
+      "fold": 2,
+      "macro_f1": 73.34474507187096,
+      "top10_acc": 71.75067663192749,
+      "mrr": 57.223111391067505
+    },
+    {
+      "fold": 3,
+      "macro_f1": 72.83872234213324,
+      "top10_acc": 71.6595470905304,
+      "mrr": 57.238489389419556
+    },
+    {
+      "fold": 4,
+      "macro_f1": 74.26961950221403,
+      "top10_acc": 74.4871199131012,
+      "mrr": 59.60441827774048
+    }
+  ],
+  "macro_f1_mean": 73.472,
+  "macro_f1_std": 0.545,
+  "top10_acc_mean": 72.71,
+  "top10_acc_std": 1.142,
+  "mrr_mean": 58.127,
+  "mrr_std": 1.0
+}
