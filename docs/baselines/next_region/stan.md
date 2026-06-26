@@ -34,7 +34,7 @@ Audited-faithful, converged, optimized (A+C+D+compile; see [`FAITHFUL_STAN_FINDI
 | AL | 1109 | **60.72 ±5.20** | 69.81 | we beat | fp32+compile |
 | AZ | 1547 | **49.86 ±11.52** | 59.34 | we beat | fp32+compile |
 | Istanbul | 520 (mahalle) | **61.86 ±0.61** | 74.28 | we beat | bf16+compile |
-| FL | 4703 | running (`v6_opt`) | 77.28 | (expect beat/near) | bf16+compile |
+| FL | 4703 | **72.99 ±0.34** | 77.28 | we beat | bf16+compile |
 | CA / TX | 8501 / 6553 | pending (~1.5–2 h/state on A40, opt) | 65.66 / 67.02 | pending | bf16+compile |
 
 ## Why this is a baseline (not our model)
@@ -113,7 +113,7 @@ headline STAN cell.
 | AL | `docs/results/baselines/faithful_stan_alabama_5f_200ep_v5_compiled.json` |
 | AZ | `docs/results/baselines/faithful_stan_arizona_5f_200ep_v5_compiled.json` |
 | Istanbul | `docs/results/baselines/faithful_stan_istanbul_5f_200ep_v5_bf16c.json` |
-| FL | `docs/results/baselines/faithful_stan_florida_5f_200ep_v6_opt.json` (running) |
+| FL | `docs/results/baselines/faithful_stan_florida_5f_200ep_v6_opt.json` |
 | CA / TX | pending |
 
 > ⚠ **The v4 JSONs (`*_5f_50ep_FAITHFUL_STAN_*_v4.json`) are the SUPERSEDED collapse artifacts — do NOT cite.**
