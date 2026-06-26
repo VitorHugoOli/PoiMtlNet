@@ -78,7 +78,16 @@ The raw A4 score JSONs are now committed under [`docs/results/pre_freeze_gates/a
 
 - **AZ** — `a4_result_arizona_s0.json` (region) + `a4_cat_result_arizona_s0.json` (category), from the
   2026-06-26 run on this box (the exact run that produced the AZ rows above).
-- **AL / FL** — `a4_result_{alabama,florida}_s0.json` + `a4_cat_result_*` regenerated on this box and
-  **verified to reproduce the committed numbers** (CPU≡MPS for this metric, as noted above). The large
-  per-fold intermediates (`*_trainonly_*.parquet`, `*_maps.pkl`) stay gitignored — only the small score
-  JSONs are tracked.
+- **AL / FL** — the **original** run artifacts are on the original A4 machine and are **not recoverable on
+  this box**, and they are **not bit-reproducible** by re-running: the train-only design_k substrate is a
+  500-epoch K-encoder trained per fold and is **not deterministic across runs**, so an independent re-run
+  draws a different value. A 2026-06-26 independent re-run here re-confirmed the **verdict** (inflation ≈ 0)
+  but did **not** match the committed per-fold numbers — e.g. AL category re-ran at **+0.88 pp** vs the
+  committed **+0.29 pp** (both ≪ fold noise; the "≈ 0 on both axes" conclusion is robust to this run
+  variance, but the exact §5.2 values are the original-run draw). So only **AZ** carries a tracked raw
+  artifact; AL/FL remain writeup-only with the verdict independently re-confirmed.
+
+> **Run-variance caveat (2026-06-26):** the A4 measurement has run-to-run variance of order ±0.5–0.6 pp on
+> the category axis (substrate-training non-determinism). The committed §5.2 numbers are single-run draws;
+> the load-bearing claim is the **sign/magnitude verdict (inflation ≈ 0, within fold noise)**, which holds
+> across every run — not the exact decimals.
