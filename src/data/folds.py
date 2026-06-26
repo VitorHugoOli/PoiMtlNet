@@ -139,9 +139,13 @@ class _LazyFoldMapping:
     ``len``, ``iter``, ``keys``, ``items``, ``values``, ``[]``, ``in``.
     """
 
-    def __init__(self, n_splits: int, build):
+    def __init__(self, n_splits: int, build, n_regions=None):
         self._n = int(n_splits)
         self._build = build
+        # Global region count (max region id + 1 over ALL rows) — equal to the per-fold
+        # train∪val max across every fold, but precomputed so a caller need not iterate
+        # (and transiently materialise) every fold just to size the model output dim.
+        self.n_regions = n_regions
 
     def __len__(self):
         return self._n
@@ -1477,7 +1481,11 @@ class FoldCreator:
             gc.collect()
             return result
 
-        return _LazyFoldMapping(self.n_splits, _build_fold)
+        # n_regions = max region id + 1 over ALL rows. The union of every fold's
+        # (train ∪ val) is exactly all rows, so this equals the per-fold-scan result
+        # but without materialising any fold.
+        _n_regions = int(y_region_tensor.max().item()) + 1 if y_region_tensor.numel() else None
+        return _LazyFoldMapping(self.n_splits, _build_fold, n_regions=_n_regions)
 
     def save(self, save_dir: Path) -> Path:
         if not self._task_tensors:

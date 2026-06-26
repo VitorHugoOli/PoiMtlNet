@@ -2131,14 +2131,19 @@ def main(argv=None) -> None:
         # labels can miss classes present in val or other folds; a
         # too-small n_regions breaks bincount-based metrics at runtime.
         # task_a (next_category) is always 7 — no runtime resolution needed.
-        max_b = -1
-        for fr in fold_results.values():
-            max_b = max(
-                max_b,
-                int(fr.next.train.y.max().item()),
-                int(fr.next.val.y.max().item()),
-            )
-        n_regions = max_b + 1
+        # The fold mapping precomputes the global region count (max id + 1 over all
+        # rows == the per-fold train∪val max across every fold); use it to avoid
+        # materialising all folds just to size the model (esp. for --only-folds fan-out).
+        n_regions = getattr(fold_results, "n_regions", None)
+        if n_regions is None:
+            max_b = -1
+            for fr in fold_results.values():
+                max_b = max(
+                    max_b,
+                    int(fr.next.train.y.max().item()),
+                    int(fr.next.val.y.max().item()),
+                )
+            n_regions = max_b + 1
         reg_head_params = _parse_key_value_overrides(
             args.reg_head_param or [], "--reg-head-param"
         )
