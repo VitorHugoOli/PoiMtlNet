@@ -1,0 +1,47 @@
+{
+  "state": "alabama",
+  "seed": 0,
+  "device": "cpu",
+  "metric": "cat macro-F1 (POI-level proxy)",
+  "per_fold": [
+    {
+      "fold": 0,
+      "n_val_incov": 1660,
+      "incov_frac": 0.6530291109362707,
+      "full_f1": 0.3036074936389923,
+      "trainonly_f1": 0.2763550579547882
+    },
+    {
+      "fold": 1,
+      "n_val_incov": 1829,
+      "incov_frac": 0.7195121951219512,
+      "full_f1": 0.2944847047328949,
+      "trainonly_f1": 0.32417601346969604
+    },
+    {
+      "fold": 2,
+      "n_val_incov": 1713,
+      "incov_frac": 0.6741440377804014,
+      "full_f1": 0.30824947357177734,
+      "trainonly_f1": 0.28646785020828247
+    },
+    {
+      "fold": 3,
+      "n_val_incov": 1755,
+      "incov_frac": 0.6904012588512982,
+      "full_f1": 0.2749251127243042,
+      "trainonly_f1": 0.28097671270370483
+    },
+    {
+      "fold": 4,
+      "n_val_incov": 1537,
+      "incov_frac": 0.6046420141620771,
+      "full_f1": 0.27240192890167236,
+      "trainonly_f1": 0.2710137963294983
+    }
+  ],
+  "mean_full": 0.2907337427139282,
+  "mean_trainonly": 0.28779788613319396,
+  "mean_inflation_pp": 0.2935856580734253,
+  "mean_incov_frac": 0.6683457233703998
+}

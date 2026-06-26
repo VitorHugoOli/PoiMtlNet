@@ -78,16 +78,16 @@ The raw A4 score JSONs are now committed under [`docs/results/pre_freeze_gates/a
 
 - **AZ** — `a4_result_arizona_s0.json` (region) + `a4_cat_result_arizona_s0.json` (category), from the
   2026-06-26 run on this box (the exact run that produced the AZ rows above).
-- **AL / FL** — the **original** run artifacts are on the original A4 machine and are **not recoverable on
-  this box**, and they are **not bit-reproducible** by re-running: the train-only design_k substrate is a
-  500-epoch K-encoder trained per fold and is **not deterministic across runs**, so an independent re-run
-  draws a different value. A 2026-06-26 independent re-run here re-confirmed the **verdict** (inflation ≈ 0)
-  but did **not** match the committed per-fold numbers — e.g. AL category re-ran at **+0.88 pp** vs the
-  committed **+0.29 pp** (both ≪ fold noise; the "≈ 0 on both axes" conclusion is robust to this run
-  variance, but the exact §5.2 values are the original-run draw). So only **AZ** carries a tracked raw
-  artifact; AL/FL remain writeup-only with the verdict independently re-confirmed.
+- **AL / FL** — the **original** run artifacts (dated **2026-06-17**) were **recovered from the local SSD**
+  (`/Volumes/.../ingred/results/pre_freeze_gates/a4/`) and are now committed. They **match §5.2 to the
+  decimal on every axis**: AL reg **−0.3304** / cat **+0.2936** @ **66.83%**; FL reg **−0.1156** / cat
+  **+0.0031** @ **86.91%** → the §5.2 AL/FL values are the genuine original-run draws, now backed. *(An
+  earlier cloud session reported these as "not recoverable on this box" because it had no SSD access; that
+  is superseded — all three states now carry a tracked raw artifact.)*
 
-> **Run-variance caveat (2026-06-26):** the A4 measurement has run-to-run variance of order ±0.5–0.6 pp on
-> the category axis (substrate-training non-determinism). The committed §5.2 numbers are single-run draws;
+> **Run-variance caveat (still holds):** the A4 measurement is **non-deterministic across runs** — the
+> train-only design_k substrate is a 500-epoch per-fold K-encoder, so a fresh re-run draws a different value
+> (a 2026-06-26 AL re-run gave cat **+0.88 pp** vs the committed **+0.29 pp**; run-variance ~±0.5–0.6 pp on
+> the category axis). The committed JSONs are the **original §5.2-source draws** (reproduced here exactly);
 > the load-bearing claim is the **sign/magnitude verdict (inflation ≈ 0, within fold noise)**, which holds
-> across every run — not the exact decimals.
+> across every run — the exact decimals are one (committed, traceable) draw, not a reproducible constant.

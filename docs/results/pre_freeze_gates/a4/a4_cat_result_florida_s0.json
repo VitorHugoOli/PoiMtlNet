@@ -1,0 +1,41 @@
+{
+  "state": "florida",
+  "seed": 0,
+  "device": "cpu",
+  "metric": "cat macro-F1 (POI-level proxy)",
+  "per_fold": [
+    null,
+    {
+      "fold": 1,
+      "n_val_incov": 27136,
+      "incov_frac": 0.8523951625569341,
+      "full_f1": 0.3574916422367096,
+      "trainonly_f1": 0.36327341198921204
+    },
+    {
+      "fold": 2,
+      "n_val_incov": 27616,
+      "incov_frac": 0.8674729071776347,
+      "full_f1": 0.3776259422302246,
+      "trainonly_f1": 0.3769797682762146
+    },
+    {
+      "fold": 3,
+      "n_val_incov": 28432,
+      "incov_frac": 0.8931331281020293,
+      "full_f1": 0.3601371943950653,
+      "trainonly_f1": 0.3540220856666565
+    },
+    {
+      "fold": 4,
+      "n_val_incov": 27489,
+      "incov_frac": 0.863483587246741,
+      "full_f1": 0.3526337742805481,
+      "trainonly_f1": 0.3534880578517914
+    }
+  ],
+  "mean_full": 0.3619721382856369,
+  "mean_trainonly": 0.36194083094596863,
+  "mean_inflation_pp": 0.0031307339668273926,
+  "mean_incov_frac": 0.8691211962708347
+}
