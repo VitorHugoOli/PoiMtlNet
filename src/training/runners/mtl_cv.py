@@ -177,6 +177,42 @@ def _class_majority_fraction(y: torch.Tensor) -> float:
     return float(counts.max().item() / y_flat.numel())
 
 
+def _compute_joint_selectors(
+    f1_b, f1_a, acc1_b, acc1_a, reg_acc10, task_b_majority, task_a_majority, checkpoint_selector,
+):
+    """The 5 joint scalars + the scalar that gates the single joint checkpoint.
+
+    Pure function of the per-head val metrics (+ the per-head majority fractions, cached
+    by the caller across epochs). Returns
+    ``(joint_score, joint_acc1, joint_geom_lift, joint_arith_lift, joint_geom_simple, selected)``:
+
+    - ``joint_score``       = mean per-head F1 — legacy/back-compat (scale-coherent only at 7+7 class).
+    - ``joint_acc1``        = mean per-head Acc@1 — reported, NOT a default monitor (dominated by the
+                              easier head when the two Acc@1 differ by orders of magnitude).
+    - ``joint_geom_lift``   = geometric mean of per-head lift-over-majority (interim 2026-04-15 monitor).
+    - ``joint_arith_lift``  = arithmetic mean of those lifts — back-compat reporting.
+    - ``joint_geom_simple`` = sqrt(cat macro-F1 · region Acc@10) — the C21 VALIDATED, headline-aligned
+                              DEFAULT selector (both bounded [0,1], no majority normalization). For a
+                              non-region task_b the caller passes ``reg_acc10 = f1_b`` (→ sqrt(cat_f1·f1_b)).
+    The selector dispatch: ``joint_f1_mean``→joint_score (v11 legacy), ``geom_lift``→joint_geom_lift,
+    else (``geom_simple``)→joint_geom_simple. See docs/CONCERNS §C21.
+    """
+    joint_score = 0.5 * (f1_b + f1_a)
+    joint_acc1 = 0.5 * (acc1_b + acc1_a)
+    task_b_lift = max(acc1_b / task_b_majority, 1e-8)
+    task_a_lift = max(acc1_a / task_a_majority, 1e-8)
+    joint_geom_lift = math.sqrt(task_b_lift * task_a_lift)
+    joint_arith_lift = 0.5 * (task_b_lift + task_a_lift)
+    joint_geom_simple = math.sqrt(max(f1_a, 0.0) * max(reg_acc10, 0.0))
+    if checkpoint_selector == "joint_f1_mean":
+        selected = joint_score
+    elif checkpoint_selector == "geom_lift":
+        selected = joint_geom_lift
+    else:  # "geom_simple" (default)
+        selected = joint_geom_simple
+    return (joint_score, joint_acc1, joint_geom_lift, joint_arith_lift, joint_geom_simple, selected)
+
+
 def _pareto_front_indices(points: list[tuple[float, float]]) -> list[int]:
     """Pareto-front indices over per-head val scores.
 
@@ -1118,66 +1154,21 @@ def train_model(model: torch.nn.Module,
             acc1_val_task_b = val_metrics_task_b.get('accuracy', 0.0)
             acc1_val_task_a = val_metrics_task_a.get('accuracy', 0.0)
 
-            # Legacy joint score — mean of per-head F1. Scale-coherent when
-            # both heads are 7-class (legacy). Kept for back-compat with the
-            # {category, next} preset's existing callback monitor.
-            joint_score = 0.5 * (f1_val_task_b + f1_val_task_a)
-            # Naive Acc@1 mean. Reported (so CH06 can empirically compare
-            # checkpoint choices) but NOT used as a default monitor on the
-            # check2HGI track — ~50% category Acc@1 vs ~5% region Acc@1
-            # makes the mean dominated by the easier head, biasing every
-            # selected checkpoint toward category performance. See
-            # CRITICAL_REVIEW.md §1 item (joint_acc1 scale-incoherence).
-            joint_acc1 = 0.5 * (acc1_val_task_b + acc1_val_task_a)
-            # Scale-coherent joint: each head contributes its *lift over
-            # majority-class baseline*. The 2026-04-15 review-agent finding
-            # showed arithmetic mean is STILL dominated by the head with the
-            # smaller majority fraction when the two differ by orders of
-            # magnitude (e.g. FL next_poi majority ~0.001% vs next_region
-            # 22.5% → POI lift can be 1000×, region lift ~1× → arithmetic
-            # mean ~500 is dominated by POI). Geometric mean forces both
-            # heads to contribute multiplicatively, penalising either head
-            # collapsing to majority-class behaviour.
-            #
-            # Compute per-head majority fractions once and cache across epochs
-            # (train labels don't change mid-fold). The attribute is stored on
-            # fold_history so subsequent epochs reuse the cached value.
+            # Per-head majority fractions are fixed within a fold (train labels don't change),
+            # so compute once and cache on fold_history; subsequent epochs reuse them.
             if not hasattr(fold_history, "_joint_lift_majority"):
                 fold_history._joint_lift_majority = (
                     max(_class_majority_fraction(dataloader_next.train.y), 1e-6),
                     max(_class_majority_fraction(dataloader_category.train.y), 1e-6),
                 )
             task_b_majority, task_a_majority = fold_history._joint_lift_majority
-            task_b_lift = max(acc1_val_task_b / task_b_majority, 1e-8)
-            task_a_lift = max(acc1_val_task_a / task_a_majority, 1e-8)
-            # Geometric mean of per-head lifts (scale-coherent; the interim
-            # 2026-04-15 monitor — superseded as default by geom_simple below).
-            joint_geom_lift = math.sqrt(task_b_lift * task_a_lift)
-            # Arithmetic mean kept for back-compat + side-by-side reporting
-            # (paper can show it as the "naive" number in appendix).
-            joint_arith_lift = 0.5 * (task_b_lift + task_a_lift)
-            # C21 (mtl-protocol-fix, 2026-05-24) — the VALIDATED, headline-aligned
-            # joint selector and the code DEFAULT. Geometric mean of the metrics
-            # each head is actually REPORTED on: category macro-F1 (``f1``) and
-            # region Acc@10 (``top10_acc_indist``). Both are bounded [0,1] and on
-            # comparable scales, so NO majority normalization is applied (the lift
-            # form was an acc1-only workaround; reusing majority_fraction as an
-            # Acc@10 baseline would be cardinality-wrong). For non-region task_b
-            # (no top10 key, e.g. the {category,next} preset) reg falls back to its
-            # own ``f1`` → sqrt(cat_f1 * task_b_f1). Recovered +5.62pp deployable
-            # reg Acc@10 vs the v11 joint_score at FL multi-seed (docs/CONCERNS §C21).
+            # region Acc@10 for geom_simple; non-region task_b falls back to its own F1.
             reg_acc10_val = val_metrics_task_b.get('top10_acc_indist', f1_val_task_b)
-            joint_geom_simple = math.sqrt(
-                max(f1_val_task_a, 0.0) * max(reg_acc10_val, 0.0)
+            (joint_score, joint_acc1, joint_geom_lift, joint_arith_lift,
+             joint_geom_simple, joint_selector_value) = _compute_joint_selectors(
+                f1_val_task_b, f1_val_task_a, acc1_val_task_b, acc1_val_task_a,
+                reg_acc10_val, task_b_majority, task_a_majority, checkpoint_selector,
             )
-            # Select the scalar that gates the single joint checkpoint
-            # (``model_task.best``). Default geom_simple; legacy/interim opt-in.
-            if checkpoint_selector == "joint_f1_mean":
-                joint_selector_value = joint_score          # v11 paper-canon LEGACY (broken)
-            elif checkpoint_selector == "geom_lift":
-                joint_selector_value = joint_geom_lift       # interim acc1-lift form
-            else:                                            # "geom_simple" (default, correct)
-                joint_selector_value = joint_geom_simple
             pareto_points.append((f1_val_task_b, f1_val_task_a))
             pareto_front = _pareto_front_indices(pareto_points)
             fold_history.add_artifact(

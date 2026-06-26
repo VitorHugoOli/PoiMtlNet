@@ -38,8 +38,24 @@ if [ "$CMD" = "run" ]; then
   RD=$(ls -d results/check2hgi_dk_ovl/alabama/mtlnet_*parity_$(printf '%s' "$TAG" | tr 'A-Z' 'a-z') 2>/dev/null | head -1)
   rm -rf "$PDIR/$TAG"; mkdir -p "$PDIR/$TAG"
   [ -n "$RD" ] && cp "$RD"/metrics/fold*_val.csv "$PDIR/$TAG/" 2>/dev/null
-  n=$(ls "$PDIR/$TAG"/*.csv 2>/dev/null | wc -l)
-  echo "[parity:run] tag=$TAG rc=$RC captured=$n CSVs (rundir=$RD)"
+  # Also capture the selection record (diagnostic_best_epochs + primary_checkpoint epoch/metrics),
+  # stripping run-varying timing, so the diff covers the joint-selector / checkpoint path too.
+  if [ -n "$RD" ]; then
+    for fi in "$RD"/folds/fold*_info.json; do
+      [ -f "$fi" ] || continue
+      python3 - "$fi" "$PDIR/$TAG/$(basename "$fi" .json).sel.json" <<'PY'
+import json, sys
+d = json.load(open(sys.argv[1]))
+pc = d.get("primary_checkpoint", {}) or {}
+# The joint-SELECTOR-dependent record: which epoch the selector picked + its per-task
+# metrics. (diagnostic_best_epochs is selector-independent and carries run-varying `time`.)
+sel = {"primary_epoch": pc.get("epoch"), "primary_task_metrics": pc.get("task_metrics")}
+json.dump(sel, open(sys.argv[2], "w"), indent=2, sort_keys=True)
+PY
+    done
+  fi
+  n=$(ls "$PDIR/$TAG"/*.csv 2>/dev/null | wc -l); s=$(ls "$PDIR/$TAG"/*.sel.json 2>/dev/null | wc -l)
+  echo "[parity:run] tag=$TAG rc=$RC captured=$n CSVs + $s sel digests (rundir=$RD)"
   [ "$n" -eq 4 ] || { echo "[parity:run] WARN expected 4 val CSVs (2 folds × 2 tasks); check $PDIR/${TAG}.log"; tail -5 "$PDIR/${TAG}.log"; }
 elif [ "$CMD" = "diff" ]; then
   A="$1"; B="$2"
