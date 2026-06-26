@@ -815,6 +815,164 @@ def _flatten_encoder(encoder):
 
 
 # Training Function
+
+
+def _run_validation_epoch(model, dataloader_next, dataloader_category,
+                          next_criterion, category_criterion, mtl_criterion, *,
+                          fold_history, num_classes, task_a_num_classes, task_b_num_classes,
+                          task_a_name, task_b_name, checkpoint_selector, joint_min_epoch,
+                          epoch_idx, pareto_points, task_best_tracker):
+    """Run one validation epoch: evaluate, score the joint selectors, update the
+    pareto front, decide per-task / joint improvement, write fold_history (model_task +
+    both task slots) and the side-channel MultiTaskBestTracker, and RETURN the 10 scalars
+    the caller's progress bar + on_epoch_end callback consume. ``pareto_points`` is the
+    fold-scoped accumulator (appended in place). Verbatim lift of the eval block; the
+    ``with progress.validation(), _prof.section('eval')`` context stays in the caller.
+    """
+    # Build train-label sets for OOD-restricted Acc@K (CH06).
+    # Only populated when task_set is non-legacy (high-cardinality
+    # heads where OOD filtering matters). Legacy 7-class heads
+    # always have all classes in every fold → OOD is empty → skip.
+    # Cached on fold_history: the train-label set is fixed within a fold,
+    # so the O(N log N) .unique() + set() build runs once/fold, not once/epoch
+    # (byte-identical — same set every epoch; perf P3).
+    _tl_b: set[int] | None = getattr(fold_history, "_ood_tl_b", None) if fold_history is not None else None
+    _tl_a: set[int] | None = getattr(fold_history, "_ood_tl_a", None) if fold_history is not None else None
+    if _tl_b is None and task_b_num_classes is not None and task_b_num_classes > 256:
+        _tl_b = set(dataloader_next.train.y.unique().tolist())
+        if fold_history is not None:
+            fold_history._ood_tl_b = _tl_b
+    if _tl_a is None and task_a_num_classes is not None and task_a_num_classes > 256:
+        _tl_a = set(dataloader_category.train.y.unique().tolist())
+        if fold_history is not None:
+            fold_history._ood_tl_a = _tl_a
+
+    val_metrics_task_b, val_metrics_task_a, loss_val = evaluate_model(
+        model,
+        [dataloader_next.val.dataloader, dataloader_category.val.dataloader],
+        next_criterion,
+        category_criterion,
+        mtl_criterion,
+        DEVICE,
+        num_classes=num_classes,
+        task_b_num_classes=task_b_num_classes,
+        task_a_num_classes=task_a_num_classes,
+        train_labels_b=_tl_b,
+        train_labels_a=_tl_a,
+    )
+
+    f1_val_task_b = val_metrics_task_b['f1']
+    f1_val_task_a = val_metrics_task_a['f1']
+    # Acc@1 per head (already computed by compute_classification_metrics
+    # under the ``accuracy`` key). Used for the joint_lift monitor
+    # recommended by docs/plans/CHECK2HGI_MTL_OVERVIEW.md §2 for the
+    # check2HGI track, where next_region has ~10^3 classes and macro-F1
+    # is a weak summary statistic.
+    acc1_val_task_b = val_metrics_task_b.get('accuracy', 0.0)
+    acc1_val_task_a = val_metrics_task_a.get('accuracy', 0.0)
+
+    # Per-head majority fractions are fixed within a fold (train labels don't change),
+    # so compute once and cache on fold_history; subsequent epochs reuse them.
+    if not hasattr(fold_history, "_joint_lift_majority"):
+        fold_history._joint_lift_majority = (
+            max(_class_majority_fraction(dataloader_next.train.y), 1e-6),
+            max(_class_majority_fraction(dataloader_category.train.y), 1e-6),
+        )
+    task_b_majority, task_a_majority = fold_history._joint_lift_majority
+    # region Acc@10 for geom_simple; non-region task_b falls back to its own F1.
+    reg_acc10_val = val_metrics_task_b.get('top10_acc_indist', f1_val_task_b)
+    (joint_score, joint_acc1, joint_geom_lift, joint_arith_lift,
+     joint_geom_simple, joint_selector_value) = _compute_joint_selectors(
+        f1_val_task_b, f1_val_task_a, acc1_val_task_b, acc1_val_task_a,
+        reg_acc10_val, task_b_majority, task_a_majority, checkpoint_selector,
+    )
+    pareto_points.append((f1_val_task_b, f1_val_task_a))
+    pareto_front = _pareto_front_indices(pareto_points)
+    fold_history.add_artifact(
+        "pareto_front",
+        [
+            {
+                "epoch": idx,
+                f"{task_b_name}_f1": pareto_points[idx][0],
+                f"{task_a_name}_f1": pareto_points[idx][1],
+            }
+            for idx in pareto_front
+        ],
+    )
+
+    # Only create state_dict when at least one task improves.
+    # Read the per-task monitor key so the improvement check matches
+    # whichever metric the BestModelTracker is actually watching (F1,
+    # accuracy, mrr, ...); hardcoding F1 would miss improvements when
+    # the tracker watches accuracy. Falls back to F1 for legacy paths.
+    _mon_b = fold_history.task(task_b_name).best.monitor
+    _mon_a = fold_history.task(task_a_name).best.monitor
+    _val_b_mon = val_metrics_task_b.get(_mon_b, f1_val_task_b)
+    _val_a_mon = val_metrics_task_a.get(_mon_a, f1_val_task_a)
+    task_b_improved = _val_b_mon > fold_history.task(task_b_name).best.best_value
+    task_a_improved = _val_a_mon > fold_history.task(task_a_name).best.best_value
+    prev_joint_best = fold_history.model_task.best.best_value if fold_history.model_task.best.best_epoch >= 0 else -1.0
+    # C21: gate the joint checkpoint on the configured selector
+    # (default geom_simple), respecting min_best_epoch (skip the
+    # init-artifact window, as the per-task trackers do).
+    joint_eligible = epoch_idx >= joint_min_epoch
+    joint_improved = joint_eligible and (joint_selector_value > prev_joint_best)
+    state = model.state_dict() if (joint_improved or task_b_improved or task_a_improved) else None
+
+    # Per-task val losses now come from evaluate_model() inside the
+    # metric dicts, so log_val no longer needs a hand-wired scalar.
+    # model_task keeps the combined MTL loss; the f1=0/accuracy=0
+    # placeholders stay as stable schema on the MTL summary store.
+    fold_history.model_task.log_val(
+        loss=loss_val,
+        f1=joint_selector_value,  # C21: the configured joint selector (default geom_simple)
+        accuracy=0,
+        model_state=state if joint_improved else None,
+        elapsed_time=fold_history.timer.timer(),
+    )
+    fold_history.log_val(
+        task_b_name,
+        **val_metrics_task_b,
+        model_state=state if task_b_improved else None,
+        elapsed_time=fold_history.timer.timer(),
+    )
+    fold_history.log_val(
+        task_a_name,
+        **val_metrics_task_a,
+        model_state=state if task_a_improved else None,
+        elapsed_time=fold_history.timer.timer(),
+    )
+
+    # substrate-protocol-cleanup Tier C1 — three-snapshot routing.
+    # Update the side-channel ``MultiTaskBestTracker`` in lockstep
+    # with the existing single-best path. Uses the same per-epoch
+    # state_dict so each slot's snapshot is internally consistent
+    # (head + backbone come from the same epoch). The cat slot
+    # tracks task_a's monitored metric (F1 by default); reg slot
+    # tracks task_b's monitored metric (typically Acc@10 via
+    # ``accuracy`` key on check2HGI); joint slot tracks
+    # ``joint_geom_lift`` — the scale-coherent geometric-mean
+    # selector. Single-best ``model_task.best`` is left untouched.
+    if task_best_tracker is not None:
+        full_state = state if state is not None else model.state_dict()
+        cat_metric_val = val_metrics_task_a.get(
+            task_best_tracker.cat_best.monitor, f1_val_task_a,
+        )
+        reg_metric_val = val_metrics_task_b.get(
+            task_best_tracker.reg_best.monitor, f1_val_task_b,
+        )
+        task_best_tracker.update(
+            epoch=fold_history.task(task_b_name).val.num_epochs() - 1,
+            model_state=full_state,
+            cat_metric=cat_metric_val,
+            reg_metric=reg_metric_val,
+            joint_metric=joint_selector_value,  # C21: matches the primary selector (default geom_simple)
+            elapsed_time=fold_history.timer.timer(),
+        )
+    return (f1_val_task_b, f1_val_task_a, acc1_val_task_b, acc1_val_task_a, loss_val,
+            joint_score, joint_acc1, joint_geom_lift, joint_arith_lift, joint_geom_simple)
+
+
 def _optimizer_micro_step(model, optimizer, scheduler, mtl_criterion, *,
                           loss, gradient_accumulation_steps, accumulated_in_group,
                           already_backpropagated, alt_inactive_params, max_grad_norm,
@@ -1534,147 +1692,18 @@ def train_model(model: torch.nn.Module,
 
         # Validation phase with progress tracking
         with progress.validation(), _prof.section("eval"):
-            # Build train-label sets for OOD-restricted Acc@K (CH06).
-            # Only populated when task_set is non-legacy (high-cardinality
-            # heads where OOD filtering matters). Legacy 7-class heads
-            # always have all classes in every fold → OOD is empty → skip.
-            # Cached on fold_history: the train-label set is fixed within a fold,
-            # so the O(N log N) .unique() + set() build runs once/fold, not once/epoch
-            # (byte-identical — same set every epoch; perf P3).
-            _tl_b: set[int] | None = getattr(fold_history, "_ood_tl_b", None) if fold_history is not None else None
-            _tl_a: set[int] | None = getattr(fold_history, "_ood_tl_a", None) if fold_history is not None else None
-            if _tl_b is None and task_b_num_classes is not None and task_b_num_classes > 256:
-                _tl_b = set(dataloader_next.train.y.unique().tolist())
-                if fold_history is not None:
-                    fold_history._ood_tl_b = _tl_b
-            if _tl_a is None and task_a_num_classes is not None and task_a_num_classes > 256:
-                _tl_a = set(dataloader_category.train.y.unique().tolist())
-                if fold_history is not None:
-                    fold_history._ood_tl_a = _tl_a
-
-            val_metrics_task_b, val_metrics_task_a, loss_val = evaluate_model(
-                model,
-                [dataloader_next.val.dataloader, dataloader_category.val.dataloader],
-                next_criterion,
-                category_criterion,
-                mtl_criterion,
-                DEVICE,
-                num_classes=num_classes,
-                task_b_num_classes=task_b_num_classes,
-                task_a_num_classes=task_a_num_classes,
-                train_labels_b=_tl_b,
-                train_labels_a=_tl_a,
+            (f1_val_task_b, f1_val_task_a, acc1_val_task_b, acc1_val_task_a, loss_val,
+             joint_score, joint_acc1, joint_geom_lift, joint_arith_lift,
+             joint_geom_simple) = _run_validation_epoch(
+                model, dataloader_next, dataloader_category,
+                next_criterion, category_criterion, mtl_criterion,
+                fold_history=fold_history, num_classes=num_classes,
+                task_a_num_classes=task_a_num_classes, task_b_num_classes=task_b_num_classes,
+                task_a_name=task_a_name, task_b_name=task_b_name,
+                checkpoint_selector=checkpoint_selector, joint_min_epoch=joint_min_epoch,
+                epoch_idx=epoch_idx, pareto_points=pareto_points,
+                task_best_tracker=task_best_tracker,
             )
-
-            f1_val_task_b = val_metrics_task_b['f1']
-            f1_val_task_a = val_metrics_task_a['f1']
-            # Acc@1 per head (already computed by compute_classification_metrics
-            # under the ``accuracy`` key). Used for the joint_lift monitor
-            # recommended by docs/plans/CHECK2HGI_MTL_OVERVIEW.md §2 for the
-            # check2HGI track, where next_region has ~10^3 classes and macro-F1
-            # is a weak summary statistic.
-            acc1_val_task_b = val_metrics_task_b.get('accuracy', 0.0)
-            acc1_val_task_a = val_metrics_task_a.get('accuracy', 0.0)
-
-            # Per-head majority fractions are fixed within a fold (train labels don't change),
-            # so compute once and cache on fold_history; subsequent epochs reuse them.
-            if not hasattr(fold_history, "_joint_lift_majority"):
-                fold_history._joint_lift_majority = (
-                    max(_class_majority_fraction(dataloader_next.train.y), 1e-6),
-                    max(_class_majority_fraction(dataloader_category.train.y), 1e-6),
-                )
-            task_b_majority, task_a_majority = fold_history._joint_lift_majority
-            # region Acc@10 for geom_simple; non-region task_b falls back to its own F1.
-            reg_acc10_val = val_metrics_task_b.get('top10_acc_indist', f1_val_task_b)
-            (joint_score, joint_acc1, joint_geom_lift, joint_arith_lift,
-             joint_geom_simple, joint_selector_value) = _compute_joint_selectors(
-                f1_val_task_b, f1_val_task_a, acc1_val_task_b, acc1_val_task_a,
-                reg_acc10_val, task_b_majority, task_a_majority, checkpoint_selector,
-            )
-            pareto_points.append((f1_val_task_b, f1_val_task_a))
-            pareto_front = _pareto_front_indices(pareto_points)
-            fold_history.add_artifact(
-                "pareto_front",
-                [
-                    {
-                        "epoch": idx,
-                        f"{task_b_name}_f1": pareto_points[idx][0],
-                        f"{task_a_name}_f1": pareto_points[idx][1],
-                    }
-                    for idx in pareto_front
-                ],
-            )
-
-            # Only create state_dict when at least one task improves.
-            # Read the per-task monitor key so the improvement check matches
-            # whichever metric the BestModelTracker is actually watching (F1,
-            # accuracy, mrr, ...); hardcoding F1 would miss improvements when
-            # the tracker watches accuracy. Falls back to F1 for legacy paths.
-            _mon_b = fold_history.task(task_b_name).best.monitor
-            _mon_a = fold_history.task(task_a_name).best.monitor
-            _val_b_mon = val_metrics_task_b.get(_mon_b, f1_val_task_b)
-            _val_a_mon = val_metrics_task_a.get(_mon_a, f1_val_task_a)
-            task_b_improved = _val_b_mon > fold_history.task(task_b_name).best.best_value
-            task_a_improved = _val_a_mon > fold_history.task(task_a_name).best.best_value
-            prev_joint_best = fold_history.model_task.best.best_value if fold_history.model_task.best.best_epoch >= 0 else -1.0
-            # C21: gate the joint checkpoint on the configured selector
-            # (default geom_simple), respecting min_best_epoch (skip the
-            # init-artifact window, as the per-task trackers do).
-            joint_eligible = epoch_idx >= joint_min_epoch
-            joint_improved = joint_eligible and (joint_selector_value > prev_joint_best)
-            state = model.state_dict() if (joint_improved or task_b_improved or task_a_improved) else None
-
-            # Per-task val losses now come from evaluate_model() inside the
-            # metric dicts, so log_val no longer needs a hand-wired scalar.
-            # model_task keeps the combined MTL loss; the f1=0/accuracy=0
-            # placeholders stay as stable schema on the MTL summary store.
-            fold_history.model_task.log_val(
-                loss=loss_val,
-                f1=joint_selector_value,  # C21: the configured joint selector (default geom_simple)
-                accuracy=0,
-                model_state=state if joint_improved else None,
-                elapsed_time=fold_history.timer.timer(),
-            )
-            fold_history.log_val(
-                task_b_name,
-                **val_metrics_task_b,
-                model_state=state if task_b_improved else None,
-                elapsed_time=fold_history.timer.timer(),
-            )
-            fold_history.log_val(
-                task_a_name,
-                **val_metrics_task_a,
-                model_state=state if task_a_improved else None,
-                elapsed_time=fold_history.timer.timer(),
-            )
-
-            # substrate-protocol-cleanup Tier C1 — three-snapshot routing.
-            # Update the side-channel ``MultiTaskBestTracker`` in lockstep
-            # with the existing single-best path. Uses the same per-epoch
-            # state_dict so each slot's snapshot is internally consistent
-            # (head + backbone come from the same epoch). The cat slot
-            # tracks task_a's monitored metric (F1 by default); reg slot
-            # tracks task_b's monitored metric (typically Acc@10 via
-            # ``accuracy`` key on check2HGI); joint slot tracks
-            # ``joint_geom_lift`` — the scale-coherent geometric-mean
-            # selector. Single-best ``model_task.best`` is left untouched.
-            if task_best_tracker is not None:
-                full_state = state if state is not None else model.state_dict()
-                cat_metric_val = val_metrics_task_a.get(
-                    task_best_tracker.cat_best.monitor, f1_val_task_a,
-                )
-                reg_metric_val = val_metrics_task_b.get(
-                    task_best_tracker.reg_best.monitor, f1_val_task_b,
-                )
-                task_best_tracker.update(
-                    epoch=fold_history.task(task_b_name).val.num_epochs() - 1,
-                    model_state=full_state,
-                    cat_metric=cat_metric_val,
-                    reg_metric=reg_metric_val,
-                    joint_metric=joint_selector_value,  # C21: matches the primary selector (default geom_simple)
-                    elapsed_time=fold_history.timer.timer(),
-                )
-
         # Update compact F1-only metrics on progress bar.
         best_task_b = fold_history.task(task_b_name).best.best_value
         best_task_a = fold_history.task(task_a_name).best.best_value

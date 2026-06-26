@@ -335,3 +335,24 @@ the alt-inactive-zero branches — so this round added branch coverage:
 - **Advisor (adversarial):** SAFE — normalized diff (dedent + 3 renames) is zero-lines-different; AST walk
   finds no missed `_mtl_strict`/`_os_nanguard`/`_alt_inactive_params`; reset left in caller; clip retains
   the criterion params.
+
+### Phase 5b — extract `_run_validation_epoch` (the per-epoch validation→history block)
+On user request, the second previously-DECLINED block is now extracted. The body of
+`with progress.validation(), _prof.section("eval"):` (OOD train-label sets + caching → evaluate_model →
+f1/acc1 → joint-majority cache → joint selectors → pareto front + artifact → per-task/joint improvement +
+state_dict → 3× fold_history.log_val → MultiTaskBestTracker.update) moved verbatim into a module-level
+`_run_validation_epoch(...)` that RETURNS the 10 scalars the caller's progress bar + on_epoch_end callback
+consume (f1/acc1 ×2, loss_val, + the 5 joint scalars). The `with` context stays in the caller; `fold_history`
+(OOD/majority caches, log_val) and `pareto_points` (append) are passed by reference so all side-effects persist.
+
+This block DIRECTLY produces the captured val CSVs + selection digest, so the existing champion parity is the
+strong gate (no new variant needed). Mechanical extraction (dedent/reindent asserted byte-identical before write).
+**Gate:** champion AL MTL == golden at seeds 0 AND 1 (`golden==val_s0`, `golden_s1==val_s1`); training+integration
+suites 121 passed / 2 skipped (the integration tests run the full synthetic train loop → a broken unpack would
+NameError). **Advisor (adversarial): SAFE** — return-order == unpack-order (incl. the geom-before-arith pair),
+zero block-local names read after the call, body verbatim (140==140 dedent-only), all 17 params supplied once,
+no unresolved free names.
+
+**Both formerly-declined extractions are now DONE + gated.** train_model's epoch loop now reads as
+train-phase → `_run_validation_epoch(...)` → progress/callback/cutoff, and the batch loop's step as
+loss → combine → backward → `_optimizer_micro_step(...)`.
