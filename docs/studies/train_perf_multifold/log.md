@@ -168,3 +168,17 @@ Model+training suite 252 passed (no regression).
   379 passed. Hot-numeric extractions deferred behind metric-parity A/B (frozen-§0.1 contract).
 
 ## Follow-up status: #1 ✅ #3 ✅(code+AL) #2 ✅(diagnosed) #4 ✅(no bug) #6 ✅(measured) #5 ✅(safe applied + roadmap)
+
+### #5 grind — A/B-gated extractions with a fast parity harness
+Built `parity_check.sh`: AL champion MTL, 2 folds × 8 ep, EAGER fp32 (~55s, deterministic). Captures per-fold VAL
+CSVs **+ a selection digest** (primary_epoch + primary_task_metrics, timing stripped). Verified reproducible
+(golden==golden_b). Gates each refactor byte-identically on BOTH the scored and selection paths.
+Extractions DONE (5 files, each parity-clean + tested):
+- `_streamed_cls_metrics` (metrics.py) — dedup S1 train-metric (mtl_cv) + S2 val-metric (mtl_eval), ~22 lines. **A/B**.
+- `_decide_chunk_val` (mtl_eval) — the S2 chunk gate. **A/B**.
+- `_compute_joint_selectors` (mtl_cv) — 5 joint scalars + selector dispatch, −55 inline. **selection-path A/B**.
+- `_overwrite_base_lr` (helpers) — 3 scheduler blocks → 1. `step()` decomp (experiment) 38→13. SAFE + tests.
+3 new unit tests (streamed-metric==full-logit, joint-selectors, fp32-island earlier). All suites green.
+Line counts ~flat (helper ≈ removed code) — the win is structural; the big line-reducer (narration comment trim)
+left as a reviewable pass (strips institutional memory). Remaining: train.py runner-merge (needs single-task
+parity config) + n_regions pass-through + KD block (needs `--log-t-kd-weight 0.2` variant) + folds.py. See AUDIT_FINDINGS §5.

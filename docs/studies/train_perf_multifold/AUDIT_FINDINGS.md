@@ -58,29 +58,52 @@ whose bf16 overlap-MTL is H100-only / multi-hour here. **To validate on the real
 (`scripts/closing_data/a40_task2_tx_mtl_bf16.sh`) with `MTL_STAN_FP32_ATTN=1` and assert 0 non-finite skips +
 reg ≈ the clean fp32 67.02 (vs the void bf16 −2.37) — on the H100 or a long A40 run.
 
-## #5 · Per-file train-flow slimming — SAFE wins applied; hot extractions = validated roadmap
-The frozen-§0.1 contract forbids a sweeping unvalidated refactor of the hot files, so: **applied now** the
-unambiguously-safe, non-numeric items; **deferred** every hot-numeric extraction behind a metric-parity A/B.
+## #5 · Per-file train-flow slimming — grinding the A/B-gated extractions with a parity harness
 
-**Applied (this round, no A/B — verified by the test suite):**
-- `experiment.py`: removed the redundant in-`step()` `import logging`; dropped the dead `hasattr(timer,...)` branch.
-- `helpers.py`: removed the dead `DataLoader` import; merged the split `typing` imports.
-- (earlier) `mtl_eval.py` redundant import + `mtl_creterion`→`mtl_criterion`; `dataset.py` comment; engine-list dedup.
+Built a **fast metric-parity harness** ([`parity_check.sh`](parity_check.sh)): champion MTL on AL, 2 folds × 8 ep,
+EAGER fp32 (deterministic, ~55s/run). Captures the per-fold VAL metric CSVs **and** a selection digest
+(`primary_epoch` + `primary_task_metrics`, timing stripped). A behavior-preserving refactor must keep both
+**byte-identical** vs `golden`. Verified reproducible (golden == golden_b). This gates every hot-numeric extraction
+(the scored val/train metric path AND the checkpoint-selection path).
+
+**Applied + VALIDATED this round (each parity byte-identical + unit-tested where pure):**
+- `metrics.py` + `mtl_cv.py` + `mtl_eval.py`: extract `_streamed_cls_metrics()` — the C>256 hand-rolled metric
+  reconstruction shared by the S1 streaming train-metric and the S2 chunked val-metric (dedup ~22 lines across 2
+  files). **A/B-gated scored path** → parity golden==eval_dedup. Unit test vs the full-logit computation.
+- `mtl_eval.py`: extract `_decide_chunk_val()` (the S2 chunk gate). Parity golden==eval_chunk.
+- `mtl_cv.py`: extract `_compute_joint_selectors()` — the 5 joint scalars + selector dispatch out of
+  `train_model`'s epoch loop (−55 lines inline). **Selection-path A/B-gated** → parity golden==selectors
+  (incl. the selection digest). Unit test (scalars + dispatch + non-region fallback).
+- `helpers.py`: `_overwrite_base_lr()` (3 identical scheduler blocks → 1). `experiment.py`: `step()` 38→13 lines
+  via `_emit_adapter_fold_end()` + `_save_fold_partial_safe()`. Both test-covered; step() parity golden==exp_step.
+- (earlier) `mtl_eval` redundant import + `mtl_creterion`→`mtl_criterion`; `experiment` redundant import + dead
+  branch; `helpers` dead `DataLoader` import + merged `typing`; `dataset.py` comment; engine-list dedup.
+
+> Note: line counts are ~flat because each extraction adds a helper ≈ the code it removes — the win is
+> **structural** (leaner hot functions, named+tested helpers, dedup), not raw lines. The only large *line*
+> reducer is trimming the ~45 dated audit-codename narration comments; that is behaviorally trivial (parity
+> passes — comments don't execute) but it strips the repo's in-code institutional memory, so I left it as a
+> deliberate, reviewable pass rather than auto-stripping (see "remaining" below).
 
 **Roadmap — SAFE-now (no A/B; apply incrementally, run the test suite after each):**
 - `experiment.py`: extract `_emit_adapter_fold_end` (197-205) + `_save_fold_partial_safe` (210-222) → `step()` 38→~15 lines.
-- `helpers.py`: extract `_overwrite_base_lr(...)` for the 3× base-LR block (304-330).
-- `mtl_eval.py`: comment trim (biggest single win), chunk-decision helper, shared `256` constant, narrowed `except`.
+- ✅ `helpers.py` `_overwrite_base_lr`; ✅ `experiment.py` `step()` decomp; ✅ `mtl_eval.py` chunk-decision helper.
 - `folds.py`: §1/2/3/6/7/8/9/10 (no tensor/split/RNG change); keep `rebuild_dataloaders`/`load_folds`/shuffle untouched.
 - `storage.py`: SAFE plot/diagnostic extractions; `train.py`: dead imports + guard/loss-calib extraction.
 - Across all: trim dated audit-codename narration to its load-bearing invariant (preserve env-var contracts + leak guards).
 
-**Roadmap — A/B-gated (run one `--canon none` check2hgi_next_region cell, assert per-task diagnostic-best bit-identical):**
-- `train.py`: runner merge (`_run_category`/`_run_next`), KD block, fold-subset slicing, **n_regions scan → pass-through** (also fixes the fan-out per-process overhead in #6).
-- `mtl_cv.py`: KD/prior block, joint-selector math (1107-1187), streaming train-metric consolidation (keep `guard_finite_step` name — test-imported).
-- `mtl_eval.py`: streamed-metric + OOD dedup into `metrics.py`; shared autocast ctx (`build_autocast_ctx`).
-- `folds.py`: region-label + `_classify_pois` extraction (verify `fold_set_digest` equality).
+**Roadmap — A/B-gated REMAINING (gate with `parity_check.sh`; note the caveats):**
+- `train.py`: **runner merge** (`_run_category`/`_run_next`) needs a SINGLE-TASK parity config (the MTL harness
+  doesn't exercise those runners); **n_regions scan → pass-through** (also fixes the fan-out per-process overhead
+  in #6) — MTL-harness-covered; **KD block** — needs a `--log-t-kd-weight 0.2` parity variant (the board uses 0.0).
+- `mtl_cv.py`: ✅ joint-selectors done; ✅ streaming train-metric consolidated (S1). KD/prior block remains
+  (`--log-t-kd-weight 0.2` variant). `guard_finite_step` must keep its name (test-imported).
+- `mtl_eval.py`: ✅ streamed-metric + chunk helper done. OOD-from-streamed dedup + shared autocast ctx remain
+  (the latter also touches `mtl_validation.py` — cross-file MED).
+- `folds.py`: region-label + `_classify_pois` extraction (verify `fold_set_digest` equality; the legacy-MTL path).
 
-**Realistic slim** (per the audit): mtl_cv ~15% SAFE-now / ~25–35% with A/B'd extractions; mtl_eval ~25–30%;
-experiment ~clarity (step 38→15); helpers/train.py mostly narration. The largest lever is trimming the dated
-narration comments to invariants — safe but high-volume; do it as a focused, reviewable pass.
+**DONE this round (5 files): `metrics.py`, `mtl_cv.py`, `mtl_eval.py`, `helpers.py`, `experiment.py`** — 3 A/B-gated
+scored/selection extractions + 2 SAFE dedups, each parity byte-identical + (where pure) unit-tested.
+**Remaining:** the train.py/folds.py extractions above + the narration comment-trim (the big line-reducer, left as
+a reviewable pass). Each is gated by the same `parity_check.sh` harness (extend it with a single-task / KD-on config
+for the two cases the MTL harness doesn't cover).
