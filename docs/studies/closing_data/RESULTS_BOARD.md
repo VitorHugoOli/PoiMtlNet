@@ -179,10 +179,12 @@ Per the baselines README, the paper's baseline tables read from [`../../baseline
   audited **v5** (6 faithfulness fixes: STAN-native **prefix-expansion** sequences, restored matching layer + interval
   embedding, constant-LR convergence; two-agent audit + GO code review; ~85× optimized via `F.embedding`+`torch.compile`,
   audit≈compiled within 0.1 pp) **clears the Markov floor AND stays below our MTL** at every measured state:
-  **AL 60.72 / AZ 49.86 / Istanbul 61.86** (reg Acc@10, seed 0 × 5f; best-epochs 5–12, genuinely converged). **FL
-  faithful-STAN is in-flight on the A40** (fold-0 v6 ckpt Acc@10 0.7307); **CA/TX footnoted infeasible-at-scale**
+  **AL 60.72 / AZ 49.86 / FL 72.99 / Istanbul 61.86** (reg Acc@10, seed 0 × 5f; best-epochs 5–12, genuinely
+  converged). **FL now COMPLETE** (5-fold v6 converged, Acc@10 **72.99 ± 0.34**, < our joint reg 77.28; PR #54
+  committed the real 5-fold JSON, superseding the fold-0-only 0.7307 checkpoint); **CA/TX footnoted infeasible-at-scale**
   (HMT-GRN + Markov carry CA/TX). STAN sits in the comparability hierarchy as **SECONDARY** (HMT-GRN-style primary;
-  ReHDM tertiary). JSONs `docs/results/baselines/faithful_stan_{state}_5f_200ep_v5_*.json`; finding `FAITHFUL_STAN_FINDINGS.md`.
+  ReHDM tertiary). JSONs `docs/results/baselines/faithful_stan_{al,az,istanbul}_5f_200ep_v5_*.json` +
+  `faithful_stan_florida_5f_200ep_v6_opt.json`; finding `FAITHFUL_STAN_FINDINGS.md`.
 - 🔭 **STAN-`stl_hgi` (STAN on OUR HGI region-embedding substrate, overlap footing) — NOT a paper baseline; FUTURE-
   HEADROOM signal (user steer, 2026-06-26).** At the board overlap footing: AL 70.35 / AZ 59.66 / FL 76.82 (reg Acc@10,
   PR #52) — at AL it **exceeds our MTL champion reg (69.81)**. That is precisely why it is NOT a region baseline we

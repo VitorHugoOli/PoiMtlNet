@@ -33,13 +33,13 @@ export TORCHINDUCTOR_CACHE_DIR=$HOME/.inductor_cache_board
 2. ✅ **Blocker 2 — FL CTLE-E2E — DONE (PR #50)** (FL 29.69/33.45; phantom 29.65 retired). §2 = record; no re-run.
 3. ✅ **Blocker 3 — HGI cat-STL under overlap — DONE (CA/TX landed PR #52: CA +37.95 / TX +37.47).** All 5 Gowalla
    states complete (AL/AZ/FL #50 + CA/TX #52); Tbl 2 is one windowing. §3 = record; no re-run.
-4. **Blocker 4 — region externals — THE LIVE A40 WORK.** ⚠ **Re-scoped (2026-06-26):** the STAN headline is now
-   **FAITHFUL-from-raw** (audited v5, PR #53: AL 60.72 / AZ 49.86 / Istanbul 61.86, all converged + below our joint).
+4. **Blocker 4 — region externals.** ⚠ **Re-scoped (2026-06-26):** the STAN headline is now **FAITHFUL-from-raw**
+   (audited v5/v6, PR #53/#54: AL 60.72 / AZ 49.86 / **FL 72.99** / Istanbul 61.86, all converged + below our joint).
    **STAN-`stl_hgi` is NO LONGER a baseline** — it landed in #52 (AL 70.35 / AZ 59.66 / FL 76.82) and is now a
-   **future-headroom signal** (substrate lifts STAN above our MTL@AL), kept OUT of the paper. **Remaining A40 work:**
-   **(a) FINISH FL faithful-STAN** (in-flight, fold-0 v6 ckpt Acc@10 0.7307 → complete 5f; CA/TX infeasible-at-scale,
-   footnoted); **(b) ReHDM-faithful** (AL/AZ done per refooting; FL/CA/TX as possible, Istanbul via the FSQ→mahalle
-   adapter or footnote). See §4 + `../../../articles/[mobiwac]/STAN_REFOOTING_HANDOFF.md`.
+   **future-headroom signal** (substrate lifts STAN above our MTL@AL), kept OUT of the paper. **✅ FL faithful-STAN
+   DONE** (PR #54: 5-fold v6, Acc@10 72.99 ± 0.34; the fold-0-only checkpoint is superseded). **Remaining A40 work:**
+   only **ReHDM-faithful** (AL/AZ done per refooting; FL/CA/TX as possible, Istanbul via the FSQ→mahalle adapter or
+   footnote). CA/TX faithful-STAN stays infeasible-at-scale (footnoted). See §4 + `../../../articles/[mobiwac]/STAN_REFOOTING_HANDOFF.md`.
 5. **Blocker 1 fallback** — FL CTLE-SC 5f, only if the H100 never reaches 5f (it has 2/5; W3 closed at AL/AZ/Istanbul). See §5.
 
 ---
@@ -156,7 +156,7 @@ windowing-robust → **no** re-score.)
 
 ---
 
-## 4 · Blocker 4 — Region externals (faithful STAN ✅ AL/AZ/Istanbul; FL in-flight, then ReHDM)
+## 4 · Blocker 4 — Region externals (faithful STAN ✅ AL/AZ/FL/Istanbul; then ReHDM)
 
 > Full brief + acceptance gates:
 > [`../../../articles/[mobiwac]/STAN_REFOOTING_HANDOFF.md`](../../../articles/[mobiwac]/STAN_REFOOTING_HANDOFF.md).
@@ -167,16 +167,15 @@ future-headroom signal, NOT a baseline). The earlier faithful-STAN v4 (AL 34.46 
 under-training collapse artifact — **superseded.** HMT-GRN-style is the primary matched region external; faithful STAN
 is secondary; ReHDM is the own-protocol reference.
 
-### 4.1 Phase 1 — FAITHFUL STAN — ✅ DONE for AL/AZ/Istanbul (PR #53); FL in-flight
-> ✅ **The re-implementation landed (PR #53).** Audited **v5**: all 6 faithfulness fixes (STAN-native prefix-expansion
-> sequences, restored matching layer + interval embedding, constant-LR convergence; two-agent audit + GO review;
-> ~85× optimized, audit≈compiled within 0.1 pp). **Converged** (best-epochs 5–12) and **clears the Markov floor +
-> stays below our joint**: **AL 60.72 / AZ 49.86 / Istanbul 61.86** (reg Acc@10, seed 0 × 5f). v4 superseded.
+### 4.1 Phase 1 — FAITHFUL STAN — ✅ DONE for AL/AZ/FL/Istanbul (PR #53 + #54)
+> ✅ **The re-implementation landed (PR #53), FL completed (PR #54).** Audited **v5/v6**: all 6 faithfulness fixes
+> (STAN-native prefix-expansion sequences, restored matching layer + interval embedding, constant-LR convergence;
+> two-agent audit + GO review; ~85× optimized, audit≈compiled within 0.1 pp). **Converged** (best-epochs 5–12) and
+> **clears the Markov floor + stays below our joint**: **AL 60.72 / AZ 49.86 / FL 72.99 / Istanbul 61.86** (reg Acc@10,
+> seed 0 × 5f). v4 superseded; FL's fold-0-only checkpoint (0.7307) superseded by the committed 5-fold v6 JSON (72.99 ± 0.34).
 >
-> **Remaining A40 work — FINISH FL faithful-STAN:** the run is in-flight (fold-0 v6 ckpt Acc@10 0.7307). Complete the
-> 5 folds, score, commit `docs/results/baselines/faithful_stan_florida_5f_200ep_v5_*.json`, fill the Table-3 FL STAN
-> cell (currently `--‡` in-flight). **CA/TX faithful-STAN is infeasible at scale → footnote `†`** (HMT-GRN + Markov
-> carry CA/TX). Recipe + flags: `research/baselines/stan/README_FAITHFUL_STAN.md` (constant-LR, prefix-expansion,
+> **No remaining STAN runs.** **CA/TX faithful-STAN is infeasible at scale → footnote `†`** (HMT-GRN + Markov carry
+> CA/TX). Recipe + flags: `research/baselines/stan/README_FAITHFUL_STAN.md` (constant-LR, prefix-expansion,
 > `--compile`; fp32 on the A40 — bf16 backward grad-NaN risk at large C, so FL stays fp32).
 
 ### 4.2 Phase 2 — ReHDM-faithful (after Phase 1)
