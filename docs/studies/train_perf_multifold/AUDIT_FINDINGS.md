@@ -140,11 +140,19 @@ where a path the champion can't exercise was touched, by a focused unit test:
 - **Phase 3** — batch-loop loss declutter: `_log_c_kd_loss` + `_cat_kd_loss` (mirror `_log_t_kd_loss`; −~85 lines; KD-on parity + unit test vs inline ref).
 - **Phase 4a** — `_resolve_per_fold_priors` (the ~205-line per-fold log_T/log_C leak-guard block out of the fold loop; verbatim).
 - **Phase 4b** — `MTL_SKIP_INERT_LOGT=1` opt-in: skip the per-fold log_T load when provably inert (the champion) → no log_T files needed; byte-identical, default-off.
+- **Phase 5a** — `_optimizer_micro_step` (the should_step body) — DONE on user request (commit 29b43c2f). The
+  under-gating concern was resolved by building branch-coverage parity variants: `--gradient-accumulation-steps 2`
+  (partial-group rescale) + `--alternating-optimizer-step` (alt-inactive zero), both byte-identical, plus 6
+  deterministic unit tests. Advisor SAFE.
+- **Phase 5b** — `_run_validation_epoch` (the per-epoch validation→history block) — DONE on user request (commit
+  25f6476a). Champion s0/s1 byte-identical + 121 integration tests; advisor SAFE.
+- **Phase 5c** — vs-main validation (`golden==main_golden` byte-identical, eager) + the MTL_STAN_LEGACY_MASK
+  correction (the mask gives NO bit-exact compiled repro; unpinned). See log.md §Phase 5c.
 
-**DELIBERATELY DECLINED (documented in log.md §Phase 4b):** the should_step **optimizer micro-step** and the
-per-epoch **validation→history** block — both factor into ~13–15-arg functions (interface wider than complexity
-removed) and the optimizer-step's risky branches (partial-group rescale, alternating-SGD zero) are NOT exercised
-by the AL champion parity → under-gated. The numeric piece worth naming (joint selector) was already extracted.
+> NOTE (2026-06-26): the two items above were originally listed as "deliberately declined" (interface width +
+> under-gating); the user asked for them and both were extracted with the branch-coverage gating that closed the
+> under-gating concern. The decline is REVERSED.
 
-**STILL OPEN (lower value, documented):** `mtl_eval` OOD-from-streamed dedup + shared autocast ctx (cross-file with
-`mtl_validation.py`); `helpers` warmup-builder extraction. All gate-able with the same `parity_check.sh`.
+**STILL OPEN (lower value, documented):** the `helpers` warmup-builder extraction (`setup_scheduler` inlines two
+builders); the full 4-file `build_autocast_ctx` unify (only the 2-file *eval* ctx + the `_ood_from_streamed` dedup
+are done — commit 52e387df); `category_cv`/`next_cv` `run_cv` merge. All gate-able with the same `parity_check.sh`.
