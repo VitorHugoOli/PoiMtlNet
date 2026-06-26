@@ -304,6 +304,19 @@ def _fmt_metric(value: float) -> str:
     return f"{value * 100:.2f}"
 
 
+def _flatten_encoder(encoder):
+    """Flatten an encoder's trainable params into one detached 1-D tensor (or None).
+
+    Used for the per-epoch encoder weight-trajectory diagnostic (Frobenius drift).
+    """
+    if encoder is None:
+        return None
+    params = [p.detach().reshape(-1) for p in encoder.parameters() if p.requires_grad]
+    if not params:
+        return None
+    return torch.cat(params).clone()
+
+
 # Training Function
 def train_model(model: torch.nn.Module,
                 optimizer,
@@ -467,17 +480,8 @@ def train_model(model: torch.nn.Module,
         )
     pareto_points: list[tuple[float, float]] = []
 
-    # Encoder weight-trajectory diagnostic. Snapshot the initial `next_encoder`
-    # and `category_encoder` parameter vectors so per-epoch Frobenius drift can
-    # be logged below. Silent no-op if encoders are absent.
-    def _flatten_encoder(encoder):
-        if encoder is None:
-            return None
-        params = [p.detach().reshape(-1) for p in encoder.parameters() if p.requires_grad]
-        if not params:
-            return None
-        return torch.cat(params).clone()
-
+    # Encoder weight-trajectory diagnostic: snapshot the initial encoder param vectors
+    # so per-epoch Frobenius drift can be logged below (_flatten_encoder is module-level).
     next_enc_init = _flatten_encoder(getattr(model, "next_encoder", None))
     cat_enc_init = _flatten_encoder(getattr(model, "category_encoder", None))
     next_enc_prev = next_enc_init.clone() if next_enc_init is not None else None
