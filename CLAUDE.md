@@ -194,12 +194,15 @@ Three opt-in dev tools added 2026-06-26 (all default-off → bare runs are byte-
   in the STAN reg head ("P1"; `graph breaks 10→2`; eager byte-identical, `tests/test_models/test_stan_mask_equivalence.py`),
   cached the per-epoch OOD train-label set, and pinned CPU-resident batches (CA/TX H2D). Excluded as
   quality-risking: fused AdamW, SDPA-in-STAN, bf16-default, removing the AMP gate, `num_workers>0`.
-  > ⚠ **P1 + frozen-§0.1 bit-exactness.** P1 is byte-identical in EAGER, but under `--compile` (the board protocol)
-  > removing the graph break shifts the inductor reduction order → the champion moves ≤0.3 pp/fold (within fold-std,
-  > mean preserved; AL 63.18/69.73 → 63.44/69.82). P1 is **default-on** (perf). **To bit-exactly reproduce a frozen
-  > §0.1 COMPILED cell, set `MTL_STAN_LEGACY_MASK=1`** (restores the guarded masking). The repro driver
-  > `docs/studies/train_perf_multifold/run_al_baseline.sh` pins it; **the closing_data board drivers
-  > (`scripts/closing_data/board_*.sh`) should pin `MTL_STAN_LEGACY_MASK=1` too when bit-reproducing a frozen cell.**
+  > ⚠ **P1 is the perf default — do NOT pin `MTL_STAN_LEGACY_MASK` (corrected 2026-06-26, Phase 5c).** P1 is
+  > byte-identical in EAGER. Under `--compile` the champion moves ≤0.3 pp/fold (AL 63.18/69.73 ↔ 63.44/69.82,
+  > within fold-std, mean preserved). **The legacy mask does NOT give bit-exact compiled reproduction** — Phase-5c
+  > proved that with a FRESH inductor cache `MTL_STAN_LEGACY_MASK` on==off (both 63.18); the prior 63.44 was a
+  > specific PERSISTENT-cache compile session, not the mask. The compiled number is governed by the inductor
+  > cache/compile session (autotuning + reduction-order nondeterminism), which the mask gate doesn't control;
+  > `mask=1` only restores the **slower** graph-break path. **So leave it OFF (the head.py default) — eager is the
+  > deterministic ground truth (the parity harness + `golden==main_golden`); treat compiled numbers as
+  > within-fold-std, not bit-reproducible.** (`run_al_baseline.sh` no longer pins it.)
 
 > ⚠ **DEFAULTS & ANTI-STUMBLE (2026-06-19, read [`docs/studies/pre_freeze_gates/DEFAULTS_AND_GUARDS.md`](docs/studies/pre_freeze_gates/DEFAULTS_AND_GUARDS.md)).** The champion **recipe** is now the DEFAULT: a bare `train.py --task mtl` auto-injects **v16** via `--canon` (`DEFAULT_CANON`, `src/configs/canon.py`) — the 6 "silently-wrong-flags" below are handled by the bundle. **But four board values are deliberately NOT global defaults** (flipping them silently breaks frozen-§0.1 reproduction): **MIN_SEQUENCE_LENGTH=10**, **stride-1 (overlap)**, **`--compile`**, **`--tf32`** live ONLY in the P3 board recipe/driver, not `core.py`/`canon.py`. `train.py` now emits WARN guards (`_preflight_canon_guards`; `MTL_STRICT=1` hard-fails) for the three silent stumbles: **dev-seed 42** (paper needs `--seed {0,1,7,100}`), **champion-recipe-on-wrong-substrate**, and **torch ≠ 2.11.0+cu128**. Never flip the four board values to global defaults; see the TRAPS list in that doc.
 >

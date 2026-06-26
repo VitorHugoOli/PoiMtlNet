@@ -45,9 +45,14 @@ Two optional hardenings (both bit-identical on today's left-packed data → need
   position (`S-1 - valid[:,::-1].argmax`, as in `next_region.py:137-141`) → alignment-robust. Bit-identical now.
 - **U2 (cosmetic):** fully-padded rows have a softmax-index/readout-index mismatch — unreachable on real data.
 
-## #1 · P1 compile-drift — GATED (done)
-`MTL_STAN_LEGACY_MASK=1` restores the guarded `.any()` masking at all 3 STAN sites → bit-exact `--compile`
-reproduction of a pre-P1 frozen cell. Default off = fast path; eager is bit-exact either way.
+## #1 · P1 compile-drift — GATED (done); bit-exact-repro claim CORRECTED in Phase 5c
+`MTL_STAN_LEGACY_MASK=1` restores the guarded `.any()` masking at all 3 STAN sites (graph breaks 2→10).
+Default off = fast path; **eager is bit-exact either way**.
+> ⚠ **CORRECTION (Phase 5c):** the mask does NOT actually give bit-exact `--compile` reproduction. With a FRESH
+> inductor cache, mask on==off (both AL 63.18/69.73); the prior "frozen-cell" 63.44/69.82 was a PERSISTENT-cache
+> compile session, not the mask. The compiled number is governed by the cache/compile session, which the mask
+> gate doesn't control; `mask=1` only restores the SLOWER graph-break path. **Decision: leave it OFF (perf); eager
+> is the deterministic ground truth.** `run_al_baseline.sh` no longer pins it (see log.md §Phase 5c).
 
 ## #3 · bf16/A40 fix — fp32 attention island (done; large-state validation deferred)
 `MTL_STAN_FP32_ATTN=1` runs the masked-softmax attention in fp32 even under bf16/fp16 autocast (the documented
@@ -73,10 +78,11 @@ Independent skeptic review of what the eager AL parity can't catch (leaks, remov
 - ✅ **full_summary.json fan-out guard** — under `--run-id` it's stamped `_fanout` (subset warning → use
   `aggregate_folds.py`) so a partial can't be cited as the full run. + a "NOT for frozen-cell reproduction" caveat in
   `run_folds_fanout.sh` (the fan-out's `--per-fold-seed` RNG stream differs from legacy sequential).
-- ✅ **P1 compile-drift (user decision: keep P1 on + pin bit-exact in repro drivers)** — P1 stays default-on (perf);
-  `MTL_STAN_LEGACY_MASK=1` restores the pre-P1 guarded masking for bit-exact compiled reproduction. **Verified:** the
-  pin takes effect under `--compile` (graph breaks 2 → **10**, the pre-P1 path restored). `run_al_baseline.sh` pins it;
-  `CLAUDE.md` recommends the `closing_data/board_*.sh` drivers pin it when bit-reproducing a frozen §0.1 cell.
+- ✅ **P1 compile-drift — keep P1 on; `MTL_STAN_LEGACY_MASK` UNPINNED (revised Phase 5c).** P1 stays default-on
+  (perf). The mask gate works (graph breaks 2→10) but Phase-5c proved it does NOT give bit-exact compiled
+  reproduction (fresh-cache mask on==off; the compiled number is cache-session-governed). So pinning it only
+  costs the slower graph-break path for no reproducibility gain → `run_al_baseline.sh` no longer pins it, and
+  CLAUDE.md is corrected to say "leave it off; eager is ground truth." See log.md §Phase 5c.
 
 ## #5 · Per-file train-flow slimming — grinding the A/B-gated extractions with a parity harness
 
