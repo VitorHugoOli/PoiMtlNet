@@ -1,5 +1,26 @@
 # closing-data — phase plan (DRAFT v2, 2026-06-12 — open questions RESOLVED by user)
 
+> ## ⭐ CURRENT STATUS (2026-06-26) — the heavy spend is DONE; we are in paper close-out
+> The P0→P4 phased plan below is the **origin design** (kept as the record). In practice the board ran and **the main
+> data for the MobiWac paper is essentially complete:**
+> - **Part 1 (representation):** Tbl 2 Check2HGI-vs-HGI category margins — **all 5 Gowalla states + Istanbul**
+>   (+27.6…+39.6; CA/TX landed PR #52). One windowing for the whole paper.
+> - **Part 2 (one model, two tasks):** champion-G MTL board — **all 6 states, 5f-settled** (n=5 seed-0 provisional):
+>   beats cat everywhere, beats reg at the large states, matches at the small.
+> - **Region externals:** HMT-GRN-style (all 6) + **faithful STAN AL/AZ/Istanbul (PR #53)** + CSLSL tie + feature-concat.
+>   STAN-`stl_hgi` is reclassified a **future-headroom signal, NOT a paper baseline** (user steer 2026-06-26).
+> - **Category externals / controls:** POI-RGNN, Markov, CTLE-SC (AL/AZ/Istanbul), CTLE-E2E (AL/FL).
+>
+> **Remaining MAIN-DATA gaps to fully close the paper (small; secondary refs / corroboration only):**
+> 1. **FL faithful-STAN** — in-flight on the A40 (fold-0 v6 ckpt 0.7307); fills the Table-3 FL STAN cell. *(secondary)*
+> 2. **Istanbul ReHDM** — FSQ→mahalle adapter, else footnote not-available (AL/AZ/FL ReHDM-faithful exist; CA/TX footnote infeasible). *(secondary)*
+> 3. **FL CTLE-SC 5f** — H100 (2/5 now); W3 already closed at AL/AZ/Istanbul → **corroboration, not blocking.**
+> 4. **n=20 top-up** (seeds {1,7,100}) — **post-deadline** refinement; the headline stands at n=5 provisional.
+>
+> The P3 full-base regeneration + the freeze barrier already executed across the board. Live priorities now live in
+> **`HANDOFF_A40.md`** (FL faithful-STAN → ReHDM) and the H100 (FL CTLE-SC). **Keep the focus on these few cells; do
+> NOT reopen the recipe / freeze.** The phased plan below is retained as the methodology record.
+
 > **DRAFT — sign-off on the RUN_MATRIX (P1b output) is the remaining launch gate.** Phases strictly
 > ordered: P0/P1 are cheap and can interleave; **P2 (FREEZE) is a hard barrier** — nothing in P3/P4
 > starts before the freeze commit.

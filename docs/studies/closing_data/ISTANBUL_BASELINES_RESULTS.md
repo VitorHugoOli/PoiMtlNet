@@ -1,5 +1,12 @@
 # ISTANBUL BASELINES — results + run log (2026-06-25, M4 Pro / MPS, fp32)
 
+> ⚠ **STAN-VARIANT NOTE SUPERSEDED (2026-06-26).** The "Variant alignment" directive below (STAN = `stl_hgi`,
+> faithful STAN removed) was **reversed** by the region-refooting decision + PR #53. The paper's headline STAN is now
+> **faithful-from-raw** (audited v5, converged): Istanbul Acc@10 **61.86** (`STAN_REFOOTING_HANDOFF.md`,
+> `FAITHFUL_STAN_FINDINGS.md`). **STAN-`stl_hgi`** (Istanbul 71.13, below) is now a **future-headroom signal, NOT a
+> paper baseline** (user steer). The Istanbul **Markov / POI-RGNN category** numbers below are unaffected (they are
+> the canonical Table-3 cat baselines: Markov-K best 24.55 / POI-RGNN 30.12). **ReHDM** stays faithful, deferred to CUDA.
+
 > Execution record for [`ISTANBUL_BASELINES_HANDOFF.md`](ISTANBUL_BASELINES_HANDOFF.md). Completes the
 > §6.3 external-validity box so Istanbul carries the same baseline columns as the Gowalla states.
 > Protocol: **seed 0 × 5 folds (n=5)**, leak-free per-fold train-only priors, user-disjoint folds, MPS = fp32.

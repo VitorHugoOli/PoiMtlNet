@@ -171,6 +171,24 @@ Per the baselines README, the paper's baseline tables read from [`../../baseline
   value is correct; the **62.37 is the outlier** (unreproducible, artifacts reclaimed). Use the Mac/CPU HMT-GRN reg:
   **AL 57.1 / AZ 43.7 / FL 63.7 / CA 49.6 / TX 53.9 / Istanbul 60.4** — all **well below our MTL ~65-69**, so we beat
   the sole region-native baseline by a wide margin (all 6 states now done). (Re-verify the old 62.37, not the Mac value.)
+  ⚠ **Wording: this is HMT-GRN-*style*** (own LSTM trunk + train-only region-transition prior from raw; **graph module
+  + hierarchical beam search dropped**, no next-POI head), NOT a strict reproduction — call it "region-native E2E",
+  never "faithful HMT-GRN" (deviation ledger: `../../baselines/next_region/hmt_grn.md`).
+- ✅ **STAN faithful (region native-E2E, SECONDARY reference) — RE-IMPLEMENTED & CONVERGED (PR #53).** The old v4
+  numbers (AL 34.46 / AZ 38.96, below the Markov floor) were a **collapse artifact — superseded, never cite.** The
+  audited **v5** (6 faithfulness fixes: STAN-native **prefix-expansion** sequences, restored matching layer + interval
+  embedding, constant-LR convergence; two-agent audit + GO code review; ~85× optimized via `F.embedding`+`torch.compile`,
+  audit≈compiled within 0.1 pp) **clears the Markov floor AND stays below our MTL** at every measured state:
+  **AL 60.72 / AZ 49.86 / Istanbul 61.86** (reg Acc@10, seed 0 × 5f; best-epochs 5–12, genuinely converged). **FL
+  faithful-STAN is in-flight on the A40** (fold-0 v6 ckpt Acc@10 0.7307); **CA/TX footnoted infeasible-at-scale**
+  (HMT-GRN + Markov carry CA/TX). STAN sits in the comparability hierarchy as **SECONDARY** (HMT-GRN-style primary;
+  ReHDM tertiary). JSONs `docs/results/baselines/faithful_stan_{state}_5f_200ep_v5_*.json`; finding `FAITHFUL_STAN_FINDINGS.md`.
+- 🔭 **STAN-`stl_hgi` (STAN on OUR HGI region-embedding substrate, overlap footing) — NOT a paper baseline; FUTURE-
+  HEADROOM signal (user steer, 2026-06-26).** At the board overlap footing: AL 70.35 / AZ 59.66 / FL 76.82 (reg Acc@10,
+  PR #52) — at AL it **exceeds our MTL champion reg (69.81)**. That is precisely why it is NOT a region baseline we
+  report (it would read as "STAN beats us"): it isolates substrate-vs-architecture and shows **our substrate lifts even
+  an off-the-shelf region model above our current MTL → the MTL has headroom to grow.** Filed as future work; kept OUT
+  of Table 3 and the baseline set. JSONs `baseline_compare/{alabama,arizona,florida}_stan_hgi_ovl_s0.json`.
 - ✅ **CSLSL / cascade (B4, role-3 "published MTL alternative") — CANONICAL = the §1b A40 dk_ovl DEAD TIE.** On the
   board base (dk_ovl, true-fp32, same-device champion-G re-run), cascade-vs-parallel is a **dead tie** (Δjoint AL
   +0.02 / AZ +0.00 ≪ fold-std) → our parallel cross-attn **matches** the dominant published MTL alternative at equal

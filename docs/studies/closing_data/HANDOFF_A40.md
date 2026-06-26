@@ -28,15 +28,19 @@ export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"
 export TORCHINDUCTOR_CACHE_DIR=$HOME/.inductor_cache_board
 ```
 
-## Priority order (UPDATED 2026-06-25 — W6 + Blocker 2 DONE)
+## Priority order (UPDATED 2026-06-26 — W6 + Blockers 2 & 3 DONE; STAN re-impl landed PR #53)
 1. ✅ **W6 encoder-isolation probe — DONE (PR #48): trunk, not transfer.** §1 = record; no re-run.
 2. ✅ **Blocker 2 — FL CTLE-E2E — DONE (PR #50)** (FL 29.69/33.45; phantom 29.65 retired). §2 = record; no re-run.
-3. **Blocker 3 — finish CA + TX (the continuing work)** — HGI cat-STL under overlap; AL/AZ/FL done (#50). CA/TX HGI
-   already on disk (sha256-match) → just `run_hgi_ovl_cat_cell.sh` per state, build→train→delete (disk tight). See §3.
-4. **Blocker 4 — region-baseline re-footing (AFTER Blocker 3)** — re-run STAN-`stl_hgi` at the board footing
-   (seed 0, stride-1 overlap, HGI substrate) for **AL/AZ/FL/CA/TX** (reuses the Blocker-3 HGI builds), THEN
-   ReHDM-faithful (AL/AZ/Istanbul parallel, FL/CA/TX as possible). **Istanbul STAN is on the M4 — not here.** See §4.
-5. **Blocker 1 fallback** — FL CTLE-SC 5f, only if the H100's never reaches 5f (it has 2/5; W3 closed at AL/AZ/Istanbul). See §5.
+3. ✅ **Blocker 3 — HGI cat-STL under overlap — DONE (CA/TX landed PR #52: CA +37.95 / TX +37.47).** All 5 Gowalla
+   states complete (AL/AZ/FL #50 + CA/TX #52); Tbl 2 is one windowing. §3 = record; no re-run.
+4. **Blocker 4 — region externals — THE LIVE A40 WORK.** ⚠ **Re-scoped (2026-06-26):** the STAN headline is now
+   **FAITHFUL-from-raw** (audited v5, PR #53: AL 60.72 / AZ 49.86 / Istanbul 61.86, all converged + below our joint).
+   **STAN-`stl_hgi` is NO LONGER a baseline** — it landed in #52 (AL 70.35 / AZ 59.66 / FL 76.82) and is now a
+   **future-headroom signal** (substrate lifts STAN above our MTL@AL), kept OUT of the paper. **Remaining A40 work:**
+   **(a) FINISH FL faithful-STAN** (in-flight, fold-0 v6 ckpt Acc@10 0.7307 → complete 5f; CA/TX infeasible-at-scale,
+   footnoted); **(b) ReHDM-faithful** (AL/AZ done per refooting; FL/CA/TX as possible, Istanbul via the FSQ→mahalle
+   adapter or footnote). See §4 + `../../../articles/[mobiwac]/STAN_REFOOTING_HANDOFF.md`.
+5. **Blocker 1 fallback** — FL CTLE-SC 5f, only if the H100 never reaches 5f (it has 2/5; W3 closed at AL/AZ/Istanbul). See §5.
 
 ---
 
@@ -83,12 +87,11 @@ RESULTS_BOARD §4; strike any lingering phantom 29.65. If you also have the H100
 
 ## 3 · Blocker 3 — Tbl 2 substrate contrast on ONE windowing (HGI category-STL under overlap)
 
-> 🔄 **STATUS (PR #50 merged): AL/AZ/FL DONE, CA/TX REMAINING.** HGI-overlap cat-STL: AL 26.56 / AZ 29.50 /
-> FL 35.53 → substrate margin **+29.31 / +27.63 / +39.62** vs the board Check2HGI ceiling (RESULTS_BOARD §4). The
-> `HGI_DK_OVL` engine + streaming builder (`build_hgi_overlap_inputs.py`) + runner (`run_hgi_ovl_cat_cell.sh`) are
-> on main; §3.1 prereq is moot (CA/TX HGI on disk, sha256-match the manifest). **Remaining: run CA + TX**
-> (`run_hgi_ovl_cat_cell.sh`, build→train→delete sequentially — disk is tight), then drop the "non-overlap" caveat
-> on PAPER_PLAN Tbl 2. The §3.2–§3.5 builder/gate details below still apply for CA/TX.
+> ✅ **STATUS — DONE (PR #52 merged 2026-06-26).** All 5 Gowalla states complete. HGI-overlap cat-STL:
+> AL 26.56 / AZ 29.50 / FL 35.53 (#50) + **CA 32.31 / TX 32.48 (#52)** → substrate margin **+29.31 / +27.63 /
+> +39.62 / +37.95 / +37.47** vs the board Check2HGI ceiling (RESULTS_BOARD §4). The PAPER_PLAN Tbl-2 "non-overlap"
+> caveat is dropped (one windowing for the whole paper). **No re-run.** The §3.1–§3.5 builder/gate details below are
+> kept as the reproduction record.
 
 **Why.** Part 2 is on the overlap board; the Part-1 substrate table (Tbl 2: Check2HGI vs HGI category macro-F1 +
 the per-visit share) is still on the **non-overlap** base. A reviewer asks "why two windowings?". The **Check2HGI**
@@ -153,26 +156,28 @@ windowing-robust → **no** re-score.)
 
 ---
 
-## 4 · Blocker 4 — Region-baseline re-footing (STAN board-match, then ReHDM)
+## 4 · Blocker 4 — Region externals (faithful STAN ✅ AL/AZ/Istanbul; FL in-flight, then ReHDM)
 
-> **Do this AFTER Blocker 3** (it reuses the Blocker-3 HGI builds for CA/TX). Full brief + acceptance gates:
+> Full brief + acceptance gates:
 > [`../../../articles/[mobiwac]/STAN_REFOOTING_HANDOFF.md`](../../../articles/[mobiwac]/STAN_REFOOTING_HANDOFF.md).
 
-**Why.** Table 3's region externals are on the WRONG footing vs the board (seed 0, stride-1 overlap), AND the faithful
-STAN numbers are under-trained artifacts. Two audits (2026-06-26): (1) **literature** — STAN must be run FAITHFULLY
-(own embeddings from raw, common protocol); feeding it a pretrained embedding (`stl_hgi`) is non-standard. (2)
-**implementation** — the current faithful-STAN v4 (AL 34.46 / AZ 38.96, below Markov) is confounded by under-training
-(best-epochs at 49/50), stride-9 data starvation, and a STAN-derived head → DO NOT cite. ReHDM-faithful is on its own
-protocol; HMT-GRN is the only matched region external today.
+**Why.** Table 3's region externals must be on the right footing vs the board, and run FAITHFULLY (STAN's own
+embeddings from raw — feeding it a pretrained embedding, `stl_hgi`, is non-standard and is now relegated to a
+future-headroom signal, NOT a baseline). The earlier faithful-STAN v4 (AL 34.46 / AZ 38.96, below Markov) was an
+under-training collapse artifact — **superseded.** HMT-GRN-style is the primary matched region external; faithful STAN
+is secondary; ReHDM is the own-protocol reference.
 
-### 4.1 Phase 1 — FAITHFUL STAN at the board footing (do first)
-Run **faithful STAN** (`research/baselines/stan/`, STAN's own embeddings from raw — NOT the `next_stan`/`stl_hgi`
-ablation) for **AL/AZ/FL** (CA/TX faithful-STAN infeasible at scale → footnote, like ReHDM). NOT Istanbul (M4).
-**Three audit-mandated fixes first** (full spec: `STAN_REFOOTING_HANDOFF.md`): (1) ETL → **stride-1 overlap,
-MIN_SEQ=10** (currently stride-9, ~9x too few windows); (2) **train to convergence** (epochs ≈150-200 + early-stop;
-best-epoch must land before the cap; **seed 0**); (3) **verify the head is not degenerate** (macro-F1 above floor,
-Acc@1 sane). Conditional: if still degenerate, tighten the matching layer toward the reference STAN (`Linear(M,1)` +
-residual/LN) — flag first. **Gate:** converged + non-degenerate; old v4/seed-42 numbers superseded.
+### 4.1 Phase 1 — FAITHFUL STAN — ✅ DONE for AL/AZ/Istanbul (PR #53); FL in-flight
+> ✅ **The re-implementation landed (PR #53).** Audited **v5**: all 6 faithfulness fixes (STAN-native prefix-expansion
+> sequences, restored matching layer + interval embedding, constant-LR convergence; two-agent audit + GO review;
+> ~85× optimized, audit≈compiled within 0.1 pp). **Converged** (best-epochs 5–12) and **clears the Markov floor +
+> stays below our joint**: **AL 60.72 / AZ 49.86 / Istanbul 61.86** (reg Acc@10, seed 0 × 5f). v4 superseded.
+>
+> **Remaining A40 work — FINISH FL faithful-STAN:** the run is in-flight (fold-0 v6 ckpt Acc@10 0.7307). Complete the
+> 5 folds, score, commit `docs/results/baselines/faithful_stan_florida_5f_200ep_v5_*.json`, fill the Table-3 FL STAN
+> cell (currently `--‡` in-flight). **CA/TX faithful-STAN is infeasible at scale → footnote `†`** (HMT-GRN + Markov
+> carry CA/TX). Recipe + flags: `research/baselines/stan/README_FAITHFUL_STAN.md` (constant-LR, prefix-expansion,
+> `--compile`; fp32 on the A40 — bf16 backward grad-NaN risk at large C, so FL stays fp32).
 
 ### 4.2 Phase 2 — ReHDM-faithful (after Phase 1)
 ReHDM in its **faithful** form (own architecture + raw inputs + own protocol). **Order: AL/AZ/Istanbul in parallel
