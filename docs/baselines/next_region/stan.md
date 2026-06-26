@@ -24,6 +24,19 @@
 
 **Verdict:** fixes #1+#2 (matching layer + init) and #4+#5 (prefix-expansion + convergence) are the decisive four; #3/#6 are compliance. With them, faithful STAN should **plausibly clear** the Markov-1 region floor (modestly — coarse regions erode STAN's edge). **If audited-faithful + converged STAN STILL lands below the floor, THAT is the honest reportable result** (STAN is built for fine next-POI, not coarse regions).
 
+## ✅ Converged faithful-STAN results (2026-06-26, seed 0, user-disjoint 5-fold)
+
+Audited-faithful, converged, optimized (A+C+D+compile; see [`FAITHFUL_STAN_FINDINGS`](../../studies/closing_data/FAITHFUL_STAN_FINDINGS.md)).
+**These supersede v4 — strike v4 from all artifacts.** STAN clears the region floor but lands **below our MTL reg** at every state (it ranks the coarse-region task it wasn't built for):
+
+| State | regions | Acc@10 (5f) | our MTL reg | verdict | precision |
+|---|---:|---:|---:|---|---|
+| AL | 1109 | **60.72 ±5.20** | 69.81 | we beat | fp32+compile |
+| AZ | 1547 | **49.86 ±11.52** | 59.34 | we beat | fp32+compile |
+| Istanbul | 520 (mahalle) | **61.86 ±0.61** | 74.28 | we beat | bf16+compile |
+| FL | 4703 | running (`v6_opt`) | 77.28 | (expect beat/near) | bf16+compile |
+| CA / TX | 8501 / 6553 | pending (~1.5–2 h/state on A40, opt) | 65.66 / 67.02 | pending | bf16+compile |
+
 ## Why this is a baseline (not our model)
 External published-method reference for the next-region task. We use it to:
 
@@ -59,54 +72,56 @@ The substrate-bound vs faithful gap quantifies how much our pre-trained Check2HG
 | `stl_check2hgi` | 9-step Check2HGI region embeddings | relative-position-only | linear → `n_regions` (last-position readout) | `scripts/p1_region_head_ablation.py --heads next_stan --region-emb-source check2hgi` |
 | `stl_hgi` | 9-step HGI region embeddings | relative-position-only | linear → `n_regions` | `scripts/p1_region_head_ablation.py --heads next_stan --region-emb-source hgi` |
 
-## Reproduction commands
+## Reproduction commands (current — A40, audited-faithful + optimized)
+
+The faithful path is **self-contained** (`research/baselines/stan/`): ETL once per state, then train.
+Recipe = audit fixes #1–#6 (prefix-expansion, multiplicative matching, constant-LR + early-stop, fp32
+seed 0) + the validated optimization stack **A(bf16, big states)+C+D+compile** (quality bit-identical;
+see [`FAITHFUL_STAN_FINDINGS §3`](../../studies/closing_data/FAITHFUL_STAN_FINDINGS.md)). Full run guide:
+[`research/baselines/stan/README_FAITHFUL_STAN.md`](../../../research/baselines/stan/README_FAITHFUL_STAN.md).
 
 ```bash
-PY=/Users/vitor/Desktop/mestrado/ingred/.venv/bin/python
-ENV='PYTHONPATH=src DATA_ROOT=/Users/vitor/Desktop/mestrado/ingred/data
-     OUTPUT_DIR=/Users/vitor/Desktop/mestrado/ingred/output
-     PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0 PYTORCH_ENABLE_MPS_FALLBACK=1'
+# 1) ETL (prefix-expansion windows; CONTEXT_LEN=50). Run ETL ALONE — never alongside a train
+#    (geopandas + prefix-expansion is RAM-heavy; co-running with training OOMs).
+python -m research.baselines.stan.etl --state alabama
 
-# Faithful — one ETL pass per state, then train per state
-$ENV "$PY" -m research.baselines.stan.etl --state alabama
-$ENV "$PY" -m research.baselines.stan.train --state alabama --folds 5 --epochs 50 --tag FAITHFUL_STAN_al_5f50ep_v4
-# (repeat for arizona / florida — FL takes ~3.7 h on M4 Pro)
+# 2) Train — small states (AL/AZ): fp32 + compile (bf16 buys launch-bound small states nothing)
+python -u -m research.baselines.stan.train --state alabama --folds 5 \
+    --epochs 200 --patience 20 --seed 0 --compile --tag v6_opt
 
-# stl_check2hgi
-$ENV "$PY" -u scripts/p1_region_head_ablation.py \
-    --state alabama --heads next_stan \
-    --folds 5 --epochs 50 --input-type region \
-    --region-emb-source check2hgi \
-    --tag STAN_al_5f50ep
-# (FL tag was STAN_CHECK2HGI_fl_5f50ep — same flags)
-
-# stl_hgi
-$ENV "$PY" -u scripts/p1_region_head_ablation.py \
-    --state alabama --heads next_stan \
-    --folds 5 --epochs 50 --input-type region \
-    --region-emb-source hgi \
-    --tag STAN_HGI_al_5f50ep
+# 2') Train — big states (FL/CA/TX): add --amp bf16 (halves the [B,n,R] memory traffic)
+python -u -m research.baselines.stan.train --state florida --folds 5 \
+    --epochs 200 --patience 20 --seed 0 --amp bf16 --compile --tag v6_opt
+#    Istanbul (Massive-STEPS) needs its data pipeline first — see FAITHFUL_STAN_FINDINGS §4.
+#    --only-fold k runs a single split (per-fold JSON) for cross-MACHINE fold fan-out (e.g. H100).
 ```
 
-Always wrap long FL runs with `caffeinate -i env ...` to prevent sleep-induced SIGBUS (G4 in `SESSION_HANDOFF_2026-04-22.md`).
+`--compile-mode {default,max-autotune,reduce-overhead}` exists but **default is the one to use**:
+max-autotune segfaults, reduce-overhead gives no speedup. Larger batch (`--batch-size`) is a **reject**
+(no wall-time gain + small quality drop). All per `FAITHFUL_STAN_FINDINGS §3.1`.
+
+The substrate-bound `stl_check2hgi` / `stl_hgi` ablations are unchanged (`scripts/p1_region_head_ablation.py
+--heads next_stan --region-emb-source {check2hgi,hgi}`); they are an OPTIONAL labelled ablation, NOT the
+headline STAN cell.
 
 ## Source JSONs
 
-| Variant | State | JSON |
-|---|---|---|
-| `faithful` | AL | `docs/results/baselines/faithful_stan_alabama_5f_50ep_FAITHFUL_STAN_al_5f50ep_v4.json` |
-| `faithful` | AZ | `docs/results/baselines/faithful_stan_arizona_5f_50ep_FAITHFUL_STAN_az_5f50ep_v4.json` |
-| `faithful` | FL | `docs/results/baselines/faithful_stan_florida_5f_50ep_FAITHFUL_STAN_fl_5f50ep_v4.json` |
-| `stl_check2hgi` | AL | `docs/results/P1/region_head_alabama_region_5f_50ep_STAN_al_5f50ep.json` |
-| `stl_check2hgi` | AZ | `docs/results/P1/region_head_arizona_region_5f_50ep_STAN_az_5f50ep.json` |
-| `stl_check2hgi` | FL | `docs/results/P1/region_head_florida_region_5f_50ep_STAN_CHECK2HGI_fl_5f50ep.json` |
-| `stl_hgi` | AL | `docs/results/P1/region_head_alabama_region_5f_50ep_STAN_HGI_al_5f50ep.json` |
-| `stl_hgi` | AZ | `docs/results/P1/region_head_arizona_region_5f_50ep_STAN_HGI_az_5f50ep.json` |
-| `stl_hgi` | FL | `docs/results/P1/region_head_florida_region_5f_50ep_STAN_HGI_fl_5f50ep.json` |
+**Headline `faithful` (converged, seed 0, supersedes v4):**
+
+| State | JSON |
+|---|---|
+| AL | `docs/results/baselines/faithful_stan_alabama_5f_200ep_v5_compiled.json` |
+| AZ | `docs/results/baselines/faithful_stan_arizona_5f_200ep_v5_compiled.json` |
+| Istanbul | `docs/results/baselines/faithful_stan_istanbul_5f_200ep_v5_bf16c.json` |
+| FL | `docs/results/baselines/faithful_stan_florida_5f_200ep_v6_opt.json` (running) |
+| CA / TX | pending |
+
+> ⚠ **The v4 JSONs (`*_5f_50ep_FAITHFUL_STAN_*_v4.json`) are the SUPERSEDED collapse artifacts — do NOT cite.**
+
+**Substrate-bound ablations (`stl_check2hgi`, `stl_hgi`):** `docs/results/P1/region_head_{state}_region_5f_50ep_STAN_*.json`.
 
 ## Cross-references
 
-- Findings deep-dive: `../../research/STAN_THREE_WAY_COMPARISON.md` (Faithful vs Check2HGI vs HGI vs Markov, all 3 states, full pattern interpretation).
-- Audit (architecture vs paper): `../../research/FAITHFUL_STAN_FINDINGS.md` §"Phase 2".
-- HGI substrate finding: `../../research/STAN_HGI_FINDINGS.md`.
-- Aggregated metrics by state: `results/{alabama,arizona,florida}.json`.
+- **Findings + data + optimization knowledge:** [`docs/studies/closing_data/FAITHFUL_STAN_FINDINGS.md`](../../studies/closing_data/FAITHFUL_STAN_FINDINGS.md) (the source of truth).
+- **Run guide:** [`research/baselines/stan/README_FAITHFUL_STAN.md`](../../../research/baselines/stan/README_FAITHFUL_STAN.md).
+- Region-baseline plan: [`articles/[mobiwac]/STAN_REFOOTING_HANDOFF.md`](../../../articles/%5Bmobiwac%5D/STAN_REFOOTING_HANDOFF.md).
