@@ -128,7 +128,7 @@ an **HMT-GRN-*style* adaptation, NOT a strict reproduction** (own LSTM trunk + r
 module + hierarchical beam search dropped — see the comparability note above and `hmt_grn.md`). Both gaps are CLOSED:
 1. ✅ **TX DONE** — TX HMT-GRN finished on the board footing (seed 0 × 5 folds, MPS, PR #38): **reg Acc@10 53.85 /
    cat F1 25.81** (per-fold reg 53.5/54.2/53.1/54.5/54.0). Table-3 `--`$^{\S}$ cell filled with **53.85**; the
-   `$^{\S}$` footnote now carries the deviation ledger, not "in-flight".
+   `$^{\S}$` footnote carries the HMT-GRN-*style* deviation ledger.
 2. ✅ **Cells re-confirmed board-matched** (seed 0, stride-1) against the MACS table; Istanbul resolved to **60.4
    (stride-1)**, not 56.56. HMT-GRN sits **below our MTL reg at every state** including TX (53.85 < 67.02):
    AL 57.05 < 69.81 / AZ 43.70 < 59.34 / FL 63.74 < 77.28 / CA 49.61 < 65.66 / TX 53.85 < 67.02 /
