@@ -287,3 +287,27 @@ The handoff's "faithful STAN/ReHDM blocked / ~30 h ETL" was **overstated** (ReHD
 **Outputs**: `ISTANBUL_BASELINES_RESULTS.md` (rewritten); JSONs `P0/simple_baselines/istanbul/next_category*.json`,
 `baselines/faithful_poi_rgnn_istanbul_5f_35ep_*.json`, `P1/region_head_istanbul_..._STAN_HGI_*.json`. **PR #51**.
 **Deferred**: ReHDM faithful (5 seeds) on CUDA; tabulation into `docs/baselines/` + `RESULTS_BOARD.md §1`.
+
+## 2026-06-26 — Post-draft backlog worked (PR #54) + P1 A40 infeasibility
+
+**Phase**: MobiWac `IMPROVEMENTS_BACKLOG.md` execution (`mobiwac/improvements-backlog`, PR #54).
+
+**Done (committed to PR #54)**
+- **P2** AZ transductive-leak audit: **null on both axes** — reg +0.01 pp (full 53.08 / train-only 53.06),
+  cat +0.27 pp (in-cov 71.9%, full 31.09 / train-only 30.83); matches AL/FL. Gate ON NULL across AL/AZ/FL.
+  → `A4_RESULTS.md` + paper §5.2 (`a4_{,cat_}result_arizona_s0.json`).
+- **P3** faithful STAN FL converged **72.99 ±0.34** (< joint reg 77.28) → Table 3 cell + `comparison.md`
+  (the converged result data + baseline doc are in **PR #53** / `FAITHFUL_STAN_FINDINGS.md`).
+- **P4** `BRIDGING_METRICS.md` (ladders + floors); **P7** reviewer clarity; **P8** bib hygiene.
+
+**P1 (n=20 multi-seed) — ATTEMPTED, INFEASIBLE on this A40; needs the H100 lane.**
+Coverage truth: board STL **region** ceiling is already n=20 at all 6 states; the real gap is **MTL champion-G +
+STL category ceiling at seeds {1,7,100}** for the 5 Gowalla states (Istanbul already n=20). ("AL/AZ/GE/FL complete"
+= the *archived mtl_improvement* study, NOT the board.) Three walls on the A40: **(1)** FL fp32 overlap MTL
+~24 min/epoch → days/seed (the fast estimates were the H100); **(2)** A40 bf16 backward grad-NaNs at large C
+(`TX_A40_BF16_NAN.md`) + fp16 overflow (`CA_MTL_DIVERGENCE.md`) → fp32 only safe + slow; **(3)** CA/TX OVL engines
+9–21 GB vs ~16 GB free (CA build → `No space left on device`). ⚠ Gotcha: `p3_board.sh run_cell` does NOT set the
+precision env → a bare run defaults to the **forbidden fp16**; on the H100 pass `MTL_AUTOCAST_BF16=1
+MTL_DISABLE_AMP_EVAL=1` (RUN_MATRIX §0). **Run P1 on the H100**:
+`P3_BOARD_CONFIRM=1 bash scripts/closing_data/p3_board.sh --seeds "1 7 100"` then the matched scorer re-reports
+§6.2 at n=20. **Non-blocking** — §6.2 already reports "n=5 (seed 0) provisional".

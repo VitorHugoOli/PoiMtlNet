@@ -10,6 +10,30 @@
 > highest-leverage item); the leak rebuttal is now sourced (P2 only widens it); clarity is in good shape after the
 > applied fixes.
 
+## Status (updated 2026-06-26 — PR #54 `mobiwac/improvements-backlog`)
+
+| Item | Status | Where |
+|---|---|---|
+| **P2** leak audit AZ | ✅ **DONE** — null both axes (reg +0.01 pp, cat +0.27 pp @71.9% in-cov), matches AL/FL | `A4_RESULTS.md` + §5.2 |
+| **P3** faithful STAN FL | ✅ **DONE** — Acc@10 **72.99** (< joint 77.28), Table 3 cell filled | `tbl3_results.tex`, `comparison.md` (data + baseline doc in PR #53) |
+| **P4** bridging metrics | ✅ **DONE** — ladders + floors; 3 cells (MTL/HMT-GRN ladder, cat Acc@1) need a re-score (gitignored logits) | `BRIDGING_METRICS.md` |
+| **P7** reviewer clarity | ✅ **DONE** — ceiling gloss, metric calibration (~7% floor), TOST trim, abstract de-stack | §1/§5.2/§6/§7/§8, abstract |
+| **P8** bib hygiene | ✅ **DONE** — `lin2021ctle` dup field dropped; codename sweep clean; IEEEtran note present | `references.bib` |
+| **P1** n=20 multi-seed | ⛔ **BLOCKED on this A40 → needs the H100 lane** (see below) | PR #54 comment + `docs/studies/closing_data/log.md` |
+| **P5/P6/P9** | ⏸ deferred (lowest priority) | — |
+
+**P1 — A40 infeasibility (verified 2026-06-26).** Coverage truth: the board STL **region** ceiling is already
+n=20 at all 6 states; the genuine gap is **MTL champion-G + STL category ceiling at seeds {1,7,100}** for the 5
+Gowalla states (Istanbul already n=20). The "AL/AZ/GE/FL complete" lore is the *archived mtl_improvement* study,
+NOT the board. Attempted on the A40 and hit three walls: **(1) speed** — FL fp32 overlap MTL ~24 min/epoch ⇒ days/seed
+(the ~10–15 min/seed estimate was the H100); **(2) no fast path** — A40 bf16 backward grad-NaNs at large C
+(`TX_A40_BF16_NAN.md`), fp16 overflows (`CA_MTL_DIVERGENCE.md`), so fp32 (`MTL_DISABLE_AMP=1`) is the only safe,
+slow option; **(3) disk** — CA/TX OVL engines are 9–21 GB vs ~16 GB free (CA build crashed with `No space left on
+device`). ⚠ `p3_board.sh run_cell` does NOT set the precision env, so a bare run defaults to the **forbidden fp16**
+(set `MTL_AUTOCAST_BF16=1 MTL_DISABLE_AMP_EVAL=1` per RUN_MATRIX §0). **Run P1 on the H100**:
+`P3_BOARD_CONFIRM=1 bash scripts/closing_data/p3_board.sh --seeds "1 7 100"` + the matched scorer re-reports §6.2
+at n=20. Non-blocking — §6.2 already reports "n=5 (seed 0) provisional".
+
 ---
 
 ## TIER A — data runs that move the verdict (heaviest, highest impact)
