@@ -17,9 +17,9 @@ equally over the seven categories, so rare ones still count), both fed to the
 same dedicated model under the windowing used throughout the paper. The
 check-in-level representation wins by a wide and consistent margin at every
 state: $+29.31$ at Alabama, $+27.63$ at Arizona, $+39.62$ at Florida, $+37.95$
-at California, and $+37.47$ at Texas. The gains fall in two bands, about $+28$
-to $+29$ points at the two small states and about $+37$ to $+40$ at the three
-large ones. In absolute terms the place embedding recovers only about half of
+at California, and $+37.47$ at Texas, and the same holds on Istanbul ($+26.64$).
+The gains fall in two bands, about $+27$ to $+29$ points at the smaller datasets
+(Istanbul, Alabama, Arizona) and about $+37$ to $+40$ at the three large states. In absolute terms the place embedding recovers only about half of
 what the per-visit representation reaches. A controlled test attributes most of that gain
 to the per-visit context itself: replacing each visit's vector with a
 per-place-averaged version of the same representation gives back only part of
@@ -50,8 +50,9 @@ Read this as: one model, in a single forward pass, beats a dedicated
 next-category model at every state and beats or matches a dedicated next-region
 model, and its spatial win grows as the region space grows.
 To calibrate the two scales: category macro-F1 is taken over seven classes (a
-majority-class floor of about $7\%$), and region Acc@10 is taken over thousands
-of regions, where a random top-ten guess is right under one percent of the time.
+majority-class floor of about $7\%$), and region Acc@10 is taken over hundreds to
+thousands of regions, where a random top-ten guess is right at most about two
+percent of the time (and well under one percent at the larger region counts).
 Table~\ref{tab:results} reports the single joint model against the dedicated
 single-task ceilings---so called because joint training is generally expected to
 land at or below a model trained for that task alone---and Figure~\ref{fig:deltas} plots the signed gains ordered
