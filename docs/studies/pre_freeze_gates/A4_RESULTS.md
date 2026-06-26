@@ -70,3 +70,15 @@ to negligible inflation; the inductive build would close the residual.
 +0.00pp at **86.9%** in-coverage (denser state → the POI proxy covers most val sequences, so the cat
 null is on the large majority of FL's data; FL cat n=4 folds — f0 lacked preserved POI embeddings).
 Across AL+FL, transductive inflation is ≈0 on both heads → the disclosure gate is firmly ON NULL.
+
+## Reproducibility artifacts (raw result JSONs)
+
+The raw A4 score JSONs are now committed under [`docs/results/pre_freeze_gates/a4/`](../../results/pre_freeze_gates/a4/)
+(closing the gap where only this writeup was tracked; `results/pre_freeze_gates/a4/*` is gitignored):
+
+- **AZ** — `a4_result_arizona_s0.json` (region) + `a4_cat_result_arizona_s0.json` (category), from the
+  2026-06-26 run on this box (the exact run that produced the AZ rows above).
+- **AL / FL** — `a4_result_{alabama,florida}_s0.json` + `a4_cat_result_*` regenerated on this box and
+  **verified to reproduce the committed numbers** (CPU≡MPS for this metric, as noted above). The large
+  per-fold intermediates (`*_trainonly_*.parquet`, `*_maps.pkl`) stay gitignored — only the small score
+  JSONs are tracked.

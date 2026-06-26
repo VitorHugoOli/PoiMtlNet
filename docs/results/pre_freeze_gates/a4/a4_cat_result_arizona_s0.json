@@ -1,0 +1,47 @@
+{
+  "state": "arizona",
+  "seed": 0,
+  "device": "cuda",
+  "metric": "cat macro-F1 (POI-level proxy)",
+  "per_fold": [
+    {
+      "fold": 0,
+      "n_val_incov": 3679,
+      "incov_frac": 0.6969122939950748,
+      "full_f1": 0.3234156668186188,
+      "trainonly_f1": 0.3296436667442322
+    },
+    {
+      "fold": 1,
+      "n_val_incov": 3621,
+      "incov_frac": 0.6857954545454545,
+      "full_f1": 0.31565985083580017,
+      "trainonly_f1": 0.3101263642311096
+    },
+    {
+      "fold": 2,
+      "n_val_incov": 3890,
+      "incov_frac": 0.7368819852244743,
+      "full_f1": 0.30175065994262695,
+      "trainonly_f1": 0.29263991117477417
+    },
+    {
+      "fold": 3,
+      "n_val_incov": 3878,
+      "incov_frac": 0.7346088274294373,
+      "full_f1": 0.29381805658340454,
+      "trainonly_f1": 0.28721246123313904
+    },
+    {
+      "fold": 4,
+      "n_val_incov": 3904,
+      "incov_frac": 0.7395340026520174,
+      "full_f1": 0.32000285387039185,
+      "trainonly_f1": 0.3216974437236786
+    }
+  ],
+  "mean_full": 0.31092941761016846,
+  "mean_trainonly": 0.30826396942138673,
+  "mean_inflation_pp": 0.26654481887817383,
+  "mean_incov_frac": 0.7187465127692917
+}
