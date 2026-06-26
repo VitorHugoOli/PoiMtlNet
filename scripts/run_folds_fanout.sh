@@ -27,9 +27,16 @@
 #       --per-fold-transition-dir output/check2hgi_design_k_resln_mae_l0_1/alabama --no-checkpoints
 #
 # NOTE: in a fan-out the per-process `summary/full_summary.json` is unreliable (each
-# process only knows its own fold and they race on that shared file). The TRUTH is the
-# per-fold artifacts → read `fold_aggregate.json` (written here) or run the canonical
-# scorer (a40_score_matched.py) on the rundir; both glob fold*_* by real id.
+# process only knows its own fold and they race on that shared file — now stamped with a
+# `_fanout` warning). The TRUTH is the per-fold artifacts → read `fold_aggregate.json`
+# (written here) or run the canonical scorer (a40_score_matched.py) on the rundir; both
+# glob fold*_* by real id.
+#
+# ⚠ NOT FOR FROZEN-CELL REPRODUCTION. The fan-out implies --per-fold-seed (reseed
+# seed+fold_id), so folds 1-4 draw a DIFFERENT RNG stream than a legacy single-global-seed
+# sequential run. Fan-out numbers are a reproducible, order-independent baseline of their
+# OWN — keep them separately labeled from the frozen sequential §0.1 cells; never use the
+# fan-out to regenerate or extend a frozen cell.
 set -uo pipefail
 
 RUN_ID="${1:?run_id required}"; FOLDS_CSV="${2:?folds_csv required}"; MAXP="${3:?max_parallel required}"

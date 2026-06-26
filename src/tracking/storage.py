@@ -121,6 +121,18 @@ class SummaryGenerator:
                 }
                 for task, metrics in per_metric_perf.items()
             }
+        # Fan-out guard: under --run-id this process may have run only a SUBSET of folds.
+        # The per-fold artifacts are named by real id, but this full_summary aggregates only
+        # THIS process's folds and is overwritten last-writer-wins in the shared rundir. Stamp
+        # it so a partial can't masquerade as the complete run (default path is unaffected).
+        if getattr(self.history, 'run_id', None) is not None:
+            stats['_fanout'] = {
+                'run_id': self.history.run_id,
+                'folds_in_this_process': list(self.history.fold_ids) if self.history.fold_ids else None,
+                'warning': 'fan-out (--run-id): this summary may cover only a SUBSET of the folds and '
+                           'is overwritten per-process. For the complete run, use '
+                           'scripts/aggregate_folds.py <rundir> → fold_aggregate.json.',
+            }
         save_json(stats, out / 'full_summary.json')
 
         # Category summaries
