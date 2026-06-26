@@ -304,6 +304,148 @@ def _fmt_metric(value: float) -> str:
     return f"{value * 100:.2f}"
 
 
+def _build_mtl_optimizer(model, config, extra_params):
+    """Build the MTL optimizer and return ``(optimizer, per_head)``.
+
+    Per-head LR mode (3 param groups: cat / reg / shared) activates when cat_lr, reg_lr and
+    shared_lr are all set in config; otherwise the legacy single-LR AdamW. Param-group ORDER
+    and membership are determinism-load-bearing (AdamW weight-decay is group-sensitive).
+    """
+    _cat_lr = getattr(config, "cat_lr", None)
+    _reg_lr = getattr(config, "reg_lr", None)
+    _shared_lr = getattr(config, "shared_lr", None)
+    _per_head = (_cat_lr is not None and _reg_lr is not None and _shared_lr is not None)
+    if _per_head:
+        _reg_encoder_lr = getattr(config, "reg_encoder_lr", None)
+        _reg_head_lr = getattr(config, "reg_head_lr", None)
+        optimizer = setup_per_head_optimizer(
+            model,
+            cat_lr=float(_cat_lr),
+            reg_lr=float(_reg_lr),
+            shared_lr=float(_shared_lr),
+            weight_decay=config.weight_decay,
+            eps=config.optimizer_eps,
+            extra_parameters=extra_params,
+            reg_encoder_lr=float(_reg_encoder_lr) if _reg_encoder_lr is not None else None,
+            reg_head_lr=float(_reg_head_lr) if _reg_head_lr is not None else None,
+            alpha_no_weight_decay=bool(getattr(config, "alpha_no_weight_decay", False)),
+        )
+    else:
+        optimizer = setup_optimizer(
+            model,
+            config.learning_rate,
+            config.weight_decay,
+            eps=config.optimizer_eps,
+            extra_parameters=extra_params,
+        )
+    return optimizer, _per_head
+
+
+def _build_scheduler(optimizer, config, dataloader_next, dataloader_category):
+    """Build the LR scheduler. ``steps_per_epoch`` must match ``zip_longest_cycle()`` —
+    the LONGER of the two train loaders ÷ grad-accum — or OneCycle's step budget desyncs
+    from the actual optimizer steps and the LR curve ends mid-cycle."""
+    batches_per_epoch = max(
+        len(dataloader_next.train.dataloader),
+        len(dataloader_category.train.dataloader),
+    )
+    steps_per_epoch = math.ceil(
+        batches_per_epoch / max(1, int(config.gradient_accumulation_steps))
+    )
+    return setup_scheduler(
+        optimizer, config.max_lr, config.epochs,
+        steps_per_epoch,
+        scheduler_type=getattr(config, "scheduler_type", "onecycle"),
+        pct_start=getattr(config, "pct_start", None),
+        reg_head_warmup_decay_peak_mult=getattr(
+            config, "reg_head_warmup_decay_peak_mult", 10.0),
+        reg_head_warmup_decay_warmup_epochs=getattr(
+            config, "reg_head_warmup_decay_warmup_epochs", 5),
+        reg_head_warmup_decay_plateau_epochs=getattr(
+            config, "reg_head_warmup_decay_plateau_epochs", 15),
+        eta_min=float(getattr(config, "eta_min", 0.0)),
+    )
+
+
+def _build_task_criteria(config, dataloader_next, dataloader_category,
+                         task_a_num_classes, task_b_num_classes):
+    """Build the per-task CE criteria → ``(next_criterion, category_criterion)``.
+
+    Class weights are computed on the TRAIN split (leak-safe). PER-TASK weighting:
+    the reg head (task_b, reported by Acc@10) is HURT by class-balancing → off by
+    default; the cat head (task_a, macro-F1) is HELPED → on when requested.
+    ``use_class_weights_{reg,cat}`` override the legacy single ``use_class_weights``
+    (``None`` inherits it). When ``config.loss_calibration`` is non-empty the CAT
+    criterion is the train-stats calibrated loss (Menon ICLR'21 logit-adjustment etc.,
+    set by --logit-adjust-tau / --focal-gamma / --cat-label-smoothing / --tail-loss),
+    mutually exclusive with cat class-weighting (T1.4: logit-adjust alone wins). Empty
+    calibration (the default) keeps the plain-CE path bit-identical.
+    """
+    # Legacy behaviour (unchanged): weights are always computed but only passed to CE
+    # when the per-task flag is set — otherwise kept purely as a diagnostic.
+    alpha_next = compute_class_weights(
+        dataloader_next.train.y, task_b_num_classes, DEVICE
+    )
+    alpha_cat = compute_class_weights(
+        dataloader_category.train.y, task_a_num_classes, DEVICE
+    )
+    _base_cw = bool(getattr(config, "use_class_weights", False))
+    _cw_reg_override = getattr(config, "use_class_weights_reg", None)
+    _cw_cat_override = getattr(config, "use_class_weights_cat", None)
+    _use_cw_reg = _base_cw if _cw_reg_override is None else bool(_cw_reg_override)
+    _use_cw_cat = _base_cw if _cw_cat_override is None else bool(_cw_cat_override)
+    next_criterion = CrossEntropyLoss(
+        reduction='mean',
+        weight=alpha_next if _use_cw_reg else None,
+    )
+    _cat_lc = dict(getattr(config, "loss_calibration", {}) or {})
+    if _cat_lc:
+        from losses.calibrated import build_calibrated_loss
+        category_criterion = build_calibrated_loss(
+            task_a_num_classes,
+            dataloader_category.train.y,
+            label_smoothing=_cat_lc.get("label_smoothing", 0.0),
+            focal_gamma=_cat_lc.get("focal_gamma", 0.0),
+            logit_adjust_tau=_cat_lc.get("logit_adjust_tau", 0.0),
+            tail_mode=_cat_lc.get("tail_mode", None),
+            cb_beta=_cat_lc.get("cb_beta", 0.999),
+            ldam_max_m=_cat_lc.get("ldam_max_m", 0.5),
+            ldam_scale=_cat_lc.get("ldam_scale", 30.0),
+            device=DEVICE,
+        )
+    else:
+        category_criterion = CrossEntropyLoss(
+            reduction='mean',
+            weight=alpha_cat if _use_cw_cat else None,
+        )
+    return next_criterion, category_criterion
+
+
+def _apply_stream_freezes(model, config):
+    """Probe-mode stream freezes — no-op for the champion (both flags default off).
+
+    ``freeze_cat_stream`` freezes the cat ENCODER + cat poi so the cat encoder cannot
+    co-adapt as a reg-helper via cross-attention K/V. Block-internal cat-side processing
+    (``_CrossAttnBlock.ffn_a / ln_a*``) is intentionally NOT frozen — it lives in
+    ``shared_parameters()`` and the reg stream consumes its outputs as K/V via residuals;
+    freezing it would corrupt the reg pipeline. ``freeze_reg_stream`` is the MIRROR on the
+    region stream (run with category_weight=1.0). The optimizer's requires_grad filter
+    keeps AdamW weight_decay off the frozen weights; ``.eval()`` disables their dropout.
+    Called AFTER torch.compile (the OptimizedModule forwards the submodule attributes)."""
+    if getattr(config, "freeze_cat_stream", False):
+        for p in model.category_encoder.parameters():
+            p.requires_grad_(False)
+        for p in model.category_poi.parameters():
+            p.requires_grad_(False)
+        model.category_encoder.eval()  # disables dropout in the cat encoder
+    if getattr(config, "freeze_reg_stream", False):
+        for p in model.next_encoder.parameters():
+            p.requires_grad_(False)
+        for p in model.next_poi.parameters():
+            p.requires_grad_(False)
+        model.next_encoder.eval()  # disables dropout in the reg encoder
+
+
 def _flatten_encoder(encoder):
     """Flatten an encoder's trainable params into one detached 1-D tensor (or None).
 
@@ -1562,33 +1704,7 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                 _ckw["mode"] = _cmode
             model = torch.compile(model, **_ckw)
 
-        # Freeze the cat encoder + cat head so the cat **encoder** cannot
-        # co-adapt as a reg-helper via cross-attention K/V. Block-internal
-        # cat-side processing
-        # (`_CrossAttnBlock.ffn_a / ln_a*`) is intentionally NOT frozen —
-        # those live in `shared_parameters()` and the reg stream consumes
-        # their outputs as K/V via residuals; freezing them would corrupt
-        # the reg pipeline. The optimizer (setup_per_head_optimizer /
-        # setup_optimizer) filters `requires_grad=False` from every group,
-        # so AdamW weight_decay does NOT decay the frozen weights.
-        if getattr(config, "freeze_cat_stream", False):
-            for p in model.category_encoder.parameters():
-                p.requires_grad_(False)
-            for p in model.category_poi.parameters():
-                p.requires_grad_(False)
-            model.category_encoder.eval()  # disables dropout in the cat encoder
-
-        # Category-side probe — MIRROR of freeze_cat_stream on the region
-        # stream: freeze next_encoder + next_poi (requires_grad=False) so the
-        # region stream cannot co-adapt as a cat-helper via cross-attention K/V.
-        # Run with category_weight=1.0 (reg-loss=0). The optimizer's
-        # requires_grad filter keeps AdamW from decaying the frozen weights.
-        if getattr(config, "freeze_reg_stream", False):
-            for p in model.next_encoder.parameters():
-                p.requires_grad_(False)
-            for p in model.next_poi.parameters():
-                p.requires_grad_(False)
-            model.next_encoder.eval()  # disables dropout in the reg encoder
+        _apply_stream_freezes(model, config)
 
         # Cache parameter group lists once per fold (item #2 — avoids
         # walking named_parameters() on every NashMTL backward call).
@@ -1607,56 +1723,11 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             _loss_params["total_epochs"] = int(config.epochs)
         mtl_criterion = create_loss(config.mtl_loss, n_tasks=2, device=DEVICE, **_loss_params)
 
-        # Per-head LR mode — activated when all three of cat_lr/reg_lr/shared_lr
-        # are set in the config. Otherwise fall back to the legacy single-LR optimizer.
-        _cat_lr = getattr(config, "cat_lr", None)
-        _reg_lr = getattr(config, "reg_lr", None)
-        _shared_lr = getattr(config, "shared_lr", None)
-        _per_head = (_cat_lr is not None and _reg_lr is not None
-                     and _shared_lr is not None)
-        if _per_head:
-            _reg_encoder_lr = getattr(config, "reg_encoder_lr", None)
-            _reg_head_lr = getattr(config, "reg_head_lr", None)
-            optimizer = setup_per_head_optimizer(
-                model,
-                cat_lr=float(_cat_lr),
-                reg_lr=float(_reg_lr),
-                shared_lr=float(_shared_lr),
-                weight_decay=config.weight_decay,
-                eps=config.optimizer_eps,
-                extra_parameters=_criterion_parameters(mtl_criterion),
-                reg_encoder_lr=float(_reg_encoder_lr) if _reg_encoder_lr is not None else None,
-                reg_head_lr=float(_reg_head_lr) if _reg_head_lr is not None else None,
-                alpha_no_weight_decay=bool(getattr(config, "alpha_no_weight_decay", False)),
-            )
-        else:
-            optimizer = setup_optimizer(
-                model,
-                config.learning_rate,
-                config.weight_decay,
-                eps=config.optimizer_eps,
-                extra_parameters=_criterion_parameters(mtl_criterion),
-            )
-        # steps_per_epoch must match zip_longest_cycle() — the longer loader
-        batches_per_epoch = max(
-            len(dataloader_next.train.dataloader),
-            len(dataloader_category.train.dataloader),
+        optimizer, _per_head = _build_mtl_optimizer(
+            model, config, _criterion_parameters(mtl_criterion),
         )
-        steps_per_epoch = math.ceil(
-            batches_per_epoch / max(1, int(config.gradient_accumulation_steps))
-        )
-        scheduler = setup_scheduler(
-            optimizer, config.max_lr, config.epochs,
-            steps_per_epoch,
-            scheduler_type=getattr(config, "scheduler_type", "onecycle"),
-            pct_start=getattr(config, "pct_start", None),
-            reg_head_warmup_decay_peak_mult=getattr(
-                config, "reg_head_warmup_decay_peak_mult", 10.0),
-            reg_head_warmup_decay_warmup_epochs=getattr(
-                config, "reg_head_warmup_decay_warmup_epochs", 5),
-            reg_head_warmup_decay_plateau_epochs=getattr(
-                config, "reg_head_warmup_decay_plateau_epochs", 15),
-            eta_min=float(getattr(config, "eta_min", 0.0)),
+        scheduler = _build_scheduler(
+            optimizer, config, dataloader_next, dataloader_category,
         )
         # Smoke print: verify per-group LRs survived scheduler init. Only on
         # the first fold to keep logs clean. Also prints trainable-param count
@@ -1701,62 +1772,10 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                         "setup_per_head_optimizer's requires_grad filter."
                     )
 
-        # Per-task class weights. Legacy behaviour (unchanged): weights
-        # computed but not passed to CE — kept as a diagnostic. When
-        # config.use_class_weights is set (see task-30 follow-up),
-        # they are also passed as the ``weight`` kwarg.
-        alpha_next = compute_class_weights(
-            dataloader_next.train.y, task_b_num_classes, DEVICE
+        next_criterion, category_criterion = _build_task_criteria(
+            config, dataloader_next, dataloader_category,
+            task_a_num_classes, task_b_num_classes,
         )
-        alpha_cat = compute_class_weights(
-            dataloader_category.train.y, task_a_num_classes, DEVICE
-        )
-
-        # PER-TASK class weighting. The reg head (task_b, next_criterion) is
-        # reported by top-K Acc@10, which class-balancing HURTS;
-        # the cat head (task_a, category_criterion) is reported by macro-F1, which
-        # balancing HELPS. ``use_class_weights_{reg,cat}`` override the legacy
-        # single ``use_class_weights``; ``None`` inherits it (back-compat).
-        _base_cw = bool(getattr(config, "use_class_weights", False))
-        _cw_reg_override = getattr(config, "use_class_weights_reg", None)
-        _cw_cat_override = getattr(config, "use_class_weights_cat", None)
-        _use_cw_reg = _base_cw if _cw_reg_override is None else bool(_cw_reg_override)
-        _use_cw_cat = _base_cw if _cw_cat_override is None else bool(_cw_cat_override)
-        next_criterion = CrossEntropyLoss(
-            reduction='mean',
-            weight=alpha_next if _use_cw_reg else None,
-        )
-        # T2V.7 (2026-06-06) — CAT loss-calibration lever for MTL. When
-        # ``config.loss_calibration`` is non-empty (set by --logit-adjust-tau /
-        # --focal-gamma / --cat-label-smoothing / --tail-loss), build the CAT
-        # criterion via the train-only-stats calibrated loss (Menon ICLR'21
-        # logit-adjustment etc.) — the SAME lever the (c) STL cat ceiling used
-        # (la τ=0.5). Leak guard: ``dataloader_category.train.y`` is the TRAIN
-        # split. Calibration is the cat-loss axis; it is mutually exclusive with
-        # cat class-weighting (the T1.4 finding: logit-adjust ALONE wins; stacking
-        # with class weights over-corrects) → when calibrated, cat is NOT also
-        # class-weighted. Empty dict (the default) keeps the plain-CE path
-        # bit-identical, so non-calibrated runs are unaffected.
-        _cat_lc = dict(getattr(config, "loss_calibration", {}) or {})
-        if _cat_lc:
-            from losses.calibrated import build_calibrated_loss
-            category_criterion = build_calibrated_loss(
-                task_a_num_classes,
-                dataloader_category.train.y,
-                label_smoothing=_cat_lc.get("label_smoothing", 0.0),
-                focal_gamma=_cat_lc.get("focal_gamma", 0.0),
-                logit_adjust_tau=_cat_lc.get("logit_adjust_tau", 0.0),
-                tail_mode=_cat_lc.get("tail_mode", None),
-                cb_beta=_cat_lc.get("cb_beta", 0.999),
-                ldam_max_m=_cat_lc.get("ldam_max_m", 0.5),
-                ldam_scale=_cat_lc.get("ldam_scale", 30.0),
-                device=DEVICE,
-            )
-        else:
-            category_criterion = CrossEntropyLoss(
-                reduction='mean',
-                weight=alpha_cat if _use_cw_cat else None,
-            )
 
         history.set_model_arch(str(model))
 

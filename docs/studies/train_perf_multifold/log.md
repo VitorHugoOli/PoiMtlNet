@@ -236,3 +236,18 @@ each parity/test byte-identical-verified.
   autocast, mtl_eval+mtl_validation) — parity byte-identical MTL+STL, unit-tested.
 - **Adversarial review workflow** (`wf_2360804d-0ea`, 4 lanes): leak/fold-correctness, comment-trim invariants,
   extraction byte-identity (incl. the KD gate path AL doesn't exercise), gates/bf16/profiler no-op-when-off.
+
+### Phase 2 — setup extractions from `train_with_cross_validation` (multi-seed gated)
+Extracted 4 module-level helpers out of the fold-setup region of `train_with_cross_validation`
+(`mtl_cv.py`), each a verbatim/no-op-for-champion lift (net structural, line count ~flat):
+- `_build_mtl_optimizer(model, config, extra_params) -> (optimizer, _per_head)` — per-head-LR vs single-LR AdamW.
+- `_build_scheduler(optimizer, config, dl_next, dl_cat)` — `steps_per_epoch` matches `zip_longest_cycle()` (longer loader ÷ grad-accum).
+- `_build_task_criteria(config, dl_next, dl_cat, n_cat, n_reg) -> (next_crit, cat_crit)` — per-task class weights + the calibrated-cat-loss lever.
+- `_apply_stream_freezes(model, config)` — probe-mode `freeze_cat/reg_stream` (champion no-op); called AFTER compile, BEFORE optimizer build.
+
+**Gate (multi-seed):** champion AL MTL val metrics BYTE-IDENTICAL at both seeds — `golden==phase2f_s0`,
+`golden_s1==phase2f_s1`. Ordering preserved (mtl_criterion → optimizer → scheduler → smoke-print → criteria;
+freeze after compile / before optimizer). `test_freeze_reg_stream.py` repointed at the REAL `_apply_stream_freezes`
+(+ a both-flags-false no-op test) → 4 passed; training helper suite 23 passed / 2 skipped.
+**Advisor (adversarial, general-purpose): SAFE** — reasoned through the 3 paths the AL parity can't exercise
+(single-LR fallback, freeze_cat/reg_stream=True, non-empty loss_calibration); no closure-leak, no arg swap, no dropped guard.

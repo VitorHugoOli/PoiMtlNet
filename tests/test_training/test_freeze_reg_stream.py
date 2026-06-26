@@ -13,10 +13,13 @@ reg group still has trainable params), and the real-model attribute names
 (``next_encoder``/``next_poi``) are verified against the champion dualtower.
 """
 
+from types import SimpleNamespace
+
 import torch
 import torch.nn as nn
 
 from configs.experiment import ExperimentConfig
+from training.runners.mtl_cv import _apply_stream_freezes
 
 
 def test_config_field_defaults_false():
@@ -38,21 +41,14 @@ class _MiniDualTower(nn.Module):
         self.next_poi = nn.Linear(8, 16)
 
 
-def _apply_freeze_reg_stream(model):
-    """The exact mtl_cv.py freeze block for freeze_reg_stream."""
-    for p in model.next_encoder.parameters():
-        p.requires_grad_(False)
-    for p in model.next_poi.parameters():
-        p.requires_grad_(False)
-    model.next_encoder.eval()
-
-
 def test_freeze_reg_stream_is_bijective():
     m = _MiniDualTower()
-    _apply_freeze_reg_stream(m)
+    # Drive the REAL extracted helper (guards against drift in the refactor).
+    _apply_stream_freezes(m, SimpleNamespace(freeze_reg_stream=True, freeze_cat_stream=False))
     # region stream frozen
     assert all(not p.requires_grad for p in m.next_encoder.parameters())
     assert all(not p.requires_grad for p in m.next_poi.parameters())
+    assert not m.next_encoder.training  # .eval() took → dropout disabled
     # category stream untouched (the cat-win we are isolating must still train)
     assert all(p.requires_grad for p in m.category_encoder.parameters())
     assert all(p.requires_grad for p in m.category_poi.parameters())
@@ -62,10 +58,15 @@ def test_freeze_reg_is_mirror_of_freeze_cat():
     """Freezing the cat stream and freezing the reg stream are exact mirrors:
     each freezes its own encoder+head and leaves the other fully trainable."""
     m = _MiniDualTower()
-    # cat-side freeze (the existing mechanism)
-    for p in m.category_encoder.parameters():
-        p.requires_grad_(False)
-    for p in m.category_poi.parameters():
-        p.requires_grad_(False)
+    _apply_stream_freezes(m, SimpleNamespace(freeze_cat_stream=True, freeze_reg_stream=False))
     assert all(not p.requires_grad for p in m.category_encoder.parameters())
+    assert all(not p.requires_grad for p in m.category_poi.parameters())
     assert all(p.requires_grad for p in m.next_encoder.parameters())
+    assert all(p.requires_grad for p in m.next_poi.parameters())
+
+
+def test_freeze_noop_when_both_flags_false():
+    """The champion path (both flags off) must leave EVERY stream trainable."""
+    m = _MiniDualTower()
+    _apply_stream_freezes(m, SimpleNamespace(freeze_cat_stream=False, freeze_reg_stream=False))
+    assert all(p.requires_grad for p in m.parameters())
