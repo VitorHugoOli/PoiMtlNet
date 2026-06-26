@@ -197,3 +197,14 @@ parity config) + n_regions pass-through + KD block (needs `--log-t-kd-weight 0.2
 A/B-gated extractions DONE (6): streamed-metric dedup, chunk-decision, joint-selectors, base-LR, step(), runner-merge
 — each parity byte-identical + tested. **Remaining**: n_regions pass-through (also fixes #6 fan-out overhead — needs
 plumbing n_regions through the lazy fold mapping), KD block (`--log-t-kd-weight 0.2` parity variant), folds._classify_pois.
+
+### Remaining A/B-gated items — ALL DONE (3/3)
+- **n_regions pass-through**: `_LazyFoldMapping.n_regions` precomputed (= per-fold train∪val max, since each K-fold's
+  train∪val = all rows); train.py reads it, skips the all-fold scan (fixes the #6 fan-out overhead). golden==nreg (1109).
+- **KD block** `_log_t_kd_loss`: extracted out of the per-batch loop (−73 lines). Gated by `--log-t-kd-weight 0.2`:
+  kd_golden==kd_check AND golden==nokd_check (both byte-identical).
+- **`_classify_pois`** (legacy-MTL user-isolation POI partition): pure verbatim extraction; unit test (classification
+  + leak guard + order + 200-POI inline-equivalence). Champion parity unaffected.
+Also: runner merge (`_run_single_task`, single-task parity config) earlier this batch.
+**Full suite 608 passed.** 14 commits on PR #56. All A/B-gated extractions + the −77-line comment trim landed,
+each parity/test byte-identical-verified.

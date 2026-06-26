@@ -92,18 +92,20 @@ EAGER fp32 (deterministic, ~55s/run). Captures the per-fold VAL metric CSVs **an
 - `storage.py`: SAFE plot/diagnostic extractions; `train.py`: dead imports + guard/loss-calib extraction.
 - Across all: trim dated audit-codename narration to its load-bearing invariant (preserve env-var contracts + leak guards).
 
-**Roadmap — A/B-gated REMAINING (gate with `parity_check.sh`; note the caveats):**
-- `train.py`: **runner merge** (`_run_category`/`_run_next`) needs a SINGLE-TASK parity config (the MTL harness
-  doesn't exercise those runners); **n_regions scan → pass-through** (also fixes the fan-out per-process overhead
-  in #6) — MTL-harness-covered; **KD block** — needs a `--log-t-kd-weight 0.2` parity variant (the board uses 0.0).
-- `mtl_cv.py`: ✅ joint-selectors done; ✅ streaming train-metric consolidated (S1). KD/prior block remains
-  (`--log-t-kd-weight 0.2` variant). `guard_finite_step` must keep its name (test-imported).
-- `mtl_eval.py`: ✅ streamed-metric + chunk helper done. OOD-from-streamed dedup + shared autocast ctx remain
-  (the latter also touches `mtl_validation.py` — cross-file MED).
-- `folds.py`: region-label + `_classify_pois` extraction (verify `fold_set_digest` equality; the legacy-MTL path).
+**A/B-gated extractions — ALL DONE (gated by `parity_check.sh`):**
+- ✅ `train.py` **runner merge** (`_run_category`/`_run_next` → `_run_single_task`) — single-task config (`run_stl`):
+  golden_stl == runner_merge.
+- ✅ `train.py`/`folds.py` **n_regions pass-through** (precomputed on `_LazyFoldMapping.n_regions`; skips the all-fold
+  scan → also fixes the #6 fan-out per-process overhead) — golden == nreg (resolves 1109).
+- ✅ `mtl_cv.py` **KD block** (`_log_t_kd_loss`) — KD-on variant (`--log-t-kd-weight 0.2`): kd_golden == kd_check AND
+  no-KD golden == nokd_check.
+- ✅ `mtl_cv.py` joint-selectors (selection digest) + S1 streaming-metric; ✅ `mtl_eval.py` streamed-metric + chunk.
+- ✅ `folds.py` **`_classify_pois`** (legacy-MTL user-isolation partition) — pure verbatim extraction, gated by a
+  unit test (classification + leak guard + order + 200-POI inline-equivalence; the legacy path isn't in the MTL harness).
 
-**DONE this round (5 files): `metrics.py`, `mtl_cv.py`, `mtl_eval.py`, `helpers.py`, `experiment.py`** — 3 A/B-gated
-scored/selection extractions + 2 SAFE dedups, each parity byte-identical + (where pure) unit-tested.
-**Remaining:** the train.py/folds.py extractions above + the narration comment-trim (the big line-reducer, left as
-a reviewable pass). Each is gated by the same `parity_check.sh` harness (extend it with a single-task / KD-on config
-for the two cases the MTL harness doesn't cover).
+**Narration comment-trim — DONE (−77 lines, all 7 files)** via the verified applier (`apply_comment_trims.py`,
+proves no non-string code changed) + parity (MTL & STL byte-identical). Kept every invariant; cut the dated codenames.
+
+**STILL OPEN (lower value, documented):** `mtl_eval` OOD-from-streamed dedup + shared autocast ctx (cross-file with
+`mtl_validation.py`); `helpers` warmup-builder extraction; bigger train_model / `_create_*_mtl_folds` decompositions
+(RISKY, multi-seed parity). All gate-able with the same `parity_check.sh` (+ single-task / KD variants).
