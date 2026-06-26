@@ -43,12 +43,12 @@ it could carry from the test side is graph structure (which places sit near whic
 because the graph is built over all places. We measured that exposure directly: for each fold we rebuilt the
 representation from only that fold's training users and re-ran both tasks, comparing it against the full-corpus
 representation on the same folds. The effect is within fold noise and shows no systematic gain from the wider
-exposure: on region the change is $-0.33$ points at Alabama and $-0.12$ at Florida, and on category, measured on
-the visits whose places are seen in training (the large majority of test visits), it is $+0.29$ at Alabama and
-$+0.00$ at Florida.
+exposure: on region the change is $-0.33$ points at Alabama, $+0.01$ at Arizona, and $-0.12$ at Florida, and on
+category, measured on the visits whose places are seen in training (the large majority of test visits), it is
+$+0.29$ at Alabama, $+0.27$ at Arizona, and $+0.00$ at Florida.
 % NOTE: numbers from the A4 train-users-only transductivity audit (docs/studies/pre_freeze_gates/A4_RESULTS.md):
-% reg AL -0.33 / FL -0.12 (5 folds); cat POI-proxy on in-coverage subset AL +0.29 (66.8%) / FL +0.00 (86.9%).
-% Author TODO: extend to AZ/CA/TX/Istanbul to widen coverage (non-blocking; the gate is already on null at AL+FL).
+% reg AL -0.33 / AZ +0.01 / FL -0.12 (5 folds); cat POI-proxy on in-coverage subset AL +0.29 (66.8%) / AZ +0.27 (71.9%) / FL +0.00 (86.9%).
+% Author TODO: extend to CA/TX/Istanbul to widen coverage further (non-blocking; the gate is on null at AL+AZ+FL).
 Third, the one component that really passes
 visit-to-visit information, the region-transition prior used by the spatial path, is built per fold from training
 data only, seed by seed; an earlier version that used the whole dataset inflated region accuracy by 13 to 27
