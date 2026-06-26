@@ -16,8 +16,8 @@ international city (Istanbul, from Massive-STEPS) span small to large region spa
 purpose to test whether the findings hold across scales and settings. Every dataset uses the
 same seven Gowalla root categories (Community, Entertainment, Food, Nightlife, Outdoors,
 Shopping, Travel). Windows are the overlapping nine-visit input plus the next visit as target,
-under the final board windowing (gated stride one, minimum sequence length ten); maximum and
-average sequence length are per-user check-in counts. Density is the check-in-matrix fill,
+under the overlapping-window protocol used throughout; maximum and average sequence length are
+per-user check-in counts. Density is the check-in-matrix fill,
 $100\times\text{check-ins}/(\text{users}\times\text{POIs})$, the standard next-POI sparsity
 measure.}
 \label{tab:datasets}
@@ -37,9 +37,7 @@ CA       & Gowalla       & 3{,}171{,}380 & 37{,}090 & 169{,}145 & 8{,}501 & 2{,}
 \end{tabular}
 
 \vspace{2pt}
-{\footnotesize Region unit: a census tract (a mahalle for Istanbul). Windows $=$ overlapping
-nine-visit input plus the next visit as target, after the last-place de-skew gate (gated
-stride one, minimum sequence length ten). Density $= 100\times\text{check-ins}/(\text{users}
-\times\text{POIs})$. $^{\dagger}$ Istanbul is the mahalle substrate (post null-coordinate
-drop); the raw corpus is 544{,}471 check-ins over 23{,}700 users.}
+{\footnotesize Region unit: a census tract (a mahalle for Istanbul). $^{\dagger}$ The Istanbul
+row uses the mahalle-level data after dropping null-coordinate visits; the raw corpus is
+544{,}471 check-ins over 23{,}700 users.}
 \end{table*}

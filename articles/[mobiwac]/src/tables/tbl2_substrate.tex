@@ -1,43 +1,34 @@
 % Table 2: The representation makes the category task learnable (Part 1).
-% Check2HGI vs HGI next-category macro-F1, matched single-task head (next_gru), under
-% the OVERLAP board (one windowing for the whole paper).
-%
-% STATUS (2026-06-25): de-v11'd. The Check2HGI column is the board single-task category
-% ceiling on the design_k overlap substrate (check2hgi_dk_ovl) -- RESULTS_BOARD section 1,
-% seed 0 x 5 folds, fp32-matched -- i.e. the SAME substrate the Part-2 results use, and
-% identical to the "Dedicated" category column of Table 3. The old plain check2hgi
-% (v11 / canonical GCN) NON-OVERLAP numbers (+15..+29) were removed per the no-v11 rule.
-% The HGI arm under the SAME overlap windowing is COMPLETE at all 5 Gowalla states (PR #50:
-% AL 26.56 / AZ 29.50 / FL 35.53; PR #52: CA 32.31 / TX 32.48), margins +29.31 / +27.63 /
-% +39.62 / +37.95 / +37.47, all 5 folds, verified on disk. Do NOT mix windowings or reuse the
-% v11 gap. (Istanbul has no HGI build -> footnote, not a row.)
+% Check-in-level (Check2HGI) vs place-level (HGI) next-category macro-F1, matched single-task
+% head, under the overlapping-window protocol used throughout (one windowing for the whole paper).
+% Cells carry mean +- fold std (seed 0 x 5 folds). Check2HGI = the dedicated category column of
+% Table 3. HGI arm complete at all 5 Gowalla states (PR #50 AL/AZ/FL + PR #52 CA/TX);
+% margins +29.31 / +27.63 / +39.62 / +37.95 / +37.47. Istanbul has no place-level HGI build -> footnote.
+% Check2HGI std: AL 2.4 / AZ 1.3 / FL 0.5 / TX 0.2 / CA 0.3 ; HGI std: AL 1.0 / AZ 1.0 / FL 0.3 / TX 0.6 / CA 0.4.
+\providecommand{\sd}[1]{\,{\scriptsize$\pm$#1}}
 \begin{table}[t]
-\caption{The check-in-level representation (Check2HGI) makes next-category prediction far
-more learnable than a standard place embedding (HGI). Read this as: a vector per visit, not
-a vector per place, is what drives the category gain. Values are next-category macro-F1
-under a matched single-task head, on the overlap board (one windowing for the whole paper).
-The Check2HGI column is the single-task category ceiling on the paper's substrate; the HGI
-arm carries a large and consistent margin ($+27.6$ to $+39.6$) at all five states.}
+\caption{The check-in-level representation makes next-category prediction far more learnable
+than a standard place embedding. A vector per visit, not a vector per place, is what drives the
+category gain. Values are next-category macro-F1 (mean and fold standard deviation) under a
+matched single-task head; the check-in-level column is the dedicated category ceiling of
+Table~\ref{tab:results}.}
 \label{tab:substrate}
 \centering
 \begin{tabular}{l r r r}
 \hline
-\textbf{State} & \textbf{Check2HGI} & \textbf{HGI} & \textbf{$\Delta$} \\
+\textbf{State} & \textbf{Check-in level} & \textbf{Place level} & \textbf{$\Delta$} \\
 \hline
-AL & \textbf{55.87} & 26.56 & $+29.31$ \\
-AZ & \textbf{57.13} & 29.50 & $+27.63$ \\
-FL & \textbf{75.15} & 35.53 & $+39.62$ \\
-TX & \textbf{69.95} & 32.48 & $+37.47$ \\
-CA & \textbf{70.26} & 32.31 & $+37.95$ \\
+AL & \textbf{55.87}\sd{2.4} & 26.56\sd{1.0} & $+29.31$ \\
+AZ & \textbf{57.13}\sd{1.3} & 29.50\sd{1.0} & $+27.63$ \\
+FL & \textbf{75.15}\sd{0.5} & 35.53\sd{0.3} & $+39.62$ \\
+TX & \textbf{69.95}\sd{0.2} & 32.48\sd{0.6} & $+37.47$ \\
+CA & \textbf{70.26}\sd{0.3} & 32.31\sd{0.4} & $+37.95$ \\
 \hline
 \end{tabular}
 
 \vspace{2pt}
-{\footnotesize Check2HGI $=$ the single-task next-category ceiling on the paper's substrate
-(check-in level, design\_k overlap engine; RESULTS\_BOARD, seed 0 $\times$ 5 folds,
-fp32-matched), identical to the dedicated category column of Table~\ref{tab:results}. The HGI
-arm is the same single-task head on the place-level HGI embedding under the identical overlap
-windowing, at all five states (margin $+27.6$ to $+39.6$). A controlled test attributes
-most of the category gain to the per-visit context rather than to extra supervision (a
-per-place-averaged version of the same embedding recovers only part of it).}
+{\footnotesize A controlled test attributes most of the gain to the per-visit context: a
+per-place-averaged version of the same representation recovers only part of it, leaving roughly
+64 to 90 percent of the gain (state-dependent) to per-visit context. Istanbul is omitted because
+no place-level embedding was built for it; its result appears in Table~\ref{tab:results}.}
 \end{table}

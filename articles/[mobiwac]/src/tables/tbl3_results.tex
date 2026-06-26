@@ -1,50 +1,28 @@
 % Table 3: One model, two tasks (Part 2) -- the main result table.
-% Joint single model vs the dedicated single-task ceilings, both tasks,
-% per state, plus the task state-of-the-art baselines.
+% Joint single model vs the dedicated single-task ceilings, both tasks, per state,
+% plus the next-region externals (HMT-GRN primary; STAN faithful + ReHDM secondary)
+% and the next-category references (POI-RGNN + Markov-9-cat floor).
 %
-% STATUS: FILLED with final numbers from RESULTS_BOARD.md Section 1
-% (champion-G MTL vs dedicated STL ceilings, seed 0 x 5 folds, fp32-matched
-% scorer) and the baseline comparison files. The single BLOCKED cell is the
-% FL CTLE entry (representation control, reported separately in the text /
-% FL validation block, not in this table). All Part-2 cells are n=5 (seed 0)
-% provisional.
+% Our four columns (Dedicated/Joint x cat/reg) carry mean +- fold std (seed 0 x 5 folds;
+% Istanbul cat/reg are four-seed n=20). Baseline cells are 5-fold means (point values).
+% Honesty rule (DO NOT relax): cat BEATS at every state; reg BEATS at FL/TX/CA and is
+% non-inferior (TOST, <=2pp) at AL/AZ/Istanbul -- never "beats region everywhere", and the
+% three matched reg cells are NOT bolded. STAN-on-our-substrate is NOT a baseline (above us at AL).
 %
-% Honesty rule (DO NOT relax):
-%   - Category: the joint model BEATS the dedicated ceiling at EVERY state.
-%   - Region: the joint model BEATS at the large states (FL, TX, CA) and
-%     MATCHES (statistically non-inferior within a two-point margin, TOST)
-%     at the small states (AL, AZ, Istanbul, slightly negative).
-%   Never "beats region everywhere".
-%
-% Marks:
-%   \uparrow  = superiority (beats), paired Wilcoxon.
-%   \approx   = non-inferiority within a two-point margin (matches), TOST.
-%   \textbf   = the joint single model wins the cell vs the dedicated ceiling.
-%
-% Numbers (RESULTS_BOARD Section 1, ordered by region count):
-%   Istanbul(520):  STL cat 53.20 / MTL cat 59.89 (+6.69) ; STL reg 74.80 / MTL reg 74.28 (-0.52)
-%   AL(1109):       STL cat 55.87 / MTL cat 63.56 (+7.69) ; STL reg 69.99 / MTL reg 69.81 (-0.18)
-%   AZ(1547):       STL cat 57.13 / MTL cat 63.39 (+6.26) ; STL reg 59.40 / MTL reg 59.34 (-0.06)
-%   FL(4703):       STL cat 75.15 / MTL cat 79.82 (+4.68) ; STL reg 76.71 / MTL reg 77.28 (+0.57)
-%   TX(6553):       STL cat 69.95 / MTL cat 77.51 (+7.56) ; STL reg 64.96 / MTL reg 67.02 (+2.06)
-%   CA(8501):       STL cat 70.26 / MTL cat 77.33 (+7.07) ; STL reg 63.48 / MTL reg 65.66 (+2.18)
-% Category SOTA: POI-RGNN (FL/CA/TX canonical 34.49 / 31.78 / 33.03; AL/AZ faithful 23.80 / 27.64; Istanbul faithful 30.12),
-%   Markov-9-cat best-K floor (AL 20.50, AZ 23.92, FL 29.74, CA 27.58, TX 28.67, Istanbul 24.55=k5).  [Istanbul cat baselines: PR #51]
-% Region SOTA: ReHDM faithful (AL 66.06, AZ 54.65, FL 65.68; CA/TX infeasible at scale, footnote; Istanbul deferred to CUDA),
-%   STAN faithful-from-raw v5 (PR #53; AL 60.72, AZ 49.86, Istanbul 61.86; FL in-flight; CA/TX infeasible) -- THE table STAN cell, all < our joint.
-%   STAN-stl_hgi (STAN on OUR substrate, overlap: AL 70.35, AZ 59.66, FL 76.82) = FUTURE-HEADROOM signal (substrate lifts STAN >our MTL@AL); NOT a table baseline (user steer 2026-06-26).
-% HMT-GRN (region-native E2E, HMT-GRN-style -- own LSTM trunk, graph+beam dropped; seed 0 x 5f, MPS, CPU-validated PR #38):
-%   reg Acc@10 AL 57.05, AZ 43.70, FL 63.74, CA 49.61, TX 53.85, Istanbul 60.4 (TX cat F1 25.81); all < our MTL reg at every state.
+% Numbers (board): cat STL/MTL  Istanbul 53.20+-0.7 / 59.89+-0.6 ; AL 55.87+-2.4 / 63.56+-2.0 ;
+%   AZ 57.13+-1.3 / 63.39+-1.3 ; FL 75.15+-0.5 / 79.82+-0.5 ; TX 69.95+-0.2 / 77.51+-0.1 ; CA 70.26+-0.3 / 77.33+-0.2.
+%   reg STL/MTL  Istanbul 74.80+-0.6 / 74.28+-0.7 ; AL 69.99+-3.2 / 69.81+-3.4 ; AZ 59.40+-1.9 / 59.34+-1.8 ;
+%   FL 76.71+-1.0 / 77.28+-0.8 ; TX 64.96+-0.5 / 67.02+-0.5 ; CA 63.48+-0.3 / 65.66+-0.3.
+% Externals: HMT-GRN reg 60.4/57.05/43.70/63.74/53.85/49.61 ; faithful STAN 61.86/60.72/49.86/-- ;
+%   ReHDM 66.06/54.65/65.68 ; Markov-9-cat 24.55/20.50/23.92/29.74/28.67/27.58 ; POI-RGNN 30.12/23.80/27.64/34.49/33.03/31.78.
+\providecommand{\sd}[1]{\,{\scriptsize$\pm$#1}}
 \begin{table*}[t]
-\caption{One model, two tasks. Read this as: a single joint model beats the dedicated
-category ceiling at every state, and on region it beats the dedicated ceiling where the
-region space is large (FL, TX, CA) while matching it within a two-point margin where the
-region space is small (AL, AZ, Istanbul). The largest region state (CA, 8{,}501 regions) has
-the largest region win, so the spatial gain grows with scale. Bold marks the joint model
-winning a cell against its dedicated ceiling. For region, $\uparrow$ marks a beat
-(superiority, paired Wilcoxon) and $\approx$ marks a match (statistically non-inferior within
-a two-point margin, TOST). Category is macro-F1; region is Acc@10. States are ordered by
-number of regions. All joint-model cells are $n{=}5$ (seed 0) provisional.}
+\caption{One model, two tasks. A single joint model beats the dedicated next-category ceiling
+at every state, and on next-region it beats the dedicated ceiling where the region space is
+large (FL, TX, CA) and is statistically non-inferior within a two-point margin (TOST) where it
+is small (AL, AZ, Istanbul). Category is macro-F1, region is Acc@10; our cells show the mean and
+standard deviation over five folds. Bold marks a win over the dedicated ceiling; $\uparrow$ a
+beat (paired Wilcoxon), $\approx$ a non-inferior match (TOST). States are ordered by region count.}
 \label{tab:results}
 \centering
 \begin{tabular}{l r | r r r r | r r r r r}
@@ -52,20 +30,16 @@ number of regions. All joint-model cells are $n{=}5$ (seed 0) provisional.}
 & & \multicolumn{4}{c|}{\textbf{Next-category (macro-F1)}} & \multicolumn{5}{c}{\textbf{Next-region (Acc@10)}} \\
 \textbf{State} & \textbf{Regions} & \textbf{Markov} & \textbf{POI-RGNN} & \textbf{Dedicated} & \textbf{Joint (ours)} & \textbf{HMT-GRN}$^{\S}$ & \textbf{ReHDM} & \textbf{STAN}$^{\ddagger}$ & \textbf{Dedicated} & \textbf{Joint (ours)} \\
 \hline
-Istanbul & 520     & 24.55 & 30.12 & 53.20 & \textbf{59.89} & 60.4          & --            & 61.86          & 74.80 & \textbf{74.28}$^{\approx}$ \\
-AL       & 1{,}109 & 20.50 & 23.80 & 55.87 & \textbf{63.56} & 57.05         & 66.06         & 60.72          & 69.99 & \textbf{69.81}$^{\approx}$ \\
-AZ       & 1{,}547 & 23.92 & 27.64 & 57.13 & \textbf{63.39} & 43.70         & 54.65         & 49.86          & 59.40 & \textbf{59.34}$^{\approx}$ \\
-FL       & 4{,}703 & 29.74 & 34.49 & 75.15 & \textbf{79.82} & 63.74         & 65.68         & --$^{\ddagger}$ & 76.71 & \textbf{77.28}$^{\uparrow}$ \\
-TX       & 6{,}553 & 28.67 & 33.03 & 69.95 & \textbf{77.51} & 53.85         & --$^{\dagger}$ & --$^{\dagger}$ & 64.96 & \textbf{67.02}$^{\uparrow}$ \\
-CA       & 8{,}501 & 27.58 & 31.78 & 70.26 & \textbf{77.33} & 49.61         & --$^{\dagger}$ & --$^{\dagger}$ & 63.48 & \textbf{65.66}$^{\uparrow}$ \\
+Istanbul & 520     & 24.55 & 30.12 & 53.20\sd{0.7} & \textbf{59.89}\sd{0.6} & 60.4  & --            & 61.86          & 74.80\sd{0.6} & 74.28\sd{0.7}$^{\approx}$ \\
+AL       & 1{,}109 & 20.50 & 23.80 & 55.87\sd{2.4} & \textbf{63.56}\sd{2.0} & 57.05 & 66.06         & 60.72          & 69.99\sd{3.2} & 69.81\sd{3.4}$^{\approx}$ \\
+AZ       & 1{,}547 & 23.92 & 27.64 & 57.13\sd{1.3} & \textbf{63.39}\sd{1.3} & 43.70 & 54.65         & 49.86          & 59.40\sd{1.9} & 59.34\sd{1.8}$^{\approx}$ \\
+FL       & 4{,}703 & 29.74 & 34.49 & 75.15\sd{0.5} & \textbf{79.82}\sd{0.5} & 63.74 & 65.68         & --$^{\ddagger}$ & 76.71\sd{1.0} & \textbf{77.28}\sd{0.8}$^{\uparrow}$ \\
+TX       & 6{,}553 & 28.67 & 33.03 & 69.95\sd{0.2} & \textbf{77.51}\sd{0.1} & 53.85 & --$^{\dagger}$ & --$^{\dagger}$ & 64.96\sd{0.5} & \textbf{67.02}\sd{0.5}$^{\uparrow}$ \\
+CA       & 8{,}501 & 27.58 & 31.78 & 70.26\sd{0.3} & \textbf{77.33}\sd{0.2} & 49.61 & --$^{\dagger}$ & --$^{\dagger}$ & 63.48\sd{0.3} & \textbf{65.66}\sd{0.3}$^{\uparrow}$ \\
 \hline
-\multicolumn{11}{l}{\footnotesize $\uparrow$ joint model beats the dedicated ceiling (superiority); $\approx$ joint model matches it within a two-point margin (TOST non-inferior).} \\
-\multicolumn{11}{l}{\footnotesize Region externals, by comparability: \textbf{HMT-GRN}$^{\S}$ (region-native, multi-task, end-to-end on our footing) is the \textbf{primary} comparison; STAN (Luo et al., faithful) and ReHDM} \\
-\multicolumn{11}{l}{\footnotesize are secondary references. The joint model beats the primary region-native baseline (HMT-GRN) at every state. Markov $=$ Markov-9-cat best-$K$ floor; POI-RGNN $=$ next-category SOTA.} \\
-\multicolumn{11}{l}{\footnotesize $^{\ddagger}$STAN run faithfully (its own embeddings $+$ STAN-native prefix-expansion sequences, from raw) on our seed-0 folds / region targets, converged $+$ audited (PR \#53): AL/AZ/Istanbul reported, all below the joint model; FL in-flight; CA/TX infeasible at scale ($^{\dagger}$). The earlier under-trained run is superseded.} \\
-\multicolumn{11}{l}{\footnotesize ReHDM is a published-protocol reference (its own chronological split), not a paired cell. $^{\dagger}$ Faithful STAN and ReHDM infeasible at CA/TX scale. POI-RGNN FL/CA/TX are canonical re-scores.} \\
-\multicolumn{11}{l}{\footnotesize $^{\S}$HMT-GRN-style (deviation ledger): its own end-to-end recurrent trunk $+$ train-only region-transition prior on our tract targets; the graph module and hierarchical beam search are dropped (no next-POI head to prune).} \\
-\multicolumn{11}{l}{\footnotesize A cascade multi-task comparator (CSLSL) ties our parallel joint model at equal cost (a defense, not a win; see text).} \\
-\multicolumn{11}{l}{\footnotesize All joint-model cells are $n{=}5$ (seed 0) provisional; the FL contextual-embedding control (CTLE) is reported in the text, not here.} \\
+\multicolumn{11}{l}{\footnotesize Region externals by comparability: HMT-GRN$^{\S}$ (region-native, on our footing) is the primary comparison; STAN (faithful, from raw) and ReHDM (its own protocol) are secondary references.} \\
+\multicolumn{11}{l}{\footnotesize The joint model is above all three at every state, and every region model clears a Markov-1 floor by a wide margin. $^{\dagger}$Faithful STAN and ReHDM are infeasible at the CA/TX region scale; STAN reports} \\
+\multicolumn{11}{l}{\footnotesize AL, AZ, and Istanbul (FL not yet available). $^{\S}$HMT-GRN-style: its own recurrent trunk and a train-only region-transition prior, with the graph module and hierarchical search dropped. Baseline cells are 5-fold means.} \\
+\multicolumn{11}{l}{\footnotesize Gowalla joint-model cells are $n{=}5$ (seed 0) provisional; Istanbul cells are four-seed means ($n{=}20$) against a single-seed ceiling. A cascade comparator (CSLSL) ties our parallel model at equal cost (see text).} \\
 \end{tabular}
 \end{table*}
