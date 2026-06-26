@@ -255,26 +255,25 @@ def _run_mtl_check2hgi(
     return results
 
 
-def _run_category(config: ExperimentConfig, results_path: Path, fold_results: dict) -> dict:
-    from training.runners.category_cv import run_cv
-
+def _run_single_task(config, results_path, fold_results, *, task, run_cv,
+                     model_name, fold_attr, getter, description) -> dict:
+    """Shared single-task (category / next) CV launcher. The two paths differ only in
+    which ``run_cv`` module, fold attribute, dataset getter, and labels they use."""
     folds = [
-        (fold_results[i].category.train.dataloader, fold_results[i].category.val.dataloader)
+        (getattr(fold_results[i], fold_attr).train.dataloader,
+         getattr(fold_results[i], fold_attr).val.dataloader)
         for i in sorted(fold_results)
     ]
-
     history = MLHistory(
-        model_name="Category",
+        model_name=model_name,
         model_type="Single-Task",
-        tasks="category",
+        tasks=task,
         num_folds=len(folds),
         datasets={
             DatasetHistory(
-                raw_data=str(
-                    IoPaths.get_category(config.state, EmbeddingEngine(config.embedding_engine))
-                ),
+                raw_data=str(getter(config.state, EmbeddingEngine(config.embedding_engine))),
                 folds_signature=None,
-                description="Category prediction input",
+                description=description,
             )
         },
         label_map=CATEGORIES_MAP,
@@ -282,11 +281,10 @@ def _run_category(config: ExperimentConfig, results_path: Path, fold_results: di
         verbose=True,
         display_report=True,
     )
-
     if _NO_CHECKPOINTS:
         cbs = []
     else:
-        run_dir = _make_run_dir(results_path, task="category", config=config)
+        run_dir = _make_run_dir(results_path, task=task, config=config)
         cbs = _default_checkpoint_callbacks(run_dir, monitor="val_f1")
     with history:
         results = run_cv(
@@ -294,53 +292,26 @@ def _run_category(config: ExperimentConfig, results_path: Path, fold_results: di
             results_path=results_path,
             callbacks=cbs,
         )
-
     history.display.end_training()
     return results
+
+
+def _run_category(config: ExperimentConfig, results_path: Path, fold_results: dict) -> dict:
+    from training.runners.category_cv import run_cv
+    return _run_single_task(
+        config, results_path, fold_results, task="category", run_cv=run_cv,
+        model_name="Category", fold_attr="category", getter=IoPaths.get_category,
+        description="Category prediction input",
+    )
 
 
 def _run_next(config: ExperimentConfig, results_path: Path, fold_results: dict) -> dict:
     from training.runners.next_cv import run_cv
-
-    folds = [
-        (fold_results[i].next.train.dataloader, fold_results[i].next.val.dataloader)
-        for i in sorted(fold_results)
-    ]
-
-    history = MLHistory(
-        model_name="Next",
-        model_type="Single-Task",
-        tasks="next",
-        num_folds=len(folds),
-        datasets={
-            DatasetHistory(
-                raw_data=str(
-                    IoPaths.get_next(config.state, EmbeddingEngine(config.embedding_engine))
-                ),
-                folds_signature=None,
-                description="Next-POI prediction input",
-            )
-        },
-        label_map=CATEGORIES_MAP,
-        save_path=str(results_path),
-        verbose=True,
-        display_report=True,
+    return _run_single_task(
+        config, results_path, fold_results, task="next", run_cv=run_cv,
+        model_name="Next", fold_attr="next", getter=IoPaths.get_next,
+        description="Next-POI prediction input",
     )
-
-    if _NO_CHECKPOINTS:
-        cbs = []
-    else:
-        run_dir = _make_run_dir(results_path, task="next", config=config)
-        cbs = _default_checkpoint_callbacks(run_dir, monitor="val_f1")
-    with history:
-        results = run_cv(
-            history, folds, config,
-            results_path=results_path,
-            callbacks=cbs,
-        )
-
-    history.display.end_training()
-    return results
 
 
 _RUNNERS = {
