@@ -146,7 +146,7 @@ never fires on the board (prior-OFF + legacy payloads).
 - **CA §4** (50ep bf16): folds 1-4 cat **77.31**±0.24 / reg **65.54**±0.07 → **beats both ceilings**
   (70.26 / 63.48) by **+7.05 / +2.06**; reg variance ±0.07. Healthy to ep49-50 (bf16, no collapse). Full cell
   on fold-5 finish. **TX** (50ep bf16, forced co-schedule): in progress → per-fold table in
-  [`TX_CELL.md`](TX_CELL.md), committed autonomously by `scripts/closing_data/tx_autocommit.sh`.
+  [`BOARD_CELLS.md`](BOARD_CELLS.md), committed autonomously by `scripts/closing_data/tx_autocommit.sh`.
 
 ## Remaining
 TX MTL 5-fold (running, autonomous per-fold commits); TX cat/reg ceilings (A40 lane, staged). Multi-seed

@@ -257,7 +257,7 @@ hard-fails). All board dk_ovl drivers do this; the W6 runner forgot it.
 
 **Phase**: full-table completeness for the Istanbul row (seed 0 × 5f, n=5 provisional). Full record:
 [`ISTANBUL_BASELINES_RESULTS.md`](ISTANBUL_BASELINES_RESULTS.md); handoff:
-[`ISTANBUL_BASELINES_HANDOFF.md`](ISTANBUL_BASELINES_HANDOFF.md).
+[`ISTANBUL_BASELINES_HANDOFF.md`](ISTANBUL_BASELINES_RESULTS.md).
 
 **Variant alignment (user)**: STAN = **stl_hgi** everywhere (incl. Istanbul); ReHDM = **faithful** everywhere.
 

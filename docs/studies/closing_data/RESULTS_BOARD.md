@@ -104,7 +104,7 @@ all states; 0 nan). **n=5 provisional.** Full cell: `W6_ENCODER_ISOLATION.md`; J
 ## 2 · Precision verdict (settled) & schedule ablation (NULL)
 - **bf16 ≈ fp32** on quality (Δ≤0.12 pp) and ~0 wall-clock (overlap is data-bound, GPU util 8-25%) →
   small/mid states fp32; large-state bf16 is **not cross-GPU portable** (A40-Ampere grad-NaNs where H100 stays
-  finite) → **use fp32 for large-state cells on Ampere**. (`AL_PRECISION_GATE.md`, `FL_PRECISION_GATE.md`, `TX_A40_BF16_NAN.md`.)
+  finite) → **use fp32 for large-state cells on Ampere**. (`BOARD_CELLS.md` AL/FL gates, `TX_A40_BF16_NAN.md`.)
 - **100-epoch schedule = NULL** (AL cat +0.21/reg −0.39; FL cat −0.53/reg −0.18; OneCycle best-val rides the
   anneal tail at any length) → **frozen 50ep cells stand.** (`EP100_ABLATION_AND_TX_RAM.md`.)
 
@@ -122,9 +122,9 @@ all states; 0 nan). **n=5 provisional.** Full cell: `W6_ENCODER_ISOLATION.md`; J
   (same-device champion-G comparand) — all A40 true-fp32, dk_ovl, seed 0 × 5f ✅main
 
 **Narrative / per-cell docs:** `docs/studies/closing_data/`
-- `BOARD_H100_FINDINGS.md` (session consolidation) · `CA_CELL.md` · `TX_CELL.md` · `AL_PRECISION_GATE.md` ·
-  `AZ_CELL.md` · `FL_PRECISION_GATE.md` · `EP100_ABLATION_AND_TX_RAM.md` · `TX_A40_BF16_NAN.md` ·
-  `CA_MTL_DIVERGENCE.md` (the fp16 root cause) · `MACS_BOARD_RESULTS.md` (baselines, **PR #36**)
+- `BOARD_CELLS.md` (per-state MTL cells + AL/FL precision gates, consolidated) · `BOARD_H100_FINDINGS.md`
+  (session consolidation) · `EP100_ABLATION_AND_TX_RAM.md` · `TX_A40_BF16_NAN.md` · `CA_MTL_DIVERGENCE.md`
+  (the fp16 root cause) · `FAITHFUL_STAN_FINDINGS.md` (PR #53) · `MACS_BOARD_RESULTS.md` (baselines, **PR #36**)
 
 **Floors:** `docs/results/P0/simple_baselines/<state>/` (Markov-1 region Acc@10: AL .470 AZ .430 FL .650 CA .521 TX .549).
 

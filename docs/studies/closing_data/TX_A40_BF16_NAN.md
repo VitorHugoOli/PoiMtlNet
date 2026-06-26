@@ -1,7 +1,7 @@
 # TX champion-G MTL bf16 NaN-collapse on the A40 — device-class root cause + fp32 fix
 
 > A40 board lane (`study/board-a40`). Companion to [[CA_MTL_DIVERGENCE]] (the fp16-overflow story) and
-> [[BOARD_H100_FINDINGS]] / [[TX_CELL]] (the H100's clean TX bf16 run). Root-caused by a 5-agent investigation
+> [[BOARD_H100_FINDINGS]] / [[BOARD_CELLS]] (the H100's clean TX bf16 run). Root-caused by a 5-agent investigation
 > (workflow `wf_9dcc2181-9c7`, 415k tokens, 104 tool-uses, 2026-06-24).
 
 ## TL;DR
@@ -48,7 +48,7 @@ bf16 tensor-core accumulation / `--compile`+tf32 kernel selection**, a small num
 attention backward into NaN at ep33 where the H100 stays finite.
 
 ## The H100 ran the same cell clean (the trustworthy number)
-H100 TX bf16 folds 1-2 (`[[TX_CELL]]`, autonomous per-fold): cat **77.69 / 77.31**, reg **66.94 / 67.32**,
+H100 TX bf16 folds 1-2 (`[[BOARD_CELLS]]`, autonomous per-fold): cat **77.69 / 77.31**, reg **66.94 / 67.32**,
 **late** best-epochs [49,50], monotonic reg climb to ep50, **0 NaN** → reg **67.13 beats the 64.96 ceiling
 +2.17**. Had the A40's NaN occurred there, the H100's `MTL_STRICT=1` would have aborted it too — so the H100
 did not run a *better* path, it rode a *different, clean* per-device float trajectory.
@@ -66,7 +66,7 @@ did not run a *better* path, it rode a *different, clean* per-device float traje
 **0 skips**, every fold a healthy **late** best-epoch — fp32 sailed clean through the ep33–50 zone where bf16
 NaN-collapsed. reg 67.02 ≈ the H100 clean bf16 (67.13), confirming the collapse was **Ampere-bf16-specific /
 precision-borne**. The contingency (degenerate-softmax guard / lower reg-LR) was **NOT needed**; no code change.
-Board-consistent: fp32 is the non-CA small/mid-state decision ([[AL_PRECISION_GATE]]).
+Board-consistent: fp32 is the non-CA small/mid-state decision ([[BOARD_CELLS]]).
 > ⚠ The driver's auto-verdict string *"FLAG re-scope (>2pp)"* is a **sign-agnostic** threshold check —
 > Δreg = **+2.06 is a SURPLUS (MTL beats)**, the opposite of a deficit; it does **NOT** trigger a reg-claim re-scope.
 

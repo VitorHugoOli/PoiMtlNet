@@ -6,8 +6,9 @@
 > (our result + board protocol/device rules), [`../../docs/baselines/README.md`](../../docs/baselines/README.md)
 > (table schema), and the per-baseline docs under `docs/baselines/`.
 >
-> **Istanbul baselines** (the only missing cells — Markov-9-cat, POI-RGNN, ReHDM, STAN, all `--` in Table 3) have
-> a dedicated MPS-local execution brief: [`ISTANBUL_BASELINES_HANDOFF.md`](ISTANBUL_BASELINES_HANDOFF.md).
+> **Istanbul baselines** — DONE (PR #51/#53): Markov-9-cat (24.55), POI-RGNN (30.12) and faithful STAN (61.86) are
+> filled in Table 3; only ReHDM-faithful remains (deferred to CUDA). Results + the ReHDM run command:
+> [`../../docs/studies/closing_data/ISTANBUL_BASELINES_RESULTS.md`](../../docs/studies/closing_data/ISTANBUL_BASELINES_RESULTS.md).
 >
 > **House rules:** SLIM tables (we already have a lot of data; extra columns confuse); American English, no
 > em-dash; tasks named **next-category** / **next-region**; numbers from committed JSONs only; n=5 (seed 0 × 5

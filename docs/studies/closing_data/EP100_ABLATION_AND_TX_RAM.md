@@ -67,4 +67,4 @@ prior-OFF** (just multiplies by 0). TX had **0/5** seed-0 files. Built them with
 - **FL 100ep**: fold 1 cat 78.85 @ep69 / reg 77.50 @ep79 (killed; `...ep100_...033715_90767`).
 - **CA §4** (50ep bf16): folds 1-4 cat **77.31**±0.24 / reg **65.54**±0.07 — beats ceilings
   70.26 / 63.48 by **+7.05 / +2.06**; full cell pending fold 5.
-- **TX** (50ep bf16, forced): running; per-fold results appended to `TX_CELL.md`.
+- **TX** (50ep bf16, forced): running; per-fold results appended to `BOARD_CELLS.md`.

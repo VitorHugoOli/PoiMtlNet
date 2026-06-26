@@ -7,8 +7,9 @@
 > paper baseline** (user steer). The Istanbul **Markov / POI-RGNN category** numbers below are unaffected (they are
 > the canonical Table-3 cat baselines: Markov-K best 24.55 / POI-RGNN 30.12). **ReHDM** stays faithful, deferred to CUDA.
 
-> Execution record for [`ISTANBUL_BASELINES_HANDOFF.md`](ISTANBUL_BASELINES_HANDOFF.md). Completes the
-> §6.3 external-validity box so Istanbul carries the same baseline columns as the Gowalla states.
+> Execution record + run log (the `ISTANBUL_BASELINES_HANDOFF.md` task-spec is spent — removed; folded here, original
+> in git history). Completes the §6.3 external-validity box so Istanbul carries the same baseline columns as the
+> Gowalla states. The ReHDM-faithful-on-Istanbul run command is preserved in §2 below.
 > Protocol: **seed 0 × 5 folds (n=5)**, leak-free per-fold train-only priors, user-disjoint folds, MPS = fp32.
 > **n=5 provisional** — report **gap-to-ceiling / lift-over-floor**, not absolute Acc@k.
 >
