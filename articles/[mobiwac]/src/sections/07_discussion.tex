@@ -14,8 +14,8 @@ dedicated model at every state, and the private path keeps the next-region task
 competitive: statistically non-inferior within a two-point margin (TOST) where
 the region space is small, and a clear superiority (paired Wilcoxon) where it is
 large. The region gain is not flat. It rises with the number of regions
-(Figure~\ref{fig:deltas}), so the spatial benefit of sharing grows with scale
-rather than fading, and the joint model meets or beats the dedicated ceiling on
+(Figure~\ref{fig:deltas}), so the spatial benefit of sharing grows as the space of
+regions grows rather than fading, and the joint model meets or beats the dedicated single-task model on
 both tasks at once (Table~\ref{tab:results}). For a mobility-aware service this
 is a practical hint: one model, one forward pass, can anticipate both what a
 user will do next and where, without paying for a second model and without
@@ -33,9 +33,9 @@ seed over five folds, so they are provisional; a multi-seed run is the obvious
 next step, and it is the precondition for any per-cell significance claim
 stronger than the ones we report. At the smallest region counts the region
 result is a match, statistically non-inferior within a two-point margin (TOST),
-not a beat. Second, our representation is transductive: it is trained seeing all
-places, so one slice of its behavior, visits to places never seen during
-training, is the single effect we cannot fully isolate; a planned training-only
-variant is meant to close that gap. Third, although a mobility-aware service is
+not a beat. Second, our representation is trained once over all places, so one
+slice of its behavior, visits to places never seen during training, is the single
+effect we cannot fully isolate; a planned variant that trains on each fold's
+training places only is meant to close that gap. Third, although a mobility-aware service is
 our motivation throughout, we do not build or evaluate one; tying these
 predictions to a concrete service is the natural next study.

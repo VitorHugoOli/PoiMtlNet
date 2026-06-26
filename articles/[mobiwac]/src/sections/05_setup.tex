@@ -56,9 +56,10 @@ measurable majority and finds none.
 \subsection{Metrics, superiority versus non-inferiority}
 \label{sec:setup-metrics}
 For the category task we report macro-averaged F1 (macro-F1), which averages the per-class F1 so that each of the
-seven categories counts equally, including the rare ones; its reference point is the majority-class floor. For the
-region task we report accuracy at ten (Acc@10), the fraction of test visits whose true region appears among the
-model's ten highest-scoring guesses; its comparison anchor is the dedicated single-task ceiling.
+seven categories counts equally, including the rare ones; its reference point is the majority-class floor, the
+macro-F1 of always predicting the single most common category. For the region task we report accuracy at ten
+(Acc@10), the fraction of test visits whose true region appears among the model's ten highest-scoring guesses; its
+comparison anchor is the dedicated single-task model.
 
 We make two kinds of comparison and test each one appropriately. Where the joint model is meant to win, we test
 \emph{superiority} with a paired Wilcoxon signed-rank test over the folds. Where the joint model is meant only to

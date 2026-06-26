@@ -60,10 +60,14 @@ large, Florida $+0.57$ (4{,}703 regions), Texas $+2.06$ (6{,}553), and
 California $+2.18$ (8{,}501), each with all five folds in the winning direction,
 and it stays statistically non-inferior within a two-point margin (TOST) where
 the region space is small, Alabama $-0.18$, Arizona $-0.06$, and Istanbul
-$-0.52$. The region gain is monotone with region count, rising strictly from
+$-0.52$. The region gain increases with the number of regions, rising from
 $-0.52$ to $+2.18$ across the six settings, so the joint model helps the spatial
-task more, not less, as the space of regions grows; the largest state has the
-largest region win, which is the opposite of a cost that grows with scale.
+task more, not less, as the space of regions grows; the state with the most
+regions has the largest region win, the opposite of a cost that grows with the
+size of the spatial problem. We order by region count because that is the axis of
+interest; region count and corpus size co-vary across these datasets, and Istanbul
+is a cross-setting point measured on an earlier representation (Section~\ref{sec:results-external}),
+so we read the trend across the six points rather than as a precise law.
 
 We state the support honestly. The direction is unanimous: at every state all
 five folds favor the joint model on category, a one-sided paired Wilcoxon
