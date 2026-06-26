@@ -27,10 +27,11 @@ the margin, leaving roughly 64 to 90 percent of the gain (state-dependent) to
 the context each visit carries, not to extra training signal.
 
 Figure~\ref{fig:embquality} shows why the representation helps this task in
-particular. By category, the per-visit vectors are cleanly grouped: a silhouette
-score by category of about $0.56$, against about $0.00$ for the place embedding,
-and a category-matching rate among nearest neighbors of about $0.98$, against
-about $0.78$. The same geometry does not separate regions, which is exactly the
+particular. By category, the per-visit vectors are cleanly grouped. Their
+silhouette score by category, a cluster-separation measure from $-1$ to $1$ where
+higher means tighter and better-separated groups, is about $0.56$, against about
+$0.00$ for the place embedding; and the share of a vector's nearest neighbors that
+carry its own category is about $0.98$, against about $0.78$. The same geometry does not separate regions, which is exactly the
 point: the representation sharpens the semantic question and stays neutral on the
 spatial one, so its benefit is category-only and sets up the joint study in
 Section~\ref{sec:results-part2}. A direct comparison with the closest prior
@@ -85,10 +86,11 @@ size), and we leave a multi-seed confirmation ($n{=}20$) to future work.
 
 A reader used to multi-task learning~\cite{caruana1997multitask} expects the
 harder task to pay for the easier one, so it is worth saying where the category
-win comes from. A controlled test isolates the source: when we freeze the region
-pathway at the start of training, the full category lift survives at Alabama,
-Arizona, and Florida (within $0.3$ of the joint model and far above the dedicated
-ceiling). We therefore read the category win as a stronger shared trunk, obtained
+win comes from. A controlled test isolates the source: we freeze the region
+pathway at the start of training so it cannot learn, and therefore cannot teach
+the category task, yet the full category lift survives at Alabama, Arizona, and
+Florida (within $0.3$ of the joint model and far above the dedicated single-task
+model). We therefore read the category win as a stronger shared trunk, obtained
 at no extra deployment cost (one model, one forward pass), rather than the region
 task teaching the category one; we report this as a finding, not a hypothesis.
 The joint model also stands above every external baseline on both tasks at every
@@ -100,9 +102,10 @@ all trail it, and every region model clears a simple Markov transition floor by 
 wide margin. Against the
 closest published multi-task alternative, a cascade that predicts in a chain
 (when, then what, then where)~\cite{huang2024cslsl}, our parallel model reaches
-the same joint quality at the same cost (the joint difference is about zero); we
-read this as a defense of the parallel design, since a cheaper cascade would not
-have matched our gains either, not as a win over the cascade. The Gowalla cells
+the same combined accuracy at the same parameter and compute cost (the difference
+on the joint score is about zero). We read this as a defense of the parallel
+design, not a win over the cascade: the chained alternative does not match our
+gains, so the simpler parallel structure loses nothing. The Gowalla cells
 are seed-0 results over five folds ($n{=}5$, provisional); the Istanbul cells
 average four seeds ($n{=}20$).
 
