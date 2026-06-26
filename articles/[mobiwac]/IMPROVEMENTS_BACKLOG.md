@@ -20,7 +20,8 @@
 | **P7** reviewer clarity | ✅ **DONE** — ceiling gloss, metric calibration (~7% floor), TOST trim, abstract de-stack | §1/§5.2/§6/§7/§8, abstract |
 | **P8** bib hygiene | ✅ **DONE** — `lin2021ctle` dup field dropped; codename sweep clean; IEEEtran note present | `references.bib` |
 | **P1** n=20 multi-seed | ⛔ **BLOCKED on this A40 → needs the H100 lane** (see below) | PR #54 comment + `docs/studies/closing_data/log.md` |
-| **P5/P6/P9** | ⏸ deferred (lowest priority) | — |
+| **P6** HGI-Istanbul → Tbl 2 | ✅ **DONE** — Istanbul place-level HGI cat **26.56**, Δ **+26.64** vs Check2HGI 53.20 (pattern holds, not U.S.-only) | `tbl2_substrate.tex` + `baseline_compare/istanbul_hgi_ovl_cat.json` |
+| **P5/P9** | ⏸ deferred (lowest priority) | — |
 
 **P1 — A40 infeasibility (verified 2026-06-26).** Coverage truth: the board STL **region** ceiling is already
 n=20 at all 6 states; the genuine gap is **MTL champion-G + STL category ceiling at seeds {1,7,100}** for the 5
