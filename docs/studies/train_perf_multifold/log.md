@@ -182,3 +182,18 @@ Extractions DONE (5 files, each parity-clean + tested):
 Line counts ~flat (helper ≈ removed code) — the win is structural; the big line-reducer (narration comment trim)
 left as a reviewable pass (strips institutional memory). Remaining: train.py runner-merge (needs single-task
 parity config) + n_regions pass-through + KD block (needs `--log-t-kd-weight 0.2` variant) + folds.py. See AUDIT_FINDINGS §5.
+
+### Comment trim (−77 lines) + runner merge — answering "line counts ~flat" + "remaining A/B items"
+- **Comment trim across all 7 train-flow files (−77 lines)**: a 7-agent pass proposed comment/docstring-only edits;
+  applied through a verifier (`apply_comment_trims.py`) that PROVES no non-string code changed (tokenize-compare),
+  then behaviorally confirmed (378 tests + parity byte-identical MTL+STL). Cut dated codenames (AUDIT-C2, F50/F48,
+  C21/C7, HANDOFF_AUDIT X*, T2P.0/T4.0a, "Phase 4a", "bit us once…"); KEPT every invariant (env-var contracts,
+  per-fold log_T leak guard, WD-peel-α/β, absent-class fill, fp16 tie-break / OOM budget, "API compat"). This is the
+  genuine line reducer (the extractions were structural, ~flat).
+- **Single-task parity config** added (`parity_check.sh run_stl`, --task next, 2f×8ep eager) for the runner-merge gate.
+- **Runner merge** (train.py): `_run_category`/`_run_next` (~95% identical) → `_run_single_task` + 2 wrappers, −38 lines.
+  Gated: golden_stl==runner_merge + golden==runner_merge_mtl byte-identical. **A/B-gated, done.**
+
+A/B-gated extractions DONE (6): streamed-metric dedup, chunk-decision, joint-selectors, base-LR, step(), runner-merge
+— each parity byte-identical + tested. **Remaining**: n_regions pass-through (also fixes #6 fan-out overhead — needs
+plumbing n_regions through the lazy fold mapping), KD block (`--log-t-kd-weight 0.2` parity variant), folds._classify_pois.
