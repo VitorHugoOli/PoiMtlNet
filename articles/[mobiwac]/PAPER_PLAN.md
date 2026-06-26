@@ -152,8 +152,8 @@ This is the section that keeps every number in the paper honest and defensible.
 - On next-region the two representations are within about 1.6 to 3.1 points (HGI slightly ahead), so the
   representation's benefit is category-only.
 - (Optional, text only.) Our models clear a simple Markov-1 transition floor by a wide margin on region. We
-  **dropped Markov-1 from the region table** (we already beat ReHDM and STAN-on-our-substrate, which is the
-  stronger comparison), but a one-clause mention of the floor is available if a reviewer wants it. Do not attach
+  **dropped Markov-1 from the region table** (we already sit above HMT-GRN, a faithful STAN, and a ReHDM reference,
+  the stronger comparison), but a one-clause mention of the floor is available if a reviewer wants it. Do not attach
   the +28 to +40 figure here; that is the category-representation margin, a different axis.
 
 **We CAN say, but must mark PROVISIONAL (reduced board: seed 0 × 5 folds, n=5; the {1,7,100} top-up to n=20 is
@@ -447,9 +447,9 @@ direction**; a family-wise Holm correction across the six category cells (or the
 **not** reach 0.05 at n=5 (the floor times the family size). We therefore (i) report the per-state effect with its
 "5/5 folds positive, p=0.031" line, (ii) carry the **pooled** across-state evidence as the inferential backbone
 (category: 30 of 30 fold-pairs favor the joint model, p≈9e-10; region beats, FL/CA/TX: 15 of 15, p≈3e-5), and
-(iii) state plainly that the family-wise (Holm) correction is reported with the pre-registered multi-seed top-up
-(seeds {1,7,100} → n=20), which is in progress. Never present a per-state Holm-corrected significance at n=5.
-(Reproduce: `scripts/closing_data/superiority_wilcoxon.py`.)
+(iii) state plainly that we do **not** claim per-cell Holm-corrected significance at n=5 (the family does not clear
+0.05 at this sample size), and leave a multi-seed confirmation (seeds {1,7,100} → n=20) to future work. Do not
+promise an "in-progress" top-up in the submission. (Reproduce: `scripts/closing_data/superiority_wilcoxon.py`.)
 
 **§5.4 Baselines (locked; see §7 and `BASELINE_HANDOFF.md`).** Three roles, kept separate in the writing: (1)
 **task SOTA**, faithful author implementations on our data: next-category **POI-RGNN + Markov-9-cat**;
@@ -496,8 +496,8 @@ it matches. ⭐ **Figure 4: the signed category and region deltas across states,
 the category delta positive everywhere and the region delta positive at the large states and within the margin at
 the small (no cardinality cost: the largest state, CA, has the largest region win). **Significance, stated
 honestly (see §5.3):** every fold favors the joint model (each state 5/5 folds, one-sided p=0.031, the n=5 floor);
-the pooled evidence is decisive (category 30/30 fold-pairs, p≈9e-10; region beats 15/15, p≈3e-5); the per-state
-family-wise (Holm) correction comes with the multi-seed top-up, in progress. The encoder-isolation probe (the
+the pooled evidence is decisive (category 30/30 fold-pairs, p≈9e-10; region beats 15/15, p≈3e-5); we do not claim
+per-cell Holm-corrected significance at n=5, and leave a multi-seed confirmation to future work. The encoder-isolation probe (the
 region stream frozen at start) keeps the **full** category lift at Alabama, Arizona, and Florida (within 0.3 of
 the joint model, far above the dedicated ceiling), so we report the category win as **a stronger shared encoder,
 not region-to-category transfer**, as a finding, not a hypothesis. Also report the cascade result honestly here:
@@ -720,7 +720,7 @@ carried fragment.
 | Earlier concern                                            | Where fixed                                                                                                                                                          |
 |------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | R1: topological leak (the embedding sees test transitions) | §5.2 "why the representation is not a data leak": no labels in the representation; measured ≈0 transductive effect; per-fold train-only transition prior; user split |
-| R1: loses to Markov                                        | moot under the new result: the joint model beats ReHDM (2025 SOTA) and STAN-on-our-substrate, and clears a Markov-1 floor by a wide margin (one-clause text mention; Markov-1 region row dropped)                |
+| R1: loses to Markov                                        | moot under the new result: the joint model is above the primary region external HMT-GRN at all six states and a faithful STAN trained from raw (AL 60.72 / AZ 49.86 / Istanbul 61.86), exceeds a ReHDM reference run under its own protocol, and every region model clears a Markov-1 floor by a wide margin (one-clause text mention; Markov-1 region row dropped). Do NOT cite STAN-on-our-representation: it is not a baseline and at AL sits above us (70.35 vs 69.81). |
 | R1: marginal gains while scaling cost                      | Part 2: category +4.7 to +7.7 and region beats at scale, in one model; §4.2 cost accounting (+5 percent, one model vs two). No longer marginal, no longer a cost.    |
 | R2: hard to follow, one spine                              | §2 storytelling spine: one question, two parts, one figure each                                                                                                      |
 | R2: novelty not positioned                                 | §2.2 / §2.3 positive one-line distinctions; §1 ¶5 positive contributions                                                                                             |
@@ -733,6 +733,11 @@ carried fragment.
 ---
 
 ## 10 · Open dependencies and decisions
+
+0. **BLOCKER 0 (before any further writing): reconfirm the deadline.** Today is 2026-06-26; the §0 note "~25 June
+   2026" is unverified and may already be **past**. Reconfirm immediately on the MobiWac / EDAS site. If the regular
+   deadline is missed, switch to `PAPER_PLAN_POSTER.md` or the next cycle before investing in the eight skeleton
+   sections. This gates everything below.
 
 1. **The board is COMPLETE (2026-06-24).** All 6 states are 5f-settled; **TX is closed** (fp32 single-device,
    +2.06 reg, device-mix resolved); Istanbul is stride-1 n=20; CSLSL is done (a tie); feature-concat and HMT-GRN
@@ -748,7 +753,7 @@ carried fragment.
    - **Source the §5.2 leak Δ numbers** (still ⟨placeholders⟩) from the transductive-exposure audit before they go in.
    - **Faithful STAN FL** finish (in-flight); CA/TX optional (HMT-GRN carries CA/TX; the AL/AZ/Istanbul pattern holds).
      **ReHDM** keep the current numbers (CA/TX/Istanbul footnoted), update post-deadline.
-   - **Reconfirm the deadline FIRST** (the §0 note ~25 June 2026 is now at/past today — verify the cycle).
+   - (Deadline is now Blocker 0 above.)
 2. **One windowing for the whole paper (Tbl 2) — DONE.** Part 1 is re-scored under the overlap board at all 5 Gowalla
    states (AL/AZ/FL/CA/TX; margins +27.6 to +39.6), so Tbl 2 and Tbl 3 share one windowing. (Istanbul has no HGI
    build → footnote.) The embedding-geometry figure is windowing-robust.
