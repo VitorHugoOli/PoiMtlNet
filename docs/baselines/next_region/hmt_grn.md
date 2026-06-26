@@ -26,10 +26,10 @@ HMT-GRN is **the sole region-native external baseline** — the only published m
 | Arizona | dk_ovl | 1,547 | 43.70 | 18.04 | ~59.3 | ✅ we lead +15.6 |
 | Florida | dk_ovl | 4,703 | 63.74 | 26.87 | 77.28 | ✅ we lead +13.5 |
 | California | dk_ovl | 8,501 | 49.61 | 24.01 | 65.66 | ✅ we lead +16.1 |
-| Istanbul | Phase-V | 520 | 56.56 | 20.87 | ~69.8 (champ-G) | ✅ we lead; > Markov floor 52.5 |
-| Texas | dk_ovl | 6,553 | _in-flight_ | _in-flight_ | 67.13 (2/5) | ⏳ pending |
+| Istanbul | stride-1 | 520 | 60.42 | 19.10 | 74.28 | ✅ we lead +13.9 (stride-1; supersedes set-a 56.56/20.87) |
+| Texas | dk_ovl | 6,553 | 53.85 | 25.81 | 67.02 | ✅ we lead +13.2 (PR #38, 5f) |
 
-**Read:** **our joint model beats the sole region-native SOTA at every measured state**, by ≈ +13–16 pp on region — even though region is precisely where a region-native model should compete. HMT-GRN clears the Markov-1 floor (so it learns), but trails our representation+MTL by a wide margin.
+**Read:** **our joint model beats the sole region-native baseline at all 6 states** (board now complete — TX closed PR #38), by ≈ +13–16 pp on region — even though region is precisely where a region-native model should compete. HMT-GRN clears the Markov-1 floor (so it learns), but trails our representation+MTL by a wide margin. ⚠ Wording: this is an **HMT-GRN-*style*** baseline (own LSTM trunk + train-only region-transition prior, end-to-end from raw; **graph module + hierarchical beam search dropped** — no next-POI head to prune), *not* a strict reproduction of Lim et al. — call it "region-native E2E", never "faithful HMT-GRN" (see the deviation ledger above).
 
 ## Provenance & the device note (resolved)
 - Per-state per-fold raw results: `results/baseline_b3_hmt_grn_style/<state>/` (gitignored); summary in `docs/results/closing_data/MACS_BOARD_RESULTS.md`; consolidated in `RESULTS_BOARD.md §4`.

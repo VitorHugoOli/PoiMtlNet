@@ -22,7 +22,7 @@ The proposed set is **directionally right but incomplete and mis-framed**: keep 
 # KEEP (load-bearing, all four reports concur)
 - **CTLE** — non-negotiable W3 novelty gate (gap_controls, tough #1). But it is load-bearing *only* re-cast as a substrate column ("CTLE-emb → matched head"), never as a "next-category model." Web_field confirms the field (AdaptGOT 2025) already documents CTLE underperforms category by design; status confirms Check2HGI-SC (55.59) is the correct matched comparand, not the MTL champion.
 - **POI-RGNN** — strongest-covered baseline (faithful, all 6 states, stricter SGKF folds → conservative floor); the external category anchor (status Q4, margins). Cite canonical 34.49/31.78/33.03, not the superseded comparison.md snapshot (margins #6).
-- **HMT-GRN** — the *only* external MTL/region precedent; sole defense against "all comparisons internal" (gap_controls, tough #4). Keep, but device-confounded on Mac at CA/TX (status Q2).
+- **HMT-GRN** — the *only* external MTL/region precedent; sole defense against "all comparisons internal" (gap_controls, tough #4). Keep — **all 6 states done incl. TX (PR #38: reg 53.85 / cat 25.81)**; the Mac device-confound is **RESOLVED** (PR #38: MPS == deterministic CPU within 0.06 pp; the old 62.37 was the unreproducible anomaly). ⚠ It is **HMT-GRN-*style*** (own LSTM trunk + train-only region-transition prior from raw; graph module + hierarchical beam search dropped, no next-POI head) — frame it as "region-native E2E", **not "faithful HMT-GRN"** (deviation ledger: `docs/baselines/next_region/hmt_grn.md`).
 - **STAN** — keep; but its `stl_hgi` variant EXISTS at CA/TX (CA 60.45, TX 62.70) and is the *tightest* large-state competitor (margins #3). Do NOT label STAN "infeasible at CA/TX" — that is true only for `faithful`.
 - **Markov-1 region** — correct universal floor, beaten +12..23 pp everywhere (status Q3). Keep.
 
@@ -87,7 +87,7 @@ We win category **everywhere, by enormous margins (+36..+48 pp)**. Sources: `com
 | AZ | 1547 | 59.40 | 59.34 | 43.70 | 54.86 (stl_hgi) | 54.65 (faithful) | 42.96 | **+15.6** | **+4.5** | +16.4 |
 | FL | 4703 | 76.71 | 77.28 | 63.74 | 73.58 (stl_hgi) | 65.68 (faithful) | 65.05 | **+13.5** | **+3.7** | +12.2 |
 | CA | 8501 | 63.48 | 65.66 | 49.61 | **60.45 (stl_hgi)** | — (deferred) | 52.09 | **+16.1** | **+5.2** | +13.6 |
-| TX | 6553 | 64.96 | 67.13 ²ᐟ⁵ | _in-flight_ | **62.70 (stl_hgi)** | — (deferred) | 54.94 | _HMT pending_ | **+4.4** ²ᐟ⁵ | +12.2 |
+| TX | 6553 | 64.96 | 67.13 ²ᐟ⁵ | 53.85 | **62.70 (stl_hgi)** | — (deferred) | 54.94 | **+13.3** ²ᐟ⁵ | **+4.4** ²ᐟ⁵ | +12.2 |
 | Istanbul | 520 | 70.37 | 69.79 | 56.56 | — | — | 52.5 | **+13.2** | n/a | +17.3 |
 
 We win region against the **native-E2E** baselines (HMT-GRN, Markov) everywhere. Sources: `comparison.md`/JSONs (STAN, Markov), `hmt_grn.md` (HMT-GRN).

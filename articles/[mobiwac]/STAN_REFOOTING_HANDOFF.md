@@ -11,7 +11,8 @@
 > - **ReHDM-faithful** (AL 66.06 / AZ 54.65 / FL 65.68) is on its **own** protocol (chronological 80/10/10 + 24h
 >   sessions + 5 seeds), not our 5-fold user-disjoint CV. This is acceptable AS a published-method reference, but it
 >   is NOT a paired/matched comparison.
-> - **HMT-GRN** is already board-matched (seed 0, stride-1 overlap) — the one clean region external today.
+> - **HMT-GRN** is board-matched (seed 0, stride-1 overlap) at all 6 states (TX completed PR #38: reg 53.85 / cat
+>   25.81) — the one clean region external today, though an HMT-GRN-*style* adaptation, not a strict reproduction (see #3).
 >
 > **Decision (user, 2026-06-26 — UPDATED after the faithful-STAN literature + implementation audit):**
 > 1. **PHASE 1 (do first): run FAITHFUL STAN** — STAN's OWN embeddings learned end-to-end **from raw**
@@ -27,8 +28,12 @@
 > 2. **PHASE 2 (after Phase 1): run ReHDM-faithful** — **AL/AZ/Istanbul in parallel first, then FL/CA/TX as
 >    possible** (faithful is heavy at FL/CA/TX scale; footnote-infeasible is acceptable). ReHDM-faithful is reported
 >    as a **published-method reference under its own protocol** (chronological split, 5 seeds), never a paired cell.
-> 3. **Comparability hierarchy:** **HMT-GRN** (faithful, region-native, board-matched, multi-task) is the **PRIMARY**
->    region-native comparison. **STAN (faithful, from raw — after the fixed re-run)** and **ReHDM (own protocol)** are
+> 3. **Comparability hierarchy:** **HMT-GRN** (region-native, multi-task, board-matched — **HMT-GRN-***style***, not
+>    strictly faithful**: its own end-to-end LSTM trunk + train-only region-transition prior, learned from raw on our
+>    tract targets; the GRN **graph module and hierarchical beam search are dropped** as next-POI is out of scope —
+>    deviation ledger in `docs/baselines/next_region/hmt_grn.md`) is the **PRIMARY** region-native comparison. Note the
+>    asymmetry vs the strict-faithful bar this handoff imposes on STAN: HMT-GRN is independent (own architecture, not our
+>    substrate) but is an *adaptation*, not a reproduction. **STAN (faithful, from raw — after the fixed re-run)** and **ReHDM (own protocol)** are
 >    **SECONDARY references, each labeled.** The substrate-bound **STAN-`stl_hgi`** (STAN on our HGI embedding) is now
 >    ONLY an OPTIONAL, explicitly-labeled **ablation** (isolates substrate vs architecture), NEVER the headline STAN
 >    cell. Until the fixed faithful re-run lands, the STAN cells in Table 3 are **PENDING — cite no STAN number.**
@@ -105,21 +110,26 @@ ReHDM is reported as a **published-method reference under its own protocol**, ga
 cell. Never report it as if it were on our folds. The Istanbul ReHDM `stl_check2hgi` (running in PR #51, on our
 substrate + set-a) is **dropped** — superseded by the faithful run above (or the not-available footnote).
 
-## Phase 3 — HMT-GRN completion (the PRIMARY region-native baseline)
-HMT-GRN is the **primary** region-native comparison and is already board-matched (seed 0, stride-1 overlap,
-region-native end-to-end) at **AL 57.05 / AZ 43.70 / FL 63.74 / CA 49.61 / Istanbul 60.4** (`comparison.md` reduced
-board). Unlike STAN/ReHDM it CAN be a matched cell (faithful AND on our footing). Two gaps to close:
-1. **TX is in-flight** — finish the TX HMT-GRN run on the board footing (seed 0, stride-1 overlap), fill the Table-3
-   `--`$^{\S}$ cell.
-2. **Verify the existing cells are board-matched** against the committed JSONs (seed 0, stride-1). Resolve the
-   Istanbul value: the table carries **60.4 (stride-1)**, not the 56.56 non-overlap build — confirm. HMT-GRN must sit
-   below our MTL reg at every state (AL 69.81 / AZ 59.34 / FL 77.28 / CA 65.66 / TX 67.02 / Istanbul 74.28).
+## Phase 3 — HMT-GRN completion (the PRIMARY region-native baseline) — ✅ DONE
+HMT-GRN is the **primary** region-native comparison and is board-matched (seed 0, stride-1 overlap, region-native
+end-to-end) at **all 6 states: AL 57.05 / AZ 43.70 / FL 63.74 / CA 49.61 / TX 53.85 / Istanbul 60.4** (reg Acc@10;
+`comparison.md` / `hmt_grn.md` reduced board). Unlike STAN/ReHDM it CAN be a matched cell (on our footing) — but it is
+an **HMT-GRN-*style* adaptation, NOT a strict reproduction** (own LSTM trunk + region-transition prior from raw; graph
+module + hierarchical beam search dropped — see the comparability note above and `hmt_grn.md`). Both gaps are CLOSED:
+1. ✅ **TX DONE** — TX HMT-GRN finished on the board footing (seed 0 × 5 folds, MPS, PR #38): **reg Acc@10 53.85 /
+   cat F1 25.81** (per-fold reg 53.5/54.2/53.1/54.5/54.0). Table-3 `--`$^{\S}$ cell filled with **53.85**; the
+   `$^{\S}$` footnote now carries the deviation ledger, not "in-flight".
+2. ✅ **Cells re-confirmed board-matched** (seed 0, stride-1) against the MACS table; Istanbul resolved to **60.4
+   (stride-1)**, not 56.56. HMT-GRN sits **below our MTL reg at every state** including TX (53.85 < 67.02):
+   AL 57.05 < 69.81 / AZ 43.70 < 59.34 / FL 63.74 < 77.28 / CA 49.61 < 65.66 / TX 53.85 < 67.02 /
+   Istanbul 60.4 < 74.28. ✅ all clear, the "joint beats the primary region-native at every state" claim holds.
 
 ## After the runs: paper-doc updates
 - **Table 3** (`src/tables/tbl3_results.tex`): fill the STAN cells with the **audited-faithful, converged, seed-0**
   values (AL/AZ/FL; CA/TX footnoted infeasible); the STAN footnote stays "STAN run faithfully (its own embeddings and
-  sequence construction, from raw) on our data/folds/region targets"; fill the HMT-GRN TX cell; the ReHDM footnote
-  stays "ReHDM under its own published protocol (reference)". The substrate-bound `stl_hgi` STAN, if kept, is a
+  sequence construction, from raw) on our data/folds/region targets"; the HMT-GRN TX cell is **FILLED (53.85, PR #38)**
+  and the HMT column now carries a `$^{\S}$` "HMT-GRN-*style* / deviation-ledger" footnote (NOT "faithful"); the ReHDM
+  footnote stays "ReHDM under its own published protocol (reference)". The substrate-bound `stl_hgi` STAN, if kept, is a
   clearly-labeled ablation row, never the headline.
 - **`docs/baselines/next_region/comparison.md`** + `stan.md`: add the faithful board-footing STAN row; mark the old
   seed-42 / v4 `FAITHFUL_STAN` numbers superseded-for-the-paper (under-trained, kept only for the v1→v4 audit trail).
@@ -138,9 +148,11 @@ board). Unlike STAN/ReHDM it CAN be a matched cell (faithful AND on our footing)
 - [ ] Old v4 / seed-42 STAN numbers struck; if audited-faithful + converged STAN still lands below Markov, that is the
   honest reportable result.
 
-**Phase 3 (HMT-GRN, the primary):**
-- [ ] TX HMT-GRN finished on the board footing; Istanbul value resolved (60.4 stride-1); all cells re-confirmed
-  board-matched and below our MTL reg.
+**Phase 3 (HMT-GRN, the primary): ✅ COMPLETE**
+- [x] TX HMT-GRN finished on the board footing (seed 0 × 5f, MPS, PR #38: reg 53.85 / cat 25.81); Istanbul value
+  resolved (60.4 stride-1); all 6 cells re-confirmed board-matched and below our MTL reg. Table-3 TX cell filled.
+- [x] HMT-GRN labeled **HMT-GRN-*style*** (own LSTM trunk + transition prior from raw; graph + beam search dropped),
+  NOT "faithful" — deviation ledger in `hmt_grn.md`; Table-3 `$^{\S}$` footnote and the prose carry the qualifier.
 
 **Phase 2 (ReHDM, after Phase 1):**
 - [ ] ReHDM-faithful AL/AZ/Istanbul run in parallel (Istanbul via the FSQ→mahalle adapter, or footnoted not-available).

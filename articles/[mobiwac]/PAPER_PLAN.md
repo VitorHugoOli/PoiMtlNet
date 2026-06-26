@@ -457,11 +457,12 @@ see `STAN_REFOOTING_HANDOFF.md`):** keep all region externals on ONE footing for
 literature norm; feeding STAN a pretrained embedding (the old `stl_hgi` variant) is non-standard, so it is at most a
 labeled ablation. ⚠ **The prior faithful-STAN numbers (AL 34.46 / AZ 38.96, below Markov) are UNDER-TRAINED ARTIFACTS
 (best-epochs clipped at 49/50, stride-9 starvation, a STAN-derived head) and are NOT cited; STAN is being re-run to
-convergence.** **HMT-GRN** is already board-matched (seed 0, stride-1). **ReHDM-faithful** is reported as a
-**published-method reference under its own protocol** (chronological 80/10/10 + 5 seeds), never a paired/matched cell.
-STAN on our Check2HGI is dropped. **Comparability hierarchy:** HMT-GRN (faithful, region-native, board-matched,
-multi-task) is the **primary** region-native comparison; **STAN (faithful, from raw) and ReHDM (own protocol) are
-secondary references, each labeled.** If a converged faithful STAN still lands below the Markov floor, that is the
+convergence.** **HMT-GRN** is board-matched (seed 0, stride-1) at **all 6 states** (TX closed PR #38: reg 53.85 /
+cat 25.81). **ReHDM-faithful** is reported as a **published-method reference under its own protocol** (chronological
+80/10/10 + 5 seeds), never a paired/matched cell. STAN on our Check2HGI is dropped. **Comparability hierarchy:**
+HMT-GRN (region-native, board-matched, multi-task — **HMT-GRN-*style***: own end-to-end LSTM trunk + region-transition
+prior from raw, graph module + hierarchical beam search dropped; *not* a strict reproduction) is the **primary**
+region-native comparison; **STAN (faithful, from raw) and ReHDM (own protocol) are secondary references, each labeled.** If a converged faithful STAN still lands below the Markov floor, that is the
 honest result (STAN was built for fine next-POI, not coarse regions), reported with that note rather than headlined. (2) **representation** (FL only): **CTLE**, the closest prior contextual
 embedding, presented fairly (its end-to-end form alongside the frozen one), plus a **feature-concat control**
 (HGI ⊕ raw per-visit features), so the category gain is attributed to the hierarchy, not to any contextualization
