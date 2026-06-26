@@ -41,10 +41,8 @@ from torch.nn import CrossEntropyLoss
 
 from tracking.metrics import (
     compute_classification_metrics,
-    _handrolled_cls_metrics,
     _rank_of_target,
-    _mrr_from_rank,
-    _ndcg_from_rank,
+    _streamed_cls_metrics,
 )
 from utils.flops import calculate_model_flops
 from utils.mps import clear_mps_cache
@@ -932,20 +930,11 @@ def train_model(model: torch.nn.Module,
             # on the C>256 handrolled path: same helpers, same keys, same order. preds=cat of
             # per-batch argmax == full argmax (per-row); rank/hit are per-row; bincounts are
             # additive — so every metric matches the full-logit computation exactly.
-            _preds = torch.cat(s1_preds_b)
-            _tgts = torch.cat(s1_targets_b)
-            _rank = torch.cat(s1_rank_b)
-            _accm, _accM, _f1m, _f1w = _handrolled_cls_metrics(_preds, _tgts, task_b_num_classes)
-            train_metrics_task_b = {
-                "accuracy": _accm,
-                "accuracy_macro": _accM,
-                "f1": _f1m,
-                "f1_weighted": _f1w,
-                "mrr": _mrr_from_rank(_rank),
-            }
-            for _k in _S1_TOPK:
-                train_metrics_task_b[f"top{_k}_acc"] = torch.cat(s1_hit_b[_k]).float().mean().item()
-                train_metrics_task_b[f"ndcg_{_k}"] = _ndcg_from_rank(_rank, _k)
+            _hit = {_k: torch.cat(s1_hit_b[_k]) for _k in _S1_TOPK}
+            train_metrics_task_b = _streamed_cls_metrics(
+                torch.cat(s1_preds_b), torch.cat(s1_targets_b), torch.cat(s1_rank_b),
+                _hit, task_b_num_classes, top_k=_S1_TOPK,
+            )
         else:
             epoch_task_b_logits = torch.cat(all_task_b_logits)
             epoch_task_b_targets = torch.cat(all_task_b_targets)

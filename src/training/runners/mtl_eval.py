@@ -8,10 +8,8 @@ logger = logging.getLogger(__name__)
 
 from tracking.metrics import (
     compute_classification_metrics,
-    _handrolled_cls_metrics,
     _rank_of_target,
-    _mrr_from_rank,
-    _ndcg_from_rank,
+    _streamed_cls_metrics,
 )
 from utils.progress import zip_longest_cycle
 
@@ -65,6 +63,35 @@ def _ood_restricted_topk(
     result["mrr_indist"] = float((1.0 / rank).mean().item())
 
     return result
+
+
+def _decide_chunk_val(dataloaders, nc_b_gate) -> bool:
+    """Whether to use the chunked/streaming S2 val-metric for the reg head.
+
+    The full path cats the whole val epoch's [N, n_regions] reg logits on GPU (OOMs the
+    A40 at CA/TX overlap scale). Chunking streams per-batch reductions and assembles a
+    byte-identical metric dict, so we enable it when explicitly requested
+    (``MTL_CHUNK_VAL_METRIC=1``) OR auto-enable it (one-time WARN) when the full logit
+    would exceed ``MTL_S2_AUTO_BUDGET_GB`` (default 4 GB). Reg-only (C > 256, the
+    hand-rolled metric path); selecting it never changes the scored numbers.
+    """
+    s2_env = os.environ.get("MTL_CHUNK_VAL_METRIC", "").strip() in ("1", "true", "True")
+    full_logit_gb, n_val = 0.0, -1
+    try:
+        n_val = len(dataloaders[0].dataset)
+        full_logit_gb = n_val * int(nc_b_gate or 0) * 4 / (1024 ** 3)
+    except Exception:
+        pass
+    budget_gb = float(os.environ.get("MTL_S2_AUTO_BUDGET_GB", "4"))
+    auto_chunk = full_logit_gb > budget_gb
+    if auto_chunk and not s2_env:
+        logger.warning(
+            "[S2 auto] full val reg-logit ≈ %.1f GB (N_val=%d × C=%d) exceeds the %.1f GB "
+            "budget — auto-enabling the chunked val metric (byte-identical) to avoid a GPU OOM. "
+            "Set MTL_CHUNK_VAL_METRIC=1 to silence, or MTL_S2_AUTO_BUDGET_GB to tune.",
+            full_logit_gb, n_val, int(nc_b_gate or 0), budget_gb,
+        )
+    return (s2_env or auto_chunk) and nc_b_gate is not None and nc_b_gate > 256
 
 
 @torch.no_grad()
@@ -124,38 +151,13 @@ def evaluate_model(
     # GPU (matching the canonical fp16-CUDA topk tie-breaking — NEVER CPU-moved) and assemble
     # the IDENTICAL metric dicts + ood dict from the accumulators. Reg only; cat (C=7) keeps the
     # full path. SCORED PATH → behind MTL_CHUNK_VAL_METRIC (default OFF) until A40 A/B-verified.
+    # S2 — chunked/streaming val metric for the high-cardinality reg head: byte-identical
+    # to the full-logit path but avoids the A40 GPU-OOM that cat-ing the whole val epoch's
+    # [N, n_regions] logits causes at CA/TX overlap scale. See _decide_chunk_val.
     _nc_b_gate = task_b_num_classes if task_b_num_classes is not None else (
         num_classes if num_classes is not None else getattr(model, "num_classes", 0)
     )
-    _s2_env = os.environ.get("MTL_CHUNK_VAL_METRIC", "").strip() in ("1", "true", "True")
-    # FOOTGUN GUARD (2026-06-20): the full path cats the WHOLE val epoch's
-    # [N_val, n_regions] reg logits on GPU. At overlap scale (8.5× rows) with a
-    # high region count this is ~20 GB for CA (586k × 8501 × 4 B) and instantly
-    # OOMs the A40 mid-validation — even after the host-RAM fix. S2 is byte-identical
-    # (assembles the same metric dicts from streamed per-batch reductions), so when
-    # the full logit would exceed a GPU-safe budget we AUTO-enable chunking (with a
-    # one-time WARN) instead of OOMing. Non-overlap region MTL (small N_val ⇒ ~2 GB
-    # at CA) stays on the full path untouched, preserving the frozen §0.1 numbers.
-    _full_logit_gb = 0.0
-    try:
-        _n_val = len(dataloaders[0].dataset)
-        _full_logit_gb = _n_val * int(_nc_b_gate or 0) * 4 / (1024 ** 3)
-    except Exception:
-        pass
-    _S2_BUDGET_GB = float(os.environ.get("MTL_S2_AUTO_BUDGET_GB", "4"))
-    _auto_chunk = _full_logit_gb > _S2_BUDGET_GB
-    _chunk_val = (
-        (_s2_env or _auto_chunk)
-        and _nc_b_gate is not None and _nc_b_gate > 256  # only the handrolled path
-    )
-    if _auto_chunk and not _s2_env:
-        logger.warning(
-            "[S2 auto] full val reg-logit ≈ %.1f GB (N_val=%d × C=%d) exceeds the "
-            "%.1f GB budget — auto-enabling the chunked val metric (byte-identical) "
-            "to avoid a GPU OOM. Set MTL_CHUNK_VAL_METRIC=1 to silence, or "
-            "MTL_S2_AUTO_BUDGET_GB to tune.",
-            _full_logit_gb, locals().get("_n_val", -1), int(_nc_b_gate or 0), _S2_BUDGET_GB,
-        )
+    _chunk_val = _decide_chunk_val(dataloaders, _nc_b_gate)
     _S2_KS = (1, 3, 5, 10)  # union of metrics_next top_k=(3,5) and ood ks=(1,5,10)
     sv_preds, sv_tgts, sv_rank = [], [], []
     sv_hit = {k: [] for k in _S2_KS}
@@ -262,14 +264,8 @@ def evaluate_model(
         _T = torch.cat(sv_tgts)
         _R = torch.cat(sv_rank)
         _HIT = {k: torch.cat(sv_hit[k]) for k in _S2_KS}
-        _am, _aM, _fm, _fw = _handrolled_cls_metrics(_P, _T, nc_b)
-        metrics_next = {
-            "accuracy": _am, "accuracy_macro": _aM, "f1": _fm,
-            "f1_weighted": _fw, "mrr": _mrr_from_rank(_R),
-        }
-        for _k in (3, 5):
-            metrics_next[f"top{_k}_acc"] = _HIT[_k].float().mean().item()
-            metrics_next[f"ndcg_{_k}"] = _ndcg_from_rank(_R, _k)
+        # Shared with the S1 train-metric (mtl_cv); _T/_R/_HIT are reused by the OOD block below.
+        metrics_next = _streamed_cls_metrics(_P, _T, _R, _HIT, nc_b, top_k=(3, 5))
     else:
         all_logits_next = torch.cat(logits_next_list)
         all_truths_next = torch.cat(truths_next_list)

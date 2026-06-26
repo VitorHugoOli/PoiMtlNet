@@ -163,6 +163,30 @@ def _ndcg_from_rank(rank: torch.Tensor, k: int) -> float:
     return dcg.mean().item()
 
 
+def _streamed_cls_metrics(preds, tgts, rank, hit, num_classes, top_k=(3, 5)) -> dict:
+    """Reconstruct the hand-rolled (C>256) classification-metric dict from streamed
+    per-row accumulators: ``preds``/``tgts``/``rank`` concatenated, ``hit`` a
+    ``{k: bool tensor}`` dict (must contain every k in ``top_k``).
+
+    Byte-identical to ``compute_classification_metrics(full logits, top_k)`` on the
+    hand-rolled path — same helpers, keys and order; the reductions are per-row /
+    additive so they are device-independent. Shared by the S1 streaming TRAIN metric
+    (``mtl_cv``, CPU tensors) and the S2 chunked VAL metric (``mtl_eval``, GPU tensors).
+    """
+    acc_micro, acc_macro, f1_macro, f1_weighted = _handrolled_cls_metrics(preds, tgts, num_classes)
+    metrics = {
+        "accuracy": acc_micro,
+        "accuracy_macro": acc_macro,
+        "f1": f1_macro,
+        "f1_weighted": f1_weighted,
+        "mrr": _mrr_from_rank(rank),
+    }
+    for k in top_k:
+        metrics[f"top{k}_acc"] = hit[k].float().mean().item()
+        metrics[f"ndcg_{k}"] = _ndcg_from_rank(rank, k)
+    return metrics
+
+
 def _mean_reciprocal_rank(logits: torch.Tensor, targets: torch.Tensor) -> float:
     return _mrr_from_rank(_rank_of_target(logits, targets))
 
