@@ -885,6 +885,32 @@ def _classify_pois(poi_users, train_users, val_users):
     return train_exclusive, val_exclusive, ambiguous
 
 
+def _resolve_task_input(input_type, state, embedding_engine, x_checkin):
+    """Pick a task slot's input tensor for the check2hgi-MTL fold creator.
+
+    ``checkin`` → the shared ``x_checkin`` (no region-sequence build → bit-equivalent to the
+    legacy checkin-only path when both slots are checkin); ``region`` → the region-embedding
+    sequence (``REGION_EMB_ENGINE`` env overrides the region engine while ``embedding_engine``
+    drives the windowing); ``concat`` → checkin ⊕ region. Lazy region-sequence import so
+    non-region engines don't pay the cost.
+    """
+    if input_type == "checkin":
+        return x_checkin
+    from data.inputs.region_sequence import (
+        build_region_sequence_tensor,
+        build_concat_sequence_tensor,
+    )
+    if input_type == "region":
+        import os as _os
+        _re = _os.environ.get("REGION_EMB_ENGINE")
+        _reg_eng = EmbeddingEngine(_re) if _re else embedding_engine
+        return build_region_sequence_tensor(state, region_engine=_reg_eng,
+                                            seq_engine=embedding_engine)
+    if input_type == "concat":
+        return build_concat_sequence_tensor(state, x_checkin)
+    raise ValueError(f"Unknown input_type: {input_type}")
+
+
 # ============================================================
 # FOLD CREATOR
 # ============================================================
@@ -1329,41 +1355,12 @@ class FoldCreator:
             if use_aux else None
         )
 
-        # Per-task modality: task_a = next_category (CATEGORY slot),
-        # task_b = next_region (NEXT slot). Each slot picks its own X:
-        # check-in embedding, region embedding, or concat of the two.
-        # When both request "checkin" (the default), this code path is
-        # bit-equivalent to the legacy checkin-only version — x_checkin is shared
-        # across both slots and no region-sequence build is triggered.
-        def _resolve_x(input_type: str) -> torch.Tensor:
-            if input_type == "checkin":
-                return x_checkin
-            # Lazy import so engines that can't produce a region-sequence
-            # (non-CHECK2HGI paths) don't pay the import cost.
-            from data.inputs.region_sequence import (
-                build_region_sequence_tensor,
-                build_concat_sequence_tensor,
-            )
-            if input_type == "region":
-                # Part-2 dual-substrate routing PILOT hook: REGION_EMB_ENGINE env-var
-                # overrides which engine's region_embeddings the reg task consumes,
-                # while --engine still drives the cat (task_a) embedding. Lets us route
-                # e.g. HGI's region tower to the reg head while cat uses the v14 substrate.
-                # Unset → canonical behaviour (reg uses the same engine as cat).
-                import os as _os
-                _re = _os.environ.get("REGION_EMB_ENGINE")
-                _reg_eng = EmbeddingEngine(_re) if _re else embedding_engine
-                # seq_engine follows the cat (task_a) engine's windowing so the
-                # region-emb sequence row-aligns with next.parquet / next_region.parquet
-                # (matters for the overlap-window probe; no-op for canonical CHECK2HGI).
-                return build_region_sequence_tensor(state, region_engine=_reg_eng,
-                                                    seq_engine=embedding_engine)
-            if input_type == "concat":
-                return build_concat_sequence_tensor(state, x_checkin)
-            raise ValueError(f"Unknown input_type: {input_type}")
-
-        x_task_a = _resolve_x(self.task_a_input_type)
-        x_task_b = _resolve_x(self.task_b_input_type)
+        # Per-task modality: task_a = next_category (CATEGORY slot), task_b = next_region
+        # (NEXT slot). Each slot picks its own X (checkin / region / concat); when both are
+        # "checkin" (the default) x_checkin is shared and no region-sequence build runs
+        # (bit-equivalent to the legacy checkin-only path). See _resolve_task_input.
+        x_task_a = _resolve_task_input(self.task_a_input_type, state, embedding_engine, x_checkin)
+        x_task_b = _resolve_task_input(self.task_b_input_type, state, embedding_engine, x_checkin)
         logger.info(
             "MTL_CHECK2HGI input modality: task_a=%s (%s), task_b=%s (%s)",
             self.task_a_input_type, tuple(x_task_a.shape),
