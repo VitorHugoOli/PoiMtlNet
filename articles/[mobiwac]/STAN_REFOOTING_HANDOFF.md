@@ -54,15 +54,16 @@
 - fp32; never cite a NaN-collapsed or degenerate fold. Commit one JSON per state + a finding; branch + PR, no merge
   to main (the orchestrator audits).
 
-## Phase 1 — Faithful STAN: AUDIT against the paper FIRST, then execute (do FIRST) — ✅ DONE (AL/AZ/Istanbul; FL in-flight)
-> **✅ CLOSED for AL/AZ/Istanbul (PR #53, merged 2026-06-26).** The audited **v5** re-implementation applied all 6
-> faithfulness fixes (STAN-native prefix-expansion sequences; restored matching layer + interval embedding;
+## Phase 1 — Faithful STAN: AUDIT against the paper FIRST, then execute (do FIRST) — ✅ DONE (AL/AZ/FL/Istanbul)
+> **✅ CLOSED for AL/AZ/FL/Istanbul (PR #53 + #54, merged 2026-06-26).** The audited **v5/v6** re-implementation applied
+> all 6 faithfulness fixes (STAN-native prefix-expansion sequences; restored matching layer + interval embedding;
 > constant-LR convergence; etc.), passed a two-agent audit + independent GO code review, and was ~85× optimized
 > (`F.embedding`+`torch.compile`, audit≈compiled within 0.1 pp). It **CONVERGED** (best-epochs 5–12, not clipped) and
-> **clears the Markov floor AND stays below our joint model**: **AL 60.72 / AZ 49.86 / Istanbul 61.86** (reg Acc@10,
-> seed 0 × 5f). The v4 collapse (AL 34.46 / AZ 38.96) is superseded — never cite. **FL faithful-STAN is in-flight on
-> the A40** (fold-0 v6 ckpt Acc@10 0.7307); **CA/TX footnoted infeasible-at-scale.** Table-3 STAN cells filled.
-> Methodology preserved below for the record / the FL finish. Findings: `docs/studies/closing_data/FAITHFUL_STAN_FINDINGS.md`.
+> **clears the Markov floor AND stays below our joint model**: **AL 60.72 / AZ 49.86 / FL 72.99 / Istanbul 61.86**
+> (reg Acc@10, seed 0 × 5f). The v4 collapse (AL 34.46 / AZ 38.96) is superseded — never cite. **FL completed (PR #54):
+> 5-fold v6, Acc@10 72.99 ± 0.34** (< our joint reg 77.28; the fold-0-only 0.7307 checkpoint is superseded by the
+> committed 5-fold JSON). **CA/TX footnoted infeasible-at-scale.** Table-3 STAN cells filled.
+> Methodology preserved below for the record. Findings: `docs/studies/closing_data/FAITHFUL_STAN_FINDINGS.md`.
 
 Faithful STAN is its OWN code (`research/baselines/stan/` — `model.py` + `etl.py` + `train.py`): STAN learns its own
 embeddings, builds its own sequences, and applies its own spatio-temporal interval attention. It is **NOT** the
@@ -147,13 +148,13 @@ module + hierarchical beam search dropped — see the comparability note above a
   from PR #51 are windowing-robust and can go in now (they sit far below our 53.20/59.89 regardless).
 
 ## Acceptance checklist
-**Phase 1 (faithful STAN, Gowalla): ✅ DONE for AL/AZ/Istanbul (PR #53); FL in-flight**
+**Phase 1 (faithful STAN, Gowalla): ✅ DONE for AL/AZ/FL/Istanbul (PR #53 + #54)**
 - [x] **Faithfulness audit done** vs the paper + reference repo (`stan.md` "faithfulness vs reference" section +
   `FAITHFUL_STAN_FINDINGS.md §2`: sequence construction = STAN's native prefix-expansion; matching layer + interval
   embedding restored toward the reference; two-agent audit + independent GO review).
-- [x] Faithful STAN (own embeddings + own sequence construction) committed for **AL/AZ** (60.72 / 49.86) **+ Istanbul**
-  (61.86) at **seed 0, converged**; **FL in-flight on the A40** (fold-0 v6 ckpt 0.7307); CA/TX footnoted infeasible-at-scale.
-- [x] Acc@10 clears the Markov floor (AL 60.72>47.01 / AZ 49.86>42.96 / Istanbul 61.86>52.5) and stays below our joint;
+- [x] Faithful STAN (own embeddings + own sequence construction) committed for **AL/AZ** (60.72 / 49.86), **FL**
+  (72.99, 5-fold v6, PR #54) **+ Istanbul** (61.86) at **seed 0, converged**; CA/TX footnoted infeasible-at-scale.
+- [x] Acc@10 clears the Markov floor (AL 60.72>47.01 / AZ 49.86>42.96 / FL 72.99>65.05 / Istanbul 61.86>52.5) and stays below our joint;
   best-epochs 5–12 land BEFORE the 200-cap; no NaN; macro-F1 above the v4 ~0 collapse.
 - [x] Old v4 (AL 34.46 / AZ 38.96) struck as a collapse artifact — superseded, never cite.
 
