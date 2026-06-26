@@ -65,27 +65,31 @@ def _resolver_cfg(per_fold_dir):
     )
 
 
-def test_inert_skip_returns_unchanged_without_touching_files(monkeypatch, tmp_path):
-    """With the opt-in ON, an inert champion skips the load + guards and returns the
-    SAME model_params — even when the per-fold dir holds NO log_T files (proving the
-    champion no longer needs them regenerated)."""
+def test_inert_skip_is_the_DEFAULT(monkeypatch, tmp_path):
+    """DEFAULT (env unset): an inert champion skips the load + guards and returns the SAME
+    model_params — even when the per-fold dir holds NO log_T files (the champion no longer
+    needs them). This is the flipped default (2026-06-26)."""
     cfg = _resolver_cfg(tmp_path / "no_such_dir")  # dir does not exist / is empty
-    monkeypatch.setenv("MTL_SKIP_INERT_LOGT", "1")
+    monkeypatch.delenv("MTL_SKIP_INERT_LOGT", raising=False)  # default
     out = _resolve_per_fold_priors(cfg, 0)
     assert out is cfg.model_params  # unchanged, no swap, no file access
+    # explicit =1 is equivalent to the default
+    monkeypatch.setenv("MTL_SKIP_INERT_LOGT", "1")
+    assert _resolve_per_fold_priors(cfg, 0) is cfg.model_params
 
 
-def test_without_optin_the_guard_still_fires(monkeypatch, tmp_path):
-    """Control: the SAME inert config WITHOUT the opt-in must still hit the leak-guard
-    file-resolution and raise on the missing per-fold log_T (default behaviour intact)."""
+def test_optout_zero_restores_the_legacy_guard(monkeypatch, tmp_path):
+    """MTL_SKIP_INERT_LOGT=0 opts OUT → even an inert config hits the leak-guard
+    file-resolution and raises on the missing per-fold log_T (legacy behaviour on demand)."""
     cfg = _resolver_cfg(tmp_path)  # exists but empty → file missing
-    monkeypatch.delenv("MTL_SKIP_INERT_LOGT", raising=False)
+    monkeypatch.setenv("MTL_SKIP_INERT_LOGT", "0")
     with pytest.raises(FileNotFoundError):
         _resolve_per_fold_priors(cfg, 0)
 
 
-def test_optin_does_not_skip_an_active_prior(monkeypatch, tmp_path):
-    """Opt-in ON but the prior is ACTIVE (α-prior live) → must NOT skip; the guard fires."""
+def test_active_prior_never_skips_even_by_default(monkeypatch, tmp_path):
+    """Default-on, but the prior is ACTIVE (α-prior live) → must NOT skip; the guard fires
+    (the skip only ever applies to a provably-inert prior)."""
     ts = _ts({"freeze_alpha": True, "alpha_init": 0.1})  # active → not inert
     cfg = SimpleNamespace(
         model_params={"task_set": ts},
@@ -93,6 +97,6 @@ def test_optin_does_not_skip_an_active_prior(monkeypatch, tmp_path):
         seed=0, k_folds=2, state="alabama", embedding_engine="check2hgi_dk_ovl",
         log_t_kd_weight=0.0, log_c_kd_weight=0.0, cat_kd_weight=0.0,
     )
-    monkeypatch.setenv("MTL_SKIP_INERT_LOGT", "1")
+    monkeypatch.delenv("MTL_SKIP_INERT_LOGT", raising=False)  # default-on
     with pytest.raises(FileNotFoundError):
         _resolve_per_fold_priors(cfg, 0)

@@ -590,19 +590,21 @@ def _resolve_per_fold_priors(config, i_fold):
         from pathlib import Path as _Path
         ts = config.model_params.get("task_set")
         if ts is not None and getattr(ts, "task_b", None) is not None:
-            # log_T-inert fast skip (opt-in via MTL_SKIP_INERT_LOGT=1). When the
-            # per-fold log_T is provably inert (head α-prior off + every KD route off,
-            # i.e. the champion), the head never reads it (α=0 multiply), so skipping
-            # the load AND the entire leak-guard stack is byte-identical — and frees the
-            # champion from needing the per-fold log_T files at all (answers "if we don't
-            # use log_T why regenerate it"). Default off → the guards still run for
-            # everyone whose prior CAN leak. See _log_t_is_inert.
+            # log_T-inert fast skip (DEFAULT-ON; opt out with MTL_SKIP_INERT_LOGT=0).
+            # When the per-fold log_T is provably inert (head α-prior off + every KD route
+            # off — the champion-G / new canonical), the head never reads it (α=0 multiply),
+            # so skipping the load AND the entire leak-guard stack is byte-identical, and
+            # frees the champion from needing per-fold log_T files at all. NON-inert priors
+            # (learnable α, α_init≠0, or any log_T/log_C/cat KD weight>0) are NEVER skipped →
+            # the leak guards still run for every config whose prior CAN leak. The opt-out
+            # (MTL_SKIP_INERT_LOGT=0) restores the legacy always-load+guard behaviour. See
+            # _log_t_is_inert. (Default flipped 2026-06-26 — the champion is always inert.)
             import os as _os
-            if _os.environ.get("MTL_SKIP_INERT_LOGT") == "1" and _log_t_is_inert(config, ts):
+            if _os.environ.get("MTL_SKIP_INERT_LOGT", "1") != "0" and _log_t_is_inert(config, ts):
                 logger.info(
-                    "[log_T-inert skip] fold %d: reg head α-prior off + KD off → "
-                    "per-fold log_T is inert; skipping load + leak-guards "
-                    "(MTL_SKIP_INERT_LOGT=1; output byte-identical).",
+                    "[log_T-inert skip] fold %d: reg head α-prior off + KD off → per-fold "
+                    "log_T is inert; skipping load + leak-guards (default; set "
+                    "MTL_SKIP_INERT_LOGT=0 to force the legacy load). Output byte-identical.",
                     i_fold + 1,
                 )
                 return per_fold_model_params  # == config.model_params (no swap)
@@ -1033,6 +1035,28 @@ def _optimizer_micro_step(model, optimizer, scheduler, mtl_criterion, *,
     optimizer.zero_grad(set_to_none=True)
 
 
+# Reg-class count above which fp16/bf16 are unsafe on Ampere (bf16 grad-NaN at
+# C≈6.5-8.5k CA/TX; fp16 overflow at large reg logits). FL 4703 / CA 8501 / TX 6553
+# exceed it; AL 1109 / AZ 1547 / Istanbul 520 stay on the (safe at small C) fp16 default.
+_AUTO_FP32_REG_CLASS_THRESHOLD = 2000
+
+
+def _auto_fp32_for_large_c(task_b_num_classes, device_type, capability_major, env):
+    """Decide whether to auto-default a large-C MTL run to fp32 on Ampere+ (sm_80+).
+
+    bf16 backward grad-NaNs and fp16 overflows at large reg logits silently NaN-collapse
+    the big states (CA/TX/FL). When NO precision env is EXPLICITLY set, default to fp32 so a
+    bare large-state run on an Ampere card doesn't fall through to forbidden fp16. An explicit
+    ``MTL_DISABLE_AMP`` (incl. =0) or ``MTL_AUTOCAST_BF16`` ALWAYS wins; small states keep the
+    fp16 default (safe — no overflow at small C). ``env`` is a mapping like ``os.environ``."""
+    if env.get("MTL_DISABLE_AMP") is not None or env.get("MTL_AUTOCAST_BF16") is not None:
+        return False  # explicit precision choice — respect it
+    if device_type != "cuda" or capability_major is None or capability_major < 8:
+        return False  # non-CUDA or pre-Ampere → no auto-fp32
+    return (task_b_num_classes is not None
+            and task_b_num_classes > _AUTO_FP32_REG_CLASS_THRESHOLD)
+
+
 def train_model(model: torch.nn.Module,
                 optimizer,
                 scheduler,
@@ -1157,7 +1181,20 @@ def train_model(model: torch.nn.Module,
     # trainer runs fp16 autocast with NO GradScaler; this env var isolates that
     # precision delta. Default (unset) keeps the canonical fp16 behaviour untouched.
     import os as _os
-    _disable_amp = _os.environ.get("MTL_DISABLE_AMP") == "1"
+    # Auto-fp32 default: a large-C MTL run on Ampere+ with NO explicit precision env would
+    # otherwise fall through to fp16 and silently NaN-collapse (bf16 grad-NaN / fp16 overflow
+    # at large reg logits). Default it to fp32 — explicit MTL_DISABLE_AMP / MTL_AUTOCAST_BF16
+    # always wins; small states keep the fp16 default. See _auto_fp32_for_large_c.
+    _cap_major = torch.cuda.get_device_capability()[0] if DEVICE.type == 'cuda' else None
+    _auto_fp32 = _auto_fp32_for_large_c(task_b_num_classes, DEVICE.type, _cap_major, _os.environ)
+    _disable_amp = (_os.environ.get("MTL_DISABLE_AMP") == "1") or _auto_fp32
+    if _auto_fp32:
+        logger.warning(
+            "[auto-fp32] large-C MTL (reg C=%d) on Ampere+ (sm_%dx) with no explicit precision "
+            "env → defaulting to fp32 (bf16 grad-NaN / fp16 overflow at large C). Override with "
+            "MTL_AUTOCAST_BF16=1 (bf16) or MTL_DISABLE_AMP=0 (force fp16).",
+            task_b_num_classes, _cap_major,
+        )
     # MTL_AUTOCAST_BF16=1 → bfloat16 autocast (fp32 exponent range, no 65504 overflow,
     # no GradScaler needed) instead of fp16. Fixes the wide-logit fp16 overflow that
     # NaN-collapses large states (CA/TX) — see docs/studies/closing_data/CA_MTL_DIVERGENCE.md.
