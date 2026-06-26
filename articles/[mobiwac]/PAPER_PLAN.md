@@ -74,9 +74,9 @@ and the spatial win is strongest at scale.*
 
 Alternatives:
 
-- *One Model, Both Tasks: A Check-in-Level Multi-Task Model that Beats Dedicated Models for Next-Category and
-  Next-Region Prediction.* (leads with the now-confirmed "beats both" finding; the strongest option given the new
-  result.)
+- *One Model, Both Tasks: A Check-in-Level Multi-Task Model that Beats a Dedicated Next-Category Model and Matches
+  or Beats on Next-Region.* (leads with the finding; honest about region, which beats at the large states and is
+  non-inferior at the small. Never let a title imply region is beaten everywhere.)
 - *Anticipating the Next Category and Region of a Visit: A Check-in-Level Multi-Task Model for Mobility-Aware
   Services.* (leans into the usage and motivation framing; acceptable as long as we never claim a measured
   service result.)
@@ -112,9 +112,10 @@ sets up Part 2.
 tasks at once (one model, one forward pass, two answers), and we compare it against strong dedicated single-task
 models. On **category** the joint model beats the dedicated ceiling at every state, by about +4.7 to +7.7 points.
 Our reading is that the shared trunk is simply a **stronger category encoder**, obtained at no extra deployment
-cost (one model, one forward pass), rather than the region task teaching category. ⚠ **Until the encoder-
-isolation probe lands (it is queued, not yet run), state this as our hypothesis, not a settled finding;** do not
-cite the wrong-direction F49 probe as support. On **region** the joint model **beats** the dedicated ceiling
+cost (one model, one forward pass), rather than the region task teaching category. The encoder-isolation probe
+backs this as a **finding**: freezing the region pathway at start leaves the full category lift intact at AL, AZ,
+and FL (within 0.3 of the joint model, far above the dedicated ceiling), so the gain is a stronger shared trunk,
+not region-to-category transfer. On **region** the joint model **beats** the dedicated ceiling
 where the region space is large (FL +0.57, CA +2.18, TX +2.06, all 5 folds) and **matches** it
 within a two-point margin where the region space is small (AL −0.18, AZ −0.06, Istanbul −0.52; each a **tested
 equivalence**: paired TOST non-inferior at δ=2 pp, all three 90% CIs within ±0.7 pp — `STATISTICAL_PROTOCOL.md §3.4`). The cost we once
@@ -190,6 +191,11 @@ TX is now closed at 5 clean folds (fp32 single-device, region +2.06); never cite
 - The old region numbers (7 to 17) or any pre-2026-05 region numbers; they were leak-inflated or confounded.
 - "trivial" or "padding" for the dropped overlap windows. They are valid examples; the gate removes an
   over-representation of each user's last place.
+- "we beat STAN-on-our-representation" (the `stl_hgi` variant). It is **not a paper baseline**, and at AL it scores
+  above our model (70.35 vs 69.81). The faithful STAN (its own embeddings, from raw) is the baseline, and we are
+  above it. The substrate-bound variant is at most a future-headroom signal, never a beat.
+- "we beat the cascade (CSLSL)". It is a **dead tie at equal cost** (Δjoint ≤ 0.02). Frame it as a defense (a
+  cheaper cascade would not have matched our lift either), never a win.
 
 **The single-model property is the primary thesis:** one model, one forward pass, two predictions.
 
@@ -212,10 +218,11 @@ TX is now closed at 5 clean folds (fp32 single-device, region +2.06); never cite
 > separate models, so we ask whether one model can learn both, and what it costs to share one representation. We
 > first build a check-in-level representation that describes each visit in its own context, instead of giving every
 > place one fixed vector. Across five U.S. states, this representation improves next-category prediction by a wide
-> margin over a standard place embedding [huang2023learning], and most of the gain comes from the per-visit
+> margin over a standard place embedding [huang2023hgi], and most of the gain comes from the per-visit
 > context. We then train one model for next-category and next-region together. On every state we measure, it beats
-> a dedicated category model, and on region it beats the dedicated model where the region space is large and is
-> statistically non-inferior, within a two-point margin (TOST), where the region space is small. One model wins
+> a dedicated category model (by about +4.7 to +7.7 macro-F1), and on region it beats the dedicated model where the
+> region space is large and is statistically non-inferior, within a two-point margin (TOST), where the region space
+> is small. One model wins
 > both tasks, and the spatial win grows with scale. On a non-U.S. city (Istanbul) the result is consistent: it
 > beats on category and stays within two points on region.
 
@@ -245,7 +252,7 @@ no longer a contribution; the closing line states the finding, not an applicatio
 > **¶4 (what we do).** We make two changes and we measure each one carefully. First, a check-in-level
 > representation: instead of one fixed vector per place, each check-in gets its own vector that carries its context
 > (time, nearby places, recent trail). This builds on hierarchical graph representations of places
-> [huang2023learning] and on the infomax idea behind them [velickovic2019deep]. Second, a single model that
+> [huang2023hgi] and on the infomax idea behind them [velickovic2019deep]. Second, a single model that
 > predicts the next category and the next region in one forward pass. We evaluate on two very different datasets,
 > five U.S. states of different sizes and one international city, and we chose these on purpose, so we can see whether the
 > findings hold across small and large, U.S. and non-U.S. settings.
@@ -258,13 +265,14 @@ no longer a contribution; the closing line states the finding, not an applicatio
 >    controlled test shows the gain comes from the per-visit context, not from extra supervision;
 > 2. a multi-task design for joint next-category and next-region prediction that shares a semantic context across
 >    the two tasks while keeping a private path for the spatial one, and the finding that this design lets a single
->    model, in one forward pass, beat a dedicated category model at every state and beat or match the dedicated
->    region model (beating it where the region space is large, and matching it, statistically non-inferior within a
->    two-point margin (TOST), where it is small);
+>    model, in one forward pass, beat a dedicated category model at every state (by about +4.7 to +7.7 macro-F1) and
+>    beat or match the dedicated region model (beating it where the region space is large, and matching it,
+>    statistically non-inferior within a two-point margin (TOST), where it is small);
 > 3. an empirical account, across five states of different sizes (with a check on one international city), of how
 >    the joint gain scales with the region space: the category win holds at every state, and the region result
->    improves with scale, matching the dedicated model at the small region counts and beating it at the large (the
->    largest state shows the largest region win). Provisional at n=5 (seed 0).
+>    improves monotonically with scale, staying statistically non-inferior within a two-point margin (TOST) at the
+>    small region counts and beating the dedicated model at the large (the largest state, California, shows the
+>    largest region win). Provisional at n=5 (seed 0).
 >
 > **¶6 (roadmap).** The rest of the paper covers background and related work (§2), the problem and the two tasks
 > (§3), our method (§4), the experimental setup (§5), results (§6), discussion and limitations (§7), and
@@ -342,7 +350,7 @@ claim.
 > visits, and from a window we predict two properties of the next visit: its category, one of seven
 > classes (Community, Entertainment, Food, Nightlife, Outdoors, Shopping, Travel), and its region, the census
 > tract it falls in (the mahalle for Istanbul). Category is a small, fixed label set; region is a large one, from
-> about one thousand to about eight thousand classes depending on the state. The motivation is practical, and the
+> about five hundred (Istanbul) to about eight thousand five hundred (California) classes depending on the dataset. The motivation is practical, and the
 > two predictions line up with two kinds of preparation a mobility-aware service makes. The category says what
 > kind of place comes next, which hints at what content or service the user will want; the region says where it
 > is, which says where to get ready. With both in hand a service can act ahead of demand, for example to pre-load
@@ -422,8 +430,13 @@ as a reply to anyone; it also closes the leak concern from the previous review, 
 > of a planned training-only variant; the evidence in hand bounds any inflation to under a point on the
 > measurable majority, and finds none.
 
-⚠ **Source the bracketed numbers** (AL −0.33 / FL −0.12 region; AL +0.29 / FL +0.00 category; the in-coverage
-share) against the leak-audit result before they go in. Mirror the one-sentence residual caveat into §7.
+⚠ **HARD BLOCKER (cannot ship bracketed): source the four leak-Δ numbers** (AL −0.33 / FL −0.12 region; AL +0.29 /
+FL +0.00 category; plus the in-coverage share) from the **train-users-only rebuild audit** (rebuild Check2HGI per
+fold excluding val users, re-run both heads, report the delta; see `docs/research/evaluation_protocol_review.md §4.1`).
+This is the load-bearing answer to the topological-leak rejection; §5.2 cannot ship with placeholders. The "13 to 27
+points" transition-prior inflation IS sourced (`AGENT_CONTEXT.md`: full-data `region_transition_log.pt` leaks ~13-27
+pp); the §3 "old region numbers (7 to 17)" note is a different quantity (the old MTL region cost), not the leak.
+Mirror the one-sentence residual caveat into §7.
 
 **§5.3 Metrics, and superiority versus non-inferiority.** Category: macro-F1 over the seven classes, so rare
 categories count. Region: Acc@10 (the true region is among the top ten). Reference point for category is the
@@ -500,10 +513,18 @@ the pooled evidence is decisive (category 30/30 fold-pairs, p≈9e-10; region be
 per-cell Holm-corrected significance at n=5, and leave a multi-seed confirmation to future work. The encoder-isolation probe (the
 region stream frozen at start) keeps the **full** category lift at Alabama, Arizona, and Florida (within 0.3 of
 the joint model, far above the dedicated ceiling), so we report the category win as **a stronger shared encoder,
-not region-to-category transfer**, as a finding, not a hypothesis. Also report the cascade result honestly here:
-our parallel model **ties** the published cascade (CSLSL) at **equal cost** (Δjoint about 0), which rules out that
-a cheaper cascade would have matched our lift, a defense, not a "we beat the cascade" claim. Read: one model wins
-both tasks, and the region win is largest at scale. Mark all cells n=5 provisional; TX is now closed at 5 folds.
+not region-to-category transfer**, as a finding, not a hypothesis. **The region gain is monotone with scale:** the
+region delta rises strictly with region count (Istanbul −0.52, AL −0.18, AZ −0.06, FL +0.57, TX +2.06, CA +2.18),
+so the joint model helps the spatial task more, not less, as the region space grows. **Against the externals
+(prose, not only the table):** the joint region head is above the primary region-native baseline (HMT-GRN) at all
+six states, above a faithful STAN (AL, AZ, Istanbul) and a ReHDM reference, and clears the Markov-1 floor by a wide
+margin; on category it is far above POI-RGNN and the Markov-9-cat floor. (Never list the substrate-bound STAN, which
+is above us at AL and is not a baseline.) Also report the cascade result honestly: our parallel model **ties** the
+published cascade (CSLSL) at **equal cost** (Δjoint about 0), which rules out that a cheaper cascade would have
+matched our lift, a defense, not a "we beat the cascade" claim. Read: one model beats the dedicated category model
+at every state, beats the dedicated region model where the region space is large and is non-inferior (TOST) where
+it is small, and beats the external baselines on both tasks; the region win grows with scale. Mark Gowalla cells
+n=5 (seed 0) provisional, Istanbul n=20.
 
 **§6.3 External validity (Istanbul).** One small row or figure: the finding replicates on a non-U.S. city
 (category beats, about +6.7 macro-F1; region matches, about −0.5), reported as gap-to-ceiling or lift, never
@@ -777,17 +798,23 @@ carried fragment.
 
 ## 11 · Page budget (8 pages, IEEE two-column)
 
+> ⚠ **The earlier budget summed to exactly 8.0 with NO float allocation.** IEEE two-column floats (Figs 1-4 +
+> Tables 1-3) consume ~1.5-2 pages, so running text must be capped at ~6.4 pages. The revised budget below carries an
+> explicit floats row, raises Results, and trims Background and Method.
+
 | Section                   | Pages |
 |---------------------------|-------|
-| Abstract + §1             | ~1.1  |
-| §2 Background and Related | ~1.25 |
+| Abstract + §1             | ~1.0  |
+| §2 Background and Related | ~1.0  |
 | §3 Problem and tasks      | ~0.4  |
-| §4 Method                 | ~1.5  |
-| §5 Setup                  | ~1.1  |
-| §6 Results                | ~1.5  |
-| §7 Discussion             | ~0.5  |
+| §4 Method                 | ~1.3  |
+| §5 Setup                  | ~1.0  |
+| §6 Results                | ~2.0  |
+| §7 Discussion             | ~0.4  |
 | §8 Conclusion             | ~0.3  |
 | References                | ~0.35 |
+| **Figures + Tables (floats)** | **~1.6** |
 
-> If over budget, cut in this order: the optimizer sentence, then external validity to a small box, then merge
-> §3 into the tail of §1. Never cut the §5.2 leak explanation; it answers the rejection.
+> If still over budget: cut the optimizer sentence, then collapse the §7 usage illustration to one clause, then fold
+> §3 into the tail of §1. Never cut the §5.2 leak explanation; it answers the rejection. If the squeeze persists,
+> decide the 10-page (fee) variant up front rather than at typesetting.
