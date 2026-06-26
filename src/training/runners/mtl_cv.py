@@ -540,6 +540,221 @@ def _apply_stream_freezes(model, config):
         for p in model.next_poi.parameters():
             p.requires_grad_(False)
         model.next_encoder.eval()  # disables dropout in the reg encoder
+def _resolve_per_fold_priors(config, i_fold):
+    """Resolve this fold's per-fold log_T (and optional log_C) priors -> model_params.
+
+    When ``config.per_fold_transition_dir`` is set, swap the static ``transition_path`` in
+    ``task_b.head_params`` for the fold/seed-specific
+    ``region_transition_log_seed{S}_fold{N}.pt`` (and ``region_colocation_log_...`` when
+    log_C / cat KD is on), enforcing the full leak-guard stack: the seed MUST match the
+    trainer ``--seed`` (the per-fold log_T is built from train rows under the same fold
+    split; a different seed leaks ~80%% of val transitions); stale-mtime (a log_T older
+    than the substrate parquet silently inflates reg Acc@10 by +8..+12pp); ``n_splits``;
+    and engine (the fold split is engine-specific) — the engine guard fires ONLY when the
+    prior is ACTIVE (head alpha-prior on, OR log_T/log_C/cat KD on; a freeze_alpha=True +
+    alpha_init=0.0 head with KD off ignores log_T entirely, so a mismatch is inert).
+    Returns ``config.model_params`` unchanged on the no-dir/legacy path (no-op).
+    """
+    per_fold_dir = getattr(config, "per_fold_transition_dir", None)
+    per_fold_model_params = config.model_params
+    if per_fold_dir is not None:
+        import dataclasses as _dataclasses
+        from pathlib import Path as _Path
+        ts = config.model_params.get("task_set")
+        if ts is not None and getattr(ts, "task_b", None) is not None:
+            seed = int(getattr(config, "seed", 42))
+            pf_path = (
+                _Path(per_fold_dir)
+                / f"region_transition_log_seed{seed}_fold{i_fold + 1}.pt"
+            )
+            if not pf_path.exists():
+                legacy_path = (
+                    _Path(per_fold_dir)
+                    / f"region_transition_log_fold{i_fold + 1}.pt"
+                )
+                if legacy_path.exists():
+                    raise FileNotFoundError(
+                        f"per-fold log_T at expected seed-tagged path "
+                        f"{pf_path} missing. A legacy unseeded file at "
+                        f"{legacy_path} was found, but using it would "
+                        f"leak val transitions if its build seed != "
+                        f"current --seed {seed}. Migrate by either "
+                        f"renaming the legacy file (if you know the seed "
+                        f"it was built at) or rebuilding: python "
+                        f"scripts/compute_region_transition.py --state "
+                        f"{config.state} --per-fold --seed {seed}"
+                    )
+                raise FileNotFoundError(
+                    f"per_fold_transition_dir set but {pf_path} missing. "
+                    f"Build with: python scripts/compute_region_transition.py "
+                    f"--state {config.state} --per-fold --seed {seed}"
+                )
+            # Stale-log_T guard: refuse to start if log_T mtime predates the
+            # substrate parquet it was built from. A stale log_T silently
+            # survives regens and inflates reg Acc@10 by +8 to +12 pp.
+            parquet_path = _Path(per_fold_dir) / "input" / "next_region.parquet"
+            if parquet_path.exists():
+                if pf_path.stat().st_mtime < parquet_path.stat().st_mtime:
+                    raise ValueError(
+                        f"Stale per-fold log_T detected: {pf_path} mtime "
+                        f"is older than {parquet_path} mtime. The substrate "
+                        f"parquet has been regenerated since this log_T was "
+                        f"built; running would silently leak ~+8 to +12 pp "
+                        f"into reg Acc@10. Rebuild: python "
+                        f"scripts/compute_region_transition.py --state "
+                        f"{config.state} --per-fold --seed {seed}"
+                    )
+            # Hard-fail when the per-fold log_T's ``n_splits`` does not match
+            # the trainer's ``config.k_folds``. The ``--folds N`` flag
+            # overrides ``config.k_folds`` to ``max(2, N)``, so a 1-fold smoke
+            # against a 5-fold-built log_T silently leaks ~30-40% of val
+            # transitions into the prior (the α scalar amplifies this,
+            # inflating reg ``top10_acc_indist`` by 13-23 pp). Post-fix
+            # ``compute_region_transition.py`` stashes ``n_splits`` in the
+            # payload; legacy files lack the key and are accepted only at the
+            # canonical n_splits=5, the historical default they were built under.
+            trainer_n_splits = int(config.k_folds)
+            pf_payload = torch.load(pf_path, map_location="cpu", weights_only=False)
+            pf_n_splits = (
+                pf_payload.get("n_splits") if isinstance(pf_payload, dict) else None
+            )
+            if pf_n_splits is None:
+                if trainer_n_splits != 5:
+                    raise ValueError(
+                        f"Per-fold log_T at {pf_path} is a legacy file "
+                        f"(no 'n_splits' field in payload) and the trainer "
+                        f"is running at n_splits={trainer_n_splits} (not the "
+                        f"canonical 5). Legacy files were always built at "
+                        f"n_splits=5; running at a different n_splits "
+                        f"silently leaks ~30-80% of val transitions into "
+                        f"the prior (depending on overlap). Rebuild the "
+                        f"prior at the trainer's n_splits: python "
+                        f"scripts/compute_region_transition.py --state "
+                        f"{config.state} --per-fold --n-splits "
+                        f"{trainer_n_splits} --seed {seed}"
+                    )
+                logger.warning(
+                    "[C4 per-fold log_T] legacy file %s has no n_splits "
+                    "field; trainer is at canonical n_splits=5 so "
+                    "accepting; rebuild to silence this warning.",
+                    pf_path,
+                )
+            elif int(pf_n_splits) != trainer_n_splits:
+                raise ValueError(
+                    f"Per-fold log_T at {pf_path} was built with "
+                    f"n_splits={pf_n_splits}, but the trainer is running "
+                    f"at n_splits={trainer_n_splits} (set via --folds; "
+                    f"max(2, N)). Mismatch silently leaks val transitions "
+                    f"into the prior. Rebuild for the trainer's n_splits: "
+                    f"python scripts/compute_region_transition.py --state "
+                    f"{config.state} --per-fold --n-splits "
+                    f"{trainer_n_splits} --seed {seed}"
+                )
+            # 2026-06-23 (C29 — docs/CONCERNS.md): the per-fold split is built PER
+            # ENGINE. A prior built on a DIFFERENT engine than the trainer (e.g. a
+            # canonical CHECK2HGI prior on a dk_ovl run, whose MIN_SEQ filter drops a
+            # different user set) has a mismatched user->fold partition -> leaks val
+            # users into the prior. Post-2026-06-23 compute_region_transition stamps
+            # 'engine'; legacy files lack it (accepted). Fail loud ONLY when the prior
+            # is ACTIVE — a freeze_alpha=True + alpha_init=0.0 head ignores log_T
+            # entirely (output = stan_logits alone), so a mismatch is INERT. That is
+            # exactly the closing_data board recipe, so this guard never fires there.
+            _pf_engine = pf_payload.get("engine") if isinstance(pf_payload, dict) else None
+            _tb_hp_guard = dict(ts.task_b.head_params or {})
+            # "active" = the leaky log_T can actually reach the loss. Two routes:
+            #  (1) the α·log_T HEAD prior — off only when freeze_alpha=True AND alpha_init=0.0;
+            #  (2) log_T KNOWLEDGE-DISTILLATION (--log-t-kd-weight, v12 DEFAULT 0.2 = ON) — the
+            #      KD teacher is the same per-fold log_T buffer, so a leaky split leaks via KD
+            #      EVEN when α=0. log_C-KD (--log-c-kd-weight / --cat-kd-weight) is the same story.
+            # Guarding only the head-prior would miss the KD routes (audit gap, 2026-06-23).
+            _head_prior_on = not (
+                bool(_tb_hp_guard.get("freeze_alpha", False))
+                and float(_tb_hp_guard.get("alpha_init", 0.1)) == 0.0
+            )
+            _kd_on = (
+                float(getattr(config, "log_t_kd_weight", 0.0) or 0.0) > 0.0
+                or float(getattr(config, "log_c_kd_weight", 0.0) or 0.0) > 0.0
+                or float(getattr(config, "cat_kd_weight", 0.0) or 0.0) > 0.0
+            )
+            _prior_active = _head_prior_on or _kd_on
+            if (_pf_engine is not None and _prior_active
+                    and str(_pf_engine) != str(config.embedding_engine)):
+                raise ValueError(
+                    f"Per-fold log_T at {pf_path} was built for engine "
+                    f"'{_pf_engine}', but the trainer runs engine "
+                    f"'{config.embedding_engine}' with the prior ACTIVE "
+                    f"(head α-prior on={_head_prior_on}, log_T/C-KD on={_kd_on}). "
+                    f"The fold split is engine-specific (overlap/filtered engines "
+                    f"drop users) so this leaks val users into the prior. Rebuild for "
+                    f"the trainer's engine: python scripts/compute_region_transition.py "
+                    f"--state {config.state} --per-fold --seed {seed} "
+                    f"--engine {config.embedding_engine}"
+                )
+            tb_head_params = dict(ts.task_b.head_params or {})
+            tb_head_params["transition_path"] = str(pf_path)
+
+            # R1 (mtl_frontier) — per-fold log_C co-location prior, swapped
+            # in beside log_T when --log-c-kd-weight > 0. Same dir, same
+            # seed/fold/n_splits + stale-mtime leak guards as log_T (a leak
+            # here would contaminate the reg KD teacher exactly as a stale
+            # log_T contaminates the Markov prior).
+            if (float(getattr(config, "log_c_kd_weight", 0.0) or 0.0) > 0.0
+                    or float(getattr(config, "cat_kd_weight", 0.0) or 0.0) > 0.0):
+                pc_path = (
+                    _Path(per_fold_dir)
+                    / f"region_colocation_log_seed{seed}_fold{i_fold + 1}.pt"
+                )
+                if not pc_path.exists():
+                    raise FileNotFoundError(
+                        f"--log-c-kd-weight>0 but per-fold log_C {pc_path} "
+                        f"missing. Build: python "
+                        f"scripts/compute_region_colocation.py --state "
+                        f"{config.state} --per-fold --seed {seed} --engine "
+                        f"{getattr(config, 'embedding_engine', '<engine>')}"
+                    )
+                if parquet_path.exists() and (
+                    pc_path.stat().st_mtime < parquet_path.stat().st_mtime
+                ):
+                    raise ValueError(
+                        f"Stale per-fold log_C: {pc_path} mtime predates "
+                        f"{parquet_path}; rebuild via "
+                        f"scripts/compute_region_colocation.py --per-fold "
+                        f"--seed {seed}."
+                    )
+                pc_payload = torch.load(pc_path, map_location="cpu", weights_only=False)
+                pc_n_splits = (
+                    pc_payload.get("n_splits") if isinstance(pc_payload, dict) else None
+                )
+                if pc_n_splits is not None and int(pc_n_splits) != trainer_n_splits:
+                    raise ValueError(
+                        f"Per-fold log_C at {pc_path} built with "
+                        f"n_splits={pc_n_splits} != trainer {trainer_n_splits}; "
+                        f"rebuild (leaks val co-locations into the KD teacher)."
+                    )
+                pc_seed = pc_payload.get("seed") if isinstance(pc_payload, dict) else None
+                if pc_seed is not None and int(pc_seed) != seed:
+                    raise ValueError(
+                        f"Per-fold log_C at {pc_path} built at seed={pc_seed} "
+                        f"!= trainer seed={seed}."
+                    )
+                tb_head_params["colocation_path"] = str(pc_path)
+                logger.info(
+                    "[R1 per-fold log_C] fold %d seed %d using %s",
+                    i_fold + 1, seed, pc_path,
+                )
+
+            new_task_b = _dataclasses.replace(ts.task_b, head_params=tb_head_params)
+            new_task_set = _dataclasses.replace(ts, task_b=new_task_b)
+            per_fold_model_params = dict(config.model_params)
+            per_fold_model_params["task_set"] = new_task_set
+            logger.info(
+                "[C4 per-fold log_T] fold %d seed %d using %s",
+                i_fold + 1, seed, pf_path,
+            )
+
+    return per_fold_model_params
+
+
 
 
 def _flatten_encoder(encoder):
@@ -1494,211 +1709,9 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
         _prof.fold_start(i_fold)
         clear_mps_cache()
 
-        # Per-fold transition prior. When ``config.per_fold_transition_dir`` is
-        # set, swap the static ``transition_path`` in task_b.head_params for the
-        # fold-specific file ``region_transition_log_seed{S}_fold{N}.pt``. The
-        # seed MUST match the trainer's ``--seed S`` because the per-fold log_T is
-        # built from train rows under the same fold split; using a file built at a
-        # different seed silently leaks ~80% of val transitions into the prior. N
-        # is 1-indexed because that's what ``compute_region_transition.py
-        # --per-fold`` writes; ``i_fold`` here is 0-indexed (FoldCreator dict
-        # keys). Default None preserves the legacy single-prior behaviour (no-op).
-        per_fold_dir = getattr(config, "per_fold_transition_dir", None)
-        per_fold_model_params = config.model_params
-        if per_fold_dir is not None:
-            import dataclasses as _dataclasses
-            from pathlib import Path as _Path
-            ts = config.model_params.get("task_set")
-            if ts is not None and getattr(ts, "task_b", None) is not None:
-                seed = int(getattr(config, "seed", 42))
-                pf_path = (
-                    _Path(per_fold_dir)
-                    / f"region_transition_log_seed{seed}_fold{i_fold + 1}.pt"
-                )
-                if not pf_path.exists():
-                    legacy_path = (
-                        _Path(per_fold_dir)
-                        / f"region_transition_log_fold{i_fold + 1}.pt"
-                    )
-                    if legacy_path.exists():
-                        raise FileNotFoundError(
-                            f"per-fold log_T at expected seed-tagged path "
-                            f"{pf_path} missing. A legacy unseeded file at "
-                            f"{legacy_path} was found, but using it would "
-                            f"leak val transitions if its build seed != "
-                            f"current --seed {seed}. Migrate by either "
-                            f"renaming the legacy file (if you know the seed "
-                            f"it was built at) or rebuilding: python "
-                            f"scripts/compute_region_transition.py --state "
-                            f"{config.state} --per-fold --seed {seed}"
-                        )
-                    raise FileNotFoundError(
-                        f"per_fold_transition_dir set but {pf_path} missing. "
-                        f"Build with: python scripts/compute_region_transition.py "
-                        f"--state {config.state} --per-fold --seed {seed}"
-                    )
-                # Stale-log_T guard: refuse to start if log_T mtime predates the
-                # substrate parquet it was built from. A stale log_T silently
-                # survives regens and inflates reg Acc@10 by +8 to +12 pp.
-                parquet_path = _Path(per_fold_dir) / "input" / "next_region.parquet"
-                if parquet_path.exists():
-                    if pf_path.stat().st_mtime < parquet_path.stat().st_mtime:
-                        raise ValueError(
-                            f"Stale per-fold log_T detected: {pf_path} mtime "
-                            f"is older than {parquet_path} mtime. The substrate "
-                            f"parquet has been regenerated since this log_T was "
-                            f"built; running would silently leak ~+8 to +12 pp "
-                            f"into reg Acc@10. Rebuild: python "
-                            f"scripts/compute_region_transition.py --state "
-                            f"{config.state} --per-fold --seed {seed}"
-                        )
-                # Hard-fail when the per-fold log_T's ``n_splits`` does not match
-                # the trainer's ``config.k_folds``. The ``--folds N`` flag
-                # overrides ``config.k_folds`` to ``max(2, N)``, so a 1-fold smoke
-                # against a 5-fold-built log_T silently leaks ~30-40% of val
-                # transitions into the prior (the α scalar amplifies this,
-                # inflating reg ``top10_acc_indist`` by 13-23 pp). Post-fix
-                # ``compute_region_transition.py`` stashes ``n_splits`` in the
-                # payload; legacy files lack the key and are accepted only at the
-                # canonical n_splits=5, the historical default they were built under.
-                trainer_n_splits = int(config.k_folds)
-                pf_payload = torch.load(pf_path, map_location="cpu", weights_only=False)
-                pf_n_splits = (
-                    pf_payload.get("n_splits") if isinstance(pf_payload, dict) else None
-                )
-                if pf_n_splits is None:
-                    if trainer_n_splits != 5:
-                        raise ValueError(
-                            f"Per-fold log_T at {pf_path} is a legacy file "
-                            f"(no 'n_splits' field in payload) and the trainer "
-                            f"is running at n_splits={trainer_n_splits} (not the "
-                            f"canonical 5). Legacy files were always built at "
-                            f"n_splits=5; running at a different n_splits "
-                            f"silently leaks ~30-80% of val transitions into "
-                            f"the prior (depending on overlap). Rebuild the "
-                            f"prior at the trainer's n_splits: python "
-                            f"scripts/compute_region_transition.py --state "
-                            f"{config.state} --per-fold --n-splits "
-                            f"{trainer_n_splits} --seed {seed}"
-                        )
-                    logger.warning(
-                        "[C4 per-fold log_T] legacy file %s has no n_splits "
-                        "field; trainer is at canonical n_splits=5 so "
-                        "accepting; rebuild to silence this warning.",
-                        pf_path,
-                    )
-                elif int(pf_n_splits) != trainer_n_splits:
-                    raise ValueError(
-                        f"Per-fold log_T at {pf_path} was built with "
-                        f"n_splits={pf_n_splits}, but the trainer is running "
-                        f"at n_splits={trainer_n_splits} (set via --folds; "
-                        f"max(2, N)). Mismatch silently leaks val transitions "
-                        f"into the prior. Rebuild for the trainer's n_splits: "
-                        f"python scripts/compute_region_transition.py --state "
-                        f"{config.state} --per-fold --n-splits "
-                        f"{trainer_n_splits} --seed {seed}"
-                    )
-                # 2026-06-23 (C29 — docs/CONCERNS.md): the per-fold split is built PER
-                # ENGINE. A prior built on a DIFFERENT engine than the trainer (e.g. a
-                # canonical CHECK2HGI prior on a dk_ovl run, whose MIN_SEQ filter drops a
-                # different user set) has a mismatched user->fold partition -> leaks val
-                # users into the prior. Post-2026-06-23 compute_region_transition stamps
-                # 'engine'; legacy files lack it (accepted). Fail loud ONLY when the prior
-                # is ACTIVE — a freeze_alpha=True + alpha_init=0.0 head ignores log_T
-                # entirely (output = stan_logits alone), so a mismatch is INERT. That is
-                # exactly the closing_data board recipe, so this guard never fires there.
-                _pf_engine = pf_payload.get("engine") if isinstance(pf_payload, dict) else None
-                _tb_hp_guard = dict(ts.task_b.head_params or {})
-                # "active" = the leaky log_T can actually reach the loss. Two routes:
-                #  (1) the α·log_T HEAD prior — off only when freeze_alpha=True AND alpha_init=0.0;
-                #  (2) log_T KNOWLEDGE-DISTILLATION (--log-t-kd-weight, v12 DEFAULT 0.2 = ON) — the
-                #      KD teacher is the same per-fold log_T buffer, so a leaky split leaks via KD
-                #      EVEN when α=0. log_C-KD (--log-c-kd-weight / --cat-kd-weight) is the same story.
-                # Guarding only the head-prior would miss the KD routes (audit gap, 2026-06-23).
-                _head_prior_on = not (
-                    bool(_tb_hp_guard.get("freeze_alpha", False))
-                    and float(_tb_hp_guard.get("alpha_init", 0.1)) == 0.0
-                )
-                _kd_on = (
-                    float(getattr(config, "log_t_kd_weight", 0.0) or 0.0) > 0.0
-                    or float(getattr(config, "log_c_kd_weight", 0.0) or 0.0) > 0.0
-                    or float(getattr(config, "cat_kd_weight", 0.0) or 0.0) > 0.0
-                )
-                _prior_active = _head_prior_on or _kd_on
-                if (_pf_engine is not None and _prior_active
-                        and str(_pf_engine) != str(config.embedding_engine)):
-                    raise ValueError(
-                        f"Per-fold log_T at {pf_path} was built for engine "
-                        f"'{_pf_engine}', but the trainer runs engine "
-                        f"'{config.embedding_engine}' with the prior ACTIVE "
-                        f"(head α-prior on={_head_prior_on}, log_T/C-KD on={_kd_on}). "
-                        f"The fold split is engine-specific (overlap/filtered engines "
-                        f"drop users) so this leaks val users into the prior. Rebuild for "
-                        f"the trainer's engine: python scripts/compute_region_transition.py "
-                        f"--state {config.state} --per-fold --seed {seed} "
-                        f"--engine {config.embedding_engine}"
-                    )
-                tb_head_params = dict(ts.task_b.head_params or {})
-                tb_head_params["transition_path"] = str(pf_path)
-
-                # R1 (mtl_frontier) — per-fold log_C co-location prior, swapped
-                # in beside log_T when --log-c-kd-weight > 0. Same dir, same
-                # seed/fold/n_splits + stale-mtime leak guards as log_T (a leak
-                # here would contaminate the reg KD teacher exactly as a stale
-                # log_T contaminates the Markov prior).
-                if (float(getattr(config, "log_c_kd_weight", 0.0) or 0.0) > 0.0
-                        or float(getattr(config, "cat_kd_weight", 0.0) or 0.0) > 0.0):
-                    pc_path = (
-                        _Path(per_fold_dir)
-                        / f"region_colocation_log_seed{seed}_fold{i_fold + 1}.pt"
-                    )
-                    if not pc_path.exists():
-                        raise FileNotFoundError(
-                            f"--log-c-kd-weight>0 but per-fold log_C {pc_path} "
-                            f"missing. Build: python "
-                            f"scripts/compute_region_colocation.py --state "
-                            f"{config.state} --per-fold --seed {seed} --engine "
-                            f"{getattr(config, 'embedding_engine', '<engine>')}"
-                        )
-                    if parquet_path.exists() and (
-                        pc_path.stat().st_mtime < parquet_path.stat().st_mtime
-                    ):
-                        raise ValueError(
-                            f"Stale per-fold log_C: {pc_path} mtime predates "
-                            f"{parquet_path}; rebuild via "
-                            f"scripts/compute_region_colocation.py --per-fold "
-                            f"--seed {seed}."
-                        )
-                    pc_payload = torch.load(pc_path, map_location="cpu", weights_only=False)
-                    pc_n_splits = (
-                        pc_payload.get("n_splits") if isinstance(pc_payload, dict) else None
-                    )
-                    if pc_n_splits is not None and int(pc_n_splits) != trainer_n_splits:
-                        raise ValueError(
-                            f"Per-fold log_C at {pc_path} built with "
-                            f"n_splits={pc_n_splits} != trainer {trainer_n_splits}; "
-                            f"rebuild (leaks val co-locations into the KD teacher)."
-                        )
-                    pc_seed = pc_payload.get("seed") if isinstance(pc_payload, dict) else None
-                    if pc_seed is not None and int(pc_seed) != seed:
-                        raise ValueError(
-                            f"Per-fold log_C at {pc_path} built at seed={pc_seed} "
-                            f"!= trainer seed={seed}."
-                        )
-                    tb_head_params["colocation_path"] = str(pc_path)
-                    logger.info(
-                        "[R1 per-fold log_C] fold %d seed %d using %s",
-                        i_fold + 1, seed, pc_path,
-                    )
-
-                new_task_b = _dataclasses.replace(ts.task_b, head_params=tb_head_params)
-                new_task_set = _dataclasses.replace(ts, task_b=new_task_b)
-                per_fold_model_params = dict(config.model_params)
-                per_fold_model_params["task_set"] = new_task_set
-                logger.info(
-                    "[C4 per-fold log_T] fold %d seed %d using %s",
-                    i_fold + 1, seed, pf_path,
-                )
+        # Per-fold log_T / log_C priors -> fold-specific model_params (leak-guarded).
+        # See _resolve_per_fold_priors. Default (no per_fold_transition_dir) -> no-op.
+        per_fold_model_params = _resolve_per_fold_priors(config, i_fold)
 
         # Initialize model via registry
         model = create_model(config.model_name, **per_fold_model_params).to(DEVICE)

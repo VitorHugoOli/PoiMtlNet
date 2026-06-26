@@ -273,3 +273,13 @@ is gated by a new unit test `tests/test_training/test_kd_arms.py` — each arm `
 > per-batch state (6 vars), so a bare function would take ~14 args. The clean form is a loop-invariant `_StepCtx`
 > context object built once per fold with a `.maybe_step(...)` per batch — a bigger, side-effectful change on the
 > numerically load-bearing optimizer step → gate it on its own in Phase 4, not bundled here.
+
+### Phase 4a — extract the per-fold transition-prior block (multi-seed gated)
+Moved the ~205-line per-fold log_T / log_C prior-resolution block (the leak-guard stack:
+seed-must-match, stale-mtime, n_splits, engine-active) out of `train_with_cross_validation`'s
+fold loop into a module-level `_resolve_per_fold_priors(config, i_fold) -> per_fold_model_params`.
+Mechanical extraction (a Python applier asserted the dedent/reindent is byte-identical to the
+original block before writing) → the 59 guard-lines are verbatim. The champion EXERCISES this block
+(it passes `--per-fold-transition-dir`), so champion parity is a strong gate.
+**Gate:** champion AL MTL val metrics BYTE-IDENTICAL at seeds 0 AND 1 (`golden==p4a_s0`,
+`golden_s1==p4a_s1`). Only `per_fold_model_params` escapes the block (→ `create_model`), confirmed.
