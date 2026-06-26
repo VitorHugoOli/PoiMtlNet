@@ -129,9 +129,9 @@ def _default_checkpoint_callbacks(run_dir: Path, monitor: str) -> list:
 def _run_mtl(config: ExperimentConfig, results_path: Path, fold_results: dict) -> dict:
     from training.runners.mtl_cv import train_with_cross_validation
 
-    # AUDIT-C2: legacy preset both default to F1, so this is a no-op
-    # today — but the explicit dict keeps intent readable and prevents
-    # silent drift if one slot's primary_metric ever changes.
+    # Legacy preset both default to F1, so this is a no-op today — the
+    # explicit dict keeps intent readable and prevents silent drift if a
+    # slot's primary_metric ever changes.
     from tasks.presets import LEGACY_CATEGORY_NEXT
     task_monitors = {
         LEGACY_CATEGORY_NEXT.task_a.name: LEGACY_CATEGORY_NEXT.task_a.primary_metric.value,
@@ -203,12 +203,10 @@ def _run_mtl_check2hgi(
     from training.runners.mtl_cv import train_with_cross_validation
 
     engine = EmbeddingEngine(config.embedding_engine)
-    # AUDIT-C2 fix — wire each task's primary_metric (declared in the
-    # preset) into MLHistory so the per-task BestModelTracker monitors
-    # the intended metric. Default ``monitor='f1'`` previously drowned
-    # this out: e.g. CHECK2HGI_NEXT_REGION declares Acc@1 for
-    # next_region but the tracker selected by F1, mismatching reported
-    # top10/MRR by ~3.5 pp on FL MTL runs.
+    # Wire each task's primary_metric (declared in the preset) into
+    # MLHistory so the per-task BestModelTracker monitors the intended
+    # metric. A default monitor='f1' would mismatch heads like
+    # CHECK2HGI_NEXT_REGION, which declares Acc@1 for next_region.
     task_monitors = {
         task_set.task_a.name: task_set.task_a.primary_metric.value,
         task_set.task_b.name: task_set.task_b.primary_metric.value,
@@ -527,7 +525,7 @@ def _parse_args(argv=None) -> argparse.Namespace:
         default=None,
         help="Force-disable class-balanced CE weighting even if the config default is on.",
     )
-    # C25 (2026-06-05) — PER-TASK class-weight overrides (MTL only). The legacy
+    # PER-TASK class-weight overrides (MTL only). The legacy
     # --[no-]class-weights flag couples BOTH heads; these override per task and
     # take precedence. None → inherit use_class_weights. Best default: reg OFF
     # (Acc@10), cat ON (macro-F1) — set in ExperimentConfig.default_mtl.
@@ -543,7 +541,7 @@ def _parse_args(argv=None) -> argparse.Namespace:
     parser.add_argument("--no-cat-class-weights", dest="use_class_weights_cat",
                         action="store_false", default=None,
                         help="MTL: unweighted CAT CE.")
-    # --- T1.4 STL loss calibration (next_cv.py cat tune; leak-free, train-only stats) ---
+    # --- STL loss calibration (next_cv.py cat tune; leak-free, train-only stats) ---
     parser.add_argument("--focal-gamma", type=float, default=0.0,
                         help="T1.4: focal focusing parameter (>0 enables focal). STL cat lever.")
     parser.add_argument("--logit-adjust-tau", type=float, default=0.0,
@@ -1339,7 +1337,7 @@ def _apply_cli_overrides(
         if not (0 < args.pct_start < 1):
             raise ValueError("--pct-start must be in (0, 1)")
         config = dataclasses.replace(config, pct_start=args.pct_start)
-    # F64/B2 — reg_head warmup-decay schedule params (only consumed when
+    # reg_head warmup-decay schedule params (only consumed when
     # scheduler_type == "reg_head_warmup_decay"). Always stamp on config so
     # the runner reads via getattr without needing presence checks.
     config = dataclasses.replace(
@@ -1351,9 +1349,8 @@ def _apply_cli_overrides(
     if args.joint_loader_strategy is not None:
         config = dataclasses.replace(
             config, joint_loader_strategy=args.joint_loader_strategy)
-    # Per-head LR (F48-H3). Validate as a triple — partial sets are an
-    # error since the runner only switches to per-head mode when all
-    # three are present.
+    # Per-head LR. Validate as a triple — partial sets are an error since
+    # the runner only switches to per-head mode when all three are present.
     _per_head_set = {
         "cat_lr": args.cat_lr,
         "reg_lr": args.reg_lr,
@@ -1386,12 +1383,12 @@ def _apply_cli_overrides(
         )
     if args.use_class_weights is not None:
         config = dataclasses.replace(config, use_class_weights=args.use_class_weights)
-    # C25 per-task overrides (take precedence over --[no-]class-weights).
+    # Per-task class-weight overrides (take precedence over --[no-]class-weights).
     if getattr(args, "use_class_weights_reg", None) is not None:
         config = dataclasses.replace(config, use_class_weights_reg=args.use_class_weights_reg)
     if getattr(args, "use_class_weights_cat", None) is not None:
         config = dataclasses.replace(config, use_class_weights_cat=args.use_class_weights_cat)
-    # T1.4 STL loss calibration (next_cv.py cat tune). Only assembles a non-empty
+    # STL loss calibration (next_cv.py cat tune). Only assembles a non-empty
     # dict when a calibration flag is set, so default runs keep the legacy path.
     _lc = {}
     if getattr(args, "focal_gamma", 0.0):
@@ -1596,7 +1593,7 @@ def _apply_cli_overrides(
             config, min_best_epoch=int(args.min_best_epoch)
         )
 
-    # C21 — joint checkpoint selector (default geom_simple). MTL-only knob.
+    # Joint checkpoint selector (default geom_simple). MTL-only knob.
     _sel = getattr(args, "checkpoint_selector", "geom_simple")
     if _sel != getattr(config, "checkpoint_selector", "geom_simple"):
         if config.task_type != "mtl":
@@ -1633,10 +1630,9 @@ def _apply_cli_overrides(
             )
         config = dataclasses.replace(config, reg_freeze_at_epoch=n)
 
-    # substrate-protocol-cleanup Tier C3 — --zero-cat-kv. Wired into
-    # model_params so MTLnetCrossAttn.__init__ receives the kwarg via
-    # create_model(name, **model_params). No-op for other model_names;
-    # validate that the user picked a compatible model.
+    # --zero-cat-kv. Wired into model_params so MTLnetCrossAttn.__init__
+    # receives the kwarg via create_model(name, **model_params). No-op for
+    # other model_names; validate that the user picked a compatible model.
     if getattr(args, "zero_cat_kv", False):
         if config.task_type != "mtl":
             raise ValueError("--zero-cat-kv requires --task mtl")
@@ -1718,7 +1714,7 @@ def _apply_cli_overrides(
             config, log_t_kd_tau=_V12_LOG_T_KD_DEFAULT_TAU
         )
 
-    # R5 (mtl_frontier) — per-instance log_T-KD gate (opt-in, MTL-only, default none).
+    # Per-instance log_T-KD gate (opt-in, MTL-only, default none).
     if getattr(args, "log_t_kd_gate", None) is not None:
         gate = str(args.log_t_kd_gate)
         if gate != "none" and config.task_type != "mtl":
@@ -1731,7 +1727,7 @@ def _apply_cli_overrides(
         if gate != "none":
             logger.info("R5 per-instance log_T-KD gate ON (%s, batch-mean-1 normalized)", gate)
 
-    # R1 (mtl_frontier) — log_C co-location KD. Opt-in, MTL-only, default OFF
+    # log_C co-location KD. Opt-in, MTL-only, default OFF
     # (no version default; never auto-enabled). Stacks on top of log_t_kd.
     if getattr(args, "log_c_kd_weight", None) is not None:
         wc = float(args.log_c_kd_weight)
@@ -1750,7 +1746,7 @@ def _apply_cli_overrides(
             raise ValueError(f"--log-c-kd-tau={tau_c} must be > 0.0")
         config = dataclasses.replace(config, log_c_kd_tau=tau_c)
 
-    # R3 (mtl_frontier) — CrossDistil refinements + reverse arm. All opt-in, MTL-only.
+    # CrossDistil refinements + reverse arm. All opt-in, MTL-only.
     if getattr(args, "log_c_kd_warmup_epochs", None) is not None:
         we = int(args.log_c_kd_warmup_epochs)
         if we < 0:
@@ -1775,7 +1771,7 @@ def _apply_cli_overrides(
             raise ValueError("--cat-kd-tau must be > 0.0")
         config = dataclasses.replace(config, cat_kd_tau=tk)
 
-    # T4.0a (mtl_improvement) loss-scale normalization — opt-in, MTL-only.
+    # Loss-scale normalization — opt-in, MTL-only.
     if getattr(args, "loss_scale_norm", False):
         if config.task_type != "mtl":
             raise ValueError("--loss-scale-norm requires --task mtl")
@@ -1785,7 +1781,7 @@ def _apply_cli_overrides(
             "log(num_classes) before the MTL combiner"
         )
 
-    # G0.1 aligned-pairing — opt-in, MTL-only.
+    # aligned-pairing — opt-in, MTL-only.
     if getattr(args, "aligned_pairing", False):
         if config.task_type != "mtl":
             raise ValueError("--aligned-pairing requires --task mtl")
@@ -1804,8 +1800,7 @@ def _apply_cli_overrides(
     # Persist the per-task input modality into the config so any downstream
     # scorer (e.g. scripts/route_task_best.py) can rebuild the validation
     # loaders with the SAME modality this run trained on. Mirrors the value
-    # passed to FoldCreator in _build_folds. (substrate-protocol-cleanup
-    # Tier C1 modality-bug fix, 2026-05-28.)
+    # passed to FoldCreator in _build_folds.
     config = dataclasses.replace(
         config,
         task_a_input_type=getattr(args, "task_a_input_type", "checkin"),
@@ -2090,16 +2085,16 @@ def main(argv=None) -> None:
         preset_name = args.task_set or LEGACY_CATEGORY_NEXT.name
         task_set = get_preset(preset_name)
         is_check2hgi_track = preset_name == CHECK2HGI_NEXT_REGION.name
-        # SUBSTRATE_COMPARISON_PLAN §5 — MTL counterfactual allows --engine hgi
-        # provided output/hgi/<state>/input/next_region.parquet exists (built
-        # by scripts/probe/build_hgi_next_region.py). Cat input also flips to
+        # MTL counterfactual allows --engine hgi provided
+        # output/hgi/<state>/input/next_region.parquet exists (built by
+        # scripts/probe/build_hgi_next_region.py). Cat input also flips to
         # HGI's input/next.parquet automatically via IoPaths.
-        # substrate-protocol-cleanup Tier B (2026-05-28): Designs B/J/L (Lever 5)
-        # and the Lever-4 stack reuse the canonical c2hgi graph + sequences
-        # verbatim (only the substrate embeddings differ), so the
-        # check2hgi_next_region task pair is valid for them. Per-fold log_T is
-        # cp'd from canonical (n_regions identical). The allow-list is the single
-        # source of truth in configs/paths.py (shared with data/folds.py).
+        # Designs B/J/L (Lever 5) and the Lever-4 stack reuse the canonical
+        # c2hgi graph + sequences verbatim (only the substrate embeddings
+        # differ), so the check2hgi_next_region task pair is valid for them.
+        # Per-fold log_T is cp'd from canonical (n_regions identical). The
+        # allow-list is the single source of truth in configs/paths.py
+        # (shared with data/folds.py).
         if is_check2hgi_track and engine not in MTL_CHECK2HGI_ALLOWED_ENGINES:
             print(
                 f"error: --task-set {preset_name} requires --engine in "
@@ -2254,8 +2249,7 @@ def main(argv=None) -> None:
     # Validate loss + gradient accumulation compatibility before training.
     # All balancers that backprop internally / return loss=None must be listed
     # here, else they hit a TypeError at mtl_cv backward under grad_accum>1.
-    # cagrad + aligned_mtl added 2026-06-08 (T4.1 audit — they were omitted;
-    # safe only because default_mtl pins grad_accum=1).
+    # (Omitting one is safe only because default_mtl pins grad_accum=1.)
     _BACKWARD_ONLY_LOSSES = {
         "nash_mtl", "pcgrad", "gradnorm", "cagrad", "aligned_mtl",
     }

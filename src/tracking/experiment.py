@@ -82,12 +82,12 @@ class MLHistory:
         self.datasets: Optional[Set[DatasetHistory]] = datasets
         self.monitor = monitor
         self.mode = mode
-        # AUDIT-C2 — per-task monitor overrides; see fold.FoldHistory.
+        # Per-task monitor overrides; see fold.FoldHistory.
         # Default None preserves legacy single-metric (F1) behaviour.
         self.task_monitors: Optional[Dict[str, str]] = (
             dict(task_monitors) if task_monitors else None
         )
-        # F50 B1 — selector min-epoch gate (skip init artifacts).
+        # Selector min-epoch gate (skip init artifacts).
         self.min_epoch: int = int(min_epoch)
 
         self.tasks: Set[str] = {tasks} if isinstance(tasks, str) else tasks

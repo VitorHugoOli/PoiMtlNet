@@ -1,4 +1,4 @@
-"""Shared training helpers — extracted in Phase 4a.
+"""Shared training helpers.
 
 Deduplicates compute_class_weights / setup_optimizer / setup_fold patterns
 that were copy-pasted across category, next, and MTL cross-validation files.
@@ -108,11 +108,11 @@ def setup_per_head_optimizer(
     reg_head_lr: float | None = None,
     alpha_no_weight_decay: bool = False,
 ) -> AdamW:
-    """Build an AdamW with three param groups (F48-H3 per-head LR).
+    """Build an AdamW with three param groups (per-head LR).
 
     Requires the model to expose ``cat_specific_parameters``,
     ``reg_specific_parameters`` and ``shared_parameters``. Currently
-    implemented by ``MTLnetCrossAttn`` only — F48-H3 is scoped to the
+    implemented by ``MTLnetCrossAttn`` only — scoped to the
     cross-attention MTL backbone.
 
     Group layout:
@@ -135,22 +135,20 @@ def setup_per_head_optimizer(
     # Filter out frozen params before constructing AdamW. Without this,
     # AdamW applies `weight_decay * theta` to params with grad=None on
     # every step, silently shrinking frozen weights toward zero across
-    # training (catches the F49 encoder-frozen variant and any future
-    # freeze-based ablation). Reg-side `extra_parameters` are typically
-    # learnable scalars; we still filter them for consistency.
+    # training (matters for any freeze-based ablation). Reg-side
+    # `extra_parameters` are typically learnable scalars; we still filter
+    # them for consistency.
     cat_params = [p for p in model.cat_specific_parameters() if p.requires_grad]
     reg_params = [p for p in model.reg_specific_parameters() if p.requires_grad]
     shared_params = [p for p in model.shared_parameters() if p.requires_grad]
     if extra_parameters is not None:
         reg_params.extend(p for p in extra_parameters if p.requires_grad)
 
-    # F50 B9 — when ``alpha_no_weight_decay``, peel α (a single scalar
-    # learnable in ``next_getnext_hard*`` heads) out of the reg group
-    # and put it in its own zero-WD group. AdamW WD=0.05 applies a
-    # constant pull-toward-zero to every parameter every step; for the
-    # single α scalar that fights the gradient-driven growth needed for
-    # the late-window α reach (STL at ep 17-20 hits α ~ 2.0). This is
-    # the B9 hypothesis test from F50_T3_HYPERPARAM_BRAINSTORM.md.
+    # When ``alpha_no_weight_decay``, peel α (a single scalar learnable
+    # in ``next_getnext_hard*`` heads) out of the reg group into its own
+    # zero-WD group: AdamW WD=0.05 applies a constant pull-toward-zero
+    # every step, which for the single α scalar fights the gradient-driven
+    # growth needed for the late-window α reach.
     alpha_params: list[torch.nn.Parameter] = []
     if alpha_no_weight_decay and hasattr(model, "next_poi"):
         alpha = getattr(model.next_poi, "alpha", None)
@@ -159,13 +157,11 @@ def setup_per_head_optimizer(
             alpha_id = id(alpha)
             reg_params = [p for p in reg_params if id(p) != alpha_id]
 
-    # 2026-06-12 (HANDOFF_AUDIT X3 / CODE_AUDIT P1-C) — same treatment for the
-    # dual-tower fusion scalar β (`priv + β·aux_proj(shared)`). β init 0.1 sits in
-    # the reg group at wd=0.05 and is logged to decay to ≈0 by ~epoch 25 (the exact
-    # AdamW pull-toward-zero F50 diagnosed for α). Env-gated probe: MTL_BETA_NO_WD=1
-    # peels β into the zero-WD group to test whether WD (vs the model's own gradient)
-    # was driving β→0 and thus suppressing the shared→reg pathway. Folded into the
-    # alpha_no_wd group so no new scheduler group is needed. Default unset → no-op.
+    # Same treatment for the dual-tower fusion scalar β
+    # (`priv + β·aux_proj(shared)`, init 0.1): WD=0.05 pulls it toward 0,
+    # suppressing the shared→reg pathway. Env-gated probe MTL_BETA_NO_WD=1
+    # peels β into the zero-WD group (folded into alpha_no_wd, so no new
+    # scheduler group is needed). Default unset → no-op.
     if os.environ.get("MTL_BETA_NO_WD") == "1" and hasattr(model, "next_poi"):
         beta = getattr(model.next_poi, "beta", None)
         if isinstance(beta, torch.nn.Parameter) and beta.requires_grad:
@@ -173,12 +169,10 @@ def setup_per_head_optimizer(
             reg_params = [p for p in reg_params if id(p) != beta_id]
             alpha_params = alpha_params + [beta]
 
-    # F50 D3/D6 — split reg_params into encoder vs head when EITHER
-    # reg_encoder_lr or reg_head_lr is set.
-    #   D3 (reg_encoder_lr): tests mechanism α via reg encoder under-training.
-    #   D6 (reg_head_lr): tests mechanism α via α scalar's effective LR
-    #     (next_poi contains α in next_getnext_hard; under cat_weight=0.75
-    #     scaling, α's gradient is shrunk 4x → α never grows enough).
+    # Split reg_params into encoder vs head when EITHER reg_encoder_lr or
+    # reg_head_lr is set (lets the α scalar in the reg head run a higher
+    # effective LR than the encoder; under cat_weight=0.75 α's gradient is
+    # shrunk 4x and otherwise never grows enough).
     # If only one is set, the other defaults to reg_lr.
     if (reg_encoder_lr is not None or reg_head_lr is not None) and hasattr(model, "next_encoder"):
         _enc_lr = float(reg_encoder_lr) if reg_encoder_lr is not None else float(reg_lr)
@@ -217,7 +211,7 @@ def _build_reg_head_warmup_decay_lambda(
     total_steps: int,
     peak_mult: float,
 ):
-    """F50 F64/B2 — warmup-decay multiplier shape on reg_head LR.
+    """Warmup-decay multiplier shape on reg_head LR.
 
     Returns a closure step → multiplier in [1.0, peak_mult]:
       0..warmup_end:     linear ramp 1.0 → peak_mult
@@ -299,10 +293,10 @@ def setup_scheduler(
         if pct_start is not None:
             kwargs["pct_start"] = float(pct_start)
         return OneCycleLR(**kwargs)
-    # Per-head LR mode (F48-H3) builds an optimizer with multiple param
-    # groups already at their target LRs. Detect and skip the single-LR
-    # overwrite below — otherwise `setup_per_head_optimizer`'s per-group
-    # LRs would be silently flattened to `max_lr` here.
+    # Per-head LR mode builds an optimizer with multiple param groups
+    # already at their target LRs. Detect and skip the single-LR overwrite
+    # below — otherwise `setup_per_head_optimizer`'s per-group LRs would be
+    # silently flattened to `max_lr` here.
     multi_group_per_head = len(optimizer.param_groups) > 1
     if scheduler_type == "constant":
         # Hold LR fixed at `max_lr` for the entire run (no warmup, no
@@ -324,13 +318,11 @@ def setup_scheduler(
             eta_min=float(eta_min),
         )
     if scheduler_type == "warmup_constant":
-        # F48-H2: linear warmup over `pct_start * total_steps` from a low
-        # base, then hold constant at max_lr forever. Designed to give
-        # cat a stable warmup phase (avoiding the F45 cat-collapse from
-        # day-1 sustained 3e-3) and reg a long high-LR plateau (where
-        # `α` in next_getnext_hard can grow, per F45 mechanism).
-        # `pct_start` doubles as the warmup fraction (default 1/3 ≈
-        # 50ep warmup of the 150ep design from FINDINGS doc).
+        # Linear warmup over `pct_start * total_steps` from a low base,
+        # then hold constant at max_lr forever. Gives cat a stable warmup
+        # (avoids cat-collapse from day-1 sustained 3e-3) and reg a long
+        # high-LR plateau where `α` in next_getnext_hard can grow.
+        # `pct_start` doubles as the warmup fraction (default 1/3).
         _overwrite_base_lr(optimizer, max_lr, multi_group_per_head)
         warmup_frac = float(pct_start) if pct_start is not None else (1.0 / 3.0)
         if not (0 < warmup_frac < 1):
@@ -352,13 +344,12 @@ def setup_scheduler(
             milestones=[warmup_steps],
         )
     if scheduler_type == "reg_head_warmup_decay":
-        # F64/B2 — only the reg_head (and alpha_no_wd, if present) param
-        # group sees the warmup-decay shape; all other groups stay at
-        # base LR. Requires the per-head optimizer (multi-group). The
-        # reg-side LR ramps base→peak in `warmup_epochs`, holds at peak
-        # through `plateau_epochs`, then decays linearly back to base by
-        # the final epoch. Tests whether late-window α growth is unlocked
-        # without sustained instability (D6's failure mode).
+        # Only the reg_head (and alpha_no_wd, if present) param group sees
+        # the warmup-decay shape; all other groups stay at base LR.
+        # Requires the per-head optimizer (multi-group). The reg-side LR
+        # ramps base→peak in `warmup_epochs`, holds at peak through
+        # `plateau_epochs`, then decays linearly back to base by the final
+        # epoch (unlocks late-window α growth without sustained instability).
         if not multi_group_per_head:
             raise ValueError(
                 "reg_head_warmup_decay requires per-head optimizer "

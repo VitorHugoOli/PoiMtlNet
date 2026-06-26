@@ -21,8 +21,22 @@ V14=check2hgi_design_k_resln_mae_l0_1
 PDIR=/tmp/parity
 mkdir -p "$PDIR"
 
-CMD="${1:?run|diff}"; shift
-if [ "$CMD" = "run" ]; then
+CMD="${1:?run|diff|run_stl}"; shift
+if [ "$CMD" = "run_stl" ]; then
+  # Single-task (STL cat-ceiling) config — exercises _run_next / next_cv / _single_task_train
+  # (the runner-merge A/B that the MTL harness doesn't cover). 2 folds × 8 ep, eager fp32.
+  TAG="${1:?tag}"; shift
+  python scripts/train.py --task next --state alabama --engine check2hgi_dk_ovl \
+    --model next_gru --folds 2 --epochs 8 --seed 0 --batch-size 2048 \
+    --max-lr 3e-3 --gradient-accumulation-steps 1 --no-checkpoints "$@" \
+    > "$PDIR/${TAG}.log" 2>&1
+  RC=$?
+  RD=$(ls -dt results/check2hgi_dk_ovl/alabama/next_*ep8_* 2>/dev/null | head -1)
+  rm -rf "$PDIR/$TAG"; mkdir -p "$PDIR/$TAG"
+  [ -n "$RD" ] && cp "$RD"/metrics/fold*_val.csv "$PDIR/$TAG/" 2>/dev/null
+  n=$(ls "$PDIR/$TAG"/*.csv 2>/dev/null | wc -l)
+  echo "[parity:run_stl] tag=$TAG rc=$RC captured=$n CSVs (rundir=$RD)"
+elif [ "$CMD" = "run" ]; then
   TAG="${1:?tag}"; shift
   python scripts/train.py --task mtl --canon none --task-set check2hgi_next_region \
     --engine check2hgi_dk_ovl --state alabama --seed 0 --epochs 8 --only-folds 0,1 --batch-size 2048 \

@@ -143,17 +143,12 @@ def evaluate_model(
     logits_cat_list, truths_cat_list = [], []
     batches = 0
 
-    # S2 (perf-audit) — CHUNKED/STREAMING val metric for the high-cardinality reg head.
-    # The full path cats the whole val epoch's [N, n_regions] reg logits ON GPU and runs
-    # compute_classification_metrics + _ood_restricted_topk over it — which OOMs the A40 at
-    # CA/TX scale (4.7k-8.5k regions). Every val reg metric (incl. the SCORED top10_acc_indist)
-    # is a per-ROW reduction or additive per-CLASS count, so we stream per-batch reductions on
-    # GPU (matching the canonical fp16-CUDA topk tie-breaking — NEVER CPU-moved) and assemble
-    # the IDENTICAL metric dicts + ood dict from the accumulators. Reg only; cat (C=7) keeps the
-    # full path. SCORED PATH → behind MTL_CHUNK_VAL_METRIC (default OFF) until A40 A/B-verified.
-    # S2 — chunked/streaming val metric for the high-cardinality reg head: byte-identical
-    # to the full-logit path but avoids the A40 GPU-OOM that cat-ing the whole val epoch's
-    # [N, n_regions] logits causes at CA/TX overlap scale. See _decide_chunk_val.
+    # Chunked/streaming val metric for the high-cardinality reg head: byte-identical to the
+    # full-logit path but avoids the A40 GPU-OOM from cat-ing the whole val epoch's
+    # [N, n_regions] logits at CA/TX scale (4.7k-8.5k regions). Every reg metric (incl. the
+    # SCORED top10_acc_indist) is a per-row reduction or per-class count, streamed on GPU
+    # (matching the canonical fp16-CUDA topk tie-break — NEVER CPU-moved). Reg only; cat (C=7)
+    # keeps the full path. Gated by MTL_CHUNK_VAL_METRIC (default OFF). See _decide_chunk_val.
     _nc_b_gate = task_b_num_classes if task_b_num_classes is not None else (
         num_classes if num_classes is not None else getattr(model, "num_classes", 0)
     )
@@ -162,14 +157,11 @@ def evaluate_model(
     sv_preds, sv_tgts, sv_rank = [], [], []
     sv_hit = {k: [] for k in _S2_KS}
 
-    # 2026-06-12 (HANDOFF_AUDIT X4 / CODE_AUDIT P1-D) — eval-precision escape hatch.
-    # MTL eval autocasts fp16 on CUDA unconditionally, while the p1-STL ceiling
-    # harness evaluates in fp32. Over ~5-9k region logits, fp16 quantisation
-    # creates more exact ties → _rank_of_target (strictly-higher count) scores
-    # MTL ranks tie-optimistically vs the fp32 ceiling. The headline Δreg is
-    # decided at −0.09…−0.31pp, within that delta. Set MTL_DISABLE_AMP_EVAL=1
-    # (or the training hatch MTL_DISABLE_AMP=1) to force fp32 eval and measure the
-    # precision-clean number. Default (unset) keeps canonical fp16 eval untouched.
+    # Eval-precision escape hatch. MTL eval autocasts fp16 on CUDA unconditionally, but the
+    # STL ceiling harness evaluates in fp32; over ~5-9k region logits fp16 quantisation creates
+    # more exact ties → _rank_of_target scores MTL ranks tie-optimistically vs the fp32 ceiling.
+    # Set MTL_DISABLE_AMP_EVAL=1 (or the training hatch MTL_DISABLE_AMP=1) to force fp32 eval.
+    # Default (unset) keeps canonical fp16 eval untouched.
     _disable_amp_eval = (
         os.environ.get("MTL_DISABLE_AMP_EVAL") == "1"
         or os.environ.get("MTL_DISABLE_AMP") == "1"
@@ -180,14 +172,11 @@ def evaluate_model(
         else contextlib.nullcontext()
     )
 
-    # 2026-06-12 (HANDOFF_AUDIT X1 / CODE_AUDIT P0-A) — cross-attn pairing roll probe.
-    # The two MTL train loaders draw independent shuffles → the cross-attn block mixes
-    # row i (cat) ↔ row i (reg) of RANDOMLY-paired windows at train time, while val is
-    # aligned. Probe: roll the task-b (reg / `x_next`) stream by 1 along the batch dim at
-    # EVAL only → cat row i now cross-attends reg row i−1. If cat-F1 is unchanged
-    # (Δ≈0), the model ignores per-sample pairing → "K/V mixing is dead" is confirmed
-    # clean. (reg metric becomes meaningless under the roll — read cat-F1 only.) Gate:
-    # MTL_ROLL_TASKB_EVAL=1. Default unset → no roll.
+    # Cross-attn pairing roll probe. The two MTL train loaders draw independent shuffles, so
+    # cross-attn mixes RANDOMLY-paired cat↔reg rows at train time while val is aligned. Probe:
+    # roll the task-b (reg / `x_next`) stream by 1 along the batch dim at EVAL only → cat row i
+    # cross-attends reg row i−1. If cat-F1 is unchanged the model ignores per-sample pairing.
+    # (reg metric is meaningless under the roll — read cat-F1 only.) Gate MTL_ROLL_TASKB_EVAL=1.
     _roll_taskb = os.environ.get("MTL_ROLL_TASKB_EVAL") == "1"
 
     for data_next, data_cat in zip_longest_cycle(*dataloaders):

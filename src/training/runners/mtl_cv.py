@@ -372,12 +372,9 @@ def train_model(model: torch.nn.Module,
 
     # Mixed-precision autocast: float16 forward passes on CUDA, no-op otherwise.
     # MPS float16 autocast adds overhead for small tensors — disabled there.
-    # Diagnostic escape hatch (mtl_improvement T2P.0 harness-confound control):
-    # set MTL_DISABLE_AMP=1 to force the full fp32 path (no autocast), matching
-    # the p1-STL ceiling harness which never autocasts. NB the CUDA trainer runs
-    # fp16 autocast with NO GradScaler — this env var isolates that precision
-    # delta when comparing MTL-reg vs the fp32 STL ceiling. Default (unset) keeps
-    # the canonical fp16 behaviour untouched.
+    # MTL_DISABLE_AMP=1 forces the full fp32 path (no autocast). NB the CUDA
+    # trainer runs fp16 autocast with NO GradScaler; this env var isolates that
+    # precision delta. Default (unset) keeps the canonical fp16 behaviour untouched.
     import os as _os
     _disable_amp = _os.environ.get("MTL_DISABLE_AMP") == "1"
     # MTL_AUTOCAST_BF16=1 → bfloat16 autocast (fp32 exponent range, no 65504 overflow,
@@ -417,13 +414,9 @@ def train_model(model: torch.nn.Module,
         )
     pareto_points: list[tuple[float, float]] = []
 
-    # F50 D5 — encoder weight-trajectory diagnostic. Snapshot the initial
-    # `next_encoder` and `category_encoder` parameter vectors so per-epoch
-    # Frobenius drift can be logged below. The hypothesis (F50 T3 §5.5):
-    # MTL's reg-best epoch is structurally pinned at ~ep 5 because the
-    # `next_encoder` stops updating early under joint loss while
-    # `category_encoder` keeps drifting. Per-epoch L2 norm and drift-from-init
-    # log directly tests this. Silent no-op if encoders are absent.
+    # Encoder weight-trajectory diagnostic. Snapshot the initial `next_encoder`
+    # and `category_encoder` parameter vectors so per-epoch Frobenius drift can
+    # be logged below. Silent no-op if encoders are absent.
     def _flatten_encoder(encoder):
         if encoder is None:
             return None
@@ -439,15 +432,14 @@ def train_model(model: torch.nn.Module,
 
     # F50 P3 — track whether warmup-then-freeze has fired (idempotent).
     _cat_frozen_post_warmup = False
-    # substrate-protocol-cleanup Tier C2 — track whether reg-freeze has fired.
-    # Once True, task_b_loss is zeroed before forming the MTL loss tensor
-    # and next_encoder.* / next_poi.* params have requires_grad=False, so
-    # the optimizer step is naturally a no-op on them.
+    # Track whether reg-freeze has fired. Once True, task_b_loss is zeroed
+    # before forming the MTL loss tensor and next_encoder.* / next_poi.* params
+    # have requires_grad=False, so the optimizer step is naturally a no-op on them.
     _reg_frozen_post_peak = False
-    # F50 B4 — α-freeze warmup. If alpha_frozen_until_epoch is set, lock
-    # α at its init value for ep 0..N-1, then unfreeze. Pre-freeze the
-    # parameter HERE (before training) so the first epoch already sees
-    # frozen α; the unfreeze happens at epoch N inside the loop below.
+    # α-freeze warmup. If alpha_frozen_until_epoch is set, lock α at its init
+    # value for ep 0..N-1, then unfreeze. Pre-freeze the parameter HERE (before
+    # training) so the first epoch already sees frozen α; the unfreeze happens
+    # at epoch N inside the loop below.
     _alpha_unfrozen = False
     if alpha_frozen_until_epoch is not None and int(alpha_frozen_until_epoch) > 0:
         next_head = getattr(model, "next_poi", None)
@@ -479,11 +471,10 @@ def train_model(model: torch.nn.Module,
                     f"{epoch_idx} (target N={alpha_frozen_until_epoch}); "
                     f"current α = {float(head_alpha):.4f}"
                 )
-        # F50 P3 — at the boundary epoch, freeze category_encoder + category_poi.
-        # Reg + shared keep training. Tests whether continued cat-encoder
-        # co-adaptation as reg-helper (F49 Layer 2) hurts reg at scale. The
-        # optimizer naturally skips params with grad=None, so no optimizer
-        # rebuild is needed. category_encoder.eval() also disables its dropout.
+        # At the boundary epoch, freeze category_encoder + category_poi.
+        # Reg + shared keep training. The optimizer naturally skips params with
+        # grad=None, so no optimizer rebuild is needed. category_encoder.eval()
+        # also disables its dropout.
         if (freeze_cat_after_epoch is not None
                 and not _cat_frozen_post_warmup
                 and epoch_idx >= int(freeze_cat_after_epoch)):
@@ -606,10 +597,10 @@ def train_model(model: torch.nn.Module,
                 task_b_loss = next_criterion(pred_task_b, truth_task_b)
                 task_a_loss = category_criterion(pred_task_a, truth_task_a)
 
-                # T4.0a (mtl_improvement) loss-scale normalization — divide each
-                # task's CE by log(num_classes) BEFORE the MTL combiner, so the
-                # built-in ~4.7x CE-magnitude gap (ln(n_regions) vs ln(7)) is
-                # decoupled from the inter-task weight. Gated; default no-op.
+                # Loss-scale normalization — divide each task's CE by
+                # log(num_classes) BEFORE the MTL combiner, so the built-in ~4.7x
+                # CE-magnitude gap (ln(n_regions) vs ln(7)) is decoupled from the
+                # inter-task weight. Gated; default no-op.
                 if loss_scale_norm:
                     import math as _math
                     _nb = pred_task_b.shape[-1]
@@ -1037,13 +1028,11 @@ def train_model(model: torch.nn.Module,
         if isinstance(head_alpha, torch.Tensor) and head_alpha.numel() == 1:
             diagnostic_payload["head_alpha"] = float(head_alpha.detach().cpu())
 
-        # 2026-06-12 (HANDOFF_AUDIT X3 / CODE_AUDIT P1-C) — β trajectory logging.
-        # The dual-tower head fuses the shared pathway via
+        # β trajectory logging. The dual-tower head fuses the shared pathway via
         # `priv_feat + β · aux_proj(shared_feat)` (next_stan_flow_dualtower,
         # β init 0.1). β sits in the reg param group and is weight-decayed at
-        # wd=0.05 (only α is peeled into the zero-WD group) — the same AdamW
-        # decay-to-zero mechanism F50 diagnosed for α. Logging β per epoch makes
-        # that drift visible (was invisible — only head_alpha was logged). Silent
+        # wd=0.05 (only α is peeled into the zero-WD group), so it can drift to
+        # zero under AdamW — logging it per epoch makes that visible. Silent
         # no-op for heads without a `beta` attribute.
         head_beta = getattr(next_head, "beta", None)
         if isinstance(head_beta, torch.Tensor) and head_beta.numel() == 1:
@@ -1184,12 +1173,10 @@ def train_model(model: torch.nn.Module,
             )
 
             # Only create state_dict when at least one task improves.
-            # AUDIT-C2: read the per-task monitor key so the improvement
-            # check matches whichever metric the BestModelTracker is
-            # actually watching (F1, accuracy, mrr, ...). Pre-C2 this
-            # hardcoded F1 even when the tracker watched accuracy →
-            # state_dict was occasionally not produced when it should
-            # have been. Falls back to F1 for legacy paths.
+            # Read the per-task monitor key so the improvement check matches
+            # whichever metric the BestModelTracker is actually watching (F1,
+            # accuracy, mrr, ...); hardcoding F1 would miss improvements when
+            # the tracker watches accuracy. Falls back to F1 for legacy paths.
             _mon_b = fold_history.task(task_b_name).best.monitor
             _mon_a = fold_history.task(task_a_name).best.monitor
             _val_b_mon = val_metrics_task_b.get(_mon_b, f1_val_task_b)
@@ -1356,20 +1343,15 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
         _prof.fold_start(i_fold)
         clear_mps_cache()
 
-        # AUDIT-C4 fix — per-fold transition prior. When
-        # ``config.per_fold_transition_dir`` is set, swap the static
-        # ``transition_path`` in task_b.head_params for the fold-specific
-        # file ``region_transition_log_seed{S}_fold{N}.pt``. The seed
-        # MUST match the trainer's ``--seed S`` because the per-fold
-        # log_T is built from train rows under the same fold split;
-        # using a file built at a different seed silently leaks
-        # ~80% of val transitions into the prior at every other seed
-        # (caught 2026-04-30 — F51 multi-seed sweep with seed=42
-        # log_T applied at seeds 0/1/7/100). N is 1-indexed because
-        # that's what ``compute_region_transition.py --per-fold``
-        # writes. ``i_fold`` here is 0-indexed (FoldCreator dict keys).
-        # Default None preserves the legacy single-prior behaviour, so
-        # this is a no-op for the running tier-A queue.
+        # Per-fold transition prior. When ``config.per_fold_transition_dir`` is
+        # set, swap the static ``transition_path`` in task_b.head_params for the
+        # fold-specific file ``region_transition_log_seed{S}_fold{N}.pt``. The
+        # seed MUST match the trainer's ``--seed S`` because the per-fold log_T is
+        # built from train rows under the same fold split; using a file built at a
+        # different seed silently leaks ~80% of val transitions into the prior. N
+        # is 1-indexed because that's what ``compute_region_transition.py
+        # --per-fold`` writes; ``i_fold`` here is 0-indexed (FoldCreator dict
+        # keys). Default None preserves the legacy single-prior behaviour (no-op).
         per_fold_dir = getattr(config, "per_fold_transition_dir", None)
         per_fold_model_params = config.model_params
         if per_fold_dir is not None:
@@ -1404,12 +1386,9 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                         f"Build with: python scripts/compute_region_transition.py "
                         f"--state {config.state} --per-fold --seed {seed}"
                     )
-                # C22 stale-log_T guard (substrate-protocol-cleanup Tier C4,
-                # added 2026-05-28): refuse to start if log_T mtime predates
-                # the substrate parquet it was built from. Previously
-                # runbook-enforced only; silently survived regens and
-                # inflated reg Acc@10 by +8 to +12 pp (mtl_protocol_fix
-                # Phase 2 P5 FL seed=42 case).
+                # Stale-log_T guard: refuse to start if log_T mtime predates the
+                # substrate parquet it was built from. A stale log_T silently
+                # survives regens and inflates reg Acc@10 by +8 to +12 pp.
                 parquet_path = _Path(per_fold_dir) / "input" / "next_region.parquet"
                 if parquet_path.exists():
                     if pf_path.stat().st_mtime < parquet_path.stat().st_mtime:
@@ -1422,22 +1401,15 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                             f"scripts/compute_region_transition.py --state "
                             f"{config.state} --per-fold --seed {seed}"
                         )
-                # 2026-05-15: hard-fail when the per-fold log_T's ``n_splits``
-                # does not match the trainer's ``config.k_folds``. The
-                # ``--folds N`` flag overrides ``config.k_folds`` to
-                # ``max(2, N)``, so a 1-fold smoke against a 5-fold-built
-                # log_T silently leaks ~30-40% of val transitions into the
-                # prior (the α scalar amplifies this through training,
-                # inflating reg ``top10_acc_indist`` by 13-23 pp). See
-                # ``docs/studies/mtl-exploration/LEAK_BLAST_RADIUS_AUDIT.md``
-                # for the discovery + per-state magnitudes, and
-                # ``docs/findings/MTL_FLAWS_AND_FIXES.md §2.13`` for the
-                # catalog entry. Files written by post-2026-05-15
-                # ``compute_region_transition.py`` stash ``n_splits`` in
-                # the payload; legacy files (pre-2026-05-15) lack the key
-                # and are accepted only at the canonical n_splits=5
-                # because that's the historical default they were built
-                # under.
+                # Hard-fail when the per-fold log_T's ``n_splits`` does not match
+                # the trainer's ``config.k_folds``. The ``--folds N`` flag
+                # overrides ``config.k_folds`` to ``max(2, N)``, so a 1-fold smoke
+                # against a 5-fold-built log_T silently leaks ~30-40% of val
+                # transitions into the prior (the α scalar amplifies this,
+                # inflating reg ``top10_acc_indist`` by 13-23 pp). Post-fix
+                # ``compute_region_transition.py`` stashes ``n_splits`` in the
+                # payload; legacy files lack the key and are accepted only at the
+                # canonical n_splits=5, the historical default they were built under.
                 trainer_n_splits = int(config.k_folds)
                 pf_payload = torch.load(pf_path, map_location="cpu", weights_only=False)
                 pf_n_splits = (
@@ -1610,9 +1582,9 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                 _ckw["mode"] = _cmode
             model = torch.compile(model, **_ckw)
 
-        # F49 encoder-frozen λ=0 isolation: freeze the cat encoder + cat
-        # head so the cat **encoder** cannot co-adapt as a reg-helper via
-        # cross-attention K/V. Block-internal cat-side processing
+        # Freeze the cat encoder + cat head so the cat **encoder** cannot
+        # co-adapt as a reg-helper via cross-attention K/V. Block-internal
+        # cat-side processing
         # (`_CrossAttnBlock.ffn_a / ln_a*`) is intentionally NOT frozen —
         # those live in `shared_parameters()` and the reg stream consumes
         # their outputs as K/V via residuals; freezing them would corrupt
@@ -1626,7 +1598,7 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                 p.requires_grad_(False)
             model.category_encoder.eval()  # disables dropout in the cat encoder
 
-        # W6 category-side probe — MIRROR of freeze_cat_stream on the region
+        # Category-side probe — MIRROR of freeze_cat_stream on the region
         # stream: freeze next_encoder + next_poi (requires_grad=False) so the
         # region stream cannot co-adapt as a cat-helper via cross-attention K/V.
         # Run with category_weight=1.0 (reg-loss=0). The optimizer's
@@ -1655,9 +1627,8 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             _loss_params["total_epochs"] = int(config.epochs)
         mtl_criterion = create_loss(config.mtl_loss, n_tasks=2, device=DEVICE, **_loss_params)
 
-        # Per-head LR mode (F48-H3) — activated when all three of
-        # cat_lr/reg_lr/shared_lr are set in the config. Otherwise fall
-        # back to the legacy single-LR optimizer.
+        # Per-head LR mode — activated when all three of cat_lr/reg_lr/shared_lr
+        # are set in the config. Otherwise fall back to the legacy single-LR optimizer.
         _cat_lr = getattr(config, "cat_lr", None)
         _reg_lr = getattr(config, "reg_lr", None)
         _shared_lr = getattr(config, "shared_lr", None)
@@ -1707,11 +1678,10 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                 config, "reg_head_warmup_decay_plateau_epochs", 15),
             eta_min=float(getattr(config, "eta_min", 0.0)),
         )
-        # Smoke print for F48-H3: verify per-group LRs survived scheduler
-        # init. Only on the first fold to keep logs clean. Also prints
-        # trainable-param count per group — under F49 --freeze-cat-stream
-        # the cat group must report 0 trainable params; any other count
-        # means the freeze didn't take.
+        # Smoke print: verify per-group LRs survived scheduler init. Only on
+        # the first fold to keep logs clean. Also prints trainable-param count
+        # per group — under --freeze-cat-stream the cat group must report 0
+        # trainable params; any other count means the freeze didn't take.
         if _per_head and getattr(history, "curr_i_fold", 0) == 0:
             _groups = [
                 (pg.get("name", "?"),
@@ -1762,8 +1732,8 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             dataloader_category.train.y, task_a_num_classes, DEVICE
         )
 
-        # C25 (2026-06-05) — PER-TASK class weighting. The reg head (task_b,
-        # next_criterion) is reported by top-K Acc@10, which class-balancing HURTS;
+        # PER-TASK class weighting. The reg head (task_b, next_criterion) is
+        # reported by top-K Acc@10, which class-balancing HURTS;
         # the cat head (task_a, category_criterion) is reported by macro-F1, which
         # balancing HELPS. ``use_class_weights_{reg,cat}`` override the legacy
         # single ``use_class_weights``; ``None`` inherits it (back-compat).
