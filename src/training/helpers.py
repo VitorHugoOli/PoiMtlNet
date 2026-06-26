@@ -248,6 +248,18 @@ def _build_reg_head_warmup_decay_lambda(
     return _fn
 
 
+def _overwrite_base_lr(optimizer, max_lr, multi_group_per_head: bool) -> None:
+    """Set every param-group's base lr to ``max_lr`` (single-group / legacy mode only).
+
+    The constant / cosine / warmup_constant schedulers start from the optimizer's base
+    lr, so it must be lifted from AdamW's 1e-4 default to ``max_lr``. Per-head mode keeps
+    its own per-group LRs, so this is a no-op there.
+    """
+    if not multi_group_per_head:
+        for pg in optimizer.param_groups:
+            pg["lr"] = max_lr
+
+
 def setup_scheduler(
     optimizer: AdamW,
     max_lr: float,
@@ -299,17 +311,13 @@ def setup_scheduler(
         # The optimizer's base `lr` must be overwritten to `max_lr`
         # before ConstantLR(factor=1.0) locks it — but only in single-
         # group (legacy) mode. Per-head mode preserves its own LRs.
-        if not multi_group_per_head:
-            for pg in optimizer.param_groups:
-                pg["lr"] = max_lr
+        _overwrite_base_lr(optimizer, max_lr, multi_group_per_head)
         return ConstantLR(optimizer=optimizer, factor=1.0, total_iters=1)
     if scheduler_type == "cosine":
         # Warmup-free cosine decay from `max_lr` → 0 over total steps.
         # First set the optimizer's base lr to max_lr so CosineAnnealingLR
         # starts at max_lr (not at AdamW's lr=1e-4 default).
-        if not multi_group_per_head:
-            for pg in optimizer.param_groups:
-                pg["lr"] = max_lr
+        _overwrite_base_lr(optimizer, max_lr, multi_group_per_head)
         return CosineAnnealingLR(
             optimizer=optimizer,
             T_max=int(epochs * steps_per_epoch),
@@ -323,9 +331,7 @@ def setup_scheduler(
         # `α` in next_getnext_hard can grow, per F45 mechanism).
         # `pct_start` doubles as the warmup fraction (default 1/3 ≈
         # 50ep warmup of the 150ep design from FINDINGS doc).
-        if not multi_group_per_head:
-            for pg in optimizer.param_groups:
-                pg["lr"] = max_lr
+        _overwrite_base_lr(optimizer, max_lr, multi_group_per_head)
         warmup_frac = float(pct_start) if pct_start is not None else (1.0 / 3.0)
         if not (0 < warmup_frac < 1):
             raise ValueError(f"warmup_constant pct_start must be in (0,1), got {warmup_frac}")
