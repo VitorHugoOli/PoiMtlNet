@@ -213,6 +213,59 @@ def _compute_joint_selectors(
     return (joint_score, joint_acc1, joint_geom_lift, joint_arith_lift, joint_geom_simple, selected)
 
 
+def _log_t_kd_loss(pred_task_b, model, weight, tau, gate):
+    """log_T knowledge-distillation term for the reg head (τ²·KL(student ‖ teacher)).
+
+    teacher = softmax(log_T[last_region_idx] / τ); student = softmax(reg_logits / τ).
+    Returns the τ²-scaled per-batch KL scalar (the caller applies ``weight *``), or None
+    on the no-op fast path: weight ≤ 0, no aux/log_T-aware reg head, or all rows padded.
+    Padding rows (last_region_idx < 0 or ≥ num_classes) are excluded. ``gate`` ("none" /
+    "coverage_max" / "coverage_entropy") redistributes a mean-1 per-sample weight by the
+    teacher row's Markov coverage (total KD budget unchanged). Side effect: sets
+    ``model._r5_gate_std`` when gated. See docs/results/mtl_protocol_fix/phase3_rank1_findings.md.
+    """
+    if weight <= 0.0:
+        return None
+    from data.aux_side_channel import get_current_aux
+    _aux = get_current_aux()
+    _reg_head = getattr(model, "next_poi", None)
+    _log_T = getattr(_reg_head, "log_T", None) if _reg_head is not None else None
+    if _aux is None or _log_T is None:
+        return None
+    _nc = pred_task_b.shape[-1]
+    if not (_log_T.shape[0] >= _nc and _log_T.shape[1] >= _nc):
+        return None
+    _log_T_use = _log_T[:_nc, :_nc]
+    if _aux.device != pred_task_b.device:
+        _aux = _aux.to(pred_task_b.device)
+    _valid = ~((_aux < 0) | (_aux >= _nc))
+    if not _valid.any():
+        return None
+    _safe = _aux.clamp(min=0, max=_nc - 1)
+    _tau = float(tau)
+    _teacher = torch.softmax(_log_T_use.index_select(0, _safe).float() / _tau, dim=-1)
+    _student_log = torch.log_softmax(pred_task_b.float() / _tau, dim=-1)
+    _log_teacher = torch.log(_teacher.clamp_min(1e-12))
+    _student = _student_log.exp()
+    _kld_per_sample = (_student * (_student_log - _log_teacher)).sum(dim=-1)
+    if gate != "none":
+        if gate == "coverage_max":
+            _cov = _teacher.max(dim=-1).values
+        else:  # coverage_entropy
+            _ent = -(_teacher * _log_teacher).sum(dim=-1)
+            _cov = 1.0 - _ent / math.log(_teacher.shape[-1])
+        _cov = _cov * _valid.float()
+        _gmean = (_cov.sum() / _valid.sum().clamp_min(1)).clamp_min(1e-6)
+        _gate = _cov / _gmean  # mean-1 over valid, 0 on pad
+        if _valid.any():
+            model._r5_gate_std = float(_gate[_valid].std().detach())
+        _kld_per_sample = _kld_per_sample * _gate
+    else:
+        _kld_per_sample = _kld_per_sample * _valid.float()
+    _denom = _valid.sum().clamp_min(1).float()
+    return (_kld_per_sample.sum() / _denom) * (_tau * _tau)
+
+
 def _pareto_front_indices(points: list[tuple[float, float]]) -> list[int]:
     """Pareto-front indices over per-head val scores.
 
@@ -610,92 +663,15 @@ def train_model(model: torch.nn.Module,
                     if _na > 1:
                         task_a_loss = task_a_loss / _math.log(_na)
 
-                # substrate-protocol-cleanup Tier A1 / mtl-protocol-fix Phase 3 §4.5 —
-                # log_T KL distillation supervisory signal. For each sample with
-                # a valid ``last_region_idx`` r, the teacher distribution is
-                # softmax(log_T[r] / τ) over n_regions; the student is
-                # softmax(reg_logits / τ). KD term = τ² · KL(student || teacher),
-                # added to task_b_loss with weight ``log_t_kd_weight``. Strict
-                # no-op fast path when weight == 0.0 (the W=0.0 baseline). Padding
-                # rows (last_region_idx < 0 or >= num_classes) are excluded so
-                # they don't contaminate the gradient. Requires a log_T-aware
-                # reg head (next_getnext_hard / next_stan_flow / next_getnext)
-                # whose forward registers a ``log_T`` buffer of shape
-                # [num_classes, num_classes]. See
-                # docs/results/mtl_protocol_fix/phase3_rank1_findings.md.
-                if log_t_kd_weight > 0.0:
-                    from data.aux_side_channel import get_current_aux
-                    _aux = get_current_aux()
-                    _reg_head = getattr(model, "next_poi", None)
-                    _log_T = getattr(_reg_head, "log_T", None) if _reg_head is not None else None
-                    if _aux is not None and _log_T is not None:
-                        _nc = pred_task_b.shape[-1]
-                        # log_T may have been built with num_regions > num_classes
-                        # of the current task slot; the head slices it down to
-                        # [num_classes, num_classes] at init. Defensive re-slice
-                        # here in case a head variant skips that step.
-                        if _log_T.shape[0] >= _nc and _log_T.shape[1] >= _nc:
-                            _log_T_use = _log_T[:_nc, :_nc]
-                        else:
-                            _log_T_use = None
-                        if _log_T_use is not None:
-                            if _aux.device != pred_task_b.device:
-                                _aux = _aux.to(pred_task_b.device)
-                            _pad = (_aux < 0) | (_aux >= _nc)
-                            _valid = ~_pad
-                            if _valid.any():
-                                _safe = _aux.clamp(min=0, max=_nc - 1)
-                                _tau = float(log_t_kd_tau)
-                                # Teacher: softmax of the per-sample log_T row at τ.
-                                # log_T is already in log-prob space; softmax
-                                # re-normalises (it may not be a strict prob
-                                # distribution numerically) — standard form.
-                                _teacher_logits = _log_T_use.index_select(0, _safe).float() / _tau
-                                _teacher = torch.softmax(_teacher_logits, dim=-1)
-                                # Student: log_softmax of reg logits at τ.
-                                _student_log = torch.log_softmax(
-                                    pred_task_b.float() / _tau, dim=-1
-                                )
-                                # KL(student || teacher) per-sample, with τ² scaling
-                                # (standard Hinton-distillation gradient preservation).
-                                # F.kl_div expects input=log-probs, target=probs and
-                                # computes sum_j target_j * (log(target_j) - input_j)
-                                # which is KL(target || input) = KL(teacher || student).
-                                # phase3_rank1_findings.md writes
-                                # ``KL(softmax(reg_logits/τ) ‖ exp(log_T[...]))`` i.e.
-                                # KL(student || teacher). Implement that direction
-                                # explicitly: sum_j student * (log_student - log_teacher).
-                                _log_teacher = torch.log(_teacher.clamp_min(1e-12))
-                                _student = _student_log.exp()
-                                _kld_per_sample = (
-                                    _student * (_student_log - _log_teacher)
-                                ).sum(dim=-1)
-                                # R5 (mtl_frontier) — per-instance KD gating. Redistribute
-                                # the (batch-mean-fixed) KD weight by Markov-coverage of the
-                                # teacher row: peaked row (Markov-1 binds) → upweight KD; flat
-                                # row → downweight. Mean-1 over valid samples ⇒ the TOTAL KD
-                                # budget equals global-W (tests redistribution, not strength).
-                                # gate=="none" → multiply by _valid only (bit-identical).
-                                if log_t_kd_gate != "none":
-                                    import math as _math
-                                    if log_t_kd_gate == "coverage_max":
-                                        _cov = _teacher.max(dim=-1).values
-                                    else:  # coverage_entropy
-                                        _ent = -(_teacher * _log_teacher).sum(dim=-1)
-                                        _cov = 1.0 - _ent / _math.log(_teacher.shape[-1])
-                                    _cov = _cov * _valid.float()
-                                    _gmean = (_cov.sum() / _valid.sum().clamp_min(1)).clamp_min(1e-6)
-                                    _gate = _cov / _gmean  # mean-1 over valid, 0 on pad
-                                    # C28 fires-diagnostic: spread of the per-sample gate
-                                    # (0 ⇒ uniform ⇒ ≡ global-W; >0 ⇒ genuinely redistributing).
-                                    if _valid.any():
-                                        model._r5_gate_std = float(_gate[_valid].std().detach())
-                                    _kld_per_sample = _kld_per_sample * _gate
-                                else:
-                                    _kld_per_sample = _kld_per_sample * _valid.float()
-                                _denom = _valid.sum().clamp_min(1).float()
-                                _kd_loss = (_kld_per_sample.sum() / _denom) * (_tau * _tau)
-                                task_b_loss = task_b_loss + log_t_kd_weight * _kd_loss
+                # log_T KL-distillation: add τ²·KL(student ‖ teacher) to task_b_loss
+                # (weight log_t_kd_weight), teacher = softmax(log_T[last_region_idx]/τ).
+                # Strict no-op at weight 0.0. Requires a log_T-aware reg head
+                # (next_getnext_hard / next_stan_flow). See _log_t_kd_loss.
+                _kd_loss = _log_t_kd_loss(
+                    pred_task_b, model, log_t_kd_weight, log_t_kd_tau, log_t_kd_gate,
+                )
+                if _kd_loss is not None:
+                    task_b_loss = task_b_loss + log_t_kd_weight * _kd_loss
 
                 # R1 (mtl_frontier) — log_C co-location KD (ESMM probability-chain).
                 # A SECOND distillation term whose per-sample teacher is the
