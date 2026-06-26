@@ -105,3 +105,26 @@ GPU 21.6 GB / 99% util (5-way concurrency *saturates* the GPU → cures the sing
 ### Cleanup (behavior-preserving)
 - Dedup the literal 21-member MTL-check2hgi engine allow-list (was duplicated byte-for-byte in train.py +
   folds.py) → single source `configs/paths.MTL_CHECK2HGI_ALLOWED_ENGINES`, imported in both. py_compile + import OK.
+- mtl_eval: removed redundant `_rank_of_target` re-import + fixed `mtl_creterion`→`mtl_criterion` typo (param,
+  unused-in-body, passed positionally → safe). dataset.py: corrected the wrong "not imported by any code path"
+  comment (it IS imported by `scripts/p1_poi_head_ablation.py`).
+
+### Tests + commit + PR
+- 905 pass in touched modules (+ new mask test). 3 pre-existing embedding-test failures confirmed unrelated
+  (fail on clean HEAD with my work stashed). CLAUDE.md + studies/README updated for discoverability.
+- Committed on `study/train-perf-multifold` → **PR #56** (off main, not merged).
+
+### ✅ Capstone: full 50-epoch champion-G via 5-way concurrent fan-out
+`run_folds_fanout.sh al_champG_fan50_s0 0,1,2,3,4 5` (compiled, per-fold inductor caches, fp32, 50 ep).
+failures=0, all 5 folds present by real id. Canonical matched score + `aggregate_folds.py` (complete, n=5):
+**cat 63.4717 ±1.83** [63.63,65.12,64.52,64.14,59.95] · **reg FULL top10 69.7454 ±3.13** [72.07,68.77,73.11,
+70.57,64.21], late best-epochs. → the **full-scale fan-out is board-grade** (board §1b 63.25/69.65; sequential
+perf A/B 63.44/69.82) — Δcat +7.7 (beats), Δreg −0.25 (matches). Evidence: `capstone_fanout50_runs/`.
+
+### 🐞 Bug found + fixed by the capstone
+`HistoryStorage._folder_name` **lowercases** the run_id (`al_champG…` → `al_champg…`), so the orchestrator's
+case-sensitive rundir glob missed it (folds ran fine, auto-aggregate step skipped). Fixed: orchestrator globs
+with the lowercased run_id; `--run-id` help notes the lowercasing. (Demonstrates the fan-out is robust — the
+folds completed cleanly; only the post-hoc locate was case-buggy.)
+
+## Status: COMPLETE. All 4 goals + the profiler tool + the concurrent-conflict test delivered. PR #56.

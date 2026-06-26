@@ -1145,7 +1145,8 @@ def _parse_args(argv=None) -> argparse.Namespace:
             "[MULTI-FOLD] Fix the results-rundir leaf to this name so N fold-processes (each "
             "--only-folds k) write into ONE execution dir for clean aggregation, instead of each "
             "inventing its own timestamped dir. Implies --per-fold-seed (the fan-out must be "
-            "fold-order-independent). Default None => the legacy <ts>_<pid> rundir."
+            "fold-order-independent). NB: the rundir leaf is lowercased. Default None => the "
+            "legacy <ts>_<pid> rundir."
         ),
     )
     parser.add_argument(

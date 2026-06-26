@@ -72,10 +72,12 @@ FAIL=0
 for p in "${pids[@]}"; do wait "$p" || FAIL=$((FAIL + 1)); done
 echo "[fanout] all fold-processes done (failures=$FAIL)"
 
-# locate the shared rundir (unique by run_id suffix) and aggregate
-RUNDIR=$(ls -d results/*/*/*_"${RUN_ID}" 2>/dev/null | head -1)
+# locate the shared rundir (unique by run_id suffix) and aggregate. NB: the rundir
+# leaf is lowercased by HistoryStorage._folder_name, so glob with the lowercased id.
+RUN_ID_LC=$(printf '%s' "$RUN_ID" | tr '[:upper:]' '[:lower:]')
+RUNDIR=$(ls -d results/*/*/*_"${RUN_ID_LC}" 2>/dev/null | head -1)
 if [ -z "$RUNDIR" ]; then
-  echo "[fanout] could not locate the shared rundir (results/*/*/*_${RUN_ID})" >&2
+  echo "[fanout] could not locate the shared rundir (results/*/*/*_${RUN_ID_LC})" >&2
   exit 3
 fi
 echo "[fanout] shared rundir = $RUNDIR"
