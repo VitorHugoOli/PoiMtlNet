@@ -911,6 +911,64 @@ def _resolve_task_input(input_type, state, embedding_engine, x_checkin):
     raise ValueError(f"Unknown input_type: {input_type}")
 
 
+def _load_and_validate_check2hgi_data(state, embedding_engine, task_set):
+    """Load + validate the check2hgi-MTL inputs (next.parquet + next_region.parquet).
+
+    Returns ``(X, y_cat, userids, next_dim, y_region, y_last_region|None, use_aux)``.
+    The userid CONTENT-equality guard is load-bearing: row-count parity is necessary but
+    NOT sufficient — a stale next_region.parquet from a different windowing can have the
+    same row count yet a different per-row user/order, silently mis-pairing every (X,region)
+    row. ``use_aux`` fires for the ``next_getnext_hard*`` / ``next_stan_flow*`` heads (which
+    read ``last_region_idx`` via aux_side_channel); the champion-G ``next_stan_flow_dualtower``
+    MUST be listed or use_aux=False → the α·log_T prior + log_T-KD branch silently no-op.
+    """
+    X, y_cat, userids, next_dim = load_next_data(state, embedding_engine)
+
+    region_df = IoPaths.load_next_region(state, embedding_engine)
+    if len(region_df) != len(X):
+        raise ValueError(
+            f"next_region.parquet rows ({len(region_df)}) disagree with "
+            f"next.parquet rows ({len(X)}) for {state}. Regenerate both."
+        )
+    if "userid" in region_df.columns:
+        region_uids = region_df["userid"].astype(int).to_numpy()
+        if not np.array_equal(region_uids, userids):
+            raise ValueError(
+                f"next_region.parquet userid column is not row-aligned with "
+                f"next.parquet for {state} (same row count but different "
+                f"per-row userids — a stale/cross-windowing region file). "
+                f"Regenerate both from the SAME sequences via "
+                f"`python scripts/regenerate_next_region.py --state {state}`."
+            )
+    y_region = region_df["region_idx"].to_numpy(dtype=np.int64)
+
+    task_b_head = (
+        getattr(getattr(task_set, "task_b", None), "head_factory", None)
+        if task_set is not None else None
+    )
+    # Keep in sync with _HEADS_REQUIRING_AUX in scripts/p1_region_head_ablation.py.
+    _HEADS_REQUIRING_AUX_MTL = {
+        "next_getnext_hard", "next_getnext_hard_hsm",       # legacy aliases
+        "next_stan_flow", "next_stan_flow_hsm",             # paper-facing names
+        "next_stan_flow_dualtower",                         # champion-G dual-tower
+    }
+    use_aux = task_b_head in _HEADS_REQUIRING_AUX_MTL
+    y_last_region = None
+    if use_aux:
+        if "last_region_idx" not in region_df.columns:
+            raise ValueError(
+                f"next_region.parquet for {state} is missing the "
+                f"'last_region_idx' column required by head "
+                f"{task_b_head!r}. Regenerate via "
+                f"`python scripts/regenerate_next_region.py --state {state}`."
+            )
+        y_last_region = region_df["last_region_idx"].to_numpy(dtype=np.int64)
+
+    # Free the (large) region DataFrame before the [N,9,D] tensors (CA overlap ~7.6 GB).
+    del region_df
+    return X, y_cat, userids, next_dim, y_region, y_last_region, use_aux
+
+
 # ============================================================
 # FOLD CREATOR
 # ============================================================
@@ -1258,78 +1316,9 @@ class FoldCreator:
             )
 
         # Load X + next_category labels from next.parquet.
-        X, y_cat, userids, next_dim = load_next_data(state, embedding_engine)
-
-        # Load region labels (row-aligned with next.parquet).
-        region_df = IoPaths.load_next_region(state, embedding_engine)
-        if len(region_df) != len(X):
-            raise ValueError(
-                f"next_region.parquet rows ({len(region_df)}) disagree with "
-                f"next.parquet rows ({len(X)}) for {state}. Regenerate both."
-            )
-        # Alignment guard: row-count parity is necessary but NOT sufficient — a
-        # stale next_region.parquet built from a different windowing (e.g. a
-        # stride-1 next.parquet against a stride-9 region file) can have the SAME
-        # row count yet a different per-row user/order, silently mis-pairing every
-        # (X, region) row. Assert userid CONTENT equality row-for-row.
-        if "userid" in region_df.columns:
-            region_uids = region_df["userid"].astype(int).to_numpy()
-            if not np.array_equal(region_uids, userids):
-                raise ValueError(
-                    f"next_region.parquet userid column is not row-aligned with "
-                    f"next.parquet for {state} (same row count but different "
-                    f"per-row userids — a stale/cross-windowing region file). "
-                    f"Regenerate both from the SAME sequences via "
-                    f"`python scripts/regenerate_next_region.py --state {state}`."
-                )
-        y_region = region_df["region_idx"].to_numpy(dtype=np.int64)
-
-        # Hard-index path: when task_b head is ``next_getnext_hard`` (or any
-        # variant that consumes ``last_region_idx`` via aux_side_channel — e.g.
-        # ``next_getnext_hard_hsm``), pull ``last_region_idx`` from the parquet and
-        # wrap the loader in ``AuxPublishingLoader``. Missing column -> fail loud
-        # asking to regenerate the parquet (see ``scripts/regenerate_next_region.py``).
-        task_b_head = (
-            getattr(getattr(self.task_set, "task_b", None), "head_factory", None)
-            if self.task_set is not None else None
+        X, y_cat, userids, next_dim, y_region, y_last_region, use_aux = (
+            _load_and_validate_check2hgi_data(state, embedding_engine, self.task_set)
         )
-        # Heads that read ``last_region_idx`` via aux_side_channel during forward.
-        # Keep in sync with ``_HEADS_REQUIRING_AUX`` in ``scripts/p1_region_head_ablation.py``.
-        #
-        # ONLY ``next_getnext_hard*`` use aux. The other log_T-loading heads
-        # (next_getnext / next_tgstan / next_stahyper) compute their last-step
-        # representation INTERNALLY via ``last_emb = x[batch_idx, last_idx]``
-        # — they don't need the aux side channel even though they consume the
-        # transition prior (they still carry the C4 log_T leak, but don't read
-        # last_region_idx). Both legacy and renamed (STAN-Flow) registry IDs are
-        # listed so the aux gate fires whether the user passes `next_getnext_hard`
-        # or `next_stan_flow` via the head factory.
-        #
-        # The champion-G dual-tower head ``next_stan_flow_dualtower`` MUST be listed:
-        # without it use_aux=False → get_current_aux() returns None → the α·log_T
-        # prior falls to the defensive ``logits + α·0.0`` branch (prior OFF) AND the
-        # trainer's log_T-KD branch (mtl_cv.py, requires _aux is not None) no-ops.
-        # G itself pins prior-OFF + KD 0.0 so G's numbers are unchanged; this only
-        # keeps the KD-on-G test reachable.
-        _HEADS_REQUIRING_AUX_MTL = {
-            "next_getnext_hard", "next_getnext_hard_hsm",       # legacy aliases
-            "next_stan_flow", "next_stan_flow_hsm",             # paper-facing names
-            "next_stan_flow_dualtower",                         # champion-G dual-tower
-        }
-        use_aux = task_b_head in _HEADS_REQUIRING_AUX_MTL
-        if use_aux:
-            if "last_region_idx" not in region_df.columns:
-                raise ValueError(
-                    f"next_region.parquet for {state} is missing the "
-                    f"'last_region_idx' column required by head "
-                    f"{task_b_head!r}. Regenerate via "
-                    f"`python scripts/regenerate_next_region.py --state {state}`."
-                )
-            y_last_region = region_df["last_region_idx"].to_numpy(dtype=np.int64)
-
-        # All needed columns are now extracted to numpy — free the (large) region
-        # DataFrame before we build the [N, 9, D] tensors (CA overlap: ~7.6 GB).
-        del region_df
 
         # Host-RAM fail-loud guard BEFORE building the big tensors: this path holds
         # X + x_checkin + one region tensor per "region"/"concat" tower + per-fold
