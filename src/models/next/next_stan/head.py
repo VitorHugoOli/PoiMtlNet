@@ -45,11 +45,29 @@ Key differences from the existing registry heads:
 
 from __future__ import annotations
 
+import os
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 from models.registry import register_model
+
+# Perf P1 (train_perf_multifold) replaced the data-dependent ``.any()`` mask guards with
+# vectorised, unconditional equivalents — byte-identical in eager, but under ``torch.compile``
+# removing the graph break lets inductor fuse differently (≤0.3pp/fold FP drift, within fold-std).
+# Set MTL_STAN_LEGACY_MASK=1 to restore the original guarded path for BIT-EXACT --compile
+# reproduction of a pre-P1 frozen cell (eager is bit-exact either way). Default off → fast path.
+_LEGACY_STAN_MASK = os.environ.get("MTL_STAN_LEGACY_MASK") == "1"
+
+# MTL_STAN_FP32_ATTN=1 runs the masked-softmax attention (QK^T → +bias → mask → softmax → AV)
+# in fp32 even under bf16/fp16 autocast — a candidate mitigation for the A40-Ampere bf16
+# backward grad-NaN (docs/studies/closing_data/TX_A40_BF16_NAN.md: a degenerate-softmax row in
+# the OneCycle anneal tail at large region-cardinality, e.g. CA/TX). It is a NO-OP under true
+# fp32 (MTL_DISABLE_AMP=1, the board A40 protocol) — autocast is then disabled, so the default
+# path is byte-identical. Opt-in + unvalidated on the actual NaN case (needs a large-state bf16
+# run on the H100 / a long A40 TX run); validate against the fp32 reference before adopting.
+_FP32_ATTN = os.environ.get("MTL_STAN_FP32_ATTN") == "1"
 
 
 class _STANAttention(nn.Module):
@@ -109,18 +127,34 @@ class _STANAttention(nn.Module):
         q, k, v = qkv[0], qkv[1], qkv[2]
 
         scale = self.head_dim ** -0.5
-        attn = (q @ k.transpose(-2, -1)) * scale
-        attn = attn + self.pair_bias[:, :S, :S].unsqueeze(0)
+        if _FP32_ATTN and torch.is_autocast_enabled(x.device.type):
+            # fp32 attention island (bf16-NaN mitigation): cast q/k/v to fp32 and run the
+            # whole masked-softmax in fp32, then cast the result back. Only active under
+            # autocast → no-op (and byte-identical) under true fp32.
+            with torch.autocast(device_type=x.device.type, enabled=False):
+                qf, kf, vf = q.float(), k.float(), v.float()
+                attn = (qf @ kf.transpose(-2, -1)) * scale
+                attn = attn + self.pair_bias[:, :S, :S].unsqueeze(0).float()
+                if padding_mask is not None:
+                    attn = attn.masked_fill(
+                        padding_mask.unsqueeze(1).unsqueeze(1), float("-inf")
+                    )
+                attn = F.softmax(attn, dim=-1)
+                attn = self.attn_dropout(attn)
+                out = (attn @ vf).to(x.dtype)
+        else:
+            attn = (q @ k.transpose(-2, -1)) * scale
+            attn = attn + self.pair_bias[:, :S, :S].unsqueeze(0)
 
-        if padding_mask is not None:
-            attn = attn.masked_fill(
-                padding_mask.unsqueeze(1).unsqueeze(1), float("-inf")
-            )
+            if padding_mask is not None:
+                attn = attn.masked_fill(
+                    padding_mask.unsqueeze(1).unsqueeze(1), float("-inf")
+                )
 
-        attn = F.softmax(attn, dim=-1)
-        attn = self.attn_dropout(attn)
+            attn = F.softmax(attn, dim=-1)
+            attn = self.attn_dropout(attn)
 
-        out = attn @ v
+            out = attn @ v
         out = out.permute(0, 2, 1, 3).reshape(B, S, D)
         out = self.out_proj(out)
         out = self.resid_dropout(out)
@@ -249,13 +283,17 @@ class NextHeadSTAN(nn.Module):
         that need the same pooled features but a different output structure.
         """
         padding_mask = (x.abs().sum(dim=-1) == 0)
-        # Un-mask the last step of any fully-padded row so the attention softmax never
-        # sees an all-`-inf` row (which would NaN). Vectorised + unconditional: for a row
-        # that is NOT fully padded, ``& ~all_padded`` leaves its last-step mask untouched,
-        # so this is byte-identical to the old ``if all_padded.any(): …[all_padded,-1]=False``
-        # guard — but with no host sync and no torch.compile graph break.
+        # Un-mask the last step of any fully-padded row so the attention softmax never sees
+        # an all-`-inf` row (which would NaN). The vectorised form is byte-identical to the
+        # old guard (``& ~all_padded`` leaves a not-fully-padded row's last step untouched)
+        # but with no host sync / no torch.compile graph break.
         all_padded = padding_mask.all(dim=1)
-        padding_mask[:, -1] = padding_mask[:, -1] & ~all_padded
+        if _LEGACY_STAN_MASK:
+            if all_padded.any():
+                padding_mask = padding_mask.clone()
+                padding_mask[all_padded, -1] = False
+        else:
+            padding_mask[:, -1] = padding_mask[:, -1] & ~all_padded
 
         h = self.input_proj(x)
         h = self.input_norm(h)

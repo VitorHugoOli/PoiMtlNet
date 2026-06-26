@@ -128,3 +128,29 @@ with the lowercased run_id; `--run-id` help notes the lowercasing. (Demonstrates
 folds completed cleanly; only the post-hoc locate was case-buggy.)
 
 ## Status: COMPLETE. All 4 goals + the profiler tool + the concurrent-conflict test delivered. PR #56.
+
+---
+
+## 2026-06-26 — Follow-up round (user feedback on PR #56)
+
+Six follow-ups. Tracking + outcomes:
+
+### #1 — Gate the P1 compile-drift (DONE)
+`MTL_STAN_LEGACY_MASK=1` restores the original guarded `.any()` masking at all 3 STAN sites (single-sourced flag
+in `next_stan/head.py`, imported by the flow/dualtower heads) → **bit-exact `--compile` reproduction** of a pre-P1
+frozen cell. Default off = fast vectorised path. (Eager is bit-exact either way.) Verified: flag default False,
+env=1 propagates to all heads, mask-equivalence test still 3/3.
+
+### #3 — bf16/A40 fix: fp32 attention island (CODE DONE; GPU smoke pending)
+`MTL_STAN_FP32_ATTN=1` runs the masked-softmax attention (QK^T→+bias→mask→softmax→AV) in **fp32 even under bf16/
+fp16 autocast** — targets the documented A40-Ampere bf16 backward-NaN mechanism (degenerate softmax in the anneal
+tail at large C). **No-op under true fp32** (gate = `is_autocast_enabled(device)`, False under MTL_DISABLE_AMP=1)
+→ board path byte-identical BY CONSTRUCTION. Tests (`test_stan_fp32_attn_island.py`): no-op without autocast +
+finite & fp32-precision-recovering under bf16. ⚠ **Unvalidated on the actual NaN case** — AL (C=1109) doesn't NaN
+in bf16; the NaN states are CA/TX (C=6.5-8.5k), whose bf16 overlap-MTL is H100-only / multi-hour on this A40
+(env note). To validate on the real failure: run the TX bf16 cell (`a40_task2_tx_mtl_bf16.sh`) with
+`MTL_STAN_FP32_ATTN=1` and check 0 non-finite skips vs the void −2.37 — on the H100 or a long A40 run.
+Model+training suite 252 passed (no regression).
+
+### #2/#4/#5 — audit workflow `wf_5f410c3d-ef8` running (fold variance + STAN-head correctness + 7-file slimming).
+### #6 — timing run `bg1guitbt` (5-parallel fan-out wall) in flight. Sequential: baseline 654s, optimized 634s.
