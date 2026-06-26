@@ -311,3 +311,24 @@ precision env → a bare run defaults to the **forbidden fp16**; on the H100 pas
 MTL_DISABLE_AMP_EVAL=1` (RUN_MATRIX §0). **Run P1 on the H100**:
 `P3_BOARD_CONFIRM=1 bash scripts/closing_data/p3_board.sh --seeds "1 7 100"` then the matched scorer re-reports
 §6.2 at n=20. **Non-blocking** — §6.2 already reports "n=5 (seed 0) provisional".
+
+## 2026-06-26 — A4 + STAN-HGI reproducibility closed (PR #55 + SSD recovery)
+
+**Phase**: reproducibility hardening after the PR #54/#55 audits. The committed §5.2 leak-audit decimals and the
+STAN-`stl_hgi` board cells cited result JSONs that were gitignored/untracked. Now all trace to committed artifacts.
+
+**Done**
+- **PR #55 (merged)**: committed the **AZ A4** JSONs (`a4_{,cat_}result_arizona_s0.json` — match §5.2 exactly:
+  reg +0.01, cat +0.27 @71.9%) and the **3 STAN-HGI-OVL source JSONs** (`P1/region_head_{al,az,fl}_…_STAN_HGI_OVL_…_s0.json`
+  — back the `baseline_compare/*_stan_hgi_ovl_s0.json` `source_json` field; AL top10 0.70349 → cell 70.35).
+- **AL/FL A4 recovered from the local SSD** (`/Volumes/…/ingred/results/pre_freeze_gates/a4/`, dated **2026-06-17**) —
+  PR #55's "not recoverable on this box / writeup-only" was the **cloud session lacking SSD access**, now superseded.
+  The originals **match §5.2 to the decimal**: AL reg −0.3304 / cat +0.2936 @66.83%; FL reg −0.1156 / cat +0.0031 @86.91%.
+  Force-added (docs/results gitignored) → **A4 is now 6/6 committed** (AL/AZ/FL × reg+cat).
+- **Run-variance caveat (kept, still true)**: A4 is non-deterministic across runs (train-only design_k = 500-epoch
+  per-fold K-encoder; an AL cat re-run drew +0.88 vs the committed +0.29). The committed JSONs are the **original
+  §5.2-source draws**; the load-bearing verdict (**inflation ≈ 0 on both axes, within fold noise**) holds across runs.
+
+**Net**: every §5.2 / board-cell number now traces to a committed JSON; the reproducibility gap flagged in the #54
+audit is fully closed. Docs: `A4_RESULTS.md` (recovery + run-variance note); artifacts under `docs/results/pre_freeze_gates/a4/`
++ `docs/results/P1/*STAN_HGI_OVL*`.
