@@ -58,6 +58,26 @@ whose bf16 overlap-MTL is H100-only / multi-hour here. **To validate on the real
 (`scripts/closing_data/a40_task2_tx_mtl_bf16.sh`) with `MTL_STAN_FP32_ATTN=1` and assert 0 non-finite skips +
 reg ≈ the clean fp32 67.02 (vs the void bf16 −2.37) — on the H100 or a long A40 run.
 
+## Adversarial review (workflow `wf_2360804d-0ea`, 4 lanes) — verdict + actions
+Independent skeptic review of what the eager AL parity can't catch (leaks, removed invariants, compile-drift):
+- **leak-and-folds: SAFE** — `_classify_pois` verbatim + leak guard intact (val-exclusive POI never enters train);
+  `n_regions` precompute provably equals the all-fold scan; multi-fold fan-out has **no val→train leak** (membership
+  is fixed by base-seed SGKF before any reseed; per-fold log_T keyed by real id + base seed). 1 RISK fixed below.
+- **comment-trim-invariants: SAFE** — token-strip confirms comment/docstring-only; every leak guard + env contract survived.
+- **extraction-byte-identity: byte-identical in eager** (incl. the KD `gate!="none"` path AL doesn't exercise) — but
+  flags the P1 compile-drift (below).
+- **gates-and-bf16:** the gates/bf16-island/profiler are true no-ops when off; flags the P1 compile-drift as the one
+  non-byte-identical change.
+
+**Actions taken:**
+- ✅ **full_summary.json fan-out guard** — under `--run-id` it's stamped `_fanout` (subset warning → use
+  `aggregate_folds.py`) so a partial can't be cited as the full run. + a "NOT for frozen-cell reproduction" caveat in
+  `run_folds_fanout.sh` (the fan-out's `--per-fold-seed` RNG stream differs from legacy sequential).
+- ✅ **P1 compile-drift (user decision: keep P1 on + pin bit-exact in repro drivers)** — P1 stays default-on (perf);
+  `MTL_STAN_LEGACY_MASK=1` restores the pre-P1 guarded masking for bit-exact compiled reproduction. **Verified:** the
+  pin takes effect under `--compile` (graph breaks 2 → **10**, the pre-P1 path restored). `run_al_baseline.sh` pins it;
+  `CLAUDE.md` recommends the `closing_data/board_*.sh` drivers pin it when bit-reproducing a frozen §0.1 cell.
+
 ## #5 · Per-file train-flow slimming — grinding the A/B-gated extractions with a parity harness
 
 Built a **fast metric-parity harness** ([`parity_check.sh`](parity_check.sh)): champion MTL on AL, 2 folds × 8 ep,

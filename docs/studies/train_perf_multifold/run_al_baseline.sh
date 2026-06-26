@@ -20,6 +20,10 @@ export PYTHONPATH=src
 export MTL_CHUNK_VAL_METRIC=1 MTL_STRICT=1 MTL_COMPILE_DYNAMIC=1
 export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"
 export TORCHINDUCTOR_CACHE_DIR=$HOME/.inductor_cache_board_al
+# This is a FROZEN-CELL REPRODUCTION driver → pin the pre-P1 guarded STAN masking so the
+# compiled numbers are BIT-EXACT to the frozen §0.1 cells (P1's graph-break removal shifts
+# the compiled reduction order ≤0.3pp/fold). P1 stays the perf default for non-repro work.
+export MTL_STAN_LEGACY_MASK=1
 
 ts() { date -u +%H:%M:%S; }
 # newest rundir matching glob $1 that is newer than marker file $2
