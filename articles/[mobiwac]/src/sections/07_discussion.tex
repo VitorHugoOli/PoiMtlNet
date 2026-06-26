@@ -11,7 +11,7 @@ A single model, built from a shared trunk that carries the semantic
 context and a private spatial path that protects the region signal, does both
 jobs at once. The shared context lifts the next-category task sharply over a
 dedicated model at every state, and the private path keeps the next-region task
-competitive: statistically non-inferior within a two-point margin (TOST) where
+competitive: a non-inferior match (TOST, $\pm2$~pp) where
 the region space is small, and a clear superiority (paired Wilcoxon) where it is
 large. The region gain is not flat. It rises with the number of regions
 (Figure~\ref{fig:deltas}), so the spatial benefit of sharing grows as the space of
@@ -32,7 +32,7 @@ We are honest about three limits. First, the joint numbers come from a single
 seed over five folds, so they are provisional; a multi-seed run is the obvious
 next step, and it is the precondition for any per-cell significance claim
 stronger than the ones we report. At the smallest region counts the region
-result is a match, statistically non-inferior within a two-point margin (TOST),
+result is a match (TOST, $\pm2$~pp),
 not a beat. Second, our representation is trained once over all places, so one
 slice of its behavior, visits to places never seen during training, is the single
 effect we cannot fully isolate; a planned variant that trains on each fold's

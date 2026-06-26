@@ -29,7 +29,8 @@ train-only embeddings + region maps are now persisted so a remap change never fo
 | state | n folds | full-corpus v14 Acc@10 | train-only v14 Acc@10 | **inflation** | inductive gap (regions absent from train) |
 |---|---|---|---|---|---|
 | AL (seed0) | 5 | 61.89 | 62.22 | **−0.33 pp** (within fold noise; per-fold Δ mixed sign) | 2.6–2.8% |
-| FL (seed0) | 5 | _building (~3h, background)_ | | | |
+| AZ (seed0) | 5 | 53.08 | 53.06 | **+0.01 pp** (within fold noise; per-fold Δ mixed sign) | — |
+| FL (seed0) | 5 | 69.97 | 70.08 | **−0.12 pp** (within fold noise) | — |
 
 ### Verdict — both axes measured; transductive inflation ≈ 0 (with scoped caveats)
 
@@ -58,7 +59,12 @@ to negligible inflation; the inductive build would close the residual.
 | state | n folds | reg: full / train-only / **Δ** | cat (POI proxy, in-cov): full / train-only / **Δ** | cat in-cov frac |
 |---|---|---|---|---|
 | AL (seed0) | 5 | 61.89 / 62.22 / **−0.33 pp** | 29.07 / 28.78 / **+0.29 pp** | 66.8% |
+| AZ (seed0) | 5 | 53.08 / 53.06 / **+0.01 pp** | 31.09 / 30.83 / **+0.27 pp** | 71.9% |
 | FL (seed0) | 5 reg / 4 cat | 69.97 / 70.08 / **−0.12 pp** | 36.20 / 36.19 / **+0.00 pp** | 86.9% |
+
+> **AZ added 2026-06-26** (`results/pre_freeze_gates/a4/a4_result_arizona_s0.json` + `a4_cat_result_arizona_s0.json`):
+> third state confirms the null on both axes — reg +0.01 pp, cat +0.27 pp (in-cov 71.9%), both within fold noise,
+> matching AL/FL. Per-fold cat Δ ranges −0.62…+0.91. The disclosure gate stays ON NULL across AL, AZ, FL.
 
 **FL confirms AL on both axes**: reg −0.12pp (full 69.97 ≈ A2 v14 FL reg 70.09 → validated), cat
 +0.00pp at **86.9%** in-coverage (denser state → the POI proxy covers most val sequences, so the cat

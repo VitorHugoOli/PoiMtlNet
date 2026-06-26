@@ -18,8 +18,12 @@ observer-driven performance pass produced an **audited-faithful, converged, trus
 | AL | 1109 | **60.72 ±5.20** | 69.81 | we beat | fp32+compile |
 | AZ | 1547 | **49.86 ±11.52** | 59.34 | we beat | fp32+compile |
 | Istanbul | 520 (mahalle) | **61.86 ±0.61** | 74.28 | we beat | bf16+compile |
-| FL | 4703 | running | 77.28 | (expect beat/near) | bf16+compile |
-| CA / TX | 8501 / 6553 | heavy (~8–12 h/state on A40) | 65.66 / 67.02 | pending | bf16+compile |
+| FL | 4703 | **72.99 ±0.34** | 77.28 | we beat | bf16+compile (opt A+C+D) |
+| CA / TX | 8501 / 6553 | pending (~1.5–2 h/state on A40, opt) | 65.66 / 67.02 | pending | bf16+compile |
+
+> FL `v6_opt` (optimized stack): per-fold 73.07/72.39/73.44/72.98/73.05 — lowest fold variance of any state
+> (std 0.34); best-epochs interior (ep2–4); −4.3 pp below our MTL reg 77.28. JSON:
+> `docs/results/baselines/faithful_stan_florida_5f_200ep_v6_opt.json`. Full run ~4.1 h (5-fold, one A40).
 
 STAN is a **SECONDARY** region reference (HMT-GRN, faithful + board-matched, is PRIMARY; ReHDM is the
 own-protocol reference). The substrate-bound `stl_hgi` STAN (STAN on our HGI embedding, board windowing)

@@ -20,10 +20,19 @@ Generated from `results/<state>.json`. To refresh, regenerate the JSONs (see `..
 
 ## Cross-baseline summary — Acc@10 (mean ± σ)
 
+> ⚠ **STAN `faithful` row updated 2026-06-26 to the CONVERGED, audited numbers** (AL 60.72 / AZ 49.86 /
+> FL 72.99; Istanbul 61.86 on the separate Massive-STEPS dataset). These **supersede the old v4 collapse
+> artifacts** (AL 34.46 / AZ 38.96 / FL 65.36 / GA 40.68 — a mis-implemented matching layer + under-training;
+> never cite). Source: [`docs/studies/closing_data/FAITHFUL_STAN_FINDINGS.md`](../../studies/closing_data/FAITHFUL_STAN_FINDINGS.md)
+> + the converged JSONs `docs/results/baselines/faithful_stan_*_v5_*.json` / `_v6_opt.json`. `—‡` = GA not
+> re-converged (out of the AL/AZ/FL scope). **The old "faithful STAN sits below Markov-1 at AL/AZ" reading
+> (Phase-1 section below) is OVERTURNED** — converged STAN clears the Markov floor at every reported state,
+> while still landing below our joint reg.
+
 | Baseline | Variant | AL | AZ | FL | CA | TX | GA |
 |---|---|---:|---:|---:|---:|---:|---:|
 | Markov-1-region (floor) | — | 47.01 ± 3.55 | 42.96 ± 2.05 | 65.05 ± 0.93 | 52.09 ± 0.80 | 54.94 ± 0.46 | 48.19 ± 2.18 |
-| **STAN** | `faithful` | 34.46 ± 3.88 | 38.96 ± 3.41 | 65.36 ± 0.69 | ⚪† | ⚪† | 40.68 ± 1.10 |
+| **STAN** | `faithful` (converged ✓) | 60.72 ± 5.20 | 49.86 ± 11.52 | 72.99 ± 0.34 | ⚪† | ⚪† | —‡ |
 | **STAN** | `stl_check2hgi` | 59.20 ± 3.62 | 52.24 ± 2.38 | 72.62 ± 0.52 | 58.82 ± 1.04 | 61.35 ± 0.36 | 56.35 ± 2.40 |
 | **STAN** | `stl_hgi` | **62.88 ± 3.90** | **54.86 ± 2.84** | **73.58 ± 0.43** | **60.45 ± 0.97** | **62.70 ± 0.37** | **58.58 ± 1.86** |
 | **ReHDM** † | `faithful` | **66.06 ± 0.98** | **54.65 ± 0.77** | 65.68 ± 0.26 | ⚪ | ⚪ | 55.82 ± 0.76 |

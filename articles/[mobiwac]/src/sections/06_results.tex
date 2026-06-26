@@ -49,8 +49,12 @@ injection.
 Read this as: one model, in a single forward pass, beats a dedicated
 next-category model at every state and beats or matches a dedicated next-region
 model, and its spatial win grows as the region space grows.
+To calibrate the two scales: category macro-F1 is taken over seven classes (a
+majority-class floor of about $7\%$), and region Acc@10 is taken over thousands
+of regions, where a random top-ten guess is right under one percent of the time.
 Table~\ref{tab:results} reports the single joint model against the dedicated
-single-task ceilings, and Figure~\ref{fig:deltas} plots the signed gains ordered
+single-task ceilings---so called because joint training is generally expected to
+land at or below a model trained for that task alone---and Figure~\ref{fig:deltas} plots the signed gains ordered
 by region count. On category the joint model beats the dedicated ceiling at
 every state, by $+4.68$ to $+7.69$ macro-F1 (smallest at Florida, largest at
 Alabama, and $+6.69$ at Istanbul). On region, measured by accuracy at ten
@@ -58,7 +62,7 @@ Alabama, and $+6.69$ at Istanbul). On region, measured by accuracy at ten
 regions), the joint model beats the dedicated ceiling where the region space is
 large, Florida $+0.57$ (4{,}703 regions), Texas $+2.06$ (6{,}553), and
 California $+2.18$ (8{,}501), each with all five folds in the winning direction,
-and it stays statistically non-inferior within a two-point margin (TOST) where
+and it stays a non-inferior match (TOST, $\pm2$~pp) where
 the region space is small, Alabama $-0.18$, Arizona $-0.06$, and Istanbul
 $-0.52$. The region gain increases with the number of regions, rising from
 $-0.52$ to $+2.18$ across the six settings, so the joint model helps the spatial
@@ -76,8 +80,7 @@ consistent across all six datasets (a 6 of 6 state-level sign test, one-sided
 $p \approx 0.016$); the region beats at the three large states are likewise 5/5
 folds each. We treat the state, not the fold, as the unit of replication, since
 folds within a state share data and the same trained models. The three
-small-state region results are tested equivalences, statistically non-inferior
-within a two-point margin (TOST): Alabama ($-0.18$; 90\% confidence interval
+small-state region results are tested equivalences (TOST, $\pm2$~pp): Alabama ($-0.18$; 90\% confidence interval
 $-0.46$ to $+0.09$), Arizona ($-0.06$; $-0.41$ to $+0.29$), and Istanbul
 ($-0.52$; $-0.65$ to $-0.35$); all three intervals sit well inside two points.
 These intervals are tight because they are built on the \emph{paired} per-fold
@@ -118,8 +121,7 @@ average four seeds ($n{=}20$).
 Read this as: the finding holds on a non-U.S. city, read as a lift over the
 dedicated ceiling rather than as an absolute score. On Istanbul the joint model
 beats the dedicated category ceiling by $+6.69$ macro-F1 ($53.20$ to $59.89$)
-and matches the dedicated region ceiling, statistically non-inferior within a
-two-point margin (TOST), at $-0.52$ Acc@10 ($74.80$ to $74.28$). The category
+and matches the dedicated region ceiling (TOST, $\pm2$~pp), at $-0.52$ Acc@10 ($74.80$ to $74.28$). The category
 headline is the four-seed mean against a single-seed ceiling; the clean seed-0
 fold-paired gain is $+6.5$ with all five folds positive, so the result does not
 rest on the seed averaging. We report Istanbul as a lift, not as an absolute
