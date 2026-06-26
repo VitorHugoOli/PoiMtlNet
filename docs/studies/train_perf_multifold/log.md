@@ -356,3 +356,29 @@ no unresolved free names.
 **Both formerly-declined extractions are now DONE + gated.** train_model's epoch loop now reads as
 train-phase → `_run_validation_epoch(...)` → progress/callback/cutoff, and the batch loop's step as
 loss → combine → backward → `_optimizer_micro_step(...)`.
+
+### Phase 5c — VS-MAIN VALIDATION (the "no-decrease" proof) + the compiled 63.44↔63.18 explanation
+User asked to validate the whole effort against `main` (the branch forked from `main`@9323830b; on `main`
+the STAN head has NO P1 gate → it always uses the guarded `.any()` mask, and P1 is byte-identical in EAGER).
+
+**Definitive (deterministic) proof — eager byte-identical vs main:**
+Ran the parity harness (full champion recipe, seed 0, 2 folds × 8 ep, eager fp32) on a `main`@9323830b worktree →
+`main_golden`. Diff vs HEAD's `golden`: **`golden == main_golden` BYTE-IDENTICAL**. So the ENTIRE branch
+(Phase-0 audit P1/P3/P6/profiler/fan-out + all five decomposition phases + the optimizer-step & validation
+extractions) introduces ZERO behavior change vs main in the deterministic regime → **no decrease, full stop.**
+
+**The compiled 63.44↔63.18 wobble is inductor compile-session/cache variance, NOT the refactor:**
+The full AL run (run_al_baseline.sh, compiled) reported champG cat 63.18 / reg 69.73, vs the prior verify's
+63.44 / 69.82. Diagnosed:
+- `git diff main..HEAD -- src/models/` is EMPTY for the decomposition; `src/models` is git-identical to main →
+  the compiled `model` graph is unchanged.
+- In the SAME fullval run the gate-free STL-cat ceiling (next_gru) reproduced **55.7273 exactly** → compile is
+  deterministic for an unchanged graph + my refactor is innocent; only the STAN-gated paths wobbled.
+- On current code, `MTL_STAN_LEGACY_MASK` on vs off gives the SAME 63.18 with a FRESH cache (the mask is inert
+  for the α=0 champion) — so the prior 63.44 came from a specific PERSISTENT-cache compile session, not the code.
+- **A/B (compiled, fresh cache): pre-extraction 7417eb55 == HEAD, BYTE-IDENTICAL** (cat 63.1824 / reg 69.7319,
+  every per-fold value identical) → the optimizer-step + validation extractions are compile-neutral too.
+Conclusion: fresh-cache compile of this champion lands at 63.18/69.73; a particular persistent inductor cache
+landed at 63.44/69.82. Both are the SAME champion within fold-std (cat σ≈1.84, reg σ≈3.26) — the documented
+≤0.3pp/fold compile reduction-order band. `main` exhibits the identical band (same compiled graph). The
+deterministic eager comparison (golden==main_golden) is the ground truth: **HEAD ≡ main, no decrease.**
