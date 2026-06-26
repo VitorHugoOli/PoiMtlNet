@@ -70,9 +70,37 @@ GPU is compute+memory saturated post-compile, 5-fold-parallel OOMs the A40, and 
 for that. Further single-GPU speedup needs a custom **Triton fused matching kernel** (recompute geometry
 in-SRAM, never materialize the intermediates) — high effort, not done; would approach the FLOP floor (~1–2 h FL).
 
-Safe additional wins identified, not yet landed (all none-risk): static compile + CUDA graphs
-(`dynamic=False` + drop-last), per-epoch val = Acc@10-only with a single end-of-fold metric recompute,
-distinct-POI interp (`unique→interp→scatter`, bit-identical). Combined ≈ another ~2.5–3× (FL ~4–5 h).
+### 3.1 Optimization sweep A–G (2026-06-26, validated on AL; commit 507a5f22)
+
+The safe-stack candidates were implemented and **A/B-validated on AL** (5-fold, fp32+compile, seed 0;
+quality bar = the pre-opt reference **Acc@10 60.72 ±5.20**). Verdicts:
+
+| Opt | What | Verdict | Evidence |
+|---|---|---|---|
+| **A** bf16 | `--amp bf16` autocast | **adopt (big states)** | prior 0.07 pp vs fp32; halves big-state mem traffic |
+| **B** CUDA graphs | `--compile-mode reduce-overhead` | **available, not adopted** | faithful, but AL 44 ms/step = default (not launch-bound); disables D |
+| **C** val-once | per-epoch Acc@10 only; snapshot best state; recompute metrics once | **adopt** | **bit-identical** → AL 60.72 exact; drops the per-epoch `[n_val,R]` cache (FL ~15 GB/epoch) |
+| **D** distinct-POI | interp Δd bias over the batch's distinct POIs (`unique→interp→scatter`) | **adopt** | **bit-identical** → AL 60.72 exact; full-table interp alone is 115 ms (FL), the whole forward with D is 110 ms |
+| **E** max-autotune | `--compile-mode max-autotune` | **dropped** | **SEGFAULTS** during Triton autotune (core dump) |
+| **F** larger batch+LR | bs 4096/8192, √-LR scaling | **rejected** | no wall-time gain (matching saturated at bs2048: 44→64→135 ms/step, flat ~1.5 s/epoch) **and** −0.6…−0.8 pp (bs4096 59.94, bs8192 60.15) |
+| **G** Triton fused matching kernel | recompute geometry in-SRAM, never materialize `[B,n,R]` | **future work** (see below) | targets the real bottleneck but ROI marginal post-compile |
+
+**Production config = A (bf16, big states) + C + D + compile (default mode).** Quality bit-identical to
+the pre-opt reference; FL fold-0 ~115–130 s/epoch → **full FL ~4.5 h** (vs ~6 h).
+
+### 3.2 Profile (FL fold-0, eager, bs2048) — why G is future-work
+
+```
+full forward:      110 ms      forward+backward: 618 ms  → backward ≈ 508 ms (82% of step)
+  matching layer:   41 ms        interp bias (full table): 115 ms  ← D avoids this
+```
+
+The **backward** dominates: the `[B,n,R]` (481M-elt) content-einsum + gate gradients and the
+`embedding_dense_backward` scatter into `[U,R]`. A fused fwd+**bwd** Triton kernel (G) would eliminate
+that materialization (FLOP floor ~10–15 ms/step). **But `torch.compile` already reclaims most of it**
+(real compiled step = **213 ms**, not 618 ms), so G competes with the compiled path: realistic ~3–7×
+more (FL ~1–1.5 h), at the cost of hours of work + MED backward-correctness risk — **not worth it for a
+secondary baseline we already beat at every state.** Shelved 2026-06-26 (decision: profile-then-shelve).
 
 ## 4. Data — Istanbul (Massive-STEPS) faithful-STAN data pipeline
 
