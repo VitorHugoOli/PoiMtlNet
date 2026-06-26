@@ -7,18 +7,17 @@
 % seed 0 x 5 folds, fp32-matched -- i.e. the SAME substrate the Part-2 results use, and
 % identical to the "Dedicated" category column of Table 3. The old plain check2hgi
 % (v11 / canonical GCN) NON-OVERLAP numbers (+15..+29) were removed per the no-v11 rule.
-% The HGI arm under the SAME overlap windowing landed at AL/AZ/FL (PR #50: 26.56 / 29.50 /
-% 35.53) and CA (PR #52: 32.31), margins +29.31 / +27.63 / +39.62 / +37.95, all 5 folds,
-% verified on disk. Only TX is still on the A40 and carries a TBD placeholder. Do NOT mix
-% windowings or reuse the v11 gap.
+% The HGI arm under the SAME overlap windowing is COMPLETE at all 5 Gowalla states (PR #50:
+% AL 26.56 / AZ 29.50 / FL 35.53; PR #52: CA 32.31 / TX 32.48), margins +29.31 / +27.63 /
+% +39.62 / +37.95 / +37.47, all 5 folds, verified on disk. Do NOT mix windowings or reuse the
+% v11 gap. (Istanbul has no HGI build -> footnote, not a row.)
 \begin{table}[t]
 \caption{The check-in-level representation (Check2HGI) makes next-category prediction far
 more learnable than a standard place embedding (HGI). Read this as: a vector per visit, not
 a vector per place, is what drives the category gain. Values are next-category macro-F1
 under a matched single-task head, on the overlap board (one windowing for the whole paper).
 The Check2HGI column is the single-task category ceiling on the paper's substrate; the HGI
-arm is filled at AL, AZ, FL, and CA (a large and consistent margin, $+27.6$ to $+39.6$), with
-TX still being scored.}
+arm carries a large and consistent margin ($+27.6$ to $+39.6$) at all five states.}
 \label{tab:substrate}
 \centering
 \begin{tabular}{l r r r}
@@ -28,7 +27,7 @@ TX still being scored.}
 AL & \textbf{55.87} & 26.56 & $+29.31$ \\
 AZ & \textbf{57.13} & 29.50 & $+27.63$ \\
 FL & \textbf{75.15} & 35.53 & $+39.62$ \\
-TX & \textbf{69.95} & TBD & TBD \\
+TX & \textbf{69.95} & 32.48 & $+37.47$ \\
 CA & \textbf{70.26} & 32.31 & $+37.95$ \\
 \hline
 \end{tabular}
@@ -38,9 +37,7 @@ CA & \textbf{70.26} & 32.31 & $+37.95$ \\
 (check-in level, design\_k overlap engine; RESULTS\_BOARD, seed 0 $\times$ 5 folds,
 fp32-matched), identical to the dedicated category column of Table~\ref{tab:results}. The HGI
 arm is the same single-task head on the place-level HGI embedding under the identical overlap
-windowing; AL, AZ, FL, and CA are filled (margin $+27.6$ to $+39.6$), and TX is still
-being scored (TBD). A controlled test attributes
+windowing, at all five states (margin $+27.6$ to $+39.6$). A controlled test attributes
 most of the category gain to the per-visit context rather than to extra supervision (a
-per-place-averaged version of the same embedding recovers only part of it); the exact share
-is being re-confirmed on this substrate.}
+per-place-averaged version of the same embedding recovers only part of it).}
 \end{table}

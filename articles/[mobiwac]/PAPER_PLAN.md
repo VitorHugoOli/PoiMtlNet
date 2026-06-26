@@ -103,7 +103,7 @@ geography. The open question is whether one model should learn both, and whether
 **Part 1: the representation makes the category task learnable (frozen result).** Most place embeddings give
 every place one fixed vector, so two visits to the same café look identical. We instead describe each *visit* in
 its own context (time, nearby places, recent trail). This lifts next-category macro-F1 by a large, consistent
-margin over the standard hierarchical-graph embedding, about +28 to +40 points across four states (Texas being scored), and we show
+margin over the standard hierarchical-graph embedding, about +28 to +40 points across all five states, and we show
 why: most of the gain (about 64 to 90 percent) is the per-visit context itself, not extra training signal. On
 next-region the two representations are even, so the benefit is uneven across the two tasks, and that asymmetry
 sets up Part 2.
@@ -254,7 +254,7 @@ no longer a contribution; the closing line states the finding, not an applicatio
 > 1. a novel check-in-level representation that extends hierarchical graph infomax from the place to the
 >    individual visit, so each check-in is described in its own context. It improves next-category prediction by a
 >    large and consistent margin over a standard place embedding (about +28 to +40 macro-F1; measured under the
->    paper's windowing at Alabama, Arizona, Florida, and California, with Texas being scored), and a
+>    paper's windowing at all five states, Alabama, Arizona, Florida, California, and Texas), and a
 >    controlled test shows the gain comes from the per-visit context, not from extra supervision;
 > 2. a multi-task design for joint next-category and next-region prediction that shares a semantic context across
 >    the two tasks while keeping a private path for the spatial one, and the finding that this design lets a single
@@ -479,8 +479,8 @@ per-visit ablation (Part 1).
 Each result gets a one-sentence "read this as" lead (fixes Reviewer 2's uninterpreted tables).
 
 **§6.1 The representation makes the category task learnable (Part 1).** Table (Tbl 2): Check2HGI versus HGI
-category macro-F1, scored under the overlap board so it is on the same windowing as Part 2 (Alabama, Arizona,
-Florida, and California measured, +27.6 to +39.6 macro-F1; Texas being scored), plus
+category macro-F1, scored under the overlap board so it is on the same windowing as Part 2 (all five Gowalla
+states, +27.6 to +39.6 macro-F1), plus
 the per-visit-context share. ⭐ **Category embedding-quality figure (Fig 3):** show one or two **category**-
 separability metrics where Check2HGI clearly wins (silhouette about 0.56 versus HGI 0.00; kNN-by-category about
 0.98 versus 0.78), not five small plots. **Do not plot the region geometry:** on region both embeddings sit at
