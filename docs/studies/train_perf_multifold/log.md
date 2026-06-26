@@ -313,3 +313,25 @@ inactive-zero) are NOT exercised by the AL champion parity (no grad-accum>1 / no
 so they would be under-gated. Per "pragmatic programmer / don't introduce bugs", the numerically load-bearing
 optimizer step stays inline; the interesting numeric piece (the 5-scalar joint selector) was already extracted in
 the earlier round (`_compute_joint_selectors`).
+
+### Phase 5a — extract `_optimizer_micro_step` (the should_step body) — meticulously gated
+On user request, the previously-DECLINED optimizer micro-step is now extracted. The `should_step`
+body (partial-trailing-group grad rescale → alternating-SGD inactive-param zero → grad-clip → fail-loud
+non-finite guard → optimizer/scheduler step → zero_grad) moved verbatim into a keyword-arg helper
+`_optimizer_micro_step(model, optimizer, scheduler, mtl_criterion, *, loss, gradient_accumulation_steps,
+accumulated_in_group, already_backpropagated, alt_inactive_params, max_grad_norm, epoch_idx, batch_idx,
+strict, nanguard)`. Keyword-only per-batch args → swap-proof; the `accumulated_in_group = 0` reset stays
+in the caller so the counter stays visible.
+
+The default champion parity (grad-accum=1, no alternating) does NOT reach the partial-group rescale or
+the alt-inactive-zero branches — so this round added branch coverage:
+- **Unit test** `tests/test_training/test_optimizer_micro_step.py` (6, SGD lr=1 closed-form): full-group
+  no-rescale, partial-group rescale (×2), already-backpropagated-skips-rescale, alt-inactive-zeroed,
+  nonfinite-loss-skips-step, grad-clip-caps-update.
+- **GPU parity variants** (golden captured on pre-edit code, diffed post-edit): champion s0 + s1
+  (`golden==ostep_s0`, `golden_s1==ostep_s1`), **`--gradient-accumulation-steps 2`**
+  (`ga2_golden==ga2_check` — partial-group rescale + should_step gating), **`--alternating-optimizer-step`**
+  (`alt_golden==alt_check` — alt-inactive zero). ALL byte-identical.
+- **Advisor (adversarial):** SAFE — normalized diff (dedent + 3 renames) is zero-lines-different; AST walk
+  finds no missed `_mtl_strict`/`_os_nanguard`/`_alt_inactive_params`; reset left in caller; clip retains
+  the criterion params.

@@ -815,6 +815,66 @@ def _flatten_encoder(encoder):
 
 
 # Training Function
+def _optimizer_micro_step(model, optimizer, scheduler, mtl_criterion, *,
+                          loss, gradient_accumulation_steps, accumulated_in_group,
+                          already_backpropagated, alt_inactive_params, max_grad_norm,
+                          epoch_idx, batch_idx, strict, nanguard):
+    """Run one optimizer step at an accumulation boundary (the ``should_step`` body).
+
+    Side-effecting and verbatim: rescales partial-trailing-group grads, zeroes the
+    alternating-SGD inactive task's grads, clips, runs the fail-loud non-finite guard,
+    then steps the optimizer + scheduler (skipping iff the guard trips) and clears grads.
+    The caller keeps the ``should_step`` gate and the ``accumulated_in_group`` reset so the
+    accumulation counter stays visible in the loop."""
+    # Compensate for partial trailing groups: if we accumulated
+    # fewer batches than the nominal group size, re-scale grads
+    # by gradient_accumulation_steps / accumulated_in_group so
+    # the update matches an averaged mini-batch. No-op for full
+    # groups and loss variants that already backpropagated.
+    if (
+        not already_backpropagated
+        and accumulated_in_group != gradient_accumulation_steps
+        and accumulated_in_group > 0
+    ):
+        scale = gradient_accumulation_steps / accumulated_in_group
+        for p in model.parameters():
+            if p.grad is not None:
+                p.grad.mul_(scale)
+    # F50 P4 — zero gradients of the inactive task's task-specific
+    # params so the optimizer step only updates {active task,
+    # shared}. Shared params keep their gradient from the active
+    # loss; inactive task params do nothing this batch.
+    if alt_inactive_params is not None:
+        for p in alt_inactive_params:
+            if p.grad is not None:
+                p.grad.zero_()
+    _step_ok = True
+    if max_grad_norm and max_grad_norm > 0:
+        _gn = torch.nn.utils.clip_grad_norm_(
+            list(model.parameters()) + _criterion_parameters(mtl_criterion),
+            max_grad_norm,
+        )
+        # DEFAULT-ON fail-loud non-finite guard (no-op for healthy runs → byte-identical).
+        # Prevents the CA ep30 collapse: a non-finite grad/loss would make clip return
+        # inf-norm -> coef 0 -> NaN-poison the shared backbone. Skip the step (default) or
+        # abort under MTL_STRICT=1. See docs/studies/closing_data/CA_MTL_DIVERGENCE.md.
+        _step_ok = guard_finite_step(_gn, loss.detach(),
+                                     epoch=epoch_idx, batch=batch_idx, strict=strict)
+        # Opt-in grad-norm trajectory logging (MTL_NAN_GUARD=1).
+        if nanguard and _step_ok and (batch_idx % 100) == 0:
+            logger.info("[NAN_GUARD] epoch=%d batch=%d loss=%.4f grad_norm=%.3f",
+                        epoch_idx, batch_idx, float(loss.detach()), float(_gn))
+    else:
+        # No grad-clipping configured → still guard on the loss (defense-in-depth:
+        # a non-finite loss would NaN-poison the shared backbone regardless of clipping).
+        _step_ok = guard_finite_step(0.0, loss.detach(),
+                                     epoch=epoch_idx, batch=batch_idx, strict=strict)
+    if _step_ok:
+        optimizer.step()
+        scheduler.step()
+    optimizer.zero_grad(set_to_none=True)
+
+
 def train_model(model: torch.nn.Module,
                 optimizer,
                 scheduler,
@@ -1262,53 +1322,16 @@ def train_model(model: torch.nn.Module,
                 or (batch_idx + 1) == batches_per_epoch
             )
             if should_step:
-                # Compensate for partial trailing groups: if we accumulated
-                # fewer batches than the nominal group size, re-scale grads
-                # by gradient_accumulation_steps / accumulated_in_group so
-                # the update matches an averaged mini-batch. No-op for full
-                # groups and loss variants that already backpropagated.
-                if (
-                    not already_backpropagated
-                    and accumulated_in_group != gradient_accumulation_steps
-                    and accumulated_in_group > 0
-                ):
-                    scale = gradient_accumulation_steps / accumulated_in_group
-                    for p in model.parameters():
-                        if p.grad is not None:
-                            p.grad.mul_(scale)
-                # F50 P4 — zero gradients of the inactive task's task-specific
-                # params so the optimizer step only updates {active task,
-                # shared}. Shared params keep their gradient from the active
-                # loss; inactive task params do nothing this batch.
-                if _alt_inactive_params is not None:
-                    for p in _alt_inactive_params:
-                        if p.grad is not None:
-                            p.grad.zero_()
-                _step_ok = True
-                if max_grad_norm and max_grad_norm > 0:
-                    _gn = torch.nn.utils.clip_grad_norm_(
-                        list(model.parameters()) + _criterion_parameters(mtl_criterion),
-                        max_grad_norm,
-                    )
-                    # DEFAULT-ON fail-loud non-finite guard (no-op for healthy runs → byte-identical).
-                    # Prevents the CA ep30 collapse: a non-finite grad/loss would make clip return
-                    # inf-norm -> coef 0 -> NaN-poison the shared backbone. Skip the step (default) or
-                    # abort under MTL_STRICT=1. See docs/studies/closing_data/CA_MTL_DIVERGENCE.md.
-                    _step_ok = guard_finite_step(_gn, loss.detach(),
-                                                 epoch=epoch_idx, batch=batch_idx, strict=_mtl_strict)
-                    # Opt-in grad-norm trajectory logging (MTL_NAN_GUARD=1).
-                    if _os_nanguard and _step_ok and (batch_idx % 100) == 0:
-                        logger.info("[NAN_GUARD] epoch=%d batch=%d loss=%.4f grad_norm=%.3f",
-                                    epoch_idx, batch_idx, float(loss.detach()), float(_gn))
-                else:
-                    # No grad-clipping configured → still guard on the loss (defense-in-depth:
-                    # a non-finite loss would NaN-poison the shared backbone regardless of clipping).
-                    _step_ok = guard_finite_step(0.0, loss.detach(),
-                                                 epoch=epoch_idx, batch=batch_idx, strict=_mtl_strict)
-                if _step_ok:
-                    optimizer.step()
-                    scheduler.step()
-                optimizer.zero_grad(set_to_none=True)
+                _optimizer_micro_step(
+                    model, optimizer, scheduler, mtl_criterion,
+                    loss=loss, gradient_accumulation_steps=gradient_accumulation_steps,
+                    accumulated_in_group=accumulated_in_group,
+                    already_backpropagated=already_backpropagated,
+                    alt_inactive_params=_alt_inactive_params,
+                    max_grad_norm=max_grad_norm,
+                    epoch_idx=epoch_idx, batch_idx=batch_idx,
+                    strict=_mtl_strict, nanguard=_os_nanguard,
+                )
                 accumulated_in_group = 0
 
             # Accumulate on-device — no .item() sync per batch
