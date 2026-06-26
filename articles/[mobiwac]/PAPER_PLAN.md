@@ -738,21 +738,20 @@ carried fragment.
    +2.06 reg, device-mix resolved); Istanbul is stride-1 n=20; CSLSL is done (a tie); feature-concat and HMT-GRN
    are done. Part 2 numbers are **n=5 (seed 0) provisional** for the 5 Gowalla states ({1,7,100}→n=20 is
    post-deadline); Istanbul is n=20. **Freeze-readiness verdict: CLOSEABLE-WITH-CAVEATS on the regular track.**
-   The remaining work is recomputes and prose, not missing science:
-   - **SUBMISSION BLOCKERS (cheap, no new architecture):** (a) the **FL CTLE artifact gap**, where the FL CTLE-SC and
-     CTLE-E2E numbers are currently cited from files that do not exist on disk (SC ran fold-0 only; E2E was never
-     run); run + commit **FL CTLE-SC 5f and FL CTLE-E2E 5f** before submission, or the headline-state
-     representation contrast is non-reproducible. (b) the **Tbl 2 overlap re-score** (item 2). (c) the **Tbl 1
-     windows column** (overlap counts + max/avg sequence length + sparsity, a pure recompute).
-   - **SHOULD-FIX:** compute the **TOST / power statement** for the small-state region "matches" (a few minutes on
-     the existing JSONs), so "non-inferior within two points" is a tested claim, not an assertion; and run the
-     **encoder-isolation probe** (AL/AZ fast, FL the long pole) to back the category-encoder mechanism, or keep it
-     a hypothesis (§6.2).
-2. **One windowing for the whole paper (Tbl 2 fix).** The Part-1 substrate comparison (Check2HGI vs HGI category,
-   and the per-visit counterfactual) is currently on the **non-overlap** base, while Part 2 is on **overlap**.
-   **Re-score Part 1 under the overlap board** (run the HGI-substrate category single-task cell under overlap at
-   the five states) so Tbl 2 and Tbl 3 share one windowing; otherwise a reviewer asks "why two windowings?". The
-   embedding-geometry figure (Fig 4) is windowing-robust and does not need re-scoring.
+   **The earlier submission blockers are now CLOSED** (2026-06-26): Tbl 1 overlap windows + TOST (PR #49); Tbl 2
+   overlap re-score, all 5 Gowalla states (PR #50/#52); FL CTLE-E2E (PR #50; CTLE-SC stays 2/5, text-only per
+   decision); W6 encoder-isolation probe (PR #48, trunk-not-transfer); region externals HMT-GRN (6 states, PR #38),
+   faithful STAN AL/AZ/Istanbul (PR #53, converged + below ours), ReHDM (current numbers). **What remains is prose +
+   a few small data items, not missing science:**
+   - **Write the paper.** The `src/sections/0{1..8}.tex` are still skeletons; the draft prose lives in §4 here. This
+     is now the biggest task: turn the plan into the IEEE paper.
+   - **Source the §5.2 leak Δ numbers** (still ⟨placeholders⟩) from the transductive-exposure audit before they go in.
+   - **Faithful STAN FL** finish (in-flight); CA/TX optional (HMT-GRN carries CA/TX; the AL/AZ/Istanbul pattern holds).
+     **ReHDM** keep the current numbers (CA/TX/Istanbul footnoted), update post-deadline.
+   - **Reconfirm the deadline FIRST** (the §0 note ~25 June 2026 is now at/past today — verify the cycle).
+2. **One windowing for the whole paper (Tbl 2) — DONE.** Part 1 is re-scored under the overlap board at all 5 Gowalla
+   states (AL/AZ/FL/CA/TX; margins +27.6 to +39.6), so Tbl 2 and Tbl 3 share one windowing. (Istanbul has no HGI
+   build → footnote.) The embedding-geometry figure is windowing-robust.
 3. **Regular paper versus poster.** The freeze-readiness audit (2026-06-25) supports **REGULAR**: three backed
    pillars (a clustering-validated representation win with a feature-concat control; one model beating the
    category ceiling at all six states and the region ceiling at the three large states; beating every task-SOTA
