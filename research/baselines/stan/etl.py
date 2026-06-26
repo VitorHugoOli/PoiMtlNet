@@ -63,6 +63,11 @@ _STATE_TO_SHAPEFILE = {
     "texas": Resources.TL_TX,
     "georgia": Resources.TL_GA,
     "newyork": Resources.TL_NY,
+    # Non-US (Massive-STEPS): regions are OSM mahalle polygons (the city's
+    # PRIMARY admin units = the same taxonomy the check2hgi substrate consumes,
+    # exported as boroughs_area.csv). gpd.read_file handles the GeoJSON; the
+    # region key is the polygon "@id" (renamed to GEOID downstream).
+    "istanbul": DATA_ROOT / "miscellaneous" / "istanbul_mahalle" / "istanbul_mahalle.geojson",
 }
 
 
@@ -93,7 +98,11 @@ def _assign_regions_from_shapefile(checkins: pd.DataFrame, shapefile: Path
         geometry=gpd.points_from_xy(pois["longitude"], pois["latitude"]),
         crs="EPSG:4326",
     )
-    tracts = gpd.read_file(shapefile).to_crs("EPSG:4326")[["GEOID", "geometry"]]
+    tracts = gpd.read_file(shapefile).to_crs("EPSG:4326")
+    # US TIGER tracts key on "GEOID"; OSM admin polygons (mahalle) key on "@id".
+    if "GEOID" not in tracts.columns and "@id" in tracts.columns:
+        tracts = tracts.rename(columns={"@id": "GEOID"})
+    tracts = tracts[["GEOID", "geometry"]]
 
     pois_geom = pois_geom.sjoin(tracts, how="left", predicate="intersects")
     pois_geom = pois_geom.dropna(subset=["GEOID"]).reset_index(drop=True)

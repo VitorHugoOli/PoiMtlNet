@@ -134,7 +134,9 @@ def train_one_fold(poi, hour, lat, lon, tmin, y, centroids, train_idx, val_idx,
     best_logits = None
     for epoch in range(epochs):
         model.train()
-        perm = torch.randperm(n_train, generator=g, device=poi_tr.device)
+        # Generate on the generator's own device (MPS rejects a CPU generator
+        # with device=mps), then move to the data device. No-op on CUDA/CPU.
+        perm = torch.randperm(n_train, generator=g, device=g.device).to(poi_tr.device)
         for s in range(0, n_train, batch_size):
             idx = perm[s:s + batch_size]
             poi_b = poi_tr[idx]; hour_b = hour_tr[idx]

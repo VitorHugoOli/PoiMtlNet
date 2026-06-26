@@ -116,6 +116,8 @@ poi_emb_path = train_poi2vec(city="Texas", epochs=100, embedding_dim=64)
 3. **Shapefile requirement**: Must have `GEOID` column for census tracts
 4. **Edge weights**: Same region = 1.0, cross-region = `cross_region_weight` (default **0.7**). The paper uses 0.4 but that's tuned for dense Chinese cities; on Alabama Cat F1 rises monotonically 0.74 → 0.82 as `w_r` goes 0.4 → 0.7. The optimum is dataset-specific — sweep per state via `CROSS_REGION_WEIGHT_PER_STATE` in `pipelines/embedding/hgi.pipe.py`. See `README.md §5` for the full table.
 5. **Hard negatives in HGI**: 25% of negatives are "hard" (similarity 0.6-0.8)
+6. **Null-coord POIs (FSQ / Massive-STEPS)**: `preprocess.py::_read_poi_data` drops POIs whose geometry is `None` (check-ins with missing coordinates). US Gowalla has none; FSQ/Massive-STEPS cities do — leaving them in crashes the `geom_type` step. Drop is a no-op for US states and mirrors POI-RGNN's NaN-coord drop.
+7. **Non-US regions (admin polygons, e.g. Istanbul mahalle)**: there's no TIGER shapefile. Pre-place an admin boroughs CSV (`GEOID,geometry` WKT) at `output/hgi/<city>/temp/boroughs_area.csv` and use `{'shapefile': None}` — `_get_boroughs_file` uses the pre-placed CSV before falling back to a synthetic grid. Reuse the check2hgi mahalle CSV (`output/check2hgi/<city>/temp/boroughs_area.csv`) so HGI's `region_id` matches check2hgi's `region_idx` (required for `stl_hgi` substrate comparisons; verified 29945/29945 POIs for Istanbul, 2026-06-25). A custom build runner must use the `if __name__=='__main__'`+`freeze_support()` idiom (POI2Vec spawns workers).
 
 ## Data Dict Structure (`graph_data.pkl`)
 

@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import logging
 import pickle as pkl
 from itertools import combinations
 from pathlib import Path
@@ -93,8 +94,20 @@ class HGIPreprocess:
                 axis=1
             )
 
-        # Convert to GeoDataFrame
-        self.pois["geometry"] = self.pois["geometry"].apply(wkt.loads)
+        # Convert to GeoDataFrame. Drop POIs with null geometry — FSQ /
+        # Massive-STEPS check-ins can carry missing coordinates (absent from US
+        # Gowalla); leaving them None crashes the geom_type step below. This
+        # mirrors POI-RGNN's NaN-coord drop and is a no-op for US states.
+        self.pois["geometry"] = self.pois["geometry"].apply(
+            lambda g: wkt.loads(g) if isinstance(g, str) else None
+        )
+        n_before = len(self.pois)
+        self.pois = self.pois[self.pois["geometry"].notna()].reset_index(drop=True)
+        if len(self.pois) < n_before:
+            logging.info(
+                f"[hgi-preprocess] dropped {n_before - len(self.pois)} POIs with null geometry "
+                f"(no coordinates); kept {len(self.pois)}"
+            )
         self.pois = gpd.GeoDataFrame(self.pois, geometry="geometry", crs="EPSG:4326")
         self.pois["geometry"] = self.pois["geometry"].apply(
             lambda x: x if x.geom_type == "Point" else x.centroid
