@@ -455,17 +455,17 @@ direction**; a family-wise Holm correction across the six category cells (or the
 **task SOTA**, faithful author implementations on our data: next-category **POI-RGNN + Markov-9-cat**;
 next-region **STAN (faithful, from raw) + ReHDM + HMT-GRN**. ⚠ **Region-baseline footing + STAN audit (2026-06-26,
 see `STAN_REFOOTING_HANDOFF.md`):** keep all region externals on ONE footing for the matched columns.
-**STAN** is run **faithfully (its own embeddings, from raw) on our common protocol** (seed 0, stride-1 overlap) — the
-literature norm; feeding STAN a pretrained embedding (the old `stl_hgi` variant) is non-standard, so it is at most a
-labeled ablation. ⚠ **The prior faithful-STAN numbers (AL 34.46 / AZ 38.96, below Markov) are UNDER-TRAINED ARTIFACTS
-(best-epochs clipped at 49/50, stride-9 starvation, a STAN-derived head) and are NOT cited; STAN is being re-run to
-convergence.** **HMT-GRN** is board-matched (seed 0, stride-1) at **all 6 states** (TX closed PR #38: reg 53.85 /
+**STAN** is run **faithfully (its own embeddings + STAN-native prefix-expansion sequences, from raw)** on our data,
+seed-0 user-disjoint folds, and region targets (the literature norm; feeding STAN a pretrained embedding, the old
+`stl_hgi` variant, is non-standard, so it is at most a labeled ablation). The converged, audited run (PR #53)
+**clears the Markov floor and lands below our joint model at every state**: AL 60.72, AZ 49.86, Istanbul 61.86 (FL
+in-flight, CA/TX optional). The earlier AL 34.46 was an under-trained artifact (a slow-backward bug + a STAN-derived
+head, now fixed and audited) and is superseded. **HMT-GRN** is board-matched (seed 0, stride-1) at **all 6 states** (TX closed PR #38: reg 53.85 /
 cat 25.81). **ReHDM-faithful** is reported as a **published-method reference under its own protocol** (chronological
 80/10/10 + 5 seeds), never a paired/matched cell. STAN on our Check2HGI is dropped. **Comparability hierarchy:**
 HMT-GRN (region-native, board-matched, multi-task — **HMT-GRN-*style***: own end-to-end LSTM trunk + region-transition
 prior from raw, graph module + hierarchical beam search dropped; *not* a strict reproduction) is the **primary**
-region-native comparison; **STAN (faithful, from raw) and ReHDM (own protocol) are secondary references, each labeled.** If a converged faithful STAN still lands below the Markov floor, that is the
-honest result (STAN was built for fine next-POI, not coarse regions), reported with that note rather than headlined. (2) **representation** (FL only): **CTLE**, the closest prior contextual
+region-native comparison; **STAN (faithful, from raw) and ReHDM (own protocol) are secondary references, each labeled.** STAN, though built for fine next-POI, is a competitive coarse-region baseline once trained properly (it clears the Markov floor), and the joint model beats it at every state. (2) **representation** (FL only): **CTLE**, the closest prior contextual
 embedding, presented fairly (its end-to-end form alongside the frozen one), plus a **feature-concat control**
 (HGI ⊕ raw per-visit features), so the category gain is attributed to the hierarchy, not to any contextualization
 nor to feature injection. (3) **multi-task comparator**: the **CSLSL cascade** (the dominant published
@@ -510,9 +510,9 @@ both tasks, and the region win is largest at scale. Mark all cells n=5 provision
 absolute Acc@10, because the region counts differ. Note that Istanbul is measured on the earlier
 graph-convolution (GCN) representation (the overlapping-window board representation was not built for it), so it
 is a cross-representation external check; mark it provisional. The category headline (+6.7) is the four-seed mean
-versus the single-seed dedicated ceiling; the clean seed-0 fold-paired gain is +6.5 (5/5 folds). ⚠ Istanbul
-baselines (Markov, POI-RGNN, STAN, ReHDM) must be scored on the SAME stride-1 overlap windowing as this row; the
-first STAN run was on the non-overlap (set-a) base and is not comparable as-is.
+versus the single-seed dedicated ceiling; the clean seed-0 fold-paired gain is +6.5 (5/5 folds). Istanbul baselines
+are in (PR #51/#53): category Markov-9-cat 24.55 and POI-RGNN 30.12 (both far below our 53.20/59.89); region
+faithful STAN 61.86 and HMT-GRN 60.4 (both below our 74.28). ReHDM-Istanbul is deferred (footnote).
 
 ### §7 Discussion and Limitations (about 0.5 page): draft
 
@@ -595,14 +595,15 @@ Three roles, kept separate in the writing (see the handoff §1):
 
 **Role 1: task SOTA (faithful author implementations, our data):**
 - [ ] next-category: **POI-RGNN** + **Markov-9-cat** floor.
-- [ ] next-region: **STAN** (faithful, its own embeddings from raw) + **HMT-GRN** + **ReHDM**.
-  ⚠ **Footing + STAN audit (2026-06-26, `STAN_REFOOTING_HANDOFF.md`):** the matched columns share ONE footing.
-  **STAN** is run **faithfully on our common protocol** (seed 0, stride-1 overlap) for **AL/AZ/FL** (CA/TX faithful
-  infeasible at scale → footnote); feeding STAN a pretrained embedding (`stl_hgi`) is non-standard (literature audit),
-  so it is at most a labeled ablation. ⚠ The prior faithful-STAN numbers (AL 34.46 / AZ 38.96, below Markov) are
-  **under-trained artifacts** (clipped at 49/50 epochs, stride-9 starvation, STAN-derived head) — NOT cited; STAN is
-  being re-run to convergence. **HMT-GRN** is already board-matched (seed 0, stride-1) and is the **primary** region
-  external. **ReHDM-faithful** (AL/AZ/FL; CA/TX footnoted infeasible) is a **published-method reference under its own
+- [ ] next-region: **HMT-GRN** (primary) + **STAN** (faithful, from raw) + **ReHDM**.
+  ⚠ **Footing + STAN audit (2026-06-26, `STAN_REFOOTING_HANDOFF.md`):** each faithful baseline keeps its OWN native
+  pipeline; the shared protocol is only data + seed-0 user-disjoint folds + region target + Acc@k (NOT our windowing).
+  **STAN** is run **faithfully (own embeddings + STAN-native prefix-expansion, from raw)**; the converged, audited run
+  (PR #53) **clears the Markov floor and is below our joint model**: AL 60.72 / AZ 49.86 / Istanbul 61.86 (FL
+  in-flight, CA/TX optional). The earlier AL 34.46 was an under-trained artifact (slow-backward bug + STAN-derived
+  head), now fixed + audited and superseded. Feeding STAN a pretrained embedding (`stl_hgi`) is non-standard, so it is
+  at most a labeled ablation. **HMT-GRN** (HMT-GRN-style, board-matched at all 6 states incl. TX 53.85) is the
+  **primary** region external. **ReHDM-faithful** (AL/AZ/FL; CA/TX footnoted infeasible) is a **published-method reference under its own
   protocol** (chronological split, 5 seeds), NOT a paired cell. STAN-on-our-Check2HGI (the Istanbul stop-gap) is
   dropped. **Markov-1 region DROPPED (2026-06-24)**; keep at most a one-clause text mention.
 - [ ] our STL ceilings + MTL champion (the comparison anchors).
