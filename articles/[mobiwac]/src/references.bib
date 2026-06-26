@@ -136,16 +136,9 @@
   year      = {2019},
 }
 
-% Alias for the same DGI paper. The MobiWac PAPER_PLAN draft body cites DGI as
-% [velickovic2019deep] in the Section 2.1 primer; both keys resolve to ICLR 2019.
-% Keep one cite key in the final prose; this alias prevents an undefined-citation
-% build error if the draft text is pasted verbatim.
-@inproceedings{velickovic2019deep,
-  author    = {Petar Veli{\v{c}}kovi{\'c} and William Fedus and William L. Hamilton and Pietro Li{\`o} and Yoshua Bengio and R. Devon Hjelm},
-  title     = {Deep Graph Infomax},
-  booktitle = {Proceedings of the 7th International Conference on Learning Representations (ICLR)},
-  year      = {2019},
-}
+% NOTE (MobiWac audit): the redundant alias key `velickovic2019deep` (byte-identical
+% to velickovic2019dgi) was removed; all cites now point to velickovic2019dgi so DGI
+% renders once in the reference list.
 
 % verified: ISPRS J. Photogramm. Remote Sens. 196:134-145, 2023,
 % DOI 10.1016/j.isprsjprs.2022.11.021 (HGI).
@@ -257,11 +250,14 @@
   doi       = {10.24963/ijcai.2018/477},
 }
 
-% verified: IJCAI 2020, pages 3490-3496, DOI 10.24963/ijcai.2020/491 (iMTL ---
+% verified: IJCAI 2020, pages 3551-3557, DOI 10.24963/ijcai.2020/491 (iMTL ---
 % interactive multi-task framework for next-POI with uncertain check-ins). The
 % plan cites this as [Zhang2020]; both keys resolve here.
+% CORRECTION (MobiWac audit): author list fixed --- restored missing Yu Lei,
+% Chen Li, Ziqing Wu; "Horst Kloeppel" -> "Horst Kloeden"; fabricated
+% "Yew-Soon Ong" -> real 8th author "Felix Klanner".
 @inproceedings{Zhang2020,
-  author    = {Lu Zhang and Zhu Sun and Jie Zhang and Horst Kloeppel and Yew-Soon Ong},
+  author    = {Lu Zhang and Zhu Sun and Jie Zhang and Yu Lei and Chen Li and Ziqing Wu and Horst Kloeden and Felix Klanner},
   title     = {An Interactive Multi-Task Learning Framework for Next {POI} Recommendation with Uncertain Check-ins},
   booktitle = {Proceedings of the 29th International Joint Conference on Artificial Intelligence (IJCAI)},
   pages     = {3551--3557},
@@ -270,17 +266,10 @@
 }
 
 % verified: SIGIR 2022, pages 1133-1143, DOI 10.1145/3477495.3531989 (HMT-GRN;
-% restored from the BRACIS commented entry). The plan cites this as [Lim2022]
-% and as lim2022hmtgrn; both keys resolve here.
+% restored from the BRACIS commented entry).
+% NOTE (MobiWac audit): the redundant uncited alias key `Lim2022` (byte-identical)
+% was removed; only lim2022hmtgrn is cited.
 @inproceedings{lim2022hmtgrn,
-  author    = {Nicholas Lim and Bryan Hooi and See{-}Kiong Ng and Yong Liang Goh and Renrong Weng and Rui Tan},
-  title     = {Hierarchical Multi-Task Graph Recurrent Network for Next {POI} Recommendation},
-  booktitle = {Proceedings of the 45th International ACM SIGIR Conference on Research and Development in Information Retrieval},
-  pages     = {1133--1143},
-  year      = {2022},
-  doi       = {10.1145/3477495.3531989},
-}
-@inproceedings{Lim2022,
   author    = {Nicholas Lim and Bryan Hooi and See{-}Kiong Ng and Yong Liang Goh and Renrong Weng and Rui Tan},
   title     = {Hierarchical Multi-Task Graph Recurrent Network for Next {POI} Recommendation},
   booktitle = {Proceedings of the 45th International ACM SIGIR Conference on Research and Development in Information Retrieval},
@@ -316,13 +305,15 @@
   doi       = {10.1145/3592789},
 }
 
-% verified: WWW 2020, pages 2768-2774, DOI 10.1145/3366423.3380202 (CatDM ---
+% verified: WWW 2020, pages 1264-1274, DOI 10.1145/3366423.3380202 (CatDM ---
 % category-aware deep model that uses category to filter candidate places).
+% CORRECTION (MobiWac audit): page numbers fixed 2768-2774 -> 1264-1274 (DBLP /
+% Webis IR Anthology).
 @inproceedings{yu2020catdm,
   author    = {Fuqiang Yu and Lizhen Cui and Wei Guo and Xudong Lu and Qingzhong Li and Hua Lu},
   title     = {A Category-Aware Deep Model for Successive {POI} Recommendation on Sparse Check-in Data},
   booktitle = {Proceedings of The Web Conference 2020 (WWW)},
-  pages     = {2768--2774},
+  pages     = {1264--1274},
   year      = {2020},
   doi       = {10.1145/3366423.3380202},
 }
