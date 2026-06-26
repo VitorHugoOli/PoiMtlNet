@@ -65,6 +65,45 @@ def _ood_restricted_topk(
     return result
 
 
+def _ood_from_streamed(tgts, rank, hit, train_labels, ks=(1, 5, 10)) -> dict:
+    """OOD-restricted Acc@K / MRR from streamed accumulators (the S2 chunked val path).
+
+    Byte-identical to ``_ood_restricted_topk`` on the same data: hit/rank are per-row, so
+    ``hit[k][mask] == top-k hit on logits[mask]``; one ``.float().mean()`` (NOT a running
+    int count — that drifts at the last ULP).
+    """
+    train_t = torch.as_tensor(sorted(train_labels), dtype=tgts.dtype, device=tgts.device)
+    mask = torch.isin(tgts, train_t)
+    n_indist = int(mask.sum().item())
+    n_ood = len(tgts) - n_indist
+    out = {
+        "n_indist": float(n_indist), "n_ood": float(n_ood),
+        "ood_fraction": float(n_ood / max(len(tgts), 1)),
+    }
+    if n_indist == 0:
+        for k in ks:
+            out[f"top{k}_acc_indist"] = 0.0
+        out["mrr_indist"] = 0.0
+    else:
+        for k in ks:
+            out[f"top{k}_acc_indist"] = float(hit[k][mask].float().mean().item())
+        out["mrr_indist"] = float((1.0 / rank[mask].float()).mean().item())
+    return out
+
+
+def eval_autocast_ctx(device):
+    """fp16 eval autocast on CUDA; fp32 (nullcontext) when MTL_DISABLE_AMP_EVAL=1 or
+    MTL_DISABLE_AMP=1. Shared by evaluate_model + validation_best_model so the fp32-eval
+    escape hatch is byte-identical across both eval paths."""
+    disable = (
+        os.environ.get("MTL_DISABLE_AMP_EVAL") == "1"
+        or os.environ.get("MTL_DISABLE_AMP") == "1"
+    )
+    if device.type == "cuda" and not disable:
+        return torch.autocast(device.type, dtype=torch.float16)
+    return contextlib.nullcontext()
+
+
 def _decide_chunk_val(dataloaders, nc_b_gate) -> bool:
     """Whether to use the chunked/streaming S2 val-metric for the reg head.
 
@@ -162,15 +201,7 @@ def evaluate_model(
     # more exact ties → _rank_of_target scores MTL ranks tie-optimistically vs the fp32 ceiling.
     # Set MTL_DISABLE_AMP_EVAL=1 (or the training hatch MTL_DISABLE_AMP=1) to force fp32 eval.
     # Default (unset) keeps canonical fp16 eval untouched.
-    _disable_amp_eval = (
-        os.environ.get("MTL_DISABLE_AMP_EVAL") == "1"
-        or os.environ.get("MTL_DISABLE_AMP") == "1"
-    )
-    _autocast_ctx = (
-        torch.autocast(device.type, dtype=torch.float16)
-        if device.type == 'cuda' and not _disable_amp_eval
-        else contextlib.nullcontext()
-    )
+    _autocast_ctx = eval_autocast_ctx(device)
 
     # Cross-attn pairing roll probe. The two MTL train loaders draw independent shuffles, so
     # cross-attn mixes RANDOMLY-paired cat↔reg rows at train time while val is aligned. Probe:
@@ -275,26 +306,7 @@ def evaluate_model(
     # POIs but 0 on OOD POIs, and the raw Acc@K averages across both.
     if train_labels_b is not None:
         if _chunk_val:
-            # Byte-identical to _ood_restricted_topk (ks=(1,5,10)) from the same
-            # streamed accumulators + the in-dist mask: hit/rank are per-row, so
-            # hit_all[mask] == hit on logits[mask]; one .float().mean() (NOT a running
-            # int count — that drifts at the last ULP).
-            _train_t = torch.as_tensor(sorted(train_labels_b), dtype=_T.dtype, device=_T.device)
-            _mask = torch.isin(_T, _train_t)
-            _ni = int(_mask.sum().item())
-            _noo = len(_T) - _ni
-            ood_b = {
-                "n_indist": float(_ni), "n_ood": float(_noo),
-                "ood_fraction": float(_noo / max(len(_T), 1)),
-            }
-            if _ni == 0:
-                for _k in (1, 5, 10):
-                    ood_b[f"top{_k}_acc_indist"] = 0.0
-                ood_b["mrr_indist"] = 0.0
-            else:
-                for _k in (1, 5, 10):
-                    ood_b[f"top{_k}_acc_indist"] = float(_HIT[_k][_mask].float().mean().item())
-                ood_b["mrr_indist"] = float((1.0 / _R[_mask].float()).mean().item())
+            ood_b = _ood_from_streamed(_T, _R, _HIT, train_labels_b)
         else:
             ood_b = _ood_restricted_topk(all_logits_next, all_truths_next, train_labels_b)
         metrics_next.update(ood_b)
