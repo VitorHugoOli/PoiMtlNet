@@ -91,7 +91,7 @@ def load_tensors(state: str):
 def train_one_fold(poi, hour, lat, lon, tmin, y, dd_poi, train_idx, val_idx,
                    n_pois, n_regions, *, epochs, batch_size, seed,
                    d_model, dropout, lr, seq_length, patience,
-                   amp="off", use_compile=False) -> dict:
+                   amp="off", use_compile=False, compile_mode="default") -> dict:
     seed_everything(seed)
     # Determinism off here (warn_only=True earlier just emitted spam without
     # actual determinism since CuBLAS isn't deterministic by default).
@@ -122,8 +122,20 @@ def train_one_fold(poi, hour, lat, lon, tmin, y, dd_poi, train_idx, val_idx,
         d_model=d_model, dropout=dropout, seq_length=seq_length,
     ).to(DEVICE)
     # dd_poi[n_pois+1, R] is precomputed once in run() and already on DEVICE.
+    # Opt-E/B compile modes:
+    #   default         -> dynamic=True fusion (compatible with opt-D's torch.unique)
+    #   max-autotune    -> opt-E: autotuned Triton GEMM/reduction templates (dynamic)
+    #   reduce-overhead -> opt-B: CUDA graphs (kills launch overhead). Needs static
+    #                      shapes -> opt-D's data-dependent torch.unique is incompatible,
+    #                      so distinct_poi is forced OFF for this mode.
     if use_compile and torch.cuda.is_available():
-        model = torch.compile(model, dynamic=True)
+        if compile_mode == "reduce-overhead":
+            model.distinct_poi = False
+            model = torch.compile(model, dynamic=False, mode="reduce-overhead")
+        elif compile_mode == "max-autotune":
+            model = torch.compile(model, dynamic=True, mode="max-autotune")
+        else:
+            model = torch.compile(model, dynamic=True)
 
     # Audit fix #5 (2026-06-26): STAN's reference trains at a CONSTANT LR (StepLR γ=1)
     # with early-stopping on a real val plateau, NOT OneCycle (which annealed the LR to
@@ -145,7 +157,7 @@ def train_one_fold(poi, hour, lat, lon, tmin, y, dd_poi, train_idx, val_idx,
 
     best_acc10 = -1.0
     best_epoch = -1
-    best_logits = None
+    best_state = None
     epochs_since_improve = 0
     n_val = poi_va.shape[0]
     n_steps = (n_train + batch_size - 1) // batch_size
@@ -172,31 +184,28 @@ def train_one_fold(poi, hour, lat, lon, tmin, y, dd_poi, train_idx, val_idx,
             loss_sum += loss.detach()
         _sync(); t_train = time.time() - t_ep
 
-        # Cheap epoch validation: only Acc@10 (no sklearn F1) for selection.
+        # Opt-C (val-once): per-epoch val computes ONLY Acc@10 (for early-stop) — no
+        # [n_val,R] logit cache or CPU offload (FL: 4703×~300K ≈ 15 GB of churn/epoch).
+        # On improvement we snapshot the model state; full metrics are recomputed ONCE
+        # at the end from the best-epoch state.
         t_v = time.time()
         model.eval()
         top10_correct = 0
-        val_logits_chunks = []
         with torch.no_grad():
             for s in range(0, n_val, batch_size):
                 e = s + batch_size
                 with torch.autocast("cuda", dtype=amp_dtype, enabled=amp_on):
                     out = model(poi_va[s:e], hour_va[s:e], lat_va[s:e],
                                 lon_va[s:e], tmin_va[s:e], dd_poi)
-                out = out.float()  # metrics + topk in fp32 regardless of amp
-                top10 = out.topk(min(10, out.shape[-1]), dim=-1).indices  # [b, 10]
+                top10 = out.float().topk(min(10, out.shape[-1]), dim=-1).indices  # [b, 10]
                 top10_correct += (top10 == y_va[s:e].unsqueeze(1)).any(-1).sum().item()
-                # Review fix (2026-06-26): offload each val chunk to CPU immediately —
-                # the audit's O(N_val·C) cache (FL: 4703 classes × ~300K val rows ≈ 15 GB)
-                # must not accumulate on the GPU.
-                val_logits_chunks.append(out.cpu())
         _sync(); t_val = time.time() - t_v
         acc10 = top10_correct / n_val
         improved = acc10 > best_acc10 + 1e-5
         if improved:
             best_acc10 = acc10
             best_epoch = epoch + 1
-            best_logits = torch.cat(val_logits_chunks, dim=0)
+            best_state = {k: v.detach().clone() for k, v in model.state_dict().items()}
             epochs_since_improve = 0
         else:
             epochs_since_improve += 1
@@ -213,7 +222,19 @@ def train_one_fold(poi, hour, lat, lon, tmin, y, dd_poi, train_idx, val_idx,
                         epoch + 1, best_acc10, best_epoch, patience)
             break
 
-    # Full metrics ONCE at the best epoch's logits.
+    # Opt-C: recompute full metrics ONCE from the best-epoch state (single val pass).
+    if best_state is not None:
+        model.load_state_dict(best_state)
+    model.eval()
+    logits_chunks = []
+    with torch.no_grad():
+        for s in range(0, n_val, batch_size):
+            e = s + batch_size
+            with torch.autocast("cuda", dtype=amp_dtype, enabled=amp_on):
+                out = model(poi_va[s:e], hour_va[s:e], lat_va[s:e],
+                            lon_va[s:e], tmin_va[s:e], dd_poi)
+            logits_chunks.append(out.float().cpu())
+    best_logits = torch.cat(logits_chunks, dim=0)
     m = compute_classification_metrics(best_logits, y_va.cpu(),
                                        num_classes=n_regions, top_k=(5, 10))
     return dict(m, best_epoch=best_epoch, n_epochs_ran=epoch + 1)
@@ -222,7 +243,7 @@ def train_one_fold(poi, hour, lat, lon, tmin, y, dd_poi, train_idx, val_idx,
 def run(state: str, folds: int, epochs: int, batch_size: int, seed: int,
         d_model: int, dropout: float, lr: float, patience: int,
         tag: str | None, amp: str = "off", use_compile: bool = False,
-        only_fold: int | None = None) -> None:
+        only_fold: int | None = None, compile_mode: str = "default") -> None:
     # Audit fix #6: true fp32 — disable TF32 too (board protocol).
     if torch.cuda.is_available():
         torch.backends.cuda.matmul.allow_tf32 = False
@@ -271,7 +292,7 @@ def run(state: str, folds: int, epochs: int, batch_size: int, seed: int,
             epochs=epochs, batch_size=batch_size, seed=seed + fold_idx,
             d_model=d_model, dropout=dropout, lr=lr,
             seq_length=seq_len, patience=patience,
-            amp=amp, use_compile=use_compile,
+            amp=amp, use_compile=use_compile, compile_mode=compile_mode,
         )
         elapsed = time.time() - t0
         fold_metrics.append(m)
@@ -322,10 +343,16 @@ def main() -> None:
                    help="torch.compile the model (fp32-faithful speedup)")
     p.add_argument("--only-fold", type=int, default=None,
                    help="run ONLY split k (0..folds-1) -> per-fold JSON, for fold-parallel runs")
+    p.add_argument("--compile-mode", choices=["default", "max-autotune", "reduce-overhead"],
+                   default="default",
+                   help="torch.compile mode (with --compile): default=dynamic fusion, "
+                        "max-autotune=opt-E autotuned kernels, "
+                        "reduce-overhead=opt-B CUDA graphs (forces distinct_poi off)")
     args = p.parse_args()
     run(args.state, args.folds, args.epochs, args.batch_size, args.seed,
         args.d_model, args.dropout, args.lr, args.patience, args.tag,
-        amp=args.amp, use_compile=args.use_compile, only_fold=args.only_fold)
+        amp=args.amp, use_compile=args.use_compile, only_fold=args.only_fold,
+        compile_mode=args.compile_mode)
 
 
 if __name__ == "__main__":

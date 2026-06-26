@@ -254,6 +254,10 @@ class FaithfulSTAN(nn.Module):
         self.matching = _MatchingLayer(d_model, seq_length, k_d, d_max_km)
 
         self.seq_length = seq_length
+        # Opt-D: interp the Δd bias only over the batch's distinct POIs (bit-identical;
+        # big win at large n_pois). Uses torch.unique -> dynamic shape, so it is
+        # INCOMPATIBLE with CUDA-graph compile (mode="reduce-overhead"); disable for that.
+        self.distinct_poi = True
 
     def forward(self,
                 poi_idx: torch.Tensor,            # [B, S] int64; pad = -1
@@ -283,12 +287,18 @@ class FaithfulSTAN(nn.Module):
         bias = self.bias_traj(dt, dd)                                  # [B, S, S]
         S = self.attn_traj(x, bias, pad_mask)                          # [B, S, D]
 
-        # Interp the Δd interval bias ONCE over [n_pois+1, R], then gather per batch
-        # (the per-element interp over [B,n,R] was the backward bottleneck).
-        bias_per_poi = self.matching.bias_per_poi(dd_poi)              # [n_pois+1, R]
-        # F.embedding (fast embedding_dense_backward), NOT bias_per_poi[poi_safe]
-        # advanced indexing (slow generic indexing_backward — the profiled bottleneck).
-        bias_match = F.embedding(poi_safe, bias_per_poi)               # [B, S, R]
+        # Δd interval bias. Opt-D (distinct-POI, bit-identical): interp only over the
+        # DISTINCT POIs in this batch (U <= n_pois; far fewer at large n_pois) instead of
+        # all n_pois every forward, then scatter back via the inverse map. Both paths use
+        # F.embedding (fast embedding_dense_backward, NOT the slow generic indexing_backward).
+        if self.distinct_poi:
+            flat = poi_safe.reshape(-1)                                # [B*S]
+            uniq, inv = torch.unique(flat, return_inverse=True)        # [U], [B*S]
+            bias_u = self.matching.bias_per_poi(dd_poi.index_select(0, uniq))   # [U, R]
+            bias_match = F.embedding(inv.view(poi_safe.shape), bias_u)  # [B, S, R]
+        else:
+            bias_per_poi = self.matching.bias_per_poi(dd_poi)          # [n_pois+1, R]
+            bias_match = F.embedding(poi_safe, bias_per_poi)           # [B, S, R]
         return self.matching(
             S, self.region_emb.weight, bias_match, pad_mask,
         )                                                              # [B, n_regions]
