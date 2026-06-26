@@ -141,10 +141,12 @@ This is the section that keeps every number in the paper honest and defensible.
 **We CAN say (frozen, paper-grade):**
 
 - The check-in-level representation (Check2HGI) beats HGI on next-category macro-F1 by **+29.31 / +27.63 /
-  +39.62 / +37.95** (AL/AZ/FL/CA), paired Wilcoxon p = 0.031 (5/5 folds) each, **under the paper's overlap
-  windowing** (Texas still being scored). Two bands: about +28 to +29 at the small states, about +38 to +40 at
-  the large ones; the HGI place-level category is a consistent ~0.46 to 0.52 times the Check2HGI check-in-level
-  category. (These supersede the older non-overlap measurement; the whole paper is now one windowing.)
+  +39.62 / +37.95 / +37.47** (AL/AZ/FL/CA/TX), paired Wilcoxon p = 0.031 (5/5 folds) each, **under the paper's
+  overlap windowing** (re-score COMPLETE for all 5 Gowalla states; engine `check2hgi_dk_ovl`, seed 0 × 5f). Two
+  bands: about +28 to +29 at the small states, about +37 to +40 at the large ones; the HGI place-level category is
+  a consistent ~0.46 to 0.52 times the Check2HGI check-in-level category. (These supersede the older non-overlap
+  measurement, which was +15 to +29; the whole paper is now one windowing.) JSONs
+  `docs/results/closing_data/baseline_compare/{state}_hgi_ovl_cat.json`.
 - About 64 to 72 percent (small states) and 89 to 90 percent (large states) of that category gain is the
   per-visit context, measured against a per-place-averaged version of the same embedding.
 - On next-region the two representations are within about 1.6 to 3.1 points (HGI slightly ahead), so the
@@ -580,7 +582,7 @@ external city is wanted; we lead with Istanbul.
 | Fig 3 | panel   | **Category** embedding quality only (silhouette ~0.56 vs HGI 0.00; kNN-by-category ~0.98 vs 0.78), on the design_k board substrate (not v11). Do NOT plot region geometry (both at the floor, HGI spuriously higher = misleading). Part-1 "why"; one sentence: separates category, not region (the asymmetry) | Part 1 mechanism; Vitor's caution |
 | Fig 4 | plot    | Signed category and region deltas across states, ordered by region count, with the two-point margin. Shows category positive everywhere and region positive at the large states / within-margin at the small (the largest state, CA, has the largest region win). All cells n=5 (seed 0) provisional | R2 (interpretation); the core finding (one model wins both) |
 | Tbl 1 | stats   | Dataset statistics (above)                                                                                   | Vitor's request; R3                                |
-| Tbl 2 | result  | Representation: Check2HGI versus HGI category macro-F1 + per-visit share, **on the overlap board** (one windowing for the whole paper); margin +27.6 to +39.6 at AL/AZ/FL/CA, TX being scored | Part 1 |
+| Tbl 2 | result  | Representation: Check2HGI versus HGI category macro-F1 + per-visit share, **on the overlap board** (one windowing for the whole paper); margin +27.6 to +39.6 (AL +29.31 / AZ +27.63 / FL +39.62 / CA +37.95 / TX +37.47), all 5 states scored | Part 1 |
 | Tbl 3 | result  | Joint versus dedicated ceilings, both tasks, per state, marking superiority (beats) or non-inferiority (matches) per cell | Part 2 (provisional, n=5)                          |
 
 > Keep one headline figure (Fig 4, the signed deltas) carrying the finding. Captions state the conclusion, not "see table".

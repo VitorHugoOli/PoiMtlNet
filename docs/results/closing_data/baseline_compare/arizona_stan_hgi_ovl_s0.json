@@ -1,0 +1,25 @@
+{
+  "state": "arizona",
+  "baseline": "STAN_stl_hgi_board_refooted",
+  "head": "next_stan",
+  "footing": "seed 0, stride-1 overlap (check2hgi_dk_ovl), HGI region-emb, fp32, compile+tf32",
+  "stan_hgi_acc10_mean": 59.665,
+  "stan_hgi_acc10_std": 2.0874,
+  "stan_hgi_acc10_per_fold": [
+    63.05,
+    59.62,
+    59.77,
+    57.81,
+    58.07
+  ],
+  "best_epochs": [
+    44,
+    40,
+    44,
+    48,
+    43
+  ],
+  "mtl_reg_acc10_board": 59.34,
+  "gate_stan_below_mtl": "FAIL (STAN >= MTL!)",
+  "source_json": "docs/results/P1/region_head_arizona_region_5f_50ep_STAN_HGI_OVL_arizona_5f50ep_s0.json"
+}

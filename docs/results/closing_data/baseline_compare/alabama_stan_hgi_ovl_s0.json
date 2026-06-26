@@ -1,0 +1,25 @@
+{
+  "state": "alabama",
+  "baseline": "STAN_stl_hgi_board_refooted",
+  "head": "next_stan",
+  "footing": "seed 0, stride-1 overlap (check2hgi_dk_ovl), HGI region-emb, fp32, compile+tf32",
+  "stan_hgi_acc10_mean": 70.3486,
+  "stan_hgi_acc10_std": 3.1526,
+  "stan_hgi_acc10_per_fold": [
+    72.23,
+    69.26,
+    73.54,
+    71.26,
+    65.45
+  ],
+  "best_epochs": [
+    31,
+    38,
+    46,
+    40,
+    37
+  ],
+  "mtl_reg_acc10_board": 69.81,
+  "gate_stan_below_mtl": "FAIL (STAN >= MTL!)",
+  "source_json": "docs/results/P1/region_head_alabama_region_5f_50ep_STAN_HGI_OVL_alabama_5f50ep_s0.json"
+}
