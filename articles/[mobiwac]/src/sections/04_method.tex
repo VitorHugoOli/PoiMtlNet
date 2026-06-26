@@ -44,9 +44,11 @@ learn.
 We then train one model that reads a window of recent per-visit vectors and
 predicts two properties of the next visit at once: its category and its region.
 Figure~\ref{fig:model} shows the design. Two input streams pass through private
-per-task encoders into a shared trunk, and the trunk feeds two outputs, one for
-the category and one for the region. The region output keeps a private spatial
-path of its own, a small branch that the category task does not touch.
+per-task encoders into a shared trunk, where the two streams exchange information
+(a cross-attention layer lets each stream read the other's features), and the
+trunk feeds two outputs, one for the category and one for the region. The region
+output keeps a private spatial path of its own, a small branch that the category
+task does not touch.
 
 We want to be precise about what that private path is, because it is easy to
 misread. It is a task-specific branch inside the one model, not a second model,

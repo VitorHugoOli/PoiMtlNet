@@ -86,8 +86,8 @@
   \draw[flow] (encb.south) -- (encb.south |- cross.north);
   % bidirectional K/V coupling, drawn in the LOWER half of the box (below the title)
   \draw[kv] ([xshift=-19mm,yshift=-3.2mm]cross.center) -- ([xshift=19mm,yshift=-3.2mm]cross.center)
-       node[pos=0.5, fill=blue!8, inner sep=1pt, font=\tiny\bfseries]
-       {$K/V \leftrightarrow K/V$};
+       node[pos=0.5, fill=blue!8, inner sep=1pt, font=\tiny, align=center]
+       {streams exchange\\information};
   % shared -> heads
   \draw[flow] (cross.south) -- (cath.north);
   \draw[flow] (cross.south) -- (regh.north);

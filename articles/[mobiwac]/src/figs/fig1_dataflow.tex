@@ -84,16 +84,17 @@
   \node[glabel, below=1.0mm of w5, text width=33mm]
        {9 past visits \;$\rightarrow$\; next visit (target)};
 
-  % ---------- Stage 5: two task outputs ----------
-  \node[stage, left=14mm of win, minimum width=24mm, fill=green!5] (outc) {next-category};
+  % ---------- Stage 5: two task outputs (to the RIGHT of the windows, so the flow
+  % stays left-to-right and the eye never jumps backward) ----------
+  \node[stage, right=14mm of win, minimum width=24mm, fill=green!5] (outc) {next-category};
   \node[stage, below=5mm of outc, minimum width=24mm, fill=teal!7] (outr) {next-region};
 
   % ---------- flow arrows ----------
   \draw[flow] (trail) -- (graph);
   \draw[flow] (graph) -- node[glabel, above, yshift=0.3mm]{read out} (vec);
   \draw[flow] (vec)   -- (win);
-  \draw[flow] (win.west) -- ($(win.west)+(-7mm,0)$) |- (outc.east);
-  \draw[flow] (win.west) -- ($(win.west)+(-7mm,0)$) |- (outr.east);
+  \draw[flow] (win.east) -- ($(win.east)+(7mm,0)$) |- (outc.west);
+  \draw[flow] (win.east) -- ($(win.east)+(7mm,0)$) |- (outr.west);
 
 \end{tikzpicture}
 
