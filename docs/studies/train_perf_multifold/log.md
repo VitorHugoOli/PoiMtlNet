@@ -169,6 +169,21 @@ Model+training suite 252 passed (no regression).
 
 ## Follow-up status: #1 ✅ #3 ✅(code+AL) #2 ✅(diagnosed) #4 ✅(no bug) #6 ✅(measured) #5 ✅(safe applied + roadmap)
 
+## High-risk decomposition (advisor-planned, multi-seed-gated)
+- **Advisors** (`wj73lq4ot`): modern-torch digest (repo already modern: torch.autocast(device)/set_to_none/
+  is_autocast_enabled all in place; torch.compile/inference_mode/streaming-metric = EXCLUDE numerics-changing) +
+  a conservative 4-tier 12-step plan → `DECOMPOSITION_PLAN.md`. Multi-seed gate built (seed-0 + seed-1 goldens).
+- **log_T is INERT for the champion** (user insight, proven): champion = `freeze_alpha=True alpha_init=0.0` (α=0) +
+  KD 0.0, so `_apply_prior` = `logits + 0·log_T` = logits. Empirically: two DIFFERENT log_T files → byte-identical
+  champion output. → building/regenerating the per-fold log_T for champion runs is WASTED; should be opt-in
+  (gate the load+freshness-guard+build on α>0 OR KD>0). To fold into the Phase-4 `_apply_per_fold_transition_priors`
+  extraction (with its own parity gate). [my seed-1 rebuild for the gate was unnecessary caution.]
+- **Phase 1 (SAFE) DONE + advisor-approved SAFE**: `_flatten_encoder` (mtl_cv), `_resolve_task_input` +
+  `_load_and_validate_check2hgi_data` (folds, incl. the userid leak guard verbatim). Each multi-seed byte-identical
+  (golden==X AND golden_s1==X_s1); 170 tests. Advisor (general-purpose) re-derived all 3 → no BLOCKER/RISK.
+- **Remaining**: Phase 2 (setup helpers, MED, per-step+multi-seed gate), Phase 3 (loss/grad-accum/fold-builders,
+  MED), Phase 4 (per-fold-priors [+ the log_T-inert opt] + validation/checkpoints, RISKY) — advisor + commit per phase.
+
 ### #5 grind — A/B-gated extractions with a fast parity harness
 Built `parity_check.sh`: AL champion MTL, 2 folds × 8 ep, EAGER fp32 (~55s, deterministic). Captures per-fold VAL
 CSVs **+ a selection digest** (primary_epoch + primary_task_metrics, timing stripped). Verified reproducible
