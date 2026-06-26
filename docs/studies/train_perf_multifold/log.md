@@ -251,3 +251,25 @@ freeze after compile / before optimizer). `test_freeze_reg_stream.py` repointed 
 (+ a both-flags-false no-op test) → 4 passed; training helper suite 23 passed / 2 skipped.
 **Advisor (adversarial, general-purpose): SAFE** — reasoned through the 3 paths the AL parity can't exercise
 (single-LR fallback, freeze_cat/reg_stream=True, non-empty loss_calibration); no closure-leak, no arg swap, no dropped guard.
+
+### Phase 3 — KD-arm extraction from `train_model`'s batch loop (multi-seed + KD-on + unit gated)
+Lifted the two R1/R3 log_C co-location KD arms out of the per-batch loop into module helpers
+mirroring the existing `_log_t_kd_loss` (−~85 lines of dense, *no-op-for-champion* math from the hot loop):
+- `_log_c_kd_loss(pred_a, pred_b, truth_b, model, weight, tau, warmup, ec, epoch)` — forward arm
+  (teacher = softmax(log(Σ_c P(reg|c)·P̂(c))/τ), P(reg|c)=exp(model.next_poi.log_C)); returns τ²·KL or None.
+- `_cat_kd_loss(pred_a, pred_b, truth_a, model, weight, tau, warmup, ec, epoch)` — reverse arm
+  (distils the reg-implied cat prior via log_C_rev); returns τ²·KL or None. NB: warmup+ec are the SHARED
+  log_C knobs (not cat-specific) — preserved at the call site.
+
+**Gate:** champion AL MTL val metrics BYTE-IDENTICAL at seeds 0 AND 1 (no-op path: `golden==phase3_s0`,
+`golden_s1==phase3_s1`) AND under KD-on (`--log-t-kd-weight 0.2`: `kd_golden==phase3_kd`, exercises the shared
+KD loop region). The champion can't turn ON log_c/cat KD (no log_C buffer on the substrate), so the ACTIVE math
+is gated by a new unit test `tests/test_training/test_kd_arms.py` — each arm `torch.equal` to an inline reference
+(ec=0 and ec>0) + all no-op gates (weight 0, pre-warmup, missing/ill-shaped buffer) → None. Full training suite
+71 passed / 2 skipped. **Advisor (adversarial): SAFE** — op-for-op identical, weight/warmup/ec/autocast all preserved, nothing dropped.
+
+> The should_step / optimizer micro-step block (partial-group rescale → alt-inactive zero → clip → finite-guard →
+> step) was evaluated for extraction and DEFERRED to Phase 4: its interface is loop-invariant config (8 vars) +
+> per-batch state (6 vars), so a bare function would take ~14 args. The clean form is a loop-invariant `_StepCtx`
+> context object built once per fold with a `.maybe_step(...)` per batch — a bigger, side-effectful change on the
+> numerically load-bearing optimizer step → gate it on its own in Phase 4, not bundled here.
