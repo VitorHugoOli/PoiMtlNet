@@ -1,0 +1,39 @@
+{
+  "rundir": "results/check2hgi_dk_ovl/alabama/mtlnet_lr1.0e-04_bs2048_ep50_20260626_153723_2688933",
+  "seed": 0,
+  "tag": "al_champG_baseline",
+  "method": "reg full=top10_acc_indist*(1-ood_frac) at indist-best epoch; cat=macro-f1 at f1-best epoch; per-task diagnostic-best, fold-mean",
+  "cat_macro_f1_mean": 63.1824,
+  "cat_macro_f1_std": 1.8369,
+  "cat_per_fold": [
+    63.3751,
+    64.3961,
+    64.5456,
+    63.9963,
+    59.5991
+  ],
+  "cat_best_epochs": [
+    13,
+    14,
+    18,
+    13,
+    14
+  ],
+  "reg_full_top10_mean": 69.7319,
+  "reg_full_top10_std": 3.2619,
+  "reg_per_fold": [
+    72.11,
+    68.9473,
+    73.1326,
+    70.6182,
+    63.8515
+  ],
+  "reg_best_epochs": [
+    29,
+    25,
+    28,
+    35,
+    17
+  ],
+  "n_folds": 5
+}

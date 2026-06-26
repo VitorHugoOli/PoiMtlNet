@@ -72,6 +72,7 @@ class MLHistory:
         display_report: bool = False,
         task_monitors: Optional[Dict[str, str]] = None,
         min_epoch: int = 0,
+        run_id: Optional[str] = None,
     ):
         self.model_name = model_name
         self.model_type = model_type
@@ -106,6 +107,13 @@ class MLHistory:
         self.start_date: Optional[str] = None
         self.end_date: Optional[str] = None
         self.curr_i_fold: int = 0
+        # Multi-fold fan-out support (default None → unchanged single-process behaviour):
+        #   run_id   — fixes the results-rundir leaf so N fold-processes share ONE dir.
+        #   fold_ids — the REAL canonical fold ids for the folds list positions, so a
+        #              subset/fan-out run names its on-disk artifacts by real id (not by
+        #              in-memory position) and never collides in the shared rundir.
+        self.run_id: Optional[str] = run_id
+        self.fold_ids: Optional[List[int]] = None
 
         # Config for auto-lifecycle
         self._label_map = label_map
@@ -167,6 +175,19 @@ class MLHistory:
     def get_curr_fold(self) -> FoldHistory:
         """Get the current fold."""
         return self.folds[self.curr_i_fold]
+
+    def fold_label(self, pos: int) -> int:
+        """1-indexed on-disk fold number for folds-list position ``pos``.
+
+        With ``fold_ids`` set (a subset/fan-out run) this returns the REAL
+        canonical fold id + 1, so artifacts written into a shared rundir by
+        different fold-processes never collide. With ``fold_ids`` None (a normal
+        full run) it is just ``pos + 1`` — byte-identical to the legacy naming
+        (positions 0..4 → ``fold1``..``fold5``).
+        """
+        if self.fold_ids is not None and 0 <= pos < len(self.fold_ids):
+            return int(self.fold_ids[pos]) + 1
+        return pos + 1
 
     def step(self):
         """End current fold and advance to next."""
@@ -233,10 +254,12 @@ class MLHistory:
     def start(self):
         self._ended = False
         self.timer.start()
-        # Seconds + PID for collision-free parallel runs (multiple
-        # smokes launched within the same minute previously overwrote
-        # each other's results dirs).
-        self.start_date = f"{time.strftime('%Y%m%d_%H%M%S')}_{os.getpid()}"
+        # The rundir leaf embeds ``start_date``. A fixed ``run_id`` (set by
+        # ``train.py --run-id``) makes every fold-process compute the SAME leaf so
+        # they share ONE results dir for clean aggregation. Without it, fall back to
+        # seconds + PID for collision-free parallel runs (multiple smokes launched
+        # within the same minute previously overwrote each other's results dirs).
+        self.start_date = self.run_id or f"{time.strftime('%Y%m%d_%H%M%S')}_{os.getpid()}"
         self.get_curr_fold().start()
         if self._verbose:
             self.display.start_fold()

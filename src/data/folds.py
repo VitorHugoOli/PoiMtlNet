@@ -39,7 +39,7 @@ from torch.utils.data import DataLoader, Dataset, TensorDataset, WeightedRandomS
 
 from configs.globals import CATEGORIES_MAP, DEVICE
 from configs.model import InputsConfig
-from configs.paths import EmbeddingEngine, IoPaths
+from configs.paths import EmbeddingEngine, IoPaths, MTL_CHECK2HGI_ALLOWED_ENGINES
 
 logger = logging.getLogger(__name__)
 
@@ -452,7 +452,7 @@ def _create_dataloader(
         sampler=sampler,
         num_workers=num_workers,
         collate_fn=_batched_collate,
-        pin_memory=torch.cuda.is_available() and num_workers > 0,
+        pin_memory=torch.cuda.is_available() and dataset_device is None,
         persistent_workers=num_workers > 0,
         prefetch_factor=2 if num_workers > 0 else None,
         worker_init_fn=_worker_init_fn if num_workers > 0 else None,
@@ -496,7 +496,7 @@ def _create_aux_dataloader(
         sampler=sampler,
         num_workers=num_workers,
         collate_fn=_batched_collate,
-        pin_memory=torch.cuda.is_available() and num_workers > 0,
+        pin_memory=torch.cuda.is_available() and dataset_device is None,
         persistent_workers=num_workers > 0,
         prefetch_factor=2 if num_workers > 0 else None,
         worker_init_fn=_worker_init_fn if num_workers > 0 else None,
@@ -566,7 +566,7 @@ def _create_aligned_joint_loader(x_b, y_b, x_a, y_a, aux, batch_size: int, seed:
         shuffle=True,
         generator=g,
         num_workers=num_workers,
-        pin_memory=torch.cuda.is_available() and num_workers > 0,
+        pin_memory=torch.cuda.is_available() and dataset_device is None,
         persistent_workers=num_workers > 0,
         prefetch_factor=2 if num_workers > 0 else None,
         worker_init_fn=_worker_init_fn if num_workers > 0 else None,
@@ -1216,32 +1216,9 @@ class FoldCreator:
         # + Lever-4 stack reuse canonical c2hgi sequences/folds verbatim (only
         # substrate embeddings differ); next.parquet + next_region.parquet are
         # pre-built by scripts/substrate_protocol_cleanup/postbuild_design_substrate.sh.
-        _MTL_C2HGI_ALLOWED_ENGINES = (
-            EmbeddingEngine.CHECK2HGI,
-            EmbeddingEngine.HGI,
-            EmbeddingEngine.CHECK2HGI_DESIGN_B,
-            EmbeddingEngine.CHECK2HGI_DESIGN_J,
-            EmbeddingEngine.CHECK2HGI_DESIGN_L,
-            EmbeddingEngine.CHECK2HGI_LEVER4_CANONICAL,
-            EmbeddingEngine.CHECK2HGI_LEVER4_DESIGN_B,
-            EmbeddingEngine.CHECK2HGI_RESLN,
-            EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_B,
-            EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_J,
-            EmbeddingEngine.CHECK2HGI_T43_SIDEFEAT,  # embedding_eval MTL re-screen
-            EmbeddingEngine.CHECK2HGI_GPROP,         # GCN^2 region-emb proxy
-            EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_B_GPROP,  # v13 + GCN^2 region
-            EmbeddingEngine.CHECK2HGI_DESIGN_K_L0_1,
-            EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_L0_1,
-            EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_MAE_L0_1,  # option-b dual-axis base
-            EmbeddingEngine.CHECK2HGI_DK_OVL,  # overlap-window probe (v14 re-windowed stride=1)
-            EmbeddingEngine.BASELINE_B2C_ONEHOT64,  # [ENUM-MERGE] B2c zero-training floor probe
-            EmbeddingEngine.CHECK2HGI_CTLE,  # [ENUM-MERGE] B1 CTLE contextual per-visit substrate
-            EmbeddingEngine.BASELINE_B2A_POI2VEC,  # [ENUM-MERGE] B2a faithful POI2Vec
-            EmbeddingEngine.BASELINE_GEOTREE_SKIPGRAM,  # [ENUM-MERGE] geo-tree skip-gram baseline
-        )
-        if embedding_engine not in _MTL_C2HGI_ALLOWED_ENGINES:
+        if embedding_engine not in MTL_CHECK2HGI_ALLOWED_ENGINES:
             raise ValueError(
-                f"MTL_CHECK2HGI requires engine in {_MTL_C2HGI_ALLOWED_ENGINES}; "
+                f"MTL_CHECK2HGI requires engine in {MTL_CHECK2HGI_ALLOWED_ENGINES}; "
                 f"got {embedding_engine}."
             )
 

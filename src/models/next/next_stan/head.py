@@ -249,10 +249,13 @@ class NextHeadSTAN(nn.Module):
         that need the same pooled features but a different output structure.
         """
         padding_mask = (x.abs().sum(dim=-1) == 0)
+        # Un-mask the last step of any fully-padded row so the attention softmax never
+        # sees an all-`-inf` row (which would NaN). Vectorised + unconditional: for a row
+        # that is NOT fully padded, ``& ~all_padded`` leaves its last-step mask untouched,
+        # so this is byte-identical to the old ``if all_padded.any(): …[all_padded,-1]=False``
+        # guard — but with no host sync and no torch.compile graph break.
         all_padded = padding_mask.all(dim=1)
-        if all_padded.any():
-            padding_mask = padding_mask.clone()
-            padding_mask[all_padded, -1] = False
+        padding_mask[:, -1] = padding_mask[:, -1] & ~all_padded
 
         h = self.input_proj(x)
         h = self.input_norm(h)

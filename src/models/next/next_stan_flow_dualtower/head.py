@@ -425,10 +425,10 @@ class NextHeadStanFlowDualTower(nn.Module):
         pad_mask = (aux < 0) | (aux >= self._num_classes)
         safe_idx = aux.clamp(min=0, max=self._num_classes - 1)
         transition_prior = self.log_T[safe_idx]  # [B, num_classes]
-        if pad_mask.any():
-            transition_prior = transition_prior.masked_fill(
-                pad_mask.unsqueeze(-1), 0.0
-            )
+        # masked_fill is the identity for an all-False mask, so apply it unconditionally:
+        # byte-identical to the old ``if pad_mask.any()`` guard, minus the data-dependent
+        # host sync / torch.compile graph break (pad_mask is all-False on the valid path).
+        transition_prior = transition_prior.masked_fill(pad_mask.unsqueeze(-1), 0.0)
         return logits + self.alpha * transition_prior
 
     def forward(

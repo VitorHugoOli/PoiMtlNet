@@ -44,7 +44,7 @@ if _src not in sys.path:
 
 from configs.experiment import DatasetSignature, ExperimentConfig
 from configs.globals import CATEGORIES_MAP
-from configs.paths import EmbeddingEngine, IoPaths
+from configs.paths import EmbeddingEngine, IoPaths, MTL_CHECK2HGI_ALLOWED_ENGINES
 from data.folds import FoldCreator, TaskType, load_folds, rebuild_dataloaders
 from tasks import (
     CHECK2HGI_NEXT_REGION,
@@ -67,6 +67,10 @@ logger = logging.getLogger(__name__)
 _VALID_TASKS = ("mtl", "category", "next")
 _VALID_ENGINES = [e.value for e in EmbeddingEngine]
 _NO_CHECKPOINTS = False
+# Multi-fold fan-out (set in main() from --run-id / --per-fold-seed). Default
+# None/False → single-process behaviour unchanged. Read in _run_mtl_check2hgi.
+_RUN_ID = None
+_PER_FOLD_SEED = False
 
 
 def _make_run_dir(results_path: Path, task: str, config: ExperimentConfig) -> Path:
@@ -156,6 +160,7 @@ def _run_mtl(config: ExperimentConfig, results_path: Path, fold_results: dict) -
         verbose=True,
         task_monitors=task_monitors,
         min_epoch=int(getattr(config, "min_best_epoch", 0) or 0),
+        run_id=_RUN_ID,
     )
 
     if _NO_CHECKPOINTS:
@@ -170,6 +175,7 @@ def _run_mtl(config: ExperimentConfig, results_path: Path, fold_results: dict) -
             config=config,
             results_path=results_path,
             callbacks=cbs,
+            per_fold_seed=_PER_FOLD_SEED,
         )
 
     return results
@@ -228,6 +234,7 @@ def _run_mtl_check2hgi(
         verbose=True,
         task_monitors=task_monitors,
         min_epoch=int(getattr(config, "min_best_epoch", 0) or 0),
+        run_id=_RUN_ID,
     )
 
     if _NO_CHECKPOINTS:
@@ -244,6 +251,7 @@ def _run_mtl_check2hgi(
             results_path=results_path,
             callbacks=cbs,
             task_set=task_set,
+            per_fold_seed=_PER_FOLD_SEED,
         )
 
     return results
@@ -1118,6 +1126,40 @@ def _parse_args(argv=None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--only-folds",
+        type=str,
+        default=None,
+        help=(
+            "[MULTI-FOLD] Run a SUBSET of the canonical 5-split, comma-separated, 0-indexed "
+            "(e.g. '2,3' or '0'). Like --only-fold but for several folds at once; forces the "
+            "5-split + matching per-fold seeded log_T. The fan-out building block: launch one "
+            "process per fold, all sharing a --run-id, then aggregate. Mutually exclusive with "
+            "--folds / --only-fold."
+        ),
+    )
+    parser.add_argument(
+        "--run-id",
+        type=str,
+        default=None,
+        help=(
+            "[MULTI-FOLD] Fix the results-rundir leaf to this name so N fold-processes (each "
+            "--only-folds k) write into ONE execution dir for clean aggregation, instead of each "
+            "inventing its own timestamped dir. Implies --per-fold-seed (the fan-out must be "
+            "fold-order-independent). Default None => the legacy <ts>_<pid> rundir."
+        ),
+    )
+    parser.add_argument(
+        "--per-fold-seed",
+        dest="per_fold_seed",
+        action="store_true",
+        default=False,
+        help=(
+            "[MULTI-FOLD] Reseed from (seed + fold_id) before each fold so fold k is reproducible "
+            "regardless of execution order — a fanned-out fold equals its place in a sequential "
+            "run. Auto-enabled by --run-id. Default off => byte-identical single-global-seed runs."
+        ),
+    )
+    parser.add_argument(
         "--embedding-dim",
         type=int,
         default=None,
@@ -1217,6 +1259,18 @@ def _parse_args(argv=None) -> argparse.Namespace:
             "Wrap the model in torch.compile (CUDA only). First fold "
             "incurs compilation overhead; steady-state speedup ~1.2-1.5x. "
             "May introduce numeric drift vs NORTH_STAR — exploratory."
+        ),
+    )
+    parser.add_argument(
+        "--profile",
+        dest="profile_run",
+        action="store_true",
+        default=False,
+        help=(
+            "Enable the ephemeral run profiler/audit (src/training/profiling.py): per-fold "
+            "section timing, throughput, peak GPU mem, torch.compile recompiles, GPU util, and "
+            "pain-point flags (bottlenecks) — logged at fold/run end, NOT persisted into results. "
+            "Set MTL_PROFILE_JSON=<path> to also dump the report. Numerically inert."
         ),
     )
     args = parser.parse_args(effective_argv)
@@ -1960,17 +2014,43 @@ def main(argv=None) -> None:
     # --folds: limits execution, doesn't change split structure.
     # StratifiedKFold requires n_splits >= 2, so we use max(2, requested).
     max_folds = args.folds  # None means run all folds
+    # --only-folds: parse the comma-separated subset once (0-indexed canonical fold ids).
+    only_folds_list = None
+    if getattr(args, "only_folds", None):
+        try:
+            only_folds_list = sorted({int(x) for x in str(args.only_folds).split(",") if x.strip() != ""})
+        except ValueError:
+            raise SystemExit(f"--only-folds must be comma-separated ints (got {args.only_folds!r}).")
+        if not only_folds_list:
+            raise SystemExit("--only-folds was empty.")
+    args._only_folds_list = only_folds_list
+
     if getattr(args, "only_fold", None) is not None:
         # [ONLY-FOLD] force the canonical 5-split so fold k matches the per-fold substrate
         # + the n_splits=5 seeded log_T. Mutually exclusive with --folds. Inert by default.
+        if max_folds is not None or only_folds_list is not None:
+            raise SystemExit("--only-fold, --only-folds and --folds are mutually exclusive; pass one.")
+        config = dataclasses.replace(config, k_folds=5)
+    elif only_folds_list is not None:
+        # [MULTI-FOLD] same as --only-fold but for a subset; force the canonical 5-split.
         if max_folds is not None:
-            raise SystemExit("--only-fold and --folds are mutually exclusive; pass only one.")
+            raise SystemExit("--only-folds and --folds are mutually exclusive; pass one.")
         config = dataclasses.replace(config, k_folds=5)
     elif max_folds is not None:
         n_splits = max(2, max_folds)
         config = dataclasses.replace(config, k_folds=n_splits)
 
+    # Multi-fold fan-out wiring. --run-id implies --per-fold-seed (the fan-out must be
+    # fold-order-independent so a fanned-out fold equals its place in a sequential run).
+    global _RUN_ID, _PER_FOLD_SEED
+    _RUN_ID = getattr(args, "run_id", None)
+    _PER_FOLD_SEED = bool(getattr(args, "per_fold_seed", False)) or (_RUN_ID is not None)
+
     seed_everything(config.seed)
+
+    if getattr(args, "profile_run", False):
+        from training.profiling import enable_profiler
+        enable_profiler(True)
 
     # Optional CUDA perf knobs — both default-off so paper runs match
     # NORTH_STAR exactly. They live here (post-seed) because the seed
@@ -2017,34 +2097,12 @@ def main(argv=None) -> None:
         # and the Lever-4 stack reuse the canonical c2hgi graph + sequences
         # verbatim (only the substrate embeddings differ), so the
         # check2hgi_next_region task pair is valid for them. Per-fold log_T is
-        # cp'd from canonical (n_regions identical). Allow the design engines.
-        _ALLOWED_ENGINES_FOR_C2HGI_PRESET = (
-            EmbeddingEngine.CHECK2HGI,
-            EmbeddingEngine.HGI,
-            EmbeddingEngine.CHECK2HGI_DESIGN_B,
-            EmbeddingEngine.CHECK2HGI_DESIGN_J,
-            EmbeddingEngine.CHECK2HGI_DESIGN_L,
-            EmbeddingEngine.CHECK2HGI_LEVER4_CANONICAL,
-            EmbeddingEngine.CHECK2HGI_LEVER4_DESIGN_B,
-            EmbeddingEngine.CHECK2HGI_RESLN,
-            EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_B,
-            EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_J,
-            EmbeddingEngine.CHECK2HGI_T43_SIDEFEAT,  # embedding_eval MTL re-screen
-            EmbeddingEngine.CHECK2HGI_GPROP,         # GCN^2 region-emb (adjacency-aware proxy)
-            EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_B_GPROP,  # v13 + GCN^2 region
-            EmbeddingEngine.CHECK2HGI_DESIGN_K_L0_1,
-            EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_L0_1,
-            EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_MAE_L0_1,  # option-b dual-axis base
-            EmbeddingEngine.CHECK2HGI_DK_OVL,  # overlap-window probe (v14 re-windowed stride=1)
-            EmbeddingEngine.BASELINE_B2C_ONEHOT64,  # [ENUM-MERGE] B2c zero-training floor probe
-            EmbeddingEngine.CHECK2HGI_CTLE,  # [ENUM-MERGE] B1 CTLE contextual per-visit substrate
-            EmbeddingEngine.BASELINE_B2A_POI2VEC,  # [ENUM-MERGE] B2a faithful POI2Vec
-            EmbeddingEngine.BASELINE_GEOTREE_SKIPGRAM,  # [ENUM-MERGE] geo-tree skip-gram baseline
-        )
-        if is_check2hgi_track and engine not in _ALLOWED_ENGINES_FOR_C2HGI_PRESET:
+        # cp'd from canonical (n_regions identical). The allow-list is the single
+        # source of truth in configs/paths.py (shared with data/folds.py).
+        if is_check2hgi_track and engine not in MTL_CHECK2HGI_ALLOWED_ENGINES:
             print(
                 f"error: --task-set {preset_name} requires --engine in "
-                f"{[e.value for e in _ALLOWED_ENGINES_FOR_C2HGI_PRESET]} "
+                f"{[e.value for e in MTL_CHECK2HGI_ALLOWED_ENGINES]} "
                 f"(got {engine.value}).",
                 file=sys.stderr,
             )
@@ -2152,6 +2210,20 @@ def main(argv=None) -> None:
             raise SystemExit(
                 f"--only-fold {args.only_fold} not in available folds {sorted(fold_results)}")
         fold_results = {args.only_fold: fold_results[args.only_fold]}
+    elif getattr(args, "_only_folds_list", None) is not None:
+        # [MULTI-FOLD] keep the requested subset, PRESERVING dict keys so each fold
+        # loads its own region_transition_log_seed{seed}_fold{k+1}.pt and is named by
+        # real id in the (shared) rundir. n_regions was already resolved over all 5
+        # folds above, so the subset model is sized identically across fan-out processes.
+        if len(fold_results) != 5:
+            raise SystemExit(
+                f"--only-folds needs the canonical 5-split (got {len(fold_results)} folds); "
+                f"re-freeze folds / rebuild the per-fold substrate at n_splits=5.")
+        missing = [k for k in args._only_folds_list if k not in fold_results]
+        if missing:
+            raise SystemExit(
+                f"--only-folds {missing} not in available folds {sorted(fold_results)}")
+        fold_results = {k: fold_results[k] for k in args._only_folds_list}
     elif max_folds is not None and max_folds < len(fold_results):
         fold_results = dict(list(fold_results.items())[:max_folds])
 

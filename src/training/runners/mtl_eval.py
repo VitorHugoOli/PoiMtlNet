@@ -60,8 +60,7 @@ def _ood_restricted_topk(
         hit = (topk == targets_id.unsqueeze(-1)).any(dim=-1)
         result[f"top{k}_acc_indist"] = float(hit.float().mean().item())
 
-    # MRR on in-distribution subset
-    from tracking.metrics import _rank_of_target
+    # MRR on in-distribution subset (_rank_of_target imported at module top)
     rank = _rank_of_target(logits_id, targets_id).float()
     result["mrr_indist"] = float((1.0 / rank).mean().item())
 
@@ -74,7 +73,7 @@ def evaluate_model(
     dataloaders,
     next_criterion,
     category_criterion,
-    mtl_creterion,
+    mtl_criterion,
     device,
     num_classes: int | None = None,
     task_b_num_classes: int | None = None,
@@ -97,7 +96,7 @@ def evaluate_model(
         dataloaders: List of ``[next_dataloader, category_dataloader]``.
         next_criterion: Loss function for the next task.
         category_criterion: Loss function for the category task.
-        mtl_creterion: MTL loss (unused for validation loss — kept for API compat).
+        mtl_criterion: MTL loss (unused for validation loss — kept for API compat).
         device: Device to run evaluation on.
 
     Returns:

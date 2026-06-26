@@ -7,6 +7,9 @@ import time
 from pathlib import Path
 from typing import Optional
 
+from training.profiling import get_profiler
+from utils.seed import seed_everything
+
 logger = logging.getLogger(__name__)
 
 
@@ -355,6 +358,9 @@ def train_model(model: torch.nn.Module,
     if DEVICE.type == 'cuda' and not _disable_amp:
         logger.info("MTL autocast dtype = %s", _amp_dtype)
 
+    # Ephemeral run profiler (no-op unless MTL_PROFILE=1 / --profile). See training/profiling.py.
+    _prof = get_profiler()
+
     cutoff_hits = {
         task_b_name: False,
         task_a_name: False,
@@ -542,19 +548,22 @@ def train_model(model: torch.nn.Module,
             # When the dataset is pre-moved to DEVICE (item #3, MPS path with
             # num_workers=0), the .to() calls are no-ops. Keep the guards so
             # the loop still works under a CPU-side dataloader path.
-            x_task_b, y_task_b = data_task_b
-            if x_task_b.device != DEVICE:
-                x_task_b = x_task_b.to(DEVICE, non_blocking=True)
-                y_task_b = y_task_b.to(DEVICE, non_blocking=True)
-            x_task_a, y_task_a = data_task_a
-            if x_task_a.device != DEVICE:
-                x_task_a = x_task_a.to(DEVICE, non_blocking=True)
-                y_task_a = y_task_a.to(DEVICE, non_blocking=True)
+            with _prof.section("data", tag="data"):
+                x_task_b, y_task_b = data_task_b
+                if x_task_b.device != DEVICE:
+                    x_task_b = x_task_b.to(DEVICE, non_blocking=True)
+                    y_task_b = y_task_b.to(DEVICE, non_blocking=True)
+                x_task_a, y_task_a = data_task_a
+                if x_task_a.device != DEVICE:
+                    x_task_a = x_task_a.to(DEVICE, non_blocking=True)
+                    y_task_a = y_task_a.to(DEVICE, non_blocking=True)
+            _prof.mark(samples=x_task_a.shape[0])
 
             optimizer.zero_grad(set_to_none=True)
 
             with _autocast_ctx:
-                task_a_output, task_b_output = model((x_task_a, x_task_b))
+                with _prof.section("forward"):
+                    task_a_output, task_b_output = model((x_task_a, x_task_b))
 
                 pred_task_b, truth_task_b = task_b_output, y_task_b
                 pred_task_a, truth_task_a = task_a_output, y_task_a
@@ -809,7 +818,8 @@ def train_model(model: torch.nn.Module,
                 # Scale by the accumulation group size so the effective
                 # gradient magnitude matches a full-size batch. Partial
                 # trailing groups are rescaled at step time below.
-                (loss / gradient_accumulation_steps).backward()
+                with _prof.section("backward"):
+                    (loss / gradient_accumulation_steps).backward()
             accumulated_in_group += 1
 
             should_step = (
@@ -883,7 +893,7 @@ def train_model(model: torch.nn.Module,
             # scored results are bitwise unchanged (advisor-vetted + AL A/B verified).
             # NB: do NOT apply this to the VAL path (mtl_eval.py) — val IS the scored
             # metric and its fp16-CUDA tie-breaking defines the canonical Acc@10.
-            with torch.no_grad():
+            with torch.no_grad(), _prof.section("train_metric", tag="sync"):
                 # cat (task_a) — low-cardinality, keep the full-logit path (trivial size).
                 all_task_a_logits.append(pred_task_a.detach().cpu())
                 all_task_a_targets.append(truth_task_a.cpu())
@@ -1076,17 +1086,24 @@ def train_model(model: torch.nn.Module,
         fold_history.log_diagnostic(**diagnostic_payload)
 
         # Validation phase with progress tracking
-        with progress.validation():
+        with progress.validation(), _prof.section("eval"):
             # Build train-label sets for OOD-restricted Acc@K (CH06).
             # Only populated when task_set is non-legacy (high-cardinality
             # heads where OOD filtering matters). Legacy 7-class heads
             # always have all classes in every fold → OOD is empty → skip.
-            _tl_b: set[int] | None = None
-            _tl_a: set[int] | None = None
-            if task_b_num_classes is not None and task_b_num_classes > 256:
+            # Cached on fold_history: the train-label set is fixed within a fold,
+            # so the O(N log N) .unique() + set() build runs once/fold, not once/epoch
+            # (byte-identical — same set every epoch; perf P3).
+            _tl_b: set[int] | None = getattr(fold_history, "_ood_tl_b", None) if fold_history is not None else None
+            _tl_a: set[int] | None = getattr(fold_history, "_ood_tl_a", None) if fold_history is not None else None
+            if _tl_b is None and task_b_num_classes is not None and task_b_num_classes > 256:
                 _tl_b = set(dataloader_next.train.y.unique().tolist())
-            if task_a_num_classes is not None and task_a_num_classes > 256:
+                if fold_history is not None:
+                    fold_history._ood_tl_b = _tl_b
+            if _tl_a is None and task_a_num_classes is not None and task_a_num_classes > 256:
                 _tl_a = set(dataloader_category.train.y.unique().tolist())
+                if fold_history is not None:
+                    fold_history._ood_tl_a = _tl_a
 
             val_metrics_task_b, val_metrics_task_a, loss_val = evaluate_model(
                 model,
@@ -1321,7 +1338,8 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
                                 config: ExperimentConfig,
                                 results_path: Optional[Path] = None,
                                 callbacks: Optional[list] = None,
-                                task_set: TaskSet = LEGACY_CATEGORY_NEXT):
+                                task_set: TaskSet = LEGACY_CATEGORY_NEXT,
+                                per_fold_seed: bool = False):
     num_classes = config.model_params.get('num_classes', 7)
     task_a_name = task_set.task_a.name
     task_b_name = task_set.task_b.name
@@ -1332,7 +1350,30 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
     task_a_num_classes = task_set.task_a.num_classes or num_classes
     task_b_num_classes = task_set.task_b.num_classes or num_classes
 
-    for fold_idx, (i_fold, dataloader) in enumerate(dataloaders.items()):
+    # Real canonical fold ids for the positions we will run. Lets storage name
+    # per-fold artifacts by REAL id (not in-memory position), so a subset run
+    # (--only-folds) or a fan-out into a shared --run-id rundir never collides.
+    # For a normal full run this is [0,1,2,3,4] → naming is unchanged.
+    fold_keys = list(dataloaders.keys())
+    history.fold_ids = fold_keys
+
+    _prof = get_profiler()
+    _prof.run_start(meta={
+        "state": config.state, "engine": str(config.embedding_engine),
+        "task": "mtl", "seed": config.seed, "folds": len(fold_keys),
+        "per_fold_seed": bool(per_fold_seed),
+    })
+
+    for fold_idx, i_fold in enumerate(fold_keys):
+        # --per-fold-seed: reseed from (base_seed + fold_id) BEFORE the fold is
+        # materialized + the model is built, so fold k is a pure function of
+        # (seed, fold_id) — identical whether run alone (--only-folds k, a fan-out
+        # process), in a subset, or in a full sequential sweep. Default off →
+        # byte-identical to the legacy single-global-seed behaviour.
+        if per_fold_seed:
+            seed_everything(config.seed + int(i_fold))
+        dataloader = dataloaders[i_fold]
+        _prof.fold_start(i_fold)
         clear_mps_cache()
 
         # AUDIT-C4 fix — per-fold transition prior. When
@@ -1939,6 +1980,13 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
         history.fold.task(task_b_name).report = report_next
         history.fold.task(task_a_name).report = report_category
 
+        for _tn in (task_a_name, task_b_name):
+            try:
+                _prof.record_quality(i_fold, _tn, history.fold.task(_tn).best.best_value)
+            except Exception:
+                pass
+        _prof.fold_end()
+
         history.step()
 
     # Display summary metrics (if verbose=False; verbose step() handles it)
@@ -1958,3 +2006,5 @@ def train_with_cross_validation(dataloaders: dict[int, FoldResult],
             },
         )
         manifest.write(results_path)
+
+    _prof.run_end()

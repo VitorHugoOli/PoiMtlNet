@@ -140,10 +140,9 @@ class NextHeadStanFlow(nn.Module):
         pad_mask = (aux < 0) | (aux >= self._num_classes)
         safe_idx = aux.clamp(min=0, max=self._num_classes - 1)
         transition_prior = self.log_T[safe_idx]  # [B, num_classes]
-        if pad_mask.any():
-            transition_prior = transition_prior.masked_fill(
-                pad_mask.unsqueeze(-1), 0.0
-            )
+        # masked_fill is the identity for an all-False mask → apply unconditionally to
+        # drop the data-dependent .any() host sync / graph break (byte-identical).
+        transition_prior = transition_prior.masked_fill(pad_mask.unsqueeze(-1), 0.0)
 
         return stan_logits + self.alpha * transition_prior
 

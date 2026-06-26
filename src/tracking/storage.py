@@ -335,7 +335,7 @@ class HistoryStorage:
     def _save_fold_metrics(self, path: Path, fold_idx: int) -> None:
         """Save train/val metrics CSVs for a single fold only."""
         fold = self.history.folds[fold_idx]
-        i = fold_idx + 1  # 1-based file naming, consistent with _save_metrics
+        i = self.history.fold_label(fold_idx)  # 1-based; real fold id under a fan-out run
         for task in self.history.tasks:
             th = fold.tasks.get(task)
             if not th:
@@ -355,7 +355,7 @@ class HistoryStorage:
         when partial persistence is disabled or skipped.
         """
         fold = self.history.folds[fold_idx]
-        i = fold_idx + 1
+        i = self.history.fold_label(fold_idx)
 
         joint_epoch = -1
         joint_score = None
@@ -499,7 +499,8 @@ class HistoryStorage:
 
     def _save_metrics(self, path: Path) -> None:
         """Save train/val metrics dynamically from MetricStore."""
-        for i, fold in enumerate(self.history.folds, start=1):
+        for _pos, fold in enumerate(self.history.folds):
+            i = self.history.fold_label(_pos)
             for task in self.history.tasks:
                 th = fold.tasks.get(task)
                 if not th:
@@ -516,7 +517,8 @@ class HistoryStorage:
                     save_csv(df, path / f'fold{i}_{task}_val.csv')
 
     def _save_reports(self, path: Path) -> None:
-        for i, fold in enumerate(self.history.folds, start=1):
+        for _pos, fold in enumerate(self.history.folds):
+            i = self.history.fold_label(_pos)
             joint_epoch = -1
             joint_score = None
             joint_time = 0.0

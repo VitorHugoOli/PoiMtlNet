@@ -171,6 +171,30 @@ python pipelines/train/mtl.pipe.py
 
 Configure `state` (florida, alabama, etc.) and engine. Outputs go to `results/{engine}/{state}/` including fold metrics (CSV), classification reports (JSON), plots (PNG), and summary statistics.
 
+### Run profiler + multi-fold fan-out (`docs/studies/train_perf_multifold/`)
+
+Three opt-in dev tools added 2026-06-26 (all default-off → bare runs are byte-identical to before):
+
+- **Run profiler / audit** (`--profile` or `MTL_PROFILE=1`; `src/training/profiling.py`). Ephemeral (lives only
+  for the process, like logs — NOT in MLHistory/results): per-fold section timing (data/forward/backward/
+  train_metric/eval), throughput (batch/s, samp/s), peak GPU mem, GPU util (pynvml), torch.compile recompile/
+  graph-break counts, per-fold quality, and **pain-point flags** (GPU-starved, sync/data-bound, recompile/graph
+  breaks). Logged at fold/run end; `MTL_PROFILE_JSON=<path>` dumps a transient report. Use it to find bottlenecks.
+- **Multi-fold fan-out** — run the 5 folds of ONE execution as separate processes sharing ONE rundir:
+  - `--only-folds 2,3` (run a subset of the canonical 5-split; like `--only-fold` but several),
+  - `--run-id NAME` (fix the rundir leaf so N fold-processes write into one dir; implies `--per-fold-seed`),
+  - `--per-fold-seed` (reseed `seed+fold_id` → fold-k is order-independent: a fanned-out fold == its place in a
+    sequential run, **proven byte-identical** even under 5-way concurrency).
+  - Orchestrate: `scripts/run_folds_fanout.sh <run_id> <folds_csv> <max_parallel> -- <train.py recipe…>`
+    (per-fold inductor caches; throttled). Aggregate: `scripts/aggregate_folds.py <rundir>` reads the per-fold
+    artifacts (named by REAL fold id) → `fold_aggregate.json`. ⚠ in a fan-out the per-process
+    `summary/full_summary.json` is unreliable (each process knows only its fold) — read `fold_aggregate.json` or
+    the canonical scorer (`a40_score_matched.py`), which glob `fold*_*` by real id.
+- **Quality-neutral perf** (verified within fold-std, AL A/B): removed the 3 data-dependent `.any()` graph-breaks
+  in the STAN reg head (`graph breaks 10→2`; eager byte-identical, `tests/test_models/test_stan_mask_equivalence.py`),
+  cached the per-epoch OOD train-label set, and pinned CPU-resident batches (CA/TX H2D). Excluded as
+  quality-risking: fused AdamW, SDPA-in-STAN, bf16-default, removing the AMP gate, `num_workers>0`.
+
 > ⚠ **DEFAULTS & ANTI-STUMBLE (2026-06-19, read [`docs/studies/pre_freeze_gates/DEFAULTS_AND_GUARDS.md`](docs/studies/pre_freeze_gates/DEFAULTS_AND_GUARDS.md)).** The champion **recipe** is now the DEFAULT: a bare `train.py --task mtl` auto-injects **v16** via `--canon` (`DEFAULT_CANON`, `src/configs/canon.py`) — the 6 "silently-wrong-flags" below are handled by the bundle. **But four board values are deliberately NOT global defaults** (flipping them silently breaks frozen-§0.1 reproduction): **MIN_SEQUENCE_LENGTH=10**, **stride-1 (overlap)**, **`--compile`**, **`--tf32`** live ONLY in the P3 board recipe/driver, not `core.py`/`canon.py`. `train.py` now emits WARN guards (`_preflight_canon_guards`; `MTL_STRICT=1` hard-fails) for the three silent stumbles: **dev-seed 42** (paper needs `--seed {0,1,7,100}`), **champion-recipe-on-wrong-substrate**, and **torch ≠ 2.11.0+cu128**. Never flip the four board values to global defaults; see the TRAPS list in that doc.
 >
 > ⚠ **CANONICAL VERSIONS (read `docs/results/CANONICAL_VERSIONS.md` first).** As of **2026-06-02** there are four pinned versions (v11/v12 paper-canon + code default; v13/v14 opt-in STL bases):
