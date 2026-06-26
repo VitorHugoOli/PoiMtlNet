@@ -79,8 +79,12 @@ def _interp_scalar(table: torch.Tensor, x: torch.Tensor) -> torch.Tensor:
     x = x.clamp(min=0.0, max=K - 1 - 1e-6)
     k = x.floor().long()
     frac = x - k.float()
-    lo = table[k]
-    hi = table[(k + 1).clamp(max=K - 1)]
+    # Use F.embedding (optimized embedding_dense_backward), NOT table[k] advanced
+    # indexing — the latter dispatches the generic indexing_backward atomic kernel
+    # that the profiler found = 97% of the backward time. Numerically identical gather.
+    tbl = table.unsqueeze(-1)                                          # [K, 1]
+    lo = F.embedding(k, tbl).squeeze(-1)
+    hi = F.embedding((k + 1).clamp(max=K - 1), tbl).squeeze(-1)
     return (1.0 - frac) * lo + frac * hi
 
 
@@ -137,7 +141,9 @@ class _SelfAttn(nn.Module):
         Q = self.q(x)
         K = self.k(x)
         V = self.v(x)
-        scores = (Q @ K.transpose(-2, -1)) / math.sqrt(self.d) + bias
+        # Audit fix #3 (2026-06-26): reference layers.SelfAttn adds the scalar
+        # spatio-temporal bias directly to the raw QKᵀ logits with NO 1/√d divisor.
+        scores = (Q @ K.transpose(-2, -1)) + bias
         if key_padding_mask is not None:
             scores = scores.masked_fill(key_padding_mask[:, None, :], float("-inf"))
         attn = torch.nan_to_num(F.softmax(scores, dim=-1), nan=0.0)
@@ -164,46 +170,49 @@ class _MatchingLayer(nn.Module):
     tables — paper §4 / reference ``MultiEmbed`` vs ``Embed``).
     """
 
-    def __init__(self, d_model: int, k_d: int = 64, d_max_km: float = 200.0):
+    def __init__(self, d_model: int, seq_length: int, k_d: int = 64, d_max_km: float = 200.0):
         super().__init__()
         self.E_d_match = nn.Parameter(torch.zeros(k_d))
         nn.init.normal_(self.E_d_match, std=0.1)
         self.k_d = k_d
         self.d_max = d_max_km
         self.d = d_model
+        # Audit fix #1 (2026-06-26): STAN's matching layer (reference layers.Attn)
+        # collapses the trajectory-position dimension with a LEARNED Linear(max_len, 1),
+        # NOT a parameter-free softmax-mean. The previous additive-bias + softmax over
+        # positions collapsed to a distance/proximity prior. Restored here.
+        self.collapse = nn.Linear(seq_length, 1, bias=False)
+
+    def bias_per_poi(self, dd_poi: torch.Tensor) -> torch.Tensor:
+        """Interp the learned Δd interval embedding into a [n_pois+1, R] bias table,
+        ONCE per forward. dd_poi (POI->region km) is FIXED, so the bias depends only
+        on (POI, region). Computing it here (13M for AL) instead of per (batch,pos,region)
+        triple (114M) cuts the interval-bias work + its atomic-scatter backward ~9x —
+        the matching-layer bottleneck the observers found (10 s/batch -> see profile)."""
+        d_bin = (dd_poi.clamp(min=0.0, max=self.d_max) / self.d_max) * (self.k_d - 1)
+        return _interp_scalar(self.E_d_match, d_bin)                   # [n_pois+1, R]
 
     def forward(self, S: torch.Tensor, region_emb: torch.Tensor,
-                traj_lat: torch.Tensor, traj_lon: torch.Tensor,
-                region_centroids: torch.Tensor,
+                bias_match: torch.Tensor,
                 key_padding_mask: torch.Tensor) -> torch.Tensor:
         # S:                 [B, n, D]
         # region_emb:        [R, D]
-        # traj_lat/lon:      [B, n]
-        # region_centroids:  [R, 2]   (lat, lon)
+        # bias_match:        [B, n, R]  per-POI Δd interval bias, gathered (see bias_per_poi)
         # key_padding_mask:  [B, n]   bool, True=pad
         B, n, D = S.shape
         R = region_emb.shape[0]
 
-        cand_lat = region_centroids[:, 0]                              # [R]
-        cand_lon = region_centroids[:, 1]                              # [R]
-        # Pairwise Δd from each trajectory position to each candidate region.
-        dd = haversine_km(
-            traj_lat.unsqueeze(2), traj_lon.unsqueeze(2),              # [B, n, 1]
-            cand_lat[None, None, :], cand_lon[None, None, :],          # [1, 1, R]
-        )                                                              # [B, n, R]
-        d_bin = (dd.clamp(min=0.0, max=self.d_max) / self.d_max) * (self.k_d - 1)
-        bias_match = _interp_scalar(self.E_d_match, d_bin)             # [B, n, R]
-
-        scores = torch.einsum("bnd,rd->bnr", S, region_emb) / math.sqrt(D)
-        scores = scores + bias_match                                   # [B, n, R]
-        # Mask pad trajectory positions out of the softmax over n.
-        scores = scores.masked_fill(key_padding_mask[:, :, None], float("-inf"))
-        attn = torch.nan_to_num(F.softmax(scores, dim=1), nan=0.0)     # softmax over n
-        # Final region logit: weighted sum over trajectory of the same scores.
-        # Mask pad before sum so they contribute zero.
-        zeros_mask = key_padding_mask[:, :, None].expand_as(scores)
-        scores_safe = scores.masked_fill(zeros_mask, 0.0)
-        return (attn * scores_safe).sum(dim=1)                         # [B, R]
+        # Audit fix #3: reference omits the 1/√d scaling. Content dot-product on the
+        # same scale as the gate so it can't be drowned out.
+        content = torch.einsum("bnd,rd->bnr", S, region_emb)          # [B, n, R]
+        # Audit fix #1: MULTIPLICATIVE Δd gate (reference `torch.mul`), not additive —
+        # content≈0 ⇒ gated≈0, so a region cannot be scored from distance alone.
+        gated = content * bias_match                                   # [B, n, R]
+        # Mask pad trajectory positions to zero so they contribute nothing to the
+        # learned position collapse.
+        gated = gated.masked_fill(key_padding_mask[:, :, None], 0.0)   # [B, n, R]
+        # Learned collapse of the trajectory-position dim (reference Linear(max_len,1)).
+        return self.collapse(gated.transpose(1, 2)).squeeze(-1)        # [B, R]
 
 
 class FaithfulSTAN(nn.Module):
@@ -224,8 +233,13 @@ class FaithfulSTAN(nn.Module):
         self.poi_emb = nn.Embedding(n_pois + 1, d_model, padding_idx=n_pois)
         # Hour-of-week embedding (paper §4.1.1 e_time). Idx 0 = pad.
         self.time_emb = nn.Embedding(HOURS_OF_WEEK + 1, d_model, padding_idx=0)
+        # Audit fix #2 (2026-06-26): the reference leaves nn.Embedding at the default
+        # ~N(0,1). With std-0.02 + the (removed) 1/√d the learned content channel was
+        # ~25x smaller than the distance bias at init -> born dead -> proximity collapse.
+        # Scale init to ~1/√d so content and the interval bias are on the same order.
+        emb_std = d_model ** -0.5
         for emb in (self.poi_emb, self.time_emb):
-            nn.init.normal_(emb.weight, std=0.02)
+            nn.init.normal_(emb.weight, std=emb_std)
         with torch.no_grad():
             self.poi_emb.weight[n_pois].zero_()
             self.time_emb.weight[0].zero_()
@@ -236,10 +250,14 @@ class FaithfulSTAN(nn.Module):
 
         # Matching-layer candidate-side: region embeddings + candidate Δd bias.
         self.region_emb = nn.Embedding(n_regions, d_model)
-        nn.init.normal_(self.region_emb.weight, std=0.02)
-        self.matching = _MatchingLayer(d_model, k_d, d_max_km)
+        nn.init.normal_(self.region_emb.weight, std=emb_std)
+        self.matching = _MatchingLayer(d_model, seq_length, k_d, d_max_km)
 
         self.seq_length = seq_length
+        # Opt-D: interp the Δd bias only over the batch's distinct POIs (bit-identical;
+        # big win at large n_pois). Uses torch.unique -> dynamic shape, so it is
+        # INCOMPATIBLE with CUDA-graph compile (mode="reduce-overhead"); disable for that.
+        self.distinct_poi = True
 
     def forward(self,
                 poi_idx: torch.Tensor,            # [B, S] int64; pad = -1
@@ -247,7 +265,7 @@ class FaithfulSTAN(nn.Module):
                 lat: torch.Tensor,                # [B, S] float
                 lon: torch.Tensor,                # [B, S] float
                 t_min: torch.Tensor,              # [B, S] int/float (minutes)
-                region_centroids: torch.Tensor,   # [n_regions, 2] (lat, lon)
+                dd_poi: torch.Tensor,             # [n_pois+1, n_regions] precomputed POI->region km
                 ) -> torch.Tensor:                # [B, n_regions]
         pad_mask = poi_idx < 0
         poi_safe = torch.where(pad_mask, torch.full_like(poi_idx, self.pad_poi), poi_idx)
@@ -269,6 +287,18 @@ class FaithfulSTAN(nn.Module):
         bias = self.bias_traj(dt, dd)                                  # [B, S, S]
         S = self.attn_traj(x, bias, pad_mask)                          # [B, S, D]
 
+        # Δd interval bias. Opt-D (distinct-POI, bit-identical): interp only over the
+        # DISTINCT POIs in this batch (U <= n_pois; far fewer at large n_pois) instead of
+        # all n_pois every forward, then scatter back via the inverse map. Both paths use
+        # F.embedding (fast embedding_dense_backward, NOT the slow generic indexing_backward).
+        if self.distinct_poi:
+            flat = poi_safe.reshape(-1)                                # [B*S]
+            uniq, inv = torch.unique(flat, return_inverse=True)        # [U], [B*S]
+            bias_u = self.matching.bias_per_poi(dd_poi.index_select(0, uniq))   # [U, R]
+            bias_match = F.embedding(inv.view(poi_safe.shape), bias_u)  # [B, S, R]
+        else:
+            bias_per_poi = self.matching.bias_per_poi(dd_poi)          # [n_pois+1, R]
+            bias_match = F.embedding(poi_safe, bias_per_poi)           # [B, S, R]
         return self.matching(
-            S, self.region_emb.weight, lat, lon, region_centroids, pad_mask,
+            S, self.region_emb.weight, bias_match, pad_mask,
         )                                                              # [B, n_regions]

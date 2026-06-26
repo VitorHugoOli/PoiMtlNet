@@ -51,9 +51,15 @@ if _src not in sys.path:
 
 from configs.paths import DATA_ROOT, OUTPUT_DIR, Resources  # noqa: E402
 
-WINDOW_SIZE = 9
+# Audit fix #4 (2026-06-26): STAN's NATIVE sequence construction is full-trajectory
+# PREFIX-EXPANSION (reference load.py truncates each user to the last max_len, train.py's
+# expanding causal mask supervises EVERY position t from its causal prefix -> L-1 targets/user),
+# NOT our stride-9 single-target windows. CONTEXT_LEN = STAN's max_len (paper 100; 50 here as a
+# memory-feasible value — covers AL/AZ p90 and most of FL, and the matching layer's [B, n, R]
+# tensors stay GPU-bounded at large region counts). Tunable via --context-len.
+CONTEXT_LEN = 50
 PAD = -1
-MIN_HISTORY = 5  # match src/data/inputs/core.py::MIN_SEQUENCE_LENGTH
+MIN_HISTORY = 5  # skip users with fewer than this many check-ins (too short to learn from)
 
 _STATE_TO_SHAPEFILE = {
     "alabama": Resources.TL_AL,
@@ -63,10 +69,8 @@ _STATE_TO_SHAPEFILE = {
     "texas": Resources.TL_TX,
     "georgia": Resources.TL_GA,
     "newyork": Resources.TL_NY,
-    # Non-US (Massive-STEPS): regions are OSM mahalle polygons (the city's
-    # PRIMARY admin units = the same taxonomy the check2hgi substrate consumes,
-    # exported as boroughs_area.csv). gpd.read_file handles the GeoJSON; the
-    # region key is the polygon "@id" (renamed to GEOID downstream).
+    # Istanbul (Massive-STEPS): region = OSM admin_level=8 mahalle polygons (the
+    # TIGER-tract equivalent). GeoJSON instead of a .shp; region-id col is '@id'.
     "istanbul": DATA_ROOT / "miscellaneous" / "istanbul_mahalle" / "istanbul_mahalle.geojson",
 }
 
@@ -98,11 +102,11 @@ def _assign_regions_from_shapefile(checkins: pd.DataFrame, shapefile: Path
         geometry=gpd.points_from_xy(pois["longitude"], pois["latitude"]),
         crs="EPSG:4326",
     )
-    tracts = gpd.read_file(shapefile).to_crs("EPSG:4326")
-    # US TIGER tracts key on "GEOID"; OSM admin polygons (mahalle) key on "@id".
-    if "GEOID" not in tracts.columns and "@id" in tracts.columns:
-        tracts = tracts.rename(columns={"@id": "GEOID"})
-    tracts = tracts[["GEOID", "geometry"]]
+    _tr = gpd.read_file(shapefile).to_crs("EPSG:4326")
+    # Region-id column: TIGER tracts use 'GEOID'; the Istanbul mahalle GeoJSON uses
+    # '@id' (OSM relation id). Normalize to 'GEOID' so the rest is substrate-agnostic.
+    _rid = "GEOID" if "GEOID" in _tr.columns else ("@id" if "@id" in _tr.columns else "name")
+    tracts = _tr[[_rid, "geometry"]].rename(columns={_rid: "GEOID"})
 
     pois_geom = pois_geom.sjoin(tracts, how="left", predicate="intersects")
     pois_geom = pois_geom.dropna(subset=["GEOID"]).reset_index(drop=True)
@@ -138,10 +142,10 @@ def _assign_regions_from_shapefile(checkins: pd.DataFrame, shapefile: Path
     )
 
 
-def build_windows(state: str) -> tuple[pd.DataFrame, int, int]:
-    """Build the per-window input frame for ``state``.
+def build_windows(state: str, context_len: int = CONTEXT_LEN) -> tuple[pd.DataFrame, int, int]:
+    """Build the per-window input frame for ``state`` via STAN-native prefix-expansion.
 
-    Returns ``(df, n_pois, n_regions)``.
+    Returns ``(df, n_pois, n_regions, centroid_df)``. ``context_len`` = STAN max_len.
     """
     raw = pd.read_parquet(
         _checkins_path(state),
@@ -185,42 +189,36 @@ def build_windows(state: str) -> tuple[pd.DataFrame, int, int]:
         t_seq = grp["t_minutes"].to_numpy()
         hour_seq = grp["hour_of_week"].to_numpy()
 
-        for start in range(0, n, WINDOW_SIZE):
-            end = start + WINDOW_SIZE
-            target_pos = end
-            if target_pos >= n:
-                hist_pois = poi_seq[start:end]
-                if len(hist_pois) < 2:
-                    break
-                tgt = start + len(hist_pois) - 1
-                target_region = int(reg_seq[tgt])
-                target_category = str(cat_seq[tgt])
-                hist_idx = list(range(start, tgt))
-            else:
-                target_region = int(reg_seq[target_pos])
-                target_category = str(cat_seq[target_pos])
-                hist_idx = list(range(start, end))
+        # STAN-native prefix-expansion: predict EVERY position t (1..n-1) from its
+        # causal prefix = the last CONTEXT_LEN check-ins before t (left-aligned,
+        # right-padded). Mirrors load.py (truncate to last max_len) + train.py's
+        # expanding causal mask. Yields n-1 targets per user (vs ceil(n/9) before).
+        for t in range(1, n):
+            ctx_start = max(0, t - context_len)
+            hist_idx = range(ctx_start, t)               # length 1..context_len
+            target_region = int(reg_seq[t])
+            target_category = str(cat_seq[t])
 
-            poi_pad = [PAD] * WINDOW_SIZE
-            lat_pad = [0.0] * WINDOW_SIZE
-            lon_pad = [0.0] * WINDOW_SIZE
-            t_pad = [0] * WINDOW_SIZE
-            hour_pad = [0] * WINDOW_SIZE  # 0 = pad token; real values 1..168
+            poi_pad = [PAD] * context_len
+            lat_pad = [0.0] * context_len
+            lon_pad = [0.0] * context_len
+            t_pad = [0] * context_len
+            hour_pad = [0] * context_len  # 0 = pad token; real values 1..168
             for k, idx in enumerate(hist_idx):
                 poi_pad[k] = int(poi_seq[idx])
                 lat_pad[k] = float(lat_seq[idx])
                 lon_pad[k] = float(lon_seq[idx])
                 t_pad[k] = int(t_seq[idx])
                 hour_pad[k] = int(hour_seq[idx])
-            t0 = next((t for t in t_pad if t > 0), 0)
-            t_rel = [int(max(0, t - t0)) if t > 0 else 0 for t in t_pad]
+            t0 = next((tt for tt in t_pad if tt > 0), 0)
+            t_rel = [int(max(0, tt - t0)) if tt > 0 else 0 for tt in t_pad]
 
             row = {
                 "userid": int(uid),
                 "target_region_idx": target_region,
                 "target_category": target_category,
             }
-            for k in range(WINDOW_SIZE):
+            for k in range(context_len):
                 row[f"poi_idx_{k}"] = poi_pad[k]
                 row[f"lat_{k}"] = lat_pad[k]
                 row[f"lon_{k}"] = lon_pad[k]
@@ -242,9 +240,11 @@ def centroids_path(state: str) -> Path:
 def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--state", required=True)
+    p.add_argument("--context-len", type=int, default=CONTEXT_LEN,
+                   help="STAN max trajectory length (prefix-expansion context).")
     args = p.parse_args()
 
-    df, n_pois, n_regions, centroid_df = build_windows(args.state)
+    df, n_pois, n_regions, centroid_df = build_windows(args.state, context_len=args.context_len)
     out = out_path(args.state)
     out.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(out, index=False)
