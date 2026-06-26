@@ -152,5 +152,19 @@ in bf16; the NaN states are CA/TX (C=6.5-8.5k), whose bf16 overlap-MTL is H100-o
 `MTL_STAN_FP32_ATTN=1` and check 0 non-finite skips vs the void −2.37 — on the H100 or a long A40 run.
 Model+training suite 252 passed (no regression).
 
-### #2/#4/#5 — audit workflow `wf_5f410c3d-ef8` running (fold variance + STAN-head correctness + 7-file slimming).
-### #6 — timing run `bg1guitbt` (5-parallel fan-out wall) in flight. Sequential: baseline 654s, optimized 634s.
+### #2/#4/#5/#6 — audit workflow `wf_5f410c3d-ef8` (9 agents, 651k tok) DONE → see [`AUDIT_FINDINGS.md`](AUDIT_FINDINGS.md)
+- **#6 timing**: baseline 654s · optimized 634s · **opt+5-parallel 695s (slightly SLOWER on one GPU)**. Fan-out
+  doesn't speed a single GPU (5× startup + per-process n_regions scan + contention; GPU already 99%). Value =
+  multi-GPU scaling + resumability + subset granularity. Board-grade aggregate (cat 63.47/reg 69.75).
+- **#2 fold variance**: fold-5 = harder USER cohort (held-out unit is the user). reg deficit ← low self-transition
+  rate (29.6% vs 32.9%; stay-rate vs reg@10 r=+0.907); cat deficit ← high per-user category concentration
+  (entropy vs cat-F1 r=+0.973). Expected structural CV variance, NOT a bug → report it, n=20 multi-seed tightens.
+- **#4 STAN audit**: NO correctness bug in the champion reg path; divergences from faithful STAN are intentional
+  (head-over-substrate). Two optional bit-identical hardenings (U1 alignment-robust pooling, U2 cosmetic) deferred.
+- **#3 bf16 smoke**: AL bf16 runs CLEAN both ways (0 skips, MTL_STRICT=1); island shifts numerics (fp32 recovery).
+  Real NaN validation (TX bf16) deferred to H100. Code+tests done.
+- **#5 slimming**: applied SAFE non-numeric wins (experiment.py redundant import + dead branch; helpers.py dead
+  DataLoader import + merged typing). Full per-file SAFE-now vs A/B-gated roadmap in AUDIT_FINDINGS.md §5. Tests
+  379 passed. Hot-numeric extractions deferred behind metric-parity A/B (frozen-§0.1 contract).
+
+## Follow-up status: #1 ✅ #3 ✅(code+AL) #2 ✅(diagnosed) #4 ✅(no bug) #6 ✅(measured) #5 ✅(safe applied + roadmap)

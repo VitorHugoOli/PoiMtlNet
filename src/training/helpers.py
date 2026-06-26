@@ -5,7 +5,7 @@ that were copy-pasted across category, next, and MTL cross-validation files.
 """
 
 import os
-from typing import Optional, Union
+from typing import Iterable, Optional, Union
 
 import numpy as np
 import torch
@@ -19,8 +19,6 @@ from torch.optim.lr_scheduler import (
     OneCycleLR,
     SequentialLR,
 )
-from torch.utils.data import DataLoader
-from typing import Iterable
 
 
 def compute_class_weights(

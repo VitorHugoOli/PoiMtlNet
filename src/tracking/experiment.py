@@ -215,7 +215,6 @@ class MLHistory:
                     label_map=self._label_map,
                 )
             except Exception as exc:  # defensive; should not propagate
-                import logging
                 logging.getLogger(__name__).warning(
                     "per-fold partial save failed for fold %d: %s",
                     self.curr_i_fold, exc,
@@ -303,6 +302,6 @@ class MLHistory:
             self._adapter.on_run_end({
                 "model_name": self.model_name,
                 "num_folds": self.num_folds,
-                "duration": self.timer.get_duration() if hasattr(self.timer, 'get_duration') else 0,
+                "duration": self.timer.get_duration(),
             })
             self._adapter.close()
