@@ -3,14 +3,68 @@
 %       infomax objective; one vector per check-in. Fig. \ref{fig:dataflow} (top priority).
 %   4.2 The single model: shared trunk + private spatial path; one model, one forward pass, two predictions.
 %       Fixed-weight sum, both outputs plain unweighted cross-entropy. Cost about +5 percent (one model vs two).
-%       Fig. \ref{fig:arch}.
+%       Fig. \ref{fig:model}.
 \section{Method}
 \label{sec:method}
 
 \subsection{The check-in-level representation}
 \label{sec:method-rep}
-% TODO
+
+We want each visit, not each place, to carry its own vector. A standard place
+embedding gives every point of interest (POI) one fixed vector, so two visits to
+the same caf\'e look identical even when they happen at different times of day,
+in different company, or after different trips. We instead describe each
+check-in in its own context. Figure~\ref{fig:dataflow} shows the full data flow,
+from the raw check-in trail to the two outputs.
+
+We build a graph with four levels: the check-in, the place it records, the
+region (a census tract) the place sits in, and the city. Edges tie these levels
+together and tie check-ins to one another, encoding category similarity (visits
+to similar kinds of place), time (visits close in time), and distance (visits
+close in space). This keeps the place-to-region-to-city geography of a
+hierarchical graph and adds the check-in as a new bottom level. We train the
+graph with an infomax objective, which contrasts real neighborhoods against
+shuffled ones, so the vectors learn to tell a true local structure from a random
+one~\cite{velickovic2019deep,huang2023hgi}. The objective uses no task label: it
+never sees the next category or the next region. From the trained graph we read
+out one vector per check-in, and a model then sees a sequence of these per-visit
+vectors rather than a sequence of repeated per-place ones.
+
+The pieces here are individually standard. Per-visit context, hierarchical
+place graphs, and the infomax objective all exist in prior work. Our one honest
+novelty is the combination: emitting a vector per check-in from inside a
+hierarchical-graph-infomax representation, a combination that earlier contextual
+embeddings built from sequence models do not provide, and we show later that this
+combination, not extra supervision, is what makes the category task far easier to
+learn.
 
 \subsection{The single multi-task model}
 \label{sec:method-model}
-% TODO
+
+We then train one model that reads a window of recent per-visit vectors and
+predicts two properties of the next visit at once: its category and its region.
+Figure~\ref{fig:model} shows the design. Two input streams pass through private
+per-task encoders into a shared trunk, and the trunk feeds two outputs, one for
+the category and one for the region. The region output keeps a private spatial
+path of its own, a small branch that the category task does not touch.
+
+We want to be precise about what that private path is, because it is easy to
+misread. It is a task-specific branch inside the one model, not a second model,
+not a second representation, and not a route that swaps models per task. The
+whole system is a single model: one set of shared parameters, one forward pass,
+two predictions. This is the deployment property we care about, since a service
+that wants both answers runs one model once, not two models in sequence.
+
+The training loss is a fixed-weight sum of the two outputs, and both outputs use
+plain unweighted cross-entropy. We avoid class-weighting on purpose. Our
+category metric, macro-F1, already counts every class equally, so re-weighting
+the loss to favor rare classes would optimize a different objective than the one
+we report; we keep the objective and the metric aligned and let the equal-weight
+sum balance the two tasks. This is ordinary hard parameter
+sharing~\cite{caruana1997multitask}, kept deliberately plain so that any gain
+comes from the shared representation and not from a tuned weighting scheme.
+
+The cost of serving both tasks this way is small. One joint model has about five
+percent more parameters and compute than a single dedicated model, far less than
+the two separate models the usual setup would deploy, so two answers come at
+roughly the price of one.

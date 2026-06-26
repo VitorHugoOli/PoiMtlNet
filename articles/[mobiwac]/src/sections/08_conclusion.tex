@@ -6,4 +6,16 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-% TODO: draft prose from PAPER_PLAN 4.
+We asked whether one model can predict both the category and the region of a
+user's next visit. Two findings answer it. First, a check-in-level
+representation, where each visit gets its own vector instead of one fixed vector
+per place, makes the next-category task far more learnable than the standard
+place-level representation does. Second, on top of that representation a single
+multi-task model beats a dedicated category model at every state, and on region
+it beats the dedicated model where the region space is large while staying
+statistically non-inferior within a two-point margin (TOST) where it is small.
+What we take away is not only a model but a clear reading: one model that shares
+a semantic context across both tasks while keeping a private spatial path for
+region can anticipate both what a user will do and where, and it does so without
+giving up the spatial task, and the spatial gain grows with the number of
+regions.

@@ -53,7 +53,23 @@ email}
 % Motivation first; no model name in the first sentence; no system number.
 % ---------------------------------------------------------------------
 \begin{abstract}
-% TODO: draft abstract from PAPER_PLAN section 4 (Abstract).
+Location-based social networks (LBSNs) record where people go and what they
+do, one check-in at a time. If we can anticipate the next visit, mobile and
+urban services can act ahead of demand. Two coarse questions usually suffice:
+the next category (the kind of place) and the next region (which part of the
+city). These are normally handled by separate models, so we ask whether one
+model can learn both, and what sharing a single representation costs. We first
+build a check-in-level representation that describes each visit in its own
+context, instead of giving every place one fixed vector. Across five U.S.
+states, this lifts next-category prediction by a wide margin over a standard
+place embedding \cite{huang2023hgi} (about $+28$ to $+40$ macro-averaged F1),
+and most of the gain comes from the per-visit context. We then train one
+multi-task model for both tasks. At every state it beats a dedicated category
+model (about $+4.7$ to $+7.7$ macro-F1), and on region it beats the dedicated
+model where the region space is large and is statistically non-inferior within
+a two-point margin (TOST) where it is small. The spatial gain grows with scale.
+On a non-U.S. city (Istanbul) the result holds: it beats on category and stays
+within two points on region.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -107,7 +123,10 @@ forward pass, two predictions.}
 % References. Keys live in references.bib (already de-anonymized and
 % audited; see PAPER_PLAN section 8). Choose a final IEEE bst at write-time.
 % ---------------------------------------------------------------------
-\bibliographystyle{IEEEtran}
+% NOTE (QA): IEEEtran.bst is not present in this TeX install; using the
+% built-in IEEE numeric style `ieeetr` so the build resolves everywhere.
+% For final submission on full TeX Live / Overleaf you may restore IEEEtran.
+\bibliographystyle{ieeetr}
 \bibliography{references}
 
 \end{document}

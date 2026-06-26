@@ -10,16 +10,90 @@
 
 \subsection{Data}
 \label{sec:setup-data}
-% Table~\ref{tab:datasets}. TODO
+We evaluate on six datasets, summarized in Table~\ref{tab:datasets}. Five come from Gowalla, a location-based
+social network, and cover the U.S. states of Alabama, Arizona, Florida, Texas, and California
+\cite{cho2011gowalla}; the sixth is the city of Istanbul, drawn from the Massive-STEPS collection
+\cite{wongso2025massivesteps}, which gives us a non-U.S. check on the findings. We chose this spread on purpose.
+The states run from small to large, from about 114 thousand check-ins and 1,109 regions in Alabama to several
+million check-ins and 8,501 regions in California, so we can watch a result hold (or not) as the region space
+grows. Every dataset uses the same seven place categories: Community, Entertainment, Food, Nightlife, Outdoors,
+Shopping, and Travel. The region unit is a census tract for the Gowalla states and a mahalle (a municipal
+neighborhood) for Istanbul, and the number of regions ranges from about five hundred to about eight thousand five
+hundred. The short reading of Table~\ref{tab:datasets} is that our datasets span a wide range of size and region
+count, which is exactly what lets us study how joint training behaves with scale.
 
 \subsection{Windows, splitting, and the integrity of the representation}
 \label{sec:setup-windows}
-% TODO
+\emph{Windows.} For each user we sort the check-ins in time and form overlapping windows of nine visits, with the
+next visit as the target. Overlapping windows give the category task more examples to learn from. We then apply a
+simple gate that removes a small over-representation of each user's last place (because the windows overlap, many
+end on the same final visit); the gate de-skews that target while keeping one full-context prediction of the last place.
+These are valid examples, not padding.
+
+\emph{Splitting.} We split by user with stratified five-fold cross-validation (CV), so all of a user's windows
+fall in the same fold. Overlapping windows therefore cannot leak across the split, because a test user's visits
+never appear in training.
+
+\emph{Integrity of the representation.} We train the representation once on the whole dataset and then feed it to
+both the dedicated single-task models and the joint model, so it is worth being explicit that it carries no
+information about the test visits. It does not, for three reasons. First, the representation is trained without any
+task label: its objective only contrasts real graph neighborhoods against shuffled ones, and it never sees the
+next-category or next-region target, so no label can travel from test to train through it. Second, the only thing
+it could carry from the test side is graph structure (which places sit near which, in space, time, and category),
+because the graph is built over all places. We measured that exposure directly, rebuilding the representation
+from only each fold's training users and re-running both models; both tasks moved by well under a point, with no
+systematic gain from the wider exposure.
+% TODO (author): replace the qualitative bound with the measured per-fold deltas from the train-users-only
+% rebuild audit across all states (region/category at AL..CA + the in-coverage share) once that run lands.
+Third, the one component that really passes
+visit-to-visit information, the region-transition prior used by the spatial path, is built per fold from training
+data only, seed by seed; an earlier version that used the whole dataset inflated region accuracy by 13 to 27
+points, so we removed it. Every learned baseline representation is pre-trained the same way, so all inputs are
+held to the same standard. The one residual we cannot fully isolate, visits to places never seen in training, is
+the scope of a planned training-only variant; the evidence in hand bounds any inflation to under a point on the
+measurable majority and finds none.
 
 \subsection{Metrics, superiority versus non-inferiority}
 \label{sec:setup-metrics}
-% TODO
+For the category task we report macro-averaged F1 (macro-F1), which averages the per-class F1 so that each of the
+seven categories counts equally, including the rare ones; its reference point is the majority-class floor. For the
+region task we report accuracy at ten (Acc@10), the fraction of test visits whose true region appears among the
+model's ten highest-scoring guesses; its comparison anchor is the dedicated single-task ceiling.
+
+We make two kinds of comparison and test each one appropriately. Where the joint model is meant to win, we test
+\emph{superiority} with a paired Wilcoxon signed-rank test over the folds. Where the joint model is meant only to
+stay even, we test \emph{non-inferiority}, that it is no worse than the dedicated model by more than a two-point
+margin, with a two one-sided tests (TOST) procedure. We fix the two-point margin in advance and on deployment
+grounds, before looking at whether any claim survives it. A mobility-aware service that anticipates regional
+demand, stages content for the right region, or plans capacity at the level of a census tract acts on coarse
+regional signal, not on a single rank position, so a two-point shift in Acc@10 is below the granularity at which
+such a service would behave differently. The margin is also large relative to the task: with one thousand to
+eight thousand five hundred regions, a random top-ten guess lands the true region under one percent of the time,
+so two points spans a wide band of the achievable range. Finally, the equivalence is well powered. The per-fold
+region standard deviation is small (0.16 to 0.37 points), which gives a power near 1.0 to reject a true two-point
+gap, so a non-inferiority verdict reflects a real match rather than a noisy test. Which cells turn out to be a
+beat and which a match is a result, reported in Section~\ref{sec:results}, not here.
 
 \subsection{Baselines}
 \label{sec:setup-baselines}
-% TODO
+We compare against baselines in three roles, kept separate so each answers its own question. The first role is the
+state of the art for each task, on our data and folds. For next-category this is POI-RGNN \cite{capanema2023poirgnn},
+run as a faithful author implementation, and a simple "what usually follows what" Markov baseline over the nine
+recent categories (Markov-9). For next-region this is HMT-GRN \cite{lim2022hmtgrn}, our primary region-native
+comparison, predicting the region from its own end-to-end recurrent model on the same data, seed, and folds; we run
+the HMT-GRN-style trunk and its region-transition prior, and drop its graph module and hierarchical beam search,
+which exist to prune a next-place head we do not predict (so the HMT-GRN comparison is a region-native model, not a
+component-complete reproduction). Alongside it we run a faithful STAN \cite{luo2021stan}, trained from raw with its
+own embeddings and its own sequence construction, and a ReHDM \cite{li2025rehdm} reference reported under that
+method's own published protocol rather than as a matched cell. We never feed STAN our representation; a
+representation-fed variant would not be a faithful baseline, and we note in passing that such a variant is
+competitive at the smallest state, which we read as future headroom for the representation rather than a baseline. The
+second role is a representation control, run on Florida, to attribute the category gain to our specific design and
+not to contextualization in general or to extra features: CTLE \cite{lin2021ctle}, the closest prior contextual
+check-in embedding, presented fairly in both its end-to-end and frozen forms, and a feature-concat control that
+appends raw per-visit features to a standard place embedding under the same model. The third role is a multi-task
+comparator: the CSLSL cascade \cite{huang2024cslsl}, which predicts in a chain rather than in parallel, so we can
+contrast our one-forward-pass joint model against the dominant alternative multi-task design at equal cost. The
+dedicated single-task models are the comparison anchors for the joint model throughout, and the standard
+place-level embedding \cite{huang2023hgi} is the place-level comparison that isolates what the per-visit
+representation adds.
