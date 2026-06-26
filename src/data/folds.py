@@ -863,6 +863,28 @@ def rebuild_dataloaders(
     return fold_results
 
 
+def _classify_pois(poi_users, train_users, val_users):
+    """Partition POIs by which user-set(s) visited them (legacy-MTL category split).
+
+    A POI seen by both a train user and a val user is ``ambiguous``; otherwise it is
+    ``train_exclusive`` / ``val_exclusive``. This is the user-isolation leak guard:
+    category-val POIs are val-exclusive only, so a val POI never leaks into train.
+    Returns ``(train_exclusive, val_exclusive, ambiguous)`` lists in ``poi_users``
+    iteration order.
+    """
+    train_exclusive, val_exclusive, ambiguous = [], [], []
+    for poi, visitors in poi_users.items():
+        in_train = bool(visitors & train_users)
+        in_val = bool(visitors & val_users)
+        if in_train and in_val:
+            ambiguous.append(poi)
+        elif in_train:
+            train_exclusive.append(poi)
+        elif in_val:
+            val_exclusive.append(poi)
+    return train_exclusive, val_exclusive, ambiguous
+
+
 # ============================================================
 # FOLD CREATOR
 # ============================================================
@@ -1075,19 +1097,10 @@ class FoldCreator:
             )
 
             if use_poi_protocol:
-                # Step 2: Classify POIs
-                train_exclusive = []
-                val_exclusive = []
-                ambiguous = []
-                for poi, visitors in poi_users.items():
-                    in_train = bool(visitors & train_users)
-                    in_val = bool(visitors & val_users)
-                    if in_train and in_val:
-                        ambiguous.append(poi)
-                    elif in_train:
-                        train_exclusive.append(poi)
-                    elif in_val:
-                        val_exclusive.append(poi)
+                # Step 2: Classify POIs (user-isolation leak guard) — see _classify_pois.
+                train_exclusive, val_exclusive, ambiguous = _classify_pois(
+                    poi_users, train_users, val_users,
+                )
 
                 logger.info(
                     f"  POIs: train_excl={len(train_exclusive)}, "
