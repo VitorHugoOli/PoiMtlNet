@@ -182,7 +182,7 @@ Every baseline should sit **below** our MTL (and below or at our STL) on both ta
    the new values (Markov, POI-RGNN under next-category; ReHDM, STAN under next-region). Add the footnote that the
    Istanbul STAN point is on check2hgi (no HGI build) if you took option 4a-1.
 4. **`RESULTS_BOARD.md §4`:** update the Istanbul baseline status from missing to done, with the JSON paths.
-5. Recompile the paper (`pdflatex paper_skeleton` ×2) and confirm the Istanbul row renders.
+5. Recompile the paper (`pdflatex main` ×2) and confirm the Istanbul row renders.
 
 ---
 

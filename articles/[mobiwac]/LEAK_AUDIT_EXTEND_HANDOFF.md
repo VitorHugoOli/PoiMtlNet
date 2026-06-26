@@ -71,7 +71,7 @@ post-deadline; otherwise seed-0 at more states is the better marginal coverage.
 - `A4_RESULTS.md`: append the new state rows + a one-line verdict update.
 - `articles/[mobiwac]/src/sections/05_setup.tex` §5.2: extend the state list in the leak sentence; if a large state
   shows a non-trivial Δ (it should not, per AL/FL), DISCLOSE it and re-anchor rather than hide it.
-- Recompile (`pdflatex paper_skeleton ×2 + bibtex`); confirm §5.2 still renders and the page count is unchanged.
+- Recompile (`pdflatex main ×2 + bibtex`); confirm §5.2 still renders and the page count is unchanged.
 
 ## Do NOT
 - Do not call this a submission blocker — the gate is already ON NULL at AL+FL and §5.2 is sourced.

@@ -1,5 +1,5 @@
 # LaTeX build artifacts. The compiled .pdf outputs are kept in the repo on
-# purpose (figures + the assembled paper_skeleton.pdf), so *.pdf is NOT ignored.
+# purpose (figures + the assembled main.pdf), so *.pdf is NOT ignored.
 *.aux
 *.log
 *.out
