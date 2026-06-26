@@ -208,3 +208,16 @@ plumbing n_regions through the lazy fold mapping), KD block (`--log-t-kd-weight 
 Also: runner merge (`_run_single_task`, single-task parity config) earlier this batch.
 **Full suite 608 passed.** 14 commits on PR #56. All A/B-gated extractions + the −77-line comment trim landed,
 each parity/test byte-identical-verified.
+
+### KD clarification + full-AL verification + last open items
+- **KD/log_T**: `log_T` = per-fold region-transition (Markov-1) prior. The CHAMPION runs it **OFF**: v16 bundle +
+  board driver both set `--log-t-kd-weight 0.0`; the `0.2` is the separate v12 code default (`_V12_LOG_T_KD_DEFAULT_W`),
+  not the champion. So `_log_t_kd_loss` hits the no-op path on the champion (golden==nokd_check, byte-identical).
+- **Full AL champion-G re-run (KD off, 5f×50ep, ALL changes applied)**: **cat 63.4421 / reg 69.8181** — IDENTICAL
+  to the perf A/B (63.44/69.82), within fold-std of the board (§1b 63.25/69.65; §1 63.56/69.81). STL cat 55.7273,
+  reg 70.00. **The entire slimming round (extractions + comment trim + KD extraction + gates) preserved the
+  champion byte-for-byte.** champG wall 621s. (`final_verify_runs/`).
+- **Last open items DONE**: `_ood_from_streamed` (OOD dedup, scored path) + `eval_autocast_ctx` (shared eval
+  autocast, mtl_eval+mtl_validation) — parity byte-identical MTL+STL, unit-tested.
+- **Adversarial review workflow** (`wf_2360804d-0ea`, 4 lanes): leak/fold-correctness, comment-trim invariants,
+  extraction byte-identity (incl. the KD gate path AL doesn't exercise), gates/bf16/profiler no-op-when-off.
