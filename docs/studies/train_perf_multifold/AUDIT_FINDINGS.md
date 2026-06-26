@@ -126,6 +126,19 @@ EAGER fp32 (deterministic, ~55s/run). Captures the per-fold VAL metric CSVs **an
 **Narration comment-trim — DONE (−77 lines, all 7 files)** via the verified applier (`apply_comment_trims.py`,
 proves no non-string code changed) + parity (MTL & STL byte-identical). Kept every invariant; cut the dated codenames.
 
+**Bigger train_model / fold-builder decompositions — DONE (multi-seed gated, advisor SAFE per phase).**
+See [`log.md`](log.md) §Phase 1–4. Each extraction gated byte-identical at AL seeds 0+1 (champion no-op) and,
+where a path the champion can't exercise was touched, by a focused unit test:
+- **Phase 1** — `_flatten_encoder` (module fn); `folds.py` `_resolve_task_input`, `_load_and_validate_check2hgi_data`, `_classify_pois`.
+- **Phase 2** — `train_with_cross_validation` setup: `_build_mtl_optimizer`, `_build_scheduler`, `_build_task_criteria`, `_apply_stream_freezes`.
+- **Phase 3** — batch-loop loss declutter: `_log_c_kd_loss` + `_cat_kd_loss` (mirror `_log_t_kd_loss`; −~85 lines; KD-on parity + unit test vs inline ref).
+- **Phase 4a** — `_resolve_per_fold_priors` (the ~205-line per-fold log_T/log_C leak-guard block out of the fold loop; verbatim).
+- **Phase 4b** — `MTL_SKIP_INERT_LOGT=1` opt-in: skip the per-fold log_T load when provably inert (the champion) → no log_T files needed; byte-identical, default-off.
+
+**DELIBERATELY DECLINED (documented in log.md §Phase 4b):** the should_step **optimizer micro-step** and the
+per-epoch **validation→history** block — both factor into ~13–15-arg functions (interface wider than complexity
+removed) and the optimizer-step's risky branches (partial-group rescale, alternating-SGD zero) are NOT exercised
+by the AL champion parity → under-gated. The numeric piece worth naming (joint selector) was already extracted.
+
 **STILL OPEN (lower value, documented):** `mtl_eval` OOD-from-streamed dedup + shared autocast ctx (cross-file with
-`mtl_validation.py`); `helpers` warmup-builder extraction; bigger train_model / `_create_*_mtl_folds` decompositions
-(RISKY, multi-seed parity). All gate-able with the same `parity_check.sh` (+ single-task / KD variants).
+`mtl_validation.py`); `helpers` warmup-builder extraction. All gate-able with the same `parity_check.sh`.

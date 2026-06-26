@@ -540,6 +540,34 @@ def _apply_stream_freezes(model, config):
         for p in model.next_poi.parameters():
             p.requires_grad_(False)
         model.next_encoder.eval()  # disables dropout in the reg encoder
+
+
+def _log_t_is_inert(config, ts) -> bool:
+    """True when the per-fold log_T provably cannot reach the loss → loading it is pointless.
+
+    Inert ⟺ the reg head's α·log_T prior is OFF (``freeze_alpha=True`` AND ``alpha_init=0.0``)
+    AND every log_T / log_C / cat KD route is off. That is exactly the closing_data champion
+    recipe: the head still builds a ``log_T`` buffer but folds it into an ``α=0`` multiply
+    (``logits + 0.0 * log_T`` ≡ ``logits``), and with ``transition_path=None`` it builds
+    ``log_T=zeros`` instead — both yield ``logits + 0.0``, byte-identical (empirically proven:
+    two different log_T files → identical champion output). This is the negation of the
+    engine-guard's ``_prior_active`` ("can the prior leak"). Used only by the opt-in skip."""
+    tb = getattr(ts, "task_b", None)
+    if tb is None:
+        return False
+    hp = dict(tb.head_params or {})
+    head_prior_off = (
+        bool(hp.get("freeze_alpha", False))
+        and float(hp.get("alpha_init", 0.1)) == 0.0
+    )
+    kd_on = (
+        float(getattr(config, "log_t_kd_weight", 0.0) or 0.0) > 0.0
+        or float(getattr(config, "log_c_kd_weight", 0.0) or 0.0) > 0.0
+        or float(getattr(config, "cat_kd_weight", 0.0) or 0.0) > 0.0
+    )
+    return head_prior_off and not kd_on
+
+
 def _resolve_per_fold_priors(config, i_fold):
     """Resolve this fold's per-fold log_T (and optional log_C) priors -> model_params.
 
@@ -562,6 +590,22 @@ def _resolve_per_fold_priors(config, i_fold):
         from pathlib import Path as _Path
         ts = config.model_params.get("task_set")
         if ts is not None and getattr(ts, "task_b", None) is not None:
+            # log_T-inert fast skip (opt-in via MTL_SKIP_INERT_LOGT=1). When the
+            # per-fold log_T is provably inert (head α-prior off + every KD route off,
+            # i.e. the champion), the head never reads it (α=0 multiply), so skipping
+            # the load AND the entire leak-guard stack is byte-identical — and frees the
+            # champion from needing the per-fold log_T files at all (answers "if we don't
+            # use log_T why regenerate it"). Default off → the guards still run for
+            # everyone whose prior CAN leak. See _log_t_is_inert.
+            import os as _os
+            if _os.environ.get("MTL_SKIP_INERT_LOGT") == "1" and _log_t_is_inert(config, ts):
+                logger.info(
+                    "[log_T-inert skip] fold %d: reg head α-prior off + KD off → "
+                    "per-fold log_T is inert; skipping load + leak-guards "
+                    "(MTL_SKIP_INERT_LOGT=1; output byte-identical).",
+                    i_fold + 1,
+                )
+                return per_fold_model_params  # == config.model_params (no swap)
             seed = int(getattr(config, "seed", 42))
             pf_path = (
                 _Path(per_fold_dir)

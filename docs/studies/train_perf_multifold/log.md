@@ -283,3 +283,33 @@ original block before writing) → the 59 guard-lines are verbatim. The champion
 (it passes `--per-fold-transition-dir`), so champion parity is a strong gate.
 **Gate:** champion AL MTL val metrics BYTE-IDENTICAL at seeds 0 AND 1 (`golden==p4a_s0`,
 `golden_s1==p4a_s1`). Only `per_fold_model_params` escapes the block (→ `create_model`), confirmed.
+
+### Phase 4b — `MTL_SKIP_INERT_LOGT` opt-in: skip the per-fold log_T when it's inert (the user's ask)
+Answers "if we don't use log_T why regenerate it?". The champion runs the reg head α-prior OFF
+(`freeze_alpha=True`, `alpha_init=0.0`) AND all KD off → the per-fold log_T is **inert** (the head folds it
+into an α=0 multiply; with no path it builds `log_T=zeros` — both give `logits + 0.0`). New predicate
+`_log_t_is_inert(config, ts)` = `not _prior_active` (De Morgan of the existing engine-guard logic). Under the
+opt-in env **`MTL_SKIP_INERT_LOGT=1`**, `_resolve_per_fold_priors` returns `config.model_params` unchanged for an
+inert config — skipping the file load AND the whole leak-guard stack, so the champion **no longer needs per-fold
+log_T files at all**. Default OFF → the guards still run for every config whose prior can leak; an ACTIVE prior
+(learnable α, α_init≠0, or ANY KD) is never skipped.
+
+**Gate:**
+- Byte-identity (GPU): champion AL MTL == golden at seeds 0 AND 1 with the skip ON (`golden==p4b_s0`,
+  `golden_s1==p4b_s1`), and the skip log fired for both folds (so the inert path was genuinely taken).
+- Unit (`tests/test_training/test_log_t_inert.py`, 8 tests): the predicate truth-table; the skip returns
+  unchanged on a NON-EXISTENT per-fold dir (file-independence); the SAME config WITHOUT the env still raises
+  FileNotFoundError (default behaviour intact); an active prior is never skipped even with the env on.
+- **Advisor (adversarial leak-focused): SAFE** — predicate == `not _prior_active` exactly (defaults identical),
+  log_C/cat-KD route protected, NaN edge impossible (compute_region_transition Laplace-floors counts → finite
+  log_T; even at -inf the skip is strictly safer), 4a move verbatim. Champion preset has no static transition_path
+  → the "stays None → zeros" leg holds.
+
+**Phase-4 deliberately DECLINED (documented):** the should_step **optimizer micro-step** and the per-epoch
+**validation→history** block were each evaluated for extraction and left inline. Both factor into wide-interface
+functions (~13–15 args: loop-invariant config + per-batch/epoch state) whose interface is wider than the
+complexity removed, and the optimizer-step's risky branches (partial-trailing-group rescale, alternating-SGD
+inactive-zero) are NOT exercised by the AL champion parity (no grad-accum>1 / no `--alternating-optimizer-step`),
+so they would be under-gated. Per "pragmatic programmer / don't introduce bugs", the numerically load-bearing
+optimizer step stays inline; the interesting numeric piece (the 5-scalar joint selector) was already extracted in
+the earlier round (`_compute_joint_selectors`).
