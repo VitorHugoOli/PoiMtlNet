@@ -254,6 +254,53 @@ def _overwrite_base_lr(optimizer, max_lr, multi_group_per_head: bool) -> None:
             pg["lr"] = max_lr
 
 
+def _build_warmup_constant_scheduler(optimizer, max_lr, epochs, steps_per_epoch,
+                                     pct_start, multi_group_per_head):
+    """Linear warmup over ``pct_start * total_steps`` (default 1/3) from ~3% of target,
+    then hold constant at ``max_lr`` forever. Gives cat a stable warmup (no day-1 3e-3
+    collapse) and reg a long high-LR plateau. ``pct_start`` doubles as the warmup fraction."""
+    _overwrite_base_lr(optimizer, max_lr, multi_group_per_head)
+    warmup_frac = float(pct_start) if pct_start is not None else (1.0 / 3.0)
+    if not (0 < warmup_frac < 1):
+        raise ValueError(f"warmup_constant pct_start must be in (0,1), got {warmup_frac}")
+    total_steps = int(epochs * steps_per_epoch)
+    warmup_steps = max(1, int(warmup_frac * total_steps))
+    warmup = LinearLR(
+        optimizer, start_factor=0.033, end_factor=1.0, total_iters=warmup_steps,
+    )
+    plateau = ConstantLR(optimizer, factor=1.0, total_iters=1)
+    return SequentialLR(
+        optimizer, schedulers=[warmup, plateau], milestones=[warmup_steps],
+    )
+
+
+def _build_reg_head_warmup_decay_scheduler(optimizer, epochs, steps_per_epoch, peak_mult,
+                                           warmup_epochs, plateau_epochs, multi_group_per_head):
+    """Per-group warmup-decay LR: only the ``reg_head`` / ``alpha_no_wd`` groups ride the
+    base→peak→base shape (warmup_epochs → plateau_epochs → final); all other groups stay at
+    base LR. Requires the per-head (multi-group) optimizer."""
+    if not multi_group_per_head:
+        raise ValueError(
+            "reg_head_warmup_decay requires per-head optimizer "
+            "(--cat-lr/--reg-lr/--shared-lr); single-group mode unsupported"
+        )
+    total_steps = int(epochs * steps_per_epoch)
+    warmup_end_step = int(warmup_epochs * steps_per_epoch)
+    plateau_end_step = int(plateau_epochs * steps_per_epoch)
+    warmup_decay_fn = _build_reg_head_warmup_decay_lambda(
+        warmup_end_step=max(1, warmup_end_step),
+        plateau_end_step=max(warmup_end_step + 1, plateau_end_step),
+        total_steps=max(plateau_end_step + 1, total_steps),
+        peak_mult=peak_mult,
+    )
+    identity_fn = lambda _: 1.0
+    lambdas = []
+    for pg in optimizer.param_groups:
+        name = pg.get("name", "")
+        lambdas.append(warmup_decay_fn if name in ("reg_head", "alpha_no_wd") else identity_fn)
+    return LambdaLR(optimizer, lr_lambda=lambdas)
+
+
 def setup_scheduler(
     optimizer: AdamW,
     max_lr: float,
@@ -318,63 +365,17 @@ def setup_scheduler(
             eta_min=float(eta_min),
         )
     if scheduler_type == "warmup_constant":
-        # Linear warmup over `pct_start * total_steps` from a low base,
-        # then hold constant at max_lr forever. Gives cat a stable warmup
-        # (avoids cat-collapse from day-1 sustained 3e-3) and reg a long
-        # high-LR plateau where `α` in next_getnext_hard can grow.
-        # `pct_start` doubles as the warmup fraction (default 1/3).
-        _overwrite_base_lr(optimizer, max_lr, multi_group_per_head)
-        warmup_frac = float(pct_start) if pct_start is not None else (1.0 / 3.0)
-        if not (0 < warmup_frac < 1):
-            raise ValueError(f"warmup_constant pct_start must be in (0,1), got {warmup_frac}")
-        total_steps = int(epochs * steps_per_epoch)
-        warmup_steps = max(1, int(warmup_frac * total_steps))
-        # start at ~3% of target LR — gentle enough that 7-class cat head
-        # doesn't diverge in epoch 1, while keeping a single knob.
-        warmup = LinearLR(
-            optimizer,
-            start_factor=0.033,
-            end_factor=1.0,
-            total_iters=warmup_steps,
-        )
-        plateau = ConstantLR(optimizer, factor=1.0, total_iters=1)
-        return SequentialLR(
-            optimizer,
-            schedulers=[warmup, plateau],
-            milestones=[warmup_steps],
+        return _build_warmup_constant_scheduler(
+            optimizer, max_lr, epochs, steps_per_epoch, pct_start, multi_group_per_head,
         )
     if scheduler_type == "reg_head_warmup_decay":
-        # Only the reg_head (and alpha_no_wd, if present) param group sees
-        # the warmup-decay shape; all other groups stay at base LR.
-        # Requires the per-head optimizer (multi-group). The reg-side LR
-        # ramps base→peak in `warmup_epochs`, holds at peak through
-        # `plateau_epochs`, then decays linearly back to base by the final
-        # epoch (unlocks late-window α growth without sustained instability).
-        if not multi_group_per_head:
-            raise ValueError(
-                "reg_head_warmup_decay requires per-head optimizer "
-                "(--cat-lr/--reg-lr/--shared-lr); single-group mode unsupported"
-            )
-        total_steps = int(epochs * steps_per_epoch)
-        warmup_end_step = int(reg_head_warmup_decay_warmup_epochs * steps_per_epoch)
-        plateau_end_step = int(reg_head_warmup_decay_plateau_epochs * steps_per_epoch)
-        warmup_decay_fn = _build_reg_head_warmup_decay_lambda(
-            warmup_end_step=max(1, warmup_end_step),
-            plateau_end_step=max(warmup_end_step + 1, plateau_end_step),
-            total_steps=max(plateau_end_step + 1, total_steps),
+        return _build_reg_head_warmup_decay_scheduler(
+            optimizer, epochs, steps_per_epoch,
             peak_mult=reg_head_warmup_decay_peak_mult,
+            warmup_epochs=reg_head_warmup_decay_warmup_epochs,
+            plateau_epochs=reg_head_warmup_decay_plateau_epochs,
+            multi_group_per_head=multi_group_per_head,
         )
-        identity_fn = lambda _: 1.0
-        # Map each param group by name → its lambda. Reg-head + α-no-WD
-        # ride the warmup-decay; cat / reg_encoder / shared / reg stay at 1.0.
-        lambdas = []
-        for pg in optimizer.param_groups:
-            name = pg.get("name", "")
-            if name in ("reg_head", "alpha_no_wd"):
-                lambdas.append(warmup_decay_fn)
-            else:
-                lambdas.append(identity_fn)
-        return LambdaLR(optimizer, lr_lambda=lambdas)
     raise ValueError(
         f"Unknown scheduler_type '{scheduler_type}'; "
         f"expected one of {{'onecycle', 'constant', 'cosine', "
