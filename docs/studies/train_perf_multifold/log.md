@@ -420,3 +420,18 @@ Real remaining slimming gaps (low risk): `helpers` warmup-builder extraction; th
   reproduces on Ampere), NOT an H100, the next time an A40 large-state bf16 run is wanted. Defer is justified
   (the root cause is a hypothesis, not proven to be the STAN softmax; bf16 buys ~0 wall-clock on the H100; board
   settled), but the prior "moot" justification was wrong.
+
+### bf16 DROPPED (quality cost) + island deferred + FL timing
+**Decision: drop bf16 for the champion; use fp32.** bf16 trains ~1.6× faster (FL ~28 b/s vs fp32 ~17.4 b/s)
+but **loses ~1 pp quality**: FL bf16+island (2f) cat 78.90 / reg 76.04 vs fp32 board §1 79.82 / 77.28
+(−0.92 / −1.24). AL/AZ bf16 ≈ fp32 (small C, precision-insensitive there: AL 63.64/69.65, AZ 63.44/59.40,
+all 0 NaN) — but the large states pay the precision cost where it matters. **fp32 is the quality choice**, and
+the `MTL_SKIP_INERT_LOGT` + **auto-fp32** defaults (this session) already make large-state MTL fp32 by default.
+- **bf16 validation campaign (kept for the record):** AL/AZ/FL bf16+island all ran 0-NaN — the bf16 infra +
+  the fp32-attn island work. But none of AL/AZ/FL actually *triggers* the fatal grad-NaN (CA/TX C 6.5–8.5k do),
+  so the island's NaN-prevention is still unexercised; since we're dropping bf16, it stays a **documented,
+  deferred A40-bf16 mitigation** (the only surgical A40-bf16 path *if* bf16 is ever wanted — validate on the A40,
+  not H100). Driver: `docs/studies/closing_data/run_bf16_island.sh` (island-toggleable).
+- **FL fp32 timing (partial, killed — GPU was being shared with another user → unfair):** fp32 solo **~17.4 b/s**,
+  498 batches/epoch, ~31 s/epoch steady (~38 s fold-1 epoch-1 with compile; folds 2–5 cache-hit per P7). Sequential
+  5-fold ≈ ~130 min. bf16 ~28 b/s (~1.6×) but −1 pp quality.
