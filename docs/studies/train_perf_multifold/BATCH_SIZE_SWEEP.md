@@ -44,3 +44,28 @@ gradient-accumulation (emulate large bs at fixed memory — a separate axis).
 
 **Success = a (bs, LR) cell that matches base quality at higher bs** (→ faster / better GPU util), ideally bs=4096
 which halves the step count with modest memory.
+
+## Phase-1 screen RESULTS (AL, 2f×50ep, seed0, same folds via --per-fold-seed)
+
+| cell | bs | LR rule | cat macroF1 | reg Acc@10 | Δcat vs base | Δreg | wall(s)* |
+|---|---:|---|---:|---:|---:|---:|---:|
+| base | 2048 | — | 61.35 | 67.04 | — | — | 448 |
+| 4k_none | 4096 | unscaled | 61.88 | 67.11 | +0.53 | +0.07 | 429 |
+| 4k_sqrt | 4096 | ×√2 | 61.40 | 67.19 | +0.05 | +0.15 | 435 |
+| 4k_lin | 4096 | ×2 | 61.02 | 67.10 | −0.33 | +0.06 | 437 |
+| 8k_none | 8192 | unscaled | **62.05** | 67.04 | **+0.70** | 0.00 | 463 |
+| 8k_sqrt | 8192 | ×2 | 61.46 | 66.88 | +0.11 | −0.16 | 462 |
+| 8k_lin | 8192 | ×4 | **48.80** | 66.58 | **−12.55** | −0.46 | 284 |
+
+(*wall not a clean speed read — GPU shared + cells ran 2-parallel.)
+
+**FINDING.** Larger batch with the **SAME LR (no scaling)** holds/slightly-beats the baseline (4k_none +0.53,
+8k_none +0.70 cat; reg flat). **Linear LR-scaling is HARMFUL** — `8k_lin` (max-lr 12e-3) collapses the 7-class
+cat head to 48.80 (the documented cat-collapse from too-high LR). sqrt-scaling is neutral. So the champion
+**tolerates bs↑ to 8192 without LR re-tuning**, and the linear rule (Goyal) does NOT apply to this cat head.
+The ±0.5 pp wins are within 2-fold fold-std → the robust claim is "quality HOLDS"; n=20 needed to call a win.
+
+**Next (Phase 2):** confirm **8k_none + 4k_none** (the two holders) at AL 5-fold + AZ 5-fold seed-0, then
+**n=20 {0,1,7,100}** for the promote candidate. Separately, a **clean exclusive-GPU timing run** of 8k_none vs
+base to quantify the speed benefit (the 2-parallel/shared screen can't). Also worth a cell: **bs=8192 +
+pct_start↑** (warmup is shorter in steps at large bs) in case it recovers more cat.
