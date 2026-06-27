@@ -91,3 +91,27 @@ exclusive-GPU timing is still pending.
 **Next:** (1) **n=20 {0,1,7,100}×5f** for `8k_none` at AL+AZ to promote the +0.5…+0.9 cat as a real win (seed-0
 5-fold is suggestive but within multi-seed CI). (2) **Clean exclusive-GPU timing** (8k_none vs base) for the true
 speed delta. (3) **FL scale check** (bs=8192 ≈36 GB — fits; confirm the cat win + 0 NaN at large C).
+
+## Clean exclusive timing (corrects the contended Phase-2 wall numbers)
+
+AL, 2f×50ep, **sequential + exclusive compute** (other user's kernel idle, 0% util throughout):
+- base (bs=2048): **225 s** · 8k_none (bs=8192): **229 s** → **0.98× (−1.8%, within noise)**.
+
+**Speed = NEUTRAL.** bs=8192 has 4× fewer batches/epoch (300 vs 1200) but 4× the compute/step → on a
+**compute-bound** A40 (same total FLOPs) the wall-clock is unchanged. The Phase-2 "−7…−35%" was contention
+(2-parallel + a shared GPU), NOT a real speedup. This holds at large states too (FL is already 98% util at
+bs=2048, so no idle capacity for a bigger batch to fill).
+
+## CONCLUSION — batch=8192 is a QUALITY win, not a speed win
+| axis | bs 2048 → 8192 |
+|---|---|
+| cat macro-F1 | **+0.57 AL / +0.89 AZ** ✅ |
+| reg Acc@10 | flat / +0.23 ✅ |
+| wall-clock | neutral (−1.8% clean) |
+| LR re-tune | none |
+| memory | AL ~10 GB, FL ~36 GB (fits A40) |
+
+So raising the batch to 8192 (LR unchanged) is a **free modest quality improvement** (the reduced gradient
+noise helps the cat head), at ~equal wall-clock — NOT the speedup the original motive assumed. **Linear LR
+scaling must be avoided** (collapses the cat head). To promote: **n=20 {0,1,7,100}** at AL+AZ, then an FL
+scale check (cat win + 0 NaN at bs=8192, C=4703).
