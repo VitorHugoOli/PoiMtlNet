@@ -69,3 +69,25 @@ The ±0.5 pp wins are within 2-fold fold-std → the robust claim is "quality HO
 **n=20 {0,1,7,100}** for the promote candidate. Separately, a **clean exclusive-GPU timing run** of 8k_none vs
 base to quantify the speed benefit (the 2-parallel/shared screen can't). Also worth a cell: **bs=8192 +
 pct_start↑** (warmup is shorter in steps at large bs) in case it recovers more cat.
+
+## Phase-2 CONFIRMATION (AL+AZ, 5-fold, seed-0, board protocol, LR unchanged)
+
+| state | cell | bs | cat (Δ vs base) | reg (Δ) | wall_s (vs base) |
+|---|---|---:|---:|---:|---:|
+| AL | base | 2048 | 63.44 (≈board 63.56) | 69.82 (≈69.81) | 1456 |
+| AL | 4k_none | 4096 | 63.82 (+0.38) | 69.90 (+0.08) | 1355 (−7%) |
+| AL | **8k_none** | 8192 | **64.01 (+0.57)** | 69.80 (−0.02) | 1317 (−10%) |
+| AZ | base | 2048 | 63.48 (≈board 63.39) | 59.41 (≈59.34) | 2982 |
+| AZ | 4k_none | 4096 | 63.79 (+0.31) | 59.51 (+0.11) | 2760 (−7%) |
+| AZ | **8k_none** | 8192 | **64.37 (+0.89)** | **59.63 (+0.23)** | 1946 |
+
+**RESULT — bs↑ is a WIN (not just a hold).** All 4 larger-batch cells improve cat (+0.31…+0.89) with reg
+flat-to-up, on BOTH states, at full 5-fold, **with the LR unchanged**. `8k_none` is best (AL +0.57 cat, AZ +0.89
+cat / +0.23 reg). base reproduces the board both states (AL 63.44/69.82, AZ 63.48/59.41), so the deltas are
+trustworthy. Wall-clock shows the bigger batch is ≥7% faster, but it's **confounded by contention** (cells ran
+2-parallel on a GPU shared with another user; AZ 8k_none's −35% is partly from running last/solo) → the clean
+exclusive-GPU timing is still pending.
+
+**Next:** (1) **n=20 {0,1,7,100}×5f** for `8k_none` at AL+AZ to promote the +0.5…+0.9 cat as a real win (seed-0
+5-fold is suggestive but within multi-seed CI). (2) **Clean exclusive-GPU timing** (8k_none vs base) for the true
+speed delta. (3) **FL scale check** (bs=8192 ≈36 GB — fits; confirm the cat win + 0 NaN at large C).
