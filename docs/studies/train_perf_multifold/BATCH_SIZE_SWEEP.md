@@ -115,3 +115,35 @@ So raising the batch to 8192 (LR unchanged) is a **free modest quality improveme
 noise helps the cat head), at ~equal wall-clock — NOT the speedup the original motive assumed. **Linear LR
 scaling must be avoided** (collapses the cat head). To promote: **n=20 {0,1,7,100}** at AL+AZ, then an FL
 scale check (cat win + 0 NaN at bs=8192, C=4703).
+
+## CORRECTION (audit) — speed IS state-dependent; quality is too
+
+The "speed-neutral" conclusion was AL-only and WRONG to generalize. Clean exclusive FL timing (1 fold × 50ep,
+profiler on) shows the bigger batch **does** speed up the large state:
+
+| state | base→8k wall | throughput | forward section | why |
+|---|---|---|---|---|
+| AL (1109 reg) | 225→229 s (**−1.8%**, neutral) | 36.1k→35.1k samp/s (flat) | — | small, ~GPU-resident, ~24 batches/ep → no overhead to amortize |
+| **FL** (4703 reg) | 1268→1179 s (**+7.0%**) | 25.6k→**27.5k** samp/s (+7.6%) | **56.4→34.0 s** | huge **CPU-resident** dataset, 15600 batches/fold → 4× fewer kernel launches + H2D transfers |
+
+So the Phase-2 "speedup" pointed the right way *for large states* (though it was contention-driven there). The
+GPU is compute-saturated at AL but **launch/transfer-overhead-bound at FL** — the bigger batch amortizes that.
+(Also: **eval is ~23% of the FL wall**, 287 s fixed, diluting the +7.6% throughput to +7% total — a separate
+optimization axis.)
+
+**Quality is ALSO state-dependent:**
+| state | Δcat (2048→8192) | Δreg |
+|---|---|---|
+| AL (5f) | **+0.57** | −0.02 |
+| AZ (5f) | **+0.89** | +0.23 |
+| FL (1f) | **−0.58** | +0.34 |
+
+Small states: bigger batch helps cat (less gradient noise → cleaner 7-class signal). FL: cat −0.58 / reg +0.34
+(1-fold; 8k's cat best-ep 28 vs base 37 — OneCycle finishes in 4× fewer steps, so cat peaks earlier+lower).
+
+## REVISED CONCLUSION
+- **Speed:** bigger batch is a real ~7% win at LARGE states (FL; overhead-bound), neutral at small (AL; compute-bound).
+- **Quality:** helps small-state cat (+0.5…+0.9 AL/AZ), but **mixed at FL** (cat −0.58 / reg +0.34, 1-fold).
+- **For FL the cat dip + the OneCycle-fewer-steps interaction means bs=8192 there needs `pct_start`↑ or more
+  epochs to hold cat** — it's NOT a free win at large states like it is at small. Confirm with FL 5-fold + n=20.
+- LR linear-scaling still harmful everywhere; keep LR unchanged.
