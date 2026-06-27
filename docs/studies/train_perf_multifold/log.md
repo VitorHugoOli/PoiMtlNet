@@ -393,3 +393,14 @@ So the STL cat path is behavior-preserving vs main (the STL analog of `golden==m
 ceiling (`p1_region_head_ablation.py`) has UNCHANGED code + uses the same `folds.py` (proven preserved by the
 cat parity) + reproduced ~69.98 ≈ board 69.99 in the fullval run → safe by code-diff + reproduction. Both STL
 ceilings are behavior-preserving.
+
+### P7 (compile-once-across-folds) — MEASURED, DECLINED (the inductor cache already does it)
+The eval workflow flagged "the fold loop re-traces ×5" as a single-GPU speed gap. **Measured it**
+(AL champion 2-fold × 5ep, compiled fp32, FRESH inductor cache, profiler on): per-fold epoch-1 wall =
+**FOLD 1 epoch-1 38s (the compile) → FOLD 2 epoch-1 1s (CACHE HIT, no recompile)**. So in a single-process
+`--folds N` run only fold 1 compiles; folds 2..N reuse the inductor cache (the expensive compile is already
+amortized once). P7's risky weight-reuse-across-folds change would save ~0% (fold 1's ~37s compile out of a
+~130-min run, which P7 can't remove anyway). **DECLINED — not worth the hot-path risk.** Corollary: the FAN-OUT
+pays N× compile (per-process caches) while sequential compiles once — a second reason sequential wins on one GPU.
+Real remaining slimming gaps (low risk): `helpers` warmup-builder extraction; the 4-file autocast unify;
+`category_cv`/`next_cv` `run_cv` merge.
