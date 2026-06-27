@@ -55,6 +55,8 @@ Default off = fast path; **eager is bit-exact either way**.
 > is the deterministic ground truth.** `run_al_baseline.sh` no longer pins it (see log.md §Phase 5c).
 
 ## #3 · bf16/A40 fix — fp32 attention island (done; large-state validation deferred)
+
+> ⚠ **CORRECTION (advisor 2026-06-27):** NOT moot/closed-by-fp32. The board closes the NaN TWO ways — A40 true-fp32 (TX) AND H100-native-bf16 (CA, the §1 bf16 headline; Hopper has no Ampere grad-NaN). The island is the **only surgical A40-bf16 path** → DEFERRED, validate ON THE A40 (not H100; the NaN only reproduces on Ampere) when an A40 large-state bf16 run is wanted. Defer OK (root cause is a hypothesis; bf16 ~0 wall-clock on H100), but 'moot' was wrong.
 `MTL_STAN_FP32_ATTN=1` runs the masked-softmax attention in fp32 even under bf16/fp16 autocast (the documented
 NaN mechanism). **No-op under true fp32** (gate = `is_autocast_enabled(device)`) → board path byte-identical by
 construction. AL bf16 smoke: runs **clean both ways** (0 skips under `MTL_STRICT=1`); island shifts bf16 numerics

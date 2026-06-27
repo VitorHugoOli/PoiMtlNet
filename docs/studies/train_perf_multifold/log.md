@@ -404,3 +404,19 @@ amortized once). P7's risky weight-reuse-across-folds change would save ~0% (fol
 pays N× compile (per-process caches) while sequential compiles once — a second reason sequential wins on one GPU.
 Real remaining slimming gaps (low risk): `helpers` warmup-builder extraction; the 4-file autocast unify;
 `category_cv`/`next_cv` `run_cv` merge.
+
+### Advisor re-eval of P7 + bf16-island (adversarial)
+- **P7 — SOUND (confirmed).** The advisor verified the mechanism, not just the wall-clock: the profiler frame
+  count stayed `+12` (no doubling on fold 2 → no re-trace), and there is NO `torch._dynamo.reset()` in the fold
+  loop → the in-process compiled-code cache is reused across folds independent of `TORCHINDUCTOR_CACHE_DIR`
+  (the fresh-cache test isolated the in-process effect). Even TX's >12-min fold-1 warmup is one-time + outside
+  P7's reach. Decline stands at scale.
+- **bf16 fp32-attn-island — disposition OK, framing CORRECTED.** NOT "moot/already-closed-by-fp32": per
+  RESULTS_BOARD §1 **CA's headline is bf16** (the only bf16 cell), closing the NaN via the **H100 (Hopper has no
+  Ampere bf16 grad-NaN)**, not fp32 and not the island. The board closes the NaN TWO ways (A40-fp32 + H100-bf16).
+  The island is the **only surgical A40-bf16 path** (fp32-casts just the STAN softmax, keeps the rest bf16) → if
+  it works it could unblock faster A40 large-state runs (A40 fp32 large-state is the slow path, days/seed). Re-
+  labelled **DEFERRED / unvalidated A40-bf16 mitigation** — validate ON THE A40 (cheap, on-target; the NaN only
+  reproduces on Ampere), NOT an H100, the next time an A40 large-state bf16 run is wanted. Defer is justified
+  (the root cause is a hypothesis, not proven to be the STAN softmax; bf16 buys ~0 wall-clock on the H100; board
+  settled), but the prior "moot" justification was wrong.
