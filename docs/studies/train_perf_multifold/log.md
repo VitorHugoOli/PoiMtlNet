@@ -382,3 +382,14 @@ Conclusion: fresh-cache compile of this champion lands at 63.18/69.73; a particu
 landed at 63.44/69.82. Both are the SAME champion within fold-std (cat σ≈1.84, reg σ≈3.26) — the documented
 ≤0.3pp/fold compile reduction-order band. `main` exhibits the identical band (same compiled graph). The
 deterministic eager comparison (golden==main_golden) is the ground truth: **HEAD ≡ main, no decrease.**
+
+### STL safety — STL path is byte-identical to main (eager)
+User asked to confirm the STL ceilings are safe (not just MTL). The STL path's only exposure to the
+branch is `scripts/train.py` (the `_run_single_task` merge) + `src/data/folds.py` (Phase-1 extractions) —
+`next_cv` / `category_cv` / `p1_region_head_ablation.py` are UNCHANGED main→HEAD (git diff empty).
+**Gate:** ran the `run_stl` parity (STL cat ceiling: `--task next --model next_gru`, AL, 2f×8ep, eager fp32)
+on a `main`@9323830b worktree (`main_stl`) and on HEAD (`head_stl`) → **`main_stl == head_stl` BYTE-IDENTICAL**.
+So the STL cat path is behavior-preserving vs main (the STL analog of `golden==main_golden`). The STL **reg**
+ceiling (`p1_region_head_ablation.py`) has UNCHANGED code + uses the same `folds.py` (proven preserved by the
+cat parity) + reproduced ~69.98 ≈ board 69.99 in the fullval run → safe by code-diff + reproduction. Both STL
+ceilings are behavior-preserving.
