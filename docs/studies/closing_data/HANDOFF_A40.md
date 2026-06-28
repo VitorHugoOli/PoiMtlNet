@@ -1,7 +1,7 @@
 # HANDOFF — A40 · remaining GPU work for the MobiWac close · self-contained · 2026-06-25
 
 > **You are the A40. Read this file first.** It is the master queue for the GPU-blocked items in
-> [`../../../articles/[mobiwac]/CLOSE_BLOCKERS_HANDOFF.md`](../../../articles/[mobiwac]/CLOSE_BLOCKERS_HANDOFF.md).
+> [`../../../articles/[mobiwac]/archive/CLOSE_BLOCKERS_HANDOFF.md`](../../../articles/[mobiwac]/archive/CLOSE_BLOCKERS_HANDOFF.md).
 > The two **CPU-only** items (Tbl-1 stats + the small-state region **TOST**) are **already DONE** on the
 > Mac (PR #49, branch `closing-data/tbl1-overlap-and-region-tost`) — do not redo them. Your plate is what remains:
 > ✅ **W6 (PR #48) + Blocker 2 FL CTLE-E2E (PR #50) DONE.** Your plate is now **Blocker 3 — finish CA + TX**
@@ -39,7 +39,7 @@ export TORCHINDUCTOR_CACHE_DIR=$HOME/.inductor_cache_board
    **future-headroom signal** (substrate lifts STAN above our MTL@AL), kept OUT of the paper. **✅ FL faithful-STAN
    DONE** (PR #54: 5-fold v6, Acc@10 72.99 ± 0.34; the fold-0-only checkpoint is superseded). **Remaining A40 work:**
    only **ReHDM-faithful** (AL/AZ done per refooting; FL/CA/TX as possible, Istanbul via the FSQ→mahalle adapter or
-   footnote). CA/TX faithful-STAN stays infeasible-at-scale (footnoted). See §4 + `../../../articles/[mobiwac]/STAN_REFOOTING_HANDOFF.md`.
+   footnote). CA/TX faithful-STAN stays infeasible-at-scale (footnoted). See §4 + `../../../articles/[mobiwac]/archive/STAN_REFOOTING_HANDOFF.md`.
 5. **Blocker 1 fallback** — FL CTLE-SC 5f, only if the H100 never reaches 5f (it has 2/5; W3 closed at AL/AZ/Istanbul). See §5.
 
 ---
@@ -159,7 +159,7 @@ windowing-robust → **no** re-score.)
 ## 4 · Blocker 4 — Region externals (faithful STAN ✅ AL/AZ/FL/Istanbul; then ReHDM)
 
 > Full brief + acceptance gates:
-> [`../../../articles/[mobiwac]/STAN_REFOOTING_HANDOFF.md`](../../../articles/[mobiwac]/STAN_REFOOTING_HANDOFF.md).
+> [`../../../articles/[mobiwac]/archive/STAN_REFOOTING_HANDOFF.md`](../../../articles/[mobiwac]/archive/STAN_REFOOTING_HANDOFF.md).
 
 **Why.** Table 3's region externals must be on the right footing vs the board, and run FAITHFULLY (STAN's own
 embeddings from raw — feeding it a pretrained embedding, `stl_hgi`, is non-standard and is now relegated to a

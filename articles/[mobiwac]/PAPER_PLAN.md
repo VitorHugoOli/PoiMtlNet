@@ -610,7 +610,7 @@ external city is wanted; we lead with Istanbul.
 
 ---
 
-## 7 · Baselines (LOCKED 2026-06-24, full execution plan in [`BASELINE_HANDOFF.md`](BASELINE_HANDOFF.md))
+## 7 · Baselines (LOCKED 2026-06-24, full execution plan in [`BASELINE_HANDOFF.md`](archive/BASELINE_HANDOFF.md))
 
 Three roles, kept separate in the writing (see the handoff §1):
 

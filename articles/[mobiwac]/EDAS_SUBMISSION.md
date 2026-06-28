@@ -55,6 +55,8 @@ all at NESPeD-LAB, Universidade Federal de Viçosa (UFV).
 
 ## Step 3 — Upload review manuscript
 
-- Pending: the PDF is not final (see `CLOSE_BLOCKERS_HANDOFF.md`). Registration reserves the slot;
-  the manuscript is uploaded separately before the manuscript deadline.
+- The manuscript is now a complete, compiling 9-page IEEE draft (`src/main.pdf`); the earlier submission blockers
+  are closed (see `CLAUDE.md` for current state). Remaining before upload: apply the accepted Germano edits
+  (`REVIEW_GERMANO.md`), restore `IEEEtran.bst`, and a final proofread. Registration reserves the slot; the
+  manuscript is uploaded separately before the manuscript deadline.
 - Reminder shown on the form: "Manuscripts should not contain page numbers, headers or footers."

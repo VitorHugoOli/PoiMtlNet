@@ -4,7 +4,7 @@
 > This file ranks every remaining strengthening we can still do, by **impact × feasibility**, so we pick the next
 > move deliberately. Each item says what it buys, what it costs, how to run it, and whether it is a submission
 > blocker (none are — the draft is submittable today; these raise the ceiling). Companion runbooks:
-> [`LEAK_AUDIT_EXTEND_HANDOFF.md`](LEAK_AUDIT_EXTEND_HANDOFF.md), [`STAN_REFOOTING_HANDOFF.md`](STAN_REFOOTING_HANDOFF.md).
+> [`LEAK_AUDIT_EXTEND_HANDOFF.md`](archive/LEAK_AUDIT_EXTEND_HANDOFF.md), [`STAN_REFOOTING_HANDOFF.md`](archive/STAN_REFOOTING_HANDOFF.md).
 >
 > Reviewer context (the 3-agent panel): the #1 recurring attack is **single-seed n=5** (so P1 below is the single
 > highest-leverage item); the leak rebuttal is now sourced (P2 only widens it); clarity is in good shape after the

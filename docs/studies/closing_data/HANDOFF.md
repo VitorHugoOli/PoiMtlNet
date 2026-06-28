@@ -11,8 +11,8 @@
   FSQ→mahalle adapter or footnote; CA/TX footnote infeasible). STAN-`stl_hgi` is reclassified a future-headroom
   signal, NOT a baseline.
 - **H100 — Blocker 1 (corroboration, not blocking):** FL CTLE-SC 5f (currently 2/5; W3 already closed at AL/AZ/Istanbul).
-- Close-gate + paper status: [`../../../articles/[mobiwac]/CLOSE_BLOCKERS_HANDOFF.md`](../../../articles/%5Bmobiwac%5D/CLOSE_BLOCKERS_HANDOFF.md)
-  · region-externals brief [`../../../articles/[mobiwac]/STAN_REFOOTING_HANDOFF.md`](../../../articles/%5Bmobiwac%5D/STAN_REFOOTING_HANDOFF.md).
+- Close-gate + paper status: [`../../../articles/[mobiwac]/archive/CLOSE_BLOCKERS_HANDOFF.md`](../../../articles/%5Bmobiwac%5D/archive/CLOSE_BLOCKERS_HANDOFF.md)
+  · region-externals brief [`../../../articles/[mobiwac]/archive/STAN_REFOOTING_HANDOFF.md`](../../../articles/%5Bmobiwac%5D/archive/STAN_REFOOTING_HANDOFF.md).
 
 ## Results & protocol (the sources of truth)
 - **Board results (Part-2):** [`RESULTS_BOARD.md`](RESULTS_BOARD.md) — MTL beats category everywhere (+4.7…+7.7);

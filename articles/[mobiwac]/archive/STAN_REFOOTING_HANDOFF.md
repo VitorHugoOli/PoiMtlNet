@@ -1,3 +1,7 @@
+> ⛔ **ARCHIVED 2026-06-28 — the work this document drove is DONE.** Kept for provenance, not live
+> state. Current status and pointers: [`../CLAUDE.md`](../CLAUDE.md). (Relative links below may be off by one
+> directory level after the move to `archive/`.)
+
 # MobiWac 2026: Region-baseline completion handoff (faithful STAN audit + ReHDM + HMT-GRN)
 
 > **Why this exists (audit finding, 2026-06-26).** Table 3's region externals are on the **wrong footing** vs our

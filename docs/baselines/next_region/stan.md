@@ -124,4 +124,4 @@ headline STAN cell.
 
 - **Findings + data + optimization knowledge:** [`docs/studies/closing_data/FAITHFUL_STAN_FINDINGS.md`](../../studies/closing_data/FAITHFUL_STAN_FINDINGS.md) (the source of truth).
 - **Run guide:** [`research/baselines/stan/README_FAITHFUL_STAN.md`](../../../research/baselines/stan/README_FAITHFUL_STAN.md).
-- Region-baseline plan: [`articles/[mobiwac]/STAN_REFOOTING_HANDOFF.md`](../../../articles/%5Bmobiwac%5D/STAN_REFOOTING_HANDOFF.md).
+- Region-baseline plan: [`articles/[mobiwac]/archive/STAN_REFOOTING_HANDOFF.md`](../../../articles/%5Bmobiwac%5D/archive/STAN_REFOOTING_HANDOFF.md).

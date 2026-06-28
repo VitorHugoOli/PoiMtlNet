@@ -1,3 +1,7 @@
+> ⛔ **ARCHIVED 2026-06-28 — the work this document drove is DONE.** Kept for provenance, not live
+> state. Current status and pointers: [`../CLAUDE.md`](../CLAUDE.md). (Relative links below may be off by one
+> directory level after the move to `archive/`.)
+
 # MobiWac 2026: Baseline Selection Audit (2026-06-24)
 
 > ⚠ **UPDATE 2026-06-25 (supersedes the "we beat the cascade" framing in the body):** the CSLSL cascade was run

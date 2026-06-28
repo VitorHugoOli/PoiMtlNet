@@ -4,7 +4,7 @@
 > next-**region** task, run on our data + seed-0 user-disjoint 5-fold split. Code +
 > run guide: [`research/baselines/stan/README_FAITHFUL_STAN.md`](../../../research/baselines/stan/README_FAITHFUL_STAN.md).
 > Faithfulness-vs-reference table: [`docs/baselines/next_region/stan.md`](../../baselines/next_region/stan.md).
-> Companion to the region-baseline plan in [`../../../articles/[mobiwac]/STAN_REFOOTING_HANDOFF.md`](../../../articles/%5Bmobiwac%5D/STAN_REFOOTING_HANDOFF.md).
+> Companion to the region-baseline plan in [`../../../articles/[mobiwac]/archive/STAN_REFOOTING_HANDOFF.md`](../../../articles/%5Bmobiwac%5D/archive/STAN_REFOOTING_HANDOFF.md).
 
 ## 1. What this settles
 

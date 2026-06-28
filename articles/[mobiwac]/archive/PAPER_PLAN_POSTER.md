@@ -1,3 +1,7 @@
+> ⛔ **ARCHIVED 2026-06-28 — the work this document drove is DONE.** Kept for provenance, not live
+> state. Current status and pointers: [`../CLAUDE.md`](../CLAUDE.md). (Relative links below may be off by one
+> directory level after the move to `archive/`.)
+
 # MobiWac 2026: Poster-Track Cut (4 pages): working plan
 
 > **What this is.** A condensed, 4-page poster/short-paper version of [`PAPER_PLAN.md`](PAPER_PLAN.md). The
