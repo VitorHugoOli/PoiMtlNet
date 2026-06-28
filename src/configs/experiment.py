@@ -47,6 +47,9 @@ class ExperimentConfig:
     gradient_accumulation_steps: int = 2
     max_grad_norm: float = 1.0
     optimizer_eps: float = 1e-8
+    # AdamW beta2 (2nd-moment decay). 0.999 is the default; lowering to ~0.95
+    # adapts faster — a standard large-batch (bs8192) stabilizer.
+    optimizer_beta2: float = 0.999
     # F51 Tier 3 — cosine scheduler floor LR; 0.0 preserves legacy behaviour
     # (CosineAnnealingLR decays to 0). Non-zero values keep a small LR in the
     # late-cosine tail, which can stabilize α growth in next_getnext_hard.

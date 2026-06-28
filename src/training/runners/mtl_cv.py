@@ -425,6 +425,7 @@ def _build_mtl_optimizer(model, config, extra_params):
             reg_encoder_lr=float(_reg_encoder_lr) if _reg_encoder_lr is not None else None,
             reg_head_lr=float(_reg_head_lr) if _reg_head_lr is not None else None,
             alpha_no_weight_decay=bool(getattr(config, "alpha_no_weight_decay", False)),
+            betas=(0.9, float(getattr(config, "optimizer_beta2", 0.999))),
         )
     else:
         optimizer = setup_optimizer(
@@ -433,6 +434,7 @@ def _build_mtl_optimizer(model, config, extra_params):
             config.weight_decay,
             eps=config.optimizer_eps,
             extra_parameters=extra_params,
+            betas=(0.9, float(getattr(config, "optimizer_beta2", 0.999))),
         )
     return optimizer, _per_head
 

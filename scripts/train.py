@@ -1207,6 +1207,14 @@ def _parse_args(argv=None) -> argparse.Namespace:
         help="AdamW eps override — config field optimizer_eps (F51 Tier 3).",
     )
     parser.add_argument(
+        "--adam-beta2",
+        dest="adam_beta2",
+        type=float,
+        default=None,
+        help="AdamW beta2 override (default 0.999). Lower (~0.95) is a "
+             "standard large-batch/bs8192 stabilizer — config optimizer_beta2.",
+    )
+    parser.add_argument(
         "--max-grad-norm",
         dest="max_grad_norm",
         type=float,
@@ -1384,6 +1392,10 @@ def _apply_cli_overrides(
         if args.adam_eps <= 0:
             raise ValueError("--adam-eps must be > 0")
         config = dataclasses.replace(config, optimizer_eps=float(args.adam_eps))
+    if getattr(args, "adam_beta2", None) is not None:
+        if not (0.0 < args.adam_beta2 < 1.0):
+            raise ValueError("--adam-beta2 must be in (0, 1)")
+        config = dataclasses.replace(config, optimizer_beta2=float(args.adam_beta2))
     if getattr(args, "max_grad_norm", None) is not None:
         # Allow 0 / negative as "disable clipping" — runner already guards.
         config = dataclasses.replace(config, max_grad_norm=float(args.max_grad_norm))

@@ -70,6 +70,7 @@ def setup_optimizer(
     weight_decay: float,
     eps: float = 1e-8,
     extra_parameters: Iterable[torch.nn.Parameter] | None = None,
+    betas: tuple[float, float] = (0.9, 0.999),
 ) -> AdamW:
     """Create an AdamW optimizer matching the project's conventions.
 
@@ -80,6 +81,8 @@ def setup_optimizer(
         eps: Adam epsilon for numerical stability.
         extra_parameters: Optional non-model parameters, such as learnable
             MTL loss weights.
+        betas: AdamW (beta1, beta2). Lowering beta2 (e.g. 0.95) adapts the
+            2nd-moment faster — a standard large-batch stabilizer.
 
     Returns:
         Configured AdamW optimizer.
@@ -93,6 +96,7 @@ def setup_optimizer(
         lr=learning_rate,
         weight_decay=weight_decay,
         eps=eps,
+        betas=betas,
     )
 
 
@@ -107,6 +111,7 @@ def setup_per_head_optimizer(
     reg_encoder_lr: float | None = None,
     reg_head_lr: float | None = None,
     alpha_no_weight_decay: bool = False,
+    betas: tuple[float, float] = (0.9, 0.999),
 ) -> AdamW:
     """Build an AdamW with three param groups (per-head LR).
 
@@ -191,7 +196,7 @@ def setup_per_head_optimizer(
                 "name": "alpha_no_wd", "params": alpha_params,
                 "lr": _head_lr, "weight_decay": 0.0,
             })
-        return AdamW(groups, weight_decay=weight_decay, eps=eps)
+        return AdamW(groups, weight_decay=weight_decay, eps=eps, betas=betas)
     groups = [
         {"name": "cat",    "params": cat_params,    "lr": cat_lr},
         {"name": "reg",    "params": reg_params,    "lr": reg_lr},
@@ -202,7 +207,7 @@ def setup_per_head_optimizer(
             "name": "alpha_no_wd", "params": alpha_params,
             "lr": reg_lr, "weight_decay": 0.0,
         })
-    return AdamW(groups, weight_decay=weight_decay, eps=eps)
+    return AdamW(groups, weight_decay=weight_decay, eps=eps, betas=betas)
 
 
 def _build_reg_head_warmup_decay_lambda(
