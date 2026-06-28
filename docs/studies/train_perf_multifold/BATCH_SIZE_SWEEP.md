@@ -236,3 +236,32 @@ is self-consistent: cat clearly down, reg flat.
 - Small states (AL/AZ): bs=8192 is a confirmed n=20 quality WIN (cat +0.36/+0.75), speed-neutral. → small-state opt-in.
 - Large state (FL): bs=8192 is a confirmed n=5 cat REGRESSION (−1.07), reg flat, +8% speed. → keep bs=2048.
 - Global canon.py default stays 2048. The batch/quality interaction is state-(scale-)dependent, as the speed was.
+
+## COUPLED-HYPERPARAM SWEEP RESULT (2026-06-28) — nothing beats plain bs=8192
+
+User-take B: sweep the hyperparameters that couple to batch size BEYOND LR — at AL+AZ, bs=8192, seed-0 5-fold,
+3-wide parallel (quality deterministic; PID-keyed scoring). ref8k = plain bs=8192 ep50/wd0.05 (the small-state
+opt-in recipe). All 0 NaN.
+
+| cell | AL cat (Δ vs ref8k 64.02) | AZ cat (Δ vs ref8k 64.37) | lever |
+|---|---|---|---|
+| **ref8k** (ep50/wd0.05) | **64.02** | **64.37** | baseline |
+| ep65 | 63.87 (−0.15) | 64.10 (−0.27) | step-budget |
+| ep75 | 63.69 (−0.33) | 64.13 (−0.25) | step-budget |
+| wd0.10 | 63.82 (−0.20) | 64.22 (−0.16) | reg/step |
+| wd0.025 | 63.89 (−0.13) | 64.21 (−0.16) | reg/step |
+| ps0.40 | 64.07 (+0.05) | 64.19 (−0.18) | warmup shape |
+| ep65wd025 | 63.86 (−0.16) | 63.99 (−0.39) | combo |
+
+**RESULT — NO coupled lever beats the plain bs=8192 recipe at either small state.** ps0.40 ties at AL (+0.05 cat
+but −0.09 reg) yet is −0.18 at AZ → not a real, transferable improvement. Patterns, both states:
+- **epochs↑ is HARMFUL** (ep75 worst): bs8192/ep50 already wins at small states (gradient-noise benefit); extra
+  steps overtrain the 7-class cat head. This **falsifies the OneCycle step-budget hypothesis at small states** —
+  the FL cat regression's step-deficit story does NOT generalize to AL/AZ (opposite regime).
+- **weight-decay changes** (0.10 or 0.025) are mildly harmful — wd=0.05 is already tuned.
+- **pct_start** is neutral-to-harmful (matches the earlier FL n=1 screen).
+- **Mechanism confirmed:** the small-state bs=8192 cat gain is the **gradient-noise-scale (1/√batch)** effect, not
+  a schedule/step-budget effect. So the small-state opt-in recipe is simply **bs=8192, everything else champion-G**.
+
+**Net:** the small-state opt-in is final at ep50/wd0.05/pct-default; the coupled axis offers no further gain.
+(Next: the new-knobs sweep tests cw re-balance / logit-adjust / β2 / grad-clip — orthogonal levers beyond this.)
