@@ -160,9 +160,9 @@ and recorded.**
   The study that produced every Part-2 number. Read in this order:
   - `RESULTS_BOARD.md` — the board (headline §1, file-map §3, baselines §4). The one source of truth for numbers.
   - `STATISTICAL_PROTOCOL.md` — the pre-registered tests (Wilcoxon superiority + TOST non-inferiority + the n=20 plan).
-  - `FAITHFUL_STAN_FINDINGS.md`, `CSLSL_CASCADE.md`, `W6_ENCODER_ISOLATION.md`, `A4_RESULTS.md`,
-    `ISTANBUL_BASELINES_RESULTS.md` — the per-result findings (STAN, cascade tie, trunk-not-transfer probe, leak
-    audit, Istanbul baselines).
+  - `FAITHFUL_STAN_FINDINGS.md`, `CSLSL_CASCADE.md`, `W6_ENCODER_ISOLATION.md`, `ISTANBUL_BASELINES_RESULTS.md` —
+    the per-result findings (STAN, cascade tie, trunk-not-transfer probe, Istanbul baselines). The leak-audit
+    finding is `../pre_freeze_gates/A4_RESULTS.md` (a sibling study, not under closing_data).
   - `HANDOFF_A40.md` — the live worklist for the remaining GPU runs; `log.md` — the outcomes log (what happened when).
 - **[`docs/results/`](../../docs/results/) — the JSON archive** (the actual numbers). For this paper: `closing_data/`
   (MTL/STL + baseline_compare), `P1/` (region ceilings), `P0/simple_baselines/` (floors), `baselines/` (faithful
@@ -186,7 +186,10 @@ and recorded.**
 - **Repo-wide guide:** [`/CLAUDE.md`](../../CLAUDE.md) — the project's master guide (architecture, the OOM/precision
   lessons, the canonical-flag traps). Read it before running anything, but use the **board** recipe above for this paper.
 
-## 8 · The paper code (`src/`)
+## 8 · The paper source (`src/` — LaTeX, in THIS folder)
+
+> ⚠ Two different `src/`: the one in **this folder** (`articles/[mobiwac]/src/`) is the **LaTeX paper**; the repo's
+> **`/src`** (root) is the **model/training codebase** (§9). Don't confuse them.
 
 `src/main.tex` is the root (IEEE `conference`, `IEEEtran` class) and `\input`s everything; build with
 `pdflatex main → bibtex main → pdflatex main ×2` (see [`src/README.md`](src/README.md)). Structure:
@@ -198,3 +201,28 @@ and recorded.**
   `fig4_deltas.py`) — edit the `.py` and re-render to change those figures; the `.pdf` is a required, committed input.
 - `references.bib` — 27 cited entries (all verified); `IEEEtran.cls` is bundled for local compile.
 - Build artifacts (`*.aux/.log/.bbl/.blg`) are gitignored; `main.pdf` and the figure PDFs are tracked.
+
+## 9 · The model + training codebase (repo `/src` and `research/`)
+
+The actual implementation that produced the results lives at the **repo root** (paths below are from the repo root;
+the project guide [`/CLAUDE.md`](../../CLAUDE.md) has the full architecture). What's relevant to this paper:
+
+- **The joint model:** [`src/models/mtlnet.py`](../../src/models/mtlnet.py) — MTLnet. The paper's model is the
+  `mtlnet_crossattn_dualtower` variant (two private per-task encoders → a shared bidirectional cross-attention trunk
+  → a category head + a dual-tower region head with a private spatial path). Registered in `src/models/registry.py`.
+- **The two heads the paper uses:** `src/models/next/next_gru/` (category head) and
+  `src/models/next/next_stan_flow_dualtower/` (region head, the dual tower). Other heads under `src/models/next/*`
+  and `src/models/category/*` are alternatives explored earlier, not the paper's choice.
+- **Training loops (where the cells come from):** [`src/training/runners/mtl_cv.py`](../../src/training/runners/mtl_cv.py)
+  (the joint MTL 5-fold loop) + `mtl_eval.py` (eval; the matched scorer reads this), and `category_cv.py` / `next_cv.py`
+  (the single-task "ceiling" runs). Entry point: [`scripts/train.py`](../../scripts/train.py) (`--task mtl --engine
+  check2hgi_dk_ovl …`, the board recipe in §7).
+- **The MTL loss:** `src/losses/` (registry + `_common.py`). The paper uses **static_weight, cw=0.75, unweighted CE**
+  on both heads (not a gradient balancer — that finding is in §2 / PAPER_PLAN §2.3).
+- **Data → model inputs:** `src/data/folds.py` (user-disjoint `StratifiedGroupKFold`), `src/data/inputs/{core,builders}.py`
+  (sequence windows — the board uses **stride-1, MIN_SEQ=10, window-9**), `src/data/dataset.py`. Configs +
+  the `EmbeddingEngine` enum (incl. `check2hgi_dk_ovl`) are in `src/configs/` (`paths.py`, `experiment.py`, `globals.py`).
+- **The representation (Part 1):** [`research/embeddings/check2hgi/`](../../research/embeddings/check2hgi/) — the
+  check-in-level Check2HGI substrate (graph build + infomax training; produces the per-visit vectors).
+- **The baselines' code:** [`research/baselines/`](../../research/baselines/) — `stan/` (faithful STAN, with its own
+  README), `rehdm/`, `poi_rgnn/`, `mha_pe/`. (HMT-GRN and the cascade live in `scripts/closing_data/` / the study.)
