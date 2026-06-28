@@ -1,5 +1,25 @@
 # Batch-size × LR sweep — plan
 
+> ⚠ **AUDIT CORRECTION (2026-06-28, advisor a7e80a72).** Three over-claims below were corrected:
+> 1. **The FL "regression" was n=1 (a single fold, seed 0).** cat −0.58 is only ~1.3–1.5σ (single-fold
+>    difference-SE ≈ 0.31–0.44 pp) → **statistically consistent with zero**. Comparing FL n=1 against AL/AZ
+>    n=20 was a methodological error. The matching reg **+0.34** is the SAME single fold — you cannot keep one
+>    and call the other a "regression." **FL is UNCONFIRMED at large states** pending the n=20 settle run
+>    (`run_fl_settle.sh`). Do not promote OR reject bs=8192 at FL until that lands.
+> 2. **The pct_start "FALSIFIED" label overreaches** — also n=1; the 3 arms span 0.12 pp, below the ~0.3 pp
+>    single-fold noise floor. It **cannot resolve** a real pct_start effect; re-test at 5-fold.
+> 3. **The WD sub-claim was self-contradictory** — weaker WD-per-step at 8k = LESS regularization = predicts
+>    WORSE, not the small-state gain. The coherent single explanation for the AL/AZ-gain↔FL-(unconfirmed) sign
+>    is **gradient-noise-scale (1/√batch)** alone. The OneCycle step-budget remains the headline mechanism but
+>    was never tested with an epochs arm (see the AL/AZ coupled sweep).
+>
+> **Still SOUND:** the AL/AZ n=20 small-state win (AL cat +0.36 t≈4, AZ +0.75 t≈13; both heads up), "keep
+> canon.py at 2048", and "linear LR-scaling is harmful (8k_lin cat 48.80)". The AL/AZ **base** n=20 (63.545 /
+> 63.565) was re-scored race-free from the 4 distinct timestamp-window rundirs (not the paired summary.tsv).
+> **Caveat:** "small-state" is generalized from n=2 states (AL/AZ) — Istanbul (520 regions) is the cheap class
+> confirmation.
+
+
 **Goal.** Raise the champion batch size (2048 → 4096 / 8192) for speed + GPU utilisation **without losing
 quality**. Larger batch reduces gradient noise + the number of optimizer steps, so the LR (and possibly warmup)
 must be re-tuned to hold quality. Find the best **(batch_size, LR-scaling)** combination.
