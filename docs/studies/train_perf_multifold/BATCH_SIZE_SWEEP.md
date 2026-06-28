@@ -4,8 +4,10 @@
 > 1. **The FL "regression" was n=1 (a single fold, seed 0).** cat −0.58 is only ~1.3–1.5σ (single-fold
 >    difference-SE ≈ 0.31–0.44 pp) → **statistically consistent with zero**. Comparing FL n=1 against AL/AZ
 >    n=20 was a methodological error. The matching reg **+0.34** is the SAME single fold — you cannot keep one
->    and call the other a "regression." **FL is UNCONFIRMED at large states** pending the n=20 settle run
->    (`run_fl_settle.sh`). Do not promote OR reject bs=8192 at FL until that lands.
+>    and call the other a "regression." ~~FL is UNCONFIRMED pending the settle run.~~ **RESOLVED 2026-06-28:
+>    the n=5 settle (`run_fl_settle.sh`, see bottom section) shows the regression is REAL and LARGER (−1.07 pp
+>    at 5-fold seed-0, reg flat) — the n=1→n=5 fix resolved AGAINST 8k at FL. Take #1 ("keep bs=2048 at large
+>    states") now stands on n=5 evidence.**
 > 2. **The pct_start "FALSIFIED" label overreaches** — also n=1; the 3 arms span 0.12 pp, below the ~0.3 pp
 >    single-fold noise floor. It **cannot resolve** a real pct_start effect; re-test at 5-fold.
 > 3. **The WD sub-claim was self-contradictory** — weaker WD-per-step at 8k = LESS regularization = predicts
