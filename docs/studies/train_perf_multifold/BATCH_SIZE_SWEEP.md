@@ -147,3 +147,45 @@ Small states: bigger batch helps cat (less gradient noise → cleaner 7-class si
 - **For FL the cat dip + the OneCycle-fewer-steps interaction means bs=8192 there needs `pct_start`↑ or more
   epochs to hold cat** — it's NOT a free win at large states like it is at small. Confirm with FL 5-fold + n=20.
 - LR linear-scaling still harmful everywhere; keep LR unchanged.
+
+## n=20 CONFIRMATION + FL pct_start screen (2026-06-28) — SETTLE VERDICT
+
+### n=20 {0,1,7,100} × 5-fold, race-free (scored per-PID rundir, 4 distinct seeds averaged)
+| state | base (2048) cat/reg | 8k (8192) cat/reg | Δcat | Δreg |
+|---|---|---|---|---|
+| **AL** | 63.545±0.10 / 69.703 | **63.902±0.14 / 69.837** | **+0.356** | **+0.134** |
+| **AZ** | 63.565±0.09 / 59.396 | **64.311±0.07 / 59.582** | **+0.746** | **+0.186** |
+
+**Both small states confirm bs=8192 as a genuine quality WIN at n=20** — positive on BOTH heads, deltas exceed
+the per-seed sd. The seed-0-only +0.5…+0.9 cat held up multi-seed (AZ even strengthened). Speed-neutral at small
+states (compute-bound, proven earlier).
+
+### FL pct_start screen (bs=8192, 1-fold, seed 0) — does warmup reshape rescue the FL cat dip?
+| pct_start | cat (diag-best) | reg | best-ep cat | NaN |
+|---|---|---|---|---|
+| base-2048 ref | **78.34** | 75.58 | 37 | — |
+| 0.30 (control) | 77.76 | 75.92 | 28 | 0 |
+| 0.40 | 77.64 | 75.92 | 23 | 0 |
+| 0.50 | 77.72 | 75.92 | 32 | 0 |
+**FALSIFIED** — reshaping warmup does NOT recover FL cat (all ~77.7, −0.6 vs base). The FL cat regression is a raw
+optimizer-STEP-COUNT deficit (4× fewer steps at bs=8192), not a schedule-SHAPE problem. Only `--epochs`↑ could fix
+it — which erases the +7% FL speed win. Note reg holds +0.34 across all pct_start.
+
+### SETTLE VERDICT
+- **Small states (AL/AZ): PROMOTE bs=8192 as an opt-in recommendation** — confirmed n=20 quality win (cat +0.36/+0.75,
+  reg +0.13/+0.19), speed-neutral. Documented recipe variant, NOT a canon.py flip.
+- **Large states (FL/CA/TX): DO NOT promote** — bs=8192 is a +7% speed win but a −0.6 cat regression (step-count
+  deficit, unfixable by pct_start without losing the speed). Keep bs=2048.
+- **NEVER change the global `canon.py` default (2048)** — board §1 is frozen at 2048; a silent flip de-reproduces
+  the entire board (the change is not byte-identical: it perturbs the data partition + OneCycle step budget + RNG).
+- **Coupled hyperparameters beyond LR (advisor, verified vs code):** the overlooked driver is the **OneCycle
+  optimizer-step budget** (OneCycle is parameterized in epoch-space → 4× batch = 4× fewer steps through warmup→peak;
+  this is the FL cat dip, signature best-ep 28 vs 37). Secondary: decoupled-WD per-step shrinkage (~4× weaker reg at
+  8k — plausibly WHY small states gain), gradient-noise-scale 1/√batch (explains the AL/AZ-gain vs FL-loss sign
+  flip). RULED OUT (champion path): grad-accum (=1), BatchNorm (LayerNorm-only heads), class weighting (off), MTL
+  balancer cadence (static_weight fixed). LR linear-scaling remains harmful everywhere.
+
+### Process notes (this run)
+- n=20 driver hit the concurrent-rundir race (rundir names omit seed → `ls -dt` mis-mapped; AL/AZ scored in seed
+  pairs). Fixed by averaging the 4 distinct n20-window rundirs / capturing the train.py PID suffix.
+- AL 8k OOM'd in the FL-overlap window (FL 18GB + felipe 10GB + 2 small runs > 46GB). Re-run solo = clean.
