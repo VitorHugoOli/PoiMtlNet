@@ -209,3 +209,28 @@ it — which erases the +7% FL speed win. Note reg holds +0.34 across all pct_st
 - n=20 driver hit the concurrent-rundir race (rundir names omit seed → `ls -dt` mis-mapped; AL/AZ scored in seed
   pairs). Fixed by averaging the 4 distinct n20-window rundirs / capturing the train.py PID suffix.
 - AL 8k OOM'd in the FL-overlap window (FL 18GB + felipe 10GB + 2 small runs > 46GB). Re-run solo = clean.
+
+## FL SETTLE RESULT (2026-06-28) — regression CONFIRMED at n=5, not noise
+
+The audit flagged the FL "regression" as n=1 (within single-fold noise) and predicted it might vanish at proper
+5-fold. **It did not — it grew.** FL seed-0 at 5-fold (n=5), base+8k concurrent, clean (0 NaN, monitor clean):
+
+| FL seed-0 (n=5) | cat | reg | wall |
+|---|---|---|---|
+| base (2048) | **79.831** | 77.403 | 16,471 s |
+| 8k (8192) | **78.765** | 77.419 | 14,947 s |
+| **Δ (8k−base)** | **−1.066** | +0.015 | **−9.2% (faster)** |
+
+−1.07 pp is **far beyond** the ~0.3 pp single-fold noise floor → the FL cat regression is **REAL**, larger than
+the 1-fold −0.58 hinted. reg is flat. So the trade at FL is unambiguous: **−1.07 cat for ~0 reg + ~8% speed → not
+worth it.** Stopped after seed-0 n=5 (user decision: regression already conclusive; saved ~13h of seeds 1/7/100).
+
+**This overturns the audit's "FL unconfirmed" status:** take #1 ("do NOT promote bs=8192 at large states") is now
+SUPPORTED by n=5, not refuted. The methodology fix (n=1→n=5) was the right call — it just resolved AGAINST 8k at
+FL rather than for it. The earlier internal-inconsistency point still holds for the 1-fold data, but the n=5 data
+is self-consistent: cat clearly down, reg flat.
+
+**Net batch-size picture (final):**
+- Small states (AL/AZ): bs=8192 is a confirmed n=20 quality WIN (cat +0.36/+0.75), speed-neutral. → small-state opt-in.
+- Large state (FL): bs=8192 is a confirmed n=5 cat REGRESSION (−1.07), reg flat, +8% speed. → keep bs=2048.
+- Global canon.py default stays 2048. The batch/quality interaction is state-(scale-)dependent, as the speed was.
