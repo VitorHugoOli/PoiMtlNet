@@ -10,7 +10,10 @@
 `mtlnet_crossattn_dualtower` (model) + `next_gru` (cat head) + `next_stan_flow_dualtower`
 (reg head, **prior-OFF**: `freeze_alpha=True alpha_init=0.0`). Unweighted CE, MTL loss
 `static_weight` with `category-weight 0.75`, scheduler `onecycle max-lr 3e-3`
-(per-head LRs cat/reg/shared = 1e-3/3e-3/1e-3), checkpoint selector `geom_simple`
+(per-head LRs cat/reg/shared = 1e-3/3e-3/1e-3 — ⚠ **but these are INERT under onecycle**:
+a scalar `max-lr` broadcasts to all param groups, so every head actually peaks at 3e-3; the
+per-head flags do nothing here. See [`future_works/per_head_lr_onecycle_fix.md`](future_works/per_head_lr_onecycle_fix.md)),
+checkpoint selector `geom_simple`
 (`√(cat_macroF1 · reg_Acc@10)`). Substrate engine `check2hgi_dk_ovl` (gated stride-1
 overlap, MIN_SEQ=10); per-fold priors dir = the v14 substrate `check2hgi_design_k_resln_mae_l0_1`.
 **The champion is prior-OFF + KD-OFF → the per-fold log_T is INERT** (α·log_T = 0), so it is
