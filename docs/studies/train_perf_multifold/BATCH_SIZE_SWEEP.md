@@ -265,3 +265,34 @@ but −0.09 reg) yet is −0.18 at AZ → not a real, transferable improvement. 
 
 **Net:** the small-state opt-in is final at ep50/wd0.05/pct-default; the coupled axis offers no further gain.
 (Next: the new-knobs sweep tests cw re-balance / logit-adjust / β2 / grad-clip — orthogonal levers beyond this.)
+
+## NEW-KNOBS SWEEP RESULT (2026-06-28) — no orthogonal lever helps either
+
+Web-research agent (a46de69c) top toggle-now levers BEYOND the coupled axis, at AL+AZ bs=8192 seed-0 5-fold,
+3-wide, PID-keyed scoring, 0 NaN. ref8k = champion bs8192 (AL 64.02, AZ 64.356; AZ ref8k is compiled-wobble vs
+the coupled-sweep 64.374, within fold-std).
+
+| lever | AL cat (Δ vs 64.02) | AZ cat (Δ vs 64.356) | reg both | verdict |
+|---|---|---|---|---|
+| **ref8k** (champion bs8192) | **64.02** | **64.36** | — | baseline |
+| cw0.70 (category_weight) | 63.88 (−0.145) | 64.19 (−0.168) | ~flat | worse |
+| cw0.80 (category_weight) | 63.86 (−0.164) | 64.26 (−0.101) | +0.06/+0.08 | worse |
+| logitadj (τ=1.0, cat) | **58.77 (−5.25)** | **59.37 (−4.99)** | flat | **CRATERS macro-F1** |
+| beta2_095 (--adam-beta2) | 63.76 (−0.262) | 64.17 (−0.185) | +0.06/+0.00 | mildly worse cat |
+| gradclip05 (--max-grad-norm 0.5) | 63.70 (−0.322) | 64.18 (−0.174) | +0.01/+0.11 | mildly worse cat |
+| stabcombo (β2 0.95 + clip 0.5) | 63.93 (−0.091) | 64.18 (−0.177) | +0.06/+0.02 | ~wash |
+
+**RESULT — NO orthogonal lever beats plain bs=8192 at either small state.**
+- **category_weight rebalance** (0.70/0.80) is flat-negative both states — cw=0.75 already optimal at bs8192.
+- **logit-adjustment τ=1.0 CRATERS cat macro-F1** (−5.25 AL / −4.99 AZ) — it shifts logits by class-frequency
+  priors, which fights the macro-F1 objective on the already-cw-balanced 7-class head. Do NOT use it here.
+- **β2=0.95 and grad-clip 0.5** (the large-batch stabilizers) mildly hurt cat (−0.2…−0.3), reg ~flat-to-up;
+  **stabcombo** is a wash (−0.09 cat / +0.06 reg). The bs=8192 run was already stable (0 NaN) → no instability
+  to fix → the stabilizers only cost a little cat precision.
+- **`--adam-beta2` flag added** (byte-identical default 0.999) — now available for future large-C/bf16 work.
+
+**CONCLUSION (whole batch-size study):** the small-state opt-in recipe is **plain bs=8192 ep50/wd0.05/cw0.75,
+champion-G otherwise** — NO coupled (epochs/wd/pct_start) OR orthogonal (cw/logit-adjust/β2/clip) lever improves
+it. This is the signature of a pure **gradient-noise-scale** win (1/√batch variance reduction on the
+noise-limited small-state cat head), not a tunable schedule/regularization effect. Large states (FL) keep bs=2048
+(FL n=5 cat −1.07) — see the FL-mechanism analysis + FL cat-lr fix experiment.
