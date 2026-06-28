@@ -296,3 +296,33 @@ champion-G otherwise** — NO coupled (epochs/wd/pct_start) OR orthogonal (cw/lo
 it. This is the signature of a pure **gradient-noise-scale** win (1/√batch variance reduction on the
 noise-limited small-state cat head), not a tunable schedule/regularization effect. Large states (FL) keep bs=2048
 (FL n=5 cat −1.07) — see the FL-mechanism analysis + FL cat-lr fix experiment.
+
+## FL CAT-LR FIX — INVALID (per-head LR is INERT under OneCycle) — important finding 2026-06-28
+
+The FL cat-lr fix (cat-lr 1e-3→2e-3 to recover FL cat, from web-research agent ade63a19) returned
+**byte-identical** results for ref8k, catlr2e3, catlr1.5e3 (all cat 78.7648 / reg 77.4185). Root cause:
+
+**`--cat-lr` / `--reg-lr` / `--shared-lr` are SILENTLY INERT under `--scheduler onecycle`.** In
+`src/training/helpers.py:setup_scheduler`, the onecycle branch builds `OneCycleLR(max_lr=<scalar 3e-3>, ...)`.
+PyTorch's OneCycleLR broadcasts a scalar `max_lr` to **every** param group → it overwrites the per-head LRs that
+`setup_per_head_optimizer` set. The `multi_group_per_head` guard that protects the per-head LRs exists for the
+**constant** and **cosine** branches but NOT for onecycle. Proof: both run.logs print
+`[per-head-LR] optimizer groups: [('cat',1.2e-4),('reg',1.2e-4),('shared',1.2e-4)]` — all three at 3e-3/25
+(div_factor 25), i.e. uniform, NOT the recipe's 1e-3/3e-3/1e-3.
+
+**Implications:**
+1. The cat-lr experiment can't run as designed — the knob does nothing under onecycle.
+2. **The champion recipe's documented per-head LR (`--cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3`) is DECORATIVE
+   under onecycle** — all heads actually peak at the uniform `--max-lr 3e-3`. The §0.1 numbers were produced with
+   uniform-3e-3 per-head LR, not the per-head ratios the recipe implies. (This does NOT change §0.1 — it just
+   means those three flags were inert all along; the real LR is the single max_lr=3e-3.)
+3. The research's premise ("cat is under-stepped at 1e-3, raise it") is moot — cat is already at the 3e-3 peak.
+   So the FL fix has to come from a DIFFERENT lever (reduce reg's backbone capture, not raise cat-lr).
+
+**Still-valid FL cells (non-LR knobs, running):** cw0.80 (`--category-weight 0.80`, applied in the loss — tests
+whether more cat weight counters reg-capture) and pct045 (`--pct-start 0.45`, applied to OneCycle).
+
+**To actually test per-head LR scaling** would need a code change: pass `max_lr` to OneCycleLR as a per-group LIST
+`[cat_max, reg_max, shared_max]` (opt-in / env-gated, default OFF to preserve the byte-identical champion). Then
+the real FL lever to try is LOWERING reg's OneCycle peak (reduce reg's shared-backbone dominance) while holding
+cat at 3e-3 — the opposite of the original cat-lr-up idea.
