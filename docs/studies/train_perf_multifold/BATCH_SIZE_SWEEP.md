@@ -413,3 +413,17 @@ contributions. The AL parity (cat1/reg3/shared1 beat uniform by +0.59) has the s
 **What IS solid regardless of mechanism:** bs=8192 + per-head LR (cat/shared 1e-3, reg 3e-3) recovers FL cat to
 ≈base while keeping the reg gain and the speed → a viable FL recipe. The exact lever (cat-LR vs shared-LR) is
 pending the isolation cells (queued: run_fl_perhead_isolate.sh).
+
+### reg-only / combo results — reg-capture REFUTED (direct test) 2026-06-29
+| cell | cat/reg/shared LR | cat | reg | vs ref8k 78.76 | recovers cat? |
+|---|---|---|---|---|---|
+| ctrl | 3/3/3 | 78.7648 | 77.42 | — | — (regression) |
+| perhead | 1/3/1 | 79.7178 | 77.32 | +0.96 | YES |
+| **reg2e3** (reg-only) | 3/2/3 | **78.7335** | 77.43 | **−0.03** | **NO** |
+| perhead_reg2 (combo) | 1/2/1 | 79.7490 | 77.38 | +0.99 | YES |
+
+**Lowering reg-LR alone (reg2e3) does NOT recover FL cat** (78.73 ≈ ctrl 78.76, still −1.10 vs base), and the
+combo (perhead_reg2 79.75) does NOT beat perhead (79.72) — adding reg-lowering contributes nothing. So **reg-LR
+is irrelevant to the FL cat regression → reg-capture is REFUTED by the direct test** (not just weakened). The
++0.96 recovery is entirely from the cat-and-shared LR lowering in perhead. The remaining question — cat-LR vs
+shared-LR — is the cat_only / shared_only isolation (running now). Either way the mechanism is NOT reg-capture.
