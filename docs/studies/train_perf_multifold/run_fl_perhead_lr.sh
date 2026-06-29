@@ -12,7 +12,7 @@ D=docs/studies/train_perf_multifold
 OUT=$D/fl_perhead_runs; mkdir -p "$OUT"
 OVL=check2hgi_dk_ovl; V14=check2hgi_design_k_resln_mae_l0_1
 SUMMARY="$OUT/summary.tsv"
-echo -e "cell\treglr\tpid\tcat\treg\twall\tnan\trc" > "$SUMMARY"
+echo -e "cell\tcatlr\treglr\tsharedlr\tpid\tcat\treg\twall\tnan\trc" > "$SUMMARY"
 MAX_PAR="${1:-2}"
 
 echo "[flph] waiting for the current FL fix run (cw0.80/pct045) to finish..."
@@ -21,15 +21,18 @@ for i in $(seq 1 360); do
   sleep 60
 done
 
-# cell:reglr (cat+shared held at 3e-3; per-head ON makes reg peak = reglr)
+# cell:catlr:reglr:sharedlr (per-head ON makes each head peak at its lr)
+# Two levers: (a) LOWER cat-LR (the AL +0.59 winner — cat head overdriven at 3e-3);
+#             (b) LOWER reg peak (the FL reg-capture mechanism). Plus the combo.
 CELLS=(
-  "ctrl:3e-3"      # per-head ON all 3e-3 = uniform → must == ref8k 78.76 (validates ON-equal at FL)
-  "reg2.5e3:2.5e-3"
-  "reg2e3:2e-3"
+  "ctrl:3e-3:3e-3:3e-3"        # uniform → == ref8k 78.76 (validates ON-equal at FL)
+  "perhead:1e-3:3e-3:1e-3"     # the AL winner — does lowering cat-LR recover FL cat?
+  "reg2e3:3e-3:2e-3:3e-3"      # lower reg peak — reduce backbone capture
+  "perhead_reg2:1e-3:2e-3:1e-3" # combo: lower cat-LR AND reg peak
 )
 
 run_cell() {
-  IFS=':' read -r cell rlr <<< "$1"
+  IFS=':' read -r cell clr rlr slr <<< "$1"
   local cd_="$OUT/${cell}"; mkdir -p "$cd_"; local log="$cd_/run.log"; local S=$SECONDS
   export PYTHONPATH=src MTL_DISABLE_AMP=1 MTL_CHUNK_VAL_METRIC=1 MTL_STRICT=1 MTL_COMPILE_DYNAMIC=1
   export MTL_ONECYCLE_PER_HEAD_LR=1
@@ -42,7 +45,7 @@ run_cell() {
     --reg-head-param raw_embed_dim=64 --reg-head-param fusion_mode=aux \
     --reg-head-param freeze_alpha=True --reg-head-param alpha_init=0.0 \
     --task-a-input-type checkin --task-b-input-type region --log-t-kd-weight 0.0 \
-    --scheduler onecycle --max-lr 3e-3 --cat-lr 3e-3 --reg-lr "$rlr" --shared-lr 3e-3 \
+    --scheduler onecycle --max-lr 3e-3 --cat-lr "$clr" --reg-lr "$rlr" --shared-lr "$slr" \
     --model mtlnet_crossattn_dualtower --compile --tf32 \
     --per-fold-transition-dir "output/$V14/florida" --no-checkpoints > "$log" 2>&1 &
   local pid=$!; wait $pid; local rc=$?; local wall=$((SECONDS-S))
@@ -54,8 +57,8 @@ run_cell() {
     cat=$(echo "$sc" | grep -oE "cat macro-F1 \(diag-best\)[^=]*= [0-9.]+" | grep -oE "[0-9.]+$" | head -1)
     reg=$(echo "$sc" | grep -oE "reg FULL top10_acc[^=]*= [0-9.]+" | grep -oE "[0-9.]+$" | head -1)
   fi
-  echo -e "${cell}\t${rlr}\t${pid}\t${cat:--}\t${reg:--}\t${wall}\t${nan}\t${rc}" >> "$SUMMARY"
-  echo "[flph] ${cell} reg_lr=$rlr rc=$rc wall=${wall}s cat=$cat reg=$reg nan=$nan"
+  echo -e "${cell}\t${clr}\t${rlr}\t${slr}\t${pid}\t${cat:--}\t${reg:--}\t${wall}\t${nan}\t${rc}" >> "$SUMMARY"
+  echo "[flph] ${cell} lr=$clr/$rlr/$slr rc=$rc wall=${wall}s cat=$cat reg=$reg nan=$nan"
 }
 
 echo "[flph] ${MAX_PAR}-wide. ref8k 78.76/77.42; base-2048 target 79.83/75.58. Lower reg peak → recover cat?"
