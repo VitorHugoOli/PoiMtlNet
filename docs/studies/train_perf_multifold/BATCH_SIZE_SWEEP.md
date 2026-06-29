@@ -374,9 +374,12 @@ FL bs8192 seed0 5-fold, per-head ON (MTL_ONECYCLE_PER_HEAD_LR). Discriminator fi
 
 ### THE RESULT
 **Lowering ONLY the cat-LR (1e-3; reg untouched at 3e-3) recovers FL cat from 78.76 → 79.72 — within 0.11 pp of
-the bs=2048 baseline — while reg HOLDS at 77.32 (still +1.74 over base 75.58).** So:
-- **bs=8192 is now VIABLE at FL**: cat ≈ base (−0.11, within fold-std), reg ≫ base (+1.74), AND ~7% faster. This
-  FLIPS the earlier "keep bs=2048 at FL" conclusion — pending n=20 confirmation.
+the bs=2048 baseline — while reg holds at 77.32 (≈ the 5-fold base reg 77.40; FLAT).** So:
+- **bs=8192 is now VIABLE at FL**: cat ≈ base (−0.11, within fold-std), reg ≈ base (FLAT, ~77.4), AND ~7% faster.
+  This FLIPS the earlier "keep bs=2048 at FL" conclusion — pending n=20 confirmation.
+  > ⚠ CORRECTION: an earlier draft said "reg ≫ base (+1.74)" — that compared the 5-fold reg (77.3) against a
+  > stray 1-FOLD base reg (75.58). At matched 5-fold the FL base reg is **77.40**, so reg is **FLAT** across
+  > base/8k/cat_only — the FL win is a SPEED win at equal quality, NOT a reg gain.
 
 ### MECHANISM RE-EVAL — reg-capture REFUTED, it's CAT-LR-OVERSHOOT
 The web-research mechanism ("reg head captures the shared backbone under reduced gradient noise") is **refuted**
@@ -466,8 +469,10 @@ onecycle bug had been hiding all along.
    (epochs/wd/pct) or orthogonal (cw/logit-adjust/β2/clip) lever beats plain bs=8192 — pure gradient-noise effect.
 2. **Per-head cat-lr 1e-3 (via the new MTL_ONECYCLE_PER_HEAD_LR) is an ADDITIONAL win**: +0.59 cat at AL, +1.08
    at FL — the cat head was overdriven at 3e-3 everywhere; this is independent of and stacks on the batch win.
-3. **Large state (FL): bs=8192 is now VIABLE** — with cat-lr 1e-3, FL cat 78.76→79.84 (≈base+0.01), reg 77.39
-   (≫base 75.58, +1.81), and ~7% faster. This FLIPS the earlier "keep bs=2048 at FL" conclusion.
+3. **Large state (FL): bs=8192 is now VIABLE** — with cat-lr 1e-3, FL cat 78.76→79.84 (≈ base 79.83), reg 77.39
+   (≈ 5-fold base reg 77.40, FLAT), and ~7% faster. So it's **equal quality at +7% speed** — which still FLIPS
+   the earlier "keep bs=2048 at FL" (the regression was cat-only and is now fixed). NOT a reg gain (the earlier
+   "≫base 75.58" used a 1-fold base reg by mistake; the 5-fold base reg is 77.40).
 4. **Tooling shipped:** `--adam-beta2` flag; `MTL_ONECYCLE_PER_HEAD_LR` (per-group OneCycle max_lr, opt-in,
    default-OFF byte-identical) — which fixed the latent "per-head LR inert under onecycle" bug.
 5. **Recommended next (all pending):** n=20 {0,1,7,100} for (a) bs8192 small-state, (b) per-head cat-lr 1e-3 at
