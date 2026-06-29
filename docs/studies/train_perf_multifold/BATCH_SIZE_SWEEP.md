@@ -360,3 +360,44 @@ FL bs8192 seed0 5-fold (the valid non-LR cells from the original cat-lr run):
 **Neither recovers the FL cat regression** — both ≈ ref8k (still −1.07 vs base). More cat loss-weight does NOT
 counter the regression (so a pure loss-weight/MTL-balance explanation is weak), and longer warmup does nothing.
 The FL fix, if any, is in the per-head LR (the discriminator run: perhead vs reg2e3).
+
+## FL PER-HEAD LR — BREAKTHROUGH + mechanism RE-EVAL (2026-06-29)
+
+FL bs8192 seed0 5-fold, per-head ON (MTL_ONECYCLE_PER_HEAD_LR). Discriminator first wave:
+
+| cell | cat/reg/shared LR | cat | reg | vs ref8k 78.76 | vs base 79.83 |
+|---|---|---|---|---|---|
+| ctrl | 3e-3/3e-3/3e-3 (uniform) | 78.7648 | 77.4185 | +0.00 | −1.07 (the regression) |
+| **perhead** | **1e-3/3e-3/1e-3** (cat ↓ only) | **79.7178** | **77.3245** | **+0.96** | **−0.11** ✅ |
+| reg2e3 | 3e-3/2e-3/3e-3 (reg ↓ only) | *running* | | | |
+| perhead_reg2 | 1e-3/2e-3/1e-3 (combo) | *running* | | | |
+
+### THE RESULT
+**Lowering ONLY the cat-LR (1e-3; reg untouched at 3e-3) recovers FL cat from 78.76 → 79.72 — within 0.11 pp of
+the bs=2048 baseline — while reg HOLDS at 77.32 (still +1.74 over base 75.58).** So:
+- **bs=8192 is now VIABLE at FL**: cat ≈ base (−0.11, within fold-std), reg ≫ base (+1.74), AND ~7% faster. This
+  FLIPS the earlier "keep bs=2048 at FL" conclusion — pending n=20 confirmation.
+
+### MECHANISM RE-EVAL — reg-capture REFUTED, it's CAT-LR-OVERSHOOT
+The web-research mechanism ("reg head captures the shared backbone under reduced gradient noise") is **refuted**
+by this experiment: we recovered FL cat by lowering the **cat** head's LR and **never touched reg** — if reg-
+capture were the driver, easing cat's LR couldn't undo a reg-dominated backbone. The correct mechanism:
+
+1. **The cat head was OVERDRIVEN at the uniform 3e-3.** The per-head LR (intended cat-lr 1e-3) was inert under
+   onecycle, so cat actually ran at max-lr 3e-3 — 3× too high for the sensitive 7-class head.
+2. **bs=2048's gradient noise partially masked the overshoot;** bs=8192's cleaner gradients let it manifest →
+   the cat head overshoots/destabilizes late → cat regresses (−1.07), best-epoch moves earlier (peak-then-decay
+   is the LR-too-high signature, NOT backbone drift).
+3. **FL is more sensitive** (more data → more high-LR steps; sharper cat manifold) so the same uniform-3e-3 that
+   merely under-performs at small states tips FL cat into outright regression.
+4. **Lowering cat-LR to 1e-3 removes the overshoot → cat recovers** (+0.96 at FL, +0.59 at AL). One unified
+   lever fixes both: the cat head simply wants ~1e-3 everywhere; the onecycle bug had been overdriving it.
+
+The earlier macro-F1-minority-dilution amplifier and reg-capture are both **demoted/retired** — the data is
+fully explained by cat-LR overshoot exposed by the larger batch. (The original premise — "cat under-stepped at
+1e-3, raise it" — was doubly wrong: cat was at 3e-3, overdriven, and wanted LOWERING.)
+
+### Pending confirmation
+- **reg2e3** (lower reg only, cat at 3e-3): if it does NOT recover cat → confirms reg is irrelevant (cat-overshoot).
+- **perhead_reg2** (combo): expected ≈ perhead (the cat-LR is what matters).
+- Then **n=20 {0,1,7,100}** for perhead at FL to promote "bs8192 + per-head cat-lr 1e-3" as the large-state recipe.
