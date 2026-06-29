@@ -350,3 +350,13 @@ After implementing `MTL_ONECYCLE_PER_HEAD_LR` (per-group OneCycle max_lr, opt-in
 actually applied), not plain bs=8192. Needs n=20 multi-seed + AZ confirmation. The FL test is now reframed:
 the winning lever is LOWERING the cat-head LR (cat overdriven at 3e-3), which may ALSO recover FL cat — added a
 cat1/reg3/shared1 cell to the FL validation alongside the reg-peak-lowering cells.
+
+## FL non-LR levers (cw0.80, pct045) — neither recovers FL cat (2026-06-29)
+FL bs8192 seed0 5-fold (the valid non-LR cells from the original cat-lr run):
+| cell | cat | reg | vs ref8k 78.76 | vs base 79.83 |
+|---|---|---|---|---|
+| cw0.80 (--category-weight 0.80) | 78.73 | 77.40 | −0.03 | −1.10 |
+| pct045 (--pct-start 0.45) | 78.77 | 77.44 | +0.01 | −1.06 |
+**Neither recovers the FL cat regression** — both ≈ ref8k (still −1.07 vs base). More cat loss-weight does NOT
+counter the regression (so a pure loss-weight/MTL-balance explanation is weak), and longer warmup does nothing.
+The FL fix, if any, is in the per-head LR (the discriminator run: perhead vs reg2e3).
