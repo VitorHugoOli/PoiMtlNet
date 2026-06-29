@@ -326,3 +326,27 @@ whether more cat weight counters reg-capture) and pct045 (`--pct-start 0.45`, ap
 `[cat_max, reg_max, shared_max]` (opt-in / env-gated, default OFF to preserve the byte-identical champion). Then
 the real FL lever to try is LOWERING reg's OneCycle peak (reduce reg's shared-backbone dominance) while holding
 cat at 3e-3 — the opposite of the original cat-lr-up idea.
+
+## PER-HEAD LR EVAL (AL) — activating per-head LR is a +0.59 cat WIN (2026-06-29)
+
+After implementing `MTL_ONECYCLE_PER_HEAD_LR` (per-group OneCycle max_lr, opt-in), AL bs8192 seed0 5-fold:
+
+| cell | flag | per-head LR (cat/reg/shared) | cat | reg | Δcat vs champion |
+|---|---|---|---|---|---|
+| off_champ | OFF | inert → uniform 3e-3 | 63.9685 | 69.8108 | — (current champion) |
+| on_equal | ON | [3e-3,3e-3,3e-3] = uniform | 64.0214 | 69.8928 | +0.05 (compile wobble) |
+| **on_perhead** | ON | **[1e-3,3e-3,1e-3]** (recipe's intended) | **64.5576** | 69.8762 | **+0.589** ✅ |
+
+**Two findings:**
+1. **PARITY CONFIRMED** — on_equal (ON, all-equal LRs) ≈ off_champ (OFF, uniform): the +0.05 is compile-session
+   wobble (separate inductor caches; the schedules are mathematically identical → eager byte-identical). The
+   per-group implementation is correct + default-OFF is safe.
+2. **Activating the INTENDED per-head LR is a real cat WIN: +0.59** (cat 63.97→64.56) with reg held (+0.07).
+   The cat head (7-class, sensitive) was being **overdriven at the uniform 3e-3**; the recipe's documented
+   cat-lr 1e-3 is genuinely better — the onecycle bug had silently suppressed a quality lever. This is
+   independent of (and stacks on) the bs=8192 small-state win.
+
+**Implication:** the small-state opt-in recipe may be **bs=8192 + `MTL_ONECYCLE_PER_HEAD_LR=1`** (cat-lr 1e-3
+actually applied), not plain bs=8192. Needs n=20 multi-seed + AZ confirmation. The FL test is now reframed:
+the winning lever is LOWERING the cat-head LR (cat overdriven at 3e-3), which may ALSO recover FL cat — added a
+cat1/reg3/shared1 cell to the FL validation alongside the reg-peak-lowering cells.
