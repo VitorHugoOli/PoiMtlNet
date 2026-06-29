@@ -401,3 +401,15 @@ fully explained by cat-LR overshoot exposed by the larger batch. (The original p
 - **reg2e3** (lower reg only, cat at 3e-3): if it does NOT recover cat → confirms reg is irrelevant (cat-overshoot).
 - **perhead_reg2** (combo): expected ≈ perhead (the cat-LR is what matters).
 - Then **n=20 {0,1,7,100}** for perhead at FL to promote "bs8192 + per-head cat-lr 1e-3" as the large-state recipe.
+
+### ⚠ CORRECTION to the mechanism claim (same session)
+`perhead` lowers BOTH cat AND shared LR to 1e-3 (reg stays 3e-3) — it is NOT a clean cat-only isolation. So the
++0.96 cat recovery could come from the cat-head LR OR the shared-backbone LR (or both). Lowering shared LR
+uniformly scales the backbone update magnitude — it slows cumulative drift, which could partially relieve a
+reg-capture effect too. So **reg-capture is WEAKENED (reg untouched, yet cat fully recovers) but not cleanly
+REFUTED** until: (a) reg2e3 (reg-only, running) shows reg-lowering does NOT recover cat, AND (b) a cat-only
+(cat1/reg3/shared3) vs shared-only (cat3/reg3/shared1) decomposition separates the cat-LR and shared-LR
+contributions. The AL parity (cat1/reg3/shared1 beat uniform by +0.59) has the same cat+shared conflation.
+**What IS solid regardless of mechanism:** bs=8192 + per-head LR (cat/shared 1e-3, reg 3e-3) recovers FL cat to
+≈base while keeping the reg gain and the speed → a viable FL recipe. The exact lever (cat-LR vs shared-LR) is
+pending the isolation cells (queued: run_fl_perhead_isolate.sh).
