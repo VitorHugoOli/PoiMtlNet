@@ -427,3 +427,49 @@ combo (perhead_reg2 79.75) does NOT beat perhead (79.72) — adding reg-lowering
 is irrelevant to the FL cat regression → reg-capture is REFUTED by the direct test** (not just weakened). The
 +0.96 recovery is entirely from the cat-and-shared LR lowering in perhead. The remaining question — cat-LR vs
 shared-LR — is the cat_only / shared_only isolation (running now). Either way the mechanism is NOT reg-capture.
+
+## FL MECHANISM — FINAL (2026-06-29): pure cat-LR overshoot, reg-capture DEAD
+
+Full 6-cell decomposition (FL bs8192 seed0 5-fold, per-head ON; cat lever isolated):
+
+| cell | cat/reg/shared LR | cat | reg | vs base 79.83 | recovers cat? |
+|---|---|---|---|---|---|
+| ctrl | 3/3/3 | 78.76 | 77.42 | −1.07 | — (regression) |
+| **cat_only** | **1/3/3** | **79.8443** | 77.39 | **+0.01** | **YES — fully (beats base)** |
+| shared_only | 3/3/1 | 78.7587 | 77.30 | −1.07 | NO (= ctrl) |
+| reg2e3 | 3/2/3 | 78.7335 | 77.43 | −1.10 | NO |
+| perhead | 1/3/1 | 79.7178 | 77.32 | −0.11 | YES (cat-driven) |
+| perhead_reg2 | 1/2/1 | 79.7490 | 77.38 | −0.08 | YES (cat-driven) |
+
+**Only cells that lower the cat-LR recover FL cat. cat_only (lower ONLY cat-LR) recovers FULLY (79.84, +0.01 over
+the bs2048 baseline); shared_only and reg2e3 do nothing (= ctrl).** So the FL cat regression is driven *entirely*
+by the **cat head's learning rate** — shared-LR and reg-LR are irrelevant. (cat_only 79.84 even slightly BEATS
+perhead 79.72 — lowering shared too is mildly counterproductive; the clean lever is cat-LR alone.)
+
+### "Why FL cat craters" — DEFINITIVE (supersedes all prior mechanism text)
+**The cat head is overdriven at the uniform OneCycle peak (3e-3).** The recipe's intended cat-lr 1e-3 was inert
+under onecycle (the scalar max_lr broadcast 3e-3 to every head), so the sensitive 7-class cat head ran at 3×
+its intended LR. At bs=2048 the gradient noise partially masks the overshoot; at bs=8192 the cleaner gradients
+let it manifest → the cat head overshoots/destabilizes late → cat regresses (−1.07), best-epoch moves earlier
+(peak-then-decay = the classic LR-too-high signature). FL is more sensitive (more data → more high-LR steps).
+**Lowering ONLY cat-LR to 1e-3 fully removes the overshoot → cat recovers** (FL +1.08, AL +0.59). One trivial
+lever, one head.
+
+**RETIRED mechanisms** (all falsified by the decomposition): reg-head-captures-shared-backbone (reg-LR
+irrelevant: reg2e3 no recovery), shared-backbone-LR/drift (shared_only no recovery), macro-F1 minority dilution
+(not needed — cat-LR alone fully explains it), undertraining/step-count (raising LR would help; LOWERING does).
+The web-research agent's reg-capture story was elegant but wrong; the real cause is a 3× cat-LR overshoot the
+onecycle bug had been hiding all along.
+
+## ★ STUDY SUMMARY — batch-size + per-head LR (all seed-0 5-fold, pending n=20)
+1. **Small states (AL/AZ): bs=8192 is a quality win** (cat +0.36/+0.75 at n=20), speed-neutral. NO coupled
+   (epochs/wd/pct) or orthogonal (cw/logit-adjust/β2/clip) lever beats plain bs=8192 — pure gradient-noise effect.
+2. **Per-head cat-lr 1e-3 (via the new MTL_ONECYCLE_PER_HEAD_LR) is an ADDITIONAL win**: +0.59 cat at AL, +1.08
+   at FL — the cat head was overdriven at 3e-3 everywhere; this is independent of and stacks on the batch win.
+3. **Large state (FL): bs=8192 is now VIABLE** — with cat-lr 1e-3, FL cat 78.76→79.84 (≈base+0.01), reg 77.39
+   (≫base 75.58, +1.81), and ~7% faster. This FLIPS the earlier "keep bs=2048 at FL" conclusion.
+4. **Tooling shipped:** `--adam-beta2` flag; `MTL_ONECYCLE_PER_HEAD_LR` (per-group OneCycle max_lr, opt-in,
+   default-OFF byte-identical) — which fixed the latent "per-head LR inert under onecycle" bug.
+5. **Recommended next (all pending):** n=20 {0,1,7,100} for (a) bs8192 small-state, (b) per-head cat-lr 1e-3 at
+   AL/AZ/FL, (c) the FL bs8192+cat-lr-1e-3 recipe. If they hold, the champion recipe gains per-head cat-lr 1e-3
+   board-wide and bs=8192 becomes the large-state default too.
