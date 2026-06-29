@@ -336,9 +336,24 @@ def setup_scheduler(
         Configured scheduler (OneCycleLR / ConstantLR / CosineAnnealingLR).
     """
     if scheduler_type == "onecycle":
+        # By default OneCycleLR gets a SCALAR max_lr → PyTorch broadcasts it to every
+        # param group, which SILENTLY OVERWRITES the per-head LRs that
+        # setup_per_head_optimizer set (cat/reg/shared all peak at the same max_lr).
+        # Opt-in MTL_ONECYCLE_PER_HEAD_LR=1 passes max_lr as a per-group LIST (each
+        # group's own lr as its peak) so the per-head LRs actually take effect.
+        # Default OFF preserves the byte-identical champion (uniform max_lr). See
+        # docs/future_works/per_head_lr_onecycle_fix.md.
+        _per_head_onecycle = (
+            os.environ.get("MTL_ONECYCLE_PER_HEAD_LR") == "1"
+            and len(optimizer.param_groups) > 1
+        )
+        _max_lr = (
+            [pg["lr"] for pg in optimizer.param_groups]
+            if _per_head_onecycle else max_lr
+        )
         kwargs = dict(
             optimizer=optimizer,
-            max_lr=max_lr,
+            max_lr=_max_lr,
             epochs=epochs,
             steps_per_epoch=steps_per_epoch,
         )
