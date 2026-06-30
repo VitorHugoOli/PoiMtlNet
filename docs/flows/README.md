@@ -13,7 +13,7 @@ key execution params and the operational miscellaneous (profiler, multi-fold fan
 reg, prior-OFF) trained on the **`check2hgi_dk_ovl`** engine (gated stride-1 overlap of the **v14** substrate
 `check2hgi_design_k_resln_mae_l0_1`), **bs=2048, fp32**, OneCycle max-lr 3e-3, static_weight cw=0.75, geom_simple
 selector. Paper board = `docs/studies/closing_data/RESULTS_BOARD.md §1`.
-> 🔬 **Candidate next canon (n=20-confirmed, not yet promoted):** **bs=8192 + per-head cat-lr 1e-3** via
+> 🏆 **Promoted champion candidate — `--canon v17` (opt-in; AL/AZ/FL done, CA/TX pending):** **bs=8192 + per-head cat-lr 1e-3** via
 > `MTL_ONECYCLE_PER_HEAD_LR=1` — beats champion board-wide (AL +1.0/AZ +2.3 cat; FL +0.17cat/+0.20reg & +7% faster).
 > See `docs/studies/closing_data/perhead_lr_n20.md`. Promote → update this doc.
 
@@ -145,8 +145,9 @@ export MTL_DISABLE_AMP=1            # fp32. REQUIRED for large states (CA/TX); a
 ```
 Score: `scripts/closing_data/a40_score_matched.py <rundir> --seed <S>` (cat macro-F1 diag-best + reg Acc@10).
 
-> **Candidate next canon (n=20 win):** add `export MTL_ONECYCLE_PER_HEAD_LR=1` and set `--batch-size 8192`
-> (cat-lr 1e-3 then actually applies; without the env it is INERT under onecycle). Beats champion at every state.
+> **Promoted candidate — `--canon v17`** (opt-in): adds `--batch-size 8192` + `--onecycle-per-head-lr`
+> (→ `MTL_ONECYCLE_PER_HEAD_LR=1`, so `--cat-lr 1e-3` actually applies; without it = inert v16-uniform-3e-3).
+> Beats v16 at every tested state (AL/AZ/FL n=20). `DEFAULT_CANON` stays v16; CA/TX pending. See `CANONICAL_VERSIONS §v17`.
 
 ### (C2) STL ceilings (the board's Δcat/Δreg denominators)
 RESULTS_BOARD §1 reports MTL gains vs the single-task ceilings. To produce them:
@@ -269,5 +270,5 @@ by the **PID suffix** of the rundir, not `ls -dt | head` (mis-maps).
 ## Changelog
 - **2026-06-30** — Created + closeout audit pass (added the env-var rows, log_T-inert framing, bf16-dropped-board-wide,
   MTL_DATASET_GPU, version map / C22 / v11-repro / baselines / C25-C21 pointers). Canon = champion-G/v16 on
-  `check2hgi_dk_ovl` (v14 substrate), bs=2048 fp32. Candidate next pin: bs=8192 + cat-lr 1e-3 (n=20-confirmed). Documented
+  `check2hgi_dk_ovl` (v14 substrate), bs=2048 fp32. Promoted candidate `--canon v17` (opt-in; AL/AZ/FL n=20; CA/TX pending). Documented
   the per-head-LR candidate (bs=8192 + cat-lr 1e-3 via `MTL_ONECYCLE_PER_HEAD_LR`, n=20-confirmed, pending promotion).

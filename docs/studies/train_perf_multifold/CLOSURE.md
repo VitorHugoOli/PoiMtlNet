@@ -39,7 +39,11 @@ Enabled by fixing the latent "per-head LR inert under onecycle" bug.
 ## 4 · Future work (documented, NOT done)
 
 **Promotion / follow-up experiments**
-- [ ] **Promote `bs=8192 + cat-lr 1e-3` into the champion board-wide** (needs `MTL_ONECYCLE_PER_HEAD_LR`; update CANONICAL_VERSIONS + NORTH_STAR + RESULTS_BOARD). Confirm it's not a §0.1-repro break (it's a new canon, not the frozen one).
+- [x] **Promote `bs=8192 + cat-lr 1e-3` as a champion candidate** — DONE 2026-06-30 (advisor-gated): added **`--canon v17`**
+      (v16 + bs8192 + new `--onecycle-per-head-lr` CLI flag; `_V16` extracted so v16 stays byte-identical) + the CANONICAL_VERSIONS §v17 /
+      NORTH_STAR / RESULTS_BOARD records. **§0.1 (v11) confirmed UNAFFECTED** (separate frozen cosine bundle; per-head fix is
+      onecycle-only). **OPT-IN ONLY** — `DEFAULT_CANON` stays v16, env stays default-OFF. Still gated before §1-headline / default flip:
+- [ ] **Run CA/TX at n=20** for v17 (only AL/AZ/FL confirmed) + land the **flag-OFF eager-parity test**; then flip the §1 headline / `DEFAULT_CANON`.
 - [ ] **CA/TX** — the only states not covered by the n=20 per-head confirmation (large-C; auto-fp32 path).
 - [ ] **Per-head-LR parity test** — eager byte-identical with `MTL_ONECYCLE_PER_HEAD_LR` OFF (in `future_works/per_head_lr_onecycle_fix.md` checklist).
 

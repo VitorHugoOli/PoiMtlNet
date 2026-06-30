@@ -39,12 +39,12 @@ with the flags needed to recover every prior version.
 
 ## ⭐ The `--canon` selector (2026-06-07) — versions are now one flag
 
-> 🔬 **2026-06-30 note (board champion engine + candidate next pin):** the closing_data **board** champion-G runs
-> on the **`check2hgi_dk_ovl`** engine (gated stride-1 overlap of the v14 substrate) — the v16 bundle's per-head
-> LRs are **inert under onecycle** (effective uniform 3e-3). A **confirmed n=20 candidate** — `bs=8192 + cat-lr 1e-3`
-> via `MTL_ONECYCLE_PER_HEAD_LR=1` — beats it board-wide; see
-> [`../studies/closing_data/perhead_lr_n20.md`](../studies/closing_data/perhead_lr_n20.md). Promotion to a new pin
-> is gated on CA/TX + the flag-OFF parity test.
+> 🏆 **2026-06-30 (board champion engine + the new v17 candidate):** the closing_data **board** champion-G runs on
+> the **`check2hgi_dk_ovl`** engine (gated stride-1 overlap of v14) — the v16 bundle's per-head LRs are **inert under
+> onecycle** (effective uniform 3e-3). **`--canon v17`** (added below; opt-in, `DEFAULT_CANON` unchanged) = v16 +
+> bs8192 + `--onecycle-per-head-lr` and **beats v16 board-wide at n=20** (AL/AZ/FL; see §v17 +
+> [`../studies/closing_data/perhead_lr_n20.md`](../studies/closing_data/perhead_lr_n20.md)). CA/TX + the flag-OFF
+> parity test gate it entering the §1 headline or `DEFAULT_CANON`.
 
 **As of 2026-06-07, `scripts/train.py --task mtl` takes `--canon {v11,v12,v15,v16,none}`,
 default `v16` (champion G).** Each version is a *bundle* of CLI flags (`src/configs/canon.py
@@ -363,6 +363,34 @@ FL also ties the (d) composite reg (73.62) while winning cat → composite stric
 **VALIDATED 2026-06-07 (Tier 2V — `studies/archive/mtl_improvement/CRITIQUE_TIER2_C25_2026-06-06.md` §7 + `INDEX.html #tier2v`):** v16 survived a skeptical re-test. The (c)/(d) ceilings were re-run at G's seeds {0,1,7,100} (they were seed-42 only) — stable (σ≤0.7), G still beats both at 4/4 states. Alt-archs re-ranked FAIRLY (standalone, post-C25, per-arch `category-weight`) all lose by 1.6–2.1pp → the "architecture-capacity is not the reg lever" claim is un-confounded. No tail regression; no hypertuning lever beats G (logit-adjust HURTS the MTL cat — plain CE is the MTL cat optimum; private STAN right-sized; FAMO ≈ G). Param-honest: G = base_a +4.9% (one model, not "½ of two"). The v16 champion is **paper-safe**.
 
 **v16 RE-CONFIRMED 2026-06-08 (Tiers 3/4/5 close — no recipe change):** the loss/optimization axis was exhausted with no Pareto gain over v16's `static_weight cw=0.75` (full balancer registry + a new gated `--loss-scale-norm` flag both FALSIFIED; gradient cosine(cat,reg)≈0 = no conflict for balancers to resolve). Reg-input levers (overlap, HGI routing) and the HSM reg head also gave no gain. **v16 recipe is unchanged + further hardened.** Note: `--loss-scale-norm` (new CLI flag, `loss_scale_norm` config field) is **experimental, default OFF, and FALSIFIED** (starves the high-cardinality reg head) — it is NOT part of any canon version; do not enable. See `results/mtl_improvement/T4_audit_and_verdict.md` + `studies/archive/mtl_improvement/WHY_ORTHOGONAL_AND_NO_MODERN_OPTIMIZERS.md`.
+
+## v17 — CHAMPION CANDIDATE: per-head cat-lr + bs8192 (PROMOTED opt-in 2026-06-30; AL/AZ/FL; CA/TX PENDING)
+
+**What v17 IS:** v16 + **`--batch-size 8192`** + **`--onecycle-per-head-lr`** (sets `MTL_ONECYCLE_PER_HEAD_LR=1`).
+The discovery (`train_perf_multifold`): the v16 per-head LRs (`cat 1e-3 / reg 3e-3 / shared 1e-3`) are **INERT under
+onecycle** — a scalar `max_lr` broadcasts 3e-3 to every head, so v16 effectively trains all heads at 3e-3. The fix
+passes a per-group `max_lr` list so cat-lr 1e-3 actually applies; combined with the larger batch (gradient-noise
+benefit), it beats v16 at every tested state. Mechanism = the v16 cat head was **overdriven at the uniform 3e-3**
+(cat-LR overshoot, exposed by the bigger batch at FL); reg-capture refuted by an isolation decomposition.
+
+**Config:** v16 recipe **+ `--batch-size 8192 --onecycle-per-head-lr`** (engine `check2hgi_dk_ovl` on the board).
+Invocation: `train.py --task mtl --canon v17 --state <state> --seed <S> --engine check2hgi_dk_ovl --canon none …`
+(or `--canon v17` directly for the v14-substrate engine). The `--onecycle-per-head-lr` flag is **required** — a v17
+bundle without it would silently reproduce v16-uniform-3e-3.
+
+**Numbers — n=20 {0,1,7,100} (`../studies/closing_data/perhead_lr_n20.md`):**
+| state | v17 cat | v16/champion cat | Δ cat | reg |
+|---|---|---|---|---|
+| AL | **64.54** | 63.55 | **+0.99** (+0.64 from the per-head lever alone) | 69.80 (flat) |
+| AZ | **65.84** | 63.57 | **+2.27** (+1.52 per-head) | 59.56 (flat) |
+| FL | **79.85** | base 79.68 | **+0.17 cat / +0.20 reg**, ~7% faster | 77.42 |
+
+**Status / scope:** **opt-in** (`DEFAULT_CANON` stays **v16**; `MTL_ONECYCLE_PER_HEAD_LR` stays default-OFF). **§0.1
+(v11) is UNAFFECTED** — v11 is a separate frozen bundle on the GCN substrate using `cosine` (the per-head fix is
+onecycle-only); adding v17 changes nothing in v11. **CA/TX NOT yet run** (reg C 6.5–8.5k, fp32-only) — they must
+land at n=20 before v17 enters the RESULTS_BOARD §1 headline or `DEFAULT_CANON` flips. Open: the flag-OFF eager
+byte-identical parity test (`future_works/per_head_lr_onecycle_fix.md`). Full record:
+`../studies/train_perf_multifold/{BATCH_SIZE_SWEEP.md,RESULTS_SUMMARY.md,CLOSURE.md}` + `perhead_lr_n20.md`.
 
 ---
 
