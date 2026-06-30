@@ -1,0 +1,196 @@
+# Execution Flows — how to run the main pipelines (CANON)
+
+**This doc is the canonical "how to run it" reference for the current paper state.** It documents the three
+main flows end-to-end — **(A) v14 embedding substrate**, **(B) gated-overlap inputs**, **(C) train** — plus the
+key execution params and the operational miscellaneous (profiler, multi-fold fan-out, env vars).
+
+> ⚠ **MAINTENANCE CONTRACT.** This doc tracks the **current canon**. When a new canon is adopted (new substrate
+> version, new champion recipe, new default), **update this doc in the same change** and bump the "Canon as of"
+> line + the changelog at the bottom. The numbers/recipe here must always match `docs/results/CANONICAL_VERSIONS.md`,
+> `docs/NORTH_STAR.md`, and `docs/studies/closing_data/RESULTS_BOARD.md`.
+
+**Canon as of 2026-06-30:** champion **G / v16** (`mtlnet_crossattn_dualtower` + `next_gru` cat + `next_stan_flow_dualtower`
+reg, prior-OFF) trained on the **`check2hgi_dk_ovl`** engine (gated stride-1 overlap of the **v14** substrate
+`check2hgi_design_k_resln_mae_l0_1`), **bs=2048, fp32**, OneCycle max-lr 3e-3, static_weight cw=0.75, geom_simple
+selector. Paper board = `docs/studies/closing_data/RESULTS_BOARD.md §1`.
+> 🔬 **Candidate next canon (n=20-confirmed, not yet promoted):** **bs=8192 + per-head cat-lr 1e-3** via
+> `MTL_ONECYCLE_PER_HEAD_LR=1` — beats champion board-wide (AL +1.0/AZ +2.3 cat; FL +0.17cat/+0.20reg & +7% faster).
+> See `docs/studies/closing_data/perhead_lr_n20.md`. Promote → update this doc.
+
+Environment: `source /home/vitor.oliveira/.venv/bin/activate` (or `.venv/bin/python`); `export PYTHONPATH=src`;
+torch **2.11.0+cu128**; A40 (large states need **fp32**). `output/` and `data/` are symlinks to `/dados/poimtlnet/`.
+
+---
+
+## Pipeline overview
+
+```
+raw check-ins ─▶ (A) v14 embedding substrate ─▶ (B) gated-overlap inputs ─▶ (C) train MTL ─▶ results/board
+   data/          check2hgi_design_k_resln_mae_l0_1   check2hgi_dk_ovl          champion-G
+                  (embeddings + region_embeddings)     (stride-1 windowing,      (cat + next-region)
+                                                         symlinks v14 embeddings)
+```
+The v14 embeddings are built **once per state** and frozen; the overlap engine only re-windows them; training
+reads the overlap engine. Do **not** rebuild/clobber the frozen v14 substrate.
+
+---
+
+## (A) Build the v14 embedding substrate — `check2hgi_design_k_resln_mae_l0_1`
+
+v14 = design_k (Delaunay-POI-GCN reg lever) ⊕ ResLN+MAE cat lever. Built once per state. Canonical orchestrator:
+`scripts/_v14_run/build_ge.sh` (CA/TX: `scripts/substrate_protocol_cleanup/build_v13_catx.sh`, stage D→v14).
+The ordered chain (per `<State>` capitalized / `<state>` slug):
+
+```bash
+# 0. Prereq — canonical check2hgi base (v11 GCN, 500ep): region label maps + fold groups + sequences
+#    (built inside build_ge.sh Stage A: check2hgi.create_embedding + generate_next_input_from_checkins)
+#    → output/check2hgi/<state>/
+
+# 1. Prereq — HGI Delaunay edges (spatial graph design_k imports)
+PYTHONPATH=src:research .venv/bin/python research/embeddings/hgi/preprocess.py \
+    --city <State> --shapefile <state_shapefile.shp>      # → output/hgi/<state>/temp/edges.csv
+
+# 2. Prereq — POI2Vec teacher (design_k regularizes toward it, λ=0.1)
+.venv/bin/python scripts/substrate_protocol_cleanup/run_poi2vec.py \
+    --city <State> --epochs 100 --device cuda             # → output/hgi/<state>/poi2vec_poi_embeddings_<State>.csv
+
+# 3. BUILD v14 (bare invocation IS the v14 default: encoder=resln, mae=0.3, Delaunay GCN, anchor=0.1)
+.venv/bin/python scripts/probe/build_design_k_delaunay.py --state <state> \
+    --out-suffix resln_mae_l0_1 --epochs 500 --device cuda
+#   → output/check2hgi_design_k_resln_mae_l0_1/<state>/{embeddings,poi_embeddings,region_embeddings}.parquet
+#                                                     /temp/{checkin_graph.pt, sequences_next.parquet}
+
+# 4. POSTBUILD — MTL input parquets + seed-42 log_T staged into the v14 dir
+bash scripts/substrate_protocol_cleanup/postbuild_design_substrate.sh \
+    check2hgi_design_k_resln_mae_l0_1 <state>
+
+# 5. Per-fold seeded log_T for each champion seed (42 already done in postbuild)
+for S in 0 1 7 100; do
+  .venv/bin/python scripts/compute_region_transition.py --state <state> --per-fold --seed $S --n-splits 5
+done   # → output/check2hgi/<state>/region_transition_log_seed<S>_fold{1..5}.pt (orchestrator copies into v14 dir)
+```
+**Train consumes:** `region_embeddings.parquet` (reg target) + `embeddings.parquet` (cat) + the overlap engine's
+windowing (see B). **log_T is INERT for the prior-OFF champion** (`MTL_SKIP_INERT_LOGT=1` default skips it,
+byte-identical) — the seeded files matter only for prior-ON configs or STL reg ranking.
+
+---
+
+## (B) Build the gated-overlap inputs — `check2hgi_dk_ovl`
+
+The board engine: **v14 embeddings re-windowed at stride-1 (overlapping), gated, MIN_SEQ=10**. Embeddings are
+**symlinked** from v14 (NOT recomputed); only `next.parquet` / `sequences_next.parquet` / `next_region.parquet`
+are rebuilt. Canonical builder:
+
+```bash
+# build (argv: state stride min_seq) — stride=1, min_seq=10 are board-recipe-only (global default is 5/non-overlap)
+PYTHONPATH=src .venv/bin/python scripts/mtl_improvement/build_overlap_probe_engine.py <state> 1 10
+#   → output/check2hgi_dk_ovl/<state>/{embeddings.parquet→v14, input/next.parquet, input/next_region.parquet,
+#                                       temp/sequences_next.parquet, input/next_build_provenance.json}
+```
+
+**The "gate" (M1 tail-gate):** at stride=1, `emit_tail` auto-resolves to **false** (`_resolve_emit_tail`,
+`src/data/inputs/builders.py:62`), dropping out-of-bounds last-POI-target tail windows. The gate **HELPS** (AL
+gated 63.44/70.36 @ 96,326 rows ≫ ungated 60.99/68.15 @ 108,073) — it removes last-POI skew. The danger is a
+**manual ungated rebuild left stale on disk** (trains the wrong windowing silently).
+
+**ALWAYS verify provenance before trusting any overlap number:**
+```bash
+cat output/check2hgi_dk_ovl/<state>/input/next_build_provenance.json
+# REQUIRED: "stride":1, "emit_tail":false, "min_sequence_length":10
+# row-count tell: AL gated 96,326 (ungated 108,073); FL gated ~1.27M (ungated ~1.378M)
+```
+**Automated enforcement:** `src/data/folds.py:692` reads the provenance at train time; if stride==1 with
+emit_tail==True or min_seq∉{None,10} it WARNs and **hard-fails under `MTL_STRICT=1`** (which the board sets),
+printing the exact rebuild command. Don't use the non-board overlap builders (`build_hgi_overlap_inputs.py` =
+the HGI Tbl-2 arm; `build_istanbul_stride1.py` = Istanbul base) for the champion board.
+
+---
+
+## (C) Train — champion-G MTL (current canon)
+
+Run the orchestrator `scripts/closing_data/p3_board.sh` (states `alabama arizona georgia florida california texas`
+× seeds `0 1 7 100`; `DRY_RUN=1` prints the exact plan). Or the single-cell command:
+
+```bash
+export PYTHONPATH=src MTL_STRICT=1 MTL_COMPILE_DYNAMIC=1
+export TORCHINDUCTOR_CACHE_DIR=$HOME/.inductor_cache_board
+export MTL_DISABLE_AMP=1            # fp32 — REQUIRED for large states (CA/TX) on the A40; auto-fp32 also covers this
+
+.venv/bin/python scripts/train.py --task mtl --task-set check2hgi_next_region \
+    --engine check2hgi_dk_ovl --state <state> --seed <seed> --epochs 50 --folds 5 --batch-size 2048 \
+    --mtl-loss static_weight --category-weight 0.75 \
+    --cat-head next_gru --reg-head next_stan_flow_dualtower \
+    --reg-head-param raw_embed_dim=64 --reg-head-param fusion_mode=aux \
+    --reg-head-param freeze_alpha=True --reg-head-param alpha_init=0.0 \
+    --task-a-input-type checkin --task-b-input-type region --log-t-kd-weight 0.0 \
+    --scheduler onecycle --max-lr 3e-3 --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3 \
+    --model mtlnet_crossattn_dualtower --checkpoint-selector geom_simple \
+    --no-reg-class-weights --no-cat-class-weights --canon none --compile --tf32 \
+    --per-fold-transition-dir output/check2hgi_design_k_resln_mae_l0_1/<state>
+```
+Score: `scripts/closing_data/a40_score_matched.py <rundir> --seed <S>` (cat macro-F1 diag-best + reg Acc@10).
+
+> **Candidate next canon (n=20 win):** add `export MTL_ONECYCLE_PER_HEAD_LR=1` and set `--batch-size 8192`
+> (cat-lr 1e-3 then actually applies; without the env it is INERT under onecycle). Beats champion at every state.
+
+---
+
+## Main execution params (champion-G)
+
+| Param | Value | Notes |
+|---|---|---|
+| `--model` | `mtlnet_crossattn_dualtower` | cross-attention dual-tower |
+| `--cat-head` / `--reg-head` | `next_gru` / `next_stan_flow_dualtower` | reg head **prior-OFF**: `freeze_alpha=True alpha_init=0.0` |
+| `--mtl-loss` / `--category-weight` | `static_weight` / `0.75` | NOT nash_mtl (cvxpy errors) |
+| `--scheduler` / `--max-lr` | `onecycle` / `3e-3` | per-head `--cat-lr/--reg-lr/--shared-lr` are **INERT under onecycle** unless `MTL_ONECYCLE_PER_HEAD_LR=1` |
+| `--batch-size` | `2048` (canon) / `8192` (candidate) | never drop below 2048 (diverges) |
+| `--epochs` / `--folds` | `50` / `5` | |
+| `--checkpoint-selector` | `geom_simple` | `√(cat_F1·reg_Acc@10)`; pass `joint_f1_mean` for v11 |
+| `--task-a/-b-input-type` | `checkin` / `region` | reg MUST be `region` (checkin drops reg ~50→28%) |
+| `--canon none` | required | else the wrong-substrate guard hard-fails under MTL_STRICT on dk_ovl |
+| precision | **fp32** (`MTL_DISABLE_AMP=1` / auto-fp32) | A40 bf16 grad-NaNs at large C; fp16 overflows |
+| seeds | `{0,1,7,100}` | NOT 42 (dev seed, overshoots §0.1 +3pp CA/+8pp TX) |
+
+---
+
+## Operational miscellaneous
+
+### Run profiler / audit (`--profile` or `MTL_PROFILE=1`)
+Ephemeral per-fold section timing (data/forward/backward/eval), throughput (batch/s, samp/s), peak GPU mem, util
+(pynvml), torch.compile recompile/graph-break counts, and **pain-point flags** (GPU-starved, sync/data-bound,
+recompile). `MTL_PROFILE_JSON=<path>` dumps a transient report. Default-off → bare runs byte-identical. Source:
+`src/training/profiling.py`. Use it to find bottlenecks (it flagged `GPU-STARVED util 34%` + `GRAPH BREAKS: 10`).
+
+### Multi-fold fan-out (5 folds as separate processes → one rundir)
+```bash
+scripts/run_folds_fanout.sh <run_id> <folds_csv> <max_parallel> -- <train.py recipe…>
+scripts/aggregate_folds.py <rundir>     # → fold_aggregate.json (reads per-fold artifacts by REAL fold id)
+```
+Flags: `--only-folds 2,3` (subset), `--run-id NAME` (shared rundir leaf; implies `--per-fold-seed`),
+`--per-fold-seed` (reseed `seed+fold_id` → fold-k order-independent, **proven byte-identical under 5-way
+concurrency**). ⚠ In a fan-out, per-process `summary/full_summary.json` is unreliable — read `fold_aggregate.json`
+or score via `a40_score_matched.py` (globs `fold*_*` by real id). Concurrent rundir naming omits the seed → score
+by the **PID suffix** of the rundir, not `ls -dt | head` (mis-maps).
+
+### Key env vars
+| env | default | effect |
+|---|---|---|
+| `MTL_STRICT=1` | off | hard-fail the preflight/provenance/wrong-substrate guards (board sets it) |
+| `MTL_DISABLE_AMP=1` | off | force fp32 (large states); **auto-fp32** also forces it for reg C>2000 on Ampere |
+| `MTL_SKIP_INERT_LOGT=1` | **on** | skip the per-fold log_T load + leak-guards when the prior is inert (champion) — byte-identical |
+| `MTL_ONECYCLE_PER_HEAD_LR=1` | off | make `--cat-lr/--reg-lr/--shared-lr` actually apply under onecycle (per-group max_lr) |
+| `MTL_COMPILE_DYNAMIC=1` | off | dynamic-shape compile (board path) |
+| `MTL_CHUNK_VAL_METRIC=1` | off | chunked val-metric (large-C memory) |
+| `TORCHINDUCTOR_CACHE_DIR` | — | per-run inductor cache (avoid cross-run compile-cache variance) |
+
+### A40 constraints
+- Large-state MTL **fits VRAM** post-2026-06-19 OOM fix (CA ~11 GB / TX ~13 GB peak); never drop batch < 2048.
+- bf16 grad-NaNs at large C → **fp32 for big states**. The full multi-seed overlap board is H100-only (FL fp32
+  ~24 min/epoch); run small states / single cells on the A40.
+- Disowned (`setsid`/`nohup`) runs don't fire harness notifications → **poll actively** (read JSONs + `ps`).
+
+---
+
+## Changelog
+- **2026-06-30** — Created. Canon = champion-G/v16 on `check2hgi_dk_ovl` (v14 substrate), bs=2048 fp32. Documented
+  the per-head-LR candidate (bs=8192 + cat-lr 1e-3 via `MTL_ONECYCLE_PER_HEAD_LR`, n=20-confirmed, pending promotion).
