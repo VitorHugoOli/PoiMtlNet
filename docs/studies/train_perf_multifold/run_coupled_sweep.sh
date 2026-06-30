@@ -64,9 +64,18 @@ run_cell() {
   echo "[sweep] ${st}/${cell} ep=$ep wd=$wd pct=$pct rc=$rc wall=${wall}s cat=$cat reg=$reg nan=$nan"
 }
 
+MAX_PAR="${1:-3}"   # parallel cells (quality is deterministic; wall becomes throughput-not-clean in parallel)
+echo "[sweep] running ${MAX_PAR}-wide parallel (quality axis; clean per-cell wall via a focused pass on the winner)"
+running=0
 for st in alabama arizona; do
-  for c in "${CELLS[@]}"; do IFS=':' read -r cell ep wd pct <<< "$c"; run_cell "$st" "$cell" "$ep" "$wd" "$pct"; done
+  for c in "${CELLS[@]}"; do
+    IFS=':' read -r cell ep wd pct <<< "$c"
+    run_cell "$st" "$cell" "$ep" "$wd" "$pct" &
+    running=$((running+1))
+    [ "$running" -ge "$MAX_PAR" ] && { wait -n 2>/dev/null || wait; running=$((running-1)); }
+  done
 done
+wait
 echo "[sweep] ALL DONE"
-echo "==== COUPLED SWEEP (bs=8192, seed0 5f). ref8k = ep50/wd0.05. Quality + wall. ===="
+echo "==== COUPLED SWEEP (bs=8192, seed0 5f). ref8k = ep50/wd0.05. Quality (clean) + wall (parallel→throughput). ===="
 column -t "$SUMMARY"
