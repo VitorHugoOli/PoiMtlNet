@@ -1,6 +1,3 @@
-# Keep the durable docs + small score JSONs/txt (evidence); drop the verbose
-# per-run training logs (progress bars, ~1 MB each) and orchestrator stdout.
-*_runs/*.log
-*_runs/driver.out
-*.out
-baseline_runs/profiler_*.json
+*_runs/
+*.log
+SYSTEM_MONITOR*

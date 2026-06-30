@@ -242,6 +242,32 @@ by the **PID suffix** of the rundir, not `ls -dt | head` (mis-maps).
 
 ---
 
+## Other canonical flows + gotchas (pointers)
+
+- **Version → engine map (don't-delete list).** v11 = paper §0.1 (GCN base, `check2hgi`); v14 =
+  `check2hgi_design_k_resln_mae_l0_1` (substrate); **board champion engine = `check2hgi_dk_ovl`** (overlap of v14).
+  `dk_ovl` **symlinks v14 embeddings** but its windowed parquets need the **v11 fold/sequence/graph backbone** —
+  so **do not delete `output/check2hgi/<state>/` either** (not just v14). Full map: `closing_data/SUBSTRATE_VERSION_MAP.md`.
+- **⚠ Stale log_T (C22).** `regen`/postbuild do **NOT** refresh the per-fold log_T; a stale file silently inflates
+  reg ~+8 pp (STL) / ~+12 pp (MTL-disjoint). If you build log_T (step A.5) or rank STL reg: `stat` the `.pt` vs
+  `next_region.parquet` mtime; if older, rerun `compute_region_transition.py`. (Moot for the prior-OFF champion — inert.)
+- **v11 paper-canon repro (B9 / H3-alt).** champion-G/v16 is uniform across states, but **paper §0.1 is v11**, which
+  is **state-conditional**: B9 (FL/CA/TX) vs **H3-alt (AL/AZ)** drops `--alternating-optimizer-step` /
+  `--alpha-no-weight-decay` / `--min-best-epoch 5` and uses `--scheduler constant`, engine `check2hgi` (GCN) +
+  `--log-t-kd-weight 0.0`. Details: `CANONICAL_VERSIONS.md §v11` / `NORTH_STAR.md`. (Note: on the H3-alt
+  constant/cosine path the per-head LRs DO apply — unlike the onecycle champion.)
+- **(E) STL literature baselines** (RESULTS_BOARD §1b/§4 denominators): CSLSL/CatDM cascade (`scripts/baselines/b4_cascade.py`),
+  CTLE (`ctle_e2e.py`), faithful STAN, HMT-GRN, POI-RGNN, Markov-1. Run per `docs/baselines/README.md`; same seed-0×5f / `dk_ovl` / fp32 protocol.
+- **Why the silently-droppable flags are non-negotiable:** `--no-{reg,cat}-class-weights` (**C25** — weighted CE
+  depresses reg ~10–14 pp / cat ~3–5 pp); `geom_simple` selector (**C21** — the old `joint_f1_mean` lost ~11 pp reg
+  at FL; pass `joint_f1_mean` only to reproduce v11).
+- **`MTL_STRICT=1` hard-fails THREE preflights** (not just provenance): dev-seed-42 (paper needs {0,1,7,100}),
+  champion-on-wrong-substrate, and torch ≠ 2.11.0+cu128 — plus the overlap-provenance gate (B).
+- **Score → board:** `a40_score_matched.py` gives the per-run cat/reg; board §1 cells are the **fp32-matched
+  rescore** (`r0_matched_rescore.py` → `docs/results/closing_data/*_matched_score.json`, paths in RESULTS_BOARD §3).
+
 ## Changelog
-- **2026-06-30** — Created. Canon = champion-G/v16 on `check2hgi_dk_ovl` (v14 substrate), bs=2048 fp32. Documented
+- **2026-06-30** — Created + closeout audit pass (added the env-var rows, log_T-inert framing, bf16-dropped-board-wide,
+  MTL_DATASET_GPU, version map / C22 / v11-repro / baselines / C25-C21 pointers). Canon = champion-G/v16 on
+  `check2hgi_dk_ovl` (v14 substrate), bs=2048 fp32. Candidate next pin: bs=8192 + cat-lr 1e-3 (n=20-confirmed). Documented
   the per-head-LR candidate (bs=8192 + cat-lr 1e-3 via `MTL_ONECYCLE_PER_HEAD_LR`, n=20-confirmed, pending promotion).
