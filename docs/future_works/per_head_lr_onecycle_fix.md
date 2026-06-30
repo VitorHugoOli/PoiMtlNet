@@ -1,8 +1,11 @@
-# Per-head LR is inert under OneCycle — finding + deferred fix
+# Per-head LR is inert under OneCycle — finding + fix (SHIPPED)
 
-**Status:** DOCUMENTED, fix DEFERRED (2026-06-28). Discovered during the `train_perf_multifold` batch-size study
-(FL cat-lr fix experiment). Full context: [`docs/studies/train_perf_multifold/BATCH_SIZE_SWEEP.md`](../studies/train_perf_multifold/BATCH_SIZE_SWEEP.md)
-(§"FL CAT-LR FIX — INVALID").
+**Status:** finding documented + **fix SHIPPED 2026-06-29** as opt-in `MTL_ONECYCLE_PER_HEAD_LR` (`src/training/helpers.py:347`,
+per-group OneCycle `max_lr` list; default-OFF byte-identical). Used to produce the n=20 board-wide win
+([`docs/studies/closing_data/perhead_lr_n20.md`](../studies/closing_data/perhead_lr_n20.md)): bs=8192 + cat-lr 1e-3
+beats the champion at AL/AZ/FL. **Only the eager-byte-identical parity test for the flag-OFF path remains.**
+Discovered during the `train_perf_multifold` batch-size study. Full context:
+[`docs/studies/train_perf_multifold/BATCH_SIZE_SWEEP.md`](../studies/train_perf_multifold/BATCH_SIZE_SWEEP.md).
 
 ## The finding
 
@@ -39,18 +42,17 @@ OneCycleLR accepts a list of length `len(optimizer.param_groups)` and gives each
 `MTL_ONECYCLE_PER_HEAD_LR=1`) or an explicit CLI opt-in; default OFF preserves the frozen champion. Add a parity
 test (eager byte-identical with flag OFF).
 
-## Why this matters for the FL large-batch regression (the original motivation)
+## Why this mattered for the FL large-batch regression — RESOLVED
 
-The FL cat-craters-at-bs8192 mechanism (web-research agent ade63a19) is **reg head captures the shared backbone
-once gradient noise drops**. Because cat is ALREADY at the uniform 3e-3 peak (not 1e-3), the original "raise
-cat-lr" idea is moot. With per-group OneCycle max_lr available, the real FL lever to try is the **opposite**:
-**LOWER the reg head's OneCycle peak** (e.g. reg_max 3e-3 → 2e-3) to reduce reg's shared-backbone dominance,
-while holding cat at 3e-3 — testing whether easing reg-capture recovers FL cat without giving up the reg gain.
-This is the recommended first experiment once the per-group max_lr is wired (opt-in).
+The web-research "reg head captures the shared backbone" mechanism (agent ade63a19) was **REFUTED** by the
+isolation decomposition: lowering reg-LR alone does NOT recover FL cat (reg2e3 78.73 = ctrl), and lowering
+**cat-LR alone fully recovers it** (cat_only 79.84 > base). So the FL cat regression is **pure cat-LR overshoot**
+(the cat head was overdriven at the uniform 3e-3 because the per-head LR was inert), NOT reg-capture. The lever is
+`--cat-lr 1e-3` (with the flag ON). See `BATCH_SIZE_SWEEP.md` §"FL MECHANISM — FINAL".
 
-## Checklist when picking this up
-- [ ] Wire per-group `max_lr` list into the onecycle branch of `setup_scheduler`, env-gated (`MTL_ONECYCLE_PER_HEAD_LR`), default OFF.
-- [ ] Parity test: flag OFF → eager byte-identical to current champion.
-- [ ] Verify the `[per-head-LR]` log now shows distinct per-group peaks when ON.
-- [ ] FL experiment: bs8192, reg_max ∈ {3e-3 (ctrl), 2.5e-3, 2e-3}, cat/shared 3e-3, seed0 5-fold → does lowering reg peak recover FL cat toward 79.83 while keeping reg ≥ 75.6?
-- [ ] If it recovers, multi-seed confirm + check it doesn't regress the small states.
+## Checklist
+- [x] Wire per-group `max_lr` list into the onecycle branch of `setup_scheduler`, env-gated (`MTL_ONECYCLE_PER_HEAD_LR`), default OFF. — **DONE (`helpers.py:347`)**
+- [x] Verify the per-head LRs now apply (cat 1e-3 vs uniform 3e-3) — **DONE (AL on_equal==off parity; on_perhead +0.59)**
+- [x] FL experiment — **DONE: cat-lr 1e-3 (not reg-lowering) is the lever; n=20 board-wide win (`closing_data/perhead_lr_n20.md`)**
+- [ ] **Parity test: flag OFF → eager byte-identical** to current champion (the one remaining item).
+- [ ] Promote `bs=8192 + cat-lr 1e-3` into the champion board-wide + check CA/TX.

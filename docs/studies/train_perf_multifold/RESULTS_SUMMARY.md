@@ -1,8 +1,13 @@
 # Batch-size + Per-head-LR study — results at a glance
 
+> ✅ **n=20 {0,1,7,100} LANDED 2026-06-30 → [`../closing_data/perhead_lr_n20.md`](../closing_data/perhead_lr_n20.md)
+> is the current verdict.** It supersedes the seed-0 framing below — notably **FL is now a small WIN, not just
+> "equal quality"**: at n=20 the bs2048 base is 79.68 (the seed-0 79.83 was a lucky fold), so bs8192+cat-lr-1e-3
+> (79.85) beats it by +0.17 cat / +0.20 reg AND is ~7% faster. AL/AZ per-head deltas confirmed (+0.64/+1.52).
+
 > One-screen visualization of the `train_perf_multifold` batch-size + per-head-LR study (2026-06-26…29).
-> Full detail + provenance: [`BATCH_SIZE_SWEEP.md`](BATCH_SIZE_SWEEP.md). All numbers seed-0 5-fold unless n
-> noted; **pending n=20 {0,1,7,100}** for promotion. cat = macro-F1, reg = next-region Acc@10.
+> Full detail + provenance: [`BATCH_SIZE_SWEEP.md`](BATCH_SIZE_SWEEP.md). Numbers below are seed-0 5-fold unless
+> n noted (n=20 confirmation in the closing_data file above). cat = macro-F1, reg = next-region Acc@10.
 
 ## 1 · Batch size 2048 → 8192 (LR unchanged)
 

@@ -41,10 +41,14 @@ v14 = design_k (Delaunay-POI-GCN reg lever) ⊕ ResLN+MAE cat lever. Built once 
 `scripts/_v14_run/build_ge.sh` (CA/TX: `scripts/substrate_protocol_cleanup/build_v13_catx.sh`, stage D→v14).
 The ordered chain (per `<State>` capitalized / `<state>` slug):
 
+**Raw data** (`data/` → `/dados/poimtlnet/data/`): `checkins/` (Gowalla US-state + `massive_steps_istanbul/`)
++ `miscellaneous/` (shapefiles/geojson). The base build reads these.
+
 ```bash
-# 0. Prereq — canonical check2hgi base (v11 GCN, 500ep): region label maps + fold groups + sequences
-#    (built inside build_ge.sh Stage A: check2hgi.create_embedding + generate_next_input_from_checkins)
-#    → output/check2hgi/<state>/
+# 0. Prereq — canonical check2hgi base (v11 GCN, 500ep): region label maps + fold groups + sequences.
+#    Entrypoint pipelines/embedding/check2hgi.pipe.py (edit STATE/config at top of file, then run);
+#    internally: check2hgi.create_embedding(state, args) + generate_next_input_from_checkins(state, CHECK2HGI).
+#    build_ge.sh Stage A wraps this. → output/check2hgi/<state>/
 
 # 1. Prereq — HGI Delaunay edges (spatial graph design_k imports)
 PYTHONPATH=src:research .venv/bin/python research/embeddings/hgi/preprocess.py \
@@ -114,7 +118,8 @@ Run the orchestrator `scripts/closing_data/p3_board.sh` (states `alabama arizona
 ```bash
 export PYTHONPATH=src MTL_STRICT=1 MTL_COMPILE_DYNAMIC=1
 export TORCHINDUCTOR_CACHE_DIR=$HOME/.inductor_cache_board
-export MTL_DISABLE_AMP=1            # fp32 — REQUIRED for large states (CA/TX) on the A40; auto-fp32 also covers this
+export MTL_DISABLE_AMP=1            # fp32. REQUIRED for large states (CA/TX); auto-fp32 also forces it for reg C>2000
+                                   # (FL/CA/TX) but NOT AL/AZ (C 1109/1547 < 2000) — set it explicitly for the board
 
 .venv/bin/python scripts/train.py --task mtl --task-set check2hgi_next_region \
     --engine check2hgi_dk_ovl --state <state> --seed <seed> --epochs 50 --folds 5 --batch-size 2048 \
@@ -132,6 +137,26 @@ Score: `scripts/closing_data/a40_score_matched.py <rundir> --seed <S>` (cat macr
 
 > **Candidate next canon (n=20 win):** add `export MTL_ONECYCLE_PER_HEAD_LR=1` and set `--batch-size 8192`
 > (cat-lr 1e-3 then actually applies; without the env it is INERT under onecycle). Beats champion at every state.
+
+### (C2) STL ceilings (the board's Δcat/Δreg denominators)
+RESULTS_BOARD §1 reports MTL gains vs the single-task ceilings. To produce them:
+```bash
+# cat ceiling (STL category)
+.venv/bin/python scripts/train.py --task next --state <state> --engine check2hgi_dk_ovl \
+    --cat-head next_gru --seed <S> --epochs 50 --folds 5 ...     # then: scripts/closing_data/score_stl_cat_ceiling.py
+# reg ceiling (STL next-region head ablation)
+.venv/bin/python scripts/p1_region_head_ablation.py next_stan_flow a0 --state <state> --seed <S>
+```
+(See `PLAN.md §1` for the exact STL recipes; the board's `score_*` scripts aggregate them.)
+
+### (D) Second dataset — Istanbul
+Istanbul (Massive-STEPS, engine `check2hgi` set-A, stride-1 base; board row in RESULTS_BOARD §1) uses a separate
+chain: `scripts/run_istanbul_champion_stride1.sh` (+ `scripts/second_dataset/`, `scripts/build_istanbul_stride1.py`).
+**Do NOT** use the Gowalla `check2hgi_dk_ovl` overlap builder for Istanbul.
+
+### Checkpoint eval
+`scripts/evaluate.py --checkpoint <results/.../model.pt>` evaluates a saved checkpoint (separate from the
+per-fold scoring above).
 
 ---
 
@@ -176,7 +201,7 @@ by the **PID suffix** of the rundir, not `ls -dt | head` (mis-maps).
 | env | default | effect |
 |---|---|---|
 | `MTL_STRICT=1` | off | hard-fail the preflight/provenance/wrong-substrate guards (board sets it) |
-| `MTL_DISABLE_AMP=1` | off | force fp32 (large states); **auto-fp32** also forces it for reg C>2000 on Ampere |
+| `MTL_DISABLE_AMP=1` | off | force fp32. **auto-fp32** also forces it for reg **C>2000** (FL/CA/TX) on Ampere — but NOT AL/AZ (C<2000), so set it explicitly for board runs |
 | `MTL_SKIP_INERT_LOGT=1` | **on** | skip the per-fold log_T load + leak-guards when the prior is inert (champion) — byte-identical |
 | `MTL_ONECYCLE_PER_HEAD_LR=1` | off | make `--cat-lr/--reg-lr/--shared-lr` actually apply under onecycle (per-group max_lr) |
 | `MTL_COMPILE_DYNAMIC=1` | off | dynamic-shape compile (board path) |
