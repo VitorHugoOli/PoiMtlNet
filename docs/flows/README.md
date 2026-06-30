@@ -68,14 +68,17 @@ PYTHONPATH=src:research .venv/bin/python research/embeddings/hgi/preprocess.py \
 bash scripts/substrate_protocol_cleanup/postbuild_design_substrate.sh \
     check2hgi_design_k_resln_mae_l0_1 <state>
 
-# 5. Per-fold seeded log_T for each champion seed (42 already done in postbuild)
+# 5. (OPTIONAL — NOT needed for the prior-OFF champion; only for prior-ON KD configs or STL reg ranking)
+#    Per-fold seeded log_T. The champion SKIPS this entirely (see below). Build only if you flip the prior ON.
 for S in 0 1 7 100; do
   .venv/bin/python scripts/compute_region_transition.py --state <state> --per-fold --seed $S --n-splits 5
 done   # → output/check2hgi/<state>/region_transition_log_seed<S>_fold{1..5}.pt (orchestrator copies into v14 dir)
 ```
 **Train consumes:** `region_embeddings.parquet` (reg target) + `embeddings.parquet` (cat) + the overlap engine's
-windowing (see B). **log_T is INERT for the prior-OFF champion** (`MTL_SKIP_INERT_LOGT=1` default skips it,
-byte-identical) — the seeded files matter only for prior-ON configs or STL reg ranking.
+windowing (see B). **log_T is fully INERT for the prior-OFF champion** — `MTL_SKIP_INERT_LOGT=1` (default-on)
+hits an early-return in `mtl_cv.py` **before** the `.pt` is ever loaded (proven byte-identical). The champion
+command's `--per-fold-transition-dir` is therefore a **no-op kept only so flipping the prior ON works without
+editing the command** — the champion runs byte-identically with it removed. Step 5 is skippable for the champion.
 
 ---
 
@@ -84,6 +87,13 @@ byte-identical) — the seeded files matter only for prior-ON configs or STL reg
 The board engine: **v14 embeddings re-windowed at stride-1 (overlapping), gated, MIN_SEQ=10**. Embeddings are
 **symlinked** from v14 (NOT recomputed); only `next.parquet` / `sequences_next.parquet` / `next_region.parquet`
 are rebuilt. Canonical builder:
+
+> The windowing **logic lives in `src`** (`core.generate_sequences` + `builders._resolve_emit_tail` /
+> `generate_next_input_from_checkins`, which take `stride`/`min_sequence_length`/`emit_tail`).
+> `build_overlap_probe_engine.py` is only a **thin driver** that symlinks v14 embeddings and calls that src logic
+> with the board values. **stride=1 / min_seq=10 are passed by the driver and deliberately NOT code defaults** —
+> flipping `core.py`'s global `MIN_SEQ=5` / `stride=None` would desync the frozen v11/v14 rebuild and break
+> byte-identical §0.1 reproduction (DEFAULTS_AND_GUARDS TRAP #1/#2). So they stay engine/recipe-scoped, not global.
 
 ```bash
 # build (argv: state stride min_seq) — stride=1, min_seq=10 are board-recipe-only (global default is 5/non-overlap)
@@ -131,7 +141,7 @@ export MTL_DISABLE_AMP=1            # fp32. REQUIRED for large states (CA/TX); a
     --scheduler onecycle --max-lr 3e-3 --cat-lr 1e-3 --reg-lr 3e-3 --shared-lr 1e-3 \
     --model mtlnet_crossattn_dualtower --checkpoint-selector geom_simple \
     --no-reg-class-weights --no-cat-class-weights --canon none --compile --tf32 \
-    --per-fold-transition-dir output/check2hgi_design_k_resln_mae_l0_1/<state>
+    --per-fold-transition-dir output/check2hgi_design_k_resln_mae_l0_1/<state>   # INERT no-op for the champion (prior-OFF); kept only so flipping the prior ON works without editing the command
 ```
 Score: `scripts/closing_data/a40_score_matched.py <rundir> --seed <S>` (cat macro-F1 diag-best + reg Acc@10).
 
@@ -173,7 +183,7 @@ per-fold scoring above).
 | `--checkpoint-selector` | `geom_simple` | `√(cat_F1·reg_Acc@10)`; pass `joint_f1_mean` for v11 |
 | `--task-a/-b-input-type` | `checkin` / `region` | reg MUST be `region` (checkin drops reg ~50→28%) |
 | `--canon none` | required | else the wrong-substrate guard hard-fails under MTL_STRICT on dk_ovl |
-| precision | **fp32** (`MTL_DISABLE_AMP=1` / auto-fp32) | A40 bf16 grad-NaNs at large C; fp16 overflows |
+| precision | **fp32 for ALL states** (`MTL_DISABLE_AMP=1`) | **bf16 DROPPED board-wide for QUALITY** (~1pp cost at large C: FL bf16 78.90/76.04 vs fp32 79.82/77.28). AL/AZ bf16 is NaN-safe but gains nothing → fp32 is the settled choice everywhere, NOT just a big-state NaN dodge. (Large-C bf16 also grad-NaNs on A40-Ampere; fp16 overflows.) Sole board exception: CA §1 headline is an H100 bf16 cell. |
 | seeds | `{0,1,7,100}` | NOT 42 (dev seed, overshoots §0.1 +3pp CA/+8pp TX) |
 
 ---
@@ -206,11 +216,16 @@ by the **PID suffix** of the rundir, not `ls -dt | head` (mis-maps).
 | `MTL_ONECYCLE_PER_HEAD_LR=1` | off | make `--cat-lr/--reg-lr/--shared-lr` actually apply under onecycle (per-group max_lr) |
 | `MTL_COMPILE_DYNAMIC=1` | off | dynamic-shape compile (board path) |
 | `MTL_CHUNK_VAL_METRIC=1` | off | chunked val-metric (large-C memory) |
+| `MTL_DATASET_GPU=1` | off (**auto-fit**) | Force the per-fold dataset GPU-resident, bypassing the fit-check (`folds._dataset_device`). DEFAULT = auto-fit: pre-move to GPU only if it fits in (free VRAM − headroom), else keep CPU-resident with per-batch `.to()` (byte-identical). **Small states ONLY** (minor speed lever). ⚠ **NEVER for CA/TX/FL** — forces ~31 GB redundant per-fold copies → OOM (no CPU fallback). |
+| `MTL_DATASET_CPU=1` | off | Force the dataset CPU-resident (opposite); safe escape hatch. |
+| `MTL_GPU_HEADROOM_GB` | 16 | VRAM reserved for model+activations in the auto-fit check. |
 | `TORCHINDUCTOR_CACHE_DIR` | — | per-run inductor cache (avoid cross-run compile-cache variance) |
 
 ### A40 constraints
 - Large-state MTL **fits VRAM** post-2026-06-19 OOM fix (CA ~11 GB / TX ~13 GB peak); never drop batch < 2048.
-- bf16 grad-NaNs at large C → **fp32 for big states**. The full multi-seed overlap board is H100-only (FL fp32
+- **Champion precision is fp32 across ALL states** (bf16 dropped board-wide for ~1pp quality, not merely to dodge
+  the large-C grad-NaN). Big-state datasets stay CPU-resident via the `folds._dataset_device` auto-fit — never
+  `MTL_DATASET_GPU=1` for CA/TX/FL (~31 GB redundant copies → OOM). The full multi-seed overlap board is H100-only (FL fp32
   ~24 min/epoch); run small states / single cells on the A40.
 - Disowned (`setsid`/`nohup`) runs don't fire harness notifications → **poll actively** (read JSONs + `ps`).
 

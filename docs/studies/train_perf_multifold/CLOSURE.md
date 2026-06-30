@@ -43,6 +43,17 @@ Enabled by fixing the latent "per-head LR inert under onecycle" bug.
 - [ ] **CA/TX** — the only states not covered by the n=20 per-head confirmation (large-C; auto-fp32 path).
 - [ ] **Per-head-LR parity test** — eager byte-identical with `MTL_ONECYCLE_PER_HEAD_LR` OFF (in `future_works/per_head_lr_onecycle_fix.md` checklist).
 
+**Code hygiene (from the flows-doc audit, 2026-06-30)**
+- [ ] **Move the log_T computation `src ← scripts`** (user-flagged, audit-confirmed). The whole transition-matrix
+      kernel — `_log_probs_from_rows`, `build_transition_matrix`, `build_transition_matrix_from_userids`,
+      `_build_per_fold`, `save` (+ helpers `_load_graph_maps`, `_resolve_split_engine`) — lives in
+      `scripts/compute_region_transition.py`, and **5+ scripts import it as a library** (`scripts/second_dataset/build_inputs.py`,
+      `build_chrono_split.py`, `build_region_variant.py`, baselines). `src/` only *consumes* the saved `.pt`. Extract
+      to **`src/data/region_transition.py`**, leave `scripts/compute_region_transition.py` as a thin argparse CLI that
+      re-exports the names (→ zero importer changes). Behavior-preserving; gate with a re-run → byte-identical `.pt`.
+      (NOTE: the gated-overlap windowing is already correctly in `src` — `core.generate_sequences` +
+      `builders._resolve_emit_tail`; that one needs no move, and stride-1/min_seq-10 must stay non-default per DEFAULTS_AND_GUARDS.)
+
 **Perf / tooling (from PLAN §6)**
 - [ ] **P7 compile-once-across-folds** (biggest sequential-run lever; delicate per-fold log_T buffer swap → A/B).
 - [ ] **bf16/A40 fp32-attn island** (`_STANAttention`) — DEFERRED A40-bf16 mitigation; validate on the A40 (the grad-NaN only reproduces on Ampere at CA/TX C 6.5–8.5k), NOT H100. Driver `../closing_data/run_bf16_island.sh`.
