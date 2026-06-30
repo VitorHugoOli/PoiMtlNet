@@ -1215,6 +1215,15 @@ def _parse_args(argv=None) -> argparse.Namespace:
              "standard large-batch/bs8192 stabilizer — config optimizer_beta2.",
     )
     parser.add_argument(
+        "--onecycle-per-head-lr",
+        dest="onecycle_per_head_lr",
+        action="store_true",
+        help="Make --cat-lr/--reg-lr/--shared-lr actually apply under --scheduler onecycle "
+             "(sets MTL_ONECYCLE_PER_HEAD_LR=1: per-group OneCycle max_lr). Without it the "
+             "per-head LRs are INERT under onecycle (scalar max_lr broadcasts to all groups). "
+             "Part of the v17 candidate recipe (bs8192 + effective cat-lr 1e-3).",
+    )
+    parser.add_argument(
         "--max-grad-norm",
         dest="max_grad_norm",
         type=float,
@@ -1252,6 +1261,11 @@ def _parse_args(argv=None) -> argparse.Namespace:
         ),
     )
     args = parser.parse_args(effective_argv)
+    # --onecycle-per-head-lr drives the env gate read in setup_scheduler (helpers.py); set it here so
+    # the canon-bundled recipe (v17) is self-contained and does not need an env var passed separately.
+    if getattr(args, "onecycle_per_head_lr", False):
+        import os as _os_phlr
+        _os_phlr.environ["MTL_ONECYCLE_PER_HEAD_LR"] = "1"
     # Record whether the canon bundle was actually injected (for the manifest / auto-derivations).
     args._canon_active = bool(_canon_active)
     if not _canon_active:
