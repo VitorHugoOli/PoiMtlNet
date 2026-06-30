@@ -1,8 +1,8 @@
 % Section 8: Conclusion (about 0.3 page). Plan: PAPER_PLAN 4 / §8.
-% A check-in-level representation makes the category task far more learnable; one model beats a dedicated
-% category model at every state, beats the dedicated region model where the region space is large and matches
+% A check-in-level representation makes the category task far more learnable; one model outperforms a dedicated
+% category model at every state, outperforms the dedicated region model where the number of regions is large and matches
 % it where it is small. One model with a shared semantic context and a private spatial path anticipates both
-% what and where, and the spatial gain grows with scale.
+% what and where, and the gain on region grows with scale.
 \section{Conclusion}
 \label{sec:conclusion}
 
@@ -10,10 +10,10 @@ We asked whether one model can predict both the category and the region of a
 user's next visit. Two findings answer it. First, a check-in-level
 representation, where each visit gets its own vector instead of one fixed vector
 per place, makes the next-category task far more learnable than the standard
-place-level representation does. Second, on top of that representation a single
+place-level representation does. Second, on top of that representation, a single
 multi-task model outperforms a dedicated category model at every state, and on
-region it does so where there are many regions while staying a non-inferior match
+region it does so where there are many regions while remaining non-inferior
 (TOST, $\pm2$~pp) where there are few. In summary, one model that shares a
 semantic context across both tasks while keeping a private spatial path for region
 can anticipate both what a user will do next and where, without giving up the
-next-region task, and the gain on region grows with the number of regions.
+next-region task. The gain on region grows with the number of regions.

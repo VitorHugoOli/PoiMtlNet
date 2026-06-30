@@ -20,20 +20,20 @@ changes (a vector per visit versus a vector per place), so the margin isolates t
 representation, not a difference in task or model. The check-in-level
 representation outperforms the place embedding by a wide and consistent margin at every
 state: $+29.31$ at Alabama, $+27.63$ at Arizona, $+39.62$ at Florida, $+37.95$
-at California, and $+37.47$ at Texas, and the same holds on Istanbul ($+26.64$).
+at California, and $+37.47$ at Texas. The same holds on Istanbul ($+26.64$).
 The gains fall in two bands, about $+27$ to $+29$ points at the smaller datasets
 (Istanbul, Alabama, Arizona) and about $+37$ to $+40$ at the three large states. In absolute terms the place embedding recovers only about half of
 what the per-visit representation reaches. A controlled test attributes most of that gain
 to the per-visit context itself: replacing each visit's vector with a
 per-place-averaged version of the same representation gives back only part of
-the margin, leaving roughly 64 to 90 percent of the gain (state-dependent) to
+the margin. This leaves roughly 64 to 90 percent of the gain (state-dependent) to
 the context each visit carries, not to extra training signal.
 
 Figure~\ref{fig:embquality} shows why the representation helps this task in
 particular. By category, the per-visit vectors are cleanly grouped. Their
 silhouette score by category, a separation measure from $-1$ to $1$ where
 higher means the seven labeled groups are tighter and better separated, is about $0.56$, against about
-$0.00$ for the place embedding; and its nearest-neighbor category purity, the share of a vector's nearest
+$0.00$ for the place embedding. Their nearest-neighbor category purity, the share of a vector's nearest
 neighbors that carry its own category, is about $0.98$, against about $0.78$. The same geometry does not separate regions, which is exactly the
 point: the representation improves category separability but carries no spatial
 structure, so its benefit is category-only and sets up the joint study in
@@ -41,7 +41,7 @@ Section~\ref{sec:results-part2}. A direct comparison with the closest prior
 contextual embedding makes the source of the gain concrete. CTLE~\cite{lin2021ctle},
 which also describes each visit but learns it with a sequence model rather than a
 hierarchical graph, reaches only $29.69$ to $33.45$ macro-F1 at Florida across its
-trained variants, under the same windowing and the same single-task head, far
+trained variants, under the same windowing and the same single-task head; this is far
 below our $75.15$. A feature-concat control,
 the place embedding joined with raw per-visit features and fed to the same model,
 does not close the gap either, so the category gain comes from the hierarchical
@@ -59,8 +59,8 @@ thousands of regions, where a random top-ten guess is right at most about two
 percent of the time (and well under one percent at the larger region counts).
 Table~\ref{tab:results} reports the single joint model against the dedicated
 single-task ceilings (we call them ceilings because a jointly trained head is
-usually expected to match or fall short of a head trained for that task alone),
-and Figure~\ref{fig:deltas} plots the signed gains ordered by region count. On category the joint model outperforms the dedicated ceiling at
+usually expected to match or fall short of a head trained for that task alone).
+Figure~\ref{fig:deltas} plots the signed gains ordered by region count. On category the joint model outperforms the dedicated ceiling at
 every state, by $+4.68$ to $+7.69$ macro-F1 (smallest at Florida, largest at
 Alabama, and $+6.69$ at Istanbul). On region, measured by Acc@10, the joint model outperforms the dedicated ceiling where there are many
 regions: Florida $+0.57$ (4{,}703 regions), Texas $+2.06$ (6{,}553), and
@@ -68,7 +68,7 @@ California $+2.18$ (8{,}501), each with all five folds in the joint model's favo
 It stays a non-inferior match (TOST, $\pm2$~pp) where there are few: Alabama
 $-0.18$, Arizona $-0.06$, and Istanbul $-0.52$. The region gain increases with the number of regions, rising from
 $-0.52$ to $+2.18$ across the six settings, so the joint model helps the spatial
-task more, not less, as the number of regions grows; the state with the most
+task more, not less, as the number of regions grows. The state with the most
 regions has the largest region gain, the opposite of a cost that grows with the
 size of the spatial problem. We order by region count because that is the axis of
 interest; region count and corpus size co-vary across these datasets, so we read
@@ -78,7 +78,7 @@ The direction is unanimous: at every state all
 five folds favor the joint model on category, a one-sided paired Wilcoxon
 signed-rank test at its $n{=}5$ floor ($p{=}0.031$ per state), and the sign is
 consistent across all six datasets (a 6 of 6 state-level sign test, one-sided
-$p \approx 0.016$); at the three large states the region result likewise favors the
+$p \approx 0.016$). At the three large states the region result likewise favors the
 joint model on all five folds each. We treat the state, not the fold, as the unit of replication, since
 folds within a state share data and the same trained models. The three
 small-state region results are tested equivalences (TOST, $\pm2$~pp): Alabama ($-0.18$; 90\% confidence interval
@@ -87,7 +87,7 @@ $-0.46$ to $+0.09$), Arizona ($-0.06$; $-0.41$ to $+0.29$), and Istanbul
 These intervals are tight because they are built on the \emph{paired} per-fold
 difference, whose standard deviation is only $0.16$ to $0.37$ points (the
 per-arm fold standard deviations in Table~\ref{tab:results} are larger because
-the two models are highly correlated across folds), so the equivalence is well
+the two models are highly correlated across folds). The equivalence is therefore well
 powered. We do not claim per-cell family-wise-corrected significance at $n{=}5$
 (a Holm correction across the six cells does not clear $0.05$ at this sample
 size), and we leave a multi-seed confirmation ($n{=}20$) to future work.
@@ -106,14 +106,13 @@ state (Table~\ref{tab:results}): the primary region-native comparison,
 HMT-GRN~\cite{lim2022hmtgrn} (for example California $49.61$ versus our $65.66$),
 a from-raw STAN~\cite{luo2021stan} and a ReHDM reference~\cite{li2025rehdm} on
 region, and POI-RGNN~\cite{capanema2023poirgnn} and a Markov floor on category,
-all trail it, and every region model clears a simple Markov transition floor by a
+all trail it. Every region model clears a simple Markov transition floor by a
 wide margin. Against the
 closest published multi-task alternative, a cascade that predicts in a chain
 (when, then what, then where)~\cite{huang2024cslsl}, our parallel model reaches
-the same combined accuracy at the same parameter and compute cost (the difference
-on the joint score is about zero). We read this as a defense of the parallel
-design, not a claim that we outperform the cascade: the chained alternative
-reaches the same combined accuracy at the same cost, so the simpler parallel
+the same combined accuracy at the same parameter and compute cost. The difference
+on the joint score is about zero. We read this as a defense of the parallel
+design, not a claim that we outperform the cascade: the simpler parallel
 structure loses nothing. The Gowalla cells
 are seed-0 results over five folds ($n{=}5$, provisional); the Istanbul cells
 average four seeds ($n{=}20$).
@@ -128,7 +127,7 @@ headline is the four-seed mean against a single-seed ceiling; the clean seed-0
 fold-paired gain is $+6.5$ with all five folds positive, so the result does not
 rest on the seed averaging. We report Istanbul as a lift over the dedicated
 ceiling, not as an absolute Acc@10, because its region count (520 mahalle) differs
-from the Gowalla states; the overlapping-window protocol, the fp32 setup, and the
+from the Gowalla states. The overlapping-window protocol, the fp32 setup, and the
 multi-seed run (four seeds, $n{=}20$) match the Gowalla board, so within Istanbul
 the multi-task versus dedicated comparison is like-for-like. The external baselines line
 up the same way as on the Gowalla states: on category the joint model is far

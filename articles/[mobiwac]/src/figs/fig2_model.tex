@@ -1,5 +1,5 @@
 % fig2_model.tex
-% Figure 2: the single multi-task model (champion-G).
+% Figure 2: the single multi-task model.
 %
 % Standalone-compilable on its own (pdflatex fig2_model.tex) AND \input-able into
 % the IEEE paper. The standalone wrapper runs only when \FIGINPUT is NOT defined.
@@ -12,7 +12,7 @@
 %   \begin{figure}[t]\centering\input{figs/fig2_model.tex}
 %   \caption{...}\label{fig:model}\end{figure}
 %
-% ARCHITECTURE (champion-G = mtlnet_crossattn_dualtower + next_gru (cat) +
+% ARCHITECTURE (mtlnet_crossattn_dualtower + next_gru (cat) +
 % next_stan_flow_dualtower (reg)), verified against src/models/.../model.py:
 %   - two input streams: a check-in (semantic) window and a region (spatial) window;
 %   - a PRIVATE per-task encoder on each stream;

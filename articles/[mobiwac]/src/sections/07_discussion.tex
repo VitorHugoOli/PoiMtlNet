@@ -1,39 +1,39 @@
 % Section 7: Discussion and Limitations (about 0.5 page). Plan: PAPER_PLAN 4 / §7.
 % One model serves both tasks; shared semantic context lifts category, private spatial path keeps region competitive
-% (matches at small region counts, beats at large). Limitations: single seed over five folds (provisional);
+% (matches at small region counts, outperforms at large). Limitations: single seed over five folds (provisional);
 % small-state region is non-inferior within two points (a match, not a beat); transductive representation
 % (planned training-only variant); the mobility-aware service is motivation, not evaluated.
 \section{Discussion and Limitations}
 \label{sec:discussion}
 
 The clearest reading of our results is a design one: one model is enough.
-A single model, built from a shared trunk that carries the semantic
-context and a private spatial path that keeps next-region accuracy from
-degrading, does both jobs at once. The shared context lifts the next-category task
+A single model does both jobs at once. It pairs a shared trunk
+that carries the semantic context with a private spatial path that keeps
+next-region accuracy from degrading. The shared context lifts the next-category task
 sharply over a dedicated model at every state, and the private path keeps the
 next-region task competitive: a non-inferior match (TOST, $\pm2$~pp) where there
 are few regions, and a clear superiority (paired Wilcoxon) where there are many. The region gain is not flat: it rises with the number of regions
-(Figure~\ref{fig:deltas}), so the gain on next-region from sharing grows as the
-number of regions grows, rather than fading. Overall, the joint model matches or
+(Figure~\ref{fig:deltas}). The benefit from sharing grows as regions
+multiply, rather than fading. Overall, the joint model matches or
 outperforms the dedicated single-task model on both tasks at once
-(Table~\ref{tab:results}). For a mobility-aware service this
-is a practical hint: one model, one forward pass, can anticipate both what a
+(Table~\ref{tab:results}). For a mobility-aware service, this
+points to a practical option: one model, one forward pass, can anticipate both what a
 user will do next and where, without paying for a second model and without
 trading one task off against the other.
 
-A short usage sketch makes the motivation concrete, and it is only motivation,
-since we measure no service here. A service could read the model's top-ranked
-next regions as an anticipatory set, a small list of areas worth preparing in
-advance, and read the next category as a hint at what to prepare in them.
+A short usage sketch makes the motivation concrete. It remains motivation only,
+since we measure no service here. A service could treat the model's top-ranked
+next regions as an anticipatory set: a small list of areas worth preparing in
+advance. The next category then hints at what to prepare in them.
 Turning that sketch into a measured result, with its own service baselines and
 costs, is future work, not a claim we make.
 
 Three limits qualify these results. First, the joint numbers come from a single
-seed over five folds, so they are provisional; a multi-seed run is the obvious
-next step, and it is the precondition for any per-cell significance claim
-stronger than the ones we report. Second, our representation is trained once over all places, so one
+seed over five folds, so they are provisional. A multi-seed run is the obvious
+next step and the precondition for any per-cell significance claim
+stronger than the ones we report. Second, our representation is trained once over all places. One
 slice of its behavior, visits to places never seen during training, is the single
-effect we cannot fully isolate; a planned variant that trains on each fold's
+effect we cannot fully isolate. A planned variant that trains on each fold's
 training places only is meant to close that gap. Third, although a mobility-aware service is
 our motivation throughout, we do not build or evaluate one; tying these
 predictions to a concrete service is the natural next study.

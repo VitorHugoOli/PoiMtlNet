@@ -24,8 +24,8 @@ to similar kinds of place), time (visits close in time), and distance (visits
 close in space). This keeps the place-to-region-to-city geography of a
 hierarchical graph and adds the check-in as a new bottom level. We train the
 graph with an infomax objective, which contrasts real neighborhoods against
-shuffled ones, so each vector learns to match its real neighborhood and reject a
-shuffled one~\cite{velickovic2019dgi,huang2023hgi}. The objective uses no task label: it
+shuffled ones, so each vector learns to match its true neighborhood and reject a
+fake one~\cite{velickovic2019dgi,huang2023hgi}. The objective uses no task label: it
 never sees the next category or the next region. From the trained graph we read
 out one vector per check-in, and a model then sees a sequence of these per-visit
 vectors rather than a sequence of repeated per-place ones.
@@ -47,8 +47,8 @@ Figure~\ref{fig:model} shows the design. Two input streams pass through private
 per-task encoders (a small input network dedicated to each task, with no weights
 shared between them) into a shared trunk (the stack of layers both tasks use),
 where the two streams exchange information (a cross-attention layer lets each
-stream read the other's features), and the
-trunk feeds two outputs, one for the category and one for the region. The region
+stream read the other's features). The trunk then feeds two outputs, one for the
+category and one for the region. The region
 output keeps a private spatial path of its own, a small branch that the category
 task does not touch.
 
@@ -64,15 +64,14 @@ plain unweighted cross-entropy. The two tasks pull in opposite directions on thi
 choice: the region metric counts every test visit once, so an unweighted
 loss matches it, whereas the category metric, macro-F1, counts every class
 equally, so one might expect a class-weighted loss to help. We tested
-class-weighting on both heads and it did not help, lowering region accuracy and
-also lowering category macro-F1 rather than raising it, so we keep plain
-unweighted cross-entropy on both and let the equal-weight sum balance the two
-tasks. This is ordinary hard parameter sharing~\cite{caruana1997multitask}, kept
-deliberately plain so that any improvement of the joint model over the dedicated
-single-task models comes from the shared representation, not from a tuned
+class-weighting on both heads and it did not help: it lowered region accuracy and
+category macro-F1 rather than raising it. We therefore keep plain unweighted
+cross-entropy on both and let the equal-weight sum balance the two tasks. This is ordinary hard parameter sharing~\cite{caruana1997multitask}, kept
+deliberately plain. Any improvement of the joint model over the dedicated
+single-task models then comes from the shared representation, not from a tuned
 weighting scheme.
 
 The cost of serving both tasks this way is modest. The joint model carries both
-task heads, so it is larger than a single dedicated model, but it is still
+task heads, so it is larger than a single dedicated model. It is still
 substantially cheaper to serve than the two separate dedicated models the usual
 setup would deploy, so two answers come at well under the price of two.

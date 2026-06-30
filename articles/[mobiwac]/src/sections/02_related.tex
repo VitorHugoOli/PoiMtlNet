@@ -10,11 +10,11 @@
 \label{sec:related-embeddings}
 A place embedding turns a POI into a vector, so that a model can reason about
 places by their learned geometry, where similar or nearby places sit close
-together, instead of treating each place as a bare, unrelated index (an arbitrary
-ID number that says nothing about what the place is or where it sits).
-Deep Graph Infomax (DGI) \cite{velickovic2019dgi}, a general self-supervised
-method for learning node representations on graphs, is applied here to a network
-of places: it learns such vectors by training them to tell the real place
+together. This replaces treating each place as a bare, unrelated index, an
+arbitrary ID number that says nothing about what the place is or where it sits.
+Deep Graph Infomax (DGI) \cite{velickovic2019dgi} is a general self-supervised
+method for learning node representations on graphs. Applied here to a network
+of places, it learns such vectors by training them to tell the real place
 network, linked by similarity, time, and distance, from a shuffled copy.
 Hierarchical Graph Infomax (HGI) \cite{huang2023hgi} adds geographic structure,
 organizing the network as place, then region, then city, so the vectors respect
@@ -27,13 +27,13 @@ representation, Check2HGI, also works at the check-in level, but it gets there
 differently. It keeps the hierarchical place-to-region-to-city network and trains
 it with the same infomax objective, now extended one level deeper, from individual
 places down to individual check-ins, a fourth level beneath place, region, and
-city (Fig.~\ref{fig:dataflow}), rather than switching to a sequence model, as CTLE
+city (Fig.~\ref{fig:dataflow}). It does not switch to a sequence model, as CTLE
 does. In short, earlier place embeddings (DGI, HGI) changed \emph{which} features
 a place vector encodes; CTLE and we change \emph{how often} a vector is produced,
 once per place or once per visit.
 
-The novelty is this specific combination, per-visit context inside a
-hierarchical graph-infomax representation, and we compare against CTLE directly
+The novelty is this specific combination: per-visit context inside a
+hierarchical graph-infomax representation. We compare against CTLE directly
 to show that the combination, not per-visit context on its own, is the source of
 the gain.
 
@@ -44,17 +44,18 @@ with recurrent and attention models such as ST-RNN \cite{liu2016strnn},
 DeepMove \cite{feng2018deepmove}, Flashback \cite{yang2020flashback}, STAN
 \cite{luo2021stan}, and GETNext \cite{yang2022getnext}. In contrast, we target two properties of the next visit, its category and its
 region, rather than the exact place. These targets are not trivial: the region
-alone spans hundreds to several thousand classes; we choose them because they are
+alone spans hundreds to several thousand classes. We choose them because they are
 what a mobility-aware service can act on, not to make the task easier. The category
 task itself follows our earlier line of work \cite{silva2025mtlnet}. The field
 increasingly models several granularities at once, predicting category-level and
 region-level sequences alongside the place sequence; in that work, however,
 category and region are auxiliary signals that help a headline next-place task
 (SGRec \cite{li2021sgrec}, MCMG \cite{sun2024mcmg}, HMT-GRN \cite{lim2022hmtgrn}).
-We study the pair as the object itself. What is, to our knowledge, underexplored is
-fine-grained region as a co-equal end target rather than an auxiliary coarse cell:
+We study the pair as the object itself. To our knowledge, fine-grained region as a
+co-equal end target, rather than an auxiliary coarse cell, is underexplored:
 HMT-GRN, for instance, predicts a coarse geohash cell only as an aid to its
-next-place search, so we define our region unit carefully when we state the tasks.
+next-place search. We therefore define our region unit carefully when we state the
+tasks.
 
 \subsection{Multi-task learning for mobility}
 \label{sec:related-mtl}
@@ -69,11 +70,11 @@ instrumentally, to filter candidate places. We differ in two ways. We predict
 category and region in parallel, as co-equal end targets in one model with a
 single forward pass, and we drop next-place entirely, so neither task is
 instrumental to a third. On the optimization side we are deliberately
-conservative: hard parameter sharing, using one shared stack of layers for both tasks, is standard practice
+conservative: hard parameter sharing, one shared stack of layers for both tasks, is standard practice
 \cite{caruana1997multitask}, and our use of it is not itself the contribution.
 Rather than propose yet another gradient-balancing method (PCGrad \cite{yu2020pcgrad},
 GradNorm \cite{chen2018gradnorm}, Nash-MTL \cite{navon2022nashmtl}), we ask
-where sharing helps and where it costs and give a clear, measured account,
+where sharing helps and where it costs, and we give a clear, measured account,
 consistent with reports that such methods rarely improve on a well-tuned fixed
 weighting at two tasks \cite{xin2022domtl, kurin2022defense}. We confirm this on
 our own two tasks: across the gradient-balancing methods we tried, including the

@@ -6,6 +6,17 @@
 
 ## Timeline
 
+- **2026-06-30 (Phase 4 WF-ENGLISH APPLIED + per-section review + clean build).** Applied all **67 verified
+  language fixes** via a per-file apply→review workflow (one agent per file, disjoint files = no write conflicts):
+  run-on splits, missing connectives, grammar (incl. the §6 "its"→"their" agreement bug), wordiness, American
+  English. Per-section review: **all_landed=true, 0 regressions** across all 11 files. Deduped the one §6 cascade
+  near-duplicate the review flagged (E12/E13 both stated the tie). Folded the §7/§8 `%`-comment "beats"→"outperforms"
+  cleanup. Build clean: 9 pages, 0 undefined, 0 non-font warnings; CC sweeps still clean (no em-dash, no verdict
+  beats/wins in prose). **Final advisor: CLEAN** — the language pass altered no claim/number/verdict/citation
+  (confirmed by content cross-check + git diff; it even re-derived all 12 Table 3 deltas). One REQUIRED glossary fix
+  applied (tbl3 footnote "ties"→"matches"), plus a clarity relabel (Table 3 "Markov"→"Markov-9", to disambiguate from
+  the footnote's "Markov-1") and a hygiene scrub ("champion-G" from the non-rendered fig2 comments). Final build
+  clean (9 pages, 0 undefined). **Phase 4 DONE.** Only the optional Tier C cross-section consolidations remain.
 - **2026-06-30 (OP1 + Tier A + Tier B APPLIED + reviewed + clean build).** Applied the author-approved set: **OP1**
   paragraph added to §2.3 (our-evidence balancer/correlation finding, plain-language, tied to §6.2, board-backed
   ~0.001 = CH31 0.0007–0.0026; avoids the banned word "orthogonal"). **Tier A** acronyms: dropped the §1 LBSN

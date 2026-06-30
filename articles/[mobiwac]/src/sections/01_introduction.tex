@@ -31,9 +31,9 @@ at once.
 
 Sharing one representation across tasks is not free. Joint training can help one
 task while hurting the other, a well-known trade-off in multi-task learning
-(MTL), where one model does several jobs at once by sharing most of its parts and
-the shared parameters settle on a compromise that suits neither task
-perfectly~\cite{caruana1997multitask}; our earlier work~\cite{silva2025mtlnet}
+(MTL): one model does several jobs at once by sharing most of its parts, and as a
+result the shared parameters settle on a compromise that suits neither task
+perfectly~\cite{caruana1997multitask}. Our earlier work~\cite{silva2025mtlnet}
 observed exactly this for next-category and next-region. So the useful question is
 not whether MTL is good in general, but where sharing helps, where it costs, and
 how to share so the gains hold and the cost stays small.
@@ -50,9 +50,9 @@ is obtaining it from inside this hierarchical graph representation, a choice we
 test directly (Section~\ref{sec:related}). Second, we train one model that
 predicts the next category and the next region in a single forward pass, with a
 shared trunk that carries the semantic context and a private spatial path for the
-region task (Fig.~\ref{fig:model}). We evaluate on two very different settings on purpose,
-five U.S. states of different sizes (Gowalla) and one international city
-(Istanbul), so we can see whether the findings hold across small and large, U.S.
+region task (Fig.~\ref{fig:model}). We deliberately evaluate on two very different
+settings: five U.S. states of different sizes (Gowalla) and one international city
+(Istanbul). This lets us see whether the findings hold across small and large, U.S.
 and non-U.S. data.
 
 Our contributions are the following.
@@ -61,16 +61,16 @@ Our contributions are the following.
     from the place to the individual visit. It improves next-category
     prediction by a large and consistent margin over a standard place embedding,
     about $+28$ to $+40$ points of macro-F1 (a balanced score that counts every
-    category equally) across all five states, and a controlled test shows the
+    category equally) across all five states. A controlled test shows the
     gain comes from the per-visit context, not from extra supervision
-    (Table~\ref{tab:substrate}); the margin is large because a single fixed vector
+    (Table~\ref{tab:substrate}). The margin is large because a single fixed vector
     per place cannot separate places that host several kinds of activity, which
     per-visit context recovers.
   \item A single model for joint next-category and next-region prediction that
     shares a semantic context across the two tasks while keeping a private path
     for the spatial one. In one forward pass it outperforms a dedicated
     single-task category model at every state (by about $+4.7$ to $+7.7$ points of
-    macro-F1) and, on region, does so where there are many regions while staying
+    macro-F1). On region, it outperforms where there are many regions and stays
     statistically non-inferior within a two-point margin (TOST, a test of
     equivalence) where there are few (Table~\ref{tab:results}).
   \item An empirical account, across five states of different sizes and one

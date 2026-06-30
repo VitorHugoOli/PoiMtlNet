@@ -36,7 +36,7 @@ across folds, and this matters because the seven-class category task is imbalanc
 every dataset, from about 25 percent of visits in Florida to 34 percent in Alabama.
 
 \emph{Integrity of the representation.} We train the representation once on the whole dataset and then feed it to
-both the dedicated single-task models and the joint model, so it is worth being explicit that it carries no
+both the dedicated single-task models and the joint model. It is therefore worth being explicit that it carries no
 information about the test visits. It does not, for three reasons. First, the representation is trained without any
 task label: its objective only contrasts real graph neighborhoods against shuffled ones, and it never sees the
 next-category or next-region target, so no label can travel from test to train through it. Second, the only thing
@@ -44,21 +44,21 @@ it could carry from the test side is graph structure (which places sit near whic
 because the graph is built over all places. We measured that exposure directly: for each fold we rebuilt the
 representation from only that fold's training users and re-ran both tasks, comparing it against the full-corpus
 representation on the same folds. The effect is within fold noise and shows no systematic gain from the wider
-exposure: on region the change is $-0.33$ points at Alabama, $+0.01$ at Arizona, and $-0.12$ at Florida, and on
-category, measured on the in-coverage visits whose places appear in training (about 67 percent at Alabama to 87
-percent at Florida, a place-level proxy, since the representation cannot score a place never seen in training), it is
-$+0.29$ at Alabama, $+0.27$ at Arizona, and $+0.00$ at Florida.
+exposure: on region the change is $-0.33$ points at Alabama, $+0.01$ at Arizona, and $-0.12$ at Florida. On category
+it is $+0.29$ at Alabama, $+0.27$ at Arizona, and $+0.00$ at Florida, measured on the in-coverage visits whose places
+appear in training (about 67 percent at Alabama to 87 percent at Florida); this is a place-level proxy, since the
+representation cannot score a place never seen in training.
 % NOTE: numbers from the A4 train-users-only transductivity audit (docs/studies/pre_freeze_gates/A4_RESULTS.md):
 % reg AL -0.33 / AZ +0.01 / FL -0.12 (5 folds); cat POI-proxy on in-coverage subset AL +0.29 (66.8%) / AZ +0.27 (71.9%) / FL +0.00 (86.9%).
 % Author TODO: extend to CA/TX/Istanbul to widen coverage further (non-blocking; the gate is on null at AL+AZ+FL).
-Third, the one component that really passes visit-to-visit information, the region-transition prior used by the
-spatial path (a table, built from training data, of how often visits move from one region to the next, used to bias
-the region scores), is built per fold from training data only, seed by seed; an earlier version that used the whole
-dataset inflated region accuracy by 13 to 27 points across states, so we now build it per fold. Every learned baseline
+Third, the one component that really passes visit-to-visit information is the region-transition prior used by the
+spatial path: a table, built from training data, of how often visits move from one region to the next, used to bias
+the region scores. We build it per fold from training data only, seed by seed. An earlier version that used the whole
+dataset inflated region accuracy by 13 to 27 points across states, which is why we now build it per fold. Every learned baseline
 representation is pre-trained the same way, so all inputs are held to the same standard. The one residual we cannot
-fully measure is visits to places never seen in training: the representation is trained having seen all places, so it
-cannot score a place absent from training. On the visits we can measure, the large majority, the audit finds no
-inflation, and a planned training-only variant is meant to close the remaining gap.
+fully measure is visits to places never seen in training: the representation is trained on all places, so it cannot
+score a place that is absent from training. On the visits we can measure, which are the large majority, the audit
+finds no inflation, and a planned training-only variant is meant to close the remaining gap.
 
 \subsection{Metrics, superiority versus non-inferiority}
 \label{sec:setup-metrics}
@@ -77,10 +77,10 @@ busy, not on a single rank position: it anticipates regional demand, stages cont
 capacity at the census-tract level. A two-point shift in Acc@10 is therefore below the granularity at which such a
 service would behave differently. The margin is also large relative to the task: with one thousand to
 eight thousand five hundred regions, a random top-ten guess lands the true region under one percent of the time,
-so two points spans a wide band of the achievable range. Finally, the equivalence is well powered. The per-fold
+so two points span a wide band of the achievable range. Finally, the equivalence is well powered. The per-fold
 region standard deviation is small (0.16 to 0.37 points), which gives a power near 1.0 to reject a true two-point
 gap, so a non-inferiority verdict reflects a real match rather than a noisy test. Which cells the joint model
-outperforms in and which it matches is a result, reported in Section~\ref{sec:results}, not here.
+outperforms and which it matches is a result, reported in Section~\ref{sec:results}, not here.
 
 \subsection{Baselines}
 \label{sec:setup-baselines}
@@ -90,15 +90,15 @@ run as a faithful author implementation, and a simple "what usually follows what
 recent categories (Markov-9). For next-region this is HMT-GRN \cite{lim2022hmtgrn}, our primary region-native
 comparison, predicting the region from its own end-to-end recurrent model on the same data, seed, and folds; we run
 the HMT-GRN-style trunk and its region-transition prior, and drop its graph module and hierarchical beam search,
-which exist to prune a next-place head we do not predict (so the HMT-GRN comparison is a region-native model, not a
-component-complete reproduction). Alongside it we run a faithful STAN \cite{luo2021stan}, trained from raw with its
+which exist to prune a next-place head we do not predict. The HMT-GRN comparison is therefore a region-native model,
+not a component-complete reproduction. Alongside it we run a faithful STAN \cite{luo2021stan}, trained from raw with its
 own embeddings and its own sequence construction, and a ReHDM \cite{li2025rehdm} reference reported under that
 method's own published protocol rather than as a matched cell. We never feed STAN our representation, because a
 representation-fed variant would not be a faithful baseline; such a variant is competitive only at the smallest
 state, and we treat it as a direction for future work, not a baseline. The
 second role is a representation control, run on Florida, to attribute the category gain to our specific design and
 not to contextualization in general or to extra features: CTLE \cite{lin2021ctle}, the closest prior contextual
-check-in embedding, presented fairly in both its end-to-end and frozen forms, and a feature-concat control that
+check-in embedding, presented fairly in both its end-to-end and frozen forms, and a feature-concatenation control that
 appends raw per-visit features to a standard place embedding under the same model. The third role is a multi-task
 comparator: the CSLSL cascade \cite{huang2024cslsl}, which predicts in a chain rather than in parallel, so we can
 contrast our one-forward-pass joint model against the dominant alternative multi-task design at equal cost. The
