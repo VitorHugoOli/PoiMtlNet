@@ -10,9 +10,11 @@
 `mtlnet_crossattn_dualtower` (model) + `next_gru` (cat head) + `next_stan_flow_dualtower`
 (reg head, **prior-OFF**: `freeze_alpha=True alpha_init=0.0`). Unweighted CE, MTL loss
 `static_weight` with `category-weight 0.75`, scheduler `onecycle max-lr 3e-3`
-(per-head LRs cat/reg/shared = 1e-3/3e-3/1e-3 — ⚠ **but these are INERT under onecycle**:
-a scalar `max-lr` broadcasts to all param groups, so every head actually peaks at 3e-3; the
-per-head flags do nothing here. See [`future_works/per_head_lr_onecycle_fix.md`](future_works/per_head_lr_onecycle_fix.md)),
+(per-head LRs cat/reg/shared = 1e-3/3e-3/1e-3 — ⚠ **INERT under onecycle by default**: a scalar `max-lr`
+broadcasts to all param groups, so every head peaks at 3e-3. The fix **shipped** (`MTL_ONECYCLE_PER_HEAD_LR=1`,
+per-group max_lr) and **activating cat-lr 1e-3 is a confirmed n=20 board-wide WIN** —
+[`studies/closing_data/perhead_lr_n20.md`](studies/closing_data/perhead_lr_n20.md),
+[`future_works/per_head_lr_onecycle_fix.md`](future_works/per_head_lr_onecycle_fix.md); promotion pending CA/TX),
 checkpoint selector `geom_simple`
 (`√(cat_macroF1 · reg_Acc@10)`). Substrate engine `check2hgi_dk_ovl` (gated stride-1
 overlap, MIN_SEQ=10); per-fold priors dir = the v14 substrate `check2hgi_design_k_resln_mae_l0_1`.
@@ -56,7 +58,8 @@ Set before `python scripts/train.py …`. **Default = unset** unless noted.
 
 | Env var | What it does | When to use |
 |---|---|---|
-| **`MTL_DISABLE_AMP=1`** | Force **fp32** (no autocast). | **Required for big states** on the A40 (bf16 grad-NaN at large C, fp16 overflow). |
+| **`MTL_ONECYCLE_PER_HEAD_LR=1`** | Pass a per-group `max_lr` list to OneCycleLR so `--cat-lr/--reg-lr/--shared-lr` **actually apply** (they're inert otherwise). | The n=20-confirmed candidate win (bs=8192 + cat-lr 1e-3); default-OFF byte-identical. See `studies/closing_data/perhead_lr_n20.md`. |
+| **`MTL_DISABLE_AMP=1`** | Force **fp32** (no autocast). | **Required for big states** on the A40 (bf16 grad-NaN at large C, fp16 overflow). bf16 also dropped board-wide for ~1pp quality. |
 | `MTL_AUTOCAST_BF16=1` | bf16 autocast arm (+ `MTL_DISABLE_AMP_EVAL=1`). | Only safe at small states on the A40; the board's bf16 cells (CA). |
 | **`MTL_CHUNK_VAL_METRIC=1`** | S2 chunked val-metric (chunks the [N,C] logits). | **Big-C states** (FL/CA/TX) — prevents the val-metric OOM. Board-default-on. |
 | `MTL_STREAM_TRAIN_METRIC=0` | Opt OUT of the S1 streaming train-metric (default ON). | Debug only; streaming is the OOM fix for C>256. |

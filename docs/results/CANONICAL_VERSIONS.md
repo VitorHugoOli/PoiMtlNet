@@ -39,6 +39,13 @@ with the flags needed to recover every prior version.
 
 ## ⭐ The `--canon` selector (2026-06-07) — versions are now one flag
 
+> 🔬 **2026-06-30 note (board champion engine + candidate next pin):** the closing_data **board** champion-G runs
+> on the **`check2hgi_dk_ovl`** engine (gated stride-1 overlap of the v14 substrate) — the v16 bundle's per-head
+> LRs are **inert under onecycle** (effective uniform 3e-3). A **confirmed n=20 candidate** — `bs=8192 + cat-lr 1e-3`
+> via `MTL_ONECYCLE_PER_HEAD_LR=1` — beats it board-wide; see
+> [`../studies/closing_data/perhead_lr_n20.md`](../studies/closing_data/perhead_lr_n20.md). Promotion to a new pin
+> is gated on CA/TX + the flag-OFF parity test.
+
 **As of 2026-06-07, `scripts/train.py --task mtl` takes `--canon {v11,v12,v15,v16,none}`,
 default `v16` (champion G).** Each version is a *bundle* of CLI flags (`src/configs/canon.py
 ::CANON_BUNDLES`) injected **before** your own flags, so **explicit flags always override the

@@ -13,6 +13,11 @@
 
 ## 1 · Part-2 headline — MTL champion-G vs dedicated STL ceilings (Δ in pp)
 
+> 🔬 **Candidate next canon (n=20-confirmed, not yet promoted):** **bs=8192 + cat-lr 1e-3** via
+> `MTL_ONECYCLE_PER_HEAD_LR=1` **beats every §1 cell** — AL +1.0 / AZ +2.3 cat, FL +0.17 cat / +0.20 reg, ~7%
+> faster. The §1 champion's per-head LRs are inert under onecycle (effective uniform 3e-3); activating cat-lr 1e-3
+> is the lever. See [`perhead_lr_n20.md`](perhead_lr_n20.md). Promotion gated on CA/TX + the flag-OFF parity test.
+
 Champion-G = `mtlnet_crossattn_dualtower` + `next_stan_flow_dualtower` (reg) + `next_gru` (cat); unweighted CE,
 static_weight cw=0.75, onecycle max-lr 3e-3, geom_simple selector; fp32-matched (`r0_matched_rescore.py`).
 
