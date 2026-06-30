@@ -11,27 +11,28 @@ We work with check-in sequences. For each user we order their check-ins in
 time and form short windows of nine consecutive visits. From each window we
 predict two properties of the next visit. The first is its \emph{category},
 the kind of place, one of seven fixed labels: Community, Entertainment, Food,
-Nightlife, Outdoors, Shopping, and Travel. The second is its \emph{region},
-the census tract the place falls in (the \emph{mahalle} for Istanbul). We do
-not predict the exact next place; these two coarser properties are easier to
-learn and, for most uses, enough. Category is a small, fixed label set.
-Region is a large one, ranging from about five hundred classes (Istanbul) to
-about eight thousand five hundred (California), so the spatial task is a
-fine-grained choice over many candidate regions, while the semantic task is a
-choice among a handful of kinds of place.
+Nightlife, Outdoors, Shopping, and Travel. Istanbul uses these same seven
+categories through the Massive-STEPS seven-root mapping, so the category label
+set is identical across all datasets. The second is its \emph{region}, the census
+tract the place falls in (the \emph{mahalle} for Istanbul). We do not predict the
+exact next place; these two properties are easier to learn and, for most uses,
+enough. Category is a small, fixed label set. Region is a large one: we frame
+next-region as classification, where each candidate census tract is one class,
+from about five hundred (Istanbul) to about eight thousand five hundred
+(California). The spatial task is thus a fine-grained choice over many candidate
+regions, while the semantic task is a choice among a handful of kinds of place.
 
 The motivation is practical, and the two predictions line up with two kinds
 of preparation a mobility-aware service makes. The category says what kind of
 place comes next, which hints at the content or service a user will want; the
-region says where it is, which says where to get ready. With both in hand a
-service can act ahead of regional demand, for example by staging content in
-the region a user is heading to, or by planning capacity there before the load
-arrives. These examples are sized to what we actually measure: a census tract
-is a neighborhood, not a radio cell, and even the ten most likely tracts are
-far too coarse to drive cell association or handover, so we keep the motivation
-at the level
-of regional demand and load anticipation, content staging, and capacity
-planning. With that framing in place, we study how well one model can
+region says where it is, which says where to get ready. With both in hand, a
+service can act ahead of regional demand, for example by staging content in the
+region a user is heading to, or by planning capacity there before the load
+arrives. These examples are sized to what we actually measure. A census tract is
+a neighborhood, not a radio cell (the small coverage area a single base station
+serves); even the ten most likely tracts are far too coarse to drive cell
+association or handover. We therefore keep the motivation at the regional level:
+demand and load anticipation, content staging, and capacity planning. With that framing in place, we study how well one model can
 anticipate both the category and the region of the next visit. We do not
 build or evaluate such a service, or any network system, here; the
 application is the reason the predictions matter, not a result we claim.

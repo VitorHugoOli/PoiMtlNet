@@ -15,24 +15,25 @@ social network, and cover the U.S. states of Alabama, Arizona, Florida, Texas, a
 \cite{cho2011gowalla}; the sixth is the city of Istanbul, drawn from the Massive-STEPS collection
 \cite{wongso2025massivesteps}, which gives us a non-U.S. check on the findings. We chose this spread on purpose.
 The states run from small to large, from about 114 thousand check-ins and 1,109 regions in Alabama to several
-million check-ins and 8,501 regions in California, so we can watch a result hold (or not) as the region space
+million check-ins and 8,501 regions in California, so we can see whether a result holds as the number of regions
 grows. Every dataset uses the same seven place categories: Community, Entertainment, Food, Nightlife, Outdoors,
 Shopping, and Travel. The region unit is a census tract for the Gowalla states and a mahalle (a municipal
 neighborhood) for Istanbul, and the number of regions ranges from about five hundred to about eight thousand five
-hundred. The short reading of Table~\ref{tab:datasets} is that our datasets span a wide range of size and region
-count, which is exactly what lets us study how joint training behaves with scale.
+hundred.
 
 \subsection{Windows, splitting, and the integrity of the representation}
 \label{sec:setup-windows}
-\emph{Windows.} For each user we sort the check-ins in time and form overlapping windows of nine visits, with the
-next visit as the target. Overlapping windows give the category task more examples to learn from. We then apply a
-simple gate that removes a small over-representation of each user's last place (because the windows overlap, many
-end on the same final visit); the gate de-skews that target while keeping one full-context prediction of the last place.
-These are valid examples, not padding.
+\emph{Windows.} For each user with at least ten visits we sort the check-ins in time and form overlapping windows
+of nine visits, one starting at each visit, with the next visit as the target. Overlapping windows give the category
+task more examples to learn from. Because the windows overlap, many of a user's windows end on the same final visit,
+over-representing that one target; we keep a single window ending on each user's last visit and drop the duplicates.
+The kept window is a full-context example, not padding.
 
 \emph{Splitting.} We split by user with stratified five-fold cross-validation (CV), so all of a user's windows
 fall in the same fold. Overlapping windows therefore cannot leak across the split, because a test user's visits
-never appear in training.
+never appear in training. The split is stratified on the next-category label, which preserves the class proportions
+across folds, and this matters because the seven-class category task is imbalanced: Food is the majority class in
+every dataset, from about 25 percent of visits in Florida to 34 percent in Alabama.
 
 \emph{Integrity of the representation.} We train the representation once on the whole dataset and then feed it to
 both the dedicated single-task models and the joint model, so it is worth being explicit that it carries no
@@ -44,18 +45,20 @@ because the graph is built over all places. We measured that exposure directly: 
 representation from only that fold's training users and re-ran both tasks, comparing it against the full-corpus
 representation on the same folds. The effect is within fold noise and shows no systematic gain from the wider
 exposure: on region the change is $-0.33$ points at Alabama, $+0.01$ at Arizona, and $-0.12$ at Florida, and on
-category, measured on the visits whose places are seen in training (the large majority of test visits), it is
+category, measured on the in-coverage visits whose places appear in training (about 67 percent at Alabama to 87
+percent at Florida, a place-level proxy, since the representation cannot score a place never seen in training), it is
 $+0.29$ at Alabama, $+0.27$ at Arizona, and $+0.00$ at Florida.
 % NOTE: numbers from the A4 train-users-only transductivity audit (docs/studies/pre_freeze_gates/A4_RESULTS.md):
 % reg AL -0.33 / AZ +0.01 / FL -0.12 (5 folds); cat POI-proxy on in-coverage subset AL +0.29 (66.8%) / AZ +0.27 (71.9%) / FL +0.00 (86.9%).
 % Author TODO: extend to CA/TX/Istanbul to widen coverage further (non-blocking; the gate is on null at AL+AZ+FL).
-Third, the one component that really passes
-visit-to-visit information, the region-transition prior used by the spatial path, is built per fold from training
-data only, seed by seed; an earlier version that used the whole dataset inflated region accuracy by 13 to 27
-points, so we removed it. Every learned baseline representation is pre-trained the same way, so all inputs are
-held to the same standard. The one residual we cannot fully isolate, visits to places never seen in training, is
-the scope of a planned training-only variant; the evidence in hand bounds any inflation to under a point on the
-measurable majority and finds none.
+Third, the one component that really passes visit-to-visit information, the region-transition prior used by the
+spatial path (a table, built from training data, of how often visits move from one region to the next, used to bias
+the region scores), is built per fold from training data only, seed by seed; an earlier version that used the whole
+dataset inflated region Acc@10 by 13 to 27 points across states, so we now build it per fold. Every learned baseline
+representation is pre-trained the same way, so all inputs are held to the same standard. The one residual we cannot
+fully measure is visits to places never seen in training: the representation is trained having seen all places, so it
+cannot score a place absent from training. On the visits we can measure, the large majority, the audit finds no
+inflation, and a planned training-only variant is meant to close the remaining gap.
 
 \subsection{Metrics, superiority versus non-inferiority}
 \label{sec:setup-metrics}
@@ -65,19 +68,19 @@ macro-F1 of always predicting the single most common category. For the region ta
 (Acc@10), the fraction of test visits whose true region appears among the model's ten highest-scoring guesses; its
 comparison anchor is the dedicated single-task model.
 
-We make two kinds of comparison and test each one appropriately. Where the joint model is meant to win, we test
+We make two kinds of comparison and test each one appropriately. Where the joint model is meant to outperform, we test
 \emph{superiority} with a paired Wilcoxon signed-rank test over the folds. Where the joint model is meant only to
 stay even, we test \emph{non-inferiority}, that it is no worse than the dedicated model by more than a two-point
 margin, with a two one-sided tests (TOST) procedure. We fix the two-point margin in advance and on deployment
-grounds, before looking at whether any claim survives it. A mobility-aware service that anticipates regional
-demand, stages content for the right region, or plans capacity at the level of a census tract acts on coarse
-regional signal, not on a single rank position, so a two-point shift in Acc@10 is below the granularity at which
-such a service would behave differently. The margin is also large relative to the task: with one thousand to
+grounds, before looking at whether any claim survives it. A mobility-aware service acts on which region will be
+busy, not on a single rank position: it anticipates regional demand, stages content for the right region, or plans
+capacity at the census-tract level. A two-point shift in Acc@10 is therefore below the granularity at which such a
+service would behave differently. The margin is also large relative to the task: with one thousand to
 eight thousand five hundred regions, a random top-ten guess lands the true region under one percent of the time,
 so two points spans a wide band of the achievable range. Finally, the equivalence is well powered. The per-fold
 region standard deviation is small (0.16 to 0.37 points), which gives a power near 1.0 to reject a true two-point
-gap, so a non-inferiority verdict reflects a real match rather than a noisy test. Which cells turn out to be a
-beat and which a match is a result, reported in Section~\ref{sec:results}, not here.
+gap, so a non-inferiority verdict reflects a real match rather than a noisy test. Which cells the joint model
+outperforms in and which it matches is a result, reported in Section~\ref{sec:results}, not here.
 
 \subsection{Baselines}
 \label{sec:setup-baselines}
@@ -90,9 +93,9 @@ the HMT-GRN-style trunk and its region-transition prior, and drop its graph modu
 which exist to prune a next-place head we do not predict (so the HMT-GRN comparison is a region-native model, not a
 component-complete reproduction). Alongside it we run a faithful STAN \cite{luo2021stan}, trained from raw with its
 own embeddings and its own sequence construction, and a ReHDM \cite{li2025rehdm} reference reported under that
-method's own published protocol rather than as a matched cell. We never feed STAN our representation; a
-representation-fed variant would not be a faithful baseline, and we note in passing that such a variant is
-competitive at the smallest state, which we read as future headroom for the representation rather than a baseline. The
+method's own published protocol rather than as a matched cell. We never feed STAN our representation, because a
+representation-fed variant would not be a faithful baseline; such a variant is competitive only at the smallest
+state, and we treat it as a direction for future work, not a baseline. The
 second role is a representation control, run on Florida, to attribute the category gain to our specific design and
 not to contextualization in general or to extra features: CTLE \cite{lin2021ctle}, the closest prior contextual
 check-in embedding, presented fairly in both its end-to-end and frozen forms, and a feature-concat control that

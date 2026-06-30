@@ -1,11 +1,18 @@
 #!/usr/bin/env python
 """Figure 3 (MobiWac 2026): category embedding-quality panel.
 
-Plots the two CATEGORY-separability metrics on which the check-in-level
-Check2HGI representation clearly beats the place-level HGI embedding:
+Plots two category-separability metrics, each computed on the ground-truth
+seven next-category labels (NOT on discovered k-means clusters), on which the
+check-in-level Check2HGI representation scores far higher than the place-level
+HGI embedding:
 
-  * silhouette by next-category   (check2hgi/design_k ~0.56  vs  hgi ~0.00)
-  * kNN-by-category accuracy      (check2hgi/design_k ~0.98  vs  hgi ~0.78)
+  * cosine silhouette on the next-category labels
+        (check2hgi/design_k ~0.56  vs  hgi ~0.00)
+  * leave-one-out kNN (k=10) classification purity on those same labels
+        (check2hgi/design_k ~0.98  vs  hgi ~0.78)
+
+Both bars are metrics evaluated against the ground-truth category labels; no
+clustering / k-means is run, and neither bar is a model "accuracy" result.
 
 Region geometry is deliberately NOT shown: on region both engines are at the
 floor and HGI scores spuriously higher, which would mislead. The story here is
@@ -35,7 +42,7 @@ import numpy as np
 # Board substrate row = check2hgi_design_k_resln_mae_l0_1 (design_k), NOT plain
 # check2hgi (v11 GCN). mean +/- SD over folds. CATEGORY metrics only; region omitted.
 # ---------------------------------------------------------------------------
-METRICS = ["Silhouette\n(by category)", "kNN accuracy\n(by category)"]
+METRICS = ["Silhouette\n(by category)", "kNN purity\n(by category, k=10)"]
 
 CHECK2HGI = {"mean": [0.5566, 0.9820], "sd": [0.0360, 0.0039]}
 HGI = {"mean": [0.0000, 0.7780], "sd": [0.0042, 0.0292]}
@@ -107,7 +114,7 @@ def main() -> None:
 
     ax.set_ylim(0, 1.12)
     ax.set_yticks([0.0, 0.25, 0.5, 0.75, 1.0])
-    ax.set_ylabel("Category separability")
+    ax.set_ylabel("Score (0–1)")
     ax.set_xticks(x)
     ax.set_xticklabels(METRICS)
     ax.tick_params(axis="x", length=0)

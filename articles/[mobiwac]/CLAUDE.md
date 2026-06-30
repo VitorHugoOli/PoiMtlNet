@@ -22,14 +22,14 @@
 ## 2 · The science (the thesis + headline; canonical numbers live in the board)
 
 Two parts, one model. **Part 1:** a check-in-level representation makes next-category prediction far more learnable
-than a place embedding. **Part 2:** a single joint model predicting next-category and next-region together **beats**
-the dedicated single-task category model at **every** state (about **+4.7 to +7.7** macro-F1) and, on next-region,
-**beats** at the large region counts (FL/TX/CA) while being **statistically non-inferior within a two-point margin
+than a place embedding. **Part 2:** a single joint model predicting next-category and next-region together
+**outperforms** the dedicated single-task category model at **every** state (about **+4.7 to +7.7** macro-F1) and,
+on next-region, **outperforms** at the large region counts (FL/TX/CA) while being **statistically non-inferior within a two-point margin
 (TOST)** at the small (AL/AZ/Istanbul). The region gain rises with the number of regions.
 
 - **Headline snapshot (verify exact cells against the board — this is a memory aid, not the source of truth):**
   category Δ (MTL − single-task) = AL +7.69 / AZ +6.26 / FL +4.68 / CA +7.07 / TX +7.56 / Istanbul +6.69;
-  region Δ = FL +0.57 / TX +2.06 / CA +2.18 (**beats**), AL −0.18 / AZ −0.06 / Istanbul −0.52 (**matches**, TOST);
+  region Δ = FL +0.57 / TX +2.06 / CA +2.18 (**outperforms**), AL −0.18 / AZ −0.06 / Istanbul −0.52 (**matches**, TOST);
   Table 2 substrate margin (Check2HGI − HGI cat) ≈ +26.6 to +39.6 across the 6 datasets.
 - **Scope:** five Gowalla states (AL/AZ/FL/CA/TX) + Istanbul (Massive-STEPS, non-U.S. external check).
 - **Significance:** n=5 (seed 0) provisional for Gowalla, n=20 for Istanbul. At n=5 the one-sided Wilcoxon is
@@ -100,7 +100,7 @@ reproducible: `scripts/closing_data/superiority_wilcoxon.py` (per-state Wilcoxon
 | Decision | Ruling |
 |---|---|
 | **Abstract TOST wording** | Abstract stays SOFTENED: "matches it (statistically, within two points)" — NO "TOST" acronym in the abstract. The full "statistically non-inferior within a two-point margin (TOST)" appears once in the §1 contribution and in §5.3/§6.2. (GLOSSARY honesty rule, 2026-06-26.) |
-| **Verdict verb** | Use the paper's defined **"beats / matches"** vocabulary (paired Wilcoxon = beat, TOST = match). Do **NOT** swap to "outperforms" (it decouples the verb from the test). |
+| **Verdict verb** | Use **"outperforms"** (paired Wilcoxon superiority) / **"matches"** (TOST non-inferiority); keep each verb bound to its test, and never "outperforms region everywhere". **Updated 2026-06-28 per CC3 (author decision): this supersedes the earlier "keep beats / do NOT swap to outperforms" ruling.** The superiority verb is "outperforms", never "beats" / "wins". |
 | **"Dedicated" wording** | Keep "dedicated"; expand to **"dedicated single-task model"** on first use (Table III's column header is literally "Dedicated"). Do not rename to bare "single-task model". |
 | **FL region cell** | FL +0.57 stays a **beat** (5/5 folds, Wilcoxon) with no materiality caveat (user decision). |
 | **Venue bridge** | Mobility-management is **motivation only**; no measured network result, no prefetch/coverage curve. Right-size examples to tract-level (a census tract is not a radio cell). |

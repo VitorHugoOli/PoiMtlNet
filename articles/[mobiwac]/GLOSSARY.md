@@ -33,15 +33,17 @@
 > **Keep three targets distinct:** *next category*, *next region*, and *next place* (the exact POI). The last
 > submission blurred them. We predict the first two and not the exact next place; say so once, early.
 
-> **Honesty rule (region wording, updated 2026-06-26):** the region result is **mixed**: a **beat** (superiority,
-> paired Wilcoxon) at the large region counts, and a **match** at the small. The full form **"statistically
+> **Honesty rule (region wording, updated 2026-06-26; verb updated 2026-06-28 per CC3):** the region result is
+> **mixed**: the joint model **outperforms** (superiority, paired Wilcoxon) at the large region counts, and
+> **matches** (non-inferior, TOST) at the small. **The superiority verb is "outperforms"** (never "beats" / "wins");
+> "matches" / "non-inferior (TOST)" is the equivalence verb. Keep each verb bound to its test. The full form **"statistically
 > non-inferior within a two-point margin (TOST)"** must appear **at least once in the paper** as a formal claim
 > (it currently lives in the §1 contribution and §5.3/§6.2). Elsewhere — including the **abstract** and repeated
 > instances — the **short forms are fine and preferred for readability**: "matches it (statistically, within two
 > points)" in prose, or "(TOST, $\pm2$ pp)" after the term is defined. (This relaxes the earlier "every formal
 > claim sentence must carry the full phrase" rule, per the 2026-06-26 decision and the clarity-reviewer trim;
 > the goal is one rigorous statement plus clean prose, not ten repetitions.) Never "ties" or "Pareto-dominates",
-> and never "beats region everywhere" (the small states are matches, slightly negative).
+> and never "outperforms region everywhere" (the small states are matches, slightly negative).
 
 > **Hyphenation:** hyphenate the compound adjective before a noun ("next-category prediction"); leave the bare
 > task name open ("the next category"). Same for next-region and next-place.
@@ -129,9 +131,10 @@ v11–v16, champion-G, H3-alt; write "our model"), `log_T` (write "region-transi
 - [ ] Every acronym expanded on first use; acronym count as low as possible.
 - [ ] **category / region** used throughout; never "activity" / "area".
 - [ ] **next category / next region / next place** kept distinct; "we do not predict the exact next place" stated once.
-- [ ] Region wording: "beats" at the large counts (superiority) and "matches / non-inferior within two points"
-  at the small; every formal claim sentence carries "statistically non-inferior within a two-point margin (TOST)"
-  at least once; never "ties", "Pareto", or "beats region everywhere".
+- [ ] Region wording: "outperforms" at the large counts (superiority) and "matches / non-inferior within two
+  points" at the small; every formal claim sentence carries "statistically non-inferior within a two-point margin
+  (TOST)" at least once; never "ties", "Pareto", or "outperforms region everywhere". The superiority verb is
+  "outperforms", never "beats" / "wins".
 - [ ] No recipe or version codenames anywhere.
 - [ ] No bare "substrate / engine / head / cross-attention"; replaced or glossed.
 - [ ] Every table has a "read this as" lead sentence.

@@ -19,32 +19,38 @@ content in the area a user is heading to, or planning capacity there before
 demand arrives, and the same signal also helps recommendation and urban
 analysis.
 
-Predicting the exact next place, a single point of interest (POI), is hard, and
-it is often more than a service needs. Two coarser questions are easier to
-answer and usually enough: the next category, the kind of place such as food or
-shopping, and the next region, the part of the city a user is heading to (we use
-the census tract, or the \emph{mahalle} in Istanbul). We do not predict the
-exact next place. The two questions pair naturally, one for intent and one for
-geography, and they are more learnable than a single POI while still being
-useful. The question we study is whether one model should learn both at once.
+Predicting the next place exactly, a single point of interest (POI), is hard, and
+it is often more than a service needs. Two coarser (less detailed) questions are
+easier to answer and usually enough: the next category, the kind of place such as
+food or shopping, and the next region, the part of the city a user is heading to
+(a neighborhood-scale unit, the census tract in the U.S. and the \emph{mahalle}
+in Istanbul). These two questions pair naturally, one for intent and one for
+geography, and they are easier to predict accurately than a single POI while
+still being useful. The question we study is whether one model should learn both
+at once.
 
-Sharing one representation across tasks is not free. Our earlier
-work~\cite{silva2025mtlnet} found that joint training can help one task while
-quietly hurting the other, because the shared part is pulled toward a compromise
-that suits neither perfectly~\cite{caruana1997multitask}. So the useful question
-is not whether multi-task learning (MTL) is good in general, but where sharing
-helps, where it costs, and what to do about it.
+Sharing one representation across tasks is not free. Joint training can help one
+task while hurting the other, a well-known trade-off in multi-task learning
+(MTL), where one model does several jobs at once by sharing most of its parts and
+the shared parameters settle on a compromise that suits neither task
+perfectly~\cite{caruana1997multitask}; our earlier work~\cite{silva2025mtlnet}
+observed exactly this for next-category and next-region. So the useful question is
+not whether MTL is good in general, but where sharing helps, where it costs, and
+how to share so the gains hold and the cost stays small.
 
-We make two changes and measure each one carefully. First, we build a
+We introduce two changes and measure each one carefully. First, we build a
 check-in-level representation: instead of one fixed vector per place, where two
 visits to the same coffee shop look identical, each check-in gets its own vector
 that carries its context (the time, the nearby places, and the recent trail).
 This extends hierarchical graph representations of places~\cite{huang2023hgi},
-and the infomax idea behind them~\cite{velickovic2019dgi}, from the place down
-to the individual visit (Fig.~\ref{fig:dataflow}). Second, we train one model
-that predicts the next category and the next region in a single forward pass,
-with a shared semantic trunk and a private spatial path for the region task
-(Fig.~\ref{fig:model}). We evaluate on two very different settings on purpose,
+and the infomax idea behind them~\cite{velickovic2019dgi}, by adding a fourth,
+check-in level beneath the place, region, and city levels
+(Fig.~\ref{fig:dataflow}). Per-visit context is not new on its own; what is new
+is obtaining it from inside this hierarchical graph representation, a choice we
+test directly (Section~\ref{sec:related}). Second, we train one model that
+predicts the next category and the next region in a single forward pass, with a
+shared trunk that carries the semantic context and a private spatial path for the
+region task (Fig.~\ref{fig:model}). We evaluate on two very different settings on purpose,
 five U.S. states of different sizes (Gowalla) and one international city
 (Istanbul), so we can see whether the findings hold across small and large, U.S.
 and non-U.S. data.
@@ -57,19 +63,21 @@ Our contributions are the following.
     about $+28$ to $+40$ points of macro-F1 (a balanced score that counts every
     category equally) across all five states, and a controlled test shows the
     gain comes from the per-visit context, not from extra supervision
-    (Table~\ref{tab:substrate}).
+    (Table~\ref{tab:substrate}); the margin is large because a single fixed vector
+    per place cannot separate places that host several kinds of activity, which
+    per-visit context recovers.
   \item A single model for joint next-category and next-region prediction that
     shares a semantic context across the two tasks while keeping a private path
-    for the spatial one. In one forward pass it beats a dedicated category model
-    at every state (by about $+4.7$ to $+7.7$ points of macro-F1) and, on
-    region, beats the dedicated model where the region space is large while
-    staying statistically non-inferior within a two-point margin (TOST, a test
-    of equivalence) where it is small (Table~\ref{tab:results}).
+    for the spatial one. In one forward pass it outperforms a dedicated
+    single-task category model at every state (by about $+4.7$ to $+7.7$ points of
+    macro-F1) and, on region, does so where there are many regions while staying
+    statistically non-inferior within a two-point margin (TOST, a test of
+    equivalence) where there are few (Table~\ref{tab:results}).
   \item An empirical account, across five states of different sizes and one
     international city, of how the joint gain scales with the number of regions.
-    The category win holds everywhere, and the region result moves monotonically:
-    from a non-inferior match (TOST, $\pm2$~pp) at the small
-    region counts to beating the dedicated model at the large, with the largest
+    The category gain holds everywhere, and the region result moves monotonically:
+    from a non-inferior match (TOST, $\pm2$ percentage points, or pp) at the small
+    region counts to outperforming the dedicated model at the large, with the largest
     state (California) showing the largest region gain (Fig.~\ref{fig:deltas}).
     The joint results on the Gowalla states are measured over five folds at a
     single seed.

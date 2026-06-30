@@ -17,12 +17,12 @@
 %   ReHDM 66.06/54.65/65.68 ; Markov-9-cat 24.55/20.50/23.92/29.74/28.67/27.58 ; POI-RGNN 30.12/23.80/27.64/34.49/33.03/31.78.
 \providecommand{\sd}[1]{\,{\scriptsize$\pm$#1}}
 \begin{table*}[t]
-\caption{One model, two tasks. A single joint model beats the dedicated next-category ceiling
-at every state, and on next-region it beats the dedicated ceiling where the region space is
-large (FL, TX, CA) and is statistically non-inferior within a two-point margin (TOST) where it
-is small (AL, AZ, Istanbul). Category is macro-F1, region is Acc@10; our cells show the mean and
-standard deviation over five folds. Bold marks a win over the dedicated ceiling; $\uparrow$ a
-beat (paired Wilcoxon), $\approx$ a non-inferior match (TOST). States are ordered by region count.}
+\caption{One model, two tasks. A single joint model outperforms the dedicated next-category ceiling
+at every state, and on next-region it outperforms the dedicated ceiling where there are many
+regions (FL, TX, CA) and is statistically non-inferior within a two-point margin (TOST) where there
+are few (AL, AZ, Istanbul). Category is macro-F1, region is Acc@10; our cells show the mean and
+standard deviation over five folds. Bold marks an improvement over the dedicated ceiling; $\uparrow$ the joint
+model outperforms it (paired Wilcoxon), $\approx$ a non-inferior match (TOST). States are ordered by region count.}
 \label{tab:results}
 \centering
 \begin{tabular}{l r | r r r r | r r r r r}

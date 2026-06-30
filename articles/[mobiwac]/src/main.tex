@@ -55,20 +55,20 @@ E-mail: \{vitor.h.oliveira, germano.santos, fabricio.asilva\}@ufv.br}
 \begin{abstract}
 Location-based social networks (LBSNs) record where people go and what they
 do, one check-in at a time. If we can anticipate the next visit, mobile and
-urban services can act ahead of demand. Two coarse questions usually suffice:
-the next category (the kind of place) and the next region (which part of the
-city). These are normally handled by separate models, so we ask whether one
+urban services can act ahead of demand. Two coarse questions about the next
+visit are usually enough: its category (the kind of place) and its region (which
+part of the city). These are normally handled by separate models, so we ask whether one
 model can learn both, and what sharing a single representation costs. We first
 build a check-in-level representation that describes each visit in its own
 context, instead of giving every place one fixed vector. Across five U.S.
 states, this lifts next-category prediction by a wide margin over a standard
 place embedding \cite{huang2023hgi} (about $+28$ to $+40$ macro-averaged F1),
 and most of the gain comes from the per-visit context. We then train one
-multi-task model for both tasks. At every state it beats a dedicated category
-model (about $+4.7$ to $+7.7$ macro-F1), and on region it beats the dedicated
-model where the region space is large and matches it (statistically, within two
-points) where it is small. The spatial gain grows with the number of regions.
-On a non-U.S. city (Istanbul) the result holds: it beats on category and stays
+multi-task model for both tasks. At every state it outperforms a dedicated
+category model (about $+4.7$ to $+7.7$ macro-F1), and on region it does so where
+there are many regions, while matching it (statistically, within two points)
+where there are few. The gain on region grows with the number of regions. On a
+non-U.S. city (Istanbul) the result holds: it outperforms on category and stays
 within two points on region.
 \end{abstract}
 
@@ -87,7 +87,7 @@ check-in-level representation, location-based social networks, mobility data
 \begin{figure*}[t]\centering
 \input{figs/fig1_dataflow}
 \caption{From a user's check-in trail to two predictions. Each visit is placed in a
-four-level graph (check-in, POI, region, city) and described in its own context; overlapping
+four-level graph (check-in, place, region, city) and described in its own context; overlapping
 nine-visit windows then feed the model, which outputs the next category and the next region.}
 \label{fig:dataflow}
 \end{figure*}     % Fig 1: input-graph data flow (cited in section 2.1 / 4.1)
@@ -99,10 +99,10 @@ nine-visit windows then feed the model, which outputs the next category and the 
 \input{figs/fig2_model}
 \caption{The single multi-task model. Two input streams, a check-in (semantic)
 window and a region (spatial) window, pass through private per-task encoders into a shared
-bidirectional cross-attention stack (the only shared parameters). A GRU head reads the shared
-semantic output for next-category; a dual-tower region head combines that shared output with a
-private spatial tower that runs on the raw region window for next-region. One model, one
-forward pass, two predictions.}
+cross-attention stack where each stream reads the other stream's features (the only shared
+parameters). A small sequence-model head reads the shared output for next-category; the region
+head combines that shared output with its own private spatial path that runs on the region
+window for next-region. One model, one forward pass, two predictions.}
 \label{fig:model}
 \end{figure*}        % Fig 2: the single model, dual-tower + cross-attention (section 4.2)
 

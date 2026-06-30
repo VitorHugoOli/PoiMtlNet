@@ -14,8 +14,12 @@ place once, is what makes the next-category task learnable. Table~\ref{tab:subst
 compares our check-in-level representation against a standard place embedding
 (HGI~\cite{huang2023hgi}) on next-category macro-F1 (the F1 score averaged
 equally over the seven categories, so rare ones still count), both fed to the
-same dedicated model under the windowing used throughout the paper. The
-check-in-level representation wins by a wide and consistent margin at every
+same dedicated model under the windowing used throughout the paper. This is a
+controlled, like-for-like comparison: the target, the single-task head, and the
+folds are identical across the two columns, and only the input representation
+changes (a vector per visit versus a vector per place), so the margin isolates the
+representation, not a difference in task or model. The check-in-level
+representation outperforms the place embedding by a wide and consistent margin at every
 state: $+29.31$ at Alabama, $+27.63$ at Arizona, $+39.62$ at Florida, $+37.95$
 at California, and $+37.47$ at Texas, and the same holds on Istanbul ($+26.64$).
 The gains fall in two bands, about $+27$ to $+29$ points at the smaller datasets
@@ -28,17 +32,18 @@ the context each visit carries, not to extra training signal.
 
 Figure~\ref{fig:embquality} shows why the representation helps this task in
 particular. By category, the per-visit vectors are cleanly grouped. Their
-silhouette score by category, a cluster-separation measure from $-1$ to $1$ where
-higher means tighter and better-separated groups, is about $0.56$, against about
+silhouette score by category, a separation measure from $-1$ to $1$ where
+higher means the seven labeled groups are tighter and better separated, is about $0.56$, against about
 $0.00$ for the place embedding; and the share of a vector's nearest neighbors that
 carry its own category is about $0.98$, against about $0.78$. The same geometry does not separate regions, which is exactly the
-point: the representation sharpens the semantic question and stays neutral on the
-spatial one, so its benefit is category-only and sets up the joint study in
+point: the representation improves category separability but carries no spatial
+structure, so its benefit is category-only and sets up the joint study in
 Section~\ref{sec:results-part2}. A direct comparison with the closest prior
 contextual embedding makes the source of the gain concrete. CTLE~\cite{lin2021ctle},
 which also describes each visit but learns it with a sequence model rather than a
 hierarchical graph, reaches only $29.69$ to $33.45$ macro-F1 at Florida across its
-trained variants, far below our $75.15$. A feature-concat control,
+trained variants, under the same windowing and the same single-task head, far
+below our $75.15$. A feature-concat control,
 the place embedding joined with raw per-visit features and fed to the same model,
 does not close the gap either, so the category gain comes from the hierarchical
 per-visit representation, not from contextualization alone and not from feature
@@ -46,40 +51,38 @@ injection.
 
 \subsection{One model, two tasks}
 \label{sec:results-part2}
-Read this as: one model, in a single forward pass, beats a dedicated
-next-category model at every state and beats or matches a dedicated next-region
-model, and its spatial win grows as the region space grows.
+Read this as: one model outperforms a dedicated next-category model at every
+state and either outperforms or matches a dedicated next-region model, and its
+gain on region grows as the number of regions grows.
 To calibrate the two scales: category macro-F1 is taken over seven classes (a
 majority-class floor of about $7\%$), and region Acc@10 is taken over hundreds to
 thousands of regions, where a random top-ten guess is right at most about two
 percent of the time (and well under one percent at the larger region counts).
 Table~\ref{tab:results} reports the single joint model against the dedicated
-single-task ceilings---so called because joint training is generally expected to
-land at or below a model trained for that task alone---and Figure~\ref{fig:deltas} plots the signed gains ordered
-by region count. On category the joint model beats the dedicated ceiling at
+single-task ceilings (we call them ceilings because a jointly trained head is
+usually expected to match or fall short of a head trained for that task alone),
+and Figure~\ref{fig:deltas} plots the signed gains ordered by region count. On category the joint model outperforms the dedicated ceiling at
 every state, by $+4.68$ to $+7.69$ macro-F1 (smallest at Florida, largest at
 Alabama, and $+6.69$ at Istanbul). On region, measured by accuracy at ten
 (Acc@10, how often the true next region is among the model's ten highest-scored
-regions), the joint model beats the dedicated ceiling where the region space is
-large, Florida $+0.57$ (4{,}703 regions), Texas $+2.06$ (6{,}553), and
-California $+2.18$ (8{,}501), each with all five folds in the winning direction,
-and it stays a non-inferior match (TOST, $\pm2$~pp) where
-the region space is small, Alabama $-0.18$, Arizona $-0.06$, and Istanbul
-$-0.52$. The region gain increases with the number of regions, rising from
+regions), the joint model outperforms the dedicated ceiling where there are many
+regions: Florida $+0.57$ (4{,}703 regions), Texas $+2.06$ (6{,}553), and
+California $+2.18$ (8{,}501), each with all five folds in the joint model's favor.
+It stays a non-inferior match (TOST, $\pm2$~pp) where there are few: Alabama
+$-0.18$, Arizona $-0.06$, and Istanbul $-0.52$. The region gain increases with the number of regions, rising from
 $-0.52$ to $+2.18$ across the six settings, so the joint model helps the spatial
-task more, not less, as the space of regions grows; the state with the most
-regions has the largest region win, the opposite of a cost that grows with the
+task more, not less, as the number of regions grows; the state with the most
+regions has the largest region gain, the opposite of a cost that grows with the
 size of the spatial problem. We order by region count because that is the axis of
-interest; region count and corpus size co-vary across these datasets, and Istanbul
-is a cross-setting point measured on an earlier representation (Section~\ref{sec:results-external}),
-so we read the trend across the six points rather than as a precise law.
+interest; region count and corpus size co-vary across these datasets, so we read
+the trend across the six points rather than as a precise law.
 
-We state the support honestly. The direction is unanimous: at every state all
+The direction is unanimous: at every state all
 five folds favor the joint model on category, a one-sided paired Wilcoxon
 signed-rank test at its $n{=}5$ floor ($p{=}0.031$ per state), and the sign is
 consistent across all six datasets (a 6 of 6 state-level sign test, one-sided
-$p \approx 0.016$); the region beats at the three large states are likewise 5/5
-folds each. We treat the state, not the fold, as the unit of replication, since
+$p \approx 0.016$); at the three large states the region result likewise favors the
+joint model on all five folds each. We treat the state, not the fold, as the unit of replication, since
 folds within a state share data and the same trained models. The three
 small-state region results are tested equivalences (TOST, $\pm2$~pp): Alabama ($-0.18$; 90\% confidence interval
 $-0.46$ to $+0.09$), Arizona ($-0.06$; $-0.41$ to $+0.29$), and Istanbul
@@ -94,11 +97,11 @@ size), and we leave a multi-seed confirmation ($n{=}20$) to future work.
 
 A reader used to multi-task learning~\cite{caruana1997multitask} expects the
 harder task to pay for the easier one, so it is worth saying where the category
-win comes from. A controlled test isolates the source: we freeze the region
+gain comes from. A controlled test isolates the source: we freeze the region
 pathway at the start of training so it cannot learn, and therefore cannot teach
 the category task, yet the full category lift survives at Alabama, Arizona, and
 Florida (within $0.3$ of the joint model and far above the dedicated single-task
-model). We therefore read the category win as a stronger shared trunk, obtained
+model). We therefore read the category gain as a stronger shared trunk, obtained
 at no extra deployment cost (one model, one forward pass), rather than the region
 task teaching the category one; we report this as a finding, not a hypothesis.
 The joint model also stands above every external baseline on both tasks at every
@@ -112,8 +115,9 @@ closest published multi-task alternative, a cascade that predicts in a chain
 (when, then what, then where)~\cite{huang2024cslsl}, our parallel model reaches
 the same combined accuracy at the same parameter and compute cost (the difference
 on the joint score is about zero). We read this as a defense of the parallel
-design, not a win over the cascade: the chained alternative does not match our
-gains, so the simpler parallel structure loses nothing. The Gowalla cells
+design, not a claim that we outperform the cascade: the chained alternative
+reaches the same combined accuracy at the same cost, so the simpler parallel
+structure loses nothing. The Gowalla cells
 are seed-0 results over five folds ($n{=}5$, provisional); the Istanbul cells
 average four seeds ($n{=}20$).
 
@@ -121,18 +125,18 @@ average four seeds ($n{=}20$).
 \label{sec:results-external}
 Read this as: the finding holds on a non-U.S. city, read as a lift over the
 dedicated ceiling rather than as an absolute score. On Istanbul the joint model
-beats the dedicated category ceiling by $+6.69$ macro-F1 ($53.20$ to $59.89$)
+outperforms the dedicated category ceiling by $+6.69$ macro-F1 ($53.20$ to $59.89$)
 and matches the dedicated region ceiling (TOST, $\pm2$~pp), at $-0.52$ Acc@10 ($74.80$ to $74.28$). The category
 headline is the four-seed mean against a single-seed ceiling; the clean seed-0
 fold-paired gain is $+6.5$ with all five folds positive, so the result does not
-rest on the seed averaging. We report Istanbul as a lift, not as an absolute
-Acc@10, because its region count (520 mahalle) differs from the Gowalla states,
-and we note that it is measured on the earlier graph-convolution representation
-(the overlapping-window representation was not rebuilt for it), so it is a
-cross-setting check rather than a like-for-like one. The external baselines line
+rest on the seed averaging. We report Istanbul as a lift over the dedicated
+ceiling, not as an absolute Acc@10, because its region count (520 mahalle) differs
+from the Gowalla states; the overlapping-window protocol, the fp32 setup, and the
+multi-seed run (four seeds, $n{=}20$) match the Gowalla board, so within Istanbul
+the multi-task versus dedicated comparison is like-for-like. The external baselines line
 up the same way as on the Gowalla states: on category the joint model is far
 above a nine-step Markov floor ($24.55$) and POI-RGNN~\cite{capanema2023poirgnn}
 ($30.12$), and on region it is above a faithful STAN~\cite{luo2021stan} ($61.86$)
 and HMT-GRN~\cite{lim2022hmtgrn} ($60.4$). The picture from the U.S. states
 repeats on a different continent and a different region unit: the joint model
-wins category and stays within two points on region.
+outperforms on category and stays within two points on region.

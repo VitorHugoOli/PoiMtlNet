@@ -19,6 +19,437 @@ citations to strong claims; (5) check the references aren't outdated.
 
 ---
 
+## ⭐ Final decision pass (v2 — author-reviewed, 2026-06-28)
+
+> **What this pass is.** The 2026-06-27 multi-agent pass (the "Response/Edit" blocks below) answered all 70
+> comments but **(a) overlooked several `GLOSSARY.md` rules** (most importantly the no-em-dash rule, which its own
+> proposed edits then re-introduced, and the "name CTLE once, in Related Work" rule the author flagged at #29), and
+> **(b) pre-dated the author's inline considerations** (the `AUTHOUR/Authour/Authors` lines added later). This
+> section is the **authoritative ruling**: it re-checks every author-annotated item against `GLOSSARY.md` + the
+> `CLAUDE.md §3` decisions ledger, records the final verdict, and routes the broad-scope items to
+> [`review/`](review/). The v1 Response/Edit blocks below stay as **provenance** — where this section and a v1 block
+> disagree, **this section wins**.
+>
+> **Nothing here is applied to the paper yet** (per the author's instruction). This is the worklist; the prose pass
+> and the [`review/`](review/) investigations come after.
+
+### Cross-cutting rulings (apply to every edit before it reaches `src/`)
+
+- **CC1 — No-em-dash sweep (GLOSSARY law).** The v1 edits repeatedly use the dash-as-parenthetical construction
+  (`--`) the glossary bans — at **#29, #61, #62, #64, #66**. Every one must be rewritten with commas / parentheses
+  / semicolons before it ships. **Also a LIVE violation already in the paper:** `06_results.tex:57-58` uses a real
+  em-dash (`---so called...alone---and`). Fix it in the same sweep. (Tracked as the em-dash arm of OP5.)
+- **CC2 — CTLE acronym discipline (author #29; GLOSSARY §2: "CTLE/STAN: name once each, in related work").**
+  Never name CTLE (or cite it) in the **Introduction**. The intro refers generically ("sequence-model
+  embeddings"); CTLE is named + cited only in §2.1 (where it already is) and the baseline list. This overrides the
+  v1 #29 edit, which injected `CTLE~\cite{lin2021ctle}` into §1.
+- **CC3 — Superiority verb = author override of the ledger (author #8, #10, #35).** The `CLAUDE.md §3` ledger says
+  "do NOT swap 'beats' to 'outperforms'." The **author has now overridden that.** Final ruling: adopt **one**
+  superiority verb **globally** — recommend **"outperforms"** (do not also introduce "exceeds in performance" from
+  #10; one verb only). Keep **"matches" / "non-inferior (TOST)"** for the equivalence cells (do NOT change those).
+  This requires a coordinated sweep: replace "beats" → "outperforms" in abstract + §1 + §6 + §7 + §8 + the Table III
+  caption, and update the §5.3 definition sentence so the verb still maps to the paired-Wilcoxon superiority test.
+  **➜ Update `CLAUDE.md §3` and `GLOSSARY.md` once applied.** (Author: confirm the verb is "outperforms" and that
+  the scope is global, not abstract-only — abstract-only would re-fragment the vocabulary, which is the one outcome
+  to avoid.)
+- **CC4 — "coarser" overuse (author #18, #48, and the #55.1 thread).** "coarse/coarser" appears **8×** (abstract +
+  5 sections). Reduce to **one glossed use**, then drop the word. On the author's "simpler instead of coarser?"
+  (#18): **recommend against "simpler"** — it amplifies exactly the "you just made the problem easier" attack that
+  #48 rebuts. Use **"coarser (less detailed)"** once at first use; elsewhere say "higher-level" / "lower-resolution"
+  / name the targets directly. Keep the #48 *rebuttal* (it is load-bearing) but reword it so it does not pile the
+  word back on.
+- **CC5 — "we do not predict the exact next place" stated once (GLOSSARY: "say so once, early"; author #21, #55.1).**
+  The scope statement appears **3×**: §1 intro (`01_introduction.tex:26`), §2 related ("We set aside the exact next
+  place", `02_related.tex:44`), §3 problem (`03_problem.tex:16`). Keep **exactly one** — recommend the **§3
+  Problem** instance (the formal task-definition home) and delete the intro (#21, author agrees) and the related-work
+  (#47) instances. (The "Predicting the exact next place ... is hard" *motivation* line at `01_introduction.tex:22`
+  is a different sentence — keep it.)
+
+### Index of changed verdicts and author decisions
+
+| # | v1 verdict | Author note? | FINAL | One-line reason |
+|---|---|---|---|---|
+| 8 | Partial (keep "beats") | "Replace to outperforms" | **Accept author** | CC3 — outperforms globally |
+| 10 | Partial (keep "beats") | "Exceeds in performance" | **Accept author (verb=outperforms)** | CC3 — one verb only, not two |
+| 14 | Partial (rewrite) | "keep the current" | **Accept author** | current line is honest + glossary-clean |
+| 15 | Partial (reword) | "[REJECT] keep as it is" | **Accept author** | keep original hook |
+| 18 | Partial (gloss) | "simpler instead?" | **Partial (push back on 'simpler')** | CC4 — "simpler" feeds the #48 attack |
+| 21 | Partial (fold in) | "We can remove it" | **Accept author (remove)** | CC5 — keep the §3 instance only |
+| 29 | Partial (add CTLE clause) | "not following glossary" | **Revised** | CC2 — keep intent, drop CTLE from intro |
+| 31 | Partial (keep "trunk") | "still weird" | **Partial + flag** | drop "semantic" modifier; trunk-wording consistency pass |
+| 37 | Accept (expand pp) | "pp is common, no?" | **Keep v1 (expand once)** | cheap insurance for networking readers |
+| 38 | Accept (gloss) | offers alt definition | **Keep v1 — correct the author** | raw identifiers = bare place ID, not features |
+| 46 | Partial (light copyedit) | "split into new para" | **Accept author** | split for clarity, keep all framing |
+| 48 | Accept (add rebuttal) | "watch 'coarser'" | **Keep rebuttal + CC4** | reword to not repeat the word |
+| 50 | Partial (reframe) | "search web/lit" | **Interim + route INV1** | soften to "to our knowledge" until verified |
+| 54 | Reject (keep line) | "keep, but surface?" | **Keep line; goal already met** | abstract/intro already foreground check-ins |
+| 55.1 | (author item) | repetition x3 | **CC5** | keep one scope statement |
+| 57 | Partial (no cite now) | "keep pending, I'll fix" | **Pending (author-owned)** | track in LOG/INV6 |
+| 59 | Reject (keep) | "add a gloss" | **Accept author (add gloss)** | gloss "radio cell"; merge with #60 |
+| 60 | Partial (split) | "confusing, eval" | **Accept (split + #59 gloss)** | one merged rewrite |
+| 64 | Accept (gloss) | "did we explain MTL?" | **Keep v1 + route INV5** | line 35 expands but never glosses MTL |
+| 66.1 | (author item) | Acc@10 / stratification | **Soft-spot + route INV3** | metric-alignment argument is imprecise |
+| 67 | Partial (relocate) | "comprove in codebase" | **Keep + route INV2** | +5% must be measured before it ships |
+| 69 | Accept (lift numbers) | methodology/axis/name | **Accept prose + route INV4** | figure design needs the .py |
+
+### Per-item final rulings (annotated / changed items)
+
+**#8, #35 — FINAL: Accept the author override (CC3).** Use **"outperforms"** for category superiority, applied
+globally and consistently, with "matches/non-inferior (TOST)" untouched. Keep the v1 anti-triple-`beats`
+restructuring of the abstract, just with the new verb. Update the ledger.
+
+**#10 — FINAL: Accept the spirit, but use the CC3 verb, not a second one.** The author wrote "exceeds in
+performance" here and "outperforms" at #8; introducing both re-creates the fragmentation we are trying to remove.
+Pick **one** ("outperforms" recommended). Keep the v1 noun fix from #11 ("where there are many regions", not "region
+space is large" / not "region area").
+
+**#14 — FINAL: Accept the author — keep the current Istanbul abstract sentence.** It is honest and glossary-clean
+("beats on category and stays within two points on region"). Reject Germano's "superior performance on both"
+(region is a TOST *match*, not a beat — claiming superiority is the overclaim a reviewer flags). Under CC3 the verb
+becomes "outperforms on category".
+
+**#15 — FINAL: Accept the author — keep the original hook.** No edit. (The v1 reword was a taste call; the author
+declined it.)
+
+**#18 — FINAL: Partial, pushing back on "simpler" (CC4).** Replace the first "coarser" with **"coarser (less
+detailed)"** as the single glossed use, then remove the word elsewhere. Do **not** switch to "simpler": it makes the
+targets sound like a shortcut and strengthens the #48 "you simplified the problem" line of attack rather than
+defusing it. (Author: if you still prefer "simpler", flag it and we apply it everywhere — but the recommendation is
+"coarser (less detailed)" once + the #48 rebuttal.)
+
+**#21 + #55.1 — FINAL: Accept the author — remove, keeping one canonical scope statement (CC5).** Delete the intro
+instance (#21) and the related-work "We set aside the exact next place" (#47); keep the **§3 Problem** instance as
+the single statement of scope. This resolves the "said it 3× already" concern (#55.1) in one move.
+
+**#29 — FINAL: Revised per the author + CC2.** Keep the differentiation the v1 edit was after (per-visit context is
+not ours), but **without naming CTLE in the intro**. Suggested intro clause: *"Per-visit context is not new on its
+own; what is new is obtaining it from inside the hierarchical-graph representation, which we test directly
+(Section II)."* The CTLE name + cite + the direct comparison stay in §2.1 and §6.1, where they already live. This is
+the glossary-compliant version of the v1 intent.
+
+**#31 — FINAL: Partial + flag for a consistency pass.** Drop the "semantic trunk" compound (it reads poetic) and the
+"semantic" modifier on "trunk"; carry the semantic-vs-spatial contrast with the surrounding words, e.g. *"a shared
+trunk that both tasks use, with a private spatial path for the region task."* Keep the bare word "trunk" (the body
+uses "shared trunk" throughout; "backbone" is worse — it collides with "network backbone"). Because the author is
+still unsatisfied, add a **trunk-wording consistency check** to OP4 (make intro/§4/§6/§7 agree on exactly one phrasing).
+
+**#37 — FINAL: Keep v1 (expand once).** Yes, "pp" is standard in stats/ML, but the MobiWac audience is networking,
+where it is less universal, so a single first-use expansion ("percentage points (pp)") at `01_introduction.tex:71`
+is cheap insurance; use "pp" thereafter. The softened abstract stays in plain "points" (no "pp").
+
+**#38 — FINAL: Keep the v1 gloss; the author's alternative is incorrect.** "raw identifiers" here means **the bare
+place ID** (an arbitrary index that carries no inherent meaning), which is the standard motivation for learning
+embeddings (reason about places by learned geometry instead of meaningless IDs). It does **not** mean "raw category,
+location and time" — those are *features* the graph encodes, not identifiers, so using them as the gloss would be
+wrong and would confuse the reader. Keep: *"...rather than by raw identifiers, the arbitrary ID numbers that carry no
+meaning on their own."*
+
+**#46 — FINAL: Accept the author's structural fix.** Split the dense combination-novelty paragraph in §2.1 into two:
+(1) the *"which features vs how often a vector is produced"* contrast; (2) *"the novelty is the combination"* + the
+direct CTLE comparison commitment. **Keep all the content and the novelty scoping** (do not weaken it — it is the
+BRACIS defense); the improvement is readability, not deletion. Fold in the #40 (`emit`→`produce`) and #45
+(name the antecedents DGI/HGI) copyedits.
+
+**#48 — FINAL: Keep the rebuttal, reword per CC4.** The "coarser is not trivial: region spans hundreds to several
+thousand classes; we choose these targets because a service acts on them, not to make the task easier" rebuttal is
+the strongest answer in the batch — keep it. But reword so it does not add three more "coarser"s (CC4): e.g.
+*"These targets are not trivial: region alone spans hundreds to several thousand classes. We choose them because they
+are what a mobility-aware service can act on, not to make the task easier."*
+
+**#50 — FINAL: Interim wording now, verify later (➜ INV1).** Keep the v1 reframing ("fine-grained region as an end
+target, rather than an auxiliary coarse cell, has little precedent"), but until the literature is actually checked,
+soften the novelty claim to **"to our knowledge, ... is underexplored."** Web/literature verification is **INV1** in
+[`review/review_v2.md`](review/review_v2.md).
+
+**#54 — FINAL: Keep the §3 line; the author's goal is already met.** "We work with check-in sequences" correctly
+anchors the windowing sentence that follows, so it stays in §3. The author's aim (surface check-in-sequence work to
+attract that audience) is **already served** by the abstract ("one check-in at a time") and §1 ("each check-in is a
+small record..."), which foreground the check-in framing up front. No move needed; optional one-phrase strengthening
+in §1 only if desired.
+
+**#57 — FINAL: Pending, author-owned (➜ INV6).** No prose change now. The motivation sentence stays as motivation;
+if a real mobility-aware-service reference is found it attaches to the **concrete examples** (content staging /
+capacity planning), never the framing sentence, with a `%verified` note. Tracked in [`review/LOG.md`](review/LOG.md).
+
+**#59 + #60 — FINAL: Accept the author — keep "radio cell" but gloss it, and split the run-on.** One merged rewrite,
+e.g.: *"These examples are sized to what we actually measure. A census tract is a neighborhood, not a radio cell (the
+small coverage area a single base station serves); even the ten most likely tracts are far too coarse to drive cell
+association or handover. We therefore keep the motivation at the regional level: demand and load anticipation,
+content staging, and capacity planning."* The gloss answers the author's #59 ("why are we even mentioning a radio
+cell?") for both audiences; the split answers #60.
+
+**#64 + #26 — FINAL: Keep the v1 glosses, but they must actually *define* MTL (➜ INV5), and apply CC1.** The author
+is right that MTL is not currently explained: `01_introduction.tex:35` only *expands the acronym*
+("multi-task learning (MTL)") with no plain-words gloss of what MTL is. So #26 must add a real gloss ("training one
+model to do several jobs at once, sharing most of its parts") and #64 glosses "shared trunk" / "hard parameter
+sharing" at first use — **with commas/parens, not the `--` the v1 edit used (CC1).** Whether the definition then
+lands cleanly and exactly once is verified by **INV5** (folds into the OP3 gloss audit).
+
+**#66.1 — FINAL: Real methodological soft spot — soften the prose, route the verification (➜ INV3).** The author is
+right: **Acc@10 (region) is instance-weighted, not class-balanced**, so the §4.2 symmetry argument ("our metric
+counts every class equally, so we don't reweight") does not transfer to region — and, more sharply, **unweighted CE
+on *category* does not actually align with macro-F1** (which *is* class-balanced), so the current justification is
+imprecise and a reviewer could press it. Until INV3 settles it in the codebase, **recommend replacing the
+metric-alignment argument with the empirically-true one** ("a fixed unweighted sum balanced the two tasks best in our
+experiments"), and add a sentence on the category class distribution + that folds are stratified. INV3 (class
+distribution, stratification, what Acc@10 weights, whether class-weighting category helps macro-F1) is in
+[`review/review_v2.md`](review/review_v2.md).
+
+**#67 — FINAL: Keep the relocation; the +5% number must be measured before it ships (➜ INV2).** The v1 move (cost
+paragraph after the single-model paragraph) is right and the +5% is a genuine edge-audience selling point, but it is
+currently an unverified figure. **INV2** measures params + FLOPs of the joint `mtlnet_crossattn_dualtower` vs a
+dedicated single-task model (the repo has `src/utils/flops.py`). Mark "+5%" provisional in [`review/LOG.md`](review/LOG.md)
+until INV2 returns a number; the "two answers at the price of one" line depends on it.
+
+**#69 — FINAL: Accept the prose/caption fixes now; route the figure-design questions (➜ INV4).** Lift the numbers
+into the caption (v1) **and** fix the methodology framing the author flagged: make it explicit that **silhouette**
+(separation of the seven *ground-truth-labeled* groups) and **nearest-neighbor category purity** (a kNN-style
+separability measure) are two **separability metrics, not discovered clusters** — never imply k-means. On "is
+'Category separability' the clearest name?" and "do the two panels belong on one Y axis?": these need the actual
+plot, so they go to **INV4** (inspect + possibly regenerate `figs/fig3_embquality.py`). Until INV4, the prose stays
+metric-accurate and clustering-free.
+
+### The broad "other points" (bottom of this file) → [`review/`](review/)
+
+The author's `Other points to review` list (orthogonal transfer ↔ no gradient balancers; repeated abbreviation
+expansions; un-glossed technical concepts; cross-chapter cohesion / repeated concepts; a systematic English pass) is
+**not** per-comment work — it needs codebase/doc scrapes and section-spanning sweeps. It is catalogued, scoped, and
+sequenced in **[`review/review_v2.md`](review/review_v2.md)** (tasks OP1–OP5 + INV1–INV6), with the attack plan in
+**[`review/PLAN.md`](review/PLAN.md)** and the running cross-reference ledger in **[`review/LOG.md`](review/LOG.md)**.
+
+### Evidence-backed update (agents + advisors + critics, 2026-06-28)
+
+> A workflow then **investigated each author note against its real source** (codebase / docs / web / paper), an
+> adversarial **advisor** checked every verdict against `GLOSSARY.md` + `PAPER_PLAN.md §3`, and two completeness
+> **critics** audited the rulings above. **Where this subsection differs from the solo rulings above, this wins.**
+> Two facts changed a verdict materially: **#67 (the "+5%" is false)** and **#66.1 (the loss justification is
+> backwards)**. Two author notes the solo pass had wrong-footed are corrected: **#38** is now backed by code, and
+> **CC3** is downgraded from FINAL to PENDING.
+
+**Corrections to the cross-cutting rulings**
+
+- **CC1 (+):** the dash sweep must cover **every *accepted* edit's replacement text, not only the v1 originals** —
+  #64's and **#66's** accepted edits still contain `--`. (Add an explicit #66 line: rewrite "deployment property we
+  care about `--` a service..." with a comma.) Live paper violation stands: `06_results.tex:57-58`.
+- **CC3 → DOWNGRADED to PENDING author confirmation (do NOT file as FINAL).** The critics are right on two counts.
+  (a) The author wrote *two* verbs (#8 "outperforms", #10 "exceeds in performance") and **#35 has no author note**,
+  so the override is not yet one clean instruction. (b) The sweep was under-scoped: the verb family is
+  **{beats, beat, wins, win, "spatial win", "spatial gain"}**, and the sentence that actually binds the verb to the
+  test is `05_setup.tex:68` ("Where the joint model is **meant to win**, we test superiority") — it says *win*, not
+  *beats*. Table III's caption carries **both** "Bold marks a **win**" and "$\uparrow$ a **beat**". A "beats →
+  outperforms" swap that ignores "win" leaves *three* superiority words (worse than today). **Exclude
+  `02_related.tex:73`** ("such balancers rarely **beat** a tuned fixed weighting" — generic, about other methods).
+  **Preserve the abstract anti-triple** (do not mint three verbatim "outperforms"). **Ordering:** GLOSSARY §1/§6 +
+  *both* ledgers (repo-root `/CLAUDE.md` and `[mobiwac]/CLAUDE.md §3`) change **atomically with/before** the prose,
+  not after. ➜ *Confirm: single verb = "outperforms"? scope = global?*
+  **✅ APPLIED 2026-06-28 — author confirmed "outperforms", global.** Law swept (`GLOSSARY.md` honesty rule + §6
+  checklist; `[mobiwac]/CLAUDE.md §3` Verdict-verb row + §2 narrative) and all prose swept (abstract, §1, the §5.3
+  test-binding sentence, §6 ×12, §7, §8, Table III caption); the generic `02_related:73` "beat" → "improve on"; the
+  abstract anti-triple is preserved. Remaining beats/wins as a verdict verb in rendered text: **0**. See LOG R1.
+- **CC4 → arbitration (it contradicted #1).** "Coarse" is **kept in the abstract** (#1 rejected removal as
+  load-bearing), so CC4 cannot also demand "one glossed use at first use" (first use *is* the abstract). Realistic
+  budget: **at most 2–3 total** — the abstract's "coarse" (#1, the canonical instance) + one glossed "coarser (less
+  detailed)" in §1 (#18). Reword the rest off the word: #48 rebuttal → "these targets are **not trivial**…";
+  #59/#60 → "the ten most likely tracts are **too broad**…". Bring **#2's** accepted abstract rewrite (it adds
+  "coarse") under this budget too.
+- **Index additions:** **#26** (define MTL — author reopened a v1 Accept) and **#47** (the §2 gap statement + the
+  CC5 deletion of `02_related.tex:44`) are decision-bearing and get their own rows. *CC5 check passed:* the §2 scope
+  line `:44` ("We set aside the exact next place") is a separate sentence from the §2 gap statement `:40-42`, so
+  deleting `:44` does not strand the gap; and POI's first expansion at `01_introduction.tex:22` sits inside the
+  **kept** motivation sentence, so the #21/CC5 deletions are safe.
+
+**Evidence-backed per-item verdicts** (file:line = where the evidence lives)
+
+| # | Author | Evidence-backed finding | FINAL |
+|---|---|---|---|
+| 38 | wrong | Check2HGI node features = category one-hot + temporal sin/cos, keyed by `placeid`; category/time/distance are graph FEATURES (inputs); the embedding replaces the bare place ID (`research/embeddings/check2hgi/README.md`, `04_method.tex:22-23`) | keep v1 substance, **author incorrect**; name the place ID concretely, **drop "one-hot"** jargon, use short "POI" (fixes an acronym-once breach at `02_related.tex:11`), and disambiguate against the feature reading |
+| 50 | partly | coarse-cell-as-main-target IS precedented (TrajLearn, ACM TSAS 2025; geohash/grid next-cell; cellular next-cell); the **owned** combination (fine admin unit + co-equal with category + no next-POI) is underexplored (INV1 web, done) | use the **method contrast** (auxiliary coarse cell vs co-equal end target); soften any precedence claim to "to our knowledge … underexplored"; **do NOT add TrajLearn to the bib** (locked at 26); note "underexplored" is outside `PAPER_PLAN §3` CAN-say — add it there with the hedge or keep only the contrast |
+| 64/26 | correct | no plain-words MTL definition exists; `01:35` only expands the acronym; "shared trunk" never glossed (4 reuses) | add an MTL gloss at `01:35` + a "shared trunk" gloss at `01:46`, **exactly once**; don't touch `04_method:65`; commas not dashes (CC1) |
+| 66.1 | correct | region Acc@10 is **instance-level / frequency-weighted** (`mtl_eval.py:57-61`), so the §4.2 "macro-F1 counts every class equally → unweighted" logic is **backwards for category** (macro-F1 is balanced; unweighted CE is the *misaligned* choice there). BUT both heads ARE unweighted in the board recipe (`--no-{reg,cat}-class-weights`), so the *factual* claim stands; only the *reason* is wrong. Honest defense is **empirical** (C25: class-weighting tested, hurt both — region −10..14pp, category macro-F1 +5.14pp weighted→unweighted at AL, `docs/CONCERNS.md:590`) | **author correct**; replace the metric-alignment sentence with the per-task + empirical version, kept **qualitative** (C25 ran on champion-G non-overlap, not the board cells — don't print the pp); add the stratification sentence (StratifiedGroupKFold, user-grouped, category-stratified); a per-state category-distribution table is optional + currently unsourced (light groupby) → INV3 |
+| 67 | wrong | "+5%" is **false and live in the paper**: vs ONE dedicated model the joint is **+38% to +90% params / +22% to +74% FLOPs**; the "+5%-scale" only holds vs TWO models, where the joint is *cheaper* (~−28% FLOPs, −17..20% params) (INV2, CPU param count) | **author right to doubt it**; **Option A**: drop the magnitude, keep "cheaper than two dedicated models"; change "two answers at the price of **one**" → "well under the price of **two**"; fix `04_method:5` header, `PAPER_PLAN:393/745`, and the v1 #67 rationale (it called +5% "a selling point" — falsified) |
+| 69 | partly | no clustering bug — Fig 3 is a grouped bar chart of **precomputed** silhouette + kNN-LOO purity on **ground-truth** labels (`fig3_embquality.py:38-41`, `geometry.py:46-94,169`); prose already correct (`06:31,33`) | **cosmetic only**: relabel the y-axis (two metrics on one 0–1 scale), rename the kNN tick "kNN purity (k=10)", add a "no clustering" caption clause; **regenerate the PDF**; **hold the numeric caption lift inside INV4** (numbers must match the .py) |
+| 37 | partly | "pp" collides with "pp."=pages, used **18× in this paper's own `main.bbl`**; bare-and-undefined is the weakest option | gloss "pp" once at `01:71` **or** write "percentage points"/"points" throughout (medium-confidence polish, not a correctness bug); leave the non-rendered `tbl3:9` comment |
+| 31 | partly | only one "semantic trunk" compound exists (`01:46`); 4/5 shared-layer sites already say "shared trunk"; grounded by the `caruana1997` gloss | single intro edit → "a shared trunk that carries the semantic context"; **satisfies the OP4 trunk pass**; do NOT touch `05_setup:89` "HMT-GRN-style trunk" |
+| 8/10/35 | (CC3) | "win/wins" family + `05_setup:68` "meant to win" + Table III dual legend must move together | **PENDING author confirm** (see CC3) |
+| 54 | n/a | check-in framing already foregrounded (`main.tex:56` "one check-in at a time", `01:13`); §3 line correctly stays | keep the §3 line; optional one-phrase echo of "check-in sequences" earlier; the author's goal is already met |
+
+**Critic-driven fixes to the taste rulings**
+
+- **#14:** no contradiction — keep the current Istanbul sentence; it is a **CC3 exception** unless/until CC3 is
+  confirmed global (then the verb applies there too).
+- **#15:** the author's [REJECT] keeps a sentence the reviewer found *confusing* ("o que quis dizer aqui?"), so
+  "keep" ships a flagged line. Honor the keep on content, but **route a minimal clarity check to OP3/OP5** — don't
+  close it as done.
+- **#29:** confirm the revised intro clause uses a **semicolon, not `--`** (CC1) and introduces **neither bare "HGI"
+  nor un-glossed "infomax"** in the intro (per #30).
+- **#46:** accept the split, but **carry the v1 guard**: it must not read verbatim with the intro (#29) and Method
+  (#61) novelty sentences.
+- **#48:** keep the rebuttal, reworded off "coarser" (CC4).
+- **#59/#60:** keep the radio-cell gloss + split; note "radio cell" is the **networking** cell (allowed), distinct
+  from the GLOSSARY-banned region-"cell"; **route the §3-vs-§5.3 "tracts can't drive handover" redundancy to OP4**.
+
+---
+
+## Germano-lens proactive audit, §4–§8 (agents + advisors, 2026-06-29)
+
+> **Why this exists.** Germano scrutinized the Abstract/Intro densely (35 comments) but thinned out later: §4 Method
+> got 7, §6 Results got 2, and **§5 Setup, §7 Discussion, §8 Conclusion got ZERO**. We distilled his 70 comments
+> into a **12-point pitfall lens** (G1 poetic phrasing · G2 un-glossed term · G3 referential ambiguity · G4 novelty
+> over-claim · G5 uncited claim · G6 section discipline · G7 redundancy · G8 confusing/run-on · G9 misplaced · G10
+> methodology/fairness · G11 factual · G12 grammar/connective) and ran one auditor per chapter (§4→§8 + its
+> floats), each finding adversarially verified against GLOSSARY + claim-discipline. Only **verified** findings are
+> listed; false positives the advisor caught are noted at the end. CC3 ("outperforms") is already applied, so the
+> verb is not re-flagged.
+
+### ⭐ Two cross-chapter sweeps — accepted Germano fixes were applied only at the flagged line
+
+- **CC6 — "spatial gain" / "spatial benefit" → "the gain on region" (paper-wide).** Germano's #13 ("spatial gain?
+  rephrase") was **accepted** but only fixed where he flagged it; the coined phrase still appears at **abstract
+  `main.tex:70`, §6 `06:51`, §7 `07:17` ("the spatial benefit of sharing"), §8 `08:20`.** Apply #13 everywhere.
+- **CC7 — "region space" / "space of regions" → "number of regions" / "many regions" (paper-wide).** Germano's #11
+  was **accepted** but the term still appears at **§1 `01:65`, §5 `05:18`, §6 `06:51/63/67`, §7 `07:14/16-17`, §8
+  `08:14`.** Apply #11 everywhere. *(Process lesson: every accepted Germano edit needs a paper-wide sweep, not a
+  single-line patch.)*
+- **CC3 residue:** `07:18` now reads **"meets or outperforms"** — "meets" is an unbound third verb; → **"matches or
+  outperforms"** (completes CC3; "meets" ≈ "matches" but is not the bound verb).
+
+### High-severity (a reviewer would likely object)
+
+- **§6 `06:53` "majority-class floor of about 7%" — NOT an error (audit over-flag; corrected by the final advisor).**
+  Computed: majority class Food ≈27.8% → its F1 = 2·0.278/1.278 = 0.435, so macro-F1 of a majority-class predictor =
+  0.435/7 ≈ **6.2% ≈ "about 7%"**. The paper is correct, and the §5.3 floor definition agrees. The audit's "far below
+  7%" reasoning was wrong (it ignored the majority class's own F1), and the proposed "one in seven" (14%) fix would
+  inject an *accuracy* chance rate as a *macro-F1* reference (a metric-mix). **No fix needed; optional precision tweak
+  "about 7%" → "about 6%".** (This is the one audit item that, if applied, would have made the paper worse.)
+- **§4 `04:61-64` (G11) = the #66.1 finding, independently re-confirmed:** the macro-F1 "metric-alignment"
+  justification for unweighted CE is backwards. Replace with the per-task + empirical (qualitative) version.
+- **§6 `06:40` (G10) CTLE fairness:** the decisive "CTLE 29.69–33.45 vs our 75.15" single-state claim states no
+  matched protocol. **Fix:** add "under the same overlapping windowing and the same single-task head" (verified true
+  against the JSON, so no overclaim).
+- **§5 `05:53` (G2) S-1:** "region-transition prior" (and "spatial path") appears naked in the leak paragraph —
+  gloss it once ("a table, built from training data, of how often visits move from one region to the next, used to
+  bias the region scores").
+- **§5 tbl1 caption (G5/G11) S-8:** "the standard next-POI sparsity measure" is an uncited "field-norm" claim, and
+  density vs sparsity are conflated (column says Density, caption says sparsity). Fix the wording, drop/cite "standard".
+- **§7 `07:31` (G1) D-1:** "We are honest about three limits" reopens the over-apologetic register Germano killed at
+  #61. → "Three limits qualify these results." (keep all three limits).
+
+### Per-chapter verified findings (medium/low)
+
+**§4 Method**
+| ID | sev | pitfall | loc | fix |
+|---|---|---|---|---|
+| A-M2 | low | G2 | Fig.2 caption `main.tex:101` | gloss "cross-attention" once in the caption (body already glossed) |
+| A-M4 | med | G2/G11 | Fig.2 caption `main.tex:102-104` | "GRU head / dual-tower / private spatial **tower**" are unglossed + mismatch the body's "private spatial **path**" → rewrite in the body's plain vocabulary |
+| A-M5 | low | G2 | Fig.2 caption `main.tex:104` | drop "raw" in "raw region window" (or say "the sequence of region identifiers") |
+| A-M6 | low | G7 | `04:33-39` | combination-novelty stated in §1/§2/§4 → keep the full statement in one home, point from the others (coordinate with #46/#61) |
+| A-M7 | low | G5 | `04:36-37` | "earlier contextual embeddings ... do not provide" → cite at the claim or point to §2.1 |
+| A-M9 | low | G3 | `04:66-67` | "any gain" has a vague antecedent → "any improvement of the joint model over the dedicated single-task models" |
+| A-M10 | low | G11 | `04:26-28` | "tell a true local structure from a random one" is imprecise/redundant → tighten or delete |
+| A-M-miss | — | G11 | Fig.2 caption `main.tex:101` | caption calls the cross-attention stack "the only shared parameters", but the body also has private encoders with params → check the precision |
+
+**§5 Setup** (zero prior comments — richest)
+| ID | sev | pitfall | loc | fix |
+|---|---|---|---|---|
+| A-S3 | med | G8 | `05:72-75` | ~45-word run-on (deployment-margin) → split; drop the extra "coarse" |
+| A-S4 | med | G1 | `05:94-95` | "we note in passing ... future headroom" (the STAN aside) → neutralize/defer. **This is the author's "other point" sentence** ("We never feed STAN our representation") |
+| A-S5 | med | G5 | `05:54-55` | "inflated region accuracy by 13 to 27 points" → add "across states" + a pointer |
+| A-S6 | med | G8/G3 | `05:56-58` | dense closing sentence ("the one residual ... finds none") → unpack, tie to the cold-place limitation |
+| A-S7 | med | G10 | `05:47-48` | category leak "the large majority" is generous for AL (66.8%) → surface the coverage fraction (≈67% AL to 87% FL) + label it a POI-proxy |
+| A-S9 | med | G7 | `05:16,22-23` + tbl1 caption | scale-spread rationale stated 3× → say once |
+| A-S10 | med | G8 | `05:29-31` | the "gate" mechanism is hard to follow → state the rule plainly once |
+| A-S12 | low | G11 | `05:27-28` | min-sequence/stride unstated → add "one window starting at each visit; at least ten visits per user" (makes the Tbl 1 Windows column reproducible) |
+| A-S-miss | low | G7/data | tbl1 | "integrity of the representation" repeated (title+topic sentence); §5.4 Baselines is a dense block of long sentences; **TX Avg-len 105.8 vs CA 14.9 looks anomalous — worth a data sanity check** |
+
+**§6 Results**
+| ID | sev | pitfall | loc | fix |
+|---|---|---|---|---|
+| A-R2 | med | G1 | `06:35` | "the representation sharpens the semantic question and stays neutral" → state mechanically (improves category separability, carries no spatial structure) |
+| A-R3 | med | G1 | `06:77` | "We state the support honestly." → delete, lead with the evidence |
+| A-R5 | low | G2 | `06:101` | "stronger shared trunk" reused as the headline explanation → make the object concrete ("the shared layers trained better") |
+| A-R9 | low | G7 | `06:49,102` | single-model property stated twice in §6.2 → drop the "single forward pass" at the line-49 lead, keep it at 102 |
+| A-R10 | med | G11/CC1 | `06:57-58` | "ceilings---so called..." → **live em-dash (CC1)** + rephrase the appositive with a cite |
+| A-R11 | med | G8 | `06:63` | ~70-word run-on (six numbers + TOST) → split at the TOST clause |
+| A-R-miss | low | G7 | tbl2 footnote vs `06:26` | "64 to 90 percent" appears in both prose and the Tbl 2 footnote (body/caption repeat) |
+
+**§7 Discussion**
+| ID | sev | pitfall | loc | fix |
+|---|---|---|---|---|
+| A-D2 | low | G2 | `07:11` | "protects the region signal" → "keeps next-region accuracy from degrading" |
+| A-D3 | med | G1 | `07:17` | "the spatial benefit of sharing" → "the gain on next-region from sharing" (CC6) |
+| A-D5 | low | G8 | `07:16-18` | run-on chaining three claims → split; fix "meets or outperforms" → "matches or outperforms" (CC3 residue) |
+| A-D7 | low | G7 | `07:34-35` | small-state match stated twice in §7 (also line 14) → drop the repeat |
+| A-D-miss | low | G1 | `07:24` | "it is only motivation, since we measure no service" — second over-apologetic instance |
+
+**§8 Conclusion**
+| ID | sev | pitfall | loc | fix |
+|---|---|---|---|---|
+| A-C2 | low | G1 | `08:17` | "What we take away ... a clear reading" → "In summary, ..." |
+| A-C5 | med | G8 | `08:17-20` | five-clause run-on → split into two sentences |
+| A-C7 | med | G7 | `08:20` | scaling claim stated 3× (§1/§7/§8) → compress §8 |
+| A-C8 | low | sync | `08:2-5` | header **comment** still says "beats"/"spatial gain"/"region space" (non-rendered) → sync to CC3/CC6/CC7 |
+| A-C-miss | low | G12 | `08:19` | "anticipate both what a user will do and where" drops "next" (others say "what a user will do **next**") |
+
+### False positives the advisor correctly dropped (for trust)
+
+"infomax" is glossed in §2.1 (not undefined in §4); **"Read this as:"** is GLOSSARY-mandated, not a coinage;
+**"mahalle"** is already glossed in §1/§3/§5; **"spatial task"** and **"integrity of the representation"** are
+settled/author-chosen vocabulary; the §4 "private per-task encoder" wording is the accepted #63 decision. These were
+proposed and rejected on verification.
+
+> **Routing:** CC6/CC7 + the §4–§8 G7 redundancies feed **OP4** (cohesion); the run-ons + connectives feed **OP5**
+> (English); the gloss items feed **OP3**; the §4 loss item is a correctness fix for the prose pass. None changes a
+> verdict in the results.
+
+### Final advisor pass (2 advisors over the whole review, 2026-06-29)
+
+> Two independent advisors (completeness + correctness) audited everything above against the paper, GLOSSARY, and
+> claim discipline. They **corrected one of my own errors**, found **two new HIGH items**, and surfaced **two
+> whole-paper reviewer risks** nobody was tracking. Net: the review is safe to start applying once these are folded
+> in (and the 7%-floor "fix" dropped — done above).
+
+**New HIGH items (were untracked):**
+- **§6 `06:113-115` cascade self-contradiction (G11 + claim discipline).** The paragraph says our model "reaches the
+  same combined accuracy ... (the difference on the joint score is about zero)" (a **tie**) and then "the chained
+  alternative **does not match our gains**" — which contradicts the tie and reads as a win-claim, breaking
+  `PAPER_PLAN §3` ("never claim a win over the cascade"; this is the prior submission's exact failure mode). **Fix:**
+  "... not a claim that we outperform the cascade: the chained alternative reaches the same combined accuracy at the
+  same cost, so the simpler parallel structure loses nothing." (drop "does not match our gains").
+- **`tbl1_datasets.tex:21` "next-POI" in a rendered caption (G2/glossary).** GLOSSARY bans "next-POI". The S-8 fix
+  already touches this caption; also replace "the standard next-POI sparsity measure" → "the standard sparsity
+  measure for next-place recommendation" (and fix the density-vs-sparsity wording per S-8).
+
+**Whole-paper claim-discipline risks (highest-read spots; track these):**
+- **Istanbul substrate caveat is dropped where it matters most.** §6.2/§6.3 honestly say Istanbul is measured on a
+  *different* representation/windowing ("cross-setting check, not like-for-like"), but the **abstract (`main.tex:71`)
+  and conclusion say "the result holds" / "the picture repeats" with no caveat.** After venue fit, this is the most
+  likely reviewer pushback. Add a half-clause caveat in the abstract/conclusion or soften "holds" → "is consistent".
+- **The "gain grows with region count" scaling claim drops its confound hedge everywhere except §6.2.** §6.2 hedges
+  it ("we read the trend across six points rather than a precise law"; region-count and corpus-size co-vary, Istanbul
+  on a different substrate), but the abstract, §1 contribution, §7, and §8 state it cleanly. Carry a one-clause hedge
+  into at least one of those, or a reviewer calls it a confounded n=6 claim.
+- **Venue-fit register (cumulative).** The service disclaimer recurs (§3 ×2, §5.3, §7 ×2, the radio-cell scoping);
+  the more it apologizes, the more it invites "then why MobiWac?". Consolidate to one confident scoping in §3 (folds
+  into OP4); this is the D-1/D-miss over-apologetic thread seen whole.
+
+**Corrections to my own catalog (the advisors caught these):**
+- **§6 7%-floor is NOT an error** — corrected above; drop the proposed fix.
+- **CC3 was incomplete:** `figs/` was never swept. `fig4_deltas.tex:10` "the largest **win**" → "gain" is now
+  **fixed** (CC3 truly complete: 0 verdict beats/wins in rendered text incl. figs; remaining "win" hits are TikZ
+  node names for the *window* node in fig1, not prose).
+- **CC7 list extended:** add the two highest-read misses — **abstract `main.tex:69`** and **Table 3 caption
+  `tbl3_results.tex:21`** ("region space is large"). These should be done in the SAME pass as the body, never half.
+
+**Apply-safety (for whoever runs the prose pass):**
+- **Treat CC3 as already applied.** Ignore every v1 "keep/normalize/restore 'beats'" instruction (#8/#10/#14/#35) —
+  applying them verbatim would *revert* CC3. Take only the non-verb parts (e.g. #9 "dedicated single-task model", #11
+  "many regions"). The §7:18 "meets" → "matches" residue still needs doing.
+- **Never paste the v1 edit text for #61/#64/#66 verbatim** — they contain `--`; rewrite with commas/parens (CC1).
+- **#50:** contrast-only wording + "to our knowledge" hedge, **no TrajLearn bib entry** (locked at 26); update
+  `PAPER_PLAN §3` if "underexplored" ships.
+
+---
+
 ## Abstract (p1)
 
 **1.**
@@ -1100,7 +1531,11 @@ citations to strong claims; (5) check the references aren't outdated.
 
 Other points to review:
 
--    comentamos sobre o fato de a transferencia ser ortogonal ? E por isso não usamos o gradient balancers ?
+- comentamos sobre o fato de a transferencia ser ortogonal ? E por isso não usamos o gradient balancers ?
+- Revisar explicações de abrevisacoes repetidas no texto(e.x POI)
+- Revisar conceitos técnicos sem gloss ou explicações formais
+- Revisar coesão entre chapters, varios capítulos estão explicando mesmo conceitos
+- We need to do a systematic review of the english in the paper and the phrases in the paper. some phrases are very confusining, other is missing connectives like the: `We never  feed STAN our representation;` that seems that is missing a `with` 
 
 ----
 

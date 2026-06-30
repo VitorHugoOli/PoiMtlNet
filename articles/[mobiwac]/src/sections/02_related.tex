@@ -8,49 +8,53 @@
 
 \subsection{From place embeddings to per-visit embeddings}
 \label{sec:related-embeddings}
-A place embedding turns a point of interest (POI) into a vector, so that a
-model can reason about places by their geometry rather than by raw identifiers.
-Deep Graph Infomax (DGI) \cite{velickovic2019dgi} learns such vectors by
-training them to tell a real network of places, linked by similarity, time, and
-distance, from a shuffled copy of that network. Hierarchical Graph Infomax
-(HGI) \cite{huang2023hgi} adds geographic structure, organizing the network as
-place, then region, then city, so the vectors respect where places sit. Both
-methods emit one vector per place, so two visits to the same coffee shop, one at
-8\,a.m. and one at 10\,p.m., look identical to the model. Contextual check-in
-representations instead give each visit its own vector: CTLE
-\cite{lin2021ctle} is the closest example, learning a vector per visit by
-hiding parts of a user's check-in sequence and learning to fill them back in. Our
-representation, Check2HGI, also works at the check-in level, but it gets there a
-different way. It keeps the hierarchical place-to-region-to-city network and
-trains it with the same infomax objective, now extended down to a fourth,
-check-in level (Fig.~\ref{fig:dataflow}), rather than switching to a sequence
-model. Put another way, earlier representations changed \emph{which} features a
-place vector encodes; we change \emph{how often} the representation emits a
-vector, once per place or once per visit. The novelty is this specific
-combination, per-visit context inside a hierarchical graph-infomax
-representation, and we compare against CTLE directly to show that the
-combination, not per-visit context on its own, is the source of the gain.
+A place embedding turns a POI into a vector, so that a model can reason about
+places by their learned geometry, where similar or nearby places sit close
+together, instead of treating each place as a bare, unrelated index (an arbitrary
+ID number that says nothing about what the place is or where it sits).
+Deep Graph Infomax (DGI) \cite{velickovic2019dgi}, a general self-supervised
+method for learning node representations on graphs, is applied here to a network
+of places: it learns such vectors by training them to tell the real place
+network, linked by similarity, time, and distance, from a shuffled copy.
+Hierarchical Graph Infomax (HGI) \cite{huang2023hgi} adds geographic structure,
+organizing the network as place, then region, then city, so the vectors respect
+where places sit. Both methods produce one vector per place, so two visits to the
+same coffee shop, one at 8\,a.m. and one at 10\,p.m., look identical to the model.
+Contextual check-in representations instead give each visit its own vector: CTLE
+\cite{lin2021ctle} is the closest example, learning a vector per visit by hiding
+parts of a user's check-in sequence and learning to fill them back in. Our
+representation, Check2HGI, also works at the check-in level, but it gets there
+differently. It keeps the hierarchical place-to-region-to-city network and trains
+it with the same infomax objective, now extended one level deeper, from individual
+places down to individual check-ins, a fourth level beneath place, region, and
+city (Fig.~\ref{fig:dataflow}), rather than switching to a sequence model, as CTLE
+does. In short, earlier place embeddings (DGI, HGI) changed \emph{which} features
+a place vector encodes; CTLE and we change \emph{how often} a vector is produced,
+once per place or once per visit.
+
+The novelty is this specific combination, per-visit context inside a
+hierarchical graph-infomax representation, and we compare against CTLE directly
+to show that the combination, not per-visit context on its own, is the source of
+the gain.
 
 \subsection{Predicting the next category and the next region}
 \label{sec:related-tasks}
 A large body of work predicts the next place a user will visit, the exact POI,
 with recurrent and attention models such as ST-RNN \cite{liu2016strnn},
 DeepMove \cite{feng2018deepmove}, Flashback \cite{yang2020flashback}, STAN
-\cite{luo2021stan}, and GETNext \cite{yang2022getnext}. We deliberately predict
-two coarser properties of the next visit instead: its category, what kind of
-place it is, and its region, where it falls, at the granularity of a census
-tract. Coarser targets are easier to get right and still useful to act on, and
-they line up with two kinds of preparation a mobility-aware service can make.
-We set aside the exact next place. The category task appears in our own earlier
-line of work \cite{silva2025mtlnet}. The field increasingly models several
-granularities at once, predicting category-level and region-level sequences
-alongside the place sequence; in that work, however, category and region are
-auxiliary signals that help a headline next-place task (SGRec
-\cite{li2021sgrec}, MCMG \cite{sun2024mcmg}, HMT-GRN \cite{lim2022hmtgrn}). We
-study the pair as the object itself. We also note that next region over census
-tracts has little precedent: HMT-GRN predicts a coarse spatial unit (a geohash
-cell) only as an aid, so we define our region unit carefully when we state the
-tasks.
+\cite{luo2021stan}, and GETNext \cite{yang2022getnext}. In contrast, we target two properties of the next visit, its category and its
+region, rather than the exact place. These targets are not trivial: the region
+alone spans hundreds to several thousand classes; we choose them because they are
+what a mobility-aware service can act on, not to make the task easier. The category
+task itself follows our earlier line of work \cite{silva2025mtlnet}. The field
+increasingly models several granularities at once, predicting category-level and
+region-level sequences alongside the place sequence; in that work, however,
+category and region are auxiliary signals that help a headline next-place task
+(SGRec \cite{li2021sgrec}, MCMG \cite{sun2024mcmg}, HMT-GRN \cite{lim2022hmtgrn}).
+We study the pair as the object itself. What is, to our knowledge, underexplored is
+fine-grained region as a co-equal end target rather than an auxiliary coarse cell:
+HMT-GRN, for instance, predicts a coarse geohash cell only as an aid to its
+next-place search, so we define our region unit carefully when we state the tasks.
 
 \subsection{Multi-task learning for mobility}
 \label{sec:related-mtl}
@@ -60,16 +64,16 @@ location, and iMTL \cite{Zhang2020} couples them in a shared, interactive
 framework built for sparse check-ins. The closest alternative to our setting is
 the cascade. CSLSL \cite{huang2024cslsl} predicts in a chain (when, then what,
 then where), with location as the headline output and category as an
-instrumental step along the way; CatDM \cite{yu2020catdm} uses category in the
-same spirit, to filter candidate places. We differ in two ways. We predict
+instrumental step along the way; CatDM \cite{yu2020catdm} likewise uses category
+instrumentally, to filter candidate places. We differ in two ways. We predict
 category and region in parallel, as co-equal end targets in one model with a
 single forward pass, and we drop next-place entirely, so neither task is
 instrumental to a third. On the optimization side we are deliberately
 conservative: hard parameter sharing across tasks is standard practice
 \cite{caruana1997multitask}, and our use of it is not itself the contribution.
-Rather than propose yet another gradient balancer (PCGrad \cite{yu2020pcgrad},
+Rather than propose yet another gradient-balancing method (PCGrad \cite{yu2020pcgrad},
 GradNorm \cite{chen2018gradnorm}, Nash-MTL \cite{navon2022nashmtl}), we ask
 where sharing helps and where it costs and give a clear, measured account,
-consistent with reports that such balancers rarely beat a well-tuned fixed
+consistent with reports that such methods rarely improve on a well-tuned fixed
 weighting at two tasks \cite{xin2022domtl, kurin2022defense}. The novelty here
 is empirical, not architectural.
