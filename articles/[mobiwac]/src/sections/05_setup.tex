@@ -29,7 +29,7 @@ task more examples to learn from. Because the windows overlap, many of a user's 
 over-representing that one target; we keep a single window ending on each user's last visit and drop the duplicates.
 The kept window is a full-context example, not padding.
 
-\emph{Splitting.} We split by user with stratified five-fold cross-validation (CV), so all of a user's windows
+\emph{Splitting.} We split by user with stratified five-fold cross-validation, so all of a user's windows
 fall in the same fold. Overlapping windows therefore cannot leak across the split, because a test user's visits
 never appear in training. The split is stratified on the next-category label, which preserves the class proportions
 across folds, and this matters because the seven-class category task is imbalanced: Food is the majority class in
@@ -54,7 +54,7 @@ $+0.29$ at Alabama, $+0.27$ at Arizona, and $+0.00$ at Florida.
 Third, the one component that really passes visit-to-visit information, the region-transition prior used by the
 spatial path (a table, built from training data, of how often visits move from one region to the next, used to bias
 the region scores), is built per fold from training data only, seed by seed; an earlier version that used the whole
-dataset inflated region Acc@10 by 13 to 27 points across states, so we now build it per fold. Every learned baseline
+dataset inflated region accuracy by 13 to 27 points across states, so we now build it per fold. Every learned baseline
 representation is pre-trained the same way, so all inputs are held to the same standard. The one residual we cannot
 fully measure is visits to places never seen in training: the representation is trained having seen all places, so it
 cannot score a place absent from training. On the visits we can measure, the large majority, the audit finds no
@@ -71,7 +71,7 @@ comparison anchor is the dedicated single-task model.
 We make two kinds of comparison and test each one appropriately. Where the joint model is meant to outperform, we test
 \emph{superiority} with a paired Wilcoxon signed-rank test over the folds. Where the joint model is meant only to
 stay even, we test \emph{non-inferiority}, that it is no worse than the dedicated model by more than a two-point
-margin, with a two one-sided tests (TOST) procedure. We fix the two-point margin in advance and on deployment
+margin, with a two-one-sided-tests procedure. We fix the two-point margin in advance and on deployment
 grounds, before looking at whether any claim survives it. A mobility-aware service acts on which region will be
 busy, not on a single rank position: it anticipates regional demand, stages content for the right region, or plans
 capacity at the census-tract level. A two-point shift in Acc@10 is therefore below the granularity at which such a

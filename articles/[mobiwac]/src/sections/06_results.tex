@@ -12,8 +12,7 @@
 Read this as: describing each visit in its own context, rather than each
 place once, is what makes the next-category task learnable. Table~\ref{tab:substrate}
 compares our check-in-level representation against a standard place embedding
-(HGI~\cite{huang2023hgi}) on next-category macro-F1 (the F1 score averaged
-equally over the seven categories, so rare ones still count), both fed to the
+(HGI~\cite{huang2023hgi}) on next-category macro-F1, both fed to the
 same dedicated model under the windowing used throughout the paper. This is a
 controlled, like-for-like comparison: the target, the single-task head, and the
 folds are identical across the two columns, and only the input representation
@@ -34,8 +33,8 @@ Figure~\ref{fig:embquality} shows why the representation helps this task in
 particular. By category, the per-visit vectors are cleanly grouped. Their
 silhouette score by category, a separation measure from $-1$ to $1$ where
 higher means the seven labeled groups are tighter and better separated, is about $0.56$, against about
-$0.00$ for the place embedding; and the share of a vector's nearest neighbors that
-carry its own category is about $0.98$, against about $0.78$. The same geometry does not separate regions, which is exactly the
+$0.00$ for the place embedding; and its nearest-neighbor category purity, the share of a vector's nearest
+neighbors that carry its own category, is about $0.98$, against about $0.78$. The same geometry does not separate regions, which is exactly the
 point: the representation improves category separability but carries no spatial
 structure, so its benefit is category-only and sets up the joint study in
 Section~\ref{sec:results-part2}. A direct comparison with the closest prior
@@ -63,9 +62,7 @@ single-task ceilings (we call them ceilings because a jointly trained head is
 usually expected to match or fall short of a head trained for that task alone),
 and Figure~\ref{fig:deltas} plots the signed gains ordered by region count. On category the joint model outperforms the dedicated ceiling at
 every state, by $+4.68$ to $+7.69$ macro-F1 (smallest at Florida, largest at
-Alabama, and $+6.69$ at Istanbul). On region, measured by accuracy at ten
-(Acc@10, how often the true next region is among the model's ten highest-scored
-regions), the joint model outperforms the dedicated ceiling where there are many
+Alabama, and $+6.69$ at Istanbul). On region, measured by Acc@10, the joint model outperforms the dedicated ceiling where there are many
 regions: Florida $+0.57$ (4{,}703 regions), Texas $+2.06$ (6{,}553), and
 California $+2.18$ (8{,}501), each with all five folds in the joint model's favor.
 It stays a non-inferior match (TOST, $\pm2$~pp) where there are few: Alabama

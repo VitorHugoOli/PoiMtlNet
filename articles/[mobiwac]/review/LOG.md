@@ -6,6 +6,26 @@
 
 ## Timeline
 
+- **2026-06-30 (OP1 + Tier A + Tier B APPLIED + reviewed + clean build).** Applied the author-approved set: **OP1**
+  paragraph added to §2.3 (our-evidence balancer/correlation finding, plain-language, tied to §6.2, board-backed
+  ~0.001 = CH31 0.0007–0.0026; avoids the banned word "orthogonal"). **Tier A** acronyms: dropped the §1 LBSN
+  re-expansion (abstract keeps it), §4 POI re-expansion, the orphan §5 "(CV)", the early §4 "Acc@10" token, the §5.3
+  "(TOST)" re-expansion; **Tier A** gloss trims: redundant macro-F1 gloss (§6.1) + Acc@10 re-expansion (§6.2).
+  **Tier B**: glossed "hard parameter sharing" (§2.3) + named "nearest-neighbor category purity" (§6.1); census tract
+  left (already glossed). A **review agent** audited all of it: glossary-compliant + regression-free; one nit it
+  surfaced (Acc@10 used at §5.2 before its §5.3 def — traced to the earlier S-5 edit) was FIXED ("region Acc@10" →
+  "region accuracy"). Build clean: 9 pages, 0 undefined, 0 non-font warnings. **Deferred:** TOST letter-tie (ledger
+  mandates "(TOST)" in §1; acceptable per review), the §7/§8 `%`-comment "beats" drift (cosmetic, → final cleanup),
+  Tier C consolidations, and Phase 4 `WF-ENGLISH`. NOT yet committed (checkpoint commit was 4be0b35f, pre-this-round).
+- **2026-06-30 (OP1 + Phase 2 WF-CONSISTENCY ran — discovery; edits PENDING author sign-off).** Workflow
+  `op1-and-consistency-sweep` (16 agents: OP1 investigate+advise + 11 section readers + 3 reducers). **OP1: CAN
+  claim, grounded in OUR experiments** — full balancer registry (PCGrad/GradNorm/Nash-MTL/CAGrad/FAMO/… ~18 methods)
+  none beat tuned static cw=0.75; task-gradient cosine ≈ 0.001 across measured states/seeds (intrinsic, holds even
+  in a fully-shared model); ties to §6.2 "stronger trunk, not transfer". Sources: `WHY_ORTHOGONAL_AND_NO_MODERN_OPTIMIZERS.md`,
+  `T4_audit_and_verdict.md`, `orthogonality_intrinsic_test.md`, `T1-5_v2_cosine.json`, `W6_ENCODER_ISOLATION.md`.
+  Advisor: agree, with wording fixes (don't re-expand PCGrad/GradNorm; drop the "four datasets" scope — measured set
+  includes Georgia, excludes CA/TX). **OP2/OP3/OP4 reducers** returned the full-paper matrices. **No `src/` edits
+  yet** — the edit list is presented for sign-off; Phase 4 (`WF-ENGLISH`) still to run.
 - **2026-06-30 (CORRECTION + checkpoint commit).** Caught an overclaim in PLAN/README: they had marked the OP
   discovery sweeps "done via the §4–§8 audit." NOT true. The dedicated **WF-CONSISTENCY** (full-paper OP2/OP3/OP4
   matrices, incl. abstract + §1–§3) and **WF-ENGLISH** (OP5) were never run, and **OP1** was never pursued. The

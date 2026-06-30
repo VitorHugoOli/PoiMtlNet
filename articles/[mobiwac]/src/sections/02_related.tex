@@ -69,11 +69,22 @@ instrumentally, to filter candidate places. We differ in two ways. We predict
 category and region in parallel, as co-equal end targets in one model with a
 single forward pass, and we drop next-place entirely, so neither task is
 instrumental to a third. On the optimization side we are deliberately
-conservative: hard parameter sharing across tasks is standard practice
+conservative: hard parameter sharing, using one shared stack of layers for both tasks, is standard practice
 \cite{caruana1997multitask}, and our use of it is not itself the contribution.
 Rather than propose yet another gradient-balancing method (PCGrad \cite{yu2020pcgrad},
 GradNorm \cite{chen2018gradnorm}, Nash-MTL \cite{navon2022nashmtl}), we ask
 where sharing helps and where it costs and give a clear, measured account,
 consistent with reports that such methods rarely improve on a well-tuned fixed
-weighting at two tasks \cite{xin2022domtl, kurin2022defense}. The novelty here
-is empirical, not architectural.
+weighting at two tasks \cite{xin2022domtl, kurin2022defense}. We confirm this on
+our own two tasks: across the gradient-balancing methods we tried, including the
+three named above, none improved on a tuned fixed task weighting in our model.
+The reason is visible in the gradients themselves: the next-category and
+next-region updates barely correlate on the shared layers (a near-zero
+correlation, about $0.001$, throughout training), so the two tasks neither pull
+against each other nor reinforce each other there, and a balancer has no conflict
+to resolve. This is consistent with the mechanism we report in
+Section~\ref{sec:results-part2}: because the tasks do not compete on the shared
+layers, the category gain comes from a stronger shared trunk rather than from the
+region task teaching the category one. We report this as our finding for this
+pair of tasks, not as a general rule. The novelty here is empirical, not
+architectural.

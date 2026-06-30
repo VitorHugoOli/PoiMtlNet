@@ -11,7 +11,7 @@
 \label{sec:method-rep}
 
 We want each visit, not each place, to carry its own vector. A standard place
-embedding gives every point of interest (POI) one fixed vector, so two visits to
+embedding gives every point of interest one fixed vector, so two visits to
 the same caf\'e look identical even when they happen at different times of day,
 in different company, or after different trips. We instead describe each
 check-in in its own context. Figure~\ref{fig:dataflow} shows the full data flow,
@@ -61,7 +61,7 @@ of two separate dedicated single-task models.
 
 The training loss is a fixed-weight sum of the two outputs, and both outputs use
 plain unweighted cross-entropy. The two tasks pull in opposite directions on this
-choice: the region metric, Acc@10, counts every test visit once, so an unweighted
+choice: the region metric counts every test visit once, so an unweighted
 loss matches it, whereas the category metric, macro-F1, counts every class
 equally, so one might expect a class-weighted loss to help. We tested
 class-weighting on both heads and it did not help, lowering region accuracy and
