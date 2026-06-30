@@ -43,16 +43,17 @@ activating it via `MTL_ONECYCLE_PER_HEAD_LR` is a real cat win everywhere.
 **Only cat-LR matters.** FL cat regression = **pure cat-LR overshoot** (cat head overdriven at 3e-3, exposed by the
 larger batch). Refuted: reg-capture, shared-LR/drift, macro-F1 dilution, undertraining.
 
-## 4 · Final recipes (pending n=20)
+## 4 · Final recipes — n=20 CONFIRMED ([`../closing_data/perhead_lr_n20.md`](../closing_data/perhead_lr_n20.md))
 
-| Regime | Recipe | cat | reg | speed | verdict |
+| Regime | Recipe | cat | reg | speed | verdict (n=20) |
 |---|---|---|---|:---:|---|
-| **AL/AZ** small | bs=8192 + cat-lr 1e-3 | +0.36/+0.75 (bs) ⊕ +0.59 (cat-lr) | flat-up | neutral | **win** |
-| **FL** large | bs=8192 + cat-lr 1e-3 | 79.84 ≈ base 79.83 | 77.39 ≈ base 77.40 | **+7%** | **viable — equal quality, faster** |
+| **AL/AZ** small | bs=8192 + cat-lr 1e-3 | AL 64.54 (+0.99 vs champion) / AZ 65.84 (+2.27) | flat-up | neutral | **WIN** |
+| **FL** large | bs=8192 + cat-lr 1e-3 | **79.85** vs base **79.68** (**+0.17**) | 77.42 vs 77.22 (**+0.20**) | **+7%** | **WIN — better on both heads + faster** |
 
-> ⚠ **FL is a SPEED win at equal quality, NOT a reg gain.** An earlier draft said "reg ≫ base (+1.74/+1.81)" —
-> that compared the 5-fold reg (~77.3) to a stray **1-fold** base reg (75.58). At matched 5-fold the FL base reg is
-> **77.40**, so reg is FLAT across base/8k/cat_only.
+> ✅ **At n=20 FL is a small WIN, not just "equal quality."** The seed-0 framing ("79.84 ≈ 79.83, equal quality")
+> was superseded once n=20 landed: the seed-0 base (79.83) was a lucky fold; the **n=20 base is 79.68**, so
+> bs8192+cat-lr-1e-3 (79.85) beats it +0.17 cat / +0.20 reg. (The older "reg ≫ base +1.74" draft was wrong — it
+> compared against a stray 1-fold reg 75.58; the real n=20 reg deltas are the +0.20 above.)
 
 ## 5 · What also got ruled OUT (no lever beats plain bs=8192 at small states)
 

@@ -219,6 +219,17 @@ by the **PID suffix** of the rundir, not `ls -dt | head` (mis-maps).
 | `MTL_DATASET_GPU=1` | off (**auto-fit**) | Force the per-fold dataset GPU-resident, bypassing the fit-check (`folds._dataset_device`). DEFAULT = auto-fit: pre-move to GPU only if it fits in (free VRAM − headroom), else keep CPU-resident with per-batch `.to()` (byte-identical). **Small states ONLY** (minor speed lever). ⚠ **NEVER for CA/TX/FL** — forces ~31 GB redundant per-fold copies → OOM (no CPU fallback). |
 | `MTL_DATASET_CPU=1` | off | Force the dataset CPU-resident (opposite); safe escape hatch. |
 | `MTL_GPU_HEADROOM_GB` | 16 | VRAM reserved for model+activations in the auto-fit check. |
+| `MTL_RAM_HEADROOM_GB` | 16 | **host-RAM** reserved by the next-input build guard (CPU-side; distinct from the VRAM twin above). Big states (CA/TX/FL) tune it to avoid a build hard-fail. |
+| `MTL_COMPILE_CACHE_LIMIT` | 64 | dynamo `cache_size`/`recompile` limit. The default 8 is too low for the TRAIN+EVAL+shape graph variants → **silent eager fallback** (this is the original "minutes-long fold", not a warmup). Pure safety, no numeric change. |
+| `MTL_COMPILE_MODE` | unset | passes inductor `mode=` to `torch.compile` (e.g. `max-autotune`). |
+| `MTL_STREAM_TRAIN_METRIC` | **on (1)** | streaming train-metric for reg C>256 (O(N·C)→O(N+C) mem); set `0` for the full-logit path (byte-identical). |
+| `MTL_CHUNK_VAL_METRIC` + `MTL_S2_AUTO_BUDGET_GB` | off / 4 | chunked val-metric for large-C; the budget (GB) is the VRAM threshold above which it auto-chunks. |
+| `MTL_DISABLE_AMP_EVAL=1` | off | force fp32 at **eval/val only** (train precision unchanged) — used by bf16-train cells to keep eval fp32-clean. |
+| `MTL_AUTOCAST_BF16=1` | off | use **bf16** (not fp16) for autocast — the precision behind the CA §1 H100 bf16 headline cell. An explicit value wins over auto-fp32. |
+| `MTL_NAN_GUARD` / `MTL_DIVERGENCE` | on / — | skip the optimizer step on non-finite grad/loss; under `MTL_STRICT=1` turns into a fail-loud abort (prevents a NaN-poisoned shared backbone at large C). |
+| `MTL_STAN_LEGACY_MASK=1` | off | restores the pre-P1 guarded STAN mask path for **bit-exact `--compile` repro** of frozen cells (eager is bit-exact either way; the default fast path drifts ≤0.3 pp under compile). |
+| `MTL_STAN_FP32_ATTN=1` | off | fp32 masked-softmax attention under autocast — an **UNVALIDATED** candidate A40-bf16 grad-NaN mitigation; no-op under fp32. |
+| `DATA_ROOT` | `data/` | relocates the data root (`src/configs/paths.py`); set on machines where check-ins aren't at the default path. |
 | `TORCHINDUCTOR_CACHE_DIR` | — | per-run inductor cache (avoid cross-run compile-cache variance) |
 
 ### A40 constraints

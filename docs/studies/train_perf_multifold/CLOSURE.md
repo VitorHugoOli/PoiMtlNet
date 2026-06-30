@@ -54,15 +54,27 @@ Enabled by fixing the latent "per-head LR inert under onecycle" bug.
       (NOTE: the gated-overlap windowing is already correctly in `src` — `core.generate_sequences` +
       `builders._resolve_emit_tail`; that one needs no move, and stride-1/min_seq-10 must stay non-default per DEFAULTS_AND_GUARDS.)
 
+**Promotion / follow-up (cont.)**
+- [ ] **QUALITY_IMPROVEMENTS A1 — true-fp32 MTL board-wide** (the catalog's #1 ADOPT-rated lever + a *correctness* fix:
+      the MTL-vs-STL reg gap is partly an fp16-MTL-vs-fp32-ceiling artifact). auto-fp32 covers C>2000 (DONE); A1's ask
+      is to extend fp32 to small-state MTL too. Scope = MTL cells only (STL ceilings already fp32); n=20 re-baseline at FL+CA.
+- [ ] **Propagate the per-head win + per-head-LR-inert caveat to the canonical docs** (done in this closeout: NORTH_STAR /
+      RESULTS_BOARD / SYSTEM_REFERENCE / CANONICAL_VERSIONS cross-refs added) — full board promotion still gated on CA/TX + parity test.
+
 **Perf / tooling (from PLAN §6)**
-- [ ] **P7 compile-once-across-folds** (biggest sequential-run lever; delicate per-fold log_T buffer swap → A/B).
 - [ ] **bf16/A40 fp32-attn island** (`_STANAttention`) — DEFERRED A40-bf16 mitigation; validate on the A40 (the grad-NaN only reproduces on Ampere at CA/TX C 6.5–8.5k), NOT H100. Driver `../closing_data/run_bf16_island.sh`.
-- [ ] **MED cleanup** — unify `_run_category`/`_run_next` + `category_cv`/`next_cv`; one `build_autocast_ctx`.
+- [ ] **MED cleanup** — unify `_run_category`/`_run_next` + `category_cv`/`next_cv`; one `build_autocast_ctx`; the `helpers` warmup-builder extraction (log.md:406).
 - [ ] **Single-task fan-out** (`--run-id`/`--per-fold-seed` for `next_cv`/`category_cv`) — infra is generic; wire it.
 - [ ] **n_regions pass-through** so a fan-out process doesn't transiently build all 5 folds for the region-count scan.
+- [ ] **Unit tests for the new flags** — `MTL_ONECYCLE_PER_HEAD_LR` (per-group max_lr) + `--adam-beta2` are functionally verified but not pinned by CI (added in this closeout).
+
+**Decided / declined (NOT open)**
+- ✗ **P7 compile-once-across-folds** — MEASURED + DECLINED (commit `ac30b6d9`; log.md §P7): the in-process inductor cache
+  already amortizes the per-fold compile (folds 2–5 are cache-hits, ~1s ep-1, not the 37s fold-1 compile), so P7's gain is
+  ~0% and not worth the hot-path/log_T-buffer risk. Adversarial re-eval: "decline stands at scale."
 
 **Catalog (standby, user-paused)**
-- [ ] **QUALITY_IMPROVEMENTS.md** 27-lever catalog — breaking/quality-change improvements, on standby.
+- [ ] **QUALITY_IMPROVEMENTS.md** 27-lever catalog (besides A1 above) — breaking/quality-change improvements, on standby.
 
 ## 5 · Artifacts (this study)
 Docs: `PLAN.md`, `DECOMPOSITION_PLAN.md`, `AUDIT_FINDINGS.md`, `BATCH_SIZE_SWEEP.md`, `RESULTS_SUMMARY.md`,
