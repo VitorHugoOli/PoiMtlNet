@@ -12,9 +12,9 @@
   **Finding: v17's cat lever is a STATE-SIZE trade** — wins small/mid (+0.2…+2.5), costs ~0.28 cat at CA/TX (real, not
   a bf16 artifact — TX board is fp32), reg-neutral+ everywhere. Kept board-wide.
 - **STL region ceiling** — already n=20 at all 6 states (do NOT re-run).
-- **Faithful STAN** — DONE + citable (AL 60.72 / AZ 49.86 / FL 72.99 / Istanbul 61.86); **CA/TX is a fundamental
-  infeasibility** (the O(R) matching layer, R=6.5–8.5k) → footnote, **no run**. HMT-GRN (6 states), ReHDM (AL/AZ/FL),
-  CTLE (FL), CSLSL tie, floors — all in.
+- **Faithful STAN** — DONE + citable (AL 60.72 / AZ 49.86 / FL 72.99 / Istanbul 61.86); **CA/TX now queued as an
+  attempt** (A3, the last A40 task — `FAITHFUL_STAN_FINDINGS.md` estimates ~1.5–2 h/state bf16+compile; the earlier
+  "infeasible" footnote was over-conservative). HMT-GRN (6 states), ReHDM (AL/AZ/FL), CTLE (FL), CSLSL tie, floors — all in.
 - **DEFAULT_CANON = v17**; v16 still via `--canon v16`; §0.1/v11 frozen bundle unaffected.
 
 ## What's LEFT (the run inventory → the 3 handoffs)
@@ -25,14 +25,16 @@
 | **H2** | **STL cat ceiling re-tuned to v17** (bs8192 + cat-lr 1e-3), all 5 states + Istanbul × {0,1,7,100} | **A40** | n=20 | trivial (~100 s/run) | the **pairing** — Δcat = MTL − this ceiling |
 | **H3** | **Istanbul rebuild on `check2hgi_dk_ovl` + v17** (substrate build → MTL + ceilings, n=20; re-foot substrate-bound baselines) | **A40** | n=20 | moderate (small state, 520 regions) | removes the cross-substrate caveat |
 | **A2** | ReHDM-faithful CA/TX/Istanbul | A40 | own | ~75–120 h/state | nothing (footnote-OK) |
+| **A3** | **Faithful STAN CA/TX** (the last A40 task) | A40 | n=5 | ~1.5–2 h/state (bf16+compile) | nothing (coverage; drops the STAN-infeasible footnote if it clears Markov) |
 | **M1** | n=20 re-score + Wilcoxon + region TOST + per-cell Holm + drop "provisional" prose | **M2 Pro** | — | hours, no GPU | lifts the n=5 label once H1+H2 land |
 | **M2** | A4 transductive-leak audit → CA/TX/Istanbul | M2 Pro (CPU) | — | ~3 h/fold | nothing (coverage) |
 | **M3** | Bridging-metrics re-score (reg Acc@1/@5/MRR; cat Acc@1) | M2 Pro | — | short (needs saved logits) | nothing (coverage) |
 | **M4** | STAN precision-mix disclosure (S1) + v4-collapse guard | M2 Pro | — | doc | STAN hygiene |
 | **M5** | Stale-doc fixes + submission mechanics (EDAS upload, deadline, Germano edits) | M2 Pro | — | doc | submission |
 
-> **No STAN runs are pending** — faithful STAN is done, and CA/TX is a fundamental O(R) wall (footnote, not a run).
-> The only STAN work is **M4** (a doc disclosure of the precision/version mix + a guard on the old v4 collapse).
+> **STAN** — faithful STAN is done at AL/AZ/FL/Istanbul; **CA/TX are now an attempt** (A3, last A40 task, ~1.5–2 h/state
+> bf16+compile — worth trying per user; coverage, changes no verdict). Plus the **M4** doc disclosure (precision/version
+> mix + v4-collapse guard). If A3 clears the Markov floor it fills the Table 3 CA/TX STAN cells; else the footnote stands.
 
 **The critical path to a paper-grade board:** **H1 (H100) ∥ H2 (A40)** both land → **M1 (M2 Pro)** re-runs the two
 pre-registered tests and drops "n=5 provisional". **H3 (A40)** removes the last (cross-substrate) caveat. Everything in

@@ -140,8 +140,10 @@
 - **Status: not-started (H100).**
 
 ### S1 — STAN: precision-mix disclosure + v4-collapse guard  **[doc hygiene — the STAN track]**
-- **STAN needs no run** — faithful STAN is DONE + citable (AL 60.72 / AZ 49.86 / FL 72.99 / Istanbul 61.86, all verified
-  exact to Table 3; CA/TX stay footnote-infeasible, an O(R) matching-layer wall). **But two doc items are owed:**
+- Faithful STAN is DONE + citable (AL 60.72 / AZ 49.86 / FL 72.99 / Istanbul 61.86, all verified exact to Table 3).
+  **CA/TX are now being ATTEMPTED** (A40 task A3, ~1.5–2 h/state bf16+compile per `FAITHFUL_STAN_FINDINGS.md`; the old
+  "infeasible" footnote was over-conservative) — if they clear the Markov floor the Table 3 CA/TX STAN cells fill and the
+  infeasible clause drops, else the footnote stands. **Two doc items are owed regardless:**
   1. **Disclose the precision/version mix** (one sentence in `docs/baselines/next_region/stan.md` + the Table 3 STAN
      footnote if room): AL/AZ = **v5_compiled fp32**, FL = **v6_opt bf16**, Istanbul = **v5_bf16c bf16** — same faithful
      recipe (v6 = v5 + bit-identical perf opts; bf16 A/B quality-neutral ≤0.07 pp; matches the board precision policy).
