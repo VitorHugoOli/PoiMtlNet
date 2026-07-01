@@ -13,7 +13,7 @@
 
 ## 1 · Part-2 headline — MTL champion-G vs dedicated STL ceilings (Δ in pp)
 
-> 🏆 **PROMOTED CHAMPION CANDIDATE — `--canon v17` (opt-in; AL/AZ/FL done, CA/TX PENDING):** **bs=8192 + cat-lr 1e-3**
+> 🏆 **NEW CHAMPION — `--canon v17` (now `DEFAULT_CANON`; AL/AZ/FL done, CA/TX RUNNING at n=20):** **bs=8192 + cat-lr 1e-3**
 > via `--onecycle-per-head-lr` **beats every §1 cell** at n=20 (`perhead_lr_n20.md`):
 >
 > | state | v17 cat | §1 champion cat | Δ | reg |
@@ -24,8 +24,7 @@
 >
 > §1 below stays the **board of record** (n=5 seed-0, all 5 states + Istanbul) until CA/TX land at matched n; v17 is
 > not in the §1 headline yet. The §1 champion's per-head LRs are inert under onecycle (effective uniform 3e-3) —
-> activating cat-lr 1e-3 is the lever (`CANONICAL_VERSIONS §v17`). Promotion to §1/default gated on CA/TX + the
-> flag-OFF parity test.
+> activating cat-lr 1e-3 is the lever (`CANONICAL_VERSIONS §v17`). v17 is the default champion; §1 headline updates once CA/TX land at matched n + the flag-OFF parity test.
 
 Champion-G = `mtlnet_crossattn_dualtower` + `next_stan_flow_dualtower` (reg) + `next_gru` (cat); unweighted CE,
 static_weight cw=0.75, onecycle max-lr 3e-3, geom_simple selector; fp32-matched (`r0_matched_rescore.py`).

@@ -41,25 +41,24 @@ with the flags needed to recover every prior version.
 
 > 🏆 **2026-06-30 (board champion engine + the new v17 candidate):** the closing_data **board** champion-G runs on
 > the **`check2hgi_dk_ovl`** engine (gated stride-1 overlap of v14) — the v16 bundle's per-head LRs are **inert under
-> onecycle** (effective uniform 3e-3). **`--canon v17`** (added below; opt-in, `DEFAULT_CANON` unchanged) = v16 +
+> onecycle** (effective uniform 3e-3). **`--canon v17`** (now `DEFAULT_CANON`) = v16 +
 > bs8192 + `--onecycle-per-head-lr` and **beats v16 board-wide at n=20** (AL/AZ/FL; see §v17 +
-> [`../studies/closing_data/perhead_lr_n20.md`](../studies/closing_data/perhead_lr_n20.md)). CA/TX + the flag-OFF
-> parity test gate it entering the §1 headline or `DEFAULT_CANON`.
+> [`../studies/closing_data/perhead_lr_n20.md`](../studies/closing_data/perhead_lr_n20.md)). CA/TX (running now at n=20) + the flag-OFF
+> parity test gate it entering the §1 headline.
 
-**As of 2026-06-07, `scripts/train.py --task mtl` takes `--canon {v11,v12,v15,v16,none}`,
-default `v16` (champion G).** Each version is a *bundle* of CLI flags (`src/configs/canon.py
+**As of 2026-06-07, `scripts/train.py --task mtl` takes `--canon {v11,v12,v15,v16,v17,none}`,
+default **`v17`** (champion; = v16 base + bs8192 + per-head cat-lr).** Each version is a *bundle* of CLI flags (`src/configs/canon.py
 ::CANON_BUNDLES`) injected **before** your own flags, so **explicit flags always override the
 bundle** (argparse last-wins). This makes the champion the default while keeping every prior
 version reproducible with a single flag — instead of the ~15-flag invocations below.
 
-- **Run the champion (default):** `train.py --task mtl --state <s> --seed <S>` → v16/G.
-- **Traceback to a prior version:** `--canon v11` (paper canon) · `--canon v12` (log_T-KD, weighted)
-  · `--canon v15` (C25-unweighted) · `--canon none` (bare smoke defaults, no injection).
+- **Run the champion (default):** `train.py --task mtl --state <s> --seed <S>` → **v17** (bs8192 + per-head).
+- **Traceback to a prior version:** `--canon v16` (bs2048 uniform-LR champion-G) · `--canon v11` (paper canon) · `--canon v12` (log_T-KD, weighted) · `--canon v15` (C25-unweighted) · `--canon none` (bare smoke defaults, no injection).
 - **Scope:** MTL only; no-op under `--config` or `--task category|next`.
 - **`--per-fold-transition-dir`** auto-derives to `output/<engine>/<state>` under `--canon` (so a
   bare run still uses leak-free seeded log_T); pass it explicitly to override.
 
-> ⚠ **Contract — pin `--canon` in every script/driver.** Because the default bundle (v16) merges
+> ⚠ **Contract — pin `--canon` in every script/driver.** Because the default bundle (v17) merges
 > with whatever flags you pass, a driver that passes *some* recipe flags but omits `--canon` and
 > some others will inherit the rest from v16 (e.g. a v12 driver that omits `--log-t-kd-weight`
 > would get v16's 0.0). Partial specification was never safe (the old bare default was a smoke
@@ -385,10 +384,9 @@ bundle without it would silently reproduce v16-uniform-3e-3.
 | AZ | **65.84** | 63.57 | **+2.27** (+1.52 per-head) | 59.56 (flat) |
 | FL | **79.85** | base 79.68 | **+0.17 cat / +0.20 reg**, ~7% faster | 77.42 |
 
-**Status / scope:** **opt-in** (`DEFAULT_CANON` stays **v16**; `MTL_ONECYCLE_PER_HEAD_LR` stays default-OFF). **§0.1
+**Status / scope:** **v17 is now `DEFAULT_CANON`** (bare `train.py` runs it; v16 via `--canon v16`; `MTL_ONECYCLE_PER_HEAD_LR` stays default-OFF, v17 sets `--onecycle-per-head-lr`). **§0.1
 (v11) is UNAFFECTED** — v11 is a separate frozen bundle on the GCN substrate using `cosine` (the per-head fix is
-onecycle-only); adding v17 changes nothing in v11. **CA/TX NOT yet run** (reg C 6.5–8.5k, fp32-only) — they must
-land at n=20 before v17 enters the RESULTS_BOARD §1 headline or `DEFAULT_CANON` flips. Open: the flag-OFF eager
+onecycle-only); adding v17 changes nothing in v11. **CA/TX are RUNNING now at n=20** (reg C 6.5–8.5k, fp32) — they enter the RESULTS_BOARD §1 headline once matched-n. Open: the flag-OFF eager
 byte-identical parity test (`future_works/per_head_lr_onecycle_fix.md`). Full record:
 `../studies/train_perf_multifold/{BATCH_SIZE_SWEEP.md,RESULTS_SUMMARY.md,CLOSURE.md}` + `perhead_lr_n20.md`.
 

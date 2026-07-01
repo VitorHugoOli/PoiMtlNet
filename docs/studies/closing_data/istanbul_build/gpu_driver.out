@@ -1,0 +1,12 @@
+[23:35:00] === Step 4: phase_v_substrate GCN 500ep (GPU, fp32) ===
+[23:40:39] step4 (substrate) rc=0
+[23:40:39] === Step 5: stride-1 overlap windowing (CPU) ===
+[23:41:39] step5 (stride1) rc=0
+[23:41:39] === ISTANBUL SUBSTRATE DONE ===
+total 1747240
+drwxr-xr-x 2 vitor.oliveira users      4096 Jun 26 23:41 .
+drwxr-xr-x 6 vitor.oliveira users      4096 Jun 26 23:40 ..
+-rw-r--r-- 1 vitor.oliveira users 892397581 Jun 26 23:41 next.parquet
+-rw-r--r-- 1 vitor.oliveira users       279 Jun 26 23:41 next_build_provenance.json
+-rw-r--r-- 1 vitor.oliveira users 896408432 Jun 26 23:41 next_region.parquet
+-rw-r--r-- 1 vitor.oliveira users    343920 Jun 26 23:18 next_region_labels.parquet

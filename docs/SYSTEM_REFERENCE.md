@@ -11,10 +11,9 @@
 (reg head, **prior-OFF**: `freeze_alpha=True alpha_init=0.0`). Unweighted CE, MTL loss
 `static_weight` with `category-weight 0.75`, scheduler `onecycle max-lr 3e-3`
 (per-head LRs cat/reg/shared = 1e-3/3e-3/1e-3 — ⚠ **INERT under onecycle by default**: a scalar `max-lr`
-broadcasts to all param groups, so every head peaks at 3e-3. The fix **shipped** (`MTL_ONECYCLE_PER_HEAD_LR=1`,
-per-group max_lr) and **activating cat-lr 1e-3 is a confirmed n=20 board-wide WIN** —
+broadcasts to all param groups, so every head peaks at 3e-3. The fix **shipped** and is now the **DEFAULT champion `--canon v17`** (bs8192 + `--onecycle-per-head-lr`); v16 via `--canon v16`. Confirmed n=20 board-wide WIN —
 [`studies/closing_data/perhead_lr_n20.md`](studies/closing_data/perhead_lr_n20.md),
-[`future_works/per_head_lr_onecycle_fix.md`](future_works/per_head_lr_onecycle_fix.md); promotion pending CA/TX),
+[`future_works/per_head_lr_onecycle_fix.md`](future_works/per_head_lr_onecycle_fix.md); CA/TX n=20 running to complete the board),
 checkpoint selector `geom_simple`
 (`√(cat_macroF1 · reg_Acc@10)`). Substrate engine `check2hgi_dk_ovl` (gated stride-1
 overlap, MIN_SEQ=10); per-fold priors dir = the v14 substrate `check2hgi_design_k_resln_mae_l0_1`.

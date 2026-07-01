@@ -9,11 +9,11 @@ key execution params and the operational miscellaneous (profiler, multi-fold fan
 > line + the changelog at the bottom. The numbers/recipe here must always match `docs/results/CANONICAL_VERSIONS.md`,
 > `docs/NORTH_STAR.md`, and `docs/studies/closing_data/RESULTS_BOARD.md`.
 
-**Canon as of 2026-06-30:** champion **G / v16** (`mtlnet_crossattn_dualtower` + `next_gru` cat + `next_stan_flow_dualtower`
+**Canon as of 2026-07-01:** champion **v17** (= v16 + bs8192 + `--onecycle-per-head-lr`; `DEFAULT_CANON`). Base **G / v16** (`mtlnet_crossattn_dualtower` + `next_gru` cat + `next_stan_flow_dualtower`
 reg, prior-OFF) trained on the **`check2hgi_dk_ovl`** engine (gated stride-1 overlap of the **v14** substrate
 `check2hgi_design_k_resln_mae_l0_1`), **bs=2048, fp32**, OneCycle max-lr 3e-3, static_weight cw=0.75, geom_simple
 selector. Paper board = `docs/studies/closing_data/RESULTS_BOARD.md §1`.
-> 🏆 **Promoted champion candidate — `--canon v17` (opt-in; AL/AZ/FL done, CA/TX pending):** **bs=8192 + per-head cat-lr 1e-3** via
+> 🏆 **CHAMPION = `--canon v17` (now the DEFAULT; AL/AZ/FL done, CA/TX running at n=20):** **bs=8192 + per-head cat-lr 1e-3** via
 > `MTL_ONECYCLE_PER_HEAD_LR=1` — beats champion board-wide (AL +1.0/AZ +2.3 cat; FL +0.17cat/+0.20reg & +7% faster).
 > See `docs/studies/closing_data/perhead_lr_n20.md`. Promote → update this doc.
 

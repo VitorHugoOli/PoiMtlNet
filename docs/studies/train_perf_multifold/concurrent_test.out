@@ -1,0 +1,20 @@
+[fanout] run_id=al_concurrent_test folds=(0 1 2 3 4) max_parallel=5  logs→logs/fanout/al_concurrent_test
+[fanout] launched fold 0 (pid 2713734)
+[fanout] launched fold 1 (pid 2713735)
+[fanout] launched fold 2 (pid 2713736)
+[fanout] launched fold 3 (pid 2713737)
+[fanout] launched fold 4 (pid 2713738)
+[fanout] all fold-processes done (failures=0)
+[fanout] shared rundir = results/check2hgi_dk_ovl/alabama/mtlnet_lr1.0e-04_bs2048_ep8_al_concurrent_test
+=== fold aggregate: mtlnet_lr1.0e-04_bs2048_ep8_al_concurrent_test ===
+  [next_category] folds=[0, 1, 2, 3, 4]
+      macro_f1     = 64.1532 ± 2.0185  (n=5) *
+      accuracy     = 67.0162 ± 1.2655  (n=5)
+      top3_acc     = 91.5962 ± 0.4666  (n=5)
+  [next_region] folds=[0, 1, 2, 3, 4]
+      top10_full   = 68.1228 ± 3.4902  (n=5) *
+      accuracy     = 29.8309 ± 2.3489  (n=5)
+      top3_acc     = 48.2839 ± 3.2081  (n=5)
+      top5_acc     = 56.9960 ± 3.4328  (n=5)
+      mrr          = 42.5758 ± 2.6815  (n=5)
+  wrote /home/vitor.oliveira/PoiMtlNet/results/check2hgi_dk_ovl/alabama/mtlnet_lr1.0e-04_bs2048_ep8_al_concurrent_test/fold_aggregate.json

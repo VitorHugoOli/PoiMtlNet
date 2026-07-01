@@ -1,0 +1,8 @@
+[fanout] run_id=al_champG_fan50_s0 folds=(0 1 2 3 4) max_parallel=5  logs→logs/fanout/al_champG_fan50_s0
+[fanout] launched fold 0 (pid 2733976)
+[fanout] launched fold 1 (pid 2733977)
+[fanout] launched fold 2 (pid 2733978)
+[fanout] launched fold 3 (pid 2733979)
+[fanout] launched fold 4 (pid 2733980)
+[fanout] all fold-processes done (failures=0)
+[fanout] could not locate the shared rundir (results/*/*/*_al_champG_fan50_s0)

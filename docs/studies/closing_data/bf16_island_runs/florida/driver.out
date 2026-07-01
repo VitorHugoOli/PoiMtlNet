@@ -1,0 +1,9 @@
+[06:18:11] START florida bf16+island (2 folds x 50 ep, eng=check2hgi_dk_ovl)
+[06:48:17] END florida bf16 rc=0 wall=1806s
+==== non-finite skips (MTL_STRICT would abort on one; 0 = clean) ====
+skip-related log lines: 1
+==== non-finite skips (MTL_STRICT would abort on one; 0 = clean) ====
+rundir=results/check2hgi_dk_ovl/florida/mtlnet_lr1.0e-04_bs2048_ep50_20260627_061826_137940
+  cat macro-F1 (diag-best)      = 78.9049 ± 0.3224  (n=2)  per-fold=[78.5825, 79.2274]  epochs=[45, 43]
+  reg FULL top10_acc (indist-best) = 76.0407 ± 0.2351  (n=2)  per-fold=[75.8057, 76.2758]  epochs=[44, 43]
+[06:48:17] DONE florida bf16+island
