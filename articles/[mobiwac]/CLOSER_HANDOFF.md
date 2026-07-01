@@ -80,8 +80,9 @@
   so the pool mixes precisions — acceptable per the board's own verdict (bf16≈fp32, Δ≤0.12 pp, eval fp32-matched,
   `RESULTS_BOARD §2`) but disclose it. `RUN_MATRIX §0` still lists 6 states incl. GE — **GE is out of paper scope.**
 - **Status (v17): PARTIAL.** MTL n=20 DONE at AL/AZ/FL; CA/TX seed-0 5f DONE; **open = CA/TX n=20 (H1) + STL-cat
-  re-tune n=20 all states (H2) + Istanbul rebuild (H3)**, all on the H100. The A40 is a slow-but-feasible fallback for
-  H1 (~1.5 d serial; the old "A40 infeasible" was a tqdm misread — `CATX_V17_N20_H100_HANDOFF.md`). The `p3_board.sh`
+  re-tune n=20 all states (H2) + Istanbul rebuild (H3)**. **Machine split (user 2026-07-01): H1 → H100 (only); H2 +
+  H3 → A40.** The A40 is also a slow-but-feasible fallback for H1 (~1.5 d serial; the old "A40 infeasible" was a tqdm
+  misread — `CATX_V17_N20_H100_HANDOFF.md`). The `p3_board.sh`
   commands above are the **v16** recipe — for v17 use the track's H2/H1 recipes. **Non-blocking for submission** (§6.2
   labels cells n=5 provisional).
 
@@ -132,7 +133,8 @@
   both parts are fully six-state on one windowing and the caveat drops. This is net-new full-board regeneration (H100).
 - **What.** Build the `dk_ovl` substrate for Istanbul (mahalle) → v17 MTL n=20 + STL cat/region ceilings n=20 →
   re-foot the substrate-bound baselines (HGI Tbl-2, CTLE-SC); region externals (HMT-GRN/STAN) are substrate-independent.
-- **Machine: H100** (H3 in [`v17_completion/H100.md`](../../docs/studies/closing_data/v17_completion/H100.md)).
+- **Machine: A40** (H3 in [`v17_completion/A40.md`](../../docs/studies/closing_data/v17_completion/A40.md); Istanbul is
+  small — 520 mahalle — so it's feasible on the A40, freeing the H100 for H1).
 - **Acceptance.** Istanbul §1 on `dk_ovl`+v17; drop the cross-substrate prose in §5/§6 + the RESULTS_BOARD "stride-1 GCN"
   note. **Sanity: the beats-cat / matches-reg pattern MUST replicate** (it did across substrates) — if it flips, STOP + report.
 - **Status: not-started (H100).**

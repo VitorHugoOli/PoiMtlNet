@@ -4,6 +4,12 @@
 > logits/JSONs, the pre-registered stats, the CPU-only leak audit, and the doc/LaTeX/submission work. Everything here
 > is CPU-bound and hours-scale. Recipe discipline (for any re-score): track [`README.md`](README.md).
 
+> **Sequencing (does the M2 Pro wait for the A40/H100? — mostly, but not entirely).** **M1** (the re-score + stats
+> payoff) MUST wait for **H1 (H100)** + **H2 (A40)** to land — it consumes their JSONs, so it is genuinely last on the
+> critical path. **But M4 + M5** (STAN disclosure, stale-doc fixes, submission mechanics) **and M2 + M3** (A4-leak,
+> bridging) **are independent — start them now, in parallel with the GPU work.** So: not idle until the GPUs finish;
+> only M1 blocks on them.
+
 ## Queue
 
 ### M1 · n=20 re-score + the two pre-registered tests + drop "provisional"  — **the payoff of H1/H2**
