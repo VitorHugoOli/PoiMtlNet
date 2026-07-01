@@ -19,7 +19,7 @@ class POIDataset(Dataset):
         return self.features[idx], self.labels[idx]
 
 
-# NOTE: POIDatasetWithAux lives in ``src/data/folds.py`` next to the real
-# ``POIDataset`` class used by ``_create_dataloader``. The ``POIDataset`` in
-# this file is an orphan kept for backward reference but is not imported
-# by any code path. See folds.py for the active classes.
+# NOTE: this is a minimal POIDataset used by ``scripts/p1_poi_head_ablation.py``.
+# The training pipeline uses the richer ``POIDataset`` (with ``device=`` pre-move +
+# batched ``__getitems__``) and ``POIDatasetWithAux`` in ``src/data/folds.py`` — see
+# folds.py for the classes wired into ``_create_dataloader``.

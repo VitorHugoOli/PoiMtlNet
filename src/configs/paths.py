@@ -89,6 +89,35 @@ class EmbeddingEngine(Enum):
     HGI_DK_OVL = "hgi_dk_ovl"
 
 
+# Engines valid for the MTL_CHECK2HGI (check-in-level joint) preset: check-in-level
+# Check2HGI substrates + the per-visit baselines that share next.parquet/next_region.parquet.
+# Single source of truth — the check2hgi-MTL fold creator (data/folds.py) and the train.py
+# preset pre-flight BOTH validate against this, so a new engine is enabled in ONE place.
+MTL_CHECK2HGI_ALLOWED_ENGINES = (
+    EmbeddingEngine.CHECK2HGI,
+    EmbeddingEngine.HGI,
+    EmbeddingEngine.CHECK2HGI_DESIGN_B,
+    EmbeddingEngine.CHECK2HGI_DESIGN_J,
+    EmbeddingEngine.CHECK2HGI_DESIGN_L,
+    EmbeddingEngine.CHECK2HGI_LEVER4_CANONICAL,
+    EmbeddingEngine.CHECK2HGI_LEVER4_DESIGN_B,
+    EmbeddingEngine.CHECK2HGI_RESLN,
+    EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_B,
+    EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_J,
+    EmbeddingEngine.CHECK2HGI_T43_SIDEFEAT,  # embedding_eval MTL re-screen
+    EmbeddingEngine.CHECK2HGI_GPROP,         # GCN^2 region-emb proxy
+    EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_B_GPROP,  # v13 + GCN^2 region
+    EmbeddingEngine.CHECK2HGI_DESIGN_K_L0_1,
+    EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_L0_1,
+    EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_MAE_L0_1,  # option-b dual-axis base
+    EmbeddingEngine.CHECK2HGI_DK_OVL,  # overlap-window probe (v14 re-windowed stride=1)
+    EmbeddingEngine.BASELINE_B2C_ONEHOT64,  # [ENUM-MERGE] B2c zero-training floor probe
+    EmbeddingEngine.CHECK2HGI_CTLE,  # [ENUM-MERGE] B1 CTLE contextual per-visit substrate
+    EmbeddingEngine.BASELINE_B2A_POI2VEC,  # [ENUM-MERGE] B2a faithful POI2Vec
+    EmbeddingEngine.BASELINE_GEOTREE_SKIPGRAM,  # [ENUM-MERGE] geo-tree skip-gram baseline
+)
+
+
 class Resources:
     """
     Static paths for resource files.

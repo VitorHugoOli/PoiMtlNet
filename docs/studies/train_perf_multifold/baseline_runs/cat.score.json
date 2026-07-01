@@ -1,0 +1,22 @@
+{
+  "rundir": "/home/vitor.oliveira/PoiMtlNet/results/check2hgi_dk_ovl/alabama/next_lr1.0e-04_bs2048_ep50_20260626_154816_2693959",
+  "tag": "alabama_cat_ceiling",
+  "metric": "STL cat ceiling = macro-F1 (f1 col) at f1-best epoch, fold-mean",
+  "n_folds": 5,
+  "cat_macro_f1_mean": 55.7273,
+  "cat_macro_f1_std": 1.8312,
+  "cat_per_fold": [
+    55.739,
+    57.4159,
+    56.5729,
+    56.6858,
+    52.2229
+  ],
+  "cat_best_epochs": [
+    36,
+    45,
+    34,
+    38,
+    41
+  ]
+}

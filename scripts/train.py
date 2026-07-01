@@ -44,7 +44,7 @@ if _src not in sys.path:
 
 from configs.experiment import DatasetSignature, ExperimentConfig
 from configs.globals import CATEGORIES_MAP
-from configs.paths import EmbeddingEngine, IoPaths
+from configs.paths import EmbeddingEngine, IoPaths, MTL_CHECK2HGI_ALLOWED_ENGINES
 from data.folds import FoldCreator, TaskType, load_folds, rebuild_dataloaders
 from tasks import (
     CHECK2HGI_NEXT_REGION,
@@ -67,6 +67,10 @@ logger = logging.getLogger(__name__)
 _VALID_TASKS = ("mtl", "category", "next")
 _VALID_ENGINES = [e.value for e in EmbeddingEngine]
 _NO_CHECKPOINTS = False
+# Multi-fold fan-out (set in main() from --run-id / --per-fold-seed). Default
+# None/False → single-process behaviour unchanged. Read in _run_mtl_check2hgi.
+_RUN_ID = None
+_PER_FOLD_SEED = False
 
 
 def _make_run_dir(results_path: Path, task: str, config: ExperimentConfig) -> Path:
@@ -125,9 +129,9 @@ def _default_checkpoint_callbacks(run_dir: Path, monitor: str) -> list:
 def _run_mtl(config: ExperimentConfig, results_path: Path, fold_results: dict) -> dict:
     from training.runners.mtl_cv import train_with_cross_validation
 
-    # AUDIT-C2: legacy preset both default to F1, so this is a no-op
-    # today — but the explicit dict keeps intent readable and prevents
-    # silent drift if one slot's primary_metric ever changes.
+    # Legacy preset both default to F1, so this is a no-op today — the
+    # explicit dict keeps intent readable and prevents silent drift if a
+    # slot's primary_metric ever changes.
     from tasks.presets import LEGACY_CATEGORY_NEXT
     task_monitors = {
         LEGACY_CATEGORY_NEXT.task_a.name: LEGACY_CATEGORY_NEXT.task_a.primary_metric.value,
@@ -156,6 +160,7 @@ def _run_mtl(config: ExperimentConfig, results_path: Path, fold_results: dict) -
         verbose=True,
         task_monitors=task_monitors,
         min_epoch=int(getattr(config, "min_best_epoch", 0) or 0),
+        run_id=_RUN_ID,
     )
 
     if _NO_CHECKPOINTS:
@@ -170,6 +175,7 @@ def _run_mtl(config: ExperimentConfig, results_path: Path, fold_results: dict) -
             config=config,
             results_path=results_path,
             callbacks=cbs,
+            per_fold_seed=_PER_FOLD_SEED,
         )
 
     return results
@@ -197,12 +203,10 @@ def _run_mtl_check2hgi(
     from training.runners.mtl_cv import train_with_cross_validation
 
     engine = EmbeddingEngine(config.embedding_engine)
-    # AUDIT-C2 fix — wire each task's primary_metric (declared in the
-    # preset) into MLHistory so the per-task BestModelTracker monitors
-    # the intended metric. Default ``monitor='f1'`` previously drowned
-    # this out: e.g. CHECK2HGI_NEXT_REGION declares Acc@1 for
-    # next_region but the tracker selected by F1, mismatching reported
-    # top10/MRR by ~3.5 pp on FL MTL runs.
+    # Wire each task's primary_metric (declared in the preset) into
+    # MLHistory so the per-task BestModelTracker monitors the intended
+    # metric. A default monitor='f1' would mismatch heads like
+    # CHECK2HGI_NEXT_REGION, which declares Acc@1 for next_region.
     task_monitors = {
         task_set.task_a.name: task_set.task_a.primary_metric.value,
         task_set.task_b.name: task_set.task_b.primary_metric.value,
@@ -228,6 +232,7 @@ def _run_mtl_check2hgi(
         verbose=True,
         task_monitors=task_monitors,
         min_epoch=int(getattr(config, "min_best_epoch", 0) or 0),
+        run_id=_RUN_ID,
     )
 
     if _NO_CHECKPOINTS:
@@ -244,97 +249,69 @@ def _run_mtl_check2hgi(
             results_path=results_path,
             callbacks=cbs,
             task_set=task_set,
+            per_fold_seed=_PER_FOLD_SEED,
         )
 
+    return results
+
+
+def _run_single_task(config, results_path, fold_results, *, task, run_cv,
+                     model_name, fold_attr, getter, description) -> dict:
+    """Shared single-task (category / next) CV launcher. The two paths differ only in
+    which ``run_cv`` module, fold attribute, dataset getter, and labels they use."""
+    folds = [
+        (getattr(fold_results[i], fold_attr).train.dataloader,
+         getattr(fold_results[i], fold_attr).val.dataloader)
+        for i in sorted(fold_results)
+    ]
+    history = MLHistory(
+        model_name=model_name,
+        model_type="Single-Task",
+        tasks=task,
+        num_folds=len(folds),
+        datasets={
+            DatasetHistory(
+                raw_data=str(getter(config.state, EmbeddingEngine(config.embedding_engine))),
+                folds_signature=None,
+                description=description,
+            )
+        },
+        label_map=CATEGORIES_MAP,
+        save_path=str(results_path),
+        verbose=True,
+        display_report=True,
+    )
+    if _NO_CHECKPOINTS:
+        cbs = []
+    else:
+        run_dir = _make_run_dir(results_path, task=task, config=config)
+        cbs = _default_checkpoint_callbacks(run_dir, monitor="val_f1")
+    with history:
+        results = run_cv(
+            history, folds, config,
+            results_path=results_path,
+            callbacks=cbs,
+        )
+    history.display.end_training()
     return results
 
 
 def _run_category(config: ExperimentConfig, results_path: Path, fold_results: dict) -> dict:
     from training.runners.category_cv import run_cv
-
-    folds = [
-        (fold_results[i].category.train.dataloader, fold_results[i].category.val.dataloader)
-        for i in sorted(fold_results)
-    ]
-
-    history = MLHistory(
-        model_name="Category",
-        model_type="Single-Task",
-        tasks="category",
-        num_folds=len(folds),
-        datasets={
-            DatasetHistory(
-                raw_data=str(
-                    IoPaths.get_category(config.state, EmbeddingEngine(config.embedding_engine))
-                ),
-                folds_signature=None,
-                description="Category prediction input",
-            )
-        },
-        label_map=CATEGORIES_MAP,
-        save_path=str(results_path),
-        verbose=True,
-        display_report=True,
+    return _run_single_task(
+        config, results_path, fold_results, task="category", run_cv=run_cv,
+        model_name="Category", fold_attr="category", getter=IoPaths.get_category,
+        description="Category prediction input",
     )
-
-    if _NO_CHECKPOINTS:
-        cbs = []
-    else:
-        run_dir = _make_run_dir(results_path, task="category", config=config)
-        cbs = _default_checkpoint_callbacks(run_dir, monitor="val_f1")
-    with history:
-        results = run_cv(
-            history, folds, config,
-            results_path=results_path,
-            callbacks=cbs,
-        )
-
-    history.display.end_training()
-    return results
 
 
 def _run_next(config: ExperimentConfig, results_path: Path, fold_results: dict) -> dict:
     from training.runners.next_cv import run_cv
-
-    folds = [
-        (fold_results[i].next.train.dataloader, fold_results[i].next.val.dataloader)
-        for i in sorted(fold_results)
-    ]
-
-    history = MLHistory(
-        model_name="Next",
-        model_type="Single-Task",
-        tasks="next",
-        num_folds=len(folds),
-        datasets={
-            DatasetHistory(
-                raw_data=str(
-                    IoPaths.get_next(config.state, EmbeddingEngine(config.embedding_engine))
-                ),
-                folds_signature=None,
-                description="Next-POI prediction input",
-            )
-        },
-        label_map=CATEGORIES_MAP,
-        save_path=str(results_path),
-        verbose=True,
-        display_report=True,
+    return _run_single_task(
+        config, results_path, fold_results, task="next", run_cv=run_cv,
+        model_name="Next", fold_attr="next", getter=IoPaths.get_next,
+        description="Next-POI prediction input",
     )
-
-    if _NO_CHECKPOINTS:
-        cbs = []
-    else:
-        run_dir = _make_run_dir(results_path, task="next", config=config)
-        cbs = _default_checkpoint_callbacks(run_dir, monitor="val_f1")
-    with history:
-        results = run_cv(
-            history, folds, config,
-            results_path=results_path,
-            callbacks=cbs,
-        )
-
-    history.display.end_training()
-    return results
 
 
 _RUNNERS = {
@@ -519,7 +496,7 @@ def _parse_args(argv=None) -> argparse.Namespace:
         default=None,
         help="Force-disable class-balanced CE weighting even if the config default is on.",
     )
-    # C25 (2026-06-05) — PER-TASK class-weight overrides (MTL only). The legacy
+    # PER-TASK class-weight overrides (MTL only). The legacy
     # --[no-]class-weights flag couples BOTH heads; these override per task and
     # take precedence. None → inherit use_class_weights. Best default: reg OFF
     # (Acc@10), cat ON (macro-F1) — set in ExperimentConfig.default_mtl.
@@ -535,7 +512,7 @@ def _parse_args(argv=None) -> argparse.Namespace:
     parser.add_argument("--no-cat-class-weights", dest="use_class_weights_cat",
                         action="store_false", default=None,
                         help="MTL: unweighted CAT CE.")
-    # --- T1.4 STL loss calibration (next_cv.py cat tune; leak-free, train-only stats) ---
+    # --- STL loss calibration (next_cv.py cat tune; leak-free, train-only stats) ---
     parser.add_argument("--focal-gamma", type=float, default=0.0,
                         help="T1.4: focal focusing parameter (>0 enables focal). STL cat lever.")
     parser.add_argument("--logit-adjust-tau", type=float, default=0.0,
@@ -1118,6 +1095,41 @@ def _parse_args(argv=None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--only-folds",
+        type=str,
+        default=None,
+        help=(
+            "[MULTI-FOLD] Run a SUBSET of the canonical 5-split, comma-separated, 0-indexed "
+            "(e.g. '2,3' or '0'). Like --only-fold but for several folds at once; forces the "
+            "5-split + matching per-fold seeded log_T. The fan-out building block: launch one "
+            "process per fold, all sharing a --run-id, then aggregate. Mutually exclusive with "
+            "--folds / --only-fold."
+        ),
+    )
+    parser.add_argument(
+        "--run-id",
+        type=str,
+        default=None,
+        help=(
+            "[MULTI-FOLD] Fix the results-rundir leaf to this name so N fold-processes (each "
+            "--only-folds k) write into ONE execution dir for clean aggregation, instead of each "
+            "inventing its own timestamped dir. Implies --per-fold-seed (the fan-out must be "
+            "fold-order-independent). NB: the rundir leaf is lowercased. Default None => the "
+            "legacy <ts>_<pid> rundir."
+        ),
+    )
+    parser.add_argument(
+        "--per-fold-seed",
+        dest="per_fold_seed",
+        action="store_true",
+        default=False,
+        help=(
+            "[MULTI-FOLD] Reseed from (seed + fold_id) before each fold so fold k is reproducible "
+            "regardless of execution order — a fanned-out fold equals its place in a sequential "
+            "run. Auto-enabled by --run-id. Default off => byte-identical single-global-seed runs."
+        ),
+    )
+    parser.add_argument(
         "--embedding-dim",
         type=int,
         default=None,
@@ -1195,6 +1207,23 @@ def _parse_args(argv=None) -> argparse.Namespace:
         help="AdamW eps override — config field optimizer_eps (F51 Tier 3).",
     )
     parser.add_argument(
+        "--adam-beta2",
+        dest="adam_beta2",
+        type=float,
+        default=None,
+        help="AdamW beta2 override (default 0.999). Lower (~0.95) is a "
+             "standard large-batch/bs8192 stabilizer — config optimizer_beta2.",
+    )
+    parser.add_argument(
+        "--onecycle-per-head-lr",
+        dest="onecycle_per_head_lr",
+        action="store_true",
+        help="Make --cat-lr/--reg-lr/--shared-lr actually apply under --scheduler onecycle "
+             "(sets MTL_ONECYCLE_PER_HEAD_LR=1: per-group OneCycle max_lr). Without it the "
+             "per-head LRs are INERT under onecycle (scalar max_lr broadcasts to all groups). "
+             "Part of the v17 candidate recipe (bs8192 + effective cat-lr 1e-3).",
+    )
+    parser.add_argument(
         "--max-grad-norm",
         dest="max_grad_norm",
         type=float,
@@ -1219,7 +1248,24 @@ def _parse_args(argv=None) -> argparse.Namespace:
             "May introduce numeric drift vs NORTH_STAR — exploratory."
         ),
     )
+    parser.add_argument(
+        "--profile",
+        dest="profile_run",
+        action="store_true",
+        default=False,
+        help=(
+            "Enable the ephemeral run profiler/audit (src/training/profiling.py): per-fold "
+            "section timing, throughput, peak GPU mem, torch.compile recompiles, GPU util, and "
+            "pain-point flags (bottlenecks) — logged at fold/run end, NOT persisted into results. "
+            "Set MTL_PROFILE_JSON=<path> to also dump the report. Numerically inert."
+        ),
+    )
     args = parser.parse_args(effective_argv)
+    # --onecycle-per-head-lr drives the env gate read in setup_scheduler (helpers.py); set it here so
+    # the canon-bundled recipe (v17) is self-contained and does not need an env var passed separately.
+    if getattr(args, "onecycle_per_head_lr", False):
+        import os as _os_phlr
+        _os_phlr.environ["MTL_ONECYCLE_PER_HEAD_LR"] = "1"
     # Record whether the canon bundle was actually injected (for the manifest / auto-derivations).
     args._canon_active = bool(_canon_active)
     if not _canon_active:
@@ -1284,7 +1330,7 @@ def _apply_cli_overrides(
         if not (0 < args.pct_start < 1):
             raise ValueError("--pct-start must be in (0, 1)")
         config = dataclasses.replace(config, pct_start=args.pct_start)
-    # F64/B2 — reg_head warmup-decay schedule params (only consumed when
+    # reg_head warmup-decay schedule params (only consumed when
     # scheduler_type == "reg_head_warmup_decay"). Always stamp on config so
     # the runner reads via getattr without needing presence checks.
     config = dataclasses.replace(
@@ -1296,9 +1342,8 @@ def _apply_cli_overrides(
     if args.joint_loader_strategy is not None:
         config = dataclasses.replace(
             config, joint_loader_strategy=args.joint_loader_strategy)
-    # Per-head LR (F48-H3). Validate as a triple — partial sets are an
-    # error since the runner only switches to per-head mode when all
-    # three are present.
+    # Per-head LR. Validate as a triple — partial sets are an error since
+    # the runner only switches to per-head mode when all three are present.
     _per_head_set = {
         "cat_lr": args.cat_lr,
         "reg_lr": args.reg_lr,
@@ -1331,12 +1376,12 @@ def _apply_cli_overrides(
         )
     if args.use_class_weights is not None:
         config = dataclasses.replace(config, use_class_weights=args.use_class_weights)
-    # C25 per-task overrides (take precedence over --[no-]class-weights).
+    # Per-task class-weight overrides (take precedence over --[no-]class-weights).
     if getattr(args, "use_class_weights_reg", None) is not None:
         config = dataclasses.replace(config, use_class_weights_reg=args.use_class_weights_reg)
     if getattr(args, "use_class_weights_cat", None) is not None:
         config = dataclasses.replace(config, use_class_weights_cat=args.use_class_weights_cat)
-    # T1.4 STL loss calibration (next_cv.py cat tune). Only assembles a non-empty
+    # STL loss calibration (next_cv.py cat tune). Only assembles a non-empty
     # dict when a calibration flag is set, so default runs keep the legacy path.
     _lc = {}
     if getattr(args, "focal_gamma", 0.0):
@@ -1361,6 +1406,10 @@ def _apply_cli_overrides(
         if args.adam_eps <= 0:
             raise ValueError("--adam-eps must be > 0")
         config = dataclasses.replace(config, optimizer_eps=float(args.adam_eps))
+    if getattr(args, "adam_beta2", None) is not None:
+        if not (0.0 < args.adam_beta2 < 1.0):
+            raise ValueError("--adam-beta2 must be in (0, 1)")
+        config = dataclasses.replace(config, optimizer_beta2=float(args.adam_beta2))
     if getattr(args, "max_grad_norm", None) is not None:
         # Allow 0 / negative as "disable clipping" — runner already guards.
         config = dataclasses.replace(config, max_grad_norm=float(args.max_grad_norm))
@@ -1541,7 +1590,7 @@ def _apply_cli_overrides(
             config, min_best_epoch=int(args.min_best_epoch)
         )
 
-    # C21 — joint checkpoint selector (default geom_simple). MTL-only knob.
+    # Joint checkpoint selector (default geom_simple). MTL-only knob.
     _sel = getattr(args, "checkpoint_selector", "geom_simple")
     if _sel != getattr(config, "checkpoint_selector", "geom_simple"):
         if config.task_type != "mtl":
@@ -1578,10 +1627,9 @@ def _apply_cli_overrides(
             )
         config = dataclasses.replace(config, reg_freeze_at_epoch=n)
 
-    # substrate-protocol-cleanup Tier C3 — --zero-cat-kv. Wired into
-    # model_params so MTLnetCrossAttn.__init__ receives the kwarg via
-    # create_model(name, **model_params). No-op for other model_names;
-    # validate that the user picked a compatible model.
+    # --zero-cat-kv. Wired into model_params so MTLnetCrossAttn.__init__
+    # receives the kwarg via create_model(name, **model_params). No-op for
+    # other model_names; validate that the user picked a compatible model.
     if getattr(args, "zero_cat_kv", False):
         if config.task_type != "mtl":
             raise ValueError("--zero-cat-kv requires --task mtl")
@@ -1663,7 +1711,7 @@ def _apply_cli_overrides(
             config, log_t_kd_tau=_V12_LOG_T_KD_DEFAULT_TAU
         )
 
-    # R5 (mtl_frontier) — per-instance log_T-KD gate (opt-in, MTL-only, default none).
+    # Per-instance log_T-KD gate (opt-in, MTL-only, default none).
     if getattr(args, "log_t_kd_gate", None) is not None:
         gate = str(args.log_t_kd_gate)
         if gate != "none" and config.task_type != "mtl":
@@ -1676,7 +1724,7 @@ def _apply_cli_overrides(
         if gate != "none":
             logger.info("R5 per-instance log_T-KD gate ON (%s, batch-mean-1 normalized)", gate)
 
-    # R1 (mtl_frontier) — log_C co-location KD. Opt-in, MTL-only, default OFF
+    # log_C co-location KD. Opt-in, MTL-only, default OFF
     # (no version default; never auto-enabled). Stacks on top of log_t_kd.
     if getattr(args, "log_c_kd_weight", None) is not None:
         wc = float(args.log_c_kd_weight)
@@ -1695,7 +1743,7 @@ def _apply_cli_overrides(
             raise ValueError(f"--log-c-kd-tau={tau_c} must be > 0.0")
         config = dataclasses.replace(config, log_c_kd_tau=tau_c)
 
-    # R3 (mtl_frontier) — CrossDistil refinements + reverse arm. All opt-in, MTL-only.
+    # CrossDistil refinements + reverse arm. All opt-in, MTL-only.
     if getattr(args, "log_c_kd_warmup_epochs", None) is not None:
         we = int(args.log_c_kd_warmup_epochs)
         if we < 0:
@@ -1720,7 +1768,7 @@ def _apply_cli_overrides(
             raise ValueError("--cat-kd-tau must be > 0.0")
         config = dataclasses.replace(config, cat_kd_tau=tk)
 
-    # T4.0a (mtl_improvement) loss-scale normalization — opt-in, MTL-only.
+    # Loss-scale normalization — opt-in, MTL-only.
     if getattr(args, "loss_scale_norm", False):
         if config.task_type != "mtl":
             raise ValueError("--loss-scale-norm requires --task mtl")
@@ -1730,7 +1778,7 @@ def _apply_cli_overrides(
             "log(num_classes) before the MTL combiner"
         )
 
-    # G0.1 aligned-pairing — opt-in, MTL-only.
+    # aligned-pairing — opt-in, MTL-only.
     if getattr(args, "aligned_pairing", False):
         if config.task_type != "mtl":
             raise ValueError("--aligned-pairing requires --task mtl")
@@ -1749,8 +1797,7 @@ def _apply_cli_overrides(
     # Persist the per-task input modality into the config so any downstream
     # scorer (e.g. scripts/route_task_best.py) can rebuild the validation
     # loaders with the SAME modality this run trained on. Mirrors the value
-    # passed to FoldCreator in _build_folds. (substrate-protocol-cleanup
-    # Tier C1 modality-bug fix, 2026-05-28.)
+    # passed to FoldCreator in _build_folds.
     config = dataclasses.replace(
         config,
         task_a_input_type=getattr(args, "task_a_input_type", "checkin"),
@@ -1960,17 +2007,43 @@ def main(argv=None) -> None:
     # --folds: limits execution, doesn't change split structure.
     # StratifiedKFold requires n_splits >= 2, so we use max(2, requested).
     max_folds = args.folds  # None means run all folds
+    # --only-folds: parse the comma-separated subset once (0-indexed canonical fold ids).
+    only_folds_list = None
+    if getattr(args, "only_folds", None):
+        try:
+            only_folds_list = sorted({int(x) for x in str(args.only_folds).split(",") if x.strip() != ""})
+        except ValueError:
+            raise SystemExit(f"--only-folds must be comma-separated ints (got {args.only_folds!r}).")
+        if not only_folds_list:
+            raise SystemExit("--only-folds was empty.")
+    args._only_folds_list = only_folds_list
+
     if getattr(args, "only_fold", None) is not None:
         # [ONLY-FOLD] force the canonical 5-split so fold k matches the per-fold substrate
         # + the n_splits=5 seeded log_T. Mutually exclusive with --folds. Inert by default.
+        if max_folds is not None or only_folds_list is not None:
+            raise SystemExit("--only-fold, --only-folds and --folds are mutually exclusive; pass one.")
+        config = dataclasses.replace(config, k_folds=5)
+    elif only_folds_list is not None:
+        # [MULTI-FOLD] same as --only-fold but for a subset; force the canonical 5-split.
         if max_folds is not None:
-            raise SystemExit("--only-fold and --folds are mutually exclusive; pass only one.")
+            raise SystemExit("--only-folds and --folds are mutually exclusive; pass one.")
         config = dataclasses.replace(config, k_folds=5)
     elif max_folds is not None:
         n_splits = max(2, max_folds)
         config = dataclasses.replace(config, k_folds=n_splits)
 
+    # Multi-fold fan-out wiring. --run-id implies --per-fold-seed (the fan-out must be
+    # fold-order-independent so a fanned-out fold equals its place in a sequential run).
+    global _RUN_ID, _PER_FOLD_SEED
+    _RUN_ID = getattr(args, "run_id", None)
+    _PER_FOLD_SEED = bool(getattr(args, "per_fold_seed", False)) or (_RUN_ID is not None)
+
     seed_everything(config.seed)
+
+    if getattr(args, "profile_run", False):
+        from training.profiling import enable_profiler
+        enable_profiler(True)
 
     # Optional CUDA perf knobs — both default-off so paper runs match
     # NORTH_STAR exactly. They live here (post-seed) because the seed
@@ -2009,42 +2082,20 @@ def main(argv=None) -> None:
         preset_name = args.task_set or LEGACY_CATEGORY_NEXT.name
         task_set = get_preset(preset_name)
         is_check2hgi_track = preset_name == CHECK2HGI_NEXT_REGION.name
-        # SUBSTRATE_COMPARISON_PLAN §5 — MTL counterfactual allows --engine hgi
-        # provided output/hgi/<state>/input/next_region.parquet exists (built
-        # by scripts/probe/build_hgi_next_region.py). Cat input also flips to
+        # MTL counterfactual allows --engine hgi provided
+        # output/hgi/<state>/input/next_region.parquet exists (built by
+        # scripts/probe/build_hgi_next_region.py). Cat input also flips to
         # HGI's input/next.parquet automatically via IoPaths.
-        # substrate-protocol-cleanup Tier B (2026-05-28): Designs B/J/L (Lever 5)
-        # and the Lever-4 stack reuse the canonical c2hgi graph + sequences
-        # verbatim (only the substrate embeddings differ), so the
-        # check2hgi_next_region task pair is valid for them. Per-fold log_T is
-        # cp'd from canonical (n_regions identical). Allow the design engines.
-        _ALLOWED_ENGINES_FOR_C2HGI_PRESET = (
-            EmbeddingEngine.CHECK2HGI,
-            EmbeddingEngine.HGI,
-            EmbeddingEngine.CHECK2HGI_DESIGN_B,
-            EmbeddingEngine.CHECK2HGI_DESIGN_J,
-            EmbeddingEngine.CHECK2HGI_DESIGN_L,
-            EmbeddingEngine.CHECK2HGI_LEVER4_CANONICAL,
-            EmbeddingEngine.CHECK2HGI_LEVER4_DESIGN_B,
-            EmbeddingEngine.CHECK2HGI_RESLN,
-            EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_B,
-            EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_J,
-            EmbeddingEngine.CHECK2HGI_T43_SIDEFEAT,  # embedding_eval MTL re-screen
-            EmbeddingEngine.CHECK2HGI_GPROP,         # GCN^2 region-emb (adjacency-aware proxy)
-            EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_B_GPROP,  # v13 + GCN^2 region
-            EmbeddingEngine.CHECK2HGI_DESIGN_K_L0_1,
-            EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_L0_1,
-            EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_MAE_L0_1,  # option-b dual-axis base
-            EmbeddingEngine.CHECK2HGI_DK_OVL,  # overlap-window probe (v14 re-windowed stride=1)
-            EmbeddingEngine.BASELINE_B2C_ONEHOT64,  # [ENUM-MERGE] B2c zero-training floor probe
-            EmbeddingEngine.CHECK2HGI_CTLE,  # [ENUM-MERGE] B1 CTLE contextual per-visit substrate
-            EmbeddingEngine.BASELINE_B2A_POI2VEC,  # [ENUM-MERGE] B2a faithful POI2Vec
-            EmbeddingEngine.BASELINE_GEOTREE_SKIPGRAM,  # [ENUM-MERGE] geo-tree skip-gram baseline
-        )
-        if is_check2hgi_track and engine not in _ALLOWED_ENGINES_FOR_C2HGI_PRESET:
+        # Designs B/J/L (Lever 5) and the Lever-4 stack reuse the canonical
+        # c2hgi graph + sequences verbatim (only the substrate embeddings
+        # differ), so the check2hgi_next_region task pair is valid for them.
+        # Per-fold log_T is cp'd from canonical (n_regions identical). The
+        # allow-list is the single source of truth in configs/paths.py
+        # (shared with data/folds.py).
+        if is_check2hgi_track and engine not in MTL_CHECK2HGI_ALLOWED_ENGINES:
             print(
                 f"error: --task-set {preset_name} requires --engine in "
-                f"{[e.value for e in _ALLOWED_ENGINES_FOR_C2HGI_PRESET]} "
+                f"{[e.value for e in MTL_CHECK2HGI_ALLOWED_ENGINES]} "
                 f"(got {engine.value}).",
                 file=sys.stderr,
             )
@@ -2106,14 +2157,19 @@ def main(argv=None) -> None:
         # labels can miss classes present in val or other folds; a
         # too-small n_regions breaks bincount-based metrics at runtime.
         # task_a (next_category) is always 7 — no runtime resolution needed.
-        max_b = -1
-        for fr in fold_results.values():
-            max_b = max(
-                max_b,
-                int(fr.next.train.y.max().item()),
-                int(fr.next.val.y.max().item()),
-            )
-        n_regions = max_b + 1
+        # The fold mapping precomputes the global region count (max id + 1 over all
+        # rows == the per-fold train∪val max across every fold); use it to avoid
+        # materialising all folds just to size the model (esp. for --only-folds fan-out).
+        n_regions = getattr(fold_results, "n_regions", None)
+        if n_regions is None:
+            max_b = -1
+            for fr in fold_results.values():
+                max_b = max(
+                    max_b,
+                    int(fr.next.train.y.max().item()),
+                    int(fr.next.val.y.max().item()),
+                )
+            n_regions = max_b + 1
         reg_head_params = _parse_key_value_overrides(
             args.reg_head_param or [], "--reg-head-param"
         )
@@ -2152,6 +2208,20 @@ def main(argv=None) -> None:
             raise SystemExit(
                 f"--only-fold {args.only_fold} not in available folds {sorted(fold_results)}")
         fold_results = {args.only_fold: fold_results[args.only_fold]}
+    elif getattr(args, "_only_folds_list", None) is not None:
+        # [MULTI-FOLD] keep the requested subset, PRESERVING dict keys so each fold
+        # loads its own region_transition_log_seed{seed}_fold{k+1}.pt and is named by
+        # real id in the (shared) rundir. n_regions was already resolved over all 5
+        # folds above, so the subset model is sized identically across fan-out processes.
+        if len(fold_results) != 5:
+            raise SystemExit(
+                f"--only-folds needs the canonical 5-split (got {len(fold_results)} folds); "
+                f"re-freeze folds / rebuild the per-fold substrate at n_splits=5.")
+        missing = [k for k in args._only_folds_list if k not in fold_results]
+        if missing:
+            raise SystemExit(
+                f"--only-folds {missing} not in available folds {sorted(fold_results)}")
+        fold_results = {k: fold_results[k] for k in args._only_folds_list}
     elif max_folds is not None and max_folds < len(fold_results):
         fold_results = dict(list(fold_results.items())[:max_folds])
 
@@ -2181,8 +2251,7 @@ def main(argv=None) -> None:
     # Validate loss + gradient accumulation compatibility before training.
     # All balancers that backprop internally / return loss=None must be listed
     # here, else they hit a TypeError at mtl_cv backward under grad_accum>1.
-    # cagrad + aligned_mtl added 2026-06-08 (T4.1 audit — they were omitted;
-    # safe only because default_mtl pins grad_accum=1).
+    # (Omitting one is safe only because default_mtl pins grad_accum=1.)
     _BACKWARD_ONLY_LOSSES = {
         "nash_mtl", "pcgrad", "gradnorm", "cagrad", "aligned_mtl",
     }

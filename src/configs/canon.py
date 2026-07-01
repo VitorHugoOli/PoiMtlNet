@@ -39,6 +39,28 @@ _CROSSATTN_B9: List[str] = [
     "--folds", "5", "--epochs", "50", "--batch-size", "2048",
 ]
 
+# v16 champion-G recipe (shared base for v16 + the v17 candidate). Editing this changes BOTH —
+# keep it byte-identical to the frozen §0.1-adjacent v16 resolved recipe.
+_V16: List[str] = [
+    "--task-set", "check2hgi_next_region",
+    "--model", "mtlnet_crossattn_dualtower",
+    "--reg-head", "next_stan_flow_dualtower",
+    "--reg-head-param", "raw_embed_dim=64",
+    "--reg-head-param", "fusion_mode=aux",
+    "--reg-head-param", "freeze_alpha=True",
+    "--reg-head-param", "alpha_init=0.0",
+    "--cat-head", "next_gru",
+    "--mtl-loss", "static_weight", "--category-weight", "0.75",
+    "--scheduler", "onecycle", "--max-lr", "3e-3",
+    "--cat-lr", "1e-3", "--reg-lr", "3e-3", "--shared-lr", "1e-3",
+    "--log-t-kd-weight", "0.0",
+    "--checkpoint-selector", "geom_simple",   # pin explicitly (was the argparse default; identity-preserving)
+    "--no-reg-class-weights", "--no-cat-class-weights",
+    "--task-a-input-type", "checkin", "--task-b-input-type", "region",
+    "--engine", "check2hgi_design_k_resln_mae_l0_1",   # v14 substrate
+    "--folds", "5", "--epochs", "50", "--batch-size", "2048",
+]
+
 CANON_BUNDLES: dict[str, List[str]] = {
     # v11 — BRACIS paper canon: GCN substrate, log_T-KD OFF, CLASS-WEIGHTED (pre-C25),
     # old joint selector (0.5*(cat+reg)). CANONICAL_VERSIONS §v11 + §v12 reproduction map.
@@ -61,25 +83,13 @@ CANON_BUNDLES: dict[str, List[str]] = {
     ],
     # v16 — CHAMPION "G": reg-private dual-tower (aux fusion, α·log_T prior OFF), v14 substrate,
     # onecycle (NO alt-opt), unweighted, KD OFF, geom_simple selector. CANONICAL_VERSIONS §v16.
-    "v16": [
-        "--task-set", "check2hgi_next_region",
-        "--model", "mtlnet_crossattn_dualtower",
-        "--reg-head", "next_stan_flow_dualtower",
-        "--reg-head-param", "raw_embed_dim=64",
-        "--reg-head-param", "fusion_mode=aux",
-        "--reg-head-param", "freeze_alpha=True",
-        "--reg-head-param", "alpha_init=0.0",
-        "--cat-head", "next_gru",
-        "--mtl-loss", "static_weight", "--category-weight", "0.75",
-        "--scheduler", "onecycle", "--max-lr", "3e-3",
-        "--cat-lr", "1e-3", "--reg-lr", "3e-3", "--shared-lr", "1e-3",
-        "--log-t-kd-weight", "0.0",
-        "--checkpoint-selector", "geom_simple",   # pin explicitly (was the argparse default; identity-preserving)
-        "--no-reg-class-weights", "--no-cat-class-weights",
-        "--task-a-input-type", "checkin", "--task-b-input-type", "region",
-        "--engine", "check2hgi_design_k_resln_mae_l0_1",   # v14 substrate
-        "--folds", "5", "--epochs", "50", "--batch-size", "2048",
-    ],
+    "v16": _V16,
+    # v17 — CHAMPION CANDIDATE (n=20-confirmed AL/AZ/FL; CA/TX PENDING): v16 + bs=8192 + per-head
+    # cat-lr 1e-3 actually applied (--onecycle-per-head-lr → MTL_ONECYCLE_PER_HEAD_LR). The v16
+    # --cat-lr 1e-3 is INERT under onecycle without the flag; the flag is what makes it effective.
+    # Beats v16 board-wide (AL +1.0/AZ +2.3 cat; FL +0.17cat/+0.20reg, ~7% faster). Opt-in:
+    # DEFAULT_CANON stays v16 + the env stays default-OFF until CA/TX confirm. CANONICAL_VERSIONS §v17.
+    "v17": _V16 + ["--batch-size", "8192", "--onecycle-per-head-lr"],
 }
 
 CANON_CHOICES = sorted(CANON_BUNDLES) + ["none"]

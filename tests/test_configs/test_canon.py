@@ -53,10 +53,16 @@ EXPECTED = {
                 scheduler="onecycle", log_t_kd_weight=0.0, checkpoint_selector="geom_simple",
                 use_class_weights_reg=False, use_class_weights_cat=False,
                 reg_head="next_stan_flow_dualtower"),
+    # v17 — champion candidate: v16 + bs8192 + --onecycle-per-head-lr (per-head cat-lr 1e-3 effective).
+    "v17": dict(model_name="mtlnet_crossattn_dualtower", engine="check2hgi_design_k_resln_mae_l0_1",
+                scheduler="onecycle", log_t_kd_weight=0.0, checkpoint_selector="geom_simple",
+                use_class_weights_reg=False, use_class_weights_cat=False,
+                reg_head="next_stan_flow_dualtower", batch_size=8192,
+                onecycle_per_head_lr=True),
 }
 
 
-@pytest.mark.parametrize("ver", ["v11", "v12", "v15", "v16"])
+@pytest.mark.parametrize("ver", ["v11", "v12", "v15", "v16", "v17"])
 def test_canon_bundle_resolves_to_documented_recipe(train, ver):
     args = _parse(train, ver)
     for field, want in EXPECTED[ver].items():

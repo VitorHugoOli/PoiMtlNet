@@ -39,7 +39,7 @@ from torch.utils.data import DataLoader, Dataset, TensorDataset, WeightedRandomS
 
 from configs.globals import CATEGORIES_MAP, DEVICE
 from configs.model import InputsConfig
-from configs.paths import EmbeddingEngine, IoPaths
+from configs.paths import EmbeddingEngine, IoPaths, MTL_CHECK2HGI_ALLOWED_ENGINES
 
 logger = logging.getLogger(__name__)
 
@@ -139,9 +139,13 @@ class _LazyFoldMapping:
     ``len``, ``iter``, ``keys``, ``items``, ``values``, ``[]``, ``in``.
     """
 
-    def __init__(self, n_splits: int, build):
+    def __init__(self, n_splits: int, build, n_regions=None):
         self._n = int(n_splits)
         self._build = build
+        # Global region count (max region id + 1 over ALL rows) — equal to the per-fold
+        # train∪val max across every fold, but precomputed so a caller need not iterate
+        # (and transiently materialise) every fold just to size the model output dim.
+        self.n_regions = n_regions
 
     def __len__(self):
         return self._n
@@ -199,12 +203,11 @@ class POIDataset(Dataset):
         return self.features[idx], self.targets[idx]
 
     def __getitems__(self, indices):
-        # Batched fetch (perf fix 2026-06-24, ca-mtl speed workflow): one
-        # `index_select` per tensor instead of len(batch) per-sample __getitem__
-        # slices + a default_collate stack. With a GPU-resident dataset + workers=0
-        # that collapses ~2048 tiny CUDA index kernels/batch (the collate sink that
-        # starved the GPU on the wide-head CA/TX states) into one. Rows/order come
-        # from the sampler → byte-identical batches. Pair with ``_batched_collate``.
+        # Batched fetch: one `index_select` per tensor instead of len(batch)
+        # per-sample __getitem__ slices + a default_collate stack. With a
+        # GPU-resident dataset + workers=0 that collapses ~2048 tiny CUDA index
+        # kernels/batch into one. Rows/order come from the sampler →
+        # byte-identical batches. Pair with ``_batched_collate``.
         idx = torch.as_tensor(indices, dtype=torch.long, device=self.features.device)
         return self.features.index_select(0, idx), self.targets.index_select(0, idx)
 
@@ -246,7 +249,7 @@ class POIDatasetWithAux(Dataset):
         return self.features[idx], self.targets[idx], self.aux[idx]
 
     def __getitems__(self, indices):
-        # Batched fetch — see POIDataset.__getitems__ (perf fix 2026-06-24).
+        # Batched fetch — see POIDataset.__getitems__.
         idx = torch.as_tensor(indices, dtype=torch.long, device=self.features.device)
         return (self.features.index_select(0, idx),
                 self.targets.index_select(0, idx),
@@ -265,22 +268,18 @@ def _batched_collate(batch):
 # UTILITIES
 # ============================================================
 def _get_num_workers() -> int:
-    # Default (GPU-pre-moved dataset) + ALL of MPS: num_workers=0 is fastest.
-    # Each worker is a forked Python process that pickles the tensor over IPC per
-    # epoch — pure overhead when the dataset is already a torch tensor on-device
-    # (and on CUDA, forking the GPU-pre-moved tensor OOM'd the T4 cgroup; on MPS the
-    # IPC cost is visible per-epoch warm-up). See 2026-04-27 FL-on-T4 OOM postmortem.
+    # num_workers=0 everywhere. Each worker forks + pickles the tensor over IPC
+    # per epoch — pure overhead when the dataset is a torch tensor on-device (and
+    # on CUDA, forking the GPU-pre-moved tensor OOM'd the cgroup).
     #
-    # ⚠ num_workers>0 was TESTED on the CPU-resident path (MTL_DATASET_CPU=1) and
-    # REJECTED — it is NOT quality-neutral: AL champion-G with 4 workers shifted
-    # cat macro-F1 +0.92 / reg Acc@10 +0.23 vs the byte-identical num_workers=0
-    # baseline (2026-06-18 measurement). Root cause: the per-task train loaders
+    # ⚠ num_workers>0 is NOT quality-neutral: the per-task train loaders
     # (_create_dataloader / _create_aux_dataloader) shuffle with NO explicit
-    # `generator=` → they consume the GLOBAL torch RNG, and worker plumbing perturbs
-    # the consumption order. Adding a seeded generator would itself change the frozen
-    # baseline numbers, so we keep workers=0 everywhere. The VRAM win for large
-    # states comes from CPU-residency alone (MTL_DATASET_CPU, byte-identical), NOT
-    # from workers — so there is no quality-neutral reason to enable them.
+    # `generator=` → they consume the GLOBAL torch RNG, and worker plumbing
+    # perturbs the consumption order (measured shift vs the byte-identical
+    # workers=0 baseline). Adding a seeded generator would itself change the
+    # frozen baseline numbers, so we keep workers=0. The VRAM win for large states
+    # comes from CPU-residency alone (MTL_DATASET_CPU, byte-identical), NOT from
+    # workers — so there's no quality-neutral reason to enable them.
     return 0
 
 
@@ -452,7 +451,7 @@ def _create_dataloader(
         sampler=sampler,
         num_workers=num_workers,
         collate_fn=_batched_collate,
-        pin_memory=torch.cuda.is_available() and num_workers > 0,
+        pin_memory=torch.cuda.is_available() and dataset_device is None,
         persistent_workers=num_workers > 0,
         prefetch_factor=2 if num_workers > 0 else None,
         worker_init_fn=_worker_init_fn if num_workers > 0 else None,
@@ -496,7 +495,7 @@ def _create_aux_dataloader(
         sampler=sampler,
         num_workers=num_workers,
         collate_fn=_batched_collate,
-        pin_memory=torch.cuda.is_available() and num_workers > 0,
+        pin_memory=torch.cuda.is_available() and dataset_device is None,
         persistent_workers=num_workers > 0,
         prefetch_factor=2 if num_workers > 0 else None,
         worker_init_fn=_worker_init_fn if num_workers > 0 else None,
@@ -566,7 +565,7 @@ def _create_aligned_joint_loader(x_b, y_b, x_a, y_a, aux, batch_size: int, seed:
         shuffle=True,
         generator=g,
         num_workers=num_workers,
-        pin_memory=torch.cuda.is_available() and num_workers > 0,
+        pin_memory=torch.cuda.is_available() and dataset_device is None,
         persistent_workers=num_workers > 0,
         prefetch_factor=2 if num_workers > 0 else None,
         worker_init_fn=_worker_init_fn if num_workers > 0 else None,
@@ -691,11 +690,10 @@ def _guard_mtl_check2hgi_ram(
 
 def _warn_if_ungated_overlap(state, embedding_engine) -> None:
     """Train-time guard: the overlap windowing (stride==1) is GATED by default
-    (M1 tail-gate, ``emit_tail=False``). A *manual* ungated rebuild
-    (``emit_tail=True``) can be left stale on disk and silently train on the wrong
-    windowing (this bit us once: AL OVL was left ungated → a 2.5pp phantom "drop").
-    Read the build-provenance sidecar and WARN loudly if an overlap engine is
-    ungated; ``MTL_STRICT=1`` hard-fails. No-op for non-overlap / missing sidecar.
+    (``emit_tail=False``). A *manual* ungated rebuild (``emit_tail=True``) can be
+    left stale on disk and silently train on the wrong windowing. Read the
+    build-provenance sidecar and WARN loudly if an overlap engine is ungated;
+    ``MTL_STRICT=1`` hard-fails. No-op for non-overlap / missing sidecar.
     """
     try:
         sidecar = IoPaths.get_next(state, embedding_engine).parent / "next_build_provenance.json"
@@ -865,6 +863,112 @@ def rebuild_dataloaders(
     return fold_results
 
 
+def _classify_pois(poi_users, train_users, val_users):
+    """Partition POIs by which user-set(s) visited them (legacy-MTL category split).
+
+    A POI seen by both a train user and a val user is ``ambiguous``; otherwise it is
+    ``train_exclusive`` / ``val_exclusive``. This is the user-isolation leak guard:
+    category-val POIs are val-exclusive only, so a val POI never leaks into train.
+    Returns ``(train_exclusive, val_exclusive, ambiguous)`` lists in ``poi_users``
+    iteration order.
+    """
+    train_exclusive, val_exclusive, ambiguous = [], [], []
+    for poi, visitors in poi_users.items():
+        in_train = bool(visitors & train_users)
+        in_val = bool(visitors & val_users)
+        if in_train and in_val:
+            ambiguous.append(poi)
+        elif in_train:
+            train_exclusive.append(poi)
+        elif in_val:
+            val_exclusive.append(poi)
+    return train_exclusive, val_exclusive, ambiguous
+
+
+def _resolve_task_input(input_type, state, embedding_engine, x_checkin):
+    """Pick a task slot's input tensor for the check2hgi-MTL fold creator.
+
+    ``checkin`` → the shared ``x_checkin`` (no region-sequence build → bit-equivalent to the
+    legacy checkin-only path when both slots are checkin); ``region`` → the region-embedding
+    sequence (``REGION_EMB_ENGINE`` env overrides the region engine while ``embedding_engine``
+    drives the windowing); ``concat`` → checkin ⊕ region. Lazy region-sequence import so
+    non-region engines don't pay the cost.
+    """
+    if input_type == "checkin":
+        return x_checkin
+    from data.inputs.region_sequence import (
+        build_region_sequence_tensor,
+        build_concat_sequence_tensor,
+    )
+    if input_type == "region":
+        import os as _os
+        _re = _os.environ.get("REGION_EMB_ENGINE")
+        _reg_eng = EmbeddingEngine(_re) if _re else embedding_engine
+        return build_region_sequence_tensor(state, region_engine=_reg_eng,
+                                            seq_engine=embedding_engine)
+    if input_type == "concat":
+        return build_concat_sequence_tensor(state, x_checkin)
+    raise ValueError(f"Unknown input_type: {input_type}")
+
+
+def _load_and_validate_check2hgi_data(state, embedding_engine, task_set):
+    """Load + validate the check2hgi-MTL inputs (next.parquet + next_region.parquet).
+
+    Returns ``(X, y_cat, userids, next_dim, y_region, y_last_region|None, use_aux)``.
+    The userid CONTENT-equality guard is load-bearing: row-count parity is necessary but
+    NOT sufficient — a stale next_region.parquet from a different windowing can have the
+    same row count yet a different per-row user/order, silently mis-pairing every (X,region)
+    row. ``use_aux`` fires for the ``next_getnext_hard*`` / ``next_stan_flow*`` heads (which
+    read ``last_region_idx`` via aux_side_channel); the champion-G ``next_stan_flow_dualtower``
+    MUST be listed or use_aux=False → the α·log_T prior + log_T-KD branch silently no-op.
+    """
+    X, y_cat, userids, next_dim = load_next_data(state, embedding_engine)
+
+    region_df = IoPaths.load_next_region(state, embedding_engine)
+    if len(region_df) != len(X):
+        raise ValueError(
+            f"next_region.parquet rows ({len(region_df)}) disagree with "
+            f"next.parquet rows ({len(X)}) for {state}. Regenerate both."
+        )
+    if "userid" in region_df.columns:
+        region_uids = region_df["userid"].astype(int).to_numpy()
+        if not np.array_equal(region_uids, userids):
+            raise ValueError(
+                f"next_region.parquet userid column is not row-aligned with "
+                f"next.parquet for {state} (same row count but different "
+                f"per-row userids — a stale/cross-windowing region file). "
+                f"Regenerate both from the SAME sequences via "
+                f"`python scripts/regenerate_next_region.py --state {state}`."
+            )
+    y_region = region_df["region_idx"].to_numpy(dtype=np.int64)
+
+    task_b_head = (
+        getattr(getattr(task_set, "task_b", None), "head_factory", None)
+        if task_set is not None else None
+    )
+    # Keep in sync with _HEADS_REQUIRING_AUX in scripts/p1_region_head_ablation.py.
+    _HEADS_REQUIRING_AUX_MTL = {
+        "next_getnext_hard", "next_getnext_hard_hsm",       # legacy aliases
+        "next_stan_flow", "next_stan_flow_hsm",             # paper-facing names
+        "next_stan_flow_dualtower",                         # champion-G dual-tower
+    }
+    use_aux = task_b_head in _HEADS_REQUIRING_AUX_MTL
+    y_last_region = None
+    if use_aux:
+        if "last_region_idx" not in region_df.columns:
+            raise ValueError(
+                f"next_region.parquet for {state} is missing the "
+                f"'last_region_idx' column required by head "
+                f"{task_b_head!r}. Regenerate via "
+                f"`python scripts/regenerate_next_region.py --state {state}`."
+            )
+        y_last_region = region_df["last_region_idx"].to_numpy(dtype=np.int64)
+
+    # Free the (large) region DataFrame before the [N,9,D] tensors (CA overlap ~7.6 GB).
+    del region_df
+    return X, y_cat, userids, next_dim, y_region, y_last_region, use_aux
+
+
 # ============================================================
 # FOLD CREATOR
 # ============================================================
@@ -905,7 +1009,7 @@ class FoldCreator:
         # ``"concat"`` (the two stacked along the feature dim → 2D per step).
         # Setting either task to anything other than ``"checkin"`` triggers the
         # region-sequence builder and may extend the fold-generation time; the
-        # default preserves the pre-CH03 behaviour exactly.
+        # default preserves the legacy checkin-only behaviour exactly.
         valid_inputs = {"checkin", "region", "concat"}
         if task_a_input_type not in valid_inputs:
             raise ValueError(
@@ -1077,19 +1181,10 @@ class FoldCreator:
             )
 
             if use_poi_protocol:
-                # Step 2: Classify POIs
-                train_exclusive = []
-                val_exclusive = []
-                ambiguous = []
-                for poi, visitors in poi_users.items():
-                    in_train = bool(visitors & train_users)
-                    in_val = bool(visitors & val_users)
-                    if in_train and in_val:
-                        ambiguous.append(poi)
-                    elif in_train:
-                        train_exclusive.append(poi)
-                    elif in_val:
-                        val_exclusive.append(poi)
+                # Step 2: Classify POIs (user-isolation leak guard) — see _classify_pois.
+                train_exclusive, val_exclusive, ambiguous = _classify_pois(
+                    poi_users, train_users, val_users,
+                )
 
                 logger.info(
                     f"  POIs: train_excl={len(train_exclusive)}, "
@@ -1138,7 +1233,7 @@ class FoldCreator:
                 FoldIndices(fold_idx, train_cat_idx, val_cat_idx)
             )
 
-            # Build fold manifest data for P2.9
+            # Build fold manifest data
             self._fold_manifests.append({
                 'fold_idx': fold_idx,
                 'train_users': sorted(train_users),
@@ -1209,120 +1304,21 @@ class FoldCreator:
         next_category task (task_a slot, 7 classes) and ``.next``
         carries the next_region task (task_b slot, ~1K-5K classes).
         """
-        # SUBSTRATE_COMPARISON_PLAN §5 — MTL counterfactual permits HGI
-        # provided next_region.parquet has been pre-built by
-        # scripts/probe/build_hgi_next_region.py.
-        # substrate-protocol-cleanup Tier B (2026-05-28): Designs B/J/L (Lever 5)
-        # + Lever-4 stack reuse canonical c2hgi sequences/folds verbatim (only
+        # MTL counterfactual permits HGI provided next_region.parquet has been
+        # pre-built by scripts/probe/build_hgi_next_region.py. Designs B/J/L (Lever 5)
+        # + the Lever-4 stack reuse canonical c2hgi sequences/folds verbatim (only
         # substrate embeddings differ); next.parquet + next_region.parquet are
         # pre-built by scripts/substrate_protocol_cleanup/postbuild_design_substrate.sh.
-        _MTL_C2HGI_ALLOWED_ENGINES = (
-            EmbeddingEngine.CHECK2HGI,
-            EmbeddingEngine.HGI,
-            EmbeddingEngine.CHECK2HGI_DESIGN_B,
-            EmbeddingEngine.CHECK2HGI_DESIGN_J,
-            EmbeddingEngine.CHECK2HGI_DESIGN_L,
-            EmbeddingEngine.CHECK2HGI_LEVER4_CANONICAL,
-            EmbeddingEngine.CHECK2HGI_LEVER4_DESIGN_B,
-            EmbeddingEngine.CHECK2HGI_RESLN,
-            EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_B,
-            EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_J,
-            EmbeddingEngine.CHECK2HGI_T43_SIDEFEAT,  # embedding_eval MTL re-screen
-            EmbeddingEngine.CHECK2HGI_GPROP,         # GCN^2 region-emb proxy
-            EmbeddingEngine.CHECK2HGI_RESLN_DESIGN_B_GPROP,  # v13 + GCN^2 region
-            EmbeddingEngine.CHECK2HGI_DESIGN_K_L0_1,
-            EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_L0_1,
-            EmbeddingEngine.CHECK2HGI_DESIGN_K_RESLN_MAE_L0_1,  # option-b dual-axis base
-            EmbeddingEngine.CHECK2HGI_DK_OVL,  # overlap-window probe (v14 re-windowed stride=1)
-            EmbeddingEngine.BASELINE_B2C_ONEHOT64,  # [ENUM-MERGE] B2c zero-training floor probe
-            EmbeddingEngine.CHECK2HGI_CTLE,  # [ENUM-MERGE] B1 CTLE contextual per-visit substrate
-            EmbeddingEngine.BASELINE_B2A_POI2VEC,  # [ENUM-MERGE] B2a faithful POI2Vec
-            EmbeddingEngine.BASELINE_GEOTREE_SKIPGRAM,  # [ENUM-MERGE] geo-tree skip-gram baseline
-        )
-        if embedding_engine not in _MTL_C2HGI_ALLOWED_ENGINES:
+        if embedding_engine not in MTL_CHECK2HGI_ALLOWED_ENGINES:
             raise ValueError(
-                f"MTL_CHECK2HGI requires engine in {_MTL_C2HGI_ALLOWED_ENGINES}; "
+                f"MTL_CHECK2HGI requires engine in {MTL_CHECK2HGI_ALLOWED_ENGINES}; "
                 f"got {embedding_engine}."
             )
 
         # Load X + next_category labels from next.parquet.
-        X, y_cat, userids, next_dim = load_next_data(state, embedding_engine)
-
-        # Load region labels (row-aligned with next.parquet).
-        region_df = IoPaths.load_next_region(state, embedding_engine)
-        if len(region_df) != len(X):
-            raise ValueError(
-                f"next_region.parquet rows ({len(region_df)}) disagree with "
-                f"next.parquet rows ({len(X)}) for {state}. Regenerate both."
-            )
-        # C1 (alignment guard, 2026-06-20): row-count parity is necessary but NOT
-        # sufficient — a stale next_region.parquet built from a different windowing
-        # (e.g. a stride-1 next.parquet against a stride-9 region file) can have the
-        # SAME row count yet a different per-row user/order, silently mis-pairing
-        # every (X, region) row. Assert userid CONTENT equality row-for-row.
-        if "userid" in region_df.columns:
-            region_uids = region_df["userid"].astype(int).to_numpy()
-            if not np.array_equal(region_uids, userids):
-                raise ValueError(
-                    f"next_region.parquet userid column is not row-aligned with "
-                    f"next.parquet for {state} (same row count but different "
-                    f"per-row userids — a stale/cross-windowing region file). "
-                    f"Regenerate both from the SAME sequences via "
-                    f"`python scripts/regenerate_next_region.py --state {state}`."
-                )
-        y_region = region_df["region_idx"].to_numpy(dtype=np.int64)
-
-        # B5 hard-index path: when task_b head is ``next_getnext_hard`` (or any
-        # variant that consumes ``last_region_idx`` via aux_side_channel — e.g.
-        # F50's ``next_getnext_hard_hsm``), pull ``last_region_idx`` from the
-        # parquet and wrap the loader in ``AuxPublishingLoader``.
-        # Missing column -> fail loud asking to regenerate the parquet (see
-        # ``scripts/regenerate_next_region.py``).
-        task_b_head = (
-            getattr(getattr(self.task_set, "task_b", None), "head_factory", None)
-            if self.task_set is not None else None
+        X, y_cat, userids, next_dim, y_region, y_last_region, use_aux = (
+            _load_and_validate_check2hgi_data(state, embedding_engine, self.task_set)
         )
-        # Heads that read ``last_region_idx`` via aux_side_channel during forward.
-        # Keep in sync with ``_HEADS_REQUIRING_AUX`` in ``scripts/p1_region_head_ablation.py``.
-        #
-        # ONLY ``next_getnext_hard*`` use aux. The other log_T-loading heads
-        # (next_getnext / next_tgstan / next_stahyper) compute their last-step
-        # representation INTERNALLY via ``last_emb = x[batch_idx, last_idx]``
-        # — they don't need the aux side channel even though they consume the
-        # transition prior. (Earlier broader-leakage audit was right that
-        # those heads carry the C4 leak via log_T, but they don't read
-        # last_region_idx.)
-        # Both legacy and renamed (2026-05-01 → STAN-Flow) registry IDs are listed
-        # so the aux gate fires whether the user passes `next_getnext_hard` or
-        # `next_stan_flow` via the head factory.
-        #
-        # 2026-06-12 (HANDOFF_AUDIT X2 / CODE_AUDIT P0-B): the champion-G dual-tower
-        # head ``next_stan_flow_dualtower`` was MISSING here → use_aux=False →
-        # get_current_aux() returned None in every forward → the α·log_T prior took
-        # the defensive ``logits + α·0.0`` branch (prior structurally OFF) AND the
-        # trainer's log_T-KD branch (mtl_cv.py, requires _aux is not None) was a
-        # no-op on the dual-tower. Added so the prior / KD are actually reachable on
-        # G. (G itself pins prior-OFF + KD 0.0, so G's numbers are unchanged; this
-        # only un-deads the KD-on-G test.)
-        _HEADS_REQUIRING_AUX_MTL = {
-            "next_getnext_hard", "next_getnext_hard_hsm",       # legacy aliases
-            "next_stan_flow", "next_stan_flow_hsm",             # paper-facing names
-            "next_stan_flow_dualtower",                         # champion-G dual-tower
-        }
-        use_aux = task_b_head in _HEADS_REQUIRING_AUX_MTL
-        if use_aux:
-            if "last_region_idx" not in region_df.columns:
-                raise ValueError(
-                    f"next_region.parquet for {state} is missing the "
-                    f"'last_region_idx' column required by head "
-                    f"{task_b_head!r}. Regenerate via "
-                    f"`python scripts/regenerate_next_region.py --state {state}`."
-                )
-            y_last_region = region_df["last_region_idx"].to_numpy(dtype=np.int64)
-
-        # All needed columns are now extracted to numpy — free the (large) region
-        # DataFrame before we build the [N, 9, D] tensors (CA overlap: ~7.6 GB).
-        del region_df
 
         # Host-RAM fail-loud guard BEFORE building the big tensors: this path holds
         # X + x_checkin + one region tensor per "region"/"concat" tower + per-fold
@@ -1348,41 +1344,12 @@ class FoldCreator:
             if use_aux else None
         )
 
-        # Per-task modality: task_a = next_category (CATEGORY slot),
-        # task_b = next_region (NEXT slot). Each slot picks its own X:
-        # check-in embedding, region embedding, or concat of the two.
-        # When both request "checkin" (the default), this code path is
-        # bit-equivalent to the pre-CH03 version — x_checkin is shared
-        # across both slots and no region-sequence build is triggered.
-        def _resolve_x(input_type: str) -> torch.Tensor:
-            if input_type == "checkin":
-                return x_checkin
-            # Lazy import so engines that can't produce a region-sequence
-            # (non-CHECK2HGI paths) don't pay the import cost.
-            from data.inputs.region_sequence import (
-                build_region_sequence_tensor,
-                build_concat_sequence_tensor,
-            )
-            if input_type == "region":
-                # Part-2 dual-substrate routing PILOT hook: REGION_EMB_ENGINE env-var
-                # overrides which engine's region_embeddings the reg task consumes,
-                # while --engine still drives the cat (task_a) embedding. Lets us route
-                # e.g. HGI's region tower to the reg head while cat uses the v14 substrate.
-                # Unset → canonical behaviour (reg uses the same engine as cat).
-                import os as _os
-                _re = _os.environ.get("REGION_EMB_ENGINE")
-                _reg_eng = EmbeddingEngine(_re) if _re else embedding_engine
-                # seq_engine follows the cat (task_a) engine's windowing so the
-                # region-emb sequence row-aligns with next.parquet / next_region.parquet
-                # (matters for the overlap-window probe; no-op for canonical CHECK2HGI).
-                return build_region_sequence_tensor(state, region_engine=_reg_eng,
-                                                    seq_engine=embedding_engine)
-            if input_type == "concat":
-                return build_concat_sequence_tensor(state, x_checkin)
-            raise ValueError(f"Unknown input_type: {input_type}")
-
-        x_task_a = _resolve_x(self.task_a_input_type)
-        x_task_b = _resolve_x(self.task_b_input_type)
+        # Per-task modality: task_a = next_category (CATEGORY slot), task_b = next_region
+        # (NEXT slot). Each slot picks its own X (checkin / region / concat); when both are
+        # "checkin" (the default) x_checkin is shared and no region-sequence build runs
+        # (bit-equivalent to the legacy checkin-only path). See _resolve_task_input.
+        x_task_a = _resolve_task_input(self.task_a_input_type, state, embedding_engine, x_checkin)
+        x_task_b = _resolve_task_input(self.task_b_input_type, state, embedding_engine, x_checkin)
         logger.info(
             "MTL_CHECK2HGI input modality: task_a=%s (%s), task_b=%s (%s)",
             self.task_a_input_type, tuple(x_task_a.shape),
@@ -1513,7 +1480,11 @@ class FoldCreator:
             gc.collect()
             return result
 
-        return _LazyFoldMapping(self.n_splits, _build_fold)
+        # n_regions = max region id + 1 over ALL rows. The union of every fold's
+        # (train ∪ val) is exactly all rows, so this equals the per-fold-scan result
+        # but without materialising any fold.
+        _n_regions = int(y_region_tensor.max().item()) + 1 if y_region_tensor.numel() else None
+        return _LazyFoldMapping(self.n_splits, _build_fold, n_regions=_n_regions)
 
     def save(self, save_dir: Path) -> Path:
         if not self._task_tensors:
@@ -1529,8 +1500,8 @@ class FoldCreator:
 
     def save_split_manifests(self, output_dir: Path) -> List[Path]:
         """Emit split_manifest_fold*.json for each fold + a top-level
-        fold_set_digest.json (AUDIT-C8) so paired statistical tests can
-        verify they're comparing the same partition.
+        fold_set_digest.json so paired statistical tests can verify they're
+        comparing the same partition.
 
         Only available after _create_mtl_folds() has been called.
         Returns list of paths written.

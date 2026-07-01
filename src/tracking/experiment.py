@@ -72,6 +72,7 @@ class MLHistory:
         display_report: bool = False,
         task_monitors: Optional[Dict[str, str]] = None,
         min_epoch: int = 0,
+        run_id: Optional[str] = None,
     ):
         self.model_name = model_name
         self.model_type = model_type
@@ -81,12 +82,12 @@ class MLHistory:
         self.datasets: Optional[Set[DatasetHistory]] = datasets
         self.monitor = monitor
         self.mode = mode
-        # AUDIT-C2 — per-task monitor overrides; see fold.FoldHistory.
+        # Per-task monitor overrides; see fold.FoldHistory.
         # Default None preserves legacy single-metric (F1) behaviour.
         self.task_monitors: Optional[Dict[str, str]] = (
             dict(task_monitors) if task_monitors else None
         )
-        # F50 B1 — selector min-epoch gate (skip init artifacts).
+        # Selector min-epoch gate (skip init artifacts).
         self.min_epoch: int = int(min_epoch)
 
         self.tasks: Set[str] = {tasks} if isinstance(tasks, str) else tasks
@@ -106,6 +107,13 @@ class MLHistory:
         self.start_date: Optional[str] = None
         self.end_date: Optional[str] = None
         self.curr_i_fold: int = 0
+        # Multi-fold fan-out support (default None → unchanged single-process behaviour):
+        #   run_id   — fixes the results-rundir leaf so N fold-processes share ONE dir.
+        #   fold_ids — the REAL canonical fold ids for the folds list positions, so a
+        #              subset/fan-out run names its on-disk artifacts by real id (not by
+        #              in-memory position) and never collides in the shared rundir.
+        self.run_id: Optional[str] = run_id
+        self.fold_ids: Optional[List[int]] = None
 
         # Config for auto-lifecycle
         self._label_map = label_map
@@ -168,37 +176,56 @@ class MLHistory:
         """Get the current fold."""
         return self.folds[self.curr_i_fold]
 
+    def fold_label(self, pos: int) -> int:
+        """1-indexed on-disk fold number for folds-list position ``pos``.
+
+        With ``fold_ids`` set (a subset/fan-out run) this returns the REAL
+        canonical fold id + 1, so artifacts written into a shared rundir by
+        different fold-processes never collide. With ``fold_ids`` None (a normal
+        full run) it is just ``pos + 1`` — byte-identical to the legacy naming
+        (positions 0..4 → ``fold1``..``fold5``).
+        """
+        if self.fold_ids is not None and 0 <= pos < len(self.fold_ids):
+            return int(self.fold_ids[pos]) + 1
+        return pos + 1
+
+    def _emit_adapter_fold_end(self) -> None:
+        """Push this fold's best per-task metrics to the optional external adapter (default off)."""
+        if self._adapter is None:
+            return
+        fold = self.folds[self.curr_i_fold]
+        fold_metrics = {}
+        for task_name in self.tasks:
+            th = fold.task(task_name)
+            best_ep, best_f1 = th.val.best("f1") if "f1" in th.val else (-1, 0)
+            fold_metrics[f"{task_name}_best_f1"] = best_f1
+            fold_metrics[f"{task_name}_best_epoch"] = best_ep
+        self._adapter.on_fold_end(self.curr_i_fold, fold_metrics)
+
+    def _save_fold_partial_safe(self) -> None:
+        """Persist this fold's artefacts now so a later-fold crash (OOM SIGKILL, SSD SIGBUS
+        on long MPS runs) doesn't wipe completed work. Best-effort: never aborts training."""
+        if self._save_path is None:
+            return
+        try:
+            self.storage.save_fold_partial(
+                fold_idx=self.curr_i_fold,
+                path=self._save_path,
+                label_map=self._label_map,
+            )
+        except Exception as exc:  # defensive; should not propagate
+            logging.getLogger(__name__).warning(
+                "per-fold partial save failed for fold %d: %s",
+                self.curr_i_fold, exc,
+            )
+
     def step(self):
-        """End current fold and advance to next."""
+        """End current fold, persist it, and advance to the next."""
         self.folds[self.curr_i_fold].end()
         if self._verbose:
             self.display.end_fold()
-        if self._adapter is not None:
-            fold = self.folds[self.curr_i_fold]
-            fold_metrics = {}
-            for task_name in self.tasks:
-                th = fold.task(task_name)
-                best_ep, best_f1 = th.val.best("f1") if "f1" in th.val else (-1, 0)
-                fold_metrics[f"{task_name}_best_f1"] = best_f1
-                fold_metrics[f"{task_name}_best_epoch"] = best_ep
-            self._adapter.on_fold_end(self.curr_i_fold, fold_metrics)
-        # Persist this fold's artefacts now so a later-fold crash (OOM SIGKILL,
-        # SSD SIGBUS on long MPS runs) doesn't wipe the work we already did.
-        # Best-effort: the storage method itself swallows exceptions so the
-        # per-fold partial save never aborts training.
-        if self._save_path is not None:
-            try:
-                self.storage.save_fold_partial(
-                    fold_idx=self.curr_i_fold,
-                    path=self._save_path,
-                    label_map=self._label_map,
-                )
-            except Exception as exc:  # defensive; should not propagate
-                import logging
-                logging.getLogger(__name__).warning(
-                    "per-fold partial save failed for fold %d: %s",
-                    self.curr_i_fold, exc,
-                )
+        self._emit_adapter_fold_end()
+        self._save_fold_partial_safe()
         if self.curr_i_fold >= self.num_folds - 1:
             self.end()
             return
@@ -233,10 +260,12 @@ class MLHistory:
     def start(self):
         self._ended = False
         self.timer.start()
-        # Seconds + PID for collision-free parallel runs (multiple
-        # smokes launched within the same minute previously overwrote
-        # each other's results dirs).
-        self.start_date = f"{time.strftime('%Y%m%d_%H%M%S')}_{os.getpid()}"
+        # The rundir leaf embeds ``start_date``. A fixed ``run_id`` (set by
+        # ``train.py --run-id``) makes every fold-process compute the SAME leaf so
+        # they share ONE results dir for clean aggregation. Without it, fall back to
+        # seconds + PID for collision-free parallel runs (multiple smokes launched
+        # within the same minute previously overwrote each other's results dirs).
+        self.start_date = self.run_id or f"{time.strftime('%Y%m%d_%H%M%S')}_{os.getpid()}"
         self.get_curr_fold().start()
         if self._verbose:
             self.display.start_fold()
@@ -280,6 +309,6 @@ class MLHistory:
             self._adapter.on_run_end({
                 "model_name": self.model_name,
                 "num_folds": self.num_folds,
-                "duration": self.timer.get_duration() if hasattr(self.timer, 'get_duration') else 0,
+                "duration": self.timer.get_duration(),
             })
             self._adapter.close()

@@ -46,7 +46,7 @@ import torch
 import torch.nn as nn
 
 from data.aux_side_channel import get_current_aux
-from models.next.next_stan.head import NextHeadSTAN
+from models.next.next_stan.head import NextHeadSTAN, _LEGACY_STAN_MASK
 from models.registry import register_model
 
 _FUSION_MODES = ("gated", "private_only", "aux", "aux_gated")
@@ -425,10 +425,14 @@ class NextHeadStanFlowDualTower(nn.Module):
         pad_mask = (aux < 0) | (aux >= self._num_classes)
         safe_idx = aux.clamp(min=0, max=self._num_classes - 1)
         transition_prior = self.log_T[safe_idx]  # [B, num_classes]
-        if pad_mask.any():
-            transition_prior = transition_prior.masked_fill(
-                pad_mask.unsqueeze(-1), 0.0
-            )
+        # masked_fill is the identity for an all-False mask → apply it unconditionally
+        # (byte-identical value, minus the host sync / graph break of the old ``.any()`` guard).
+        # MTL_STAN_LEGACY_MASK=1 restores the guard for bit-exact --compile repro of pre-P1 cells.
+        if _LEGACY_STAN_MASK:
+            if pad_mask.any():
+                transition_prior = transition_prior.masked_fill(pad_mask.unsqueeze(-1), 0.0)
+        else:
+            transition_prior = transition_prior.masked_fill(pad_mask.unsqueeze(-1), 0.0)
         return logits + self.alpha * transition_prior
 
     def forward(

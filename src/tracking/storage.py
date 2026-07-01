@@ -84,9 +84,8 @@ class SummaryGenerator:
         per_metric_perf = self._collect_per_metric_best_performance()
         cat_metrics = self._collect_category_metrics()
 
-        # C7 fix: stamp every aggregate with its aggregation_basis so downstream
-        # readers know which best-epoch convention produced each block. Three
-        # bases coexist in this file:
+        # Stamp every aggregate with its aggregation_basis so downstream readers
+        # know which best-epoch convention produced each block. Three bases coexist:
         #   joint_best        — model-level joint score selection (MTL)
         #   per_task_f1_best  — each task's own F1-best epoch
         #   per_metric_best   — each (task, metric) at its own best epoch
@@ -121,6 +120,18 @@ class SummaryGenerator:
                     **{metric: self._stats(vals) for metric, vals in metrics.items()},
                 }
                 for task, metrics in per_metric_perf.items()
+            }
+        # Fan-out guard: under --run-id this process may have run only a SUBSET of folds.
+        # The per-fold artifacts are named by real id, but this full_summary aggregates only
+        # THIS process's folds and is overwritten last-writer-wins in the shared rundir. Stamp
+        # it so a partial can't masquerade as the complete run (default path is unaffected).
+        if getattr(self.history, 'run_id', None) is not None:
+            stats['_fanout'] = {
+                'run_id': self.history.run_id,
+                'folds_in_this_process': list(self.history.fold_ids) if self.history.fold_ids else None,
+                'warning': 'fan-out (--run-id): this summary may cover only a SUBSET of the folds and '
+                           'is overwritten per-process. For the complete run, use '
+                           'scripts/aggregate_folds.py <rundir> → fold_aggregate.json.',
             }
         save_json(stats, out / 'full_summary.json')
 
@@ -219,7 +230,7 @@ class SummaryGenerator:
         Companion to the per-fold ``per_metric_best`` block written into
         ``fold_info.json``. Aggregates the per-metric-best value series so
         ``full_summary.json`` carries a third aggregate basis next to
-        ``joint_best`` and ``per_task_f1_best``. C7 closure.
+        ``joint_best`` and ``per_task_f1_best``.
         """
         perf: Dict[str, Dict[str, List[float]]] = {}
         for fold in self.history.folds:
@@ -319,10 +330,8 @@ class HistoryStorage:
         base = ensure_dir(Path(path) / self._folder_name())
         dirs = {k: ensure_dir(base / k) for k in ('folds', 'metrics')}
 
-        # Restrict the existing _save_metrics / _save_reports loops to just
-        # this fold by temporarily indexing into history.folds. The simplest
-        # way without touching those methods is to operate on a single-element
-        # proxy. Instead, inline the fold-level subset here for clarity.
+        # Inline the fold-level subset of _save_metrics / _save_reports for just
+        # this fold, rather than touching those end-of-CV methods.
         try:
             self._save_fold_metrics(dirs['metrics'], fold_idx)
             self._save_fold_report(dirs['folds'], fold_idx)
@@ -335,7 +344,7 @@ class HistoryStorage:
     def _save_fold_metrics(self, path: Path, fold_idx: int) -> None:
         """Save train/val metrics CSVs for a single fold only."""
         fold = self.history.folds[fold_idx]
-        i = fold_idx + 1  # 1-based file naming, consistent with _save_metrics
+        i = self.history.fold_label(fold_idx)  # 1-based; real fold id under a fan-out run
         for task in self.history.tasks:
             th = fold.tasks.get(task)
             if not th:
@@ -355,7 +364,7 @@ class HistoryStorage:
         when partial persistence is disabled or skipped.
         """
         fold = self.history.folds[fold_idx]
-        i = fold_idx + 1
+        i = self.history.fold_label(fold_idx)
 
         joint_epoch = -1
         joint_score = None
@@ -408,13 +417,10 @@ class HistoryStorage:
                 'f1': metrics_at_best.get('f1'),
             }
 
-            # F50 T3 fix (2026-04-29) — track best epoch PER metric, not just per
-            # F1 (the BestModelTracker's monitor). Without this, top10/MRR/accuracy
-            # were reported at the F1-best epoch — which differs by ~1-4 pp on MTL
-            # FL runs (F1-best epoch ≠ top10-best epoch). See
-            # research/F50_T3_TRAINING_DYNAMICS_DIAGNOSTICS.md §5.5 and
-            # MTL_FLAWS_AND_FIXES.md §2.10. Backward-compatible: existing keys
-            # preserved; this is purely additive (`per_metric_best` sub-dict).
+            # Track best epoch PER metric, not just per F1 (the BestModelTracker's
+            # monitor): the F1-best epoch ≠ top10/MRR-best epoch, so reporting
+            # top10/MRR/accuracy at the F1-best epoch under-reports them. Purely
+            # additive (`per_metric_best` sub-dict); legacy keys preserved.
             CANONICAL_BEST_METRICS = (
                 'top10_acc_indist', 'top5_acc_indist', 'top3_acc_indist',
                 'mrr_indist',
@@ -499,7 +505,8 @@ class HistoryStorage:
 
     def _save_metrics(self, path: Path) -> None:
         """Save train/val metrics dynamically from MetricStore."""
-        for i, fold in enumerate(self.history.folds, start=1):
+        for _pos, fold in enumerate(self.history.folds):
+            i = self.history.fold_label(_pos)
             for task in self.history.tasks:
                 th = fold.tasks.get(task)
                 if not th:
@@ -516,7 +523,8 @@ class HistoryStorage:
                     save_csv(df, path / f'fold{i}_{task}_val.csv')
 
     def _save_reports(self, path: Path) -> None:
-        for i, fold in enumerate(self.history.folds, start=1):
+        for _pos, fold in enumerate(self.history.folds):
+            i = self.history.fold_label(_pos)
             joint_epoch = -1
             joint_score = None
             joint_time = 0.0
@@ -572,12 +580,10 @@ class HistoryStorage:
                     'f1': metrics_at_best.get('f1'),
                 }
 
-                # F50 T3 fix (2026-04-29) — see same patch in the earlier _save_*
-                # method ~line 360. Track best epoch PER metric to avoid the
-                # F1-vs-other-metric epoch mismatch (~1-4 pp under-reporting on
-                # MTL FL runs). Backward-compatible additive `per_metric_best`
-                # sub-dict; downstream readers who don't know about it get the
-                # legacy F1-best behaviour.
+                # Track best epoch PER metric (see the same patch in
+                # _save_fold_report) to avoid the F1-vs-other-metric epoch
+                # mismatch. Backward-compatible additive `per_metric_best`
+                # sub-dict; readers who don't know about it get legacy F1-best.
                 CANONICAL_BEST_METRICS = (
                     'top10_acc_indist', 'top5_acc_indist', 'top3_acc_indist',
                     'mrr_indist',

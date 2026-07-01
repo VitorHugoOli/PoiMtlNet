@@ -8,10 +8,8 @@ logger = logging.getLogger(__name__)
 
 from tracking.metrics import (
     compute_classification_metrics,
-    _handrolled_cls_metrics,
     _rank_of_target,
-    _mrr_from_rank,
-    _ndcg_from_rank,
+    _streamed_cls_metrics,
 )
 from utils.progress import zip_longest_cycle
 
@@ -60,12 +58,79 @@ def _ood_restricted_topk(
         hit = (topk == targets_id.unsqueeze(-1)).any(dim=-1)
         result[f"top{k}_acc_indist"] = float(hit.float().mean().item())
 
-    # MRR on in-distribution subset
-    from tracking.metrics import _rank_of_target
+    # MRR on in-distribution subset (_rank_of_target imported at module top)
     rank = _rank_of_target(logits_id, targets_id).float()
     result["mrr_indist"] = float((1.0 / rank).mean().item())
 
     return result
+
+
+def _ood_from_streamed(tgts, rank, hit, train_labels, ks=(1, 5, 10)) -> dict:
+    """OOD-restricted Acc@K / MRR from streamed accumulators (the S2 chunked val path).
+
+    Byte-identical to ``_ood_restricted_topk`` on the same data: hit/rank are per-row, so
+    ``hit[k][mask] == top-k hit on logits[mask]``; one ``.float().mean()`` (NOT a running
+    int count — that drifts at the last ULP).
+    """
+    train_t = torch.as_tensor(sorted(train_labels), dtype=tgts.dtype, device=tgts.device)
+    mask = torch.isin(tgts, train_t)
+    n_indist = int(mask.sum().item())
+    n_ood = len(tgts) - n_indist
+    out = {
+        "n_indist": float(n_indist), "n_ood": float(n_ood),
+        "ood_fraction": float(n_ood / max(len(tgts), 1)),
+    }
+    if n_indist == 0:
+        for k in ks:
+            out[f"top{k}_acc_indist"] = 0.0
+        out["mrr_indist"] = 0.0
+    else:
+        for k in ks:
+            out[f"top{k}_acc_indist"] = float(hit[k][mask].float().mean().item())
+        out["mrr_indist"] = float((1.0 / rank[mask].float()).mean().item())
+    return out
+
+
+def eval_autocast_ctx(device):
+    """fp16 eval autocast on CUDA; fp32 (nullcontext) when MTL_DISABLE_AMP_EVAL=1 or
+    MTL_DISABLE_AMP=1. Shared by evaluate_model + validation_best_model so the fp32-eval
+    escape hatch is byte-identical across both eval paths."""
+    disable = (
+        os.environ.get("MTL_DISABLE_AMP_EVAL") == "1"
+        or os.environ.get("MTL_DISABLE_AMP") == "1"
+    )
+    if device.type == "cuda" and not disable:
+        return torch.autocast(device.type, dtype=torch.float16)
+    return contextlib.nullcontext()
+
+
+def _decide_chunk_val(dataloaders, nc_b_gate) -> bool:
+    """Whether to use the chunked/streaming S2 val-metric for the reg head.
+
+    The full path cats the whole val epoch's [N, n_regions] reg logits on GPU (OOMs the
+    A40 at CA/TX overlap scale). Chunking streams per-batch reductions and assembles a
+    byte-identical metric dict, so we enable it when explicitly requested
+    (``MTL_CHUNK_VAL_METRIC=1``) OR auto-enable it (one-time WARN) when the full logit
+    would exceed ``MTL_S2_AUTO_BUDGET_GB`` (default 4 GB). Reg-only (C > 256, the
+    hand-rolled metric path); selecting it never changes the scored numbers.
+    """
+    s2_env = os.environ.get("MTL_CHUNK_VAL_METRIC", "").strip() in ("1", "true", "True")
+    full_logit_gb, n_val = 0.0, -1
+    try:
+        n_val = len(dataloaders[0].dataset)
+        full_logit_gb = n_val * int(nc_b_gate or 0) * 4 / (1024 ** 3)
+    except Exception:
+        pass
+    budget_gb = float(os.environ.get("MTL_S2_AUTO_BUDGET_GB", "4"))
+    auto_chunk = full_logit_gb > budget_gb
+    if auto_chunk and not s2_env:
+        logger.warning(
+            "[S2 auto] full val reg-logit ≈ %.1f GB (N_val=%d × C=%d) exceeds the %.1f GB "
+            "budget — auto-enabling the chunked val metric (byte-identical) to avoid a GPU OOM. "
+            "Set MTL_CHUNK_VAL_METRIC=1 to silence, or MTL_S2_AUTO_BUDGET_GB to tune.",
+            full_logit_gb, n_val, int(nc_b_gate or 0), budget_gb,
+        )
+    return (s2_env or auto_chunk) and nc_b_gate is not None and nc_b_gate > 256
 
 
 @torch.no_grad()
@@ -74,7 +139,7 @@ def evaluate_model(
     dataloaders,
     next_criterion,
     category_criterion,
-    mtl_creterion,
+    mtl_criterion,
     device,
     num_classes: int | None = None,
     task_b_num_classes: int | None = None,
@@ -97,7 +162,7 @@ def evaluate_model(
         dataloaders: List of ``[next_dataloader, category_dataloader]``.
         next_criterion: Loss function for the next task.
         category_criterion: Loss function for the category task.
-        mtl_creterion: MTL loss (unused for validation loss — kept for API compat).
+        mtl_criterion: MTL loss (unused for validation loss — kept for API compat).
         device: Device to run evaluation on.
 
     Returns:
@@ -117,76 +182,32 @@ def evaluate_model(
     logits_cat_list, truths_cat_list = [], []
     batches = 0
 
-    # S2 (perf-audit) — CHUNKED/STREAMING val metric for the high-cardinality reg head.
-    # The full path cats the whole val epoch's [N, n_regions] reg logits ON GPU and runs
-    # compute_classification_metrics + _ood_restricted_topk over it — which OOMs the A40 at
-    # CA/TX scale (4.7k-8.5k regions). Every val reg metric (incl. the SCORED top10_acc_indist)
-    # is a per-ROW reduction or additive per-CLASS count, so we stream per-batch reductions on
-    # GPU (matching the canonical fp16-CUDA topk tie-breaking — NEVER CPU-moved) and assemble
-    # the IDENTICAL metric dicts + ood dict from the accumulators. Reg only; cat (C=7) keeps the
-    # full path. SCORED PATH → behind MTL_CHUNK_VAL_METRIC (default OFF) until A40 A/B-verified.
+    # Chunked/streaming val metric for the high-cardinality reg head: byte-identical to the
+    # full-logit path but avoids the A40 GPU-OOM from cat-ing the whole val epoch's
+    # [N, n_regions] logits at CA/TX scale (4.7k-8.5k regions). Every reg metric (incl. the
+    # SCORED top10_acc_indist) is a per-row reduction or per-class count, streamed on GPU
+    # (matching the canonical fp16-CUDA topk tie-break — NEVER CPU-moved). Reg only; cat (C=7)
+    # keeps the full path. Gated by MTL_CHUNK_VAL_METRIC (default OFF). See _decide_chunk_val.
     _nc_b_gate = task_b_num_classes if task_b_num_classes is not None else (
         num_classes if num_classes is not None else getattr(model, "num_classes", 0)
     )
-    _s2_env = os.environ.get("MTL_CHUNK_VAL_METRIC", "").strip() in ("1", "true", "True")
-    # FOOTGUN GUARD (2026-06-20): the full path cats the WHOLE val epoch's
-    # [N_val, n_regions] reg logits on GPU. At overlap scale (8.5× rows) with a
-    # high region count this is ~20 GB for CA (586k × 8501 × 4 B) and instantly
-    # OOMs the A40 mid-validation — even after the host-RAM fix. S2 is byte-identical
-    # (assembles the same metric dicts from streamed per-batch reductions), so when
-    # the full logit would exceed a GPU-safe budget we AUTO-enable chunking (with a
-    # one-time WARN) instead of OOMing. Non-overlap region MTL (small N_val ⇒ ~2 GB
-    # at CA) stays on the full path untouched, preserving the frozen §0.1 numbers.
-    _full_logit_gb = 0.0
-    try:
-        _n_val = len(dataloaders[0].dataset)
-        _full_logit_gb = _n_val * int(_nc_b_gate or 0) * 4 / (1024 ** 3)
-    except Exception:
-        pass
-    _S2_BUDGET_GB = float(os.environ.get("MTL_S2_AUTO_BUDGET_GB", "4"))
-    _auto_chunk = _full_logit_gb > _S2_BUDGET_GB
-    _chunk_val = (
-        (_s2_env or _auto_chunk)
-        and _nc_b_gate is not None and _nc_b_gate > 256  # only the handrolled path
-    )
-    if _auto_chunk and not _s2_env:
-        logger.warning(
-            "[S2 auto] full val reg-logit ≈ %.1f GB (N_val=%d × C=%d) exceeds the "
-            "%.1f GB budget — auto-enabling the chunked val metric (byte-identical) "
-            "to avoid a GPU OOM. Set MTL_CHUNK_VAL_METRIC=1 to silence, or "
-            "MTL_S2_AUTO_BUDGET_GB to tune.",
-            _full_logit_gb, locals().get("_n_val", -1), int(_nc_b_gate or 0), _S2_BUDGET_GB,
-        )
+    _chunk_val = _decide_chunk_val(dataloaders, _nc_b_gate)
     _S2_KS = (1, 3, 5, 10)  # union of metrics_next top_k=(3,5) and ood ks=(1,5,10)
     sv_preds, sv_tgts, sv_rank = [], [], []
     sv_hit = {k: [] for k in _S2_KS}
 
-    # 2026-06-12 (HANDOFF_AUDIT X4 / CODE_AUDIT P1-D) — eval-precision escape hatch.
-    # MTL eval autocasts fp16 on CUDA unconditionally, while the p1-STL ceiling
-    # harness evaluates in fp32. Over ~5-9k region logits, fp16 quantisation
-    # creates more exact ties → _rank_of_target (strictly-higher count) scores
-    # MTL ranks tie-optimistically vs the fp32 ceiling. The headline Δreg is
-    # decided at −0.09…−0.31pp, within that delta. Set MTL_DISABLE_AMP_EVAL=1
-    # (or the training hatch MTL_DISABLE_AMP=1) to force fp32 eval and measure the
-    # precision-clean number. Default (unset) keeps canonical fp16 eval untouched.
-    _disable_amp_eval = (
-        os.environ.get("MTL_DISABLE_AMP_EVAL") == "1"
-        or os.environ.get("MTL_DISABLE_AMP") == "1"
-    )
-    _autocast_ctx = (
-        torch.autocast(device.type, dtype=torch.float16)
-        if device.type == 'cuda' and not _disable_amp_eval
-        else contextlib.nullcontext()
-    )
+    # Eval-precision escape hatch. MTL eval autocasts fp16 on CUDA unconditionally, but the
+    # STL ceiling harness evaluates in fp32; over ~5-9k region logits fp16 quantisation creates
+    # more exact ties → _rank_of_target scores MTL ranks tie-optimistically vs the fp32 ceiling.
+    # Set MTL_DISABLE_AMP_EVAL=1 (or the training hatch MTL_DISABLE_AMP=1) to force fp32 eval.
+    # Default (unset) keeps canonical fp16 eval untouched.
+    _autocast_ctx = eval_autocast_ctx(device)
 
-    # 2026-06-12 (HANDOFF_AUDIT X1 / CODE_AUDIT P0-A) — cross-attn pairing roll probe.
-    # The two MTL train loaders draw independent shuffles → the cross-attn block mixes
-    # row i (cat) ↔ row i (reg) of RANDOMLY-paired windows at train time, while val is
-    # aligned. Probe: roll the task-b (reg / `x_next`) stream by 1 along the batch dim at
-    # EVAL only → cat row i now cross-attends reg row i−1. If cat-F1 is unchanged
-    # (Δ≈0), the model ignores per-sample pairing → "K/V mixing is dead" is confirmed
-    # clean. (reg metric becomes meaningless under the roll — read cat-F1 only.) Gate:
-    # MTL_ROLL_TASKB_EVAL=1. Default unset → no roll.
+    # Cross-attn pairing roll probe. The two MTL train loaders draw independent shuffles, so
+    # cross-attn mixes RANDOMLY-paired cat↔reg rows at train time while val is aligned. Probe:
+    # roll the task-b (reg / `x_next`) stream by 1 along the batch dim at EVAL only → cat row i
+    # cross-attends reg row i−1. If cat-F1 is unchanged the model ignores per-sample pairing.
+    # (reg metric is meaningless under the roll — read cat-F1 only.) Gate MTL_ROLL_TASKB_EVAL=1.
     _roll_taskb = os.environ.get("MTL_ROLL_TASKB_EVAL") == "1"
 
     for data_next, data_cat in zip_longest_cycle(*dataloaders):
@@ -263,14 +284,8 @@ def evaluate_model(
         _T = torch.cat(sv_tgts)
         _R = torch.cat(sv_rank)
         _HIT = {k: torch.cat(sv_hit[k]) for k in _S2_KS}
-        _am, _aM, _fm, _fw = _handrolled_cls_metrics(_P, _T, nc_b)
-        metrics_next = {
-            "accuracy": _am, "accuracy_macro": _aM, "f1": _fm,
-            "f1_weighted": _fw, "mrr": _mrr_from_rank(_R),
-        }
-        for _k in (3, 5):
-            metrics_next[f"top{_k}_acc"] = _HIT[_k].float().mean().item()
-            metrics_next[f"ndcg_{_k}"] = _ndcg_from_rank(_R, _k)
+        # Shared with the S1 train-metric (mtl_cv); _T/_R/_HIT are reused by the OOD block below.
+        metrics_next = _streamed_cls_metrics(_P, _T, _R, _HIT, nc_b, top_k=(3, 5))
     else:
         all_logits_next = torch.cat(logits_next_list)
         all_truths_next = torch.cat(truths_next_list)
@@ -291,26 +306,7 @@ def evaluate_model(
     # POIs but 0 on OOD POIs, and the raw Acc@K averages across both.
     if train_labels_b is not None:
         if _chunk_val:
-            # Byte-identical to _ood_restricted_topk (ks=(1,5,10)) from the same
-            # streamed accumulators + the in-dist mask: hit/rank are per-row, so
-            # hit_all[mask] == hit on logits[mask]; one .float().mean() (NOT a running
-            # int count — that drifts at the last ULP).
-            _train_t = torch.as_tensor(sorted(train_labels_b), dtype=_T.dtype, device=_T.device)
-            _mask = torch.isin(_T, _train_t)
-            _ni = int(_mask.sum().item())
-            _noo = len(_T) - _ni
-            ood_b = {
-                "n_indist": float(_ni), "n_ood": float(_noo),
-                "ood_fraction": float(_noo / max(len(_T), 1)),
-            }
-            if _ni == 0:
-                for _k in (1, 5, 10):
-                    ood_b[f"top{_k}_acc_indist"] = 0.0
-                ood_b["mrr_indist"] = 0.0
-            else:
-                for _k in (1, 5, 10):
-                    ood_b[f"top{_k}_acc_indist"] = float(_HIT[_k][_mask].float().mean().item())
-                ood_b["mrr_indist"] = float((1.0 / _R[_mask].float()).mean().item())
+            ood_b = _ood_from_streamed(_T, _R, _HIT, train_labels_b)
         else:
             ood_b = _ood_restricted_topk(all_logits_next, all_truths_next, train_labels_b)
         metrics_next.update(ood_b)
