@@ -84,11 +84,10 @@ folds within a state share data and the same trained models. The three
 small-state region results are tested equivalences (TOST, $\pm2$~pp): Alabama ($-0.18$; 90\% confidence interval
 $-0.46$ to $+0.09$), Arizona ($-0.06$; $-0.41$ to $+0.29$), and Istanbul
 ($-0.52$; $-0.65$ to $-0.35$); all three intervals sit well inside two points.
-These intervals are tight because they are built on the \emph{paired} per-fold
-difference, whose standard deviation is only $0.16$ to $0.37$ points (the
-per-arm fold standard deviations in Table~\ref{tab:results} are larger because
-the two models are highly correlated across folds). The equivalence is therefore well
-powered. We do not claim per-cell family-wise-corrected significance at $n{=}5$
+These intervals are tight because they rest on the \emph{paired} per-fold
+difference (the per-arm fold standard deviations in Table~\ref{tab:results} are
+larger because the two models are highly correlated across folds); the test is
+well powered against a two-point gap (Section~\ref{sec:setup-metrics}). We do not claim per-cell family-wise-corrected significance at $n{=}5$
 (a Holm correction across the six cells does not clear $0.05$ at this sample
 size), and we leave a multi-seed confirmation ($n{=}20$) to future work.
 

@@ -6,6 +6,18 @@
 
 ## Timeline
 
+- **2026-07-01 (Tier C consolidation — audited, 2 of 9 applied).** Ran the Tier C rigorous audit workflow
+  (per-duplication audit → adversarial verify → completeness critic; the first two launches died on session churn,
+  resumed from `wf_f60d31b5-be7` and completed). Verdict: **7 of 9 candidates correctly LEFT** as intentional
+  reinforcement / setup-vs-result / label-vs-explanation (coffee-shop illustration, CTLE-contrast, no-leak-infomax,
+  matched-head control, metric-scale calibration, cost arithmetic, cascade-tie). **2 safe consolidations applied:**
+  (a) Table 2 footnote shortened to a pointer to §6.1 (drops the restated 64–90% mechanism; keeps the Gowalla-scope
+  caveat + Istanbul framing); (b) the §6.2 TOST-power repeat trimmed to a pointer to §5.3, with the MANDATORY atomic
+  companion relabel in §5.3 ("per-fold region SD" → "SD of the paired per-fold difference", so the sole surviving
+  0.16–0.37 number is unambiguous and consistent with §6.2's per-arm note). Critic grep-confirmed each number now
+  appears exactly once in its canonical home; both new `\ref` pointers resolve. Build clean: 9 pages, 0 undefined.
+  **Tier C DONE.** Only the Table 1 category-distribution decision remains (compact "Majority-class %" column
+  recommended vs full mini-table vs leave).
 - **2026-06-30 (§5.4 STAN clarity cut + §7 future-work line, advisor-refined).** Removed the confusing/redundant
   "We never feed STAN our representation ... competitive only at the smallest state ..." sentence from §5.4: the
   faithful-baseline point is now carried by "its own embeddings **(not ours)**"; the AL-competitiveness aside is
