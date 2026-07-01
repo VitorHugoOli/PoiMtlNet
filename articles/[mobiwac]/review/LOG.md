@@ -6,6 +6,14 @@
 
 ## Timeline
 
+- **2026-06-30 (§5.4 STAN clarity cut + §7 future-work line, advisor-refined).** Removed the confusing/redundant
+  "We never feed STAN our representation ... competitive only at the smallest state ..." sentence from §5.4: the
+  faithful-baseline point is now carried by "its own embeddings **(not ours)**"; the AL-competitiveness aside is
+  dropped ENTIRELY (small state + a known-flawed STAN run, and per claim-discipline the representation-fed `stl_hgi`
+  is not a baseline and sat above us at AL — do-not-cite). Added an advisor-refined **future-work paragraph to §7**:
+  the representation is a fixed per-visit vector any downstream model can consume, so applying it inside other
+  sequence models and to tasks beyond next-category/next-region are directions to explore (advisor dropped the
+  "model-agnostic"/"frozen" jargon, framed strictly as a direction, no overclaim). Build clean: 9 pages, 0 undefined.
 - **2026-06-30 (Phase 4 WF-ENGLISH APPLIED + per-section review + clean build).** Applied all **67 verified
   language fixes** via a per-file apply→review workflow (one agent per file, disjoint files = no write conflicts):
   run-on splits, missing connectives, grammar (incl. the §6 "its"→"their" agreement bug), wordiness, American

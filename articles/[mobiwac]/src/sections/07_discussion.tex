@@ -37,3 +37,9 @@ effect we cannot fully isolate. A planned variant that trains on each fold's
 training places only is meant to close that gap. Third, although a mobility-aware service is
 our motivation throughout, we do not build or evaluate one; tying these
 predictions to a concrete service is the natural next study.
+
+Finally, because our representation is a fixed per-visit vector that is computed
+once and left unchanged, it is not tied to this particular model: any downstream
+model can consume it. Plugging it into other sequence models, and applying it to
+mobility tasks beyond next-category and next-region, are natural directions to
+explore.
