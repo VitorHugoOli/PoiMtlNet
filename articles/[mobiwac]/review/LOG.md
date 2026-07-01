@@ -6,6 +6,13 @@
 
 ## Timeline
 
+- **2026-07-01 (Table 1 — added Majority-class % column; LAST open item closed).** Per the author's choice
+  (AskUserQuestion → option A), added a compact "Majority (\%)" column to Table 1 = the majority category's share of
+  visits (Food in every dataset): Istanbul 33.4 / AL 34.2 / AZ 34.0 / FL 24.7 / TX 31.0 / CA 32.7 (from
+  `docs/studies/closing_data/CATEGORY_DISTRIBUTION.md`), plus a caption note. Backs the §5.2 imbalance/stratification
+  note; the full 7-category breakdown stays in the doc. Build clean: 9 pages, 0 undefined, **no overfull hbox** (the
+  11th column fits). **This closes the last open item of the Germano-review effort** (only the out-of-scope science
+  item P1, the n=20 Gowalla multi-seed, remains, and that is not part of this review).
 - **2026-07-01 (Tier C consolidation — audited, 2 of 9 applied).** Ran the Tier C rigorous audit workflow
   (per-duplication audit → adversarial verify → completeness critic; the first two launches died on session churn,
   resumed from `wf_f60d31b5-be7` and completed). Verdict: **7 of 9 candidates correctly LEFT** as intentional

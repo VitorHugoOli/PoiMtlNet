@@ -19,20 +19,21 @@ Shopping, Travel). Windows are the overlapping nine-visit input plus the next vi
 under the overlapping-window protocol used throughout; maximum and average sequence length are
 per-user check-in counts. Density is the check-in-matrix fill,
 $100\times\text{check-ins}/(\text{users}\times\text{POIs})$, the occupancy measure
-commonly reported for next-place datasets.}
+commonly reported for next-place datasets. The final column, Majority (\%), is the share of
+visits in the most common category, which is Food in every dataset.}
 \label{tab:datasets}
 \centering
-\begin{tabular}{l l r r r r r r r r}
+\begin{tabular}{l l r r r r r r r r r}
 \hline
 \textbf{Dataset} & \textbf{Source} & \textbf{Check-ins} & \textbf{Users} & \textbf{POIs} &
-\textbf{Regions} & \textbf{Windows} & \textbf{Max len} & \textbf{Avg len} & \textbf{Density (\%)} \\
+\textbf{Regions} & \textbf{Windows} & \textbf{Max len} & \textbf{Avg len} & \textbf{Density (\%)} & \textbf{Majority (\%)} \\
 \hline
-Istanbul$^{\dagger}$ & Massive-STEPS &   462{,}615 & 23{,}694 &  29{,}816 &     520 &   270{,}217 &     817 &  19.5 & 0.065 \\
-AL       & Gowalla       &   113{,}846 &  3{,}858 &  11{,}848 & 1{,}109 &    96{,}326 & 3{,}835 &  29.5 & 0.249 \\
-AZ       & Gowalla       &   236{,}450 &  7{,}869 &  20{,}666 & 1{,}547 &   200{,}895 & 5{,}589 &  30.1 & 0.145 \\
-FL       & Gowalla       & 1{,}407{,}034 & 21{,}052 &  76{,}544 & 4{,}703 & 1{,}274{,}418 & 16{,}679 &  66.8 & 0.087 \\
-TX       & Gowalla       & 4{,}089{,}892 & 38{,}644 & 160{,}938 & 6{,}553 & 3{,}830{,}414 & 42{,}300 & 105.8 & 0.066 \\
-CA       & Gowalla       & 3{,}171{,}380 & 37{,}090 & 169{,}145 & 8{,}501 & 2{,}925{,}466 & 14{,}855 &  85.5 & 0.051 \\
+Istanbul$^{\dagger}$ & Massive-STEPS &   462{,}615 & 23{,}694 &  29{,}816 &     520 &   270{,}217 &     817 &  19.5 & 0.065 & 33.4 \\
+AL       & Gowalla       &   113{,}846 &  3{,}858 &  11{,}848 & 1{,}109 &    96{,}326 & 3{,}835 &  29.5 & 0.249 & 34.2 \\
+AZ       & Gowalla       &   236{,}450 &  7{,}869 &  20{,}666 & 1{,}547 &   200{,}895 & 5{,}589 &  30.1 & 0.145 & 34.0 \\
+FL       & Gowalla       & 1{,}407{,}034 & 21{,}052 &  76{,}544 & 4{,}703 & 1{,}274{,}418 & 16{,}679 &  66.8 & 0.087 & 24.7 \\
+TX       & Gowalla       & 4{,}089{,}892 & 38{,}644 & 160{,}938 & 6{,}553 & 3{,}830{,}414 & 42{,}300 & 105.8 & 0.066 & 31.0 \\
+CA       & Gowalla       & 3{,}171{,}380 & 37{,}090 & 169{,}145 & 8{,}501 & 2{,}925{,}466 & 14{,}855 &  85.5 & 0.051 & 32.7 \\
 \hline
 \end{tabular}
 
